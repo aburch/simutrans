@@ -652,6 +652,38 @@ void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
 }
 
 
+static uint8 player_night=0;
+static uint8 player_day=0;
+static void	activate_player_color(sint8 player_nr, bool daynight)
+{
+	// cahces the last settings
+	if(!daynight) {
+		if(player_day!=player_nr) {
+			int i;
+			player_day = player_nr;
+			for(i=0;  i<8;  i++  ) {
+				rgbmap_all_day[0x8000+i] = specialcolormap_all_day[player_offsets[player_day][0]+i];
+				rgbmap_all_day[0x8008+i] = specialcolormap_all_day[player_offsets[player_day][1]+i];
+			}
+		}
+		rgbmap_current = rgbmap_all_day;
+	}
+	else {
+		// chaning colortable
+		if(player_night!=player_nr) {
+			int i;
+			player_night = player_nr;
+			for(i=0;  i<8;  i++  ) {
+				rgbmap_day_night[0x8000+i] = specialcolormap_day_night[player_offsets[player_night][0]+i];
+				rgbmap_day_night[0x8008+i] = specialcolormap_day_night[player_offsets[player_night][1]+i];
+			}
+		}
+		rgbmap_current = rgbmap_day_night;
+	}
+}
+
+
+
 /**
  * Convert image data to actual output data
  * @author Hj. Malthaner
@@ -709,6 +741,7 @@ static void recode_normal_img(const unsigned int n)
 		images[n].data = (PIXVAL*)guarded_malloc(sizeof(PIXVAL) * images[n].len);
 	}
 	// now do normal recode
+	activate_player_color( 0, true );
 	recode_img_src_target(images[n].h, src, images[n].data);
 	images[n].recode_flags &= ~FLAG_NORMAL_RECODE;
 }
@@ -720,7 +753,7 @@ static void recode_normal_img(const unsigned int n)
  * Convert a certain image data to actual output data for a certain player
  * @author prissi
  */
-static void recode_img_src_target_color(KOORD_VAL h, PIXVAL *src, PIXVAL *target, const uint8 color1, const uint8 color2 )
+static void recode_img_src_target_color(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
 {
 	if (h > 0) {
 		do {
@@ -733,13 +766,7 @@ static void recode_img_src_target_color(KOORD_VAL h, PIXVAL *src, PIXVAL *target
 				runlen = *target++ = *src++;
 				// now just convert the color pixels
 				while (runlen--) {
-					PIXVAL pix = *src++;
-
-					if ((0x8000 ^ pix) <= 0x000F) {
-						*target++ = specialcolormap_day_night[((unsigned char)pix & 0x0F) + (pix&8 ? color2 : color1) ];
-					} else {
-						*target++ = rgbmap_day_night[pix];
-					}
+					*target++ = rgbmap_day_night[*src++];
 				}
 				// next clea run or zero = end
 			} while ((runlen = *target++ = *src++));
@@ -766,7 +793,8 @@ static void recode_color_img(const unsigned int n, const unsigned char player_nr
 		images[n].player_data = (PIXVAL*)guarded_malloc(sizeof(PIXVAL) * images[n].len);
 	}
 	// contains now the player color ...
-	recode_img_src_target_color(images[n].h, src, images[n].player_data, player_offsets[player_nr][0], player_offsets[player_nr][1] );
+	activate_player_color( player_nr, true );
+	recode_img_src_target_color(images[n].h, src, images[n].player_data );
 }
 
 #endif
@@ -805,9 +833,6 @@ static void rezoom_img(const unsigned int n)
 		images[n].y = images[n].base_y / zoom_factor;
 		images[n].w = (images[n].base_x + images[n].base_w) / zoom_factor - images[n].x;
 		images[n].h = images[n].base_h / zoom_factor;
-#if 0
-		images[n].h = (images[n].base_y % zoom_factor + images[n].base_h) / zoom_factor;
-#endif
 
 		if (images[n].h > 0 && images[n].w > 0) {
 			// just recalculate the image in the new size
@@ -1125,6 +1150,7 @@ static void calc_base_pal_from_night_shift(const int night)
 		rgbmap_day_night[0x8000+i] = specialcolormap_day_night[player_offsets[0][0]+i];
 		rgbmap_day_night[0x8008+i] = specialcolormap_day_night[player_offsets[0][1]+i];
 	}
+	player_night = 0;
 
 	// Lights
 	for (i = 0; i < LIGHT_COUNT; i++) {
@@ -1179,11 +1205,15 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 		// set new player colors
 		player_offsets[player][0] = col1;
 		player_offsets[player][1] = col2;
-		// and recalculate map (and save it)
-		calc_base_pal_from_night_shift(0);
-		memcpy(rgbmap_all_day, rgbmap_day_night, RGBMAPSIZE * sizeof(PIXVAL));
-		if(night_shift!=0) {
-			calc_base_pal_from_night_shift(night_shift);
+		if(player==player_day  ||  player==player_night) {
+			// and recalculate map (and save it)
+			calc_base_pal_from_night_shift(0);
+			memcpy(rgbmap_all_day, rgbmap_day_night, RGBMAPSIZE * sizeof(PIXVAL));
+			if(night_shift!=0) {
+				calc_base_pal_from_night_shift(night_shift);
+			}
+			player_day = player_night = player;
+			recode();
 		}
 		mark_rect_dirty_nc(0, 32, disp_width - 1, disp_height - 1);
 	}
@@ -1468,16 +1498,10 @@ static inline void pixcopy(PIXVAL *dest, const PIXVAL *src, const unsigned int l
  * Kopiert Pixel, ersetzt Spielerfarben
  * @author Hj. Malthaner
  */
-static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end, const COLOR_VAL color1, const COLOR_VAL color2)
+static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end)
 {
 	while (src < end) {
-		PIXVAL pix = *src++;
-
-		if ((0x8000 ^ pix) <= 0x000F) {
-			*dest++ = specialcolormap_current[((unsigned char)pix & 0x0F) + (pix&8 ? color2: color2)];
-		} else {
-			*dest++ = rgbmap_current[pix];
-		}
+		*dest++ = rgbmap_current[*src++];
 	}
 }
 
@@ -1825,7 +1849,7 @@ void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const i
  * assumes height is ok and valid data are caluclated
  * @author hajo/prissi
  */
-static void display_color_img_aux(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const COLOR_VAL color1, const COLOR_VAL color2)
+static void display_color_img_aux(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp)
 {
 	KOORD_VAL h = images[n].h;
 	KOORD_VAL y = yp + images[n].y;
@@ -1866,7 +1890,7 @@ static void display_color_img_aux(const unsigned n, const KOORD_VAL xp, const KO
 					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 					const int len  = (clip_rect.xx-xpos > runlen ? runlen : clip_rect.xx - xpos);
 
-					colorpixcopy(tp + xpos + left, sp + left, sp + len, color1, color2);
+					colorpixcopy(tp + xpos + left, sp + left, sp + len);
 				}
 
 				sp += runlen;
@@ -1889,7 +1913,7 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 		// Hajo: since the colors for player 0 are already right,
 		// only use the expensive replacement routine for colored images
 		// of other players
-		if (daynight && (player_nr<=0  || (images[n].recode_flags & FLAG_PLAYERCOLOR) == 0)) {
+		if ((daynight  ||  night_shift==0) && (player_nr<=0  || (images[n].recode_flags & FLAG_PLAYERCOLOR) == 0)) {
 			display_img_aux(n, xp, yp, dirty, false);
 			return;
 		}
@@ -1929,23 +1953,15 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 			}
 		}
 
-		// Hajo: choose mapping table
-		rgbmap_current = daynight ? rgbmap_day_night : rgbmap_all_day;
-		specialcolormap_current = daynight ? specialcolormap_day_night : specialcolormap_all_day;
-		{
-			// colors for 2nd company color
-			uint8 col1, col2;
-			if(player_nr>=0) {
-				col1 = player_offsets[player_nr][0];
-				col2 = player_offsets[player_nr][1];
-			}
-			else {
-				// no player
-				col1 = 0;
-				col2 = 8;
-			}
-			display_color_img_aux(n, xp, yp, col1, col2 );
+		// colors for 2nd company color
+		if(player_nr>=0) {
+			activate_player_color( player_nr, daynight );
 		}
+		else {
+			// no player
+			activate_player_color( 0, daynight );
+		}
+		display_color_img_aux(n, xp, yp );
 	} // number ok
 }
 

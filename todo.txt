@@ -1,12 +1,10 @@
 CHECK:
 resize greater than 2400*1536 crashes simutrans
-grey out find depot while route search is active
 vehicle N/E longer than 8 px must be aligned by top, not end; need change of moving code
-offset for images
 month to bankrupt into simuconf.tab
 bridges and tunnels with no initial road
 bahnhofsdetaildialog
-pfade aufräume, weg mit paletten-ordner, mehrere Config-files, pak-Pfad mit savegame speichern (tabs beim laden)
+Toolwindow with 10 last used tools (in fixed order)
 
 Stichpunkte
 
