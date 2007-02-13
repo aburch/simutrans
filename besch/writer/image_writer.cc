@@ -95,38 +95,20 @@ void image_writer_t::dump_special_histogramm()
  */
 static PIXVAL pixrgb_to_pixval(int rgb)
 {
-	PIXVAL result = 0;
-	int standard = 1;
-	int i;
-
-#if 0
-	for (i = 0; i < SPECIAL_HIST; i++) {
-		if (special2[i] == (PIXRGB)rgb) {
-			special2_hist[i]++;
-		}
-	}
-#endif
-
-
-	for (i = 0; i < SPECIAL; i++) {
+	for (int i = 0; i < SPECIAL; i++) {
 		if (rgbtab[i] == (PIXRGB)rgb) {
-			result = 0x8000 + i;
-			standard = 0;
-			break;
+			return 0x8000 + i;
 		}
 	}
 
-	if (standard) {
-		const int r = (rgb >> 16);
-		const int g = (rgb >>  8) & 0xFF;
-		const int b = (rgb >>  0) & 0xFF;
+	const int r = (rgb >> 16);
+	const int g = (rgb >>  8) & 0xFF;
+	const int b = (rgb >>  0) & 0xFF;
 
-		// RGB 555
-		result = ((r & 0xF8) << 7) | ((g & 0xF8) << 2) | ((b & 0xF8) >> 3);
-	}
-
-	return result;
+	// RGB 555
+	return ((r & 0xF8) << 7) | ((g & 0xF8) << 2) | ((b & 0xF8) >> 3);
 }
+
 
 
 static void init_dim(PIXRGB* image, dimension* dim, int img_size)
@@ -208,6 +190,7 @@ PIXVAL* image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 }
 
 
+
 bool image_writer_t::block_laden(const char* fname)
 {
 	// The last png-file is cached
@@ -221,6 +204,13 @@ bool image_writer_t::block_laden(const char* fname)
 }
 
 
+
+/* the syntax for image the string is
+ *   "-" empty image
+ * [> ]imagefilename_without_extension[[[[.row].col],xoffset],yoffset]
+ *  leading "> " maen an unzoomable image
+ *  after the dots also spaces are allowed
+ */
 void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_imagekey)
 {
 	bild_t bild;
@@ -261,13 +251,27 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 
 		imagekey = root_writer_t::get_inpath() + imagekey.substr(0, imagekey.len() - numkey.len() - 1) +  ".png";
 
+
 		i = numkey.find('.');
 		if (i == -1) {
 			row = atoi(numkey);
 		} else {
 			row = atoi(numkey.substr(0, i));
 			col = atoi(numkey.substr(i + 1, numkey.len()));
+
+			// add image offsets
+			numkey = numkey.substr(i + 1, numkey.len());
+			i = numkey.find(',');
+			if (i != -1) {
+				bild.x = atoi(numkey.substr(0, i));
+				numkey = numkey.substr(i + 1, numkey.len());
+				i = numkey.find(',');
+				if(i!=-1) {
+					bild.y = atoi(numkey.substr(i + 1, numkey.len()));
+				}
+			}
 		}
+
 		// Load complete file
 		if (!block_laden(imagekey)) {
 			cstring_t reason;
@@ -297,8 +301,8 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 		init_dim(image, &dim, img_size);
 		delete image;
 
-		bild.x = dim.xmin;
-		bild.y = dim.ymin;
+		bild.x += dim.xmin;
+		bild.y += dim.ymin;
 		bild.w = dim.xmax - dim.xmin + 1;
 		bild.h = dim.ymax - dim.ymin + 1;
 		bild.len = 0;
@@ -314,16 +318,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 		}
 	}
 
-/* This does the reader; thus we need to write exactly the same ...
-	besch->x = decode_uint8(p);
-	besch->w = decode_uint8(p);
-	besch->y = decode_uint8(p);
-	besch->h = decode_uint8(p);
-	besch->len = decode_uint32(p);
-	besch->bild_nr = IMG_LEER;
-	decode_uint16(p);	// dummys
-	besch->zoomable = decode_uint8(p);
-*/
+#ifdef IMG_VERSION0
 	// ok, need to be changed to hand mode ...
 	obj_node_t node(this, 12 + (bild.len * sizeof(uint16)), &parent, false);
 
@@ -344,5 +339,26 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 		node.write_data_at(outfp, pixdata, 12, bild.len * sizeof(PIXVAL));
 		free(pixdata);
 	}
+#else
+	// ok, need to be changed to hand mode ...
+	obj_node_t node(this, 10 + (bild.len * sizeof(uint16)), &parent, false);
+
+	// to avoid any problems due to structure changes, we write manually the data
+	node.write_data_at(outfp, &bild.x, 0, sizeof(uint16));
+	node.write_data_at(outfp, &bild.y, 2, sizeof(uint16));
+	node.write_data_at(outfp, &bild.w, 4, sizeof(uint8));
+	node.write_data_at(outfp, &bild.h, 5, sizeof(uint8));
+	uint8 version=1;
+	node.write_data_at(outfp, &version, 6, sizeof(uint8));
+	node.write_data_at(outfp, &bild.len, 7, sizeof(uint16));
+	node.write_data_at(outfp, &bild.zoomable, 9, sizeof(uint8));
+
+	if (bild.len) {
+		// only called, if there is something to store
+		node.write_data_at(outfp, pixdata, 10, bild.len * sizeof(PIXVAL));
+		free(pixdata);
+	}
+#endif
+
 	node.write(outfp);
 }

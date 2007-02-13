@@ -82,13 +82,14 @@ obj_besch_t *  image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 	}
 	else if(version==1) {
-		besch = new(node.size - 9) bild_besch_t();
+		besch = new(node.size - 10) bild_besch_t();
 		besch->node_info = new obj_besch_t*[node.children];
 
 		besch->pic.x = decode_uint16(p);
 		besch->pic.y = decode_uint16(p);
 		besch->pic.w = decode_uint8(p);
 		besch->pic.h = decode_uint8(p);
+		p++; // skip version information
 		besch->pic.len = decode_uint16(p);
 		besch->pic.zoomable = decode_uint8(p);
 		besch->pic.bild_nr = IMG_LEER;
