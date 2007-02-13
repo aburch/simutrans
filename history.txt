@@ -6,6 +6,7 @@
 	FIX: no crash after deleting powerline crossing during game creation (but this was done by fixing symtoms, not the cause :()
 	ADD: button for showing forest in minimap (new string "Forest")
 	FIX: during rerouting of goods wrong entries were deleted
+	FIX: singleuser_install in simuconf.tab was not read
 
 
 Release of 99.08.1

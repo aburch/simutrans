@@ -199,7 +199,7 @@ static void zeige_banner(karte_t *welt)
 
 // read the settings from this file
 void
-parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &fullscreen, cstring_t &objfilename, bool multiuser )
+parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &fullscreen, cstring_t &objfilename, bool &multiuser )
 {
 	tabfileobj_t contents;
 
