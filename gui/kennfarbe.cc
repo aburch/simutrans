@@ -25,30 +25,57 @@ farbengui_t::farbengui_t(spieler_t *sp) :
 	bild(skinverwaltung_t::farbmenu->gib_bild_nr(0))
 {
 	this->sp = sp;
-	setze_fenstergroesse( koord(216, 84) );
+	setze_fenstergroesse( koord(180, 17+6*28) );
 	setze_opaque(true);
 	txt.setze_pos( koord(10,10) );
 	add_komponente( &txt );
-	bild.setze_pos( koord(136, 0) );
+	bild.setze_pos( koord(25, 70) );
 	add_komponente( &bild );
+	// player color 1
+	for(unsigned i=0;  i<28;  i++) {
+		player_color_1[i].init( button_t::box_state, "", koord(130,i*6), koord(24,6) );
+		player_color_1[i].background = i*8+4;
+		player_color_1[i].add_listener(this);
+		add_komponente( player_color_1+i );
+	}
+	player_color_1[sp->get_player_color1()/8].pressed = true;
+	// player color 2
+	for(unsigned i=0;  i<28;  i++) {
+		player_color_2[i].init( button_t::box_state, "", koord(155,i*6), koord(24,6) );
+		player_color_2[i].background = i*8+4;
+		player_color_2[i].add_listener(this);
+		add_komponente( player_color_2+i );
+	}
+	player_color_2[sp->get_player_color2()/8].pressed = true;
 }
 
 
 
-void farbengui_t::infowin_event(const event_t *ev)
+/**
+ * This method is called if an action is triggered
+ * @author V. Meyer
+ */
+bool farbengui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
-	gui_frame_t::infowin_event(ev);
-
-	if(IS_LEFTCLICK(ev)) {
-		if(ev->mx >= 136 && ev->mx <= 200) {
-			// choose new color
-			const int x = (ev->mx-136)/32;
-			const int y = (ev->my-16)/8;
-			const int f = (y + x*8);
-			if(f>=0 && f<16) {
-				sp->set_player_color(f*8,f*8+24);
-				sp->gib_welt()->setze_dirty();
+	for(unsigned i=0;  i<28;  i++) {
+		// new player 1 color ?
+		if(komp==player_color_1+i) {
+			for(unsigned j=0;  j<28;  j++) {
+				player_color_1[j].pressed = false;
 			}
+			player_color_1[i].pressed = true;
+			sp->set_player_color( i*8, sp->get_player_color2() );
+			return true;
+		}
+		// new player color 2?
+		if(komp==player_color_2+i) {
+			for(unsigned j=0;  j<28;  j++) {
+				player_color_2[j].pressed = false;
+			}
+			player_color_2[i].pressed = true;
+			sp->set_player_color( sp->get_player_color1(), i*8 );
+			return true;
 		}
 	}
+	return false;
 }

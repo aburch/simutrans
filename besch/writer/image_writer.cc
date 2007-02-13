@@ -48,7 +48,7 @@ static const PIXRGB rgbtab[SPECIAL] = {
 	0xC6B408,
 	0xD9CB0A,
 	0xECE20B,
-	0xFFF90C,
+	0xFFF90D,
 
 	0x57656F, // Dark windows, lit yellowish at night
 	0x7F9BF1, // Lighter windows, lit blueish at night

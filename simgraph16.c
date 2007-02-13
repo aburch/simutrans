@@ -136,13 +136,6 @@ static PIXVAL specialcolormap_day_night[256];
 static PIXVAL specialcolormap_all_day[256];
 
 
-/**
- * Hajo:used by pixel copy functions, is one of specialcolormap_day_night
- * specialcolormap_all_day
- */
-static PIXVAL* specialcolormap_current = 0;
-
-
 // offsets of first and second comany color
 static uint8 player_offsets[MAX_PLAYER][2];
 
