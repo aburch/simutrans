@@ -2271,8 +2271,9 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 			} else if (bd2->hat_weg(road_wt)) {
 				gebaeude_t *gb = (gebaeude_t *)(bd2->suche_obj(ding_t::gebaeude));
 				if(gb) {
+					uint8 layouts = gb->gib_tile()->gib_besch()->gib_all_layouts();
 					// nothing to connect
-					if(gb->gib_tile()->gib_besch()->gib_all_layouts()==4) {
+					if(layouts==4) {
 						// single way
 						if(ribi_t::nsow[r]!=ribi_t::rueckwaerts(ribi_t::layout_to_ribi[gb->gib_tile()->gib_layout()])) {
 							allowed_dir &= ~ribi_t::nsow[r];
@@ -2282,7 +2283,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 							connection_roads |= ribi_t::nsow[r];
 						}
 					}
-					else if(gb->gib_tile()->gib_besch()->gib_all_layouts()==2) {
+					else if(layouts==2 || layouts==8 || layouts==16) {
 						// through way
 						if((ribi_t::doppelt( ribi_t::layout_to_ribi[gb->gib_tile()->gib_layout()] )&ribi_t::nsow[r])==0) {
 							allowed_dir &= ~ribi_t::nsow[r];

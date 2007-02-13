@@ -166,11 +166,45 @@ DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, p
 
 	// remove station building?
 	gebaeude_t *gb=dynamic_cast<gebaeude_t *>(bd->suche_obj(ding_t::gebaeude));
+
 	if(gb) {
 DBG_MESSAGE("haltestelle_t::remove()",  "removing building" );
 		const haus_tile_besch_t *tile  = gb->gib_tile();
 		koord size = tile->gib_besch()->gib_groesse( tile->gib_layout() );
 		const sint32 costs = tile->gib_besch()->gib_level()*(sint32)umgebung_t::cst_multiply_post;
+
+
+
+		// update surrounding buildings...
+		uint32 layout = tile->gib_layout();
+		if(tile->gib_besch()->gib_all_layouts()>4) {
+			// detect if we are connected at far (north/west) end
+			grund_t *gr;
+			welt->lookup(bd->gib_pos())->get_neighbour(gr, bd->gib_weg_nr(0)->gib_waytype(), koord::nsow[(4-(layout & 1))&3]);
+			if(gr) {
+				gebaeude_t *obj = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+				if(obj && obj->gib_tile() && obj->gib_tile()->gib_besch() && obj->gib_tile()->gib_besch()->gib_utyp()==tile->gib_besch()->gib_utyp() && obj->gib_tile()->gib_besch()->gib_all_layouts()>4) {
+					uint32 layoutbase = obj->gib_tile()->gib_layout();
+					if((layout & 1) == (layoutbase & 1)) { // tile has same direction as one we are laying
+						layoutbase |= 2; // set near bit on neighbour
+ 						obj->setze_tile(obj->gib_tile()->gib_besch()->gib_tile(layoutbase, 0, 0));
+					}
+				}
+			}
+
+			// detect if near (south/east) end
+			welt->lookup(bd->gib_pos())->get_neighbour(gr, bd->gib_weg_nr(0)->gib_waytype(), koord::nsow[1+(layout & 1)]);
+			if(gr) {
+				gebaeude_t *obj = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+				if(obj && obj->gib_tile() && obj->gib_tile()->gib_besch() && obj->gib_tile()->gib_besch()->gib_utyp()==tile->gib_besch()->gib_utyp() && obj->gib_tile()->gib_besch()->gib_all_layouts()>4) {
+					uint32 layoutbase = obj->gib_tile()->gib_layout();
+					if((layout & 1) == (layoutbase & 1)) { // tile has same direction as one we are laying
+						layoutbase |= 4; // set far bit on neighbour
+						obj->setze_tile(obj->gib_tile()->gib_besch()->gib_tile(layoutbase, 0, 0));
+					}
+				}
+			}
+		}
 
 		// get startpos
 		koord k=tile->gib_offset();

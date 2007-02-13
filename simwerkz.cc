@@ -1329,10 +1329,10 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 	}
 
 	// find out orientation ...
-	int layout = 0;
-	if(besch->gib_all_layouts()==2) {
+	uint32 layout = 0;
+	ribi_t::ribi  ribi;
+	if(besch->gib_all_layouts()==2 || besch->gib_all_layouts()==8 || besch->gib_all_layouts()==16) {
 		// through station
-		ribi_t::ribi  ribi;
 		if(bd->gib_weg_nr(1)  &&  bd->gib_weg_nr(0)) {
 			// can only happen with road/rail combination ...
 			ribi = bd->gib_weg_ribi_unmasked(road_wt)  |  bd->gib_weg_ribi_unmasked(track_wt);
@@ -1347,9 +1347,9 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 		}
 		layout = (ribi & ribi_t::nordsued)?0 :1;
 	}
-	else {
+	else if(besch->gib_all_layouts()==4) {
 		// terminal station
-		ribi_t::ribi ribi = bd->gib_weg_ribi_unmasked(wegtype);
+		ribi = bd->gib_weg_ribi_unmasked(wegtype);
 		// sorry cannot built here ... (not a terminal tile)
 		if(!ribi_t::ist_einfach(ribi)) {
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, p_error), w_autodelete);
@@ -1361,6 +1361,101 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 			case ribi_t::ost:   layout = 1;    break;
 			case ribi_t::nord:  layout = 2;    break;
 			case ribi_t::west:  layout = 3;    break;
+		}
+	} else {
+		// something wrong with station number of layouts
+		return false;
+	}
+	if(besch->gib_all_layouts()==8 || besch->gib_all_layouts()==16) {
+		// through station - complex layout
+		// bits
+		// 1 = north south/east west (as simple layout)
+		// 2 = use far end image  \ can be combined
+		// 3 = use near end image / to use both end image
+		// 4 = platform face - 0 = far, 1 = near
+
+		// bit 1 has already been set
+
+		// set bits 2 and 3
+		layout |= 6;
+
+		grund_t *gr;
+
+		// detect if near (south/east) end
+		if(ribi & ribi_t::nsow[1+(layout & 1)]) {
+			if(welt->lookup(bd->gib_pos())->get_neighbour(gr, bd->gib_weg_nr(0)->gib_waytype(), koord::nsow[1+(layout & 1)])) {
+				gebaeude_t *obj = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+				if(obj && obj->gib_tile()->gib_besch()->gib_utyp()==besch->gib_utyp() && obj->gib_tile()->gib_besch()->gib_all_layouts()>4) {
+					uint32 layoutbase = obj->gib_tile()->gib_layout();
+					if((layout & 1) == (layoutbase & 1)) { // tile has same direction as one we are laying
+						layout &= 13; // clear bit 2
+						layoutbase &= 11; // clear far bit on neighbour
+							obj->setze_tile(obj->gib_tile()->gib_besch()->gib_tile(layoutbase, 0, 0));
+					}
+				}
+			}
+		} else {
+			layout &= 13; // clear bit 2
+		}
+
+		// detect if far (north/west) end
+		if(ribi & ribi_t::nsow[(4-(layout & 1))&3]) {
+			if(welt->lookup(bd->gib_pos())->get_neighbour(gr, bd->gib_weg_nr(0)->gib_waytype(), koord::nsow[(4-(layout & 1))&3])) {
+				gebaeude_t *obj = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+				if(obj && obj->gib_tile()->gib_besch()->gib_utyp()==besch->gib_utyp() && obj->gib_tile()->gib_besch()->gib_all_layouts()>4) {
+					uint32 layoutbase = obj->gib_tile()->gib_layout();
+					if((layout & 1) == (layoutbase & 1)) { // tile has same direction as one we are laying
+						layout &= 11; // clear bit 3
+						layoutbase &= 13; // clear near bit on neighbour
+							obj->setze_tile(obj->gib_tile()->gib_besch()->gib_tile(layoutbase, 0, 0));
+					}
+				}
+			}
+		} else {
+			layout &= 11; // clear bit 3
+		}
+
+		if(besch->gib_all_layouts()==16 && suche_nahe_haltestelle(sp,welt,bd->gib_pos()).is_bound()) {
+			// if this is a new station then just use default [far] face
+
+			// defaults to far face (bit = 0)
+			sint8 near_face = -1;
+
+			// detect neighbouring platform face - use if present
+			for(uint8 dir = (layout & 1)*2 ; dir <= (layout & 1)*2+1 && near_face== -1 ; dir++) {
+				if(welt->lookup(bd->gib_pos())->get_neighbour(gr, bd->gib_weg_nr(0)->gib_waytype(), koord::nsow[dir])) {
+					gebaeude_t *obj = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+					if(obj && obj->gib_tile()->gib_besch()->gib_utyp()==besch->gib_utyp() && obj->gib_tile()->gib_besch()->gib_all_layouts()>8) {
+						uint32 layoutbase = obj->gib_tile()->gib_layout();
+						if((layout & 1) == (layoutbase & 1)) { // tile has same direction as one we are laying
+							near_face = (layoutbase & 8)>>3;
+						}
+					}
+				}
+			}
+
+			// first try opposing, then diagonally opposing faces - if these are found then use opposite
+			for(uint8 dir = 0 ; dir <= 1 && near_face == -1 ; dir++) {
+				if(welt->lookup(bd->gib_pos())->get_neighbour(gr, invalid_wt, dir<2?koord::nsow[(1-(layout & 1))*2+dir]:koord((ribi_t::ribi)((dir-1)*3)))) {
+					gebaeude_t *obj = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+					if(obj && obj->gib_tile()->gib_besch()->gib_utyp()==besch->gib_utyp() && obj->gib_tile()->gib_besch()->gib_all_layouts()>8) {
+						uint32 layoutbase = obj->gib_tile()->gib_layout();
+						if((layout & 1) == (layoutbase & 1)) { // tile has same direction as one we are laying
+							near_face = !((layoutbase & 8)>>3);
+							break;
+						}
+					}
+				}
+			}
+
+
+			if(near_face != 1) {
+				// set tile to far face
+				layout&=7;
+			} else {
+				// set tile to near face
+				layout|=8;
+			}
 		}
 	}
 

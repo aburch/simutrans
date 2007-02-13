@@ -7,6 +7,8 @@
 	ADD: button for showing forest in minimap (new string "Forest")
 	FIX: during rerouting of goods wrong entries were deleted
 	FIX: singleuser_install in simuconf.tab was not read
+	ADD: 8 player colors + second set of eight player colors, more colors to choose from, blue light color
+	ADD: (kierongreen) possibility for automatic orientation (and facing of parallel) stops
 
 
 Release of 99.08.1

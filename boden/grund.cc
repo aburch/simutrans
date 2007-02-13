@@ -994,6 +994,8 @@ bool grund_t::get_neighbour(grund_t *&to, waytype_t type, koord dir) const
 	return false;
 }
 
+
+
 bool grund_t::is_connected(const grund_t *gr, waytype_t wegtyp, koord dv) const
 {
 	if(!gr) {
@@ -1038,7 +1040,8 @@ int grund_t::get_vmove(koord dir) const
 	} else if(dir == koord::nord) {
 		h += corner3(slope)*Z_TILE_STEP;
 	} else {
-		dbg->fatal("grund_t::get_vmove()","no valid direction given (%x)",ribi_typ(dir));	// error: not a direction ...
+		// commented out: allow diagonal directions now (assume flat for these)
+		//dbg->fatal("grund_t::get_vmove()","no valid direction given (%x)",ribi_typ(dir));	// error: not a direction ...
 	}
 	return h;   // no way slope
 }
