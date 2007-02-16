@@ -1125,7 +1125,7 @@ int wkz_station_building(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 {
 	if(pos == INIT || pos == EXIT) {
 		// init => set area
-		welt->gib_zeiger()->setze_area( umgebung_t::station_coverage_size );
+		welt->gib_zeiger()->setze_area( welt->gib_einstellungen()->gib_station_coverage() );
 		return true;
 	}
 	// are we allowed to built here?
@@ -1183,7 +1183,7 @@ wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 
 	if(pos == INIT || pos == EXIT) {
 		// init und exit ignorieren
-		welt->gib_zeiger()->setze_area( umgebung_t::station_coverage_size );
+		welt->gib_zeiger()->setze_area( welt->gib_einstellungen()->gib_station_coverage() );
 		return true;
 	}
 	// the cursor cannot be outside the map from here on
@@ -1519,7 +1519,7 @@ int
 wkz_halt(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 {
 	if(pos==INIT  ||  pos==EXIT) {
-		welt->gib_zeiger()->setze_area( umgebung_t::station_coverage_size );
+		welt->gib_zeiger()->setze_area( welt->gib_einstellungen()->gib_station_coverage() );
 		return true;
 	}
 

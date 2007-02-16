@@ -575,9 +575,9 @@ void planquadrat_t::remove_from_haltlist(karte_t *welt, halthandle_t halt)
 	// quick and dirty way to our 2d koodinates ...
 	const koord pos = gib_kartenboden()->gib_pos().gib_2d();
 
-	for(int y=-umgebung_t::station_coverage_size; y<=umgebung_t::station_coverage_size; y++) {
+	for(int y=-welt->gib_einstellungen()->gib_station_coverage(); y<=welt->gib_einstellungen()->gib_station_coverage(); y++) {
 
-		for(int x=-umgebung_t::station_coverage_size; x<=umgebung_t::station_coverage_size; x++) {
+		for(int x=-welt->gib_einstellungen()->gib_station_coverage(); x<=welt->gib_einstellungen()->gib_station_coverage(); x++) {
 
 			koord test_pos = pos+koord(x,y);
 			const planquadrat_t *pl = welt->lookup(test_pos);

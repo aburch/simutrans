@@ -2052,6 +2052,6 @@ haltestelle_t::mark_unmark_coverage(const bool mark) const
 	slist_iterator_tpl<grund_t *> iter( grund );
 	while(iter.next()) {
 		koord p=iter.get_current()->gib_pos().gib_2d();
-		welt->mark_area( p.x, p.y, umgebung_t::station_coverage_size, mark );
+		welt->mark_area( p.x, p.y, welt->gib_einstellungen()->gib_station_coverage(), mark );
 	}
 }
