@@ -762,4 +762,37 @@ gebaeude_t::entferne(spieler_t *sp)
 	if(sp) {
 		sp->buche(umgebung_t::cst_multiply_remove_haus*(tile->gib_besch()->gib_level()+1), gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
+
+	// may need to update next buildings, in the case of start, middle, end buildings
+	if(tile->gib_besch()->gib_all_layouts()>1  &&  gib_haustyp()==unbekannt) {
+
+		// realign surrounding buildings...
+		uint32 layout = tile->gib_layout();
+
+		// detect if we are connected at far (north/west) end
+		sint16 offset = welt->lookup( gib_pos() )->gib_weg_yoff();
+		grund_t * gr = welt->lookup( gib_pos()+koord3d( (layout & 1 ? koord::ost : koord::nord),offset) );
+		if(gr) {
+			gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+			if(gb  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
+				koord xy = gb->gib_tile()->gib_offset();
+				uint8 layoutbase = gb->gib_tile()->gib_layout();
+				layoutbase |= 4; // set near bit on neighbour
+				gb->setze_tile(gb->gib_tile()->gib_besch()->gib_tile(layoutbase, xy.x, xy.y));
+			}
+		}
+
+		// detect if near (south/east) end
+		gr = welt->lookup( gib_pos()+koord3d( (layout & 1 ? koord::west : koord::sued), offset) );
+		if(gr) {
+			gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+			if(gb  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
+				koord xy = gb->gib_tile()->gib_offset();
+				uint8 layoutbase = gb->gib_tile()->gib_layout();
+				layoutbase |= 2; // set near bit on neighbour
+				gb->setze_tile(gb->gib_tile()->gib_besch()->gib_tile(layoutbase, xy.x, xy.y));
+			}
+		}
+
+	}
 }

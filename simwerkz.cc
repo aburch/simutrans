@@ -1366,6 +1366,7 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 		// something wrong with station number of layouts
 		return false;
 	}
+
 	if(besch->gib_all_layouts()==8 || besch->gib_all_layouts()==16) {
 		// through station - complex layout
 		// bits
@@ -1376,11 +1377,90 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 
 		// bit 1 has already been set
 
-		// set bits 2 and 3
-		layout |= 6;
+		ribi_t::ribi next_halt = ribi_t::keine;
+		ribi_t::ribi next_own = ribi_t::keine;
+
+		koord3d pos3d=koord3d(pos,bd->gib_hoehe()+bd->gib_weg_yoff());
 
 		grund_t *gr;
+		for(unsigned i=0;  i<4;  i++) {
+			const planquadrat_t *plan = welt->lookup(pos+koord::nsow[i]);
+			if(plan  &&  plan->gib_halt().is_bound()) {
+				// ok, here is a halt at least
+				next_halt |= ribi_t::nsow[i];
+				gr = plan->gib_boden_in_hoehe(bd->gib_hoehe()+bd->gib_weg_yoff());
+				if(gr) {
+					// check, if there is an oriented stop
+					gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+					if(gb  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
+						next_own |= ribi_t::nsow[i];
+					}
+				}
+			}
+		}
 
+		// find about ends
+		if((next_halt&ribi&ribi_t::suedost)==0) {
+			layout |= 2;
+		}
+		if((next_halt&ribi&ribi_t::nordwest)==0) {
+			layout |= 4;
+		}
+
+		// now for the details
+		ribi_t::ribi senkrecht = ~ribi_t::doppelt(ribi);
+		if(next_own!=ribi_t::keine) {
+			// oriented buildings here
+			if(ribi_t::ist_einfach(ribi&next_own)) {
+				// only a single next neightbour
+				gebaeude_t *gb = static_cast<gebaeude_t *>(welt->lookup(pos3d+koord((ribi_t::ribi)(ribi&next_own)))->suche_obj(ding_t::gebaeude));
+				uint8 other_layout = gb->gib_tile()->gib_layout();
+				layout |= other_layout&8;
+			}
+			else if(ribi_t::ist_gerade(ribi&next_own)) {
+				// oriented buildings left and right
+				// take layout from one of them
+				layout &= ~6;
+				gebaeude_t *gb = static_cast<gebaeude_t *>(welt->lookup(pos3d+koord((ribi_t::ribi)(ribi&next_own&ribi_t::nordwest)))->suche_obj(ding_t::gebaeude));
+				layout |= gb->gib_tile()->gib_layout()&8;
+			}
+			else {
+				// no buildings left and right
+				// oriented buildings left and right
+				gebaeude_t *gb = static_cast<gebaeude_t *>(welt->lookup(pos3d+koord((ribi_t::ribi)(senkrecht&next_own&ribi_t::nordwest)))->suche_obj(ding_t::gebaeude));
+				if(gb) {
+					// just rotate layout
+					assert(gb->gib_tile()->gib_besch()->gib_all_layouts()>4);
+					layout |= 8-(gb->gib_tile()->gib_layout()&8);
+				}
+				else {
+					gebaeude_t *gb = static_cast<gebaeude_t *>(welt->lookup(pos3d+koord((ribi_t::ribi)(senkrecht&next_own&ribi_t::suedost)))->suche_obj(ding_t::gebaeude));
+					if(gb) {
+						assert(gb->gib_tile()->gib_besch()->gib_all_layouts()>4);
+						layout |= 8-(gb->gib_tile()->gib_layout()&8);
+					}
+					else {
+						// no building, but directions?
+						dbg->fatal("wkz_halt_aux()", "layout vapourized during construction");
+						return false;
+					}
+				}
+			}
+		}
+		else if(next_halt!=ribi_t::keine) {
+			// a previous stop here
+			// first check orientation: only use our side if stop in south/east of our way
+			if(next_halt&ribi_t::suedost&senkrecht) {
+				layout |= 8;
+			}
+		}
+		else {
+			// we are the first to built here ...
+		}
+		// avoid orientation on 8 tiled buildings
+		layout &= (besch->gib_all_layouts()-1);
+	}
+#if 0
 		// detect if near (south/east) end
 		if(ribi & ribi_t::nsow[1+(layout & 1)]) {
 			if(welt->lookup(bd->gib_pos())->get_neighbour(gr, bd->gib_weg_nr(0)->gib_waytype(), koord::nsow[1+(layout & 1)])) {
@@ -1458,7 +1538,7 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 			}
 		}
 	}
-
+#endif
 	// seems everything ok, lets build
 	halthandle_t halt = suche_nahe_haltestelle(sp,welt,bd->gib_pos());
 	bool neu = !halt.is_bound();

@@ -171,40 +171,9 @@ DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, p
 DBG_MESSAGE("haltestelle_t::remove()",  "removing building" );
 		const haus_tile_besch_t *tile  = gb->gib_tile();
 		koord size = tile->gib_besch()->gib_groesse( tile->gib_layout() );
-		const sint32 costs = tile->gib_besch()->gib_level()*(sint32)umgebung_t::cst_multiply_post;
-
-
-
-		// update surrounding buildings...
-		uint32 layout = tile->gib_layout();
-		if(tile->gib_besch()->gib_all_layouts()>4) {
-			// detect if we are connected at far (north/west) end
-			grund_t *gr;
-			welt->lookup(bd->gib_pos())->get_neighbour(gr, bd->gib_weg_nr(0)->gib_waytype(), koord::nsow[(4-(layout & 1))&3]);
-			if(gr) {
-				gebaeude_t *obj = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
-				if(obj && obj->gib_tile() && obj->gib_tile()->gib_besch() && obj->gib_tile()->gib_besch()->gib_utyp()==tile->gib_besch()->gib_utyp() && obj->gib_tile()->gib_besch()->gib_all_layouts()>4) {
-					uint32 layoutbase = obj->gib_tile()->gib_layout();
-					if((layout & 1) == (layoutbase & 1)) { // tile has same direction as one we are laying
-						layoutbase |= 2; // set near bit on neighbour
- 						obj->setze_tile(obj->gib_tile()->gib_besch()->gib_tile(layoutbase, 0, 0));
-					}
-				}
-			}
-
-			// detect if near (south/east) end
-			welt->lookup(bd->gib_pos())->get_neighbour(gr, bd->gib_weg_nr(0)->gib_waytype(), koord::nsow[1+(layout & 1)]);
-			if(gr) {
-				gebaeude_t *obj = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
-				if(obj && obj->gib_tile() && obj->gib_tile()->gib_besch() && obj->gib_tile()->gib_besch()->gib_utyp()==tile->gib_besch()->gib_utyp() && obj->gib_tile()->gib_besch()->gib_all_layouts()>4) {
-					uint32 layoutbase = obj->gib_tile()->gib_layout();
-					if((layout & 1) == (layoutbase & 1)) { // tile has same direction as one we are laying
-						layoutbase |= 4; // set far bit on neighbour
-						obj->setze_tile(obj->gib_tile()->gib_besch()->gib_tile(layoutbase, 0, 0));
-					}
-				}
-			}
-		}
+		// only single level cost for tearing down ...
+		// before: const sint32 costs = tile->gib_besch()->gib_level()*(sint32)umgebung_t::cst_multiply_post;
+		const sint32 costs = (sint32)umgebung_t::cst_multiply_post;
 
 		// get startpos
 		koord k=tile->gib_offset();
@@ -228,18 +197,17 @@ DBG_MESSAGE("haltestelle_t::remove()", "removing building: cleanup");
 			for(k.y = 0; k.y < size.y; k.y ++) {
 				for(k.x = 0; k.x < size.x; k.x ++) {
 					grund_t *gr = welt->lookup(koord3d(k,0)+pos);
-					sp->buche(costs, k, COST_CONSTRUCTION);
+					sp->buche(costs, pos.gib_2d()+k, COST_CONSTRUCTION);
 					if(gr) {
 						halt->rem_grund(gr);
 						gebaeude_t *gb=static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+						gb->entferne(NULL);	// do not substract costs
 						gr->obj_remove(gb);	// remove building
 						delete gb;
-						gr->setze_text(NULL);
 						if(gr->gib_typ()==grund_t::fundament) {
 							uint8 new_slope = gr->gib_hoehe()==welt->min_hgt(k+pos.gib_2d()) ? 0 : welt->calc_natural_slope(k+pos.gib_2d());
 							welt->access(k+pos.gib_2d())->kartenboden_setzen(new boden_t(welt, koord3d(k+pos.gib_2d(),welt->min_hgt(k+pos.gib_2d())), new_slope) );
 						}
-						sp->buche(costs, pos.gib_2d()+k, COST_CONSTRUCTION);
 					}
 				}
 			}

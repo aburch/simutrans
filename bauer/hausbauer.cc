@@ -423,8 +423,50 @@ gebaeude_t *
 hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layout, const haus_besch_t *besch, void *param)
 {
 	gebaeude_t *gb;
-	const haus_tile_besch_t *tile = besch->gib_tile(layout, 0, 0);
 
+	uint8 corner_layout = 6;	// assume single building (for more than 4 layouts)
+
+	// adjust layout of neighbouring building
+	if(besch->gib_utyp()>=8  &&  besch->gib_all_layouts()>1) {
+
+		// detect if we are connected at far (north/west) end
+		sint16 offset = welt->lookup( pos )->gib_weg_yoff();
+		grund_t * gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::ost : koord::nord),offset) );
+		if(gr) {
+			gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+			if(gb  &&  gb->gib_tile()->gib_besch()->gib_utyp()>=8) {
+				corner_layout &= ~2; // clear near bit
+				if(gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
+					koord xy = gb->gib_tile()->gib_offset();
+					uint8 layoutbase = gb->gib_tile()->gib_layout();
+					layoutbase &= ~4; // clear near bit on neighbour
+					gb->setze_tile(gb->gib_tile()->gib_besch()->gib_tile(layoutbase, xy.x, xy.y));
+				}
+			}
+		}
+
+		// detect if near (south/east) end
+		gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::sued), offset) );
+		if(gr) {
+			gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+			if(gb  &&  gb->gib_tile()->gib_besch()->gib_utyp()>=8) {
+				corner_layout &= ~4; // clear far bit
+				if(gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
+					koord xy = gb->gib_tile()->gib_offset();
+					uint8 layoutbase = gb->gib_tile()->gib_layout();
+					layoutbase &= ~2; // clear far bit on neighbour
+					gb->setze_tile(gb->gib_tile()->gib_besch()->gib_tile(layoutbase, xy.x, xy.y));
+				}
+			}
+		}
+	}
+
+	// adjust layouts of the new building
+	if(besch->gib_all_layouts()>4) {
+		layout = (corner_layout | layout) % besch->gib_all_layouts();
+	}
+
+	const haus_tile_besch_t *tile = besch->gib_tile(layout, 0, 0);
 	if(besch == bahn_depot_besch) {
 		gb = new bahndepot_t(welt, pos, sp, tile);
 	} else if(besch == tram_depot_besch) {
