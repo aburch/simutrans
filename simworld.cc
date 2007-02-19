@@ -211,14 +211,33 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 			dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong image type %s", buf);
 		}
 
-		read_line(buf, 255, file);
-		sscanf(buf, "%d %d", &w, &h);
+		char *c = buf+2;
+		int bitdepth=0;
+		do {
+			// the format is "P6[whitespace]width[whitespace]height[[whitespace bitdepth]]newline]
+			// however, Photoshop is the first program, that uses space for the first whitespace ...
+			// so we cater for Photoshop too
+			while(*c  &&  *c<=32) {
+				c++;
+			}
+			// usually, after P6 there comes a comment with the maker
+			if(*c==0  ||  *c=='#') {
+				read_line(buf, 255, file);
+				c = buf;
+				continue;
+			}
+			// has bit depth in same line?
+			if(sscanf(c, "%d %d %d", &w, &h, &bitdepth)==2) {
+				read_line(buf, 255, file);
+				bitdepth = atoi( buf );
+			}
+		} while(0); // always exit here ...
+
 		if(w != gib_groesse_x()  || h != gib_groesse_y()) {
 			dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong size %s", buf);
 		}
 
-		read_line(buf, 255, file);
-		if(strncmp(buf, "255", 2)) {
+		if(bitdepth!=255) {
 			dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong color depth %s", buf);
 		}
 
