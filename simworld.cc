@@ -203,18 +203,17 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 	if(file) {
 		const int display_total = 16 + gib_einstellungen()->gib_anzahl_staedte()*4 + gib_einstellungen()->gib_land_industry_chains() + gib_einstellungen()->gib_city_industry_chains();
 		char buf [256];
-		int w=0, h=0;
+		int param[3], index=0;
+		char *c=buf+2;
 
+		// parsing the header of this mixed file format is nottrivial ...
 		fread(buf, 1, 3, file);
 		buf[2] = 0;
 		if(strncmp(buf, "P6", 2)) {
 			dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong image type %s instead P6", buf);
 		}
 
-		int bitdepth=0;
-		while(1) {
-			read_line(buf, 255, file);
-			char *c = buf;
+		while(index<3) {
 			// the format is "P6[whitespace]width[whitespace]height[[whitespace bitdepth]]newline]
 			// however, Photoshop is the first program, that uses space for the first whitespace ...
 			// so we cater for Photoshop too
@@ -222,29 +221,27 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 				c++;
 			}
 			// usually, after P6 there comes a comment with the maker
-			if(*c==0  ||  *c=='#') {
+			// but comments can be anywhere
+			if(*c==0) {
 				read_line(buf, 255, file);
 				c = buf;
 				continue;
 			}
-			// no height read yet?
-			if(h==0) {
-				sscanf(c, "%d %d", &w, &h);
-			}
-			else {
-				// finally read bitdepth
-				bitdepth = atoi( buf );
-				break;
+			param[index++] = atoi(c);
+			while(*c>='0'  &&  *c<='9') {
+				c++;
 			}
 		}
 
-		if(w != gib_groesse_x()  || h != gib_groesse_y()) {
-			dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong size %s", buf);
+		if(param[0] != gib_groesse_x()  || param[1] != gib_groesse_y()) {
+			dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong size (%d,%d)", param[0], param[1] );
 		}
 
-		if(bitdepth!=255) {
-			dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong color depth %s", buf);
+		if(param[2]!=255) {
+			dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong color depth %d", param[2] );
 		}
+
+		// after the header only binary data will follow
 
 		int y;
 		for(y=0; y<=gib_groesse_y(); y++) {
@@ -271,7 +268,7 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 		fclose(file);
 	}
 	else {
-		perror("Error:");
+		dbg->fatal("karte_t::load_heightfield()","cannot open %s", (const char *)filename );
 	}
 }
 
