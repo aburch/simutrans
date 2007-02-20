@@ -203,17 +203,18 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 	if(file) {
 		const int display_total = 16 + gib_einstellungen()->gib_anzahl_staedte()*4 + gib_einstellungen()->gib_land_industry_chains() + gib_einstellungen()->gib_city_industry_chains();
 		char buf [256];
-		int w, h;
+		int w=0, h=0;
 
-		read_line(buf, 255, file);
-
+		fread(buf, 1, 3, file);
+		buf[2] = 0;
 		if(strncmp(buf, "P6", 2)) {
-			dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong image type %s", buf);
+			dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong image type %s instead P6", buf);
 		}
 
-		char *c = buf+2;
 		int bitdepth=0;
-		do {
+		while(1) {
+			read_line(buf, 255, file);
+			char *c = buf;
 			// the format is "P6[whitespace]width[whitespace]height[[whitespace bitdepth]]newline]
 			// however, Photoshop is the first program, that uses space for the first whitespace ...
 			// so we cater for Photoshop too
@@ -226,12 +227,16 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 				c = buf;
 				continue;
 			}
-			// has bit depth in same line?
-			if(sscanf(c, "%d %d %d", &w, &h, &bitdepth)==2) {
-				read_line(buf, 255, file);
-				bitdepth = atoi( buf );
+			// no height read yet?
+			if(h==0) {
+				sscanf(c, "%d %d", &w, &h);
 			}
-		} while(0); // always exit here ...
+			else {
+				// finally read bitdepth
+				bitdepth = atoi( buf );
+				break;
+			}
+		}
 
 		if(w != gib_groesse_x()  || h != gib_groesse_y()) {
 			dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong size %s", buf);

@@ -262,12 +262,14 @@ welt_gui_t::update_from_heightfield(const char *filename)
 		char buf [256];
 		int w, h;
 
-		read_line(buf, 255, file);
+		fread(buf, 1, 3, file);
 		if(buf[0]!='P'  ||  buf[1]!='6') {
 			return false;
 		}
 
-		read_line(buf, 255, file);
+		do {
+			read_line(buf, 255, file);
+		} while(buf[0]=='#');
 		sscanf(buf, "%d %d", &w, &h);
 
 		sets->setze_groesse_x(w);
