@@ -474,7 +474,7 @@ void planquadrat_t::setze_halt(halthandle_t halt)
 {
 #ifdef DEBUG
 	if(halt.is_bound()  &&  this_halt.is_bound()  &&  halt!=this_halt) {
-		dbg->warning("planquadrat_t::setze_halt()","cannot assign new halt: already bound!" );
+		dbg->warning("planquadrat_t::setze_halt()","assign new halt to already bound halt!" );
 	}
 #endif
 	this_halt = halt;

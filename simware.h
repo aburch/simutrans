@@ -1,6 +1,7 @@
 #ifndef simware_h
 #define simware_h
 
+#include "halthandle_t.h"
 #include "dataobj/koord.h"
 #include "bauer/warenbauer.h"
 #include "besch/ware_besch.h"
@@ -27,13 +28,13 @@ private:
 	 * Koordinate der Zielhaltestelle
 	 * @author Hj. Malthaner
 	 */
-	koord ziel;
+	halthandle_t ziel;
 
 	/**
 	 * Koordinte des nächsten Zwischenstops
 	 * @author Hj. Malthaner
 	 */
-	koord zwischenziel;
+	halthandle_t zwischenziel;
 
 	/**
 	 * die engültige Zielposition,
@@ -43,11 +44,11 @@ private:
 	koord zielpos;
 
 public:
-	koord gib_ziel() const { return ziel; }
-	void setze_ziel(koord ziel) { this->ziel = ziel; }
+	halthandle_t gib_ziel() const { return ziel; }
+	void setze_ziel(halthandle_t ziel) { this->ziel = ziel; }
 
-	koord gib_zwischenziel() const { return zwischenziel; }
-	void setze_zwischenziel(koord zwischenziel) { this->zwischenziel = zwischenziel; }
+	halthandle_t gib_zwischenziel() const { return zwischenziel; }
+	void setze_zwischenziel(halthandle_t zwischenziel) { this->zwischenziel = zwischenziel; }
 
 	koord gib_zielpos() const { return zielpos; }
 	void setze_zielpos(koord zielpos) { this->zielpos = zielpos; }
@@ -70,6 +71,8 @@ public:
 	void setze_typ(const ware_besch_t* type);
 
 	void rdwr(karte_t *welt,loadsave_t *file);
+
+	void laden_abschliessen(karte_t *welt);
 
 	// find out the category ...
 	bool is_passenger() const {  return index==0; }

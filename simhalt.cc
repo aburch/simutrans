@@ -274,8 +274,9 @@ void haltestelle_t::destroy(halthandle_t &halt)
  * werden! V. Meyer
  * @author Hj. Malthaner
  */
-void haltestelle_t::destroy_all()
+void haltestelle_t::destroy_all(karte_t *welt)
 {
+	haltestelle_t::welt = welt;
 	while (!alle_haltestellen.empty()) {
 		halthandle_t halt = alle_haltestellen.front();
         destroy(halt);
@@ -287,8 +288,7 @@ void haltestelle_t::destroy_all()
 haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file)
 	: reservation(0), registered_lines(0)
 {
-	self = halthandle_t(this);
-	alle_haltestellen.insert(self);
+	self = halthandle_t();
 	grund.clear();
 
 	welt = wl;
@@ -314,10 +314,12 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file)
 	halt_info = NULL;
 
 	rdwr(file);
+
+	alle_haltestellen.insert(self);
 }
 
 
-haltestelle_t::haltestelle_t(karte_t *wl, koord, spieler_t *sp)
+haltestelle_t::haltestelle_t(karte_t *wl, koord k, spieler_t *sp)
 	: reservation(0), registered_lines(0)
 {
 	self = halthandle_t(this);
@@ -326,7 +328,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord, spieler_t *sp)
 	welt = wl;
 	marke = 0;
 
-//	this->pos = pos;
+	this->init_pos = k;
 	besitzer_p = sp;
 #ifdef LAGER_NOT_IN_USE
 	lager = NULL;
@@ -348,13 +350,21 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord, spieler_t *sp)
 
 	// Lazy init at opening!
 	halt_info = NULL;
+	if(welt->ist_in_kartengrenzen(k)) {
+		welt->access(k)->setze_halt(self);
+	}
 }
 
 
 haltestelle_t::~haltestelle_t()
 {
+	// remove ground
 	while (!grund.empty()) {
 		rem_grund(grund.front());
+	}
+	// remove last halthandle (for stops without ground, created during loading)
+	if(welt->ist_in_kartengrenzen(init_pos)  &&  welt->lookup(init_pos)->gib_halt()==self) {
+		welt->access(init_pos)->setze_halt( halthandle_t() );
 	}
 
 	if(halt_info) {
@@ -488,7 +498,7 @@ void haltestelle_t::reroute_goods()
 				INT_CHECK("simhalt 484");
 
 				// check if this good can still reach its destination
-				if(!gib_halt(welt,ware.gib_ziel()).is_bound() ||  !gib_halt(welt,ware.gib_zwischenziel()).is_bound()) {
+				if(!ware.gib_ziel().is_bound() ||  !ware.gib_zwischenziel().is_bound()) {
 					// remove invalid destinations
 					warray->remove_at(i);
 					continue;
@@ -657,8 +667,8 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	}
 
 	if (ziel_list.empty()) {
-		ware.setze_ziel(koord::invalid);
-		ware.setze_zwischenziel(koord::invalid);
+		ware.setze_ziel( halthandle_t() );
+		ware.setze_zwischenziel( halthandle_t() );
 		// printf("keine route zu %d,%d nach %d steps\n", ziel.x, ziel.y, step);
 		if(next_to_ziel!=NULL) {
 			*next_to_ziel = koord::invalid;
@@ -669,8 +679,8 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 	// check, if the shortest connection is not right to us ...
 	if(ziel_list.is_contained(self)) {
-		ware.setze_ziel(grund.front()->gib_pos().gib_2d());
-		ware.setze_zwischenziel(koord::invalid);
+		ware.setze_ziel( self );
+		ware.setze_zwischenziel( halthandle_t() );
 		if(next_to_ziel!=NULL) {
 			*next_to_ziel = koord::invalid;
 		}
@@ -782,7 +792,7 @@ found:
 
 	if(tmp) {
 		// ziel gefunden
-		ware.setze_ziel( tmp->halt->gib_basis_pos() );
+		ware.setze_ziel( tmp->halt );
 
 		if(tmp->link == NULL) {
 			// kein zwischenziel
@@ -804,7 +814,7 @@ found:
 			while(tmp->link->link) {
 				tmp = tmp->link;
 			}
-			ware.setze_zwischenziel(tmp->halt->gib_basis_pos());
+			ware.setze_zwischenziel(tmp->halt);
 		}
 
 		/*
@@ -818,8 +828,8 @@ found:
 	else {
 		// Kein Ziel gefunden
 
-		ware.setze_ziel(koord::invalid);
-		ware.setze_zwischenziel(koord::invalid);
+		ware.setze_ziel( halthandle_t() );
+		ware.setze_zwischenziel( halthandle_t() );
 		// printf("keine route zu %d,%d nach %d steps\n", ziel.x, ziel.y, step);
 		if(next_to_ziel!=NULL) {
 			*next_to_ziel = koord::invalid;
@@ -1051,7 +1061,7 @@ haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, fahrplan_t *fpl)
 					}
 
 					// compatible car and right target stop?
-					if(gib_halt(welt,tmp.gib_zwischenziel())==plan_halt ) {
+					if(tmp.gib_zwischenziel()==plan_halt ) {
 
 						// not too much?
 						ware_t neu (tmp);
@@ -1099,7 +1109,7 @@ haltestelle_t::gib_ware_summe(const ware_besch_t *wtyp) const
 
 
 uint32
-haltestelle_t::gib_ware_fuer_ziel(const ware_besch_t *wtyp, const koord ziel) const
+haltestelle_t::gib_ware_fuer_ziel(const ware_besch_t *wtyp, const halthandle_t ziel) const
 {
 	uint32 sum = 0;
 	vector_tpl<ware_t> * warray = waren[wtyp->gib_catg_index()];
@@ -1117,7 +1127,7 @@ haltestelle_t::gib_ware_fuer_ziel(const ware_besch_t *wtyp, const koord ziel) co
 
 
 uint32
-haltestelle_t::gib_ware_fuer_zwischenziel(const ware_besch_t *wtyp, const koord zwischenziel) const
+haltestelle_t::gib_ware_fuer_zwischenziel(const ware_besch_t *wtyp, const halthandle_t zwischenziel) const
 {
 	uint32 sum = 0;
 	vector_tpl<ware_t> * warray = waren[wtyp->gib_catg_index()];
@@ -1170,7 +1180,7 @@ haltestelle_t::vereinige_waren(const ware_t &ware)
 			// prissi: das ist aber ein Fehler für alle anderen Güter, daher Zielkoordinaten für alles, was kein passagier ist ...
 			if(ware.gib_index()==tmp.gib_index()
 				&&  (tmp.gib_zielpos()==ware.gib_zielpos()
-					||  (is_pax   &&   gib_halt(welt,tmp.gib_ziel())==gib_halt(welt,ware.gib_ziel()) ) )
+					||  (is_pax   &&   tmp.gib_ziel()==ware.gib_ziel()) )
 			) {
 				tmp.menge += ware.menge;
 				resort_freight_info = true;
@@ -1216,17 +1226,17 @@ uint32
 haltestelle_t::starte_mit_route(ware_t ware)
 {
 	// no valid next stops? Or we are the next stop?
-	if(ware.gib_zwischenziel()!=koord::invalid  &&   gib_halt(welt,ware.gib_zwischenziel())==self) {
+	if(ware.gib_zwischenziel()==self) {
 		dbg->error("haltestelle_t::starte_mit_route()","route cannot contain us as first transfer stop => recalc route!");
 		suche_route(ware);
 		// no route found?
-		if(ware.gib_ziel()==koord::invalid) {
+		if(!ware.gib_ziel().is_bound()) {
 			dbg->error("haltestelle_t::starte_mit_route()","no route found!");
 			return ware.menge;
 		}
 	}
 
-	if(gib_halt(welt,ware.gib_ziel())==self) {
+	if(ware.gib_ziel()==self) {
 		if(ware.is_freight()) {
 			// muss an fabrik geliefert werden
 			liefere_an_fabrik(ware);
@@ -1257,7 +1267,7 @@ uint32
 haltestelle_t::liefere_an(ware_t ware)
 {
 	// no valid next stops?
-	if(ware.gib_ziel() == koord::invalid ||  ware.gib_zwischenziel() == koord::invalid) {
+	if(!ware.gib_ziel().is_bound()  ||  !ware.gib_zwischenziel().is_bound()) {
 		// write a log entry and discard the goods
 dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer a route to their destination!", ware.menge, translator::translate(ware.gib_name()), gib_name() );
 		return ware.menge;
@@ -1299,7 +1309,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	suche_route(ware);
 
 	// target no longer there => delete
-	if(!gib_halt(welt,ware.gib_ziel()).is_bound() ||  !gib_halt(welt,ware.gib_zwischenziel()).is_bound()) {
+	if(!ware.gib_ziel().is_bound() ||  !ware.gib_zwischenziel().is_bound()) {
 		DBG_MESSAGE("haltestelle_t::liefere_an()","%s: delivered goods (%d %s) to ??? via ??? could not be routed to their destination!",gib_name(), ware.menge, translator::translate(ware.gib_name()) );
 		return ware.menge;
 	}
@@ -1776,28 +1786,39 @@ haltestelle_t::rdwr(loadsave_t *file)
 
 	if(file->is_loading()) {
 		besitzer_p = welt->gib_spieler(spieler_n);
-		do {
-			k.rdwr( file );
-			if( k!=koord3d::invalid) {
-				grund_t *gr = welt->lookup(k);
-				if(!gr) {
-					gr = welt->lookup(k.gib_2d())->gib_kartenboden();
-					dbg->warning("haltestelle_t::rdwr()", "invalid position %s (setting to ground %s)\n", (const char*)k3_to_cstr(k), (const char*)k3_to_cstr(gr->gib_pos()) );
-				}
-				// prissi: now check, if there is a building -> we allow no longer ground without building!
-				gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
-				const haus_besch_t *besch=gb?gb->gib_tile()->gib_besch():NULL;
-				if(besch) {
-					add_grund(gr);
+		k.rdwr( file );
+		while(k!=koord3d::invalid) {
+			grund_t *gr = welt->lookup(k);
+			if(!gr) {
+				gr = welt->lookup(k.gib_2d())->gib_kartenboden();
+				dbg->warning("haltestelle_t::rdwr()", "invalid position %s (setting to ground %s)\n", (const char*)k3_to_cstr(k), (const char*)k3_to_cstr(gr->gib_pos()) );
+			}
+			// during loading and saving halts will be referred by their base postion
+			// so we may alrady be defined ...
+			if(gr->gib_halt().is_bound()) {
+				if(!self.is_bound()) {
+					self = gr->gib_halt();
+					init_pos = k.gib_2d();
 				}
 				else {
-					dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!", (const char*)k3_to_cstr(k));
+					dbg->error( "haltestelle_t::rdwr()", "bound to ground twice!" );
 				}
 			}
-			else {
-				dbg->warning("haltestelle_t::rdwr()", "illegal ground ignored!");
+			if(!self.is_bound()) {
+				self = halthandle_t(this);
+				init_pos = k.gib_2d();
 			}
-		} while(k!=koord3d::invalid);
+			// prissi: now check, if there is a building -> we allow no longer ground without building!
+			gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+			const haus_besch_t *besch=gb?gb->gib_tile()->gib_besch():NULL;
+			if(besch) {
+				add_grund(gr);
+			}
+			else {
+				dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!", (const char*)k3_to_cstr(k));
+			}
+			k.rdwr( file );
+		}
 	} else {
 		slist_iterator_tpl<grund_t*> gr_iter ( grund );
 
@@ -1872,7 +1893,22 @@ haltestelle_t::rdwr(loadsave_t *file)
 void
 haltestelle_t::laden_abschliessen()
 {
-  recalc_station_type();
+	if(besitzer_p==NULL) {
+		return;
+	}
+
+	// fix good destination coordinates
+	for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
+		if(waren[i]) {
+			vector_tpl<ware_t> * warray = waren[i];
+			for(unsigned j=0; j<warray->get_count(); j++) {
+				(*warray)[j].laden_abschliessen(welt);
+			}
+		}
+	}
+
+	// what kind of station here?
+	recalc_station_type();
 #ifdef LAGER_NOT_IN_USE
     slist_iterator_tpl<grund_t*> iter( grund );
 

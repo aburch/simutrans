@@ -421,7 +421,7 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 
 	// alle haltestellen aufräumen
-	haltestelle_t::destroy_all();
+	haltestelle_t::destroy_all(this);
 DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 
 	// entfernt alle synchronen objekte aus der liste
@@ -2222,6 +2222,7 @@ void karte_t::laden(loadsave_t *file)
 
 	destroy();
 
+
 	// powernets zum laden vorbereiten -> tabelle loeschen
 	powernet_t::prepare_loading();
 
@@ -2470,6 +2471,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 			}
 		}
 	}
+
 	display_progress(gib_groesse_y()+24+stadt.get_count(), gib_groesse_y()+256+stadt.get_count());
 	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_count());
@@ -2521,16 +2523,31 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 		display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 	}
 
-	// finish the loading of stops
-	slist_iterator_tpl <halthandle_t> iter (haltestelle_t::gib_alle_haltestellen());
-	while( iter.next() ) {
-		iter.get_current()->laden_abschliessen();
-	}
-
 	// assing lines and other stuff for convois
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
 		convoihandle_t cnv = convoi_array[i];
 		cnv->laden_abschliessen();
+	}
+
+	// finish the loading of stops
+	slist_iterator_tpl <halthandle_t> iter (haltestelle_t::gib_alle_haltestellen());
+	while(iter.next()) {
+		halthandle_t h = iter.get_current();
+		h->laden_abschliessen();
+	}
+
+	// and now delete unused stops
+	iter.begin();
+	bool ok = iter.next();
+	while(ok) {
+		halthandle_t h = iter.get_current();
+
+		// Hajo: advance iterator, so that we can remove the current object safely
+		ok = iter.next();
+		if(h->gib_besitzer()==NULL) {
+			// this stop was only needed for loading goods ...
+			haltestelle_t::destroy(h);
+		}
 	}
 
 	// register all line stops and change line types, if needed
@@ -2566,6 +2583,25 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	mute_sound(false);
 
 	setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+}
+
+
+
+// return an index to a halt (or creates a new one)
+// only used during loading
+halthandle_t
+karte_t::get_halt_koord_index(koord k)
+{
+	if(!ist_in_kartengrenzen(k)) {
+		return halthandle_t();
+	}
+	// already there?
+	halthandle_t h=lookup(k)->gib_halt();
+	if(!h.is_bound()) {
+		// no => create
+		return haltestelle_t::create( this, k, NULL );
+	}
+	return h;
 }
 
 

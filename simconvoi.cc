@@ -200,6 +200,8 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 			v->setze_letztes(i == anz_vehikel - 1U);
 			// this sets the convoi and will renew the block reservation, if needed!
 			v->setze_convoi(this);
+			// now correct the freicht
+			v->laden_abschliessen();
 		}
 DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_index );
 		// lines are still unknown during loading!
@@ -1443,7 +1445,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 					// for pax: join according next stop
 					// for all others we *must* use target coordinates
-					if(tmp.gib_typ()==ware.gib_typ()  &&  (tmp.gib_zielpos()==ware.gib_zielpos()  ||  (is_pax   &&   haltestelle_t::gib_halt(welt,tmp.gib_ziel())==haltestelle_t::gib_halt(welt,ware.gib_ziel()))  )  ) {
+					if(tmp.gib_typ()==ware.gib_typ()  &&  (tmp.gib_zielpos()==ware.gib_zielpos()  ||  (is_pax   &&   tmp.gib_ziel()==ware.gib_ziel())  )  ) {
 						tmp.menge += ware.menge;
 						ware.menge = 0;
 						break;

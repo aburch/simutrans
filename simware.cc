@@ -13,7 +13,9 @@
 #include "simio.h"
 #include "simmem.h"
 #include "simdebug.h"
+#include "simhalt.h"
 #include "simtypes.h"
+#include "simworld.h"
 #include "simware.h"
 
 #include "dataobj/translator.h"
@@ -29,14 +31,14 @@ const ware_besch_t *ware_t::index_to_besch[256];
 
 
 
-ware_t::ware_t() : ziel(-1, -1), zwischenziel(-1, -1), zielpos(-1, -1)
+ware_t::ware_t() : ziel(), zwischenziel(), zielpos(-1, -1)
 {
 	menge = 0;
 	index = 0;
 }
 
 
-ware_t::ware_t(const ware_besch_t *wtyp) : ziel(-1, -1), zwischenziel(-1, -1), zielpos(-1, -1)
+ware_t::ware_t(const ware_besch_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -1)
 {
 	menge = 0;
 	index = wtyp->gib_index();
@@ -89,7 +91,34 @@ ware_t::rdwr(karte_t *welt,loadsave_t *file)
 			index = type->gib_index();
 		}
 	}
-	ziel.rdwr(file);
-	zwischenziel.rdwr(file);
+	// convert coordinate to halt indices
+	if(file->is_saving()) {
+		koord ziel_koord = ziel.is_bound() ? ziel->gib_basis_pos() : koord::invalid;
+		koord zwischenziel_koord = zwischenziel.is_bound() ? zwischenziel->gib_basis_pos() : koord::invalid;
+		ziel_koord.rdwr(file);
+		zwischenziel_koord.rdwr(file);
+	}
+	else {
+		koord ziel_koord;
+		ziel_koord.rdwr(file);
+		ziel = welt->get_halt_koord_index(ziel_koord);
+		ziel_koord.rdwr(file);
+		zwischenziel = welt->get_halt_koord_index(ziel_koord);
+	}
 	zielpos.rdwr(file);
+}
+
+
+
+void
+ware_t::laden_abschliessen(karte_t *welt)
+{
+	// since some halt was referred by with several koordinates
+	// this routine will correct it
+	if(ziel.is_bound()) {
+		ziel = welt->lookup(ziel->gib_init_pos())->gib_halt();
+	}
+	if(zwischenziel.is_bound()) {
+		zwischenziel = welt->lookup(zwischenziel->gib_init_pos())->gib_halt();
+	}
 }

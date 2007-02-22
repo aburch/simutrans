@@ -886,7 +886,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","found end hub");
 								umgebung_t::max_transfers = 4;
 								start_halt->suche_route(pax);
 								umgebung_t::max_transfers = max_transfers;
-								if(pax.gib_ziel()!=koord::invalid  &&  dist1>welt->gib_groesse_max()/3) {
+								if(!pax.gib_ziel().is_bound()  &&  dist1>welt->gib_groesse_max()/3) {
 									// already connected
 									continue;
 								}
@@ -1085,13 +1085,13 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","convoi %s not needed!",cnv->gib_name
 DBG_MESSAGE("spieler_t::do_passenger_ki()","checking our convoi %s between %s and %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
 						DBG_MESSAGE(
 							"spieler_t::do_passenger_ki()", "waiting: %s (%i) and %s (%i)",
-							h0->gib_name(), h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, f->eintrag[1].pos.gib_2d()),
-							h1->gib_name(), h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, f->eintrag[0].pos.gib_2d())
+							h0->gib_name(), h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, haltestelle_t::gib_halt(welt,f->eintrag[1].pos)),
+							h1->gib_name(), h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, haltestelle_t::gib_halt(welt,f->eintrag[0].pos))
 						);
 
 						// we assume crowed for more than 129 waiting passengers
-						if (h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, f->eintrag[1].pos.gib_2d()) > h0->get_capacity() ||
-								h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, f->eintrag[0].pos.gib_2d()) > h1->get_capacity()) {
+						if (h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, haltestelle_t::gib_halt(welt,f->eintrag[1].pos)) > h0->get_capacity() ||
+								h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, haltestelle_t::gib_halt(welt,f->eintrag[0].pos)) > h1->get_capacity()) {
 DBG_MESSAGE("spieler_t::do_passenger_ki()","copy convoi %s on route %s to %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
 							vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, cnv->gib_vehikel(0)->gib_besch());
 							convoi_t *new_cnv = new convoi_t(welt, this);

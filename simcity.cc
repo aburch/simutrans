@@ -1454,7 +1454,7 @@ void stadt_t::step_passagiere()
 			koord return_zwischenziel = koord::invalid; // for people going back ...
 			start_halt->suche_route(pax, will_return ? &return_zwischenziel : NULL);
 
-			if (pax.gib_ziel() != koord::invalid) {
+			if (pax.gib_ziel().is_bound()) {
 				// so we have happy traveling passengers
 				start_halt->starte_mit_route(pax);
 				start_halt->add_pax_happy(pax.menge);
@@ -1471,9 +1471,9 @@ void stadt_t::step_passagiere()
 			}
 
 			// send them also back
-			if (will_return != no_return && pax.gib_ziel() != koord::invalid) {
+			if (will_return != no_return && pax.gib_ziel().is_bound()) {
 				// this comes most of the times for free and balances also the amounts!
-				halthandle_t ret_halt = welt->lookup(pax.gib_ziel())->gib_halt();
+				halthandle_t ret_halt = pax.gib_ziel();
 				if (will_return != town_return) {
 					// restore normal mail amount => more mail from attractions and factories than going to them
 					pax.menge = pax_left_to_do;
@@ -1499,8 +1499,8 @@ void stadt_t::step_passagiere()
 
 						return_pax.menge = pax_left_to_do;
 						return_pax.setze_zielpos(k);
-						return_pax.setze_ziel(start_halt->gib_basis_pos());
-						return_pax.setze_zwischenziel(return_zwischenziel);
+						return_pax.setze_ziel(start_halt);
+						return_pax.setze_zwischenziel(welt->lookup(return_zwischenziel)->gib_halt());
 
 						ret_halt->starte_mit_route(return_pax);
 						ret_halt->add_pax_happy(pax_left_to_do);

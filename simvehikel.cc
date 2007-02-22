@@ -109,11 +109,8 @@ vehikel_t::unload_freight(halthandle_t halt)
 			while(iter.next()) {
 				const ware_t& tmp = iter.get_current();
 
-				assert(tmp.gib_ziel() != koord::invalid);
-				assert(tmp.gib_zwischenziel() != koord::invalid);
-
-				halthandle_t end_halt = haltestelle_t::gib_halt(welt, tmp.gib_ziel());
-				halthandle_t via_halt = haltestelle_t::gib_halt(welt, tmp.gib_zwischenziel());
+				halthandle_t end_halt = tmp.gib_ziel();
+				halthandle_t via_halt = tmp.gib_zwischenziel();
 
 				// probleme mit fehlerhafter ware
 				// vielleicht wurde zwischendurch die
@@ -121,7 +118,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 				if(!end_halt.is_bound() || !via_halt.is_bound()) {
 					DBG_MESSAGE("vehikel_t::entladen()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.gib_name()));
 					kill_queue.insert(tmp);
-				} else if(end_halt == halt || via_halt == halt) {
+				} else if(end_halt==halt || via_halt==halt) {
 
 					//		    printf("Liefere %d %s nach %s via %s an %s\n",
 					//                           tmp->menge,
@@ -180,12 +177,12 @@ bool vehikel_t::load_freight(halthandle_t halt)
 			while(iter.next()) {
 				ware_t &tmp = iter.access_current();
 
-				assert(tmp.gib_ziel() != koord::invalid);
-				assert(ware.gib_ziel() != koord::invalid);
+//				assert(tmp.gib_ziel().is_bound());
+//				assert(ware.gib_ziel().is_bound());
 
 				// for pax: join according next stop
 				// for all others we *must* use target coordinates
-				if(tmp.gib_typ()==ware.gib_typ()  &&  (tmp.gib_zielpos()==ware.gib_zielpos()  ||  (is_pax   &&   haltestelle_t::gib_halt(welt,tmp.gib_ziel())==haltestelle_t::gib_halt(welt,ware.gib_ziel()))  )  ) {
+				if(tmp.gib_typ()==ware.gib_typ()  &&  (tmp.gib_zielpos()==ware.gib_zielpos()  ||  (is_pax   &&   tmp.gib_ziel()==ware.gib_ziel())  )  ) {
 					tmp.menge += ware.menge;
 					total_freight += ware.menge;
 					ware.menge = 0;
@@ -470,6 +467,18 @@ vehikel_t::setze_convoi(convoi_t *c)
 
 
 void
+vehikel_t::laden_abschliessen()
+{
+	// just correct freight deistinations
+	slist_iterator_tpl <ware_t> iter (fracht);
+	while(iter.next()) {
+		iter.access_current().laden_abschliessen(welt);
+	}
+}
+
+
+
+void
 vehikel_t::setze_offsets(int x, int y)
 {
 	setze_xoff( x );
@@ -501,8 +510,7 @@ void vehikel_t::remove_stale_freight()
 			bool found = false;
 
 			for (int i = 0; i < fpl->maxi(); i++) {
-				if (haltestelle_t::gib_halt(welt, fpl->eintrag[i].pos.gib_2d()) ==
-					haltestelle_t::gib_halt(welt, tmp.gib_zwischenziel())) {
+				if (haltestelle_t::gib_halt(welt, fpl->eintrag[i].pos.gib_2d()) == tmp.gib_zwischenziel()) {
 					found = true;
 					break;
 				}
@@ -950,7 +958,7 @@ void vehikel_t::gib_fracht_info(cbuffer_t & buf)
 			const ware_t& ware = iter.get_current();
 			const char * name = "Error in Routing";
 
-			halthandle_t halt = haltestelle_t::gib_halt(welt, ware.gib_ziel());
+			halthandle_t halt = ware.gib_ziel();
 			if(halt.is_bound()) {
 				name = halt->gib_name();
 			}
@@ -1148,8 +1156,8 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 			// create dummy freight for savegame compatibility
 			ware_t ware( besch->gib_ware() );
 			ware.menge = 0;
-			ware.setze_ziel( gib_pos().gib_2d() );
-			ware.setze_zwischenziel( gib_pos().gib_2d() );
+			ware.setze_ziel( halthandle_t() );
+			ware.setze_zwischenziel( halthandle_t() );
 			ware.setze_zielpos( gib_pos().gib_2d() );
 			ware.rdwr(welt,file);
 		}

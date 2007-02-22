@@ -758,7 +758,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 					halt->suche_route(ware);
 
 //DBG_MESSAGE("verteile_waren()","searched for route for %s with result %i,%i",translator::translate(ware.gib_name()),ware.gib_ziel().x,ware.gib_ziel().y);
-					if(ware.gib_ziel() != koord::invalid) {
+					if(ware.gib_ziel().is_bound()) {
 						// if only overflown factories found => deliver to first
 						// else deliver to non-overflown factory
 						bool overflown = (ziel_fab->gib_eingang()[w].menge >= ziel_fab->gib_eingang()[w].max);

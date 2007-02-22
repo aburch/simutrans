@@ -139,8 +139,8 @@ freight_list_sorter_t::sort_freight( karte_t *welt, const vector_tpl <ware_t>*wa
 		}
 //DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i",pos);
 		tdlist[pos].ware = ware;
-		tdlist[pos].destination = haltestelle_t::gib_halt(welt,ware.gib_ziel());
-		tdlist[pos].via_destination = haltestelle_t::gib_halt(welt,ware.gib_zwischenziel());
+		tdlist[pos].destination = ware.gib_ziel();
+		tdlist[pos].via_destination = ware.gib_zwischenziel();
 		// for the sorting via the number for the next stop we unify entries
 		if(sort_mode==by_via_sum  &&  pos>0) {
 //DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i check connection",pos);

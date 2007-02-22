@@ -405,6 +405,8 @@ public:
 	virtual void setze_convoi(convoi_t *c);
 	convoihandle_t get_convoi() const { return cnv->self; }
 
+	void laden_abschliessen();
+
 	/**
 	* Remove freight that no longer can reach it's destination
 	* i.e. because of a changed schedule

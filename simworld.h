@@ -641,6 +641,10 @@ public:
 
 	~karte_t();
 
+	// return an index to a halt (or creates a new one)
+	// only used during loading
+	halthandle_t get_halt_koord_index(koord k);
+
 	/**
 	 * Prueft, ob das Planquadrat an Koordinate (x,y)
 	 * erniedrigt werden kann

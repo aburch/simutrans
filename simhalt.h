@@ -172,7 +172,7 @@ public:
 	 * destroys all stations
 	 * @author Hj. Malthaner
 	 */
-	static void destroy_all();
+	static void destroy_all(karte_t *);
 
 private:
 	/**
@@ -187,6 +187,7 @@ private:
 	 */
 	slist_tpl<grund_t *> grund;
 	vector_tpl<convoihandle_t> reservation;
+	koord init_pos;	// for halt without grounds, created during game initialisation
 
 	// fuer die zielverwaltung
 	slist_tpl<warenziel_t> warenziele;
@@ -413,6 +414,7 @@ public:
 
 	bool existiert_in_welt();
 
+	koord gib_init_pos() const { return init_pos; }
 	koord gib_basis_pos() const;
 	koord3d gib_basis_pos3d() const;
 
@@ -428,16 +430,16 @@ public:
 	uint32 gib_ware_summe(const ware_besch_t *warentyp) const;
 
 	/**
-	 * gibt Gesamtmenge derware vom typ typ fuer ziel zurück
+	 * gibt Gesamtmenge der ware vom typ typ fuer ziel zurück
 	 * @author Hj. Malthaner
 	 */
-	uint32 gib_ware_fuer_ziel(const ware_besch_t *warentyp, const koord ziel) const;
+	uint32 gib_ware_fuer_ziel(const ware_besch_t *warentyp, const halthandle_t ziel) const;
 
 	/**
-	 * gibt Gesamtmenge derware vom typ typ fuer zwischenziel zurück
+	 * gibt Gesamtmenge derw are vom typ typ fuer zwischenziel zurück
 	 * @author prissi
 	 */
-	uint32 gib_ware_fuer_zwischenziel(const ware_besch_t *warentyp, const koord zwischenziel) const;
+	uint32 gib_ware_fuer_zwischenziel(const ware_besch_t *warentyp, const halthandle_t zwischenziel) const;
 
 	/**
 	 * @returns the sum of all waiting goods (100t coal + 10

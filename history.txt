@@ -10,7 +10,7 @@
 	ADD: 8 player colors + second set of eight player colors, more colors to choose from, blue light color
 	ADD: (kierongreen) possibility for automatic orientation (and facing of parallel) stops
 	FIX: station coverage was wrongly detected
-	FIX: ppm for all program for hieghmaps (Photoshop created unexpected header)
+	FIX: ppm for all program for heightmaps (Photoshop created unexpected header)
 
 
 Release of 99.08.1
