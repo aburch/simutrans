@@ -290,7 +290,14 @@ baum_t::calc_bild()
 			season = welt->gib_jahreszeit();
 			if(welt->get_snowline()<=gib_pos().z) {
 				// change to winter
-				season = 2;
+				if(seasons&1) {
+					// snowy winter graphics (3 or 5)
+					season = seasons-1;
+				}
+				else {
+					// no special winter graphics
+					season = 2;
+				}
 			}
 			else if(welt->get_snowline()<=gib_pos().z+Z_TILE_STEP  &&  season==0) {
 				// snowline crossing in summer

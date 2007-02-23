@@ -1178,10 +1178,7 @@ haltestelle_t::vereinige_waren(const ware_t &ware)
 
 			// es wird auf basis von Haltestellen vereinigt
 			// prissi: das ist aber ein Fehler für alle anderen Güter, daher Zielkoordinaten für alles, was kein passagier ist ...
-			if(ware.gib_index()==tmp.gib_index()
-				&&  (tmp.gib_zielpos()==ware.gib_zielpos()
-					||  (is_pax   &&   tmp.gib_ziel()==ware.gib_ziel()) )
-			) {
+			if(ware.same_destination(tmp)) {
 				tmp.menge += ware.menge;
 				resort_freight_info = true;
 				return true;

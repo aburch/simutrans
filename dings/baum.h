@@ -29,9 +29,9 @@ private:
 	sint32 geburt:20;
 
 	// type of tree
-	uint32 baumtype:10;
+	uint32 baumtype:9;
 
-	uint32 season:2;
+	uint32 season:3;
 
 	// static for administration
 	static stringhashtable_tpl<uint32> besch_names;

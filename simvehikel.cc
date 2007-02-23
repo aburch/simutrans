@@ -170,19 +170,15 @@ bool vehikel_t::load_freight(halthandle_t halt)
 				return ok;
 			}
 
-			const bool is_pax = !ware.is_freight();
 			slist_iterator_tpl<ware_t> iter (fracht);
 
 			// could this be joined with existing freight?
 			while(iter.next()) {
 				ware_t &tmp = iter.access_current();
 
-//				assert(tmp.gib_ziel().is_bound());
-//				assert(ware.gib_ziel().is_bound());
-
 				// for pax: join according next stop
 				// for all others we *must* use target coordinates
-				if(tmp.gib_typ()==ware.gib_typ()  &&  (tmp.gib_zielpos()==ware.gib_zielpos()  ||  (is_pax   &&   tmp.gib_ziel()==ware.gib_ziel())  )  ) {
+				if(ware.same_destination(tmp)) {
 					tmp.menge += ware.menge;
 					total_freight += ware.menge;
 					ware.menge = 0;

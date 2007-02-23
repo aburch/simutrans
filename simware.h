@@ -88,6 +88,12 @@ public:
 	}
 
 	int operator!=(const ware_t &w) { return !(*this == w); 	}
+
+	// mail and passengers just care about target station
+	// freight needs to obey coordinates (since more than one factory might by connected!)
+	inline bool same_destination(const ware_t &w) const {
+		return index==w.gib_index()  &&  ziel==w.gib_ziel()  &&  (index<2  ||  zielpos==w.gib_zielpos());
+	}
 };
 
 #endif
