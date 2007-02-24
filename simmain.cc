@@ -76,7 +76,7 @@
  */
 static void show_sizes()
 {
-	DBG_MESSAGE("Debug", "size of strutures");
+	DBG_MESSAGE("Debug", "size of structures");
 
 	DBG_MESSAGE("sizes", "koord: %d", sizeof(koord));
 	DBG_MESSAGE("sizes", "koord3d: %d", sizeof(koord3d));
@@ -95,6 +95,9 @@ static void show_sizes()
 	DBG_MESSAGE("sizes", "planquadrat_t: %d\n", sizeof(planquadrat_t));
 
 	DBG_MESSAGE("sizes", "ware_t: %d", sizeof(ware_t));
+	DBG_MESSAGE("sizes", "vehikel_t: %d", sizeof(vehikel_t));
+	DBG_MESSAGE("sizes", "haltestelle_t: %d\n", sizeof(haltestelle_t));
+
 	DBG_MESSAGE("sizes", "karte_t: %d", sizeof(karte_t));
 	DBG_MESSAGE("sizes", "spieler_t: %d\n", sizeof(spieler_t));
 }

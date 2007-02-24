@@ -1775,7 +1775,7 @@ DBG_MESSAGE("wkz_roadsign()","new roadsign, dir is %i", dir);
 
 // built all types of depots
 static bool
-wkz_depot_aux(spieler_t *sp, karte_t *welt, koord pos,const haus_besch_t *besch,waytype_t wegtype,sint64 cost)
+wkz_depot_aux(spieler_t *sp, karte_t *welt, koord pos, const haus_besch_t *besch,waytype_t wegtype,sint64 cost)
 {
 	if(welt->ist_in_kartengrenzen(pos)) {
 		grund_t *bd=NULL;
@@ -1789,7 +1789,7 @@ wkz_depot_aux(spieler_t *sp, karte_t *welt, koord pos,const haus_besch_t *besch,
 		if(bd==NULL) {
 			bd = wkz_intern_koord_to_weg_grund(sp,welt,pos,wegtype);
 		}
-		if(!bd) {
+		if(!bd  ||  bd->gib_weg_nr(1)) {
 			// no monorail here ...
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Cannot built depot here!"), w_autodelete);
 			return false;

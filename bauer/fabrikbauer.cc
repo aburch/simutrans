@@ -539,13 +539,13 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",in
 
 	INT_CHECK("fabrikbauer 596");
 
-	for(int i=0; i < info->gib_lieferanten(); i++) {
+	for(int i=0; i<info->gib_lieferanten(); i++) {
 		const fabrik_lieferant_besch_t *lieferant = info->gib_lieferant(i);
 		const ware_besch_t *ware = lieferant->gib_ware();
 		const int anzahl_hersteller=finde_anzahl_hersteller(ware);
 
 		// we assume, we need two times the available supply
-		int verbrauch=(our_fab->max_produktion()*lieferant->gib_verbrauch()*100)/256;
+		sint32 verbrauch=our_fab->max_produktion()*lieferant->gib_verbrauch();
 
 		int lcount = lieferant->gib_anzahl();
 		int lfound = 0;	// number of found producers
@@ -559,7 +559,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 
 		while( iter.next() &&
 				// try to find matching factories for this consumption
-				( (lcount==0  &&  lfound<3  &&  verbrauch>0) ||
+				( (lcount==0  &&  verbrauch>0) ||
 				// otherwise dont find more than two times new number
 				  (lcount>=lfound+1) )
 				)
@@ -574,24 +574,36 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 				const bool ok = (!fab->gib_eingang().empty() || distance < DISTANCE || distance < simrand(welt->gib_groesse_x() * 3 / 4));
 
 				if(ok  &&  distance>6) {
-					found = true;
-					fab->add_lieferziel(pos->gib_2d());
+					// ok, this would match
+					// but can she supply enough?
 
 					// now guess, how much this factory can supply
 					for(int gg=0;gg<fab->gib_besch()->gib_produkte();gg++) {
 						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware  &&  fab->gib_lieferziele().get_count()<10) {	// does not make sense to split into more ...
-							int produktion=(fab->max_produktion()*fab->gib_besch()->gib_produkt(gg)->gib_faktor())/(fab->gib_lieferziele().get_count()*2);
-							// search consumer
+							sint32 production_left = fab->max_produktion()*fab->gib_besch()->gib_produkt(gg)->gib_faktor();
 							const vector_tpl <koord> & lieferziele = fab->gib_lieferziele();
-							const int lieferziel_anzahl=lieferziele.get_count();
-							// assume free capacity is just total capacity divided by the number of demander
-							verbrauch -= produktion/(lieferziel_anzahl+1);
-
-DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i of %s to %i companies",fab->gib_besch()->gib_name(),produktion,ware->gib_name(),lieferziel_anzahl);
+							for( unsigned ziel=0;  ziel<lieferziele.get_count()  &&  production_left>0;  ziel++  ) {
+								fabrik_t *zfab=fabrik_t::gib_fab(welt,lieferziele[ziel]);
+								for(int zz=0;  zz<zfab->gib_besch()->gib_lieferanten();  zz++) {
+									if(zfab->gib_besch()->gib_lieferant(zz)->gib_ware()==ware) {
+										production_left -= zfab->max_produktion()*zfab->gib_besch()->gib_lieferant(zz)->gib_verbrauch();
+										break;
+									}
+								}
+							}
+							// here is actually capacity left (or sometimes just connect anyway)!
+							if(production_left>0  ||  simrand(10)==1) {
+								found = true;
+								fab->add_lieferziel(pos->gib_2d());
+								if(production_left>0) {
+									verbrauch -= production_left;
+								}
+								lfound ++;
+DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i of %s to us",fab->gib_besch()->gib_name(),production_left,ware->gib_name());
+							}
 							break;
 						}
 					}
-					lfound ++;
 				}
 			}
 		}
@@ -601,15 +613,11 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i o
 		// this is a source?
 		if(lcount!=0) {
 			// at least three producers please
-			lcount = max(0,lcount-(lfound/2));
-		}
-		else {
-			// Hajo: if none exist, build one
-			lcount = (lfound>0)?0:1;
+			found = lfound/2;
 		}
 
 		// try to add all types of factories until demand is satisfied
-		for(int j=0;j<20 &&  lcount>0  &&  verbrauch>0;j++) {
+		for(int j=0;  j<50  &&  (lcount>lfound  ||  (lcount==0  &&  verbrauch>0));  j++  ) {
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","find lieferant for %s.",info->gib_name());
 			const fabrik_besch_t *hersteller = finde_hersteller(ware,j%anzahl_hersteller);
 			if(info==hersteller) {
@@ -627,7 +635,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie()","found myself!");
 			if(welt->lookup(k)) {
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%i) r=%i for %s.",hersteller->gib_name(),k.x,k.y,rotate,info->gib_name());
 				n += baue_hierarchie(welt, pos, hersteller, rotate, &k, sp);
-				lcount --;
+				lfound ++;
 
 				INT_CHECK( "fabrikbauer 702" );
 
@@ -638,7 +646,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%
 					// find our product
 					for(int gg=0;gg<fab->gib_besch()->gib_produkte();gg++) {
 						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware) {
-							int produktion = (fab->max_produktion()*fab->gib_besch()->gib_produkt(gg)->gib_faktor()*100)/256;
+							sint32 produktion = fab->max_produktion()*fab->gib_besch()->gib_produkt(gg)->gib_faktor();
 							verbrauch -= produktion;
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","new supplier %s can supply approx %i of %s to us",fab->gib_besch()->gib_name(),produktion,ware->gib_name());
 							break;
