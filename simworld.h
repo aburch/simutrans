@@ -58,21 +58,6 @@ class karte_t
 {
 public:
 	/**
-	* anzahl ticks pro tag in bits
-	* @see ticks_per_tag
-	* @author Hj. Malthaner
-	*/
-	static uint32 ticks_bits_per_tag;
-
-	/**
-	* anzahl ticks pro tag
-	* @author Hj. Malthaner
-	*/
-	static uint32 ticks_per_tag;
-
-	static void setze_ticks_bits_per_tag(uint32 bits) {ticks_bits_per_tag = bits; ticks_per_tag = (1 << ticks_bits_per_tag); }
-
-	/**
 	* Hoehe eines Punktes der Karte mit "perlin noise"
 	*
 	* @param frequency in 0..1.0 roughness, the higher the rougher
@@ -268,6 +253,12 @@ private:
 	uint32 ticks;		      // Anzahl ms seit Erzeugung
 	uint32 next_month_ticks;	// from now on is next month
 
+	// default time stretching factor
+	uint32 time_multiplier;
+
+	// true, if fast forward
+	bool fast_forward;
+
 	uint32 last_frame_ms[256];
 	uint8 last_frame_idx;
 	uint32 last_step_time;
@@ -277,7 +268,7 @@ private:
 	sint32 letztes_jahr;   // Absolutes Jahr
 	sint32 basis_jahr;   // Jahr ab dem die ticks zählen
 
-	int season;	// current season
+	uint8 season;	// current season
 
 	long steps;          // Anzahl steps seit Erzeugung
 	long steps_bis_jetzt;
@@ -378,15 +369,6 @@ public:
 
 	einstellungen_t* gib_einstellungen() const { return einstellungen; }
 
-	// often used, therefore found here
-	bool use_timeline() const { return einstellungen->gib_use_timeline(); }
-
-	void reset_timer();
-	void step_year();
-
-	// returns either 0 or the current year*16 + month
-	uint16 get_timeline_year_month() const { return einstellungen->gib_use_timeline() ? current_month : 0; }
-
 	// returns current speed bonus
 	int get_average_speed(waytype_t typ) const;
 
@@ -416,23 +398,49 @@ public:
 	uint8 get_schedule_counter() const { return schedule_counter; }
 	void set_schedule_counter() { schedule_counter++; }
 
+	// often used, therefore found here
+	bool use_timeline() const { return einstellungen->gib_use_timeline(); }
+
+	void reset_timer();
+	void step_year();
+
+	// returns either 0 or the current year*16 + month
+	uint16 get_timeline_year_month() const { return einstellungen->gib_use_timeline() ? current_month : 0; }
+
+	/**
+	* anzahl ticks pro tag in bits
+	* @see ticks_per_tag
+	* @author Hj. Malthaner
+	*/
+	uint32 ticks_bits_per_tag;
+
+	/**
+	* anzahl ticks pro tag
+	* @author Hj. Malthaner
+	*/
+	uint32 ticks_per_tag;
+
+	void setze_ticks_bits_per_tag(uint32 bits) {ticks_bits_per_tag = bits; ticks_per_tag = (1 << ticks_bits_per_tag); }
+
+	sint32 get_time_multiplier() const { return time_multiplier; }
+
 	/**
 	 * 0=winter, 1=spring, 2=summer, 3=autumn
 	 * @author prissi
 	 */
-	inline unsigned long gib_jahreszeit() const { return season; }
+	uint8 gib_jahreszeit() const { return season; }
 
 	/**
 	 * Zeit seit Kartenerzeugung/dem letzen laden in ms
 	 * @author Hj. Malthaner
 	 */
-	inline unsigned long gib_zeit_ms() const { return ticks; }
+	uint32 gib_zeit_ms() const { return ticks; }
 
 	/**
 	 * Absoluter Monat
 	 * @author prissi
 	 */
-	inline uint32 get_current_month() const { return current_month; }
+	uint32 get_current_month() const { return current_month; }
 
 	// prissi: current city road
 	// may change due to timeline
@@ -442,25 +450,25 @@ public:
 	 * Anzahl steps seit Kartenerzeugung
 	 * @author Hj. Malthaner
 	 */
-	inline long gib_steps() const { return steps; }
+	long gib_steps() const { return steps; }
 
 	/**
 	 * Idle time. Nur zur Anzeige verwenden!
 	 * @author Hj. Malthaner
 	 */
-	inline int gib_schlaf_zeit() const { return sleep_time; }
+	int gib_schlaf_zeit() const { return sleep_time; }
 
 	/**
 	 * Anzahl frames in der letzten Sekunde Realzeit
 	 * @author prissi
 	 */
-	inline int gib_realFPS() const { return realFPS; }
+	int gib_realFPS() const { return realFPS; }
 
 	/**
 	 * Anzahl Simulationsloops in der letzten Sekunde. Kann sehr ungenau sein!
 	 * @author Hj. Malthaner
 	 */
-	inline int gib_simloops() const { return last_simloops; }
+	int gib_simloops() const { return last_simloops; }
 
 	/**
 	* Holt den Grundwasserlevel der Karte

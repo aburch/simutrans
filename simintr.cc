@@ -12,7 +12,7 @@
 #include <time.h>
 
 #include "simdebug.h"
-#include "simtime.h"
+#include "simsys.h"
 #include "simintr.h"
 #include "simwin.h"
 #include "simplay.h"
@@ -75,14 +75,6 @@ intr_refresh_display(bool dirty)
 
 
 void
-intr_routine(long delta_t)
-{
-	welt_modell->sync_step( delta_t );
-}
-
-
-
-void
 interrupt_check()
 {
 	interrupt_check( "0" );
@@ -96,17 +88,19 @@ void interrupt_check(const char* caller_info)
 	static const char * last_caller = "program start";
 	static long last_call_time = 0;
 
-	const long now = get_system_ms();
+	const long now = dr_time();
 	if(now-last_call_time<frame_time) {
 		return;
 	}
 	if(enabled) {
-		enabled = false;
-		const long diff = now - last_time;
-	      last_time = now;
-		intr_routine(diff);
-		enabled = true;
-		last_call_time = get_system_ms();
+		const long diff = ((now - last_time)*welt_modell->get_time_multiplier())/16;
+		if(diff>0) {
+			enabled = false;
+			last_time = now;
+			welt_modell->sync_step( diff );
+			enabled = true;
+			last_call_time = now;
+		}
 	}
 	last_caller = caller_info;
 }
@@ -117,7 +111,7 @@ intr_set(karte_t *welt, karte_ansicht_t *view)
 {
 	welt_modell = welt;
 	welt_ansicht = view;
-	last_time = get_system_ms();
+	last_time = dr_time();
 	enabled = true;
 }
 

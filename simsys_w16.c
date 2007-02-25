@@ -504,9 +504,9 @@ unsigned long dr_time(void)
 }
 
 
-void dr_sleep(unsigned long usec)
+void dr_sleep(uint32 millisec)
 {
-	Sleep(usec >> 10);
+	Sleep(millisec);
 }
 
 

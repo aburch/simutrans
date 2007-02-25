@@ -258,7 +258,6 @@ SOURCES += simplay.cc
 SOURCES += simskin.cc
 SOURCES += simsound.cc
 SOURCES += simticker.cc
-SOURCES += simtime.cc
 SOURCES += simtools.c
 SOURCES += simvehikel.cc
 SOURCES += simverkehr.cc

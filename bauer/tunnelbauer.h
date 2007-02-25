@@ -44,7 +44,7 @@ public:
 
 	static const tunnel_besch_t *find_tunnel(const waytype_t wtyp, const uint32 min_speed,const uint16 time);
 
-	static void fill_menu(werkzeug_parameter_waehler_t *wzw, const waytype_t wtyp, const int sound_ok, const int sound_ko,const uint16 time);
+	static void fill_menu(werkzeug_parameter_waehler_t *wzw, const waytype_t wtyp, const int sound_ok, const int sound_ko,const karte_t *welt);
 
 	static int baue(spieler_t *sp, karte_t *welt, koord pos, value_t param);
 

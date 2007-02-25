@@ -32,10 +32,6 @@
 
 #include "gui/karte.h"
 
-// debug!
-// #include "simtime.h"
-
-
 
 // deletes also all grounds in this array!
 planquadrat_t::~planquadrat_t()

@@ -8,6 +8,8 @@
 #ifndef simsys_h
 #define simsys_h
 
+#include "simtypes.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -94,7 +96,7 @@ void GetEvents(void);
 void GetEventsNoWait(void);
 
 unsigned long dr_time(void);
-void dr_sleep(unsigned long usec);
+void dr_sleep(uint32 millisec);
 
 /**
  * Some wrappers can save screenshots.

@@ -167,7 +167,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						wkz_wegebau,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						welt->get_timeline_year_month(),
+						welt,
 						weg_t::type_flat
 						);
 
@@ -176,7 +176,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						wkz_wegebau,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						welt->get_timeline_year_month(),
+						welt,
 						weg_t::type_elevated
 						);
 
@@ -185,7 +185,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						wkz_wayobj,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						welt->get_timeline_year_month()
+						welt
 						);
 
 					wzw->add_param_tool(&wkz_wayremover,
@@ -201,14 +201,14 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						track_wt,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						welt->get_timeline_year_month()
+						welt
 						);
 
 					tunnelbauer_t::fill_menu(wzw,
 						track_wt,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						welt->get_timeline_year_month()
+						welt
 						);
 
 					roadsign_t::fill_menu(wzw,
@@ -216,7 +216,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						wkz_roadsign,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						welt->get_timeline_year_month()
+						welt
 						);
 
 					wzw->add_param_tool(wkz_depot,
@@ -235,7 +235,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					umgebung_t::cst_multiply_station,
-					welt->get_timeline_year_month() );
+					welt );
 
 				hausbauer_t::fill_menu(wzw,
 					hausbauer_t::bahnhof_geb,
@@ -243,7 +243,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					umgebung_t::cst_multiply_post,
-					welt->get_timeline_year_month() );
+					welt );
 
 				sound_play(click_sound);
 
@@ -267,7 +267,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						wkz_wegebau,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						welt->get_timeline_year_month(),
+						welt,
 						weg_t::type_flat
 						);
 
@@ -276,7 +276,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						wkz_wegebau,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						welt->get_timeline_year_month(),
+						welt,
 						weg_t::type_elevated
 						);
 
@@ -285,7 +285,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						wkz_wayobj,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						welt->get_timeline_year_month()
+						welt
 						);
 
 					wzw->add_param_tool(&wkz_wayremover,
@@ -301,14 +301,14 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						monorail_wt,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						welt->get_timeline_year_month()
+						welt
 						);
 
 					tunnelbauer_t::fill_menu(wzw,
 						monorail_wt,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						welt->get_timeline_year_month()
+						welt
 						);
 
 					roadsign_t::fill_menu(wzw,
@@ -316,7 +316,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						wkz_roadsign,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						welt->get_timeline_year_month()
+						welt
 						);
 
 					wzw->add_param_tool(wkz_depot,
@@ -335,7 +335,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					umgebung_t::cst_multiply_station,
-					welt->get_timeline_year_month() );
+					welt );
 
 				hausbauer_t::fill_menu(wzw,
 					hausbauer_t::monorail_geb,
@@ -343,7 +343,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					umgebung_t::cst_multiply_station,
-					welt->get_timeline_year_month() );
+					welt );
 
 				sound_play(click_sound);
 
@@ -367,7 +367,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						wkz_wegebau,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						welt->get_timeline_year_month(),
+						welt,
 						weg_t::type_tram
 					);
 
@@ -376,7 +376,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						wkz_wayobj,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						welt->get_timeline_year_month()
+						welt
 						);
 
 					wzw->add_param_tool(&wkz_wayremover,
@@ -393,7 +393,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						wkz_roadsign,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						welt->get_timeline_year_month()
+						welt
 						);
 
 					wzw->add_param_tool(wkz_depot,
@@ -412,7 +412,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					umgebung_t::cst_multiply_station,
-					welt->get_timeline_year_month() );
+					welt );
 
 				hausbauer_t::fill_menu(wzw,
 					hausbauer_t::bushalt,
@@ -420,7 +420,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					umgebung_t::cst_multiply_roadstop,
-					welt->get_timeline_year_month() );
+					welt );
 
 				sound_play(click_sound);
 
@@ -442,7 +442,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					wkz_wegebau,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
-					welt->get_timeline_year_month(),
+					welt,
 					weg_t::type_flat
 					);
 
@@ -451,7 +451,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					wkz_wegebau,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
-					welt->get_timeline_year_month(),
+					welt,
 					weg_t::type_elevated
 					);
 
@@ -460,7 +460,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					wkz_wayobj,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
-					welt->get_timeline_year_month()
+					welt
 					);
 
 				wzw->add_param_tool(&wkz_wayremover,
@@ -476,14 +476,14 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					road_wt,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
-					welt->get_timeline_year_month()
+					welt
 					);
 
 				tunnelbauer_t::fill_menu(wzw,
 					road_wt,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
-					welt->get_timeline_year_month()
+					welt
 					);
 
 				roadsign_t::fill_menu(wzw,
@@ -491,7 +491,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					wkz_roadsign,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
-					welt->get_timeline_year_month()
+					welt
 					);
 
 				if(sp!=welt->gib_spieler(1)) {
@@ -511,7 +511,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					umgebung_t::cst_multiply_roadstop,
-					welt->get_timeline_year_month() );
+					welt );
 
 				hausbauer_t::fill_menu(wzw,
 					hausbauer_t::ladebucht,
@@ -519,7 +519,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					umgebung_t::cst_multiply_roadstop,
-					welt->get_timeline_year_month() );
+					welt );
 
 				hausbauer_t::fill_menu(wzw,
 					hausbauer_t::bushalt_geb,
@@ -527,7 +527,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					umgebung_t::cst_multiply_post,
-					welt->get_timeline_year_month() );
+					welt );
 
 				hausbauer_t::fill_menu(wzw,
 					hausbauer_t::ladebucht_geb,
@@ -535,7 +535,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					umgebung_t::cst_multiply_post,
-					welt->get_timeline_year_month() );
+					welt );
 
 				sound_play(click_sound);
 
@@ -557,7 +557,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				wkz_wegebau,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
-				welt->get_timeline_year_month(),
+				welt,
 				weg_t::type_flat
 				);
 
@@ -566,7 +566,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				wkz_wayobj,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
-				welt->get_timeline_year_month()
+				welt
 				);
 
 			wzw->add_param_tool(&wkz_wayremover,
@@ -582,14 +582,14 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				water_wt,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
-				welt->get_timeline_year_month()
+				welt
 				);
 
 			tunnelbauer_t::fill_menu(wzw,
 				water_wt,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
-				welt->get_timeline_year_month()
+				welt
 				);
 
 			roadsign_t::fill_menu(wzw,
@@ -597,7 +597,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				wkz_roadsign,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
-				welt->get_timeline_year_month()
+				welt
 				);
 
 			hausbauer_t::fill_menu(wzw,
@@ -606,7 +606,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
 				umgebung_t::cst_multiply_dock,
-				welt->get_timeline_year_month() );
+				welt );
 
 
 			hausbauer_t::fill_menu(wzw,
@@ -615,7 +615,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
 				umgebung_t::cst_multiply_dock,
-				welt->get_timeline_year_month() );
+				welt );
 
 			if(sp!=welt->gib_spieler(1)) {
 				wzw->add_param_tool(wkz_depot,
@@ -634,7 +634,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
 				umgebung_t::cst_multiply_post,
-				welt->get_timeline_year_month() );
+				welt );
 
 			hausbauer_t::fill_menu(wzw,
 				hausbauer_t::hafen_geb,
@@ -642,7 +642,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
 				umgebung_t::cst_multiply_post,
-				welt->get_timeline_year_month() );
+				welt );
 
 			sound_play(click_sound);
 
@@ -662,7 +662,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					wkz_wegebau,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
-					welt->get_timeline_year_month(),
+					welt,
 					weg_t::type_flat
 					);
 
@@ -671,7 +671,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					wkz_wegebau,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
-					welt->get_timeline_year_month(),
+					welt,
 					(weg_t::system_type)1
 					);
 
@@ -680,7 +680,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					wkz_wayobj,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
-					welt->get_timeline_year_month()
+					welt
 					);
 
 				roadsign_t::fill_menu(wzw,
@@ -688,7 +688,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					wkz_roadsign,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
-					welt->get_timeline_year_month()
+					welt
 					);
 
 				wzw->add_param_tool(&wkz_wayremover,
@@ -707,7 +707,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						SFX_GAVEL,
 						SFX_FAILURE,
 						umgebung_t::cst_multiply_airterminal,
-						welt->get_timeline_year_month() );
+						welt );
 				}
 
 				hausbauer_t::fill_menu(wzw,
@@ -716,7 +716,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					umgebung_t::cst_multiply_airterminal,
-					welt->get_timeline_year_month() );
+					welt );
 
 				hausbauer_t::fill_menu(wzw,
 					hausbauer_t::airport_geb,
@@ -724,7 +724,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					umgebung_t::cst_multiply_post,
-					welt->get_timeline_year_month() );
+					welt );
 
 				wzw->zeige_info(magic_airtools);
 				// end aircraft
@@ -745,7 +745,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				wkz_wegebau,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
-				welt->get_timeline_year_month(),
+				welt,
 				weg_t::type_all
 				);
 
@@ -754,7 +754,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				wkz_wegebau,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
-				welt->get_timeline_year_month(),
+				welt,
 				weg_t::type_all
 				);
 
@@ -764,7 +764,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
 				umgebung_t::cst_multiply_post,
-				welt->get_timeline_year_month() );
+				welt );
 
 			hausbauer_t::fill_menu(wzw,
 				hausbauer_t::wartehalle,
@@ -772,7 +772,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
 				umgebung_t::cst_multiply_post,
-				welt->get_timeline_year_month() );
+				welt );
 
 			hausbauer_t::fill_menu(wzw,
 				hausbauer_t::lagerhalle,
@@ -780,7 +780,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
 				umgebung_t::cst_multiply_post,
-				welt->get_timeline_year_month() );
+				welt );
 
 			wzw->add_tool(wkz_switch_player,
 				karte_t::Z_PLAN,

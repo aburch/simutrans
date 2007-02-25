@@ -129,7 +129,7 @@ public:
 		int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
 		int sound_ok,
 		int sound_ko,
-		uint16 time);
+		const karte_t *welt);
 };
 
 #endif

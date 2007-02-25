@@ -416,7 +416,7 @@ spieler_t::neuer_monat()
 	static char buf[256];
 
 	// Wartungskosten abziehen
-	buche( -((sint64)maintenance) <<((sint64)karte_t::ticks_bits_per_tag-18ll), COST_MAINTENANCE);
+	buche( -((sint64)maintenance) <<((sint64)welt->ticks_bits_per_tag-18ll), COST_MAINTENANCE);
 	calc_finance_history();
 	roll_finance_history_month();
 	simlinemgmt.new_month();

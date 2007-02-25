@@ -131,8 +131,10 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
          const waytype_t wtyp,
          const int sound_ok,
          const int sound_ko,
-         const uint16 time)
+         const karte_t *welt)
 {
+	const uint16 time = welt->get_timeline_year_month();
+
 	// list of matching types (sorted by speed)
 	slist_tpl <const bruecke_besch_t *> matching;
 
@@ -156,7 +158,7 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 		}
 	}
 
-	const sint32 shift_maintanance = (karte_t::ticks_bits_per_tag-18);	// same costs per intervall => correct display
+	const sint32 shift_maintanance = (welt->ticks_bits_per_tag-18);	// same costs per intervall => correct display
 
 	// now sorted ...
 	while (!matching.empty()) {

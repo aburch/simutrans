@@ -47,6 +47,8 @@ class translator
 		 */
 		static translator single_instance;
 
+		static const char *month_names[12];
+
 		/* Made to be dynamic, allowing any number of languages to be loaded */
 		const char* language_names[MAX_LANG];
 		const char* language_names_iso[MAX_LANG];
@@ -119,9 +121,12 @@ class translator
 		 * @return translated string, (null) if string is null,
 		 * or the string if the translation is not found
 		 */
-		static const char* translate(const char* str);
-		static const char* translate_from_lang(const int index,const char* str);
-		static const char* compatibility_name(const char* str);
+		static const char *translate(const char* str);
+		static const char *translate_from_lang(const int index,const char* str);
+		static const char *compatibility_name(const char* str);
+
+		// return the name of the month
+		static const char *translator::get_month_name(uint16 month);
 
 		/**
 		 * Checks if the given string is in the translation table

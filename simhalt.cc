@@ -33,7 +33,6 @@
 #include "simpeople.h"
 #include "freight_list_sorter.h"
 
-#include "simtime.h"
 #include "simcolor.h"
 #include "simgraph.h"
 #include "freight_list_sorter.h"

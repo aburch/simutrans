@@ -128,7 +128,7 @@ public:
 		int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
 		int sound_ok,
 		int sound_ko,
-		uint16 time);
+		const karte_t *welt);
 
 	static const roadsign_besch_t *roadsign_search(uint8 flag,const waytype_t wt,const uint16 time);
 };

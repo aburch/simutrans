@@ -14,7 +14,6 @@
 #include "../simworld.h"
 #include "../simimg.h"
 #include "../simintr.h"
-#include "../simtime.h"
 #include "../simcolor.h"
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"

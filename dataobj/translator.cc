@@ -32,6 +32,10 @@
 
 translator translator::single_instance;
 
+const char *translator::month_names[12]={
+	"January", "February", "March", "April", "May", "June",
+	"July", "August", "September", "Oktober", "November", "December"
+};
 
 #ifdef DEBUG
 // diagnosis
@@ -453,6 +457,14 @@ const char* translator::translate_from_lang(const int lang,const char* str)
 		return trans != NULL ? trans : str;
 	}
 }
+
+
+const char *
+translator::get_month_name(uint16 month) {
+	assert(month<12);
+	return translate(month_names[month]);
+}
+
 
 
 /* get a name for a non-matching object */

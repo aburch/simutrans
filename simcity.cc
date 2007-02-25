@@ -33,7 +33,6 @@
 #include "simfab.h"
 #include "simcity.h"
 #include "simmesg.h"
-#include "simtime.h"
 #include "simcolor.h"
 
 #include "gui/karte.h"

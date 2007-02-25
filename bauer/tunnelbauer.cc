@@ -141,8 +141,9 @@ tunnelbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
          const waytype_t wtyp,
          const int sound_ok,
          const int sound_ko,
-         const uint16 time)
+				 const karte_t *welt)
 {
+	const uint16 time=welt->get_timeline_year_month();
 	slist_tpl <const tunnel_besch_t *> matching;
 	for(unsigned int i = 0; i < tunnel.get_count(); i++) {
 		const tunnel_besch_t* besch = tunnel[i];
@@ -165,7 +166,7 @@ tunnelbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	}
 DBG_MESSAGE("tunnelbauer_t::fill_menu()","%i to be added",matching.count());
 
-	const sint32 shift_maintanance = (karte_t::ticks_bits_per_tag-18);	// same costs per intervall => correct display
+	const sint32 shift_maintanance = (welt->ticks_bits_per_tag-18);	// same costs per intervall => correct display
 
 	// now sorted ...
 	while (!matching.empty()) {

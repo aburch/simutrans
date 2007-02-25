@@ -209,8 +209,9 @@ void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	const int sound_ok,
 	const int sound_ko,
 	const sint64 cost,
-	const uint16 time)
+  const karte_t *welt)
 {
+	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
 	for( unsigned i=0;  i<stops.count();  i++  ) {
 		char buf[128];
@@ -251,8 +252,9 @@ void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	const int sound_ok,
 	const int sound_ko,
 	const sint64 cost,
-	const uint16 time)
+  const karte_t *welt)
 {
+	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.count());
 	for( unsigned i=0;  i<station_building.count();  i++  ) {
 		char buf[128];

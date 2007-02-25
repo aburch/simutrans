@@ -130,7 +130,7 @@ public:
      */
     static void fill_menu(werkzeug_parameter_waehler_t *wzw,
         const waytype_t wtyp,
-        const int sound_ok, const int sound_ko,const uint16 time);
+        const int sound_ok, const int sound_ko, const karte_t *welt);
 };
 
 #endif

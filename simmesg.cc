@@ -17,7 +17,6 @@
 #include "simdebug.h"
 #include "simmesg.h"
 #include "simticker.h"
-#include "simtime.h"
 #include "simgraph.h"
 #include "simcolor.h"
 #include "simmem.h"

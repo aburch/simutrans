@@ -44,7 +44,6 @@
 #include "simcolor.h"
 #include "simlinemgmt.h"
 
-#include "simtime.h"
 #include "simintr.h"
 #include "simio.h"
 
@@ -61,6 +60,7 @@
 
 #include "simgraph.h"
 #include "simdisplay.h"
+#include "simsys.h"
 
 #include "dings/zeiger.h"
 #include "dings/baum.h"
@@ -112,27 +112,9 @@
 //#include "test/buildings_frame_t.h"
 #endif
 
-static bool fast_forward = false;
-
-
-//static schedule_list_gui_t * schedule_list_gui = 0;
-
-
 //#define DEMO
 //#undef DEMO
 
-/**
- * anzahl ticks pro tag in bits
- * @see ticks_per_tag
- * @author Hj. Malthaner
- */
-uint32 karte_t::ticks_bits_per_tag = 20;
-
-/**
- * anzahl ticks pro tag
- * @author Hj. Malthaner
- */
-uint32 karte_t::ticks_per_tag = (1 << 20);
 
 // offsets for mouse pointer
 const int karte_t::Z_PLAN      = 4;
@@ -814,6 +796,12 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 
 karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), quick_shortcuts(15), marker(0,0)
 {
+	// length of day and other time stuff
+	ticks_bits_per_tag = 20;
+	ticks_per_tag = (1 << ticks_bits_per_tag);
+	fast_forward = false;
+	time_multiplier = 16;
+
 	for (unsigned int i=0; i<15; i++) {
 //DBG_MESSAGE("karte_t::karte_t()","Append NULL to quick_shortcuts at %d\n",i);
 		quick_shortcuts.append(NULL);
@@ -821,7 +809,6 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), quick_shortcu
 
 	follow_convoi = convoihandle_t();
 	setze_dirty();
-	//    set_rotation(0);
 	set_scroll_lock(false);
 
 	einstellungen_t * sets = new einstellungen_t();
@@ -1490,8 +1477,10 @@ karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der 
  * everything else is done here
  */
 void
-karte_t::sync_step(const long dt)
+karte_t::sync_step(const long delta_t)
 {
+	ticks += delta_t;
+
 	// ingore calls by interrupt during fast forward ...
 	if (!sync_add_list.empty()) {
 		slist_iterator_tpl<sync_steppable *> iter (sync_add_list);
@@ -1502,7 +1491,6 @@ karte_t::sync_step(const long dt)
 		sync_add_list.clear();
 	}
 
-	const long delta_t = (dt<0) ? 200 : (dt * get_time_multi()) >> 4;
 	slist_iterator_tpl<sync_steppable*> iter (sync_list);
 
 	// Hajo: we use a slight hack here to remove the current
@@ -1544,7 +1532,7 @@ karte_t::sync_step(const long dt)
 
 	if(!fast_forward) {
 		// display new frame ...
-		uint32 last_ms = get_system_ms();
+		uint32 last_ms = dr_time();
 		last_frame_ms[last_frame_idx++] = last_ms;
 		last_frame_idx &= 31;
 		// the first 256 after init this will give no result ...
@@ -1553,9 +1541,6 @@ karte_t::sync_step(const long dt)
 		}
 		intr_refresh_display( false );
 	}
-
-	// Hajo: ein weiterer Frame
-	ticks += delta_t;
 }
 
 
@@ -2717,9 +2702,9 @@ karte_t::reset_timer()
 {
 	DBG_MESSAGE("karte_t::reset_timer()","called");
 	// Reset timers
-	sync_last_time_now();
-	intr_set_last_time(get_system_ms());
-	last_step_time = get_current_time_millis();
+	uint32 last_tick_sync = dr_time();
+	intr_set_last_time(last_tick_sync);
+	last_step_time = last_tick_sync;
 
 	if(fast_forward) {
 		intr_disable();
@@ -2733,17 +2718,13 @@ karte_t::reset_timer()
 		last_frame_ms[i] = 0xFFFFFFFF;
 	}
 	last_frame_idx = 0;
-
-	// Hajo: this actually is too conservative but the correct
-	// solution is way too difficult for a simple pause function ...
-	// init for a good separation
-	DBG_MESSAGE("karte_t::reset_timer()","ok");
 }
 
 
 
 // jump one year ahead
-void karte_t::step_year()
+void
+karte_t::step_year()
 {
 	DBG_MESSAGE("karte_t::step_year()","called");
 	ticks += 12*karte_t::ticks_per_tag;
@@ -2754,7 +2735,9 @@ void karte_t::step_year()
 }
 
 
-void karte_t::do_pause()
+
+void
+karte_t::do_pause()
 {
 	display_fillbox_wh(display_get_width()/2-100, display_get_height()/2-50,
 	                           200,100, MN_GREY2, true);
@@ -2976,15 +2959,21 @@ karte_t::interactive_event(event_t &ev)
 	switch(ev.ev_code) {
 	case ',':
 	    sound_play(click_sound);
-	    set_time_multi(get_time_multi()-1);
+			fast_forward = false;
+			if(time_multiplier>1) {
+		    time_multiplier--;
+			}
+			reset_timer();
 	    break;
 	case '.':
 	    sound_play(click_sound);
-	    set_time_multi(get_time_multi()+1);
+			fast_forward = false;
+	    time_multiplier++;
+			reset_timer();
 	    break;
 	case '!':
 	    sound_play(click_sound);
-            umgebung_t::show_names = (umgebung_t::show_names+1) & 3;
+      umgebung_t::show_names = (umgebung_t::show_names+1) & 3;
 	    setze_dirty();
 	    break;
 	case '"':
@@ -3450,7 +3439,6 @@ karte_t::interactive_update()
 	bool swallowed = false;
 
 	do {
-
 		// get an event
 		win_poll_event(&ev);
 
@@ -3485,7 +3473,7 @@ karte_t::interactive_update()
 		if(fast_forward) {
 			sync_step( 200 );
 			step( 200 );
-			unsigned long current_time = get_current_time_millis()-last_step_time;
+			unsigned long current_time = dr_time()-last_step_time;
 			if(current_time>50) {
 				// display every 50ms at least (if possible)
 				intr_refresh_display( false );
@@ -3495,7 +3483,7 @@ karte_t::interactive_update()
 			}
 		}
 		else {
-			unsigned long current_time = get_current_time_millis()-last_step_time;
+			unsigned long current_time = ((dr_time()-last_step_time)*time_multiplier)/16;
 			if(current_time>200) {
 				step( current_time );
 				last_step_time += current_time;
@@ -3521,22 +3509,22 @@ karte_t::interactive_update()
 bool
 karte_t::interactive()
 {
-	unsigned long now = get_system_ms();
+	unsigned long now = dr_time();
 	realFPS = umgebung_t::fps;
 
 	active_player_nr = 0;
 	active_player = spieler[0];
 
-	last_step_time = get_current_time_millis();
+	last_step_time = dr_time();
 	steps_bis_jetzt = steps;
 
-	sleep_time = 5000;
+	sleep_time = 5;
 	doit = true;
 
 	while(doit) {
 		interactive_update();
 
-		const long t = get_system_ms();
+		const long t = dr_time();
 		if(fast_forward) {
 			if(t > now+1000) {
 				last_simloops = steps-steps_bis_jetzt;
@@ -3547,11 +3535,9 @@ karte_t::interactive()
 			sleep_time = 0;
 		}
 		else {
-			const unsigned long t = get_system_ms();
 			if(t > now+1000) {
 				// every second is enough ...
-				const long stretch_factor = get_time_multi();
-				last_simloops = ( (steps - steps_bis_jetzt) * 16) / stretch_factor;
+				last_simloops = ( (steps - steps_bis_jetzt) * 16) / time_multiplier;
 
 				if(last_simloops<=2) {
 					sleep_time = 0;
@@ -3581,7 +3567,7 @@ karte_t::interactive()
 				if(sleep_time>25) {
 					sleep_time = 25;
 				}
-				simusleep( sleep_time );
+				dr_sleep( sleep_time );
 			}
 		}
 	}

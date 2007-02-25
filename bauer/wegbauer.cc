@@ -11,7 +11,6 @@
  * Hj. Malthaner
  */
 
-#include "../simtime.h"	// testing speed
 #include "../gui/messagebox.h"
 
 #include "../simdebug.h"
@@ -231,9 +230,11 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
 	const int sound_ok,
 	const int sound_ko,
-	const uint16 time,
+	const karte_t *welt,
 	const weg_t::system_type styp)
 {
+	const uint16 time = welt->get_timeline_year_month();
+
 	// list of matching types (sorted by speed)
 	slist_tpl <const weg_besch_t *> matching;
 
@@ -265,7 +266,7 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 		}
 	}
 
-	const sint32 shift_maintanance = (karte_t::ticks_bits_per_tag-18);
+	const sint32 shift_maintanance = (welt->ticks_bits_per_tag-18);
 	// now sorted ...
 	while (!matching.empty()) {
 		const weg_besch_t* besch = matching.front();
@@ -1537,7 +1538,9 @@ wegbauer_t::calc_straight_route(koord3d start, const koord3d ziel)
 void
 wegbauer_t::calc_route(koord3d start, koord3d ziel)
 {
-long ms=get_current_time_millis();
+#ifdef DEBUG_ROUTES
+long ms=dr_time();
+#endif
 	INT_CHECK("simbau 740");
 
 	if(bautyp==luft  &&  besch->gib_styp()==1) {
@@ -1577,7 +1580,9 @@ long ms=get_current_time_millis();
 
 	}
 	INT_CHECK("wegbauer 778");
-DBG_MESSAGE("calc_route::clac_route", "took %i ms",get_current_time_millis()-ms);
+#ifdef DEBUG_ROUTES
+DBG_MESSAGE("calc_route::calc_route", "took %i ms",dr_time()-ms);
+#endif
 }
 
 
@@ -1974,8 +1979,9 @@ DBG_MESSAGE("wegbauer_t::baue()","called, but no valid route.");
 	}
 	DBG_MESSAGE("wegbauer_t::baue()", "type=%d max_n=%d start=%d,%d end=%d,%d", bautyp, max_n, route[0].x, route[0].y, route[max_n].x, route[max_n].y);
 
-// test!
-long ms=get_current_time_millis();
+#ifdef DEBUG_ROUTES
+long ms=dr_time();
+#endif
 
 	// first add all new underground tiles ... (and finished if sucessful)
 	if(bautyp&tunnel_flag) {
@@ -2014,5 +2020,7 @@ INT_CHECK("simbau 1072");
 
 	INT_CHECK("simbau 1087");
 
-DBG_MESSAGE("wegbauer_t::baue", "took %i ms",get_current_time_millis()-ms);
+#ifdef DEBUG_ROUTES
+DBG_MESSAGE("wegbauer_t::baue", "took %i ms",dr_time()-ms);
+#endif
 }

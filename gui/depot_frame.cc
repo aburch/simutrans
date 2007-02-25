@@ -14,7 +14,6 @@
 #include "../simconvoi.h"
 #include "../simdepot.h"
 #include "../simwin.h"
-#include "../simtime.h"
 #include "../simcolor.h"
 #include "../simdebug.h"
 #include "../simgraph.h"
@@ -1317,13 +1316,13 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 		// column 2
 		int n = sprintf(buf, "%s %s %04d\n",
 			translator::translate("Intro. date:"),
-			translator::translate(month_names[veh_type->get_intro_year_month()%12]),
+			translator::get_month_name(veh_type->get_intro_year_month()%12),
 			veh_type->get_intro_year_month()/12 );
 
 		if(veh_type->get_retire_year_month() !=DEFAULT_RETIRE_DATE*12) {
 			n += sprintf(buf+n, "%s %s %04d\n",
 				translator::translate("Retire. date:"),
-				translator::translate(month_names[veh_type->get_retire_year_month()%12]),
+				translator::get_month_name(veh_type->get_retire_year_month()%12),
 				veh_type->get_retire_year_month()/12 );
 		}
 

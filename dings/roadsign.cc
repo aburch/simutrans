@@ -442,8 +442,9 @@ void roadsign_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
 	int sound_ok,
 	int sound_ko,
-	const uint16 time)
+  const karte_t *welt)
 {
+	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("roadsign_t::fill_menu()","maximum %i",roadsign_t::liste.count());
 	for( unsigned i=0;  i<roadsign_t::liste.count();  i++  ) {
 		char buf[128];

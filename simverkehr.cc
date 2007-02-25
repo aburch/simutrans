@@ -379,7 +379,7 @@ stadtauto_t::sync_step(long delta_t)
 			}
 			else if(ms_traffic_jam<0) {
 				// message after three month, reset waiting timer
-				ms_traffic_jam = (3<<karte_t::ticks_bits_per_tag);
+				ms_traffic_jam = (3<<welt->ticks_bits_per_tag);
 				koord about_pos = gib_pos().gib_2d();
 				message_t::get_instance()->add_message(
 					translator::translate("To heavy traffic\nresults in traffic jam.\n"),
@@ -679,7 +679,7 @@ stadtauto_t::hop_check()
 {
 	if(!ist_weg_frei()) {
 		if(current_speed!=0) {
-			ms_traffic_jam = (3<<karte_t::ticks_bits_per_tag);
+			ms_traffic_jam = (3<<welt->ticks_bits_per_tag);
 			current_speed = 0;
 		}
 		return false;

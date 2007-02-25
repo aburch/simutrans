@@ -366,8 +366,9 @@ void wayobj_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
 	int sound_ok,
 	int sound_ko,
-	const uint16 time)
+	const karte_t *welt)
 {
+	const uint16 time=welt->get_timeline_year_month();
 DBG_DEBUG("wayobj_t::fill_menu()","maximum %i",liste.count());
 	for( unsigned i=0;  i<wayobj_t::liste.count();  i++  ) {
 		char buf[128];
@@ -382,7 +383,7 @@ DBG_DEBUG("wayobj_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
 				sprintf(buf, "%s, %ld$ (%ld$), %dkm/h",
 					translator::translate(besch->gib_name()),
 					besch->gib_preis()/-100l,
-					(besch->gib_wartung()<<(karte_t::ticks_bits_per_tag-18))/100l,
+					(besch->gib_wartung()<<(welt->ticks_bits_per_tag-18))/100l,
 					besch->gib_topspeed());
 
 				wzw->add_param_tool(werkzeug,

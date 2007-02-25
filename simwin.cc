@@ -29,7 +29,6 @@
 #include "simworld.h"
 #include "simplay.h"
 
-#include "simtime.h"
 #include "dings/zeiger.h"
 
 #include "simcolor.h"
@@ -1027,7 +1026,7 @@ void win_display_flush(double konto)
 	// unfourtunately, the easiest way is by manipulating the global high
 	{
 		sint16 oldh = display_get_height();
-		display_set_height( oldh-16-16*show_ticker );
+		display_set_height( oldh-(wl?16:0)-16*show_ticker );
 
 		display_all_win();
 		remove_old_win();
@@ -1043,31 +1042,33 @@ void win_display_flush(double konto)
 		}
 
 		display_set_height( oldh );
+
+		if(!wl) {
+			// no infos during loading etc
+			return;
+		}
 	}
 
 	koord3d pos;
 	uint32 ticks=1, month=0, year=0;
 
-	if(wl) {
-		const ding_t *dt = wl->gib_zeiger();
-		pos = dt->gib_pos();
-		month = wl->get_last_month();
-		year = wl->get_last_year();
-		ticks = wl->gib_zeit_ms();
-	}
+	const ding_t *dt = wl->gib_zeiger();
+	pos = dt->gib_pos();
+	month = wl->get_last_month();
+	year = wl->get_last_year();
+	ticks = wl->gib_zeit_ms();
 
 	// calculate also days if desired
-	const uint32 ticks_this_month = ticks & (karte_t::ticks_per_tag-1);
+	const uint32 ticks_this_month = ticks & (wl->ticks_per_tag-1);
 	uint32 tage, stunden4;
 	if(umgebung_t::show_month>1) {
 		static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
-		tage = ((ticks_this_month*tage_per_month[month]) >> karte_t::ticks_bits_per_tag) + 1;
-		stunden4 = ((ticks_this_month*tage_per_month[month]*96) >> karte_t::ticks_bits_per_tag)%96;
-//DBG_MESSAGE("xxx","ticks=%i, ticks_this_month=%i, tage=%i,  karte_t::ticks_bits_per_tag=%i",ticks,ticks_this_month,tage, karte_t::ticks_bits_per_tag);
+		tage = ((ticks_this_month*tage_per_month[month]) >> wl->ticks_bits_per_tag) + 1;
+		stunden4 = ((ticks_this_month*tage_per_month[month]*96) >> wl->ticks_bits_per_tag)%96;
 	}
 	else {
 		tage = 0;
-		stunden4 = (ticks_this_month * 96) >> karte_t::ticks_bits_per_tag;
+		stunden4 = (ticks_this_month * 96) >> wl->ticks_bits_per_tag;
 	}
 
 	// change to night mode?
@@ -1079,10 +1080,10 @@ void win_display_flush(double konto)
 		display_day_night_shift(0);
 	}
 
-    char time [128];
-    char info [256];
-    char stretch_text[32];
-    char delta_pos[64];
+	char time [128];
+	char info [256];
+	char stretch_text[32];
+	char delta_pos[64];
 
 //DBG_MESSAGE("umgebung_t::show_month","%d",umgebung_t::show_month);
 	// @author hsiegeln - updated to show month
@@ -1092,14 +1093,14 @@ void win_display_flush(double konto)
 		case 4:	sprintf(time, "%s, %d. %s %d",
 						translator::translate(seasons[wl->gib_jahreszeit()]),
 						tage,
-						translator::translate(month_names[month%12]),
+						translator::get_month_name(month%12),
 						year
 						);
 					break;
 		// us style
 		case 3:	sprintf(time, "%s, %s %d %d",
 						translator::translate(seasons[wl->gib_jahreszeit()]),
-						translator::translate(month_names[month%12]),
+						translator::get_month_name(month%12),
 						tage,
 						year
 						);
@@ -1108,13 +1109,13 @@ void win_display_flush(double konto)
 		case 2:	sprintf(time, "%s, %d/%s/%d",
 						translator::translate(seasons[wl->gib_jahreszeit()]),
 						year,
-						translator::translate(month_names[month%12]),
+						translator::get_month_name(month%12),
 						tage
 						);
 					break;
 		// just month
 		case 1:	sprintf(time, "%s, %s %d",
-						translator::translate(month_names[month%12]),
+						translator::get_month_name(month%12),
 						translator::translate(seasons[wl->gib_jahreszeit()]),
 						year);
 					break;
@@ -1123,9 +1124,8 @@ void win_display_flush(double konto)
 						translator::translate(seasons[wl->gib_jahreszeit()]),
 						year);
 					break;
-	}
-
-	sprintf(stretch_text, wl->is_fast_forward()?">>":"(T=%1.2f)", get_time_multi()/16.0 );
+		}
+		sprintf(stretch_text, wl->is_fast_forward()?">>":"(T=%1.2f)", wl->get_time_multiplier()/16.0 );
 
 	extern koord3d wkz_wegebau_start;
 	if(wkz_wegebau_start!=koord3d::invalid  &&  wkz_wegebau_start!=pos) {
@@ -1137,9 +1137,9 @@ void win_display_flush(double konto)
 	sprintf(info,"%s(%d,%d,%d) %s  %s", delta_pos, pos.x, pos.y, pos.z/Z_TILE_STEP, stretch_text, translator::translate(wl->use_timeline()?"timeline":"no timeline") );
 
 	const char *active_player_name = wl->get_active_player()->get_player_nr()==0 ? "" : wl->get_active_player()->gib_name();
+	// season icon
 	image_id season_img = skinverwaltung_t::seasons_icons ? skinverwaltung_t::seasons_icons->gib_bild_nr(wl->gib_jahreszeit()) : IMG_LEER;
 	display_flush(season_img, stunden4, konto, time, info, active_player_name, wl->get_active_player()->get_player_color1());
-	// season icon
 }
 
 void win_setze_welt(karte_t *welt)

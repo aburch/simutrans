@@ -13,7 +13,6 @@
 #include "convoi_detail_t.h"
 
 #include "../simplay.h"
-#include "../simtime.h"
 #include "../simconvoi.h"
 #include "../simdepot.h"
 #include "../simvehikel.h"
@@ -187,7 +186,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 
 			// age
 			sint32 month = v->gib_insta_zeit();
-			sprintf( buf, "%s %s %i", translator::translate("Manufactured:"), translator::translate(month_names[month%12]), month/12  );
+			sprintf( buf, "%s %s %i", translator::translate("Manufactured:"), translator::get_month_name(month%12), month/12  );
 			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
 			extra_y += LINESPACE;
 

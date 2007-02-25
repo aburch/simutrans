@@ -13,7 +13,6 @@
 
 #include "../simworld.h"
 #include "../simintr.h"
-#include "../simtime.h"
 #include "../simmem.h"
 #include "../simhalt.h"
 #include "../boden/wege/weg.h"
@@ -543,11 +542,11 @@ route_t::calc_route(karte_t *welt,
 
 #ifdef DEBUG_ROUTES
 	// profiling for routes ...
-	long ms=get_current_time_millis();
+	long ms=dr_time();
 #endif
 	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm,max_cost);
 #ifdef DEBUG_ROUTES
-	if(fahr->gib_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-2, get_current_time_millis()-ms );}
+	if(fahr->gib_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-2, dr_time()-ms );}
 #endif
 
 	INT_CHECK("route 343");

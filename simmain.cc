@@ -20,7 +20,6 @@
 #include "simcolor.h"
 #include "simdepot.h"
 #include "simskin.h"
-#include "simtime.h"
 #include "simconst.h"
 #include "boden/boden.h"
 #include "boden/wasser.h"
@@ -110,61 +109,61 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 	DBG_MESSAGE("test", "testing img ... ");
 	int i;
 
-	long ms = get_current_time_millis();
+	long ms = dr_time();
 	for (i = 0;  i < 300000;  i++)
 		display_img(10, 50, 50, 1);
-	DBG_MESSAGE("test", "display_img(): %i iterations took %i ms", i, get_current_time_millis() - ms);
+	DBG_MESSAGE("test", "display_img(): %i iterations took %i ms", i, dr_time() - ms);
 
-	ms = get_current_time_millis();
+	ms = dr_time();
 	for (i = 0;  i < 300000;  i++)
 		display_color_img(2000, 120, 100, 0, 1, 1);
-	DBG_MESSAGE("test", "display_color_img(): %i iterations took %i ms", i, get_current_time_millis() - ms);
+	DBG_MESSAGE("test", "display_color_img(): %i iterations took %i ms", i, dr_time() - ms);
 
-	ms = get_current_time_millis();
+	ms = dr_time();
 	for (i = 0;  i < 300000;  i++)
 		display_color_img(2000, 160, 150, 16, 1, 1);
-	DBG_MESSAGE("test", "display_color_img(): next AI: %i iterations took %i ms", i, get_current_time_millis() - ms);
+	DBG_MESSAGE("test", "display_color_img(): next AI: %i iterations took %i ms", i, dr_time() - ms);
 
-	ms = get_current_time_millis();
+	ms = dr_time();
 	for (i = 0;  i < 300000;  i++)
 		display_color_img(2000, 220, 200, 20, 1, 1);
-	DBG_MESSAGE("test", "display_color_img(), other AI: %i iterations took %i ms", i, get_current_time_millis() - ms);
+	DBG_MESSAGE("test", "display_color_img(), other AI: %i iterations took %i ms", i, dr_time() - ms);
 
-	ms = get_current_time_millis();
+	ms = dr_time();
 	for (i = 0;  i < 300;  i++)
 		display_flush_buffer();
-	DBG_MESSAGE("test", "display_flush_buffer(): %i iterations took %i ms", i, get_current_time_millis() - ms);
+	DBG_MESSAGE("test", "display_flush_buffer(): %i iterations took %i ms", i, dr_time() - ms);
 
-	ms = get_current_time_millis();
+	ms = dr_time();
 	for (i = 0;  i < 300000;  i++)
 		display_text_proportional_len_clip(100, 120, "Dies ist ein kurzer Textetxt ...", 0, 0, false, true, -1, false);
-	DBG_MESSAGE("test", "display_text_proportional_len_clip(): %i iterations took %i ms", i, get_current_time_millis() - ms);
+	DBG_MESSAGE("test", "display_text_proportional_len_clip(): %i iterations took %i ms", i, dr_time() - ms);
 
-	ms = get_current_time_millis();
+	ms = dr_time();
 	for (i = 0;  i < 300000;  i++)
 		display_fillbox_wh(100, 120, 300, 50, 0, false);
-	DBG_MESSAGE("test", "display_fillbox_wh(): %i iterations took %i ms", i, get_current_time_millis() - ms);
+	DBG_MESSAGE("test", "display_fillbox_wh(): %i iterations took %i ms", i, dr_time() - ms);
 
-	ms = get_current_time_millis();
+	ms = dr_time();
 	for (i = 0; i < 200; i++) {
 		view->display(true);
 	}
-	DBG_MESSAGE("test", "view->display(true): %i iterations took %i ms", i, get_current_time_millis() - ms);
+	DBG_MESSAGE("test", "view->display(true): %i iterations took %i ms", i, dr_time() - ms);
 
-	ms = get_current_time_millis();
+	ms = dr_time();
 	for (i = 0; i < 200; i++) {
 		view->display(true);
 		win_display_flush(0.0);
 	}
-	DBG_MESSAGE("test", "view->display(true) and flush: %i iterations took %i ms", i, get_current_time_millis() - ms);
+	DBG_MESSAGE("test", "view->display(true) and flush: %i iterations took %i ms", i, dr_time() - ms);
 
-	ms = get_current_time_millis();
+	ms = dr_time();
 	intr_set(welt, view);
 	for (i = 0; i < 200; i++) {
 		welt->step(200);
 	}
 	intr_disable();
-	DBG_MESSAGE("test", "welt->step(200): %i iterations took %i ms", i, get_current_time_millis() - ms);
+	DBG_MESSAGE("test", "welt->step(200): %i iterations took %i ms", i, dr_time() - ms);
 }
 
 
@@ -187,7 +186,7 @@ static void zeige_banner(karte_t *welt)
 	do {
 		win_poll_event(&ev);
 		check_pos_win(&ev);
-		simusleep(4);
+		dr_sleep(4);
 		welt->step(5);
 	} while(win_is_top(b));
 
@@ -561,9 +560,6 @@ extern "C" int simu_main(int argc, char** argv)
 	print("Preparing display ...\n");
 	simgraph_init(disp_width, disp_height, use_shm == NULL, do_sync == NULL, fullscreen);
 
-	print("Init timer module ...\n");
-	time_init();
-
 	// just check before loading objects
 	if (!gimme_arg(argc, argv, "-nosound", 0)) {
 		print("Reading compatibility sound data ...\n");
@@ -801,12 +797,15 @@ DBG_MESSAGE("init","map");
 			create_win((disp_width - 220 - 176 -10 -10- 260)/2 + 220 + 10, (disp_height - 300) / 2, -1, wg, w_info);
 			create_win((disp_width - 176-10), 40, -1, cg, w_info);
 
-			setsimrand(get_current_time_millis(), get_current_time_millis());
+			setsimrand(dr_time(), dr_time());
 
 			do {
+				INT_CHECK("simmain 803");
 				win_poll_event(&ev);
+				INT_CHECK("simmain 805");
 				check_pos_win(&ev);
-				simusleep(10);
+				INT_CHECK("simmain 807");
+				dr_sleep(5);
 			} while(
 				!wg->gib_load() &&
 				!wg->gib_load_heightfield() &&

@@ -17,8 +17,8 @@
 #include "../simimg.h"
 #include "../simworld.h"
 #include "../simskin.h"
-#include "../simtime.h"
 #include "../simwin.h"
+#include "../simsys.h"
 #include "../simversion.h"
 #include "../simgraph.h"
 #include "../besch/skin_besch.h"
@@ -28,7 +28,7 @@
 
 banner_t::banner_t()
 {
-	last_ms = get_system_ms();
+	last_ms = dr_time();
 	line = 0;
 	xoff = (display_get_width()  / 2) - 180;
 	yoff = (display_get_height() / 2) - 125;
@@ -106,7 +106,7 @@ void banner_t::zeichnen(koord /*pos*/, koord)
 	display_fillbox_wh(xoff + left, yoff + top + 49, 240, 7, COL_GREY4, true);
 
 	// scroll on every 70 ms
-	if(get_system_ms()>last_ms+70u) {
+	if(dr_time()>last_ms+70u) {
 		last_ms += 70u;
 		line ++;
 	}
