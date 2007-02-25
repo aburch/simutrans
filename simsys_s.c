@@ -524,7 +524,7 @@ unsigned long dr_time(void)
 }
 
 
-void dr_sleep(unsigned long usec)
+void dr_sleep(uint32 usec)
 {
 	if (usec >= 1024) {
 		// schlaeft meist etwas zu kurz,
