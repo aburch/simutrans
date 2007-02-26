@@ -614,10 +614,12 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i o
 		if(lcount!=0) {
 			// at least three producers please
 			found = lfound/2;
+			// double consumption for new ones
+			verbrauch *= 2;
 		}
 
 		// try to add all types of factories until demand is satisfied
-		for(int j=0;  j<50  &&  (lcount>lfound  ||  (lcount==0  &&  verbrauch>0));  j++  ) {
+		for(int j=0;  j<50  &&  (lcount>lfound  ||  lcount==0)  &&  verbrauch>0;  j++  ) {
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","find lieferant for %s.",info->gib_name());
 			const fabrik_besch_t *hersteller = finde_hersteller(ware,j%anzahl_hersteller);
 			if(info==hersteller) {
