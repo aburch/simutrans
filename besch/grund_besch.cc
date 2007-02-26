@@ -151,7 +151,7 @@ static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap,
 	PIXVAL *dest = (PIXVAL *)bild_dest->gib_daten();
 	for (int j = 0; j < bild_dest->get_pic()->h; j++) {
 		tile_y = bild_dest->get_pic()->y + j;
-		tile_x = bild_dest->get_pic()->x + *dest++;
+		tile_x = *dest++;
 		// offset is the pixel position in the texture bitmaps;
 		// so we can avoid stretching the textures
 		const sint16 offset = (bild_dest->get_pic()->y + j) * (x_y + 3) + 2;
