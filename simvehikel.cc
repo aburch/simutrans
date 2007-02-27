@@ -3005,15 +3005,16 @@ int aircraft_t::calc_height()
 			else {
 				// touchdown!
 				flughoehe = 0;
-				cnv->setze_akt_speed_soll( kmh_to_speed(besch->gib_geschw())/4 );
-				current_friction = 512;
+				// all planes taxi with same speed
+				cnv->setze_akt_speed_soll( kmh_to_speed(60) );
+				current_friction = 16;
 			}
 		}
 		break;
 
 	default:
-		// curve: higher friction
-		current_friction = (alte_fahrtrichtung != fahrtrichtung) ? 512 : 128;
+		cnv->setze_akt_speed_soll( kmh_to_speed(60) );	// all planes taxi with 60
+		current_friction = 16;//(alte_fahrtrichtung != fahrtrichtung) ? 512 : 128;
 		flughoehe = 0;
 		break;
 	}

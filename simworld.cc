@@ -1757,12 +1757,19 @@ DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
 
 
 void
-karte_t::step(const long delta_t)
+karte_t::step(const long )
 {
+	const long delta_t = (long)ticks-(long)last_step_ticks;
 	// needs plausibility check?!?
-	if(delta_t<=0  ||  delta_t>10000) {
+	if(delta_t<0  ||  delta_t>10000) {
+		last_step_ticks = ticks;
 		return;
 	}
+	// avoid too often steps ...
+	if(delta_t<100) {
+		return;
+	}
+	last_step_ticks = ticks;
 
 	// Hajo: Convois need extra frequent steps to avoid unneccesary
 	// long waiting times

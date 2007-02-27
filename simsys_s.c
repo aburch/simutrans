@@ -15,7 +15,9 @@
 #endif
 
 #ifdef _WIN32
+#include "SDL_syswm.h"
 #include <windows.h>
+#define PATH_MAX (1024)
 #else
 #include <sys/stat.h>
 #include <sys/errno.h>
@@ -188,57 +190,6 @@ int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 	*textur = (unsigned short*)screen->pixels;
 	return 1;
 }
-
-
-
-// query program directory (where the pak files should be)
-char *dr_query_programdir(const char *argv0)
-{
-	static char buffer[PATH_MAX];
-#ifdef _WIN32
-	int i;
-	char *c=NULL;
-	GetModuleFileNameA( hInstance, pathname, PATH_MAX );
-	for(i=0;  i<PATH_MAX;  i++  ) {
-		if(buffer[i]=='\\') {
-			*c = buffer+i;
-		}
-	}
-	if(c) {
-		*c = NULL;
-	}
-#else
-	/* Read the target of /proc/self/exe. */
-	if (readlink ("/proc/self/exe", buffer, PATH_MAX)>0) {
-		/* Find the last occurrence of a forward slash, the path separator. */
-		char* path_end = strrchr (buffer, '/');
-		if (path_end != NULL) {
-			/* Advance to the character past the last slash. */
-			++path_end;
-			*path_end = '\0';
-			return buffer;
-		}
-	}
-	// no process file system => need to parse argv[0]
-	if(*argv0=='/') {
-		// absolute path here
-		char* path_end = strrchr (argv0, '/');
-		int i;
-		for(i=0;  i<PATH_MAX  &&  buffer+i<path_end;  i++) {
-			buffer[i] = argv0[i];
-		}
-		buffer[i] = 0;
-		return buffer;
-	}
-	else  {
-		// just return the relative path
-		/* should work on most unix or gnu systems */
-		return realpath (argv0, buffer);
-	}
-#endif
-	return buffer;
-}
-
 
 
 
@@ -587,7 +538,34 @@ void dr_sleep(uint32 usec)
 
 int simu_main(int argc, char **argv);
 
+#ifdef _WIN32
+BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+{
+	char *argv[32], *p;
+	int argc;
+	char pathname[1024];
+
+	// prepare commandline
+	argc = 0;
+	GetModuleFileNameA( hInstance, pathname, 1024 );
+	argv[argc++] = pathname;
+	p = strtok(lpCmdLine, " ");
+	while (p != NULL) {
+		argv[argc++] = p;
+		p = strtok(NULL, " ");
+	}
+	argv[argc] = NULL;
+#else
 int main(int argc, char **argv)
 {
+	char buffer[1024];
+	/* Read the target of /proc/self/exe. */
+	if (readlink ("/proc/self/exe", buffer, PATH_MAX)>0) {
+		argv[0] = buffer;
+	}
+	// no process file system => need to parse argv[0]
+	/* should work on most unix or gnu systems */
+	argv[0] = realpath (argv[0], buffer);
+#endif
 	return simu_main(argc, argv);
 }

@@ -251,6 +251,7 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	uint32 ticks;		      // Anzahl ms seit Erzeugung
+	uint32 last_step_ticks; // ticks counter at last steps
 	uint32 next_month_ticks;	// from now on is next month
 
 	// default time stretching factor

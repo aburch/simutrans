@@ -186,8 +186,10 @@ static void zeige_banner(karte_t *welt)
 	do {
 		win_poll_event(&ev);
 		check_pos_win(&ev);
-		dr_sleep(4);
-		welt->step(5);
+		INT_CHECK("simmain 189");
+		dr_sleep(10);
+		INT_CHECK("simmain 191");
+		welt->step(10);
 	} while(win_is_top(b));
 
 	if (IS_LEFTCLICK(&ev)) {
@@ -392,6 +394,7 @@ extern "C" int simu_main(int argc, char** argv)
 	} else {
 		init_logging(NULL, false, false);
 	}
+	dbg->message("argv0",argv[0]);
 
 	// you really want help with this?
 	if (gimme_arg(argc, argv, "-h",     0) ||
