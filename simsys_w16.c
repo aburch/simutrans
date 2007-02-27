@@ -63,6 +63,26 @@ int dr_os_init(const int* parameter)
 
 
 
+// query program directory (where the pak files should be)
+char *dr_query_programdir(const char *argv)
+{
+	int i;
+	static char buffer[1024];
+	char *c=NULL;
+	GetModuleFileNameA( hInstance, buffer, 1024 );
+	for(i=0;  i<1024;  i++  ) {
+		if(buffer[i]=='\\') {
+			*c = buffer+i;
+		}
+	}
+	if(c) {
+		*c = NULL;
+	}
+	return buffer;
+}
+
+
+
 // query home directory
 char *dr_query_homedir()
 {

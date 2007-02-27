@@ -65,6 +65,9 @@ int dr_os_init(const int* parameter);
 int dr_os_open(int w, int h, int bpp, int fullscreen);
 int dr_os_close(void);
 
+/* query directory of data and configuration files */
+char *dr_query_programdir(const char *argv0);
+
 /* query home directory */
 char *dr_query_homedir(void);
 

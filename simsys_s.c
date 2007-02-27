@@ -191,13 +191,64 @@ int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 
 
 
+// query program directory (where the pak files should be)
+char *dr_query_programdir(const char *argv0)
+{
+	static char buffer[PATH_MAX];
+#ifdef _WIN32
+	int i;
+	char *c=NULL;
+	GetModuleFileNameA( hInstance, pathname, PATH_MAX );
+	for(i=0;  i<PATH_MAX;  i++  ) {
+		if(buffer[i]=='\\') {
+			*c = buffer+i;
+		}
+	}
+	if(c) {
+		*c = NULL;
+	}
+#else
+	/* Read the target of /proc/self/exe. */
+	if (readlink ("/proc/self/exe", buffer, PATH_MAX)>0) {
+		/* Find the last occurrence of a forward slash, the path separator. */
+		char* path_end = strrchr (buffer, '/');
+		if (path_end != NULL) {
+			/* Advance to the character past the last slash. */
+			++path_end;
+			*path_end = '\0';
+			return buffer;
+		}
+	}
+	// no process file system => need to parse argv[0]
+	if(*argv0=='/') {
+		// absolute path here
+		char* path_end = strrchr (argv0, '/');
+		int i;
+		for(i=0;  i<PATH_MAX  &&  buffer+i<path_end;  i++) {
+			buffer[i] = argv0[i];
+		}
+		buffer[i] = 0;
+		return buffer;
+	}
+	else  {
+		// just return the relative path
+		/* should work on most unix or gnu systems */
+		return realpath (argv0, buffer);
+	}
+#endif
+	return buffer;
+}
+
+
+
+
 // query home directory
 char *dr_query_homedir(void)
 {
-	static char buffer[1024];
-	char b2[1060];
+	static char buffer[PATH_MAX];
+	char b2[PATH_MAX];
 #ifdef _WIN32
-	DWORD len=960;
+	DWORD len=PATH_MAX-24;
 	HKEY hHomeDir;
 	if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ,	&hHomeDir)==ERROR_SUCCESS) {
 		RegQueryValueExA(hHomeDir,"Personal",NULL,NULL,(LPCSTR)buffer,&len);

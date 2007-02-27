@@ -2114,13 +2114,13 @@ spieler_t::built_hub( const koord pos, int radius )
 
 				// flat, solid, and ours
 				if(!gr->ist_wasser()  &&  gr->gib_grund_hang()==hang_t::flach  &&  (gr->obj_count()==0  ||  gr->obj_bei(0)->gib_besitzer()==NULL || gr->obj_bei(0)->gib_besitzer()==this)  ) {
-					if(gr->is_halt()) {
+					if(gr->is_halt()  &&  gr->gib_halt()->gib_besitzer()==this) {
 						// ok, one halt belongs already to us ...
       			return try_pos;
 					}
 					else if(gr->hat_weg(road_wt)) {
 						ribi_t::ribi  ribi = gr->gib_weg_ribi_unmasked(road_wt);
-	      				if( abs(x)+abs(y)<=dist  &&  (ribi_t::nordsued==ribi  || ribi_t::ostwest==ribi  ||  ribi_t::ist_einfach(ribi))    ) {
+	      				if( abs(x)+abs(y)<=dist  &&  (ribi_t::ist_gerade(ribi)  ||  ribi_t::ist_einfach(ribi))    ) {
 	      					best_pos = try_pos;
 	      					dist = abs(x)+abs(y);
 	      				}

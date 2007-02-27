@@ -13,6 +13,7 @@
 	FIX: ppm for all program for heightmaps (Photoshop created unexpected header)
 	ADD: goods entries shrank further (now 12 Bytes pre packet) and saved lots of lookups
 	ADD: obj=tree allows for seasons=3/5 with the thrid/fifth season having snowy winter tree image
+	FIX: AI tried to built busstops in invalid positions
 	FIX: InputSupplier[]=0 did not built new factories, even if required
 	FIX: no depot on crossings or places with more than a single way
 
