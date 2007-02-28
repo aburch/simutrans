@@ -16,6 +16,7 @@
 	FIX: AI tried to built busstops in invalid positions
 	FIX: InputSupplier[]=0 did not built new factories, even if required
 	FIX: no depot on crossings or places with more than a single way
+	CHANGE: a car will wait two months in a traffic jam, then it will complain. After three months it tries to turn; in unseccessful, it will self-destruct.
 
 
 Release of 99.08.1

@@ -377,14 +377,23 @@ stadtauto_t::sync_step(long delta_t)
 				ms_traffic_jam = 0;
 				current_speed = 48;
 			}
-			else if(ms_traffic_jam<0) {
-				// message after three month, reset waiting timer
-				ms_traffic_jam = (3<<welt->ticks_bits_per_tag);
-				koord about_pos = gib_pos().gib_2d();
-				message_t::get_instance()->add_message(
-					translator::translate("To heavy traffic\nresults in traffic jam.\n"),
-					koord(about_pos.x&0xFFF4,about_pos.y&0xFFF4), message_t::problems, COL_ORANGE );
-				// still stucked ...
+			else {
+				if(ms_traffic_jam<welt->ticks_per_tag  &&  old_ms_traffic_jam>=welt->ticks_per_tag) {
+					// message after three month, reset waiting timer
+					koord about_pos = gib_pos().gib_2d();
+					message_t::get_instance()->add_message(
+						translator::translate("To heavy traffic\nresults in traffic jam.\n"),
+						koord((about_pos.x&0xFFF0)+4,(about_pos.y&0xFFF0)+4), message_t::problems, COL_ORANGE );
+				}
+				else if(ms_traffic_jam<0) {
+					// try to turn around ...
+					fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
+					pos_next = gib_pos();//welt->lookup_kartenboden(gib_pos().gib_2d()+koord(fahrtrichtung))->gib_pos();
+					dx = -dx;
+					dy = -dy;
+					// still stucked ...  => destroy oneself!
+					return ist_weg_frei();
+				}
 			}
 		}
 	}
@@ -682,7 +691,6 @@ stadtauto_t::hop_check()
 			ms_traffic_jam = (3<<welt->ticks_bits_per_tag);
 			current_speed = 0;
 		}
-		return false;
 	}
 	else {
 		if(ms_traffic_jam) {
