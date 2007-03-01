@@ -86,10 +86,8 @@ interrupt_check()
 void interrupt_check(const char* caller_info)
 {
 	static const char * last_caller = "program start";
-	static long last_call_time = 0;
-
 	const long now = dr_time();
-	if(now-last_call_time<frame_time) {
+	if(now-last_time<frame_time) {
 		return;
 	}
 	if(enabled) {
@@ -99,7 +97,6 @@ void interrupt_check(const char* caller_info)
 			last_time = now;
 			welt_modell->sync_step( diff );
 			enabled = true;
-			last_call_time = now;
 		}
 	}
 	last_caller = caller_info;

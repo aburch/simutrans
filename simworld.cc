@@ -558,6 +558,7 @@ karte_t::init(einstellungen_t *sets)
 	x_off = y_off = 0;
 
 	ticks = 0;
+	last_step_ticks = 0;
 	schedule_counter = 0;
 	// ticks = 0x7FFFF800;  // Testing the 31->32 bit step
 
@@ -1477,8 +1478,13 @@ karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der 
  * everything else is done here
  */
 void
-karte_t::sync_step(const long delta_t)
+karte_t::sync_step(long delta_t)
 {
+	// just for progress
+	if(fast_forward) {
+		intr_set_last_time( dr_time() );
+		delta_t = 200;
+	}
 	ticks += delta_t;
 
 	// ingore calls by interrupt during fast forward ...
@@ -1759,6 +1765,9 @@ DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
 void
 karte_t::step(const long )
 {
+	// to make sure the tick counter will be updated
+	INT_CHECK("karte_t::step");
+
 	const long delta_t = (long)ticks-(long)last_step_ticks;
 	// needs plausibility check?!?
 	if(delta_t<0  ||  delta_t>10000) {
@@ -2712,13 +2721,7 @@ karte_t::reset_timer()
 	uint32 last_tick_sync = dr_time();
 	intr_set_last_time(last_tick_sync);
 	last_step_time = last_tick_sync;
-
-	if(fast_forward) {
-		intr_disable();
-	}
-	else {
-		intr_enable();
-	}
+	intr_enable();
 
 	// make invalid
 	for( int i=0;  i<256;  i++ ) {
@@ -3571,8 +3574,8 @@ karte_t::interactive()
 			}
 
 			if(sleep_time>0) {
-				if(sleep_time>25) {
-					sleep_time = 25;
+				if(sleep_time>(1000/umgebung_t::fps)) {
+					sleep_time = 1000/umgebung_t::fps;
 				}
 				dr_sleep( sleep_time );
 			}

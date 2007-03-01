@@ -1823,6 +1823,16 @@ waggon_t::ist_weg_frei(int & restart_speed)
 
 			// if signal is single line then calculate route to next signal and check it is clear
 			if(sig_besch->is_longblock_signal()) {
+				if(!cnv->is_waiting()) {
+					// do not stop before the signal ...
+					if(route_index<=next_block) {
+						restart_speed = -1;
+						return true;
+					}
+					restart_speed = -1;
+					return false;
+				}
+
 				bool exit_loop = false;
 				short fahrplan_index = cnv->gib_fahrplan()->get_aktuell();
 				int count = 0;
