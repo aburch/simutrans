@@ -95,8 +95,12 @@ warenbauer_t::alles_geladen()
 		}
 	}
 	// passenger and good colors
-	waren[0]->color = COL_GREY3;
-	waren[1]->color = COL_YELLOW;
+	if(waren[0]->color==255) {
+		waren[0]->color = COL_GREY3;
+	}
+	if(waren[1]->color==255) {
+		waren[1]->color = COL_YELLOW;
+	}
 	// none should never be loaded to something ...
 	// however, some place do need the dummy ...
 	ware_t::index_to_besch[2] = NULL;

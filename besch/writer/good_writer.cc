@@ -35,8 +35,8 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	value = obj.get_int("weight_per_unit", 100);
 	node.write_data_at(fp, &value, 7, sizeof(uint16));
 
-	val8 = obj.get_int("color", 255);
-	node.write_data_at(fp, &val8, 9, sizeof(uint16));
+	val8 = obj.get_int("mapcolor", 255);
+	node.write_data_at(fp, &val8, 9, sizeof(uint8));
 
 	node.write(fp);
 }
