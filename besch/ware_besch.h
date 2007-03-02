@@ -15,6 +15,7 @@
 #define __WARE_BESCH_H
 
 #include "obj_besch_std_name.h"
+#include "../simcolor.h"
 
 /*
  *  Autor:
@@ -53,6 +54,8 @@ class ware_besch_t : public obj_besch_std_name_t {
 	// used for inderect index (saves 3 bytes per ware_t!)
 	// assinged during registration
 	uint8 ware_index;
+
+	COLOR_VAL color;
 
 	/**
 	* Bonus for fast transport given in percent!
@@ -123,6 +126,12 @@ public:
 	{
 		return catg_index == other->gib_catg_index();
 	}
+
+	/**
+	* @return color for good table and waiting bars
+	* @author Hj. Malthaner
+	*/
+	COLOR_VAL gib_color() const { return color; }
 };
 
 #endif

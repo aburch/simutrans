@@ -39,7 +39,7 @@ void goods_stats_t::zeichnen(koord offset)
 		const ware_besch_t * wtyp = warenbauer_t::gib_info(goodslist[i]);
 
 		display_ddd_box_clip(offset.x + 2, yoff, 8, 8, MN_GREY0, MN_GREY4);
-		display_fillbox_wh_clip(offset.x + 3, yoff+1, 6, 6, 255 - (goodslist[i]-1)*4, true);
+		display_fillbox_wh_clip(offset.x + 3, yoff+1, 6, 6, wtyp->gib_color(), true);
 
 		sprintf(buf, "%s", translator::translate(wtyp->gib_name()));
 		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, COL_BLACK, true);

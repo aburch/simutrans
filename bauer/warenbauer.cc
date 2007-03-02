@@ -11,6 +11,7 @@
 #include "../besch/ware_besch.h"
 #include "../besch/spezial_obj_tpl.h"
 #include "../simware.h"
+#include "../simcolor.h"
 #include "warenbauer.h"
 
 
@@ -88,8 +89,14 @@ warenbauer_t::alles_geladen()
 		else {
 			assert(waren[i]->gib_index()==i);
 			ware_t::index_to_besch[i] = waren[i];
+			if(waren[i]->color==255) {
+				waren[i]->color = 16+4+((i-2)*8)%207;
+			}
 		}
 	}
+	// passenger and good colors
+	waren[0]->color = COL_GREY3;
+	waren[1]->color = COL_YELLOW;
 	// none should never be loaded to something ...
 	// however, some place do need the dummy ...
 	ware_t::index_to_besch[2] = NULL;

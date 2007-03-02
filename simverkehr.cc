@@ -379,11 +379,8 @@ stadtauto_t::sync_step(long delta_t)
 			}
 			else {
 				if(ms_traffic_jam<welt->ticks_per_tag  &&  old_ms_traffic_jam>=welt->ticks_per_tag) {
-					// message after three month, reset waiting timer
-					koord about_pos = gib_pos().gib_2d();
-					message_t::get_instance()->add_message(
-						translator::translate("To heavy traffic\nresults in traffic jam.\n"),
-						koord((about_pos.x&0xFFF0)+4,(about_pos.y&0xFFF0)+4), message_t::problems, COL_ORANGE );
+					// message after two month, reset waiting timer
+					message_t::get_instance()->add_message( translator::translate("To heavy traffic\nresults in traffic jam.\n"), gib_pos().gib_2d(), message_t::problems, COL_ORANGE );
 				}
 				else if(ms_traffic_jam<0) {
 					// try to turn around ...

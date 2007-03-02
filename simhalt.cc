@@ -2023,7 +2023,7 @@ void haltestelle_t::display_status(sint16 xpos, sint16 ypos) const
 			}
 
 			display_fillbox_wh_clip(xpos, ypos-v-1, 1, v, COL_GREY4, true);
-			display_fillbox_wh_clip(xpos+1, ypos-v-1, 2, v, 255 - i*4, true);
+			display_fillbox_wh_clip(xpos+1, ypos-v-1, 2, v, wtyp->gib_color(), true);
 			display_fillbox_wh_clip(xpos+3, ypos-v-1, 1, v, COL_GREY1, true);
 
 			// Hajo: show up arrow for capped values
