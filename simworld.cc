@@ -1775,7 +1775,7 @@ karte_t::step(const long )
 		return;
 	}
 	// avoid too often steps ...
-	if(delta_t<100) {
+	if(delta_t<150) {
 		return;
 	}
 	last_step_ticks = ticks;
@@ -3552,14 +3552,14 @@ karte_t::interactive()
 				if(last_simloops<=2) {
 					sleep_time = 0;
 				}
-				else if(last_simloops>4) {
+				else if(last_simloops>7) {
 					sleep_time += 1;
 				}
 				else if(last_simloops<5  &&  sleep_time>=1) {
 					sleep_time -= 1;
 				}
 
-				if(realFPS>umgebung_t::fps  ||  last_simloops<=2) {
+				if(realFPS>umgebung_t::fps  ||  last_simloops<=3) {
 					increase_frame_time();
 				} else if(realFPS<umgebung_t::fps  &&  last_simloops>=3) {
 					if(sleep_time>0) {

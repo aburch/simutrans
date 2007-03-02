@@ -276,7 +276,7 @@ simline_t::recalc_status()
 			has_obsolete = line_managed_convoys[i]->has_obsolete_vehicles();
 		}
 		// now we have to set it
-		state_color = has_obsolete ? COL_BLUE : COL_BLACK;
+		state_color = has_obsolete ? COL_DARK_BLUE : COL_BLACK;
 	}
 	else {
 		// normal state
