@@ -19,6 +19,7 @@
 	CHANGE: a car will wait two months in a traffic jam, then it will complain. After three months it tries to turn; in unseccessful, it will self-destruct.
 	FIX: crash could occur with long_block_signals(); the fix will cause trains to slow down in front of long block signals similar to choose signals
 	ADD: color for good in dat-file (color=index_nr, same as factory colors)
+	CHANGE: category names now  CATEGORY_xx and part of the pak set, replacing  "piece goods", "bulk goods", "oil/gasoline", "cooled goods", "liquid food", "long goods"
 
 
 Release of 99.08.1

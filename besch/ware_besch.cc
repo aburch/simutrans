@@ -4,12 +4,12 @@
 
 static const char * catg_names[32] = {
   "special freight",
-  "piece goods",
-  "bulk goods",
-  "oil/gasoline",
-  "cooled goods",
-  "liquid food",
-  "long goods",
+  "CATEGORY_01",	// was "piece goods",
+  "CATEGORY_02",	// was "bulk goods",
+  "CATEGORY_03",	// was "oil/gasoline",
+  "CATEGORY_04",	// was "cooled goods",
+  "CATEGORY_05",	// was "liquid food",
+  "CATEGORY_06",	// was "long goods",
   "CATEGORY_07",
 
   "CATEGORY_08",
