@@ -1704,13 +1704,28 @@ void stadt_t::check_bau_spezial(bool new_town)
 				}
 				if (ok) {
 					// Straßenkreis um das Denkmal legen
+					sint16 h=welt->lookup_kartenboden(best_pos)->gib_hoehe();
 					for (int i = 0; i < total_size.y; i++) {
-						baue_strasse(best_pos + koord(0, i), NULL, true);
-						baue_strasse(best_pos + koord(total_size.x - 1, i), NULL, true);
+						// only build in same height and not on slopes...
+						const grund_t *gr = welt->lookup_kartenboden(best_pos + koord(0, i));
+						if(gr->gib_hoehe()==h  &&  gr->gib_grund_hang()==0) {
+							baue_strasse(best_pos + koord(0, i), NULL, true);
+						}
+						gr = welt->lookup_kartenboden(best_pos + koord(total_size.x - 1, i));
+						if(gr->gib_hoehe()==h  &&  gr->gib_grund_hang()==0) {
+							baue_strasse(best_pos + koord(total_size.x - 1, i), NULL, true);
+						}
 					}
 					for (int i = 0; i < total_size.x; i++) {
-						baue_strasse(best_pos + koord(i, 0), NULL, true);
-						baue_strasse(best_pos + koord(i, total_size.y - 1), NULL, true);
+						// only build in same height and not on slopes...
+						const grund_t *gr = welt->lookup_kartenboden(best_pos + koord(i, 0));
+						if(gr->gib_hoehe()==h  &&  gr->gib_grund_hang()==0) {
+							baue_strasse(best_pos + koord(i, 0), NULL, true);
+						}
+						gr = welt->lookup_kartenboden(best_pos + koord(i, total_size.y - 1));
+						if(gr->gib_hoehe()==h  &&  gr->gib_grund_hang()==0) {
+							baue_strasse(best_pos + koord(i, total_size.y - 1), NULL, true);
+						}
 					}
 					// and then built it
 					hausbauer_t::baue(welt, besitzer_p, welt->lookup(best_pos + koord(1, 1))->gib_kartenboden()->gib_pos(), 0, besch);
@@ -2260,50 +2275,56 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 	for (int r = 0; r < 4; r++) {
 		if (ribi_t::nsow[r] & allowed_dir) {
 			// now we have to check for several problems ...
-			grund_t* bd2 = welt->lookup(k + koord::nsow[r])->gib_kartenboden();
-			if (bd2 == NULL || bd2->gib_typ() == grund_t::fundament) {
-				// not connecting to a building of course ...
-				allowed_dir &= ~ribi_t::nsow[r];
-			} else if (bd2->gib_typ()!=grund_t::boden  &&  ribi_t::nsow[r]!=ribi_typ(bd2->gib_grund_hang())) {
-				// not the same slope => tunnel or bridge
-				allowed_dir &= ~ribi_t::nsow[r];
-			} else if (bd2->hat_weg(road_wt)) {
-				gebaeude_t *gb = (gebaeude_t *)(bd2->suche_obj(ding_t::gebaeude));
-				if(gb) {
-					uint8 layouts = gb->gib_tile()->gib_besch()->gib_all_layouts();
-					// nothing to connect
-					if(layouts==4) {
-						// single way
-						if(ribi_t::nsow[r]!=ribi_t::rueckwaerts(ribi_t::layout_to_ribi[gb->gib_tile()->gib_layout()])) {
-							allowed_dir &= ~ribi_t::nsow[r];
+			grund_t* bd2;
+			if(bd->get_neighbour(bd2, invalid_wt, koord::nsow[r])) {
+				if(bd2->gib_typ()==grund_t::fundament) {
+					// not connecting to a building of course ...
+					allowed_dir &= ~ribi_t::nsow[r];
+				} else if (bd2->gib_typ()!=grund_t::boden  &&  ribi_t::nsow[r]!=ribi_typ(bd2->gib_grund_hang())) {
+					// not the same slope => tunnel or bridge
+					allowed_dir &= ~ribi_t::nsow[r];
+				} else if(bd2->hat_weg(road_wt)) {
+					gebaeude_t *gb = (gebaeude_t *)(bd2->suche_obj(ding_t::gebaeude));
+					if(gb) {
+						uint8 layouts = gb->gib_tile()->gib_besch()->gib_all_layouts();
+						// nothing to connect
+						if(layouts==4) {
+							// single way
+							if(ribi_t::nsow[r]!=ribi_t::rueckwaerts(ribi_t::layout_to_ribi[gb->gib_tile()->gib_layout()])) {
+								allowed_dir &= ~ribi_t::nsow[r];
+							}
+							else {
+								// otherwise allowed ...
+								connection_roads |= ribi_t::nsow[r];
+							}
+						}
+						else if(layouts==2 || layouts==8 || layouts==16) {
+							// through way
+							if((ribi_t::doppelt( ribi_t::layout_to_ribi[gb->gib_tile()->gib_layout()] )&ribi_t::nsow[r])==0) {
+								allowed_dir &= ~ribi_t::nsow[r];
+							}
+							else {
+								// otherwise allowed ...
+								connection_roads |= ribi_t::nsow[r];
+							}
 						}
 						else {
-							// otherwise allowed ...
-							connection_roads |= ribi_t::nsow[r];
+							dbg->error("stadt_t::baue_strasse()", "building on road with not directions at %i,%i?!?", k.x, k.y );
 						}
 					}
-					else if(layouts==2 || layouts==8 || layouts==16) {
-						// through way
-						if((ribi_t::doppelt( ribi_t::layout_to_ribi[gb->gib_tile()->gib_layout()] )&ribi_t::nsow[r])==0) {
-							allowed_dir &= ~ribi_t::nsow[r];
-						}
-						else {
-							// otherwise allowed ...
-							connection_roads |= ribi_t::nsow[r];
-						}
+					else if(bd2->gib_depot()) {
+						// do not enter depots
+						allowed_dir &= ~ribi_t::nsow[r];
 					}
 					else {
-						dbg->error("stadt_t::baue_strasse()", "building on road with not directions at %i,%i?!?", k.x, k.y );
+						// otherwise allowed ...
+						connection_roads |= ribi_t::nsow[r];
 					}
 				}
-				else if(bd2->gib_depot()) {
-					// do not enter depots
-					allowed_dir &= ~ribi_t::nsow[r];
-				}
-				else {
-					// otherwise allowed ...
-					connection_roads |= ribi_t::nsow[r];
-				}
+			}
+			else {
+				// illegal slope ...
+				allowed_dir &= ~ribi_t::nsow[r];
 			}
 		}
 	}

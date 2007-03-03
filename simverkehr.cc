@@ -471,8 +471,18 @@ stadtauto_t::ist_weg_frei()
 	weg_t *str;
 
 	// destroy on: no step, invalid position, no road below
-	if(pos_next==gib_pos()  ||  (gr = welt->lookup(pos_next))==NULL  ||  (str=gr->gib_weg(road_wt))==NULL) {
-		time_to_life = 0;
+	if((gr = welt->lookup(pos_next))==NULL  ||  (str=gr->gib_weg(road_wt))==NULL) {
+		// turn around, if sudden stop is here ...
+		if((gr = welt->lookup(gib_pos()))==NULL  ||  (str=gr->gib_weg(road_wt))==NULL) {
+			time_to_life = 0;
+		}
+		else {
+			fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
+			pos_next = gib_pos();//welt->lookup_kartenboden(gib_pos().gib_2d()+koord(fahrtrichtung))->gib_pos();
+			current_speed = 1;
+			dx = -dx;
+			dy = -dy;
+		}
 		return false;
 	}
 
@@ -582,6 +592,13 @@ stadtauto_t::hop()
 
 	// 1) find the allowed directions
 	const weg_t *weg = from->gib_weg(road_wt);
+	if(weg==NULL) {
+		// nothing to go? => destroy ...
+		time_to_life = 0;
+		return;
+	}
+	// ok, nobody did delete the road in front of us
+	// so we can check for valid directions
 	ribi_t::ribi ribi = weg->gib_ribi() & ribi_t::gib_forward(fahrtrichtung);
 	if(ribi_t::ist_einfach(ribi)  &&  from->get_neighbour(to, road_wt, koord(ribi))) {
 		// we should add here

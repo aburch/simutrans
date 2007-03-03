@@ -5,6 +5,9 @@ month to bankrupt into simuconf.tab
 bridges and tunnels with no initial road
 bahnhofsdetaildialog
 Toolwindow with 10 last used tools (in fixed order)
+timeline speeds from file instad calculation
+A* for goods and using halthandles instead coordinates!
+intergrate field code from kierongreen
 
 Stichpunkte
 
@@ -47,8 +50,6 @@ Stichpunkte
 - details for convois: halfway
 - Brücken an senkrechten Wänden: done/halfway
 - tile 2x height: halfway-> need conversion for textures needed
-
-- Felder: Grafiken da, fehlt noch code (vielleicht wie Wälder?)
 
 - connection weighted by their intermediate stops => A* for goods routing
 - when import translation: ignore entries which are identical (saving runtime)

@@ -1036,7 +1036,7 @@ void win_display_flush(double konto)
 		// Hajo: check if there is a tooltip to display
 		if(tooltip_text!=NULL) {
 			const int width = proportional_string_width(tooltip_text)+7;
-			display_ddd_proportional(tooltip_xpos, max(39,tooltip_ypos), width, 0, 2, COL_BLACK, tooltip_text, true);
+			display_ddd_proportional(tooltip_xpos, max(39,tooltip_ypos), width, 0, 4, COL_BLACK, tooltip_text, true);
 			// Hajo: clear tooltip to avoid sticky tooltips
 			tooltip_text = 0;
 		}

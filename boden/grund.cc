@@ -1043,7 +1043,7 @@ int grund_t::get_vmove(koord dir) const
 		// commented out: allow diagonal directions now (assume flat for these)
 		//dbg->fatal("grund_t::get_vmove()","no valid direction given (%x)",ribi_typ(dir));	// error: not a direction ...
 	}
-	return h;   // no way slope
+	return h;
 }
 
 

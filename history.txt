@@ -1,7 +1,10 @@
 
 
 
-	FIX: on unix multiuser environments the path seperator symbol was omitted
+Release of 99.09
+
+3-Mar-2007:
+	FIX: on unix multiuser environments the path separator symbol was omitted
 	FIX: marker did not work on elevated ways => no route, even if there was one
 	FIX: no crash after deleting powerline crossing during game creation (but this was done by fixing symtoms, not the cause :()
 	ADD: button for showing forest in minimap (new string "Forest")
@@ -20,6 +23,8 @@
 	FIX: crash could occur with long_block_signals(); the fix will cause trains to slow down in front of long block signals similar to choose signals
 	ADD: color for good in dat-file (color=index_nr, same as factory colors)
 	CHANGE: category names now  CATEGORY_xx and part of the pak set, replacing  "piece goods", "bulk goods", "oil/gasoline", "cooled goods", "liquid food", "long goods"
+	FIX: connection streets across slopes
+	FIX: faster goundsearch also avoids artifical slopes
 
 
 Release of 99.08.1

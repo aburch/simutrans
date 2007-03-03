@@ -1971,10 +1971,16 @@ karte_t::ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate_bits
 	// V. Meyer
 	for(k.y=pos.y+h-1; k.y>=pos.y; k.y--) {
 		for(k.x=pos.x; k.x<pos.x+w; k.x++) {
-			const grund_t *gr = lookup(k)->gib_kartenboden();
+			const grund_t *gr = lookup_kartenboden(k);
 
 			// we can built, if: max height all the same, everything removable and no buildings there
-			if(platz_h!=max_hgt(k)  ||  !gr->ist_natur() ||  gr->kann_alle_obj_entfernen(NULL) != NULL  ||  (cl&(1<<get_climate(gr->gib_hoehe())))==0) {
+			// since this is called very often, we us a trick:
+			// if gib_grund_hang()!=0 (non flat) then we add 127 (bigger than any slope) and substract it
+			// will break with double slopes!
+#ifdef DOUBLE_GROUNDS
+#error "Fix this function!"
+#endif
+			if(platz_h!=(gr->gib_hoehe()+Z_TILE_STEP*((gr->gib_grund_hang()+127)/128))  ||  !gr->ist_natur() ||  gr->kann_alle_obj_entfernen(NULL) != NULL  ||  (cl&(1<<get_climate(gr->gib_hoehe())))==0) {
 				if(last_y) {
 					*last_y = k.y;
 				}
