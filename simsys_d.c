@@ -451,11 +451,7 @@ unsigned long dr_time(void)
 
 void dr_sleep(uint32 usec)
 {
-	if (usec > 1023) {
-		// schlaeft meist etwas zu kurz,
-		// usec/1024 statt usec/1000
-		rest(usec >> 10);
-	}
+	rest(usec >> 10);
 }
 
 

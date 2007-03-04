@@ -6,6 +6,7 @@
 extern "C" {
 #endif
 
+#include <stdlib.h>
 
 // a single use number to string ...
 // format could be zero, the "%d" is assumed

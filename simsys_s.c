@@ -528,11 +528,7 @@ unsigned long dr_time(void)
 
 void dr_sleep(uint32 usec)
 {
-	if (usec >= 1024) {
-		// schlaeft meist etwas zu kurz,
-		// usec/1024 statt usec/1000
-		SDL_Delay(usec >> 10);
-	}
+	SDL_Delay(usec);
 }
 
 

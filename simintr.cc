@@ -32,6 +32,11 @@ static bool enabled = false;
 // the length of the pause we will give control to the system
 static long sleep_time = 36;
 
+// pause between two frames
+static long frame_time = 36;
+
+
+
 long get_sleep_time()
 {
 	return sleep_time;
@@ -40,8 +45,8 @@ long get_sleep_time()
 void set_sleep_time(long new_time)
 {
 	new_time = abs(new_time);
-	if(new_time>25) {
-		new_time = 25;
+	if(new_time>=frame_time) {
+		new_time = frame_time-1;
 	}
 	sleep_time = new_time;
 }
@@ -57,7 +62,7 @@ bool reduce_sleep_time()
 
 bool increase_sleep_time()
 {
-	if(sleep_time < 25) {
+	if(sleep_time < frame_time) {
 		sleep_time ++;
 		return true;
 	}
@@ -65,9 +70,6 @@ bool increase_sleep_time()
 }
 
 
-
-// pause between two frames
-static long frame_time = 36;
 
 bool reduce_frame_time()
 {
@@ -134,6 +136,9 @@ void interrupt_check(const char* caller_info)
 			last_time = now;
 			welt_modell->sync_step( diff );
 			if(sleep_time>0) {
+				if(sleep_time>=frame_time) {
+					sleep_time = frame_time-1;
+				}
 				dr_sleep( sleep_time );
 			}
 			enabled = true;
