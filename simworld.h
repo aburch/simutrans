@@ -32,6 +32,8 @@
 
 #include "simplan.h"
 
+#include "simintr.h"
+
 #include "simdebug.h"
 
 struct event_t;
@@ -260,9 +262,17 @@ private:
 	// true, if fast forward
 	bool fast_forward;
 
-	uint32 last_frame_ms[256];
+	/**
+	 * fuer performancevergleiche
+	 * @author Hj. Malthaner
+	 */
+	uint32 realFPS;
+	uint32 simloops;
+
+	// to calculate the fps and the simloops
+	uint32 last_frame_ms[32];
+	uint32 last_step_nr[32];
 	uint8 last_frame_idx;
-	uint32 last_step_time;
 
 	sint32 current_month;	// monat+12*jahr
 	sint32 letzter_monat;  // Absoluter Monat 0..12
@@ -272,11 +282,8 @@ private:
 	uint8 season;	// current season
 
 	long steps;          // Anzahl steps seit Erzeugung
-	long steps_bis_jetzt;
 	bool is_sound;	// flag, that now no sound will play
-	bool doit;          // flag fuer simulationsabbruch (false == abbruch)
-	bool m_quit_simutrans;// true = unload simutrans      //02-Nov-2001   Markus Weber    Added
-	int sleep_time;     // sleep time fuer simulationsschleife
+	bool finish_loop;    // flag fuer simulationsabbruch (false == abbruch)
 
 	// may change due to timeline
 	const weg_besch_t *city_road;
@@ -284,14 +291,6 @@ private:
 	int average_speed[4];
 	// recalculated speed boni for different vehicles
 	void recalc_average_speed();
-
-	/**
-	 * fuer performancevergleiche
-	 * @author Hj. Malthaner
-	 */
-	uint32 realFPS;
-
-	int last_simloops;
 
 	void do_pause();         // Spiel pausieren
 	void neuer_monat();      // Monatliche Aktionen
@@ -374,6 +373,7 @@ public:
 	int get_average_speed(waytype_t typ) const;
 
 	bool is_fast_forward();
+	void set_fast_forward(bool ff) { fast_forward = ff; reset_timer(); }
 
 	/**
 	 * sollte einen const zeiger_t * zurueckgeben, aber wegen der Tests
@@ -457,19 +457,19 @@ public:
 	 * Idle time. Nur zur Anzeige verwenden!
 	 * @author Hj. Malthaner
 	 */
-	int gib_schlaf_zeit() const { return sleep_time; }
+	uint32 gib_schlaf_zeit() const { return get_sleep_time(); }
 
 	/**
 	 * Anzahl frames in der letzten Sekunde Realzeit
 	 * @author prissi
 	 */
-	int gib_realFPS() const { return realFPS; }
+	uint32 gib_realFPS() const { return realFPS; }
 
 	/**
 	 * Anzahl Simulationsloops in der letzten Sekunde. Kann sehr ungenau sein!
 	 * @author Hj. Malthaner
 	 */
-	int gib_simloops() const { return last_simloops; }
+	uint32 gib_simloops() const { return simloops; }
 
 	/**
 	* Holt den Grundwasserlevel der Karte
@@ -779,9 +779,9 @@ public:
 	bool sync_add(sync_steppable *obj);
 	bool sync_remove(sync_steppable *obj);
 
-	void sync_step(long delta_t);
+	void sync_step(long delta_t);	// advance also the timer
 
-	void step(long delta_t);	// Nicht-Echtzeit
+	void step();
 
 	inline planquadrat_t *access(int i, int j) {
 		return ist_in_kartengrenzen(i, j) ? &plan[i + j*cached_groesse_gitter_x] : NULL;
@@ -871,13 +871,6 @@ public:
 	void load_heightfield(einstellungen_t *sets);
 
 	/**
-	 * Cancel the simulation or unload simutrans
-	 * @param quit_simutans True = Unload simutrans
-	 * @author Hj. Malthaner
-	 */
-	void beenden(bool quit_simutans); // 02-Nov-2001    Markus Weber added parameter
-
-	/**
 	 * Converts player point to an index of the player array
 	 *
 	 * @return player index (number)
@@ -885,19 +878,11 @@ public:
 	 */
 	int sp2num(spieler_t *sp);
 
-	/**
-	 * Bearbeitet events. Sollte nur in extremen Ausnahmefällen und
-	 * nach sorgfältiger Abwägung aller Alternativen von ausserhalb
-	 * dieser Klasse gerufen werden.
-	 *
-	 * @author Hansjörg Malthaner
-	 */
-	void interactive_update();
+	void beenden(bool b);
 
 	/**
-	 * Main simulation loop.
-	 *
-	 * @return true if the main program should quit, false otherwise
+	 * main loop with even handling;
+	 * returns false to exit
 	 * @author Hansjörg Malthaner
 	 */
 	bool interactive();

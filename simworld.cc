@@ -115,6 +115,11 @@
 //#define DEMO
 //#undef DEMO
 
+// advance 201 ms per sync_step in fast forward mode
+#define MAGIC_STEP (201)
+
+// frame per second for fast forward
+#define FF_PPS (10)
 
 // offsets for mouse pointer
 const int karte_t::Z_PLAN      = 4;
@@ -764,28 +769,31 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 	// tourist attractions
 	fabrikbauer_t::verteile_tourist(this, einstellungen->gib_tourist_attractions());
 
-    print("Preparing startup ...\n");
-
-    if(zeiger == 0) {
-			zeiger = new zeiger_t(this, koord3d::invalid, spieler[0]);
-    }
+	print("Preparing startup ...\n");
+	if(zeiger == 0) {
+		zeiger = new zeiger_t(this, koord3d::invalid, spieler[0]);
+	}
 
 	// finishes the line preparation and sets id 0 to invalid ...
 	spieler[0]->simlinemgmt.laden_abschliessen();
 
-    mouse_funk = NULL;
-    setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+	mouse_funk = NULL;
+	setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 
-    recalc_average_speed();
+	recalc_average_speed();
 
 #ifndef DEMO
-    for(i = 0; i < 6; i++) {
-	spieler[i + 2]->set_active( umgebung_t::automaten[i] );
-    }
+	for(i = 0; i < 6; i++) {
+		spieler[i + 2]->set_active( umgebung_t::automaten[i] );
+	}
 #endif
+
+	active_player_nr = 0;
+	active_player = spieler[0];
 
 	setze_dirty();
 
+	fast_forward = false;
 	reset_timer();
 
 	if(is_display_init()) {
@@ -1481,10 +1489,6 @@ void
 karte_t::sync_step(long delta_t)
 {
 	// just for progress
-	if(fast_forward) {
-		intr_set_last_time( dr_time() );
-		delta_t = 200;
-	}
 	ticks += delta_t;
 
 	// ingore calls by interrupt during fast forward ...
@@ -1536,16 +1540,45 @@ karte_t::sync_step(long delta_t)
 		}
 	}
 
-	if(!fast_forward) {
-		// display new frame ...
+	if(!fast_forward  ||  delta_t!=MAGIC_STEP) {
+		// display new frame
+		intr_refresh_display( false );
+		// get average frame time
 		uint32 last_ms = dr_time();
-		last_frame_ms[last_frame_idx++] = last_ms;
-		last_frame_idx &= 31;
-		// the first 256 after init this will give no result ...
+		last_frame_ms[last_frame_idx] = last_ms;
+		last_step_nr[last_frame_idx] = steps;
+		last_frame_idx = (last_frame_idx+1)%32;
 		if(last_frame_ms[last_frame_idx]<last_ms) {
 			realFPS = (1000*32) / (last_ms-last_frame_ms[last_frame_idx]);
+			simloops = ((steps-last_step_nr[last_frame_idx])*10000*16)/((last_ms-last_frame_ms[last_frame_idx])*time_multiplier);
 		}
-		intr_refresh_display( false );
+		else {
+			realFPS = umgebung_t::fps;
+			simloops = 60;
+		}
+	}
+
+	if(!fast_forward) {
+		// change pause/frame spacing ...
+		// the frame spacing will be only touched in emergencies
+		if(simloops<=20) {
+			set_sleep_time(0);
+			increase_frame_time();
+		}
+		else if(simloops>50) {
+			increase_sleep_time();
+		}
+		else if(simloops<45) {
+			reduce_sleep_time();
+		}
+
+		if(realFPS>umgebung_t::fps  ||  simloops<=30) {
+			increase_frame_time();
+			reduce_sleep_time();
+		}
+		else if(realFPS<(umgebung_t::fps*7)/8) {
+			reduce_frame_time();
+		}
 	}
 }
 
@@ -1763,7 +1796,7 @@ DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
 
 
 void
-karte_t::step(const long )
+karte_t::step()
 {
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step");
@@ -1775,7 +1808,7 @@ karte_t::step(const long )
 		return;
 	}
 	// avoid too often steps ...
-	if(delta_t<150) {
+	if(delta_t<170) {
 		return;
 	}
 	last_step_ticks = ticks;
@@ -1809,6 +1842,10 @@ karte_t::step(const long )
 	// ok, next step
 	steps ++;
 	INT_CHECK("simworld 1975");
+
+	if((steps%8)==0) {
+		check_midi();
+	}
 
 	if(ticks > next_month_ticks) {
 
@@ -2042,16 +2079,6 @@ karte_t::play_sound_area_clipped(koord pos, sound_info info)
 
 
 
-//void
-//karte_t::beenden()    // 02-Nov-2001  Markus Weber    Added parameter
-
-void
-karte_t::beenden(bool quit_simutrans)
-{
-    doit = false;
-    m_quit_simutrans = quit_simutrans; // 02-Nov-200    Markus Weber    Added
-}
-
 void
 karte_t::speichern(const char *filename,bool silent)
 {
@@ -2204,7 +2231,6 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
 		laden(&file);
 		file.close();
-		steps_bis_jetzt = steps-4;
 		create_win(-1, -1, 30, new nachrichtenfenster_t(this, "Spielstand wurde\ngeladen!\n"), w_autodelete);
 	}
 #endif
@@ -2726,12 +2752,20 @@ karte_t::reset_timer()
 	// Reset timers
 	uint32 last_tick_sync = dr_time();
 	intr_set_last_time(last_tick_sync);
-	last_step_time = last_tick_sync;
 	intr_enable();
 
+	set_sleep_time(0);
+	if(fast_forward) {
+		set_frame_time( 100 );
+		time_multiplier = 16;
+	}
+	else {
+		set_frame_time( 1000/umgebung_t::fps );
+	}
+
 	// make invalid
-	for( int i=0;  i<256;  i++ ) {
-		last_frame_ms[i] = 0xFFFFFFFF;
+	for( int i=0;  i<32;  i++ ) {
+		last_frame_ms[i] = 0x7FFFFFFFu;
 	}
 	last_frame_idx = 0;
 }
@@ -2974,18 +3008,22 @@ karte_t::interactive_event(event_t &ev)
 
 	switch(ev.ev_code) {
 	case ',':
-	    sound_play(click_sound);
-			fast_forward = false;
 			if(time_multiplier>1) {
 		    time_multiplier--;
+		    sound_play(click_sound);
 			}
-			reset_timer();
+			if(fast_forward) {
+				fast_forward = false;
+				reset_timer();
+			}
 	    break;
 	case '.':
 	    sound_play(click_sound);
-			fast_forward = false;
 	    time_multiplier++;
-			reset_timer();
+			if(fast_forward) {
+				fast_forward = false;
+				reset_timer();
+			}
 	    break;
 	case '!':
 	    sound_play(click_sound);
@@ -3155,10 +3193,9 @@ karte_t::interactive_event(event_t &ev)
 
 	case 'Q':
 	case 'X':
-	    sound_play(click_sound);
-	    destroy_all_win();
-	    //beenden();        // 02-Nov-2001  Markus Weber    Function has a new parameter
-            beenden(false);
+			sound_play(click_sound);
+			destroy_all_win();
+			beenden(false);
 	    break;
 	case 'L':
 	    sound_play(click_sound);
@@ -3449,9 +3486,19 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 
 
 void
-karte_t::interactive_update()
+karte_t::beenden(bool b)
+{
+	finish_loop=false;
+	umgebung_t::quit_simutrans = b;
+}
+
+
+
+bool
+karte_t::interactive()
 {
 	event_t ev;
+	finish_loop = true;
 	bool swallowed = false;
 
 	do {
@@ -3461,8 +3508,8 @@ karte_t::interactive_update()
 		if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_QUIT) {
 			// Beenden des Programms wenn das Fenster geschlossen wird.
 			destroy_all_win();
-			beenden(true);
-			return;
+			umgebung_t::quit_simutrans = true;
+			return false;
 		}
 
 		if(ev.ev_class!=EVENT_NONE &&  ev.ev_class!=IGNORE_EVENT) {
@@ -3487,110 +3534,19 @@ karte_t::interactive_update()
 		}
 
 		if(fast_forward) {
-			sync_step( 200 );
-			step( 200 );
-			unsigned long current_time = dr_time()-last_step_time;
-			if(current_time>50) {
-				// display every 50ms at least (if possible)
-				intr_refresh_display( false );
-				// check if we need to play a new midi file
-				check_midi();
-				last_step_time += current_time;
-			}
+			sync_step( MAGIC_STEP );
+			step();
 		}
 		else {
-			unsigned long current_time = ((dr_time()-last_step_time)*time_multiplier)/16;
-			if(current_time>200) {
-				step( current_time );
-				last_step_time += current_time;
-				// check if we need to play a new midi file
-				check_midi();
-			}
-
-			INT_CHECK("simworld 2630");
+			step();
 		}
-
 	} while(ev.button_state != 0);
 
 	if (!swallowed) {
 		interactive_event(ev);
 	}
+	return finish_loop;
 }
 
 
 
-#define MIN_FPS 50
-#define MAX_FPS 100
-
-bool
-karte_t::interactive()
-{
-	unsigned long now = dr_time();
-	realFPS = umgebung_t::fps;
-
-	active_player_nr = 0;
-	active_player = spieler[0];
-
-	last_step_time = dr_time();
-	steps_bis_jetzt = steps;
-
-	sleep_time = 5;
-	doit = true;
-
-	while(doit) {
-		interactive_update();
-
-		const long t = dr_time();
-		if(fast_forward) {
-			if(t > now+1000) {
-				last_simloops = steps-steps_bis_jetzt;
-				realFPS = (last_simloops*1000)/(t-now);
-				steps_bis_jetzt = steps;
-				now = t;
-			}
-			sleep_time = 0;
-		}
-		else {
-			if(t > now+1000) {
-				// every second is enough ...
-				last_simloops = ( (steps - steps_bis_jetzt) * 16) / time_multiplier;
-
-				if(last_simloops<=2) {
-					sleep_time = 0;
-				}
-				else if(last_simloops>7) {
-					sleep_time += 1;
-				}
-				else if(last_simloops<5  &&  sleep_time>=1) {
-					sleep_time -= 1;
-				}
-
-				if(realFPS>umgebung_t::fps  ||  last_simloops<=3) {
-					increase_frame_time();
-				} else if(realFPS<umgebung_t::fps  &&  last_simloops>=3) {
-					if(sleep_time>0) {
-						sleep_time --;
-					}
-					reduce_frame_time();
-				}
-
-				steps_bis_jetzt = steps;
-
-				now = t;
-			}
-
-			if(sleep_time>0) {
-				if(sleep_time>(1000/umgebung_t::fps)) {
-					sleep_time = 1000/umgebung_t::fps;
-				}
-				dr_sleep( sleep_time );
-			}
-		}
-	}
-
-	// just to be sure ...
-	fast_forward = false;
-	reset_timer();
-
-	return m_quit_simutrans;      // 02-Nov-2001    Markus Weber    Added
-}

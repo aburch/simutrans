@@ -29,10 +29,45 @@ static long last_time;
 static bool enabled = false;
 
 
+// the length of the pause we will give control to the system
+static long sleep_time = 36;
+
+long get_sleep_time()
+{
+	return sleep_time;
+}
+
+void set_sleep_time(long new_time)
+{
+	new_time = abs(new_time);
+	if(new_time>25) {
+		new_time = 25;
+	}
+	sleep_time = new_time;
+}
+
+bool reduce_sleep_time()
+{
+	if(sleep_time > 0) {
+		sleep_time --;
+		return true;
+	}
+	return false;
+}
+
+bool increase_sleep_time()
+{
+	if(sleep_time < 25) {
+		sleep_time ++;
+		return true;
+	}
+	return false;
+}
+
+
+
+// pause between two frames
 static long frame_time = 36;
-static long actual_frame_time = 30;
-
-
 
 bool reduce_frame_time()
 {
@@ -60,11 +95,13 @@ long get_frame_time()
 	return frame_time;
 }
 
-long get_actual_frame_time()
+void set_frame_time(long time)
 {
-	return actual_frame_time;
+	if(time>250) {
+		time = 250;
+	}
+	frame_time = time;
 }
-
 
 void
 intr_refresh_display(bool dirty)
@@ -96,6 +133,9 @@ void interrupt_check(const char* caller_info)
 			enabled = false;
 			last_time = now;
 			welt_modell->sync_step( diff );
+			if(sleep_time>0) {
+				dr_sleep( sleep_time );
+			}
 			enabled = true;
 		}
 	}
@@ -122,6 +162,12 @@ intr_set_last_time(long time)
 	last_time = time;
 }
 
+long
+intr_get_last_time()
+{
+	return last_time;
+}
+
 
 extern "C" void
 intr_disable()
@@ -134,3 +180,5 @@ intr_enable()
 {
 	enabled = true;
 }
+
+

@@ -15,13 +15,17 @@ class karte_t;
 class karte_ansicht_t;
 
 
-void set_frame_time(long t);
+bool reduce_sleep_time();
+bool increase_sleep_time();
+long get_sleep_time();
+void set_sleep_time(long time);
+
 
 bool reduce_frame_time();
 bool increase_frame_time();
-
 long get_frame_time();
-long get_actual_frame_time();
+void set_frame_time(long time);
+
 
 void intr_refresh_display(bool dirty);
 
@@ -33,6 +37,7 @@ void intr_set(karte_t *welt, karte_ansicht_t *view);
  * @author Hj. Malthaner
  */
 void intr_set_last_time(long time);
+long intr_get_last_time();
 
 
 extern "C" void intr_enable();

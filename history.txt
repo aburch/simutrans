@@ -1,4 +1,6 @@
 
+	FIX: time for pause/refresh intervall now moved to sync_step() => handled internally each refresh => better responsivity
+	FIX: end of station with layout>4 in NS direction
 
 
 Release of 99.09

@@ -66,7 +66,7 @@ int tstrequ(const char *a, const char *b);
  * @return dest
  * @author Hj. Malthaner
  */
-char *tstrncpy(char *dest, const char *src, int n);
+char *tstrncpy(char *dest, const char *src, size_t n);
 
 
 /**

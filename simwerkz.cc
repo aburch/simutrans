@@ -1399,7 +1399,7 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 			}
 		}
 
-		// find about ends
+		// find about ends (but will be overwritten from hausbauer anyway)
 		if((next_halt&ribi&ribi_t::suedost)==0) {
 			layout |= 2;
 		}
@@ -1460,85 +1460,7 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 		// avoid orientation on 8 tiled buildings
 		layout &= (besch->gib_all_layouts()-1);
 	}
-#if 0
-		// detect if near (south/east) end
-		if(ribi & ribi_t::nsow[1+(layout & 1)]) {
-			if(welt->lookup(bd->gib_pos())->get_neighbour(gr, bd->gib_weg_nr(0)->gib_waytype(), koord::nsow[1+(layout & 1)])) {
-				gebaeude_t *obj = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
-				if(obj && obj->gib_tile()->gib_besch()->gib_utyp()==besch->gib_utyp() && obj->gib_tile()->gib_besch()->gib_all_layouts()>4) {
-					uint32 layoutbase = obj->gib_tile()->gib_layout();
-					if((layout & 1) == (layoutbase & 1)) { // tile has same direction as one we are laying
-						layout &= 13; // clear bit 2
-						layoutbase &= 11; // clear far bit on neighbour
-							obj->setze_tile(obj->gib_tile()->gib_besch()->gib_tile(layoutbase, 0, 0));
-					}
-				}
-			}
-		} else {
-			layout &= 13; // clear bit 2
-		}
 
-		// detect if far (north/west) end
-		if(ribi & ribi_t::nsow[(4-(layout & 1))&3]) {
-			if(welt->lookup(bd->gib_pos())->get_neighbour(gr, bd->gib_weg_nr(0)->gib_waytype(), koord::nsow[(4-(layout & 1))&3])) {
-				gebaeude_t *obj = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
-				if(obj && obj->gib_tile()->gib_besch()->gib_utyp()==besch->gib_utyp() && obj->gib_tile()->gib_besch()->gib_all_layouts()>4) {
-					uint32 layoutbase = obj->gib_tile()->gib_layout();
-					if((layout & 1) == (layoutbase & 1)) { // tile has same direction as one we are laying
-						layout &= 11; // clear bit 3
-						layoutbase &= 13; // clear near bit on neighbour
-							obj->setze_tile(obj->gib_tile()->gib_besch()->gib_tile(layoutbase, 0, 0));
-					}
-				}
-			}
-		} else {
-			layout &= 11; // clear bit 3
-		}
-
-		if(besch->gib_all_layouts()==16 && suche_nahe_haltestelle(sp,welt,bd->gib_pos()).is_bound()) {
-			// if this is a new station then just use default [far] face
-
-			// defaults to far face (bit = 0)
-			sint8 near_face = -1;
-
-			// detect neighbouring platform face - use if present
-			for(uint8 dir = (layout & 1)*2 ; dir <= (layout & 1)*2+1 && near_face== -1 ; dir++) {
-				if(welt->lookup(bd->gib_pos())->get_neighbour(gr, bd->gib_weg_nr(0)->gib_waytype(), koord::nsow[dir])) {
-					gebaeude_t *obj = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
-					if(obj && obj->gib_tile()->gib_besch()->gib_utyp()==besch->gib_utyp() && obj->gib_tile()->gib_besch()->gib_all_layouts()>8) {
-						uint32 layoutbase = obj->gib_tile()->gib_layout();
-						if((layout & 1) == (layoutbase & 1)) { // tile has same direction as one we are laying
-							near_face = (layoutbase & 8)>>3;
-						}
-					}
-				}
-			}
-
-			// first try opposing, then diagonally opposing faces - if these are found then use opposite
-			for(uint8 dir = 0 ; dir <= 1 && near_face == -1 ; dir++) {
-				if(welt->lookup(bd->gib_pos())->get_neighbour(gr, invalid_wt, dir<2?koord::nsow[(1-(layout & 1))*2+dir]:koord((ribi_t::ribi)((dir-1)*3)))) {
-					gebaeude_t *obj = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
-					if(obj && obj->gib_tile()->gib_besch()->gib_utyp()==besch->gib_utyp() && obj->gib_tile()->gib_besch()->gib_all_layouts()>8) {
-						uint32 layoutbase = obj->gib_tile()->gib_layout();
-						if((layout & 1) == (layoutbase & 1)) { // tile has same direction as one we are laying
-							near_face = !((layoutbase & 8)>>3);
-							break;
-						}
-					}
-				}
-			}
-
-
-			if(near_face != 1) {
-				// set tile to far face
-				layout&=7;
-			} else {
-				// set tile to near face
-				layout|=8;
-			}
-		}
-	}
-#endif
 	// seems everything ok, lets build
 	halthandle_t halt = suche_nahe_haltestelle(sp,welt,bd->gib_pos());
 	bool neu = !halt.is_bound();
@@ -1662,7 +1584,7 @@ DBG_MESSAGE("wkz_senke()","no factory near (%i,%i)",pos.x, pos.y);
 		}
 		// now decide from the string whether a source or drain is built
 		grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-		long fab_name_len = strlen( fab->gib_besch()->gib_name() );
+		size_t fab_name_len = strlen( fab->gib_besch()->gib_name() );
 		if(fab_name_len>11   &&  (strcmp(fab->gib_besch()->gib_name()+fab_name_len-9, "kraftwerk")==0  ||  strcmp(fab->gib_besch()->gib_name()+fab_name_len-11, "Power Plant")==0)) {
 			pumpe_t *p = new pumpe_t(welt, gr->gib_pos(), sp);
 			gr->obj_add( p );

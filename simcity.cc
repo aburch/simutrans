@@ -372,7 +372,7 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 
 		// find out rule size
 		int size = 0;
-		int maxlen = strlen(rule);
+		size_t maxlen = strlen(rule);
 		while (size < maxlen && rule[size] != ' ') size++;
 
 		if (size > 7 || maxlen < size * (size + 1) - 1 || (size & 1) == 0 || size <= 2) {
@@ -402,7 +402,7 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 
 		// find out rule size
 		int size = 0;
-		int maxlen = strlen(rule);
+		size_t maxlen = strlen(rule);
 		while (size < maxlen && rule[size] != ' ') size++;
 
 		if (size > 7 || maxlen < size * (size + 1) - 1 || (size & 1) == 0 || size <= 2) {
@@ -623,7 +623,7 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 		}
 	}
 
-	const long len = strlen(buf) + 1;
+	const size_t len = strlen(buf) + 1;
 	char* name = new char[len];
 	tstrncpy(name, buf, len);
 

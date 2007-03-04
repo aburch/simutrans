@@ -433,7 +433,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 
 		// detect if we are connected at far (north/west) end
 		sint16 offset = welt->lookup( pos )->gib_weg_yoff();
-		grund_t * gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::ost : koord::nord),offset) );
+		grund_t * gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::ost : koord::sued),offset) );
 		if(gr) {
 			gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
 			if(gb  &&  gb->gib_tile()->gib_besch()->gib_utyp()>=8) {
@@ -448,7 +448,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 		}
 
 		// detect if near (south/east) end
-		gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::sued), offset) );
+		gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::nord), offset) );
 		if(gr) {
 			gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
 			if(gb  &&  gb->gib_tile()->gib_besch()->gib_utyp()>=8) {

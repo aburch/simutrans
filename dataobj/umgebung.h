@@ -311,6 +311,9 @@ public:
 
 	// set the frame rate for the display
 	static sint16 fps;
+
+	// false to quit the programs
+	static bool quit_simutrans;
 };
 
 #endif

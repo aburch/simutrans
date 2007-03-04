@@ -268,7 +268,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x+len, y+IDLE_DATA, ntos(welt->gib_schlaf_zeit(), "%d ms"), ALIGN_LEFT, COL_WHITE, true);
 
 	uint8 farbe;
-	int loops;
+	uint32 loops;
 	loops=welt->gib_realFPS();
 	farbe = COL_WHITE;
 	if(loops<(umgebung_t::fps*3)/4) {
@@ -280,9 +280,10 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 
 	loops=welt->gib_simloops();
 	farbe = COL_WHITE;
-	if(loops<=3) {
-   		farbe = (loops<=2) ? COL_RED : COL_YELLOW;
-   	}
+	if(loops<=30) {
+		farbe = (loops<=20) ? COL_RED : COL_YELLOW;
+	}
 	len = 15+display_proportional_clip(x+10, y+LOOP_DATA, translator::translate("Sim:"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+len, y+LOOP_DATA, ntos(loops, "%d loops"), ALIGN_LEFT, farbe, true);
+	sprintf( buf, "%d%c%d", loops/10, get_fraction_sep(), loops%10 );
+	display_proportional_clip(x+len, y+LOOP_DATA, buf, ALIGN_LEFT, farbe, true);
 }

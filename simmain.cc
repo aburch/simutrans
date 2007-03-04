@@ -159,11 +159,13 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 
 	ms = dr_time();
 	intr_set(welt, view);
-	for (i = 0; i < 200; i++) {
-		welt->step(200);
-	}
+	welt->set_fast_forward(true);
 	intr_disable();
-	DBG_MESSAGE("test", "welt->step(200): %i iterations took %i ms", i, dr_time() - ms);
+	for (i = 0; i < 200; i++) {
+		welt->sync_step(200);
+		welt->step();
+	}
+	DBG_MESSAGE("test", "welt->sync_step/step(200): %i iterations took %i ms", i, dr_time() - ms);
 }
 
 
@@ -188,8 +190,7 @@ static void zeige_banner(karte_t *welt)
 		check_pos_win(&ev);
 		INT_CHECK("simmain 189");
 		dr_sleep(10);
-		INT_CHECK("simmain 191");
-		welt->step(10);
+		welt->step();
 	} while(win_is_top(b));
 
 	if (IS_LEFTCLICK(&ev)) {
@@ -372,8 +373,6 @@ extern "C" int simu_main(int argc, char** argv)
 		{ 1280, 1024 },
 		{  672,  496 } // try to force window mode with allegro
 	};
-
-	bool quit_simutrans = false;
 
 	FILE * config = NULL; // die konfigurationsdatei
 
@@ -718,9 +717,10 @@ DBG_MESSAGE("init","map");
 	// bevor sie als Hintergrund für das intro dient
 	if (loadgame=="") {
 		welt->sync_step(welt->gib_zeit_ms() + welt->ticks_per_tag / 2);
-		for (int i = 0; i < 50; i++) {
-			welt->step(100);
-		}
+		welt->step();
+		welt->step();
+		welt->step();
+		welt->step();
 	}
 	intr_refresh_display(true);
 
@@ -865,12 +865,14 @@ DBG_MESSAGE("init","map");
 
 		loadgame = ""; // only first time
 
-		quit_simutrans = welt->interactive();
+		// run the loop
+		while(welt->interactive())
+			;
 
 		msg->get_flags(&umgebung_t::message_flags[0], &umgebung_t::message_flags[1], &umgebung_t::message_flags[2], &umgebung_t::message_flags[3]);
 		delete msg;
 
-	} while (!umgebung_t::testlauf && !quit_simutrans);
+	} while (!umgebung_t::testlauf && !umgebung_t::quit_simutrans);
 
 	intr_disable();
 
