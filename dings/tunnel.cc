@@ -92,14 +92,11 @@ void tunnel_t::laden_abschliessen()
 	}
 
 	if(sp) {
-		// inside tunnel => do nothing but change maitainance
+		// change maintainance
 		weg_t *weg = gr->gib_weg(besch->gib_waytype());
 		weg->setze_max_speed(besch->gib_topspeed());
 		sp->add_maintenance(-weg->gib_besch()->gib_wartung());
 		sp->add_maintenance( besch->gib_wartung() );
-		if(!gr->ist_karten_boden()){
-			return;
-		}
 	}
 }
 
@@ -118,7 +115,6 @@ void tunnel_t::entferne( spieler_t *sp2 )
 		const grund_t *gr = welt->lookup(gib_pos());
 		if(gr) {
 			weg_t *weg = gr->gib_weg( besch->gib_waytype() );
-			assert(weg);
 			weg->setze_max_speed( weg->gib_besch()->gib_topspeed() );
 			sp->add_maintenance( weg->gib_besch()->gib_wartung());
 			sp->add_maintenance( -besch->gib_wartung() );

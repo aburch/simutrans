@@ -773,19 +773,19 @@ gebaeude_t::entferne(spieler_t *sp)
 		grund_t * gr = welt->lookup( gib_pos() );
 		if(gr) {
 			sint16 offset = gr->gib_weg_yoff();
-			gr = welt->lookup( gib_pos()+koord3d( (layout & 1 ? koord::ost : koord::nord),offset) );
+			gr = welt->lookup( gib_pos()+koord3d( (layout & 1 ? koord::ost : koord::sued),offset) );
 			if(gr) {
 				gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
 				if(gb  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
 					koord xy = gb->gib_tile()->gib_offset();
 					uint8 layoutbase = gb->gib_tile()->gib_layout();
-					layoutbase |= 4; // set near bit on neighbour
+					layoutbase |= 4; // set far bit on neighbour
 					gb->setze_tile(gb->gib_tile()->gib_besch()->gib_tile(layoutbase, xy.x, xy.y));
 				}
 			}
 
 			// detect if near (south/east) end
-			gr = welt->lookup( gib_pos()+koord3d( (layout & 1 ? koord::west : koord::sued), offset) );
+			gr = welt->lookup( gib_pos()+koord3d( (layout & 1 ? koord::west : koord::nord), offset) );
 			if(gr) {
 				gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
 				if(gb  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {

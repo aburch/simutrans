@@ -49,7 +49,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_LIGHT_PURPLE      (79)
 
 // message colors
-#define CITY_KI (12)
+#define CITY_KI (209)
 #define NEW_VEHICLE COL_PURPLE
 
 // by niels
