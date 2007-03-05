@@ -52,7 +52,7 @@ static void dsp_decode_bdf_data_row(uint8 *target, int y, int xoff, int g_width,
  */
 static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_limit, int f_height, int f_desc)
 {
-	int	char_nr = 0;
+	uint32	char_nr = 0;
 	int g_width, h, g_desc;
 	int d_width = 0;
 	int xoff = 0;
@@ -65,7 +65,7 @@ static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_
 		// endcoding (sint8 number) in decimal
 		if (strncmp(str, "ENCODING", 8) == 0) {
 			char_nr = atoi(str + 8);
-			if (char_nr <= 0 || char_nr >= char_limit) {
+			if (char_nr == 0 || char_nr >= char_limit) {
 				fprintf(stderr, "Unexpected character (%i) for %i character font!\n", char_nr, char_limit);
 				char_nr = 0;
 			}
@@ -166,8 +166,8 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 			continue;
 		}
 
-		if (strncmp(str, "CHARS", 5) == 0) {
-			f_chars = (atoi(str + 5) > 255) ? 65536 : 256;
+		if (strncmp(str, "CHARS", 5) == 0  &&  str[5]<=' ') {
+			f_chars = (atoi(str + 5) > 255) ? 65535 : 255;
 
 			data = calloc(f_chars, CHARACTER_LEN);
 			if (data == NULL) {
@@ -241,7 +241,7 @@ bool load_font(font_type* fnt, const char* fname)
 		int i;
 
 		rewind(f);
-		fprintf(stderr, "Loading font '%s'\n", fname);
+		fprintf(stdout, "Loading font '%s'\n", fname);
 
 		if (fread(npr_fonttab, sizeof(npr_fonttab), 1, f) != 1) {
 			fprintf(stderr, "Error: %s wrong size for old format prop font!\n", fname);
@@ -255,7 +255,7 @@ bool load_font(font_type* fnt, const char* fname)
 		guarded_free(fnt->char_data);
 		fnt->screen_width = guarded_malloc(256);
 		fnt->char_data    = guarded_malloc(CHARACTER_LEN * 256);
-		fnt->num_chars    = 256;
+		fnt->num_chars    = 255;
 		fnt->height       = 10;
 		fnt->descent      = -1;
 
@@ -289,6 +289,7 @@ bool load_font(font_type* fnt, const char* fname)
 		char buf[80];
 		int i;
 
+		fprintf(stderr, "Reading hex-font %s.\n", fname );
 		rewind(f);
 
 		while (fgets(buf, sizeof(buf), f) != NULL) {
@@ -312,7 +313,7 @@ bool load_font(font_type* fnt, const char* fname)
 		free(fnt->char_data);
 		fnt->screen_width = malloc(256);
 		fnt->char_data    = malloc(CHARACTER_LEN * 256);
-		fnt->num_chars    = 256;
+		fnt->num_chars    = 255;
 		fnt->height       = 7;
 		fnt->descent      = -1;
 
@@ -335,7 +336,7 @@ bool load_font(font_type* fnt, const char* fname)
 
 	fprintf(stderr, "Loading BDF font '%s'\n", fname);
 	if (dsp_read_bdf_font(f, fnt)) {
-		fprintf(stderr, "Loading BDF font %s ok\n", fname);
+		fprintf(stderr, "Loading BDF font %s with %i characters\n", fname, fnt->num_chars);
 		fclose(f);
 		return true;
 	}

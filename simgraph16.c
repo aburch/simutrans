@@ -2409,12 +2409,12 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 {
 	font_type *fnt = use_large_font ? &large_font : &small_font;
 	KOORD_VAL cL, cR, cT, cB;
-	unsigned c;
+	uint32 c;
 	int	iTextPos = 0; // pointer on text position: prissi
 	int char_width_1, char_width_2; // 1 is char only, 2 includes room
 	int screen_pos;
-	unsigned char *char_data;
-	unsigned char *p;
+	const uint8 *char_data;
+	const uint8 *p;
 	KOORD_VAL yy = y + fnt->height;
 	KOORD_VAL x0;	// store the inital x (for dirty marking)
 	KOORD_VAL y0, y_offset, char_height;	// real y for display with clipping
@@ -2495,7 +2495,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 		}
 #endif
 		// print unknown character?
-		if (c >= fnt->num_chars || fnt->screen_width[c] == 0) {
+		if (c > fnt->num_chars || fnt->screen_width[c] == 0) {
 			c = 0;
 		}
 
