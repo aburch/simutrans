@@ -1384,6 +1384,7 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 
 		grund_t *gr;
 		for(unsigned i=0;  i<4;  i++) {
+			// oriented buildings here
 			const planquadrat_t *plan = welt->lookup(pos+koord::nsow[i]);
 			if(plan  &&  plan->gib_halt().is_bound()) {
 				// ok, here is a halt at least
@@ -1409,6 +1410,7 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 
 		// now for the details
 		ribi_t::ribi senkrecht = ~ribi_t::doppelt(ribi);
+		ribi_t::ribi waagerecht = ribi_t::ribi_t::doppelt(ribi);
 		if(next_own!=ribi_t::keine) {
 			// oriented buildings here
 			if(ribi_t::ist_einfach(ribi&next_own)) {
@@ -1417,11 +1419,12 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 				uint8 other_layout = gb->gib_tile()->gib_layout();
 				layout |= other_layout&8;
 			}
-			else if(ribi_t::ist_gerade(ribi&next_own)) {
+			else if(ribi_t::ist_gerade(waagerecht&next_own)) {
 				// oriented buildings left and right
-				// take layout from one of them
 				layout &= ~6;
-				gebaeude_t *gb = static_cast<gebaeude_t *>(welt->lookup(pos3d+koord((ribi_t::ribi)(ribi&next_own&ribi_t::nordwest)))->suche_obj(ding_t::gebaeude));
+				// take layout from one of them; prefer the one one the same track, if two tracks go to each other
+				ribi_t::ribi dir = (ribi&next_own&ribi_t::nordwest)==0 ? ribi&next_own : waagerecht&next_own&ribi_t::nordwest;
+				gebaeude_t *gb = static_cast<gebaeude_t *>(welt->lookup(pos3d+koord(dir))->suche_obj(ding_t::gebaeude));
 				layout |= gb->gib_tile()->gib_layout()&8;
 			}
 			else {
@@ -1440,9 +1443,8 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 						layout |= 8-(gb->gib_tile()->gib_layout()&8);
 					}
 					else {
-						// no building, but directions?
-						dbg->fatal("wkz_halt_aux()", "layout vapourized during construction");
-						return false;
+						// no building => take default
+						layout &~ 6;
 					}
 				}
 			}

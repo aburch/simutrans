@@ -1,4 +1,8 @@
 
+	FIX: some errors with construction/deletion of oriented stations fixed
+	FIX: bdf-fonts with more than 256 characters are loaded again
+
+
 Release of 99.09.1
 
 4-Mar-2007:
