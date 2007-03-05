@@ -277,10 +277,10 @@ void haltestelle_t::destroy_all(karte_t *welt)
 {
 	haltestelle_t::welt = welt;
 	while (!alle_haltestellen.empty()) {
-		halthandle_t halt = alle_haltestellen.front();
-        destroy(halt);
-    }
-    alle_haltestellen.clear();
+		halthandle_t halt = alle_haltestellen.remove_first();
+		destroy(halt);
+	}
+	alle_haltestellen.clear();
 }
 
 
@@ -314,7 +314,9 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file)
 
 	rdwr(file);
 
-	alle_haltestellen.insert(self);
+	if(self.is_bound()) {
+		alle_haltestellen.insert(self);
+	}
 }
 
 
@@ -371,8 +373,11 @@ haltestelle_t::~haltestelle_t()
 		delete halt_info;
 		halt_info = 0;
 	}
-	alle_haltestellen.remove(self);
-	self.unbind();
+
+	if(self.is_bound()) {
+		alle_haltestellen.remove(self);
+		self.unbind();
+	}
 
 	for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
 		if(waren[i]) {
@@ -1768,8 +1773,7 @@ haltestelle_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->get_version()<99008) {
-		koord dummy;
-		dummy.rdwr( file );
+		init_pos.rdwr( file );
 	}
 	file->rdwr_long(spieler_n, "\n");
 

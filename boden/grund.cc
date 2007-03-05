@@ -335,17 +335,9 @@ grund_t::~grund_t()
 	// remove text from table
 	ground_texts.remove((pos.x << 16) + pos.y);
 
+	dinge.loesche_alle(NULL,0);
 	if(flags&is_halt_flag) {
 		welt->lookup(pos.gib_2d())->gib_halt()->rem_grund(this);
-	}
-	dinge.loesche_alle(NULL,offsets[flags/has_way1]);
-	if(flags&has_way2) {
-		dinge.loesche_alle(NULL,1);
-		flags &= ~has_way2;
-	}
-	if(flags&has_way1) {
-		dinge.loesche_alle(NULL,0);
-		flags &= ~has_way1;
 	}
 }
 

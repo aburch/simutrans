@@ -281,7 +281,7 @@ baum_t::calc_bild()
 
 	if(seasons>1) {
 		// two possibilities
-		if(besch->gib_seasons()==2) {
+		if(besch->gib_seasons()<4) {
 			// only summer and winter
 			season = welt->get_snowline()<=gib_pos().z;
 		}
@@ -290,9 +290,9 @@ baum_t::calc_bild()
 			season = welt->gib_jahreszeit();
 			if(welt->get_snowline()<=gib_pos().z) {
 				// change to winter
-				if(seasons&1) {
+				if(seasons==5) {
 					// snowy winter graphics (3 or 5)
-					season = seasons-1;
+					season = 4;
 				}
 				else {
 					// no special winter graphics

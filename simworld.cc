@@ -417,6 +417,8 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 
 	// dinge aufräumen
 	if(plan) {
+		cached_groesse_gitter_x = cached_groesse_gitter_x = 1;
+		cached_groesse_karte_x = cached_groesse_karte_x = 0;
 		delete [] plan;
 		plan = NULL;
 	}
@@ -2198,9 +2200,10 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 
 
 // just the preliminaries, opens the file, checks the versions ...
-void
+bool
 karte_t::laden(const char *filename)
 {
+	bool ok=false;
 	mute_sound(true);
 	display_show_load_pointer(true);
 
@@ -2230,12 +2233,14 @@ karte_t::laden(const char *filename)
 DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
 		laden(&file);
+		ok = true;
 		file.close();
 		create_win(-1, -1, 30, new nachrichtenfenster_t(this, "Spielstand wurde\ngeladen!\n"), w_autodelete);
 	}
 #endif
 	einstellungen->setze_filename(filename);
 	display_show_load_pointer(false);
+	return ok;
 }
 
 
@@ -2470,8 +2475,12 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 		file->rdwr_long(halt_count,"hc");
 		for(int i=0; i<halt_count; i++) {
 			halthandle_t halt = haltestelle_t::create( this, file );
-			assert(halt->existiert_in_welt());
-			halt->gib_besitzer()->halt_add(halt);
+			if(halt->existiert_in_welt()) {
+				halt->gib_besitzer()->halt_add(halt);
+			}
+			else {
+				dbg->warning("karte_t::laden()", "could not restore stopnear %i,%i", halt->gib_init_pos().x, halt->gib_init_pos().y );
+			}
 		}
 	}
 

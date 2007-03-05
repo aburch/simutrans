@@ -691,10 +691,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		umgebung_t::fps = want_refresh < 5 ? 5 : (want_refresh > 100 ? 100 : want_refresh);
 	}
 
-	if(loadgame != "") {
-		welt->laden(loadgame);
-	}
-	else {
+	chdir(umgebung_t::program_dir);
+	if(loadgame==""  ||  !welt->laden(loadgame)) {
 		// create a default map
 DBG_MESSAGE("init","map");
 		welt->init(welt->gib_einstellungen());
@@ -712,6 +710,7 @@ DBG_MESSAGE("init","map");
 	win_setze_welt(welt);
 	win_display_menu();
 	view->display(true);
+	welt->set_fast_forward(true);
 
 	// Bringe welt in ansehnlichen Zustand
 	// bevor sie als Hintergrund für das intro dient
@@ -722,6 +721,7 @@ DBG_MESSAGE("init","map");
 		welt->step();
 		welt->step();
 	}
+	welt->set_fast_forward(false);
 	intr_refresh_display(true);
 
 #ifdef USE_SOFTPOINTER

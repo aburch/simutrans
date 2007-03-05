@@ -861,7 +861,7 @@ public:
 	 * @param filename name of the file to read
 	 * @author Hansjörg Malthaner
 	 */
-	void laden(const char *filename);
+	bool laden(const char *filename);
 
 	/**
 	 * Creates a map from a heightfield

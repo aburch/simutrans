@@ -1410,7 +1410,7 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 
 		// now for the details
 		ribi_t::ribi senkrecht = ~ribi_t::doppelt(ribi);
-		ribi_t::ribi waagerecht = ribi_t::ribi_t::doppelt(ribi);
+		ribi_t::ribi waagerecht = ribi_t::doppelt(ribi);
 		if(next_own!=ribi_t::keine) {
 			// oriented buildings here
 			if(ribi_t::ist_einfach(ribi&next_own)) {

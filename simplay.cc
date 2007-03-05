@@ -2581,13 +2581,10 @@ DBG_MESSAGE("spieler_t::rdwr","loading ...");
 DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this ),halt_count);
 		for(int i=0; i<halt_count; i++) {
 			halthandle_t halt = haltestelle_t::create( welt, file );
-			halt->laden_abschliessen();
-			if(halt->existiert_in_welt()) {
+			// it was possible to have stops without ground: do not load them
+			if(halt.is_bound()) {
+				halt->laden_abschliessen();
 				halt_list.append(halt);
-			}
-			else {
-				// it was possible to have stops without ground => remove them
-				haltestelle_t::destroy( halt );
 			}
 		}
 		init_texte();

@@ -150,9 +150,11 @@ karte_ansicht_t::display(bool force_dirty)
 		zeiger->clear_flag(ding_t::dirty);
 	}
 
-	// finally update the ticker
-	for(int x=0; x<MAX_PLAYER_COUNT; x++) {
-		welt->gib_spieler(x)->display_messages();
+	if(welt) {
+		// finally update the ticker
+		for(int x=0; x<MAX_PLAYER_COUNT; x++) {
+			welt->gib_spieler(x)->display_messages();
+		}
 	}
 
 	if(force_dirty) {
