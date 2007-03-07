@@ -129,13 +129,6 @@ public:
 	// but since we allow only for a single stop per planquadrat, this is as good as the above
 	static halthandle_t gib_halt(karte_t *welt, const koord3d pos) { return gib_halt(welt,pos.gib_2d()); }
 
-	/**
-	 * Prueft, ob halt auf eine Haltestelle zeigt
-	 * @param halt der zu prüfende Zeiger
-	 * @author Hj. Malthaner
-	 */
-	static bool pruefe_zeiger(halthandle_t halt) { return alle_haltestellen.contains(halt); }
-
 	static const slist_tpl<halthandle_t>& gib_alle_haltestellen() { return alle_haltestellen; }
 
 	/**

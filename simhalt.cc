@@ -287,7 +287,7 @@ void haltestelle_t::destroy_all(karte_t *welt)
 haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file)
 	: reservation(0), registered_lines(0)
 {
-	self = halthandle_t();
+	self = halthandle_t(this);
 	grund.clear();
 
 	welt = wl;
@@ -314,9 +314,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file)
 
 	rdwr(file);
 
-	if(self.is_bound()) {
-		alle_haltestellen.insert(self);
-	}
+	alle_haltestellen.insert(self);
 }
 
 
@@ -324,6 +322,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord k, spieler_t *sp)
 	: reservation(0), registered_lines(0)
 {
 	self = halthandle_t(this);
+	assert( !alle_haltestellen.contains(self) );
 	alle_haltestellen.insert(self);
 
 	welt = wl;
@@ -374,10 +373,15 @@ haltestelle_t::~haltestelle_t()
 		halt_info = 0;
 	}
 
-	if(self.is_bound()) {
+	int i=0;
+	while(alle_haltestellen.contains(self)) {
 		alle_haltestellen.remove(self);
-		self.unbind();
+		i++;
 	}
+	if(i>1) {
+		dbg->error("haltestelle_t::~haltestelle_t()", "found %i times in haltlist" );
+	}
+	self.unbind();
 
 	for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
 		if(waren[i]) {
@@ -1787,6 +1791,7 @@ haltestelle_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 		besitzer_p = welt->gib_spieler(spieler_n);
 		k.rdwr( file );
+		slist_tpl <grund_t *>grund_list;
 		while(k!=koord3d::invalid) {
 			grund_t *gr = welt->lookup(k);
 			if(!gr) {
@@ -1796,23 +1801,16 @@ haltestelle_t::rdwr(loadsave_t *file)
 			// during loading and saving halts will be referred by their base postion
 			// so we may alrady be defined ...
 			if(gr->gib_halt().is_bound()) {
-				if(!self.is_bound()) {
-					self = gr->gib_halt();
-					init_pos = k.gib_2d();
-				}
-				else {
-					dbg->error( "haltestelle_t::rdwr()", "bound to ground twice!" );
-				}
-			}
-			if(!self.is_bound()) {
-				self = halthandle_t(this);
-				init_pos = k.gib_2d();
+				dbg->warning( "haltestelle_t::rdwr()", "bound to ground twice at (%i,%i)!", k.x, k.y );
 			}
 			// prissi: now check, if there is a building -> we allow no longer ground without building!
 			gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
 			const haus_besch_t *besch=gb?gb->gib_tile()->gib_besch():NULL;
 			if(besch) {
-				add_grund(gr);
+				add_grund( gr );
+				if(grund.count()==0) {
+					init_pos = k.gib_2d();
+				}
 			}
 			else {
 				dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!", (const char*)k3_to_cstr(k));

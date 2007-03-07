@@ -160,7 +160,7 @@ DBG_MESSAGE("obj_reader_t::init()","Checking %s objects...",iter.get_current_val
 		display_fillbox_wh( 0, display_get_height()/2-20, display_get_width(), display_get_height()/2+20, COL_BLACK, true );
 	}
 
-	dbg->warning("obj_reader_t::init()", "done");
+DBG_MESSAGE("obj_reader_t::init()", "done");
 	return true;
 }
 

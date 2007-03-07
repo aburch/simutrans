@@ -472,7 +472,8 @@ void planquadrat_t::setze_halt(halthandle_t halt)
 {
 #ifdef DEBUG
 	if(halt.is_bound()  &&  this_halt.is_bound()  &&  halt!=this_halt) {
-		dbg->warning("planquadrat_t::setze_halt()","assign new halt to already bound halt!" );
+		koord k = (ground_size>0) ? gib_kartenboden()->gib_pos().gib_2d() : koord::invalid;
+		dbg->warning("planquadrat_t::setze_halt()","assign new halt to already bound halt at (%i,%i)!", k.x, k.y );
 	}
 #endif
 	this_halt = halt;

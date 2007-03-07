@@ -1125,7 +1125,13 @@ void win_display_flush(double konto)
 						year);
 					break;
 		}
-		sprintf(stretch_text, wl->is_fast_forward()?">>":"(T=%1.2f)", wl->get_time_multiplier()/16.0 );
+		// time multiplier text
+		if(wl->is_fast_forward()) {
+			sprintf(stretch_text, ">> (T~%1.2f)", wl->gib_simloops()/50.0 );
+		}
+		else {
+			sprintf(stretch_text, "(T=%1.2f)", wl->get_time_multiplier()/16.0 );
+		}
 
 	extern koord3d wkz_wegebau_start;
 	if(wkz_wegebau_start!=koord3d::invalid  &&  wkz_wegebau_start!=pos) {
