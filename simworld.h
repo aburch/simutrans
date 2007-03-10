@@ -273,6 +273,7 @@ private:
 	uint32 last_frame_ms[32];
 	uint32 last_step_nr[32];
 	uint8 last_frame_idx;
+	uint32 wait_timer;	// contains a wait executed in the interactive loop
 
 	sint32 current_month;	// monat+12*jahr
 	sint32 letzter_monat;  // Absoluter Monat 0..12
@@ -374,6 +375,8 @@ public:
 
 	bool is_fast_forward();
 	void set_fast_forward(bool ff) { fast_forward = ff; reset_timer(); }
+
+	void set_wait_timer(uint32 wt) { wait_timer = wt; }
 
 	/**
 	 * sollte einen const zeiger_t * zurueckgeben, aber wegen der Tests

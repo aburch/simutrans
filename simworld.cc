@@ -543,6 +543,12 @@ karte_t::init_felder()
 	average_speed[1] = 80;
 	average_speed[2] = 40;
 	average_speed[3] = 350;
+
+	// make timer loop invalid
+	for( int i=0;  i<32;  i++ ) {
+		last_frame_ms[i] = 0x7FFFFFFFu;
+	}
+	last_frame_idx = 0;
 }
 
 
@@ -2779,12 +2785,6 @@ karte_t::reset_timer()
 	else {
 		set_frame_time( 1000/umgebung_t::fps );
 	}
-
-	// make invalid
-	for( int i=0;  i<32;  i++ ) {
-		last_frame_ms[i] = 0x7FFFFFFFu;
-	}
-	last_frame_idx = 0;
 }
 
 
@@ -3557,6 +3557,21 @@ karte_t::interactive()
 		else {
 			step();
 		}
+
+		// we wait here for maximum 9ms
+		// average is 5 ms, so we usually
+		// are quite responsive
+		if(wait_timer>0) {
+			if(wait_timer<10) {
+				dr_sleep( wait_timer );
+				wait_timer = 0;
+			}
+			else {
+				dr_sleep( 5 );
+				wait_timer -= 5;
+			}
+		}
+
 	} while(ev.button_state != 0);
 
 	if (!swallowed) {

@@ -135,12 +135,7 @@ void interrupt_check(const char* caller_info)
 			enabled = false;
 			last_time = now;
 			welt_modell->sync_step( diff );
-			if(sleep_time>0) {
-				if(sleep_time>=frame_time) {
-					sleep_time = frame_time-1;
-				}
-				dr_sleep( sleep_time );
-			}
+			welt_modell->set_wait_timer( sleep_time );
 			enabled = true;
 		}
 	}
