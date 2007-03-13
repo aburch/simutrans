@@ -1,10 +1,17 @@
 
+Release of 99.09.2
+
+14-Mar-2007:
 	FIX: some errors with construction/deletion of oriented stations fixed
 	FIX: bdf-fonts with more than 256 characters are loaded again
 	FIX: tree with 3 seasons had same behaviour than the ones with two => ignore the third one
 	FIX: loading demo-games with multiuser
 	FIX: better compatibility with old save games (e.g. empty stops etc. )
 	FIX: reduce world size to (0,0) during deltion => less crashes, less complains in the log
+	FIX: bus AI tries no longer to built on other players roads
+	FIX: houses for stop names will be now selected in a fixed order => less double names
+	ADD: you can limit the fast forward speed with fast_forward in simuconf.tab (but this is rather a course regulation)
+	ADD: time multiplier for fast forward mode shown
 
 
 Release of 99.09.1

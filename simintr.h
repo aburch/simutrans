@@ -15,12 +15,6 @@ class karte_t;
 class karte_ansicht_t;
 
 
-bool reduce_sleep_time();
-bool increase_sleep_time();
-long get_sleep_time();
-void set_sleep_time(long time);
-
-
 bool reduce_frame_time();
 bool increase_frame_time();
 long get_frame_time();

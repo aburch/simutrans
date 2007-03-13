@@ -247,6 +247,7 @@ parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &ful
 	umgebung_t::bits_per_month = contents.get_int("bits_per_month", umgebung_t::bits_per_month);
 	umgebung_t::use_timeline = contents.get_int("use_timeline", umgebung_t::use_timeline);
 	umgebung_t::starting_year = contents.get_int("starting_year", umgebung_t::starting_year);
+	umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration);
 
 	umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", umgebung_t::intercity_road_length);
 	cstring_t *test = new cstring_t(ltrim(contents.get("intercity_road_type")));

@@ -151,6 +151,9 @@ private:
 	// @author prissi
 	void recalc_snowline();
 
+	// recalculates sleep time etc.
+	void update_frame_sleep_time();
+
 	/**
 	 * table for fast conversion from height to climate
 	 * @author prissi
@@ -273,7 +276,8 @@ private:
 	uint32 last_frame_ms[32];
 	uint32 last_step_nr[32];
 	uint8 last_frame_idx;
-	uint32 wait_timer;	// contains a wait executed in the interactive loop
+	uint32 next_wait_time;	// contains a wait executed in the interactive loop
+	uint32 this_wait_time;
 
 	sint32 current_month;	// monat+12*jahr
 	sint32 letzter_monat;  // Absoluter Monat 0..12
@@ -376,8 +380,6 @@ public:
 	bool is_fast_forward();
 	void set_fast_forward(bool ff) { fast_forward = ff; reset_timer(); }
 
-	void set_wait_timer(uint32 wt) { wait_timer = wt; }
-
 	/**
 	 * sollte einen const zeiger_t * zurueckgeben, aber wegen der Tests
 	 * braucht man mehr Zugriff, deshalb ohne const
@@ -460,7 +462,7 @@ public:
 	 * Idle time. Nur zur Anzeige verwenden!
 	 * @author Hj. Malthaner
 	 */
-	uint32 gib_schlaf_zeit() const { return get_sleep_time(); }
+	uint32 gib_schlaf_zeit() const { return next_wait_time; }
 
 	/**
 	 * Anzahl frames in der letzten Sekunde Realzeit

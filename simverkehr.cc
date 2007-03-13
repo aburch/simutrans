@@ -713,6 +713,7 @@ stadtauto_t::hop_check()
 		}
 		return true;
 	}
+	return false;
 }
 
 

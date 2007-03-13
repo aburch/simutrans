@@ -818,6 +818,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), quick_shortcu
 	ticks_per_tag = (1 << ticks_bits_per_tag);
 	fast_forward = false;
 	time_multiplier = 16;
+	next_wait_time = this_wait_time = 30;
 
 	for (unsigned int i=0; i<15; i++) {
 //DBG_MESSAGE("karte_t::karte_t()","Append NULL to quick_shortcuts at %d\n",i);
@@ -1487,6 +1488,8 @@ karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der 
 	return sync_list.remove( obj );
 }
 
+
+
 /*
  * this routine is called before an image is displayed
  * it moves vehicles and pedestrians
@@ -1551,53 +1554,90 @@ karte_t::sync_step(long delta_t)
 	if(!fast_forward  ||  delta_t!=MAGIC_STEP) {
 		// display new frame
 		intr_refresh_display( false );
-		// get average frame time
-		uint32 last_ms = dr_time();
-		last_frame_ms[last_frame_idx] = last_ms;
-		last_step_nr[last_frame_idx] = steps;
-		last_frame_idx = (last_frame_idx+1)%32;
-		if(last_frame_ms[last_frame_idx]<last_ms) {
-			realFPS = (1000*32) / (last_ms-last_frame_ms[last_frame_idx]);
-			simloops = ((steps-last_step_nr[last_frame_idx])*10000*16)/((last_ms-last_frame_ms[last_frame_idx])*time_multiplier);
-		}
-		else {
-			realFPS = umgebung_t::fps;
-			simloops = 60;
-		}
+		update_frame_sleep_time();
+	}
+}
+
+
+// does all the magic about idle time and such stuff
+void
+karte_t::update_frame_sleep_time()
+{
+	// get average frame time
+	uint32 last_ms = dr_time();
+	last_frame_ms[last_frame_idx] = last_ms;
+	last_step_nr[last_frame_idx] = steps;
+	last_frame_idx = (last_frame_idx+1)%32;
+	if(last_frame_ms[last_frame_idx]<last_ms) {
+		realFPS = (1000*32) / (last_ms-last_frame_ms[last_frame_idx]);
+		simloops = ((steps-last_step_nr[last_frame_idx])*10000*16)/((last_ms-last_frame_ms[last_frame_idx])*time_multiplier);
+	}
+	else {
+		realFPS = umgebung_t::fps;
+		simloops = 60;
 	}
 
+	// now change the pauses
 	if(!fast_forward) {
 		// change pause/frame spacing ...
 		// the frame spacing will be only touched in emergencies
 		if(simloops<=20) {
-			set_sleep_time(0);
+			next_wait_time = 0;
 			increase_frame_time();
 		}
 		else if(simloops>50) {
-			increase_sleep_time();
+			if(next_wait_time+1<get_frame_time()) {
+				next_wait_time ++;
+			}
+			else {
+				next_wait_time = get_frame_time();
+			}
 		}
-		else if(simloops<45) {
-			reduce_sleep_time();
+		else if(simloops<45  &&  next_wait_time>0) {
+			next_wait_time --;
 		}
 
 		if(realFPS>umgebung_t::fps  ||  simloops<=30) {
 			increase_frame_time();
-			reduce_sleep_time();
+			if(next_wait_time>0) {
+				next_wait_time --;
+			}
 		}
 		else if(realFPS<(umgebung_t::fps*7)/8) {
 			reduce_frame_time();
 		}
 	}
-	else {
-		set_sleep_time(0);
-		if(simloops<8) {
+	else if((last_frame_idx&7)==0){
+		// try to get a target speed
+
+		int five_back = (last_frame_idx+31-6)%32;
+		int one_back = (last_frame_idx+32-1)%32;
+		uint32 last_simloops = ((last_step_nr[one_back]-last_step_nr[five_back])*10000)/(last_frame_ms[one_back]-last_frame_ms[five_back]);
+
+		if(last_simloops<=10) {
 			increase_frame_time();
 		}
-		else if(get_frame_time()>100) {
-			reduce_frame_time();
+		else {
+			if(get_frame_time()>100) {
+				reduce_frame_time();
+			}
+			else {
+				if(last_simloops<umgebung_t::max_acceleration*50) {
+					if(next_wait_time>0) {
+						next_wait_time --;
+					}
+				}
+				else if(last_simloops>umgebung_t::max_acceleration*50) {
+					if(next_wait_time<90) {
+						next_wait_time ++;
+					}
+				}
+			}
 		}
 	}
+	this_wait_time = next_wait_time;
 }
+
 
 
 void
@@ -2777,7 +2817,6 @@ karte_t::reset_timer()
 	intr_set_last_time(last_tick_sync);
 	intr_enable();
 
-	set_sleep_time(0);
 	if(fast_forward) {
 		set_frame_time( 100 );
 		time_multiplier = 16;
@@ -3561,14 +3600,14 @@ karte_t::interactive()
 		// we wait here for maximum 9ms
 		// average is 5 ms, so we usually
 		// are quite responsive
-		if(wait_timer>0) {
-			if(wait_timer<10) {
-				dr_sleep( wait_timer );
-				wait_timer = 0;
+		if(this_wait_time>0) {
+			if(this_wait_time<10  ||  fast_forward) {
+				dr_sleep( this_wait_time );
+				this_wait_time = 0;
 			}
 			else {
+				this_wait_time -= 5;
 				dr_sleep( 5 );
-				wait_timer -= 5;
 			}
 		}
 

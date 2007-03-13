@@ -312,6 +312,9 @@ public:
 	// set the frame rate for the display
 	static sint16 fps;
 
+	// maximum acceleration with fast forward
+	static sint16 max_acceleration;
+
 	// false to quit the programs
 	static bool quit_simutrans;
 };

@@ -2113,7 +2113,7 @@ spieler_t::built_hub( const koord pos, int radius )
 				const grund_t * gr = welt->lookup(try_pos)->gib_kartenboden();
 
 				// flat, solid, and ours
-				if(!gr->ist_wasser()  &&  gr->gib_grund_hang()==hang_t::flach  &&  (gr->obj_count()==0  ||  gr->obj_bei(0)->gib_besitzer()==NULL || gr->obj_bei(0)->gib_besitzer()==this)  ) {
+				if(!gr->ist_wasser()  &&  gr->gib_grund_hang()==hang_t::flach  &&  (gr->gib_top()==0  ||  gr->obj_bei(0)->gib_besitzer()==NULL || gr->obj_bei(0)->gib_besitzer()==this)  ) {
 					if(gr->is_halt()  &&  gr->gib_halt()->gib_besitzer()==this) {
 						// ok, one halt belongs already to us ...
       			return try_pos;

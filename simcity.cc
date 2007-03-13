@@ -525,6 +525,32 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 	} else {
 		// standard names:
 		// order: factory, attraction, direction, normal name
+		static const koord next_building[24] = {
+			koord( 0, -1), // nord
+			koord( 1,  0), // ost
+			koord( 0,  1), // sued
+			koord(-1,  0), // west
+			koord( 1, -1), // nordost
+			koord( 1,  1), // suedost
+			koord(-1,  1), // suedwest
+			koord(-1, -1), // nordwest
+			koord( 0, -2),	// double nswo
+			koord( 2,  0),
+			koord( 0,  2),
+			koord(-2,  0),
+			koord( 1, -2),	// all the remaining 3s
+			koord( 2, -1),
+			koord( 2,  1),
+			koord( 1,  2),
+			koord(-1,  2),
+			koord(-2,  1),
+			koord(-2, -1),
+			koord(-1, -2),
+			koord( 2, -2),	// and now all buildings with distance 4
+			koord( 2,  2),
+			koord(-2,  2),
+			koord(-2, -2)
+		};
 
 		// prissi: first we try a factory name
 		halthandle_t halt = haltestelle_t::gib_halt(welt, k);
@@ -541,22 +567,20 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 			}
 			// check for other special building (townhall, monument, tourst attraction)
 			const sint16 catchment_area = welt->gib_einstellungen()->gib_station_coverage();
-			for (int x = -catchment_area; x <= catchment_area; x++) {
-				for (int y = -catchment_area; y <= catchment_area; y++) {
-					const planquadrat_t* plan = welt->lookup(koord(x, y) + k);
-					int distance = abs(x) + abs(y);
-					if (plan != NULL && abs(x + y) < this_distance) {
-						gebaeude_t* gb = dynamic_cast<gebaeude_t*>(plan->gib_kartenboden()->suche_obj(ding_t::gebaeude));
-						if (gb != NULL) {
-							if (gb->is_monument()) {
-								building = translator::translate(gb->gib_name());
-								this_distance = distance;
-							} else if (gb->ist_rathaus() ||
-									gb->gib_tile()->gib_besch()->gib_utyp() == hausbauer_t::sehenswuerdigkeit  || // land attraction
-									gb->gib_tile()->gib_besch()->gib_utyp() == hausbauer_t::special) { // town attraction
-								building = make_single_line_string(translator::translate(gb->gib_tile()->gib_besch()->gib_name()), 2);
-								this_distance = distance;
-							}
+			for (int i=0; i<24; i++) {
+				const planquadrat_t* plan = welt->lookup( next_building[i] + k);
+				int distance = abs(next_building[i].x) + abs(next_building[i].y);
+				if (plan!=NULL  &&  distance<this_distance) {
+					gebaeude_t* gb = dynamic_cast<gebaeude_t*>(plan->gib_kartenboden()->suche_obj(ding_t::gebaeude));
+					if (gb != NULL) {
+						if (gb->is_monument()) {
+							building = translator::translate(gb->gib_name());
+							this_distance = distance;
+						} else if (gb->ist_rathaus() ||
+								gb->gib_tile()->gib_besch()->gib_utyp() == hausbauer_t::sehenswuerdigkeit  || // land attraction
+								gb->gib_tile()->gib_besch()->gib_utyp() == hausbauer_t::special) { // town attraction
+							building = make_single_line_string(translator::translate(gb->gib_tile()->gib_besch()->gib_name()), 2);
+							this_distance = distance;
 						}
 					}
 				}

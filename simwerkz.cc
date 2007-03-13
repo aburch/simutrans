@@ -1318,6 +1318,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	}
 	if(!bd  ||  bd->gib_weg_hang()!=hang_t::flach  ||  bd->is_halt()) {
 		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, p_error), w_autodelete);
+		dbg->warning("wkz_halt_aux()", p_error );
 		return false;
 	}
 
