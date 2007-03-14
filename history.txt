@@ -12,6 +12,7 @@ Release of 99.09.2
 	FIX: houses for stop names will be now selected in a fixed order => less double names
 	ADD: you can limit the fast forward speed with fast_forward in simuconf.tab (but this is rather a course regulation)
 	ADD: time multiplier for fast forward mode shown
+	FIX: setting correct 2nd player color after reloading a game
 
 
 Release of 99.09.1

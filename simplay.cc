@@ -81,10 +81,6 @@
 
 #include "simgraph.h"
 
-#ifndef tpl_slist_tpl_h
-#include "tpl/slist_tpl.h"
-#endif
-
 #include "gui/money_frame.h"
 #include "gui/schedule_list.h"
 
@@ -118,38 +114,37 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	 * @author hsiegeln
 	 */
 
-    for (int year=0; year<MAX_HISTORY_YEARS; year++) {
-      for (int cost_type=0; cost_type<MAX_COST; cost_type++) {
-				finance_history_year[year][cost_type] = 0;
-				if ((cost_type == COST_CASH) || (cost_type == COST_NETWEALTH)) {
-					finance_history_year[year][cost_type] = umgebung_t::starting_money;
-				}
-      }
-    }
+	for (int year=0; year<MAX_HISTORY_YEARS; year++) {
+		for (int cost_type=0; cost_type<MAX_COST; cost_type++) {
+			finance_history_year[year][cost_type] = 0;
+			if ((cost_type == COST_CASH) || (cost_type == COST_NETWEALTH)) {
+				finance_history_year[year][cost_type] = umgebung_t::starting_money;
+			}
+		}
+	}
 
-    for (int month=0; month<MAX_HISTORY_MONTHS; month++) {
-      for (int cost_type=0; cost_type<MAX_COST; cost_type++) {
-				finance_history_month[month][cost_type] = 0;
-				if ((cost_type == COST_CASH) || (cost_type == COST_NETWEALTH)) {
-					finance_history_month[month][cost_type] = umgebung_t::starting_money;
-				}
-      }
-    }
+	for (int month=0; month<MAX_HISTORY_MONTHS; month++) {
+		for (int cost_type=0; cost_type<MAX_COST; cost_type++) {
+			finance_history_month[month][cost_type] = 0;
+			if ((cost_type == COST_CASH) || (cost_type == COST_NETWEALTH)) {
+				finance_history_month[month][cost_type] = umgebung_t::starting_money;
+			}
+		}
+	}
 
-    haltcount = 0;
+	haltcount = 0;
 
-    maintenance = 0;
+	state = NEUE_ROUTE;
+	substate = NR_INIT;
 
-    state = NEUE_ROUTE;
-    substate = NR_INIT;
+	maintenance = 0;
+	gewinn = 0;
+	count = 0;
 
-    gewinn = 0;
-    count = 0;
-
-    start = NULL;
-    ziel = NULL;
-    last_start = NULL;
-    last_ziel = NULL;
+	start = NULL;
+	ziel = NULL;
+	last_start = NULL;
+	last_ziel = NULL;
 
 	rail_engine = NULL;
 	rail_vehicle = NULL;
@@ -158,9 +153,9 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	road_weg = NULL;
 	baue = false;
 
-    steps = simrand(16);
+	steps = simrand(16);
 
-    init_texte();
+	init_texte();
 
 	last_built.clear();
 
@@ -199,6 +194,7 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 }
 
 
+
 spieler_t::~spieler_t()
 {
 	// maybe free money frame
@@ -213,7 +209,6 @@ spieler_t::~spieler_t()
 	line_frame = NULL;
 	simlinemgmt.destroy_all();
 }
-
 
 
 
@@ -242,7 +237,6 @@ spieler_t::get_line_frame(void)
 	}
 	return line_frame;
 }
-
 
 
 
@@ -288,7 +282,6 @@ spieler_t::set_active(bool new_state)
 
 
 
-
 void
 spieler_t::init_texte()
 {
@@ -299,6 +292,7 @@ spieler_t::init_texte()
 	}
 	last_message_index = 0;
 }
+
 
 
 /**
@@ -328,6 +322,7 @@ spieler_t::display_messages()
 }
 
 
+
 /**
  * Age messages (move them upwards)
  * @author Hj. Malthaner
@@ -341,6 +336,7 @@ spieler_t::age_messages(long /*delta_t*/)
 		}
 	}
 }
+
 
 
 void
@@ -450,22 +446,27 @@ spieler_t::neuer_monat()
 }
 
 
+
 /**
  * Methode fuer jaehrliche Aktionen
  * @author Hj. Malthaner, Owen Rudge, hsiegeln
  */
-void spieler_t::neues_jahr()
+void
+spieler_t::neues_jahr()
 {
 	calc_finance_history();
 	roll_finance_history_year();
 }
+
+
 
 /**
 * we need to roll the finance history every year, so that
 * the most recent year is at position 0, etc
 * @author hsiegeln
 */
-void spieler_t::roll_finance_history_month()
+void
+spieler_t::roll_finance_history_month()
 {
 	int i;
 	for (i=MAX_HISTORY_MONTHS-1; i>0; i--) {
@@ -479,7 +480,10 @@ void spieler_t::roll_finance_history_month()
 	finance_history_year[0][COST_ASSETS] = 0;
 }
 
-void spieler_t::roll_finance_history_year()
+
+
+void
+spieler_t::roll_finance_history_year()
 {
 	int i;
 	for (i=MAX_HISTORY_YEARS-1; i>0; i--) {
@@ -2628,7 +2632,7 @@ void
 spieler_t::laden_abschliessen()
 {
 	simlinemgmt.laden_abschliessen();
-	display_set_player_color_scheme( player_nr, kennfarbe1, kennfarbe1 );
+	display_set_player_color_scheme( player_nr, kennfarbe1, kennfarbe2 );
 }
 
 
