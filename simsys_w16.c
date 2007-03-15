@@ -33,6 +33,8 @@
 #	define GET_WHEEL_DELTA_WPARAM(wparam) ((short)HIWORD(wparam))
 #endif
 
+// not recommended, will only work on some HW
+#define USE_16BIT_DIB
 
 #include "simmem.h"
 #include "simversion.h"
@@ -141,9 +143,9 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 	AllDib->biClrImportant = 0;
 #ifdef USE_16BIT_DIB
 	AllDib->biCompression = BI_BITFIELDS;
-	*((DWORD*)(AllDib + 1) + 0) = 0x0000001F;
+	*((DWORD*)(AllDib + 1) + 0) = 0x0000F800;
 	*((DWORD*)(AllDib + 1) + 1) = 0x000007E0;
-	*((DWORD*)(AllDib + 1) + 2) = 0x0000F800;
+	*((DWORD*)(AllDib + 1) + 2) = 0x0000001F;
 #endif
 	return TRUE;
 }

@@ -122,44 +122,45 @@ int dr_os_init(const int* parameter)
 }
 
 
+static bit_per_pixel=16;
+
 // open the window
 int dr_os_open(int w, int h, int bpp, int fullscreen)
 {
-  Uint32 flags = sync_blit ? 0 : SDL_ASYNCBLIT;
+	Uint32 flags = sync_blit ? 0 : SDL_ASYNCBLIT;
 
+	width = w;
+	height = h;
+
+	flags |= (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE);
 #ifdef USE_HW
 	{
 		SDL_VideoInfo *vi=SDL_GetVideoInfo();
 		printf( "hw_available=%i, video_mem=%i, blit_sw=%i\n", vi->hw_available, vi->video_mem, vi->blit_sw );
 		printf( "bpp=%i, bytes=%i\n", vi->vfmt->BitsPerPixel, vi->vfmt->BytesPerPixel );
 	}
-	flags |= SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE; // bltcopy in graphic memory should be faster ...
+	flags |= SDL_HWSURFACE | SDL_DOUBLEBUF; // bltcopy in graphic memory should be faster ...
 #endif
 
-  width = w;
-  height = h;
+	// open the window now
+	screen = SDL_SetVideoMode(w, h, bpp, flags);
+	if (screen == NULL) {
+		fprintf(stderr, "Couldn't open the window: %s\n", SDL_GetError());
+		return FALSE;
+	} else {
+		fprintf(stderr, "Screen Flags: requested=%x, actual=%x\n", flags, screen->flags);
+	}
 
-	flags |= (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE);
+	SDL_EnableUNICODE(TRUE);
+	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
-  // open the window now
-  screen = SDL_SetVideoMode(w, h, bpp, flags);
-  if (screen == NULL) {
-    fprintf(stderr, "Couldn't open the window: %s\n", SDL_GetError());
-    return FALSE;
-  } else {
-    fprintf(stderr, "Screen Flags: requested=%x, actual=%x\n", flags, screen->flags);
-  }
+	// set the caption for the window
+	SDL_WM_SetCaption("Simutrans " VERSION_NUMBER,NULL);
+	SDL_ShowCursor(0);
+	arrow = SDL_GetCursor();
+	hourglass = SDL_CreateCursor(hourglass_cursor, hourglass_cursor_mask, 16, 22, 8, 11);
 
-  SDL_EnableUNICODE(TRUE);
-  SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-
-  // set the caption for the window
-  SDL_WM_SetCaption("Simutrans " VERSION_NUMBER,NULL);
-  SDL_ShowCursor(0);
-  arrow = SDL_GetCursor();
-  hourglass = SDL_CreateCursor(hourglass_cursor, hourglass_cursor_mask, 16, 22, 8, 11);
-
-  return TRUE;
+	return TRUE;
 }
 
 

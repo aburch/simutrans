@@ -387,15 +387,6 @@ extern "C" int simu_main(int argc, char** argv)
 	std::set_new_handler(sim_new_handler);
 #endif
 
-	if (gimme_arg(argc, argv, "-log", 0)) {
-		init_logging("simu.log", true, gimme_arg(argc, argv, "-debug", 0) != NULL);
-	} else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
-		init_logging("stderr", true, gimme_arg(argc, argv, "-debug", 0) != NULL);
-	} else {
-		init_logging(NULL, false, false);
-	}
-	dbg->message("argv0",argv[0]);
-
 	// you really want help with this?
 	if (gimme_arg(argc, argv, "-h",     0) ||
 			gimme_arg(argc, argv, "-?",     0) ||
@@ -420,13 +411,6 @@ extern "C" int simu_main(int argc, char** argv)
 		return 0;
 	}
 
-
-	DBG_MESSAGE("simmain::main()", "Version: " VERSION_NUMBER "  Date: " VERSION_DATE);
-#ifdef DEBUG
-	// show the size of some structures ...
-	show_sizes();
-#endif
-
 	// unmgebung init
 	umgebung_t::testlauf      = (gimme_arg(argc, argv, "-test",     0) != NULL);
 	umgebung_t::freeplay      = (gimme_arg(argc, argv, "-freeplay", 0) != NULL);
@@ -439,7 +423,6 @@ extern "C" int simu_main(int argc, char** argv)
 #else
 	strcat( umgebung_t::program_dir, "/" );
 #endif
-	DBG_MESSAGE( "program_dir", umgebung_t::program_dir );
 
 	// parsing config/simuconf.tab
 	print("Reading low level config data ...\n");
@@ -457,7 +440,6 @@ extern "C" int simu_main(int argc, char** argv)
 	// but just retrieve the pak-path
 	if(multiuser) {
 		umgebung_t::user_dir = dr_query_homedir();
-		DBG_MESSAGE( "home_dir", umgebung_t::user_dir );
 
 		cstring_t obj_conf = umgebung_t::user_dir;
 		if(simuconf.open(obj_conf + "simuconf.tab")) {
@@ -496,6 +478,25 @@ extern "C" int simu_main(int argc, char** argv)
 		}
 	}
 	simuconf.close();
+
+	chdir( umgebung_t::user_dir );
+	if (gimme_arg(argc, argv, "-log", 0)) {
+		init_logging("simu.log", true, gimme_arg(argc, argv, "-debug", 0) != NULL);
+	} else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
+		init_logging("stderr", true, gimme_arg(argc, argv, "-debug", 0) != NULL);
+	} else {
+		init_logging(NULL, false, false);
+	}
+	DBG_MESSAGE("simmain::main()", "Version: " VERSION_NUMBER "  Date: " VERSION_DATE);
+	DBG_MESSAGE( "program_dir", umgebung_t::program_dir );
+	DBG_MESSAGE( "home_dir", umgebung_t::user_dir );
+#ifdef DEBUG
+	if (gimme_arg(argc, argv, "-sizes", 0) != NULL) {
+		// show the size of some structures ...
+		show_sizes();
+	}
+#endif
+	chdir( umgebung_t::program_dir );
 
 	convoihandle_t::init( umgebung_t::max_convoihandles );
 	linehandle_t::init( umgebung_t::max_linehandles );

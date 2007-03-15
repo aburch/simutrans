@@ -13,6 +13,9 @@ Release of 99.09.2
 	ADD: you can limit the fast forward speed with fast_forward in simuconf.tab (but this is rather a course regulation)
 	ADD: time multiplier for fast forward mode shown
 	FIX: setting correct 2nd player color after reloading a game
+	FIX: simu.log now saved in home directory
+	FIX: automatic recognisation of bitmap depth (failed with SDL on some old machines) => transparency fixed
+	CHANGE: 16 bit color depth for GDI (may not work on all machines, please report)
 
 
 Release of 99.09.1

@@ -95,7 +95,6 @@ int large_font_height = 10;
 
 #define RGBMAPSIZE (0x8000+LIGHT_COUNT+16)
 
-
 /*
  * Hajo: mapping tables for RGB 555 to actual output format
  * plus the special (player, day&night) colors appended
@@ -1964,70 +1963,122 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 typedef void (*blend_proc)(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len);
 
 // different masks needed for RGB 555 and RGB 565
-#ifdef USE_16BIT_DIB
-#define ONE_OUT (0x7bef)
-#define TWO_OUT (0x39E7)
-#else
-#define ONE_OUT (0x3DEF)
-#define TWO_OUT (0x1CE7)
-#endif
+#define ONE_OUT_16 (0x7bef)
+#define TWO_OUT_16 (0x39E7)
+#define ONE_OUT_15 (0x3DEF)
+#define TWO_OUT_15 (0x1CE7)
 
-static void pix_blend75(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_blend75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
-		*dest = (3*(((*src)>>2) & TWO_OUT)) + (((*dest)>>2) & TWO_OUT);
+		*dest = (3*(((*src)>>2) & TWO_OUT_15)) + (((*dest)>>2) & TWO_OUT_15);
+		dest++;
+		src++;
+	}
+}
+static void pix_blend75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		*dest = (3*(((*src)>>2) & TWO_OUT_16)) + (((*dest)>>2) & TWO_OUT_16);
 		dest++;
 		src++;
 	}
 }
 
-static void pix_blend50(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_blend50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
-		*dest = (((*src)>>1) & ONE_OUT) + (((*dest)>>1) & ONE_OUT);
+		*dest = (((*src)>>1) & ONE_OUT_15) + (((*dest)>>1) & ONE_OUT_15);
+		dest++;
+		src++;
+	}
+}
+static void pix_blend50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		*dest = (((*src)>>1) & ONE_OUT_16) + (((*dest)>>1) & ONE_OUT_16);
 		dest++;
 		src++;
 	}
 }
 
-static void pix_blend25(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_blend25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
-		*dest = (((*src)>>2) & TWO_OUT) + (3*(((*dest)>>2) & TWO_OUT));
+		*dest = (((*src)>>2) & TWO_OUT_15) + (3*(((*dest)>>2) & TWO_OUT_15));
+		dest++;
+		src++;
+	}
+}
+static void pix_blend25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		*dest = (((*src)>>2) & TWO_OUT_16) + (3*(((*dest)>>2) & TWO_OUT_16));
 		dest++;
 		src++;
 	}
 }
 
-static void pix_outline75(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_outline75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
-		*dest = (3*((colour>>2) & TWO_OUT)) + (((*dest)>>2) & TWO_OUT);
+		*dest = (3*((colour>>2) & TWO_OUT_15)) + (((*dest)>>2) & TWO_OUT_15);
+		dest++;
+	}
+}
+static void pix_outline75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		*dest = (3*((colour>>2) & TWO_OUT_16)) + (((*dest)>>2) & TWO_OUT_16);
 		dest++;
 	}
 }
 
-static void pix_outline50(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_outline50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
-		*dest = ((colour>>1) & ONE_OUT) + (((*dest)>>1) & ONE_OUT);
+		*dest = ((colour>>1) & ONE_OUT_15) + (((*dest)>>1) & ONE_OUT_15);
+		dest++;
+	}
+}
+static void pix_outline50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		*dest = ((colour>>1) & ONE_OUT_16) + (((*dest)>>1) & ONE_OUT_16);
 		dest++;
 	}
 }
 
-static void pix_outline25(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_outline25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
-		*dest = ((colour>>2) & TWO_OUT) + (3*(((*dest)>>2) & TWO_OUT));
+		*dest = ((colour>>2) & TWO_OUT_15) + (3*(((*dest)>>2) & TWO_OUT_15));
 		dest++;
 	}
 }
+static void pix_outline25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		*dest = ((colour>>2) & TWO_OUT_16) + (3*(((*dest)>>2) & TWO_OUT_16));
+		dest++;
+	}
+}
+
+// will kept the actual values
+static blend_proc blend[3];
+static blend_proc outline[3];
 
 static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, int colour,
 	blend_proc p )
@@ -2126,8 +2177,7 @@ void display_img_blend(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const
 			// get the real color
 			const PIXVAL color = specialcolormap_all_day[color_index & 0xFF];
 			// we use function pointer for the blend runs for the moment ...
-			static blend_proc choices[6] = { pix_blend25, pix_blend50, pix_blend75,pix_outline25, pix_outline50, pix_outline75 };
-			blend_proc pix_blend = choices[ ((color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1) + (3 * (color_index&OUTLINE_FLAG)/OUTLINE_FLAG) ];
+			blend_proc pix_blend = (color_index&OUTLINE_FLAG) ? outline[ (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1 ] : blend[ (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1 ];
 
 			// use horzontal clipping or skip it?
 			if (xp + x >= clip_rect.x && xp + x + w - 1 <= clip_rect.xx) {
@@ -2632,6 +2682,7 @@ void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, K
 }
 
 
+
 /**
  * display text in 3d box with clipping
  * @author: hsiegeln
@@ -2646,16 +2697,10 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
 
 	display_vline_wh_clip(xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe + 1, dirty);
 	display_vline_wh_clip(xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe - 1, dirty);
-#if 0
-	display_fillbox_wh_clip(xpos - 2, ypos - 6 - hgt, width,  1, ddd_farbe + 1, dirty);
-	display_fillbox_wh_clip(xpos - 2, ypos - 5 - hgt, width, 10, ddd_farbe,     dirty);
-	display_fillbox_wh_clip(xpos - 2, ypos + 5 - hgt, width,  1, ddd_farbe - 1, dirty);
 
-	display_vline_wh_clip(xpos - 2,         ypos - 6 - hgt, 11, ddd_farbe + 1, dirty);
-	display_vline_wh_clip(xpos + width - 3, ypos - 6 - hgt, 11, ddd_farbe - 1, dirty);
-#endif
 	display_text_proportional_len_clip(xpos + 2, ypos - 5 + (12 - large_font_height) / 2, text, ALIGN_LEFT, text_farbe, FALSE, true, -1, true);
 }
+
 
 
 /**
@@ -2876,6 +2921,31 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
 	calc_base_pal_from_night_shift(0);
 	memcpy(rgbmap_all_day, rgbmap_day_night, RGBMAPSIZE * sizeof(PIXVAL));
 	memcpy(specialcolormap_all_day, specialcolormap_day_night, 256 * sizeof(PIXVAL));
+
+	// find out bit depth
+	{
+		uint32 c = get_system_color( 0, 255, 0 );
+		while((c&1)==0) {
+			c >>= 1;
+		}
+		if(c==31) {
+			// 15 bit per pixel
+			blend[0] = pix_blend25_15;
+			blend[1] = pix_blend50_15;
+			blend[2] = pix_blend75_15;
+			outline[0] = pix_outline25_15;
+			outline[1] = pix_outline50_15;
+			outline[2] = pix_outline75_15;
+		}
+		else {
+			blend[0] = pix_blend25_16;
+			blend[1] = pix_blend50_16;
+			blend[2] = pix_blend75_16;
+			outline[0] = pix_outline25_16;
+			outline[1] = pix_outline50_16;
+			outline[2] = pix_outline75_16;
+		}
+	}
 
 	printf("Init done.\n");
 	fflush(NULL);
