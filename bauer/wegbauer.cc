@@ -612,13 +612,16 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 					return false;
 				}
 				// calculate costs
-				*costs = str ? 0 : 5;
-				*costs += from_str ? 0 : 5;
+				*costs = str ? 0 : umgebung_t::way_count_straight;
 				if(to->hat_weg(track_wt)) {
 					*costs += 4;	// avoid crossings
 				}
-				if(to->gib_grund_hang()!=0) {
+				if(to->gib_weg_hang()!=0) {
 					*costs += umgebung_t::way_count_slope;
+				}
+				// extra malus leave an existing road
+				if(from_str!=NULL  &&  str==NULL) {
+					*costs += umgebung_t::way_count_leaving_road;
 				}
 			}
 		}
@@ -661,11 +664,11 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 					}
 				}
 				// calculate costs
-				*costs = sch ? 3 : 4;	// only prefer existing rails a little
+				*costs = sch ? umgebung_t::way_count_straight : umgebung_t::way_count_straight+1;	// only prefer existing rails a little
 				if(to->hat_weg(road_wt)) {
 					*costs += 4;	// avoid crossings
 				}
-				if(to->gib_grund_hang()!=0) {
+				if(to->gib_weg_hang()!=0) {
 					*costs += umgebung_t::way_count_slope;
 				}
 			}
@@ -715,12 +718,12 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			}
 			// calculate costs
 			if(ok) {
-				*costs = 4;
+				*costs = umgebung_t::way_count_straight;
 				// perfer ontop of ways
-				if(to->hat_wege()) {
-					*costs = 3;
+				if(!to->hat_wege()) {
+					*costs += umgebung_t::way_count_straight;
 				}
-				if(to->gib_grund_hang()!=0) {
+				if(to->gib_weg_hang()!=0) {
 					*costs += umgebung_t::way_count_slope;
 				}
 			}
@@ -744,12 +747,12 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			}
 			// calculate costs
 			if(ok) {
-				*costs = to->hat_weg(track_wt) ? 2 : 4;	// only prefer existing rails a little
+				*costs = to->hat_weg(track_wt) ? umgebung_t::way_count_straight : umgebung_t::way_count_straight+1;	// only prefer existing rails a little
 				// perfer own track
 				if(to->hat_weg(road_wt)) {
-					*costs += 2;
+					*costs += umgebung_t::way_count_straight*2;
 				}
-				if(to->gib_grund_hang()!=0) {
+				if(to->gib_weg_hang()!=0) {
 					*costs += umgebung_t::way_count_slope;
 				}
 			}
@@ -772,7 +775,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			ok &= welt->lookup(to_pos)->gib_boden_in_hoehe(to->gib_pos().z+Z_TILE_STEP)==NULL;
 			// calculate costs
 			if(ok) {
-				*costs = to->hat_wege() ? 8 : 1;
+				*costs = umgebung_t::way_count_straight+to->hat_wege() ? 8 : 0;
 				if(to->gib_grund_hang()!=0) {
 					*costs += umgebung_t::way_count_slope;
 				}
@@ -783,8 +786,8 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			ok = (ok  ||  to->ist_wasser()  ||  (to->hat_weg(water_wt)  &&  check_owner(to->gib_weg(water_wt)->gib_besitzer(),sp)))  &&  check_for_leitung(zv,to);
 			// calculate costs
 			if(ok) {
-				*costs = to->ist_wasser()  ||  to->hat_weg(water_wt) ? 2 : 10;	// prefer water very much ...
-				if(to->gib_grund_hang()!=0) {
+				*costs = to->ist_wasser()  ||  to->hat_weg(water_wt) ? umgebung_t::way_count_straight : umgebung_t::way_count_leaving_road;	// prefer water very much ...
+				if(to->gib_weg_hang()!=0) {
 					*costs += umgebung_t::way_count_slope*2;
 				}
 			}
@@ -801,7 +804,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			}
 		}
 		// calculate costs
-		*costs = 4;
+		*costs = umgebung_t::way_count_straight;
 		break;
 	}
 	return ok;
@@ -1294,15 +1297,14 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->gib_pos().x,gr->gib_pos().y,g
 				 current_dir = ribi_typ( gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
 			}
 
-			const uint32 new_dist = route_t::calc_distance( to->gib_pos(), ziel3d );
-
+			const uint32 new_dist = abs_distance( to->gib_pos().gib_2d(), ziel3d.gib_2d() )*umgebung_t::way_count_straight + abs(to->gib_hoehe()-ziel3d.z)*umgebung_t::way_count_slope;
 			if(new_dist<min_dist) {
 				min_dist = new_dist;
 			}
 			else if(new_dist>min_dist+50) {
 				// skip, if too far from current minimum tile
 				// will not find some ways, but will be much faster ...
-				// also it will avoid too big detours, which is probably also not, way the builder intended
+				// also it will avoid too big detours, which is probably also not the way, the builder intended
 				continue;
 			}
 
@@ -1646,17 +1648,40 @@ wegbauer_t::baue_tunnel_und_bruecken()
 
 			if(start->gib_grund_hang()==0  ||  start->gib_grund_hang()==hang_typ(zv*(-1))) {
 				// bridge here
-DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken","built bridge %p",bruecke_besch);
-				INT_CHECK( "wegbauer 1584" );
 				brueckenbauer_t::baue(sp, welt, route[i].gib_2d(), (value_t)bruecke_besch);
-//				brueckenbauer_t::baue_bruecke(welt, sp, route[i], route[i + 1], zv, bruecke_besch);
-				INT_CHECK( "wegbauer 1584" );
 			}
 			else {
 				// tunnel
-				INT_CHECK( "wegbauer 1584" );
 				tunnelbauer_t::baue(sp, welt, route[i].gib_2d(), tunnel_besch );
-				INT_CHECK( "wegbauer 1584" );
+			}
+			INT_CHECK( "wegbauer 1584" );
+		}
+		else {
+			grund_t *gr_i = welt->lookup(route[i]);
+			grund_t *gr_i1 = welt->lookup(route[i+1]);
+			hang_t::typ h = gr_i->gib_weg_hang();
+			waytype_t wt = (waytype_t)(besch->gib_wtyp());
+			if(h!=hang_t::flach  &&  hang_t::gegenueber(h)==gr_i1->gib_weg_hang()) {
+				// either a short mountain or a short dip ...
+				// now: check ownership
+				weg_t *wi = gr_i->gib_weg(wt);
+				weg_t *wi1 = gr_i1->gib_weg(wt);
+				if(wi->gib_besitzer()==sp  &&  wi1->gib_besitzer()==sp) {
+					// we are the owner
+					if(welt->lookup(route[i-1])->gib_hoehe()>gr_i->gib_hoehe()) {
+						// its a bridge
+						wi->setze_ribi(ribi_typ(h));
+						wi1->setze_ribi(ribi_typ(hang_t::gegenueber(h)));
+						brueckenbauer_t::baue(sp, welt, route[i].gib_2d(), (value_t)bruecke_besch);
+					}
+					else {
+						// make a short tunnel
+						wi->setze_ribi(ribi_typ(hang_t::gegenueber(h)));
+						wi1->setze_ribi(ribi_typ(h));
+						tunnelbauer_t::baue(sp, welt, route[i].gib_2d(), tunnel_besch );
+					}
+					INT_CHECK( "wegbauer 1584" );
+				}
 			}
 		}
 	}
@@ -1824,7 +1849,7 @@ wegbauer_t::baue_strasse()
 			weg_t * weg = gr->gib_weg(road_wt);
 
 			// keep faster ways or if it is the same way ... (@author prissi)
-			if(weg->gib_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_city_roads  && weg->gib_besch()==cityroad)  ||  (keep_existing_faster_ways  &&  weg->gib_besch()->gib_topspeed()>besch->gib_topspeed())  ||  (sp!=NULL  &&  !sp->check_owner(weg->gib_besitzer()))) {
+			if(weg->gib_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_city_roads  &&  weg->hat_gehweg())  ||  (keep_existing_faster_ways  &&  weg->gib_besch()->gib_topspeed()>besch->gib_topspeed())  ||  (sp!=NULL  &&  !sp->check_owner(weg->gib_besitzer()))) {
 				//nothing to be done
 //DBG_MESSAGE("wegbauer_t::baue_strasse()","nothing to do at (%i,%i)",k.x,k.y);
 			}

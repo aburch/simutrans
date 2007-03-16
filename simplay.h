@@ -226,7 +226,7 @@ private:
 	bool suche_platz(int x, int y, int dx, int dy, koord off, koord *);
 
 	// all for passenger transport
-	bool is_connected(halthandle_t halt, koord upperleft, koord lowerright);
+	bool is_connected(const koord star_pos, const koord end_pos, const ware_besch_t *wtyp);
 	halthandle_t  get_our_hub( const stadt_t *s );
 	koord built_hub( const koord pos, int radius );
 	void create_bus_transport_vehikel(koord startpos,int anz_vehikel,koord *stops,int anzahl,bool do_wait);

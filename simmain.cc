@@ -298,12 +298,14 @@ parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &ful
 	umgebung_t::cst_multiply_remove_haus = contents.get_int("cost_multiply_remove_haus", umgebung_t::cst_multiply_remove_haus/(-100) ) * -100;
 
 	/* now the way builder */
+	umgebung_t::way_count_straight = contents.get_int("way_straight", umgebung_t::way_count_straight);
 	umgebung_t::way_count_curve = contents.get_int("way_curve", umgebung_t::way_count_curve);
 	umgebung_t::way_count_double_curve = contents.get_int("way_double_curve", umgebung_t::way_count_double_curve);
 	umgebung_t::way_count_90_curve = contents.get_int("way_90_curve", umgebung_t::way_count_90_curve);
 	umgebung_t::way_count_slope = contents.get_int("way_slope", umgebung_t::way_count_slope);
 	umgebung_t::way_count_tunnel = contents.get_int("way_tunnel", umgebung_t::way_count_tunnel);
 	umgebung_t::way_max_bridge_len = contents.get_int("way_max_bridge_len", umgebung_t::way_max_bridge_len);
+	umgebung_t::way_count_leaving_road = contents.get_int("way_leaving_road", umgebung_t::way_count_leaving_road);
 
 	/*
 	* Selection of savegame format through inifile

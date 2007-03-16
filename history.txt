@@ -16,6 +16,10 @@ Release of 99.09.2
 	FIX: simu.log now saved in home directory
 	FIX: automatic recognisation of bitmap depth (failed with SDL on some old machines) => transparency fixed
 	CHANGE: 16 bit color depth for GDI (may not work on all machines, please report)
+	CHANGE: better recognisation by the AI, if there is already a connection
+	CHANGE: AI now built also tunnel and bridges, that are only one tile long
+	FIX: also not altering old city roads (before only affected new city road)
+	ADD: two more tweaks for the way builder: way_straight (cost for straight tile) and way_leave_road (to make existing roads more favourable)
 
 
 Release of 99.09.1

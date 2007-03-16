@@ -874,7 +874,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","searching town");
 					const int nr = (i+offset)%anzahl;
 					const stadt_t* cur = staedte[nr];
 assert(cur!=NULL);
-					if(cur!=last_start_stadt  &&  cur!=start_stadt  &&  !is_connected(start_halt,cur->get_linksoben(),cur->get_rechtsunten())  ) {
+					if(cur!=last_start_stadt  &&  cur!=start_stadt) {
 						int	dist=-1;
 						if(end_stadt!=NULL) {
 							halthandle_t end_halt = get_our_hub(cur);
@@ -886,10 +886,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","found end hub");
 								ware_t pax(warenbauer_t::passagiere);
 								pax.setze_zielpos(end_halt->gib_basis_pos());
 								INT_CHECK("simplay 838");
-								const int max_transfers=umgebung_t::max_transfers;
-								umgebung_t::max_transfers = 4;
 								start_halt->suche_route(pax);
-								umgebung_t::max_transfers = max_transfers;
 								if(!pax.gib_ziel().is_bound()  &&  dist1>welt->gib_groesse_max()/3) {
 									// already connected
 									continue;
@@ -1287,9 +1284,17 @@ DBG_MESSAGE("spieler_t::do_ki()","%s want to build a route from %s (%d,%d) to %s
 					// first we have to find a suitable car
 					const ware_besch_t* freight = start->gib_ausgang()[start_ware].gib_typ();
 
+					// last check, if the route is not taken yet
+					if(is_connected(start->gib_pos().gib_2d(), ziel->gib_pos().gib_2d(), freight)) {
+						// falls gar nichts klappt gehen wir zum initialzustand zurueck
+						baue = false;
+						state = CHECK_CONVOI;
+						return;
+					}
+
 					// guess the "optimum" speed (usually a little too low)
-				  	uint32 best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->gib_speed_bonus()*5, 140 );
-				  	uint32 best_road_speed = min(60+freight->gib_speed_bonus()*5, 130 );
+				  uint32 best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->gib_speed_bonus()*5, 140 );
+				  uint32 best_road_speed = min(60+freight->gib_speed_bonus()*5, 130 );
 
 				  	// obey timeline
 					uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);
@@ -1561,42 +1566,6 @@ DBG_MESSAGE("spieler_t::do_ki()","convoi %s not needed!",cnv->gib_name());
 							break;
 						}
 					}
-#if 0
-					// then check for overcrowded lines
-					if(cnv->gib_vehikel(0)->gib_fracht_menge()==cnv->gib_vehikel(0)->gib_fracht_max()) {
-						INT_CHECK("simplay 889");
-						// this is our vehicle, and is 100% loaded
-						fahrplan_t  *f = cnv->gib_fahrplan();
-						koord3d startpos= cnv->gib_pos();
-						// next checkpoint also crowed with things for us?
-						halthandle_t h0=welt->lookup( f->eintrag.at(0).pos )->gib_halt();
-						halthandle_t h1=welt->lookup( f->eintrag.at(1).pos )->gib_halt();
-DBG_MESSAGE("spieler_t::do_passenger_ki()","checking our convoi %s between %s and %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
-DBG_MESSAGE("spieler_t::do_passenger_ki()","waiting: %s (%i) and %s (%i)",h0->gib_name(),h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(1).pos.gib_2d()),h1->gib_name(),h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(0).pos.gib_2d()));
-
-						// we assume crowed for more than 129 waiting passengers
-						if(	h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(1).pos.gib_2d())>250   ||
-							h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(0).pos.gib_2d())>250   ) {
-	DBG_MESSAGE("spieler_t::do_passenger_ki()","copy convoi %s on route %s to %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
-							vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, cnv->gib_vehikel(0)->gib_besch());
-							convoi_t *new_cnv = new convoi_t(welt, this);
-							// V.Meyer: give the new convoi name from first vehicle
-							new_cnv->setze_name( v->gib_besch()->gib_name() );
-							new_cnv->add_vehikel( v );
-							fahrplan_t *fpl = new_cnv->gib_vehikel(0)->erzeuge_neuen_fahrplan();
-							// now copy scedule
-							fpl = f->copy()
-							// do not start at current stop => wont work ...
-							fpl->aktuell = (f->eintrag.at(0).pos==startpos)?1:0;
-							// and start new convoi
-							welt->sync_add( new_cnv );
-							new_cnv->setze_fahrplan(fpl);
-							new_cnv->start();
-							// we do not want too many copies, just copy once!
-							break;
-						}
-					}
-#endif
 				}
 			}
 			state = NEUE_ROUTE;
@@ -2016,8 +1985,14 @@ DBG_MESSAGE("spieler_t::suche_transport_ziel","Lieferziele %d",lieferziel_anzahl
 
 		// loop for all targets
 		for(  int lieferziel_nr=0;  lieferziel_nr<lieferziel_anzahl;  lieferziel_nr++  ) {
-			// XXX KI sollte auch andere Lieferziele prüfen!
+
 			const koord lieferziel = lieferziele[lieferziel_nr];
+			if(is_connected(qfab->gib_pos().gib_2d(), lieferziel, ware.gib_typ())) {
+				// already a line for this good ...
+				// thius we check the next consumer
+				continue;
+			}
+
 			int	dieser_gewinn=-1;
 			fabrik_t *zfab = NULL;
 
@@ -2037,47 +2012,64 @@ DBG_MESSAGE("spieler_t::suche_transport_ziel","Lieferziele %d",lieferziel_anzahl
 			}
 		}
 	}
-	if(gewinn>-1) {
-DBG_MESSAGE("spieler_t::suche_transport_ziel","Found factory %s (revenue: %d)",(*ziel)->gib_name(),gewinn);
-	}
+
 	// no loops: will be -1!
 	return gewinn;
 }
 
 
 
-
-
-
-/* returns, if there is already a connection from this halt to this coordinates (upperleft/lowerright)
+/* returns true,
+ * if there is already a connection
  * @author prissi
  */
 bool
-spieler_t::is_connected(halthandle_t halt, koord upperleft, koord lowerright)
+spieler_t::is_connected( const koord start_pos, const koord dest_pos, const ware_besch_t *wtyp )
 {
-	// check for valid handle
-	if(!halt.is_bound()) {
-		return false;
-	}
-//DBG_MESSAGE("spieler_t::is_connected()","Iteration");
-	// ok, no we can proceed
-	const slist_tpl<warenziel_t> *ziele = halt->gib_warenziele();
-	slist_iterator_tpl<warenziel_t> iter (ziele);
-	while(iter.next()) {
-		warenziel_t wz = iter.get_current();
-		halthandle_t a_halt = haltestelle_t::gib_halt(welt,wz.gib_ziel());
-		if(a_halt.is_bound()) {
-			koord pos = a_halt->gib_basis_pos();
-//DBG_MESSAGE("spieler_t::is_connected()","connection to (%i,%i), compare with (%i,%i)(%i,%i)",pos.x,pos.y,upperleft.x,upperleft.y,lowerright.x,lowerright.y);
-			if(upperleft.x<pos.x  &&  upperleft.y<pos.y  &&  lowerright.x>pos.x  &&  lowerright.y>pos.y) {
-				// ok, we have a cennection
-DBG_MESSAGE("spieler_t::is_connected()","%s is already connected to area %i,%i|%i,%i).",halt->gib_name(),upperleft.x,upperleft.y,lowerright.x,lowerright.y);
-				return true;
+	// Dario: Check if there's a stop near destination
+	const planquadrat_t* start_plan = welt->lookup(start_pos);
+	const halthandle_t* start_list = start_plan->get_haltlist();
+
+	// Dario: Check if there's a stop near destination
+	const planquadrat_t* dest_plan = welt->lookup(dest_pos);
+	const halthandle_t* dest_list = dest_plan->get_haltlist();
+
+	// suitable end search
+	unsigned dest_count = 0;
+	for (uint16 h = 0; h<dest_plan->get_haltlist_count(); h++) {
+		halthandle_t halt = dest_list[h];
+		if (halt->is_enabled(wtyp)) {
+			for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++) {
+				if (halt == start_list[hh]) {
+					// connected with the start (i.e. too close)
+					return true;
+				}
 			}
+			dest_count ++;
 		}
 	}
+
+	if(dest_count==0) {
+		return false;
+	}
+
+	// no try to find a route
+	// ok, they are not in walking distance
+	ware_t pax(wtyp);
+	pax.setze_zielpos(dest_pos);
+	pax.menge = 1;
+	for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++) {
+		start_list[hh]->suche_route(pax, NULL);
+		if (pax.gib_ziel().is_bound()) {
+			// ok, already connected
+			return true;
+		}
+	}
+
+	// no connection possible between those
 	return false;
 }
+
 
 
 /* return the hub of a city (always the very first stop) or zero

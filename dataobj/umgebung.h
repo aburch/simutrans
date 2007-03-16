@@ -289,12 +289,14 @@ public:
 	static sint64 cst_multiply_remove_haus;
 
 	// costs for the way searcher
+	static sint32 way_count_straight;
 	static sint32 way_count_curve;
 	static sint32 way_count_double_curve;
 	static sint32 way_count_90_curve;
 	static sint32 way_count_slope;
 	static sint32 way_count_tunnel;
 	static uint32 way_max_bridge_len;
+	static sint32 way_count_leaving_road;
 
 	// passenger manipulation factor (=16 about old value)
 	static uint32 passenger_factor;

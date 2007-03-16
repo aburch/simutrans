@@ -154,12 +154,14 @@ sint64 umgebung_t::cst_remove_tree=-10000;
 sint64 umgebung_t::cst_multiply_remove_haus=-100000;
 
 // costs for the way searcher
+sint32 umgebung_t::way_count_straight=1;
 sint32 umgebung_t::way_count_curve=2;
 sint32 umgebung_t::way_count_double_curve=10;
 sint32 umgebung_t::way_count_90_curve=50;
 sint32 umgebung_t::way_count_slope=10;
 sint32 umgebung_t::way_count_tunnel=8;
 uint32 umgebung_t::way_max_bridge_len=15;
+sint32 umgebung_t::way_count_leaving_road=25;
 
 // easier prices for beginner
 uint32 umgebung_t::beginner_price_factor=1500;
