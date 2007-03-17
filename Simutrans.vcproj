@@ -487,6 +487,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\jump_frame.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\boden\wege\kanal.cc"
 				>
 			</File>

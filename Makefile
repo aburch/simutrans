@@ -202,6 +202,7 @@ SOURCES += gui/halt_list_filter_frame.cc
 SOURCES += gui/halt_list_frame.cc
 SOURCES += gui/halt_list_stats.cc
 SOURCES += gui/help_frame.cc
+SOURCES += gui/jump_frame.cc
 SOURCES += gui/karte.cc
 SOURCES += gui/kennfarbe.cc
 SOURCES += gui/label_frame.cc

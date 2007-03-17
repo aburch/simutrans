@@ -84,6 +84,7 @@
 #include "gui/message_frame_t.h"
 #include "gui/help_frame.h"
 #include "gui/goods_frame_t.h"
+#include "gui/jump_frame.h"
 
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
@@ -3244,7 +3245,11 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 
 	case 'G':
-	  create_win(0, 0,new goods_frame_t(this), w_autodelete);
+	  create_win(-1, -1,new goods_frame_t(this), w_autodelete);
+	  break;
+
+	case 'J':
+	  create_win(-1, -1,new jump_frame_t(this), w_autodelete);
 	  break;
 
 	case 'Q':

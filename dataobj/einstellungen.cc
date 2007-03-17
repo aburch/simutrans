@@ -52,7 +52,7 @@ einstellungen_t::einstellungen_t() :
 
 	// some settigns more
 	allow_player_change = true;
-	use_timeline = true;
+	use_timeline = umgebung_t::use_timeline==1;
 	starting_year = umgebung_t::starting_year;
 	bits_per_month = umgebung_t::bits_per_month;
 
