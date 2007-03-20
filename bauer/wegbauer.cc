@@ -760,7 +760,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		break;
 
 		case leitung:
-			ok = !fundament &&  !to->ist_wasser()  &&  to->gib_weg(air_wt)==NULL;
+			ok = !fundament &&  !to->ist_wasser()  &&  (to->gib_weg(air_wt)==NULL);
 			if(to->gib_weg_nr(0)!=NULL) {
 				// only 90 deg crossings, only a signle way
 				ribi_t::ribi w_ribi= to->gib_weg_nr(0)->gib_ribi_unmasked();
@@ -776,9 +776,6 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			// calculate costs
 			if(ok) {
 				*costs = umgebung_t::way_count_straight+to->hat_wege() ? 8 : 0;
-				if(to->gib_grund_hang()!=0) {
-					*costs += umgebung_t::way_count_slope;
-				}
 			}
 		break;
 

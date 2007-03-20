@@ -11,7 +11,7 @@ class grund_t;
 
 #define MAX_MAP_TYPE_LAND 14
 #define MAX_MAP_TYPE_WATER 5
-#define MAX_SEVERITY_COLORS 21
+#define MAX_SEVERITY_COLORS 10
 #define MAX_MAP_ZOOM 4
 // set to zero to use the small font
 #define ALWAYS_LARGE 1

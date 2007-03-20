@@ -1,5 +1,7 @@
 
 	ADD: jump to coordinate dialog added ("Jump to") called by "J"
+	FIX: reloading games save in 99.09.2 from previous versions works may result in passengers without route
+	FIX: colors in map window were still broken
 
 
 Release of 99.09.2

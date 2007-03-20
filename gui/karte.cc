@@ -46,12 +46,18 @@ const uint8 reliefkarte_t::map_type_color[MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND] 
 
 const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 {
-  //11, 10, 9, 23, 22, 21, 15, 14, 13, 18, 19, 35
-//   9, 10, 11, 21, 22, 23, 13, 14, 15, 18, 19, 35,
-// 169, 168, 167, 166, 165, 164, 163, 156, 157, 158, 159, 160, 140, 139, 130, 129, 128, 123, 122, 18, 19
- 169, 168, 167, 166, 165, 164, 163, 156, 157, 158, 160, 140, 15, 120, 139, 130, 129, 128, 122, 18, 19
+	106, 2, 85, 86, 29, 30, 171, 71, 39, 132
 };
 
+// Kenfarben fuer die Karte
+#define STRASSE_KENN      (208)
+#define SCHIENE_KENN      (185)
+#define CHANNEL_KENN      (147)
+#define MONORAIL_KENN      (153)
+#define RUNWAY_KENN      (28)
+#define POWERLINE_KENN      (55)
+#define HALT_KENN         COL_RED
+#define BUILDING_KENN      COL_GREY3
 
 
 // converts karte koordinates to screen corrdinates
@@ -240,7 +246,7 @@ reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 			// normal ground ...
 			default:
 				if(gr->hat_wege()) {
-					switch(gr->gib_weg_nr(0)->gib_typ()) {
+					switch(gr->gib_weg_nr(0)->gib_waytype()) {
 						case road_wt: color = STRASSE_KENN; break;
 						case tram_wt:
 						case track_wt: color = SCHIENE_KENN; break;

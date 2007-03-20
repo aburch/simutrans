@@ -924,6 +924,7 @@ haltestelle_t::add_grund(grund_t *gr)
 		}
 
 		assert(welt->lookup(pos)->gib_halt() == self  &&  gr->is_halt());
+		init_pos = grund.front()->gib_pos().gib_2d();
 		return true;
 	}
 	else {
@@ -996,6 +997,8 @@ DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count
 			fab_list.clear();
 		}
 	}
+
+	init_pos = grund.empty() ? koord::invalid : grund.front()->gib_pos().gib_2d();
 }
 
 
@@ -1808,9 +1811,6 @@ haltestelle_t::rdwr(loadsave_t *file)
 			const haus_besch_t *besch=gb?gb->gib_tile()->gib_besch():NULL;
 			if(besch) {
 				add_grund( gr );
-				if(grund.count()==0) {
-					init_pos = k.gib_2d();
-				}
 			}
 			else {
 				dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!", (const char*)k3_to_cstr(k));

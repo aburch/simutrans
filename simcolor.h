@@ -60,14 +60,6 @@ typedef unsigned char COLOR_VAL;
 #define COL_GREY5  (213)
 #define COL_GREY6  (15)
 
-// Kenfarben fuer die Karte
-#define STRASSE_KENN      (210)
-#define SCHIENE_KENN      (185)
-#define CHANNEL_KENN      (147)
-#define MONORAIL_KENN      (153)
-#define RUNWAY_KENN      (58)
-#define POWERLINE_KENN      (28)
-#define HALT_KENN         COL_RED
 #define VEHIKEL_KENN      COL_YELLOW
 
 #define WIN_TITEL       (154)
