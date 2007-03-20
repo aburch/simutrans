@@ -1830,6 +1830,7 @@ haltestelle_t::rdwr(loadsave_t *file)
 
 	short count;
 	const char *s;
+	init_pos = grund.empty() ? koord::invalid : grund.front()->gib_pos().gib_2d();
 	if(file->is_saving()) {
 		for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
 			vector_tpl<ware_t> *warray = waren[i];
