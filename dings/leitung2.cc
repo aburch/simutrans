@@ -288,13 +288,18 @@ void leitung_t::verbinde()
 //DBG_MESSAGE("leitung_t::verbinde()","Found net %p",new_net);
 
 	// we are alone?
-	if(new_net==NULL  &&  net==NULL) {
-		// then we start a new net
-		new_net = new powernet_t();
-		welt->sync_add(new_net);
-	//DBG_MESSAGE("leitung_t::verbinde()","Creating new net %p",new_net);
+	if(net==NULL) {
+		if(new_net!=NULL) {
+			net = new_net;
+		}
+		else {
+			// then we start a new net
+			net = new powernet_t();
+			welt->sync_add(net);
+//DBG_MESSAGE("leitung_t::verbinde()","Creating new net %p",new_net);
+		}
 	}
-	if(new_net  &&  new_net!=net) {
+	else if(new_net  &&  new_net!=net) {
 		powernet_t *my_net = net;
 		replace(pos, net, new_net);
 		if(my_net) {
