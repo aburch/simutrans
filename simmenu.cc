@@ -195,7 +195,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						SFX_FAILURE,
 						skinverwaltung_t::edit_werkzeug->gib_bild_nr(7),
 						skinverwaltung_t::killzeiger->gib_bild_nr(0),
-						translator::translate("remove tracks");
+						translator::translate("remove tracks"));
 
 					brueckenbauer_t::fill_menu(wzw,
 						track_wt,
