@@ -195,7 +195,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						SFX_FAILURE,
 						skinverwaltung_t::edit_werkzeug->gib_bild_nr(7),
 						skinverwaltung_t::killzeiger->gib_bild_nr(0),
-						"remove tracks");
+						translator::translate("remove tracks");
 
 					brueckenbauer_t::fill_menu(wzw,
 						track_wt,
@@ -295,7 +295,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						SFX_FAILURE,
 						skinverwaltung_t::edit_werkzeug->gib_bild_nr(8),
 						skinverwaltung_t::killzeiger->gib_bild_nr(0),
-						"remove monorails");
+						translator::translate("remove monorails"));
 
 					brueckenbauer_t::fill_menu(wzw,
 						monorail_wt,
@@ -386,7 +386,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						SFX_FAILURE,
 						skinverwaltung_t::edit_werkzeug->gib_bild_nr(7),
 						skinverwaltung_t::killzeiger->gib_bild_nr(0),
-						"remove tracks");
+						translator::translate("remove tracks"));
 
 					roadsign_t::fill_menu(wzw,
 						track_wt,
@@ -470,7 +470,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_FAILURE,
 					skinverwaltung_t::edit_werkzeug->gib_bild_nr(9),
 					skinverwaltung_t::killzeiger->gib_bild_nr(0),
-					"remove roads");
+					translator::translate("remove roads"));
 
 				brueckenbauer_t::fill_menu(wzw,
 					road_wt,
@@ -576,7 +576,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				SFX_FAILURE,
 				skinverwaltung_t::edit_werkzeug->gib_bild_nr(10),
 				skinverwaltung_t::killzeiger->gib_bild_nr(0),
-				"remove channels");
+				translator::translate("remove channels"));
 
 			brueckenbauer_t::fill_menu(wzw,
 				water_wt,
@@ -698,7 +698,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_FAILURE,
 					skinverwaltung_t::edit_werkzeug->gib_bild_nr(11),
 					skinverwaltung_t::killzeiger->gib_bild_nr(0),
-					"remove airstrips");
+					translator::translate("remove airstrips"));
 
 				if(sp!=welt->gib_spieler(1)) {
 					hausbauer_t::fill_menu(wzw,
