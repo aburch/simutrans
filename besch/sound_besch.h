@@ -63,7 +63,7 @@ public:
 
 	static bool alles_geladen();
 
-	static void init(const cstring_t & scenario_path);
+	static void init();
 
 	/* return old sound id from index */
 	static sint16 get_compatible_sound_id(const sint8 nr) { return compatible_sound_id[nr&(15)]; }

@@ -1,6 +1,8 @@
+Release of 99.09.3
 
+24-Mar-2007:
 	ADD: jump to coordinate dialog added ("Jump to") called by "J"
-	FIX: reloading games save in 99.09.2 from previous versions works may result in passengers without route
+	FIX: reloading games save in 99.09.2 from previous versions works could result in passengers without route
 	FIX: colors in map window were still broken
 	CHANGE: powerline now do not avoid slopes
 	FIX: during building of powerlines the first tile had no net

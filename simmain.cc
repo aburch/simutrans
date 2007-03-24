@@ -332,7 +332,7 @@ parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &ful
 	objfilename = ltrim(contents.get_string("pak_file_path", DEFAULT_OBJPATH));
 
 	// use different save directories
-	multiuser &= contents.get_int("singleuser_install", 1);
+	multiuser &= contents.get_int("singleuser_install", 1)==1;
 
 	print("Reading simuconf.tab successful!\n");
 
@@ -569,7 +569,7 @@ extern "C" int simu_main(int argc, char** argv)
 	// just check before loading objects
 	if (!gimme_arg(argc, argv, "-nosound", 0)) {
 		print("Reading compatibility sound data ...\n");
-		sound_besch_t::init(umgebung_t::objfilename);
+		sound_besch_t::init();
 	}
 
 	// Adam - Moved away loading from simmain and placed into translator for better modularisation

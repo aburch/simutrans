@@ -18,6 +18,8 @@
 #include "../simdebug.h"
 
 #include "../dataobj/tabfile.h"
+#include "../dataobj/umgebung.h"
+
 #include "../macros.h"
 #include "../sound/sound.h"
 
@@ -56,7 +58,7 @@ sint16 sound_besch_t::compatible_sound_id[MAX_OLD_SOUNDS];
 /* init sounds */
 /* standard sounds and old sounds are found in the file pak/sound/sound.tab */
 void
-sound_besch_t::init(const cstring_t & scenario_path)
+sound_besch_t::init()
 {
 	// ok, now init
 	dr_init_sound();
@@ -64,7 +66,8 @@ sound_besch_t::init(const cstring_t & scenario_path)
 	for( unsigned i=0;  i<MAX_OLD_SOUNDS;  i++ ) {
 		compatible_sound_id[i] = NO_SOUND;
 	}
-	sound_path = scenario_path + "sound/";
+	sound_path = umgebung_t::program_dir;
+	sound_path= sound_path + umgebung_t::objfilename + "sound/";
 	// process sound.tab
 	tabfile_t soundconf;
 	if (soundconf.open(sound_path + "sound.tab")) {
