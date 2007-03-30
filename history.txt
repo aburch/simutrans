@@ -1,3 +1,7 @@
+	FIX: powerline connection fixed
+	FIX: single slope up/down in one tile was broken
+
+
 Release of 99.09.3
 
 24-Mar-2007:

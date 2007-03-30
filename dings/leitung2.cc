@@ -290,6 +290,7 @@ void leitung_t::verbinde()
 	// we are alone?
 	if(net==NULL) {
 		if(new_net!=NULL) {
+			replace(pos, NULL, new_net);
 			net = new_net;
 		}
 		else {

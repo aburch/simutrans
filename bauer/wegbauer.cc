@@ -1613,6 +1613,9 @@ wegbauer_t::calc_ribi(int step)
 void
 wegbauer_t::baue_tunnel_und_bruecken()
 {
+	if(bruecke_besch==NULL  &&  tunnel_besch==NULL) {
+		return;
+	}
 	// tunnel pruefen
 	for(int i=1; i<max_n-1; i++) {
 		koord d = (route[i + 1] - route[i]).gib_2d();
@@ -1665,13 +1668,13 @@ wegbauer_t::baue_tunnel_und_bruecken()
 				weg_t *wi1 = gr_i1->gib_weg(wt);
 				if(wi->gib_besitzer()==sp  &&  wi1->gib_besitzer()==sp) {
 					// we are the owner
-					if(welt->lookup(route[i-1])->gib_hoehe()>gr_i->gib_hoehe()) {
+					if(welt->lookup(route[i-1])->gib_hoehe()>gr_i->gib_hoehe()  &&  bruecke_besch) {
 						// its a bridge
 						wi->setze_ribi(ribi_typ(h));
 						wi1->setze_ribi(ribi_typ(hang_t::gegenueber(h)));
 						brueckenbauer_t::baue(sp, welt, route[i].gib_2d(), (value_t)bruecke_besch);
 					}
-					else {
+					else if(tunnel_besch) {
 						// make a short tunnel
 						wi->setze_ribi(ribi_typ(hang_t::gegenueber(h)));
 						wi1->setze_ribi(ribi_typ(h));
