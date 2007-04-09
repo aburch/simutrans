@@ -135,6 +135,12 @@ private:
 
 	void recalc_factory_status();
 
+	/**
+	 * increase the amount for a fixed time PRODUCTION_DELTA_T
+	 * @author Hj. Malthaner
+	 */
+	uint32 produktion(uint32 produkt) const;
+
 public:
 	fabrik_t(karte_t *welt, loadsave_t *file);
 	fabrik_t(karte_t *welt, koord3d pos, spieler_t *sp, const fabrik_besch_t *fabesch);
@@ -227,20 +233,6 @@ public:
 	inline koord3d gib_pos() const { return pos; }
 
 	/**
-	 * Die Menge an Produzierter Ware je Zeitspanne PRODUCTION_DELTA_T
-	 *
-	 * @author Hj. Malthaner
-	 */
-	uint32 produktion(uint32 produkt) const;
-
-	/**
-	 * Die maximal produzierbare Menge je Monat
-	 *
-	 * @author Hj. Malthaner
-	 */
-	sint32 max_produktion() const;
-
-	/**
 	 * gibt eine NULL-Terminierte Liste von Fabrikpointern zurück
 	 *
 	 * @author Hj. Malthaner
@@ -272,18 +264,14 @@ public:
 	const vector_tpl<ware_production_t>& gib_ausgang() const { return ausgang; }
 
 	/**
-	 * Produktionsgrundmenge
-	 * @author Hj. Malthaner
-	 */
-	void set_prodbase(sint32 i) { prodbase = i; }
-	sint32 get_prodbase(void) { return prodbase; }
-
-	/**
 	 * Produktionsmultiplikator
 	 * @author Hj. Malthaner
 	 */
 	void set_prodfaktor(sint32 i) { prodfaktor = (i < 16 ? 16 : i); }
 	sint32 get_prodfaktor(void) const { return prodfaktor; }
+
+	/* does not takes month length into account */
+	int fabrik_t::get_base_production() const { return prodbase; }
 
 	/* prissi: returns the status of the current factory, as well as output */
 	enum { bad, medium, good, inactive, nothing };

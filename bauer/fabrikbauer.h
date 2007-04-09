@@ -30,6 +30,7 @@ class fabrik_t;
  */
 class fabrikbauer_t
 {
+private:
 	/**
 	* Diese Klasse wird in verteile_industrie benötigt.
 	* Sie merkt sich, was wir als nächstes bauen wollen.
@@ -62,11 +63,18 @@ class fabrikbauer_t
 		}
 	};
 
-	/*
-	* Diese Liste enthält jeweils, die Städte, die von der
-	* angegebenen Fabrik schon "einen mehr" haben.
-	*/
-	static slist_tpl <stadt_fabrik_t> gebaut;
+	// nedded for crossconnections checks
+	class fabs_to_crossconnect_t {
+	public:
+		fabrik_t *fab;
+		sint32 demand;
+		fabs_to_crossconnect_t() { fab = NULL; demand  = 0; }
+		fabs_to_crossconnect_t(fabrik_t *f,sint32 d) { fab = f; demand  = d; }
+		// to find equal ...
+		int operator != (const fabs_to_crossconnect_t &x) const {
+			return (fab != x.fab);
+		}
+	};
 
 	static stringhashtable_tpl<const fabrik_besch_t *> table;
 

@@ -120,9 +120,11 @@ int umgebung_t::autosave = 0;
 #ifdef OTTD_LIKE
 /* prissi: crossconnect all factories (like OTTD and similar games) */
 bool umgebung_t::crossconnect_factories=true;
+sint16 umgebung_t::crossconnect_factor=100;
 #else
-/* prissi: crossconnect all factories (like OTTD and similar games) */
+/* prissi: crossconnect a certain number */
 bool umgebung_t::crossconnect_factories=false;
+sint16 umgebung_t::crossconnect_factor=33;
 #endif
 
 /* prissi: do not distribute goods to overflowing factories */

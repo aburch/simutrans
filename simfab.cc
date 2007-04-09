@@ -136,7 +136,7 @@ fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_be
 
 	besitzer_p = spieler;
 	prodfaktor = 16;
-	prodbase = 0;
+	prodbase = besch->gib_produktivitaet() + simrand(besch->gib_bereich());
 
 	delta_sum = 0;
 	last_lieferziel_start = 0;
@@ -484,26 +484,19 @@ uint32 fabrik_t::produktion(const uint32 produkt) const
 
 
 
-int fabrik_t::max_produktion() const
-{
-	// production per month
-	return (prodbase * prodfaktor)>>4;
-}
-
-
 int
 fabrik_t::vorrat_an(const ware_besch_t *typ)
 {
-    int menge = -1;
+	int menge = -1;
 
 	for (uint32 index = 0; index < ausgang.get_count(); index++) {
 		if (typ == ausgang[index].gib_typ()) {
 			menge = ausgang[index].menge >> precision_bits;
-	    break;
+			break;
+		}
 	}
-    }
 
-    return menge;
+	return menge;
 }
 
 int
@@ -513,20 +506,19 @@ fabrik_t::hole_ab(const ware_besch_t *typ, int menge)
 		if (ausgang[index].gib_typ() == typ) {
 			if (ausgang[index].menge >> precision_bits >= menge) {
 				ausgang[index].menge -= menge << precision_bits;
-	    } else {
+			} else {
 				menge = ausgang[index].menge >> precision_bits;
 				ausgang[index].menge = 0;
-	    }
+			}
 
-	    ausgang[index].abgabe_sum += menge;
+			ausgang[index].abgabe_sum += menge;
 
-	    return menge;
-
+			return menge;
+		}
 	}
-    }
 
-    // ware "typ" wird hier nicht produziert
-    return -1;
+	// ware "typ" wird hier nicht produziert
+	return -1;
 }
 
 
@@ -555,11 +547,11 @@ fabrik_t::verbraucht(const ware_besch_t *typ)
 {
 	for(uint32 index = 0; index < eingang.get_count(); index ++) {
 		if (eingang[index].gib_typ() == typ) {
-            // sollte maximale lagerkapazitaet pruefen
+			// sollte maximale lagerkapazitaet pruefen
 			return eingang[index].menge > eingang[index].max;
+		}
 	}
-    }
-    return -1;  // wird hier nicht verbraucht
+	return -1;  // wird hier nicht verbraucht
 }
 
 
@@ -1003,131 +995,130 @@ void fabrik_t::recalc_factory_status()
 
 void fabrik_t::info(cbuffer_t & buf)
 {
-  buf.append("\n");
-  buf.append(translator::translate("Produktion"));
-  buf.append(":\n ");
-  buf.append(translator::translate("Durchsatz"));
-  buf.append(" ");
-  buf.append(max_produktion());
-  buf.append(" ");
-  buf.append(translator::translate("units/day"));
-  buf.append("\n");
+	buf.append("\n");
+	buf.append(translator::translate("Produktion"));
+	buf.append(":\n");
+	buf.append(translator::translate("Durchsatz"));
+	buf.append(" ");
+	buf.append((prodbase * prodfaktor * 16)>>(26-umgebung_t::bits_per_month));
+	buf.append(" ");
+	buf.append(translator::translate("units/day"));
+	buf.append("\n");
 
+	if (!lieferziele.empty()) {
+		buf.append("\n");
+		buf.append(translator::translate("Abnehmer"));
+		buf.append(":\n");
 
-  if (!lieferziele.empty()) {
-    buf.append("\n");
-    buf.append(translator::translate("Abnehmer"));
-    buf.append(":\n");
+		for(uint32 i=0; i<lieferziele.get_count(); i++) {
+			const koord lieferziel = lieferziele[i];
 
-    for(uint32 i=0; i<lieferziele.get_count(); i++) {
-      const koord lieferziel = lieferziele[i];
+			ding_t * dt = welt->lookup_kartenboden(lieferziel)->first_obj();
+			if(dt) {
+				fabrik_t *fab = dt->get_fabrik();
 
-      ding_t * dt = welt->lookup_kartenboden(lieferziel)->first_obj();
-      if(dt) {
-	fabrik_t *fab = dt->get_fabrik();
-
-	if(fab) {
-	  buf.append("     ");
-	  buf.append(translator::translate(fab->gib_name()));
-	  buf.append(" ");
-	  buf.append(lieferziel.x);
-	  buf.append(",");
-	  buf.append(lieferziel.y);
-	  buf.append("\n");
+				if(fab) {
+					buf.append("     ");
+					buf.append(translator::translate(fab->gib_name()));
+					buf.append(" ");
+					buf.append(lieferziel.x);
+					buf.append(",");
+					buf.append(lieferziel.y);
+					buf.append("\n");
+				}
+			}
+		}
 	}
-      }
-    }
-  }
 
-  if (!suppliers.empty()) {
-    buf.append("\n");
-    buf.append(translator::translate("Suppliers"));
-    buf.append(":\n");
+	if (!suppliers.empty()) {
+		buf.append("\n");
+		buf.append(translator::translate("Suppliers"));
+		buf.append(":\n");
 
-    for(uint32 i=0; i<suppliers.get_count(); i++) {
-      const koord supplier = suppliers[i];
+		for(uint32 i=0; i<suppliers.get_count(); i++) {
+			const koord supplier = suppliers[i];
 
-      ding_t * dt = welt->lookup_kartenboden(supplier)->first_obj();
-      if(dt) {
-	fabrik_t *fab = dt->get_fabrik();
+			ding_t * dt = welt->lookup_kartenboden(supplier)->first_obj();
+			if(dt) {
+				fabrik_t *fab = dt->get_fabrik();
 
-	if(fab) {
-	  buf.append("     ");
-	  buf.append(translator::translate(fab->gib_name()));
-	  buf.append(" ");
-	  buf.append(supplier.x);
-	  buf.append(",");
-	  buf.append(supplier.y);
-	  buf.append("\n");
+				if(fab) {
+					buf.append("     ");
+					buf.append(translator::translate(fab->gib_name()));
+					buf.append(" ");
+					buf.append(supplier.x);
+					buf.append(",");
+					buf.append(supplier.y);
+					buf.append("\n");
+				}
+			}
+		}
 	}
-      }
-    }
-  }
 
-  if (!arbeiterziele.empty()) {
-    slist_iterator_tpl<stadt_t *> iter (arbeiterziele);
+	if (!arbeiterziele.empty()) {
+		slist_iterator_tpl<stadt_t *> iter (arbeiterziele);
 
-    buf.append("\n");
-    buf.append(translator::translate("Arbeiter aus:"));
-    buf.append("\n");
+		buf.append("\n");
+		buf.append(translator::translate("Arbeiter aus:"));
+		buf.append("\n");
 
-    while(iter.next()) {
-      stadt_t *stadt = iter.get_current();
+		while(iter.next()) {
+			stadt_t *stadt = iter.get_current();
 
-      buf.append("     ");
-      buf.append(stadt->gib_name());
-      buf.append("\n");
+			buf.append("     ");
+			buf.append(stadt->gib_name());
+			buf.append("\n");
 
-    }
-    // give a passenger level for orientation
-    int passagier_rate = besch->gib_pax_level();
-    buf.append("\n");
-    buf.append(translator::translate("Passagierrate"));
-    buf.append(": ");
-    buf.append(passagier_rate);
-    buf.append("\n");
+		}
+		// give a passenger level for orientation
+		int passagier_rate = besch->gib_pax_level();
+		buf.append("\n");
+		buf.append(translator::translate("Passagierrate"));
+		buf.append(": ");
+		buf.append(passagier_rate);
+		buf.append("\n");
 
-    buf.append(translator::translate("Postrate"));
-    buf.append(": ");
-    buf.append(passagier_rate/3);
-    buf.append("\n");
-  }
+		buf.append(translator::translate("Postrate"));
+		buf.append(": ");
+		buf.append(passagier_rate/3);
+		buf.append("\n");
+	}
 
-  if (!ausgang.empty()) {
+	if (!ausgang.empty()) {
 
-    buf.append("\n ");
-    buf.append(translator::translate("Produktion"));
-    buf.append(":\n");
+		buf.append("\n");
+		buf.append(translator::translate("Produktion"));
+		buf.append(":\n");
 
-    for (uint32 index = 0; index < ausgang.get_count(); index++) {
-      info_add_ware_description(buf, ausgang[index]);
+		for (uint32 index = 0; index < ausgang.get_count(); index++) {
+			info_add_ware_description(buf, ausgang[index]);
 
-      buf.append(", ");
-      buf.append((int)(besch->gib_produkt(index)->gib_faktor()*100/256));
-      buf.append("%\n");
-    }
-  }
+			buf.append(", ");
+			buf.append((int)(besch->gib_produkt(index)->gib_faktor()*100/256));
+			buf.append("%\n");
+		}
+	}
 
-  if (!eingang.empty()) {
+	if (!eingang.empty()) {
 
-    buf.append("\n ");
-    buf.append(translator::translate("Verbrauch"));
-    buf.append(":\n");
+		buf.append("\n");
+		buf.append(translator::translate("Verbrauch"));
+		buf.append(":\n");
 
-    for (uint32 index = 0; index < eingang.get_count(); index++) {
+		for (uint32 index = 0; index < eingang.get_count(); index++) {
 
-      buf.append(" -");
-      buf.append(translator::translate(eingang[index].gib_typ()->gib_name()));
-      buf.append(" ");
-      buf.append(eingang[index].menge >> precision_bits);
-      buf.append("/");
-      buf.append(eingang[index].max >> precision_bits);
-      buf.append(translator::translate(eingang[index].gib_typ()->gib_mass()));
-      buf.append(", ");
-      buf.append((int)(besch->gib_lieferant(index)->gib_verbrauch()*100/256));
-      buf.append("%\n");
-    }
-  }
+			buf.append(" -");
+			buf.append(translator::translate(eingang[index].gib_typ()->gib_name()));
+			buf.append(" ");
+			buf.append(eingang[index].menge >> precision_bits);
+			buf.append("/");
+			buf.append(eingang[index].max >> precision_bits);
+			buf.append(translator::translate(eingang[index].gib_typ()->gib_mass()));
+			buf.append(", ");
+			buf.append((int)(besch->gib_lieferant(index)->gib_verbrauch()*100/256));
+			buf.append("%\n");
+		}
+	}
 }
 
 void fabrik_t::laden_abschliessen()
@@ -1156,7 +1147,8 @@ fabrik_t::rem_supplier(koord pos)
 }
 
 
-// prissi: crossconnect everything possible
+/** crossconnect everything possible
+ */
 void
 fabrik_t::add_all_suppliers()
 {

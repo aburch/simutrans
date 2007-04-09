@@ -26,6 +26,7 @@
 //#include "../boden/wege/dock.h"
 
 #include "../dataobj/einstellungen.h"
+#include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 
 #include "../sucher/bauplatz_sucher.h"
@@ -103,7 +104,6 @@ public:
 
 stringhashtable_tpl<const fabrik_besch_t *> fabrikbauer_t::table;
 
-slist_tpl <fabrikbauer_t::stadt_fabrik_t> fabrikbauer_t::gebaut;
 
 
 void fabrikbauer_t::bau_info_t::random(slist_tpl <const fabrik_besch_t *> &fab)
@@ -274,7 +274,7 @@ DBG_MESSAGE("fabrikbauer_t::finde_hersteller()","producer for good '%s' was foun
 
 
 koord3d
-fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const int radius, koord groesse,bool wasser,const haus_besch_t *besch)
+fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const int radius, koord groesse, bool wasser, const haus_besch_t *besch)
 {
 	array_tpl<koord3d> list(4*radius*radius);
 	int index = 0;
@@ -402,11 +402,8 @@ void fabrikbauer_t::verteile_industrie(karte_t* welt, int max_number_of_factorie
 fabrik_t *
 fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t *info, int rotate, koord3d pos, spieler_t *spieler)
 {
-	fabrik_t * fab = new fabrik_t(welt, pos, spieler, info);
+	fabrik_t * fab = new fabrik_t(welt, pos, spieler, info );
 
-	// set production
-	fab->set_prodfaktor( 16 );
-	fab->set_prodbase( info->gib_produktivitaet() +  simrand(info->gib_bereich()) );
 	if(parent) {
 		fab->add_lieferziel(parent->gib_2d());
 	}
@@ -433,7 +430,6 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 						// add all water to station
 						grund_t *gr = welt->lookup(k)->gib_kartenboden();
 						if(gr->ist_wasser() && gr->hat_weg(water_wt) == 0) {
-	//						gr->neuen_weg_bauen(new dock_t(welt), ribi_t::alle, welt->gib_spieler(0));
 							halt->add_grund( gr );
 						}
 					}
@@ -509,7 +505,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i,
 		// hat und die Suche bis zur nächsten Stadt weiterläuft
 		// Ansonsten erscheint mir das am realistischtsten..
 		bool	is_rotate=info->gib_haus()->gib_all_layouts()>1;
-		k = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(sf.stadt->gib_pos(), size.x, size.y,info->gib_haus()->get_allowed_climate_bits(), &is_rotate);
+		k = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(sf.stadt->gib_pos(), size.x, size.y, info->gib_haus()->get_allowed_climate_bits(), &is_rotate);
 		rotate = is_rotate?1:0;
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction at (%i,%i).",k.x,k.y);
 
@@ -518,12 +514,14 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction at (%i,%i).",k.x,k.y)
 		// B:
 		// Gefällt mir auch. Die Endfabriken stehen eventuell etwas außerhalb der Stadt
 		// aber nicht weit weg.
-		//k = finde_zufallsbauplatz(welt, welt->lookup(sf.stadt->gib_pos())->gib_boden()->gib_pos(), 3, land_bau.dim).gib_2d();
+		// (does not obey climates though!)
+		// k = finde_zufallsbauplatz(welt, welt->lookup(sf.stadt->gib_pos())->gib_boden()->gib_pos(), 3, land_bau.dim).gib_2d();
+
 		// C:
 		// Ein Bauplatz, möglichst nah am Rathaus.
 		// Wenn mehrere Endfabriken bei einer Stadt landen, sind die oft hinter
 		// einer Reihe Häuser "versteckt", von Strassen abgeschnitten.
-		//k = bauplatz_sucher_t(welt).suche_platz(sf.stadt->gib_pos(), land_bau.dim.x, land_bau.dim.y);
+		//k = bauplatz_sucher_t(welt).suche_platz(sf.stadt->gib_pos(), land_bau.dim.x, land_bau.dim.y, info->gib_haus()->get_allowed_climate_bits(), &is_rotate);
 
 		if(k != koord::invalid) {
 			*pos = welt->lookup(k)->gib_kartenboden()->gib_pos();
@@ -539,13 +537,19 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",in
 
 	INT_CHECK("fabrikbauer 596");
 
+	/* first we try to connect to existing factories and will do some
+	 * vrossconnect (if wanted)
+	 * We must ake care, to add capacity for the crossconnected ones!
+	 */
 	for(int i=0; i<info->gib_lieferanten(); i++) {
 		const fabrik_lieferant_besch_t *lieferant = info->gib_lieferant(i);
 		const ware_besch_t *ware = lieferant->gib_ware();
 		const int anzahl_hersteller=finde_anzahl_hersteller(ware);
 
-		// we assume, we need two times the available supply
-		sint32 verbrauch=our_fab->max_produktion()*lieferant->gib_verbrauch();
+		// how much we need?
+		sint32 verbrauch=our_fab->get_base_production()*lieferant->gib_verbrauch();
+
+		slist_tpl<fabs_to_crossconnect_t> factories_to_correct;
 
 		int lcount = lieferant->gib_anzahl();
 		int lfound = 0;	// number of found producers
@@ -560,7 +564,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 		while( iter.next() &&
 				// try to find matching factories for this consumption
 				( (lcount==0  &&  verbrauch>0) ||
-				// otherwise dont find more than two times new number
+				// but don't find more than two times number of factories requested
 				  (lcount>=lfound+1) )
 				)
 		{
@@ -571,37 +575,54 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 
 				// for sources (oil fields, forests ... ) prefer thoses with a smaller distance
 				const unsigned distance = koord_distance(fab->gib_pos(),*pos);
-				const bool ok = (!fab->gib_eingang().empty() || distance < DISTANCE || distance < simrand(welt->gib_groesse_x() * 3 / 4));
 
-				if(ok  &&  distance>6) {
+				if(distance>6) {//  &&  distance < simrand(welt->gib_groesse_x()+welt->gib_groesse_y())) {
 					// ok, this would match
 					// but can she supply enough?
 
 					// now guess, how much this factory can supply
 					for(int gg=0;gg<fab->gib_besch()->gib_produkte();gg++) {
 						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware  &&  fab->gib_lieferziele().get_count()<10) {	// does not make sense to split into more ...
-							sint32 production_left = fab->max_produktion()*fab->gib_besch()->gib_produkt(gg)->gib_faktor();
+							sint32 production_left = fab->get_base_production()*fab->gib_besch()->gib_produkt(gg)->gib_faktor();
 							const vector_tpl <koord> & lieferziele = fab->gib_lieferziele();
 							for( unsigned ziel=0;  ziel<lieferziele.get_count()  &&  production_left>0;  ziel++  ) {
 								fabrik_t *zfab=fabrik_t::gib_fab(welt,lieferziele[ziel]);
 								for(int zz=0;  zz<zfab->gib_besch()->gib_lieferanten();  zz++) {
 									if(zfab->gib_besch()->gib_lieferant(zz)->gib_ware()==ware) {
-										production_left -= zfab->max_produktion()*zfab->gib_besch()->gib_lieferant(zz)->gib_verbrauch();
+										production_left -= zfab->get_base_production()*zfab->gib_besch()->gib_lieferant(zz)->gib_verbrauch();
 										break;
 									}
 								}
 							}
 							// here is actually capacity left (or sometimes just connect anyway)!
-							if(production_left>0  ||  simrand(10)==1) {
+							if(production_left>0  ||  simrand(100)<umgebung_t::crossconnect_factor) {
 								found = true;
 								fab->add_lieferziel(pos->gib_2d());
 								if(production_left>0) {
 									verbrauch -= production_left;
 								}
+								else {
+									/* find out, how much we steal what factories
+									 * add them to a list and connect them afterwards
+									 */
+									const sint32 production_needed = ( fab->get_base_production()*fab->gib_besch()->gib_produkt(gg)->gib_faktor() )/( lieferziele.get_count()+1 );
+									for( unsigned ziel=0;  ziel<lieferziele.get_count();  ziel++  ) {
+										fabrik_t *zfab=fabrik_t::gib_fab(welt,lieferziele[ziel]);
+										int idx = factories_to_correct.index_of( fabs_to_crossconnect_t(zfab,0) );
+										if(idx>=0) {
+											// alreday there ...
+											factories_to_correct.at(idx).demand += production_needed;
+										}
+										else {
+											factories_to_correct.append( fabs_to_crossconnect_t(zfab,production_needed) );
+										}
+									}
+									// the needed produktion to be built does not change!
+								}
 								lfound ++;
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i of %s to us",fab->gib_besch()->gib_name(),production_left,ware->gib_name());
 							}
-							break;
+							break; // since we found the product ...
 						}
 					}
 				}
@@ -610,15 +631,17 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i o
 
 		INT_CHECK( "fabrikbauer 670" );
 
-		// this is a source?
 		if(lcount!=0) {
-			// at least three producers please
+			/* if a certain number of producer is requested,
+			 * we will built at least some new factories
+			 * crossconnected ones only count half for this
+			 */
 			found = lfound/2;
-			// double consumption for new ones
-			verbrauch *= 2;
 		}
 
-		// try to add all types of factories until demand is satisfied
+		/* try to add all types of factories until demand is satisfied
+		 * or give up after 50 tries
+		 */
 		for(int j=0;  j<50  &&  (lcount>lfound  ||  lcount==0)  &&  verbrauch>0;  j++  ) {
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","find lieferant for %s.",info->gib_name());
 			const fabrik_besch_t *hersteller = finde_hersteller(ware,j%anzahl_hersteller);
@@ -648,7 +671,16 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%
 					// find our product
 					for(int gg=0;gg<fab->gib_besch()->gib_produkte();gg++) {
 						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware) {
-							sint32 produktion = fab->max_produktion()*fab->gib_besch()->gib_produkt(gg)->gib_faktor();
+							sint32 produktion = (fab->get_base_production()*fab->gib_besch()->gib_produkt(gg)->gib_faktor()) / (factories_to_correct.count()+1);
+							// connect also the factories we stole from before ...
+							for(  unsigned i=0;  i<factories_to_correct.count();  i++  ) {
+								factories_to_correct.at(i).demand -= produktion;
+								factories_to_correct.at(i).fab->add_supplier(fab->gib_pos().gib_2d());
+								if(factories_to_correct.at(i).demand<0) {
+									factories_to_correct.remove_at(i);
+									i--;
+								}
+							}
 							verbrauch -= produktion;
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","new supplier %s can supply approx %i of %s to us",fab->gib_besch()->gib_name(),produktion,ware->gib_name());
 							break;

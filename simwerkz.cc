@@ -1445,7 +1445,7 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 					}
 					else {
 						// no building => take default
-						layout &~ 6;
+						layout &= ~ 6;
 					}
 				}
 			}

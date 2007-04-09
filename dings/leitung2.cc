@@ -488,7 +488,7 @@ pumpe_t::sync_step(long delta_t)
 		new_bild = skinverwaltung_t::pumpe->gib_bild_nr(0);
 	} else {
 		// no input needed or has something to consume
-		get_net()->add_power(delta_t*fab->get_prodbase()*32);
+		get_net()->add_power(delta_t*fab->get_base_production()*5);
 		new_bild = skinverwaltung_t::pumpe->gib_bild_nr(1);
 	}
 	if(bild!=new_bild) {
@@ -552,8 +552,8 @@ senke_t::sync_step(long time)
 	if(fab==NULL) {
 		return false;
 	}
-//DBG_MESSAGE("senke_t::sync_step()", "called");
-	int want_power = time*(PROD/3);
+
+	int want_power = time*fab->get_base_production();
 	int get_power = get_net()->withdraw_power(want_power);
 	image_id new_bild;
 	if(get_power>want_power/2) {

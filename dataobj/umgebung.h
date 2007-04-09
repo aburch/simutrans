@@ -259,6 +259,9 @@ public:
 	/* prissi: crossconnect all factories (like OTTD and similar games) */
 	static bool crossconnect_factories;
 
+	/* prissi: crossconnect all factories (like OTTD and similar games) */
+	static sint16 crossconnect_factor;
+
 	/* prissi: do not distribute goods to overflowing factories */
 	static bool just_in_time;
 

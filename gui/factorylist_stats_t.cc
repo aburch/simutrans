@@ -118,7 +118,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			}
 			buf.append(", ");
 
-			buf.append(fab->max_produktion());
+			buf.append(fab->get_base_production());
 			buf.append(") ");
 
 
@@ -185,9 +185,9 @@ void factorylist_stats_t::sort(factorylist::sort_mode_t sortby, bool sortreverse
 					break;
 				case factorylist::by_maxprod:
 					if (sortreverse)
-						append =  (fab->max_produktion() < check_fab->max_produktion());
+						append =  (fab->get_base_production() < check_fab->get_base_production());
 					else
-						append =  (fab->max_produktion() >= check_fab->max_produktion());
+						append =  (fab->get_base_production() >= check_fab->get_base_production());
 					break;
 				case factorylist::by_status:
 					if (sortreverse)

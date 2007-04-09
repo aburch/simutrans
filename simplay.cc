@@ -1321,8 +1321,8 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 					INT_CHECK("simplay 1265");
 
 					// properly calculate production
-					const int prod = min(ziel->max_produktion(),
-					                 ( start->max_produktion() * start->gib_besch()->gib_produkt(start_ware)->gib_faktor() )/256u - start->gib_abgabe_letzt(start_ware) );
+					const int prod = min(ziel->get_base_production(),
+					                 ( start->get_base_production() * start->gib_besch()->gib_produkt(start_ware)->gib_faktor() )/256u - start->gib_abgabe_letzt(start_ware) );
 
 DBG_MESSAGE("do_ki()","check railway");
 					/* calculate number of cars for railroad */
@@ -1874,8 +1874,8 @@ spieler_t::guess_gewinn_transport_quelle_ziel(fabrik_t *qfab,const ware_producti
 			// Bei der abgabe rechnen wir einen sicherheitsfaktor 2 mit ein
 			// wieviel kann am ziel verarbeitet werden, und wieviel gibt die quelle her?
 
-			const int prod = min(zfab->max_produktion(),
-			                 ( qfab->max_produktion() * qfab->gib_besch()->gib_produkt(ware_nr)->gib_faktor() )/256u - qfab->gib_abgabe_letzt(ware_nr) * 2u );
+			const int prod = min(zfab->get_base_production(),
+			                 ( qfab->get_base_production() * qfab->gib_besch()->gib_produkt(ware_nr)->gib_faktor() )/256u - qfab->gib_abgabe_letzt(ware_nr) * 2u );
 
 			gewinn = (grundwert *prod-5)+simrand(15000);
 			if(dist>100) {

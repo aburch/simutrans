@@ -139,11 +139,7 @@ factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->faktor = 256;
   }
 
-  DBG_DEBUG("factory_product_reader_t::read_node()",
-	     "version=%d capacity=%d factor=%x",
-	     version, besch->kapazitaet, besch->faktor);
-
-
+  DBG_DEBUG("factory_product_reader_t::read_node()", "version=%d capacity=%d factor=%x", version, besch->kapazitaet, besch->faktor);
   return besch;
 }
 
@@ -206,6 +202,5 @@ DBG_DEBUG("factory_reader_t::read_node()","version=0");
 void factory_reader_t::register_obj(obj_besch_t *&data)
 {
 	fabrik_besch_t* besch = static_cast<fabrik_besch_t*>(data);
-    fabrikbauer_t::register_besch(besch);
-//    printf("...Fabrik %s geladen\n", besch->gib_name());
+	fabrikbauer_t::register_besch(besch);
 }
