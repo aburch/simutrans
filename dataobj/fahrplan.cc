@@ -182,7 +182,7 @@ void fahrplan_t::cleanup()
 		if (eintrag[i].pos == lastpos) {
 			// ingore double entries just one after the other
 			eintrag.remove_at(i);
-			if(i>(unsigned)aktuell) {
+			if(i<(unsigned)aktuell) {
 				aktuell --;
 			}
 			i--;

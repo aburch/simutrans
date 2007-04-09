@@ -3,6 +3,7 @@
 	FIX: powerline production AND consumption now based on factory production
 	FIX: factory production per month now correctly displayed
 	ADD: crossconnection for factories now switchable (crossconnect_factories_percentage in simuconf.tab)
+	FIX: schedule sanity check typo (kierongreen)
 
 
 Release of 99.09.3
