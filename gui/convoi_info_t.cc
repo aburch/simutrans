@@ -208,7 +208,12 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		if(cnv->gib_besitzer()==cnv->gib_welt()->get_active_player()) {
 			button.enable();
 			go_home_button.pressed = route_search_in_progress;
-			go_home_button.enable();
+			if(cnv->gib_welt()->lookup(cnv->gib_fahrplan()->eintrag[cnv->gib_fahrplan()->aktuell].pos)->gib_depot()) {
+				go_home_button.disable();
+			}
+			else {
+				go_home_button.enable();
+			}
 			no_load_button.pressed = cnv->get_no_load();
 			no_load_button.enable();
 		}
