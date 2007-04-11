@@ -39,7 +39,7 @@ zeiger_t::change_pos(koord3d k)
 	if(k!=gib_pos()) {
 		// remove from old position
 		// and clear mark
-		grund_t *gr=welt->lookup(gib_pos());
+		grund_t *gr=welt->lookup_kartenboden(gib_pos().gib_2d());
 		if(gr) {
 			if(gr->gib_halt().is_bound()) {
 				gr->gib_halt()->mark_unmark_coverage( false );
@@ -51,12 +51,16 @@ zeiger_t::change_pos(koord3d k)
 
 		ding_t::setze_pos(k);
 		if(gib_yoff()==welt->Z_PLAN) {
-			grund_t *gr=welt->lookup(k);
+			gr=welt->lookup_kartenboden(k.gib_2d());
 			if(gr) {
 				if(gr->gib_halt().is_bound()  &&  umgebung_t::station_coverage_show) {
 					gr->gib_halt()->mark_unmark_coverage( true );
 				}
-				welt->mark_area( gib_pos().x, gib_pos().y, area, true );
+				// only mark this, if it is not in underground mode
+				// or in underground mode, if it is deep enough
+				if(!grund_t::underground_mode  ||  gib_pos().z<gr->gib_hoehe()) {
+					welt->mark_area( gib_pos().x, gib_pos().y, area, true );
+				}
 			}
 		}
 	}

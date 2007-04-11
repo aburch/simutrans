@@ -961,21 +961,6 @@ static void win_display_tooltips()
 	}
 }
 
-static const int hours2night[] =
-{
-    4,4,4,4,4,4,4,4,
-
-    4,4,4,4,3,2,1,0,
-
-    0,0,0,0,0,0,0,0,
-
-    0,0,0,0,0,0,0,0,
-
-    0,0,0,0,0,0,0,1,
-
-    2,3,4,4,4,4,4,4
-};
-
 // since seaons 0 is always summer for backward compatibility
 static const char * seasons[] =
 {
@@ -999,6 +984,7 @@ void win_display_menu()
 		display_fillbox_wh(0, start_y+1, width, 15, MN_GREY2, true);
 	}
 }
+
 
 
 void win_display_flush(double konto)
@@ -1069,15 +1055,6 @@ void win_display_flush(double konto)
 	else {
 		tage = 0;
 		stunden4 = (ticks_this_month * 96) >> wl->ticks_bits_per_tag;
-	}
-
-	// change to night mode?
-	// images will be recalculated only, when there has been a change, so we set always
-	if(umgebung_t::night_shift) {
-		display_day_night_shift(hours2night[stunden4>>1]);
-	}
-	else {
-		display_day_night_shift(0);
 	}
 
 	char time [128];

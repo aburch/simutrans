@@ -20,6 +20,7 @@
 #include "simplan.h"
 #include "simplay.h"
 #include "besch/grund_besch.h"
+#include "dataobj/umgebung.h"
 #include "dings/zeiger.h"
 
 
@@ -27,6 +28,17 @@ karte_ansicht_t::karte_ansicht_t(karte_t *welt)
 {
     this->welt = welt;
 }
+
+static const sint8 hours2night[] =
+{
+    4,4,4,4,4,4,4,4,
+    4,4,4,4,3,2,1,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,1,
+    2,3,4,4,4,4,4,4
+};
+
 
 
 void
@@ -58,6 +70,17 @@ karte_ansicht_t::display(bool force_dirty)
 		koord( - disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE,
 					disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE	)
 	);
+
+	// change to night mode?
+	// images will be recalculated only, when there has been a change, so we set always
+	if(grund_t::underground_mode  ||  !umgebung_t::night_shift) {
+		display_day_night_shift(0);
+	}
+	else {
+		const uint32 ticks_this_month = welt->gib_zeit_ms() & (welt->ticks_per_tag-1);
+		const uint32 stunden4 = (ticks_this_month * 96) >> welt->ticks_bits_per_tag;
+		display_day_night_shift(hours2night[stunden4>>1]);
+	}
 
 	// not very elegant, but works:
 	// fill everything with black for Underground mode ...

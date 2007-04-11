@@ -2912,30 +2912,55 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		const int i_off = gib_ij_off().x+gib_ansicht_ij_offset().x;
 		const int j_off = gib_ij_off().y+gib_ansicht_ij_offset().y;
 
-		for(int n = 0; n < 2; n++) {
+		bool found = false;
+		if(grund_t::underground_mode) {
+			sint8 found_hgt = grundwasser;
 
-			const int base_i = (screen_x+screen_y + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1) )/2;
-			const int base_j = (screen_y-screen_x + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1))/2;
+			for( hgt = grundwasser ; hgt < 32  && !found ; hgt++) {
+				const int base_i = (screen_x+screen_y + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1) )/2;
+				const int base_j = (screen_y-screen_x + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1))/2;
 
-			mi = ((int)floor(base_i/(double)rw4));
-			mj = ((int)floor(base_j/(double)rw4));
+				mi = ((int)floor(base_i/(double)rw4)) + i_off;
+				mj = ((int)floor(base_j/(double)rw4)) + j_off;
 
-			mi += i_off;
-			mj += j_off;
-
-			const planquadrat_t *plan = lookup(koord(mi,mj));
-			if(plan != NULL) {
-				hgt = plan->gib_kartenboden()->gib_hoehe();
-				if(grund_t::underground_mode) {
-					for( unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
-						if(!plan->gib_boden_bei(i)->ist_tunnel()) {
-							hgt = plan->gib_boden_bei(i)->gib_hoehe();
+				const planquadrat_t *plan = lookup(koord(mi,mj));
+				if(plan != NULL) {
+					for( unsigned i=0;  plan != NULL && i<plan->gib_boden_count();  i++  ) {
+						if(!plan->gib_boden_bei(i)->ist_tunnel() && hgt == plan->gib_boden_bei(i)->gib_hoehe()) {
+							found = true;
+							found_hgt = hgt;
 						}
 					}
 				}
 			}
-			else {
-				hgt = grundwasser;
+			if(!found && mouse_funk!=tunnelbauer_t::baue) {
+				zeiger->change_pos( koord3d::invalid );
+				return;
+			}
+			hgt = found_hgt;
+		}
+		if(!found) {
+			if(mouse_funk==tunnelbauer_t::baue) {
+				hgt = zeiger->gib_pos().z;
+			}
+
+			for(int n = 0; n < 2 && !found; n++) {
+
+				const int base_i = (screen_x+screen_y + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1) )/2;
+				const int base_j = (screen_y-screen_x + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1))/2;
+
+				mi = ((int)floor(base_i/(double)rw4)) + i_off;
+				mj = ((int)floor(base_j/(double)rw4)) + j_off;
+
+				const planquadrat_t *plan = lookup(koord(mi,mj));
+				if(mouse_funk==tunnelbauer_t::baue) {
+					found = true;
+				} else if(plan != NULL) {
+					hgt = plan->gib_kartenboden()->gib_hoehe();
+				}
+				else {
+					hgt = grundwasser;
+				}
 			}
 		}
 
@@ -2964,14 +2989,8 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			j_alt = mj;
 
 			koord3d pos = lookup(koord(mi,mj))->gib_kartenboden()->gib_pos();
-			if(grund_t::underground_mode  &&  mouse_funk!=tunnelbauer_t::baue) {
-				const planquadrat_t *plan=lookup(koord(mi,mj));
-				pos = koord3d::invalid;
-				for( unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
-					if(!plan->gib_boden_bei(i)->ist_tunnel()) {
-						pos = plan->gib_boden_bei(i)->gib_pos();
-					}
-				}
+			if(grund_t::underground_mode) {
+				pos.z = hgt;
 			}
 			else {
 				if(zeiger->gib_yoff()==Z_GRID) {
