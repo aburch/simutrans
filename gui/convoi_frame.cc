@@ -130,6 +130,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 				if(!gib_filter(schiffe_filter)) {
 					return false;
 				}
+				break;
 			case ding_t::aircraft:
 				if(!gib_filter(aircraft_filter)) {
 					return false;
