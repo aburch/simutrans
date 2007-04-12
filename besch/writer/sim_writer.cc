@@ -71,6 +71,7 @@ crossing_writer_t crossing_writer_t::the_instance;
 bridge_writer_t bridge_writer_t::the_instance;
 tunnel_writer_t tunnel_writer_t::the_instance;
 
+field_writer_t field_writer_t::the_instance;
 smoke_writer_t smoke_writer_t::the_instance;
 
 building_writer_t building_writer_t::the_instance;
@@ -79,6 +80,7 @@ factory_writer_t factory_writer_t::the_instance;
 factory_supplier_writer_t factory_supplier_writer_t::the_instance;
 factory_product_writer_t factory_product_writer_t::the_instance;
 factory_smoke_writer_t factory_smoke_writer_t::the_instance;
+factory_field_writer_t factory_field_writer_t::the_instance;
 
 vehicle_writer_t vehicle_writer_t::the_instance;
 

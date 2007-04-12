@@ -89,6 +89,12 @@ private:
 	vector_tpl <koord> suppliers;
 
 	/**
+	 * fields of this factory (only for farms etc.)
+	 * @author prissi
+	 */
+	vector_tpl <koord> fields;
+
+	/**
 	 * Die erzeugten waren auf die Haltestellen verteilen
 	 * @author Hj. Malthaner
 	 */
@@ -256,6 +262,16 @@ public:
 	 */
 	void baue(sint32 rotate, bool clear);
 
+	/* field generation code
+	 * spawns a field for sure if probability>=1000
+	 * @author Kieron Green
+	 */
+	bool add_random_field(uint16 probability);
+
+	void remove_field_at(koord pos);
+
+	uint32 gib_field_count() const { return fields.get_count(); }
+
 	/**
 	 * total and current procduction/storage values
 	 * @author Hj. Malthaner
@@ -271,7 +287,7 @@ public:
 	sint32 get_prodfaktor(void) const { return prodfaktor; }
 
 	/* does not takes month length into account */
-	int fabrik_t::get_base_production() const { return prodbase; }
+	int fabrik_t::get_base_production() const { return prodbase+(fields.get_count()*besch->gib_field_production()); }
 
 	/* prissi: returns the status of the current factory, as well as output */
 	enum { bad, medium, good, inactive, nothing };

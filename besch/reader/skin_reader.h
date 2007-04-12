@@ -61,6 +61,20 @@ public:
 };
 
 
+class fieldskin_reader_t : public skin_reader_t {
+    static fieldskin_reader_t the_instance;
+
+    fieldskin_reader_t() { register_reader(); }
+protected:
+    virtual skinverwaltung_t::skintyp_t get_skintype() const { return skinverwaltung_t::nothing; }
+public:
+    static fieldskin_reader_t *instance() { return &the_instance; }
+
+    virtual obj_type get_type() const { return obj_field; }
+    virtual const char *get_type_name() const { return "field"; }
+};
+
+
 class smoke_reader_t : public skin_reader_t {
     static smoke_reader_t the_instance;
 

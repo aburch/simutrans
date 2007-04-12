@@ -32,6 +32,8 @@ enum obj_type {
     obj_fsmoke	    = C4ID('F','S','M','O'),
     obj_fsupplier   = C4ID('F','S','U','P'),
     obj_fproduct    = C4ID('F','P','R','O'),
+    obj_ffield 		= C4ID('F','F','E','L'),
+    obj_field 		= C4ID('F','E','L','D'),
     obj_menu	    = C4ID('M','E','N','U'),
     obj_cursor	    = C4ID('C','U','R','S'),
     obj_symbol      = C4ID('S','Y','M','B'),

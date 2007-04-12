@@ -65,6 +65,7 @@
 #include "dings/wayobj.h"
 #include "dings/leitung2.h"
 #include "dings/baum.h"
+#include "dings/field.h"
 #ifdef LAGER_NOT_IN_USE
 #include "dings/lagerhaus.h"
 #endif
@@ -383,6 +384,22 @@ DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->gib_pos().x, g
 	if(gr->ist_tunnel()  &&  gr->ist_karten_boden()) {
 DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
 		msg = tunnelbauer_t::remove(welt, sp, gr->gib_pos(), gr->gib_weg_nr(0)->gib_waytype());
+		return msg == NULL;
+	}
+
+	// fields
+	if(gr->suche_obj(ding_t::field)) {
+		field_t *f = static_cast<field_t *>(gr->suche_obj(ding_t::field));
+		msg = f->ist_entfernbar(sp);
+		if(msg==NULL) {
+			f->entferne(sp);
+			delete f;
+			// fields have foundations ...
+			koord pos = gr->gib_pos().gib_2d();
+			welt->access(pos)->boden_ersetzen( gr, new boden_t(welt, gr->gib_pos(), welt->calc_natural_slope(pos) ) );
+			welt->lookup_kartenboden(pos)->calc_bild();
+			welt->lookup_kartenboden(pos)->set_flag( grund_t::dirty );
+		}
 		return msg == NULL;
 	}
 

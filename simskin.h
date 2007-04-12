@@ -5,7 +5,7 @@ class skin_besch_t;
 
 class skinverwaltung_t {
 public:
-    enum skintyp_t { nothing, menu, cursor, symbol, misc };
+    enum skintyp_t { nothing, menu, cursor, symbol, misc, field };
 
     static const skin_besch_t *hauptmenu;
     static const skin_besch_t *schienen_werkzeug;

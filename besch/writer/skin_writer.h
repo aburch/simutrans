@@ -74,6 +74,20 @@ class smoke_writer_t : public skin_writer_t {
 };
 
 
+class field_writer_t : public skin_writer_t {
+	private:
+		static field_writer_t the_instance;
+
+		field_writer_t() { register_writer(true); }
+
+	public:
+		static field_writer_t* instance() { return &the_instance; }
+
+		virtual obj_type get_type() const { return obj_field; }
+		virtual const char* get_type_name() const { return "field"; }
+};
+
+
 /*
  * Used for images needed by the game but not yet integrated as real objects
  */

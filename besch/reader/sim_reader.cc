@@ -61,6 +61,7 @@ bridge_reader_t bridge_reader_t::the_instance;
 tunnel_reader_t tunnel_reader_t::the_instance;
 
 smoke_reader_t smoke_reader_t::the_instance;
+fieldskin_reader_t fieldskin_reader_t::the_instance;
 
 building_reader_t building_reader_t::the_instance;
 tile_reader_t tile_reader_t::the_instance;
@@ -68,6 +69,7 @@ factory_reader_t factory_reader_t::the_instance;
 factory_supplier_reader_t factory_supplier_reader_t::the_instance;
 factory_product_reader_t factory_product_reader_t::the_instance;
 factory_smoke_reader_t factory_smoke_reader_t::the_instance;
+factory_field_reader_t factory_field_reader_t::the_instance;
 
 vehicle_reader_t vehicle_reader_t::the_instance;
 

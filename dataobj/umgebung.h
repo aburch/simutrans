@@ -290,6 +290,7 @@ public:
 	static sint64 cst_multiply_found_industry;
 	static sint64 cst_remove_tree;
 	static sint64 cst_multiply_remove_haus;
+	static sint64 cst_multiply_remove_field;
 
 	// costs for the way searcher
 	static sint32 way_count_straight;

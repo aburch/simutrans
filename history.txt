@@ -1,3 +1,6 @@
+Release of 99.10
+
+xx-Apr-2007:
 	FIX: powerline connection fixed
 	FIX: single slope up/down in one tile was broken
 	FIX: powerline production AND consumption now based on factory production
@@ -7,6 +10,8 @@
 	FIX: disallow going to depots if already under way (kierongreen)
 	FIX: station with layout crash fixed (kierongreen)
 	FIX: improved focus management
+	FIX: vehicle filter list fixed for airplanes/ships (kierongreen)
+	ADD: field support (kierongreen/prissi) (in simuconf.tab: cost_multiply_remove_field, in factory entry fields, new field with a number of image[x] definitions)
 
 
 Release of 99.09.3

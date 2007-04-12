@@ -8,12 +8,27 @@
 #include "xref_writer.h"
 
 
+
+
+
+
+void factory_field_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
+{
+	field_besch_t besch;
+	memset(&besch, 0, sizeof(besch));
+	obj_node_t node(this, sizeof(besch), &parent, true);
+
+	xref_writer_t::instance()->write_obj(outfp, node, obj_field, obj.get("fields"), true);
+	node.write_data(outfp, &besch);	// only the header ...
+	node.write(outfp);
+}
+
+
+
 void factory_smoke_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	rauch_besch_t besch;
-
 	memset(&besch, 0, sizeof(besch));
-
 	obj_node_t node(this, sizeof(besch), &parent, true);
 
 	xref_writer_t::instance()->write_obj(outfp, node, obj_smoke, obj.get("smoke"), true);
@@ -81,10 +96,14 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	besch.produktivitaet = obj.get_int("productivity", 10);
 	besch.bereich        = obj.get_int("range", 10);
 	besch.gewichtung     = obj.get_int("distributionweight", 1);
-	besch.kennfarbe      = obj.get_int("mapcolor", 168/*???*/);
+	besch.kennfarbe      = obj.get_int("mapcolor", 255);
+	if(besch.kennfarbe==255) {
+		printf("ERROR:\nmissing an indentification color!\n");
+		exit(0);
+	}
 	besch.pax_level      = obj.get_int("pax_level", 12);
 
-	obj_node_t node(this, sizeof(uint16) * 9, &parent, false);
+	obj_node_t node(this, 24, &parent, false);
 
 	obj.put("type", "fac");
 
@@ -130,8 +149,22 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 		factory_product_writer_t::instance()->write_obj(fp, node, cap, fac, good);
 	}
+	// fields (careful, are xref'ed)
+	besch.fields = 0;
+	besch.min_fields = 0;
+	besch.max_fields = 0;
+	besch.production_per_field = 0;
+	if(*obj.get("fields")) {
+		besch.fields = 1;
+		besch.production_per_field = obj.get_int("production_per_field",  16 );
+		besch.max_fields = obj.get_int("max_fields", 25);
+		besch.min_fields = obj.get_int("min_fields", 5);
+		factory_field_writer_t::instance()->write_obj(fp, node, obj);
+	}
+
 	// new version with pax_level
-	uint16 data = 0x8001;
+	uint16 data = 0x8002;
+	uint8 data8;
 	node.write_data_at(fp, &data, 0, sizeof(uint16));
 
 	data = (uint16)besch.platzierung;
@@ -146,8 +179,11 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	data = besch.gewichtung;
 	node.write_data_at(fp, &data, 8, sizeof(uint16));
 
-	data = besch.kennfarbe;
-	node.write_data_at(fp, &data, 10, sizeof(uint16));
+	data8 = besch.kennfarbe;
+	node.write_data_at(fp, &data8, 10, sizeof(uint8));
+
+	data8 = besch.fields;
+	node.write_data_at(fp, &data8, 11, sizeof(uint8));
 
 	data = besch.lieferanten;
 	node.write_data_at(fp, &data, 12, sizeof(uint16));
@@ -157,6 +193,15 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	data = besch.pax_level;
 	node.write_data_at(fp, &data, 16, sizeof(uint16));
+
+	data = besch.production_per_field;
+	node.write_data_at(fp, &data, 18, sizeof(uint16));
+
+	data = besch.max_fields;
+	node.write_data_at(fp, &data, 20, sizeof(uint16));
+
+	data = besch.min_fields;
+	node.write_data_at(fp, &data, 22, sizeof(uint16));
 
 	node.write(fp);
 }

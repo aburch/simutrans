@@ -22,6 +22,7 @@
 #include "simmem.h"
 #include "simcolor.h"
 #include "boden/grund.h"
+#include "boden/fundament.h"
 #include "simfab.h"
 #include "simcity.h"
 #include "simhalt.h"
@@ -38,6 +39,8 @@
 
 #include "dings/wolke.h"
 #include "dings/gebaeude.h"
+#include "dings/field.h"
+#include "dings/leitung2.h"
 
 #include "dataobj/einstellungen.h"
 #include "dataobj/umgebung.h"
@@ -109,7 +112,7 @@ fabrik_t::rem_lieferziel(koord ziel)
 }
 
 
-fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(0), suppliers(0), eingang(0), ausgang(0)
+fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(0), suppliers(0), fields(0), eingang(0), ausgang(0)
 {
 	welt = wl;
 
@@ -126,7 +129,7 @@ fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(0), suppliers(0)
 }
 
 
-fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_besch_t *fabesch) : lieferziele(0), suppliers(0), eingang(0), ausgang(0)
+fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_besch_t *fabesch) : lieferziele(0), suppliers(0), fields(0), eingang(0), ausgang(0)
 {
 	this->pos = pos;
 	this->pos.z = wl->max_hgt(pos.gib_2d());
@@ -199,7 +202,7 @@ fabrik_t::rem_arbeiterziel(stadt_t *stadt)
 
 
 /**
- * Baut vier Gebäude für die Fabrik
+ * Baut Gebäude für die Fabrik
  *
  * @author Hj. Malthaner
  */
@@ -211,11 +214,106 @@ fabrik_t::baue(int rotate, bool clear)
 		pos = welt->lookup_kartenboden(pos.gib_2d())->gib_pos();
 		hausbauer_t::baue(welt, besitzer_p, pos, rotate, besch->gib_haus(), clear, this);
 		pos = welt->lookup_kartenboden(pos.gib_2d())->gib_pos();
+		if(besch->gib_field()) {
+			// if there are fields
+			if(!fields.empty()) {
+				for( uint16 i=0;  i<fields.get_count();  i++  ) {
+					grund_t *gr=welt->lookup_kartenboden(fields[i]);
+					// first make foundation below
+					grund_t *gr2 = new fundament_t(welt, gr->gib_pos(), gr->gib_grund_hang());
+					welt->access(fields[i])->boden_ersetzen(gr, gr2);
+					gr2->obj_add( new field_t( welt, pos, besitzer_p, besch->gib_field(), this ) );
+				}
+			}
+			else {
+				// we will start with a certain minimum number
+				while(fields.get_count()<besch->gib_min_fields()  &&  add_random_field(0));
+			}
+		}
 	}
 	else {
 		dbg->error("fabrik_t::baue()", "Good pak not available!");
 	}
 }
+
+
+
+/* field generation code
+ * spawns a field for sure if probability==0 and zero for 1024
+ * @author Kieron Green
+ */
+bool
+fabrik_t::add_random_field(uint16 probability)
+{
+	// has fields?
+	if(besch->gib_max_fields()==0) {
+		return false;
+	}
+	// has not too many fiels alreday?
+	if(besch->gib_max_fields() <= fields.get_count()) {
+		return false;
+	}
+	// we are lucky and are allowed to generate a field
+	if(simrand(1024)<probability) {
+		return false;
+	}
+
+	// we start closest to the factory, and check for valid tiles as we move out
+	uint8 radius = 1;
+
+	// pick a coordinate to use - create a list of valid locations and choose a random one
+	slist_tpl<grund_t *> build_locations;
+	climate_bits place_climate = besch->gib_haus()->get_allowed_climate_bits();
+	do {
+		for(sint32 xoff = -radius; xoff < radius + gib_besch()->gib_haus()->gib_groesse().x ; xoff++) {
+			for(sint32 yoff =-radius ; yoff < radius + gib_besch()->gib_haus()->gib_groesse().y; yoff++) {
+				// if we can build on this tile then add it to the list
+				grund_t *gr = welt->lookup_kartenboden(pos.gib_2d()+koord(xoff,yoff));
+				if(gr  &&  gr->gib_typ()==grund_t::boden  &&  gr->gib_hoehe()==pos.z  &&  gr->gib_grund_hang()==hang_t::flach  &&  gr->ist_natur()  &&  (gr->suche_obj(ding_t::leitung) || gr->kann_alle_obj_entfernen(NULL)==NULL)) {
+					// only on same height => climate will match!
+					build_locations.append(gr);
+				}
+				// skip inside of rectange (already checked earlier)
+				if(radius > 1 && yoff == -radius && (xoff > -radius && xoff < radius + gib_besch()->gib_haus()->gib_groesse().x - 1)) {
+					yoff = radius + gib_besch()->gib_haus()->gib_groesse().y - 2;
+				}
+			}
+		}
+		if(build_locations.count() == 0) {
+			radius++;
+		}
+	} while (radius < 10 && build_locations.count() == 0);
+	// built on one of the positions
+	if(build_locations.count() > 0) {
+		grund_t *gr = build_locations.at(simrand(build_locations.count()));
+		leitung_t *lt = (leitung_t *)(gr->suche_obj( ding_t::leitung ));
+		if(lt) {
+			gr->obj_remove(lt);
+		}
+		gr->obj_loesche_alle(NULL);
+		// first make foundation below
+		fields.append(gr->gib_pos().gib_2d(),10);
+		grund_t *gr2 = new fundament_t(welt, gr->gib_pos(), gr->gib_grund_hang());
+		welt->access(fields.back())->boden_ersetzen(gr, gr2);
+		gr2->obj_add( new field_t( welt, gr2->gib_pos(), besitzer_p, besch->gib_field(), this ) );
+		if(lt) {
+			gr2->obj_add( lt );
+		}
+		return true;
+	}
+	return false;
+}
+
+
+
+void
+fabrik_t::remove_field_at(koord pos)
+{
+	fields.remove(pos);
+}
+
+
+
 
 bool
 fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser,climate_bits cl)
@@ -439,6 +537,28 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 		}
 	}
 
+	// information on fields ...
+	if(file->get_version()>99009) {
+		if(file->is_saving()) {
+			uint16 nr=fields.get_count();
+			file->rdwr_short(nr,"f");
+			for(int i=0; i<anz_lieferziele; i++) {
+				koord k = fields[i];
+				k.rdwr(file);
+			}
+		}
+		else {
+			uint16 nr=fields.get_count();
+			koord k;
+			file->rdwr_short(nr,"f");
+			fields.resize(nr);
+			for(int i=0; i<nr; i++) {
+				k.rdwr(file);
+				fields.append(k);
+			}
+		}
+	}
+
 	if(file->is_loading()  &&  besch) {
 		// clear everything, even though it might be something important ...
 		baue(rotate, true);
@@ -454,7 +574,7 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 uint32 fabrik_t::produktion(const uint32 produkt) const
 {
 	// default prodfaktor = 16 => shift 4, default time = 1024 => shift 10, rest precion
-	const uint32 max = prodbase * prodfaktor;
+	const uint32 max = ( prodbase+(fields.get_count()*besch->gib_field_production()) ) * prodfaktor;
 	uint32 menge = max >> (18-10+4-fabrik_t::precision_bits);
 
 	if (ausgang.get_count() > produkt) {
@@ -690,6 +810,12 @@ fabrik_t::step(long delta_t)
 			assert(add_ok);
 			welt->sync_add( smoke );
 		}
+
+		if(besch->gib_field()  &&  fields.get_count()<besch->gib_max_fields()) {
+			// spawn new field with 1% probablitily
+			add_random_field(1010);
+		}
+
 	}
 
 	// to distribute to all target equally, we use this counter, for the factory, to try first
@@ -1000,7 +1126,7 @@ void fabrik_t::info(cbuffer_t & buf)
 	buf.append(":\n");
 	buf.append(translator::translate("Durchsatz"));
 	buf.append(" ");
-	buf.append((prodbase * prodfaktor * 16)>>(26-umgebung_t::bits_per_month));
+	buf.append(( (prodbase + (fields.get_count()*besch->gib_field_production())) * prodfaktor * 16)>>(26-umgebung_t::bits_per_month));
 	buf.append(" ");
 	buf.append(translator::translate("units/day"));
 	buf.append("\n");

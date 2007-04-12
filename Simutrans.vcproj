@@ -327,6 +327,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dings\field.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\font.c"
 				>
 			</File>

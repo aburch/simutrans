@@ -154,6 +154,7 @@ sint64 umgebung_t::cst_found_city=-500000000;
 sint64 umgebung_t::cst_multiply_found_industry=-2000000;
 sint64 umgebung_t::cst_remove_tree=-10000;
 sint64 umgebung_t::cst_multiply_remove_haus=-100000;
+sint64 umgebung_t::cst_multiply_remove_field=-500000;
 
 // costs for the way searcher
 sint32 umgebung_t::way_count_straight=1;

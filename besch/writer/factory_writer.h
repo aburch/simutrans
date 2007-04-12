@@ -5,6 +5,22 @@
 #include "../objversion.h"
 
 
+class factory_field_writer_t : public obj_writer_t {
+	private:
+		static factory_field_writer_t the_instance;
+
+		factory_field_writer_t() { register_writer(false); }
+
+	public:
+		static factory_field_writer_t* instance() { return &the_instance; }
+
+		virtual obj_type get_type() const { return obj_ffield; }
+		virtual const char* get_type_name() const { return "factory field"; }
+
+		void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj);
+};
+
+
 class factory_smoke_writer_t : public obj_writer_t {
 	private:
 		static factory_smoke_writer_t the_instance;

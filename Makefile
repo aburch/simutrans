@@ -151,6 +151,7 @@ SOURCES += dings/baum.cc
 SOURCES += dings/bruecke.cc
 SOURCES += dings/dummy.cc
 SOURCES += dings/gebaeude.cc
+SOURCES += dings/field.cc
 SOURCES += dings/label.cc
 SOURCES += dings/leitung2.cc
 SOURCES += dings/pillar.cc

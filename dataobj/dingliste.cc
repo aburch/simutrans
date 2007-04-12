@@ -13,6 +13,7 @@
 #include "../dings/zeiger.h"
 #include "../dings/baum.h"
 #include "../dings/bruecke.h"
+#include "../dings/field.h"
 #include "../dings/pillar.h"
 #include "../dings/tunnel.h"
 #include "../dings/gebaeude.h"
@@ -58,20 +59,21 @@ static uint8 type_to_pri[32]=
 	100, // zeiger
 	90, 90, 90,	// wolke
 	3, 3, // buildings
-	5, // signal
+	6, // signal
 	2, 2, // bridge/tunnel
 	255,
 	1, 1, 1, // depots
-	4, // smoke generator (not used any more)
-	75, 3, 3, // powerlines
-	5, // roadsign
-	4, // pillar
+	5, // smoke generator (not used any more)
+	75, 4, 4, // powerlines
+	6, // roadsign
+	6, // pillar
 	1, 1, 1, // depots (must be before tunnel!)
 	255,
-	6, // way objects (electrification)
+	7, // way objects (electrification)
 	0, // ways (always at the top!)
 	9, // label, indicates ownership: insert before trees
-	255, 255, 255, 255
+	3, // field (factory extension)
+	255, 255, 255
 };
 
 static void dl_free(void *p, uint8 size)
@@ -785,7 +787,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			ding_t *d=bei(i);
 			assert(d);
 			if(d->gib_pos()==current_pos) {
-				if(d->gib_typ()!=ding_t::raucher  &&  d->gib_typ()!=ding_t::sync_wolke  &&  d->gib_typ()!=ding_t::async_wolke  &&  !d->is_way()) {
+				if(d->gib_typ()!=ding_t::raucher  &&  d->gib_typ()!=ding_t::sync_wolke  &&  d->gib_typ()!=ding_t::async_wolke  &&  d->gib_typ()!=ding_t::field  &&  !d->is_way()) {
 					bei(i)->rdwr(file);
 				}
 				else {
