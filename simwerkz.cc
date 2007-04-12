@@ -1419,14 +1419,28 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 				gebaeude_t *gb = static_cast<gebaeude_t *>(welt->lookup(pos3d+koord((ribi_t::ribi)(ribi&next_own)))->suche_obj(ding_t::gebaeude));
 				uint8 other_layout = gb->gib_tile()->gib_layout();
 				layout |= other_layout&8;
+
+				if(~ribi&waagerecht&next_own) {
+					// set end flags if station continues beyond end of track
+					layout &= (~ribi&waagerecht&next_own&ribi_t::nordwest)?~4:~2;
+				}
 			}
-			else if(ribi_t::ist_gerade(waagerecht&next_own)) {
+			else if(ribi_t::ist_gerade(waagerecht&next_own) && !ribi_t::ist_einfach(~ribi&waagerecht&next_own)) {
 				// oriented buildings left and right
 				layout &= ~6;
 				// take layout from one of them; prefer the one one the same track, if two tracks go to each other
 				ribi_t::ribi dir = (ribi&next_own&ribi_t::nordwest)==0 ? ribi&next_own : waagerecht&next_own&ribi_t::nordwest;
 				gebaeude_t *gb = static_cast<gebaeude_t *>(welt->lookup(pos3d+koord(dir))->suche_obj(ding_t::gebaeude));
 				layout |= gb->gib_tile()->gib_layout()&8;
+			}
+			else if(ribi_t::ist_einfach(~ribi&waagerecht&next_own) && !next_own&senkrecht) {
+				// neighbour across break in track
+				gebaeude_t *gb = static_cast<gebaeude_t *>(welt->lookup(pos3d+koord((ribi_t::ribi)(~ribi&waagerecht&next_own)))->suche_obj(ding_t::gebaeude));
+				uint8 other_layout = gb->gib_tile()->gib_layout();
+				layout |= other_layout&8;
+
+				// set end flags
+				layout &= (~ribi&waagerecht&next_own&ribi_t::nordwest)?~4:~2;
 			}
 			else {
 				// no buildings left and right
@@ -1447,6 +1461,11 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 						// no building => take default
 						layout &= ~ 6;
 					}
+				}
+
+				if(~ribi&waagerecht&next_own) {
+					// set end flags if station continues beyond end of track
+					layout &= (~ribi&waagerecht&next_own&ribi_t::nordwest)?~4:~2;
 				}
 			}
 		}
