@@ -100,10 +100,17 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 			    call_listeners((long)0);
 			}
 			break;
-			case 0:
-			// ignore key
+		    case 27:
+			// escape - release focus so that event gets passed to window which will then close
+			if(has_focus(this)) {
+			    release_focus(this);
+			}
 			break;
 		    default:
+			if(ev->ev_code < 32) {
+				// ignore special keys not handled so far
+				break;
+			}
 			// Buchstaben, Ziffern und Sonderzeichen einfügen:
 
 			// test, if we have top convert letter

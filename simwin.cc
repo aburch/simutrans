@@ -273,12 +273,9 @@ bool request_focus(gui_komponente_t *req_focus)
 	if(focus  &&  req_focus!=focus) {
 		// someone has already requested the focus
 		dbg->warning("bool request_focus()","Focus was already granted");
-		return false;
 	}
-	else {
-		focus = req_focus;
-		return true;
-	}
+	focus = req_focus;
+	return true;
 }
 
 
