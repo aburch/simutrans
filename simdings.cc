@@ -296,7 +296,7 @@ ding_t::display_after(int xpos, int ypos, bool /*reset_dirty*/) const
 * @author prissi
  */
 void
-ding_t::mark_image_dirty(image_id bild,sint8 yoff)
+ding_t::mark_image_dirty(image_id bild,sint8 yoff) const
 {
 	if(bild!=IMG_LEER) {
 		// better not try to twist your brain to follow the retransformation ...

@@ -349,7 +349,7 @@ public:
 	* sometimes they have an extra offset, this the yoff parameter
 	* @author prissi
 	*/
-	void mark_image_dirty(image_id bild,sint8 yoff);
+	void mark_image_dirty(image_id bild,sint8 yoff) const;
 
 	/**
 	 * Dient zur Neuberechnung des Bildes
