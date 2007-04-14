@@ -19,9 +19,33 @@
 obj_besch_t *
 factory_field_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	DBG_DEBUG("factory_field_reader_t::read_node()", "called for size %i",node.size);
+#ifdef _MSC_VER /* no var array on the stack supported */
+    char *besch_buf = static_cast<char *>(alloca(node.size));
+#else
+  // Hajo: reading buffer is better allocated on stack
+  char besch_buf [node.size];
+#endif
+
 	field_besch_t *besch = new field_besch_t();
 	besch->node_info = new obj_besch_t*[node.children];
+
+	// Hajo: Read data
+	fread(besch_buf, node.size, 1, fp);
+	char * p = besch_buf;
+
+	uint16 v = decode_uint16(p);
+	if(v==0x8001) {
+		besch->has_winter = decode_uint8(p);
+		besch->probability = 10000 - max(10000, decode_uint16(p) );
+		besch->production_per_field = decode_uint16(p);
+		besch->max_fields = decode_uint16(p);
+		besch->min_fields = decode_uint16(p);
+	}
+	else {
+		dbg->fatal("factory_field_reader_t::read_node()","unknown version %i",v&0x00ff );
+	}
+
+	DBG_DEBUG("factory_field_reader_t::read_node()", "has_snow %i, probability %i, fields: max %i, min %i, production %i",besch->has_winter, besch->probability, besch->max_fields, besch->min_fields, besch->production_per_field );
 	return besch;
 }
 
@@ -198,13 +222,7 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->lieferanten = decode_uint16(p);
 		besch->produkte = decode_uint16(p);
 		besch->pax_level = decode_uint16(p);
-		besch->production_per_field = decode_uint16(p);
-		besch->max_fields = decode_uint16(p);
-		besch->min_fields = decode_uint16(p);
 		DBG_DEBUG("factory_reader_t::read_node()","version=2, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level );
-		if(besch->fields) {
-			DBG_DEBUG("factory_reader_t::read_node()","fields: max %i, min %i, production %i", besch->max_fields, besch->min_fields, besch->production_per_field );
-		}
 	} else if(version == 1) {
 		// Versioned node, version 1
 		besch->platzierung = (enum fabrik_besch_t::platzierung)decode_uint16(p);
@@ -215,7 +233,6 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->lieferanten = decode_uint16(p);
 		besch->produkte = decode_uint16(p);
 		besch->pax_level = decode_uint16(p);
-		besch->production_per_field = 0;
 		besch->fields = 0;
 		DBG_DEBUG("factory_reader_t::read_node()","version=1, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level);
 	} else {
@@ -230,7 +247,6 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->lieferanten = decode_uint16(p);
 		besch->produkte = decode_uint16(p);
 		besch->pax_level = 12;
-		besch->production_per_field = 0;
 		besch->fields = 0;
 	}
 	return besch;

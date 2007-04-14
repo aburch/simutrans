@@ -63,7 +63,7 @@ const char *
 field_t::ist_entfernbar(const spieler_t *)
 {
 	// we allow removal, if there is less than
-	return (fab->gib_field_count() > fab->gib_besch()->gib_min_fields()) ? NULL : "Not enough fields would remain.";
+	return (fab->gib_field_count() > besch->gib_min_fields()) ? NULL : "Not enough fields would remain.";
 }
 
 
@@ -84,14 +84,20 @@ image_id
 field_t::gib_bild() const
 {
 	const skin_besch_t *s=besch->gib_bilder();
-	const uint16 anzahl=s->gib_bild_anzahl();
-	// resolution 1/8th month (0..95)
-	const uint32 yearsteps = (welt->get_current_month()%12)*8 + (welt->gib_zeit_ms()>>(welt->ticks_bits_per_tag-3)&7) + 1;
-	const image_id bild = s->gib_bild_nr( (anzahl*yearsteps-1)/96 );
-	if((anzahl*yearsteps-1)%96<anzahl) {
-		mark_image_dirty( bild, 0 );
+	uint16 anzahl=s->gib_bild_anzahl() - besch->has_snow_bild();
+	if(besch->has_snow_bild()  &&  gib_pos().z>=welt->get_snowline()) {
+		// last images will be shown above snowline
+		return s->gib_bild_nr(anzahl);
 	}
-	return bild;
+	else {
+		// resolution 1/8th month (0..95)
+		const uint32 yearsteps = (welt->get_current_month()%12)*8 + (welt->gib_zeit_ms()>>(welt->ticks_bits_per_tag-3)&7) + 1;
+		const image_id bild = s->gib_bild_nr( (anzahl*yearsteps-1)/96 );
+		if((anzahl*yearsteps-1)%96<anzahl) {
+			mark_image_dirty( bild, 0 );
+		}
+		return bild;
+	}
 }
 
 

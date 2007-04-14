@@ -227,7 +227,8 @@ fabrik_t::baue(int rotate, bool clear)
 			}
 			else {
 				// we will start with a certain minimum number
-				while(fields.get_count()<besch->gib_min_fields()  &&  add_random_field(0));
+				while(fields.get_count()<besch->gib_field()->gib_min_fields()  &&  add_random_field(0))
+					;
 			}
 		}
 	}
@@ -245,16 +246,13 @@ fabrik_t::baue(int rotate, bool clear)
 bool
 fabrik_t::add_random_field(uint16 probability)
 {
-	// has fields?
-	if(besch->gib_max_fields()==0) {
-		return false;
-	}
-	// has not too many fiels alreday?
-	if(besch->gib_max_fields() <= fields.get_count()) {
+	// has fields, and not yet too many?
+	const field_besch_t *fb = besch->gib_field();
+	if(fb==NULL  ||  fb->gib_max_fields() <= fields.get_count()) {
 		return false;
 	}
 	// we are lucky and are allowed to generate a field
-	if(simrand(1024)<probability) {
+	if(simrand(10000)<probability) {
 		return false;
 	}
 
@@ -295,7 +293,8 @@ fabrik_t::add_random_field(uint16 probability)
 		fields.append(gr->gib_pos().gib_2d(),10);
 		grund_t *gr2 = new fundament_t(welt, gr->gib_pos(), gr->gib_grund_hang());
 		welt->access(fields.back())->boden_ersetzen(gr, gr2);
-		gr2->obj_add( new field_t( welt, gr2->gib_pos(), besitzer_p, besch->gib_field(), this ) );
+		gr2->obj_add( new field_t( welt, gr2->gib_pos(), besitzer_p, fb, this ) );
+		prodbase += fb->gib_field_production();
 		if(lt) {
 			gr2->obj_add( lt );
 		}
@@ -309,6 +308,8 @@ fabrik_t::add_random_field(uint16 probability)
 void
 fabrik_t::remove_field_at(koord pos)
 {
+	assert(fields.is_contained(pos));
+	prodbase -= besch->gib_field()->gib_field_production();
 	fields.remove(pos);
 }
 
@@ -574,7 +575,7 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 uint32 fabrik_t::produktion(const uint32 produkt) const
 {
 	// default prodfaktor = 16 => shift 4, default time = 1024 => shift 10, rest precion
-	const uint32 max = ( prodbase+(fields.get_count()*besch->gib_field_production()) ) * prodfaktor;
+	const uint32 max = prodbase * prodfaktor;
 	uint32 menge = max >> (18-10+4-fabrik_t::precision_bits);
 
 	if (ausgang.get_count() > produkt) {
@@ -691,6 +692,17 @@ fabrik_t::step(long delta_t)
 		INT_CHECK("simfab 558");
 //DBG_DEBUG("fabrik_t::step()","%s",besch->gib_name());
 
+		// this we need to find out, if the was any production/consumption going on
+		// if not no fields will grow and no smokestacks will smoke
+		uint32 total_amount = 0;
+		for (uint32 produkt = 0; produkt < eingang.get_count(); produkt++) {
+			total_amount += eingang[produkt].menge;
+		}
+		for (uint32 produkt = 0; produkt < ausgang.get_count(); produkt++) {
+			total_amount += ausgang[produkt].menge;
+		}
+		total_amount >>=  precision_bits;
+
 		const uint32 ecount = eingang.get_count();
 		uint32 index = 0;
 		uint32 produkt=0;
@@ -783,8 +795,6 @@ fabrik_t::step(long delta_t)
 			}
 		}
 
-
-
 		// Zeituhr zurücksetzen
 		while(  delta_sum>PRODUCTION_DELTA_T) {
 			delta_sum -= PRODUCTION_DELTA_T;
@@ -800,20 +810,33 @@ fabrik_t::step(long delta_t)
 		}
 		recalc_factory_status();
 
-		// let the chimney smoke
-		const rauch_besch_t *rada = besch->gib_rauch();
-		if(rada) {
-			grund_t *gr=welt->lookup_kartenboden(pos.gib_2d()+rada->gib_pos_off());
-			wolke_t *smoke =  new wolke_t(welt, pos+rada->gib_pos_off(), rada->gib_xy_off().x+simrand(7)-3, rada->gib_xy_off().y+simrand(7)-3, rada->gib_bilder()->gib_bild_nr(0), false );
-
-			bool add_ok=gr->obj_add(smoke);
-			assert(add_ok);
-			welt->sync_add( smoke );
+		// this we need to find out, if the was any production/consumption going on
+		// if not no fields will grow and no smokestacks will smoke
+		uint32 total_amount_end = 0;
+		for (uint32 produkt = 0; produkt < eingang.get_count(); produkt++) {
+			total_amount_end += eingang[produkt].menge;
 		}
+		for (uint32 produkt = 0; produkt < ausgang.get_count(); produkt++) {
+			total_amount_end += ausgang[produkt].menge;
+		}
+		total_amount_end >>=  precision_bits;
 
-		if(besch->gib_field()  &&  fields.get_count()<besch->gib_max_fields()) {
-			// spawn new field with 1% probablitily
-			add_random_field(1010);
+		if(total_amount!=total_amount_end) {
+			// let the chimney smoke
+			const rauch_besch_t *rada = besch->gib_rauch();
+			if(rada) {
+				grund_t *gr=welt->lookup_kartenboden(pos.gib_2d()+rada->gib_pos_off());
+				wolke_t *smoke =  new wolke_t(welt, pos+rada->gib_pos_off(), rada->gib_xy_off().x+simrand(7)-3, rada->gib_xy_off().y+simrand(7)-3, rada->gib_bilder()->gib_bild_nr(0), false );
+
+				bool add_ok=gr->obj_add(smoke);
+				assert(add_ok);
+				welt->sync_add( smoke );
+			}
+
+			if(besch->gib_field()  &&  fields.get_count()<besch->gib_field()->gib_max_fields()) {
+				// spawn new field with given probablitily
+				add_random_field(besch->gib_field()->gib_probability());
+			}
 		}
 
 	}
@@ -1126,7 +1149,7 @@ void fabrik_t::info(cbuffer_t & buf)
 	buf.append(":\n");
 	buf.append(translator::translate("Durchsatz"));
 	buf.append(" ");
-	buf.append(( (prodbase + (fields.get_count()*besch->gib_field_production())) * prodfaktor * 16)>>(26-umgebung_t::bits_per_month));
+	buf.append( (prodbase * prodfaktor * 16)>>(26-umgebung_t::bits_per_month));
 	buf.append(" ");
 	buf.append(translator::translate("units/day"));
 	buf.append("\n");

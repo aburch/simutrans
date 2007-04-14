@@ -12,14 +12,39 @@
 
 
 
-void factory_field_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
+void factory_field_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj, const char *s)
 {
 	field_besch_t besch;
 	memset(&besch, 0, sizeof(besch));
-	obj_node_t node(this, sizeof(besch), &parent, true);
+	obj_node_t node(this, 11, &parent, false);
 
-	xref_writer_t::instance()->write_obj(outfp, node, obj_field, obj.get("fields"), true);
-	node.write_data(outfp, &besch);	// only the header ...
+	xref_writer_t::instance()->write_obj(outfp, node, obj_field, s, true);
+printf("\n\n%s\n\n",s);
+
+	besch.has_winter   = obj.get_int("has_snow",   1);
+	besch.probability   = obj.get_int("probability_to_spawn",   10); // 0,1 %
+	besch.production_per_field = obj.get_int("production_per_field",  16 );
+	besch.max_fields = obj.get_int("max_fields", 25);
+	besch.min_fields = obj.get_int("min_fields", 5);
+
+	uint16 data = 0x8001;	// version
+	node.write_data_at(outfp, &data, 0, sizeof(uint16));
+
+	uint8 v8 = besch.has_winter;
+	node.write_data_at(outfp, &v8, 2, sizeof(uint8));
+
+	data = besch.probability;
+	node.write_data_at(outfp, &data, 3, sizeof(uint16));
+
+	data = besch.production_per_field;
+	node.write_data_at(outfp, &data, 5, sizeof(uint16));
+
+	data = besch.max_fields;
+	node.write_data_at(outfp, &data, 7, sizeof(uint16));
+
+	data = besch.min_fields;
+	node.write_data_at(outfp, &data, 9, sizeof(uint16));
+
 	node.write(outfp);
 }
 
@@ -103,7 +128,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 	besch.pax_level      = obj.get_int("pax_level", 12);
 
-	obj_node_t node(this, 24, &parent, false);
+	obj_node_t node(this, 18, &parent, false);
 
 	obj.put("type", "fac");
 
@@ -151,15 +176,9 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 	// fields (careful, are xref'ed)
 	besch.fields = 0;
-	besch.min_fields = 0;
-	besch.max_fields = 0;
-	besch.production_per_field = 0;
 	if(*obj.get("fields")) {
 		besch.fields = 1;
-		besch.production_per_field = obj.get_int("production_per_field",  16 );
-		besch.max_fields = obj.get_int("max_fields", 25);
-		besch.min_fields = obj.get_int("min_fields", 5);
-		factory_field_writer_t::instance()->write_obj(fp, node, obj);
+		factory_field_writer_t::instance()->write_obj(fp, node, obj, obj.get("fields"));
 	}
 
 	// new version with pax_level
@@ -193,15 +212,6 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	data = besch.pax_level;
 	node.write_data_at(fp, &data, 16, sizeof(uint16));
-
-	data = besch.production_per_field;
-	node.write_data_at(fp, &data, 18, sizeof(uint16));
-
-	data = besch.max_fields;
-	node.write_data_at(fp, &data, 20, sizeof(uint16));
-
-	data = besch.min_fields;
-	node.write_data_at(fp, &data, 22, sizeof(uint16));
 
 	node.write(fp);
 }

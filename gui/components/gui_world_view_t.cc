@@ -106,6 +106,12 @@ world_view_t::zeichnen(koord offset)
 		PUSH_CLIP(pos.x, pos.y, gr.x, gr.y);
 		mark_rect_dirty_wc( pos.x, pos.y, pos.x+gr.x, pos.y+gr.y );
 
+		// not very elegant, but works:
+		// fill everything with black for Underground mode ...
+		if(grund_t::underground_mode) {
+			display_fillbox_wh(pos.x, pos.y, gr.x, gr.y, COL_BLACK, TRUE);
+		}
+
 		const koord display_off = koord( min( (gr.x-raster)/2, raster/2), hgt+gr.y-raster )+fine_here;	// we aling the bottom of the image with the small image
 
 		// display grounds

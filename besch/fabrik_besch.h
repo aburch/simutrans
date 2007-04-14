@@ -29,11 +29,22 @@ class field_besch_t : public obj_besch_t {
 	friend class factory_field_reader_t;
 
 private:
+	uint8	has_winter;	// 0 or 1 for snow
+	uint16 probability;	// between 0 ...10000
+	uint16 max_fields;	// maximum number of fields around a single factory
+	uint16 min_fields;	// number of fields to start with
+	uint16 production_per_field;
 
 public:
+	const skin_besch_t *gib_bilder() const { return static_cast<const skin_besch_t *>(gib_kind(0)); }
 	const char *gib_name() const { return gib_bilder()->gib_name(); }
 	const char *gib_copyright() const { return gib_bilder()->gib_copyright(); }
-	const skin_besch_t *gib_bilder() const { return static_cast<const skin_besch_t *>(gib_kind(0)); }
+
+	const uint8 has_snow_bild() const { return has_winter; }
+	const uint16 gib_probability() const { return probability; }
+	const uint16 gib_max_fields() const { return max_fields; }
+	const uint16 gib_min_fields() const { return min_fields; }
+	const uint16 gib_field_production() const { return production_per_field; }
 };
 
 
@@ -160,9 +171,6 @@ private:
 	uint16 lieferanten;
 	uint16 produkte;
 	uint8 fields;	// only if there are any ...
-	uint16 max_fields;	// maximum number of fields around a single factory
-	uint16 min_fields;	// number of fields to start with
-	uint16 production_per_field;
 	uint16 pax_level;
 
 public:
@@ -187,10 +195,6 @@ public:
 		if(!fields) return NULL;
 		return static_cast<const field_besch_t *>(gib_kind(2 + lieferanten + produkte));
 	}
-
-	const uint16 gib_max_fields() const { return max_fields; }
-	const uint16 gib_min_fields() const { return min_fields; }
-	const uint16 gib_field_production() const { return production_per_field; }
 
 	int gib_lieferanten() const { return lieferanten; }
 	int gib_produkte() const { return produkte; }

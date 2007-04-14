@@ -546,6 +546,10 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",in
 		const ware_besch_t *ware = lieferant->gib_ware();
 		const int anzahl_hersteller=finde_anzahl_hersteller(ware);
 
+		if(anzahl_hersteller==0) {
+			dbg->fatal("fabrikbauer_t::baue_hierarchie()","No producer for %s found!",ware->gib_name() );
+		}
+
 		// how much we need?
 		sint32 verbrauch=our_fab->get_base_production()*lieferant->gib_verbrauch();
 
