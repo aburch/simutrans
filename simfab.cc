@@ -800,16 +800,6 @@ fabrik_t::step(long delta_t)
 			delta_sum -= PRODUCTION_DELTA_T;
 		}
 
-		// distribute, if there are more than 10 waiting ...
-		for (uint32 produkt = 0; produkt < ausgang.get_count(); produkt++) {
-			if (ausgang[produkt].menge > 10 << precision_bits) {
-
-				verteile_waren(produkt);
-				INT_CHECK("simfab 636");
-			}
-		}
-		recalc_factory_status();
-
 		// this we need to find out, if the was any production/consumption going on
 		// if not no fields will grow and no smokestacks will smoke
 		uint32 total_amount_end = 0;
@@ -820,6 +810,16 @@ fabrik_t::step(long delta_t)
 			total_amount_end += ausgang[produkt].menge;
 		}
 		total_amount_end >>=  precision_bits;
+
+		// distribute, if there are more than 10 waiting ...
+		for (uint32 produkt = 0; produkt < ausgang.get_count(); produkt++) {
+			if (ausgang[produkt].menge > 10 << precision_bits) {
+
+				verteile_waren(produkt);
+				INT_CHECK("simfab 636");
+			}
+		}
+		recalc_factory_status();
 
 		if(total_amount!=total_amount_end) {
 			// let the chimney smoke

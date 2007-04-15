@@ -592,6 +592,7 @@ void haltestelle_t::rebuild_destinations()
 {
 	// Hajo: first, remove all old entries
 	warenziele.clear();
+	registered_lines.clear();
 
 // DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "Adding new table entries");
 	// Hajo: second, calculate new entries
@@ -611,6 +612,9 @@ void haltestelle_t::rebuild_destinations()
 					// Hajo: Hält dieser convoi hier?
 					if (gib_halt(welt, fpl->eintrag[i].pos) == self) {
 
+						if(cnv->get_line().is_bound()) {
+							registered_lines.append_unique( cnv->get_line(), 4 );
+						}
 						const int anz = cnv->gib_vehikel_anzahl();
 						for(int j=0; j<anz; j++) {
 
