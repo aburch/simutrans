@@ -13,6 +13,7 @@ xx-Apr-2007:
 	FIX: vehicle filter list fixed for airplanes/ships (kierongreen)
 	ADD: field support (kierongreen/prissi) (in simuconf.tab: cost_multiply_remove_field, in factory entry fields, new field with a number of image[x] definitions)
 	ADD: miniwindow now shows also black background in underground mode (kierongreen)
+	FIX: factories will now only smoke when producing, consuming or both
 
 
 Release of 99.09.3
