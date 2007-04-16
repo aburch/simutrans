@@ -541,7 +541,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		}
 		sint16 height = welt->lookup(to->gib_pos().gib_2d())->gib_kartenboden()->gib_hoehe()+Z_TILE_STEP;
 		grund_t *to2 = welt->lookup(koord3d(to->gib_pos().gib_2d(),height));
-		if(to2) {
+		if(to2  &&  to2->gib_weg_nr(0)) {
 			// already an elevated ground here => it will has always a way object, that indicates ownership
 			ok = to2->gib_typ()==grund_t::monorailboden  &&  check_owner(to2->obj_bei(0)->gib_besitzer(),sp);
 			ok &= to2->gib_weg_nr(0)->gib_besch()->gib_wtyp()==besch->gib_wtyp();
@@ -557,7 +557,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			// do not go through depots ...
 			if(to2->gib_depot()) {
 				depot_t *dp = to2->gib_depot();
-				if(dp->get_wegtyp()!=(waytype_t)besch->gib_wtyp()  ||  ribi_typ(to_pos,from_pos)!=ribi_t::layout_to_ribi[to->gib_depot()->gib_tile()->gib_layout()]) {
+				if(dp->get_wegtyp()!=(waytype_t)besch->gib_wtyp()  ||  ribi_typ(to_pos,from_pos)!=ribi_t::layout_to_ribi[dp->gib_tile()->gib_layout()]) {
 					return false;
 				}
 			}
