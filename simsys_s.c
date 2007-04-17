@@ -555,16 +555,15 @@ BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 #else
 int main(int argc, char **argv)
 {
-	char buffer[1024];
+	char buffer[PATH_MAX];
+	strncpy( buffer, argv[0], PATH_MAX-1 );
 	/* Read the target of /proc/self/exe. */
 	if (readlink ("/proc/self/exe", buffer, PATH_MAX)>0) {
 		argv[0] = buffer;
 	}
-	else {
-		// no process file system => need to parse argv[0]
-		/* should work on most unix or gnu systems */
-		argv[0] = realpath (argv[0], buffer);
-	}
+	// no process file system => need to parse argv[0]
+	/* should work on most unix or gnu systems */
+	argv[0] = realpath (argv[0], NULL);
 #endif
 	return simu_main(argc, argv);
 }

@@ -434,7 +434,6 @@ extern "C" int simu_main(int argc, char** argv)
 #endif
 		chdir( umgebung_t::program_dir );
 	}
-printf("program_dir %s\n", umgebung_t::program_dir );
 
 	// unmgebung init
 	umgebung_t::testlauf      = (gimme_arg(argc, argv, "-test",     0) != NULL);
