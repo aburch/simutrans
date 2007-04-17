@@ -560,9 +560,11 @@ int main(int argc, char **argv)
 	if (readlink ("/proc/self/exe", buffer, PATH_MAX)>0) {
 		argv[0] = buffer;
 	}
-	// no process file system => need to parse argv[0]
-	/* should work on most unix or gnu systems */
-	argv[0] = realpath (argv[0], buffer);
+	else {
+		// no process file system => need to parse argv[0]
+		/* should work on most unix or gnu systems */
+		argv[0] = realpath (argv[0], buffer);
+	}
 #endif
 	return simu_main(argc, argv);
 }
