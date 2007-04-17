@@ -18,7 +18,7 @@
 #include "../simtypes.h"
 
 #define NO_SOUND (0xFFFFu)
-#define LOAD_SOUND (0xFFFEu)
+#define LOAD_SOUND (sint8)(0xFFFEu)
 
 /*
  *  Autor:

@@ -415,18 +415,29 @@ extern "C" int simu_main(int argc, char** argv)
 		return 0;
 	}
 
+	// use current dir as basedir, else use program_dir
+	if (gimme_arg(argc, argv, "-use_workdir",0)) {
+		// save the current directories
+		getcwd( umgebung_t::program_dir, 1024 );
+#ifdef _WIN32
+		strcat( umgebung_t::program_dir, "\\" );
+#else
+		strcat( umgebung_t::program_dir, "/" );
+#endif
+	}
+	else {
+		strcpy( umgebung_t::program_dir, argv[0] );
+#ifdef _WIN32
+		*(strrchr( umgebung_t::program_dir, '\\' )+1) = 0;
+#else
+		*(strrchr( umgebung_t::program_dir, '/' )+1) = 0;
+#endif
+	}
+
 	// unmgebung init
 	umgebung_t::testlauf      = (gimme_arg(argc, argv, "-test",     0) != NULL);
 	umgebung_t::freeplay      = (gimme_arg(argc, argv, "-freeplay", 0) != NULL);
 	umgebung_t::verbose_debug = (gimme_arg(argc, argv, "-debug",    0) != NULL);
-
-	// save the current directories
-	getcwd( umgebung_t::program_dir, 1024 );
-#ifdef _WIN32
-	strcat( umgebung_t::program_dir, "\\" );
-#else
-	strcat( umgebung_t::program_dir, "/" );
-#endif
 
 	// parsing config/simuconf.tab
 	print("Reading low level config data ...\n");

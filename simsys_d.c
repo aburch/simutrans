@@ -233,7 +233,7 @@ char *dr_query_homedir(void)
 	return NULL;
 #else
 	sprintf( buffer, "%s/simutrans", getenv("HOME") );
-	int err = mkdir( buffer, 0700 );
+	int err = mkdir( buffer, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );
 	if(err  &&  err!=EEXIST) {
 		// could not create directory
 		// we assume success anyway
