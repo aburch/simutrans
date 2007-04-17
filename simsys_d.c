@@ -457,8 +457,38 @@ void dr_sleep(uint32 usec)
 
 int simu_main(int argc, char **argv);
 
+#ifdef _WIN32
+BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+{
+	char *argv[32], *p;
+	int argc;
+	char pathname[1024];
+
+	// prepare commandline
+	argc = 0;
+	GetModuleFileNameA( hInstance, pathname, 1024 );
+	argv[argc++] = pathname;
+	p = strtok(lpCmdLine, " ");
+	while (p != NULL) {
+		argv[argc++] = p;
+		p = strtok(NULL, " ");
+	}
+	argv[argc] = NULL;
+#else
 int main(int argc, char **argv)
 {
+#ifndef __BEOS__
+	char buffer[PATH_MAX];
+	strncpy( buffer, argv[0], PATH_MAX-1 );
+	/* Read the target of /proc/self/exe. */
+	if (readlink ("/proc/self/exe", buffer, PATH_MAX)>0) {
+		argv[0] = buffer;
+	}
+	// no process file system => need to parse argv[0]
+	/* should work on most unix or gnu systems */
+	argv[0] = realpath (argv[0], NULL);
+#endif
+#endif
 	return simu_main(argc, argv);
 }
 END_OF_MAIN()

@@ -415,8 +415,12 @@ extern "C" int simu_main(int argc, char** argv)
 		return 0;
 	}
 
+#ifdef __BEOS__
+	if(1) { // since BeOS only supports relative paths ...
+#else
 	// use current dir as basedir, else use program_dir
 	if (gimme_arg(argc, argv, "-use_workdir",0)) {
+#endif
 		// save the current directories
 		getcwd( umgebung_t::program_dir, 1024 );
 #ifdef _WIN32

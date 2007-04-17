@@ -17,6 +17,7 @@ xx-Apr-2007:
 	FIX: crash related to building/replacing elevated ways
 	FIX: loading wave sounds again
 	CHANGE: simutrans now searches for data always in its root directory (-use_workdir to override this)
+	CHANGE: simutrans user data on Unix now in "~/.simutrans"
 
 
 Release of 99.09.3
