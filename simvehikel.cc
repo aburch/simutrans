@@ -1265,6 +1265,45 @@ vehikel_t::~vehikel_t()
 }
 
 
+// this routine will display a tooltip for lost, on depot order and stucked vehicles
+void
+vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
+{
+	if(is_gobal  &&  cnv  &&  ist_erstes) {
+
+		COLOR_VAL color;
+		char tooltip_text[1024];
+		tooltip_text[0] = 0;
+
+		// now find out what has happend
+		switch(cnv->get_state()) {
+			case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
+			case convoi_t::CAN_START_ONE_MONTH:
+				sprintf( tooltip_text, translator::translate("Vehicle %s stucked!"), cnv->gib_name() );
+				color = COL_ORANGE;
+				break;
+			case convoi_t::ROUTING_2:
+				if(cnv->get_route()->gib_max_n()==0) {
+					sprintf( tooltip_text, translator::translate("Vehicle %s can't find a route!"), cnv->gib_name() );
+					color = COL_RED;
+				}
+		}
+
+		// something to show?
+		if(tooltip_text[0]) {
+			const int width = proportional_string_width(tooltip_text)+7;
+			const int raster_width = get_tile_raster_width();
+			xpos += tile_raster_scale_x(gib_xoff(), raster_width);
+			ypos += tile_raster_scale_y(gib_yoff(), raster_width);
+			if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_gib_clip_wh().yy) {
+				display_ddd_proportional( xpos, ypos, width, 0, color, COL_BLACK, tooltip_text, true);
+			}
+		}
+	}
+}
+
+
+
 /*--------------------------- Fahrdings ------------------------------*/
 
 

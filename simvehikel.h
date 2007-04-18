@@ -426,6 +426,9 @@ public:
 	virtual void rdwr(loadsave_t *file, bool force) = 0;
 
 	int calc_restwert() const;
+
+	// this draws a tooltips for things stucked on depot order or lost
+	virtual void display_after(int xpos, int ypos, bool dirty) const;
 };
 
 

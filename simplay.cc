@@ -2701,7 +2701,8 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route
 			break;
 
 		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
-DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s stucked.!", cnv->gib_name(),ziel.x,ziel.y);
+		case convoi_t::CAN_START_ONE_MONTH:
+DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->gib_name(),ziel.x,ziel.y);
 			if(this==welt->get_active_player()) {
 				char buf[256];
 				sprintf(buf,translator::translate("Vehicle %s is stucked!"), cnv->gib_name());

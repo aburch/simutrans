@@ -270,7 +270,7 @@ ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 
 
 void
-ding_t::display_after(int xpos, int ypos, bool /*reset_dirty*/) const
+ding_t::display_after(int xpos, int ypos, bool is_global) const
 {
 	image_id bild = gib_after_bild();
 	if(bild != IMG_LEER) {
@@ -279,11 +279,12 @@ ding_t::display_after(int xpos, int ypos, bool /*reset_dirty*/) const
 		xpos += tile_raster_scale_x(gib_xoff(), raster_width);
 		ypos += tile_raster_scale_y(gib_yoff(), raster_width);
 
+		// unfourtunately the dirty flag is already cleared, when we reach here ...
 		if(besitzer_n!=-1) {
-			display_color_img(bild, xpos, ypos, besitzer_n, true, 0*get_flag(ding_t::dirty) );
+			display_color_img(bild, xpos, ypos, besitzer_n, true, false );
 		}
 		else {
-			display_img(bild, xpos, ypos, 0*get_flag(ding_t::dirty) );
+			display_img(bild, xpos, ypos, false );
 		}
 	}
 }

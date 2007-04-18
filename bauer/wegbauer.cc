@@ -621,7 +621,12 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				}
 				// extra malus leave an existing road
 				if(from_str!=NULL  &&  str==NULL) {
-					*costs += umgebung_t::way_count_leaving_road;
+					ribi_t::ribi ribi = ribi_typ(to_pos,from_pos);
+					if(ribi_t::is_twoway(from_str->gib_ribi_unmasked())) {
+						// only connections from an existing road are expensive
+						// dead ends, crossings and the like are free ...
+						*costs += umgebung_t::way_count_leaving_road;
+					}
 				}
 			}
 		}
@@ -750,7 +755,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				*costs = to->hat_weg(track_wt) ? umgebung_t::way_count_straight : umgebung_t::way_count_straight+1;	// only prefer existing rails a little
 				// perfer own track
 				if(to->hat_weg(road_wt)) {
-					*costs += umgebung_t::way_count_straight*2;
+					*costs += umgebung_t::way_count_straight;
 				}
 				if(to->gib_weg_hang()!=0) {
 					*costs += umgebung_t::way_count_slope;
