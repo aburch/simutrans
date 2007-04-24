@@ -92,6 +92,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	welt = wl;
 	besitzer_p = sp;
 
+	is_electric = false;
 	sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = 0;
 	previous_delta_v = 0;
 	min_top_speed = 9999999;
@@ -795,6 +796,9 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		anz_vehikel ++;
 
 		const vehikel_besch_t *info = v->gib_besch();
+		if(info->gib_leistung()) {
+			is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
+		}
 		sum_leistung += info->gib_leistung();
 		sum_gear_und_leistung += info->gib_leistung()*info->get_gear();
 		sum_gewicht += info->gib_gewicht();
@@ -858,6 +862,16 @@ convoi_t::remove_vehikel_bei(uint16 i)
 			const int month_now = welt->get_timeline_year_month();
 			for(unsigned i=0; i<anz_vehikel; i++) {
 				has_obsolete |= fahr[i]->gib_besch()->is_retired(month_now);
+			}
+		}
+
+		// still requires electrifications?
+		if(is_electric) {
+			is_electric = false;
+			for(unsigned i=0; i<anz_vehikel; i++) {
+				if(fahr[i]->gib_besch()->gib_leistung()) {
+					is_electric |= fahr[i]->gib_besch()->get_engine_type()==vehikel_besch_t::electric;
+				}
 			}
 		}
 	}

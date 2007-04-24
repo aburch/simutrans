@@ -172,6 +172,9 @@ private:
 	// true, if at least one vehicle of a convoi is obsolete
 	bool has_obsolete;
 
+	// ture, if there is at least one engine that requires catenary
+	bool is_electric;
+
 	/**
 	* Gesamtleistung. Wird nicht gespeichert, sondern aus den Einzelleistungen
 	* errechnet.
@@ -346,6 +349,9 @@ public:
 	* @author hsiegeln
 	*/
 	linehandle_t get_line() const {return line;}
+
+	/* true, if electrification needed for this convoi */
+	const bool needs_electrification() const { return is_electric; }
 
 	/**
 	* set line

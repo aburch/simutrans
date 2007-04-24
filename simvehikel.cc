@@ -1326,6 +1326,7 @@ automobil_t::automobil_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
 bool
 automobil_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route)
 {
+	assert(cnv);
 	// free target reservation
 	if(ist_erstes  &&  alte_fahrtrichtung!=ribi_t::keine  &&  cnv  &&  target_halt.is_bound() ) {
 		route_t *rt=cnv->get_route();
@@ -1344,7 +1345,7 @@ bool
 automobil_t::ist_befahrbar(const grund_t *bd) const
 {
 	strasse_t *str=(strasse_t *)bd->gib_weg(road_wt);
-	if(str==NULL || (besch->get_engine_type()==vehikel_besch_t::electric  &&  !str->is_electrified()) ) {
+	if(str==NULL || (cnv==NULL  ||  (cnv->needs_electrification()  &&  !str->is_electrified())) ) {
 		return false;
 	}
 	// check for signs
@@ -1740,7 +1741,7 @@ waggon_t::ist_befahrbar(const grund_t *bd) const
 
 	// Hajo: diesel and steam engines can use electrifed track as well.
 	// also allow driving on foreign tracks ...
-	const bool ok = (sch!=0) && (besch->get_engine_type()!=vehikel_besch_t::electric  ||  sch->is_electrified());
+	const bool ok = (sch!=0) && (cnv==NULL  ||  (cnv->needs_electrification()  ||  sch->is_electrified()));
 
 	if(!ok  ||  !target_halt.is_bound()  ||  !cnv->is_waiting()) {
 		return ok;

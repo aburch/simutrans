@@ -2,6 +2,7 @@
 	CHANGE: convois indicate error states also with tooltips
 	FIX: factory crossconnection was one-sided
 	ADD: midi shuffle will be rembered
+	FIX: electric engines also recognized when not leading convoi
 
 
 Release of 99.10
