@@ -671,15 +671,15 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%
 				// now substract current supplier
 				const ding_t * dt = welt->lookup(k.gib_2d())->gib_kartenboden()->obj_bei(0);
 				if(dt) {
-					const fabrik_t *fab = dt->get_fabrik();
-					// find our product
+					fabrik_t *fab = dt->get_fabrik();
+					// connect new supplier to us
 					for(int gg=0;gg<fab->gib_besch()->gib_produkte();gg++) {
 						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware) {
 							sint32 produktion = (fab->get_base_production()*fab->gib_besch()->gib_produkt(gg)->gib_faktor()) / (factories_to_correct.count()+1);
 							// connect also the factories we stole from before ...
 							for(  unsigned i=0;  i<factories_to_correct.count();  i++  ) {
 								factories_to_correct.at(i).demand -= produktion;
-								factories_to_correct.at(i).fab->add_supplier(fab->gib_pos().gib_2d());
+								fab->add_lieferziel(factories_to_correct.at(i).fab->gib_pos().gib_2d());
 								if(factories_to_correct.at(i).demand<0) {
 									factories_to_correct.remove_at(i);
 									i--;
