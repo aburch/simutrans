@@ -1,6 +1,7 @@
 	FIX: roads did repell each other too strongly. A little more clever handling has been introduced, but way_count_leaving_road is still too high.
 	CHANGE: convois indicate error states also with tooltips
 	FIX: factory crossconnection was one-sided
+	ADD: midi shuffle will be rembered
 
 
 Release of 99.10

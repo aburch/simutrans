@@ -685,6 +685,9 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		sound_set_global_volume(sound_volume);
 		sound_set_midi_volume(midi_volume);
 
+		bool shuffle_music=false;
+		fscanf(config, "SoundShuffle=%d,%d\n", &shuffle_music );
+		sound_set_shuffle_midi( shuffle_music );
 		fclose(config);
 	}
 
@@ -939,6 +942,7 @@ DBG_MESSAGE("init","map");
 			umgebung_t::station_coverage_show
 		);
 		fprintf(config, "SoundMidiVolume=%d,%d\n", sound_get_global_volume(), sound_get_midi_volume() );
+		fprintf(config, "SoundShuffle=%d,%d\n", sound_get_shuffle_midi() );
 		fclose(config);
 	}
 
