@@ -549,7 +549,7 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 			}
 		}
 		else {
-			uint16 nr=fields.get_count();
+			uint16 nr=0;
 			koord k;
 			file->rdwr_short(nr,"f");
 			fields.resize(nr);

@@ -36,7 +36,7 @@ factory_field_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	uint16 v = decode_uint16(p);
 	if(v==0x8001) {
 		besch->has_winter = decode_uint8(p);
-		besch->probability = 10000 - max(10000, decode_uint16(p) );
+		besch->probability = decode_uint16(p);
 		besch->production_per_field = decode_uint16(p);
 		besch->max_fields = decode_uint16(p);
 		besch->min_fields = decode_uint16(p);
@@ -46,6 +46,7 @@ factory_field_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	DBG_DEBUG("factory_field_reader_t::read_node()", "has_snow %i, probability %i, fields: max %i, min %i, production %i",besch->has_winter, besch->probability, besch->max_fields, besch->min_fields, besch->production_per_field );
+	besch->probability = 10000 - max(10000, besch->probability);
 	return besch;
 }
 
