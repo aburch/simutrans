@@ -3,6 +3,7 @@
 	FIX: factory crossconnection was one-sided
 	ADD: midi shuffle will be rembered
 	FIX: electric engines also recognized when not leading convoi
+	FIX: advance savegame => field positions now saved
 
 
 Release of 99.10

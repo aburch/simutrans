@@ -311,6 +311,20 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 		return true;
 	}
 
+	// citycar? (we allow always)
+	if(gr->suche_obj(ding_t::verkehr)) {
+		stadtauto_t *citycar = dynamic_cast<stadtauto_t *>(gr->suche_obj(ding_t::verkehr));
+		delete citycar;
+		return true;
+	}
+
+	// pedestrians?
+	if(gr->suche_obj(ding_t::fussgaenger)) {
+		fussgaenger_t *fussgaenger = dynamic_cast<fussgaenger_t *>(gr->suche_obj(ding_t::fussgaenger));
+		delete fussgaenger;
+		return true;
+	}
+
 	// prissi: Leitung prüfen (can cross ground of another player)
 	leitung_t *lt=dynamic_cast<leitung_t *>(gr->suche_obj(ding_t::leitung));
 	if(lt!=NULL  &&  lt->gib_besitzer()==sp) {
@@ -353,20 +367,6 @@ DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
 		}
 		wo->entferne(sp);
 		delete wo;
-		return true;
-	}
-
-	// citycar? (we allow always)
-	if(gr->suche_obj(ding_t::verkehr)) {
-		stadtauto_t *citycar = dynamic_cast<stadtauto_t *>(gr->suche_obj(ding_t::verkehr));
-		delete citycar;
-		return true;
-	}
-
-	// pedestrians?
-	if(gr->suche_obj(ding_t::fussgaenger)) {
-		fussgaenger_t *fussgaenger = dynamic_cast<fussgaenger_t *>(gr->suche_obj(ding_t::fussgaenger));
-		delete fussgaenger;
 		return true;
 	}
 
