@@ -42,7 +42,7 @@ const char cost_type[MAX_HALT_COST][64] =
   "hl_btn_sort_waiting",
   "Arrived",
   "Departed",
-  "Vehicles"
+  "Convoys"
 };
 
 const uint8 index_of_haltinfo[MAX_HALT_COST] = {

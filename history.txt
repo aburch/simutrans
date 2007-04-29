@@ -4,6 +4,7 @@
 	ADD: midi shuffle will be rembered
 	FIX: electric engines also recognized when not leading convoi
 	FIX: advance savegame => field positions now saved
+	ADD: more colors for convoi status: WHITE in depot, ORANGE: stuck/no route
 
 
 Release of 99.10

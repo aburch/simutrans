@@ -1984,7 +1984,7 @@ void haltestelle_t::recalc_status()
 		const int count = warenbauer_t::gib_waren_anzahl();
 		const int max_ware = get_capacity();
 
-		for( int i=0; i+1<count; i++) {
+		for( int i=2; i+1<count; i++) {
 			const ware_besch_t *wtyp = warenbauer_t::gib_info(i+1);
 			if(  gib_ware_summe(wtyp)>max_ware  ) {
 				status_color = COL_RED;
