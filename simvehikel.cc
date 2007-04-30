@@ -1741,7 +1741,7 @@ waggon_t::ist_befahrbar(const grund_t *bd) const
 
 	// Hajo: diesel and steam engines can use electrifed track as well.
 	// also allow driving on foreign tracks ...
-	const bool ok = (sch!=0) && (cnv==NULL  ||  (cnv->needs_electrification()  ||  sch->is_electrified()));
+	const bool ok = (sch!=0) && (cnv==NULL  ||  (!cnv->needs_electrification()  ||  sch->is_electrified()));
 
 	if(!ok  ||  !target_halt.is_bound()  ||  !cnv->is_waiting()) {
 		return ok;
