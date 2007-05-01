@@ -64,14 +64,6 @@ public:
 	 */
 	virtual void zeige_info();
 
-	/**
-	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-	 * Beobachtungsfenster angezeigt wird.
-	 * @author Hj. Malthaner
-	 * @see simwin
-	 */
-	virtual char *info(char *buf) const;
-
 	void rdwr(loadsave_t *file);
 
 	// finalizes direction
@@ -124,6 +116,14 @@ public:
 
 	const char *gib_name() const {return "Verkehrsteilnehmer";}
 	enum ding_t::typ gib_typ() const {return verkehr;}
+
+	/**
+	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
+	 * Beobachtungsfenster angezeigt wird.
+	 * @author Hj. Malthaner
+	 * @see simwin
+	 */
+	virtual void stadtauto_t::info(cbuffer_t & buf) const;
 
 	/* this function builts the list of the allowed citycars
 	 * it should be called every month and in the beginning of a new game

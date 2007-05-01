@@ -398,14 +398,14 @@ convoi_t::sync_step(long delta_t)
 		}
 
 		// now actually move the units
-		sp_soll += (akt_speed*delta_t) / 64;
-		while(1024 < sp_soll && !anz_ready) {
-			sp_soll -= 1024;
+		sp_soll += (akt_speed*delta_t);
+		while(65536 < sp_soll && !anz_ready) {
+			sp_soll -= 65536;
 
 			fahr[0]->sync_step();
 			// stopped by something!
 			if(state!=DRIVING) {
-				sp_soll &= 1023;
+				sp_soll &= (65536-1);
 				return true;
 			}
 			for(unsigned i=1; i<anz_vehikel; i++) {
@@ -1309,9 +1309,8 @@ convoi_t::rdwr(loadsave_t *file)
 	// Hajo: calculate new minimum top speed
 	min_top_speed = calc_min_top_speed(fahr, anz_vehikel);
 
-	// Hajo: since sp_ist became obsolete, sp_soll is
-	//       used modulo 1024
-	sp_soll &= 1023;
+	// Hajo: since sp_ist became obsolete, sp_soll is used modulo 65536
+	sp_soll &= 65535;
 
 	if(file->get_version()<=88003) {
 		// load statistics

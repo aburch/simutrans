@@ -42,6 +42,7 @@
 #include "besch/roadsign_besch.h"
 
 
+#include "utils/cbuffer_t.h"
 
 /**********************************************************************************************************************/
 /* Verkehrsteilnehmer (basis class) from here on */
@@ -84,7 +85,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 	ribi_t::ribi liste[4];
 	int count = 0;
 
-	weg_next = simrand(1024);
+	weg_next = simrand(65535);
 	hoff = 0;
 
 	// verfügbare ribis in liste eintragen
@@ -132,14 +133,6 @@ void verkehrsteilnehmer_t::zeige_info()
 	if(umgebung_t::verkehrsteilnehmer_info) {
 		ding_t::zeige_info();
 	}
-}
-
-
-char *
-verkehrsteilnehmer_t::info(char *buf) const
-{
-	*buf = 0;
-	return buf;
 }
 
 
@@ -247,7 +240,7 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 
 	// Hajo: avoid endless growth of the values
 	// this causes lockups near 2**32
-	weg_next &= 1023;
+	weg_next &= 65535;
 }
 
 
@@ -396,9 +389,9 @@ stadtauto_t::sync_step(long delta_t)
 	}
 	else {
 		setze_yoff( gib_yoff() - hoff );
-		weg_next += (current_speed*delta_t) / 64;
-		while(1024 < weg_next) {
-			weg_next -= 1024;
+		weg_next += current_speed*delta_t;
+		while(65536 < weg_next) {
+			weg_next -= 65536;
 			fahre();
 		}
 		hoff = calc_height();
@@ -479,7 +472,7 @@ stadtauto_t::ist_weg_frei()
 		else {
 			fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
 			pos_next = gib_pos();//welt->lookup_kartenboden(gib_pos().gib_2d()+koord(fahrtrichtung))->gib_pos();
-			current_speed = 1;
+			current_speed = 16;
 			dx = -dx;
 			dy = -dy;
 		}
@@ -616,7 +609,7 @@ stadtauto_t::hop()
 			// turn around
 			fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
 			pos_next = gib_pos();//welt->lookup_kartenboden(gib_pos().gib_2d()+koord(fahrtrichtung))->gib_pos();
-			current_speed = 1;
+			current_speed = 8;
 			dx = -dx;
 			dy = -dy;
 		}
@@ -672,7 +665,7 @@ stadtauto_t::hop()
 				// turn around
 				fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
 				pos_next = gib_pos();//welt->lookup_kartenboden(gib_pos().gib_2d()+koord(fahrtrichtung))->gib_pos();
-				current_speed = 1;
+				current_speed = 8;
 				dx = -dx;
 				dy = -dy;
 			}
@@ -708,8 +701,13 @@ stadtauto_t::hop_check()
 	}
 	else {
 		if(ms_traffic_jam) {
-			current_speed = 16;
 			ms_traffic_jam = 0;
+			current_speed = 8;
+		}
+		else {
+			if(current_speed<8) {
+				current_speed = 8;
+			}
 		}
 		return true;
 	}
@@ -745,3 +743,17 @@ stadtauto_t::calc_current_speed()
 		current_speed = speed_limit;
 	}
 }
+
+
+void
+stadtauto_t::info(cbuffer_t & buf) const
+{
+	static char str[256];
+	sprintf(str, translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), besch->gib_name(), current_speed, besch->gib_geschw(), dx, dy );
+	buf.append(str);
+}
+
+
+
+
+

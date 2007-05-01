@@ -5,6 +5,8 @@
 	FIX: electric engines also recognized when not leading convoi
 	FIX: advance savegame => field positions now saved
 	ADD: more colors for convoi status: WHITE in depot, ORANGE: stuck/no route
+	FIX: readded city car info dialoge ("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i")
+	FIX: speed of convois and city cars was frame rate dependent!
 
 
 Release of 99.10

@@ -235,7 +235,7 @@ private:
 	// needed for speed control/calculation
 	sint32 akt_speed_soll;	// should go this
 	sint32 akt_speed;			// goes this at the moment
-	sint32 sp_soll;					// steps to go (124 per step)
+	sint32 sp_soll;					// steps to go
 	sint32 previous_delta_v;		// Stores the previous delta_v value; otherwise these digits are lost during calculation and vehicle do not accelrate
 
 	uint32 next_wolke;	// time to next smoke
