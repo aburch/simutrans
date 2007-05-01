@@ -170,6 +170,21 @@ fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_be
 
 
 
+fabrik_t::~fabrik_t()
+{
+	while(!fields.empty()) {
+		grund_t *gr = welt->lookup_kartenboden( fields.back() );
+		if(gr) {
+			field_t *f=(field_t*)(gr->suche_obj(ding_t::field));
+			delete f;
+		}
+		else {
+			fields.remove_at( fields.get_count()-1 );
+		}
+	}
+}
+
+
 // must be extended for non-square factories!
 bool
 fabrik_t::is_fabrik( koord check )
@@ -218,11 +233,12 @@ fabrik_t::baue(int rotate, bool clear)
 			// if there are fields
 			if(!fields.empty()) {
 				for( uint16 i=0;  i<fields.get_count();  i++  ) {
-					grund_t *gr=welt->lookup_kartenboden(fields[i]);
+					const koord k = fields[i];
+					grund_t *gr=welt->lookup_kartenboden(k);
 					// first make foundation below
 					grund_t *gr2 = new fundament_t(welt, gr->gib_pos(), gr->gib_grund_hang());
-					welt->access(fields[i])->boden_ersetzen(gr, gr2);
-					gr2->obj_add( new field_t( welt, pos, besitzer_p, besch->gib_field(), this ) );
+					welt->access(k)->boden_ersetzen(gr, gr2);
+					gr2->obj_add( new field_t( welt, gr2->gib_pos(), besitzer_p, besch->gib_field(), this ) );
 				}
 			}
 			else {
@@ -270,6 +286,7 @@ fabrik_t::add_random_field(uint16 probability)
 				if(gr  &&  gr->gib_typ()==grund_t::boden  &&  gr->gib_hoehe()==pos.z  &&  gr->gib_grund_hang()==hang_t::flach  &&  gr->ist_natur()  &&  (gr->suche_obj(ding_t::leitung) || gr->kann_alle_obj_entfernen(NULL)==NULL)) {
 					// only on same height => climate will match!
 					build_locations.append(gr);
+					assert(gr->suche_obj(ding_t::field)==NULL);
 				}
 				// skip inside of rectange (already checked earlier)
 				if(radius > 1 && yoff == -radius && (xoff > -radius && xoff < radius + gib_besch()->gib_haus()->gib_groesse().x - 1)) {
@@ -290,9 +307,11 @@ fabrik_t::add_random_field(uint16 probability)
 		}
 		gr->obj_loesche_alle(NULL);
 		// first make foundation below
-		fields.append(gr->gib_pos().gib_2d(),10);
+		const koord k = gr->gib_pos().gib_2d();
+		assert(!fields.is_contained(k));
+		fields.append(k,10);
 		grund_t *gr2 = new fundament_t(welt, gr->gib_pos(), gr->gib_grund_hang());
-		welt->access(fields.back())->boden_ersetzen(gr, gr2);
+		welt->access(k)->boden_ersetzen(gr, gr2);
 		gr2->obj_add( new field_t( welt, gr2->gib_pos(), besitzer_p, fb, this ) );
 		prodbase += fb->gib_field_production();
 		if(lt) {
@@ -543,7 +562,7 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 		if(file->is_saving()) {
 			uint16 nr=fields.get_count();
 			file->rdwr_short(nr,"f");
-			for(int i=0; i<anz_lieferziele; i++) {
+			for(int i=0; i<nr; i++) {
 				koord k = fields[i];
 				k.rdwr(file);
 			}
