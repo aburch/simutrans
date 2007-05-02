@@ -86,6 +86,8 @@ private:
 #ifdef DESTINATION_CITYCARS
 	koord target;
 #endif
+	koord3d pos_next_next;
+
 	/**
 	 * Aktuelle Geschwindigkeit
 	 * @author Hj. Malthaner

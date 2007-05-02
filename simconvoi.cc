@@ -985,8 +985,7 @@ convoi_t::can_go_alte_richtung()
 #endif
 
 	// going backwards? then recalculate all
-	sint8 dummy;
-	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(fahr[0]->calc_richtung(route.position_bei(0).gib_2d(), route.position_bei(2).gib_2d(), dummy, dummy));
+	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(fahr[0]->calc_richtung(route.position_bei(0).gib_2d(), route.position_bei(2).gib_2d()));
 //	DBG_MESSAGE("convoi_t::go_alte_richtung()","neu=%i,rwr_neu=%i,alt=%i",neue_richtung_rwr,ribi_t::rueckwaerts(neue_richtung_rwr),alte_richtung);
 	if(neue_richtung_rwr&alte_richtung) {
 		akt_speed = 8;

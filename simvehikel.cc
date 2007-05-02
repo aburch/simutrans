@@ -381,6 +381,36 @@ vehikel_basis_t::calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) co
 
 
 
+ribi_t::ribi
+vehikel_basis_t::calc_richtung(koord start, koord ende) const
+{
+	ribi_t::ribi richtung = ribi_t::keine;
+
+	const sint8 di = ende.x - start.x;
+	const sint8 dj = ende.y - start.y;
+
+	if(dj < 0 && di == 0) {
+		richtung = ribi_t::nord;
+	} else if(dj > 0 && di == 0) {
+		richtung = ribi_t::sued;
+	} else if(di < 0 && dj == 0) {
+		richtung = ribi_t::west;
+	} else if(di >0 && dj == 0) {
+		richtung = ribi_t::ost;
+	} else if(di > 0 && dj > 0) {
+		richtung = ribi_t::suedost;
+	} else if(di < 0 && dj < 0) {
+		richtung = ribi_t::nordwest;
+	} else if(di > 0 && dj < 0) {
+		richtung = ribi_t::nordost;
+	} else {
+		richtung = ribi_t::suedwest;
+	}
+	return richtung;
+}
+
+
+
 // this routine calculates the new height
 // beware of bridges, tunnels, slopes, ...
 int
@@ -1490,9 +1520,8 @@ automobil_t::ist_weg_frei(int &restart_speed)
 		}
 
 		// calculate new direction
-		sint8 dx, dy;	// dummies
-		const uint8 next_fahrtrichtung = this->calc_richtung(pos_prev, pos_next.gib_2d(), dx, dy);
-		const uint8 next_90fahrtrichtung = this->calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+		const uint8 next_fahrtrichtung = calc_richtung(pos_prev, pos_next.gib_2d());
+		const uint8 next_90fahrtrichtung = route_index<cnv->get_route()->gib_max_n() ? this->calc_richtung(gib_pos().gib_2d(), cnv->get_route()->position_bei(route_index+1).gib_2d()) : calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d());;
 		bool frei = true;
 
 		// suche vehikel

@@ -339,6 +339,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
 	if(!besch) {
 		besch = liste.gib_gewichted(simrand(liste.gib_gesamtgewicht()));
 	}
+	pos_next_next = koord3d::invalid;
 	time_to_life = umgebung_t::stadtauto_duration;
 	current_speed = 48;
 	ms_traffic_jam = 0;
@@ -452,6 +453,13 @@ void stadtauto_t::rdwr(loadsave_t *file)
 		current_speed = dummy32;
 	}
 
+	if(file->get_version() <= 99010) {
+		pos_next_next = koord3d::invalid;
+	}
+	else {
+		pos_next_next.rdwr(file);
+	}
+
 	// do not start with zero speed!
 	current_speed ++;
 }
@@ -466,16 +474,7 @@ stadtauto_t::ist_weg_frei()
 	// destroy on: no step, invalid position, no road below
 	if((gr = welt->lookup(pos_next))==NULL  ||  (str=gr->gib_weg(road_wt))==NULL) {
 		// turn around, if sudden stop is here ...
-		if((gr = welt->lookup(gib_pos()))==NULL  ||  (str=gr->gib_weg(road_wt))==NULL) {
-			time_to_life = 0;
-		}
-		else {
-			fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
-			pos_next = gib_pos();//welt->lookup_kartenboden(gib_pos().gib_2d()+koord(fahrtrichtung))->gib_pos();
-			current_speed = 16;
-			dx = -dx;
-			dy = -dy;
-		}
+		time_to_life = 0;
 		return false;
 	}
 
@@ -504,12 +503,12 @@ stadtauto_t::ist_weg_frei()
 	}
 
 	// calculate new direction
-	sint8 dx, dy;	// dummies
 	// are we just turning around?
 	//	const uint8 this_fahrtrichtung = (gib_pos()==pos_next) ? gib_fahrtrichtung() :  ribi_t::rueckwaerts(this_fahrtrichtung);
 	const uint8 this_fahrtrichtung = gib_fahrtrichtung();
-	// next direction
-	const uint8 next_fahrtrichtung = (gib_pos()==pos_next) ? this_fahrtrichtung : this->calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+	// next direction (is only 90° due to definition ...)
+	const uint8 next_fahrtrichtung = (gib_pos()==pos_next_next) ? ribi_t::rueckwaerts(this_fahrtrichtung) : this->calc_richtung(gib_pos().gib_2d(), pos_next_next.gib_2d());
+	uint8 next_90fahrtrichtung = this->calc_richtung(gib_pos().gib_2d(), pos_next_next.gib_2d());
 	bool frei = true;
 
 	// suche vehikel
@@ -534,7 +533,7 @@ stadtauto_t::ist_weg_frei()
 			// ok, there is another car ...
 			if(other_fahrtrichtung!=255) {
 
-				if(other_fahrtrichtung==next_fahrtrichtung  ||  other_fahrtrichtung==this_fahrtrichtung ) {
+				if(other_fahrtrichtung==next_fahrtrichtung  ||  other_fahrtrichtung==next_90fahrtrichtung  ||  other_fahrtrichtung==this_fahrtrichtung ) {
 					// this goes into the same direction as we, so stopp and save a restart speed
 					frei = false;
 				} else if(ribi_t::ist_orthogonal(other_fahrtrichtung,this_fahrtrichtung )) {
@@ -578,114 +577,26 @@ stadtauto_t::hop()
 {
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(pos_next);
-	grund_t *to;
-
-	static weighted_vector_tpl<grund_t *> liste(4);
-	liste.clear();
-
-	// 1) find the allowed directions
-	const weg_t *weg = from->gib_weg(road_wt);
-	if(weg==NULL) {
-		// nothing to go? => destroy ...
+	if(from==NULL) {
 		time_to_life = 0;
 		return;
 	}
-	// ok, nobody did delete the road in front of us
-	// so we can check for valid directions
-	ribi_t::ribi ribi = weg->gib_ribi() & ribi_t::gib_forward(fahrtrichtung);
-	if(ribi_t::ist_einfach(ribi)  &&  from->get_neighbour(to, road_wt, koord(ribi))) {
-		// we should add here
-		bool add=true;
-		// check, if roadsign forbid next step ...
-		if(to->gib_weg(road_wt)->has_sign()) {
-			const roadsign_besch_t *rs_besch = ((roadsign_t *)to->suche_obj(ding_t::roadsign))->gib_besch();
-			add = (rs_besch->is_traffic_light()  ||  rs_besch->gib_min_speed()<=besch->gib_geschw())  &&  !rs_besch->is_private_way();
-		}
-		if(add) {
-			pos_next = to->gib_pos();
-			fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
-		}
-		else {
-			// turn around
-			fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
-			pos_next = gib_pos();//welt->lookup_kartenboden(gib_pos().gib_2d()+koord(fahrtrichtung))->gib_pos();
-			current_speed = 8;
-			dx = -dx;
-			dy = -dy;
-		}
+	verlasse_feld();
+	if(pos_next_next==gib_pos()) {
+		fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
+		dx = -dx;
+		dy = -dy;
+		current_speed = 16;
 	}
 	else {
-		// add all good ribis here
-		ribi = weg->gib_ribi();
-		for(int r = 0; r < 4; r++) {
-			if(  (ribi&ribi_t::nsow[r])!=0  &&  from->get_neighbour(to, road_wt, koord::nsow[r])) {
-				// check, if this is just a single tile deep
-				weg_t *w=to->gib_weg(road_wt);
-				int next_ribi =  w->gib_ribi();
-				if(!ribi_t::ist_einfach(next_ribi)) {
-					bool add=true;
-					// check, if roadsign forbid next step ...
-					if(w->has_sign()) {
-						const roadsign_besch_t *rs_besch = ((roadsign_t *)to->suche_obj(ding_t::roadsign))->gib_besch();
-						add = (rs_besch->is_traffic_light()  ||  rs_besch->gib_min_speed()<=besch->gib_geschw())  &&  !rs_besch->is_private_way();
-//DBG_MESSAGE("stadtauto_t::hop()","roadsign");
-					}
-					// ok;
-					if(add) {
-#ifdef DESTINATION_CITYCARS
-						unsigned long dist=abs_distance( to->gib_pos().gib_2d(), target );
-						liste.append( to, dist*dist );
-#else
-						liste.append( to, 1 );
-#endif
-					}
-				}
-			}
-		}
-
-		// do not go back if there are other way out
-		if(liste.get_count()>1) {
-			liste.remove( welt->lookup(gib_pos()) );
-		}
-
-		// now we can decide
-		if(liste.get_count()>1) {
-#ifdef DESTINATION_CITYCARS
-			if(target!=koord::invalid) {
-				pos_next = liste.at_weight(simrand(liste.get_sum_weight()))->gib_pos();
-			}
-			else
-#endif
-			{
-				pos_next = liste[simrand(liste.get_count())]->gib_pos();
-			}
-			fahrtrichtung = calc_richtung( gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
-		} else if(liste.get_count()==1) {
-			if(liste[0]->gib_pos()==gib_pos()) {
-				// turn around
-				fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
-				pos_next = gib_pos();//welt->lookup_kartenboden(gib_pos().gib_2d()+koord(fahrtrichtung))->gib_pos();
-				current_speed = 8;
-				dx = -dx;
-				dy = -dy;
-			}
-			else {
-				fahrtrichtung = calc_richtung( gib_pos().gib_2d(), liste[0]->gib_pos().gib_2d(), dx, dy);
-				pos_next = liste[0]->gib_pos();
-			}
-		}
-		else {
-			// nowhere to go: destroy
-			time_to_life = 0;
-			return;
-		}
+		fahrtrichtung = calc_richtung( gib_pos().gib_2d(), pos_next_next.gib_2d(), dx, dy );
+		calc_current_speed();
 	}
-
-	verlasse_feld();
-	setze_pos(from->gib_pos());
-	calc_current_speed();
+	setze_pos(pos_next);
 	calc_bild();
 	betrete_feld();
+	pos_next = pos_next_next;
+	pos_next_next = koord3d::invalid;
 }
 
 
@@ -693,6 +604,106 @@ stadtauto_t::hop()
 bool
 stadtauto_t::hop_check()
 {
+	if(pos_next_next==koord3d::invalid) {
+		// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+		grund_t *from = welt->lookup(pos_next);
+		if(from==NULL) {
+			// nothing to go? => destroy ...
+			time_to_life = 0;
+			return false;
+		}
+
+		grund_t *to;
+
+		static weighted_vector_tpl<grund_t *> liste(4);
+		liste.clear();
+
+		// 1) find the allowed directions
+		const weg_t *weg = from->gib_weg(road_wt);
+		if(weg==NULL) {
+			// nothing to go? => destroy ...
+			time_to_life = 0;
+			return false;
+		}
+
+		// ok, nobody did delete the road in front of us
+		// so we can check for valid directions
+		ribi_t::ribi ribi = weg->gib_ribi() & (~ribi_t::rueckwaerts(fahrtrichtung));
+		if(ribi_t::ist_einfach(ribi)  &&  from->get_neighbour(to, road_wt, koord(ribi))) {
+			// we should add here
+			bool add=true;
+			// check, if roadsign forbid next step ...
+			if(to->gib_weg(road_wt)->has_sign()) {
+				const roadsign_besch_t *rs_besch = ((roadsign_t *)to->suche_obj(ding_t::roadsign))->gib_besch();
+				add = (rs_besch->is_traffic_light()  ||  rs_besch->gib_min_speed()<=besch->gib_geschw())  &&  !rs_besch->is_private_way();
+			}
+			if(add) {
+				pos_next_next = to->gib_pos();
+				fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+			}
+			else {
+				// turn around
+				fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
+				pos_next_next = gib_pos();//welt->lookup_kartenboden(gib_pos().gib_2d()+koord(fahrtrichtung))->gib_pos();
+			}
+		}
+		else {
+			// add all good ribis here
+			ribi = weg->gib_ribi();
+			for(int r = 0; r < 4; r++) {
+				if(  (ribi&ribi_t::nsow[r])!=0  &&  from->get_neighbour(to, road_wt, koord::nsow[r])) {
+					// check, if this is just a single tile deep
+					weg_t *w=to->gib_weg(road_wt);
+					int next_ribi =  w->gib_ribi();
+					if(!ribi_t::ist_einfach(next_ribi)) {
+						bool add=true;
+						// check, if roadsign forbid next step ...
+						if(w->has_sign()) {
+							const roadsign_besch_t *rs_besch = ((roadsign_t *)to->suche_obj(ding_t::roadsign))->gib_besch();
+							add = (rs_besch->is_traffic_light()  ||  rs_besch->gib_min_speed()<=besch->gib_geschw())  &&  !rs_besch->is_private_way();
+	//DBG_MESSAGE("stadtauto_t::hop()","roadsign");
+						}
+						// ok;
+						if(add) {
+#ifdef DESTINATION_CITYCARS
+							unsigned long dist=abs_distance( to->gib_pos().gib_2d(), target );
+							liste.append( to, dist*dist );
+#else
+							liste.append( to, 1 );
+#endif
+						}
+					}
+				}
+			}
+
+			// do not go back if there are other way out
+			if(liste.get_count()>1) {
+				liste.remove( welt->lookup(gib_pos()) );
+			}
+
+			// now we can decide
+			if(liste.get_count()>1) {
+#ifdef DESTINATION_CITYCARS
+				if(target!=koord::invalid) {
+					pos_next_next = liste.at_weight(simrand(liste.get_sum_weight()))->gib_pos();
+				}
+				else
+#endif
+				{
+					pos_next_next = liste[simrand(liste.get_count())]->gib_pos();
+				}
+			} else if(liste.get_count()==1) {
+				pos_next_next = liste[0]->gib_pos();
+			}
+			else {
+				// nowhere to go: destroy
+				time_to_life = 0;
+				return false;
+			}
+		}
+	}
+
+	// now we can check the next points ...
 	if(!ist_weg_frei()) {
 		if(current_speed!=0) {
 			ms_traffic_jam = (3<<welt->ticks_bits_per_tag);
