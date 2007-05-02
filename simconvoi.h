@@ -385,6 +385,12 @@ public:
 	bool is_waiting() { return (state==WAITING_FOR_CLEARANCE)||(state==WAITING_FOR_CLEARANCE_ONE_MONTH);}
 
 	/**
+	* reset state to no error message
+	* @author prissi
+	*/
+	void reset_waiting() { if(state==WAITING_FOR_CLEARANCE_ONE_MONTH) state=WAITING_FOR_CLEARANCE;}
+
+	/**
 	* Das Handle für uns selbst. In Anlehnung an 'this' aber mit
 	* allen checks beim Zugriff.
 	* @author Hanjsörg Malthaner

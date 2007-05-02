@@ -620,8 +620,8 @@ void convoi_t::step()
 
 		case WAITING_FOR_CLEARANCE:
 		case WAITING_FOR_CLEARANCE_ONE_MONTH:
-			// only every fourth step after the first try ...
-			if(akt_speed>=0  ||  (self.get_id()&3)==(welt->gib_steps()&3)) {
+			// only every fourth step after the first try, or we are an airplane, which do not loo nice standing in midair ...
+			if(fahr[0]->gib_waytype()==air_wt  ||  akt_speed>=0  ||  (self.get_id()&3)==(welt->gib_steps()&3)) {
 				int restart_speed=-1;
 				if (fahr[0]->ist_weg_frei(restart_speed)) {
 					state = DRIVING;
@@ -664,6 +664,15 @@ convoi_t::new_month()
 	// check for traffic jam
 	if(state==WAITING_FOR_CLEARANCE) {
 		state = WAITING_FOR_CLEARANCE_ONE_MONTH;
+		// check, if now free ...
+		// migh also reset the state!
+		int restart_speed=-1;
+		if (fahr[0]->ist_weg_frei(restart_speed)) {
+			state = DRIVING;
+		}
+		if(restart_speed>=0) {
+			akt_speed = restart_speed;
+		}
 	}
 	else if(state==WAITING_FOR_CLEARANCE_ONE_MONTH) {
 		gib_besitzer()->bescheid_vehikel_problem(self,koord3d::invalid);

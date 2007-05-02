@@ -1491,8 +1491,8 @@ automobil_t::ist_weg_frei(int &restart_speed)
 
 		// calculate new direction
 		sint8 dx, dy;	// dummies
-		const uint8 next_fahrtrichtung = this->calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
-
+		const uint8 next_fahrtrichtung = this->calc_richtung(pos_prev, pos_next.gib_2d(), dx, dy);
+		const uint8 next_90fahrtrichtung = this->calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
 		bool frei = true;
 
 		// suche vehikel
@@ -1520,10 +1520,15 @@ automobil_t::ist_weg_frei(int &restart_speed)
 				// ok, there is another car ...
 				if(other_fahrtrichtung!=255) {
 
-					if(other_fahrtrichtung==next_fahrtrichtung  ||  other_fahrtrichtung==gib_fahrtrichtung() ) {
+					if(other_fahrtrichtung==next_fahrtrichtung  ||  other_fahrtrichtung==next_90fahrtrichtung  ||  other_fahrtrichtung==gib_fahrtrichtung() ) {
 						// this goes into the same direction as we, so stopp and save a restart speed
 						frei = false;
 						restart_speed = 0;
+						if(cnv  &&  cnv->get_state()==convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH) {
+							if( ((vehikel_basis_t *)dt)->is_stuck() ) {
+								cnv->reset_waiting();
+							}
+						}
 
 					} else if(ribi_t::ist_orthogonal(other_fahrtrichtung,gib_fahrtrichtung() )) {
 
@@ -1539,6 +1544,7 @@ automobil_t::ist_weg_frei(int &restart_speed)
 
 	return true;
 }
+
 
 
 void

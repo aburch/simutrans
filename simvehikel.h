@@ -116,6 +116,9 @@ public:
 
 	virtual waytype_t gib_waytype() const = 0;
 
+	// true, if this vehicle did not moved for some time
+	virtual bool is_stuck() { return true; }
+
 	virtual void betrete_feld();
 
 	virtual void verlasse_feld();
@@ -426,6 +429,9 @@ public:
 	virtual void rdwr(loadsave_t *file, bool force) = 0;
 
 	int calc_restwert() const;
+
+	// true, if this vehicle did not moved for some time
+	virtual bool is_stuck() { return cnv==NULL  ||  cnv->is_waiting(); }
 
 	// this draws a tooltips for things stucked on depot order or lost
 	virtual void display_after(int xpos, int ypos, bool dirty) const;

@@ -125,6 +125,9 @@ public:
 	 */
 	virtual void stadtauto_t::info(cbuffer_t & buf) const;
 
+	// true, if this vehicle did not moved for some time
+	virtual bool is_stuck() { return current_speed==0;}
+
 	/* this function builts the list of the allowed citycars
 	 * it should be called every month and in the beginning of a new game
 	 * @author prissi
