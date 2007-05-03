@@ -42,7 +42,7 @@ int umgebung_t::message_flags[4] =  { 0x017F, 0x0108, 0x0080, 0 };
 
 bool umgebung_t::fussgaenger = true;
 
-long umgebung_t::stadtauto_duration = 31457280;	// ten years
+long umgebung_t::stadtauto_duration = 120;	// ten years
 
 bool umgebung_t::verkehrsteilnehmer_info = false;
 bool umgebung_t::tree_info = true;

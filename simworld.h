@@ -421,7 +421,7 @@ public:
 	uint32 ticks_bits_per_tag;
 
 	/**
-	* anzahl ticks pro tag
+	* anzahl ticks pro MONTH!
 	* @author Hj. Malthaner
 	*/
 	uint32 ticks_per_tag;

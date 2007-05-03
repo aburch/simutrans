@@ -1313,6 +1313,33 @@ void stadt_t::neuer_monat()
 
 	pax_erzeugt = 0;
 	pax_transport = 0;
+
+	if (stadtauto_t::gib_anzahl_besch() > 0) {
+		// spawn eventuall citycars
+		// the more transported, the less are spawned
+		// maximum number per month: number of thousand inhabitants, starting with 1
+		uint16 number_of_cars = (city_history_month[1][HIST_GENERATED]*welt->gib_einstellungen()->gib_verkehr_level())/(city_history_month[1][HIST_TRANSPORTED]+1);
+		number_of_cars = (min(number_of_cars,1000) * last_month_bev)/100000u;
+		number_of_cars = min( 1+(last_month_bev/1000), number_of_cars );
+
+		koord k;
+		koord pos = gib_zufallspunkt();
+		for (k.y = pos.y - 3; k.y < pos.y + 3; k.y++) {
+			for (k.x = pos.x - 3; k.x < pos.x + 3; k.x++) {
+				if(number_of_cars==0) {
+					return;
+				}
+
+				grund_t* gr = welt->lookup(k)->gib_kartenboden();
+				if(gr  &&  gr->gib_weg(road_wt)  &&  ribi_t::ist_gerade(gr->gib_weg_ribi_unmasked(road_wt)) ) {
+					stadtauto_t* vt = new stadtauto_t(welt, gr->gib_pos(), koord::invalid);
+					gr->obj_add(vt);
+					welt->sync_add(vt);
+					number_of_cars--;
+				}
+			}
+		}
+	}
 }
 
 
@@ -2220,10 +2247,6 @@ void stadt_t::renoviere_gebaeude(koord k)
 
 		gebaeude_t* gb = dynamic_cast<gebaeude_t*>(welt->lookup(k)->gib_kartenboden()->first_obj());
 		add_gebaeude_to_stadt(gb);
-
-		// printf("Renovierung mit %d Industrie, %d Gewerbe, %d  Wohnung\n", sum_industrie, sum_gewerbe, sum_wohnung);
-
-		erzeuge_verkehrsteilnehmer(k, h->gib_level(), koord::invalid);
 	}
 }
 

@@ -669,9 +669,13 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%
 				INT_CHECK( "fabrikbauer 702" );
 
 				// now substract current supplier
-				const ding_t * dt = welt->lookup(k.gib_2d())->gib_kartenboden()->obj_bei(0);
-				if(dt) {
+				const ding_t * dt = welt->lookup_kartenboden(k.gib_2d())->obj_bei(0);
+				if(dt  &&  dt) {
 					fabrik_t *fab = dt->get_fabrik();
+					if(fab==NULL) {
+						continue;
+					}
+
 					// connect new supplier to us
 					for(int gg=0;gg<fab->gib_besch()->gib_produkte();gg++) {
 						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware) {
