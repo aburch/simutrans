@@ -7,7 +7,10 @@
 	ADD: more colors for convoi status: WHITE in depot, ORANGE: stuck/no route
 	FIX: readded city car info dialoge ("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i")
 	FIX: speed of convois and city cars was frame rate dependent!
-	FIX: deleting fields
+	FIX: deleting fields with factory
+	CHANGE: vehicle now queue properly even on diagonal roads
+	CHANGE: only the first vehicle in a traffic jam will report traffic jam conditions
+	CHANGE: citycars are now only generated when there are not many passengers transported and the field is question is empty.
 
 
 Release of 99.10

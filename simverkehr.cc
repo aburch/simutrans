@@ -669,7 +669,7 @@ stadtauto_t::hop_check()
 							unsigned long dist=abs_distance( to->gib_pos().gib_2d(), target );
 							liste.append( to, dist*dist );
 #else
-							liste.append( to, 1 );
+							liste.append( to, 1  );
 #endif
 						}
 					}
@@ -690,7 +690,34 @@ stadtauto_t::hop_check()
 				else
 #endif
 				{
-					pos_next_next = liste[simrand(liste.get_count())]->gib_pos();
+#if 0
+					// we are at a crossing
+					// do not enter into a road with stucked vehicles
+					static vector_tpl<grund_t *> ok_gr(4);
+					ok_gr.clear();
+					for( unsigned i = 0;  i<liste.get_count();  i++ ) {
+						grund_t *gr = liste[i];
+						bool ok = true;
+						for(  unsigned j=0;  j<gr->gib_top();  j++  ) {
+							ding_t *dt = gr->obj_bei(j);
+							if(dt  &&  dt->is_moving()  &&  ((vehikel_basis_t *)dt)->is_stuck()) {
+								ok = false;
+								break;
+							}
+						}
+						if(ok) {
+							ok_gr.append( to  );
+						}
+					}
+					// if we can, we avoid entering towards a stuck vehicle
+					if(ok_gr.get_count()>0) {
+						pos_next_next = liste[simrand(ok_gr.get_count())]->gib_pos();
+					}
+					else
+#endif
+					{
+						pos_next_next = liste[simrand(liste.get_count())]->gib_pos();
+					}
 				}
 			} else if(liste.get_count()==1) {
 				pos_next_next = liste[0]->gib_pos();
