@@ -1330,7 +1330,7 @@ void stadt_t::neuer_monat()
 					return;
 				}
 
-				grund_t* gr = welt->lookup(k)->gib_kartenboden();
+				grund_t* gr = welt->lookup_kartenboden(k);
 				if(gr  &&  gr->gib_weg(road_wt)  &&  ribi_t::is_twoway(gr->gib_weg_ribi_unmasked(road_wt))  &&  gr->suche_obj(ding_t::verkehr)==NULL) {
 					stadtauto_t* vt = new stadtauto_t(welt, gr->gib_pos(), koord::invalid);
 					gr->obj_add(vt);
