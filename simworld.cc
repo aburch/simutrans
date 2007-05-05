@@ -2152,11 +2152,18 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 	}
 	else {
 		speichern(&file,silent);
-		file.close();
-		if(!silent) {
-			create_win(-1, -1, 30, new nachrichtenfenster_t(this, "Spielstand wurde\ngespeichert!\n"), w_autodelete);
-			// update the filename, if no autosave
-			einstellungen->setze_filename(filename);
+		const char *success = file.close();
+		if(success) {
+			static char err_str[512];
+			sprintf( err_str, translator::translate("Error during saving:\n%s"), success );
+			create_win(-1, -1, 30, new nachrichtenfenster_t(this, err_str), w_autodelete);
+		}
+		else {
+			if(!silent) {
+				create_win(-1, -1, 30, new nachrichtenfenster_t(this, "Spielstand wurde\ngespeichert!\n"), w_autodelete);
+				// update the filename, if no autosave
+				einstellungen->setze_filename(filename);
+			}
 		}
 	}
 	display_show_load_pointer( false );

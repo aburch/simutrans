@@ -63,7 +63,7 @@ public:
 
 	bool rd_open(const char *filename);
 	bool wr_open(const char *filename, mode_t mode, const char *pak_extension);
-	void close();
+	const char *close();
 
 	static void set_savemode(mode_t mode) { save_mode = mode; }
 	/**

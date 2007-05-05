@@ -8,6 +8,7 @@
 #include "../simtypes.h"
 #include "../simversion.h"
 #include "../simmem.h"
+#include "../simdebug.h"
 #include "loadsave.h"
 
 #include "../utils/simstring.h"
@@ -107,17 +108,28 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 }
 
 
-void loadsave_t::close()
+const char *loadsave_t::close()
 {
+	const char *success = NULL;
 	if(fp != NULL) {
 		if(is_zipped()) {
-			gzclose (fp);
+			int err_no;
+			const char *err_str = gzerror( fp, &err_no );
+			if(err_no!=Z_OK  &&  err_no!=Z_STREAM_END) {
+				success =  err_no==Z_ERRNO ? strerror(errno) : err_str;
+			}
+			gzclose(fp);
 		}
 		else {
+			int err_no =ferror(fp);
 			fclose(fp);
+			if(err_no!=0) {
+				success = strerror(err_no);
+			}
 		}
 		fp = NULL;
 	}
+	return success;
 }
 
 

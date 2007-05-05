@@ -1,3 +1,7 @@
+
+	FIX: explicitely check error codes when saving files
+
+
 Release of 99.11
 
 4-Mai-2007:
