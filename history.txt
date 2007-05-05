@@ -1,5 +1,7 @@
 
 	FIX: explicitely check error codes when saving files
+	FIX: cars now properly turn at road signs
+	ADD: toogle grid now also in the visual settings dialoge "show grid"
 
 
 Release of 99.11

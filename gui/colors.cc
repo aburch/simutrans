@@ -24,35 +24,36 @@
 #include "../utils/simstring.h"
 
 // y coordinates
-#define UNDERGROUND (0*13+6)
-#define DAY_NIGHT (1*13+6)
-#define BRIGHTNESS (2*13+6)
-#define SCROLL_INVERS (3*13+6)
-#define SCROLL_SPEED (4*13+6)
+#define GRID_MODE			(0*13+6)
+#define UNDERGROUND		(1*13+6)
+#define DAY_NIGHT			(2*13+6)
+#define BRIGHTNESS		(3*13+6)
+#define SCROLL_INVERS (4*13+6)
+#define SCROLL_SPEED	(5*13+6)
 
-#define SEPERATE1 (5*13+6)
+#define SEPERATE1 (6*13+6)
 
-#define USE_TRANSPARENCY (5*13+6+4)
-#define HIDE_TREES (6*13+6+4)
-#define HIDE_CITY_HOUSES (7*13+6+4)
-#define HIDE_ALL_HOUSES (8*13+6+4)
+#define USE_TRANSPARENCY	(6*13+6+4)
+#define HIDE_TREES				(7*13+6+4)
+#define HIDE_CITY_HOUSES	(8*13+6+4)
+#define HIDE_ALL_HOUSES		(9*13+6+4)
 
-#define SEPERATE2 (9*13+6+4)
+#define SEPERATE2 (10*13+6+4)
 
-#define USE_TRANSPARENCY_STATIONS (9*13+6+8)
-#define SHOW_STATION_COVERAGE (10*13+6+8)
-#define CITY_WALKER (11*13+6+8)
-#define STOP_WALKER (12*13+6+8)
-#define DENS_TRAFFIC (13*13+6+8)
+#define USE_TRANSPARENCY_STATIONS	(10*13+6+8)
+#define SHOW_STATION_COVERAGE			(11*13+6+8)
+#define CITY_WALKER								(12*13+6+8)
+#define STOP_WALKER								(13*13+6+8)
+#define DENS_TRAFFIC							(14*13+6+8)
 
-#define SEPERATE3 (14*13+6+8)
+#define SEPERATE3	(15*13+6+8)
 
-#define FPS_DATA (14*13+6+12)
-#define IDLE_DATA (15*13+6+12)
-#define FRAME_DATA (16*13+6+12)
-#define LOOP_DATA (17*13+6+12)
+#define FPS_DATA (15*13+6+12)
+#define IDLE_DATA (16*13+6+12)
+#define FRAME_DATA (17*13+6+12)
+#define LOOP_DATA (18*13+6+12)
 
-#define BOTTOM (18*13+6+12+16)
+#define BOTTOM (19*13+6+12+16)
 
 // x coordinates
 #define RIGHT_WIDTH (220)
@@ -139,7 +140,11 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[16].setze_typ(button_t::square_state);
 	buttons[16].setze_text("underground mode");
 
-	for(int i=0;  i<17;  i++ ) {
+	buttons[17].setze_pos( koord(10,GRID_MODE) );
+	buttons[17].setze_typ(button_t::square_state);
+	buttons[17].setze_text("show grid");
+
+	for(int i=0;  i<18;  i++ ) {
 		buttons[i].add_listener(this);
 		add_komponente( buttons+i );
 	}
@@ -222,6 +227,9 @@ color_gui_t::action_triggered(gui_komponente_t *komp, value_t)
 			}
 		}
     welt->setze_dirty();
+	} else if((buttons+17)==komp) {
+		grund_t::toggle_grid();
+		welt->setze_dirty();
 	}
 	welt->setze_dirty();
 	return true;
@@ -243,6 +251,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	buttons[13].pressed = umgebung_t::hide_buildings>1;
 	buttons[15].pressed = umgebung_t::station_coverage_show;
 	buttons[16].pressed = grund_t::underground_mode;
+	buttons[17].pressed = grund_t::show_grid;
 
 	gui_frame_t::zeichnen(pos, gr);
 

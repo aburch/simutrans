@@ -643,8 +643,7 @@ stadtauto_t::hop_check()
 			}
 			else {
 				// turn around
-				fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
-				pos_next_next = gib_pos();//welt->lookup_kartenboden(gib_pos().gib_2d()+koord(fahrtrichtung))->gib_pos();
+				pos_next_next = gib_pos();
 			}
 		}
 		else {

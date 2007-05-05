@@ -77,9 +77,12 @@ protected:
 	 */
 	static ptrhashtable_tpl<grund_t*, grund_info_t*> grund_infos;
 
+public:
+	/** true, when showing a grid
+	 * @author prissi
+	 */
 	static bool show_grid;
 
-public:
 	/* true, when only underground should be visible
 	 * @author kierongreen
 	 */
@@ -198,7 +201,7 @@ public:
 	static void toggle_grid() { grund_t::show_grid = !grund_t::show_grid; }
 
 	/**
-	 * Toggle ground grid display (now only a flag)
+	 * Toggle underground display (now only a flag)
 	 */
 	static void toggle_underground_mode() { grund_t::underground_mode = !grund_t::underground_mode; }
 
