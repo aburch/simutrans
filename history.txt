@@ -2,6 +2,9 @@
 	FIX: explicitely check error codes when saving files
 	FIX: cars now properly turn at road signs
 	ADD: toogle grid now also in the visual settings dialoge "show grid"
+	FIX: road remover fixed
+	FIX: electric engine type was lost after saving
+	CHANGE: UNDO now only denied, if something built on top of that way (including tunnels, bridges, stops, signals, electrifications ...)
 
 
 Release of 99.11

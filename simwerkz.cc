@@ -1789,8 +1789,6 @@ wkz_depot_aux(spieler_t *sp, karte_t *welt, koord pos, const haus_besch_t *besch
 			hausbauer_t::neues_gebaeude( welt, sp, bd->gib_pos(), layout, besch );
 			sp->buche(cost, pos, COST_CONSTRUCTION);
 			welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), karte_t::Z_PLAN,  NO_SOUND, NO_SOUND );
-			// clear undo
-			sp->init_undo( road_wt, 0 );
 			return true;
 		}
 	}

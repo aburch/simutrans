@@ -401,10 +401,6 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 	ribi_t::ribi ribi;
 	weg_t *weg=NULL;	// =NULL to keep compiler happy
 
-	if(sp!=NULL) {
-		sp->init_undo( besch->gib_waytype(), 0 );
-	}
-
 	DBG_MESSAGE("brueckenbauer_t::baue()", "build from %d,%d", pos.x, pos.y);
 	baue_auffahrt(welt, sp, pos, zv, besch, weg_besch );
 

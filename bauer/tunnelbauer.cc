@@ -466,7 +466,6 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
 	if(sp!=NULL) {
 		sp->add_maintenance( -weg_besch->gib_wartung() );
 		sp->add_maintenance( besch->gib_wartung() );
-		sp->init_undo( besch->gib_waytype(), 0 );
 	}
 	cost += besch->gib_preis();
 }

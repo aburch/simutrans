@@ -2758,7 +2758,41 @@ spieler_t::undo()
 		// nothing to UNDO
 		return false;
 	}
-	// try to remove everything last built
+	// check, if we can still do undo
+	for(unsigned short i=0;  i<last_built.get_count();  i++  ) {
+		grund_t* gr = welt->lookup(last_built[i]);
+		if(gr==NULL  ||  gr->gib_typ()!=grund_t::boden) {
+			// well, something was built here ... so no undo
+			last_built.clear();
+			return false;
+		}
+		// we allow only leitung
+		if(gr->obj_count()>0) {
+			bool ok;
+			for( unsigned i=1;  i<gr->gib_top();  i++  ) {
+				switch(gr->obj_bei(i)->gib_typ()) {
+					// these are allowed
+					case ding_t::way:
+					case ding_t::verkehr:
+					case ding_t::fussgaenger:
+					case ding_t::leitung:
+						break;
+					// special case airplane
+					// they can be everywhere, so we allow for everythign but runway undo
+					case ding_t::aircraft:
+						if(undo_type!=air_wt) {
+							break;
+						}
+					// all other are forbidden => no undo any more
+					default:
+						last_built.clear();
+						return false;
+				}
+			}
+		}
+	}
+
+	// ok, now remove everything last built
 	uint32 cost=0;
 	for(unsigned short i=0;  i<last_built.get_count();  i++  ) {
 		grund_t* gr = welt->lookup(last_built[i]);
