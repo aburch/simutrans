@@ -1375,7 +1375,7 @@ bool
 automobil_t::ist_befahrbar(const grund_t *bd) const
 {
 	strasse_t *str=(strasse_t *)bd->gib_weg(road_wt);
-	if(str==NULL || (cnv==NULL  ||  (cnv->needs_electrification()  &&  !str->is_electrified())) ) {
+	if(str==NULL  ||  ((cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type()==vehikel_besch_t::electric)  &&  !str->is_electrified()) ) {
 		return false;
 	}
 	// check for signs
@@ -1776,7 +1776,8 @@ waggon_t::ist_befahrbar(const grund_t *bd) const
 
 	// Hajo: diesel and steam engines can use electrifed track as well.
 	// also allow driving on foreign tracks ...
-	const bool ok = (sch!=0) &&  (sch->is_electrified()  ||  (cnv==NULL  ||  !cnv->needs_electrification() ) );
+	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type()==vehikel_besch_t::electric);
+	bool ok = (sch!=0)  &&  (needs_no_electric  ||  sch->is_electrified());
 
 	if(!ok  ||  !target_halt.is_bound()  ||  !cnv->is_waiting()) {
 		return ok;

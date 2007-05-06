@@ -1223,12 +1223,14 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 
 	koord3d dummy_pos;
-	for(unsigned i=0; i<anz_vehikel; i++) {
-		vehikel_t*& vi = fahr[i];
-		if(file->is_saving()) {
-			vi->rdwr(file, true);
+	if(file->is_saving()) {
+		for(unsigned i=0; i<anz_vehikel; i++) {
+			fahr[i]->rdwr(file, true);
 		}
-		else {
+	}
+	else {
+		is_electric = false;
+		for(unsigned i=0; i<anz_vehikel; i++) {
 			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
 			vehikel_t *v = 0;
 
@@ -1252,7 +1254,6 @@ convoi_t::rdwr(loadsave_t *file)
 			}
 
 			assert(v != 0  &&  v->gib_besch()!=NULL);
-			vi = v;
 
 			const vehikel_besch_t *info = v->gib_besch();
 
@@ -1263,11 +1264,11 @@ convoi_t::rdwr(loadsave_t *file)
 				sum_leistung += info->gib_leistung();
 				sum_gear_und_leistung += info->gib_leistung()*info->get_gear();
 				sum_gewicht += info->gib_gewicht();
+				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 			}
 			else {
 				DBG_MESSAGE("convoi_t::rdwr()","no vehikel info!");
 			}
-
 
 			if(state!=INITIAL) {
 				grund_t *gr;
@@ -1277,17 +1278,20 @@ convoi_t::rdwr(loadsave_t *file)
 					dbg->fatal("convoi_t::rdwr()", "invalid position %s for vehicle %s in state %d (setting to ground %s)", (const char*)k3_to_cstr(v->gib_pos()), v->gib_name(), state, (const char*)k3_to_cstr(gr->gib_pos()));
 				}
 				// add to blockstrecke
-				if (vi->gib_waytype() == track_wt || vi->gib_waytype() == monorail_wt) {
-					schiene_t* sch = (schiene_t*)gr->gib_weg(vi->gib_waytype());
+				if (v->gib_waytype() == track_wt || v->gib_waytype() == monorail_wt) {
+					schiene_t* sch = (schiene_t*)gr->gib_weg(v->gib_waytype());
 					if(sch) {
 						sch->reserve(self);
 					}
 				}
 				gr->obj_add(v);
 			}
+
+			// add to convoi
+			fahr[i] = v;
 		}
+		sum_gesamtgewicht = sum_gewicht;
 	}
-	sum_gesamtgewicht = sum_gewicht;
 
 	bool has_fpl = fpl != NULL;
 	file->rdwr_bool(has_fpl, "");

@@ -149,7 +149,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			break;
 		}
 		sprintf(buf, "inputsupplier[%d]", besch.lieferanten);
-		int supp = obj.get_int(buf, 1);
+		int supp = obj.get_int(buf, 0);
 		sprintf(buf, "inputcapacity[%d]", besch.lieferanten);
 		int cap = obj.get_int(buf, 0);
 		sprintf(buf, "inputfactor[%d]", besch.lieferanten);
