@@ -67,6 +67,10 @@
 #include "../besch/skin_besch.h"
 #include "../dataobj/translator.h"
 
+#ifdef DEBUG_ROUTES
+#include "../simsys.h"
+#endif
+
 
 // built bridges automatically
 //#define AUTOMATIC_BRIDGES 1
@@ -1573,7 +1577,7 @@ long ms=dr_time();
 
 		vector_tpl<koord3d> route2(0);
 		swap(route, route2);
-		long cost = intern_calc_route(start, ziel);
+		long cost = intern_calc_route(ziel, start);
 		INT_CHECK("wegbauer 1165");
 
 		// the ceaper will survive ...

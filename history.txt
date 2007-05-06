@@ -5,6 +5,7 @@
 	FIX: road remover fixed
 	FIX: electric engine type was lost after saving
 	CHANGE: UNDO now only denied, if something built on top of that way (including tunnels, bridges, stops, signals, electrifications ...)
+	FIX: intended two way calculation during building of ways was calculating same route twice instead switching start and endpoints => strange routes could occur
 
 
 Release of 99.11
