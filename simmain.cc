@@ -895,6 +895,7 @@ DBG_MESSAGE("init","map");
 			;
 
 		msg->get_flags(&umgebung_t::message_flags[0], &umgebung_t::message_flags[1], &umgebung_t::message_flags[2], &umgebung_t::message_flags[3]);
+		welt->set_fast_forward(false);
 		delete msg;
 
 	} while (!umgebung_t::testlauf && !umgebung_t::quit_simutrans);
