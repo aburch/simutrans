@@ -63,7 +63,7 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf,
 	char tmp [256];
 
 	if(gr==NULL) {
-		sprintf( tmp, translator::translate("Illegal ground at (%i,%i,%i)"), entry.pos.x, entry.pos.y, entry.pos.z );
+		sprintf( tmp, "%s (%i,%i,%i)", translator::translate("Invalid coordinate"), entry.pos.x, entry.pos.y, entry.pos.z );
 	}
 	else {
 		halthandle_t halt = haltestelle_t::gib_halt(welt, entry.pos);
@@ -107,19 +107,24 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const 
 		return;
 	}
 	const linieneintrag_t& entry = fpl->eintrag[i];
-	halthandle_t halt = haltestelle_t::gib_halt(welt, entry.pos);
+	const grund_t* gr = welt->lookup(entry.pos);
 	const char *p;
-
-	if(halt.is_bound()) {
-		p = halt->gib_name();
+	if(gr==NULL) {
+		p = translator::translate("Invalid coordinate");
 	}
 	else {
-		const grund_t* gr = welt->lookup(entry.pos);
-		if(gr && gr->gib_depot() != NULL) {
-			p = translator::translate("Depot");
+		halthandle_t halt = haltestelle_t::gib_halt(welt, entry.pos);
+
+		if(halt.is_bound()) {
+			p = halt->gib_name();
 		}
 		else {
-			p = translator::translate("Wegpunkt");
+			if(gr->gib_depot() != NULL) {
+				p = translator::translate("Depot");
+			}
+			else {
+				p = translator::translate("Wegpunkt");
+			}
 		}
 	}
 	// finally append

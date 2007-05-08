@@ -6,6 +6,8 @@
 	FIX: electric engine type was lost after saving
 	CHANGE: UNDO now only denied, if something built on top of that way (including tunnels, bridges, stops, signals, electrifications ...)
 	FIX: intended two way calculation during building of ways was calculating same route twice instead switching start and endpoints => strange routes could occur
+	CHANGE: removed second route calculation and put a malus on a turn on the last field
+	CHANGE: default way_double_curve=6 gives better results
 	FIX: after showing bankrupt dialoge, fast forward is switched off
 	FIX: crash, when a schedule had an illegal ground coordinate (new string: "Invalid coordinate")
 

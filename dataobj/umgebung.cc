@@ -159,7 +159,7 @@ sint64 umgebung_t::cst_multiply_remove_field=-500000;
 // costs for the way searcher
 sint32 umgebung_t::way_count_straight=1;
 sint32 umgebung_t::way_count_curve=2;
-sint32 umgebung_t::way_count_double_curve=10;
+sint32 umgebung_t::way_count_double_curve=6;
 sint32 umgebung_t::way_count_90_curve=50;
 sint32 umgebung_t::way_count_slope=10;
 sint32 umgebung_t::way_count_tunnel=8;

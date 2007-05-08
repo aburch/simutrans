@@ -1304,6 +1304,13 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->gib_pos().x,gr->gib_pos().y,g
 			}
 
 			const uint32 new_dist = abs_distance( to->gib_pos().gib_2d(), ziel3d.gib_2d() )*umgebung_t::way_count_straight + abs(to->gib_hoehe()-ziel3d.z)*umgebung_t::way_count_slope;
+
+			// special check for kinks at the end
+			if(new_dist==0  &&  current_dir!=tmp->dir) {
+				// discourage turn on last tile
+				new_g += umgebung_t::way_count_double_curve;
+			}
+
 			if(new_dist<min_dist) {
 				min_dist = new_dist;
 			}
@@ -1575,6 +1582,7 @@ long ms=dr_time();
 			return;
 		}
 
+#ifdef REVERSE_CALC_ROUTE_TOO
 		vector_tpl<koord3d> route2(0);
 		swap(route, route2);
 		long cost = intern_calc_route(ziel, start);
@@ -1584,6 +1592,7 @@ long ms=dr_time();
 		if(cost2<cost  &&  cost>0) {
 			swap(route, route2);
 		}
+#endif
 		max_n = route.get_count() - 1;
 
 	}

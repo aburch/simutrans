@@ -497,6 +497,7 @@ stadtauto_t::ist_weg_frei()
 		if(rs->gib_besch()->is_traffic_light()  &&  (rs->get_dir()&richtung)==0) {
 			fahrtrichtung = richtung;
 			calc_bild();
+			current_speed = 48;
 			// wait here
 			return false;
 		}
