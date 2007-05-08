@@ -59,30 +59,35 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf,
 		return;
 	}
 	const linieneintrag_t& entry = fpl->eintrag[i];
-	halthandle_t halt = haltestelle_t::gib_halt(welt, entry.pos);
+	const grund_t* gr = welt->lookup(entry.pos);
 	char tmp [256];
 
-	if(halt.is_bound()) {
-		if (entry.ladegrad != 0) {
-			sprintf(tmp, "%d%% %s (%d,%d)",
-				entry.ladegrad,
-				halt->gib_name(),
-				entry.pos.x, entry.pos.y);
-		}
-		else {
-			sprintf(tmp, "%s (%d,%d)",
-				halt->gib_name(),
-				entry.pos.x, entry.pos.y);
-		}
+	if(gr==NULL) {
+		sprintf( tmp, translator::translate("Illegal ground at (%i,%i,%i)"), entry.pos.x, entry.pos.y, entry.pos.z );
 	}
 	else {
-		const grund_t* gr = welt->lookup(entry.pos);
+		halthandle_t halt = haltestelle_t::gib_halt(welt, entry.pos);
 
-		if(gr && gr->gib_depot() != NULL) {
-			sprintf(tmp, "%s (%d,%d)", translator::translate("Depot"), entry.pos.x, entry.pos.y);
+		if(halt.is_bound()) {
+			if (entry.ladegrad != 0) {
+				sprintf(tmp, "%d%% %s (%d,%d)",
+					entry.ladegrad,
+					halt->gib_name(),
+					entry.pos.x, entry.pos.y);
+			}
+			else {
+				sprintf(tmp, "%s (%d,%d)",
+					halt->gib_name(),
+					entry.pos.x, entry.pos.y);
+			}
 		}
 		else {
-			sprintf(tmp, "%s (%d,%d)", translator::translate("Wegpunkt"), entry.pos.x, entry.pos.y);
+			if(gr->gib_depot() != NULL) {
+				sprintf(tmp, "%s (%d,%d)", translator::translate("Depot"), entry.pos.x, entry.pos.y);
+			}
+			else {
+				sprintf(tmp, "%s (%d,%d)", translator::translate("Wegpunkt"), entry.pos.x, entry.pos.y);
+			}
 		}
 	}
 	sprintf(tmp+max_chars-4, "...");
