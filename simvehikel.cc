@@ -1309,7 +1309,7 @@ vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 		switch(cnv->get_state()) {
 			case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
 			case convoi_t::CAN_START_ONE_MONTH:
-				sprintf( tooltip_text, translator::translate("Vehicle %s stucked!"), cnv->gib_name() );
+				sprintf( tooltip_text, translator::translate("Vehicle %s is stucked!"), cnv->gib_name() );
 				color = COL_ORANGE;
 				break;
 			case convoi_t::ROUTING_2:

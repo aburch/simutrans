@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "boden/wege/strasse.h"
 #include "boden/grund.h"
@@ -1317,10 +1318,9 @@ void stadt_t::neuer_monat()
 	if (stadtauto_t::gib_anzahl_besch() > 0) {
 		// spawn eventuall citycars
 		// the more transported, the less are spawned
-		// maximum number per month: number of thousand inhabitants, starting with 1
-		uint16 number_of_cars = (city_history_month[1][HIST_GENERATED]*welt->gib_einstellungen()->gib_verkehr_level())/(city_history_month[1][HIST_TRANSPORTED]+1);
-		number_of_cars = (min(number_of_cars,1000) * last_month_bev)/100000u;
-		number_of_cars = min( 1+(last_month_bev/1000), number_of_cars );
+		// with default density (8) for a city with 2000 people (=> ca. 1000 not transported) a car is spawned per month on average
+		double factor = log10((double)city_history_month[1][HIST_GENERATED]-(double)city_history_month[1][HIST_TRANSPORTED]+1.0) * (double)welt->gib_einstellungen()->gib_verkehr_level();
+		uint16 number_of_cars = simrand( ((uint16)factor) )/16;
 
 		koord k;
 		koord pos = gib_zufallspunkt();
