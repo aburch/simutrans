@@ -134,14 +134,13 @@ template<class T> class vector_tpl
 		}
 
 		/** removes element at position */
-		bool remove_at(uint32 pos)
+		void remove_at(uint32 pos)
 		{
-			if (pos < count) {
-				for (uint i = pos; i < count - 1; i++) data[i] = data[i + 1];
-				count--;
-				return true;
+			assert(pos<count);
+			for (uint i = pos; i < count - 1; i++) {
+				data[i] = data[i + 1];
 			}
-			return false;
+			count--;
 		}
 
 		T& operator [](uint i)

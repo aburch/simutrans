@@ -508,7 +508,7 @@ void haltestelle_t::reroute_goods()
 				// check if this good can still reach its destination
 				if(!ware.gib_ziel().is_bound() ||  !ware.gib_zwischenziel().is_bound()) {
 					// remove invalid destinations
-					warray->remove_at(i);
+					warray->remove_at(j);
 					continue;
 				}
 			}
