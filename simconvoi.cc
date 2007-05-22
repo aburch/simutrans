@@ -975,15 +975,6 @@ convoi_t::can_go_alte_richtung()
 		return false;
 	}
 
-#if 0
-	// last stop was a station; to repair broken convoi after length changes
-	// we always rebuilt position after a station
-	if(akt_speed==0) {
-		// however, this may lead to jumping vehicles => better not using this!
-		return false;
-	}
-#endif
-
 	// going backwards? then recalculate all
 	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(fahr[0]->calc_richtung(route.position_bei(0).gib_2d(), route.position_bei(2).gib_2d()));
 //	DBG_MESSAGE("convoi_t::go_alte_richtung()","neu=%i,rwr_neu=%i,alt=%i",neue_richtung_rwr,ribi_t::rueckwaerts(neue_richtung_rwr),alte_richtung);
@@ -1000,7 +991,7 @@ convoi_t::can_go_alte_richtung()
 		const vehikel_t* v = fahr[i];
 
 		length += v->gib_besch()->get_length();
-		if (pred != NULL && abs_distance(v->gib_pos().gib_2d(), pred->gib_pos().gib_2d()) >= 2) {
+		if (pred != NULL && (abs(v->gib_pos().x-pred->gib_pos().x) >= 2  ||  abs(v->gib_pos().y-pred->gib_pos().y) >= 2)) {
 			// ending here is an error!
 			// this is an already broken train => restart
 			dbg->warning("convoi_t::go_alte_richtung()","broken convoy (id %i) found => fixing!",self.get_id());
@@ -1009,7 +1000,7 @@ convoi_t::can_go_alte_richtung()
 		}
 		pred = v;
 	}
-	length = min((length/16)+2,route.gib_max_n()-1);	// maximum length in tiles to check
+	length = min((length/16)+4,route.gib_max_n()-1);	// maximum length in tiles to check
 
 	// we just check, wether we go back (i.e. route tiles other than zero have convoi vehicles on them)
 	for( int index=1;  index<length;  index++ ) {
@@ -1017,7 +1008,7 @@ convoi_t::can_go_alte_richtung()
 		// now check, if we are already here ...
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			if (gr->obj_ist_da(fahr[i])) {
-				// we are turning around => start slowly ...
+				// we are turning around => start slowly and rebuilt train
 				akt_speed = 8;
 				return false;
 			}
@@ -1029,31 +1020,37 @@ convoi_t::can_go_alte_richtung()
 	// we continue our journey; however later cars need also a correct route entry
 	// eventually we need to add their positions to the convois route
 	koord3d pos = fahr[0]->gib_pos();
-	for(i=1; i<anz_vehikel; i++) {
-		const koord3d k = fahr[i]->gib_pos();
-		if(pos != k) {
-			// ok, same => insert and continue
-			route.insert(k);
-			pos = k;
+	assert(pos==route.position_bei(0));
+	for(i=0; i<anz_vehikel; i++) {
+		vehikel_t* v = fahr[i];
+		// eventually add current position to the route
+		if(route.position_bei(0)!=v->gib_pos()) {
+			route.insert(v->gib_pos());
+		}
+		// eventually we need to add also a previous position to this path
+		if(v->gib_besch()->get_length()>8) {
+			if(route.position_bei(0)!=v->gib_pos_prev()) {
+				route.insert(v->gib_pos_prev());
+			}
 		}
 	}
 
 	// since we need the route for every vehicle of this convoi,
-	// we mus set the current route index (instead assuming 1)
+	// we must set the current route index (instead assuming 1)
+	bool ok=false;
 	for(i=0; i<anz_vehikel; i++) {
 		vehikel_t* v = fahr[i];
 
 		// this is such akward, since it takes into account different vehicle length
 		const koord3d vehicle_start_pos = v->gib_pos();
-		bool ok=false;
-		for( int idx=0;  idx<length;  idx++  ) {
+		for( int idx=0;  idx<=length;  idx++  ) {
 			if(route.position_bei(idx)==vehicle_start_pos) {
 				v->neue_fahrt(idx, false);
 				ok = true;
 				break;
 			}
 		}
-		// too short?!?
+		// too short?!? (rather broken then!)
 		if(!ok) {
 			return false;
 		}

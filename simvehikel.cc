@@ -279,13 +279,10 @@ void vehikel_basis_t::fahre()
 	const sint8 neu_xoff = gib_xoff() + gib_dx();
 	const sint8 neu_yoff = gib_yoff() + gib_dy();
 
-	const sint8 li = -16;
-	const sint8 re = 16;
-	const sint8 ob = -8;
-	const sint8 un = 8;
-
 	// want to go to next field and want to step
 	if(is_about_to_hop(neu_xoff,neu_yoff)) {
+
+//		assert(abs(neu_xoff)==16  &&  abs(neu_yoff)==8);
 
 		if( !hop_check() ) {
 			// red signal etc ...
@@ -299,25 +296,8 @@ void vehikel_basis_t::fahre()
 
 		hop();
 
-		int yoff = neu_yoff;
-		int xoff = neu_xoff;
-
-		if (yoff < 0) {
-			yoff = un;
-		}
-		else {
-			yoff = ob;
-		}
-
-		if (xoff < 0) {
-			xoff = re;
-		}
-		else {
-			xoff = li;
-		}
-
-		setze_xoff( xoff );
-		setze_yoff( yoff );
+		setze_xoff( (neu_xoff < 0) ? 16 : -16 );
+		setze_yoff( (neu_yoff < 0) ? 8 : -8 );
 	}
 	else {
 		// driving on the same tile
@@ -581,17 +561,26 @@ vehikel_t::play_sound() const
 void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 {
 	route_index = start_route_index+1;
-	pos_next = cnv->get_route()->position_bei(route_index);
+
 	if(welt->ist_in_kartengrenzen(gib_pos().gib_2d())) {
 		// mark the region after the image as dirty
 		// better not try to twist your brain to follow the retransformation ...
 		mark_image_dirty( gib_bild(), hoff );
 	}
-	setze_pos( cnv->get_route()->position_bei(start_route_index) );
-	pos_prev = gib_pos().gib_2d();
 
-	if(recalc) {
+	if(!recalc) {
+		if(pos_next==gib_pos()) {
+			pos_next = cnv->get_route()->position_bei(route_index);
+		}
+		assert( gib_pos() == cnv->get_route()->position_bei(start_route_index) );
+	}
+	else {
+
 		// recalc directions
+		pos_next = cnv->get_route()->position_bei(route_index);
+		pos_prev = gib_pos();
+		setze_pos( cnv->get_route()->position_bei(start_route_index) );
+
 		alte_fahrtrichtung = fahrtrichtung;
 		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
 		hoff = 0;
@@ -744,7 +733,7 @@ vehikel_t::hop()
 
 	verlasse_feld();
 
-	pos_prev = gib_pos().gib_2d();
+	pos_prev = gib_pos();
 	setze_pos( pos_next );  // naechstes Feld
 	if(route_index<cnv->get_route()->gib_max_n()) {
 		route_index ++;
@@ -754,17 +743,17 @@ vehikel_t::hop()
 
 	// this is a required hack for aircrafts! Aircrafts can turn on a single square, and this confuses the previous calculation!
 	// author: hsiegeln
-	if (pos_prev==pos_next.gib_2d()) {
+	if (pos_prev.gib_2d()==pos_next.gib_2d()) {
 		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
 DBG_MESSAGE("vehikel_t::hop()","reverse dir at route index %d",route_index);
 	}
 	else {
 		if(pos_next!=gib_pos()) {
-			fahrtrichtung = calc_richtung(pos_prev, pos_next.gib_2d(), dx, dy);
+			fahrtrichtung = calc_richtung(pos_prev.gib_2d(), pos_next.gib_2d(), dx, dy);
 		}
 		else if(welt->lookup(pos_next)->is_halt()) {
 			// allow diagonal stops at waypoints but avoid them on halts ...
-			fahrtrichtung = calc_richtung(pos_prev, pos_next.gib_2d(), dx, dy);
+			fahrtrichtung = calc_richtung(pos_prev.gib_2d(), pos_next.gib_2d(), dx, dy);
 		}
 	}
 	calc_bild();
@@ -1056,7 +1045,7 @@ void vehikel_t::sync_step()
 ribi_t::ribi
 vehikel_t::richtung()
 {
-  ribi_t::ribi neu = calc_richtung(pos_prev, pos_next.gib_2d(), dx, dy);
+  ribi_t::ribi neu = calc_richtung(pos_prev.gib_2d(), pos_next.gib_2d());
   if(neu == ribi_t::keine) {
     // sonst ausrichtung des Vehikels beibehalten
     return fahrtrichtung;
@@ -1150,13 +1139,10 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 			cnv = NULL;	// no reservation too
 		}
 	}
-
-	// only 2d now ...
-	koord3d dummy = koord3d(pos_prev,0);
-	dummy.rdwr(file);
-	pos_prev = dummy.gib_2d();
+	pos_prev.rdwr(file);
 
 	if(file->get_version()<=99004) {
+		koord3d dummy;
 		dummy.rdwr(file);	// current pos (is already saved as ding => ignore)
 	}
 	pos_next.rdwr(file);
@@ -1520,7 +1506,7 @@ automobil_t::ist_weg_frei(int &restart_speed)
 		}
 
 		// calculate new direction
-		const uint8 next_fahrtrichtung = calc_richtung(pos_prev, pos_next.gib_2d());
+		const uint8 next_fahrtrichtung = calc_richtung(pos_prev.gib_2d(), pos_next.gib_2d());
 		const uint8 next_90fahrtrichtung = route_index<cnv->get_route()->gib_max_n() ? this->calc_richtung(gib_pos().gib_2d(), cnv->get_route()->position_bei(route_index+1).gib_2d()) : calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d());;
 		bool frei = true;
 

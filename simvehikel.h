@@ -202,18 +202,18 @@ protected:
 	*/
 	uint16 route_index;
 
+	uint16 total_freight;	// since the sum is needed quite often, it is chached
+	slist_tpl<ware_t> fracht;   // liste der gerade transportierten güter
+
+	const vehikel_besch_t *besch;
+
+	convoi_t *cnv;		// != NULL falls das vehikel zu einem Convoi gehoert
+
 	/**
 	* Previous position on our path
 	* @author Hj. Malthaner
 	*/
-	koord pos_prev;
-
-	const vehikel_besch_t *besch;
-
-	slist_tpl<ware_t> fracht;   // liste der gerade transportierten güter
-	uint16 total_freight;	// since the sum is needed quite often, it is chached
-
-	convoi_t *cnv;		// != NULL falls das vehikel zu einem Convoi gehoert
+	koord3d pos_prev;
 
 	bool ist_erstes:1;            // falls vehikel im convoi fährt, geben diese
 	bool ist_letztes:1;           // flags auskunft über die position
@@ -246,6 +246,7 @@ public:
 
 	virtual bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route) { return route->calc_route(welt, start, ziel, this, max_speed ); }
 	const uint16 gib_route_index() const {return route_index;}
+	const koord3d gib_pos_prev() const {return pos_prev;}
 
 	void setze_offsets(int x, int y);
 

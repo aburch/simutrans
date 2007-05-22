@@ -12,6 +12,7 @@
 	FIX: crash, when a schedule had an illegal ground coordinate (new string: "Invalid coordinate")
 	CHANGE: city car generation is now proportional to (log10(generated-transported+1)*density/16) Probability=1.00 mean on average one citycar per month
 	FIX: wrong entry deleted during rerouting (vector_tpl will now assert there)
+	FIX: waypoints work correctly with vehicles longer than 8
 
 
 Release of 99.11
