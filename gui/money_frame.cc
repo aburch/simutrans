@@ -28,7 +28,7 @@
 const char money_frame_t::cost_type[MAX_COST][64] =
 {
   "Construction", "Operation", "New Vehicles", "Revenue",
-  "Maintenance", "Assets", "Cash", "Net Wealth", "Gross Profit", "Ops Profit", "Margin (%)", "Transported"
+  "Maintenance", "Assets", "Cash", "Net Wealth", "Gross Profit", "Ops Profit", "Margin (%)", "Transported", "Powerlines"
 };
 
 const int money_frame_t::cost_type_color[MAX_COST] =
@@ -44,13 +44,14 @@ const int money_frame_t::cost_type_color[MAX_COST] =
 	COL_PROFIT,
 	COL_OPS_PROFIT,
 	COL_MARGIN,
-	COL_TRANSPORTED
+	COL_TRANSPORTED,
+	COL_POWERLINES
 };
 
 const uint8 button_order[MAX_COST] =
 {
 	3, 1, 4, 9, 2, 0, 8,
-	6, 5, 7, 10, 11
+	6, 5, 7, 10, 11, 12
 };
 
 
@@ -236,6 +237,16 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	// Button 11: Transport
 	{
 		int ibutton=button_order[11];
+		filterButtons[ibutton].init(button_t::box, cost_type[ibutton], koord(left+335+100, top+8*BUTTONSPACE-2), koord(120, BUTTONSPACE));
+		filterButtons[ibutton].add_listener(this);
+		filterButtons[ibutton].background = cost_type_color[ibutton];
+		bFilterIsActive[ibutton] = false;
+		add_komponente(filterButtons + ibutton);
+	}
+
+	// Button 12: Powerlines
+	{
+		int ibutton=button_order[12];
 		filterButtons[ibutton].init(button_t::box, cost_type[ibutton], koord(left+335+100, top+8*BUTTONSPACE-2), koord(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background = cost_type_color[ibutton];

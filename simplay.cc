@@ -532,14 +532,14 @@ spieler_t::calc_finance_history()
 
 	finance_history_year[0][COST_NETWEALTH] = finance_history_year[0][COST_ASSETS] + konto;
 	finance_history_year[0][COST_CASH] = konto;
-	finance_history_year[0][COST_OPERATING_PROFIT] = finance_history_year[0][COST_INCOME] + finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE];
+	finance_history_year[0][COST_OPERATING_PROFIT] = finance_history_year[0][COST_INCOME] + finance_history_year[0][COST_POWERLINES] + finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE];
 	sint64 margin_div = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]);
 	if(margin_div<0) { margin_div = -margin_div; }
 	finance_history_year[0][COST_MARGIN] = margin_div!= 0 ? (100*finance_history_year[0][COST_OPERATING_PROFIT]) / margin_div : 0;
 
 	finance_history_month[0][COST_NETWEALTH] = finance_history_month[0][COST_ASSETS] + konto;
 	finance_history_month[0][COST_CASH] = konto;
-	finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE];
+	finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_POWERLINES] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE];
 	margin_div = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]);
 	if(margin_div<0) { margin_div = -margin_div; }
 	finance_history_month[0][COST_MARGIN] = margin_div!= 0 ? (100*finance_history_month[0][COST_OPERATING_PROFIT]) / margin_div : 0;
@@ -2484,9 +2484,22 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 			finance_history_month[month][COST_TRANSPORTED_GOODS] = 0;
 		}
 	}
+	else if (file->get_version() < 99011) {
+		// powerline category missing
+		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
+			for (int cost_type = 0; cost_type<12; cost_type++) {
+				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+			}
+			finance_history_year[year][COST_POWERLINES] = 0;
+		}
+		for (int month = 0;month<MAX_HISTORY_MONTHS;month++) {
+			for (int cost_type = 0; cost_type<12; cost_type++) {
+				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+			}
+			finance_history_month[month][COST_POWERLINES] = 0;
+		}
+	}
 	else {
-//		DBG_MESSAGE("spieler_t::rdwr()","account=%.2f",konto/100.0);
-//		DBG_MESSAGE("spieler_t::rdwr()","account=%.2f",konto/100.0);
 		// most recent savegame version
 		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {

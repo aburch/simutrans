@@ -36,6 +36,8 @@ protected:
 public:
 	static const weg_besch_t *default_schiene;
 
+	static bool show_reservations;
+
 	/**
 	* File loading constructor.
 	* @author Hj. Malthaner
@@ -63,7 +65,7 @@ public:
 	* true, if this rail can be reserved
 	* @author prissi
 	*/
-	bool can_reserve( convoihandle_t c) const { return !reserved.is_bound()  ||  c==reserved; }
+	bool can_reserve(convoihandle_t c) const { return !reserved.is_bound()  ||  c==reserved; }
 
 	/**
 	* true, if this rail can be reserved
@@ -96,6 +98,13 @@ public:
 	convoihandle_t get_reserved_convoi() const {return reserved;}
 
 	void rdwr(loadsave_t *file);
+
+	/**
+	 * if a function return here a value with TRANSPARENT_FLAGS set
+	 * then a transparent outline with the color form the lower 8 Bit is drawn
+	 * @author kierongreen
+	 */
+	virtual PLAYER_COLOR_VAL gib_outline_colour() const { return (show_reservations  &&  reserved.is_bound()) ? TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_RED : 0;}
 };
 
 #endif

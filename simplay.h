@@ -26,20 +26,22 @@
 #include "tpl/vector_tpl.h"
 
 
-#define MAX_COST           12 // Total number of items in array
-
-#define COST_CONSTRUCTION  0 // Construction
-#define COST_VEHICLE_RUN   1 // Vehicle running costs
-#define COST_NEW_VEHICLE   2 // New vehicles
-#define COST_INCOME        3 // Income
-#define COST_MAINTENANCE   4 // Upkeep
-#define COST_ASSETS    5 // value of all vehicles and buildings
-#define COST_CASH          6 // Cash
-#define COST_NETWEALTH     7 // Total Cash + Assets
-#define COST_PROFIT    8 // 3-(0+1+2+4)
-#define COST_OPERATING_PROFIT 9 // 3-(1+4)
-#define COST_MARGIN 10 // 9/(1+4)
-#define COST_TRANSPORTED_GOODS 11// all transported goods
+enum {
+	COST_CONSTRUCTION=0,// Construction
+	COST_VEHICLE_RUN,   // Vehicle running costs
+	COST_NEW_VEHICLE,   // New vehicles
+	COST_INCOME,        // Income
+	COST_MAINTENANCE,   // Upkeep
+	COST_ASSETS,        // value of all vehicles and buildings
+	COST_CASH,          // Cash
+	COST_NETWEALTH,     // Total Cash + Assets
+	COST_PROFIT,        // COST_POWERLINES+COST_INCOME-(COST_CONSTRUCTION+COST_VEHICLE_RUN+COST_NEW_VEHICLE+COST_MAINTENANCE)
+	COST_OPERATING_PROFIT, // COST_POWERLINES+COST_INCOME-(COST_VEHICLE_RUN+COST_MAINTENANCE)
+	COST_MARGIN,        // COST_OPERATING_PROFIT/(COST_VEHICLE_RUN+COST_MAINTENANCE)
+	COST_TRANSPORTED_GOODS, // all transported goods
+	COST_POWERLINES,	  // revenue from the power grid
+	MAX_COST
+};
 #define MAX_HISTORY_YEARS  12 // number of years to keep history
 #define MAX_HISTORY_MONTHS  12 // number of months to keep history
 

@@ -62,6 +62,8 @@
 #include "simdisplay.h"
 #include "simsys.h"
 
+#include "boden/wege/schiene.h"
+
 #include "dings/zeiger.h"
 #include "dings/baum.h"
 #include "dings/signal.h"
@@ -2663,8 +2665,8 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	}
 
 	// make counter for next month
-	ticks %= (karte_t::ticks_per_tag-1);
-	next_month_ticks =(ticks+karte_t::ticks_per_tag) % (karte_t::ticks_per_tag-1);
+	ticks = ticks % karte_t::ticks_per_tag;
+	next_month_ticks = karte_t::ticks_per_tag;
 	letzter_monat %= 12;
 
 	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_bits_per_tag);
@@ -3141,6 +3143,11 @@ karte_t::interactive_event(event_t &ev)
 
 	case 'a':
 	  setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+	    break;
+	case 'b':
+	    sound_play(click_sound);
+	    schiene_t::show_reservations = !schiene_t::show_reservations;
+	    setze_dirty();
 	    break;
 	case 'B':
 	    sound_play(click_sound);

@@ -12,6 +12,9 @@
 #include "../../simworld.h"
 #include "../../simconvoi.h"
 #include "../../simvehikel.h"
+#include "../../simcolor.h"
+#include "../../simgraph.h"
+
 #include "../grund.h"
 
 #include "../../dataobj/loadsave.h"
@@ -27,7 +30,7 @@
 #include "schiene.h"
 
 const weg_besch_t *schiene_t::default_schiene=NULL;
-
+bool schiene_t::show_reservations = false;
 
 schiene_t::schiene_t(karte_t *welt) : weg_t(welt)
 {
@@ -67,6 +70,9 @@ bool
 schiene_t::reserve(convoihandle_t c) {
 	if(can_reserve(c)) {
 		reserved = c;
+		if(schiene_t::show_reservations) {
+			mark_image_dirty(gib_bild(),0);
+		}
 		return true;
 	}
 	// reserve anyway ...
@@ -86,6 +92,9 @@ schiene_t::unreserve(convoihandle_t c)
 	// is this tile reserved by us?
 	if(reserved.is_bound()  &&  reserved==c) {
 		reserved = convoihandle_t();
+		if(schiene_t::show_reservations) {
+			mark_image_dirty(gib_bild(),0);
+		}
 		return true;
 	}
 	return false;
@@ -107,6 +116,9 @@ schiene_t::unreserve(vehikel_t *v)
 	}
 	if(!welt->lookup(gib_pos())->suche_obj(v->gib_typ())) {
 		reserved = convoihandle_t();
+		if(schiene_t::show_reservations) {
+			mark_image_dirty(gib_bild(),0);
+		}
 		return true;
 	}
 	return false;

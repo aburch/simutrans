@@ -1042,7 +1042,7 @@ void win_display_flush(double konto)
 	ticks = wl->gib_zeit_ms();
 
 	// calculate also days if desired
-	const uint32 ticks_this_month = ticks & (wl->ticks_per_tag-1);
+	const uint32 ticks_this_month = ticks % wl->ticks_per_tag;
 	uint32 tage, stunden, minuten;
 	if(umgebung_t::show_month>1) {
 		static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};

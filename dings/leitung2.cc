@@ -570,7 +570,7 @@ senke_t::sync_step(long time)
 
 	int faktor = (16*einkommen+16)/max_einkommen;
 	if(max_einkommen>(2000<<11)) {
-		gib_besitzer()->buche(einkommen >> 11, gib_pos().gib_2d(), COST_INCOME);
+		gib_besitzer()->buche(einkommen >> 11, gib_pos().gib_2d(), COST_POWERLINES);
 		einkommen = 0;
 		max_einkommen = 1;
 	}

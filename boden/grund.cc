@@ -716,16 +716,19 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos) const
 	if(flags&has_way1) {
 		sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
 		display_color_img(obj_bei(0)->gib_bild(), xpos, ynpos, obj_bei(0)->get_player_nr(), true, dirty);
-#ifdef DEBUG_PBS
-		if(dirty  &&  ((weg_t *)obj_bei(0)->gib_waytype()==track_wt)  &&  ((schiene_t *)obj_bei(0))->is_reserved()) {
-			display_fillbox_wh_clip( xpos+get_tile_raster_width()/4-8, ypos+(get_tile_raster_width()*3)/4-8, 16, 16, 0, true);
+		PLAYER_COLOR_VAL pc=obj_bei(0)->gib_outline_colour();
+		if(pc) {
+			display_img_blend(obj_bei(0)->gib_bild(), xpos, ynpos, pc, true, dirty);
 		}
-#endif
 	}
 
 	if(flags&has_way2){
 		sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
 		display_color_img(obj_bei(1)->gib_bild(), xpos, ynpos, obj_bei(1)->get_player_nr(), true, dirty);
+		PLAYER_COLOR_VAL pc=obj_bei(1)->gib_outline_colour();
+		if(pc) {
+			display_img_blend(obj_bei(1)->gib_bild(), xpos, ynpos, pc, true, dirty);
+		}
 	}
 }
 

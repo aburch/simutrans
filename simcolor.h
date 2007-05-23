@@ -89,5 +89,6 @@ typedef unsigned char COLOR_VAL;
 #define COL_WAITING COL_YELLOW
 #define COL_ARRIVED COL_DARK_ORANGE
 #define COL_DEPARTED COL_DARK_YELLOW
+#define COL_POWERLINES (87)
 
 #endif
