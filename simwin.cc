@@ -1043,15 +1043,18 @@ void win_display_flush(double konto)
 
 	// calculate also days if desired
 	const uint32 ticks_this_month = ticks & (wl->ticks_per_tag-1);
-	uint32 tage, stunden4;
+	uint32 tage, stunden, minuten;
 	if(umgebung_t::show_month>1) {
 		static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
-		tage = ((ticks_this_month*tage_per_month[month]) >> wl->ticks_bits_per_tag) + 1;
-		stunden4 = ((ticks_this_month*tage_per_month[month]*96) >> wl->ticks_bits_per_tag)%96;
+		tage = (((sint64)ticks_this_month*tage_per_month[month]) >> wl->ticks_bits_per_tag) + 1;
+		stunden = (((sint64)ticks_this_month*tage_per_month[month]) >> (wl->ticks_bits_per_tag-16));
+		minuten = (((stunden*3) % 8192)*60)/8192;
+		stunden = ((stunden*3) / 8192)%24;
 	}
 	else {
 		tage = 0;
-		stunden4 = (ticks_this_month * 96) >> wl->ticks_bits_per_tag;
+		stunden = (ticks_this_month * 24) >> wl->ticks_bits_per_tag;
+		minuten = ((ticks_this_month * 24 * 60) >> wl->ticks_bits_per_tag)%24;
 	}
 
 	char time [128];
@@ -1064,34 +1067,44 @@ void win_display_flush(double konto)
 	// @author prissi - also show date if desired
 	switch(umgebung_t::show_month) {
 		// german style
-		case 4:	sprintf(time, "%s, %d. %s %d",
+		case 4:	sprintf(time, "%s, %d. %s %d %d:%02dh",
 						translator::translate(seasons[wl->gib_jahreszeit()]),
 						tage,
 						translator::get_month_name(month%12),
-						year
+						year,
+						stunden,
+						minuten
 						);
 					break;
 		// us style
-		case 3:	sprintf(time, "%s, %s %d %d",
+		case 3:	sprintf(time, "%s, %s %d %d %2d:%02d%s",
 						translator::translate(seasons[wl->gib_jahreszeit()]),
 						translator::get_month_name(month%12),
 						tage,
-						year
+						year,
+						stunden%12,
+						minuten,
+						stunden<12 ? "am":"pm"
 						);
 					break;
 		// japanese style
-		case 2:	sprintf(time, "%s, %d/%s/%d",
+		case 2:	sprintf(time, "%s, %d/%s/%d %2d:%02dh",
 						translator::translate(seasons[wl->gib_jahreszeit()]),
 						year,
 						translator::get_month_name(month%12),
-						tage
+						tage,
+						stunden,
+						minuten
 						);
 					break;
 		// just month
-		case 1:	sprintf(time, "%s, %s %d",
+		case 1:	sprintf(time, "%s, %s %d %2d:%02dh",
 						translator::get_month_name(month%12),
 						translator::translate(seasons[wl->gib_jahreszeit()]),
-						year);
+						year,
+						stunden,
+						minuten
+						);
 					break;
 		// just only season
 		default:	sprintf(time, "%s %d",
@@ -1099,6 +1112,7 @@ void win_display_flush(double konto)
 						year);
 					break;
 		}
+
 		// time multiplier text
 		if(wl->is_fast_forward()) {
 			sprintf(stretch_text, ">> (T~%1.2f)", wl->gib_simloops()/50.0 );
@@ -1119,7 +1133,7 @@ void win_display_flush(double konto)
 	const char *active_player_name = wl->get_active_player()->get_player_nr()==0 ? "" : wl->get_active_player()->gib_name();
 	// season icon
 	image_id season_img = skinverwaltung_t::seasons_icons ? skinverwaltung_t::seasons_icons->gib_bild_nr(wl->gib_jahreszeit()) : IMG_LEER;
-	display_flush(season_img, stunden4, konto, time, info, active_player_name, wl->get_active_player()->get_player_color1());
+	display_flush(season_img, konto, time, info, active_player_name, wl->get_active_player()->get_player_color1());
 }
 
 void win_setze_welt(karte_t *welt)

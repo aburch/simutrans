@@ -249,7 +249,7 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 
 			if(is_display_init()) {
 				display_progress((y*16)/gib_groesse_y(), display_total);
-				display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+				display_flush(IMG_LEER, 0, "", "", 0, 0);
 			}
 		}
 
@@ -303,7 +303,7 @@ karte_t::calc_hoehe_mit_perlin()
 
 		if(is_display_init()) {
 			display_progress((y*16)/gib_groesse_y(), display_total);
-			display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+			display_flush(IMG_LEER, 0, "", "", 0, 0);
 		}
 		else {
 			printf("X");fflush(NULL);
@@ -690,7 +690,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 			// the growth is slow, so update here the progress bar
 			if(is_display_init()) {
 				display_progress(16+i*2, max_display_progress);
-				display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+				display_flush(IMG_LEER, 0, "", "", 0, 0);
 			}
 			else {
 				printf("*");fflush(NULL);
@@ -748,7 +748,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 					int progress_count = 16+einstellungen->gib_anzahl_staedte()*2+ (count*einstellungen->gib_anzahl_staedte()*2)/max_count;
 					if(old_progress_count!=progress_count) {
 						display_progress(progress_count, max_display_progress );
-						display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+						display_flush(IMG_LEER, 0, "", "", 0, 0);
 						old_progress_count = progress_count;
 					}
 				}
@@ -1856,12 +1856,28 @@ DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
 void
 karte_t::step()
 {
+	// first: check for new month
+	if(ticks > next_month_ticks) {
+
+		next_month_ticks += karte_t::ticks_per_tag;
+
+		// avoid overflow here ...
+		if(ticks>next_month_ticks) {
+			ticks %= karte_t::ticks_per_tag;
+			ticks += karte_t::ticks_per_tag;
+			next_month_ticks = ticks+karte_t::ticks_per_tag;
+			last_step_ticks %= karte_t::ticks_per_tag;
+		}
+
+		neuer_monat();
+	}
+
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step");
 
 	const long delta_t = (long)ticks-(long)last_step_ticks;
 	// needs plausibility check?!?
-	if(delta_t<0  ||  delta_t>10000) {
+	if(delta_t>10000  || delta_t<0) {
 		last_step_ticks = ticks;
 		return;
 	}
@@ -1903,19 +1919,6 @@ karte_t::step()
 
 	if((steps%8)==0) {
 		check_midi();
-	}
-
-	if(ticks > next_month_ticks) {
-
-		next_month_ticks += karte_t::ticks_per_tag;
-
-		// avoid overflow here ...
-		if(ticks>next_month_ticks) {
-			ticks %= karte_t::ticks_per_tag;
-			next_month_ticks = ticks+karte_t::ticks_per_tag;
-		}
-
-		neuer_monat();
 	}
 
 	// will also call all objects if needed ...
@@ -2178,7 +2181,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	if(!silent) {
 		display_set_progress_text(translator::translate("Saving map ..."));
 		display_progress(0,gib_groesse_y());
-		display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+		display_flush(IMG_LEER, 0, "", "", 0, 0);
 	}
 
 	einstellungen->rdwr(file);
@@ -2204,7 +2207,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities ok");
 		}
 		else {
 			display_progress(j, gib_groesse_y());
-			display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+			display_flush(IMG_LEER, 0, "", "", 0, 0);
 		}
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
@@ -2319,7 +2322,7 @@ void karte_t::laden(loadsave_t *file)
 
 	display_set_progress_text(translator::translate("Loading map ..."));
 	display_progress(0, 100);	// does not matter, since fixed width
-	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+	display_flush(IMG_LEER, 0, "", "", 0, 0);
 
 	destroy();
 
@@ -2412,7 +2415,7 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte()
 			access(x, y)->rdwr(this, file);
 		}
 		display_progress(y, gib_groesse_y()+stadt.get_count()+256);
-		display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+		display_flush(IMG_LEER, 0, "", "", 0, 0);
 	}
 
 DBG_MESSAGE("karte_t::laden()","loading grid");
@@ -2478,7 +2481,7 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 		}
 		if(i&7) {
 			display_progress(gib_groesse_y()+(24*i)/fabs, gib_groesse_y()+stadt.get_count()+256);
-			display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+			display_flush(IMG_LEER, 0, "", "", 0, 0);
 		}
 	}
 
@@ -2497,7 +2500,7 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 		}
 	}
 	display_progress(gib_groesse_y()+24, gib_groesse_y()+256+stadt.get_count());
-	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+	display_flush(IMG_LEER, 0, "", "", 0, 0);
 
 DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 
@@ -2506,7 +2509,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 	for (uint i = 0; i < stadt.get_count(); i++) {
 		stadt[i]->laden_abschliessen();
 		display_progress(gib_groesse_y()+24+i, gib_groesse_y()+256+stadt.get_count());
-		display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+		display_flush(IMG_LEER, 0, "", "", 0, 0);
 	}
 
 	// must resort them ...
@@ -2578,14 +2581,14 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 	}
 
 	display_progress(gib_groesse_y()+24+stadt.get_count(), gib_groesse_y()+256+stadt.get_count());
-	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+	display_flush(IMG_LEER, 0, "", "", 0, 0);
 DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_count());
 
 	// jetzt können die spieler geladen werden
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		spieler[i]->rdwr(file);
 		display_progress(gib_groesse_y()+24+stadt.get_count()+(i*3), gib_groesse_y()+256+stadt.get_count());
-		display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+		display_flush(IMG_LEER, 0, "", "", 0, 0);
 	}
 	for(int i=0; i<MAX_PLAYER_COUNT-2; i++) {
 		umgebung_t::automaten[i] = spieler[i+2]->is_active();
@@ -2625,7 +2628,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 			}
 		}
 		display_progress(gib_groesse_y()+48+stadt.get_count()+(y*176)/gib_groesse_y(), gib_groesse_y()+256+stadt.get_count());
-		display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+		display_flush(IMG_LEER, 0, "", "", 0, 0);
 	}
 
 	// assing lines and other stuff for convois
@@ -2659,23 +2662,12 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 		spieler[i]->laden_abschliessen();
 	}
 
-	// just keep the record for the last 12 years ... to allow infite long games
-	while(ticks>(288u << karte_t::ticks_bits_per_tag)) {
-		ticks -= (144u << karte_t::ticks_bits_per_tag);
-	}
-	// get the number of year (12 is the longest history we got
-	if(ticks > (144u << karte_t::ticks_bits_per_tag)) {
-		basis_jahr = letztes_jahr-12;
-	}
-	else {
-		basis_jahr =  letztes_jahr-(ticks/(12 << karte_t::ticks_bits_per_tag));
-	}
-
 	// make counter for next month
-	next_month_ticks =(ticks+karte_t::ticks_per_tag) & (~(karte_t::ticks_per_tag-1));
+	ticks %= (karte_t::ticks_per_tag-1);
+	next_month_ticks =(ticks+karte_t::ticks_per_tag) % (karte_t::ticks_per_tag-1);
 	letzter_monat %= 12;
 
-	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, base year %i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,basis_jahr,next_month_ticks,ticks,karte_t::ticks_bits_per_tag);
+	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_bits_per_tag);
 
 	recalc_snowline();
 	setze_dirty();
@@ -2837,12 +2829,13 @@ karte_t::reset_timer()
 
 
 // jump one year ahead
+// (not updating history!)
 void
 karte_t::step_year()
 {
 	DBG_MESSAGE("karte_t::step_year()","called");
-	ticks += 12*karte_t::ticks_per_tag;
-	next_month_ticks += 12*karte_t::ticks_per_tag;
+//	ticks += 12*karte_t::ticks_per_tag;
+//	next_month_ticks += 12*karte_t::ticks_per_tag;
 	current_month += 12;
 	letztes_jahr ++;
 	reset_timer();

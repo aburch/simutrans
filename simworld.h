@@ -282,7 +282,6 @@ private:
 	sint32 current_month;	// monat+12*jahr
 	sint32 letzter_monat;  // Absoluter Monat 0..12
 	sint32 letztes_jahr;   // Absolutes Jahr
-	sint32 basis_jahr;   // Jahr ab dem die ticks zählen
 
 	uint8 season;	// current season
 
@@ -323,9 +322,6 @@ public:
 
 	// @author hsiegeln
 	inline sint32 get_last_year() { return letztes_jahr; }
-
-	// @author hsiegeln
-	inline sint32 get_base_year() { return basis_jahr; }
 
 	/**
 	 * dirty: redraw whole screen

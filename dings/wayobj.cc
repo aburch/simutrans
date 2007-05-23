@@ -383,7 +383,7 @@ DBG_DEBUG("wayobj_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
 				sprintf(buf, "%s, %ld$ (%ld$), %dkm/h",
 					translator::translate(besch->gib_name()),
 					besch->gib_preis()/-100l,
-					(besch->gib_wartung()<<(welt->ticks_bits_per_tag-18))/100l,
+					(besch->gib_wartung()<<(welt->ticks_bits_per_tag-18l))/100l,
 					besch->gib_topspeed());
 
 				wzw->add_param_tool(werkzeug,

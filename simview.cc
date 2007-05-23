@@ -78,12 +78,12 @@ karte_ansicht_t::display(bool force_dirty)
 	}
 	else {
 		uint32 stunden4;
-		const uint32 ticks_this_month = welt->gib_zeit_ms() & (welt->ticks_per_tag-1);
+		const uint32 ticks_this_month = welt->gib_zeit_ms() & ((1<<welt->ticks_bits_per_tag)-1);
 		if(umgebung_t::show_month>1) {
 			static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
-			stunden4 = ((ticks_this_month*tage_per_month[welt->get_last_month()]*96) >> welt->ticks_bits_per_tag)%96;
+			stunden4 = ((ticks_this_month*tage_per_month[welt->get_last_month()]*96l) >> welt->ticks_bits_per_tag)%96l;
 		} else {
-			stunden4 = (ticks_this_month * 96) >> welt->ticks_bits_per_tag;
+			stunden4 = (ticks_this_month * 96l) >> welt->ticks_bits_per_tag;
 		}
 		display_day_night_shift(hours2night[stunden4>>1]);
 	}

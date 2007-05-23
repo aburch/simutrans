@@ -388,7 +388,7 @@ void fabrikbauer_t::verteile_industrie(karte_t* welt, int max_number_of_factorie
 
 		      if(is_display_init()) {
 			    display_progress(display_offset + current_number, display_total);
-				display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+				display_flush(IMG_LEER, 0, "", "", 0, 0);
 			}
 		}
 	}

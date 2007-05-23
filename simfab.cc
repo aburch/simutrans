@@ -1168,7 +1168,7 @@ void fabrik_t::info(cbuffer_t & buf)
 	buf.append(":\n");
 	buf.append(translator::translate("Durchsatz"));
 	buf.append(" ");
-	buf.append( (prodbase * prodfaktor * 16)>>(26-umgebung_t::bits_per_month));
+	buf.append( (prodbase * prodfaktor * 16l)>>(26l-(long)welt->ticks_bits_per_tag));
 	buf.append(" ");
 	buf.append(translator::translate("units/day"));
 	buf.append("\n");
