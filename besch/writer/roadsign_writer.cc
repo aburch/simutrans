@@ -25,7 +25,8 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		(obj.get_int("is_signal",     0) > 0) *  8 +
 		(obj.get_int("is_presignal",  0) > 0) * 16 +
 		(obj.get_int("no_foreground",  0) > 0) * 32 +
-		(obj.get_int("is_longblocksignal", 0) > 0) * 64;
+		(obj.get_int("is_longblocksignal", 0) > 0) * 64 +
+		(obj.get_int("end_of_choose", 0) > 0) * 128;
 	besch.wtyp =  get_waytype(obj.get("waytype"));
 
 	// Hajo: temp vars of appropriate size

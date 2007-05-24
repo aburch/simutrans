@@ -17,6 +17,7 @@
 	ADD: powerline category to money dialoge (and cleaned up, new string: This Month), also add headquarter to the dialoge
 	FIX: powerline did not cost any maintainnance (in simuconf.tab: cost_transformer=2500 and cost_maintain_transformer=100)
 	ADD: b shows/hides reserved rails
+	ADD: new roadsing type 'end_of_choose' to limit the range of free_route sings/signals
 
 
 Release of 99.11

@@ -264,17 +264,24 @@ void weg_t::info(cbuffer_t & buf) const
 void
 weg_t::count_sign()
 {
-	flags &= ~HAS_SIGN;
+	// Either only sign or signal please ...
+	flags &= ~(HAS_SIGN|HAS_SIGNAL);
 	const grund_t *gr=welt->lookup(gib_pos());
 	if(gr) {
-		const ding_t::typ type=(gib_waytype()==track_wt  ||  gib_waytype()==monorail_wt) ? ding_t::signal : ding_t::roadsign;
 		for( uint8 i=0;  i<gr->gib_top();  i++  ) {
 			ding_t *d=gr->obj_bei(i);
 			// sign for us?
-			if(d  &&  d->gib_typ()==type  &&  ((roadsign_t*)d)->gib_besch()->gib_wtyp()==gib_besch()->gib_wtyp()) {
-				// here is a sign ...
-				flags |= HAS_SIGN;
-				return;
+			if(d) {
+				if(d->gib_typ()==ding_t::roadsign  &&  ((roadsign_t*)d)->gib_besch()->gib_wtyp()==gib_besch()->gib_wtyp()) {
+					// here is a sign ...
+					flags |= HAS_SIGN;
+					return;
+				}
+				if(d->gib_typ()==ding_t::signal  &&  ((signal_t*)d)->gib_besch()->gib_wtyp()==gib_besch()->gib_wtyp()) {
+					// here is a signal ...
+					flags |= HAS_SIGNAL;
+					return;
+				}
 			}
 		}
 	}

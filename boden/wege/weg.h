@@ -58,7 +58,7 @@ public:
 	*/
 	static const slist_tpl <weg_t *> & gib_alle_wege();
 
-	enum { HAS_WALKWAY=1, IS_ELECTRIFIED=2, HAS_SIGN=4, HAS_WAYOBJ=8 };
+	enum { HAS_WALKWAY=1, IS_ELECTRIFIED=2, HAS_SIGN=4, HAS_SIGNAL=8, HAS_WAYOBJ=16 };
 
 	enum system_type { type_flat=0, type_elevated=1, type_tram=7, type_all=255 };
 
@@ -253,6 +253,7 @@ public:
 
 	void count_sign();
 	inline bool has_sign() const {return flags&HAS_SIGN; }
+	inline bool has_signal() const {return flags&HAS_SIGNAL; }
 	inline bool has_wayobj() const {return flags&HAS_WAYOBJ; }
 
 	inline void setze_bild( image_id b ) { bild = b; }

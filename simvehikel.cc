@@ -1371,6 +1371,10 @@ automobil_t::ist_befahrbar(const grund_t *bd) const
 			if(rs->gib_besch()->gib_min_speed()>0  &&  rs->gib_besch()->gib_min_speed()>kmh_to_speed(gib_besch()->gib_geschw())) {
 				return false;
 			}
+			// do not search further for a free stop beyond here
+			if(target_halt.is_bound()  &&  cnv->is_waiting()  &&  rs->gib_besch()->get_flags()&roadsign_besch_t::END_OF_CHOOSE_AREA) {
+				return false;
+			}
 		}
 	}
 	return true;
@@ -1725,7 +1729,7 @@ DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_rou
 							if(sch==NULL) {
 								break;
 							}
-							if(sch->has_sign()) {
+							if(sch->has_signal()) {
 								next_signal_index = i+1;
 								break;
 							}
@@ -1774,6 +1778,13 @@ waggon_t::ist_befahrbar(const grund_t *bd) const
 		if(bd->gib_pos()==gib_pos()) {
 			return true;
 		}
+		// we cannot pass an end of choose area
+		if(sch->has_sign()) {
+			roadsign_t *rs = (roadsign_t *)(bd->suche_obj(ding_t::roadsign));
+			if(rs->gib_besch()->gib_wtyp()==gib_waytype()  &&  rs->gib_besch()->get_flags()&roadsign_besch_t::END_OF_CHOOSE_AREA) {
+				return false;
+			}
+		}
 		// but we can only use empty blocks ...
 		// now check, if we could enter here
 		return sch->can_reserve(cnv->self);
@@ -1809,12 +1820,9 @@ signal_t *
 waggon_t::ist_blockwechsel(koord3d k2) const
 {
 	const schiene_t * sch1 = (const schiene_t *) welt->lookup( k2 )->gib_weg(gib_waytype());
-	if(sch1  &&  sch1->has_sign()) {
-		signal_t *sig=(signal_t *)welt->lookup(k2)->suche_obj(ding_t::signal);
-		if(sig) {
-			// a signal for us
-			return sig;
-		}
+	if(sch1  &&  sch1->has_signal()) {
+		// a signal for us
+		return (signal_t *)welt->lookup(k2)->suche_obj(ding_t::signal);
 	}
 	return NULL;
 }
@@ -1911,7 +1919,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 							koord3d pos = target_rt.position_bei(i);
 							grund_t *gr = welt->lookup(pos);
 							schiene_t * sch1 = gr ? (schiene_t *)gr->gib_weg(gib_waytype()) : NULL;
-							if(sch1 && sch1->has_sign()) {
+							if(sch1 && sch1->has_signal()) {
 								next_stop = block_reserver(cnv->get_route(),next_block+1,0,true);
 								if(next_stop > 0) {
 									// we should be able to always get reservation to next station - since we've already checked
@@ -2080,7 +2088,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 		}
 #endif
 		if(reserve) {
-			if(sch1->has_sign()) {
+			if(sch1->has_signal()) {
 				if(count) {
 					signs.append(gr);
 				}
@@ -2096,7 +2104,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 				// reached an reserved or free track => finished
 				return 65535;
 			}
-			if(sch1->has_sign()) {
+			if(sch1->has_signal()) {
 				signal_t *signal = (signal_t *)(gr->suche_obj(ding_t::signal));
 				if(signal) {
 					signal->setze_zustand(roadsign_t::rot);
@@ -2156,7 +2164,7 @@ waggon_t::verlasse_feld()
 			sch0->unreserve(this);
 			// tell next signal?
 			// and swith to red
-			if(sch0->has_sign()) {
+			if(sch0->has_signal()) {
 				signal_t *sig=(signal_t*)welt->lookup(gib_pos())->suche_obj(ding_t::signal);
 				if(sig) {
 					sig->setze_zustand(roadsign_t::rot);

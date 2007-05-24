@@ -60,7 +60,7 @@ private:
 	uint16 obsolete_date;
 
 public:
-	enum types {ONE_WAY=1, FREE_ROUTE=2, PRIVATE_ROAD=4, SIGN_SIGNAL=8, SIGN_PRE_SIGNAL=16, ONLY_BACKIMAGE=32, SIGN_LONGBLOCK_SIGNAL=64 };
+	enum types {ONE_WAY=1, FREE_ROUTE=2, PRIVATE_ROAD=4, SIGN_SIGNAL=8, SIGN_PRE_SIGNAL=16, ONLY_BACKIMAGE=32, SIGN_LONGBLOCK_SIGNAL=64, END_OF_CHOOSE_AREA=128 };
 
 	int gib_bild_nr(ribi_t::dir dir) const
 	{
@@ -100,6 +100,8 @@ public:
 
 	//  return true for single track section signal
 	bool is_longblock_signal() const { return flags&SIGN_LONGBLOCK_SIGNAL; }
+
+	bool is_signal_type() const { return (flags&(SIGN_SIGNAL|SIGN_PRE_SIGNAL|SIGN_LONGBLOCK_SIGNAL))!=0; }
 
 	uint8 get_flags() const { return flags; }
 

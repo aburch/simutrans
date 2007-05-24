@@ -1656,7 +1656,7 @@ int wkz_roadsign(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 			ribi_t::ribi dir = weg->gib_ribi_unmasked();
 
 			const bool two_way = besch->is_single_way()  ||  besch->is_signal() ||  besch->is_pre_signal();
-			const ding_t::typ typ = (besch->is_signal() ||  besch->is_pre_signal()) ? ding_t::signal : ding_t::roadsign;
+			const ding_t::typ typ = besch->is_signal_type() ? ding_t::signal : ding_t::roadsign;
 
 			if(ribi_t::doppelt(dir)  ||  (two_way  &&  ribi_t::is_twoway(dir))  ||  (besch->is_traffic_light()  &&  ribi_t::is_threeway(dir))) {
 
