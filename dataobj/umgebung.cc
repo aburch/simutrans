@@ -155,6 +155,9 @@ sint64 umgebung_t::cst_multiply_found_industry=-2000000;
 sint64 umgebung_t::cst_remove_tree=-10000;
 sint64 umgebung_t::cst_multiply_remove_haus=-100000;
 sint64 umgebung_t::cst_multiply_remove_field=-500000;
+// cost for transformers
+sint64 umgebung_t::cst_transformer=-250000;
+sint64 umgebung_t::cst_maintain_transformer=-2000;
 
 // costs for the way searcher
 sint32 umgebung_t::way_count_straight=1;

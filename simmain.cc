@@ -298,6 +298,9 @@ parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &ful
 	umgebung_t::cst_remove_tree = contents.get_int("cost_remove_tree", umgebung_t::cst_remove_tree/(-100) ) * -100;
 	umgebung_t::cst_multiply_remove_haus = contents.get_int("cost_multiply_remove_haus", umgebung_t::cst_multiply_remove_haus/(-100) ) * -100;
 	umgebung_t::cst_multiply_remove_field = contents.get_int("cost_multiply_remove_field", umgebung_t::cst_multiply_remove_field/(-100) ) * -100;
+	// powerlines
+	umgebung_t::cst_transformer = contents.get_int("cost_transformer", umgebung_t::cst_transformer/(-100) ) * -100;
+	umgebung_t::cst_maintain_transformer = contents.get_int("cost_maintain_transformer", umgebung_t::cst_maintain_transformer/(-100) ) * -100;
 
 	/* now the way builder */
 	umgebung_t::way_count_straight = contents.get_int("way_straight", umgebung_t::way_count_straight);

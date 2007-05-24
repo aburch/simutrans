@@ -14,6 +14,9 @@
 	FIX: wrong entry deleted during rerouting (vector_tpl will now assert there)
 	FIX: waypoints work correctly with vehicles longer than 8
 	CHANGE: bits per month setting should now work up to 29, minutes are now displayed
+	ADD: powerline category to money dialoge (and cleaned up, new string: This Month), also add headquarter to the dialoge
+	FIX: powerline did not cost any maintainnance (in simuconf.tab: cost_transformer=2500 and cost_maintain_transformer=100)
+	ADD: b shows/hides reserved rails
 
 
 Release of 99.11

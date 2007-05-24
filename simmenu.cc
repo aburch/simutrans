@@ -807,6 +807,15 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				translator::translate("Plant tree"));
 
 			if(wegbauer_t::leitung_besch) {
+				char buf[128];
+				const sint32 shift_maintanance = (welt->ticks_bits_per_tag-18);
+
+				sprintf(buf, "%s, %ld$ (%ld$)",
+					translator::translate("Build powerline"),
+					wegbauer_t::leitung_besch->gib_preis()/100l,
+					(wegbauer_t::leitung_besch->gib_wartung()<<shift_maintanance)/100l
+					);
+
 				wzw->add_param_tool(wkz_wegebau,
 					(const void *)wegbauer_t::leitung_besch,
 					karte_t::Z_PLAN,
@@ -814,7 +823,14 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_FAILURE,
 					wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(1),
 					wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(0),
-					tool_tip_with_price(translator::translate("Build powerline"), -wegbauer_t::leitung_besch->gib_preis()));
+					buf
+					);
+
+				sprintf(buf, "%s, %ld$ (%ld$)",
+					translator::translate("Build drain"),
+					(long)(umgebung_t::cst_transformer/-100l),
+					(long)(umgebung_t::cst_maintain_transformer<<shift_maintanance)/-100l
+					);
 
 				wzw->add_tool(wkz_senke,
 					karte_t::Z_PLAN,
@@ -822,7 +838,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_FAILURE,
 					skinverwaltung_t::special_werkzeug->gib_bild_nr(2),
 					skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
-					translator::translate("Build drain"));
+					buf);
 			}
 
 			wzw->add_tool(wkz_marker,

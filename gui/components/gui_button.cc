@@ -254,8 +254,13 @@ button_t::setze_text(const char * text)
  */
 void button_t::set_tooltip(const char * t)
 {
-	tooltip = t;
-	translated_tooltip = b_no_translate ? tooltip : translator::translate(tooltip);
+	if(t==NULL) {
+		translated_tooltip = tooltip = NULL;
+	}
+	else {
+		tooltip = t;
+		translated_tooltip = b_no_translate ? tooltip : translator::translate(tooltip);
+	}
 }
 
 

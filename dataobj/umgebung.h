@@ -291,6 +291,8 @@ public:
 	static sint64 cst_remove_tree;
 	static sint64 cst_multiply_remove_haus;
 	static sint64 cst_multiply_remove_field;
+	static sint64 cst_transformer;
+	static sint64 cst_maintain_transformer;
 
 	// costs for the way searcher
 	static sint32 way_count_straight;

@@ -18,6 +18,7 @@
 #include "components/gui_label.h"
 #include "components/gui_tab_panel.h"
 #include "components/gui_chart.h"
+#include "components/gui_world_view_t.h"
 
 /**
  * Finances dialog
@@ -42,6 +43,7 @@ private:
 	gui_label_t imoney;
 	gui_label_t tmoney;
 	gui_label_t mmoney;
+	gui_label_t pmoney;
 	gui_label_t omoney;
 
 	gui_label_t old_conmoney;
@@ -50,6 +52,7 @@ private:
 	gui_label_t old_imoney;
 	gui_label_t old_tmoney;
 	gui_label_t old_mmoney;
+	gui_label_t old_pmoney;
 	gui_label_t old_omoney;
 
 	gui_label_t tylabel2; // this year, right column
@@ -58,14 +61,12 @@ private:
 	gui_label_t vtmoney;
 	gui_label_t money;
 	gui_label_t margin;
+	gui_label_t transport, old_transport;
 
 	gui_label_t maintenance_label;
 	gui_label_t maintenance_money;
 
 	gui_label_t warn;
-
-	// Hajo: each label needs its own buffer
-	char str_buf[20][80];
 
 	/**
 	 * fills buffer (char array) with finance info
@@ -93,6 +94,10 @@ private:
 	static char digit[4];
 	gui_tab_panel_t year_month_tabs;
 
+	button_t headquarter, goto_headquarter;
+	char headquarter_tooltip[128];
+	world_view_t headquarter_view;
+	koord old_hq;
 
 public:
 	/**

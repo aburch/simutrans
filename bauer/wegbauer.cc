@@ -1999,6 +1999,7 @@ wegbauer_t::baue_leitung()
 				gr->obj_loesche_alle(sp);
 			}
 			if(sp) {
+				sp->add_maintenance(leitung_besch->gib_wartung());
 				sp->buche(-leitung_besch->gib_preis(), gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
 			}
 			gr->obj_add(lt);
