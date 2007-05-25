@@ -115,7 +115,12 @@ void weg_t::setze_max_speed(unsigned int s)
 void weg_t::setze_besch(const weg_besch_t *b)
 {
 	besch = b;
-	max_speed = besch->gib_topspeed();
+	if(flags&HAS_WALKWAY  &&  besch->gib_wtyp()==road_wt  &&  besch->gib_topspeed()>50) {
+		max_speed = 50;
+	}
+	else {
+		max_speed = besch->gib_topspeed();
+	}
 }
 
 

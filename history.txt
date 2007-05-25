@@ -1,4 +1,6 @@
+Release of 99.12
 
+26-Mai-2007:
 	FIX: explicitely check error codes when saving files
 	FIX: cars now properly turn at road signs
 	ADD: toogle grid now also in the visual settings dialoge "show grid"
@@ -17,7 +19,8 @@
 	ADD: powerline category to money dialoge (and cleaned up, new string: This Month), also add headquarter to the dialoge
 	FIX: powerline did not cost any maintainnance (in simuconf.tab: cost_transformer=2500 and cost_maintain_transformer=100)
 	ADD: b shows/hides reserved rails
-	ADD: new roadsing type 'end_of_choose' to limit the range of free_route sings/signals
+	ADD: new roadsign type 'end_of_choose' to limit the range of free_route sings/signals
+	FIX: construction over sidewalks did reset speed limit
 
 
 Release of 99.11
