@@ -62,15 +62,6 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->styp = 0;
 		besch->draw_as_ding = false;
 		besch->number_seasons = 0;
-		/*
-		if(tstrequ(besch->gib_name(), "road")) {
-		besch->wtyp = road_wt;
-		besch->max_speed = 130;
-		} else {
-		besch->wtyp = track_wt;
-		besch->max_speed = 450;
-		}
-		*/
 	}
 	else {
 
@@ -143,6 +134,9 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if(besch->styp==5  &&  besch->wtyp==track_wt) {
 		besch->wtyp = monorail_wt;
 		besch->styp = 0;
+	}
+	else if(besch->wtyp==128) {
+		besch->wtyp = powerline_wt;
 	}
 	if(version<=2  &&  besch->wtyp==air_wt  &&  besch->topspeed>=250) {
 		// runway!

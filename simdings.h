@@ -146,6 +146,7 @@ public:
 
 		label = 27,	// indicates ownership
 		field = 28,
+		crossing = 29,
 
 		// after this only moving stuff
 		// vehikel sind von 64 bis 95

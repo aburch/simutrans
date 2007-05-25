@@ -448,25 +448,6 @@ void grund_t::calc_bild()
 {
 	// will automatically recalculate ways ...
 	dinge.calc_bild();
-
-	// recalc way image
-	if(ist_uebergang()) {
-		weg_t *wege[2];
-		wege[0] = gib_weg_nr(0);
-		wege[1] = gib_weg_nr(1);
-		if(wegbauer_t::gib_kreuzung(wege[1]->gib_waytype(), wege[0]->gib_waytype())) {
-			ribi_t::ribi ribi0 = wege[0]->gib_ribi();
-			ribi_t::ribi ribi1 = wege[1]->gib_ribi();
-
-			if(ribi_t::ist_gerade_ns(ribi0) || ribi_t::ist_gerade_ow(ribi1)) {
-				wege[0]->setze_bild( wegbauer_t::gib_kreuzung(wege[0]->gib_waytype(), wege[1]->gib_waytype() )->gib_bild_nr() );
-			}
-			else {
-				wege[0]->setze_bild( wegbauer_t::gib_kreuzung(wege[1]->gib_waytype(), wege[0]->gib_waytype() )->gib_bild_nr() );
-			}
-			wege[1]->setze_bild( IMG_LEER );
-		}
-	}
 }
 
 

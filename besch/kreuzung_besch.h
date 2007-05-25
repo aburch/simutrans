@@ -16,6 +16,7 @@
 
 #include "obj_besch_std_name.h"
 #include "bild_besch.h"
+#include "bildliste_besch.h"
 #include "../simtypes.h"
 
 
@@ -33,19 +34,35 @@ class kreuzung_besch_t : public obj_besch_std_name_t {
     friend class crossing_reader_t;
 
 private:
-    uint8  wegtyp_ns;
-    uint8  wegtyp_ow;
+	uint8 wegtyp1;
+	uint8 wegtyp2;
+
+	sint8 sound;
+
+	uint32 closed_animation_time;
+	uint32 open_animation_time;
+
+	uint32 topspeed1;	// the topspeed depeds strongly on the crossing ...
+	uint32 topspeed2;
+
 
 public:
-	const bild_besch_t *gib_bild() const { return static_cast<const bild_besch_t *>(gib_kind(2)); }
-	int gib_bild_nr() const
+	const bild_besch_t *gib_bild(int ns, bool open, int phase) const
 	{
-		const bild_besch_t *bild = gib_bild();
-		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
+		if(open) {
+			return (static_cast<const bildliste_besch_t *>(gib_kind(2+ns)))->gib_bild(phase);
+		}
+		else {
+			return (static_cast<const bildliste_besch_t *>(gib_kind(4+ns)))->gib_bild(phase);
+		}
 	}
 
-	waytype_t gib_wegtyp_ns() const { return static_cast<waytype_t>(wegtyp_ns); }
-	waytype_t gib_wegtyp_ow() const { return static_cast<waytype_t>(wegtyp_ow); }
+	waytype_t get_waytype(int i) const { return (waytype_t)(i? wegtyp1 : wegtyp2); }
+	uint32 gib_maxspeed(int i) const { return i ? topspeed1 : topspeed2; }
+	uint16 gib_phases(bool open) const { return static_cast<const bildliste_besch_t *>(gib_kind(open ? 2 : 3))->gib_anzahl(); }
+	uint32 gib_animation_time(bool open) const { return open ? open_animation_time : closed_animation_time; }
+
+	sint8 gib_sound() const { return sound; }
 };
 
 #endif

@@ -26,9 +26,9 @@ enum waytype_t {
 	invalid_wt=-1, ignore_wt=0, road_wt=1, track_wt=2, water_wt=3,
 	overheadlines_wt=4,
 	monorail_wt=5,
-	maglev_wt=6,
 	tram_wt=7, // Dario: Tramway
-	air_wt=16, powerline_wt=128
+	powerline_wt=15,
+	air_wt=16
 };
 
 

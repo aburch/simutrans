@@ -1823,7 +1823,6 @@ int karte_t::get_average_speed(waytype_t typ) const
 		case road_wt: return average_speed[0];
 		case track_wt:
 		case monorail_wt:
-		case maglev_wt:
 		case tram_wt: return average_speed[1];
 		case water_wt: return average_speed[2];
 		case air_wt: return average_speed[3];

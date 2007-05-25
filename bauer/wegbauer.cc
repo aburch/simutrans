@@ -42,6 +42,7 @@
 #include "../dings/gebaeude.h"
 #include "../dings/bruecke.h"
 #include "../dings/tunnel.h"
+#include "../dings/crossing.h"
 
 #include "../simintr.h"
 
@@ -75,8 +76,6 @@
 // built bridges automatically
 //#define AUTOMATIC_BRIDGES 1
 
-slist_tpl<const kreuzung_besch_t *> wegbauer_t::kreuzungen;
-
 const weg_besch_t *wegbauer_t::leitung_besch = NULL;
 
 static spezial_obj_tpl<weg_besch_t> spezial_objekte[] = {
@@ -100,34 +99,12 @@ bool wegbauer_t::alle_wege_geladen()
 }
 
 
-bool wegbauer_t::alle_kreuzungen_geladen()
-{
-	if(!gib_kreuzung(track_wt, road_wt) ||
-	!gib_kreuzung(road_wt, track_wt))
-	{
-		ERROR("wegbauer_t::alles_geladen()", "at least one crossing not found");
-		return false;
-	}
-	return true;
-}
-
-
 bool wegbauer_t::register_besch(const weg_besch_t *besch)
 {
   DBG_DEBUG("wegbauer_t::register_besch()", besch->gib_name());
   alle_wegtypen.put(besch->gib_name(), besch);
   return ::register_besch(spezial_objekte, besch);
 }
-
-
-bool wegbauer_t::register_besch(const kreuzung_besch_t *besch)
-{
-    kreuzungen.append(besch);
-    return true;
-}
-
-
-
 
 
 /**
@@ -198,7 +175,7 @@ void wegbauer_t::neuer_monat(karte_t *welt)
 					message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,besch->gib_bild_nr(5,0));
 			}
 
-			const uint16 retire_month =besch->get_retire_year_month();
+			const uint16 retire_month = besch->get_retire_year_month();
 			if(retire_month == current_month) {
 				sprintf(buf,
 					translator::translate("way %s cannot longer used:\n"),
@@ -210,19 +187,6 @@ void wegbauer_t::neuer_monat(karte_t *welt)
 	}
 }
 
-
-
-const kreuzung_besch_t *wegbauer_t::gib_kreuzung(const waytype_t ns, const waytype_t ow)
-{
-	slist_iterator_tpl<const kreuzung_besch_t *> iter(kreuzungen);
-
-	while(iter.next()) {
-		if(iter.get_current()->gib_wegtyp_ns()==ns  &&  iter.get_current()->gib_wegtyp_ow()==ow) {
-			return iter.get_current();
-		}
-	}
-	return NULL;
-}
 
 
 /**
@@ -302,11 +266,11 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
  * @author prissi
  */
 bool
-wegbauer_t::check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp, const spieler_t *sp) const
+wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wtyp, const spieler_t *sp) const
 {
 	weg_t *w = bd->gib_weg(wtyp);
-	if(w  &&  bd->gib_halt()==NULL  &&  check_owner(w->gib_besitzer(),sp)) {
-	ribi_t::ribi w_ribi = w->gib_ribi_unmasked();
+	if(w  &&  bd->gib_halt()==NULL  &&  check_owner(w->gib_besitzer(),sp)  &&  crossing_t::get_crossing(wtyp,w->gib_waytype())!=NULL) {
+		ribi_t::ribi w_ribi = w->gib_ribi_unmasked();
     // it is our way we want to cross: can we built a crossing here?
     // both ways must be straight and no ends
     return

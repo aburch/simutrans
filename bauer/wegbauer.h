@@ -33,17 +33,11 @@ class werkzeug_parameter_waehler_t;
  */
 class wegbauer_t
 {
-	static slist_tpl<const kreuzung_besch_t *> kreuzungen;
-
 public:
 	static const weg_besch_t *leitung_besch;
 
-	static const kreuzung_besch_t *gib_kreuzung(const waytype_t ns, const waytype_t ow);
-
 	static bool register_besch(const weg_besch_t *besch);
-	static bool register_besch(const kreuzung_besch_t *besch);
 	static bool alle_wege_geladen();
-	static bool alle_kreuzungen_geladen();
 
 	// generates timeline message
 	static void neuer_monat(karte_t *welt);
@@ -82,7 +76,7 @@ public:
 		maglev=6,
 		wasser=7,
 		luft=8,
-		leitung=9,
+		leitung=15,
 		bautyp_mask=15,
 		bot_flag=32,					// do not connect to other ways
 		elevated_flag=64,			// elevated structure

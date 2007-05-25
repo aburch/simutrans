@@ -73,7 +73,8 @@ static uint8 type_to_pri[32]=
 	0, // ways (always at the top!)
 	9, // label, indicates ownership: insert before trees
 	3, // field (factory extension)
-	255, 255, 255
+	1, // crossings, treated like bridges or tunnels
+	255, 255
 };
 
 static void dl_free(void *p, uint8 size)

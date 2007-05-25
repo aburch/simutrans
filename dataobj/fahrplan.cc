@@ -223,14 +223,14 @@ fahrplan_t::rdwr(loadsave_t *file)
 
 	sint32 maxi=eintrag.get_count();
 	file->rdwr_long(maxi, " ");
+	eintrag.resize(maxi);
 	DBG_MESSAGE("fahrplan_t::rdwr()","read schedule %p with %i entries",this,maxi);
 
-	if(file->is_loading()) {
+	if(file->get_version()<99012) {
 		if(file->get_version()<86010) {
 			// old array had different maxi-counter
 			maxi ++;
 		}
-
 		for(int i=0; i<maxi; i++) {
 			koord3d pos;
 			pos.rdwr(file);
@@ -242,15 +242,19 @@ fahrplan_t::rdwr(loadsave_t *file)
 			stop.flags = 0;
 			eintrag.append(stop);
 		}
-		abgeschlossen = true;
 	}
 	else {
-		// saving
+		// loading/saving new version
 		for(unsigned i=0; i<eintrag.get_count(); i++) {
 			eintrag[i].pos.rdwr(file);
-			dummy = eintrag[i].ladegrad;
-			file->rdwr_long(dummy, "\n");
+			file->rdwr_byte(eintrag[i].ladegrad, "\n");
+			if(file->is_loading()) {
+				eintrag[i].flags = 0;
+			}
 		}
+	}
+	if(file->is_loading()) {
+		abgeschlossen = true;
 	}
 	if(aktuell>=eintrag.get_count()) {
 		dbg->error("fahrplan_t::rdwr()","aktuell %i >count %i => aktuell = 0", aktuell, eintrag.get_count() );

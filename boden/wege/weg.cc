@@ -270,9 +270,12 @@ void
 weg_t::count_sign()
 {
 	// Either only sign or signal please ...
-	flags &= ~(HAS_SIGN|HAS_SIGNAL);
+	flags &= ~(HAS_SIGN|HAS_SIGNAL|HAS_CROSSING);
 	const grund_t *gr=welt->lookup(gib_pos());
 	if(gr) {
+		if(gr->gib_weg_nr(1)  &&  gr->gib_weg_nr(1)->gib_waytype()!=tram_wt) {
+			flags |= HAS_CROSSING;
+		}
 		for( uint8 i=0;  i<gr->gib_top();  i++  ) {
 			ding_t *d=gr->obj_bei(i);
 			// sign for us?
