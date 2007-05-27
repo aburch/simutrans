@@ -27,7 +27,7 @@ enum waytype_t {
 	overheadlines_wt=4,
 	monorail_wt=5,
 	tram_wt=7, // Dario: Tramway
-	powerline_wt=15,
+	powerline_wt=128,
 	air_wt=16
 };
 

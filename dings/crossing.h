@@ -1,7 +1,7 @@
 /*
- * roadsign.h
+ * crossing.h
  *
- * Copyright (c) 2005 prissi
+ * Copyright (c) 2007 prissi
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
@@ -23,7 +23,7 @@
 class crossing_t : public ding_t, public sync_steppable
 {
 protected:
-	image_id after_bild;
+	image_id after_bild, bild;
 	uint8 zustand;	// counter for steps ...
 	uint8 phase;
 
@@ -44,6 +44,8 @@ public:
 	 */
 	~crossing_t();
 
+	bool sync_step(long delta);
+
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	 * Beobachtungsfenster angezeigt wird.
@@ -51,19 +53,14 @@ public:
 	 */
 	virtual void info(cbuffer_t & buf) const;
 
-	/**
-	 * berechnet aktuelles bild
-	 */
-	virtual void calc_bild();
-
 	// changes the state of a traffic light
-	virtual bool sync_step(long);
+	virtual image_id gib_bild() const { return bild; }
 
 	/**
 	* For the front image hiding vehicles
 	* @author prissi
 	*/
-	virtual image_id gib_after_bild() const {return after_bild;}
+	virtual image_id gib_after_bild() const { return after_bild; }
 
 	void rdwr(loadsave_t *file);
 
@@ -75,14 +72,14 @@ public:
 	// static routines from here
 private:
 	static slist_tpl<const kreuzung_besch_t *> liste;
-	static kreuzung_besch_t *can_cross_array[16][16];
+	static kreuzung_besch_t *can_cross_array[8][8];
 
 public:
 	static bool register_besch(kreuzung_besch_t *besch);
 	static bool alles_geladen() {return true; }
 
 	static const kreuzung_besch_t *get_crossing(const waytype_t ns, const waytype_t ow) {
-		if(ns>15  ||  ow>15) return NULL;
+		if(ns>7  ||  ow>7) return NULL;
 		return can_cross_array[(int)ns][(int)ow];
 	}
 };

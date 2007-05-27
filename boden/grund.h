@@ -448,6 +448,8 @@ public:
 		return NULL;
 	}
 
+	uint8 has_two_ways() const { return flags&has_way2; }
+
 	bool hat_weg(waytype_t typ) const { return gib_weg(typ)!=NULL; }
 
 	/**

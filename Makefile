@@ -149,6 +149,7 @@ SOURCES += dataobj/umgebung.cc
 SOURCES += dataobj/warenziel.cc
 SOURCES += dings/baum.cc
 SOURCES += dings/bruecke.cc
+SOURCES += dings/crossing.cc
 SOURCES += dings/dummy.cc
 SOURCES += dings/gebaeude.cc
 SOURCES += dings/field.cc

@@ -268,7 +268,10 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 bool
 wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wtyp, const spieler_t *sp) const
 {
-	weg_t *w = bd->gib_weg(wtyp);
+	const weg_t *w = bd->gib_weg_nr(0);
+	if(w  &&  w->gib_waytype()==wtyp) {
+		w = bd->gib_weg_nr(1);
+	}
 	if(w  &&  bd->gib_halt()==NULL  &&  check_owner(w->gib_besitzer(),sp)  &&  crossing_t::get_crossing(wtyp,w->gib_waytype())!=NULL) {
 		ribi_t::ribi w_ribi = w->gib_ribi_unmasked();
     // it is our way we want to cross: can we built a crossing here?
@@ -557,11 +560,19 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		case strasse:
 		{
 			const weg_t *str=to->gib_weg(road_wt);
-			const weg_t *sch=to->gib_weg(track_wt);
 			// we allow connection to any road
 			ok =	(str  ||  !fundament)  &&  !to->ist_wasser()  &&  check_for_leitung(zv,to);
+			if(!ok) {
+				return false;
+			}
 			if(str==NULL) {
-				ok &= !to->hat_wege()  ||  (sch!=NULL  &&  (check_crossing(zv,to,track_wt,sp)  ||  sch->gib_besch()->gib_styp()==7));
+				ok = !to->hat_wege()  ||  check_crossing(zv,to,road_wt,sp);
+				if(!ok) {
+					const weg_t *sch=to->gib_weg(track_wt);
+					if(sch  &&  sch->gib_besch()->gib_styp()==7) {
+						ok = true;
+					}
+				}
 			}
 			if(ok) {
 				const weg_t *from_str=from->gib_weg(road_wt);
@@ -581,7 +592,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				}
 				// calculate costs
 				*costs = str ? 0 : umgebung_t::way_count_straight;
-				if(to->hat_weg(track_wt)) {
+				if((str==NULL  &&  to->hat_wege())  ||  (str  &&  to->has_two_ways())) {
 					*costs += 4;	// avoid crossings
 				}
 				if(to->gib_weg_hang()!=0) {
@@ -607,9 +618,12 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			if((bautyp&bot_flag)!=0  &&  (gb  ||  sch  ||  to->gib_halt().is_bound())) {
 				return false;
 			}
-			ok =	!fundament  &&  !to->ist_wasser()  &&
-				  (!to->hat_wege()  ||  (sch  &&  check_owner(sch->gib_besitzer(),sp))  ||  (sch==NULL  &&  check_crossing(zv,to,road_wt,sp)))  &&
+			// ok, regular construction here
+			if((bautyp&elevated_flag)==0) {
+				ok =	!fundament  &&  !to->ist_wasser()  &&
+				  ((sch  &&  check_owner(sch->gib_besitzer(),sp))  ||  !to->hat_wege()  ||  (sch==NULL  &&  check_crossing(zv,to,track_wt,sp)))  &&
 					check_for_leitung(zv,to);
+			}
 			if(ok) {
 				// check for end/start of bridge
 				if(to->gib_weg_hang()!=to->gib_grund_hang()  &&  (sch==NULL  ||  !ribi_t::ist_gerade(ribi_typ(zv)|sch->gib_ribi_unmasked()))) {
@@ -638,7 +652,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				}
 				// calculate costs
 				*costs = sch ? umgebung_t::way_count_straight : umgebung_t::way_count_straight+1;	// only prefer existing rails a little
-				if(to->hat_weg(road_wt)) {
+				if((sch  &&  to->has_two_ways())  ||  (sch==NULL  &&  to->hat_wege())) {
 					*costs += 4;	// avoid crossings
 				}
 				if(to->gib_weg_hang()!=0) {
@@ -661,8 +675,8 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			if((bautyp&elevated_flag)==0) {
 				// classical monorail
 				ok =	!to->ist_wasser()  &&  !fundament  &&
-					(to->hat_wege()==0  ||  (sch  &&  check_owner(sch->gib_besitzer(),sp)))  &&  (from->hat_wege()==0  ||  from->hat_weg((waytype_t)besch->gib_wtyp()))
-					&&  (sch  ||  (to->obj_count()==0  ||  check_owner(to->obj_bei(0)->gib_besitzer(),sp)))  &&  check_for_leitung(zv,to)  && !to->gib_depot();
+					((sch  &&  check_owner(sch->gib_besitzer(),sp))  ||  !to->hat_wege()  ||  (sch==NULL  &&  check_crossing(zv,to,monorail_wt,sp)))
+					&&  check_for_leitung(zv,to)  && !to->gib_depot();
 				// check for end/start of bridge
 				if(to->gib_weg_hang()!=to->gib_grund_hang()  &&  (sch==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked()))) {
 					return false;
@@ -739,7 +753,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				ribi_t::ribi w_ribi= to->gib_weg_nr(0)->gib_ribi_unmasked();
 				ok &= ribi_t::ist_gerade(w_ribi)  &&  !ribi_t::ist_einfach(w_ribi)  &&  ribi_t::ist_gerade(ribi_typ(zv))  &&  (w_ribi&ribi_typ(zv))==0;
 			}
-			if(to->gib_weg_nr(1)!=NULL) {
+			if(to->has_two_ways()) {
 				// only 90 deg crossings, only for trams ...
 				ribi_t::ribi w_ribi= to->gib_weg_nr(1)->gib_ribi_unmasked();
 				ok &= ribi_t::ist_gerade(w_ribi)  &&  !ribi_t::ist_einfach(w_ribi)  &&  ribi_t::ist_gerade(ribi_typ(zv))  &&  (w_ribi&ribi_typ(zv))==0;

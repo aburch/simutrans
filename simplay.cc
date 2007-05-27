@@ -1679,7 +1679,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof()","try to build a train station of length 
 
 		ok &= (gr != NULL) &&
 				(gr->ist_natur() || gr->gib_typ() == grund_t::fundament) &&
-				gr->kann_alle_obj_entfernen(this)==NULL &&  gr->gib_weg_nr(1)==NULL  &&
+				gr->kann_alle_obj_entfernen(this)==NULL &&  !gr->has_two_ways()  &&
 				gr->gib_weg_hang() == hang_t::flach  &&  !gr->is_halt();
 
 		if(ok) {
@@ -1699,7 +1699,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof()","try to build a train station of length 
 			ok = (gr != NULL) &&
 					gr->hat_weg(track_wt) &&
 					gr->gib_weg_ribi(track_wt) == ribi_t::doppelt(ribi) &&
-					gr->kann_alle_obj_entfernen(this) == NULL &&  gr->gib_weg_nr(1)==NULL  &&
+					gr->kann_alle_obj_entfernen(this) == NULL &&  !gr->has_two_ways()  &&
 					gr->gib_weg_hang()== hang_t::flach  &&  !gr->is_halt();
 			if(ok) {
 DBG_MESSAGE("spieler_t::baue_bahnhof","go back one segment");

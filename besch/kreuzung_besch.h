@@ -45,21 +45,42 @@ private:
 	uint32 topspeed1;	// the topspeed depeds strongly on the crossing ...
 	uint32 topspeed2;
 
-
 public:
+	/* the imagelists are:
+	 * open_ns
+	 * open_ew
+	 * front_open_ns
+	 * front_open_ew
+	 * closed_ns
+	 * ....
+	 * =>ns=0 NorthSouth ns=1, East-West
+	 */
 	const bild_besch_t *gib_bild(int ns, bool open, int phase) const
 	{
 		if(open) {
 			return (static_cast<const bildliste_besch_t *>(gib_kind(2+ns)))->gib_bild(phase);
 		}
 		else {
-			return (static_cast<const bildliste_besch_t *>(gib_kind(4+ns)))->gib_bild(phase);
+			const bildliste_besch_t *bl = (static_cast<const bildliste_besch_t *>(gib_kind(6+ns)));
+			return bl ? bl->gib_bild(phase) : NULL;
 		}
 	}
 
-	waytype_t get_waytype(int i) const { return (waytype_t)(i? wegtyp1 : wegtyp2); }
+	const bild_besch_t *gib_bild_after(int ns, bool open, int phase) const
+	{
+		if(open) {
+			const bildliste_besch_t *bl = (static_cast<const bildliste_besch_t *>(gib_kind(4+ns)));
+			return bl ? bl->gib_bild(phase) : NULL;
+		}
+		else {
+			const bildliste_besch_t *bl = (static_cast<const bildliste_besch_t *>(gib_kind(8+ns)));
+			return bl ? bl->gib_bild(phase) : NULL;
+		}
+	}
+
+	waytype_t get_waytype(int i) const { return (waytype_t)(i==0? wegtyp1 : wegtyp2); }
 	uint32 gib_maxspeed(int i) const { return i ? topspeed1 : topspeed2; }
-	uint16 gib_phases(bool open) const { return static_cast<const bildliste_besch_t *>(gib_kind(open ? 2 : 3))->gib_anzahl(); }
+	uint16 gib_phases(bool open,bool front) const { return static_cast<const bildliste_besch_t *>(gib_kind(6-(4*open)+2*front))->gib_anzahl(); }
 	uint32 gib_animation_time(bool open) const { return open ? open_animation_time : closed_animation_time; }
 
 	sint8 gib_sound() const { return sound; }

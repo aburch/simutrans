@@ -524,7 +524,7 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 	* gehen kaputt.
 	*/
 	long cost_sum = 0;
-	if(gr->gib_typ()!=grund_t::tunnelboden  ||  gr->gib_weg_nr(1)) {
+	if(gr->gib_typ()!=grund_t::tunnelboden  ||  gr->has_two_ways()) {
 		weg_t *w=gr->gib_weg_nr(1);
 		if(gr->gib_typ()==grund_t::brueckenboden  &&  w==NULL) {
 			// do not delete the middle of a bridge
@@ -1351,9 +1351,9 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 	ribi_t::ribi  ribi;
 	if(besch->gib_all_layouts()==2 || besch->gib_all_layouts()==8 || besch->gib_all_layouts()==16) {
 		// through station
-		if(bd->gib_weg_nr(1)  &&  bd->gib_weg_nr(0)) {
-			// can only happen with road/rail combination ...
-			ribi = bd->gib_weg_ribi_unmasked(road_wt)  |  bd->gib_weg_ribi_unmasked(track_wt);
+		if(bd->has_two_ways()) {
+			// a crossing or maybe just a tram track on a road ...
+			ribi = bd->gib_weg_nr(0)->gib_ribi_unmasked()  |  bd->gib_weg_nr(1)->gib_ribi_unmasked();
 		}
 		else {
 			ribi = bd->gib_weg_ribi_unmasked(wegtype);
@@ -1750,7 +1750,7 @@ wkz_depot_aux(spieler_t *sp, karte_t *welt, koord pos, const haus_besch_t *besch
 		if(bd==NULL) {
 			bd = wkz_intern_koord_to_weg_grund(sp,welt,pos,wegtype);
 		}
-		if(!bd  ||  bd->gib_weg_nr(1)) {
+		if(!bd  ||  bd->has_two_ways()) {
 			// no monorail here ...
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Cannot built depot here!"), w_autodelete);
 			return false;

@@ -53,8 +53,6 @@ obj_besch_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	besch->wegtyp2 = decode_uint8(p);
 	besch->topspeed1 = decode_uint16(p);
 	besch->topspeed2 = decode_uint16(p);
-	besch->topspeed1 = decode_uint16(p);
-	besch->topspeed2 = decode_uint16(p);
 	besch->open_animation_time = decode_uint32(p);
 	besch->closed_animation_time = decode_uint32(p);
 	besch->sound = decode_sint8(p);
@@ -75,6 +73,6 @@ DBG_MESSAGE("crossing_reader_t::register_obj()","sound %s to %i",wavname,besch->
 DBG_MESSAGE("crossing_reader_t::register_obj()","old sound %i to %i",old_id,besch->sound);
 	}
 
-	DBG_DEBUG("crossing_reader_t::read_node()","version=%i, ns=%d, ow=%d",v,besch->wegtyp1,besch->wegtyp2);
+	DBG_DEBUG("crossing_reader_t::read_node()","version=%i, w1=%d, speed1=%i, w2=%d, speed2=%d",v,besch->wegtyp1,besch->topspeed1,besch->wegtyp2,besch->topspeed2);
   return besch;
 }

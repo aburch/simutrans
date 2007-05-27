@@ -11,6 +11,7 @@
 #include "../dings/dummy.h"
 #include "../dings/wolke.h"
 #include "../dings/zeiger.h"
+#include "../dings/crossing.h"
 #include "../dings/baum.h"
 #include "../dings/bruecke.h"
 #include "../dings/field.h"
@@ -642,6 +643,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::zeiger:	    d = new zeiger_t (welt, file);	        break;
 				case ding_t::signal:	    d = new signal_t (welt, file);   break;
 				case ding_t::label:				d = new label_t(welt,file); break;
+				case ding_t::crossing:		d = new crossing_t(welt,file); break;
 
 				// some old offsets will be converted to new ones
 				case ding_t::old_roadsign: typ = ding_t::roadsign;

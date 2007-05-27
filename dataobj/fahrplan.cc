@@ -245,7 +245,10 @@ fahrplan_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// loading/saving new version
-		for(unsigned i=0; i<eintrag.get_count(); i++) {
+		for(unsigned i=0; i<maxi; i++) {
+			if(eintrag.get_count()<=i) {
+				eintrag.append( linieneintrag_t() );
+			}
 			eintrag[i].pos.rdwr(file);
 			file->rdwr_byte(eintrag[i].ladegrad, "\n");
 			if(file->is_loading()) {

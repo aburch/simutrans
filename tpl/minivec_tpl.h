@@ -28,6 +28,12 @@ template<class T> class minivec_tpl
 			if (new_size > 255) {
 				dbg->fatal("minivec_tpl<T>::resize()", "new size %i too large (>255).");
 			}
+			// not yet used, but resize may be called anyway
+			if(size<=0) {
+				size = new_size;
+				data = new T[size];
+				return;
+			}
 
 			if (new_size <= size) return; // do nothing
 

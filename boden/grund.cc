@@ -38,6 +38,7 @@
 #include "../dings/tunnel.h"
 #include "../dings/gebaeude.h"
 #include "../dings/label.h"
+#include "../dings/crossing.h"
 #include "../dings/signal.h"
 #include "../dings/roadsign.h"
 #include "../dings/wayobj.h"
@@ -872,6 +873,12 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			// add the way
 			dinge.add( weg );
 			flags |= has_way2;
+			if(weg->gib_besch()->gib_styp()!=7) {
+				// no tram => crossing needed!
+				crossing_t *cr = new crossing_t(welt,sp,pos,((weg_t *)obj_bei(0))->gib_waytype(),weg->gib_waytype());
+				dinge.add( cr );
+				cr->laden_abschliessen();
+			}
 		}
 
 		// just add the cost

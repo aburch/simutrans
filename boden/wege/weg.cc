@@ -273,23 +273,25 @@ weg_t::count_sign()
 	flags &= ~(HAS_SIGN|HAS_SIGNAL|HAS_CROSSING);
 	const grund_t *gr=welt->lookup(gib_pos());
 	if(gr) {
-		if(gr->gib_weg_nr(1)  &&  gr->gib_weg_nr(1)->gib_waytype()!=tram_wt) {
+		uint8 i = 1;
+		// if there is a crossing, the start index is at least three ...
+		if(gr->ist_uebergang()) {
 			flags |= HAS_CROSSING;
+			i = 3;
 		}
-		for( uint8 i=0;  i<gr->gib_top();  i++  ) {
+		// since way 0 is at least present here ...
+		for( ;  i<gr->gib_top();  i++  ) {
 			ding_t *d=gr->obj_bei(i);
 			// sign for us?
-			if(d) {
-				if(d->gib_typ()==ding_t::roadsign  &&  ((roadsign_t*)d)->gib_besch()->gib_wtyp()==gib_besch()->gib_wtyp()) {
-					// here is a sign ...
-					flags |= HAS_SIGN;
-					return;
-				}
-				if(d->gib_typ()==ding_t::signal  &&  ((signal_t*)d)->gib_besch()->gib_wtyp()==gib_besch()->gib_wtyp()) {
-					// here is a signal ...
-					flags |= HAS_SIGNAL;
-					return;
-				}
+			if(d->gib_typ()==ding_t::roadsign  &&  ((roadsign_t*)d)->gib_besch()->gib_wtyp()==gib_besch()->gib_wtyp()) {
+				// here is a sign ...
+				flags |= HAS_SIGN;
+				return;
+			}
+			if(d->gib_typ()==ding_t::signal  &&  ((signal_t*)d)->gib_besch()->gib_wtyp()==gib_besch()->gib_wtyp()) {
+				// here is a signal ...
+				flags |= HAS_SIGNAL;
+				return;
 			}
 		}
 	}

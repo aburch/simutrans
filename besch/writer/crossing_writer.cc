@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "../../utils/simstring.h"
 #include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
@@ -9,6 +11,7 @@
 #include "get_waytype.h"
 #include "imagelist_writer.h"
 #include "crossing_writer.h"
+#include "xref_writer.h"
 
 
 void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
@@ -56,8 +59,16 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	// Top speed of this way
 	uv16 = obj.get_int("speed[0]", 0);
+	if(uv16==0) {
+		printf("*** FATAL ***:\nA maxspeed MUST be given for both ways!\n");
+		exit(0);
+	}
 	node.write_data_at(fp, &uv16, 4, sizeof(uint16));
 	uv16 = obj.get_int("speed[1]", 0);
+	if(uv16==0) {
+		printf("*** FATAL ***:\nA maxspeed MUST be given for both ways!\n");
+		exit(0);
+	}
 	node.write_data_at(fp, &uv16, 6, sizeof(uint16));
 
 	// time between frames for animation
@@ -77,59 +88,161 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// now the image stuff
 	slist_tpl<cstring_t> openkeys_ns;
 	slist_tpl<cstring_t> openkeys_ew;
+	slist_tpl<cstring_t> front_openkeys_ns;
+	slist_tpl<cstring_t> front_openkeys_ew;
 	slist_tpl<cstring_t> closekeys_ns;
 	slist_tpl<cstring_t> closekeys_ew;
+	slist_tpl<cstring_t> front_closekeys_ns;
+	slist_tpl<cstring_t> front_closekeys_ew;
 
-	int i=0;
 	cstring_t str;
 
 	// open crossings ...
-	while(1) {
+	for(int i=0;  1;  i++  ) {
 		char buf[40];
 
-		sprintf(buf, "openimage[ns][%s]", i);
+		sprintf(buf, "openimage[ns][%i]", i);
 		str = obj.get(buf);
 		if (str.len() <= 0) {
 			break;
 		}
 		// ok, we have this direction
 		openkeys_ns.append(str);
-		// MUST exist then also for the other direction
-		sprintf(buf, "openimage[ew][%s]", i);
+	}
+	for(int i=0;  1;  i++  ) {
+		char buf[40];
+
+		sprintf(buf, "openimage[ew][%i]", i);
 		str = obj.get(buf);
+		if (str.len() <= 0) {
+			break;
+		}
+		// ok, we have this direction
 		openkeys_ew.append(str);
 	}
-	if(openkeys_ns.count()!=openkeys_ew.count()  &&  openkeys_ns.count()>0) {
-		printf("*** FATAL ***:\nMissing images (must be same number for both open directions, and at least one! (but %i and %i found)!)\n", openkeys_ns.count(), openkeys_ew.count());
+	if(openkeys_ns.count()==0  ||  openkeys_ew.count()==0) {
+		printf("*** FATAL ***:\nMissing images (at least one openimage! (but %i and %i found)!)\n", openkeys_ns.count(), openkeys_ew.count());
 		exit(0);
 	}
+	// these must exists!
 	imagelist_writer_t::instance()->write_obj(fp, node, openkeys_ns);
 	imagelist_writer_t::instance()->write_obj(fp, node, openkeys_ew);
 
-	// closed crossings ...
-	while(1) {
+	// foreground
+	for(int i=0;  1;  i++  ) {
 		char buf[40];
 
-		sprintf(buf, "closedimage[ns][%s]", i);
+		sprintf(buf, "front_openimage[ns][%i]", i);
+		str = obj.get(buf);
+		if (str.len() <= 0) {
+			break;
+		}
+		// ok, we have this direction
+		front_openkeys_ns.append(str);
+	}
+	for(int i=0;  1;  i++  ) {
+		char buf[40];
+
+		sprintf(buf, "front_openimage[ew][%i]", i);
+		str = obj.get(buf);
+		if (str.len() <= 0) {
+			break;
+		}
+		// ok, we have this direction
+		front_openkeys_ew.append(str);
+	}
+	// the following lists are optional
+	if(front_openkeys_ns.count()>0) {
+		imagelist_writer_t::instance()->write_obj(fp, node, front_openkeys_ns);
+	}
+	else {
+		// really empty list ...
+		xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
+	}
+	if(front_openkeys_ew.count()>0) {
+		imagelist_writer_t::instance()->write_obj(fp, node, front_openkeys_ew);
+	}
+	else {
+		// really empty list ...
+		xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
+	}
+
+	// closed crossings ...
+	for(int i=0;  1;  i++  ) {
+		char buf[40];
+
+		sprintf(buf, "closedimage[ns][%i]", i);
 		str = obj.get(buf);
 		if (str.len() <= 0) {
 			break;
 		}
 		// ok, we have this direction
 		closekeys_ns.append(str);
-		// MUST exist then also for the other direction
-		sprintf(buf, "closedimage[ew][%s]", i);
+	}
+	for(int i=0;  1;  i++  ) {
+		char buf[40];
+
+		sprintf(buf, "closedimage[ew][%i]", i);
 		str = obj.get(buf);
-		if (str.len() > 0) {
-			closekeys_ew.append(str);
+		if (str.len() <= 0) {
+			break;
 		}
+		// ok, we have this direction
+		closekeys_ew.append(str);
 	}
-	if(closekeys_ns.count()!=closekeys_ew.count()) {
-		printf("*** FATAL ***:\nMissing images (must be same number for both closed directions (but %i and %i found)!)\n", closekeys_ns.count(), closekeys_ew.count());
-		exit(0);
+	if(closekeys_ns.count()>0) {
+		imagelist_writer_t::instance()->write_obj(fp, node, closekeys_ns);
 	}
-	imagelist_writer_t::instance()->write_obj(fp, node, closekeys_ns);
-	imagelist_writer_t::instance()->write_obj(fp, node, closekeys_ew);
+	else {
+		// really empty list ...
+		xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
+	}
+	if(closekeys_ew.count()>0) {
+		imagelist_writer_t::instance()->write_obj(fp, node, closekeys_ew);
+	}
+	else {
+		// really empty list ...
+		xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
+	}
+
+	// foreground
+	for(int i=0;  1;  i++  ) {
+		char buf[40];
+
+		sprintf(buf, "front_closedimage[ns][%i]", i);
+		str = obj.get(buf);
+		if (str.len() <= 0) {
+			break;
+		}
+		// ok, we have this direction
+		front_closekeys_ns.append(str);
+	}
+	for(int i=0;  1;  i++  ) {
+		char buf[40];
+
+		sprintf(buf, "front_closedimage[ew][%i]", i);
+		str = obj.get(buf);
+		if (str.len() <= 0) {
+			break;
+		}
+		// ok, we have this direction
+		front_closekeys_ew.append(str);
+	}
+	if(front_closekeys_ns.count()>0) {
+		imagelist_writer_t::instance()->write_obj(fp, node, front_closekeys_ns);
+	}
+	else {
+		// really empty list ...
+		xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
+	}
+	if(front_closekeys_ew.count()>0) {
+		imagelist_writer_t::instance()->write_obj(fp, node, front_closekeys_ew);
+	}
+	else {
+		// really empty list ...
+		xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
+	}
 
 	node.write(fp);
 }
+

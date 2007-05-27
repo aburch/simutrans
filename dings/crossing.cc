@@ -1,7 +1,7 @@
 /*
- * signal.cc
+ * crossing.cc
  *
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 2007 prissi
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
@@ -17,7 +17,7 @@
 
 #include "../besch/kreuzung_besch.h"
 
-#include "../boden/wege/strasse.h"
+#include "../boden/wege/schiene.h"
 #include "../boden/grund.h"
 
 #include "../dataobj/loadsave.h"
@@ -65,19 +65,20 @@ void crossing_t::info(cbuffer_t & buf) const
 
 
 
-// coulb be still better aligned for drive_left settings ...
-void crossing_t::calc_bild()
-{
-}
-
-
-
-
 // only used for traffic light: change the current state
 bool
 crossing_t::sync_step(long delta_t)
 {
-	// change every 24 hours in normal speed = (1<<18)/24
+	// recalc bild each step ...
+	grund_t *gr = welt->lookup(gib_pos());
+	weg_t *w = gr->gib_weg(besch->get_waytype(1));
+	uint8 ns = ribi_t::ist_gerade_ns(w->gib_ribi_unmasked());
+	bool open = (besch->get_waytype(1)==road_wt ||  besch->get_waytype(1)==water_wt) ? gr->obj_bei(gr->gib_top()-1)->is_moving() : !((schiene_t *)w)->is_reserved();
+	const bild_besch_t *a = besch->gib_bild_after( ns, open, 0 );
+	after_bild = a ? a->gib_nummer() : IMG_LEER;
+	const bild_besch_t *b = besch->gib_bild( ns, open, 0 );
+	bild = b ? b->gib_nummer() : IMG_LEER;
+
 	return true;
 }
 
@@ -91,6 +92,18 @@ crossing_t::rdwr(loadsave_t *file)
 	file->rdwr_byte(zustand, " ");
 	file->rdwr_byte(phase, " ");
 	file->rdwr_long(timer, " ");
+	if(file->is_saving()) {
+		uint8 wt = besch->get_waytype(0);
+		file->rdwr_byte(wt,"w");
+		wt = besch->get_waytype(1);
+		file->rdwr_byte(wt,"w");
+	}
+	else {
+		uint8 w1, w2;
+		file->rdwr_byte(w1,"w");
+		file->rdwr_byte(w2,"w");
+		besch = get_crossing( (waytype_t)w1, (waytype_t)w2 );
+	}
 }
 
 
@@ -136,7 +149,7 @@ void crossing_t::laden_abschliessen()
 
 
 // nothing can cross airways, so waytype 0..7 is enough
-kreuzung_besch_t *crossing_t::can_cross_array[16][16] =
+kreuzung_besch_t *crossing_t::can_cross_array[8][8] =
 {
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -146,30 +159,6 @@ kreuzung_besch_t *crossing_t::can_cross_array[16][16] =
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 
@@ -177,7 +166,7 @@ kreuzung_besch_t *crossing_t::can_cross_array[16][16] =
 bool crossing_t::register_besch(kreuzung_besch_t *besch)
 {
 	// mark if crossing possible
-	if(besch->get_waytype(0)<16  &&  besch->get_waytype(1)<16) {
+	if(besch->get_waytype(0)<8  &&  besch->get_waytype(1)<8) {
 		can_cross_array[besch->get_waytype(0)][besch->get_waytype(1)] = besch;
 		can_cross_array[besch->get_waytype(1)][besch->get_waytype(0)] = besch;
 	}
