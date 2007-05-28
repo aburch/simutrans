@@ -2,6 +2,7 @@
 #include <string.h>
 #include <math.h>
 #include "simtools.h"
+#include "simtypes.h"
 
 /* This is the mersenne random generator: More random and faster! */
 
@@ -14,7 +15,6 @@
 
 static unsigned long mersenne_twister[MERSENNE_TWISTER_N]; // the array for the state vector
 static int mersenne_twister_index = MERSENNE_TWISTER_N + 1; // mersenne_twister_index==N+1 means mersenne_twister[N] is not initialized
-
 
 /* initializes mersenne_twister[N] with a seed */
 static void init_genrand(uint32 s)

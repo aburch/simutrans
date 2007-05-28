@@ -33,6 +33,7 @@
 #include "dataobj/loadsave.h"
 #include "dataobj/umgebung.h"
 
+#include "dings/crossing.h"
 #include "dings/roadsign.h"
 
 #include "boden/grund.h"
@@ -483,13 +484,6 @@ stadtauto_t::ist_weg_frei()
 		return false;
 	}
 
-	if(gr->hat_weg(track_wt)) {
-		// railway crossing/ Bahnuebergang: waggons here
-		if(gr->suche_obj_ab(ding_t::waggon,2)) {
-			return false;
-		}
-	}
-
 	// check for traffic lights
 	if(str->has_sign()) {
 		roadsign_t *rs = (roadsign_t *)gr->suche_obj(ding_t::roadsign);
@@ -545,6 +539,12 @@ stadtauto_t::ist_weg_frei()
 		}
 	}
 
+	if(frei  &&  str->is_crossing()) {
+		// railway crossing/ Bahnuebergang: waggons here
+		crossing_t *cr = (crossing_t *)(gr->suche_obj_ab(ding_t::crossing,2));
+		frei = cr->request_passage( this );
+	}
+
 	return frei;
 }
 
@@ -576,8 +576,14 @@ stadtauto_t::betrete_feld()
 void
 stadtauto_t::hop()
 {
+	// leave crossing ...
+	grund_t *from=welt->lookup(gib_pos());
+	if(from  &&  from->ist_uebergang()) {
+		crossing_t *cr = (crossing_t *)(from->suche_obj_ab(ding_t::crossing,2));
+		cr->release_crossing(this);
+	}
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-	grund_t *from = welt->lookup(pos_next);
+	from = welt->lookup(pos_next);
 	if(from==NULL) {
 		time_to_life = 0;
 		return;
@@ -593,6 +599,7 @@ stadtauto_t::hop()
 		fahrtrichtung = calc_richtung( gib_pos().gib_2d(), pos_next_next.gib_2d(), dx, dy );
 		calc_current_speed();
 	}
+	// and add to next tile
 	setze_pos(pos_next);
 	calc_bild();
 	betrete_feld();

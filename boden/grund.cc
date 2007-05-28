@@ -313,6 +313,11 @@ void grund_t::rdwr(loadsave_t *file)
 
 	// all objects on this tile
 	dinge.rdwr(welt, file, gib_pos());
+
+	// need to add a crossing for old games ...
+	if(file->is_loading()  &&  ist_uebergang()  &&  !suche_obj_ab(ding_t::crossing,2)) {
+		dinge.add( new crossing_t(welt, obj_bei(0)->gib_besitzer(), pos, ((weg_t *)obj_bei(0))->gib_waytype(), ((weg_t *)obj_bei(1))->gib_waytype() ) );
+	}
 }
 
 
@@ -861,6 +866,8 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			}
 
 			// add
+			weg->setze_ribi(ribi);
+			weg->setze_pos(pos);
 			dinge.add( weg );
 			flags |= has_way1;
 		}
@@ -872,6 +879,8 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			}
 			// add the way
 			dinge.add( weg );
+			weg->setze_ribi(ribi);
+			weg->setze_pos(pos);
 			flags |= has_way2;
 			if(weg->gib_besch()->gib_styp()!=7) {
 				// no tram => crossing needed!
@@ -886,8 +895,6 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			sp->add_maintenance(weg->gib_besch()->gib_wartung());
 			weg->setze_besitzer( sp );
 		}
-		weg->setze_ribi(ribi);
-		weg->setze_pos(pos);
 
 		// may result in a crossing, but the wegebauer will recalc all images anyway
 		weg->calc_bild();
@@ -936,6 +943,12 @@ DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
 		// delete the second way ...
 		if(flags&has_way2) {
 			flags &= ~has_way2;
+
+			// reset speed limit/crossing info (maybe altered by crossing)
+			crossing_t *cr = (crossing_t *)suche_obj(ding_t::crossing);
+			cr->entferne(0);
+			delete cr;
+			((weg_t *)(obj_bei(0)))->count_sign();
 		}
 		else {
 			flags &= ~has_way1;

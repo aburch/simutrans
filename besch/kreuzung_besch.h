@@ -79,7 +79,7 @@ public:
 	}
 
 	waytype_t get_waytype(int i) const { return (waytype_t)(i==0? wegtyp1 : wegtyp2); }
-	uint32 gib_maxspeed(int i) const { return i ? topspeed1 : topspeed2; }
+	uint32 gib_maxspeed(int i) const { return i==0 ? topspeed1 : topspeed2; }
 	uint16 gib_phases(bool open,bool front) const { return static_cast<const bildliste_besch_t *>(gib_kind(6-(4*open)+2*front))->gib_anzahl(); }
 	uint32 gib_animation_time(bool open) const { return open ? open_animation_time : closed_animation_time; }
 

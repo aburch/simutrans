@@ -54,6 +54,7 @@
 #include "dings/wolke.h"
 #include "dings/signal.h"
 #include "dings/roadsign.h"
+#include "dings/crossing.h"
 
 #include "gui/karte.h"
 
@@ -541,15 +542,13 @@ void vehikel_t::remove_stale_freight()
 void
 vehikel_t::play_sound() const
 {
-  if(besch->gib_sound() >= 0) {
-    const koord pos ( gib_pos().gib_2d() );
-
-    struct sound_info info;
-    info.index = besch->gib_sound();
-    info.volume = 255;
-    info.pri = 0;
-    welt->play_sound_area_clipped(pos, info);
-  }
+	if(besch->gib_sound() >= 0) {
+		struct sound_info info;
+		info.index = besch->gib_sound();
+		info.volume = 255;
+		info.pri = 0;
+		welt->play_sound_area_clipped(gib_pos().gib_2d(), info);
+	}
 }
 
 
@@ -700,12 +699,23 @@ vehikel_t::hop_check()
 void
 vehikel_t::verlasse_feld()
 {
-    vehikel_basis_t::verlasse_feld();
+	vehikel_basis_t::verlasse_feld();
 #ifndef DEBUG_ROUTES
-    if(ist_letztes  &&  reliefkarte_t::is_visible) {
-        reliefkarte_t::gib_karte()->calc_map_pixel(gib_pos().gib_2d());
-    }
+	if(ist_letztes  &&  reliefkarte_t::is_visible) {
+			reliefkarte_t::gib_karte()->calc_map_pixel(gib_pos().gib_2d());
+	}
 #endif
+	// release a crossing
+	if(ist_letztes  &&  ist_crossing) {
+		grund_t *gr = welt->lookup(gib_pos());
+		if(gr) {
+			weg_t *w = gr->gib_weg(gib_waytype());
+			if(w  &&  w->is_crossing()) {
+				((crossing_t *)(gr->suche_obj(ding_t::crossing)))->release_crossing(cnv->gib_vehikel(0));
+				ist_crossing = false;
+			}
+		}
+	}
 }
 
 
@@ -1350,6 +1360,15 @@ automobil_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_
 		if(target) {
 			target_halt->unreserve_position(target,cnv->self);
 		}
+		automobil_t *v = (automobil_t *)(cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1));
+		if(v->is_crossing()) {
+			target = welt->lookup(v->gib_pos());
+			if(target  &&  target->ist_uebergang()) {
+				crossing_t *cr = (crossing_t *)(target->suche_obj_ab(ding_t::crossing,2));
+				cr->release_crossing( this );
+				v->setze_crossing( false );
+			}
+		}
 	}
 	target_halt = halthandle_t();	// no block reserved
 	return route->calc_route(welt, start, ziel, this, max_speed );
@@ -1432,23 +1451,29 @@ automobil_t::ist_weg_frei(int &restart_speed)
 		return false;
 	}
 
-	if(gr->gib_top()>200) {
-		// too many cars here
-		return false;
-	}
-
-	// pruefe auf Schienenkreuzung
-	strasse_t *str=(strasse_t *)gr->gib_weg(road_wt);
-	if(gr->hat_weg(track_wt)  &&  str) {
-		// das ist eine Bahnuebergang, ist sie frei ?
-		if(gr->suche_obj_ab(ding_t::waggon,2)) {
-			restart_speed = 0;
-			return false;
-		}
-	}
-
 	// check for traffic lights (only relevant for the first car in a convoi)
 	if(ist_erstes) {
+		if(gr->gib_top()>200) {
+			// too many cars here
+			return false;
+		}
+
+		// pruefe auf Schienenkreuzung
+		strasse_t *str=(strasse_t *)gr->gib_weg(road_wt);
+		if(str  &&  str->is_crossing()) {
+			// ok, crossing ahead
+			crossing_t *cr = (crossing_t *)gr->suche_obj(ding_t::crossing);
+			if(cr->request_passage(this)) {
+				// and we can pass: so we must reset after passage
+				cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->setze_crossing(true);
+			}
+			else {
+				// crossing closed
+//				restart_speed = 0;
+				return false;
+			}
+		}
+
 		// first: check roadsigns
 		if(str->has_sign()) {
 			const roadsign_t *rs = (roadsign_t *)gr->suche_obj(ding_t::roadsign);
@@ -1673,7 +1698,7 @@ waggon_t::~waggon_t()
 {
 	if(cnv  &&  ist_erstes  &&  route_index<cnv->get_route()->gib_max_n()+1) {
 		// free als reserved blocks
-		block_reserver( cnv->get_route(), 0, target_halt.is_bound()?1000:1, false );
+		block_reserver( cnv->get_route(), max(24,route_index)-24, target_halt.is_bound()?1000:1, false );
 	}
 	grund_t *gr = welt->lookup(gib_pos());
 	if(gr) {
@@ -1695,7 +1720,7 @@ waggon_t::setze_convoi(convoi_t *c)
 			if((unsigned long)cnv>1) {
 				if(route_index<cnv->get_route()->gib_max_n()+1) {
 					// free all reserved blocks
-					block_reserver( cnv->get_route(), route_index, 1000, false );
+					block_reserver( cnv->get_route(), cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->gib_route_index(), 1000, false );
 					target_halt = halthandle_t();
 				}
 			}
@@ -1751,7 +1776,7 @@ waggon_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_spe
 {
 	if(ist_erstes  &&  route_index<cnv->get_route()->gib_max_n()) {
 		// free all reserved blocks
-		block_reserver( cnv->get_route(), route_index, target_halt.is_bound()?1000:1, false );
+		block_reserver( cnv->get_route(), cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->gib_route_index(), target_halt.is_bound()?1000:1, false );
 	}
 	target_halt = halthandle_t();	// no block reserved
 	return route->calc_route(welt, start, ziel, this, max_speed );
@@ -2024,6 +2049,27 @@ waggon_t::ist_weg_frei(int & restart_speed)
 				// we can always continue, if there would be a route ...
 				return true;
 			}
+			// Is a crossing?
+			grund_t *gr_cr = welt->lookup(block_pos);
+			crossing_t *cr = gr_cr ? (crossing_t *)gr_cr->suche_obj(ding_t::crossing) : NULL;
+			if(cr) {
+				// ok, here is a draw/turnbridge ...
+				bool ok = cr->request_passage(this);
+				if(ok) {
+					// and we can pass: so we must reset after passage
+					cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->setze_crossing(true);
+				}
+				else {
+					// cannot pass, will brake ...
+					if(route_index==next_block) {
+						restart_speed = 0;
+						return false;
+					}
+					restart_speed = -1;
+					return true;
+				}
+				//  drive on ...
+			}
 			// not a signal (anymore) but we will still stop anyway
 			uint16 next_stop = block_reserver(cnv->get_route(),next_block+1,target_halt.is_bound()?1000:0,true);
 			if(next_stop!=0) {
@@ -2031,7 +2077,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 				restart_speed = -1;
 				cnv->set_next_stop_index(next_stop);
 			}
-			else 	if(route_index==next_block+1) {
+			else if(route_index==next_block+1) {
 				// no free route
 				restart_speed = 0;
 				return false;
@@ -2070,6 +2116,8 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 	// find next blocksegment enroute
 	uint16 i=start_index;
 	uint16 next_signal_index=65535, skip_index=65535;
+	uint16 next_crossing_index=65535;
+	bool unreserve_now = false;
 	for ( ; success  &&  count>=0  &&  i<=route->gib_max_n(); i++) {
 
 		koord3d pos = route->position_bei(i);
@@ -2098,17 +2146,30 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 			if(!sch1->reserve(cnv->self)) {
 				success = false;
 			}
+			if(next_crossing_index==65535  &&  sch1->is_crossing()) {
+				next_crossing_index = i;
+			}
 		}
 		else if(sch1) {
 			if(!sch1->unreserve(cnv->self)) {
-				// reached an reserved or free track => finished
-				return 65535;
+				if(unreserve_now) {
+					// reached an reserved or free track => finished
+					return 65535;
+				}
+			}
+			else {
+				// unreserve from here (only used during sale there might be reserved tiles not freed)
+				unreserve_now = true;
 			}
 			if(sch1->has_signal()) {
 				signal_t *signal = (signal_t *)(gr->suche_obj(ding_t::signal));
 				if(signal) {
 					signal->setze_zustand(roadsign_t::rot);
 				}
+			}
+			if(sch1->is_crossing()) {
+				((crossing_t *)(gr->suche_obj(ding_t::crossing)))->release_crossing(this);
+				cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->setze_crossing( false );
 			}
 		}
 	}
@@ -2141,6 +2202,10 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 		}
 	}
 
+	// if next stop is further away then next crossing, return next crossing
+	if(next_signal_index>next_crossing_index) {
+		next_signal_index = next_crossing_index;
+	}
 	// stop at station or signals, not at waypoints
 	if(next_signal_index==65535) {
 		// find out if stop or waypoint, waypoint: do not brake at waypoints
@@ -2324,8 +2389,33 @@ schiff_t::calc_akt_speed(const grund_t *gr)
 bool
 schiff_t::ist_weg_frei(int &restart_speed)
 {
-    restart_speed = -1;
-    return true;
+	restart_speed = -1;
+
+	if(ist_erstes) {
+		grund_t *gr = welt->lookup( pos_next );
+		if(gr==NULL) {
+			return false;
+		}
+
+		weg_t *w = gr->gib_weg(water_wt);
+		if(w==NULL) {
+			return true;
+		}
+		if(w->is_crossing()) {
+			// ok, here is a draw/turnbridge ...
+			crossing_t *cr = (crossing_t *)gr->suche_obj(ding_t::crossing);
+			bool ok = cr->request_passage(this);
+			if(ok) {
+				// and we can pass: so we must reset after passage
+				cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->setze_crossing(true);
+			}
+			else {
+				restart_speed = 0;
+			}
+			return ok;
+		}
+	}
+	return true;
 }
 
 

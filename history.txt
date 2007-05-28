@@ -21,6 +21,7 @@ Release of 99.12
 	ADD: b shows/hides reserved rails
 	ADD: new roadsign type 'end_of_choose' to limit the range of free_route sings/signals
 	FIX: construction over sidewalks did reset speed limit
+	FIX: overflow when sorting vehicle list (defined signum for sint64)
 
 
 Release of 99.11

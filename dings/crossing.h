@@ -12,9 +12,13 @@
 
 #include "../simdings.h"
 #include "../simtypes.h"
+#include "../simimg.h"
 #include "../besch/kreuzung_besch.h"
 #include "../ifc/sync_steppable.h"
-#include "../tpl/inthashtable_tpl.h"
+#include "../tpl/minivec_tpl.h"
+#include "../tpl/slist_tpl.h"
+
+class vehikel_basis_t;
 
 /**
  * road sign for traffic (one way minimum speed, traffic lights)
@@ -23,13 +27,19 @@
 class crossing_t : public ding_t, public sync_steppable
 {
 protected:
+	enum { CROSSING_INVALID=0, CROSSING_OPEN, CROSSING_REQUEST_CLOSE, CROSSING_CLOSED };
+
 	image_id after_bild, bild;
-	uint8 zustand;	// counter for steps ...
+	uint8 zustand:4;	// counter for steps ...
+	uint8 ns:1;				// direction
 	uint8 phase;
+
+	minivec_tpl<const vehikel_basis_t *>on_way1;
+	minivec_tpl<const vehikel_basis_t *>on_way2;
 
 	const kreuzung_besch_t *besch;
 
-	uint32 timer;	// change state here ...
+	uint32 timer;	// change animation state here ...
 
 public:
 	enum ding_t::typ gib_typ() const { return crossing; }
@@ -42,25 +52,39 @@ public:
 	 * signale muessen bei der destruktion von der
 	 * Blockstrecke abgemeldet werden
 	 */
-	~crossing_t();
+	virtual ~crossing_t();
 
-	bool sync_step(long delta);
+	const kreuzung_besch_t *gib_besch() const { return besch; }
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	 * Beobachtungsfenster angezeigt wird.
 	 * @author Hj. Malthaner
 	 */
-	virtual void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf) const;
+
+	// returns true, if the crossing can be passed by this vehicle
+	bool request_passage( const vehikel_basis_t * );
+
+	// removes the vehicle from the crossing
+	void release_crossing( const vehikel_basis_t * );
+
+	void setze_zustand( uint8 new_state );
+
+	/**
+	 * Dient zur Neuberechnung des Bildes
+	 * @author Hj. Malthaner
+	 */
+	void calc_bild();
 
 	// changes the state of a traffic light
-	virtual image_id gib_bild() const { return bild; }
+	image_id gib_bild() const { return bild; }
 
 	/**
 	* For the front image hiding vehicles
 	* @author prissi
 	*/
-	virtual image_id gib_after_bild() const { return after_bild; }
+	image_id gib_after_bild() const { return after_bild; }
 
 	void rdwr(loadsave_t *file);
 
@@ -68,6 +92,10 @@ public:
 	void entferne(spieler_t *sp);
 
 	void laden_abschliessen();
+
+	// to be used for animations
+	bool sync_step(long delta_t) {return false;}
+
 
 	// static routines from here
 private:

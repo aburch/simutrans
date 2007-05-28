@@ -22,6 +22,7 @@
 #include "../simworld.h"
 #include "../simdepot.h"
 #include "../tpl/slist_tpl.h"
+#include "../utils/mathtricks.h"
 
 #include "../besch/ware_besch.h"
 #include "../bauer/warenbauer.h"
@@ -72,7 +73,7 @@ int convoi_frame_t::compare_convois(const void *p1, const void *p2)
 			result = 0;
 			break;
 		case nach_gewinn:
-			result = (int)(cnv1->gib_jahresgewinn() - cnv2->gib_jahresgewinn());
+			result = signum(cnv1->gib_jahresgewinn() - cnv2->gib_jahresgewinn());
 			break;
 		case nach_typ:
 			{
@@ -81,7 +82,7 @@ int convoi_frame_t::compare_convois(const void *p1, const void *p2)
 
 				result = fahr1->gib_typ() - fahr2->gib_typ();
 				if(result == 0) {
-					result = fahr1->gib_fracht_typ() - fahr2->gib_fracht_typ();
+					result = fahr1->gib_fracht_typ()->gib_catg_index() - fahr2->gib_fracht_typ()->gib_catg_index();
 					if(result == 0) {
 						result = fahr1->gib_basis_bild() - fahr2->gib_basis_bild();
 					}

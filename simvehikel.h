@@ -218,6 +218,7 @@ protected:
 	bool ist_erstes:1;            // falls vehikel im convoi fährt, geben diese
 	bool ist_letztes:1;           // flags auskunft über die position
 	bool rauchen:1;
+	bool ist_crossing:1;					// true, if the crossing must be cleared by the last vehicle
 
 	virtual void calc_bild();
 
@@ -406,6 +407,9 @@ public:
 
 	void setze_letztes(bool janein) {ist_letztes = janein;}
 	bool is_last() {return ist_letztes;}
+
+	void setze_crossing(bool janein) {ist_crossing = janein;}
+	bool is_crossing() {return ist_crossing;}
 
 	virtual void setze_convoi(convoi_t *c);
 	convoihandle_t get_convoi() const { return cnv->self; }

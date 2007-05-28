@@ -38,6 +38,7 @@
 #include "../../simplay.h"
 #include "../../dings/roadsign.h"
 #include "../../dings/signal.h"
+#include "../../dings/crossing.h"
 #include "../../utils/cbuffer_t.h"
 #include "../../dataobj/translator.h"
 #include "../../dataobj/loadsave.h"
@@ -278,6 +279,11 @@ weg_t::count_sign()
 		if(gr->ist_uebergang()) {
 			flags |= HAS_CROSSING;
 			i = 3;
+			crossing_t *cr = (crossing_t *)(gr->suche_obj(ding_t::crossing));
+			uint32 top_speed = cr->gib_besch()->gib_maxspeed( cr->gib_besch()->get_waytype(0)==gib_waytype() ? 0 : 1);
+			if(top_speed<max_speed) {
+				max_speed = top_speed;
+			}
 		}
 		// since way 0 is at least present here ...
 		for( ;  i<gr->gib_top();  i++  ) {

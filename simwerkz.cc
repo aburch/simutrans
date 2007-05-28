@@ -490,17 +490,22 @@ DBG_MESSAGE("wkz_remover()",  "took out powerline");
 		gr->obj_remove(lt);
 	}
 
-	msg = gr->kann_alle_obj_entfernen(sp);
-
-	// remove everything else ...
-	if(msg==NULL  &&  !(gr->gib_typ()==grund_t::brueckenboden  ||  gr->gib_typ()==grund_t::tunnelboden)  &&  gr->obj_loesche_alle(sp)) {
+	// only crossing left .. will be deleted with the conencted way
+	if(gr->has_two_ways()  &&  gr->ist_uebergang()  &&  gr->gib_top()==3) {
+		msg = NULL;
+	}
+	else {
+		// remove everything else ...
+		msg = gr->kann_alle_obj_entfernen(sp);
+		if(msg==NULL  &&  !(gr->gib_typ()==grund_t::brueckenboden  ||  gr->gib_typ()==grund_t::tunnelboden)  &&  gr->obj_loesche_alle(sp)) {
 DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
-		// add the powerline again ...
-		if(lt) {
+			// add the powerline again ...
+			if(lt) {
 DBG_MESSAGE("wkz_remover()",  "add again powerline");
-			gr->obj_add(lt);
+				gr->obj_add(lt);
+			}
+			return true;
 		}
-		return true;
 	}
 
 	if(lt) {
