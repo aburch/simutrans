@@ -373,8 +373,11 @@ gebaeude_t::gib_after_bild() const
 	if(zeige_baugrube) {
 		return IMG_LEER;
 	}
+	if(umgebung_t::hide_buildings!=0  &&  tile->gib_besch()->gib_utyp()<hausbauer_t::weitere) {
+		return IMG_LEER;
+	}
 	else {
-		// winter for buildings only above snowline
+		// Show depots, station buildings etc.
 		return tile->gib_vordergrund(count, gib_pos().z>=welt->get_snowline());
 	}
 }

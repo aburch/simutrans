@@ -1,6 +1,6 @@
 Release of 99.12
 
-26-Mai-2007:
+30-Mai-2007:
 	FIX: explicitely check error codes when saving files
 	FIX: cars now properly turn at road signs
 	ADD: toogle grid now also in the visual settings dialoge "show grid"
@@ -23,6 +23,7 @@ Release of 99.12
 	FIX: construction over sidewalks did reset speed limit
 	FIX: overflow when sorting vehicle list (defined signum for sint64)
 	ADD: crossing bettwen all ays (expept air) are now allowed. See attached example. Priority will have the secondly defined way.
+	FIX: do not show foreground for normal buildings
 
 
 Release of 99.11
