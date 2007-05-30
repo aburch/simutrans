@@ -91,116 +91,6 @@ static uint16 get_freight_total(const slist_tpl<ware_t>* fracht)
 }
 
 
-/**
- * Unload freight to halt
- * @return sum of unloaded goods
- * @author Hj. Malthaner
- */
-uint16
-vehikel_t::unload_freight(halthandle_t halt)
-{
-	assert(halt.is_bound());
-	uint16 sum_menge = 0;
-
-	slist_tpl<ware_t> kill_queue;
-	if(halt->is_enabled( gib_fracht_typ() )) {
-		if (!fracht.empty()) {
-
-			slist_iterator_tpl<ware_t> iter (fracht);
-			while(iter.next()) {
-				const ware_t& tmp = iter.get_current();
-
-				halthandle_t end_halt = tmp.gib_ziel();
-				halthandle_t via_halt = tmp.gib_zwischenziel();
-
-				// probleme mit fehlerhafter ware
-				// vielleicht wurde zwischendurch die
-				// Zielhaltestelle entfernt ?
-				if(!end_halt.is_bound() || !via_halt.is_bound()) {
-					DBG_MESSAGE("vehikel_t::entladen()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.gib_name()));
-					kill_queue.insert(tmp);
-				} else if(end_halt==halt || via_halt==halt) {
-
-					//		    printf("Liefere %d %s nach %s via %s an %s\n",
-					//                           tmp->menge,
-					//			   tmp->name(),
-					//			   end_halt->gib_name(),
-					//			   via_halt->gib_name(),
-					//			   halt->gib_name());
-
-					// hier sollte nur ordentliche ware verabeitet werden
-					int menge = halt->liefere_an(tmp);
-					sum_menge += menge;
-
-					kill_queue.insert(tmp);
-
-					INT_CHECK("simvehikel 937");
-				}
-			}
-		}
-	}
-
-	slist_iterator_tpl<ware_t> iter (kill_queue);
-	while( iter.next() ) {
-		total_freight -= iter.get_current().menge;
-		bool ok = fracht.remove(iter.get_current());
-		assert(ok);
-	}
-
-	return sum_menge;
-}
-
-
-/**
- * Load freight from halt
- * @return loading successful?
- * @author Hj. Malthaner
- */
-bool vehikel_t::load_freight(halthandle_t halt)
-{
-	const bool ok = halt->gibt_ab(besch->gib_ware());
-	fahrplan_t *fpl = cnv->gib_fahrplan();
-	if( ok ) {
-
-		while(total_freight < besch->gib_zuladung()) {
-			const uint16 hinein = besch->gib_zuladung() - total_freight;
-
-			ware_t ware = halt->hole_ab(besch->gib_ware(), hinein, fpl);
-			if(ware.menge==0) {
-				// now empty, but usually, we can get it here ...
-				return ok;
-			}
-
-			slist_iterator_tpl<ware_t> iter (fracht);
-
-			// could this be joined with existing freight?
-			while(iter.next()) {
-				ware_t &tmp = iter.access_current();
-
-				// for pax: join according next stop
-				// for all others we *must* use target coordinates
-				if(ware.same_destination(tmp)) {
-					tmp.menge += ware.menge;
-					total_freight += ware.menge;
-					ware.menge = 0;
-					break;
-				}
-			}
-
-			// if != 0 we could not joi it to existing => load it
-			if(ware.menge != 0) {
-				fracht.insert(ware);
-				total_freight += ware.menge;
-			}
-
-			INT_CHECK("simvehikel 876");
-		}
-	}
-	return ok;
-}
-
-
-
 vehikel_basis_t::vehikel_basis_t(karte_t *welt):
     ding_t(welt)
 {
@@ -222,7 +112,14 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
 void
 vehikel_basis_t::verlasse_feld()
 {
-	if (!welt->lookup(gib_pos())->obj_remove(this)) {
+	// frist: release crossing
+	grund_t *gr = welt->lookup(gib_pos());
+	if(gr->ist_uebergang()) {
+		((crossing_t *)(gr->suche_obj_ab(ding_t::crossing,2)))->release_crossing(this);
+	}
+
+	// then remove from ground (or search whole map, if failed)
+	if (!gr->obj_remove(this)) {
 		// was not removed (not found?)
 
 		dbg->error("vehikel_basis_t::verlasse_feld()","'typ %i' %p could not be removed from %d %d", gib_typ(), this, gib_pos().x, gib_pos().y);
@@ -473,6 +370,116 @@ vehikel_t::setze_convoi(convoi_t *c)
 
 
 
+/**
+ * Unload freight to halt
+ * @return sum of unloaded goods
+ * @author Hj. Malthaner
+ */
+uint16
+vehikel_t::unload_freight(halthandle_t halt)
+{
+	assert(halt.is_bound());
+	uint16 sum_menge = 0;
+
+	slist_tpl<ware_t> kill_queue;
+	if(halt->is_enabled( gib_fracht_typ() )) {
+		if (!fracht.empty()) {
+
+			slist_iterator_tpl<ware_t> iter (fracht);
+			while(iter.next()) {
+				const ware_t& tmp = iter.get_current();
+
+				halthandle_t end_halt = tmp.gib_ziel();
+				halthandle_t via_halt = tmp.gib_zwischenziel();
+
+				// probleme mit fehlerhafter ware
+				// vielleicht wurde zwischendurch die
+				// Zielhaltestelle entfernt ?
+				if(!end_halt.is_bound() || !via_halt.is_bound()) {
+					DBG_MESSAGE("vehikel_t::entladen()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.gib_name()));
+					kill_queue.insert(tmp);
+				} else if(end_halt==halt || via_halt==halt) {
+
+					//		    printf("Liefere %d %s nach %s via %s an %s\n",
+					//                           tmp->menge,
+					//			   tmp->name(),
+					//			   end_halt->gib_name(),
+					//			   via_halt->gib_name(),
+					//			   halt->gib_name());
+
+					// hier sollte nur ordentliche ware verabeitet werden
+					int menge = halt->liefere_an(tmp);
+					sum_menge += menge;
+
+					kill_queue.insert(tmp);
+
+					INT_CHECK("simvehikel 937");
+				}
+			}
+		}
+	}
+
+	slist_iterator_tpl<ware_t> iter (kill_queue);
+	while( iter.next() ) {
+		total_freight -= iter.get_current().menge;
+		bool ok = fracht.remove(iter.get_current());
+		assert(ok);
+	}
+
+	return sum_menge;
+}
+
+
+/**
+ * Load freight from halt
+ * @return loading successful?
+ * @author Hj. Malthaner
+ */
+bool vehikel_t::load_freight(halthandle_t halt)
+{
+	const bool ok = halt->gibt_ab(besch->gib_ware());
+	fahrplan_t *fpl = cnv->gib_fahrplan();
+	if( ok ) {
+
+		while(total_freight < besch->gib_zuladung()) {
+			const uint16 hinein = besch->gib_zuladung() - total_freight;
+
+			ware_t ware = halt->hole_ab(besch->gib_ware(), hinein, fpl);
+			if(ware.menge==0) {
+				// now empty, but usually, we can get it here ...
+				return ok;
+			}
+
+			slist_iterator_tpl<ware_t> iter (fracht);
+
+			// could this be joined with existing freight?
+			while(iter.next()) {
+				ware_t &tmp = iter.access_current();
+
+				// for pax: join according next stop
+				// for all others we *must* use target coordinates
+				if(ware.same_destination(tmp)) {
+					tmp.menge += ware.menge;
+					total_freight += ware.menge;
+					ware.menge = 0;
+					break;
+				}
+			}
+
+			// if != 0 we could not joi it to existing => load it
+			if(ware.menge != 0) {
+				fracht.insert(ware);
+				total_freight += ware.menge;
+			}
+
+			INT_CHECK("simvehikel 876");
+		}
+	}
+	return ok;
+}
+
+
+
 void
 vehikel_t::laden_abschliessen()
 {
@@ -705,17 +712,6 @@ vehikel_t::verlasse_feld()
 			reliefkarte_t::gib_karte()->calc_map_pixel(gib_pos().gib_2d());
 	}
 #endif
-	// release a crossing
-	if(ist_letztes  &&  ist_crossing) {
-		grund_t *gr = welt->lookup(gib_pos());
-		if(gr) {
-			weg_t *w = gr->gib_weg(gib_waytype());
-			if(w  &&  w->is_crossing()) {
-				((crossing_t *)(gr->suche_obj(ding_t::crossing)))->release_crossing(cnv->gib_vehikel(0));
-				ist_crossing = false;
-			}
-		}
-	}
 }
 
 
@@ -771,8 +767,12 @@ DBG_MESSAGE("vehikel_t::hop()","reverse dir at route index %d",route_index);
 	betrete_feld();
 	grund_t *gr = welt->lookup(gib_pos());
 	const weg_t * weg = gr->gib_weg(gib_waytype());
-	setze_speed_limit( weg ? kmh_to_speed(weg->gib_max_speed()) : -1 );
-
+	if(weg) {
+		setze_speed_limit( kmh_to_speed(weg->gib_max_speed()) );
+		if(weg->is_crossing()) {
+			((crossing_t *)(gr->suche_obj_ab(ding_t::crossing,2)))->add_to_crossing(this);
+		}
+	}
 	calc_akt_speed(gr);
 }
 
@@ -1360,15 +1360,6 @@ automobil_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_
 		if(target) {
 			target_halt->unreserve_position(target,cnv->self);
 		}
-		automobil_t *v = (automobil_t *)(cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1));
-		if(v->is_crossing()) {
-			target = welt->lookup(v->gib_pos());
-			if(target  &&  target->ist_uebergang()) {
-				crossing_t *cr = (crossing_t *)(target->suche_obj_ab(ding_t::crossing,2));
-				cr->release_crossing( this );
-				v->setze_crossing( false );
-			}
-		}
 	}
 	target_halt = halthandle_t();	// no block reserved
 	return route->calc_route(welt, start, ziel, this, max_speed );
@@ -1453,25 +1444,12 @@ automobil_t::ist_weg_frei(int &restart_speed)
 
 	// check for traffic lights (only relevant for the first car in a convoi)
 	if(ist_erstes) {
-		if(gr->gib_top()>200) {
-			// too many cars here
-			return false;
-		}
-
 		// pruefe auf Schienenkreuzung
 		strasse_t *str=(strasse_t *)gr->gib_weg(road_wt);
-		if(str  &&  str->is_crossing()) {
-			// ok, crossing ahead
-			crossing_t *cr = (crossing_t *)gr->suche_obj(ding_t::crossing);
-			if(cr->request_passage(this)) {
-				// and we can pass: so we must reset after passage
-				cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->setze_crossing(true);
-			}
-			else {
-				// crossing closed
-//				restart_speed = 0;
-				return false;
-			}
+
+		if(str==NULL  ||  gr->gib_top()>200) {
+			// too many cars here or no street
+			return false;
 		}
 
 		// first: check roadsigns
@@ -1583,6 +1561,13 @@ automobil_t::ist_weg_frei(int &restart_speed)
 				}
 			}
 		}
+
+		if(frei  &&  str->is_crossing()) {
+			// ok, crossing ahead
+			crossing_t *cr = (crossing_t *)gr->suche_obj_ab(ding_t::crossing,2);
+			frei = cr->request_crossing(this);
+		}
+
 		return frei;
 	}
 
@@ -2050,16 +2035,11 @@ waggon_t::ist_weg_frei(int & restart_speed)
 				return true;
 			}
 			// Is a crossing?
-			grund_t *gr_cr = welt->lookup(block_pos);
-			crossing_t *cr = gr_cr ? (crossing_t *)gr_cr->suche_obj(ding_t::crossing) : NULL;
+			crossing_t *cr = (crossing_t *)welt->lookup(block_pos)->suche_obj_ab(ding_t::crossing,2);
 			if(cr) {
 				// ok, here is a draw/turnbridge ...
-				bool ok = cr->request_passage(this);
-				if(ok) {
-					// and we can pass: so we must reset after passage
-					cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->setze_crossing(true);
-				}
-				else {
+				bool ok = cr->request_crossing(this);
+				if(!ok) {
 					// cannot pass, will brake ...
 					if(route_index==next_block) {
 						restart_speed = 0;
@@ -2169,7 +2149,6 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 			}
 			if(sch1->is_crossing()) {
 				((crossing_t *)(gr->suche_obj(ding_t::crossing)))->release_crossing(this);
-				cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->setze_crossing( false );
 			}
 		}
 	}
@@ -2398,21 +2377,13 @@ schiff_t::ist_weg_frei(int &restart_speed)
 		}
 
 		weg_t *w = gr->gib_weg(water_wt);
-		if(w==NULL) {
-			return true;
-		}
-		if(w->is_crossing()) {
+		if(w  &&  w->is_crossing()) {
 			// ok, here is a draw/turnbridge ...
 			crossing_t *cr = (crossing_t *)gr->suche_obj(ding_t::crossing);
-			bool ok = cr->request_passage(this);
-			if(ok) {
-				// and we can pass: so we must reset after passage
-				cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->setze_crossing(true);
-			}
-			else {
+			if(!cr->request_crossing(this)) {
 				restart_speed = 0;
+				return false;
 			}
-			return ok;
 		}
 	}
 	return true;

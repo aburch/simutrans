@@ -884,7 +884,8 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			flags |= has_way2;
 			if(weg->gib_besch()->gib_styp()!=7) {
 				// no tram => crossing needed!
-				crossing_t *cr = new crossing_t(welt,sp,pos,((weg_t *)obj_bei(0))->gib_waytype(),weg->gib_waytype());
+				waytype_t w2 =  ((weg_t *)obj_bei( obj_bei(0)==weg ? 1 : 0 ))->gib_waytype();
+				crossing_t *cr = new crossing_t(welt,sp,pos,w2,weg->gib_waytype());
 				dinge.add( cr );
 				cr->laden_abschliessen();
 			}

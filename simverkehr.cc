@@ -542,7 +542,7 @@ stadtauto_t::ist_weg_frei()
 	if(frei  &&  str->is_crossing()) {
 		// railway crossing/ Bahnuebergang: waggons here
 		crossing_t *cr = (crossing_t *)(gr->suche_obj_ab(ding_t::crossing,2));
-		frei = cr->request_passage( this );
+		frei = cr->request_crossing( this );
 	}
 
 	return frei;
@@ -576,15 +576,9 @@ stadtauto_t::betrete_feld()
 void
 stadtauto_t::hop()
 {
-	// leave crossing ...
-	grund_t *from=welt->lookup(gib_pos());
-	if(from  &&  from->ist_uebergang()) {
-		crossing_t *cr = (crossing_t *)(from->suche_obj_ab(ding_t::crossing,2));
-		cr->release_crossing(this);
-	}
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-	from = welt->lookup(pos_next);
-	if(from==NULL) {
+	grund_t *to = welt->lookup(pos_next);
+	if(to==NULL) {
 		time_to_life = 0;
 		return;
 	}
@@ -603,6 +597,9 @@ stadtauto_t::hop()
 	setze_pos(pos_next);
 	calc_bild();
 	betrete_feld();
+	if(to->ist_uebergang()) {
+		((crossing_t *)(to->suche_obj_ab(ding_t::crossing,2)))->add_to_crossing(this);
+	}
 	pos_next = pos_next_next;
 	pos_next_next = koord3d::invalid;
 }

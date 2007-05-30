@@ -27,8 +27,6 @@ class vehikel_basis_t;
 class crossing_t : public ding_t, public sync_steppable
 {
 protected:
-	enum { CROSSING_INVALID=0, CROSSING_OPEN, CROSSING_REQUEST_CLOSE, CROSSING_CLOSED };
-
 	image_id after_bild, bild;
 	uint8 zustand:4;	// counter for steps ...
 	uint8 ns:1;				// direction
@@ -64,12 +62,20 @@ public:
 	void info(cbuffer_t & buf) const;
 
 	// returns true, if the crossing can be passed by this vehicle
-	bool request_passage( const vehikel_basis_t * );
+	bool request_crossing( const vehikel_basis_t * );
+
+	// adds to crossing
+	void add_to_crossing( const vehikel_basis_t *v );
 
 	// removes the vehicle from the crossing
 	void release_crossing( const vehikel_basis_t * );
 
-	void setze_zustand( uint8 new_state );
+	/* states of the crossing;
+	 * since way2 has priority over way1 there is a third state, during a closing request
+	 */
+	enum { CROSSING_INVALID=0, CROSSING_OPEN, CROSSING_REQUEST_CLOSE, CROSSING_CLOSED };
+	void set_state( uint8 new_state );
+	uint8 get_state() { return zustand; }
 
 	/**
 	 * Dient zur Neuberechnung des Bildes

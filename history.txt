@@ -22,6 +22,7 @@ Release of 99.12
 	ADD: new roadsign type 'end_of_choose' to limit the range of free_route sings/signals
 	FIX: construction over sidewalks did reset speed limit
 	FIX: overflow when sorting vehicle list (defined signum for sint64)
+	ADD: crossing bettwen all ays (expept air) are now allowed. See attached example. Priority will have the secondly defined way.
 
 
 Release of 99.11

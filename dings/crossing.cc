@@ -47,7 +47,7 @@ crossing_t::crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t w1, 
 	zustand = CROSSING_INVALID;
 	phase = 0;
 	timer = 0;
-	setze_zustand( CROSSING_OPEN );
+	set_state( CROSSING_OPEN );
 	setze_besitzer( sp );
 }
 
@@ -78,32 +78,48 @@ void crossing_t::info(cbuffer_t & buf) const
 
 // request permission to pass crossing
 bool
-crossing_t::request_passage( const vehikel_basis_t *v )
+crossing_t::request_crossing( const vehikel_basis_t *v )
 {
 	if(v->gib_waytype()==besch->get_waytype(0)) {
 		if(on_way2.get_count()==0  &&  zustand==CROSSING_OPEN) {
 			// way2 is empty ...
-			on_way1.append_unique(v,1);
 			return true;
 		}
 		// passage denied, since there are vehicle on way2
 		// which has priority
-		return false;
+		// => ok only if I am already crossing
+		return on_way1.is_contained(v);
 	}
 	else {
 		// vehikel from way2 arrives
 		if(on_way1.get_count()) {
 			// sorry, still things on the crossing, but we will prepare
-			setze_zustand( CROSSING_REQUEST_CLOSE );
+			set_state( CROSSING_REQUEST_CLOSE );
 			return false;
 		}
 		else {
-			setze_zustand( CROSSING_CLOSED );
-			on_way2.append_unique(v,1);
+			set_state( CROSSING_CLOSED );
 			return true;
 		}
 	}
 }
+
+
+
+// request permission to pass crossing
+void
+crossing_t::add_to_crossing( const vehikel_basis_t *v )
+{
+	if(v->gib_waytype()==besch->get_waytype(0)) {
+		on_way1.append_unique(v);
+	}
+	else {
+		// add it and close crossing
+		on_way2.append_unique(v);
+		set_state( CROSSING_CLOSED );
+	}
+}
+
 
 
 // called after passing of the last vehicle (in a convoi)
@@ -114,13 +130,13 @@ crossing_t::release_crossing( const vehikel_basis_t *v )
 	if(v->gib_waytype()==besch->get_waytype(0)) {
 		on_way1.remove(v);
 		if(zustand==CROSSING_REQUEST_CLOSE  &&  on_way1.get_count()==0) {
-			setze_zustand( CROSSING_CLOSED );
+			set_state( CROSSING_CLOSED );
 		}
 	}
 	else {
 		on_way2.remove(v);
 		if(on_way2.get_count()==0) {
-			setze_zustand( CROSSING_OPEN );
+			set_state( CROSSING_OPEN );
 		}
 	}
 }
@@ -129,7 +145,7 @@ crossing_t::release_crossing( const vehikel_basis_t *v )
 
 // change state; mark dirty and plays sound
 void
-crossing_t::setze_zustand( uint8 new_state )
+crossing_t::set_state( uint8 new_state )
 {
 	if(new_state!=zustand) {
 		mark_image_dirty( bild, 0 );
@@ -195,7 +211,7 @@ crossing_t::rdwr(loadsave_t *file)
 		}
 		uint new_state = zustand;
 		zustand = CROSSING_INVALID;
-		setze_zustand( new_state==CROSSING_INVALID ? CROSSING_OPEN : new_state );
+		set_state( new_state==CROSSING_INVALID ? CROSSING_OPEN : new_state );
 	}
 }
 
@@ -205,6 +221,7 @@ crossing_t::rdwr(loadsave_t *file)
 void
 crossing_t::entferne(spieler_t *sp)
 {
+/*
 	grund_t *gr=welt->lookup(gib_pos());
 	if(gr==NULL) {
 		dbg->error("crossing_t::entferne","ground missing at %i,%i => ignore", gib_pos().x, gib_pos().y );
@@ -220,6 +237,7 @@ crossing_t::entferne(spieler_t *sp)
 			w2->setze_besch( w2->gib_besch() );
 		}
 	}
+*/
 }
 
 
@@ -239,16 +257,10 @@ void crossing_t::laden_abschliessen()
 	else {
 		// after loading restore speedlimits
 		weg_t *w1=gr->gib_weg(besch->get_waytype(0));
-		if(w1->gib_max_speed()>besch->gib_maxspeed(0)) {
-			w1->setze_max_speed( besch->gib_maxspeed(0) );
-		}
 		w1->count_sign();
 		weg_t *w2=gr->gib_weg(besch->get_waytype(1));
-		ns = ribi_t::ist_gerade_ns(w2->gib_ribi_unmasked());
-		if(w2->gib_max_speed()>besch->gib_maxspeed(1)) {
-			w2->setze_max_speed( besch->gib_maxspeed(1) );
-		}
 		w2->count_sign();
+		ns = ribi_t::ist_gerade_ns(w2->gib_ribi_unmasked());
 //		welt->sync_add( this );
 	}
 }

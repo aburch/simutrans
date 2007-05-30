@@ -45,37 +45,6 @@ enum waytype_t {
 // inline funktionen
 
 
-#ifdef __cplusplus
-
-#if defined(_MSC_VER)  &&  _MSC_VER<=1200
-// old Microsoft compability stuff
-#error "Simutrans cannot compile with braindead combilers! Get rid of your zombie!"
-#if!defined(max)
-#define max(a,b) ((a) > (b) ? (a) : (b))
-#define min(a,b) ((a) < (b) ? (a) : (b))
-#endif
-#define strdup _strdup
-
-#else
-
-inline static int sgn(int x)
-{
-    return (x > 0) ? 1 : (x < 0) ? -1 : 0;
-}
-
-inline static int min(const int a, const int b)
-{
-    return (a < b) ? a : b;
-}
-
-inline static int max(const int a, const int b)
-{
-    return (a > b) ? a : b;
-}
-#endif
-#else
-	typedef enum bool { false, true } bool;
-#endif
 
 typedef unsigned int         uint;
 typedef signed char          sint8;
@@ -96,6 +65,44 @@ typedef unsigned long long  uint64;
 #define GCC_PACKED __attribute__((__packed__))
 #define NORETURN __attribute__ ((noreturn))
 #endif
+
+#ifdef __cplusplus
+
+#if defined(_MSC_VER)  &&  _MSC_VER<=1200
+// old Microsoft compability stuff
+#error "Simutrans cannot compile with braindead combilers! Get rid of your zombie!"
+#if!defined(max)
+#define max(a,b) ((a) > (b) ? (a) : (b))
+#define min(a,b) ((a) < (b) ? (a) : (b))
+#endif
+#define strdup _strdup
+
+#else
+
+inline static int sgn(sint64 x)
+{
+    return (x > 0) ? 1 : (x < 0) ? -1 : 0;
+}
+
+inline static int sgn(int x)
+{
+    return (x > 0) ? 1 : (x < 0) ? -1 : 0;
+}
+
+inline static int min(const int a, const int b)
+{
+    return (a < b) ? a : b;
+}
+
+inline static int max(const int a, const int b)
+{
+    return (a > b) ? a : b;
+}
+#endif
+#else
+	typedef enum bool { false, true } bool;
+#endif
+
 
 /**
  * Sometimes we need to pass pointers as well as integers through
