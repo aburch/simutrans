@@ -77,7 +77,7 @@ public:
 	* true, then this rail was reserved
 	* @author prissi
 	*/
-	bool reserve( convoihandle_t c);
+	bool reserve(convoihandle_t c);
 
 	/**
 	* releases previous reservation

@@ -24,6 +24,7 @@ Release of 99.12
 	FIX: overflow when sorting vehicle list (defined signum for sint64)
 	ADD: crossing bettwen all ays (expept air) are now allowed. See attached example. Priority will have the secondly defined way.
 	FIX: do not show foreground for normal buildings
+	FIX: starting long engines in a depot could cause all strange stuff
 
 
 Release of 99.11

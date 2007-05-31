@@ -1021,16 +1021,33 @@ convoi_t::can_go_alte_richtung()
 	// eventually we need to add their positions to the convois route
 	koord3d pos = fahr[0]->gib_pos();
 	assert(pos==route.position_bei(0));
-	for(i=0; i<anz_vehikel; i++) {
-		vehikel_t* v = fahr[i];
-		// eventually add current position to the route
-		if(route.position_bei(0)!=v->gib_pos()) {
-			route.insert(v->gib_pos());
+	if(welt->lookup(pos)->gib_depot()) {
+#if 0
+		// add only depot direction to the convoi
+		sint32 len = 0;
+		for(i=0; i<anz_vehikel; i++) {
+			vehikel_t* v = fahr[i];
+			len += v->gib_besch()->get_length();
+			if(len>=16) {
+				route.insert(pos);
+				len -= 16;
+			}
 		}
-		// eventually we need to add also a previous position to this path
-		if(v->gib_besch()->get_length()>8) {
-			if(route.position_bei(0)!=v->gib_pos_prev()) {
-				route.insert(v->gib_pos_prev());
+#endif
+		return false;
+	}
+	else {
+		for(i=0; i<anz_vehikel; i++) {
+			vehikel_t* v = fahr[i];
+			// eventually add current position to the route
+			if(route.position_bei(0)!=v->gib_pos()) {
+				route.insert(v->gib_pos());
+			}
+			// eventually we need to add also a previous position to this path
+			if(v->gib_besch()->get_length()>8) {
+				if(route.position_bei(0)!=v->gib_pos_prev()) {
+					route.insert(v->gib_pos_prev());
+				}
 			}
 		}
 	}
@@ -1101,7 +1118,7 @@ convoi_t::vorfahren()
 						sch->unreserve(self);
 					}
 				}
-				gr->obj_remove(v);
+				v->verlasse_feld();
 			}
 			v->neue_fahrt(0, true);
 			gr=welt->lookup(k0);
@@ -1812,6 +1829,12 @@ void convoi_t::self_destruct()
  */
 void convoi_t::destroy()
 {
+	if(fahr[0]) {
+		fahr[0]->setze_convoi(NULL);
+	}
+	for( unsigned i=0;  i<anz_vehikel;  i++) {
+		fahr[i]->verlasse_feld();
+	}
 	delete this;
 }
 

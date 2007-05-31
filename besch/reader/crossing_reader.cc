@@ -14,7 +14,9 @@
 void crossing_reader_t::register_obj(obj_besch_t *&data)
 {
 	kreuzung_besch_t *besch = static_cast<kreuzung_besch_t *>(data);
-	crossing_t::register_besch(besch);
+	if(besch->topspeed1!=0) {
+		crossing_t::register_besch(besch);
+	}
 }
 
 
@@ -46,33 +48,40 @@ obj_besch_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
   const uint16 v = decode_uint16(p);
   const int version = v & 0x8000 ? v & 0x7FFF : 0;
 
-  if(version == 0) {
-		dbg->fatal("crossing_reader_t::read_node()","Old version of crossings cannot be used!");
-  }
-	besch->wegtyp1 = decode_uint8(p);
-	besch->wegtyp2 = decode_uint8(p);
-	besch->topspeed1 = decode_uint16(p);
-	besch->topspeed2 = decode_uint16(p);
-	besch->open_animation_time = decode_uint32(p);
-	besch->closed_animation_time = decode_uint32(p);
-	besch->sound = decode_sint8(p);
+	if(version == 0) {
+		dbg->error("crossing_reader_t::read_node()","Old version of crossings cannot be used!");
 
-	if(besch->sound==LOAD_SOUND) {
-		uint8 len=decode_sint8(p);
-		char wavname[256];
-		wavname[len] = 0;
-		for(uint8 i=0; i<len; i++) {
-			wavname[i] = decode_sint8(p);
-		}
-		besch->sound = (sint8)sound_besch_t::gib_sound_id(wavname);
+		besch->wegtyp1 = v;
+		besch->wegtyp2 = decode_uint16(p);
+		besch->topspeed1 = 0;
+		besch->topspeed2 = 0;
+	}
+	else {
+		besch->wegtyp1 = decode_uint8(p);
+		besch->wegtyp2 = decode_uint8(p);
+		besch->topspeed1 = decode_uint16(p);
+		besch->topspeed2 = decode_uint16(p);
+		besch->open_animation_time = decode_uint32(p);
+		besch->closed_animation_time = decode_uint32(p);
+		besch->sound = decode_sint8(p);
+
+		if(besch->sound==LOAD_SOUND) {
+			uint8 len=decode_sint8(p);
+			char wavname[256];
+			wavname[len] = 0;
+			for(uint8 i=0; i<len; i++) {
+				wavname[i] = decode_sint8(p);
+			}
+			besch->sound = (sint8)sound_besch_t::gib_sound_id(wavname);
 DBG_MESSAGE("crossing_reader_t::register_obj()","sound %s to %i",wavname,besch->sound);
-	}
-	else if(besch->sound>=0  &&  besch->sound<=MAX_OLD_SOUNDS) {
-		sint16 old_id = besch->sound;
-		besch->sound = (sint8)sound_besch_t::get_compatible_sound_id(old_id);
+		}
+		else if(besch->sound>=0  &&  besch->sound<=MAX_OLD_SOUNDS) {
+			sint16 old_id = besch->sound;
+			besch->sound = (sint8)sound_besch_t::get_compatible_sound_id(old_id);
 DBG_MESSAGE("crossing_reader_t::register_obj()","old sound %i to %i",old_id,besch->sound);
-	}
+		}
 
-	DBG_DEBUG("crossing_reader_t::read_node()","version=%i, w1=%d, speed1=%i, w2=%d, speed2=%d",v,besch->wegtyp1,besch->topspeed1,besch->wegtyp2,besch->topspeed2);
-  return besch;
+		DBG_DEBUG("crossing_reader_t::read_node()","version=%i, w1=%d, speed1=%i, w2=%d, speed2=%d",v,besch->wegtyp1,besch->topspeed1,besch->wegtyp2,besch->topspeed2);
+	}
+	return besch;
 }

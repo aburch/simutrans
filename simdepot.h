@@ -108,7 +108,7 @@ public:
 	 */
 	unsigned convoi_count() const { return convois.count(); }
 
-	convoihandle_t get_convoi(unsigned int icnv) const { return icnv < convoi_count() ? convois.at(icnv) : convoihandle_t(); }
+	convoihandle_t get_convoi(unsigned int icnv) const { return icnv < convoi_count() ? convois.at(icnv)->self : convoihandle_t(); }
 
 	convoihandle_t add_convoi();
 

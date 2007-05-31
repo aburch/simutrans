@@ -105,6 +105,7 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
 {
 	bild = IMG_LEER;
 	set_flag( ding_t::is_vehicle );
+	pos_next = pos;
 }
 
 
@@ -567,6 +568,7 @@ vehikel_t::play_sound() const
 void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 {
 	route_index = start_route_index+1;
+	check_for_finish = false;
 
 	if(welt->ist_in_kartengrenzen(gib_pos().gib_2d())) {
 		// mark the region after the image as dirty
@@ -640,6 +642,7 @@ vehikel_t::vehikel_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, s
 	sum_weight = besch->gib_gewicht();
 
 	ist_erstes = ist_letztes = false;
+	check_for_finish = false;
 	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
 	target_halt = halthandle_t();
 }
@@ -744,6 +747,9 @@ vehikel_t::hop()
 	if(route_index<cnv->get_route()->gib_max_n()) {
 		route_index ++;
 		pos_next = cnv->get_route()->position_bei(route_index);
+	}
+	else {
+		check_for_finish = true;
 	}
 	alte_fahrtrichtung = fahrtrichtung;
 
@@ -887,7 +893,7 @@ vehikel_t::fahre()
 	vehikel_basis_t::fahre();
 
 	// target mark: same coordinate twice (stems from very old ages, I think)
-	if(ist_erstes  &&  pos_next==gib_pos()) {
+	if(ist_erstes  &&  check_for_finish) {
 		// check half a tile (8 sync_steps) ahead for a tile change
 		const sint16 iterations = (fahrtrichtung==ribi_t::sued  || fahrtrichtung==ribi_t::ost) ? 1 : besch->get_length();
 
@@ -1683,7 +1689,7 @@ waggon_t::~waggon_t()
 {
 	if(cnv  &&  ist_erstes  &&  route_index<cnv->get_route()->gib_max_n()+1) {
 		// free als reserved blocks
-		block_reserver( cnv->get_route(), max(24,route_index)-24, target_halt.is_bound()?1000:1, false );
+		block_reserver( cnv->get_route(), cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->gib_route_index(), target_halt.is_bound()?1000:1, false );
 	}
 	grund_t *gr = welt->lookup(gib_pos());
 	if(gr) {
