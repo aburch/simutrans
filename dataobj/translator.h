@@ -126,7 +126,7 @@ class translator
 		static const char *compatibility_name(const char* str);
 
 		// return the name of the month
-		static const char *translator::get_month_name(uint16 month);
+		static const char *get_month_name(uint16 month);
 
 		/**
 		 * Checks if the given string is in the translation table

@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <assert.h>
 #include <zlib.h>
+#include <errno.h>
 
 #include "../simtypes.h"
 #include "../simversion.h"
