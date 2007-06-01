@@ -1,3 +1,6 @@
+	FIX: airplanes got confused, when the ground under them changed
+
+
 Release of 99.12
 
 31-Mai-2007:

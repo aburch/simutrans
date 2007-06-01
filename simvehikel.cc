@@ -155,6 +155,11 @@ vehikel_basis_t::verlasse_feld()
 void vehikel_basis_t::betrete_feld()
 {
 	grund_t *gr=welt->lookup(gib_pos());
+	if(!gr) {
+		dbg->error("vehikel_basis_t::betrete_feld()","'%s' new position (%i,%i,%i)!",gib_name(), gib_pos().x, gib_pos().y, gib_pos().z );
+		gr = welt->lookup_kartenboden(gib_pos().gib_2d());
+		setze_pos( gr->gib_pos() );
+	}
 	gr->obj_add(this);
 }
 
@@ -1445,6 +1450,7 @@ automobil_t::ist_weg_frei(int &restart_speed)
 {
 	const grund_t *gr = welt->lookup(pos_next);
 	if(gr==NULL) {
+		cnv->suche_neue_route();
 		return false;
 	}
 
@@ -2379,6 +2385,7 @@ schiff_t::ist_weg_frei(int &restart_speed)
 	if(ist_erstes) {
 		grund_t *gr = welt->lookup( pos_next );
 		if(gr==NULL) {
+			cnv->suche_neue_route();
 			return false;
 		}
 
@@ -2655,6 +2662,7 @@ aircraft_t::ist_weg_frei(int & restart_speed)
 
 	grund_t *gr = welt->lookup( pos_next );
 	if(gr==NULL) {
+		cnv->suche_neue_route();
 		return false;
 	}
 
