@@ -4,6 +4,7 @@
 	FIX: restore speed limit after crossing deletion
 	FIX: deletion of traffic lights led to crash with road deletion tool
 	FIX: (z9999) traffic light postion with drive on left fixed
+	FIX: (z9999) filter overcrowded did not work in haltlist
 
 
 Release of 99.12
