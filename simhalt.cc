@@ -105,6 +105,7 @@ koord
 haltestelle_t::gib_basis_pos() const
 {
 	if (!grund.empty()) {
+		assert(grund.front()->gib_pos().gib_2d()==init_pos);
 		return grund.front()->gib_pos().gib_2d();
 	}
 	else {
@@ -403,12 +404,15 @@ haltestelle_t::~haltestelle_t()
 void
 haltestelle_t::setze_name(const char *new_name)
 {
-//	const char *trans_name=translator::translate(new_name);
-	char *name=(char *)guarded_malloc(strlen(new_name)+2);
-	strcpy(name, new_name );
-	if (!grund.empty()) {
-		const char *old_name = grund.front()->gib_text();
-		grund.front()->setze_text(name);
+	char *name = NULL;
+	if(new_name!=NULL) {
+		name = (char *)guarded_malloc(strlen(new_name)+2);
+		strcpy(name, new_name );
+	}
+	grund_t *gr = welt->lookup_kartenboden(gib_basis_pos());
+	if(gr) {
+		const char *old_name = gr->gib_text();
+		gr->setze_text(name);
 		if(old_name) {
 			guarded_free((void *)old_name);
 		}
@@ -539,16 +543,15 @@ void haltestelle_t::reroute_goods()
 void
 haltestelle_t::verbinde_fabriken()
 {
+	// unlink all
+	slist_iterator_tpl <fabrik_t *> fab_iter(fab_list);
+	while( fab_iter.next() ) {
+		fab_iter.get_current()->unlink_halt(self);
+	}
+	fab_list.clear();
+
+	// then reconnect
 	if(!grund.empty()) {
-
-		{	// unlink all
-			slist_iterator_tpl <fabrik_t *> fab_iter(fab_list);
-			while( fab_iter.next() ) {
-				fab_iter.get_current()->unlink_halt(self);
-			}
-		}
-		fab_list.clear();
-
 		slist_iterator_tpl<grund_t *> iter( grund );
 		while(iter.next()) {
 			grund_t *gb = iter.get_current();
@@ -942,7 +945,6 @@ void
 haltestelle_t::rem_grund(grund_t *gb)
 {
 	// namen merken
-	const char *tmp = gib_name();
 	if(gb) {
 		int idx=grund.index_of(gb);
 		if(idx==-1) {
@@ -951,8 +953,25 @@ haltestelle_t::rem_grund(grund_t *gb)
 			return;
 		}
 
+		// first tile => remove name from this tile ...
+		char station_name_to_transfer[256];
+		if(idx==0) {
+			tstrncpy( station_name_to_transfer, gib_name(), 256 );
+			setze_name(NULL);
+		}
+
+		// now remove tile from list
 		reservation.remove_at(idx);
 		grund.remove(gb);
+		init_pos = grund.empty() ? koord::invalid : grund.front()->gib_pos().gib_2d();
+
+		if(idx==0) {
+			grund_t* bd = welt->lookup_kartenboden(init_pos);
+			if(bd  &&  bd->gib_text()  &&  bd->suche_obj(ding_t::label)) {
+				delete (label_t *)bd->suche_obj(ding_t::label);
+			}
+			setze_name( station_name_to_transfer );
+		}
 
 		planquadrat_t *pl = welt->access( gb->gib_pos().gib_2d() );
 		if(pl) {
@@ -982,27 +1001,9 @@ DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count
 			}
 		}
 
-		gb->setze_text(NULL);
-		if(!grund.empty()) {
-			grund_t* bd = grund.front();
-			if(bd->gib_text()  &&  bd->suche_obj(ding_t::label)) {
-				delete (label_t *)bd->suche_obj(ding_t::label);
-			}
-			bd->setze_text( tmp );
-			verbinde_fabriken();
-		}
-		else {
-			// !!! MEMORY LEAK, but crashes with it?!? !!!
-			// free( (void *)tmp );
-			slist_iterator_tpl <fabrik_t *> iter(fab_list);
-			while( iter.next() ) {
-				iter.get_current()->unlink_halt(self);
-			}
-			fab_list.clear();
-		}
+		// factory reach may have been changed ...
+		verbinde_fabriken();
 	}
-
-	init_pos = grund.empty() ? koord::invalid : grund.front()->gib_pos().gib_2d();
 }
 
 
@@ -1752,8 +1753,8 @@ haltestelle_t::gib_name() const
 		name = "Unnamed";
 	}
 	else {
-		grund_t* bd = grund.front();
-		if(bd!=NULL  &&  bd->gib_text()!=NULL) {
+		grund_t* bd = welt->lookup_kartenboden(gib_basis_pos());
+		if(bd!=NULL  &&  bd->get_flag(grund_t::has_text)) {
 			name = bd->gib_text();
 		}
 	}

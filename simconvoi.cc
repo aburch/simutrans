@@ -457,7 +457,7 @@ convoi_t::sync_step(long delta_t)
 		else {
 			// no depot reached, so book values for stop!
 			const grund_t* gr = welt->lookup(v->gib_pos());
-			halthandle_t halt = haltestelle_t::gib_halt(welt, v->gib_pos());
+			halthandle_t halt = gr->ist_wasser() ? haltestelle_t::gib_halt(welt, v->gib_pos()) : gr->gib_halt();
 			// we could have reached a non-haltestelle stop, so check before booking!
 			if (halt.is_bound() && gr->gib_weg_ribi(v->gib_waytype()) != 0) {
 				// Gewinn für transport einstreichen

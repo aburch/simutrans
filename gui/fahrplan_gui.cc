@@ -66,7 +66,7 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf,
 		sprintf( tmp, "%s (%i,%i,%i)", translator::translate("Invalid coordinate"), entry.pos.x, entry.pos.y, entry.pos.z );
 	}
 	else {
-		halthandle_t halt = haltestelle_t::gib_halt(welt, entry.pos);
+		halthandle_t halt = gr->ist_wasser() ? haltestelle_t::gib_halt(welt, entry.pos) : gr->gib_halt();
 
 		if(halt.is_bound()) {
 			if (entry.ladegrad != 0) {

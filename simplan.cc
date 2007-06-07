@@ -452,7 +452,7 @@ planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint1
 
 	// display signs
 	gr->display_overlay(xpos, ypos, reset_dirty);
-
+/*
 	if(ground_size>1) {
 		const sint16 h0 = gr->gib_hoehe();
 		for(uint8 i=1;  i<ground_size;  i++) {
@@ -461,6 +461,7 @@ planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint1
 			gr->display_overlay(xpos, yypos, reset_dirty );
 		}
 	}
+*/
 }
 
 /**

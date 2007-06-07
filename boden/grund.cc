@@ -625,15 +625,15 @@ PLAYER_COLOR_VAL
 grund_t::text_farbe() const
 {
 	// if this gund belongs to a halt, the color should reflect the halt owner, not the grund owner!
-	if(flags&is_halt_flag) {
-		const spieler_t *sp=welt->lookup(pos.gib_2d())->gib_halt()->gib_besitzer();
+	halthandle_t halt = welt->lookup(pos.gib_2d())->gib_halt();
+	if(halt.is_bound()) {
+		const spieler_t *sp=halt->gib_besitzer();
 		if(sp) {
 			return PLAYER_FLAG|(sp->get_player_color1()+4);
 		}
 	}
-
 	// else color according to current owner
-	if(obj_bei(0)) {
+	else if(obj_bei(0)) {
 		const spieler_t *sp = obj_bei(0)->gib_besitzer();
 		if(sp) {
 			return PLAYER_FLAG|(sp->get_player_color1()+4);
@@ -775,18 +775,20 @@ grund_t::display_overlay(const sint16 xpos, const sint16 ypos, const bool reset_
 	const bool dirty = get_flag(grund_t::dirty);
 
 	// marker/station text
-	const char * text = gib_text();
-	if(text && (umgebung_t::show_names & 1)) {
-		const sint16 raster_tile_width = get_tile_raster_width();
-		const int width = proportional_string_width(text)+7;
-		display_ddd_proportional_clip(xpos - (width - raster_tile_width)/2, ypos, width, 0, text_farbe(), COL_BLACK, text, dirty);
-	}
+	if(get_flag(has_text)  &&  umgebung_t::show_names) {
+		const char * text = gib_text();
+		if(umgebung_t::show_names & 1) {
+			const sint16 raster_tile_width = get_tile_raster_width();
+			const int width = proportional_string_width(text)+7;
+			display_ddd_proportional_clip(xpos - (width - raster_tile_width)/2, ypos, width, 0, text_farbe(), COL_BLACK, text, dirty);
+		}
 
-	// display station waiting information/status
-	if(flags&is_halt_flag  &&  (umgebung_t::show_names & 2)) {
-		halthandle_t halt = welt->lookup(pos.gib_2d())->gib_halt();
-		if(halt->gib_basis_pos3d()==pos) {
-			halt->display_status(xpos, ypos);
+		// display station waiting information/status
+		if(umgebung_t::show_names & 2) {
+			halthandle_t halt = welt->lookup(pos.gib_2d())->gib_halt();
+			if(halt.is_bound()  &&  halt->gib_basis_pos()==pos.gib_2d()) {
+				halt->display_status(xpos, ypos);
+			}
 		}
 	}
 
