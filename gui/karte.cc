@@ -737,7 +737,7 @@ reliefkarte_t::zeichnen(koord pos)
 	display_fillbox_wh_clip(pos.x, pos.y, 4000, 4000, COL_BLACK, true);
 	display_array_wh(pos.x, pos.y, relief->get_width(), relief->get_height(), relief->to_array());
 
-	// if we do not do this here, vehicles would erase the won name
+	// if we do not do this here, vehicles would erase the town names
 	if(mode==MAP_TOWN) {
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->gib_staedte();
 
@@ -762,7 +762,7 @@ reliefkarte_t::zeichnen(koord pos)
 	// calculate and draw the rotated coordinates
 	if(rotate45) {
 		// straight cursor
-		const koord diff = koord( ((display_get_width()/raster)*zoom_out)/zoom_in, (((display_get_height())/(raster))*zoom_out)/zoom_in );
+		const koord diff = koord( ((display_get_width()/raster)*zoom_out)/zoom_in, (((display_get_height()*2)/(raster))*zoom_out)/zoom_in );
 		koord ij = welt->gib_ij_off();
 		karte_to_screen( ij );
 		ij += pos;
@@ -773,15 +773,15 @@ reliefkarte_t::zeichnen(koord pos)
 	}
 	else {
 		// rotate cursor
-		const koord diff = koord( ((display_get_width()/raster)*zoom_out*0.707106)/zoom_in, (((display_get_height())/(raster))*zoom_out*0.707106)/zoom_in );
+		const koord diff = koord( (display_get_width()*zoom_out)/(raster*zoom_in*2), (display_get_height()*zoom_out)/(raster*zoom_in) );
 		koord ij = welt->gib_ij_off();
 		karte_to_screen( ij );
 		ij += pos;
 		koord view[4];
-		view[0] = ij + koord( -diff.x+diff.y, -diff.x-diff.y );
-		view[1] = ij + koord( -diff.x-diff.y, -diff.x+diff.y );
-		view[2] = ij + koord( diff.x-diff.y, diff.x+diff.y );
-		view[3] = ij + koord( diff.x+diff.y, diff.x-diff.y );
+		view[0] = ij + koord( -diff.y+diff.x, -diff.y-diff.x );
+		view[1] = ij + koord( -diff.y-diff.x, -diff.y+diff.x );
+		view[2] = ij + koord( diff.y-diff.x, diff.y+diff.x );
+		view[3] = ij + koord( diff.y+diff.x, diff.y-diff.x );
 		for(  int i=0;  i<4;  i++  ) {
 			display_direct_line( view[i].x, view[i].y, view[(i+1)%4].x, view[(i+1)%4].y, COL_YELLOW);
 		}
