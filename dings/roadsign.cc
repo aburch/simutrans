@@ -81,6 +81,10 @@ roadsign_t::~roadsign_t()
 			dbg->error("roadsign_t::~roadsign_t()","roadsign_t %p was deleted but ground was not a road!");
 		}
 	}
+	if(automatic) {
+		// traffic light switch automatically
+		welt->sync_remove( this );
+	}
 }
 
 
@@ -353,10 +357,6 @@ roadsign_t::entferne(spieler_t *sp)
 {
 	if(sp!=NULL) {
 		sp->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
-	}
-	if(automatic) {
-		// traffic light switch automatically
-		welt->sync_remove( this );
 	}
 }
 
