@@ -82,8 +82,7 @@ roadsign_t::~roadsign_t()
 		}
 	}
 	if(automatic) {
-		// traffic light switch automatically
-		welt->sync_remove( this );
+		welt->sync_remove(this);
 	}
 }
 
@@ -161,17 +160,18 @@ void roadsign_t::calc_bild()
 	}
 	else {
 		// since the places were switched
-		if(!umgebung_t::drive_on_left) {
-			hang = ribi_t::rueckwaerts(hang);
+		if(besch->is_traffic_light() && !umgebung_t::drive_on_left) {
+			if (hang==hang_t::nord || hang==hang_t::sued) {
+				hang = ribi_t::rueckwaerts(hang);
+			}
 		}
-
 		if(hang==hang_t::ost ||  hang==hang_t::nord) {
-			setze_yoff( 0 );
-			after_offset = -TILE_HEIGHT_STEP;
-		}
-		else {
 			setze_yoff( -TILE_HEIGHT_STEP );
 			after_offset = +TILE_HEIGHT_STEP;
+		}
+		else {
+			setze_yoff( 0 );
+			after_offset = -TILE_HEIGHT_STEP;
 		}
 	}
 
@@ -404,8 +404,8 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 	if(umgebung_t::drive_on_left  &&  besch->gib_wtyp()==road_wt) {
 		// correct for driving on left side
 		if(besch->is_traffic_light()) {
-			const int XOFF=(48*get_tile_raster_width())/64;
-			const int YOFF=(26*get_tile_raster_width())/64;
+			const int XOFF=(24*get_tile_raster_width())/64;
+			const int YOFF=(16*get_tile_raster_width())/64;
 
 			display_set_image_offset( besch->gib_bild_nr(0), -XOFF, -YOFF );
 			display_set_image_offset( besch->gib_bild_nr(8), -XOFF, -YOFF );

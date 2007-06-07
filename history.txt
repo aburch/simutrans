@@ -3,6 +3,7 @@
 	FIX: (kierongreen) Removing tram tracks from road caused crash
 	FIX: restore speed limit after crossing deletion
 	FIX: deletion of traffic lights led to crash with road deletion tool
+	FIX: (z9999) traffic light postion with drive on left fixed
 
 
 Release of 99.12
