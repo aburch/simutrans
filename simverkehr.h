@@ -125,7 +125,7 @@ public:
 	 * @author Hj. Malthaner
 	 * @see simwin
 	 */
-	virtual void stadtauto_t::info(cbuffer_t & buf) const;
+	virtual void info(cbuffer_t & buf) const;
 
 	// true, if this vehicle did not moved for some time
 	virtual bool is_stuck() { return current_speed==0;}

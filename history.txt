@@ -1,4 +1,7 @@
 	FIX: airplanes got confused, when the ground under them changed
+	FIX: (z9999) show factory detail info
+	FIX: (kierongreen) Removing tram tracks from road caused crash
+	FIX: restore speed limit after crossing deletion
 
 
 Release of 99.12

@@ -946,10 +946,15 @@ DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
 			flags &= ~has_way2;
 
 			// reset speed limit/crossing info (maybe altered by crossing)
-			crossing_t *cr = (crossing_t *)suche_obj(ding_t::crossing);
-			cr->entferne(0);
-			delete cr;
-			((weg_t *)(obj_bei(0)))->count_sign();
+			// Not all ways (i.e. with styp==7) will imply crossins, so wie hav to check
+			crossing_t *cr = (crossing_t *)suche_obj_ab(ding_t::crossing,1);
+			if(cr) {
+				cr->entferne(0);
+				delete cr;
+				// restore speed limit
+				((weg_t *)(obj_bei(0)))->setze_besch( ((weg_t *)(obj_bei(0)))->gib_besch() );
+				((weg_t *)(obj_bei(0)))->count_sign();
+			}
 		}
 		else {
 			flags &= ~has_way1;
