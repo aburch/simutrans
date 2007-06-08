@@ -17,7 +17,6 @@
 #ifdef _WIN32
 #include "SDL_syswm.h"
 #include <windows.h>
-#define PATH_MAX (1024)
 #else
 #include <sys/stat.h>
 #include <sys/errno.h>
@@ -29,6 +28,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+
+#ifndef PATH_MAX
+#define PATH_MAX (1024)
+#endif
 
 #include "simmem.h"
 #include "simversion.h"
@@ -540,7 +543,7 @@ BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 {
 	char *argv[32], *p;
 	int argc;
-	char pathname[1024];
+	char pathname[PATH_MAX];
 
 	// prepare commandline
 	argc = 0;
@@ -555,6 +558,16 @@ BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 #else
 int main(int argc, char **argv)
 {
+#ifndef __BEOS__
+#ifdef __APPLE__
+	/* since apple need explicitely a buffer and
+	 * crashes with a NULL pointer for realpath
+	 * (even though this was documented as only valid use!)
+	 */
+	char buffer2[PATH_MAX];
+#else
+	char *buffer2=NULL;
+#endif
 	char buffer[PATH_MAX];
 	strncpy( buffer, argv[0], PATH_MAX-1 );
 	/* Read the target of /proc/self/exe. */
@@ -563,7 +576,8 @@ int main(int argc, char **argv)
 	}
 	// no process file system => need to parse argv[0]
 	/* should work on most unix or gnu systems */
-	argv[0] = realpath (argv[0], NULL);
+	argv[0] = realpath (argv[0], buffer2);
+#endif
 #endif
 	return simu_main(argc, argv);
 }

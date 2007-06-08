@@ -16,6 +16,7 @@
 #OSTYPE = freebsd
 #OSTYPE = linux
 #OSTYPE = mingw
+#OSTYPE = macintel
 
 #DEBUG = 1
 #OPTIMISE = 1 # Add umpteen optimisation flags
