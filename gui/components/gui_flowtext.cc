@@ -244,8 +244,8 @@ koord gui_flowtext_t::output(koord offset, bool doit) const
 			color = COL_BLACK;
 			double_it = false;
 			if(doit) {
-				display_fillbox_wh_clip(offset.x+1, offset.y+12+1, xpos-4, 1, COL_WHITE, true);
-				display_fillbox_wh_clip(offset.x, offset.y+12, xpos-4, 1, color, true);
+				display_fillbox_wh_clip(offset.x+1, offset.y+ypos+10+1, xpos-4, 1, COL_WHITE, true);
+				display_fillbox_wh_clip(offset.x, offset.y+ypos+10, xpos-4, 1, color, true);
 			}
 			xpos = 0;
 			ypos += LINESPACE;
