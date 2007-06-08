@@ -65,6 +65,12 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt) :
  */
 verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
 {
+	// first: release crossing
+	grund_t *gr = welt->lookup(gib_pos());
+	if(gr  &&  gr->ist_uebergang()) {
+		((crossing_t *)(gr->suche_obj_ab(ding_t::crossing,2)))->release_crossing(this);
+	}
+
 	// just to be sure we are removed from this list!
 	if(time_to_life>=0) {
 		welt->sync_remove(this);

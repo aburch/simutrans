@@ -5,16 +5,13 @@
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
- */
-
-
-/*
- * weg.cc
  *
  * Basisklasse für Wege in Simutrans.
  *
  * 14.06.00 getrennt von simgrund.cc
  * Überarbeitet Januar 2001
+ *
+ * derived from simdings.h in 2007
  *
  * von Hj. Malthaner
  */

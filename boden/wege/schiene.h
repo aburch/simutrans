@@ -91,6 +91,11 @@ public:
 	*/
 	bool unreserve( vehikel_t *);
 
+	/* called befor deletion;
+	 * last chance to unreserve tiles ...
+	 */
+	virtual void entferne(spieler_t *sp);
+
 	/**
 	* gets the related convoi
 	* @author prissi

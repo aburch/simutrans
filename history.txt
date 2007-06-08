@@ -9,6 +9,7 @@
 	FIX: removing station from ground with other station one bridge/in tunnel could result in display/naming errors
 	FIX: (marcr) minutes were wrong in no-month mode
 	FIX: (z9999) underline error for help text H1 tags
+	FIX: unreservation during convoi/track deletion fixed
 
 
 Release of 99.12

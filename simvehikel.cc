@@ -5,10 +5,6 @@
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
- */
-
-/*
- * simvehikel.cc
  *
  * Fahrzeuge in der Welt von Simutrans
  *
@@ -113,7 +109,7 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
 void
 vehikel_basis_t::verlasse_feld()
 {
-	// frist: release crossing
+	// first: release crossing
 	grund_t *gr = welt->lookup(gib_pos());
 	if(gr->ist_uebergang()) {
 		((crossing_t *)(gr->suche_obj_ab(ding_t::crossing,2)))->release_crossing(this);
@@ -1669,6 +1665,10 @@ automobil_t::setze_convoi(convoi_t *c)
 		}
 	}
 	else {
+		if(cnv  &&  ist_erstes  &&  target_halt.is_bound()) {
+			target_halt->unreserve_position(welt->lookup(cnv->get_route()->position_bei(cnv->get_route()->gib_max_n())),cnv->self);
+			target_halt = halthandle_t();
+		}
 		cnv = NULL;
 	}
 }
@@ -1723,7 +1723,7 @@ waggon_t::setze_convoi(convoi_t *c)
 			}
 			else {
 				cnv = c;
-				if(c->get_state()==convoi_t::DRIVING) {
+				if(c  &&  c->get_state()==convoi_t::DRIVING) {
 DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_route(),route_index);
 					long num_index = (long)cnv==1?1001:0;
 					// rereserve next block, if needed
@@ -2150,7 +2150,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 				}
 			}
 			else {
-				// unreserve from here (only used during sale there might be reserved tiles not freed)
+				// unreserve from here (only used during sale, since there might be reserved tiles not freed)
 				unreserve_now = true;
 			}
 			if(sch1->has_signal()) {
@@ -2810,6 +2810,10 @@ aircraft_t::setze_convoi(convoi_t *c)
 		}
 	}
 	else {
+		if(ist_erstes  &&  target_halt.is_bound()) {
+			target_halt->unreserve_position(welt->lookup(cnv->get_route()->position_bei(cnv->get_route()->gib_max_n())),cnv->self);
+			target_halt = halthandle_t();
+		}
 		cnv = NULL;
 	}
 }

@@ -843,10 +843,10 @@ convoi_t::remove_vehikel_bei(uint16 i)
 				fahr[j] = fahr[j + 1];
 			}
 
+			v->setze_convoi(NULL);
+
 			--anz_vehikel;
 			fahr[anz_vehikel] = NULL;
-
-			v->setze_convoi(NULL);
 
 			const vehikel_besch_t *info = v->gib_besch();
 			sum_leistung -= info->gib_leistung();

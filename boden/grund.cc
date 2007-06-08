@@ -924,6 +924,7 @@ DBG_MESSAGE("grund_t::weg_entfernen()","this %p",this);
 	weg_t *weg = gib_weg(wegtyp);
 DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
 	if(weg!=NULL) {
+
 		if(ribi_rem) {
 			ribi_t::ribi ribi = weg->gib_ribi();
 			grund_t *to;

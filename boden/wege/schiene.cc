@@ -12,6 +12,7 @@
 #include "../../simworld.h"
 #include "../../simconvoi.h"
 #include "../../simvehikel.h"
+#include "../../simplay.h"
 #include "../../simcolor.h"
 #include "../../simgraph.h"
 
@@ -44,6 +45,17 @@ schiene_t::schiene_t(karte_t *welt, loadsave_t *file) : weg_t(welt)
 {
 	reserved = convoihandle_t();
 	rdwr(file);
+}
+
+
+void
+schiene_t::entferne(spieler_t *)
+{
+	// removes reservation
+	if(reserved.is_bound()) {
+		setze_ribi(ribi_t::keine);
+		reserved->recalc_route();
+	}
 }
 
 
