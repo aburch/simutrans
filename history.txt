@@ -5,6 +5,9 @@
 	FIX: deletion of traffic lights led to crash with road deletion tool
 	FIX: (z9999) traffic light postion with drive on left fixed
 	FIX: (z9999) filter overcrowded did not work in haltlist
+	FIX: right map rotation in non-isometric view
+	FIX: removing station from ground with other station one bridge/in tunnel could result in display/naming errors
+	FIX: (marcr) minutes were wrong in no-month mode
 
 
 Release of 99.12

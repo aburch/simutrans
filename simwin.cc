@@ -1054,7 +1054,7 @@ void win_display_flush(double konto)
 	else {
 		tage = 0;
 		stunden = (ticks_this_month * 24) >> wl->ticks_bits_per_tag;
-		minuten = ((ticks_this_month * 24 * 60) >> wl->ticks_bits_per_tag)%24;
+		minuten = ((ticks_this_month * 24 * 60) >> wl->ticks_bits_per_tag)%60;
 	}
 
 	char time [128];
