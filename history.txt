@@ -10,6 +10,7 @@
 	FIX: (marcr) minutes were wrong in no-month mode
 	FIX: (robofish) underline error for help text H1 tags
 	FIX: unreservation during convoi/track deletion fixed
+	FIX: (z9999) factory reader and colors in minimap were wrong
 
 
 Release of 99.12

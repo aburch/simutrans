@@ -46,7 +46,7 @@ factory_field_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	DBG_DEBUG("factory_field_reader_t::read_node()", "has_snow %i, probability %i, fields: max %i, min %i, production %i",besch->has_winter, besch->probability, besch->max_fields, besch->min_fields, besch->production_per_field );
-	besch->probability = 10000 - max(10000, besch->probability);
+	besch->probability = 10000 - min(10000, besch->probability);
 	return besch;
 }
 
