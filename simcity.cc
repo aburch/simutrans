@@ -643,11 +643,7 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 		}
 	}
 
-	const size_t len = strlen(buf) + 1;
-	char* name = new char[len];
-	tstrncpy(name, buf, len);
-
-	return name;
+	return strdup(buf);
 }
 
 
