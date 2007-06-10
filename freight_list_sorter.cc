@@ -112,9 +112,7 @@ freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max,
 }
 
 
-
-void
-freight_list_sorter_t::sort_freight( karte_t *welt, const vector_tpl <ware_t>*warray, cbuffer_t &buf, sort_mode_t sort_mode, const slist_tpl <ware_t>*full_list, const char *what_doing )
+void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing)
 {
 	sortby = sort_mode;
 

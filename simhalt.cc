@@ -1563,7 +1563,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 		for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
 			vector_tpl<ware_t> * warray = waren[i];
 			if(warray) {
-				freight_list_sorter_t::sort_freight( welt, warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting" );
+				freight_list_sorter_t::sort_freight(warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting");
 			}
 		}
 	}
