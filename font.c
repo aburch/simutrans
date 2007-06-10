@@ -19,7 +19,7 @@ static int nibble(sint8 c)
  */
 static void dsp_decode_bdf_data_row(uint8 *target, int y, int xoff, int g_width, char *str)
 {
-	uint16 data, data2=0;
+	uint16 data;
 	char buf[3];
 
 	buf[0] = str[0];
