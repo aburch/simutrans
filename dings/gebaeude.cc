@@ -338,7 +338,6 @@ gebaeude_t::gib_outline_colour() const
 {
 	COLOR_VAL colours[] = { COL_BLACK, COL_YELLOW, COL_YELLOW, COL_PURPLE, COL_RED, COL_GREEN };
 	PLAYER_COLOR_VAL disp_colour = 0;
-	bool dirty = get_flag(ding_t::dirty);
 	if(umgebung_t::hide_buildings!=umgebung_t::NOT_HIDE) {
 		if(gib_haustyp()!=unbekannt) {
 			disp_colour = colours[0] | TRANSPARENT50_FLAG | OUTLINE_FLAG;

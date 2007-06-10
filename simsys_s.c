@@ -125,8 +125,6 @@ int dr_os_init(const int* parameter)
 }
 
 
-static bit_per_pixel=16;
-
 // open the window
 int dr_os_open(int w, int h, int bpp, int fullscreen)
 {

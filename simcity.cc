@@ -567,7 +567,6 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 				}
 			}
 			// check for other special building (townhall, monument, tourst attraction)
-			const sint16 catchment_area = welt->gib_einstellungen()->gib_station_coverage();
 			for (int i=0; i<24; i++) {
 				const planquadrat_t* plan = welt->lookup( next_building[i] + k);
 				int distance = abs(next_building[i].x) + abs(next_building[i].y);

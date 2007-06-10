@@ -600,7 +600,6 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				}
 				// extra malus leave an existing road
 				if(from_str!=NULL  &&  str==NULL) {
-					ribi_t::ribi ribi = ribi_typ(to_pos,from_pos);
 					if(ribi_t::is_twoway(from_str->gib_ribi_unmasked())) {
 						// only connections from an existing road are expensive
 						// dead ends, crossings and the like are free ...

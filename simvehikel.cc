@@ -76,17 +76,6 @@ static const uint8 offset_array[8] = {
 };
 
 
-static uint16 get_freight_total(const slist_tpl<ware_t>* fracht)
-{
-	uint16 menge = 0;
-	slist_iterator_tpl<ware_t> iter(fracht);
-	while(iter.next()) {
-		menge += iter.get_current().menge;
-	}
-	return menge;
-}
-
-
 vehikel_basis_t::vehikel_basis_t(karte_t *welt):
     ding_t(welt)
 {

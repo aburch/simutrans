@@ -277,7 +277,6 @@ fabrik_t::add_random_field(uint16 probability)
 
 	// pick a coordinate to use - create a list of valid locations and choose a random one
 	slist_tpl<grund_t *> build_locations;
-	climate_bits place_climate = besch->gib_haus()->get_allowed_climate_bits();
 	do {
 		for(sint32 xoff = -radius; xoff < radius + gib_besch()->gib_haus()->gib_groesse().x ; xoff++) {
 			for(sint32 yoff =-radius ; yoff < radius + gib_besch()->gib_haus()->gib_groesse().y; yoff++) {

@@ -2781,7 +2781,6 @@ spieler_t::undo()
 		}
 		// we allow only leitung
 		if(gr->obj_count()>0) {
-			bool ok;
 			for( unsigned i=1;  i<gr->gib_top();  i++  ) {
 				switch(gr->obj_bei(i)->gib_typ()) {
 					// these are allowed
