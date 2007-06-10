@@ -8,7 +8,6 @@
 // same sorting for stations and vehicle/convoi freight ...
 
 class ware_t;
-class karte_t;
 
 class freight_list_sorter_t
 {

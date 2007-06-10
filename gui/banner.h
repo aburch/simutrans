@@ -10,8 +10,6 @@
 
 #include "../ifc/gui_fenster.h"
 
-class karte_t;
-
 
 /**
  * Eine Klasse, die ein Fenster zur Auswahl von bis zu acht
