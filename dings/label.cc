@@ -44,9 +44,7 @@ label_t::label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text) :
 			}
 		}
 		if(text) {
-			char *txt = (char *)malloc(strlen(text)+1);
-			strcpy( txt, text );
-			gr->setze_text( txt );
+			gr->setze_text(strdup(text));
 		}
 	}
 }

@@ -74,8 +74,7 @@ int dr_load_midi(const char *filename)
 				// MCI doesn't like relative paths
 				// but we get absolute ones anyway
 				// already absolute path
-				midi_filenames[i] = malloc( strlen(filename)+1 );
-				strcpy(midi_filenames[i], filename );
+				midi_filenames[i] = strdup(filename);
 
 				// need to make dos path seperators
 				for (j = 0; j < strlen(midi_filenames[i]); j++)	{

@@ -44,9 +44,7 @@ int dr_load_midi(const char * filename)
 			music = Mix_LoadMUS(filename);
 			if(music) {
 				midi_number = i;
-				midi_filenames[i] = malloc( strlen(filename) + 2 );
-
-				strcpy(midi_filenames[i], filename);
+				midi_filenames[i] = strdup(filename);
 			}
 			Mix_FreeMusic(music);
 			music = NULL;

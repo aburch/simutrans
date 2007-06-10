@@ -401,18 +401,13 @@ haltestelle_t::~haltestelle_t()
 void
 haltestelle_t::setze_name(const char *new_name)
 {
-	char *name = NULL;
-	if(new_name!=NULL) {
-		name = (char *)guarded_malloc(strlen(new_name)+2);
-		strcpy(name, new_name );
-	}
 	grund_t *gr = welt->lookup_kartenboden(gib_basis_pos());
 	if(gr) {
 		const char *old_name = gr->gib_text();
-		gr->setze_text(name);
 		if(old_name) {
 			guarded_free((void *)old_name);
 		}
+		gr->setze_text(new_name == NULL ? NULL : strdup(new_name));
 	}
 }
 
