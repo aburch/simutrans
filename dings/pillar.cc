@@ -1,5 +1,4 @@
-/* bruecke.cc
- *
+/*
  * Brueckenteile (sichtbar)
  *
  * Hj. Malthaner

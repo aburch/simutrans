@@ -1,6 +1,4 @@
 /*
- * halt_list_frame.h
- *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  * Written (w) 2001 Markus Weber
  *

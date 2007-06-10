@@ -1,5 +1,3 @@
-
-
 #include <string.h>
 #include <stdio.h>
 #include "cstring_t.h"

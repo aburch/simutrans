@@ -1,6 +1,4 @@
 /*
- * sdl_midi.c
- *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
  * SDL_Mixer music routine interfaces

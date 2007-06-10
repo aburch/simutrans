@@ -1,12 +1,9 @@
 /*
- * tocstring.h
- *
  * Copyright (c) 1997 - 2003 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
-
 
 /*
  * This module contains functions to convert primitive datatypes
@@ -15,7 +12,6 @@
  * Please note that these functions are not very efficient. Don't
  * use them in performance critical routines, not even in loops!!!
  */
-
 
 #ifndef TO_CSTRING_H
 #define TO_CSTRING_H

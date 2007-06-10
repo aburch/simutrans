@@ -1,12 +1,9 @@
 /*
- * vehikelbauer.h
- *
  * Copyright (c) 1997 - 2002 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
-
 
 #ifndef vehikelbauer_t_h
 #define vehikelbauer_t_h

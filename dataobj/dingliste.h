@@ -5,7 +5,6 @@
 #include "../simdings.h"
 
 
-
 class dingliste_t {
 private:
 	union {

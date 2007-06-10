@@ -1,7 +1,4 @@
 /*
- *
- *  sim_writer.cpp
- *
  *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
  *
  *  This file is part of the Simutrans project and may not be used in other
@@ -10,7 +7,6 @@
  *  Modulbeschreibung:
  *		Statische Instanzen alle writer_t Klassen die für Simutrans benötigt
  *		werden
- *
  */
 
 #include "text_writer.h"

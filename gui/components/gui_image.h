@@ -1,6 +1,4 @@
 /*
- * gui_image.h
- *
  * just displays an image
  *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner

@@ -1,5 +1,4 @@
 /*
- * simroutemgmt.cc
  * part of the Simutrans project
  * @author hsiegeln
  * 01/12/2003

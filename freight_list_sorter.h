@@ -1,8 +1,5 @@
-
 #ifndef freight_list_sorter_h
 #define freight_list_sorter_h
-
-
 
 #include "utils/cbuffer_t.h"
 #include "halthandle_t.h"

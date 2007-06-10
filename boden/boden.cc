@@ -1,5 +1,4 @@
-/* boden.cc
- *
+/*
  * Natur-Untergrund für Simutrans.
  * Überarbeitet Januar 2001
  * von Hj. Malthaner

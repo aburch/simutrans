@@ -1,6 +1,4 @@
 /*
- * fahrplan_gui.h
- *
  * dialog zur Eingabe eines Fahrplanes
  *
  * Hj. Malthaner

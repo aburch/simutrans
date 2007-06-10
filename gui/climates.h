@@ -1,13 +1,10 @@
 /*
- * welt.h
- *
  * dialog zur Eingabe der Werte fuer die Kartenerzeugung
  *
  * Hj. Malthaner
  *
  * April 2000
  */
-
 
 #ifndef climate_gui_h
 #define climate_gui_h

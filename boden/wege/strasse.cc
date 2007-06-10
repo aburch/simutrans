@@ -1,5 +1,4 @@
-/* strasse.cc
- *
+/*
  * Strassen für Simutrans
  *
  * Überarbeitet Januar 2001

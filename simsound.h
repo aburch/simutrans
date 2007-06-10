@@ -1,11 +1,9 @@
-/* simsound.h
- *
+/*
  * Beschreibung der Schnittstelle zum Soundsystem.
  * von Hj. Malthaner, 1998, 2000
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
-
 
 #ifndef simsound_h
 #define simsound_h

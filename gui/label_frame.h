@@ -1,6 +1,4 @@
 /*
- * label_frame.h
- *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
@@ -8,7 +6,6 @@
  *
  * Maintains the list of custon labels assigned to different palces on the map
  */
-
 
 #ifndef gui_labelframe_h
 #define gui_labelframe_h

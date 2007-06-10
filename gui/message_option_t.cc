@@ -1,6 +1,4 @@
 /*
- * message_optione_t.cc
- *
  * Settings for player message options
  *
  * Copyright (c) 2006 prissi

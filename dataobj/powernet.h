@@ -1,12 +1,9 @@
 /*
- * powernet_t.h
- *
  * Copyright (c) 1997 - 2003 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
-
 
 #ifndef powernet_t_h
 #define powernet_t_h

@@ -1,14 +1,11 @@
 /*
- * simworld.h
- *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
 
-/* simworld.h
- *
+/*
  * zentrale Datenstruktur von Simutrans
  * von Hj. Malthaner 1998
  */

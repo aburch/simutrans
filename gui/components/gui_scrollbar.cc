@@ -1,5 +1,4 @@
-/* scrollbar.cc
- *
+/*
  * Scrollbar class
  * Niel Roest
  */

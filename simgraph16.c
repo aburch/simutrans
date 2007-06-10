@@ -8,14 +8,11 @@
  * Usage for Iso-Angband is granted.
  */
 
-/* simgraph.c
- *
+/*
  * Versuch einer Graphic fuer Simulationsspiele
  * Hj. Malthaner, Aug. 1997
  *
- *
  * 3D, isometrische Darstellung
- *
  *
  *
  * 18.11.97 lineare Speicherung fuer Images -> hoehere Performance

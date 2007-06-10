@@ -1,5 +1,4 @@
-/* simconst.h
- *
+/*
  * all defines that can change the compiling
  */
 

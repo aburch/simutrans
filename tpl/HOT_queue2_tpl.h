@@ -1,6 +1,4 @@
 /*
- * HOT_queue_tpl.h
- *
  * Copyright (c) 2006 prissi
  *
  * This file is part of the Simutrans project and may not be used

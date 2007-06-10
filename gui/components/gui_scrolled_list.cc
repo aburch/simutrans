@@ -1,9 +1,7 @@
-/* scrolled_list.cc
- *
+/*
  * Scrolled List.
  * Displays list, scrollbuttons up/down, dragbar.
  * Has a min and a max size, and can be displayed with any size in between
- *
  */
 
 #include <stdio.h>

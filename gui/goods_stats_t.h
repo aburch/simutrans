@@ -1,6 +1,4 @@
 /*
- * goods_stats_t.h
- *
  * Copyright (c) 1997 - 2003 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used

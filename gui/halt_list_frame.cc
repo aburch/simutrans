@@ -1,6 +1,4 @@
 /*
- * halt_list_frame.cc
- *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  * Written (w) 2001 by Markus Weber
  * filtering added by Volker Meyer

@@ -1,6 +1,4 @@
 /*
- * simwerkz.cc
- *
  * Werkzeuge für den Simutrans-Spieler
  * von Hj. Malthaner
  *

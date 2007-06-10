@@ -1,6 +1,4 @@
 /*
- * citylist_frame_t.cpp
- *
  * Copyright (c) 1997 - 2003 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used

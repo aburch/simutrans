@@ -1,6 +1,4 @@
 /*
- * climates.cc
- *
  * dialog for setting the climate border and other map related parameters
  *
  * prissi

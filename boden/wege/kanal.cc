@@ -1,5 +1,4 @@
-/* dock.cc
- *
+/*
  * Eine Sorte Wasser die zu einer Haltestelle gehört
  *
  * Überarbeitet Januar 2001

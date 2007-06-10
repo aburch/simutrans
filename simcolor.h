@@ -1,5 +1,4 @@
-/* simconst.h
- *
+/*
  * all color related stuff
  */
 

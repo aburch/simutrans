@@ -1,6 +1,4 @@
 /*
- * gui_scrollpane.h
- *
  * this is a scrolling area in which subcomponents are drawn
  *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
@@ -8,7 +6,6 @@
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
-
 
 #ifndef gui_scrollpane_h
 #define gui_scrollpane_h

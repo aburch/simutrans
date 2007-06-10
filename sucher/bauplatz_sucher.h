@@ -1,12 +1,9 @@
 /*
- * bauplatz_sucher.h
- *
  * Copyright (c) 1997 - 2002 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
-
 
 #ifndef bauplatz_sucher_t_h
 #define bauplatz_sucher_t_h

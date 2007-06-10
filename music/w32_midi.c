@@ -1,5 +1,4 @@
-/* w32_midi.c
- *
+/*
  * native win32 midi playing routines
  *
  * author: Owen Rudge, Hj. Malthaner

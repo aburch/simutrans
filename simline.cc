@@ -1,6 +1,4 @@
-
 #include "simtypes.h"
-
 #include "simline.h"
 #include "simhalt.h"
 #include "simplay.h"
@@ -9,7 +7,6 @@
 #include "convoihandle_t.h"
 #include "simworld.h"
 #include "simlinemgmt.h"
-
 
 
 uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT };

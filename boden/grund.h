@@ -1,6 +1,4 @@
 /*
- * grund.h
- *
  * Copyright (c) 1997 - 2001 Hansj÷rg Malthaner
  *
  * This file is part of the Simutrans project and may not be used

@@ -1,6 +1,4 @@
 /*
- * simevent.h
- *
  * Header for system independant event handling routines
  *
  * Hj. Malthaner

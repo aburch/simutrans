@@ -1,8 +1,6 @@
 #ifndef dings_wolke_t
 #define dings_wolke_t
 
-
-
 #include "../ifc/sync_steppable.h"
 #include "../simimg.h"
 

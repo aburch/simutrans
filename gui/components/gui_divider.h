@@ -1,6 +1,4 @@
 /*
- * gui_divider.h
- *
  * Copyright (c) 2001 Hansjörg Malthaner
  * Written (w) 2001 Markus Weber
  *

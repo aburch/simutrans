@@ -1,15 +1,8 @@
 /*
- *
- *  slist_mit_gewichten_tpl.h
- *
  *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
  *
  *  This file is part of the Simutrans project and may not be used in other
  *  projects without written permission of the authors.
- *
- *  Modulbeschreibung:
- *      ...
- *
  */
 #ifndef __SLIST_MIT_GEWICHTEN_TPL_H
 #define __SLIST_MIT_GEWICHTEN_TPL_H

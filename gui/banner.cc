@@ -1,15 +1,11 @@
 /*
- * banner.cc
- *
  * Copyright (c) 1997 - 2004 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  *
  * Intro and everything else
- *
  */
-
 
 #include <stdlib.h>
 

@@ -1,5 +1,4 @@
-/* fahrer.h
- *
+/*
  * Interface für Verbindung von Fahrzeugen mit der Route
  *
  * 15.01.00, Hj. Malthaner
@@ -7,7 +6,6 @@
 
 #ifndef fahrer_h
 #define fahrer_h
-
 
 
 class grund_t;

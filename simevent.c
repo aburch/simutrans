@@ -1,10 +1,7 @@
 /*
- * simevent.c
- *
  * system-independant event handling routines
  * Hj. Malthaner, Jan. 2001
  */
-
 
 #include "tpl/debug_helper.h"
 

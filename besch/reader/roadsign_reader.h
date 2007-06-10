@@ -1,15 +1,8 @@
 /*
- *
- *  roadsign_reader.h
- *
  *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
  *
  *  This file is part of the Simutrans project and may not be used in other
  *  projects without written permission of the authors.
- *
- *  Modulbeschreibung:
- *      ...
- *
  */
 #ifndef __ROADSIGN_READER_H
 #define __ROADSIGN_READER_H

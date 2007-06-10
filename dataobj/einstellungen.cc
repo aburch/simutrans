@@ -1,5 +1,4 @@
-/* einsetllungen.cc
- *
+/*
  * Spieleinstellungen
  *
  * Hj. Malthaner

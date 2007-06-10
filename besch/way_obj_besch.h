@@ -1,7 +1,4 @@
 /*
- *
- *  way_obj_besch.h
- *
  *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
  *
  *  This file is part of the Simutrans project and may not be used in other
@@ -9,7 +6,6 @@
  *
  *  Modulbeschreibung:
  *      This files describes way objects like a powerline
- *
  */
 #ifndef __WAY_OBJ_BESCH_H
 #define __WAY_OBJ_BESCH_H

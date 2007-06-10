@@ -1,5 +1,4 @@
-/* dingliste.cc
- *
+/*
  * author V. Meyer
  */
 

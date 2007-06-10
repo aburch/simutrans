@@ -1,12 +1,9 @@
 /*
- * convoi_info_t.cc
- *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
-
 
 #include <stdio.h>
 

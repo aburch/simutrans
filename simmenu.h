@@ -1,12 +1,9 @@
 /*
- * simmenu.h
- *
  * Copyright (c) 2006 prissi
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
-
 
 #ifndef simmenu_h
 #define simmenu_h

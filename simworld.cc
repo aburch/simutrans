@@ -1,6 +1,4 @@
 /*
- * simworld.cc
- *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
@@ -8,8 +6,6 @@
  */
 
 /*
- * simworld.cc
- *
  * Hauptklasse fuer Simutrans, Datenstruktur die alles Zusammenhaelt
  * Hansjoerg Malthaner, 1997
  */

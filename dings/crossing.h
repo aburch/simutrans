@@ -1,6 +1,4 @@
 /*
- * crossing.h
- *
  * Copyright (c) 2007 prissi
  *
  * This file is part of the Simutrans project and may not be used

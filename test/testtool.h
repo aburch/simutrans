@@ -1,5 +1,4 @@
-/* testtool.h
- *
+/*
  * procedures for automated tests
  *
  * written by Hj. Maltahner, September 2000

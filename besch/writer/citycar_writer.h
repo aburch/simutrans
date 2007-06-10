@@ -1,15 +1,8 @@
 /*
- *
- *  citycar_writer.h
- *
  *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
  *
  *  This file is part of the Simutrans project and may not be used in other
  *  projects without written permission of the authors.
- *
- *  Modulbeschreibung:
- *      Deklaration der Klasse citycar_writer_t
- *
  */
 #ifndef CITYCAR_WRITER_H
 #define CITYCAR_WRITER_H

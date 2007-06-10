@@ -1,6 +1,4 @@
 /*
- * simfab.cc
- *
  * Fabrikfunktionen und Fabrikbau
  *
  * Hansjörg Malthaner

@@ -1,5 +1,4 @@
-/* umgebung.h
- *
+/*
  * Hier werden die Kommandozeilenparametr in für das Spiel
  * nutzbarer Form gespeichert.
  *

@@ -1,5 +1,4 @@
-/* worldtest.cc
- *
+/*
  * written by Hj. Maltahner, September 2000
  */
 

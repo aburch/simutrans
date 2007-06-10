@@ -1,5 +1,4 @@
-/* worldtest.h
- *
+/*
  * written by Hj. Maltahner, September 2000
  */
 

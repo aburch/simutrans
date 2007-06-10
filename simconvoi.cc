@@ -1,6 +1,4 @@
 /**
- * simconvoi.cc
- *
  * convoi_t Klasse für Fahrzeugverbände
  * von Hansjörg Malthaner
  */

@@ -1,5 +1,4 @@
-/* fundament.cc
- *
+/*
  * Untergrund für Gebäude in Simutrans.
  * Überarbeitet Januar 2001
  * von Hj. Malthaner

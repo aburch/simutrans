@@ -1,5 +1,4 @@
-/* simio.cc
- *
+/*
  * Ein-/Ausgaberoutinen fuer Simutrans
  * von Hj. Malthaner, 2000
  */

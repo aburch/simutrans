@@ -1,12 +1,9 @@
 /*
- * log.h
- *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
-
 
 #ifndef tests_log_h
 #define tests_log_h

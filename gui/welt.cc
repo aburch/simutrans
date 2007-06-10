@@ -1,6 +1,4 @@
 /*
- * welt.cc
- *
  * dialog zur Eingabe der Werte fuer die Kartenerzeugung
  *
  * Hj. Malthaner

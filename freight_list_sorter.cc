@@ -1,11 +1,8 @@
-
 #include "simtypes.h"
 #include "simware.h"
 #include "simhalt.h"
 #include "simworld.h"
-
 #include "dataobj/translator.h"
-
 #include "freight_list_sorter.h"
 
 

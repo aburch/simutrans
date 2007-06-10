@@ -6,7 +6,6 @@
 #include "gui_flowtext.h"
 
 
-
 gui_flowtext_t::node_t::node_t(const cstring_t &t, int a) : text(t) {
     att = a;
     next = 0;

@@ -1,7 +1,6 @@
 #include "ware_besch.h"
 
 
-
 static const char * catg_names[32] = {
   "special freight",
   "CATEGORY_01",	// was "piece goods",

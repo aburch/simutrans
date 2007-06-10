@@ -1,7 +1,4 @@
 /*
- *
- *  searchfolder.h
- *
  *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
  *
  *  This file is part of the Simutrans project and may not be used in other
@@ -9,7 +6,6 @@
  *
  *  Modulbeschreibung:
  *      searches a folder for a certain extension
- *
  */
 #ifndef __SEARCHFOLDER_H
 #define __SEARCHFOLDER_H

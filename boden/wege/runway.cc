@@ -1,5 +1,4 @@
-/* runway.cc
- *
+/*
  * runwayn für Simutrans
  *
  * Überarbeitet Januar 2001

@@ -1,7 +1,4 @@
 /*
- *
- *  grund_besch.cpp
- *
  *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
  *  2006 completely changed by prissi and Kieron Green
  *
@@ -12,7 +9,6 @@
  *      Calculates the ground for different levels using the textures here
  *
  */
-
 
 #include <stdio.h>
 

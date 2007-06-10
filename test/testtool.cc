@@ -1,5 +1,4 @@
-/* testtool.cc
- *
+/*
  * procedures for automated tests
  *
  * written by Hj. Maltahner, September 2000

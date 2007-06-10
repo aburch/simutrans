@@ -1,14 +1,11 @@
 /*
- * simvehikel.h
- *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
 
-/* simvehikel.h
- *
+/*
  * Fahrzeuge in der Welt von Sim
  *
  * 01.11.99  getrennt von simdings.h

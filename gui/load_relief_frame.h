@@ -1,12 +1,9 @@
 /*
- * load_relief_frame.h
- *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
-
 
 #ifndef gui_load_relief_frame_h
 #define gui_load_relief_frame_h

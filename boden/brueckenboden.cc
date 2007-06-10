@@ -1,4 +1,3 @@
-
 #include "../simdebug.h"
 
 #include "../simimg.h"

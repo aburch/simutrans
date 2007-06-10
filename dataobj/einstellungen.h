@@ -5,8 +5,6 @@
 #include "../simtypes.h"
 
 /**
- * einstellungen.h
- *
  * Spieleinstellungen
  *
  * Hj. Malthaner

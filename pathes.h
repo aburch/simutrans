@@ -1,6 +1,4 @@
 /*
- *  pathes.h
- *
  *  Copyright (c) 1997 - 2003 by Volker Meyer & Hansjörg Malthaner
  *
  *  This file is part of the Simutrans project and may not be used in other

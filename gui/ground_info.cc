@@ -1,19 +1,14 @@
 /*
- * infowin.cc
- *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
 
-
-/* infowin.cc
- *
+/*
  * Basisklasse fuer Infofenster
  * Hj. Malthaner, 2000
  */
-
 
 #include "../simcolor.h"
 #include "../simgraph.h"

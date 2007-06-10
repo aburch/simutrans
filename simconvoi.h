@@ -1,6 +1,4 @@
 /**
- * simconvoi.h
- *
  * Header Datei für dir convoi_t Klasse für Fahrzeugverbände
  * von Hansjörg Malthaner
  */

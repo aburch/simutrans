@@ -1,15 +1,8 @@
 /*
- *
- *  pedestrian_reader.cpp
- *
  *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
  *
  *  This file is part of the Simutrans project and may not be used in other
  *  projects without written permission of the authors.
- *
- *  Modulbeschreibung:
- *      ...
- *
  */
 
 #include <stdio.h>
@@ -26,9 +19,6 @@
  *
  *  Autor:
  *      Volker Meyer
- *
- *  Beschreibung:
- *      ...
  *
  *  Argumente:
  *      obj_besch_t *&data

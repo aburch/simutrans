@@ -1,13 +1,10 @@
 /*
- * fahrplan_gui.cc
- *
  * dialog zur Eingabe eines Fahrplanes
  *
  * Hj. Malthaner
  *
  * Juli 2000
  */
-
 
 #include "../simconvoi.h"
 #include "../simline.h"

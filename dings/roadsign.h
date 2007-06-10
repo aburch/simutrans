@@ -1,6 +1,4 @@
 /*
- * roadsign.h
- *
  * Copyright (c) 2005 prissi
  *
  * This file is part of the Simutrans project and may not be used

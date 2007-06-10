@@ -1,6 +1,4 @@
 /*
- * convoi_frame.cc
- *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  * filtering added by Volker Meyer
  *

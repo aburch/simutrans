@@ -1,6 +1,4 @@
 /*
- * simmenu.cc
- *
  * Copyright (c) 2006 prissi
  *
  * welt file is part of the Simutrans project and may not be used

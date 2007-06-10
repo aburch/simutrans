@@ -1,6 +1,4 @@
 /**
- * simverkehr.cc
- *
  * Bewegliche Objekte fuer Simutrans.
  * Transportfahrzeuge sind in simvehikel.h definiert, da sie sich
  * stark von den hier definierten Fahrzeugen fuer den Individualverkehr

@@ -1,6 +1,4 @@
 /*
- * gui_combobox.h
- *
  * with a connected edit field
  *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner

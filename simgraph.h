@@ -5,14 +5,12 @@
  * in other projects without written permission of the author.
  */
 
-/* simgraph.h
- *
+/*
  * Versuch einer Graphic fuer Simulationsspiele
  * Hj. Malthaner, Aug. 1997
  *
  *
  * 3D, isometrische Darstellung
- *
  */
 #ifndef simgraph_h
 #define simgraph_h

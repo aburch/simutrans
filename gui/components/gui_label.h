@@ -1,6 +1,4 @@
 /*
- * gui_label.h
- *
  * just displays a text, will be auto-translated
  *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner

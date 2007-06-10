@@ -1,5 +1,4 @@
-/* grund.cc
- *
+/*
  * Untergrund Basisklasse für Simutrans.
  * Überarbeitet Januar 2001
  * von Hj. Malthaner

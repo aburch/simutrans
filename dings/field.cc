@@ -1,5 +1,4 @@
-/* field.cc
- *
+/*
  * field, which can extend factories
  *
  * Hj. Malthaner

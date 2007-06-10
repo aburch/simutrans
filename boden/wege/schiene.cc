@@ -1,5 +1,4 @@
-/* schiene.cc
- *
+/*
  * Schienen für Simutrans
  *
  * Überarbeitet Januar 2001

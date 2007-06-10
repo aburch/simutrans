@@ -1,9 +1,7 @@
-/* simio.h
- *
+/*
  * Ein-/Ausgaberoutinen fuer Simutrans
  * von Hj. Malthaner, 2000
  */
-
 
 /**
  * Reads a line from a file. Skips lines starting with #

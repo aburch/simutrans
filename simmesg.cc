@@ -1,6 +1,4 @@
 /*
- * simmesg.cc
- *
  * Manages all gameplay-related messages of the games
  *
  * Copyright (c) 2005 Markus Pristovsek
@@ -8,7 +6,6 @@
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
-
 
 #include <string.h>
 #include <stdlib.h>

@@ -4,8 +4,7 @@
 #include "../besch/bruecke_besch.h"
 #include "../simworld.h"
 
-/** bruecke.h
- *
+/**
  * Brueckenteile (sichtbar)
  *
  * Hj. Malthaner

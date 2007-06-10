@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
 #include "simtypes.h"
 #include "simmem.h"
 #include "macros.h"

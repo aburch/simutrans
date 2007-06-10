@@ -1,4 +1,3 @@
-
 #include "../simdebug.h"
 
 #include "../gui/ground_info.h"
