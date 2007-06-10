@@ -1524,10 +1524,6 @@ DBG_MESSAGE("wkz_halt_aux()", "new segment for station");
 		}
 	}
 
-	if(sp!=welt->gib_spieler(1)) {
-		halt->gib_besitzer();
-	}
-
 	hausbauer_t::neues_gebaeude( welt, halt->gib_besitzer(), bd->gib_pos(), layout, besch, &halt);
 	halt->recalc_station_type();
 
