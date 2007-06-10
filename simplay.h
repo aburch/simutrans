@@ -295,7 +295,7 @@ public:
 	 * Name of the player
 	 * @author player
 	 */
-	const char *gib_name();
+	const char* gib_name() const;
 	const sint8 get_player_nr() const {return player_nr; }
 
 	/* return true, if the owner is none, myself or player(1)

@@ -241,8 +241,7 @@ spieler_t::get_line_frame(void)
 /* returns the name of the player; "player -1" sits in front of the screen
  * @author prissi
  */
-const char *
-spieler_t::gib_name(void)
+const char* spieler_t::gib_name(void) const
 {
 	return translator::translate(spieler_name_buf);
 }
