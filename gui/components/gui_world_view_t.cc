@@ -131,7 +131,7 @@ world_view_t::zeichnen(koord offset)
 					break;
 				}
 				if(yypos+raster>=0) {
-					plan->display_boden(pos.x+off_x,pos.y+yypos,raster,false);
+					plan->display_boden(pos.x + off_x, pos.y + yypos);
 				}
 			}
 		}

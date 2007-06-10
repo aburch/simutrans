@@ -343,9 +343,7 @@ void planquadrat_t::angehoben(karte_t *welt)
 }
 
 
-
-void
-planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 /*raster*/, bool reset_dirty) const
+void planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos) const
 {
 	grund_t *gr=gib_kartenboden();
 	if(!gr->get_flag(grund_t::draw_as_ding)) {
