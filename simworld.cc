@@ -3206,11 +3206,6 @@ karte_t::interactive_event(event_t &ev)
 	case 'M':
 	    setze_maus_funktion(wkz_marker, skinverwaltung_t::belegtzeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 	    break;
-#ifdef USE_DRIVABLES
-        case 'n':
-            setze_maus_funktion(wkz_test_new_cars, skinverwaltung_t::belegtzeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
-            break;
-#endif
 	case 'P':
 		sound_play(click_sound);
 		switch_active_player( active_player_nr+1 );
