@@ -948,7 +948,7 @@ haltestelle_t::rem_grund(grund_t *gb)
 		// first tile => remove name from this tile ...
 		char station_name_to_transfer[256];
 		if(idx==0) {
-			tstrncpy( station_name_to_transfer, gib_name(), 256 );
+			tstrncpy(station_name_to_transfer, gib_name(), lengthof(station_name_to_transfer));
 			setze_name(NULL);
 		}
 

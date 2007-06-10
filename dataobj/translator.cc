@@ -23,7 +23,7 @@
 #include "../simmem.h"
 #include "../utils/cstring_t.h"
 #include "../utils/searchfolder.h"
-#include "../utils/simstring.h"	//tstrncpy()
+#include "../utils/simstring.h"
 #include "../unicode.h"
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
@@ -286,7 +286,7 @@ void translator::load_language_file(FILE* file)
 
 bool translator::load(const cstring_t& scenario_path)
 {
-	tstrncpy(szenario_path, scenario_path, sizeof(szenario_path));
+	tstrncpy(szenario_path, scenario_path, lengthof(szenario_path));
 
 	//initialize these values to 0(ie. nothing loaded)
 	single_instance.lang_count = single_instance.current_lang = 0;

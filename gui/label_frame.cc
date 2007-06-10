@@ -91,8 +91,7 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) :
 			add_komponente(&fnlabel);
 
 			// Input box for new name
-			tstrncpy(ibuf, "", 1);
-			load_label(ibuf);
+			load_label();
 			input.setze_text(ibuf, 58);
 			input.add_listener(this);
 			input.setze_pos(koord(75,8));
@@ -208,19 +207,20 @@ bool label_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 
 
 
-void label_frame_t::load_label(char *name)
+void label_frame_t::load_label()
 {
-	name[0] = 0;
 	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
 	if (gr != NULL && gr->gib_text()) {
 		const ding_t* thing = gr->obj_bei(0);
 		if (thing != NULL) {
 			const spieler_t* owner = thing->gib_besitzer();
 			if (owner == NULL || owner == sp) {
-				tstrncpy(name, gr->gib_text(), 64);
+				tstrncpy(ibuf, gr->gib_text(), lengthof(ibuf));
+				return;
 			}
 		}
 	}
+	ibuf[0] = '\0';
 }
 
 

@@ -78,8 +78,8 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	this->halt = halt;
 
 	input.setze_pos(koord(11,4));
-	tstrncpy( edit_name, halt->gib_name(), 256 );
-	input.setze_text( edit_name, 256 );
+	tstrncpy(edit_name, halt->gib_name(), lengthof(edit_name));
+	input.setze_text(edit_name, lengthof(edit_name));
 
 	add_komponente(&sort_label);
 

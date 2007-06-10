@@ -243,7 +243,7 @@ convoi_t::setze_name(const char *name)
 	char buf[128];
 	name_offset = sprintf(buf,"(%i) ",self.get_id() );
 	tstrncpy(buf+name_offset, translator::translate(name), 116);
-	tstrncpy(name_and_id,buf,128);
+	tstrncpy(name_and_id, buf, lengthof(name_and_id));
 }
 
 

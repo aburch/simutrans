@@ -59,11 +59,7 @@ help_frame_t::help_frame_t() :
 	gui_frame_t("Help"),
 	scrolly(&flow)
 {
-	char buf[64];
-
-	tstrncpy(buf, "<title>Unnamed</title><p>No text set</p>", 64);
-
-	setze_text(buf);
+	setze_text("<title>Unnamed</title><p>No text set</p>");
 	setze_opaque(true);
 	add_komponente(&flow);
 

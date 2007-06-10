@@ -83,7 +83,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 	long hfind;
 
 	char wild[32];
-	tstrncpy(wild, SAVE_PATH_X "*", 32);
+	tstrncpy(wild, SAVE_PATH_X "*", lengthof(wild));
 	strcat(wild, suffix);
 
 	hfind = _findfirst( wild, &entry);
@@ -112,7 +112,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 	add_komponente(&fnlabel);
 
 	// Input box for game name
-	tstrncpy(ibuf, "", 1);
+	tstrncpy(ibuf, "", lengthof(ibuf));
 	input.setze_text(ibuf, 58);
 	input.add_listener(this);
 	input.setze_pos(koord(75,8));
@@ -280,7 +280,7 @@ bool savegame_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		// Save/Load Button or Enter-Key pressed
 		//---------------------------------------
 
-		tstrncpy(buf, SAVE_PATH_X, 128);
+		tstrncpy(buf, SAVE_PATH_X, lengthof(buf));
 		strcat(buf, ibuf);
 		strcat(buf, suffix);
 
@@ -307,7 +307,7 @@ bool savegame_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 				destroy_win(this);
 				intr_refresh_display( true );
 
-				tstrncpy(buf, SAVE_PATH_X, 128);
+				tstrncpy(buf, SAVE_PATH_X, lengthof(buf));
 				strcat(buf, iter.get_current()->gib_text());
 				strcat(buf, suffix);
 

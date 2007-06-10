@@ -6,6 +6,7 @@
 #include <zlib.h>
 #include <errno.h>
 
+#include "../macros.h"
 #include "../simtypes.h"
 #include "../simversion.h"
 #include "../simmem.h"
@@ -90,7 +91,7 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 		c++;
 	}
 	assert(start<end);
-	tstrncpy( this->pak_extension, start, 64 );
+	tstrncpy(this->pak_extension, start, lengthof(this->pak_extension));
 	// delete trailing path seperator
 	this->pak_extension[strlen(this->pak_extension)-1] = 0;
 

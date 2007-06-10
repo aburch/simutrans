@@ -656,7 +656,7 @@ void depot_frame_t::update_data()
 
 	switch(depot->convoi_count()) {
 		case 0:
-			tstrncpy(txt_convois, translator::translate("no convois"), 40);
+			tstrncpy(txt_convois, translator::translate("no convois"), lengthof(txt_convois));
 			break;
 		case 1:
 			if(icnv == -1) {
@@ -683,8 +683,8 @@ void depot_frame_t::update_data()
 	convoi_pics.clear();
 	if(cnv.is_bound() && cnv->gib_vehikel_anzahl() > 0) {
 
-		tstrncpy( txt_cnv_name, cnv->gib_internal_name(), 116 );
-		inp_name.setze_text(txt_cnv_name, 116);
+		tstrncpy(txt_cnv_name, cnv->gib_internal_name(), lengthof(txt_cnv_name));
+		inp_name.setze_text(txt_cnv_name, lengthof(txt_cnv_name));
 
 		unsigned i;
 		for(i=0; i<cnv->gib_vehikel_anzahl(); i++) {
@@ -1119,7 +1119,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 			}
 		}
 		else {
-			tstrncpy(txt_convoi_count, "keine Fahrzeuge", 40);
+			tstrncpy(txt_convoi_count, "keine Fahrzeuge", lengthof(txt_convoi_count));
 			*txt_convoi_value = '\0';
 		}
 	}

@@ -46,9 +46,9 @@ class label_frame_t : public gui_frame_t, action_listener_t
 	karte_t *welt;
 	koord pos;
 
-protected:
+private:
 	void remove_label();
-	void load_label(char *name);
+	void load_label();
 	void create_label(const char *name);
 	void goto_label(const char *name);
 
