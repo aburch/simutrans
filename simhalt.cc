@@ -1186,7 +1186,6 @@ bool
 haltestelle_t::vereinige_waren(const ware_t &ware)
 {
 	// pruefen ob die ware mit bereits wartender ware vereinigt werden kann
-	const bool is_pax = !ware.is_freight();
 	vector_tpl<ware_t> * warray = waren[ware.gib_typ()->gib_catg_index()];
 	if(warray!=NULL) {
 		for(unsigned i=0;  i<warray->get_count();  i++ ) {
