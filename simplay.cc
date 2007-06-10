@@ -2107,24 +2107,25 @@ spieler_t::built_hub( const koord pos, int radius )
 				const grund_t * gr = welt->lookup(try_pos)->gib_kartenboden();
 
 				// flat, solid, and ours
-				if(!gr->ist_wasser()  &&  gr->gib_grund_hang()==hang_t::flach  &&  (gr->gib_top()==0  ||  gr->obj_bei(0)->gib_besitzer()==NULL || gr->obj_bei(0)->gib_besitzer()==this)  ) {
-					if(gr->is_halt()  &&  gr->gib_halt()->gib_besitzer()==this) {
-						// ok, one halt belongs already to us ...
-      			return try_pos;
+				if (!gr->ist_wasser() && gr->gib_grund_hang() == hang_t::flach) {
+					const ding_t* thing = gr->obj_bei(0);
+					if (thing == NULL || thing->gib_besitzer() == NULL || thing->gib_besitzer() == this) {
+						if(gr->is_halt()  &&  gr->gib_halt()->gib_besitzer()==this) {
+							// ok, one halt belongs already to us ...
+							return try_pos;
+						} else if(gr->hat_weg(road_wt)) {
+							ribi_t::ribi  ribi = gr->gib_weg_ribi_unmasked(road_wt);
+							if( abs(x)+abs(y)<=dist  &&  (ribi_t::ist_gerade(ribi)  ||  ribi_t::ist_einfach(ribi))    ) {
+								best_pos = try_pos;
+								dist = abs(x)+abs(y);
+							}
+						} else if(gr->ist_natur()  &&  abs(x)+abs(y)<=dist-2) {
+							// also ok for a stop, but second choice
+							// so wie gave it a malus of 2
+							best_pos = try_pos;
+							dist = abs(x)+abs(y)+2;
+						}
 					}
-					else if(gr->hat_weg(road_wt)) {
-						ribi_t::ribi  ribi = gr->gib_weg_ribi_unmasked(road_wt);
-	      				if( abs(x)+abs(y)<=dist  &&  (ribi_t::ist_gerade(ribi)  ||  ribi_t::ist_einfach(ribi))    ) {
-	      					best_pos = try_pos;
-	      					dist = abs(x)+abs(y);
-	      				}
-	      			}
-	      			else if(gr->ist_natur()  &&  abs(x)+abs(y)<=dist-2) {
-	      				// also ok for a stop, but second choice
-	      				// so wie gave it a malus of 2
-      					best_pos = try_pos;
-      					dist = abs(x)+abs(y)+2;
-	      			}
 				}
 			}
 		}

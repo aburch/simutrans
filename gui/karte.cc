@@ -350,8 +350,11 @@ reliefkarte_t::calc_map_pixel(const koord k)
 		case MAP_STATUS:
 			{
 				halthandle_t halt = gr->gib_halt();
-				if (halt.is_bound()  && (halt->gib_besitzer()==welt->get_active_player()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) ) {
-					setze_relief_farbe_area(k, 3, halt->gib_status_farbe());
+				if (halt.is_bound()) {
+					const spieler_t* owner = halt->gib_besitzer();
+					if (owner == welt->get_active_player() || owner == welt->gib_spieler(1)) {
+						setze_relief_farbe_area(k, 3, halt->gib_status_farbe());
+					}
 				}
 			}
 			break;
@@ -365,13 +368,16 @@ reliefkarte_t::calc_map_pixel(const koord k)
 			}
 			else {
 				halthandle_t halt = gr->gib_halt();
-				if (halt.is_bound()   && (halt->gib_besitzer()==welt->get_active_player()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) ) {
-					// get number of last month's arrived convois
-					sint32 arrived = halt->get_finance_history(1, HALT_CONVOIS_ARRIVED);
-					if(arrived>max_convoi_arrived) {
-						max_convoi_arrived = arrived;
+				if (halt.is_bound()) {
+					const spieler_t* owner = halt->gib_besitzer();
+					if (owner == welt->get_active_player() || owner == welt->gib_spieler(1)) {
+						// get number of last month's arrived convois
+						sint32 arrived = halt->get_finance_history(1, HALT_CONVOIS_ARRIVED);
+						if(arrived>max_convoi_arrived) {
+							max_convoi_arrived = arrived;
+						}
+						setze_relief_farbe_area(k, 3, calc_severity_color(arrived, max_convoi_arrived));
 					}
-					setze_relief_farbe_area(k, 3, calc_severity_color(arrived, max_convoi_arrived));
 				}
 			}
 			break;
@@ -415,7 +421,8 @@ reliefkarte_t::calc_map_pixel(const koord k)
 			else if (gr->gib_halt().is_bound()) {
 				halthandle_t halt = gr->gib_halt();
 				// only show player's haltestellen
-				if (halt->gib_besitzer()==welt->get_active_player()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) {
+				const spieler_t* owner = halt->gib_besitzer();
+				if (owner == welt->get_active_player() || owner == welt->gib_spieler(1)) {
 					 sint32 arrived=halt->get_finance_history(1, HALT_DEPARTED)-halt->get_finance_history(1, HALT_ARRIVED);
 					if(arrived>max_arrived) {
 						max_arrived = arrived;
@@ -435,13 +442,16 @@ reliefkarte_t::calc_map_pixel(const koord k)
 			}
 			else {
 				halthandle_t halt = gr->gib_halt();
-				if (halt.is_bound()   && (halt->gib_besitzer()==welt->get_active_player()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) ) {
-					sint32 departed=halt->get_finance_history(1, HALT_ARRIVED)-halt->get_finance_history(1, HALT_DEPARTED);
-					if(departed>max_departed) {
-						max_departed = departed;
+				if (halt.is_bound()) {
+					const spieler_t* owner = halt->gib_besitzer();
+					if (owner == welt->get_active_player() || owner == welt->gib_spieler(1)) {
+						sint32 departed=halt->get_finance_history(1, HALT_ARRIVED)-halt->get_finance_history(1, HALT_DEPARTED);
+						if(departed>max_departed) {
+							max_departed = departed;
+						}
+						const uint8 color = calc_severity_color( departed, max_departed );
+						setze_relief_farbe_area(k, 3, color );
 					}
-					const uint8 color = calc_severity_color( departed, max_departed );
-					setze_relief_farbe_area(k, 3, color );
 				}
 			}
 			break;
@@ -450,9 +460,12 @@ reliefkarte_t::calc_map_pixel(const koord k)
 		case MAP_WAITING:
 			{
 				halthandle_t halt = gr->gib_halt();
-				if (halt.is_bound()   && (halt->gib_besitzer()==welt->get_active_player()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) ) {
-					const uint8 color = calc_severity_color(halt->get_finance_history(0, HALT_WAITING), halt->get_capacity() );
-					setze_relief_farbe_area(k, 3, color );
+				if (halt.is_bound()) {
+					const spieler_t* owner = halt->gib_besitzer();
+					if (owner == welt->get_active_player() || owner == welt->gib_spieler(1)) {
+						const uint8 color = calc_severity_color(halt->get_finance_history(0, HALT_WAITING), halt->get_capacity() );
+						setze_relief_farbe_area(k, 3, color );
+					}
 				}
 			}
 			break;

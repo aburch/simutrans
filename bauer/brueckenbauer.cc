@@ -253,8 +253,11 @@ bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 		return false;
 	}
 	ding_t *d=gr->obj_bei(0);
-	if(d!=NULL  &&  (d->gib_besitzer()!=sp  &&  d->gib_besitzer()!=NULL)) {
-		return false;
+	if (d != NULL) {
+		const spieler_t* owner = d->gib_besitzer();
+		if (owner != sp && owner != NULL) {
+			return false;
+		}
 	}
 	if(gr->gib_halt().is_bound()) {
 		return false;

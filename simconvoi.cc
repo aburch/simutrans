@@ -1665,9 +1665,12 @@ void convoi_t::laden()
 
 	halthandle_t halt = haltestelle_t::gib_halt(welt, fpl->eintrag[fpl->aktuell].pos);
 	// eigene haltestelle ?
-	if(halt.is_bound()  &&  (halt->gib_besitzer()==gib_besitzer()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) ) {
-		// loading/unloading ...
-		hat_gehalten(k, halt);
+	if (halt.is_bound()) {
+		const spieler_t* owner = halt->gib_besitzer();
+		if (owner == gib_besitzer()  | owner == welt->gib_spieler(1)) {
+			// loading/unloading ...
+			hat_gehalten(k, halt);
+		}
 	}
 
 	INT_CHECK("simconvoi 1077");

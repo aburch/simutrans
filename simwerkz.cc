@@ -352,8 +352,11 @@ DBG_MESSAGE("wkz_remover()",  "removing roadsign %d,%d",  pos.x, pos.y);
 	// Haltestelle prüfen
 	halthandle_t halt = plan->gib_halt();
 DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
-	if(gr->is_halt()  &&  halt.is_bound()  &&  (halt->gib_besitzer()==sp  ||  halt->gib_besitzer()==welt->gib_spieler(1))) {
-		return haltestelle_t::remove(welt, sp, gr->gib_pos(), msg);
+	if (gr->is_halt() && halt.is_bound()) {
+		const spieler_t* owner = halt->gib_besitzer();
+		if (owner == sp || owner == welt->gib_spieler(1)) {
+			return haltestelle_t::remove(welt, sp, gr->gib_pos(), msg);
+		}
 	}
 
 	// catenary or something like this
@@ -403,82 +406,85 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->gib_pos().x, 
 
 	// since buildings can have more than one tile, we must handle them together
 	gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
-	if(gb  &&  (gb->gib_besitzer()==sp  ||  gb->gib_besitzer()==NULL)) {
-		DBG_MESSAGE("wkz_remover()",  "removing building" );
-		const haus_tile_besch_t *tile  = gb->gib_tile();
-		koord size = tile->gib_besch()->gib_groesse( tile->gib_layout() );
+	if (gb != NULL) {
+		const spieler_t* owner = gb->gib_besitzer();
+		if (owner == sp || owner == NULL) {
+			DBG_MESSAGE("wkz_remover()",  "removing building" );
+			const haus_tile_besch_t *tile  = gb->gib_tile();
+			koord size = tile->gib_besch()->gib_groesse( tile->gib_layout() );
 
-		// get startpos
-		koord k=tile->gib_offset();
-		if(k != koord(0,0)) {
-			return wkz_remover_intern(sp, welt, pos-k, msg);
-		}
-		else {
-			// remove factory?
-			if(gb->get_fabrik()!=NULL) {
+			// get startpos
+			koord k=tile->gib_offset();
+			if(k != koord(0,0)) {
+				return wkz_remover_intern(sp, welt, pos-k, msg);
+			}
+			else {
+				// remove factory?
+				if(gb->get_fabrik()!=NULL) {
 
-				// remove connections ...
-				fabrik_t *fab=gb->get_fabrik();
+					// remove connections ...
+					fabrik_t *fab=gb->get_fabrik();
 DBG_MESSAGE("wkz_remover()", "removing factory:  %p");
 
-				if(welt->lookup(fab->gib_pos().gib_2d())->get_haltlist_count()!=0) {
-					// remove from all stops
-					msg = "Das Feld gehoert\neinem anderen Spieler\n";
-					return false;
-				}
+					if(welt->lookup(fab->gib_pos().gib_2d())->get_haltlist_count()!=0) {
+						// remove from all stops
+						msg = "Das Feld gehoert\neinem anderen Spieler\n";
+						return false;
+					}
 
-				// delete it from map
+					// delete it from map
 DBG_MESSAGE("wkz_remover()", "removing factory from world");
-				gb->setze_fab(NULL);
-				welt->rem_fab(fab);
+					gb->setze_fab(NULL);
+					welt->rem_fab(fab);
 
 DBG_MESSAGE("wkz_remover()", "removing factory:  supplier info change for %i factories",welt->gib_fab_list().count() );
-				// remove all links from factories
-				slist_iterator_tpl<fabrik_t *> iter (welt->gib_fab_list());
-				while(iter.next()) {
-					fabrik_t * fab = iter.get_current();
-					fab->rem_lieferziel(pos);
-					fab->rem_supplier(pos);
+					// remove all links from factories
+					slist_iterator_tpl<fabrik_t *> iter (welt->gib_fab_list());
+					while(iter.next()) {
+						fabrik_t * fab = iter.get_current();
+						fab->rem_lieferziel(pos);
+						fab->rem_supplier(pos);
 DBG_MESSAGE("wkz_remover()", "reconnecting factories");
-				}
-				welt->rem_fab((fabrik_t*)6);
+					}
+					welt->rem_fab((fabrik_t*)6);
 
-				// remove from all cities
+					// remove from all cities
 DBG_MESSAGE("wkz_remover()", "removing factory:  reconnecting towns");
-				const weighted_vector_tpl<stadt_t*>& stadt = welt->gib_staedte();
-				for (uint i = 0; i < stadt.get_count(); i++) {
-					stadt[i]->verbinde_fabriken();
+					const weighted_vector_tpl<stadt_t*>& stadt = welt->gib_staedte();
+					for (uint i = 0; i < stadt.get_count(); i++) {
+						stadt[i]->verbinde_fabriken();
+					}
+					welt->rem_fab((fabrik_t*)1);
+
+					// finally delete it
+					fab->~fabrik_t();
 				}
-				welt->rem_fab((fabrik_t*)1);
 
-				// finally delete it
-				fab->~fabrik_t();
-			}
-
-			// remove town? (when removing townhall)
-			if(gb->ist_rathaus()) {
-				stadt_t *stadt = welt->suche_naechste_stadt(pos);
-				if(!welt->rem_stadt( stadt )) {
-					msg = "Das Feld gehoert\neinem anderen Spieler\n";
-					return false;
-				}
-			}
-
-DBG_MESSAGE("wkz_remover()", "removing building: cleanup");
-			for(k.y = 0; k.y < size.y; k.y ++) {
-				for(k.x = 0; k.x < size.x; k.x ++) {
-					grund_t *gr = welt->lookup(k+pos)->gib_kartenboden();
-					gr->obj_loesche_alle(sp);
-					if(gr->gib_typ()==grund_t::fundament) {
-						uint8 new_slope = gr->gib_hoehe()==welt->min_hgt(k+pos) ? 0 : welt->calc_natural_slope(k+pos);
-						welt->access(k+pos)->kartenboden_setzen(new boden_t(welt, koord3d(k+pos,welt->min_hgt(k+pos)), new_slope) );
+				// remove town? (when removing townhall)
+				if(gb->ist_rathaus()) {
+					stadt_t *stadt = welt->suche_naechste_stadt(pos);
+					if(!welt->rem_stadt( stadt )) {
+						msg = "Das Feld gehoert\neinem anderen Spieler\n";
+						return false;
 					}
 				}
-			}
 
+DBG_MESSAGE("wkz_remover()", "removing building: cleanup");
+				for(k.y = 0; k.y < size.y; k.y ++) {
+					for(k.x = 0; k.x < size.x; k.x ++) {
+						grund_t *gr = welt->lookup(k+pos)->gib_kartenboden();
+						gr->obj_loesche_alle(sp);
+						if(gr->gib_typ()==grund_t::fundament) {
+							uint8 new_slope = gr->gib_hoehe()==welt->min_hgt(k+pos) ? 0 : welt->calc_natural_slope(k+pos);
+							welt->access(k+pos)->kartenboden_setzen(new boden_t(welt, koord3d(k+pos,welt->min_hgt(k+pos)), new_slope) );
+						}
+					}
+				}
+
+			}
+			welt->rem_fab((fabrik_t*)1);
+			return true;
 		}
-		welt->rem_fab((fabrik_t*)1);
-		return true;
 	}
 
 	// there is a powerline above this tile, but we do not own it
