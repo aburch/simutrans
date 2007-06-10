@@ -243,9 +243,9 @@ void loadsave_t::rdwr_long(sint32 &l, const char *delim)
 		}
 	} else {
 		if(saving) {
-			fprintf(fp, "%ld", l);
+			fprintf(fp, "%d", l);
 		} else {
-			fscanf(fp, "%ld", &l);
+			fscanf(fp, "%d", &l);
 		}
 	}
 	rdwr_delim(delim);
