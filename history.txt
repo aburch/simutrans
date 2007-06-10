@@ -11,6 +11,8 @@
 	FIX: (robofish) underline error for help text H1 tags
 	FIX: unreservation during convoi/track deletion fixed
 	FIX: (z9999) factory reader and colors in minimap were wrong
+	ADD: cityrules new parameter u/U ground is not/well suited for road
+	ADD: cityrules new parameter renovation_percentage (defualt 25) to finetune new building/renovation ratio
 
 
 Release of 99.12

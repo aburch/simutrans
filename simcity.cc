@@ -3,12 +3,9 @@
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
- */
-
-/*
- * Stadbau- und verwaltung
  *
- * Hj. Malthaner
+ * construction of cities, names of stops, creation of passengers
+ *
  */
 
 #include <stdio.h>
@@ -78,6 +75,11 @@ const uint32 stadt_t::step_bau_interval = 21000;
  */
 static int minimum_city_distance = 16;
 
+/*
+ * chance to do renovation instead new building (in percent)
+ * @author prissi
+ */
+static int renovation_percentage = 25;
 
 /**
  * add a new consumer every % people increase
@@ -215,6 +217,14 @@ bool stadt_t::bewerte_loc(const koord pos, const char* regel, int rotation)
 						// nature/empty
 						if (!gr->ist_natur() || gr->kann_alle_obj_entfernen(NULL) != NULL) return false;
 						break;
+ 					case 'u':
+ 						// unbuildable for road
+ 						if (!hang_t::ist_wegbar(gr->gib_grund_hang())) return false;
+ 						break;
+ 					case 'U':
+ 						// road may be buildable
+ 						if (hang_t::ist_wegbar(gr->gib_grund_hang())) return false;
+ 						break;
 					case 't':
 						// here is a stop/extension building
 						if (!gr->is_halt()) return false;
@@ -312,6 +322,7 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 	char buf[128];
 
 	minimum_city_distance = contents.get_int("minimum_city_distance", 16);
+	renovation_percentage = contents.get_int("renovation_percentage", 25);
 	int ind_increase = contents.get_int("industry_increase_every", 0);
 	for (int i = 0; i < 8; i++) {
 		industry_increase_every[i] = ind_increase << i;
@@ -2420,7 +2431,8 @@ void stadt_t::baue()
 	if (!best_haus.found() && !best_strasse.found() &&
 		was_ist_an(best_haus.gib_pos()) != gebaeude_t::unbekannt) {
 
-		if (simrand(8) <= 2) { // nicht so oft renovieren
+		// renovation
+		if (simrand(100) <= renovation_percentage) {
 			renoviere_gebaeude(best_haus.gib_pos());
 			INT_CHECK("simcity 876");
 		}
