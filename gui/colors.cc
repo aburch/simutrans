@@ -223,10 +223,8 @@ color_gui_t::action_triggered(gui_komponente_t *komp, value_t)
 				}
 			}
 		}
-    welt->setze_dirty();
 	} else if((buttons+17)==komp) {
 		grund_t::toggle_grid();
-		welt->setze_dirty();
 	}
 	welt->setze_dirty();
 	return true;
