@@ -67,8 +67,8 @@ else
 endif
 
 ifneq ($(DEBUG),)
-  CFLAGS   += -DDEBUG -g -fno-omit-frame-pointer
-  CXXFLAGS += -DDEBUG -g -fno-omit-frame-pointer
+  CFLAGS   += -O0 -DDEBUG -g
+  CXXFLAGS += -O0 -DDEBUG -g
 endif
 
 ifneq ($(PROFILE),)
