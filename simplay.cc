@@ -231,7 +231,7 @@ schedule_list_gui_t *
 spieler_t::get_line_frame(void)
 {
 	if(line_frame==NULL) {
-		line_frame = new schedule_list_gui_t(welt,this);
+		line_frame = new schedule_list_gui_t(this);
 	}
 	return line_frame;
 }

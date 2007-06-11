@@ -19,8 +19,6 @@
 
 class fabrik_t;
 class gebaeude_t;
-class karte_t;
-
 class button_t;
 
 /**

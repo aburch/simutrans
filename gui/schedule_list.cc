@@ -63,14 +63,13 @@ uint8 schedule_list_gui_t::statistic_type[MAX_LINE_COST]={
 // Hajo: 17-Jan-04: changed layout to make components fit into
 // a width of 400 pixels -> original size was unuseable in 640x480
 
-schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
- : gui_frame_t("Line Management",sp),
+schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
+	gui_frame_t("Line Management", sp_),
+	sp(sp_),
  scrolly(&cont),
  scrolly_haltestellen(&cont_haltestellen),
  scl(gui_scrolled_list_t::select)
 {
-	this->welt = welt;
-	this->sp = sp;
 	capacity = load = 0;
 	selection = -1;
 	loadfactor = 0;
@@ -182,7 +181,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
 	if (komp == &bt_change_line) {
 		if (line.is_bound()) {
-			create_win(-1, -1, new line_management_gui_t(welt, line, sp), w_info);
+			create_win(-1, -1, new line_management_gui_t(sp->gib_welt(), line, sp), w_info);
 		}
 	}
 	else if (komp == &bt_new_line) {
@@ -190,12 +189,12 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			// create typed line
 			uint8 type=tabs_to_lineindex[tabs.get_active_tab_index()];
 			linehandle_t new_line = sp->simlinemgmt.create_line(type);
-			create_win(-1, -1, new line_management_gui_t(welt, new_line, sp), w_info);
+			create_win(-1, -1, new line_management_gui_t(sp->gib_welt(), new_line, sp), w_info);
 			update_lineinfo( new_line );
 			build_line_list( tabs.get_active_tab_index() );
 		}
 		else {
-			create_win(-1, -1, 120, new nachrichtenfenster_t(welt, translator::translate("Cannot create generic line!\nSelect line type by\nusing filter tabs.")), w_autodelete);
+			create_win(-1, -1, 120, new nachrichtenfenster_t(sp->gib_welt(), translator::translate("Cannot create generic line!\nSelect line type by\nusing filter tabs.")), w_autodelete);
 		}
 	}
 	else if (komp == &bt_delete_line) {
@@ -395,7 +394,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		slist_tpl<koord> tmp; // stores koords of stops that are allready displayed
 		for(i=0; i<new_line->get_fahrplan()->maxi(); i++) {
 			const koord fahrplan_koord = new_line->get_fahrplan()->eintrag[i].pos.gib_2d();
-			halthandle_t halt = haltestelle_t::gib_halt(welt, fahrplan_koord);
+			halthandle_t halt = haltestelle_t::gib_halt(sp->gib_welt(), fahrplan_koord);
 			if (halt.is_bound()) {
 				// only add a haltestelle to the list, if it is not in the list allready
 				if (!tmp.contains(fahrplan_koord)) {

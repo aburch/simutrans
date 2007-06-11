@@ -12,7 +12,6 @@
 #include "../simline.h"
 
 class spieler_t;
-class karte_t;
 
 /**
  * Window.
@@ -26,7 +25,6 @@ class karte_t;
 class schedule_list_gui_t : public gui_frame_t, public action_listener_t
 {
 private:
-	karte_t *welt;
 	spieler_t *sp;
 
 	button_t bt_new_line, bt_change_line, bt_delete_line;
@@ -57,7 +55,7 @@ private:
 	void build_line_list(int filter);
 
 public:
-	schedule_list_gui_t(karte_t *welt,spieler_t *sp);
+	schedule_list_gui_t(spieler_t* sp);
 
 	/**
 	* in top-level fenstern wird der Name in der Titelzeile dargestellt
