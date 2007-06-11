@@ -549,10 +549,8 @@ haltestelle_t::verbinde_fabriken()
 			grund_t *gb = iter.get_current();
 			koord p = gb->gib_pos().gib_2d();
 
-			vector_tpl<fabrik_t *> &fablist = fabrik_t::sind_da_welche( welt,
-																								p-koord( welt->gib_einstellungen()->gib_station_coverage(), welt->gib_einstellungen()->gib_station_coverage()),
-																								p+koord( welt->gib_einstellungen()->gib_station_coverage(), welt->gib_einstellungen()->gib_station_coverage())
-																								);
+			int cov = welt->gib_einstellungen()->gib_station_coverage();
+			vector_tpl<fabrik_t*>& fablist = fabrik_t::sind_da_welche(welt, p - koord(cov, cov), p + koord(cov, cov));
 			for(unsigned i=0; i<fablist.get_count(); i++) {
 				fabrik_t* fab = fablist[i];
 				if(!fab_list.contains(fab)) {
@@ -897,8 +895,9 @@ haltestelle_t::add_grund(grund_t *gr)
 
 		// appends this to the ground
 		// after that, the surrounding ground will know of this station
-		for(  int y=-welt->gib_einstellungen()->gib_station_coverage();  y<=welt->gib_einstellungen()->gib_station_coverage();  y++ ) {
-			for(  int x=-welt->gib_einstellungen()->gib_station_coverage();  x<=welt->gib_einstellungen()->gib_station_coverage();  x++ ) {
+		int cov = welt->gib_einstellungen()->gib_station_coverage();
+		for (int y = -cov; y <= cov; y++) {
+			for (int x = -cov; x <= cov; x++) {
 				koord p=pos+koord(x,y);
 				if(welt->ist_in_kartengrenzen(p)) {
 					welt->access(p)->add_to_haltlist( self );
@@ -910,10 +909,7 @@ haltestelle_t::add_grund(grund_t *gr)
 
 		//DBG_MESSAGE("haltestelle_t::add_grund()","pos %i,%i,%i to %s added.",pos.x,pos.y,pos.z,gib_name());
 
-		vector_tpl<fabrik_t *> &fablist = fabrik_t::sind_da_welche( welt,
-			pos-koord(welt->gib_einstellungen()->gib_station_coverage(), welt->gib_einstellungen()->gib_station_coverage()),
-			pos+koord(welt->gib_einstellungen()->gib_station_coverage(), welt->gib_einstellungen()->gib_station_coverage())
-			);
+		vector_tpl<fabrik_t*>& fablist = fabrik_t::sind_da_welche(welt, pos - koord(cov, cov), pos + koord(cov, cov));
 		for(unsigned i=0; i<fablist.get_count(); i++) {
 			fabrik_t* fab = fablist[i];
 			if(!fab_list.contains(fab)) {
@@ -981,8 +977,9 @@ DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count
 			pl->gib_kartenboden()->set_flag(grund_t::dirty);
 		}
 
-		for( sint16 y=-welt->gib_einstellungen()->gib_station_coverage();  y<=welt->gib_einstellungen()->gib_station_coverage();  y++  ) {
-			for( sint16 x=-welt->gib_einstellungen()->gib_station_coverage();  x<=welt->gib_einstellungen()->gib_station_coverage();  x++  ) {
+		int cov = welt->gib_einstellungen()->gib_station_coverage();
+		for (int y = -cov; y <= cov; y++) {
+			for (int x = -cov; x <= cov; x++) {
 				planquadrat_t *pl = welt->access( gb->gib_pos().gib_2d()+koord(x,y) );
 				if(pl) {
 					pl->remove_from_haltlist(welt,self);

@@ -683,8 +683,9 @@ DBG_MESSAGE("spieler_t::suche_platz()","at (%i,%i) for size (%i,%i)",xpos,ypos,o
 	// distance of last found point
 	int dist=0x7FFFFFFF;
 	koord	platz;
-	for(  int y=ypos-welt->gib_einstellungen()->gib_station_coverage();  y<ypos+off.y+welt->gib_einstellungen()->gib_station_coverage();  y++  ) {
-		for(  int x=xpos-welt->gib_einstellungen()->gib_station_coverage();  x<xpos+off.x+welt->gib_einstellungen()->gib_station_coverage();  x++  ) {
+	int cov = welt->gib_einstellungen()->gib_station_coverage();
+	for (int y = ypos - cov; y < ypos + off.y + cov; y++) {
+		for (int x = xpos - cov; x < xpos + off.x + cov; x++) {
 			int	current_dist = abs(xpos_target-x) + abs(ypos_target-y);
 			if(   suche_platz(x,y, &platz)  &&  current_dist<dist  ) {
 				// we will take the shortest route found
@@ -1717,7 +1718,8 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","go back one segment");
 DBG_MESSAGE("spieler_t::baue_bahnhof","achieved length %i",baulaenge);
 	if(baulaenge==1  &&  laenge>1  &&  fab) {
 		// ok, maximum station length in one tile, better try something else
-		const koord coverage_koord(welt->gib_einstellungen()->gib_station_coverage(),welt->gib_einstellungen()->gib_station_coverage());
+		int cov = welt->gib_einstellungen()->gib_station_coverage();
+		const koord coverage_koord(cov, cov);
 		koord pos=*p;
 		sint32 cost = 0;
 		koord last_dir = koord((ribi_t::ribi)welt->lookup(*p)->gib_kartenboden()->gib_weg_ribi(track_wt));
