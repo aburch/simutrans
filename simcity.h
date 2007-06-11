@@ -360,14 +360,13 @@ public:
 	/**
 	 * Erzeugt eine neue Stadt auf Planquadrat (x,y) die dem Spieler sp
 	 * gehoert.
-	 * @param welt Die Karte zu der die Stadt gehoeren soll.
 	 * @param sp Der Besitzer der Stadt.
 	 * @param x x-Planquadratkoordinate
 	 * @param y y-Planquadratkoordinate
 	 * @param number of citizens
 	 * @author Hj. Malthaner
 	 */
-	stadt_t(karte_t *welt, spieler_t *sp, koord pos,sint32 citizens);
+	stadt_t(spieler_t* sp, koord pos, sint32 citizens);
 
 	/**
 	 * Erzeugt eine neue Stadt nach Angaben aus der Datei file.

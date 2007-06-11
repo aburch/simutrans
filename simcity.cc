@@ -888,14 +888,14 @@ stadt_t::~stadt_t()
 }
 
 
-stadt_t::stadt_t(karte_t* wl, spieler_t* sp, koord pos, int citizens) :
+stadt_t::stadt_t(spieler_t* sp, koord pos, int citizens) :
 	buildings(16),
 	pax_ziele_alt(128, 128),
 	pax_ziele_neu(128, 128),
 	arbeiterziele(4)
 {
-	welt = wl;
-	assert(wl->ist_in_kartengrenzen(pos));
+	welt = sp->gib_welt();
+	assert(welt->ist_in_kartengrenzen(pos));
 
 	step_count = 0;
 	next_step = 0;

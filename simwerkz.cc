@@ -1986,7 +1986,7 @@ dbg->warning("wkz_add_city()", "Already a city here");
 				//  stadt_t *stadt = new stadt_t(welt, welt->gib_spieler(1), pos,citizens/10+simrand(2*citizens+1));
 
 				// always start with 1/10 citicens
-				stadt_t *stadt = new stadt_t(welt, welt->gib_spieler(1), pos,citizens/10);
+				stadt_t* stadt = new stadt_t(welt->gib_spieler(1), pos, citizens / 10);
 
 				welt->add_stadt(stadt);
 				stadt->laden_abschliessen();

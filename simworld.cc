@@ -677,7 +677,7 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 
 			int current_citicens = (2500l * einstellungen->gib_mittlere_einwohnerzahl()) /(simrand(20000)+100);
 
-			stadt_t* s = new stadt_t(this, spieler[1], (*pos)[i], current_citicens);
+			stadt_t* s = new stadt_t(spieler[1], (*pos)[i], current_citicens);
 DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
 			stadt.append(s, current_citicens, 64);
 		}
