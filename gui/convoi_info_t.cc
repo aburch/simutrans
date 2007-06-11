@@ -73,7 +73,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"),
-  view(cnv->gib_welt(), cnv->gib_vehikel(0)),
+  view(cnv->gib_vehikel(0)),
   sort_label(translator::translate("loaded passenger/freight")),
   freight_info(8192)
 {

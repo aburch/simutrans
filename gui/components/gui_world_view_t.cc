@@ -33,13 +33,13 @@ world_view_t::world_view_t(karte_t *welt, koord3d location) : offsets(0)
 }
 
 
-world_view_t::world_view_t(karte_t *welt, ding_t *dt) : offsets(0)
+world_view_t::world_view_t(ding_t* dt) :
+	location(koord3d::invalid),
+	ding(dt),
+	offsets(0),
+	raster(0),
+	welt(dt->World())
 {
-    this->location = koord3d::invalid;
-    this->ding = dt;
-    this->welt = welt;
-    this->raster = 0;
-
     setze_groesse(koord(64,56));
 }
 

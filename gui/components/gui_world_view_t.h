@@ -50,8 +50,7 @@ private:
 
 public:
     world_view_t(karte_t *welt, koord3d location);
-
-    world_view_t(karte_t *welt, ding_t *dt);
+    world_view_t(ding_t* dt);
 
     /**
      * Sets the location to be displayed.
