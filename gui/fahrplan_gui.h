@@ -85,7 +85,6 @@ private:
     gui_label_t lb_line;
     gui_label_t lb_load;
 
-    karte_t *welt;
 		fahrplan_t* fpl;
     spieler_t *sp;
     convoihandle_t cnv;
@@ -103,8 +102,8 @@ private:
 	void init();
 
 public:
-    fahrplan_gui_t(karte_t *welt, fahrplan_t *fpl, spieler_t *sp);
-    fahrplan_gui_t(karte_t *welt, convoihandle_t cnv, spieler_t *sp);
+    fahrplan_gui_t(fahrplan_t* fpl, spieler_t* sp);
+    fahrplan_gui_t(convoihandle_t cnv, spieler_t* sp);
 
     /**
      * Mausklicks werden hiermit an die GUI-Komponenten

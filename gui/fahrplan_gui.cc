@@ -141,39 +141,37 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const 
 }
 
 
-fahrplan_gui_t::fahrplan_gui_t(karte_t *welt, convoihandle_t cnv, spieler_t *sp) :
-	gui_frame_t("Fahrplan", sp),
+fahrplan_gui_t::fahrplan_gui_t(convoihandle_t cnv_, spieler_t* sp_) :
+	gui_frame_t("Fahrplan", sp_),
 	scrolly(&fpl_text),
 	fpl_text("\n"),
 	lb_line("Serves Line:"),
 	lb_load("Full load"),
+	fpl(cnv_->gib_fahrplan()),
+	sp(sp_),
+	cnv(cnv_),
 	buf(8192)
 {
-	this->welt = welt;
-	this->sp = sp;
-	this->fpl = cnv->gib_fahrplan();
-	this->cnv = cnv;
-	if (cnv->get_line().is_bound()) {
-		new_line = cnv->get_line();
+	if (cnv_->get_line().is_bound()) {
+		new_line = cnv_->get_line();
 	}
 	init();
 }
 
 
 
-fahrplan_gui_t::fahrplan_gui_t(karte_t *welt, fahrplan_t *fpl, spieler_t *sp) :
-	gui_frame_t("Fahrplan", sp),
+fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_) :
+	gui_frame_t("Fahrplan", sp_),
 	scrolly(&fpl_text),
 	fpl_text("\n"),
 	lb_line("Serves Line:"),
 	lb_load("Full load"),
+	fpl(fpl_),
+	sp(sp_),
+	cnv(NULL),
 	buf(8192)
 {
-	this->welt = welt;
-	this->sp = sp;
-	this->fpl = fpl;
-DBG_DEBUG("fahrplan_gui_t::fahrplan_gui_t()","fahrplan %p",fpl);
-	this->cnv = NULL;
+	DBG_DEBUG("fahrplan_gui_t::fahrplan_gui_t()", "fahrplan %p", fpl_);
 	new_line = linehandle_t();
 	show_line_selector(false);
 	init();
@@ -246,7 +244,8 @@ void fahrplan_gui_t::init()
 	line_selector.setze_pos(koord(BUTTON_WIDTH, 5));
 	line_selector.setze_groesse(koord(BUTTON_WIDTH*2, 14));
 	line_selector.set_max_size(koord(BUTTON_WIDTH*2, 13*LINESPACE+2+16));
-	line_selector.set_highlight_color(welt->get_active_player()->get_player_color1()+1);
+	karte_t* welt = sp->gib_welt();
+	line_selector.set_highlight_color(welt->get_active_player()->get_player_color1() + 1);
 	line_selector.clear_elements();
 
 	sp->simlinemgmt.sort_lines();
@@ -308,6 +307,7 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 
 		fpl->cleanup();
 		fpl->eingabe_abschliessen();
+		karte_t* welt = sp->gib_welt();
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, NO_SOUND, NO_SOUND);
 		if (cnv.is_bound()) {
 			// if a line is selected
@@ -340,6 +340,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 	bt_add.pressed = true;
 	bt_insert.pressed = false;
 	bt_remove.pressed = false;
+			karte_t* welt = sp->gib_welt();
       welt->setze_maus_funktion(wkz_fahrplan_add,
 				skinverwaltung_t::fahrplanzeiger->gib_bild_nr(0),
 				welt->Z_PLAN,
@@ -354,6 +355,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		bt_add.pressed = false;
 		bt_insert.pressed = true;
 		bt_remove.pressed = false;
+			karte_t* welt = sp->gib_welt();
       welt->setze_maus_funktion(wkz_fahrplan_ins,
 				skinverwaltung_t::fahrplanzeiger->gib_bild_nr(0),
 				welt->Z_PLAN,
@@ -368,6 +370,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		bt_add.pressed = false;
 		bt_insert.pressed = false;
 		bt_remove.pressed = true;
+			karte_t* welt = sp->gib_welt();
       welt->setze_maus_funktion(wkz_abfrage,
 				skinverwaltung_t::fragezeiger->gib_bild_nr(0),
 				welt->Z_PLAN,
@@ -413,7 +416,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 	} else if (komp == &bt_promote_to_line) {
 		new_line = sp->simlinemgmt.create_line(fpl->get_type(), this->fpl);
 		init_line_selector();
-//		create_win(-1, -1, 120, new nachrichtenfenster_t(welt, translator::translate("New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.")), w_autodelete);
+//		create_win(-1, -1, 120, new nachrichtenfenster_t(sp->gib_welt(), translator::translate("New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.")), w_autodelete);
 	}
 	return true;
 }
@@ -459,7 +462,7 @@ fahrplan_gui_t::get_fpl_text(cbuffer_t & buf)
 			buf.append(i==fpl->aktuell ? "> " : "   ");
 			buf.append(i+1);
 			buf.append(".) ");
-			gimme_stop_name(buf, welt, fpl, i, 240);
+			gimme_stop_name(buf, sp->gib_welt(), fpl, i, 240);
 			buf.append("\n");
 		}
 		buf.append("\n\n");

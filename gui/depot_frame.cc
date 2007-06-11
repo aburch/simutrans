@@ -1152,7 +1152,7 @@ void depot_frame_t::new_line()
 DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
 	layout(NULL);
 	update_data();
-	create_win(-1, -1, new line_management_gui_t(welt, selected_line, depot->gib_besitzer()), w_info);
+	create_win(-1, -1, new line_management_gui_t(selected_line, depot->gib_besitzer()), w_info);
 DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
 }
 
@@ -1180,7 +1180,7 @@ void depot_frame_t::apply_line()
 void depot_frame_t::change_line()
 {
 	if(selected_line.is_bound()) {
-		create_win(-1, -1, new line_management_gui_t(welt, selected_line, depot->gib_besitzer()), w_info);
+		create_win(-1, -1, new line_management_gui_t(selected_line, depot->gib_besitzer()), w_info);
 	}
 }
 
@@ -1198,7 +1198,7 @@ void depot_frame_t::fahrplaneingabe()
 		if(fpl != NULL && fpl->ist_abgeschlossen()) {
 
 			// Fahrplandialog oeffnen
-			create_win(-1, -1, new fahrplan_gui_t(welt, fpl, cnv->gib_besitzer()), w_info);
+			create_win(-1, -1, new fahrplan_gui_t(fpl, cnv->gib_besitzer()), w_info);
 
 			// evtl. hat ein callback cnv gelöscht, so erneut testen
 			if(cnv.is_bound() && fpl != NULL) {

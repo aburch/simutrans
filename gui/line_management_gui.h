@@ -16,7 +16,7 @@
  class line_management_gui_t : public fahrplan_gui_t
  {
 public:
-	line_management_gui_t(karte_t *welt, linehandle_t line, spieler_t *sp);
+	line_management_gui_t(linehandle_t line, spieler_t* sp);
 	const char * gib_name() const;
 	void infowin_event(const event_t *ev);
 
