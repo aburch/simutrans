@@ -162,7 +162,7 @@ void
 depot_t::zeige_info()
 {
 	if(depot_info==NULL) {
-		depot_info = new depot_frame_t(welt, this);
+		depot_info = new depot_frame_t(this);
 	}
 	create_win(20, 20, depot_info, w_info);
 }

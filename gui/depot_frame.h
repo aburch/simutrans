@@ -34,8 +34,6 @@ class depot_frame_t : public gui_frame_t,
                       public action_listener_t
 {
 private:
-	karte_t *welt;
-
 	/**
 	 * The depot to display
 	 * @author Hansjörg Malthaner
@@ -194,8 +192,10 @@ private:
 
 	void image_from_storage_list(gui_image_list_t::image_data_t *bild_data);
 
+	karte_t* World() { return depot->World(); }
+
 public:
-	depot_frame_t(karte_t *welt, depot_t *depot);
+	depot_frame_t(depot_t* depot);
 
 	/**
 	 * Setzt die Fenstergroesse

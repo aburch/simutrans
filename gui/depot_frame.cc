@@ -61,9 +61,8 @@ bool  depot_frame_t::show_retired_vehicles = false;
 bool  depot_frame_t::show_all = true;
 
 
-depot_frame_t::depot_frame_t(karte_t *welt, depot_t *depot) :
+depot_frame_t::depot_frame_t(depot_t* depot) :
 	gui_frame_t(txt_title, depot->gib_besitzer()),
-	welt(welt),
 	depot(depot),
 	icnv(depot->convoi_count()-1),
 	lb_convois(NULL, COL_BLACK, gui_label_t::left),
@@ -180,10 +179,11 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	bool old_show_all=show_all;
 	show_retired_vehicles = true;
 	show_all = true;
-	char timeline = welt->gib_einstellungen()->gib_use_timeline();
-	welt->gib_einstellungen()->setze_use_timeline(0);
+	einstellungen_t* e = World()->gib_einstellungen();
+	char timeline = e->gib_use_timeline();
+	e->setze_use_timeline(0);
 	build_vehicle_lists();
-	welt->gib_einstellungen()->setze_use_timeline(timeline);
+	e->setze_use_timeline(timeline);
 	show_retired_vehicles = old_retired;
 	show_all = old_show_all;
 
@@ -566,7 +566,7 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 // add all current vehicles
 void depot_frame_t::build_vehicle_lists()
 {
-	const int month_now = welt->get_timeline_year_month();
+	const int month_now = World()->get_timeline_year_month();
 	int i = 0;
 
 	if (pas_vec.empty() && loks_vec.empty() && waggons_vec.empty()) {
@@ -596,7 +596,7 @@ void depot_frame_t::build_vehicle_lists()
 	vehicle_map.clear();
 
 	// we do not allow to built electric vehicle in a depot without electrification
-	const schiene_t *sch = dynamic_cast<const schiene_t *>(welt->lookup(depot->gib_pos())->gib_weg(track_wt));
+	const schiene_t* sch = dynamic_cast<const schiene_t*>(World()->lookup(depot->gib_pos())->gib_weg(track_wt));
 	const bool schiene_electric = (sch==NULL)  ||  sch->is_electrified();
 	i = 0;
 
@@ -650,7 +650,7 @@ void depot_frame_t::update_data()
 	static const char *txt_veh_action[3] = { "anhaengen", "voranstellen", "verkaufen" };
 
 	// change green into blue for retired vehicles
-	const int month_now = welt->get_timeline_year_month();
+	const int month_now = World()->get_timeline_year_month();
 
 	bt_veh_action.setze_text(txt_veh_action[veh_action]);
 
@@ -1073,7 +1073,7 @@ void depot_frame_t::infowin_event(const event_t *ev)
 
 			next_dep->zeige_info();
 			win_set_pos(next_dep->get_info_win(), x, y);
-			welt->setze_ij_off(next_dep->gib_pos());
+			World()->setze_ij_off(next_dep->gib_pos());
 		}
 	} else if(IS_WINDOW_REZOOM(ev)) {
 		koord gr = gib_fenstergroesse();
@@ -1096,7 +1096,7 @@ void depot_frame_t::infowin_event(const event_t *ev)
 void
 depot_frame_t::zeichnen(koord pos, koord groesse)
 {
-	if(welt->get_active_player()!=depot->gib_besitzer()) {
+	if (World()->get_active_player() != depot->gib_besitzer()) {
 		destroy_win(this);
 	}
 
@@ -1206,11 +1206,11 @@ void depot_frame_t::fahrplaneingabe()
 			}
 		}
 		else {
-			create_win(100, 64, new nachrichtenfenster_t(welt, "Es wird bereits\nein Fahrplan\neingegeben\n"), w_autodelete);
+			create_win(100, 64, new nachrichtenfenster_t(World(), "Es wird bereits\nein Fahrplan\neingegeben\n"), w_autodelete);
 		}
 	}
 	else {
-		create_win(100, 64, new nachrichtenfenster_t(welt, "Please choose vehicles first\n"), w_autodelete);
+		create_win(100, 64, new nachrichtenfenster_t(World(), "Please choose vehicles first\n"), w_autodelete);
 	}
 }
 
