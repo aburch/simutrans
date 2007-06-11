@@ -22,10 +22,10 @@
 cbuffer_t grund_info_t::gr_info(1024);
 
 
-grund_info_t::grund_info_t(karte_t* welt, const grund_t* gr_) :
-	gui_frame_t(gr->gib_name(),NULL),
+grund_info_t::grund_info_t(const grund_t* gr_) :
+	gui_frame_t(gr_->gib_name(), NULL),
 	gr(gr_),
-	view(welt, gr->gib_pos())
+	view(gr_->gib_welt(), gr_->gib_pos())
 {
 	if(gr->obj_bei(0)!=NULL) {
 		set_owner( gr->obj_bei(0)->gib_besitzer() );

@@ -99,7 +99,7 @@ brueckenboden_t::zeige_info()
 			// there is some info!
 			grund_info_t* gi = grund_infos.get(this);
 			if (gi == NULL) {
-				gi = new grund_info_t(welt, this);
+				gi = new grund_info_t(this);
 				grund_infos.put(this, gi);
 			}
 			create_win(-1, -1, gi, w_autodelete);

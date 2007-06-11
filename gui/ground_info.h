@@ -33,7 +33,7 @@ protected:
 	static cbuffer_t gr_info;
 
 public:
-    grund_info_t(karte_t* welt, const grund_t* gr);
+    grund_info_t(const grund_t* gr);
     ~grund_info_t() { gr->entferne_grund_info(); }
 
 	void zeichnen(koord pos, koord gr);
