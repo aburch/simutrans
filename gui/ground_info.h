@@ -28,12 +28,12 @@ protected:
 	 * if self deleted.
 	 * @author Hj. Malthaner
 	 */
-	grund_t *gr;
+	const grund_t* gr;
 	world_view_t view;
 	static cbuffer_t gr_info;
 
 public:
-    grund_info_t(karte_t *welt, grund_t *gr);
+    grund_info_t(karte_t* welt, const grund_t* gr);
     ~grund_info_t() { gr->entferne_grund_info(); }
 
 	void zeichnen(koord pos, koord gr);

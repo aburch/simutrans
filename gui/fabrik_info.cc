@@ -22,12 +22,12 @@
 
 cbuffer_t fabrik_info_t::info_buf(8192);
 
-fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
+fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb, karte_t* welt) :
 	ding_infowin_t(welt,gb),
+	fab(fab_),
 	scrolly(&cont),
 	txt("\n")
 {
-	this->fab = fab;
 	this->welt = welt;
 	this->about = 0;
 

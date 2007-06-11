@@ -34,10 +34,10 @@ protected:
      * if self deleted.
      * @author Hj. Malthaner
      */
-    ding_t *ding;
+    const ding_t* ding;
 
 public:
-    ding_infowin_t(karte_t *welt, ding_t *ding);
+    ding_infowin_t(karte_t* welt, const ding_t* ding);
 
     virtual ~ding_infowin_t() { ding->entferne_ding_info(); }
 

@@ -37,11 +37,10 @@ const int hist_type_color[MAX_CITY_HISTORY] =
 };
 
 
-stadt_info_t::stadt_info_t(stadt_t *stadt) :
-  gui_frame_t("Stadtinformation")
+stadt_info_t::stadt_info_t(stadt_t* stadt_) :
+  gui_frame_t("Stadtinformation"),
+	stadt(stadt_)
 {
-	this->stadt = stadt;
-
 	name_input.setze_text(stadt->access_name(), 30);
 	name_input.setze_groesse(koord(124, 14));
 	name_input.setze_pos(koord(8, 8));

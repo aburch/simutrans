@@ -119,7 +119,7 @@ protected:
 	 * Offene Info-Fenster
 	 * @author V. Meyer
 	 */
-	static ptrhashtable_tpl<grund_t*, grund_info_t*> grund_infos;
+	static ptrhashtable_tpl<const grund_t*, grund_info_t*> grund_infos;
 
 public:
 	/** true, when showing a grid
@@ -260,7 +260,7 @@ public:
 	inline void clear_flag(enum flag_values flag) {flags &= ~flag;}
 	inline bool get_flag(enum flag_values flag) const {return (flags & flag) != 0;}
 
-	void entferne_grund_info();
+	void entferne_grund_info() const;
 
 	/**
 	* start a new month (and toggle the seasons)

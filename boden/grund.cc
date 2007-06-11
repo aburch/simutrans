@@ -89,10 +89,11 @@ bool grund_t::underground_mode = false;
 
 uint8 grund_t::offsets[4]={0,1,2/*illegal!*/,2};
 
-ptrhashtable_tpl<grund_t*, grund_info_t*> grund_t::grund_infos;
+
+ptrhashtable_tpl<const grund_t*, grund_info_t*> grund_t::grund_infos;
 
 
-void grund_t::entferne_grund_info()
+void grund_t::entferne_grund_info() const
 {
 	grund_infos.remove(this);
 }

@@ -30,7 +30,7 @@ class button_t;
 class fabrik_info_t : public ding_infowin_t, public action_listener_t
 {
  private:
-	fabrik_t * fab;
+	const fabrik_t* fab;
 	karte_t  * welt;
 
 	button_t * lieferbuttons;
@@ -45,8 +45,7 @@ class fabrik_info_t : public ding_infowin_t, public action_listener_t
 	static cbuffer_t info_buf;
 
  public:
-	fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt);
-
+	fabrik_info_t(const fabrik_t* fab, const gebaeude_t* gb, karte_t* welt);
 	~fabrik_info_t();
 
 	/**

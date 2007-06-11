@@ -1162,8 +1162,7 @@ void fabrik_t::recalc_factory_status()
 }
 
 
-
-void fabrik_t::info(cbuffer_t & buf)
+void fabrik_t::info(cbuffer_t& buf) const
 {
 	buf.append("\n");
 	buf.append(translator::translate("Produktion"));

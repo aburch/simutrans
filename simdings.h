@@ -114,7 +114,7 @@ public:
 	*/
 	spieler_t * gib_besitzer() const;
 
-	void entferne_ding_info();
+	void entferne_ding_info() const;
 
 	/**
 	* setzt ein flag im flag-set des dings. Siehe auch flag_values

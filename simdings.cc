@@ -42,10 +42,10 @@
 karte_t * ding_t::welt = NULL;
 
 
-static ptrhashtable_tpl<ding_t*, ding_infowin_t*> ding_infos;
+static ptrhashtable_tpl<const ding_t*, ding_infowin_t*> ding_infos;
 
 
-void ding_t::entferne_ding_info() {
+void ding_t::entferne_ding_info() const {
 	ding_infos.remove(this);
 }
 

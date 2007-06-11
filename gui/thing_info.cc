@@ -21,11 +21,11 @@
 cbuffer_t ding_infowin_t::buf (8192);
 
 
-ding_infowin_t::ding_infowin_t(karte_t *welt,ding_t *ding) :
-	gui_frame_t("",ding->gib_besitzer()),
-	view(welt, koord3d::invalid)
+ding_infowin_t::ding_infowin_t(karte_t* welt, const ding_t* ding_) :
+	gui_frame_t("", ding_->gib_besitzer()),
+	view(welt, koord3d::invalid),
+	ding(ding_)
 {
-	this->ding = ding;
 	setze_opaque(true);
 
 	view.setze_pos( koord(175,10) );
