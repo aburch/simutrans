@@ -49,19 +49,12 @@ world_view_t::world_view_t(ding_t* dt) :
  * gemeldet
  * @author Hj. Malthaner
  */
-void
-world_view_t::infowin_event(const event_t *ev)
+void world_view_t::infowin_event(const event_t* ev)
 {
-	if(IS_LEFTRELEASE(ev)) {
-		if(ding!=NULL) {
-			if(welt->ist_in_kartengrenzen(ding->gib_pos().gib_2d())) {
-				welt->setze_ij_off(ding->gib_pos());
-			}
-		}
-		else {
-			if(welt->ist_in_kartengrenzen(location.gib_2d())) {
-				welt->setze_ij_off(location);
-			}
+	if (IS_LEFTRELEASE(ev)) {
+		const koord3d& pos = (ding != NULL ? ding->gib_pos() : location);
+		if (welt->ist_in_kartengrenzen(pos.gib_2d())) {
+			welt->setze_ij_off(pos);
 		}
 	}
 }
