@@ -2284,7 +2284,7 @@ int wkz_list_halt_tool(spieler_t *sp, karte_t *welt,koord k)
 int wkz_list_vehicle_tool(spieler_t *sp, karte_t *welt,koord k)
 {
 	if(k == INIT) {//see simworld.cc, karte_t::setze_maus_funktion
-		create_win(-1, -1, -1, new convoi_frame_t(sp, welt), w_autodelete, magic_convoi_t);
+		create_win(-1, -1, -1, new convoi_frame_t(sp), w_autodelete, magic_convoi_t);
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
 	}
 	return false;

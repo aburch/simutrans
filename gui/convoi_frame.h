@@ -35,8 +35,6 @@ public:
 private:
     spieler_t *owner;
 
-    karte_t	*welt;
-
     static const char *sort_text[SORT_MODES];
     /*
      * All gui elements of this dialog:
@@ -88,7 +86,7 @@ public:
      * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
      * @author Hj. Malthaner
      */
-    convoi_frame_t(spieler_t *sp, karte_t *welt);
+    convoi_frame_t(spieler_t *sp);
 
 		~convoi_frame_t();
 

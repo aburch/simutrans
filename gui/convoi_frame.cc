@@ -164,14 +164,13 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 }
 
 
-convoi_frame_t::convoi_frame_t(spieler_t *sp, karte_t *welt) :
+convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 	gui_frame_t("cl_title", sp),
+	owner(sp),
 	scrolly(&cont),
 	sort_label("cl_txt_sort"),
 	filter_label("cl_txt_filter")
 {
-	owner = sp;
-	this->welt = welt;
 	filter_frame = NULL;
 
 	sort_label.setze_pos(koord(BUTTON1_X, 4));
@@ -220,7 +219,7 @@ convoi_frame_t::~convoi_frame_t()
 
 void convoi_frame_t::display_list(void)
 {
-	const unsigned count = welt->get_convoi_count();
+	const unsigned count = owner->gib_welt()->get_convoi_count();
 #ifdef _MSC_VER
 	convoihandle_t *a = new convoihandle_t[count];
 #else
@@ -231,7 +230,7 @@ void convoi_frame_t::display_list(void)
 	unsigned i;
 
 	for(i=0;  i<count;  i++ ) {
-		convoihandle_t cnv = welt->get_convoi_array()[i];
+		convoihandle_t cnv = owner->gib_welt()->get_convoi_array()[i];
 		if(cnv->gib_besitzer() == owner && passes_filter(cnv)) {
 			a[n++] = cnv;
 		}

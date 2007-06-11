@@ -3318,7 +3318,7 @@ karte_t::interactive_event(event_t &ev)
 
 	case 'V':
 	    sound_play(click_sound);
-	    create_win(-1, -1, -1, new convoi_frame_t(get_active_player(), this), w_autodelete, magic_convoi_t);
+	    create_win(-1, -1, -1, new convoi_frame_t(get_active_player()), w_autodelete, magic_convoi_t);
 	    break;
 		case SIM_KEY_F2:
 		case SIM_KEY_F3:
