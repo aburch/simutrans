@@ -21,9 +21,9 @@
 cbuffer_t ding_infowin_t::buf (8192);
 
 
-ding_infowin_t::ding_infowin_t(karte_t* welt, const ding_t* ding_) :
+ding_infowin_t::ding_infowin_t(const ding_t* ding_) :
 	gui_frame_t("", ding_->gib_besitzer()),
-	view(welt, koord3d::invalid),
+	view(ding_->World(), koord3d::invalid),
 	ding(ding_)
 {
 	setze_opaque(true);

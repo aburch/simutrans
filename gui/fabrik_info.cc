@@ -22,13 +22,12 @@
 
 cbuffer_t fabrik_info_t::info_buf(8192);
 
-fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb, karte_t* welt) :
-	ding_infowin_t(welt,gb),
+fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
+	ding_infowin_t(gb),
 	fab(fab_),
 	scrolly(&cont),
 	txt("\n")
 {
-	this->welt = welt;
 	this->about = 0;
 
 	txt.setze_pos(koord(16,-15));
@@ -160,6 +159,7 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
    */
 bool fabrik_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
+	karte_t* welt = ding->World();
 	unsigned int i;
 
 	for(i=0; i<fab->gib_lieferziele().get_count(); i++) {

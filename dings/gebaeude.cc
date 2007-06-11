@@ -466,7 +466,7 @@ gebaeude_t::typ gebaeude_t::gib_haustyp() const
 ding_infowin_t *gebaeude_t::new_info()
 {
 	if (is_factory  &&  ptr.fab) {
-		return new fabrik_info_t(ptr.fab, this, welt);
+		return new fabrik_info_t(ptr.fab, this);
 	}
 	else {
 		return ding_t::new_info();

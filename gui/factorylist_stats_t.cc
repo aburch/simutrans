@@ -53,7 +53,7 @@ void factorylist_stats_t::infowin_event(const event_t * ev)
 		if (gr) {
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if (gb) {
-				create_win(320, 0,-1,new fabrik_info_t(fab,gb,welt),w_info,magic_none);
+				create_win(320, 0, -1, new fabrik_info_t(fab, gb), w_info, magic_none);
 			}
 		}
 	}

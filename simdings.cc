@@ -175,12 +175,10 @@ ding_t::info(cbuffer_t & buf) const
 }
 
 
-
-ding_infowin_t *ding_t::new_info()
+ding_infowin_t* ding_t::new_info()
 {
-	return new ding_infowin_t(welt, this);
+	return new ding_infowin_t(this);
 }
-
 
 
 void

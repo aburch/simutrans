@@ -37,7 +37,7 @@ protected:
     const ding_t* ding;
 
 public:
-    ding_infowin_t(karte_t* welt, const ding_t* ding);
+    ding_infowin_t(const ding_t* ding);
 
     virtual ~ding_infowin_t() { ding->entferne_ding_info(); }
 
