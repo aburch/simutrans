@@ -314,7 +314,7 @@ void grund_t::rdwr(loadsave_t *file)
 	dinge.rdwr(welt, file, gib_pos());
 
 	// need to add a crossing for old games ...
-	if(file->is_loading()  &&  ist_uebergang()  &&  !suche_obj_ab(ding_t::crossing,2)) {
+	if (file->is_loading() && ist_uebergang() && !find<crossing_t>(2)) {
 		dinge.add( new crossing_t(welt, obj_bei(0)->gib_besitzer(), pos, ((weg_t *)obj_bei(0))->gib_waytype(), ((weg_t *)obj_bei(1))->gib_waytype() ) );
 	}
 }
@@ -949,7 +949,7 @@ DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
 
 			// reset speed limit/crossing info (maybe altered by crossing)
 			// Not all ways (i.e. with styp==7) will imply crossins, so wie hav to check
-			crossing_t *cr = (crossing_t *)suche_obj_ab(ding_t::crossing,1);
+			crossing_t* cr = find<crossing_t>(1);
 			if(cr) {
 				cr->entferne(0);
 				delete cr;
@@ -1120,7 +1120,7 @@ bool grund_t::remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi
 				}
 			}
 			// citycar or pedestrians: just delete
-			else if(wt==road_wt  &&  (d->gib_typ()==ding_t::verkehr  ||  suche_obj(ding_t::fussgaenger))) {
+			else if (wt == road_wt && (d->gib_typ() == ding_t::verkehr || find<fussgaenger_t>())) {
 				delete d;
 			}
 			// remove bridge

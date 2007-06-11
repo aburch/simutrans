@@ -66,7 +66,7 @@ verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
 	// first: release crossing
 	grund_t *gr = welt->lookup(gib_pos());
 	if(gr  &&  gr->ist_uebergang()) {
-		((crossing_t *)(gr->suche_obj_ab(ding_t::crossing,2)))->release_crossing(this);
+		gr->find<crossing_t>(2)->release_crossing(this);
 	}
 
 	// just to be sure we are removed from this list!
@@ -490,7 +490,7 @@ stadtauto_t::ist_weg_frei()
 
 	// check for traffic lights
 	if(str->has_sign()) {
-		roadsign_t *rs = (roadsign_t *)gr->suche_obj(ding_t::roadsign);
+		const roadsign_t* rs = gr->find<roadsign_t>();
 		const int richtung = ribi_typ(gib_pos().gib_2d(),pos_next.gib_2d());
 		if(rs->gib_besch()->is_traffic_light()  &&  (rs->get_dir()&richtung)==0) {
 			fahrtrichtung = richtung;
@@ -545,7 +545,7 @@ stadtauto_t::ist_weg_frei()
 
 	if(frei  &&  str->is_crossing()) {
 		// railway crossing/ Bahnuebergang: waggons here
-		crossing_t *cr = (crossing_t *)(gr->suche_obj_ab(ding_t::crossing,2));
+		crossing_t* cr = gr->find<crossing_t>(2);
 		frei = cr->request_crossing( this );
 	}
 
@@ -602,7 +602,7 @@ stadtauto_t::hop()
 	calc_bild();
 	betrete_feld();
 	if(to->ist_uebergang()) {
-		((crossing_t *)(to->suche_obj_ab(ding_t::crossing,2)))->add_to_crossing(this);
+		to->find<crossing_t>(2)->add_to_crossing(this);
 	}
 	pos_next = pos_next_next;
 	pos_next_next = koord3d::invalid;
@@ -643,7 +643,7 @@ stadtauto_t::hop_check()
 			bool add=true;
 			// check, if roadsign forbid next step ...
 			if(to->gib_weg(road_wt)->has_sign()) {
-				const roadsign_besch_t *rs_besch = ((roadsign_t *)to->suche_obj(ding_t::roadsign))->gib_besch();
+				const roadsign_besch_t* rs_besch = to->find<roadsign_t>()->gib_besch();
 				add = (rs_besch->is_traffic_light()  ||  rs_besch->gib_min_speed()<=besch->gib_geschw())  &&  !rs_besch->is_private_way();
 			}
 			if(add) {
@@ -667,7 +667,7 @@ stadtauto_t::hop_check()
 						bool add=true;
 						// check, if roadsign forbid next step ...
 						if(w->has_sign()) {
-							const roadsign_besch_t *rs_besch = ((roadsign_t *)to->suche_obj(ding_t::roadsign))->gib_besch();
+							const roadsign_besch_t* rs_besch = to->find<roadsign_t>()->gib_besch();
 							add = (rs_besch->is_traffic_light()  ||  rs_besch->gib_min_speed()<=besch->gib_geschw())  &&  !rs_besch->is_private_way();
 	//DBG_MESSAGE("stadtauto_t::hop()","roadsign");
 						}

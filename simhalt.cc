@@ -162,7 +162,7 @@ DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, p
 	halt->mark_unmark_coverage(false);
 
 	// remove station building?
-	gebaeude_t *gb=dynamic_cast<gebaeude_t *>(bd->suche_obj(ding_t::gebaeude));
+	const gebaeude_t* gb = bd->find<gebaeude_t>();
 
 	if(gb) {
 DBG_MESSAGE("haltestelle_t::remove()",  "removing building" );
@@ -197,7 +197,7 @@ DBG_MESSAGE("haltestelle_t::remove()", "removing building: cleanup");
 					sp->buche(costs, pos.gib_2d()+k, COST_CONSTRUCTION);
 					if(gr) {
 						halt->rem_grund(gr);
-						gebaeude_t *gb=static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+						gebaeude_t* gb = gr->find<gebaeude_t>();
 						gb->entferne(NULL);	// do not substract costs
 						gr->obj_remove(gb);	// remove building
 						delete gb;
@@ -959,9 +959,7 @@ haltestelle_t::rem_grund(grund_t *gb)
 
 		if(idx==0) {
 			grund_t* bd = welt->lookup_kartenboden(init_pos);
-			if(bd  &&  bd->gib_text()  &&  bd->suche_obj(ding_t::label)) {
-				delete (label_t *)bd->suche_obj(ding_t::label);
-			}
+			if (bd && bd->gib_text()) delete bd->find<label_t>();
 			setze_name( station_name_to_transfer );
 		}
 
@@ -1635,7 +1633,7 @@ haltestelle_t::transfer_to_public_owner()
 	slist_iterator_tpl<grund_t *> iter( grund );
 	while(iter.next()) {
 		grund_t *gr = iter.get_current();
-		gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+		gebaeude_t* gb = gr->find<gebaeude_t>();
 		if(gb) {
 			// there are also water tiles, which may not have a buidling
 			spieler_t *gb_sp=gb->gib_besitzer();
@@ -1672,7 +1670,7 @@ haltestelle_t::recalc_station_type()
 	// iterate over all tiles
 	while(iter.next()) {
 		grund_t *gr = iter.get_current();
-		gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+		const gebaeude_t* gb = gr->find<gebaeude_t>();
 		const haus_besch_t *besch=gb?gb->gib_tile()->gib_besch():NULL;
 
 		if(gr->ist_wasser()) {
@@ -1803,7 +1801,7 @@ haltestelle_t::rdwr(loadsave_t *file)
 				dbg->warning( "haltestelle_t::rdwr()", "bound to ground twice at (%i,%i)!", k.x, k.y );
 			}
 			// prissi: now check, if there is a building -> we allow no longer ground without building!
-			gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+			const gebaeude_t* gb = gr->find<gebaeude_t>();
 			const haus_besch_t *besch=gb?gb->gib_tile()->gib_besch():NULL;
 			if(besch) {
 				add_grund( gr );
@@ -1912,10 +1910,9 @@ haltestelle_t::laden_abschliessen()
 
 	// nach sondergebaeuden suchen
 
-	ding_t *dt = welt->lookup(k)->suche_obj(ding_t::lagerhaus);
-
-	if(dt != NULL) {
-	    lager = dynamic_cast<lagerhaus_t *>(dt);
+		lagerhaus_t* l = welt->lookup(k)->find<lagerhaus_t>();
+		if  (l != NULL) {
+			lager = l;
 	    break;
 	}
     }

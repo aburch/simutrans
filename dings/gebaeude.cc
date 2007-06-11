@@ -487,7 +487,7 @@ gebaeude_t::zeige_info()
 		if(!gr) {
 			gr = welt->lookup_kartenboden(gib_pos().gib_2d() - k);
 		}
-		ding_t *gb = (gebaeude_t *)(gr->suche_obj(ding_t::gebaeude));
+		gebaeude_t* gb = gr->find<gebaeude_t>();
 		// is the info of the (0,0) tile on multi tile buildings
 		if(gb) {
 			// some version made buildings, that had not tile (0,0)!
@@ -775,7 +775,7 @@ gebaeude_t::entferne(spieler_t *sp)
 			sint16 offset = gr->gib_weg_yoff();
 			gr = welt->lookup( gib_pos()+koord3d( (layout & 1 ? koord::ost : koord::sued),offset) );
 			if(gr) {
-				gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+				gebaeude_t* gb = gr->find<gebaeude_t>();
 				if(gb  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
 					koord xy = gb->gib_tile()->gib_offset();
 					uint8 layoutbase = gb->gib_tile()->gib_layout();
@@ -787,7 +787,7 @@ gebaeude_t::entferne(spieler_t *sp)
 			// detect if near (south/east) end
 			gr = welt->lookup( gib_pos()+koord3d( (layout & 1 ? koord::west : koord::nord), offset) );
 			if(gr) {
-				gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+				gebaeude_t* gb = gr->find<gebaeude_t>();
 				if(gb  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
 					koord xy = gb->gib_tile()->gib_offset();
 					uint8 layoutbase = gb->gib_tile()->gib_layout();

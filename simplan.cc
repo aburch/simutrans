@@ -260,7 +260,7 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file)
 			}
 
 			// check if we have a matching building here, otherwise set to nothing
-			if(gr  &&  gtyp==grund_t::fundament  &&  gr->suche_obj(ding_t::gebaeude)==0) {
+			if (gr && gtyp == grund_t::fundament && gr->find<gebaeude_t>() == 0) {
 				koord3d pos = gr->gib_pos();
 				// show normal ground here
 				delete gr;

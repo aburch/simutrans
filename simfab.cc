@@ -173,7 +173,7 @@ fabrik_t::~fabrik_t()
 	while(!fields.empty()) {
 		grund_t *gr = welt->lookup_kartenboden( fields.back() );
 		if(gr) {
-			field_t *f=(field_t*)(gr->suche_obj(ding_t::field));
+			field_t* f = gr->find<field_t>();
 			delete f;
 		}
 		else {
@@ -280,10 +280,15 @@ fabrik_t::add_random_field(uint16 probability)
 			for(sint32 yoff =-radius ; yoff < radius + gib_besch()->gib_haus()->gib_groesse().y; yoff++) {
 				// if we can build on this tile then add it to the list
 				grund_t *gr = welt->lookup_kartenboden(pos.gib_2d()+koord(xoff,yoff));
-				if(gr  &&  gr->gib_typ()==grund_t::boden  &&  gr->gib_hoehe()==pos.z  &&  gr->gib_grund_hang()==hang_t::flach  &&  gr->ist_natur()  &&  (gr->suche_obj(ding_t::leitung) || gr->kann_alle_obj_entfernen(NULL)==NULL)) {
+				if (gr != NULL &&
+						gr->gib_typ()        == grund_t::boden &&
+						gr->gib_hoehe()      == pos.z &&
+						gr->gib_grund_hang() == hang_t::flach &&
+						gr->ist_natur() &&
+						(gr->find<leitung_t>() || gr->kann_alle_obj_entfernen(NULL) == NULL)) {
 					// only on same height => climate will match!
 					build_locations.append(gr);
-					assert(gr->suche_obj(ding_t::field)==NULL);
+					assert(gr->find<field_t>() == NULL);
 				}
 				// skip inside of rectange (already checked earlier)
 				if(radius > 1 && yoff == -radius && (xoff > -radius && xoff < radius + gib_besch()->gib_haus()->gib_groesse().x - 1)) {
@@ -298,7 +303,7 @@ fabrik_t::add_random_field(uint16 probability)
 	// built on one of the positions
 	if(build_locations.count() > 0) {
 		grund_t *gr = build_locations.at(simrand(build_locations.count()));
-		leitung_t *lt = (leitung_t *)(gr->suche_obj( ding_t::leitung ));
+		leitung_t* lt = gr->find<leitung_t>();
 		if(lt) {
 			gr->obj_remove(lt);
 		}

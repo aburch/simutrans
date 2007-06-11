@@ -294,7 +294,7 @@ wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
 	if(zv==koord(0,0)) {
 		return true;
 	}
-	leitung_t *lt=dynamic_cast<leitung_t *> (bd->suche_obj(ding_t::leitung));
+	leitung_t* lt = bd->find<leitung_t>();
 	if(lt!=NULL) {
 		ribi_t::ribi lt_ribi = lt->gib_ribi();
 	    // it is our way we want to cross: can we built a crossing here?
@@ -306,7 +306,7 @@ wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
 	      &&  (lt_ribi&ribi_typ(zv))==0;
 	}
 	// check for transformer
-	if(bd->suche_obj(ding_t::pumpe)!=NULL  ||  bd->suche_obj(ding_t::senke)!=NULL) {
+	if (bd->find<pumpe_t>() != NULL || bd->find<senke_t>()  != NULL) {
 		return false;
 	}
 	// ok, there is not high power transmission stuff going on here
@@ -461,7 +461,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 	// ok, slopes are ok
 	bool ok = to->ist_natur()  &&  !to->ist_wasser();
 	bool fundament= to->gib_typ()==grund_t::fundament;
-	const gebaeude_t *gb=dynamic_cast<const gebaeude_t *>(to->suche_obj(ding_t::gebaeude));
+	const gebaeude_t* gb = to->find<gebaeude_t>();
 
 	// no crossings to halt
 	if(to!=from  &&  bautyp!=leitung  &&  (bautyp&elevated_flag)==0) {
@@ -484,7 +484,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		}
 
 		// no crossings from halt
-		const gebaeude_t *from_gb=dynamic_cast<const gebaeude_t *>(from->suche_obj(ding_t::gebaeude));
+		const gebaeude_t* from_gb = from->find<gebaeude_t>();
 		if(from_gb  &&  (from_gb->gib_besitzer()==sp  ||  from->gib_halt().is_bound())) {
 			// terminal imposes stronger direction checks
 			if(from_gb->gib_tile()->gib_besch()->gib_all_layouts()==4) {
@@ -775,8 +775,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			break;
 
 	case luft: // hsiegeln: runway
-		ok = !to->ist_wasser()  &&  (to->hat_weg(air_wt)  || !to->hat_wege())  &&
-				  to->suche_obj(ding_t::leitung)==NULL   &&  !fundament;
+		ok = !to->ist_wasser() && (to->hat_weg(air_wt) || !to->hat_wege()) && to->find<leitung_t>() == NULL && !fundament;
 		// do not go through depots ...
 		if(to->gib_depot()) {
 			depot_t *dp = to->gib_depot();
@@ -854,7 +853,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 			// something in the way?
 			if (welt->lookup(from->gib_pos() + zv * i + koord3d(0, 0, Z_TILE_STEP))) return;
 			// powerline in the way?
-			if (gr->gib_pos().z == from->gib_pos().z && gr->suche_obj(ding_t::leitung)) return;
+			if (gr->gib_pos().z == from->gib_pos().z && gr->find<leitung_t>()) return;
 			// some artificial tiles here?!?
 			if (gr->gib_pos().z > from->gib_pos().z) return;
 			// check for runways ...
@@ -923,7 +922,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 			// something in the way?
 			if (welt->lookup(from->gib_pos() + zv * i)) return;
 			// powerline in the way?
-			if (gr->gib_pos().z == from->gib_pos().z + Z_TILE_STEP && gr->suche_obj(ding_t::leitung)) return;
+			if (gr->gib_pos().z == from->gib_pos().z + Z_TILE_STEP && gr->find<leitung_t>()) return;
 			// some articial tiles here?!?
 			if (gr->gib_pos().z > from->gib_pos().z) return;
 			// check for runways ...
@@ -1959,13 +1958,9 @@ wegbauer_t::baue_leitung()
 	for(i=0; i<=max_n; i++) {
 		grund_t* gr = welt->lookup(route[i]);
 
-		leitung_t *lt = dynamic_cast <leitung_t *> (gr->suche_obj(ding_t::leitung));
-		if(lt==0) {
-			lt = (leitung_t *)gr->suche_obj(ding_t::pumpe);
-		}
-		if(lt==0) {
-			lt = (leitung_t *)gr->suche_obj(ding_t::senke);
-		}
+		leitung_t* lt = gr->find<leitung_t>();
+		if (lt == 0) lt = gr->find<pumpe_t>();
+		if (lt == 0) lt = gr->find<senke_t>();
 		// ok, really no lt here ...
 		if(lt == 0) {
 			lt = new leitung_t(welt, gr->gib_pos(), sp);

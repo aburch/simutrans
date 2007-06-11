@@ -110,7 +110,7 @@ void field_t::zeige_info()
 {
 	// show the info of the corresponding factory
 	grund_t *gr = welt->lookup(fab->gib_pos());
-	ding_t *gb = (gebaeude_t *)(gr->suche_obj(ding_t::gebaeude));
+	gebaeude_t* gb = gr->find<gebaeude_t>();
 	gb->zeige_info();
 }
 

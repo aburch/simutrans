@@ -566,7 +566,7 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t weg
 		// finally delete all pillars (if there)
 		gr = welt->lookup(pos.gib_2d())->gib_kartenboden();
 		ding_t *p;
-		while((p=(gr->suche_obj(ding_t::pillar)))!=0) {
+		while ((p = gr->find<pillar_t>()) != 0) {
 			p->entferne(sp);
 			delete p;
 		}

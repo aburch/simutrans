@@ -50,7 +50,7 @@ ist_leitung(karte_t *welt, koord pos)
 
   if(plan) {
     grund_t * gr = plan->gib_kartenboden();
-    result = gr && (gr->suche_obj(ding_t::leitung)!=NULL  ||  gr->suche_obj(ding_t::pumpe)!=NULL  ||  gr->suche_obj(ding_t::senke)!=NULL);
+		result = gr && (gr->find<leitung_t>() != NULL || gr->find<pumpe_t>() != NULL || gr->find<senke_t>() != NULL);
   }
 
   return result;
@@ -69,21 +69,21 @@ gimme_neighbours(karte_t *welt, koord base_pos, leitung_t **conn)
 
 		conn[i] = NULL;
 		if(gr) {
-			leitung_t *p = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::pumpe));
+			pumpe_t* p = gr->find<pumpe_t>();
 			if(p) {
 				conn[i] = p;
 				count ++;
 				continue;
 			}
 			// now handle drain
-			leitung_t *s = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::senke));
+			senke_t* s = gr->find<senke_t>();
 			if(s) {
 				conn[i] = s;
 				count ++;
 				continue;
 			}
 			// and now handle line
-			leitung_t *l = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::leitung));
+			leitung_t* l = gr->find<leitung_t>();
 			if(l) {
 				conn[i] = l;
 				count ++;
@@ -184,19 +184,19 @@ static bool get_net_at(const grund_t *gr, powernet_t **l_net)
 {
 	if(gr) {
 		// only this way pumps are handled properly
-		const pumpe_t *p = dynamic_cast<pumpe_t *> (gr->suche_obj(ding_t::pumpe));
+		const pumpe_t* p = gr->find<pumpe_t>();
 		if(p) {
 			*l_net = p->get_net();
 			return true;
 		}
 		// now handle drain
-		const senke_t *s = dynamic_cast<senke_t *> (gr->suche_obj(ding_t::senke));
+		const senke_t* s = gr->find<senke_t>();
 		if(s) {
 			*l_net = s->get_net();
 			return true;
 		}
 		// and now handle line
-		const leitung_t *l = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::leitung));
+		const leitung_t* l = gr->find<leitung_t>();
 		if(l) {
 			*l_net = l->get_net();
 //DBG_MESSAGE("get_net_at()","Found net %p",l->get_net());
@@ -216,20 +216,20 @@ static void set_net_at(const grund_t *gr, powernet_t *new_net)
 {
 	if(gr) {
 		// only this way pumps are handled properly
-		pumpe_t *p = dynamic_cast<pumpe_t *> (gr->suche_obj(ding_t::pumpe));
+		pumpe_t* p = gr->find<pumpe_t>();
 		if(p) {
 			p->set_net(new_net);
 			return;
 		}
 		// now handle drain
-		senke_t *s = dynamic_cast<senke_t *> (gr->suche_obj(ding_t::senke));
+		senke_t* s = gr->find<senke_t>();
 		if(s) {
 			s->set_net(new_net);
 //DBG_MESSAGE("set_net_at()","Using new net %p",s->get_net());
 			return;
 		}
 		// and now handle line
-		leitung_t *l = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::leitung));
+		leitung_t* l = gr->find<leitung_t>();
 		if(l) {
 			l->set_net(new_net);
 //DBG_MESSAGE("set_net_at()","Using new net %p",l->get_net());
@@ -388,7 +388,7 @@ void leitung_t::calc_neighbourhood()
 		grund_t * gr = plan ? plan->gib_kartenboden() : 0;
 
 		if(gr) {
-			leitung_t * line = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::leitung));
+			leitung_t* line = gr->find<leitung_t>();
 			if(line) {
 				line->calc_bild();
 			}

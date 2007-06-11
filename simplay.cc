@@ -1681,7 +1681,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof()","try to build a train station of length 
 
 		if(ok) {
 			// remove city building here
-			gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+			const gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb  &&  gb->gib_besitzer()==NULL) {
 				const char *msg=NULL;
 				wkz_remover_intern(this,welt,t,msg);
@@ -1701,7 +1701,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof()","try to build a train station of length 
 			if(ok) {
 DBG_MESSAGE("spieler_t::baue_bahnhof","go back one segment");
 				// remove city building here
-				gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+				const gebaeude_t* gb = gr->find<gebaeude_t>();
 				if(gb  &&  gb->gib_besitzer()==NULL) {
 					const char *msg=NULL;
 					wkz_remover_intern(this,welt,*p-zv,msg);

@@ -25,7 +25,7 @@ tunnelboden_t::tunnelboden_t(karte_t *welt, loadsave_t *file) : boden_t(welt, ko
 	rdwr(file);
 
 	// some versions had tunnel without tunnel objects
-	if(!suche_obj(ding_t::tunnel)) {
+	if (!find<tunnel_t>()) {
 		// then we must spawn it here (a way MUST be always present, or the savegame is completely broken!)
 		weg_t *weg=(weg_t *)obj_bei(0);
 		obj_add(new tunnel_t(welt, gib_pos(), weg->gib_besitzer(), tunnelbauer_t::find_tunnel( (waytype_t)weg->gib_besch()->gib_wtyp(), 450, 0 ) ) );
@@ -80,7 +80,7 @@ tunnelboden_t::rdwr(loadsave_t *file)
 		char  buf[256];
 		const tunnel_besch_t *besch = NULL;
 		file->rdwr_str(buf,255);
-		if(this->suche_obj(ding_t::tunnel)==NULL) {
+		if (find<tunnel_t>() == NULL) {
 			besch = tunnelbauer_t::gib_besch(buf);
 			if(besch) {
 				obj_add(new tunnel_t(welt, gib_pos(), obj_bei(0)->gib_besitzer(), besch));

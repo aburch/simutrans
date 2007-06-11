@@ -31,6 +31,52 @@ class cbuffer_t;
 template <class K, class V> class ptrhashtable_tpl;
 
 
+/* A map from ding_t subtypes to their enum equivalent
+ * Used by grund_t::find<T>()
+ */
+class aircraft_t;
+class bruecke_t;
+class crossing_t;
+class field_t;
+class fussgaenger_t;
+class gebaeude_t;
+class label_t;
+class leitung_t;
+class pillar_t;
+class pumpe_t;
+class roadsign_t;
+class senke_t;
+class signal_t;
+class stadtauto_t;
+class tunnel_t;
+class wayobj_t;
+class zeiger_t;
+
+template<typename T> struct map_ding {};
+template<> struct map_ding<aircraft_t>    { static const ding_t::typ code = ding_t::aircraft;    };
+template<> struct map_ding<bruecke_t>     { static const ding_t::typ code = ding_t::bruecke;     };
+template<> struct map_ding<crossing_t>    { static const ding_t::typ code = ding_t::crossing;    };
+template<> struct map_ding<field_t>       { static const ding_t::typ code = ding_t::field;       };
+template<> struct map_ding<fussgaenger_t> { static const ding_t::typ code = ding_t::fussgaenger; };
+template<> struct map_ding<gebaeude_t>    { static const ding_t::typ code = ding_t::gebaeude;    };
+template<> struct map_ding<label_t>       { static const ding_t::typ code = ding_t::label;       };
+template<> struct map_ding<leitung_t>     { static const ding_t::typ code = ding_t::leitung;     };
+template<> struct map_ding<pillar_t>      { static const ding_t::typ code = ding_t::pillar;      };
+template<> struct map_ding<pumpe_t>       { static const ding_t::typ code = ding_t::pumpe;       };
+template<> struct map_ding<roadsign_t>    { static const ding_t::typ code = ding_t::roadsign;    };
+template<> struct map_ding<senke_t>       { static const ding_t::typ code = ding_t::senke;       };
+template<> struct map_ding<signal_t>      { static const ding_t::typ code = ding_t::signal;      };
+template<> struct map_ding<stadtauto_t>   { static const ding_t::typ code = ding_t::verkehr;     };
+template<> struct map_ding<tunnel_t>      { static const ding_t::typ code = ding_t::tunnel;      };
+template<> struct map_ding<wayobj_t>      { static const ding_t::typ code = ding_t::wayobj;      };
+template<> struct map_ding<zeiger_t>      { static const ding_t::typ code = ding_t::zeiger;      };
+
+#if defined LAGER_NOT_IN_USE
+class lagerhaus_t;
+template<> struct map_ding<lagerhaus_t> { static const ding_t::typ code = ding_t::lagerhaus };
+#endif
+
+
 /**
  * <p>Abstrakte Basisklasse für Untergründe in Simutrans.</p>
  *
@@ -381,8 +427,9 @@ public:
 
 	inline ding_t *first_obj() const { return dinge.bei(offsets[flags/has_way1]); }
 	ding_t *suche_obj(ding_t::typ typ) const { return dinge.suche(typ,0); }
-	ding_t *suche_obj_ab(ding_t::typ typ,uint8 start) const { return dinge.suche(typ,start); }
 	ding_t *obj_remove_top() { return dinge.remove_last(); }
+
+	template<typename T> T* find(uint start = 0) const { return static_cast<T*>(dinge.suche(map_ding<T>::code, start)); }
 
 	uint8  obj_add(ding_t *obj) { return dinge.add(obj); }
 	uint8 obj_remove(const ding_t* obj) { return dinge.remove(obj); }

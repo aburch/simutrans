@@ -51,7 +51,7 @@ void factorylist_stats_t::infowin_event(const event_t * ev)
 	if (IS_LEFTRELEASE(ev)) {
 		grund_t *gr = welt->lookup(pos.gib_2d())->gib_kartenboden();
 		if (gr) {
-			gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if (gb) {
 				create_win(320, 0,-1,new fabrik_info_t(fab,gb,welt),w_info,magic_none);
 			}

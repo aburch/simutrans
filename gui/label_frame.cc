@@ -51,8 +51,7 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) :
 	while(iter.next()) {
 		button_t * button = new button_t();
 		koord my_pos = iter.get_current();
-		label_t *l = (label_t *)welt->lookup_kartenboden(my_pos)->suche_obj(ding_t::label);
-
+		const label_t* l = welt->lookup_kartenboden(my_pos)->find<label_t>();
 		if(l) {
 			const char* text = welt->lookup(my_pos)->gib_kartenboden()->gib_text();
 			if(text==NULL) {
@@ -229,7 +228,7 @@ void label_frame_t::create_label(const char *name)
 {
 	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
 	if(gr) {
-		label_t *l = (label_t *)gr->suche_obj(ding_t::label);
+		const label_t* l = gr->find<label_t>();
 		if (l == NULL) {
 			if (gr->gib_text() != NULL) return;
 			const ding_t* thing = gr->obj_bei(0);
@@ -253,9 +252,7 @@ void label_frame_t::create_label(const char *name)
 void label_frame_t::remove_label()
 {
 	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-	if(gr  &&  gr->suche_obj(ding_t::label)) {
-		delete (label_t *)gr->suche_obj(ding_t::label);
-	}
+	if (gr) delete gr->find<label_t>();
 }
 
 void label_frame_t::goto_label(const char *name)

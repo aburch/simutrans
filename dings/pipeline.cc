@@ -109,16 +109,10 @@ leitung_t::verbinde_pos(koord k)
     bool ok = true;
     grund_t *gr = welt->lookup(k) ? welt->lookup(k)->gib_kartenboden() : NULL;
 
-    if(gr) {
-	leitung_t *lt = (leitung_t *)gr->suche_obj(ding_t::leitung);
-
-	if(lt == NULL) {
-	    lt = (leitung_t *)gr->suche_obj(ding_t::pumpe);
-	}
-
-	if(lt == NULL) {
-	    lt = (leitung_t *)gr->suche_obj(ding_t::senke);
-	}
+	if (gr) {
+		leitung_t* lt = gr->find<leitung_t>();
+		if (lt == NULL) lt = gr->find<pumpe_t>();
+		if (lt == NULL) lt = gr->find<senke_t>();
 	if(lt != NULL) {
 	    ok &= lt->verbinde_mit(this);
 	    ok &= this->verbinde_mit(lt);

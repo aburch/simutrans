@@ -274,7 +274,7 @@ weg_t::count_sign()
 		if(gr->ist_uebergang()) {
 			flags |= HAS_CROSSING;
 			i = 3;
-			crossing_t *cr = (crossing_t *)(gr->suche_obj(ding_t::crossing));
+			const crossing_t* cr = gr->find<crossing_t>();
 			uint32 top_speed = cr->gib_besch()->gib_maxspeed( cr->gib_besch()->get_waytype(0)==gib_waytype() ? 0 : 1);
 			if(top_speed<max_speed) {
 				max_speed = top_speed;

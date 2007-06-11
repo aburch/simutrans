@@ -258,7 +258,7 @@ reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 					}
 				}
 				else {
-					leitung_t *lt = static_cast<leitung_t *>(gr->suche_obj(ding_t::leitung));
+					const leitung_t* lt = gr->find<leitung_t>();
 					if(lt!=NULL) {
 						color = POWERLINE_KENN;
 					}
@@ -506,7 +506,7 @@ reliefkarte_t::calc_map_pixel(const koord k)
 				calc_map();
 			}
 			else {
-				leitung_t *lt = static_cast<leitung_t *>(gr->suche_obj(ding_t::leitung));
+				const leitung_t* lt = gr->find<leitung_t>();
 				if(lt!=NULL) {
 					sint32 capacity=lt->get_net()->get_capacity();
 					if(capacity>max_capacity) {

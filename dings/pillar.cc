@@ -55,7 +55,7 @@ void pillar_t::zeige_info()
 	for(unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
 		grund_t *bd=plan->gib_boden_bei(i);
 		if(bd->ist_bruecke()) {
-			bruecke_t *br=dynamic_cast<bruecke_t *>(bd->suche_obj(ding_t::bruecke));
+			bruecke_t* br = bd->find<bruecke_t>();
 			if(br  &&  br->gib_besch()==besch) {
    				br->zeige_info();
 			}

@@ -172,7 +172,7 @@ wayobj_t::find_next_ribi(const grund_t *start, const koord dir) const
 	grund_t *to;
 	ribi_t::ribi r1 = ribi_t::keine;
 	if(start->get_neighbour(to, (waytype_t)besch->gib_wtyp(),dir)) {
-		wayobj_t *wo=(wayobj_t *)to->suche_obj(ding_t::wayobj);
+		const wayobj_t* wo = to->find<wayobj_t>();
 		if(wo) {
 			r1 = wo->get_dir();
 		}
@@ -260,7 +260,7 @@ wayobj_t::calc_bild()
 					rekursion++;
 					for(int r = 0; r < 4; r++) {
 						if(gr->get_neighbour(to, (waytype_t)besch->gib_wtyp(), koord::nsow[r])) {
-							ding_t *wo = to->suche_obj(ding_t::wayobj);
+							wayobj_t* wo = to->find<wayobj_t>();
 							if(wo) {
 								wo->calc_bild();
 							}
@@ -292,7 +292,7 @@ wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_
 {
 	grund_t *gr=welt->lookup(pos);
 	if(gr) {
-		if(gr->suche_obj(ding_t::wayobj)) {
+		if (gr->find<wayobj_t>()) {
 			// since there might be more than one, we have to iterate through all of them
 			for( uint8 i=0;  i<gr->gib_top();  i++  ) {
 				ding_t *d=gr->obj_bei(i);

@@ -578,7 +578,7 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 				const planquadrat_t* plan = welt->lookup( next_building[i] + k);
 				int distance = abs(next_building[i].x) + abs(next_building[i].y);
 				if (plan!=NULL  &&  distance<this_distance) {
-					gebaeude_t* gb = dynamic_cast<gebaeude_t*>(plan->gib_kartenboden()->suche_obj(ding_t::gebaeude));
+					const gebaeude_t* gb = plan->gib_kartenboden()->find<gebaeude_t>();
 					if (gb != NULL) {
 						if (gb->is_monument()) {
 							building = translator::translate(gb->gib_name());
@@ -1333,7 +1333,7 @@ void stadt_t::neuer_monat()
 				}
 
 				grund_t* gr = welt->lookup_kartenboden(k);
-				if(gr  &&  gr->gib_weg(road_wt)  &&  ribi_t::is_twoway(gr->gib_weg_ribi_unmasked(road_wt))  &&  gr->suche_obj(ding_t::verkehr)==NULL) {
+				if (gr != NULL && gr->gib_weg(road_wt) && ribi_t::is_twoway(gr->gib_weg_ribi_unmasked(road_wt)) && gr->find<stadtauto_t>() == NULL) {
 					stadtauto_t* vt = new stadtauto_t(welt, gr->gib_pos(), koord::invalid);
 					gr->obj_add(vt);
 					welt->sync_add(vt);
@@ -2289,7 +2289,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 	ribi_t::ribi connection_roads = ribi_t::keine;
 
 	// we have here a road: check for four corner stops
-	gebaeude_t *gb = (gebaeude_t *)(bd->suche_obj(ding_t::gebaeude));
+	const gebaeude_t* gb = bd->find<gebaeude_t>();
 	if(gb) {
 		// nothing to connect
 		if(gb->gib_tile()->gib_besch()->gib_all_layouts()==4) {
@@ -2333,7 +2333,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 					// not the same slope => tunnel or bridge
 					allowed_dir &= ~ribi_t::nsow[r];
 				} else if(bd2->hat_weg(road_wt)) {
-					gebaeude_t *gb = (gebaeude_t *)(bd2->suche_obj(ding_t::gebaeude));
+					const gebaeude_t* gb = bd2->find<gebaeude_t>();
 					if(gb) {
 						uint8 layouts = gb->gib_tile()->gib_besch()->gib_all_layouts();
 						// nothing to connect

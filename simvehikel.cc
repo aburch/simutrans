@@ -99,7 +99,7 @@ vehikel_basis_t::verlasse_feld()
 	// first: release crossing
 	grund_t *gr = welt->lookup(gib_pos());
 	if(gr->ist_uebergang()) {
-		((crossing_t *)(gr->suche_obj_ab(ding_t::crossing,2)))->release_crossing(this);
+		gr->find<crossing_t>(2)->release_crossing(this);
 	}
 
 	// then remove from ground (or search whole map, if failed)
@@ -764,7 +764,7 @@ DBG_MESSAGE("vehikel_t::hop()","reverse dir at route index %d",route_index);
 	if(weg) {
 		setze_speed_limit( kmh_to_speed(weg->gib_max_speed()) );
 		if(weg->is_crossing()) {
-			((crossing_t *)(gr->suche_obj_ab(ding_t::crossing,2)))->add_to_crossing(this);
+			gr->find<crossing_t>(2)->add_to_crossing(this);
 		}
 	}
 	calc_akt_speed(gr);
@@ -1370,7 +1370,7 @@ automobil_t::ist_befahrbar(const grund_t *bd) const
 	}
 	// check for signs
 	if(str->has_sign()) {
-		const roadsign_t *rs = (roadsign_t *)(bd->suche_obj(ding_t::roadsign));
+		const roadsign_t* rs = bd->find<roadsign_t>();
 		if(rs!=NULL) {
 			if(rs->gib_besch()->gib_min_speed()>0  &&  rs->gib_besch()->gib_min_speed()>kmh_to_speed(gib_besch()->gib_geschw())) {
 				return false;
@@ -1449,7 +1449,7 @@ automobil_t::ist_weg_frei(int &restart_speed)
 
 		// first: check roadsigns
 		if(str->has_sign()) {
-			const roadsign_t *rs = (roadsign_t *)gr->suche_obj(ding_t::roadsign);
+			const roadsign_t* rs = gr->find<roadsign_t>();
 			if(rs) {
 				// since at the corner, our direct may be diagonal, we make it straight
 				const uint8 richtung = ribi_typ(gib_pos().gib_2d(),pos_next.gib_2d());
@@ -1559,7 +1559,7 @@ automobil_t::ist_weg_frei(int &restart_speed)
 
 		if(frei  &&  str->is_crossing()) {
 			// ok, crossing ahead
-			crossing_t *cr = (crossing_t *)gr->suche_obj_ab(ding_t::crossing,2);
+			crossing_t* cr = gr->find<crossing_t>(2);
 			frei = cr->request_crossing(this);
 		}
 
@@ -1789,7 +1789,7 @@ waggon_t::ist_befahrbar(const grund_t *bd) const
 		}
 		// we cannot pass an end of choose area
 		if(sch->has_sign()) {
-			roadsign_t *rs = (roadsign_t *)(bd->suche_obj(ding_t::roadsign));
+			const roadsign_t* rs = bd->find<roadsign_t>();
 			if(rs->gib_besch()->gib_wtyp()==gib_waytype()  &&  rs->gib_besch()->get_flags()&roadsign_besch_t::END_OF_CHOOSE_AREA) {
 				return false;
 			}
@@ -1831,7 +1831,7 @@ waggon_t::ist_blockwechsel(koord3d k2) const
 	const schiene_t * sch1 = (const schiene_t *) welt->lookup( k2 )->gib_weg(gib_waytype());
 	if(sch1  &&  sch1->has_signal()) {
 		// a signal for us
-		return (signal_t *)welt->lookup(k2)->suche_obj(ding_t::signal);
+		return welt->lookup(k2)->find<signal_t>();
 	}
 	return NULL;
 }
@@ -2034,7 +2034,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 				return true;
 			}
 			// Is a crossing?
-			crossing_t *cr = (crossing_t *)welt->lookup(block_pos)->suche_obj_ab(ding_t::crossing,2);
+			crossing_t* cr = welt->lookup(block_pos)->find<crossing_t>(2);
 			if(cr) {
 				// ok, here is a draw/turnbridge ...
 				bool ok = cr->request_crossing(this);
@@ -2141,13 +2141,13 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 				unreserve_now = true;
 			}
 			if(sch1->has_signal()) {
-				signal_t *signal = (signal_t *)(gr->suche_obj(ding_t::signal));
+				signal_t* signal = gr->find<signal_t>();
 				if(signal) {
 					signal->setze_zustand(roadsign_t::rot);
 				}
 			}
 			if(sch1->is_crossing()) {
-				((crossing_t *)(gr->suche_obj(ding_t::crossing)))->release_crossing(this);
+				gr->find<crossing_t>()->release_crossing(this);
 			}
 		}
 	}
@@ -2174,7 +2174,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 	// ok, switch everything green ...
 	slist_iterator_tpl<grund_t *> iter(signs);
 	while(iter.next()) {
-		signal_t *signal = (signal_t *)(iter.get_current()->suche_obj(ding_t::signal));
+		signal_t* signal = iter.get_current()->find<signal_t>();
 		if(signal) {
 			signal->setze_zustand(roadsign_t::gruen);
 		}
@@ -2208,7 +2208,7 @@ waggon_t::verlasse_feld()
 			// tell next signal?
 			// and swith to red
 			if(sch0->has_signal()) {
-				signal_t *sig=(signal_t*)welt->lookup(gib_pos())->suche_obj(ding_t::signal);
+				signal_t* sig = welt->lookup(gib_pos())->find<signal_t>();
 				if(sig) {
 					sig->setze_zustand(roadsign_t::rot);
 				}
@@ -2379,7 +2379,7 @@ schiff_t::ist_weg_frei(int &restart_speed)
 		weg_t *w = gr->gib_weg(water_wt);
 		if(w  &&  w->is_crossing()) {
 			// ok, here is a draw/turnbridge ...
-			crossing_t *cr = (crossing_t *)gr->suche_obj(ding_t::crossing);
+			crossing_t* cr = gr->find<crossing_t>();
 			if(!cr->request_crossing(this)) {
 				restart_speed = 0;
 				return false;
@@ -2712,7 +2712,7 @@ aircraft_t::ist_weg_frei(int & restart_speed)
 		state = taxiing;
 	}
 
-	if(state==taxiing  &&  gr->is_halt()  &&  gr->suche_obj(ding_t::aircraft)) {
+	if (state == taxiing && gr->is_halt() && gr->find<aircraft_t>()) {
 		// the next step is a parking position. We do not enter, if occupied!
 		restart_speed = 0;
 		return false;

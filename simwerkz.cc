@@ -310,21 +310,21 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 	}
 
 	// citycar? (we allow always)
-	if(gr->suche_obj(ding_t::verkehr)) {
-		stadtauto_t *citycar = dynamic_cast<stadtauto_t *>(gr->suche_obj(ding_t::verkehr));
+	stadtauto_t* citycar = gr->find<stadtauto_t>();
+	if (citycar) {
 		delete citycar;
 		return true;
 	}
 
 	// pedestrians?
-	if(gr->suche_obj(ding_t::fussgaenger)) {
-		fussgaenger_t *fussgaenger = dynamic_cast<fussgaenger_t *>(gr->suche_obj(ding_t::fussgaenger));
+	fussgaenger_t* fussgaenger = gr->find<fussgaenger_t>();
+	if (fussgaenger) {
 		delete fussgaenger;
 		return true;
 	}
 
 	// prissi: Leitung prüfen (can cross ground of another player)
-	leitung_t *lt=dynamic_cast<leitung_t *>(gr->suche_obj(ding_t::leitung));
+	leitung_t* lt = gr->find<leitung_t>();
 	if(lt!=NULL  &&  lt->gib_besitzer()==sp) {
 		gr->obj_remove(lt);
 		delete lt;
@@ -332,10 +332,8 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 	}
 
 	// check for signal
-	roadsign_t *rs=(roadsign_t *)gr->suche_obj(ding_t::signal);
-	if(rs==NULL) {
-		rs=(roadsign_t *)gr->suche_obj(ding_t::roadsign);
-	}
+	roadsign_t* rs = gr->find<signal_t>();
+	if (rs == NULL) rs = gr->find<roadsign_t>();
 	if(rs!=NULL) {
 		msg = rs->ist_entfernbar(sp);
 		if(msg) {
@@ -360,7 +358,7 @@ DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
 	}
 
 	// catenary or something like this
-	wayobj_t *wo=(wayobj_t *)gr->suche_obj(ding_t::wayobj);
+	wayobj_t* wo = gr->find<wayobj_t>();
 	if(wo) {
 		msg = wo->ist_entfernbar(sp);
 		if(msg) {
@@ -376,7 +374,7 @@ DBG_MESSAGE("wkz_remover()", "check tunnel/bridge");
 	// beginning/end of bridge?
 	if(gr->ist_bruecke()  &&  gr->ist_karten_boden()) {
 DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
-		bruecke_t *br = dynamic_cast<bruecke_t *>(gr->suche_obj(ding_t::bruecke));
+		bruecke_t* br = gr->find<bruecke_t>();
 		msg = brueckenbauer_t::remove(welt, sp, gr->gib_pos(), br->gib_besch()->gib_waytype());
 		return msg == NULL;
 	}
@@ -389,8 +387,8 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->gib_pos().x, 
 	}
 
 	// fields
-	if(gr->suche_obj(ding_t::field)) {
-		field_t *f = static_cast<field_t *>(gr->suche_obj(ding_t::field));
+	field_t* f = gr->find<field_t>();
+	if (f) {
 		msg = f->ist_entfernbar(sp);
 		if(msg==NULL) {
 			f->entferne(sp);
@@ -405,7 +403,7 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->gib_pos().x, 
 	}
 
 	// since buildings can have more than one tile, we must handle them together
-	gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+	gebaeude_t* gb = gr->find<gebaeude_t>();
 	if (gb != NULL) {
 		const spieler_t* owner = gb->gib_besitzer();
 		if (owner == sp || owner == NULL) {
@@ -559,7 +557,7 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 		}
 		else {
 			// delete tunnel here ...
-			const tunnel_besch_t *besch = ((const tunnel_t *)(gr->suche_obj(ding_t::tunnel)))->gib_besch();
+			const tunnel_besch_t* besch = gr->find<tunnel_t>()->gib_besch();
 			gr->obj_loesche_alle(sp);
 			cost_sum += gr->weg_entfernen(besch->gib_waytype(), true);
 			cost_sum += besch->gib_preis();
@@ -1247,7 +1245,7 @@ wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 						msg = "Tile not empty.";
 						break;
 					}
-					else if(i!=0  &&  (!gr->ist_wasser()  ||  gr->suche_obj(ding_t::gebaeude)  ||  gr->gib_depot()  ||  gr->is_halt())) {
+					else if (i != 0 && (!gr->ist_wasser() || gr->find<gebaeude_t>() || gr->gib_depot() || gr->is_halt())) {
 						msg = "Tile not empty.";
 						break;
 					}
@@ -1419,7 +1417,7 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 				gr = plan->gib_boden_in_hoehe(bd->gib_hoehe()+bd->gib_weg_yoff());
 				if(gr) {
 					// check, if there is an oriented stop
-					gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+					const gebaeude_t* gb = gr->find<gebaeude_t>();
 					if(gb  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
 						next_own |= ribi_t::nsow[i];
 					}
@@ -1442,7 +1440,7 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 			// oriented buildings here
 			if(ribi_t::ist_einfach(ribi&next_own)) {
 				// only a single next neightbour
-				gebaeude_t *gb = static_cast<gebaeude_t *>(welt->lookup(pos3d+koord((ribi_t::ribi)(ribi&next_own)))->suche_obj(ding_t::gebaeude));
+				const gebaeude_t* gb = welt->lookup(pos3d + koord((ribi_t::ribi)(ribi & next_own)))->find<gebaeude_t>();
 				uint8 other_layout = gb->gib_tile()->gib_layout();
 				layout |= other_layout&8;
 
@@ -1456,12 +1454,12 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 				layout &= ~6;
 				// take layout from one of them; prefer the one one the same track, if two tracks go to each other
 				ribi_t::ribi dir = (ribi&next_own&ribi_t::nordwest)==0 ? ribi&next_own : waagerecht&next_own&ribi_t::nordwest;
-				gebaeude_t *gb = static_cast<gebaeude_t *>(welt->lookup(pos3d+koord(dir))->suche_obj(ding_t::gebaeude));
+				const gebaeude_t* gb = welt->lookup(pos3d + koord(dir))->find<gebaeude_t>();
 				layout |= gb->gib_tile()->gib_layout()&8;
 			}
 			else if(ribi_t::ist_einfach(~ribi&waagerecht&next_own) && !next_own&senkrecht) {
 				// neighbour across break in track
-				gebaeude_t *gb = static_cast<gebaeude_t *>(welt->lookup(pos3d+koord((ribi_t::ribi)(~ribi&waagerecht&next_own)))->suche_obj(ding_t::gebaeude));
+				const gebaeude_t* gb = welt->lookup(pos3d + koord((ribi_t::ribi)(~ribi & waagerecht & next_own)))->find<gebaeude_t>();
 				uint8 other_layout = gb->gib_tile()->gib_layout();
 				layout |= other_layout&8;
 
@@ -1471,14 +1469,14 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 			else {
 				// no buildings left and right
 				// oriented buildings left and right
-				gebaeude_t *gb = static_cast<gebaeude_t *>(welt->lookup(pos3d+koord((ribi_t::ribi)(senkrecht&next_own&ribi_t::nordwest)))->suche_obj(ding_t::gebaeude));
+				const gebaeude_t* gb = welt->lookup(pos3d + koord((ribi_t::ribi)(senkrecht & next_own & ribi_t::nordwest)))->find<gebaeude_t>();
 				if(gb) {
 					// just rotate layout
 					assert(gb->gib_tile()->gib_besch()->gib_all_layouts()>4);
 					layout |= 8-(gb->gib_tile()->gib_layout()&8);
 				}
 				else {
-					gebaeude_t *gb = static_cast<gebaeude_t *>(welt->lookup(pos3d+koord((ribi_t::ribi)(senkrecht&next_own&ribi_t::suedost)))->suche_obj(ding_t::gebaeude));
+					const gebaeude_t* gb = welt->lookup(pos3d + koord((ribi_t::ribi)(senkrecht & next_own & ribi_t::suedost)))->find<gebaeude_t>();
 					if(gb) {
 						assert(gb->gib_tile()->gib_besch()->gib_all_layouts()>4);
 						layout |= 8-(gb->gib_tile()->gib_layout()&8);
@@ -1661,65 +1659,68 @@ int wkz_roadsign(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 			ribi_t::ribi dir = weg->gib_ribi_unmasked();
 
 			const bool two_way = besch->is_single_way()  ||  besch->is_signal() ||  besch->is_pre_signal();
-			const ding_t::typ typ = besch->is_signal_type() ? ding_t::signal : ding_t::roadsign;
 
 			if(ribi_t::doppelt(dir)  ||  (two_way  &&  ribi_t::is_twoway(dir))  ||  (besch->is_traffic_light()  &&  ribi_t::is_threeway(dir))) {
-
-				// if there is already a sign, we might need to inverse the direction
-				roadsign_t *rs = dynamic_cast<roadsign_t *>(gr->suche_obj(typ));
-				if(rs) {
-					if(typ==ding_t::signal) {
+				roadsign_t* rs;
+				if (besch->is_signal_type()) {
+					// if there is already a signal, we might need to inverse the direction
+					rs = gr->find<signal_t>();
+					if (rs) {
 						// signals have three options
-						ribi_t::ribi sig_dir=rs->get_dir();
-						uint8 i=0;
-						if(!ribi_t::is_twoway(sig_dir)) {
+						ribi_t::ribi sig_dir = rs->get_dir();
+						uint8 i = 0;
+						if (!ribi_t::is_twoway(sig_dir)) {
 							// inverse first dir
-							for(;  i<4;  i++) {
-								if((dir&ribi_t::nsow[i])==sig_dir) {
+							for (; i < 4; i++) {
+								if ((dir & ribi_t::nsow[i]) == sig_dir) {
 									i++;
 									break;
 								}
 							}
 						}
 						// find the second dir ...
-						for(;  i<4;  i++) {
-							if((dir&ribi_t::nsow[i])!=0) {
+						for (; i < 4; i++) {
+							if ((dir & ribi_t::nsow[i]) != 0) {
 								dir = ribi_t::nsow[i];
 							}
 						}
 						// if nothing found, we have two ways again ...
 						rs->set_dir(dir);
+					} else {
+						// add a new signal at position zero!
+						rs = new signal_t(welt, sp, gr->gib_pos(), dir, besch);
+						DBG_MESSAGE("wkz_roadsign()", "new signal, dir is %i", dir);
+						goto built_sign;
 					}
-					// revers only if single way sign
-					else if(besch->is_single_way()  ||  besch->is_free_route()) {
-						dir = (~rs->get_dir()) & weg->gib_ribi_unmasked();
-						rs->set_dir( dir );
-DBG_MESSAGE("wkz_roadsign()","reverse ribi %i", dir );
-					}
-				}
-				else {
-					// add a new roadsign at position zero!
-					if(typ==ding_t::signal) {
-						rs = new signal_t( welt, sp, gr->gib_pos(), dir, besch );
-DBG_MESSAGE("wkz_roadsign()","new signal, dir is %i", dir);
-					}
-					else {
+				} else {
+					// if there is already a sign, we might need to inverse the direction
+					rs = gr->find<roadsign_t>();
+					if (rs) {
+						// reverse only if single way sign
+						if (besch->is_single_way() || besch->is_free_route()) {
+							dir = ~rs->get_dir() & weg->gib_ribi_unmasked();
+							rs->set_dir(dir);
+							DBG_MESSAGE("wkz_roadsign()", "reverse ribi %i", dir);
+						}
+					} else {
+						// add a new roadsign at position zero!
 						// if single way, we need to reduce the allowed ribi to one
-						if(besch->is_single_way()  ||  besch->is_free_route()) {
-							for( int i=0;  i<=4;  i++) {
-								if((dir&ribi_t::nsow[i])!=0) {
+						if (besch->is_single_way() || besch->is_free_route()) {
+							for (int i = 0; i <= 4; i++) {
+								if ((dir & ribi_t::nsow[i]) != 0) {
 									dir = ribi_t::nsow[i];
 									break;
 								}
 							}
 						}
-DBG_MESSAGE("wkz_roadsign()","new roadsign, dir is %i", dir);
-						rs = new roadsign_t( welt, sp, gr->gib_pos(), dir, besch );
+						DBG_MESSAGE("wkz_roadsign()", "new roadsign, dir is %i", dir);
+						rs = new roadsign_t(welt, sp, gr->gib_pos(), dir, besch);
+built_sign:
+						gr->obj_add(rs);
+						rs->laden_abschliessen();	// to make them visible
+						weg->count_sign();
+						sp->buche(-besch->gib_preis(), pos, COST_CONSTRUCTION);
 					}
-					gr->obj_add(rs);
-					rs->laden_abschliessen();	// to make them visible
-					weg->count_sign();
-					sp->buche( -besch->gib_preis(), pos, COST_CONSTRUCTION);
 				}
 				error = NULL;
 			}
@@ -2052,7 +2053,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 #endif
 
 		// finally: empty
-		if(gr1->suche_obj(ding_t::gebaeude)  ||  gr1->hat_wege()  ||  gr1->kann_alle_obj_entfernen(sp)) {
+		if (gr1->find<gebaeude_t>() || gr1->hat_wege() || gr1->kann_alle_obj_entfernen(sp)) {
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
 			return false;
 		}

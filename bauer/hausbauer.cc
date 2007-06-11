@@ -27,6 +27,7 @@
 #include "../dataobj/translator.h"
 
 #include "../dings/gebaeude.h"
+#include "../dings/zeiger.h"
 
 // Hajo: these are needed to build the menu entries
 #include "../gui/werkzeug_parameter_waehler.h"
@@ -433,7 +434,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 		sint16 offset = welt->lookup( pos )->gib_weg_yoff();
 		grund_t * gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::ost : koord::sued),offset) );
 		if(gr) {
-			gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb  &&  gb->gib_tile()->gib_besch()->gib_utyp()>=8) {
 				corner_layout &= ~2; // clear near bit
 				if(gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
@@ -448,7 +449,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 		// detect if near (south/east) end
 		gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::nord), offset) );
 		if(gr) {
-			gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb  &&  gb->gib_tile()->gib_besch()->gib_utyp()>=8) {
 				corner_layout &= ~4; // clear far bit
 				if(gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
@@ -486,9 +487,8 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 
 	// remove pointer
 	grund_t *gr = welt->lookup(pos);
-	if(gr->suche_obj(ding_t::zeiger)) {
-		gr->obj_remove(gr->suche_obj(ding_t::zeiger));
-	}
+	zeiger_t* zeiger = gr->find<zeiger_t>();
+	if (zeiger) gr->obj_remove(zeiger);
 
 	gr->obj_add(gb);
 
