@@ -258,12 +258,7 @@ void leitung_t::replace(koord base_pos, powernet_t *old_net, powernet_t *new_net
 	for(int i=0; i<4; i++) {
 		koord	pos=base_pos+koord::nsow[i];
 		if(get_net_at(welt->lookup_kartenboden(pos),&current)  &&  current!=new_net) {
-			if(current!=old_net) {
-				replace(pos,current,new_net);
-			}
-			else {
-				replace(pos,old_net,new_net);
-			}
+			replace(pos, current, new_net);
 		}
 	}
 }
