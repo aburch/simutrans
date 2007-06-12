@@ -10,17 +10,13 @@
 
 
 #include "../dataobj/koord3d.h"
-
-#include "../tpl/slist_tpl.h"
-#include "../tpl/inthashtable_tpl.h"
-#include "../tpl/stringhashtable_tpl.h"
-
-#include "../besch/vehikel_besch.h"
+#include "../simimg.h"
 
 class vehikel_t;
-class karte_t;
 class spieler_t;
 class convoi_t;
+class vehikel_besch_t;
+class ware_besch_t;
 
 
 /**
@@ -31,12 +27,6 @@ class convoi_t;
  */
 class vehikelbauer_t
 {
-private:
-	// beschreibungstabellen
-	static inthashtable_tpl<int, const vehikel_besch_t *> _fahrzeuge;
-	static stringhashtable_tpl <const vehikel_besch_t *> name_fahrzeuge;
-	static inthashtable_tpl<waytype_t, slist_tpl<const vehikel_besch_t *> > typ_fahrzeuge;
-
 public:
 	static bool register_besch(const vehikel_besch_t *besch);
 	static void sort_lists();

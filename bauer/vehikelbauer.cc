@@ -20,11 +20,13 @@
 
 #include "../bauer/warenbauer.h"
 #include "../bauer/vehikelbauer.h"
+#include "../tpl/inthashtable_tpl.h"
+#include "../tpl/stringhashtable_tpl.h"
 
 
-inthashtable_tpl<int, const vehikel_besch_t *> vehikelbauer_t::_fahrzeuge;
-stringhashtable_tpl<const vehikel_besch_t *> vehikelbauer_t::name_fahrzeuge;
-inthashtable_tpl<waytype_t, slist_tpl<const vehikel_besch_t *> > vehikelbauer_t::typ_fahrzeuge;
+static inthashtable_tpl<int, const vehikel_besch_t*> _fahrzeuge;
+static stringhashtable_tpl<const vehikel_besch_t*> name_fahrzeuge;
+static inthashtable_tpl<waytype_t, slist_tpl<const vehikel_besch_t*> > typ_fahrzeuge;
 
 
 vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb)
