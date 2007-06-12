@@ -27,31 +27,18 @@ stringhashtable_tpl<const vehikel_besch_t *> vehikelbauer_t::name_fahrzeuge;
 inthashtable_tpl<waytype_t, slist_tpl<const vehikel_besch_t *> > vehikelbauer_t::typ_fahrzeuge;
 
 
-
-vehikel_t *
-vehikelbauer_t::baue(karte_t *welt, koord3d k,
-                   spieler_t *sp, convoi_t *cnv, const vehikel_besch_t *vb)
+vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb)
 {
 	vehikel_t *v = NULL;
 	if(vb) {
 
 		switch(vb->gib_typ()) {
-			case road_wt:
-				v = new automobil_t(welt, k, vb, sp, cnv);
-				break;
-			case monorail_wt:
-				v = new monorail_waggon_t(welt, k, vb, sp, cnv);
-				break;
+			case road_wt:     v = new automobil_t(      k, vb, sp, cnv); break;
+			case monorail_wt: v = new monorail_waggon_t(k, vb, sp, cnv); break;
 			case track_wt:
-			case tram_wt:
-				v = new waggon_t(welt, k, vb, sp, cnv);
-				break;
-			case water_wt:
-				v = new schiff_t(welt, k, vb, sp, cnv);
-				break;
-			case air_wt:
-				v = new aircraft_t(welt, k, vb, sp, cnv);
-				break;
+			case tram_wt:     v = new waggon_t(         k, vb, sp, cnv); break;
+			case water_wt:    v = new schiff_t(         k, vb, sp, cnv); break;
+			case air_wt:      v = new aircraft_t(       k, vb, sp, cnv); break;
 			case invalid_wt:
 			case powerline_wt:
 			default:

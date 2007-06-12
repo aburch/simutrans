@@ -610,8 +610,8 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 
 
 
-vehikel_t::vehikel_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp) :
-	vehikel_basis_t(welt, pos)
+vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
+	vehikel_basis_t(sp->gib_welt(), pos)
 {
 	this->besch = besch;
 
@@ -1327,8 +1327,8 @@ vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 /*--------------------------- Fahrdings ------------------------------*/
 
 
-automobil_t::automobil_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cn) :
-    vehikel_t(welt, pos, besch, sp)
+automobil_t::automobil_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
+	vehikel_t(pos, besch, sp)
 {
 	cnv = cn;
 }
@@ -1670,9 +1670,8 @@ waggon_t::waggon_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
 }
 
 
-
-waggon_t::waggon_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cn) :
-    vehikel_t(welt, pos, besch, sp)
+waggon_t::waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
+	vehikel_t(pos, besch, sp)
 {
     cnv = cn;
 }
@@ -2308,11 +2307,8 @@ fahrplan_t * monorail_waggon_t::erzeuge_neuen_fahrplan() const
 }
 
 
-
-
-
-schiff_t::schiff_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cn) :
-    vehikel_t(welt, pos, besch, sp)
+schiff_t::schiff_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
+	vehikel_t(pos, besch, sp)
 {
     cnv = cn;
 }
@@ -2759,8 +2755,8 @@ aircraft_t::aircraft_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
 }
 
 
-aircraft_t::aircraft_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cn) :
-    vehikel_t(welt, pos, besch, sp)
+aircraft_t::aircraft_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
+	vehikel_t(pos, besch, sp)
 {
 	cnv = cn;
 	state = taxiing;

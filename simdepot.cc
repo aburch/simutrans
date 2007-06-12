@@ -182,7 +182,7 @@ int depot_t::buy_vehicle(int image)
 		// Offen: prüfen ob noch platz im depot ist???
 		const vehikel_besch_t * info = vehikelbauer_t::gib_info(image);
 DBG_DEBUG("depot_t::buy_vehicle()",info->gib_name());
-		vehikel_t *veh = vehikelbauer_t::baue(welt, gib_pos(), gib_besitzer(), NULL, info);
+		vehikel_t* veh = vehikelbauer_t::baue(gib_pos(), gib_besitzer(), NULL, info);
 DBG_DEBUG("depot_t::buy_vehicle()","vehiclebauer %p",veh);
 
 		if(veh) {
@@ -269,7 +269,7 @@ convoihandle_t depot_t::copy_convoi(int icnv)
 					}
 					else {
 						// buy new vehicle
-						vehikel_t *veh = vehikelbauer_t::baue(welt, gib_pos(), gib_besitzer(), NULL, info);
+						vehikel_t* veh = vehikelbauer_t::baue(gib_pos(), gib_besitzer(), NULL, info);
 						veh->setze_pos(gib_pos());
 						new_cnv->add_vehikel(veh, false);
 					}

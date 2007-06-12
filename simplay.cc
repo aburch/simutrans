@@ -1092,7 +1092,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","checking our convoi %s between %s an
 						if (h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, haltestelle_t::gib_halt(welt,f->eintrag[1].pos)) > h0->get_capacity() ||
 								h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, haltestelle_t::gib_halt(welt,f->eintrag[0].pos)) > h1->get_capacity()) {
 DBG_MESSAGE("spieler_t::do_passenger_ki()","copy convoi %s on route %s to %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
-							vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, cnv->gib_vehikel(0)->gib_besch());
+							vehikel_t* v = vehikelbauer_t::baue(startpos, this, NULL, cnv->gib_vehikel(0)->gib_besch());
 							convoi_t* new_cnv = new convoi_t(this);
 							// V.Meyer: give the new convoi name from first vehicle
 							new_cnv->setze_name( v->gib_besch()->gib_name() );
@@ -2159,9 +2159,7 @@ DBG_MESSAGE("spieler_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpo
 
 	// now create all vehicles as convois
 	for(int i=0;  i<anz_vehikel;  i++) {
-
-		vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, road_vehicle);
-
+		vehikel_t* v = vehikelbauer_t::baue(startpos, this, NULL, road_vehicle);
 		convoi_t* cnv = new convoi_t(this);
 		// V.Meyer: give the new convoi name from first vehicle
 		cnv->setze_name(v->gib_besch()->gib_name());
@@ -2210,8 +2208,7 @@ spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 
 		// now create all vehicles as convois
 		for(int i=0;  i<anz_vehikel;  i++) {
-			vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, road_vehicle);
-
+			vehikel_t* v = vehikelbauer_t::baue(startpos, this, NULL, road_vehicle);
 			convoi_t* cnv = new convoi_t(this);
 			// V.Meyer: give the new convoi name from first vehicle
 			cnv->setze_name(v->gib_besch()->gib_name());
@@ -2246,7 +2243,7 @@ spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2,
 		wkz_wayobj(this,welt,platz1,v);
 		wkz_wayobj(this,welt,platz2,v);
 	}
-	vehikel_t * v = vehikelbauer_t::baue(welt, pos2, this, NULL, rail_engine);
+	vehikel_t* v = vehikelbauer_t::baue(pos2, this, NULL, rail_engine);
 
 	// V.Meyer: give the new convoi name from first vehicle
     cnv->setze_name(rail_engine->gib_name());
@@ -2259,7 +2256,7 @@ spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2,
 	 */
 	for(int i = 0; i < anz_vehikel; i++) {
 		// use the vehicle we searched before
-		vehikel_t * v = vehikelbauer_t::baue(welt, pos2, this,NULL,rail_vehicle);
+		vehikel_t* v = vehikelbauer_t::baue(pos2, this, NULL, rail_vehicle);
 		cnv->add_vehikel( v );
 	}
 
@@ -2327,7 +2324,7 @@ spieler_t::create_simple_road_transport()
 
 	// is there already a connection?
 	if(road_vehicle) {
-		vehikel_t* test_driver = new automobil_t(welt, koord3d(platz1, 0), road_vehicle, this, NULL);
+		vehikel_t* test_driver = new automobil_t(koord3d(platz1, 0), road_vehicle, this, NULL);
 		route_t verbindung;
 		if (verbindung.calc_route(welt, welt->lookup(platz1)->gib_kartenboden()->gib_pos(), welt->lookup(platz2)->gib_kartenboden()->gib_pos(), test_driver, 0) &&
 			verbindung.gib_max_n()<2*(sint32)abs_distance(platz1,platz2))  {

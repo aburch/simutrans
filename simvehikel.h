@@ -280,10 +280,7 @@ public:
 	void neue_fahrt( uint16 start_route_index, bool recalc );
 
 	vehikel_t(karte_t *welt);
-	vehikel_t(karte_t *welt,
-		koord3d pos,
-		const vehikel_besch_t *besch,
-		spieler_t *sp);
+	vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp);
 
 	~vehikel_t();
 
@@ -456,7 +453,7 @@ public:
 	virtual waytype_t gib_waytype() const { return road_wt; }
 
 	automobil_t(karte_t *welt, loadsave_t *file);
-	automobil_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
+	automobil_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
 
 	virtual void setze_convoi(convoi_t *c);
 
@@ -521,7 +518,7 @@ public:
 	enum ding_t::typ gib_typ() const { return waggon; }
 
 	waggon_t(karte_t *welt, loadsave_t *file);
-	waggon_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
+	waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t *cnv); // start und fahrplan
 	~waggon_t();
 
 	virtual void setze_convoi(convoi_t *c);
@@ -546,7 +543,7 @@ public:
 
 	// all handled by waggon_t
 	monorail_waggon_t(karte_t *welt, loadsave_t *file) : waggon_t(welt, file) {}
-	monorail_waggon_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv) : waggon_t(welt, pos, besch, sp, cnv ) {}
+	monorail_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
 
 	enum ding_t::typ gib_typ() const { return monorailwaggon; }
 
@@ -581,7 +578,7 @@ public:
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const {return 0;}
 
 	schiff_t(karte_t *welt, loadsave_t *file);
-	schiff_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
+	schiff_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
 
 	ding_t::typ gib_typ() const { return schiff; }
 
@@ -633,7 +630,7 @@ protected:
 
 public:
 	aircraft_t(karte_t *welt, loadsave_t *file);
-	aircraft_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
+	aircraft_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
 
 	// since we are drawing ourselves, we must mark ourselves dirty during deletion
 	~aircraft_t();

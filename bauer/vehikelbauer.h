@@ -41,7 +41,7 @@ public:
 	static bool register_besch(const vehikel_besch_t *besch);
 	static void sort_lists();
 
-	static vehikel_t *baue(karte_t *welt, koord3d k, spieler_t *sp, convoi_t *cnv, const vehikel_besch_t *vb);
+	static vehikel_t* baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb);
 
 	/**
 	* ermittelt ein basis bild fuer ein Fahrzeug das den angegebenen

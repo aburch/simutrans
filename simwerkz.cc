@@ -878,7 +878,7 @@ DBG_MESSAGE("wkz_wayremover()", "Setting end to %d,%d,%d",gr->gib_pos().x, gr->g
 
 			// get a default vehikel
 			vehikel_besch_t remover_besch(wt, 1, vehikel_besch_t::diesel );
-			vehikel_t *test_driver = vehikelbauer_t::baue( welt, start, sp, NULL, &remover_besch);
+			vehikel_t* test_driver = vehikelbauer_t::baue(start, sp, NULL, &remover_besch);
 			if(test_driver) {
 				can_delete = verbindung.calc_route(welt, start, gr->gib_pos(), test_driver, 0);
 				delete test_driver;
@@ -1014,7 +1014,7 @@ wkz_wayobj(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 
 			// get a default vehikel
 			vehikel_besch_t remover_besch(wt, 1, vehikel_besch_t::diesel );
-			vehikel_t *test_driver = vehikelbauer_t::baue( welt, start, sp, NULL, &remover_besch);
+			vehikel_t* test_driver = vehikelbauer_t::baue(start, sp, NULL, &remover_besch);
 			if(test_driver) {
 				can_built = verbindung.calc_route(welt, start, gr->gib_pos(), test_driver, 0);
 				delete test_driver;
