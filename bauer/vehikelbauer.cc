@@ -29,30 +29,22 @@ inthashtable_tpl<waytype_t, slist_tpl<const vehikel_besch_t *> > vehikelbauer_t:
 
 vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb)
 {
-	vehikel_t *v = NULL;
-	if(vb) {
+	vehikel_t* v;
+	switch (vb->gib_typ()) {
+		case road_wt:     v = new automobil_t(      k, vb, sp, cnv); break;
+		case monorail_wt: v = new monorail_waggon_t(k, vb, sp, cnv); break;
+		case track_wt:
+		case tram_wt:     v = new waggon_t(         k, vb, sp, cnv); break;
+		case water_wt:    v = new schiff_t(         k, vb, sp, cnv); break;
+		case air_wt:      v = new aircraft_t(       k, vb, sp, cnv); break;
 
-		switch(vb->gib_typ()) {
-			case road_wt:     v = new automobil_t(      k, vb, sp, cnv); break;
-			case monorail_wt: v = new monorail_waggon_t(k, vb, sp, cnv); break;
-			case track_wt:
-			case tram_wt:     v = new waggon_t(         k, vb, sp, cnv); break;
-			case water_wt:    v = new schiff_t(         k, vb, sp, cnv); break;
-			case air_wt:      v = new aircraft_t(       k, vb, sp, cnv); break;
-			case invalid_wt:
-			case powerline_wt:
-			default:
-				dbg->fatal("vehikelbauer_t::baue()","cannot built a vehicle with waytype %i",vb->gib_typ());
-		}
-
-		assert(v != NULL);
-
-		if(sp) {
-			sp->buche(-(sint32)(vb->gib_preis()), k.gib_2d(), COST_NEW_VEHICLE);
-		}
+		default:
+			dbg->fatal("vehikelbauer_t::baue()", "cannot built a vehicle with waytype %i", vb->gib_typ());
 	}
 
-	assert (v != NULL);
+	if(sp) {
+		sp->buche(-(sint32)(vb->gib_preis()), k.gib_2d(), COST_NEW_VEHICLE);
+	}
 
 	return v;
 }
