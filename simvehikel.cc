@@ -649,6 +649,8 @@ vehikel_t::vehikel_t(karte_t *welt) :
 	sum_weight = 10;
 	total_freight = 0;
 
+	ist_erstes = ist_letztes = false;
+	check_for_finish = false;
 	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
 }
 

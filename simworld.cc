@@ -1745,23 +1745,26 @@ void karte_t::recalc_average_speed()
 
 		char	buf[256];
 		for(int i=road_wt; i<=air_wt; i++) {
-			slist_iterator_tpl<const vehikel_besch_t*> vehinfo(vehikelbauer_t::gib_info((waytype_t)i));
-			while (vehinfo.next()) {
-				const vehikel_besch_t* info = vehinfo.get_current();
-				const uint16 intro_month = info->get_intro_year_month();
-				if(intro_month == current_month) {
-					sprintf(buf,
-						translator::translate("New vehicle now available:\n%s\n"),
-						translator::translate(info->gib_name()));
-						message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->gib_basis_bild());
-				}
+			slist_tpl<const vehikel_besch_t*>* cl = vehikelbauer_t::gib_info((waytype_t)i);
+			if(cl) {
+				slist_iterator_tpl<const vehikel_besch_t*> vehinfo(cl);
+				while (vehinfo.next()) {
+					const vehikel_besch_t* info = vehinfo.get_current();
+					const uint16 intro_month = info->get_intro_year_month();
+					if(intro_month == current_month) {
+						sprintf(buf,
+							translator::translate("New vehicle now available:\n%s\n"),
+							translator::translate(info->gib_name()));
+							message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->gib_basis_bild());
+					}
 
-				const uint16 retire_month = info->get_retire_year_month();
-				if(retire_month == current_month) {
-					sprintf(buf,
-						translator::translate("Production of vehicle has been stopped:\n%s\n"),
-						translator::translate(info->gib_name()));
-						message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->gib_basis_bild());
+					const uint16 retire_month = info->get_retire_year_month();
+					if(retire_month == current_month) {
+						sprintf(buf,
+							translator::translate("Production of vehicle has been stopped:\n%s\n"),
+							translator::translate(info->gib_name()));
+							message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->gib_basis_bild());
+					}
 				}
 			}
 		}
@@ -1782,12 +1785,15 @@ void karte_t::recalc_average_speed()
 		for(int i=road_wt; i<=air_wt; i++) {
 			// check for speed
 			const int speed_bonus_categorie = (i>=4  &&  i<=7) ? 2 : (i==air_wt ? 4 : i );
-			slist_iterator_tpl<const vehikel_besch_t*> vehinfo(vehikelbauer_t::gib_info((waytype_t)i));
-			while (vehinfo.next()) {
-				const vehikel_besch_t* info = vehinfo.get_current();
-				if(info->gib_leistung()>0  &&  !info->is_future(timeline_month)  &&  !info->is_retired(timeline_month)) {
-					speed_sum[speed_bonus_categorie-1] += info->gib_geschw();
-					num_averages[speed_bonus_categorie-1] ++;
+			slist_tpl<const vehikel_besch_t*>* cl = vehikelbauer_t::gib_info((waytype_t)i);
+			if(cl) {
+				slist_iterator_tpl<const vehikel_besch_t*> vehinfo(cl);
+				while (vehinfo.next()) {
+					const vehikel_besch_t* info = vehinfo.get_current();
+					if(info->gib_leistung()>0  &&  !info->is_future(timeline_month)  &&  !info->is_retired(timeline_month)) {
+						speed_sum[speed_bonus_categorie-1] += info->gib_geschw();
+						num_averages[speed_bonus_categorie-1] ++;
+					}
 				}
 			}
 		}

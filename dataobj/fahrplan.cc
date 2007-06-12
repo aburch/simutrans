@@ -111,12 +111,11 @@ fahrplan_t::insert(karte_t *welt, const grund_t *gr,int ladegrad)
 {
 	aktuell = max(aktuell,0);
 #ifndef _MSC_VER
-	struct linieneintrag_t stop = { gr->gib_pos(), ladegrad, 0 };
+	struct linieneintrag_t stop = { gr->gib_pos(), ladegrad };
 #else
 	struct linieneintrag_t stop;
 	stop.pos = gr->gib_pos();
 	stop.ladegrad = ladegrad;
-	stop.flags = 0;
 #endif
 	// stored in minivec, so wie have to avoid adding too many
 	if(eintrag.get_count()>=254) {
@@ -142,12 +141,11 @@ fahrplan_t::append(karte_t *welt, const grund_t *gr,int ladegrad)
 {
 	aktuell = max(aktuell,0);
 #ifndef _MSC_VER
-	struct linieneintrag_t stop = { gr->gib_pos(), ladegrad, 0 };
+	struct linieneintrag_t stop = { gr->gib_pos(), ladegrad };
 #else
 	struct linieneintrag_t stop;
 	stop.pos = gr->gib_pos();
 	stop.ladegrad = ladegrad;
-	stop.flags = 0;
 #endif
 
 	// stored in minivec, so wie have to avoid adding too many
@@ -239,7 +237,6 @@ fahrplan_t::rdwr(loadsave_t *file)
 			struct linieneintrag_t stop;
 			stop.pos = pos;
 			stop.ladegrad = (sint8)dummy;
-			stop.flags = 0;
 			eintrag.append(stop);
 		}
 	}
@@ -251,9 +248,6 @@ fahrplan_t::rdwr(loadsave_t *file)
 			}
 			eintrag[i].pos.rdwr(file);
 			file->rdwr_byte(eintrag[i].ladegrad, "\n");
-			if(file->is_loading()) {
-				eintrag[i].flags = 0;
-			}
 		}
 	}
 	if(file->is_loading()) {

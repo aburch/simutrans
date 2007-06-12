@@ -21,12 +21,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	uint8 ladegrad;
-
-	/**
-	* unused
-	* @author prissi
-	*/
-	uint8 flags;
 };
 
 #endif

@@ -1369,9 +1369,10 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 
 	// save/restore pending line updates
-	if (file->get_version() > 84008) {
-		dummy = line_update_pending;
+	if(file->get_version()>84008   &&  file->get_version()<99013) {
 		file->rdwr_long(dummy, "\n");	// ignore
+	}
+	if(file->is_loading()) {
 		line_update_pending = INVALID_LINE_ID;
 	}
 

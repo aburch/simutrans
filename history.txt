@@ -12,7 +12,8 @@
 	FIX: unreservation during convoi/track deletion fixed
 	FIX: (z9999) factory reader and colors in minimap were wrong
 	ADD: cityrules new parameter u/U ground is not/well suited for road
-	ADD: cityrules new parameter renovation_percentage (defualt 25) to finetune new building/renovation ratio
+	ADD: cityrules new parameter renovation_percentage (default 25) to finetune new building/renovation ratio
+	FIX: schedule was one off during reloading (and driving one field) due to missing initialisation of check_for_finish in vehikel_t(welt)
 
 
 Release of 99.12
