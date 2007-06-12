@@ -221,8 +221,10 @@ wkz_raise(spieler_t *sp, karte_t *welt, koord pos)
 				// update image
 				for(int j=-n; j<=n; j++) {
 					for(int i=-n; i<=n; i++) {
-						if(welt->ist_in_kartengrenzen(pos.x+i,pos.y+j)  &&  welt->lookup(pos+koord(i,j))->gib_kartenboden()) {
-							welt->lookup(pos+koord(i,j))->gib_kartenboden()->calc_bild();
+						const planquadrat_t* p = welt->lookup(pos + koord(i, j));
+						if (p)  {
+							grund_t* g = p->gib_kartenboden();
+							if (g) g->calc_bild();
 						}
 					}
 				}
@@ -260,8 +262,10 @@ wkz_lower(spieler_t *sp, karte_t *welt, koord pos)
 				// update image
 				for(int j=-n; j<=n; j++) {
 					for(int i=-n; i<=n; i++) {
-						if(welt->ist_in_kartengrenzen(pos.x+i,pos.y+j)  &&  welt->lookup(pos+koord(i,j))->gib_kartenboden()) {
-							welt->lookup(pos+koord(i,j))->gib_kartenboden()->calc_bild();
+						const planquadrat_t* p = welt->lookup(pos + koord(i, j));
+						if (p)  {
+							grund_t* g = p->gib_kartenboden();
+							if (g) g->calc_bild();
 						}
 					}
 				}
@@ -2181,10 +2185,10 @@ int wkz_pflanze_baum(spieler_t *, karte_t *welt, koord pos)
 /* builts a random industry chain, either in the next town */
 int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos)
 {
-	if(welt->lookup(pos)==NULL) {
-		return false;
-	}
-	const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(false,(climate_bits)(1<<welt->get_climate(welt->lookup(pos)->gib_kartenboden()->gib_hoehe())));
+	const planquadrat_t* p = welt->lookup(pos);
+	if (p == NULL) return false;
+	const grund_t* g = p->gib_kartenboden();
+	const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(false,(climate_bits)(1<<welt->get_climate(g->gib_hoehe())));
 
 	if(info==NULL) {
 		return false;
@@ -2205,7 +2209,7 @@ int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos)
 	}
 
 	if(hat_platz) {
-		koord3d k = welt->lookup(pos)->gib_kartenboden()->gib_pos();
+		koord3d k = g->gib_pos();
 		int anzahl = fabrikbauer_t::baue_hierarchie(welt, NULL, info, rotation, &k,welt->gib_spieler(1));
 
 		// crossconnect all?

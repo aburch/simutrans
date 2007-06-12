@@ -361,9 +361,8 @@ haltestelle_t::~haltestelle_t()
 		rem_grund(grund.front());
 	}
 	// remove last halthandle (for stops without ground, created during loading)
-	if(welt->ist_in_kartengrenzen(init_pos)  &&  welt->lookup(init_pos)->gib_halt()==self) {
-		welt->access(init_pos)->setze_halt( halthandle_t() );
-	}
+	planquadrat_t* p = welt->access(init_pos);
+	if (p && p->gib_halt() == self) p->setze_halt(halthandle_t());
 
 	if(halt_info) {
 		destroy_win(halt_info);

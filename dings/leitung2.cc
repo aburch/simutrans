@@ -247,10 +247,11 @@ static void set_net_at(const grund_t *gr, powernet_t *new_net)
 void leitung_t::replace(koord base_pos, powernet_t *old_net, powernet_t *new_net)
 {
 	powernet_t *current;
-	if(get_net_at(welt->lookup_kartenboden(base_pos),&current)  &&  current!=new_net) {
+	const grund_t* g = welt->lookup_kartenboden(base_pos);
+	if (get_net_at(g, &current) && current != new_net) {
 		// convert myself ...
 //DBG_MESSAGE("leitung_t::replace()","My net %p by %p at (%i,%i)",new_net,current,base_pos.x,base_pos.y);
-		set_net_at(welt->lookup_kartenboden(base_pos),new_net);
+		set_net_at(g, new_net);
 		//get_net_at(welt->lookup(base_pos),&current);
 	}
 
@@ -331,9 +332,10 @@ void leitung_t::calc_bild()
 {
 	const koord pos = gib_pos().gib_2d();
 
+	const planquadrat_t* p = welt->lookup(pos);
 	grund_t *gr = NULL;
-	if(welt->lookup(pos)!=NULL) {
-		gr = welt->lookup(pos)->gib_kartenboden();
+	if (p != NULL) {
+		gr = p->gib_kartenboden();
 	}
 	if(gr==NULL) {
 		// no valid gound; usually happens during building ...

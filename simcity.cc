@@ -1825,9 +1825,12 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			if (besch->gib_b() <= groesse_alt.x && besch->gib_h() <= groesse_alt.y) {
 				// no, the size is ok
 				umziehen = false;
-			} else if (welt->lookup(pos + koord(0, besch_alt->gib_h()))->gib_kartenboden()->hat_weg(road_wt)) {
-				// we need to built a new road, thus we will use the old as a starting point (if found)
-				alte_str =  pos + koord(0, besch_alt->gib_h());
+			} else {
+				koord k = pos + koord(0, besch_alt->gib_h());
+				if (welt->lookup(k)->gib_kartenboden()->hat_weg(road_wt)) {
+					// we need to built a new road, thus we will use the old as a starting point (if found)
+					alte_str = k;
+				}
 			}
 
 			// clear the old townhall

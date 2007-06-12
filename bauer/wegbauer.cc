@@ -1100,19 +1100,17 @@ wegbauer_t::intern_calc_route(const koord3d start3d, const koord3d ziel3d)
 	route.clear();
 
 	// check for existing koordinates
-	if(welt->lookup(start3d)==NULL  ||  welt->lookup(ziel3d)==NULL) {
+	const grund_t* gr = welt->lookup(start3d);
+	if (gr == NULL || welt->lookup(ziel3d) == NULL) {
 		return -1;
 	}
 
 	// some thing for the search
-	const grund_t *gr;
 	grund_t *to;
-
 	koord3d gr_pos;	// just the last valid pos ...
 
 	// is valid ground?
 	long dummy;
-	gr = welt->lookup(start3d);
 	if(!is_allowed_step(gr,gr,&dummy)) {
 		DBG_MESSAGE("wegbauer_t::intern_calc_route()","cannot start on (%i,%i,%i)",start3d.x,start3d.y,start3d.z);
 		return false;
@@ -1151,7 +1149,7 @@ wegbauer_t::intern_calc_route(const koord3d start3d, const koord3d ziel3d)
 	step ++;
 
 	tmp->parent = NULL;
-	tmp->gr = welt->lookup(start3d);
+	tmp->gr = gr;
 	tmp->f = route_t::calc_distance(start3d,ziel3d);
 	tmp->g = 0;
 	tmp->dir = 0;
@@ -1362,12 +1360,12 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 	bool ok=true;
 	max_n = -1;
 
-	if(welt->lookup(start)==NULL) {
+	const grund_t* test_bd = welt->lookup(start);
+	if (test_bd == NULL) {
 		// not building
 		return;
 	}
 	long dummy_cost;
-	grund_t *test_bd = welt->lookup(start);
 	if(!is_allowed_step(test_bd,test_bd,&dummy_cost)) {
 		// no legal ground to start ...
 		return;

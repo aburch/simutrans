@@ -1498,18 +1498,18 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 
 				// remove marker etc.
 				case NR_BAUE_CLEAN_UP:
+				{
 					// otherwise it may always try to built the same route!
 					ziel = NULL;
 					// schilder aufraeumen
-					if(welt->lookup(platz1)) {
-						welt->access(platz1)->gib_kartenboden()->obj_loesche_alle(this);
-					}
-					if(welt->lookup(platz2)) {
-						welt->access(platz2)->gib_kartenboden()->obj_loesche_alle(this);
-					}
+					planquadrat_t* p1 = welt->access(platz1);
+					if (p1) p1->gib_kartenboden()->obj_loesche_alle(this);
+					planquadrat_t* p2 = welt->access(platz2);
+					if (p2) p2->gib_kartenboden()->obj_loesche_alle(this);
 					baue = false;
 					state = CHECK_CONVOI;
-				break;
+					break;
+				}
 
 				// successful rail construction
 				case NR_RAIL_SUCCESS:
@@ -1913,11 +1913,10 @@ DBG_MESSAGE("spieler_t::suche_transport_quelle","Search other %i supplier for: %
 	// now iterate over all suppliers
 	for(  int i=0;  i<lieferquelle_anzahl;  i++  ) {
 		// find source
-		const koord lieferquelle = lieferquellen[i];
-
-		if(welt->lookup(lieferquelle)) {
+		const planquadrat_t* p = welt->lookup(lieferquellen[i]);
+		if (p) {
 			// valid koordinate?
-			ding_t * dt = welt->lookup(lieferquelle)->gib_kartenboden()->first_obj();
+			ding_t* dt = p->gib_kartenboden()->first_obj();
 			if(dt==NULL) {
 				// is already served ...
 				continue;
@@ -1995,8 +1994,9 @@ DBG_MESSAGE("spieler_t::suche_transport_ziel","Lieferziele %d",lieferziel_anzahl
 			int	dieser_gewinn=-1;
 			fabrik_t *zfab = NULL;
 
-			if(welt->lookup(lieferziel)) {
-				ding_t * dt = welt->lookup(lieferziel)->gib_kartenboden()->first_obj();
+			const planquadrat_t* p = welt->lookup(lieferziel);
+			if (p) {
+				ding_t* dt = p->gib_kartenboden()->first_obj();
 				if(dt) {
 					zfab = dt->get_fabrik();
 					dieser_gewinn = guess_gewinn_transport_quelle_ziel( qfab, &ware, ware_nr, zfab );

@@ -404,9 +404,9 @@ baum_t::saee_baum()
 	// spawn a new tree in an area 5x5 tiles around
 	// the area for normal new tree planting is slightly more restricted, square of 9x9 was too much
 	const koord k = gib_pos().gib_2d() + koord(simrand(5)-2, simrand(5)-2);
-
-	if(welt->lookup(k)) {
-		grund_t *bd = welt->lookup(k)->gib_kartenboden();
+	const planquadrat_t* p = welt->lookup(k);
+	if (p) {
+		grund_t *bd = p->gib_kartenboden();
 		if(	bd!=NULL  &&
 			gib_besch()->is_allowed_climate(welt->get_climate(bd->gib_pos().z))  &&
 			bd->ist_natur()  &&

@@ -40,7 +40,7 @@ public:
 	typedef class ANode {
 	public:
 		ANode * parent;
-		grund_t *gr;
+		const grund_t* gr;
 		uint32  f, g;
 		uint8 dir;
 		uint16 count;

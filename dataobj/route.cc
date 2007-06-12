@@ -163,7 +163,8 @@ route_t::find_route(karte_t *welt,
 	bool ok = false;
 
 	// check for existing koordinates
-	if(welt->lookup(start)==NULL) {
+	const grund_t* g = welt->lookup(start);
+	if (g == NULL) {
 		return false;
 	}
 
@@ -189,7 +190,7 @@ route_t::find_route(karte_t *welt,
 	route.clear();
 
 	// first tile is not valid?!?
-	if(!fahr->ist_befahrbar(welt->lookup(start))) {
+	if (!fahr->ist_befahrbar(g)) {
 		return false;
 	}
 
@@ -198,7 +199,7 @@ route_t::find_route(karte_t *welt,
 	uint32 step = 0;
 	ANode* tmp = &nodes[step++];
 	tmp->parent = NULL;
-	tmp->gr = welt->lookup(start);
+	tmp->gr = g;
 	tmp->count = 0;
 
 	// start in open

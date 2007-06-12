@@ -205,10 +205,16 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		if(cnv->gib_besitzer()==cnv->gib_welt()->get_active_player()) {
 			button.enable();
 			go_home_button.pressed = route_search_in_progress;
-			if(cnv->gib_fahrplan()->maxi()>0  &&  cnv->gib_welt()->lookup(cnv->gib_fahrplan()->eintrag[cnv->gib_fahrplan()->aktuell].pos)!=NULL  &&  cnv->gib_welt()->lookup(cnv->gib_fahrplan()->eintrag[cnv->gib_fahrplan()->aktuell].pos)->gib_depot()) {
-				go_home_button.disable();
+			if (cnv->gib_fahrplan()->maxi() > 0) {
+				const grund_t* g = cnv->gib_welt()->lookup(cnv->gib_fahrplan()->eintrag[cnv->gib_fahrplan()->aktuell].pos);
+				if (g != NULL && g->gib_depot()) {
+					go_home_button.disable();
+				} else {
+					goto enable_home;
+				}
 			}
 			else {
+enable_home:
 				go_home_button.enable();
 			}
 			no_load_button.pressed = cnv->get_no_load();

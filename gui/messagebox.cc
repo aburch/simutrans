@@ -27,8 +27,9 @@ nachrichtenfenster_t::nachrichtenfenster_t(karte_t *welt, const char *text, imag
 	sint16 height = max( meldung.gib_groesse().y+16+10+4, get_tile_raster_width()+30 );
 
 	// good coordinates?
-	if(welt->lookup(k)) {
-		view.set_location( welt->lookup(k)->gib_kartenboden()->gib_pos() );
+	const planquadrat_t* p = welt->lookup(k);
+	if (p) {
+		view.set_location(p->gib_kartenboden()->gib_pos());
 		view.setze_pos( koord(230-get_tile_raster_width()-5,10) );
 		view.setze_groesse( koord( get_tile_raster_width(), (get_tile_raster_width()*5)/6)  );
 		add_komponente( &view );
