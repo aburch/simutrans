@@ -185,11 +185,9 @@ DBG_DEBUG("depot_t::buy_vehicle()",info->gib_name());
 		vehikel_t* veh = vehikelbauer_t::baue(gib_pos(), gib_besitzer(), NULL, info);
 DBG_DEBUG("depot_t::buy_vehicle()","vehiclebauer %p",veh);
 
-		if(veh) {
-			vehicles.append(veh);
-DBG_DEBUG("depot_t::buy_vehicle()","appended %i vehicle", vehicles.count());
-			return vehicles.count() - 1;
-		}
+		vehicles.append(veh);
+		DBG_DEBUG("depot_t::buy_vehicle()","appended %i vehicle", vehicles.count());
+		return vehicles.count() - 1;
 	}
 	return -1;
 }
