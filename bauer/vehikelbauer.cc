@@ -260,16 +260,9 @@ vehikelbauer_t::gib_info(image_id base_img)
 }
 
 
-const vehikel_besch_t *
-vehikelbauer_t::gib_info(waytype_t typ, uint32 i)
+slist_tpl<const vehikel_besch_t*>* vehikelbauer_t::gib_info(waytype_t typ)
 {
-	slist_tpl<const vehikel_besch_t *> *typ_liste = typ_fahrzeuge.access(typ);
-	if(typ_liste && i < typ_liste->count()) {
-		return typ_liste->at(i);
-	}
-	else {
-		return NULL;
-	}
+	return typ_fahrzeuge.access(typ);
 }
 
 

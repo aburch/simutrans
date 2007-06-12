@@ -567,13 +567,12 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 void depot_frame_t::build_vehicle_lists()
 {
 	const int month_now = World()->get_timeline_year_month();
-	int i = 0;
 
 	if (pas_vec.empty() && loks_vec.empty() && waggons_vec.empty()) {
 		int loks = 0, waggons = 0, pax=0;
-		while(depot->get_vehicle_type(i)) {
-			const vehikel_besch_t *info = depot->get_vehicle_type(i);
-
+		slist_iterator_tpl<const vehikel_besch_t*> vehinfo(depot->get_vehicle_type());
+		while (vehinfo.next()) {
+			const vehikel_besch_t* info = vehinfo.get_current();
 			if(info->gib_ware()==warenbauer_t::passagiere  ||  info->gib_ware()==warenbauer_t::post) {
 				pax++;
 			}
@@ -583,7 +582,6 @@ void depot_frame_t::build_vehicle_lists()
 			else {
 				waggons++;
 			}
-			i++;
 		}
 		pas_vec.resize(pax);
 		loks_vec.resize(loks);
@@ -598,7 +596,6 @@ void depot_frame_t::build_vehicle_lists()
 	// we do not allow to built electric vehicle in a depot without electrification
 	const schiene_t* sch = dynamic_cast<const schiene_t*>(World()->lookup(depot->gib_pos())->gib_weg(track_wt));
 	const bool schiene_electric = (sch==NULL)  ||  sch->is_electrified();
-	i = 0;
 
 	// use this to show only sellable vehicles
 	if(!show_all  &&  veh_action==va_sell) {
@@ -613,8 +610,9 @@ void depot_frame_t::build_vehicle_lists()
 	}
 	else {
 		// list only matching ones
-		while(depot->get_vehicle_type(i)) {
-			const vehikel_besch_t *info=depot->get_vehicle_type(i);
+		slist_iterator_tpl<const vehikel_besch_t*> vehinfo(depot->get_vehicle_type());
+		while (vehinfo.next()) {
+			const vehikel_besch_t* info = vehinfo.get_current();
 			const vehikel_besch_t *veh = NULL;
 			convoihandle_t cnv = depot->get_convoi(icnv);
 			if(cnv.is_bound() && cnv->gib_vehikel_anzahl()>0) {
@@ -638,7 +636,6 @@ void depot_frame_t::build_vehicle_lists()
 					add_to_vehicle_list( info );
 				}
 			}
-			i++;
 		}
 	}
 DBG_DEBUG("depot_frame_t::build_vehicle_lists()","finally %i passenger vehicle, %i  engines, %i good wagons",pas_vec.get_count(),loks_vec.get_count(),waggons_vec.get_count());

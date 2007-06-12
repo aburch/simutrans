@@ -1745,9 +1745,9 @@ void karte_t::recalc_average_speed()
 
 		char	buf[256];
 		for(int i=road_wt; i<=air_wt; i++) {
-			const vehikel_besch_t *info;
-			for(  int j=0;  (info = vehikelbauer_t::gib_info((waytype_t)i, j));  j++  ) {
-
+			slist_iterator_tpl<const vehikel_besch_t*> vehinfo(vehikelbauer_t::gib_info((waytype_t)i));
+			while (vehinfo.next()) {
+				const vehikel_besch_t* info = vehinfo.get_current();
 				const uint16 intro_month = info->get_intro_year_month();
 				if(intro_month == current_month) {
 					sprintf(buf,
@@ -1781,9 +1781,10 @@ void karte_t::recalc_average_speed()
 		const uint16 timeline_month = get_timeline_year_month();
 		for(int i=road_wt; i<=air_wt; i++) {
 			// check for speed
-			const vehikel_besch_t *info;
 			const int speed_bonus_categorie = (i>=4  &&  i<=7) ? 2 : (i==air_wt ? 4 : i );
-			for(  int j=0;  (info = vehikelbauer_t::gib_info((waytype_t)i, j));  j++  ) {
+			slist_iterator_tpl<const vehikel_besch_t*> vehinfo(vehikelbauer_t::gib_info((waytype_t)i));
+			while (vehinfo.next()) {
+				const vehikel_besch_t* info = vehinfo.get_current();
 				if(info->gib_leistung()>0  &&  !info->is_future(timeline_month)  &&  !info->is_retired(timeline_month)) {
 					speed_sum[speed_bonus_categorie-1] += info->gib_geschw();
 					num_averages[speed_bonus_categorie-1] ++;

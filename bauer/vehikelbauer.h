@@ -17,6 +17,7 @@ class spieler_t;
 class convoi_t;
 class vehikel_besch_t;
 class ware_besch_t;
+template <class T> class slist_tpl;
 
 
 /**
@@ -45,7 +46,7 @@ public:
 
 	static const vehikel_besch_t * gib_info(image_id base_img);
 	static const vehikel_besch_t * gib_info(const char *name);
-	static const vehikel_besch_t * gib_info(waytype_t typ,uint32 i);
+	static slist_tpl<const vehikel_besch_t*>* gib_info(waytype_t typ);
 
 	// only used by vehicle_search()
 	static int vehikel_can_lead(const vehikel_besch_t *v);

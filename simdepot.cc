@@ -482,11 +482,12 @@ const char * depot_t::ist_entfernbar(const spieler_t *sp)
 	return NULL;
 }
 
-const vehikel_besch_t *
-depot_t::get_vehicle_type(int itype)
+
+slist_tpl<const vehikel_besch_t*>* depot_t::get_vehicle_type()
 {
-	return vehikelbauer_t::gib_info(get_wegtyp(), itype);
+	return vehikelbauer_t::gib_info(get_wegtyp());
 }
+
 
 slist_tpl<linehandle_t> *
 depot_t::get_line_list()
