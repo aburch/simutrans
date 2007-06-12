@@ -56,7 +56,6 @@ public:
 	static const vehikel_besch_t *vehikel_search(waytype_t typ,const uint16 month_now,const uint32 target_power,const uint32 target_speed,const ware_besch_t * target_freight,bool include_electric=true);
 
 	static const vehikel_besch_t *vehikel_fuer_leistung(uint32 leistung, waytype_t typ,const unsigned month_now);
-	static int gib_preis(int base_img);
 };
 
 #endif

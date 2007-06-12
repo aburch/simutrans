@@ -273,21 +273,6 @@ vehikelbauer_t::gib_info(waytype_t typ, uint32 i)
 }
 
 
-int
-vehikelbauer_t::gib_preis(int base_img)
-{
-    const vehikel_besch_t *vb = gib_info(base_img);
-    int preis = 0;
-
-    if(vb) {
-  preis = vb->gib_preis();
-    }
-
-    return preis;
-}
-
-
-
 /* test, if a certain vehicle can lead a convoi *
  * used by vehikel_search
  * @author prissi
