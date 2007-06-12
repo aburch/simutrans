@@ -2210,7 +2210,7 @@ int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos)
 
 	if(hat_platz) {
 		koord3d k = g->gib_pos();
-		int anzahl = fabrikbauer_t::baue_hierarchie(welt, NULL, info, rotation, &k,welt->gib_spieler(1));
+		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, info, rotation, &k, welt->gib_spieler(1));
 
 		// crossconnect all?
 		if(umgebung_t::crossconnect_factories) {
@@ -2240,7 +2240,7 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos)
 
 		koord3d pos3d = plan->gib_kartenboden()->gib_pos();
 		const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(true,(climate_bits)(1<<welt->get_climate(pos3d.z)));
-		int anzahl = fabrikbauer_t::baue_hierarchie(welt, NULL, info, false, &pos3d,welt->gib_spieler(1));
+		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, info, false, &pos3d, welt->gib_spieler(1));
 
 		// crossconnect all?
 		if(umgebung_t::crossconnect_factories) {

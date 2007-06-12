@@ -379,7 +379,7 @@ void fabrikbauer_t::verteile_industrie(karte_t* welt, int max_number_of_factorie
 			pos = finde_zufallsbauplatz(welt, pos, 20, fab->gib_haus()->gib_groesse(rotation),fab->gib_platzierung()==fabrik_besch_t::Wasser,fab->gib_haus());
 			if(welt->lookup(pos)) {
 				// Platz gefunden ...
-				factory_number += baue_hierarchie(welt, NULL, fab, rotation, &pos, welt->gib_spieler(1));
+				factory_number += baue_hierarchie(NULL, fab, rotation, &pos, welt->gib_spieler(1));
 				current_number ++;
 				retrys = max_number_of_factories*4;
 			}
@@ -466,13 +466,12 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 }
 
 
-
 /**
  * vorbedingung: pos ist für fabrikbau geeignet
  */
-int
-fabrikbauer_t::baue_hierarchie(karte_t * welt, koord3d *parent, const fabrik_besch_t *info, int rotate, koord3d *pos, spieler_t *sp)
+int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d* pos, spieler_t* sp)
 {
+	karte_t* welt = sp->gib_welt();
 	int n = 1;
 
 	if(info==NULL) {
@@ -661,7 +660,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie()","found myself!");
 
 			if(welt->lookup(k)) {
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%i) r=%i for %s.",hersteller->gib_name(),k.x,k.y,rotate,info->gib_name());
-				n += baue_hierarchie(welt, pos, hersteller, rotate, &k, sp);
+				n += baue_hierarchie(pos, hersteller, rotate, &k, sp);
 				lfound ++;
 
 				INT_CHECK( "fabrikbauer 702" );

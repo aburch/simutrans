@@ -1926,7 +1926,7 @@ void stadt_t::check_bau_factory(bool new_town)
 
 					koord3d	market_pos = welt->lookup(pos)->gib_kartenboden()->gib_pos();
 					DBG_MESSAGE("stadt_t::check_bau_factory", "adding new industry at %i inhabitants.", gib_einwohner());
-					int n = fabrikbauer_t::baue_hierarchie(welt, NULL, market, rotate, &market_pos, welt->gib_spieler(1));
+					int n = fabrikbauer_t::baue_hierarchie(NULL, market, rotate, &market_pos, welt->gib_spieler(1));
 					// tell the player
 					char buf[256];
 					sprintf(buf, translator::translate("New factory chain\nfor %s near\n%s built with\n%i factories."), translator::translate(market->gib_name()), gib_name(), n);

@@ -114,7 +114,7 @@ public:
 	* @return: Anzahl gebauter Fabriken
 	* @author Hj.Malthaner
 	*/
-	static int baue_hierarchie(karte_t *welt, koord3d *parent, const fabrik_besch_t *info, int rotate, koord3d *pos, spieler_t *sp);
+	static int baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d* pos, spieler_t* sp);
 
 private:
 	// bauhilfen
