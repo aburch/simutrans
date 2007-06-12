@@ -44,6 +44,7 @@
 #include "../simverkehr.h"
 #include "../simpeople.h"
 
+#include "../besch/grund_besch.h"
 #include "../besch/haus_besch.h"
 #include "../besch/kreuzung_besch.h"
 #include "../besch/tunnel_besch.h"

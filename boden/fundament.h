@@ -1,9 +1,7 @@
 #ifndef boden_fundament_h
 #define boden_fundament_h
 
-//#include "grund.h"
-#include "boden.h"
-#include "../simimg.h"
+#include "grund.h"
 
 
 /**

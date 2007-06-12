@@ -8,9 +8,7 @@
 #ifndef boden_boden_h
 #define boden_boden_h
 
-#include "../simimg.h"
 #include "grund.h"
-#include "../besch/grund_besch.h"
 
 /**
  * Der Boden ist der 'Natur'-Untergrund in Simu. Er kann einen Besitzer haben.

@@ -5,7 +5,6 @@
  * in other projects without written permission of the author.
  */
 
-
 #ifndef boden_grund_h
 #define boden_grund_h
 
@@ -14,20 +13,16 @@
 #include "../simimg.h"
 #include "../simcolor.h"
 #include "../simdepot.h"
-
 #include "../dataobj/koord3d.h"
 #include "../dataobj/dingliste.h"
-
 #include "wege/weg.h"
 
-#include "../besch/weg_besch.h"
 
 class spieler_t;
 class depot_t;
 class karte_t;
 class grund_info_t;
 class cbuffer_t;
-
 template <class K, class V> class ptrhashtable_tpl;
 
 
