@@ -11,7 +11,6 @@
 #include "../../simworld.h"
 #include "../grund.h"
 #include "../../dataobj/loadsave.h"
-#include "../../utils/cbuffer_t.h"
 #include "../../bauer/wegbauer.h"
 #include "../../besch/weg_besch.h"
 

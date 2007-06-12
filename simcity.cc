@@ -51,9 +51,6 @@
 #include "bauer/wegbauer.h"
 #include "bauer/hausbauer.h"
 #include "bauer/fabrikbauer.h"
-
-#include "tpl/minivec_tpl.h"
-
 #include "utils/cbuffer_t.h"
 #include "utils/simstring.h"
 

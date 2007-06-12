@@ -11,7 +11,6 @@
 #include "gui_frame.h"
 #include "components/gui_world_view_t.h"
 #include "components/gui_textarea.h"
-#include "../utils/cbuffer_t.h"
 #include "../boden/grund.h"
 
 /**
@@ -30,7 +29,6 @@ protected:
 	 */
 	const grund_t* gr;
 	world_view_t view;
-	static cbuffer_t gr_info;
 
 public:
     grund_info_t(const grund_t* gr);

@@ -14,12 +14,12 @@
 #include "../simgraph.h"
 #include "../simworld.h"
 #include "../simplay.h"
-
 #include "../dataobj/translator.h"
-
+#include "../utils/cbuffer_t.h"
 #include "ground_info.h"
 
-cbuffer_t grund_info_t::gr_info(1024);
+
+static cbuffer_t gr_info(1024);
 
 
 grund_info_t::grund_info_t(const grund_t* gr_) :

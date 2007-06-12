@@ -9,10 +9,7 @@
 #ifndef gui_fahrplan_gui_h
 #define gui_fahrplan_gui_h
 
-#ifndef cbuffer_t_h
 #include "../utils/cbuffer_t.h"
-#endif
-
 #include "components/gui_label.h"
 #include "gui_frame.h"
 #include "components/gui_combobox.h"
