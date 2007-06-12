@@ -513,7 +513,7 @@ int convoi_t::drive_to(koord3d start, koord3d ziel)
 {
 	INT_CHECK("simconvoi 293");
 
-	if (anz_vehikel == 0 || !fahr[0]->calc_route(welt, start, ziel, speed_to_kmh(min_top_speed), &route)) {
+	if (anz_vehikel == 0 || !fahr[0]->calc_route(start, ziel, speed_to_kmh(min_top_speed), &route)) {
 		gib_besitzer()->bescheid_vehikel_problem(self,ziel);
 		return false;
 	}

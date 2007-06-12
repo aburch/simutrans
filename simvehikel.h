@@ -242,7 +242,7 @@ public:
 
 	void darf_rauchen(bool yesno ) { rauchen = yesno;}
 
-	virtual bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route) { return route->calc_route(welt, start, ziel, this, max_speed ); }
+	virtual bool calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route) { return route->calc_route(welt, start, ziel, this, max_speed); }
 	const uint16 gib_route_index() const {return route_index;}
 	const koord3d gib_pos_prev() const {return pos_prev;}
 
@@ -460,7 +460,7 @@ public:
 	// how expensive to go here (for way search)
 	virtual int gib_kosten(const grund_t *,const uint32 ) const;
 
-	virtual bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route);
+	virtual bool calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route);
 
 	virtual bool ist_weg_frei(int &restart_speed);
 
@@ -497,7 +497,7 @@ public:
 	virtual waytype_t gib_waytype() const { return track_wt; }
 
 	// since we might need to unreserve previously used blocks, we must do this before calculation a new route
-	bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route);
+	bool calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route);
 
 	// how expensive to go here (for way search)
 	virtual int gib_kosten(const grund_t *,const uint32 ) const;
@@ -650,7 +650,7 @@ public:
 
 	virtual void setze_convoi(convoi_t *c);
 
-	bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route);
+	bool calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route);
 
 	enum ding_t::typ gib_typ() const { return aircraft; }
 

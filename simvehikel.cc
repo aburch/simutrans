@@ -1341,10 +1341,8 @@ automobil_t::automobil_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
 }
 
 
-
 // ned to reset halt reservation (if there was one)
-bool
-automobil_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route)
+bool automobil_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
 {
 	assert(cnv);
 	// free target reservation
@@ -1752,10 +1750,8 @@ DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_rou
 }
 
 
-
 // need to reset halt reservation (if there was one)
-bool
-waggon_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route)
+bool waggon_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
 {
 	if(ist_erstes  &&  route_index<cnv->get_route()->gib_max_n()) {
 		// free all reserved blocks
@@ -2861,11 +2857,9 @@ aircraft_t::get_approach_ribi( koord3d start, koord3d ziel )
 #endif
 
 
-
 // main routine: searches the new route in up to three steps
 // must also take care of stops under traveling and the like
-bool
-aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t *route )
+bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
 {
 //DBG_MESSAGE("aircraft_t::calc_route()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
 

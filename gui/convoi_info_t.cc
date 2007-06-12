@@ -348,7 +348,6 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			slist_iterator_tpl<depot_t *> depot_iter(depot_t::get_depot_list());
 			route_t * shortest_route = new route_t();
 			route_t * route = new route_t();
-			karte_t *welt=cnv->gib_welt();
 			koord3d home = koord3d(0,0,0);
 			while (depot_iter.next()) {
 				depot_t *depot = depot_iter.get_current();
@@ -360,7 +359,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 					// the current route is already shorter, no need to search further
 					continue;
 				}
-				bool found = cnv->gib_vehikel(0)->calc_route(welt, cnv->gib_pos(), pos,  50, route );	// do not care about speed
+				bool found = cnv->gib_vehikel(0)->calc_route(cnv->gib_pos(), pos,  50, route); // do not care about speed
 				if (found) {
 					if (route->gib_max_n() < shortest_route->gib_max_n() || shortest_route->gib_max_n() == -1) {
 						shortest_route->kopiere(route);
@@ -375,7 +374,8 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			bool b_depot_found = false;
 			if (shortest_route->gib_max_n() > -1) {
 				fahrplan_t *fpl = cnv->gib_fahrplan();
-				fpl->insert(welt, welt->lookup(home) );
+				karte_t* welt = cnv->gib_welt();
+				fpl->insert(welt, welt->lookup(home));
 				b_depot_found = cnv->setze_fahrplan(fpl);
 			}
 			delete shortest_route;

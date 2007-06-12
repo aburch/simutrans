@@ -352,8 +352,7 @@ depot_t::start_convoi(int icnv)
 		// pruefen ob zug vollstaendig
 		if(cnv->gib_sum_leistung() == 0 || !cnv->pruefe_alle()) {
 			create_win(100, 64, MESG_WAIT, new nachrichtenfenster_t(welt, "Diese Zusammenstellung kann nicht fahren!\n"), w_autodelete);
-		}
-		else if (!cnv->gib_vehikel(0)->calc_route(welt, this->gib_pos(), cur_pos, cnv->gib_min_top_speed(), cnv->get_route()) ) {
+		} else if (!cnv->gib_vehikel(0)->calc_route(this->gib_pos(), cur_pos, cnv->gib_min_top_speed(), cnv->get_route())) {
 			// no route to go ...
 			static char buf[256];
 			sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->gib_name());
