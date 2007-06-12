@@ -1174,7 +1174,7 @@ spieler_t::do_ki()
 						gewinn_neu = suche_transport_quelle(&start_neu, &start_ware_neu, last_ziel);
 						if(  gewinn_neu>KI_MIN_PROFIT  &&  start_neu!=last_start  &&  start_neu!=NULL  ) {
 							// marginally profitable -> then built it!
-DBG_MESSAGE("spieler_t::do_ki","Select quelle from %s (%i,%i) to %s (%i,%i) (income %i)",start_neu->gib_name(),start_neu->pos.x,start_neu->pos.y,ziel_neu->gib_name(),ziel_neu->pos.x,ziel_neu->pos.y, gewinn_neu);
+							DBG_MESSAGE("spieler_t::do_ki","Select quelle from %s (%i,%i) to %s (%i,%i) (income %i)", start_neu->gib_name(), start_neu->gib_pos().x, start_neu->gib_pos().y, ziel_neu->gib_name(), ziel_neu->gib_pos().x, ziel_neu->gib_pos().y, gewinn_neu);
 							start = start_neu;
 							start_ware = start_ware_neu;
 							gewinn = gewinn_neu;
@@ -1205,10 +1205,10 @@ DBG_MESSAGE("spieler_t::do_ki","Select quelle from %s (%i,%i) to %s (%i,%i) (inc
 						{
 							// just normal random search ...
 							start_neu = welt->get_random_fab();
-							if(start_neu!=NULL  &&  !welt->lookup(start_neu->pos)->ist_wasser()  &&  start_neu!=last_start  ) {
+							if (start_neu != NULL && !welt->lookup(start_neu->gib_pos())->ist_wasser() && start_neu != last_start) {
 								gewinn_neu = suche_transport_ziel(start_neu, &start_ware_neu, &ziel_neu);
 								if(ziel_neu!=NULL  &&  gewinn_neu>KI_MIN_PROFIT) {
-DBG_MESSAGE("spieler_t::do_ki","Check route from %s (%i,%i) to %s (%i,%i) (income %i)",start_neu->gib_name(),start_neu->pos.x,start_neu->pos.y,ziel_neu->gib_name(),ziel_neu->pos.x,ziel_neu->pos.y, gewinn_neu);
+									DBG_MESSAGE("spieler_t::do_ki", "Check route from %s (%i,%i) to %s (%i,%i) (income %i)", start_neu->gib_name(), start_neu->gib_pos().x, start_neu->gib_pos().y, ziel_neu->gib_name(), ziel_neu->gib_pos().x, ziel_neu->gib_pos().y, gewinn_neu);
 								}
 								else {
 									gewinn_neu = -1;
@@ -1225,7 +1225,7 @@ DBG_MESSAGE("spieler_t::do_ki","Check route from %s (%i,%i) to %s (%i,%i) (incom
 						start_ware = start_ware_neu;
 						ziel = ziel_neu;
 						gewinn = gewinn_neu;
-DBG_MESSAGE("spieler_t::do_ki","Consider route from %s (%i,%i) to %s (%i,%i) (income %i)",start_neu->gib_name(),start_neu->pos.x,start_neu->pos.y,ziel_neu->gib_name(),ziel_neu->pos.x,ziel_neu->pos.y, gewinn_neu);
+						DBG_MESSAGE("spieler_t::do_ki", "Consider route from %s (%i,%i) to %s (%i,%i) (income %i)", start_neu->gib_name(), start_neu->gib_pos().x, start_neu->gib_pos().y, ziel_neu->gib_name(), ziel_neu->gib_pos().x, ziel_neu->gib_pos().y, gewinn_neu);
 					}
 
 					if(gewinn_neu > KI_MIN_PROFIT) {
@@ -1433,9 +1433,9 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 				case NR_BAUE_SIMPLE_SCHIENEN_ROUTE:
 					if(create_simple_rail_transport()) {
 						sint16 org_count_rail = count_rail;
-						count_rail = baue_bahnhof(start->pos,&platz1, count_rail,ziel);
+						count_rail = baue_bahnhof(start->gib_pos(), &platz1, count_rail, ziel);
 						if(count_rail!=0) {
-							count_rail = baue_bahnhof(ziel->pos,&platz2, count_rail,start);
+							count_rail = baue_bahnhof(ziel->gib_pos(), &platz2, count_rail, start);
 						}
 						if(count_rail!=0) {
 							if(count_rail<org_count_rail) {
@@ -1516,8 +1516,10 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 				{
 					// tell the player
 					char buf[256];
-					sprintf(buf, translator::translate("%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i)."), gib_name(), translator::translate(start->gib_name()), start->pos.x, start->pos.y, translator::translate(ziel->gib_name()), ziel->pos.x, ziel->pos.y );
-					message_t::get_instance()->add_message(buf,start->pos.gib_2d(),message_t::ai,player_nr,rail_engine->gib_basis_bild());
+					const koord3d& spos = start->gib_pos();
+					const koord3d& zpos = ziel->gib_pos();
+					sprintf(buf, translator::translate("%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i)."), gib_name(), translator::translate(start->gib_name()), spos.x, spos.y, translator::translate(ziel->gib_name()), zpos.x, zpos.y);
+					message_t::get_instance()->add_message(buf, spos.gib_2d(), message_t::ai,player_nr,rail_engine->gib_basis_bild());
 
 					baue = false;
 					state = CHECK_CONVOI;
@@ -1529,8 +1531,10 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 				{
 					// tell the player
 					char buf[256];
-					sprintf(buf, translator::translate("%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i)."), gib_name(), count_road, translator::translate(start->gib_name()), start->pos.x, start->pos.y, translator::translate(ziel->gib_name()), ziel->pos.x, ziel->pos.y );
-					message_t::get_instance()->add_message(buf,start->pos.gib_2d(),message_t::ai,player_nr,road_vehicle->gib_basis_bild());
+					const koord3d& spos = start->gib_pos();
+					const koord3d& zpos = ziel->gib_pos();
+					sprintf(buf, translator::translate("%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i)."), gib_name(), count_road, translator::translate(start->gib_name()), spos.x, spos.y, translator::translate(ziel->gib_name()), zpos.x, zpos.y);
+					message_t::get_instance()->add_message(buf, spos.gib_2d(), message_t::ai, player_nr, road_vehicle->gib_basis_bild());
 
 					baue = false;
 					state = CHECK_CONVOI;
@@ -2187,8 +2191,9 @@ spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 
 		int	start_location=0;
 		// sometimes, when factories are very close, we need exakt calculation
-		if(  (qfab->pos.x - platz1.x)* (qfab->pos.x - platz1.x) + (qfab->pos.y - platz1.y)*(qfab->pos.y - platz1.y)  >
-			(qfab->pos.x - platz2.x)*(qfab->pos.x - platz2.x) + (qfab->pos.y - platz2.y)*(qfab->pos.y - platz2.y)  ) {
+		const koord3d& qpos = qfab->gib_pos();
+		if ((qpos.x - platz1.x) * (qpos.x - platz1.x) + (qpos.y - platz1.y) * (qpos.y - platz1.y) >
+				(qpos.x - platz2.x) * (qpos.x - platz2.x) + (qpos.y - platz2.y) * (qpos.y - platz2.y)) {
 			start_location = 1;
 		}
 

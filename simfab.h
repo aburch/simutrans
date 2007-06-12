@@ -136,6 +136,12 @@ private:
 	uint32 total_input, total_output;
 	uint8 status;
 
+	/**
+	 * Die Koordinate (Position) der fabrik
+	 * @author Hj. Malthaner
+	 */
+	koord3d pos;
+
 	void recalc_factory_status();
 
 	/**
@@ -171,12 +177,6 @@ public:
 	 * @author prissi
 	 */
 	bool is_fabrik( koord check, koord extent );
-
-	/**
-	 * Die Koordinate (Position) der fabrik
-	 * @author Hj. Malthaner
-	 */
-	koord3d pos;
 
 	void link_halt(halthandle_t halt);
 	void unlink_halt(halthandle_t halt);

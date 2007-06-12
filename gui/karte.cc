@@ -717,7 +717,7 @@ reliefkarte_t::infowin_event(const event_t *ev)
 void
 reliefkarte_t::draw_fab_connections(const fabrik_t * fab, uint8 colour, koord pos) const
 {
-	koord fabpos = fab->pos.gib_2d();
+	koord fabpos = fab->gib_pos().gib_2d();
 	karte_to_screen( fabpos );
 	fabpos += pos;
 	const vector_tpl <koord> &lieferziele = event_get_last_control_shift()&1 ? fab->get_suppliers() : fab->gib_lieferziele();
@@ -802,7 +802,7 @@ reliefkarte_t::zeichnen(koord pos)
 
 	if (fab) {
 		draw_fab_connections(fab, event_get_last_control_shift()&1 ? COL_RED : COL_WHITE, pos);
-		koord fabpos = koord( pos.x + fab->pos.x, pos.y + fab->pos.y );
+		koord fabpos = pos + fab->gib_pos().gib_2d();
 		karte_to_screen( fabpos );
 		const koord boxpos = fabpos + koord(10, 0);
 		const char * name = translator::translate(fab->gib_name());
