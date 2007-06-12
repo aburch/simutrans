@@ -127,13 +127,17 @@ fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(0), suppliers(0)
 }
 
 
-fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_besch_t *fabesch) : lieferziele(0), suppliers(0), fields(0), eingang(0), ausgang(0)
+fabrik_t::fabrik_t(koord3d pos, spieler_t* spieler, const fabrik_besch_t* fabesch) :
+	lieferziele(0),
+	suppliers(0),
+	fields(0),
+	welt(spieler->gib_welt()),
+	eingang(0),
+	ausgang(0)
 {
 	this->pos = pos;
-	this->pos.z = wl->max_hgt(pos.gib_2d());
+	this->pos.z = welt->max_hgt(pos.gib_2d());
 	besch = fabesch;
-
-	welt = wl;
 
 	besitzer_p = spieler;
 	prodfaktor = 16;
