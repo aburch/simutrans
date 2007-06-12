@@ -24,7 +24,6 @@ class fabrik_t;
  * Diese Klasse baut Fabriken. Niemals Fabriken selbst instanziiren,
  * immer den Fabrikbauer benutzen!
  * @author Hj. Malthaner
- * @version $Revision: 1.2 $
  */
 class fabrikbauer_t
 {

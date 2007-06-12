@@ -10,7 +10,6 @@
  * Das Fundament dient als Untergrund fuer alle Bauwerke in Simutrans.
  *
  * @author Hj. Malthaner
- * @version $Revision: 1.9 $
  */
 class fundament_t : public grund_t
 {

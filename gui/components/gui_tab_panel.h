@@ -8,7 +8,6 @@
  * Objekten.
  *
  * @author Hj. Malthaner
- * @version $Revision: 1.7 $
  */
 class gui_tab_panel_t : public gui_komponente_action_creator_t
 {

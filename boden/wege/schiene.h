@@ -20,7 +20,6 @@ class vehikel_t;
  * Jede Schiene gehört zu einer Blockstrecke
  *
  * @author Hj. Malthaner
- * @version 1.0
  */
 class schiene_t : public weg_t
 {

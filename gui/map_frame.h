@@ -25,7 +25,6 @@ class karte_t;
  *
  * @author Hj. Malthaner
  * @date 03-Mar-01
- * @version $Revision: 1.11 $
  */
 class map_frame_t :
 	public gui_frame_t,

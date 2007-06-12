@@ -29,7 +29,6 @@ class werkzeug_parameter_waehler_t;
  * Für Denkmäler wird eine Liste der ungebauten geführt.
  *
  * @author Hj. Malthaner/V. Meyer
- * @version $Revision: 1.3 $
  */
 class hausbauer_t
 {

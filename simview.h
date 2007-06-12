@@ -16,7 +16,6 @@ class karte_t;
  * View-Klasse für Weltmodell.
  *
  * @author Hj. Malthaner
- * @version $Revision: 1.8 $
  */
 class karte_ansicht_t
 {

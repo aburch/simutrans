@@ -5,11 +5,6 @@
  * in other projects without written permission of the author.
  */
 
-/*
- * Basisklasse fuer Infofenster
- * Hj. Malthaner, 2000
- */
-
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simworld.h"

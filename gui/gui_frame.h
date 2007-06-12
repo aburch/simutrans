@@ -25,7 +25,6 @@
  * aktionen an die Komponenten delegiert.
  *
  * @author Hj. Malthaner
- * @version $Revision: 1.10 $
  */
 class gui_frame_t : virtual public gui_fenster_t
 {

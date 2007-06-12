@@ -42,10 +42,8 @@ class cstring_t;
 /**
  * Die Objecte der Klasse stadt_t bilden die Staedte in Simu. Sie
  * wachsen automatisch.
- * @version 0.7
  * @author Hj. Malthaner
  */
-
 class stadt_t {
 
 	/**

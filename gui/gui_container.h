@@ -20,7 +20,6 @@
  *
  * @author Hj. Malthaner
  * @date 03-Mar-01
- * @version $Revision: 1.7 $
  */
 class gui_container_t : public gui_komponente_t
 {

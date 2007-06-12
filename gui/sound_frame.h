@@ -16,7 +16,6 @@
  *
  * @author Hj. Malthaner, Owen Rudge
  * @date 09-Apr-01
- * @version $Revision: 1.8 $
  */
 class sound_frame_t : public gui_frame_t, action_listener_t
 {

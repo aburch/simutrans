@@ -7,9 +7,7 @@
  * Auf der Strasse können Autos fahren.
  *
  * @author Hj. Malthaner
- * @version $Revision: 1.5 $
  */
-
 class strasse_t : public weg_t
 {
 public:

@@ -17,8 +17,6 @@
 /**
  * Bäume in Simutrans.
  * @author Hj. Malthaner
- * @version $Revision: 1.12 $
- * @see ding_t
  */
 class baum_t : public ding_t
 {

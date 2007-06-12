@@ -10,7 +10,6 @@
  * als auch zur Markierung/Reservierung von Planquadraten.
  *
  * @author Hj. Malthaner
- * @version $Revision: 1.7 $
  */
 class zeiger_t : public ding_t
 {

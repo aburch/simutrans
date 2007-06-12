@@ -14,7 +14,6 @@ class karte_t;
 /**
  * Ein Menü zur Wahl der automatischen Spieler.
  * @author Hj. Malthaner
- * @version $Revision: 1.7 $
  */
 class ki_kontroll_t : public gui_frame_t, private action_listener_t
 {

@@ -89,8 +89,6 @@ template<> struct map_ding<lagerhaus_t> { static const ding_t::typ code = ding_t
  * in den Subklassen redefiniert.</p>
  *
  * @author Hj. Malthaner
- * @version $Revision
- * @see planqadrat_t
  */
 class grund_t
 {

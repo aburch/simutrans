@@ -6,7 +6,6 @@
  * Alle synchron bewegten Dinge müssen dieses Interface implementieren.
  *
  * @author Hj. Malthaner
- * @version $Revision: 1.4 $
  */
 class sync_steppable
 {

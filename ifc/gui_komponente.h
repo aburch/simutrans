@@ -17,7 +17,6 @@ struct event_t;
  * Komponenten von Fenstern sollten von dieser Klassse abgeleitet werden.
  *
  * @autor Hj. Malthaner
- * @version $Revision: 1.13 $
  */
 class gui_komponente_t
 {

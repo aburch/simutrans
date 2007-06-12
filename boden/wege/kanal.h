@@ -10,9 +10,7 @@
  * Am Dock können Schiffe anlegen
  *
  * @author Hj. Malthaner
- * @version $Revision: 1.4 $
  */
-
 class kanal_t : public weg_t
 {
 

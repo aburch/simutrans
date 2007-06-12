@@ -12,7 +12,6 @@
 /**
  * Settings in the game
  * @author Hj. Malthaner
- * @version $Revision: 1.8 $
  */
 class optionen_gui_t : public gui_frame_t, action_listener_t
 {

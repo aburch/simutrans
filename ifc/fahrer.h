@@ -14,7 +14,6 @@ class grund_t;
  * Interface für Verbindung von Fahrzeugen mit der Route.
  *
  * @author Hj. Malthaner, 15.01.00
- * @version $Revision: 1.8 $
  */
 class fahrer_t
 {

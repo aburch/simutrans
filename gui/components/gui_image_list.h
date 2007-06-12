@@ -20,7 +20,6 @@
  *
  * Eine Komponenete die eine Liste von Bildern darstellt.
  * @author Hj. Malthaner
- * @version $Revision: 1.10 $
  */
 class gui_image_list_t : public gui_komponente_action_creator_t
 {

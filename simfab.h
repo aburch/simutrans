@@ -60,7 +60,6 @@ public:
  * @date 1998
  * @see haltestelle_t
  * @author Hj. Malthaner
- * @version $Revision: 1.21 $
  */
 class fabrik_t
 {

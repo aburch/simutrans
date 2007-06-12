@@ -18,7 +18,6 @@
  *
  * @author Hj. Malthaner
  * @date 04-Mar-01
- * @version $Revision: 1.8 $
  *
  * Added Aligment support
  * @author: Volker Meyer

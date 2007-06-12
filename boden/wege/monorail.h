@@ -18,7 +18,6 @@
  * Jede Schiene gehört zu einer Blockstrecke
  *
  * @author Hj. Malthaner
- * @version 1.0
  */
 class monorail_t : public schiene_t
 {
