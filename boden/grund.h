@@ -377,10 +377,9 @@ public:
 	* Gibt die 3d-Koordinaten des Planquadrates zurueck, zu dem der
 	* Untergrund gehoert.
 	* @return Die Position des Grundes in der 3d-Welt
-	* @return Die invalid, falls this == NULL
 	* @author Hj. Malthaner
 	*/
-	inline const koord3d & gib_pos() const {return this ? pos : koord3d::invalid;}
+	inline const koord3d& gib_pos() const { return pos; }
 
 	inline void setze_pos(koord3d newpos) { pos = newpos;}
 
