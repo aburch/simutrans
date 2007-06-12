@@ -14,9 +14,10 @@ uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TR
 karte_t *simline_t::welt=NULL;
 
 
-simline_t::simline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) :
+simline_t::simline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl) :
 	line_managed_convoys(0)
 {
+	welt = simlinemgmt->World();
 	self = linehandle_t(this);
 	init_financial_history();
 	const int i = simlinemgmt->get_unique_line_id();
@@ -25,7 +26,6 @@ simline_t::simline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * f
 	this->fpl = fpl;
 	this->old_fpl = new fahrplan_t(fpl);
 	this->id = i;
-	this->welt = welt;
 	this->state_color = COL_WHITE;
 	type = simline_t::line;
 	simlinemgmt->add_line(self);

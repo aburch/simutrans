@@ -112,6 +112,8 @@ class simlinemgmt_t
 	 */
 	spieler_t *gib_besitzer() const { return besitzer; }
 
+	karte_t* World() const { return welt; }
+
  private:
 	static uint8 used_ids[8192];
 

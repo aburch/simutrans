@@ -250,31 +250,31 @@ simlinemgmt_t::create_line(int ltype, fahrplan_t * fpl)
 	DBG_MESSAGE("simlinemgmt_t::create_line()", "fpl is of type %i", ltype);
 	switch (ltype) {
 		case simline_t::truckline:
-			line = new truckline_t(welt, this, new autofahrplan_t(fpl));
+			line = new truckline_t(this, new autofahrplan_t(fpl));
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "truckline created");
 			break;
 		case simline_t::trainline:
-			line = new trainline_t(welt, this, new zugfahrplan_t(fpl));
+			line = new trainline_t(this, new zugfahrplan_t(fpl));
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "trainline created");
 			break;
 		case simline_t::shipline:
-			line = new shipline_t(welt, this, new schifffahrplan_t(fpl));
+			line = new shipline_t(this, new schifffahrplan_t(fpl));
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "shipline created");
 			break;
 		case simline_t::airline:
-			line = new airline_t(welt, this, new airfahrplan_t(fpl));
+			line = new airline_t(this, new airfahrplan_t(fpl));
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "airline created");
 			break;
 		case simline_t::monorailline:
-			line = new monorailline_t(welt, this, new monorailfahrplan_t(fpl));
+			line = new monorailline_t(this, new monorailfahrplan_t(fpl));
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "monorailline created");
 			break;
 		case simline_t::tramline:
-			line = new tramline_t(welt, this, new tramfahrplan_t(fpl));
+			line = new tramline_t(this, new tramfahrplan_t(fpl));
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "tramline created");
 			break;
 		default:
-		    line = new simline_t(welt, this, new fahrplan_t(fpl));
+		    line = new simline_t(this, new fahrplan_t(fpl));
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "default line created");
 			break;
 	}
