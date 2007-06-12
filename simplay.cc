@@ -1093,7 +1093,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","checking our convoi %s between %s an
 								h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, haltestelle_t::gib_halt(welt,f->eintrag[0].pos)) > h1->get_capacity()) {
 DBG_MESSAGE("spieler_t::do_passenger_ki()","copy convoi %s on route %s to %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
 							vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, cnv->gib_vehikel(0)->gib_besch());
-							convoi_t *new_cnv = new convoi_t(welt, this);
+							convoi_t* new_cnv = new convoi_t(this);
 							// V.Meyer: give the new convoi name from first vehicle
 							new_cnv->setze_name( v->gib_besch()->gib_name() );
 							new_cnv->add_vehikel( v );
@@ -2162,7 +2162,7 @@ DBG_MESSAGE("spieler_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpo
 
 		vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, road_vehicle);
 
-		convoi_t *cnv = new convoi_t(welt, this);
+		convoi_t* cnv = new convoi_t(this);
 		// V.Meyer: give the new convoi name from first vehicle
 		cnv->setze_name(v->gib_besch()->gib_name());
 		cnv->add_vehikel( v );
@@ -2212,7 +2212,7 @@ spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		for(int i=0;  i<anz_vehikel;  i++) {
 			vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, road_vehicle);
 
-			convoi_t *cnv = new convoi_t(welt, this);
+			convoi_t* cnv = new convoi_t(this);
 			// V.Meyer: give the new convoi name from first vehicle
 			cnv->setze_name(v->gib_besch()->gib_name());
 			cnv->add_vehikel( v );
@@ -2233,7 +2233,7 @@ void
 spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2, int anz_vehikel, int ladegrad)
 {
 	fahrplan_t *fpl;
-	convoi_t *cnv = new convoi_t(welt, this);
+	convoi_t* cnv = new convoi_t(this);
 	koord3d pos1= welt->lookup(platz1)->gib_kartenboden()->gib_pos();
 	koord3d pos2 = welt->lookup(platz2)->gib_kartenboden()->gib_pos();
 

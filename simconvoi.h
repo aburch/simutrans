@@ -413,7 +413,7 @@ public:
 	*/
 	convoi_t(karte_t *welt, loadsave_t *file);
 
-	convoi_t(karte_t *welt, spieler_t *sp);
+	convoi_t(spieler_t* sp);
 
 	virtual ~convoi_t();
 

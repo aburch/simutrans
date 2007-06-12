@@ -245,8 +245,7 @@ void depot_t::sell_vehicle(int iveh)
 
 convoihandle_t depot_t::add_convoi()
 {
-    convoi_t *new_cnv = new convoi_t(welt, gib_besitzer());
-
+	convoi_t* new_cnv = new convoi_t(gib_besitzer());
     convois.append(new_cnv->self);
 
     return new_cnv->self;
