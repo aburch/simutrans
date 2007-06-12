@@ -76,7 +76,7 @@ static int minimum_city_distance = 16;
  * chance to do renovation instead new building (in percent)
  * @author prissi
  */
-static int renovation_percentage = 25;
+static int renovation_percentage = 12;
 
 /**
  * add a new consumer every % people increase
@@ -245,12 +245,12 @@ bool stadt_t::bewerte_loc(const koord pos, const char* regel, int rotation)
  */
 int stadt_t::bewerte_pos(const koord pos, const char* regel)
 {
-	int w;
-	w  = bewerte_loc(pos, regel,   0);
-	w += bewerte_loc(pos, regel,  90);
-	w += bewerte_loc(pos, regel, 180);
-	w += bewerte_loc(pos, regel, 270);
-	return w;
+	// will be called only a single time, so we can stop after a single match
+	if(bewerte_loc(pos, regel,   0) ||
+		 bewerte_loc(pos, regel,  90) ||
+		 bewerte_loc(pos, regel, 180) ||
+		 bewerte_loc(pos, regel, 270))
+	return 1;
 }
 
 
@@ -280,18 +280,18 @@ void stadt_t::bewerte_haus(koord k, int rd, const char* regel)
  */
 void stadt_t::bewerte()
 {
-	// Zufallspos im Stadtgebiet
-	const int speed = 8;
+	// will check a single random pos in the city, then baue will be called
 	const koord k(lo + koord(simrand(ur.x - lo.x + 1), simrand(ur.y - lo.y + 1)));
 
+	// since only a single location is checked, we can stop after we have found a positive rule
 	best_haus.reset(k);
-	best_strasse.reset(k);
-	for (int i = 0; i < num_house_rules; i++) {
-		bewerte_haus(k, speed + house_rules[i].chance, house_rules[i].rule);
+	for (int i = 0; i < num_house_rules  &&  !best_haus.found(); i++) {
+		bewerte_haus(k, 8 + house_rules[i].chance, house_rules[i].rule);
 	}
 
-	for (int i = 0; i < num_road_rules; i++) {
-		bewerte_strasse(k, speed + road_rules[i].chance, road_rules[i].rule);
+	best_strasse.reset(k);
+	for (int i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
+		bewerte_strasse(k, 8 + road_rules[i].chance, road_rules[i].rule);
 	}
 }
 
@@ -2120,8 +2120,8 @@ void stadt_t::renoviere_gebaeude(koord k)
 		return;
 	}
 
-	if (gb->get_stadt() != this) {
-		return; // not our town ...
+	if (gb->get_stadt() != this  ||  gb->gib_tile()->gib_besch()->gib_b()*gb->gib_tile()->gib_besch()->gib_h()!=1) {
+		return; // not our town or too big ...
 	}
 
 	// hier sind wir sicher dass es ein Gebaeude ist
@@ -2409,33 +2409,23 @@ void stadt_t::baue()
 //	printf("Haus: %d  Strasse %d\n", best_haus_wert, best_strasse_wert);
 
 	if (best_strasse.found()) {
-		if (!baue_strasse(best_strasse.gib_pos(), NULL, false)) {
-			// cannot built street, will terminate it with house?!?
-			// prissi: we will just ignore this
-//			baue_gebaeude(best_strasse.gib_pos());
-		}
-		// prissi: only houses will extend a city
-		// to make the core more compact
-//		pruefe_grenzen(best_strasse.gib_pos());
+		baue_strasse(best_strasse.gib_pos(), NULL, false);
+		INT_CHECK("simcity 1156");
+		return;
 	}
-
-	INT_CHECK("simcity 1156");
 
 	if (best_haus.found()) {
 		baue_gebaeude(best_haus.gib_pos());
 		pruefe_grenzen(best_haus.gib_pos());
+		INT_CHECK("simcity 1163");
+		return;
 	}
 
-	INT_CHECK("simcity 1163");
 
-	if (!best_haus.found() && !best_strasse.found() &&
-		was_ist_an(best_haus.gib_pos()) != gebaeude_t::unbekannt) {
-
-		// renovation
-		if (simrand(100) <= renovation_percentage) {
-			renoviere_gebaeude(best_haus.gib_pos());
-			INT_CHECK("simcity 876");
-		}
+	// renovation (only done when nothing matches a certain location
+	if (buildings.get_count()>0  &&  simrand(100)<=renovation_percentage) {
+		renoviere_gebaeude(buildings[simrand(buildings.get_count())]->gib_pos().gib_2d());
+		INT_CHECK("simcity 876");
 	}
 }
 
