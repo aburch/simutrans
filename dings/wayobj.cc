@@ -368,16 +368,15 @@ void wayobj_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 {
 	const uint16 time=welt->get_timeline_year_month();
 DBG_DEBUG("wayobj_t::fill_menu()","maximum %i",liste.count());
-	for( unsigned i=0;  i<wayobj_t::liste.count();  i++  ) {
-		char buf[128];
-		const way_obj_besch_t *besch=wayobj_t::liste.at(i);
-
+	for (slist_iterator_tpl<const way_obj_besch_t*> i(wayobj_t::liste); i.next();) {
+		const way_obj_besch_t* besch = i.get_current();
 		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
-DBG_DEBUG("wayobj_t::fill_menu()","try at pos %i to add %s(%p)",i,besch->gib_name(),besch);
+			DBG_DEBUG("wayobj_t::fill_menu()", "try to add %s(%p)", besch->gib_name(), besch);
 			if(besch->gib_cursor()->gib_bild_nr(1)!=IMG_LEER  &&  wtyp==besch->gib_wtyp()) {
 				// only add items with a cursor
-DBG_DEBUG("wayobj_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
+				DBG_DEBUG("wayobj_t::fill_menu()", "add %s", besch->gib_name());
+				char buf[128];
 				sprintf(buf, "%s, %ld$ (%ld$), %dkm/h",
 					translator::translate(besch->gib_name()),
 					besch->gib_preis()/-100l,
@@ -402,9 +401,8 @@ DBG_DEBUG("wayobj_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
 const way_obj_besch_t*
 wayobj_t::wayobj_search(waytype_t wt,waytype_t own,uint16 time)
 {
-	for( unsigned i=0;  i<wayobj_t::liste.count();  i++  ) {
-		const way_obj_besch_t *besch=wayobj_t::liste.at(i);
-
+	for (slist_iterator_tpl<const way_obj_besch_t*> i(wayobj_t::liste); i.next();) {
+		const way_obj_besch_t* besch = i.get_current();
 		if((time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))
 			&&  besch->gib_wtyp()==wt  &&  besch->gib_own_wtyp()==own) {
 				return besch;

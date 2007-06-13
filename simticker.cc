@@ -103,8 +103,8 @@ void ticker::zeichnen(void)
 			display_fillbox_wh(width-X_DIST, start_y+1, X_DIST, 15, MN_GREY2, true);
 			// ok, ready for the text
 			PUSH_CLIP(width-X_DIST-1,start_y+1,X_DIST+1,15);
-			for (unsigned i = 0;  i < list.count(); i++) {
-				struct node* n = &list.at(i);
+			for (slist_iterator_tpl<node> i(list); i.next();) {
+				node* n = &i.access_current();
 				n->xpos -= X_DIST;
 				if(n->xpos<width) {
 					display_proportional_clip(n->xpos, start_y+4, n->msg,  ALIGN_LEFT, n->color, true);

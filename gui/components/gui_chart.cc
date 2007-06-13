@@ -87,8 +87,6 @@ gui_chart_t::zeichnen(koord offset)
 	float scale = 0;
 	float* pscale = &scale;
 
-	curve_t c;
-
 	// calc baseline and scale
 	calc_gui_chart_values(pbaseline, pscale, cmin, cmax);
 
@@ -133,8 +131,8 @@ gui_chart_t::zeichnen(koord offset)
 	}
 
 	// draw chart's curves
-	for (unsigned int n=0; n < curves.count(); n++) {
-		c = curves.at(n);
+	for (slist_iterator_tpl<curve_t> i(curves); i.next();) {
+		const curve_t& c = i.get_current();
 		if (c.show) {
 			// for each curve iterate through all elements and display curve
 			for (int i=0;i<c.elements;i++) {
@@ -186,10 +184,9 @@ gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cmin, c
 {
 	sint64 tmp=0;
 	sint64 min = 0, max = 0;
-	curve_t c;
 
-	for (unsigned int n=0; n < curves.count(); n++) {
-		c = curves.at(n);
+	for (slist_iterator_tpl<curve_t> i(curves); i.next();) {
+		const curve_t& c = i.get_current();
 		if (c.show)
 		{
 			for (int i=0; i<c.elements; i++) {

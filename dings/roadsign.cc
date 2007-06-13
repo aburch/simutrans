@@ -444,16 +444,15 @@ void roadsign_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 {
 	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("roadsign_t::fill_menu()","maximum %i",roadsign_t::liste.count());
-	for( unsigned i=0;  i<roadsign_t::liste.count();  i++  ) {
-		char buf[128];
-		const roadsign_besch_t *besch=roadsign_t::liste.at(i);
-
+	for (slist_iterator_tpl<const roadsign_besch_t*> i(roadsign_t::liste); i.next();) {
+		const roadsign_besch_t* besch = i.get_current();
 		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
-DBG_DEBUG("roadsign_t::fill_menu()","try at pos %i to add %s(%p)",i,besch->gib_name(),besch);
+			DBG_DEBUG("roadsign_t::fill_menu()", "try to add %s(%p)", besch->gib_name(), besch);
 			if(besch->gib_cursor()->gib_bild_nr(1)!=IMG_LEER  &&  wtyp==besch->gib_wtyp()) {
 				// only add items with a cursor
-DBG_DEBUG("roadsign_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
+				DBG_DEBUG("roadsign_t::fill_menu()", "add %s", besch->gib_name());
+				char buf[128];
 				int n=sprintf(buf, "%s ",translator::translate(besch->gib_name()));
 				money_to_string(buf+n, besch->gib_preis()/100.0);
 
@@ -478,9 +477,8 @@ DBG_DEBUG("roadsign_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
 const roadsign_besch_t *
 roadsign_t::roadsign_search(uint8 flag,const waytype_t wt,const uint16 time)
 {
-	for( unsigned i=0;  i<roadsign_t::liste.count();  i++  ) {
-		const roadsign_besch_t *besch=roadsign_t::liste.at(i);
-
+	for (slist_iterator_tpl<const roadsign_besch_t*> i(roadsign_t::liste); i.next();) {
+		const roadsign_besch_t* besch = i.get_current();
 		if((time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))
 			&&  besch->gib_wtyp()==wt  &&  besch->get_flags()==flag) {
 				return besch;

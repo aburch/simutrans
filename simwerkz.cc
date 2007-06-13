@@ -2355,25 +2355,20 @@ int wkz_headquarter(spieler_t *sp, karte_t *welt, koord pos)
 DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y);
 
 	if(welt->ist_in_kartengrenzen(pos)) {
-
 		int level = sp->get_headquarter_level();
-		int besch_nr=-1;
 		koord previous = sp->get_headquarter_pos();
 
-		for(unsigned i=0;  i<hausbauer_t::headquarter.count();  i++  ) {
-			if(hausbauer_t::headquarter.at(i)->gib_bauzeit()==level) {
-				besch_nr = i;
-				break;
+		const haus_besch_t* besch;
+		slist_iterator_tpl<const haus_besch_t*> i(hausbauer_t::headquarter);
+		do {
+			if (!i.next()) {
+				// no further headquarter level
+				welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), karte_t::Z_PLAN, NO_SOUND, NO_SOUND);
+				return false;
 			}
-		}
+			besch = i.get_current();
+		} while (besch->gib_bauzeit() != level);
 
-		if(besch_nr<0) {
-			// no further headquarter level
-			welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), karte_t::Z_PLAN,  NO_SOUND, NO_SOUND );
-			return false;
-		}
-
-		const haus_besch_t *besch = hausbauer_t::headquarter.at(besch_nr);
 		koord size = besch->gib_groesse();
 		int rotate = 0;
 

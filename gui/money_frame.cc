@@ -233,9 +233,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		add_komponente(&headquarter);
 
 		// get new costs
-		for(unsigned i=0;  i<hausbauer_t::headquarter.count();  i++  ) {
-			if(hausbauer_t::headquarter.at(i)->gib_bauzeit()==sp->get_headquarter_level()) {
-				const haus_besch_t *besch = hausbauer_t::headquarter.at(i);
+		for (slist_iterator_tpl<const haus_besch_t*> i(hausbauer_t::headquarter); i.next();) {
+			const haus_besch_t* besch = i.get_current();
+			if (besch->gib_bauzeit() == sp->get_headquarter_level()) {
 				double cost = umgebung_t::cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h()/-100.0;
 				money_to_string( headquarter_tooltip+sprintf( headquarter_tooltip, "%s ", translator::translate(besch->gib_name())), cost );
 				headquarter.set_tooltip( headquarter_tooltip );
@@ -363,9 +363,9 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 		}
 		else {
 			// get new costs
-			for(unsigned i=0;  i<hausbauer_t::headquarter.count();  i++  ) {
-				if(hausbauer_t::headquarter.at(i)->gib_bauzeit()==sp->get_headquarter_level()) {
-					const haus_besch_t *besch = hausbauer_t::headquarter.at(i);
+			for (slist_iterator_tpl<const haus_besch_t*> i(hausbauer_t::headquarter); i.next();) {
+				const haus_besch_t* besch = i.get_current();
+				if (besch->gib_bauzeit() == sp->get_headquarter_level()) {
 					double cost = umgebung_t::cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h()/-100.0;
 					money_to_string( headquarter_tooltip+sprintf( headquarter_tooltip, "%s ", translator::translate(besch->gib_name())), cost );
 					headquarter.set_tooltip( headquarter_tooltip );

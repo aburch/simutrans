@@ -67,8 +67,8 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 
 	// sort vehicles according to their engine type
 	bool append = true;
-	for(unsigned i=0;  i<typ_liste->count();  i++  ) {
-		const vehikel_besch_t *sort_besch = typ_liste->at(i);
+	for (slist_iterator_tpl<const vehikel_besch_t*> i(typ_liste); i.next();) {
+		const vehikel_besch_t* sort_besch = i.get_current();
 		if(sort_besch->get_engine_type()<besch->get_engine_type()) {
 			continue;
 		}

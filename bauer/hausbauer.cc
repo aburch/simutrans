@@ -212,16 +212,15 @@ void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 {
 	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
-	for( unsigned i=0;  i<stops.count();  i++  ) {
-		char buf[128];
-		const haus_besch_t *besch=stops.at(i);
-
-DBG_DEBUG("hausbauer_t::fill_menu()","try at pos %i to add %s(%p)",i,besch->gib_name(),besch);
+	for (slist_iterator_tpl<const haus_besch_t*> i(stops); i.next();) {
+		const haus_besch_t* besch = i.get_current();
+		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s(%p)", besch->gib_name(), besch);
 		if(besch->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
 				// only add items with a cursor
-DBG_DEBUG("hausbauer_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
+				DBG_DEBUG("hausbauer_t::fill_menu()", "add %s", besch->gib_name());
+				char buf[128];
 				int n=sprintf(buf, "%s ",translator::translate(besch->gib_name()));
 				money_to_string(buf+n, (cost*besch->gib_level()*besch->gib_b()*besch->gib_h())/-100.0);
 
@@ -255,16 +254,15 @@ void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 {
 	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.count());
-	for( unsigned i=0;  i<station_building.count();  i++  ) {
-		char buf[128];
-		const haus_besch_t *besch=station_building.at(i);
-
-//DBG_DEBUG("hausbauer_t::fill_menu()","try at pos %i to add %s (%p)",i,besch->gib_name(),besch);
+	for (slist_iterator_tpl<const haus_besch_t*> i(station_building); i.next();) {
+		const haus_besch_t* besch = i.get_current();
+//		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s (%p)", besch->gib_name(), besch);
 		if(besch->gib_utyp()==utyp  &&  besch->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
 				// only add items with a cursor
-DBG_DEBUG("hausbauer_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
+				DBG_DEBUG("hausbauer_t::fill_menu()", "add %s", besch->gib_name());
+				char buf[128];
 				int n=sprintf(buf, "%s ",translator::translate(besch->gib_name()));
 				money_to_string(buf+n, (cost*besch->gib_level()*besch->gib_b()*besch->gib_h())/-100.0);
 

@@ -144,13 +144,15 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 
 	// we will not add messages two times to the list if it was within the last 20 messages or within last three months
 	sint32 now = welt->get_current_month()-2;
-	for(unsigned i=0;  i<list->count()  &&  i<20;  i++) {
-		if(  list->at(i).time>=now  &&  strcmp(list->at(i).msg,text)==0  ) {
-			// positions must not 100% match ...
-			if((list->at(i).pos.x&0xFFF0)==(pos.x&0xFFF0)  &&  (list->at(i).pos.y&0xFFF0)==(pos.y&0xFFF0)) {
-				// we had exactly this message already
-				return;
-			}
+	size_t k = 0;
+	for (slist_iterator_tpl<node> i(list); k++ < 20 && i.next();) {
+		const node& n = i.get_current();
+		if (n.time >= now &&
+				strcmp(n.msg, text) == 0 &&
+				(n.pos.x & 0xFFF0) == (pos.x & 0xFFF0) && // positions need not 100% match ...
+				(n.pos.y & 0xFFF0) == (pos.y & 0xFFF0)) {
+			// we had exactly this message already
+			return;
 		}
 	}
 

@@ -176,7 +176,8 @@ bool fabrik_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 
 	for(i=0; i<fab->gib_arbeiterziele().count(); i++) {
 		if(komp == &stadtbuttons[i]) {
-			welt->setze_ij_off(koord3d(fab->gib_arbeiterziele().at(i)->gib_pos(),welt->min_hgt(fab->gib_arbeiterziele().at(i)->gib_pos())));
+			const koord& k = fab->gib_arbeiterziele().at(i)->gib_pos();
+			welt->setze_ij_off(koord3d(k, welt->min_hgt(k)));
 		}
 	}
 

@@ -168,12 +168,13 @@ DBG_MESSAGE("fabrikbauer_t::get_random_consumer()","No suitable consumer found")
 	}
 	// now find a random one
 	int next=simrand(gewichtung);
-	for( unsigned i=1;  i<consumer.count();  i++  ) {
-		if(next < consumer.at(i)->gib_gewichtung()) {
-DBG_MESSAGE("fabrikbauer_t::get_random_consumer()","consumer %s found.",consumer.at(i)->gib_name());
-			return consumer.at(i);
+	for (slist_iterator_tpl<const fabrik_besch_t*> i(consumer); i.next();) {
+		const fabrik_besch_t* fb = i.get_current();
+		if (next < fb->gib_gewichtung()) {
+			DBG_MESSAGE("fabrikbauer_t::get_random_consumer()", "consumer %s found.", fb->gib_name());
+			return fb;
 		}
-		next -= consumer.at(i)->gib_gewichtung();
+		next -= fb->gib_gewichtung();
 	}
 	DBG_MESSAGE("fabrikbauer_t::get_random_consumer()", "consumer %s found.", consumer.front()->gib_name());
 	return consumer.front();
@@ -256,10 +257,10 @@ fabrikbauer_t::finde_hersteller(const ware_besch_t *ware,int /*nr*/)
 	int next=simrand(gewichtung);
 	const fabrik_besch_t *besch=NULL;
 DBG_MESSAGE("fabrikbauer_t::finde_hersteller()","good '%s' weight=% of total %i", translator::translate(ware->gib_name()),next,gewichtung);
-	for( unsigned i=0;  i<producer.count();  i++  ) {
-		besch = producer.at(i);
+	for (slist_iterator_tpl<const fabrik_besch_t*> i(producer); i.next();) {
+		besch = i.get_current();
 		next -= besch->gib_gewichtung();
-DBG_MESSAGE("fabrikbauer_t::finde_hersteller()","%i) %s (weight %i)", i, besch->gib_name(),besch->gib_gewichtung());
+		DBG_MESSAGE("fabrikbauer_t::finde_hersteller()", "%s (weight %i)", besch->gib_name(), besch->gib_gewichtung());
 		if(next<0) {
 			break;
 		}
@@ -681,9 +682,10 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%
 							sint32 produktion = (fab->get_base_production()*fab->gib_besch()->gib_produkt(gg)->gib_faktor()) / (factories_to_correct.count()+1);
 							// connect also the factories we stole from before ...
 							for(  unsigned i=0;  i<factories_to_correct.count();  i++  ) {
-								factories_to_correct.at(i).demand -= produktion;
-								fab->add_lieferziel(factories_to_correct.at(i).fab->gib_pos().gib_2d());
-								if(factories_to_correct.at(i).demand<0) {
+								fabs_to_crossconnect_t& ftc = factories_to_correct.at(i);
+								ftc.demand -= produktion;
+								fab->add_lieferziel(ftc.fab->gib_pos().gib_2d());
+								if (ftc.demand < 0) {
 									factories_to_correct.remove_at(i);
 									i--;
 								}

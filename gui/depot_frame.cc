@@ -894,11 +894,12 @@ DBG_MESSAGE("depot_frame_t::image_from_storage_list()","appended %s",info->gib_n
 					// insert/append needs reverse order
 					unsigned nr = (veh_action == va_insert) ? new_vehicle_info.count()-i-1 : i;
 					// We add the oldest vehicle - newer stay for selling
-					sint32 veh = find_oldest_newest( new_vehicle_info.at(nr), true );
+					const vehikel_besch_t* vb = new_vehicle_info.at(nr);
+					sint32 veh = find_oldest_newest(vb, true);
 DBG_MESSAGE("depot_frame_t::image_from_storage_list()","built nr %i", nr);
 					if(veh == -1) {
 						// nothing there => we buy it
-						veh = depot->buy_vehicle(new_vehicle_info.at(nr)->gib_basis_bild());
+						veh = depot->buy_vehicle(vb->gib_basis_bild());
 					}
 					depot->append_vehicle(icnv, veh, veh_action == va_insert);
 					assert(veh!=-1);
