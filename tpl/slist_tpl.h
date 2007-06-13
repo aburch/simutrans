@@ -312,6 +312,7 @@ public:
 	}
 
 	T& front() const { return head->data; }
+	T& back()  const { return tail->data; }
 
 	int index_of(T data) const
 	{
