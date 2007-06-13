@@ -130,13 +130,15 @@ public:
 	 * @date  09.06.2003
 	 */
 	bool disassemble_convoi(int icnv, bool sell);
+
 	/**
 	 * Remove vehicle from vehicle list and add it to the convoi. Two positions
 	 * are possible - in front or at the rear.
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	void append_vehicle(int icnv, int iveh, bool infront);
+	void append_vehicle(int icnv, vehikel_t* veh, bool infront);
+
 	/**
 	 * Remove the vehicle at given position from the convoi and put it in the
 	 * vehicle list.
@@ -152,23 +154,22 @@ public:
 	 * @date  30.05.2003
 	 */
 	unsigned vehicle_count() const { return vehicles.count(); }
-	vehikel_t * get_vehicle(unsigned int iveh) { return iveh < vehicle_count() ? vehicles.at(iveh) : NULL; }
 	const slist_tpl<vehikel_t *> *get_vehicle_list() { return &vehicles; }
 
 	/**
-	 * A new vehicle is bought and added to the vehicle list. The number of the
-	 * vehicle in the list is returned.
+	 * A new vehicle is bought and added to the vehicle list.
+	 * The new vehicle in the list is returned.
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	int buy_vehicle(int image);
+	vehikel_t* buy_vehicle(int image);
 
 	/**
 	 * Sell a vehicle from the vehicle list.
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	void sell_vehicle(int iveh);
+	void sell_vehicle(vehikel_t* veh);
 
 	/**
 	 * Access to vehicle types which can be bought in the depot.
@@ -223,11 +224,11 @@ public:
 	virtual slist_tpl<linehandle_t> *get_line_list();
 
 	/**
-	* identifies the oldest vehicle of a certain type (id)
-	* returns -1 if no vehicle is found
-	* @author hsiegeln (stolen from Hajo)
-	*/
-	int get_oldest_vehicle(int id);
+	 * identifies the oldest vehicle of a certain type (id)
+	 * returns NULL if no vehicle is found
+	 * @author hsiegeln (stolen from Hajo)
+	 */
+	vehikel_t* get_oldest_vehicle(int id);
 
 #if USE_NEW_GEBAUDE
 		virtual void* operator new(size_t s) { return freelist_t::gimme_node(sizeof(depot_t)); }

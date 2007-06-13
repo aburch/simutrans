@@ -813,25 +813,22 @@ depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 }
 
 
-
 // returns the indest of the old/newest vehicle in a list
-sint32
-depot_frame_t::find_oldest_newest(const vehikel_besch_t *besch, bool old)
+vehikel_t* depot_frame_t::find_oldest_newest(const vehikel_besch_t* besch, bool old)
 {
-	int found_veh = -1;
-	sint32 insta_time = 0;
-
-	int i = 0;
-	slist_iterator_tpl<vehikel_t *> iter(depot->get_vehicle_list());
-	while(iter.next()) {
-		if(iter.get_current()->gib_besch() == besch) {
-			// joy of XOR, finally a line where I could use it!
-			if(found_veh == -1 || (old^(insta_time>iter.get_current()->gib_insta_zeit()))) {
-				found_veh = i;
-				insta_time = iter.get_current()->gib_insta_zeit();
+	vehikel_t* found_veh = NULL;
+	slist_iterator_tpl<vehikel_t*> iter(depot->get_vehicle_list());
+	if (iter.next()) {
+		found_veh = iter.get_current();
+		while (iter.next()) {
+			vehikel_t* veh = iter.get_current();
+			if (veh->gib_besch() == besch) {
+				// joy of XOR, finally a line where I could use it!
+				if (old ^ (found_veh->gib_insta_zeit() > veh->gib_insta_zeit())) {
+					found_veh = veh;
+				}
 			}
 		}
-		i++;
 	}
 	return found_veh;
 }
@@ -873,7 +870,7 @@ DBG_MESSAGE("depot_frame_t::image_from_storage_list()","appended %s",info->gib_n
 				/*
 				*	We sell the newest vehicle - gives most money back.
 				*/
-				sint32 veh = find_oldest_newest( new_vehicle_info.remove_first(), false );
+				vehikel_t* veh = find_oldest_newest(new_vehicle_info.remove_first(), false);
 				depot->sell_vehicle(veh);
 			}
 		}
@@ -895,14 +892,13 @@ DBG_MESSAGE("depot_frame_t::image_from_storage_list()","appended %s",info->gib_n
 					unsigned nr = (veh_action == va_insert) ? new_vehicle_info.count()-i-1 : i;
 					// We add the oldest vehicle - newer stay for selling
 					const vehikel_besch_t* vb = new_vehicle_info.at(nr);
-					sint32 veh = find_oldest_newest(vb, true);
+					vehikel_t* veh = find_oldest_newest(vb, true);
 DBG_MESSAGE("depot_frame_t::image_from_storage_list()","built nr %i", nr);
-					if(veh == -1) {
+					if (veh == NULL) {
 						// nothing there => we buy it
 						veh = depot->buy_vehicle(vb->gib_basis_bild());
 					}
 					depot->append_vehicle(icnv, veh, veh_action == va_insert);
-					assert(veh!=-1);
 				}
 			}
 		}

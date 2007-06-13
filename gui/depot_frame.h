@@ -188,7 +188,7 @@ private:
 	// for convoi image
 	void image_from_convoi_list(uint nr);
 
-	sint32 find_oldest_newest(const vehikel_besch_t *besch, bool old);
+	vehikel_t* find_oldest_newest(const vehikel_besch_t* besch, bool old);
 
 	void image_from_storage_list(gui_image_list_t::image_data_t *bild_data);
 

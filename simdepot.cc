@@ -175,43 +175,35 @@ bool depot_t::can_convoi_start(int /*icnv*/) const
 }
 
 
-
-int depot_t::buy_vehicle(int image)
+vehikel_t* depot_t::buy_vehicle(int image)
 {
-	if(image != -1) {
-		// Offen: prüfen ob noch platz im depot ist???
-		const vehikel_besch_t * info = vehikelbauer_t::gib_info(image);
-DBG_DEBUG("depot_t::buy_vehicle()",info->gib_name());
-		vehikel_t* veh = vehikelbauer_t::baue(gib_pos(), gib_besitzer(), NULL, info);
-DBG_DEBUG("depot_t::buy_vehicle()","vehiclebauer %p",veh);
+	if (image == -1) return NULL;
+	// Offen: prüfen ob noch platz im depot ist???
+	const vehikel_besch_t* info = vehikelbauer_t::gib_info(image);
+	DBG_DEBUG("depot_t::buy_vehicle()", info->gib_name());
+	vehikel_t* veh = vehikelbauer_t::baue(gib_pos(), gib_besitzer(), NULL, info);
+	DBG_DEBUG("depot_t::buy_vehicle()", "vehiclebauer %p", veh);
 
-		vehicles.append(veh);
-		DBG_DEBUG("depot_t::buy_vehicle()","appended %i vehicle", vehicles.count());
-		return vehicles.count() - 1;
-	}
-	return -1;
+	vehicles.append(veh);
+	DBG_DEBUG("depot_t::buy_vehicle()", "appended %i vehicle", vehicles.count());
+	return veh;
 }
 
 
 
-void depot_t::append_vehicle(int icnv, int iveh, bool infront)
+void depot_t::append_vehicle(int icnv, vehikel_t* veh, bool infront)
 {
-	vehikel_t *veh = get_vehicle(iveh);
-	if(veh) {
-		convoihandle_t cnv = get_convoi(icnv);
-		/*
-		*  create  a new convoi, if necessary
-		*/
-		if(!cnv.is_bound()) {
-			cnv = add_convoi();
-		}
-
-		veh->setze_pos(gib_pos());
-		cnv->add_vehikel(veh, infront);
-		cnv->set_home_depot(gib_pos());
-
-		vehicles.remove(veh);
+	convoihandle_t cnv = get_convoi(icnv);
+	/* create  a new convoi, if necessary */
+	if (!cnv.is_bound()) {
+		cnv = add_convoi();
 	}
+
+	veh->setze_pos(gib_pos());
+	cnv->add_vehikel(veh, infront);
+	cnv->set_home_depot(gib_pos());
+
+	vehicles.remove(veh);
 }
 
 
@@ -228,16 +220,12 @@ void depot_t::remove_vehicle(int icnv, int ipos)
 }
 
 
-
-void depot_t::sell_vehicle(int iveh)
+void depot_t::sell_vehicle(vehikel_t* veh)
 {
-	vehikel_t *veh = get_vehicle(iveh);
-	if(veh) {
-		vehicles.remove(veh);
-		gib_besitzer()->buche(veh->calc_restwert(), gib_pos().gib_2d(), COST_NEW_VEHICLE);
-		DBG_MESSAGE("depot_t::sell_vehicle()","this=%p sells %p",this,veh);
-		delete veh;
-	}
+	vehicles.remove(veh);
+	gib_besitzer()->buche(veh->calc_restwert(), gib_pos().gib_2d(), COST_NEW_VEHICLE);
+	DBG_MESSAGE("depot_t::sell_vehicle()", "this=%p sells %p", this, veh);
+	delete veh;
 }
 
 
@@ -260,8 +248,8 @@ convoihandle_t depot_t::copy_convoi(int icnv)
 				const vehikel_besch_t * info = old_cnv->gib_vehikel(i)->gib_besch();
 				if (info != NULL) {
 					// search in depot for an existing vehicle of correct type
-					int oldest_vehicle = get_oldest_vehicle(old_cnv->gib_vehikel(i)->gib_basis_bild());
-					if (oldest_vehicle != -1) {
+					vehikel_t* oldest_vehicle = get_oldest_vehicle(old_cnv->gib_vehikel(i)->gib_basis_bild());
+					if (oldest_vehicle != NULL) {
 						// append existing vehicle
 						append_vehicle(convoi_count()-1, oldest_vehicle, false);
 					}
@@ -503,22 +491,21 @@ depot_t::create_line()
 	return gib_besitzer()->simlinemgmt.create_line(get_line_type());
 }
 
-int
-depot_t::get_oldest_vehicle(int id)
-{
-	int oldest_veh = -1;
-	long insta_time_old = 0;
 
-	int i = 0;
-	slist_iterator_tpl<vehikel_t *> iter(get_vehicle_list());
-	while(iter.next()) {
-		if(iter.get_current()->gib_basis_bild() == id) {
-			if(oldest_veh == -1 || insta_time_old > iter.get_current()->gib_insta_zeit()) {
-				oldest_veh = i;
-				insta_time_old = iter.get_current()->gib_insta_zeit();
+vehikel_t* depot_t::get_oldest_vehicle(int id)
+{
+	vehikel_t* oldest_veh = NULL;
+	slist_iterator_tpl<vehikel_t*> iter(get_vehicle_list());
+	if (iter.next()) {
+		oldest_veh = iter.get_current();
+		while (iter.next()) {
+			vehikel_t* veh = iter.get_current();
+			if (veh->gib_basis_bild() == id) {
+				if (oldest_veh->gib_insta_zeit() > veh->gib_insta_zeit()) {
+					oldest_veh = veh;
+				}
 			}
 		}
-		i++;
 	}
 	return oldest_veh;
 }
