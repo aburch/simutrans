@@ -896,7 +896,7 @@ DBG_MESSAGE("depot_frame_t::image_from_storage_list()","appended %s",info->gib_n
 DBG_MESSAGE("depot_frame_t::image_from_storage_list()","built nr %i", nr);
 					if (veh == NULL) {
 						// nothing there => we buy it
-						veh = depot->buy_vehicle(vb->gib_basis_bild());
+						veh = depot->buy_vehicle(vb);
 					}
 					depot->append_vehicle(icnv, veh, veh_action == va_insert);
 				}

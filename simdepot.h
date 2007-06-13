@@ -162,7 +162,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	vehikel_t* buy_vehicle(int image);
+	vehikel_t* buy_vehicle(const vehikel_besch_t* info);
 
 	/**
 	 * Sell a vehicle from the vehicle list.

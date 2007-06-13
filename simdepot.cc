@@ -175,11 +175,9 @@ bool depot_t::can_convoi_start(int /*icnv*/) const
 }
 
 
-vehikel_t* depot_t::buy_vehicle(int image)
+vehikel_t* depot_t::buy_vehicle(const vehikel_besch_t* info)
 {
-	if (image == -1) return NULL;
 	// Offen: prüfen ob noch platz im depot ist???
-	const vehikel_besch_t* info = vehikelbauer_t::gib_info(image);
 	DBG_DEBUG("depot_t::buy_vehicle()", info->gib_name());
 	vehikel_t* veh = vehikelbauer_t::baue(gib_pos(), gib_besitzer(), NULL, info);
 	DBG_DEBUG("depot_t::buy_vehicle()", "vehiclebauer %p", veh);
