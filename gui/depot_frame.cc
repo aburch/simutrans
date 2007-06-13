@@ -962,7 +962,7 @@ depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 
 	if(komp != NULL) {	// message from outside!
 		if(komp == &bt_start) {
-			if(depot->start_convoi(icnv)) {
+			if (depot->start_convoi(cnv)) {
 				icnv--;
 			}
 		} else if(komp == &bt_schedule) {

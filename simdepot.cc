@@ -168,8 +168,7 @@ depot_t::zeige_info()
 }
 
 
-
-bool depot_t::can_convoi_start(int /*icnv*/) const
+bool depot_t::can_convoi_start(convoihandle_t /*cnv*/) const
 {
 	return true;
 }
@@ -312,13 +311,9 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 }
 
 
-bool
-depot_t::start_convoi(int icnv)
+bool depot_t::start_convoi(convoihandle_t cnv)
 {
-	convoihandle_t cnv = get_convoi(icnv);
-
 	if(cnv.is_bound() &&  cnv->gib_fahrplan() != NULL &&  cnv->gib_fahrplan()->ist_abgeschlossen() &&   cnv->gib_fahrplan()->maxi() > 0) {
-
 		// if next schedule entry is this depot => advance to next entry
 		const koord3d& cur_pos = cnv->gib_fahrplan()->eintrag[cnv->gib_fahrplan()->aktuell].pos;
 		if (cur_pos == gib_pos()) {
@@ -333,15 +328,13 @@ depot_t::start_convoi(int icnv)
 			static char buf[256];
 			sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->gib_name());
 			create_win(100, 64, MESG_WAIT, new nachrichtenfenster_t(welt, buf), w_autodelete);
-		}
-		else if(can_convoi_start(icnv)) {
-
+		} else if (can_convoi_start(cnv)) {
 			// der Convoi kann losdüsen
 			cnv->setze_fahrplan( cnv->gib_fahrplan() );     // do not delete: this inform all stops!
 			welt->sync_add( cnv.get_rep() );
 			cnv->start();
 
-			convois.remove_at(icnv);
+			convois.remove(cnv);
 			return true;
 		}
 		else {
@@ -499,10 +492,8 @@ vehikel_t* depot_t::get_oldest_vehicle(int id)
 }
 
 
-bool
-bahndepot_t::can_convoi_start(int icnv) const
+bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 {
-	convoihandle_t cnv=get_convoi(icnv);
 	waytype_t wt=cnv->gib_vehikel(0)->gib_waytype();
 	int tiles=0;
 	for(unsigned i=0;  i<cnv->gib_vehikel_anzahl();  i++) {

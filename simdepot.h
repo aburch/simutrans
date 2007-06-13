@@ -61,7 +61,7 @@ protected:
 	*/
 	slist_tpl<linehandle_t> lines;
 
-	virtual bool can_convoi_start(int icnv) const;
+	virtual bool can_convoi_start(convoihandle_t cnv) const;
 
 	virtual simline_t::linetype get_line_type() = 0;
 
@@ -122,7 +122,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	bool start_convoi(int icnv);
+	bool start_convoi(convoihandle_t cnv);
 
 	/**
 	 * Destroy the convoi and put the vehicles in the vehicles list (sell==false),
@@ -253,7 +253,7 @@ protected:
 	virtual const char * gib_haenger_name() { return "Waggon_tab"; }
 	virtual const char * gib_passenger_name() { return "Pas_tab"; }
 
-	bool can_convoi_start(int icnv) const;
+	bool can_convoi_start(convoihandle_t cnv) const;
 
 public:
 	bahndepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
