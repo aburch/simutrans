@@ -11,6 +11,7 @@
 #define gui_gui_label_h
 
 #include "../../ifc/gui_komponente.h"
+#include "../../simcolor.h"
 
 
 /**
@@ -44,10 +45,7 @@ private:
     const char * text;	// only for direct acess of non-translateable things. Do not use!
 
 public:
-    gui_label_t(const char *text);
-    gui_label_t(const char *text, int color);
-    gui_label_t(const char *text, int color, align_t align);
-
+    gui_label_t(const char* text, int color = COL_BLACK, align_t align = left);
 
     /**
      * setzt den Text des Labels

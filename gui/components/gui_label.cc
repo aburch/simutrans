@@ -18,27 +18,11 @@
 #include "../../utils/simstring.h"
 
 
-gui_label_t::gui_label_t(const char *text)
+gui_label_t::gui_label_t(const char* text, int color_, align_t align_) :
+	align(align_),
+	color(color_)
 {
 	setze_text( text );
-	this->color = COL_BLACK;
-	this->align = left;
-}
-
-
-gui_label_t::gui_label_t(const char *text, int color)
-{
-	setze_text( text );
-	this->color = color;
-	this->align = left;
-}
-
-
-gui_label_t::gui_label_t(const char *text, int color, align_t align)
-{
-	setze_text( text );
-	this->color = color;
-	this->align = align;
 }
 
 /**
