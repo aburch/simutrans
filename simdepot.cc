@@ -265,10 +265,8 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 	return NULL;
 }
 
-bool depot_t::disassemble_convoi(int icnv, bool sell)
+bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 {
-    convoihandle_t cnv = get_convoi(icnv);
-
     if(cnv.is_bound()) {
 	if(cnv->gib_vehikel(0)) {
 	    vehikel_t *v = NULL;
@@ -304,8 +302,7 @@ bool depot_t::disassemble_convoi(int icnv, bool sell)
 		welt->set_schedule_counter();
 	}
 
-DBG_MESSAGE("depot_t::convoi_aufloesen()", "convois.remove_at(%i)", icnv);
-	convois.remove_at(icnv);
+	convois.remove(cnv);
 
 	// Hajo: destruktor also removes convoi from convoi list
 	delete cnv.detach();

@@ -123,13 +123,14 @@ public:
 	 * @date  09.06.2003
 	 */
 	bool start_convoi(int icnv);
+
 	/**
 	 * Destroy the convoi and put the vehicles in the vehicles list (sell==false),
 	 * or sell all immediatly (sell==true).
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	bool disassemble_convoi(int icnv, bool sell);
+	bool disassemble_convoi(convoihandle_t cnv, bool sell);
 
 	/**
 	 * Remove vehicle from vehicle list and add it to the convoi. Two positions

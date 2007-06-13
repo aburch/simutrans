@@ -939,7 +939,7 @@ void depot_frame_t::image_from_convoi_list(uint nr)
 		}
 		// now remove the vehicles
 		if(cnv->gib_vehikel_anzahl()==nr-start_nr) {
-			depot->disassemble_convoi(icnv, false);
+			depot->disassemble_convoi(cnv, false);
 			icnv--;
 		}
 		else {
@@ -969,11 +969,11 @@ depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 			fahrplaneingabe();
 			return true;
 		} else if(komp == &bt_destroy) {
-			if(depot->disassemble_convoi(icnv, false)) {
+			if (depot->disassemble_convoi(cnv, false)) {
 				icnv--;
 			}
 		} else if(komp == &bt_sell) {
-			if(depot->disassemble_convoi(icnv, true)) {
+			if (depot->disassemble_convoi(cnv, true)) {
 				icnv--;
 			}
 		} else if(komp == &bt_next) {
