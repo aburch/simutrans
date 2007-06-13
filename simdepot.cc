@@ -229,9 +229,8 @@ convoihandle_t depot_t::add_convoi()
     return new_cnv->self;
 }
 
-convoihandle_t depot_t::copy_convoi(int icnv)
+convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 {
-    convoihandle_t old_cnv = get_convoi(icnv);
     if (old_cnv.is_bound()) {
 	    convoihandle_t new_cnv = add_convoi();
 	    new_cnv->setze_name(old_cnv->gib_internal_name());

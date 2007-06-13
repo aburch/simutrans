@@ -1011,7 +1011,7 @@ depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 			change_line();
 			return true;
 		} else if(komp == &bt_copy_convoi) {
-			depot->copy_convoi(icnv);
+			depot->copy_convoi(cnv);
 			// automatically select newly created convoi
 			icnv = depot->convoi_count()-1;
 		} else if(komp == &bt_apply_line) {

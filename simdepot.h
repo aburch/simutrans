@@ -114,7 +114,7 @@ public:
 	 * copies convoi and its schedule or line
 	 * @author hsiegeln
 	 */
-	convoihandle_t copy_convoi(int icnv);
+	convoihandle_t copy_convoi(convoihandle_t old_cnv);
 
 	/**
 	 * Let convoi leave the depot.
