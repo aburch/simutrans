@@ -188,10 +188,8 @@ vehikel_t* depot_t::buy_vehicle(const vehikel_besch_t* info)
 }
 
 
-
-void depot_t::append_vehicle(int icnv, vehikel_t* veh, bool infront)
+void depot_t::append_vehicle(convoihandle_t cnv, vehikel_t* veh, bool infront)
 {
-	convoihandle_t cnv = get_convoi(icnv);
 	/* create  a new convoi, if necessary */
 	if (!cnv.is_bound()) {
 		cnv = add_convoi();
@@ -249,7 +247,7 @@ convoihandle_t depot_t::copy_convoi(int icnv)
 					vehikel_t* oldest_vehicle = get_oldest_vehicle(old_cnv->gib_vehikel(i)->gib_basis_bild());
 					if (oldest_vehicle != NULL) {
 						// append existing vehicle
-						append_vehicle(convoi_count()-1, oldest_vehicle, false);
+						append_vehicle(convois.back(), oldest_vehicle, false);
 					}
 					else {
 						// buy new vehicle
