@@ -183,6 +183,9 @@ void vehikel_basis_t::fahre()
 
 		hop();
 
+		// may ended on a slope ...
+		use_calc_height = true;
+
 		setze_xoff( (neu_xoff < 0) ? 16 : -16 );
 		setze_yoff( (neu_yoff < 0) ? 8 : -8 );
 	}
@@ -284,11 +287,13 @@ int
 vehikel_basis_t::calc_height()
 {
 	int hoff = 0;
+	use_calc_height = false;	// assume, we are only needed after next hop
 
 	grund_t *gr = welt->lookup(gib_pos());
 	if(gr->ist_tunnel()) {
 		hoff = 0;
 		if(!gr->ist_im_tunnel()) {
+			use_calc_height = true;
 			// need hiding?
 			switch(gr->gib_grund_hang()) {
 			case 3:	// nordhang
@@ -331,10 +336,12 @@ vehikel_basis_t::calc_height()
 			case 3:	// nordhang
 			case 6:	// westhang
 				hoff = -vehikel_basis_t::gib_yoff() - 8;
+				use_calc_height = true;
 				break;
 			case 9:	// osthang
 			case 12:    // suedhang
 				hoff = vehikel_basis_t::gib_yoff() - 8;
+				use_calc_height = true;
 				break;
 			case 0:
 				hoff = -gr->gib_weg_yoff();
@@ -557,6 +564,7 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 {
 	route_index = start_route_index+1;
 	check_for_finish = false;
+	use_calc_height = true;
 
 	if(welt->ist_in_kartengrenzen(gib_pos().gib_2d())) {
 		// mark the region after the image as dirty
@@ -565,9 +573,9 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 	}
 
 	if(!recalc) {
-		if(pos_next==gib_pos()) {
-			pos_next = cnv->get_route()->position_bei(route_index);
-		}
+		// always set pos_next
+		// otherwise a convoi with somehow a wrong pos_next will next continue
+		pos_next = cnv->get_route()->position_bei(route_index);
 		assert( gib_pos() == cnv->get_route()->position_bei(start_route_index) );
 	}
 	else {
@@ -604,6 +612,7 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 
 		setze_xoff( xoff );
 		setze_yoff( yoff );
+
 	  calc_bild();
 	}
 }
@@ -1038,7 +1047,9 @@ void vehikel_t::sync_step()
 {
 	setze_yoff( gib_yoff() - hoff );
 	fahre();
-	hoff = calc_height();
+	if(use_calc_height) {
+		hoff = calc_height();
+	}
 	setze_yoff( gib_yoff() + hoff );
 }
 

@@ -74,6 +74,9 @@ protected:
 	 */
 	ribi_t::ribi fahrtrichtung;
 
+	// true on slope (make calc_height much faster)
+	uint8 use_calc_height:1;
+
 	sint8 dx, dy;
 
 	/**
