@@ -882,7 +882,7 @@ DBG_MESSAGE("depot_frame_t::image_from_storage_list()","appended %s",info->gib_n
 				// create a new convoi
 				cnv = depot->add_convoi();
 				icnv = depot->convoi_count() - 1;
-				depot->get_convoi(icnv)->setze_name(new_vehicle_info.front()->gib_name());
+				cnv->setze_name(new_vehicle_info.front()->gib_name());
 			}
 
 			if(cnv->gib_vehikel_anzahl()+new_vehicle_info.count() <= depot->get_max_convoi_length()) {
