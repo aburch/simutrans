@@ -261,8 +261,9 @@ savegame_frame_t::add_file(const char *filename, const char *pak)
 		}
 	}
 	buttons.insert(button, i);
-	labels.insert(new gui_label_t(NULL), i);
-	labels.at(i)->set_text_pointer(date);
+	gui_label_t* l = new gui_label_t(NULL);
+	l->set_text_pointer(date);
+	labels.insert(l, i);
 	deletes.insert(new button_t, i);
 }
 
