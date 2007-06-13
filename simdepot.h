@@ -145,7 +145,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	void remove_vehicle(int icnv, int ipos);
+	void remove_vehicle(convoihandle_t cnv, int ipos);
 
 	/**
 	 * Access to vehicles not bound to a convoi. They are not ordered

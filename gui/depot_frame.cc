@@ -944,7 +944,7 @@ void depot_frame_t::image_from_convoi_list(uint nr)
 		}
 		else {
 			for( unsigned i=start_nr;  i<nr;  i++  ) {
-				depot->remove_vehicle(icnv, start_nr);
+				depot->remove_vehicle(cnv, start_nr);
 			}
 		}
 	}
