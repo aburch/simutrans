@@ -14,6 +14,9 @@
 	ADD: cityrules new parameter u/U ground is not/well suited for road
 	ADD: cityrules new parameter renovation_percentage (default 12) to finetune new building/renovation ratio
 	FIX: schedule was one off during reloading (and driving one field) due to missing initialisation of check_for_finish in vehikel_t(welt)
+	FIX: convoi stuck on a slope, if pos_next was wrong
+	CHANGE: calc_height only called if needed (about 5% faster game)
+	ADD: (tomilepp) empty capacity line to freight_sorter
 
 
 Release of 99.12

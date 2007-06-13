@@ -151,91 +151,90 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 		pos++;
 	}
 
-	// nothing added?
-	if(pos==0) {
-		return;
-	}
+	// at least some capacity added?
+	if(pos!=0) {
 
-	// sort the ware's list
-	qsort((void *)tdlist, pos, sizeof (travel_details), compare_ware);
+		// sort the ware's list
+		qsort((void *)tdlist, pos, sizeof (travel_details), compare_ware);
 
-	// print the ware's list to buffer - it should be in sortorder by now!
-	int last_ware_index = -1;
-	int last_ware_catg = -1;
+		// print the ware's list to buffer - it should be in sortorder by now!
+		int last_ware_index = -1;
+		int last_ware_catg = -1;
 
-	for (int j = 0; j<pos; j++) {
-		halthandle_t halt = tdlist[j].destination;
-		halthandle_t via_halt = tdlist[j].via_destination;
+		for (int j = 0; j<pos; j++) {
+			halthandle_t halt = tdlist[j].destination;
+			halthandle_t via_halt = tdlist[j].via_destination;
 
-		const char * name = "Error in Routing";
-		if(halt.is_bound()) {
-			name = halt->gib_name();
-		}
-
-		const ware_t& ware = tdlist[j].ware;
-		if(last_ware_index!=ware.gib_typ()->gib_index()  &&  last_ware_catg!=ware.gib_catg()) {
-			sint32 sum = 0;
-			last_ware_index = ware.gib_typ()->gib_index();
-			last_ware_catg = (ware.gib_catg()!=0) ? ware.gib_catg() : -1;
-			for(int i=j;  i<pos;  i++  ) {
-				const ware_t& sumware = tdlist[i].ware;
-				if(last_ware_index!=sumware.gib_typ()->gib_index()) {
-					if(last_ware_catg!=sumware.gib_catg()) {
-						break;	// next category reached ...
-					}
-				}
-				sum += sumware.menge;
+			const char * name = "Error in Routing";
+			if(halt.is_bound()) {
+				name = halt->gib_name();
 			}
 
-			// special freight => handle different
-			last_ware_catg = (ware.gib_catg()!=0) ? ware.gib_catg() : -1;
+			const ware_t& ware = tdlist[j].ware;
+			if(last_ware_index!=ware.gib_typ()->gib_index()  &&  last_ware_catg!=ware.gib_catg()) {
+				sint32 sum = 0;
+				last_ware_index = ware.gib_typ()->gib_index();
+				last_ware_catg = (ware.gib_catg()!=0) ? ware.gib_catg() : -1;
+				for(int i=j;  i<pos;  i++  ) {
+					const ware_t& sumware = tdlist[i].ware;
+					if(last_ware_index!=sumware.gib_typ()->gib_index()) {
+						if(last_ware_catg!=sumware.gib_catg()) {
+							break;	// next category reached ...
+						}
+					}
+					sum += sumware.menge;
+				}
 
-			// display all ware
-			if(full_list==NULL) {
-				add_ware_heading( buf, sum, 0, &ware, what_doing );
+				// special freight => handle different
+				last_ware_catg = (ware.gib_catg()!=0) ? ware.gib_catg() : -1;
+
+				// display all ware
+				if(full_list==NULL) {
+					add_ware_heading( buf, sum, 0, &ware, what_doing );
+				}
+				else {
+					// ok, we have a list of freights
+					while(list_finish  &&  (list_finish=full_iter.next())!=0) {
+
+						const ware_t& current = full_iter.get_current();
+						if(last_ware_index==current.gib_typ()->gib_index()  ||  last_ware_catg==current.gib_catg()) {
+							add_ware_heading( buf, sum, current.menge, &current, what_doing );
+							break;
+						}
+						else {
+							add_ware_heading( buf, 0, current.menge, &current, what_doing );
+						}
+					}
+				}
+			}
+			// detail amount
+			buf.append("   ");
+			buf.append(ware.menge);
+			buf.append(translator::translate(ware.gib_typ()->gib_mass()));
+			buf.append(" ");
+			buf.append(translator::translate(ware.gib_typ()->gib_name()));
+			buf.append(" > ");
+			// the target name is not correct for the via sort
+			if(sortby!=by_via_sum  ||  via_halt==halt  ) {
+				buf.append(name);
+			}
+
+			// for debugging
+			const char *via_name = "Error in Routing";
+			if(via_halt.is_bound()) {
+				via_name = via_halt->gib_name();
+			}
+
+			if(via_halt != halt) {
+				char tmp [512];
+				sprintf(tmp, translator::translate("via %s\n"), via_name);
+				buf.append(tmp);
 			}
 			else {
-				// ok, we have a list of freights
-				while(list_finish  &&  (list_finish=full_iter.next())!=0) {
-
-					const ware_t& current = full_iter.get_current();
-					if(last_ware_index==current.gib_typ()->gib_index()  ||  last_ware_catg==current.gib_catg()) {
-						add_ware_heading( buf, sum, current.menge, &current, what_doing );
-						break;
-					}
-					else {
-						add_ware_heading( buf, 0, current.menge, &current, what_doing );
-					}
-				}
+				buf.append("\n");
 			}
+			// debug ende
 		}
-		// detail amount
-		buf.append("   ");
-		buf.append(ware.menge);
-		buf.append(translator::translate(ware.gib_typ()->gib_mass()));
-		buf.append(" ");
-		buf.append(translator::translate(ware.gib_typ()->gib_name()));
-		buf.append(" > ");
-		// the target name is not correct for the via sort
-		if(sortby!=by_via_sum  ||  via_halt==halt  ) {
-			buf.append(name);
-		}
-
-		// for debugging
-		const char *via_name = "Error in Routing";
-		if(via_halt.is_bound()) {
-			via_name = via_halt->gib_name();
-		}
-
-		if(via_halt != halt) {
-			char tmp [512];
-			sprintf(tmp, translator::translate("via %s\n"), via_name);
-			buf.append(tmp);
-		}
-		else {
-			buf.append("\n");
-		}
-		// debug ende
 	}
 
 	// still entires left?
