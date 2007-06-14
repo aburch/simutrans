@@ -186,7 +186,7 @@ void vehikelbauer_t::sort_lists()
 		if (count == 0) continue;
 		const vehikel_besch_t** const tmp     = new const vehikel_besch_t*[count];
 		const vehikel_besch_t** const tmp_end = tmp + count;
-		for (const vehikel_besch_t** i = tmp; tmp_end; i++) {
+		for (const vehikel_besch_t** i = tmp; i != tmp_end; i++) {
 			*i = typ_liste.remove_first();
 		}
 		std::sort(tmp, tmp_end, compare_vehikel_besch());
