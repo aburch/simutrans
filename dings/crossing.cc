@@ -31,6 +31,7 @@
 
 crossing_t::crossing_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
+	bild = after_bild = IMG_LEER;
 	rdwr(file);
 }
 
@@ -45,6 +46,7 @@ crossing_t::crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t w1, 
 	zustand = CROSSING_INVALID;
 	phase = 0;
 	timer = 0;
+	bild = after_bild = IMG_LEER;
 	set_state( CROSSING_OPEN );
 	setze_besitzer( sp );
 }

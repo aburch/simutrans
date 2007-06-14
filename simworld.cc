@@ -1506,18 +1506,18 @@ karte_t::sync_step(long delta_t)
 		slist_iterator_tpl<sync_steppable *> iter (sync_add_list);
 		while(iter.next()) {
 			sync_steppable *ss = iter.get_current();
-			sync_list.insert( ss );
+			sync_list.put( ss, ss );
 		}
 		sync_add_list.clear();
 	}
 
-	slist_iterator_tpl<sync_steppable*> iter (sync_list);
+	ptrhashtable_iterator_tpl<sync_steppable*,sync_steppable*> iter (sync_list);
 
 	// Hajo: we use a slight hack here to remove the current
 	// object from the list without wrecking the iterator
 	bool ok = iter.next();
 	while(ok) {
-		sync_steppable *ss = iter.get_current();
+		sync_steppable *ss = iter.get_current_value();
 
 		// Hajo: advance iterator, so that we can remove the current object
 		// safely

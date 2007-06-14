@@ -17,6 +17,7 @@
 	FIX: convoi stuck on a slope, if pos_next was wrong
 	CHANGE: calc_height only called if needed (about 5% faster game)
 	ADD: (tomilepp) empty capacity line to freight_sorter
+	CHANGE: sync_list changed from slist_tpl to ptrhashtable_tpl => remove from 5% to 0.3% game time for all sync-objects (cars, pedestrians, animated buildings, smoke, ... )
 
 
 Release of 99.12

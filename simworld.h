@@ -23,6 +23,7 @@
 #include "tpl/minivec_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/slist_tpl.h"
+#include "tpl/ptrhashtable_tpl.h"
 
 #include "dataobj/marker.h"
 #include "dataobj/einstellungen.h"
@@ -160,7 +161,7 @@ private:
 	zeiger_t *zeiger;
 
 	slist_tpl<sync_steppable *> sync_add_list;	// these objects are move to the sync_list (but before next sync step, so they do not interfere!)
-	slist_tpl<sync_steppable *> sync_list;
+	ptrhashtable_tpl<sync_steppable *, sync_steppable *> sync_list;
 
 	vector_tpl<convoihandle_t> convoi_array;
 
