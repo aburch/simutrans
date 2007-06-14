@@ -146,7 +146,7 @@ class compare_vehikel_besch {
 			int cmp = a->gib_ware()->gib_catg() - b->gib_ware()->gib_catg();
 			if (cmp == 0) {
 				cmp = a->gib_ware()->gib_index() - b->gib_ware()->gib_index();
-				if (cmp == 0) {
+				if (a->gib_ware()->gib_catg()>0  ||  cmp == 0) {
 					cmp = a->gib_zuladung() - b->gib_zuladung();
 					if (cmp == 0) {
 						// to handle tender correctly
