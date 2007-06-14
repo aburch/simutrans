@@ -2,6 +2,7 @@
 #define TPL_WEIGHTED_VECTOR_H
 
 #include <stdlib.h>
+#include "../macros.h"
 #include "../simdebug.h"
 
 
@@ -274,10 +275,10 @@ template<class T> class weighted_vector_tpl
 
 template<class T> void swap(weighted_vector_tpl<T>& a, weighted_vector_tpl<T>& b)
 {
-	swap(a.nodes, b.nodes);
-	swap(a.size, b.size);
-	swap(a.count, b.count);
-	swap(a.total_weight, b.total_weight);
+	sim::swap(a.nodes, b.nodes);
+	sim::swap(a.size, b.size);
+	sim::swap(a.count, b.count);
+	sim::swap(a.total_weight, b.total_weight);
 }
 
 #endif
