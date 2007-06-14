@@ -296,19 +296,15 @@ public:
 
 	bool empty() const { return head == 0; }
 
-	T &at(unsigned int pos) const
+	T& at(uint pos) const
 	{
-		node_t *p = head;
-
-		while(p != 0) {
-			if(pos-- == 0) {
-				return p->data;
-			}
-			p = p->next;
+		if (pos >= count()) {
+			dbg->fatal("slist_tpl<T>::at()", "<%s> index %d is out of bounds", typeid(T).name(), pos);
 		}
 
-		dbg->fatal("slist_tpl<T>::at()","<%s> index %d is out of bounds",typeid(T).name(),pos);
-		return head->data;	// to keep compiler silent
+		node_t* p = head;
+		while (pos--) p = p->next;
+		return p->data;
 	}
 
 	T& front() const { return head->data; }
