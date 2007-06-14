@@ -406,7 +406,6 @@ public:
 	bool is_last() {return ist_letztes;}
 
 	virtual void setze_convoi(convoi_t *c);
-	convoihandle_t get_convoi() const { return cnv->self; }
 
 	void laden_abschliessen();
 
