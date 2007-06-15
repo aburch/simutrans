@@ -15,7 +15,8 @@ template<class T> inline void swap(vector_tpl<T>& a, vector_tpl<T>& b);
 template<class T> class vector_tpl
 {
 	public:
-		typedef T* iterator;
+		typedef const T* const_iterator;
+		typedef       T* iterator;
 
 		/** Construct a vector for cap elements */
 		vector_tpl() : data(NULL), size(0), count(0) {}
@@ -165,6 +166,9 @@ template<class T> class vector_tpl
 
 		iterator begin() { return data; }
 		iterator end()   { return data + count; }
+
+		const_iterator begin() const { return data; }
+		const_iterator end()   const { return data + count; }
 
 		/** Get the number of elements in the vector */
 		uint32 get_count() const { return count; }
