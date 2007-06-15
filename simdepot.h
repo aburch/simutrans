@@ -54,16 +54,7 @@ protected:
 
 	void rdwr_vehikel(slist_tpl<vehikel_t*> &list, loadsave_t *file);
 
-	/**
-	* this list contains the lines matching the depot type
-	* train depots, for example, will only see trainlines
-	* @author hsiegeln
-	*/
-	slist_tpl<linehandle_t> lines;
-
 	virtual bool can_convoi_start(convoihandle_t cnv) const;
-
-	virtual simline_t::linetype get_line_type() = 0;
 
 	static slist_tpl<depot_t *> all_depots;
 
@@ -76,6 +67,8 @@ public:
 	depot_t(karte_t *welt,loadsave_t *file);
 	depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t);
 	virtual ~depot_t();
+
+	virtual simline_t::linetype get_line_type() const = 0;
 
 	void rdwr(loadsave_t *file);
 
@@ -222,8 +215,6 @@ public:
 	 */
 	virtual const char * ist_entfernbar(const spieler_t *sp);
 
-	virtual slist_tpl<linehandle_t> *get_line_list();
-
 	/**
 	 * identifies the oldest vehicle of a certain type (id)
 	 * returns NULL if no vehicle is found
@@ -247,8 +238,6 @@ public:
 class bahndepot_t : public depot_t
 {
 protected:
-	virtual simline_t::linetype get_line_type() { return simline_t::trainline; }
-
 	virtual const char * gib_zieher_name() { return "Lokomotive_tab"; }
 	virtual const char * gib_haenger_name() { return "Waggon_tab"; }
 	virtual const char * gib_passenger_name() { return "Pas_tab"; }
@@ -258,6 +247,8 @@ protected:
 public:
 	bahndepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
 	bahndepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt,pos,sp,t) {}
+
+	virtual simline_t::linetype get_line_type() const { return simline_t::trainline; }
 
 	void rdwr_vehicles(loadsave_t *file) { depot_t::rdwr_vehikel(vehicles,file); }
 
@@ -285,12 +276,11 @@ public:
 
 class tramdepot_t : public bahndepot_t
 {
-protected:
-	virtual simline_t::linetype get_line_type() { return simline_t::tramline; }
-
 public:
     tramdepot_t(karte_t *welt, loadsave_t *file):bahndepot_t(welt,file) {}
     tramdepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(welt,pos,sp,t) {}
+
+	virtual simline_t::linetype get_line_type() const { return simline_t::tramline; }
 
 	virtual const waytype_t get_wegtyp() const {return tram_wt;}
     virtual enum ding_t::typ gib_typ() const { return tramdepot; }
@@ -299,12 +289,11 @@ public:
 
 class monoraildepot_t : public bahndepot_t
 {
-protected:
-	virtual simline_t::linetype get_line_type() { return simline_t::monorailline; }
-
 public:
     monoraildepot_t(karte_t *welt, loadsave_t *file):bahndepot_t(welt,file) {}
     monoraildepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(welt,pos,sp,t) {}
+
+	virtual simline_t::linetype get_line_type() const { return simline_t::monorailline; }
 
    virtual  const waytype_t get_wegtyp() const {return monorail_wt;}
     virtual enum ding_t::typ gib_typ() const { return monoraildepot; }
@@ -320,8 +309,6 @@ public:
 class strassendepot_t : public depot_t
 {
 protected:
-	virtual simline_t::linetype get_line_type() { return simline_t::truckline; }
-
     virtual const char * gib_passenger_name() { return "Bus_tab"; }
     virtual const char * gib_zieher_name() { return "LKW_tab"; }
     virtual const char * gib_haenger_name() { return "Anhaenger_tab"; }
@@ -329,6 +316,8 @@ protected:
 public:
     strassendepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
     strassendepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt,pos,sp,t) {}
+
+	virtual simline_t::linetype get_line_type() const { return simline_t::truckline; }
 
     /**
      * Parameters to determine layout and behaviour of the depot_frame_t.
@@ -361,8 +350,6 @@ public:
 class schiffdepot_t : public depot_t
 {
 protected:
-	virtual simline_t::linetype get_line_type() { return simline_t::shipline; }
-
     virtual const char * gib_passenger_name() { return "Ferry_tab"; }
     virtual const char * gib_zieher_name() { return "Schiff_tab"; }
     virtual const char * gib_haenger_name() { return "Schleppkahn_tab"; }
@@ -370,6 +357,8 @@ protected:
 public:
 	schiffdepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
 	schiffdepot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt,pos,sp,t) {}
+
+	virtual simline_t::linetype get_line_type() const { return simline_t::shipline; }
 
 	/**
 	 * Parameters to determine layout and behaviour of the depot_frame_t.
@@ -395,8 +384,6 @@ public:
 class airdepot_t : public depot_t
 {
 protected:
-	virtual simline_t::linetype get_line_type() { return simline_t::airline; }
-
     virtual const char * gib_zieher_name() { return "aircraft_tab"; }
     virtual const char * gib_haenger_name() { return "Waggon_tab"; }
     virtual const char * gib_passenger_name() { return "Flug_tab"; }
@@ -404,6 +391,8 @@ protected:
 public:
 	airdepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
 	airdepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt,pos,sp,t) {}
+
+	virtual simline_t::linetype get_line_type() const { return simline_t::airline; }
 
 	/**
 	 * Parameters to determine layout and behaviour of the depot_frame_t.

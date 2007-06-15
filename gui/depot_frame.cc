@@ -642,6 +642,12 @@ DBG_DEBUG("depot_frame_t::build_vehicle_lists()","finally %i passenger vehicle, 
 }
 
 
+static void get_line_list(const depot_t* depot, slist_tpl<linehandle_t>* lines)
+{
+	depot->gib_besitzer()->simlinemgmt.build_line_list(depot->get_line_type(), lines);
+}
+
+
 void depot_frame_t::update_data()
 {
 	static const char *txt_veh_action[3] = { "anhaengen", "voranstellen", "verkaufen" };
@@ -784,7 +790,9 @@ void depot_frame_t::update_data()
 	}
 
 	// check all matching lines
-	slist_iterator_tpl<linehandle_t> iter( depot->get_line_list() );
+	slist_tpl<linehandle_t> lines;
+	get_line_list(depot, &lines);
+	slist_iterator_tpl<linehandle_t> iter(lines);
 	while( iter.next() ) {
 		linehandle_t line = iter.get_current();
 		line_selector.append_element( line->get_name(), line->get_state_color() );
@@ -1020,7 +1028,9 @@ depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 			int sel=line_selector.get_selection();
 //DBG_MESSAGE("depot_frame_t::action_triggered()","selected %i",sel);
 			if(sel>0) {
-				selected_line = depot->get_line_list()->at(sel-1);
+				slist_tpl<linehandle_t> lines;
+				get_line_list(depot, &lines);
+				selected_line = lines.at(sel - 1);
 			}
 			else {
 				selected_line = linehandle_t();
