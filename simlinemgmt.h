@@ -60,7 +60,6 @@ class simlinemgmt_t
 	* @author hsiegeln
 	*/
 	linehandle_t get_line(uint i) const { return all_managed_lines[i]; }
-	linehandle_t get_line(fahrplan_t *fpl);
 
 	/*
 	* return a line by its ID

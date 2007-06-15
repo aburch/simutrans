@@ -63,22 +63,6 @@ simlinemgmt_t::get_line_by_id(uint16 id)
 	return linehandle_t();
 }
 
-/*
- * this function will try to find a line, which's fahrplan matches the passed fahrplan
- */
-linehandle_t
-simlinemgmt_t::get_line(fahrplan_t *fpl)
-{
-	int count = count_lines();
-	for (int i = 0; i<count; i++)
-	{
-		linehandle_t line = get_line(i);
-		if (line->get_fahrplan()->matches(fpl))
-			return line;
-	}
-	return NULL;
-}
-
 
 bool
 simlinemgmt_t::delete_line(linehandle_t line)
