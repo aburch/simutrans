@@ -2532,7 +2532,6 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 	if (file->get_version() > 82003  &&  file->get_version()<88003) {
 		DBG_MESSAGE("karte_t::laden()", "load linemanagement");
 		gib_spieler(0)->simlinemgmt.rdwr(this, file);
-		DBG_MESSAGE("karte_t::laden()", "%d lines loaded", gib_spieler(0)->simlinemgmt.count_lines());
 	}
 	// end load linemanagement
 

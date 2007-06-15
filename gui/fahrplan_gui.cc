@@ -470,15 +470,13 @@ void fahrplan_gui_t::init_line_selector()
 	line_selector.clear_elements();
 	line_selector.append_element(no_line);
 	int selection = -1;
-	if (sp->simlinemgmt.count_lines() > 0) {
-		sp->simlinemgmt.build_line_list(fpl->get_type(), &lines);
-		slist_iterator_tpl<linehandle_t> iter( lines );
-		while( iter.next() ) {
-			linehandle_t line = iter.get_current();
-			line_selector.append_element( line->get_name(), line->get_state_color() );
-			if(new_line==line) {
-				selection = line_selector.count_elements()-1;
-			}
+	sp->simlinemgmt.build_line_list(fpl->get_type(), &lines);
+	slist_iterator_tpl<linehandle_t> iter(lines);
+	while (iter.next()) {
+		linehandle_t line = iter.get_current();
+		line_selector.append_element(line->get_name(), line->get_state_color());
+		if (new_line == line) {
+			selection = line_selector.count_elements() - 1;
 		}
 	}
 

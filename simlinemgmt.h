@@ -50,12 +50,6 @@ class simlinemgmt_t
 	void update_line(linehandle_t line);
 
 	/*
-	 * return number off lines
-	 * @author hsiegeln
-	 */
- 	sint32 count_lines() { return all_managed_lines.get_count(); }
-
-	/*
 	* return a line by its ID
 	* @author hsiegeln
 	*/
