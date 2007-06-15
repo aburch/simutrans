@@ -45,6 +45,7 @@ stringhashtable_tpl<const roadsign_besch_t *> roadsign_t::table;
 
 roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
+	bild = after_bild = IMG_LEER;
 	rdwr(file);
 	// if more than one state, we will switch direction and phase for traffic lights
 	automatic = (besch->gib_bild_anzahl()>4  &&  besch->gib_wtyp()==road_wt);
@@ -57,6 +58,7 @@ roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi d
 {
 	this->besch = besch;
 	this->dir = dir;
+	bild = after_bild = IMG_LEER;
 	zustand = 0;
 	last_switch = 0;
 	setze_besitzer( sp );
@@ -175,7 +177,7 @@ void roadsign_t::calc_bild()
 
 	if(!automatic) {
 
-		image_id bild=IMG_LEER;
+		image_id tmp_bild=IMG_LEER;
 		after_bild = IMG_LEER;
 
 		if(dir&ribi_t::ost) {
@@ -184,7 +186,7 @@ void roadsign_t::calc_bild()
 
 		if(dir&ribi_t::nord) {
 			if(after_bild!=IMG_LEER) {
-				bild = besch->gib_bild_nr(0+zustand*4);
+				tmp_bild = besch->gib_bild_nr(0+zustand*4);
 			}
 			else {
 				after_bild = besch->gib_bild_nr(0+zustand*4);
@@ -192,28 +194,27 @@ void roadsign_t::calc_bild()
 		}
 
 		if(dir&ribi_t::west) {
-			bild = besch->gib_bild_nr(2+zustand*4);
+			tmp_bild = besch->gib_bild_nr(2+zustand*4);
 		}
 
 		if(dir&ribi_t::sued) {
-			if(bild!=IMG_LEER) {
+			if(tmp_bild!=IMG_LEER) {
 				after_bild = besch->gib_bild_nr(1+zustand*4);
 			}
 			else {
-				bild = besch->gib_bild_nr(1+zustand*4);
+				tmp_bild = besch->gib_bild_nr(1+zustand*4);
 			}
 		}
 
 		// some signs on roads must not have a background (but then they have only two rotations)
 		if(besch->get_flags()&roadsign_besch_t::ONLY_BACKIMAGE) {
 			if(after_bild!=IMG_LEER) {
-				bild = after_bild;
+				tmp_bild = after_bild;
 			}
 			after_bild = IMG_LEER;
 		}
 
-		setze_bild( bild );
-
+		setze_bild( tmp_bild );
 	}
 	else {
 		// traffic light
