@@ -1,11 +1,6 @@
 #ifndef OBJ_PAK_EXCEPTION_H
 #define OBJ_PAK_EXCEPTION_H
 
-#if _MSC_VER > 1000
-#pragma once
-#endif
-
-
 class obj_pak_exception_t {
 	private:
 		cstring_t classname;

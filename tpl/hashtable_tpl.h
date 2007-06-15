@@ -242,11 +242,7 @@ public:
 			if(++current_bag == STHT_BAGSIZE) {
 				return false;
 			}
-#ifdef _MSC_VER /* VC6 does not know typename keyword */
-	    bag_iter = slist_iterator_tpl < hashtable_tpl<key_t, value_t, hash_t>::node_t > (bags + current_bag);
-#else
 	    bag_iter = slist_iterator_tpl < typename hashtable_tpl<key_t, value_t, hash_t>::node_t > (bags + current_bag);
-#endif
 		}
 		return true;
 	}

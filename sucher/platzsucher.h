@@ -10,10 +10,6 @@
 #ifndef __PLATZSUCHER_H
 #define __PLATZSUCHER_H
 
-#if _MSC_VER > 1000
-#pragma once
-#endif
-
 #include "../dataobj/koord.h"
 class karte_t;
 

@@ -1,10 +1,6 @@
 #ifndef OBJ_NODE_H
 #define OBJ_NODE_H
 
-#if _MSC_VER > 1000
-#pragma once
-#endif
-
 #include "../obj_node_info.h"
 #include <stdio.h>
 

@@ -6,13 +6,8 @@
 
 #ifndef STRICMP
 #ifdef _MSC_VER
-#if _MSC_VER<=1200
-#define STRICMP _stricmp
-#define STRNICMP _strnicmp
-#else
 #define STRICMP stricmp
 #define STRNICMP strnicmp
-#endif
 #else
 #define STRICMP strcasecmp
 #define STRNICMP strncasecmp
