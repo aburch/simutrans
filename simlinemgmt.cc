@@ -154,19 +154,15 @@ simlinemgmt_t::destroy_all()
 }
 
 
-class compare_lines
+static bool compare_lines(const linehandle_t& a, const linehandle_t& b)
 {
-	public:
-		bool operator ()(const linehandle_t& a, const linehandle_t& b)
-		{
-			return strcmp(a->get_name(), b->get_name()) < 0;
-		}
-};
+	return strcmp(a->get_name(), b->get_name()) < 0;
+}
 
 
 void simlinemgmt_t::sort_lines()
 {
-	std::sort(all_managed_lines.begin(), all_managed_lines.end(), compare_lines());
+	std::sort(all_managed_lines.begin(), all_managed_lines.end(), compare_lines);
 }
 
 

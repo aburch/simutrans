@@ -131,49 +131,46 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 }
 
 
-class compare_vehikel_besch {
-	public:
-		bool operator() (const vehikel_besch_t* a, const vehikel_besch_t* b) const
-		{
-			// Sort by:
-			//  1. cargo category
-			//  2. cargo
-			//  3. engine_type
-			//  4. speed
-			//  5. power
-			//  6. intro date
-			//  7. name
-			int cmp = a->gib_ware()->gib_catg() - b->gib_ware()->gib_catg();
+static bool compare_vehikel_besch(const vehikel_besch_t* a, const vehikel_besch_t* b)
+{
+	// Sort by:
+	//  1. cargo category
+	//  2. cargo
+	//  3. engine_type
+	//  4. speed
+	//  5. power
+	//  6. intro date
+	//  7. name
+	int cmp = a->gib_ware()->gib_catg() - b->gib_ware()->gib_catg();
+	if (cmp == 0) {
+		cmp = a->gib_ware()->gib_index() - b->gib_ware()->gib_index();
+		if (a->gib_ware()->gib_catg()>0  ||  cmp == 0) {
+			cmp = a->gib_zuladung() - b->gib_zuladung();
 			if (cmp == 0) {
-				cmp = a->gib_ware()->gib_index() - b->gib_ware()->gib_index();
-				if (a->gib_ware()->gib_catg()>0  ||  cmp == 0) {
-					cmp = a->gib_zuladung() - b->gib_zuladung();
+				// to handle tender correctly
+				uint8 b_engine = (a->gib_zuladung() + a->gib_leistung() == 0 ? (uint8)vehikel_besch_t::steam : a->get_engine_type());
+				uint8 a_engine = (b->gib_zuladung() + b->gib_leistung() == 0 ? (uint8)vehikel_besch_t::steam : b->get_engine_type());
+				cmp = b_engine - a_engine;
+				if (cmp == 0) {
+					cmp = a->gib_geschw() - b->gib_geschw();
 					if (cmp == 0) {
-						// to handle tender correctly
-						uint8 b_engine = (a->gib_zuladung() + a->gib_leistung() == 0 ? (uint8)vehikel_besch_t::steam : a->get_engine_type());
-						uint8 a_engine = (b->gib_zuladung() + b->gib_leistung() == 0 ? (uint8)vehikel_besch_t::steam : b->get_engine_type());
-						cmp = b_engine - a_engine;
+						// put tender at the end of the list ...
+						int b_leistung = (a->gib_leistung() == 0 ? 0x7FFFFFF : a->gib_leistung());
+						int a_leistung = (b->gib_leistung() == 0 ? 0x7FFFFFF : b->gib_leistung());
+						cmp = b_leistung - a_leistung;
 						if (cmp == 0) {
-							cmp = a->gib_geschw() - b->gib_geschw();
+							cmp = a->get_intro_year_month() - b->get_intro_year_month();
 							if (cmp == 0) {
-								// put tender at the end of the list ...
-								int b_leistung = (a->gib_leistung() == 0 ? 0x7FFFFFF : a->gib_leistung());
-								int a_leistung = (b->gib_leistung() == 0 ? 0x7FFFFFF : b->gib_leistung());
-								cmp = b_leistung - a_leistung;
-								if (cmp == 0) {
-									cmp = a->get_intro_year_month() - b->get_intro_year_month();
-									if (cmp == 0) {
-										cmp = strcmp(a->gib_name(), b->gib_name());
-									}
-								}
+								cmp = strcmp(a->gib_name(), b->gib_name());
 							}
 						}
 					}
 				}
 			}
-			return cmp < 0;
 		}
-};
+	}
+	return cmp < 0;
+}
 
 
 void vehikelbauer_t::sort_lists()
@@ -189,7 +186,7 @@ void vehikelbauer_t::sort_lists()
 		for (const vehikel_besch_t** i = tmp; i != tmp_end; i++) {
 			*i = typ_liste.remove_first();
 		}
-		std::sort(tmp, tmp_end, compare_vehikel_besch());
+		std::sort(tmp, tmp_end, compare_vehikel_besch);
 		for (const vehikel_besch_t** i = tmp; i != tmp_end; i++) {
 			typ_liste.append(*i);
 		}
