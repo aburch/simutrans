@@ -1923,38 +1923,6 @@ static unsigned char get_h_mask(const int xL, const int xR, const int cL, const 
 }
 
 
-/* @ see get_v_mask() */
-static const unsigned char left_byte_to_v_mask_array[5]  = { 0xFF, 0x3F, 0x0F, 0x03, 0x00 };
-static const unsigned char right_byte_to_v_mask_array[5] = { 0xFF, 0xFC, 0xF0, 0xC0, 0x00 };
-
-/* Helper: calculates mask for clipping of 2Bit extension *
- * Attention: xL-xR must be <=4 !!!
- * @author priss
- * @date  29.11.04
- */
-static unsigned char get_v_mask(const int yT, const int yB, const int cT, const int cB)
-{
-	// do not mask
-	unsigned char mask;
-
-	// check, if there is something to display
-	if (yB <= cT || yT > cB) return 0;
-
-	mask = 0xFF;
-
-	// top bits masked
-	if (yT >= cT && yT < cT + 4) {
-		mask = left_byte_to_v_mask_array[yT - cT];
-	}
-	// mask height start bits
-	if (mask && yB > cT && yB <= cT + 4) {
-		// Left border clipped
-		mask &= right_byte_to_v_mask_array[cT + 4 - yB];
-	}
-	return mask;
-}
-
-
 /*
  * len parameter added - use -1 for previous bvbehaviour.
  * completely renovated for unicode and 10 bit width and variable height
