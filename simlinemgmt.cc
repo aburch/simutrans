@@ -234,18 +234,13 @@ simlinemgmt_t::create_line(int ltype, fahrplan_t * fpl)
 }
 
 
-/*
- * return a list with all lines of a certain type;
- * type==simline_t::line will return all lines
- */
-void simlinemgmt_t::build_line_list(int type, slist_tpl<linehandle_t>* list)
+void simlinemgmt_t::get_lines(int type, vector_tpl<linehandle_t>* lines) const
 {
-//DBG_MESSAGE("simlinemgmt_t::build_line_list()","type=%i",type);
-	list->clear();
+	lines->clear();
 	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
 		linehandle_t line = *i;
 		if (type == simline_t::line || line->get_linetype() == simline_t::line || line->get_linetype() == type) {
-			list->append(line);
+			lines->push_back(line);
 		}
 	}
 }

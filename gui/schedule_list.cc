@@ -218,8 +218,8 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		// get selected line
 		linehandle_t new_line = linehandle_t();
 		selection = scl.gib_selection();
-		if ((selection >= 0) && (selection < (int)lines.count())) {
-			new_line = lines.at(selection);
+		if (0 <= selection && selection < (int)lines.get_count()) {
+			new_line = lines[selection];
 			bt_change_line.enable();
 			bt_delete_line.enable();
 		}
@@ -336,12 +336,11 @@ void schedule_list_gui_t::build_line_list(int filter)
 {
 	sp->simlinemgmt.sort_lines();	// to take care of renaming ...
 	scl.clear_elements();
-	lines.clear();
-	sp->simlinemgmt.build_line_list(tabs_to_lineindex[filter], &lines);
-	slist_iterator_tpl<linehandle_t> iter(lines);
-	while (iter.next()) {
-		scl.append_element(iter.get_current()->get_name(), iter.get_current()->get_state_color());
-		if (line == iter.get_current()) {
+	sp->simlinemgmt.get_lines(tabs_to_lineindex[filter], &lines);
+	for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; i++) {
+		linehandle_t l = *i;
+		scl.append_element(l->get_name(), l->get_state_color());
+		if (line == l) {
 			scl.setze_selection(scl.get_count() - 1);
 		}
 	}

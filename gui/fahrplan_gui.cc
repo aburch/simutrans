@@ -399,7 +399,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		int selection = line_selector.get_selection();
 DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 		if (selection>0) {
-			new_line = lines.at(selection-1);
+			new_line = lines[selection - 1];
 			line_selector.setze_text(new_line->get_name(), 128);
 			fpl->copy_from( new_line->get_fahrplan() );
 			fpl->eingabe_beginnen();
@@ -470,10 +470,9 @@ void fahrplan_gui_t::init_line_selector()
 	line_selector.clear_elements();
 	line_selector.append_element(no_line);
 	int selection = -1;
-	sp->simlinemgmt.build_line_list(fpl->get_type(), &lines);
-	slist_iterator_tpl<linehandle_t> iter(lines);
-	while (iter.next()) {
-		linehandle_t line = iter.get_current();
+	sp->simlinemgmt.get_lines(fpl->get_type(), &lines);
+	for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; i++) {
+		linehandle_t line = *i;
 		line_selector.append_element(line->get_name(), line->get_state_color());
 		if (new_line == line) {
 			selection = line_selector.count_elements() - 1;

@@ -64,7 +64,7 @@ private:
 
     enum mode_t {adding, inserting, removing, none};
 
-	slist_tpl<linehandle_t> lines;
+	vector_tpl<linehandle_t> lines;
 
     mode_t mode;
 

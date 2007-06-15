@@ -89,10 +89,11 @@ class simlinemgmt_t
 	 */
 	linehandle_t create_line(int ltype, fahrplan_t * fpl=NULL);
 
-	/**
-	 * @author hsiegeln
+	/*
+	 * fill the list with all lines of a certain type
+	 * type == simline_t::line will return all lines
 	 */
-	 void build_line_list(int type, slist_tpl<linehandle_t> * list);
+	void get_lines(int type, vector_tpl<linehandle_t>* lines) const;
 
 	/*
 	 * @author prissi

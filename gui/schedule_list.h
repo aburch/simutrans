@@ -50,7 +50,7 @@ private:
 
 	linehandle_t line;
 
-	slist_tpl <linehandle_t> lines;
+	vector_tpl<linehandle_t> lines;
 
 	void build_line_list(int filter);
 
