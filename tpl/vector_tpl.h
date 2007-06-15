@@ -161,6 +161,9 @@ template<class T> class vector_tpl
 
 		T& back() const { return data[count - 1]; }
 
+		T* begin() { return data; }
+		T* end()   { return data + count; }
+
 		/** Get the number of elements in the vector */
 		uint32 get_count() const { return count; }
 
