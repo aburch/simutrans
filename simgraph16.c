@@ -24,7 +24,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
-#include <zlib.h>
 
 #include "simtypes.h"
 #include "font.h"

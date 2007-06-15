@@ -24,7 +24,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
-#include <zlib.h>
 
 #include "simtypes.h"
 #include "font.h"
@@ -2512,55 +2511,6 @@ void display_snapshot()
 	} while (access(buf, W_OK) != -1);
 
 	dr_screenshot(buf);
-}
-
-
-/**
- * Laedt Einstellungen
- * @author Hj. Malthaner
- */
-void display_laden(void* file, int zipped)
-{
-	int i;
-
-	if (zipped) {
-		char line[80];
-		char *ptr = line;
-
-		gzgets(file, line, sizeof(line));
-
-		light_level = atoi(ptr);
-		while (*ptr && *ptr++ != ' ') {}
-		color_level = atoi(ptr);
-		while (*ptr && *ptr++ != ' ') {}
-		night_shift = atoi(ptr);
-
-		gzgets(file, line, sizeof(line));
-		i = atoi(line);
-	} else {
-		fscanf(file, "%d %d %d\n", &light_level, &color_level, &night_shift);
-		fscanf(file, "%d\n", &i);
-	}
-	if (i < 0 || i > 15) i = 0;
-	display_set_light(light_level);
-	display_set_color(color_level);
-	display_set_player_color(0);
-}
-
-
-/**
- * Speichert Einstellungen
- * @author Hj. Malthaner
- */
-void display_speichern(void* file, int zipped)
-{
-	if (zipped) {
-		gzprintf(file, "%d %d %d\n", light_level, color_level, night_shift);
-		gzprintf(file, "%d\n", selected_player_color_set);
-	} else {
-		fprintf(file, "%d %d %d\n", light_level, color_level, night_shift);
-		fprintf(file, "%d\n", selected_player_color_set);
-	}
 }
 
 
