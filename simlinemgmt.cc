@@ -49,15 +49,10 @@ DBG_MESSAGE("simlinemgmt_t::add_line()","id=%d",new_line.get_id());
 }
 
 
-linehandle_t
-simlinemgmt_t::get_line_by_id(uint16 id)
+linehandle_t simlinemgmt_t::get_line_by_id(uint16 id)
 {
-	int count = count_lines();
-	for(int i = 0; i<count; i++) {
-		linehandle_t line = all_managed_lines[i];
-		if (line->get_line_id()==id) {
-			return line;
-		}
+	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
+		if ((*i)->get_line_id() == id) return *i;
 	}
 	dbg->warning("simlinemgmt_t::get_line_by_id()","no line for id=%i",id);
 	return linehandle_t();
@@ -100,7 +95,7 @@ simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file)
 		file->wr_obj_id("Linemanagement");
 		int count = count_lines();
 		file->rdwr_long(count, " ");
-		for (vector_tpl<linehandle_t>::iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
+		for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
 			(*i)->rdwr(file);
 		}
 	}
@@ -150,11 +145,10 @@ void simlinemgmt_t::sort_lines()
 }
 
 
-void
-simlinemgmt_t::register_all_stops()
+void simlinemgmt_t::register_all_stops()
 {
-	for (int i = 0; i<count_lines(); i++) {
-		all_managed_lines[i]->register_stops();
+	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
+		(*i)->register_stops();
 	}
 }
 
@@ -192,15 +186,13 @@ DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()","New id %i",i*8+id);
 	return INVALID_LINE_ID;
 }
 
-void
-simlinemgmt_t::new_month()
+
+void simlinemgmt_t::new_month()
 {
-	for (int i = 0; i<count_lines(); i++) {
-		all_managed_lines[i]->new_month();
+	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
+		(*i)->new_month();
 	}
 }
-
-
 
 
 linehandle_t
@@ -242,38 +234,18 @@ simlinemgmt_t::create_line(int ltype, fahrplan_t * fpl)
 }
 
 
-
 /*
  * return a list with all lines of a certain type;
  * type==simline_t::line will return all lines
  */
-void
-simlinemgmt_t::build_line_list(int type, slist_tpl<linehandle_t> * list)
+void simlinemgmt_t::build_line_list(int type, slist_tpl<linehandle_t>* list)
 {
 //DBG_MESSAGE("simlinemgmt_t::build_line_list()","type=%i",type);
 	list->clear();
-
-	for( int i=0;  i<count_lines();  i++  ) {
-		linehandle_t line = all_managed_lines[i];
-
-		if(type==simline_t::line  ||  line->get_linetype()==simline_t::line  ||  line->get_linetype()==type) {
-#if 0
-			// insert sorted (these lists are not too long, so we will refrain from quicksorts)
-			for(unsigned i=0;  i<list->count()  &&  line.is_bound();  i++  ) {
-				if(strcmp(line->get_name(),list->at(i)->get_name())<=0) {
-DBG_MESSAGE("simlinemgmt_t::build_line_list()","insert id=%i at %i",line.get_id(),i);
-					list->insert( line, i );
-					line = linehandle_t();
-				}
-			}
-			if(line.is_bound()) {
-DBG_MESSAGE("simlinemgmt_t::build_line_list()","append id=%i",line.get_id());
-				list->append(line);
-			}
-#else
+	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
+		linehandle_t line = *i;
+		if (type == simline_t::line || line->get_linetype() == simline_t::line || line->get_linetype() == type) {
 			list->append(line);
-#endif
 		}
-
 	}
 }
