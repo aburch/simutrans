@@ -551,11 +551,6 @@ void set_zoom_factor(int z)
 }
 
 
-#ifdef _MSC_VER
-#	define inline _inline
-#endif
-
-
 static inline void mark_tile_dirty(const int x, const int y)
 {
 	const int bit = x + y * tiles_per_line;

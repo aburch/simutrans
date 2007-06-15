@@ -1,10 +1,6 @@
 #ifndef MACROS_H
 #define MACROS_H
 
-#ifdef _MSC_VER
-#	define inline _inline
-#endif
-
 #define lengthof(x) (sizeof(x) / sizeof(*(x)))
 
 // make sure, a value in within the borders
