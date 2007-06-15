@@ -119,8 +119,6 @@ class simlinemgmt_t
 
 	vector_tpl<linehandle_t> all_managed_lines;
 
-	static int compare_lines(const void *p1, const void *p2);
-
 	karte_t * welt;
 	spieler_t *besitzer;
 };

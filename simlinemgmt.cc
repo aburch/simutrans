@@ -4,6 +4,7 @@
  * 01/12/2003
  */
 
+#include <algorithm>
 #include "simlinemgmt.h"
 #include "simline.h"
 #include "simhalt.h"
@@ -23,20 +24,6 @@ void simlinemgmt_t::init_line_ids()
 	}
 }
 
-
-
-int simlinemgmt_t::compare_lines(const void *p1, const void *p2)
-{
-    linehandle_t line1 =*(const linehandle_t *)p1;
-    linehandle_t line2 =*(const linehandle_t *)p2;
-    int order;
-
-    /***********************************
-    * Compare line 1 and line 2
-    ***********************************/
-    order = strcmp(line1->get_name(), line2->get_name());
-    return order;
-}
 
 simlinemgmt_t::simlinemgmt_t(karte_t * welt,spieler_t *sp) :
 	all_managed_lines(0)
@@ -166,20 +153,20 @@ simlinemgmt_t::destroy_all()
 	all_managed_lines.clear();
 }
 
-void
-simlinemgmt_t::sort_lines()
+
+class compare_lines
 {
-	int count = count_lines();
-	ALLOCA(linehandle_t, a, count);
-        int i;
-	for (i = 0; i<count; i++) {
-		a[i] = get_line(i);
-	}
-	qsort((void *)a, count, sizeof (linehandle_t), compare_lines);
-	all_managed_lines.clear();
-	for (i = 0; i<count; i++) {
-		all_managed_lines.append(a[i]);
-	}
+	public:
+		bool operator ()(const linehandle_t& a, const linehandle_t& b)
+		{
+			return strcmp(a->get_name(), b->get_name()) < 0;
+		}
+};
+
+
+void simlinemgmt_t::sort_lines()
+{
+	std::sort(all_managed_lines.begin(), all_managed_lines.end(), compare_lines());
 }
 
 
