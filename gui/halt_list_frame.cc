@@ -304,12 +304,7 @@ void halt_list_frame_t::display_list(void)
     const int count = haltestelle_t::gib_alle_haltestellen().count();				// count of stations
     int ypos = 0;
 
-#ifdef _MSC_VER
-    halthandle_t *a = new halthandle_t[count];
-#else
-    // V.Meyer: Sorry this is not standard C/C++ - too heavy for VC
-    halthandle_t a[count]; // contains a sorted station list later
-#endif
+	ALLOCA(halthandle_t, a, count);
     int n = 0; // temporary variable
     int i;
 
@@ -349,9 +344,6 @@ void halt_list_frame_t::display_list(void)
         ypos += 28;
     }
     cont.setze_groesse(koord(500, ypos));
-#ifdef _MSC_VER
-    delete [] a;
-#endif
 }
 
 

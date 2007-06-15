@@ -220,11 +220,7 @@ convoi_frame_t::~convoi_frame_t()
 void convoi_frame_t::display_list(void)
 {
 	const unsigned count = owner->gib_welt()->get_convoi_count();
-#ifdef _MSC_VER
-	convoihandle_t *a = new convoihandle_t[count];
-#else
-	convoihandle_t a[count];
-#endif
+	ALLOCA(convoihandle_t, a, count);
 	int n = 0;
 	int ypos = 0;
 	unsigned i;
@@ -252,9 +248,6 @@ void convoi_frame_t::display_list(void)
 	}
 	cont.setze_groesse(koord(500, ypos));
 	//scrolly.setze_groesse(koord(318, gib_fenstergroesse().y - 1 - 16 - 16 - 20));
-#ifdef _MSC_VER
-	delete [] a;
-#endif
 }
 
 

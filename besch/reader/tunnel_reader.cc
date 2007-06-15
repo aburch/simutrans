@@ -36,12 +36,7 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(node.size>0) {
 		// newer versioned node
-#ifdef _MSC_VER /* no var array on the stack supported */
-		char *besch_buf = static_cast<char *>(alloca(node.size));
-#else
-		// Hajo: reading buffer is better allocated on stack
-		char besch_buf [node.size];
-#endif
+		ALLOCA(char, besch_buf, node.size);
 
 		fread(besch_buf, node.size, 1, fp);
 

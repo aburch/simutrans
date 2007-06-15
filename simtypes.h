@@ -8,6 +8,13 @@
 #ifndef simtypes_h
 #define simtypes_h
 
+#if defined _MSC_VER
+#	include <malloc.h>
+#	define ALLOCA(type, name, count) type* name = static_cast<type*>alloca(sizeof(type) * (count))
+#else
+#	define ALLOCA(type, name, count) type name[count]
+#endif
+
 /* divers enums:
  * better defined here than scattered in thousand files ...
  */

@@ -126,11 +126,7 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const 
 	}
 	// finally append
 	if(strlen(p)>(unsigned)max_chars) {
-#ifdef _MSC_VER /* no var array on the stack supported */
-		char *tmp = static_cast<char *>(alloca(max_chars+1));
-#else
-		char tmp[max_chars+1];
-#endif
+		ALLOCA(char, tmp, max_chars + 1);
 		strncpy( tmp, p, max_chars-3 );
 		strcpy( tmp+max_chars-3, "..." );
 		buf.append(tmp);

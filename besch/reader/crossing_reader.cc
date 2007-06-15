@@ -29,12 +29,7 @@ bool crossing_reader_t::successfully_loaded() const
 
 obj_besch_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-#ifdef _MSC_VER /* no var array on the stack supported */
-    char *besch_buf = static_cast<char *>(alloca(node.size));
-#else
-  // Hajo: reading buffer is better allocated on stack
-  char besch_buf [node.size];
-#endif
+	ALLOCA(char, besch_buf, node.size);
 
   kreuzung_besch_t *besch = new kreuzung_besch_t();
 	besch->node_info = new obj_besch_t*[node.children];

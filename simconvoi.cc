@@ -1452,11 +1452,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		// rebuilt the list with goods ...
 		vector_tpl<ware_t> total_fracht;
 
-#ifdef _MSC_VER
-		uint32 *max_loaded_waren = static_cast<uint32 *>(_alloca(warenbauer_t::gib_waren_anzahl()*4+4));
-#else
-		uint32 max_loaded_waren[warenbauer_t::gib_waren_anzahl()];
-#endif
+		ALLOCA(uint32, max_loaded_waren, warenbauer_t::gib_waren_anzahl());
 		memset( max_loaded_waren, 0, sizeof(uint32)*warenbauer_t::gib_waren_anzahl() );
 
 		unsigned i;

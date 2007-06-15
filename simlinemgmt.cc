@@ -4,9 +4,6 @@
  * 01/12/2003
  */
 
-#ifdef _MSC_VER
-#include <malloc.h> // for alloca
-#endif
 #include "simlinemgmt.h"
 #include "simline.h"
 #include "simhalt.h"
@@ -173,11 +170,7 @@ void
 simlinemgmt_t::sort_lines()
 {
 	int count = count_lines();
-#ifdef _MSC_VER
-	linehandle_t *a = (linehandle_t *)alloca(count * sizeof(linehandle_t));
-#else
-	linehandle_t a[count];
-#endif
+	ALLOCA(linehandle_t, a, count);
         int i;
 	for (i = 0; i<count; i++) {
 		a[i] = get_line(i);

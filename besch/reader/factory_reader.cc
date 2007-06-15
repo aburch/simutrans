@@ -1,8 +1,4 @@
 #include <stdio.h>
-#ifdef _MSC_VER
-#include <malloc.h> // for alloca
-#endif
-
 #include "../../simfab.h"
 #include "../../bauer/fabrikbauer.h"
 #include "../../dings/wolke.h"
@@ -19,12 +15,7 @@
 obj_besch_t *
 factory_field_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-#ifdef _MSC_VER /* no var array on the stack supported */
-    char *besch_buf = static_cast<char *>(alloca(node.size));
-#else
-  // Hajo: reading buffer is better allocated on stack
-  char besch_buf [node.size];
-#endif
+	ALLOCA(char, besch_buf, node.size);
 
 	field_besch_t *besch = new field_besch_t();
 	besch->node_info = new obj_besch_t*[node.children];
@@ -68,12 +59,7 @@ factory_field_reader_t::register_obj(obj_besch_t *&data)
 obj_besch_t *
 factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-#ifdef _MSC_VER /* no var array on the stack supported */
-    char *besch_buf = static_cast<char *>(alloca(node.size));
-#else
-  // Hajo: reading buffer is better allocated on stack
-  char besch_buf [node.size];
-#endif
+	ALLOCA(char, besch_buf, node.size);
 
 	rauch_besch_t *besch = new rauch_besch_t();
 	besch->node_info = new obj_besch_t*[node.children];
@@ -111,12 +97,7 @@ obj_besch_t *
 factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	// DBG_DEBUG("factory_product_reader_t::read_node()", "called");
-#ifdef _MSC_VER /* no var array on the stack supported */
-	char *besch_buf = static_cast<char *>(alloca(node.size));
-#else
-	// Hajo: reading buffer is better allocated on stack
-	char besch_buf [node.size];
-#endif
+	ALLOCA(char, besch_buf, node.size);
 
 	fabrik_lieferant_besch_t *besch = new fabrik_lieferant_besch_t();
 	besch->node_info = new obj_besch_t*[node.children];
@@ -151,12 +132,7 @@ obj_besch_t *
 factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	// DBG_DEBUG("factory_product_reader_t::read_node()", "called");
-#ifdef _MSC_VER /* no var array on the stack supported */
-	char *besch_buf = static_cast<char *>(alloca(node.size));
-#else
-	// Hajo: reading buffer is better allocated on stack
-	char besch_buf [node.size];
-#endif
+	ALLOCA(char, besch_buf, node.size);
 
 	fabrik_produkt_besch_t *besch = new fabrik_produkt_besch_t();
 	besch->node_info = new obj_besch_t*[node.children];
@@ -191,12 +167,7 @@ obj_besch_t *
 factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	// DBG_DEBUG("factory_reader_t::read_node()", "called");
-#ifdef _MSC_VER /* no var array on the stack supported */
-	char *besch_buf = static_cast<char *>(alloca(node.size));
-#else
-	// Hajo: reading buffer is better allocated on stack
-	char besch_buf [node.size];
-#endif
+	ALLOCA(char, besch_buf, node.size);
 
 	fabrik_besch_t *besch = new fabrik_besch_t();
 	besch->node_info = new obj_besch_t*[node.children];

@@ -19,12 +19,7 @@ void sound_reader_t::register_obj(obj_besch_t *&data)
 
 obj_besch_t * sound_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-#ifdef _MSC_VER /* no var array on the stack supported */
-	char *besch_buf = static_cast<char *>(alloca(node.size));
-#else
-	// Hajo: reading buffer is better allocated on stack
-	char besch_buf [node.size];
-#endif
+	ALLOCA(char, besch_buf, node.size);
 
 	sound_besch_t *besch = new sound_besch_t();
 	besch->node_info = new obj_besch_t*[node.children];

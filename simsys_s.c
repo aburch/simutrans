@@ -257,11 +257,7 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 
 void dr_setRGB8multi(int first, int count, unsigned char* data)
 {
-#ifdef _MSC_VER
-	SDL_Color *rgb = guarded_malloc(sizeof(*rgb) * count);
-#else
-	SDL_Color rgb[count];
-#endif
+	ALLOCA(SDL_Color, rgb, count);
 	int n;
 
 	for (n = 0; n < count; n++) {
@@ -271,9 +267,6 @@ void dr_setRGB8multi(int first, int count, unsigned char* data)
 	}
 
 	SDL_SetColors(screen, rgb, first, count);
-#ifdef _MSC_VER
-	guarded_free(rgb);
-#endif
 }
 
 

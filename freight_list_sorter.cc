@@ -121,11 +121,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	// hsiegeln
 	// added sorting to ware's destination list
 	int pos = 0;
-#ifdef _MSC_VER
-	travel_details *tdlist = (travel_details *)alloca((warray->get_count()+1) * sizeof(travel_details));
-#else
-	travel_details tdlist [warray->get_count()];
-#endif
+	ALLOCA(travel_details, tdlist, warray->get_count());
 
 	for(unsigned i=0;  i<warray->get_count();  i++  ) {
 		const ware_t &ware = (*warray)[i];
