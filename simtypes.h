@@ -10,7 +10,7 @@
 
 #if defined _MSC_VER
 #	include <malloc.h>
-#	define ALLOCA(type, name, count) type* name = static_cast<type*>alloca(sizeof(type) * (count))
+#	define ALLOCA(type, name, count) type* name = static_cast<type*>(alloca(sizeof(type) * (count)))
 #else
 #	define ALLOCA(type, name, count) type name[count]
 #endif

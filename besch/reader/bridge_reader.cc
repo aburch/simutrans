@@ -26,7 +26,6 @@ bool bridge_reader_t::successfully_loaded() const
 obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	// DBG_DEBUG("bridge_reader_t::read_node()", "called");
-
 	ALLOCA(char, besch_buf, node.size);
 
 	bruecke_besch_t *besch = new bruecke_besch_t();
