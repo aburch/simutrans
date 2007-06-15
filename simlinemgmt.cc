@@ -100,8 +100,8 @@ simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file)
 		file->wr_obj_id("Linemanagement");
 		int count = count_lines();
 		file->rdwr_long(count, " ");
-		for (int i = 0; i < count; i++) {
-			get_line(i)->rdwr(file);
+		for (vector_tpl<linehandle_t>::iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
+			(*i)->rdwr(file);
 		}
 	}
 	else {
