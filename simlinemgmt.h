@@ -56,12 +56,6 @@ class simlinemgmt_t
  	sint32 count_lines() { return all_managed_lines.get_count(); }
 
 	/*
-	* return a line
-	* @author hsiegeln
-	*/
-	linehandle_t get_line(uint i) const { return all_managed_lines[i]; }
-
-	/*
 	* return a line by its ID
 	* @author hsiegeln
 	*/
