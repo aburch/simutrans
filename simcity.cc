@@ -249,8 +249,10 @@ int stadt_t::bewerte_pos(const koord pos, const char* regel)
 	if(bewerte_loc(pos, regel,   0) ||
 		 bewerte_loc(pos, regel,  90) ||
 		 bewerte_loc(pos, regel, 180) ||
-		 bewerte_loc(pos, regel, 270))
-	return 1;
+		 bewerte_loc(pos, regel, 270)) {
+		return 1;
+	}
+	return 0;
 }
 
 

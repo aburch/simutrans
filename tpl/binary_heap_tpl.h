@@ -55,7 +55,7 @@ public:
 
 	/**
 	* Inserts an element into the queue.
-	* in such a was that the lowest it at the top of this tree in an array
+	* in such a way that the lowest is at the top of this tree in an array
 	* parts inspired from OTTD
 	*/
 	void insert(const T item)
@@ -146,7 +146,7 @@ public:
 	}
 
 
-		bool empty() const { return node_count == 0; }
+	bool empty() const { return node_count == 0; }
 };
 
 #endif
