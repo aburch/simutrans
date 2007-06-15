@@ -1057,10 +1057,6 @@ static void calc_base_pal_from_night_shift(const int night)
 	//                     0,73                                72        15
 	//                     0,75 - quite bright                 80        17
 	//                     0,8    bright                      104        22
-#if 0
-	const double RG_nihgt_multiplier = pow(0.73, night);
-	const double B_nihgt_multiplier  = pow(0.82, night);
-#endif
 
 	const double RG_nihgt_multiplier = pow(0.75, night) * ((light_level + 8.0) / 8.0);
 	const double B_nihgt_multiplier  = pow(0.83, night) * ((light_level + 8.0) / 8.0);

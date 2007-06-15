@@ -1002,82 +1002,6 @@ int display_get_light(void)
 }
 
 
-#if 0
-/* Hajos variant */
-static void calc_base_pal_from_night_shift(const int night)
-{
-	const int day = 4 - night;
-	int i;
-
-	for (i = 0; i < (1 << 15); i++) {
-		int R;
-		int G;
-		int B;
-
-		// RGB 555 input
-		R = ((i & 0x7C00) >> 7) - night * 24;
-		G = ((i & 0x03E0) >> 2) - night * 24;
-		B = ((i & 0x001F) << 3) - night * 16;
-
-		rgbmap_day_night[i] =
-			get_system_color(R > 0 ? R : 0, G > 0 ? G : 0, B > 0 ? B : 0);
-	}
-
-	// player 0 colors, unshaded
-	for (i = 0; i < 4; i++) {
-		const int R = day_pal[i * 3];
-		const int G = day_pal[i * 3 + 1];
-		const int B = day_pal[i * 3 + 2];
-
-		rgbcolormap[i] =
-			get_system_color(R > 0 ? R : 0, G > 0 ? G : 0, B > 0 ? B : 0);
-	}
-
-	// player 0 colors, shaded
-	for (i = 0; i < 4; i++) {
-		const int R = day_pal[i * 3]     - night * 24;
-		const int G = day_pal[i * 3 + 1] - night * 24;
-		const int B = day_pal[i * 3 + 2] - night * 16;
-
-		specialcolormap_day_night[i] = rgbmap_day_night[0x8000 + i] =
-			get_system_color(R > 0 ? R : 0, G > 0 ? G : 0, B > 0 ? B : 0);
-	}
-
-	// Lights
-	for (i = 0; i < LIGHT_COUNT; i++) {
-		const int day_R =  day_lights[i] >> 16;
-		const int day_G = (day_lights[i] >> 8) & 0xFF;
-		const int day_B =  day_lights[i] & 0xFF;
-
-		const int night_R =  night_lights[i] >> 16;
-		const int night_G = (night_lights[i] >> 8) & 0xFF;
-		const int night_B =  night_lights[i] & 0xFF;
-
-		const int R = (day_R * day + night_R * night) >> 2;
-		const int G = (day_G * day + night_G * night) >> 2;
-		const int B = (day_B * day + night_B * night) >> 2;
-
-		rgbmap_day_night[0x8004 + i] =
-			get_system_color(R > 0 ? R : 0, G > 0 ? G : 0, B > 0 ? B : 0);
-	}
-
-
-	// transform special colors
-	for (i = 4; i < 32; i++) {
-		int R = special_pal[i * 3]     - night * 24;
-		int G = special_pal[i * 3 + 1] - night * 24;
-		int B = special_pal[i * 3 + 2] - night * 16;
-
-		specialcolormap_day_night[i] =
-			get_system_color(R > 0 ? R : 0, G > 0 ? G : 0, B > 0 ? B : 0);
-	}
-
-	// convert to RGB xxx
-	recode();
-}
-#endif
-
-
 /* Tomas variant */
 static void calc_base_pal_from_night_shift(const int night)
 {
@@ -1089,10 +1013,6 @@ static void calc_base_pal_from_night_shift(const int night)
 	//                     0,73                                72        15
 	//                     0,75 - quite bright                 80        17
 	//                     0,8    bright                      104        22
-#if 0
-	const double RG_nihgt_multiplier = pow(0.73, night);
-	const double B_nihgt_multiplier  = pow(0.82, night);
-#endif
 
 	const double RG_nihgt_multiplier = pow(0.75, night) * ((light_level + 8.0) / 8.0);
 	const double B_nihgt_multiplier  = pow(0.83, night) * ((light_level + 8.0) / 8.0);
