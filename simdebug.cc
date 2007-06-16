@@ -29,18 +29,12 @@ void init_logging(const char *logname, bool force_flush, bool log_debug)
 
 #ifdef _MSC_VER
 int __cdecl _purecall()
-{
-	dbg->fatal("unknown","pure virtual function call");
-	abort();
-	return 0;	// to keep compiler happy
-}
 #else
 extern "C" void __cxa_pure_virtual()
-{
-	dbg->fatal("unknown","pure virtual function call");
-	abort();
-}
 #endif
+{
+	dbg->fatal("unknown", "pure virtual function call");
+}
 
 #endif
 
