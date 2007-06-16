@@ -1,4 +1,5 @@
 #include "unicode.h"
+#include "simtypes.h"
 
 
 static inline int is_1byte_seq(utf8 c) { return c<0x80; }	// normal ASCII (equivalen to (c & 0x80) == 0x00)
