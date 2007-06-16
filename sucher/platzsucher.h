@@ -73,10 +73,6 @@ public:
 };
 
 /**
- * platzsucher_t:
- *
- * ...
- *
  * @author V. Meyer
  */
 class platzsucher_t {

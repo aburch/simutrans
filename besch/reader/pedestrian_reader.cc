@@ -14,14 +14,8 @@
 #include "pedestrian_reader.h"
 
 /*
- *  member function:
- *      pedestrian_reader_t::register_obj()
- *
  *  Autor:
  *      Volker Meyer
- *
- *  Argumente:
- *      obj_besch_t *&data
  */
 void pedestrian_reader_t::register_obj(obj_besch_t *&data)
 {

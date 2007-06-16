@@ -19,9 +19,6 @@
 #endif
 
  /*
- *  member function:
- *      searchfolder_t::search()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -37,10 +34,6 @@
  *
  *  Return type:
  *      int	    Anzahl gefundener Dateien.
- *
- *  Argumente:
- *      cstring_t filepath
- *      cstring_t ext
  */
 int searchfolder_t::search(const char *filepath, const char *extension)
 {
@@ -131,20 +124,11 @@ cstring_t searchfolder_t::complete(const char *filepath, const char *extension)
 }
 
 /**
- *  member function:
- *      searchfolder_t::at()
- *
  *  Autor:
  *      Volker Meyer
  *
  *  Beschreibung:
  *      Liefert das i-te Ergebnis der letzten Suche.
- *
- *  Return type:
- *      cstring_t
- *
- *  Argumente:
- *      int i
  */
 const char *searchfolder_t::at(unsigned int i)
 {

@@ -252,9 +252,6 @@ int cstring_t::replace_character(char old,char ch)
 }
 
 /*
- *  member function:
- *      cstring_t::vprintf()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -264,13 +261,6 @@ int cstring_t::replace_character(char old,char ch)
  *      Wie kriegt man die benötigte Länge raus? feste MaxLänge vorgeben?
  *	Das ist öde - hier schreiben wir probeweise nach /dev/nul um die
  *	Größe zu bestimmen - Performance nicht getestet.
- *
- *  Return type:
- *      int
- *
- *  Argumente:
- *      const char *format
- *      va_list args
  */
 int cstring_t::vprintf(const char *format, va_list args)
 {
@@ -310,21 +300,11 @@ int cstring_t::vprintf(const char *format, va_list args)
 
 
 /*
- *  member function:
- *      cstring_t::printf()
- *
  *  Autor:
  *      Volker Meyer
  *
  *  Beschreibung:
  *	printf mit cstring_t als Ziel.
- *
- *  Return type:
- *      int
- *
- *  Argumente:
- *      const char *format
- *      ...
  */
 int cstring_t::printf(const char *format, ...)
 {
