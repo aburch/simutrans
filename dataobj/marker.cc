@@ -7,10 +7,7 @@
  * Author: V. Meyer
  */
 
-#include <stdio.h>
 #include <string.h>
-#include <stdarg.h>
-
 #include "../simtypes.h"
 #include "../simdebug.h"
 #include "../boden/grund.h"
