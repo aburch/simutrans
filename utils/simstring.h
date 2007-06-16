@@ -31,9 +31,6 @@ void set_fraction_sep(char c);
 char get_fraction_sep(void);
 
 
-int clip_string(const int strlen, const int maxlen, char *buf);
-
-
 /* copies n lines of the source into a buffer *
  * @return a temporary buffer with the result
  * @author prissi

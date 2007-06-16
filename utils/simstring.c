@@ -58,22 +58,6 @@ char get_fraction_sep(void)
 }
 
 
-int clip_string(const int strlen, const int maxlen, char *buf)
-{
-    int len = strlen;
-
-    if(strlen > maxlen) {
-	len = maxlen+1;
-	buf[len-3] = '.';
-	buf[len-2] = '.';
-	buf[len-1] = '\n';
-	buf[len+0] = '0';
-    }
-
-    return len;
-}
-
-
 /**
  * Formats a money value. Uses thousand separator. Two digits precision.
  * Concludes format with $ sign. Buffer must be large enough, no checks
