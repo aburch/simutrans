@@ -214,16 +214,6 @@ char *tstrncpy(char *dest, const char *src, size_t n)
 
 
 /**
- * @return true if strings are equal, false otherwise
- * @author Hj. Malthaner
- */
-int tstrequ(const char *a, const char *b)
-{
-    return strcmp(a,b) == 0;
-}
-
-
-/**
  * Removes whitespace from the end of the string.
  * Modifies the argument!
  * @author Hj. Malthaner

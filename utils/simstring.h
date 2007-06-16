@@ -54,13 +54,6 @@ void number_to_string(char * buf, double f);
 
 
 /**
- * @return true if strings are equal, false otherwise
- * @author Hj. Malthaner
- */
-int tstrequ(const char *a, const char *b);
-
-
-/**
  * Terminated, length limited string copy. Copies at most
  * n characters. Terminates dest string always by 0.
  * @return dest

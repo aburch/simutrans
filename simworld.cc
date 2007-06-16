@@ -2557,7 +2557,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 
 		// printf("'%s'\n", buf);
 
-		if(tstrequ(buf, "Ende Convois")) {
+		if (strcmp(buf, "Ende Convois") == 0) {
 			break;
 		}
 		else {
