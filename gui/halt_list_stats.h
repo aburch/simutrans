@@ -29,19 +29,13 @@ private:
 	 */
 	halthandle_t halt;
 
-	/**
-	 * Nummer des anzuzeigenden Convois.
-	 * @author Hj. Malthaner
-	 */
-	int nummer;
-
 public:
 	/**
 	 * Konstruktor.
 	 * @param cnv das Handle für den anzuzeigenden Convoi.
 	 * @author Hj. Malthaner
 	 */
-	halt_list_stats_t(halthandle_t halt, int n) { this->halt = halt; nummer = n; }
+	halt_list_stats_t(halthandle_t halt) { this->halt = halt; }
 
 	/**
 	 * Events werden hiermit an die GUI-Komponenten

@@ -335,7 +335,7 @@ void halt_list_frame_t::display_list(void)
 
     // display stations
     for (i = 0; i < n; i++) {
-	halt_list_stats_t *cinfo = new halt_list_stats_t(a[i], a[i]->index_of()+1);
+		halt_list_stats_t* cinfo = new halt_list_stats_t(a[i]);
 
 	cinfo->setze_pos(koord(0, ypos));
 	cinfo->setze_groesse(koord(500, 28));

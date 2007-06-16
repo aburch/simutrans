@@ -394,7 +394,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 			if (halt.is_bound()) {
 				// only add a haltestelle to the list, if it is not in the list allready
 				if (!tmp.contains(fahrplan_koord)) {
-					halt_list_stats_t *cinfo = new halt_list_stats_t(halt, i + 1);
+					halt_list_stats_t* cinfo = new halt_list_stats_t(halt);
 					cinfo->setze_pos(koord(0, ypos));
 					cinfo->setze_groesse(koord(500, 40));
 					cont_haltestellen.add_komponente(cinfo);
