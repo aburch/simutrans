@@ -178,7 +178,7 @@ wkz_abfrage(spieler_t *, karte_t *welt, koord pos)
 					ding_t *dt = gr->obj_bei(n);
 					if(dt  &&  (dt->gib_typ()!=ding_t::wayobj  ||  dt->gib_typ()!=ding_t::pillar)) {
 						DBG_MESSAGE("wkz_abfrage()", "index %d", n);
-						gr->obj_bei(n)->zeige_info();
+						dt->zeige_info();
 						// did some new window open?
 						if(umgebung_t::single_info  &&  old_top!=win_get_top()  &&  !gr->ist_wasser()) {
 							return true;

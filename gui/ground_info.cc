@@ -22,9 +22,8 @@ grund_info_t::grund_info_t(const grund_t* gr_) :
 	gr(gr_),
 	view(gr_->gib_welt(), gr_->gib_pos())
 {
-	if(gr->obj_bei(0)!=NULL) {
-		set_owner( gr->obj_bei(0)->gib_besitzer() );
-	}
+	const ding_t* d = gr->obj_bei(0);
+	if (d != NULL) set_owner(d->gib_besitzer());
 	gr_info.clear();
 	gr->info(gr_info);
 	sint16 height = max( count_char(gr_info, '\n')*LINESPACE+36+10, get_tile_raster_width()+30 );
