@@ -31,37 +31,27 @@
 #include "slist_tpl.h"
 #include "binary_heap_tpl.h"
 
-template <class T>
-class HOT_queue_tpl
+// we know the maximum manhattan distance, i cannot be larger than x_size+y_size
+// since the largest map is 4096*4096 ...
+template <typename T, uint32 node_size = 8192> class HOT_queue_tpl
 {
 private:
-	slist_tpl<T> *nodes;
+	slist_tpl<T> nodes[node_size];
 	binary_heap_tpl<T> heap;	// only needed for one pocket;
 
 public:
-	uint32 node_size;
 	uint32 node_count;
 	uint32 node_top;
 	uint32 heap_index;
 	uint32 need_resort;
 
-	// we know the maximum manhattan distance, i cannot be larger than x_size+y_size
-	// since the largest map is 4096*4096 ...
-	HOT_queue_tpl()
+	HOT_queue_tpl() :
+		node_count(0),
+		node_top(node_size),
+		heap_index(node_size),
+		need_resort(0xFFFFFFFFUL)
 	{
 		DBG_MESSAGE("HOT_queue_tpl()","initialized");
-		nodes = new slist_tpl<T>[8192];
-		node_size = 8192;
-		node_top = 8192;
-		node_count = 0;
-		heap_index = 8192;
-		need_resort = 0xFFFFFFFFul;
-	}
-
-
-	~HOT_queue_tpl()
-	{
-		delete [] nodes;
 	}
 
 
@@ -70,7 +60,7 @@ private:
 		assert(!nodes[pocket].empty());
 
 		// needs resort: NULL pointer in the first pocket
-		if(nodes[pocket].at(0)==NULL) {
+		if (nodes[pocket].front() == NULL) {
 			nodes[pocket].remove_first();	// remove NULL
 		}
 		// first: close the old one ...
@@ -119,7 +109,7 @@ public:
 		}
 		else {	// d==node_top
 			// ok, touching a possibly unsorted pocket
-			if(nodes[d].count()>2  &&  nodes[d].at(0)==NULL) {
+			if (nodes[d].count() > 2 && nodes[d].front() == NULL) {
 				heapify(d);
 			}
 			// now either heap or just normal insertion1
@@ -130,7 +120,7 @@ public:
 			else {
 				// the first is always sorted
 				node_count ++;
-				if (!nodes[d].empty() && *nodes[d].at(0) <= *item) {
+				if (!nodes[d].empty() && *nodes[d].front() <= *item) {
 					nodes[d].append(item);
 				}
 				else {
@@ -204,7 +194,7 @@ public:
 						break;
 					case 2:
 						// swap the two and be still sorted
-						if(*(nodes[node_top].at(0))<=*(nodes[node_top].at(1))) {
+						if (*nodes[node_top].front() <= *nodes[node_top].at(1)) {
 							nodes[node_top].append( nodes[node_top].remove_first() );
 						}
 						break;
@@ -225,7 +215,7 @@ public:
 	{
 		heap.clear();
 		while(node_top<node_size) {
-			if(nodes[node_top].count()  &&  nodes[node_top].at(0)==NULL) {
+			if (!nodes[node_top].empty() && nodes[node_top].front() == NULL) {
 				node_count ++;
 			}
 			node_count -= nodes[node_top].count();
@@ -245,7 +235,7 @@ public:
 		for(  uint32 i=node_top;  i<node_size;  i++  ) {
 			if (!nodes[i].empty()) {
 				full_count += nodes[i].count();
-				if(nodes[i].at(0)==NULL) {
+				if (nodes[i].front() == NULL) {
 					full_count --;
 				}
 			}

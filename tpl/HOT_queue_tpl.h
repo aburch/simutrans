@@ -30,38 +30,26 @@
 #include "slist_tpl.h"
 #include "binary_heap_tpl.h"
 
-template <class T>
-class HOT_queue_tpl
+// we know the maximum manhattan distance, i cannot be larger than x_size+y_size
+// since the largest map is 4096*4096 ...
+template <typename T, uint32 node_size = 8192> class HOT_queue_tpl
 {
 private:
-	slist_tpl<T> *nodes;
+	slist_tpl<T> nodes[node_size];
 	binary_heap_tpl<T> heap;	// only needed for one pocket;
 
 public:
-	uint32 node_size;
 	uint32 node_count;
 	uint32 node_top;
-	uint32 heap_index;
 	bool   need_resort;
 
-	// we know the maximum manhattan distance, i cannot be larger than x_size+y_size
-	// since the largest map is 4096*4096 ...
-	HOT_queue_tpl()
+	HOT_queue_tpl() :
+		node_count(0),
+		node_top(node_size),
+		need_resort(false)
 	{
 		DBG_MESSAGE("HOT_queue_tpl()","initialized");
-		nodes = new slist_tpl<T>[8192];
-		node_size = 8192;
-		node_top = 8192;
-		node_count = 0;
-		need_resort = 0;
 	}
-
-
-	~HOT_queue_tpl()
-	{
-		delete [] nodes;
-	}
-
 
 
 	/**
