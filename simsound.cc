@@ -11,7 +11,6 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include "macros.h"
 #include "music/music.h"
@@ -199,8 +198,7 @@ midi_init(const char *directory)
 						while(len>0  &&  title[--len] <= 32) {
 							title[len] = 0;
 						}
-						midi_title[max_midi] = (char *)malloc(len+2);
-						strcpy( midi_title[max_midi], title);
+						midi_title[max_midi] = strdup(title);
 					}
 				}
 			}
