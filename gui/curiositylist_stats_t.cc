@@ -78,7 +78,7 @@ void curiositylist_stats_t::get_unique_attractions(curiositylist::sort_mode_t so
 	for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = ausflugsziele.begin(), end = ausflugsziele.end(); i != end; ++i) {
 		gebaeude_t* geb = *i;
 		if (geb != NULL &&
-				geb->gib_tile()->gib_offset() == koord(0, 0) ||
+				geb->gib_tile()->gib_offset() == koord(0, 0) &&
 				geb->gib_passagier_level() != 0) {
 			attractions.push_back(geb);
 		}
