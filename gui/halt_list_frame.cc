@@ -32,10 +32,6 @@
 
 /**
  * This variable defines by which column the table is sorted
- * Values: 0 = Station number
- *         1 = Station name
- *         2 = Waiting goods
- *         3 = Station type
  * @author Markus Weber
  */
 halt_list_frame_t::sort_mode_t halt_list_frame_t::sortby = nach_name;
@@ -84,21 +80,21 @@ int halt_list_frame_t::compare_halts(const void *p1, const void *p2)
     /***********************************
     * Compare station 1 and station 2
     ***********************************/
-    switch (sortby) {
-    case 0: // sort by station number
-	order = halt1->index_of() - halt2->index_of();
-	break;
-    default:
-    case 1: // sort by station name
-	order = 0;
-	break;
-    case 2: // sort by waiting goods
-	order = halt1->sum_all_waiting_goods() - halt2->sum_all_waiting_goods();
-	break;
-    case 3: // sort by station type
-	order = halt1->get_station_type() - halt2->get_station_type();
-	break;
-    }
+	switch (sortby) {
+		case nach_number: // sort by station number
+			order = halt1->index_of() - halt2->index_of();
+			break;
+		default:
+		case nach_name: // sort by station name
+			order = 0;
+			break;
+		case nach_wartend: // sort by waiting goods
+			order = halt1->sum_all_waiting_goods() - halt2->sum_all_waiting_goods();
+			break;
+		case nach_typ: // sort by station type
+			order = halt1->get_station_type() - halt2->get_station_type();
+			break;
+	}
     /**
      * use name as an additional sort, to make sort more stable.
      */

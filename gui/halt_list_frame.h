@@ -29,7 +29,7 @@ class ware_besch_t;
 class halt_list_frame_t : public gui_frame_t , private action_listener_t
 {
 public:
-    enum sort_mode_t { nach_number=0, nach_name=1, nach_wartend=2, nach_typ=3, SORT_MODES=4 };
+	enum sort_mode_t { nach_number, nach_name, nach_wartend, nach_typ, SORT_MODES };
     enum filter_flag_t { any_filter=1, name_filter=2, typ_filter=4,
 	spezial_filter=8, ware_ab_filter=16, ware_an_filter=32,
 	sub_filter=64,	// Ab hier beginnen die Unterfilter!
