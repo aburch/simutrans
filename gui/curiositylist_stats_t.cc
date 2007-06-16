@@ -5,6 +5,7 @@
  * in other projects without written permission of the author.
  */
 
+#include <algorithm>
 #include "curiositylist_stats_t.h"
 
 #include "../simgraph.h"
@@ -36,55 +37,53 @@ curiositylist_stats_t::curiositylist_stats_t(karte_t* w, curiositylist::sort_mod
 }
 
 
+class compare_curiosities
+{
+	public:
+		compare_curiosities(curiositylist::sort_mode_t sortby_, bool reverse_) :
+			sortby(sortby_),
+			reverse(reverse_)
+		{}
+
+		bool operator ()(const gebaeude_t* a, const gebaeude_t* b)
+		{
+			int cmp;
+			switch (sortby) {
+				case curiositylist::by_name:
+				{
+					const char* a_name = translator::translate(a->gib_tile()->gib_besch()->gib_name());
+					const char* b_name = translator::translate(b->gib_tile()->gib_besch()->gib_name());
+					cmp = STRICMP(a_name, b_name);
+					break;
+				}
+
+				case curiositylist::by_paxlevel:
+					cmp = a->gib_passagier_level() - b->gib_passagier_level();
+					break;
+			}
+			return reverse ? cmp > 0 : cmp < 0;
+		}
+
+	private:
+		curiositylist::sort_mode_t sortby;
+		bool reverse;
+};
+
+
 void curiositylist_stats_t::get_unique_attractions(curiositylist::sort_mode_t sortby, bool sortreverse)
 {
-    const weighted_vector_tpl<gebaeude_t *> &ausflugsziele = welt->gib_ausflugsziele();
-    attractions.clear();
-    attractions.resize(welt->gib_ausflugsziele().get_count());
-
+	const weighted_vector_tpl<gebaeude_t*>& ausflugsziele = welt->gib_ausflugsziele();
+	attractions.clear();
+	attractions.resize(welt->gib_ausflugsziele().get_count());
 	for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = ausflugsziele.begin(), end = ausflugsziele.end(); i != end; ++i) {
 		gebaeude_t* geb = *i;
-	// now check for paranoia, first tile on multitile buildings and real attraction
-	if (geb==NULL  ||
-	    geb->gib_tile()->gib_offset()!=koord(0,0)  ||
-	    geb->gib_passagier_level()==0) {
-	    continue;
+		if (geb != NULL &&
+				geb->gib_tile()->gib_offset() == koord(0, 0) ||
+				geb->gib_passagier_level() != 0) {
+			attractions.push_back(geb);
+		}
 	}
-
-	bool append = true;
-	for (unsigned int j=0; j<attractions.get_count(); ++j) {
-	    if (sortby == curiositylist::by_name) {
-		const char *token = translator::translate(geb->gib_tile()->gib_besch()->gib_name());
-		const char* check_token = translator::translate(attractions[j]->gib_tile()->gib_besch()->gib_name());
-
-		if (sortreverse)
-		    append = STRICMP(token,check_token)<0;
-		else
-		    append = STRICMP(token,check_token)>=0;
-	    }
-	    else if (sortby == curiositylist::by_paxlevel) {
-		const int paxlevel = geb->gib_passagier_level();
-		const int check_paxlevel = attractions[j]->gib_passagier_level();
-
-		if (sortreverse)
-		    append = (paxlevel < check_paxlevel);
-		else
-		    append = (paxlevel >= check_paxlevel);
-	    }
-
-	    if (!append) {
-//		DBG_MESSAGE("curiositylist_stats_t::get_unique_attractions()","insert %s at (%i,%i)",geb->gib_tile()->gib_besch()->gib_name(),geb->gib_pos().x, geb->gib_pos().y );
-		attractions.insert_at(j,geb);
-		break;
-	  }
-	}
-
-	if (append) {
-//	    DBG_MESSAGE("curiositylist_stats_t::get_unique_attractions()","append %s at (%i,%i)",geb->gib_tile()->gib_besch()->gib_name(),	geb->gib_pos().x, geb->gib_pos().y );
-	    attractions.append(geb);
-	}
-
-    }
+	std::sort(attractions.begin(), attractions.end(), compare_curiosities(sortby, sortreverse));
 }
 
 
