@@ -54,7 +54,6 @@ slist_tpl<const ware_besch_t *> halt_list_frame_t::waren_filter_ab;
 slist_tpl<const ware_besch_t *> halt_list_frame_t::waren_filter_an;
 
 const char *halt_list_frame_t::sort_text[SORT_MODES] = {
-    "gl_btn_unsort",
     "hl_btn_sort_name",
     "hl_btn_sort_waiting",
     "hl_btn_sort_type"
@@ -81,9 +80,6 @@ int halt_list_frame_t::compare_halts(const void *p1, const void *p2)
     * Compare station 1 and station 2
     ***********************************/
 	switch (sortby) {
-		case nach_number: // sort by station number
-			order = halt1->index_of() - halt2->index_of();
-			break;
 		default:
 		case nach_name: // sort by station name
 			order = 0;
