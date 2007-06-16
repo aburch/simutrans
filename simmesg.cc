@@ -54,18 +54,12 @@ DBG_MESSAGE("message_t::message_t()","previous instance %p");
 		win_flags = 256+8;
 		auto_win_flags = 128;
 	}
-
-	list = new slist_tpl <message_t::node>;
 }
-
 
 
 message_t::~message_t()
 {
 DBG_MESSAGE("message_t::~message_t()","previous instance %p");
-	// free lists
-	delete list;
-	list = 0;
 	single_instance = NULL;
 }
 
@@ -91,22 +85,15 @@ void message_t::set_flags( int t, int w, int a, int i)
 }
 
 
-
-
 int message_t::gib_count() const
 {
-  return list->count();
+  return list.count();
 }
 
 
-
-message_t::node *
-message_t::get_node(unsigned i)
+message_t::node* message_t::get_node(unsigned i)
 {
-	if(list->count()>i) {
-		return &(list->at(i));
-	}
-	return NULL;
+	return i < list.count() ? &list.at(i) : NULL;
 }
 
 
@@ -163,8 +150,8 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	n.bild = bild;
 
 	// insert at the top
-	list->insert(n);
-	char* p = list->front().msg;
+	list.insert(n);
+	char* p = list.front().msg;
 	// should we open an autoclose windows?
 	if (art & auto_win_flags) {
 		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,p,bild,pos,colorval), w_autodelete );

@@ -5,11 +5,9 @@
 #include "simcolor.h"
 #include "simworld.h"
 #include "simimg.h"
-
 #include "dataobj/koord.h"
+#include "tpl/slist_tpl.h"
 
-// forward decl
-template <class T> class slist_tpl;
 
 /* class for a simple message
  * this way they are stored in a list
@@ -50,7 +48,7 @@ private:
 	int auto_win_flags;
 	int ignore_flags;
 
-	slist_tpl <node> * list;
+	slist_tpl<node> list;
 
 	static message_t * single_instance;
 
