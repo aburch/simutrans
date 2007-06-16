@@ -515,8 +515,8 @@ spieler_t::calc_finance_history()
 
 	if(finance_history_month[0][COST_ASSETS]==0) {
 		// new month has started
-		for(unsigned i=0;  i<welt->get_convoi_count();  i++ ) {
-			convoihandle_t cnv = welt->get_convoi_array()[i];
+		for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
+			convoihandle_t cnv = *i;
 			if(cnv->gib_besitzer()==this) {
 				assets += cnv->calc_restwert();
 			}
@@ -1049,8 +1049,8 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 		// add vehicles to crowded lines
 		case CHECK_CONVOI:
 		{
-			for(unsigned i=0;  i<welt->get_convoi_count();  i++ ) {
-				const convoihandle_t cnv = welt->get_convoi_array()[i];
+			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
+				const convoihandle_t cnv = *i;
 				if(cnv->gib_besitzer()==this) {
 					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 					// take care, that the vehicle is old enough ...
@@ -1549,8 +1549,8 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 		// remove stucked vehicles (only from roads!)
 		case CHECK_CONVOI:
 		{
-			for(unsigned i=0;  i<welt->get_convoi_count();  i++ ) {
-				const convoihandle_t cnv = welt->get_convoi_array()[i];
+			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
+				const convoihandle_t cnv = *i;
 				if(cnv->gib_besitzer()==this  &&  cnv->gib_vehikel(0)->gib_besch()->gib_typ()==road_wt) {
 					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 					// take care, that the vehicle is old enough ...

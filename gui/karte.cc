@@ -550,8 +550,8 @@ reliefkarte_t::calc_map()
 	}
 
 	// mark all vehicle positions
-	for(unsigned i=0;  i<welt->get_convoi_count();  i++ ) {
-		convoihandle_t cnv = welt->get_convoi_array()[i];
+	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
+		convoihandle_t cnv = *i;
 		for (uint16 i = 0; i < cnv->gib_vehikel_anzahl(); i++) {
 			setze_relief_farbe(cnv->gib_vehikel(i)->gib_pos().gib_2d(), VEHIKEL_KENN);
 		}

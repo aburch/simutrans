@@ -219,14 +219,14 @@ convoi_frame_t::~convoi_frame_t()
 
 void convoi_frame_t::display_list(void)
 {
-	const unsigned count = owner->gib_welt()->get_convoi_count();
+	const karte_t* welt = owner->gib_welt();
+	const unsigned count = welt->get_convoi_count();
 	ALLOCA(convoihandle_t, a, count);
 	int n = 0;
 	int ypos = 0;
-	unsigned i;
 
-	for(i=0;  i<count;  i++ ) {
-		convoihandle_t cnv = owner->gib_welt()->get_convoi_array()[i];
+	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
+		convoihandle_t cnv = *i;
 		if(cnv->gib_besitzer() == owner && passes_filter(cnv)) {
 			a[n++] = cnv;
 		}
