@@ -5,6 +5,7 @@
  * in other projects without written permission of the author.
  */
 
+#include <algorithm>
 #include <string.h>
 
 #include "../simdebug.h"
@@ -40,7 +41,7 @@
 #include "../tpl/minivec_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 
-static minivec_tpl <const bruecke_besch_t *> bruecken (16);
+static vector_tpl<const bruecke_besch_t*> bruecken(16);
 static stringhashtable_tpl<const bruecke_besch_t *> bruecken_by_name;
 
 
@@ -118,6 +119,10 @@ brueckenbauer_t::find_bridge(const waytype_t wtyp, const uint32 min_speed,const 
 }
 
 
+static bool compare_bridges(const bruecke_besch_t* a, const bruecke_besch_t* b)
+{
+	return a->gib_topspeed() < b->gib_topspeed();
+}
 
 
 /**
@@ -134,34 +139,23 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	const uint16 time = welt->get_timeline_year_month();
 
 	// list of matching types (sorted by speed)
-	slist_tpl <const bruecke_besch_t *> matching;
-
-	for(unsigned int i = 0; i < bruecken.get_count(); i++) {
-		const bruecke_besch_t* besch = bruecken[i];
-		if(besch->gib_waytype()==wtyp) {
-			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
-				// add int sorted
-				unsigned j;
-				for( j=0;  j<matching.count();  j++  ) {
-					// insert sorted
-					if(matching.at(j)->gib_topspeed()>besch->gib_topspeed()) {
-						matching.insert(besch,j);
-						break;
-					}
-				}
-				if(j==matching.count()) {
-					matching.append(besch);
-				}
-			}
+	vector_tpl<const bruecke_besch_t*> matching;
+	for (vector_tpl<const bruecke_besch_t*>::const_iterator i = bruecken.begin(), end = bruecken.end(); i != end; ++i) {
+		const bruecke_besch_t* b = *i;
+		if (b->gib_waytype() == wtyp && (
+					time == 0 ||
+					(b->get_intro_year_month() <= time && time < b->get_retire_year_month())
+				)) {
+			matching.push_back(b);
 		}
 	}
+	std::sort(matching.begin(), matching.end(), compare_bridges);
 
 	const sint32 shift_maintanance = (welt->ticks_bits_per_tag-18);	// same costs per intervall => correct display
 
 	// now sorted ...
-	while (!matching.empty()) {
-		const bruecke_besch_t* besch = matching.front();
-		matching.remove_at(0);
+	for (vector_tpl<const bruecke_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
+		const bruecke_besch_t* besch = *i;
 		char buf[256];
 
 		if(besch->gib_max_length()>0) {
