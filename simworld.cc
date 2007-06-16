@@ -105,11 +105,6 @@
 
 #include "ifc/sync_steppable.h"
 
-#ifdef AUTOTEST
-#include "test/worldtest.h"
-#include "test/testtool.h"
-//#include "test/buildings_frame_t.h"
-#endif
 
 //#define DEMO
 //#undef DEMO
@@ -3282,11 +3277,6 @@ karte_t::interactive_event(event_t &ev)
 	    sound_play(click_sound);
 	    create_win(new loadsave_frame_t(this, true), w_info, magic_load_t);
 	    break;
-#ifdef AUTOTEST
-	case 'R':
-	    setze_maus_funktion(tst_railtest, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
-	    break;
-#endif
 	case 'S':
 	    sound_play(click_sound);
 	    create_win(new loadsave_frame_t(this, false), w_info, magic_save_t);
@@ -3300,25 +3290,6 @@ karte_t::interactive_event(event_t &ev)
 	case 'z':
 		wkz_undo(get_active_player(),this);
 		break;
-	    /*
-#ifdef AUTOTEST
-	case 'T':
-	    {
-		worldtest_t tester (this, "test.log");
-		tester.check_consistency();
-	    }
-	    break;
-#endif
-	    */
-	    /*
-#ifdef AUTOTEST
-	case '%':
-	  create_win(0, 0,
-		     new buildings_frame_t(),
-		     w_autodelete);
-	    break;
-#endif
-		*/
 
 	case 'V':
 	    sound_play(click_sound);
