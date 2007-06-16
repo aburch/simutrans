@@ -5,6 +5,7 @@
  * in other projects without written permission of the author.
  */
 
+#include <algorithm>
 #include "factorylist_stats_t.h"
 
 #include "../simgraph.h"
@@ -135,79 +136,83 @@ void factorylist_stats_t::zeichnen(koord offset)
 }
 
 
-void factorylist_stats_t::sort(factorylist::sort_mode_t sortby, bool sortreverse)
+class compare_factories
 {
-	slist_iterator_tpl<fabrik_t *> fab_iter (welt->gib_fab_list());
+	public:
+		compare_factories(factorylist::sort_mode_t sortby_, bool reverse_) :
+			sortby(sortby_),
+			reverse(reverse_)
+		{}
 
-	fab_list.clear();
-	fab_list.resize(welt->gib_fab_list().count());
-
-	//DBG_DEBUG("factorylist_stats_t()","fabriken.count() == %d",fabriken->count());
-
-	if(!fab_iter.next()) {
-		return;
-	}
-	// ok, we have at least one factory
-	fab_list.append(fab_iter.get_current());
-
-	while(fab_iter.next()) {
-		fabrik_t *fab = fab_iter.get_current();
-
-		bool append = true;
-		for (unsigned int j=0; j<fab_list.get_count(); j++) {
-			const fabrik_t* check_fab = fab_list[j];
-
-			unsigned long input, output, check_input, check_output;
+		bool operator ()(const fabrik_t* a, const fabrik_t* b)
+		{
+			int cmp;
 			switch (sortby) {
+				default:
 				case factorylist::by_name:
-					if (sortreverse)
-						append = strcmp(fab->gib_name(),check_fab->gib_name())<0;
-					else
-						append = strcmp(fab->gib_name(),check_fab->gib_name())>=0;
+					cmp = 0;
 					break;
+
 				case factorylist::by_input:
-					fab->calc_factory_status( &input, &output );
-					check_fab->calc_factory_status( &check_input, &check_output );
-					if (sortreverse)
-						append = (input <= check_input && !check_fab->gib_eingang().empty());
-					else
-						append = (input >= check_input);
+					if (a->gib_eingang().empty()) {
+						cmp = (b->gib_eingang().empty() ? 0 : -1);
+					} else {
+						if (b->gib_eingang().empty()) {
+							cmp = 1;
+						} else {
+							unsigned long a_in;
+							unsigned long b_in;
+							a->calc_factory_status(&a_in, NULL);
+							b->calc_factory_status(&b_in, NULL);
+							cmp = a_in - b_in;
+						}
+					}
 					break;
+
 				case factorylist::by_output:
-					fab->calc_factory_status( &input, &output );
-					check_fab->calc_factory_status( &check_input, &check_output );
-					if (sortreverse)
-						append = (output <= check_output && !check_fab->gib_ausgang().empty());
-					else
-						append = (output >= check_output);
+					if (a->gib_ausgang().empty()) {
+						cmp = (b->gib_ausgang().empty() ? 0 : -1);
+					} else {
+						if (b->gib_ausgang().empty()) {
+							cmp = 1;
+						} else {
+							unsigned long a_out;
+							unsigned long b_out;
+							a->calc_factory_status(NULL, &a_out);
+							b->calc_factory_status(NULL, &b_out);
+							cmp = a_out - b_out;
+						}
+					}
 					break;
+
 				case factorylist::by_maxprod:
-					if (sortreverse)
-						append =  (fab->get_base_production() < check_fab->get_base_production());
-					else
-						append =  (fab->get_base_production() >= check_fab->get_base_production());
+					cmp = a->get_base_production() - b->get_base_production();
 					break;
+
 				case factorylist::by_status:
-					if (sortreverse)
-						append = fab->calc_factory_status( NULL, NULL )<check_fab->calc_factory_status( NULL, NULL );
-					else
-						append = fab->calc_factory_status( NULL, NULL )>=check_fab->calc_factory_status( NULL, NULL );
+					cmp = a->calc_factory_status(NULL, NULL) - b->calc_factory_status(NULL, NULL);
 					break;
+
 				case factorylist::by_power:
-					if (sortreverse)
-						append = (fab->get_prodfaktor() < check_fab->get_prodfaktor());
-					else
-						append = (fab->get_prodfaktor() >= check_fab->get_prodfaktor());
+					cmp = a->get_prodfaktor() - b->get_prodfaktor();
+					break;
 			}
-			if(!append) {
-				fab_list.insert_at(j,fab);
-				break;
-			}
-		} // end of for (unsigned int j=0; j<fab_list.get_count(); j++)
-		if(append) {
-			fab_list.append(fab);
+			if (cmp == 0) cmp = strcmp(a->gib_name(), b->gib_name());
+			return reverse ? cmp > 0 : cmp < 0;
 		}
 
-	} // end of iterator
+	private:
+		const factorylist::sort_mode_t sortby;
+		const bool reverse;
+};
 
-} // end of function factorylist_stats_t::sort()
+
+void factorylist_stats_t::sort(factorylist::sort_mode_t sortby, bool sortreverse)
+{
+	fab_list.clear();
+	fab_list.resize(welt->gib_fab_list().count());
+	for (slist_iterator_tpl<fabrik_t*> i(welt->gib_fab_list()); i.next();) {
+		fab_list.push_back(i.get_current());
+	}
+	std::sort(fab_list.begin(), fab_list.end(), compare_factories(sortby, sortreverse));
+}
