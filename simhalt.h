@@ -129,12 +129,6 @@ public:
 	static const slist_tpl<halthandle_t>& gib_alle_haltestellen() { return alle_haltestellen; }
 
 	/**
-	 * @return die Anzahl der Haltestellen
-	 * @author Hj. Malthaner
-	 */
-	static int gib_anzahl() { return alle_haltestellen.count(); }
-
-	/**
 	 * Station factory method. Returns handles instead of pointers.
 	 * @author Hj. Malthaner
 	 */
