@@ -59,44 +59,6 @@ einstellungen_t::einstellungen_t() :
 }
 
 
-einstellungen_t::einstellungen_t(const einstellungen_t *other)
-{
-	groesse_x = other->groesse_x;
-	groesse_y = other->groesse_y;
-
-	nummer = other->nummer;
-	land_industry_chains = other->land_industry_chains;
-	city_industry_chains = other->city_industry_chains;
-	tourist_attractions = other->tourist_attractions;
-
-	anzahl_staedte = other->anzahl_staedte;
-	mittlere_einwohnerzahl = other->mittlere_einwohnerzahl;
-	scroll_multi = other->scroll_multi;
-	verkehr_level = other->verkehr_level;
-	show_pax = other->show_pax;
-
-	grundwasser = other->grundwasser;
-	for(  int i=0;  i<8;  i++ ) {
-		climate_borders[i] = other->climate_borders[i];
-	}
-	winter_snowline = other->winter_snowline;
-	max_mountain_height = other->max_mountain_height;
-	map_roughness = other->map_roughness;
-	heightfield = other->heightfield;
-
-	station_coverage_size = other->station_coverage_size;
-
-	allow_player_change = other->allow_player_change;
-	beginner_mode = other->beginner_mode;
-	just_in_time = other->just_in_time;
-
-	use_timeline = other->use_timeline;
-	starting_year = other->starting_year;
-	bits_per_month = other->bits_per_month;
-
-	filename = other->filename;
-}
-
 void
 einstellungen_t::rdwr(loadsave_t *file)
 {

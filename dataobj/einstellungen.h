@@ -77,12 +77,6 @@ public:
 
 	einstellungen_t();
 
-	/**
-	 * Copy constructor, needed becuase of cstring
-	 * @author Hj. Malthaner
-	 */
-	einstellungen_t(const einstellungen_t *);
-
 	void setze_groesse_x(sint32 g) {groesse_x=g;}
 	void setze_groesse_y(sint32 g) {groesse_y=g;}
 	void setze_groesse(sint32 w,sint32 h) {groesse_x=w;groesse_y=h;}
