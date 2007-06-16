@@ -75,7 +75,6 @@ protected:
 
 public:
 	/**
-	 * Konstruktor.
 	 * @param suffix Filename suffix, i.e. ".sve", must be four characters
 	 * @author Hj. Malthaner
 	 */

@@ -39,7 +39,6 @@ private:
 
 public:
 	/**
-	* Konstruktor.
 	* @param cnv das Handle für den anzuzeigenden Convoi.
 	* @author Hj. Malthaner
 	*/

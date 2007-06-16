@@ -14,9 +14,7 @@
 #include "../../simcolor.h"
 
 
-
 /**
- * Basic constructor
  * @param komp Die zu scrollende Komponente
  * @author Hj. Malthaner
  */

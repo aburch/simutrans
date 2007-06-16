@@ -59,7 +59,6 @@ protected:
 
 public:
 	/**
-	 * Konstruktor
 	 * @param name Fenstertitel
 	 * @param sp owner for color
 	 * @author Hj. Malthaner

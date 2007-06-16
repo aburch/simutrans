@@ -314,7 +314,6 @@ public:
 	 bool has_passenger() const { return player_nr == 0 || passenger_transport; }
 
 	/**
-	 * Konstruktor
 	 * @param welt Die Welt (Karte) des Spiels
 	 * @param color Kennfarbe des Spielers
 	 * @author Hj. Malthaner

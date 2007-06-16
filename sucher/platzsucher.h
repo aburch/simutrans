@@ -33,8 +33,6 @@ class pos_liste_t {
 
 public:
 	/**
-	* constructor:
-	*
 	* @param max_xy (Maximalwert für x und y-Position)
 	*
 	* @author V. Meyer
