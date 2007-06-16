@@ -566,16 +566,14 @@ reliefkarte_t::calc_map()
 			calc_map();
 		}
 		const weighted_vector_tpl<gebaeude_t *> &ausflugsziele = welt->gib_ausflugsziele();
-		for( unsigned i=0;  i<ausflugsziele.get_count();  i++ ) {
-			int pax = ausflugsziele[i]->gib_passagier_level();
+		for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = ausflugsziele.begin(), end = ausflugsziele.end(); i != end; ++i) {
+			int pax = (*i)->gib_passagier_level();
 			if (max_tourist_ziele < pax) max_tourist_ziele = pax;
 		}
-		{
-			for( unsigned i=0;  i<ausflugsziele.get_count();  i++ ) {
-				const gebaeude_t* g = ausflugsziele[i];
-				koord pos = g->gib_pos().gib_2d();
-				setze_relief_farbe_area( pos, 7, calc_severity_color(g->gib_passagier_level(), max_tourist_ziele));
-			}
+		for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = ausflugsziele.begin(), end = ausflugsziele.end(); i != end; ++i) {
+			const gebaeude_t* g = *i;
+			koord pos = g->gib_pos().gib_2d();
+			setze_relief_farbe_area( pos, 7, calc_severity_color(g->gib_passagier_level(), max_tourist_ziele));
 		}
 		return;
 	}
@@ -715,9 +713,9 @@ reliefkarte_t::draw_fab_connections(const fabrik_t * fab, uint8 colour, koord po
 	koord fabpos = fab->gib_pos().gib_2d();
 	karte_to_screen( fabpos );
 	fabpos += pos;
-	const vector_tpl <koord> &lieferziele = event_get_last_control_shift()&1 ? fab->get_suppliers() : fab->gib_lieferziele();
-	for(uint32 i=0; i<lieferziele.get_count(); i++) {
-		koord lieferziel = lieferziele[i];
+	const vector_tpl<koord>& lieferziele = event_get_last_control_shift() & 1 ? fab->get_suppliers() : fab->gib_lieferziele();
+	for (vector_tpl<koord>::const_iterator i = lieferziele.begin(), end = lieferziele.end(); i != end; ++i) {
+		koord lieferziel = *i;
 		const fabrik_t * fab2 = fabrik_t::gib_fab(welt, lieferziel);
 		if (fab2) {
 			karte_to_screen( lieferziel );
@@ -748,10 +746,8 @@ reliefkarte_t::zeichnen(koord pos)
 	// if we do not do this here, vehicles would erase the town names
 	if(mode==MAP_TOWN) {
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->gib_staedte();
-
-		for (uint i = 0; i < staedte.get_count(); i++) {
-			const stadt_t* stadt = staedte[i];
-
+		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i) {
+			const stadt_t* stadt = *i;
 			koord p = stadt->gib_pos();
 			const char * name = stadt->gib_name();
 

@@ -818,8 +818,8 @@ void stadt_t::recalc_city_size()
 {
 	lo = koord(welt->gib_groesse_x(), welt->gib_groesse_y());
 	ur = koord(0, 0);
-	for (uint i = 0; i < buildings.get_count(); i++) {
-		const koord pos = buildings[i]->gib_pos().gib_2d();
+	for (weighted_vector_tpl<const gebaeude_t*>::const_iterator i = buildings.begin(), end = buildings.end(); i != end; ++i) {
+		const koord pos = (*i)->gib_pos().gib_2d();
 		if (lo.x > pos.x) lo.x = pos.x;
 		if (lo.y > pos.y) lo.y = pos.y;
 		if (ur.x < pos.x) ur.x = pos.x;
@@ -925,7 +925,6 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, int citizens) :
 	const int anz_staedte = staedte.get_count();
 	const int name_list_count = translator::get_count_city_name();
 
-	DBG_MESSAGE("stadt_t::stadt_t()", "number of towns %i", anz_staedte);
 	fflush(NULL);
 	// start at random position
 	int start_cont = simrand(name_list_count);
@@ -936,9 +935,9 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, int citizens) :
 		// get a name
 		list_name = translator::get_city_name(start_cont + i);
 		// check if still unused
-		for (int j = 0; j < anz_staedte; j++) {
+		for (weighted_vector_tpl<stadt_t*>::const_iterator j = staedte.begin(), end = staedte.end(); j != end; ++j) {
 			// noch keine stadt mit diesem namen?
-			if (strcmp(list_name, staedte[j]->gib_name()) == 0) goto next_name;
+			if (strcmp(list_name, (*j)->gib_name()) == 0) goto next_name;
 		}
 		DBG_MESSAGE("stadt_t::stadt_t()", "'%s' is unique", list_name);
 		break;
@@ -1667,8 +1666,8 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 		{
 			const weighted_vector_tpl<gebaeude_t*>& attractions = welt->gib_ausflugsziele();
 			int dist = welt->gib_groesse_x() * welt->gib_groesse_y();
-			for (uint i = 0; i < attractions.get_count(); i++) {
-				int d = koord_distance(attractions[i]->gib_pos(), pos);
+			for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = attractions.begin(), end = attractions.end(); i != end; ++i) {
+				int d = koord_distance((*i)->gib_pos(), pos);
 				if (d < dist) {
 					dist = d;
 				}

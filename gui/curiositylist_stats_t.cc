@@ -42,9 +42,8 @@ void curiositylist_stats_t::get_unique_attractions(curiositylist::sort_mode_t so
     attractions.clear();
     attractions.resize(welt->gib_ausflugsziele().get_count());
 
-    for (uint32 i=0; i<ausflugsziele.get_count(); ++i) {
-
-	gebaeude_t* geb = ausflugsziele[i];
+	for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = ausflugsziele.begin(), end = ausflugsziele.end(); i != end; ++i) {
+		gebaeude_t* geb = *i;
 	// now check for paranoia, first tile on multitile buildings and real attraction
 	if (geb==NULL  ||
 	    geb->gib_tile()->gib_offset()!=koord(0,0)  ||

@@ -12,7 +12,53 @@ template<class T> void swap(weighted_vector_tpl<T>&, weighted_vector_tpl<T>&);
 /** A template class for a simple vector type */
 template<class T> class weighted_vector_tpl
 {
+	private:
+		struct nodestruct
+		{
+			T data;
+			unsigned long weight;
+		};
+
 	public:
+		class const_iterator;
+
+		class iterator
+		{
+			public:
+				T& operator *() const { return ptr->data; }
+
+				iterator& operator ++() { ++ptr; return *this; }
+
+				bool operator !=(const iterator& o) { return ptr != o.ptr; }
+
+			private:
+				explicit iterator(nodestruct* ptr_) : ptr(ptr_) {}
+
+				nodestruct* ptr;
+
+			friend class weighted_vector_tpl;
+			friend class const_iterator;
+		};
+
+		class const_iterator
+		{
+			public:
+				const_iterator(const iterator& o) : ptr(o.ptr) {}
+
+				const T& operator *() const { return ptr->data; }
+
+				const_iterator& operator ++() { ++ptr; return *this; }
+
+				bool operator !=(const const_iterator& o) { return ptr != o.ptr; }
+
+			private:
+				explicit const_iterator(nodestruct* ptr_) : ptr(ptr_) {}
+
+				const nodestruct* ptr;
+
+			friend class weighted_vector_tpl;
+		};
+
 		/** Construct a vector for size elements */
 		explicit weighted_vector_tpl(uint size)
 		{
@@ -256,13 +302,13 @@ template<class T> class weighted_vector_tpl
 
 		bool empty() const { return count == 0; }
 
-	private:
-		// each elements has a size and a weight
-		typedef struct {
-			T data;
-			unsigned long weight;
-		} nodestruct;
+		iterator begin() { return iterator(nodes); }
+		iterator end()   { return iterator(nodes + count); }
 
+		const_iterator begin() const { return const_iterator(nodes); }
+		const_iterator end()   const { return const_iterator(nodes + count); }
+
+	private:
 		nodestruct* nodes;
 		uint size;                  ///< Capacity
 		uint count;                 ///< Number of elements in vector

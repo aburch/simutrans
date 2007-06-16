@@ -728,7 +728,7 @@ stadtauto_t::hop_check()
 					}
 				}
 			} else if(liste.get_count()==1) {
-				pos_next_next = liste[0]->gib_pos();
+				pos_next_next = liste.front()->gib_pos();
 			}
 			else {
 				// nowhere to go: destroy

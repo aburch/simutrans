@@ -679,12 +679,14 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 			stadt.append(s, current_citicens, 64);
 		}
 
-		for (int i = 0; i < einstellungen->gib_anzahl_staedte(); i++) {
+		int x = 16;
+		for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 			// Hajo: do final init after world was loaded/created
-			stadt[i]->laden_abschliessen();
+			(*i)->laden_abschliessen();
 			// the growth is slow, so update here the progress bar
 			if(is_display_init()) {
-				display_progress(16+i*2, max_display_progress);
+				display_progress(x, max_display_progress);
+				x += 2;
 				display_flush(IMG_LEER, 0, "", "", 0, 0);
 			}
 			else {
@@ -1417,8 +1419,8 @@ karte_t::suche_naechste_stadt(const koord pos) const
     long min_dist = 99999999;
     stadt_t * best = NULL;
 
-	for (uint n = 0; n < stadt.get_count(); n++) {
-		stadt_t* s = stadt[n];
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		stadt_t* s = *i;
 		const koord k = s->gib_pos();
 
 	    const long dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
@@ -1442,8 +1444,8 @@ karte_t::suche_naechste_stadt(const koord pos, const stadt_t *letzte) const
     const int letzte_dist = (letzte_pos.x-pos.x)*(letzte_pos.x-pos.x) + (letzte_pos.y-pos.y)*(letzte_pos.y-pos.y);
     bool letzte_gefunden = false;
 
-	for (uint n = 0; n < stadt.get_count(); n++) {
-		stadt_t* s = stadt[n];
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		stadt_t* s = *i;
 		const koord k = s->gib_pos();
 
 	    const int dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
@@ -1682,8 +1684,8 @@ karte_t::neuer_monat()
 	// roll city history and copy the new citicens (i.e. the new weight) into the stadt array
 	// no INT_CHECK() here, or dialoges will go crazy!!!
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
-	for (uint i = 0; i < stadt.get_count(); i++) {
-		stadt_t* s = stadt[i];
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		stadt_t* s = *i;
 		s->neuer_monat();
 		new_weighted_stadt.append(s, s->gib_einwohner(), 64);
 		INT_CHECK("simworld 1278");
@@ -1901,8 +1903,8 @@ karte_t::step()
 	}
 
 	// now step all towns (to generate passengers)
-	for (uint n = 0; n < stadt.get_count(); n++) {
-		stadt[n]->step(delta_t);
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		(*i)->step(delta_t);
 	}
 
 	slist_iterator_tpl<fabrik_t *> iter(fab_list);
@@ -2191,8 +2193,8 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	file->rdwr_long(letzter_monat, " ");
 	file->rdwr_long(letztes_jahr, "\n");
 
-	for (uint i = 0; i < stadt.get_count(); i++) {
-		stadt[i]->rdwr(file);
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		(*i)->rdwr(file);
 		if(silent) {
 			INT_CHECK("saving");
 		}
@@ -2505,16 +2507,17 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 
 	// auch die fabrikverbindungen können jetzt neu init werden
 	// must be done after reliefkarte is initialized
-	for (uint i = 0; i < stadt.get_count(); i++) {
-		stadt[i]->laden_abschliessen();
-		display_progress(gib_groesse_y()+24+i, gib_groesse_y()+256+stadt.get_count());
+	int x = gib_groesse_y() + 24;
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		(*i)->laden_abschliessen();
+		display_progress(x++, gib_groesse_y() + 256 + stadt.get_count());
 		display_flush(IMG_LEER, 0, "", "", 0, 0);
 	}
 
 	// must resort them ...
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
-	for (uint i = 0; i < stadt.get_count(); i++) {
-		stadt_t* s = stadt[i];
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		stadt_t* s = *i;
 //		s->neuer_monat();
 		new_weighted_stadt.append(s, s->gib_einwohner(), 64);
 		INT_CHECK("simworld 1278");

@@ -461,8 +461,8 @@ static fabrik_t* baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_
 	// add passenger to pax>0, (so no sucide diver at the fish swarm)
 	if(info->gib_pax_level()>0) {
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->gib_staedte();
-		for (uint i = 0; i < staedte.get_count(); i++) {
-			staedte[i]->add_factory_arbeiterziel(fab);
+		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i) {
+			(*i)->add_factory_arbeiterziel(fab);
 		}
 	}
 	return fab;
