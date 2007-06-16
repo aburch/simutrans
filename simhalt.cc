@@ -420,13 +420,11 @@ haltestelle_t::step()
 	if(rebuilt_destination_counter!=welt->get_schedule_counter()) {
 		// schedule has changed ...
 		rebuild_destinations();
-		rebuilt_destination_counter = welt->get_schedule_counter();
 	}
 	else {
 		// all new connection updated => recalc routes
 		if(reroute_counter!=welt->get_schedule_counter()) {
 			reroute_goods();
-			reroute_counter = welt->get_schedule_counter();
 	//		DBG_MESSAGE("haltestelle_t::step()","rerouting goods at %s",gib_name());
 		}
 	}
@@ -470,6 +468,7 @@ void haltestelle_t::neuer_monat()
 void haltestelle_t::reroute_goods()
 {
 	// reroute only on demand
+	reroute_counter = welt->get_schedule_counter();
 	for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
 		if(waren[i]) {
 			vector_tpl<ware_t> * warray = waren[i];
@@ -584,15 +583,19 @@ void haltestelle_t::rebuild_destinations()
 {
 	// Hajo: first, remove all old entries
 	warenziele.clear();
-	registered_lines.clear();
+	rebuilt_destination_counter = welt->get_schedule_counter();
 
 // DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "Adding new table entries");
-	// Hajo: second, calculate new entries
 
+	// first all single convois without lines
+	minivec_tpl<uint8> add_catg_index(4);
 	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
 		convoihandle_t cnv = *i;
-		// DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "convoi %d %p", cnv.get_id(), cnv.get_rep());
+		if(cnv->get_line().is_bound()) {
+			continue;
+		}
 
+		// DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "convoi %d %p", cnv.get_id(), cnv.get_rep());
 		if(gib_besitzer()==welt->gib_spieler(1)  ||  cnv->gib_besitzer()==gib_besitzer()) {
 
 			INT_CHECK("simhalt.cc 612");
@@ -604,18 +607,29 @@ void haltestelle_t::rebuild_destinations()
 					// Hajo: Hält dieser convoi hier?
 					if (gib_halt(welt, fpl->eintrag[i].pos) == self) {
 
-						if(cnv->get_line().is_bound()) {
-							registered_lines.append_unique( cnv->get_line(), 4 );
-						}
-						const int anz = cnv->gib_vehikel_anzahl();
-						for(int j=0; j<anz; j++) {
-
-							vehikel_t *v = cnv->gib_vehikel(j);
-							hat_gehalten(0,v->gib_fracht_typ(), fpl );
+						// what goods can this line transport?
+						add_catg_index.clear();
+						for(int i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {
+							const ware_besch_t *ware=cnv->gib_vehikel(i)->gib_fracht_typ();
+							if(ware!=warenbauer_t::nichts  &&  !add_catg_index.is_contained(ware->gib_catg_index())) {
+								// now add the freights
+								hat_gehalten(ware, fpl );
+								add_catg_index.append_unique( ware->gib_catg_index(), 1 );
+							}
 						}
 					}
 				}
 			}
+		}
+	}
+
+	// now for the lines
+	for (unsigned i=0; i<registered_lines.get_count(); i++) {
+		const linehandle_t line = registered_lines[i];
+		fahrplan_t *fpl = line->get_fahrplan();
+		assert(fpl);
+		for( int j=0; j<line->get_goods_catg_index().get_count();  j++  ) {
+			hat_gehalten( warenbauer_t::gib_info_catg_index(line->get_goods_catg_index()[j]), fpl );
 		}
 	}
 }
@@ -753,7 +767,7 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 					// since these are precalculated, they should be always pointing to a valid ground
 					// (if not, we were just under construction, and will be fine after 16 steps)
-					const halthandle_t tmp_halt = welt->lookup(wz.gib_ziel())->gib_halt();
+					const halthandle_t &tmp_halt = welt->lookup(wz.gib_ziel())->gib_halt();
 					if(tmp_halt.is_bound() && tmp_halt->marke != current_mark &&  tmp_halt->is_enabled(warentyp)) {
 
 						HNode *node = &nodes[step++];
@@ -1345,7 +1359,7 @@ haltestelle_t::is_connected(const halthandle_t halt, const ware_besch_t * wtyp)
 
 
 void
-haltestelle_t::hat_gehalten(int /*number_of_cars*/,const ware_besch_t *type, const fahrplan_t *fpl)
+haltestelle_t::hat_gehalten(const ware_besch_t *type, const fahrplan_t *fpl)
 {
 	if(type != warenbauer_t::nichts) {
 		for(int i=0; i<fpl->maxi(); i++) {

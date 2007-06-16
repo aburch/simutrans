@@ -104,6 +104,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	anz_vehikel = 0;
 	anz_ready = false;
 	withdraw = false;
+	has_obsolete = false;
 	no_load = false;
 	wait_lock = 0;
 
@@ -170,12 +171,13 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	// @author hsiegeln - deregister from line
 	unset_line();
 
-	welt->sync_remove( this );
-	welt->rem_convoi( self );
-
 	for(int i=anz_vehikel-1;  i>=0; i--) {
+		fahr[i]->setze_convoi( NULL );
 		delete fahr[i];
 	}
+
+	welt->sync_remove( this );
+	welt->rem_convoi( self );
 
 	// force asynchronous recalculation
 	welt->set_schedule_counter();
@@ -1664,7 +1666,7 @@ void convoi_t::laden()
 	// eigene haltestelle ?
 	if (halt.is_bound()) {
 		const spieler_t* owner = halt->gib_besitzer();
-		if (owner == gib_besitzer()  | owner == welt->gib_spieler(1)) {
+		if (owner == gib_besitzer()  || owner == welt->gib_spieler(1)) {
 			// loading/unloading ...
 			hat_gehalten(k, halt);
 		}

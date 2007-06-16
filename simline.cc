@@ -42,8 +42,6 @@ simline_t::simline_t(karte_t* welt, loadsave_t* file) :
 DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,loadsave_t)","load line id=%d",id);
 	this->welt = welt;
 	this->old_fpl = new fahrplan_t(fpl);
-	recalc_status();
-	register_stops();
 }
 
 
@@ -75,6 +73,10 @@ simline_t::~simline_t()
 void
 simline_t::add_convoy(convoihandle_t cnv)
 {
+	if(line_managed_convoys.get_count()==0) {
+		register_stops();
+	}
+
 	// first convoi may change line type
 	if (type == trainline && line_managed_convoys.empty() && cnv.is_bound()) {
 		if(cnv->gib_vehikel(0)) {
@@ -89,12 +91,21 @@ simline_t::add_convoy(convoihandle_t cnv)
 		}
 	}
 	// only add convoy if not allready member of line
-	if(!line_managed_convoys.is_contained(cnv)) {
-		line_managed_convoys.append(cnv,16);
+	line_managed_convoys.append_unique(cnv,16);
+
+	// what goods can this line transport?
+	for(int i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {
+		const ware_besch_t *ware=cnv->gib_vehikel(i)->gib_fracht_typ();
+		if(ware!=warenbauer_t::nichts) {
+			goods_catg_index.append_unique( ware->gib_catg_index(), 1 );
+		}
 	}
+
 	// will not hurt ...
 	financial_history[0][LINE_CONVOIS] = count_convoys();
-	recalc_status();
+	if(state_color==COL_BLACK  &&  cnv->has_obsolete_vehicles()) {
+		state_color = COL_DARK_BLUE;
+	}
 }
 
 void
@@ -102,10 +113,13 @@ simline_t::remove_convoy(convoihandle_t cnv)
 {
 	if(line_managed_convoys.is_contained(cnv)) {
 		line_managed_convoys.remove(cnv);
+		recalc_catg_index();
+		financial_history[0][LINE_CONVOIS] = count_convoys();
+		recalc_status();
 	}
-	// will not hurt ...
-	financial_history[0][LINE_CONVOIS] = count_convoys();
-	recalc_status();
+	if(line_managed_convoys.get_count()==0) {
+		unregister_stops();
+	}
 }
 
 fahrplan_t *
@@ -175,7 +189,7 @@ simline_t::register_stops(fahrplan_t * fpl)
 {
 DBG_DEBUG("simline_t::register_stops()", "%d fpl entries in schedule %p", fpl->maxi(),fpl);
 	for (int i = 0; i<fpl->maxi(); i++) {
-		halthandle_t halt = haltestelle_t::gib_halt(welt, fpl->eintrag[i].pos.gib_2d());
+		const halthandle_t &halt = haltestelle_t::gib_halt(welt, fpl->eintrag[i].pos.gib_2d());
 		if(halt.is_bound()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
 			halt->add_line(self);
@@ -278,5 +292,23 @@ simline_t::recalc_status()
 	else {
 		// normal state
 		state_color = COL_BLACK;
+	}
+}
+
+
+// recalc what good this line is moving
+void
+simline_t::recalc_catg_index()
+{
+	goods_catg_index.clear();
+	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
+		// what goods can this line transport?
+		const convoihandle_t cnv = line_managed_convoys[i];
+		for(int i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {
+			const ware_besch_t *ware=cnv->gib_vehikel(i)->gib_fracht_typ();
+			if(ware!=warenbauer_t::nichts) {
+				goods_catg_index.append_unique( ware->gib_catg_index(), 1 );
+			}
+		}
 	}
 }

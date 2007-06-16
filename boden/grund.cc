@@ -626,7 +626,7 @@ PLAYER_COLOR_VAL
 grund_t::text_farbe() const
 {
 	// if this gund belongs to a halt, the color should reflect the halt owner, not the grund owner!
-	halthandle_t halt = welt->lookup(pos.gib_2d())->gib_halt();
+	const halthandle_t &halt = welt->lookup(pos.gib_2d())->gib_halt();
 	if(halt.is_bound()) {
 		const spieler_t *sp=halt->gib_besitzer();
 		if(sp) {
@@ -784,7 +784,7 @@ grund_t::display_overlay(const sint16 xpos, const sint16 ypos, const bool reset_
 
 		// display station waiting information/status
 		if(umgebung_t::show_names & 2) {
-			halthandle_t halt = welt->lookup(pos.gib_2d())->gib_halt();
+			const halthandle_t &halt = welt->lookup(pos.gib_2d())->gib_halt();
 			if(halt.is_bound()  &&  halt->gib_basis_pos()==pos.gib_2d()) {
 				halt->display_status(xpos, ypos);
 			}

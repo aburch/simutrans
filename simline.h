@@ -37,11 +37,11 @@ class simlinemgmt_t;
 class simline_t {
 public:
 
-    /**
-     * Handle for ourselves. Can be used like the 'this' pointer
-     * @author Hj. Malthaner
-     */
-    linehandle_t self;
+	/**
+	 * Handle for ourselves. Can be used like the 'this' pointer
+	 * @author Hj. Malthaner
+	 */
+	linehandle_t self;
 
 	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6};
 	static uint8 convoi_to_line_catgory[MAX_CONVOI_COST];
@@ -149,6 +149,8 @@ public:
 
 	void set_linetype(linetype lt) { type = lt; }
 
+	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
+
 protected:
 	fahrplan_t * fpl,  * old_fpl;
 	linetype type;
@@ -176,6 +178,12 @@ private:
 	vector_tpl<convoihandle_t> line_managed_convoys;
 
 	/*
+	 * a list of all convoys assigned to this line
+	 * @author hsiegeln
+	 */
+	minivec_tpl<uint8> goods_catg_index;
+
+	/*
  	 * struct holds new financial history for line
 	 * @author hsiegeln
 	 */
@@ -184,6 +192,8 @@ private:
 	void init_financial_history();
 
 	void recalc_status();
+
+	void recalc_catg_index();
 };
 
 class truckline_t : public simline_t

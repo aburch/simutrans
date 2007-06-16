@@ -2623,7 +2623,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 				gr->calc_bild();
 			}
 		}
-		display_progress(gib_groesse_y()+48+stadt.get_count()+(y*176)/gib_groesse_y(), gib_groesse_y()+256+stadt.get_count());
+		display_progress(gib_groesse_y()+48+stadt.get_count()+(y*128)/gib_groesse_y(), gib_groesse_y()+256+stadt.get_count());
 		display_flush(IMG_LEER, 0, "", "", 0, 0);
 	}
 
@@ -2658,6 +2658,17 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 		spieler[i]->laden_abschliessen();
 	}
 
+	// recalculate halt connections
+	iter.begin();
+	int hnr=0, hmax=haltestelle_t::gib_alle_haltestellen().count();
+	while(iter.next()) {
+		if((hnr++%32)==0) {
+			display_progress(gib_groesse_y()+48+stadt.get_count()+128+(hnr*80)/hmax, gib_groesse_y()+256+stadt.get_count());
+			display_flush(IMG_LEER, 0, "", "", 0, 0);
+		}
+		iter.get_current()->rebuild_destinations();
+	}
+
 	// make counter for next month
 	ticks = ticks % karte_t::ticks_per_tag;
 	next_month_ticks = karte_t::ticks_per_tag;
@@ -2668,7 +2679,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	recalc_snowline();
 	setze_dirty();
 
-	schedule_counter++;	// force check for unroutable goods and connections
+//	schedule_counter++;	// force check for unroutable goods and connections
 
 	reset_timer();
 	recalc_average_speed();
@@ -2688,7 +2699,7 @@ karte_t::get_halt_koord_index(koord k)
 		return halthandle_t();
 	}
 	// already there?
-	halthandle_t h=lookup(k)->gib_halt();
+	const halthandle_t &h=lookup(k)->gib_halt();
 	if(!h.is_bound()) {
 		// no => create
 		return haltestelle_t::create( this, k, NULL );

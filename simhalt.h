@@ -461,7 +461,7 @@ public:
 	 * @param typ der beförderte warentyp
 	 * @author Hj. Malthaner
 	 */
-	void hat_gehalten(const int number_of_cars, const ware_besch_t *warentyp, const fahrplan_t *fpl);
+	void hat_gehalten(const ware_besch_t *warentyp, const fahrplan_t *fpl);
 
 	/* checks, if there is an unoccupied loading bay for this kind of thing
 	* @author prissi

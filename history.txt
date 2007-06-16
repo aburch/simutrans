@@ -18,6 +18,7 @@
 	CHANGE: calc_height only called if needed (about 5% faster game)
 	ADD: (tomilepp) empty capacity line to freight_sorter
 	CHANGE: sync_list changed from slist_tpl to ptrhashtable_tpl => remove from 5% to 0.3% game time for all sync-objects (cars, pedestrians, animated buildings, smoke, ... )
+	FIX: wrong outdated flag due to missing initialisation after loading of a convoi
 
 
 Release of 99.12
