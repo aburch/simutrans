@@ -535,12 +535,6 @@ public:
 
 	void setze_name(const char *name);
 
-	/**
-	 * @returns station number
-	 * @author Markus Weber
-	 */
-	int index_of() const {return alle_haltestellen.index_of(self);}   //13-Feb-02     Markus Added
-
 	void rdwr(loadsave_t *file);
 
 	void laden_abschliessen();
