@@ -40,13 +40,13 @@ class compare_cities
 
 		bool operator ()(const stadt_t* a, const stadt_t* b)
 		{
-			bool cmp;
+			int cmp;
 			switch (sortby) {
-				case citylist::by_name:   cmp = strcmp(a->gib_name(), b->gib_name()) < 0; break;
-				case citylist::by_size:   cmp = a->gib_einwohner() < b->gib_einwohner();  break;
-				case citylist::by_growth: cmp = a->gib_wachstum() < b->gib_wachstum();    break;
+				case citylist::by_name:   cmp = strcmp(a->gib_name(), b->gib_name());    break;
+				case citylist::by_size:   cmp = a->gib_einwohner() - b->gib_einwohner(); break;
+				case citylist::by_growth: cmp = a->gib_wachstum()  - b->gib_wachstum();  break;
 			}
-			return cmp != reverse;
+			return reverse ? cmp > 0 : cmp < 0;
 		}
 
 	private:
