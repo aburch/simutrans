@@ -53,7 +53,7 @@ void werkzeug_parameter_waehler_t::add_tool(int (* wz1)(spieler_t *, karte_t *, 
 	tool.cursor = cursor;
 
 	// remove all "\xA" which the tranlator adds ...
-	tooltip.replace_character( 10, 32 );
+	tooltip.replace_character('\n', ' ');
 	tool.tooltip = tooltip;
 
 	tools.append(tool);
@@ -99,7 +99,7 @@ void werkzeug_parameter_waehler_t::add_param_tool(int (* wz1)(spieler_t *, karte
 	tool.cursor = cursor;
 
 	// remove all "\xA" which the tranlator adds ...
-	tooltip.replace_character( 10, 32 );
+	tooltip.replace_character('\n', ' ');
 	tool.tooltip = tooltip;
 
 	tools.append(tool);
