@@ -289,12 +289,10 @@ public:
 	/* prissi: returns the status of the current factory, as well as output */
 	enum { bad, medium, good, inactive, nothing };
 	static unsigned status_to_color[5];
-	unsigned calc_factory_status(unsigned long* input, unsigned long* output) const
-	{
-		if (input  != NULL) *input  = total_input;
-		if (output != NULL) *output = total_output;
-		return status;
-	}
+
+	uint8  get_status()    const { return status;       }
+	uint32 get_total_in()  const { return total_input;  }
+	uint32 get_total_out() const { return total_output; }
 
 	/**
 	 * Crossconnects all factories

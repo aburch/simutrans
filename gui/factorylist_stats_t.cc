@@ -90,10 +90,8 @@ void factorylist_stats_t::zeichnen(koord offset)
 
 		const fabrik_t* fab = fab_list[i];
 		if(fab) {
-
 			//DBG_DEBUG("factorylist_stats_t()","zeichnen() factory %i",i);
-			unsigned long input, output;
-			unsigned indikatorfarbe = fabrik_t::status_to_color[ fab->calc_factory_status( &input, &output ) ];
+			unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()];
 
 			buf.clear();
 			//		buf.append(i+1);
@@ -102,7 +100,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			buf.append(" (");
 
 			if (!fab->gib_eingang().empty()) {
-				buf.append(input);
+				buf.append(fab->get_total_in());
 			}
 			else {
 				buf.append("-");
@@ -110,7 +108,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			buf.append(", ");
 
 			if (!fab->gib_ausgang().empty()) {
-				buf.append(output);
+				buf.append(fab->get_total_out());
 			}
 			else {
 				buf.append("-");
@@ -154,43 +152,27 @@ class compare_factories
 					break;
 
 				case factorylist::by_input:
-					if (a->gib_eingang().empty()) {
-						cmp = (b->gib_eingang().empty() ? 0 : -1);
-					} else {
-						if (b->gib_eingang().empty()) {
-							cmp = 1;
-						} else {
-							unsigned long a_in;
-							unsigned long b_in;
-							a->calc_factory_status(&a_in, NULL);
-							b->calc_factory_status(&b_in, NULL);
-							cmp = a_in - b_in;
-						}
-					}
+				{
+					int a_in = (a->gib_eingang().empty() ? -1 : a->get_total_in());
+					int b_in = (b->gib_eingang().empty() ? -1 : b->get_total_in());
+					cmp = a_in - b_in;
 					break;
+				}
 
 				case factorylist::by_output:
-					if (a->gib_ausgang().empty()) {
-						cmp = (b->gib_ausgang().empty() ? 0 : -1);
-					} else {
-						if (b->gib_ausgang().empty()) {
-							cmp = 1;
-						} else {
-							unsigned long a_out;
-							unsigned long b_out;
-							a->calc_factory_status(NULL, &a_out);
-							b->calc_factory_status(NULL, &b_out);
-							cmp = a_out - b_out;
-						}
-					}
+				{
+					int a_out = (a->gib_ausgang().empty() ? -1 : a->get_total_out());
+					int b_out = (b->gib_ausgang().empty() ? -1 : b->get_total_out());
+					cmp = a_out - b_out;
 					break;
+				}
 
 				case factorylist::by_maxprod:
 					cmp = a->get_base_production() - b->get_base_production();
 					break;
 
 				case factorylist::by_status:
-					cmp = a->calc_factory_status(NULL, NULL) - b->calc_factory_status(NULL, NULL);
+					cmp = a->get_status() - b->get_status();
 					break;
 
 				case factorylist::by_power:

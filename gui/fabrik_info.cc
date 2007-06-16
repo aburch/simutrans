@@ -139,7 +139,7 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 
 	gui_frame_t::zeichnen(pos,gr);
 
-	unsigned indikatorfarbe = fabrik_t::status_to_color[ fab->calc_factory_status( NULL, NULL ) ];
+	unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()];
 	display_ddd_box_clip(pos.x + view.pos.x, pos.y + view.pos.y + 75, 64, 8, MN_GREY0, MN_GREY4);
 	display_fillbox_wh_clip(pos.x + view.pos.x+1, pos.y + view.pos.y + 76, 62, 6, indikatorfarbe, true);
 	if (fab->get_prodfaktor() > 16) {
