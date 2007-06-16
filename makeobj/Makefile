@@ -15,8 +15,8 @@ endif
 
 ifeq ($(OSTYPE),linux)
 LDLIBS=-lpng -lz -lstdc++ -lm
-CFLAGS=-V 3.3 -O
-CXXFLAGS=-V 3.3 -O
+CFLAGS   = -O
+CXXFLAGS = -O
 endif
 
 ifeq ($(OSTYPE),beos)

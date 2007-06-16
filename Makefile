@@ -39,8 +39,6 @@ endif
 
 ifeq ($(OSTYPE),linux)
   STD_LIBS ?= -lz
-  CFLAGS = -V 3.3
-  CXXFLAGS = -V 3.3
 endif
 
 ifeq ($(OSTYPE),cygwin)
