@@ -5,6 +5,7 @@
  * in other projects without written permission of the author.
  */
 
+#include <algorithm>
 #include "citylist_stats_t.h"
 #include "../simgraph.h"
 #include "../simcolor.h"
@@ -29,6 +30,31 @@ citylist_stats_t::citylist_stats_t(karte_t* w, citylist::sort_mode_t sortby, boo
 }
 
 
+class compare_cities
+{
+	public:
+		compare_cities(citylist::sort_mode_t sortby_, bool reverse_) :
+			sortby(sortby_),
+			reverse(reverse_)
+		{}
+
+		bool operator ()(const stadt_t* a, const stadt_t* b)
+		{
+			bool cmp;
+			switch (sortby) {
+				case citylist::by_name:   cmp = strcmp(a->gib_name(), b->gib_name()) < 0; break;
+				case citylist::by_size:   cmp = a->gib_einwohner() < b->gib_einwohner();  break;
+				case citylist::by_growth: cmp = a->gib_wachstum() < b->gib_wachstum();    break;
+			}
+			return cmp != reverse;
+		}
+
+	private:
+		citylist::sort_mode_t sortby;
+		bool reverse;
+};
+
+
 void citylist_stats_t::sort(citylist::sort_mode_t sortby, bool sortreverse)
 {
 	const weighted_vector_tpl<stadt_t*>& cities = welt->gib_staedte();
@@ -36,48 +62,10 @@ void citylist_stats_t::sort(citylist::sort_mode_t sortby, bool sortreverse)
 	city_list.clear();
 	city_list.resize(cities.get_count());
 
-	if (cities.empty()) return;
-
-	city_list.append(cities[0]);
-
-	for (uint i = 1; i < cities.get_count(); i++) {
-		stadt_t* city = cities[i];
-		bool append = true;
-
-		for (uint j = 0; j < city_list.get_count(); j++) {
-			const stadt_t* check_city = city_list[j];
-
-			switch (sortby) {
-				case citylist::by_name:
-					if (sortreverse)
-						append = strcmp(city->gib_name(),check_city->gib_name()) < 0;
-					else
-						append = strcmp(city->gib_name(),check_city->gib_name()) >= 0;
-					break;
-
-				case citylist::by_size:
-					if (sortreverse)
-						append = city->gib_einwohner() <= check_city->gib_einwohner();
-					else
-						append = city->gib_einwohner() >= check_city->gib_einwohner();
-					break;
-
-				case citylist::by_growth:
-					if (sortreverse)
-						append = city->gib_wachstum() <= check_city->gib_wachstum();
-					else
-						append = city->gib_wachstum() >= check_city->gib_wachstum();
-					break;
-			}
-			if (!append) {
-				city_list.insert_at(j, city);
-				break;
-			}
-		}
-		if (append) {
-			city_list.append(city);
-		}
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = cities.begin(), end = cities.end(); i != end; ++i) {
+		city_list.push_back(*i);
 	}
+	std::sort(city_list.begin(), city_list.end(), compare_cities(sortby, sortreverse));
 }
 
 
