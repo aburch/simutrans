@@ -1,12 +1,11 @@
 #ifndef _simstring_h
 #define _simstring_h
 
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdlib.h>
 
 // a single use number to string ...
 // format could be zero, the "%d" is assumed

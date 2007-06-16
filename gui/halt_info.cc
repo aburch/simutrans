@@ -5,10 +5,7 @@
  * in other projects without written permission of the author.
  */
 
-#include <stdlib.h>
-
 #include "halt_info.h"
-
 #include "../simworld.h"
 #include "../simhalt.h"
 #include "../simware.h"

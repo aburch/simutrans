@@ -1,7 +1,6 @@
 #ifndef TPL_WEIGHTED_VECTOR_H
 #define TPL_WEIGHTED_VECTOR_H
 
-#include <stdlib.h>
 #include "../macros.h"
 #include "../simdebug.h"
 

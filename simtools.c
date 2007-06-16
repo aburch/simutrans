@@ -1,8 +1,5 @@
-#include <stdlib.h>
-#include <string.h>
 #include <math.h>
 #include "simtools.h"
-#include "simtypes.h"
 
 /* This is the mersenne random generator: More random and faster! */
 

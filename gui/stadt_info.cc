@@ -4,11 +4,6 @@
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
-#ifdef _MSC_VER
-#include <string.h>
-#endif
-
-#include <stdio.h>
 
 #include "../simdebug.h"
 #include "../simcity.h"

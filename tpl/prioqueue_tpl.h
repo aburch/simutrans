@@ -8,8 +8,6 @@
 #ifndef tpl_prioqueue_tpl_h
 #define tpl_prioqueue_tpl_h
 
-//#include <stdlib.h>
-
 #include "debug_helper.h"
 #include "../dataobj/freelist.h"
 

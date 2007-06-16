@@ -5,8 +5,6 @@
  * in other projects without written permission of the author.
  */
 
-#include <stdlib.h>
-
 #include "../simworld.h"
 #include "../simplay.h"
 #include "../simwin.h"

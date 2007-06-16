@@ -7,9 +7,6 @@
  * in other projects without written permission of the author.
  */
 
-#include <string.h>
-#include <stdlib.h>
-
 #include "macros.h"
 #include "simdebug.h"
 #include "simmesg.h"

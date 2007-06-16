@@ -5,10 +5,6 @@
  * in other projects without written permission of the author.
  */
 
-#ifdef _MSC_VER
-#include <string.h>
-#endif
-
 #include "../simworld.h"
 #include "../simgraph.h"
 

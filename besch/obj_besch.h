@@ -7,9 +7,8 @@
 #ifndef __OBJ_BESCH_H
 #define __OBJ_BESCH_H
 
+#include <cstddef>
 #include "../simtypes.h"
-
-#include <stdlib.h>
 
 /*
  *  Autor:

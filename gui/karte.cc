@@ -1,8 +1,3 @@
-#include <stdlib.h>
-#ifdef _MSC_VER
-#include <string.h>
-#endif
-
 #include "../simevent.h"
 #include "../simplay.h"
 #include "../simcolor.h"

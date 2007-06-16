@@ -5,12 +5,7 @@
  * in other projects without written permission of the author.
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-
-#include "../simtypes.h"
 #include "koord3d.h"
-
 #include "../dataobj/loadsave.h"
 #include "../dataobj/freelist.h"
 

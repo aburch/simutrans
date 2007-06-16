@@ -5,8 +5,6 @@
  * in other projects without written permission of the author.
  */
 
-#include <stdlib.h>
-
 #include "../simcolor.h"
 #include "../simimg.h"
 #include "../simworld.h"

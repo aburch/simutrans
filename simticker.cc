@@ -6,8 +6,6 @@
  */
 
 #include <string.h>
-#include <stdlib.h>
-
 #include "simdebug.h"
 #include "simticker.h"
 #include "simgraph.h"

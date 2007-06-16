@@ -2,10 +2,8 @@
 #include "../tpl/debug_helper.h"
 
 #include <assert.h>
-
 #include <string.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 
 static char thousand_sep = ',';

@@ -8,9 +8,7 @@
 #ifndef tpl_slist_tpl_h
 #define tpl_slist_tpl_h
 
-#include <stdlib.h>
 #include <typeinfo>
-
 #include "../dataobj/freelist.h"
 #include "../simdebug.h"
 

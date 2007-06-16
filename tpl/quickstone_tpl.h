@@ -1,7 +1,6 @@
 #ifndef quickstone_tpl_h
 #define quickstone_tpl_h
 
-#include <stdlib.h>
 #include "../simtypes.h"
 #include "../simdebug.h"
 

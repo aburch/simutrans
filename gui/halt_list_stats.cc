@@ -6,12 +6,6 @@
  * in other projects without written permission of the author.
  */
 
-#ifdef _MSC_VER
-#include <string.h>
-#endif
-
-#include <stdio.h>
-
 #include "halt_list_stats.h"
 #include "../simhalt.h"
 #include "../simskin.h"

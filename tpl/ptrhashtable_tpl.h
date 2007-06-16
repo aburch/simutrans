@@ -5,6 +5,7 @@
 #ifndef ptrhashtable_tpl_h
 #define ptrhashtable_tpl_h
 
+#include <cstdlib>
 #include "hashtable_tpl.h"
 
 

@@ -7,8 +7,6 @@
  * Intro and everything else
  */
 
-#include <stdlib.h>
-
 #include "../simcolor.h"
 #include "../simimg.h"
 #include "../simworld.h"
