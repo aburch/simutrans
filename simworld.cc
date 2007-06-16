@@ -551,11 +551,9 @@ karte_t::init_felder()
 }
 
 
-void
-karte_t::init(einstellungen_t *sets)
+void karte_t::init(einstellungen_t* sets)
 {
 	mute_sound(true);
-	int i, j;
 
 	intr_disable();
 	destroy();
@@ -609,8 +607,8 @@ DBG_DEBUG("karte_t::init()","init_felder");
 	init_felder();
 
 DBG_DEBUG("karte_t::init()","setze_grid_hgt");
-	for(j=0; j<=gib_groesse_y(); j++) {
-		for(i=0; i<=gib_groesse_x(); i++) {
+	for (int j = 0; j <= gib_groesse_y(); j++) {
+		for(int i = 0; i <= gib_groesse_x(); i++) {
 			setze_grid_hgt(koord(i, j), 0);
 		}
 	}
@@ -670,8 +668,7 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 		// Ansicht auf erste Stadt zentrieren
 		setze_ij_off(koord3d((*pos)[0], min_hgt((*pos)[0])));
 
-		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
-
+		for (int i = 0; i < einstellungen->gib_anzahl_staedte(); i++) {
 //			int citizens=(int)(einstellungen->gib_mittlere_einwohnerzahl()*0.9);
 //			citizens = citizens/10+simrand(2*citizens+1);
 
@@ -682,7 +679,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 			stadt.append(s, current_citicens, 64);
 		}
 
-		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
+		for (int i = 0; i < einstellungen->gib_anzahl_staedte(); i++) {
 			// Hajo: do final init after world was loaded/created
 			stadt[i]->laden_abschliessen();
 			// the growth is slow, so update here the progress bar
@@ -720,8 +717,8 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 		int count = 0;
 		const int max_count=(einstellungen->gib_anzahl_staedte()*(einstellungen->gib_anzahl_staedte()-1))/2;
 
-		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
-			for(int j=i+1; j<einstellungen->gib_anzahl_staedte(); j++) {
+		for(int i = 0; i < einstellungen->gib_anzahl_staedte(); i++) {
+			for (int j = i + 1; j < einstellungen->gib_anzahl_staedte(); j++) {
 				const koord k1 = (*pos)[i] + roff;
 				const koord k2 = (*pos)[j] + roff;
 				const koord diff = k1-k2;
@@ -750,8 +747,8 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 						old_progress_count = progress_count;
 					}
 				}
-			} //for j
-		} // for i
+			}
+		}
 
 		delete pos;
 	}
@@ -790,7 +787,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 	recalc_average_speed();
 
 #ifndef DEMO
-	for(i = 0; i < 6; i++) {
+	for (int i = 0; i < 6; i++) {
 		spieler[i + 2]->set_active( umgebung_t::automaten[i] );
 	}
 #endif
@@ -2314,12 +2311,10 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 }
 
 
-
 // handles the actual loading
 void karte_t::laden(loadsave_t *file)
 {
 	char buf[80];
-	int x,y;
 
 	destroy_all_win();
 	intr_disable();
@@ -2411,8 +2406,8 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte()
 	old_blockmanager_t::rdwr(this, file);
 
 	DBG_MESSAGE("karte_t::laden()","loading tiles");
-	for(y=0; y<gib_groesse_y(); y++) {
-		for(x=0; x<gib_groesse_x(); x++) {
+	for (int y = 0; y < gib_groesse_y(); y++) {
+		for (int x = 0; x < gib_groesse_x(); x++) {
 			if(file->is_eof()) {
 				dbg->fatal("karte_t::laden()","Savegame file mangled (too short)!");
 			}
@@ -2424,8 +2419,8 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte()
 
 DBG_MESSAGE("karte_t::laden()","loading grid");
 	if(file->get_version()<99005) {
-		for(y=0; y<=gib_groesse_y(); y++) {
-			for(x=0; x<=gib_groesse_x(); x++) {
+		for (int y = 0; y <= gib_groesse_y(); y++) {
+			for (int x = 0; x <= gib_groesse_x(); x++) {
 				int hgt;
 				file->rdwr_long(hgt, "\n");
 				setze_grid_hgt(koord(x, y), (hgt*Z_TILE_STEP)/TILE_HEIGHT_STEP);
@@ -2443,8 +2438,8 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 		DBG_MESSAGE("karte_t::laden()","loading slopes from older version");
 		// Hajo: load slopes for older versions
 		// now part of the grund_t structure
-		for(y=0; y<gib_groesse_y(); y++) {
-			for(x=0; x<gib_groesse_x(); x++) {
+		for (int y = 0; y < gib_groesse_y(); y++) {
+			for (int x = 0; x < gib_groesse_x(); x++) {
 				sint8 slope;
 				file->rdwr_byte(slope, ",");
 				access(x, y)->gib_kartenboden()->setze_grund_hang(slope);
@@ -2454,8 +2449,8 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 
 	if(file->get_version()<=88000) {
 		// because from 88.01.4 on the foundations are handled differently
-		for(y=0; y<gib_groesse_y(); y++) {
-			for(x=0; x<gib_groesse_x(); x++) {
+		for (int y = 0; y < gib_groesse_y(); y++) {
+			for (int x = 0; x < gib_groesse_x(); x++) {
 				koord k(x,y);
 				if(access(x,y)->gib_kartenboden()->gib_typ()==grund_t::fundament) {
 					access(x,y)->gib_kartenboden()->setze_hoehe( max_hgt(k) );
@@ -2615,8 +2610,8 @@ DBG_MESSAGE("karte_t::laden()", "players loaded");
 	}
 
 DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count());
-	for(y=0; y<gib_groesse_y(); y++) {
-		for(x=0; x<gib_groesse_x(); x++) {
+	for (int y = 0; y < gib_groesse_y(); y++) {
+		for (int x = 0; x < gib_groesse_x(); x++) {
 			const planquadrat_t *plan = lookup(koord(x,y));
 			const int boden_count = plan->gib_boden_count();
 			for(int schicht=0; schicht<boden_count; schicht++) {
