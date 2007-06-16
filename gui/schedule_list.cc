@@ -15,6 +15,7 @@
 #include "gui_convoiinfo.h"
 
 #include "../simcolor.h"
+#include "../simhalt.h"
 #include "../simworld.h"
 #include "../simevent.h"
 #include "../simgraph.h"

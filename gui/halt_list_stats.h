@@ -11,43 +11,21 @@
 
 #include "../dataobj/koord.h"
 #include "../ifc/gui_komponente.h"
-#include "../simhalt.h"
 #include "../halthandle_t.h"
 
 
 /**
- * Komponenten von Fenstern sollten von dieser Klassse abgeleitet werden.
- *
  * @autor Hj. Malthaner
  */
 class halt_list_stats_t : public gui_komponente_t
 {
 private:
-	/**
-	 * Handle des anzuzeigenden Convois.
-	 * @author Hj. Malthaner
-	 */
 	halthandle_t halt;
 
 public:
-	/**
-	 * Konstruktor.
-	 * @param cnv das Handle für den anzuzeigenden Convoi.
-	 * @author Hj. Malthaner
-	 */
-	halt_list_stats_t(halthandle_t halt) { this->halt = halt; }
+	halt_list_stats_t(halthandle_t halt_) : halt(halt_) {}
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
-	void infowin_event(const event_t *);
-
-	/**
-	 * Zeichnet die Komponente
-	 * @author Hj. Malthaner
-	 */
+	void infowin_event(const event_t*);
 	void zeichnen(koord offset);
 };
 
