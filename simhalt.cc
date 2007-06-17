@@ -588,7 +588,7 @@ void haltestelle_t::rebuild_destinations()
 // DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "Adding new table entries");
 
 	// first all single convois without lines
-	minivec_tpl<uint8> add_catg_index(4);
+	vector_tpl<uint8> add_catg_index(4);
 	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
 		convoihandle_t cnv = *i;
 		if(cnv->get_line().is_bound()) {
@@ -673,11 +673,11 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	const planquadrat_t *plan = welt->lookup(ziel);
 	const halthandle_t *halt_list = plan->get_haltlist();
 	// but we can only use a subset of these
-	minivec_tpl <halthandle_t> ziel_list (plan->get_haltlist_count());
+	vector_tpl<halthandle_t> ziel_list(plan->get_haltlist_count());
 	for( unsigned h=0;  h<plan->get_haltlist_count();  h++ ) {
 		halthandle_t halt = halt_list[h];
 		if(	halt->is_enabled(warentyp)  ) {
-			ziel_list.append( halt );
+			ziel_list.push_back(halt);
 		}
 		else {
 //DBG_MESSAGE("suche_route()","halt %s near (%i,%i) does not accept  %s!",halt->gib_name(),ziel.x,ziel.y,warentyp->gib_name());

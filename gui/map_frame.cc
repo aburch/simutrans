@@ -37,8 +37,8 @@ uint8 map_frame_t::directory_visible=false;
 koord map_frame_t::screenpos;
 
 // hopefully these are enough ...
-static minivec_tpl <cstring_t> legend_names (128);
-static minivec_tpl <int> legend_colors (128);
+static vector_tpl<cstring_t> legend_names(128);
+static vector_tpl<int>       legend_colors(128);
 
 // @author hsiegeln
 const char map_frame_t::map_type[MAX_BUTTON_TYPE][64] =

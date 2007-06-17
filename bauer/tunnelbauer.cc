@@ -41,12 +41,11 @@
 #include "../gui/werkzeug_parameter_waehler.h"
 
 #include "wegbauer.h"
-
-#include "../tpl/minivec_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
+#include "../tpl/vector_tpl.h"
 
 
-static minivec_tpl <tunnel_besch_t *> tunnel (16);
+static vector_tpl<tunnel_besch_t*> tunnel(16);
 static stringhashtable_tpl<tunnel_besch_t *> tunnel_by_name;
 
 
@@ -55,7 +54,7 @@ void
 tunnelbauer_t::register_besch(tunnel_besch_t *besch)
 {
 	tunnel_by_name.put(besch->gib_name(), besch);
-	tunnel.append(besch);
+	tunnel.push_back(besch);
 }
 
 

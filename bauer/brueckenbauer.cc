@@ -37,9 +37,8 @@
 #include "../dings/signal.h"
 
 #include "../dataobj/translator.h"
-
-#include "../tpl/minivec_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
+#include "../tpl/vector_tpl.h"
 
 static vector_tpl<const bruecke_besch_t*> bruecken(16);
 static stringhashtable_tpl<const bruecke_besch_t *> bruecken_by_name;
@@ -52,7 +51,7 @@ static stringhashtable_tpl<const bruecke_besch_t *> bruecken_by_name;
 void brueckenbauer_t::register_besch(const bruecke_besch_t *besch)
 {
   bruecken_by_name.put(besch->gib_name(), besch);
-  bruecken.append(besch);
+  bruecken.push_back(besch);
 }
 
 

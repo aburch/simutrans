@@ -9,7 +9,7 @@
 #define gui_werkzeug_parameter_waehler_h
 
 #include "../ifc/gui_fenster.h"
-#include "../tpl/minivec_tpl.h"
+#include "../tpl/vector_tpl.h"
 #include "../utils/cstring_t.h"
 
 class spieler_t;
@@ -60,7 +60,7 @@ private:
 	* The tool definitions
 	* @author Hj. Malthaner
 	*/
-	minivec_tpl<struct werkzeug_t> tools;
+	vector_tpl<werkzeug_t> tools;
 
 	/**
 	* window width in toolboxes

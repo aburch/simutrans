@@ -20,7 +20,6 @@
 #include "halthandle_t.h"
 
 #include "tpl/weighted_vector_tpl.h"
-#include "tpl/minivec_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/slist_tpl.h"
 #include "tpl/ptrhashtable_tpl.h"
@@ -173,7 +172,7 @@ private:
 
 	weighted_vector_tpl<stadt_t*> stadt;
 
-	minivec_tpl<save_mouse_func *> quick_shortcuts;
+	vector_tpl<save_mouse_func*> quick_shortcuts;
 
 	karte_ansicht_t *view;
 

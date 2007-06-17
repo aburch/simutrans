@@ -56,7 +56,7 @@ void werkzeug_parameter_waehler_t::add_tool(int (* wz1)(spieler_t *, karte_t *, 
 	tooltip.replace_character('\n', ' ');
 	tool.tooltip = tooltip;
 
-	tools.append(tool);
+	tools.push_back(tool);
 
 	int ww = (display_get_width()/32)-2;
 	tool_icon_width = tools.get_count();
@@ -102,7 +102,7 @@ void werkzeug_parameter_waehler_t::add_param_tool(int (* wz1)(spieler_t *, karte
 	tooltip.replace_character('\n', ' ');
 	tool.tooltip = tooltip;
 
-	tools.append(tool);
+	tools.push_back(tool);
 	int ww = (display_get_width()/32)-2;
 	tool_icon_width = tools.get_count();
 //DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","ww=%i, tool_icon_width=%i",ww,tool_icon_width);
