@@ -16,7 +16,6 @@
 #include "simmem.h"
 #include "boden/grund.h"
 #include "dataobj/loadsave.h"
-#include "tpl/slist_mit_gewichten_tpl.h"
 
 #include "besch/fussgaenger_besch.h"
 

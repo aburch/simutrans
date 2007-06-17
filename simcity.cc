@@ -1314,7 +1314,7 @@ void stadt_t::neuer_monat()
 	pax_erzeugt = 0;
 	pax_transport = 0;
 
-	if (stadtauto_t::gib_anzahl_besch() > 0) {
+	if (!stadtauto_t::list_empty()) {
 		// spawn eventuall citycars
 		// the more transported, the less are spawned
 		// with default density (8) for a city with 2000 people (=> ca. 1000 not transported) a car is spawned per month on average
@@ -2093,7 +2093,7 @@ void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, int level, koord target)
 								gr->gib_weg_ribi_unmasked(road_wt) == ribi_t::nordsued ||
 								gr->gib_weg_ribi_unmasked(road_wt) == ribi_t::ostwest
 							)) {
-						if (stadtauto_t::gib_anzahl_besch() > 0) {
+						if (!stadtauto_t::list_empty()) {
 							stadtauto_t* vt = new stadtauto_t(welt, gr->gib_pos(), target);
 							gr->obj_add(vt);
 							welt->sync_add(vt);

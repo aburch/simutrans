@@ -20,8 +20,6 @@
 class stadtauto_besch_t;
 class karte_t;
 
-template<class T> class slist_mit_gewichten_tpl;
-
 /**
  * Base class for traffic participants with random movement
  * @author Hj. Malthaner
@@ -74,8 +72,6 @@ public:
 
 class stadtauto_t : public verkehrsteilnehmer_t {
 private:
-	static slist_mit_gewichten_tpl<const stadtauto_besch_t *> liste_timeline;
-	static slist_mit_gewichten_tpl<const stadtauto_besch_t *> liste;
 	static stringhashtable_tpl<const stadtauto_besch_t *> table;
 
 	const stadtauto_besch_t *besch;
@@ -133,7 +129,7 @@ public:
 	 * @author prissi
 	 */
 	static void built_timeline_liste(karte_t *welt);
-	static int gib_anzahl_besch();
+	static bool list_empty();
 
 	static bool register_besch(const stadtauto_besch_t *besch);
 	static bool laden_erfolgreich();
