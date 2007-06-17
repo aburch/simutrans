@@ -2,7 +2,6 @@
 #define simpeople_h
 
 #include "simverkehr.h"
-template<class T> class slist_mit_gewichten_tpl;
 
 class fussgaenger_besch_t;
 
@@ -15,7 +14,6 @@ class fussgaenger_besch_t;
 class fussgaenger_t : public verkehrsteilnehmer_t
 {
 private:
-	static slist_mit_gewichten_tpl<const fussgaenger_besch_t *> liste;
 	static stringhashtable_tpl<const fussgaenger_besch_t *> table;
 
 public:
@@ -47,8 +45,6 @@ public:
 	// class register functions
 	static bool register_besch(const fussgaenger_besch_t *besch);
 	static bool laden_erfolgreich();
-
-	static int gib_anzahl_besch();
 
 	static void erzeuge_fussgaenger_an(karte_t *welt, koord3d k, int &anzahl);
 };

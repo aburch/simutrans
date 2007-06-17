@@ -59,6 +59,8 @@ template<class T> class weighted_vector_tpl
 			friend class weighted_vector_tpl;
 		};
 
+		weighted_vector_tpl() : nodes(NULL), size(0), count(0), total_weight(0) {}
+
 		/** Construct a vector for size elements */
 		explicit weighted_vector_tpl(uint size)
 		{

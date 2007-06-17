@@ -24,13 +24,13 @@ int fussgaenger_t::count = 0;
 
 int fussgaenger_t::strecke[] = {6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000};
 
-slist_mit_gewichten_tpl<const fussgaenger_besch_t *> fussgaenger_t::liste;
+static weighted_vector_tpl<const fussgaenger_besch_t*> liste;
 stringhashtable_tpl<const fussgaenger_besch_t *> fussgaenger_t::table;
 
 
 bool fussgaenger_t::register_besch(const fussgaenger_besch_t *besch)
 {
-	liste.append(besch);
+	liste.append(besch, besch->gib_gewichtung(), 1);
 	table.put(besch->gib_name(), besch);
 
 	return true;
@@ -42,12 +42,6 @@ bool fussgaenger_t::laden_erfolgreich()
 		DBG_MESSAGE("fussgaenger_t", "No pedestrians found - feature disabled");
 	}
 	return true ;
-}
-
-
-int fussgaenger_t::gib_anzahl_besch()
-{
-	return liste.count();
 }
 
 
@@ -67,7 +61,7 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
 fussgaenger_t::fussgaenger_t(karte_t *welt, koord3d pos)
  : verkehrsteilnehmer_t(welt, pos)
 {
-	besch = liste.gib_gewichted(simrand(liste.gib_gesamtgewicht()));
+	besch = liste.at_weight(simrand(liste.get_sum_weight()));
 	time_to_life = strecke[count & 7];
 	count ++;
 	calc_bild();
@@ -102,7 +96,7 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 		besch = table.get(s);
 		// unknow pedestrian => create random new one
 		if(besch == 0) {
-		    besch = liste.gib_gewichted(simrand(liste.gib_gesamtgewicht()));
+		    besch = liste.at_weight(simrand(liste.get_sum_weight()));
 		}
 		guarded_free(const_cast<char *>(s));
 	}
@@ -114,29 +108,27 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 void
 fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &anzahl)
 {
-	if(fussgaenger_t::gib_anzahl_besch()>0) {
-		const grund_t *bd = welt->lookup(k);
-		if(bd) {
-			const weg_t *weg = bd->gib_weg(road_wt);
+	if (liste.empty()) return;
 
-			// we do not start on crossings (not overrunning pedestrians please
-			if(weg && ribi_t::is_twoway(weg->gib_ribi_unmasked())) {
+	const grund_t* bd = welt->lookup(k);
+	if (bd) {
+		const weg_t* weg = bd->gib_weg(road_wt);
 
-				for(int i=0; i<4 && anzahl>0; i++) {
-					fussgaenger_t *fg = new fussgaenger_t(welt, k);
-
-					bool ok = welt->lookup(k)->obj_add(fg) != 0;	// 256 limit reached
-					if(ok) {
-						for(int i=0; i<(fussgaenger_t::count & 3); i++) {
-							fg->sync_step(64*24);
-						}
-						welt->sync_add( fg );
-						anzahl --;
-					} else {
-						// delete it, if we could not put them on the map
-						fg->set_flag(ding_t::not_on_map);
-						delete fg;
+		// we do not start on crossings (not overrunning pedestrians please
+		if (weg && ribi_t::is_twoway(weg->gib_ribi_unmasked())) {
+			for (int i = 0; i < 4 && anzahl > 0; i++) {
+				fussgaenger_t* fg = new fussgaenger_t(welt, k);
+				bool ok = welt->lookup(k)->obj_add(fg) != 0;	// 256 limit reached
+				if (ok) {
+					for (int i = 0; i < (fussgaenger_t::count & 3); i++) {
+						fg->sync_step(64 * 24);
 					}
+					welt->sync_add(fg);
+					anzahl--;
+				} else {
+					// delete it, if we could not put them on the map
+					fg->set_flag(ding_t::not_on_map);
+					delete fg;
 				}
 			}
 		}
