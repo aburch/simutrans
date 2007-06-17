@@ -63,9 +63,8 @@ tunnelbauer_t::register_besch(tunnel_besch_t *besch)
 bool
 tunnelbauer_t::laden_erfolgreich()
 {
-	for(unsigned int i = 0; i < tunnel.get_count(); i++) {
-		tunnel_besch_t* besch = tunnel[i];
-
+	for (vector_tpl<tunnel_besch_t*>::const_iterator i = tunnel.begin(), end = tunnel.end(); i != end; ++i) {
+		tunnel_besch_t* besch = *i;
 		if(besch->gib_topspeed()==0) {
 			// old style, need to convert
 			if(strcmp(besch->gib_name(),"RoadTunnel")==0) {
@@ -107,10 +106,9 @@ const tunnel_besch_t *
 tunnelbauer_t::find_tunnel(const waytype_t wtyp, const uint32 min_speed,const uint16 time)
 {
 	const tunnel_besch_t *find_besch=NULL;
-	slist_tpl <const tunnel_besch_t *> matching;
 
-	for(unsigned int i = 0; i < tunnel.get_count(); i++) {
-		const tunnel_besch_t* besch = tunnel[i];
+	for (vector_tpl<tunnel_besch_t*>::const_iterator i = tunnel.begin(), end = tunnel.end(); i != end; ++i) {
+		const tunnel_besch_t* besch = *i;
 		if(besch->gib_waytype() == wtyp) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 				if(find_besch==NULL  ||
@@ -141,8 +139,8 @@ tunnelbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 {
 	const uint16 time=welt->get_timeline_year_month();
 	slist_tpl <const tunnel_besch_t *> matching;
-	for(unsigned int i = 0; i < tunnel.get_count(); i++) {
-		const tunnel_besch_t* besch = tunnel[i];
+	for (vector_tpl<tunnel_besch_t*>::const_iterator i = tunnel.begin(), end = tunnel.end(); i != end; ++i) {
+		const tunnel_besch_t* besch = *i;
 		if(besch->gib_waytype()==wtyp) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 				// add int sorted
