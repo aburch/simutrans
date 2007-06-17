@@ -17,14 +17,15 @@
 
 
 class searchfolder_t {
-	slist_tpl<const char *> files;	// NEVER EVER USE ctring_T here!!!
-
 public:
 	~searchfolder_t();
 	int search(const char *filepath, const char *extension);
 
 	static cstring_t complete(const char *filepath, const char *extension);
 	const char * at(unsigned int i);
+
+	private:
+		slist_tpl<char*> files; // NEVER EVER USE ctring_T here!!!
 };
 
 #endif

@@ -43,7 +43,7 @@ int searchfolder_t::search(const char *filepath, const char *extension)
     cstring_t ext;
 
 	while (!files.empty()) {
-		guarded_free( (void *)files.remove_first() );
+		guarded_free(files.remove_first());
 	}
 
     if(path.right(1) == "/") {
@@ -132,9 +132,7 @@ cstring_t searchfolder_t::complete(const char *filepath, const char *extension)
  */
 const char *searchfolder_t::at(unsigned int i)
 {
-    static const char *nix="";
-
-    return i < files.count() ? files.at(i) : nix;
+	return i < files.count() ? files.at(i) : "";
 }
 
 
@@ -145,6 +143,6 @@ const char *searchfolder_t::at(unsigned int i)
 searchfolder_t::~searchfolder_t()
 {
 	while (!files.empty()) {
-		guarded_free( (void *)files.remove_first() );
+		guarded_free(files.remove_first());
 	}
 }
