@@ -596,6 +596,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		if(maker!=NULL  && maker[0]!=0) {
 			buf.append("\n");
 			buf.append(translator::translate("Constructed by"));
+			buf.append(" ");
 			buf.append(maker);
 		}
 	}
