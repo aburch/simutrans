@@ -261,50 +261,6 @@ bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 	return true;
 }
 
-/*
- * Bauen mit der ersten passenden Brücke
-*/
-int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, waytype_t wegtyp)
-{
-	for(unsigned i = 0; i < bruecken.get_count(); i++) {
-		const bruecke_besch_t* besch = bruecken[i];
-
-		if(besch && besch->gib_waytype() == wegtyp) {
-			return baue(sp, welt, pos, (long)besch);
-		}
-	}
-	return false;
-}
-
-
-/* built bridge with right top speed
- */
-int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, waytype_t wegtyp,uint32 top_speed)
-{
-  const bruecke_besch_t *besch=NULL;
-  for(unsigned i = 0; i < bruecken.get_count(); i++) {
-		const bruecke_besch_t* testee = bruecken[i];
-		if (testee->gib_waytype() == wegtyp) {
-			if (besch == NULL ||
-					besch->gib_topspeed() < top_speed && besch->gib_topspeed() < testee->gib_topspeed() || (
-						testee->gib_topspeed() >= top_speed && (
-						besch->gib_wartung() > testee->gib_wartung() || (
-							besch->gib_wartung() == testee->gib_wartung() &&
-							besch->gib_preis() > testee->gib_preis()
-							)
-						)
-					)) {
-        // cheaper, faster and less mantainance
-        besch = testee;
-      }
-    }
-  }
-  if(besch) {
-    return baue(sp, welt, pos, (long)besch);
-  }
-  return false;
-}
-
 
 int
 brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, value_t param)

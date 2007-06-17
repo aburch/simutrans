@@ -92,21 +92,6 @@ public:
      */
     static int baue(spieler_t *sp, karte_t *welt, koord pos, value_t param);
 
-
-    /*
-     * Brückenbau für die KI - chosse chepest fast enough
-     * @author V. Meyer
-     */
-    static int baue(spieler_t *sp, karte_t *welt, koord pos, waytype_t wegtyp,uint32 top_speed);
-
-    /*
-     * Brückenbau für die KI - der ist der Brückenstil egal.
-     * Vorerst greifen wir den ersten passenden Stil - Zufallswahl könnte man ergänzen.
-     *
-     * @author V. Meyer
-     */
-    static int baue(spieler_t *sp, karte_t *welt, koord pos, waytype_t wegtyp);
-
     /*
      * Brückenlösch-Funktion
      *
