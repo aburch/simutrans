@@ -51,7 +51,7 @@ void ticker::add_msg(const char* txt, koord pos, int color)
 
 	if(count < 4) {
 		// Don't repeat messages
-		if (count == 0 || strncmp(txt, list.at(count - 1).msg, strlen(txt)) != 0) {
+		if (count == 0 || strncmp(txt, list.back().msg, strlen(txt)) != 0) {
 			node n;
 			int i=0;
 
