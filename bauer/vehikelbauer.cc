@@ -135,7 +135,7 @@ static bool compare_vehikel_besch(const vehikel_besch_t* a, const vehikel_besch_
 {
 	// Sort by:
 	//  1. cargo category
-	//  2. cargo
+	//  2. cargo (if special freight)
 	//  3. engine_type
 	//  4. speed
 	//  5. power
@@ -143,8 +143,10 @@ static bool compare_vehikel_besch(const vehikel_besch_t* a, const vehikel_besch_
 	//  7. name
 	int cmp = a->gib_ware()->gib_catg() - b->gib_ware()->gib_catg();
 	if (cmp == 0) {
-		cmp = a->gib_ware()->gib_index() - b->gib_ware()->gib_index();
-		if (a->gib_ware()->gib_catg()>0  ||  cmp == 0) {
+		if (a->gib_ware()->gib_catg() == 0) {
+			cmp = a->gib_ware()->gib_index() - b->gib_ware()->gib_index();
+		}
+		if (cmp == 0) {
 			cmp = a->gib_zuladung() - b->gib_zuladung();
 			if (cmp == 0) {
 				// to handle tender correctly
