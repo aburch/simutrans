@@ -1594,7 +1594,7 @@ void stadt_t::step_passagiere()
  */
 koord stadt_t::gib_zufallspunkt() const
 {
-	assert(buildings.get_count()>0);
+	assert(!buildings.empty());
 	const gebaeude_t* gb = buildings.at_weight(simrand(buildings.get_sum_weight()));
 	koord k = gb->gib_pos().gib_2d();
 	if(!welt->ist_in_kartengrenzen(k)) {
@@ -2424,7 +2424,7 @@ void stadt_t::baue()
 
 
 	// renovation (only done when nothing matches a certain location
-	if (buildings.get_count()>0  &&  simrand(100)<=renovation_percentage) {
+	if (!buildings.empty() && simrand(100) <= renovation_percentage) {
 		renoviere_gebaeude(buildings[simrand(buildings.get_count())]->gib_pos().gib_2d());
 		INT_CHECK("simcity 876");
 	}

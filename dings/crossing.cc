@@ -81,7 +81,7 @@ bool
 crossing_t::request_crossing( const vehikel_basis_t *v )
 {
 	if(v->gib_waytype()==besch->get_waytype(0)) {
-		if(on_way2.get_count()==0  &&  zustand==CROSSING_OPEN) {
+		if (on_way2.empty() && zustand == CROSSING_OPEN) {
 			// way2 is empty ...
 			return true;
 		}
@@ -129,13 +129,13 @@ crossing_t::release_crossing( const vehikel_basis_t *v )
 {
 	if(v->gib_waytype()==besch->get_waytype(0)) {
 		on_way1.remove(v);
-		if(zustand==CROSSING_REQUEST_CLOSE  &&  on_way1.get_count()==0) {
+		if (zustand == CROSSING_REQUEST_CLOSE && on_way1.empty()) {
 			set_state( CROSSING_CLOSED );
 		}
 	}
 	else {
 		on_way2.remove(v);
-		if(on_way2.get_count()==0) {
+		if (on_way2.empty()) {
 			set_state( CROSSING_OPEN );
 		}
 	}

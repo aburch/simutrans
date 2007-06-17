@@ -718,7 +718,7 @@ stadtauto_t::hop_check()
 						}
 					}
 					// if we can, we avoid entering towards a stuck vehicle
-					if(ok_gr.get_count()>0) {
+					if (!ok_gr.empty()) {
 						pos_next_next = liste[simrand(ok_gr.get_count())]->gib_pos();
 					}
 					else

@@ -508,7 +508,7 @@ void haltestelle_t::reroute_goods()
 			}
 
 			// delete, if nothing connects here
-			if(warray->get_count()==0) {
+			if (warray->empty()) {
 				bool delete_it = true;
 				slist_iterator_tpl<warenziel_t> iter(warenziele);
 				while(iter.next()  &&  delete_it) {

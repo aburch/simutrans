@@ -73,7 +73,7 @@ simline_t::~simline_t()
 void
 simline_t::add_convoy(convoihandle_t cnv)
 {
-	if(line_managed_convoys.get_count()==0) {
+	if (line_managed_convoys.empty()) {
 		register_stops();
 	}
 
@@ -117,7 +117,7 @@ simline_t::remove_convoy(convoihandle_t cnv)
 		financial_history[0][LINE_CONVOIS] = count_convoys();
 		recalc_status();
 	}
-	if(line_managed_convoys.get_count()==0) {
+	if (line_managed_convoys.empty()) {
 		unregister_stops();
 	}
 }
