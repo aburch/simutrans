@@ -36,9 +36,18 @@ uint8 map_frame_t::directory_visible=false;
 // Hajo: we track our position onscreen
 koord map_frame_t::screenpos;
 
-// hopefully these are enough ...
-static vector_tpl<cstring_t> legend_names(128);
-static vector_tpl<int>       legend_colors(128);
+
+struct legend_entry
+{
+	legend_entry() {}
+	legend_entry(const cstring_t& text_, int colour_) : text(text_), colour(colour_) {}
+
+	cstring_t text;
+	int       colour;
+};
+
+static vector_tpl<legend_entry> legend(16);
+
 
 // @author hsiegeln
 const char map_frame_t::map_type[MAX_BUTTON_TYPE][64] =
@@ -102,8 +111,7 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 	add_komponente(&b_show_directory);
 
 	// init factories names
-	legend_names.clear();
-	legend_colors.clear();
+	legend.clear();
 	const stringhashtable_tpl<const fabrik_besch_t *> & fabesch = fabrikbauer_t::gib_fabesch();
 	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter (fabesch);
 
@@ -121,8 +129,7 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 				label.set_at(i++, '\0');
 			}
 
-			legend_names.append(label);
-			legend_colors.append(iter.get_current_value()->gib_kennfarbe());
+			legend.push_back(legend_entry(label, iter.get_current_value()->gib_kennfarbe()));
 		}
 	}
 
@@ -373,8 +380,8 @@ void map_frame_t::resize(const koord delta)
 
 	if(directory_visible) {
 		// full program including factory texts
-		const int fac_cols = max( 1, min( (groesse.x-2)/110, legend_names.get_count() ) );
-		const int fac_rows = ((legend_names.get_count()-1)/fac_cols)+1;
+		const int fac_cols = clamp(legend.get_count(), 1, (groesse.x - 2) / 110);
+		const int fac_rows = (legend.get_count() - 1) / fac_cols + 1;
 		offset_y +=(fac_rows*14+4);
 	}
 
@@ -468,19 +475,18 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 
 	// draw factory descriptions
 	if(directory_visible) {
-		const int fac_cols = max( 1, min( (gr.x-2)/110, legend_names.get_count() ) );
+		const int fac_cols = clamp(legend.get_count(), 1, (gr.x - 2) / 110);
 		const int width = (gr.x-10)/fac_cols;
-		for(unsigned u=0; u<legend_names.get_count(); u++) {
-
-			const int xpos = pos.x + (u%fac_cols)*width + 8;
-			const int ypos = pos.y+offset_y+(u/fac_cols)*14;
-			const int color = legend_colors[u];
+		uint u = 0;
+		for (vector_tpl<legend_entry>::const_iterator i = legend.begin(), end = legend.end(); i != end; ++i, ++u) {
+			const int xpos = pos.x + (u % fac_cols) * width + 8;
+			const int ypos = pos.y + (u / fac_cols) * 14    + offset_y;
 
 			if(ypos+LINESPACE>pos.y+gr.y) {
 				break;
 			}
-			display_fillbox_wh(xpos, ypos+1, 7, 7, color, false);
-			display_proportional(xpos + 8, ypos, legend_names[u], ALIGN_LEFT, COL_BLACK, false);
+			display_fillbox_wh(xpos, ypos+ 1 , 7, 7, i->colour, false);
+			display_proportional(xpos + 8, ypos, i->text, ALIGN_LEFT, COL_BLACK, false);
 		}
 	}
 }
