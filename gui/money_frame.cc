@@ -78,8 +78,10 @@ const char *money_frame_t::display_money(int type, char *buf, int old)
  */
 int money_frame_t::get_money_colour(int type, int old)
 {
-	sint32 i = sgn(sp->get_finance_history_year(old, type));
-	return (i <= 0) ? ((i==0) ? COL_YELLOW : MONEY_MINUS) : MONEY_PLUS;
+	sint64 i = sp->get_finance_history_year(old, type);
+	if (i < 0) return MONEY_MINUS;
+	if (i > 0) return MONEY_PLUS;
+	return COL_YELLOW;
 }
 
 
