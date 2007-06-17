@@ -922,7 +922,6 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, int citizens) :
 	/* get a unique cityname */
 	/* 9.1.2005, prissi */
 	const weighted_vector_tpl<stadt_t*>& staedte = welt->gib_staedte();
-	const int anz_staedte = staedte.get_count();
 	const int name_list_count = translator::get_count_city_name();
 
 	fflush(NULL);
