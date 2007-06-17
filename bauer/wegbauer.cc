@@ -9,6 +9,7 @@
  * Hj. Malthaner
  */
 
+#include <algorithm>
 #include "../gui/messagebox.h"
 
 #include "../simdebug.h"
@@ -186,6 +187,11 @@ void wegbauer_t::neuer_monat(karte_t *welt)
 }
 
 
+static bool compare_ways(const weg_besch_t* a, const weg_besch_t* b)
+{
+	return a->gib_topspeed() < b->gib_topspeed();
+}
+
 
 /**
  * Fill menu with icons of given waytype, return number of added entries
@@ -202,42 +208,25 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	const uint16 time = welt->get_timeline_year_month();
 
 	// list of matching types (sorted by speed)
-	slist_tpl <const weg_besch_t *> matching;
+	vector_tpl<const weg_besch_t*> matching;
 
-	stringhashtable_iterator_tpl<const weg_besch_t *> iter(alle_wegtypen);
+	stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen);
 	while(iter.next()) {
-		const weg_besch_t * besch = iter.get_current_value();
-
-		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
-
-			if(besch->gib_styp()==styp) {
-				 // DarioK: load only if the given styp maches!
-				if(besch->gib_wtyp()==wtyp &&  besch->gib_cursor()->gib_bild_nr(1)!=IMG_LEER) {
-
-					// this should avoid tram-tracks to be loaded into rail-menu
-					unsigned i;
-					for( i=0;  i<matching.count();  i++  ) {
-						// insert sorted
-						if(matching.at(i)->gib_topspeed()>besch->gib_topspeed()) {
-							matching.insert(besch,i);
-							break;
-						}
-					}
-					if(i==matching.count()) {
-						matching.append(besch);
-					}
-
-				}
-			}
+		const weg_besch_t* besch = iter.get_current_value();
+		if (besch->gib_styp() == styp &&
+				besch->gib_wtyp() == wtyp &&
+				besch->gib_cursor()->gib_bild_nr(1) != IMG_LEER && (
+					time == 0 ||
+					(besch->get_intro_year_month() <= time && time < besch->get_retire_year_month())
+				)) {
+			matching.push_back(besch);
 		}
 	}
+	std::sort(matching.begin(), matching.end(), compare_ways);
 
 	const sint32 shift_maintanance = (welt->ticks_bits_per_tag-18);
-	// now sorted ...
-	while (!matching.empty()) {
-		const weg_besch_t* besch = matching.front();
-		matching.remove_at(0);
-
+	for (vector_tpl<const weg_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
+		const weg_besch_t* besch = *i;
 		char buf[128];
 
 		sprintf(buf, "%s, %ld$ (%ld$), %dkm/h",
