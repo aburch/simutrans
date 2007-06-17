@@ -5,6 +5,7 @@
  * in other projects without written permission of the author.
  */
 
+#include <algorithm>
 #include <stdio.h>
 
 #include "../simdebug.h"
@@ -124,48 +125,36 @@ tunnelbauer_t::find_tunnel(const waytype_t wtyp, const uint32 min_speed,const ui
 }
 
 
+static bool compare_tunnels(const tunnel_besch_t* a, const tunnel_besch_t* b)
+{
+	return a->gib_topspeed() < b->gib_topspeed();
+}
 
 
 /**
  * Fill menu with icons of given waytype
  * @author Hj. Malthaner
  */
-void
-tunnelbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
-         const waytype_t wtyp,
-         const int sound_ok,
-         const int sound_ko,
-				 const karte_t *welt)
+void tunnelbauer_t::fill_menu(werkzeug_parameter_waehler_t* wzw, const waytype_t wtyp, const int sound_ok, const int sound_ko, const karte_t* welt)
 {
 	const uint16 time=welt->get_timeline_year_month();
-	slist_tpl <const tunnel_besch_t *> matching;
+	vector_tpl<const tunnel_besch_t*> matching;
 	for (vector_tpl<tunnel_besch_t*>::const_iterator i = tunnel.begin(), end = tunnel.end(); i != end; ++i) {
 		const tunnel_besch_t* besch = *i;
-		if(besch->gib_waytype()==wtyp) {
-			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
-				// add int sorted
-				unsigned j;
-				for( j=0;  j<matching.count();  j++  ) {
-					// insert sorted
-					if(matching.at(j)->gib_topspeed()>besch->gib_topspeed()) {
-						matching.insert(besch,j);
-						break;
-					}
-				}
-				if(j==matching.count()) {
-					matching.append(besch);
-				}
-			}
+		if (besch->gib_waytype() == wtyp && (
+					time == 0 ||
+					(besch->get_intro_year_month() <= time && time < besch->get_retire_year_month())
+				)) {
+			matching.push_back(besch);
 		}
 	}
-DBG_MESSAGE("tunnelbauer_t::fill_menu()","%i to be added",matching.count());
+	std::sort(matching.begin(), matching.end(), compare_tunnels);
 
 	const sint32 shift_maintanance = (welt->ticks_bits_per_tag-18);	// same costs per intervall => correct display
 
 	// now sorted ...
-	while (!matching.empty()) {
-		const tunnel_besch_t* besch = matching.front();
-		matching.remove_at(0);
+	for (vector_tpl<const tunnel_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
+		const tunnel_besch_t* besch = *i;
 		char buf[256];
 
 		sprintf(buf, "%s, %d$ (%d$), %dkm/h",
