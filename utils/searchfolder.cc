@@ -42,9 +42,10 @@ int searchfolder_t::search(const char *filepath, const char *extension)
     cstring_t lookfor;
     cstring_t ext;
 
-	while (!files.empty()) {
-		guarded_free(files.remove_first());
+	for (vector_tpl<char*>::const_iterator i = files.begin(), end = files.end(); i != end; ++i) {
+		guarded_free(*i);
 	}
+	files.clear();
 
     if(path.right(1) == "/") {
 		// Look for a directory
@@ -79,7 +80,7 @@ int searchfolder_t::search(const char *filepath, const char *extension)
 			if(stricmp(entry.name + entry_len - lookfor.len(), (const char*)lookfor) == 0) {
 				char *c = (char *)guarded_malloc( entry_len+path.len()+1 );
 				sprintf(c,"%s%s",(const char*)path,entry.name);
-				files.append(c);
+				files.push_back(c);
 			}
 		} while(_findnext(hfind, &entry) == 0 );
 	}
@@ -98,14 +99,14 @@ int searchfolder_t::search(const char *filepath, const char *extension)
 				if (strcasecmp(entry->d_name + entry_len - lookfor.len(), lookfor) == 0) {
 					char *c = (char *)guarded_malloc( entry_len+path.len()+1 );
 					sprintf(c,"%s%s", (const char*)path, entry->d_name);
-					files.append(c);
+					files.push_back(c);
 				}
 			}
 		}
 		closedir(dir);
 	}
 #endif
-    return files.count();
+	return files.get_count();
 }
 
 cstring_t searchfolder_t::complete(const char *filepath, const char *extension)
@@ -132,9 +133,8 @@ cstring_t searchfolder_t::complete(const char *filepath, const char *extension)
  */
 const char *searchfolder_t::at(unsigned int i)
 {
-	return i < files.count() ? files.at(i) : "";
+	return files[i];
 }
-
 
 
 /*
@@ -142,7 +142,7 @@ const char *searchfolder_t::at(unsigned int i)
  */
 searchfolder_t::~searchfolder_t()
 {
-	while (!files.empty()) {
-		guarded_free(files.remove_first());
+	for (vector_tpl<char*>::const_iterator i = files.begin(), end = files.end(); i != end; ++i) {
+		guarded_free(*i);
 	}
 }

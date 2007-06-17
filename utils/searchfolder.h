@@ -12,8 +12,7 @@
 
 
 #include "../utils/cstring_t.h"
-#include "../tpl/slist_tpl.h"
-
+#include "../tpl/vector_tpl.h"
 
 
 class searchfolder_t {
@@ -25,7 +24,7 @@ public:
 	const char * at(unsigned int i);
 
 	private:
-		slist_tpl<char*> files; // NEVER EVER USE ctring_T here!!!
+		vector_tpl<char*> files; // NEVER EVER USE ctring_T here!!!
 };
 
 #endif
