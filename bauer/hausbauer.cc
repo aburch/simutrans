@@ -540,25 +540,18 @@ const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int idx)
 const haus_besch_t *hausbauer_t::gib_random_station(const enum utyp utype,const uint16 time,const uint8 enables)
 {
 	slist_iterator_tpl<const haus_besch_t *> iter(hausbauer_t::station_building);
-	slist_tpl<const haus_besch_t *>stops;
+	vector_tpl<const haus_besch_t*> stops;
 
 	while(iter.next()) {
 		const haus_besch_t *besch = iter.get_current();
 		if(besch->gib_utyp()==utype  &&  (besch->get_enabled()&enables)!=0) {
 			// ok, now check timeline
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
-				stops.append(besch);
+				stops.push_back(besch);
 			}
 		}
 	}
-	// found something?
-	if (!stops.empty()) {
-		if(stops.count()==1) {
-			return stops.front();
-		}
-		return stops.at(simrand(stops.count()));
-	}
-	return NULL;
+	return stops.empty() ? NULL : stops[simrand(stops.get_count())];
 }
 
 const haus_besch_t *hausbauer_t::gib_special_intern(int bev, utyp utype,uint16 time,climate cl)
