@@ -53,6 +53,46 @@ private:
 	friend class slist_iterator_tpl<T>;
 
 public:
+		class const_iterator;
+
+		class iterator
+		{
+			public:
+				T* operator ->() const { return &ptr->data; }
+				T& operator *()  const { return ptr->data; }
+
+				iterator& operator ++() { ptr = ptr->next; return *this; }
+
+				bool operator !=(const iterator& o) { return ptr != o.ptr; }
+
+			private:
+				explicit iterator(node_t* ptr_) : ptr(ptr_) {}
+
+				node_t* ptr;
+
+			friend class slist_tpl;
+			friend class const_iterator;
+		};
+
+		class const_iterator
+		{
+			public:
+				const_iterator(const iterator& o) : ptr(o.ptr) {}
+
+				const T* operator ->() const { return &ptr->data; }
+				const T& operator *()  const { return ptr->data;  }
+
+				const_iterator& operator ++() { ptr = ptr->next; return *this; }
+
+				bool operator !=(const const_iterator& o) { return ptr != o.ptr; }
+
+			private:
+				explicit const_iterator(node_t* ptr_) : ptr(ptr_) {}
+
+				const node_t* ptr;
+
+			friend class slist_tpl;
+		};
 
 	int node_size() // debuging
 	{
@@ -296,6 +336,12 @@ public:
 
 	T& front() const { return head->data; }
 	T& back()  const { return tail->data; }
+
+	iterator begin() { return iterator(head); }
+	iterator end()   { return iterator(NULL); }
+
+	const_iterator begin() const { return const_iterator(head); }
+	const_iterator end()   const { return const_iterator(NULL); }
 
 	int index_of(T data) const
 	{
