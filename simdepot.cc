@@ -469,14 +469,12 @@ vehikel_t* depot_t::get_oldest_vehicle(int id)
 {
 	vehikel_t* oldest_veh = NULL;
 	slist_iterator_tpl<vehikel_t*> iter(get_vehicle_list());
-	if (iter.next()) {
-		oldest_veh = iter.get_current();
-		while (iter.next()) {
-			vehikel_t* veh = iter.get_current();
-			if (veh->gib_basis_bild() == id) {
-				if (oldest_veh->gib_insta_zeit() > veh->gib_insta_zeit()) {
-					oldest_veh = veh;
-				}
+	while (iter.next()) {
+		vehikel_t* veh = iter.get_current();
+		if (veh->gib_basis_bild() == id) {
+			if (oldest_veh == NULL ||
+					oldest_veh->gib_insta_zeit() > veh->gib_insta_zeit()) {
+				oldest_veh = veh;
 			}
 		}
 	}

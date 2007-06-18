@@ -825,15 +825,13 @@ vehikel_t* depot_frame_t::find_oldest_newest(const vehikel_besch_t* besch, bool 
 {
 	vehikel_t* found_veh = NULL;
 	slist_iterator_tpl<vehikel_t*> iter(depot->get_vehicle_list());
-	if (iter.next()) {
-		found_veh = iter.get_current();
-		while (iter.next()) {
-			vehikel_t* veh = iter.get_current();
-			if (veh->gib_besch() == besch) {
-				// joy of XOR, finally a line where I could use it!
-				if (old ^ (found_veh->gib_insta_zeit() > veh->gib_insta_zeit())) {
-					found_veh = veh;
-				}
+	while (iter.next()) {
+		vehikel_t* veh = iter.get_current();
+		if (veh->gib_besch() == besch) {
+			// joy of XOR, finally a line where I could use it!
+			if (found_veh == NULL ||
+					old ^ (found_veh->gib_insta_zeit() > veh->gib_insta_zeit())) {
+				found_veh = veh;
 			}
 		}
 	}
