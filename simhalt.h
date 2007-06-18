@@ -173,8 +173,10 @@ private:
 	vector_tpl<convoihandle_t> reservation;
 	koord init_pos;	// for halt without grounds, created during game initialisation
 
-	// fuer die zielverwaltung
-	slist_tpl<warenziel_t> warenziele;
+	// List with all reachable destinations
+	slist_tpl<warenziel_t> warenziele_passenger;
+	slist_tpl<warenziel_t> warenziele_mail;
+	slist_tpl<warenziel_t> warenziele_freight;
 
 	// loest warte_menge ab
 	vector_tpl<ware_t> **waren;
@@ -263,6 +265,11 @@ private:
 	uint8 sortierung;
 	bool resort_freight_info;
 
+	haltestelle_t(karte_t *welt, loadsave_t *file);
+	haltestelle_t(karte_t *welt, koord pos, spieler_t *sp);
+	~haltestelle_t();
+
+public:
 	/**
 	* Called every 255 steps
 	* will distribute the goods to changed routes (if there are any)
@@ -270,11 +277,6 @@ private:
 	*/
 	void reroute_goods();
 
-	haltestelle_t(karte_t *welt, loadsave_t *file);
-	haltestelle_t(karte_t *welt, koord pos, spieler_t *sp);
-	~haltestelle_t();
-
-public:
 	/**
 	 * getter/setter for sortby
 	 * @author hsiegeln
@@ -313,7 +315,12 @@ public:
 	spieler_t *gib_besitzer() const {return besitzer_p;}
 	void transfer_to_public_owner();
 
-	const slist_tpl<warenziel_t> * gib_warenziele() const {return &warenziele;}
+	const slist_tpl<warenziel_t> * gib_warenziele_passenger() const {return &warenziele_passenger;}
+	const slist_tpl<warenziel_t> * gib_warenziele_mail() const {return &warenziele_mail;}
+	const slist_tpl<warenziel_t> * gib_warenziele_freight() const {return &warenziele_freight;}
+
+	// returns the matchin warenziele
+	const slist_tpl<warenziel_t> * gib_warenziele(uint8 catg_index) const {return &(catg_index==0 ? warenziele_passenger : (catg_index==1 ? warenziele_mail : warenziele_freight));}
 
 	const slist_tpl<fabrik_t*>& gib_fab_list() const { return fab_list; }
 

@@ -396,6 +396,7 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 	// alle convois aufräumen
 	while (!convoi_array.empty()) {
 		convoihandle_t cnv = convoi_array.back();
+		cnv->destroy();
 		delete cnv.get_rep();	// since the convoi unbinds himself
 	}
 	convoi_array.clear();
@@ -2669,6 +2670,17 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 		iter.get_current()->rebuild_destinations();
 	}
 
+#if 0
+	// reroute goods for benchmarking
+	long dt = dr_time();
+	iter.begin();
+	while(iter.next()) {
+		iter.get_current()->reroute_goods();
+	}
+	DBG_MESSAGE("reroute_goods()","for all haltstellen_t took %ld ms", dr_time()-dt );
+#endif
+
+
 	// make counter for next month
 	ticks = ticks % karte_t::ticks_per_tag;
 	next_month_ticks = karte_t::ticks_per_tag;
@@ -2699,7 +2711,7 @@ karte_t::get_halt_koord_index(koord k)
 		return halthandle_t();
 	}
 	// already there?
-	const halthandle_t &h=lookup(k)->gib_halt();
+	const halthandle_t h=lookup(k)->gib_halt();
 	if(!h.is_bound()) {
 		// no => create
 		return haltestelle_t::create( this, k, NULL );

@@ -145,7 +145,7 @@ public:
 	* @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
 	* @author Hj. Malthaner
 	*/
-	const halthandle_t &gib_halt() const {return this_halt;}
+	const halthandle_t gib_halt() const {return this_halt;}
 
 private:
 	// these functions are private helper functions for halt_list corrections
@@ -173,7 +173,7 @@ public:
 	* @author prissi
 	*/
 	const halthandle_t *get_haltlist() const { return halt_list; }
-	const uint8 &get_haltlist_count() const { return halt_list_count; }
+	const uint8 get_haltlist_count() const { return halt_list_count; }
 
 	void rdwr(karte_t *welt, loadsave_t *file);
 

@@ -510,9 +510,16 @@ void haltestelle_t::reroute_goods()
 			// delete, if nothing connects here
 			if (warray->empty()) {
 				bool delete_it = true;
-				slist_iterator_tpl<warenziel_t> iter(warenziele);
-				while(iter.next()  &&  delete_it) {
-					delete_it = iter.get_current().gib_typ()->gib_catg_index()!=i;
+				switch(i) {
+					case 0: delete_it = warenziele_passenger.empty();
+						break;
+					case 1: delete_it = warenziele_mail.empty();
+						break;
+					default:
+						slist_iterator_tpl<warenziel_t> iter(warenziele_freight);
+						while(iter.next()  &&  delete_it) {
+							delete_it = iter.get_current().gib_catg_index()!=i;
+						}
 				}
 				if(delete_it) {
 					// no connections from here => delete
@@ -582,7 +589,9 @@ haltestelle_t::remove_fabriken(fabrik_t *fab)
 void haltestelle_t::rebuild_destinations()
 {
 	// Hajo: first, remove all old entries
-	warenziele.clear();
+	warenziele_passenger.clear();
+	warenziele_mail.clear();
+	warenziele_freight.clear();
 	rebuilt_destination_counter = welt->get_schedule_counter();
 
 // DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "Adding new table entries");
@@ -667,6 +676,7 @@ void
 haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 {
 	const ware_besch_t * warentyp = ware.gib_typ();
+	const uint8 ware_catg_index = warentyp->gib_catg_index();
 	const koord ziel = ware.gib_zielpos();
 
 	// since also the factory halt list is added to the ground, we can use just this ...
@@ -685,13 +695,13 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	}
 
 	if (ziel_list.empty()) {
+		//no target station found
 		ware.setze_ziel( halthandle_t() );
 		ware.setze_zwischenziel( halthandle_t() );
 		// printf("keine route zu %d,%d nach %d steps\n", ziel.x, ziel.y, step);
 		if(next_to_ziel!=NULL) {
 			*next_to_ziel = koord::invalid;
 		}
-//DBG_MESSAGE("suche_route()","no target near (%i,%i) out of %i stations!",ziel.x,ziel.y,halt_list.get_count());
 		return;
 	}
 
@@ -739,9 +749,6 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 	self->marke = current_mark;
 
-	// Breitensuche
-	// long t0 = get_current_time_millis();
-
 	do {
 		tmp = queue.remove_first();
 		const halthandle_t halt = tmp->halt;
@@ -755,23 +762,20 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 		//      to queue if the limit is reached
 		if(tmp->depth < max_transfers) {
 
-			// ziele prüfen
-			slist_iterator_tpl<warenziel_t> iter(halt->warenziele);
+			if(ware_catg_index<2) {
 
-			while(iter.next() && step<max_hops) {
-
-				// check if destination if for the goods type
-				warenziel_t wz = iter.get_current();
-
-				if(wz.gib_typ()->is_interchangeable(warentyp)) {
+				/* for passengers and mail only matchin connectings are in the list
+				 * => we can skip many checks
+				 */
+				slist_iterator_tpl<warenziel_t> iter(halt->gib_warenziele(ware_catg_index));
+				while(iter.next() && step<max_hops) {
 
 					// since these are precalculated, they should be always pointing to a valid ground
 					// (if not, we were just under construction, and will be fine after 16 steps)
-					const halthandle_t &tmp_halt = welt->lookup(wz.gib_ziel())->gib_halt();
-					if(tmp_halt.is_bound() && tmp_halt->marke != current_mark &&  tmp_halt->is_enabled(warentyp)) {
+					const halthandle_t tmp_halt = iter.get_current().gib_zielhalt();
+					if(tmp_halt.is_bound() &&  tmp_halt->marke!=current_mark) {
 
 						HNode *node = &nodes[step++];
-
 						node->halt = tmp_halt;
 						node->depth = tmp->depth + 1;
 						node->link = tmp;
@@ -782,31 +786,46 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 					}
 				}
 			}
+			else {
+				// for freight, we need more detailed check
+				slist_iterator_tpl<warenziel_t> iter(halt->gib_warenziele(ware_catg_index));
+
+				while(iter.next() && step<max_hops) {
+
+					// check if destination if for the goods type
+					const warenziel_t &wz = iter.get_current();
+
+					if(wz.gib_catg_index()==ware_catg_index) {
+
+						// since these are precalculated, they should be always pointing to a valid ground
+						// (if not, we were just under construction, and will be fine after 16 steps)
+						const halthandle_t tmp_halt = wz.gib_zielhalt();
+						if(tmp_halt.is_bound() && tmp_halt->marke != current_mark &&  tmp_halt->is_enabled(warentyp)) {
+
+							HNode *node = &nodes[step++];
+
+							node->halt = tmp_halt;
+							node->depth = tmp->depth + 1;
+							node->link = tmp;
+							queue.append( node );
+
+							// betretene Haltestellen markieren
+							tmp_halt->marke = current_mark;
+						}
+					}
+				}
+			}
 
 		} // max transfers
-		/*
-		else {
-			printf("routing %s to %s -> transfer limit reached\n",
-				ware.gib_name(),
-				gib_halt(ware.gib_ziel())->gib_name());
 
-		}
-		*/
 	} while (!queue.empty() && step < max_hops);
 
 	// if the loop ends, nothing was found
 	tmp = 0;
 
-	// printf("No route found in %d steps\n", step);
-
 found:
 
-	// long t1 = get_current_time_millis();
-	// printf("Route calc took %ld ms, %d steps\n", t1-t0, step);
-
 	INT_CHECK("simhalt 606");
-
-	// long t2 = get_current_time_millis();
 
 	if(tmp) {
 		// ziel gefunden
@@ -817,7 +836,6 @@ found:
 			ware.setze_zwischenziel(ware.gib_ziel());
 			if(next_to_ziel!=NULL) {
 				// for reverse route the next hop, but not hop => enter start
-//DBG_DEBUG("route","zwischenziel %s",tmp->halt->gib_name() );
 				*next_to_ziel = self->gib_basis_pos();
 			}
 		}
@@ -826,7 +844,6 @@ found:
 			if(next_to_ziel!=NULL) {
 				// for reverse route the next hop
 				*next_to_ziel = tmp->link->halt->gib_basis_pos();
-//DBG_DEBUG("route","zwischenziel %s",tmp->halt->gib_name(), start->gib_name() );
 			}
 			// zwischenziel ermitteln
 			while(tmp->link->link) {
@@ -835,20 +852,11 @@ found:
 			ware.setze_zwischenziel(tmp->halt);
 		}
 
-		/*
-		printf("route %s to %s via %s in %d steps\n",
-		ware.gib_name(),
-		gib_halt(ware.gib_ziel())->gib_name(),
-		gib_halt(ware.gib_zwischenziel())->gib_name(),
-		step);
-		*/
 	}
 	else {
-		// Kein Ziel gefunden
-
+		// no suitable target station found
 		ware.setze_ziel( halthandle_t() );
 		ware.setze_zwischenziel( halthandle_t() );
-		// printf("keine route zu %d,%d nach %d steps\n", ziel.x, ziel.y, step);
 		if(next_to_ziel!=NULL) {
 			*next_to_ziel = koord::invalid;
 		}
@@ -1346,10 +1354,10 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 bool
 haltestelle_t::is_connected(const halthandle_t halt, const ware_besch_t * wtyp)
 {
-	slist_iterator_tpl<warenziel_t> iter(warenziele);
+	slist_iterator_tpl<warenziel_t> iter(gib_warenziele(wtyp->gib_catg_index()));
 	while(iter.next()) {
-		warenziel_t &tmp = iter.access_current();
-		if(tmp.gib_typ()->is_interchangeable(wtyp) && gib_halt(welt,tmp.gib_ziel())==halt) {
+		const warenziel_t &tmp = iter.get_current();
+		if(tmp.gib_catg_index()==wtyp->gib_catg_index() && tmp.gib_zielhalt()==halt) {
 			return true;
 		}
 	}
@@ -1366,23 +1374,24 @@ haltestelle_t::hat_gehalten(const ware_besch_t *type, const fahrplan_t *fpl)
 
 			// Hajo: Haltestelle selbst wird nicht in Zielliste aufgenommen
 			halthandle_t halt = gib_halt(welt, fpl->eintrag[i].pos);
-			// Hajo: Nicht existierende Ziele (wegpunkte) werden übersprungen
-			if(!halt.is_bound()  ||  halt==self) {
+			// not existing, or own, or not enabled => ignore
+			if(!halt.is_bound()  ||  halt==self  ||  !halt->is_enabled(type)) {
 				continue;
 			}
-			// we need to do this here; otherwise the position of the stop (if in water) may not directly be a halt!
-			const warenziel_t wz (halt->gib_basis_pos(), type);
 
-			slist_iterator_tpl<warenziel_t> iter(warenziele);
+			// we need to do this here; otherwise the position of the stop (if in water) may not directly be a halt!
+			const warenziel_t wz (halt, type);
+
+			slist_tpl<warenziel_t> *wz_list = &(type->gib_catg_index()==0 ? warenziele_passenger : (type->gib_catg_index()==1 ? warenziele_mail : warenziele_freight));
+			slist_iterator_tpl<warenziel_t> iter(wz_list);
 			while(iter.next()) {
-				warenziel_t &tmp = iter.access_current();
-				// since we only have valid coordinates here, we can also directly look up the handle (not using gib_halt)
-				if(tmp.gib_typ()->is_interchangeable(type) &&  welt->lookup(tmp.gib_ziel())->gib_halt()==welt->lookup(wz.gib_ziel())->gib_halt()) {
+				const warenziel_t &tmp = iter.get_current();
+				if(tmp.gib_catg_index()==type->gib_catg_index() &&  tmp.gib_zielhalt()==wz.gib_zielhalt()) {
 					goto skip;
 				}
 			}
 
-			warenziele.insert(wz);
+			wz_list->insert(wz);
 			skip:;
 		}
 	}
@@ -1852,14 +1861,6 @@ haltestelle_t::rdwr(loadsave_t *file)
 		s = "";
 		file->rdwr_str(s, "N");
 
-		count = warenziele.count();
-		file->rdwr_short(count, " ");
-		slist_iterator_tpl<warenziel_t>ziel_iter(warenziele);
-		while(ziel_iter.next()) {
-			warenziel_t wz = ziel_iter.get_current();
-			wz.rdwr(file);
-		}
-
 	} else {
 		// restoring all goods in the station
 		s = NULL;
@@ -1875,14 +1876,16 @@ haltestelle_t::rdwr(loadsave_t *file)
 			}
 			file->rdwr_str(s, "N");
 		}
-
-		// resoring connections ...
-		file->rdwr_short(count, " ");
-		for(int i=0; i<count; i++) {
-			warenziel_t wz (file);
-			warenziele.append(wz);
-		}
 		guarded_free(const_cast<char *>(s));
+
+		// old games save the list with stations
+		// however, we have to rebuilt them anyway for the new format
+		if(file->get_version()<99013) {
+			file->rdwr_short(count, " ");
+			for(int i=0; i<count; i++) {
+				warenziel_t wz (file);
+			}
+		}
 	}
 
 	for (int j = 0; j<MAX_HALT_COST; j++) {

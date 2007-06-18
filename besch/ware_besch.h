@@ -37,7 +37,7 @@ class ware_besch_t : public obj_besch_std_name_t {
 	uint8 catg;
 
 	/**
-	* total index, all ware with same cagt index will be compatible,
+	* total index, all ware with same catg_index will be compatible,
 	* including special freight
 	* assigned during registration
 	* @author prissi

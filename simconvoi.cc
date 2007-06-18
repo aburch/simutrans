@@ -171,10 +171,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	// @author hsiegeln - deregister from line
 	unset_line();
 
-	for(int i=anz_vehikel-1;  i>=0; i--) {
-		fahr[i]->setze_convoi( NULL );
-		delete fahr[i];
-	}
+	assert(anz_vehikel==0);
 
 	welt->sync_remove( this );
 	welt->rem_convoi( self );
@@ -1829,12 +1826,18 @@ void convoi_t::self_destruct()
  */
 void convoi_t::destroy()
 {
+	// can be only done here, with a valid convoihandle ...
 	if(fahr[0]) {
 		fahr[0]->setze_convoi(NULL);
 	}
-	for( unsigned i=0;  i<anz_vehikel;  i++) {
+
+	for(int i=anz_vehikel-1;  i>=0; i--) {
 		fahr[i]->verlasse_feld();
+		fahr[i]->setze_pos( koord3d::invalid );
+		delete fahr[i];
 	}
+	anz_vehikel = 0;
+
 	delete this;
 }
 

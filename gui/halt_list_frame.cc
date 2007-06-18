@@ -137,8 +137,7 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 		ok = (farbe==COL_RED  ||  farbe==COL_ORANGE);
 	}
 	if(!ok && gib_filter(ohneverb_filter)) {
-	    const slist_tpl<warenziel_t> *ziele = halt->gib_warenziele();
-		ok = ziele->empty(); //only display stations with NO connection
+		ok = halt->gib_warenziele_passenger()->empty()  &&  halt->gib_warenziele_mail()->empty()  &&  halt->gib_warenziele_freight()->empty(); //only display stations with NO connection
 	}
 	if(!ok) {
 	    return false;

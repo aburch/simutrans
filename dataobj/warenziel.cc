@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include "warenziel.h"
+#include "koord.h"
 
 #include "../simmem.h"
 #include "../besch/ware_besch.h"
@@ -15,13 +16,6 @@
 
 #include "../simtypes.h"
 #include "loadsave.h"
-
-warenziel_t::warenziel_t(koord ziel, const ware_besch_t *typ)
-{
-  this->ziel = ziel;
-  this->typ = typ;
-}
-
 
 warenziel_t::warenziel_t(loadsave_t *file)
 {
@@ -32,18 +26,18 @@ warenziel_t::warenziel_t(loadsave_t *file)
 void
 warenziel_t::rdwr(loadsave_t *file)
 {
+	// dummy ...
+	koord ziel;
   ziel.rdwr(file);
 
   const char *tn = NULL;
-
   if(file->is_saving()) {
-    tn = typ->gib_name();
+		tn = warenbauer_t::gib_info_catg_index(catg_index)->gib_name();
   }
-
   file->rdwr_str(tn, " ");
-
   if(file->is_loading()) {
-    typ = warenbauer_t::gib_info(tn);
+		halt = halthandle_t();
+		catg_index = warenbauer_t::gib_info(tn)->gib_catg_index();
     guarded_free(const_cast<char *>(tn));
   }
 }

@@ -20,6 +20,7 @@
 	CHANGE: sync_list changed from slist_tpl to ptrhashtable_tpl => remove from 5% to 0.3% game time for all sync-objects (cars, pedestrians, animated buildings, smoke, ... )
 	FIX: wrong outdated flag due to missing initialisation after loading of a convoi
 	FIX: overflow in money frame color calculation
+	ADD: now three lists for connecting stations, depending on the freight type => about 50% faster route search
 
 
 Release of 99.12

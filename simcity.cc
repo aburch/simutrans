@@ -1529,11 +1529,11 @@ void stadt_t::step_passagiere()
 				}
 
 				// we just have to ensure, the ware can be delivered at this station
-				warenziel_t wz(start_halt->gib_basis_pos(), wtyp);
+				warenziel_t wz(start_halt, wtyp);
 				bool found = false;
 				for (uint i = 0; i < plan->get_haltlist_count(); i++) {
 					halthandle_t test_halt = halt_list[i];
-					if (test_halt->is_enabled(wtyp) && (start_halt == test_halt || test_halt->gib_warenziele()->contains(wz))) {
+					if (test_halt->is_enabled(wtyp) && (start_halt == test_halt || test_halt->gib_warenziele(wtyp->gib_catg_index())->contains(wz))) {
 						found = true;
 						start_halt = test_halt;
 						break;

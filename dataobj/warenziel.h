@@ -8,9 +8,10 @@
 #ifndef dataobj_warenziel_h
 #define dataobj_warenziel_h
 
-#include "koord.h"
+#include "../halthandle_t.h"
+#include "../besch/ware_besch.h"
 
-class ware_besch_t;
+class loadsave_t;
 
 /**
  * Diese Klasse wird zur Verwaltung von Zielen von
@@ -23,10 +24,12 @@ class ware_besch_t;
 class warenziel_t
 {
 private:
-    koord ziel;
-    const ware_besch_t *typ;
+//    koord ziel;
+		halthandle_t halt;
+    uint8 catg_index;
 
 public:
+	/*
     // don't use them, or fix them: Actually, these should check for stops
     // but they are needed for list search ...
     int operator==(const warenziel_t &wz) {
@@ -35,17 +38,26 @@ public:
     int operator!=(const warenziel_t &wz) {
         return ziel!=wz.gib_ziel()  ||  typ!=wz.gib_typ();
     }
+*/
+    // don't use them, or fix them: Actually, these should check for stops
+    // but they are needed for list search ...
+    int operator==(const warenziel_t &wz) {
+        return (halt == wz.gib_zielhalt()  &&  catg_index==wz.gib_catg_index());
+    }
+    int operator!=(const warenziel_t &wz) {
+        return halt!=wz.gib_zielhalt()  ||  catg_index!=wz.gib_catg_index();
+    }
 
-    warenziel_t() { typ = 0; }
+		warenziel_t() { catg_index = 255; halt = halthandle_t();}
 
-    warenziel_t(koord ziel, const ware_besch_t *b);
+		warenziel_t(halthandle_t &h, const ware_besch_t *b) { halt = h; catg_index = b->gib_catg_index(); }
 
     warenziel_t(loadsave_t *file);
 
-    void setze_ziel(koord z) { ziel = z; }
-    const koord& gib_ziel() const { return ziel; }
+    void setze_zielhalt(halthandle_t &h) { halt = h; }
+    const halthandle_t gib_zielhalt() const { return halt; }
 
-    const ware_besch_t* gib_typ() const { return typ; }
+    const uint8 gib_catg_index() const { return catg_index; }
 
     void rdwr(loadsave_t *file);
 

@@ -138,44 +138,90 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 
 	buf.append("\n");
 	buf.append(translator::translate("Direkt erreichbare Haltestellen"));
-	buf.append(":\n");
+	buf.append("\n");
+	bool has_stops = false;
 
-	const slist_tpl<warenziel_t> *ziele = halt->gib_warenziele();
-	slist_iterator_tpl<warenziel_t> iter (ziele);
-
-	while(iter.next()) {
-		warenziel_t wz = iter.get_current();
-		halthandle_t a_halt = halt->gib_halt(welt,wz.gib_ziel());
-		if(a_halt.is_bound()) {
-
-			buf.append(" ");
-			buf.append(a_halt->gib_name());
-			buf.append(":\n");
-
-			bool first = true;
-
-			for(uint32 i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-				const ware_besch_t *ware = warenbauer_t::gib_info(i);
-
-				if(wz.gib_typ()->is_interchangeable(ware)) {
-
-				if(first) {
-					buf.append(" ·");
-					buf.append(translator::translate(ware->gib_name()));
-					first = false;
-
-				} else {
-					buf.append(", ");
-					buf.append(translator::translate(ware->gib_name()));
-				}
-			}
-		}
-
+	if(!halt->gib_warenziele_passenger()->empty()) {
 		buf.append("\n");
+		buf.append(" ·");
+		buf.append(translator::translate(warenbauer_t::passagiere->gib_name()));
+		buf.append(":\n");
+		const slist_tpl<warenziel_t> *ziele = halt->gib_warenziele_passenger();
+		slist_iterator_tpl<warenziel_t> iter (ziele);
+		while(iter.next()) {
+			warenziel_t wz = iter.get_current();
+			halthandle_t a_halt = wz.gib_zielhalt();
+			if(a_halt.is_bound()) {
+
+				buf.append(" ");
+				buf.append(a_halt->gib_name());
+				buf.append("\n");
+				has_stops = true;
+			}
 		}
 	}
 
-	if (ziele->empty()) {
+	if(!halt->gib_warenziele_mail()->empty()) {
+		buf.append("\n");
+		buf.append(" ·");
+		buf.append(translator::translate(warenbauer_t::post->gib_name()));
+		buf.append(":\n");
+		const slist_tpl<warenziel_t> *ziele = halt->gib_warenziele_mail();
+		slist_iterator_tpl<warenziel_t> iter (ziele);
+		while(iter.next()) {
+			warenziel_t wz = iter.get_current();
+			halthandle_t a_halt = wz.gib_zielhalt();
+			if(a_halt.is_bound()) {
+
+				buf.append(" ");
+				buf.append(a_halt->gib_name());
+				buf.append("\n");
+				has_stops = true;
+			}
+		}
+	}
+
+	buf.append("\n\n");
+	if(!halt->gib_warenziele_freight()->empty()) {
+
+		bool first = true;
+
+		const slist_tpl<warenziel_t> *ziele = halt->gib_warenziele_freight();
+		slist_iterator_tpl<warenziel_t> iter (ziele);
+		while(iter.next()) {
+				warenziel_t wz = iter.get_current();
+				halthandle_t a_halt = wz.gib_zielhalt();
+				if(a_halt.is_bound()) {
+
+					buf.append(" ");
+					buf.append(a_halt->gib_name());
+					buf.append("\n");
+					has_stops = true;
+					first = true;
+
+					for(uint32 i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
+						const ware_besch_t *ware = warenbauer_t::gib_info(i);
+
+						if(wz.gib_catg_index()==ware->gib_catg_index()) {
+
+						if(first) {
+							buf.append(" ·");
+							buf.append(translator::translate(ware->gib_name()));
+							first = false;
+
+						} else {
+							buf.append(", ");
+							buf.append(translator::translate(ware->gib_name()));
+						}
+					}
+				}
+
+				buf.append("\n");
+			}
+		}
+	}
+
+	if (!has_stops) {
 		buf.append(" ");
 		buf.append(translator::translate("keine"));
 		buf.append("\n");
