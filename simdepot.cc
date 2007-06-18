@@ -238,7 +238,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 				const vehikel_besch_t * info = old_cnv->gib_vehikel(i)->gib_besch();
 				if (info != NULL) {
 					// search in depot for an existing vehicle of correct type
-					vehikel_t* oldest_vehicle = get_oldest_vehicle(old_cnv->gib_vehikel(i)->gib_basis_bild());
+					vehikel_t* oldest_vehicle = get_oldest_vehicle(info);
 					if (oldest_vehicle != NULL) {
 						// append existing vehicle
 						append_vehicle(convois.back(), oldest_vehicle, false);
@@ -465,13 +465,13 @@ depot_t::create_line()
 }
 
 
-vehikel_t* depot_t::get_oldest_vehicle(int id)
+vehikel_t* depot_t::get_oldest_vehicle(const vehikel_besch_t* besch)
 {
 	vehikel_t* oldest_veh = NULL;
 	slist_iterator_tpl<vehikel_t*> iter(get_vehicle_list());
 	while (iter.next()) {
 		vehikel_t* veh = iter.get_current();
-		if (veh->gib_basis_bild() == id) {
+		if (veh->gib_besch() == besch) {
 			if (oldest_veh == NULL ||
 					oldest_veh->gib_insta_zeit() > veh->gib_insta_zeit()) {
 				oldest_veh = veh;

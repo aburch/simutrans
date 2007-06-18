@@ -216,11 +216,11 @@ public:
 	virtual const char * ist_entfernbar(const spieler_t *sp);
 
 	/**
-	 * identifies the oldest vehicle of a certain type (id)
+	 * identifies the oldest vehicle of a certain type
 	 * returns NULL if no vehicle is found
 	 * @author hsiegeln (stolen from Hajo)
 	 */
-	vehikel_t* get_oldest_vehicle(int id);
+	vehikel_t* get_oldest_vehicle(const vehikel_besch_t* besch);
 
 #if USE_NEW_GEBAUDE
 		virtual void* operator new(size_t s) { return freelist_t::gimme_node(sizeof(depot_t)); }
