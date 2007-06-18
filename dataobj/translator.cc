@@ -293,15 +293,13 @@ bool translator::load(const cstring_t& scenario_path)
 
 	DBG_MESSAGE("translator::load()", "Loading languages...");
 	searchfolder_t folder;
-	int num_lang_dat = folder.search("text/", "tab");
-
-	DBG_MESSAGE("translator::load()", "%d languages to load", num_lang_dat);
-	int loc = MAX_LANG;
+	folder.search("text/", "tab");
 
 	//only allows MAX_LANG number of languages to be loaded
 	//read now the basic language infos
-	while (num_lang_dat-- > 0  &&  loc > 0) {
-		cstring_t fileName(folder.at(num_lang_dat));
+	uint loc = MAX_LANG;
+	for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
+		cstring_t fileName(*i);
 		cstring_t testFolderName("text/");
 		cstring_t iso = fileName.substr(fileName.find_back('/') + 1, fileName.len() - 4);
 
@@ -314,7 +312,16 @@ bool translator::load(const cstring_t& scenario_path)
 			load_language_file(file);
 			fclose(file);
 			single_instance.lang_count++;
-			loc--;
+			if (--loc == 0) {
+				if (++i != end) {
+					// some languages were not loaded, let the user know what happened
+					dbg->warning("translator::load()", "some languages were not loaded, limit reached");
+					for (; i != end; ++i) {
+						dbg->warning("translator::load()", " %s not loaded", *i);
+					}
+				}
+				break;
+			}
 		}
 	}
 
@@ -324,8 +331,8 @@ bool translator::load(const cstring_t& scenario_path)
 	int num_pak_lang_dat = folder.search(folderName, "tab");
 	DBG_MESSAGE("translator::load()", "search folder \"%s\" and found %i files", (const char*)folderName, num_pak_lang_dat);
 	//read now the basic language infos
-	while (num_pak_lang_dat-- > 0) {
-		cstring_t fileName(folder.at(num_pak_lang_dat));
+	for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
+		cstring_t fileName(*i);
 		cstring_t iso = fileName.substr(fileName.find_back('/') + 1, fileName.len() - 4);
 
 		int iso_nr = get_language_iso(iso);
@@ -341,15 +348,6 @@ bool translator::load(const cstring_t& scenario_path)
 			}
 		} else {
 			dbg->warning("translator::load()", "no basic texts for language '%s'", (const char*)iso);
-		}
-	}
-
-	// some languages not loaded
-	// let the user know what's happened
-	if (num_lang_dat > 0) {
-		dbg->warning("translator::load()", "%d languages were not loaded, limit reached", num_lang_dat);
-		while (num_lang_dat-- > 0) {
-			dbg->warning("translator::load()", " %s not loaded", folder.at(num_lang_dat));
 		}
 	}
 

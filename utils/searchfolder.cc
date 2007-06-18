@@ -124,18 +124,6 @@ cstring_t searchfolder_t::complete(const char *filepath, const char *extension)
 	return path;
 }
 
-/**
- *  Autor:
- *      Volker Meyer
- *
- *  Beschreibung:
- *      Liefert das i-te Ergebnis der letzten Suche.
- */
-const char *searchfolder_t::at(unsigned int i)
-{
-	return files[i];
-}
-
 
 /*
  * since we explicitly alloc the char *'s we must free them here

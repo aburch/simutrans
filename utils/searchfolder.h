@@ -21,7 +21,10 @@ public:
 	int search(const char *filepath, const char *extension);
 
 	static cstring_t complete(const char *filepath, const char *extension);
-	const char * at(unsigned int i);
+
+	typedef vector_tpl<char*>::const_iterator const_iterator;
+	const_iterator begin() const { return files.begin(); }
+	const_iterator end()   const { return files.end();   }
 
 	private:
 		vector_tpl<char*> files; // NEVER EVER USE ctring_T here!!!

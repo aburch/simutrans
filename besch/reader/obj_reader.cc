@@ -83,9 +83,9 @@ bool obj_reader_t::init(const char *liste)
 					continue;
 				}
 
-				int max=find.search(buf, "pak");
-				for(i=max;  i-->0; ) {
-					read_file(find.at(i));
+				find.search(buf, "pak");
+				for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i) {
+					read_file(*i);
 				}
 			}
 			fclose(listfp);
@@ -134,10 +134,11 @@ DBG_MESSAGE("obj_reader_t::init()","big logo %p", skinverwaltung_t::biglogosymbo
 		display_free_all_images_above(0);
 
 DBG_MESSAGE("obj_reader_t::init()", "reading from '%s'", (const char*)name);
-		for(i=max;  i-->0; ) {
-			read_file(find.at(i));
-			if(((max-i)&teilung)==0  &&  drawing) {
-				display_progress(max-i,max);
+		uint n = 0;
+		for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i) {
+			read_file(*i);
+			if ((n & teilung) == 0 && drawing) {
+				display_progress(n, max);
 				display_flush(IMG_LEER, 0, "", "", 0, 0);
 			}
 		}
