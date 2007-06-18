@@ -62,10 +62,8 @@ public:
 	*  with recalculate_slider() to update the scrollbar properly. */
 	// clear list of elements
 	void clear_elements();
-	void insert_element(const char *string, const int pos=0, const uint8 color=COL_BLACK);
 	void append_element(const char *string, const uint8 color=COL_BLACK);
 	const char *get_element(int i) const { return ((unsigned)i<item_list.count()) ? item_list.at(i).text : ""; }
-	void remove_element(const int pos);
 
 	/**
 	* request other pane-size. returns realized size.

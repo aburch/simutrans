@@ -81,31 +81,12 @@ void gui_scrolled_list_t::clear_elements()
 }
 
 
-
-void gui_scrolled_list_t::insert_element(const char *string, const int pos /*= 0*/, const uint8 color /*COL_BLACK*/)
-{
-	item it={ string, color };
-	item_list.insert(it, pos);
-	sb.setze_knob(groesse.y-border, total_vertical_size());
-}
-
-
-
 void gui_scrolled_list_t::append_element(const char *string,const uint8 color)
 {
 	item it={ string, color };
 	item_list.append(it);
 	sb.setze_knob(groesse.y-border, total_vertical_size());
 }
-
-
-
-void gui_scrolled_list_t::remove_element(const int pos)
-{
-	item_list.remove_at(pos);
-	sb.setze_knob(groesse.y-border, total_vertical_size());
-}
-
 
 
 // no less than 3, must be room for scrollbuttons
