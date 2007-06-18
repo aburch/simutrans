@@ -37,10 +37,12 @@ class slist_tpl
 private:
 	struct node_t
 	{
+		node_t(const T& data_, node_t* next_) : next(next_), data(data_) {}
+
 		void* operator new(size_t) { return freelist_t::gimme_node(sizeof(node_t)); }
 		void operator delete(void* p) { freelist_t::putback_node(sizeof(node_t), p); }
 
-		node_t *next;
+		node_t* next;
 		T data;
 	};
 
@@ -79,18 +81,11 @@ public:
    *
    * @author Hj. Malthaner
    */
-	void insert(T data)
+	void insert(const T& data)
 	{
-		node_t* tmp = new node_t();
-
-		// vorne einfuegen
-		tmp->next = head;
+		node_t* tmp = new node_t(data, head);
 		head = tmp;
-		head->data = data;
-
-		if(tail == NULL) {
-			tail = tmp;
-		}
+		if (tail == NULL) tail = tmp;
 		node_count++;
 	}
 
@@ -99,7 +94,7 @@ public:
    * - pos must be in the range 0..count().
    * @author V. Meyer
    */
-  void insert(T data, unsigned int pos)
+  void insert(const T& data, unsigned int pos)
   {
 		if(pos > node_count) {
 			dbg->fatal("slist_tpl<T>::insert()","<%s> index %d is out of bounds (<%d)",typeid(T).name(),pos,count());
@@ -114,9 +109,7 @@ public:
 			p = p->next;
 		}
 		// insert between p and p->next
-		node_t* tmp = new node_t();
-		tmp->data = data;
-		tmp->next = p->next;
+		node_t* tmp = new node_t(data, p->next);
 		p->next = tmp;
 
 		if(tail == p) {
@@ -130,16 +123,12 @@ public:
    *
    * @author Hj. Malthaner
    */
-  void append(T data)
+  void append(const T& data)
   {
-		if(tail == 0) {
+		if (tail == 0) {
 			insert(data);
-		}
-		else {
-			node_t* tmp = new node_t();
-			tmp->data = data;
-			tmp->next = 0;
-
+		} else {
+			node_t* tmp = new node_t(data, 0);
 			tail->next = tmp;
 			tail = tmp;
 			node_count++;
@@ -339,17 +328,15 @@ private:
     typename slist_tpl<T>::node_t lead;	// element zero
 
 public:
-	slist_iterator_tpl(const slist_tpl<T> *list)
-	{
-		current_node = &lead;
-		lead.next = list->head;
-	}
+	slist_iterator_tpl(const slist_tpl<T>* list) :
+		current_node(&lead),
+		lead(T(), list->head)
+	{}
 
-	slist_iterator_tpl(const slist_tpl<T> &list)
-	{
-		current_node = &lead;
-		lead.next = list.head;
-	}
+	slist_iterator_tpl(const slist_tpl<T>& list) :
+		current_node(&lead),
+		lead(T(), list.head)
+	{}
 
 	slist_iterator_tpl<T> &operator = (const slist_iterator_tpl<T> &iter)
 	{
