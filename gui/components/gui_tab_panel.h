@@ -11,12 +11,6 @@
  */
 class gui_tab_panel_t : public gui_komponente_action_creator_t
 {
-private:
-    slist_tpl <gui_komponente_t *> tabs;
-    slist_tpl <const char *> namen;
-
-    int active_tab;
-
 public:
     enum { HEADER_VSIZE = 18};
 
@@ -34,7 +28,7 @@ public:
      * Gibt die aktuell angezeigte Komponente zurück.
      * @author Hj. Malthaner
      */
-    gui_komponente_t * gib_aktives_tab() const { return tabs.at(active_tab); }
+    gui_komponente_t* gib_aktives_tab() const { return tabs.at(active_tab).component; }
 
     int get_active_tab_index() { return active_tab; }
 
@@ -57,6 +51,18 @@ public:
      * @date  18.06.2003
      */
     void setze_groesse(koord groesse);
+
+	private:
+		struct tab
+		{
+			tab(gui_komponente_t* c, const char* t) : component(c), title(t) {}
+
+			gui_komponente_t* component;
+			const char*       title;
+		};
+
+		slist_tpl<tab> tabs;
+		int active_tab;
 };
 
 #endif
