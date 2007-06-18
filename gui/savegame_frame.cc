@@ -48,13 +48,13 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 #ifndef _MSC_VER
 	// find filenames
 	DIR     *dir;                      /* Schnittstellen zum BS */
-	struct  dirent  *entry;
 
 	dir=opendir(SAVE_PATH_X ".");
 
 	if(dir==NULL) {
 		dbg->warning("savegame_frame_t::savegame_frame_t()","Couldn't read directory.");
 	} else {
+		const dirent* entry;
 		do {
 			entry=readdir(dir);
 			if(entry!=NULL) {
@@ -79,31 +79,33 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 		closedir(dir);
 	}
 #else
-	struct _finddata_t entry;
-	long hfind;
+	{
+		struct _finddata_t entry;
+		long hfind;
 
-	char wild[32];
-	tstrncpy(wild, SAVE_PATH_X "*", lengthof(wild));
-	strcat(wild, suffix);
+		char wild[32];
+		tstrncpy(wild, SAVE_PATH_X "*", lengthof(wild));
+		strcat(wild, suffix);
 
-	hfind = _findfirst( wild, &entry);
-	if(hfind == -1) {
-		dbg->warning("savegame_frame_t::savegame_frame_t()","Couldn't read directory.");
-	} else {
-		do{
-			if(!use_pak_extension) {
-				add_file(entry.name, "");
-			}
-			else {
-				// this is a savegame:
-				// read also the pak extension
-				loadsave_t test;
-				char p[1024];
-				sprintf( p, "%s%s", SAVE_PATH_X, entry.name );
-				test.rd_open(p);
-				add_file( entry.name, test.get_pak_extension() );
-			}
-		} while(_findnext(hfind, &entry) == 0 );
+		hfind = _findfirst( wild, &entry);
+		if(hfind == -1) {
+			dbg->warning("savegame_frame_t::savegame_frame_t()","Couldn't read directory.");
+		} else {
+			do{
+				if(!use_pak_extension) {
+					add_file(entry.name, "");
+				}
+				else {
+					// this is a savegame:
+					// read also the pak extension
+					loadsave_t test;
+					char p[1024];
+					sprintf( p, "%s%s", SAVE_PATH_X, entry.name );
+					test.rd_open(p);
+					add_file( entry.name, test.get_pak_extension() );
+				}
+			} while(_findnext(hfind, &entry) == 0 );
+		}
 	}
 #endif
 	// Text 'Game name'
@@ -126,15 +128,11 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 	scrolly.setze_groesse( koord(DIALOG_WIDTH-12,30) );
 
 	// The file entries
-	slist_iterator_tpl <button_t *> iter1(deletes);
-	slist_iterator_tpl <button_t *> iter2(buttons);
-	slist_iterator_tpl <gui_label_t *> iter3(labels);
 	int y = 0;
-
-	while(iter1.next() && iter2.next() && iter3.next()) {
-		button_t * button1 = iter1.get_current();
-		button_t * button2 = iter2.get_current();
-		gui_label_t * label = iter3.get_current();
+	for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
+		button_t*    button1 = i->del;
+		button_t*    button2 = i->button;
+		gui_label_t* label   = i->label;
 
 		button1->setze_groesse(koord(14, 14));
 		button1->setze_text("X");
@@ -186,21 +184,12 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 
 savegame_frame_t::~savegame_frame_t()
 {
-	slist_iterator_tpl <button_t *> b_iter (buttons);
-	while(b_iter.next()) {
-		delete [] const_cast<char *>(b_iter.get_current()->gib_text());
-		delete b_iter.get_current();
-	}
-
-	slist_iterator_tpl <gui_label_t *> l_iter (labels);
-	while(l_iter.next()) {
-		delete [] const_cast<char *>(l_iter.get_current()->get_text_pointer());
-		delete l_iter.get_current();
-	}
-
-	slist_iterator_tpl <button_t *> s_iter (deletes);
-	while(s_iter.next()) {
-		delete s_iter.get_current();
+	for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
+		delete [] const_cast<char*>(i->button->gib_text());
+		delete i->button;
+		delete [] const_cast<char*>(i->label->get_text_pointer());
+		delete i->label;
+		delete i->del;
 	}
 }
 
@@ -255,16 +244,15 @@ savegame_frame_t::add_file(const char *filename, const char *pak)
 
 	// sort by date descending:
 	unsigned int i;
-	for(i = 0; i < buttons.count(); i++) {
-		if(strcmp(labels.at(i)->get_text_pointer(), date) < 0) {
+	for(i = 0; i < entries.count(); i++) {
+		if (strcmp(entries.at(i).label->get_text_pointer(), date) < 0) {
 			break;
 		}
 	}
-	buttons.insert(button, i);
+
 	gui_label_t* l = new gui_label_t(NULL);
 	l->set_text_pointer(date);
-	labels.insert(l, i);
-	deletes.insert(new button_t, i);
+	entries.insert(entry(button, new button_t, l), i);
 }
 
 
@@ -298,24 +286,18 @@ bool savegame_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	else {
 		// File in list selected
 		//--------------------------
-
-		slist_iterator_tpl <button_t *> iter (buttons);
-		slist_iterator_tpl <button_t *> iter2 (deletes);
-
-		while(iter.next()) {
-			iter2.next();
-			if(komp == iter.get_current() || komp == iter2.get_current()) {
+		for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
+			if (komp == i->button || komp == i->del) {
 				destroy_win(this);
 				intr_refresh_display( true );
 
 				tstrncpy(buf, SAVE_PATH_X, lengthof(buf));
-				strcat(buf, iter.get_current()->gib_text());
+				strcat(buf, i->button->gib_text());
 				strcat(buf, suffix);
 
-				if(komp == iter.get_current()) {
+				if (komp == i->button) {
 					action(buf);
-				}
-				else {
+				} else {
 					del_action(buf);
 				}
 				break;

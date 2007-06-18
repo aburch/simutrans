@@ -24,10 +24,6 @@
 class savegame_frame_t : public gui_frame_t, action_listener_t
 {
 private:
-	slist_tpl <button_t *> buttons;
-	slist_tpl <button_t *> deletes;
-	slist_tpl <gui_label_t *> labels;
-
 	char ibuf[64];
 
 	gui_textinput_t input;
@@ -98,6 +94,22 @@ public:
 	 * V.Meyer
 	 */
 	bool action_triggered(gui_komponente_t *komp, value_t extra);
+
+	private:
+		struct entry
+		{
+			entry(button_t* button_, button_t* del_, gui_label_t* label_) :
+				button(button_),
+				del(del_),
+				label(label_)
+			{}
+
+			button_t*    button;
+			button_t*    del;
+			gui_label_t* label;
+		};
+
+		slist_tpl<entry> entries;
 };
 
 #endif
