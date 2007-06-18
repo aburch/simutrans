@@ -35,7 +35,7 @@ protected:
 	*/
 	void verbinde();
 
-	void replace(koord base_pos, powernet_t *alt, powernet_t *neu);
+	void replace(koord base_pos, powernet_t* neu);
 
 public:
 	powernet_t* get_net() const { return net; }

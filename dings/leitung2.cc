@@ -150,7 +150,7 @@ leitung_t::~leitung_t()
 						koord pos = gr->gib_pos().gib_2d()+koord::nsow[i];
 						new_net = new powernet_t();
 						welt->sync_add(new_net);
-						replace(pos, net, new_net);
+						replace(pos, new_net);
 						conn[i]->calc_neighbourhood();
 					}
 					first = false;
@@ -244,7 +244,7 @@ static void set_net_at(const grund_t *gr, powernet_t *new_net)
  * non-trivial to handle transformers correctly
  * @author prissi
  */
-void leitung_t::replace(koord base_pos, powernet_t *old_net, powernet_t *new_net)
+void leitung_t::replace(koord base_pos, powernet_t* new_net)
 {
 	powernet_t *current;
 	const grund_t* g = welt->lookup_kartenboden(base_pos);
@@ -258,7 +258,7 @@ void leitung_t::replace(koord base_pos, powernet_t *old_net, powernet_t *new_net
 	for(int i=0; i<4; i++) {
 		koord	pos=base_pos+koord::nsow[i];
 		if(get_net_at(welt->lookup_kartenboden(pos),&current)  &&  current!=new_net) {
-			replace(pos, current, new_net);
+			replace(pos, new_net);
 		}
 	}
 }
@@ -287,7 +287,7 @@ void leitung_t::verbinde()
 	// we are alone?
 	if(net==NULL) {
 		if(new_net!=NULL) {
-			replace(pos, NULL, new_net);
+			replace(pos, new_net);
 			net = new_net;
 		}
 		else {
@@ -299,7 +299,7 @@ void leitung_t::verbinde()
 	}
 	else if(new_net  &&  new_net!=net) {
 		powernet_t *my_net = net;
-		replace(pos, net, new_net);
+		replace(pos, new_net);
 		if(my_net) {
 			welt->sync_remove(my_net);
 			delete my_net;
