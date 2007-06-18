@@ -66,22 +66,7 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 		typ_liste = typ_fahrzeuge.access(typ);
 	}
 
-	// sort vehicles according to their engine type
-	bool append = true;
-	for (slist_iterator_tpl<const vehikel_besch_t*> i(typ_liste); i.next();) {
-		const vehikel_besch_t* sort_besch = i.get_current();
-		if(sort_besch->get_engine_type()<besch->get_engine_type()) {
-			continue;
-		}
-		if(sort_besch->get_engine_type()>besch->get_engine_type()) {
-			typ_liste->insert(besch,0);
-			append = false;
-			break;
-		}
-	}
-	if(append) {
-		typ_liste->append(besch);
-	}
+	typ_liste->append(besch);
 
 	// correct for driving on left side
 	if(typ==road_wt  &&  umgebung_t::drive_on_left) {
