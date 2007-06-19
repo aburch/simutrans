@@ -365,18 +365,10 @@ depot_t::rdwr(loadsave_t *file)
 {
 	gebaeude_t::rdwr(file);
 
-	if(file->get_version() < 81033) {
-		slist_tpl<vehikel_t *> waggons;
-
-		rdwr_vehikel(vehicles, file);
-		rdwr_vehikel(waggons, file);
-
-		while (!waggons.empty()) {
-			vehicles.append(waggons.front());
-			waggons.remove_at(0);
-		}
-	}
-	else {
+	rdwr_vehikel(vehicles, file);
+	if (file->get_version() < 81033) {
+		// waggons are stored extra, just add them to vehicles
+		assert(file->is_loading());
 		rdwr_vehikel(vehicles, file);
 	}
 }
