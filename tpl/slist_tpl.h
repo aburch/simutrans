@@ -296,6 +296,7 @@ public:
 		}
 		if (succ == NULL) tail = pred;
 		delete pos.ptr;
+		--node_count;
 		return iterator(succ, pred);
 	}
 
@@ -311,6 +312,7 @@ public:
 			pos.pred->next = tmp;
 		}
 		if (pos.ptr == NULL) tail = tmp;
+		++node_count;
 		return iterator(tmp, pos.pred);
 	}
 
