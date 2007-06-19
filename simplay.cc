@@ -92,8 +92,7 @@ static fabrik_t *baue_ziel=NULL;
 
 
 spieler_t::spieler_t(karte_t *wl, uint8 nr) :
-	simlinemgmt(wl,this),
-	last_built(0)
+	simlinemgmt(wl,this)
 {
 	welt = wl;
 	player_nr = nr;
@@ -154,8 +153,6 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	steps = simrand(16);
 
 	init_texte();
-
-	last_built.clear();
 
 	money_frame = NULL;
 	line_frame = NULL;
