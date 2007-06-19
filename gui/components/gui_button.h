@@ -70,8 +70,6 @@ public:
 
 	bool pressed:1;
 
-	button_t(const button_t & other);
-
 	button_t();
 
 	void init(enum type typ, const char *text, koord pos, koord size = koord::invalid);
@@ -118,13 +116,15 @@ public:
 	 */
 	void zeichnen(koord offset);
 
-	void operator= (const button_t & other);
-
 	void enable() { b_enabled = true; }
 
 	void disable() { b_enabled = false; }
 
 	bool enabled() { return b_enabled; }
+
+	private:
+		button_t(const button_t&);        // forbidden
+		void operator =(const button_t&); // forbidden
 };
 
 #endif

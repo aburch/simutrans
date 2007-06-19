@@ -190,12 +190,6 @@ button_t::button_t()
 }
 
 
-button_t::button_t(const button_t & other) : gui_komponente_action_creator_t(other)
-{
-	*this = other;
-}
-
-
 void button_t::init(enum type typ, const char *text, koord pos, koord size)
 {
 	b_no_translate = false;
@@ -408,28 +402,4 @@ void button_t::zeichnen(koord offset)
 	if(translated_tooltip &&  getroffen( gib_maus_x()-offset.x, gib_maus_y()-offset.y )) {
 		win_set_tooltip(gib_maus_x() + 16, gib_maus_y() - 16, translated_tooltip );
 	}
-}
-
-
-
-
-void button_t::operator= (const button_t & other)
-{
-	set_visible(other.is_visible());
-	pos = other.pos;
-	groesse = other.groesse;
-
-	text = other.text;
-	pressed = other.pressed;
-	type = other.type;
-	foreground = other.foreground;
-	tooltip = other.tooltip;
-	background = other.background;
-
-	slist_iterator_tpl<action_listener_t *> iter (other.listeners);
-	while( iter.next() ) {
-		listeners.append(iter.get_current());
-	}
-
-	init_button_images();
 }
