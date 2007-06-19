@@ -211,44 +211,6 @@ public:
 	}
 
 	/**
-	 * Removes an specific element from the list
-	 *
-	 * @author Hj. Malthaner
-	 */
-	void remove_at(unsigned int pos)
-	{
-		if(pos >= node_count) {
-			dbg->fatal("slist_tpl<T>::remove_at()","<%s> index %d is out of bounds",typeid(T).name(),pos);
-		}
-
-		if(pos == 0) {
-			// remove first element
-			node_t *tmp = head->next;
-			delete head;
-			head = tmp;
-
-			if(head == 0) {
-				tail = 0;
-			}
-		}
-		else {
-			node_t *p = head;
-			while(--pos) {
-				p = p->next;
-			}
-
-			// remove p->next
-			node_t *tmp = p->next->next;
-			delete p->next;
-			p->next = tmp;
-			if(tmp == 0) {
-				tail = p;
-			}
-		}
-		node_count--;
-	}
-
-	/**
 	 * Retrieves the first element from the list. This element is
 	 * deleted from the list. Useful for some queueing tasks.
 	 * @author Hj. Malthaner
@@ -319,6 +281,23 @@ public:
 
 	const_iterator begin() const { return const_iterator(head); }
 	const_iterator end()   const { return const_iterator(NULL); }
+
+	/* Erase element at pos
+	 * pos is invalid after this method
+	 * An iterator pointing to the successor of the erased element is returned */
+	iterator erase(iterator pos)
+	{
+		node_t* pred = pos.pred;
+		node_t* succ = pos.ptr->next;
+		if (pred == NULL) {
+			head = succ;
+		} else {
+			pred->next = succ;
+		}
+		if (succ == NULL) tail = pred;
+		delete pos.ptr;
+		return iterator(succ, pred);
+	}
 
 	/* Add x before pos
 	 * pos is invalid after this method

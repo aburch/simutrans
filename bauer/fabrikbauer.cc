@@ -681,13 +681,13 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%
 						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware) {
 							sint32 produktion = (fab->get_base_production()*fab->gib_besch()->gib_produkt(gg)->gib_faktor()) / (factories_to_correct.count()+1);
 							// connect also the factories we stole from before ...
-							for(  unsigned i=0;  i<factories_to_correct.count();  i++  ) {
-								fabs_to_crossconnect_t& ftc = factories_to_correct.at(i);
-								ftc.demand -= produktion;
-								fab->add_lieferziel(ftc.fab->gib_pos().gib_2d());
-								if (ftc.demand < 0) {
-									factories_to_correct.remove_at(i);
-									i--;
+							for (slist_tpl<fabs_to_crossconnect_t>::iterator i = factories_to_correct.begin(), end = factories_to_correct.end(); i != end;) {
+								i->demand -= produktion;
+								fab->add_lieferziel(i->fab->gib_pos().gib_2d());
+								if (i->demand < 0) {
+									i = factories_to_correct.erase(i);
+								} else {
+									++i;
 								}
 							}
 							verbrauch -= produktion;
