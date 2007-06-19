@@ -851,10 +851,7 @@ depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data
 
 		if(veh_action==va_insert  ||  veh_action==va_sell) {
 			// start of composition
-			while(1) {
-				if(info->gib_vorgaenger_count()!=1  ||  info->gib_vorgaenger(0)==NULL) {
-					break;
-				}
+			while (info->gib_vorgaenger_count() == 1 && info->gib_vorgaenger(0) != NULL) {
 				info = info->gib_vorgaenger(0);
 				new_vehicle_info.insert(info);
 			}
