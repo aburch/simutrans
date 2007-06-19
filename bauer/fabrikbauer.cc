@@ -5,6 +5,7 @@
  * in other projects without written permission of the author.
  */
 
+#include <algorithm>
 #include "../simdebug.h"
 #include "fabrikbauer.h"
 #include "../simworld.h"
@@ -612,13 +613,11 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 									const sint32 production_needed = ( fab->get_base_production()*fab->gib_besch()->gib_produkt(gg)->gib_faktor() )/( lieferziele.get_count()+1 );
 									for( unsigned ziel=0;  ziel<lieferziele.get_count();  ziel++  ) {
 										fabrik_t *zfab=fabrik_t::gib_fab(welt,lieferziele[ziel]);
-										int idx = factories_to_correct.index_of( fabs_to_crossconnect_t(zfab,0) );
-										if(idx>=0) {
-											// alreday there ...
-											factories_to_correct.at(idx).demand += production_needed;
-										}
-										else {
-											factories_to_correct.append( fabs_to_crossconnect_t(zfab,production_needed) );
+										slist_tpl<fabs_to_crossconnect_t>::iterator i = std::find(factories_to_correct.begin(), factories_to_correct.end(), fabs_to_crossconnect_t(zfab, 0));
+										if (i == factories_to_correct.end()) {
+											factories_to_correct.append(fabs_to_crossconnect_t(zfab, production_needed));
+										} else {
+											i->demand += production_needed;
 										}
 									}
 									// the needed produktion to be built does not change!

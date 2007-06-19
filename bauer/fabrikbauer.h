@@ -67,10 +67,9 @@ private:
 		sint32 demand;
 		fabs_to_crossconnect_t() { fab = NULL; demand  = 0; }
 		fabs_to_crossconnect_t(fabrik_t *f,sint32 d) { fab = f; demand  = d; }
-		// to find equal ...
-		int operator != (const fabs_to_crossconnect_t &x) const {
-			return (fab != x.fab);
-		}
+
+		bool operator == (const fabs_to_crossconnect_t& x) const { return fab == x.fab; }
+		bool operator != (const fabs_to_crossconnect_t& x) const { return fab != x.fab; }
 	};
 
 	static stringhashtable_tpl<const fabrik_besch_t *> table;
