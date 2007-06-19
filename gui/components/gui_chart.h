@@ -91,8 +91,6 @@ public:
 	 */
 	void set_seed(int seed) { this->seed = seed; }
 
-	bool is_visible(unsigned int id);
-
 	void set_show_x_axis(bool yesno) { show_x_axis = yesno; }
 
 	void set_show_y_axis(bool yesno) { show_y_axis = yesno; }

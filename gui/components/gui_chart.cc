@@ -171,13 +171,6 @@ gui_chart_t::zeichnen(koord offset)
 }
 
 
-bool gui_chart_t::is_visible(unsigned int id)
-{
-	if (id >= curves.count()) return false;
-	return curves.at(id).show;
-}
-
-
 void
 gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cmin, char *cmax) const
 {
