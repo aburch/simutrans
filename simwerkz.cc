@@ -636,30 +636,23 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 	static koord3d start, ziel;
 
 	const weg_besch_t * besch = (const weg_besch_t *) (lParam.p);
-	enum wegbauer_t::bautyp_t bautyp = wegbauer_t::strasse;
+	wegbauer_t::bautyp_t bautyp = wegbauer_t::strasse;
+	switch (besch->gib_wtyp()) {
+		case road_wt:
+			default_road = besch;
+			break;
 
-	if(besch->gib_wtyp() == track_wt) {
-		if(besch->gib_styp() == 7){ // Dario: Tramway
-			bautyp = wegbauer_t::schiene_tram;
-		}
-		else {
-			bautyp = wegbauer_t::schiene;
-		}
-		default_track = besch;
+		case track_wt:
+			bautyp = (besch->gib_styp() == 7 ? wegbauer_t::schiene_tram : wegbauer_t::schiene);
+			default_track = besch;
+			break;
+
+		case water_wt:     bautyp = wegbauer_t::wasser;   break;
+		case monorail_wt:  bautyp = wegbauer_t::monorail; break;
+		case powerline_wt: bautyp = wegbauer_t::leitung;  break;
+		case air_wt:       bautyp = wegbauer_t::luft;     break;
 	}
-	else if(besch->gib_wtyp() == monorail_wt) {
-		bautyp = wegbauer_t::monorail;
-	} else if(besch->gib_wtyp() == powerline_wt) {
-		bautyp = wegbauer_t::leitung;
-	} else if(besch->gib_wtyp() == road_wt) {
-		default_road = besch;
-	}
-	if(besch->gib_wtyp() == water_wt) {
-		bautyp = wegbauer_t::wasser;
-	}
-	if(besch->gib_wtyp() == air_wt) {
-		bautyp = wegbauer_t::luft;
-	}
+
 	// elevated track?
 	if(besch->gib_styp()==1  &&  besch->gib_wtyp()!=air_wt) {
 		bautyp = (wegbauer_t::bautyp_t)((int)bautyp|(int)wegbauer_t::elevated_flag);
