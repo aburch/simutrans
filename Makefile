@@ -57,8 +57,8 @@ SDL_CONFIG     ?= sdl-config
 
 
 ifneq ($(OPTIMISE),)
-  CFLAGS   += -O3 -fomit-frame-pointer -fschedule-insns2 -fexpensive-optimizations -fgcse -fstrict-aliasing -minline-all-stringops
-  CXXFLAGS += -O3 -fomit-frame-pointer -fschedule-insns2 -fregmove -freorder-blocks -falign-functions
+  CFLAGS   += -O3 -fomit-frame-pointer -minline-all-stringops
+  CXXFLAGS += -O3 -fomit-frame-pointer
 else
   CFLAGS   += -O
   CXXFLAGS += -O
