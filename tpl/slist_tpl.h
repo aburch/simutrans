@@ -8,6 +8,7 @@
 #ifndef tpl_slist_tpl_h
 #define tpl_slist_tpl_h
 
+#include <iterator>
 #include <typeinfo>
 #include "../dataobj/freelist.h"
 #include "../simdebug.h"
@@ -58,8 +59,14 @@ public:
 		class iterator
 		{
 			public:
-				T* operator ->() const { return &ptr->data; }
-				T& operator *()  const { return ptr->data; }
+				typedef std::forward_iterator_tag iterator_category;
+				typedef T                         value_type;
+				typedef ptrdiff_t                 difference_type;
+				typedef value_type*               pointer;
+				typedef value_type&               reference;
+
+				pointer   operator ->() const { return &ptr->data; }
+				reference operator *()  const { return ptr->data;  }
 
 				iterator& operator ++()
 				{
@@ -68,6 +75,7 @@ public:
 					return *this;
 				}
 
+				bool operator ==(const iterator& o) { return ptr == o.ptr; }
 				bool operator !=(const iterator& o) { return ptr != o.ptr; }
 
 			private:
@@ -83,13 +91,20 @@ public:
 		class const_iterator
 		{
 			public:
+				typedef std::forward_iterator_tag iterator_category;
+				typedef const T                   value_type;
+				typedef ptrdiff_t                 difference_type;
+				typedef value_type*               pointer;
+				typedef value_type&               reference;
+
 				const_iterator(const iterator& o) : ptr(o.ptr) {}
 
-				const T* operator ->() const { return &ptr->data; }
-				const T& operator *()  const { return ptr->data;  }
+				pointer   operator ->() const { return &ptr->data; }
+				reference operator *()  const { return ptr->data;  }
 
 				const_iterator& operator ++() { ptr = ptr->next; return *this; }
 
+				bool operator ==(const const_iterator& o) { return ptr == o.ptr; }
 				bool operator !=(const const_iterator& o) { return ptr != o.ptr; }
 
 			private:
