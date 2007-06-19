@@ -243,16 +243,16 @@ savegame_frame_t::add_file(const char *filename, const char *pak)
 	button->set_no_translate(true);
 
 	// sort by date descending:
-	unsigned int i;
-	for(i = 0; i < entries.count(); i++) {
-		if (strcmp(entries.at(i).label->get_text_pointer(), date) < 0) {
+	slist_tpl<entry>::iterator i = entries.begin();
+	for (slist_tpl<entry>::iterator end = entries.end(); i != end; ++i) {
+		if (strcmp(i->label->get_text_pointer(), date) < 0) {
 			break;
 		}
 	}
 
 	gui_label_t* l = new gui_label_t(NULL);
 	l->set_text_pointer(date);
-	entries.insert(entry(button, new button_t, l), i);
+	entries.insert(i, entry(button, new button_t, l));
 }
 
 

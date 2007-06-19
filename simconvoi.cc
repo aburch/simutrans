@@ -1504,20 +1504,16 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 				ware.menge = max_loaded_waren[i];
 				if(ware.gib_catg()==0) {
 					capacity.append( ware );
-				}
-				else {
-					// append to catgory?
-					unsigned j=0;
-					while(j<capacity.count()  &&  capacity.at(j).gib_catg()<ware.gib_catg()) {
-						j++;
-					}
-					if(j<capacity.count()  &&  capacity.at(j).gib_catg()==ware.gib_catg()) {
+				} else {
+					// append to category?
+					slist_tpl<ware_t>::iterator j   = capacity.begin();
+					slist_tpl<ware_t>::iterator end = capacity.end();
+					while (j != end && j->gib_catg() < ware.gib_catg()) ++j;
+					if (j != end && j->gib_catg() == ware.gib_catg()) {
+						j->menge += max_loaded_waren[i];
+					} else {
 						// not yet there
-						capacity.at(j).menge += max_loaded_waren[i];
-					}
-					else {
-						// not yet there
-						capacity.insert( ware, j );
+						capacity.insert(j, ware);
 					}
 				}
 			}

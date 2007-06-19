@@ -61,14 +61,20 @@ public:
 				T* operator ->() const { return &ptr->data; }
 				T& operator *()  const { return ptr->data; }
 
-				iterator& operator ++() { ptr = ptr->next; return *this; }
+				iterator& operator ++()
+				{
+					pred = ptr;
+					ptr  = ptr->next;
+					return *this;
+				}
 
 				bool operator !=(const iterator& o) { return ptr != o.ptr; }
 
 			private:
-				explicit iterator(node_t* ptr_) : ptr(ptr_) {}
+				iterator(node_t* ptr_, node_t* pred_) : ptr(ptr_), pred(pred_) {}
 
 				node_t* ptr;
+				node_t* pred;
 
 			friend class slist_tpl;
 			friend class const_iterator;
@@ -128,35 +134,6 @@ public:
 		if (tail == NULL) tail = tmp;
 		node_count++;
 	}
-
-  /**
-   * Inserts an element at a specific position
-   * - pos must be in the range 0..count().
-   * @author V. Meyer
-   */
-  void insert(const T& data, unsigned int pos)
-  {
-		if(pos > node_count) {
-			dbg->fatal("slist_tpl<T>::insert()","<%s> index %d is out of bounds (<%d)",typeid(T).name(),pos,count());
-		}
-
-		if(pos == 0) { // insert at front
-			insert(data);
-			return;
-		}
-		node_t *p = head;
-		while(--pos) {
-			p = p->next;
-		}
-		// insert between p and p->next
-		node_t* tmp = new node_t(data, p->next);
-		p->next = tmp;
-
-		if(tail == p) {
-			tail = tmp;
-		}
-		node_count++;
-  }
 
   /**
    * Appends an element to the end of the list.
@@ -337,11 +314,26 @@ public:
 	T& front() const { return head->data; }
 	T& back()  const { return tail->data; }
 
-	iterator begin() { return iterator(head); }
-	iterator end()   { return iterator(NULL); }
+	iterator begin() { return iterator(head, NULL); }
+	iterator end()   { return iterator(NULL, tail); }
 
 	const_iterator begin() const { return const_iterator(head); }
 	const_iterator end()   const { return const_iterator(NULL); }
+
+	/* Add x before pos
+	 * pos is invalid after this method
+	 * An iterator pointing to the new element is returned */
+	iterator insert(iterator pos, const T& x)
+	{
+		node_t* tmp = new node_t(x, pos.ptr);
+		if (pos.pred == NULL) {
+			head = tmp;
+		} else {
+			pos.pred->next = tmp;
+		}
+		if (pos.ptr == NULL) tail = tmp;
+		return iterator(tmp, pos.pred);
+	}
 
 	int index_of(T data) const
 	{

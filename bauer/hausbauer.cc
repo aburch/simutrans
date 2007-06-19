@@ -92,25 +92,17 @@ bool hausbauer_t::alles_geladen()
 
 void hausbauer_t::insert_sorted(slist_tpl<const haus_besch_t *> &liste, const haus_besch_t *besch)
 {
-	slist_iterator_tpl<const haus_besch_t *>  iter(liste);
-	int pos = 0;
-
-	while(iter.next()) {
-		int diff;
-
-		diff = iter.get_current()->gib_level() - besch->gib_level();
-		if(diff == 0) {
+	slist_tpl<const haus_besch_t*>::iterator i = liste.begin();
+	for (slist_tpl<const haus_besch_t*>::iterator end = liste.end(); i != end; ++i) {
+		int diff = (*i)->gib_level() - besch->gib_level();
+		if (diff == 0) {
 			// Gleiches Level - wir führen eine künstliche, aber eindeutige
 			// Sortierung über den Namen herbei.
-			diff = strcmp(iter.get_current()->gib_name(), besch->gib_name());
+			diff = strcmp((*i)->gib_name(), besch->gib_name());
 		}
-		if(diff > 0) {
-			liste.insert(besch, pos);
-			return;
-		}
-		pos++;
+		if (diff > 0) break;
 	}
-	liste.append(besch);
+	liste.insert(i, besch);
 }
 
 
