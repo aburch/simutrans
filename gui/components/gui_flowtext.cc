@@ -11,10 +11,6 @@ gui_flowtext_t::gui_flowtext_t()
 }
 
 
-/**
- * Sets the text to display.
- * @author Hj. Malthaner
- */
 void gui_flowtext_t::set_text(const char *text)
 {
 	// Hajo: danger here, longest word in text
@@ -124,10 +120,6 @@ koord gui_flowtext_t::get_preferred_size()
 }
 
 
-/**
- * Paints the component
- * @author Hj. Malthaner
- */
 void gui_flowtext_t::zeichnen(koord offset)
 {
 	offset += pos;
@@ -252,11 +244,6 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 }
 
 
-/**
- * Events werden hiermit an die GUI-Komponenten
- * gemeldet
- * @author Hj. Malthaner
- */
 void gui_flowtext_t::infowin_event(const event_t* ev)
 {
 	if (IS_WHEELUP(ev) || IS_WHEELDOWN(ev)) {
