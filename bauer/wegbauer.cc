@@ -115,7 +115,7 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 spe
 	const weg_besch_t* best = NULL;
 	for(  stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen); iter.next();  ) {
 		const weg_besch_t* const test = iter.get_current_value();
-		if(  (test->gib_wtyp()==wtyp ||	(test->gib_wtyp()==track_wt  &&  test->gib_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
+		if(  ((test->gib_wtyp()==wtyp  &&  test->gib_styp()==system_type)  ||  (test->gib_wtyp()==track_wt  &&  test->gib_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
 			  &&  test->gib_cursor()->gib_bild_nr(1)!=IMG_LEER  ) {
 			if(  best==NULL ||
 					(best->gib_topspeed() <  speed_limit  &&  best->gib_topspeed() < test->gib_topspeed()) ||
