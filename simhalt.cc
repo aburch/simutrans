@@ -1886,6 +1886,16 @@ haltestelle_t::rdwr(loadsave_t *file)
 				warenziel_t wz (file);
 			}
 		}
+
+		// handle name for old stations which don't exist in kartenboden
+		grund_t* bd = welt->lookup_kartenboden(gib_basis_pos());
+		if(bd==NULL  ||  !bd->get_flag(grund_t::has_text) ) {
+			bd = welt->lookup(gib_basis_pos3d());
+			if(bd!=NULL  &&  bd->get_flag(grund_t::has_text)) {
+				setze_name(bd->gib_text());
+			}
+
+		}
 	}
 
 	for (int j = 0; j<MAX_HALT_COST; j++) {

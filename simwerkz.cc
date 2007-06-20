@@ -1513,14 +1513,14 @@ DBG_MESSAGE("wkz_halt_aux()", "new segment for station");
 		if(stadt) {
 			const int count = sp->get_haltcount();
 			const char *name = stadt->haltestellenname(pos, type_name, count);
-			bd->setze_text( name );
+			halt->setze_name( name );
 		}
 		else {
 			// get a default name
 			const int count = sp->get_haltcount();
 			char *tmp=new char[256];
 			sprintf( tmp, translator::translate("land stop %i %s"), count,  translator::translate(type_name) );
-			bd->setze_text( tmp );
+			halt->setze_name( tmp );
 		}
 	}
 
