@@ -33,7 +33,6 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 	FILE* outfp = NULL;
 	obj_node_t* node = NULL;
 	bool separate = false;
-	int i, j;
 	cstring_t file = find.complete(filename, "pak");
 
 	if (file.right(1) == "/") {
@@ -52,16 +51,17 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 		node = new obj_node_t(this, 0, NULL, false);
 	}
 
-	for (i = 0; !i || i < argc; i++) {
+	for (int i = 0; !i || i < argc; i++) {
 		const char* arg = i < argc ? argv[i] : "./";
 
-		for (j = find.search(arg, "dat"); j-- > 0;) {
+		find.search(arg, "dat");
+		for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i) {
 			tabfile_t infile;
 
-			if (infile.open(find.at(j))) {
+			if (infile.open(*i)) {
 				tabfileobj_t obj;
 
-				printf("   reading file %s\n", find.at(j));
+				printf("   reading file %s\n", *i);
 
 				inpath = arg;
 				int n = inpath.find_back('/');
@@ -97,7 +97,7 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 					}
 				}
 			} else {
-				printf("WARNING: cannot read %s\n", find.at(j));
+				printf("WARNING: cannot read %s\n", *i);
 			}
 		}
 	}
@@ -109,44 +109,45 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 }
 
 
+bool root_writer_t::do_dump(const char* open_file_name)
+{
+	FILE* infp = fopen(open_file_name, "rb");
+	if (infp) {
+		int c;
+		do {
+			c = fgetc(infp);
+		} while (!feof(infp) && c != '\x1a');
+
+		// Compiled Verison
+		uint32 version;
+		fread(&version, sizeof(version), 1, infp);
+		printf("File %s (version %d):\n", open_file_name, version);
+
+		dump_nodes(infp, 1);
+		fclose(infp);
+		fclose(infp);
+	}
+	return true;
+}
+
+
 // dumps the node structure onto the screen
 void root_writer_t::dump(int argc, char* argv[])
 {
-	searchfolder_t find;
-	int i, j;
-
-	for (i = 0; i < argc; i++) {
+	for (int i = 0; i < argc; i++) {
 		bool any = false;
-		bool use_name_directly = true;
-		int number = 1;
 
 		// this is neccessary to avoid the hassle with "./*.pak" otherwise
-		if (strchr(argv[i], '*') != NULL) {
-			use_name_directly = false;
-			number = find.search(argv[i], "pak");
-		}
-
-		for (j = 0; j < number; j++) {
-			const char* open_file_name = use_name_directly ? argv[i] : find.at(j);
-			FILE* infp = fopen(open_file_name, "rb");
-
-			if (infp) {
-				int c;
-				do {
-					c = fgetc(infp);
-				} while(!feof(infp) && c != '\x1a');
-
-				// Compiled Verison
-				uint32 version;
-				fread(&version, sizeof(version), 1, infp);
-				printf("File %s (version %d):\n", open_file_name, version);
-
-				dump_nodes(infp, 1);
-				fclose(infp);
-				fclose(infp);
+		if (strchr(argv[i], '*') == NULL) {
+			any = do_dump(argv[i]);
+		} else {
+			searchfolder_t find;
+			find.search(argv[i], "pak");
+			for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i) {
+				any |= do_dump(*i);
 			}
-			any = true;
 		}
+
 		if (!any) {
 			printf("WARNING: file or dir %s not found\n", argv[i]);
 		}
@@ -154,55 +155,87 @@ void root_writer_t::dump(int argc, char* argv[])
 }
 
 
+bool root_writer_t::do_list(const char* open_file_name)
+{
+	FILE* infp = fopen(open_file_name, "rb");
+	if (infp) {
+		int c;
+		do {
+			c = fgetc(infp);
+		} while (!feof(infp) && c != '\x1a');
+
+		// Compiled Verison
+		uint32 version;
+
+		fread(&version, sizeof(version), 1, infp);
+		printf("Contents of file %s (pak version %d):\n", open_file_name, version);
+		printf("type             name\n"
+		"---------------- ------------------------------\n");
+
+		obj_node_info_t node;
+		fread(&node, sizeof(node), 1, infp);
+		fseek(infp, node.size, SEEK_CUR);
+		for (int i = 0; i < node.children; i++) {
+			list_nodes(infp);
+		}
+		fclose(infp);
+	}
+	return true;
+}
+
+
 // list the content of a file
 void root_writer_t::list(int argc, char* argv[])
 {
-	searchfolder_t find;
-	int i, j;
-
-	for (i = 0; i < argc; i++) {
+	for (int i = 0; i < argc; i++) {
 		bool any = false;
-		bool use_name_directly = true;
-		int number = 1;
 
 		// this is neccessary to avoid the hassle with "./*.pak" otherwise
-		if (strchr(argv[i],'*')!=NULL) {
-			use_name_directly = false;
-			number = find.search(argv[i], "pak");
-		}
-
-		for (j = 0; j < number; j++) {
-			const char* open_file_name = use_name_directly ? argv[i] : find.at(j);
-			FILE* infp = fopen(open_file_name, "rb");
-
-			if (infp) {
-				int c;
-				do {
-					c = fgetc(infp);
-				} while (!feof(infp) && c != '\x1a');
-
-				// Compiled Verison
-				uint32 version;
-
-				fread(&version, sizeof(version), 1, infp);
-				printf("Contents of file %s (pak version %d):\n", open_file_name, version);
-				printf("type             name\n"
-				"---------------- ------------------------------\n");
-
-				obj_node_info_t node;
-				fread(&node, sizeof(node), 1, infp);
-				fseek(infp, node.size, SEEK_CUR);
-				for (int i = 0; i < node.children; i++) {
-					list_nodes(infp);
-				}
-				fclose(infp);
+		if (strchr(argv[i],'*') == NULL) {
+			do_list(argv[i]);
+		} else {
+			searchfolder_t find;
+			find.search(argv[i], "pak");
+			for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i) {
+				do_list(*i);
 			}
-			any = true;
 		}
+
 		if (!any) {
 			printf("WARNING: file or dir %s not found\n", argv[i]);
 		}
 	}
+}
+
+
+bool root_writer_t::do_copy(FILE* outfp, obj_node_info_t& root, const char* open_file_name)
+{
+	bool any = false;
+	FILE* infp = fopen(open_file_name, "rb");
+	if (infp) {
+		int c;
+		do {
+			c = fgetc(infp);
+		} while (!feof(infp) && c != '\x1a');
+
+		// Compiled Version check (since the ancient ending was also pak)
+		uint32 version;
+		fread(&version, sizeof(version), 1, infp);
+		if (version == COMPILER_VERSION_CODE) {
+			printf("   copying file %s\n", open_file_name);
+
+			obj_node_info_t info;
+
+			fread(&info, sizeof(info), 1, infp);
+			root.children += info.children;
+			copy_nodes(outfp, infp, info);
+			any = true;
+		} else {
+			fprintf(stderr, "   WARNING: skipping file %s - version mismatch\n", open_file_name);
+		}
+		fclose(infp);
+	}
+	return any;
 }
 
 
@@ -211,7 +244,7 @@ void root_writer_t::list(int argc, char* argv[])
 void root_writer_t::copy(const char* name, int argc, char* argv[])
 {
 	searchfolder_t find;
-	int i, j;
+	int i;
 
 	FILE* outfp = NULL;
 	if (strchr(name, '*') == NULL) {
@@ -239,43 +272,17 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 
 	for (i = 0; i < argc; i++) {
 		bool any = false;
-		bool use_name_directly = true;
-		int number = 1;
 
 		// this is neccessary to avoid the hassle with "./*.pak" otherwise
-		if (strchr(argv[i], '*') != NULL) {
-			use_name_directly = false;
-			number = find.search(argv[i], "pak");
-		}
-
-		for (j = 0; j < number; j++) {
-			const char* open_file_name = use_name_directly ? argv[i] : find.at(j);
-			FILE* infp = fopen(open_file_name, "rb");
-
-			if (infp) {
-				int c;
-				do {
-					c = fgetc(infp);
-				} while (!feof(infp) && c != '\x1a');
-
-				// Compiled Version check (since the ancient ending was also pak)
-				uint32 version;
-				fread(&version, sizeof(version), 1, infp);
-				if (version == COMPILER_VERSION_CODE) {
-					printf("   copying file %s\n", open_file_name);
-
-					obj_node_info_t info;
-
-					fread(&info, sizeof(info), 1, infp);
-					root.children += info.children;
-					copy_nodes(outfp, infp, info);
-					any = true;
-				} else {
-					printf("   WARNING: skipping file %s - version mismatch\n", open_file_name);
-				}
-				fclose(infp);
+		if (strchr(argv[i], '*') == NULL) {
+			any = do_copy(outfp, root, argv[i]);
+		} else {
+			find.search(argv[i], "pak");
+			for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i) {
+				any |= do_copy(outfp, root, *i);
 			}
 		}
+
 		if (!any) {
 			printf("WARNING: file or dir %s not found\n", argv[i]);
 		}
@@ -289,15 +296,13 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 /* makes single files from a merged file */
 void root_writer_t::uncopy(const char* name)
 {
-	searchfolder_t find;
-	int i, j;
-
 	FILE* infp = NULL;
 	if (strchr(name,'*') == NULL) {
 		// is not a wildcard name
 		infp = fopen(name, "rb");
 	}
 	if (infp == NULL) {
+		searchfolder_t find;
 		name = find.complete(name, "pak");
 		infp = fopen(name, "rb");
 	}
@@ -358,7 +363,7 @@ void root_writer_t::uncopy(const char* name)
 			fclose(outfp);
 		}
 	} else {
-		printf("   WARNING: skipping file %s - version mismatch\n", find.at(j));
+		printf("   WARNING: skipping file %s - version mismatch\n", name);
 	}
 	fclose(infp);
 }

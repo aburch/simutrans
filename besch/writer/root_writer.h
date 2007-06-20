@@ -36,6 +36,11 @@ class root_writer_t : public obj_writer_t {
 		void uncopy(const char* name);
 
 		static const cstring_t& get_inpath() { return inpath; }
+
+	private:
+		bool do_copy(FILE* outfp, obj_node_info_t& root, const char* open_file_name);
+		bool do_dump(const char* open_file_name);
+		bool do_list(const char* open_file_name);
 };
 
 #endif
