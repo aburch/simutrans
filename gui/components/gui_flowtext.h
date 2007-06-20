@@ -2,6 +2,7 @@
 #define GUI_COMPONENTS_FLOWTEXT_H
 
 #include "../../ifc/gui_action_creator.h"
+#include "../../tpl/slist_tpl.h"
 #include "../../utils/cstring_t.h"
 #include "action_listener.h"
 
@@ -14,7 +15,6 @@ class gui_flowtext_t : public gui_komponente_action_creator_t
 {
 	public:
 		gui_flowtext_t();
-		~gui_flowtext_t();
 
 		/**
 		 * Sets the text to display.
@@ -24,7 +24,7 @@ class gui_flowtext_t : public gui_komponente_action_creator_t
 
 		const char* get_title() const;
 
-		koord get_preferred_size() const;
+		koord get_preferred_size();
 
 		/**
 		 * Paints the component
@@ -39,7 +39,7 @@ class gui_flowtext_t : public gui_komponente_action_creator_t
 		void infowin_event(const event_t*);
 
 	private:
-		koord output(koord pos, bool doit) const;
+		koord output(koord pos, bool doit);
 
 		enum attributes
 		{
@@ -76,8 +76,8 @@ class gui_flowtext_t : public gui_komponente_action_creator_t
 			hyperlink_t* next;
 		};
 
-		node_t*      nodes;
-		hyperlink_t* links;
+		slist_tpl<node_t>      nodes;
+		slist_tpl<hyperlink_t> links;
 		char title[128];
 };
 

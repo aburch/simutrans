@@ -5,27 +5,9 @@
 #include "gui_flowtext.h"
 
 
-gui_flowtext_t::gui_flowtext_t() :
-	nodes(0),
-	links(0)
+gui_flowtext_t::gui_flowtext_t()
 {
 	title[0] = '\0';
-}
-
-
-gui_flowtext_t::~gui_flowtext_t()
-{
-	while (nodes) {
-		node_t* tmp = nodes->next;
-		delete nodes;
-		nodes = tmp;
-	}
-
-	while (links) {
-		hyperlink_t* tmp = links->next;
-		delete links;
-		links = tmp;
-	}
 }
 
 
@@ -42,8 +24,6 @@ void gui_flowtext_t::set_text(const char *text)
 
 	const unsigned char* tail = (const unsigned char*)text;
 	const unsigned char* lead = (const unsigned char*)text;
-	node_t*      node = nodes;
-	hyperlink_t* link = links;
 
 	// hyperref param
 	cstring_t param;
@@ -74,14 +54,7 @@ void gui_flowtext_t::set_text(const char *text)
 					param = word;
 				} else {
 					att = ATT_A_END;
-					hyperlink_t* tmp = new hyperlink_t(param.substr(8, param.len() - 1));
-					if (links) {
-						// append
-						link = link->next = tmp;
-					} else {
-						// insert first
-						link = links = tmp;
-					}
+					links.append(hyperlink_t(param.substr(8, param.len() - 1)));
 				}
 			} else if (word[0] == 'h' && word[1] == '1') {
 				att = endtag ? ATT_H1_END : ATT_H1_START;
@@ -126,17 +99,8 @@ void gui_flowtext_t::set_text(const char *text)
 			att = ATT_NONE;
 		}
 
-		if (att != ATT_UNKNOWN) {
-			// only add know commands
-			node_t* tmp = new node_t(word, att);
-			if (node) {
-				// append
-				node->next = tmp;
-			} else {
-				// insert first
-				nodes = tmp;
-			}
-			node = tmp;
+		if (att != ATT_UNKNOWN) { // only add know commands
+			nodes.append(node_t(word, att));
 		}
 
 		// skip white spaces
@@ -154,7 +118,7 @@ const char* gui_flowtext_t::get_title() const
 }
 
 
-koord gui_flowtext_t::get_preferred_size() const
+koord gui_flowtext_t::get_preferred_size()
 {
 	return output(koord(0, 0), false);
 }
@@ -171,11 +135,11 @@ void gui_flowtext_t::zeichnen(koord offset)
 }
 
 
-koord gui_flowtext_t::output(koord offset, bool doit) const
+koord gui_flowtext_t::output(koord offset, bool doit)
 {
 	const int width = groesse.x;
 
-	hyperlink_t* link = links;
+	slist_tpl<hyperlink_t>::iterator link = links.begin();
 
 	int xpos         = 0;
 	int ypos         = 0;
@@ -184,7 +148,7 @@ koord gui_flowtext_t::output(koord offset, bool doit) const
 	bool double_it   = false;
 	int max_width    = width;
 
-	for (const node_t* node = nodes; node; node = node->next) {
+	for (slist_tpl<node_t>::const_iterator node = nodes.begin(), end = nodes.end(); node != end; ++node) {
 		switch (node->att) {
 			case ATT_NONE: {
 				int nxpos = xpos + proportional_string_width(node->text) + 4;
@@ -231,10 +195,10 @@ koord gui_flowtext_t::output(koord offset, bool doit) const
 				}
 
 				if (doit) {
-					display_fillbox_wh_clip( link->tl.x + offset.x, link->tl.y + offset.y + 10, link->br.x - link->tl.x - 4, 1, color, true);
+					display_fillbox_wh_clip(link->tl.x + offset.x, link->tl.y + offset.y + 10, link->br.x - link->tl.x - 4, 1, color, true);
 				}
 
-				link  = link->next;
+				++link;
 				color = COL_BLACK;
 				break;
 
@@ -300,13 +264,11 @@ void gui_flowtext_t::infowin_event(const event_t* ev)
 
 	if (IS_LEFTCLICK(ev)) {
 		// scan links for hit
-		hyperlink_t* link = links;
-		while (link) {
-			if (link->tl.x <= ev->cx && ev->cx <= link->br.x &&
-					link->tl.y <= ev->cy && ev->cy <= link->br.y) {
-				call_listeners((const void*)link->param);
+		for (slist_tpl<hyperlink_t>::const_iterator i = links.begin(), end = links.end(); i != end; ++i) {
+			if (i->tl.x <= ev->cx && ev->cx <= i->br.x &&
+					i->tl.y <= ev->cy && ev->cy <= i->br.y) {
+				call_listeners((const void*)i->param);
 			}
-			link = link->next;
 		}
 	}
 }
