@@ -9,6 +9,10 @@
 #define simtypes_h
 
 #if defined _MSC_VER
+#	if _MSC_VER <= 1200
+#		error "Simutrans cannot be compiled with Visual C++ 6.0 or earlier."
+#	endif
+#
 #	include <malloc.h>
 #	define ALLOCA(type, name, count) type* name = static_cast<type*>(alloca(sizeof(type) * (count)))
 #
@@ -75,17 +79,6 @@ typedef unsigned long long  uint64;
 
 #ifdef __cplusplus
 
-#if defined(_MSC_VER)  &&  _MSC_VER<=1200
-// old Microsoft compability stuff
-#error "Simutrans cannot compile with braindead combilers! Get rid of your zombie!"
-#if!defined(max)
-#define max(a,b) ((a) > (b) ? (a) : (b))
-#define min(a,b) ((a) < (b) ? (a) : (b))
-#endif
-#define strdup _strdup
-
-#else
-
 inline static int sgn(sint64 x)
 {
     return (x > 0) ? 1 : (x < 0) ? -1 : 0;
@@ -105,7 +98,7 @@ inline static int max(const int a, const int b)
 {
     return (a > b) ? a : b;
 }
-#endif
+
 #else
 	typedef enum bool { false, true } bool;
 #endif
