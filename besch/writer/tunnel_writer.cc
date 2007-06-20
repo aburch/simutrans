@@ -12,7 +12,6 @@
 
 void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	tunnel_besch_t besch;
 	int pos, i;
 
 	obj_node_t node(this, 20, &parent, false);
