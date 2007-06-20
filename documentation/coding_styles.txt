@@ -220,8 +220,17 @@ No other styles of using braces are allowed. This rule applies to loops and
 other compound statements, too.
 
 
-Do not forget brackets along comparisons:
+Do not forget brackets along comparisons and use double spaces around
+logical operators. Avoid spaces before the comparison operator:
 if((i&3)==1   &&  ptr==NULL) {
+
+You may also use double spaces after/before the brackets:
+if(  (i&3)==1   &&  ptr==NULL  ) {
+
+No space between if/while/for and bracket is allowed.
+
+Use spaces in for loops like in ifs:
+for(  int i=0;  i<10;  i++  ) {
 
 
 Use spaces in parameters list. For example:

@@ -124,7 +124,7 @@ public:
 		return *this;
 	}
 
-	bool is_bound() const
+	inline bool is_bound() const
 	{
 		return data[entry] != 0;
 	}

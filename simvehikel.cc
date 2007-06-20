@@ -1712,24 +1712,25 @@ waggon_t::setze_convoi(convoi_t *c)
 		DBG_MESSAGE("waggon_t::setze_convoi()","new=%p old=%p",c,cnv);
 		if(ist_erstes) {
 			if((unsigned long)cnv>1) {
+				// free route from old convoi
 				if(route_index<cnv->get_route()->gib_max_n()+1) {
-					// free all reserved blocks
 					block_reserver( cnv->get_route(), cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->gib_route_index(), 1000, false );
 					target_halt = halthandle_t();
 				}
 			}
 			else {
-				cnv = c;
+				// eventually reserve new route
 				if(c  &&  c->get_state()==convoi_t::DRIVING) {
 DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_route(),route_index);
 					long num_index = (long)cnv==1?1001:0;
 					// rereserve next block, if needed
-					uint16 n = block_reserver( cnv->get_route(), route_index, num_index, true );
+					cnv = c;
+					uint16 n = block_reserver( c->get_route(), route_index, num_index, true );
 					if(n) {
-						cnv->set_next_stop_index( n );
+						c->set_next_stop_index( n );
 					}
 					else {
-						cnv->warten_bis_weg_frei(-1);
+						c->warten_bis_weg_frei(-1);
 					}
 				}
 				if(c->get_state()>=convoi_t::WAITING_FOR_CLEARANCE) {
