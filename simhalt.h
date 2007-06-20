@@ -169,8 +169,18 @@ private:
 	 * Liste aller felder (Grund-Objekte) die zu dieser Haltestelle gehören
 	 * @author Hj. Malthaner
 	 */
-	slist_tpl<grund_t *> grund;
-	vector_tpl<convoihandle_t> reservation;
+	struct tile
+	{
+		tile(grund_t* grund_) : grund(grund_) {}
+
+		bool operator ==(const tile& o) { return grund == o.grund; }
+		bool operator !=(const tile& o) { return grund != o.grund; }
+
+		grund_t*       grund;
+		convoihandle_t reservation;
+	};
+	slist_tpl<tile> tiles;
+
 	koord init_pos;	// for halt without grounds, created during game initialisation
 
 	// List with all reachable destinations

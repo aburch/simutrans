@@ -11,6 +11,7 @@
  *
  * Hj. Malthaner
  */
+#include <algorithm>
 #include "simdebug.h"
 #include "simmem.h"
 #include "simplan.h"
@@ -98,29 +99,19 @@ haltestelle_t::gib_halt(karte_t *welt, const koord pos)
 }
 
 
-koord
-haltestelle_t::gib_basis_pos() const
+koord haltestelle_t::gib_basis_pos() const
 {
-	if (!grund.empty()) {
-		assert(grund.front()->gib_pos().gib_2d()==init_pos);
-		return grund.front()->gib_pos().gib_2d();
-	}
-	else {
-		return koord::invalid;
-	}
+	if (tiles.empty()) return koord::invalid;
+	assert(tiles.front().grund->gib_pos().gib_2d() == init_pos);
+	return tiles.front().grund->gib_pos().gib_2d();
 }
 
-koord3d
-haltestelle_t::gib_basis_pos3d() const
-{
-	if (!grund.empty()) {
-		return grund.front()->gib_pos();
-	}
-	else {
-		return koord3d::invalid;
-	}
-}
 
+koord3d haltestelle_t::gib_basis_pos3d() const
+{
+	if (tiles.empty()) return koord3d::invalid;
+	return tiles.front().grund->gib_pos();
+}
 
 
 /**
@@ -282,11 +273,10 @@ void haltestelle_t::destroy_all(karte_t *welt)
 }
 
 
-haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file)
-	: reservation(0), registered_lines(0)
+haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file) :
+	registered_lines(0)
 {
 	self = halthandle_t(this);
-	grund.clear();
 
 	welt = wl;
 	marke = 0;
@@ -316,8 +306,8 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file)
 }
 
 
-haltestelle_t::haltestelle_t(karte_t *wl, koord k, spieler_t *sp)
-	: reservation(0), registered_lines(0)
+haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp) :
+	registered_lines(0)
 {
 	self = halthandle_t(this);
 	assert( !alle_haltestellen.contains(self) );
@@ -357,8 +347,8 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord k, spieler_t *sp)
 haltestelle_t::~haltestelle_t()
 {
 	// remove ground
-	while (!grund.empty()) {
-		rem_grund(grund.front());
+	while (!tiles.empty()) {
+		rem_grund(tiles.front().grund);
 	}
 	// remove last halthandle (for stops without ground, created during loading)
 	planquadrat_t* p = welt->access(init_pos);
@@ -548,23 +538,19 @@ haltestelle_t::verbinde_fabriken()
 	fab_list.clear();
 
 	// then reconnect
-	if(!grund.empty()) {
-		slist_iterator_tpl<grund_t *> iter( grund );
-		while(iter.next()) {
-			grund_t *gb = iter.get_current();
-			koord p = gb->gib_pos().gib_2d();
+	for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+		grund_t* gb = i->grund;
+		koord p = gb->gib_pos().gib_2d();
 
-			int cov = welt->gib_einstellungen()->gib_station_coverage();
-			vector_tpl<fabrik_t*>& fablist = fabrik_t::sind_da_welche(welt, p - koord(cov, cov), p + koord(cov, cov));
-			for(unsigned i=0; i<fablist.get_count(); i++) {
-				fabrik_t* fab = fablist[i];
-				if(!fab_list.contains(fab)) {
-					fab_list.insert(fab);
-					fab->link_halt(self);
-				}
+		int cov = welt->gib_einstellungen()->gib_station_coverage();
+		vector_tpl<fabrik_t*>& fablist = fabrik_t::sind_da_welche(welt, p - koord(cov, cov), p + koord(cov, cov));
+		for(unsigned i=0; i<fablist.get_count(); i++) {
+			fabrik_t* fab = fablist[i];
+			if(!fab_list.contains(fab)) {
+				fab_list.insert(fab);
+				fab->link_halt(self);
 			}
 		}
-
 	}
 }
 
@@ -907,45 +893,40 @@ haltestelle_t::add_grund(grund_t *gr)
 	assert(gr!=NULL);
 
 	// neu halt?
-	if(!grund.contains(gr)) {
+	if (tiles.contains(gr)) return false;
 
-		koord pos=gr->gib_pos().gib_2d();
-		gr->setze_halt(self);
-		grund.append(gr);
-		reservation.append(0,16);
+	koord pos=gr->gib_pos().gib_2d();
+	gr->setze_halt(self);
+	tiles.append(gr);
 
-		// appends this to the ground
-		// after that, the surrounding ground will know of this station
-		int cov = welt->gib_einstellungen()->gib_station_coverage();
-		for (int y = -cov; y <= cov; y++) {
-			for (int x = -cov; x <= cov; x++) {
-				koord p=pos+koord(x,y);
-				if(welt->ist_in_kartengrenzen(p)) {
-					welt->access(p)->add_to_haltlist( self );
-					welt->lookup(p)->gib_kartenboden()->set_flag(grund_t::dirty);
-				}
+	// appends this to the ground
+	// after that, the surrounding ground will know of this station
+	int cov = welt->gib_einstellungen()->gib_station_coverage();
+	for (int y = -cov; y <= cov; y++) {
+		for (int x = -cov; x <= cov; x++) {
+			koord p=pos+koord(x,y);
+			if(welt->ist_in_kartengrenzen(p)) {
+				welt->access(p)->add_to_haltlist( self );
+				welt->lookup(p)->gib_kartenboden()->set_flag(grund_t::dirty);
 			}
 		}
-		welt->access(pos)->setze_halt(self);
+	}
+	welt->access(pos)->setze_halt(self);
 
-		//DBG_MESSAGE("haltestelle_t::add_grund()","pos %i,%i,%i to %s added.",pos.x,pos.y,pos.z,gib_name());
+	//DBG_MESSAGE("haltestelle_t::add_grund()","pos %i,%i,%i to %s added.",pos.x,pos.y,pos.z,gib_name());
 
-		vector_tpl<fabrik_t*>& fablist = fabrik_t::sind_da_welche(welt, pos - koord(cov, cov), pos + koord(cov, cov));
-		for(unsigned i=0; i<fablist.get_count(); i++) {
-			fabrik_t* fab = fablist[i];
-			if(!fab_list.contains(fab)) {
-				fab_list.insert(fab);
-				fab->link_halt(self);
-			}
+	vector_tpl<fabrik_t*>& fablist = fabrik_t::sind_da_welche(welt, pos - koord(cov, cov), pos + koord(cov, cov));
+	for(unsigned i=0; i<fablist.get_count(); i++) {
+		fabrik_t* fab = fablist[i];
+		if(!fab_list.contains(fab)) {
+			fab_list.insert(fab);
+			fab->link_halt(self);
 		}
+	}
 
-		assert(welt->lookup(pos)->gib_halt() == self  &&  gr->is_halt());
-		init_pos = grund.front()->gib_pos().gib_2d();
-		return true;
-	}
-	else {
-		return false;
-	}
+	assert(welt->lookup(pos)->gib_halt() == self  &&  gr->is_halt());
+	init_pos = tiles.front().grund->gib_pos().gib_2d();
+	return true;
 }
 
 
@@ -955,26 +936,27 @@ haltestelle_t::rem_grund(grund_t *gb)
 {
 	// namen merken
 	if(gb) {
-		int idx=grund.index_of(gb);
-		if(idx==-1) {
+		slist_tpl<tile>::iterator i = std::find(tiles.begin(), tiles.end(), gb);
+		if (i == tiles.end()) {
 			// was not part of station => do nothing
 			dbg->error("haltestelle_t::rem_grund()","removed illegal ground from halt");
 			return;
 		}
 
 		// first tile => remove name from this tile ...
-		char station_name_to_transfer[256];
-		if(idx==0) {
-			tstrncpy(station_name_to_transfer, gib_name(), lengthof(station_name_to_transfer));
+		char buf[256];
+		const char* station_name_to_transfer = NULL;
+		if (i == tiles.begin()) {
+			tstrncpy(buf, gib_name(), lengthof(buf));
+			station_name_to_transfer = buf;
 			setze_name(NULL);
 		}
 
 		// now remove tile from list
-		reservation.remove_at(idx);
-		grund.remove(gb);
-		init_pos = grund.empty() ? koord::invalid : grund.front()->gib_pos().gib_2d();
+		tiles.erase(i);
+		init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->gib_pos().gib_2d();
 
-		if(idx==0) {
+		if (station_name_to_transfer != NULL) {
 			grund_t* bd = welt->lookup_kartenboden(init_pos);
 			if (bd && bd->gib_text()) delete bd->find<label_t>();
 			setze_name( station_name_to_transfer );
@@ -988,11 +970,11 @@ haltestelle_t::rem_grund(grund_t *gb)
 			for(unsigned i=0;  i<pl->gib_boden_count();  i++  ) {
 				if(pl->gib_boden_bei(i)->gib_halt().is_bound()) {
 					// still connected with other ground => do not remove from plan ...
-DBG_DEBUG("haltestelle_t::rem_grund()","keep floor, count=%i",grund.count());
+					DBG_DEBUG("haltestelle_t::rem_grund()", "keep floor, count=%i", tiles.count());
 					return;
 				}
 			}
-DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count());
+			DBG_DEBUG("haltestelle_t::rem_grund()", "remove also floor, count=%i", tiles.count());
 			// otherwise remove from plan ...
 			pl->setze_halt(halthandle_t());
 			pl->gib_kartenboden()->set_flag(grund_t::dirty);
@@ -1015,13 +997,10 @@ DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count
 }
 
 
-
-bool
-haltestelle_t::existiert_in_welt()
+bool haltestelle_t::existiert_in_welt()
 {
-	return !grund.empty();
+	return !tiles.empty();
 }
-
 
 
 /* return the closest square that belongs to this halt
@@ -1032,13 +1011,11 @@ haltestelle_t::get_next_pos( koord start ) const
 {
 	koord find = koord::invalid;
 
-	if (!grund.empty()) {
+	if (!tiles.empty()) {
 		// find the closest one
 		int	dist = 0x7FFF;
-		slist_iterator_tpl<grund_t *> iter( grund );
-
-		while(iter.next()) {
-			koord p = iter.get_current()->gib_pos().gib_2d();
+		for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+			koord p = i->grund->gib_pos().gib_2d();
 			int d = abs_distance(start, p );
 			if(d<dist) {
 				// ok, this one is closer
@@ -1306,11 +1283,9 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		else if(ware.gib_typ()==warenbauer_t::passagiere) {
 			// arriving passenger may create pedestrians
 			if(welt->gib_einstellungen()->gib_show_pax()) {
-				slist_iterator_tpl<grund_t *> iter (grund);
-
 				int menge = ware.menge;
-				while(menge > 0 && iter.next()) {
-					grund_t *gr = iter.get_current();
+				for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); menge > 0 && i != end; ++i) {
+					grund_t* gr = i->grund;
 					menge = erzeuge_fussgaenger(welt, gr->gib_pos(), menge);
 				}
 
@@ -1406,12 +1381,10 @@ bool
 haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const ding_t::typ d) const
 {
 	// iterate over all tiles
-	slist_iterator_tpl<grund_t *> iter( grund );
-	unsigned i=0;
-	while(iter.next()) {
-		if (reservation[i]==cnv  ||  !reservation[i].is_bound()) {
+	for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+		if (i->reservation == cnv || !i->reservation.is_bound()) {
 			// not reseved
-			grund_t *gr = iter.get_current();
+			grund_t* gr = i->grund;
 			assert(gr);
 			// found a stop for this waytype but without object d ...
 			if(gr->hat_weg(w)  &&  gr->suche_obj(d)==NULL) {
@@ -1419,7 +1392,6 @@ haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const din
 				return true;
 			}
 		}
-		i++;
 	}
 	return false;
 }
@@ -1432,21 +1404,21 @@ haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const din
 bool
 haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 {
-	int idx=grund.index_of(gr);
-	if(idx>=0) {
-		if (reservation[idx] == cnv) {
+	slist_tpl<tile>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
+	if (i != tiles.end()) {
+		if (i->reservation == cnv) {
 //DBG_MESSAGE("haltestelle_t::reserve_position()","gr=%d,%d already reserved by cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
 			return true;
 		}
 		// not reseved
-		if (!reservation[idx].is_bound()) {
-			grund_t *gr = grund.at(idx);
+		if (!i->reservation.is_bound()) {
+			grund_t* gr = i->grund;
 			if(gr) {
 				// found a stop for this waytype but without object d ...
 				if(gr->hat_weg(cnv->gib_vehikel(0)->gib_waytype())  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
 					// not occipied
 //DBG_MESSAGE("haltestelle_t::reserve_position()","sucess for gr=%i,%i cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
-					reservation[idx] = cnv;
+					i->reservation = cnv;
 					return true;
 				}
 			}
@@ -1464,10 +1436,10 @@ haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 bool
 haltestelle_t::unreserve_position(grund_t *gr, convoihandle_t cnv)
 {
-	int idx=grund.index_of(gr);
-	if(idx>=0) {
-		if (reservation[idx] == cnv) {
-			reservation[idx] = convoihandle_t();
+	slist_tpl<tile>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
+	if (i != tiles.end()) {
+		if (i->reservation == cnv) {
+			i->reservation = convoihandle_t();
 			return true;
 		}
 	}
@@ -1483,15 +1455,15 @@ DBG_MESSAGE("haltestelle_t::unreserve_position()","failed for gr=%p",gr);
 bool
 haltestelle_t::is_reservable(grund_t *gr,convoihandle_t cnv)
 {
-	int idx=grund.index_of(gr);
-	if(idx>=0) {
-		if (reservation[idx] == cnv) {
+	slist_tpl<tile>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
+	if (i != tiles.end()) {
+		if (i->reservation == cnv) {
 DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
 			return true;
 		}
 		// not reseved
-		if (!reservation[idx].is_bound()) {
-			grund_t *gr = grund.at(idx);
+		if (!i->reservation.is_bound()) {
+			grund_t *gr = i->grund;
 			if(gr) {
 				// found a stop for this waytype but without object d ...
 				if(gr->hat_weg(cnv->gib_vehikel(0)->gib_waytype())  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
@@ -1649,9 +1621,8 @@ haltestelle_t::transfer_to_public_owner()
 	}
 
 	// iterate over all tiles
-	slist_iterator_tpl<grund_t *> iter( grund );
-	while(iter.next()) {
-		grund_t *gr = iter.get_current();
+	for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+		grund_t* gr = i->grund;
 		gebaeude_t* gb = gr->find<gebaeude_t>();
 		if(gb) {
 			// there are also water tiles, which may not have a buidling
@@ -1681,14 +1652,13 @@ haltestelle_t::transfer_to_public_owner()
 void
 haltestelle_t::recalc_station_type()
 {
-	slist_iterator_tpl<grund_t *> iter(grund);
 	int new_station_type = 0;
 	capacity = 0;
 	enables &= CROWDED;	// clear flags
 
 	// iterate over all tiles
-	while(iter.next()) {
-		grund_t *gr = iter.get_current();
+	for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+		grund_t* gr = i->grund;
 		const gebaeude_t* gb = gr->find<gebaeude_t>();
 		const haus_besch_t *besch=gb?gb->gib_tile()->gib_besch():NULL;
 
@@ -1752,15 +1722,12 @@ haltestelle_t::recalc_station_type()
 }
 
 
-
-const char *
-haltestelle_t::gib_name() const
+const char* haltestelle_t::gib_name() const
 {
 	const char *name = "Unknown";
-	if (grund.empty()) {
+	if (tiles.empty()) {
 		name = "Unnamed";
-	}
-	else {
+	} else {
 		grund_t* bd = welt->lookup_kartenboden(gib_basis_pos());
 		if(bd!=NULL  &&  bd->get_flag(grund_t::has_text)) {
 			name = bd->gib_text();
@@ -1831,10 +1798,8 @@ haltestelle_t::rdwr(loadsave_t *file)
 			k.rdwr( file );
 		}
 	} else {
-		slist_iterator_tpl<grund_t*> gr_iter ( grund );
-
-		while(gr_iter.next()) {
-			k = gr_iter.get_current()->gib_pos();
+		for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+			k = i->grund->gib_pos();
 			k.rdwr( file );
 		}
 		k = koord3d::invalid;
@@ -1843,7 +1808,7 @@ haltestelle_t::rdwr(loadsave_t *file)
 
 	short count;
 	const char *s;
-	init_pos = grund.empty() ? koord::invalid : grund.front()->gib_pos().gib_2d();
+	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->gib_pos().gib_2d();
 	if(file->is_saving()) {
 		for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
 			vector_tpl<ware_t> *warray = waren[i];
@@ -1926,11 +1891,8 @@ haltestelle_t::laden_abschliessen()
 	// what kind of station here?
 	recalc_station_type();
 #ifdef LAGER_NOT_IN_USE
-    slist_iterator_tpl<grund_t*> iter( grund );
-
-    while(iter.next()) {
-	koord3d k ( iter.get_current()->gib_pos() );
-
+	for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+		koord3d k(i->grund->gib_pos());
 	// nach sondergebaeuden suchen
 
 		lagerhaus_t* l = welt->lookup(k)->find<lagerhaus_t>();
@@ -2068,9 +2030,8 @@ void
 haltestelle_t::mark_unmark_coverage(const bool mark) const
 {
 	// iterate over all tiles
-	slist_iterator_tpl<grund_t *> iter( grund );
-	while(iter.next()) {
-		koord p=iter.get_current()->gib_pos().gib_2d();
+	for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+		koord p = i->grund->gib_pos().gib_2d();
 		welt->mark_area( p.x, p.y, welt->gib_einstellungen()->gib_station_coverage(), mark );
 	}
 }
