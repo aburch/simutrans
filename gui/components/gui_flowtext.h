@@ -1,9 +1,9 @@
-#ifndef gui_components_flowtext_h
-#define gui_components_flowtext_h
+#ifndef GUI_COMPONENTS_FLOWTEXT_H
+#define GUI_COMPONENTS_FLOWTEXT_H
 
 #include "../../ifc/gui_action_creator.h"
-#include "action_listener.h"
 #include "../../utils/cstring_t.h"
+#include "action_listener.h"
 
 
 /**
@@ -12,80 +12,73 @@
  */
 class gui_flowtext_t : public gui_komponente_action_creator_t
 {
-private:
+	public:
+		gui_flowtext_t();
+		~gui_flowtext_t();
 
-    enum attributes {
-	ATT_NONE, ATT_NEWLINE,
-	ATT_A_START, ATT_A_END,
-	ATT_H1_START, ATT_H1_END,
-	ATT_EM_START, ATT_EM_END,
-	ATT_IT_START, ATT_IT_END,
-	ATT_STRONG_START, ATT_STRONG_END,
-	ATT_UNKNOWN};
+		/**
+		 * Sets the text to display.
+		 * @author Hj. Malthaner
+		 */
+		void set_text(const char* text);
 
-    class node_t {
-    public:
+		const char* get_title() const;
 
-       cstring_t text;
-       int att;
+		koord get_preferred_size() const;
 
-       node_t * next;
+		/**
+		 * Paints the component
+		 * @author Hj. Malthaner
+		 */
+		void zeichnen(koord offset);
 
-       node_t(const cstring_t &text, int att);
-    };
+		/**
+		 * Events werden hiermit an die GUI-Komponenten gemeldet
+		 * @author Hj. Malthaner
+		 */
+		void infowin_event(const event_t*);
 
+	private:
+		koord output(koord pos, bool doit) const;
 
-    /**
-     * Hyperlink position conatiner
-     * @author Hj. Malthaner
-     */
-    class hyperlink_t {
-    public:
-      koord tl;     // top left display position
-      koord br;     // bottom right display position
-      cstring_t param;
-      hyperlink_t * next;
+		enum attributes
+		{
+			ATT_NONE,
+			ATT_NEWLINE,
+			ATT_A_START,      ATT_A_END,
+			ATT_H1_START,     ATT_H1_END,
+			ATT_EM_START,     ATT_EM_END,
+			ATT_IT_START,     ATT_IT_END,
+			ATT_STRONG_START, ATT_STRONG_END,
+			ATT_UNKNOWN
+		};
 
-      hyperlink_t() { next = 0; }
-    };
+		struct node_t
+		{
+			node_t(const cstring_t& text_, attributes att_) : text(text_), att(att_), next(0) {}
 
+			cstring_t  text;
+			attributes att;
+			node_t*    next;
+		};
 
-    node_t      * nodes;
-    hyperlink_t * links;
+		/**
+		 * Hyperlink position container
+		 * @author Hj. Malthaner
+		 */
+		struct hyperlink_t
+		{
+			hyperlink_t(const cstring_t& param_) : param(param_), next(0) {}
 
-    koord output(koord pos, bool doit) const;
+			koord        tl;    // top left display position
+			koord        br;    // bottom right display position
+			cstring_t    param;
+			hyperlink_t* next;
+		};
 
-
-    char title[128];
-
-public:
-
-    gui_flowtext_t();
-
-    ~gui_flowtext_t();
-
-    /**
-     * Sets the text to display.
-     * @author Hj. Malthaner
-     */
-    void set_text(const char *text);
-
-    const char * get_title() const;
-
-    koord get_preferred_size() const;
-
-    /**
-     * Paints the component
-     * @author Hj. Malthaner
-     */
-    void zeichnen(koord offset);
-
-    /**
-     * Events werden hiermit an die GUI-Komponenten
-     * gemeldet
-     * @author Hj. Malthaner
-     */
-    void infowin_event(const event_t *);
+		node_t*      nodes;
+		hyperlink_t* links;
+		char title[128];
 };
 
 #endif
