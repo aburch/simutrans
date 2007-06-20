@@ -110,29 +110,26 @@ bool wegbauer_t::register_besch(const weg_besch_t *besch)
  * Finds a way with a given speed limit for a given waytype
  * @author prissi
  */
-const weg_besch_t *  wegbauer_t::weg_search(const waytype_t wtyp,const uint32 speed_limit,const uint16 time, const weg_t::system_type system_type)
+const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 speed_limit, const uint16 time, const weg_t::system_type system_type)
 {
-	stringhashtable_iterator_tpl<const weg_besch_t *> iter(alle_wegtypen);
-
-	const weg_besch_t * besch=NULL;
-//DBG_MESSAGE("wegbauer_t::weg_search","Search cheapest for limit %i, year=%i, month=%i",speed_limit, time/12, time%12+1);
-	while(iter.next()) {
-		const weg_besch_t *test_weg = iter.get_current_value();
-
-
-		if(  ( (test_weg->gib_wtyp()==wtyp  &&  system_type==system_type)
-			||  (wtyp==tram_wt  &&  test_weg->gib_wtyp()==track_wt  &&  test_weg->gib_styp()==weg_t::type_tram)
-			)  &&  iter.get_current_value()->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
-
-			if(  besch==NULL  ||  (besch->gib_topspeed()<speed_limit  &&  besch->gib_topspeed()<iter.get_current_value()->gib_topspeed()) ||  (iter.get_current_value()->gib_topspeed()>=speed_limit  &&  iter.get_current_value()->gib_wartung()<besch->gib_wartung())  ) {
-				if(time==0  ||  (test_weg->get_intro_year_month()<=time  &&  test_weg->get_retire_year_month()>time)) {
-					besch = test_weg;
-//DBG_MESSAGE("wegbauer_t::weg_search","Found weg %s, limit %i",besch->gib_name(),besch->gib_topspeed());
+	const weg_besch_t* best = NULL;
+	for (stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen); iter.next();) {
+		const weg_besch_t* const test = iter.get_current_value();
+		if ((
+					(test->gib_wtyp() == wtyp     && system_type == system_type) ||
+					(test->gib_wtyp() == track_wt && test->gib_styp() == weg_t::type_tram && wtyp == tram_wt)
+				) &&
+				test->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
+			if (best == NULL ||
+					(best->gib_topspeed() <  speed_limit && best->gib_topspeed() < test->gib_topspeed()) ||
+					(test->gib_topspeed() >= speed_limit && test->gib_wartung()  < best->gib_wartung())) {
+				if (time == 0 || (test->get_intro_year_month() <= time && time < test->get_retire_year_month())) {
+					best = test;
 				}
 			}
 		}
 	}
-	return besch;
+	return best;
 }
 
 
