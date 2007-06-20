@@ -123,15 +123,15 @@ static inline int max(const int a, const int b)
  * In all cases it ensures that no bits are lost.
  * @author Hj. Malthaner
  */
-typedef union value_t
-{
-  value_t()                : p(0)   {}
-  value_t(long itg)        : i(itg) {}
-  value_t(const void* ptr) : p(ptr) {}
+typedef union anyvalue{
+
+  anyvalue()                : p(0)   {}
+  anyvalue(long itg)        : i(itg) {}
+  anyvalue(const void* ptr) : p(ptr) {}
 
 	const void* p;
 	long i;
-};
+} value_t;
 
 #else
 	typedef enum bool { false, true } bool;

@@ -362,6 +362,9 @@ vehikel_t::setze_convoi(convoi_t *c)
 {
     // c darf NULL sein, wenn das vehikel aus dem Convoi entfernt wird
     cnv = c;
+		if(c  &&  ist_erstes) {
+			check_for_finish = !(route_index<cnv->get_route()->gib_max_n());
+		}
 }
 
 
@@ -1651,7 +1654,7 @@ automobil_t::setze_convoi(convoi_t *c)
 	DBG_MESSAGE("automobil_t::setze_convoi()","%p",c);
 	if(c!=NULL) {
 		bool target=(bool)cnv;
-		cnv = c;
+		vehikel_t::setze_convoi(c);
 		if(target  &&  ist_erstes) {
 			// reintitialize the target halt
 			route_t *rt=cnv->get_route();
@@ -1759,7 +1762,7 @@ DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_rou
 				}
 			}
 		}
-		cnv = c;
+		vehikel_t::setze_convoi(c);
 	}
 }
 
@@ -2791,7 +2794,7 @@ aircraft_t::setze_convoi(convoi_t *c)
 	DBG_MESSAGE("automobil_t::setze_convoi()","%p",c);
 	if(c!=NULL) {
 		bool target=(bool)cnv;
-		cnv = c;
+		vehikel_t::setze_convoi(c);
 		if(target  &&  ist_erstes) {
 			// reintitialize the target halt
 			route_t *rt=cnv->get_route();

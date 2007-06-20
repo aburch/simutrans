@@ -21,8 +21,10 @@
 	FIX: wrong outdated flag due to missing initialisation after loading of a convoi
 	FIX: overflow in money frame color calculation
 	ADD: now three lists for connecting stations, depending on the freight type => about 50% faster route search
+	CHANGE: different (more compact) list of stations connected at a stop
 	FIX: (kierongreen) stationnames in tunnels
 	FIX: (z9999) monorail station extension buildings
+	FIX: convoi could break up when during loadtime it was on its finaly tile (also new detection for already broken convois)
 
 
 Release of 99.12

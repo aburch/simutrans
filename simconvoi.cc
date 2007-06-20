@@ -28,11 +28,15 @@
 #include "gui/messagebox.h"
 #include "boden/grund.h"
 #include "boden/wege/schiene.h"	// for railblocks
+
 #include "besch/vehikel_besch.h"
+
 #include "dataobj/fahrplan.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
 #include "dataobj/umgebung.h"
+
+#include "dings/crossing.h"
 
 #include "utils/tocstring.h"
 #include "utils/simstring.h"
@@ -598,7 +602,8 @@ void convoi_t::step()
 		}
 
 		case CAN_START:
-		case CAN_START_ONE_MONTH: {
+		case CAN_START_ONE_MONTH:
+		{
 			vehikel_t* v = fahr[0];
 
 			if((self.get_id()&1)==(welt->gib_steps()&1)) {
@@ -612,8 +617,8 @@ void convoi_t::step()
 					akt_speed = restart_speed;
 				}
 			}
-			break;
 		}
+		break;
 
 		case WAITING_FOR_CLEARANCE:
 		case WAITING_FOR_CLEARANCE_ONE_MONTH:
@@ -988,9 +993,17 @@ convoi_t::can_go_alte_richtung()
 		const vehikel_t* v = fahr[i];
 
 		length += v->gib_besch()->get_length();
-		if (pred != NULL && (abs(v->gib_pos().x-pred->gib_pos().x) >= 2  ||  abs(v->gib_pos().y-pred->gib_pos().y) >= 2)) {
+		if(  pred!=NULL  &&  (abs(v->gib_pos().x-pred->gib_pos().x)>=2  ||  abs(v->gib_pos().y-pred->gib_pos().y)>=2)) {
 			// ending here is an error!
 			// this is an already broken train => restart
+			dbg->warning("convoi_t::go_alte_richtung()","broken convoy (id %i) found => fixing!",self.get_id());
+			akt_speed = 8;
+			return false;
+		}
+		// now check for alignment
+		grund_t *gr = welt->lookup(v->gib_pos());
+		ribi_t::ribi weg_ribi = gr->gib_weg(v->gib_waytype())->gib_ribi_unmasked();
+		if((weg_ribi|v->gib_fahrtrichtung())!=weg_ribi) {
 			dbg->warning("convoi_t::go_alte_richtung()","broken convoy (id %i) found => fixing!",self.get_id());
 			akt_speed = 8;
 			return false;
@@ -1294,6 +1307,10 @@ convoi_t::rdwr(loadsave_t *file)
 					if(sch) {
 						sch->reserve(self);
 					}
+				}
+				// add to crossing
+				if(gr->ist_uebergang()) {
+					gr->find<crossing_t>()->add_to_crossing(v);
 				}
 				gr->obj_add(v);
 			}
