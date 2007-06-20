@@ -25,6 +25,7 @@
 	FIX: (kierongreen) stationnames in tunnels
 	FIX: (z9999) monorail station extension buildings
 	FIX: convoi could break up when during loadtime it was on its finaly tile (also new detection for already broken convois)
+	ADD: speed record for all kind of convois
 
 
 Release of 99.12

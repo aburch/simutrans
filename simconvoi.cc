@@ -127,6 +127,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	loading_level = 0;
 	loading_limit = 0;
 
+	max_record_speed = 0;
 	akt_speed_soll = 0;            // Sollgeschwindigkeit
 	akt_speed = 0;                 // momentane Geschwindigkeit
 	sp_soll = 0;
@@ -398,6 +399,12 @@ convoi_t::sync_step(long delta_t)
 			}
 		}
 
+		// new record?
+		if(akt_speed > max_record_speed) {
+			max_record_speed = akt_speed;
+			record_pos = fahr[0]->gib_pos().gib_2d();
+		}
+
 		// now actually move the units
 		sp_soll += (akt_speed*delta_t);
 		while(65536 < sp_soll && !anz_ready) {
@@ -598,8 +605,12 @@ void convoi_t::step()
 					}
 				}
 			}
-			break;
+			// finally, was there a record last time?
+			if(max_record_speed>welt->get_record_speed(fahr[0]->gib_waytype())) {
+				welt->notify_record(self, max_record_speed, record_pos);
+			}
 		}
+		break;
 
 		case CAN_START:
 		case CAN_START_ONE_MONTH:
@@ -991,23 +1002,26 @@ convoi_t::can_go_alte_richtung()
 	const vehikel_t* pred = NULL;
 	for(i=0; i<anz_vehikel; i++) {
 		const vehikel_t* v = fahr[i];
+		grund_t *gr = welt->lookup(v->gib_pos());
 
 		length += v->gib_besch()->get_length();
-		if(  pred!=NULL  &&  (abs(v->gib_pos().x-pred->gib_pos().x)>=2  ||  abs(v->gib_pos().y-pred->gib_pos().y)>=2)) {
+
+		if(gr==NULL  ||  pred!=NULL  &&  (abs(v->gib_pos().x-pred->gib_pos().x)>=2  ||  abs(v->gib_pos().y-pred->gib_pos().y)>=2)) {
 			// ending here is an error!
 			// this is an already broken train => restart
 			dbg->warning("convoi_t::go_alte_richtung()","broken convoy (id %i) found => fixing!",self.get_id());
 			akt_speed = 8;
 			return false;
 		}
-		// now check for alignment
-		grund_t *gr = welt->lookup(v->gib_pos());
-		ribi_t::ribi weg_ribi = gr->gib_weg(v->gib_waytype())->gib_ribi_unmasked();
+
+		// now check, if it is on valid ground and
+		ribi_t::ribi weg_ribi = gr->gib_weg_ribi_unmasked(v->gib_waytype());
 		if((weg_ribi|v->gib_fahrtrichtung())!=weg_ribi) {
-			dbg->warning("convoi_t::go_alte_richtung()","broken convoy (id %i) found => fixing!",self.get_id());
+			dbg->warning("convoi_t::go_alte_richtung()","convoy with wrong vehicle directions (id %i) found => fixing!",self.get_id());
 			akt_speed = 8;
 			return false;
 		}
+
 		pred = v;
 	}
 	length = min((length/16)+4,route.gib_max_n()-1);	// maximum length in tiles to check
@@ -1307,6 +1321,10 @@ convoi_t::rdwr(loadsave_t *file)
 					if(sch) {
 						sch->reserve(self);
 					}
+				}
+				// add to crossing
+				if(gr->ist_uebergang()) {
+					gr->find<crossing_t>()->add_to_crossing(v);
 				}
 				// add to crossing
 				if(gr->ist_uebergang()) {

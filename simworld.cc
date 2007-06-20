@@ -539,6 +539,13 @@ karte_t::init_felder()
 	average_speed[2] = 40;
 	average_speed[3] = 350;
 
+	// clear world records
+	max_road_speed.speed = 0;
+	max_rail_speed.speed = 0;
+	max_maglev_speed.speed = 0;
+	max_ship_speed.speed = 0;
+	max_air_speed.speed = 0;
+
 	// make timer loop invalid
 	for( int i=0;  i<32;  i++ ) {
 		last_frame_ms[i] = 0x7FFFFFFFu;
@@ -615,6 +622,8 @@ DBG_DEBUG("karte_t::init()","kartenboden_setzen");
 			access(x,y)->kartenboden_setzen( new boden_t(this, koord3d(x,y, 0), 0 ) );
 		}
 	}
+
+	max_rail_speed.speed = max_maglev_speed.speed = max_road_speed.speed = max_ship_speed.speed = max_air_speed.speed = 0;
 
 	print("Creating landscape shape...\n");
 	// calc_hoehe(0, 0, gib_groesse()-1, gib_groesse()-1);
@@ -1612,7 +1621,8 @@ karte_t::update_frame_sleep_time()
 			increase_frame_time();
 		}
 		else {
-			if(get_frame_time()>100) {
+			int frame_intervall = max( 100, 1000/umgebung_t::fps );
+			if(get_frame_time()>frame_intervall) {
 				reduce_frame_time();
 			}
 			else {
@@ -1728,6 +1738,28 @@ karte_t::neuer_monat()
 
 
 
+void karte_t::neues_jahr()
+{
+	letztes_jahr = current_month/12;
+
+DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
+
+	char buf[256];
+	sprintf(buf,translator::translate("Year %i has started."),letztes_jahr);
+	message_t::get_instance()->add_message(buf,koord::invalid,message_t::general,COL_BLACK,skinverwaltung_t::neujahrsymbol->gib_bild_nr(0));
+
+	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
+		convoihandle_t cnv = convoi_array[i];
+		cnv->neues_jahr();
+	}
+
+	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
+		gib_spieler(i)->neues_jahr();
+	}
+}
+
+
+
 // recalculated speed boni for different vehicles
 // and takes care of all timeline stuff
 void karte_t::recalc_average_speed()
@@ -1830,25 +1862,75 @@ int karte_t::get_average_speed(waytype_t typ) const
 
 
 
-void karte_t::neues_jahr()
+// returns the current speed record
+sint32 karte_t::get_record_speed( waytype_t w ) const
 {
-	letztes_jahr = current_month/12;
-
-DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
-
-	char buf[256];
-	sprintf(buf,translator::translate("Year %i has started."),letztes_jahr);
-	message_t::get_instance()->add_message(buf,koord::invalid,message_t::general,COL_BLACK,skinverwaltung_t::neujahrsymbol->gib_bild_nr(0));
-
-	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
-		convoihandle_t cnv = convoi_array[i];
-		cnv->neues_jahr();
-	}
-
-	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		gib_spieler(i)->neues_jahr();
+	switch(w) {
+		case road_wt: return max_road_speed.speed;
+		case track_wt:
+		case tram_wt: return max_rail_speed.speed;
+		case monorail_wt: return max_maglev_speed.speed;
+		case water_wt: return max_ship_speed.speed;
+		case air_wt: return max_air_speed.speed;
+		default: return 0;
 	}
 }
+
+
+
+// sets the new speed record
+void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
+{
+	speed_record_t *sr = NULL;
+	switch(cnv->gib_vehikel(0)->gib_waytype()) {
+		case road_wt: sr = &max_road_speed; break;
+		case track_wt:
+		case tram_wt: sr = &max_rail_speed; break;
+		case monorail_wt: sr = &max_maglev_speed; break;
+		case water_wt: sr = &max_ship_speed; break;
+		case air_wt: sr = &max_air_speed; break;
+		default: assert(0);
+	}
+
+	// avoid the case of two convois with identical max speed ...
+	if(cnv!=sr->cnv  &&  sr->speed+1==max_speed) {
+		return;
+	}
+
+	// really new/faster?
+	if(pos!=sr->pos  ||  sr->speed+1<max_speed) {
+		// update it
+		sr->cnv = cnv;
+		sr->speed = max_speed-1;
+		sr->year_month = current_month;
+		sr->pos = pos;
+		sr->besitzer = NULL; // will be set, when accepted
+	}
+	else {
+		sr->cnv = cnv;
+		sr->speed = max_speed-1;
+		sr->pos = pos;
+
+		// same convoi and same position
+		if(sr->besitzer==NULL  &&  current_month!=sr->year_month) {
+			// notfiy the world of this new record
+			sr->speed = max_speed-1;
+			sr->besitzer = cnv->gib_besitzer();
+			char *msg, text[1024];
+			switch(cnv->gib_vehikel(0)->gib_waytype()) {
+				case road_wt: msg = "New world record for motorcars: %.1f km/h."; break;
+				case track_wt:
+				case tram_wt: msg = "New world record for railways: %.1f km/h."; break;
+				case monorail_wt: msg = "New world record for monorails: %.1f km/h."; break;
+				case water_wt: msg = "New world record for ship: %.1f km/h."; break;
+				case air_wt: msg = "New world record for planes: %.1f km/h."; break;
+			}
+			sprintf( text, translator::translate(msg), (float)speed_to_kmh(10*sr->speed)/10.0 );
+			message_t::get_instance()->add_message(text, sr->pos, message_t::new_vehicle, sr->besitzer->get_player_color1() );
+		}
+	}
+}
+
 
 
 

@@ -176,6 +176,24 @@ private:
 
 	karte_ansicht_t *view;
 
+	// word record of speed ...
+	class speed_record_t {
+	public:
+		convoihandle_t cnv;
+		sint32	speed;
+		koord	pos;
+		spieler_t *besitzer;
+		uint32 year_month;
+
+		speed_record_t() : cnv(), speed(0), pos(koord::invalid), besitzer(NULL), year_month(0) {}
+	};
+
+	speed_record_t max_rail_speed;
+	speed_record_t max_maglev_speed;
+	speed_record_t max_road_speed;
+	speed_record_t max_ship_speed;
+	speed_record_t max_air_speed;
+
 	/**
 	 * Fraktale, rekursive Landschaftserzeugung
 	 * @author Hj. Malthaner
@@ -290,6 +308,7 @@ private:
 	const weg_besch_t *city_road;
 
 	int average_speed[4];
+
 	// recalculated speed boni for different vehicles
 	void recalc_average_speed();
 
@@ -370,6 +389,11 @@ public:
 	// returns current speed bonus
 	int get_average_speed(waytype_t typ) const;
 
+	// speed record management
+	sint32 get_record_speed( waytype_t w ) const;
+	void notify_record( convoihandle_t cnv, sint32 max_speed, koord pos );
+
+	// time lapse mode ...
 	bool is_fast_forward();
 	void set_fast_forward(bool ff) { fast_forward = ff; reset_timer(); }
 
