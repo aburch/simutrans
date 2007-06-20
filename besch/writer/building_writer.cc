@@ -163,7 +163,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 
 	// if it is a station (building), or a water factory
-	if (besch.utyp >= hausbauer_t::bahnhof && besch.utyp <= hausbauer_t::airport) {
+	if (besch.utyp >= hausbauer_t::bahnhof && besch.utyp <= hausbauer_t::monorailstop+1) {
 		// is is an station extension building?
 		if (obj.get_int("extension_building", 0) > 0) {
 			besch.utyp = (enum hausbauer_t::utyp)(8 + (int)besch.utyp);
