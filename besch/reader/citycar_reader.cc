@@ -10,32 +10,6 @@
 
 #include "../../simdebug.h"
 
-/*
-static offset_koord xy[8] =
-{
-	{ 28, 45 },
-	{ 51, 45 },
-	{ 28, 51 },
-	{ 25, 38 },
-	{ 20, 48 },
-	{ 34, 33 },
-	{ 41, 52 },
-	{ 21, 44 }
-};
-
-static offset_koord wh[8] =
-{
-	{ 11, 11 },
-	{ 11, 11 },
-	{ 11, 11 },
-	{ 11, 11 },
-	{ 7, 15 },
-	{ 7, 15 },
-	{ 16, 8 },
-	{ 16, 8 }
-};
-*/
-
 
 void citycar_reader_t::register_obj(obj_besch_t *&data)
 {

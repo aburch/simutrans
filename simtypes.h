@@ -131,10 +131,4 @@ typedef union anyvalue{
 #endif
 } value_t;
 
-
-
-typedef struct {
-	uint8	x, y;
-} offset_koord;
-
 #endif
