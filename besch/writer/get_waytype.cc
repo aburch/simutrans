@@ -30,7 +30,7 @@ uint8 get_waytype(const char* waytype)
 	} else if (!STRICMP(waytype, "power")) {
 		uv8 = powerline_wt;
 	} else {
-		printf("\nFATAL\ninvalid waytype %s\n", waytype);
+		fprintf(stderr, "\nFATAL\ninvalid waytype \"%s\"\n", waytype);
 		exit(1);
 	}
 
