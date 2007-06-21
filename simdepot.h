@@ -221,11 +221,6 @@ public:
 	 * @author hsiegeln (stolen from Hajo)
 	 */
 	vehikel_t* get_oldest_vehicle(const vehikel_besch_t* besch);
-
-#if USE_NEW_GEBAUDE
-		virtual void* operator new(size_t s) { return freelist_t::gimme_node(sizeof(depot_t)); }
-    virtual void operator delete(void* p) { freelist_t::putback_node(sizeof(depot_t), p); }
-#endif
 };
 
 
@@ -266,11 +261,6 @@ public:
 	virtual const waytype_t get_wegtyp() const {return track_wt;}
 	virtual enum ding_t::typ gib_typ() const {return bahndepot;}
 	virtual const char *gib_name() const {return "Bahndepot"; }
-
-#if USE_NEW_GEBAUDE
-		virtual void* operator new(size_t s) { return freelist_t::gimme_node(sizeof(bahndepot_t)); }
-    virtual void operator delete(void* p) { freelist_t::putback_node(sizeof(bahndepot_t), p); }
-#endif
 };
 
 
@@ -333,11 +323,6 @@ public:
     virtual const waytype_t get_wegtyp() const {return road_wt; }
     enum ding_t::typ gib_typ() const {return strassendepot;}
     const char *gib_name() const {return "Strassendepot";}
-
-#if USE_NEW_GEBAUDE
-		virtual void* operator new(size_t s) { return freelist_t::gimme_node(sizeof(strassendepot_t)); }
-    virtual void operator delete(void* p) { freelist_t::putback_node(sizeof(strassendepot_t), p); }
-#endif
 };
 
 
@@ -374,11 +359,6 @@ public:
 	virtual const waytype_t get_wegtyp() const {return water_wt; }
 	enum ding_t::typ gib_typ() const {return schiffdepot;}
 	const char *gib_name() const {return "Schiffdepot";}
-
-#if USE_NEW_GEBAUDE
-		virtual void* operator new(size_t s) { return freelist_t::gimme_node(sizeof(schiffdepot_t)); }
-	virtual void operator delete(void* p) { freelist_t::putback_node(sizeof(schiffdepot_t), p); }
-#endif
 };
 
 class airdepot_t : public depot_t
@@ -408,11 +388,6 @@ public:
 	virtual const waytype_t get_wegtyp() const { return air_wt; }
 	enum ding_t::typ gib_typ() const { return airdepot; }
 	const char *gib_name() const {return "Hangar";}
-
-#if USE_NEW_GEBAUDE
-		virtual void* operator new(size_t s) { return freelist_t::gimme_node(sizeof(airdepot_t)); }
-    virtual void operator delete(void* p) { freelist_t::putback_node(sizeof(airdepot_t), p); }
-#endif
 };
 
 #endif

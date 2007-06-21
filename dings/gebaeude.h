@@ -8,16 +8,9 @@
 #ifndef dings_gebaeude_h
 #define dings_gebaeude_h
 
-// use my own functions,m but does not work properly
-#define USE_NEW_GEBAUDE 0
-
 #include "../ifc/sync_steppable.h"
 #include "../simdings.h"
 #include "../simcolor.h"
-
-#ifdef USE_NEW_GEBAUDE
-#include "../dataobj/freelist.h"
-#endif
 
 class haus_tile_besch_t;
 class fabrik_t;
