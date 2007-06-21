@@ -158,57 +158,6 @@ freelist_t::putback_node(int size,void *p)
 }
 
 
-
-
-void
-freelist_t::putback_nodes(int size,void *p)
-{
-	if(size==0  ||  p==NULL) {
-		return;
-	}
-	nodelist_node_t ** list = NULL;
-	if(size>64) {
-		switch(size) {
-			case message_node_size:
-				list = &message_nodes;
-				break;
-			case 1220:
-				list = &node1220;
-				break;
-			case 1624:
-				list = &node1624;
-				break;
-			default:
-				dbg->fatal("freelist_t::gimme_node()","No list with size %i! (only up to 64 and %i, 1220, 1624)", size, message_node_size );
-		}
-	}
-	else {
-		list = &(all_lists[(size+3)/4]);
-	}
-#ifdef DEBUG_MEM
-//MESSAGE("freelist_t::putback_nodes()","at %p",p);
-	// goto end of nodes to append
-	nodelist_node_t *tmp1 = (nodelist_node_t *)p;
-	while(tmp1->next!=NULL) {
-		nodelist_node_t *tmp = tmp1->next;
-		putback_check_node(list,tmp1);
-		tmp1 = tmp;
-	}
-	putback_check_node(list,tmp1);
-#else
-	// goto end of nodes to append
-	nodelist_node_t *tmp = (nodelist_node_t *)p;
-	while(tmp->next!=NULL) {
-		tmp = tmp->next;
-	}
-	// putback list to first node
-	tmp->next = *list;
-	*list = (nodelist_node_t *)p;
-#endif
-}
-
-
-
 // clears all list memories
 void
 freelist_t::free_all_nodes()
