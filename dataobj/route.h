@@ -71,12 +71,6 @@ public:
 	}
 
 	/**
-	 * Konstruktor, legt eine leere Route an.
-	 * @author Hj. Malthaner
-	 */
-	route_t() : route(0) {}
-
-	/**
 	 * @return Koordinate an index n
 	 * @author Hj. Malthaner
 	 */

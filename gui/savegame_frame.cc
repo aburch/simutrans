@@ -32,7 +32,6 @@
 savegame_frame_t::savegame_frame_t(const char *suffix) :
 	gui_frame_t("Load/Save") ,
 	fnlabel("Filename"),
-	button_frame(),
 	scrolly(&button_frame)
 {
 	this->suffix = suffix;

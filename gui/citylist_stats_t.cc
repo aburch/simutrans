@@ -21,8 +21,7 @@ char citylist_stats_t::total_bev_string[128];
 
 
 citylist_stats_t::citylist_stats_t(karte_t* w, citylist::sort_mode_t sortby, bool sortreverse) :
-	welt(w),
-	city_list(0)
+	welt(w)
 {
 	setze_groesse(koord(210, welt->gib_staedte().get_count() * (LINESPACE + 1) - 10));
 	total_bev_translation = translator::translate("Total inhabitants:");

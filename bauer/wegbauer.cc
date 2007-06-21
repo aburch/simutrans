@@ -976,7 +976,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 }
 
 
-wegbauer_t::wegbauer_t(karte_t* wl, spieler_t* spl) : next_gr(32), route(0)
+wegbauer_t::wegbauer_t(karte_t* wl, spieler_t* spl) : next_gr(32)
 {
 	n      = 0;
 	max_n  = -1;

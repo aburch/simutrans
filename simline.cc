@@ -14,8 +14,7 @@ uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TR
 karte_t *simline_t::welt=NULL;
 
 
-simline_t::simline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl) :
-	line_managed_convoys(0)
+simline_t::simline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl)
 {
 	welt = simlinemgmt->World();
 	self = linehandle_t(this);
@@ -33,8 +32,7 @@ DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,fahrplan_t)","create with 
 }
 
 
-simline_t::simline_t(karte_t* welt, loadsave_t* file) :
-	line_managed_convoys(0)
+simline_t::simline_t(karte_t* welt, loadsave_t* file)
 {
 	self = linehandle_t(this);
 	init_financial_history();

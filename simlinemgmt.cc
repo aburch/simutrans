@@ -25,8 +25,7 @@ void simlinemgmt_t::init_line_ids()
 }
 
 
-simlinemgmt_t::simlinemgmt_t(karte_t * welt,spieler_t *sp) :
-	all_managed_lines(0)
+simlinemgmt_t::simlinemgmt_t(karte_t* welt, spieler_t* sp)
 {
 	this->welt = welt;
 	this->besitzer = sp;

@@ -51,7 +51,6 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	gui_frame_t("Goods list"),
 	sort_label(translator::translate("hl_txt_sort")),
 	change_speed_label(speed_bonus,COL_WHITE,gui_label_t::right),
-	goods_stats(),
 	scrolly(&goods_stats)
 {
 	this->welt = wl;

@@ -21,8 +21,7 @@
 #include "../utils/cbuffer_t.h"
 
 
-factorylist_stats_t::factorylist_stats_t(karte_t* w, factorylist::sort_mode_t sortby, bool sortreverse) :
-    fab_list(0)
+factorylist_stats_t::factorylist_stats_t(karte_t* w, factorylist::sort_mode_t sortby, bool sortreverse)
 {
 	welt = w;
 	setze_groesse(koord(210, welt->gib_fab_list().count()*(LINESPACE+1)-10));

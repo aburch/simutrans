@@ -180,8 +180,8 @@ route_t::find_route(karte_t *welt,
 	INT_CHECK("route 347");
 
 	// arrays for A*
-	static vector_tpl<ANode*> open(0);
-	vector_tpl<ANode*> close(0);
+	static vector_tpl<ANode*> open;
+	vector_tpl<ANode*> close;
 
 	// nothing in lists
 	open.clear();

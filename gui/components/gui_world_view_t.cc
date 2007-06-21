@@ -22,7 +22,7 @@
 
 
 
-world_view_t::world_view_t(karte_t *welt, koord3d location) : offsets(0)
+world_view_t::world_view_t(karte_t* welt, koord3d location)
 {
     this->location = location;
     this->ding = NULL;
@@ -36,7 +36,6 @@ world_view_t::world_view_t(karte_t *welt, koord3d location) : offsets(0)
 world_view_t::world_view_t(ding_t* dt) :
 	location(koord3d::invalid),
 	ding(dt),
-	offsets(0),
 	raster(0),
 	welt(dt->World())
 {

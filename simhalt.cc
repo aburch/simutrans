@@ -273,8 +273,7 @@ void haltestelle_t::destroy_all(karte_t *welt)
 }
 
 
-haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file) :
-	registered_lines(0)
+haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 {
 	self = halthandle_t(this);
 
@@ -306,8 +305,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file) :
 }
 
 
-haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp) :
-	registered_lines(0)
+haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 {
 	self = halthandle_t(this);
 	assert( !alle_haltestellen.contains(self) );
