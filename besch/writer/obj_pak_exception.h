@@ -13,8 +13,8 @@ class obj_pak_exception_t {
 			problem = prob;
 		}
 
-		const cstring_t& get_class() { return classname; }
-		const cstring_t& get_info() { return problem; }
+		const char* get_class() const { return classname; }
+		const char* get_info()  const { return problem; }
 };
 
 #endif

@@ -51,7 +51,7 @@ void obj_node_t::write_data_at(FILE* fp, const void* data, int offset, int size)
 	if (offset < 0 || size < 0 || offset + size > desc.size) {
 		cstring_t reason;
 		reason.printf("invalid parameters (offset=%d, size=%d, obj_size=%d)", offset, size, desc.size);
-		throw new obj_pak_exception_t("obj_node_t", reason);
+		throw obj_pak_exception_t("obj_node_t", reason);
 	}
 	fseek(fp, write_offset + offset, SEEK_SET);
 	fwrite(data, size, 1, fp);

@@ -159,7 +159,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	} else {
 		cstring_t reason;
 		reason.printf("invalid type %s for building %s\n", type_name, obj.get("name"));
-		throw new obj_pak_exception_t("building_writer_t", reason);
+		throw obj_pak_exception_t("building_writer_t", reason);
 	}
 
 	// if it is a station (building), or a water factory
