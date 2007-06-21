@@ -51,14 +51,14 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 		node = new obj_node_t(this, 0, NULL, false);
 	}
 
-	for (int i = 0; !i || i < argc; i++) {
-		const char* arg = i < argc ? argv[i] : "./";
+	for(  int i=0;  i==0  ||  i<argc;  i++  ) {
+		const char* arg = (i < argc) ? argv[i] : "./";
 
 		find.search(arg, "dat");
-		for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i) {
+		for(  searchfolder_t::const_iterator i=find.begin(), end=find.end();  i!=end;  ++i  ) {
 			tabfile_t infile;
 
-			if (infile.open(*i)) {
+			if(infile.open(*i)) {
 				tabfileobj_t obj;
 
 				printf("   reading file %s\n", *i);
@@ -66,14 +66,14 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 				inpath = arg;
 				int n = inpath.find_back('/');
 
-				if (n) {
+				if(n) {
 					inpath = inpath.substr(0, n + 1);
 				} else {
 					inpath = "";
 				}
 
-				while (infile.read(obj)) {
-					if (separate) {
+				while(infile.read(obj)) {
+					if(separate) {
 						cstring_t name(filename);
 
 						name = name + obj.get("obj") + "." + obj.get("name") + ".pak";
@@ -90,7 +90,7 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 					}
 					obj_writer_t::write(outfp, *node, obj);
 
-					if (separate) {
+					if(separate) {
 						node->write(outfp);
 						delete node;
 						fclose(outfp);
@@ -116,7 +116,7 @@ bool root_writer_t::do_dump(const char* open_file_name)
 		int c;
 		do {
 			c = fgetc(infp);
-		} while (!feof(infp) && c != '\x1a');
+		} while(  !feof(infp)  &&  c!='\x1a'  );
 
 		// Compiled Verison
 		uint32 version;
@@ -175,7 +175,7 @@ bool root_writer_t::do_list(const char* open_file_name)
 		obj_node_info_t node;
 		fread(&node, sizeof(node), 1, infp);
 		fseek(infp, node.size, SEEK_CUR);
-		for (int i = 0; i < node.children; i++) {
+		for(  int i=0;  i<node.children;  i++  ) {
 			list_nodes(infp);
 		}
 		fclose(infp);
@@ -244,7 +244,6 @@ bool root_writer_t::do_copy(FILE* outfp, obj_node_info_t& root, const char* open
 void root_writer_t::copy(const char* name, int argc, char* argv[])
 {
 	searchfolder_t find;
-	int i;
 
 	FILE* outfp = NULL;
 	if (strchr(name, '*') == NULL) {
@@ -270,7 +269,7 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 	root.type = obj_root;
 	fwrite(&root, sizeof(root), 1, outfp);
 
-	for (i = 0; i < argc; i++) {
+	for(  int i=0;  i<argc;  i++  ) {
 		bool any = false;
 
 		// this is neccessary to avoid the hassle with "./*.pak" otherwise
@@ -316,7 +315,7 @@ void root_writer_t::uncopy(const char* name)
 	int c;
 	do {
 		c = fgetc(infp);
-	} while (!feof(infp) && c != '\x1a');
+	} while(  !feof(infp)  &&  c!='\x1a'  );
 
 	// check version of pak format
 	uint32 version;
@@ -334,7 +333,7 @@ void root_writer_t::uncopy(const char* name)
 		printf("  found %d files to extract\n\n", root.children);
 
 		// now itereate over the archieve
-		for (int number = 0; number < root.children; number++) {
+		for (  int number=0;  number<root.children;  number++  ) {
 			// read the info node ...
 			long start_pos=ftell(infp);
 
@@ -371,7 +370,7 @@ void root_writer_t::uncopy(const char* name)
 
 void root_writer_t::copy_nodes(FILE* outfp, FILE* infp, obj_node_info_t& start)
 {
-	for (int i = 0; i < start.children; i++) {
+	for(  int i=0;  i<start.children;  i++  ) {
 		obj_node_info_t info;
 
 		fread(&info, sizeof(info), 1, infp);

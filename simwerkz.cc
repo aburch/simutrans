@@ -448,7 +448,6 @@ DBG_MESSAGE("wkz_remover()", "removing factory:  supplier info change for %i fac
 						fab->rem_supplier(pos);
 DBG_MESSAGE("wkz_remover()", "reconnecting factories");
 					}
-					welt->rem_fab((fabrik_t*)6);
 
 					// remove from all cities
 DBG_MESSAGE("wkz_remover()", "removing factory:  reconnecting towns");
@@ -456,7 +455,6 @@ DBG_MESSAGE("wkz_remover()", "removing factory:  reconnecting towns");
 					for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 						(*i)->verbinde_fabriken();
 					}
-					welt->rem_fab((fabrik_t*)1);
 
 					// finally delete it
 					fab->~fabrik_t();

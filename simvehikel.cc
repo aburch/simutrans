@@ -360,11 +360,19 @@ vehikel_basis_t::calc_height()
 void
 vehikel_t::setze_convoi(convoi_t *c)
 {
-    // c darf NULL sein, wenn das vehikel aus dem Convoi entfernt wird
-    cnv = c;
-		if(c  &&  ist_erstes) {
-			check_for_finish = !(route_index<cnv->get_route()->gib_max_n());
-		}
+	/* cnv can have three values:
+	 * NULL: not previously assigned
+	 * 1 (only during loading): convoi wants to reserve the whole route
+	 * other: previous convoi (in this case, currently always c==cnv)
+	 *
+	 * if c is NULL, then the vehicle is removed from the convoi
+	 * (the waggon_t::setze_convoi etc. routines must then remove a
+	 *  possibly pending reservation of stops/tracks)
+	 */
+	cnv = c;
+	if(c  &&  ist_erstes) {
+		check_for_finish = !(route_index<cnv->get_route()->gib_max_n());
+	}
 }
 
 
@@ -897,10 +905,10 @@ vehikel_t::fahre()
 	// target mark: same coordinate twice (stems from very old ages, I think)
 	if(ist_erstes  &&  check_for_finish) {
 		// check half a tile (8 sync_steps) ahead for a tile change
-		const sint16 iterations = (fahrtrichtung==ribi_t::sued  || fahrtrichtung==ribi_t::ost) ? 1 : besch->get_length();
+		const sint8 iterations = (fahrtrichtung==ribi_t::sued  || fahrtrichtung==ribi_t::ost) ? 1 : besch->get_length();
 
-		const sint16 neu_xoff = gib_xoff() + gib_dx()*iterations;
-		const sint16 neu_yoff = gib_yoff() + gib_dy()*iterations;
+		const sint8 neu_xoff = gib_xoff() + gib_dx()*iterations;
+		const sint8 neu_yoff = gib_yoff() + gib_dy()*iterations;
 
 		// want to go to next field and want to step
 		if(is_about_to_hop(neu_xoff,neu_yoff)) {
@@ -1653,7 +1661,7 @@ automobil_t::setze_convoi(convoi_t *c)
 {
 	DBG_MESSAGE("automobil_t::setze_convoi()","%p",c);
 	if(c!=NULL) {
-		bool target=(bool)cnv;
+		bool target=(bool)cnv;	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
 		vehikel_t::setze_convoi(c);
 		if(target  &&  ist_erstes) {
 			// reintitialize the target halt
@@ -1725,7 +1733,7 @@ waggon_t::setze_convoi(convoi_t *c)
 				// eventually reserve new route
 				if(c  &&  c->get_state()==convoi_t::DRIVING) {
 DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_route(),route_index);
-					long num_index = (long)cnv==1?1001:0;
+					long num_index = (long)cnv==1?1001:0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
 					// rereserve next block, if needed
 					cnv = c;
 					uint16 n = block_reserver( c->get_route(), route_index, num_index, true );
