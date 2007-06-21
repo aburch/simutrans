@@ -1014,9 +1014,9 @@ convoi_t::can_go_alte_richtung()
 			return false;
 		}
 
-		// now check, if it is on valid ground and
+		// now check, if ribi is straight and train is not
 		ribi_t::ribi weg_ribi = gr->gib_weg_ribi_unmasked(v->gib_waytype());
-		if((weg_ribi|v->gib_fahrtrichtung())!=weg_ribi) {
+		if(ribi_t::ist_gerade(weg_ribi)  &&  (weg_ribi|v->gib_fahrtrichtung())!=weg_ribi) {
 			dbg->warning("convoi_t::go_alte_richtung()","convoy with wrong vehicle directions (id %i) found => fixing!",self.get_id());
 			akt_speed = 8;
 			return false;
