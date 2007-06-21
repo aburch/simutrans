@@ -1898,12 +1898,12 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 			sr->besitzer = cnv->gib_besitzer();
 			char *msg, text[1024];
 			switch(cnv->gib_vehikel(0)->gib_waytype()) {
-				case road_wt: msg = "New world record for motorcars: %.1f km/h."; break;
+				case road_wt: msg = "New world record for motorcars: %.1f km/h by %s."; break;
 				case track_wt:
-				case tram_wt: msg = "New world record for railways: %.1f km/h."; break;
-				case monorail_wt: msg = "New world record for monorails: %.1f km/h."; break;
-				case water_wt: msg = "New world record for ship: %.1f km/h."; break;
-				case air_wt: msg = "New world record for planes: %.1f km/h."; break;
+				case tram_wt: msg = "New world record for railways: %.1f km/h by %s."; break;
+				case monorail_wt: msg = "New world record for monorails: %.1f km/h by %s."; break;
+				case water_wt: msg = "New world record for ship: %.1f km/h by %s."; break;
+				case air_wt: msg = "New world record for planes: %.1f km/h by %s."; break;
 			}
 			sprintf( text, translator::translate(msg), (float)speed_to_kmh(10*sr->speed)/10.0 );
 			message_t::get_instance()->add_message(text, sr->pos, message_t::new_vehicle, sr->besitzer->get_player_color1() );

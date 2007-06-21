@@ -125,16 +125,17 @@ static inline int max(const int a, const int b)
  */
 union value_t
 {
-  value_t()                : p(0)   {}
-  value_t(long itg)        : i(itg) {}
-  value_t(const void* ptr) : p(ptr) {}
+	value_t()                : p(0)   {}
+	value_t(long itg)        : i(itg) {}
+	value_t(const void* ptr) : p(ptr) {}
 
 	const void* p;
 	long i;
 };
 
 #else
-	typedef enum bool { false, true } bool;
+// c definitionen
+typedef enum bool { false, true } bool;
 #endif
 
 #endif
