@@ -98,18 +98,18 @@ vehikel_basis_t::verlasse_feld()
 {
 	// first: release crossing
 	grund_t *gr = welt->lookup(gib_pos());
-	if(gr->ist_uebergang()) {
+	if(gr  &&  gr->ist_uebergang()) {
 		gr->find<crossing_t>(2)->release_crossing(this);
 	}
 
 	// then remove from ground (or search whole map, if failed)
-	if (!gr->obj_remove(this)) {
+	if (gr==NULL  ||  !gr->obj_remove(this)) {
 		// was not removed (not found?)
 
 		dbg->error("vehikel_basis_t::verlasse_feld()","'typ %i' %p could not be removed from %d %d", gib_typ(), this, gib_pos().x, gib_pos().y);
 		DBG_MESSAGE("vehikel_basis_t::verlasse_feld()","checking all plan squares");
 
-		grund_t *gr = welt->lookup( gib_pos().gib_2d() )->gib_boden_von_obj(this);
+		gr = welt->lookup( gib_pos().gib_2d() )->gib_boden_von_obj(this);
 		if(gr) {
 			gr->obj_remove(this);
 			dbg->warning("vehikel_basis_t::verlasse_feld()","removed vehicle typ %i (%p) from %d %d",gib_typ(), this, gib_pos().x, gib_pos().y);
