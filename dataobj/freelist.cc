@@ -14,6 +14,13 @@
 #define DEBUG_MEM
 #endif
 
+
+struct nodelist_node_t
+{
+	nodelist_node_t* next;
+};
+
+
 // list of all allocated memory
 static nodelist_node_t *chunk_list = NULL;
 
@@ -89,9 +96,9 @@ freelist_t::gimme_node(int size)
 }
 
 
-// put back a node and checks for consitency
-void
-freelist_t::putback_check_node(nodelist_node_t ** list,nodelist_node_t *p)
+#ifdef DEBUG_MEM
+// put back a node and check for consistency
+static void putback_check_node(nodelist_node_t** list, nodelist_node_t* p)
 {
 	if(*list<p) {
 		if(p==*list) {
@@ -112,7 +119,7 @@ freelist_t::putback_check_node(nodelist_node_t ** list,nodelist_node_t *p)
 		tmp->next = p;
 	}
 }
-
+#endif
 
 
 void
@@ -140,7 +147,7 @@ freelist_t::putback_node(int size,void *p)
 	else {
 		list = &(all_lists[(size+3)/4]);
 	}
-#ifdef DEBUG_MEN
+#ifdef DEBUG_MEM
 	putback_check_node(list,(nodelist_node_t *)p);
 #else
 	// putback to first node
@@ -178,7 +185,7 @@ freelist_t::putback_nodes(int size,void *p)
 	else {
 		list = &(all_lists[(size+3)/4]);
 	}
-#ifdef DEBUG_MEN
+#ifdef DEBUG_MEM
 //MESSAGE("freelist_t::putback_nodes()","at %p",p);
 	// goto end of nodes to append
 	nodelist_node_t *tmp1 = (nodelist_node_t *)p;

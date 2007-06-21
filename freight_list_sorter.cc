@@ -9,6 +9,18 @@
 freight_list_sorter_t::sort_mode_t freight_list_sorter_t::sortby=by_name;
 
 
+/*
+ * struct hold travel details for wares that travel
+ * @author hsiegeln
+ */
+struct travel_details
+{
+	ware_t ware;
+	halthandle_t destination;
+	halthandle_t via_destination;
+};
+
+
 /** hsiegeln
  *  @param td1, td2: pointer to travel_details
  *  @return sortorder of the two passed elements; used in qsort
