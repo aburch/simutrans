@@ -1905,7 +1905,7 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 				case water_wt: msg = "New world record for ship: %.1f km/h by %s."; break;
 				case air_wt: msg = "New world record for planes: %.1f km/h by %s."; break;
 			}
-			sprintf( text, translator::translate(msg), (float)speed_to_kmh(10*sr->speed)/10.0 );
+			sprintf( text, translator::translate(msg), (float)speed_to_kmh(10*sr->speed)/10.0, sr->cnv->gib_name() );
 			message_t::get_instance()->add_message(text, sr->pos, message_t::new_vehicle, sr->besitzer->get_player_color1() );
 		}
 	}

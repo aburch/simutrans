@@ -26,6 +26,7 @@
 	FIX: (z9999) monorail station extension buildings
 	FIX: convoi could break up when during loadtime it was on its finaly tile (also new detection for already broken convois)
 	ADD: speed record for all kind of convois
+	FIX: vehicles may have been saved with wrong pos_prev, which may caused errors at waypoints/stations
 
 
 Release of 99.12

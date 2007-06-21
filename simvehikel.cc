@@ -495,6 +495,10 @@ vehikel_t::laden_abschliessen()
 	while(iter.next()) {
 		iter.access_current().laden_abschliessen(welt);
 	}
+	// some convois were saved with broken coordinates
+	if(!welt->lookup(pos_prev)) {
+		setze_pos( welt->lookup_kartenboden(pos_prev.gib_2d())->gib_pos() );
+	}
 }
 
 
@@ -1189,7 +1193,7 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 			dbg->warning("vehikel_t::rdwr()","no vehicle pak for '%s' search for something similar", s);
 		}
 		guarded_free(const_cast<char *>(s));
-  }
+	}
 
 	if(file->is_saving()) {
 		if (fracht.empty()  &&  fracht_count>0) {
