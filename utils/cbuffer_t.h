@@ -67,6 +67,8 @@ class cbuffer_t
    */
   void append(int n);
 
+	/* Append formatted text to the buffer */
+	void printf(const char* fmt, ...);
 
   /**
    * Automagic conversion to a const char* for backwards compatibility

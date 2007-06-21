@@ -1,6 +1,6 @@
+#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-
 #include "cbuffer_t.h"
 
 
@@ -81,4 +81,19 @@ void cbuffer_t::append(int n)
   }
 
   append(p);
+}
+
+
+void cbuffer_t::printf(const char* fmt, ...)
+{
+	va_list ap;
+	va_start(ap, fmt);
+	int count = vsnprintf(buf + size, capacity - size, fmt, ap);
+	assert(count >= 0);
+	if (capacity - size < count) {
+		size = capacity - 1;
+	} else {
+		size += count;
+	}
+	va_end(ap);
 }
