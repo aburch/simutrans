@@ -1,7 +1,9 @@
+#include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #include "cbuffer_t.h"
+#include "../simtypes.h"
 
 
 /**
@@ -90,7 +92,7 @@ void cbuffer_t::printf(const char* fmt, ...)
 	va_start(ap, fmt);
 	int count = vsnprintf(buf + size, capacity - size, fmt, ap);
 	assert(count >= 0);
-	if (capacity - size < count) {
+	if (capacity - size <= (uint)count) {
 		size = capacity - 1;
 	} else {
 		size += count;
