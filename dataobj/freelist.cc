@@ -14,6 +14,8 @@
 #define DEBUG_MEM
 #endif
 
+#undef DEBUG_MEM // XXX deactivate because it is broken
+
 
 struct nodelist_node_t
 {
