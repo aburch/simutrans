@@ -167,16 +167,6 @@ public:
 	*/
 	void laden_abschliessen();
 
-	/* check, if the coordinate belongs to this factory
-	 * @author prissi
-	 */
-	bool is_fabrik( koord check );
-
-	/* check, if the coordinate belongs to this factory
-	 * @author prissi
-	 */
-	bool is_fabrik( koord check, koord extent );
-
 	void link_halt(halthandle_t halt);
 	void unlink_halt(halthandle_t halt);
 

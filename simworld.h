@@ -781,11 +781,6 @@ public:
 	 */
 	fabrik_t *get_random_fab() const;
 
-	/* return all factories in this area
-	* @author prissi
-	*/
-	vector_tpl<fabrik_t *> &find_all_factories( koord pos, koord extent );
-
 	/**
 	 * sucht naechstgelegene Stadt an Position i,j
 	 * @author Hj. Malthaner

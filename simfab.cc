@@ -187,20 +187,6 @@ fabrik_t::~fabrik_t()
 }
 
 
-// must be extended for non-square factories!
-bool
-fabrik_t::is_fabrik( koord check )
-{
-	return (check.x>=pos.x   &&  check.x<pos.x+besch->gib_haus()->gib_groesse(rotate).x  &&  check.y>=pos.y  &&  check.y<pos.y+besch->gib_haus()->gib_groesse(rotate).y);
-}
-
-bool
-fabrik_t::is_fabrik( koord lu, koord rd )
-{
-	return (rd.x>=pos.x   &&  lu.x<pos.x+besch->gib_haus()->gib_groesse(rotate).x  &&  rd.y>=pos.y  &&  lu.y<pos.y+besch->gib_haus()->gib_groesse(rotate).y);
-}
-
-
 void
 fabrik_t::add_arbeiterziel(stadt_t *stadt)
 {

@@ -1362,26 +1362,6 @@ karte_t::get_random_fab() const
 }
 
 
-/* return all factories in this area
- * @author prissi
- */
-vector_tpl<fabrik_t *> &
-karte_t::find_all_factories( koord pos, koord extent )
-{
-	static vector_tpl <fabrik_t*> fablist(32);
-	fablist.clear();
-
-	slist_iterator_tpl<fabrik_t *> iter (this->fab_list);
-	while(iter.next()) {
-		fabrik_t * fab = iter.get_current();
-		if(fab->is_fabrik(pos,extent)) {
-			fablist.append(fab);
-//DBG_MESSAGE("karte_t::find_all_factories()","append %s at (%i,%i)",fab->gib_name(),fab->gib_pos().x,fab->gib_pos().y);
-		}
-	}
-	return fablist;
-}
-
 /*----------------------------------------------------------------------------------------------------------------------*/
 /* same procedure for tourist attractions */
 
