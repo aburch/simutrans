@@ -103,7 +103,7 @@ cstring_t & cstring_t::operator= (const cstring_t &other)
 		delete [] buf;
 	}
 	buf = NULL;
-	if(other.len()>0) {
+	if (other.len() >= 0) {
 		buf = new char[other.len()+1];
 		strcpy(buf, other.buf);
 	}
