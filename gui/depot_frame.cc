@@ -1327,7 +1327,7 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 		}
 
 		if(veh_type->gib_copyright()!=NULL  &&  veh_type->gib_copyright()[0]!=0) {
-			n += sprintf(buf + n, "%s %s\n", translator::translate("Constructed by"), veh_type->gib_copyright());
+			n += sprintf(buf + n, translator::translate("Constructed by %s"), veh_type->gib_copyright());
 		}
 
 		if(value != -1) {

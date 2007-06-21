@@ -595,9 +595,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		const char *maker=tile->gib_besch()->gib_copyright();
 		if(maker!=NULL  && maker[0]!=0) {
 			buf.append("\n");
-			buf.append(translator::translate("Constructed by"));
-			buf.append(" ");
-			buf.append(maker);
+			buf.printf(translator::translate("Constructed by %s"), maker);
 		}
 	}
 }
