@@ -800,8 +800,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 		while(gr) {
 			gr->get_neighbour(to, wegtyp, zv);
 			if(to  &&  to->ist_karten_boden()) {
-				next_gr_t ngt={to,7};
-				next_gr.append(ngt,16);
+				next_gr.push_back(next_gr_t(to, 7));
 				return;
 			}
 			gr = to;
@@ -865,8 +864,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 					// ok, here we may end
 					// we return the koord3d AFTER we came down!
 					if(has_reason_for_bridge) {
-						next_gr_t ngt={gr,i*cost_difference+umgebung_t::way_count_slope};
-						next_gr.append(ngt,16);
+						next_gr.push_back(next_gr_t(gr, i * cost_difference + umgebung_t::way_count_slope));
 					}
 					return;
 				}
@@ -878,8 +876,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 					// ok, here we may end
 					// we return the koord3d AFTER we came down!
 					if(has_reason_for_bridge) {
-						next_gr_t ngt={gr,i*cost_difference+umgebung_t::way_count_slope*2};
-						next_gr.append(ngt,16);
+						next_gr.push_back(next_gr_t(gr, i * cost_difference + umgebung_t::way_count_slope * 2));
 						return;
 					}
 				}
@@ -929,8 +926,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 					// ok, here we may end
 					// we return the koord3d AFTER we came down!
 					// this make always sense, since it is a counter slope
-					next_gr_t ngt={gr,i*cost_difference};
-					next_gr.append(ngt,16);
+					next_gr.push_back(next_gr_t(gr, i * cost_difference));
 					return;
 				}
 			}
@@ -945,8 +941,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 				if(!gr->hat_wege()  &&  gr->ist_natur()  &&  !gr->ist_wasser()  &&  !gr2->hat_wege()  &&  is_allowed_step(gr, gr2, &internal_cost )) {
 					// ok, here we may end
 					if(has_reason_for_bridge) {
-						next_gr_t ngt={gr,i*cost_difference+umgebung_t::way_count_slope};
-						next_gr.append(ngt,16);
+						next_gr.push_back(next_gr_t(gr, i * cost_difference + umgebung_t::way_count_slope));
 					}
 				}
 			}
@@ -972,8 +967,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 				if(!gr->hat_wege()  &&  gr->ist_natur()  &&  !gr->ist_wasser()  &&  is_allowed_step(gr, gr2, &internal_cost )) {
 					// ok, here we may end
 					// we return the koord3d AFTER we came down!
-					next_gr_t ngt={gr,i*umgebung_t::way_count_tunnel };
-					next_gr.append(ngt,16);
+					next_gr.push_back(next_gr_t(gr, i * umgebung_t::way_count_tunnel));
 					return;
 				}
 			}
@@ -1217,8 +1211,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->gib_pos().x,gr->gib_pos().y,g
 					}
 				}
 				// now add it to the array ...
-				next_gr_t nt={to,new_cost};
-				next_gr.append(nt);
+				next_gr.push_back(next_gr_t(to, new_cost));
 			}
 			else if(tmp->parent!=NULL  &&  !gr->hat_wege()  &&  bridge_nsow==koord::nsow[r]) {
 				// try to build a bridge or tunnel here, since we cannot go here ...

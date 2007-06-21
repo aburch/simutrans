@@ -82,11 +82,14 @@ public:
 	};
 
 private:
-	typedef struct
+	struct next_gr_t
 	{
-		grund_t *gr;
+		next_gr_t() {}
+		next_gr_t(grund_t* gr_, long cost_) : gr(gr_), cost(cost_) {}
+
+		grund_t* gr;
 		long		cost;
-	} next_gr_t;
+	};
 	vector_tpl<next_gr_t> next_gr;
 
 	enum { unseen = 9999999 };
