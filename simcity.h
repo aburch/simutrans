@@ -214,7 +214,7 @@ private:
 	 */
 	void step_bau();
 
-	typedef enum { no_return=0, factoy_return, tourist_return, town_return } pax_zieltyp;
+	enum pax_zieltyp { no_return, factoy_return, tourist_return, town_return };
 
 	/**
 	 * verteilt die Passagiere auf die Haltestellen
