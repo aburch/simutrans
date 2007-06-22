@@ -125,12 +125,6 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 	}
 }
 
-void
-simlinemgmt_t::destroy_all()
-{
-	all_managed_lines.clear();
-}
-
 
 static bool compare_lines(const linehandle_t& a, const linehandle_t& b)
 {

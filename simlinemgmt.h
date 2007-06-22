@@ -29,7 +29,6 @@ class simlinemgmt_t
  public:
 
  	simlinemgmt_t(karte_t * welt, spieler_t *besitzer);
-	void destroy_all();
 
 	/*
 	 * add a line

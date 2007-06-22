@@ -202,9 +202,7 @@ spieler_t::~spieler_t()
 		delete line_frame;
 	}
 	line_frame = NULL;
-	simlinemgmt.destroy_all();
 }
-
 
 
 /* returns the money dialoge of a player
