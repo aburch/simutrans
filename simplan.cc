@@ -381,12 +381,9 @@ planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint1
 
 	// display station owner boxes
 	if(umgebung_t::station_coverage_show  &&  halt_list_count>0) {
-		if(umgebung_t::use_transparency_station_coverage) {
-/*
-			zeiger_t *cursor = gr->gib_welt()->gib_zeiger();
 
-			halthandle_t hover_halt = haltestelle_t::gib_halt(gr->gib_welt(), cursor->gib_pos().gib_2d());
-*/
+		if(umgebung_t::use_transparency_station_coverage) {
+
 			// only transparent outline
 			image_id img = gib_kartenboden()->gib_bild();
 			if(img==IMG_LEER) {
@@ -399,6 +396,7 @@ planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint1
 				display_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
 			}
 /*
+// unfourtunately, too expensive for display
 			// plot player outline colours - we always plot in order of players so that the order of the stations in halt_list
 			// doesn't affect the colour displayed [since blend(col1,blend(col2,screen)) != blend(col2,blend(col1,screen))]
 			for(int spieler_count = 0; spieler_count<MAX_PLAYER_COUNT; spieler_count++) {
@@ -410,32 +408,10 @@ planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint1
 					}
 				}
 			}
-
-			// plot outline of halt that cursor is hovering over
-			if(is_connected(hover_halt)) {
-				int count = 0;
-				for(int x_coord = gr->gib_pos().x - 1; x_coord <= gr->gib_pos().x + 1; x_coord++) {
-					for(int y_coord = gr->gib_pos().y - 1; y_coord <= gr->gib_pos().y + 1; y_coord++) {
-						planquadrat_t *neighbour_plan=gr->gib_welt()->access(x_coord, y_coord);
-						if(neighbour_plan && !neighbour_plan->is_connected(hover_halt)) {
-							count ++;
-						}
-					}
-				}
-				if(count>0) {
-					display_img_blend( img, xpos, ypos, COL_BLACK | OUTLINE_FLAG | TRANSPARENT25_FLAG, 0, 0);
-				}
-			}
-
-			// if cursor has moved then redraw tile (incase hover halt is now different)
-			if(cursor->gib_pos() != cursor->gib_prev_pos()) {
-				gr->set_flag(grund_t::dirty);
-				reset_dirty = false;
-			}
 	*/
 		}
 		else {
-			// opaque boxes
+			// opaque boxes (
 			const sint16 r=raster_tile_width/8;
 			const sint16 x=xpos+raster_tile_width/2-r;
 			const sint16 y=ypos+(raster_tile_width*3)/4-r - (gib_kartenboden()->gib_grund_hang()? tile_raster_scale_y(8,raster_tile_width): 0);
@@ -448,16 +424,6 @@ planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint1
 
 	// display signs
 	gr->display_overlay(xpos, ypos, reset_dirty);
-/*
-	if(ground_size>1) {
-		const sint16 h0 = gr->gib_hoehe();
-		for(uint8 i=1;  i<ground_size;  i++) {
-			gr=data.some[i];
-			const sint16 yypos = ypos - tile_raster_scale_y( (gr->gib_hoehe()-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
-			gr->display_overlay(xpos, yypos, reset_dirty );
-		}
-	}
-*/
 }
 
 /**
