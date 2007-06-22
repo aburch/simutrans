@@ -225,3 +225,11 @@ const char * ltrim(const char *p)
 
   return p;
 }
+
+
+int count_char(const char* str, const char c)
+{
+	int count = 0;
+	while (*str != '\0') count += (*str++ == c);
+	return count;
+}

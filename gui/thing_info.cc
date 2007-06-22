@@ -14,9 +14,10 @@
 #include "../simgraph.h"
 #include "../simplay.h"
 #include "../simworld.h"
-
 #include "../dataobj/translator.h"
+#include "../utils/simstring.h"
 #include "thing_info.h"
+
 
 cbuffer_t ding_infowin_t::buf (8192);
 

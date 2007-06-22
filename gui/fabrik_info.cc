@@ -19,6 +19,8 @@
 #include "../simworld.h"
 #include "../simskin.h"
 #include "../dataobj/translator.h"
+#include "../utils/simstring.h"
+
 
 cbuffer_t fabrik_info_t::info_buf(8192);
 

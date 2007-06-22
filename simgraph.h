@@ -188,8 +188,6 @@ void display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *inbuf, PLAYER_
 
 void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color);
 
-int count_char(const char *str, const char c);
-
 void display_setze_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h);
 struct clip_dimension display_gib_clip_wh(void);
 

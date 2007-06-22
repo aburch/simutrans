@@ -2569,20 +2569,6 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
 }
 
 
-
-/**
- * Zaehlt Vorkommen ein Buchstabens in einem String
- * @author Hj. Malthaner
- */
-int count_char(const char *str, const char c)
-{
-	int count = 0;
-
-	while (*str != '\0') count += (*str++ == c);
-	return count;
-}
-
-
 /**
  * Zeichnet einen mehrzeiligen Text
  * @author Hj. Malthaner
