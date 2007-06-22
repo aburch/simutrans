@@ -371,7 +371,7 @@ vehikel_t::setze_convoi(convoi_t *c)
 	 */
 	cnv = c;
 	if(cnv  &&  ist_erstes) {
-		check_for_finish = (route_index>=cnv->get_route()->gib_max_n())  ||  gib_pos()==cnv->get_route()->position_bei(route_index));
+		check_for_finish = (gib_pos()==cnv->get_route()->position_bei(route_index));
 	}
 }
 
