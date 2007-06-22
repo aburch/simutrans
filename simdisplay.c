@@ -13,7 +13,7 @@
  */
 
 #include <stdio.h>
-
+#include "simsys.h"
 #include "simtypes.h"
 #include "simgraph.h"
 #include "simimg.h"

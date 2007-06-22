@@ -759,7 +759,7 @@ DBG_MESSAGE("init","map");
 		display_set_pointer(skinverwaltung_t::mouse_cursor->gib_bild_nr(0));
 	}
 #endif
-	display_show_pointer(TRUE);
+	display_show_pointer(true);
 
 	welt->setze_dirty();
 

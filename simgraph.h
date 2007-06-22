@@ -21,11 +21,6 @@ extern "C" {
 extern int large_font_height;
 #endif
 
-#ifndef TRUE
-#define TRUE 1
-#define FALSE 0
-#endif
-
 #include "simcolor.h"
 
 #define LINESPACE 11
