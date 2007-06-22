@@ -1929,9 +1929,9 @@ static unsigned char get_h_mask(const int xL, const int xR, const int cL, const 
  * @author Volker Meyer, prissi
  * @date  15.06.2003, 2.1.2005
  */
-int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt, int align, const PLAYER_COLOR_VAL color_index, int dirty, bool use_large_font, int len, bool use_clipping)
+int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, int flags, const PLAYER_COLOR_VAL color_index, int len)
 {
-	font_type *fnt = use_large_font ? &large_font : &small_font;
+	const font_type* fnt = (flags & DT_SMALL ? &small_font : &large_font);
 	KOORD_VAL cL, cR, cT, cB;
 	unsigned c;
 	int	iTextPos = 0; // pointer on text position: prissi
@@ -1947,7 +1947,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 	const PIXVAL color = color_index;
 
 	// TAKE CARE: Clipping area may be larger than actual screen size ...
-	if (use_clipping) {
+	if (flags & DT_CLIP) {
 		cL = clip_rect.x;
 		if (cL >= disp_width) cL = disp_width;
 		cR = clip_rect.xx;
@@ -1966,17 +1966,17 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 	if (len < 0) len = 0x7FFF;
 
 	// adapt x-coordinate for alignment
-	switch (align) {
+	switch (flags & ALIGN_MASK) {
 		case ALIGN_LEFT:
 			// nothing to do
 			break;
 
 		case ALIGN_MIDDLE:
-			x -= display_calc_proportional_string_len_width(txt, len, use_large_font) / 2;
+			x -= display_calc_proportional_string_len_width(txt, len, !(flags & DT_SMALL)) / 2;
 			break;
 
 		case ALIGN_RIGHT:
-			x -= display_calc_proportional_string_len_width(txt, len, use_large_font);
+			x -= display_calc_proportional_string_len_width(txt, len, !(flags & DT_SMALL));
 			break;
 	}
 
@@ -2093,7 +2093,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 		x += char_width_2;
 	}
 
-	if (dirty) {
+	if (flags & DT_DIRTY) {
 		// here, because only now we know the lenght also for ALIGN_LEFT text
 		mark_rect_dirty_wc(x0, y, x - 1, y + 10 - 1);
 	}
@@ -2146,7 +2146,7 @@ void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, K
 	display_vline_wh(xpos - 2,         ypos - halfheight - hgt - 1, halfheight * 2 + 1, ddd_farbe + 1, dirty);
 	display_vline_wh(xpos + width - 3, ypos - halfheight - hgt - 1, halfheight * 2 + 1, ddd_farbe - 1, dirty);
 
-	display_text_proportional_len_clip(xpos + 2, ypos - halfheight + 1, text, ALIGN_LEFT, text_farbe, FALSE, true, -1, false);
+	display_text_proportional_len_clip(xpos + 2, ypos - halfheight + 1, text, ALIGN_LEFT | DT_CLIP, text_farbe, -1);
 }
 
 
@@ -2172,7 +2172,7 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
 	display_vline_wh_clip(xpos - 2,         ypos - 6 - hgt, 11, ddd_farbe + 1, dirty);
 	display_vline_wh_clip(xpos + width - 3, ypos - 6 - hgt, 11, ddd_farbe - 1, dirty);
 #endif
-	display_text_proportional_len_clip(xpos + 2, ypos - 5 + (12 - large_font_height) / 2, text, ALIGN_LEFT, text_farbe, FALSE, true, -1, true);
+	display_text_proportional_len_clip(xpos + 2, ypos - 5 + (12 - large_font_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, -1);
 }
 
 
@@ -2206,8 +2206,8 @@ void display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_CO
 			next = strchr(buf, '\n');
 			display_text_proportional_len_clip(
 				x, y, buf,
-				ALIGN_LEFT, color, TRUE,
-				true, next != NULL ? next - buf : -1, true
+				ALIGN_LEFT | DT_DIRTY | DT_CLIP, color,
+				next != NULL ? next - buf : -1
 			);
 			buf = next + 1;
 			y += LINESPACE;
