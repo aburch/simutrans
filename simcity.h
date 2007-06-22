@@ -444,12 +444,6 @@ public:
 	 */
 	char *info(char *buf) const;
 
-	/**
-	 * A short info about the city stats
-	 * @author Hj. Malthaner
-	 */
-	void get_short_info(cbuffer_t & buf) const;
-
 	void add_factory_arbeiterziel(fabrik_t *fab);
 };
 

@@ -93,7 +93,13 @@ void citylist_stats_t::zeichnen(koord offset)
 	for (uint i = 0; i < city_list.get_count(); i++) {
 		const stadt_t* stadt = city_list[i];
 		buf.clear();
-		stadt->get_short_info(buf);
+		buf.append(stadt->gib_name());
+		buf.append(": ");
+		buf.append(stadt->gib_einwohner());
+		buf.append(" (+");
+		buf.append(stadt->gib_wachstum());
+		buf.append(")");
+
 		display_proportional_clip(offset.x + 4, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, COL_BLACK, true);
 
 		total_bev    += stadt->gib_einwohner();
