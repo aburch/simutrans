@@ -27,8 +27,7 @@ class fahrplan_t;
 class simlinemgmt_t
 {
  public:
-
- 	simlinemgmt_t(karte_t * welt, spieler_t *besitzer);
+ 	simlinemgmt_t(karte_t* welt);
 
 	/*
 	 * add a line
@@ -94,11 +93,6 @@ class simlinemgmt_t
 	 */
 	void get_lines(int type, vector_tpl<linehandle_t>* lines) const;
 
-	/*
-	 * @author prissi
-	 */
-	spieler_t *gib_besitzer() const { return besitzer; }
-
 	karte_t* World() const { return welt; }
 
  private:
@@ -107,7 +101,6 @@ class simlinemgmt_t
 	vector_tpl<linehandle_t> all_managed_lines;
 
 	karte_t * welt;
-	spieler_t *besitzer;
 };
 
 #endif

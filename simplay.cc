@@ -92,7 +92,7 @@ static fabrik_t *baue_ziel=NULL;
 
 
 spieler_t::spieler_t(karte_t *wl, uint8 nr) :
-	simlinemgmt(wl,this)
+	simlinemgmt(wl)
 {
 	welt = wl;
 	player_nr = nr;
