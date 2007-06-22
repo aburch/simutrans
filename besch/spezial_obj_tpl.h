@@ -6,9 +6,9 @@
 #ifndef __SPEZIAL_OBJ_TPL_H
 #define __SPEZIAL_OBJ_TPL_H
 
-
 #include <string.h>
 #include <typeinfo>
+#include "../simdebug.h"
 #include "../tpl/debug_helper.h"
 
 
@@ -17,9 +17,9 @@
  * wird eine Liste dieser Beschreibungen angelegt, wobei die Liste mit einem
  * "{NULL, NULL}" Eintrag terminiert wird.
  */
-template <class besch_t> struct spezial_obj_tpl {
-    const besch_t **besch;
-    const char *name;
+template<class besch_t> struct spezial_obj_tpl {
+	const besch_t** besch;
+	const char* name;
 };
 
 
@@ -27,19 +27,18 @@ template <class besch_t> struct spezial_obj_tpl {
  * Ein Objektzeiger wird anhand der übergebenen Liste gesetzt, falls der Name
  * des Objektes einem der in der Liste erwähnten Objekte gehört.
  */
-template <class besch_t> bool register_besch(spezial_obj_tpl<besch_t> *so, const besch_t *besch)
+template<class besch_t> bool register_besch(spezial_obj_tpl<besch_t>* so, const besch_t* besch)
 {
-    while(so->name) {
-		if(strcmp(so->name, besch->gib_name())==0) {
-			if(*so->besch!=NULL) {
-				dbg->message("register_besch()","Notice: obj %s already defined",so->name);
+	for (; so->name; ++so) {
+		if (strcmp(so->name, besch->gib_name()) == 0) {
+			if (*so->besch != NULL) {
+				dbg->message("register_besch()", "Notice: obj %s already defined", so->name);
 			}
-		    *so->besch = besch;
-		    return true;
+			*so->besch = besch;
+			return true;
 		}
-		so++;
-    }
-    return false;
+	}
+	return false;
 }
 
 
@@ -47,28 +46,25 @@ template <class besch_t> bool register_besch(spezial_obj_tpl<besch_t> *so, const
  * Überprüft die übergebene Liste, ob alle Objekte ungleich NULL, sprich
  * geladen sind.
  */
-template <class besch_t> bool alles_geladen(spezial_obj_tpl<besch_t> *so)
+template<class besch_t> bool alles_geladen(spezial_obj_tpl<besch_t>* so)
 {
-    while(so->name) {
-	if(!*so->besch) {
-	    ERROR("alles_geladen()", "%s-object %s not found.\n*** PLEASE INSTALL PROPER BASE FILE AND CHECK PATH ***",
-		typeid(**so->besch).name(), so->name);
-	    return false;
+	for (; so->name; ++so) {
+		if (!*so->besch) {
+			ERROR("alles_geladen()", "%s-object %s not found.\n*** PLEASE INSTALL PROPER BASE FILE AND CHECK PATH ***", typeid(**so->besch).name(), so->name);
+			return false;
+		}
 	}
-	so++;
-    }
-    return true;
+	return true;
 }
 
 
-template <class besch_t> void warne_ungeladene(spezial_obj_tpl<besch_t> *so, int count)
+template<class besch_t> void warne_ungeladene(spezial_obj_tpl<besch_t>* so, int count)
 {
-    while(count-- && so->name) {
-	if(!*so->besch) {
-	    MESSAGE("warne_ungeladene", "Object %s not found, feature disabled", so->name);
+	for (; count-- && so->name; ++so) {
+		if (!*so->besch) {
+			MESSAGE("warne_ungeladene", "Object %s not found, feature disabled", so->name);
+		}
 	}
-	so++;
-    }
 }
 
 #endif
