@@ -2697,23 +2697,17 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	}
 
 	// finish the loading of stops (i.e. assign the right good for these stops)
-	slist_iterator_tpl <halthandle_t> iter (haltestelle_t::gib_alle_haltestellen());
-	slist_tpl <halthandle_t> unused;
-	while(iter.next()) {
-		halthandle_t h = iter.get_current();
-		if(h->gib_besitzer()==NULL  ||  !h->existiert_in_welt()) {
+	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::gib_alle_haltestellen().begin(); i!=haltestelle_t::gib_alle_haltestellen().end();  ) {
+		if(  (*i)->gib_besitzer()==NULL  ||  !(*i)->existiert_in_welt()  ) {
 			// this stop was only needed for loading goods ...
-			unused.append(h);
+			halthandle_t h = (*i);
+			++i;	// goto next
+			haltestelle_t::destroy(h);	// remove from list
 		}
 		else {
-			h->laden_abschliessen();
+			(*i)->laden_abschliessen();
+			++i;
 		}
-	}
-	// and now delete unused stops
-	DBG_MESSAGE("karte_t::laden()","%i stops only needed during load time.", unused.count() );
-	while(!unused.empty()) {
-		halthandle_t h = unused.remove_first();
-		haltestelle_t::destroy(h);
 	}
 
 	// register all line stops and change line types, if needed
@@ -2722,7 +2716,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	}
 
 	// recalculate halt connections
-	iter.begin();
+	slist_iterator_tpl<halthandle_t>iter(haltestelle_t::gib_alle_haltestellen());
 	int hnr=0, hmax=haltestelle_t::gib_alle_haltestellen().count();
 	while(iter.next()) {
 		if((hnr++%32)==0) {

@@ -370,8 +370,8 @@ vehikel_t::setze_convoi(convoi_t *c)
 	 *  possibly pending reservation of stops/tracks)
 	 */
 	cnv = c;
-	if(c  &&  ist_erstes) {
-		check_for_finish = !(route_index<cnv->get_route()->gib_max_n());
+	if(cnv  &&  ist_erstes) {
+		check_for_finish = (gib_pos()==cnv->get_route()->position_bei(route_index));
 	}
 }
 

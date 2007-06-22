@@ -344,6 +344,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 haltestelle_t::~haltestelle_t()
 {
+	assert(!self.is_bound());
 	// remove ground
 	while (!tiles.empty()) {
 		rem_grund(tiles.front().grund);
