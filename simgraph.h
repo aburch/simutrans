@@ -160,9 +160,6 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color);
 void display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color);
 
-#define ALIGN_LEFT 0
-#define ALIGN_MIDDLE 1
-#define ALIGN_RIGHT 2
 
 // unicode save moving in strings
 int get_next_char(const char* text, int pos);
@@ -181,14 +178,25 @@ int display_calc_proportional_string_len_width(const char *text, int len,bool us
  * @author Volker Meyer, prissi
  * @date  15.06.2003, 2.1.2005
  */
-int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt, int align, const PLAYER_COLOR_VAL color_index, int dirty, bool use_large_font, int len, bool use_clipping );
+enum
+{
+	ALIGN_LEFT   = 0 << 0,
+	ALIGN_MIDDLE = 1 << 0,
+	ALIGN_RIGHT  = 2 << 0,
+	ALIGN_MASK   = 3 << 0,
+	DT_DIRTY     = 1 << 2,
+	DT_CLIP      = 1 << 3,
+	DT_SMALL     = 1 << 4  // Use small font
+};
+
+int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, int flags, PLAYER_COLOR_VAL color_index, int len);
 /* macro are for compatibility */
-#define display_small_proportional( x,  y, txt,  align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, false, -1, false )
-#define display_small_proportional_clip( x,  y, txt,  align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, false, -1, true )
-#define display_small_proportional_len_clip( x,  y, txt,  len, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, false, len, true )
-#define display_proportional( x,  y, txt,  align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, true, -1, false )
-#define display_proportional_clip( x,  y, txt,  align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, true, -1, true )
-#define display_proportional_len_clip( x,  y, txt,  len, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, true, len, true )
+#define display_small_proportional(         x,  y, txt,       align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0)           | DT_SMALL, color,  -1)
+#define display_small_proportional_clip(    x,  y, txt,       align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0) | DT_CLIP | DT_SMALL, color,  -1)
+#define display_small_proportional_len_clip(x,  y, txt,  len, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0) | DT_CLIP | DT_SMALL, color, len)
+#define display_proportional(               x,  y, txt,       align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0),                      color,  -1)
+#define display_proportional_clip(          x,  y, txt,       align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0) | DT_CLIP,            color,  -1)
+#define display_proportional_len_clip(      x,  y, txt,  len, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0) | DT_CLIP,            color, len)
 
 void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt,PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe,const char *text, int dirty);
 void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt,PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty);

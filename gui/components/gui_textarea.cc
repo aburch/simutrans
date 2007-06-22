@@ -82,7 +82,7 @@ void gui_textarea_t::zeichnen(koord offset)
 			next = strchr(buf, '\n');
 			if(pos.y+new_lines>=0) {
 				const long len = next != NULL ? next - buf : -1;
-				int px_len = display_text_proportional_len_clip( x, y+new_lines, buf, ALIGN_LEFT, COL_BLACK, true, true, len, true	);
+				int px_len = display_text_proportional_len_clip(x, y + new_lines, buf, ALIGN_LEFT | DT_DIRTY | DT_CLIP, COL_BLACK, len);
 				if(px_len>x_size) {
 					x_size = px_len;
 				}

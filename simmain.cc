@@ -136,7 +136,7 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 
 	ms = dr_time();
 	for (i = 0;  i < 300000;  i++)
-		display_text_proportional_len_clip(100, 120, "Dies ist ein kurzer Textetxt ...", 0, 0, false, true, -1, false);
+		display_text_proportional_len_clip(100, 120, "Dies ist ein kurzer Textetxt ...", 0, 0, -1);
 	DBG_MESSAGE("test", "display_text_proportional_len_clip(): %i iterations took %i ms", i, dr_time() - ms);
 
 	ms = dr_time();
