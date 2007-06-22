@@ -121,7 +121,7 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 			int i;
 
 			cstring_t label (translator::translate(iter.get_current_value()->gib_name()));
-			for(  i=12;  i<label.len()  &&  display_calc_proportional_string_len_width(label,i,true)<100;  i++  )
+			for(  i=12;  i<label.len()  &&  display_calc_proportional_string_len_width(label,i)<100;  i++  )
 				;
 			if(  i<label.len()  ) {
 				label.set_at(i++, '.');

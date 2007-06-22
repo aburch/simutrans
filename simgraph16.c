@@ -76,12 +76,7 @@ int old_my = -1;
  */
 static bool has_unicode = false;
 
-#ifdef USE_SMALL_FONT
-static font_type	large_font, small_font;
-#else
-static font_type	large_font;
-#define small_font (large_font)
-#endif
+static font_type large_font;
 
 // needed for gui
 int large_font_height = 10;
@@ -920,54 +915,15 @@ int	display_set_unicode(int use_unicode)
 }
 
 
-/**
- * Loads the fonts (true for large font)
- * @author prissi
- */
-bool display_load_font(const char* fname, bool large)
+bool display_load_font(const char* fname)
 {
-	if (load_font(large ? &large_font : &small_font, fname)) {
-		if (large) large_font_height = large_font.height;
+	if (load_font(&large_font, fname)) {
+		large_font_height = large_font.height;
 		return true;
 	} else {
 		return false;
 	}
 }
-
-
-#ifdef USE_SMALL_FONT
-
-/* copy a font
- * @author prissi
- */
-static void copy_font(font_type *dest_font, font_type *src_font)
-{
-	memcpy(dest_font, src_font, sizeof(font_type));
-	dest_font->char_data = malloc(dest_font->num_chars * 16);
-	memcpy(dest_font->char_data, src_font->char_data, 16 * dest_font->num_chars);
-	dest_font->screen_width = malloc(dest_font->num_chars);
-	memcpy(dest_font->screen_width, src_font->screen_width, dest_font->num_chars);
-}
-
-
-/* checks if a small and a large font exists;
- * if not the missing font will be emulated
- * @author prissi
- */
-void display_check_fonts(void)
-{
-	// replace missing font, if none there (better than crashing ... )
-	if (small_font.screen_width == NULL && large_font.screen_width != NULL) {
-		printf("Warning: replacing small  with large font!\n");
-		copy_font(&small_font, &large_font);
-	}
-	if (large_font.screen_width == NULL && small_font.screen_width != NULL) {
-		printf("Warning: replacing large  with small font!\n");
-		copy_font(&large_font, &small_font);
-	}
-}
-
-#endif
 
 
 sint16 display_get_width(void)
@@ -2293,9 +2249,9 @@ int get_prev_char(const char* text, int pos)
  * @author prissi
  * @date 29.11.04
  */
-int display_calc_proportional_string_len_width(const char *text, int len, bool use_large_font)
+int display_calc_proportional_string_len_width(const char* text, int len)
 {
-	font_type *fnt = use_large_font ? &large_font : &small_font;
+	const font_type* const fnt = &large_font;
 	unsigned int c, width = 0;
 	int w;
 
@@ -2368,7 +2324,7 @@ static unsigned char get_h_mask(const int xL, const int xR, const int cL, const 
  */
 int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, int flags, const PLAYER_COLOR_VAL color_index, int len)
 {
-	const font_type* fnt = (flags & DT_SMALL ? &small_font : &large_font);
+	const font_type* const fnt = &large_font;
 	KOORD_VAL cL, cR, cT, cB;
 	uint32 c;
 	int	iTextPos = 0; // pointer on text position: prissi
@@ -2409,11 +2365,11 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 			break;
 
 		case ALIGN_MIDDLE:
-			x -= display_calc_proportional_string_len_width(txt, len, !(flags & DT_SMALL)) / 2;
+			x -= display_calc_proportional_string_len_width(txt, len) / 2;
 			break;
 
 		case ALIGN_RIGHT:
-			x -= display_calc_proportional_string_len_width(txt, len, !(flags & DT_SMALL));
+			x -= display_calc_proportional_string_len_width(txt, len);
 			break;
 	}
 
@@ -2796,13 +2752,7 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
 		// init, load, and check fonts
 		large_font.screen_width = NULL;
 		large_font.char_data = NULL;
-		display_load_font(FONT_PATH_X "prop.fnt", true);
-#ifdef USE_SMALL_FONT
-		small_font.screen_width = NULL;
-		small_font.char_data = NULL;
-		display_load_font(FONT_PATH_X "4x7.hex", false);
-		display_check_fonts();
-#endif
+		display_load_font(FONT_PATH_X "prop.fnt");
 	} else {
 		puts("Error  : can't open window!");
 		exit(-1);

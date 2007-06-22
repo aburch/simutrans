@@ -84,16 +84,10 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h);
 
 int	display_set_unicode(int use_unicode);
 
-/* Loads the fonts (large=true loads large font)
+/* Loads the font
  * @author prissi
  */
-bool display_load_font(const char *fname, bool large );
-
-/* checks if a small and a large font exists;
- * if not the missing font will be emulated
- * @author prissi
- */
-void	display_check_fonts(void);
+bool display_load_font(const char* fname);
 
 void register_image(struct bild_t*);
 
@@ -166,11 +160,10 @@ int get_next_char(const char* text, int pos);
 int get_prev_char(const char* text, int pos);
 
 /* routines for string len (macros for compatibility with old calls) */
-#define small_proportional_string_width(text) display_calc_proportional_string_len_width( text, 0x7FFF, false )
-#define proportional_string_width(text) display_calc_proportional_string_len_width( text, 0x7FFF, true )
-#define proportional_string_len_width(text,len) display_calc_proportional_string_len_width( text, len, true )
+#define proportional_string_width(text)          display_calc_proportional_string_len_width(text, 0x7FFF)
+#define proportional_string_len_width(text, len) display_calc_proportional_string_len_width(text, len)
 // length of a string in pixel
-int display_calc_proportional_string_len_width(const char *text, int len,bool use_large_font );
+int display_calc_proportional_string_len_width(const char* text, int len);
 
 /*
  * len parameter added - use -1 for previous behaviour.
@@ -185,18 +178,14 @@ enum
 	ALIGN_RIGHT  = 2 << 0,
 	ALIGN_MASK   = 3 << 0,
 	DT_DIRTY     = 1 << 2,
-	DT_CLIP      = 1 << 3,
-	DT_SMALL     = 1 << 4  // Use small font
+	DT_CLIP      = 1 << 3
 };
 
 int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, int flags, PLAYER_COLOR_VAL color_index, int len);
 /* macro are for compatibility */
-#define display_small_proportional(         x,  y, txt,       align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0)           | DT_SMALL, color,  -1)
-#define display_small_proportional_clip(    x,  y, txt,       align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0) | DT_CLIP | DT_SMALL, color,  -1)
-#define display_small_proportional_len_clip(x,  y, txt,  len, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0) | DT_CLIP | DT_SMALL, color, len)
-#define display_proportional(               x,  y, txt,       align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0),                      color,  -1)
-#define display_proportional_clip(          x,  y, txt,       align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0) | DT_CLIP,            color,  -1)
-#define display_proportional_len_clip(      x,  y, txt,  len, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0) | DT_CLIP,            color, len)
+#define display_proportional(         x,  y, txt,      align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0),           color,  -1)
+#define display_proportional_clip(    x,  y, txt,      align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0) | DT_CLIP, color,  -1)
+#define display_proportional_len_clip(x,  y, txt, len, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0) | DT_CLIP, color, len)
 
 void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt,PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe,const char *text, int dirty);
 void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt,PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty);

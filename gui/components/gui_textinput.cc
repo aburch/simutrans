@@ -171,7 +171,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 		}
 		cursor_pos = 0;
 		for( int i=strlen(text); i>0;  i-- ) {
-			if(ev->cx>display_calc_proportional_string_len_width(text,i,true)) {
+			if(ev->cx>display_calc_proportional_string_len_width(text,i)) {
 				cursor_pos = i;
 				break;
 			}

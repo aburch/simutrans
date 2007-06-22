@@ -47,7 +47,7 @@ void gui_textarea_t::recalc_size()
 		do {
 			next = strchr(buf, '\n');
 			const long len = next != NULL ? next - buf : -1;
-			int px_len = display_calc_proportional_string_len_width( buf, len, true	);
+			int px_len = display_calc_proportional_string_len_width(buf, len);
 			if(px_len>x_size) {
 				x_size = px_len;
 			}

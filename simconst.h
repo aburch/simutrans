@@ -47,9 +47,6 @@
 
 /******************************* obsolete stuf ******************************/
 
-/* prissi: if uncommented, also support for a small size font will be enabled (by not used at the moment) */
-//#define USE_SMALL_FONT
-
 /* storage shed (old implementation) LIKELY NOT WORKING */
 //#define LAGER_NOT_IN_USE
 

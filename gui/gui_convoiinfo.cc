@@ -92,7 +92,7 @@ void gui_convoiinfo_t::zeichnen(koord offset)
 		}
 
 		// name
-		int w = display_calc_proportional_string_len_width( cnv->gib_name(), 35535, true )+2;
+		int w = display_calc_proportional_string_len_width(cnv->gib_name(), 35535) + 2;
 		max_x = max(max_x,w);
 
 		// we will use their images offests and width to shift them to their correct position
