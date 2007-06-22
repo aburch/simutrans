@@ -81,7 +81,7 @@ static font_type large_font;
 // needed for gui
 int large_font_height = 10;
 
-#define LIGHT_COUNT (14)
+#define LIGHT_COUNT (15)
 #define MAX_PLAYER (8)
 
 #define RGBMAPSIZE (0x8000+LIGHT_COUNT+16)
@@ -236,6 +236,7 @@ static const uint8 day_lights[LIGHT_COUNT*3] = {
 	0xC1,	0xB1,	0xD1, // Windows, lit yellow
 	0x4D,	0x4D,	0x4D, // Windows, lit yellow
 	0xE1,	0x00,	0xE1, // purple light for signals
+	0x01, 0x01, 0xFF, // blue light
 };
 
 
@@ -257,6 +258,7 @@ static const uint8 night_lights[LIGHT_COUNT*3] = {
 	0xD3,	0xC3,	0x80, // Windows, lit yellow
 	0xD3,	0xC3,	0x80, // Windows, lit yellow
 	0xE1,	0x00,	0xE1, // purple light for signals
+	0x01, 0x01, 0xFF, // blue light
 };
 
 
