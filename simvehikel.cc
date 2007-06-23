@@ -185,6 +185,7 @@ void vehikel_basis_t::fahre()
 
 		// may ended on a slope ...
 		use_calc_height = true;
+		hoff = 0;
 
 		setze_xoff( (neu_xoff < 0) ? 16 : -16 );
 		setze_yoff( (neu_yoff < 0) ? 8 : -8 );
@@ -369,9 +370,25 @@ vehikel_t::setze_convoi(convoi_t *c)
 	 * (the waggon_t::setze_convoi etc. routines must then remove a
 	 *  possibly pending reservation of stops/tracks)
 	 */
+	assert(  c==NULL  ||  cnv==NULL  ||  c==cnv);
 	cnv = c;
-	if(cnv  &&  ist_erstes) {
-		check_for_finish = (route_index>cnv->get_route()->gib_max_n())  ||  (gib_pos()==cnv->get_route()->position_bei(route_index));
+	if(cnv) {
+		// we need to reestablish the finish flag after loading
+		if(ist_erstes) {
+			check_for_finish = (route_index>cnv->get_route()->gib_max_n())  ||  (gib_pos()==cnv->get_route()->position_bei(route_index));
+		}
+		// some convois were saved with broken coordinates
+		if(!welt->lookup(pos_prev)) {
+			pos_prev = welt->lookup_kartenboden(pos_prev.gib_2d())->gib_pos();
+		}
+		if(pos_next!=koord3d::invalid  &&  !check_for_finish  &&  (welt->lookup(pos_next)==NULL  ||  welt->lookup(pos_next)->gib_weg(gib_waytype())==NULL)) {
+			pos_next = cnv->get_route()->position_bei(route_index+1);
+		}
+		// just correct freight deistinations
+		slist_iterator_tpl <ware_t> iter (fracht);
+		while(iter.next()) {
+			iter.access_current().laden_abschliessen(welt);
+		}
 	}
 }
 
@@ -483,22 +500,6 @@ bool vehikel_t::load_freight(halthandle_t halt)
 		}
 	}
 	return ok;
-}
-
-
-
-void
-vehikel_t::laden_abschliessen()
-{
-	// just correct freight deistinations
-	slist_iterator_tpl <ware_t> iter (fracht);
-	while(iter.next()) {
-		iter.access_current().laden_abschliessen(welt);
-	}
-	// some convois were saved with broken coordinates
-	if(!welt->lookup(pos_prev)) {
-		setze_pos( welt->lookup_kartenboden(pos_prev.gib_2d())->gib_pos() );
-	}
 }
 
 
@@ -655,6 +656,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 
 	ist_erstes = ist_letztes = false;
 	check_for_finish = false;
+	use_calc_height = true;
 	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
 	target_halt = halthandle_t();
 }
@@ -675,6 +677,7 @@ vehikel_t::vehikel_t(karte_t *welt) :
 
 	ist_erstes = ist_letztes = false;
 	check_for_finish = false;
+	use_calc_height = true;
 	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
 }
 

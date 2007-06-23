@@ -203,8 +203,6 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 			v->setze_letztes(i == anz_vehikel - 1U);
 			// this sets the convoi and will renew the block reservation, if needed!
 			v->setze_convoi(this);
-			// now correct the freicht
-			v->laden_abschliessen();
 		}
 DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_index );
 		// lines are still unknown during loading!
