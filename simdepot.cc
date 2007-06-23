@@ -261,7 +261,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 			}
 		return new_cnv->self;
 	}
-	return NULL;
+	return convoihandle_t();
 }
 
 bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)

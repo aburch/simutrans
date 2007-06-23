@@ -218,7 +218,7 @@ void fahrplan_gui_t::init()
 	bt_next.add_listener(this);
 	add_komponente(&bt_next);
 
-	if(cnv!=NULL) {
+	if (cnv.is_bound()) {
 		bt_promote_to_line.pos = koord( 0, 280-BUTTON_HEIGHT-BUTTON_HEIGHT-16 );
 		bt_promote_to_line.groesse = koord((BUTTON_WIDTH*3)/2,BUTTON_HEIGHT);
 		bt_promote_to_line.pos.x = bt_add.pos.x;

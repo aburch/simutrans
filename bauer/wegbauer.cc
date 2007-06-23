@@ -254,7 +254,7 @@ wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wtyp, co
 	if(w  &&  w->gib_waytype()==wtyp) {
 		w = bd->gib_weg_nr(1);
 	}
-	if(w  &&  bd->gib_halt()==NULL  &&  check_owner(w->gib_besitzer(),sp)  &&  crossing_t::get_crossing(wtyp,w->gib_waytype())!=NULL) {
+	if(w  &&  !bd->gib_halt().is_bound()  &&  check_owner(w->gib_besitzer(),sp)  &&  crossing_t::get_crossing(wtyp,w->gib_waytype())!=NULL) {
 		ribi_t::ribi w_ribi = w->gib_ribi_unmasked();
     // it is our way we want to cross: can we built a crossing here?
     // both ways must be straight and no ends

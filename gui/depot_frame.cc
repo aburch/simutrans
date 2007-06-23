@@ -1106,7 +1106,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 				translator::translate("Fahrzeuge:"), cnv->gib_vehikel_anzahl(),
 				translator::translate("Station tiles:"), (length+15)/16 );
 			sprintf(txt_convoi_value, "%s %d$", translator::translate("Restwert:"), cnv->calc_restwert()/100);
-			if (cnv->get_line()!=NULL) {
+			if (cnv->get_line().is_bound()) {
 				sprintf(txt_convoi_line, "%s %s", translator::translate("Serves Line:"), 	cnv->get_line()->get_name());
 			}
 			else {
@@ -1156,7 +1156,7 @@ void depot_frame_t::apply_line()
 	if(icnv > -1) {
 		convoihandle_t cnv = depot->get_convoi(icnv);
 		// if no convoi is selected, do nothing
-		if(cnv==NULL) {
+		if (!cnv.is_bound()) {
 			return;
 		}
 

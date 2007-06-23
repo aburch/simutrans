@@ -97,7 +97,7 @@ public:
 	}
 
 	// connects with free handle
-	quickstone_tpl(T* p)
+	explicit quickstone_tpl(T* p)
 	{
 		if(p) {
 			entry = find_next();
