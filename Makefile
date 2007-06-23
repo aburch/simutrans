@@ -64,9 +64,16 @@ else
   CXXFLAGS += -O
 endif
 
-ifneq ($(DEBUG),)
-  CFLAGS   += -O0 -DDEBUG -g
-  CXXFLAGS += -O0 -DDEBUG -g
+ifdef DEBUG
+  ifeq ($(shell expr $(DEBUG) \>= 1), 1)
+    CFLAGS += -g -DDEBUG
+  endif
+  ifeq ($(shell expr $(DEBUG) \>= 2), 1)
+    CFLAGS += -fno-inline
+  endif
+  ifeq ($(shell expr $(DEBUG) \>= 3), 1)
+    CFLAGS += -O0
+  endif
 endif
 
 ifneq ($(PROFILE),)
