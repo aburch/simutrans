@@ -39,8 +39,6 @@ class translator
 		 */
 		static translator single_instance;
 
-		static const char *month_names[12];
-
 		stringhashtable_tpl<const char*>* compatibility;
 
 		/* Methods related to loading a language file into memory */
