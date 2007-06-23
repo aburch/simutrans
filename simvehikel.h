@@ -407,8 +407,6 @@ public:
 
 	virtual void setze_convoi(convoi_t *c);
 
-	void laden_abschliessen_convoi();
-
 	/**
 	* Remove freight that no longer can reach it's destination
 	* i.e. because of a changed schedule
