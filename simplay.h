@@ -463,7 +463,7 @@ public:
 	* Returns the world the player is in
 	* @author hsiegeln
 	*/
-	karte_t *gib_welt() { return welt; }
+	karte_t *get_welt() { return welt; }
 
 	/**
 	* Calculates the finance history for player

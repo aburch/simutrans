@@ -103,7 +103,7 @@ public:
 
 	~reliefkarte_t();
 
-	karte_t * gib_welt() const {return welt;}
+	karte_t * get_welt() const {return welt;}
 
 	void setze_welt(karte_t *welt);
 

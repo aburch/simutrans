@@ -177,7 +177,7 @@ public:
 	stadt_info_t *gib_stadt_info();
 
 	// just needed by stadt_info.cc
-	static inline karte_t* gib_welt() { return welt; }
+	static inline karte_t* get_welt() { return welt; }
 
 	/* end of histroy related thingies */
 private:

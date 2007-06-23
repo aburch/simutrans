@@ -195,7 +195,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			build_line_list( tabs.get_active_tab_index() );
 		}
 		else {
-			create_win(-1, -1, 120, new nachrichtenfenster_t(sp->gib_welt(), translator::translate("Cannot create generic line!\nSelect line type by\nusing filter tabs.")), w_autodelete);
+			create_win(-1, -1, 120, new nachrichtenfenster_t(sp->get_welt(), translator::translate("Cannot create generic line!\nSelect line type by\nusing filter tabs.")), w_autodelete);
 		}
 	}
 	else if (komp == &bt_delete_line) {
@@ -391,7 +391,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		slist_tpl<koord> tmp; // stores koords of stops that are allready displayed
 		for(i=0; i<new_line->get_fahrplan()->maxi(); i++) {
 			const koord fahrplan_koord = new_line->get_fahrplan()->eintrag[i].pos.gib_2d();
-			halthandle_t halt = haltestelle_t::gib_halt(sp->gib_welt(), fahrplan_koord);
+			halthandle_t halt = haltestelle_t::gib_halt(sp->get_welt(), fahrplan_koord);
 			if (halt.is_bound()) {
 				// only add a haltestelle to the list, if it is not in the list allready
 				if (!tmp.contains(fahrplan_koord)) {

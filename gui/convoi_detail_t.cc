@@ -77,7 +77,7 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		destroy_win(dynamic_cast <gui_fenster_t *>(this));
 	}
 	else {
-		if(cnv->gib_besitzer()==cnv->gib_welt()->get_active_player()) {
+		if(cnv->gib_besitzer()==cnv->get_welt()->get_active_player()) {
 			withdraw_button.enable();
 			sale_button.enable();
 		}
@@ -162,7 +162,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 		char buf[256], tmp[256];
 
 		// for bonus stuff
-		const sint32 ref_speed = cnv->gib_welt()->get_average_speed( cnv->gib_vehikel(0)->gib_waytype() );
+		const sint32 ref_speed = cnv->get_welt()->get_average_speed( cnv->gib_vehikel(0)->gib_waytype() );
 		const sint32 speed_base = (100*speed_to_kmh(cnv->gib_min_top_speed()))/ref_speed-100;
 
 		static cbuffer_t freight_info(1024);

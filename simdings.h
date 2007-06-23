@@ -208,7 +208,7 @@ public:
 	 */
 	ding_t(karte_t *welt, koord3d pos);
 
-	karte_t* World() const { return welt; }
+	karte_t* get_welt() const { return welt; }
 
 	/**
 	 * Der Destruktor schließt alle Beobachtungsfenster für dieses Objekt.

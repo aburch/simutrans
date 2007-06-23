@@ -37,7 +37,7 @@ world_view_t::world_view_t(ding_t* dt) :
 	location(koord3d::invalid),
 	ding(dt),
 	raster(0),
-	welt(dt->World())
+	welt(dt->get_welt())
 {
     setze_groesse(koord(64,56));
 }

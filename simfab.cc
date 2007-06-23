@@ -128,7 +128,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 
 
 fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabesch) :
-	welt(spieler->gib_welt()),
+	welt(spieler->get_welt()),
 	besch(fabesch),
 	pos(pos_)
 {

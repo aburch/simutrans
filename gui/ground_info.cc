@@ -21,7 +21,7 @@ static cbuffer_t gr_info(1024);
 grund_info_t::grund_info_t(const grund_t* gr_) :
 	gui_frame_t(gr_->gib_name(), NULL),
 	gr(gr_),
-	view(gr_->gib_welt(), gr_->gib_pos())
+	view(gr_->get_welt(), gr_->gib_pos())
 {
 	const ding_t* d = gr->obj_bei(0);
 	if (d != NULL) set_owner(d->gib_besitzer());

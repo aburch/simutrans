@@ -192,7 +192,7 @@ private:
 
 	void image_from_storage_list(gui_image_list_t::image_data_t *bild_data);
 
-	karte_t* World() { return depot->World(); }
+	karte_t* get_welt() { return depot->get_welt(); }
 
 public:
 	depot_frame_t(depot_t* depot);

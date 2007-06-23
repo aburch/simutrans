@@ -475,7 +475,7 @@ static fabrik_t* baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_
  */
 int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d* pos, spieler_t* sp)
 {
-	karte_t* welt = sp->gib_welt();
+	karte_t* welt = sp->get_welt();
 	int n = 1;
 
 	if(info==NULL) {

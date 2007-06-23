@@ -93,7 +93,7 @@ class simlinemgmt_t
 	 */
 	void get_lines(int type, vector_tpl<linehandle_t>* lines) const;
 
-	karte_t* World() const { return welt; }
+	karte_t* get_welt() const { return welt; }
 
  private:
 	static uint8 used_ids[8192];

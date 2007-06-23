@@ -48,7 +48,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	chart.setze_pos(koord(1,1));
 	chart.setze_groesse(koord(360,120));
 	chart.set_dimension(MAX_CITY_HISTORY_YEARS, 10000);
-	chart.set_seed(stadt->gib_welt()->get_last_year());
+	chart.set_seed(stadt->get_welt()->get_last_year());
 	chart.set_background(MN_GREY1);
 	int i;
 	for (i = 0; i<MAX_CITY_HISTORY; i++) {
@@ -90,7 +90,7 @@ void
 stadt_info_t::zeichnen(koord pos, koord gr)
 {
 	// Hajo: update chart seed
-	chart.set_seed(stadt->gib_welt()->get_last_year());
+	chart.set_seed(stadt->get_welt()->get_last_year());
 
 	gui_frame_t::zeichnen(pos, gr);
 

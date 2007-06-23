@@ -427,7 +427,7 @@ public:
 	* @return Current map.
 	* @author Hj. Malthaner
 	*/
-	karte_t* gib_welt() { return welt; }
+	karte_t* get_welt() { return welt; }
 
 	/**
 	* Gibt Namen des Convois zurück.

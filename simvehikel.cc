@@ -636,7 +636,7 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 
 
 vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
-	vehikel_basis_t(sp->gib_welt(), pos)
+	vehikel_basis_t(sp->get_welt(), pos)
 {
 	this->besch = besch;
 

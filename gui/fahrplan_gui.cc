@@ -240,7 +240,7 @@ void fahrplan_gui_t::init()
 	line_selector.setze_pos(koord(BUTTON_WIDTH, 5));
 	line_selector.setze_groesse(koord(BUTTON_WIDTH*2, 14));
 	line_selector.set_max_size(koord(BUTTON_WIDTH*2, 13*LINESPACE+2+16));
-	karte_t* welt = sp->gib_welt();
+	karte_t* welt = sp->get_welt();
 	line_selector.set_highlight_color(welt->get_active_player()->get_player_color1() + 1);
 	line_selector.clear_elements();
 
@@ -303,7 +303,7 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 
 		fpl->cleanup();
 		fpl->eingabe_abschliessen();
-		karte_t* welt = sp->gib_welt();
+		karte_t* welt = sp->get_welt();
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, NO_SOUND, NO_SOUND);
 		if (cnv.is_bound()) {
 			// if a line is selected
@@ -336,7 +336,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 	bt_add.pressed = true;
 	bt_insert.pressed = false;
 	bt_remove.pressed = false;
-			karte_t* welt = sp->gib_welt();
+			karte_t* welt = sp->get_welt();
       welt->setze_maus_funktion(wkz_fahrplan_add,
 				skinverwaltung_t::fahrplanzeiger->gib_bild_nr(0),
 				welt->Z_PLAN,
@@ -351,7 +351,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		bt_add.pressed = false;
 		bt_insert.pressed = true;
 		bt_remove.pressed = false;
-			karte_t* welt = sp->gib_welt();
+			karte_t* welt = sp->get_welt();
       welt->setze_maus_funktion(wkz_fahrplan_ins,
 				skinverwaltung_t::fahrplanzeiger->gib_bild_nr(0),
 				welt->Z_PLAN,
@@ -366,7 +366,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		bt_add.pressed = false;
 		bt_insert.pressed = false;
 		bt_remove.pressed = true;
-			karte_t* welt = sp->gib_welt();
+			karte_t* welt = sp->get_welt();
       welt->setze_maus_funktion(wkz_abfrage,
 				skinverwaltung_t::fragezeiger->gib_bild_nr(0),
 				welt->Z_PLAN,
@@ -412,7 +412,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 	} else if (komp == &bt_promote_to_line) {
 		new_line = sp->simlinemgmt.create_line(fpl->get_type(), this->fpl);
 		init_line_selector();
-//		create_win(-1, -1, 120, new nachrichtenfenster_t(sp->gib_welt(), translator::translate("New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.")), w_autodelete);
+//		create_win(-1, -1, 120, new nachrichtenfenster_t(sp->get_welt(), translator::translate("New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.")), w_autodelete);
 	}
 	return true;
 }
@@ -458,7 +458,7 @@ fahrplan_gui_t::get_fpl_text(cbuffer_t & buf)
 			buf.append(i==fpl->aktuell ? "> " : "   ");
 			buf.append(i+1);
 			buf.append(".) ");
-			gimme_stop_name(buf, sp->gib_welt(), fpl, i, 240);
+			gimme_stop_name(buf, sp->get_welt(), fpl, i, 240);
 			buf.append("\n");
 		}
 		buf.append("\n\n");

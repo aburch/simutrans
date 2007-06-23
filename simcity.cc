@@ -893,7 +893,7 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, int citizens) :
 	pax_ziele_neu(128, 128),
 	arbeiterziele(4)
 {
-	welt = sp->gib_welt();
+	welt = sp->get_welt();
 	assert(welt->ist_in_kartengrenzen(pos));
 
 	step_count = 0;

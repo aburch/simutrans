@@ -291,7 +291,7 @@ void map_frame_t::infowin_event(const event_t *ev)
 	// we track this here, and adjust size.
 	if(IS_RIGHTCLICK(ev)) {
 		is_dragging = false;
-		reliefkarte_t::gib_karte()->gib_welt()->set_scroll_lock(false);
+		reliefkarte_t::gib_karte()->get_welt()->set_scroll_lock(false);
 	}
 
 	if(IS_RIGHTRELEASE(ev)) {
@@ -299,7 +299,7 @@ void map_frame_t::infowin_event(const event_t *ev)
 			resize( koord(0,0) );
 		}
 		is_dragging = false;
-		reliefkarte_t::gib_karte()->gib_welt()->set_scroll_lock(false);
+		reliefkarte_t::gib_karte()->get_welt()->set_scroll_lock(false);
 	}
 
 	if(reliefkarte_t::gib_karte()->getroffen(ev->mx,ev->my)  &&  IS_RIGHTDRAG(ev)) {
@@ -310,7 +310,7 @@ void map_frame_t::infowin_event(const event_t *ev)
 		y += (ev->my - ev->cy)*2;
 
 		is_dragging = true;
-		reliefkarte_t::gib_karte()->gib_welt()->set_scroll_lock(true);
+		reliefkarte_t::gib_karte()->get_welt()->set_scroll_lock(true);
 
 		scrolly.setze_scroll_position(  max(0, x),  max(0, y) );
 
@@ -345,7 +345,7 @@ DBG_MESSAGE("map_frame_t::setze_fenstergroesse()","gr.x=%i, gr.y=%i",size.x,size
  */
 void map_frame_t::resize(const koord delta)
 {
-	karte_t *welt=reliefkarte_t::gib_karte()->gib_welt();
+	karte_t *welt=reliefkarte_t::gib_karte()->get_welt();
 
 	koord groesse = gib_fenstergroesse()+delta;
 
@@ -422,7 +422,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	screenpos = pos;
 
 	// first: check if cursor within map screen size
-	karte_t *welt=reliefkarte_t::gib_karte()->gib_welt();
+	karte_t *welt=reliefkarte_t::gib_karte()->get_welt();
 	koord ij = welt->gib_ij_off();
 	if(welt->ist_in_kartengrenzen(ij)) {
 		reliefkarte_t::gib_karte()->karte_to_screen(ij);

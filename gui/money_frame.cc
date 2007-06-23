@@ -115,10 +115,10 @@ money_frame_t::money_frame_t(spieler_t *sp)
     maintenance_label("This Month",COL_WHITE, gui_label_t::right),
     maintenance_money(NULL, COL_RED, gui_label_t::money),
     warn("", COL_RED),
-	headquarter_view(sp->gib_welt(), koord3d::invalid),
+	headquarter_view(sp->get_welt(), koord3d::invalid),
 	old_hq(koord::invalid)
 {
-	if(sp->gib_welt()->gib_spieler(0)!=sp) {
+	if(sp->get_welt()->gib_spieler(0)!=sp) {
 		sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(sp->gib_name()) );
 		setze_name(money_frame_title);
 	}
@@ -132,7 +132,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	chart.setze_pos(koord(1,1));
 	chart.setze_groesse(koord(443,120));
 	chart.set_dimension(MAX_HISTORY_YEARS, 10000);
-	chart.set_seed(sp->gib_welt()->get_last_year());
+	chart.set_seed(sp->get_welt()->get_last_year());
 	chart.set_background(MN_GREY1);
 	for (int i = 0; i<MAX_COST; i++) {
 		chart.add_curve(cost_type_color[i], sp->get_finance_history_year(), MAX_COST, i, 12, (i < 10) ||  i==COST_POWERLINES ? MONEY: STANDARD, false, false);
@@ -357,7 +357,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	warn.setze_text(str_buf[15]);
 
 	if(sp->get_headquarter_pos()!=old_hq) {
-		headquarter_view.set_location( sp->gib_welt()->lookup_kartenboden(sp->get_headquarter_pos())->gib_pos() );
+		headquarter_view.set_location( sp->get_welt()->lookup_kartenboden(sp->get_headquarter_pos())->gib_pos() );
 		headquarter.setze_text( "upgrade HQ" );
 		if(sp->get_headquarter_level()==hausbauer_t::headquarter.count()) {
 			headquarter.disable();
@@ -378,7 +378,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	}
 
 	// Hajo: Money is counted in credit cents (100 cents = 1 Cr)
-	money_to_string(str_buf[16], (sp->add_maintenance(0)<<((sint64)sp->gib_welt()->ticks_bits_per_tag-18l))/100);
+	money_to_string(str_buf[16], (sp->add_maintenance(0)<<((sint64)sp->get_welt()->ticks_bits_per_tag-18l))/100);
 	maintenance_money.setze_text(str_buf[16]);
 	maintenance_money.set_color(sp->add_maintenance(0)>=0?MONEY_PLUS:MONEY_MINUS);
 
@@ -388,7 +388,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	}
 
 	// Hajo: update chart seed
-	chart.set_seed(sp->gib_welt()->get_last_year());
+	chart.set_seed(sp->get_welt()->get_last_year());
 
 	gui_frame_t::zeichnen(pos, gr);
 }
@@ -396,7 +396,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 bool money_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
 	if(komp==&headquarter) {
-		sp->gib_welt()->setze_maus_funktion(wkz_headquarter, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), karte_t::Z_PLAN, SFX_JACKHAMMER, SFX_FAILURE);
+		sp->get_welt()->setze_maus_funktion(wkz_headquarter, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), karte_t::Z_PLAN, SFX_JACKHAMMER, SFX_FAILURE);
 		return true;
 	}
 

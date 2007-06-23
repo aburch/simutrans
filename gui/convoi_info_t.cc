@@ -202,11 +202,11 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		destroy_win(dynamic_cast <gui_fenster_t *> (this));
 	}
 	else {
-		if(cnv->gib_besitzer()==cnv->gib_welt()->get_active_player()) {
+		if(cnv->gib_besitzer()==cnv->get_welt()->get_active_player()) {
 			button.enable();
 			go_home_button.pressed = route_search_in_progress;
 			if (cnv->gib_fahrplan()->maxi() > 0) {
-				const grund_t* g = cnv->gib_welt()->lookup(cnv->gib_fahrplan()->eintrag[cnv->gib_fahrplan()->aktuell].pos);
+				const grund_t* g = cnv->get_welt()->lookup(cnv->gib_fahrplan()->eintrag[cnv->gib_fahrplan()->aktuell].pos);
 				if (g != NULL && g->gib_depot()) {
 					go_home_button.disable();
 				} else {
@@ -225,7 +225,7 @@ enable_home:
 			go_home_button.disable();
 			no_load_button.disable();
 		}
-		follow_button.pressed = (cnv->gib_welt()->get_follow_convoi()==cnv);
+		follow_button.pressed = (cnv->get_welt()->get_follow_convoi()==cnv);
 
 		// buffer update now only when needed by convoi itself => dedicated buffer for this
 		cnv->get_freight_info(freight_info);
@@ -268,7 +268,7 @@ enable_home:
 		const fahrplan_t * fpl = cnv->gib_fahrplan();
 		info_buf.clear();
 		info_buf.append(translator::translate("Fahrtziel"));
-		fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->gib_welt(), fpl, fpl->aktuell, 34);
+		fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->get_welt(), fpl, fpl->aktuell, 34);
 		len = display_proportional( pos.x+11, pos.y+16+20+3*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
 
 		// convoi load indicator
@@ -296,12 +296,12 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
 	// follow convoi on map?
 	if(komp == &follow_button) {
-		if(cnv->gib_welt()->get_follow_convoi()==cnv) {
+		if(cnv->get_welt()->get_follow_convoi()==cnv) {
 			// stop following
-			cnv->gib_welt()->set_follow_convoi( convoihandle_t() );
+			cnv->get_welt()->set_follow_convoi( convoihandle_t() );
 		}
 		else {
-			cnv->gib_welt()->set_follow_convoi(cnv);
+			cnv->get_welt()->set_follow_convoi(cnv);
 		}
 		return true;
 	}
@@ -323,7 +323,7 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	}
 
 	// some actions only allowed, when I am the player
-	if(cnv->gib_besitzer()==cnv->gib_welt()->get_active_player()) {
+	if(cnv->gib_besitzer()==cnv->get_welt()->get_active_player()) {
 
 		if(komp == &button)     //Fahrplan
 		{
@@ -380,7 +380,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			bool b_depot_found = false;
 			if (shortest_route->gib_max_n() > -1) {
 				fahrplan_t *fpl = cnv->gib_fahrplan();
-				karte_t* welt = cnv->gib_welt();
+				karte_t* welt = cnv->get_welt();
 				fpl->insert(welt, welt->lookup(home));
 				b_depot_found = cnv->setze_fahrplan(fpl);
 			}
@@ -389,9 +389,9 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 
 			// show result
 			if (b_depot_found) {
-				create_win(-1, -1, 120, new nachrichtenfenster_t(cnv->gib_welt(), translator::translate("Convoi has been sent\nto the nearest depot\nof appropriate type.\n")), w_autodelete);
+				create_win(-1, -1, 120, new nachrichtenfenster_t(cnv->get_welt(), translator::translate("Convoi has been sent\nto the nearest depot\nof appropriate type.\n")), w_autodelete);
 			} else {
-				create_win(-1, -1, 120, new nachrichtenfenster_t(cnv->gib_welt(), translator::translate("Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.")), w_autodelete);
+				create_win(-1, -1, 120, new nachrichtenfenster_t(cnv->get_welt(), translator::translate("Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.")), w_autodelete);
 			}
 		} // end go home button
 	}

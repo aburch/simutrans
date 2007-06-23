@@ -152,7 +152,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 {
 	self = convoihandle_t(this);
-	init(sp->gib_welt(), sp);
+	init(sp->get_welt(), sp);
 	setze_name( "Unnamed" );
 	welt->add_convoi( self );
 	init_financial_history();

@@ -219,7 +219,7 @@ convoi_frame_t::~convoi_frame_t()
 
 void convoi_frame_t::display_list(void)
 {
-	const karte_t* welt = owner->gib_welt();
+	const karte_t* welt = owner->get_welt();
 	const unsigned count = welt->get_convoi_count();
 	ALLOCA(convoihandle_t, a, count);
 	int n = 0;

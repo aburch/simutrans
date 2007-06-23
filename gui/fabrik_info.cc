@@ -161,7 +161,7 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
    */
 bool fabrik_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
-	karte_t* welt = ding->World();
+	karte_t* welt = ding->get_welt();
 	unsigned int i;
 
 	for(i=0; i<fab->gib_lieferziele().get_count(); i++) {

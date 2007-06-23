@@ -16,7 +16,7 @@ karte_t *simline_t::welt=NULL;
 
 simline_t::simline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl)
 {
-	welt = simlinemgmt->World();
+	welt = simlinemgmt->get_welt();
 	self = linehandle_t(this);
 	init_financial_history();
 	const int i = simlinemgmt->get_unique_line_id();

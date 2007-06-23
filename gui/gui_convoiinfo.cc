@@ -44,9 +44,9 @@ void gui_convoiinfo_t::infowin_event(const event_t *ev)
 	if(cnv.is_bound()) {
 		if(IS_LEFTRELEASE(ev)) {
 			if(cnv->in_depot()) {
-				grund_t *gr = cnv->gib_welt()->lookup(cnv->gib_vehikel(0)->gib_pos());
+				grund_t *gr = cnv->get_welt()->lookup(cnv->gib_vehikel(0)->gib_pos());
 				if(gr==NULL  ||  gr->gib_depot()==NULL) {
-					gr = cnv->gib_welt()->lookup(cnv->get_home_depot());
+					gr = cnv->get_welt()->lookup(cnv->get_home_depot());
 				}
 				gr->gib_depot()->zeige_info();
 			}
@@ -55,7 +55,7 @@ void gui_convoiinfo_t::infowin_event(const event_t *ev)
 			}
 		}
 		else if(IS_RIGHTRELEASE(ev)) {
-			cnv->gib_welt()->setze_ij_off(cnv->gib_vehikel(0)->gib_pos());
+			cnv->get_welt()->setze_ij_off(cnv->gib_vehikel(0)->gib_pos());
 		}
 	}
 }

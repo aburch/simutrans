@@ -242,7 +242,7 @@ public:
 	 */
 	static void toggle_underground_mode() { grund_t::underground_mode = !grund_t::underground_mode; }
 
-	karte_t *gib_welt() const {return welt;}
+	karte_t *get_welt() const {return welt;}
 
 	/**
 	* Setzt Flags für das neuzeichnen geänderter Untergründe
