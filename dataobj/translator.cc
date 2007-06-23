@@ -28,7 +28,27 @@
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 
+
+/* Made to be dynamic, allowing any number of languages to be loaded */
+struct lang_info {
+	stringhashtable_tpl<const char*> texts;
+	const char* name;
+	const char* iso;
+	const char* iso_base;
+	bool utf_encoded;
+};
+
+static lang_info langs[40];
+
+
 translator translator::single_instance;
+
+
+bool translator::is_unicode()
+{
+	return langs[single_instance.current_lang].utf_encoded;
+}
+
 
 const char *translator::month_names[12]={
 	"January", "February", "March", "April", "May", "June",
@@ -272,15 +292,14 @@ void translator::load_language_file(FILE* file)
 	fgets(buffer1, 255, file);
 	buffer1[strlen(buffer1) - 1] = '\0';
 
-	single_instance.languages[single_instance.lang_count] = new stringhashtable_tpl<const char*>;
-	single_instance.language_names[single_instance.lang_count] = strdup(buffer1);
+	langs[single_instance.lang_count].name = strdup(buffer1);
 	// if the language file is utf, all language strings are assumed to be unicode
 	// @author prissi
-	single_instance.language_is_utf_encoded[single_instance.lang_count] = file_is_utf;
+	langs[single_instance.lang_count].utf_encoded = file_is_utf;
 
 	//load up translations, putting them into
 	//language table of index 'lang'
-	load_language_file_body(file, single_instance.languages[single_instance.lang_count], file_is_utf, file_is_utf);
+	load_language_file_body(file, &langs[single_instance.lang_count].texts, file_is_utf, file_is_utf);
 }
 
 
@@ -295,9 +314,8 @@ bool translator::load(const cstring_t& scenario_path)
 	searchfolder_t folder;
 	folder.search("text/", "tab");
 
-	//only allows MAX_LANG number of languages to be loaded
 	//read now the basic language infos
-	uint loc = MAX_LANG;
+	size_t loc = lengthof(langs); // only allows this many to be loaded
 	for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
 		cstring_t fileName(*i);
 		cstring_t testFolderName("text/");
@@ -341,7 +359,7 @@ bool translator::load(const cstring_t& scenario_path)
 			FILE* file = fopen(fileName, "rb");
 			if (file != NULL) {
 				bool file_is_utf = is_unicode_file(file);
-				load_language_file_body(file, single_instance.languages[iso_nr], single_instance.language_is_utf_encoded[iso_nr], file_is_utf);
+				load_language_file_body(file, &langs[iso_nr].texts, langs[iso_nr].utf_encoded, file_is_utf);
 				fclose(file);
 			} else {
 				dbg->warning("translator::load()", "cannot open '%s'", (const char*)fileName);
@@ -383,12 +401,12 @@ bool translator::load(const cstring_t& scenario_path)
 void translator::load_language_iso(cstring_t& iso)
 {
 	cstring_t base(iso);
-	single_instance.language_names_iso[single_instance.lang_count] = strdup(iso);
+	langs[single_instance.lang_count].iso = strdup(iso);
 	int loc = iso.find('_');
 	if (loc != -1) {
 		base = iso.left(loc);
 	}
-	single_instance.language_names_iso_base[single_instance.lang_count] = strdup(base);
+	langs[single_instance.lang_count].iso_base = strdup(base);
 }
 
 
@@ -396,9 +414,9 @@ void translator::set_language(int lang)
 {
 	if (is_in_bounds(lang)) {
 		single_instance.current_lang = lang;
-		display_set_unicode(single_instance.language_is_utf_encoded[lang]);
-		init_city_names(single_instance.language_is_utf_encoded[lang]);
-		DBG_MESSAGE("translator::set_language()", "%s, unicode %d", single_instance.language_names[lang], single_instance.language_is_utf_encoded[lang]);
+		display_set_unicode(langs[lang].utf_encoded);
+		init_city_names(langs[lang].utf_encoded);
+		DBG_MESSAGE("translator::set_language()", "%s, unicode %d", langs[lang].name, langs[lang].utf_encoded);
 	} else {
 		dbg->warning("translator::set_language()", "Out of bounds : %d", lang);
 	}
@@ -436,7 +454,7 @@ const char* translator::translate(const char* str)
 	} else if (*str == '\0') {
 		return str;
 	} else {
-		const char* trans = single_instance.languages[get_language()]->get(str);
+		const char* trans = langs[get_language()].texts.get(str);
 		return trans != NULL ? trans : str;
 	}
 }
@@ -449,7 +467,7 @@ const char* translator::translate_from_lang(const int lang,const char* str)
 	} else if (*str == '\0' || !is_in_bounds(lang)) {
 		return str;
 	} else {
-		const char* trans = single_instance.languages[lang]->get(str);
+		const char* trans = langs[lang].texts.get(str);
 		return trans != NULL ? trans : str;
 	}
 }
@@ -483,7 +501,7 @@ const char* translator::compatibility_name(const char* str)
  */
 bool translator::check(const char* str)
 {
-	const char* trans = single_instance.languages[get_language()]->get(str);
+	const char* trans = langs[get_language()].texts.get(str);
 	return trans != NULL;
 }
 
@@ -492,7 +510,7 @@ bool translator::check(const char* str)
 const char* translator::get_language_name(int lang)
 {
 	if (is_in_bounds(lang)) {
-		return single_instance.language_names[lang];
+		return langs[lang].name;
 	} else {
 		dbg->warning("translator::get_language_name()", "Out of bounds : %d", lang);
 		return "Error";
@@ -504,7 +522,7 @@ const char *
 translator::get_language_name_iso(int lang)
 {
 	if (is_in_bounds(lang)) {
-		return single_instance.language_names_iso[lang];
+		return langs[lang].iso;
 	} else {
 		dbg->warning("translator::get_language_name_iso()", "Out of bounds : %d", lang);
 		return "Error";
@@ -515,7 +533,7 @@ translator::get_language_name_iso(int lang)
 const char* translator::get_language_name_iso_base(int lang)
 {
 	if (is_in_bounds(lang)) {
-		return single_instance.language_names_iso_base[lang];
+		return langs[lang].iso_base;
 	} else {
 		dbg->warning("translator::get_language_name_iso_base()", "Out of bounds : %d", lang);
 		return "Error";

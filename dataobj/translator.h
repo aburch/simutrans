@@ -34,12 +34,6 @@ class translator
 		int current_lang;
 		int lang_count;
 
-		/**
-		 * Max number of languages that can be loaded. This can simply be
-		 * increased with no other changes
-		 */
-		enum { MAX_LANG = 40 };
-
 		/* The single instance that this class will use to gain access to
 		 * the member variables such as language names
 		 */
@@ -47,15 +41,7 @@ class translator
 
 		static const char *month_names[12];
 
-		/* Made to be dynamic, allowing any number of languages to be loaded */
-		const char* language_names[MAX_LANG];
-		const char* language_names_iso[MAX_LANG];
-		const char* language_names_iso_base[MAX_LANG];
-		stringhashtable_tpl<const char*>* languages[MAX_LANG];
 		stringhashtable_tpl<const char*>* compatibility;
-
-		/* some unicode stuff */
-		bool language_is_utf_encoded[MAX_LANG];
 
 		/* Methods related to loading a language file into memory */
 		static void load_language_file(FILE* file);
@@ -93,10 +79,7 @@ class translator
 		}
 
 		/** true, if a language is utf-8 encoded */
-		static bool is_unicode()
-		{
-			return single_instance.language_is_utf_encoded[single_instance.current_lang];
-		}
+		static bool is_unicode();
 
 		/**
 		 * First checks to see whether the language is in bounds, will
