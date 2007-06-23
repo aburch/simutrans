@@ -98,7 +98,7 @@ public:
 	void laden_abschliessen();
 
 	// to be used for animations
-	bool sync_step(long delta_t) {return false;}
+	bool sync_step(long) { return false; }
 
 
 	// static routines from here

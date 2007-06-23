@@ -152,16 +152,16 @@ class compare_factories
 
 				case factorylist::by_input:
 				{
-					int a_in = (a->gib_eingang().empty() ? -1 : a->get_total_in());
-					int b_in = (b->gib_eingang().empty() ? -1 : b->get_total_in());
+					int a_in = (a->gib_eingang().empty() ? -1 : (int)a->get_total_in());
+					int b_in = (b->gib_eingang().empty() ? -1 : (int)b->get_total_in());
 					cmp = a_in - b_in;
 					break;
 				}
 
 				case factorylist::by_output:
 				{
-					int a_out = (a->gib_ausgang().empty() ? -1 : a->get_total_out());
-					int b_out = (b->gib_ausgang().empty() ? -1 : b->get_total_out());
+					int a_out = (a->gib_ausgang().empty() ? -1 : (int)a->get_total_out());
+					int b_out = (b->gib_ausgang().empty() ? -1 : (int)b->get_total_out());
 					cmp = a_out - b_out;
 					break;
 				}

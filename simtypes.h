@@ -21,6 +21,13 @@
 #	define ALLOCA(type, name, count) type name[count]
 #endif
 
+#if defined DEBUG
+#	include <stdlib.h>
+#	define NOT_REACHED abort();
+#else
+#	define NOT_REACHED
+#endif
+
 /* divers enums:
  * better defined here than scattered in thousand files ...
  */

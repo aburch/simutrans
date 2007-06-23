@@ -49,6 +49,7 @@ class compare_curiosities
 		{
 			int cmp;
 			switch (sortby) {
+				default: NOT_REACHED
 				case curiositylist::by_name:
 				{
 					const char* a_name = translator::translate(a->gib_tile()->gib_besch()->gib_name());
