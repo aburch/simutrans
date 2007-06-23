@@ -72,9 +72,7 @@ depot_t::~depot_t()
 		iter.access_current().unbind();
 	}
 	all_depots.remove(this);
-	convois.clear();
 }
-
 
 
 // finds the next/previous depot relative to the current position
