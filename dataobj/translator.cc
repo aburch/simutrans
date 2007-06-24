@@ -382,11 +382,8 @@ bool translator::load(const cstring_t& scenario_path)
 		DBG_MESSAGE("translator::load()", "no scenario compatibilty texts");
 	}
 
-	// Hajo: look for english, use english if available
-	int en_iso_nr = get_language_iso("en");
-	if (en_iso_nr >= 0) {
-		set_language(en_iso_nr);
-	}
+	// use english if available
+	set_language("en");
 
 	// it's all ok
 	return true;
@@ -434,7 +431,7 @@ void translator::set_language(const char* iso)
 {
 	for (int i = 0; i < single_instance.lang_count; i++) {
 		const char* iso_base = get_language_name_iso_base(i);
-		if (iso_base[0] == iso[0] && iso_base[0] == iso[1]) {
+		if (iso_base[0] == iso[0] && iso_base[1] == iso[1]) {
 			set_language(i);
 			return;
 		}
