@@ -328,7 +328,6 @@ bool translator::load(const cstring_t& scenario_path)
 	folder.search("text/", "tab");
 
 	//read now the basic language infos
-	size_t loc = lengthof(langs); // only allows this many to be loaded
 	for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
 		cstring_t fileName(*i);
 		cstring_t testFolderName("text/");
@@ -343,7 +342,7 @@ bool translator::load(const cstring_t& scenario_path)
 			load_language_file(file);
 			fclose(file);
 			single_instance.lang_count++;
-			if (--loc == 0) {
+			if (single_instance.lang_count == lengthof(langs)) {
 				if (++i != end) {
 					// some languages were not loaded, let the user know what happened
 					dbg->warning("translator::load()", "some languages were not loaded, limit reached");
