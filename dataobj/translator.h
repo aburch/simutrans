@@ -55,6 +55,8 @@ class translator
 
 	public:
 		struct lang_info {
+			const char* translate(const char* text) const;
+
 			stringhashtable_tpl<const char*> texts;
 			const char* name;
 			const char* iso;
@@ -85,6 +87,8 @@ class translator
 		/** Get information about the currently selected language */
 		static const lang_info* get_lang();
 
+		static const lang_info* get_langs();
+
 		/**
 		 * First checks to see whether the language is in bounds, will
 		 * then change what language is being used, otherwise prints
@@ -107,7 +111,6 @@ class translator
 		 * or the string if the translation is not found
 		 */
 		static const char *translate(const char* str);
-		static const char *translate_from_lang(const int index,const char* str);
 		static const char *compatibility_name(const char* str);
 
 		// return the name of the month
@@ -118,9 +121,6 @@ class translator
 		 * @author Hj. Malthaner
 		 */
 		static bool check(const char* str);
-
-		/** Returns the language name of the specified index */
-		static const char* get_language_name(int lang);
 
 		static void rdwr(loadsave_t* file);
 };

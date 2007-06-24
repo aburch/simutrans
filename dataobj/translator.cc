@@ -28,6 +28,15 @@
 #include "../tpl/vector_tpl.h"
 
 
+const char* translator::lang_info::translate(const char* text) const
+{
+	if (text    == NULL) return "(null)";
+	if (text[0] == '\0') return text;
+	const char* trans = texts.get(text);
+	return trans != NULL ? trans : text;
+}
+
+
 /* Made to be dynamic, allowing any number of languages to be loaded */
 static translator::lang_info langs[40];
 
@@ -38,6 +47,12 @@ translator translator::single_instance;
 const translator::lang_info* translator::get_lang()
 {
 	return &langs[single_instance.current_lang];
+}
+
+
+const translator::lang_info* translator::get_langs()
+{
+	return langs;
 }
 
 
@@ -431,27 +446,7 @@ void translator::set_language(const char* iso)
 
 const char* translator::translate(const char* str)
 {
-	if (str == NULL) {
-		return "(null)";
-	} else if (*str == '\0') {
-		return str;
-	} else {
-		const char* trans = get_lang()->texts.get(str);
-		return trans != NULL ? trans : str;
-	}
-}
-
-
-const char* translator::translate_from_lang(const int lang,const char* str)
-{
-	if (str == NULL) {
-		return "(null)";
-	} else if (*str == '\0' || !is_in_bounds(lang)) {
-		return str;
-	} else {
-		const char* trans = langs[lang].texts.get(str);
-		return trans != NULL ? trans : str;
-	}
+	const char* trans = get_lang()->translate(str);
 }
 
 
@@ -499,18 +494,6 @@ bool translator::check(const char* str)
 {
 	const char* trans = get_lang()->texts.get(str);
 	return trans != NULL;
-}
-
-
-/** Returns the language name of the specified index */
-const char* translator::get_language_name(int lang)
-{
-	if (is_in_bounds(lang)) {
-		return langs[lang].name;
-	} else {
-		dbg->warning("translator::get_language_name()", "Out of bounds : %d", lang);
-		return "Error";
-	}
 }
 
 

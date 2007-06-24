@@ -85,17 +85,18 @@ sprachengui_t::sprachengui_t() :
 	seperator.setze_groesse( koord(155,0) );
 	add_komponente( &seperator );
 
-	for(int i=0; i<translator::get_language_count(); i++) {
+	const translator::lang_info* lang = translator::get_langs();
+	for (int i = 0; i < translator::get_language_count(); ++i, ++lang) {
 		button_t& b = buttons[i];
 
 		b.setze_pos(koord(10 + (i % 2) * 100 , 44 + 14 * (i / 2)));
 		b.setze_typ(button_t::square_state);
-		b.setze_text(translator::get_language_name(i));
+		b.setze_text(lang->name);
 		b.set_no_translate(true);
 
 		// check, if font exists
 		chdir(umgebung_t::program_dir);
-		const char *fontname=translator::translate_from_lang(i,"PROP_FONT_FILE");
+		const char* fontname = lang->translate("PROP_FONT_FILE");
 		char prop_font_file_name [1024];
 		sprintf(prop_font_file_name, "%s%s", FONT_PATH_X, fontname);
 		FILE *f=fopen(prop_font_file_name,"r");
@@ -103,9 +104,8 @@ sprachengui_t::sprachengui_t() :
 			fclose(f);
 			// only listener for working languages ...
 			b.add_listener(this);
-		}
-		else {
-			dbg->warning("sprachengui_t::sprachengui_t()","no font found for %s",translator::get_language_name(i) );
+		} else {
+			dbg->warning("sprachengui_t::sprachengui_t()", "no font found for %s", lang->name);
 			b.disable();
 		}
 		add_komponente(&b);
