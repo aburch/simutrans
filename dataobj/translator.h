@@ -116,12 +116,6 @@ class translator
 		// return the name of the month
 		static const char *get_month_name(uint16 month);
 
-		/**
-		 * Checks if the given string is in the translation table
-		 * @author Hj. Malthaner
-		 */
-		static bool check(const char* str);
-
 		static void rdwr(loadsave_t* file);
 };
 

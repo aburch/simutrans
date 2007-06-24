@@ -486,17 +486,6 @@ const char* translator::compatibility_name(const char* str)
 }
 
 
-/**
- * Checks if the given string is in the translation table
- * @author Hj. Malthaner
- */
-bool translator::check(const char* str)
-{
-	const char* trans = get_lang()->texts.get(str);
-	return trans != NULL;
-}
-
-
 void translator::rdwr(loadsave_t* file)
 {
 	int actual_lang;
