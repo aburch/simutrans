@@ -330,11 +330,9 @@ bool translator::load(const cstring_t& scenario_path)
 	//read now the basic language infos
 	for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
 		cstring_t fileName(*i);
-		cstring_t testFolderName("text/");
 		cstring_t iso = fileName.substr(fileName.find_back('/') + 1, fileName.len() - 4);
 
 		FILE* file = NULL;
-//		file = fopen(testFolderName + iso + ".tab", "rb");
 		file = fopen(fileName, "rb");
 		if (file != NULL) {
 			DBG_MESSAGE("translator::load()", "base file \"%s\" - iso: \"%s\"", (const char*)fileName, (const char*)iso);
