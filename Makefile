@@ -66,13 +66,16 @@ endif
 
 ifdef DEBUG
   ifeq ($(shell expr $(DEBUG) \>= 1), 1)
-    CFLAGS += -g -DDEBUG
+    CFLAGS   += -g -DDEBUG
+    CXXFLAGS += -g -DDEBUG
   endif
   ifeq ($(shell expr $(DEBUG) \>= 2), 1)
-    CFLAGS += -fno-inline
+    CFLAGS   += -fno-inline
+    CXXFLAGS += -fno-inline
   endif
   ifeq ($(shell expr $(DEBUG) \>= 3), 1)
-    CFLAGS += -O0
+    CFLAGS   += -O0
+    CXXFLAGS += -O0
   endif
 endif
 
