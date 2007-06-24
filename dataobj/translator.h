@@ -8,11 +8,11 @@
 #define TRANSLATOR_H
 
 #include <stdio.h>
+#include "../tpl/stringhashtable_tpl.h"
 
 
 class loadsave_t;
 class cstring_t;
-template <class T> class stringhashtable_tpl;
 
 
 /**
@@ -56,6 +56,14 @@ class translator
 		}
 
 	public:
+		struct lang_info {
+			stringhashtable_tpl<const char*> texts;
+			const char* name;
+			const char* iso;
+			const char* iso_base;
+			bool utf_encoded;
+		};
+
 		static const char* get_city_name(uint nr); ///< return a random city name
 		static int get_count_city_name(void);
 
@@ -75,6 +83,9 @@ class translator
 		{
 			return single_instance.current_lang;
 		}
+
+		/** Get information about the currently selected language */
+		static const lang_info* get_lang();
 
 		/** true, if a language is utf-8 encoded */
 		static bool is_unicode();
@@ -115,8 +126,6 @@ class translator
 
 		/** Returns the language name of the specified index */
 		static const char* get_language_name(int lang);
-		static const char* get_language_name_iso(int lang);
-		static const char* get_language_name_iso_base(int lang);
 
 		static void rdwr(loadsave_t* file);
 };

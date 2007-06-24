@@ -25,23 +25,20 @@
 #include "../utils/searchfolder.h"
 #include "../utils/simstring.h"
 #include "../unicode.h"
-#include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 
 
 /* Made to be dynamic, allowing any number of languages to be loaded */
-struct lang_info {
-	stringhashtable_tpl<const char*> texts;
-	const char* name;
-	const char* iso;
-	const char* iso_base;
-	bool utf_encoded;
-};
-
-static lang_info langs[40];
+static translator::lang_info langs[40];
 
 
 translator translator::single_instance;
+
+
+const translator::lang_info* translator::get_lang()
+{
+	return &langs[single_instance.current_lang];
+}
 
 
 bool translator::is_unicode()
@@ -193,12 +190,12 @@ static void init_city_names(bool is_utf_language)
 	// @author prissi: first try in scenario
 	// not found => try user location
 	cstring_t local_file_name(umgebung_t::user_dir);
-	local_file_name = local_file_name+"citylist_"+translator::get_language_name_iso(translator::get_language()) + ".txt";
+	local_file_name = local_file_name + "citylist_" + translator::get_lang()->iso + ".txt";
 	file = fopen(local_file_name, "rb");
 	DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
 	if (file==NULL) {
 		cstring_t local_file_name(umgebung_t::program_dir);
-		local_file_name = local_file_name + szenario_path + "text/citylist_" + translator::get_language_name_iso(translator::get_language()) + ".txt";
+		local_file_name = local_file_name + szenario_path + "text/citylist_" + translator::get_lang()->iso + ".txt";
 		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
 		file = fopen(local_file_name, "rb");
 		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
@@ -206,7 +203,7 @@ static void init_city_names(bool is_utf_language)
 	// not found => try old location
 	if (file==NULL) {
 		cstring_t local_file_name(umgebung_t::program_dir);
-		local_file_name = local_file_name+"text/citylist_"+translator::get_language_name_iso(translator::get_language()) + ".txt";
+		local_file_name = local_file_name + "text/citylist_" + translator::get_lang()->iso + ".txt";
 		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
 		file = fopen(local_file_name, "rb");
 		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
@@ -418,7 +415,7 @@ void translator::set_language(int lang)
 int translator::get_language_iso(const char *iso)
 {
 	for (int i = 0; i < single_instance.lang_count; i++) {
-		const char* iso_base = get_language_name_iso_base(i);
+		const char* iso_base = langs[i].iso_base;
 		if (iso_base[0] == iso[0] && iso_base[1] == iso[1]) {
 			return i;
 		}
@@ -430,7 +427,7 @@ int translator::get_language_iso(const char *iso)
 void translator::set_language(const char* iso)
 {
 	for (int i = 0; i < single_instance.lang_count; i++) {
-		const char* iso_base = get_language_name_iso_base(i);
+		const char* iso_base = langs[i].iso_base;
 		if (iso_base[0] == iso[0] && iso_base[1] == iso[1]) {
 			set_language(i);
 			return;
@@ -446,7 +443,7 @@ const char* translator::translate(const char* str)
 	} else if (*str == '\0') {
 		return str;
 	} else {
-		const char* trans = langs[get_language()].texts.get(str);
+		const char* trans = get_lang()->texts.get(str);
 		return trans != NULL ? trans : str;
 	}
 }
@@ -507,7 +504,7 @@ const char* translator::compatibility_name(const char* str)
  */
 bool translator::check(const char* str)
 {
-	const char* trans = langs[get_language()].texts.get(str);
+	const char* trans = get_lang()->texts.get(str);
 	return trans != NULL;
 }
 
@@ -519,29 +516,6 @@ const char* translator::get_language_name(int lang)
 		return langs[lang].name;
 	} else {
 		dbg->warning("translator::get_language_name()", "Out of bounds : %d", lang);
-		return "Error";
-	}
-}
-
-
-const char *
-translator::get_language_name_iso(int lang)
-{
-	if (is_in_bounds(lang)) {
-		return langs[lang].iso;
-	} else {
-		dbg->warning("translator::get_language_name_iso()", "Out of bounds : %d", lang);
-		return "Error";
-	}
-}
-
-
-const char* translator::get_language_name_iso_base(int lang)
-{
-	if (is_in_bounds(lang)) {
-		return langs[lang].iso_base;
-	} else {
-		dbg->warning("translator::get_language_name_iso_base()", "Out of bounds : %d", lang);
 		return "Error";
 	}
 }

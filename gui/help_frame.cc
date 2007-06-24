@@ -72,13 +72,13 @@ help_frame_t::help_frame_t(cstring_t filename) :
 	scrolly(&flow)
 {
 	cstring_t file_prefix("text/");
-	cstring_t fullname = file_prefix + translator::get_language_name_iso(translator::get_language()) + "/" + filename;
+	cstring_t fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
 	chdir( umgebung_t::program_dir );
 
 	FILE * file = fopen(fullname, "rb");
 	if(!file) {
 		//Check for the 'base' language(ie en from en_gb)
-		file = fopen(file_prefix+translator::get_language_name_iso_base(translator::get_language())+"/"+filename,"rb");
+		file = fopen(file_prefix + translator::get_lang()->iso_base + "/" + filename, "rb");
   }
 	if(!file) {
 		// Hajo: check fallback english

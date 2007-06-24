@@ -917,7 +917,7 @@ DBG_MESSAGE("init","map");
 	 */
 	config = fopen("simworld.cfg", "wb");
 	if (config != NULL) {
-		fprintf(config, "Lang=%s\n", translator::get_language_name_iso_base(translator::get_language()));
+		fprintf(config, "Lang=%s\n", translator::get_lang()->iso_base);
 		fprintf(config, "DayNight=%d\n", umgebung_t::night_shift);
 		fprintf(
 			config, "AIs=%d,%d,%d,%d,%d,%d\n",
