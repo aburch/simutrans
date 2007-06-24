@@ -446,7 +446,7 @@ void translator::set_language(const char* iso)
 
 const char* translator::translate(const char* str)
 {
-	const char* trans = get_lang()->translate(str);
+	return get_lang()->translate(str);
 }
 
 
