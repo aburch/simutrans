@@ -43,7 +43,6 @@ climate_gui_t::climate_gui_t(welt_gui_t* welt_gui, einstellungen_t* sets) :
 {
 DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );
 	this->sets = sets;
-	this->old_lang = -1;
 	this->welt_gui = welt_gui;
 
 	// select map stuff ..

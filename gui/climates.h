@@ -29,8 +29,6 @@ private:
 	einstellungen_t * sets;
 	welt_gui_t *welt_gui;
 
-	int old_lang;	// to detect language changes
-
 	// since decrease/increase buttons always pair these ...
 	button_t water_level[2];
 	button_t mountain_height[2];
