@@ -101,10 +101,10 @@ yet conform 100% to this rules, but it should.
   from the compiler.
   On static pointers, also a static_cast<type>() can do the trick.
 
-- Avoid void* if possible. This is especially dangerous when used for pointers
-  to objects, because the compiler can't call the destructor of the object
-  through a void pointer. Also all type checks are impossible on void *.
-  Use of void* is tolerated in C code, but not in C++ code.
+- Avoid void * if possible. This is especially dangerous when used for
+  pointers to objects, because the compiler can't call the destructor of the
+  object through a void pointer. Also all type checks are impossible on
+  void *. Use of void* is tolerated in C code, but not in C++ code.
   -> try using templates instead of void pointers.
 
 - Keep code readable. Spaces and formatting help the reader. I.e. space
@@ -164,7 +164,7 @@ yet conform 100% to this rules, but it should.
   1.) Purpose of the class.
   2.) Relations of this class to others.
   3.) What are the duties of this class (what are not?)
-  4.) Craetor and creation date (if modified by someone else add a note too!)
+  4.) Creator and creation date (if modified by someone else add a note too!)
 
 
   Method comments should answer the following questions:
@@ -201,6 +201,8 @@ yet conform 100% to this rules, but it should.
    * von Hj. Malthaner               <- author/creator of the file
    */
 
+  If you found an outdated version (very likely) it would be great if you
+  update it.
 
 2. Coding styles
 ----------------
@@ -244,6 +246,15 @@ Use spaces in parameters list. For example:
 
 call(x, y, count); instead of call(x,y,count);
 
+
+Also a space between type and pointer mark is preferred:
+use char *bla_t::get_text() instead char* bla_t::get_text()
+
+For function definitions, put the return type in the previous line:
+const slist_tpl<const gebaeude_t *> *
+stadt_t::get_all_buildings() const
+{
+...
 
 Do not use macros; if possible use inlines.
 
