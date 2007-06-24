@@ -39,6 +39,7 @@ const char* translator::lang_info::translate(const char* text) const
 
 /* Made to be dynamic, allowing any number of languages to be loaded */
 static translator::lang_info langs[40];
+static stringhashtable_tpl<const char*> compatibility;
 
 
 translator translator::single_instance;
@@ -388,13 +389,11 @@ bool translator::load(const cstring_t& scenario_path)
 
 	// now we try to read the compatibility stuff
 	FILE* file = fopen(scenario_path + "compat.tab", "rb");
-	single_instance.compatibility = NULL;
 	if (file != NULL) {
-		single_instance.compatibility = new stringhashtable_tpl<const char*>;
-		load_language_file_body(file, single_instance.compatibility, false, false);
+		load_language_file_body(file, &compatibility, false, false);
 		DBG_MESSAGE("translator::load()", "scenario compatibilty texts loaded.");
 		fclose(file);
-//		dump_hashtable(single_instance.compatibility);
+//		dump_hashtable(&compatibility);
 	} else {
 		DBG_MESSAGE("translator::load()", "no scenario compatibilty texts");
 	}
@@ -471,18 +470,13 @@ const char* translator::get_month_name(uint16 month)
 }
 
 
-
 /* get a name for a non-matching object */
 const char* translator::compatibility_name(const char* str)
 {
-	if (str == NULL) {
-		return "(null)";
-	} else if (*str == '\0' || single_instance.compatibility == NULL) {
-		return str;
-	} else {
-		const char* trans = single_instance.compatibility->get(str);
-		return trans != NULL ? trans : str;
-	}
+	if (str    == NULL) return "(null)";
+	if (str[0] == '\0') return str;
+	const char* trans = compatibility.get(str);
+	return trans != NULL ? trans : str;
 }
 
 

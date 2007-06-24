@@ -39,8 +39,6 @@ class translator
 		 */
 		static translator single_instance;
 
-		stringhashtable_tpl<const char*>* compatibility;
-
 		/* Methods related to loading a language file into memory */
 		static void load_language_file(FILE* file);
 		static void load_language_iso(cstring_t& iso);
