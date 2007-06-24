@@ -45,8 +45,6 @@ class translator
 		static void load_language_file(FILE* file);
 		static void load_language_iso(cstring_t& iso);
 
-		static int get_language_iso(const char* iso);
-
 		/**
 		 * Checks whether or not the given language is in bounds.
 		 */

@@ -289,6 +289,17 @@ void translator::load_language_file(FILE* file)
 }
 
 
+static translator::lang_info* get_lang_by_iso(const char* iso)
+{
+	for (translator::lang_info* i = langs; i != langs + translator::get_language_count(); ++i) {
+		if (i->iso_base[0] == iso[0] && i->iso_base[1] == iso[1]) {
+			return i;
+		}
+	}
+	return NULL;
+}
+
+
 bool translator::load(const cstring_t& scenario_path)
 {
 	tstrncpy(szenario_path, scenario_path, lengthof(szenario_path));
@@ -339,13 +350,13 @@ bool translator::load(const cstring_t& scenario_path)
 		cstring_t fileName(*i);
 		cstring_t iso = fileName.substr(fileName.find_back('/') + 1, fileName.len() - 4);
 
-		int iso_nr = get_language_iso(iso);
-		if (iso_nr >= 0) {
-			DBG_MESSAGE("translator::load()", "loading pak translations from %s for iso nr %i", (const char*)fileName, iso_nr);
+		lang_info* i = get_lang_by_iso(iso);
+		if (i != NULL) {
+			DBG_MESSAGE("translator::load()", "loading pak translations from %s for language %s", (const char*)fileName, i->iso_base);
 			FILE* file = fopen(fileName, "rb");
 			if (file != NULL) {
 				bool file_is_utf = is_unicode_file(file);
-				load_language_file_body(file, &langs[iso_nr].texts, langs[iso_nr].utf_encoded, file_is_utf);
+				load_language_file_body(file, &i->texts, i->utf_encoded, file_is_utf);
 				fclose(file);
 			} else {
 				dbg->warning("translator::load()", "cannot open '%s'", (const char*)fileName);
@@ -403,18 +414,6 @@ void translator::set_language(int lang)
 	} else {
 		dbg->warning("translator::set_language()", "Out of bounds : %d", lang);
 	}
-}
-
-
-int translator::get_language_iso(const char *iso)
-{
-	for (int i = 0; i < single_instance.lang_count; i++) {
-		const char* iso_base = langs[i].iso_base;
-		if (iso_base[0] == iso[0] && iso_base[1] == iso[1]) {
-			return i;
-		}
-	}
-	return -1;
 }
 
 
