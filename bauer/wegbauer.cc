@@ -701,7 +701,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		{
 			ok =	(ok ||
 							(to->hat_weg(track_wt)  &&  check_owner(to->gib_weg(track_wt)->gib_besitzer(),sp))  ||
-							(to->hat_weg(road_wt)  &&  check_owner(to->gib_weg(road_wt)->gib_besitzer(),sp)))
+							(to->hat_weg(road_wt)  &&  check_owner(to->gib_weg(road_wt)->gib_besitzer(),sp)  &&  to->gib_weg_nr(1)==NULL))
 					 &&  check_for_leitung(zv,to);
 			// missing: check for crossings on halt!
 
