@@ -417,7 +417,7 @@ void translator::load_language_iso(cstring_t& iso)
 
 void translator::set_language(int lang)
 {
-	if (is_in_bounds(lang)) {
+	if (0 <= lang && lang < single_instance.lang_count) {
 		single_instance.current_lang = lang;
 		display_set_unicode(langs[lang].utf_encoded);
 		init_city_names(langs[lang].utf_encoded);

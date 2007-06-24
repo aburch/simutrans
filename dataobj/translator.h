@@ -43,14 +43,6 @@ class translator
 		static void load_language_file(FILE* file);
 		static void load_language_iso(cstring_t& iso);
 
-		/**
-		 * Checks whether or not the given language is in bounds.
-		 */
-		static inline bool is_in_bounds(int lang)
-		{
-			return 0 <= lang && lang < single_instance.lang_count;
-		}
-
 	public:
 		struct lang_info {
 			const char* translate(const char* text) const;
