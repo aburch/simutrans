@@ -475,18 +475,3 @@ const char* translator::compatibility_name(const char* str)
 	const char* trans = compatibility.get(str);
 	return trans != NULL ? trans : str;
 }
-
-
-void translator::rdwr(loadsave_t* file)
-{
-	int actual_lang;
-
-	if (file->is_saving()) {
-		actual_lang = single_instance.current_lang;
-	}
-	file->rdwr_enum(actual_lang, "\n");
-
-	if (file->is_loading()) {
-		set_language(actual_lang);
-	}
-}

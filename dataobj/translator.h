@@ -113,8 +113,6 @@ class translator
 
 		// return the name of the month
 		static const char *get_month_name(uint16 month);
-
-		static void rdwr(loadsave_t* file);
 };
 
 #endif
