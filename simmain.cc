@@ -656,9 +656,9 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	 * Konfigurationsdatei lesen, und ggf. einige Einstellungen setzen
 	 */
 	config = fopen("simworld.cfg", "rb");
-	int sprache = -1;
+	char lang_iso[3] = "";
 	if (config) {
-		fscanf(config, "Lang=%d\n", &sprache);
+		fscanf(config, "Lang=%2s\n", lang_iso);
 
 		int dn = 0;
 		fscanf(config, "DayNight=%d\n", &dn);
@@ -773,9 +773,7 @@ DBG_MESSAGE("init","map");
 
 	// Hajo: simgraph init loads default fonts, now we need to load
 	// the real fonts for the current language
-	if (sprache != -1) {
-		translator::set_language(sprache);
-	}
+	translator::set_language(lang_iso);
 	sprachengui_t::init_font_from_lang();
 
 	einstellungen_t *sets = new einstellungen_t(*welt->gib_einstellungen());
@@ -919,7 +917,7 @@ DBG_MESSAGE("init","map");
 	 */
 	config = fopen("simworld.cfg", "wb");
 	if (config != NULL) {
-		fprintf(config, "Lang=%d\n", translator::get_language());
+		fprintf(config, "Lang=%s\n", translator::get_language_name_iso_base(translator::get_language()));
 		fprintf(config, "DayNight=%d\n", umgebung_t::night_shift);
 		fprintf(
 			config, "AIs=%d,%d,%d,%d,%d,%d\n",
