@@ -363,13 +363,13 @@ bool translator::load(const cstring_t& scenario_path)
 		cstring_t fileName(*i);
 		cstring_t iso = fileName.substr(fileName.find_back('/') + 1, fileName.len() - 4);
 
-		lang_info* i = get_lang_by_iso(iso);
-		if (i != NULL) {
-			DBG_MESSAGE("translator::load()", "loading pak translations from %s for language %s", (const char*)fileName, i->iso_base);
+		lang_info* lang = get_lang_by_iso(iso);
+		if (lang != NULL) {
+			DBG_MESSAGE("translator::load()", "loading pak translations from %s for language %s", (const char*)fileName, lang->iso_base);
 			FILE* file = fopen(fileName, "rb");
 			if (file != NULL) {
 				bool file_is_utf = is_unicode_file(file);
-				load_language_file_body(file, &i->texts, i->utf_encoded, file_is_utf);
+				load_language_file_body(file, &lang->texts, lang->utf_encoded, file_is_utf);
 				fclose(file);
 			} else {
 				dbg->warning("translator::load()", "cannot open '%s'", (const char*)fileName);
