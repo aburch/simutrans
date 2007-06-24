@@ -53,11 +53,13 @@ public:
 	const kreuzung_besch_t *gib_besch() const { return besch; }
 
 	/**
-	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-	 * Beobachtungsfenster angezeigt wird.
-	 * @author Hj. Malthaner
+	 * @return string (only used for debugg at the moment)
+	 * @author prissi
 	 */
 	void info(cbuffer_t & buf) const;
+
+	// no info
+	void zeige_info() {}
 
 	// returns true, if the crossing can be passed by this vehicle
 	bool request_crossing( const vehikel_basis_t * );

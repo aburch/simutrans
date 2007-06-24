@@ -2244,6 +2244,14 @@ int get_prev_char(const char* text, int pos)
 }
 
 
+KOORD_VAL display_get_char_width(utf16 c)
+{
+	KOORD_VAL w = large_font.screen_width[c];
+	if (w == 0) w = large_font.screen_width[0];
+	return w;
+}
+
+
 /* proportional_string_width with a text of a given length
  * extended for universal font routines with unicode support
  * @author Volker Meyer

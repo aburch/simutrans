@@ -43,7 +43,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 {
     if(ev->ev_class == EVENT_KEYBOARD) {
 		if((text != NULL) && has_focus(this)) {
-		    const int len = strlen(text);
+		    const long len = strlen(text);
 
 		    switch(ev->ev_code) {
 		    case SIM_KEY_DOWN: // down arrow

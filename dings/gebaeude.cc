@@ -555,8 +555,31 @@ void gebaeude_t::info(cbuffer_t & buf) const
 						break;
 				}
 			}
-			buf.append(translator::translate(trans_desc));
-			buf.append("\n");
+			else {
+				// since the format changed, we remove all but double newlines
+				char *text = new char[strlen(trans_desc)];
+				char *dest = text;
+				const char *src = trans_desc;
+				while(  *src!=0  ) {
+					*dest = *src;
+					if(src[0]=='\n') {
+						if(src[1]=='\n') {
+							src ++;
+							dest++;
+							*dest = '\n';
+						}
+						else {
+							*dest = ' ';
+						}
+					}
+					src ++;
+					dest ++;
+				}
+				*dest++ = 0;
+				trans_desc = text;
+			}
+			buf.append(trans_desc);
+			buf.append("\n\n");
 		}
 
 		// belongs to which city?

@@ -61,9 +61,8 @@ crossing_t::~crossing_t()
 
 
 /**
- * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
- * Beobachtungsfenster angezeigt wird.
- * @author Hj. Malthaner
+ * @return string; currently unused but useful for debugging
+ * @author prissi
  */
 void crossing_t::info(cbuffer_t & buf) const
 {

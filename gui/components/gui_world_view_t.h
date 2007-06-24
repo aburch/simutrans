@@ -34,7 +34,7 @@ private:
 	* The object to display
 	* @autor Hj. Malthaner
 	*/
-	ding_t *ding;
+	const ding_t *ding;
 
 	// offsets are stored
 	vector_tpl<koord>offsets;
@@ -50,7 +50,7 @@ private:
 
 public:
     world_view_t(karte_t *welt, koord3d location);
-    world_view_t(ding_t* dt);
+    world_view_t(const ding_t* dt);
 
     /**
      * Sets the location to be displayed.

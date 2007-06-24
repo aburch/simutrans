@@ -28,6 +28,7 @@
 	ADD: speed record for all kind of convois
 	FIX: vehicles may have been saved with wrong pos_prev, which may caused errors at waypoints/stations
 	FIX: blue night light finally working
+	ADD: automatic line breaks in building description texts (inspired by tron)
 
 
 Release of 99.12

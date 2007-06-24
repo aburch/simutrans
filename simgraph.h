@@ -22,6 +22,7 @@ extern int large_font_height;
 #endif
 
 #include "simcolor.h"
+#include "unicode.h"
 
 #define LINESPACE 11
 
@@ -153,6 +154,8 @@ void display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, 
 // unicode save moving in strings
 int get_next_char(const char* text, int pos);
 int get_prev_char(const char* text, int pos);
+
+KOORD_VAL display_get_char_width(utf16 c);
 
 /* routines for string len (macros for compatibility with old calls) */
 #define proportional_string_width(text)          display_calc_proportional_string_len_width(text, 0x7FFF)

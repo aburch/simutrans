@@ -25,8 +25,6 @@ class ding_infowin_t : public gui_frame_t
 protected:
     world_view_t view;
 
-    int calc_fensterhoehe_aus_info() const;
-
     static cbuffer_t buf;
 
     /**
@@ -35,6 +33,8 @@ protected:
      * @author Hj. Malthaner
      */
     const ding_t* ding;
+
+		KOORD_VAL calc_draw_info( koord, bool ) const;
 
 public:
     ding_infowin_t(const ding_t* ding);

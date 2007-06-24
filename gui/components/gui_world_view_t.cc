@@ -33,7 +33,7 @@ world_view_t::world_view_t(karte_t* welt, koord3d location)
 }
 
 
-world_view_t::world_view_t(ding_t* dt) :
+world_view_t::world_view_t(const ding_t* dt) :
 	location(koord3d::invalid),
 	ding(dt),
 	raster(0),
@@ -87,7 +87,7 @@ world_view_t::zeichnen(koord offset)
 		} else {
 			hgt = tile_raster_scale_y( ding->gib_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, raster );
 			if(ding->gib_typ() == ding_t::aircraft) {
-				aircraft_t *plane =  dynamic_cast <aircraft_t *>(ding);
+				const aircraft_t *plane =  dynamic_cast <const aircraft_t *>(ding);
 				hgt += tile_raster_scale_y( plane->gib_flyingheight(), raster );
 			}
 		}

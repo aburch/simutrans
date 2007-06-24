@@ -395,7 +395,7 @@ dingliste_t::add(ding_t *ding)
 
 	// roads must be first!
 	if(pri==0) {
-		// check for other ways to keep order!
+		// check for other ways to keep order! (maximum is two ways per tile at the moment)
 		if(top>0  &&  obj.some[0]->gib_typ()==ding_t::way  &&  ((weg_t *)ding)->gib_waytype()>((weg_t *)obj.some[0])->gib_waytype()) {
 			return intern_insert_at(ding, 1);
 		} else {

@@ -29,11 +29,11 @@ grund_info_t::grund_info_t(const grund_t* gr_) :
 	gr->info(gr_info);
 	sint16 height = max( count_char(gr_info, '\n')*LINESPACE+36+10, get_tile_raster_width()+30 );
 
-	view.setze_pos( koord(230-get_tile_raster_width()-5,10) );
+	view.setze_pos( koord(165,10) );
 	view.setze_groesse( koord( get_tile_raster_width(), (get_tile_raster_width()*5)/6)  );
 	add_komponente( &view );
 
-	setze_fenstergroesse( koord(230, height) );
+	setze_fenstergroesse( koord(175+get_tile_raster_width(), height) );
 
 	setze_opaque(true);
 }
