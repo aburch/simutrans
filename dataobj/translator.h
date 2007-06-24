@@ -87,9 +87,6 @@ class translator
 		/** Get information about the currently selected language */
 		static const lang_info* get_lang();
 
-		/** true, if a language is utf-8 encoded */
-		static bool is_unicode();
-
 		/**
 		 * First checks to see whether the language is in bounds, will
 		 * then change what language is being used, otherwise prints

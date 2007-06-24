@@ -41,12 +41,6 @@ const translator::lang_info* translator::get_lang()
 }
 
 
-bool translator::is_unicode()
-{
-	return langs[single_instance.current_lang].utf_encoded;
-}
-
-
 #ifdef DEBUG
 // diagnosis
 static void dump_hashtable(stringhashtable_tpl<const char*>* tbl)

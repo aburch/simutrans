@@ -120,7 +120,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 				const char *more_letter=translator::translate(letter);
 				// could not convert ...
 				if(letter==more_letter) {
-					if(ev->ev_code>279  ||   (ev->ev_code<=255  &&  translator::is_unicode()) ) {
+					if (ev->ev_code > 279 || (ev->ev_code <= 255 && translator::get_lang()->utf_encoded)) {
 						// assume unicode
 						char *out=letter;
 						out[ utf16_to_utf8(ev->ev_code, (utf8 *)out) ] = 0;
