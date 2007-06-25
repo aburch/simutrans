@@ -379,7 +379,7 @@ DBG_DEBUG("wayobj_t::fill_menu()","maximum %i",liste.count());
 				char buf[128];
 				sprintf(buf, "%s, %ld$ (%ld$), %dkm/h",
 					translator::translate(besch->gib_name()),
-					besch->gib_preis()/-100l,
+					besch->gib_preis()/100l,
 					(besch->gib_wartung()<<(welt->ticks_bits_per_tag-18l))/100l,
 					besch->gib_topspeed());
 
