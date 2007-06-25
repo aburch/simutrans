@@ -1311,8 +1311,10 @@ vehikel_t::ist_entfernbar(const spieler_t *)
 
 vehikel_t::~vehikel_t()
 {
-	// remove vehicle's marker from the reliefmap
-	reliefkarte_t::gib_karte()->calc_map_pixel(gib_pos().gib_2d());
+	if(welt->lookup(gib_pos())) {
+		// remove vehicle's marker from the reliefmap
+		reliefkarte_t::gib_karte()->calc_map_pixel(gib_pos().gib_2d());
+	}
 }
 
 

@@ -29,6 +29,7 @@
 	FIX: vehicles may have been saved with wrong pos_prev, which may caused errors at waypoints/stations
 	FIX: blue night light finally working
 	ADD: automatic line breaks in building description texts (inspired by tron)
+	FIX: error with stale goods after deleting served stops
 
 
 Release of 99.12

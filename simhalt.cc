@@ -458,6 +458,7 @@ void haltestelle_t::reroute_goods()
 {
 	// reroute only on demand
 	reroute_counter = welt->get_schedule_counter();
+	// iterate over all different categories
 	for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
 		if(waren[i]) {
 			vector_tpl<ware_t> * warray = waren[i];
@@ -519,6 +520,8 @@ void haltestelle_t::reroute_goods()
 
 		}
 	}
+	// likely the display must be updated after this
+	resort_freight_info = true;
 }
 
 
@@ -578,6 +581,7 @@ void haltestelle_t::rebuild_destinations()
 	warenziele_mail.clear();
 	warenziele_freight.clear();
 	rebuilt_destination_counter = welt->get_schedule_counter();
+	resort_freight_info = true;	// might result in error in routing
 
 // DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "Adding new table entries");
 
