@@ -239,7 +239,8 @@ money_frame_t::money_frame_t(spieler_t *sp)
 			const haus_besch_t* besch = i.get_current();
 			if (besch->gib_bauzeit() == sp->get_headquarter_level()) {
 				double cost = umgebung_t::cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h()/-100.0;
-				money_to_string( headquarter_tooltip+sprintf( headquarter_tooltip, "%s ", translator::translate(besch->gib_name())), cost );
+				tstrncpy( headquarter_tooltip, translator::translate(besch->gib_name()), 100 );
+				money_to_string( headquarter_tooltip+strlen(headquarter_tooltip), cost );
 				headquarter.set_tooltip( headquarter_tooltip );
 				break;
 			}
