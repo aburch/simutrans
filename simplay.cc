@@ -2589,8 +2589,10 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 			halthandle_t halt = haltestelle_t::create( welt, file );
 			// it was possible to have stops without ground: do not load them
 			if(halt.is_bound()) {
-				halt->laden_abschliessen();
-				halt_list.append(halt);
+				halt_list.insert(halt);
+				if(!halt->existiert_in_welt()) {
+					dbg->warning("spieler_t::rdwr()","empty halt id %i qill be ignored", halt.get_id() );
+				}
 			}
 		}
 		init_texte();
