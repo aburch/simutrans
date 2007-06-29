@@ -489,7 +489,7 @@ void haltestelle_t::reroute_goods()
 				if(welt->lookup(ware.gib_zielpos())->is_connected(self)) {
 					// we are already there!
 					if(ware.is_freight()) {
-#pragma omp atomic
+#pragma omp critical
 						liefere_an_fabrik(ware);
 					}
 					continue;
