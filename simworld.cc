@@ -2727,7 +2727,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 		iter.get_current()->rebuild_destinations();
 	}
 
-#if 0
+#if 1
 	// reroute goods for benchmarking
 	long dt = dr_time();
 	iter.begin();

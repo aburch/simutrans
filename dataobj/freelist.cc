@@ -51,6 +51,7 @@ static nodelist_node_t *all_lists[NUM_LIST] = {
 void *
 freelist_t::gimme_node(int size)
 {
+#pragma omp atomic
 	nodelist_node_t ** list = NULL;
 	if(size==0) {
 		return NULL;
@@ -74,6 +75,7 @@ freelist_t::gimme_node(int size)
 	else {
 		list = &(all_lists[(size+3)/4]);
 	}
+#pragma omp section
 	// need new memory?
 	if(*list==NULL) {
 		int num_elements = 32764/size;
@@ -127,6 +129,7 @@ static void putback_check_node(nodelist_node_t** list, nodelist_node_t* p)
 void
 freelist_t::putback_node(int size,void *p)
 {
+#pragma omp atomic
 	nodelist_node_t ** list = NULL;
 	if(size==0  ||  p==NULL) {
 		return;

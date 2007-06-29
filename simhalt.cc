@@ -12,6 +12,10 @@
  * Hj. Malthaner
  */
 #include <algorithm>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include "simdebug.h"
 #include "simmem.h"
 #include "simplan.h"
@@ -64,12 +68,12 @@ karte_t *haltestelle_t::welt = NULL;
  */
 int haltestelle_t::max_hops = 300;
 
-// Helfer Klassen
-
-class HNode {
-public:
+/* HNode is used for route search
+ * Not a class to speed up initialisation
+ */
+struct HNode {
   halthandle_t halt;
-  int depth;
+  uint16 depth;
   HNode *link;
 };
 
@@ -466,17 +470,18 @@ void haltestelle_t::reroute_goods()
 	for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
 		if(waren[i]) {
 			vector_tpl<ware_t> * warray = waren[i];
+			vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(warray->get_count());
 
 			// Hajo:
 			// Step 1: re-route goods now and then to adapt to changes in
 			// world layout, remove all goods which destination was removed from the map
 			// prissi;
 			// also the empty entries of the array are cleared
+#pragma omp parallel for shared(new_warray)
 			for(int j=warray->get_count()-1;  j>=0;  j--  ) {
 				ware_t & ware = (*warray)[j];
 
 				if(ware.menge==0) {
-					warray->remove_at(j);
 					continue;
 				}
 
@@ -484,25 +489,26 @@ void haltestelle_t::reroute_goods()
 				if(welt->lookup(ware.gib_zielpos())->is_connected(self)) {
 					// we are already there!
 					if(ware.is_freight()) {
+#pragma omp atomic
 						liefere_an_fabrik(ware);
 					}
-					warray->remove_at(j);
 					continue;
 				}
 
 				suche_route(ware);
-				INT_CHECK("simhalt 484");
 
 				// check if this good can still reach its destination
 				if(!ware.gib_ziel().is_bound() ||  !ware.gib_zwischenziel().is_bound()) {
 					// remove invalid destinations
-					warray->remove_at(j);
 					continue;
 				}
+
+				// add to new array
+				new_warray->push_back( ware );
 			}
 
 			// delete, if nothing connects here
-			if (warray->empty()) {
+			if (new_warray->empty()) {
 				bool delete_it = true;
 				switch(i) {
 					case 0: delete_it = warenziele_passenger.empty();
@@ -517,11 +523,14 @@ void haltestelle_t::reroute_goods()
 				}
 				if(delete_it) {
 					// no connections from here => delete
-					delete waren[i];
-					waren[i] = NULL;
+					delete new_warray;
+					new_warray = NULL;
 				}
 			}
 
+			// replace the array
+			delete waren[i];
+			waren[i] = new_warray;
 		}
 	}
 	// likely the display must be updated after this
@@ -707,29 +716,50 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 		}
 	}
 
-	static HNode nodes[10000];
+#ifdef _OPENMP
+	// multithreading: MUst keep track of nodes and the like
+	const uint32 threadnum = omp_get_thread_num();
+	const uint32 current_mark = (1<<threadnum);
+	const uint32 bit_mask = ~current_mark;
+
+	// Always clean up :(
+	slist_iterator_tpl<halthandle_t > halt_iter (alle_haltestellen);
+	while(halt_iter.next()) {
+		halt_iter.get_current()->marke &= bit_mask;
+	}
+	// alloc node dynamically
+	static HNode *nnodes[32] = {
+		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+	};
+	if(nnodes[threadnum]==NULL) {
+		nnodes[threadnum] = new HNode[umgebung_t::max_halthandles];
+	}
+	HNode *nodes = nnodes[threadnum];
+
+#else
+	// single threading makes some things easier
 	static uint32 current_mark = 0;
-	const int max_transfers = umgebung_t::max_transfers;
+	static HNode nodes[65535];
 
-	INT_CHECK("simhalt 452");
-
-	// Need to clean up ?
-	if(current_mark > (1u<<31)) {
+	/* Need to clean up?
+	 * Otherwise we just incease the mark => less time for cleanups
+	 */
+	if(current_mark == 0xFFFFFFFFu) {
 		slist_iterator_tpl<halthandle_t > halt_iter (alle_haltestellen);
-
 		while(halt_iter.next()) {
 			halt_iter.get_current()->marke = 0;
 		}
-
 		current_mark = 0;
 	}
+	current_mark ++;
 
-	// alle alten markierungen ungültig machen
-	current_mark++;
+#endif
 
 	// die Berechnung erfolgt durch eine Breitensuche fuer Graphen
 	// Warteschlange fuer Breitensuche
-	slist_tpl<HNode*> queue;
+	const uint16 max_transfers = umgebung_t::max_transfers;
+	slist_tpl<HNode *> queue;
 
 	int step = 1;
 	HNode *tmp;
@@ -740,7 +770,11 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 	queue.insert( &nodes[0] );	// init queue mit erstem feld
 
+#ifdef _OPENMP
+	self->marke |= current_mark;
+#else
 	self->marke = current_mark;
+#endif
 
 	do {
 		tmp = queue.remove_first();
@@ -775,7 +809,11 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 						queue.append( node );
 
 						// betretene Haltestellen markieren
+#ifdef _OPENMP
+						tmp_halt->marke |= current_mark;
+#else
 						tmp_halt->marke = current_mark;
+#endif
 					}
 				}
 			}
@@ -803,7 +841,11 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 							queue.append( node );
 
 							// betretene Haltestellen markieren
+#ifdef _OPENMP
+							tmp_halt->marke |= current_mark;
+#else
 							tmp_halt->marke = current_mark;
+#endif
 						}
 					}
 				}
@@ -817,8 +859,6 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	tmp = 0;
 
 found:
-
-	INT_CHECK("simhalt 606");
 
 	if(tmp) {
 		// ziel gefunden
@@ -854,6 +894,9 @@ found:
 			*next_to_ziel = koord::invalid;
 		}
 	}
+
+#pragma omp master
+	INT_CHECK( "simhalt 851" );
 }
 
 
