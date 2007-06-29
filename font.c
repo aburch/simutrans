@@ -7,6 +7,10 @@
 #include "font.h"
 
 
+/* if defined, for the old .fnt files a .bdf core will be generated */
+//#define DUMP_OLD_FONTS
+
+
 static int nibble(sint8 c)
 {
 	return (c > '9') ? 10 + c - 'A' : c - '0';
@@ -248,6 +252,9 @@ bool load_font(font_type* fnt, const char* fname)
 			return false;
 		}
 		fclose(f);
+#ifdef DUMP_OLD_FONTS
+		f = fopen("C:\\prop.bdf","w");
+#endif
 
 		// convert to new standard font
 		guarded_free(fnt->screen_width);
@@ -275,7 +282,33 @@ bool load_font(font_type* fnt, const char* fname)
 			fnt->char_data[CHARACTER_LEN * i + CHARACTER_LEN-2] = start_h;
 
 			fnt->char_data[CHARACTER_LEN * i + CHARACTER_LEN-1] = npr_fonttab[i];
+
+#ifdef DUMP_OLD_FONTS
+			//try to make bdf
+			if(start_h<10) {
+				// find bounding box
+				int h=10;
+				while(h>start_h  &&  fnt->char_data[CHARACTER_LEN*i + h-1]==0) {
+					h--;
+				}
+				// emulate character
+				fprintf( f, "STARTCHAR char%0i\n", i );
+				fprintf( f, "ENCODING %i\n", i );
+				fprintf( f, "SWIDTH %i 0\n", (int)(0.5+77.875*(double)fnt->screen_width[i]) );
+				fprintf( f, "DWIDTH %i\n", fnt->screen_width[i] );
+				fprintf( f, "BBX %i %i %i %i\n", fnt->screen_width[i], h-start_h, 0, 8-h );
+				fprintf( f, "BITMAP\n" );
+				for(  j=start_h;  j<h;  j++ ) {
+					fprintf( f, "%02x\n", fnt->char_data[CHARACTER_LEN*i + j] );
+				}
+				fprintf( f, "ENDCHAR\n" );
+			}
+#endif
 		}
+#ifdef DUMP_OLD_FONTS
+		fclose(f);
+#endif
+
 		fnt->screen_width[32] = 4;
 		fnt->char_data[CHARACTER_LEN*32 + CHARACTER_LEN-1] = 0;	// space width
 		fprintf(stderr, "%s sucessfully loaded as old format prop font!\n", fname);

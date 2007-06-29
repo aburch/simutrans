@@ -31,6 +31,8 @@
 	ADD: automatic line breaks in building description texts (inspired by tron)
 	FIX: error with stale goods after deleting served stops
 	FIX: no crashes with overlong headquarter strings
+	CHANGE: more cpu-friendly wait for no route/waiting before a signal (and less fast stuck tooltips)
+	FIX: finally really loading the Pxxx.bdf fonts (and generated new bdf-font based on old ones)
 
 
 Release of 99.12

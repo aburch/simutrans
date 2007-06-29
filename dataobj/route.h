@@ -27,17 +27,17 @@ class karte_t;
 class route_t
 {
 private:
-    /**
-     * Die eigentliche Routensuche
-     * @author Hj. Malthaner
-     */
-    bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const uint32 max_kmh, const uint32 max_cost);
+	/**
+	 * Die eigentliche Routensuche
+	 * @author Hj. Malthaner
+	 */
+	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const uint32 max_kmh, const uint32 max_cost);
 
-    vector_tpl <koord3d> route;           // Die Koordinaten fuer die Fahrtroute
+	vector_tpl <koord3d> route;           // Die Koordinaten fuer die Fahrtroute
 
 public:
 	// this class save the nodes during route search
-	typedef class ANode {
+	class ANode {
 	public:
 		ANode * parent;
 		const grund_t* gr;

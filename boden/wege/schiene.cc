@@ -53,7 +53,7 @@ schiene_t::entferne(spieler_t *)
 	// removes reservation
 	if(reserved.is_bound()) {
 		setze_ribi(ribi_t::keine);
-		reserved->recalc_route();
+		reserved->suche_neue_route();
 	}
 }
 

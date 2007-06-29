@@ -72,7 +72,8 @@ void
 simline_t::add_convoy(convoihandle_t cnv)
 {
 	if (line_managed_convoys.empty()) {
-		register_stops();
+		// first convoi -> ok, now we can announce this connection to the stations
+		register_stops(fpl);
 	}
 
 	// first convoi may change line type
@@ -177,9 +178,10 @@ simline_t::rdwr(loadsave_t * file)
 }
 
 void
-simline_t::register_stops()
+simline_t::laden_abschliessen()
 {
 	register_stops(fpl);
+	recalc_status();
 }
 
 void
@@ -201,7 +203,7 @@ DBG_DEBUG("simline_t::register_stops()", "halt null");
 void
 simline_t::unregister_stops()
 {
-	unregister_stops(this->fpl);
+	unregister_stops(fpl);
 }
 
 void

@@ -37,11 +37,12 @@
 void sprachengui_t::init_font_from_lang()
 {
 	chdir(umgebung_t::program_dir);
-	const char * prop_font_file = translator::translate("PROP_FONT_FILE");
+	static const char *default_name = "PROP_FONT_FILE";
+	const char * prop_font_file = translator::translate(default_name);
 
 	// Hajo: fallback if entry is missing
 	// -> use latin-1 font
-	if(*prop_font_file == 'P') {
+	if(prop_font_file == default_name) {
 		prop_font_file = "prop.fnt";
 	}
 

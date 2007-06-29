@@ -1330,13 +1330,13 @@ vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 
 		// now find out what has happend
 		switch(cnv->get_state()) {
-			case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
-			case convoi_t::CAN_START_ONE_MONTH:
+			case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
+			case convoi_t::CAN_START_TWO_MONTHS:
 				sprintf( tooltip_text, translator::translate("Vehicle %s is stucked!"), cnv->gib_name() );
 				color = COL_ORANGE;
 				break;
 			case convoi_t::ROUTING_2:
-				if(cnv->get_route()->gib_max_n()==0) {
+				if(cnv->hat_keine_route()) {
 					sprintf( tooltip_text, translator::translate("Vehicle %s can't find a route!"), cnv->gib_name() );
 					color = COL_RED;
 				}

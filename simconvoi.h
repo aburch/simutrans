@@ -62,6 +62,8 @@ public:
 		WAITING_FOR_CLEARANCE_ONE_MONTH,
 		CAN_START, CAN_START_ONE_MONTH,
 		SELF_DESTRUCT,
+		WAITING_FOR_CLEARANCE_TWO_MONTHS,
+		CAN_START_TWO_MONTHS,
 	};
 
 private:
@@ -339,12 +341,6 @@ public:
 	* @author Hanjsörg Malthaner
 	*/
 	bool hat_keine_route() const;
-
-	/**
-	* force rerouting
-	* @author hsiegeln
-	*/
-	void recalc_route() { state = ROUTING_2; }
 
 	/**
 	* get line

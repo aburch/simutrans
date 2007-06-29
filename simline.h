@@ -111,7 +111,8 @@ public:
 	 * register line with stop
 	 */
 	void register_stops(fahrplan_t * fpl);
-	void register_stops();
+
+	void laden_abschliessen();
 
 	/*
 	 * unregister line from stop
