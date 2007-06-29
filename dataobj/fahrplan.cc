@@ -221,8 +221,8 @@ fahrplan_t::rdwr(loadsave_t *file)
 
 	sint32 maxi=eintrag.get_count();
 	file->rdwr_long(maxi, " ");
-	eintrag.resize(maxi);
 	DBG_MESSAGE("fahrplan_t::rdwr()","read schedule %p with %i entries",this,maxi);
+	eintrag.resize(max(0,maxi));
 
 	if(file->get_version()<99012) {
 		if(file->get_version()<86010) {
