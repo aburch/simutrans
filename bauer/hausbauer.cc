@@ -28,7 +28,6 @@
 /*
  * Die verschiedenen Gebäudegruppen sind in eigenen Listen gesammelt.
  */
-slist_tpl<const haus_besch_t *> hausbauer_t::alle;
 slist_tpl<const haus_besch_t *> hausbauer_t::wohnhaeuser;
 slist_tpl<const haus_besch_t *> hausbauer_t::gewerbehaeuser;
 slist_tpl<const haus_besch_t *> hausbauer_t::industriehaeuser;
@@ -96,8 +95,6 @@ void hausbauer_t::insert_sorted(slist_tpl<const haus_besch_t *> &liste, const ha
 
 bool hausbauer_t::register_besch(const haus_besch_t *besch)
 {
-	alle.append(besch);
-
 	::register_besch(spezial_objekte, besch);
 
 	switch(besch->gib_typ()) {

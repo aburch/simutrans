@@ -62,7 +62,6 @@ class hausbauer_t
 		};
 
 	private:
-		static slist_tpl<const haus_besch_t*> alle;
 		static slist_tpl<const haus_besch_t*> sehenswuerdigkeiten_land;
 		static slist_tpl<const haus_besch_t*> sehenswuerdigkeiten_city;
 		static slist_tpl<const haus_besch_t*> rathaeuser;
