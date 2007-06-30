@@ -202,15 +202,6 @@ class hausbauer_t
 		}
 
 		/**
-		 * Denkmal anhand des Namens raussuchen.
-		 * @author V. Meyer
-		 */
-		static const haus_besch_t* finde_denkmal(const char* name)
-		{
-			return finde_in_liste(denkmaeler, denkmal, name);
-		}
-
-		/**
 		 * Liefert per Zufall die Beschreibung eines Sehenswuerdigkeit,
 		 * die bei Kartenerstellung gebaut werden kann.
 		 * @author V. Meyer
