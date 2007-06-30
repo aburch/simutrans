@@ -378,7 +378,7 @@ static fabrik_t* baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_
 
 	// make all water a station
 	if(info->gib_platzierung() == fabrik_besch_t::Wasser) {
-		const haus_besch_t *besch = hausbauer_t::finde_fabrik(info->gib_name());
+		const haus_besch_t *besch = info->gib_haus();
 		koord dim = besch->gib_groesse(rotate);
 
 		koord k;
