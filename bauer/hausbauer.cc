@@ -6,36 +6,24 @@
  */
 
 #include <string.h>
-
-#include "hausbauer.h"
-
+#include "../besch/haus_besch.h"
+#include "../besch/skin_besch.h"
+#include "../besch/spezial_obj_tpl.h"
+#include "../boden/fundament.h"
+#include "../dings/zeiger.h"
+#include "../gui/karte.h"
+#include "../gui/werkzeug_parameter_waehler.h"
 #include "../simdebug.h"
-#include "../simworld.h"
-#include "../simwerkz.h"
 #include "../simdepot.h"
 #include "../simhalt.h"
-#include "../simtools.h"
 #include "../simskin.h"
-
-#include "../boden/grund.h"
-#include "../boden/fundament.h"
-
-#include "../besch/haus_besch.h"
-#include "../besch/spezial_obj_tpl.h"
-#include "../besch/skin_besch.h"
-
-#include "../dataobj/translator.h"
-
-#include "../dings/gebaeude.h"
-#include "../dings/zeiger.h"
-
-// Hajo: these are needed to build the menu entries
-#include "../gui/werkzeug_parameter_waehler.h"
-#include "../gui/karte.h"
-
+#include "../simtools.h"
+#include "../simwerkz.h"
+#include "../simworld.h"
+#include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/weighted_vector_tpl.h"
-
 #include "../utils/simstring.h"
+#include "hausbauer.h"
 
 /*
  * Die verschiedenen Gebäudegruppen sind in eigenen Listen gesammelt.
@@ -54,7 +42,7 @@ slist_tpl<const haus_besch_t *> hausbauer_t::ungebaute_denkmaeler;
 /*
  * Diese Tabelle ermöglicht das Auffinden einer Beschreibung durch ihren Namen
  */
-stringhashtable_tpl<const haus_besch_t *> hausbauer_t::besch_names;
+static stringhashtable_tpl<const haus_besch_t*> besch_names;
 
 /*
  * Alle Gebäude, die die Anwendung direkt benötigt, kriegen feste IDs.
@@ -189,11 +177,6 @@ DBG_DEBUG("hausbauer_t::register_besch()","unknown subtype %i of %s: ignored",be
 }
 
 
-
-/**
- * Fill menu with icons of given stops from the list
- * @author Hj. Malthaner
- */
 void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	slist_tpl<const haus_besch_t *>&stops,
 	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
@@ -230,12 +213,6 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
 }
 
 
-
-
-/**
- * Fill menu with icons of given stops from the list
- * @author Hj. Malthaner
- */
 void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	hausbauer_t::utyp utyp,
 	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
@@ -272,16 +249,6 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.count());
 }
 
 
-
-
-/**
- * hausbauer_t::neue_karte:
- *
- * Teilt dem Hausbauer mit, dass eine neue Karte geladen oder generiert wird.
- * In diesem Fall müssen wir die Liste der ungebauten Denkmäler wieder füllen.
- *
- * @author V. Meyer
- */
 void hausbauer_t::neue_karte()
 {
 	slist_iterator_tpl<const haus_besch_t *>  iter(denkmaeler);
@@ -292,19 +259,6 @@ void hausbauer_t::neue_karte()
 }
 
 
-
-
-/**
- * hausbauer_t::umbauen:
- *
- * Ein Gebäude wird umgebaut, d.h. es bekommt einen neuen Typ und damit ein neues Bild.
- * Die Baugrube wird gesetzt.
- *
- * @param gb
- * @param besch
- *
- * @author V. Meyer
- */
 void hausbauer_t::umbauen(gebaeude_t* gb, const haus_besch_t* besch, int rotate)
 {
 	const haus_tile_besch_t *tile = besch->gib_tile(rotate, 0, 0);
@@ -387,11 +341,6 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int lay
 }
 
 
-
-/*
- * builds all kind of houses, including stops and depots
- * may change the ordering of objects in the dinglist, if the desired position is not available
- */
 gebaeude_t *
 hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layout, const haus_besch_t *besch, void *param)
 {
@@ -494,7 +443,6 @@ const haus_besch_t *hausbauer_t::finde_in_liste(slist_tpl<const haus_besch_t *> 
 }
 
 
-
 const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int idx)
 {
 	const haus_besch_t *besch = besch_names.get(name);
@@ -528,6 +476,7 @@ const haus_besch_t *hausbauer_t::gib_random_station(const enum utyp utype,const 
 	return stops.empty() ? NULL : stops[simrand(stops.get_count())];
 }
 
+
 const haus_besch_t *hausbauer_t::gib_special_intern(int bev, utyp utype,uint16 time,climate cl)
 {
 	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
@@ -553,7 +502,6 @@ const haus_besch_t *hausbauer_t::gib_special_intern(int bev, utyp utype,uint16 t
 	// now there is something to choose
 	return auswahl.at_weight( simrand(auswahl.get_sum_weight()) );
 }
-
 
 
 /**
@@ -610,7 +558,6 @@ const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> 
 	// now there is something to choose
 	return auswahl.at_weight( simrand(auswahl.get_sum_weight()) );
 }
-
 
 
 // get a random object
