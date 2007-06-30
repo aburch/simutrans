@@ -1809,12 +1809,12 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		DBG_MESSAGE("check_bau_rathaus()", "bev=%d, new=%d", bev, neugruendung);
 
 		if (!neugruendung) {
-			if (gb->gib_tile()->gib_besch()->gib_level() == besch->gib_level()) {
+			const haus_besch_t* besch_alt = gb->gib_tile()->gib_besch();
+			if (besch_alt->gib_level() == besch->gib_level()) {
 				DBG_MESSAGE("check_bau_rathaus()", "town hall already ok.");
 				return; // Rathaus ist schon okay
 			}
 
-			const haus_besch_t* besch_alt = gb->gib_tile()->gib_besch();
 			koord pos_alt = gr->gib_pos().gib_2d() - gb->gib_tile()->gib_offset();
 			koord groesse_alt = besch_alt->gib_groesse(gb->gib_tile()->gib_layout());
 
