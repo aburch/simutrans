@@ -25,7 +25,7 @@ cbuffer_t ding_infowin_t::buf (8192);
 
 ding_infowin_t::ding_infowin_t(const ding_t* ding_) :
 	gui_frame_t("", ding_->gib_besitzer()),
-	view((ding_t*)ding_),
+	view(ding_),
 	ding(ding_)
 {
 	setze_opaque(true);
