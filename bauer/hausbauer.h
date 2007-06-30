@@ -211,12 +211,22 @@ public:
      */
 		static void umbauen(gebaeude_t* gb, const haus_besch_t* besch, int rotation);
 
-    /**
+		/**
+		 * DIE Funktion um einen gebaeude_t zu bauen.
+		 * Sie kann zum einen mehrteilige Gebäude bauen, zum anderen kennt sie die
+		 * diversen Besonderheiten und nimmt entsprechende Einstellungen vor.
+		 *
      * Baut alles was in gebaeude.tab beschrieben ist.
      * Es werden immer gebaeude_t-Objekte erzeugt.
-     * @author V. Meyer
-     */
-    static void baue(karte_t *welt,
+		 *
+		 * The ground will be NOT set to foundation. This must be done before, if neccessary!
+		 *
+		 * @return The first built part of the building. Usually at pos, if this part
+		 *         is not empty.
+		 *
+		 * @author V. Meyer
+		 */
+		static gebaeude_t* baue(karte_t* welt,
 		     spieler_t *sp,
 		     koord3d pos,
 		     int layout,

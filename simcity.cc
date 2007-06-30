@@ -1777,10 +1777,10 @@ void stadt_t::check_bau_spezial(bool new_town)
 							baue_strasse(best_pos + koord(i, total_size.y - 1), NULL, true);
 						}
 					}
-					// and then built it
-					hausbauer_t::baue(welt, besitzer_p, welt->lookup(best_pos + koord(1, 1))->gib_kartenboden()->gib_pos(), 0, besch);
+					// and then build it
+					const gebaeude_t* gb = hausbauer_t::baue(welt, besitzer_p, welt->lookup(best_pos + koord(1, 1))->gib_kartenboden()->gib_pos(), 0, besch);
 					hausbauer_t::denkmal_gebaut(besch);
-					add_gebaeude_to_stadt(dynamic_cast<const gebaeude_t*>(welt->lookup(best_pos + koord(1, 1))->gib_kartenboden()->first_obj()));
+					add_gebaeude_to_stadt(gb);
 					// tell the player, if not during initialization
 					if (!new_town) {
 						char buf[256];
@@ -1856,9 +1856,9 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		if (neugruendung || umziehen) {
 			best_pos = rathausplatz_sucher_t(welt).suche_platz(pos, besch->gib_b(layout), besch->gib_h(layout) + 1, besch->get_allowed_climate_bits());
 		}
-		hausbauer_t::baue(welt, besitzer_p, welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), layout, besch);
+		gb = hausbauer_t::baue(welt, besitzer_p, welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), layout, besch);
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);
-		add_gebaeude_to_stadt(dynamic_cast<const gebaeude_t*>(welt->lookup(best_pos)->gib_kartenboden()->first_obj()));
+		add_gebaeude_to_stadt(gb);
 		DBG_MESSAGE("stadt_t::check_bau_rathaus()", "add townhall (bev=%i, ptr=%p)", buildings.get_sum_weight(),welt->lookup(best_pos)->gib_kartenboden()->first_obj());
 
 		// Orstnamen hinpflanzen
@@ -2069,9 +2069,7 @@ void stadt_t::baue_gebaeude(const koord k)
 				}
 			}
 
-			hausbauer_t::baue(welt, NULL, pos, streetdir == -1 ? 0 : streetdir, h);
-
-			gebaeude_t* gb = dynamic_cast<gebaeude_t*>(welt->lookup_kartenboden(k)->first_obj());
+			const gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, streetdir == -1 ? 0 : streetdir, h);
 			add_gebaeude_to_stadt(gb);
 		}
 	}

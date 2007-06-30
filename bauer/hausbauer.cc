@@ -312,29 +312,9 @@ void hausbauer_t::umbauen(gebaeude_t* gb, const haus_besch_t* besch, int rotate)
 }
 
 
-
-/**
- * hausbauer_t::baue:
- *
- * DIE Funktion um einen gebaeude_t zu bauen.
- * Sie kann zum einen mehrteilige Gebäude bauen, zum anderen
- * kennt sie die diversen Besonderheiten und nimmt
- * entsprechende Einstellungen vor.
- *
- * The ground will be NOT set to foundation. This must be done before, if neccessary!
- *
- * @param welt
- * @param sp
- * @param pos
- * @param layout
- * @param besch
- * @param clear
- * @param fab
- *
- * @author V. Meyer
- */
-void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, const haus_besch_t *besch, bool clear, void *param)
+gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, bool clear, void* param)
 {
+	gebaeude_t* first_building = NULL;
 	koord k;
 	koord dim;
 
@@ -352,6 +332,7 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 				continue;
 			}
 			gebaeude_t *gb = new gebaeude_t(welt, pos + k, sp, tile);
+			if (first_building == NULL) first_building = gb;
 
 			if(besch->ist_fabrik()) {
 //DBG_DEBUG("hausbauer_t::baue()","setze_fab() at %i,%i",k.x,k.y);
@@ -402,6 +383,7 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 			reliefkarte_t::gib_karte()->calc_map_pixel(gr->gib_pos().gib_2d());
 		}
 	}
+	return first_building;
 }
 
 
