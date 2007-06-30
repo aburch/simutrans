@@ -69,7 +69,6 @@ karte_t *haltestelle_t::welt = NULL;
 int haltestelle_t::max_hops = 300;
 
 /* HNode is used for route search
- * Not a class to speed up initialisation
  */
 struct HNode {
   halthandle_t halt;
