@@ -428,21 +428,6 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 }
 
 
-const haus_besch_t *hausbauer_t::finde_in_liste(slist_tpl<const haus_besch_t *>  &liste, utyp utype, const char *name)
-{
-	if(name) {
-		slist_iterator_tpl<const haus_besch_t *>  iter(liste);
-
-		while(iter.next()) {
-			if(!strcmp(iter.get_current()->gib_name(), name) && (utype == unbekannt || iter.get_current()->gib_utyp() == utype)) {
-				return iter.get_current();
-			}
-		}
-	}
-	return NULL;
-}
-
-
 const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int idx)
 {
 	const haus_besch_t *besch = besch_names.get(name);

@@ -108,12 +108,6 @@ class hausbauer_t
 		static const haus_besch_t* waehle_aus_liste(slist_tpl<const haus_besch_t*>& liste, uint16 time, climate cl);
 
 		/**
-		 * Sucht einen Eintrag aus einer Liste passend zum Namen ("Name=..." aus gebaeude.tab).
-		 * @author V. Meyer
-		 */
-		static const haus_besch_t* finde_in_liste(slist_tpl<const haus_besch_t*>& liste, utyp utype, const char* name);
-
-		/**
 		 * Sucht eine Eintrag aus der Spezialgebäudeliste mit der passenden Bevölkerung.
 		 * @author V. Meyer
 		 */
@@ -189,16 +183,6 @@ class hausbauer_t
 		static const haus_besch_t* gib_wohnhaus(int level, uint16 time, climate cl)
 		{
 			return gib_aus_liste(wohnhaeuser, level, time, cl);
-		}
-
-		/**
-		 * Fabrikbeschreibung anhand des Namens raussuchen.
-		 * eindeutig aufsteigend.
-		 * @author V. Meyer
-		 */
-		static const haus_besch_t* finde_fabrik(const char* name)
-		{
-			return finde_in_liste(fabriken, fabrik, name);
 		}
 
 		/**
