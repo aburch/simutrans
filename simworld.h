@@ -787,13 +787,6 @@ public:
 	 */
 	stadt_t * suche_naechste_stadt(koord pos) const;
 
-	/**
-	 * Wenn uns die von "suche_naechste_stadt(koord pos)" Stadt nicht
-	 * gefällt, sucht diese Funktion die "naechste nach der letzten".
-	 * @author V. Meyer
-	 */
-	stadt_t * suche_naechste_stadt(koord pos, const stadt_t *letzte) const;
-
 	bool sync_add(sync_steppable *obj);
 	bool sync_remove(sync_steppable *obj);
 

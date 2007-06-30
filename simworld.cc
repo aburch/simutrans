@@ -1420,36 +1420,6 @@ karte_t::suche_naechste_stadt(const koord pos) const
     return best;
 }
 
-stadt_t *
-karte_t::suche_naechste_stadt(const koord pos, const stadt_t *letzte) const
-{
-    int min_dist = 99999999;
-    stadt_t * best = NULL;
-    const koord letzte_pos = letzte->gib_pos();
-    const int letzte_dist = (letzte_pos.x-pos.x)*(letzte_pos.x-pos.x) + (letzte_pos.y-pos.y)*(letzte_pos.y-pos.y);
-    bool letzte_gefunden = false;
-
-	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
-		stadt_t* s = *i;
-		const koord k = s->gib_pos();
-
-	    const int dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
-
-		if (s == letzte) {
-		letzte_gefunden = true;
-	    }
-	    else if(letzte_gefunden ? dist >= letzte_dist : dist > letzte_dist) {
-		if(dist < min_dist) {
-//		    printf("dist %d  stadt %d\n", dist, n);
-		    min_dist = dist;
-			best = s;
-		}
-	    }
-    }
-    return best;
-}
-
-
 
 // -------- Verwaltung von synchronen Objekten ------------------
 
