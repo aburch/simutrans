@@ -44,8 +44,6 @@
 #include "../dings/crossing.h"
 
 #include "../simintr.h"
-
-#include "hausbauer.h"
 #include "tunnelbauer.h"
 #include "brueckenbauer.h"
 

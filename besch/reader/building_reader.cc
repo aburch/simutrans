@@ -1,5 +1,6 @@
 #include <stdio.h>
-
+#include <string.h>
+#include "../../bauer/hausbauer.h"
 #include "../../simdebug.h"
 #include "../haus_besch.h"
 #include "../intro_dates.h"
@@ -60,7 +61,7 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 {
     haus_besch_t *besch = static_cast<haus_besch_t *>(data);
 
-	if(besch->utyp==hausbauer_t::fabrik) {
+	if (besch->utype == haus_besch_t::fabrik) {
 		// this stuff is just for compatibility
 		if(  strcmp("Oelbohrinsel",besch->gib_name())==0  ) {
 			besch->enables = 1|2|4;
@@ -70,37 +71,37 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 		}
 	}
 
-	if(besch->utyp==hausbauer_t::weitere  &&  besch->enables==0x80) {
+	if (besch->utype == haus_besch_t::weitere && besch->enables == 0x80) {
 		// this stuff is just for compatibility
 		long checkpos=strlen(besch->gib_name());
 		besch->enables = 0;
 		// before station buildings were identified by their name ...
 		if(  strcmp("BusStop",besch->gib_name()+checkpos-7)==0  ) {
-			besch->utyp = hausbauer_t::bushalt;
+			besch->utype = haus_besch_t::bushalt;
 			besch->enables = 1;
 		}
 		if(  strcmp("CarStop",besch->gib_name()+checkpos-7)==0  ) {
-			besch->utyp = hausbauer_t::ladebucht;
+			besch->utype = haus_besch_t::ladebucht;
 			besch->enables = 4;
 		}
 		else if(  strcmp("TrainStop",besch->gib_name()+checkpos-9)==0  ) {
-			besch->utyp = hausbauer_t::bahnhof;
+			besch->utype = haus_besch_t::bahnhof;
 			besch->enables = 1|4;
 		}
 		else if(  strcmp("ShipStop",besch->gib_name()+checkpos-8)==0  ) {
-			besch->utyp = hausbauer_t::hafen;
+			besch->utype = haus_besch_t::hafen;
 			besch->enables = 1|4;
 		}
 		else if(  strcmp("ChannelStop",besch->gib_name()+checkpos-11)==0  ) {
-			besch->utyp = hausbauer_t::binnenhafen;
+			besch->utype = haus_besch_t::binnenhafen;
 			besch->enables = 1|4;
 		}
 		else if(  strcmp("PostOffice",besch->gib_name()+checkpos-10)==0  ) {
-			besch->utyp = hausbauer_t::post;
+			besch->utype = haus_besch_t::post;
 			besch->enables = 2;
 		}
 		else if(  strcmp("StationBlg",besch->gib_name()+checkpos-10)==0  ) {
-			besch->utyp = hausbauer_t::wartehalle;
+			besch->utype = haus_besch_t::wartehalle;
 			besch->enables = 1|4;
 		}
 	}
@@ -136,7 +137,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Versioned node, version 5
 		// animation intergvall in ms added
 		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
-		besch->utyp      = (enum hausbauer_t::utyp)decode_uint8(p);
+		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
 		besch->bauzeit   = decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
@@ -154,7 +155,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Versioned node, version 4
 		// climates and seasons added
 		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
-		besch->utyp      = (enum hausbauer_t::utyp)decode_uint8(p);
+		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
 		besch->bauzeit   = decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
@@ -171,7 +172,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if(version == 3) {
 		// Versioned node, version 3
 		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
-		besch->utyp      = (enum hausbauer_t::utyp)decode_uint8(p);
+		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
 		besch->bauzeit   = decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
@@ -188,7 +189,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if(version == 2) {
 		// Versioned node, version 2
 		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
-		besch->utyp      = (enum hausbauer_t::utyp)decode_uint8(p);
+		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
 		besch->bauzeit   = decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
@@ -205,7 +206,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if(version == 1) {
 		// Versioned node, version 1
 		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
-		besch->utyp      = (enum hausbauer_t::utyp)decode_uint8(p);
+		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
 		besch->bauzeit   = decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
@@ -223,7 +224,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// old node, version 0
 		besch->gtyp      = (enum gebaeude_t::typ)v;
 		decode_uint16(p);
-		besch->utyp      = (enum hausbauer_t::utyp)decode_uint32(p);
+		besch->utype     = (haus_besch_t::utyp)decode_uint32(p);
 		besch->level     = decode_uint32(p);
 		besch->bauzeit   = decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
@@ -240,7 +241,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	// correct old station buildings ...
-	if(besch->level<=0  &&  (besch->utyp>=hausbauer_t::bahnhof  ||  besch->utyp==hausbauer_t::fabrik)) {
+	if (besch->level <= 0 && (besch->utype >= haus_besch_t::bahnhof || besch->utype == haus_besch_t::fabrik)) {
 		DBG_DEBUG("building_reader_t::read_node()","old station building -> set level to 4");
 		besch->level = 4;
 	}
@@ -261,7 +262,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	     " anim=%d",
  	     version,
 	     besch->gtyp,
-	     besch->utyp,
+	     besch->utype,
 	     besch->level,
 	     besch->bauzeit,
 	     besch->groesse.x,

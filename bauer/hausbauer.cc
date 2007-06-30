@@ -113,27 +113,15 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 			break;
 
 		case gebaeude_t::unbekannt:
-		switch(besch->gib_utyp()) {
-			case fabrik:
-				fabriken.append(besch);
-				break;
-			case denkmal:
-				denkmaeler.append(besch);
-				break;
-			case sehenswuerdigkeit:
-				sehenswuerdigkeiten_land.append(besch);
-				break;
-			case firmensitz:
-				headquarter.append(besch);
-				break;
-			case rathaus:
-				// printf("Rathaus mit bev=%d\n", besch->gib_bauzeit());
-				rathaeuser.append(besch);
-				break;
-			case special:
-				sehenswuerdigkeiten_city.append(besch);
-				break;
-			case weitere:
+		switch (besch->gib_utyp()) {
+			case haus_besch_t::fabrik:            fabriken.append(besch);                 break;
+			case haus_besch_t::denkmal:           denkmaeler.append(besch);               break;
+			case haus_besch_t::sehenswuerdigkeit: sehenswuerdigkeiten_land.append(besch); break;
+			case haus_besch_t::firmensitz:        headquarter.append(besch);              break;
+			case haus_besch_t::rathaus:           rathaeuser.append(besch);               break;
+			case haus_besch_t::special:           sehenswuerdigkeiten_city.append(besch); break;
+
+			case haus_besch_t::weitere:
 				{
 				// allow for more than one air depot
 					long checkpos=strlen(besch->gib_name());
@@ -146,7 +134,7 @@ DBG_DEBUG("hausbauer_t::register_besch()","AirDepot %s",besch->gib_name());
 
 			default:
 				// usually station buldings
-				if(besch->gib_utyp()>=bahnhof  &&  besch->gib_utyp()<=lagerhalle) {
+				if (besch->gib_utyp() >= haus_besch_t::bahnhof && besch->gib_utyp() <= haus_besch_t::lagerhalle) {
 					station_building.append(besch);
 DBG_DEBUG("hausbauer_t::register_besch()","Station %s",besch->gib_name());
 				}
@@ -176,13 +164,7 @@ DBG_DEBUG("hausbauer_t::register_besch()","unknown subtype %i of %s: ignored",be
 
 
 
-void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
-	slist_tpl<const haus_besch_t *>&stops,
-	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
-	const int sound_ok,
-	const int sound_ko,
-	const sint64 cost,
-  const karte_t *welt)
+void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t* wzw, slist_tpl<const haus_besch_t*>& stops, tool_func werkzeug, const int sound_ok, const int sound_ko, const sint64 cost, const karte_t* welt)
 {
 	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
@@ -213,13 +195,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
 
 
 
-void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
-	hausbauer_t::utyp utyp,
-	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
-	const int sound_ok,
-	const int sound_ko,
-	const sint64 cost,
-  const karte_t *welt)
+void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t* wzw, haus_besch_t::utyp utyp, tool_func werkzeug, const int sound_ok, const int sound_ko, const sint64 cost, const karte_t* welt)
 {
 	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.count());
@@ -276,7 +252,12 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int lay
 //DBG_DEBUG("hausbauer_t::baue()","get_tile() at %i,%i",k.x,k.y);
 			const haus_tile_besch_t *tile = besch->gib_tile(layout, k.x, k.y);
 			// here test for good tile
-			if(tile==NULL  ||  (k!=koord(0,0)  &&  besch->gib_utyp()!=hausbauer_t::hafen  &&  tile->gib_hintergrund(0,0,0)==IMG_LEER  &&  tile->gib_vordergrund(0,0)==IMG_LEER)) {
+			if (tile == NULL || (
+						k != koord(0, 0) &&
+						besch->gib_utyp() != haus_besch_t::hafen &&
+						tile->gib_hintergrund(0, 0, 0) == IMG_LEER &&
+						tile->gib_vordergrund(0, 0)    == IMG_LEER
+					)) {
 				DBG_MESSAGE("hausbauer_t::baue()","get_tile() empty at %i,%i",k.x,k.y);
 				continue;
 			}
@@ -295,8 +276,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int lay
 			grund_t *gr = welt->lookup(pos.gib_2d() + k)->gib_kartenboden();
 			if(gr->ist_wasser()) {
 				gr->obj_add(gb);
-			}
-			else if( besch->gib_utyp()==hausbauer_t::hafen ) {
+			} else if (besch->gib_utyp() == haus_besch_t::hafen) {
 				// its a dock!
 				gr->obj_add(gb);
 			} else {
@@ -323,7 +303,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int lay
 				if(station_building.contains(besch)) {
 					(*static_cast<halthandle_t *>(param))->add_grund(gr);
 				}
-				 if( besch->gib_utyp()==hausbauer_t::hafen ) {
+				if (besch->gib_utyp() == haus_besch_t::hafen) {
 					// its a dock!
 					gb->setze_yoff(0);
 				}
@@ -437,7 +417,7 @@ const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int idx)
 
 
 
-const haus_besch_t *hausbauer_t::gib_random_station(const enum utyp utype,const uint16 time,const uint8 enables)
+const haus_besch_t* hausbauer_t::gib_random_station(const haus_besch_t::utyp utype, const uint16 time, const uint8 enables)
 {
 	slist_iterator_tpl<const haus_besch_t *> iter(hausbauer_t::station_building);
 	vector_tpl<const haus_besch_t*> stops;
@@ -456,10 +436,10 @@ const haus_besch_t *hausbauer_t::gib_random_station(const enum utyp utype,const 
 
 
 
-const haus_besch_t *hausbauer_t::gib_special(int bev, utyp utype,uint16 time,climate cl)
+const haus_besch_t* hausbauer_t::gib_special(int bev, haus_besch_t::utyp utype, uint16 time, climate cl)
 {
 	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
-	slist_iterator_tpl<const haus_besch_t *> iter( utype==rathaus ? rathaeuser : (bev==-1 ? sehenswuerdigkeiten_land : sehenswuerdigkeiten_city) );
+	slist_iterator_tpl<const haus_besch_t*> iter(utype == haus_besch_t::rathaus ? rathaeuser : (bev == -1 ? sehenswuerdigkeiten_land : sehenswuerdigkeiten_city));
 
 	while(iter.next()) {
 		const haus_besch_t *besch = iter.get_current();

@@ -8,13 +8,12 @@
 #ifndef HAUSBAUER_H
 #define HAUSBAUER_H
 
+#include "../besch/haus_besch.h"
 #include "../dataobj/koord3d.h"
 #include "../simtypes.h"
 #include "../tpl/slist_tpl.h"
 
 class gebaeude_t;
-class haus_besch_t;
-class haus_tile_besch_t;
 class karte_t;
 class spieler_t;
 class werkzeug_parameter_waehler_t;
@@ -28,38 +27,6 @@ class werkzeug_parameter_waehler_t;
  */
 class hausbauer_t
 {
-	public:
-		/**
-		 * Unbekannte Gebäude sind nochmal unterteilt
-		 */
-		enum utyp
-		{
-			unbekannt         =  0,
-			special           =  1,
-			sehenswuerdigkeit =  2,
-			denkmal           =  3,
-			fabrik            =  4,
-			rathaus           =  5,
-			weitere           =  6,
-			firmensitz        =  7,
-			bahnhof           =  8,
-			bushalt           =  9,
-			ladebucht         = 10,
-			hafen             = 11,
-			binnenhafen       = 12,
-			airport           = 13,
-			monorailstop      = 14,
-			bahnhof_geb       = 16,
-			bushalt_geb       = 17,
-			ladebucht_geb     = 18,
-			hafen_geb         = 19,
-			binnenhafen_geb   = 20,
-			airport_geb       = 21,
-			monorail_geb      = 22,
-			wartehalle        = 30,
-			post              = 31,
-			lagerhalle        = 32
-		};
 
 	private:
 		static slist_tpl<const haus_besch_t*> sehenswuerdigkeiten_land;
@@ -112,7 +79,7 @@ class hausbauer_t
 		/* finds a station building, which enables pas/mail/goods for the AI
 		 * for time==0 the timeline will be ignored
 		 */
-		static const haus_besch_t* gib_random_station(const enum utyp utype, const uint16 time, const uint8 enables);
+		static const haus_besch_t* gib_random_station(const haus_besch_t::utyp utype, const uint16 time, const uint8 enables);
 
 		static const haus_tile_besch_t* find_tile(const char* name, int idx);
 
@@ -129,7 +96,7 @@ class hausbauer_t
 		/* Fill menu with icons of buildings of a given type
 		 * @author prissi
 		 */
-		static void fill_menu(werkzeug_parameter_waehler_t* wzw, hausbauer_t::utyp, tool_func werkzeug, const int sound_ok, const int sound_ko,const sint64 cost, const karte_t* welt);
+		static void fill_menu(werkzeug_parameter_waehler_t* wzw, haus_besch_t::utyp, tool_func werkzeug, const int sound_ok, const int sound_ko,const sint64 cost, const karte_t* welt);
 
 		/**
 		 * Gewerbegebäude passend zum Level liefern. Zur Zeit sind die Einträge
@@ -196,7 +163,7 @@ class hausbauer_t
 		/* called for an attraction or a townhall with a certain number of inhabitants (bev)
 		 * bev==-1 will search for an attraction outside of cities.
 		 */
-		static const haus_besch_t* gib_special(int bev, enum utyp utype, uint16 time, climate cl);
+		static const haus_besch_t* gib_special(int bev, haus_besch_t::utyp utype, uint16 time, climate cl);
 
 		/* Main function for all non-traffic buildings, including factories
 		 * building size can be larger than 1x1

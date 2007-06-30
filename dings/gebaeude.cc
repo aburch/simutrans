@@ -6,7 +6,7 @@
  */
 #include <string.h>
 #include <ctype.h>
-
+#include "../bauer/hausbauer.h"
 #include "../simworld.h"
 #include "../simdings.h"
 #include "../simfab.h"
@@ -290,11 +290,10 @@ gebaeude_t::gib_bild() const
 		// opaque houses
 		if(gib_haustyp()!=unbekannt) {
 			return umgebung_t::hide_with_transparency ? skinverwaltung_t::fussweg->gib_bild_nr(0) : skinverwaltung_t::construction_site->gib_bild_nr(0);
-		}
-		else if(umgebung_t::hide_buildings==umgebung_t::ALL_HIDDEN_BUIDLING  &&  tile->gib_besch()->gib_utyp()<hausbauer_t::weitere) {
+		} else if (umgebung_t::hide_buildings == umgebung_t::ALL_HIDDEN_BUIDLING && tile->gib_besch()->gib_utyp() < haus_besch_t::weitere) {
 			// special bilding
 			if(umgebung_t::hide_with_transparency ) {
-				if(tile->gib_besch()->gib_utyp()==hausbauer_t::fabrik  &&  ptr.fab->gib_besch()->gib_platzierung()==fabrik_besch_t::Wasser) {
+				if (tile->gib_besch()->gib_utyp() == haus_besch_t::fabrik && ptr.fab->gib_besch()->gib_platzierung() == fabrik_besch_t::Wasser) {
 					// no ground tiles for water thingies
 					return IMG_LEER;
 				}
@@ -339,8 +338,7 @@ gebaeude_t::gib_outline_colour() const
 	if(umgebung_t::hide_buildings!=umgebung_t::NOT_HIDE) {
 		if(gib_haustyp()!=unbekannt) {
 			disp_colour = colours[0] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
-		}
-		else if(umgebung_t::hide_buildings==umgebung_t::ALL_HIDDEN_BUIDLING  &&  tile->gib_besch()->gib_utyp()<hausbauer_t::weitere) {
+		} else if (umgebung_t::hide_buildings == umgebung_t::ALL_HIDDEN_BUIDLING && tile->gib_besch()->gib_utyp() < haus_besch_t::weitere) {
 			// special bilding
 			disp_colour = colours[tile->gib_besch()->gib_utyp()] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
@@ -370,7 +368,7 @@ gebaeude_t::gib_after_bild() const
 	if(zeige_baugrube) {
 		return IMG_LEER;
 	}
-	if(umgebung_t::hide_buildings!=0  &&  tile->gib_besch()->gib_utyp()<hausbauer_t::weitere) {
+	if (umgebung_t::hide_buildings != 0 && tile->gib_besch()->gib_utyp() < haus_besch_t::weitere) {
 		return IMG_LEER;
 	}
 	else {
@@ -425,16 +423,11 @@ const char *gebaeude_t::gib_name() const
 			break;//return "Industriegebäude";
 		default:
 			switch(tile->gib_besch()->gib_utyp()) {
-				case hausbauer_t::special:
-					return "Besonderes Gebaeude";
-				case hausbauer_t::sehenswuerdigkeit:
-					return "Sehenswuerdigkeit";
-				case hausbauer_t::denkmal:
-					return "Denkmal";
-				case hausbauer_t::rathaus:
-					return "Rathaus";
-				default:
-					break;
+				case haus_besch_t::special:           return "Besonderes Gebaeude";
+				case haus_besch_t::sehenswuerdigkeit: return "Sehenswuerdigkeit";
+				case haus_besch_t::denkmal:           return "Denkmal";
+				case haus_besch_t::rathaus:           return "Rathaus";
+				default: break;
 			}
 			break;
 	}
@@ -448,7 +441,7 @@ bool gebaeude_t::ist_rathaus() const
 
 bool gebaeude_t::is_monument() const
 {
-    return tile->gib_besch()->gib_utyp()==hausbauer_t::denkmal;
+	return tile->gib_besch()->gib_utyp() == haus_besch_t::denkmal;
 }
 
 bool gebaeude_t::ist_firmensitz() const
@@ -714,7 +707,7 @@ DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found 
 			// der gebauten denkmäler
 			// oder aber eine feste Zuordnung von gebaeude_alt_t
 			// und Beschreibung.
-			if(tile && tile->gib_besch()->gib_utyp() == hausbauer_t::denkmal) {
+			if (tile && tile->gib_besch()->gib_utyp() == haus_besch_t::denkmal) {
 				hausbauer_t::denkmal_gebaut(tile->gib_besch());
 			}
 		}

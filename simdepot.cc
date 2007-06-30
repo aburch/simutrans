@@ -29,8 +29,6 @@
 #include "dataobj/fahrplan.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
-
-#include "bauer/hausbauer.h"
 #include "bauer/vehikelbauer.h"
 
 #include "boden/wege/schiene.h"

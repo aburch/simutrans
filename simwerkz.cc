@@ -1557,24 +1557,17 @@ wkz_halt(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 	}
 
 	const haus_besch_t *besch=(const haus_besch_t *)value.p;
-	if(besch->gib_utyp()==hausbauer_t::bahnhof) {
-		return wkz_halt_aux( sp, welt, pos, besch, track_wt, umgebung_t::cst_multiply_station, "BF" );
-	}
-	else if(besch->gib_utyp()==hausbauer_t::monorailstop) {
-		return wkz_halt_aux( sp, welt, pos, besch, monorail_wt, umgebung_t::cst_multiply_station, "BF" );
-	}
-	else if(besch->gib_utyp()==hausbauer_t::bushalt  ||  besch->gib_utyp()==hausbauer_t::ladebucht) {
-		return wkz_halt_aux( sp, welt, pos, besch, road_wt, umgebung_t::cst_multiply_roadstop, "H" );
-	}
-	else if(besch->gib_utyp()==hausbauer_t::binnenhafen) {
-		return wkz_halt_aux( sp, welt, pos, besch, water_wt, umgebung_t::cst_multiply_dock, "Dock" );
-	}
-	else if(besch->gib_utyp()==hausbauer_t::airport) {
-		return wkz_halt_aux( sp, welt, pos, besch, air_wt, umgebung_t::cst_multiply_airterminal, "Airport" );
-	}
-	else {
-		DBG_MESSAGE("wkz_halt()","called with unknown besch %s",besch->gib_name() );
-		return false;
+	switch (besch->gib_utyp()) {
+		case haus_besch_t::bahnhof:      return wkz_halt_aux(sp, welt, pos, besch, track_wt,    umgebung_t::cst_multiply_station,     "BF");
+		case haus_besch_t::monorailstop: return wkz_halt_aux(sp, welt, pos, besch, monorail_wt, umgebung_t::cst_multiply_station,     "BF");
+		case haus_besch_t::bushalt:
+		case haus_besch_t::ladebucht:    return wkz_halt_aux(sp, welt, pos, besch, road_wt,     umgebung_t::cst_multiply_roadstop,    "H");
+		case haus_besch_t::binnenhafen:  return wkz_halt_aux(sp, welt, pos, besch, water_wt,    umgebung_t::cst_multiply_dock,        "Dock");
+		case haus_besch_t::airport:      return wkz_halt_aux(sp, welt, pos, besch, air_wt,      umgebung_t::cst_multiply_airterminal, "Airport");
+
+		default:
+			DBG_MESSAGE("wkz_halt()", "called with unknown besch %s", besch->gib_name());
+			return false;
 	}
 }
 

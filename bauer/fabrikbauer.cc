@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "../simdebug.h"
 #include "fabrikbauer.h"
+#include "hausbauer.h"
 #include "../simworld.h"
 #include "../simintr.h"
 #include "../simfab.h"

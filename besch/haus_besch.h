@@ -7,10 +7,10 @@
 #ifndef __HAUS_BESCH_H
 #define __HAUS_BESCH_H
 
+#include <assert.h>
 #include "bildliste2d_besch.h"
 #include "obj_besch_std_name.h"
 #include "../dings/gebaeude.h"
-#include "../bauer/hausbauer.h"
 
 
 class haus_besch_t;
@@ -101,9 +101,41 @@ public:
  *	... ...
  */
 class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäude
+	public:
+		/* Unbekannte Gebäude sind nochmal unterteilt */
+		enum utyp
+		{
+			unbekannt         =  0,
+			special           =  1,
+			sehenswuerdigkeit =  2,
+			denkmal           =  3,
+			fabrik            =  4,
+			rathaus           =  5,
+			weitere           =  6,
+			firmensitz        =  7,
+			bahnhof           =  8,
+			bushalt           =  9,
+			ladebucht         = 10,
+			hafen             = 11,
+			binnenhafen       = 12,
+			airport           = 13,
+			monorailstop      = 14,
+			bahnhof_geb       = 16,
+			bushalt_geb       = 17,
+			ladebucht_geb     = 18,
+			hafen_geb         = 19,
+			binnenhafen_geb   = 20,
+			airport_geb       = 21,
+			monorail_geb      = 22,
+			wartehalle        = 30,
+			post              = 31,
+			lagerhalle        = 32
+		};
+
 	friend class building_writer_t;
 	friend class building_reader_t;
 
+	private:
 	enum flag_t {
 		FLAG_NULL = 0,
 		FLAG_KEINE_INFO = 1,       // was flag FLAG_ZEIGE_INFO
@@ -112,7 +144,7 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 	};
 
 	gebaeude_t::typ     gtyp;      // Hajo: this is the type of the building
-	hausbauer_t::utyp   utyp;      // Hajo: if gtyp ==  gebaeude_t::unbekannt, then this is the real type
+	utyp            utype; // Hajo: if gtyp == gebaeude_t::unbekannt, then this is the real type
 
 	uint16		animation_time;	// in ms
 	uint16		bauzeit;        // == inhabitants at build time
@@ -129,9 +161,9 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 	uint16 intro_date;
 	uint16 obsolete_date;
 
-	bool ist_utyp(hausbauer_t::utyp utyp) const
+	bool ist_utyp(utyp u) const
 	{
-		return  gtyp == gebaeude_t::unbekannt &&  this->utyp == utyp;
+		return gtyp == gebaeude_t::unbekannt && utype == u;
 	}
 
 public:
@@ -166,12 +198,12 @@ public:
 
 	// see gebaeude_t and hausbauer for the different types
 	gebaeude_t::typ gib_typ() const { return gtyp; }
-	hausbauer_t::utyp gib_utyp() const { return utyp; }
+	utyp gib_utyp() const { return utype; }
 
-	bool ist_rathaus() const { return ist_utyp(hausbauer_t::rathaus); }
-	bool ist_firmensitz() const { return ist_utyp(hausbauer_t::firmensitz); }
-	bool ist_ausflugsziel() const { return ist_utyp(hausbauer_t::sehenswuerdigkeit) || ist_utyp(hausbauer_t::special); }
-	bool ist_fabrik() const { return ist_utyp(hausbauer_t::fabrik); }
+	bool ist_rathaus()      const { return ist_utyp(rathaus); }
+	bool ist_firmensitz()   const { return ist_utyp(firmensitz); }
+	bool ist_ausflugsziel() const { return ist_utyp(sehenswuerdigkeit) || ist_utyp(special); }
+	bool ist_fabrik()       const { return ist_utyp(fabrik); }
 
 	/**
 	* the level is used in many places: for price, for capacity, ...
@@ -190,12 +222,8 @@ public:
 
 	const haus_tile_besch_t *gib_tile(int index) const
 	{
-		if(index >= 0 && index < layouts * groesse.x * groesse.y) {
-			return static_cast<const haus_tile_besch_t *>(gib_kind(index + 2));
-		}
-		// we should never get here; I am not sure, if an assert would be better ...
-		dbg->error("haus_tile_besch_t::gib_tile()","index=%d, max %d",index,layouts * groesse.x * groesse.y);
-		return NULL;
+		assert(0 <= index && index < layouts * groesse.x * groesse.y);
+		return static_cast<const haus_tile_besch_t*>(gib_kind(index + 2));
 	}
 
 	const haus_tile_besch_t *gib_tile(int layout, int x, int y) const;

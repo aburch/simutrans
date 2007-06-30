@@ -228,7 +228,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				}
 
 				hausbauer_t::fill_menu(wzw,
-					hausbauer_t::bahnhof,
+					haus_besch_t::bahnhof,
 					wkz_halt,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -236,7 +236,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					welt );
 
 				hausbauer_t::fill_menu(wzw,
-					hausbauer_t::bahnhof_geb,
+					haus_besch_t::bahnhof_geb,
 					wkz_station_building,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -328,7 +328,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				}
 
 				hausbauer_t::fill_menu(wzw,
-					hausbauer_t::monorailstop,
+					haus_besch_t::monorailstop,
 					wkz_halt,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -336,7 +336,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					welt );
 
 				hausbauer_t::fill_menu(wzw,
-					hausbauer_t::monorail_geb,
+					haus_besch_t::monorail_geb,
 					wkz_station_building,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -405,7 +405,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				}
 
 				hausbauer_t::fill_menu(wzw,
-					hausbauer_t::bahnhof,
+					haus_besch_t::bahnhof,
 					wkz_halt,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -413,7 +413,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					welt );
 
 				hausbauer_t::fill_menu(wzw,
-					hausbauer_t::bushalt,
+					haus_besch_t::bushalt,
 					wkz_halt,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -504,7 +504,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				}
 
 				hausbauer_t::fill_menu(wzw,
-					hausbauer_t::bushalt,
+					haus_besch_t::bushalt,
 					wkz_halt,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -512,7 +512,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					welt );
 
 				hausbauer_t::fill_menu(wzw,
-					hausbauer_t::ladebucht,
+					haus_besch_t::ladebucht,
 					wkz_halt,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -520,7 +520,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					welt );
 
 				hausbauer_t::fill_menu(wzw,
-					hausbauer_t::bushalt_geb,
+					haus_besch_t::bushalt_geb,
 					wkz_station_building,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -528,7 +528,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					welt );
 
 				hausbauer_t::fill_menu(wzw,
-					hausbauer_t::ladebucht_geb,
+					haus_besch_t::ladebucht_geb,
 					wkz_station_building,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -599,7 +599,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				);
 
 			hausbauer_t::fill_menu(wzw,
-				hausbauer_t::binnenhafen,
+				haus_besch_t::binnenhafen,
 				wkz_halt,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
@@ -608,7 +608,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 
 
 			hausbauer_t::fill_menu(wzw,
-				hausbauer_t::hafen,
+				haus_besch_t::hafen,
 				wkz_dockbau,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
@@ -627,7 +627,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 			}
 
 			hausbauer_t::fill_menu(wzw,
-				hausbauer_t::binnenhafen_geb,
+				haus_besch_t::binnenhafen_geb,
 				wkz_station_building,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
@@ -635,7 +635,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				welt );
 
 			hausbauer_t::fill_menu(wzw,
-				hausbauer_t::hafen_geb,
+				haus_besch_t::hafen_geb,
 				wkz_station_building,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
@@ -709,7 +709,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				}
 
 				hausbauer_t::fill_menu(wzw,
-					hausbauer_t::airport,
+					haus_besch_t::airport,
 					wkz_halt,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -717,7 +717,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					welt );
 
 				hausbauer_t::fill_menu(wzw,
-					hausbauer_t::airport_geb,
+					haus_besch_t::airport_geb,
 					wkz_station_building,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -757,7 +757,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				);
 
 			hausbauer_t::fill_menu(wzw,
-				hausbauer_t::post,
+				haus_besch_t::post,
 				wkz_station_building,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
@@ -765,7 +765,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				welt );
 
 			hausbauer_t::fill_menu(wzw,
-				hausbauer_t::wartehalle,
+				haus_besch_t::wartehalle,
 				wkz_station_building,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
@@ -773,7 +773,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				welt );
 
 			hausbauer_t::fill_menu(wzw,
-				hausbauer_t::lagerhalle,
+				haus_besch_t::lagerhalle,
 				wkz_station_building,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,

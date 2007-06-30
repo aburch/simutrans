@@ -6,7 +6,7 @@
 
 #include "../simdebug.h"
 #include "dingliste.h"
-
+#include "../bauer/hausbauer.h"
 #include "../dings/dummy.h"
 #include "../dings/wolke.h"
 #include "../dings/zeiger.h"

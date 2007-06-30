@@ -64,9 +64,6 @@
 
 #include "besch/reader/obj_reader.h"
 #include "besch/sound_besch.h"
-
-#include "bauer/hausbauer.h"
-
 #include "simverkehr.h"
 
 

@@ -1729,33 +1729,23 @@ haltestelle_t::recalc_station_type()
 //if(besch) DBG_DEBUG("haltestelle_t::get_station_type()","besch(%p)=%s",besch,besch->gib_name());
 
 		// there is only one loading bay ...
-		if(besch->gib_utyp()==hausbauer_t::ladebucht) {
-			new_station_type |= loadingbay;
-		}
-		// check for trainstation
-		else if(besch->gib_utyp()==hausbauer_t::bahnhof) {
-			if(gr->hat_weg(monorail_wt)) {
-				new_station_type |= monorailstop;
-			}
-			else {
-				new_station_type |= railstation;
-			}
-		}
-		// check for habour
-		else if(besch->gib_utyp()==hausbauer_t::hafen  ||  besch->gib_utyp()==hausbauer_t::binnenhafen) {
-			new_station_type |= dock;
-		}
-		// check for bus
-		else if(besch->gib_utyp()==hausbauer_t::bushalt) {
-			new_station_type |= busstop;
-		}
-		// check for airport
-		else if(besch->gib_utyp()==hausbauer_t::airport) {
-			new_station_type |= airstop;
-		}
-		// check for trainstation
-		else if(besch->gib_utyp()==hausbauer_t::monorailstop) {
-			new_station_type |= monorailstop;
+		switch (besch->gib_utyp()) {
+			case haus_besch_t::ladebucht:    new_station_type |= loadingbay;   break;
+			case haus_besch_t::hafen:
+			case haus_besch_t::binnenhafen:  new_station_type |= dock;         break;
+			case haus_besch_t::bushalt:      new_station_type |= busstop;      break;
+			case haus_besch_t::airport:      new_station_type |= airstop;      break;
+			case haus_besch_t::monorailstop: new_station_type |= monorailstop; break;
+
+			case haus_besch_t::bahnhof:
+				if (gr->hat_weg(monorail_wt)) {
+					new_station_type |= monorailstop;
+				} else {
+					new_station_type |= railstation;
+				}
+				break;
+
+			default: break;
 		}
 
 		// enabled the matching types

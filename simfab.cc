@@ -47,7 +47,7 @@
 
 #include "besch/skin_besch.h"
 #include "besch/fabrik_besch.h"
-
+#include "bauer/hausbauer.h"
 #include "bauer/warenbauer.h"
 #include "bauer/fabrikbauer.h"
 

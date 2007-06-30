@@ -68,7 +68,7 @@
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
 #include "dataobj/einstellungen.h"
-
+#include "bauer/hausbauer.h"
 #include "bauer/vehikelbauer.h"
 #include "bauer/warenbauer.h"
 #include "bauer/brueckenbauer.h"
@@ -976,7 +976,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 				// built a simple road (no bridges, no tunnels)
 				case NR_BAUE_STRASSEN_ROUTE:
 				{
-					const haus_besch_t *bs=hausbauer_t::gib_random_station( hausbauer_t::bushalt, welt->get_timeline_year_month(), haltestelle_t::PAX );
+					const haus_besch_t* bs = hausbauer_t::gib_random_station(haus_besch_t::bushalt, welt->get_timeline_year_month(), haltestelle_t::PAX);
 					if(bs  &&  create_simple_road_transport()  &&
 						(is_my_halt(platz1)  ||  wkz_halt(this, welt, platz1, bs ))  &&
 						(is_my_halt(platz2)  ||  wkz_halt(this, welt, platz2, bs ))
@@ -1759,7 +1759,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","failed");
 	bool make_all_bahnhof=false;
 
 	// find a freight train station
-	const haus_besch_t *besch=hausbauer_t::gib_random_station( hausbauer_t::bahnhof, welt->get_timeline_year_month(), haltestelle_t::WARE );
+	const haus_besch_t* besch = hausbauer_t::gib_random_station(haus_besch_t::bahnhof, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	for(  pos=*p;  pos!=t+zv;  pos+=zv ) {
 		if(  make_all_bahnhof  ||  is_my_halt(pos+koord(-1,-1))  ||  is_my_halt(pos+koord(-1,1))  ||  is_my_halt(pos+koord(1,-1))  ||  is_my_halt(pos+koord(1,1))  ) {
 			// start building, if next to an existing station
@@ -2178,7 +2178,7 @@ DBG_MESSAGE("spieler_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpo
 void
 spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 {
-	const haus_besch_t *fh=hausbauer_t::gib_random_station( hausbauer_t::ladebucht, welt->get_timeline_year_month(), haltestelle_t::WARE );
+	const haus_besch_t* fh = hausbauer_t::gib_random_station(haus_besch_t::ladebucht, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	// succeed in frachthof creation
 	if(fh  &&  wkz_halt(this, welt, platz1,fh)  &&  wkz_halt(this, welt, platz2,fh)  ) {
 		koord3d pos1 = welt->lookup(platz1)->gib_kartenboden()->gib_pos();
