@@ -14,8 +14,6 @@
 #include "linehandle_t.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
-
-#include "tpl/slist_tpl.h"
 #include "simconvoi.h"
 
 #include "simdebug.h"

@@ -8,7 +8,6 @@
 #ifndef fabrikbauer_t_h
 #define fabrikbauer_t_h
 
-#include "../tpl/slist_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 #include "../dataobj/koord3d.h"
 
