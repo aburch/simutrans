@@ -109,6 +109,9 @@ class hausbauer_t
 		static void insert_sorted(slist_tpl<const haus_besch_t*>& liste, const haus_besch_t* besch);
 
 	public:
+		/* finds a station building, which enables pas/mail/goods for the AI
+		 * for time==0 the timeline will be ignored
+		 */
 		static const haus_besch_t* gib_random_station(const enum utyp utype, const uint16 time, const uint8 enables);
 
 		static const haus_tile_besch_t* find_tile(const char* name, int idx);
@@ -195,11 +198,19 @@ class hausbauer_t
 		 */
 		static const haus_besch_t* gib_special(int bev, enum utyp utype, uint16 time, climate cl);
 
+		/* Main function for all non-traffic buildings, including factories
+		 * building size can be larger than 1x1
+		 * Also the underlying ground will be changed to foundation.
+		 * @return The first built part of the building. Usually at pos, if this
+		 *         part is not empty.
+		 * @author V. Meyer
+		 */
 		static gebaeude_t* baue(karte_t* welt, spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, bool clear = true, void* param = NULL);
 
-	/* build all kind of stop, station building, and depots
-	 * may change the layout of neighbouring buildings, if layout>4 and station
-	 */
+		/* build all kind of stops and depots
+		 * The building size must be 1x1
+		 * may change the layout of neighbouring buildings, if layout>4 and station
+		 */
 		static gebaeude_t* neues_gebaeude(karte_t* welt, spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
 };
 

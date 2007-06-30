@@ -261,11 +261,6 @@ void hausbauer_t::neue_karte()
 
 
 
-/* Main function for all non-traffic buildings, including factories
- * building size can be larger than 1x1
- * Also the underlying ground will be changed to foundation.
- * @author V. Meyer
- */
 gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, bool clear, void* param)
 {
 	gebaeude_t* first_building = NULL;
@@ -342,10 +337,6 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int lay
 
 
 
-/* build all kind of stops and depots
- * The building size must be 1x1
- * may change the layout of neighbouring buildings, if layout>4 and station
- */
 gebaeude_t *
 hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layout, const haus_besch_t *besch, void *param)
 {
@@ -446,9 +437,6 @@ const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int idx)
 
 
 
-/* finds a station building, which enables pas/mail/goods for the AI
- * for time==0 the timeline will be ignored
- */
 const haus_besch_t *hausbauer_t::gib_random_station(const enum utyp utype,const uint16 time,const uint8 enables)
 {
 	slist_iterator_tpl<const haus_besch_t *> iter(hausbauer_t::station_building);
@@ -468,9 +456,6 @@ const haus_besch_t *hausbauer_t::gib_random_station(const enum utyp utype,const 
 
 
 
-/* called for an attraction or a townhall with a certain number of inhabitants (bev)
- * bev==-1 will search for an attraction outside of cities.
- */
 const haus_besch_t *hausbauer_t::gib_special(int bev, utyp utype,uint16 time,climate cl)
 {
 	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
