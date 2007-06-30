@@ -36,8 +36,6 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	txt.setze_text(info_buf);
 	cont.add_komponente(&txt);
 
-	view.set_location(gb->gib_pos());
-
 	const vector_tpl <koord> & lieferziele =  fab->gib_lieferziele();
 #ifdef _MSC_VER
 	// V.Meyer: MFC has a bug with "new x[0]"
