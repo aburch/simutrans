@@ -95,7 +95,6 @@ private:
 	button_t headquarter, goto_headquarter;
 	char headquarter_tooltip[128];
 	world_view_t headquarter_view;
-	koord old_hq;
 
 public:
 	/**

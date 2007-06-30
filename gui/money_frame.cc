@@ -115,8 +115,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
     maintenance_label("This Month",COL_WHITE, gui_label_t::right),
     maintenance_money(NULL, COL_RED, gui_label_t::money),
     warn("", COL_RED),
-	headquarter_view(sp->get_welt(), koord3d::invalid),
-	old_hq(koord::invalid)
+	headquarter_view(sp->get_welt(), koord3d::invalid)
 {
 	if(sp->get_welt()->gib_spieler(0)!=sp) {
 		sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(sp->gib_name()) );
@@ -357,7 +356,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	}
 	warn.setze_text(str_buf[15]);
 
-	if(sp->get_headquarter_pos()!=old_hq) {
+	if (sp->get_headquarter_pos() != koord::invalid) {
 		headquarter_view.set_location( sp->get_welt()->lookup_kartenboden(sp->get_headquarter_pos())->gib_pos() );
 		headquarter.setze_text( "upgrade HQ" );
 		if(sp->get_headquarter_level()==hausbauer_t::headquarter.count()) {
