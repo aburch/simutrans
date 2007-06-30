@@ -104,44 +104,6 @@ public:
 stringhashtable_tpl<const fabrik_besch_t *> fabrikbauer_t::table;
 
 
-
-void fabrikbauer_t::bau_info_t::random(slist_tpl <const fabrik_besch_t *> &fab)
-{
-	slist_iterator_tpl<const fabrik_besch_t *> iter(fab);
-	int gewichtung = 0;
-	int next;
-
-	while(iter.next()) {
-		gewichtung += iter.get_current()->gib_gewichtung();
-	}
-	if(gewichtung > 0) {
-		next = simrand(gewichtung);
-		iter.begin();
-		while(iter.next()) {
-			if(next < iter.get_current()->gib_gewichtung()) {
-				info = iter.get_current();
-				besch = hausbauer_t::finde_fabrik(info->gib_name());
-
-				if(besch == 0) {
-dbg->fatal("fabrikbauer_t::bau_info_t::random","No description found for '%s'",info->gib_name());
-				}
-				break;
-			}
-			next -= iter.get_current()->gib_gewichtung();
-		}
-		rotate = simrand(besch->gib_all_layouts()-1);
-		dim = besch->gib_groesse(rotate);
-	}
-	else {
-		besch = NULL;
-		info = NULL;
-		dim = koord(1,1);
-		rotate = 0;
-	}
-}
-
-
-
 /* returns a random consumer
  * @author prissi
  */

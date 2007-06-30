@@ -30,20 +30,6 @@ class fabrikbauer_t
 private:
 	/**
 	* Diese Klasse wird in verteile_industrie benötigt.
-	* Sie merkt sich, was wir als nächstes bauen wollen.
-	* @author V. Meyer
-	*/
-	struct bau_info_t {
-		const fabrik_besch_t	*info;
-		const haus_besch_t	*besch;
-		int		rotate;
-		koord	dim;
-
-		void random(slist_tpl <const fabrik_besch_t *> &fab);
-	};
-
-	/**
-	* Diese Klasse wird in verteile_industrie benötigt.
 	* Sie dient dazu, daß  wir uns merken, bei welcher
 	* Stadt schon welche Endfabrike gebaut wurde.
 	* @author V. Meyer
