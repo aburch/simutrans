@@ -106,12 +106,6 @@ class hausbauer_t
 		 */
 		static const haus_besch_t* waehle_aus_liste(slist_tpl<const haus_besch_t*>& liste, uint16 time, climate cl);
 
-		/**
-		 * Sucht eine Eintrag aus der Spezialgebäudeliste mit der passenden Bevölkerung.
-		 * @author V. Meyer
-		 */
-		static const haus_besch_t* gib_special_intern(int bev, enum utyp utype, uint16 time, climate cl);
-
 		static void insert_sorted(slist_tpl<const haus_besch_t*>& liste, const haus_besch_t* besch);
 
 	public:
@@ -124,35 +118,15 @@ class hausbauer_t
 
 		typedef int (*tool_func)(spieler_t*, karte_t*, koord, value_t);
 
-		/* Fill menu with icons of given stops from the list
+		/* Fill menu with icons of buildings from the list
 		 * @author prissi
 		 */
 		static void fill_menu(werkzeug_parameter_waehler_t* wzw, slist_tpl<const haus_besch_t*>& stops, tool_func werkzeug, const int sound_ok, const int sound_ko, const sint64 cost, const karte_t* welt);
 
-		/* Fill menu with icons of given stops of a given type
+		/* Fill menu with icons of buildings of a given type
 		 * @author prissi
 		 */
 		static void fill_menu(werkzeug_parameter_waehler_t* wzw, hausbauer_t::utyp, tool_func werkzeug, const int sound_ok, const int sound_ko,const sint64 cost, const karte_t* welt);
-
-		/**
-		 * Sucht ein Gebäude, welches bei der gegebenen Bevölkerungszahl gebaut
-		 * werden soll.
-		 * @author V. Meyer
-		 */
-		static const haus_besch_t* gib_special(int bev,uint16 time, climate cl)
-		{
-			return gib_special_intern(bev, special, time, cl);
-		}
-
-		/**
-		 * Sucht ein Rathaus, welches bei der gegebenen Bevölkerungszahl gebaut
-		 * werden soll.
-		 * @author V. Meyer
-		 */
-		static const haus_besch_t* gib_rathaus(int bev, uint16 time, climate cl)
-		{
-			return gib_special_intern(bev, rathaus, time,cl);
-		}
 
 		/**
 		 * Gewerbegebäude passend zum Level liefern. Zur Zeit sind die Einträge
@@ -216,35 +190,16 @@ class hausbauer_t
 		 */
 		static void denkmal_gebaut(const haus_besch_t* besch) { ungebaute_denkmaeler.remove(besch); }
 
-		/*
-		 * renovates building and sets a new tile for them
-		 * Die Baugrube wird gesetzt.
-		 * @author V. Meyer
+		/* called for an attraction or a townhall with a certain number of inhabitants (bev)
+		 * bev==-1 will search for an attraction outside of cities.
 		 */
-		static void umbauen(gebaeude_t* gb, const haus_besch_t* besch, int rotation);
+		static const haus_besch_t* gib_special(int bev, enum utyp utype, uint16 time, climate cl);
 
-		/**
-		 * DIE Funktion um einen gebaeude_t zu bauen.
-		 * Sie kann zum einen mehrteilige Gebäude bauen, zum anderen kennt sie die
-		 * diversen Besonderheiten und nimmt entsprechende Einstellungen vor.
-		 *
-		 * Baut alles was in gebaeude.tab beschrieben ist.
-		 * Es werden immer gebaeude_t-Objekte erzeugt.
-		 *
-		 * The ground will be NOT set to foundation. This must be done before, if neccessary!
-		 *
-		 * @return The first built part of the building. Usually at pos, if this part
-		 *         is not empty.
-		 *
-		 * @author V. Meyer
-		 */
 		static gebaeude_t* baue(karte_t* welt, spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, bool clear = true, void* param = NULL);
 
-		/*
-		 * builds all kind of houses, including stops and depots
-		 * may change the ordering of objects in the dinglist, if the desired
-		 * position is not available
-		 */
+	/* build all kind of stop, station building, and depots
+	 * may change the layout of neighbouring buildings, if layout>4 and station
+	 */
 		static gebaeude_t* neues_gebaeude(karte_t* welt, spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
 };
 

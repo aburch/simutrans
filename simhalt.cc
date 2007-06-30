@@ -287,7 +287,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	pax_unhappy = 0;
 	pax_no_route = 0;
 
-	// only this way works correctly with all compilers
 	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::gib_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
 
 	status_color = COL_YELLOW;
@@ -330,7 +329,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	reroute_counter = welt->get_schedule_counter()-1;
 	rebuilt_destination_counter = reroute_counter;
 
-	// only this way works correctly with all compilers
 	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::gib_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
 
 	pax_happy = 0;
@@ -382,7 +380,7 @@ haltestelle_t::~haltestelle_t()
 			waren[i] = NULL;
 		}
 	}
-	delete [] waren;
+	free( waren );
 
 	// route may have changed without this station ...
 	welt->set_schedule_counter();

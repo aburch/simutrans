@@ -1707,7 +1707,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 void stadt_t::check_bau_spezial(bool new_town)
 {
 	// touristenattraktion bauen
-	const haus_besch_t* besch = hausbauer_t::gib_special(bev, welt->get_timeline_year_month(), welt->get_climate(welt->max_hgt(pos)));
+	const haus_besch_t* besch = hausbauer_t::gib_special(bev, hausbauer_t::special, welt->get_timeline_year_month(), welt->get_climate(welt->max_hgt(pos)));
 	if (besch != NULL) {
 		if (simrand(100) < (uint)besch->gib_chance()) {
 			// baue was immer es ist
@@ -1796,7 +1796,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 
 void stadt_t::check_bau_rathaus(bool new_town)
 {
-	const haus_besch_t* besch = hausbauer_t::gib_rathaus(bev, welt->get_timeline_year_month(), welt->get_climate(welt->max_hgt(pos)));
+	const haus_besch_t* besch = hausbauer_t::gib_special(bev, hausbauer_t::rathaus, welt->get_timeline_year_month(), welt->get_climate(welt->max_hgt(pos)));
 	if (besch != NULL) {
 		grund_t* gr = welt->lookup(pos)->gib_kartenboden();
 		gebaeude_t* gb = dynamic_cast<gebaeude_t*>(gr->first_obj());
@@ -2235,7 +2235,8 @@ void stadt_t::renoviere_gebaeude(koord k)
 			default: break;
 		}
 
-		hausbauer_t::umbauen(gb, h, streetdir);
+		// exchange building; try to face it to street in front
+		gb->setze_tile( h->gib_tile(streetdir, 0, 0) );
 		welt->lookup(k)->gib_kartenboden()->calc_bild();
 
 		switch (will_haben) {
@@ -2451,7 +2452,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const int anzahl)
 {
 	int cl = 0;
 	for (int i = 0; i < MAX_CLIMATES; i++) {
-		if (hausbauer_t::gib_rathaus(0, 0, (climate)i)) {
+		if (hausbauer_t::gib_special(0, hausbauer_t::rathaus, 0, (climate)i)) {
 			cl |= (1 << i);
 		}
 	}

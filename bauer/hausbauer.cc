@@ -93,6 +93,7 @@ void hausbauer_t::insert_sorted(slist_tpl<const haus_besch_t *> &liste, const ha
 }
 
 
+
 bool hausbauer_t::register_besch(const haus_besch_t *besch)
 {
 	::register_besch(spezial_objekte, besch);
@@ -174,6 +175,7 @@ DBG_DEBUG("hausbauer_t::register_besch()","unknown subtype %i of %s: ignored",be
 }
 
 
+
 void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	slist_tpl<const haus_besch_t *>&stops,
 	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
@@ -208,6 +210,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
 		}
 	}
 }
+
 
 
 void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
@@ -246,6 +249,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.count());
 }
 
 
+// new map => reset monument list to ensure every monument appears only once per map
 void hausbauer_t::neue_karte()
 {
 	slist_iterator_tpl<const haus_besch_t *>  iter(denkmaeler);
@@ -256,13 +260,12 @@ void hausbauer_t::neue_karte()
 }
 
 
-void hausbauer_t::umbauen(gebaeude_t* gb, const haus_besch_t* besch, int rotate)
-{
-	const haus_tile_besch_t *tile = besch->gib_tile(rotate, 0, 0);
-	gb->setze_tile(tile);
-}
 
-
+/* Main function for all non-traffic buildings, including factories
+ * building size can be larger than 1x1
+ * Also the underlying ground will be changed to foundation.
+ * @author V. Meyer
+ */
 gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, bool clear, void* param)
 {
 	gebaeude_t* first_building = NULL;
@@ -338,6 +341,11 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int lay
 }
 
 
+
+/* build all kind of stops and depots
+ * The building size must be 1x1
+ * may change the layout of neighbouring buildings, if layout>4 and station
+ */
 gebaeude_t *
 hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layout, const haus_besch_t *besch, void *param)
 {
@@ -425,6 +433,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 }
 
 
+
 const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int idx)
 {
 	const haus_besch_t *besch = besch_names.get(name);
@@ -437,10 +446,9 @@ const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int idx)
 
 
 
-
-// timeline routines
-// for time==0 these routines behave like the previous ones
-
+/* finds a station building, which enables pas/mail/goods for the AI
+ * for time==0 the timeline will be ignored
+ */
 const haus_besch_t *hausbauer_t::gib_random_station(const enum utyp utype,const uint16 time,const uint8 enables)
 {
 	slist_iterator_tpl<const haus_besch_t *> iter(hausbauer_t::station_building);
@@ -459,7 +467,11 @@ const haus_besch_t *hausbauer_t::gib_random_station(const enum utyp utype,const 
 }
 
 
-const haus_besch_t *hausbauer_t::gib_special_intern(int bev, utyp utype,uint16 time,climate cl)
+
+/* called for an attraction or a townhall with a certain number of inhabitants (bev)
+ * bev==-1 will search for an attraction outside of cities.
+ */
+const haus_besch_t *hausbauer_t::gib_special(int bev, utyp utype,uint16 time,climate cl)
 {
 	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
 	slist_iterator_tpl<const haus_besch_t *> iter( utype==rathaus ? rathaeuser : (bev==-1 ? sehenswuerdigkeiten_land : sehenswuerdigkeiten_city) );
@@ -484,6 +496,7 @@ const haus_besch_t *hausbauer_t::gib_special_intern(int bev, utyp utype,uint16 t
 	// now there is something to choose
 	return auswahl.at_weight( simrand(auswahl.get_sum_weight()) );
 }
+
 
 
 /**
@@ -522,7 +535,7 @@ const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> 
 		if(thislevel==level  &&  besch->gib_chance()>0) {
 			if(cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)) {
 				if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
-//					DBG_MESSAGE("hausbauer_t::gib_aus_liste()","appended %s at %i", besch->gib_name(), thislevel );
+//				DBG_MESSAGE("hausbauer_t::gib_aus_liste()","appended %s at %i", besch->gib_name(), thislevel );
 					auswahl.append(besch,besch->gib_chance(),4);
 				}
 			}
@@ -540,6 +553,7 @@ const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> 
 	// now there is something to choose
 	return auswahl.at_weight( simrand(auswahl.get_sum_weight()) );
 }
+
 
 
 // get a random object
