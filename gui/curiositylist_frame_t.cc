@@ -50,7 +50,6 @@ curiositylist_frame_t::curiositylist_frame_t(karte_t * welt) :
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
 
-	setze_opaque(true);
 	setze_fenstergroesse(koord(TOTAL_WIDTH, 240));
 
 	scrolly.setze_pos(koord(1,14+BUTTON_HEIGHT+2));

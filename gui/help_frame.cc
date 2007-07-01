@@ -60,9 +60,7 @@ help_frame_t::help_frame_t() :
 	scrolly(&flow)
 {
 	setze_text("<title>Unnamed</title><p>No text set</p>");
-	setze_opaque(true);
 	add_komponente(&flow);
-
 	flow.add_listener(this);
 }
 
@@ -107,7 +105,6 @@ help_frame_t::help_frame_t(cstring_t filename) :
 		setze_text("<title>Error</title>Help text not found");
 	}
 
-	setze_opaque(true);
 	set_resizemode(diagonal_resize);
 	add_komponente(&scrolly);
 	flow.add_listener(this);

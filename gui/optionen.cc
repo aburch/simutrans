@@ -108,7 +108,6 @@ optionen_gui_t::optionen_gui_t(karte_t *welt) :
 	add_komponente( &seperator );
 
 	setze_fenstergroesse( koord(213, 98+7+14+16) );
-	setze_opaque(true);
 }
 
 

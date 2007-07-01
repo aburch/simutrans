@@ -65,8 +65,6 @@ factorylist_frame_t::factorylist_frame_t(karte_t * welt) :
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
-
-	setze_opaque(true);
 }
 
 

@@ -97,7 +97,6 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	fab->info(info_buf);
 	int  height = max(count_char(buf, '\n')*LINESPACE+40, get_tile_raster_width()+30 );
 
-	setze_opaque(true);
 	setze_fenstergroesse(koord((short)290, min(height, 408)));
 	cont.setze_groesse(koord((short)290, height-20));
 

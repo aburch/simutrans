@@ -40,7 +40,6 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	name_input.setze_groesse(koord(124, 14));
 	name_input.setze_pos(koord(8, 8));
 
-	setze_opaque(true);
 	add_komponente(&name_input);
 	setze_fenstergroesse(koord(410, 305));
 

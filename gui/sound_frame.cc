@@ -85,7 +85,6 @@ sound_frame_t::sound_frame_t()
     add_komponente(&shufflebtn);
 
     setze_fenstergroesse(koord(300, 180));
-    setze_opaque( true );
 }
 
 

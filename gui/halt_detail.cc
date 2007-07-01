@@ -44,7 +44,6 @@ halt_detail_t::halt_detail_t(spieler_t * sp, karte_t *welt, halthandle_t halt) :
 	txt_info.setze_pos(koord(10,10));
 
 	// calc window size
-	setze_opaque(true);
 	const koord size = txt_info.gib_groesse();
 	if (size.y < 400) {
 		setze_fenstergroesse(koord(300, size.y + 32));

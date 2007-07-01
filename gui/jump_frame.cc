@@ -37,7 +37,6 @@ jump_frame_t::jump_frame_t(karte_t *welt) :
 	jumpbutton.add_listener(this);
 	add_komponente(&jumpbutton);
 
-	setze_opaque(true);
 	setze_fenstergroesse(koord(BUTTON_WIDTH+20, 62));
 }
 

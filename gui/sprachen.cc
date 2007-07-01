@@ -114,7 +114,6 @@ sprachengui_t::sprachengui_t() :
 	chdir(umgebung_t::user_dir);
 
 	buttons[translator::get_language()].pressed = true;
-	setze_opaque(true);
 	setze_fenstergroesse( koord(220, 74+(translator::get_language_count()/2)*14) );
 }
 

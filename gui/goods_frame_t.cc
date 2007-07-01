@@ -90,7 +90,6 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	scrolly.setze_groesse(koord(TOTAL_WIDTH-16, 191+16+16-y));
 	add_komponente(&scrolly);
 
-	setze_opaque(true);
 	int h = (warenbauer_t::gib_waren_anzahl()-1)*LINESPACE+y;
 	if(h>450) {
 		h = y+10*LINESPACE+2;

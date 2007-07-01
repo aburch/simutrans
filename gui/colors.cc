@@ -146,7 +146,6 @@ color_gui_t::color_gui_t(karte_t *welt) :
 		add_komponente( buttons+i );
 	}
 
-	setze_opaque(true);
 	setze_fenstergroesse( koord(RIGHT_WIDTH, BOTTOM) );
 }
 

@@ -261,7 +261,6 @@ halt_list_frame_t::halt_list_frame_t(spieler_t *sp) :
     add_komponente(&filter_details);
 
     scrolly.setze_pos(koord(1, 30));
-    setze_opaque(true);
     setze_fenstergroesse(koord(BUTTON4_X+BUTTON_WIDTH+2, 191+16+16));
 
 	// use gui-resize

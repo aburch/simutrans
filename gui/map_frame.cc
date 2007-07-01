@@ -169,7 +169,6 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
-	setze_opaque( true );
 
 	is_dragging = false;
 }

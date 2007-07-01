@@ -33,7 +33,6 @@ message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t("Mailbox"),
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
-	setze_opaque(true);
 }
 
 

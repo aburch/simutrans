@@ -82,7 +82,6 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
 	selected_line = linehandle_t();
 	strcpy(no_line_text, translator::translate("<no line>"));
-	setze_opaque( true );
 
 	sprintf(txt_title, "(%d,%d) %s", depot->gib_pos().x, depot->gib_pos().y, translator::translate(depot->gib_name()));
 

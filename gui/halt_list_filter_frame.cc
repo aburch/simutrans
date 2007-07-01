@@ -137,7 +137,6 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_fram
 	ware_scrolly_ab.setze_groesse(koord(125, 173));
 
 	setze_fenstergroesse(koord(395, 227));
-	setze_opaque(true);
 }
 
 

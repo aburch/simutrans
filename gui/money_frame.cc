@@ -269,7 +269,6 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	}
 
 	setze_fenstergroesse(koord(582, 340));
-	setze_opaque( true );
 }
 
 

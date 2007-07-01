@@ -107,7 +107,6 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	add_komponente(&button);
 	add_komponente(&input);
 
-	setze_opaque(true);
 	setze_fenstergroesse(koord(BUTTON4_X+BUTTON_WIDTH+2, 264));
 	set_min_windowsize(koord(BUTTON4_X+BUTTON_WIDTH+2, 194));
 	set_resizemode(diagonal_resize);     // 31-May-02	markus weber	added

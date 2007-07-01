@@ -116,14 +116,12 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	scrolly.setze_pos(koord(LINE_NAME_COLUMN_WIDTH-11, 14 + SCL_HEIGHT+14+4+2*LINESPACE+2));
 	scrolly.set_visible(false);
 	add_komponente(&scrolly);
-	setze_opaque(true);
 
 	// halt list?
 	cont_haltestellen.setze_groesse(koord(500, 40));
 	scrolly_haltestellen.setze_pos(koord(0, 14 + SCL_HEIGHT+BUTTON_HEIGHT+2));
 	scrolly_haltestellen.set_visible(false);
 	add_komponente(&scrolly_haltestellen);
-	setze_opaque(true);
 
 	// normal buttons edit new remove
 	bt_new_line.setze_pos(koord(11, 14 + SCL_HEIGHT));

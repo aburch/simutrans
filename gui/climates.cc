@@ -141,7 +141,6 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 
 	// the rocky will be alway below the snow line; no need to set this explicitely
 
-	setze_opaque(true);
 	setze_fenstergroesse( koord(RIGHT_ARROW+16, intTopOfButton+14+8+16) );
 }
 

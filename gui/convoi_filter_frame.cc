@@ -115,7 +115,6 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main
 	ware_scrolly.setze_groesse(koord(125, 189));
 
 	setze_fenstergroesse(koord(255, 243));
-	setze_opaque(true);
 }
 
 

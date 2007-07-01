@@ -24,7 +24,6 @@ news_window::news_window(const char* text, PLAYER_COLOR_VAL title_color) :
 
 	meldung.setze_pos( koord(10, 10) );
 	add_komponente( &meldung );
-	setze_opaque(true);
 }
 
 

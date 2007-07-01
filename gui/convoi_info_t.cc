@@ -126,7 +126,6 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	route_bar.add_color_value(&cnv_route_index, COL_GREEN);
 	add_komponente(&route_bar);
 
-	setze_opaque(true);
 	setze_fenstergroesse(koord(TOTAL_WIDTH, 278));
 
 	// chart

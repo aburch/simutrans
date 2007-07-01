@@ -52,7 +52,6 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		ai_income[i]->setze_pos( koord( 225, 8+i*2*LINESPACE ) );
 		add_komponente( ai_income[i] );
 	}
-	setze_opaque(true);
 	setze_fenstergroesse(koord(260, MAX_PLAYER_COUNT*LINESPACE*2+16));
 }
 

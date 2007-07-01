@@ -175,7 +175,6 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 	cancelbutton.add_listener(this);
 	add_komponente(&cancelbutton);
 
-	setze_opaque(true);
 	setze_fenstergroesse(koord(DIALOG_WIDTH, y + 40));
 }
 

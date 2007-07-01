@@ -49,7 +49,6 @@ message_option_t::message_option_t() :
 		buttons[i*3+2].add_listener(this);
 		add_komponente( buttons+i*3+2 );
 	}
-	setze_opaque(true);
 	setze_fenstergroesse( koord(180, 230) );
 }
 

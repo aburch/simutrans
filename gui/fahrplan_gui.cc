@@ -177,8 +177,6 @@ fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_) :
 
 void fahrplan_gui_t::init()
 {
-	setze_opaque( true );
-
 	fpl->eingabe_beginnen();
 	strcpy(no_line, translator::translate("<no line>"));
 

@@ -239,10 +239,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	setze_fenstergroesse( koord(260, intTopOfButton+14+8+16) );
 
 	update_preview();
-	setze_opaque(true);
 }
-
-
 
 
 

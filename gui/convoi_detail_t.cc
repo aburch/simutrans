@@ -54,7 +54,6 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	scrolly.setze_pos(koord(0, 64));
 	add_komponente(&scrolly);
 
-	setze_opaque(true);
 	setze_fenstergroesse(koord(TOTAL_WIDTH, 278));
 
 	set_min_windowsize(koord(TOTAL_WIDTH, 194));

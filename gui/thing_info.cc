@@ -28,8 +28,6 @@ ding_infowin_t::ding_infowin_t(const ding_t* ding_) :
 	view(ding_),
 	ding(ding_)
 {
-	setze_opaque(true);
-
 	view.setze_pos( koord(175,10) );
 	view.setze_groesse( koord( get_tile_raster_width(), (get_tile_raster_width()*5)/6)  );
 	add_komponente( &view );

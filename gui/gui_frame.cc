@@ -19,12 +19,12 @@
 #include "../besch/skin_besch.h"
 
 
-gui_frame_t::gui_frame_t(const char *name, const spieler_t *sp)
+gui_frame_t::gui_frame_t(const char* name, const spieler_t* sp) :
+	opaque(true)
 {
     this->name = name;
     groesse = koord(200, 100);
     owner = sp;
-    opaque = false;
     container.setze_pos(koord(0,16));
     set_resizemode (no_resize); //25-may-02	markus weber	added
     dirty = true;

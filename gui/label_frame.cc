@@ -130,8 +130,6 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) :
 	cancelbutton.add_listener(this);
 	add_komponente(&cancelbutton);
 
-	setze_opaque(true);
-
 	set_resizemode(vertical_resize);
 	setze_fenstergroesse(koord(175+26*2, window_height));
 	set_min_windowsize(koord(175+26*2, 16+70+100+10));
