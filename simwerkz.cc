@@ -16,6 +16,7 @@
 #include "simplay.h"
 #include "simsound.h"
 #include "simevent.h"
+#include "simmem.h"
 #include "simskin.h"
 #include "simcity.h"
 #include "simpeople.h"
@@ -1286,14 +1287,15 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 			if(stadt) {
 				const int count = sp->get_haltcount();
 				const char *name = stadt->haltestellenname(pos, "Dock", count);
-				welt->lookup(halt->gib_basis_pos())->gib_kartenboden()->setze_text( name );
+				halt->setze_name( name );
+				guarded_free( (void *)name );
 			}
 			else {
 				// get a default name
 				const int count = sp->get_haltcount();
 				char *tmp=new char[256];
 				sprintf( tmp, translator::translate("land stop %i %s"), count, translator::translate("Dock") );
-				welt->lookup(halt->gib_basis_pos())->gib_kartenboden()->setze_text( tmp );
+				halt->setze_name( tmp );
 			}
 		}
 
@@ -1512,6 +1514,7 @@ DBG_MESSAGE("wkz_halt_aux()", "new segment for station");
 			const int count = sp->get_haltcount();
 			const char *name = stadt->haltestellenname(pos, type_name, count);
 			halt->setze_name( name );
+			guarded_free( (void *)name );
 		}
 		else {
 			// get a default name

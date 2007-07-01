@@ -377,17 +377,14 @@ static fabrik_t* baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_
 	fab->baue(rotate, true);
 	welt->add_fab(fab);
 
-	// make all water a station
+	// make all water station
 	if(info->gib_platzierung() == fabrik_besch_t::Wasser) {
 		const haus_besch_t *besch = info->gib_haus();
 		koord dim = besch->gib_groesse(rotate);
 
 		koord k;
 		halthandle_t halt = welt->gib_spieler(1)->halt_add(pos.gib_2d());
-
 		if(halt.is_bound()) {
-
-			welt->lookup(pos)->setze_text( translator::translate(info->gib_name()) );
 
 			for(k.x=pos.x; k.x<pos.x+dim.x; k.x++) {
 				for(k.y=pos.y; k.y<pos.y+dim.y; k.y++) {
@@ -400,8 +397,7 @@ static fabrik_t* baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_
 					}
 				}
 			}
-			// is in water
-			halt->verbinde_fabriken();
+			halt->setze_name( translator::translate(info->gib_name()) );
 			halt->recalc_station_type();
 		}
 	}

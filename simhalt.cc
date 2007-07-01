@@ -62,24 +62,8 @@
 
 karte_t *haltestelle_t::welt = NULL;
 
-/**
- * Max number of hops in route calculation
- * @author Hj. Malthaner
- */
-int haltestelle_t::max_hops = 300;
-
-/* HNode is used for route search
- */
-struct HNode {
-  halthandle_t halt;
-  uint16 depth;
-  HNode *link;
-};
-
-
-// Klassenvariablen
-
 slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
+
 
 
 halthandle_t
@@ -226,9 +210,7 @@ DBG_DEBUG("haltestelle_t::remove()","not last");
 	if(bd) {
 		bd->calc_bild();
 		reliefkarte_t::gib_karte()->calc_map_pixel(pos.gib_2d());
-
 DBG_DEBUG("haltestelle_t::remove()","reset city way owner");
-		bd->setze_text( NULL );
 	}
 	return true;
 }
@@ -350,6 +332,8 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 haltestelle_t::~haltestelle_t()
 {
 	assert(!self.is_bound());
+
+	setze_name(NULL);
 	// remove ground
 	while (!tiles.empty()) {
 		rem_grund(tiles.front().grund);
@@ -395,12 +379,17 @@ void
 haltestelle_t::setze_name(const char *new_name)
 {
 	grund_t *gr = welt->lookup_kartenboden(gib_basis_pos());
-	if(gr) {
+	if(gr  &&  gr->gib_text()!=new_name  &&  !gr->find<label_t>()) {
 		const char *old_name = gr->gib_text();
 		if(old_name) {
-			guarded_free((void *)old_name);
+			guarded_free( (void *)old_name);
 		}
-		gr->setze_text(new_name == NULL ? NULL : strdup(new_name));
+		char *new_text = NULL;
+		if(new_name!=NULL  &&  new_name[0]==0) {
+			new_text = (char *)guarded_malloc( strlen(new_name)+1 );
+			strcpy( new_text, new_name );
+		}
+		gr->setze_text( new_text );
 	}
 }
 
@@ -664,11 +653,32 @@ void haltestelle_t::liefere_an_fabrik(const ware_t& ware)
 
 
 /**
- * Kann die Ware nicht zum Ziel geroutet werden (keine Route), dann werden
- * Ziel und Zwischenziel auf koord::invalid gesetzt.
+ * Max number of hops in route calculation
+ * @author Hj. Malthaner
+ */
+int haltestelle_t::max_hops = 300;
+
+/* HNode is used for route search */
+struct HNode {
+  halthandle_t halt;
+  uint16 depth;
+  HNode *link;
+};
+
+/**
+ * This routine tries to find a route for a good packet (ware)
+ * it will be called for
+ *  - new goods
+ *  - goods that transfer and cannot be joined with other goods
+ *  - during rerouting
+ * Therefore this routine eats up most of the performance in
+ * later games. So all changes should be done with this in mind!
  *
- * @param ware die zu routende Ware
- * @param start die Starthaltestelle
+ * If no route is found, ziel and zwischenziel are unbound handles.
+ * If next_to_ziel in not NULL, it will get the koordinate of the stop
+ * previous to target. Can be used to create passengers/mail back the
+ * same route back
+ *
  * @author Hj. Malthaner
  */
 void
@@ -870,7 +880,6 @@ found:
 			}
 		}
 		else {
-			// next to start
 			if(next_to_ziel!=NULL) {
 				// for reverse route the next hop
 				*next_to_ziel = tmp->link->halt->gib_basis_pos();
@@ -993,7 +1002,7 @@ haltestelle_t::rem_grund(grund_t *gb)
 		// first tile => remove name from this tile ...
 		char buf[256];
 		const char* station_name_to_transfer = NULL;
-		if (i == tiles.begin()) {
+		if (i == tiles.begin()  &&  (*i).grund->gib_name()) {
 			tstrncpy(buf, gib_name(), lengthof(buf));
 			station_name_to_transfer = buf;
 			setze_name(NULL);
@@ -1005,7 +1014,9 @@ haltestelle_t::rem_grund(grund_t *gb)
 
 		if (station_name_to_transfer != NULL) {
 			grund_t* bd = welt->lookup_kartenboden(init_pos);
-			if (bd && bd->gib_text()) delete bd->find<label_t>();
+			if (bd && bd->find<label_t>()) {
+				delete bd->find<label_t>();
+			}
 			setze_name( station_name_to_transfer );
 		}
 

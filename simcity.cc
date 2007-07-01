@@ -21,6 +21,7 @@
 #include "simplay.h"
 #include "simplan.h"
 #include "simimg.h"
+#include "simmem.h"
 #include "simverkehr.h"
 #include "simtools.h"
 #include "simhalt.h"
@@ -653,7 +654,9 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 		}
 	}
 
-	return strdup(buf);
+	char *name = (char *)guarded_malloc( strlen(buf) );
+	strcpy( name, buf );
+	return name;
 }
 
 
@@ -936,8 +939,9 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, int citizens) :
 	fflush(NULL);
 	// start at random position
 	int start_cont = simrand(name_list_count);
-	const char* list_name;
 
+	// get a unique name
+	const char* list_name;
 	list_name = translator::get_city_name(start_cont);
 	for (int i = 0; i < name_list_count; i++) {
 		// get a name
@@ -951,7 +955,9 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, int citizens) :
 		break;
 next_name:;
 	}
+	name = (char *)malloc( strlen(list_name)+64 );
 	strcpy(name, list_name);
+
 	DBG_MESSAGE("stadt_t::stadt_t()", "founding new city named '%s'", name);
 
 	// 1. Rathaus bei 0 Leuten bauen
@@ -1000,6 +1006,7 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	pax_transport = 0;
 
 	wachstum = 0;
+	name = NULL;
 
 	rdwr(file);
 
@@ -1015,8 +1022,13 @@ void stadt_t::rdwr(loadsave_t* file)
 
 	if (file->is_saving()) {
 		besitzer_n = welt->sp2num(besitzer_p);
+		file->rdwr_str(name, -1 );
 	}
-	file->rdwr_str(name, 31);
+	else {
+		const char *n = NULL;
+		file->rdwr_str(n, "simcity" );
+		name = (char *)n;
+	}
 	pos.rdwr(file);
 	file->rdwr_delim("Plo: ");
 	uint32 lli = lo.x;

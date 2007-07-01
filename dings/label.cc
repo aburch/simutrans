@@ -12,6 +12,7 @@
 #include "../simworld.h"
 #include "../simdings.h"
 #include "../simimg.h"
+#include "../simmem.h"
 #include "../simskin.h"
 #include "../simplay.h"
 
@@ -44,7 +45,11 @@ label_t::label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text) :
 			}
 		}
 		if(text) {
-			gr->setze_text(strdup(text));
+			if(text!=gr->gib_text()) {
+				char *new_text = (char *)guarded_malloc( strlen(text) );
+				strcpy( new_text, text );
+				gr->setze_text( new_text );
+			}
 		}
 	}
 }
@@ -55,9 +60,10 @@ label_t::~label_t()
 {
 	welt->remove_label( gib_pos().gib_2d() );
 	grund_t *gr=welt->lookup_kartenboden(gib_pos().gib_2d());
-	if(gr  &&  gr->gib_text()) {
-		free(const_cast<char *>(gr->gib_text()));
+	const char *txt = gr->gib_text();
+	if(gr  &&  txt) {
 		gr->setze_text(NULL);
+		guarded_free( (void *)txt );
 	}
 }
 

@@ -4,9 +4,6 @@
 #include "../simdings.h"
 #include "../simimg.h"
 
-/**
- * prissi: a dummy typ for old things, which are now ignored
- */
 class label_t : public ding_t
 {
 public:

@@ -82,7 +82,7 @@ public:
 private:
 	static karte_t *welt;
 	spieler_t *besitzer_p;
-	char name[64];
+	char *name;
 
 	weighted_vector_tpl <const gebaeude_t *> buildings;
 
