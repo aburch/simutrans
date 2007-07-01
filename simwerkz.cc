@@ -481,9 +481,7 @@ DBG_MESSAGE("wkz_remover()", "removing building: cleanup");
 						}
 					}
 				}
-
 			}
-			welt->rem_fab((fabrik_t*)1);
 			return true;
 		}
 	}
