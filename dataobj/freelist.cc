@@ -35,11 +35,19 @@ static nodelist_node_t *message_nodes = NULL;
 
 static nodelist_node_t *node1220 = NULL;
 static nodelist_node_t *node1624 = NULL;
+static nodelist_node_t *node2440 = NULL;
+
+// for 64 bit, set this to 128
+#define MAX_LIST_INDEX (128)
 
 // list for nodes size 8...64
-#define NUM_LIST ((64/4)+1)
+#define NUM_LIST ((MAX_LIST_INDEX/4)+1)
 
 static nodelist_node_t *all_lists[NUM_LIST] = {
+	NULL, NULL, NULL, NULL,
+	NULL, NULL, NULL, NULL,
+	NULL, NULL, NULL, NULL,
+	NULL, NULL, NULL, NULL,
 	NULL, NULL, NULL, NULL,
 	NULL, NULL, NULL, NULL,
 	NULL, NULL, NULL, NULL,
@@ -60,7 +68,7 @@ freelist_t::gimme_node(int size)
 	nodelist_node_t *tmp;
 #pragma omp critical
 	{
-		if(size>64) {
+		if(size>MAX_LIST_INDEX) {
 			switch(size) {
 				case message_node_size:
 					list = &message_nodes;
@@ -71,8 +79,11 @@ freelist_t::gimme_node(int size)
 				case 1624:
 					list = &node1624;
 					break;
+				case 2440:
+					list = &node2440;
+					break;
 				default:
-					dbg->fatal("freelist_t::gimme_node()","No list with size %i! (only up to 64 and %i, 1220, 1624)", size, message_node_size );
+					dbg->fatal("freelist_t::gimme_node()","No list with size %i! (only up to %i and %i, 1220, 1624, 2440)", size, MAX_LIST_INDEX, message_node_size );
 			}
 		}
 		else {
@@ -138,7 +149,7 @@ freelist_t::putback_node(int size,void *p)
 	}
 #pragma omp critical
 	{
-		if(size>64) {
+		if(size>MAX_LIST_INDEX) {
 			switch(size) {
 				case message_node_size:
 					list = &message_nodes;
@@ -149,8 +160,11 @@ freelist_t::putback_node(int size,void *p)
 				case 1624:
 					list = &node1624;
 					break;
+				case 2440:
+					list = &node2440;
+					break;
 				default:
-					dbg->fatal("freelist_t::gimme_node()","No list with size %i! (only up to 64 and %i, 1220, 1624)", size, message_node_size );
+					dbg->fatal("freelist_t::gimme_node()","No list with size %i! (only up to %i and %i, 1220, 1624, 2440)", size, MAX_LIST_INDEX, message_node_size );
 			}
 		}
 		else {
@@ -187,4 +201,5 @@ freelist_t::free_all_nodes()
 	message_nodes = NULL;
 	node1220 = NULL;
 	node1624 = NULL;
+	node2440 = NULL;
 }

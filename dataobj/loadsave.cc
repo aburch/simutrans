@@ -20,9 +20,6 @@ loadsave_t::mode_t loadsave_t::save_mode = binary;	// default to use for saving
 loadsave_t::loadsave_t() :
 	filename()
 {
-	assert(sizeof(int) == 4);
-	assert(sizeof(short) == 2);
-	assert(sizeof(long) == 4);
 	fp = NULL;
 }
 
@@ -244,9 +241,17 @@ void loadsave_t::rdwr_long(sint32 &l, const char *delim)
 		}
 	} else {
 		if(saving) {
-			fprintf(fp, "%d", l);
+ 			if (sizeof(sint32) == sizeof(int)) {
+ 				fprintf(fp, "%d", l);
+ 			} else {
+ 				fprintf(fp, "%ld", l);
+ 			}
 		} else {
-			fscanf(fp, "%d", &l);
+ 			if (sizeof(sint32) == sizeof(int)) {
+ 				fscanf(fp, "%d", &l);
+ 			} else {
+ 				fscanf(fp, "%ld", &l);
+ 			}
 		}
 	}
 	rdwr_delim(delim);
