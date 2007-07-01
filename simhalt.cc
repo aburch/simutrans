@@ -654,12 +654,13 @@ struct HNode {
   halthandle_t halt;
   uint16 depth;
   HNode *link;
+	HNode *next;	// for linked list
 };
 
 /**
  * This routine tries to find a route for a good packet (ware)
  * it will be called for
- *  - new goods
+ *  - new goods (either from simcity.cc or simfab.cc)
  *  - goods that transfer and cannot be joined with other goods
  *  - during rerouting
  * Therefore this routine eats up most of the performance in
@@ -669,6 +670,9 @@ struct HNode {
  * If next_to_ziel in not NULL, it will get the koordinate of the stop
  * previous to target. Can be used to create passengers/mail back the
  * same route back
+ *
+ * if USE_ROUTE_SLIST_TPL is defined, the list template will be used.
+ * However, this is about 15% slower.
  *
  * @author Hj. Malthaner
  */
@@ -757,8 +761,12 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	// die Berechnung erfolgt durch eine Breitensuche fuer Graphen
 	// Warteschlange fuer Breitensuche
 	const uint16 max_transfers = umgebung_t::max_transfers;
+#ifdef USE_ROUTE_SLIST_TPL
 	slist_tpl<HNode *> queue;
-
+#else
+	// manual list
+	HNode *route_start, *route_tail;
+#endif
 	int step = 1;
 	HNode *tmp;
 
@@ -766,7 +774,12 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	nodes[0].link = 0;
 	nodes[0].depth = 0;
 
+#ifdef USE_ROUTE_SLIST_TPL
 	queue.insert( &nodes[0] );	// init queue mit erstem feld
+#else
+	nodes[0].next = NULL;
+	route_start = route_tail = nodes;
+#endif
 
 #ifdef _OPENMP
 	self->marke |= current_mark;
@@ -775,11 +788,18 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 #endif
 
 	do {
+#ifdef USE_ROUTE_SLIST_TPL
 		tmp = queue.remove_first();
+#else
+		tmp = route_start;
+		route_start = route_start->next;
+		if(route_start==NULL) route_tail = NULL;
+#endif
+
 		const halthandle_t halt = tmp->halt;
 
+		// we end this loop always with this jump (if sucessful)
 		if(ziel_list.is_contained(halt)) {
-			// ziel gefunden
 			goto found;
 		}
 
@@ -789,7 +809,7 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 			if(ware_catg_index<2) {
 
-				/* for passengers and mail only matchin connectings are in the list
+				/* for passengers and mail only matching connectings are in the list
 				 * => we can skip many checks
 				 */
 				slist_iterator_tpl<warenziel_t> iter(halt->gib_warenziele(ware_catg_index));
@@ -804,8 +824,19 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 						node->halt = tmp_halt;
 						node->depth = tmp->depth + 1;
 						node->link = tmp;
-						queue.append( node );
 
+#ifdef USE_ROUTE_SLIST_TPL
+						queue.append( node );
+#else
+						node->next = NULL;
+						if(route_tail==NULL) {
+							route_start = node;
+						}
+						else {
+							route_tail->next = node;
+						}
+						route_tail = node;
+#endif
 						// betretene Haltestellen markieren
 #ifdef _OPENMP
 						tmp_halt->marke |= current_mark;
@@ -836,8 +867,19 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 							node->halt = tmp_halt;
 							node->depth = tmp->depth + 1;
 							node->link = tmp;
-							queue.append( node );
 
+#ifdef USE_ROUTE_SLIST_TPL
+							queue.append( node );
+#else
+							node->next = NULL;
+							if(route_tail==NULL) {
+								route_start = node;
+							}
+							else {
+								route_tail->next = node;
+							}
+							route_tail = node;
+#endif
 							// betretene Haltestellen markieren
 #ifdef _OPENMP
 							tmp_halt->marke |= current_mark;
@@ -851,7 +893,11 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 		} // max transfers
 
+#ifdef USE_ROUTE_SLIST_TPL
 	} while (!queue.empty() && step < max_hops);
+#else
+	} while(route_start!=NULL  &&  step<max_hops);
+#endif
 
 	// if the loop ends, nothing was found
 	tmp = 0;
