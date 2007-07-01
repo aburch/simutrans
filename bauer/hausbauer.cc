@@ -5,6 +5,7 @@
  * in other projects without written permission of the author.
  */
 
+#include <algorithm>
 #include <string.h>
 #include "../besch/haus_besch.h"
 #include "../besch/skin_besch.h"
@@ -28,9 +29,9 @@
 /*
  * Die verschiedenen Gebäudegruppen sind in eigenen Listen gesammelt.
  */
-slist_tpl<const haus_besch_t *> hausbauer_t::wohnhaeuser;
-slist_tpl<const haus_besch_t *> hausbauer_t::gewerbehaeuser;
-slist_tpl<const haus_besch_t *> hausbauer_t::industriehaeuser;
+static vector_tpl<const haus_besch_t*> wohnhaeuser;
+static vector_tpl<const haus_besch_t*> gewerbehaeuser;
+static vector_tpl<const haus_besch_t*> industriehaeuser;
 slist_tpl<const haus_besch_t *> hausbauer_t::fabriken;
 slist_tpl<const haus_besch_t *> hausbauer_t::sehenswuerdigkeiten_land;
 slist_tpl<const haus_besch_t *> hausbauer_t::sehenswuerdigkeiten_city;
@@ -70,28 +71,26 @@ static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
 };
 
 
+static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
+{
+	int diff = a->gib_level() - b->gib_level();
+	if (diff == 0) {
+		/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
+		 * über den Namen herbei. */
+		diff = strcmp(a->gib_name(), b->gib_name());
+	}
+	return diff < 0;
+}
+
+
 bool hausbauer_t::alles_geladen()
 {
-    warne_ungeladene(spezial_objekte, 10);
-    return true;
+	std::sort(wohnhaeuser.begin(),      wohnhaeuser.end(),      compare_haus_besch);
+	std::sort(gewerbehaeuser.begin(),   gewerbehaeuser.end(),   compare_haus_besch);
+	std::sort(industriehaeuser.begin(), industriehaeuser.end(), compare_haus_besch);
+	warne_ungeladene(spezial_objekte, 10);
+	return true;
 }
-
-
-void hausbauer_t::insert_sorted(slist_tpl<const haus_besch_t *> &liste, const haus_besch_t *besch)
-{
-	slist_tpl<const haus_besch_t*>::iterator i = liste.begin();
-	for (slist_tpl<const haus_besch_t*>::iterator end = liste.end(); i != end; ++i) {
-		int diff = (*i)->gib_level() - besch->gib_level();
-		if (diff == 0) {
-			// Gleiches Level - wir führen eine künstliche, aber eindeutige
-			// Sortierung über den Namen herbei.
-			diff = strcmp((*i)->gib_name(), besch->gib_name());
-		}
-		if (diff > 0) break;
-	}
-	liste.insert(i, besch);
-}
-
 
 
 bool hausbauer_t::register_besch(const haus_besch_t *besch)
@@ -99,18 +98,9 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 	::register_besch(spezial_objekte, besch);
 
 	switch(besch->gib_typ()) {
-
-		case gebaeude_t::wohnung:
-			insert_sorted(wohnhaeuser, besch);
-			break;
-
-		case gebaeude_t::industrie:
-			insert_sorted(industriehaeuser, besch);
-			break;
-
-		case gebaeude_t::gewerbe:
-			insert_sorted(gewerbehaeuser, besch);
-			break;
+		case gebaeude_t::wohnung:   wohnhaeuser.push_back(besch);      break;
+		case gebaeude_t::industrie: industriehaeuser.push_back(besch); break;
+		case gebaeude_t::gewerbe:   gewerbehaeuser.push_back(besch);   break;
 
 		case gebaeude_t::unbekannt:
 		switch (besch->gib_utyp()) {
@@ -469,20 +459,18 @@ const haus_besch_t* hausbauer_t::gib_special(int bev, haus_besch_t::utyp utype, 
  * it will skip and jump, and will never return zero, if there is at least a single valid entry in the list
  * @author Hj. Malthaner
  */
-const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> &liste, int level, uint16 time, climate cl)
+static const haus_besch_t* gib_aus_liste(const vector_tpl<const haus_besch_t*>& liste, int level, uint16 time, climate cl)
 {
 	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
 
 //	DBG_MESSAGE("hausbauer_t::gib_aus_liste()","target level %i", level );
 	const haus_besch_t *besch_at_least=NULL;
-	slist_iterator_tpl <const haus_besch_t *> iter (liste);
-
-	while(iter.next()) {
-		const haus_besch_t *besch = iter.get_current();
+	for (vector_tpl<const haus_besch_t*>::const_iterator i = liste.begin(), end = liste.end(); i != end; ++i) {
+		const haus_besch_t* besch = *i;
 		if(	besch->is_allowed_climate(cl)  &&
 			besch->gib_chance()>0  &&
 			(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))) {
-			besch_at_least = iter.get_current();
+			besch_at_least = besch;
 		}
 
 		const int thislevel = besch->gib_level();
@@ -505,7 +493,6 @@ const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> 
 				}
 			}
 		}
-
 	}
 
 	if(auswahl.get_sum_weight()==0) {
@@ -519,6 +506,23 @@ const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> 
 	return auswahl.at_weight( simrand(auswahl.get_sum_weight()) );
 }
 
+
+const haus_besch_t* hausbauer_t::gib_gewerbe(int level, uint16 time, climate cl)
+{
+	return gib_aus_liste(gewerbehaeuser, level, time, cl);
+}
+
+
+const haus_besch_t* hausbauer_t::gib_industrie(int level, uint16 time, climate cl)
+{
+	return gib_aus_liste(industriehaeuser, level, time, cl);
+}
+
+
+const haus_besch_t* hausbauer_t::gib_wohnhaus(int level, uint16 time, climate cl)
+{
+	return gib_aus_liste(wohnhaeuser, level, time, cl);
+}
 
 
 // get a random object

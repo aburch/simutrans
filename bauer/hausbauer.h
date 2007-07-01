@@ -37,10 +37,6 @@ class hausbauer_t
 		static slist_tpl<const haus_besch_t*> fabriken;
 
 	public:
-		static slist_tpl<const haus_besch_t*> wohnhaeuser;
-		static slist_tpl<const haus_besch_t*> gewerbehaeuser;
-		static slist_tpl<const haus_besch_t*> industriehaeuser;
-
 		/**
 		 * Gebäude, die das Programm direkt kennen muß
 		 */
@@ -58,22 +54,10 @@ class hausbauer_t
 
 	private:
 		/**
-		 * Liefert den Eintrag mit passendem Level aus der Liste, falls es ihn gibt.
-		 * Falls es ihn nicht gibt, wird ein Gebäude des nächsthöheren vorhandenen
-		 * levels geliefert.  Falls es das auch nicht gibt wird das Gebäude mit dem
-		 * höchsten level aus der Liste geliefert.
-		 * Diese Methode liefert niemals NULL!
-		 * @author Hj. Malthaner
-		 */
-		static const haus_besch_t* gib_aus_liste(slist_tpl<const haus_besch_t*>& liste, int level, uint16, climate cl);
-
-		/**
 		 * Liefert einen zufälligen Eintrag aus der Liste.
 		 * @author V. Meyer
 		 */
 		static const haus_besch_t* waehle_aus_liste(slist_tpl<const haus_besch_t*>& liste, uint16 time, climate cl);
-
-		static void insert_sorted(slist_tpl<const haus_besch_t*>& liste, const haus_besch_t* besch);
 
 	public:
 		/* finds a station building, which enables pas/mail/goods for the AI
@@ -103,30 +87,21 @@ class hausbauer_t
 		 * eindeutig aufsteigend.
 		 * @author V. Meyer
 		 */
-		static const haus_besch_t* gib_gewerbe(int level, uint16 time, climate cl)
-		{
-			return gib_aus_liste(gewerbehaeuser, level, time,cl);
-		}
+		static const haus_besch_t* gib_gewerbe(int level, uint16 time, climate cl);
 
 		/**
 		 * Industriegebäude passend zum Level liefern. Zur Zeit sind die Einträge
 		 * eindeutig aufsteigend.
 		 * @author V. Meyer
 		 */
-		static const haus_besch_t* gib_industrie(int level, uint16 time, climate cl)
-		{
-			return gib_aus_liste(industriehaeuser, level, time, cl);
-		}
+		static const haus_besch_t* gib_industrie(int level, uint16 time, climate cl);
 
 		/**
 		 * Wohnhaus passend zum Level liefern. Zur Zeit sind die Einträge
 		 * eindeutig aufsteigend.
 		 * @author V. Meyer
 		 */
-		static const haus_besch_t* gib_wohnhaus(int level, uint16 time, climate cl)
-		{
-			return gib_aus_liste(wohnhaeuser, level, time, cl);
-		}
+		static const haus_besch_t* gib_wohnhaus(int level, uint16 time, climate cl);
 
 		/**
 		 * Liefert per Zufall die Beschreibung eines Sehenswuerdigkeit,
