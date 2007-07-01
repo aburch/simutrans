@@ -3068,7 +3068,7 @@ void karte_t::switch_active_player(uint8 new_player)
 		active_player = spieler[0];
 		if(new_player!=0) {
 			sprintf(buf, translator::translate("On this map, you are not\nallowed to change player!\n"), get_active_player()->gib_name() );
-			message_t::get_instance()->add_message(buf,koord(-1,-(sint16)simrand(63)),message_t::problems,get_active_player()->get_player_nr(),IMG_LEER);
+			message_t::get_instance()->add_message(buf, koord::invalid, message_t::problems, get_active_player()->get_player_nr(), IMG_LEER);
 		}
 	}
 	else {
@@ -3076,7 +3076,7 @@ void karte_t::switch_active_player(uint8 new_player)
 		active_player_nr = new_player;
 		active_player = spieler[new_player];
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->gib_name() );
-		message_t::get_instance()->add_message(buf,koord(-1,-(sint16)simrand(63)),message_t::problems,get_active_player()->get_player_nr(),IMG_LEER);
+		message_t::get_instance()->add_message(buf, koord::invalid, message_t::problems, get_active_player()->get_player_nr(), IMG_LEER);
 	}
 	// open edit tools
 	if(active_player_nr==1) {
@@ -3234,7 +3234,7 @@ karte_t::interactive_event(event_t &ev)
 			setze_maus_funktion(wkz_build_industries_land, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 		}
 		else {
-			message_t::get_instance()->add_message(translator::translate("On this map, you are not\nallowed to change player!\n"),koord(-1,-(sint16)simrand(63)),message_t::problems,get_active_player()->get_player_nr(),IMG_LEER);
+			message_t::get_instance()->add_message(translator::translate("On this map, you are not\nallowed to change player!\n"), koord::invalid, message_t::problems, get_active_player()->get_player_nr(), IMG_LEER);
 		}
 	    break;
 
