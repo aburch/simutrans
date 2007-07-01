@@ -109,6 +109,8 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 			case haus_besch_t::rathaus:           rathaeuser.append(besch);               break;
 			case haus_besch_t::special:           sehenswuerdigkeiten_city.append(besch); break;
 
+			case haus_besch_t::fabrik: break;
+
 			case haus_besch_t::weitere:
 				{
 				// allow for more than one air depot
