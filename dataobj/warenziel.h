@@ -60,9 +60,6 @@ public:
     const uint8 gib_catg_index() const { return catg_index; }
 
     void rdwr(loadsave_t *file);
-
-    void * operator new(size_t s);
-    void operator delete(void *p);
 };
 
 #endif
