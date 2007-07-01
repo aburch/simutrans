@@ -547,10 +547,11 @@ void gebaeude_t::info(cbuffer_t & buf) const
 						// use file name
 						break;
 				}
+				buf.append(trans_desc);
 			}
 			else {
 				// since the format changed, we remove all but double newlines
-				char *text = new char[strlen(trans_desc)];
+				char *text = new char[strlen(trans_desc)+1];
 				char *dest = text;
 				const char *src = trans_desc;
 				while(  *src!=0  ) {
@@ -568,10 +569,11 @@ void gebaeude_t::info(cbuffer_t & buf) const
 					src ++;
 					dest ++;
 				}
-				*dest++ = 0;
+				*dest = 0;
 				trans_desc = text;
+				buf.append(trans_desc);
+				delete text;
 			}
-			buf.append(trans_desc);
 			buf.append("\n\n");
 		}
 
