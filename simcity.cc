@@ -761,7 +761,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb)
 		// add all tiles
 		for (k.y = 0; k.y < size.y; k.y++) {
 			for (k.x = 0; k.x < size.x; k.x++) {
-				gebaeude_t* add_gb = dynamic_cast<gebaeude_t*>(welt->lookup(pos + k)->gib_kartenboden()->first_obj());
+				gebaeude_t* add_gb = dynamic_cast<gebaeude_t*>(welt->lookup_kartenboden(pos + k)->first_obj());
 //				DBG_MESSAGE("stadt_t::add_gebaeude_to_stadt()", "geb=%p at (%i,%i)", add_gb, pos.x + k.x, pos.y + k.y);
 				buildings.append(add_gb, tile->gib_besch()->gib_level() + 1, 16);
 				add_gb->setze_stadt(this);
@@ -876,10 +876,19 @@ stadt_t::~stadt_t()
 		grund_t* gr = welt->lookup_kartenboden(buildings.front()->gib_pos().gib_2d());
 		if (gr != NULL) {
 			koord pos = gr->gib_pos().gib_2d();
-//			delete buildings.front();
 			gr->obj_loesche_alle(welt->gib_spieler(1));
+			/* since foundations are always under buildings
+			 * and their slope is always flat,
+			 * we must restore the shape, and then normal ground */
 			uint8 new_slope = (gr->gib_hoehe() == welt->min_hgt(pos) ? 0 : welt->calc_natural_slope(pos));
 			welt->access(pos)->kartenboden_setzen(new boden_t(welt, koord3d(pos, welt->min_hgt(pos)), new_slope));
+			// there might be walls from foundations left => thus some tiles may needs to be redraw
+			if(new_slope!=0) {
+				if(pos.x<welt->gib_groesse_x()-1)
+					welt->lookup_kartenboden(pos+koord::ost)->calc_bild();
+				if(pos.y<welt->gib_groesse_y()-1)
+					welt->lookup_kartenboden(pos+koord::sued)->calc_bild();
+			}
 		} else {
 			buildings.remove_at(0);
 		}

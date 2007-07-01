@@ -601,14 +601,14 @@ wkz_remover(spieler_t *sp, karte_t *welt, koord pos)
 
 	// Nachbarschaft (Bilder) neu berechnen
 	if(pos.x>1)
-		welt->lookup(pos+koord(-1, 0))->gib_kartenboden()->calc_bild();
+		welt->lookup_kartenboden(pos+koord::west)->calc_bild();
 	if(pos.y>1)
-		welt->lookup(pos+koord::nord)->gib_kartenboden()->calc_bild();
+		welt->lookup_kartenboden(pos+koord::nord)->calc_bild();
 
 	if(pos.x<welt->gib_groesse_x()-1)
-		welt->lookup(pos+koord::ost)->gib_kartenboden()->calc_bild();
+		welt->lookup_kartenboden(pos+koord::ost)->calc_bild();
 	if(pos.y<welt->gib_groesse_y()-1)
-		welt->lookup(pos+koord::sued)->gib_kartenboden()->calc_bild();
+		welt->lookup_kartenboden(pos+koord::sued)->calc_bild();
 
 	return true;
 }
