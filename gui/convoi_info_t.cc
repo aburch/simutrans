@@ -389,9 +389,9 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 
 			// show result
 			if (b_depot_found) {
-				create_win(-1, -1, 120, new nachrichtenfenster_t(cnv->get_welt(), translator::translate("Convoi has been sent\nto the nearest depot\nof appropriate type.\n")), w_autodelete);
+				create_win(-1, -1, 120, new nachrichtenfenster_t(cnv->get_welt(), "Convoi has been sent\nto the nearest depot\nof appropriate type.\n"), w_autodelete);
 			} else {
-				create_win(-1, -1, 120, new nachrichtenfenster_t(cnv->get_welt(), translator::translate("Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.")), w_autodelete);
+				create_win(-1, -1, 120, new nachrichtenfenster_t(cnv->get_welt(), "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually."), w_autodelete);
 			}
 		} // end go home button
 	}

@@ -412,7 +412,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 	} else if (komp == &bt_promote_to_line) {
 		new_line = sp->simlinemgmt.create_line(fpl->get_type(), this->fpl);
 		init_line_selector();
-//		create_win(-1, -1, 120, new nachrichtenfenster_t(sp->get_welt(), translator::translate("New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.")), w_autodelete);
+//		create_win(-1, -1, 120, new nachrichtenfenster_t(sp->get_welt(), "New line created!\nYou can assign the line now\nby selecting it from the\nline selector above."), w_autodelete);
 	}
 	return true;
 }
