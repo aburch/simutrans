@@ -3055,7 +3055,6 @@ void karte_t::bewege_zeiger(const event_t *ev)
 void karte_t::switch_active_player(uint8 new_player)
 {
 	// cheat: play as AI
-	char buf[512];
 	bool renew_menu=false;
 
 	if(new_player>=MAX_PLAYER_COUNT) {
@@ -3067,14 +3066,14 @@ void karte_t::switch_active_player(uint8 new_player)
 		active_player_nr = 0;
 		active_player = spieler[0];
 		if(new_player!=0) {
-			sprintf(buf, translator::translate("On this map, you are not\nallowed to change player!\n"), get_active_player()->gib_name() );
-			message_t::get_instance()->add_message(buf, koord::invalid, message_t::problems, get_active_player()->get_player_nr(), IMG_LEER);
+			message_t::get_instance()->add_message(translator::translate("On this map, you are not\nallowed to change player!\n"), koord::invalid, message_t::problems, get_active_player()->get_player_nr(), IMG_LEER);
 		}
 	}
 	else {
 		renew_menu = (active_player_nr==1  ||  new_player==1);
 		active_player_nr = new_player;
 		active_player = spieler[new_player];
+		char buf[512];
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->gib_name() );
 		message_t::get_instance()->add_message(buf, koord::invalid, message_t::problems, get_active_player()->get_player_nr(), IMG_LEER);
 	}
