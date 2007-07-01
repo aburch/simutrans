@@ -107,9 +107,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 		}
 	}
 #endif
-	// Text 'Game name'
 	fnlabel.setze_pos (koord(10,12));
-	fnlabel.setze_text ("Filename");
 	add_komponente(&fnlabel);
 
 	// Input box for game name

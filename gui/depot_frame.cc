@@ -69,7 +69,7 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	lb_convoi_count(NULL, COL_BLACK, gui_label_t::left),
 	lb_convoi_value(NULL, COL_BLACK, gui_label_t::right),
 	lb_convoi_line(NULL, COL_BLACK, gui_label_t::left),
-	lb_veh_action(NULL, COL_BLACK, gui_label_t::left),
+	lb_veh_action("Fahrzeuge:", COL_BLACK, gui_label_t::left),
 	convoi_pics(depot->get_max_convoi_length()),
 	convoi(&convoi_pics),
 	pas(&pas_vec),
@@ -489,7 +489,6 @@ void depot_frame_t::layout(koord *gr)
 	div_tabbottom.setze_groesse(koord(TOTAL_WIDTH,0));
 
 	lb_veh_action.setze_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT+4));
-	lb_veh_action.setze_text("Fahrzeuge:");
 
 	bt_veh_action.setze_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT + 14));
 	bt_veh_action.setze_groesse(koord(ABUTTON_WIDTH, ABUTTON_HEIGHT));
