@@ -73,6 +73,9 @@
 // built bridges automatically
 //#define AUTOMATIC_BRIDGES 1
 
+// lookup also return route and take the better of the two
+#define REVERSE_CALC_ROUTE_TOO 1
+
 const weg_besch_t *wegbauer_t::leitung_besch = NULL;
 
 static spezial_obj_tpl<weg_besch_t> spezial_objekte[] = {
@@ -576,14 +579,6 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				}
 				if(to->gib_weg_hang()!=0) {
 					*costs += umgebung_t::way_count_slope;
-				}
-				// extra malus leave an existing road
-				if(from_str!=NULL  &&  str==NULL) {
-					if(ribi_t::is_twoway(from_str->gib_ribi_unmasked())) {
-						// only connections from an existing road are expensive
-						// dead ends, crossings and the like are free ...
-						*costs += umgebung_t::way_count_leaving_road;
-					}
 				}
 			}
 		}
@@ -1242,6 +1237,15 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->gib_pos().x,gr->gib_pos().y,g
 					else if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir)) {
 						// discourage v turns heavily
 						new_g += umgebung_t::way_count_90_curve;
+					}
+				}
+				// extra malus leave an existing road after only one tile
+				if(tmp->parent->gr->hat_weg((waytype_t)besch->gib_wtyp())  &&
+					!gr->hat_weg((waytype_t)besch->gib_wtyp())  &&
+					to->hat_weg((waytype_t)besch->gib_wtyp()) ) {
+					// but only if not straight track
+					if(!ribi_t::ist_gerade(tmp->dir)) {
+						new_g += umgebung_t::way_count_leaving_road;
 					}
 				}
 			}
