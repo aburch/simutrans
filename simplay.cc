@@ -427,7 +427,7 @@ spieler_t::neuer_monat()
 					message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				} else {
 					destroy_all_win();
-					create_win(280, 40, new nachrichtenfenster_t(welt, "Bankrott:\n\nDu bist bankrott.\n"), w_autodelete);
+					create_win(280, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_autodelete);
 					welt->beenden(false);
 				}
 			}
@@ -2150,7 +2150,7 @@ DBG_MESSAGE("spieler_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpo
 	fahrplan_t *fpl=new autofahrplan_t();
 	// do not start at current stop => wont work ...
 	for(int j=0;  j<anzahl;  j++) {
-		fpl->append( welt, welt->lookup(stops[j])->gib_kartenboden(), (j==0  ||  !do_wait)?0:10 );
+		fpl->append(welt->lookup(stops[j])->gib_kartenboden(), j == 0 || !do_wait ? 0 : 10);
 	}
 	fpl->aktuell = (stops[0]==startpos2d);
 	linehandle_t line=simlinemgmt.create_line(simline_t::truckline,fpl);
@@ -2200,8 +2200,8 @@ spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 
 		// since 86.01 we use lines for road vehicles ...
 		fahrplan_t *fpl=new autofahrplan_t();
-		fpl->append(welt,welt->lookup(pos1),(start_location==0)?100:0);
-		fpl->append(welt,welt->lookup(pos2),(start_location==1)?100:0);
+		fpl->append(welt->lookup(pos1), start_location == 0 ? 100 : 0);
+		fpl->append(welt->lookup(pos2), start_location == 1 ? 100 : 0);
 		fpl->aktuell = start_location;
 		linehandle_t line=simlinemgmt.create_line(simline_t::truckline,fpl);
 		delete fpl;
@@ -2263,8 +2263,8 @@ spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2,
     fpl = cnv->gib_vehikel(0)->erzeuge_neuen_fahrplan();
 
     fpl->aktuell = 0;
-    fpl->append( welt, welt->lookup(pos1), ladegrad );
-    fpl->append( welt, welt->lookup(pos2), 0 );
+    fpl->append(welt->lookup(pos1), ladegrad);
+    fpl->append(welt->lookup(pos2), 0);
 
     cnv->setze_fahrplan(fpl);
     welt->sync_add( cnv );

@@ -106,8 +106,7 @@ void fahrplan_t::copy_from(const fahrplan_t *src)
 }
 
 
-bool
-fahrplan_t::insert(karte_t *welt, const grund_t *gr,int ladegrad)
+bool fahrplan_t::insert(const grund_t* gr, int ladegrad)
 {
 	aktuell = max(aktuell,0);
 #ifndef _MSC_VER
@@ -119,7 +118,7 @@ fahrplan_t::insert(karte_t *welt, const grund_t *gr,int ladegrad)
 #endif
 	// stored in minivec, so wie have to avoid adding too many
 	if(eintrag.get_count()>=254) {
-		create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Maximum 254 stops\nin a schedule!\n"), w_autodelete);
+		create_win(-1, -1, 60, new news_img("Maximum 254 stops\nin a schedule!\n"), w_autodelete);
 		return false;
 	}
 
@@ -129,15 +128,14 @@ fahrplan_t::insert(karte_t *welt, const grund_t *gr,int ladegrad)
 	}
 	else {
 		// too many stops or wrong kind of stop
-		zeige_fehlermeldung(welt);
+		zeige_fehlermeldung();
 		return false;
 	}
 }
 
 
 
-bool
-fahrplan_t::append(karte_t *welt, const grund_t *gr,int ladegrad)
+bool fahrplan_t::append(const grund_t* gr, int ladegrad)
 {
 	aktuell = max(aktuell,0);
 #ifndef _MSC_VER
@@ -150,7 +148,7 @@ fahrplan_t::append(karte_t *welt, const grund_t *gr,int ladegrad)
 
 	// stored in minivec, so wie have to avoid adding too many
 	if(eintrag.get_count()>=254) {
-		create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Maximum 254 stops\nin a schedule!\n"), w_autodelete);
+		create_win(-1, -1, 60, new news_img("Maximum 254 stops\nin a schedule!\n"), w_autodelete);
 		return false;
 	}
 
@@ -161,7 +159,7 @@ fahrplan_t::append(karte_t *welt, const grund_t *gr,int ladegrad)
 	else {
 		DBG_MESSAGE("fahrplan_t::append()","forbidden stop at %i,%i,%i",gr->gib_pos().x, gr->gib_pos().x, gr->gib_pos().z );
 		// error
-		zeige_fehlermeldung(welt);
+		zeige_fehlermeldung();
 		return false;
 	}
 }
@@ -320,11 +318,12 @@ DBG_MESSAGE("zugfahrplan_t::ist_halt_erlaubt()","track ok");
 	return true;
 }
 
-void
-zugfahrplan_t::zeige_fehlermeldung(karte_t *welt) const
+
+void zugfahrplan_t::zeige_fehlermeldung() const
 {
-    create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Zughalt muss auf\nSchiene liegen!\n"), w_autodelete);
+	create_win(-1, -1, 60, new news_img("Zughalt muss auf\nSchiene liegen!\n"), w_autodelete);
 }
+
 
 bool
 autofahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
@@ -345,11 +344,12 @@ autofahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 	return true;
 }
 
-void
-autofahrplan_t::zeige_fehlermeldung(karte_t *welt) const
+
+void autofahrplan_t::zeige_fehlermeldung() const
 {
-    create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Autohalt muss auf\nStrasse liegen!\n"), w_autodelete);
+	create_win(-1, -1, 60, new news_img("Autohalt muss auf\nStrasse liegen!\n"), w_autodelete);
 }
+
 
 bool
 schifffahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
@@ -357,11 +357,12 @@ schifffahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
     return gr!=NULL &&  (gr->ist_wasser()  ||  gr->hat_weg(water_wt));
 }
 
-void
-schifffahrplan_t::zeige_fehlermeldung(karte_t *welt) const
+
+void schifffahrplan_t::zeige_fehlermeldung() const
 {
-    create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Schiffhalt muss im\nWasser liegen!\n"), w_autodelete);
+	create_win(-1, -1, 60, new news_img("Schiffhalt muss im\nWasser liegen!\n"), w_autodelete);
 }
+
 
 bool
 airfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
@@ -370,11 +371,12 @@ airfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 	return hat_halt ? gr->hat_weg(air_wt) : true;
 }
 
-void
-airfahrplan_t::zeige_fehlermeldung(karte_t *welt) const
+
+void airfahrplan_t::zeige_fehlermeldung() const
 {
-    create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Flugzeughalt muss auf\nRunway liegen!\n"), w_autodelete);
+	create_win(-1, -1, 60, new news_img("Flugzeughalt muss auf\nRunway liegen!\n"), w_autodelete);
 }
+
 
 bool
 monorailfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
@@ -382,8 +384,8 @@ monorailfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 	return gr->hat_weg(monorail_wt);
 }
 
-void
-monorailfahrplan_t::zeige_fehlermeldung(karte_t *welt) const
+
+void monorailfahrplan_t::zeige_fehlermeldung() const
 {
-    create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Monorailhalt muss auf\nMonorail liegen!\n"), w_autodelete);
+	create_win(-1, -1, 60, new news_img("Monorailhalt muss auf\nMonorail liegen!\n"), w_autodelete);
 }

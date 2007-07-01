@@ -1603,7 +1603,7 @@ convoi_t::open_schedule_window()
 	// -convoi is in routing state 4 or 5
 	// -a line update is pending
 	if (state == FAHRPLANEINGABE /*|| state == CAN_START || state == CAN_START_ONE_MONTH*/ || line_update_pending != INVALID_LINE_ID) {
-		create_win(-1, -1, 120, new nachrichtenfenster_t(welt, "Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_autodelete);
+		create_win(-1, -1, 120, new news_img("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_autodelete);
 		return;
 	}
 

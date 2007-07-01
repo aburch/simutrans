@@ -13,18 +13,39 @@
  * Eine Klasse für Nachrichtenfenster.
  * @author Hj. Malthaner
  */
-class nachrichtenfenster_t : public gui_frame_t
+class news_window : public gui_frame_t
 {
-private:
-	gui_image_t bild;
-	gui_textarea_t meldung;
-	world_view_t view;
-	PLAYER_COLOR_VAL color;
+	public:
+		virtual PLAYER_COLOR_VAL get_titelcolor() const { return color; }
 
-public:
-	nachrichtenfenster_t(karte_t *welt, const char *text, image_id bild=skinverwaltung_t::meldungsymbol->gib_bild_nr(0), koord k=koord::invalid, PLAYER_COLOR_VAL color=WIN_TITEL );
+	protected:
+		news_window(const char* text, PLAYER_COLOR_VAL color);
 
-	virtual PLAYER_COLOR_VAL get_titelcolor() const { return color; }
+	private:
+		gui_textarea_t meldung;
+		PLAYER_COLOR_VAL color;
+};
+
+
+/* Shows a news window with an image */
+class news_img : public news_window
+{
+	public:
+		news_img(const char* text, image_id bild = skinverwaltung_t::meldungsymbol->gib_bild_nr(0), PLAYER_COLOR_VAL color = WIN_TITEL);
+
+	private:
+		gui_image_t bild;
+};
+
+
+/* Shows a news window with a view on some location */
+class news_loc : public news_window
+{
+	public:
+		news_loc(karte_t* welt, const char* text, koord k, PLAYER_COLOR_VAL color = WIN_TITEL);
+
+	private:
+		world_view_t view;
 };
 
 #endif

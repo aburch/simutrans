@@ -286,18 +286,18 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "called on %d,%d for bridge type '%s'",
 	if(!weg || !ist_ende_ok(sp, gr)) {
 DBG_MESSAGE("brueckenbauer_t::baue()", "no way %x found",besch->gib_waytype());
 		if(welt->get_active_player()==sp) {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"A bridge must start on a way!"), w_autodelete);
+			create_win(-1, -1, MESG_WAIT, new news_img("A bridge must start on a way!"), w_autodelete);
 		}
 		return false;
 	}
 
 	if(gr->kann_alle_obj_entfernen(sp)) {
-		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
+		create_win(-1, -1, MESG_WAIT, new news_img("Tile not empty."), w_autodelete);
 		return false;
 	}
 
 	if(!hang_t::ist_wegbar(gr->gib_grund_hang())) {
-		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Bruecke muss an\neinfachem\nHang beginnen!\n"), w_autodelete);
+		create_win(-1, -1, MESG_WAIT, new news_img("Bruecke muss an\neinfachem\nHang beginnen!\n"), w_autodelete);
 		return false;
 	}
 
@@ -314,7 +314,7 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "no way %x found",besch->gib_waytype());
 		}
 	}
 	if(!ribi) {
-		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"A bridge must start on a way!"), w_autodelete);
+		create_win(-1, -1, MESG_WAIT, new news_img("A bridge must start on a way!"), w_autodelete);
 		return false;
 	}
 
@@ -323,20 +323,20 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "no way %x found",besch->gib_waytype());
 	koord3d end = finde_ende(welt, gr->gib_pos(), zv, besch->gib_waytype());
 
 	if(besch->gib_max_length()>0  &&  abs_distance(gr->gib_pos().gib_2d(),end.gib_2d())>(unsigned)besch->gib_max_length()) {
-		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Bridge is too long for this type!\n"), w_autodelete);
+		create_win(-1, -1, MESG_WAIT, new news_img("Bridge is too long for this type!\n"), w_autodelete);
 		return false;
 	}
 
 	// pruefe ob bruecke auf strasse/schiene endet
 	if(!welt->ist_in_kartengrenzen(end.gib_2d()) || !ist_ende_ok(sp, welt->lookup(end))) {
 DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
-		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"A bridge must end on a way!"), w_autodelete);
+		create_win(-1, -1, MESG_WAIT, new news_img("A bridge must end on a way!"), w_autodelete);
 		return false;
 	}
 
 	grund_t * gr_end = welt->lookup(end);
 	if(gr_end->kann_alle_obj_entfernen(sp)) {
-		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
+		create_win(-1, -1, MESG_WAIT, new news_img("Tile not empty."), w_autodelete);
 		return false;
 	}
 	// Anfang und ende sind geprueft, wir konnen endlich bauen

@@ -380,19 +380,20 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			bool b_depot_found = false;
 			if (shortest_route->gib_max_n() > -1) {
 				fahrplan_t *fpl = cnv->gib_fahrplan();
-				karte_t* welt = cnv->get_welt();
-				fpl->insert(welt, welt->lookup(home));
+				fpl->insert(cnv->get_welt()->lookup(home));
 				b_depot_found = cnv->setze_fahrplan(fpl);
 			}
 			delete shortest_route;
 			route_search_in_progress = false;
 
 			// show result
+			const char* txt;
 			if (b_depot_found) {
-				create_win(-1, -1, 120, new nachrichtenfenster_t(cnv->get_welt(), "Convoi has been sent\nto the nearest depot\nof appropriate type.\n"), w_autodelete);
+				txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
 			} else {
-				create_win(-1, -1, 120, new nachrichtenfenster_t(cnv->get_welt(), "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually."), w_autodelete);
+				txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
 			}
+			create_win(-1, -1, 120, new news_img(txt), w_autodelete);
 		} // end go home button
 	}
 

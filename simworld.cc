@@ -2182,7 +2182,7 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 
 	display_show_load_pointer( true );
 	if(!file.wr_open(filename,loadsave_t::save_mode,umgebung_t::objfilename)) {
-		create_win(-1, -1, new nachrichtenfenster_t(this, "Kann Spielstand\nnicht speichern.\n"), w_autodelete);
+		create_win(-1, -1, new news_img("Kann Spielstand\nnicht speichern.\n"), w_autodelete);
 		dbg->error("karte_t::speichern()","cannot open file for writing! check permissions!");
 	}
 	else {
@@ -2191,11 +2191,11 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 		if(success) {
 			static char err_str[512];
 			sprintf( err_str, translator::translate("Error during saving:\n%s"), success );
-			create_win(-1, -1, 30, new nachrichtenfenster_t(this, err_str), w_autodelete);
+			create_win(-1, -1, 30, new news_img(err_str), w_autodelete);
 		}
 		else {
 			if(!silent) {
-				create_win(-1, -1, 30, new nachrichtenfenster_t(this, "Spielstand wurde\ngespeichert!\n"), w_autodelete);
+				create_win(-1, -1, 30, new news_img("Spielstand wurde\ngespeichert!\n"), w_autodelete);
 				// update the filename, if no autosave
 				einstellungen->setze_filename(filename);
 			}
@@ -2313,14 +2313,14 @@ karte_t::laden(const char *filename)
 	if(!file.rd_open(filename)) {
 
 		if(file.get_version() == -1) {
-			create_win(-1, -1, new nachrichtenfenster_t(this, "WRONGSAVE"), w_autodelete);
+			create_win(-1, -1, new news_img("WRONGSAVE"), w_autodelete);
 		}
 		else {
-			create_win(-1, -1, new nachrichtenfenster_t(this, "Kann Spielstand\nnicht laden.\n"), w_autodelete);
+			create_win(-1, -1, new news_img("Kann Spielstand\nnicht laden.\n"), w_autodelete);
 		}
 	} else if(file.get_version() < 84006) {
 		// too old
-		create_win(-1, -1, new nachrichtenfenster_t(this, "WRONGSAVE"), w_autodelete);
+		create_win(-1, -1, new news_img("WRONGSAVE"), w_autodelete);
 	}
 	else {
 		destroy_all_win();
@@ -2333,7 +2333,7 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 		laden(&file);
 		ok = true;
 		file.close();
-		create_win(-1, -1, 30, new nachrichtenfenster_t(this, "Spielstand wurde\ngeladen!\n"), w_autodelete);
+		create_win(-1, -1, 30, new news_img("Spielstand wurde\ngeladen!\n"), w_autodelete);
 	}
 #endif
 	einstellungen->setze_filename(filename);
@@ -2780,7 +2780,7 @@ void karte_t::load_heightfield(einstellungen_t *sets)
     if(strncmp(buf, "P6", 2)) {
       dbg->error("karte_t::load_heightfield()",
 		 "Heightfield has wrong image type %s", buf);
-      create_win(-1, -1, new nachrichtenfenster_t(this, "\nHeightfield has wrong image type.\n"), w_autodelete);
+      create_win(-1, -1, new news_img("\nHeightfield has wrong image type.\n"), w_autodelete);
       return;
     }
 
@@ -2805,7 +2805,7 @@ void karte_t::load_heightfield(einstellungen_t *sets)
 			"Cant open file '%s'", (const char*)sets->heightfield
 		);
 
-    create_win(-1, -1, new nachrichtenfenster_t(this, "\nCan't open heightfield file.\n"), w_autodelete);
+    create_win(-1, -1, new news_img("\nCan't open heightfield file.\n"), w_autodelete);
   }
 }
 
@@ -3199,7 +3199,7 @@ karte_t::interactive_event(event_t &ev)
 	case 'c':
 	    sound_play(click_sound);
 	    display_snapshot();
-	    create_win(-1, -1, 60, new nachrichtenfenster_t(this, "Screenshot\ngespeichert.\n"), w_autodelete);
+	    create_win(-1, -1, 60, new news_img("Screenshot\ngespeichert.\n"), w_autodelete);
             break;
 	case 'd':
 	    setze_maus_funktion(wkz_lower, skinverwaltung_t::downzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );
@@ -3337,7 +3337,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 
 	case 'z':
-		wkz_undo(get_active_player(),this);
+		wkz_undo(get_active_player());
 		break;
 
 	case 'V':
@@ -3528,7 +3528,7 @@ DBG_MESSAGE("karte_t::interactive_event()","key `%c` is not bound to a function.
 	    case 18:
 		sound_play(click_sound);
                 display_snapshot();
-		create_win(-1, -1, 60, new nachrichtenfenster_t(this, "Screenshot\ngespeichert.\n"), w_autodelete);
+		create_win(-1, -1, 60, new news_img("Screenshot\ngespeichert.\n"), w_autodelete);
 		break;
 				case 19:
 					// Pause: warten auf die nächste Taste

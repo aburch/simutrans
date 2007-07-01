@@ -92,7 +92,7 @@ int wkz_list_factory_tool(spieler_t *, karte_t *welt,koord k);
 int wkz_list_curiosity_tool(spieler_t *, karte_t *welt,koord k);
 
 /* undo building */
-int wkz_undo(spieler_t *sp, karte_t *welt);
+int wkz_undo(spieler_t* sp);
 
 int wkz_headquarter(spieler_t *sp, karte_t *welt, koord pos);
 

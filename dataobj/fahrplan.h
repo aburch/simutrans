@@ -6,7 +6,6 @@
 #include "../tpl/minivec_tpl.h"
 
 
-class karte_t;
 class grund_t;
 
 
@@ -40,7 +39,7 @@ public:
    * sollte eine Fehlermeldung ausgeben, wenn halt nicht erlaubt ist
    * @author Hj. Malthaner
    */
-  virtual void zeige_fehlermeldung(karte_t *) const {}
+  virtual void zeige_fehlermeldung() const {}
 
   /**
    * der allgemeine Fahrplan erlaubt haltestellen überall.
@@ -91,12 +90,12 @@ public:
 	 * fügt eine koordinate an stelle aktuell in den Fahrplan ein
 	 * alle folgenden Koordinaten verschieben sich dadurch
 	 */
-	bool insert(karte_t *welt, const grund_t *gr,int ladegrad=0);
+	bool insert(const grund_t* gr, int ladegrad = 0);
 
 	/**
 	 * hängt eine koordinate an den fahrplan an
 	 */
-	bool append(karte_t *welt, const grund_t *gr,int ladegrad=0);
+	bool append(const grund_t* gr, int ladegrad = 0);
 
 	// cleanup a schedule, removes double entries
 	void cleanup();
@@ -146,7 +145,7 @@ public:
 	zugfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = zugfahrplan; }
 	zugfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = zugfahrplan; }
 	fahrplan_t* copy() { return new zugfahrplan_t(this); }
-	void zeige_fehlermeldung(karte_t *) const;
+	void zeige_fehlermeldung() const;
 };
 
 /* the schedule for monorail ...
@@ -181,7 +180,7 @@ public:
 	autofahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = autofahrplan; }
 	autofahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = autofahrplan; }
 	fahrplan_t* copy() { return new autofahrplan_t(this); }
-	void zeige_fehlermeldung(karte_t *) const;
+	void zeige_fehlermeldung() const;
 };
 
 
@@ -202,7 +201,7 @@ public:
     schifffahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = schifffahrplan; }
     schifffahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = schifffahrplan; }
     fahrplan_t* copy() { return new schifffahrplan_t(this); }
-    virtual void zeige_fehlermeldung(karte_t *) const;
+    virtual void zeige_fehlermeldung() const;
 };
 
 
@@ -220,7 +219,7 @@ public:
 	airfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = airfahrplan; }
 	airfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = airfahrplan; }
 	fahrplan_t* copy() { return new airfahrplan_t(this); }
-	void zeige_fehlermeldung(karte_t *) const;
+	void zeige_fehlermeldung() const;
 };
 
 /* the schedule for monorail ...
@@ -237,7 +236,7 @@ public:
 	monorailfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = monorailfahrplan; }
 	monorailfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = monorailfahrplan; }
 	fahrplan_t* copy() { return new monorailfahrplan_t(this); }
-	void zeige_fehlermeldung(karte_t *) const;
+	void zeige_fehlermeldung() const;
 };
 
 #endif

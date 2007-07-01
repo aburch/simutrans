@@ -195,7 +195,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			build_line_list( tabs.get_active_tab_index() );
 		}
 		else {
-			create_win(-1, -1, 120, new nachrichtenfenster_t(sp->get_welt(), "Cannot create generic line!\nSelect line type by\nusing filter tabs."), w_autodelete);
+			create_win(-1, -1, 120, new news_img("Cannot create generic line!\nSelect line type by\nusing filter tabs."), w_autodelete);
 		}
 	}
 	else if (komp == &bt_delete_line) {

@@ -852,8 +852,7 @@ DBG_MESSAGE("init","map");
 				destroy_win(sg);
 				destroy_win(cg);
 
-				nachrichtenfenster_t *nd = new nachrichtenfenster_t(welt, "Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->gib_bild_nr(0));
-				create_win(200, 100, nd, w_autodelete);
+				create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->gib_bild_nr(0)), w_autodelete);
 				intr_refresh_display(true);
 
 				sets->heightfield = "";

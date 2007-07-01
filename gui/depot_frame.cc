@@ -1201,11 +1201,11 @@ void depot_frame_t::fahrplaneingabe()
 			}
 		}
 		else {
-			create_win(100, 64, new nachrichtenfenster_t(get_welt(), "Es wird bereits\nein Fahrplan\neingegeben\n"), w_autodelete);
+			create_win(100, 64, new news_img("Es wird bereits\nein Fahrplan\neingegeben\n"), w_autodelete);
 		}
 	}
 	else {
-		create_win(100, 64, new nachrichtenfenster_t(get_welt(), "Please choose vehicles first\n"), w_autodelete);
+		create_win(100, 64, new news_img("Please choose vehicles first\n"), w_autodelete);
 	}
 }
 

@@ -318,12 +318,12 @@ bool depot_t::start_convoi(convoihandle_t cnv)
 
 		// pruefen ob zug vollstaendig
 		if(cnv->gib_sum_leistung() == 0 || !cnv->pruefe_alle()) {
-			create_win(100, 64, MESG_WAIT, new nachrichtenfenster_t(welt, "Diese Zusammenstellung kann nicht fahren!\n"), w_autodelete);
+			create_win(100, 64, MESG_WAIT, new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_autodelete);
 		} else if (!cnv->gib_vehikel(0)->calc_route(this->gib_pos(), cur_pos, cnv->gib_min_top_speed(), cnv->get_route())) {
 			// no route to go ...
 			static char buf[256];
 			sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->gib_name());
-			create_win(100, 64, MESG_WAIT, new nachrichtenfenster_t(welt, buf), w_autodelete);
+			create_win(100, 64, MESG_WAIT, new news_img(buf), w_autodelete);
 		} else if (can_convoi_start(cnv)) {
 			// der Convoi kann losdüsen
 			cnv->setze_fahrplan( cnv->gib_fahrplan() );     // do not delete: this inform all stops!
@@ -334,11 +334,11 @@ bool depot_t::start_convoi(convoihandle_t cnv)
 			return true;
 		}
 		else {
-			create_win(100, 64, new nachrichtenfenster_t(welt, "Blockstrecke ist\nbelegt\n"), w_autodelete);
+			create_win(100, 64, new news_img("Blockstrecke ist\nbelegt\n"), w_autodelete);
 		}
 	}
 	else {
-		create_win(100, 64, new nachrichtenfenster_t(welt, "Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n"), w_autodelete);
+		create_win(100, 64, new news_img("Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n"), w_autodelete);
 
 		if(!cnv.is_bound()) {
 			dbg->warning("depot_t::start_convoi()","No convoi to start!");

@@ -313,16 +313,16 @@ DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
 
 		if(!weg || gr->gib_typ() != grund_t::boden) {
 			if(welt->get_active_player()==sp) {
-				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tunnel must start on single way!"), w_autodelete);
+				create_win(-1, -1, MESG_WAIT, new news_img("Tunnel must start on single way!"), w_autodelete);
 			}
 			return false;
 		}
 		if(!hang_t::ist_einfach(gr->gib_grund_hang())) {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Tunnel muss an\neinfachem\nHang beginnen!\n"), w_autodelete);
+			create_win(-1, -1, MESG_WAIT, new news_img("Tunnel muss an\neinfachem\nHang beginnen!\n"), w_autodelete);
 			return false;
 		}
 		if(weg->gib_ribi_unmasked() & ~ribi_t::rueckwaerts(ribi_typ(gr->gib_grund_hang()))) {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tunnel must end on single way!"), w_autodelete);
+			create_win(-1, -1, MESG_WAIT, new news_img("Tunnel must end on single way!"), w_autodelete);
 			return false;
 		}
 		zv = koord(gr->gib_grund_hang());
@@ -340,7 +340,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
 
 		// pruefe ob Tunnel auf strasse/schiene endet
 		if(!welt->ist_in_kartengrenzen(end.gib_2d())) {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tunnel must end on single way!"), w_autodelete);
+			create_win(-1, -1, MESG_WAIT, new news_img("Tunnel must end on single way!"), w_autodelete);
 			return false;
 		}
 

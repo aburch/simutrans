@@ -154,11 +154,23 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	char* p = list.front().msg;
 	// should we open an autoclose windows?
 	if (art & auto_win_flags) {
-		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,p,bild,pos,colorval), w_autodelete );
+		news_window* news;
+		if (pos == koord::invalid) {
+			news = new news_img(p, bild, colorval);
+		} else {
+			news = new news_loc(welt, p, pos, colorval);
+		}
+		create_win(-1, -1, MESG_WAIT, news, w_autodelete);
 	}
 
 	// should we open a normal windows?
 	if (art & win_flags) {
-		create_win(-1, -1,new nachrichtenfenster_t(welt,p,bild,pos,colorval),w_autodelete);
+		news_window* news;
+		if (pos == koord::invalid) {
+			news = new news_img(p, bild, colorval);
+		} else {
+			news = new news_loc(welt, p, pos, colorval);
+		}
+		create_win(-1, -1, news, w_autodelete);
 	}
 }
