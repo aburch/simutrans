@@ -165,8 +165,12 @@ schiene_t::rdwr(loadsave_t *file)
 		int old_max_speed=gib_max_speed();
 		const weg_besch_t *besch = wegbauer_t::gib_besch(bname);
 		if(besch==NULL) {
+			besch = wegbauer_t::gib_besch(translator::compatibility_name(bname));
+			dbg->warning("schiene_t::rdwr()", "Unknown rail %s replaced by %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
+		}
+		if(besch==NULL) {
 			besch = default_schiene;
-			dbg->warning("schiene_t::rwdr()", "Unknown rail %s replaced by a rail %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
+			dbg->warning("schiene_t::rdwr()", "Unknown rail %s replaced by the default %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
 		}
 		setze_besch(besch);
 		if(old_max_speed>0) {

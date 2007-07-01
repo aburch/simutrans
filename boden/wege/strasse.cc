@@ -72,10 +72,14 @@ strasse_t::rdwr(loadsave_t *file)
 		file->rd_str_into(bname, "\n");
 
 		const weg_besch_t *besch = wegbauer_t::gib_besch(bname);
+		int old_max_speed = gib_max_speed();
 		if(besch==NULL) {
-			int old_max_speed=gib_max_speed();
+			besch = wegbauer_t::gib_besch(translator::compatibility_name(bname));
+			dbg->warning("strasse_t::rdwr()", "Unknown street %s replaced by %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
+		}
+		if(besch==NULL) {
 			besch = default_strasse;
-			dbg->warning("strasse_t::rwdr()", "Unknown street %s replaced by a street %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
+			dbg->warning("strasse_t::rdwr()", "Unknown street %s replaced by the default %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
 		}
 		setze_besch(besch);
 		if(besch->gib_topspeed()>50  &&  hat_gehweg()) {
