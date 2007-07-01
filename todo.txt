@@ -6,8 +6,8 @@ bridges and tunnels with no initial road
 bahnhofsdetaildialog
 Toolwindow with 10 last used tools (in fixed order)
 timeline speeds from file instad calculation
-A* for goods and using halthandles instead coordinates!
-intergrate field code from kierongreen
+A* for goods
+passengers from/to headquarters
 
 Stichpunkte
 
@@ -46,10 +46,12 @@ Stichpunkte
 - more than one translation: done
 - Jahreszeiten: done
 - set animation speed in pak-file, allow season in pak file: done
-
+-  and using halthandles instead coordinates: done
 - details for convois: halfway
 - Brücken an senkrechten Wänden: done/halfway
+- plane shadow: done
 - tile 2x height: halfway-> need conversion for textures needed
+- blocking crossing with animation/sound and transparent graphics: done
 
 - connection weighted by their intermediate stops => A* for goods routing
 - when import translation: ignore entries which are identical (saving runtime)
@@ -58,13 +60,11 @@ Stichpunkte
 - scripting for AI
 - Landfabrik alle x Jahre/Fakriken
 - merge identical images in makeobj
-- blocking crossing with animation/sound and transparent graphics
 - busy platforms
 - custom tool bars
 - Signals switching nearly like before (should be easy)
 - Odometer/Lifetime
-- plane shadow
-- renaming factories
+- renaming factories/player
 - longer financial history
 
 Immer zu tun:

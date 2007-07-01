@@ -654,9 +654,7 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 		}
 	}
 
-	char *name = (char *)guarded_malloc( strlen(buf) );
-	strcpy( name, buf );
-	return name;
+	return strdup(buf);
 }
 
 

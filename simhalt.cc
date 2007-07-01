@@ -379,17 +379,8 @@ void
 haltestelle_t::setze_name(const char *new_name)
 {
 	grund_t *gr = welt->lookup_kartenboden(gib_basis_pos());
-	if(gr  &&  gr->gib_text()!=new_name  &&  !gr->find<label_t>()) {
-		const char *old_name = gr->gib_text();
-		if(old_name) {
-			guarded_free( (void *)old_name);
-		}
-		char *new_text = NULL;
-		if(new_name!=NULL  &&  new_name[0]==0) {
-			new_text = (char *)guarded_malloc( strlen(new_name)+1 );
-			strcpy( new_text, new_name );
-		}
-		gr->setze_text( new_text );
+	if(gr  &&  !gr->find<label_t>()) {
+		gr->setze_text( new_name );
 	}
 }
 
@@ -1904,10 +1895,6 @@ haltestelle_t::rdwr(loadsave_t *file)
 		grund_t* bd = welt->lookup_kartenboden(gib_basis_pos());
 		if(bd==NULL  ||  !bd->get_flag(grund_t::has_text) ) {
 			bd = welt->lookup(gib_basis_pos3d());
-			if(bd!=NULL  &&  bd->get_flag(grund_t::has_text)) {
-				setze_name(bd->gib_text());
-			}
-
 		}
 	}
 

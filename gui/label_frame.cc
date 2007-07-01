@@ -237,8 +237,7 @@ void label_frame_t::create_label(const char *name)
 		} else {
 			if (l->gib_besitzer() == sp) {
 				// just change text
-				free(const_cast<char*>(gr->gib_text()));
-				gr->setze_text(strdup(name));
+				gr->setze_text(name);
 			}
 		}
 	}

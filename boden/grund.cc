@@ -60,6 +60,7 @@
 
 #include "../simcolor.h"
 #include "../simconst.h"
+#include "../simmem.h"
 #include "../simgraph.h"
 
 
@@ -102,8 +103,8 @@ void grund_t::entferne_grund_info() const
 
 
 /**
- * Setzt den Beschreibungstext.
- * @param text Der neue Beschreibungstext.
+ * Sets the text (by copying it)
+ * @param text new_text (NULL will free current text)
  * @see grund_t::text
  * @author Hj. Malthaner
  */
@@ -122,8 +123,12 @@ void grund_t::setze_text(const char *text)
     ground_texts.remove(n);
     clear_flag(has_text);
 
+		if(old) {
+			free( (void *)old );
+		}
+
     if(text) {
-      ground_texts.put(n, text);
+      ground_texts.put( n, strdup(text) );
       set_flag(has_text);
     }
 
@@ -182,6 +187,7 @@ void grund_t::rdwr(loadsave_t *file)
 		const char *text = 0;
 		file->rdwr_str(text, "+");
 		setze_text(text);
+		guarded_free((void *)text);
 	}
 
 	if(file->get_version()<99007) {

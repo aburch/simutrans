@@ -1286,7 +1286,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 				const int count = sp->get_haltcount();
 				const char *name = stadt->haltestellenname(pos, "Dock", count);
 				halt->setze_name( name );
-				guarded_free( (void *)name );
+				free( (void *)name );
 			}
 			else {
 				// get a default name
@@ -1512,7 +1512,7 @@ DBG_MESSAGE("wkz_halt_aux()", "new segment for station");
 			const int count = sp->get_haltcount();
 			const char *name = stadt->haltestellenname(pos, type_name, count);
 			halt->setze_name( name );
-			guarded_free( (void *)name );
+			free( (void *)name );
 		}
 		else {
 			// get a default name

@@ -46,7 +46,7 @@ label_t::label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text) :
 		}
 		if(text) {
 			if(text!=gr->gib_text()) {
-				char *new_text = (char *)guarded_malloc( strlen(text) );
+				char *new_text = (char *)guarded_malloc( strlen(text)+1 );
 				strcpy( new_text, text );
 				gr->setze_text( new_text );
 			}
