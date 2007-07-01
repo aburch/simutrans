@@ -32,7 +32,6 @@
 static vector_tpl<const haus_besch_t*> wohnhaeuser;
 static vector_tpl<const haus_besch_t*> gewerbehaeuser;
 static vector_tpl<const haus_besch_t*> industriehaeuser;
-slist_tpl<const haus_besch_t *> hausbauer_t::fabriken;
 slist_tpl<const haus_besch_t *> hausbauer_t::sehenswuerdigkeiten_land;
 slist_tpl<const haus_besch_t *> hausbauer_t::sehenswuerdigkeiten_city;
 slist_tpl<const haus_besch_t *> hausbauer_t::rathaeuser;
@@ -104,7 +103,6 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 
 		case gebaeude_t::unbekannt:
 		switch (besch->gib_utyp()) {
-			case haus_besch_t::fabrik:            fabriken.append(besch);                 break;
 			case haus_besch_t::denkmal:           denkmaeler.append(besch);               break;
 			case haus_besch_t::sehenswuerdigkeit: sehenswuerdigkeiten_land.append(besch); break;
 			case haus_besch_t::firmensitz:        headquarter.append(besch);              break;

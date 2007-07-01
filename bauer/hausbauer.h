@@ -34,7 +34,6 @@ class hausbauer_t
 		static slist_tpl<const haus_besch_t*> rathaeuser;
 		static slist_tpl<const haus_besch_t*> denkmaeler;
 		static slist_tpl<const haus_besch_t*> ungebaute_denkmaeler;
-		static slist_tpl<const haus_besch_t*> fabriken;
 
 	public:
 		/**
