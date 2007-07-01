@@ -18,7 +18,6 @@
 #include "components/gui_divider.h"
 #include "components/gui_label.h"
 #include "components/gui_button.h"
-#include "components/gui_tab_panel.h"
 
 
 class savegame_frame_t : public gui_frame_t, action_listener_t
@@ -33,7 +32,6 @@ private:
 	gui_label_t fnlabel;        //filename                // 31-Oct-2001  Markus Weber    Added
 	gui_container_t button_frame;
 	gui_scrollpane_t scrolly;
-	gui_tab_panel_t tabs;	// if game categorie is used
 
 	/**
 	 * Filename suffix, i.e. ".sve", must be four characters
