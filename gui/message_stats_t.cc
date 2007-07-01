@@ -73,7 +73,7 @@ void message_stats_t::zeichnen(koord offset)
 		}
 
 		message_t::node *n=msg->get_node(i);
-		if(n==NULL  ||  n->msg==NULL) {
+		if (n == NULL) {
 DBG_MESSAGE("message_stats_t::zeichnen()","invalid message %i",i);
 			// paranoia
 			break;
