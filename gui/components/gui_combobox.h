@@ -31,7 +31,7 @@ private:
      * the drop box list
      * @author hsiegeln
      */
-    gui_scrolled_list_t * droplist;
+    gui_scrolled_list_t droplist;
 
 	/*
 	 * flag for first call
@@ -77,25 +77,25 @@ public:
 	 * add element to droplist
 	 * @author hsiegeln
 	 */
-	void append_element(char * text,uint8 color=COL_BLACK) { droplist->append_element( text, color ); }
+	void append_element(char* text, uint8 color = COL_BLACK) { droplist.append_element(text, color); }
 
 	/**
 	 * remove all elements from droplist
 	 * @author hsiegeln
 	 */
-	void clear_elements() { droplist->clear_elements(); }
+	void clear_elements() { droplist.clear_elements(); }
 
 	/**
 	 * remove all elements from droplist
 	 * @author hsiegeln
 	 */
-	int count_elements() { return droplist->get_count(); }
+	int count_elements() { return droplist.get_count(); }
 
 	/**
 	 * sets the highlight color for the droplist
 	 * @author hsiegeln
 	 */
-	void set_highlight_color(int color) { droplist->setze_highlight_color(color); }
+	void set_highlight_color(int color) { droplist.setze_highlight_color(color); }
 
 	/**
 	 * set maximum size for control
@@ -107,7 +107,7 @@ public:
 	  * returns the selection id
 	  * @author hsiegeln
 	  */
-	  int get_selection() { return droplist->gib_selection(); }
+	  int get_selection() { return droplist.gib_selection(); }
 
 	  /**
 	   * sets the selection
