@@ -44,10 +44,8 @@ news_img::news_img(const char* text, image_id id, PLAYER_COLOR_VAL color) :
 
 news_loc::news_loc(karte_t* welt, const char* text, koord k, PLAYER_COLOR_VAL color) :
 	news_window(text, color),
-	view(welt, koord3d::invalid)
+	view(welt, welt->lookup_kartenboden(k)->gib_pos())
 {
-	const planquadrat_t* p = welt->lookup(k);
-	view.set_location(p->gib_kartenboden()->gib_pos());
 	view.setze_pos(koord(230 - get_tile_raster_width() - 5, 10));
 	view.setze_groesse(koord(get_tile_raster_width(), get_tile_raster_width() * 5 / 6));
 	add_komponente(&view);
