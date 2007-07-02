@@ -235,21 +235,7 @@ halthandle_t haltestelle_t::create(karte_t *welt, loadsave_t *file)
  */
 void haltestelle_t::destroy(halthandle_t &halt)
 {
-	// first: remove halt from all lists
-	int i=0;
-	while(alle_haltestellen.contains(halt)) {
-		alle_haltestellen.remove(halt);
-		i++;
-	}
-	if (i != 1) {
-		dbg->error("haltestelle_t::~haltestelle_t()", "handle %i found %i times in haltlist!", halt.get_id(), i );
-	}
-	// do not forget the players list ...
-	if(halt->gib_besitzer()!=NULL) {
-		halt->gib_besitzer()->halt_remove( halt );
-	}
-
-	haltestelle_t *p = halt.detach();
+	haltestelle_t *p = halt.get_rep();
 	delete p;
 }
 
@@ -343,22 +329,44 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 haltestelle_t::~haltestelle_t()
 {
-	assert(!self.is_bound());
+	assert(self.is_bound());
 
+	// first: remove halt from all lists
+	int i=0;
+	while(alle_haltestellen.contains(self)) {
+		alle_haltestellen.remove(self);
+		i++;
+	}
+	if (i != 1) {
+		dbg->error("haltestelle_t::~haltestelle_t()", "handle %i found %i times in haltlist!", self.get_id(), i );
+	}
+
+	// do not forget the players list ...
+	if(besitzer_p!=NULL) {
+		besitzer_p->halt_remove(self);
+	}
+
+	// remove ground and free name
 	setze_name(NULL);
-	// remove ground
 	while (!tiles.empty()) {
 		rem_grund(tiles.front().grund);
 	}
-	// remove last halthandle (for stops without ground, created during loading)
+
+	/* remove probably remaining halthandle at init_pos
+	 * (created during loadtime for stops without ground) */
 	planquadrat_t* p = welt->access(init_pos);
-	if (p && p->gib_halt() == self) p->setze_halt(halthandle_t());
+	if(p  &&  p->gib_halt()==self) {
+		p->setze_halt( halthandle_t() );
+	}
 
 	if(halt_info) {
 		destroy_win(halt_info);
 		delete halt_info;
-		halt_info = 0;
 	}
+
+	// finally detach handle
+	// before it is needed for clearing up the planqudrat and tiles
+	self.unbind();
 
 	for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
 		if(waren[i]) {
@@ -368,7 +376,7 @@ haltestelle_t::~haltestelle_t()
 	}
 	free( waren );
 
-	// route may have changed without this station ...
+	// routes may have changed without this station ...
 	welt->set_schedule_counter();
 }
 
