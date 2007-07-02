@@ -54,13 +54,9 @@ label_t::label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text) :
 
 label_t::~label_t()
 {
-	welt->remove_label( gib_pos().gib_2d() );
-	grund_t *gr=welt->lookup_kartenboden(gib_pos().gib_2d());
-	const char *txt = gr->gib_text();
-	if(gr  &&  txt) {
-		gr->setze_text(NULL);
-		guarded_free( (void *)txt );
-	}
+	koord k = gib_pos().gib_2d();
+	welt->remove_label(k);
+	welt->lookup_kartenboden(k)->setze_text(NULL);
 }
 
 
