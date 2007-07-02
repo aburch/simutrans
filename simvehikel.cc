@@ -1485,13 +1485,12 @@ automobil_t::ist_weg_frei(int &restart_speed)
 				// since at the corner, our direct may be diagonal, we make it straight
 				const uint8 richtung = ribi_typ(gib_pos().gib_2d(),pos_next.gib_2d());
 
-				if(rs->gib_besch()->is_traffic_light()) {
-					if((rs->get_dir()&richtung)==0) {
-						fahrtrichtung = richtung;
-						calc_bild();
-						// wait here
-						return false;
-					}
+				if(rs->gib_besch()->is_traffic_light()  &&  (rs->get_dir()&richtung)==0) {
+					fahrtrichtung = richtung;
+					calc_bild();
+					// wait here
+					restart_speed = 16;
+					return false;
 				}
 				// check, if we reached a choose point
 				else if(rs->is_free_route(richtung)) {
