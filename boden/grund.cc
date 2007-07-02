@@ -113,17 +113,19 @@ void grund_t::entferne_grund_info() const
 void grund_t::setze_text(const char *text)
 {
 	const uint32 n = get_ground_text_key(welt, pos);
-	if (text) {
+	if(text) {
 		char* new_text = strdup(text);
 		free(ground_texts.remove(n));
 		ground_texts.put(n, new_text);
 		set_flag(has_text);
-	} else {
+		set_flag(dirty);
+		welt->setze_dirty();
+	} else if(get_flag(has_text)) {
 		free(ground_texts.remove(n));
 		clear_flag(has_text);
+		set_flag(dirty);
+		welt->setze_dirty();
 	}
-	set_flag(dirty);
-	welt->setze_dirty();
 }
 
 
@@ -132,7 +134,7 @@ const char* grund_t::gib_text() const
 {
 	const char * result = 0;
 	if(flags & has_text) {
-		result = ground_texts.get(get_ground_text_key(welt, pos));
+		result = ground_texts.get( get_ground_text_key(welt, pos) );
 	}
 	return result;
 }
@@ -328,7 +330,7 @@ grund_t::~grund_t()
 	destroy_win(grund_infos.get(this));
 
 	// remove text from table
-	free(ground_texts.remove(get_ground_text_key(welt, pos)));
+	setze_text(NULL);
 
 	dinge.loesche_alle(NULL,0);
 	if(flags&is_halt_flag) {
@@ -668,20 +670,24 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos) const
 		}
 	}
 
-	if(flags&has_way1) {
+	if(  flags&has_way1  ) {
 		sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
 		const ding_t* d = obj_bei(0);
-		display_color_img(d->gib_bild(), xpos, ynpos, d->get_player_nr(), true, dirty);
+		display_color_img( d->gib_bild(), xpos, ynpos, d->get_player_nr(), true, dirty );
 		PLAYER_COLOR_VAL pc = d->gib_outline_colour();
-		if (pc) display_img_blend(d->gib_bild(), xpos, ynpos, pc, true, dirty);
+		if(pc) {
+			display_img_blend( d->gib_bild(), xpos, ynpos, pc, true, dirty );
+		}
 	}
 
-	if(flags&has_way2){
+	if(  flags&has_way2  ){
 		sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
 		const ding_t* d = obj_bei(1);
-		display_color_img(d->gib_bild(), xpos, ynpos, d->get_player_nr(), true, dirty);
+		display_color_img( d->gib_bild(), xpos, ynpos, d->get_player_nr(), true, dirty );
 		PLAYER_COLOR_VAL pc = d->gib_outline_colour();
-		if (pc) display_img_blend(d->gib_bild(), xpos, ynpos, pc, true, dirty);
+		if(pc) {
+			display_img_blend( d->gib_bild(), xpos, ynpos, pc, true, dirty );
+		}
 	}
 }
 
@@ -1082,7 +1088,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 			}
 		}
 		else {
-	DBG_MESSAGE("wkz_wayremover()","change remaining way to ribi %d",add);
+DBG_MESSAGE("wkz_wayremover()","change remaining way to ribi %d",add);
 			// something will remain, we just change ribis
 			weg_erweitern(wt, add);
 			calc_bild();
