@@ -137,14 +137,14 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const 
 }
 
 
-fahrplan_gui_t::fahrplan_gui_t(convoihandle_t cnv_, spieler_t* sp_) :
-	gui_frame_t("Fahrplan", sp_),
+fahrplan_gui_t::fahrplan_gui_t(convoihandle_t cnv_) :
+	gui_frame_t("Fahrplan", cnv_->gib_besitzer()),
 	scrolly(&fpl_text),
 	fpl_text("\n"),
 	lb_line("Serves Line:"),
 	lb_load("Full load"),
 	fpl(cnv_->gib_fahrplan()),
-	sp(sp_),
+	sp(cnv_->gib_besitzer()),
 	cnv(cnv_),
 	buf(8192)
 {

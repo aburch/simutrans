@@ -100,7 +100,7 @@ private:
 
 public:
     fahrplan_gui_t(fahrplan_t* fpl, spieler_t* sp);
-    fahrplan_gui_t(convoihandle_t cnv, spieler_t* sp);
+    fahrplan_gui_t(convoihandle_t cnv);
 
     /**
      * Mausklicks werden hiermit an die GUI-Komponenten
