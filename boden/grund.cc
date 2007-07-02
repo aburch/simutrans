@@ -333,7 +333,7 @@ grund_t::~grund_t()
 	destroy_win(grund_infos.get(this));
 
 	// remove text from table
-	ground_texts.remove((pos.x << 16) + pos.y);
+	free(ground_texts.remove((pos.x << 16) + pos.y));
 
 	dinge.loesche_alle(NULL,0);
 	if(flags&is_halt_flag) {
