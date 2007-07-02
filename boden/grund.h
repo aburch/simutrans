@@ -324,12 +324,10 @@ public:
 	virtual void calc_bild();
 
 	/**
-	* Setzt den Beschreibungstext.
-	* @param text Der neue Beschreibungstext.
-	* @see grund_t::text
-	* @author Hj. Malthaner
-	*/
-	void setze_text(const char *text);
+	 * Sets the label text (by copying it)
+	 * @param text the new text (NULL will remove any label text)
+	 */
+	void setze_text(const char* text);
 
 	virtual bool ist_natur() const {return false;}
 	virtual bool ist_wasser() const {return false;}

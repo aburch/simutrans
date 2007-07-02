@@ -77,7 +77,7 @@
  * Table of ground texts
  * @author Hj. Malthaner
  */
-inthashtable_tpl <unsigned long, const char*> ground_texts;
+static inthashtable_tpl<unsigned long, char*> ground_texts;
 
 
 /**
@@ -102,12 +102,6 @@ void grund_t::entferne_grund_info() const
 
 
 
-/**
- * Sets the text (by copying it)
- * @param text new_text (NULL will free current text)
- * @see grund_t::text
- * @author Hj. Malthaner
- */
 void grund_t::setze_text(const char *text)
 {
   // printf("Height %x\n", (pos.z - welt->gib_grundwasser())/Z_TILE_STEP);
@@ -117,24 +111,17 @@ void grund_t::setze_text(const char *text)
     + (pos.y << 6)
     + ((pos.z - welt->gib_grundwasser())/Z_TILE_STEP);
 
-  const char * old = ground_texts.get(n);
-
-  if(old != text) {
-    ground_texts.remove(n);
-    clear_flag(has_text);
-
-		if(old) {
-			free( (void *)old );
-		}
-
-    if(text) {
-      ground_texts.put( n, strdup(text) );
-      set_flag(has_text);
-    }
-
-    set_flag(dirty);
-    welt->setze_dirty();
-  }
+	if (text) {
+		char* new_text = strdup(text);
+		free(ground_texts.remove(n));
+		ground_texts.put(n, new_text);
+		set_flag(has_text);
+	} else {
+		free(ground_texts.remove(n));
+		clear_flag(has_text);
+	}
+	set_flag(dirty);
+	welt->setze_dirty();
 }
 
 
