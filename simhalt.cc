@@ -196,7 +196,6 @@ DBG_MESSAGE("haltestelle_t::remove()", "removing building: cleanup");
 	if(!halt->existiert_in_welt()) {
 DBG_DEBUG("haltestelle_t::remove()","remove last");
 		// all deleted?
-		halt->gib_besitzer()->halt_remove( halt );
 DBG_DEBUG("haltestelle_t::remove()","destroy");
 		haltestelle_t::destroy( halt );
 	}
