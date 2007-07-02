@@ -425,7 +425,7 @@ public:
 	 * @param number if >= 0, then a number is added to the name
 	 * @author Hj. Malthaner
 	 */
-	const char * haltestellenname(koord pos, const char *typ, sint32 number);
+	char* haltestellenname(koord pos, const char* typ, sint32 number);
 
 	/**
 	 * Erzeugt ein Array zufaelliger Startkoordinaten,

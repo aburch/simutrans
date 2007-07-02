@@ -1284,9 +1284,9 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 			stadt_t *stadt = welt->suche_naechste_stadt(pos);
 			if(stadt) {
 				const int count = sp->get_haltcount();
-				const char *name = stadt->haltestellenname(pos, "Dock", count);
+				char* name = stadt->haltestellenname(pos, "Dock", count);
 				halt->setze_name( name );
-				free( (void *)name );
+				free(name);
 			}
 			else {
 				// get a default name
@@ -1510,9 +1510,9 @@ DBG_MESSAGE("wkz_halt_aux()", "new segment for station");
 		stadt_t *stadt = welt->suche_naechste_stadt(pos);
 		if(stadt) {
 			const int count = sp->get_haltcount();
-			const char *name = stadt->haltestellenname(pos, type_name, count);
+			char* name = stadt->haltestellenname(pos, type_name, count);
 			halt->setze_name( name );
-			free( (void *)name );
+			free(name);
 		}
 		else {
 			// get a default name

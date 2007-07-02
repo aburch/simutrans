@@ -498,8 +498,7 @@ static const char* const aussen_namen[] =
  * @param number if >= 0, then a number is added to the name
  * @author Hj. Malthaner
  */
-const char *
-stadt_t::haltestellenname(koord k, const char *typ, int number)
+char* stadt_t::haltestellenname(koord k, const char *typ, int number)
 {
 	const char* num_city_base = "%s city %d %s";
 	const char* num_land_base = "%s land %d %s";
