@@ -85,7 +85,7 @@ int halt_list_frame_t::compare_halts(const void *p1, const void *p2)
 			order = 0;
 			break;
 		case nach_wartend: // sort by waiting goods
-			order = halt1->sum_all_waiting_goods() - halt2->sum_all_waiting_goods();
+			order = (int)(halt1->get_finance_history( 0, HALT_WAITING ) - halt2->get_finance_history( 0, HALT_WAITING ));
 			break;
 		case nach_typ: // sort by station type
 			order = halt1->get_station_type() - halt2->get_station_type();

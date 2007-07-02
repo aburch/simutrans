@@ -35,6 +35,7 @@
 	FIX: finally really loading the Pxxx.bdf fonts (and generated new bdf-font based on old ones)
 	ADD: (kierongreen) ways will look for replacement during loadtime in no matching besch found
 	FIX: convoi speed reset to zero at traffic lights
+	CHANGE: faster sorting in haltlist for waiting amount
 
 
 Release of 99.12

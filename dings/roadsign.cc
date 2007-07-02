@@ -310,7 +310,13 @@ roadsign_t::display_after(int xpos, int ypos, bool ) const
 		const int raster_width = get_tile_raster_width();
 		ypos += tile_raster_scale_x(gib_yoff()+after_offset, raster_width);
 		xpos += tile_raster_scale_x(gib_xoff(), raster_width);
-		display_img(after_bild, xpos, ypos, get_flag(ding_t::dirty) );
+		// draw with owner
+		if(get_player_nr()!=-1) {
+			display_color_img(bild, xpos, ypos, get_player_nr(), true, get_flag(ding_t::dirty) );
+		}
+		else {
+			display_img(bild, xpos, ypos, get_flag(ding_t::dirty) );
+		}
 	}
 }
 

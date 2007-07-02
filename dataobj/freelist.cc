@@ -66,50 +66,47 @@ freelist_t::gimme_node(int size)
 
 	// hold return value
 	nodelist_node_t *tmp;
-#pragma omp critical
-	{
-		if(size>MAX_LIST_INDEX) {
-			switch(size) {
-				case message_node_size:
-					list = &message_nodes;
-					break;
-				case 1220:
-					list = &node1220;
-					break;
-				case 1624:
-					list = &node1624;
-					break;
-				case 2440:
-					list = &node2440;
-					break;
-				default:
-					dbg->fatal("freelist_t::gimme_node()","No list with size %i! (only up to %i and %i, 1220, 1624, 2440)", size, MAX_LIST_INDEX, message_node_size );
-			}
+	if(size>MAX_LIST_INDEX) {
+		switch(size) {
+			case message_node_size:
+				list = &message_nodes;
+				break;
+			case 1220:
+				list = &node1220;
+				break;
+			case 1624:
+				list = &node1624;
+				break;
+			case 2440:
+				list = &node2440;
+				break;
+			default:
+				dbg->fatal("freelist_t::gimme_node()","No list with size %i! (only up to %i and %i, 1220, 1624, 2440)", size, MAX_LIST_INDEX, message_node_size );
 		}
-		else {
-			list = &(all_lists[(size+3)/4]);
-		}
-
-		// need new memory?
-		if(*list==NULL) {
-			int num_elements = 32764/size;
-			char *p = (char *)guarded_malloc( num_elements*size+sizeof(p) );
-			// put the memory into the chunklist for free it
-			nodelist_node_t *chunk = (nodelist_node_t *)p;
-			chunk->next = chunk_list;
-			chunk_list = chunk;
-			p += sizeof(p);
-			// then enter nodes into nodelist
-			for( int i=0;  i<num_elements;  i++ ) {
-				nodelist_node_t *tmp = (nodelist_node_t *)(p+i*size);
-				tmp->next = *list;
-				*list = tmp;
-			}
-		}
-		// return first node
-		tmp = *list;
-		*list = tmp->next;
 	}
+	else {
+		list = &(all_lists[(size+3)/4]);
+	}
+
+	// need new memory?
+	if(*list==NULL) {
+		int num_elements = 32764/size;
+		char *p = (char *)guarded_malloc( num_elements*size+sizeof(p) );
+		// put the memory into the chunklist for free it
+		nodelist_node_t *chunk = (nodelist_node_t *)p;
+		chunk->next = chunk_list;
+		chunk_list = chunk;
+		p += sizeof(p);
+		// then enter nodes into nodelist
+		for( int i=0;  i<num_elements;  i++ ) {
+			nodelist_node_t *tmp = (nodelist_node_t *)(p+i*size);
+			tmp->next = *list;
+			*list = tmp;
+		}
+	}
+	// return first node
+	tmp = *list;
+	*list = tmp->next;
 	return (void *)tmp;
 }
 
@@ -147,38 +144,35 @@ freelist_t::putback_node(int size,void *p)
 	if(size==0  ||  p==NULL) {
 		return;
 	}
-#pragma omp critical
-	{
-		if(size>MAX_LIST_INDEX) {
-			switch(size) {
-				case message_node_size:
-					list = &message_nodes;
-					break;
-				case 1220:
-					list = &node1220;
-					break;
-				case 1624:
-					list = &node1624;
-					break;
-				case 2440:
-					list = &node2440;
-					break;
-				default:
-					dbg->fatal("freelist_t::gimme_node()","No list with size %i! (only up to %i and %i, 1220, 1624, 2440)", size, MAX_LIST_INDEX, message_node_size );
-			}
+	if(size>MAX_LIST_INDEX) {
+		switch(size) {
+			case message_node_size:
+				list = &message_nodes;
+				break;
+			case 1220:
+				list = &node1220;
+				break;
+			case 1624:
+				list = &node1624;
+				break;
+			case 2440:
+				list = &node2440;
+				break;
+			default:
+				dbg->fatal("freelist_t::gimme_node()","No list with size %i! (only up to %i and %i, 1220, 1624, 2440)", size, MAX_LIST_INDEX, message_node_size );
 		}
-		else {
-			list = &(all_lists[(size+3)/4]);
-		}
-	#ifdef DEBUG_MEM
-		putback_check_node(list,(nodelist_node_t *)p);
-	#else
-		// putback to first node
-		nodelist_node_t *tmp = (nodelist_node_t *)p;
-		tmp->next = *list;
-		*list = tmp;
-	#endif
 	}
+	else {
+		list = &(all_lists[(size+3)/4]);
+	}
+#ifdef DEBUG_MEM
+	putback_check_node(list,(nodelist_node_t *)p);
+#else
+	// putback to first node
+	nodelist_node_t *tmp = (nodelist_node_t *)p;
+	tmp->next = *list;
+	*list = tmp;
+#endif
 }
 
 

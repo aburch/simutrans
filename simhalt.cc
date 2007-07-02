@@ -236,8 +236,22 @@ halthandle_t haltestelle_t::create(karte_t *welt, loadsave_t *file)
  */
 void haltestelle_t::destroy(halthandle_t &halt)
 {
-    haltestelle_t * p = halt.detach();
-    delete p;
+	// first: remove halt from all lists
+	int i=0;
+	while(alle_haltestellen.contains(halt)) {
+		alle_haltestellen.remove(halt);
+		i++;
+	}
+	if(i>1  ||  i==0) {
+		dbg->error("haltestelle_t::~haltestelle_t()", "handle %i found %i times in haltlist!", halt.get_id(), i );
+	}
+	// do not forget the players list ...
+	if(halt->gib_besitzer()!=NULL) {
+		halt->gib_besitzer()->halt_remove( halt );
+	}
+
+	haltestelle_t *p = halt.detach();
+	delete p;
 }
 
 
@@ -348,16 +362,6 @@ haltestelle_t::~haltestelle_t()
 		halt_info = 0;
 	}
 
-	int i=0;
-	while(alle_haltestellen.contains(self)) {
-		alle_haltestellen.remove(self);
-		i++;
-	}
-	if(i>1) {
-		dbg->error("haltestelle_t::~haltestelle_t()", "found %i times in haltlist" );
-	}
-	self.unbind();
-
 	for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
 		if(waren[i]) {
 			delete waren[i];
@@ -389,8 +393,6 @@ void
 haltestelle_t::step()
 {
 //	DBG_MESSAGE("haltestelle_t::step()","%s (cnt %i)",gib_name(),reroute_counter);
-	// hsiegeln: update amount of waiting ware
-	financial_history[0][HALT_WAITING] = sum_all_waiting_goods();
 	if(rebuilt_destination_counter!=welt->get_schedule_counter()) {
 		// schedule has changed ...
 		rebuild_destinations();
@@ -719,6 +721,8 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	}
 
 #ifdef _OPENMP
+#define USE_ROUTE_SLIST_TPL 1
+
 	// multithreading: MUst keep track of nodes and the like
 	const uint32 threadnum = omp_get_thread_num();
 	const uint32 current_mark = (1<<threadnum);
@@ -1988,15 +1992,9 @@ haltestelle_t::laden_abschliessen()
 void
 haltestelle_t::book(sint64 amount, int cost_type)
 {
-	if (cost_type > MAX_HALT_COST)
-	{
-		// THIS SHOULD NEVER HAPPEN!
-		// CHECK CODE
-		dbg->warning("haltestelle_t::book()", "function was called with cost_type: %i, which is not valid (MAX_HALT_COST=%i)", cost_type, MAX_HALT_COST);
-		return;
-	}
+	assert(cost_type <= MAX_HALT_COST);
 	financial_history[0][cost_type] += amount;
-	financial_history[0][HALT_WAITING] = sum_all_waiting_goods();
+	recalc_status();
 }
 
 void
@@ -2034,19 +2032,31 @@ void haltestelle_t::recalc_status()
 		}
 	}
 
-	// check for goods
+	// update total waiting plus overflow
+	long total_sum = 0;
+	if(get_pax_enabled()) {
+		total_sum += gib_ware_summe(warenbauer_t::passagiere);
+	}
+	if(get_post_enabled()) {
+		total_sum += gib_ware_summe(warenbauer_t::post);
+	}
+
+	// now for all goods
 	if(status_color!=COL_RED  &&  get_ware_enabled()) {
 		const int count = warenbauer_t::gib_waren_anzahl();
 		const int max_ware = get_capacity();
 
 		for( int i=2; i+1<count; i++) {
 			const ware_besch_t *wtyp = warenbauer_t::gib_info(i+1);
-			if(  gib_ware_summe(wtyp)>max_ware  ) {
+			long ware_sum = gib_ware_summe(wtyp);
+			total_sum += ware_sum;
+			if(  ware_sum>max_ware  ) {
 				status_color = COL_RED;
-				break;
 			}
 		}
 	}
+
+	financial_history[0][HALT_WAITING] = total_sum;
 }
 
 

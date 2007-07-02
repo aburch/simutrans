@@ -56,7 +56,10 @@ label_t::~label_t()
 {
 	koord k = gib_pos().gib_2d();
 	welt->remove_label(k);
-	welt->lookup_kartenboden(k)->setze_text(NULL);
+	grund_t *gr = welt->lookup_kartenboden(k);
+	if(gr) {
+		gr->setze_text(NULL);
+	}
 }
 
 
