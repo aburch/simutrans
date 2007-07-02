@@ -376,7 +376,6 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 {
 	grund_t *gr=gib_kartenboden();
-	const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
 
 	// display station owner boxes
 	if(umgebung_t::station_coverage_show  &&  halt_list_count>0) {
@@ -415,6 +414,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			const sint16 r=raster_tile_width/8;
 			const sint16 x=xpos+raster_tile_width/2-r;
 			const sint16 y=ypos+(raster_tile_width*3)/4-r - (gib_kartenboden()->gib_grund_hang()? tile_raster_scale_y(8,raster_tile_width): 0);
+			const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
 			// suitable start search
 			for(sint16 h=halt_list_count-1;  h>=0;  h--  ) {
 				display_fillbox_wh_clip(x - h * 2, y + h * 2, r, r, PLAYER_FLAG | (halt_list[h]->gib_besitzer()->get_player_color1() + 4), kartenboden_dirty);
