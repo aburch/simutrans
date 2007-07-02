@@ -242,7 +242,7 @@ void haltestelle_t::destroy(halthandle_t &halt)
 		alle_haltestellen.remove(halt);
 		i++;
 	}
-	if(i>1  ||  i==0) {
+	if (i != 1) {
 		dbg->error("haltestelle_t::~haltestelle_t()", "handle %i found %i times in haltlist!", halt.get_id(), i );
 	}
 	// do not forget the players list ...
@@ -268,7 +268,6 @@ void haltestelle_t::destroy_all(karte_t *welt)
 		halthandle_t halt = alle_haltestellen.remove_first();
 		destroy(halt);
 	}
-	alle_haltestellen.clear();
 }
 
 
