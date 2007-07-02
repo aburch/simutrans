@@ -523,12 +523,6 @@ public:
 	void zeige_info();
 
 	/**
-	 * Opens the details window for this station.
-	 * @author Hj. Malthaner
-	 */
-	void open_detail_window();
-
-	/**
 	 * @returns the type of a station
 	 * (combination of: railstation, loading bay, dock)
 	 * @author Markus Weber

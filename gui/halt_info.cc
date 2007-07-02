@@ -5,6 +5,7 @@
  * in other projects without written permission of the author.
  */
 
+#include "halt_detail.h"
 #include "halt_info.h"
 #include "../simworld.h"
 #include "../simhalt.h"
@@ -235,7 +236,7 @@ halt_info_t::zeichnen(koord pos, koord gr)
 bool halt_info_t::action_triggered(gui_komponente_t *comp,value_t /* */)
 {
 	if (comp == &button) { 			// details button pressed
-		halt->open_detail_window();
+		create_win(-1, -1, new halt_detail_t(halt), w_autodelete);
 	} else if (comp == &sort_button) { 	// @author hsiegeln sort button pressed
 		int sortby = ((int)(halt->get_sortby())+1)%4;
 		halt->set_sortby((freight_list_sorter_t::sort_mode_t) sortby);

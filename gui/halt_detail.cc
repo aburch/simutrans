@@ -23,8 +23,9 @@
 #include "halt_detail.h"
 
 
-halt_detail_t::halt_detail_t(spieler_t * sp, karte_t *welt, halthandle_t halt) :
-	gui_frame_t(translator::translate("Details"), sp),
+halt_detail_t::halt_detail_t(halthandle_t halt_) :
+	gui_frame_t(translator::translate("Details"), halt->gib_besitzer()),
+	halt(halt_),
 	scrolly(&txt_info),
 	txt_info(" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
@@ -33,9 +34,6 @@ halt_detail_t::halt_detail_t(spieler_t * sp, karte_t *welt, halthandle_t halt) :
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"),
 	cb_info_buffer(8192)
 {
-	this->halt = halt;
-	this->welt = welt;
-
 	// fill buffer with halt detail
 	cb_info_buffer.clear();
 	halt_detail_info(cb_info_buffer);

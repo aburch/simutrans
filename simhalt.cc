@@ -40,7 +40,6 @@
 #include "freight_list_sorter.h"
 
 #include "gui/halt_info.h"
-#include "gui/halt_detail.h"
 #include "dings/gebaeude.h"
 #include "dings/label.h"
 #ifdef LAGER_NOT_IN_USE
@@ -1703,14 +1702,6 @@ haltestelle_t::zeige_info()
 		halt_info = new halt_info_t(welt, self);
 	}
 	create_win(-1, -1, halt_info, w_info);
-}
-
-
-
-void
-haltestelle_t::open_detail_window()
-{
-	create_win(-1, -1, new halt_detail_t(besitzer_p, welt, self), w_autodelete);
 }
 
 
