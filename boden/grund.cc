@@ -77,7 +77,16 @@
  * Table of ground texts
  * @author Hj. Malthaner
  */
-static inthashtable_tpl<unsigned long, char*> ground_texts;
+static inthashtable_tpl<uint32, char*> ground_texts;
+
+
+static inline uint32 get_ground_text_key(const karte_t* welt, const koord3d& k)
+{
+	return
+		(k.x << 19) +
+		(k.y <<  6) +
+		((k.z - welt->gib_grundwasser()) / Z_TILE_STEP);
+}
 
 
 /**
@@ -106,11 +115,7 @@ void grund_t::setze_text(const char *text)
 {
   // printf("Height %x\n", (pos.z - welt->gib_grundwasser())/Z_TILE_STEP);
 
-  const unsigned long n =
-    (pos.x << 19)
-    + (pos.y << 6)
-    + ((pos.z - welt->gib_grundwasser())/Z_TILE_STEP);
-
+	const uint32 n = get_ground_text_key(welt, pos);
 	if (text) {
 		char* new_text = strdup(text);
 		free(ground_texts.remove(n));
@@ -135,8 +140,7 @@ const char* grund_t::gib_text() const
 {
 	const char * result = 0;
 	if(flags & has_text) {
-		const unsigned long n = (pos.x << 19) + (pos.y << 6) + ((pos.z - welt->gib_grundwasser())/Z_TILE_STEP);
-		result = ground_texts.get(n);
+		result = ground_texts.get(get_ground_text_key(welt, pos));
 	}
 	return result;
 }
@@ -333,7 +337,7 @@ grund_t::~grund_t()
 	destroy_win(grund_infos.get(this));
 
 	// remove text from table
-	free(ground_texts.remove((pos.x << 16) + pos.y));
+	free(ground_texts.remove(get_ground_text_key(welt, pos)));
 
 	dinge.loesche_alle(NULL,0);
 	if(flags&is_halt_flag) {
