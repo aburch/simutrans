@@ -379,19 +379,18 @@ public:
 	void setze_grund_hang(hang_t::typ sl) { slope = sl; }
 
 	/**
-	* Manche Böden können zu Haltestellen gehören.
-	* Der Zeiger auf die Haltestelle wird hiermit gesetzt.
-	* @author Hj. Malthaner
-	*/
+	 * Manche Böden können zu Haltestellen gehören.
+	 * @author Hj. Malthaner
+	 */
 	void setze_halt(halthandle_t halt);
 
 	/**
-	* Ermittelt, ob dieser Boden zu einer Haltestelle gehört.
-	* @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
-	* @author Hj. Malthaner
-	*/
-	const halthandle_t gib_halt() const;
-	const uint8 is_halt() const {return (flags&is_halt_flag);}
+	 * Ermittelt, ob dieser Boden zu einer Haltestelle gehört.
+	 * @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
+	 * @author Hj. Malthaner
+	 */
+	halthandle_t gib_halt() const;
+	bool is_halt() const { return flags & is_halt_flag; }
 
 	inline sint16 gib_hoehe() const {return pos.z;}
 
@@ -403,16 +402,15 @@ public:
 	*/
 	void display_boden(const sint16 xpos, sint16 ypos) const;
 
-	/**
-	* Zeichnet Dinge des Grundes. Löscht das Dirty-Flag.
-	* @author Hj. Malthaner
-	*/
+	/* displays everything that is on a tile;
+	 * @param is_global set to true, if this is called during the whole screen update
+	 */
 	void display_dinge(const sint16 xpos, sint16 ypos, const bool called_from_simview) const;
 
-	/**
-	* Draw signs on a tile
-	* @author Hj. Mathaner
-	*/
+	/* overlayer with signs, good levels and station coverage
+	 * @param reset_dirty clear the dirty bit (which marks the changed areas)
+	 * @author kierongreen
+	 */
 	void display_overlay(const sint16 xpos, const sint16 ypos, const bool reset_dirty);
 
 	inline ding_t *first_obj() const { return dinge.bei(offsets[flags/has_way1]); }
@@ -532,7 +530,7 @@ public:
 	virtual int gib_weg_yoff() const { return 0; }
 
 	/**
-	* Hat der Boden mindestens ein weg_t-Objekt? Liefert false furr Wasser!
+	* Hat der Boden mindestens ein weg_t-Objekt? Liefert false für Wasser!
 	* @author V. Meyer
 	*/
 	inline bool hat_wege() const { return (flags&(has_way1|has_way2))!=0;}
@@ -552,71 +550,72 @@ public:
 	*/
 
 	/**
-	* Bauhilfsfunktion - ein neuer weg wird mit den vorgegebenen ribis
-	* eingetragen und der Grund dem Erbauer zugeordnet.
-	*
-	* @return bool	    true, falls weg nicht vorhanden war
-	* @param weg	    der neue Weg
-	* @param ribi	    die neuen ribis
-	* @param sp	    Spieler, dem der Boden zugeordnet wird
-	*
-	* @author V. Meyer
-	*/
+	 * Bauhilfsfunktion - ein neuer weg wird mit den vorgegebenen ribis
+	 * eingetragen und der Grund dem Erbauer zugeordnet.
+	 *
+	 * @param weg	    der neue Weg
+	 * @param ribi	    die neuen ribis
+	 * @param sp	    Spieler, dem der Boden zugeordnet wird
+	 *
+	 * @author V. Meyer
+	 */
 	long neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp);
 
 	/**
-	* Bauhilfsfunktion - die ribis eines vorhandenen weges werden erweitert
-	*
-	* @return bool	    true, falls weg vorhanden
-	* @param wegtyp	    um welchen wegtyp geht es
-	* @param ribi	    die neuen ribis
-	*
-	* @author V. Meyer
-	*/
+	 * Bauhilfsfunktion - die ribis eines vorhandenen weges werden erweitert
+	 *
+	 * @return bool	    true, falls weg vorhanden
+	 * @param wegtyp	    um welchen wegtyp geht es
+	 * @param ribi	    die neuen ribis
+	 *
+	 * @author V. Meyer
+	 */
 	bool weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi);
 
 	/**
-	* Bauhilfsfunktion - einen Weg entfernen
-	*
-	* @return bool	    true, falls weg vorhanden war
-	* @param wegtyp	    um welchen wegtyp geht es
-	* @param ribi_rem  sollen die ribis der nachbar zururckgesetzt werden?
-	*
-	* @author V. Meyer
-	*/
+	 * Bauhilfsfunktion - einen Weg entfernen
+	 *
+	 * @param wegtyp	    um welchen wegtyp geht es
+	 * @param ribi_rem  sollen die ribis der nachbar zururckgesetzt werden?
+	 *
+	 * @author V. Meyer
+	 */
 	sint32 weg_entfernen(waytype_t wegtyp, bool ribi_rem);
 
 	/**
-	* Description;
-	*      Look for an adjacent way in the given direction. Think of an object
-	*      that needs the given waytyp for movement. The object is current at
-	*      the ground "this". It wants to move in "dir". The routine checks if
-	*      this is possible and returns the destination ground.
-	*      Tunnels and bridges are entered and left correctly. This requires
-	*      some complex checks, since we have three types of level changes
-	*      (tunnel entries, bridge ramps and horizontal bridge start).
-	*
-	* Notice:
-	*      Uses two helper functions "is_connected()" and "get_vmove()"
-	*      Was previously a part of the simposition module.
-	*
-	* Parameters:
-	*      If dir is not (-1,0), (1,0), (0,-1) or (0, 1), the function fails
-	*      If wegtyp is set to invalid_wt, no way checking is performed
-	*
-	* In case of success:
-	*      "to" ist set to the ground found
-	*      true is returned
-	* In case of failure:
-	*      "to" ist not touched
-	*      false is returned
-	*
-	* @author: Volker Meyer
-	* @date: 21.05.2003
-	*/
+	 * Description;
+	 *      Look for an adjacent way in the given direction. Think of an object
+	 *      that needs the given waytyp for movement. The object is current at
+	 *      the ground "this". It wants to move in "dir". The routine checks if
+	 *      this is possible and returns the destination ground.
+	 *      Tunnels and bridges are entered and left correctly. This requires
+	 *      some complex checks, since we have three types of level changes
+	 *      (tunnel entries, bridge ramps and horizontal bridge start).
+	 *
+	 * Notice:
+	 *      Uses two helper functions "is_connected()" and "get_vmove()"
+	 *      Was previously a part of the simposition module.
+	 *
+	 * Parameters:
+	 *      If dir is not (-1,0), (1,0), (0,-1) or (0, 1), the function fails
+	 *      If wegtyp is set to invalid_wt, no way checking is performed
+	 *
+	 * In case of success:
+	 *      "to" ist set to the ground found
+	 *      true is returned
+	 * In case of failure:
+	 *      "to" ist not touched
+	 *      false is returned
+	 *
+	 * @author: Volker Meyer
+	 * @date: 21.05.2003
+	 */
 	bool get_neighbour(grund_t *&to, waytype_t type, koord dir) const;
 
-	/* remove almost everything on this way */
+	/* removes everything from a tile, including a halt but i.e. leave a
+	 * powerline ond other stuff
+	 * @author prissi
+	 */
 	bool remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi ribi_rem);
 };
 

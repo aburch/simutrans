@@ -54,7 +54,6 @@
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/umgebung.h"
-//#include "../dataobj/translator.h"
 
 #include "../utils/cbuffer_t.h"
 
@@ -113,8 +112,6 @@ void grund_t::entferne_grund_info() const
 
 void grund_t::setze_text(const char *text)
 {
-  // printf("Height %x\n", (pos.z - welt->gib_grundwasser())/Z_TILE_STEP);
-
 	const uint32 n = get_ground_text_key(welt, pos);
 	if (text) {
 		char* new_text = strdup(text);
@@ -131,11 +128,6 @@ void grund_t::setze_text(const char *text)
 
 
 
-/**
- * Gibt eine Beschreibung des Untergrundes (informell) zurueck.
- * @return Einen Beschreibungstext zum Untergrund.
- * @author Hj. Malthaner
- */
 const char* grund_t::gib_text() const
 {
 	const char * result = 0;
@@ -164,11 +156,11 @@ grund_t::grund_t(karte_t *wl, loadsave_t *file)
 	rdwr(file);
 }
 
+
 void grund_t::rdwr(loadsave_t *file)
 {
 	file->wr_obj_id(gib_typ());
 	pos.rdwr(file);
-//DBG_DEBUG("grund_t::rdwr()", "pos=%d,%d,%d", pos.x, pos.y, pos.z);
 
 	if(file->is_saving()) {
 		const char *text = gib_text();
@@ -333,7 +325,6 @@ grund_t::grund_t(karte_t *wl, koord3d pos)
 
 grund_t::~grund_t()
 {
-//	dinge.dump();
 	destroy_win(grund_infos.get(this));
 
 	// remove text from table
@@ -348,8 +339,7 @@ grund_t::~grund_t()
 
 
 // moves all objects from the old to the new grund_t
-void
-grund_t::take_obj_from( grund_t *other_gr)
+void grund_t::take_obj_from(grund_t* other_gr)
 {
 	// transfer all things
 	while( other_gr->gib_top() ) {
@@ -368,7 +358,7 @@ grund_t::take_obj_from( grund_t *other_gr)
 
 
 
-void grund_t::info(cbuffer_t & buf) const
+void grund_t::info(cbuffer_t& buf) const
 {
 	if(flags&is_halt_flag) {
 		welt->lookup(pos.gib_2d())->gib_halt()->info( buf );
@@ -393,8 +383,6 @@ void grund_t::info(cbuffer_t & buf) const
 		buf.append(gib_back_bild(0)-grund_besch_t::slopes->gib_bild(0));
 		buf.append("\nback1: ");
 		buf.append(gib_back_bild(1)-grund_besch_t::slopes->gib_bild(0));
-		//    buf.append("\n");
-		//    buf.append(translator::translate("Keine Info."));
 	}
 	buf.append("\nway slope");
 	buf.append((int)gib_weg_hang());
@@ -416,13 +404,7 @@ void grund_t::info(cbuffer_t & buf) const
 
 
 
-/**
- * Manche Böden können zu Haltestellen gehören.
- * Der Zeiger auf die Haltestelle wird hiermit gesetzt.
- * @author Hj. Malthaner
- */
 void grund_t::setze_halt(halthandle_t halt) {
-//	this->halt = halt;
 	if(halt.is_bound()) {
 		flags |= is_halt_flag;
 	}
@@ -433,21 +415,13 @@ void grund_t::setze_halt(halthandle_t halt) {
 
 
 
-const halthandle_t
-grund_t::gib_halt() const
+halthandle_t grund_t::gib_halt() const
 {
 	return (flags&is_halt_flag) ? welt->lookup(pos.gib_2d())->gib_halt() : halthandle_t();
 }
 
 
 
-/**
- * grund_t::calc_bild:
- *
- * Berechnet nur das Wegbild - den Rest bitte in der Ableitung setzen
- *
- * @author V. Meyer
- */
 void grund_t::calc_bild()
 {
 	// will automatically recalculate ways ...
@@ -472,8 +446,7 @@ ribi_t::ribi grund_t::gib_weg_ribi_unmasked(waytype_t typ) const
 
 
 
-image_id
-grund_t::gib_back_bild(int leftback) const
+image_id grund_t::gib_back_bild(int leftback) const
 {
 	if(back_bild_nr==0) {
 		return IMG_LEER;
@@ -492,8 +465,7 @@ grund_t::gib_back_bild(int leftback) const
 
 // with double height ground tiles!
 // can also happen with single height tiles
-static inline uint8
-get_backbild_from_diff( sint8 h1, sint8 h2 )
+static inline uint8 get_backbild_from_diff(sint8 h1, sint8 h2)
 {
 	if(h1==h2) {
 		// vertical slope: which height?
@@ -619,8 +591,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 
 
 
-PLAYER_COLOR_VAL
-grund_t::text_farbe() const
+PLAYER_COLOR_VAL grund_t::text_farbe() const
 {
 	// if this gund belongs to a halt, the color should reflect the halt owner, not the grund owner!
 	const halthandle_t halt = welt->lookup(pos.gib_2d())->gib_halt();
@@ -643,8 +614,7 @@ grund_t::text_farbe() const
 
 
 
-void
-grund_t::display_boden( const sint16 xpos, const sint16 ypos) const
+void grund_t::display_boden(const sint16 xpos, const sint16 ypos) const
 {
 	const bool dirty=get_flag(grund_t::dirty);
 	const sint16 rasterweite=get_tile_raster_width();
@@ -717,10 +687,7 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos) const
 
 
 
-/* displays everything that is on a tile; is_global is true, if this is called during the whole screen update
- */
-void
-grund_t::display_dinge(const sint16 xpos, sint16 ypos, const bool is_global) const
+void grund_t::display_dinge(const sint16 xpos, sint16 ypos, const bool is_global) const
 {
 	const bool dirty = get_flag(grund_t::dirty);
 	const uint8 start_offset=offsets[flags/has_way1];
@@ -761,12 +728,7 @@ grund_t::display_dinge(const sint16 xpos, sint16 ypos, const bool is_global) con
 
 
 
-/* overlayer with signs, good levels and station coverage
- * reset_dirty clear the dirty bit (which marks the changed areas)
- * @author kierongreen
- */
-void
-grund_t::display_overlay(const sint16 xpos, const sint16 ypos, const bool reset_dirty)
+void grund_t::display_overlay(const sint16 xpos, const sint16 ypos, const bool reset_dirty)
 {
 	const bool dirty = get_flag(grund_t::dirty);
 
@@ -801,15 +763,6 @@ grund_t::display_overlay(const sint16 xpos, const sint16 ypos, const bool reset_
 
 
 
-/**
- * Bauhilfsfunktion - die ribis eines vorhandenen weges werden erweitert
- *
- * @return bool	    true, falls weg vorhanden
- * @param wegtyp    um welchen wegtyp geht es
- * @param ribi	    die neuen ribis
- *
- * @author V. Meyer
- */
 bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 {
 	weg_t   *weg = gib_weg(wegtyp);
@@ -830,17 +783,7 @@ bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 	return false;
 }
 
-/**
- * Bauhilfsfunktion - ein neuer weg wird mit den vorgegebenen ribis
- * eingetragen und der Grund dem Erbauer zugeordnet.
- *
- * @return bool	    true, falls weg nicht vorhanden war
- * @param weg	    der neue Weg
- * @param ribi	    die neuen ribis
- * @param sp	    Spieler, dem der Boden zugeordnet wird
- *
- * @author V. Meyer
- */
+
 long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 {
 	long cost=0;
@@ -905,15 +848,6 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 }
 
 
-/**
- * Bauhilfsfunktion - einen Weg entfernen
- *
- * @return bool	    true, falls weg vorhanden war
- * @param wegtyp    um welchen wegtyp geht es
- * @param ribi_rem  sollen die ribis der nachbar zurückgesetzt werden?
- *
- * @author V. Meyer
- */
 sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 {
 DBG_MESSAGE("grund_t::weg_entfernen()","this %p",this);
@@ -968,6 +902,7 @@ DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
 	return 0;
 }
 
+
 bool grund_t::get_neighbour(grund_t *&to, waytype_t type, koord dir) const
 {
 	if(dir != koord::nord && dir != koord::sued && dir != koord::ost && dir != koord::west) {
@@ -992,7 +927,6 @@ bool grund_t::get_neighbour(grund_t *&to, waytype_t type, koord dir) const
 			return true;
 		}
 	}
-//	DBG_MESSAGE("grund_t::get_neighbour()","No ground connection from %i,%i,%i to dir %i,%i",pos.x,pos.y,pos.z,dir.x,dir.y);
 	return false;
 }
 
@@ -1009,7 +943,6 @@ bool grund_t::is_connected(const grund_t *gr, waytype_t wegtyp, koord dv) const
 
 	const int ribi1 = gib_weg_ribi_unmasked(wegtyp);
 	const int ribi2 = gr->gib_weg_ribi_unmasked(wegtyp);
-//	DBG_MESSAGE("grund_t::is_connected()","at (%i,%i,%i) ribi1=%i at (%i,%i,%i) ribi2=%i",pos.x,pos.y,pos.z,ribi1,gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z,ribi2);
 	if(dv == koord::nord) {
 		return (ribi1 & ribi_t::nord) && (ribi2 & ribi_t::sued);
 	} else if(dv == koord::sued) {
@@ -1050,8 +983,7 @@ int grund_t::get_vmove(koord dir) const
 
 
 
-int
-grund_t::get_max_speed() const
+int grund_t::get_max_speed() const
 {
 	int max = 0;
 	if(flags&has_way1) {
@@ -1065,12 +997,8 @@ grund_t::get_max_speed() const
 
 
 
-/* removes everything from a tile, including a halt but i.e. leave a powerline ond other stuff
- * @author prissi
- */
-bool grund_t::remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi rem)
+bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ribi rem)
 {
-//DBG_MESSAGE("grund_t::remove_everything()","at %d,%d,%d for waytype %i and ribi %i",pos.x,pos.y,pos.z,wt,rem);
 	// check, if the way must be totally removed?
 	weg_t *weg = gib_weg(wt);
 	if(weg) {
