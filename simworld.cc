@@ -805,6 +805,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 	setze_dirty();
 
 	fast_forward = false;
+	simloops = 60;
 	reset_timer();
 
 	if(is_display_init()) {
