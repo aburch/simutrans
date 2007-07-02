@@ -199,7 +199,7 @@ public:
 
 	int gib_nachfolger_count() const { return nachfolger; }
 
-	waytype_t gib_typ() const { return static_cast<waytype_t>(typ); }
+	waytype_t get_waytype() const { return static_cast<waytype_t>(typ); }
 	uint16 gib_zuladung() const { return zuladung; }
 	uint32 gib_preis() const { return preis; }
 	uint16 gib_geschw() const { return geschw; }

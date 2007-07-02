@@ -1295,24 +1295,42 @@ convoi_t::rdwr(loadsave_t *file)
 		}
 	}
 	else {
+		bool override_monorail = false;
 		is_electric = false;
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
 			vehikel_t *v = 0;
 
-			switch(typ) {
-				case ding_t::old_automobil:
-				case ding_t::automobil: v = new automobil_t(welt, file);  break;
-				case ding_t::old_waggon:
-				case ding_t::waggon:    v = new waggon_t(welt, file);     break;
-				case ding_t::old_schiff:
-				case ding_t::schiff:    v = new schiff_t(welt, file);     break;
-				case ding_t::old_aircraft:
-				case ding_t::aircraft:    v = new aircraft_t(welt, file);     break;
-				case ding_t::old_monorailwaggon:
-				case ding_t::monorailwaggon:    v = new monorail_waggon_t(welt, file);     break;
-				default:
-					dbg->fatal("convoi_t::convoi_t()","Can't load vehicle type %d", typ);
+			if(override_monorail) {
+				// ignore type for ancient monorails
+				v = new monorail_waggon_t(welt, file);
+			}
+			else {
+				switch(typ) {
+					case ding_t::old_automobil:
+					case ding_t::automobil: v = new automobil_t(welt, file);  break;
+					case ding_t::old_waggon:
+					case ding_t::waggon:    v = new waggon_t(welt, file);     break;
+					case ding_t::old_schiff:
+					case ding_t::schiff:    v = new schiff_t(welt, file);     break;
+					case ding_t::old_aircraft:
+					case ding_t::aircraft:    v = new aircraft_t(welt, file);     break;
+					case ding_t::old_monorailwaggon:
+					case ding_t::monorailwaggon:    v = new monorail_waggon_t(welt, file);     break;
+					default:
+						dbg->fatal("convoi_t::convoi_t()","Can't load vehicle type %d", typ);
+				}
+			}
+
+			// in very old games, monorail was a railway
+			// so we need to convert this
+			// freight will be lost, but game will be loadable
+			if(i==0  &&  v->gib_besch()->get_waytype()==monorail_wt  &&  v->gib_typ()==ding_t::waggon) {
+				override_monorail = true;
+				vehikel_t *v_neu = new monorail_waggon_t( v->gib_pos(), v->gib_besch(), v->gib_besitzer(), NULL );
+				v->loesche_fracht();
+				delete v;
+				v = v_neu;
 			}
 
 			if(file->get_version()<99004) {
@@ -1367,7 +1385,7 @@ convoi_t::rdwr(loadsave_t *file)
 		sum_gesamtgewicht = sum_gewicht;
 	}
 
-	bool has_fpl = fpl != NULL;
+	bool has_fpl = (fpl != NULL);
 	file->rdwr_bool(has_fpl, "");
 	if(has_fpl) {
 		//DBG_MESSAGE("convoi_t::rdwr()","convoi has a schedule, state %s!",state_names[state]);

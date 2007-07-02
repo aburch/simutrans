@@ -33,7 +33,7 @@ static inthashtable_tpl<waytype_t, slist_tpl<const vehikel_besch_t*> > typ_fahrz
 vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb)
 {
 	vehikel_t* v;
-	switch (vb->gib_typ()) {
+	switch (vb->get_waytype()) {
 		case road_wt:     v = new automobil_t(      k, vb, sp, cnv); break;
 		case monorail_wt: v = new monorail_waggon_t(k, vb, sp, cnv); break;
 		case track_wt:
@@ -42,7 +42,7 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 		case air_wt:      v = new aircraft_t(       k, vb, sp, cnv); break;
 
 		default:
-			dbg->fatal("vehikelbauer_t::baue()", "cannot built a vehicle with waytype %i", vb->gib_typ());
+			dbg->fatal("vehikelbauer_t::baue()", "cannot built a vehicle with waytype %i", vb->get_waytype());
 	}
 
 	sp->buche(-(sint32)vb->gib_preis(), k.gib_2d(), COST_NEW_VEHICLE);
@@ -58,7 +58,7 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 	name_fahrzeuge.put(besch->gib_name(), besch);
 	_fahrzeuge.put(besch->gib_basis_bild(), besch);
 
-	waytype_t typ = besch->gib_typ();
+	waytype_t typ = besch->get_waytype();
 
 	slist_tpl<const vehikel_besch_t *> *typ_liste = typ_fahrzeuge.access(typ);
 	if(!typ_liste) {
@@ -191,7 +191,7 @@ void vehikelbauer_t::sort_lists()
  * @author Hansjörg Malthaner
  */
 const vehikel_besch_t *
-vehikelbauer_t::gib_info(const ware_besch_t *wtyp,waytype_t vtyp,uint32 min_power)
+vehikelbauer_t::gib_info(const ware_besch_t *wtyp, waytype_t vtyp,uint32 min_power)
 {
 	min_power *= 64;
 
@@ -199,7 +199,7 @@ vehikelbauer_t::gib_info(const ware_besch_t *wtyp,waytype_t vtyp,uint32 min_powe
 	while(iter.next()) {
 		const vehikel_besch_t *vb = iter.get_current_value();
 
-		if(vb->gib_typ()==vtyp  &&  wtyp->is_interchangeable(vb->gib_ware())  &&  vb->gib_leistung()*vb->get_gear() >= min_power) {
+		if(vb->get_waytype()==vtyp  &&  wtyp->is_interchangeable(vb->gib_ware())  &&  vb->gib_leistung()*vb->get_gear() >= min_power) {
 			return vb;
 		}
 	}
@@ -280,7 +280,7 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search()","for speed %i, power %i",target_
     // check for wegetype
     const vehikel_besch_t *test_besch = iter.get_current_value();
     // correct type and useable=
-    if(test_besch->gib_typ()==typ  &&  !test_besch->is_future(month_now)  &&  !test_besch->is_retired(month_now)) {
+    if(test_besch->get_waytype()==typ  &&  !test_besch->is_future(month_now)  &&  !test_besch->is_retired(month_now)) {
         // finally, we might be able to use this vehicle
         uint32 power = (test_besch->gib_leistung()*test_besch->get_gear())/64;
         uint32 speed = test_besch->gib_geschw();
@@ -373,7 +373,7 @@ dbg->fatal("vehikelbauer_t::vehikel_fuer_leistung","obsolete");
 //  leistung <<= 6; // to account for gear
   while(iter.next()) {
       // check for rail
-    if(  (iter.get_current_value()->gib_typ()==typ)  &&
+    if(  (iter.get_current_value()->get_waytype()==typ)  &&
       // in the moment no vehicles with additional freight are allowed
       (iter.get_current_value()->gib_zuladung()==0)
         &&

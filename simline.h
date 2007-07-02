@@ -66,13 +66,13 @@ public:
 	 * get convoy
 	 * @author hsiegeln
 	 */
-	convoihandle_t get_convoy(int i);
+	convoihandle_t get_convoy(int i) { return line_managed_convoys[i]; }
 
 	/*
 	 * return number of manages convoys in this line
 	 * @author hsiegeln
 	 */
-	int count_convoys();
+	uint32 count_convoys() { return line_managed_convoys.get_count(); }
 
 	/*
 	 * returns the state of the line
@@ -84,7 +84,7 @@ public:
 	 * return fahrplan of line
 	 * @author hsiegeln
 	 */
-	fahrplan_t * get_fahrplan();
+	fahrplan_t * get_fahrplan() { return fpl; }
 
 	void set_fahrplan(fahrplan_t* fpl)
 	{
@@ -96,7 +96,7 @@ public:
 	 * get name of line
 	 * @author hsiegeln
 	 */
-	char * get_name();
+	char *get_name() {return name;}
 
 	uint16 get_line_id() const {return id;}
 

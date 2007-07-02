@@ -356,7 +356,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			koord3d home = koord3d(0,0,0);
 			while (depot_iter.next()) {
 				depot_t *depot = depot_iter.get_current();
-				if(depot->get_wegtyp()!=cnv->gib_vehikel(0)->gib_besch()->gib_typ()  ||  depot->gib_besitzer()!=cnv->gib_besitzer()) {
+				if(depot->get_wegtyp()!=cnv->gib_vehikel(0)->gib_besch()->get_waytype()  ||  depot->gib_besitzer()!=cnv->gib_besitzer()) {
 					continue;
 				}
 				koord3d pos = depot->gib_pos();

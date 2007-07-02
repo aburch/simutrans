@@ -14,6 +14,7 @@ uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TR
 karte_t *simline_t::welt=NULL;
 
 
+
 simline_t::simline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl)
 {
 	welt = simlinemgmt->get_welt();
@@ -32,6 +33,7 @@ DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,fahrplan_t)","create with 
 }
 
 
+
 simline_t::simline_t(karte_t* welt, loadsave_t* file)
 {
 	self = linehandle_t(this);
@@ -41,6 +43,7 @@ DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,loadsave_t)","load line id
 	this->welt = welt;
 	this->old_fpl = new fahrplan_t(fpl);
 }
+
 
 
 simline_t::~simline_t()
@@ -68,8 +71,8 @@ simline_t::~simline_t()
 }
 
 
-void
-simline_t::add_convoy(convoihandle_t cnv)
+
+void simline_t::add_convoy(convoihandle_t cnv)
 {
 	if (line_managed_convoys.empty()) {
 		// first convoi -> ok, now we can announce this connection to the stations
@@ -77,15 +80,17 @@ simline_t::add_convoy(convoihandle_t cnv)
 	}
 
 	// first convoi may change line type
-	if (type == trainline && line_managed_convoys.empty() && cnv.is_bound()) {
+	if (type == trainline  &&  line_managed_convoys.empty() &&  cnv.is_bound()) {
 		if(cnv->gib_vehikel(0)) {
 			// check, if needed to convert to tram line?
-			if(cnv->gib_vehikel(0)->gib_besch()->gib_typ()==tram_wt) {
+			if(cnv->gib_vehikel(0)->gib_besch()->get_waytype()==tram_wt) {
 				type = simline_t::tramline;
 			}
 			// check, if needed to convert to monorail line?
-			if(cnv->gib_vehikel(0)->gib_besch()->gib_typ()==monorail_wt) {
+			if(cnv->gib_vehikel(0)->gib_besch()->get_waytype()==monorail_wt) {
 				type = simline_t::monorailline;
+				// elevated monorail were saved with wrong coordinates for some versions.
+				// We try to recover here
 			}
 		}
 	}
@@ -107,8 +112,9 @@ simline_t::add_convoy(convoihandle_t cnv)
 	}
 }
 
-void
-simline_t::remove_convoy(convoihandle_t cnv)
+
+
+void simline_t::remove_convoy(convoihandle_t cnv)
 {
 	if(line_managed_convoys.is_contained(cnv)) {
 		line_managed_convoys.remove(cnv);
@@ -121,32 +127,9 @@ simline_t::remove_convoy(convoihandle_t cnv)
 	}
 }
 
-fahrplan_t *
-simline_t::get_fahrplan()
-{
-	return this->fpl;
-}
 
-char *
-simline_t::get_name()
-{
-	return  this->name;
-}
 
-convoihandle_t
-simline_t::get_convoy(int i)
-{
-	return line_managed_convoys[i];
-}
-
-int
-simline_t::count_convoys()
-{
-	return line_managed_convoys.get_count();
-}
-
-void
-simline_t::rdwr(loadsave_t * file)
+void simline_t::rdwr(loadsave_t *file)
 {
 	// only create a new fahrplan if we are loading a savegame!
 	if (file->is_loading()) {
@@ -177,15 +160,17 @@ simline_t::rdwr(loadsave_t * file)
 	financial_history[0][LINE_CONVOIS] = count_convoys();
 }
 
-void
-simline_t::laden_abschliessen()
+
+
+void simline_t::laden_abschliessen()
 {
 	register_stops(fpl);
 	recalc_status();
 }
 
-void
-simline_t::register_stops(fahrplan_t * fpl)
+
+
+void simline_t::register_stops(fahrplan_t * fpl)
 {
 DBG_DEBUG("simline_t::register_stops()", "%d fpl entries in schedule %p", fpl->maxi(),fpl);
 	for (int i = 0; i<fpl->maxi(); i++) {
@@ -200,14 +185,16 @@ DBG_DEBUG("simline_t::register_stops()", "halt null");
 	}
 }
 
-void
-simline_t::unregister_stops()
+
+
+void simline_t::unregister_stops()
 {
 	unregister_stops(fpl);
 }
 
-void
-simline_t::unregister_stops(fahrplan_t * fpl)
+
+
+void simline_t::unregister_stops(fahrplan_t * fpl)
 {
 	for (int i = 0; i<fpl->maxi(); i++) {
 		halthandle_t halt = haltestelle_t::gib_halt(welt, fpl->eintrag[i].pos.gib_2d());
@@ -218,16 +205,17 @@ simline_t::unregister_stops(fahrplan_t * fpl)
 }
 
 
-void
-simline_t::renew_stops()
+
+void simline_t::renew_stops()
 {
 	unregister_stops(this->old_fpl);
 	register_stops(this->fpl);
 	DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", id, name);
 }
 
-void
-simline_t::new_month()
+
+
+void simline_t::new_month()
 {
 	recalc_status();
 	for (int j = 0; j<MAX_LINE_COST; j++) {
@@ -238,6 +226,7 @@ simline_t::new_month()
 	}
 	financial_history[0][LINE_CONVOIS] = count_convoys();
 }
+
 
 
 /*
@@ -251,14 +240,10 @@ void simline_t::prepare_for_update()
 }
 
 
-void
-simline_t::init_financial_history()
+
+void simline_t::init_financial_history()
 {
-	for (int j = 0; j<MAX_LINE_COST; j++) {
-		for (int k = MAX_MONTHS-1; k>=0; k--) {
-			financial_history[k][j] = 0;
-		}
-	}
+	memset( financial_history, 0, sizeof(financial_history) );
 }
 
 
@@ -267,8 +252,7 @@ simline_t::init_financial_history()
  * the current state saved as color
  * Meanings are BLACK (ok), WHITE (no convois), YELLOW (no vehicle moved), RED (last month income minus), BLUE (at least one convoi vehicle is obsolete)
  */
-void
-simline_t::recalc_status()
+void simline_t::recalc_status()
 {
 	if(financial_history[0][LINE_PROFIT]<0) {
 		// ok, not performing best
@@ -296,9 +280,9 @@ simline_t::recalc_status()
 }
 
 
+
 // recalc what good this line is moving
-void
-simline_t::recalc_catg_index()
+void simline_t::recalc_catg_index()
 {
 	goods_catg_index.clear();
 	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {

@@ -1192,7 +1192,7 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 		if(besch==NULL) {
 			besch = vehikelbauer_t::gib_info(translator::compatibility_name(s));
 		}
-		if(besch == 0) {
+		if(besch==NULL) {
 			dbg->warning("vehikel_t::rdwr()","no vehicle pak for '%s' search for something similar", s);
 		}
 		guarded_free(const_cast<char *>(s));
@@ -2268,7 +2268,7 @@ waggon_t::betrete_feld()
 
 fahrplan_t * waggon_t::erzeuge_neuen_fahrplan() const
 {
-  return besch->gib_typ()==tram_wt ? new tramfahrplan_t() : new zugfahrplan_t();
+  return besch->get_waytype()==tram_wt ? new tramfahrplan_t() : new zugfahrplan_t();
 }
 
 
@@ -2289,12 +2289,13 @@ waggon_t::rdwr(loadsave_t *file, bool force)
 	static const vehikel_besch_t *last_besch;
 	assert(force);
 
-	if(file->is_saving() && cnv != NULL && !force) {
+	if(file->is_saving()  &&  cnv!=NULL  &&  !force) {
 		file->wr_obj_id(-1);
 		last_besch = NULL;
 	}
 	else {
 		vehikel_t::rdwr(file);
+
 		// try to find a matching vehivle
 		if(file->is_loading()  &&  besch==NULL) {
 			int power = (ist_erstes || fracht.empty() || fracht.front() == warenbauer_t::nichts) ? 500 : 0;
