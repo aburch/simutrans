@@ -184,7 +184,7 @@ public:
 
 	void display_dinge(const sint16 xpos, const sint16 ypos, const sint16 scale, const bool dirty) const;
 
-	void display_overlay(sint16 xpos, sint16 ypos, sint16 scale) const;
+	void display_overlay(sint16 xpos, sint16 ypos) const;
 };
 
 #endif

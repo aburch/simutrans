@@ -55,7 +55,7 @@ karte_ansicht_t::display(bool force_dirty)
 	force_dirty = force_dirty || welt->ist_dirty();
 	welt->setze_dirty_zurueck();
 
-	sint16 IMG_SIZE = get_tile_raster_width();
+	const sint16 IMG_SIZE = get_tile_raster_width();
 
 	const int dpy_width = disp_width/IMG_SIZE + 2;
 	const int dpy_height = (disp_real_height*4)/IMG_SIZE;
@@ -161,7 +161,7 @@ karte_ansicht_t::display(bool force_dirty)
 				if(plan  &&  plan->gib_kartenboden()) {
 					sint16 yypos = ypos - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE*2-32<disp_height  &&  yypos+IMG_SIZE>32) {
-						plan->display_overlay(xpos, yypos, IMG_SIZE);
+						plan->display_overlay(xpos, yypos);
 					}
 				}
 			}

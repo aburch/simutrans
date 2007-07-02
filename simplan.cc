@@ -373,7 +373,7 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 }
 
 
-void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width) const
+void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 {
 	grund_t *gr=gib_kartenboden();
 	const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
@@ -410,6 +410,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 	*/
 		}
 		else {
+			const sint16 raster_tile_width = get_tile_raster_width();
 			// opaque boxes (
 			const sint16 r=raster_tile_width/8;
 			const sint16 x=xpos+raster_tile_width/2-r;
