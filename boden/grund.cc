@@ -728,7 +728,7 @@ void grund_t::display_dinge(const sint16 xpos, sint16 ypos, const bool is_global
 
 
 
-void grund_t::display_overlay(const sint16 xpos, const sint16 ypos, const bool reset_dirty)
+void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 {
 	const bool dirty = get_flag(grund_t::dirty);
 
@@ -756,9 +756,7 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos, const bool r
 	}
 #endif
 
-	if(reset_dirty) {
-		clear_flag(grund_t::dirty);
-	}
+	clear_flag(grund_t::dirty);
 }
 
 

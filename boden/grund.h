@@ -408,10 +408,10 @@ public:
 	void display_dinge(const sint16 xpos, sint16 ypos, const bool called_from_simview) const;
 
 	/* overlayer with signs, good levels and station coverage
-	 * @param reset_dirty clear the dirty bit (which marks the changed areas)
+	 * resets the dirty flag
 	 * @author kierongreen
 	 */
-	void display_overlay(const sint16 xpos, const sint16 ypos, const bool reset_dirty);
+	void display_overlay(sint16 xpos, sint16 ypos);
 
 	inline ding_t *first_obj() const { return dinge.bei(offsets[flags/has_way1]); }
 	ding_t *suche_obj(ding_t::typ typ) const { return dinge.suche(typ,0); }

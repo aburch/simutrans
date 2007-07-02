@@ -373,8 +373,7 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 }
 
 
-void
-planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool reset_dirty) const
+void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width) const
 {
 	grund_t *gr=gib_kartenboden();
 	const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
@@ -422,8 +421,7 @@ planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint1
 		}
 	}
 
-	// display signs
-	gr->display_overlay(xpos, ypos, reset_dirty);
+	gr->display_overlay(xpos, ypos);
 }
 
 /**
