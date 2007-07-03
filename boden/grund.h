@@ -617,6 +617,9 @@ public:
 	 * @author prissi
 	 */
 	bool remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi ribi_rem);
+
+	void* operator new(size_t s);
+	void  operator delete(void* p, size_t s);
 };
 
 

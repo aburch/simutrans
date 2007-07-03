@@ -31,9 +31,6 @@ public:
 
 	const char *gib_name() const {return "Wasser";}
 	grund_t::typ gib_typ() const {return wasser;}
-
-	void * operator new(size_t s);
-	void operator delete(void *p);
 };
 
 #endif

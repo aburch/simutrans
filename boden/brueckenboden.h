@@ -27,9 +27,6 @@ public:
 
 	const char *gib_name() const {return "Brueckenboden";}
 	enum grund_t::typ gib_typ() const {return brueckenboden;}
-
-	void * operator new(size_t s);
-	void operator delete(void *p);
 };
 
 #endif

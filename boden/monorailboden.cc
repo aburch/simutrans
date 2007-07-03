@@ -9,8 +9,6 @@
 #include "../besch/grund_besch.h"
 
 #include "../dataobj/loadsave.h"
-#include "../dataobj/freelist.h"
-
 #include "monorailboden.h"
 
 monorailboden_t::monorailboden_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
@@ -79,17 +77,4 @@ DBG_MESSAGE("monorailboden_t::zeige_info()","with ribis %x",grund_t::gib_weg_rib
 		}
 	}
 	return false;
-}
-
-
-void * monorailboden_t::operator new(size_t /*s*/)
-{
-	//	assert(s==sizeof(tunnelboden_t));
-	return freelist_t::gimme_node(sizeof(monorailboden_t));
-}
-
-
-void monorailboden_t::operator delete(void *p)
-{
-	freelist_t::putback_node(sizeof(monorailboden_t),p);
 }

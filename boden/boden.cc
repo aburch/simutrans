@@ -14,8 +14,6 @@
 
 #include "../gui/ground_info.h"
 #include "../gui/karte.h"
-
-#include "../dataobj/freelist.h"
 #include "../dataobj/umgebung.h"
 
 #include "boden.h"
@@ -141,18 +139,4 @@ DBG_MESSAGE("boden_t::calc_bild()","covered at pos %i,%i,%i", gib_pos().x,gib_po
 		}
 #endif
 	}
-}
-
-
-
-void * boden_t::operator new(size_t /*s*/)
-{
-//	assert(s==sizeof(boden_t));
-	return freelist_t::gimme_node(sizeof(boden_t));
-}
-
-
-void boden_t::operator delete(void *p)
-{
-	freelist_t::putback_node(sizeof(boden_t),p);
 }

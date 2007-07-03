@@ -37,9 +37,6 @@ public:
 	virtual bool zeige_info();
 
 	bool set_slope(hang_t::typ) { slope = 0; return false; }
-
-	void * operator new(size_t s);
-	void operator delete(void *p);
 };
 
 #endif

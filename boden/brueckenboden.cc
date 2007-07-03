@@ -7,8 +7,6 @@
 #include "../besch/grund_besch.h"
 
 #include "../dataobj/loadsave.h"
-#include "../dataobj/freelist.h"
-
 #include "../gui/ground_info.h"
 #include "../tpl/ptrhashtable_tpl.h"
 
@@ -107,17 +105,4 @@ brueckenboden_t::zeige_info()
 		}
 	}
 	return false;
-}
-
-
-void * brueckenboden_t::operator new(size_t /*s*/)
-{
-//	assert(s==sizeof(brueckenboden_t));
-	return freelist_t::gimme_node(sizeof(brueckenboden_t));
-}
-
-
-void brueckenboden_t::operator delete(void *p)
-{
-	freelist_t::putback_node(sizeof(brueckenboden_t),p);
 }

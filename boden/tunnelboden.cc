@@ -10,8 +10,6 @@
 #include "../bauer/tunnelbauer.h"
 
 #include "../dataobj/loadsave.h"
-#include "../dataobj/freelist.h"
-
 #include "../dings/tunnel.h"
 
 #include "../besch/grund_besch.h"
@@ -87,20 +85,4 @@ tunnelboden_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-}
-
-
-
-void *
-tunnelboden_t::operator new(size_t /*s*/)
-{
-//	assert(s==sizeof(tunnelboden_t));
-	return freelist_t::gimme_node(sizeof(tunnelboden_t));
-}
-
-
-void
-tunnelboden_t::operator delete(void *p)
-{
-	freelist_t::putback_node(sizeof(tunnelboden_t),p);
 }

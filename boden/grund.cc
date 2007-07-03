@@ -52,6 +52,7 @@
 #include "../bauer/wegbauer.h"
 #include "../besch/weg_besch.h"
 
+#include "../dataobj/freelist.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/umgebung.h"
 
@@ -1099,4 +1100,16 @@ DBG_MESSAGE("wkz_wayremover()","change remaining way to ribi %d",add);
 		}
 	}
 	return true;
+}
+
+
+void* grund_t::operator new(size_t s)
+{
+	return freelist_t::gimme_node(s);
+}
+
+
+void grund_t::operator delete(void* p, size_t s)
+{
+	return freelist_t::putback_node(s, p);
 }

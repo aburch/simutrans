@@ -16,9 +16,6 @@ public:
 
 	virtual bool zeige_info();
 	void calc_bild();
-
-	void * operator new(size_t s);
-	void operator delete(void *p);
 };
 
 #endif

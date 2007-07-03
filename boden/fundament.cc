@@ -11,8 +11,6 @@
 
 #include "../besch/grund_besch.h"
 #include "../besch/skin_besch.h"
-
-#include "../dataobj/freelist.h"
 #include "../dataobj/loadsave.h"
 
 #include "grund.h"
@@ -66,18 +64,4 @@ fundament_t::calc_bild()
 		setze_bild( grund_besch_t::gib_ground_tile(0,gib_pos().z) );
 		grund_t::calc_back_bild(gib_pos().z/Z_TILE_STEP,0);
 	}
-}
-
-
-
-void * fundament_t::operator new(size_t /*s*/)
-{
-//	assert(s==sizeof(fundament_t));
-	return freelist_t::gimme_node(sizeof(fundament_t));
-}
-
-
-void fundament_t::operator delete(void *p)
-{
-	freelist_t::putback_node(sizeof(fundament_t),p);
 }

@@ -38,9 +38,6 @@ public:
 	const char *gib_name() const;
 
 	grund_t::typ gib_typ() const {return boden;}
-
-	void * operator new(size_t s);
-	void operator delete(void *p);
 };
 
 #endif

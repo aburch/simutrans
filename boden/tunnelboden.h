@@ -18,9 +18,6 @@ public:
 
 	const char *gib_name() const {return "Tunnelboden";}
 	enum grund_t::typ gib_typ() const {return tunnelboden;}
-
-	void * operator new(size_t s);
-	void operator delete(void *p);
 };
 
 #endif
