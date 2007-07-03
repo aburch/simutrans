@@ -7,7 +7,6 @@
 
 #include "koord3d.h"
 #include "../dataobj/loadsave.h"
-#include "../dataobj/freelist.h"
 
 
 const koord3d koord3d::invalid(-1, -1, -1);

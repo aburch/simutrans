@@ -9,7 +9,6 @@
 #define tpl_HOT_queue_tpl_h
 
 #include "debug_helper.h"
-#include "../dataobj/freelist.h"
 
 
 /* HOT queue

@@ -36,8 +36,6 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
-#include "../dataobj/freelist.h"
-
 #include "../gui/stadt_info.h"
 #include "../gui/fabrik_info.h"
 #include "../gui/money_frame.h"

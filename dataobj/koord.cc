@@ -1,5 +1,4 @@
 #include "koord.h"
-#include "freelist.h"
 #include "loadsave.h"
 
 

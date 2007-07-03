@@ -247,7 +247,6 @@ void guarded_free(void *p)
 
 } // extern "C"
 
-#include "dataobj/freelist.h"
 
 #ifdef USE_KEYLOCK
 void * operator new(size_t size)

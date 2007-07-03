@@ -345,9 +345,6 @@ public:
 };
 
 
-//template <class T> nodelist_t * slist_tpl<T>::freelist = 0;
-
-
 
 /**
  * Iterator class for single linked lists.
