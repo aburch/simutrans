@@ -95,7 +95,7 @@ void *
 tunnelboden_t::operator new(size_t /*s*/)
 {
 //	assert(s==sizeof(tunnelboden_t));
-	return static_cast<tunnelboden_t *>(freelist_t::gimme_node(sizeof(tunnelboden_t)));
+	return freelist_t::gimme_node(sizeof(tunnelboden_t));
 }
 
 

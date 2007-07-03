@@ -73,7 +73,7 @@ fundament_t::calc_bild()
 void * fundament_t::operator new(size_t /*s*/)
 {
 //	assert(s==sizeof(fundament_t));
-	return static_cast<fundament_t *>(freelist_t::gimme_node(sizeof(fundament_t)));
+	return freelist_t::gimme_node(sizeof(fundament_t));
 }
 
 

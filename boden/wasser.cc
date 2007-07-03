@@ -47,7 +47,7 @@ void *
 wasser_t::operator new(size_t /*s*/)
 {
 //	assert(s==sizeof(wasser_t));
-	return static_cast<wasser_t *>(freelist_t::gimme_node(sizeof(wasser_t)));
+	return freelist_t::gimme_node(sizeof(wasser_t));
 }
 
 

@@ -85,7 +85,7 @@ DBG_MESSAGE("monorailboden_t::zeige_info()","with ribis %x",grund_t::gib_weg_rib
 void * monorailboden_t::operator new(size_t /*s*/)
 {
 	//	assert(s==sizeof(tunnelboden_t));
-	return static_cast<monorailboden_t *>(freelist_t::gimme_node(sizeof(monorailboden_t)));
+	return freelist_t::gimme_node(sizeof(monorailboden_t));
 }
 
 

@@ -113,7 +113,7 @@ brueckenboden_t::zeige_info()
 void * brueckenboden_t::operator new(size_t /*s*/)
 {
 //	assert(s==sizeof(brueckenboden_t));
-	return static_cast<brueckenboden_t *>(freelist_t::gimme_node(sizeof(brueckenboden_t)));
+	return freelist_t::gimme_node(sizeof(brueckenboden_t));
 }
 
 

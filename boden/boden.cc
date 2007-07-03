@@ -148,7 +148,7 @@ DBG_MESSAGE("boden_t::calc_bild()","covered at pos %i,%i,%i", gib_pos().x,gib_po
 void * boden_t::operator new(size_t /*s*/)
 {
 //	assert(s==sizeof(boden_t));
-	return static_cast<boden_t *>(freelist_t::gimme_node(sizeof(boden_t)));
+	return freelist_t::gimme_node(sizeof(boden_t));
 }
 
 
