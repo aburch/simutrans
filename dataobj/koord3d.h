@@ -24,9 +24,6 @@ public:
 
 	void rdwr(loadsave_t* file);
 
-	void* operator new(size_t s);
-	void operator delete(void* p);
-
 	static const koord3d invalid;
 
 	koord gib_2d() const { return koord(x, y); }

@@ -25,9 +25,6 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	void* operator new(size_t s);
-	void operator delete(void* p);
-
 	const koord& operator += (const koord & k)
 	{
 		x += k.x;

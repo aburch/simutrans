@@ -13,18 +13,6 @@
 const koord3d koord3d::invalid(-1, -1, -1);
 
 
-void * koord3d::operator new(size_t /*s*/)
-{
-	return freelist_t::gimme_node(sizeof(koord3d));
-}
-
-
-void koord3d::operator delete(void *p)
-{
-	freelist_t::putback_node(sizeof(koord3d),p);
-}
-
-
 
 void
 koord3d::rdwr(loadsave_t *file)

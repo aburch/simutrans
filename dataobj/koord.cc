@@ -54,18 +54,6 @@ const koord koord::from_hang[] = {
 };
 
 
-void* koord::operator new(size_t)
-{
-	return freelist_t::gimme_node(sizeof(koord));
-}
-
-
-void koord::operator delete(void* p)
-{
-	freelist_t::putback_node(sizeof(koord), p);
-}
-
-
 void koord::rdwr(loadsave_t *file)
 {
 	file->rdwr_short(x, " ");
