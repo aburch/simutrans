@@ -60,8 +60,8 @@ karte_ansicht_t::display(bool force_dirty)
 	const int dpy_width = disp_width/IMG_SIZE + 2;
 	const int dpy_height = (disp_real_height*4)/IMG_SIZE;
 
-	const int i_off = welt->gib_ij_off().x - disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE;
-	const int j_off = welt->gib_ij_off().y + disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE;
+	const int i_off = welt->get_world_position().x - disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE;
+	const int j_off = welt->get_world_position().y + disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE;
 	const int const_x_off = welt->gib_x_off();
 	const int const_y_off = welt->gib_y_off();
 
@@ -172,7 +172,7 @@ karte_ansicht_t::display(bool force_dirty)
 	if(zeiger) {
 		// better not try to twist your brain to follow the retransformation ...
 		const sint16 rasterweite=get_tile_raster_width();
-		const koord diff = zeiger->gib_pos().gib_2d()-welt->gib_ij_off()-welt->gib_ansicht_ij_offset();
+		const koord diff = zeiger->gib_pos().gib_2d()-welt->get_world_position()-welt->gib_ansicht_ij_offset();
 		const sint16 x = (diff.x-diff.y)*(rasterweite/2) + tile_raster_scale_x(zeiger->gib_xoff(), rasterweite);
 		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( zeiger->gib_yoff()-zeiger->gib_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4);
 		zeiger->display( x+welt->gib_x_off(), y+welt->gib_y_off(), true);

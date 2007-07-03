@@ -1066,7 +1066,7 @@ void depot_frame_t::infowin_event(const event_t *ev)
 
 			next_dep->zeige_info();
 			win_set_pos(next_dep->get_info_win(), x, y);
-			get_welt()->setze_ij_off(next_dep->gib_pos());
+			get_welt()->change_world_position(next_dep->gib_pos());
 		}
 	} else if(IS_WINDOW_REZOOM(ev)) {
 		koord gr = gib_fenstergroesse();

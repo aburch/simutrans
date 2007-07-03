@@ -105,7 +105,7 @@ private:
 	/**
 	 * fuer softes scrolling
 	 */
-	int x_off, y_off;
+	sint16 x_off, y_off;
 
 	/* current position */
 	koord ij_off;
@@ -354,17 +354,20 @@ public:
 	 * viewpoint in tile koordinates
 	 * @author Hj. Malthaner
 	 */
-	koord gib_ij_off() const {return ij_off;}
-
-	/**
-	 * set viewport (tile koordinates)
-	 * @author Hj. Malthaner
-	 */
-	void setze_ij_off(koord3d ij);
+	koord get_world_position() const { return ij_off; }
 
 	// fine offset within the viewprt tile
 	int gib_x_off() const {return x_off;}
 	int gib_y_off() const {return y_off;}
+
+	/**
+	 * set center viewport position
+	 * @author prissi
+	 */
+	void change_world_position( koord ij, sint16 x=0, sint16 y=0 );
+
+	// also take height into account
+	void change_world_position( koord3d ij );
 
 	// the koordinates between the screen and a tile may have several offset
 	// this routine caches them
@@ -381,7 +384,7 @@ public:
 	/* functions for following a convoi on the map
 	* give an unboud handle to unset
 	*/
-	void set_follow_convoi(convoihandle_t cnv);
+	void set_follow_convoi(convoihandle_t cnv) { follow_convoi = cnv; }
 	convoihandle_t get_follow_convoi() const { return follow_convoi; }
 
 	einstellungen_t* gib_einstellungen() const { return einstellungen; }

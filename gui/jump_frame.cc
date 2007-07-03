@@ -22,7 +22,7 @@ jump_frame_t::jump_frame_t(karte_t *welt) :
 	this->welt = welt;
 
 	// Input box for new name
-	sprintf(buf, "%i,%i", welt->gib_ij_off().x, welt->gib_ij_off().y );
+	sprintf(buf, "%i,%i", welt->get_world_position().x, welt->get_world_position().y );
 	input.setze_text(buf, 62);
 	input.add_listener(this);
 	input.setze_pos(koord(10,4));
@@ -54,7 +54,7 @@ bool jump_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		koord my_pos;
 		sscanf(buf, "%hd,%hd", &my_pos.x, &my_pos.y);
 		if(welt->ist_in_kartengrenzen(my_pos)) {
-			welt->setze_ij_off(koord3d(my_pos,welt->min_hgt(my_pos)));
+			welt->change_world_position(koord3d(my_pos,welt->min_hgt(my_pos)));
 		}
 	}
 	return true;

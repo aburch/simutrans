@@ -38,7 +38,7 @@ void halt_list_stats_t::infowin_event(const event_t *ev)
 		}
 	}
 	if(IS_RIGHTRELEASE(ev)) {
-		halt->get_welt()->setze_ij_off(halt->gib_basis_pos3d());
+		halt->get_welt()->change_world_position(halt->gib_basis_pos3d());
 	}
 }
 

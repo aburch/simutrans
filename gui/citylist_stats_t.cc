@@ -80,7 +80,7 @@ void citylist_stats_t::infowin_event(const event_t * ev)
 		create_win(320, 0, -1, stadt->gib_stadt_info(), w_info, magic_none); // with magic!=none only one dialog is allowed
 	} else if (IS_RIGHTRELEASE(ev) && ev->cy > 0) {
 		const koord pos = stadt->gib_pos();
-		welt->setze_ij_off(koord3d(pos, welt->min_hgt(pos)));
+		welt->change_world_position( koord3d(pos, welt->min_hgt(pos)) );
 	}
 }
 

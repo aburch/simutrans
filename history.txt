@@ -36,6 +36,7 @@
 	ADD: (kierongreen) ways will look for replacement during loadtime in no matching besch found
 	FIX: convoi speed reset to zero at traffic lights
 	CHANGE: faster sorting in haltlist for waiting amount
+	CHANGE: much faster scrolling with right mousebutton (previously this made an update for every pixel move)
 
 
 Release of 99.12

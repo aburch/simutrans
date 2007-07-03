@@ -300,7 +300,7 @@ spieler_t::display_messages()
 
 	for(int n=0; n<=last_message_index; n++) {
 		if(text_alter[n] >= -80) {
-			const koord ij = text_pos[n]-welt->gib_ij_off()-welt->gib_ansicht_ij_offset();
+			const koord ij = text_pos[n]-welt->get_world_position()-welt->gib_ansicht_ij_offset();
 			const sint16 x = (ij.x-ij.y)*(raster/2) + welt->gib_x_off();
 			const sint16 y = (ij.x+ij.y)*(raster/4) + (text_alter[n] >> 4) - tile_raster_scale_y( welt->lookup_hgt(text_pos[n])*TILE_HEIGHT_STEP, raster) + yoffset;
 

@@ -163,7 +163,7 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 	reliefkarte_t *karte = reliefkarte_t::gib_karte();
 	const koord gr = karte->gib_groesse();
 	const koord s_gr=scrolly.gib_groesse();
-	const koord ij = welt->gib_ij_off();
+	const koord ij = welt->get_world_position();
 	const koord win_size = gr-s_gr;	// this is the visible area
 	scrolly.setze_scroll_position(  max(0,min(ij.x-win_size.x/2,gr.x)), max(0, min(ij.y-win_size.y/2,gr.y)) );
 
@@ -422,7 +422,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 
 	// first: check if cursor within map screen size
 	karte_t *welt=reliefkarte_t::gib_karte()->get_welt();
-	koord ij = welt->gib_ij_off();
+	koord ij = welt->get_world_position();
 	if(welt->ist_in_kartengrenzen(ij)) {
 		reliefkarte_t::gib_karte()->karte_to_screen(ij);
 		// only recenter by zoom or position change; we want still be able to scroll

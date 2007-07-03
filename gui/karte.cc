@@ -700,7 +700,7 @@ reliefkarte_t::infowin_event(const event_t *ev)
 		if(welt->ist_in_kartengrenzen(k)) {
 			z = welt->min_hgt(k);
 		}
-		welt->setze_ij_off(koord3d(k,z));
+		welt->change_world_position(koord3d(k,z));
 	}
 }
 
@@ -767,7 +767,7 @@ reliefkarte_t::zeichnen(koord pos)
 	if(rotate45) {
 		// straight cursor
 		const koord diff = koord( ((display_get_width()/raster)*zoom_out)/zoom_in, (((display_get_height()*2)/(raster))*zoom_out)/zoom_in );
-		koord ij = welt->gib_ij_off();
+		koord ij = welt->get_world_position();
 		karte_to_screen( ij );
 		ij += pos;
 		display_direct_line( ij.x-diff.x, ij.y-diff.y, ij.x+diff.x, ij.y-diff.y, COL_YELLOW);
@@ -778,7 +778,7 @@ reliefkarte_t::zeichnen(koord pos)
 	else {
 		// rotate cursor
 		const koord diff = koord( (display_get_width()*zoom_out)/(raster*zoom_in*2), (display_get_height()*zoom_out)/(raster*zoom_in) );
-		koord ij = welt->gib_ij_off();
+		koord ij = welt->get_world_position();
 		karte_to_screen( ij );
 		ij += pos;
 		koord view[4];

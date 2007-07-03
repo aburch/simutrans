@@ -55,7 +55,7 @@ void gui_convoiinfo_t::infowin_event(const event_t *ev)
 			}
 		}
 		else if(IS_RIGHTRELEASE(ev)) {
-			cnv->get_welt()->setze_ij_off(cnv->gib_vehikel(0)->gib_pos());
+			cnv->get_welt()->change_world_position(cnv->gib_vehikel(0)->gib_pos());
 		}
 	}
 }

@@ -564,7 +564,7 @@ void karte_t::init(einstellungen_t* sets)
 	if(is_display_init()) {
 		display_show_pointer(false);
 	}
-	setze_ij_off(koord3d(0,0,0));
+	change_world_position( koord(0,0), 0, 0 );
 
 	einstellungen = sets;
 
@@ -671,7 +671,7 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 		const int max_display_progress=16+einstellungen->gib_anzahl_staedte()*4+einstellungen->gib_land_industry_chains()+einstellungen->gib_city_industry_chains();
 
 		// Ansicht auf erste Stadt zentrieren
-		setze_ij_off(koord3d((*pos)[0], min_hgt((*pos)[0])));
+		change_world_position( koord3d((*pos)[0], min_hgt((*pos)[0])) );
 
 		for (int i = 0; i < einstellungen->gib_anzahl_staedte(); i++) {
 //			int citizens=(int)(einstellungen->gib_mittlere_einwohnerzahl()*0.9);
@@ -1491,18 +1491,12 @@ karte_t::sync_step(long delta_t)
 
 	// change view due to following a convoi?
 	if(follow_convoi.is_bound()) {
-		const koord old_pos=ij_off;
-		const koord new_pos=follow_convoi->gib_vehikel(0)->gib_pos().gib_2d();
-		const int rw=get_tile_raster_width();
-		const int new_xoff=tile_raster_scale_x(-follow_convoi->gib_vehikel(0)->gib_xoff(),rw);
-		const int new_yoff=tile_raster_scale_y(-follow_convoi->gib_vehikel(0)->gib_yoff(),rw)+tile_raster_scale_y(follow_convoi->gib_vehikel(0)->gib_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP,rw);
-		if(new_pos!=old_pos  ||  new_xoff!=gib_x_off()  ||  new_yoff!=gib_y_off()) {
-			//position changed => update
-			ij_off = new_pos;
-			x_off = new_xoff;
-			y_off = new_yoff;
-			setze_dirty();
-		}
+		const koord3d new_pos=follow_convoi->gib_vehikel(0)->gib_pos();
+		const sint16 rw = get_tile_raster_width();
+		const sint16 new_xoff = tile_raster_scale_x(-follow_convoi->gib_vehikel(0)->gib_xoff(),rw);
+		const sint16 new_yoff =	tile_raster_scale_y(-follow_convoi->gib_vehikel(0)->gib_yoff(),rw) +
+								tile_raster_scale_y(new_pos.z*TILE_HEIGHT_STEP/Z_TILE_STEP,rw);
+		change_world_position( new_pos.gib_2d(), x_off, y_off );
 	}
 
 	if(!fast_forward  ||  delta_t!=MAGIC_STEP) {
@@ -1962,21 +1956,6 @@ karte_t::step()
 
 
 /**
- * set viewport (tile koordinates)
- * @author Hj. Malthaner
- */
-void
-karte_t::setze_ij_off(koord3d ij)
-{
-	ij_off=ij.gib_2d();
-	x_off = 0;
-	y_off = tile_raster_scale_y(ij.z,get_tile_raster_width());
-	setze_dirty();
-}
-
-
-
-/**
  * If this is true, the map will not be scrolled
  * on right-drag
  * @author Hj. Malthaner
@@ -1990,41 +1969,60 @@ void karte_t::set_scroll_lock(bool yesno)
 }
 
 
-/* functions for following a convoi on the map
- * give an unbound handle to unset
- */
-void karte_t::set_follow_convoi(convoihandle_t cnv)
+
+// change the center viewport position for a certain ground tile
+// any possible convoi to follow will be disabled
+void karte_t::change_world_position( koord3d new_ij )
 {
-	follow_convoi = cnv;
+	const sint16 rw = get_tile_raster_width();
+	change_world_position( new_ij.gib_2d(), 0, tile_raster_scale_y(new_ij.z*TILE_HEIGHT_STEP/Z_TILE_STEP,rw) );
+	follow_convoi = convoihandle_t();
 }
 
 
 
-void
-karte_t::blick_aendern(event_t *ev)
+// change the center viewport position
+void karte_t::change_world_position( koord new_ij, sint16 new_xoff, sint16 new_yoff )
+{
+	//position changed? => update and mark dirty
+	if(new_ij!=ij_off  ||  new_xoff!=x_off  ||  new_yoff!=y_off) {
+		ij_off = new_ij;
+		x_off = new_xoff;
+		y_off = new_yoff;
+		setze_dirty();
+	}
+}
+
+
+
+void karte_t::blick_aendern(event_t *ev)
 {
 	if(!scroll_lock) {
 		const int raster = get_tile_raster_width();
+		koord new_ij = ij_off;
 
-		x_off -= (ev->mx - ev->cx) * einstellungen->gib_scroll_multi();
-		ij_off.x -= x_off/raster;
-		ij_off.y += x_off/raster;
-		x_off %= raster;
+		sint16 new_xoff = x_off - (ev->mx - ev->cx) * einstellungen->gib_scroll_multi();
+		new_ij.x -= new_xoff/raster;
+		new_ij.y += new_xoff/raster;
+		new_xoff %= raster;
 
 		int lines = 0;
-		y_off -= (ev->my - ev->cy) * einstellungen->gib_scroll_multi();
+		sint16 new_yoff = y_off - (ev->my-ev->cy) * einstellungen->gib_scroll_multi();
 		if(y_off>0) {
-			lines = (y_off + (raster/4))/(raster/2);
+			lines = (new_yoff + (raster/4))/(raster/2);
 		}
 		else {
-			lines = (y_off - (raster/4))/(raster/2);
+			lines = (new_yoff - (raster/4))/(raster/2);
 		}
-		ij_off.x -= lines;
-		ij_off.y -= lines;
-		y_off -= (raster/2)*lines;
+		new_ij -= koord( lines, lines );
+		new_yoff -= (raster/2)*lines;
 
-		if ((ev->mx - ev->cx) != 0 || (ev->my - ev->cy) != 0) {
-			intr_refresh_display( true );
+		// this sets the new position and mark screen dirty
+		// => with next refresh we will be at a new location
+		change_world_position( new_ij, new_xoff, new_yoff );
+
+		// move the mouse pointer back to starting location => infinite mouse movement
+		if ((ev->mx - ev->cx)!=0  ||  (ev->my-ev->cy)!=0) {
 #ifdef __BEOS__
 			change_drag_start(ev->mx - ev->cx, ev->my - ev->cy);
 #else
@@ -2637,10 +2635,10 @@ DBG_MESSAGE("karte_t::laden()", "players loaded");
 	file->rdwr_long(mj, "\n");
 	DBG_MESSAGE("karte_t::laden()", "Setting view to %d,%d", mi,mj);
 	if(ist_in_kartengrenzen(mi,mj)) {
-		setze_ij_off(koord3d(mi,mj,min_hgt(koord(mi,mj))));
+		change_world_position( koord3d(mi,mj,min_hgt(koord(mi,mj))) );
 	}
 	else {
-		setze_ij_off(koord3d(mi,mj,0));
+		change_world_position( koord3d(mi,mj,0) );
 	}
 
 DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count());
@@ -2957,8 +2955,8 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 		int hgt = lookup_hgt(koord(i_alt, j_alt));
 
-		const int i_off = gib_ij_off().x+gib_ansicht_ij_offset().x;
-		const int j_off = gib_ij_off().y+gib_ansicht_ij_offset().y;
+		const int i_off = ij_off.x+gib_ansicht_ij_offset().x;
+		const int j_off = ij_off.y+gib_ansicht_ij_offset().y;
 
 		bool found = false;
 		if(grund_t::underground_mode) {

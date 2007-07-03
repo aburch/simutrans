@@ -163,20 +163,20 @@ bool fabrik_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 
 	for(i=0; i<fab->gib_lieferziele().get_count(); i++) {
 		if(komp == &lieferbuttons[i]) {
-			welt->setze_ij_off(koord3d(fab->gib_lieferziele()[i], welt->max_hgt(fab->gib_lieferziele()[i])));
+			welt->change_world_position(koord3d(fab->gib_lieferziele()[i], welt->max_hgt(fab->gib_lieferziele()[i])));
 		}
 	}
 
 	for(i=0; i<fab->get_suppliers().get_count(); i++) {
 		if(komp == &supplierbuttons[i]) {
-			welt->setze_ij_off(koord3d(fab->get_suppliers()[i],welt->max_hgt(fab->get_suppliers()[i])));
+			welt->change_world_position(koord3d(fab->get_suppliers()[i],welt->max_hgt(fab->get_suppliers()[i])));
 		}
 	}
 
 	for(i=0; i<fab->gib_arbeiterziele().count(); i++) {
 		if(komp == &stadtbuttons[i]) {
 			const koord& k = fab->gib_arbeiterziele().at(i)->gib_pos();
-			welt->setze_ij_off(koord3d(k, welt->min_hgt(k)));
+			welt->change_world_position(koord3d(k, welt->min_hgt(k)));
 		}
 	}
 

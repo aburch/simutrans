@@ -107,7 +107,7 @@ void curiositylist_stats_t::infowin_event(const event_t * ev)
 			geb->zeige_info();
 		}
 		else if (IS_RIGHTRELEASE(ev)) {
-			welt->setze_ij_off(geb->gib_pos());
+			welt->change_world_position(geb->gib_pos());
 		}
 	}
 } // end of function curiositylist_stats_t::infowin_event(const event_t * ev)

@@ -58,7 +58,7 @@ void factorylist_stats_t::infowin_event(const event_t * ev)
 		}
 	}
 	else if (IS_RIGHTRELEASE(ev)) {
-		welt->setze_ij_off(pos);
+		welt->change_world_position(pos);
 	}
 } // end of function factorylist_stats_t::infowin_event(const event_t * ev)
 

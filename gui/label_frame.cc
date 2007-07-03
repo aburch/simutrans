@@ -256,6 +256,6 @@ void label_frame_t::goto_label(const char *name)
 	koord my_pos;
 	sscanf(name, "(%hd,%hd)", &my_pos.x, &my_pos.y);
 	if(welt->ist_in_kartengrenzen(my_pos)) {
-		welt->setze_ij_off(koord3d(my_pos,welt->min_hgt(my_pos)));
+		welt->change_world_position(koord3d(my_pos,welt->min_hgt(my_pos)));
 	}
 }

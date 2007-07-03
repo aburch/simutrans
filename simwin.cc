@@ -762,7 +762,7 @@ check_pos_win(event_t *ev)
 		if(show_ticker  &&    ev->cy<=display_get_height()-16  &&   IS_LEFTRELEASE(ev)) {
 			koord p = ticker::get_welt_pos();
 			if(wl->ist_in_kartengrenzen(p)) {
-				wl->setze_ij_off(koord3d(p,wl->min_hgt(p)));
+				wl->change_world_position(koord3d(p,wl->min_hgt(p)));
 			}
 			return true;
 		}
