@@ -10,16 +10,17 @@
  */
 class dummy_ding_t : public ding_t
 {
-public:
-	dummy_ding_t(karte_t *welt, loadsave_t *file);
-	dummy_ding_t(karte_t *welt, koord3d pos, spieler_t *sp);
+	public:
+		dummy_ding_t(karte_t* welt, loadsave_t* file) :
+			ding_t(welt)
+		{
+			rdwr(file);
+			// do not remove from this position, since there will be nothing
+			ding_t::set_flag(ding_t::not_on_map);
+		}
 
-	enum ding_t::typ gib_typ() const { return ding_t::undefined; }
-
-	image_id gib_bild() const { return IMG_LEER; }
-
-	void * operator new(size_t s);
-	void operator delete(void *p);
+		typ      gib_typ()  const { return ding_t::undefined; }
+		image_id gib_bild() const { return IMG_LEER; }
 };
 
 #endif

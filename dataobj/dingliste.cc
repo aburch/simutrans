@@ -750,7 +750,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				break;
 
 				// will be ignored, was only used before 86.09
-				case ding_t::old_gebaeudefundament: d = new dummy_ding_t(welt, file); delete d; d=NULL;  break;
+				case ding_t::old_gebaeudefundament: { dummy_ding_t(welt, file); break; }
 
 				// only factories can smoke; but then, the smoker is reinstated after loading
 				case ding_t::raucher: 	d = new raucher_t(welt, file); delete d; d = NULL; break;
