@@ -77,31 +77,28 @@ static uint8 type_to_pri[32]=
 	255, 255
 };
 
-static void dl_free(void *p, uint8 size)
+
+static void dl_free(ding_t** p, uint8 size)
 {
-	if(size>1) {
-		if(size<=16) {
-			freelist_t::putback_node(sizeof(ding_t *)*size,p);
-	  	}
-	  	else {
-			guarded_free(p);
-		}
+	assert(size > 1);
+	if (size <= 16) {
+		freelist_t::putback_node(sizeof(*p) * size, p);
+	} else {
+		guarded_free(p);
 	}
 }
 
 
-static ding_t ** dl_alloc(uint8 size)
+static ding_t** dl_alloc(uint8 size)
 {
-	ding_t **p=NULL;	// = NULL for compiler
-	if(size>1) {
-		if(size<=16) {
-			p = (ding_t **)freelist_t::gimme_node(size*sizeof(ding_t *));
-		}
-		else {
-			p = (ding_t **)guarded_malloc(size * sizeof(ding_t *));
-		}
+	assert(size > 1);
+	ding_t** p;
+	if (size <= 16) {
+		p = static_cast<ding_t**>(freelist_t::gimme_node(size * sizeof(*p)));
+	} else {
+		p = static_cast<ding_t**>(guarded_malloc(size * sizeof(*p)));
 	}
-	return (ding_t **)p;
+	return p;
 }
 
 
