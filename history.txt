@@ -1,3 +1,6 @@
+Release of 99.13
+
+3-July-2007:
 	FIX: airplanes got confused, when the ground under them changed
 	FIX: (z9999) show factory detail info
 	FIX: (kierongreen) Removing tram tracks from road caused crash

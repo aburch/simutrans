@@ -297,10 +297,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\dummy.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\dataobj\einstellungen.cc"
 				>
 			</File>
