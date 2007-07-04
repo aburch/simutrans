@@ -1329,10 +1329,6 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		return ware.menge;
 	}
 
-//debug
-//if(ware.gib_typ()!=warenbauer_t::passagiere  &&  ware.gib_typ()!=warenbauer_t::post)
-//DBG_MESSAGE("haltestelle_t::liefere_an()","%s: took %i %s",gib_name(), ware.menge, translator::translate(ware.gib_name()) );		// dann sind wir schon fertig;
-
 	// did we arrived?
 	if(welt->lookup(ware.gib_zielpos())->is_connected(self)) {
 		if(ware.is_freight()) {
@@ -1361,6 +1357,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 
 	// not near enough => we need to do a rerouting
 	suche_route(ware);
+	INT_CHECK("simhalt 1364");
 
 	// target no longer there => delete
 	if(!ware.gib_ziel().is_bound() ||  !ware.gib_zwischenziel().is_bound()) {
