@@ -179,12 +179,7 @@ dingliste_t::set_capacity(uint8 new_cap)
 
 
 
-/**
- * @return ersten freien index
- * @author Hj. Malthaner
- */
-int
-dingliste_t::grow_capacity()
+bool dingliste_t::grow_capacity()
 {
 	if(capacity==0) {
 		return true;
@@ -219,8 +214,7 @@ dingliste_t::shrink_capacity(uint8 o_top)
 
 
 
-inline
-uint8 dingliste_t::intern_insert_at(ding_t *ding,uint8 pri)
+inline void dingliste_t::intern_insert_at(ding_t* ding, uint8 pri)
 {
 #if 0
 	memmove( obj.some+pri+1, obj.some+pri, sizeof(ding_t*)*(top-pri) );
@@ -234,14 +228,12 @@ uint8 dingliste_t::intern_insert_at(ding_t *ding,uint8 pri)
 	obj.some[pri] = ding;
 	top++;
 #endif
-	return 1;
 }
 
 
 
 // this will automatically give the right order for citycars and the like ...
-uint8
-dingliste_t::intern_add_moving(ding_t *ding)
+bool dingliste_t::intern_add_moving(ding_t* ding)
 {
 	// we are more than one object, thus we exclusively use obj.some here!
 	// it would be nice, if also the objects are inserted according to their priorities as
@@ -270,13 +262,15 @@ dingliste_t::intern_add_moving(ding_t *ding)
 
 				if((fahrtrichtung&(~ribi_t::suedost))==0) {
 					// if we are going east we must be drawn as the first in east direction
-					return intern_insert_at(ding,start);
+					intern_insert_at(ding, start);
+					return true;
 				}
 				else {
 					// we must be drawn before south or west (thus insert after)
 					for(uint8 i=start;  i<top;  i++  ) {
 						if((((const vehikel_t*)obj.some[i])->gib_fahrtrichtung()&ribi_t::suedwest)!=0) {
-							return intern_insert_at(ding,i);
+							intern_insert_at(ding, i);
+							return true;
 						}
 					}
 					// nothing going southwest
@@ -292,7 +286,8 @@ dingliste_t::intern_add_moving(ding_t *ding)
 					for(uint8 i=start;  i<top;  i++  ) {
 						const ding_t *dt = obj.some[i];
 						if(dt  &&  dt->is_moving()  &&  (((const vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)!=0) {
-							return intern_insert_at(ding,i);
+							intern_insert_at(ding, i);
+							return true;
 						}
 					}
 				}
@@ -310,7 +305,8 @@ dingliste_t::intern_add_moving(ding_t *ding)
 					// if we are going east we must be drawn as the first in east direction (after nord and nordeast)
 					for(uint8 i=start;  i<top;  i++  ) {
 						if( (((const vehikel_t*)obj.some[i])->gib_fahrtrichtung()&ribi_t::nordost)!=0) {
-							return intern_insert_at(ding,i);
+							intern_insert_at(ding, i);
+							return true;
 						}
 					}
 					// nothing going to the east
@@ -325,13 +321,15 @@ dingliste_t::intern_add_moving(ding_t *ding)
 
 				if((fahrtrichtung&(~ribi_t::suedost))==0) {
 					// going south or southeast, insert as first in this dirs
-					return intern_insert_at(ding,start);
+					intern_insert_at(ding, start);
+					return true;
 				}
 				else {
 					for(uint8 i=start;  i<top;  i++  ) {
 						// west or northwest: append after all westwards
 						if((((const vehikel_t*)obj.some[i])->gib_fahrtrichtung()&ribi_t::suedwest)==0) {
-							return intern_insert_at(ding,i);
+							intern_insert_at(ding, i);
+							return true;
 						}
 					}
 					// nothing going to nordeast
@@ -350,7 +348,8 @@ dingliste_t::intern_add_moving(ding_t *ding)
 		// => much simpler to handle
 		if((((vehikel_t*)ding)->gib_fahrtrichtung()&(~ribi_t::suedost))==0) {
 			// if we are going east or south, we must be drawn before (i.e. put first)
-			return intern_insert_at(ding,start);
+			intern_insert_at(ding, start);
+			return true;
 		}
 		else {
 			// for north east we must be draw last
@@ -363,10 +362,7 @@ dingliste_t::intern_add_moving(ding_t *ding)
 
 
 
-// this routine will automatically obey the correct order
-// of things during insert into dingliste
-uint8
-dingliste_t::add(ding_t *ding)
+bool dingliste_t::add(ding_t* ding)
 {
 	if(capacity==0) {
 		// the first one save direct
@@ -384,7 +380,6 @@ dingliste_t::add(ding_t *ding)
 	// vehicles need a special order
 	if(ding->is_moving()) {
 		return intern_add_moving(ding);
-		return 1;
 	}
 
 	// now insert it a the correct place
@@ -394,10 +389,11 @@ dingliste_t::add(ding_t *ding)
 	if(pri==0) {
 		// check for other ways to keep order! (maximum is two ways per tile at the moment)
 		if(top>0  &&  obj.some[0]->gib_typ()==ding_t::way  &&  ((weg_t *)ding)->gib_waytype()>((weg_t *)obj.some[0])->gib_waytype()) {
-			return intern_insert_at(ding, 1);
+			intern_insert_at(ding, 1);
 		} else {
-			return intern_insert_at(ding, 0);
+			intern_insert_at(ding, 0);
 		}
+		return true;
 	}
 
 	uint8 i;
@@ -414,7 +410,6 @@ dingliste_t::add(ding_t *ding)
 	// then correct the upper border
 	return true;
 }
-
 
 
 
@@ -444,7 +439,7 @@ dingliste_t::remove_last()
 }
 
 
-uint8 dingliste_t::remove(const ding_t* ding)
+bool dingliste_t::remove(const ding_t* ding)
 {
 	if(capacity==0) {
 		return false;

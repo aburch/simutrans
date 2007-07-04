@@ -22,18 +22,14 @@ private:
 
 	void set_capacity(uint8 new_cap);
 
-	/**
-	* @return ersten freien index
-	* @author Hj. Malthaner
-	*/
-	int grow_capacity();
+	bool grow_capacity();
 
 	void shrink_capacity(uint8 last_index);
 
-	inline uint8 intern_insert_at(ding_t *ding,uint8 pri);
+	inline void intern_insert_at(ding_t* ding, uint8 pri);
 
 	// this will automatically give the right order for citycars and the like ...
-	uint8 intern_add_moving(ding_t *ding);
+	bool intern_add_moving(ding_t* ding);
 
 public:
 	dingliste_t();
@@ -62,8 +58,13 @@ public:
 	// usually used only for copying by grund_t
 	ding_t *remove_last();
 
-	uint8  add(ding_t *obj);
-	uint8 remove(const ding_t* obj);
+	/**
+	 * this routine will automatically obey the correct order of things during
+	 * insert into dingliste
+	 */
+	bool add(ding_t* obj);
+
+	bool remove(const ding_t* obj);
 	bool loesche_alle(spieler_t *sp,uint8 offset);
 	bool ist_da(const ding_t* obj) const;
 
