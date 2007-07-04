@@ -246,11 +246,11 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	update_data();
 	gui_frame_t::setze_fenstergroesse(gr);
 
-	// text is only known now (after update data)!
-	lb_convois.setze_text(txt_convois);
-	lb_convoi_count.setze_text(txt_convoi_count);
-	lb_convoi_value.setze_text(txt_convoi_value);
-	lb_convoi_line.setze_text(txt_convoi_line);
+	// text will be translated by ourselves (after update data)!
+	lb_convois.set_text_pointer(txt_convois);
+	lb_convoi_count.set_text_pointer(txt_convoi_count);
+	lb_convoi_value.set_text_pointer(txt_convoi_value);
+	lb_convoi_line.set_text_pointer(txt_convoi_line);
 
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
