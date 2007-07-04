@@ -166,9 +166,6 @@ private:
 	*/
 	uint8 anz_vehikel;
 
-	// true, if at least the first vehicle of a convoi reached the end of a route
-	bool anz_ready;
-
 	// true, if at least one vehicle of a convoi is obsolete
 	bool has_obsolete;
 

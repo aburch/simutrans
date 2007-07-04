@@ -108,7 +108,6 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	convoi_info = NULL;
 
 	anz_vehikel = 0;
-	anz_ready = false;
 	withdraw = false;
 	has_obsolete = false;
 	no_load = false;
@@ -270,17 +269,9 @@ void convoi_t::add_running_cost(sint32 cost)
 
 
 
-bool
-convoi_t::sync_step(long delta_t)
+// moves all vehicles of a convoi
+bool convoi_t::sync_step(long delta_t)
 {
-	// DBG_MESSAGE("convoi_t::sync_step()", "%p, state %d", this, state);
-
-	// moved check to here, as this will apply the same update
-	// logic/constraints convois have for manual schedule manipulation
-	if (line_update_pending != INVALID_LINE_ID) {
-		check_pending_updates();
-	}
-
 	// still have to wait before next action?
 	wait_lock -= delta_t;
 	if(wait_lock <= 0) {
@@ -297,7 +288,8 @@ convoi_t::sync_step(long delta_t)
 			break;
 
 		case FAHRPLANEINGABE:
-			if((fpl != NULL) && (fpl->ist_abgeschlossen())) {
+			// schedule window closed?
+			if(fpl!=NULL  &&  fpl->ist_abgeschlossen()) {
 
 				setze_fahrplan(fpl);
 				welt->set_schedule_counter();
@@ -308,19 +300,14 @@ convoi_t::sync_step(long delta_t)
 					wait_lock = 0;
 				}
 				else {
-					// V.Meyer: If we are at destination - complete loading task!
-					state = (gib_pos() == fpl->eintrag[fpl->aktuell].pos ? LOADING : ROUTING_1);
-					calc_loading();
+					// Schedule changed at station
+					// this station? then complete loading task else drive on
+					state = (gib_pos() == fpl->eintrag[fpl->aktuell].pos ? LOADING : ROUTING_2);
 				}
 			}
 			break;
 
 		case ROUTING_1:
-  			// this will be processed, when the waiting time is over ...
-			state = ROUTING_2;
-			wait_lock = 0;
-			break;
-
 		case DUMMY4:
 		case DUMMY5:
 		case ROUTING_2:
@@ -331,9 +318,7 @@ convoi_t::sync_step(long delta_t)
 			break;
 
 		case DRIVING:
-			// teste, ob wir neu ansetzen müssen ?
-			if(!anz_ready) {
-
+			{
 				// Prissi: more pleasant and a little more "physical" model *
 				int sum_friction_weight = 0;
 				sum_gesamtgewicht = 0;
@@ -349,18 +334,18 @@ convoi_t::sync_step(long delta_t)
 				// try to simulate quadratic friction
 				if(sum_gesamtgewicht != 0) {
 					/*
-					* The parameter consist of two parts (optimized for good looking):
-					*  - every vehicle in a convoi has a the friction of its weight
-					*  - the dynamic friction is calculated that way, that v^2*weight*frictionfactor = 200 kW
-					* => the more heavy and the more fast the less power for acceleration is available!
-					* since delta_t can have any value, we have to scale the step size by this value.
-					* however, there is a quadratic friction term => if delta_t is too large the calculation may get weird results
-					* @author prissi
-					*/
+					 * The parameter consist of two parts (optimized for good looking):
+					 *  - every vehicle in a convoi has a the friction of its weight
+					 *  - the dynamic friction is calculated that way, that v^2*weight*frictionfactor = 200 kW
+					 * => heavier loaded and faster traveling => less power for acceleration is available!
+					 * since delta_t can have any value, we have to scale the step size by this value.
+					 * however, there is a quadratic friction term => if delta_t is too large the calculation may get weird results
+					 * @author prissi
+					 */
 
-					/* but for integer, we have to use the order below and calculate actually 64*deccel, like the sum_gear_und_leistung */
-					/* since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100 */
-					/* But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
+					/* but for integer, we have to use the order below and calculate actually 64*deccel, like the sum_gear_und_leistung
+					 * since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100
+					 * But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
 					sint32 deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*(akt_speed>>2) ) / 25 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
 
 					// prissi:
@@ -370,24 +355,22 @@ convoi_t::sync_step(long delta_t)
 					// we normalize delta_t to 1/64th and check for speed limit */
 //				sint32 delta_v = ( ( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel) * delta_t)/sum_gesamtgewicht;
 
-					// we need more accurate arithmetik, so we store the previous value
+					// we need more accurate arithmetic, so we store the previous value
 					delta_v += previous_delta_v;
 					previous_delta_v = delta_v & 0x0FFF;
 					// and finally calculate new speed
 					akt_speed = max(akt_speed_soll>>4, akt_speed+(sint32)(delta_v>>12l) );
-//DBG_MESSAGE("convoi_t::sync_step","accel %d, deccel %d, akt_speed %d, delta_t %d, delta_v %d, previous_delta_v %d",sum_gear_und_leistung,deccel,akt_speed,delta_t,delta_v, previous_delta_v );
 				}
 				else {
 					// very old vehicle ...
 					akt_speed += 16;
 				}
+
 				// obey speed maximum with additional const brake ...
 				if(akt_speed > akt_speed_soll) {
-	//DBG_MESSAGE("convoi_t::sync_step","akt_speed=%d, akt_speed_soll=%d",akt_speed,akt_speed_soll);
 					akt_speed -= 24;
 					if(akt_speed > akt_speed_soll+kmh_to_speed(20)) {
 						akt_speed = akt_speed_soll+kmh_to_speed(20);
-	//DBG_MESSAGE("convoi_t::sync_step","akt_speed=%d, akt_speed_soll=%d",akt_speed,akt_speed_soll);
 					}
 				}
 
@@ -399,19 +382,16 @@ convoi_t::sync_step(long delta_t)
 
 				// now actually move the units
 				sp_soll += (akt_speed*delta_t);
-				while(65536 < sp_soll && !anz_ready) {
+				while(65536<sp_soll  &&  state==DRIVING) {
 					sp_soll -= 65536;
 
 					fahr[0]->sync_step();
-					// stopped by something!
-					if(state!=DRIVING) {
-						sp_soll &= (65536-1);
-						return true;
-					}
 					for(unsigned i=1; i<anz_vehikel; i++) {
 						fahr[i]->sync_step();
 					}
 				}
+				// maybe we have been stopped be something => avoid jumps
+				sp_soll &= (65536-1);
 
 				// smoke for the engines
 				next_wolke += delta_t;
@@ -419,59 +399,6 @@ convoi_t::sync_step(long delta_t)
 					next_wolke = 0;
 					for(int i=0;  i<anz_vehikel;  i++  ) {
 						fahr[i]->rauche();
-					}
-				}
-
-			} // end if(anz_ready==0)
-			else {
-				const vehikel_t* v = fahr[0];
-
-				// Ziel erreicht
-				alte_richtung = v->gib_fahrtrichtung();
-
-				// pruefen ob wir ein depot erreicht haben
-				const grund_t* gr = welt->lookup(v->gib_pos());
-				depot_t * dp = gr->gib_depot();
-
-				if(dp) {
-					// ok, we are entering a depot
-					char buf[128];
-
-					// Gewinn für transport einstreichen
-					calc_gewinn(false);
-
-					akt_speed = 0;
-					sprintf(buf, translator::translate("!1_DEPOT_REACHED"), gib_name());
-					message_t::get_instance()->add_message(buf, v->gib_pos().gib_2d(),message_t::convoi, gib_besitzer()->get_player_nr(), IMG_LEER);
-
-					betrete_depot(dp);
-
-					// Hajo: since 0.81.5exp it's safe to
-					// remove the current sync object from
-					// the sync list from inside sync_step()
-					welt->sync_remove(this);
-					state = INITIAL;
-					return true;  // Hajo: convoi is still alive
-				}
-				else {
-					// no depot reached, so book values for stop!
-					const grund_t* gr = welt->lookup(v->gib_pos());
-					halthandle_t halt = gr->ist_wasser() ? haltestelle_t::gib_halt(welt, v->gib_pos()) : gr->gib_halt();
-					// we could have reached a non-haltestelle stop, so check before booking!
-					if (halt.is_bound() && gr->gib_weg_ribi(v->gib_waytype()) != 0) {
-						// Gewinn für transport einstreichen
-						calc_gewinn(true);
-						akt_speed = 0;
-						halt->book(1, HALT_CONVOIS_ARRIVED);
-	//DBG_MESSAGE("convoi_t::sync_step()","reached station at (%i,%i)",gr->gib_pos().x,gr->gib_pos().y);
-						state = LOADING;
-					}
-					else {
-	//DBG_MESSAGE("convoi_t::sync_step()","passed waypoint at (%i,%i)",gr->gib_pos().x,gr->gib_pos().y);
-						// Neither depot nor station: waypoint
-						drive_to_next_stop();
-						state = ROUTING_2;
-						wait_lock = 0;
 					}
 				}
 			}
@@ -488,13 +415,11 @@ convoi_t::sync_step(long delta_t)
 			break;
 
 		case SELF_DESTRUCT:
-			{
-				for(unsigned f=0; f<anz_vehikel; f++) {
-					const vehikel_t* v = fahr[f];
-					besitzer_p->buche(v->calc_restwert(), v->gib_pos().gib_2d(), COST_NEW_VEHICLE);
-				}
-				destroy();
+			for(unsigned f=0; f<anz_vehikel; f++) {
+				const vehikel_t* v = fahr[f];
+				besitzer_p->buche(v->calc_restwert(), v->gib_pos().gib_2d(), COST_NEW_VEHICLE);
 			}
+			destroy();
 			break;
 
 		default:
@@ -563,6 +488,12 @@ void convoi_t::suche_neue_route()
  */
 void convoi_t::step()
 {
+	// moved check to here, as this will apply the same update
+	// logic/constraints convois have for manual schedule manipulation
+	if (line_update_pending != INVALID_LINE_ID) {
+		check_pending_updates();
+	}
+
 	if(wait_lock!=0) {
 		return;
 	}
@@ -575,6 +506,7 @@ void convoi_t::step()
 
 		case DUMMY4:
 		case DUMMY5:
+		case ROUTING_1:
 		case ROUTING_2:
 			{
 				vehikel_t* v = fahr[0];
@@ -767,7 +699,7 @@ convoi_t::start()
 
 		alte_richtung = ribi_t::keine;
 
-		state = ROUTING_1;
+		state = ROUTING_2;
 		calc_loading();
 
 		DBG_MESSAGE("convoi_t::start()","Convoi %s wechselt von INITIAL nach ROUTING_1", name_and_id);
@@ -778,10 +710,54 @@ convoi_t::start()
 
 
 
+/* called, when at a destination
+ * can be waypoint, depot or a stop
+ * called from the first vehikel_t of a convoi */
 void convoi_t::ziel_erreicht()
 {
+	const vehikel_t* v = fahr[0];
+	alte_richtung = v->gib_fahrtrichtung();
+
+	// check, what is at destination!
+	const grund_t *gr = welt->lookup(v->gib_pos());
+	depot_t *dp = gr->gib_depot();
+
+	if(dp) {
+		// ok, we are entering a depot
+		char buf[128];
+
+		// we still book the money for the trip; however, the frieght will be lost
+		calc_gewinn(false);
+
+		akt_speed = 0;
+		sprintf(buf, translator::translate("!1_DEPOT_REACHED"), gib_name());
+		message_t::get_instance()->add_message(buf, v->gib_pos().gib_2d(),message_t::convoi, gib_besitzer()->get_player_nr(), IMG_LEER);
+
+		betrete_depot(dp);
+
+		// Hajo: since 0.81.5exp it's safe to
+		// remove the current sync object from
+		// the sync list from inside sync_step()
+		welt->sync_remove(this);
+		state = INITIAL;
+	}
+	else {
+		// no depot reached, check for stop!
+		halthandle_t halt = gr->ist_wasser() ? haltestelle_t::gib_halt(welt, v->gib_pos()) : gr->gib_halt();
+		if(  halt.is_bound() &&  gr->gib_weg_ribi(v->gib_waytype())!=0  ) {
+			// seems to be a stop, so book the money for the trip
+			calc_gewinn(true);
+			akt_speed = 0;
+			halt->book(1, HALT_CONVOIS_ARRIVED);
+			state = LOADING;
+		}
+		else {
+			// Neither depot nor station: waypoint
+			drive_to_next_stop();
+			state = ROUTING_2;
+		}
+	}
 	wait_lock = 0;
-	anz_ready |= true;
 }
 
 
@@ -927,8 +903,8 @@ convoi_t::setze_erstes_letztes()
 }
 
 
-bool
-convoi_t::setze_fahrplan(fahrplan_t * f)
+
+bool convoi_t::setze_fahrplan(fahrplan_t * f)
 {
 	enum states old_state = state;
 	state = INITIAL;	// because during a sync-step we might be called twice ...
@@ -967,8 +943,8 @@ convoi_t::setze_fahrplan(fahrplan_t * f)
 }
 
 
-fahrplan_t *
-convoi_t::erzeuge_fahrplan()
+
+fahrplan_t *convoi_t::erzeuge_fahrplan()
 {
 	if(fpl == NULL) {
 		const vehikel_t* v = fahr[0];
@@ -1130,8 +1106,6 @@ convoi_t::vorfahren()
 	// Hajo: init speed settings
 	sp_soll = 0;
 
-	anz_ready = false;
-
 	setze_akt_speed_soll( vehikel_t::SPEED_UNLIMITED );
 
 	INT_CHECK("simconvoi 651");
@@ -1223,9 +1197,10 @@ convoi_t::rdwr(loadsave_t *file)
 	file->rdwr_long(dummy, " ");
 	anz_vehikel = (uint8)dummy;
 
-	dummy = anz_ready;
-	file->rdwr_long(dummy, " ");
-	anz_ready = (bool)dummy;
+	if(file->get_version()<99014) {
+		// was anz_ready
+		file->rdwr_long(dummy, " ");
+	}
 
 	file->rdwr_long(wait_lock, " ");
 	// some versions may produce broken safegames apparently
@@ -1587,8 +1562,8 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 }
 
 
-void
-convoi_t::open_schedule_window()
+
+void convoi_t::open_schedule_window()
 {
 	DBG_MESSAGE("convoi_t::open_schedule_window()","Id = %ld, State = %d, Lock = %d",self.get_id(), state, wait_lock);
 
@@ -1599,9 +1574,9 @@ convoi_t::open_schedule_window()
 	}
 
 	// manipulation of schedule not allowd while:
-	// -convoi is in routing state 4 or 5
-	// -a line update is pending
-	if (state == FAHRPLANEINGABE /*|| state == CAN_START || state == CAN_START_ONE_MONTH*/ || line_update_pending != INVALID_LINE_ID) {
+	// - just starting
+	// - a line update is pending
+	if(  state==FAHRPLANEINGABE  ||  line_update_pending!=INVALID_LINE_ID  ) {
 		create_win(-1, -1, 120, new news_img("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_autodelete);
 		return;
 	}
@@ -1746,7 +1721,7 @@ void convoi_t::laden()
 
 		// Advance schedule
 		drive_to_next_stop();
-		state = ROUTING_1;
+		state = ROUTING_2;
 	}
 	else {
 		// Hajo: wait a few frames ... 250ms looks ok to me
@@ -1909,7 +1884,6 @@ void convoi_t::dump() const
 {
     fprintf(stderr, "convoi::dump()");
     fprintf(stderr, "anz_vehikel = %d\n", anz_vehikel);
-    fprintf(stderr, "anz_ready = %d\n", anz_ready);
     fprintf(stderr, "wait_lock = %d\n", wait_lock);
     fprintf(stderr, "besitzer_n = %d\n", welt->sp2num(besitzer_p));
     fprintf(stderr, "akt_speed = %d\n", akt_speed);
@@ -2003,8 +1977,7 @@ DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from line=%d, fpl
 
 
 
-void
-convoi_t::prepare_for_new_schedule(fahrplan_t *f)
+void convoi_t::prepare_for_new_schedule(fahrplan_t *f)
 {
 	alte_richtung = fahr[0]->gib_fahrtrichtung();
 
@@ -2016,8 +1989,9 @@ convoi_t::prepare_for_new_schedule(fahrplan_t *f)
 	state = FAHRPLANEINGABE;
 }
 
-void
-convoi_t::book(sint64 amount, int cost_type)
+
+
+void convoi_t::book(sint64 amount, int cost_type)
 {
 	if (cost_type>MAX_CONVOI_COST) {
 		// THIS SHOULD NEVER HAPPEN!
@@ -2056,8 +2030,9 @@ convoi_t::get_running_cost() const
 	return running_cost;
 }
 
-void
-convoi_t::check_pending_updates()
+
+
+void convoi_t::check_pending_updates()
 {
 	if (line_update_pending != INVALID_LINE_ID) {
 		linehandle_t line = besitzer_p->simlinemgmt.get_line_by_id(line_update_pending);
@@ -2079,8 +2054,7 @@ convoi_t::check_pending_updates()
  * the current state saved as color
  * Meanings are BLACK (ok), WHITE (no convois), YELLOW (no vehicle moved), RED (last month income minus), BLUE (at least one convoi vehicle is obsolete)
  */
-uint8
-convoi_t::get_status_color() const
+uint8 convoi_t::get_status_color() const
 {
 	if(state==INITIAL) {
 		// in depot/under assembly
