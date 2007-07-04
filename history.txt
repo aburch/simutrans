@@ -1,4 +1,5 @@
 	FIX: speed limit of channels for ships was never lifted
+	FIX: again front images for traffic lights
 
 
 Release of 99.13

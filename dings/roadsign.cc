@@ -312,10 +312,10 @@ roadsign_t::display_after(int xpos, int ypos, bool ) const
 		xpos += tile_raster_scale_x(gib_xoff(), raster_width);
 		// draw with owner
 		if(get_player_nr()!=-1) {
-			display_color_img(bild, xpos, ypos, get_player_nr(), true, get_flag(ding_t::dirty) );
+			display_color_img(after_bild, xpos, ypos, get_player_nr(), true, get_flag(ding_t::dirty) );
 		}
 		else {
-			display_img(bild, xpos, ypos, get_flag(ding_t::dirty) );
+			display_img(after_bild, xpos, ypos, get_flag(ding_t::dirty) );
 		}
 	}
 }
@@ -401,6 +401,8 @@ bool roadsign_t::alles_geladen()
 	}
 	return true;
 }
+
+
 
 bool roadsign_t::register_besch(roadsign_besch_t *besch)
 {

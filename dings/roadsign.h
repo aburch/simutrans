@@ -83,16 +83,16 @@ public:
 	bool is_free_route(uint8 check_dir) const { return besch->is_free_route() &&  check_dir == dir; }
 
 	// changes the state of a traffic light
-	virtual bool sync_step(long);
+	bool sync_step(long);
 
 	inline void setze_bild( image_id b ) { bild = b; }
-	image_id gib_bild() const {return bild;}
+	image_id gib_bild() const { return bild; }
 
 	/**
 	* For the front image hiding vehicles
 	* @author prissi
 	*/
-	virtual image_id gib_after_bild() const {return after_bild;}
+	image_id gib_after_bild() const { return after_bild; }
 
 	/**
 	* draw the part overlapping the vehicles
