@@ -14,6 +14,7 @@
 #include "wolke.h"
 
 #include "../dataobj/loadsave.h"
+#include "../tpl/stringhashtable_tpl.h"
 
 
 // ***************** Wolkenverwaltung ***********************

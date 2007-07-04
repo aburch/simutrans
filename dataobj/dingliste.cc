@@ -35,8 +35,6 @@
 #include "../simplay.h"
 
 #include "../besch/haus_besch.h"
-
-#include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/freelist.h"
 #include "../dataobj/umgebung.h"

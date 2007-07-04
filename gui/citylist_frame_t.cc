@@ -9,6 +9,7 @@
 #include "citylist_stats_t.h"
 
 #include "components/list_button.h"
+#include "../dataobj/translator.h"
 #include "../simcolor.h"
 
 

@@ -18,8 +18,6 @@
 #include "../simplay.h"
 #include "../simgraph.h"
 #include "../simdisplay.h"
-#include "../dataobj/translator.h"
-
 #include "optionen.h"
 #include "colors.h"
 #include "sprachen.h"

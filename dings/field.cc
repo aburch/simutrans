@@ -17,7 +17,6 @@
 #include "../gui/thing_info.h"
 
 #include "../dataobj/loadsave.h"
-#include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 
 #include "field.h"

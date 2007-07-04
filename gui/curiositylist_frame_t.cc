@@ -8,7 +8,9 @@
 #include "curiositylist_frame_t.h"
 #include "curiositylist_stats_t.h"
 #include "components/list_button.h"
+#include "../dataobj/translator.h"
 #include "../simcolor.h"
+
 
 /**
  * This variable defines the sort order (ascending or descending)

@@ -23,8 +23,6 @@
 
 #include "../besch/ware_besch.h"
 #include "../bauer/warenbauer.h"
-#include "../dataobj/translator.h"
-
 #include "components/list_button.h"
 
  /**

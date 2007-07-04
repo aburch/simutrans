@@ -19,8 +19,6 @@
 #include "../simplay.h"
 
 #include "../boden/grund.h"
-
-#include "../dataobj/translator.h"
 #include "../dings/label.h"
 #include "../utils/simstring.h"
 

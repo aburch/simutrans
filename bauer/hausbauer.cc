@@ -11,6 +11,7 @@
 #include "../besch/skin_besch.h"
 #include "../besch/spezial_obj_tpl.h"
 #include "../boden/fundament.h"
+#include "../dataobj/translator.h"
 #include "../dings/zeiger.h"
 #include "../gui/karte.h"
 #include "../gui/werkzeug_parameter_waehler.h"

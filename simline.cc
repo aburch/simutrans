@@ -1,3 +1,4 @@
+#include "dataobj/translator.h"
 #include "simtypes.h"
 #include "simline.h"
 #include "simhalt.h"

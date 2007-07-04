@@ -14,7 +14,7 @@
 #include "../../besch/weg_besch.h"
 
 #include "../../bauer/wegbauer.h"
-
+#include "../../dataobj/translator.h"
 #include "kanal.h"
 
 const weg_besch_t *kanal_t::default_kanal=NULL;

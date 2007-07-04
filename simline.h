@@ -10,7 +10,6 @@
 
 #include "simtypes.h"
 #include "dataobj/loadsave.h"
-#include "dataobj/translator.h"
 #include "dataobj/fahrplan.h"
 
 #include "tpl/vector_tpl.h"

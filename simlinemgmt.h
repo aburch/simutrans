@@ -13,7 +13,6 @@
 #include "simline.h"
 #include "linehandle_t.h"
 #include "dataobj/loadsave.h"
-#include "dataobj/translator.h"
 #include "simconvoi.h"
 
 #include "simdebug.h"

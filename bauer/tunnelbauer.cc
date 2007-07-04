@@ -30,7 +30,7 @@
 #include "../boden/wege/monorail.h"
 #include "../boden/wege/kanal.h"
 #include "../boden/wege/strasse.h"
-
+#include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/koord3d.h"
 

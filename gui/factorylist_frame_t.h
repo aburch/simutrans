@@ -4,7 +4,6 @@
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_label.h"
-#include "../dataobj/translator.h"
 #include "factorylist_stats_t.h"
 
 

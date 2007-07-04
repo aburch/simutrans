@@ -16,7 +16,6 @@
 // Hajo: these are needed to build the menu entries
 #include "../gui/werkzeug_parameter_waehler.h"
 #include "../besch/skin_besch.h"
-#include "../dataobj/translator.h"
 
 class bruecke_besch_t;
 class karte_t;                 // Hajo: 22-Nov-01: Added forward declaration

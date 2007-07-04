@@ -16,6 +16,8 @@
 #include "../../utils/cbuffer_t.h"
 #include "../../besch/weg_besch.h"
 #include "../../bauer/wegbauer.h"
+#include "../../dataobj/translator.h"
+
 
 const weg_besch_t *strasse_t::default_strasse=NULL;
 

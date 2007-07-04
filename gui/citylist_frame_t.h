@@ -3,7 +3,6 @@
 
 #include "../gui/gui_frame.h"
 #include "../gui/citylist_stats_t.h"
-#include "../dataobj/translator.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
