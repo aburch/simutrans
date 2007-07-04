@@ -1,6 +1,7 @@
 	FIX: speed limit of channels for ships was never lifted
 	FIX: again front images for traffic lights
-	FIX: crash when building harbour outside of he map
+	FIX: crash when building harbour outside of the map
+	FIX: avoid jumping of trains when waypoint on first tile after a curve
 
 
 Release of 99.13

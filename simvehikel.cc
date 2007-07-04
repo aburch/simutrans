@@ -780,7 +780,7 @@ DBG_MESSAGE("vehikel_t::hop()","reverse dir at route index %d",route_index);
 		if(pos_next!=gib_pos()) {
 			fahrtrichtung = calc_richtung(pos_prev.gib_2d(), pos_next.gib_2d(), dx, dy);
 		}
-		else if(welt->lookup(pos_next)->is_halt()) {
+		else if(check_for_finish  ||  welt->lookup(pos_next)->is_halt()) {
 			// allow diagonal stops at waypoints but avoid them on halts ...
 			fahrtrichtung = calc_richtung(pos_prev.gib_2d(), pos_next.gib_2d(), dx, dy);
 		}
