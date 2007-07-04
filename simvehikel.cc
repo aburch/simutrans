@@ -643,7 +643,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 	setze_besitzer( sp );
 	insta_zeit = welt->get_current_month();
 	cnv = NULL;
-	speed_limit = -1;
+	speed_limit = SPEED_UNLIMITED;
 
 	route_index = 1;
 
@@ -791,24 +791,15 @@ DBG_MESSAGE("vehikel_t::hop()","reverse dir at route index %d",route_index);
 	grund_t *gr = welt->lookup(gib_pos());
 	const weg_t * weg = gr->gib_weg(gib_waytype());
 	if(weg) {
-		setze_speed_limit( kmh_to_speed(weg->gib_max_speed()) );
+		speed_limit = kmh_to_speed( weg->gib_max_speed() );
 		if(weg->is_crossing()) {
 			gr->find<crossing_t>(2)->add_to_crossing(this);
 		}
 	}
-	calc_akt_speed(gr);
-}
-
-
-
-void
-vehikel_t::setze_speed_limit(int l)
-{
-	speed_limit = l;
-
-	if(speed_limit != -1 && cnv->gib_akt_speed() > speed_limit) {
-		cnv->setze_akt_speed_soll(speed_limit);
+	else {
+		speed_limit = SPEED_UNLIMITED;
 	}
+	calc_akt_speed(gr);
 }
 
 
@@ -842,15 +833,10 @@ vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu
 	}
 
 	if(ist_erstes) {
-		// just to accelerate: The actual speed takes care of all vehicles in the convoi
-		sint32 akt_speed = gib_speed();
-
-		if(speed_limit!=-1 && akt_speed>speed_limit) {
-			akt_speed = speed_limit;
-		}
+		sint32 akt_speed = speed_limit;
 
 		// break at the end of the route
-		sint32 brake_speed_soll = akt_speed;
+		uint32 brake_speed_soll = akt_speed;
 		switch(cnv->get_next_stop_index()+1-route_index) {
 			case 3: brake_speed_soll = kmh_to_speed(200); break;
 			case 2: brake_speed_soll = kmh_to_speed(100); break;
@@ -861,6 +847,7 @@ vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu
 		if(brake_speed_soll<akt_speed) {
 			akt_speed = brake_speed_soll;
 		}
+		// speed is limited anyway in the convoi
 		cnv->setze_akt_speed_soll( akt_speed );
 	}
 }
@@ -873,16 +860,20 @@ vehikel_t::rauche()
 	// raucht ueberhaupt ?
 	if(rauchen && besch->gib_rauch()) {
 
-		// Hajo: only produce smoke when heavily accelerating
-		//       or steam engine
-		int akt_speed = gib_speed();
-		if(speed_limit != -1 && akt_speed > speed_limit) {
-			akt_speed = speed_limit;
+		bool smoke = besch->get_engine_type()==vehikel_besch_t::steam;
+
+		if(!smoke) {
+			// Hajo: only produce smoke when heavily accelerating
+			//       or steam engine
+			int akt_speed = kmh_to_speed(besch->gib_geschw());
+			if(akt_speed > speed_limit) {
+				akt_speed = speed_limit;
+			}
+
+			smoke = (cnv->gib_akt_speed() < (akt_speed*7)>>3);
 		}
 
-		if(cnv->gib_akt_speed() < (akt_speed*7)>>3 ||
-			besch->get_engine_type() == vehikel_besch_t::steam) {
-
+		if(smoke) {
 			grund_t * gr = welt->lookup( gib_pos() );
 			// nicht im tunnel ?
 			if(gr && !gr->ist_im_tunnel() ) {
@@ -1649,7 +1640,7 @@ automobil_t::rdwr(loadsave_t *file, bool force)
 		if(file->is_loading()  &&  besch==NULL) {
 			const ware_besch_t* w = (!fracht.empty() ? fracht.front().gib_typ() : warenbauer_t::passagiere);
 			DBG_MESSAGE("automobil_t::rdwr()","try to find a fitting vehicle for %s.",  w->gib_name() );
-			besch = vehikelbauer_t::vehikel_search(road_wt, 0, ist_erstes?50:0, speed_to_kmh(get_speed_limit()), w );
+			besch = vehikelbauer_t::vehikel_search(road_wt, 0, ist_erstes?50:0, speed_to_kmh(speed_limit), w );
 			if(besch) {
 				DBG_MESSAGE("automobil_t::rdwr()","replaced by %s",besch->gib_name());
 				// still wrong load ...
@@ -2312,7 +2303,7 @@ waggon_t::rdwr(loadsave_t *file, bool force)
 			}
 			else {
 				// we have to search
-				last_besch = besch = vehikelbauer_t::vehikel_search(gib_waytype(), 0, ist_erstes ? 500 : power, speed_to_kmh(get_speed_limit()), power>0 ? NULL : w, false );
+				last_besch = besch = vehikelbauer_t::vehikel_search(gib_waytype(), 0, ist_erstes ? 500 : power, speed_to_kmh(speed_limit), power>0 ? NULL : w, false );
 			}
 			if(besch) {
 DBG_MESSAGE("waggon_t::rdwr()","replaced by %s",besch->gib_name());
@@ -2379,12 +2370,7 @@ schiff_t::calc_akt_speed(const grund_t *gr)
 
 	if(ist_erstes) {
 		// just to accelerate: The actual speed takes care of all vehicles in the convoi
-		const int akt_speed = gib_speed();
-		if(get_speed_limit() != -1 && akt_speed > get_speed_limit()) {
-			cnv->setze_akt_speed_soll(get_speed_limit());
-		} else {
-			cnv->setze_akt_speed_soll(akt_speed);
-		}
+		cnv->setze_akt_speed_soll( speed_limit );
 	}
 }
 
@@ -3018,7 +3004,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route
 		route->clear();
 		route->append( gib_pos() );
 		state = flying;
-		cnv->setze_akt_speed_soll(gib_speed());
+		cnv->setze_akt_speed_soll( vehikel_t::SPEED_UNLIMITED );
 		flughoehe = gib_pos().z+48;
 		takeoff = 0;
 	}
@@ -3117,8 +3103,7 @@ int aircraft_t::calc_height()
 			{
 				flughoehe = 0;
 				current_friction = 14;
-				cnv->setze_akt_speed_soll(gib_speed());
-				setze_speed_limit(-1);
+				speed_limit = SPEED_UNLIMITED;
 
 				// take off, when a) end of runway or b) last tile of runway or c) fast enough
 				weg_t *weg=welt->lookup(gib_pos())->gib_weg(air_wt);
@@ -3135,8 +3120,7 @@ int aircraft_t::calc_height()
 		{
 			const sint16 h_next=height_scaling(pos_next.z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
 
-			cnv->setze_akt_speed_soll(gib_speed());
-			setze_speed_limit(-1);
+			speed_limit = SPEED_UNLIMITED;
 
 			// did we have to change our flight height?
 			if(target_height-h_next>TILE_HEIGHT_STEP*5) {
@@ -3164,11 +3148,10 @@ int aircraft_t::calc_height()
 
 		case landing:
 		{
-			setze_speed_limit(-1);
 			if(flughoehe>target_height) {
 				// still decenting
 				flughoehe--;
-				cnv->setze_akt_speed_soll( kmh_to_speed(besch->gib_geschw())/2 );
+				speed_limit = kmh_to_speed(besch->gib_geschw())/2;
 				current_friction = 64;
 				flughoehe -= h_cur;
 			}
@@ -3176,20 +3159,23 @@ int aircraft_t::calc_height()
 				// touchdown!
 				flughoehe = 0;
 				// all planes taxi with same speed
-				cnv->setze_akt_speed_soll( kmh_to_speed(60) );
+				speed_limit = kmh_to_speed(60);
 				current_friction = 16;
 			}
 		}
 		break;
 
 	default:
-		cnv->setze_akt_speed_soll( kmh_to_speed(60) );	// all planes taxi with 60
+		speed_limit = kmh_to_speed(60);
 		current_friction = 16;//(alte_fahrtrichtung != fahrtrichtung) ? 512 : 128;
 		flughoehe = 0;
 		break;
 	}
 
+	cnv->setze_akt_speed_soll( speed_limit );
+
 	// this calculation is no really working, since it assumes straight ways ...
+	// but for a shadow it is good enough
 	return vehikel_basis_t::calc_height();
 }
 

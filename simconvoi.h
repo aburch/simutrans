@@ -453,74 +453,61 @@ public:
 	void setze_name(const char *name);
 
 	/**
-	* Gibt die Position des Convois zurück.
-	* @return Position des Convois
-	* @author Hj. Malthaner
-	*/
+	 * Gibt die Position des Convois zurück.
+	 * @return Position des Convois
+	 * @author Hj. Malthaner
+	 */
 	koord3d gib_pos() const;
 
 	/**
-	* wird vom ersten Fahrzeug des Convois aufgerufen, um Aenderungen
-	* der Grundgeschwindigkeit zu melden. Berechnet (Brems-) Beschleunigung
-	* @author Hj. Malthaner
-	*/
-	void setze_akt_speed_soll(sint32 akt_speed);
+	 * sets the current target speed
+	 * set from the first vehicle, and takes into account all speed limits, brakes at stations etc.
+	 * @author Hj. Malthaner
+	 */
+	void setze_akt_speed_soll(sint32 set_akt_speed) { akt_speed_soll = min( set_akt_speed, min_top_speed ); }
 	sint32 get_akt_speed_soll() const {return akt_speed;}
 
 	/**
-	* @return current speed, this might be different from topspeed and
-	*         actual currently set speed.
-	* @author Hj. Malthaner
-	*/
+	 * @return current speed, this might be different from topspeed and
+	 *         actual currently set speed.
+	 * @author Hj. Malthaner
+	 */
 	const int& gib_akt_speed() const { return akt_speed; }
 
 	/**
-	* @return total power of this convoi
-	* @author Hj. Malthaner
-	*/
+	 * @return total power of this convoi
+	 * @author Hj. Malthaner
+	 */
 	const uint32 & gib_sum_leistung() const {return sum_leistung;}
 	const sint32 & gib_min_top_speed() const {return min_top_speed;}
 	const sint32 & gib_sum_gewicht() const {return sum_gewicht;}
 	const sint32 & gib_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
 
 	/**
-	* Vehicles of the convoi add their running cost by using this
-	* method
-	* @author Hj. Malthaner
-	*/
+	 * Vehicles of the convoi add their running cost by using this
+	 * method
+	 * @author Hj. Malthaner
+	 */
 	void add_running_cost(sint32 cost);
 
 	/**
-	* Methode für Echtzeitfunktionen eines Objekts.
-	* @author Hj. Malthaner
-	*/
+	 * moving the veicles of a convoi and acceleration/deacceleration
+	 * all other stuff => convoi_t::step()
+	 * @author Hj. Malthaner
+	 */
 	bool sync_step(long delta_t);
 
 	/**
-	* Asynchrone step methode des Convois
-	* @author Hj. Malthaner
-	*/
+	 * All things like route search or laoding, that may take a little
+	 * @author Hj. Malthaner
+	 */
 	void step();
 
 	/**
-	* Methode fuer jaehrliche aktionen
-	* @author Hj. Malthaner
-	*/
-	void neues_jahr();
-
-	/**
-	* Calculates total weight of freight in KG
-	* @author Hj. Malthaner
-	*/
+	 * Calculates total weight of freight in KG
+	 * @author Hj. Malthaner
+	 */
 	int calc_freight_weight() const;
-
-	/**
-	* Calculates accelleration of this convoi
-	* @param mini minimal accelleration cap
-	* @return accelleration
-	* @@author Hj. Malthaner
-	*/
-	int calc_accelleration(int mini) const;
 
 	/**
 	* setzt einen neuen convoi in fahrt
@@ -732,6 +719,12 @@ public:
 	* @author hsiegeln
 	*/
 	void new_month();
+
+	/**
+	 * Methode fuer jaehrliche aktionen
+	 * @author Hj. Malthaner
+	 */
+	void neues_jahr();
 
 	int get_line_update_pending() { return line_update_pending; }
 

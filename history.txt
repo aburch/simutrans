@@ -1,3 +1,6 @@
+	FIX: speed limit of channels for ships was never lifted
+
+
 Release of 99.13
 
 3-July-2007:

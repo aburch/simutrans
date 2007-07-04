@@ -85,7 +85,7 @@ static int calc_min_top_speed(const array_tpl<vehikel_t*>& fahr, int anz_vehikel
 {
 	int min_top_speed = 9999999;
 	for(int i=0; i<anz_vehikel; i++) {
-		min_top_speed = min(min_top_speed, fahr[i]->gib_speed());
+		min_top_speed = min(min_top_speed, kmh_to_speed( fahr[i]->gib_besch()->gib_geschw() ) );
 	}
 	return min_top_speed;
 }
@@ -248,19 +248,6 @@ convoi_t::setze_name(const char *name)
 	name_offset = sprintf(buf,"(%i) ",self.get_id() );
 	tstrncpy(buf+name_offset, translator::translate(name), 116);
 	tstrncpy(name_and_id, buf, lengthof(name_and_id));
-}
-
-
-/**
- * wird vom ersten Fahrzeug des Convois aufgerufen, um Aenderungen
- * der Grundgeschwindigkeit zu melden. Berechnet (Brems-) Beschleunigung
- * @author Hj. Malthaner
- */
-void
-convoi_t::setze_akt_speed_soll(int as)
-{
-	// first set speed limit
-	akt_speed_soll=min(as,min_top_speed);
 }
 
 
@@ -677,15 +664,15 @@ void convoi_t::step()
 }
 
 
-void
-convoi_t::neues_jahr()
+
+void convoi_t::neues_jahr()
 {
     jahresgewinn = 0;
 }
 
 
-void
-convoi_t::new_month()
+
+void convoi_t::new_month()
 {
 	// should not happen: leftover convoi without vehicles ...
 	if(anz_vehikel==0) {
@@ -740,6 +727,7 @@ convoi_t::new_month()
 }
 
 
+
 void
 convoi_t::betrete_depot(depot_t *dep)
 {
@@ -776,16 +764,7 @@ convoi_t::start()
 
 		// set home depot to location of depot convoi is leaving
 		set_home_depot(gib_pos());
-/*
-		for(unsigned i=0; i<anz_vehikel; i++) {
-			const vehikel_t* v = fahr[i];
 
-			const grund_t* gr = welt->lookup(v->gib_pos());
-			if (!gr->obj_ist_da(v)) {
-				v->betrete_feld();
-			}
-		}
-*/
 		alte_richtung = ribi_t::keine;
 
 		state = ROUTING_1;
@@ -798,11 +777,13 @@ convoi_t::start()
 }
 
 
+
 void convoi_t::ziel_erreicht()
 {
 	wait_lock = 0;
 	anz_ready |= true;
 }
+
 
 
 /**
@@ -852,7 +833,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		sum_leistung += info->gib_leistung();
 		sum_gear_und_leistung += info->gib_leistung()*info->get_gear();
 		sum_gewicht += info->gib_gewicht();
-		min_top_speed = min(min_top_speed, v->gib_speed());
+		min_top_speed = min( min_top_speed, kmh_to_speed( v->gib_besch()->gib_geschw() ) );
 		sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
 		freight_info_resort = true;
@@ -1151,7 +1132,7 @@ convoi_t::vorfahren()
 
 	anz_ready = false;
 
-	setze_akt_speed_soll(fahr[0]->gib_speed());
+	setze_akt_speed_soll( vehikel_t::SPEED_UNLIMITED );
 
 	INT_CHECK("simconvoi 651");
 
@@ -1500,7 +1481,7 @@ void convoi_t::info(cbuffer_t & buf) const
 	if (v != NULL) {
     char tmp[128];
 
-    sprintf(tmp, "\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), speed_to_kmh(v->gib_speed()), get_running_cost() / 100.0);
+    sprintf(tmp, "\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->gib_besch()->gib_geschw(), get_running_cost() / 100.0);
     buf.append(tmp);
 
     sprintf(tmp," %s: %ikW\n", translator::translate("Leistung"), sum_leistung );

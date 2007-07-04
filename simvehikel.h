@@ -152,8 +152,6 @@ private:
 	*/
 	uint16 sum_weight;
 
-	sint32 speed_limit;
-
 	bool hop_check();
 
 	void hop();
@@ -181,6 +179,9 @@ private:
 	bool load_freight(halthandle_t halt);
 
 protected:
+	// current limit (due to track etc.)
+	uint32 speed_limit;
+
 	void fahre();
 
 	ribi_t::ribi alte_fahrtrichtung;
@@ -192,9 +193,6 @@ protected:
 	* @author prissi
 	*/
 	sint16 current_friction;
-
-	void setze_speed_limit(int limit);
-	sint32 get_speed_limit() { return speed_limit; }
 
 	/**
 	* Current index on the route
@@ -225,6 +223,8 @@ protected:
 	virtual bool ist_befahrbar(const grund_t* ) const {return false;}
 
 public:
+	enum { SPEED_UNLIMITED=0x07FFFFFF };
+
 	virtual bool ist_weg_frei(int &/*restart_speed*/) {return true;}
 
 	virtual void betrete_feld();
@@ -325,8 +325,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	ribi_t::ribi richtung();
-
-	inline const int gib_speed() const { return kmh_to_speed(besch->gib_geschw()); }
 
 	/* return friction constant: changes in hill and curves; may even negative downhill *
 	* @author prissi
