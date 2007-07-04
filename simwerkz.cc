@@ -1190,6 +1190,9 @@ wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 		welt->gib_zeiger()->setze_area( welt->gib_einstellungen()->gib_station_coverage() );
 		return true;
 	}
+	if(!welt->ist_in_kartengrenzen(pos)) {
+		return false;
+	}
 	// the cursor cannot be outside the map from here on
 	hang_t::typ hang = welt->lookup(pos)->gib_kartenboden()->gib_grund_hang();
 	// first get the size
