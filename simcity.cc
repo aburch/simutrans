@@ -1431,7 +1431,6 @@ void stadt_t::step_passagiere()
 	// create pedestrians in the near area?
 	if (umgebung_t::fussgaenger && wtyp == warenbauer_t::passagiere) {
 		haltestelle_t::erzeuge_fussgaenger(welt, gb->gib_pos(), num_pax);
-		INT_CHECK("simcity 269");
 	}
 
 	// suitable start search
@@ -1577,15 +1576,10 @@ void stadt_t::step_passagiere()
 					}
 				}
 			}
+			INT_CHECK( "simcity 1579" );
 		}
 	} else {
-		// all overcrowded are unhappy
-		for (unsigned h = 0; h < plan->get_haltlist_count(); h++) {
-			halthandle_t halt = halt_list[h];
-			if (halt->is_enabled(wtyp)) {
-				halt->add_pax_unhappy(num_pax);
-			}
-		}
+		// all passengers without suitable start:
 		// fake one ride to get a proper display of destinations (although there may be more) ...
 		pax_zieltyp will_return;
 		const koord ziel = finde_passagier_ziel(&will_return);
@@ -1599,8 +1593,6 @@ void stadt_t::step_passagiere()
 
 //	long t1 = get_current_time_millis();
 //	DBG_MESSAGE("stadt_t::step_passagiere()", "Zeit für Passagierstep: %ld ms\n", (long)(t1 - t0));
-
-	INT_CHECK( "simcity 1551" );
 }
 
 
