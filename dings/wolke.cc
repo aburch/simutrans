@@ -17,25 +17,6 @@
 #include "../tpl/stringhashtable_tpl.h"
 
 
-// ***************** Wolkenverwaltung ***********************
-
-stringhashtable_tpl<const rauch_besch_t *> wolke_t::besch_table;
-
-void wolke_t::register_besch(const rauch_besch_t *besch, const char*name)
-{
-    besch_table.put(name, besch);
-}
-
-const rauch_besch_t *wolke_t::gib_besch(const char *name)
-{
-    return besch_table.get(name);
-}
-
-
-// *******************************************************************
-
-
-
 
 wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, image_id bild, bool increment) :
     ding_t(welt, pos)

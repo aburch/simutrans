@@ -6,7 +6,6 @@
 
 class karte_t;
 class rauch_besch_t;
-template <class X> class stringhashtable_tpl;
 
 
 /**
@@ -15,13 +14,6 @@ template <class X> class stringhashtable_tpl;
  */
 class wolke_t : public ding_t, public sync_steppable
 {
-private:
-	static stringhashtable_tpl<const rauch_besch_t *> besch_table;
-	static const rauch_besch_t *gib_besch(const char *name);
-
-public:
-	static void register_besch(const rauch_besch_t *besch, const char *name);
-
 private:
 	sint32 insta_zeit;	// Wolken verschwinden, wenn alter max. erreicht
 	uint8 base_y_off;

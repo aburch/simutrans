@@ -84,15 +84,6 @@ factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 }
 
 
-void factory_smoke_reader_t::register_obj(obj_besch_t *&data)
-{
-	rauch_besch_t *besch = static_cast<rauch_besch_t *>(data);
-	// Xref ist hier noch nicht aufgelöst!
-	const char* name = static_cast<xref_besch_t*>(besch->gib_kind(0))->get_name();
-	wolke_t::register_besch(besch, name);
-}
-
-
 obj_besch_t *
 factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
