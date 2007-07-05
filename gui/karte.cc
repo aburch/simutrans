@@ -793,9 +793,9 @@ reliefkarte_t::zeichnen(koord pos)
 
 	if (fab) {
 		draw_fab_connections(fab, event_get_last_control_shift()&1 ? COL_RED : COL_WHITE, pos);
-		koord fabpos = pos + fab->gib_pos().gib_2d();
+		koord fabpos = fab->gib_pos().gib_2d();
 		karte_to_screen( fabpos );
-		const koord boxpos = fabpos + koord(10, 0);
+		const koord boxpos = fabpos + koord(10, 0) + pos;
 		const char * name = translator::translate(fab->gib_name());
 		display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 10, COL_WHITE, name, true);
 	}
