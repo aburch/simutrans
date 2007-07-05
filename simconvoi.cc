@@ -982,14 +982,14 @@ convoi_t::can_go_alte_richtung()
 	}
 
 	// now get the actual length and the tile length
-	int length=15;
+	int convoi_length = 15;
 	unsigned i;	// for visual C++
 	const vehikel_t* pred = NULL;
 	for(i=0; i<anz_vehikel; i++) {
 		const vehikel_t* v = fahr[i];
 		grund_t *gr = welt->lookup(v->gib_pos());
 
-		length += v->gib_besch()->get_length();
+		convoi_length += v->gib_besch()->get_length();
 
 		if(gr==NULL  ||  pred!=NULL  &&  (abs(v->gib_pos().x-pred->gib_pos().x)>=2  ||  abs(v->gib_pos().y-pred->gib_pos().y)>=2)) {
 			// ending here is an error!
@@ -1009,7 +1009,7 @@ convoi_t::can_go_alte_richtung()
 
 		pred = v;
 	}
-	length = min((length/16)+4,route.gib_max_n()-1);	// maximum length in tiles to check
+	int length = min((convoi_length/16)+4,route.gib_max_n()-1);	// maximum length in tiles to check
 
 	// we just check, wether we go back (i.e. route tiles other than zero have convoi vehicles on them)
 	for( int index=1;  index<length;  index++ ) {
@@ -1049,12 +1049,12 @@ convoi_t::can_go_alte_richtung()
 		for(i=0; i<anz_vehikel; i++) {
 			vehikel_t* v = fahr[i];
 			// eventually add current position to the route
-			if(route.position_bei(0)!=v->gib_pos()) {
+			if(route.position_bei(0)!=v->gib_pos()  &&  route.position_bei(1)!=v->gib_pos()) {
 				route.insert(v->gib_pos());
 			}
 			// eventually we need to add also a previous position to this path
-			if(v->gib_besch()->get_length()>8) {
-				if(route.position_bei(0)!=v->gib_pos_prev()) {
+			if(v->gib_besch()->get_length()>8  &&  i+1<anz_vehikel) {
+				if(route.position_bei(0)!=v->gib_pos_prev()  &&  route.position_bei(1)!=v->gib_pos_prev()) {
 					route.insert(v->gib_pos_prev());
 				}
 			}
@@ -1063,6 +1063,7 @@ convoi_t::can_go_alte_richtung()
 
 	// since we need the route for every vehicle of this convoi,
 	// we must set the current route index (instead assuming 1)
+	length = min((convoi_length/16)+4,route.gib_max_n()-1);	// maximum length in tiles to check
 	bool ok=false;
 	for(i=0; i<anz_vehikel; i++) {
 		vehikel_t* v = fahr[i];
@@ -1143,8 +1144,8 @@ convoi_t::vorfahren()
 		}
 
 		// move one train length to the start position ...
-		int train_length=-1;
-		for(unsigned i=0; i<anz_vehikel; i++) {
+		int train_length = 15-fahr[0]->gib_besch()->get_length();
+		for(unsigned i=1; i<anz_vehikel; i++) {
 			train_length += fahr[i]->gib_besch()->get_length(); // this give the length in 1/16 of a full tile
 		}
 		train_length = max(1,train_length);

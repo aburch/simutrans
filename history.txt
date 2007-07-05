@@ -4,7 +4,7 @@
 	FIX: avoid jumping of trains when waypoint on first tile after a curve
 	ADD: under windows nicer error messages for missing objects
 	CHANGE: much better loading of games with missing objects
-	CHANGE: stopping position of trains
+	CHANGE: stopping position of trains of length>12
 
 
 Release of 99.13
