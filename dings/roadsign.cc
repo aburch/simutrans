@@ -349,7 +349,7 @@ roadsign_t::rdwr(loadsave_t *file)
 			besch = roadsign_t::table.get(translator::compatibility_name(bname));
 		}
 		if(!besch) {
-			DBG_MESSAGE("roadsign_t::rwdr", "description %s for roadsign at %d,%d not found, will be removed!", bname, gib_pos().x, gib_pos().y);
+			dbg->fatal("roadsign_t::rwdr", "description %s for roadsign at %d,%d not found!", bname, gib_pos().x, gib_pos().y);
 		}
 	}
 }

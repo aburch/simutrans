@@ -400,6 +400,12 @@ const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int idx)
 {
 	const haus_besch_t *besch = besch_names.get(name);
 	if(besch) {
+		const int size = besch->gib_h()*besch->gib_b();
+		if(  idx >= besch->gib_all_layouts()*size  ) {
+			return NULL;
+			// try to keep as much of the orientation as possible
+//			idx = (idx>2*size) ? idx%size : idx%(2*size);
+		}
 		return besch->gib_tile(idx);
 	}
 //	DBG_MESSAGE("hausbauer_t::find_tile()","\"%s\" not in hashtable",name);

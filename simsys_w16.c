@@ -492,10 +492,12 @@ void show_pointer(int yesno)
 }
 
 
+
 void ex_ord_update_mx_my()
 {
 	// evt. called before update
 }
+
 
 
 unsigned long dr_time(void)
@@ -504,10 +506,26 @@ unsigned long dr_time(void)
 }
 
 
+
 void dr_sleep(uint32 millisec)
 {
 	Sleep(millisec);
 }
+
+
+
+bool dr_fatal_notify( char *msg, int choices)
+{
+	if(choices==0) {
+		MessageBoxA( hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_OK );
+		return 0;
+	}
+	else {
+		return MessageBoxA( hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==IDRETRY;
+	}
+}
+
+
 
 
 /************************** Winmain ***********************************/

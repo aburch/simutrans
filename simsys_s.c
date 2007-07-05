@@ -526,6 +526,23 @@ void dr_sleep(uint32 usec)
 }
 
 
+bool dr_fatal_notify( char *msg, int choices)
+{
+#ifdef _WIN32
+	if(choices==0) {
+		MessageBox( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_OK );
+		return 0;
+	}
+	else {
+		return MessageBox( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==ID_RETRY;
+	}
+#else
+	beep();
+	return choices;
+#endif
+}
+
+
 int simu_main(int argc, char **argv);
 
 #ifdef _WIN32

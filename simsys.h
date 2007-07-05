@@ -98,6 +98,10 @@ void GetEventsNoWait(void);
 unsigned long dr_time(void);
 void dr_sleep(uint32 millisec);
 
+// error message in case of fatal events
+// if choice!=0 then there will be a scond button
+bool dr_fatal_notify( char *msg, int choices);
+
 /**
  * Some wrappers can save screenshots.
  * @return 1 on success, 0 if not implemented for a particular wrapper and -1

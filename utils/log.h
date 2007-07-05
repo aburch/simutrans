@@ -64,21 +64,18 @@ public:
      */
     void error(const char *who, const char *format, ...);
 
-    /**
-     * writes an error into the log, aborts the program.
-     * @author Hj. Malthaner
-     */
-		void NORETURN fatal(const char* who, const char* format, ...);
+	/**
+	 * writes an error into the log, aborts the program.
+	 * @author Hj. Malthaner
+	 */
+	void NORETURN fatal(const char* who, const char* format, ...);
 
 
-		void trap();
+	void close();
 
 
-		void close();
-
-
-		log_t(const char *logname, bool force_flush, bool log_debug);
-		~log_t();
+	log_t(const char *logname, bool force_flush, bool log_debug);
+	~log_t();
 };
 
 #endif

@@ -57,13 +57,15 @@ kanal_t::rdwr(loadsave_t *file)
 		int old_max_speed = gib_max_speed();
 		if(besch==NULL) {
 			besch = wegbauer_t::gib_besch(translator::compatibility_name(bname));
+			if(besch==NULL) {
+				besch = default_kanal;
+			}
 			dbg->warning("kanal_t::rdwr()", "Unknown channel %s replaced by %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
 		}
-		if(besch==NULL) {
-			besch = default_kanal;
-			dbg->warning("kanal_t::rdwr()", "Unknown channel %s replaced by the default %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
-		}
 		setze_besch(besch);
+		if(old_max_speed>0) {
+			setze_max_speed(old_max_speed);
+		}
 	}
 }
 

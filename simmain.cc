@@ -527,7 +527,7 @@ extern "C" int simu_main(int argc, char** argv)
 	// likely only the programm without graphics was downloaded
 	if(!found_simuconf) {
 		fprintf(stderr, "*** No simuconf.tab found ***\n\nPlease install a complete system\n");
-		getc(stdin);
+		dr_fatal_notify( "*** No simuconf.tab found ***\n\nPlease install a complete system\n", 0 );
 		return 0;
 	}
 

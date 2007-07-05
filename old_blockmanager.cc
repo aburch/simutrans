@@ -124,9 +124,8 @@ old_blockmanager_t::rdwr(karte_t *welt, loadsave_t *file)
 		return;
 	}
 
-	if(file->is_saving()) {
-		dbg->fatal("old_blockmanager::rdwr","loading only");
-	}
+	assert(file->is_loading());
+
 	// this routine just reads the of signal positions
 	// and converts them to the new type>
 	int count;

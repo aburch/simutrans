@@ -28,16 +28,16 @@ warenziel_t::rdwr(loadsave_t *file)
 {
 	// dummy ...
 	koord ziel;
-  ziel.rdwr(file);
+	ziel.rdwr(file);
 
-  const char *tn = NULL;
-  if(file->is_saving()) {
+	const char *tn = NULL;
+	if(file->is_saving()) {
 		tn = warenbauer_t::gib_info_catg_index(catg_index)->gib_name();
-  }
-  file->rdwr_str(tn, " ");
-  if(file->is_loading()) {
+	}
+	file->rdwr_str(tn, " ");
+	if(file->is_loading()) {
 		halt = halthandle_t();
 		catg_index = warenbauer_t::gib_info(tn)->gib_catg_index();
-    guarded_free(const_cast<char *>(tn));
-  }
+		guarded_free(const_cast<char *>(tn));
+	}
 }

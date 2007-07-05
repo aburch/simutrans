@@ -140,7 +140,7 @@ warenbauer_t::gib_info(const char* name)
 {
 	const ware_besch_t* t = besch_names.get(name);
 	if(t == NULL) {
-		dbg->error("warenbauer_t::gib_info()", "No info for good '%s' available", name);
+		dbg->fatal("warenbauer_t::gib_info()", "No info for good '%s' available", name);
 	}
 	return t;
 }

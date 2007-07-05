@@ -222,7 +222,7 @@ public:
 
 	const haus_tile_besch_t *gib_tile(int index) const
 	{
-		assert(0 <= index && index < layouts * groesse.x * groesse.y);
+		assert(0<=index  &&  index < layouts * groesse.x * groesse.y);
 		return static_cast<const haus_tile_besch_t*>(gib_kind(index + 2));
 	}
 

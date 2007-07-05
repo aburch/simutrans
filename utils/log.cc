@@ -12,6 +12,7 @@
 
 #include "log.h"
 #include "../simdebug.h"
+#include "../simsys.h"
 
 
 static int make_this_a_division_by_zero = 0;
@@ -82,24 +83,24 @@ void log_t::message(const char *who, const char *format, ...)
  */
 void log_t::warning(const char *who, const char *format, ...)
 {
-    va_list argptr;
-    va_start(argptr, format);
+	va_list argptr;
+	va_start(argptr, format);
 
-    if( log ) {                         /* nur loggen wenn schon ein log */
-	fprintf(log ,"Warning: %s:\t",who);      /* geoeffnet worden ist */
-        vfprintf(log, format, argptr);
-        fprintf(log,"\n");
+	if( log ) {                         /* nur loggen wenn schon ein log */
+		fprintf(log ,"Warning: %s:\t",who);      /* geoeffnet worden ist */
+		vfprintf(log, format, argptr);
+		fprintf(log,"\n");
 
-        if( force_flush ) {
-            fflush(log);
-        }
-    }
-    if( tee ) {                         /* nur loggen wenn schon ein log */
-	fprintf(tee, "Warning: %s:\t",who);      /* geoeffnet worden ist */
-        vfprintf(tee, format, argptr);
-        fprintf(tee,"\n");
-    }
-    va_end(argptr);
+		if( force_flush ) {
+			fflush(log);
+		}
+	}
+	if( tee ) {                         /* nur loggen wenn schon ein log */
+		fprintf(tee, "Warning: %s:\t",who);      /* geoeffnet worden ist */
+		vfprintf(tee, format, argptr);
+		fprintf(tee,"\n");
+	}
+	va_end(argptr);
 }
 
 
@@ -109,31 +110,31 @@ void log_t::warning(const char *who, const char *format, ...)
  */
 void log_t::error(const char *who, const char *format, ...)
 {
-    va_list argptr;
-    va_start(argptr, format);
+	va_list argptr;
+	va_start(argptr, format);
 
-    if( log ) {                         /* nur loggen wenn schon ein log */
-	fprintf(log ,"ERROR: %s:\t",who);      /* geoeffnet worden ist */
-        vfprintf(log, format, argptr);
-        fprintf(log,"\n");
+	if( log ) {                         /* nur loggen wenn schon ein log */
+		fprintf(log ,"ERROR: %s:\t",who);      /* geoeffnet worden ist */
+		vfprintf(log, format, argptr);
+		fprintf(log,"\n");
 
-        if( force_flush ) {
-            fflush(log);
-        }
+		if( force_flush ) {
+			fflush(log);
+		}
 
-	fprintf(log ,"Please report all errors to\n");
-	fprintf(log ,"markus@pristovsek.de\n");
-    }
+		fprintf(log ,"Please report all errors to\n");
+		fprintf(log ,"team@64.simutrans.com\n");
+	}
 
-    if( tee ) {                         /* nur loggen wenn schon ein log */
-	fprintf(tee, "ERROR: %s:\t",who);      /* geoeffnet worden ist */
-        vfprintf(tee, format, argptr);
-        fprintf(tee,"\n");
+	if( tee ) {                         /* nur loggen wenn schon ein log */
+		fprintf(tee, "ERROR: %s:\t",who);      /* geoeffnet worden ist */
+		vfprintf(tee, format, argptr);
+		fprintf(tee,"\n");
 
-	fprintf(tee ,"Please report all errors to\n");
-	fprintf(tee ,"markus@pristovsek.de\n");
-    }
-    va_end(argptr);
+		fprintf(tee ,"Please report all errors to\n");
+		fprintf(tee ,"team@64.simutrans.com\n");
+	}
+	va_end(argptr);
 }
 
 
@@ -146,71 +147,70 @@ void log_t::fatal(const char *who, const char *format, ...)
     va_list argptr;
     va_start(argptr, format);
 
-    if( log ) {                         /* nur loggen wenn schon ein log */
-	fprintf(log ,"FATAL ERROR: %s:\t",who);      /* geoeffnet worden ist */
-        vfprintf(log, format, argptr);
-        fprintf(log,"\n");
-        fprintf(log,"Aborting program execution ...\n\n");
+	char buffer[4096];
 
+	int n = sprintf( buffer, "FATAL ERROR: %s\n", who);
+	n += vsprintf( buffer+n, format, argptr);
+	strcpy( buffer+n, "\n" );
 
-	fprintf(log ,"Please report all fatal errors to\n");
-	fprintf(log ,"markus@pristovsek.de\n");
-
-
+	if( log ) {
+		fputs( buffer, log );
+		fputs( "Aborting program execution ...\n\n", log );
+		fputs( "Please report all fatal errors to\n", log );
+		fputs( "team@64.simutrans.com\n", log );
         if( force_flush ) {
             fflush(log);
         }
     }
 
-    if( tee ) {                         /* nur loggen wenn schon ein log */
-	fprintf(tee, "FATAL ERROR: %s:\t",who);      /* geoeffnet worden ist */
-        vfprintf(tee, format, argptr);
-        fprintf(tee,"\n");
-        fprintf(tee,"Aborting program execution ...\n\n");
-
-	fprintf(tee ,"Please report all fatal errors to\n");
-	fprintf(tee ,"markus@pristovsek.de\n");
-    }
-
-    va_end(argptr);
-#ifdef DEBUG
-	log_t::trap();	// to debug
-#endif
-    exit(0);
-
-}
-
-log_t::log_t(const char *logfilename,
-	     bool force_flush,
-	     bool log_debug)      /* eine logdatei anlegen */
-{
-    log = NULL;
-
-    this->force_flush = force_flush;    /* wenn true wird jedesmal geflusht */
-                                        /* wenn ein Eintrag ins log geschrieben wurde */
-    this->log_debug = log_debug;
-
-    if(logfilename == NULL) {
-        log=NULL;                       /* kein log */
-	tee = NULL;
-    } else if(strcmp(logfilename,"stdio") == 0) {
-        log = stdout;
-	tee = NULL;
-    } else if(strcmp(logfilename,"stderr") == 0) {
-        log = stderr;
-	tee = NULL;
-    } else {
-        log = fopen(logfilename,"wb");
-
-	if(log == NULL) {
-	    fprintf(stderr,"log_t::log_t: can't open file '%s' for writing\n", logfilename);
+    if( tee ) {
+		fputs( buffer, tee );
+		fputs( "Aborting program execution ...\n\n", tee );
+		fputs( "Please report all fatal errors to\n", tee );
+		fputs( "team@64.simutrans.com\n", tee );
 	}
-	tee = stderr;
-    }
 
-
-    message("log_t::log_t","Starting logging to %s", logfilename);
+	va_end(argptr);
+	if(dr_fatal_notify( buffer, DEBUG )) {
+#ifdef DEBUG
+		// generate a division be zero error, if the user request it
+		printf("%i",15/make_this_a_division_by_zero);
+		make_this_a_division_by_zero &= 0xFF;
+#endif
+	}
+	exit(0);
 }
+
+
+
+// create a logfile for log_debug=true
+log_t::log_t(const char *logfilename, bool force_flush, bool log_debug)
+{
+	log = NULL;
+	this->force_flush = force_flush;    /* wenn true wird jedesmal geflusht */
+										/* wenn ein Eintrag ins log geschrieben wurde */
+	this->log_debug = log_debug;
+
+	if(logfilename == NULL) {
+		log=NULL;                       /* kein log */
+		tee = NULL;
+	} else if(strcmp(logfilename,"stdio") == 0) {
+		log = stdout;
+		tee = NULL;
+	} else if(strcmp(logfilename,"stderr") == 0) {
+		log = stderr;
+		tee = NULL;
+	} else {
+		log = fopen(logfilename,"wb");
+
+		if(log == NULL) {
+			fprintf(stderr,"log_t::log_t: can't open file '%s' for writing\n", logfilename);
+		}
+		tee = stderr;
+	}
+	message("log_t::log_t","Starting logging to %s", logfilename);
+}
+
 
 
 void log_t::close()
@@ -230,17 +230,4 @@ log_t::~log_t()
 	if( log ) {
 		close();
 	}
-}
-
-
-// generate a division be zero error
-void
-log_t::trap()
-{
-#ifdef DEBUG
-	printf("%i",15/make_this_a_division_by_zero);
-	make_this_a_division_by_zero &= 0xFF;
-#else
-	assert(0);
-#endif
 }

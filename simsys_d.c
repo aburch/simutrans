@@ -455,7 +455,24 @@ unsigned long dr_time(void)
 
 void dr_sleep(uint32 usec)
 {
-	rest(usec >> 10);
+	rest usec;
+}
+
+
+bool dr_fatal_notify( char *msg, int choices)
+{
+#ifdef _WIN32
+	if(choices==0) {
+		MessageBox( hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_OK );
+		return 0;
+	}
+	else {
+		return MessageBox( hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==ID_RETRY;
+	}
+#else
+	beep();
+	return choices;
+#endif
 }
 
 

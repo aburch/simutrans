@@ -86,9 +86,6 @@ void pillar_t::rdwr(loadsave_t *file)
 				besch = brueckenbauer_t::gib_besch("ClassicRoad");
 				dbg->warning("pillar_t::rdwr()","Unknown bridge %s replaced by ClassicRoad",s);
 			}
-			else {
-				dbg->fatal("pillar_t::rdwr()","Unknown bridge %s",s);
-			}
 		}
 		guarded_free(const_cast<char *>(s));
 	}
