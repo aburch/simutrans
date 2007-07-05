@@ -100,7 +100,7 @@ void dr_sleep(uint32 millisec);
 
 // error message in case of fatal events
 // if choice!=0 then there will be a scond button
-bool dr_fatal_notify( char *msg, int choices);
+bool dr_fatal_notify(const char* msg, int choices);
 
 /**
  * Some wrappers can save screenshots.

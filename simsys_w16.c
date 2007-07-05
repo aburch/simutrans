@@ -514,7 +514,7 @@ void dr_sleep(uint32 millisec)
 
 
 
-bool dr_fatal_notify( char *msg, int choices)
+bool dr_fatal_notify(const char* msg, int choices)
 {
 	if(choices==0) {
 		MessageBoxA( hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_OK );

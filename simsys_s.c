@@ -526,7 +526,7 @@ void dr_sleep(uint32 usec)
 }
 
 
-bool dr_fatal_notify( char *msg, int choices)
+bool dr_fatal_notify(const char* msg, int choices)
 {
 #ifdef _WIN32
 	if(choices==0) {
@@ -537,7 +537,7 @@ bool dr_fatal_notify( char *msg, int choices)
 		return MessageBox( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==IDRETRY;
 	}
 #else
-	beep();
+	fputs(msg, stderr);
 	return choices;
 #endif
 }
