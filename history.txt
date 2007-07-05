@@ -2,6 +2,9 @@
 	FIX: again front images for traffic lights
 	FIX: crash when building harbour outside of the map
 	FIX: avoid jumping of trains when waypoint on first tile after a curve
+	ADD: under windows nicer error messages for missing objects
+	CHANGE: much better loading of games with missing objects
+	CHANGE: stopping position of trains
 
 
 Release of 99.13

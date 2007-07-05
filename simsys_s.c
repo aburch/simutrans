@@ -534,7 +534,7 @@ bool dr_fatal_notify( char *msg, int choices)
 		return 0;
 	}
 	else {
-		return MessageBox( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==ID_RETRY;
+		return MessageBox( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==IDRETRY;
 	}
 #else
 	beep();

@@ -21,6 +21,16 @@
 #include "signal.h"
 
 
+signal_t::signal_t( karte_t *welt, loadsave_t *file) :
+	roadsign_t(welt,file)
+{
+	if(besch==NULL) {
+		besch = roadsign_t::default_signal;
+	}
+	zustand = rot;
+}
+
+
 /**
  * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.

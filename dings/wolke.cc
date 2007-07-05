@@ -21,12 +21,12 @@
 wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, image_id bild, bool increment) :
     ding_t(welt, pos)
 {
-    setze_yoff( y_off-8 );
-    setze_xoff( x_off );
-    base_y_off = y_off-8;
-    insta_zeit = 0;
-		this->increment = increment;
-    base_image = bild;
+	setze_yoff( y_off-8 );
+	setze_xoff( x_off );
+	base_y_off = y_off-8;
+	insta_zeit = 0;
+	this->increment = increment;
+	base_image = bild;
 }
 
 
@@ -55,11 +55,13 @@ wolke_t::rdwr(loadsave_t *file)
 
 	file->rdwr_long(insta_zeit, "\n");
 	if(file->get_version()<88005) {
-		insta_zeit = simrand(2500);
+		insta_zeit = 0;
 	}
 	uint16 dummy=base_y_off;
 	file->rdwr_short(dummy, "\n");
-	file->rdwr_short(base_image, "\n");
+	file->rdwr_short(dummy, "\n");
+	base_image = IMG_LEER;
+
 	// do not remove from this position, since there will be nothing
 	ding_t::set_flag(ding_t::not_on_map);
 }

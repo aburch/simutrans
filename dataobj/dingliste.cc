@@ -635,8 +635,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::crossing:		d = new crossing_t(welt,file); break;
 
 				// some old offsets will be converted to new ones
-				case ding_t::old_roadsign: typ = ding_t::roadsign;
-				case ding_t::roadsign:	  d = new roadsign_t (welt, file); break;
+
 				case ding_t::old_fussgaenger: typ = ding_t::fussgaenger;
 				case ding_t::fussgaenger: d = new fussgaenger_t (welt, file);	        break;
 				case ding_t::old_verkehr: typ = ding_t::verkehr;
@@ -666,7 +665,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 
 				case ding_t::bahndepot:
 				{
-					// for compatibilty reasons ...
+					// for compatibilty reasons we may have to convert them to tram and monorail depots
 					gebaeude_t *gb = new gebaeude_t(welt, file);
 					if(gb->gib_tile()->gib_besch()==hausbauer_t::monorail_depot_besch) {
 						monoraildepot_t *md = new monoraildepot_t(welt,gb->gib_pos(),(spieler_t *)NULL,gb->gib_tile());
@@ -739,34 +738,47 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				}
 				break;
 
+				case ding_t::old_roadsign:
+					typ = ding_t::roadsign;
+				case ding_t::roadsign:
+				{
+					roadsign_t *rs = new roadsign_t (welt, file);
+					if(rs->gib_besch()==NULL) {
+						// roadsign_t without description => ignore
+						rs->set_flag(ding_t::not_on_map);
+						delete rs;
+					}
+					else {
+						d = rs;
+					}
+				}
+				break;
+
 				// will be ignored, was only used before 86.09
 				case ding_t::old_gebaeudefundament: { dummy_ding_t(welt, file); break; }
 
 				// only factories can smoke; but then, the smoker is reinstated after loading
-				case ding_t::raucher: 	d = new raucher_t(welt, file); delete d; d = NULL; break;
+				case ding_t::raucher: { raucher_t(welt, file); break; }
 
-				// wolke saves wrong images; but new smoke will emerge anyway ...
-				case ding_t::sync_wolke:	    d = new wolke_t(welt, file); delete d; d=NULL; break;
-				case ding_t::async_wolke:	    d = new async_wolke_t(welt, file); delete d; d=NULL; break;
+				// wolke is not saved anymore
+				case ding_t::sync_wolke: { wolke_t(welt, file); break; }
+				case ding_t::async_wolke: { async_wolke_t(welt, file); break; }
 
 #ifdef LAGER_NOT_IN_USE
 				case ding_t::lagerhaus:	    d = new lagerhaus_t (welt, file);	        break;
 #endif
 
 				default:
-					dbg->warning("dingliste_t::laden()", "Error while loading game:");
-					dbg->fatal("dingliste_t::laden()", "Unknown object type '%d'", typ);
+					dbg->fatal("dingliste_t::laden()", "During loading: Unknown object type '%d'", typ);
 			}
 
 			if(d  &&  d->gib_typ()!=typ) {
-				DBG_DEBUG("dingliste_t::rdwr()","typ error: %i instead %i",d->gib_typ(),typ);
-				DBG_DEBUG("dingliste_t::rdwr()","typ error on %i,%i, object ignored!",d->gib_pos().x, d->gib_pos().y);
+				dbg->warning( "dingliste_t::rdwr()","typ error : %i instead %i on %i,%i, object ignored!", d->gib_typ(), typ, d->gib_pos().x, d->gib_pos().y );
 				d = NULL;
 			}
 
 			if(d  &&  d->gib_pos()!=current_pos) {
-				DBG_DEBUG("dingliste_t::rdwr()","position error: %i,%i instead %i,%i",d->gib_pos().x,d->gib_pos().y,current_pos.x,current_pos.y);
-				DBG_DEBUG("dingliste_t::rdwr()","loaded object ignored!");
+				dbg->warning("dingliste_t::rdwr()","position error: %i,%i instead %i,%i (object will be ignored)",d->gib_pos().x,d->gib_pos().y,current_pos.x,current_pos.y);
 				d = NULL;
 			}
 
@@ -788,13 +800,12 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			}
 			else if(bei(i)->gib_pos().gib_2d()==current_pos.gib_2d()) {
 				// ok, just error in z direction => we will correct it
-				DBG_DEBUG("dingliste_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i",bei(i)->gib_pos().x,bei(i)->gib_pos().y,bei(i)->gib_pos().z,current_pos.z);
+				dbg->warning( "dingliste_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i",bei(i)->gib_pos().x,bei(i)->gib_pos().y,bei(i)->gib_pos().z,current_pos.z);
 				bei(i)->setze_pos( current_pos );
 				bei(i)->rdwr(file);
 			}
 			else {
-				DBG_DEBUG("dingliste_t::rdwr()","position error: %i,%i instead %i,%i",bei(i)->gib_pos().x,bei(i)->gib_pos().y,current_pos.x,current_pos.y);
-				DBG_DEBUG("dingliste_t::rdwr()","object not saved!");
+				dbg->error( "dingliste_t::rdwr()","position error: %i,%i instead %i,%i (object type %i will be not saved!)", bei(i)->gib_pos().x, bei(i)->gib_pos().y, current_pos.x, current_pos.y, bei(i)->gib_typ() );
 				file->wr_obj_id(-1);
 			}
 		}

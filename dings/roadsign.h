@@ -53,7 +53,7 @@ public:
 	void setze_zustand(enum signalzustand z) {zustand = z; calc_bild();}
 	enum signalzustand gib_zustand() {return (enum signalzustand)zustand;}
 
-	enum ding_t::typ gib_typ() const { return roadsign; }
+	virtual enum ding_t::typ gib_typ() const { return roadsign; }
 	const char* gib_name() const { return "Roadsign"; }
 
 	roadsign_t(karte_t *welt, loadsave_t *file);
@@ -112,6 +112,9 @@ public:
 private:
 	static slist_tpl<const roadsign_besch_t *> liste;
 	static stringhashtable_tpl<const roadsign_besch_t *> table;
+
+protected:
+	static const roadsign_besch_t *default_signal;
 
 public:
 	static bool register_besch(roadsign_besch_t *besch);

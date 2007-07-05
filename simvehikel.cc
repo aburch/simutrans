@@ -902,8 +902,9 @@ vehikel_t::fahre()
 
 	// target mark: same coordinate twice (stems from very old ages, I think)
 	if(ist_erstes  &&  check_for_finish) {
-		// check half a tile (8 sync_steps) ahead for a tile change
-		const sint8 iterations = (fahrtrichtung==ribi_t::sued  || fahrtrichtung==ribi_t::ost) ? 1 : besch->get_length();
+		// check a vehicle leanght ahead for a tile change
+		const sint8 iterations = 15-besch->get_length();
+		/* also tried, because of misalignment of nearly all graphics: (fahrtrichtung==ribi_t::sued  || fahrtrichtung==ribi_t::ost) ? 1 : besch->get_length();*/
 
 		const sint8 neu_xoff = gib_xoff() + gib_dx()*iterations;
 		const sint8 neu_yoff = gib_yoff() + gib_dy()*iterations;

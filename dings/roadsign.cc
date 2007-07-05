@@ -37,6 +37,9 @@
 
 
 
+const roadsign_besch_t *roadsign_t::default_signal=NULL;
+
+
 
 
 slist_tpl<const roadsign_besch_t *> roadsign_t::liste;
@@ -47,8 +50,10 @@ roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
 	bild = after_bild = IMG_LEER;
 	rdwr(file);
-	// if more than one state, we will switch direction and phase for traffic lights
-	automatic = (besch->gib_bild_anzahl()>4  &&  besch->gib_wtyp()==road_wt);
+	if(besch) {
+		// if more than one state, we will switch direction and phase for traffic lights
+		automatic = (besch->gib_bild_anzahl()>4  &&  besch->gib_wtyp()==road_wt);
+	}
 	last_switch = 0;
 }
 
@@ -345,11 +350,14 @@ roadsign_t::rdwr(loadsave_t *file)
 		file->rd_str_into(bname, "N");
 
 		besch = roadsign_t::table.get(bname);
-		if(!besch) {
+		if(besch==NULL) {
 			besch = roadsign_t::table.get(translator::compatibility_name(bname));
-		}
-		if(!besch) {
-			dbg->fatal("roadsign_t::rwdr", "description %s for roadsign at %d,%d not found!", bname, gib_pos().x, gib_pos().y);
+			if(besch==NULL) {
+				dbg->warning("roadsign_t::rwdr", "description %s for roadsign/signal at %d,%d not found! (may be ignored)", bname, gib_pos().x, gib_pos().y);
+			}
+			else {
+				dbg->warning("roadsign_t::rwdr", "roadsign/signal %s at %d,%d rpleaced by %s", bname, gib_pos().x, gib_pos().y, besch->gib_name() );
+			}
 		}
 	}
 }
@@ -408,6 +416,9 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 {
 	roadsign_t::table.put(besch->gib_name(), besch);
 	roadsign_t::liste.append(besch);
+	if(besch->gib_wtyp()==track_wt  &&  besch->get_flags()==roadsign_besch_t::SIGN_SIGNAL) {
+		default_signal = besch;
+	}
 	if(umgebung_t::drive_on_left  &&  besch->gib_wtyp()==road_wt) {
 		// correct for driving on left side
 		if(besch->is_traffic_light()) {
