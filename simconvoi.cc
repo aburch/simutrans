@@ -1144,7 +1144,8 @@ convoi_t::vorfahren()
 		}
 
 		// move one train length to the start position ...
-		int train_length = 15-fahr[0]->gib_besch()->get_length();
+		//int train_length = 15-fahr[0]->gib_besch()->get_length();
+		int train_length = (alte_richtung==ribi_t::sued  || alte_richtung==ribi_t::ost) ? 1 : 15-fahr[0]->gib_besch()->get_length();
 		for(unsigned i=1; i<anz_vehikel; i++) {
 			train_length += fahr[i]->gib_besch()->get_length(); // this give the length in 1/16 of a full tile
 		}

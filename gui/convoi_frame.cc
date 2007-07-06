@@ -244,7 +244,6 @@ void convoi_frame_t::display_list(void)
 		ypos += 40; // @author hsiegeln: changed from +=32 to +=40 to have more space for "serves line" info!
 	}
 	cont.setze_groesse(koord(500, ypos));
-	//scrolly.setze_groesse(koord(318, gib_fenstergroesse().y - 1 - 16 - 16 - 20));
 }
 
 
