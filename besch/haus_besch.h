@@ -101,13 +101,17 @@ public:
  *	... ...
  */
 class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäude
+
+	friend class building_writer_t;
+	friend class building_reader_t;
+
 	public:
 		/* Unbekannte Gebäude sind nochmal unterteilt */
 		enum utyp
 		{
 			unbekannt         =  0,
-			special           =  1,
-			sehenswuerdigkeit =  2,
+			attraction_city   =  1,
+			attraction_land   =  2,
 			denkmal           =  3,
 			fabrik            =  4,
 			rathaus           =  5,
@@ -131,9 +135,6 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 			post              = 31,
 			lagerhalle        = 32
 		};
-
-	friend class building_writer_t;
-	friend class building_reader_t;
 
 	private:
 	enum flag_t {
@@ -202,8 +203,10 @@ public:
 
 	bool ist_rathaus()      const { return ist_utyp(rathaus); }
 	bool ist_firmensitz()   const { return ist_utyp(firmensitz); }
-	bool ist_ausflugsziel() const { return ist_utyp(sehenswuerdigkeit) || ist_utyp(special); }
+	bool ist_ausflugsziel() const { return ist_utyp(attraction_land) || ist_utyp(attraction_city); }
 	bool ist_fabrik()       const { return ist_utyp(fabrik); }
+
+	bool is_connected_with_town() const;
 
 	/**
 	* the level is used in many places: for price, for capacity, ...

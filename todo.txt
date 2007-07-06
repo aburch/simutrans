@@ -1,11 +1,10 @@
 CHECK:
 resize greater than 2400*1536 crashes simutrans
-vehicle N/E longer than 8 px must be aligned by top, not end; need change of moving code
 month to bankrupt into simuconf.tab
 bridges and tunnels with no initial road
 bahnhofsdetaildialog
 Toolwindow with 10 last used tools (in fixed order)
-timeline speeds from file instad calculation
+timeline speeds from file instead calculation
 A* for goods
 passengers from/to headquarters
 
@@ -53,6 +52,10 @@ Stichpunkte
 - tile 2x height: halfway-> need conversion for textures needed
 - blocking crossing with animation/sound and transparent graphics: done
 
+Impossible:
+- vehicle N/E longer than 8 px must be aligned by top, not end; need change of moving code: impossible
+
+To be done:
 - connection weighted by their intermediate stops => A* for goods routing
 - when import translation: ignore entries which are identical (saving runtime)
 - limit construction costs
@@ -75,5 +78,3 @@ Immer zu tun:
 Unmögliches ...
 - echte Abzweige nur in eine Richtung
 
-Fehler:
-Stadtautos kommen nicht um 180 Kurve

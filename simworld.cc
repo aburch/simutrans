@@ -490,7 +490,7 @@ void karte_t::add_stadt(stadt_t *s)
  */
 bool karte_t::rem_stadt(stadt_t *s)
 {
-	if (stadt.empty() || s == NULL) {
+	if(stadt.empty()  ||  s == NULL) {
 		// no town there to delete ...
 		return false;
 	}
@@ -502,7 +502,7 @@ bool karte_t::rem_stadt(stadt_t *s)
 	// remove all links from factories
 	slist_iterator_tpl<fabrik_t *> iter (fab_list);
 	while(iter.next()) {
-		iter.get_current()->rem_arbeiterziel(s);
+		iter.get_current()->remove_arbeiterziele(s);
 	}
 	return true;
 }
@@ -2428,8 +2428,8 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte()
 	stadt.clear();
 	stadt.resize(einstellungen->gib_anzahl_staedte());
 	for(int i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
-		stadt_t *s=new stadt_t(this, file);
-		stadt.append(s, s->gib_einwohner(), 64);
+		stadt_t *s = new stadt_t(this, file);
+		stadt.append( s, s->gib_einwohner(), 64 );
 	}
 
 	DBG_MESSAGE("karte_t::laden()","loading blocks");
@@ -2533,10 +2533,13 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 
 DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 
-	// auch die fabrikverbindungen können jetzt neu init werden
 	// must be done after reliefkarte is initialized
 	int x = gib_groesse_y() + 24;
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		// old versions did not save factory connections
+		if(file->get_version()<99014) {
+			(*i)->verbinde_fabriken();
+		}
 		(*i)->laden_abschliessen();
 		display_progress(x++, gib_groesse_y() + 256 + stadt.get_count());
 		display_flush(IMG_LEER, 0, "", "", 0, 0);
@@ -2546,7 +2549,6 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		stadt_t* s = *i;
-//		s->neuer_monat();
 		new_weighted_stadt.append(s, s->gib_einwohner(), 64);
 		INT_CHECK("simworld 1278");
 	}

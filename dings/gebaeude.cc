@@ -421,8 +421,8 @@ const char *gebaeude_t::gib_name() const
 			break;//return "Industriegebäude";
 		default:
 			switch(tile->gib_besch()->gib_utyp()) {
-				case haus_besch_t::special:           return "Besonderes Gebaeude";
-				case haus_besch_t::sehenswuerdigkeit: return "Sehenswuerdigkeit";
+				case haus_besch_t::attraction_city:   return "Besonderes Gebaeude";
+				case haus_besch_t::attraction_land:   return "Sehenswuerdigkeit";
 				case haus_besch_t::denkmal:           return "Denkmal";
 				case haus_besch_t::rathaus:           return "Rathaus";
 				default: break;
@@ -570,7 +570,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 				*dest = 0;
 				trans_desc = text;
 				buf.append(trans_desc);
-				delete text;
+				delete [] text;
 			}
 			buf.append("\n\n");
 		}
@@ -718,6 +718,19 @@ DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found 
 			file->rdwr_byte(dummy, "\n");
 		}
 
+		// restore city pointer here
+		ptr.stadt = 0;
+		if(  file->get_version()>=99014  ) {
+			sint32 city_index = -1;
+			if(  file->is_saving()  &&  ptr.stadt!=NULL  ) {
+				city_index = welt->gib_staedte().index_of( ptr.stadt );
+			}
+			file->rdwr_long( city_index, "c" );
+			if(  file->is_loading()  &&  city_index!=-1  ) {
+				ptr.stadt = welt->gib_staedte()[city_index];
+			}
+		}
+
 		if(file->is_loading()) {
 			count = 0;
 			anim_time = 0;
@@ -756,7 +769,7 @@ gebaeude_t::laden_abschliessen()
 		gib_besitzer()->add_maintenance(umgebung_t::maint_building);
 	}
 	// citybuilding, but no town?
-	if(gib_haustyp()!=unbekannt  &&  ptr.stadt==NULL) {
+	if(tile->gib_besch()->is_connected_with_town()  &&  ptr.stadt==NULL) {
 		// so we add it to the next one
 		stadt_t *city = welt->suche_naechste_stadt( gib_pos().gib_2d() );
 		assert(city);

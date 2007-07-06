@@ -9,12 +9,13 @@
 #include "haus_besch.h"
 
 
+
 /*
  *  Autor:
  *      Volker Meyer
  *
  *  Beschreibung:
- *      Rehcnet aus dem Index das Layout aus, zu dem diese Tile gehört.
+ *      Rechnet aus dem Index das Layout aus, zu dem diese Tile gehört.
  */
 int haus_tile_besch_t::gib_layout() const
 {
@@ -22,6 +23,8 @@ int haus_tile_besch_t::gib_layout() const
 
     return index / (groesse.x * groesse.y);
 }
+
+
 
 /*
  *  Autor:
@@ -40,22 +43,43 @@ koord haus_tile_besch_t::gib_offset() const
 }
 
 
+
 /**
  * Mail generation level
  * @author Hj. Malthaner
  */
 int haus_besch_t::gib_post_level() const
 {
-  switch(gtyp) {
-  case gebaeude_t::wohnung:
-    return level;
-  case gebaeude_t::gewerbe:
-    return level << 1;
-  case gebaeude_t::industrie:
-    return level >> 1;
-  default:
-    return level;
-  }
+	switch(gtyp) {
+		case gebaeude_t::wohnung:
+		return level;
+	case gebaeude_t::gewerbe:
+		return level << 1;
+	case gebaeude_t::industrie:
+		return level >> 1;
+	default:
+		return level;
+	}
+}
+
+
+
+/**
+ * true, if this building needs a connection with a town
+ * @author prissi
+ */
+bool haus_besch_t::is_connected_with_town() const
+{
+	switch(gib_utyp()) {
+		case haus_besch_t::unbekannt:	// normal town buildings (RES, COM, IND)
+		case haus_besch_t::attraction_city:	// city attraction
+		case haus_besch_t::denkmal:	// monuments
+		case haus_besch_t::rathaus:	// townhalls
+		case haus_besch_t::firmensitz:	// headquarter
+			return true;
+		default:
+			return false;
+	}
 }
 
 
@@ -65,7 +89,7 @@ int haus_besch_t::gib_post_level() const
  *      Volker Meyer
  *
  *  Beschreibung:
- *      Abhängig von Position und LAyout ein tile zurückliefern
+ *      Abhängig von Position und Layout ein tile zurückliefern
  */
 const haus_tile_besch_t *haus_besch_t::gib_tile(int layout, int x, int y) const
 {
@@ -79,6 +103,7 @@ const haus_tile_besch_t *haus_besch_t::gib_tile(int layout, int x, int y) const
     }
     return gib_tile(layout * dims.x * dims.y + y * dims.x + x);
 }
+
 
 
 /*

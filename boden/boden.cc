@@ -117,7 +117,7 @@ dbg->fatal("boden_t::calc_bild()","covered tile not ground?!?");
 		weg_t *weg = gib_weg(road_wt);
 
 #ifndef DOUBLE_GROUNDS
-		if(weg && dynamic_cast<strasse_t *>(weg)->hat_gehweg()) {
+		if(weg  &&  weg->hat_gehweg()) {
 			setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(slope_this));
 		} else {
 			setze_bild( grund_besch_t::gib_ground_tile(slope_this,gib_pos().z) );

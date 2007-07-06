@@ -173,11 +173,12 @@ public:
 	const vector_tpl<koord>& gib_lieferziele() const { return lieferziele; }
 	const vector_tpl<koord>& get_suppliers() const { return suppliers; }
 
-	/* workers origin only used for info dialog purposes; otherwise useless ...
+	/* workers origin only used for info dialog purposes and saving; otherwise useless ...
 	 * @author Hj. Malthaner/prissi
 	 */
-	void  add_arbeiterziel(stadt_t *stadt);
-	void  rem_arbeiterziel(stadt_t *stadt);
+	void  add_arbeiterziel(stadt_t *s) { if(!arbeiterziele.contains(s)) arbeiterziele.insert(s); }
+	void  remove_arbeiterziele(stadt_t *s) { arbeiterziele.remove(s); }
+	void  clear_arbeiterziele() { arbeiterziele.clear(); }
 	const slist_tpl<stadt_t*>& gib_arbeiterziele() const { return arbeiterziele; }
 
 	/**

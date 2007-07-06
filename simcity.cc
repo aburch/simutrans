@@ -583,8 +583,8 @@ char* stadt_t::haltestellenname(koord k, const char *typ, int number)
 							building = translator::translate(gb->gib_name());
 							this_distance = distance;
 						} else if (gb->ist_rathaus() ||
-								gb->gib_tile()->gib_besch()->gib_utyp() == haus_besch_t::sehenswuerdigkeit || // land attraction
-								gb->gib_tile()->gib_besch()->gib_utyp() == haus_besch_t::special) {           // town attraction
+								gb->gib_tile()->gib_besch()->gib_utyp() == haus_besch_t::attraction_land || // land attraction
+								gb->gib_tile()->gib_besch()->gib_utyp() == haus_besch_t::attraction_city) {           // town attraction
 							building = make_single_line_string(translator::translate(gb->gib_tile()->gib_besch()->gib_name()), 2);
 							this_distance = distance;
 						}
@@ -990,8 +990,7 @@ next_name:;
 stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	buildings(16),
 	pax_ziele_alt(128, 128),
-	pax_ziele_neu(128, 128),
-	arbeiterziele(4)
+	pax_ziele_neu(128, 128)
 {
 	welt = wl;
 	step_count = 0;
@@ -1126,9 +1125,9 @@ void stadt_t::laden_abschliessen()
 
 	welt->lookup(pos)->gib_kartenboden()->setze_text(name);
 
-	verbinde_fabriken();
+//	verbinde_fabriken();
 	init_pax_ziele();
-	recount_houses();
+//	recount_houses();
 
 	// init step counter with meaningful value
 	step_interval = (2 << 18u) / (buildings.get_count() * 4 + 1);
@@ -1160,15 +1159,9 @@ void stadt_t::add_factory_arbeiterziel(fabrik_t* fab)
 {
 	// no fish swarms ...
 	if (strcmp("fish_swarm", fab->gib_besch()->gib_name()) != 0) {
-		const koord k = fab->gib_pos().gib_2d() - pos;
-
-		// worker do not travel more than 50 tiles
-		if (k.x * k.x + k.y * k.y < CONNECT_TO_TOWN_SQUARE_DISTANCE) {
-			DBG_MESSAGE("stadt_t::add_factory_arbeiterziel()", "found %s with level %i", fab->gib_name(), fab->gib_besch()->gib_pax_level());
-			fab->add_arbeiterziel(this);
-			// do not add a factory twice!
-			arbeiterziele.append_unique(fab, fab->gib_besch()->gib_pax_level(), 4);
-		}
+		DBG_MESSAGE("stadt_t::add_factory_arbeiterziel()", "found %s with level %i", fab->gib_name(), fab->gib_besch()->gib_pax_level());
+		fab->add_arbeiterziel(this);
+		arbeiterziele.append_unique(fab, fab->gib_besch()->gib_pax_level(), 4);
 	}
 }
 
@@ -1181,9 +1174,13 @@ void stadt_t::verbinde_fabriken()
 
 	slist_iterator_tpl<fabrik_t*> fab_iter(welt->gib_fab_list());
 	arbeiterziele.clear();
-
 	while (fab_iter.next()) {
-		add_factory_arbeiterziel(fab_iter.get_current());
+		const koord k = fab_iter.get_current()->gib_pos().gib_2d() - pos;
+
+		// worker do not travel more than 50 tiles
+		if(  (k.x*k.x) + (k.y*k.y) < CONNECT_TO_TOWN_SQUARE_DISTANCE  ) {
+			add_factory_arbeiterziel(fab_iter.get_current());
+		}
 	}
 	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "is connected with %i factories (sum_weight=%i).", arbeiterziele.get_count(), arbeiterziele.get_sum_weight());
 }
@@ -1717,7 +1714,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 void stadt_t::check_bau_spezial(bool new_town)
 {
 	// touristenattraktion bauen
-	const haus_besch_t* besch = hausbauer_t::gib_special(bev, haus_besch_t::special, welt->get_timeline_year_month(), welt->get_climate(welt->max_hgt(pos)));
+	const haus_besch_t* besch = hausbauer_t::gib_special(bev, haus_besch_t::attraction_city, welt->get_timeline_year_month(), welt->get_climate(welt->max_hgt(pos)));
 	if (besch != NULL) {
 		if (simrand(100) < (uint)besch->gib_chance()) {
 			// baue was immer es ist
@@ -1730,7 +1727,8 @@ void stadt_t::check_bau_spezial(bool new_town)
 				if (besch->gib_all_layouts() > 1) {
 					rotate = (simrand(20) & 2) + is_rotate;
 				}
-				hausbauer_t::baue(welt, besitzer_p, welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), rotate, besch);
+				gebaeude_t *gb = hausbauer_t::baue( welt, besitzer_p, welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), rotate, besch );
+				add_gebaeude_to_stadt( gb );
 				// tell the player, if not during initialization
 				if (!new_town) {
 					char buf[256];
@@ -2394,6 +2392,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 			weg_t* w2 = bd2->gib_weg(road_wt);
 			w2->ribi_add(ribi_t::rueckwaerts(ribi_t::nsow[r]));
 			bd2->calc_bild();
+			bd2->set_flag( grund_t::dirty );
 		}
 	}
 
@@ -2401,10 +2400,11 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 
 		if (!bd->weg_erweitern(road_wt, connection_roads)) {
 			strasse_t* weg = new strasse_t(welt);
-			weg->setze_gehweg(true);
-			weg->setze_besch(welt->get_city_road());
 			// Hajo: city roads should not belong to any player => so we can ignore any contruction costs ...
+			weg->setze_besch(welt->get_city_road());
+			weg->setze_gehweg(true);
 			bd->neuen_weg_bauen(weg, connection_roads, sp);
+			bd->calc_bild();	// otherwise the
 		}
 		return true;
 	}

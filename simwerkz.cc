@@ -447,6 +447,7 @@ DBG_MESSAGE("wkz_remover()", "removing factory:  supplier info change for %i fac
 						fabrik_t * fab = iter.get_current();
 						fab->rem_lieferziel(pos);
 						fab->rem_supplier(pos);
+						fab->clear_arbeiterziele();
 DBG_MESSAGE("wkz_remover()", "reconnecting factories");
 					}
 
@@ -2374,7 +2375,11 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 				wkz_remover(sp,welt,previous);
 			}
 			// then built is
-			hausbauer_t::baue(welt, sp, welt->lookup(pos)->gib_kartenboden()->gib_pos(), rotate, besch, true, NULL);
+			gebaeude_t *hq = hausbauer_t::baue(welt, sp, welt->lookup(pos)->gib_kartenboden()->gib_pos(), rotate, besch, true, NULL);
+			stadt_t *city = welt->suche_naechste_stadt( pos );
+			if(city) {
+				city->add_gebaeude_to_stadt( hq );
+			}
 			sp->add_headquarter( level+1, pos );
 			sp->buche(umgebung_t::cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h(), pos, COST_CONSTRUCTION * size.x * size.y);
 		}

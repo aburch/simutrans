@@ -90,7 +90,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	delete [] ints;
 
 	besch.gtyp             = gebaeude_t::unbekannt;
-	besch.utyp             = hausbauer_t::unbekannt;
+	besch.utype = haus_besch_t::unbekannt;
 	besch.bauzeit          = 0;
 	besch.allowed_climates = all_but_water_climate; // all but water
 	besch.enables          = 0;
@@ -118,44 +118,44 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	} else if (!STRICMP(type_name, "cur")) {
 		besch.bauzeit = obj.get_int("build_time", 0);
 		besch.level = obj.get_int("passengers",  besch.level);
-		besch.utyp = besch.bauzeit == 0 ? hausbauer_t::sehenswuerdigkeit : hausbauer_t::special;
+		besch.utype = besch.bauzeit == 0 ? haus_besch_t::attraction_land : haus_besch_t::attraction_city;
 	} else if (!STRICMP(type_name, "mon")) {
-		besch.utyp = hausbauer_t::denkmal;
+		besch.utype = haus_besch_t::denkmal;
 		besch.level = obj.get_int("passengers",  besch.level);
 	} else if (!STRICMP(type_name, "tow")) {
 		besch.level = obj.get_int("passengers",  besch.level);
 		besch.bauzeit = obj.get_int("build_time", 0);
-		besch.utyp = hausbauer_t::rathaus;
+		besch.utype = haus_besch_t::rathaus;
 	} else if (!STRICMP(type_name, "hq")) {
 		besch.level = obj.get_int("passengers",  besch.level);
 		besch.bauzeit = obj.get_int("build_time", 0);
-		besch.utyp = hausbauer_t::firmensitz;
+		besch.utype = haus_besch_t::firmensitz;
 	} else if (!STRICMP(type_name, "station")) {
-		besch.utyp = hausbauer_t::bahnhof;
+		besch.utype = haus_besch_t::bahnhof;
 	} else if (!STRICMP(type_name, "railstop")) {
-		besch.utyp = hausbauer_t::bahnhof;
+		besch.utype = haus_besch_t::bahnhof;
 	} else if (!STRICMP(type_name, "monorailstop")) {
-		besch.utyp = hausbauer_t::monorailstop;
+		besch.utype = haus_besch_t::monorailstop;
 	} else if (!STRICMP(type_name, "busstop")) {
-		besch.utyp = hausbauer_t::bushalt;
+		besch.utype = haus_besch_t::bushalt;
 	} else if (!STRICMP(type_name, "carstop")) {
-		besch.utyp = hausbauer_t::ladebucht;
+		besch.utype = haus_besch_t::ladebucht;
 	} else if (!STRICMP(type_name, "habour")) {
-		besch.utyp = hausbauer_t::hafen;
+		besch.utype = haus_besch_t::hafen;
 	} else if (!STRICMP(type_name, "wharf")) {
-		besch.utyp = hausbauer_t::binnenhafen;
+		besch.utype = haus_besch_t::binnenhafen;
 	} else if (!STRICMP(type_name, "airport")) {
-		besch.utyp = hausbauer_t::airport;
+		besch.utype = haus_besch_t::airport;
 	} else if (!STRICMP(type_name, "hall")) {
-		besch.utyp = hausbauer_t::wartehalle;
+		besch.utype = haus_besch_t::wartehalle;
 	} else if (!STRICMP(type_name, "post")) {
-		besch.utyp = hausbauer_t::post;
+		besch.utype = haus_besch_t::post;
 	} else if (!STRICMP(type_name, "shed")) {
-		besch.utyp = hausbauer_t::lagerhalle;
+		besch.utype = haus_besch_t::lagerhalle;
 	} else if (!STRICMP(type_name, "fac")) {
-		besch.utyp = hausbauer_t::fabrik;
+		besch.utype = haus_besch_t::fabrik;
 	} else if (!STRICMP(type_name, "any") || *type_name == '\0') {
-		besch.utyp = hausbauer_t::weitere;
+		besch.utype = haus_besch_t::weitere;
 	} else {
 		cstring_t reason;
 		reason.printf("invalid type %s for building %s\n", type_name, obj.get("name"));
@@ -163,10 +163,10 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 
 	// if it is a station (building), or a water factory
-	if (besch.utyp >= hausbauer_t::bahnhof && besch.utyp <= hausbauer_t::monorailstop+1) {
+	if (besch.utype >= haus_besch_t::bahnhof && besch.utype <= haus_besch_t::monorailstop+1) {
 		// is is an station extension building?
 		if (obj.get_int("extension_building", 0) > 0) {
-			besch.utyp = (enum hausbauer_t::utyp)(8 + (int)besch.utyp);
+			besch.utype = (enum haus_besch_t::utyp)(8 + (int)besch.utype);
 		}
 	}
 
@@ -176,7 +176,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	if (obj.get_int("enables_post", 0) > 0) {
 		besch.enables |= 2;
 	}
-	if (besch.utyp == hausbauer_t::fabrik || obj.get_int("enables_ware", 0) > 0) {
+	if (besch.utype == haus_besch_t::fabrik || obj.get_int("enables_ware", 0) > 0) {
 		besch.enables |= 4;
 	}
 
@@ -289,7 +289,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	v8 = (uint8) besch.gtyp;
 	node.write_data_at(fp, &v8, 2, sizeof(uint8));
 
-	v8 = (uint8)besch.utyp;
+	v8 = (uint8)besch.utype;
 	node.write_data_at(fp, &v8, 3, sizeof(uint8));
 
 	v16 = (uint16)besch.level;

@@ -107,6 +107,18 @@ template<class T> class weighted_vector_tpl
 			return false;
 		}
 
+		/**
+		 * Checks if element elem is contained in vector.
+		 * Uses the == operator for comparison.
+		 */
+		uint32 index_of(T elem) const
+		{
+			for (uint32 i = 0; i < count; i++) {
+				if (nodes[i].data == elem) return i;
+			}
+			dbg->fatal("weighted_vector_tpl<T>::index_of()", "not contained" );
+			return 0xFFFFFFFFu;
+		}
 
 		/**
 		 * Appends the element at the end of the vector.

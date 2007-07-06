@@ -5,6 +5,7 @@
 	ADD: under windows nicer error messages for missing objects
 	CHANGE: much better loading of games with missing objects
 	CHANGE: stopping position of trains of length>12
+	FIX: factory positions in minimap
 
 
 Release of 99.13

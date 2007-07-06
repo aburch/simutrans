@@ -783,6 +783,7 @@ bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 			}
 		}
 		calc_bild();
+		set_flag(dirty);
 		return true;
 	}
 	return false;

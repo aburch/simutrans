@@ -105,10 +105,10 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 		case gebaeude_t::unbekannt:
 		switch (besch->gib_utyp()) {
 			case haus_besch_t::denkmal:           denkmaeler.append(besch);               break;
-			case haus_besch_t::sehenswuerdigkeit: sehenswuerdigkeiten_land.append(besch); break;
+			case haus_besch_t::attraction_land:   sehenswuerdigkeiten_land.append(besch); break;
 			case haus_besch_t::firmensitz:        headquarter.append(besch);              break;
 			case haus_besch_t::rathaus:           rathaeuser.append(besch);               break;
-			case haus_besch_t::special:           sehenswuerdigkeiten_city.append(besch); break;
+			case haus_besch_t::attraction_city:   sehenswuerdigkeiten_city.append(besch); break;
 
 			case haus_besch_t::fabrik: break;
 

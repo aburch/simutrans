@@ -370,7 +370,7 @@ vehikel_t::setze_convoi(convoi_t *c)
 	 * (the waggon_t::setze_convoi etc. routines must then remove a
 	 *  possibly pending reservation of stops/tracks)
 	 */
-	assert(  c==NULL  ||  ((unsigned)cnv<=1)  ||  c==cnv);
+	assert(  c==NULL  ||  cnv==(convoi_t *)1  ||  c==cnv);
 	cnv = c;
 	if(cnv) {
 		// we need to reestablish the finish flag after loading
@@ -1722,7 +1722,7 @@ waggon_t::setze_convoi(convoi_t *c)
 	if(c!=cnv) {
 		DBG_MESSAGE("waggon_t::setze_convoi()","new=%p old=%p",c,cnv);
 		if(ist_erstes) {
-			if((unsigned long)cnv>1) {
+			if(cnv!=NULL  &&  cnv!=(convoi_t *)1) {
 				// free route from old convoi
 				if(route_index<cnv->get_route()->gib_max_n()+1) {
 					block_reserver( cnv->get_route(), cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->gib_route_index(), 1000, false );
@@ -1733,7 +1733,7 @@ waggon_t::setze_convoi(convoi_t *c)
 				// eventually reserve new route
 				if(c  &&  c->get_state()==convoi_t::DRIVING) {
 DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_route(),route_index);
-					long num_index = (long)cnv==1?1001:0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
+					long num_index = cnv==(convoi_t *)1 ? 1001 : 0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
 					// rereserve next block, if needed
 					cnv = c;
 					uint16 n = block_reserver( c->get_route(), route_index, num_index, true );

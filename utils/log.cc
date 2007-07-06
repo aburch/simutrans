@@ -171,13 +171,15 @@ void log_t::fatal(const char *who, const char *format, ...)
 	}
 
 	va_end(argptr);
-	if(dr_fatal_notify( buffer, DEBUG )) {
 #ifdef DEBUG
+	if(dr_fatal_notify( buffer, DEBUG )) {
 		// generate a division be zero error, if the user request it
 		printf("%i",15/make_this_a_division_by_zero);
 		make_this_a_division_by_zero &= 0xFF;
-#endif
 	}
+#else
+	dr_fatal_notify( buffer, 0 );
+#endif
 	exit(0);
 }
 

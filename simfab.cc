@@ -182,22 +182,6 @@ fabrik_t::~fabrik_t()
 }
 
 
-void
-fabrik_t::add_arbeiterziel(stadt_t *stadt)
-{
-	// do not add a city twice!
-	if(!arbeiterziele.contains(stadt)) {
-		arbeiterziele.insert(stadt);
-	}
-}
-
-
-void
-fabrik_t::rem_arbeiterziel(stadt_t *stadt)
-{
-	arbeiterziele.remove(stadt);
-}
-
 
 /**
  * Baut Gebäude für die Fabrik
@@ -569,6 +553,27 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 	if(file->is_loading()  &&  besch) {
 		// clear everything, even though it might be something important ...
 		baue(rotate, true);
+	}
+
+	// restore city pointer here
+	if(  file->get_version()>=99014  ) {
+		sint32 nr = arbeiterziele.count();
+		file->rdwr_long( nr, "c" );
+		for( int i=0;  i<nr;  i++  ) {
+			sint32 city_index = -1;
+			if(file->is_saving()) {
+				city_index = welt->gib_staedte().index_of( arbeiterziele.at(i) );
+			}
+			file->rdwr_long( city_index, "c" );
+			if(file->is_loading()) {
+				// will also update factory information
+				welt->gib_staedte()[city_index]->add_factory_arbeiterziel( this );
+			}
+		}
+	}
+	else if(file->is_loading()) {
+		// will be handled by the city after reloading
+		arbeiterziele.clear();
 	}
 }
 
