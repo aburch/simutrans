@@ -72,7 +72,6 @@ bool haus_besch_t::is_connected_with_town() const
 {
 	switch(gib_utyp()) {
 		case haus_besch_t::unbekannt:	// normal town buildings (RES, COM, IND)
-		case haus_besch_t::attraction_city:	// city attraction
 		case haus_besch_t::denkmal:	// monuments
 		case haus_besch_t::rathaus:	// townhalls
 		case haus_besch_t::firmensitz:	// headquarter

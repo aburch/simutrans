@@ -225,10 +225,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\building_writer.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\utils\cbuffer_t.cc"
 				>
 			</File>

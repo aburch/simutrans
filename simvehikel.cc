@@ -370,7 +370,7 @@ vehikel_t::setze_convoi(convoi_t *c)
 	 * (the waggon_t::setze_convoi etc. routines must then remove a
 	 *  possibly pending reservation of stops/tracks)
 	 */
-	assert(  c==NULL  ||  cnv==(convoi_t *)1  ||  c==cnv);
+	assert(  c==NULL  ||  cnv==NULL  ||  cnv==(convoi_t *)1  ||  c==cnv);
 	cnv = c;
 	if(cnv) {
 		// we need to reestablish the finish flag after loading

@@ -795,12 +795,7 @@ void stadt_t::recount_houses()
 		for (sint16 x = lo.x; x <= ur.x; x++) {
 			const grund_t* gr = welt->lookup_kartenboden(koord(x, y));
 			gebaeude_t* gb = dynamic_cast<gebaeude_t*>(gr->first_obj());
-			if (gb != NULL && (
-						gb->ist_rathaus() ||
-						gb->gib_haustyp() != gebaeude_t::unbekannt ||
-						gb->is_monument()
-					) &&
-					welt->suche_naechste_stadt(koord(x, y)) == this) {
+			if (gb!=NULL  &&  gb->gib_tile()->gib_besch()->is_connected_with_town()  &&  welt->suche_naechste_stadt(koord(x, y)) == this) {
 				// no attraction, just normal buidlings or townhall
 				buildings.append(gb, gb->gib_tile()->gib_besch()->gib_level() + 1, 16);
 				gb->setze_stadt(this);
@@ -819,11 +814,13 @@ void stadt_t::recalc_city_size()
 	lo = koord(welt->gib_groesse_x(), welt->gib_groesse_y());
 	ur = koord(0, 0);
 	for (weighted_vector_tpl<const gebaeude_t*>::const_iterator i = buildings.begin(), end = buildings.end(); i != end; ++i) {
-		const koord pos = (*i)->gib_pos().gib_2d();
-		if (lo.x > pos.x) lo.x = pos.x;
-		if (lo.y > pos.y) lo.y = pos.y;
-		if (ur.x < pos.x) ur.x = pos.x;
-		if (ur.y < pos.y) ur.y = pos.y;
+		if((*i)->gib_tile()->gib_besch()->gib_utyp()!=haus_besch_t::firmensitz) {
+			const koord pos = (*i)->gib_pos().gib_2d();
+			if (lo.x > pos.x) lo.x = pos.x;
+			if (lo.y > pos.y) lo.y = pos.y;
+			if (ur.x < pos.x) ur.x = pos.x;
+			if (ur.y < pos.y) ur.y = pos.y;
+		}
 	}
 
 	lo.x -= 1;
@@ -1123,11 +1120,11 @@ void stadt_t::laden_abschliessen()
 		pax_transport = 0;
 	}
 
+	// town name
 	welt->lookup(pos)->gib_kartenboden()->setze_text(name);
 
-//	verbinde_fabriken();
+	// clear the minimaps
 	init_pax_ziele();
-//	recount_houses();
 
 	// init step counter with meaningful value
 	step_interval = (2 << 18u) / (buildings.get_count() * 4 + 1);
@@ -1728,7 +1725,6 @@ void stadt_t::check_bau_spezial(bool new_town)
 					rotate = (simrand(20) & 2) + is_rotate;
 				}
 				gebaeude_t *gb = hausbauer_t::baue( welt, besitzer_p, welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), rotate, besch );
-				add_gebaeude_to_stadt( gb );
 				// tell the player, if not during initialization
 				if (!new_town) {
 					char buf[256];
