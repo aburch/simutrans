@@ -65,10 +65,6 @@ depot_t::~depot_t()
 		delete depot_info;
 		depot_info = NULL;
 	}
-	slist_iterator_tpl<convoihandle_t> iter(convois);
-	while(iter.next()) {
-		iter.access_current().unbind();
-	}
 	all_depots.remove(this);
 }
 

@@ -32,13 +32,15 @@
  */
 void halt_list_stats_t::infowin_event(const event_t *ev)
 {
-	if(IS_LEFTRELEASE(ev)) {
-		if (event_get_last_control_shift() != 2) {
-			halt->zeige_info();
+	if(halt.is_bound()) {
+		if(IS_LEFTRELEASE(ev)) {
+			if (event_get_last_control_shift() != 2) {
+				halt->zeige_info();
+			}
 		}
-	}
-	if(IS_RIGHTRELEASE(ev)) {
-		halt->get_welt()->change_world_position(halt->gib_basis_pos3d());
+		if(IS_RIGHTRELEASE(ev)) {
+			halt->get_welt()->change_world_position(halt->gib_basis_pos3d());
+		}
 	}
 }
 
@@ -53,7 +55,7 @@ void halt_list_stats_t::zeichnen(koord offset)
 
 	clip_dimension clip = display_gib_clip_wh();
 
-	if(! ((pos.y+offset.y) > clip.yy ||  (pos.y+offset.y) < clip.y-32) && halt.is_bound()) {
+	if(  !( (pos.y+offset.y)>clip.yy  ||  (pos.y+offset.y)<clip.y-32 )  &&  halt.is_bound()) {
 
 		static cbuffer_t buf(8192);  // Hajo: changed from 128 to 8192 because get_short_freight_info requires that a large buffer
 

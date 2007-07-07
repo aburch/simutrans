@@ -344,8 +344,15 @@ haltestelle_t::~haltestelle_t()
 
 	// remove ground and free name
 	setze_name(NULL);
-	while (!tiles.empty()) {
-		rem_grund(tiles.front().grund);
+	while(  !tiles.empty()  ) {
+		grund_t *gr = tiles.remove_first().grund;
+		planquadrat_t *pl = welt->access( gr->gib_pos().gib_2d() );
+		assert(pl);
+		pl->setze_halt(halthandle_t());
+		pl->gib_kartenboden()->set_flag(grund_t::dirty);
+		pl->remove_from_haltlist( welt, self );
+		gr->set_flag(grund_t::dirty);
+		gr->clear_flag(grund_t::is_halt_flag);
 	}
 
 	/* remove probably remaining halthandle at init_pos
@@ -355,14 +362,14 @@ haltestelle_t::~haltestelle_t()
 		p->setze_halt( halthandle_t() );
 	}
 
+	// finally detach handle
+	// before it is needed for clearing up the planqudrat and tiles
+	self.unbind();
+
 	if(halt_info) {
 		destroy_win(halt_info);
 		delete halt_info;
 	}
-
-	// finally detach handle
-	// before it is needed for clearing up the planqudrat and tiles
-	self.unbind();
 
 	for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
 		if(waren[i]) {
@@ -373,6 +380,7 @@ haltestelle_t::~haltestelle_t()
 	free( waren );
 
 	// routes may have changed without this station ...
+	verbinde_fabriken();
 	welt->set_schedule_counter();
 }
 

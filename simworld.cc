@@ -412,8 +412,8 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 
 	// dinge aufräumen
 	if(plan) {
-		cached_groesse_gitter_x = cached_groesse_gitter_x = 1;
-		cached_groesse_karte_x = cached_groesse_karte_x = 0;
+		cached_groesse_gitter_x = cached_groesse_gitter_y = 1;
+		cached_groesse_karte_x = cached_groesse_karte_y = 0;
 		delete [] plan;
 		plan = NULL;
 	}

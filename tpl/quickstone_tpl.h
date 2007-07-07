@@ -131,6 +131,7 @@ public:
 
 	// frees the handle
 	void unbind() {
+		data[entry] = 0;
 		entry = 0;
 	}
 
