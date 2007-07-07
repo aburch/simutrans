@@ -562,6 +562,11 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 // add all current vehicles
 void depot_frame_t::build_vehicle_lists()
 {
+	if(depot->get_vehicle_type()==NULL) {
+		// there are track etc. but now vehicles => do nothing
+		return;
+	}
+
 	const int month_now = get_welt()->get_timeline_year_month();
 
 	if (pas_vec.empty() && loks_vec.empty() && waggons_vec.empty()) {

@@ -7,6 +7,7 @@
 	CHANGE: stopping position of trains of length>12
 	FIX: factory positions in minimap
 	FIX: screen resolution enlargement with GDI version resulted in crash
+	FIX: crash when opening a depot, for that no vehicles exist
 
 
 Release of 99.13
