@@ -31,7 +31,7 @@
 #	define GET_WHEEL_DELTA_WPARAM(wparam) ((short)HIWORD(wparam))
 #endif
 
-// not recommended, will only work on some HW
+// 16 Bit may be much slower than 15 unfourtunately on some hardware
 #define USE_16BIT_DIB
 
 #include "simmem.h"
@@ -173,6 +173,15 @@ int dr_os_close(void)
 // reiszes screen
 int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 {
+	if(w>MaxSize.right+15  ||  h>MaxSize.bottom+2) {
+		// since the query routines that return the desktop data do not take into account a change of resolution
+		GlobalFree( GlobalHandle( AllDibData ) );
+		AllDibData = NULL;
+		MaxSize.right = (w+16) & 0xFFF0;
+		MaxSize.bottom = h;
+		AllDibData = (unsigned short*)GlobalLock(GlobalAlloc(GMEM_MOVEABLE, (MaxSize.right + 15) * 2 * (MaxSize.bottom + 2)));
+		*textur = AllDibData;
+	}
 	AllDib->biWidth   = w;
 	WindowSize.right  = w;
 	WindowSize.bottom = h - 1;
@@ -182,7 +191,7 @@ int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 
 unsigned short *dr_textur_init()
 {
-	AllDibData = (unsigned short*)GlobalLock(GlobalAlloc(GMEM_MOVEABLE, (MaxSize.right + 15) * 2 * (MaxSize.bottom + 2)));
+	AllDibData = (unsigned short*)GlobalLock( GlobalAlloc(GMEM_MOVEABLE, (MaxSize.right + 15) * 2 * (MaxSize.bottom + 2)));
 	return AllDibData;
 }
 
