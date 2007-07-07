@@ -66,7 +66,7 @@ simline_t::~simline_t()
 	delete (fpl);
 	delete (old_fpl);
 
-	self.unbind();
+	self.detach();
 
 	DBG_MESSAGE("simline_t::~simline_t()", "line %d (%p) destroyed", id, this);
 }

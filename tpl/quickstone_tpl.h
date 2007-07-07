@@ -129,12 +129,6 @@ public:
 		return data[entry] != 0;
 	}
 
-	// frees the handle
-	void unbind() {
-		data[entry] = 0;
-		entry = 0;
-	}
-
 	/**
 	 * Removes the object from the tombstone table - this affects all
 	 * handles to the object!

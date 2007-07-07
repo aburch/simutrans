@@ -364,7 +364,7 @@ haltestelle_t::~haltestelle_t()
 
 	// finally detach handle
 	// before it is needed for clearing up the planqudrat and tiles
-	self.unbind();
+	self.detach();
 
 	if(halt_info) {
 		destroy_win(halt_info);

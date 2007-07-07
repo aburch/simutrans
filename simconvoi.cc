@@ -162,6 +162,8 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 
 convoi_t::~convoi_t()
 {
+	assert(self.is_bound());
+
 DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	// stop following
 	if(welt->get_follow_convoi()==self) {
@@ -174,13 +176,13 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	}
 	convoi_info = 0;
 
+	welt->sync_remove( this );
+	welt->rem_convoi( self );
+
 	// @author hsiegeln - deregister from line
 	unset_line();
 
 	assert(anz_vehikel==0);
-
-	welt->sync_remove( this );
-	welt->rem_convoi( self );
 
 	// force asynchronous recalculation
 	welt->set_schedule_counter();
@@ -1144,10 +1146,18 @@ convoi_t::vorfahren()
 		}
 
 		// move one train length to the start position ...
-		//int train_length = 15-fahr[0]->gib_besch()->get_length();
-		int train_length = (alte_richtung==ribi_t::sued  || alte_richtung==ribi_t::ost) ? 1 : 15-fahr[0]->gib_besch()->get_length();
-		for(unsigned i=1; i<anz_vehikel; i++) {
+//		int train_length = (alte_richtung==ribi_t::sued  ||  alte_richtung==ribi_t::ost) ? 0 : fahr[0]->gib_besch()->get_length();
+		int train_length = 0;
+		for(unsigned i=0; i<anz_vehikel-1; i++) {
 			train_length += fahr[i]->gib_besch()->get_length(); // this give the length in 1/16 of a full tile
+		}
+		// in north/west direction, we leave the vehicle away to start as much back as possible
+		ribi_t::ribi neue_richtung = fahr[0]->gib_fahrtrichtung();
+		if(neue_richtung==ribi_t::sued  ||  neue_richtung==ribi_t::ost) {
+			train_length += fahr[anz_vehikel-1]->gib_besch()->get_length();
+		}
+		else {
+			train_length += 1;
 		}
 		train_length = max(1,train_length);
 
