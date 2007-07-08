@@ -902,7 +902,7 @@ vehikel_t::fahre()
 	if(ist_erstes  &&  check_for_finish) {
 		// check a vehicle leanght ahead for a tile change
 		// for south/east going vehicles, we must add half a tile
-		const sint8 iterations = (fahrtrichtung==ribi_t::sued  || fahrtrichtung==ribi_t::ost) ? 1 : 8;
+		const sint8 iterations = (fahrtrichtung==ribi_t::nord  || fahrtrichtung==ribi_t::west) ? 8 : 1;
 
 		const sint8 neu_xoff = gib_xoff() + gib_dx()*iterations;
 		const sint8 neu_yoff = gib_yoff() + gib_dy()*iterations;
