@@ -256,50 +256,35 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 	return convoihandle_t();
 }
 
+
+
 bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 {
-    if(cnv.is_bound()) {
-	if(cnv->gib_vehikel(0)) {
-	    vehikel_t *v = NULL;
+	if(cnv.is_bound()) {
 
-	    if(sell) {
+		if(sell) {
+			// just book it; deletion handled by destroy()
 			gib_besitzer()->buche(cnv->calc_restwert(), gib_pos().gib_2d(), COST_NEW_VEHICLE);
-	    }
-	    do {
-		v = cnv->remove_vehikel_bei(0);
-
-		if( v ) {
-
-		    if(sell) {
-			DBG_MESSAGE("depot_t::convoi_aufloesen()", "sell %p", v);
-			DBG_MESSAGE("depot_t::convoi_aufloesen()", "sell %s", v->gib_besch()->gib_name());
-			delete v;
-		    } else {
-			// Hajo: reset vehikel data
-			v->loesche_fracht();
-//			v->setze_fahrtrichtung( ribi_t::sued );
-			v->setze_erstes(false);
-			v->setze_letztes(false);
-			vehicles.append(v);
-		    }
 		}
-	    } while(v != NULL);
+		else {
+			// store vehicles in depot
+			vehikel_t *v;
+			while(  (v=cnv->remove_vehikel_bei(0))!=NULL  ) {
+				v->loesche_fracht();
+				v->setze_erstes(false);
+				v->setze_letztes(false);
+				vehicles.append(v);
+			}
+		}
+
+		// remove from depot lists
+		convois.remove(cnv);
+
+		// and remove from welt
+		cnv->self_destruct();
+		return true;
 	}
-
-	// Hajo: update all stations from schedule that this convoi des not
-	// drive any more
-	fahrplan_t * fpl = cnv->gib_fahrplan();
-	if(fpl  &&  fpl->maxi()>0) {
-		welt->set_schedule_counter();
-	}
-
-	convois.remove(cnv);
-
-	// Hajo: destruktor also removes convoi from convoi list
-	delete cnv.detach();
-	return true;
-    }
-    return false;
+	return false;
 }
 
 

@@ -423,7 +423,7 @@ public:
 	void rdwr(loadsave_t *file);
 	virtual void rdwr(loadsave_t *file, bool force) = 0;
 
-	int calc_restwert() const;
+	uint32 calc_restwert() const;
 
 	// true, if this vehicle did not moved for some time
 	virtual bool is_stuck() { return cnv==NULL  ||  cnv->is_waiting(); }

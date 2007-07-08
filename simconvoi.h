@@ -639,7 +639,7 @@ public:
 	* @author Volker Meyer
 	* @date  09.06.2003
 	*/
-	int calc_restwert() const;
+	uint32 calc_restwert() const;
 
 	/**
 	* Check if this convoi has entered a depot.

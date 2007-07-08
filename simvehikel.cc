@@ -898,14 +898,11 @@ vehikel_t::rauche()
 void
 vehikel_t::fahre()
 {
-	vehikel_basis_t::fahre();
-
 	// target mark: same coordinate twice (stems from very old ages, I think)
 	if(ist_erstes  &&  check_for_finish) {
 		// check a vehicle leanght ahead for a tile change
-//		const sint8 iterations = 15-besch->get_length();
-		/* also tried, because of misalignment of nearly all graphics: */
-		const sint8 iterations = (fahrtrichtung==ribi_t::sued  || fahrtrichtung==ribi_t::ost) ? 1 : 15-besch->get_length();
+		// for south/east going vehicles, we must add half a tile
+		const sint8 iterations = (fahrtrichtung==ribi_t::sued  || fahrtrichtung==ribi_t::ost) ? 1 : 8;
 
 		const sint8 neu_xoff = gib_xoff() + gib_dx()*iterations;
 		const sint8 neu_yoff = gib_yoff() + gib_dy()*iterations;
@@ -917,6 +914,8 @@ vehikel_t::fahre()
 			return;
 		}
 	}
+
+	vehikel_basis_t::fahre();
 }
 
 
@@ -1242,10 +1241,10 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 }
 
 
-int vehikel_t::calc_restwert() const
+uint32 vehikel_t::calc_restwert() const
 {
 	// after 20 year, it has only half value
-    return (int)((double)besch->gib_preis() * pow(0.997, (int)(welt->get_current_month() - gib_insta_zeit())));
+    return (uint32)((double)besch->gib_preis() * pow(0.997, (int)(welt->get_current_month() - gib_insta_zeit())));
 }
 
 

@@ -20,9 +20,10 @@ class gui_komponente_t;
 /* Typen fuer die Fenster */
 
 enum wintype {
-  w_info,	 	  // Ein Info-Fenster
-  w_autodelete, 	  // Ein Info-Fenster dessen GUI-Objekt beimschliessen gelöscht werden soll
-  w_frameless             // Ein Fenster ohne Rahmen und Titelzeile
+  w_info=1,	 	    // Ein Info-Fenster
+  w_autodelete=2, // Ein Info-Fenster dessen GUI-Objekt beimschliessen gelöscht werden soll
+  w_frameless=4,  // Ein Fenster ohne Rahmen und Titelzeile
+	w_ignore=128    // window in deletion state, ignore it
 };
 
 

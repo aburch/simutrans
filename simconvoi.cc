@@ -163,6 +163,7 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 convoi_t::~convoi_t()
 {
 	assert(self.is_bound());
+	assert(anz_vehikel==0);
 
 DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	// stop following
@@ -170,27 +171,27 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 		welt->set_follow_convoi( convoihandle_t() );
 	}
 
-	if(convoi_info) {
-		destroy_win(convoi_info);
-		delete convoi_info;
-	}
-	convoi_info = 0;
-
 	welt->sync_remove( this );
 	welt->rem_convoi( self );
 
 	// @author hsiegeln - deregister from line
 	unset_line();
 
-	assert(anz_vehikel==0);
-
-	// force asynchronous recalculation
-	welt->set_schedule_counter();
-
-	// Hajo: finally clean up
 	self.detach();
 
-	fpl = 0;
+	// force asynchronous recalculation
+	if(fpl) {
+		if(fpl->maxi()>0) {
+			welt->set_schedule_counter();
+		}
+		delete fpl;
+	}
+
+	if(convoi_info) {
+		destroy_win(convoi_info);
+		delete convoi_info;
+	}
+	convoi_info = 0;
 }
 
 
@@ -384,10 +385,14 @@ bool convoi_t::sync_step(long delta_t)
 
 				// now actually move the units
 				sp_soll += (akt_speed*delta_t);
-				while(65536<sp_soll  &&  state==DRIVING) {
+				while(65536<sp_soll) {
 					sp_soll -= 65536;
-
 					fahr[0]->sync_step();
+					// state may have change
+					if(state!=DRIVING) {
+						return true;
+					}
+					// now move the rest (so all vehikel are moving synchroniously)
 					for(unsigned i=1; i<anz_vehikel; i++) {
 						fahr[i]->sync_step();
 					}
@@ -417,11 +422,7 @@ bool convoi_t::sync_step(long delta_t)
 			break;
 
 		case SELF_DESTRUCT:
-			for(unsigned f=0; f<anz_vehikel; f++) {
-				const vehikel_t* v = fahr[f];
-				besitzer_p->buche(v->calc_restwert(), v->gib_pos().gib_2d(), COST_NEW_VEHICLE);
-			}
-			destroy();
+			// see step, since destruction during a screen update ma give stange effects
 			break;
 
 		default:
@@ -590,6 +591,15 @@ void convoi_t::step()
 					wait_lock = 2500;
 				}
 			}
+			break;
+
+		// must be here; may otherwise confuse window management
+		case SELF_DESTRUCT:
+			for(unsigned f=0; f<anz_vehikel; f++) {
+				const vehikel_t* v = fahr[f];
+				besitzer_p->buche(v->calc_restwert(), v->gib_pos().gib_2d(), COST_NEW_VEHICLE);
+			}
+			destroy();
 			break;
 
 		default:	/* keeps compiler silent*/
@@ -1821,14 +1831,14 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 }
 
 
-int convoi_t::calc_restwert() const
+uint32 convoi_t::calc_restwert() const
 {
-    int result = 0;
+	int result = 0;
 
-    for(unsigned i=0; i<anz_vehikel; i++) {
+	for(unsigned i=0; i<anz_vehikel; i++) {
 		result += fahr[i]->calc_restwert();
-    }
-    return result;
+	}
+	return result;
 }
 
 
@@ -1859,6 +1869,7 @@ void convoi_t::calc_loading()
 void convoi_t::self_destruct()
 {
 	state = SELF_DESTRUCT;
+	wait_lock = 0;
 }
 
 

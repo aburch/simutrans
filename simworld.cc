@@ -397,7 +397,6 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 	while (!convoi_array.empty()) {
 		convoihandle_t cnv = convoi_array.back();
 		cnv->destroy();
-		delete cnv.get_rep();	// since the convoi unbinds himself
 	}
 	convoi_array.clear();
 DBG_MESSAGE("karte_t::destroy()", "convois destroyed");

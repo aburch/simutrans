@@ -547,7 +547,9 @@ destroy_win(const gui_fenster_t *gui)
 		if(wins[i].gui == gui) {
 			if(inside_event_handling) {
 				// only add this, if not already added
-				if (!kill_list.is_contained(i)) kill_list.push_back(i);
+				if (!kill_list.is_contained(i)) {
+					kill_list.push_back(i);
+				}
 			}
 			else {
 				destroy_framed_win(i);
@@ -594,6 +596,10 @@ DBG_MESSAGE("top_win()","win=%i ins_win=%i",win,ins_win);
 
 void display_win(int win)
 {
+	if(wins[win].wt&w_ignore) {
+		return;
+	}
+	// ok, now process it
 	gui_fenster_t *komp = wins[win].gui;
 	koord gr = komp->gib_fenstergroesse();
 	koord pos = wins[win].pos;
@@ -604,7 +610,7 @@ void display_win(int win)
 	wins[win].flags.help = ( komp->gib_hilfe_datei() != NULL );
 
 	// titelleiste zeichnen wenn noetig
-	if(wins[win].wt != w_frameless) {
+	if(  (wins[win].wt & w_frameless)==0  ) {
 		win_draw_window_title(wins[win].pos,
 			gr,
 			titel_farbe,
@@ -682,13 +688,12 @@ move_win(int win, event_t *ev)
 
 int win_get_posx(gui_fenster_t *gui)
 {
-    int i;
-    for(i=ins_win-1; i>=0; i--) {
-	if(wins[i].gui == gui) {
-	    return wins[i].pos.x;
+	for(int i=ins_win-1; i>=0; i--) {
+		if(wins[i].gui == gui) {
+			return wins[i].pos.x;
+		}
 	}
-    }
-    return -1;
+	return -1;
 }
 
 
