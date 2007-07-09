@@ -1786,7 +1786,7 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 		{
 			// first test, if there is a cached version (or we can built one ... )
 			const unsigned char player_flag = images[n].player_flags&0x7F;
-			if (daynight && (player_flag == 0 || player_flag == player_nr)) {
+			if ((daynight  ||  night_shift==0) && (player_flag == 0 || player_flag == player_nr)) {
 				if (images[n].player_flags== 128 || player_flag == 0) {
 					recode_color_img(n, player_nr);
 				}

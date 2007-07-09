@@ -255,15 +255,16 @@ void simline_t::init_financial_history()
  */
 void simline_t::recalc_status()
 {
-	if(financial_history[0][LINE_PROFIT]<0) {
+	if(financial_history[0][LINE_CONVOIS]==0) {
+		// noconvois assigned to this line
+		state_color = COL_WHITE;
+	}
+	else if(financial_history[0][LINE_PROFIT]<0) {
 		// ok, not performing best
 		state_color = COL_RED;
 	} else if((financial_history[0][LINE_OPERATIONS]|financial_history[1][LINE_OPERATIONS])==0) {
 		// nothing moved
 		state_color = COL_YELLOW;
-	} else if(financial_history[0][LINE_CONVOIS]==0) {
-		// noconvois assigned to this line
-		state_color = COL_WHITE;
 	}
 	else if(welt->use_timeline()) {
 		// convois has obsolete vehicles?

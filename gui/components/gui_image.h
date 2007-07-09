@@ -19,9 +19,10 @@ class gui_image_t : public gui_komponente_t
 {
 private:
 	image_id id;
+	uint8 player_nr;
 
 public:
-    gui_image_t(image_id i=IMG_LEER) { id = i; }
+    gui_image_t(image_id i=IMG_LEER, uint16 p=0 ) { id = i; player_nr = p; }
 
     void set_image(image_id i) { id = i; }
 
@@ -29,7 +30,7 @@ public:
      * Zeichnet die Komponente
      * @author Hj. Malthaner
      */
-    void zeichnen(koord offset) { display_color_img( id, pos.x+offset.x, pos.y+offset.y, 0, false, true ); }
+    void zeichnen(koord offset) { display_color_img( id, pos.x+offset.x, pos.y+offset.y, player_nr, false, true ); }
 };
 
 #endif
