@@ -111,6 +111,10 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
  */
 gebaeude_t::~gebaeude_t()
 {
+	if(!is_factory  &&  ptr.stadt!=NULL) {
+		ptr.stadt->remove_gebaeude_from_stadt(this);
+	}
+
 	if(tile  &&  tile->gib_phasen()>1  ||  zeige_baugrube) {
 		sync = false;
 		welt->sync_remove(this);
@@ -783,9 +787,6 @@ void
 gebaeude_t::entferne(spieler_t *sp)
 {
 //	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
-	if(!is_factory  &&  ptr.stadt!=NULL) {
-		ptr.stadt->remove_gebaeude_from_stadt(this);
-	}
 	// remove costs
 	if(sp) {
 		sp->buche(umgebung_t::cst_multiply_remove_haus*(tile->gib_besch()->gib_level()+1), gib_pos().gib_2d(), COST_CONSTRUCTION);

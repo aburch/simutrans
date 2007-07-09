@@ -411,11 +411,11 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 
 	// dinge aufräumen
 	if(plan) {
-		cached_groesse_gitter_x = cached_groesse_gitter_y = 1;
-		cached_groesse_karte_x = cached_groesse_karte_y = 0;
 		delete [] plan;
 		plan = NULL;
 	}
+	cached_groesse_gitter_x = cached_groesse_gitter_y = 1;
+	cached_groesse_karte_x = cached_groesse_karte_y = 0;
 	DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
 
 	// gitter aufräumen
@@ -427,7 +427,9 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 	// delete towns first (will also delete all their houses)
 	// for the next game we need to remember the desired number ...
 	sint32 no_of_cities=einstellungen->gib_anzahl_staedte();
-	while (!stadt.empty()) rem_stadt(stadt.front());
+	while (!stadt.empty()) {
+		rem_stadt(stadt.front());
+	}
 	einstellungen->setze_anzahl_staedte(no_of_cities);
 DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 

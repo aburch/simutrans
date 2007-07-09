@@ -8,6 +8,7 @@
 	FIX: factory positions in minimap
 	FIX: screen resolution enlargement with GDI version resulted in crash
 	FIX: crash when opening a depot, for that no vehicles exist
+	FIX: town name management now like halt management
 
 
 Release of 99.13
