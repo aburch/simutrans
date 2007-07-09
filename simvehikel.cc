@@ -694,10 +694,11 @@ vehikel_t::hop_check()
 			cnv->suche_neue_route();
 			return false;
 		}
+
 		// check for oneway sign etc.
 		if(air_wt!=gib_waytype()  &&  route_index<cnv->get_route()->gib_max_n()) {
-			uint8 dir=gib_ribi(bd);
-			koord3d nextnext_pos=cnv->get_route()->position_bei(route_index+1);
+			uint8 dir = gib_ribi(bd);
+			koord3d nextnext_pos = cnv->get_route()->position_bei(route_index+1);
 			uint8 new_dir = ribi_typ(nextnext_pos.gib_2d()-pos_next.gib_2d());
 			if((dir&new_dir)==0) {
 				// new one way sign here?
@@ -1457,10 +1458,6 @@ bool
 automobil_t::ist_weg_frei(int &restart_speed)
 {
 	const grund_t *gr = welt->lookup(pos_next);
-	if(gr==NULL) {
-		cnv->suche_neue_route();
-		return false;
-	}
 
 	// check for traffic lights (only relevant for the first car in a convoi)
 	if(ist_erstes) {
@@ -1565,7 +1562,8 @@ automobil_t::ist_weg_frei(int &restart_speed)
 						// this goes into the same direction as we, so stopp and save a restart speed
 						frei = false;
 						restart_speed = 0;
-						if(cnv  &&  cnv->get_state()==convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH) {
+						if(cnv  &&  cnv->is_waiting()) {
+							// no stuck message, if previous vehikel is stuck too
 							if( ((vehikel_basis_t *)dt)->is_stuck() ) {
 								cnv->reset_waiting();
 							}
@@ -1886,7 +1884,7 @@ waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 bool
 waggon_t::ist_weg_frei(int & restart_speed)
 {
-	if(ist_erstes  &&  (cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH)) {
+	if(ist_erstes  &&  (cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS)) {
 		// reserve first block at the start until the next signal
 		uint16 n=block_reserver(cnv->get_route(), max(route_index,1)-1, 0, true);
 		if(n==0) {
@@ -1906,10 +1904,6 @@ waggon_t::ist_weg_frei(int & restart_speed)
 
 	if(!welt->lookup( pos_next )->hat_weg(gib_waytype())) {
 		return false;
-	}
-	if(!ist_erstes) {
-		restart_speed = -1;
-		return true;
 	}
 
 	uint16 next_block=cnv->get_next_stop_index()-1;
@@ -2386,10 +2380,6 @@ schiff_t::ist_weg_frei(int &restart_speed)
 
 	if(ist_erstes) {
 		grund_t *gr = welt->lookup( pos_next );
-		if(gr==NULL) {
-			cnv->suche_neue_route();
-			return false;
-		}
 
 		weg_t *w = gr->gib_weg(water_wt);
 		if(w  &&  w->is_crossing()) {

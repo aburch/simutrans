@@ -535,9 +535,11 @@ void convoi_t::step()
 						int restart_speed=-1;
 						if (v->ist_weg_frei(restart_speed)) {
 							// can reserve new block => drive on
-							state = DRIVING;
-							v->play_sound();
+							if(haltestelle_t::gib_halt(welt,v->gib_pos()).is_bound()) {
+								v->play_sound();
+							}
 							wait_lock = 0;
+							state = DRIVING;
 						}
 					}
 				}
@@ -559,7 +561,9 @@ void convoi_t::step()
 					if (v->ist_weg_frei(restart_speed)) {
 						// can reserve new block => drive on
 						state = DRIVING;
-						v->play_sound();
+						if(haltestelle_t::gib_halt(welt,v->gib_pos()).is_bound()) {
+							v->play_sound();
+						}
 					}
 					if(restart_speed>=0) {
 						akt_speed = restart_speed;
@@ -782,6 +786,7 @@ void convoi_t::warten_bis_weg_frei(int restart_speed)
 {
 	if(!is_waiting()) {
 		state = WAITING_FOR_CLEARANCE;
+		wait_lock = 0;
 	}
 	if(restart_speed>=0) {
 		// langsam anfahren
@@ -1731,7 +1736,7 @@ void convoi_t::laden()
 
 		if(withdraw  &&  loading_level==0) {
 			// destroy when empty
-			self_destruct();
+			destroy();
 			return;
 		}
 
