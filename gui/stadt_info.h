@@ -29,6 +29,8 @@ class stadt_t;
 class stadt_info_t : public gui_frame_t, private action_listener_t
 {
 private:
+	char name[256];
+
 	stadt_t *stadt;
 
 	gui_textinput_t name_input;

@@ -36,7 +36,8 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
   gui_frame_t("Stadtinformation"),
 	stadt(stadt_)
 {
-	name_input.setze_text(stadt->access_name(), 30);
+	tstrncpy( name, stadt->gib_name(), 256 );
+	name_input.setze_text(name, 30);
 	name_input.setze_groesse(koord(124, 14));
 	name_input.setze_pos(koord(8, 8));
 
@@ -88,6 +89,10 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 void
 stadt_info_t::zeichnen(koord pos, koord gr)
 {
+	if(strcmp(name,stadt->gib_name())) {
+		stadt->setze_name( name );
+	}
+
 	// Hajo: update chart seed
 	chart.set_seed(stadt->get_welt()->get_last_year());
 

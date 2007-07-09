@@ -498,7 +498,7 @@ static const char* const aussen_namen[] =
  * @param number if >= 0, then a number is added to the name
  * @author Hj. Malthaner
  */
-char* stadt_t::haltestellenname(koord k, const char *typ, int number)
+char *stadt_t::haltestellenname(koord k, const char *typ, int number)
 {
 	const char* num_city_base = "%s city %d %s";
 	const char* num_land_base = "%s land %d %s";
@@ -517,14 +517,14 @@ char* stadt_t::haltestellenname(koord k, const char *typ, int number)
 		if (li_gr < k.x && re_gr > k.x && ob_gr < k.y && un_gr > k.y) {
 			zentrum_namen_cnt++;
 			sprintf(buf, translator::translate(num_city_base),
-				this->name,
+				gib_name(),
 				zentrum_namen_cnt,
 				translator::translate(typ)
 			);
 		} else {
 			aussen_namen_cnt++;
 			sprintf(buf, translator::translate(num_land_base),
-				this->name,
+				gib_name(),
 				aussen_namen_cnt,
 				translator::translate(typ)
 			);
@@ -640,13 +640,13 @@ char* stadt_t::haltestellenname(koord k, const char *typ, int number)
 		// compose the name
 		if (building == NULL) {
 			sprintf(buf, translator::translate(base),
-				this->name,
+				gib_name(),
 				translator::translate(typ)
 			);
 		} else {
 			// with factories
 			sprintf(buf, translator::translate("%s building %s %s"),
-				this->name,
+				gib_name(),
 				building,
 				translator::translate(typ)
 			);
@@ -867,6 +867,11 @@ stadt_t::~stadt_t()
 	if (stadt_info != NULL) {
 		destroy_win(stadt_info);
 	}
+
+	if(welt->lookup_kartenboden(pos)) {
+		welt->lookup_kartenboden(pos)->setze_text(NULL);
+	}
+
 	// remove city info and houses
 	while (!buildings.empty()) {
 		// old buildings are not where they think they are, so we ask for map floor
@@ -949,10 +954,9 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, int citizens) :
 		break;
 next_name:;
 	}
-	name = (char *)malloc( strlen(list_name)+64 );
-	strcpy(name, list_name);
+	load_name = strdup(list_name);
 
-	DBG_MESSAGE("stadt_t::stadt_t()", "founding new city named '%s'", name);
+	DBG_MESSAGE("stadt_t::stadt_t()", "founding new city named '%s'", list_name);
 
 	// 1. Rathaus bei 0 Leuten bauen
 	check_bau_rathaus(true);
@@ -999,7 +1003,7 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	pax_transport = 0;
 
 	wachstum = 0;
-	name = NULL;
+	load_name = NULL;
 
 	rdwr(file);
 
@@ -1015,12 +1019,12 @@ void stadt_t::rdwr(loadsave_t* file)
 
 	if (file->is_saving()) {
 		besitzer_n = welt->sp2num(besitzer_p);
-		file->rdwr_str(name, -1 );
+		load_name = gib_name();
+		file->rdwr_str((char *)load_name, -1 );
+		load_name = NULL;
 	}
 	else {
-		const char *n = NULL;
-		file->rdwr_str(n, "simcity" );
-		name = (char *)n;
+		file->rdwr_str(load_name, "simcity" );
 	}
 	pos.rdwr(file);
 	file->rdwr_delim("Plo: ");
@@ -1107,6 +1111,29 @@ void stadt_t::rdwr(loadsave_t* file)
 }
 
 
+
+void stadt_t::setze_name(const char *new_name)
+{
+	grund_t *gr = welt->lookup_kartenboden(pos);
+	if(gr) {
+		gr->setze_text( new_name );
+	}
+}
+
+
+
+const char* stadt_t::gib_name() const
+{
+	const char *name = "simcity";
+	grund_t* bd = welt->lookup_kartenboden(pos);
+	if(bd!=NULL  &&  bd->get_flag(grund_t::has_text)) {
+		name = bd->gib_text();
+	}
+	return name;
+}
+
+
+
 /**
  * Wird am Ende der Laderoutine aufgerufen, wenn die Welt geladen ist
  * und nur noch die Datenstrukturenneu verknüpft werden müssen.
@@ -1121,7 +1148,9 @@ void stadt_t::laden_abschliessen()
 	}
 
 	// town name
-	welt->lookup(pos)->gib_kartenboden()->setze_text(name);
+	setze_name(load_name);
+	free((void *)load_name);
+	load_name = NULL;
 
 	// clear the minimaps
 	init_pax_ziele();
@@ -1834,9 +1863,6 @@ void stadt_t::check_bau_rathaus(bool new_town)
 				}
 			}
 
-			// clear the old townhall
-			gr->setze_text(NULL);
-
 			for (k.x = 0; k.x < groesse_alt.x; k.x++) {
 				for (k.y = 0; k.y < groesse_alt.y; k.y++) {
 					// we itereate over all tiles, since the townhalls are allowed sizes bigger than 1x1
@@ -1865,14 +1891,16 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		add_gebaeude_to_stadt(gb);
 		DBG_MESSAGE("stadt_t::check_bau_rathaus()", "add townhall (bev=%i, ptr=%p)", buildings.get_sum_weight(),welt->lookup(best_pos)->gib_kartenboden()->first_obj());
 
-		// Orstnamen hinpflanzen
-		welt->lookup(best_pos)->gib_kartenboden()->setze_text(name);
-
-		// tell the player, if not during initialization
+		// if not during initialization
 		if (!new_town) {
+			// tell the player
 			char buf[256];
-			sprintf(buf, translator::translate("%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants."), gib_name(), gib_einwohner());
+			sprintf( buf, translator::translate("%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants."), gib_name(), gib_einwohner() );
 			message_t::get_instance()->add_message(buf, pos, message_t::city, CITY_KI, besch->gib_tile(layout, 0, 0)->gib_hintergrund(0, 0, 0));
+
+			// then move town name
+			welt->lookup(best_pos)->gib_kartenboden()->setze_text(gib_name());
+			setze_name(NULL);
 		}
 
 		// Strasse davor verlegen
@@ -1898,6 +1926,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			lo = best_pos - koord(2, 2);
 			ur = best_pos + koord(besch->gib_b(layout), besch->gib_h(layout)) + koord(2, 2);
 		}
+		// update position (where the name is)
 		pos = best_pos;
 	}
 
