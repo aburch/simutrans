@@ -780,8 +780,8 @@ DBG_MESSAGE("vehikel_t::hop()","reverse dir at route index %d",route_index);
 		if(pos_next!=gib_pos()) {
 			fahrtrichtung = calc_richtung(pos_prev.gib_2d(), pos_next.gib_2d(), dx, dy);
 		}
-		else if(check_for_finish  ||  welt->lookup(pos_next)->is_halt()) {
-			// allow diagonal stops at waypoints but avoid them on halts ...
+		else if(  (  check_for_finish  &&  welt->lookup(pos_next)  &&  ribi_t::ist_gerade(welt->lookup(pos_next)->gib_weg_ribi_unmasked(gib_waytype()))  )  ||  welt->lookup(pos_next)->is_halt()) {
+			// allow diagonal stops at waypoints on diagonal tracks but avoid them on halts and at straight tracks...
 			fahrtrichtung = calc_richtung(pos_prev.gib_2d(), pos_next.gib_2d(), dx, dy);
 		}
 	}
@@ -799,6 +799,7 @@ DBG_MESSAGE("vehikel_t::hop()","reverse dir at route index %d",route_index);
 	else {
 		speed_limit = SPEED_UNLIMITED;
 	}
+
 	calc_akt_speed(gr);
 }
 
@@ -903,7 +904,7 @@ vehikel_t::fahre()
 		// check a vehicle leanght ahead for a tile change
 		// for south/east going vehicles, we must add half a tile
 		// this is also the correct value for diagonals
-		const sint8 iterations = (fahrtrichtung==ribi_t::sued  || fahrtrichtung==ribi_t::ost) ? 1 : 8;
+		const sint8 iterations = (fahrtrichtung==ribi_t::nord  || fahrtrichtung==ribi_t::west) ? 8 : 1;
 
 		const sint8 neu_xoff = gib_xoff() + gib_dx()*iterations;
 		const sint8 neu_yoff = gib_yoff() + gib_dy()*iterations;
