@@ -79,12 +79,12 @@ display_icon_leiste(const int redraw, int basis_bild)
 
     display_fillbox_wh(0,0, display_get_width(), 32, MN_GREY1, dirty);
 
-    display_color_img(basis_bild++,0,0, 0, FALSE, dirty);
-    display_color_img(basis_bild++,64,0, 0, FALSE, dirty);
-    display_color_img(basis_bild++,128,0, 0, FALSE, dirty);
-    display_color_img(basis_bild++,192,0, 0, FALSE, dirty);
-    display_color_img(basis_bild++,256,0, 0, FALSE, dirty);
-    display_color_img(basis_bild++,320,0, 0, FALSE, dirty);
+    display_color_img(basis_bild++, 0, 0, 0, FALSE, dirty);
+    display_color_img(basis_bild++, 64, 0, 0, FALSE, dirty);
+    display_color_img(basis_bild++, 128, 0, 0, FALSE, dirty);
+    display_color_img(basis_bild++, 192, 0, 0, FALSE, dirty);
+    display_color_img(basis_bild++, 256, 0, 0, FALSE, dirty);
+    display_color_img(basis_bild++, 320, 0, 0, FALSE, dirty);
 
     //display_color_img(157,320,0, color, FALSE, dirty);
     display_color_img(basis_bild++,384,0, 0, FALSE, dirty);

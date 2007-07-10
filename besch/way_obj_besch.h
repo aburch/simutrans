@@ -80,17 +80,17 @@ public:
 
 	const long gib_wartung() const { return maintenance; }
 
-    /**
-     * Determines max speed in km/h allowed on this way
-     * @author Hj. Malthaner
-     */
-    const uint32 gib_topspeed() const { return topspeed; }
+	/**
+	 * Determines max speed in km/h allowed on this way
+	 * @author Hj. Malthaner
+	 */
+	const uint32 gib_topspeed() const { return topspeed; }
 
-    /**
-     * get way type
-     * @see waytype_t
-     * @author Hj. Malthaner
-     */
+	/**
+	 * get way type
+	 * @see waytype_t
+	 * @author Hj. Malthaner
+	 */
 	const uint8 gib_wtyp() const { return wtyp; }
 
 	/**
@@ -99,7 +99,6 @@ public:
 	* @author DarioK
 	*/
 	const uint8 gib_own_wtyp() const { return own_wtyp; }
-
 
 	// way objects can have a front and a backimage, unlike ways ...
 	image_id get_front_image_id(ribi_t::ribi ribi) const { return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild_nr(ribi); }

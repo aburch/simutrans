@@ -9,6 +9,8 @@
  * von prissi
  */
 
+#include <algorithm>
+
 #include "../boden/grund.h"
 #include "../simworld.h"
 #include "../simimg.h"
@@ -30,8 +32,8 @@
 
 // the descriptions ...
 const way_obj_besch_t *default_oberleitung=NULL;
-//wayobj_t::default_oberleitung=NULL;
-slist_tpl<const way_obj_besch_t *> wayobj_t::liste;
+
+vector_tpl<const way_obj_besch_t *> wayobj_t::liste;
 stringhashtable_tpl<const way_obj_besch_t *> wayobj_t::table;
 
 
@@ -333,12 +335,29 @@ wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_
 
 
 
+// to sort wayobj for always the same menu order
+static bool compare_wayobj_besch(const way_obj_besch_t* a, const way_obj_besch_t* b)
+{
+	int diff = a->gib_wtyp() - b->gib_wtyp();
+	if (diff == 0) {
+		diff = a->gib_topspeed() - b->gib_topspeed();
+	}
+	if (diff == 0) {
+		/* Somae speed: sort by name */
+		diff = strcmp(a->gib_name(), b->gib_name());
+	}
+	return diff < 0;
+}
 
-bool
-wayobj_t::alles_geladen()
+
+
+bool wayobj_t::alles_geladen()
 {
 	if (wayobj_t::liste.empty()) {
 		dbg->warning("wayobj_t::alles_geladen()", "No obj found - may crash when loading catenary.");
+	}
+	else {
+		std::sort(liste.begin(), liste.end(), compare_wayobj_besch);
 	}
 	return true;
 }
@@ -349,7 +368,7 @@ bool
 wayobj_t::register_besch(way_obj_besch_t *besch)
 {
 	wayobj_t::table.put(besch->gib_name(), besch);
-	wayobj_t::liste.append(besch);
+	wayobj_t::liste.append(besch,4);
 	if(besch->gib_own_wtyp()==overheadlines_wt  &&  besch->gib_wtyp()==track_wt  &&
 		(default_oberleitung==NULL  ||  default_oberleitung->gib_topspeed()<besch->gib_topspeed())) {
 		default_oberleitung = besch;
@@ -373,9 +392,9 @@ void wayobj_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	const karte_t *welt)
 {
 	const uint16 time=welt->get_timeline_year_month();
-DBG_DEBUG("wayobj_t::fill_menu()","maximum %i",liste.count());
-	for (slist_iterator_tpl<const way_obj_besch_t*> i(wayobj_t::liste); i.next();) {
-		const way_obj_besch_t* besch = i.get_current();
+DBG_DEBUG("wayobj_t::fill_menu()","maximum %i",liste.get_count());
+	for (vector_tpl<const way_obj_besch_t*>::const_iterator i = liste.begin(), end = liste.end();  i != end;  ++i  ) {
+		const way_obj_besch_t* besch = (*i);
 		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
 			DBG_DEBUG("wayobj_t::fill_menu()", "try to add %s(%p)", besch->gib_name(), besch);
@@ -407,8 +426,8 @@ DBG_DEBUG("wayobj_t::fill_menu()","maximum %i",liste.count());
 const way_obj_besch_t*
 wayobj_t::wayobj_search(waytype_t wt,waytype_t own,uint16 time)
 {
-	for (slist_iterator_tpl<const way_obj_besch_t*> i(wayobj_t::liste); i.next();) {
-		const way_obj_besch_t* besch = i.get_current();
+	for (vector_tpl<const way_obj_besch_t*>::const_iterator i = liste.begin(), end = liste.end();  i != end;  ++i  ) {
+		const way_obj_besch_t* besch = (*i);
 		if((time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))
 			&&  besch->gib_wtyp()==wt  &&  besch->gib_own_wtyp()==own) {
 				return besch;

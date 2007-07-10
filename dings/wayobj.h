@@ -14,6 +14,7 @@
 #include "../simworld.h"
 #include "../dataobj/ribi.h"
 #include "../besch/way_obj_besch.h"
+#include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 
 class spieler_t;
@@ -105,7 +106,7 @@ public:
 
 	/* the static routines */
 private:
-	static slist_tpl<const way_obj_besch_t *> liste;
+	static vector_tpl<const way_obj_besch_t *> liste;
 	static stringhashtable_tpl<const way_obj_besch_t *> table;
 
 public:

@@ -1899,11 +1899,13 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			// tell the player
 			char buf[256];
 			sprintf( buf, translator::translate("%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants."), gib_name(), gib_einwohner() );
-			message_t::get_instance()->add_message(buf, pos, message_t::city, CITY_KI, besch->gib_tile(layout, 0, 0)->gib_hintergrund(0, 0, 0));
+			message_t::get_instance()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->gib_tile(layout, 0, 0)->gib_hintergrund(0, 0, 0));
 
 			// then move town name
 			welt->lookup(best_pos)->gib_kartenboden()->setze_text(gib_name());
-			setze_name(NULL);
+			if(best_pos!=pos) {
+				setze_name(NULL);
+			}
 		}
 
 		// Strasse davor verlegen

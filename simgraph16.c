@@ -632,8 +632,8 @@ void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
 }
 
 
-static uint8 player_night=0;
-static uint8 player_day=0;
+static uint8 player_night=-1;
+static uint8 player_day=-1;
 static void	activate_player_color(sint8 player_nr, bool daynight)
 {
 	// cahces the last settings
@@ -1074,8 +1074,8 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 				calc_base_pal_from_night_shift(night_shift);
 			}
 			player_day = player_night = player;
-			recode();
 		}
+		recode();
 		mark_rect_dirty_nc(0, 32, disp_width - 1, disp_height - 1);
 	}
 }
@@ -1710,7 +1710,7 @@ void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const i
  * assumes height is ok and valid data are caluclated
  * @author hajo/prissi
  */
-static void display_color_img_aux(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp)
+static void display_color_img_aux(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp )
 {
 	KOORD_VAL h = images[n].h;
 	KOORD_VAL y = yp + images[n].y;
@@ -1774,7 +1774,7 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 		// Hajo: since the colors for player 0 are already right,
 		// only use the expensive replacement routine for colored images
 		// of other players
-		if ((daynight  ||  night_shift==0) && (player_nr<=0  || (images[n].recode_flags & FLAG_PLAYERCOLOR) == 0)) {
+		if ((daynight  ||  night_shift==0)  &&  (player_nr<=0  ||  (images[n].recode_flags & FLAG_PLAYERCOLOR)==0)) {
 			display_img_aux(n, xp, yp, dirty, false);
 			return;
 		}
@@ -1786,8 +1786,8 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 		{
 			// first test, if there is a cached version (or we can built one ... )
 			const unsigned char player_flag = images[n].player_flags&0x7F;
-			if ((daynight  ||  night_shift==0) && (player_flag == 0 || player_flag == player_nr)) {
-				if (images[n].player_flags== 128 || player_flag == 0) {
+			if ((daynight  ||  night_shift==0)  &&  (player_flag==0  ||  player_flag == player_nr)  ) {
+				if (images[n].player_flags==128  ||  player_flag==0) {
 					recode_color_img(n, player_nr);
 				}
 				// ok, now we could use the same faster code as for the normal images
@@ -1822,7 +1822,7 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 			// no player
 			activate_player_color( 0, daynight );
 		}
-		display_color_img_aux(n, xp, yp );
+		display_color_img_aux( n, xp, yp );
 	} // number ok
 }
 
@@ -2772,12 +2772,11 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
 	}
 
 	display_setze_clip_wh(0, 0, disp_width, disp_height);
-	display_day_night_shift(0);
 
 	// Hajo: Calculate daylight rgbmap and save it for unshaded tile drawing
-	calc_base_pal_from_night_shift(0);
-	memcpy(rgbmap_all_day, rgbmap_day_night, RGBMAPSIZE * sizeof(PIXVAL));
+	display_day_night_shift(0);
 	memcpy(specialcolormap_all_day, specialcolormap_day_night, 256 * sizeof(PIXVAL));
+	memcpy(rgbmap_all_day, rgbmap_day_night, RGBMAPSIZE * sizeof(PIXVAL));
 
 	// find out bit depth
 	{
