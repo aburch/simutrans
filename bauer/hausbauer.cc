@@ -55,8 +55,8 @@ const haus_besch_t *hausbauer_t::sch_depot_besch = NULL;
 const haus_besch_t *hausbauer_t::monorail_depot_besch = NULL;
 const haus_besch_t *hausbauer_t::monorail_foundation_besch = NULL;
 
-slist_tpl<const haus_besch_t *> hausbauer_t::station_building;
-slist_tpl<const haus_besch_t *> hausbauer_t::headquarter;
+vector_tpl<const haus_besch_t *> hausbauer_t::station_building;
+vector_tpl<const haus_besch_t *> hausbauer_t::headquarter;
 slist_tpl<const haus_besch_t *> hausbauer_t::air_depot;
 
 
@@ -88,6 +88,8 @@ bool hausbauer_t::alles_geladen()
 	std::sort(wohnhaeuser.begin(),      wohnhaeuser.end(),      compare_haus_besch);
 	std::sort(gewerbehaeuser.begin(),   gewerbehaeuser.end(),   compare_haus_besch);
 	std::sort(industriehaeuser.begin(), industriehaeuser.end(), compare_haus_besch);
+	std::sort(station_building.begin(), station_building.end(), compare_haus_besch);
+	std::sort(headquarter.begin(),      headquarter.end(),      compare_haus_besch);
 	warne_ungeladene(spezial_objekte, 10);
 	return true;
 }
@@ -106,7 +108,7 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 		switch (besch->gib_utyp()) {
 			case haus_besch_t::denkmal:           denkmaeler.append(besch);               break;
 			case haus_besch_t::attraction_land:   sehenswuerdigkeiten_land.append(besch); break;
-			case haus_besch_t::firmensitz:        headquarter.append(besch);              break;
+			case haus_besch_t::firmensitz:        headquarter.append(besch,4);              break;
 			case haus_besch_t::rathaus:           rathaeuser.append(besch);               break;
 			case haus_besch_t::attraction_city:   sehenswuerdigkeiten_city.append(besch); break;
 
@@ -125,8 +127,8 @@ DBG_DEBUG("hausbauer_t::register_besch()","AirDepot %s",besch->gib_name());
 
 			default:
 				// usually station buldings
-				if (besch->gib_utyp() >= haus_besch_t::bahnhof && besch->gib_utyp() <= haus_besch_t::lagerhalle) {
-					station_building.append(besch);
+				if(  besch->gib_utyp()>=haus_besch_t::bahnhof  &&  besch->gib_utyp()<=haus_besch_t::lagerhalle  ) {
+					station_building.append(besch,16);
 DBG_DEBUG("hausbauer_t::register_besch()","Station %s",besch->gib_name());
 				}
 				else {
@@ -189,9 +191,9 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
 void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t* wzw, haus_besch_t::utyp utyp, tool_func werkzeug, const int sound_ok, const int sound_ko, const sint64 cost, const karte_t* welt)
 {
 	const uint16 time = welt->get_timeline_year_month();
-DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.count());
-	for (slist_iterator_tpl<const haus_besch_t*> i(station_building); i.next();) {
-		const haus_besch_t* besch = i.get_current();
+DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
+	for(  vector_tpl<const haus_besch_t *>::const_iterator iter = station_building.begin(), end = station_building.end();  iter != end;  ++iter  ) {
+		const haus_besch_t* besch = (*iter);
 //		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s (%p)", besch->gib_name(), besch);
 		if(besch->gib_utyp()==utyp  &&  besch->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
@@ -291,7 +293,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int lay
 				welt->add_ausflugsziel( gb );
 			}
 			if(besch->gib_typ() == gebaeude_t::unbekannt) {
-				if(station_building.contains(besch)) {
+				if(station_building.is_contained(besch)) {
 					(*static_cast<halthandle_t *>(param))->add_grund(gr);
 				}
 				if (besch->gib_utyp() == haus_besch_t::hafen) {
@@ -380,7 +382,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 
 	gr->obj_add(gb);
 
-	if(station_building.contains(besch)) {
+	if(station_building.is_contained(besch)) {
 		// is a station/bus stop
 		(*static_cast<halthandle_t *>(param))->add_grund(gr);
 		gr->calc_bild();
@@ -416,11 +418,10 @@ const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int idx)
 
 const haus_besch_t* hausbauer_t::gib_random_station(const haus_besch_t::utyp utype, const uint16 time, const uint8 enables)
 {
-	slist_iterator_tpl<const haus_besch_t *> iter(hausbauer_t::station_building);
 	vector_tpl<const haus_besch_t*> stops;
 
-	while(iter.next()) {
-		const haus_besch_t *besch = iter.get_current();
+	for(  vector_tpl<const haus_besch_t *>::const_iterator iter = station_building.begin(), end = station_building.end();  iter != end;  ++iter  ) {
+		const haus_besch_t* besch = (*iter);
 		if(besch->gib_utyp()==utype  &&  (besch->get_enabled()&enables)!=0) {
 			// ok, now check timeline
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {

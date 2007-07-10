@@ -12,6 +12,7 @@
 #include "../dataobj/koord3d.h"
 #include "../simtypes.h"
 #include "../tpl/slist_tpl.h"
+#include "../tpl/vector_tpl.h"
 
 class gebaeude_t;
 class karte_t;
@@ -47,9 +48,9 @@ class hausbauer_t
 		static const haus_besch_t* monorail_foundation_besch;
 
 		// to allow for an arbitary number, we use lists
-		static slist_tpl<const haus_besch_t*> station_building;
+		static vector_tpl<const haus_besch_t*> station_building;
+		static vector_tpl<const haus_besch_t*> headquarter;
 		static slist_tpl<const haus_besch_t*> air_depot;
-		static slist_tpl<const haus_besch_t*> headquarter;
 
 	private:
 		/**

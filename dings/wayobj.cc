@@ -393,8 +393,8 @@ void wayobj_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 {
 	const uint16 time=welt->get_timeline_year_month();
 DBG_DEBUG("wayobj_t::fill_menu()","maximum %i",liste.get_count());
-	for (vector_tpl<const way_obj_besch_t*>::const_iterator i = liste.begin(), end = liste.end();  i != end;  ++i  ) {
-		const way_obj_besch_t* besch = (*i);
+	for (vector_tpl<const way_obj_besch_t*>::const_iterator iter = liste.begin(), end = liste.end();  iter != end;  ++iter  ) {
+		const way_obj_besch_t* besch = (*iter);
 		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
 			DBG_DEBUG("wayobj_t::fill_menu()", "try to add %s(%p)", besch->gib_name(), besch);

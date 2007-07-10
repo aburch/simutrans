@@ -114,8 +114,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
     old_transport(NULL, COL_WHITE, gui_label_t::right),
     maintenance_label("This Month",COL_WHITE, gui_label_t::right),
     maintenance_money(NULL, COL_RED, gui_label_t::money),
-    warn("", COL_RED),
-	headquarter_view(sp->get_welt(), koord3d::invalid)
+		warn("", COL_RED),
+		headquarter_view(sp->get_welt(), koord3d::invalid),
+		old_hq(koord::invalid)
 {
 	if(sp->get_welt()->gib_spieler(0)!=sp) {
 		sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(sp->gib_name()) );
@@ -228,14 +229,14 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	add_komponente(&warn);
 
 	// easier headquarter access
-    if (!hausbauer_t::headquarter.empty()) {
+	if (!hausbauer_t::headquarter.empty()) {
 		headquarter.init(button_t::box, "build HQ", koord(582-12-120, 4), koord(120, BUTTONSPACE));
 		headquarter.add_listener(this);
 		add_komponente(&headquarter);
 
 		// get new costs
-		for (slist_iterator_tpl<const haus_besch_t*> i(hausbauer_t::headquarter); i.next();) {
-			const haus_besch_t* besch = i.get_current();
+		for(  vector_tpl<const haus_besch_t *>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end();  iter != end;  ++iter  ) {
+			const haus_besch_t* besch = (*iter);
 			if (besch->gib_bauzeit() == sp->get_headquarter_level()) {
 				double cost = umgebung_t::cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h()/-100.0;
 				tstrncpy( headquarter_tooltip, translator::translate(besch->gib_name()), 100 );
@@ -355,17 +356,17 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	}
 	warn.setze_text(str_buf[15]);
 
-	if (sp->get_headquarter_pos() != koord::invalid) {
+	if (sp->get_headquarter_pos()!=koord::invalid  &&  old_hq!=sp->get_headquarter_pos()) {
 		headquarter_view.set_location( sp->get_welt()->lookup_kartenboden(sp->get_headquarter_pos())->gib_pos() );
 		headquarter.setze_text( "upgrade HQ" );
-		if(sp->get_headquarter_level()==hausbauer_t::headquarter.count()) {
+		if(sp->get_headquarter_level()==hausbauer_t::headquarter.get_count()) {
 			headquarter.disable();
 			headquarter.set_tooltip( NULL );
 		}
 		else {
 			// get new costs
-			for (slist_iterator_tpl<const haus_besch_t*> i(hausbauer_t::headquarter); i.next();) {
-				const haus_besch_t* besch = i.get_current();
+			for(  vector_tpl<const haus_besch_t *>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end();  iter != end;  ++iter  ) {
+				const haus_besch_t* besch = (*iter);
 				if (besch->gib_bauzeit() == sp->get_headquarter_level()) {
 					double cost = umgebung_t::cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h()/-100.0;
 					money_to_string( headquarter_tooltip+sprintf( headquarter_tooltip, "%s ", translator::translate(besch->gib_name())), cost );
@@ -374,6 +375,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 				}
 			}
 		}
+		old_hq = sp->get_headquarter_pos();
 	}
 
 	// Hajo: Money is counted in credit cents (100 cents = 1 Cr)

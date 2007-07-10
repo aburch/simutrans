@@ -2347,16 +2347,18 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 		int level = sp->get_headquarter_level();
 		koord previous = sp->get_headquarter_pos();
 
-		const haus_besch_t* besch;
-		slist_iterator_tpl<const haus_besch_t*> i(hausbauer_t::headquarter);
-		do {
-			if (!i.next()) {
-				// no further headquarter level
-				welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), karte_t::Z_PLAN, NO_SOUND, NO_SOUND);
-				return false;
+		const haus_besch_t* besch = NULL;
+		for(  vector_tpl<const haus_besch_t *>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end();  iter != end;  ++iter  ) {
+			if ((*iter)->gib_bauzeit() == sp->get_headquarter_level()) {
+				const haus_besch_t* besch = (*iter);
+				break;
 			}
-			besch = i.get_current();
-		} while (besch->gib_bauzeit() != level);
+		}
+		if(besch==NULL) {
+			// no further headquarter level
+			welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), karte_t::Z_PLAN, NO_SOUND, NO_SOUND);
+			return false;
+		}
 
 		koord size = besch->gib_groesse();
 		int rotate = 0;
