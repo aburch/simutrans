@@ -64,6 +64,8 @@ public:
 		SELF_DESTRUCT,
 		WAITING_FOR_CLEARANCE_TWO_MONTHS,
 		CAN_START_TWO_MONTHS,
+		LEAVING_DEPOT,
+		ENTERING_DEPOT
 	};
 
 private:
@@ -154,6 +156,12 @@ private:
 	*/
 	bool freight_info_resort;
 
+	// true, if at least one vehicle of a convoi is obsolete
+	bool has_obsolete;
+
+	// ture, if there is at least one engine that requires catenary
+	bool is_electric;
+
 	/**
 	* the convoi caches its freight info; it is only recalculation after loading or resorting
 	* @author prissi
@@ -166,11 +174,10 @@ private:
 	*/
 	uint8 anz_vehikel;
 
-	// true, if at least one vehicle of a convoi is obsolete
-	bool has_obsolete;
-
-	// ture, if there is at least one engine that requires catenary
-	bool is_electric;
+	/* Number of steps the current convoi did already
+	 * (only needed for leaving/entering depot)
+	 */
+	uint16 steps_driven;
 
 	/**
 	* Gesamtleistung. Wird nicht gespeichert, sondern aus den Einzelleistungen
@@ -283,6 +290,9 @@ private:
 	*/
 	void setze_erstes_letztes();
 
+	// returns the index of the vehikel at position length (16=1 tile)
+	int get_vehicle_at_length(uint16);
+
 	/**
 	* calculate income for last hop
 	* if true, then only vehicles in station are used to calculate
@@ -297,6 +307,11 @@ private:
 	* @date  20.06.2003
 	*/
 	void calc_loading();
+
+	/* Calculates (and sets) akt_speed
+	 * needed for driving, entering and leaving a depot)
+	 */
+	void calc_acceleration(long delta_t);
 
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht

@@ -108,6 +108,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	convoi_info = NULL;
 
 	anz_vehikel = 0;
+	steps_driven = 0;
 	withdraw = false;
 	has_obsolete = false;
 	no_load = false;
@@ -272,6 +273,89 @@ void convoi_t::add_running_cost(sint32 cost)
 
 
 
+/* Calculates (and sets) new akt_speed
+ * needed for driving, entering and leaving a depot)
+ */
+void convoi_t::calc_acceleration(long delta_t)
+{
+	// Prissi: more pleasant and a little more "physical" model *
+	int sum_friction_weight = 0;
+	sum_gesamtgewicht = 0;
+	// calculate total friction
+	for(unsigned i=0; i<anz_vehikel; i++) {
+		const vehikel_t* v = fahr[i];
+		int total_vehicle_weight = v->gib_gesamtgewicht();
+
+		sum_friction_weight += v->gib_frictionfactor() * total_vehicle_weight;
+		sum_gesamtgewicht += total_vehicle_weight;
+	}
+
+	// try to simulate quadratic friction
+	if(sum_gesamtgewicht != 0) {
+		/*
+		 * The parameter consist of two parts (optimized for good looking):
+		 *  - every vehicle in a convoi has a the friction of its weight
+		 *  - the dynamic friction is calculated that way, that v^2*weight*frictionfactor = 200 kW
+		 * => heavier loaded and faster traveling => less power for acceleration is available!
+		 * since delta_t can have any value, we have to scale the step size by this value.
+		 * however, there is a quadratic friction term => if delta_t is too large the calculation may get weird results
+		 * @author prissi
+		 */
+
+		/* but for integer, we have to use the order below and calculate actually 64*deccel, like the sum_gear_und_leistung
+		 * since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100
+		 * But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
+		sint32 deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*(akt_speed>>2) ) / 25 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
+
+		// prissi:
+		// integer sucks with planes => using floats ...
+		sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel)*(double)delta_t)/(double)sum_gesamtgewicht);
+
+		// we normalize delta_t to 1/64th and check for speed limit */
+//		sint32 delta_v = ( ( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel) * delta_t)/sum_gesamtgewicht;
+
+		// we need more accurate arithmetic, so we store the previous value
+		delta_v += previous_delta_v;
+		previous_delta_v = delta_v & 0x0FFF;
+		// and finally calculate new speed
+		akt_speed = max(akt_speed_soll>>4, akt_speed+(sint32)(delta_v>>12l) );
+	}
+	else {
+		// very old vehicle ...
+		akt_speed += 16;
+	}
+
+	// obey speed maximum with additional const brake ...
+	if(akt_speed > akt_speed_soll) {
+		akt_speed -= 24;
+		if(akt_speed > akt_speed_soll+kmh_to_speed(20)) {
+			akt_speed = akt_speed_soll+kmh_to_speed(20);
+		}
+	}
+
+	// new record?
+	if(akt_speed > max_record_speed) {
+		max_record_speed = akt_speed;
+		record_pos = fahr[0]->gib_pos().gib_2d();
+	}
+}
+
+
+
+int convoi_t::get_vehicle_at_length(uint16 length)
+{
+	int current_length = 0;
+	for( int i=0;  i<anz_vehikel;  i++  ) {
+		current_length += fahr[i]->gib_besch()->get_length();
+		if(length<current_length) {
+			return i;
+		}
+	}
+	return anz_vehikel;
+}
+
+
+
 // moves all vehicles of a convoi
 bool convoi_t::sync_step(long delta_t)
 {
@@ -320,82 +404,48 @@ bool convoi_t::sync_step(long delta_t)
 			// Hajo: this is an async task, see step()
 			break;
 
-		case DRIVING:
+		case ENTERING_DEPOT:
+			break;
+
+		case LEAVING_DEPOT:
 			{
-				// Prissi: more pleasant and a little more "physical" model *
-				int sum_friction_weight = 0;
-				sum_gesamtgewicht = 0;
-				// calculate total friction
-				for(unsigned i=0; i<anz_vehikel; i++) {
-					const vehikel_t* v = fahr[i];
-					int total_vehicle_weight = v->gib_gesamtgewicht();
-
-					sum_friction_weight += v->gib_frictionfactor() * total_vehicle_weight;
-					sum_gesamtgewicht += total_vehicle_weight;
-				}
-
-				// try to simulate quadratic friction
-				if(sum_gesamtgewicht != 0) {
-					/*
-					 * The parameter consist of two parts (optimized for good looking):
-					 *  - every vehicle in a convoi has a the friction of its weight
-					 *  - the dynamic friction is calculated that way, that v^2*weight*frictionfactor = 200 kW
-					 * => heavier loaded and faster traveling => less power for acceleration is available!
-					 * since delta_t can have any value, we have to scale the step size by this value.
-					 * however, there is a quadratic friction term => if delta_t is too large the calculation may get weird results
-					 * @author prissi
-					 */
-
-					/* but for integer, we have to use the order below and calculate actually 64*deccel, like the sum_gear_und_leistung
-					 * since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100
-					 * But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
-					sint32 deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*(akt_speed>>2) ) / 25 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
-
-					// prissi:
-					// integer sucks with planes => using floats ...
-					sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel)*(double)delta_t)/(double)sum_gesamtgewicht);
-
-					// we normalize delta_t to 1/64th and check for speed limit */
-//				sint32 delta_v = ( ( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel) * delta_t)/sum_gesamtgewicht;
-
-					// we need more accurate arithmetic, so we store the previous value
-					delta_v += previous_delta_v;
-					previous_delta_v = delta_v & 0x0FFF;
-					// and finally calculate new speed
-					akt_speed = max(akt_speed_soll>>4, akt_speed+(sint32)(delta_v>>12l) );
-				}
-				else {
-					// very old vehicle ...
-					akt_speed += 16;
-				}
-
-				// obey speed maximum with additional const brake ...
-				if(akt_speed > akt_speed_soll) {
-					akt_speed -= 24;
-					if(akt_speed > akt_speed_soll+kmh_to_speed(20)) {
-						akt_speed = akt_speed_soll+kmh_to_speed(20);
-					}
-				}
-
-				// new record?
-				if(akt_speed > max_record_speed) {
-					max_record_speed = akt_speed;
-					record_pos = fahr[0]->gib_pos().gib_2d();
-				}
-
-				// now actually move the units
-				sp_soll += (akt_speed*delta_t);
-				while(65536<sp_soll) {
-					sp_soll -= 65536;
-					fahr[0]->sync_step();
-					// state may have change
-					if(state!=DRIVING) {
+				// first: check for free route till next signal
+				if(steps_driven==0) {
+					int dummy;
+					fahr[0]->setze_erstes(true);
+					if(!fahr[0]->ist_weg_frei(dummy)) {
 						return true;
 					}
-					// now move the rest (so all vehikel are moving synchroniously)
-					for(unsigned i=1; i<anz_vehikel; i++) {
+					fahr[0]->setze_erstes(false);
+				}
+
+				// ok, so we will accelerate
+				akt_speed_soll = max( akt_speed_soll, kmh_to_speed(30) );
+				calc_acceleration(delta_t);
+				sp_soll += (akt_speed*delta_t);
+
+				// now actually move the units
+				while(65536<sp_soll) {
+					sp_soll -= 65536;
+					int v_nr = get_vehicle_at_length(steps_driven++);
+					// until all are moving
+					if(v_nr==anz_vehikel) {
+						fahr[0]->setze_erstes(true);
+						steps_driven = 0;
+						state = DRIVING;
+						return true;
+					}
+					// now only the right numbers
+					for(int i=0; i<=v_nr; i++) {
 						fahr[i]->sync_step();
 					}
+
+				}
+				// go to next stop?
+				if(fahr[0]->gib_route_index()>=route.gib_max_n()) {
+					fahr[0]->setze_erstes(true);
+					drive_to_next_stop();
+					state = ROUTING_2;
 				}
 				// maybe we have been stopped be something => avoid jumps
 				sp_soll &= (65536-1);
@@ -407,6 +457,36 @@ bool convoi_t::sync_step(long delta_t)
 					for(int i=0;  i<anz_vehikel;  i++  ) {
 						fahr[i]->rauche();
 					}
+				}
+			}
+			break;	// LEAVING_DEPOT
+
+		case DRIVING:
+			calc_acceleration(delta_t);
+
+			// now actually move the units
+			sp_soll += (akt_speed*delta_t);
+			while(65536<sp_soll) {
+				sp_soll -= 65536;
+				fahr[0]->sync_step();
+				// state may have change
+				if(state!=DRIVING) {
+					return true;
+				}
+				// now move the rest (so all vehikel are moving synchroniously)
+				for(unsigned i=1; i<anz_vehikel; i++) {
+					fahr[i]->sync_step();
+				}
+			}
+			// maybe we have been stopped be something => avoid jumps
+			sp_soll &= (65536-1);
+
+			// smoke for the engines
+			next_wolke += delta_t;
+			if(next_wolke>500) {
+				next_wolke = 0;
+				for(int i=0;  i<anz_vehikel;  i++  ) {
+					fahr[i]->rauche();
 				}
 			}
 			break;	// DRIVING
@@ -528,19 +608,7 @@ void convoi_t::step()
 					// Hajo: now calculate a new route
 					drive_to(v->gib_pos(), fpl->eintrag[fpl->get_aktuell()].pos);
 					if(route.gib_max_n() > 0) {
-						// Hajo: ROUTING_3 is no more, go to CAN_START directly
 						vorfahren();
-						state = CAN_START;
-						// to advance more smoothly
-						int restart_speed=-1;
-						if (v->ist_weg_frei(restart_speed)) {
-							// can reserve new block => drive on
-							if(haltestelle_t::gib_halt(welt,v->gib_pos()).is_bound()) {
-								v->play_sound();
-							}
-							wait_lock = 0;
-							state = DRIVING;
-						}
 					}
 				}
 				// finally, was there a record last time?
@@ -1126,11 +1194,10 @@ convoi_t::vorfahren()
 
 	setze_akt_speed_soll( vehikel_t::SPEED_UNLIMITED );
 
-	INT_CHECK("simconvoi 651");
-
-	if(!can_go_alte_richtung()) {
-		// we must realign the vehicles on the track ...
-		const koord3d k0 = route.position_bei(0);
+	const koord3d k0 = route.position_bei(0);
+	grund_t *gr = welt->lookup(k0);
+	if(gr  &&  gr->gib_depot()) {
+		// start in depot
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			vehikel_t* v = fahr[i];
 
@@ -1146,53 +1213,113 @@ convoi_t::vorfahren()
 				v->verlasse_feld();
 			}
 			v->neue_fahrt(0, true);
-			gr=welt->lookup(k0);
-			if(gr) {
-				// add to blockstrecke
-				if (v->gib_waytype() == track_wt || v->gib_waytype() == monorail_wt) {
-					schiene_t* sch = (schiene_t*)gr->gib_weg(v->gib_waytype());
-					if(sch) {
-						sch->reserve(self);
-					}
+			// add to blockstrecke
+			if (v->gib_waytype() == track_wt || v->gib_waytype() == monorail_wt) {
+				schiene_t* sch = (schiene_t*)gr->gib_weg(v->gib_waytype());
+				if(sch) {
+					sch->reserve(self);
 				}
-				v->setze_pos(k0);
-				v->betrete_feld();
+			}
+			v->setze_pos(k0);
+			v->betrete_feld();
+		}
+
+		// just advances the first vehicle
+		vehikel_t* v0 = fahr[0];
+		int length = v0->gib_besch()->get_length();
+		v0->setze_erstes(false); // switches off signal checks ...
+		v0->darf_rauchen(false);
+		steps_driven = 0;
+		for(int i=0; i<anz_vehikel; i++) {
+			for(int j=0; j<8; j++) {
+				fahr[i]->sync_step();
 			}
 		}
+		v0->darf_rauchen(true);
 
-		// move one train length to the start position ...
-//		int train_length = (alte_richtung==ribi_t::sued  ||  alte_richtung==ribi_t::ost) ? 0 : fahr[0]->gib_besch()->get_length();
-		int train_length = 0;
-		for(unsigned i=0; i<anz_vehikel-1; i++) {
-			train_length += fahr[i]->gib_besch()->get_length(); // this give the length in 1/16 of a full tile
-		}
-		// in north/west direction, we leave the vehicle away to start as much back as possible
-		ribi_t::ribi neue_richtung = fahr[0]->gib_fahrtrichtung();
-		if(neue_richtung==ribi_t::sued  ||  neue_richtung==ribi_t::ost) {
-			train_length += fahr[anz_vehikel-1]->gib_besch()->get_length();
-		}
-		else {
-			train_length += 1;
-		}
-		train_length = max(1,train_length);
+		// until all other are on the track
+		state = LEAVING_DEPOT;
+	}
+	else {
+		// still leaving depot (steps_driven!=0) or going in other direction or misalignment?
+		if(steps_driven>0  ||  !can_go_alte_richtung()) {
+			// then we must realign the vehicles on the track ...
+			for(unsigned i=0; i<anz_vehikel; i++) {
+				vehikel_t* v = fahr[i];
 
-		// now advance all convoi until it is completely on the track
-		fahr[0]->setze_erstes(false); // switches off signal checks ...
-		for(unsigned i=0; i<anz_vehikel; i++) {
-			vehikel_t* v = fahr[i];
-
-			v->darf_rauchen(false);
-			for(int j=0; j<train_length; j++) {
-				v->sync_step();
+				steps_driven = 0;
+				grund_t* gr = welt->lookup(v->gib_pos());
+				if(gr) {
+					// remove from blockstrecke
+					if (v->gib_waytype() == track_wt || v->gib_waytype() == monorail_wt) {
+						schiene_t* sch = (schiene_t*)gr->gib_weg(v->gib_waytype());
+						if(sch) {
+							sch->unreserve(self);
+						}
+					}
+					v->verlasse_feld();
+				}
+				v->neue_fahrt(0, true);
+				gr=welt->lookup(k0);
+				if(gr) {
+					// add to blockstrecke
+					if (v->gib_waytype() == track_wt || v->gib_waytype() == monorail_wt) {
+						schiene_t* sch = (schiene_t*)gr->gib_weg(v->gib_waytype());
+						if(sch) {
+							sch->reserve(self);
+						}
+					}
+					v->setze_pos(k0);
+					v->betrete_feld();
+				}
 			}
-			train_length -= v->gib_besch()->get_length();	// this give the length in 1/16 of a full tile => all cars closely coupled!
-			v->darf_rauchen(true);
+
+			// move one train length to the start position ...
+	//		int train_length = (alte_richtung==ribi_t::sued  ||  alte_richtung==ribi_t::ost) ? 0 : fahr[0]->gib_besch()->get_length();
+			int train_length = 0;
+			for(unsigned i=0; i<anz_vehikel-1; i++) {
+				train_length += fahr[i]->gib_besch()->get_length(); // this give the length in 1/16 of a full tile
+			}
+			// in north/west direction, we leave the vehicle away to start as much back as possible
+			ribi_t::ribi neue_richtung = fahr[0]->gib_fahrtrichtung();
+			if(neue_richtung==ribi_t::sued  ||  neue_richtung==ribi_t::ost) {
+				train_length += fahr[anz_vehikel-1]->gib_besch()->get_length();
+			}
+			else {
+				train_length += 1;
+			}
+			train_length = max(1,train_length);
+
+			// now advance all convoi until it is completely on the track
+			fahr[0]->setze_erstes(false); // switches off signal checks ...
+			for(unsigned i=0; i<anz_vehikel; i++) {
+				vehikel_t* v = fahr[i];
+
+				v->darf_rauchen(false);
+				for(int j=0; j<train_length; j++) {
+					v->sync_step();
+				}
+				train_length -= v->gib_besch()->get_length();	// this give the length in 1/16 of a full tile => all cars closely coupled!
+				v->darf_rauchen(true);
+			}
+			fahr[0]->setze_erstes(true);
 		}
-		fahr[0]->setze_erstes(true);
+		state = CAN_START;
+
+		// to advance more smoothly
+		int restart_speed=-1;
+		if(fahr[0]->ist_weg_frei(restart_speed)) {
+			// can reserve new block => drive on
+			if(haltestelle_t::gib_halt(welt,k0).is_bound()) {
+				fahr[0]->play_sound();
+			}
+			wait_lock = 0;
+			state = DRIVING;
+		}
 	}
 
 	INT_CHECK("simconvoi 711");
-	calc_loading();
+//	calc_loading();
 }
 
 
@@ -1448,6 +1575,13 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 	else {
 		last_stop_pos = route.gib_max_n() > 1 ? route.position_bei(0) : (anz_vehikel > 0 ? fahr[0]->gib_pos() : koord3d(0, 0, 0));
+	}
+
+	if(file->get_version()<99014) {
+		steps_driven = 0;
+	}
+	else {
+		file->rdwr_short( steps_driven, "s" );
 	}
 }
 
