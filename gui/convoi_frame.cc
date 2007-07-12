@@ -7,23 +7,30 @@
  */
 
 #include <string.h>
+#include <algorithm>
 
 #include "gui_container.h"
-#include "components/gui_scrollpane.h"
 #include "gui_convoiinfo.h"
+#include "components/list_button.h"
+
 #include "convoi_frame.h"
 #include "convoi_filter_frame.h"
+
 #include "../simvehikel.h"
 #include "../simconvoi.h"
 #include "../simplay.h"
 #include "../simwin.h"
 #include "../simworld.h"
 #include "../simdepot.h"
-#include "../tpl/slist_tpl.h"
 
 #include "../besch/ware_besch.h"
 #include "../bauer/warenbauer.h"
-#include "components/list_button.h"
+
+#include "../dataobj/translator.h"
+
+#include "../utils/simstring.h"
+
+//#include "../tpl/slist_tpl.h"
 
  /**
  * All filter and sort settings are static, so the old settings are
@@ -44,59 +51,6 @@ const char *convoi_frame_t::sort_text[SORT_MODES] = {
     "cl_btn_sort_type",
     "cl_btn_sort_id"
 };
-
-
-/**
-* This function is callable by quicksort
-* This function compares two convois with current sort settings.
-*
-* @return  1 if cnv1 > cnv2
-*         -1 if cnv1 < cnv2
-*          0 if cnv1 == cnv2
-* @author Volker Meyer
-*/
-int convoi_frame_t::compare_convois(const void *p1, const void *p2)
-{
-	long result;
-
-	convoihandle_t cnv1 = *(const convoihandle_t *)p1;
-	convoihandle_t cnv2 = *(const convoihandle_t *)p2;
-
-	switch (sortby) {
-		default:
-		case nach_name:
-			result = 0;
-			break;
-		case nach_gewinn:
-			result = sgn(cnv1->gib_jahresgewinn() - cnv2->gib_jahresgewinn());
-			break;
-		case nach_typ:
-			{
-				vehikel_t *fahr1 = cnv1->gib_vehikel(0);
-				vehikel_t *fahr2 = cnv2->gib_vehikel(0);
-
-				result = fahr1->gib_typ() - fahr2->gib_typ();
-				if(result == 0) {
-					result = fahr1->gib_fracht_typ()->gib_catg_index() - fahr2->gib_fracht_typ()->gib_catg_index();
-					if(result == 0) {
-						result = fahr1->gib_basis_bild() - fahr2->gib_basis_bild();
-					}
-				}
-			}
-			break;
-		case nach_id:
-			result = cnv1.get_id()-cnv2.get_id();
-			break;
-	}
-	/**
-	 * use name as an additional sort, to make sort more stable.
-	 */
-	if(result == 0) {
-		result = strcmp(cnv1->gib_internal_name(), cnv2->gib_internal_name());
-	}
-	return sortreverse ? -result : result;
-}
-
 
 
 bool convoi_frame_t::passes_filter(convoihandle_t cnv)
@@ -162,10 +116,84 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 }
 
 
+
+int convoi_frame_t::compare_convois(const void *a, const void *b)
+{
+	long result;
+
+	convoihandle_t cnv1 = *(const convoihandle_t *)a;
+	convoihandle_t cnv2 = *(const convoihandle_t *)b;
+
+	switch (sortby) {
+		default:
+		case nach_name:
+			result = strcmp(cnv1->gib_internal_name(), cnv2->gib_internal_name());
+			break;
+		case nach_gewinn:
+			result = sgn(cnv1->gib_jahresgewinn() - cnv2->gib_jahresgewinn());
+			break;
+		case nach_typ:
+			{
+				vehikel_t *fahr1 = cnv1->gib_vehikel(0);
+				vehikel_t *fahr2 = cnv2->gib_vehikel(0);
+
+				result = fahr1->gib_typ() - fahr2->gib_typ();
+				if(result == 0) {
+					result = fahr1->gib_fracht_typ()->gib_catg_index() - fahr2->gib_fracht_typ()->gib_catg_index();
+					if(result == 0) {
+						result = fahr1->gib_basis_bild() - fahr2->gib_basis_bild();
+					}
+				}
+			}
+			break;
+		case nach_id:
+			result = cnv1.get_id()-cnv2.get_id();
+			break;
+	}
+	return sortreverse ? -result : result;
+}
+
+
+
+void convoi_frame_t::sort_list()
+{
+	const karte_t* welt = owner->get_welt();
+	const unsigned count = welt->get_convoi_count();
+	int n = 0;
+	int ypos = 0;
+
+	convois.resize( welt->get_convoi_count() );
+	convois.clear();
+
+	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
+		convoihandle_t cnv = *i;
+		if(cnv->gib_besitzer()==owner  &&   passes_filter(cnv)) {
+			convois.append( cnv );
+		}
+	}
+	qsort(convois.begin(), convois.get_count(), sizeof(convoihandle_t), compare_convois);
+
+	sortedby.setze_text(sort_text[gib_sortierung()]);
+	sorteddir.setze_text( gib_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");
+
+	// only now we know how many convois we have
+	remove_komponente(&vscroll);
+	koord groesse = gib_fenstergroesse()-koord(0,47);
+	if(convois.get_count()<(groesse.y-47)/40) {
+		vscroll.setze_knob_offset(0);
+	}
+	else {
+		add_komponente(&vscroll);
+		vscroll.setze_knob( max( 1, (groesse.y-47)/40), convois.get_count() );
+	}
+}
+
+
+
 convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 	gui_frame_t("cl_title", sp),
 	owner(sp),
-	scrolly(&cont),
+	vscroll( scrollbar_t::vertical ),
 	sort_label("cl_txt_sort"),
 	filter_label("cl_txt_filter")
 {
@@ -192,15 +220,13 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 	filter_details.add_listener(this);
 	add_komponente(&filter_details);
 
-	scrolly.setze_pos(koord(1, 30));
 	setze_fenstergroesse(koord(BUTTON4_X+BUTTON_WIDTH+2, 191+16+16));
 	set_min_windowsize(koord(BUTTON4_X+BUTTON_WIDTH+2, 191+16+16));
+
+	sort_list();
+
 	set_resizemode(diagonal_resize);
-
-	display_list();
-	add_komponente(&scrolly);
-
-	resize (koord(0,0));
+	resize(koord(0,0));
 }
 
 
@@ -214,45 +240,24 @@ convoi_frame_t::~convoi_frame_t()
 
 
 
-void convoi_frame_t::display_list(void)
-{
-	const karte_t* welt = owner->get_welt();
-	const unsigned count = welt->get_convoi_count();
-	ALLOCA(convoihandle_t, a, count);
-	int n = 0;
-	int ypos = 0;
-
-	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
-		convoihandle_t cnv = *i;
-		if(cnv->gib_besitzer() == owner && passes_filter(cnv)) {
-			a[n++] = cnv;
-		}
-	}
-	qsort((void *)a, n, sizeof (convoihandle_t), compare_convois);
-
-	sortedby.setze_text(sort_text[gib_sortierung()]);
-	sorteddir.setze_text(gib_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");
-
-	cont.remove_all();
-
-	for(int i = 0; i < n; i++) {
-		gui_convoiinfo_t *cinfo = new gui_convoiinfo_t(a[i], i + 1);
-
-		cinfo->setze_pos(koord(0, ypos));
-		cinfo->setze_groesse(koord(500, 32));
-		cont.add_komponente(cinfo);
-		ypos += 40; // @author hsiegeln: changed from +=32 to +=40 to have more space for "serves line" info!
-	}
-	cont.setze_groesse(koord(500, ypos));
-}
-
-
-
 void convoi_frame_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
 		if(filter_frame) {
 			filter_frame->infowin_event(ev);
+		}
+	}
+	else if(IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
+		// otherwise these events are only registered where directly over the scroll region
+		// (and sometime even not then ... )
+		vscroll.infowin_event(ev);
+	}
+	else if((IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx+11<gib_fenstergroesse().x) {
+		int y = (ev->my-47)/40 + vscroll.gib_knob_offset();
+		if(y<convois.get_count()) {
+			// let gui_convoiinfo_t() handle this, since then it will be automatically consistent
+			gui_convoiinfo_t ci(convois[y], 0);
+			ci.infowin_event( ev );
 		}
 	}
 	gui_frame_t::infowin_event(ev);
@@ -270,15 +275,15 @@ bool convoi_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)     
 		DBG_MESSAGE("convoi_frame_t::action_triggered()","toggle %i",gib_filter(any_filter));
 		setze_filter(any_filter, !gib_filter(any_filter));
 		filter_on.setze_text(gib_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable");
-		display_list();
+		sort_list();
 	}
 	else if(komp == &sortedby) {
 		setze_sortierung((sort_mode_t)((gib_sortierung() + 1) % SORT_MODES));
-		display_list();
+		sort_list();
 	}
 	else if(komp == &sorteddir) {
 		setze_reverse(!gib_reverse());
-		display_list();
+		sort_list();
 	}
 	else if(komp == &filter_details) {
 		if(filter_frame) {
@@ -293,11 +298,14 @@ bool convoi_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)     
 }
 
 
+
 void convoi_frame_t::resize(const koord size_change)                          // 28-Dec-01    Markus Weber    Added
 {
 	gui_frame_t::resize(size_change);
 	koord groesse = gib_fenstergroesse()-koord(0,47);
-	scrolly.setze_groesse(groesse);
+	vscroll.setze_pos(koord(groesse.x-11, 47-16));
+	vscroll.setze_groesse(groesse-koord(0,11));
+	vscroll.setze_knob( max( 1, (groesse.y/40+1)), convois.get_count() );
 }
 
 
@@ -305,8 +313,31 @@ void convoi_frame_t::resize(const koord size_change)                          //
 void convoi_frame_t::zeichnen(koord pos, koord gr)
 {
 	filter_details.pressed = filter_frame != NULL;
+
 	gui_frame_t::zeichnen(pos, gr);
+
+	// now drawing the convois ...
+	static char buf[256];
+	uint32 start = vscroll.gib_knob_offset();
+	sint16 yoffset = 47;
+
+	PUSH_CLIP(pos.x, pos.y+47, gr.x-11, gr.y-48 );
+
+	for(  unsigned i=start;  i<convois.get_count()  &&  yoffset<gr.y;  i++  ) {
+		convoihandle_t cnv = convois[i];
+
+		if(cnv.is_bound()) {
+			gui_convoiinfo_t ci(cnv, 0);
+			ci.zeichnen( pos+koord(0,yoffset) );
+		}
+		// full height of a convoi is 40 for all info
+		yoffset += 40;
+	}
+
+	POP_CLIP();
 }
+
+
 
 void convoi_frame_t::setze_ware_filter(const ware_besch_t *ware, int mode)
 {
@@ -322,6 +353,7 @@ void convoi_frame_t::setze_ware_filter(const ware_besch_t *ware, int mode)
 		}
 	}
 }
+
 
 
 void convoi_frame_t::setze_alle_ware_filter(int mode)

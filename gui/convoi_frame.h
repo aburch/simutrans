@@ -10,7 +10,8 @@
 
 #include "gui_frame.h"
 #include "gui_container.h"
-#include "components/gui_scrollpane.h"
+#include "components/gui_scrollbar.h"
+#include "components/gui_speedbar.h"
 #include "components/gui_label.h"
 #include "components/action_listener.h"                                // 28-Dec-2001  Markus Weber    Added
 #include "components/gui_button.h"
@@ -32,16 +33,22 @@ public:
 		sub_filter=32,	// Ab hier beginnen die Unterfilter!
 		lkws_filter=32, zuege_filter=64, schiffe_filter=128, aircraft_filter=256,
 		noroute_filter=512, nofpl_filter=1024, noincome_filter=2048, indepot_filter=4096, noline_filter=8192 };
+
 private:
     spieler_t *owner;
 
     static const char *sort_text[SORT_MODES];
-    /*
-     * All gui elements of this dialog:
-     */
-    gui_container_t cont;
-    gui_scrollpane_t scrolly;
 
+		/**
+		* Handle des anzuzeigenden Convois.
+		* @author Hj. Malthaner
+		*/
+		vector_tpl<convoihandle_t> convois;
+
+		// these two are needed for the convoi list
+		scrollbar_t vscroll;
+
+		// these are part of the top UI
     gui_label_t sort_label;
     button_t	sortedby;
     button_t	sorteddir;
@@ -67,12 +74,7 @@ private:
 
     static slist_tpl<const ware_besch_t *> waren_filter;
 
-    /**
-     * Compare function using current sort settings for use by
-     * qsort().
-     * @author V. Meyer
-     */
-    static int compare_convois(const void *p1, const void *p2);
+		static int compare_convois(const void *a, const void *b);
 
     /**
      * Check all filters for one convoi.
@@ -83,9 +85,10 @@ private:
 
 public:
     /**
-     * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
-     * @author Hj. Malthaner
+     * Resorts convois
      */
+    void sort_list();
+
     convoi_frame_t(spieler_t *sp);
 
 		~convoi_frame_t();
@@ -116,12 +119,6 @@ public:
      * @author Hj. Malthaner
      */
     void zeichnen(koord pos, koord gr);
-
-    /**
-     * Displays the current list, checking sorting and filter settings.
-     * @author V. Meyer
-     */
-    void display_list(void);
 
     /**
      * Manche Fenster haben einen Hilfetext assoziiert.

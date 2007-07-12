@@ -13,6 +13,7 @@
 	ADD: ordering of menue entries for station buildings (level) and wayobjects (topspeed)
 	CHANGE: money frame construction cost button name now 'Construction_Btn'
 	CHANGE: enable UNDO always for active player
+	FIX: convoi list can again hold more than 819 convois
 
 
 Release of 99.13

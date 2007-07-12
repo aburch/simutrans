@@ -479,12 +479,12 @@ DBG_DEBUG("create_win()","new ins_win=%d", ins_win+1);
 static void destroy_framed_win(int win)
 {
 	if(win>=ins_win) {
-dbg->error("destroy_framed_win()","win=%i >= ins_win=%i",win,ins_win);
+		dbg->error("destroy_framed_win()","win=%i >= ins_win=%i",win,ins_win);
+		return;
 	}
 
 	assert(win >= 0);
 	assert(win < MAX_WIN);
-	assert(win<ins_win);
 
 	// mark dirty
 	koord gr = wins[win].gui->gib_fenstergroesse();

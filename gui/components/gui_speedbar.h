@@ -20,30 +20,30 @@
 class gui_speedbar_t : public gui_komponente_t
 {
 private:
-    struct info_t {
-	sint32 color;
-	const sint32 *value;
-	sint32 last;
-    };
+	struct info_t {
+		sint32 color;
+		const sint32 *value;
+		sint32 last;
+	};
 
-    slist_tpl <info_t> values;
+	slist_tpl <info_t> values;
 
-    sint32 base;
-    bool vertical;
+	sint32 base;
+	bool vertical;
 
 public:
-    gui_speedbar_t() { base = 100; vertical = false; }
+	gui_speedbar_t() { base = 100; vertical = false; }
 
-    void add_color_value(const sint32 *value, int color);
+	void add_color_value(const sint32 *value, int color);
 
-    void set_base(sint32 base);
+	void set_base(sint32 base);
 
-    void set_vertical(bool vertical) { this->vertical = vertical; }
+	void set_vertical(bool vertical) { this->vertical = vertical; }
 
-    /**
-     * Zeichnet die Komponente
-     */
-    void zeichnen(koord offset);
+	/**
+	 * Zeichnet die Komponente
+	 */
+	void zeichnen(koord offset);
 };
 
 #endif

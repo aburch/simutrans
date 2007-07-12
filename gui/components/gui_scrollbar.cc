@@ -45,15 +45,17 @@ void scrollbar_t::setze_groesse(koord groesse)
 }
 
 
+
 void scrollbar_t::setze_knob(int size, int area)
 {
 	if(size<1  ||  area<1) {
 		dbg->warning("scrollbar_t::setze_knob()","size=%i, area=%i not in 1...x",size,area);
 	}
-    knob_size = max(1,size);
-    knob_area = max(1,area);
-    reposition_buttons();
+	knob_size = max(1,size);
+	knob_area = max(1,area);
+	reposition_buttons();
 }
+
 
 
 // reset variable position and size values of the three buttons
@@ -89,6 +91,8 @@ void scrollbar_t::reposition_buttons()
   }
 }
 
+
+
 // signals slider drag. If slider hits end, returned amount is smaller.
 int scrollbar_t::slider_drag(int amount)
 {
@@ -122,6 +126,9 @@ int scrollbar_t::slider_drag(int amount)
   //printf("am3 0\n");
   return 0;
 }
+
+
+
 // either arrow buttons is just pressed (or long enough for a repeat event)
 void scrollbar_t::button_press(int number)
 {
@@ -139,6 +146,8 @@ void scrollbar_t::button_press(int number)
   call_listeners((long)knob_offset);
   reposition_buttons();
 }
+
+
 
 void scrollbar_t::space_press(int updown) // 0: scroll up/left, 1: scroll down/right
 {
@@ -164,6 +173,7 @@ void scrollbar_t::space_press(int updown) // 0: scroll up/left, 1: scroll down/r
 	call_listeners(p);
 	reposition_buttons();
 }
+
 
 
 void scrollbar_t::infowin_event(const event_t *ev)
