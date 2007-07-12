@@ -10,6 +10,7 @@
 	FIX: crash when opening a depot, for that no vehicles exist
 	FIX: town name management now like halt management
 	FIX: player color for depot/color selection fixed
+	ADD: ordering of menue entries for station buildings (level) and wayobjects (topspeed)
 
 
 Release of 99.13

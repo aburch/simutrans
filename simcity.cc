@@ -1843,8 +1843,11 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		koord k;
 
 		DBG_MESSAGE("check_bau_rathaus()", "bev=%d, new=%d", bev, neugruendung);
+		char *old_name = strdup(gib_name());
+		setze_name(NULL);
 
 		if (!neugruendung) {
+
 			const haus_besch_t* besch_alt = gb->gib_tile()->gib_besch();
 			if (besch_alt->gib_level() == besch->gib_level()) {
 				DBG_MESSAGE("check_bau_rathaus()", "town hall already ok.");
@@ -1898,14 +1901,8 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		if (!new_town) {
 			// tell the player
 			char buf[256];
-			sprintf( buf, translator::translate("%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants."), gib_name(), gib_einwohner() );
+			sprintf( buf, translator::translate("%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants."), old_name, gib_einwohner() );
 			message_t::get_instance()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->gib_tile(layout, 0, 0)->gib_hintergrund(0, 0, 0));
-
-			// then move town name
-			welt->lookup(best_pos)->gib_kartenboden()->setze_text(gib_name());
-			if(best_pos!=pos) {
-				setze_name(NULL);
-			}
 		}
 
 		// Strasse davor verlegen
@@ -1933,6 +1930,8 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		}
 		// update position (where the name is)
 		pos = best_pos;
+		setze_name(old_name);
+		free(old_name);
 	}
 
 	// Hajo: paranoia - ensure correct bounds in all cases
