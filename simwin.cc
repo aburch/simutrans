@@ -1125,12 +1125,12 @@ void win_display_flush(double konto)
 
 	extern koord3d wkz_wegebau_start;
 	if(wkz_wegebau_start!=koord3d::invalid  &&  wkz_wegebau_start!=pos) {
-		sprintf(delta_pos,"(%d,%d,%d) -> ",wkz_wegebau_start.x,wkz_wegebau_start.y,wkz_wegebau_start.z/Z_TILE_STEP);
+		sprintf(delta_pos,"-(%d,%d) ", wkz_wegebau_start.x-pos.x, wkz_wegebau_start.y-pos.y );
 	}
 	else {
 		delta_pos[0] = 0;
 	}
-	sprintf(info,"%s(%d,%d,%d) %s  %s", delta_pos, pos.x, pos.y, pos.z/Z_TILE_STEP, stretch_text, translator::translate(wl->use_timeline()?"timeline":"no timeline") );
+	sprintf(info,"(%d,%d,%d)%s %s  %s", pos.x, pos.y, pos.z/Z_TILE_STEP, delta_pos, stretch_text, translator::translate(wl->use_timeline()?"timeline":"no timeline") );
 
 	const char *active_player_name = wl->get_active_player()->get_player_nr()==0 ? "" : wl->get_active_player()->gib_name();
 	// season icon

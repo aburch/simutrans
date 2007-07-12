@@ -2736,7 +2736,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s, state %i!", cnv->
 void
 spieler_t::init_undo( waytype_t wtype, unsigned short max )
 {
-	if(player_nr!=0) {
+	if(player_nr!=welt->get_active_player_nr()) {
 		// this is an KI
 		return;
 	}
