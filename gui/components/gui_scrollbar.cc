@@ -16,7 +16,6 @@ scrollbar_t::scrollbar_t(enum type type)
 {
   this->type = type;
   pos = koord(0,0);
-  opaque = false;
   knob_offset = 0;
   knob_size = 10;
   knob_area = 20;
@@ -245,14 +244,12 @@ void scrollbar_t::zeichnen(koord pos)
 {
 	pos += this->pos;
 
-	if(opaque) {
-		// if opaque style, display GREY sliding bar backgrounds
-		if (type == vertical) {
-			display_fillbox_wh(pos.x, pos.y+12, 10, groesse.y-24, MN_GREY1, true);
-		}
-		else {
-			display_fillbox_wh(pos.x+12, pos.y, groesse.x-24, 10, MN_GREY1, true);
-		}
+	// if opaque style, display GREY sliding bar backgrounds
+	if (type == vertical) {
+		display_fillbox_wh(pos.x, pos.y+12, 10, groesse.y-24, MN_GREY1, true);
+	}
+	else {
+		display_fillbox_wh(pos.x+12, pos.y, groesse.x-24, 10, MN_GREY1, true);
 	}
 
 	button_def[0].zeichnen(pos);

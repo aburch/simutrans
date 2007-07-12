@@ -36,7 +36,6 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
 		border = 4;
 	}
 	sb.add_listener(this);
-	sb.setze_opaque(true);
 
 	clear_elements();
 }

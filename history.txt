@@ -12,6 +12,7 @@
 	FIX: player color for depot/color selection fixed
 	ADD: ordering of menue entries for station buildings (level) and wayobjects (topspeed)
 	CHANGE: money frame construction cost button name now 'Construction_Btn'
+	CHANGE: enable UNDO always for active player
 
 
 Release of 99.13

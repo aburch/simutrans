@@ -24,9 +24,6 @@ gui_scrollpane_t::gui_scrollpane_t(gui_komponente_t *komp) :
 {
 	this->komp = komp;
 
-	scroll_x.setze_opaque(true);
-	scroll_y.setze_opaque(true);
-
 	b_show_scroll_x = true;
 	b_show_scroll_y = true;
 	b_has_size_corner = true;
