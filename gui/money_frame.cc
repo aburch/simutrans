@@ -33,7 +33,7 @@
 // @author hsiegeln
 const char money_frame_t::cost_type[MAX_COST][64] =
 {
-  "Construction", "Operation", "New Vehicles", "Revenue",
+  "Construction_Btn", "Operation", "New Vehicles", "Revenue",
   "Maintenance", "Assets", "Cash", "Net Wealth", "Gross Profit", "Ops Profit", "Margin (%)", "Transported", "Powerlines"
 };
 
