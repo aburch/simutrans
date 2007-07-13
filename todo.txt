@@ -6,7 +6,7 @@ bahnhofsdetaildialog
 Toolwindow with 10 last used tools (in fixed order)
 timeline speeds from file instead calculation
 A* for goods
-passengers from/to headquarters
+
 
 Stichpunkte
 
@@ -49,8 +49,9 @@ Stichpunkte
 - details for convois: halfway
 - Brücken an senkrechten Wänden: done/halfway
 - plane shadow: done
-- tile 2x height: halfway-> need conversion for textures needed
 - blocking crossing with animation/sound and transparent graphics: done
+- tile 2x height: halfway-> need conversion for textures needed
+passengers from/to headquarters: done
 
 Impossible:
 - vehicle N/E longer than 8 px must be aligned by top, not end; need change of moving code: impossible

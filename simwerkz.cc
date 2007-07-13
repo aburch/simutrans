@@ -2346,11 +2346,11 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 	if(welt->ist_in_kartengrenzen(pos)) {
 		int level = sp->get_headquarter_level();
 		koord previous = sp->get_headquarter_pos();
-
 		const haus_besch_t* besch = NULL;
+
 		for(  vector_tpl<const haus_besch_t *>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end();  iter != end;  ++iter  ) {
 			if ((*iter)->gib_bauzeit() == sp->get_headquarter_level()) {
-				const haus_besch_t* besch = (*iter);
+				besch = (*iter);
 				break;
 			}
 		}
