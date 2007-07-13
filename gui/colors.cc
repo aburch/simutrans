@@ -20,6 +20,8 @@
 
 #include "../utils/simstring.h"
 
+#define MAX_BUTTONS (20)
+
 // y coordinates
 #define GRID_MODE			(0*13+6)
 #define UNDERGROUND		(1*13+6)
@@ -37,20 +39,25 @@
 
 #define SEPERATE2 (10*13+6+4)
 
-#define USE_TRANSPARENCY_STATIONS	(10*13+6+8)
-#define SHOW_STATION_COVERAGE			(11*13+6+8)
-#define CITY_WALKER								(12*13+6+8)
-#define STOP_WALKER								(13*13+6+8)
-#define DENS_TRAFFIC							(14*13+6+8)
+#define USE_TRANSPARENCY_STATIONS	(10*13+6+2*4)
+#define SHOW_STATION_COVERAGE			(11*13+6+2*4)
+#define SHOW_STATION_SIGNS				(12*13+6+2*4)
+#define SHOW_STATION_GOODS				(13*13+6+2*4)
 
-#define SEPERATE3	(15*13+6+8)
+#define SEPERATE3	(14*13+6+2*4)
 
-#define FPS_DATA (15*13+6+12)
-#define IDLE_DATA (16*13+6+12)
-#define FRAME_DATA (17*13+6+12)
-#define LOOP_DATA (18*13+6+12)
+#define CITY_WALKER								(14*13+6+3*4)
+#define STOP_WALKER								(15*13+6+3*4)
+#define DENS_TRAFFIC							(16*13+6+3*4)
 
-#define BOTTOM (19*13+6+12+16)
+#define SEPERATE4	(17*13+6+3*4)
+
+#define FPS_DATA (17*13+6+4*4)
+#define IDLE_DATA (18*13+6+4*4)
+#define FRAME_DATA (19*13+6+4*4)
+#define LOOP_DATA (20*13+6+4*4)
+
+#define BOTTOM (21*13+6+12+5*4)
 
 // x coordinates
 #define RIGHT_WIDTH (220)
@@ -141,7 +148,17 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[17].setze_typ(button_t::square_state);
 	buttons[17].setze_text("show grid");
 
-	for(int i=0;  i<18;  i++ ) {
+	buttons[18].setze_pos( koord(10,SHOW_STATION_SIGNS) );
+	buttons[18].setze_typ(button_t::square_state);
+	buttons[18].setze_text("show station names");
+	buttons[18].pressed = umgebung_t::show_names&1;
+
+	buttons[19].setze_pos( koord(10,SHOW_STATION_GOODS) );
+	buttons[19].setze_typ(button_t::square_state);
+	buttons[19].setze_text("show waiting bars");
+	buttons[19].pressed = umgebung_t::show_names&1;
+
+	for(int i=0;  i<MAX_BUTTONS;  i++ ) {
 		buttons[i].add_listener(this);
 		add_komponente( buttons+i );
 	}
@@ -224,6 +241,10 @@ color_gui_t::action_triggered(gui_komponente_t *komp, value_t)
 		}
 	} else if((buttons+17)==komp) {
 		grund_t::toggle_grid();
+	} else if((buttons+18)==komp) {
+		umgebung_t::show_names ^= 1;
+	} else if((buttons+19)==komp) {
+		umgebung_t::show_names ^= 2;
 	}
 	welt->setze_dirty();
 	return true;
@@ -246,6 +267,8 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	buttons[15].pressed = umgebung_t::station_coverage_show;
 	buttons[16].pressed = grund_t::underground_mode;
 	buttons[17].pressed = grund_t::show_grid;
+	buttons[18].pressed = umgebung_t::show_names&1;
+	buttons[19].pressed = (umgebung_t::show_names&2)!=0;
 
 	gui_frame_t::zeichnen(pos, gr);
 
@@ -253,6 +276,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	display_ddd_box_clip(x+10, y+SEPERATE1, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
 	display_ddd_box_clip(x+10, y+SEPERATE2, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
 	display_ddd_box_clip(x+10, y+SEPERATE3, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip(x+10, y+SEPERATE4, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
 
 	display_proportional_clip(x+10, y+BRIGHTNESS, translator::translate("1LIGHT_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 	display_proportional_clip(x+NUMBER, y+BRIGHTNESS, ntos(display_get_light(), 0), ALIGN_RIGHT, COL_WHITE, true);

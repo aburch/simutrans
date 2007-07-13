@@ -69,6 +69,7 @@
 
 #include "gui/welt.h"
 #include "gui/karte.h"
+#include "gui/optionen.h"
 #include "gui/map_frame.h"
 #include "gui/optionen.h"
 #include "gui/player_frame_t.h"
@@ -3319,15 +3320,20 @@ karte_t::interactive_event(event_t &ev)
 	  break;
 
 	case 'Q':
+	  create_win(-1, -1,new optionen_gui_t(this), w_autodelete);
+	  break;
+
 	case 'X':
 			sound_play(click_sound);
 			destroy_all_win();
 			beenden(false);
 	    break;
+
 	case 'L':
 	    sound_play(click_sound);
 	    create_win(new loadsave_frame_t(this, true), w_info, magic_load_t);
 	    break;
+
 	case 'S':
 	    sound_play(click_sound);
 	    create_win(new loadsave_frame_t(this, false), w_info, magic_save_t);
