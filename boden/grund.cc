@@ -334,7 +334,7 @@ grund_t::~grund_t()
 	setze_text(NULL);
 
 	dinge.loesche_alle(NULL,0);
-	if(flags&is_halt_flag) {
+	if(flags&is_halt_flag  &&  welt->ist_in_kartengrenzen(pos.gib_2d())) {
 		welt->lookup(pos.gib_2d())->gib_halt()->rem_grund(this);
 	}
 }
@@ -409,10 +409,11 @@ void grund_t::info(cbuffer_t& buf) const
 
 void grund_t::setze_halt(halthandle_t halt) {
 	if(halt.is_bound()) {
-		flags |= is_halt_flag;
+		flags |= is_halt_flag|dirty;
 	}
 	else {
 		flags &= ~is_halt_flag;
+		flags |= dirty;
 	}
 }
 

@@ -345,21 +345,20 @@ haltestelle_t::~haltestelle_t()
 	// remove ground and free name
 	setze_name(NULL);
 	while(  !tiles.empty()  ) {
-		grund_t *gr = tiles.remove_first().grund;
-		planquadrat_t *pl = welt->access( gr->gib_pos().gib_2d() );
+		planquadrat_t *pl = welt->access( tiles.remove_first().grund->gib_pos().gib_2d() );
 		assert(pl);
-		pl->setze_halt(halthandle_t());
-		pl->gib_kartenboden()->set_flag(grund_t::dirty);
+		pl->setze_halt( halthandle_t() );
+		for( uint8 i=0;  i<pl->gib_boden_count();  i++  ) {
+			pl->gib_boden_bei(i)->setze_halt( halthandle_t() );
+		}
 		pl->remove_from_haltlist( welt, self );
-		gr->set_flag(grund_t::dirty);
-		gr->clear_flag(grund_t::is_halt_flag);
 	}
 
 	/* remove probably remaining halthandle at init_pos
 	 * (created during loadtime for stops without ground) */
-	planquadrat_t* p = welt->access(init_pos);
-	if(p  &&  p->gib_halt()==self) {
-		p->setze_halt( halthandle_t() );
+	planquadrat_t* pl = welt->access(init_pos);
+	if(pl  &&  pl->gib_halt()==self) {
+		pl->setze_halt( halthandle_t() );
 	}
 
 	// finally detach handle

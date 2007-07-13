@@ -410,12 +410,12 @@ DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 
 	// dinge aufräumen
+	cached_groesse_gitter_x = cached_groesse_gitter_y = 1;
+	cached_groesse_karte_x = cached_groesse_karte_y = 0;
 	if(plan) {
 		delete [] plan;
 		plan = NULL;
 	}
-	cached_groesse_gitter_x = cached_groesse_gitter_y = 1;
-	cached_groesse_karte_x = cached_groesse_karte_y = 0;
 	DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
 
 	// gitter aufräumen
@@ -1545,13 +1545,13 @@ karte_t::update_frame_sleep_time()
 			next_wait_time --;
 		}
 
-		if(realFPS>umgebung_t::fps  ||  simloops<=30) {
+		if(realFPS>(umgebung_t::fps*17)/16  ||  simloops<=30) {
 			increase_frame_time();
 			if(next_wait_time>0) {
 				next_wait_time --;
 			}
 		}
-		else if(realFPS<(umgebung_t::fps*7)/8) {
+		else if(realFPS<umgebung_t::fps) {
 			reduce_frame_time();
 		}
 	}
