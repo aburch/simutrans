@@ -739,9 +739,9 @@ class rathausplatz_sucher_t : public platzsucher_t {
 			} else {
 				// Hier soll das Haus hin - wir ersetzen auch andere Gebäude, aber keine Wege!
 				return
-					gr->gib_grund_hang() == hang_t::flach && (
-						gr->gib_typ() == grund_t::boden && gr->ist_natur() ||
-						gr->gib_typ() == grund_t::fundament
+					gr->gib_grund_hang()==hang_t::flach && (
+						(gr->gib_typ()==grund_t::boden  &&  gr->ist_natur()) ||
+						gr->gib_typ()==grund_t::fundament
 					) &&
 					gr->kann_alle_obj_entfernen(NULL) == NULL;
 			}
@@ -782,6 +782,15 @@ void stadt_t::remove_gebaeude_from_stadt(const gebaeude_t* gb)
 {
 	buildings.remove(gb);
 	recalc_city_size();
+}
+
+
+
+// just updates the weight count of this building (after a renovation)
+void stadt_t::update_gebaeude_from_stadt(const gebaeude_t* gb)
+{
+	buildings.remove(gb);
+	buildings.append(gb, gb->gib_tile()->gib_besch()->gib_level() + 1, 16);
 }
 
 
@@ -1186,11 +1195,15 @@ stadt_info_t* stadt_t::gib_stadt_info(void)
 /* add workers to factory list */
 void stadt_t::add_factory_arbeiterziel(fabrik_t* fab)
 {
-	// no fish swarms ...
-	if (strcmp("fish_swarm", fab->gib_besch()->gib_name()) != 0) {
-		DBG_MESSAGE("stadt_t::add_factory_arbeiterziel()", "found %s with level %i", fab->gib_name(), fab->gib_besch()->gib_pax_level());
-		fab->add_arbeiterziel(this);
-		arbeiterziele.append_unique(fab, fab->gib_besch()->gib_pax_level(), 4);
+	const koord k = fab->gib_pos().gib_2d() - pos;
+	// worker do not travel more than 50 tiles
+	if(  (k.x*k.x) + (k.y*k.y) < CONNECT_TO_TOWN_SQUARE_DISTANCE  ) {
+		// no fish swarms ...
+		if (strcmp("fish_swarm", fab->gib_besch()->gib_name()) != 0) {
+//			DBG_MESSAGE("stadt_t::add_factory_arbeiterziel()", "found %s with level %i", fab->gib_name(), fab->gib_besch()->gib_pax_level());
+			fab->add_arbeiterziel(this);
+			arbeiterziele.append_unique(fab, fab->gib_besch()->gib_pax_level(), 4);
+		}
 	}
 }
 
@@ -1204,12 +1217,7 @@ void stadt_t::verbinde_fabriken()
 	slist_iterator_tpl<fabrik_t*> fab_iter(welt->gib_fab_list());
 	arbeiterziele.clear();
 	while (fab_iter.next()) {
-		const koord k = fab_iter.get_current()->gib_pos().gib_2d() - pos;
-
-		// worker do not travel more than 50 tiles
-		if(  (k.x*k.x) + (k.y*k.y) < CONNECT_TO_TOWN_SQUARE_DISTANCE  ) {
-			add_factory_arbeiterziel(fab_iter.get_current());
-		}
+		add_factory_arbeiterziel(fab_iter.get_current());
 	}
 	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "is connected with %i factories (sum_weight=%i).", arbeiterziele.get_count(), arbeiterziele.get_sum_weight());
 }
@@ -2264,7 +2272,6 @@ void stadt_t::renoviere_gebaeude(koord k)
 			}
 		}
 
-		remove_gebaeude_from_stadt(gb);
 		switch (alt_typ) {
 			case gebaeude_t::wohnung:   won -= level * 10; break;
 			case gebaeude_t::gewerbe:   arb -= level * 20; break;
@@ -2275,6 +2282,7 @@ void stadt_t::renoviere_gebaeude(koord k)
 		// exchange building; try to face it to street in front
 		gb->setze_tile( h->gib_tile(streetdir, 0, 0) );
 		welt->lookup(k)->gib_kartenboden()->calc_bild();
+		update_gebaeude_from_stadt(gb);
 
 		switch (will_haben) {
 			case gebaeude_t::wohnung:   won += h->gib_level() * 10; break;
@@ -2282,9 +2290,6 @@ void stadt_t::renoviere_gebaeude(koord k)
 			case gebaeude_t::industrie: arb += h->gib_level() * 20; break;
 			default: break;
 		}
-
-		gebaeude_t* gb = dynamic_cast<gebaeude_t*>(welt->lookup(k)->gib_kartenboden()->first_obj());
-		add_gebaeude_to_stadt(gb);
 	}
 }
 

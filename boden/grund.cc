@@ -134,8 +134,9 @@ void grund_t::setze_text(const char *text)
 const char* grund_t::gib_text() const
 {
 	const char * result = 0;
-	if(flags & has_text) {
+	if(flags&has_text) {
 		result = ground_texts.get( get_ground_text_key(welt, pos) );
+		assert(result);
 	}
 	return result;
 }
@@ -742,7 +743,7 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 
 	// marker/station text
 	if(get_flag(has_text)  &&  umgebung_t::show_names) {
-		const char * text = gib_text();
+		const char *text = gib_text();
 		if(umgebung_t::show_names & 1) {
 			const sint16 raster_tile_width = get_tile_raster_width();
 			const int width = proportional_string_width(text)+7;

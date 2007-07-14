@@ -314,6 +314,9 @@ public:
 	// this function adds houses to the city house list
 	void add_gebaeude_to_stadt(const gebaeude_t *gb);
 
+	// changes the weight; must be called if there is a new definition (tile) for that house
+	void update_gebaeude_from_stadt(const gebaeude_t *gb);
+
 	sint32 gib_pax_erzeugt() const {return pax_erzeugt;}
 	sint32 gib_pax_transport() const {return pax_transport;}
 	sint32 gib_wachstum() const {return wachstum;}

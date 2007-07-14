@@ -16,6 +16,7 @@
 	FIX: convoi list can again hold more than 819 convois
 	ADD: new buttons in fisplay settings: 'show waiting bars' and 'show station names' for the previous '!' key function
 	CHANGE: 'Q' now opens the optin dialogue, where you can really quit the game
+	FIX: factory crossconnection running amok hopefully solved (and some production values tweaked)
 
 
 Release of 99.13
