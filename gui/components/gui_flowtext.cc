@@ -13,6 +13,10 @@ gui_flowtext_t::gui_flowtext_t()
 
 void gui_flowtext_t::set_text(const char *text)
 {
+	// purge all old texts
+	nodes.clear();
+	links.clear();
+
 	// Hajo: danger here, longest word in text
 	// must not exceed 511 chars!
 	char word[512];
