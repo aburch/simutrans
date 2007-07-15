@@ -710,40 +710,38 @@ reliefkarte_t::infowin_event(const event_t *ev)
 
 
 // helper function for redraw: factory connections
-const fabrik_t *reliefkarte_t::draw_fab_connections( uint8 colour, koord pos) const
+fabrik_t *reliefkarte_t::draw_fab_connections( uint8 colour, koord pos) const
 {
 	fabrik_t *fab = fabrik_t::gib_fab(welt, last_world_pos );
-	if(fab==NULL) {
-		return NULL;
-	}
-	koord fabpos = fab->gib_pos().gib_2d();
-	karte_to_screen( fabpos );
-	fabpos += pos;
-	const vector_tpl<koord>& lieferziele = event_get_last_control_shift() & 1 ? fab->get_suppliers() : fab->gib_lieferziele();
-	for (vector_tpl<koord>::const_iterator i = lieferziele.begin(), end = lieferziele.end(); i != end; ++i) {
-		koord lieferziel = *i;
-		const fabrik_t * fab2 = fabrik_t::gib_fab(welt, lieferziel);
-		if (fab2) {
-			karte_to_screen( lieferziel );
-			const koord end = lieferziel+pos;
-			display_direct_line(fabpos.x, fabpos.y, end.x, end.y, colour);
-			display_fillbox_wh_clip(end.x, end.y, 3, 3, ((welt->gib_zeit_ms() >> 10) & 1) == 0 ? COL_RED : COL_WHITE, true);
+	if(fab) {
+		koord fabpos = fab->gib_pos().gib_2d();
+		karte_to_screen( fabpos );
+		fabpos += pos;
+		const vector_tpl<koord>& lieferziele = event_get_last_control_shift() & 1 ? fab->get_suppliers() : fab->gib_lieferziele();
+		for (vector_tpl<koord>::const_iterator i = lieferziele.begin(), end = lieferziele.end(); i != end; ++i) {
+			koord lieferziel = *i;
+			const fabrik_t * fab2 = fabrik_t::gib_fab(welt, lieferziel);
+			if (fab2) {
+				karte_to_screen( lieferziel );
+				const koord end = lieferziel+pos;
+				display_direct_line(fabpos.x, fabpos.y, end.x, end.y, colour);
+				display_fillbox_wh_clip(end.x, end.y, 3, 3, ((welt->gib_zeit_ms() >> 10) & 1) == 0 ? COL_RED : COL_WHITE, true);
 
-			const koord boxpos = end + koord(10, 0);
-			const char * name = translator::translate(fab2->gib_name());
-			display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 5, COL_WHITE, name, true);
+				const koord boxpos = end + koord(10, 0);
+				const char * name = translator::translate(fab2->gib_name());
+				display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 5, COL_WHITE, name, true);
+			}
 		}
 	}
+	return fab;
 }
 
 
 // draw current schedule
-bool reliefkarte_t::draw_schedule(const koord pos) const
+void reliefkarte_t::draw_schedule(const koord pos) const
 {
-	if(  fpl==NULL  ||  fpl->maxi()==0) {
-		// avoid crash
-		return false;;
-	}
+	assert(fpl!=NULL  ||  fpl->maxi()>0);
+
 	koord first_koord;
 	koord last_koord;
 	const uint8 color = welt->gib_spieler(fpl_player_nr)->get_player_color1()+1;
@@ -909,7 +907,7 @@ reliefkarte_t::zeichnen(koord pos)
 	}
 	else if(is_show_fab) {
 		// draw factory connections, if on a factory
-		const fabrik_t *fab = draw_fab_connections( event_get_last_control_shift()&1 ? COL_RED : COL_WHITE, pos);
+		fabrik_t *fab = draw_fab_connections( event_get_last_control_shift()&1 ? COL_RED : COL_WHITE, pos);
 		if(fab) {
 			koord fabpos = fab->gib_pos().gib_2d();
 			karte_to_screen( fabpos );

@@ -93,7 +93,12 @@ world_view_t::zeichnen(koord offset)
 		}
 		const koord pos = gib_pos()+offset+koord(1,1);
 
-		PUSH_CLIP(pos.x, pos.y, gr.x, gr.y);
+		// do not draw outside (may happen with scroll bars)
+		const clip_dimension old_clip = display_gib_clip_wh();
+		const int clip_x =  max(old_clip.x,pos.x);
+		const int clip_y =  max(old_clip.y,pos.y);
+		display_setze_clip_wh( clip_x, clip_y, min(old_clip.x+old_clip.w,pos.x+gr.x)-clip_x, min(old_clip.y+old_clip.h,pos.y+gr.y)-clip_y );
+
 		mark_rect_dirty_wc( pos.x, pos.y, pos.x+gr.x, pos.y+gr.y );
 
 		// not very elegant, but works:
@@ -154,10 +159,8 @@ world_view_t::zeichnen(koord offset)
 			welt->lookup(ding->gib_pos())->display_dinge( pos.x+display_off.x, pos.y+yypos, false);
 		}
 
-		POP_CLIP();
-
-		display_ddd_box(pos.x-1, pos.y-1, gr.x+2, gr.y+2, MN_GREY0, MN_GREY4);
-
+		display_setze_clip_wh(old_clip.x, old_clip.y, old_clip.w, old_clip.h);
+		display_ddd_box_clip(pos.x-1, pos.y-1, gr.x+2, gr.y+2, MN_GREY0, MN_GREY4);
 	}
 }
 

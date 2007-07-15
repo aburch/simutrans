@@ -58,9 +58,9 @@ private:
 
 	koord last_world_pos;
 
-	const fabrik_t *draw_fab_connections( uint8 colour, koord pos) const;
+	fabrik_t *draw_fab_connections( uint8 colour, koord pos) const;
 
-	bool draw_schedule(const koord pos) const;
+	void draw_schedule(const koord pos) const;
 
 	static sint32 max_capacity;
 	static sint32 max_departed;
