@@ -28,6 +28,7 @@
 
 #include "fahrplan_gui.h"
 #include "components/list_button.h"
+#include "karte.h"
 
 char fahrplan_gui_t::no_line[128];	// contains the current translation of "<no line>"
 
@@ -268,6 +269,8 @@ void fahrplan_gui_t::init()
 	add_komponente(&scrolly);
 
 	setze_fenstergroesse( koord(BUTTON_WIDTH*3, 280) );
+	// set this schedule as current to show on minimap if possible
+	reliefkarte_t::gib_karte()->set_current_fpl(fpl, sp->get_player_nr()); // (*fpl,player_nr)
 }
 
 
@@ -318,9 +321,12 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 				cnv->unset_line();
 			}
 		}
+		// hide schedule on minimap (may not current, but for safe)
+		reliefkarte_t::gib_karte()->set_current_fpl(NULL, 0); // (*fpl,player_nr)
 	}
 	gui_frame_t::infowin_event(ev);
 }
+
 
 
 bool

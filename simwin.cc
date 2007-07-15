@@ -590,6 +590,18 @@ DBG_MESSAGE("top_win()","win=%i ins_win=%i",win,ins_win);
 	koord gr = wins[win].gui->gib_fenstergroesse();
 	mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+gr.y );
 
+	event_t ev;
+
+	ev.ev_class = INFOWIN;
+	ev.ev_code = WIN_TOP;
+	ev.mx = 0;
+	ev.my = 0;
+	ev.cx = 0;
+	ev.cy = 0;
+	ev.button_state = 0;
+
+	tmp.gui->infowin_event(&ev);
+
 	return ins_win-1;
 }
 

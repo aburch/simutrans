@@ -77,7 +77,7 @@ void gui_frame_t::infowin_event(const event_t *ev)
 		resize( koord(0,0) ) ;
 		return;	// not pass to childs!
 	}
-	else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_CLOSE  ||  ev->ev_code==WIN_OPEN)) {
+	else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_CLOSE  ||  ev->ev_code==WIN_OPEN  ||  ev->ev_code==WIN_TOP)) {
 		dirty = true;
 		container.clear_dirty();
 	}

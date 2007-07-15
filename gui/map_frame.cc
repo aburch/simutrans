@@ -68,12 +68,13 @@ const char map_frame_t::map_type[MAX_BUTTON_TYPE][64] =
     "Tourists",
     "Factories",
     "Depots",
-		"Forest"
+		"Forest",
+		"CityLimit"
 };
 
 const uint8 map_frame_t::map_type_color[MAX_BUTTON_TYPE] =
 {
-	15, 23, 31, 157, 46, 55, 63, 133, 79, 191, 207, 11, 123, 221, 71, 135, 127
+	215, 23, 31, 157, 46, 55, 63, 133, 79, 191, 207, 11, 123, 221, 71, 135, 127, 198
 };
 
 
@@ -98,6 +99,17 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 	b_rotate45.init(button_t::square, "isometric map", koord(BUTTON_WIDTH+40,BUTTON_HEIGHT+4), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	b_rotate45.add_listener(this);
 	add_komponente(&b_rotate45);
+
+	// show/hide schedule
+	b_show_schedule.init(button_t::square, "Show schedules", koord(BUTTON_WIDTH+40,BUTTON_HEIGHT*2+4), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
+	b_show_schedule.set_tooltip("Shows the currently selected schedule");
+	b_show_schedule.add_listener(this);
+	add_komponente( &b_show_schedule );
+	// show/hide schedule
+	b_show_fab_connections.init(button_t::square, "factory details", koord(2,BUTTON_HEIGHT*2+4), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
+	b_show_fab_connections.set_tooltip("Shows consumer/suppliers for factories");
+	b_show_fab_connections.add_listener(this);
+	add_komponente( &b_show_fab_connections );
 
 	// show the various objects
 	b_show_legend.init(button_t::roundbox, "Show legend", koord(0,0), koord(BUTTON_WIDTH+1,BUTTON_HEIGHT));
@@ -236,6 +248,15 @@ map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		reliefkarte_t::gib_karte()->calc_map();
 		scrolly.setze_groesse( scrolly.gib_groesse() );
 	}
+	else if(komp==&b_show_schedule) {
+		//	show/hide schedule of convoi
+		reliefkarte_t::gib_karte()->is_show_schedule ^= 1;
+	}
+	else if(komp==&b_show_fab_connections) {
+		//	show/hide schedule of convoi
+		reliefkarte_t::gib_karte()->is_show_fab ^= 1;
+	}
+
 	else {
 		for (int i=0;i<MAX_BUTTON_TYPE;i++) {
 			if (komp == &filter_buttons[i]) {
@@ -354,10 +375,8 @@ void map_frame_t::resize(const koord delta)
 
 	gui_frame_t::resize(delta);
 
-	int offset_y = BUTTON_HEIGHT*2 + 2;
+	int offset_y = BUTTON_HEIGHT*3 + 2;
 	groesse.x = max( BUTTON_WIDTH*3+4, groesse.x );	// not smaller than 192 allow
-
-	// find out about the button pos for the additiona objects
 
 	if(legend_visible) {
 		// calculate space with legend
@@ -444,6 +463,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	}
 
 	b_rotate45.pressed = reliefkarte_t::gib_karte()->rotate45;
+	b_show_schedule.pressed = reliefkarte_t::gib_karte()->is_show_schedule;
 
 	b_show_legend.pressed = legend_visible;
 	b_show_scale.pressed = scale_visible;
@@ -455,7 +475,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	sprintf( buf, "%i:%i", reliefkarte_t::gib_karte()->zoom_in, reliefkarte_t::gib_karte()-> zoom_out );
 	display_proportional( pos.x+20, pos.y+16+BUTTON_HEIGHT+4, buf, ALIGN_LEFT, COL_WHITE, true);
 
-	int offset_y = BUTTON_HEIGHT*2 + 2 +16;
+	int offset_y = BUTTON_HEIGHT*3 + 2 + 16;
 	if(legend_visible) {
 		offset_y = 16+filter_buttons[MAX_BUTTON_TYPE-1].gib_pos().y+4+BUTTON_HEIGHT;
 	}

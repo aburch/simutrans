@@ -93,6 +93,12 @@ public:
 	*/
 	void resize(const koord delta);
 
+   /**
+   * Mausklicks werden hiermit an die GUI-Komponenten
+   * gemeldet
+   */
+   void infowin_event(const event_t *ev);
+
 	/**
 	* This method is called if an action is triggered
 	* @author Hj. Malthaner

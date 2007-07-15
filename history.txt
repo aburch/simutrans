@@ -17,6 +17,8 @@
 	ADD: new buttons in fisplay settings: 'show waiting bars' and 'show station names' for the previous '!' key function
 	CHANGE: 'Q' now opens the optin dialogue, where you can really quit the game
 	FIX: factory crossconnection running amok hopefully solved (and some production values tweaked)
+	ADD: (z9999) show current schedule/selected line in minimap (new strings: 'Show schedules', 'Shows the currently selected schedule', 'factory details', 'Shows consumer/suppliers for factories', 'CityLimit', '(%i)-')
+	FIX: redraw problems after topping windows
 
 
 Release of 99.13

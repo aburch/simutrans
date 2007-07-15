@@ -18,7 +18,7 @@
 
 class karte_t;
 
-#define MAX_BUTTON_TYPE (17)
+#define MAX_BUTTON_TYPE (18)
 
 /**
  * Reliefkartenfenster für Simutrans.
@@ -65,6 +65,9 @@ private:
 	button_t zoom_buttons[2];
 	gui_label_t zoom_label;
 	button_t b_rotate45;
+
+	button_t	b_show_schedule;
+	button_t	b_show_fab_connections;
 
 	button_t b_show_legend;
 	button_t b_show_scale;

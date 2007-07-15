@@ -4,6 +4,8 @@
 #include "../ifc/gui_komponente.h"
 #include "../tpl/array2d_tpl.h"
 
+#include "../dataobj/fahrplan.h"
+
 class karte_t;
 class fabrik_t;
 class grund_t;
@@ -26,7 +28,7 @@ class grund_t;
 class reliefkarte_t : public gui_komponente_t
 {
 public:
-	typedef enum { PLAIN=-1, MAP_TOWN=0, MAP_PASSENGER, MAP_MAIL, MAP_FREIGHT, MAP_STATUS, MAP_SERVICE, MAP_TRAFFIC, MAP_ORIGIN, MAP_DESTINATION, MAP_WAITING, MAP_TRACKS, MAX_SPEEDLIMIT, MAP_POWERLINES, MAP_TOURIST, MAP_FACTORIES, MAP_DEPOT, MAP_FOREST } MAP_MODES;
+	typedef enum { PLAIN=-1, MAP_TOWN=0, MAP_PASSENGER, MAP_MAIL, MAP_FREIGHT, MAP_STATUS, MAP_SERVICE, MAP_TRAFFIC, MAP_ORIGIN, MAP_DESTINATION, MAP_WAITING, MAP_TRACKS, MAX_SPEEDLIMIT, MAP_POWERLINES, MAP_TOURIST, MAP_FACTORIES, MAP_DEPOT, MAP_FOREST, MAP_CITYLIMIT } MAP_MODES;
 
 private:
 	static karte_t *welt;
@@ -34,7 +36,7 @@ private:
 
 	reliefkarte_t();
 
-	static reliefkarte_t * single_instance;
+	static reliefkarte_t *single_instance;
 
 	/**
 	* map mode: -1) normal; everything else: special map
@@ -51,9 +53,14 @@ private:
 	// to be prepared for more than one map => nonstatic
 	void setze_relief_farbe_area(koord k, int areasize, uint8 color);
 
-	fabrik_t * fab;
+	const fahrplan_t *fpl;
+	uint8 fpl_player_nr;
 
-	void draw_fab_connections(const fabrik_t * fab, uint8 colour, koord pos) const;
+	koord last_world_pos;
+
+	const fabrik_t *draw_fab_connections( uint8 colour, koord pos) const;
+
+	bool draw_schedule(const koord pos) const;
 
 	static sint32 max_capacity;
 	static sint32 max_departed;
@@ -73,6 +80,12 @@ public:
 
 	// 45 rotated map
 	bool rotate45;
+
+	// show/hide schedule of convoi
+	bool is_show_schedule;
+
+	// show/hide factory connections
+	bool is_show_fab;
 
 	/**
 	* returns a color based on an amount (high amount/scale -> color shifts from green to red)
@@ -118,6 +131,8 @@ public:
 	void infowin_event(const event_t *ev);
 
 	void zeichnen(koord pos);
+
+	void set_current_fpl(const fahrplan_t *current_fpl, uint8 player_nr) {fpl = current_fpl; fpl_player_nr = player_nr;};
 };
 
 #endif

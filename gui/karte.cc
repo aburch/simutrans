@@ -9,6 +9,7 @@
 #include "../simfab.h"
 #include "../simcity.h"
 #include "karte.h"
+#include "fahrplan_gui.h"
 
 #include "../dataobj/translator.h"
 #include "../dataobj/einstellungen.h"
@@ -36,7 +37,7 @@ bool reliefkarte_t::is_visible = false;
 const uint8 reliefkarte_t::map_type_color[MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND] =
 {
 	97, 99, 19, 21, 23,
-	160, 161, 162, 163, 164, 165, 166, 167, 205, 206, 207, 173, 175, 15
+	160, 161, 162, 163, 164, 165, 166, 167, 205, 206, 207, 173, 175, 214
 };
 
 const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
@@ -165,7 +166,7 @@ reliefkarte_t::setze_relief_farbe_area(koord k, int areasize, uint8 color)
 
 
 /**
- * Berechnet Farbe für Höhenstufe hdiff (hoehe - grundwasser).
+ * Berechnet Farbe fE Höhenstufe hdiff (hoehe - grundwasser).
  * @author Hj. Malthaner
  */
 uint8
@@ -614,7 +615,9 @@ reliefkarte_t::reliefkarte_t()
 	zoom_in = 1;
 	rotate45 = false;
 	mode = MAP_TOWN;
-	fab = 0;
+	fpl = NULL;
+	fpl_player_nr = 0;
+	is_show_schedule = false;
 }
 
 
@@ -691,7 +694,7 @@ reliefkarte_t::infowin_event(const event_t *ev)
 	screen_to_karte( k );
 
 	// get factory under mouse cursor
-	fab = fabrik_t::gib_fab(welt, k );
+	last_world_pos = k;
 
 	// recenter
 	if(IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev)) {
@@ -707,9 +710,12 @@ reliefkarte_t::infowin_event(const event_t *ev)
 
 
 // helper function for redraw: factory connections
-void
-reliefkarte_t::draw_fab_connections(const fabrik_t * fab, uint8 colour, koord pos) const
+const fabrik_t *reliefkarte_t::draw_fab_connections( uint8 colour, koord pos) const
 {
+	fabrik_t *fab = fabrik_t::gib_fab(welt, last_world_pos );
+	if(fab==NULL) {
+		return NULL;
+	}
 	koord fabpos = fab->gib_pos().gib_2d();
 	karte_to_screen( fabpos );
 	fabpos += pos;
@@ -731,6 +737,48 @@ reliefkarte_t::draw_fab_connections(const fabrik_t * fab, uint8 colour, koord po
 }
 
 
+// draw current schedule
+bool reliefkarte_t::draw_schedule(const koord pos) const
+{
+	if(  fpl==NULL  ||  fpl->maxi()==0) {
+		// avoid crash
+		return false;;
+	}
+	koord first_koord;
+	koord last_koord;
+	const uint8 color = welt->gib_spieler(fpl_player_nr)->get_player_color1()+1;
+
+	// get stop list from schedule
+	for( int i=0;  i<fpl->maxi();  i++  ) {
+		koord new_koord = fpl->eintrag[i].pos.gib_2d();
+		karte_to_screen( new_koord );
+		new_koord += pos;
+
+		if(i>0) {
+			// draw line from stop to stop
+			display_direct_line(last_koord.x, last_koord.y, new_koord.x, new_koord.y, 127);
+		}
+		else {
+			first_koord = new_koord;
+		}
+		//check, if mouse is near coordinate
+		if(abs_distance(last_world_pos,fpl->eintrag[i].pos.gib_2d())<=2) {
+			// draw stop name with an index
+			cbuffer_t buf(256);
+			buf.clear();
+			buf.printf( translator::translate("(%i)-"), i+1 );
+			fahrplan_gui_t::gimme_short_stop_name(buf, welt, fpl, i, 240);
+			display_ddd_proportional_clip(new_koord.x+10, new_koord.y+7, proportional_string_width(buf)+8, 0, color, COL_WHITE, buf, true);
+		}
+		// box at station
+		display_fillbox_wh_clip(new_koord.x, new_koord.y, 4, 4, color, true);
+		last_koord = new_koord;
+	}
+	// draw line back to first stop
+	display_direct_line(last_koord.x, last_koord.y, first_koord.x, first_koord.y, 127);
+}
+
+
 
 // draw the map
 void
@@ -743,8 +791,67 @@ reliefkarte_t::zeichnen(koord pos)
 	display_fillbox_wh_clip(pos.x, pos.y, 4000, 4000, COL_BLACK, true);
 	display_array_wh(pos.x, pos.y, relief->get_width(), relief->get_height(), relief->to_array());
 
+	// draw city limit
+	if(mode==MAP_CITYLIMIT) {
+
+		const PLAYER_COLOR_VAL color = 127;
+
+		// get city list
+		const weighted_vector_tpl<stadt_t*>& staedte = welt->gib_staedte();
+		// for all cities
+		for(  weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end();  i != end;  ++i  ) {
+			const stadt_t* stadt = *i;
+			koord k[4];
+			k[0] =	stadt->get_linksoben(); // top left
+			k[2] =	stadt->get_rechtsunten(); // bottom right
+
+			// calculate and draw the rotated coordinates
+			if(rotate45) {
+
+				k[1] =  koord(k[0].x, k[2].y); // bottom left
+				k[3] =  koord(k[2].x, k[0].y); // top right
+
+				k[0] += koord(0, -1); // top left
+				karte_to_screen(k[0]);
+				k[0] = k[0] + pos;
+
+				karte_to_screen(k[1]); // bottom left
+				k[1] = k[1] + pos;
+
+				k[2] += koord(1, 0); // bottom right
+				karte_to_screen(k[2]);
+				k[2] += pos;
+
+				k[3] += koord(1, -1); // top right
+				karte_to_screen(k[3]);
+				k[3] += pos;
+
+				display_direct_line(k[0].x, k[0].y, k[1].x, k[1].y, color);
+				display_direct_line(k[1].x, k[1].y, k[2].x, k[2].y, color);
+				display_direct_line(k[2].x, k[2].y, k[3].x, k[3].y, color);
+				display_direct_line(k[3].x, k[3].y, k[0].x, k[0].y, color);
+			}
+			else {
+				karte_to_screen(k[0]);
+				k[0] = k[0] + pos + koord(-1, -1);
+
+				k[2] += koord(1, 1);
+				karte_to_screen(k[2]);
+				k[2] += pos;
+
+				display_direct_line(k[0].x, k[0].y, k[0].x, k[2].y, color);
+				display_direct_line(k[2].x, k[0].y, k[2].x, k[2].y, color);
+				display_direct_line(k[0].x, k[0].y, k[2].x, k[0].y, color);
+				display_direct_line(k[0].x, k[2].y, k[2].x, k[2].y, color);
+			}
+		}
+
+	}
+
+
 	// if we do not do this here, vehicles would erase the town names
-	if(mode==MAP_TOWN) {
+	// ADD: if CRTL key is pressed, temporary show the name
+	if( mode==MAP_TOWN  ||  event_get_last_control_shift()==2 ) {
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->gib_staedte();
 		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i) {
 			const stadt_t* stadt = *i;
@@ -791,12 +898,24 @@ reliefkarte_t::zeichnen(koord pos)
 		}
 	}
 
-	if (fab) {
-		draw_fab_connections(fab, event_get_last_control_shift()&1 ? COL_RED : COL_WHITE, pos);
-		koord fabpos = fab->gib_pos().gib_2d();
-		karte_to_screen( fabpos );
-		const koord boxpos = fabpos + koord(10, 0) + pos;
-		const char * name = translator::translate(fab->gib_name());
-		display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 10, COL_WHITE, name, true);
+	// draw a halt name, if it is under the cursor of a schedule
+	if(is_show_schedule  &&  fpl) {
+		if(fpl->maxi()<=0) {
+			fpl = NULL;
+		}
+		else {
+			draw_schedule(pos);
+		}
+	}
+	else if(is_show_fab) {
+		// draw factory connections, if on a factory
+		const fabrik_t *fab = draw_fab_connections( event_get_last_control_shift()&1 ? COL_RED : COL_WHITE, pos);
+		if(fab) {
+			koord fabpos = fab->gib_pos().gib_2d();
+			karte_to_screen( fabpos );
+			const koord boxpos = fabpos + koord(10, 0) + pos;
+			const char * name = translator::translate(fab->gib_name());
+			display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 10, COL_WHITE, name, true);
+		}
 	}
 }

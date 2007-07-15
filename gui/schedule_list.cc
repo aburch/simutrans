@@ -30,6 +30,7 @@
 #include "../dataobj/translator.h"
 #include "components/list_button.h"
 #include "halt_list_stats.h"
+#include "karte.h"
 
 
 const char schedule_list_gui_t::cost_type[MAX_LINE_COST][64] =
@@ -172,6 +173,28 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	set_min_windowsize(koord(488, 400));
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
+}
+
+
+
+/**
+ * Mausklicks werden hiermit an die GUI-Komponenten
+ * gemeldet
+ */
+void
+schedule_list_gui_t::infowin_event(const event_t *ev)
+{
+	if(ev->ev_class == INFOWIN) {
+		if(ev->ev_code == WIN_CLOSE) {
+			// hide schedule on minimap (may not current, but for safe)
+			reliefkarte_t::gib_karte()->set_current_fpl(NULL, 0); // (*fpl,player_nr)
+		}
+		else if(  (ev->ev_code==WIN_OPEN  ||  ev->ev_code==WIN_TOP)  &&  line.is_bound() ) {
+			// set this schedule as current to show on minimap if possible
+			reliefkarte_t::gib_karte()->set_current_fpl(line->get_fahrplan(), sp->get_player_nr()); // (*fpl,player_nr)
+		}
+	}
+	gui_frame_t::infowin_event(ev);
 }
 
 
@@ -413,6 +436,9 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 			}
 		}
 		chart.set_visible(true);
+
+		// set this schedule as current to show on minimap if possible
+		reliefkarte_t::gib_karte()->set_current_fpl(new_line->get_fahrplan(), sp->get_player_nr()); // (*fpl,player_nr)
 	}
 	else if(line.is_bound()) {
 		// previously a line was visible
@@ -431,6 +457,9 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 			chart.hide_curve(i);
 		}
 		chart.set_visible(true);
+
+		// hide schedule on minimap (may not current, but for safe)
+		reliefkarte_t::gib_karte()->set_current_fpl(NULL, 0); // (*fpl,player_nr)
 	}
 	line = new_line;
 }
