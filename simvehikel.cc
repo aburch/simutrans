@@ -32,7 +32,7 @@
 #include "simplay.h"
 #include "simware.h"
 #include "simhalt.h"
-#include "simconvoi.h"
+//#include "simconvoi.h"
 #include "simsound.h"
 
 #include "simimg.h"
@@ -66,6 +66,9 @@
 
 
 #include "bauer/vehikelbauer.h"
+
+
+class route_t;
 
 
 static const uint8 offset_array[8] = {
@@ -682,8 +685,15 @@ vehikel_t::vehikel_t(karte_t *welt) :
 }
 
 
-bool
-vehikel_t::hop_check()
+
+bool vehikel_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
+{
+	return route->calc_route(welt, start, ziel, this, max_speed);
+}
+
+
+
+bool vehikel_t::hop_check()
 {
 	// the leading vehicle will do all the checks
 	if(ist_erstes) {

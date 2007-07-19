@@ -12,7 +12,6 @@
 #include "ifc/sync_steppable.h"
 
 #include "dataobj/route.h"
-
 #include "tpl/array_tpl.h"
 
 #include "convoihandle_t.h"

@@ -17,20 +17,20 @@
 
 #include "simtypes.h"
 #include "simdings.h"
-#include "simconvoi.h"
 #include "halthandle_t.h"
 #include "convoihandle_t.h"
 #include "ifc/fahrer.h"
 #include "boden/grund.h"
 #include "boden/wege/weg.h"
 #include "besch/vehikel_besch.h"
-#include "dataobj/route.h"
 #include "tpl/slist_tpl.h"
 
 class vehikel_besch_t;
+class convoi_t;
 class fahrplan_t;
 class signal_t;
 class ware_t;
+class route_t;
 
 
 /*
@@ -245,7 +245,7 @@ public:
 
 	void darf_rauchen(bool yesno ) { rauchen = yesno;}
 
-	virtual bool calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route) { return route->calc_route(welt, start, ziel, this, max_speed); }
+	virtual bool calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route);
 	const uint16 gib_route_index() const {return route_index;}
 	const koord3d gib_pos_prev() const {return pos_prev;}
 
