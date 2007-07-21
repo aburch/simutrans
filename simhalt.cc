@@ -584,6 +584,8 @@ void haltestelle_t::rebuild_destinations()
 	rebuilt_destination_counter = welt->get_schedule_counter();
 	resort_freight_info = true;	// might result in error in routing
 
+	const bool i_am_public = gib_besitzer()==welt->gib_spieler(1);
+
 // DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "Adding new table entries");
 
 	// first all single convois without lines
@@ -595,7 +597,7 @@ void haltestelle_t::rebuild_destinations()
 		}
 
 		// DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "convoi %d %p", cnv.get_id(), cnv.get_rep());
-		if(gib_besitzer()==welt->gib_spieler(1)  ||  cnv->gib_besitzer()==gib_besitzer()) {
+		if(i_am_public  ||  cnv->gib_besitzer()==gib_besitzer()) {
 
 			INT_CHECK("simhalt.cc 612");
 
@@ -623,12 +625,14 @@ void haltestelle_t::rebuild_destinations()
 	}
 
 	// now for the lines
-	for (unsigned i=0; i<registered_lines.get_count(); i++) {
+	for(unsigned i=0; i<registered_lines.get_count(); i++) {
 		const linehandle_t line = registered_lines[i];
 		fahrplan_t *fpl = line->get_fahrplan();
 		assert(fpl);
-		for( int j=0; j<line->get_goods_catg_index().get_count();  j++  ) {
-			hat_gehalten( warenbauer_t::gib_info_catg_index(line->get_goods_catg_index()[j]), fpl );
+		if(line->count_convoys()>0  &&  line->get_convoy(0)->gib_besitzer()==gib_besitzer()) {
+			for( int j=0; j<line->get_goods_catg_index().get_count();  j++  ) {
+				hat_gehalten( warenbauer_t::gib_info_catg_index(line->get_goods_catg_index()[j]), fpl );
+			}
 		}
 	}
 }
