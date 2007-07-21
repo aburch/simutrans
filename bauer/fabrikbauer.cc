@@ -33,8 +33,8 @@
 
 #include "../gui/karte.h"	// to update map after construction of new industry
 
-// Hajo: average industry distance
-#define DISTANCE 50
+// radius for checking places for construction
+#define DISTANCE 40
 
 
 /**
@@ -605,18 +605,27 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i o
 		/* try to add all types of factories until demand is satisfied
 		 * or give up after 50 tries
 		 */
+		int retry = 0;
+		const fabrik_besch_t *hersteller = NULL;
+		static koord retry_koord[1+8+16]={
+			koord(0,0), // center
+			koord(-1,-1), koord(0,-1), koord(1,-1), koord(1,0), koord(1,1), koord(0,1), koord(-1,1), koord(-1,0), // nearest neighbour
+			koord(-2,-2), koord(-1,-2), koord(0,-2), koord(1,-2), koord(2,-2), koord(2,-1), koord(2,0), koord(2,1), koord(2,2), koord(1,2), koord(0,2), koord(-1,2), koord(-2,2), koord(-2,1), koord(-2,0), koord(-2,1) // second nearest neighbour
+		};
+
 		for(int j=0;  j<50  &&  (lcount>lfound  ||  lcount==0)  &&  verbrauch>0;  j++  ) {
-//DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","find lieferant for %s.",info->gib_name());
-			const fabrik_besch_t *hersteller = finde_hersteller(ware,j%anzahl_hersteller);
-			if(info==hersteller) {
-				dbg->error("fabrikbauer_t::baue_hierarchie()","found myself! (pak corrupted?)");
-				return n;
+
+			if(retry==0  ||  retry>25) {
+				hersteller = finde_hersteller(ware,j%anzahl_hersteller);
+				if(info==hersteller) {
+					dbg->error("fabrikbauer_t::baue_hierarchie()","found myself! (pak corrupted?)");
+					return n;
+				}
+				retry = 0;
 			}
 
-			INT_CHECK( "fabrikbauer 692" );
-
 			int rotate = simrand(hersteller->gib_haus()->gib_all_layouts()-1);
-			koord3d k = finde_zufallsbauplatz(welt, *pos, DISTANCE, hersteller->gib_haus()->gib_groesse(rotate),hersteller->gib_platzierung()==fabrik_besch_t::Wasser,hersteller->gib_haus());
+			koord3d k = finde_zufallsbauplatz(welt, *pos+(retry_koord[retry]*DISTANCE*2), DISTANCE, hersteller->gib_haus()->gib_groesse(rotate),hersteller->gib_platzierung()==fabrik_besch_t::Wasser,hersteller->gib_haus());
 
 			INT_CHECK("fabrikbauer 697");
 
@@ -647,6 +656,12 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","new supplier %s can supply approx 
 						}
 					}
 				}
+				retry = 0;
+			}
+			else {
+				k = *pos+(retry_koord[retry]*DISTANCE*2);
+DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","failed to built lieferant %s around (%i,%i) r=%i for %s.",hersteller->gib_name(),k.x,k.y,rotate,info->gib_name());
+				retry ++;
 			}
 		}
 

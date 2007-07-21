@@ -324,8 +324,7 @@ get_next_dirs(const koord gr_pos, const koord ziel)
 
 
 
-bool
-route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_speed, const uint32 max_cost)
+bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_speed, const uint32 max_cost)
 {
 	bool ok = false;
 
@@ -358,7 +357,7 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 
 	INT_CHECK("route 347");
 
-	// there are several variant for mantaining the open list
+	// there are several variant for maintaining the open list
 	// however, only binary heap and HOT queue with binary heap are worth considering
 #if defined(tpl_HOT_queue_tpl_h)
     static HOT_queue_tpl <ANode *> queue;
@@ -494,13 +493,11 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 
 #ifdef DEBUG_ROUTES
 	// display marked route
-	reliefkarte_t::gib_karte()->calc_map();
+	//reliefkarte_t::gib_karte()->calc_map();
+	DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u (max %u)",step,MAX_STEP,queue.count(),tmp->g,max_cost);
 #endif
 
 	INT_CHECK("route 194");
-#ifdef DEBUG_ROUTES
-DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u (max %u)",step,MAX_STEP,queue.count(),tmp->g,max_cost);
-#endif
 	// target reached?
 	if(!ziel_erreicht  || step >= MAX_STEP  ||  tmp->parent==NULL) {
 		dbg->warning("route_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
@@ -529,10 +526,7 @@ DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, 
  * corrected 12/2005 for station search
  * @author Hansjörg Malthaner, prissi
  */
-bool
-route_t::calc_route(karte_t *welt,
-                    const koord3d ziel, const koord3d start,
-                    fahrer_t *fahr, const uint32 max_khm, const uint32 max_cost)
+bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_khm, const uint32 max_cost)
 {
 	route.clear();
 
