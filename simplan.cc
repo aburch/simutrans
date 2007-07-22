@@ -174,21 +174,14 @@ planquadrat_t::kartenboden_setzen(grund_t *bd)
 {
 	assert(bd);
 	grund_t *tmp = gib_kartenboden();
-
-	if(ground_size<=1) {
-		data.one = bd;
-		ground_size = 1;
+	if(tmp) {
+		boden_ersetzen(tmp,bd);
 	}
 	else {
-		data.some[0] = bd;
+		data.one = bd;
+		ground_size = 1;
+		bd->set_kartenboden(true);
 	}
-	if( tmp ) {
-		// transfer old properties ...
-		bd->setze_text(tmp->gib_text());
-		// now delete everything
-		delete tmp;
-	}
-	bd->set_kartenboden(true);
 	bd->calc_bild();
 	reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
 }
@@ -208,9 +201,10 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 	}
 #endif
 
-	if(ground_size==1) {
-		assert(data.one==alt);
+	if(ground_size<=1) {
+		assert(data.one==alt  ||  ground_size==0);
 		data.one = neu;
+		ground_size = 1;
 		neu->set_kartenboden(true);
 	}
 	else {
@@ -222,7 +216,14 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 			}
 		}
 	}
-	delete alt;
+	// transfer text and delete
+	if(alt) {
+		if(alt->get_flag(grund_t::has_text)) {
+			neu->set_flag(grund_t::has_text);
+			alt->clear_flag(grund_t::has_text);
+		}
+		delete alt;
+	}
 }
 
 

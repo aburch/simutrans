@@ -2283,7 +2283,7 @@ int display_calc_proportional_string_len_width(const char* text, int len)
 		}
 	} else {
 #endif
-		while (*text != 0 && len > 0) {
+		while (*text!=0  &&  len>0) {
 			c = (unsigned char)*text;
 			width += fnt->screen_width[c];
 			text++;

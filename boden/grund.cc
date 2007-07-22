@@ -82,10 +82,9 @@ static inthashtable_tpl<uint32, char*> ground_texts;
 
 static inline uint32 get_ground_text_key(const karte_t* welt, const koord3d& k)
 {
-	return
-		(k.x << 19) +
-		(k.y <<  6) +
-		((k.z - welt->gib_grundwasser()) / Z_TILE_STEP);
+	return (k.x << 19) + (k.y <<  6);
+// only kartenboden can have text!
+//		(k.x << 19) + (k.y <<  6) + ((k.z - welt->gib_grundwasser()) / Z_TILE_STEP);
 }
 
 
@@ -113,19 +112,21 @@ void grund_t::entferne_grund_info() const
 
 void grund_t::setze_text(const char *text)
 {
-	const uint32 n = get_ground_text_key(welt, pos);
-	if(text) {
-		char* new_text = strdup(text);
-		free(ground_texts.remove(n));
-		ground_texts.put(n, new_text);
-		set_flag(has_text);
-		set_flag(dirty);
-		welt->setze_dirty();
-	} else if(get_flag(has_text)) {
-		free(ground_texts.remove(n));
-		clear_flag(has_text);
-		set_flag(dirty);
-		welt->setze_dirty();
+	if(!get_flag(grund_t::is_kartenboden)) {
+		const uint32 n = get_ground_text_key(welt, pos);
+		if(text) {
+			char* new_text = strdup(text);
+			free(ground_texts.remove(n));
+			ground_texts.put(n, new_text);
+			set_flag(has_text);
+			set_flag(dirty);
+			welt->setze_dirty();
+		} else if(get_flag(has_text)) {
+			free(ground_texts.remove(n));
+			clear_flag(has_text);
+			set_flag(dirty);
+			welt->setze_dirty();
+		}
 	}
 }
 
