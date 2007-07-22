@@ -105,6 +105,7 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 	b_show_schedule.set_tooltip("Shows the currently selected schedule");
 	b_show_schedule.add_listener(this);
 	add_komponente( &b_show_schedule );
+
 	// show/hide schedule
 	b_show_fab_connections.init(button_t::square, "factory details", koord(2,BUTTON_HEIGHT*2+4), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
 	b_show_fab_connections.set_tooltip("Shows consumer/suppliers for factories");
@@ -464,6 +465,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 
 	b_rotate45.pressed = reliefkarte_t::gib_karte()->rotate45;
 	b_show_schedule.pressed = reliefkarte_t::gib_karte()->is_show_schedule;
+	b_show_fab_connections.pressed = reliefkarte_t::gib_karte()->is_show_fab;
 
 	b_show_legend.pressed = legend_visible;
 	b_show_scale.pressed = scale_visible;
