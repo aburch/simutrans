@@ -174,8 +174,13 @@ void grund_t::rdwr(loadsave_t *file)
 	else {
 		const char *text = 0;
 		file->rdwr_str(text, "+");
-		setze_text(text);
-		guarded_free((void *)text);
+		if(text) {
+			// since only map gounrd may have text, we are map ground for a second
+			flags |= is_kartenboden;
+			setze_text(text);
+			guarded_free((void *)text);
+			flags &= ~is_kartenboden;
+		}
 	}
 
 	if(file->get_version()<99007) {

@@ -260,7 +260,6 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file)
 					gr = 0; // Hajo: keep compiler happy, fatal() never returns
 					dbg->fatal("planquadrat_t::rdwr()","Error while loading game: Unknown ground type '%d'",gtyp);
 			}
-
 			// check if we have a matching building here, otherwise set to nothing
 			if (gr && gtyp == grund_t::fundament && gr->find<gebaeude_t>() == 0) {
 				koord3d pos = gr->gib_pos();
@@ -278,6 +277,7 @@ DBG_MESSAGE("planquadrat_t::rwdr", "unknown building (or prepare for factory) at
 				}
 				else {
 					boden_hinzufuegen(gr);
+					assert(!gr->get_flag(grund_t::has_text));
 				}
 			}
 		} while(gr != 0);
