@@ -1476,7 +1476,7 @@ void stadt_t::step_passagiere()
 	halthandle_t start_halt = halthandle_t();
 	for (uint h = 0; h < plan->get_haltlist_count(); h++) {
 		halthandle_t halt = halt_list[h];
-		if (halt->is_enabled(wtyp) && halt->gib_ware_summe(wtyp) <= halt->get_capacity()) {
+		if (halt->is_enabled(wtyp)  &&  halt->gib_ware_summe(wtyp)<=halt->get_capacity()) {
 			start_halt = halt;
 			break;
 		}
@@ -1584,7 +1584,7 @@ void stadt_t::step_passagiere()
 				bool found = false;
 				for (uint i = 0; i < plan->get_haltlist_count(); i++) {
 					halthandle_t test_halt = halt_list[i];
-					if (test_halt->is_enabled(wtyp) && (start_halt == test_halt || test_halt->gib_warenziele(wtyp->gib_catg_index())->contains(wz))) {
+					if (test_halt->is_enabled(wtyp)  &&  (start_halt==test_halt  ||  test_halt->gib_warenziele(wtyp->gib_catg_index())->contains(wz))) {
 						found = true;
 						start_halt = test_halt;
 						break;
@@ -1609,10 +1609,24 @@ void stadt_t::step_passagiere()
 						ret_halt->add_pax_no_route(pax_left_to_do);
 					}
 				}
+				else {
+					// return halt crowded
+					ret_halt->add_pax_unhappy(pax_left_to_do);
+				}
 			}
 			INT_CHECK( "simcity 1579" );
 		}
 	} else {
+		// the unhappy passengers will be added to all crowded stops
+		// however, there might be no stop too
+		for(  uint h=0;  h<plan->get_haltlist_count(); h++  ) {
+			halthandle_t halt = halt_list[h];
+			if (halt->is_enabled(wtyp)) {
+//			assert(halt->gib_ware_summe(wtyp)>halt->get_capacity();
+				halt->add_pax_unhappy(num_pax);
+			}
+		}
+
 		// all passengers without suitable start:
 		// fake one ride to get a proper display of destinations (although there may be more) ...
 		pax_zieltyp will_return;
