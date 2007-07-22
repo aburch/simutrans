@@ -1865,7 +1865,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		koord k;
 
 		DBG_MESSAGE("check_bau_rathaus()", "bev=%d, new=%d", bev, neugruendung);
-		char *old_name = strdup(gib_name());
+		const char *old_name = strdup( neugruendung ? load_name : gib_name() );
 		setze_name(NULL);
 
 		if (!neugruendung) {
@@ -1953,7 +1953,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		// update position (where the name is)
 		pos = best_pos;
 		setze_name(old_name);
-		free(old_name);
+		free((void *)old_name);
 	}
 
 	// Hajo: paranoia - ensure correct bounds in all cases

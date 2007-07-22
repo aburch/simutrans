@@ -112,7 +112,7 @@ void grund_t::entferne_grund_info() const
 
 void grund_t::setze_text(const char *text)
 {
-	if(!get_flag(grund_t::is_kartenboden)) {
+	if(get_flag(grund_t::is_kartenboden)) {
 		const uint32 n = get_ground_text_key(welt, pos);
 		if(text) {
 			char* new_text = strdup(text);
