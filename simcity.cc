@@ -1656,7 +1656,7 @@ koord stadt_t::gib_zufallspunkt() const
 	koord k = gb->gib_pos().gib_2d();
 	if(!welt->ist_in_kartengrenzen(k)) {
 		// this building should not be in this list, since it has been already deleted!
-		dbg->error("stadt_t::gib_zufallspunkt()", "illegal building %p removing!", gb);
+		dbg->error("stadt_t::gib_zufallspunkt()", "illegal building in city list of %s: %p removing!", this->gib_name(), gb);
 		const_cast<stadt_t*>(this)->buildings.remove(gb);
 		k = koord(0, 0);
 	}

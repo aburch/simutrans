@@ -246,7 +246,7 @@ void haltestelle_t::destroy_all(karte_t *welt)
 {
 	haltestelle_t::welt = welt;
 	while (!alle_haltestellen.empty()) {
-		halthandle_t halt = alle_haltestellen.remove_first();
+		halthandle_t halt = alle_haltestellen.front();
 		destroy(halt);
 	}
 }
@@ -629,7 +629,7 @@ void haltestelle_t::rebuild_destinations()
 		const linehandle_t line = registered_lines[i];
 		fahrplan_t *fpl = line->get_fahrplan();
 		assert(fpl);
-		if(line->count_convoys()>0  &&  line->get_convoy(0)->gib_besitzer()==gib_besitzer()) {
+		if(line->count_convoys()>0  &&  (i_am_public  ||  line->get_convoy(0)->gib_besitzer()==gib_besitzer())) {
 			for( int j=0; j<line->get_goods_catg_index().get_count();  j++  ) {
 				hat_gehalten( warenbauer_t::gib_info_catg_index(line->get_goods_catg_index()[j]), fpl );
 			}
