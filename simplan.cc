@@ -277,7 +277,11 @@ DBG_MESSAGE("planquadrat_t::rwdr", "unknown building (or prepare for factory) at
 				}
 				else {
 					boden_hinzufuegen(gr);
-					assert(!gr->get_flag(grund_t::has_text));
+					// only ground can have text => transfer text
+					if(ground_size>1  &&  gr->get_flag(grund_t::has_text)) {
+						data.some[0]->set_flag(grund_t::has_text);
+						gr->clear_flag(grund_t::has_text);
+					}
 				}
 			}
 		} while(gr != 0);
