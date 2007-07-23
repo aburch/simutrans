@@ -410,15 +410,8 @@ bool convoi_t::sync_step(long delta_t)
 
 		case LEAVING_DEPOT:
 			{
-				// first: check for free route till next signal
-				if(steps_driven==0) {
-					int dummy;
-					fahr[0]->setze_erstes(true);
-					if(!fahr[0]->ist_weg_frei(dummy)) {
-						return true;
-					}
-					fahr[0]->setze_erstes(false);
-				}
+				// we must avoid stops of the incomplete train => switch of signal checks!
+				fahr[0]->setze_erstes(false);
 
 				// ok, so we will accelerate
 				akt_speed_soll = max( akt_speed_soll, kmh_to_speed(30) );
@@ -625,25 +618,23 @@ void convoi_t::step()
 			{
 				vehikel_t* v = fahr[0];
 
-				if((self.get_id()&1)==(welt->gib_steps()&1)) {
-					int restart_speed=-1;
-					if (v->ist_weg_frei(restart_speed)) {
-						// can reserve new block => drive on
-						state = DRIVING;
-						if(haltestelle_t::gib_halt(welt,v->gib_pos()).is_bound()) {
-							v->play_sound();
-						}
+				int restart_speed=-1;
+				if (v->ist_weg_frei(restart_speed)) {
+					// can reserve new block => drive on
+					state = (steps_driven==0) ? LEAVING_DEPOT : DRIVING;
+					if(haltestelle_t::gib_halt(welt,v->gib_pos()).is_bound()) {
+						v->play_sound();
 					}
-					if(restart_speed>=0) {
-						akt_speed = restart_speed;
-					}
-					// wait a little before next try
-					if(state==CAN_START  ||  state==CAN_START_ONE_MONTH) {
-						wait_lock = 1000;
-					}
-					else if(state==CAN_START_TWO_MONTHS) {
-						wait_lock = 2500;
-					}
+				}
+				if(restart_speed>=0) {
+					akt_speed = restart_speed;
+				}
+				// wait a little before next try
+				if(state==CAN_START  ||  state==CAN_START_ONE_MONTH) {
+					wait_lock = 1000;
+				}
+				else if(state==CAN_START_TWO_MONTHS) {
+					wait_lock = 2500;
 				}
 			}
 			break;
@@ -1237,9 +1228,10 @@ convoi_t::vorfahren()
 			}
 		}
 		v0->darf_rauchen(true);
+		v0->setze_erstes(true); // switches on signal checks to reserve the next route
 
 		// until all other are on the track
-		state = LEAVING_DEPOT;
+		state = CAN_START;
 	}
 	else {
 		// still leaving depot (steps_driven!=0) or going in other direction or misalignment?

@@ -847,17 +847,27 @@ vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu
 	if(ist_erstes) {
 		sint32 akt_speed = speed_limit;
 
-		// break at the end of the route
-		uint32 brake_speed_soll = akt_speed;
-		switch(cnv->get_next_stop_index()+1-route_index) {
-			case 3: brake_speed_soll = kmh_to_speed(200); break;
-			case 2: brake_speed_soll = kmh_to_speed(100); break;
-			case 1: brake_speed_soll = kmh_to_speed(50); break;
-			case 0: brake_speed_soll = kmh_to_speed(25); break;
-			default: break;
-		}
-		if(brake_speed_soll<akt_speed) {
-			akt_speed = brake_speed_soll;
+		uint32 tiles_left = cnv->get_next_stop_index()+1-route_index;
+		if(tiles_left<4) {
+			// break at the end of stations/in front of signals
+			uint32 brake_speed_soll = akt_speed;
+
+			if(check_for_finish) {
+				// for the half last tile to stop in stations only
+				akt_speed = kmh_to_speed(25);
+			}
+			else {
+				switch(tiles_left) {
+					case 3: brake_speed_soll = kmh_to_speed(200); break;
+					case 2: brake_speed_soll = kmh_to_speed(100); break;
+					case 1: brake_speed_soll = kmh_to_speed(50); break;
+					case 0: assert(1);
+					default: break;
+				}
+			}
+			if(brake_speed_soll<akt_speed) {
+				akt_speed = brake_speed_soll;
+			}
 		}
 		// speed is limited anyway in the convoi
 		cnv->setze_akt_speed_soll( akt_speed );
