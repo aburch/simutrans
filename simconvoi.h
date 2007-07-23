@@ -176,7 +176,7 @@ private:
 	/* Number of steps the current convoi did already
 	 * (only needed for leaving/entering depot)
 	 */
-	uint16 steps_driven;
+	sint16 steps_driven;
 
 	/**
 	* Gesamtleistung. Wird nicht gespeichert, sondern aus den Einzelleistungen

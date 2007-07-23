@@ -109,7 +109,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	convoi_info = NULL;
 
 	anz_vehikel = 0;
-	steps_driven = 0;
+	steps_driven = -1;
 	withdraw = false;
 	has_obsolete = false;
 	no_load = false;
@@ -425,7 +425,7 @@ bool convoi_t::sync_step(long delta_t)
 					// until all are moving
 					if(v_nr==anz_vehikel) {
 						fahr[0]->setze_erstes(true);
-						steps_driven = 0;
+						steps_driven = -1;
 						state = DRIVING;
 						return true;
 					}
@@ -1240,7 +1240,7 @@ convoi_t::vorfahren()
 			for(unsigned i=0; i<anz_vehikel; i++) {
 				vehikel_t* v = fahr[i];
 
-				steps_driven = 0;
+				steps_driven = -1;
 				grund_t* gr = welt->lookup(v->gib_pos());
 				if(gr) {
 					// remove from blockstrecke
@@ -1571,7 +1571,7 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->get_version()<99014) {
-		steps_driven = 0;
+		steps_driven = -1;
 	}
 	else {
 		file->rdwr_short( steps_driven, "s" );
