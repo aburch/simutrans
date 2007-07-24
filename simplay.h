@@ -63,20 +63,18 @@ class ware_production_t;
 class spieler_t
 {
 public:
-	enum zustand {NEUE_ROUTE,BAUE_VERBINDUNG,BAUE_BUS_START,BAUE_BUS_ZIEL,CHECK_CONVOI};
-
-	enum subzustand {
+	enum zustand {
 		NR_INIT,
 		NR_SAMMLE_ROUTEN,
 		NR_BAUE_ROUTE1,
 		NR_BAUE_SIMPLE_SCHIENEN_ROUTE,
-		NR_BAUE_SCHIENEN_ROUTE1,
-		NR_BAUE_SCHIENEN_ROUTE2,
 		NR_BAUE_STRASSEN_ROUTE,
-		NR_BAUE_STRASSEN_ROUTE2,
+		NR_BAUE_WATER_ROUTE,
 		NR_BAUE_CLEAN_UP,
 		NR_RAIL_SUCCESS,
-		NR_ROAD_SUCCESS
+		NR_ROAD_SUCCESS,
+		NR_WATER_SUCCESS,
+		CHECK_CONVOI
 	};
 
 	enum { MAX_KONTO_VERZUG = 3 };
@@ -182,7 +180,6 @@ private:
 
 	// vars für die KI
 	enum zustand state;
-	enum subzustand substate;
 
 	/* test more than one supplier and more than one good *
 	 * save last factory for building next supplier/consumer *
@@ -198,6 +195,7 @@ private:
 	const vehikel_besch_t *rail_vehicle;
 	const vehikel_besch_t *rail_engine;
 	const vehikel_besch_t *road_vehicle;
+	const vehikel_besch_t *ship_vehicle;
 
 	// and the convoi will run on this track:
 	const weg_besch_t *rail_weg ;
@@ -222,8 +220,13 @@ private:
 	void do_passenger_ki();
 	void do_ki();
 
-	bool suche_platz(int x, int y, koord *);
-	bool suche_platz(int x, int y, int dx, int dy, koord off, koord *);
+	// return true, if there is already a connection
+	bool check_connection( koord start_pos, koord end_pos, const ware_besch_t *w ) const;
+
+	// find space for station
+	bool suche_platz(koord pos, koord &size, koord *dirs) const;
+	bool suche_platz(koord &start, koord &size, koord target, koord off);
+	bool suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length);
 
 	// all for passenger transport
 	bool is_connected(const koord star_pos, const koord end_pos, const ware_besch_t *wtyp);
@@ -248,8 +251,6 @@ private:
 
 	void create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
 	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int ladegrad);
-
-	bool suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab);    // neue Transportroute anlegen
 
 	void init_texte();
 
@@ -428,7 +429,7 @@ public:
 	void laden_abschliessen();
 
 	// fuer tests
-	koord platz1, platz2;
+	koord platz1, size1, platz2, size2;
 
 	bool create_simple_road_transport();    // neue Transportroute anlegen
 	bool create_simple_rail_transport();

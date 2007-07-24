@@ -1204,15 +1204,37 @@ int karte_t::lower(koord pos)
 }
 
 
+static koord ebene_offsets[] = {koord(0,0), koord(1,0), koord(0,1), koord(1,1)};
 
-bool
-karte_t::ebne_planquadrat(koord pos, sint16 hgt)
+bool karte_t::can_ebne_planquadrat(koord pos, sint16 hgt)
 {
-	koord offsets[] = {koord(0,0), koord(1,0), koord(0,1), koord(1,1)};
+	for(int i=0; i<4; i++) {
+		koord p = pos + ebene_offsets[i];
+
+		if(lookup_hgt(p) > hgt) {
+
+			if(!can_lower_to(p.x, p.y, hgt)) {
+				return false;
+			}
+
+		} else if(lookup_hgt(p) < hgt) {
+
+			if(!can_raise_to(p.x, p.y, hgt)) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+
+
+bool karte_t::ebne_planquadrat(koord pos, sint16 hgt)
+{
 	bool ok = true;
 
 	for(int i=0; i<4; i++) {
-		koord p = pos + offsets[i];
+		koord p = pos + ebene_offsets[i];
 
 		if(lookup_hgt(p) > hgt) {
 
@@ -1236,8 +1258,7 @@ karte_t::ebne_planquadrat(koord pos, sint16 hgt)
 
 
 
-void
-karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord),
+void karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord),
                              int zeiger_bild,
 			     int zeiger_versatz,
 			     int ok_sound,
