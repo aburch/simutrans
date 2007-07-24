@@ -887,9 +887,27 @@ DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.gib_max_n()
 			// found a route => check if I can delete anything on it
 			for( int i=0;  can_delete  &&  i<=verbindung.gib_max_n();  i++  ) {
 				grund_t *gr=welt->lookup(verbindung.position_bei(i));
-				if(!gr  ||  gr->gib_weg(wt)==NULL  ||  !sp->check_owner(gr->gib_weg(wt)->gib_besitzer())) {
+				if(gr) {
+					if(gr->gib_weg(wt)==NULL  ||  !sp->check_owner(gr->gib_weg(wt)->gib_besitzer())) {
+						can_delete = false;
+					}
+					else {
+						if(gr->kann_alle_obj_entfernen(sp)!=NULL) {
+							// we have to do a fine check
+							for( uint i=1;  i<gr->gib_top();  i++  ) {
+								uint8 type = gr->obj_bei(i)->gib_typ();
+								if(type>=ding_t::automobil  &&  type!=ding_t::aircraft) {
+									can_delete = false;
+									break;
+								}
+							}
+						}
+					}
+				}
+				else {
 					can_delete = false;
 				}
+
 			}
 
 			// if successful => delete everything

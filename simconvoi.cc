@@ -659,10 +659,8 @@ void convoi_t::step()
 
 		// must be here; may otherwise confuse window management
 		case SELF_DESTRUCT:
-			for(unsigned f=0; f<anz_vehikel; f++) {
-				const vehikel_t* v = fahr[f];
-				besitzer_p->buche(v->calc_restwert(), v->gib_pos().gib_2d(), COST_NEW_VEHICLE);
-			}
+			besitzer_p->buche( calc_restwert(), gib_pos().gib_2d(), COST_NEW_VEHICLE );
+			welt->setze_dirty();
 			destroy();
 			break;
 

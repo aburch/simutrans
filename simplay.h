@@ -194,14 +194,14 @@ private:
 	fabrik_t *ziel;
 	fabrik_t *last_ziel;
 
-  // we will use this vehicle!
-  const vehikel_besch_t *rail_vehicle;
-  const vehikel_besch_t *rail_engine;
-  const vehikel_besch_t *road_vehicle;
+	// we will use this vehicle!
+	const vehikel_besch_t *rail_vehicle;
+	const vehikel_besch_t *rail_engine;
+	const vehikel_besch_t *road_vehicle;
 
 	// and the convoi will run on this track:
-  const weg_besch_t *rail_weg ;
-  const weg_besch_t *road_weg ;
+	const weg_besch_t *rail_weg ;
+	const weg_besch_t *road_weg ;
 
 	int count_rail;
 	int count_road;

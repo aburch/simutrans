@@ -1055,10 +1055,9 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 							passenger += cnv->get_finance_history(i,CONVOI_TRANSPORTED_GOODS);
 						}
 						if(passenger==0) {
-							// now passengers for two months?
+							// no passengers for two months?
 							// well, then delete this (likely stucked somewhere)
 DBG_MESSAGE("spieler_t::do_passenger_ki()","convoi %s not needed!",cnv->gib_name());
-							buche( -cnv->calc_restwert(), cnv->gib_pos().gib_2d(), COST_NEW_VEHICLE );
 							cnv->self_destruct();
 							break;
 						}
@@ -1137,6 +1136,11 @@ spieler_t::do_ki()
 			switch(substate) {
 
 				case NR_INIT:
+					if(konto_ueberzogen>0) {
+						// nothing to do but to remove unneeded convois to gain some money
+						state = CHECK_CONVOI;
+						break;
+					}
 					gewinn = -1;
 					count = 0;
 					// calculate routes only for account > 10000
@@ -1546,23 +1550,61 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 		{
 			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
 				const convoihandle_t cnv = *i;
-				if(cnv->gib_besitzer()==this  &&  cnv->gib_vehikel(0)->gib_besch()->get_waytype()==road_wt) {
-					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
-					// take care, that the vehicle is old enough ...
-					if((welt->get_current_month()-cnv->gib_vehikel(0)->gib_insta_zeit())>12  &&  cnv->gib_jahresgewinn()==0  ){
-						sint64 goods=0;
-						for( int i=0;  i<MAX_MONTHS;  i ++) {
-							goods += cnv->get_finance_history(i,CONVOI_TRANSPORTED_GOODS);
-						}
-						if(goods==0) {
-							// now passengers for two months?
-							// well, then delete this (likely stucked somewhere)
-DBG_MESSAGE("spieler_t::do_ki()","convoi %s not needed!",cnv->gib_name());
-							buche( -cnv->calc_restwert(), cnv->gib_pos().gib_2d(), COST_NEW_VEHICLE );
-							cnv->self_destruct();
-							break;
+				if(cnv->gib_besitzer()!=this) {
+					continue;
+				}
+
+				// apparently we gt the toatlly wrong vehicle here ...
+				bool delete_this = (cnv->gib_jahresgewinn() < -(sint32)cnv->calc_restwert());
+
+				// check for empty vehicles (likely stucked) that are making no plus and remove them ...
+				// take care, that the vehicle is old enough ...
+				if(!delete_this  &&  (welt->get_current_month()-cnv->gib_vehikel(0)->gib_insta_zeit())>6  &&  cnv->gib_jahresgewinn()<=0  ){
+					sint64 goods=0;
+					// no goods for six months?
+					for( int i=0;  i<6;  i ++) {
+						goods += cnv->get_finance_history(i,CONVOI_TRANSPORTED_GOODS);
+					}
+					delete_this = (goods==0)  ||  cnv->gib_jahresgewinn()<cnv->calc_restwert();
+				}
+
+				// well, then delete this (likely stucked somewhere) or insanely unneeded
+				if(delete_this) {
+					waytype_t wt = cnv->gib_vehikel(0)->gib_besch()->get_waytype();
+					linehandle_t line = cnv->get_line();
+					DBG_MESSAGE("spieler_t::do_ki()","%s retires convoi %s!", gib_name(), cnv->gib_name());
+
+					koord3d start_pos = cnv->get_route()->position_bei(0);
+					koord3d end_pos = cnv->get_route()->position_bei(cnv->get_route()->gib_max_n());
+
+					cnv->self_destruct();
+					cnv->step();	// to really get rid of it
+
+					value_t v;
+					v.i = (int)wt;
+					if(wt==track_wt) {
+						wkz_wayremover(this,welt,INIT,v);
+						wkz_wayremover(this,welt,start_pos.gib_2d(),v);
+						wkz_wayremover(this,welt,end_pos.gib_2d(),v);
+					}
+					else {
+						// last convoi => remove completely<
+						if(line.is_bound()  &&  line->count_convoys()==0) {
+							simlinemgmt.delete_line( line );
+
+							// cannot remove all => likely some other convois there too
+							wkz_wayremover(this,welt,start_pos.gib_2d(),v);
+							if(!wkz_wayremover(this,welt,end_pos.gib_2d(),v)) {
+								// remove loading bays and road
+								wkz_remover(this,welt,start_pos.gib_2d());
+								wkz_remover(this,welt,start_pos.gib_2d());
+								// remove loading bays and road
+								wkz_remover(this,welt,end_pos.gib_2d());
+								wkz_remover(this,welt,end_pos.gib_2d());
+							}
 						}
 					}
+					break;
 				}
 			}
 			state = NEUE_ROUTE;
@@ -2736,10 +2778,6 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s, state %i!", cnv->
 void
 spieler_t::init_undo( waytype_t wtype, unsigned short max )
 {
-	if(player_nr!=welt->get_active_player_nr()) {
-		// this is an KI
-		return;
-	}
 	// only human player
 	// prissi: allow for UNDO for real player
 DBG_MESSAGE("spieler_t::int_undo()","undo tiles %i",max);

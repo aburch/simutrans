@@ -299,11 +299,11 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search","try freight car %s",test_besch->g
               // assign this vehicle, if we have none found one yet, or we found only a too week one
               if(  besch!=NULL  ) {
                 // it is cheaper to run? (this is most important)
-                difference = (besch->gib_zuladung()*1000)/besch->gib_betriebskosten() > (test_besch->gib_zuladung()*1000)/test_besch->gib_betriebskosten() ? 25 : 0;
+	            difference += (besch->gib_zuladung()*1000)/besch->gib_betriebskosten() > (test_besch->gib_zuladung()*1000)/test_besch->gib_betriebskosten() ? -20 : 20;
                 if(  target_power>0  ) {
 	             // it is strongerer?
      	             difference += (besch->gib_leistung()*besch->get_gear())/64 < power ? -10 : 10;
-     	           }
+	   	           }
                 // it is faster? (although we support only up to 120km/h for goods)
                 difference += (besch->gib_geschw() < test_besch->gib_geschw())? -10 : 10;
                 // it is cheaper? (not so important)
