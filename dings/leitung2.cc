@@ -99,14 +99,9 @@ fabrik_t *
 leitung_t::suche_fab_4(const koord pos)
 {
 	for(int k=0; k<4; k++) {
-		const grund_t *gr = welt->lookup(pos+koord::nsow[k])->gib_kartenboden();
-		const int n = gr->gib_top();
-
-		for(int i=0; i<n; i++) {
-			const ding_t * dt=gr->obj_bei(i);
-			if(dt!=NULL && dt->get_fabrik()!=NULL) {
-				return dt->get_fabrik();
-			}
+		fabrik_t *fab = fabrik_t::gib_fab( welt, pos+koord::nsow[k] );
+		if(fab) {
+			return fab;
 		}
 	}
 	return NULL;

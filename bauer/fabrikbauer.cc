@@ -637,23 +637,20 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%
 				INT_CHECK( "fabrikbauer 702" );
 
 				// now substract current supplier
-				const ding_t * dt = welt->lookup_kartenboden(k.gib_2d())->obj_bei(0);
-				if(dt  &&  dt->get_fabrik()) {
-					fabrik_t *fab = dt->get_fabrik();
-					if(fab==NULL) {
-						continue;
-					}
-					new_factories.append(fab);
+				fabrik_t *fab = fabrik_t::gib_fab(welt, k.gib_2d() );
+				if(fab==NULL) {
+					continue;
+				}
+				new_factories.append(fab);
 
-					// connect new supplier to us
-					for(int gg=0;gg<fab->gib_besch()->gib_produkte();gg++) {
-						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware) {
-							sint32 produktion = fab->get_base_production()*fab->gib_besch()->gib_produkt(gg)->gib_faktor();
-							// the take care of how much this factorycould supply
-							verbrauch -= produktion;
+				// connect new supplier to us
+				for(int gg=0;gg<fab->gib_besch()->gib_produkte();gg++) {
+					if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware) {
+						sint32 produktion = fab->get_base_production()*fab->gib_besch()->gib_produkt(gg)->gib_faktor();
+						// the take care of how much this factorycould supply
+						verbrauch -= produktion;
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","new supplier %s can supply approx %i of %s to us",fab->gib_besch()->gib_name(),produktion,ware->gib_name());
-							break;
-						}
+						break;
 					}
 				}
 				retry = 0;

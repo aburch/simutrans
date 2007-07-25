@@ -111,7 +111,7 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
  */
 gebaeude_t::~gebaeude_t()
 {
-	if(!is_factory  &&  ptr.stadt!=NULL) {
+	if(get_stadt()) {
 		ptr.stadt->remove_gebaeude_from_stadt(this);
 	}
 
@@ -625,7 +625,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 void
 gebaeude_t::rdwr(loadsave_t *file)
 {
-	if(get_fabrik()==NULL || file->is_loading()) {
+	if(get_fabrik()==NULL  ||  file->is_loading()) {
 		// Gebaude, die zu einer Fabrik gehoeren werden beim laden
 		// der Fabrik neu erzeugt
 		ding_t::rdwr(file);

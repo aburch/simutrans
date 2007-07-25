@@ -1367,29 +1367,19 @@ int spieler_t::suche_transport_quelle(fabrik_t **qfab, int *quelle_ware, fabrik_
 	// now iterate over all suppliers
 	for(  int i=0;  i<lieferquelle_anzahl;  i++  ) {
 		// find source
-		const planquadrat_t* p = welt->lookup(lieferquellen[i]);
-		if (p) {
-			// valid koordinate?
-			ding_t* dt = p->gib_kartenboden()->first_obj();
-			if(dt==NULL) {
-				// is already served ...
-				continue;
+		fabrik_t *start_neu = fabrik_t::gib_fab( welt, lieferquellen[i] );
+		// get all ware
+		const vector_tpl<ware_production_t>& ausgang = zfab->gib_ausgang();
+		const int waren_anzahl = ausgang.get_count();
+		// for all products
+		for(int ware_nr=0;  ware_nr<waren_anzahl ;  ware_nr++  ) {
+			int dieser_gewinn = guess_gewinn_transport_quelle_ziel( start_neu, &ausgang[ware_nr], ware_nr, zfab );
+			// more income on this line
+			if(  dieser_gewinn>gewinn  ) {
+				*qfab = start_neu;
+				*quelle_ware = ware_nr;
+				gewinn = dieser_gewinn;
 			}
-			fabrik_t * start_neu = dt->get_fabrik();
-			// get all ware
-			const vector_tpl<ware_production_t>& ausgang = zfab->gib_ausgang();
-			const int waren_anzahl = ausgang.get_count();
-			// for all products
-			for(int ware_nr=0;  ware_nr<waren_anzahl ;  ware_nr++  ) {
-				int dieser_gewinn = guess_gewinn_transport_quelle_ziel( start_neu, &ausgang[ware_nr], ware_nr, zfab );
-				// more income on this line
-				if(  dieser_gewinn>gewinn  ) {
-					*qfab = start_neu;
-					*quelle_ware = ware_nr;
-					gewinn = dieser_gewinn;
-				}
-			}
-
 		}
 	}
 
@@ -1446,22 +1436,15 @@ DBG_MESSAGE("spieler_t::suche_transport_ziel","Lieferziele %d",lieferziel_anzahl
 			}
 
 			int	dieser_gewinn=-1;
-			fabrik_t *zfab = NULL;
-
-			const planquadrat_t* p = welt->lookup(lieferziel);
-			if (p) {
-				ding_t* dt = p->gib_kartenboden()->first_obj();
-				if(dt) {
-					zfab = dt->get_fabrik();
-					dieser_gewinn = guess_gewinn_transport_quelle_ziel( qfab, &ware, ware_nr, zfab );
+			fabrik_t *zfab = fabrik_t::gib_fab( welt, lieferziel );
+			if(zfab) {
+				dieser_gewinn = guess_gewinn_transport_quelle_ziel( qfab, &ware, ware_nr, zfab );
+				if(dieser_gewinn > KI_MIN_PROFIT  &&  gewinn<dieser_gewinn  ) {
+					// ok, this seems good or even better ...
+					*quelle_ware = ware_nr;
+					*ziel = zfab;
+					gewinn = dieser_gewinn;
 				}
-			}
-			// Is it better?
-			if(dieser_gewinn > KI_MIN_PROFIT  &&  gewinn<dieser_gewinn  ) {
-				// ok, this seems good or even better ...
-				*quelle_ware = ware_nr;
-				*ziel = zfab;
-				gewinn = dieser_gewinn;
 			}
 		}
 	}

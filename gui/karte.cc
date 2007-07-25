@@ -212,20 +212,22 @@ reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 			case grund_t::fundament:
 				{
 					// object at zero is either factory or house (or attraction ... )
-					ding_t * dt = gr->first_obj();
-					if(dt == NULL  ||  dt->get_fabrik() == NULL) {
+					gebaeude_t *gb = gr->find<gebaeude_t>();
+					fabrik_t *fab = gb ? gb->get_fabrik() : NULL;
+					if(fab==NULL) {
 						color = COL_GREY3;
 					}
 					else {
-						color = dt->get_fabrik()->gib_kennfarbe();
+						color = fab->gib_kennfarbe();
 					}
 				}
 				break;
 			case grund_t::wasser:
 				{
 					// object at zero is either factory or boat
-					ding_t * dt = gr->first_obj();
-					if(dt==NULL  ||  dt->get_fabrik()==NULL) {
+					gebaeude_t *gb = gr->find<gebaeude_t>();
+					fabrik_t *fab = gb ? gb->get_fabrik() : NULL;
+					if(fab==NULL) {
 #ifndef DOUBLE_GROUNDS
 						sint16 height = (gr->gib_grund_hang()&1);
 #else
@@ -235,7 +237,7 @@ reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 						//color = COL_BLUE;	// water with boat?
 					}
 					else {
-						color = dt->get_fabrik()->gib_kennfarbe();
+						color = fab->gib_kennfarbe();
 					}
 				}
 				break;

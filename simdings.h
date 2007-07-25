@@ -278,14 +278,6 @@ public:
 	virtual PLAYER_COLOR_VAL gib_outline_bild() const {return IMG_LEER;}
 
 	/**
-	 * Ein Objekt kann zu einer Fabrik gehören.
-	 * @return Einen Zeiger auf die Fabrik zu der das Objekt gehört oder NULL,
-	 * wenn das Objekt zu keiner Fabrik gehört.
-	 * @author Hj. Malthaner
-	 */
-	virtual fabrik_t* get_fabrik() const {return NULL;}
-
-	/**
 	 * Speichert den Zustand des Objekts.
 	 *
 	 * @param file Zeigt auf die Datei, in die das Objekt geschrieben werden

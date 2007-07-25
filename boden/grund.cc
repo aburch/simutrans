@@ -315,7 +315,7 @@ void grund_t::rdwr(loadsave_t *file)
 	dinge.rdwr(welt, file, gib_pos());
 
 	// need to add a crossing for old games ...
-	if (file->is_loading() && ist_uebergang() && !find<crossing_t>(2)) {
+	if (file->is_loading()  &&  ist_uebergang()  &&  !find<crossing_t>(2)) {
 		dinge.add( new crossing_t(welt, obj_bei(0)->gib_besitzer(), pos, ((weg_t *)obj_bei(0))->gib_waytype(), ((weg_t *)obj_bei(1))->gib_waytype() ) );
 	}
 }

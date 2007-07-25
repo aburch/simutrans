@@ -112,8 +112,8 @@ public:
 	 * wenn das Objekt zu keiner Fabrik gehört.
 	 * @author Hj. Malthaner
 	 */
-	virtual fabrik_t* get_fabrik() const {return is_factory?ptr.fab:NULL;}
-	stadt_t* get_stadt() const {return is_factory?NULL:ptr.stadt;}
+	fabrik_t* get_fabrik() const { return is_factory ? ptr.fab : NULL; }
+	stadt_t* get_stadt() const { return is_factory ? NULL : ptr.stadt; }
 
 	enum ding_t::typ gib_typ() const {return ding_t::gebaeude;}
 
