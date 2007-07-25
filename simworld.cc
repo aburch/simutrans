@@ -711,7 +711,6 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 
 		// Hajo: No owner so that roads can be removed!
 		wegbauer_t bauigel (this, 0);
-		bauigel.baubaer = false;
 		bauigel.route_fuer(wegbauer_t::strasse, besch);
 		bauigel.set_keep_existing_ways(true);
 		bauigel.set_maximum(umgebung_t::intercity_road_length);

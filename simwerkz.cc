@@ -1333,26 +1333,31 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 
 
 // built all types of stops but sea harbours
-static bool
-wkz_halt_aux(spieler_t *sp, karte_t *welt, koord pos,const haus_besch_t *besch,waytype_t wegtype,sint64 cost,const char *type_name)
+bool wkz_halt_aux(spieler_t *sp, karte_t *welt, koord pos,const haus_besch_t *besch,waytype_t wegtype,sint64 cost,const char *type_name)
 {
 DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besch->gib_name(), pos.x, pos.y, wegtype);
-	const char *p_error=(besch->gib_all_layouts()==4)?"No terminal station here!":"No through station here!";
+	const char *p_error=(besch->gib_all_layouts()==4) ? "No terminal station here!" : "No through station here!";
 
 	grund_t *bd = wkz_intern_koord_to_weg_grund(sp==welt->gib_spieler(1)?NULL:sp,welt,pos,wegtype);
 	if(!bd  &&  track_wt) {
 		bd = wkz_intern_koord_to_weg_grund(sp==welt->gib_spieler(1)?NULL:sp,welt,pos,monorail_wt);
 	}
 	if(!bd  ||  bd->gib_weg_hang()!=hang_t::flach  ||  bd->is_halt()) {
-		create_win(-1, -1, MESG_WAIT, new news_img(p_error), w_autodelete);
-		dbg->warning("wkz_halt_aux()", p_error );
+		if(sp==welt->get_active_player()) {
+			create_win( -1, -1, MESG_WAIT, new news_img(p_error), w_autodelete );
+		}
+		dbg->warning("wkz_halt_aux()", "%s at (%i,%i)", p_error, pos.x, pos.y );
 		return false;
 	}
 
 DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 
 	if(bd->gib_depot()) {
-		create_win(-1, -1, MESG_WAIT, new news_img("Tile not empty."), w_autodelete);
+		p_error = "Tile not empty.";
+		if(sp==welt->get_active_player()) {
+			create_win( -1, -1, MESG_WAIT, new news_img(p_error), w_autodelete );
+		}
+		dbg->warning("wkz_halt_aux()", "%s at (%i,%i)", p_error, pos.x, pos.y );
 		return false;
 	}
 
@@ -1370,7 +1375,10 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 		}
 		// not straight: sorry cannot built here ...
 		if(!ribi_t::ist_gerade(ribi)) {
-			create_win(-1, -1, MESG_WAIT, new news_img(p_error), w_autodelete);
+			if(sp==welt->get_active_player()) {
+				create_win( -1, -1, MESG_WAIT, new news_img(p_error), w_autodelete );
+			}
+			dbg->warning("wkz_halt_aux()", "%s at (%i,%i)", p_error, pos.x, pos.y );
 			return false;
 		}
 		layout = (ribi & ribi_t::nordsued)?0 :1;
@@ -1380,7 +1388,10 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 		ribi = bd->gib_weg_ribi_unmasked(wegtype);
 		// sorry cannot built here ... (not a terminal tile)
 		if(!ribi_t::ist_einfach(ribi)) {
-			create_win(-1, -1, MESG_WAIT, new news_img(p_error), w_autodelete);
+			if(sp==welt->get_active_player()) {
+				create_win( -1, -1, MESG_WAIT, new news_img(p_error), w_autodelete );
+			}
+			dbg->warning("wkz_halt_aux()", "%s at (%i,%i)", p_error, pos.x, pos.y );
 			return false;
 		}
 
@@ -1563,8 +1574,7 @@ DBG_MESSAGE("wkz_halt_aux()", "new segment for station");
  * cannot built sea harbours, since those are really different ...
  * @author prissi
  */
-int
-wkz_halt(spieler_t *sp, karte_t *welt, koord pos, value_t value)
+int wkz_halt(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 {
 	if(pos==INIT  ||  pos==EXIT) {
 		welt->gib_zeiger()->setze_area( welt->gib_einstellungen()->gib_station_coverage() );

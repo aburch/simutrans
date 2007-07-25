@@ -1094,7 +1094,7 @@ bool spieler_t::suche_platz(koord pos, koord &size, koord *dirs) const
 	for(  int dir=0;  dir<max_dir;  dir++  ) {
 		for( sint16 i=0;  i<=length;  i++  ) {
 			grund_t *gr = welt->lookup_kartenboden(  pos + (dirs[dir]*i)  );
-			if(gr==NULL  ||  gr->gib_halt().is_bound()  ||  !welt->can_ebne_planquadrat(pos,start_z)  ||  !(gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(this)==NULL)) {
+			if(gr==NULL  ||  gr->gib_halt().is_bound()  ||  !welt->can_ebne_planquadrat(pos,start_z)  ||  !gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(this)!=NULL) {
 				return false;
 			}
 		}
@@ -1238,169 +1238,6 @@ bool spieler_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length )
 		gr->obj_add( z );
 	}
 	return ok;
-}
-
-
-
-/* try harder to built a station:
- * check also sidewards
- * @author prissi
- */
-int spieler_t::baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel,fabrik_t *fab)
-{
-	int laenge = max(((rail_vehicle->get_length()*anz_vehikel)+rail_engine->get_length()+15)/16,1);
-	koord t = *p;
-
-	int baulaenge = 0;
-	ribi_t::ribi ribi = welt->lookup(*p)->gib_kartenboden()->gib_weg_ribi(track_wt);
-	int i;
-
-	koord zv ( ribi );
-
-	zv.x = -zv.x;
-	zv.y = -zv.y;
-
-DBG_MESSAGE("spieler_t::baue_bahnhof()","try to build a train station of length %d (%d vehicles) at (%i,%i) (ribi %i)", laenge, anz_vehikel, p->x, p->y, ribi);
-
-	if(abs(zv.x)+abs(zv.y)!=1) {
-		dbg->error("spieler_t::baue_bahnhof()","Not allowed here!");
-		return 0;
-	}
-
-	INT_CHECK("simplay 548");
-
-	const int hoehe = welt->lookup(t)->gib_kartenboden()->gib_hoehe();
-	t = *p;
-	for(i=0; i<laenge-1; i++) {
-		t += zv;
-		welt->ebne_planquadrat(t, hoehe);
-		// update image
-		for(int j=-1; j<=1; j++) {
-			for(int i=-1; i<=1; i++) {
-				if(welt->ist_in_kartengrenzen(t.x+i,t.y+j)) {
-					welt->lookup(t+koord(i,j))->gib_kartenboden()->calc_bild();
-				}
-			}
-		}
-	}
-
-	t = *p;
-	bool ok = true;
-
-	for(i=0; i<laenge-1; i++) {
-		t += zv;
-
-		const planquadrat_t *plan = welt->lookup(t);
-		grund_t *gr = plan ? plan->gib_kartenboden() : 0;
-
-		ok &= (gr != NULL) &&
-				(gr->ist_natur() || gr->gib_typ() == grund_t::fundament) &&
-				gr->kann_alle_obj_entfernen(this)==NULL &&  !gr->has_two_ways()  &&
-				gr->gib_weg_hang() == hang_t::flach  &&  !gr->is_halt();
-
-		if(ok) {
-			// remove city building here
-			const gebaeude_t* gb = gr->find<gebaeude_t>();
-			if(gb  &&  gb->gib_besitzer()==NULL) {
-				const char *msg=NULL;
-				wkz_remover_intern(this,welt,t,msg);
-			}
-		}
-		else {
-			// not ok? then try to extend station into the other direction
-			const planquadrat_t *plan = welt->lookup(*p-zv);
-			gr = plan ? plan->gib_kartenboden(): 0;
-
-			// try to extend station into the other direction
-			ok = (gr != NULL) &&
-					gr->hat_weg(track_wt) &&
-					gr->gib_weg_ribi(track_wt) == ribi_t::doppelt(ribi) &&
-					gr->kann_alle_obj_entfernen(this) == NULL &&  !gr->has_two_ways()  &&
-					gr->gib_weg_hang()== hang_t::flach  &&  !gr->is_halt();
-			if(ok) {
-DBG_MESSAGE("spieler_t::baue_bahnhof","go back one segment");
-				// remove city building here
-				const gebaeude_t* gb = gr->find<gebaeude_t>();
-				if(gb  &&  gb->gib_besitzer()==NULL) {
-					const char *msg=NULL;
-					wkz_remover_intern(this,welt,*p-zv,msg);
-				}
-				// change begin of station
-				(*p) -= zv;
-			}
-			t -= zv;
-		}
-	}
-
-	baulaenge = abs_distance(t+zv,*p);
-DBG_MESSAGE("spieler_t::baue_bahnhof","achieved length %i",baulaenge);
-	if(baulaenge==1  &&  laenge>1  &&  fab) {
-		// ok, maximum station length in one tile, better try something else
-		int cov = welt->gib_einstellungen()->gib_station_coverage();
-		const koord coverage_koord(cov, cov);
-		koord pos=*p;
-		sint32 cost = 0;
-		koord last_dir = koord((ribi_t::ribi)welt->lookup(*p)->gib_kartenboden()->gib_weg_ribi(track_wt));
-		while(1) {
-			grund_t *gr=welt->lookup(pos)->gib_kartenboden();
-			if(gr==NULL  ||  gr->gib_weg_hang()!=gr->gib_grund_hang()) {
-				break;
-			}
-			koord dir((ribi_t::ribi)gr->gib_weg_ribi(track_wt));
-			if(!fabrik_t::sind_da_welche(welt,pos-coverage_koord,pos+coverage_koord).is_contained(fab)) {
-				*p = pos;
-				break;
-			}
-			cost = gr->weg_entfernen(track_wt, true);
-			pos += dir;
-			buche(-cost, pos, COST_CONSTRUCTION);
-			if(dir!=last_dir  ||  welt->lookup(pos)->gib_kartenboden()->gib_weg_hang()!=hang_t::flach) {
-				// was a curve or a slope: try again
-				*p = pos;
-				return baue_bahnhof( quelle, p, anz_vehikel, fab );
-			}
-		}
-DBG_MESSAGE("spieler_t::baue_bahnhof","failed");
-		return 0;
-	}
-
-	INT_CHECK("simplay 593");
-
-	koord pos;
-
-	wegbauer_t bauigel(welt, this);
-	bauigel.baubaer = false;
-	bauigel.route_fuer(wegbauer_t::schiene, rail_weg);
-	bauigel.calc_straight_route(welt->lookup((*p)-zv)->gib_kartenboden()->gib_pos(), welt->lookup(t)->gib_kartenboden()->gib_pos());
-	bauigel.baue();
-
-	// to avoid broken stations, they will be always built next to an existing
-	bool make_all_bahnhof=false;
-
-	// find a freight train station
-	const haus_besch_t* besch = hausbauer_t::gib_random_station(haus_besch_t::bahnhof, welt->get_timeline_year_month(), haltestelle_t::WARE);
-	for(  pos=*p;  pos!=t+zv;  pos+=zv ) {
-		if(  make_all_bahnhof  ||  is_my_halt(pos+koord(-1,-1))  ||  is_my_halt(pos+koord(-1,1))  ||  is_my_halt(pos+koord(1,-1))  ||  is_my_halt(pos+koord(1,1))  ) {
-			// start building, if next to an existing station
-			make_all_bahnhof = true;
-			wkz_halt(this, welt, pos, besch);
-		}
-		INT_CHECK("simplay 753");
-	}
-	// now add the other squares (going backwards)
-	for(  pos=t;  pos!=*p-zv;  pos-=zv ) {
-		if(  !is_my_halt(pos)  ) {
-			wkz_halt(this, welt, pos, besch);
-		}
-	}
-
-DBG_MESSAGE("spieler_t::baue_bahnhof","set pos *p %i,%i to %i,%i",p->x,p->y,t.x,t.y);
-	// return endpos
-	*p = t;
-
-	laenge = min( anz_vehikel, (baulaenge*16 - rail_engine->get_length())/rail_vehicle->get_length() );
-//DBG_MESSAGE("spieler_t::baue_bahnhof","Final station at (%i,%i) with %i tiles for %i cars",p->x,p->y,baulaenge,laenge);
-	return laenge;
 }
 
 
@@ -1814,7 +1651,6 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","Already connection betw
 	wegbauer_t bauigel(welt, this);
 
 	bauigel.route_fuer( wegbauer_t::strasse, road_weg, tunnelbauer_t::find_tunnel(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()) );
-	bauigel.baubaer = true;
 
 	// we won't destroy cities (and save the money)
 	bauigel.set_keep_existing_faster_ways(true);
@@ -1839,6 +1675,211 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road fr
 
 
 
+
+
+
+/* try harder to built a station:
+ * check also sidewards
+ * @author prissi
+ */
+int spieler_t::baue_bahnhof(koord3d quelle, koord *p, int anz_vehikel, fabrik_t *fab)
+{
+	int laenge = max(((rail_vehicle->get_length()*anz_vehikel)+rail_engine->get_length()+15)/16,1);
+
+	int baulaenge = 0;
+	ribi_t::ribi ribi = welt->lookup(*p)->gib_kartenboden()->gib_weg_ribi(track_wt);
+	int i;
+
+	koord zv ( ribi );
+
+#if 1
+	koord t = *p;
+	bool ok = true;
+
+	for(i=0; i<laenge; i++) {
+		grund_t *gr = welt->lookup_kartenboden(t);
+		ok &= (gr != NULL) &&  !gr->has_two_ways()  &&  gr->gib_weg_hang()==hang_t::flach;
+		if(!ok) {
+			break;
+		}
+		baulaenge ++;
+		t += zv;
+	}
+
+	// too short
+	if(baulaenge==1) {
+		return 0;
+	}
+
+	// to avoid broken stations, they will be always built next to an existing
+	bool make_all_bahnhof=false;
+
+	// find a freight train station
+	const haus_besch_t* besch = hausbauer_t::gib_random_station(haus_besch_t::bahnhof, welt->get_timeline_year_month(), haltestelle_t::WARE);
+	koord pos;
+	for(  pos=t-zv;  pos!=*p;  pos-=zv ) {
+		if(  make_all_bahnhof  ||  is_my_halt(pos+koord(-1,-1))  ||  is_my_halt(pos+koord(-1,1))  ||  is_my_halt(pos+koord(1,-1))  ||  is_my_halt(pos+koord(1,1))  ) {
+			// start building, if next to an existing station
+			make_all_bahnhof = true;
+			wkz_halt_aux(this, welt, pos, besch, track_wt, umgebung_t::cst_multiply_station, "BF");
+		}
+		INT_CHECK("simplay 753");
+	}
+	// now add the other squares (going backwards)
+	for(  pos=*p;  pos!=t;  pos+=zv ) {
+		if(  !is_my_halt(pos)  ) {
+			wkz_halt_aux(this, welt, pos, besch, track_wt, umgebung_t::cst_multiply_station, "BF");
+		}
+	}
+#else
+	zv.x = -zv.x;
+	zv.y = -zv.y;
+
+DBG_MESSAGE("spieler_t::baue_bahnhof()","try to build a train station of length %d (%d vehicles) at (%i,%i) (ribi %i)", laenge, anz_vehikel, p->x, p->y, ribi);
+
+	if(abs(zv.x)+abs(zv.y)!=1) {
+		dbg->error("spieler_t::baue_bahnhof()","Not allowed here!");
+		return 0;
+	}
+
+	INT_CHECK("simplay 548");
+
+	const int hoehe = welt->lookup(t)->gib_kartenboden()->gib_hoehe();
+	t = *p;
+	for(i=0; i<laenge-1; i++) {
+		t += zv;
+		welt->ebne_planquadrat(t, hoehe);
+		// update image
+		for(int j=-1; j<=1; j++) {
+			for(int i=-1; i<=1; i++) {
+				if(welt->ist_in_kartengrenzen(t.x+i,t.y+j)) {
+					welt->lookup(t+koord(i,j))->gib_kartenboden()->calc_bild();
+				}
+			}
+		}
+	}
+
+	t = *p;
+	bool ok = true;
+
+	for(i=0; i<laenge-1; i++) {
+		t += zv;
+
+		const planquadrat_t *plan = welt->lookup(t);
+		grund_t *gr = plan ? plan->gib_kartenboden() : 0;
+
+		ok &= (gr != NULL) &&
+				(gr->ist_natur() || gr->gib_typ() == grund_t::fundament) &&
+				gr->kann_alle_obj_entfernen(this)==NULL &&  !gr->has_two_ways()  &&
+				gr->gib_weg_hang() == hang_t::flach  &&  !gr->is_halt();
+
+		if(ok) {
+			// remove city building here
+			const gebaeude_t* gb = gr->find<gebaeude_t>();
+			if(gb  &&  gb->gib_besitzer()==NULL) {
+				const char *msg=NULL;
+				wkz_remover_intern(this,welt,t,msg);
+			}
+		}
+		else {
+			// not ok? then try to extend station into the other direction
+			const planquadrat_t *plan = welt->lookup(*p-zv);
+			gr = plan ? plan->gib_kartenboden(): 0;
+
+			// try to extend station into the other direction
+			ok = (gr != NULL) &&
+					gr->hat_weg(track_wt) &&
+					gr->gib_weg_ribi(track_wt) == ribi_t::doppelt(ribi) &&
+					gr->kann_alle_obj_entfernen(this) == NULL &&  !gr->has_two_ways()  &&
+					gr->gib_weg_hang()== hang_t::flach  &&  !gr->is_halt();
+			if(ok) {
+DBG_MESSAGE("spieler_t::baue_bahnhof","go back one segment");
+				// remove city building here
+				const gebaeude_t* gb = gr->find<gebaeude_t>();
+				if(gb  &&  gb->gib_besitzer()==NULL) {
+					const char *msg=NULL;
+					wkz_remover_intern(this,welt,*p-zv,msg);
+				}
+				// change begin of station
+				(*p) -= zv;
+			}
+			t -= zv;
+		}
+	}
+
+	baulaenge = abs_distance(t+zv,*p);
+DBG_MESSAGE("spieler_t::baue_bahnhof","achieved length %i",baulaenge);
+	if(baulaenge==1  &&  laenge>1  &&  fab) {
+		// ok, maximum station length in one tile, better try something else
+		int cov = welt->gib_einstellungen()->gib_station_coverage();
+		const koord coverage_koord(cov, cov);
+		koord pos=*p;
+		sint32 cost = 0;
+		koord last_dir = koord((ribi_t::ribi)welt->lookup(*p)->gib_kartenboden()->gib_weg_ribi(track_wt));
+		while(1) {
+			grund_t *gr=welt->lookup(pos)->gib_kartenboden();
+			if(gr==NULL  ||  gr->gib_weg_hang()!=gr->gib_grund_hang()) {
+				break;
+			}
+			koord dir((ribi_t::ribi)gr->gib_weg_ribi(track_wt));
+			if(!fabrik_t::sind_da_welche(welt,pos-coverage_koord,pos+coverage_koord).is_contained(fab)) {
+				*p = pos;
+				break;
+			}
+			cost = gr->weg_entfernen(track_wt, true);
+			pos += dir;
+			buche(-cost, pos, COST_CONSTRUCTION);
+			if(dir!=last_dir  ||  welt->lookup(pos)->gib_kartenboden()->gib_weg_hang()!=hang_t::flach) {
+				// was a curve or a slope: try again
+				*p = pos;
+				return baue_bahnhof( quelle, p, anz_vehikel, fab );
+			}
+		}
+DBG_MESSAGE("spieler_t::baue_bahnhof","failed");
+		return 0;
+	}
+
+	INT_CHECK("simplay 593");
+
+	koord pos;
+
+	wegbauer_t bauigel(welt, this);
+	bauigel.route_fuer(wegbauer_t::schiene, rail_weg);
+	bauigel.calc_straight_route(welt->lookup((*p)-zv)->gib_kartenboden()->gib_pos(), welt->lookup(t)->gib_kartenboden()->gib_pos());
+	bauigel.baue();
+
+	// to avoid broken stations, they will be always built next to an existing
+	bool make_all_bahnhof=false;
+
+	// find a freight train station
+	const haus_besch_t* besch = hausbauer_t::gib_random_station(haus_besch_t::bahnhof, welt->get_timeline_year_month(), haltestelle_t::WARE);
+	for(  pos=*p;  pos!=t+zv;  pos+=zv ) {
+		if(  make_all_bahnhof  ||  is_my_halt(pos+koord(-1,-1))  ||  is_my_halt(pos+koord(-1,1))  ||  is_my_halt(pos+koord(1,-1))  ||  is_my_halt(pos+koord(1,1))  ) {
+			// start building, if next to an existing station
+			make_all_bahnhof = true;
+			wkz_halt(this, welt, pos, besch);
+		}
+		INT_CHECK("simplay 753");
+	}
+	// now add the other squares (going backwards)
+	for(  pos=t;  pos!=*p-zv;  pos-=zv ) {
+		if(  !is_my_halt(pos)  ) {
+			wkz_halt(this, welt, pos, besch);
+		}
+	}
+
+DBG_MESSAGE("spieler_t::baue_bahnhof","set pos *p %i,%i to %i,%i",p->x,p->y,t.x,t.y);
+	// return endpos
+	*p = t;
+
+#endif
+	laenge = min( anz_vehikel, (baulaenge*16 - rail_engine->get_length())/rail_vehicle->get_length() );
+//DBG_MESSAGE("spieler_t::baue_bahnhof","Final station at (%i,%i) with %i tiles for %i cars",p->x,p->y,baulaenge,laenge);
+	return laenge;
+}
+
+
+
 /* built a very simple track with just the minimum effort
  * usually good enough, since it can use road crossings
  * @author prissi
@@ -1847,33 +1888,84 @@ bool
 spieler_t::create_simple_rail_transport()
 {
 	// first: make plain stations tiles as intended
-	sint16 z = welt->lookup_kartenboden(platz1)->gib_hoehe();
+	sint16 z1 = welt->lookup_kartenboden(platz1)->gib_hoehe();
 	koord k=platz1;
-	koord diff( sgn(size1.x), sgn(size1.y) );
+	koord diff1( sgn(size1.x), sgn(size1.y) );
+	koord perpend( sgn(size1.y), sgn(size1.x) );
+	ribi_t::ribi ribi1 = ribi_typ( diff1 );
 	while(k!=size1+platz1) {
-		welt->ebne_planquadrat(k,z);
-		k += diff;
+		welt->ebne_planquadrat( k, z1 );
+		welt->lookup_kartenboden( k-diff1 )->calc_bild();
+		welt->lookup_kartenboden( k-diff1+perpend )->calc_bild();
+		welt->lookup_kartenboden( k-diff1-perpend )->calc_bild();
+		weg_t *sch = weg_t::alloc(track_wt);
+		sch->setze_besch( rail_weg );
+		int cost = -welt->lookup_kartenboden(k)->neuen_weg_bauen(sch, ribi1, this) - rail_weg->gib_preis();
+		buche(cost, k, COST_CONSTRUCTION);
+		ribi1 = ribi_t::doppelt( ribi1 );
+		k += diff1;
 	}
-	z = welt->lookup_kartenboden(platz2)->gib_hoehe();
-	k = platz2;
-	diff = koord( sgn(size2.x), sgn(size2.y) );
-	while(k!=size2+platz2) {
-		welt->ebne_planquadrat(k,z);
-		k += diff;
-	}
+	welt->lookup_kartenboden( k )->calc_bild();
+	welt->lookup_kartenboden( k+perpend )->calc_bild();
+	welt->lookup_kartenboden( k-perpend )->calc_bild();
 
+	// make the second ones flat ...
+	sint16 z2 = welt->lookup_kartenboden(platz2)->gib_hoehe();
+	k = platz2;
+	koord diff2 = koord( sgn(size2.x), sgn(size2.y) );
+	perpend = koord( sgn(size2.y), sgn(size2.x) );
+	ribi_t::ribi ribi2 = ribi_typ( diff2 );
+	while(k!=size2+platz2) {
+		welt->ebne_planquadrat(k,z2);
+		welt->lookup_kartenboden( k-diff2 )->calc_bild();
+		welt->lookup_kartenboden( k-diff2+perpend )->calc_bild();
+		welt->lookup_kartenboden( k-diff2-perpend )->calc_bild();
+		weg_t *sch = weg_t::alloc(track_wt);
+		sch->setze_besch( rail_weg );
+		int cost = -welt->lookup_kartenboden(k)->neuen_weg_bauen(sch, ribi2, this) - rail_weg->gib_preis();
+		buche(cost, k, COST_CONSTRUCTION);
+		ribi2 = ribi_t::doppelt( ribi2 );
+		k += diff2;
+	}
+	welt->lookup_kartenboden( k )->calc_bild();
+	welt->lookup_kartenboden( k+perpend )->calc_bild();
+	welt->lookup_kartenboden( k-perpend )->calc_bild();
+
+	// now calc the route
 	wegbauer_t bauigel(welt, this);
 	bauigel.route_fuer( (wegbauer_t::bautyp_t)(wegbauer_t::schiene|wegbauer_t::bot_flag), rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->gib_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->gib_geschw(),welt->get_timeline_year_month()) );
 	bauigel.set_keep_existing_ways(false);
-	bauigel.baubaer = false;	// no tunnels, no bridges
-	bauigel.calc_route(welt->lookup(platz1)->gib_kartenboden()->gib_pos(),welt->lookup(platz2)->gib_kartenboden()->gib_pos());
+	bauigel.calc_route( koord3d(platz2+size2,z2), koord3d(platz1+size1,z1) );
 	INT_CHECK("simplay 2478");
 
 	if(bauigel.max_n > 3) {
 DBG_MESSAGE("spieler_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		bauigel.baue();
-		INT_CHECK("simplay 2480");
+		// connect to track
+		ribi1 = ribi_typ(diff1);
+		assert( welt->lookup_kartenboden(platz1+size1-diff1)->weg_erweitern(track_wt, ribi1) );
+		ribi1 = ribi_t::rueckwaerts(ribi1);
+		assert( welt->lookup_kartenboden(platz1+size1)->weg_erweitern(track_wt, ribi1) );
+		ribi2 = ribi_typ(diff2);
+		assert( welt->lookup_kartenboden(platz2+size2-diff2)->weg_erweitern(track_wt, ribi2) );
+		ribi2 = ribi_t::rueckwaerts(ribi2);
+		assert( welt->lookup_kartenboden(platz2+size2)->weg_erweitern(track_wt, ribi2) );
 		return true;
+	}
+	else {
+		// remove station ...
+		koord k=platz1;
+		while(k!=size1+platz1) {
+			int cost = -welt->lookup_kartenboden(k)->weg_entfernen( track_wt, true );
+			buche(cost, k, COST_CONSTRUCTION);
+			k += diff1;
+		}
+		k=platz2;
+		while(k!=size2+platz2) {
+			int cost = -welt->lookup_kartenboden(k)->weg_entfernen( track_wt, true );
+			buche(cost, k, COST_CONSTRUCTION);
+			k += diff2;
+		}
 	}
 	return false;
 }
@@ -1891,14 +1983,14 @@ void spieler_t::do_ki()
 		return;
 	}
 
+	if(konto_ueberzogen>0) {
+		// nothing to do but to remove unneeded convois to gain some money
+		state = CHECK_CONVOI;
+	}
+
 	switch(state) {
 
 		case NR_INIT:
-			if(konto_ueberzogen>0) {
-				// nothing to do but to remove unneeded convois to gain some money
-				state = CHECK_CONVOI;
-				break;
-			}
 			gewinn = -1;
 			count = 0;
 			// calculate routes only for account > 10000
@@ -2085,7 +2177,7 @@ DBG_MESSAGE("do_ki()","check railway");
 				count_rail = (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed)+1;
 				// assume the engine weight 100 tons for power needed calcualtion
 				long power_needed=(long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->gib_gewicht()+rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit()*0.001)));
-				rail_engine = vehikelbauer_t::vehikel_search( track_wt, month_now, power_needed, best_rail_speed, NULL );
+				rail_engine = vehikelbauer_t::vehikel_search( track_wt, month_now, power_needed, best_rail_speed, NULL, true );
 				if(  rail_engine!=NULL  ) {
 				 	best_rail_speed = min(rail_engine->gib_geschw(),rail_vehicle->gib_geschw());
 				  // find cheapest track with that speed (and no monorail/elevated/tram tracks, please)
@@ -2095,7 +2187,7 @@ DBG_MESSAGE("do_ki()","check railway");
 					  	best_rail_speed = rail_weg->gib_topspeed();
 					  }
 					  // no train can have more than 15 cars
-					  count_rail = min( 15, (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed) );
+					  count_rail = min( 22, (3*prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed*2) );
 					  // if engine too week, reduce number of cars
 					  if(  count_rail*80*64>(int)(rail_engine->gib_leistung()*rail_engine->get_gear())  ) {
 					  	count_rail = rail_engine->gib_leistung()*rail_engine->get_gear()/(80*64);
@@ -2195,10 +2287,10 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 			if(create_simple_rail_transport()) {
 				sint16 org_count_rail = count_rail;
 				count_rail = baue_bahnhof(start->gib_pos(), &platz1, count_rail, ziel);
-				if(count_rail!=0) {
+				if(count_rail>0) {
 					count_rail = baue_bahnhof(ziel->gib_pos(), &platz2, count_rail, start);
 				}
-				if(count_rail!=0) {
+				if(count_rail>0) {
 					if(count_rail<org_count_rail) {
 						// rethink engine
 					 	int best_rail_speed = min(51,rail_vehicle->gib_geschw());

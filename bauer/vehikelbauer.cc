@@ -271,6 +271,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search(waytype_t typ,const uint16
     // no power, no freight => no vehikel to search
     return NULL;
   }
+	long besch_index=-100000;
 
 DBG_MESSAGE( "vehikelbauer_t::vehikel_search()","for speed %i, power %i",target_speed,target_power);
 
@@ -329,23 +330,15 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",besch->gib_name(
             // we cannot use an engine with freight
             if(  besch==NULL  ||  power>=target_power  ||   speed>=target_speed  ) {
               // we found a useful engine
-              int difference=0;	// smaller is better
-              // assign this vehicle, if we have none found one yet, or we found only a too week one
-              if(  besch!=NULL  ) {
-                // it is cheaper to run? (this is most important)
-                difference = (test_besch->gib_betriebskosten() > besch->gib_betriebskosten()) ? -50 : 50;
-                // it is weaker?
-                difference += (besch->gib_leistung()*besch->get_gear())/64 > power ? -30 : 30;
-                // it is slower? (although we support only up to 120km/h for goods)
-                difference += (besch->gib_geschw() > test_besch->gib_geschw())? -10 : 10;
-                // it is cheaper? (not so important)
-                difference += (besch->gib_preis() < test_besch->gib_preis())? -10 : 10;
-              }
-              // ok, final check
-              if(  besch==NULL  ||  (besch->gib_leistung()*besch->get_gear())/64<target_power  ||  besch->gib_geschw()<target_speed  ||  difference<(int)simrand(30)    )
-              {
+				long current_index = (power*100)/test_besch->gib_betriebskosten() + test_besch->gib_geschw() - (sint16)test_besch->gib_gewicht() - (sint32)(test_besch->gib_preis()/250);
+				current_index += simrand(100);
+				if(power<target_power) {
+					current_index -= 100;
+				}
+              if(  current_index>besch_index  ) {
                   // then we want this vehicle!
                   besch = test_besch;
+				  besch_index = current_index;
 DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",besch->gib_name());
               }
             }

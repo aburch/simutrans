@@ -973,7 +973,6 @@ wegbauer_t::wegbauer_t(karte_t* wl, spieler_t* spl) : next_gr(32)
 {
 	n      = 0;
 	max_n  = -1;
-	baubaer= false;
 	sp     = spl;
 	welt   = wl;
 	bautyp = strasse;   // kann mit route_fuer() gesetzt werden

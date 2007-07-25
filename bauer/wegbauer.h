@@ -179,8 +179,6 @@ public:
 
 	int n, max_n;
 
-	bool baubaer;
-
 	/**
 	 * If a way is built on top of another way, should the type
 	 * of the former way be kept or replced (true == keep)
