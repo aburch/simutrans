@@ -2159,8 +2159,9 @@ DBG_MESSAGE("do_ki()","check railway");
 				// for engine: gues number of cars
 				count_rail = (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed)+1;
 				// assume the engine weight 100 tons for power needed calcualtion
-				long power_needed=(long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->gib_gewicht()+rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit()*0.001)));
-				rail_engine = vehikelbauer_t::vehikel_search( track_wt, month_now, power_needed, best_rail_speed, NULL, true );
+				int total_weight = count_rail*( (rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit())/1000 + rail_vehicle->gib_gewicht());
+//				long power_needed = (long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->gib_gewicht()+rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit()*0.001)));
+				rail_engine = vehikelbauer_t::vehikel_search( track_wt, month_now, total_weight, best_rail_speed, NULL, true );
 				if(  rail_engine!=NULL  ) {
 				 	best_rail_speed = min(rail_engine->gib_geschw(),rail_vehicle->gib_geschw());
 				  // find cheapest track with that speed (and no monorail/elevated/tram tracks, please)
@@ -2385,7 +2386,7 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 					for( int i=0;  i<6;  i ++) {
 						goods += cnv->get_finance_history(i,CONVOI_TRANSPORTED_GOODS);
 					}
-					delete_this = (goods==0)  ||  cnv->gib_jahresgewinn()<cnv->calc_restwert();
+					delete_this = (goods==0);
 				}
 
 				// well, then delete this (likely stucked somewhere) or insanely unneeded

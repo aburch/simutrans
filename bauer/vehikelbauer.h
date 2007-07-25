@@ -48,9 +48,6 @@ public:
 	static const vehikel_besch_t * gib_info(const char *name);
 	static slist_tpl<const vehikel_besch_t*>* gib_info(waytype_t typ);
 
-	// only used by vehicle_search()
-	static int vehikel_can_lead(const vehikel_besch_t *v);
-
 	/* extended sreach for vehicles for KI
 	* @author prissi
 	*/

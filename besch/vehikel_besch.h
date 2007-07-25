@@ -251,6 +251,24 @@ public:
 	*/
 	uint8 get_length() const { return len; }
 
+	/* test, if a certain vehicle can lead a convoi *
+	 * used by vehikel_search
+	 * @author prissi
+	 */
+	bool can_lead() const {
+		if(vorgaenger==0) {
+			return true;
+		}
+		for( int i=0;  i<vorgaenger;  i++  ) {
+			if(gib_kind(6 + i)==NULL) {
+				return true;
+			}
+		}
+		// cannot lead
+		return false;
+	}
+
+	bool can_follow_any() const { return nachfolger==0; }
 };
 
 #endif
