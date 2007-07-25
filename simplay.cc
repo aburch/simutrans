@@ -1107,6 +1107,80 @@ bool spieler_t::suche_platz(koord pos, koord &size, koord *dirs) const
 
 
 
+/**
+ * Find the first water tile using line algorithm von Hajo
+ * start MUST be on land!
+ **/
+koord spieler_t::find_shore(koord start, koord end) const
+{
+	int x = start.x;
+	int y = start.y;
+	int xx = end.x;
+	int yy = end.y;
+
+	int i, steps;
+	int xp, yp;
+	int xs, ys;
+
+	const int dx = xx - x;
+	const int dy = yy - y;
+
+	steps = (abs(dx) > abs(dy) ? abs(dx) : abs(dy));
+	if (steps == 0) steps = 1;
+
+	xs = (dx << 16) / steps;
+	ys = (dy << 16) / steps;
+
+	xp = x << 16;
+	yp = y << 16;
+
+	koord last = start;
+	for (i = 0; i <= steps; i++) {
+		koord next(xp>>16,yp>>16);
+		if(next!=last) {
+			if(welt->lookup_kartenboden(next)->ist_wasser()) {
+				return last;
+			}
+			last = next;
+		}
+		xp += xs;
+		yp += ys;
+	}
+	// should always find something, since it ends in water ...
+	assert(0);
+}
+
+
+
+bool spieler_t::find_harbour(koord &start, koord &size, koord target)
+{
+	koord shore = find_shore(target,start);
+	// distance of last found point
+	int dist=0x7FFFFFFF;
+	koord k;
+	// now find a nice shore next to here
+	for(  k.y=shore.y-5;  k.y<shore.y+6; k.y++  ) {
+		for(  k.x=shore.x-5;  k.x<shore.x+6; k.x++  ) {
+			grund_t *gr = welt->lookup_kartenboden(k);
+			if(gr  &&  gr->gib_grund_hang()!=0  &&  hang_t::ist_wegbar(gr->gib_grund_hang())  &&  gr->ist_natur()  &&  gr->gib_hoehe()==welt->gib_grundwasser()) {
+				koord zv = koord(gr->gib_grund_hang());
+				koord dir[2] = { zv, koord(zv.y,zv.x) };
+				koord platz = k+zv;
+				int current_dist = abs_distance(k,target);
+				if(  current_dist<dist  &&  suche_platz(platz,size,dir)  ){
+					// we will take the shortest route found
+					start = k;
+					dist = current_dist;
+				}
+			}
+		}
+	}
+	return (dist<0x7FFFFFFF);
+}
+
+
+
+
 /* needed renovation due to different sized factories
  * also try "nicest" place first
  * @author HJ & prissi
@@ -1203,7 +1277,14 @@ bool spieler_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length )
 
 	bool ok = false;
 
-	if( suche_platz(start, start_size, ziel, qfab->gib_besch()->gib_haus()->gib_groesse() ) ) {
+	if(qfab->gib_besch()->gib_platzierung()!=fabrik_besch_t::Wasser) {
+		ok = suche_platz(start, start_size, ziel, qfab->gib_besch()->gib_haus()->gib_groesse() );
+	}
+	else {
+		// water factory => find harbour location
+		ok = find_harbour(start, start_size, ziel );
+	}
+	if(ok) {
 		// found a place, search for target
 		ok = suche_platz(ziel, ziel_size, start, zfab->gib_besch()->gib_haus()->gib_groesse() );
 	}
@@ -1297,7 +1378,6 @@ DBG_MESSAGE("spieler_t::rating_transport_quelle_ziel","Missing our %i, total  mi
 	// else there is no high priority
 	return is_manufacturer ? 8 : 2;
 }
-
 
 
 
@@ -1455,6 +1535,48 @@ DBG_MESSAGE("spieler_t::suche_transport_ziel","Lieferziele %d",lieferziel_anzahl
 
 
 
+/* builts dock and ships
+ * @author prissi
+ */
+bool spieler_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
+{
+	// must remove marker
+	grund_t* gr = welt->lookup_kartenboden(platz1);
+	if (gr) gr->obj_loesche_alle(this);
+	// try to built dock
+	const haus_besch_t* h = hausbauer_t::gib_random_station(haus_besch_t::hafen, welt->get_timeline_year_month(), haltestelle_t::WARE);
+	if(h==NULL  ||  !wkz_dockbau(this, welt, platz1, h)) {
+		return false;
+	}
+	// sea pos (and not on harbour ... )
+	koord pos1 = platz1 - koord(gr->gib_grund_hang())*h->gib_groesse().y;
+
+	// since 86.01 we use lines for road vehicles ...
+	fahrplan_t *fpl=new schifffahrplan_t();
+	fpl->append( welt->lookup_kartenboden(pos1), 0 );
+	fpl->append( welt->lookup(qfab->gib_pos()), 100 );
+	fpl->aktuell = 1;
+	linehandle_t line=simlinemgmt.create_line(simline_t::shipline,fpl);
+	delete fpl;
+
+	// now create all vehicles as convois
+	for(int i=0;  i<anz_vehikel;  i++) {
+		vehikel_t* v = vehikelbauer_t::baue( qfab->gib_pos(), this, NULL, ship_vehicle);
+		convoi_t* cnv = new convoi_t(this);
+		// V.Meyer: give the new convoi name from first vehicle
+		cnv->setze_name(v->gib_besch()->gib_name());
+		cnv->add_vehikel( v );
+
+		welt->sync_add( cnv );
+		cnv->set_line(line);
+		cnv->start();
+	}
+	platz1 += koord(welt->lookup_kartenboden(platz1)->gib_grund_hang());
+	return true;
+}
+
+
+
 /* returns true,
  * if there is already a connection
  * @author prissi
@@ -1488,14 +1610,14 @@ bool spieler_t::is_connected( const koord start_pos, const koord dest_pos, const
 		return false;
 	}
 
-	// no try to find a route
+	// now try to find a route
 	// ok, they are not in walking distance
-	ware_t pax(wtyp);
-	pax.setze_zielpos(dest_pos);
-	pax.menge = 1;
+	ware_t ware(wtyp);
+	ware.setze_zielpos(dest_pos);
+	ware.menge = 1;
 	for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++) {
-		start_list[hh]->suche_route(pax, NULL);
-		if (pax.gib_ziel().is_bound()) {
+		start_list[hh]->suche_route(ware, NULL);
+		if (ware.gib_ziel().is_bound()) {
 			// ok, already connected
 			return true;
 		}
@@ -1514,7 +1636,7 @@ void spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 {
 	const haus_besch_t* fh = hausbauer_t::gib_random_station(haus_besch_t::ladebucht, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	// succeed in frachthof creation
-	if(fh  &&  wkz_halt(this, welt, platz1,fh)  &&  wkz_halt(this, welt, platz2,fh)  ) {
+	if(fh  &&  wkz_halt(this, welt, platz1, fh)  &&  wkz_halt(this, welt, platz2, fh)  ) {
 		koord3d pos1 = welt->lookup(platz1)->gib_kartenboden()->gib_pos();
 		koord3d pos2 = welt->lookup(platz2)->gib_kartenboden()->gib_pos();
 
@@ -2037,13 +2159,16 @@ void spieler_t::do_ki()
 				{
 					// just normal random search ...
 					start_neu = welt->get_random_fab();
-					if (start_neu != NULL && !welt->lookup(start_neu->gib_pos())->ist_wasser() && start_neu != last_start) {
-						gewinn_neu = suche_transport_ziel(start_neu, &start_ware_neu, &ziel_neu);
-						if(ziel_neu!=NULL  &&  gewinn_neu>KI_MIN_PROFIT) {
-							DBG_MESSAGE("spieler_t::do_ki", "Check route from %s (%i,%i) to %s (%i,%i) (income %i)", start_neu->gib_name(), start_neu->gib_pos().x, start_neu->gib_pos().y, ziel_neu->gib_name(), ziel_neu->gib_pos().x, ziel_neu->gib_pos().y, gewinn_neu);
-						}
-						else {
-							gewinn_neu = -1;
+					if(start_neu->gib_besch()->gib_produkte()>0  &&  (start_neu->gib_besch()->gib_platzierung()!=fabrik_besch_t::Wasser  ||  vehikelbauer_t::vehikel_search( water_wt, welt->get_timeline_year_month(), 10, 10, start_neu->gib_besch()->gib_produkt(0)->gib_ware(), false ))  ) {
+						// ship available or not needed
+						if (start_neu!=NULL  &&  start_neu!=last_start) {
+							gewinn_neu = suche_transport_ziel(start_neu, &start_ware_neu, &ziel_neu);
+							if(ziel_neu!=NULL  &&  gewinn_neu>KI_MIN_PROFIT) {
+								DBG_MESSAGE("spieler_t::do_ki", "Check route from %s (%i,%i) to %s (%i,%i) (income %i)", start_neu->gib_name(), start_neu->gib_pos().x, start_neu->gib_pos().y, ziel_neu->gib_name(), ziel_neu->gib_pos().x, ziel_neu->gib_pos().y, gewinn_neu);
+							}
+							else {
+								gewinn_neu = -1;
+							}
 						}
 					}
 				}
@@ -2143,6 +2268,12 @@ DBG_MESSAGE("do_ki()","rail vehicle %p",rail_vehicle);
 			}
 			road_weg = NULL;
 DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
+
+			ship_vehicle = NULL;
+			if(start->gib_besch()->gib_platzierung()==fabrik_besch_t::Wasser) {
+				// largest ship available
+				ship_vehicle = vehikelbauer_t::vehikel_search( water_wt, month_now, 10, 20, freight );
+			}
 
 			INT_CHECK("simplay 1265");
 
@@ -2247,11 +2378,13 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 				if(  cost_rail<cost_road  ) {
 					length = (rail_engine->get_length() + count_rail*rail_vehicle->get_length()+15)/16;
 					if(suche_platz1_platz2(start, ziel, length)) {
-						state = NR_BAUE_SIMPLE_SCHIENEN_ROUTE;
+						state = ship_vehicle ? NR_BAUE_WATER_ROUTE : NR_BAUE_SIMPLE_SCHIENEN_ROUTE;
 					}
 				}
 				if(state==NR_BAUE_ROUTE1  &&  suche_platz1_platz2(start, ziel, 1)) {
-					state = NR_BAUE_STRASSEN_ROUTE;
+					// rail was too expensive or not successfull
+					count_rail = 255;
+					state = ship_vehicle ? NR_BAUE_WATER_ROUTE : NR_BAUE_STRASSEN_ROUTE;
 				}
 			}
 			// no success at all?
@@ -2264,6 +2397,15 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 
 		// built a simple ship route
 		case NR_BAUE_WATER_ROUTE:
+			{
+				int ships_needed = 1+(count_rail<255 ? count_rail*rail_vehicle->gib_zuladung() : count_rail*road_vehicle->gib_zuladung())/ship_vehicle->gib_zuladung();
+				if(create_ship_transport_vehikel(start,ships_needed)) {
+					state = count_rail<255 ? NR_BAUE_SIMPLE_SCHIENEN_ROUTE : NR_BAUE_STRASSEN_ROUTE;
+				}
+				else {
+					state = CHECK_CONVOI;
+				}
+			}
 			break;
 
 		// built a simple railroad
@@ -2326,10 +2468,10 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 			// otherwise it may always try to built the same route!
 			ziel = NULL;
 			// schilder aufraeumen
-			planquadrat_t* p1 = welt->access(platz1);
-			if (p1) p1->gib_kartenboden()->obj_loesche_alle(this);
-			planquadrat_t* p2 = welt->access(platz2);
-			if (p2) p2->gib_kartenboden()->obj_loesche_alle(this);
+			grund_t* gr = welt->lookup_kartenboden(platz1);
+			if (gr) gr->obj_loesche_alle(this);
+			gr = welt->lookup_kartenboden(platz2);
+			if (gr) gr->obj_loesche_alle(this);
 			baue = false;
 			state = CHECK_CONVOI;
 			break;

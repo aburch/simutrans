@@ -223,6 +223,13 @@ private:
 	// return true, if there is already a connection
 	bool check_connection( koord start_pos, koord end_pos, const ware_besch_t *w ) const;
 
+	/**
+	 * Find the first water tile using line algorithm von Hajo
+	 * start MUST be on land!
+	 **/
+	koord find_shore(koord start, koord end) const;
+	bool find_harbour(koord &start, koord &size, koord target);
+
 	// find space for station
 	bool suche_platz(koord pos, koord &size, koord *dirs) const;
 	bool suche_platz(koord &start, koord &size, koord target, koord off);
@@ -249,6 +256,7 @@ private:
 	int suche_transport_ziel(fabrik_t *quelle, int *quelle_ware, fabrik_t **ziel);
 	int suche_transport_quelle(fabrik_t **quelle,int *quelle_ware, fabrik_t *ziel);
 
+	bool create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
 	void create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
 	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int ladegrad);
 
