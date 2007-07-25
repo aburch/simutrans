@@ -2159,7 +2159,7 @@ void spieler_t::do_ki()
 				{
 					// just normal random search ...
 					start_neu = welt->get_random_fab();
-					if(start_neu->gib_besch()->gib_produkte()>0  &&  (start_neu->gib_besch()->gib_platzierung()!=fabrik_besch_t::Wasser  ||  vehikelbauer_t::vehikel_search( water_wt, welt->get_timeline_year_month(), 10, 10, start_neu->gib_besch()->gib_produkt(0)->gib_ware(), false ))  ) {
+					if(start_neu  &&  start_neu->gib_besch()->gib_produkte()>0  &&  (start_neu->gib_besch()->gib_platzierung()!=fabrik_besch_t::Wasser  ||  vehikelbauer_t::vehikel_search( water_wt, welt->get_timeline_year_month(), 10, 10, start_neu->gib_besch()->gib_produkt(0)->gib_ware(), false ))  ) {
 						// ship available or not needed
 						if (start_neu!=NULL  &&  start_neu!=last_start) {
 							gewinn_neu = suche_transport_ziel(start_neu, &start_ware_neu, &ziel_neu);
