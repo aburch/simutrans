@@ -42,52 +42,39 @@ static const char * measures[] =
 */
 
 
-static bool
-ist_leitung(karte_t *welt, koord pos)
+leitung_t *leitung_t::ist_leitung(karte_t *welt, koord pos)
 {
   bool result = false;
   const planquadrat_t * plan = welt->lookup(pos);
 
   if(plan) {
     grund_t * gr = plan->gib_kartenboden();
-		result = gr && (gr->find<leitung_t>() != NULL || gr->find<pumpe_t>() != NULL || gr->find<senke_t>() != NULL);
+		if(gr) {
+			leitung_t *lt = gr->find<leitung_t>();
+			if(lt) return lt;
+			pumpe_t *p = gr->find<pumpe_t>();
+			if(p) return p;
+			senke_t *s = gr->find<senke_t>();
+			if(s)  return s;
+		}
   }
-
-  return result;
+  return NULL;
 }
 
 
 
 static int
-gimme_neighbours(karte_t *welt, koord base_pos, leitung_t **conn)
+gimme_neighbours(karte_t *welt, spieler_t *sp, koord base_pos, leitung_t **conn)
 {
 	int count = 0;
-
 	for(int i=0; i<4; i++) {
-		const koord pos = base_pos + koord::nsow[i];
-		grund_t *gr = welt->lookup_kartenboden(pos);
-
-		conn[i] = NULL;
-		if(gr) {
-			pumpe_t* p = gr->find<pumpe_t>();
-			if(p) {
-				conn[i] = p;
-				count ++;
-				continue;
-			}
-			// now handle drain
-			senke_t* s = gr->find<senke_t>();
-			if(s) {
-				conn[i] = s;
-				count ++;
-				continue;
-			}
-			// and now handle line
-			leitung_t* l = gr->find<leitung_t>();
-			if(l) {
-				conn[i] = l;
-				count ++;
-			}
+		leitung_t *lt = leitung_t::ist_leitung( welt, base_pos + koord::nsow[i] );
+		if(lt  &&  sp->check_owner(lt->gib_besitzer())) {
+			conn[i] = lt;
+			count++;
+		}
+		else {
+			conn[i] = NULL;
 		}
 	}
 	return count;
@@ -131,8 +118,8 @@ leitung_t::~leitung_t()
 	if(gr) {
 		gr->obj_remove(this);
 
-		leitung_t * conn[4];
-		int neighbours = gimme_neighbours(welt, gib_pos().gib_2d(), conn);
+		leitung_t *conn[4];
+		int neighbours = gimme_neighbours(welt, gib_besitzer(), gib_pos().gib_2d(), conn);
 
 		powernet_t *new_net = NULL;
 		if(neighbours>1) {
@@ -175,24 +162,24 @@ leitung_t::~leitung_t()
 /* returns the net identifier at this position
  * @author prissi
  */
-static bool get_net_at(const grund_t *gr, powernet_t **l_net)
+static bool get_net_at(const spieler_t *sp, const grund_t *gr, powernet_t **l_net)
 {
 	if(gr) {
 		// only this way pumps are handled properly
 		const pumpe_t* p = gr->find<pumpe_t>();
-		if(p) {
+		if(p  &&  sp->check_owner(p->gib_besitzer())) {
 			*l_net = p->get_net();
 			return true;
 		}
 		// now handle drain
 		const senke_t* s = gr->find<senke_t>();
-		if(s) {
+		if(s  &&  sp->check_owner(s->gib_besitzer())) {
 			*l_net = s->get_net();
 			return true;
 		}
 		// and now handle line
 		const leitung_t* l = gr->find<leitung_t>();
-		if(l) {
+		if(l  &&  sp->check_owner(l->gib_besitzer())) {
 			*l_net = l->get_net();
 //DBG_MESSAGE("get_net_at()","Found net %p",l->get_net());
 			return true;
@@ -243,7 +230,7 @@ void leitung_t::replace(koord base_pos, powernet_t* new_net)
 {
 	powernet_t *current;
 	const grund_t* g = welt->lookup_kartenboden(base_pos);
-	if (get_net_at(g, &current) && current != new_net) {
+	if (get_net_at(gib_besitzer(), g, &current) && current != new_net) {
 		// convert myself ...
 //DBG_MESSAGE("leitung_t::replace()","My net %p by %p at (%i,%i)",new_net,current,base_pos.x,base_pos.y);
 		set_net_at(g, new_net);
@@ -252,7 +239,7 @@ void leitung_t::replace(koord base_pos, powernet_t* new_net)
 
 	for(int i=0; i<4; i++) {
 		koord	pos=base_pos+koord::nsow[i];
-		if(get_net_at(welt->lookup_kartenboden(pos),&current)  &&  current!=new_net) {
+		if(get_net_at(gib_besitzer(), welt->lookup_kartenboden(pos),&current)  &&  current!=new_net) {
 			replace(pos, new_net);
 		}
 	}
@@ -271,11 +258,11 @@ void leitung_t::verbinde()
 	powernet_t *new_net;
 
 	// first get my own ...
-	get_net_at(welt->lookup_kartenboden(pos),&new_net);
+	get_net_at(gib_besitzer(), welt->lookup_kartenboden(pos),&new_net);
 
 //DBG_MESSAGE("leitung_t::verbinde()","Searching net at (%i,%i)",pos.x,pos.y);
 	for( int i=0;  i<4  &&  new_net==NULL;  i++ ) {
-		get_net_at(welt->lookup_kartenboden(pos+koord::nsow[i]),&new_net);
+		get_net_at(gib_besitzer(), welt->lookup_kartenboden(pos+koord::nsow[i]),&new_net);
 	}
 //DBG_MESSAGE("leitung_t::verbinde()","Found net %p",new_net);
 
@@ -306,12 +293,15 @@ void leitung_t::verbinde()
 
 ribi_t::ribi leitung_t::gib_ribi()
 {
-	const koord pos = gib_pos().gib_2d();
-	const ribi_t::ribi ribi =
-			(ist_leitung(welt, pos + koord(0,-1)) ? ribi_t::nord : ribi_t::keine) |
-			(ist_leitung(welt, pos + koord(0, 1)) ? ribi_t::sued : ribi_t::keine) |
-			(ist_leitung(welt, pos + koord( 1,0)) ? ribi_t::ost  : ribi_t::keine) |
-			(ist_leitung(welt, pos + koord(-1,0)) ? ribi_t::west : ribi_t::keine);
+	ribi_t::ribi ribi = ribi_t::keine;
+	leitung_t * conn[4];
+	if(gimme_neighbours(welt, gib_besitzer(), gib_pos().gib_2d(), conn)>0) {
+		for( uint8 i=0;  i<4;  i++  ) {
+			if(conn[i]) {
+				ribi |= ribi_t::nsow[i];
+			}
+		}
+	}
 	return ribi;
 }
 

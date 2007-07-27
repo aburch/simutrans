@@ -720,7 +720,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		break;
 
 		case leitung:
-			ok = !fundament &&  !to->ist_wasser()  &&  (to->gib_weg(air_wt)==NULL);
+			ok = !to->ist_wasser()  &&  (to->gib_weg(air_wt)==NULL);
 			if(to->gib_weg_nr(0)!=NULL) {
 				// only 90 deg crossings, only a signle way
 				ribi_t::ribi w_ribi= to->gib_weg_nr(0)->gib_ribi_unmasked();
@@ -731,8 +731,17 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				ribi_t::ribi w_ribi= to->gib_weg_nr(1)->gib_ribi_unmasked();
 				ok &= ribi_t::ist_gerade(w_ribi)  &&  !ribi_t::ist_einfach(w_ribi)  &&  ribi_t::ist_gerade(ribi_typ(zv))  &&  (w_ribi&ribi_typ(zv))==0;
 			}
+			// do not connect to other powerlines
+			{
+				leitung_t *lt = leitung_t::ist_leitung(welt,to->gib_pos().gib_2d());
+				ok &= (lt==NULL)  ||  check_owner(sp, lt->gib_besitzer());
+			}
+			// only fields are allowed
+			if(to->gib_typ()!=grund_t::boden) {
+				ok &= (to->gib_typ()==grund_t::fundament)  &&  (to->suche_obj(ding_t::field)!=NULL);
+			}
 			// no bridges and monorails here in the air
-			ok &= welt->lookup(to_pos)->gib_boden_in_hoehe(to->gib_pos().z+Z_TILE_STEP)==NULL;
+			ok &= (welt->lookup(to_pos)->gib_boden_in_hoehe(to->gib_pos().z+Z_TILE_STEP)==NULL);
 			// calculate costs
 			if(ok) {
 				*costs = umgebung_t::way_count_straight+to->hat_wege() ? 8 : 0;
@@ -1237,6 +1246,9 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->gib_pos().x,gr->gib_pos().y,g
 						// discourage v turns heavily
 						new_g += umgebung_t::way_count_90_curve;
 					}
+				}
+				else if(bautyp==leitung  &&  ribi_t::ist_kurve(current_dir)) {
+					new_g += umgebung_t::way_count_curve;
 				}
 				// extra malus leave an existing road after only one tile
 				if(tmp->parent->gr->hat_weg((waytype_t)besch->gib_wtyp())  &&

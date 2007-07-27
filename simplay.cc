@@ -9,7 +9,7 @@
  */
 
 /* number of lines to check (must be =>3 */
-#define KI_TEST_LINES 10
+#define KI_TEST_LINES 50
 /* No lines will be considered below */
 #define KI_MIN_PROFIT 5000
 // this does not work well together with 128er pak
@@ -1094,7 +1094,7 @@ bool spieler_t::suche_platz(koord pos, koord &size, koord *dirs) const
 	for(  int dir=0;  dir<max_dir;  dir++  ) {
 		for( sint16 i=0;  i<=length;  i++  ) {
 			grund_t *gr = welt->lookup_kartenboden(  pos + (dirs[dir]*i)  );
-			if(gr==NULL  ||  gr->gib_halt().is_bound()  ||  !welt->can_ebne_planquadrat(pos,start_z)  ||  !gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(this)!=NULL) {
+			if(gr==NULL  ||  gr->gib_halt().is_bound()  ||  !welt->can_ebne_planquadrat(pos,start_z)  ||  !gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(this)!=NULL  ||  gr->gib_hoehe()<welt->gib_grundwasser()) {
 				return false;
 			}
 		}
@@ -1108,7 +1108,7 @@ bool spieler_t::suche_platz(koord pos, koord &size, koord *dirs) const
 
 
 /**
- * Find the first water tile using line algorithm von Hajo
+ * Find the last water tile using line algorithm von Hajo
  * start MUST be on land!
  **/
 koord spieler_t::find_shore(koord start, koord end) const
@@ -1138,16 +1138,15 @@ koord spieler_t::find_shore(koord start, koord end) const
 	for (i = 0; i <= steps; i++) {
 		koord next(xp>>16,yp>>16);
 		if(next!=last) {
-			if(welt->lookup_kartenboden(next)->ist_wasser()) {
-				return last;
+			if(!welt->lookup_kartenboden(next)->ist_wasser()) {
+				last = next;
 			}
-			last = next;
 		}
 		xp += xs;
 		yp += ys;
 	}
 	// should always find something, since it ends in water ...
-	assert(0);
+	return last;
 }
 
 
@@ -2044,6 +2043,27 @@ spieler_t::create_simple_rail_transport()
 	INT_CHECK("simplay 2478");
 
 	if(bauigel.max_n > 3) {
+		//just check, if I could not start at the other end of the station ...
+		int start=0, end=bauigel.max_n;
+		for( int j=1;  j<bauigel.max_n-1;  j++  ) {
+			if(bauigel.gib_route_bei(j)==platz2-diff2) {
+				start = j;
+				platz2 += size2-diff2;
+				size2 = size2*(-1);
+				diff2 = diff2*(-1);
+			}
+			if(bauigel.gib_route_bei(j)==platz1-diff1) {
+				end = j;
+				platz1 += size1-diff1;
+				size1 = size1*(-1);
+				diff1 = diff1*(-1);
+			}
+		}
+		// so found shorter route?
+		if(start!=0  ||  end!=bauigel.max_n) {
+			bauigel.calc_route( koord3d(platz2+size2,z2), koord3d(platz1+size1,z1) );
+		}
+
 DBG_MESSAGE("spieler_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		bauigel.baue();
 		// connect to track
@@ -2184,14 +2204,10 @@ void spieler_t::do_ki()
 				gewinn = gewinn_neu;
 				DBG_MESSAGE("spieler_t::do_ki", "Consider route from %s (%i,%i) to %s (%i,%i) (income %i)", start_neu->gib_name(), start_neu->gib_pos().x, start_neu->gib_pos().y, ziel_neu->gib_name(), ziel_neu->gib_pos().x, ziel_neu->gib_pos().y, gewinn_neu);
 			}
+			count ++;
 
-			if(gewinn_neu > KI_MIN_PROFIT) {
-				count ++;
-DBG_MESSAGE("spieler_t::do_ki","Tried already %i routes",count);
-			}
-
-			if(count >= KI_TEST_LINES && gewinn > KI_MIN_PROFIT ) {
-				if(start!=NULL && ziel!=NULL  &&  !(start==baue_start  &&  ziel==baue_ziel)  ) {
+			if(count >= KI_TEST_LINES) {
+				if(start!=NULL  &&  ziel!=NULL  &&  !(start==baue_start  &&  ziel==baue_ziel)  ) {
 DBG_MESSAGE("spieler_t::do_ki","Decicion %s to %s (income %i)",start->gib_name(),ziel->gib_name(), gewinn);
 					state = NR_BAUE_ROUTE1;
 				}
@@ -2559,13 +2575,18 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 					continue;
 				}
 
+				long gewinn = 0;
+				for( int j=0;  j<12;  j++  ) {
+					gewinn += cnv->get_finance_history( j, CONVOI_PROFIT );
+				}
+
 				// apparently we got the toatlly wrong vehicle here ...
 				// (but we will delete it only, if we need, because it may be needed for a chain)
-				bool delete_this = (konto_ueberzogen>0)  &&  (cnv->gib_jahresgewinn() < -(sint32)cnv->calc_restwert());
+				bool delete_this = (konto_ueberzogen>0)  &&  (gewinn < -(sint32)cnv->calc_restwert());
 
 				// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 				// take care, that the vehicle is old enough ...
-				if(!delete_this  &&  (welt->get_current_month()-cnv->gib_vehikel(0)->gib_insta_zeit())>6  &&  cnv->gib_jahresgewinn()<=0  ){
+				if(!delete_this  &&  (welt->get_current_month()-cnv->gib_vehikel(0)->gib_insta_zeit())>6  &&  gewinn<=0  ){
 					sint64 goods=0;
 					// no goods for six months?
 					for( int i=0;  i<6;  i ++) {

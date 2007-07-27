@@ -45,6 +45,9 @@ public:
 
 	static fabrik_t * suche_fab_4(koord pos);
 
+	// return pointer to leitung/pumpe/senke, if there
+	static leitung_t *ist_leitung(karte_t *welt, koord pos);
+
 	leitung_t(karte_t *welt, loadsave_t *file);
 	leitung_t(karte_t *welt, koord3d pos, spieler_t *sp);
 	virtual ~leitung_t();
