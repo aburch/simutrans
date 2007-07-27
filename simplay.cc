@@ -2398,7 +2398,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 		// built a simple ship route
 		case NR_BAUE_WATER_ROUTE:
 			{
-				int ships_needed = 1+(count_rail<255 ? count_rail*rail_vehicle->gib_zuladung() : count_rail*road_vehicle->gib_zuladung())/ship_vehicle->gib_zuladung();
+				int ships_needed = 1+(rail_vehicle ? count_rail*rail_vehicle->gib_zuladung() : count_road*road_vehicle->gib_zuladung())/ship_vehicle->gib_zuladung();
 				if(create_ship_transport_vehikel(start,ships_needed)) {
 					state = count_rail<255 ? NR_BAUE_SIMPLE_SCHIENEN_ROUTE : NR_BAUE_STRASSEN_ROUTE;
 				}
