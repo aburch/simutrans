@@ -2244,10 +2244,10 @@ DBG_MESSAGE("do_ki()","Player %s could not built: baue=%1",gib_name(),baue);
 			int dist = abs(zv.x) + abs(zv.y);
 
 			// guess the "optimum" speed (usually a little too low)
-		  uint32 best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->gib_speed_bonus()*5, 140 );
-		  uint32 best_road_speed = min(60+freight->gib_speed_bonus()*5, 130 );
+			uint32 best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->gib_speed_bonus()*5, 140 );
+			uint32 best_road_speed = min(60+freight->gib_speed_bonus()*5, 130 );
 
-		  // obey timeline
+			// obey timeline
 			uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);
 
 			INT_CHECK("simplay 1265");
@@ -2399,10 +2399,21 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 		case NR_BAUE_WATER_ROUTE:
 			{
 				int ships_needed = 1+(rail_vehicle ? count_rail*rail_vehicle->gib_zuladung() : count_road*road_vehicle->gib_zuladung())/ship_vehicle->gib_zuladung();
+				koord harbour=platz1;
 				if(create_ship_transport_vehikel(start,ships_needed)) {
-					state = count_rail<255 ? NR_BAUE_SIMPLE_SCHIENEN_ROUTE : NR_BAUE_STRASSEN_ROUTE;
+					if(welt->lookup(harbour)->gib_halt()->gib_fab_list().contains(ziel)) {
+						// so close, so we are already connected
+						grund_t *gr = welt->lookup_kartenboden(platz2);
+						if (gr) gr->obj_loesche_alle(this);
+						state = NR_ROAD_SUCCESS;
+					}
+					else {
+						// else we need to built the second part of the route
+						state = rail_vehicle ? NR_BAUE_SIMPLE_SCHIENEN_ROUTE : NR_BAUE_STRASSEN_ROUTE;
+					}
 				}
 				else {
+					ship_vehicle = NULL;
 					state = CHECK_CONVOI;
 				}
 			}
@@ -2465,6 +2476,33 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 		// remove marker etc.
 		case NR_BAUE_CLEAN_UP:
 		{
+			if(ship_vehicle) {
+				// only here, if we could built ships but no connection
+				halthandle_t start_halt;
+				for( int r=0;  r<4;  r++  ) {
+					start_halt = haltestelle_t::gib_halt(welt,platz1+koord::nsow[r]);
+					if(start_halt.is_bound()  &&  (start_halt->get_station_type()&haltestelle_t::dock)!=0) {
+						// delete all ships on this line
+						vector_tpl<linehandle_t> lines;
+						simlinemgmt.get_lines( simline_t::shipline, &lines );
+						if(!lines.empty()) {
+							linehandle_t line = lines.back();
+							fahrplan_t *fpl=line->get_fahrplan();
+							if(fpl->maxi()>1  &&  haltestelle_t::gib_halt(welt,fpl->eintrag[0].pos)==start_halt) {
+								while(line->count_convoys()>0) {
+									line->get_convoy(0)->self_destruct();
+									line->get_convoy(0)->step();
+								}
+							}
+							simlinemgmt.delete_line( line );
+						}
+						// delete harbour
+						const char *msg;
+						wkz_remover_intern(this,welt,platz1+koord::nsow[r],msg);
+						break;
+					}
+				}
+			}
 			// otherwise it may always try to built the same route!
 			ziel = NULL;
 			// schilder aufraeumen
@@ -2516,6 +2554,11 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 					continue;
 				}
 
+				if(cnv->gib_vehikel(0)->gib_waytype()==water_wt) {
+					// ships will be only deleted together with the connecting convoi
+					continue;
+				}
+
 				// apparently we got the toatlly wrong vehicle here ...
 				// (but we will delete it only, if we need, because it may be needed for a chain)
 				bool delete_this = (konto_ueberzogen>0)  &&  (cnv->gib_jahresgewinn() < -(sint32)cnv->calc_restwert());
@@ -2537,11 +2580,42 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 					linehandle_t line = cnv->get_line();
 					DBG_MESSAGE("spieler_t::do_ki()","%s retires convoi %s!", gib_name(), cnv->gib_name());
 
-					koord3d start_pos = cnv->get_route()->position_bei(0);
-					koord3d end_pos = cnv->get_route()->position_bei(cnv->get_route()->gib_max_n());
+					koord3d start_pos, end_pos;
+					fahrplan_t *fpl = cnv->gib_fahrplan();
+					if(fpl  &&  fpl->maxi()>1) {
+						start_pos = fpl->eintrag[0].pos;
+						end_pos = fpl->eintrag[1].pos;
+					}
 
 					cnv->self_destruct();
 					cnv->step();	// to really get rid of it
+
+					// last vehicle on that connection (no line => railroad)
+					if(  !line.is_bound()  ||  line->count_convoys()==0  ) {
+						// check if a conncetion boat must be removed
+						halthandle_t start_halt = haltestelle_t::gib_halt(welt,start_pos);
+						if(start_halt.is_bound()  &&  (start_halt->get_station_type()&haltestelle_t::dock)!=0) {
+							// delete all ships on this line
+							vector_tpl<linehandle_t> lines;
+							koord water_stop = koord::invalid;
+							simlinemgmt.get_lines( simline_t::shipline, &lines );
+							for (vector_tpl<linehandle_t>::const_iterator iter2 = lines.begin(), end = lines.end(); iter2 != end; iter2++) {
+								linehandle_t line = *iter2;
+								fahrplan_t *fpl=line->get_fahrplan();
+								if(fpl->maxi()>1  &&  haltestelle_t::gib_halt(welt,fpl->eintrag[0].pos)==start_halt) {
+									water_stop = koord( (start_pos.x+fpl->eintrag[0].pos.x)/2, (start_pos.y+fpl->eintrag[0].pos.y)/2 );
+									while(line->count_convoys()>0) {
+										line->get_convoy(0)->self_destruct();
+										line->get_convoy(0)->step();
+									}
+								}
+								simlinemgmt.delete_line( line );
+							}
+							// delete harbour
+							const char *msg;
+							wkz_remover_intern(this,welt,water_stop,msg);
+						}
+					}
 
 					value_t v;
 					v.i = (int)wt;
