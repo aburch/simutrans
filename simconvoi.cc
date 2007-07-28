@@ -596,7 +596,7 @@ void convoi_t::step()
 				}
 				else {
 					// check first, if we are already there:
-					if (v->gib_pos() == fpl->eintrag[fpl->get_aktuell()].pos) {
+					if(fpl->aktuell>=fpl->maxi()  ||  v->gib_pos()==fpl->eintrag[fpl->get_aktuell()].pos) {
 						drive_to_next_stop();
 					}
 					// Hajo: now calculate a new route

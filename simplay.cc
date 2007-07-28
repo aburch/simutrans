@@ -9,7 +9,7 @@
  */
 
 /* number of lines to check (must be =>3 */
-#define KI_TEST_LINES 50
+#define KI_TEST_LINES 10
 /* No lines will be considered below */
 #define KI_MIN_PROFIT 5000
 // this does not work well together with 128er pak
@@ -1207,6 +1207,11 @@ bool spieler_t::suche_platz(koord &start, koord &size, koord target, koord off)
 	for (int y = ypos - cov; y < ypos + off.y + cov; y++) {
 		for (int x = xpos - cov; x < xpos + off.x + cov; x++) {
 			platz = koord(x,y);
+			// no water tiles
+			if(welt->lookup_kartenboden(platz)->gib_hoehe()<=welt->gib_grundwasser()) {
+				continue;
+			}
+			// thus now check them
 			int current_dist = abs_distance(platz,target);
 			if(  current_dist<dist  &&  suche_platz(platz,size,dir)  ){
 				// we will take the shortest route found
@@ -1811,7 +1816,7 @@ int spieler_t::baue_bahnhof(koord3d quelle, koord *p, int anz_vehikel, fabrik_t 
 	}
 
 	// too short
-	if(baulaenge==1) {
+	if(baulaenge<=1) {
 		return 0;
 	}
 
@@ -1991,20 +1996,26 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","set pos *p %i,%i to %i,%i",p->x,p->y,t.x,
 bool
 spieler_t::create_simple_rail_transport()
 {
+	wegbauer_t bauigel(welt, this);
 	// first: make plain stations tiles as intended
 	sint16 z1 = welt->lookup_kartenboden(platz1)->gib_hoehe();
 	koord k=platz1;
 	koord diff1( sgn(size1.x), sgn(size1.y) );
+	koord diff2 = koord( sgn(size2.x), sgn(size2.y) );
 	koord perpend( sgn(size1.y), sgn(size1.x) );
 	ribi_t::ribi ribi1 = ribi_typ( diff1 );
 	while(k!=size1+platz1) {
 		welt->ebne_planquadrat( k, z1 );
+		grund_t *gr = welt->lookup_kartenboden(k);
 		welt->lookup_kartenboden( k-diff1 )->calc_bild();
 		welt->lookup_kartenboden( k-diff1+perpend )->calc_bild();
 		welt->lookup_kartenboden( k-diff1-perpend )->calc_bild();
+		if(!gr->gib_grund_hang()==hang_t::flach) {
+			goto cleanup_station;
+		}
 		weg_t *sch = weg_t::alloc(track_wt);
 		sch->setze_besch( rail_weg );
-		int cost = -welt->lookup_kartenboden(k)->neuen_weg_bauen(sch, ribi1, this) - rail_weg->gib_preis();
+		int cost = -gr->neuen_weg_bauen(sch, ribi1, this) - rail_weg->gib_preis();
 		buche(cost, k, COST_CONSTRUCTION);
 		ribi1 = ribi_t::doppelt( ribi1 );
 		k += diff1;
@@ -2016,17 +2027,20 @@ spieler_t::create_simple_rail_transport()
 	// make the second ones flat ...
 	sint16 z2 = welt->lookup_kartenboden(platz2)->gib_hoehe();
 	k = platz2;
-	koord diff2 = koord( sgn(size2.x), sgn(size2.y) );
 	perpend = koord( sgn(size2.y), sgn(size2.x) );
 	ribi_t::ribi ribi2 = ribi_typ( diff2 );
 	while(k!=size2+platz2) {
 		welt->ebne_planquadrat(k,z2);
+		grund_t *gr = welt->lookup_kartenboden(k);
 		welt->lookup_kartenboden( k-diff2 )->calc_bild();
 		welt->lookup_kartenboden( k-diff2+perpend )->calc_bild();
 		welt->lookup_kartenboden( k-diff2-perpend )->calc_bild();
+		if(!gr->gib_grund_hang()==hang_t::flach) {
+			goto cleanup_station;
+		}
 		weg_t *sch = weg_t::alloc(track_wt);
 		sch->setze_besch( rail_weg );
-		int cost = -welt->lookup_kartenboden(k)->neuen_weg_bauen(sch, ribi2, this) - rail_weg->gib_preis();
+		int cost = -gr->neuen_weg_bauen(sch, ribi2, this) - rail_weg->gib_preis();
 		buche(cost, k, COST_CONSTRUCTION);
 		ribi2 = ribi_t::doppelt( ribi2 );
 		k += diff2;
@@ -2036,61 +2050,67 @@ spieler_t::create_simple_rail_transport()
 	welt->lookup_kartenboden( k-perpend )->calc_bild();
 
 	// now calc the route
-	wegbauer_t bauigel(welt, this);
 	bauigel.route_fuer( (wegbauer_t::bautyp_t)(wegbauer_t::schiene|wegbauer_t::bot_flag), rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->gib_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->gib_geschw(),welt->get_timeline_year_month()) );
 	bauigel.set_keep_existing_ways(false);
 	bauigel.calc_route( koord3d(platz2+size2,z2), koord3d(platz1+size1,z1) );
 	INT_CHECK("simplay 2478");
 
-	if(bauigel.max_n > 3) {
-		//just check, if I could not start at the other end of the station ...
-		int start=0, end=bauigel.max_n;
-		for( int j=1;  j<bauigel.max_n-1;  j++  ) {
-			if(bauigel.gib_route_bei(j)==platz2-diff2) {
-				start = j;
-				platz2 += size2-diff2;
-				size2 = size2*(-1);
-				diff2 = diff2*(-1);
-			}
-			if(bauigel.gib_route_bei(j)==platz1-diff1) {
-				end = j;
-				platz1 += size1-diff1;
-				size1 = size1*(-1);
-				diff1 = diff1*(-1);
-			}
+	if(bauigel.max_n <= 3) {
+		goto cleanup_station;
+	}
+#if 0
+/* FIX THIS! */
+	//just check, if I could not start at the other end of the station ...
+	int start=0, end=bauigel.max_n;
+	for( int j=1;  j<bauigel.max_n-1;  j++  ) {
+		if(bauigel.gib_route_bei(j)==platz2-diff2) {
+			start = j;
+			platz2 = platz2+size2-diff2;
+			size2 = size2*(-1);
+			diff2 = diff2*(-1);
 		}
-		// so found shorter route?
-		if(start!=0  ||  end!=bauigel.max_n) {
-			bauigel.calc_route( koord3d(platz2+size2,z2), koord3d(platz1+size1,z1) );
+		if(bauigel.gib_route_bei(j)==platz1-diff1) {
+			end = j;
+			platz1 = platz1+size1-diff1;
+			size1 = size1*(-1);
+			diff1 = diff1*(-1);
 		}
+	}
+	// so found shorter route?
+	if(start!=0  ||  end!=bauigel.max_n) {
+		bauigel.calc_route( koord3d(platz2+size2,z2), koord3d(platz1+size1,z1) );
+	}
+	if(bauigel.max_n <= 3) {
+		goto cleanup_station;
+	}
+#endif
 
 DBG_MESSAGE("spieler_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
-		bauigel.baue();
-		// connect to track
-		ribi1 = ribi_typ(diff1);
-		assert( welt->lookup_kartenboden(platz1+size1-diff1)->weg_erweitern(track_wt, ribi1) );
-		ribi1 = ribi_t::rueckwaerts(ribi1);
-		assert( welt->lookup_kartenboden(platz1+size1)->weg_erweitern(track_wt, ribi1) );
-		ribi2 = ribi_typ(diff2);
-		assert( welt->lookup_kartenboden(platz2+size2-diff2)->weg_erweitern(track_wt, ribi2) );
-		ribi2 = ribi_t::rueckwaerts(ribi2);
-		assert( welt->lookup_kartenboden(platz2+size2)->weg_erweitern(track_wt, ribi2) );
-		return true;
+	bauigel.baue();
+	// connect to track
+	ribi1 = ribi_typ(diff1);
+	assert( welt->lookup_kartenboden(platz1+size1-diff1)->weg_erweitern(track_wt, ribi1) );
+	ribi1 = ribi_t::rueckwaerts(ribi1);
+	assert( welt->lookup_kartenboden(platz1+size1)->weg_erweitern(track_wt, ribi1) );
+	ribi2 = ribi_typ(diff2);
+	assert( welt->lookup_kartenboden(platz2+size2-diff2)->weg_erweitern(track_wt, ribi2) );
+	ribi2 = ribi_t::rueckwaerts(ribi2);
+	assert( welt->lookup_kartenboden(platz2+size2)->weg_erweitern(track_wt, ribi2) );
+	return true;
+
+cleanup_station:
+	// remove station ...
+	k=platz1;
+	while(k!=size1+platz1) {
+		int cost = -welt->lookup_kartenboden(k)->weg_entfernen( track_wt, true );
+		buche(cost, k, COST_CONSTRUCTION);
+		k += diff1;
 	}
-	else {
-		// remove station ...
-		koord k=platz1;
-		while(k!=size1+platz1) {
-			int cost = -welt->lookup_kartenboden(k)->weg_entfernen( track_wt, true );
-			buche(cost, k, COST_CONSTRUCTION);
-			k += diff1;
-		}
-		k=platz2;
-		while(k!=size2+platz2) {
-			int cost = -welt->lookup_kartenboden(k)->weg_entfernen( track_wt, true );
-			buche(cost, k, COST_CONSTRUCTION);
-			k += diff2;
-		}
+	k=platz2;
+	while(k!=size2+platz2) {
+		int cost = -welt->lookup_kartenboden(k)->weg_entfernen( track_wt, true );
+		buche(cost, k, COST_CONSTRUCTION);
+		k += diff2;
 	}
 	return false;
 }
@@ -2414,7 +2434,9 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 		// built a simple ship route
 		case NR_BAUE_WATER_ROUTE:
 			{
-				int ships_needed = 1+(rail_vehicle ? count_rail*rail_vehicle->gib_zuladung() : count_road*road_vehicle->gib_zuladung())/ship_vehicle->gib_zuladung();
+				// properly calculate production
+				const int prod = min( ziel->get_base_production(), (start->get_base_production() * start->gib_besch()->gib_produkt(start_ware)->gib_faktor())/256u - start->gib_abgabe_letzt(start_ware) );
+				int ships_needed = (prod*abs_distance(platz1,start->gib_pos().gib_2d())) / (ship_vehicle->gib_zuladung()*ship_vehicle->gib_geschw())+1;
 				koord harbour=platz1;
 				if(create_ship_transport_vehikel(start,ships_needed)) {
 					if(welt->lookup(harbour)->gib_halt()->gib_fab_list().contains(ziel)) {
@@ -2440,7 +2462,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 			if(create_simple_rail_transport()) {
 				sint16 org_count_rail = count_rail;
 				count_rail = baue_bahnhof(start->gib_pos(), &platz1, count_rail, ziel);
-				if(count_rail>0) {
+				if(count_rail>1) {
 					count_rail = baue_bahnhof(ziel->gib_pos(), &platz2, count_rail, start);
 				}
 				if(count_rail>0) {
