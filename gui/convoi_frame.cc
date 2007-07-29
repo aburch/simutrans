@@ -318,11 +318,11 @@ void convoi_frame_t::zeichnen(koord pos, koord gr)
 
 	// now drawing the convois ...
 	static char buf[256];
-	uint32 start = vscroll.gib_knob_offset();
-	sint16 yoffset = 47;
 
 	PUSH_CLIP(pos.x, pos.y+47, gr.x-11, gr.y-48 );
 
+	uint32 start = vscroll.gib_knob_offset();
+	sint16 yoffset = 47 + (start==0 ? 0 : ((gr.y-48)%40)-40);
 	for(  unsigned i=start;  i<convois.get_count()  &&  yoffset<gr.y;  i++  ) {
 		convoihandle_t cnv = convois[i];
 

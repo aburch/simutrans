@@ -262,11 +262,7 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 {
 	if(cnv.is_bound()) {
 
-		if(sell) {
-			// just book it; deletion handled by destroy()
-			gib_besitzer()->buche(cnv->calc_restwert(), gib_pos().gib_2d(), COST_NEW_VEHICLE);
-		}
-		else {
+		if(!sell) {
 			// store vehicles in depot
 			vehikel_t *v;
 			while(  (v=cnv->remove_vehikel_bei(0))!=NULL  ) {
