@@ -177,15 +177,7 @@ void convoi_frame_t::sort_list()
 	sorteddir.setze_text( gib_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");
 
 	// only now we know how many convois we have
-	remove_komponente(&vscroll);
-	koord groesse = gib_fenstergroesse()-koord(0,47);
-	if(convois.get_count()<(groesse.y-47)/40) {
-		vscroll.setze_knob_offset(0);
-	}
-	else {
-		add_komponente(&vscroll);
-		vscroll.setze_knob( max( 1, (groesse.y-47)/40), convois.get_count() );
-	}
+	resize(koord(0,0));
 }
 
 
@@ -303,9 +295,16 @@ void convoi_frame_t::resize(const koord size_change)                          //
 {
 	gui_frame_t::resize(size_change);
 	koord groesse = gib_fenstergroesse()-koord(0,47);
-	vscroll.setze_pos(koord(groesse.x-11, 47-16));
-	vscroll.setze_groesse(groesse-koord(0,11));
-	vscroll.setze_knob( max( 1, (groesse.y/40+1)), convois.get_count() );
+	remove_komponente(&vscroll);
+	if(convois.get_count()-1<=(groesse.y-47)/40) {
+		vscroll.setze_knob_offset(0);
+	}
+	else {
+		add_komponente(&vscroll);
+		vscroll.setze_pos(koord(groesse.x-11, 47-16));
+		vscroll.setze_groesse(groesse-koord(0,11));
+		vscroll.setze_knob( max( 1, (groesse.y-47)/40)+1, convois.get_count() );
+	}
 }
 
 
@@ -322,8 +321,8 @@ void convoi_frame_t::zeichnen(koord pos, koord gr)
 	PUSH_CLIP(pos.x, pos.y+47, gr.x-11, gr.y-48 );
 
 	uint32 start = vscroll.gib_knob_offset();
-	sint16 yoffset = 47 + (start==0 ? 0 : ((gr.y-48)%40)-40);
-	for(  unsigned i=start;  i<convois.get_count()  &&  yoffset<gr.y;  i++  ) {
+	sint16 yoffset = 47;
+	for(  unsigned i=start;  i<convois.get_count()  &&  yoffset<gr.y+47;  i++  ) {
 		convoihandle_t cnv = convois[i];
 
 		if(cnv.is_bound()) {
