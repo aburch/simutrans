@@ -1,3 +1,6 @@
+Release of 99.14
+
+31-Jul-2007:
 	FIX: speed limit of channels for ships was never lifted
 	FIX: again front images for traffic lights
 	FIX: crash when building harbour outside of the map
@@ -21,7 +24,7 @@
 	FIX: redraw problems after topping windows
 	FIX: factory builder was tried to built the same factory always on the same region => now check next two regios two in all directions => less incomplete chains
 	CHANGE: AI deleted uneconomical vehicle and routes, if in trouble
-	CHANGE: AI tries now also mopre or less successful ship route
+	CHANGE: AI tries now also more or less successful ship route
 
 
 Release of 99.13
