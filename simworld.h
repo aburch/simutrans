@@ -117,7 +117,7 @@ private:
 	 * Mauszeigerposition, intern
 	 * @author Hj. Malthaner
 	 */
-	int mi, mj;
+	sint32 mi, mj;
 
 	/**
 	 * If this is true, the map will not be scrolled

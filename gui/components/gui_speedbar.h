@@ -34,7 +34,7 @@ private:
 public:
 	gui_speedbar_t() { base = 100; vertical = false; }
 
-	void add_color_value(const sint32 *value, int color);
+	void add_color_value(const sint32 *value, uint8 color);
 
 	void set_base(sint32 base);
 

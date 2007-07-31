@@ -455,7 +455,7 @@ unsigned long dr_time(void)
 
 void dr_sleep(uint32 usec)
 {
-	rest usec;
+	return usec;
 }
 
 
@@ -470,7 +470,7 @@ bool dr_fatal_notify(const char* msg, int choices)
 		return MessageBox( hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==IDRETRY;
 	}
 #else
-	beep();
+//	beep();
 	return choices;
 #endif
 }

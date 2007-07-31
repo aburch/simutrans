@@ -640,9 +640,9 @@ DBG_MESSAGE("spieler_t::is_my_halt()","grund %i exists",i);
  */
 void spieler_t::rdwr(loadsave_t *file)
 {
-	int halt_count=0;
-	int start_index=-1;
-	int ziel_index=-1;
+	sint32 halt_count=0;
+	sint32 start_index=-1;
+	sint32 ziel_index=-1;
 
 	// prepare for saving by default variables
 	if(file->is_saving()) {

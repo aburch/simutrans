@@ -2270,7 +2270,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved hgt");
 
-	int fabs = fab_list.count();
+	sint32 fabs = fab_list.count();
 	file->rdwr_long(fabs, "\n");
 	slist_iterator_tpl<fabrik_t*> fiter ( fab_list );
 	while(fiter.next()) {
@@ -2473,7 +2473,7 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 	if(file->get_version()<99005) {
 		for (int y = 0; y <= gib_groesse_y(); y++) {
 			for (int x = 0; x <= gib_groesse_x(); x++) {
-				int hgt;
+				sint32 hgt;
 				file->rdwr_long(hgt, "\n");
 				setze_grid_hgt(koord(x, y), (hgt*Z_TILE_STEP)/TILE_HEIGHT_STEP);
 			}
@@ -2517,11 +2517,11 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 	win_setze_welt( this );
 	reliefkarte_t::gib_karte()->setze_welt(this);
 
-	int fabs;
+	sint32 fabs;
 	file->rdwr_long(fabs, "\n");
 	DBG_MESSAGE("karte_t::laden()", "prepare for %i factories", fabs);
 
-	for(int i = 0; i < fabs; i++) {
+	for(sint32 i = 0; i < fabs; i++) {
 		// liste in gleicher reihenfolge wie vor dem speichern wieder aufbauen
 		fabrik_t *fab = new fabrik_t(this, file);
 		if(fab->gib_besch()) {

@@ -1216,7 +1216,6 @@ convoi_t::vorfahren()
 
 		// just advances the first vehicle
 		vehikel_t* v0 = fahr[0];
-		int length = v0->gib_besch()->get_length();
 		v0->setze_erstes(false); // switches off signal checks ...
 		v0->darf_rauchen(false);
 		steps_driven = 0;
@@ -1318,7 +1317,7 @@ void
 convoi_t::rdwr(loadsave_t *file)
 {
 	sint32 dummy;
-	int besitzer_n = welt->sp2num(besitzer_p);
+	sint32 besitzer_n = welt->sp2num(besitzer_p);
 
 	if(file->is_saving()) {
 		file->wr_obj_id("Convoi");

@@ -190,8 +190,7 @@ fabrik_t::~fabrik_t()
  *
  * @author Hj. Malthaner
  */
-void
-fabrik_t::baue(int rotate, bool clear)
+void fabrik_t::baue(sint32 rotate, bool clear)
 {
 	if(besch) {
 		this->rotate = rotate;
@@ -374,11 +373,11 @@ fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 void
 fabrik_t::rdwr(loadsave_t *file)
 {
-	int i;
-	int spieler_n;
-	int eingang_count;
-	int ausgang_count;
-	int anz_lieferziele;
+	sint32 i;
+	sint32 spieler_n;
+	sint32 eingang_count;
+	sint32 ausgang_count;
+	sint32 anz_lieferziele;
 	const char *s = NULL;
 
 	if(file->is_saving()) {
@@ -617,10 +616,9 @@ uint32 fabrik_t::produktion(const uint32 produkt) const
 
 
 
-int
-fabrik_t::vorrat_an(const ware_besch_t *typ)
+sint32 fabrik_t::vorrat_an(const ware_besch_t *typ)
 {
-	int menge = -1;
+	sint32 menge = -1;
 
 	for (uint32 index = 0; index < ausgang.get_count(); index++) {
 		if (typ == ausgang[index].gib_typ()) {
@@ -632,8 +630,9 @@ fabrik_t::vorrat_an(const ware_besch_t *typ)
 	return menge;
 }
 
-int
-fabrik_t::hole_ab(const ware_besch_t *typ, int menge)
+
+
+sint32 fabrik_t::hole_ab(const ware_besch_t *typ, sint32 menge)
 {
 	for (uint32 index = 0; index < ausgang.get_count(); index++) {
 		if (ausgang[index].gib_typ() == typ) {
@@ -656,8 +655,7 @@ fabrik_t::hole_ab(const ware_besch_t *typ, int menge)
 
 
 
-int
-fabrik_t::liefere_an(const ware_besch_t *typ, int menge)
+sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 {
 	for (uint32 index = 0; index < eingang.get_count(); index++) {
 		if (eingang[index].gib_typ() == typ) {
@@ -675,8 +673,9 @@ fabrik_t::liefere_an(const ware_besch_t *typ, int menge)
 	return -1;
 }
 
-int
-fabrik_t::verbraucht(const ware_besch_t *typ)
+
+
+sint32 fabrik_t::verbraucht(const ware_besch_t *typ)
 {
 	for(uint32 index = 0; index < eingang.get_count(); index ++) {
 		if (eingang[index].gib_typ() == typ) {
@@ -688,8 +687,8 @@ fabrik_t::verbraucht(const ware_besch_t *typ)
 }
 
 
-void
-fabrik_t::step(long delta_t)
+
+void fabrik_t::step(long delta_t)
 {
 	delta_sum += delta_t;
 

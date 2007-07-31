@@ -108,7 +108,7 @@ private:
 	* @author Volker Meyer
 	* @date  12.06.2003
 	*/
-	int loading_level;
+	sint32 loading_level;
 
 	/**
 	* At which loading level is the train allowed to start? 0 during driving.
@@ -116,7 +116,7 @@ private:
 	* @author Volker Meyer
 	* @date  12.06.2003
 	*/
-	int loading_limit;
+	sint32 loading_limit;
 
 	/**
 	* The vehicles of this convoi
@@ -483,7 +483,7 @@ public:
 	 *         actual currently set speed.
 	 * @author Hj. Malthaner
 	 */
-	const int& gib_akt_speed() const { return akt_speed; }
+	const sint32& gib_akt_speed() const { return akt_speed; }
 
 	/**
 	 * @return total power of this convoi
@@ -668,14 +668,14 @@ public:
 	* @author Volker Meyer
 	* @date  12.06.2003
 	*/
-	const int &get_loading_level() const { return loading_level; }
+	const sint32 &get_loading_level() const { return loading_level; }
 
 	/**
 	* At which loading level is the train allowed to start? 0 during driving.
 	* @author Volker Meyer
 	* @date  12.06.2003
 	*/
-	const int &get_loading_limit() const { return loading_limit; }
+	const sint32 &get_loading_limit() const { return loading_limit; }
 
 	/**
 	* Schedule convoid for self destruction. Will be executed

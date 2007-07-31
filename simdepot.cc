@@ -351,7 +351,7 @@ depot_t::rdwr(loadsave_t *file)
 void
 depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 {
-	int count;
+	sint32 count;
 
 	if(file->is_saving()) {
 		count = list.count();

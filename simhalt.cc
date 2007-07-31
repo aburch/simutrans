@@ -1801,7 +1801,7 @@ haltestelle_t::erzeuge_fussgaenger(karte_t *welt, koord3d pos, int anzahl)
 void
 haltestelle_t::rdwr(loadsave_t *file)
 {
-	int spieler_n;
+	sint32 spieler_n;
 	koord3d k;
 
 	if(file->is_saving()) {

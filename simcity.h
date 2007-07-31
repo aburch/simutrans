@@ -86,8 +86,8 @@ private:
 
 	weighted_vector_tpl <const gebaeude_t *> buildings;
 
-	array2d_tpl<unsigned char> pax_ziele_alt;
-	array2d_tpl<unsigned char> pax_ziele_neu;
+	array2d_tpl<uint8> pax_ziele_alt;
+	array2d_tpl<uint8> pax_ziele_neu;
 
 	koord pos;			// Gruendungsplanquadrat der Stadt
 	koord lo, ur;	// max size of housing area
@@ -226,7 +226,7 @@ private:
 	 * ein Passagierziel in die Zielkarte eintragen
 	 * @author Hj. Malthaner
 	 */
-	void merke_passagier_ziel(koord ziel, sint32 color);
+	void merke_passagier_ziel(koord ziel, uint8 color);
 
 	/**
 	 * baut Spezialgebaeude, z.B Stadion

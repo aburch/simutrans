@@ -592,25 +592,23 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 
 
 
-void
-route_t::rdwr(loadsave_t *file)
+void route_t::rdwr(loadsave_t *file)
 {
-	int max_n = route.get_count()-1;
-	int i;
+	sint32 max_n = route.get_count()-1;
 
 	file->rdwr_long(max_n, "\n");
 	if(file->is_loading()) {
 		koord3d k;
 		route.clear();
 		route.resize(max_n+2);
-		for(i=0;  i<=max_n;  i++ ) {
+		for(sint32 i=0;  i<=max_n;  i++ ) {
 			k.rdwr(file);
 			route.append( k );
 		}
 	}
 	else {
 		// writing
-		for(i=0; i<=max_n; i++) {
+		for(sint32 i=0; i<=max_n; i++) {
 			route[i].rdwr(file);
 		}
 	}

@@ -1123,7 +1123,7 @@ vehikel_t::calc_bild()
 void
 vehikel_t::rdwr(loadsave_t *file)
 {
-	int fracht_count = 0;
+	sint32 fracht_count = 0;
 
 	if(file->is_saving()) {
 		fracht_count = fracht.count();

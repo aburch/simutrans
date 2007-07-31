@@ -244,7 +244,7 @@ bool stadt_t::bewerte_loc(const koord pos, const char* regel, int rotation)
  * prissi: but the rules should explicitly forbid building then?!?
  * @author Hj. Malthaner
  */
-int stadt_t::bewerte_pos(const koord pos, const char* regel)
+sint32 stadt_t::bewerte_pos(const koord pos, const char* regel)
 {
 	// will be called only a single time, so we can stop after a single match
 	if(bewerte_loc(pos, regel,   0) ||
@@ -257,7 +257,7 @@ int stadt_t::bewerte_pos(const koord pos, const char* regel)
 }
 
 
-void stadt_t::bewerte_strasse(koord k, int rd, const char* regel)
+void stadt_t::bewerte_strasse(koord k, sint32 rd, const char* regel)
 {
 	if (simrand(rd) == 0) {
 		best_strasse.check(k, bewerte_pos(k, regel));
@@ -265,7 +265,7 @@ void stadt_t::bewerte_strasse(koord k, int rd, const char* regel)
 }
 
 
-void stadt_t::bewerte_haus(koord k, int rd, const char* regel)
+void stadt_t::bewerte_haus(koord k, sint32 rd, const char* regel)
 {
 	if (simrand(rd) == 0) {
 		best_haus.check(k, bewerte_pos(k, regel));
@@ -498,7 +498,7 @@ static const char* const aussen_namen[] =
  * @param number if >= 0, then a number is added to the name
  * @author Hj. Malthaner
  */
-char *stadt_t::haltestellenname(koord k, const char *typ, int number)
+char *stadt_t::haltestellenname(koord k, const char *typ, sint32 number)
 {
 	const char* num_city_base = "%s city %d %s";
 	const char* num_land_base = "%s land %d %s";
@@ -910,7 +910,7 @@ stadt_t::~stadt_t()
 }
 
 
-stadt_t::stadt_t(spieler_t* sp, koord pos, int citizens) :
+stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	buildings(16),
 	pax_ziele_alt(128, 128),
 	pax_ziele_neu(128, 128),
@@ -1027,7 +1027,7 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 
 void stadt_t::rdwr(loadsave_t* file)
 {
-	int besitzer_n;
+	sint32 besitzer_n;
 
 	if (file->is_saving()) {
 		besitzer_n = welt->sp2num(besitzer_p);
@@ -1697,7 +1697,7 @@ koord stadt_t::finde_passagier_ziel(pax_zieltyp* will_return)
 }
 
 
-void stadt_t::merke_passagier_ziel(koord k, int color)
+void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 {
 	const koord p = koord(
 		((k.x * 127) / welt->gib_groesse_x()) & 127,
@@ -1778,7 +1778,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 				if (besch->gib_all_layouts() > 1) {
 					rotate = (simrand(20) & 2) + is_rotate;
 				}
-				gebaeude_t *gb = hausbauer_t::baue( welt, besitzer_p, welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), rotate, besch );
+				hausbauer_t::baue( welt, besitzer_p, welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), rotate, besch );
 				// tell the player, if not during initialization
 				if (!new_town) {
 					char buf[256];
@@ -2135,7 +2135,7 @@ void stadt_t::baue_gebaeude(const koord k)
 }
 
 
-void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, int level, koord target)
+void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 level, koord target)
 {
 	const int verkehr_level = welt->gib_einstellungen()->gib_verkehr_level();
 	if (verkehr_level > 0 && level % (17 - verkehr_level) == 0) {
@@ -2506,7 +2506,7 @@ void stadt_t::pruefe_grenzen(koord k)
 
 
 // geeigneten platz zur Stadtgruendung durch Zufall ermitteln
-vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const int anzahl)
+vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl)
 {
 	int cl = 0;
 	for (int i = 0; i < MAX_CLIMATES; i++) {

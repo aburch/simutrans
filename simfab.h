@@ -37,14 +37,14 @@ class stadt_t;
 class ware_production_t
 {
 private:
-    const ware_besch_t *type;
+	const ware_besch_t *type;
 public:
-    const ware_besch_t* gib_typ() const { return type; }
-    void setze_typ(const ware_besch_t *t) { type=t; }
-    sint32 menge;	// in internal untis shifted by precision (see produktion)
-    sint32 max;
-		sint32 abgabe_sum;	// total this month (in units)
-		sint32 abgabe_letzt;	// total last month (in units)
+	const ware_besch_t* gib_typ() const { return type; }
+	void setze_typ(const ware_besch_t *t) { type=t; }
+	sint32 menge;	// in internal untis shifted by precision (see produktion)
+	sint32 max;
+	sint32 abgabe_sum;	// total this month (in units)
+	sint32 abgabe_letzt;	// total last month (in units)
 };
 
 

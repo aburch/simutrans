@@ -46,7 +46,7 @@ void scrollbar_t::setze_groesse(koord groesse)
 
 
 
-void scrollbar_t::setze_knob(int size, int area)
+void scrollbar_t::setze_knob(sint32 size, sint32 area)
 {
 	if(size<1  ||  area<1) {
 		dbg->warning("scrollbar_t::setze_knob()","size=%i, area=%i not in 1...x",size,area);
@@ -61,7 +61,7 @@ void scrollbar_t::setze_knob(int size, int area)
 // reset variable position and size values of the three buttons
 void scrollbar_t::reposition_buttons()
 {
-  int area; // area will be actual area knob can move in
+  sint32 area; // area will be actual area knob can move in
   if (type == vertical) { area = groesse.y; }
   else /* horizontal */ { area = groesse.x; }
   area -= 24;
@@ -76,8 +76,8 @@ void scrollbar_t::reposition_buttons()
   float ratio = (float)area / (float)knob_area;
   if (knob_area < knob_size) { ratio = (float)area / (float)knob_size; }
 
-  int offset = (int)( (float)knob_offset * ratio +.5 );
-  int size   = (int)( (float)knob_size   * ratio +.5 );
+  sint32 offset = (sint32)( (float)knob_offset * ratio +.5 );
+  sint32 size   = (sint32)( (float)knob_size   * ratio +.5 );
   //if (knob_area < knob_size) { offset = 0; }
 
   if (type == vertical) {
@@ -94,9 +94,9 @@ void scrollbar_t::reposition_buttons()
 
 
 // signals slider drag. If slider hits end, returned amount is smaller.
-int scrollbar_t::slider_drag(int amount)
+sint32 scrollbar_t::slider_drag(sint32 amount)
 {
-  int area; // area will be actual area knob can move in
+  sint32 area; // area will be actual area knob can move in
   if (type == vertical) area = groesse.y;
   else /* horizontal */ area = groesse.x;
   area -= 24;
@@ -114,7 +114,7 @@ int scrollbar_t::slider_drag(int amount)
   if (proposed_offset>maximum) { proposed_offset = maximum; }
 
   if (proposed_offset != knob_offset) {
-    int o;
+    sint32 o;
     knob_offset = proposed_offset;
     call_listeners((long)knob_offset);
     o = real_knob_position();
@@ -130,10 +130,10 @@ int scrollbar_t::slider_drag(int amount)
 
 
 // either arrow buttons is just pressed (or long enough for a repeat event)
-void scrollbar_t::button_press(int number)
+void scrollbar_t::button_press(sint32 number)
 {
   // the offset can range from 0 to maximum
-  int maximum = knob_area - knob_size;
+  sint32 maximum = knob_area - knob_size;
   if (maximum<0) { maximum = 0; } // possible if content is smaller than window
 
   if (number == 0) {
@@ -149,9 +149,9 @@ void scrollbar_t::button_press(int number)
 
 
 
-void scrollbar_t::space_press(int updown) // 0: scroll up/left, 1: scroll down/right
+void scrollbar_t::space_press(sint32 updown) // 0: scroll up/left, 1: scroll down/right
 {
-	int maximum = knob_area - knob_size;
+	sint32 maximum = knob_area - knob_size;
 	if (maximum<0) {
 		// possible if content is smaller than window
 		maximum = 0;
@@ -221,7 +221,7 @@ void scrollbar_t::infowin_event(const event_t *ev)
     if (button_def[1].getroffen(x, y)) { button_press(1); }
   } else if (IS_LEFTDRAG(ev)) {
     if (button_def[2].getroffen(x,y)) {
-      int delta;
+      sint32 delta;
 
       // Hajo: added vertical/horizontal check
       if(type == vertical) {

@@ -102,7 +102,7 @@ simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file)
 		file->rd_obj_id(buf, 79);
 		all_managed_lines.clear();
 		if(strcmp(buf, "Linemanagement")==0) {
-			int totalLines = 0;
+			sint32 totalLines = 0;
 			file->rdwr_long(totalLines, " ");
 DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 			for (int i = 0; i<totalLines; i++) {

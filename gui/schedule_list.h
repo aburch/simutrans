@@ -42,7 +42,7 @@ private:
 	static uint8 statistic[MAX_LINE_COST];
 	static uint8 statistic_type[MAX_LINE_COST];
 
-	int selection, capacity, load, loadfactor;
+	sint32 selection, capacity, load, loadfactor;
 
 	void display(koord pos);
 

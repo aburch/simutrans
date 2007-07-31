@@ -86,7 +86,7 @@ private:
 	 * holds total number of all halts, ever built
 	 * @author hsiegeln
 	 */
-	int haltcount;
+	sint32 haltcount;
 
 	/*
 	 * if this is true, this AI will try passenger transport only
@@ -162,13 +162,13 @@ private:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	int konto_ueberzogen;
+	sint32 konto_ueberzogen;
 
 	/**
 	 * Zählt die steps
 	 * @author Hj. Malthaner
 	 */
-	int steps;
+	sint32 steps;
 
 	slist_tpl<halthandle_t> halt_list; ///< Liste der Haltestellen
 
@@ -201,13 +201,13 @@ private:
 	const weg_besch_t *rail_weg ;
 	const weg_besch_t *road_weg ;
 
-	int count_rail;
-	int count_road;
+	sint32 count_rail;
+	sint32 count_road;
 
 	// multi-purpose counter
-	int count;
+	sint32 count;
 
-	int gewinn;
+	sint32 gewinn;
 
 	// passenger KI
 	const stadt_t *start_stadt;
