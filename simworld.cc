@@ -1131,7 +1131,7 @@ bool karte_t::can_lower(sint16 x, sint16 y) const
 
 
 
-int karte_t::lower_to(sint16 x, sint16 y, sint16 h,bool set_slopes)
+int karte_t::lower_to(sint16 x, sint16 y, sint16 h, bool set_slopes)
 {
 	int n = 0;
 	if(ist_in_gittergrenzen(x,y)) {
@@ -1228,29 +1228,45 @@ bool karte_t::can_ebne_planquadrat(koord pos, sint16 hgt)
 
 
 
-bool karte_t::ebne_planquadrat(koord pos, sint16 hgt)
+// make a flat leve at this position (only used for AI at the moment)
+bool karte_t::ebne_planquadrat(spieler_t sp, koord pos, sint16 hgt)
 {
+	int n = 0;
 	bool ok = true;
 
 	for(int i=0; i<4; i++) {
 		koord p = pos + ebene_offsets[i];
 
 		if(lookup_hgt(p) > hgt) {
-
-			if(can_lower_to(p.x, p.y, hgt)) {
-				lower_to(p.x, p.y, hgt,true);
+				n += lower_to(p.x, p.y, hgt, true);
 			} else {
 				ok = false;
+				break;
 			}
 
 		} else if(lookup_hgt(p) < hgt) {
 
 			if(can_raise_to(p.x, p.y, hgt)) {
-				raise_to(p.x, p.y, hgt,true);
+				n += raise_to(p.x, p.y, hgt, true);
 			} else {
 				ok = false;
+				break;
 			}
 		}
+	}
+	// was changed => recalc + pay for it
+	if(n>0) {
+		for(  uint8 i=0;  i<8;  i++  ) {
+			grund_t *gr = lookup_kartenboden( p+koord::neighbours[i] );
+			if(gr) gr->calc_bild();
+		}
+		if(n>4) {
+			for(  uint8 i=0;  i<16;  i++  ) {
+				grund_t *gr = lookup_kartenboden( p+koord::second_neighbours[i] );
+				if(gr) gr->calc_bild();
+			}
+		}
+		sp->buche( n*umgebung_t::cst_alter_land, platz1, COST_CONSTRUCTION );
 	}
 	return ok;
 }

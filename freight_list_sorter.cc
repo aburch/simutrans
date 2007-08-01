@@ -93,30 +93,18 @@ freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max,
 		buf.append("\n");
 	}
 	buf.append(" ");
+	buf.append(sum);
 	if(max) {
-		buf.append(sum);
+		// convois
 		buf.append("/");
 		buf.append(max);
-		buf.append(translator::translate(ware->gib_typ()->gib_mass()));
-		buf.append(" ");
-		if(ware->gib_catg()!=0) {
-			buf.append(translator::translate(ware->gib_typ()->gib_catg_name()));
-		}
-		else {
-			// special freight need own name
-			buf.append(translator::translate(ware->gib_typ()->gib_name()));
-		}
-		buf.append(" ");
-		buf.append(translator::translate(what_doing));
 	}
-	else {
-		buf.append(sum);
-		buf.append(translator::translate(ware->gib_typ()->gib_mass()));
-		buf.append(" ");
-		buf.append(translator::translate(ware->gib_typ()->gib_name()));
-		buf.append(" ");
-		buf.append(translator::translate(what_doing));
-	}
+	buf.append(translator::translate(ware->gib_typ()->gib_mass()));
+	buf.append(" ");
+	// special freight (catg==0) need own name
+	buf.append( translator::translate( ware->gib_catg()!=0 ? ware->gib_typ()->gib_catg_name() : ware->gib_typ()->gib_name() ));
+	buf.append(" ");
+	buf.append(translator::translate(what_doing));
 	buf.append("\n");
 }
 

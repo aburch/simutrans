@@ -46,6 +46,10 @@ public:
 	static const koord west;
 	// die 4 Grundrichtungen als Array
 	static const koord nsow[4];
+	// 8 next neighbours
+	static const koord neighbours[8];
+	// 15 next nearest neightbours
+	static const koord second_neighbours[16];
 
 private:
 	static const koord from_ribi[16];

@@ -734,7 +734,7 @@ public:
 
 	// mostly used by AI: Ask to flatten a tile
 	bool can_ebne_planquadrat(koord pos, sint16 hgt);
-	bool ebne_planquadrat(koord pos, sint16 hgt);
+	bool ebne_planquadrat(spieler_t sp, koord pos, sint16 hgt);
 
 	/**
 	 * Erzeugt einen Berg oder ein Tal

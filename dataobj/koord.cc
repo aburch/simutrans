@@ -14,6 +14,38 @@ const koord koord::nsow[] = {
 	koord(-1,  0)
 };
 
+const koord koord::neighbours[] = {
+	koord( -1, -1),
+	koord( -1, 0 ),
+	koord( -1, 1 ),
+	koord( 0,  1 ),
+	koord( 1,  1 ),
+	koord( 1,  0 ),
+	koord( 1, -1 ),
+	koord( 0, -1 )
+};
+
+ // second nearest neighbour
+const koord koord::second_neighbours[] = {
+{
+	koord(-2,-2),
+	koord(-1,-2),
+	koord(0,-2),
+	koord(1,-2),
+	koord(2,-2),
+	koord(2,-1),
+	koord(2,0),
+	koord(2,1),
+	koord(2,2),
+	koord(1,2),
+	koord(0,2),
+	koord(-1,2),
+	koord(-2,2),
+	koord(-2,1),
+	koord(-2,0),
+	koord(-2,1)
+};
+
 const koord koord::from_ribi[] = {
 	koord( 0,  0), // keine
 	koord( 0, -1), // nord (1)

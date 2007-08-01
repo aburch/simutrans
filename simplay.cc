@@ -1734,10 +1734,12 @@ void spieler_t::create_rail_transport_vehikel(const koord platz1, const koord pl
 
 bool spieler_t::create_simple_road_transport()
 {
-	INT_CHECK("simplay 837");
+	if(!(welt->ebne_planquadrat( platz1, welt->lookup_kartenboden(platz1)->gib_hoehe() )  &&  welt->ebne_planquadrat( platz2, welt->lookup_kartenboden(platz2)->gib_hoehe() ))  ) {
+		// no flat land here?!?
+		return false;
+	}
 
-	welt->ebne_planquadrat( platz1, welt->lookup_kartenboden(platz1)->gib_hoehe() );
-	welt->ebne_planquadrat( platz2, welt->lookup_kartenboden(platz2)->gib_hoehe() );
+	INT_CHECK( "simplay 1742" );
 
 	// is there already a connection?
 	if(road_vehicle) {
@@ -1999,20 +2001,16 @@ spieler_t::create_simple_rail_transport()
 	bool ok=true;
 	// first: make plain stations tiles as intended
 	sint16 z1 = max( welt->gib_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(platz1)->gib_hoehe() );
-	koord k=platz1;
+	koord k = platz1;
 	koord diff1( sgn(size1.x), sgn(size1.y) );
 	koord perpend( sgn(size1.y), sgn(size1.x) );
 	ribi_t::ribi ribi1 = ribi_typ( diff1 );
 	while(k!=size1+platz1) {
-		welt->ebne_planquadrat( k, z1 );
-		grund_t *gr = welt->lookup_kartenboden(k);
-		welt->lookup_kartenboden( k-diff1 )->calc_bild();
-		welt->lookup_kartenboden( k-diff1+perpend )->calc_bild();
-		welt->lookup_kartenboden( k-diff1-perpend )->calc_bild();
-		if(!gr->gib_grund_hang()==hang_t::flach) {
+		if(!welt->ebne_planquadrat( k, z1 )) {
 			ok = false;
 			break;
 		}
+		grund_t *gr = welt->lookup_kartenboden(k);
 		weg_t *sch = weg_t::alloc(track_wt);
 		sch->setze_besch( rail_weg );
 		int cost = -gr->neuen_weg_bauen(sch, ribi1, this) - rail_weg->gib_preis();
@@ -2020,9 +2018,6 @@ spieler_t::create_simple_rail_transport()
 		ribi1 = ribi_t::doppelt( ribi1 );
 		k += diff1;
 	}
-	welt->lookup_kartenboden( k )->calc_bild();
-	welt->lookup_kartenboden( k+perpend )->calc_bild();
-	welt->lookup_kartenboden( k-perpend )->calc_bild();
 
 	// make the second ones flat ...
 	sint16 z2 = max( welt->gib_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(platz2)->gib_hoehe() );
@@ -2031,15 +2026,11 @@ spieler_t::create_simple_rail_transport()
 	koord diff2( sgn(size2.x), sgn(size2.y) );
 	ribi_t::ribi ribi2 = ribi_typ( diff2 );
 	while(k!=size2+platz2  &&  ok) {
-		welt->ebne_planquadrat(k,z2);
-		grund_t *gr = welt->lookup_kartenboden(k);
-		welt->lookup_kartenboden( k-diff2 )->calc_bild();
-		welt->lookup_kartenboden( k-diff2+perpend )->calc_bild();
-		welt->lookup_kartenboden( k-diff2-perpend )->calc_bild();
-		if(!gr->gib_grund_hang()==hang_t::flach) {
+		if(!welt->ebne_planquadrat(this,k,z2)) {
 			ok = false;
 			break;
 		}
+		grund_t *gr = welt->lookup_kartenboden(k);
 		weg_t *sch = weg_t::alloc(track_wt);
 		sch->setze_besch( rail_weg );
 		int cost = -gr->neuen_weg_bauen(sch, ribi2, this) - rail_weg->gib_preis();
@@ -2047,9 +2038,6 @@ spieler_t::create_simple_rail_transport()
 		ribi2 = ribi_t::doppelt( ribi2 );
 		k += diff2;
 	}
-	welt->lookup_kartenboden( k )->calc_bild();
-	welt->lookup_kartenboden( k+perpend )->calc_bild();
-	welt->lookup_kartenboden( k-perpend )->calc_bild();
 
 	// now calc the route
 	wegbauer_t bauigel(welt, this);
