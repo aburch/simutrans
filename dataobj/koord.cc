@@ -27,7 +27,6 @@ const koord koord::neighbours[] = {
 
  // second nearest neighbour
 const koord koord::second_neighbours[] = {
-{
 	koord(-2,-2),
 	koord(-1,-2),
 	koord(0,-2),
