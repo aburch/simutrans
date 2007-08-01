@@ -200,8 +200,9 @@ wkz_abfrage(spieler_t *, karte_t *welt, koord pos)
 	return ok;
 }
 
-int
-wkz_raise(spieler_t *sp, karte_t *welt, koord pos)
+
+
+int wkz_raise(spieler_t *sp, karte_t *welt, koord pos)
 {
 //DBG_MESSAGE("wkz_raise()","raising square (%d,%d) to %d",pos.x, pos.y, welt->lookup_hgt(pos)+Z_TILE_STEP);
 	bool ok = false;

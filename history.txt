@@ -1,3 +1,6 @@
+	FIX: AI terraforming was free of charge
+
+
 Release of 99.14
 
 31-Jul-2007:

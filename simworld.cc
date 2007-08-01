@@ -1229,7 +1229,7 @@ bool karte_t::can_ebne_planquadrat(koord pos, sint16 hgt)
 
 
 // make a flat leve at this position (only used for AI at the moment)
-bool karte_t::ebne_planquadrat(spieler_t sp, koord pos, sint16 hgt)
+bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint16 hgt)
 {
 	int n = 0;
 	bool ok = true;
@@ -1238,6 +1238,8 @@ bool karte_t::ebne_planquadrat(spieler_t sp, koord pos, sint16 hgt)
 		koord p = pos + ebene_offsets[i];
 
 		if(lookup_hgt(p) > hgt) {
+
+			if(!can_lower_to(p.x, p.y, hgt)) {
 				n += lower_to(p.x, p.y, hgt, true);
 			} else {
 				ok = false;
@@ -1256,32 +1258,23 @@ bool karte_t::ebne_planquadrat(spieler_t sp, koord pos, sint16 hgt)
 	}
 	// was changed => recalc + pay for it
 	if(n>0) {
-		for(  uint8 i=0;  i<8;  i++  ) {
-			grund_t *gr = lookup_kartenboden( p+koord::neighbours[i] );
-			if(gr) gr->calc_bild();
-		}
-		if(n>4) {
-			for(  uint8 i=0;  i<16;  i++  ) {
-				grund_t *gr = lookup_kartenboden( p+koord::second_neighbours[i] );
+		// update image
+		for(int j=pos.y-n; j<=pos.y+n; j++) {
+			for(int i=pos.x-n; i<=pos.x+n; i++) {
+				grund_t *gr = lookup_kartenboden( koord(i,j) );
 				if(gr) gr->calc_bild();
 			}
 		}
-		sp->buche( n*umgebung_t::cst_alter_land, platz1, COST_CONSTRUCTION );
+		sp->buche( n*umgebung_t::cst_alter_land, pos, COST_CONSTRUCTION );
 	}
 	return ok;
 }
 
 
 
-void karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord),
-                             int zeiger_bild,
-			     int zeiger_versatz,
-			     int ok_sound,
-			     int ko_sound)
+void karte_t::setze_maus_funktion( int (* funktion)(spieler_t *, karte_t *, koord), int zeiger_bild, int zeiger_versatz, int ok_sound, int ko_sound)
 {
-	setze_maus_funktion(
-		(int (*)(spieler_t *, karte_t *, koord, value_t))funktion,
-		zeiger_bild, zeiger_versatz, 0l, ok_sound, ko_sound);
+	setze_maus_funktion( (int (*)(spieler_t *, karte_t *, koord, value_t))funktion, zeiger_bild, zeiger_versatz, 0l, ok_sound, ko_sound);
 }
 
 
@@ -1292,17 +1285,13 @@ void karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord
  *       parts of the code pass pointers
  * @author V. Meyer, Hj. Malthaner
  */
-void
-karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord, value_t param),
-		int zeiger_bild, int zeiger_versatz,
-		value_t param,
-		int ok_sound, int ko_sound)
+void karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord, value_t param), int zeiger_bild, int zeiger_versatz, value_t param, int ok_sound, int ko_sound)
 {
-    // gibt es eien neue funktion ?
-    if(funktion != NULL) {
+	// gibt es eien neue funktion ?
+	if(funktion != NULL) {
 		// gab es eine alte funktion ?
 		if(mouse_funk != NULL) {
-		    mouse_funk(get_active_player(), this, EXIT, mouse_funk_param);
+			mouse_funk(get_active_player(), this, EXIT, mouse_funk_param);
 		}
 
 		struct sound_info info;
@@ -1321,10 +1310,10 @@ karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord, val
 		zeiger->change_pos( zpos );
 
 		mouse_funk(get_active_player(), this, INIT, mouse_funk_param);
-    }
+	}
 
-    mouse_funk_ok_sound = ok_sound;
-    mouse_funk_ko_sound = ko_sound;
+	mouse_funk_ok_sound = ok_sound;
+	mouse_funk_ko_sound = ko_sound;
 }
 
 

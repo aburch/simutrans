@@ -1734,7 +1734,7 @@ void spieler_t::create_rail_transport_vehikel(const koord platz1, const koord pl
 
 bool spieler_t::create_simple_road_transport()
 {
-	if(!(welt->ebne_planquadrat( platz1, welt->lookup_kartenboden(platz1)->gib_hoehe() )  &&  welt->ebne_planquadrat( platz2, welt->lookup_kartenboden(platz2)->gib_hoehe() ))  ) {
+	if(!(welt->ebne_planquadrat( this, platz1, welt->lookup_kartenboden(platz1)->gib_hoehe() )  &&  welt->ebne_planquadrat( this, platz2, welt->lookup_kartenboden(platz2)->gib_hoehe() ))  ) {
 		// no flat land here?!?
 		return false;
 	}
@@ -1995,8 +1995,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","set pos *p %i,%i to %i,%i",p->x,p->y,t.x,
  * usually good enough, since it can use road crossings
  * @author prissi
  */
-bool
-spieler_t::create_simple_rail_transport()
+bool spieler_t::create_simple_rail_transport()
 {
 	bool ok=true;
 	// first: make plain stations tiles as intended
@@ -2006,7 +2005,7 @@ spieler_t::create_simple_rail_transport()
 	koord perpend( sgn(size1.y), sgn(size1.x) );
 	ribi_t::ribi ribi1 = ribi_typ( diff1 );
 	while(k!=size1+platz1) {
-		if(!welt->ebne_planquadrat( k, z1 )) {
+		if(!welt->ebne_planquadrat( this, k, z1 )) {
 			ok = false;
 			break;
 		}
