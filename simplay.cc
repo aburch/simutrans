@@ -900,6 +900,14 @@ sint64 spieler_t::get_finance_info_old(int type)
 
 
 
+// true, if we do passengrs (to put our stations in front of non-passenger stations)
+bool spieler_t::has_passenger() const
+{
+	return this==welt->get_active_player()  ||  passenger_transport;
+}
+
+
+
 /**
  * Rückruf, um uns zu informieren, dass eine Station voll ist
  * @author Hansjörg Malthaner
@@ -1072,7 +1080,8 @@ bool spieler_t::set_active(bool new_state)
  */
 bool spieler_t::is_forbidden( const koord start_pos, const koord dest_pos, const ware_besch_t *wtyp ) const
 {
-	return false;
+	fabconnection_t f( start_pos, dest_pos, wtyp );
+	return forbidden_conections.contains( f );
 }
 
 
@@ -1153,8 +1162,8 @@ bool spieler_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 			fabrik_t *qfab = fabrik_t::gib_fab(welt,sources[q]);
 			for(int qq=0;  qq<qfab->gib_besch()->gib_produkte();  qq++) {
 				if(  qfab->gib_besch()->gib_produkt(qq)->gib_ware()==ware
-						&&  !is_forbidden( fab->gib_pos().gib_2d(), sources[q], ware )
-						&&  !is_connected( fab->gib_pos().gib_2d(), sources[q], ware )  ) {
+						&&  !is_forbidden( sources[q], fab->gib_pos().gib_2d(), ware )
+						&&  !is_connected( sources[q], fab->gib_pos().gib_2d(), ware )  ) {
 					// find out how much is there
 					const vector_tpl<ware_production_t>& ausgang = qfab->gib_ausgang();
 					int ware_nr;
@@ -1203,11 +1212,11 @@ int spieler_t::get_factory_tree_missing_count( fabrik_t *fab )
 		for( unsigned q=0;  q<sources.get_count();  q++  ) {
 			fabrik_t *qfab = fabrik_t::gib_fab(welt,sources[q]);
 			for(int qq=0;  qq<qfab->gib_besch()->gib_produkte();  qq++) {
-				if(qfab->gib_besch()->gib_produkt(qq)->gib_ware()==ware  &&  !is_forbidden( fab->gib_pos().gib_2d(), sources[q], ware )) {
+				if(qfab->gib_besch()->gib_produkt(qq)->gib_ware()==ware  &&  !is_forbidden( sources[q], fab->gib_pos().gib_2d(), ware )) {
 					int n = get_factory_tree_missing_count( qfab );
 					if(n>=0) {
 						complete = true;
-						if(  !is_connected( fab->gib_pos().gib_2d(), sources[q], ware )  ) {
+						if(  !is_connected( sources[q], fab->gib_pos().gib_2d(), ware )  ) {
 							numbers += 1;
 						}
 						numbers += n;
@@ -1354,8 +1363,8 @@ bool spieler_t::suche_platz(koord &start, koord &size, koord target, koord off)
 	DBG_MESSAGE("spieler_t::suche_platz()","at (%i,%i) for size (%i,%i)",xpos,ypos,off.x,off.y);
 	int maxy = min( welt->gib_groesse_y(), ypos + off.y + cov );
 	int maxx = min( welt->gib_groesse_x(), xpos + off.x + cov );
-	for (int y = ypos - cov; y < maxy; y++) {
-		for (int x = xpos - cov; x < maxx; x++) {
+	for (int y = max(0,ypos-cov);  y < maxy;  y++) {
+		for (int x = max(0,xpos-cov);  x < maxx;  x++) {
 			platz = koord(x,y);
 			// no water tiles
 			if(  welt->lookup_kartenboden(platz)->gib_hoehe() <= welt->gib_grundwasser()  ) {
@@ -1482,6 +1491,20 @@ bool spieler_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length )
  */
 bool spieler_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 {
+	// pak64 has barges ...
+	const vehikel_besch_t *v_second = NULL;
+	if(ship_vehicle->gib_leistung()==0) {
+		v_second = ship_vehicle;
+		if(v_second->gib_vorgaenger_count()==0  ||  v_second->gib_vorgaenger(0)==NULL) {
+			// pushed barge?
+			if(ship_vehicle->gib_nachfolger_count()>0  &&  ship_vehicle->gib_nachfolger(0)!=NULL) {
+				v_second = ship_vehicle->gib_nachfolger(0);
+			}
+			return false;
+		}
+		ship_vehicle = v_second->gib_vorgaenger(0);
+	}
+
 	// must remove marker
 	grund_t* gr = welt->lookup_kartenboden(platz1);
 	if (gr) gr->obj_loesche_alle(this);
@@ -1490,12 +1513,34 @@ bool spieler_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	if(h==NULL  ||  !wkz_dockbau(this, welt, platz1, h)) {
 		return false;
 	}
-	// sea pos (and not on harbour ... )
-	koord pos1 = platz1 - koord(gr->gib_grund_hang())*h->gib_groesse().y;
 
-	// since 86.01 we use lines for road vehicles ...
+	// sea pos (and not on harbour ... )
+	halthandle_t halt = haltestelle_t::gib_halt(welt,platz1);
+	koord pos1 = platz1 - koord(gr->gib_grund_hang())*h->gib_groesse().y;
+	koord best_pos = pos1;
+	for(  int y = pos1.y-umgebung_t::station_coverage_size;  y<=pos1.y+umgebung_t::station_coverage_size;  y++  ) {
+		for(  int x = pos1.x-umgebung_t::station_coverage_size;  x<=pos1.x+umgebung_t::station_coverage_size;  x++  ) {
+			koord p(x,y);
+			const planquadrat_t *plan = welt->lookup(p);
+			if(plan) {
+				grund_t *gr = plan->gib_kartenboden();
+				if(  gr->ist_wasser()  &&  !gr->gib_halt().is_bound()  ) {
+					if(plan->get_haltlist_count()>=1  &&  plan->get_haltlist()[0]==halt  &&  abs_distance(best_pos,platz2)<abs_distance(p,platz2)) {
+						best_pos = p;
+					}
+				}
+			}
+		}
+	}
+
+	// no stop position found
+	if(best_pos==koord::invalid) {
+		return false;
+	}
+
+	// since 86.01 we use lines for vehicles ...
 	fahrplan_t *fpl=new schifffahrplan_t();
-	fpl->append( welt->lookup_kartenboden(pos1), 0 );
+	fpl->append( welt->lookup_kartenboden(best_pos), 0 );
 	fpl->append( welt->lookup(qfab->gib_pos()), 100 );
 	fpl->aktuell = 1;
 	linehandle_t line=simlinemgmt.create_line(simline_t::shipline,fpl);
@@ -1508,6 +1553,12 @@ bool spieler_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		// V.Meyer: give the new convoi name from first vehicle
 		cnv->setze_name(v->gib_besch()->gib_name());
 		cnv->add_vehikel( v );
+
+		// two part consist
+		if(v_second!=NULL) {
+			v = vehikelbauer_t::baue( qfab->gib_pos(), this, NULL, v_second );
+			cnv->add_vehikel( v );
+		}
 
 		welt->sync_add( cnv );
 		cnv->set_line(line);
@@ -1685,8 +1736,6 @@ int spieler_t::baue_bahnhof(koord3d quelle, koord *p, int anz_vehikel, fabrik_t 
 	int i;
 
 	koord zv ( ribi );
-
-#if 1
 	koord t = *p;
 	bool ok = true;
 
@@ -1725,148 +1774,7 @@ int spieler_t::baue_bahnhof(koord3d quelle, koord *p, int anz_vehikel, fabrik_t 
 			wkz_halt_aux(this, welt, pos, besch, track_wt, umgebung_t::cst_multiply_station, "BF");
 		}
 	}
-#else
-	zv.x = -zv.x;
-	zv.y = -zv.y;
 
-DBG_MESSAGE("spieler_t::baue_bahnhof()","try to build a train station of length %d (%d vehicles) at (%i,%i) (ribi %i)", laenge, anz_vehikel, p->x, p->y, ribi);
-
-	if(abs(zv.x)+abs(zv.y)!=1) {
-		dbg->error("spieler_t::baue_bahnhof()","Not allowed here!");
-		return 0;
-	}
-
-	INT_CHECK("simplay 548");
-
-	const int hoehe = welt->lookup(t)->gib_kartenboden()->gib_hoehe();
-	t = *p;
-	for(i=0; i<laenge-1; i++) {
-		t += zv;
-		welt->ebne_planquadrat(t, hoehe);
-		// update image
-		for(int j=-1; j<=1; j++) {
-			for(int i=-1; i<=1; i++) {
-				if(welt->ist_in_kartengrenzen(t.x+i,t.y+j)) {
-					welt->lookup(t+koord(i,j))->gib_kartenboden()->calc_bild();
-				}
-			}
-		}
-	}
-
-	t = *p;
-	bool ok = true;
-
-	for(i=0; i<laenge-1; i++) {
-		t += zv;
-
-		const planquadrat_t *plan = welt->lookup(t);
-		grund_t *gr = plan ? plan->gib_kartenboden() : 0;
-
-		ok &= (gr != NULL) &&
-				(gr->ist_natur() || gr->gib_typ() == grund_t::fundament) &&
-				gr->kann_alle_obj_entfernen(this)==NULL &&  !gr->has_two_ways()  &&
-				gr->gib_weg_hang() == hang_t::flach  &&  !gr->is_halt();
-
-		if(ok) {
-			// remove city building here
-			const gebaeude_t* gb = gr->find<gebaeude_t>();
-			if(gb  &&  gb->gib_besitzer()==NULL) {
-				const char *msg=NULL;
-				wkz_remover_intern(this,welt,t,msg);
-			}
-		}
-		else {
-			// not ok? then try to extend station into the other direction
-			const planquadrat_t *plan = welt->lookup(*p-zv);
-			gr = plan ? plan->gib_kartenboden(): 0;
-
-			// try to extend station into the other direction
-			ok = (gr != NULL) &&
-					gr->hat_weg(track_wt) &&
-					gr->gib_weg_ribi(track_wt) == ribi_t::doppelt(ribi) &&
-					gr->kann_alle_obj_entfernen(this) == NULL &&  !gr->has_two_ways()  &&
-					gr->gib_weg_hang()== hang_t::flach  &&  !gr->is_halt();
-			if(ok) {
-DBG_MESSAGE("spieler_t::baue_bahnhof","go back one segment");
-				// remove city building here
-				const gebaeude_t* gb = gr->find<gebaeude_t>();
-				if(gb  &&  gb->gib_besitzer()==NULL) {
-					const char *msg=NULL;
-					wkz_remover_intern(this,welt,*p-zv,msg);
-				}
-				// change begin of station
-				(*p) -= zv;
-			}
-			t -= zv;
-		}
-	}
-
-	baulaenge = abs_distance(t+zv,*p);
-DBG_MESSAGE("spieler_t::baue_bahnhof","achieved length %i",baulaenge);
-	if(baulaenge==1  &&  laenge>1  &&  fab) {
-		// ok, maximum station length in one tile, better try something else
-		int cov = welt->gib_einstellungen()->gib_station_coverage();
-		const koord coverage_koord(cov, cov);
-		koord pos=*p;
-		sint32 cost = 0;
-		koord last_dir = koord((ribi_t::ribi)welt->lookup(*p)->gib_kartenboden()->gib_weg_ribi(track_wt));
-		while(1) {
-			grund_t *gr=welt->lookup(pos)->gib_kartenboden();
-			if(gr==NULL  ||  gr->gib_weg_hang()!=gr->gib_grund_hang()) {
-				break;
-			}
-			koord dir((ribi_t::ribi)gr->gib_weg_ribi(track_wt));
-			if(!fabrik_t::sind_da_welche(welt,pos-coverage_koord,pos+coverage_koord).is_contained(fab)) {
-				*p = pos;
-				break;
-			}
-			cost = gr->weg_entfernen(track_wt, true);
-			pos += dir;
-			buche(-cost, pos, COST_CONSTRUCTION);
-			if(dir!=last_dir  ||  welt->lookup(pos)->gib_kartenboden()->gib_weg_hang()!=hang_t::flach) {
-				// was a curve or a slope: try again
-				*p = pos;
-				return baue_bahnhof( quelle, p, anz_vehikel, fab );
-			}
-		}
-DBG_MESSAGE("spieler_t::baue_bahnhof","failed");
-		return 0;
-	}
-
-	INT_CHECK("simplay 593");
-
-	koord pos;
-
-	wegbauer_t bauigel(welt, this);
-	bauigel.route_fuer(wegbauer_t::schiene, rail_weg);
-	bauigel.calc_straight_route(welt->lookup((*p)-zv)->gib_kartenboden()->gib_pos(), welt->lookup(t)->gib_kartenboden()->gib_pos());
-	bauigel.baue();
-
-	// to avoid broken stations, they will be always built next to an existing
-	bool make_all_bahnhof=false;
-
-	// find a freight train station
-	const haus_besch_t* besch = hausbauer_t::gib_random_station(haus_besch_t::bahnhof, welt->get_timeline_year_month(), haltestelle_t::WARE);
-	for(  pos=*p;  pos!=t+zv;  pos+=zv ) {
-		if(  make_all_bahnhof  ||  is_my_halt(pos+koord(-1,-1))  ||  is_my_halt(pos+koord(-1,1))  ||  is_my_halt(pos+koord(1,-1))  ||  is_my_halt(pos+koord(1,1))  ) {
-			// start building, if next to an existing station
-			make_all_bahnhof = true;
-			wkz_halt(this, welt, pos, besch);
-		}
-		INT_CHECK("simplay 753");
-	}
-	// now add the other squares (going backwards)
-	for(  pos=t;  pos!=*p-zv;  pos-=zv ) {
-		if(  !is_my_halt(pos)  ) {
-			wkz_halt(this, welt, pos, besch);
-		}
-	}
-
-DBG_MESSAGE("spieler_t::baue_bahnhof","set pos *p %i,%i to %i,%i",p->x,p->y,t.x,t.y);
-	// return endpos
-	*p = t;
-
-#endif
 	laenge = min( anz_vehikel, (baulaenge*16 - rail_engine->get_length())/rail_vehicle->get_length() );
 //DBG_MESSAGE("spieler_t::baue_bahnhof","Final station at (%i,%i) with %i tiles for %i cars",p->x,p->y,baulaenge,laenge);
 	return laenge;
@@ -2043,12 +1951,13 @@ void spieler_t::do_ki()
 		*/
 		case NR_SAMMLE_ROUTEN:
 			if(get_factory_tree_lowest_missing(root)) {
-				if(  start->gib_besch()->gib_platzierung()!=fabrik_besch_t::Wasser  ||  vehikelbauer_t::vehikel_search( water_wt, welt->get_timeline_year_month(), 10, 10, freight, false )!=NULL  ) {
+				if(  start->gib_besch()->gib_platzierung()!=fabrik_besch_t::Wasser  ||  vehikelbauer_t::vehikel_search( water_wt, welt->get_timeline_year_month(), 0, 10, freight, false )!=NULL  ) {
 					DBG_MESSAGE("spieler_t::do_ki", "Consider route from %s (%i,%i) to %s (%i,%i)", start->gib_name(), start->gib_pos().x, start->gib_pos().y, ziel->gib_name(), ziel->gib_pos().x, ziel->gib_pos().y );
 					state = NR_BAUE_ROUTE1;
 				}
 				else {
 					// add to impossible connections
+					forbidden_conections.insert( fabconnection_t( start->gib_pos().gib_2d(), ziel->gib_pos().gib_2d(), freight ) );
 					state = CHECK_CONVOI;
 				}
 			}
@@ -2105,7 +2014,7 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 			ship_vehicle = NULL;
 			if(start->gib_besch()->gib_platzierung()==fabrik_besch_t::Wasser) {
 				// largest ship available
-				ship_vehicle = vehikelbauer_t::vehikel_search( water_wt, month_now, 10, 20, freight );
+				ship_vehicle = vehikelbauer_t::vehikel_search( water_wt, month_now, 0, 20, freight );
 			}
 
 			INT_CHECK("simplay 1265");
@@ -2258,7 +2167,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 					}
 					else {
 						// else we need to built the second part of the route
-						state = rail_vehicle ? NR_BAUE_SIMPLE_SCHIENEN_ROUTE : NR_BAUE_STRASSEN_ROUTE;
+						state = (rail_vehicle  &&  count_rail<255) ? NR_BAUE_SIMPLE_SCHIENEN_ROUTE : NR_BAUE_STRASSEN_ROUTE;
 					}
 				}
 				else {
@@ -2276,10 +2185,10 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 			else if(create_simple_rail_transport()) {
 				sint16 org_count_rail = count_rail;
 				count_rail = baue_bahnhof(start->gib_pos(), &platz1, count_rail, ziel);
-				if(count_rail>1) {
+				if(count_rail>=3) {
 					count_rail = baue_bahnhof(ziel->gib_pos(), &platz2, count_rail, start);
 				}
-				if(count_rail>0) {
+				if(count_rail>=3) {
 					if(count_rail<org_count_rail) {
 						// rethink engine
 					 	int best_rail_speed = min(51,rail_vehicle->gib_geschw());
@@ -2328,6 +2237,7 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 		// remove marker etc.
 		case NR_BAUE_CLEAN_UP:
 		{
+			forbidden_conections.insert( fabconnection_t( start->gib_pos().gib_2d(), ziel->gib_pos().gib_2d(), freight ) );
 			if(ship_vehicle) {
 				// only here, if we could built ships but no connection
 				halthandle_t start_halt;
@@ -2970,6 +2880,3 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","copy convoi %s on route %s to %s",cn
 			state = NR_INIT;
 	}
 }
-
-
-

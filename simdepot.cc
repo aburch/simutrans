@@ -132,8 +132,8 @@ depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 			if(v) {
 				// Hajo: reset vehikel data
 				v->loesche_fracht();
-//				v->setze_fahrtrichtung( ribi_t::sued );
 			}
+			v->setze_pos( koord3d::invalid );
 		}
 		// Volker: remove depot from schedule
 		fahrplan_t *fpl = acnv->gib_fahrplan();

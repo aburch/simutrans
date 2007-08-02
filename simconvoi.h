@@ -278,12 +278,6 @@ private:
 	bool can_go_alte_richtung();
 
 	/**
-	* Called if a vehicle enters a depot
-	* @author Hanjsörg Malthaner
-	*/
-	void betrete_depot(depot_t *dep);
-
-	/**
 	* Mark first and last vehicle.
 	* @author Hanjsörg Malthaner
 	*/
@@ -429,6 +423,12 @@ public:
 	virtual ~convoi_t();
 
 	void laden_abschliessen();
+
+	/**
+	* Called if a vehicle enters a depot
+	* @author Hanjsörg Malthaner
+	*/
+	void betrete_depot(depot_t *dep);
 
 	/**
 	* @return Current map.

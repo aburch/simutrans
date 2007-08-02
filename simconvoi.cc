@@ -739,16 +739,13 @@ convoi_t::betrete_depot(depot_t *dep)
 {
 	// Hajo: remove vehicles from world data structure
 	for(unsigned i=0; i<anz_vehikel; i++) {
-		const vehikel_t* v = fahr[i];
+		vehikel_t* v = fahr[i];
 
 		grund_t* gr = welt->lookup(v->gib_pos());
 		if(gr) {
 			// remove from blockstrecke
-			gr->obj_remove(v);
-			if (v->gib_waytype() == track_wt || v->gib_waytype() == monorail_wt) {
-				schiene_t* sch = (schiene_t*)gr->gib_weg(v->gib_waytype());
-				sch->unreserve(self);
-			}
+			v->setze_letztes(true);
+			v->verlasse_feld();
 		}
 	}
 
@@ -760,11 +757,17 @@ convoi_t::betrete_depot(depot_t *dep)
 		delete convoi_info;
 		convoi_info = NULL;
 	}
+
+	// Hajo: since 0.81.5exp it's safe to
+	// remove the current sync object from
+	// the sync list from inside sync_step()
+	welt->sync_remove(this);
+	state = INITIAL;
 }
 
 
-void
-convoi_t::start()
+
+void convoi_t::start()
 {
 	if(state == INITIAL || state == ROUTING_1) {
 
@@ -808,12 +811,6 @@ void convoi_t::ziel_erreicht()
 		message_t::get_instance()->add_message(buf, v->gib_pos().gib_2d(),message_t::convoi, gib_besitzer()->get_player_nr(), IMG_LEER);
 
 		betrete_depot(dp);
-
-		// Hajo: since 0.81.5exp it's safe to
-		// remove the current sync object from
-		// the sync list from inside sync_step()
-		welt->sync_remove(this);
-		state = INITIAL;
 	}
 	else {
 		// no depot reached, check for stop!
@@ -1997,6 +1994,12 @@ void convoi_t::calc_loading()
  */
 void convoi_t::self_destruct()
 {
+	// convois in depot are not contained in the map array!
+	if(state==INITIAL) {
+		for(  int i=0;  i<anz_vehikel;  i++  ) {
+			fahr[i]->set_flag( ding_t::not_on_map );
+		}
+	}
 	state = SELF_DESTRUCT;
 	wait_lock = 0;
 }
@@ -2017,8 +2020,12 @@ void convoi_t::destroy()
 	}
 
 	for(int i=anz_vehikel-1;  i>=0; i--) {
-		fahr[i]->verlasse_feld();
-		fahr[i]->setze_pos( koord3d::invalid );
+		if(  !fahr[i]->get_flag( ding_t::not_on_map )  ) {
+			// remove from rails/roads/crossings
+			fahr[i]->setze_letztes( true );
+			fahr[i]->verlasse_feld();
+			fahr[i]->set_flag( ding_t::not_on_map );
+		}
 		delete fahr[i];
 	}
 	anz_vehikel = 0;

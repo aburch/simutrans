@@ -2625,7 +2625,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 				grund_t * gr = lookup(cnv->gib_pos());
 				depot_t *dep = gr ? gr->gib_depot() : 0;
 				if(dep) {
-					dep->convoi_arrived(cnv->self, false);
+					cnv->betrete_depot(dep);
 				}
 				else {
 					dbg->error("karte_t::laden()", "no depot for convoi, blocks may now be wrongly reserved!");

@@ -63,20 +63,6 @@ class ware_production_t;
 class spieler_t
 {
 public:
-	enum zustand {
-		NR_INIT,
-		NR_SAMMLE_ROUTEN,
-		NR_BAUE_ROUTE1,
-		NR_BAUE_SIMPLE_SCHIENEN_ROUTE,
-		NR_BAUE_STRASSEN_ROUTE,
-		NR_BAUE_WATER_ROUTE,
-		NR_BAUE_CLEAN_UP,
-		NR_RAIL_SUCCESS,
-		NR_ROAD_SUCCESS,
-		NR_WATER_SUCCESS,
-		CHECK_CONVOI
-	};
-
 	enum { MAX_KONTO_VERZUG = 3 };
 
 private:
@@ -87,30 +73,6 @@ private:
 	 * @author hsiegeln
 	 */
 	sint32 haltcount;
-
-	/*
-	 * if this is true, this AI will try passenger transport only
-	 * @author prissi
-	 */
-	bool passenger_transport;
-
-	/*
-	 * if this is false, this AI won't use roads
-	 * @author prissi
-	 */
-	bool road_transport;
-
-	/*
-	 * if this is false, this AI won't use rails
-	 * @author prissi
-	 */
-	bool rail_transport;
-
-	/*
-	 * if this is false, this AI won't use ships
-	 * @author prissi
-	 */
-	bool ship_transport;
 
 	/**
 	 * Finance array, indexed by type
@@ -178,114 +140,6 @@ private:
 
 	int last_message_index;
 
-	// vars für die KI
-	enum zustand state;
-
-	/* test more than one supplier and more than one good *
-	 * save last factory for building next supplier/consumer *
-	 * @author prissi
-	 */
-	fabrik_t *root;
-
-	// actual route to be built between those
-	fabrik_t *start;
-	fabrik_t *ziel;
-	const ware_besch_t *freight;
-
-	// we will use this vehicle!
-	const vehikel_besch_t *rail_vehicle;
-	const vehikel_besch_t *rail_engine;
-	const vehikel_besch_t *road_vehicle;
-	const vehikel_besch_t *ship_vehicle;
-
-	// and the convoi will run on this track:
-	const weg_besch_t *rail_weg ;
-	const weg_besch_t *road_weg ;
-
-	sint32 count_rail;
-	sint32 count_road;
-
-	// multi-purpose counter
-	sint32 count;
-
-	// time to wait before next contruction
-	uint32 next_contruction_steps;
-
-	// passenger KI
-	const stadt_t *start_stadt;
-	const stadt_t *end_stadt;	// target is town
-	const gebaeude_t *end_ausflugsziel;
-
-	// ende KI vars
-
-	// main functions for KI
-	void do_passenger_ki();
-	void do_ki();
-/*
-	// internal helper class
-	class {
-		koord fab1;
-		koord fab2;	// koord1 must be always "smaller" than koord2
-		const ware_besch_t *ware
-
-	public:
-		fabconnection( koord k1, koord k2, const ware_besch_t *w ) : fab1(k1), fab2(k2), ware(w) {}
-
-		const bool operator == (const fabconnection & k)
-		{
-			return (fab1 == k.fab1  &&  fab2 ==  k.fab2  &&  ware == k.ware)
-		}
-
-		const bool operator < (const fabconnection & k)
-		{
-			sint16 diff = (abs(fab1.x)+abs(fab1.y)) - (abs(k.fab1.x)+abs(k.fab1.y));
-			return (diff<0);
-		}
-	} fabconnection;
-
-	vector_tpl<fabconnection> forbidden_conections;
-*/
-	// return true, if this a route to avoid (i.e. we did a consturction without sucess here ...)
-	bool is_forbidden(const koord start_pos, const koord end_pos, const ware_besch_t *w ) const;
-
-	// return true, if there is already a connection
-	bool is_connected(const koord star_pos, const koord end_pos, const ware_besch_t *wtyp) const;
-
-	/* recursive lookup of a factory tree:
-	 * sets start and ziel to the next needed supplier
-	 * start always with the first branch, if there are more goods
-	 */
-	bool get_factory_tree_lowest_missing( fabrik_t *fab );
-
-	/* recursive lookup of a tree and how many factories must be at least connected
-	 * returns -1, if this tree is incomplete
-	 */
-	int get_factory_tree_missing_count( fabrik_t *fab );
-
-	/**
-	 * Find the first water tile using line algorithm von Hajo
-	 * start MUST be on land!
-	 **/
-	koord find_shore(koord start, koord end) const;
-	bool find_harbour(koord &start, koord &size, koord target);
-
-	// find space for station
-	bool suche_platz(koord pos, koord &size, koord *dirs) const;
-	bool suche_platz(koord &start, koord &size, koord target, koord off);
-	bool suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length);
-
-	int baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel,fabrik_t *fab);
-
-	// create way and vehicles for these routes
-	bool create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
-	void create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
-	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int ladegrad);
-
-	// all for passenger transport
-	halthandle_t  get_our_hub( const stadt_t *s );
-	koord built_hub( const koord pos, int radius );
-	void create_bus_transport_vehikel(koord startpos,int anz_vehikel,koord *stops,int anzahl,bool do_wait);
-
 	void init_texte();
 
 	void add_message(koord k, int summe);
@@ -337,16 +191,6 @@ public:
 	* @author prissi
 	*/
 	bool check_owner( const spieler_t *sp ) const;
-
-	/**
-	 * activates and queries player status
-	 * @author player
-	 */
-	 bool is_active() { return automat; }
-	 bool set_active(bool new_state);
-
-	 // true if this can do passenger transport ...
-	 bool has_passenger() const { return player_nr == 0 || passenger_transport; }
 
 	/**
 	 * @param welt Die Welt (Karte) des Spiels
@@ -462,12 +306,6 @@ public:
 	 */
 	void laden_abschliessen();
 
-	// fuer tests
-	koord platz1, size1, platz2, size2;
-
-	bool create_simple_road_transport();    // neue Transportroute anlegen
-	bool create_simple_rail_transport();
-
 	/**
 	 * Returns the amount of money for a certain finance section
 	 * @author Owen Rudge
@@ -558,6 +396,163 @@ public:
 	}
 	koord get_headquarter_pos(void) const { return headquarter_pos; }
 	short get_headquarter_level(void) const { return headquarter_level; }
+
+	// true if this can do passenger transport ...
+	bool has_passenger() const;
+
+/**************************************** AI-sutff from here ******************************************/
+private:
+	enum zustand {
+		NR_INIT,
+		NR_SAMMLE_ROUTEN,
+		NR_BAUE_ROUTE1,
+		NR_BAUE_SIMPLE_SCHIENEN_ROUTE,
+		NR_BAUE_STRASSEN_ROUTE,
+		NR_BAUE_WATER_ROUTE,
+		NR_BAUE_CLEAN_UP,
+		NR_RAIL_SUCCESS,
+		NR_ROAD_SUCCESS,
+		NR_WATER_SUCCESS,
+		CHECK_CONVOI
+	};
+
+	// vars für die KI
+	enum zustand state;
+
+	/*
+	 * if this is true, this AI will try passenger transport only
+	 * @author prissi
+	 */
+	bool passenger_transport;
+
+	/*
+	 * if this is false, this AI won't use roads
+	 * @author prissi
+	 */
+	bool road_transport;
+
+	/*
+	 * if this is false, this AI won't use rails
+	 * @author prissi
+	 */
+	bool rail_transport;
+
+	/*
+	 * if this is false, this AI won't use ships
+	 * @author prissi
+	 */
+	bool ship_transport;
+
+	/* test more than one supplier and more than one good *
+	 * save last factory for building next supplier/consumer *
+	 * @author prissi
+	 */
+	fabrik_t *root;
+
+	// actual route to be built between those
+	fabrik_t *start;
+	fabrik_t *ziel;
+	const ware_besch_t *freight;
+
+	// we will use this vehicle!
+	const vehikel_besch_t *rail_vehicle;
+	const vehikel_besch_t *rail_engine;
+	const vehikel_besch_t *road_vehicle;
+	const vehikel_besch_t *ship_vehicle;
+
+	// and the convoi will run on this track:
+	const weg_besch_t *rail_weg ;
+	const weg_besch_t *road_weg ;
+
+	sint32 count_rail;
+	sint32 count_road;
+
+	// multi-purpose counter
+	sint32 count;
+
+	// time to wait before next contruction
+	uint32 next_contruction_steps;
+
+	/* start and end stop position (and their size) */
+	koord platz1, size1, platz2, size2;
+
+	// KI helper class
+	class fabconnection_t{
+		koord fab1;
+		koord fab2;	// koord1 must be always "smaller" than koord2
+		const ware_besch_t *ware;
+
+	public:
+		fabconnection_t( koord k1, koord k2, const ware_besch_t *w ) : fab1(k1), fab2(k2), ware(w) {}
+
+		const bool operator != (const fabconnection_t & k) { return fab1 != k.fab1  ||  fab2 !=  k.fab2  ||  ware != k.ware; }
+/*
+		const bool operator == (const fabconnection_t & k) { return (fab1 == k.fab1  &&  fab2 ==  k.fab2  &&  ware == k.ware); }
+		const bool operator < (const fabconnection_t & k) { return (abs(fab1.x)+abs(fab1.y)) - (abs(k.fab1.x)+abs(k.fab1.y)) < 0; }
+*/
+	};
+
+	slist_tpl<fabconnection_t> forbidden_conections;
+
+	// return true, if this a route to avoid (i.e. we did a consturction without sucess here ...)
+	bool is_forbidden(const koord start_pos, const koord end_pos, const ware_besch_t *w ) const;
+
+	// return true, if there is already a connection
+	bool is_connected(const koord star_pos, const koord end_pos, const ware_besch_t *wtyp) const;
+
+	/* recursive lookup of a factory tree:
+	 * sets start and ziel to the next needed supplier
+	 * start always with the first branch, if there are more goods
+	 */
+	bool get_factory_tree_lowest_missing( fabrik_t *fab );
+
+	/* recursive lookup of a tree and how many factories must be at least connected
+	 * returns -1, if this tree is incomplete
+	 */
+	int get_factory_tree_missing_count( fabrik_t *fab );
+
+	/**
+	 * Find the first water tile using line algorithm von Hajo
+	 * start MUST be on land!
+	 **/
+	koord find_shore(koord start, koord end) const;
+	bool find_harbour(koord &start, koord &size, koord target);
+
+	// find space for stations
+	bool suche_platz(koord pos, koord &size, koord *dirs) const;
+	bool suche_platz(koord &start, koord &size, koord target, koord off);
+	bool suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length);
+
+	int baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel,fabrik_t *fab);
+
+	// create way and stops for these routes
+	bool create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
+	void create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
+	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int ladegrad);
+
+	bool create_simple_road_transport();    // neue Transportroute anlegen
+	bool create_simple_rail_transport();
+
+	void do_ki();
+
+	// all for passenger transport
+	const stadt_t *start_stadt;
+	const stadt_t *end_stadt;	// target is town
+	const gebaeude_t *end_ausflugsziel;
+
+	halthandle_t  get_our_hub( const stadt_t *s );
+	koord built_hub( const koord pos, int radius );
+	void create_bus_transport_vehikel(koord startpos,int anz_vehikel,koord *stops,int anzahl,bool do_wait);
+
+	void do_passenger_ki();
+
+public:
+	/**
+	 * activates and queries player status
+	 * @author player
+	 */
+	bool is_active() { return automat; }
+	bool set_active(bool new_state);
 };
 
 #endif

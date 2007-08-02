@@ -107,8 +107,8 @@ vehikel_basis_t::verlasse_feld()
 
 	// then remove from ground (or search whole map, if failed)
 	if (gr==NULL  ||  !gr->obj_remove(this)) {
-		// was not removed (not found?)
 
+		// was not removed (not found?)
 		dbg->error("vehikel_basis_t::verlasse_feld()","'typ %i' %p could not be removed from %d %d", gib_typ(), this, gib_pos().x, gib_pos().y);
 		DBG_MESSAGE("vehikel_basis_t::verlasse_feld()","checking all plan squares");
 
@@ -2238,15 +2238,18 @@ waggon_t::verlasse_feld()
 	vehikel_t::verlasse_feld();
 	// fix counters
 	if(ist_letztes) {
-		schiene_t * sch0 = (schiene_t *) welt->lookup( gib_pos() )->gib_weg(gib_waytype());
-		if(sch0) {
-			sch0->unreserve(this);
-			// tell next signal?
-			// and swith to red
-			if(sch0->has_signal()) {
-				signal_t* sig = welt->lookup(gib_pos())->find<signal_t>();
-				if(sig) {
-					sig->setze_zustand(roadsign_t::rot);
+		grund_t *gr = welt->lookup( gib_pos() );
+		if(gr) {
+			schiene_t *sch0 = (schiene_t *) gr->gib_weg(gib_waytype());
+			if(sch0) {
+				sch0->unreserve(this);
+				// tell next signal?
+				// and swith to red
+				if(sch0->has_signal()) {
+					signal_t* sig = welt->lookup(gib_pos())->find<signal_t>();
+					if(sig) {
+						sig->setze_zustand(roadsign_t::rot);
+					}
 				}
 			}
 		}
