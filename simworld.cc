@@ -1239,7 +1239,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint16 hgt)
 
 		if(lookup_hgt(p) > hgt) {
 
-			if(!can_lower_to(p.x, p.y, hgt)) {
+			if(can_lower_to(p.x, p.y, hgt)) {
 				n += lower_to(p.x, p.y, hgt, true);
 			} else {
 				ok = false;

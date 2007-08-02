@@ -185,11 +185,12 @@ private:
 	 * save last factory for building next supplier/consumer *
 	 * @author prissi
 	 */
+	fabrik_t *root;
+
+	// actual route to be built between those
 	fabrik_t *start;
-	fabrik_t *last_start;
-	int start_ware;
 	fabrik_t *ziel;
-	fabrik_t *last_ziel;
+	const ware_besch_t *freight;
 
 	// we will use this vehicle!
 	const vehikel_besch_t *rail_vehicle;
@@ -207,7 +208,8 @@ private:
 	// multi-purpose counter
 	sint32 count;
 
-	sint32 gewinn;
+	// time to wait before next contruction
+	uint32 next_contruction_steps;
 
 	// passenger KI
 	const stadt_t *start_stadt;
@@ -219,9 +221,46 @@ private:
 	// main functions for KI
 	void do_passenger_ki();
 	void do_ki();
+/*
+	// internal helper class
+	class {
+		koord fab1;
+		koord fab2;	// koord1 must be always "smaller" than koord2
+		const ware_besch_t *ware
+
+	public:
+		fabconnection( koord k1, koord k2, const ware_besch_t *w ) : fab1(k1), fab2(k2), ware(w) {}
+
+		const bool operator == (const fabconnection & k)
+		{
+			return (fab1 == k.fab1  &&  fab2 ==  k.fab2  &&  ware == k.ware)
+		}
+
+		const bool operator < (const fabconnection & k)
+		{
+			sint16 diff = (abs(fab1.x)+abs(fab1.y)) - (abs(k.fab1.x)+abs(k.fab1.y));
+			return (diff<0);
+		}
+	} fabconnection;
+
+	vector_tpl<fabconnection> forbidden_conections;
+*/
+	// return true, if this a route to avoid (i.e. we did a consturction without sucess here ...)
+	bool is_forbidden(const koord start_pos, const koord end_pos, const ware_besch_t *w ) const;
 
 	// return true, if there is already a connection
-	bool check_connection( koord start_pos, koord end_pos, const ware_besch_t *w ) const;
+	bool is_connected(const koord star_pos, const koord end_pos, const ware_besch_t *wtyp) const;
+
+	/* recursive lookup of a factory tree:
+	 * sets start and ziel to the next needed supplier
+	 * start always with the first branch, if there are more goods
+	 */
+	bool get_factory_tree_lowest_missing( fabrik_t *fab );
+
+	/* recursive lookup of a tree and how many factories must be at least connected
+	 * returns -1, if this tree is incomplete
+	 */
+	int get_factory_tree_missing_count( fabrik_t *fab );
 
 	/**
 	 * Find the first water tile using line algorithm von Hajo
@@ -235,30 +274,17 @@ private:
 	bool suche_platz(koord &start, koord &size, koord target, koord off);
 	bool suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length);
 
-	// all for passenger transport
-	bool is_connected(const koord star_pos, const koord end_pos, const ware_besch_t *wtyp);
-	halthandle_t  get_our_hub( const stadt_t *s );
-	koord built_hub( const koord pos, int radius );
-	void create_bus_transport_vehikel(koord startpos,int anz_vehikel,koord *stops,int anzahl,bool do_wait);
-
 	int baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel,fabrik_t *fab);
 
-	/* these two routines calculate the income
-	 * @author prissi
-	 */
-	int rating_transport_quelle_ziel(fabrik_t *qfab,const ware_production_t *ware,fabrik_t *zfab);
-	int guess_gewinn_transport_quelle_ziel(fabrik_t *qfab,const ware_production_t *ware, int qware_nr, fabrik_t *zfab);
-
-	/* These two routines calculate, which route next
-	 * @author Hj. Malthaner
-	 * @author prissi
-	 */
-	int suche_transport_ziel(fabrik_t *quelle, int *quelle_ware, fabrik_t **ziel);
-	int suche_transport_quelle(fabrik_t **quelle,int *quelle_ware, fabrik_t *ziel);
-
+	// create way and vehicles for these routes
 	bool create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
 	void create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
 	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int ladegrad);
+
+	// all for passenger transport
+	halthandle_t  get_our_hub( const stadt_t *s );
+	koord built_hub( const koord pos, int radius );
+	void create_bus_transport_vehikel(koord startpos,int anz_vehikel,koord *stops,int anzahl,bool do_wait);
 
 	void init_texte();
 

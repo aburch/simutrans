@@ -86,9 +86,7 @@
 
 // true, if line contruction is under way
 // our "semaphore"
-static bool baue;
-static fabrik_t *baue_start=NULL;
-static fabrik_t *baue_ziel=NULL;
+
 
 
 spieler_t::spieler_t(karte_t *wl, uint8 nr) :
@@ -134,13 +132,11 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	state = NR_INIT;
 
 	maintenance = 0;
-	gewinn = 0;
 	count = 0;
 
+	root = NULL;
 	start = NULL;
 	ziel = NULL;
-	last_start = NULL;
-	last_ziel = NULL;
 
 	rail_engine = NULL;
 	rail_vehicle = NULL;
@@ -148,9 +144,9 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	road_vehicle = NULL;
 	ship_vehicle = NULL;
 	road_weg = NULL;
-	baue = false;
 
 	steps = simrand(16);
+	next_contruction_steps = steps;
 
 	init_texte();
 
@@ -760,7 +756,8 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 
 	file->rdwr_long(start_index, " ");
 	file->rdwr_long(ziel_index, "\n");
-	file->rdwr_long(gewinn, " ");
+	sint32 dummy;
+	file->rdwr_long(dummy, " ");
 	file->rdwr_long(count, "\n");
 	platz1.rdwr( file );
 	platz2.rdwr( file );
@@ -794,7 +791,6 @@ DBG_MESSAGE("spieler_t::rdwr","loading ...");
 		if(start_index != -1) {
 			start = welt->gib_fab(start_index);
 		}
-		last_start = NULL;
 		ziel = NULL;
 		if(ziel_index != -1) {
 			ziel = welt->gib_fab(ziel_index);
@@ -805,12 +801,10 @@ DBG_MESSAGE("spieler_t::rdwr","loading ...");
 		// @author prissi
 		// go back to initial search state
 		state = NR_INIT;
+		root = NULL;
 		count_rail = count_road = 255;
-		baue = false;
-		baue_start = baue_ziel = NULL;
 
 		// last destinations unknown
-		last_ziel = NULL;
 		rail_engine = NULL;
 		rail_vehicle = NULL;
 		road_vehicle = NULL;
@@ -1058,13 +1052,9 @@ bool spieler_t::set_active(bool new_state)
 		if(!new_state) {
 			// deactivate AI
 			automat = false;
-			if(baue  &&  state>NR_BAUE_ROUTE1) {
-				// deactivate semaphore, so other could do construction
-				baue = false;
 		    state = NR_INIT;
-				start_stadt = end_stadt = NULL;
-				start = ziel = NULL;
-			}
+			start_stadt = end_stadt = NULL;
+			start = ziel = NULL;
 		}
 		else {
 			// aktivate AI
@@ -1072,6 +1062,164 @@ bool spieler_t::set_active(bool new_state)
 		}
 	}
 	return automat;
+}
+
+
+
+/* returns true,
+ * if there is already a connection
+ * @author prissi
+ */
+bool spieler_t::is_forbidden( const koord start_pos, const koord dest_pos, const ware_besch_t *wtyp ) const
+{
+	return false;
+}
+
+
+
+/* returns true,
+ * if there is already a connection
+ * @author prissi
+ */
+bool spieler_t::is_connected( const koord start_pos, const koord dest_pos, const ware_besch_t *wtyp ) const
+{
+	// Dario: Check if there's a stop near destination
+	const planquadrat_t* start_plan = welt->lookup(start_pos);
+	const halthandle_t* start_list = start_plan->get_haltlist();
+
+	// Dario: Check if there's a stop near destination
+	const planquadrat_t* dest_plan = welt->lookup(dest_pos);
+	const halthandle_t* dest_list = dest_plan->get_haltlist();
+
+	// suitable end search
+	unsigned dest_count = 0;
+	for (uint16 h = 0; h<dest_plan->get_haltlist_count(); h++) {
+		halthandle_t halt = dest_list[h];
+		if (halt->is_enabled(wtyp)) {
+			for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++) {
+				if (halt == start_list[hh]) {
+					// connected with the start (i.e. too close)
+					return true;
+				}
+			}
+			dest_count ++;
+		}
+	}
+
+	if(dest_count==0) {
+		return false;
+	}
+
+	// now try to find a route
+	// ok, they are not in walking distance
+	ware_t ware(wtyp);
+	ware.setze_zielpos(dest_pos);
+	ware.menge = 1;
+	for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++) {
+		start_list[hh]->suche_route(ware, NULL);
+		if (ware.gib_ziel().is_bound()) {
+			// ok, already connected
+			return true;
+		}
+	}
+
+	// no connection possible between those
+	return false;
+}
+
+
+
+/* recursive lookup of a factory tree:
+ * sets start and ziel to the next needed supplier
+ * start always with the first branch, if there are more goods
+ */
+bool spieler_t::get_factory_tree_lowest_missing( fabrik_t *fab )
+{
+	// now check for all products (should be changed later for the root)
+	for( unsigned i=0;  i<fab->gib_besch()->gib_lieferanten();  i++  ) {
+		const ware_besch_t *ware = fab->gib_besch()->gib_lieferant(i)->gib_ware();
+
+		// find out how much is there
+		const vector_tpl<ware_production_t>& eingang = fab->gib_eingang();
+		int ware_nr;
+		for(ware_nr=0;  ware_nr<eingang.get_count()  &&  eingang[ware_nr].gib_typ()!=ware;  ware_nr++  ) ;
+		if(  eingang[ware_nr].menge > eingang[ware_nr].max/10  ) {
+			// already enough supplied to
+			continue;
+		}
+
+		const vector_tpl <koord> & sources = fab->get_suppliers();
+		for( unsigned q=0;  q<sources.get_count();  q++  ) {
+			fabrik_t *qfab = fabrik_t::gib_fab(welt,sources[q]);
+			for(int qq=0;  qq<qfab->gib_besch()->gib_produkte();  qq++) {
+				if(  qfab->gib_besch()->gib_produkt(qq)->gib_ware()==ware
+						&&  !is_forbidden( fab->gib_pos().gib_2d(), sources[q], ware )
+						&&  !is_connected( fab->gib_pos().gib_2d(), sources[q], ware )  ) {
+					// find out how much is there
+					const vector_tpl<ware_production_t>& ausgang = qfab->gib_ausgang();
+					int ware_nr;
+					for(ware_nr=0;  ware_nr<ausgang.get_count()  &&  ausgang[ware_nr].gib_typ()!=ware;  ware_nr++  ) ;
+					// ok, there is no connection and it is not banned, so we if there is enough for us
+					if(  ((ausgang[ware_nr].menge*4)/3) > ausgang[ware_nr].max  ) {
+						// bingo: soure
+						start = qfab;
+						ziel = fab;
+						freight = ware;
+						return true;
+					}
+					else {
+						// try something else ...
+						if(get_factory_tree_lowest_missing( qfab )) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
+
+
+/* recursive lookup of a tree and how many factories must be at least connected
+ * returns -1, if this tree is incomplete
+ */
+int spieler_t::get_factory_tree_missing_count( fabrik_t *fab )
+{
+	int numbers=0;	// how many missing?
+
+	// ok, this is a source ...
+	if(fab->gib_besch()->gib_lieferanten()==0) {
+		return 0;
+	}
+
+	// now check for all
+	for( unsigned i=0;  i<fab->gib_besch()->gib_lieferanten();  i++  ) {
+		const ware_besch_t *ware = fab->gib_besch()->gib_lieferant(i)->gib_ware();
+
+		bool complete = false;	// found at least one factory
+		const vector_tpl <koord> & sources = fab->get_suppliers();
+		for( unsigned q=0;  q<sources.get_count();  q++  ) {
+			fabrik_t *qfab = fabrik_t::gib_fab(welt,sources[q]);
+			for(int qq=0;  qq<qfab->gib_besch()->gib_produkte();  qq++) {
+				if(qfab->gib_besch()->gib_produkt(qq)->gib_ware()==ware  &&  !is_forbidden( fab->gib_pos().gib_2d(), sources[q], ware )) {
+					int n = get_factory_tree_missing_count( qfab );
+					if(n>=0) {
+						complete = true;
+						if(  !is_connected( fab->gib_pos().gib_2d(), sources[q], ware )  ) {
+							numbers += 1;
+						}
+						numbers += n;
+					}
+				}
+			}
+		}
+		if(!complete) {
+			return -1;
+		}
+	}
+	return numbers;
 }
 
 
@@ -1204,11 +1352,13 @@ bool spieler_t::suche_platz(koord &start, koord &size, koord target, koord off)
 	}
 
 	DBG_MESSAGE("spieler_t::suche_platz()","at (%i,%i) for size (%i,%i)",xpos,ypos,off.x,off.y);
-	for (int y = ypos - cov; y < ypos + off.y + cov; y++) {
-		for (int x = xpos - cov; x < xpos + off.x + cov; x++) {
+	int maxy = min( welt->gib_groesse_y(), ypos + off.y + cov );
+	int maxx = min( welt->gib_groesse_x(), xpos + off.x + cov );
+	for (int y = ypos - cov; y < maxy; y++) {
+		for (int x = xpos - cov; x < maxx; x++) {
 			platz = koord(x,y);
 			// no water tiles
-			if(welt->lookup_kartenboden(platz)->gib_hoehe()<=welt->gib_grundwasser()) {
+			if(  welt->lookup_kartenboden(platz)->gib_hoehe() <= welt->gib_grundwasser()  ) {
 				continue;
 			}
 			// thus now check them
@@ -1327,218 +1477,6 @@ bool spieler_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length )
 
 
 
-/* return a rating factor; i.e. how much this connecting would benefit game play
- * @author prissi
- */
-int spieler_t::rating_transport_quelle_ziel(fabrik_t *qfab,const ware_production_t *ware,fabrik_t *zfab)
-{
-	const vector_tpl<ware_production_t>& eingang = zfab->gib_eingang();
-	// we may have more than one input:
-	unsigned missing_input_ware=0;
-	unsigned missing_our_ware=0;
-
-	// does the source also produce => then we should try to connect it
-	// otherwise production will stop too early
-	bool is_manufacturer = !qfab->gib_eingang().empty();
-
-	// hat noch mehr als halbvolle Lager  and more then 35 (otherwise there might be also another transporter) ?
-	if(ware->menge < ware->max>>1  ||  ware->menge<(34<<fabrik_t::precision_bits)  ) {
-		// zu wenig vorrat für profitable strecke
-		return 0;
-	}
-	// if not really full output storage:
-	if(  ware->menge < ware->max-(34<<fabrik_t::precision_bits)  ) {
-		// well consider, but others are surely better
-		return is_manufacturer ? 4 : 1;
-	}
-
-	// so we do a loop
-	for (unsigned i = 0; i < eingang.get_count(); i++) {
-		if (eingang[i].menge < 10 << fabrik_t::precision_bits) {
-			// so more would be helpful
-			missing_input_ware ++;
-			if (eingang[i].gib_typ() == ware->gib_typ()) {
-				missing_our_ware = true;
-			}
-		}
-	}
-
-DBG_MESSAGE("spieler_t::rating_transport_quelle_ziel","Missing our %i, total  missing %i",missing_our_ware,missing_input_ware);
-	// so our good is missing
-	if(  missing_our_ware  ) {
-		if(  missing_input_ware==1  ) {
-			if (eingang.get_count() - missing_input_ware == 1) {
-				// only our is missing of multiple produkts
-				return is_manufacturer ? 64 : 16;
-			}
-		}
-		if (missing_input_ware < eingang.get_count()) {
-			// factory is already supplied with mutiple sources, but our is missing
-			return is_manufacturer ? 32 : 8;
-		}
-		return is_manufacturer ? 16 : 4;
-	}
-
-	// else there is no high priority
-	return is_manufacturer ? 8 : 2;
-}
-
-
-
-/* guesses the income; should be improved someday ...
- * @author prissi
- */
-int spieler_t::guess_gewinn_transport_quelle_ziel(fabrik_t *qfab,const ware_production_t *ware,int ware_nr, fabrik_t *zfab)
-{
-	int gewinn=-1;
-	// more checks
-	if(ware->gib_typ() != warenbauer_t::nichts &&
-		zfab != NULL && zfab->verbraucht(ware->gib_typ()) == 0) {
-
-		// hat noch mehr als halbvolle Lager  and more then 35 (otherwise there might be also another transporter) ?
-		if(ware->menge < ware->max*0.90  ||  ware->menge<(34<<fabrik_t::precision_bits)  ) {
-			// zu wenig vorrat für profitable strecke
-			return -1;
-		}
-
-		// wenn andere fahrzeuge genutzt werden muss man die werte anpassen
-		// da aber später genau berechnet wird, welche Fahrzeuge am günstigsten sind => grobe schätzung ok!
-		const int dist = abs(zfab->gib_pos().x - qfab->gib_pos().x) + abs(zfab->gib_pos().y - qfab->gib_pos().y);
-		const int grundwert = ware->gib_typ()->gib_preis();	// assume 3 cent per square mantenance
-		if( dist > 6) {                          // sollte vernuenftige Entfernung sein
-
-			// wie viel koennen wir tatsaechlich transportieren
-			// Bei der abgabe rechnen wir einen sicherheitsfaktor 2 mit ein
-			// wieviel kann am ziel verarbeitet werden, und wieviel gibt die quelle her?
-
-			const int prod = min(zfab->get_base_production(),
-			                 ( qfab->get_base_production() * qfab->gib_besch()->gib_produkt(ware_nr)->gib_faktor() )/256u - qfab->gib_abgabe_letzt(ware_nr) * 2u );
-
-			gewinn = (grundwert *prod-5)+simrand(15000);
-			if(dist>100) {
-				gewinn /= 2;
-			}
-
-//			// verlust durch fahrtkosten, geschätze anzhal vehikel ist fracht/16
-//			gewinn -= (int)(dist * 16 * (abs(prod)/16));   // dist * steps/planquad * kosten
-			// use our importance factor too ...
-			gewinn *= rating_transport_quelle_ziel(qfab,ware,zfab);
-		}
-	}
-	return gewinn;
-}
-
-
-
-/* searches for a factory, that can be supply the target zfab
- * @author prissi
- */
-int spieler_t::suche_transport_quelle(fabrik_t **qfab, int *quelle_ware, fabrik_t *zfab)
-{
-	int gewinn = -1;
-
-	// keine geeignete Quelle gefunden ?
-	if(zfab == NULL) {
-		return -1;
-	}
-
-	// prepare iterate over all suppliers
-	const vector_tpl <koord> & lieferquellen = zfab->get_suppliers();
-	const int lieferquelle_anzahl=lieferquellen.get_count();
-
-//DBG_MESSAGE("spieler_t::suche_transport_quelle","Search other %i supplier for: %s",lieferquelle_anzahl,zfab->gib_name());
-
-	// now iterate over all suppliers
-	for(  int i=0;  i<lieferquelle_anzahl;  i++  ) {
-		// find source
-		fabrik_t *start_neu = fabrik_t::gib_fab( welt, lieferquellen[i] );
-		// get all ware
-		const vector_tpl<ware_production_t>& ausgang = zfab->gib_ausgang();
-		const int waren_anzahl = ausgang.get_count();
-		// for all products
-		for(int ware_nr=0;  ware_nr<waren_anzahl ;  ware_nr++  ) {
-			int dieser_gewinn = guess_gewinn_transport_quelle_ziel( start_neu, &ausgang[ware_nr], ware_nr, zfab );
-			// more income on this line
-			if(  dieser_gewinn>gewinn  ) {
-				*qfab = start_neu;
-				*quelle_ware = ware_nr;
-				gewinn = dieser_gewinn;
-			}
-		}
-	}
-
-	if(gewinn>-1) {
-DBG_MESSAGE("spieler_t::suche_transport_quelle","Found supplier %s (revenue %d)",(*qfab)->gib_name(),gewinn);
-	}
-	// no loops: will be -1!
-	return gewinn;
-}
-
-
-
-
-/* searches for a factory, that can be supplied by the source qfab
- * @author prissi
- */
-int spieler_t::suche_transport_ziel(fabrik_t *qfab, int *quelle_ware, fabrik_t **ziel)
-{
-	int gewinn = -1;
-
-	// keine geeignete Quelle gefunden ?
-	if (qfab == NULL || qfab->gib_lieferziele().empty()) {
-		return -1;
-	}
-
-	const vector_tpl<ware_production_t>& ausgang = qfab->gib_ausgang();
-
-	// ist es ein erzeuger ?
-	const int waren_anzahl = ausgang.get_count();
-
-	// for all products
-	for(int ware_nr=0;  ware_nr<waren_anzahl ;  ware_nr++  ) {
-		const ware_production_t& ware = ausgang[ware_nr];
-
-		// hat es schon etwas produziert ?
-		if(ware.menge < ware.max/4) {
-			// zu wenig vorrat für profitable strecke
-			continue;
-		}
-
-		// search consumer
-		const vector_tpl <koord> & lieferziele = qfab->gib_lieferziele();
-		const int lieferziel_anzahl=lieferziele.get_count();
-DBG_MESSAGE("spieler_t::suche_transport_ziel","Lieferziele %d",lieferziel_anzahl);
-
-		// loop for all targets
-		for(  int lieferziel_nr=0;  lieferziel_nr<lieferziel_anzahl;  lieferziel_nr++  ) {
-
-			const koord lieferziel = lieferziele[lieferziel_nr];
-			if(is_connected(qfab->gib_pos().gib_2d(), lieferziel, ware.gib_typ())) {
-				// already a line for this good ...
-				// thius we check the next consumer
-				continue;
-			}
-
-			int	dieser_gewinn=-1;
-			fabrik_t *zfab = fabrik_t::gib_fab( welt, lieferziel );
-			if(zfab) {
-				dieser_gewinn = guess_gewinn_transport_quelle_ziel( qfab, &ware, ware_nr, zfab );
-				if(dieser_gewinn > KI_MIN_PROFIT  &&  gewinn<dieser_gewinn  ) {
-					// ok, this seems good or even better ...
-					*quelle_ware = ware_nr;
-					*ziel = zfab;
-					gewinn = dieser_gewinn;
-				}
-			}
-		}
-	}
-
-	// no loops: will be -1!
-	return gewinn;
-}
-
-
-
 /* builts dock and ships
  * @author prissi
  */
@@ -1577,58 +1515,6 @@ bool spieler_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	}
 	platz1 += koord(welt->lookup_kartenboden(platz1)->gib_grund_hang());
 	return true;
-}
-
-
-
-/* returns true,
- * if there is already a connection
- * @author prissi
- */
-bool spieler_t::is_connected( const koord start_pos, const koord dest_pos, const ware_besch_t *wtyp )
-{
-	// Dario: Check if there's a stop near destination
-	const planquadrat_t* start_plan = welt->lookup(start_pos);
-	const halthandle_t* start_list = start_plan->get_haltlist();
-
-	// Dario: Check if there's a stop near destination
-	const planquadrat_t* dest_plan = welt->lookup(dest_pos);
-	const halthandle_t* dest_list = dest_plan->get_haltlist();
-
-	// suitable end search
-	unsigned dest_count = 0;
-	for (uint16 h = 0; h<dest_plan->get_haltlist_count(); h++) {
-		halthandle_t halt = dest_list[h];
-		if (halt->is_enabled(wtyp)) {
-			for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++) {
-				if (halt == start_list[hh]) {
-					// connected with the start (i.e. too close)
-					return true;
-				}
-			}
-			dest_count ++;
-		}
-	}
-
-	if(dest_count==0) {
-		return false;
-	}
-
-	// now try to find a route
-	// ok, they are not in walking distance
-	ware_t ware(wtyp);
-	ware.setze_zielpos(dest_pos);
-	ware.menge = 1;
-	for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++) {
-		start_list[hh]->suche_route(ware, NULL);
-		if (ware.gib_ziel().is_bound()) {
-			// ok, already connected
-			return true;
-		}
-	}
-
-	// no connection possible between those
-	return false;
 }
 
 
@@ -1783,9 +1669,6 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road fr
 DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d failed",platz1.x, platz1.y, platz2.x, platz2.y);
 	return false;
 }
-
-
-
 
 
 
@@ -2116,6 +1999,11 @@ void spieler_t::do_ki()
 		return;
 	}
 
+	// one route per month ...
+	if(  steps < next_contruction_steps  ) {
+		return;
+	}
+
 	if(konto_ueberzogen>0) {
 		// nothing to do but to remove unneeded convois to gain some money
 		state = CHECK_CONVOI;
@@ -2124,141 +2012,62 @@ void spieler_t::do_ki()
 	switch(state) {
 
 		case NR_INIT:
-			gewinn = -1;
+			state = NR_SAMMLE_ROUTEN;
 			count = 0;
-			// calculate routes only for account > 10000
-			if(  (40 * -CST_STRASSE) -
-				CST_MEDIUM_VEHIKEL*6 -
-				CST_FRACHTHOF*2 < konto) {
-				last_start = start;
-				last_ziel = ziel;
-				start = ziel = NULL;
-				state = NR_SAMMLE_ROUTEN;
-				// small advantage in front of contructing AI
-				if(baue) {
-					count = KI_TEST_LINES/2 - 1;
+			if(root==NULL) {
+				// find a tree root to complete
+				weighted_vector_tpl<fabrik_t *> start_fabs(20);
+				slist_iterator_tpl<fabrik_t *> fabiter( welt->gib_fab_list() );
+				while(fabiter.next()) {
+					fabrik_t *fab = fabiter.get_current();
+					if(fab->gib_besch()->gib_produkte()==0) {
+						int missing = get_factory_tree_missing_count( fab );
+						if(missing>0) {
+							start_fabs.append( fab, 100/(missing+1)+1 );
+						}
+					}
+				}
+				if(start_fabs.get_count()>0) {
+					root = start_fabs.at_weight( simrand( start_fabs.get_sum_weight() ) );
 				}
 			}
+			// still nothing => we have to check convois ...
+			if(root==NULL) {
+				state = CHECK_CONVOI;
+			}
+			next_contruction_steps = steps + simrand( 1000 );
 		break;
 
 		/* try to built a network:
 		* last target also new target ...
 		*/
 		case NR_SAMMLE_ROUTEN:
-		{
-			fabrik_t *start_neu = NULL;
-			fabrik_t *ziel_neu = NULL;
-			int	start_ware_neu;
-			int gewinn_neu=-1;
-
-			if(  count==KI_TEST_LINES-2  &&  last_ziel!=NULL) {
-				// we built a line: do we need another supplier?
-				gewinn_neu = suche_transport_quelle(&start_neu, &start_ware_neu, last_ziel);
-				if(  gewinn_neu>KI_MIN_PROFIT  &&  start_neu!=last_start  &&  start_neu!=NULL  ) {
-					// marginally profitable -> then built it!
-					DBG_MESSAGE("spieler_t::do_ki","Select quelle from %s (%i,%i) to %s (%i,%i) (income %i)", start_neu->gib_name(), start_neu->gib_pos().x, start_neu->gib_pos().y, ziel_neu->gib_name(), ziel_neu->gib_pos().x, ziel_neu->gib_pos().y, gewinn_neu);
-					start = start_neu;
-					start_ware = start_ware_neu;
-					gewinn = gewinn_neu;
-					ziel = last_ziel;
-					count = KI_TEST_LINES;
-				}
-				count++;
-			}
-			else
-			{
-#ifdef EARLY_SEARCH_FOR_BUYER
-				// does not work well together with 128er pak
-				if(count==KI_TEST_LINES-1  &&  last_ziel!=NULL) {
-					// found somebody, who wants our stuff?
-					start_neu = last_ziel;
-					gewinn_neu = suche_transport_ziel(start_neu, &start_ware_neu, &ziel_neu);
-					if(  gewinn_neu>gewinn>>1  ) {
-						// marginally profitable -> then built it!
-						start = start_neu;
-						start_ware = start_ware_neu;
-						ziel = ziel_neu;
-						gewinn = gewinn_neu;
-					}
-					count++;
-				}
-				else
-#endif
-				{
-					// just normal random search ...
-					start_neu = welt->get_random_fab();
-					if(start_neu  &&  start_neu->gib_besch()->gib_produkte()>0  &&  (start_neu->gib_besch()->gib_platzierung()!=fabrik_besch_t::Wasser  ||  vehikelbauer_t::vehikel_search( water_wt, welt->get_timeline_year_month(), 10, 10, start_neu->gib_besch()->gib_produkt(0)->gib_ware(), false ))  ) {
-						// ship available or not needed
-						if (start_neu!=NULL  &&  start_neu!=last_start) {
-							gewinn_neu = suche_transport_ziel(start_neu, &start_ware_neu, &ziel_neu);
-							if(ziel_neu!=NULL  &&  gewinn_neu>KI_MIN_PROFIT) {
-								DBG_MESSAGE("spieler_t::do_ki", "Check route from %s (%i,%i) to %s (%i,%i) (income %i)", start_neu->gib_name(), start_neu->gib_pos().x, start_neu->gib_pos().y, ziel_neu->gib_name(), ziel_neu->gib_pos().x, ziel_neu->gib_pos().y, gewinn_neu);
-							}
-							else {
-								gewinn_neu = -1;
-							}
-						}
-					}
-				}
-			}
-
-			// better than last one?
-			// and not identical to last one
-			if(gewinn_neu>gewinn  &&  start_neu!=NULL  &&  !(start_neu==last_start  &&  last_ziel==ziel_neu)  &&  !(start_neu==baue_start  &&  ziel_neu==baue_ziel)  ) {
-				// more income and not the same than before ...
-				start = start_neu;
-				start_ware = start_ware_neu;
-				ziel = ziel_neu;
-				gewinn = gewinn_neu;
-				DBG_MESSAGE("spieler_t::do_ki", "Consider route from %s (%i,%i) to %s (%i,%i) (income %i)", start_neu->gib_name(), start_neu->gib_pos().x, start_neu->gib_pos().y, ziel_neu->gib_name(), ziel_neu->gib_pos().x, ziel_neu->gib_pos().y, gewinn_neu);
-			}
-			count ++;
-
-			if(count >= KI_TEST_LINES) {
-				if(start!=NULL  &&  ziel!=NULL  &&  !(start==baue_start  &&  ziel==baue_ziel)  ) {
-DBG_MESSAGE("spieler_t::do_ki","Decicion %s to %s (income %i)",start->gib_name(),ziel->gib_name(), gewinn);
+			if(get_factory_tree_lowest_missing(root)) {
+				if(  start->gib_besch()->gib_platzierung()!=fabrik_besch_t::Wasser  ||  vehikelbauer_t::vehikel_search( water_wt, welt->get_timeline_year_month(), 10, 10, freight, false )!=NULL  ) {
+					DBG_MESSAGE("spieler_t::do_ki", "Consider route from %s (%i,%i) to %s (%i,%i)", start->gib_name(), start->gib_pos().x, start->gib_pos().y, ziel->gib_name(), ziel->gib_pos().x, ziel->gib_pos().y );
 					state = NR_BAUE_ROUTE1;
 				}
 				else {
-					// use another line
+					// add to impossible connections
 					state = CHECK_CONVOI;
 				}
 			}
-		}
+			else {
+				// did all I could do here ...
+				root = NULL;
+				state = NR_INIT;
+			}
 		break;
 
 		// now we need so select the cheapest mean to get maximum profit
 		case NR_BAUE_ROUTE1:
 		{
-			if(baue) {
-DBG_MESSAGE("do_ki()","Player %s could not built: baue=%1",gib_name(),baue);
-				state = CHECK_CONVOI;
-				break;
-			}
-			// just mark for other AI: this is off limits ...
-			baue = true;
-			baue_start = start;
-			baue_ziel = ziel;
-
-			// needed for search
-			// first we have to find a suitable car
-			const ware_besch_t* freight = start->gib_ausgang()[start_ware].gib_typ();
-
-			// last check, if the route is not taken yet
-			if(is_connected(start->gib_pos().gib_2d(), ziel->gib_pos().gib_2d(), freight)) {
-				// falls gar nichts klappt gehen wir zum initialzustand zurueck
-				baue = false;
-				state = CHECK_CONVOI;
-				return;
-			}
-
 			/* if we reached here, we decide to built a route;
 			 * the KI just chooses the way to run the operation at maximum profit (minimum loss).
 			 * The KI will built also a loosing route; this might be required by future versions to
 			 * be able to built a network!
 			 * @author prissi
 			 */
-			DBG_MESSAGE("spieler_t::do_ki()","%s want to build a route from %s (%d,%d) to %s (%d,%d) with value %d", gib_name(), start->gib_name(), start->gib_pos().x, start->gib_pos().y, ziel->gib_name(), ziel->gib_pos().x, ziel->gib_pos().y, gewinn );
 
 			/* for the calculation we need:
 			 * a suitable car (and engine)
@@ -2301,7 +2110,14 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 
 			INT_CHECK("simplay 1265");
 
+
 			// properly calculate production
+			const vector_tpl<ware_production_t>& ausgang = start->gib_ausgang();
+			int start_ware=0;
+			while(  start_ware<ausgang.get_count()  &&  ausgang[start_ware].gib_typ()!=freight  ) {
+				start_ware++;
+			}
+			assert(  start_ware<ausgang.get_count()  );
 			const int prod = min(ziel->get_base_production(),
 			                 ( start->get_base_production() * start->gib_besch()->gib_produkt(start_ware)->gib_faktor() )/256u - start->gib_abgabe_letzt(start_ware) );
 
@@ -2413,7 +2229,6 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 			}
 			// no success at all?
 			if(state==NR_BAUE_ROUTE1) {
-				baue = false;
 				state = CHECK_CONVOI;
 			}
 		}
@@ -2421,8 +2236,16 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 
 		// built a simple ship route
 		case NR_BAUE_WATER_ROUTE:
-			{
+			if(is_connected(start->gib_pos().gib_2d(), ziel->gib_pos().gib_2d(), freight)) {
+				state = CHECK_CONVOI;
+			}
+			else {
 				// properly calculate production
+				const vector_tpl<ware_production_t>& ausgang = start->gib_ausgang();
+				int start_ware=0;
+				while(  start_ware<ausgang.get_count()  &&  ausgang[start_ware].gib_typ()!=freight  ) {
+					start_ware++;
+				}
 				const int prod = min( ziel->get_base_production(), (start->get_base_production() * start->gib_besch()->gib_produkt(start_ware)->gib_faktor())/256u - start->gib_abgabe_letzt(start_ware) );
 				int ships_needed = (prod*abs_distance(platz1,start->gib_pos().gib_2d())) / (ship_vehicle->gib_zuladung()*ship_vehicle->gib_geschw())+1;
 				koord harbour=platz1;
@@ -2447,7 +2270,10 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 
 		// built a simple railroad
 		case NR_BAUE_SIMPLE_SCHIENEN_ROUTE:
-			if(create_simple_rail_transport()) {
+			if(is_connected(start->gib_pos().gib_2d(), ziel->gib_pos().gib_2d(), freight)) {
+				state = ship_vehicle ? NR_BAUE_CLEAN_UP : CHECK_CONVOI;
+			}
+			else if(create_simple_rail_transport()) {
 				sint16 org_count_rail = count_rail;
 				count_rail = baue_bahnhof(start->gib_pos(), &platz1, count_rail, ziel);
 				if(count_rail>1) {
@@ -2457,9 +2283,6 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 					if(count_rail<org_count_rail) {
 						// rethink engine
 					 	int best_rail_speed = min(51,rail_vehicle->gib_geschw());
-						// needed for search
-						// first we have to find a suitable car
-						const ware_besch_t* freight = start->gib_ausgang()[start_ware].gib_typ();
 					  	// obey timeline
 						uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);
 						// for engine: gues number of cars
@@ -2490,7 +2313,10 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 
 		// built a simple road (no bridges, no tunnels)
 		case NR_BAUE_STRASSEN_ROUTE:
-			if(create_simple_road_transport()) {
+			if(is_connected(start->gib_pos().gib_2d(), ziel->gib_pos().gib_2d(), freight)) {
+				state = ship_vehicle ? NR_BAUE_CLEAN_UP : CHECK_CONVOI;
+			}
+			else if(create_simple_road_transport()) {
 				create_road_transport_vehikel(start, count_road );
 				state = NR_ROAD_SUCCESS;
 			}
@@ -2536,7 +2362,6 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 			if (gr) gr->obj_loesche_alle(this);
 			gr = welt->lookup_kartenboden(platz2);
 			if (gr) gr->obj_loesche_alle(this);
-			baue = false;
 			state = CHECK_CONVOI;
 			break;
 		}
@@ -2551,7 +2376,6 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 			sprintf(buf, translator::translate("%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i)."), gib_name(), translator::translate(start->gib_name()), spos.x, spos.y, translator::translate(ziel->gib_name()), zpos.x, zpos.y);
 			message_t::get_instance()->add_message(buf, spos.gib_2d(), message_t::ai,player_nr,rail_engine->gib_basis_bild());
 
-			baue = false;
 			state = CHECK_CONVOI;
 		}
 		break;
@@ -2565,8 +2389,6 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 			const koord3d& zpos = ziel->gib_pos();
 			sprintf(buf, translator::translate("%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i)."), gib_name(), count_road, translator::translate(start->gib_name()), spos.x, spos.y, translator::translate(ziel->gib_name()), zpos.x, zpos.y);
 			message_t::get_instance()->add_message(buf, spos.gib_2d(), message_t::ai, player_nr, road_vehicle->gib_basis_bild());
-
-			baue = false;
 			state = CHECK_CONVOI;
 		}
 		break;
@@ -3000,7 +2822,6 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","no suitable hub found");
 		// get a suitable vehicle
 		case NR_BAUE_ROUTE1:
 		// wait for construction semaphore
-		if(!baue)
 		{
 		  	// obey timeline
 			uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);
@@ -3020,7 +2841,6 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 				state = CHECK_CONVOI;
 			}
 			// ok, now I do
-			baue = true;
 			state = NR_BAUE_STRASSEN_ROUTE;
 		}
 		break;
@@ -3047,7 +2867,6 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 
 		// remove marker etc.
 		case NR_BAUE_CLEAN_UP:
-			baue = false;
 			state = CHECK_CONVOI;
 			// otherwise it may always try to built the same route!
 			end_stadt = NULL;
@@ -3057,7 +2876,6 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 		case NR_ROAD_SUCCESS:
 		{
 			state = CHECK_CONVOI;
-			baue = false;
 			// tell the player
 			char buf[256];
 			if(end_ausflugsziel!=NULL) {
