@@ -1502,8 +1502,11 @@ bool spieler_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 			}
 			return false;
 		}
-		ship_vehicle = v_second->gib_vorgaenger(0);
+		else {
+			ship_vehicle = v_second->gib_vorgaenger(0);
+		}
 	}
+	DBG_MESSAGE( "spieler_t::create_ship_transport_vehikel()", "for %i ships", anz_vehikel );
 
 	// must remove marker
 	grund_t* gr = welt->lookup_kartenboden(platz1);
@@ -2155,9 +2158,14 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 				while(  start_ware<ausgang.get_count()  &&  ausgang[start_ware].gib_typ()!=freight  ) {
 					start_ware++;
 				}
-				const int prod = min( ziel->get_base_production(), (start->get_base_production() * start->gib_besch()->gib_produkt(start_ware)->gib_faktor())/256u - start->gib_abgabe_letzt(start_ware) );
-				int ships_needed = (prod*abs_distance(platz1,start->gib_pos().gib_2d())) / (ship_vehicle->gib_zuladung()*ship_vehicle->gib_geschw())+1;
 				koord harbour=platz1;
+				const int prod = min( ziel->get_base_production(), (start->get_base_production() * start->gib_besch()->gib_produkt(start_ware)->gib_faktor()) - start->gib_abgabe_letzt(start_ware) );
+				if(prod<0) {
+					// too much supplied last time?!? => retry
+					state = NR_INIT;
+					break;
+				}
+				int ships_needed = 1 + (prod*abs_distance(harbour,start->gib_pos().gib_2d())) / (ship_vehicle->gib_zuladung()*max(20,ship_vehicle->gib_geschw()));
 				if(create_ship_transport_vehikel(start,ships_needed)) {
 					if(welt->lookup(harbour)->gib_halt()->gib_fab_list().contains(ziel)) {
 						// so close, so we are already connected
