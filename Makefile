@@ -333,9 +333,7 @@ endif
 
 ifneq ($(findstring $(OSTYPE), cygwin mingw),)
   SOURCES += simres.rc
-  ifeq ($(RESCOMP=),)
-    RESCOMP=windres
-  endif
+  WINDRES ?= windres
 endif
 
 

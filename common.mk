@@ -51,4 +51,4 @@ endif
 
 %.o: %.rc
 	@echo "===> RES $<"
-	$(Q)$(RESCOMP) -O COFF $< $@
+	$(Q)$(WINDRES) -O COFF $< $@
