@@ -117,7 +117,6 @@ template<class T> class weighted_vector_tpl
 				if (nodes[i].data == elem) return i;
 			}
 			dbg->fatal("weighted_vector_tpl<T>::index_of()", "not contained" );
-			return 0xFFFFFFFFu;
 		}
 
 		/**
