@@ -50,15 +50,11 @@ koord haus_tile_besch_t::gib_offset() const
  */
 int haus_besch_t::gib_post_level() const
 {
-	switch(gtyp) {
-		case gebaeude_t::wohnung:
-		return level;
-	case gebaeude_t::gewerbe:
-		return level << 1;
-	case gebaeude_t::industrie:
-		return level >> 1;
-	default:
-		return level;
+	switch (gtyp) {
+		default:
+		case gebaeude_t::wohnung:   return level;
+		case gebaeude_t::gewerbe:   return level * 2;
+		case gebaeude_t::industrie: return level / 2;
 	}
 }
 
