@@ -1102,6 +1102,11 @@ void stadt_t::rdwr(loadsave_t* file)
 		file->rdwr_long(this_year_pax, "\n");
 	}
 
+	if(file->get_version()>99014) {
+		file->rdwr_long(pax_transport, " ");
+		file->rdwr_long(pax_erzeugt, "\n");
+	}
+
 	// 08-Jan-03: Due to some bugs in the special buildings/town hall
 	// placement code, li,re,ob,un could've gotten irregular values
 	// If a game is loaded, the game might suffer from such an mistake
