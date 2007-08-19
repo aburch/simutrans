@@ -56,7 +56,7 @@ uint8 baum_t::forest_boundary_blur = 6;
 uint8 baum_t::forest_boundary_thickness = 2;
 
 // Determins how often are spare trees going to be planted (works inversly)
-uint8 baum_t::forest_inverse_spare_tree_density = 5;
+uint16 baum_t::forest_inverse_spare_tree_density = 5;
 
 // Number of trees on square 2 - minimal usable, 3 good, 5 very nice looking
 uint8 baum_t::max_no_of_trees_on_square = 3;
