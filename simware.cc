@@ -47,7 +47,7 @@ ware_t::ware_t(karte_t *welt,loadsave_t *file)
 
 
 void
-ware_t::setze_typ(const ware_besch_t* type)
+ware_t::setze_besch(const ware_besch_t* type)
 {
 	index = type->gib_index();
 }
@@ -69,7 +69,7 @@ ware_t::rdwr(karte_t *welt,loadsave_t *file)
 	uint8 catg=0;
 
 	if(file->is_saving()) {
-		typ = gib_typ()->gib_name();
+		typ = gib_besch()->gib_name();
 	}
 	if(file->get_version()>=88005) {
 		file->rdwr_byte(catg,"c");

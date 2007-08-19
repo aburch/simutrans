@@ -140,6 +140,11 @@ class hausbauer_t
 		 */
 		static const haus_besch_t* gib_special(int bev, haus_besch_t::utyp utype, uint16 time, climate cl);
 
+		/* use this to remove an arbitary building
+		 * it will also take care of factories and foundations
+		 */
+		static void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb );
+
 		/* Main function for all non-traffic buildings, including factories
 		 * building size can be larger than 1x1
 		 * Also the underlying ground will be changed to foundation.

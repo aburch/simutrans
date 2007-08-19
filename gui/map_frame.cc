@@ -21,6 +21,7 @@
 #include "../simcolor.h"
 #include "../bauer/fabrikbauer.h"
 #include "../utils/cstring_t.h"
+#include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/koord.h"
 #include "../besch/fabrik_besch.h"
@@ -52,24 +53,24 @@ static vector_tpl<legend_entry> legend(16);
 // @author hsiegeln
 const char map_frame_t::map_type[MAX_BUTTON_TYPE][64] =
 {
-    "Towns",
-    "Passagiere",
-    "Post",
-    "Fracht",
-    "Status",
-    "Service",
-    "Traffic",
-    "Origin",
-    "Destination",
-    "hl_btn_sort_waiting",
-    "Tracks",
-    "Speedlimit",
-    "Powerlines",
-    "Tourists",
-    "Factories",
-    "Depots",
-		"Forest",
-		"CityLimit"
+	"Towns",
+	"Passagiere",
+	"Post",
+	"Fracht",
+	"Status",
+	"Service",
+	"Traffic",
+	"Origin",
+	"Destination",
+	"hl_btn_sort_waiting",
+	"Tracks",
+	"Speedlimit",
+	"Powerlines",
+	"Tourists",
+	"Factories",
+	"Depots",
+	"Forest",
+	"CityLimit"
 };
 
 const uint8 map_frame_t::map_type_color[MAX_BUTTON_TYPE] =
@@ -154,13 +155,13 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 	// these will be only added to the window, when they are visible
 	// this is the only legal way to hide them
 	for (int type=0; type<MAX_BUTTON_TYPE; type++) {
-		filter_buttons[type].init(button_t::box,translator::translate(map_type[type]), koord(0,0), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+		filter_buttons[type].init(button_t::box_state,translator::translate(map_type[type]), koord(0,0), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 		filter_buttons[type].add_listener(this);
 		filter_buttons[type].background = map_type_color[type];
-		is_filter_active[type] = reliefkarte_t::gib_karte()->get_mode() == type;
 		if(legend_visible) {
 			add_komponente(filter_buttons + type);
 		}
+		filter_buttons[type].pressed = type==umgebung_t::default_mapmode;
 	}
 
 	// Hajo: Hack: use static size if set by a former object
@@ -184,6 +185,8 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 	set_resizemode(diagonal_resize);
 
 	is_dragging = false;
+
+	karte->set_mode( (reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode );
 }
 
 
@@ -261,16 +264,17 @@ map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	else {
 		for (int i=0;i<MAX_BUTTON_TYPE;i++) {
 			if (komp == &filter_buttons[i]) {
-				if (is_filter_active[i]) {
-					is_filter_active[i] = false;
-				} else {
-					all_inactive = false;
-					reliefkarte_t::gib_karte()->set_mode((reliefkarte_t::MAP_MODES)i);
-					is_filter_active[i] = true;
+				if(filter_buttons[i].pressed) {
+					umgebung_t::default_mapmode = -1;
 				}
-			} else {
-				is_filter_active[i] = false;
+				else {
+					umgebung_t::default_mapmode = i;
+				}
 			}
+		}
+		reliefkarte_t::gib_karte()->set_mode((reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode);
+		for (int i=0;i<MAX_BUTTON_TYPE;i++) {
+			filter_buttons[i].pressed = i==umgebung_t::default_mapmode;
 		}
 		if(all_inactive) {
 			reliefkarte_t::gib_karte()->set_mode(reliefkarte_t::PLAIN);
@@ -456,11 +460,6 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 				old_ij = ij;
 			}
 		}
-	}
-
-	// button state
-	for (int i = 0;i<MAX_BUTTON_TYPE;i++) {
-		filter_buttons[i].pressed = is_filter_active[i];
 	}
 
 	b_rotate45.pressed = reliefkarte_t::gib_karte()->rotate45;

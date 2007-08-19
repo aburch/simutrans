@@ -486,10 +486,8 @@ private:
 		fabconnection_t( koord k1, koord k2, const ware_besch_t *w ) : fab1(k1), fab2(k2), ware(w) {}
 
 		const bool operator != (const fabconnection_t & k) { return fab1 != k.fab1  ||  fab2 !=  k.fab2  ||  ware != k.ware; }
-/*
 		const bool operator == (const fabconnection_t & k) { return (fab1 == k.fab1  &&  fab2 ==  k.fab2  &&  ware == k.ware); }
-		const bool operator < (const fabconnection_t & k) { return (abs(fab1.x)+abs(fab1.y)) - (abs(k.fab1.x)+abs(k.fab1.y)) < 0; }
-*/
+//		const bool operator < (const fabconnection_t & k) { return (abs(fab1.x)+abs(fab1.y)) - (abs(k.fab1.x)+abs(k.fab1.y)) < 0; }
 	};
 
 	slist_tpl<fabconnection_t> forbidden_conections;

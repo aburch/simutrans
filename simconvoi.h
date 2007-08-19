@@ -617,7 +617,8 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void get_freight_info(cbuffer_t & buf);
-	void set_sort(int order);
+	void set_sortby(uint8 order);
+	uint8 get_sortby() const { return freight_info_order; }
 
 	/**
 	* Opens the schedule window

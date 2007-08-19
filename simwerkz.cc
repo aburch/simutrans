@@ -423,46 +423,6 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->gib_pos().x, 
 				return wkz_remover_intern(sp, welt, pos-k, msg);
 			}
 			else {
-				// remove factory?
-				if(gb->get_fabrik()!=NULL) {
-
-					// remove connections ...
-					fabrik_t *fab=gb->get_fabrik();
-DBG_MESSAGE("wkz_remover()", "removing factory:  %p");
-
-					if(welt->lookup(fab->gib_pos().gib_2d())->get_haltlist_count()!=0) {
-						// remove from all stops
-						msg = "Das Feld gehoert\neinem anderen Spieler\n";
-						return false;
-					}
-
-					// delete it from map
-DBG_MESSAGE("wkz_remover()", "removing factory from world");
-					gb->setze_fab(NULL);
-					welt->rem_fab(fab);
-
-DBG_MESSAGE("wkz_remover()", "removing factory:  supplier info change for %i factories",welt->gib_fab_list().count() );
-					// remove all links from factories
-					slist_iterator_tpl<fabrik_t *> iter (welt->gib_fab_list());
-					while(iter.next()) {
-						fabrik_t * fab = iter.get_current();
-						fab->rem_lieferziel(pos);
-						fab->rem_supplier(pos);
-						fab->clear_arbeiterziele();
-DBG_MESSAGE("wkz_remover()", "reconnecting factories");
-					}
-
-					// remove from all cities
-DBG_MESSAGE("wkz_remover()", "removing factory:  reconnecting towns");
-					const weighted_vector_tpl<stadt_t*>& stadt = welt->gib_staedte();
-					for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
-						(*i)->verbinde_fabriken();
-					}
-
-					// finally delete it
-					fab->~fabrik_t();
-				}
-
 				// remove town? (when removing townhall)
 				if(gb->ist_rathaus()) {
 					stadt_t *stadt = welt->suche_naechste_stadt(pos);
@@ -471,18 +431,7 @@ DBG_MESSAGE("wkz_remover()", "removing factory:  reconnecting towns");
 						return false;
 					}
 				}
-
-DBG_MESSAGE("wkz_remover()", "removing building: cleanup");
-				for(k.y = 0; k.y < size.y; k.y ++) {
-					for(k.x = 0; k.x < size.x; k.x ++) {
-						grund_t *gr = welt->lookup(k+pos)->gib_kartenboden();
-						gr->obj_loesche_alle(sp);
-						if(gr->gib_typ()==grund_t::fundament) {
-							uint8 new_slope = gr->gib_hoehe()==welt->min_hgt(k+pos) ? 0 : welt->calc_natural_slope(k+pos);
-							welt->access(k+pos)->kartenboden_setzen(new boden_t(welt, koord3d(k+pos,welt->min_hgt(k+pos)), new_slope) );
-						}
-					}
-				}
+				hausbauer_t::remove( welt, sp, gb );
 			}
 			return true;
 		}

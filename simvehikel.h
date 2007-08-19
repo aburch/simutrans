@@ -225,6 +225,8 @@ protected:
 public:
 	enum { SPEED_UNLIMITED=0x07FFFFFF };
 
+	convoi_t *get_convoi() const { return cnv; }
+
 	virtual bool ist_weg_frei(int &/*restart_speed*/) {return true;}
 
 	virtual void betrete_feld();

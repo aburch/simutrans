@@ -31,7 +31,7 @@
 #include "../utils/simstring.h"
 
 // the descriptions ...
-const way_obj_besch_t *default_oberleitung=NULL;
+const way_obj_besch_t *wayobj_t::default_oberleitung=NULL;
 
 vector_tpl<const way_obj_besch_t *> wayobj_t::liste;
 stringhashtable_tpl<const way_obj_besch_t *> wayobj_t::table;

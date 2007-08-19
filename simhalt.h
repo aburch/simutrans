@@ -431,10 +431,10 @@ public:
 	uint32 gib_ware_summe(const ware_besch_t *warentyp) const;
 
 	/**
-	 * gibt Gesamtmenge der ware vom typ typ fuer ziel zurück
+	 * returns total number for a certain position (since more than one factory might connect to a stop)
 	 * @author Hj. Malthaner
 	 */
-	uint32 gib_ware_fuer_ziel(const ware_besch_t *warentyp, const halthandle_t ziel) const;
+	uint32 gib_ware_fuer_zielpos(const ware_besch_t *warentyp, const koord zielpos) const;
 
 	/**
 	 * gibt Gesamtmenge derw are vom typ typ fuer zwischenziel zurück
@@ -451,6 +451,11 @@ public:
 
 	// true, if we accept/deliver this kind of good
 	bool gibt_ab(const ware_besch_t *warentyp) const { return waren[warentyp->gib_catg_index()] != NULL; }
+
+	/* retrieves a ware packet for any destination in the list
+	 * needed, if the factory in question wants to remove something
+	 */
+	bool recall_ware( ware_t& w, uint32 menge, const fabrik_t *fab );
 
 	/**
 	 * holt ware ab

@@ -130,11 +130,6 @@ gebaeude_t::~gebaeude_t()
 	if(gib_besitzer()) {
 		gib_besitzer()->add_maintenance(-umgebung_t::maint_building);
 	}
-
-#ifdef DEBUG
-	// to detect access to invalid tiles
-	setze_pos( koord3d::invalid );
-#endif
 }
 
 
@@ -783,14 +778,20 @@ gebaeude_t::laden_abschliessen()
 
 
 
-void
-gebaeude_t::entferne(spieler_t *sp)
+void gebaeude_t::entferne(spieler_t *sp)
 {
 //	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
 	// remove costs
 	if(sp) {
-		sp->buche(umgebung_t::cst_multiply_remove_haus*(tile->gib_besch()->gib_level()+1), gib_pos().gib_2d(), COST_CONSTRUCTION);
+		if(gib_haustyp()!=unbekannt  ||  tile->gib_besch()->gib_utyp()<haus_besch_t::bahnhof) {
+			sp->buche(umgebung_t::cst_multiply_remove_haus*(tile->gib_besch()->gib_level()+1), gib_pos().gib_2d(), COST_CONSTRUCTION);
+		}
+		else {
+			// tearing down halts is always single costs only
+			sp->buche(umgebung_t::cst_multiply_remove_haus, gib_pos().gib_2d(), COST_CONSTRUCTION);
+		}
 	}
+
 
 	// may need to update next buildings, in the case of start, middle, end buildings
 	if(tile->gib_besch()->gib_all_layouts()>1  &&  gib_haustyp()==unbekannt) {

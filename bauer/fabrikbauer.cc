@@ -73,7 +73,7 @@ public:
 	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
 		if(bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)) {
 			// try to built a little away from previous factory
-			if(find_dist_next_factory(pos)<3+b+h) {
+			if(find_dist_next_factory(pos) < (umgebung_t::station_coverage_size*2)+b+h) {
 				return false;
 			}
 			int i, j;

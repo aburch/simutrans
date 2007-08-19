@@ -60,7 +60,6 @@ private:
 	static const char map_type[MAX_BUTTON_TYPE][64];
 	static const uint8 map_type_color[MAX_BUTTON_TYPE];
 	button_t filter_buttons[MAX_BUTTON_TYPE];
-	bool is_filter_active[MAX_BUTTON_TYPE];
 
 	button_t zoom_buttons[2];
 	gui_label_t zoom_label;

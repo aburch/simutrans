@@ -112,10 +112,14 @@ vehikel_basis_t::verlasse_feld()
 		dbg->error("vehikel_basis_t::verlasse_feld()","'typ %i' %p could not be removed from %d %d", gib_typ(), this, gib_pos().x, gib_pos().y);
 		DBG_MESSAGE("vehikel_basis_t::verlasse_feld()","checking all plan squares");
 
-		gr = welt->lookup( gib_pos().gib_2d() )->gib_boden_von_obj(this);
-		if(gr) {
-			gr->obj_remove(this);
-			dbg->warning("vehikel_basis_t::verlasse_feld()","removed vehicle typ %i (%p) from %d %d",gib_typ(), this, gib_pos().x, gib_pos().y);
+		// check, whether it is on another height ...
+		if(welt->ist_in_kartengrenzen( gib_pos().gib_2d() )) {
+			gr = welt->lookup( gib_pos().gib_2d() )->gib_boden_von_obj(this);
+			if(gr) {
+				gr->obj_remove(this);
+				dbg->warning("vehikel_basis_t::verlasse_feld()","removed vehicle typ %i (%p) from %d %d",gib_typ(), this, gib_pos().x, gib_pos().y);
+			}
+			return;
 		}
 
 		koord k;
@@ -729,7 +733,7 @@ bool vehikel_t::hop_check()
 			return false;
 		}
 	}
-	return true;//route_index<=cnv->get_route()->gib_max_n();
+	return true;
 }
 
 
@@ -963,8 +967,8 @@ sint64 vehikel_t::calc_gewinn(koord3d start, koord3d end) const
 	while( iter.next() ) {
 		const ware_t & ware = iter.get_current();
 
-		const sint32 grundwert128 = ware.gib_typ()->gib_preis()<<7;
-		const sint32 grundwert_bonus = (ware.gib_typ()->gib_preis()*(1000+speed_base*ware.gib_typ()->gib_speed_bonus()));
+		const sint32 grundwert128 = ware.gib_besch()->gib_preis()<<7;
+		const sint32 grundwert_bonus = (ware.gib_besch()->gib_preis()*(1000+speed_base*ware.gib_besch()->gib_speed_bonus()));
 		const sint64 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus) * (sint64)dist * (sint64)ware.menge;
 
 		// sum up new price
@@ -995,7 +999,7 @@ uint32 vehikel_t::gib_fracht_gewicht() const
 	while(iter.next()) {
 		weight +=
 			iter.get_current().menge *
-			iter.get_current().gib_typ()->gib_weight_per_unit();
+			iter.get_current().gib_besch()->gib_weight_per_unit();
 	}
 	return weight;
 }
@@ -1112,7 +1116,7 @@ vehikel_t::calc_bild()
 	if (fracht.empty()) {
 		setze_bild(besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),NULL));
 	} else {
-		setze_bild(besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()), fracht.front().gib_typ()));
+		setze_bild(besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()), fracht.front().gib_besch()));
 	}
 	if(old_bild!=gib_bild()) {
 		set_flag(ding_t::dirty);
@@ -1474,8 +1478,56 @@ bool automobil_t::ist_ziel(const grund_t *gr,const grund_t *) const
 }
 
 
-bool
-automobil_t::ist_weg_frei(int &restart_speed)
+
+// true, if one could pass through this field
+static vehikel_basis_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_fahrtrichtung, const uint8 next_fahrtrichtung, const uint8 next_90fahrtrichtung )
+{
+	// suche vehikel
+	const uint8 top = gr->gib_top();
+	for(  uint8 pos=0;  pos<top;  pos++ ) {
+		ding_t *dt = gr->obj_bei(pos);
+		if(dt) {
+			uint8 other_fahrtrichtung=255;
+
+			// check for car
+			if(dt->gib_typ()==ding_t::automobil) {
+				automobil_t *at = (automobil_t *)dt;
+				// ignore ourself
+				if(cnv==at->get_convoi()) {
+					continue;
+				}
+				other_fahrtrichtung = at->gib_fahrtrichtung();
+			}
+			// check for city car
+			else if(dt->gib_typ()==ding_t::verkehr) {
+				vehikel_basis_t *v = (vehikel_basis_t *)dt;
+				other_fahrtrichtung = v->gib_fahrtrichtung();
+			}
+
+			// ok, there is another car ...
+			if(other_fahrtrichtung!=255) {
+
+				if(other_fahrtrichtung==next_fahrtrichtung  ||  other_fahrtrichtung==next_90fahrtrichtung  ||  other_fahrtrichtung==current_fahrtrichtung ) {
+					// this goes into the same direction as we, so stopp and save a restart speed
+					return (vehikel_basis_t *)dt;
+
+				} else if(ribi_t::ist_orthogonal(other_fahrtrichtung,current_fahrtrichtung)) {
+
+					// there is a car orthogonal to us
+					return (vehikel_basis_t *)dt;
+				}
+			}
+		}
+	}
+
+	// way is free
+	return NULL;
+}
+
+
+
+
+bool automobil_t::ist_weg_frei(int &restart_speed)
 {
 	const grund_t *gr = welt->lookup(pos_next);
 
@@ -1549,63 +1601,40 @@ automobil_t::ist_weg_frei(int &restart_speed)
 		}
 
 		// calculate new direction
-		const uint8 next_fahrtrichtung = calc_richtung(pos_prev.gib_2d(), pos_next.gib_2d());
-		const uint8 next_90fahrtrichtung = route_index<cnv->get_route()->gib_max_n() ? this->calc_richtung(gib_pos().gib_2d(), cnv->get_route()->position_bei(route_index+1).gib_2d()) : calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d());;
-		bool frei = true;
+		const uint8 next_fahrtrichtung = route_index<cnv->get_route()->gib_max_n() ? this->calc_richtung(gib_pos().gib_2d(), cnv->get_route()->position_bei(route_index+1).gib_2d()) : calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d());
+		const uint8 next_90fahrtrichtung = route_index<cnv->get_route()->gib_max_n() ? this->calc_richtung(gib_pos().gib_2d(), cnv->get_route()->position_bei(route_index+1).gib_2d()) : calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d());
+		vehikel_basis_t *dt = no_cars_blocking( gr, cnv, gib_fahrtrichtung(), next_fahrtrichtung, next_90fahrtrichtung );
 
-		// suche vehikel
-		const uint8 top = gr->gib_top();
-		for(  uint8 pos=0;  pos<top  && frei;  pos++ ) {
-			ding_t *dt = gr->obj_bei(pos);
-			if(dt) {
-				uint8 other_fahrtrichtung=255;
+		// do not block intersections
+		if(dt==NULL  &&  ribi_t::is_threeway(str->gib_ribi_unmasked())  &&  route_index+1<cnv->get_route()->gib_max_n()) {
+			// we have to test also next field
+			const uint8 nextnext_fahrtrichtung = this->calc_richtung(cnv->get_route()->position_bei(route_index).gib_2d(), cnv->get_route()->position_bei(route_index+2).gib_2d());
+			const uint8 nextnext_90fahrtrichtung = this->calc_richtung(cnv->get_route()->position_bei(route_index+1).gib_2d(), cnv->get_route()->position_bei(route_index+2).gib_2d());
+			const grund_t *gr = welt->lookup( cnv->get_route()->position_bei(route_index+1) );
+			dt = no_cars_blocking( gr, cnv, next_fahrtrichtung, nextnext_fahrtrichtung, nextnext_90fahrtrichtung );
+		}
 
-				// check for car
-				if(dt->gib_typ()==ding_t::automobil) {
-					automobil_t *at = (automobil_t *)dt;
-					// check, if this is not ourselves
-					if(at->cnv!=cnv) {
-						other_fahrtrichtung = at->gib_fahrtrichtung();
-					}
-				}
+		if(dt==NULL  &&  str->is_crossing()) {
+			// ok, way crossing ahead
+			crossing_t* cr = gr->find<crossing_t>(2);
+			if(  !cr->request_crossing(this)) {
+				restart_speed = 0;
+				return false;
+			}
+		}
 
-				// check for city car
-				if(dt->gib_typ()==ding_t::verkehr) {
-					vehikel_basis_t *v = (vehikel_basis_t *)dt;
-					other_fahrtrichtung = v->gib_fahrtrichtung();
-				}
-
-				// ok, there is another car ...
-				if(other_fahrtrichtung!=255) {
-
-					if(other_fahrtrichtung==next_fahrtrichtung  ||  other_fahrtrichtung==next_90fahrtrichtung  ||  other_fahrtrichtung==gib_fahrtrichtung() ) {
-						// this goes into the same direction as we, so stopp and save a restart speed
-						frei = false;
-						restart_speed = 0;
-						if(cnv  &&  cnv->is_waiting()) {
-							// no stuck message, if previous vehikel is stuck too
-							if( ((vehikel_basis_t *)dt)->is_stuck() ) {
-								cnv->reset_waiting();
-							}
-						}
-
-					} else if(ribi_t::ist_orthogonal(other_fahrtrichtung,gib_fahrtrichtung() )) {
-
-						// there is a car orthogonal to us
-						frei = false;
-						restart_speed = 0;
-					}
+		// stuck message ...
+		if(dt) {
+			restart_speed = 0;
+			if(dt->gib_typ()==ding_t::automobil  &&  cnv  &&  cnv->is_waiting()) {
+				// no stuck message, if previous vehikel is stuck too
+				if( dt->is_stuck() ) {
+					cnv->reset_waiting();
 				}
 			}
 		}
 
-		if(frei  &&  str->is_crossing()) {
-			// ok, crossing ahead
-			crossing_t* cr = gr->find<crossing_t>(2);
-			frei = cr->request_crossing(this);
-		}
-
-		return frei;
+		return dt==NULL;
 	}
 
 	return true;
@@ -1659,7 +1688,7 @@ automobil_t::rdwr(loadsave_t *file, bool force)
 
 		// try to find a matching vehivle
 		if(file->is_loading()  &&  besch==NULL) {
-			const ware_besch_t* w = (!fracht.empty() ? fracht.front().gib_typ() : warenbauer_t::passagiere);
+			const ware_besch_t* w = (!fracht.empty() ? fracht.front().gib_besch() : warenbauer_t::passagiere);
 			DBG_MESSAGE("automobil_t::rdwr()","try to find a fitting vehicle for %s.",  w->gib_name() );
 			besch = vehikelbauer_t::vehikel_search(road_wt, 0, ist_erstes?50:0, speed_to_kmh(speed_limit), w );
 			if(besch) {
@@ -2310,7 +2339,7 @@ waggon_t::rdwr(loadsave_t *file, bool force)
 		// try to find a matching vehivle
 		if(file->is_loading()  &&  besch==NULL) {
 			int power = (ist_erstes || fracht.empty() || fracht.front() == warenbauer_t::nichts) ? 500 : 0;
-			const ware_besch_t* w = power ? warenbauer_t::nichts : fracht.front().gib_typ();
+			const ware_besch_t* w = power ? warenbauer_t::nichts : fracht.front().gib_besch();
 			DBG_MESSAGE("waggon_t::rdwr()","try to find a fitting vehicle for %s.", power>0 ? "engine": w->gib_name() );
 			if(!ist_erstes  &&  last_besch!=NULL  &&  last_besch->gib_ware()==w  &&
 				(
@@ -2448,7 +2477,7 @@ schiff_t::rdwr(loadsave_t *file, bool force)
 		// try to find a matching vehivle
 		if(file->is_loading()  &&  besch==NULL) {
 			DBG_MESSAGE("schiff_t::rdwr()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().gib_name() : "passagiere");
-			besch = vehikelbauer_t::vehikel_search(water_wt, 0, 100, 40, !fracht.empty() ? fracht.front().gib_typ() : warenbauer_t::passagiere);
+			besch = vehikelbauer_t::vehikel_search(water_wt, 0, 100, 40, !fracht.empty() ? fracht.front().gib_besch() : warenbauer_t::passagiere);
 			if(besch) {
 				calc_bild();
 			}

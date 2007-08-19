@@ -405,6 +405,14 @@ void spieler_t::neues_jahr()
 {
 	calc_finance_history();
 	roll_finance_history_year();
+
+	// AI will reconsider the oldes unbuiltable lines again
+	if(automat) {
+		int remove = max(0,forbidden_conections.count()-3);
+		while(  remove < forbidden_conections.count()  ) {
+			forbidden_conections.remove_first();
+		}
+	}
 }
 
 
@@ -1931,7 +1939,8 @@ void spieler_t::do_ki()
 				slist_iterator_tpl<fabrik_t *> fabiter( welt->gib_fab_list() );
 				while(fabiter.next()) {
 					fabrik_t *fab = fabiter.get_current();
-					if(fab->gib_besch()->gib_produkte()==0) {
+					// consumer and not completely overcrowded
+					if(fab->gib_besch()->gib_produkte()==0  &&  fab->get_status()!=fabrik_t::bad) {
 						int missing = get_factory_tree_missing_count( fab );
 						if(missing>0) {
 							start_fabs.append( fab, 100/(missing+1)+1 );
@@ -1960,14 +1969,14 @@ void spieler_t::do_ki()
 				}
 				else {
 					// add to impossible connections
-					forbidden_conections.insert( fabconnection_t( start->gib_pos().gib_2d(), ziel->gib_pos().gib_2d(), freight ) );
+					forbidden_conections.append( fabconnection_t( start->gib_pos().gib_2d(), ziel->gib_pos().gib_2d(), freight ) );
 					state = CHECK_CONVOI;
 				}
 			}
 			else {
 				// did all I could do here ...
 				root = NULL;
-				state = NR_INIT;
+				state = CHECK_CONVOI;
 			}
 		break;
 
@@ -2044,7 +2053,7 @@ DBG_MESSAGE("do_ki()","check railway");
 				// assume the engine weight 100 tons for power needed calcualtion
 				int total_weight = count_rail*( (rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit())/1000 + rail_vehicle->gib_gewicht());
 //				long power_needed = (long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->gib_gewicht()+rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit()*0.001)));
-				rail_engine = vehikelbauer_t::vehikel_search( track_wt, month_now, total_weight, best_rail_speed, NULL, true );
+				rail_engine = vehikelbauer_t::vehikel_search( track_wt, month_now, total_weight, best_rail_speed, NULL, wayobj_t::default_oberleitung!=NULL );
 				if(  rail_engine!=NULL  ) {
 				 	best_rail_speed = min(rail_engine->gib_geschw(),rail_vehicle->gib_geschw());
 				  // find cheapest track with that speed (and no monorail/elevated/tram tracks, please)
@@ -2245,7 +2254,7 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 		// remove marker etc.
 		case NR_BAUE_CLEAN_UP:
 		{
-			forbidden_conections.insert( fabconnection_t( start->gib_pos().gib_2d(), ziel->gib_pos().gib_2d(), freight ) );
+			forbidden_conections.append( fabconnection_t( start->gib_pos().gib_2d(), ziel->gib_pos().gib_2d(), freight ) );
 			if(ship_vehicle) {
 				// only here, if we could built ships but no connection
 				halthandle_t start_halt;
@@ -2314,8 +2323,8 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 		// remove stucked vehicles (only from roads!)
 		case CHECK_CONVOI:
 		{
-			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
-				const convoihandle_t cnv = *i;
+			for( int i = welt->get_convoi_count()-1;  i>=0;  i--  ) {
+				const convoihandle_t cnv = welt->get_convoi(i);
 				if(cnv->gib_besitzer()!=this) {
 					continue;
 				}

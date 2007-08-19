@@ -197,7 +197,14 @@ static bool get_net_at(const spieler_t *sp, const grund_t *gr, powernet_t **l_ne
 static void set_net_at(const grund_t *gr, powernet_t *new_net)
 {
 	if(gr) {
-		// only this way pumps are handled properly
+		// lines are most common
+		leitung_t* l = gr->find<leitung_t>();
+		if(l) {
+			l->set_net(new_net);
+//DBG_MESSAGE("set_net_at()","Using new net %p",l->get_net());
+			return;
+		}
+		// then pumps
 		pumpe_t* p = gr->find<pumpe_t>();
 		if(p) {
 			p->set_net(new_net);
@@ -208,13 +215,6 @@ static void set_net_at(const grund_t *gr, powernet_t *new_net)
 		if(s) {
 			s->set_net(new_net);
 //DBG_MESSAGE("set_net_at()","Using new net %p",s->get_net());
-			return;
-		}
-		// and now handle line
-		leitung_t* l = gr->find<leitung_t>();
-		if(l) {
-			l->set_net(new_net);
-//DBG_MESSAGE("set_net_at()","Using new net %p",l->get_net());
 			return;
 		}
 	}

@@ -287,6 +287,9 @@ reliefkarte_t::calc_map_pixel(const koord k)
 
 	// always use to uppermost ground
 	const planquadrat_t *plan=welt->lookup(k);
+	if(plan==NULL) {
+		return;
+	}
 	const grund_t *gr=plan->gib_boden_bei(plan->gib_boden_count()-1);
 
 	// first use ground color

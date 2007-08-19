@@ -139,8 +139,8 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	line_update_pending = INVALID_LINE_ID;
 
-	home_depot = koord3d(0,0,0);
-	last_stop_pos = koord3d(0,0,0);
+	home_depot = koord3d::invalid;
+	last_stop_pos = koord3d::invalid;
 }
 
 
@@ -233,8 +233,8 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 koord3d
 convoi_t::gib_pos() const
 {
-	if (anz_vehikel > 0 && fahr[0]) {
-		return fahr[0]->gib_pos();
+	if(anz_vehikel > 0 && fahr[0]) {
+		return state==INITIAL ? home_depot : fahr[0]->gib_pos();
 	} else {
 		return koord3d::invalid;
 	}
@@ -772,7 +772,13 @@ void convoi_t::start()
 	if(state == INITIAL || state == ROUTING_1) {
 
 		// set home depot to location of depot convoi is leaving
-		set_home_depot(gib_pos());
+		if(route.gib_max_n()>0) {
+			route.position_bei(0);
+			fahr[0]->setze_pos( home_depot );
+		}
+		else {
+			home_depot = fahr[0]->gib_pos();
+		}
 
 		alte_richtung = ribi_t::keine;
 
@@ -1451,29 +1457,30 @@ convoi_t::rdwr(loadsave_t *file)
 				DBG_MESSAGE("convoi_t::rdwr()","no vehikel info!");
 			}
 
+			// some versions save vehicles after leaving depot with koord3d::invalid
+			if(v->gib_pos()==koord3d::invalid) {
+				state = INITIAL;
+			}
+
 			if(state!=INITIAL) {
 				grund_t *gr;
 				gr = welt->lookup(v->gib_pos());
 				if(!gr) {
-					gr = welt->lookup(v->gib_pos().gib_2d())->gib_kartenboden();
-					dbg->fatal("convoi_t::rdwr()", "invalid position %s for vehicle %s in state %d (setting to ground %s)", (const char*)k3_to_cstr(v->gib_pos()), v->gib_name(), state, (const char*)k3_to_cstr(gr->gib_pos()));
+					gr = welt->lookup_kartenboden(v->gib_pos().gib_2d());
+					dbg->error("convoi_t::rdwr()", "invalid position %s for vehicle %s in state %d (setting to ground %s)", (const char*)k3_to_cstr(v->gib_pos()), v->gib_name(), state, (const char*)k3_to_cstr(v->gib_pos()));
 				}
 				// add to blockstrecke
-				if (v->gib_waytype() == track_wt || v->gib_waytype() == monorail_wt) {
+				if(gr  &&  v->gib_waytype()==track_wt  ||  v->gib_waytype()==monorail_wt) {
 					schiene_t* sch = (schiene_t*)gr->gib_weg(v->gib_waytype());
 					if(sch) {
 						sch->reserve(self);
 					}
+					// add to crossing
+					if(gr->ist_uebergang()) {
+						gr->find<crossing_t>()->add_to_crossing(v);
+					}
+					gr->obj_add(v);
 				}
-				// add to crossing
-				if(gr->ist_uebergang()) {
-					gr->find<crossing_t>()->add_to_crossing(v);
-				}
-				// add to crossing
-				if(gr->ist_uebergang()) {
-					gr->find<crossing_t>()->add_to_crossing(v);
-				}
-				gr->obj_add(v);
 			}
 
 			// add to convoi
@@ -1623,12 +1630,17 @@ void convoi_t::info(cbuffer_t & buf) const
 }
 
 
-void convoi_t::set_sort(int sort_order)
+
+// sort order of convoi
+void convoi_t::set_sortby(uint8 sort_order)
 {
 	freight_info_order = sort_order;
 	freight_info_resort = true;
 }
 
+
+
+//chaches the last info; resorts only when needed
 void convoi_t::get_freight_info(cbuffer_t & buf)
 {
 	if(freight_info_resort) {
@@ -1663,7 +1675,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 					// for pax: join according next stop
 					// for all others we *must* use target coordinates
-					if(tmp.gib_typ()==ware.gib_typ()  &&  (tmp.gib_zielpos()==ware.gib_zielpos()  ||  (is_pax   &&   tmp.gib_ziel()==ware.gib_ziel())  )  ) {
+					if( ware.same_destination(tmp) ) {
 						tmp.menge += ware.menge;
 						ware.menge = 0;
 						break;

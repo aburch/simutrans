@@ -10,6 +10,7 @@
 #include "../besch/haus_besch.h"
 #include "../besch/skin_besch.h"
 #include "../besch/spezial_obj_tpl.h"
+#include "../boden/boden.h"
 #include "../boden/fundament.h"
 #include "../dataobj/translator.h"
 #include "../dings/zeiger.h"
@@ -225,6 +226,64 @@ void hausbauer_t::neue_karte()
 	ungebaute_denkmaeler.clear();
 	while(iter.next()) {
 		ungebaute_denkmaeler.append(iter.get_current());
+	}
+}
+
+
+
+void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
+{
+	const haus_tile_besch_t *tile  = gb->gib_tile();
+	const haus_besch_t *hb = tile->gib_besch();
+
+	// get startpos and size
+	const koord3d pos = gb->gib_pos() - koord3d( tile->gib_offset(), 0 );
+	koord size = tile->gib_besch()->gib_groesse( tile->gib_layout() );
+	koord k;
+
+	// then remove factory
+	fabrik_t *fab = gb->get_fabrik();
+	if(fab) {
+		// first remove fabrik_t pointers
+		for(k.y = 0; k.y < size.y; k.y ++) {
+			for(k.x = 0; k.x < size.x; k.x ++) {
+				grund_t *gr = welt->lookup(koord3d(k,0)+pos);
+				if(gb) {
+					gebaeude_t *gb_part = gr->find<gebaeude_t>();
+					// there may be buildings with holes, so we only remove our!
+					if(gb_part->gib_tile()->gib_besch()==hb) {
+						gb_part->setze_fab( NULL );
+					}
+				}
+			}
+
+		}
+		welt->rem_fab(fab);
+	}
+
+	// delete just our house
+	for(k.y = 0; k.y < size.y; k.y ++) {
+		for(k.x = 0; k.x < size.x; k.x ++) {
+			grund_t *gr = welt->lookup(koord3d(k,0)+pos);
+			if(gb) {
+				gebaeude_t *gb_part = gr->find<gebaeude_t>();
+				// there may be buildings with holes, so we only remove our!
+				if(gb_part->gib_tile()->gib_besch()==hb) {
+					gb_part->entferne( sp );
+					delete gb_part;
+					// if this was a station building: delete ground
+					if(gr->gib_halt().is_bound()) {
+						gr->gib_halt()->rem_grund(gr);
+					}
+					// and maybe restore land below
+					if(gr->gib_typ()==grund_t::fundament) {
+						const koord newk = k+pos.gib_2d();
+						const uint8 new_slope = gr->gib_hoehe()==welt->min_hgt(newk) ? 0 : welt->calc_natural_slope(newk);
+						welt->access(newk)->kartenboden_setzen(new boden_t(welt, koord3d(newk,welt->min_hgt(newk) ), new_slope) );
+					}
+				}
+			}
+		}
 	}
 }
 

@@ -18,6 +18,7 @@
 #include "../simworld.h"
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/umgebung.h"
 #include "fahrplan_gui.h"
 // @author hsiegeln
 #include "../simlinemgmt.h"
@@ -50,8 +51,6 @@ bool convoi_info_t::route_search_in_progress=false;
  *         3 = amount
  * @author prissi
  */
-convoi_info_t::sort_mode_t convoi_info_t::global_sortby = by_destination;
-
 const char *convoi_info_t::sort_text[SORT_MODES] = {
   "Zielort",
   "via",
@@ -80,7 +79,6 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	this->cnv = cnv;
 	this->mean_convoi_speed = speed_to_kmh(cnv->gib_akt_speed()*4);
 	this->max_convoi_speed = speed_to_kmh(cnv->gib_min_top_speed()*4);
-	this->sortby = global_sortby;
 
 	input.setze_pos(koord(11,4));
 	input.setze_text( cnv->access_internal_name(), 116);
@@ -97,7 +95,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	toggler.pressed = false;
 
 	sort_button.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	sort_button.setze_text(sort_text[sortby]);
+	sort_button.setze_text(sort_text[umgebung_t::default_sortmode]);
 	sort_button.setze_typ(button_t::roundbox);
 	sort_button.add_listener(this);
 	sort_button.set_tooltip("Sort by");
@@ -178,7 +176,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	add_komponente(&follow_button);
 	follow_button.add_listener(this);
 
-	cnv->set_sort( sortby );
+	cnv->set_sortby( umgebung_t::default_sortmode );
 
 	set_min_windowsize(koord(TOTAL_WIDTH, 194));
 	set_resizemode(diagonal_resize);
@@ -314,24 +312,20 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	// sort by what
 	if(komp == &sort_button) {
 		// sort by what
-		sortby = (sort_mode_t)((int)(sortby+1)%(int)SORT_MODES);
-		sort_button.setze_text(sort_text[sortby]);
-		global_sortby = sortby;
-		cnv->set_sort( sortby );
-//		sorteddir.setze_text(translator::translate( sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc"));
+		umgebung_t::default_sortmode = (sort_mode_t)((int)(cnv->get_sortby()+1)%(int)SORT_MODES);
+		sort_button.setze_text(sort_text[umgebung_t::default_sortmode]);
+		cnv->set_sortby( umgebung_t::default_sortmode );
 	}
 
 	// some actions only allowed, when I am the player
 	if(cnv->gib_besitzer()==cnv->get_welt()->get_active_player()) {
 
-		if(komp == &button)     //Fahrplan
-		{
+		if(komp == &button) {
 			cnv->open_schedule_window();
 			return true;
 		}
 
-		if(komp == &no_load_button  &&  !route_search_in_progress)
-		{
+		if(komp == &no_load_button  &&  !route_search_in_progress) {
 			cnv->set_no_load(!cnv->get_no_load());
 			if(!cnv->get_no_load()) {
 				cnv->set_withdraw(false);
@@ -339,8 +333,7 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			return true;
 		}
 
-		if(komp == &go_home_button  &&  !route_search_in_progress)
-		{
+		if(komp == &go_home_button  &&  !route_search_in_progress) {
 			// limit update to certain states that are considered to be save for fahrplan updates
 			int state = cnv->get_state();
 			if(state==convoi_t::FAHRPLANEINGABE) {
@@ -411,10 +404,8 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 		return true;
 	}
 
-	for ( int i = 0; i<MAX_CONVOI_COST; i++)
-	{
-		if (komp == &filterButtons[i])
-		{
+	for ( int i = 0; i<MAX_CONVOI_COST; i++) {
+		if (komp == &filterButtons[i]) {
 		  filterButtons[i].pressed = !filterButtons[i].pressed;
 		  if(filterButtons[i].pressed) {
 		    chart.show_curve(i);

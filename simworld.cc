@@ -504,7 +504,7 @@ bool karte_t::rem_stadt(stadt_t *s)
 	// remove all links from factories
 	slist_iterator_tpl<fabrik_t *> iter (fab_list);
 	while(iter.next()) {
-		iter.get_current()->remove_arbeiterziele(s);
+		iter.get_current()->remove_arbeiterziel(s);
 	}
 	return true;
 }
@@ -1368,11 +1368,49 @@ karte_t::add_fab(fabrik_t *fab)
 	return true;
 }
 
-bool
-karte_t::rem_fab(fabrik_t *fab)
+
+
+// beware: must remove also links from stops and towns
+bool karte_t::rem_fab(fabrik_t *fab)
 {
-	assert(fab != NULL);
-	fab_list.remove( fab );
+	if(!fab_list.remove( fab )) {
+		return false;
+	}
+
+	// now all the interwoven connections must be cleared
+	koord pos = fab->gib_pos().gib_2d();
+	planquadrat_t* plan = access(pos);
+	if(plan) {
+
+		// we need a copy, since the verbinde fabriken is modifying the list
+		halthandle_t list[16];
+		const uint8 count = plan->get_haltlist_count();
+		assert(count<16);
+		memcpy( list, plan->get_haltlist(), count*sizeof(halthandle_t) );
+		for( uint8 i=0;  i<count;  i++  ) {
+			// first remove all the tiles that do not connect
+			plan->remove_from_haltlist( this, list[i] );
+			// then reconnect
+			list[i]->verbinde_fabriken();
+		}
+
+		// remove all links from factories
+		slist_iterator_tpl<fabrik_t *> iter (fab_list);
+		while(iter.next()) {
+			fabrik_t * fab = iter.get_current();
+			fab->rem_lieferziel(pos);
+			fab->rem_supplier(pos);
+		}
+
+		// remove all links to cities
+		slist_iterator_tpl<stadt_t *> iter_city (fab->gib_arbeiterziele());
+		while(iter_city.next()) {
+			iter_city.get_current()->remove_arbeiterziel(fab);
+		}
+
+		// finally delete it
+		delete fab;
+	}
 	return true;
 }
 

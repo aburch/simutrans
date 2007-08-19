@@ -306,6 +306,7 @@ public:
 	 * @author: prissi
 	 */
 	const weighted_vector_tpl<fabrik_t*>& gib_arbeiterziele() const { return arbeiterziele; }
+	void remove_arbeiterziel(fabrik_t *fab) { arbeiterziele.remove(fab); }
 
 	// this function removes houses from the city house list
 	// (called when removed by player, or by town)

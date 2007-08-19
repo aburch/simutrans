@@ -110,6 +110,8 @@ private:
 	static stringhashtable_tpl<const way_obj_besch_t *> table;
 
 public:
+	static const way_obj_besch_t *default_oberleitung;
+
 	// use this constructor; it will extend a matching existing wayobj
 	static void extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch);
 
@@ -117,7 +119,7 @@ public:
 	static bool alles_geladen();
 
 	// search an object (currently only used by AI for caternary)
-	static const way_obj_besch_t* wayobj_search(waytype_t wt,waytype_t own,uint16 time);
+	static const way_obj_besch_t *wayobj_search(waytype_t wt,waytype_t own,uint16 time);
 
 	/**
 	 * Fill menu with icons of given stops from the list

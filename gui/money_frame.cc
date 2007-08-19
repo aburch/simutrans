@@ -114,9 +114,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
     old_transport(NULL, COL_WHITE, gui_label_t::right),
     maintenance_label("This Month",COL_WHITE, gui_label_t::right),
     maintenance_money(NULL, COL_RED, gui_label_t::money),
-		warn("", COL_RED),
-		headquarter_view(sp->get_welt(), koord3d::invalid),
-		old_hq(koord::invalid)
+	warn("", COL_RED),
+	headquarter_view(sp->get_welt(), koord3d::invalid),
+	old_hq(koord::invalid)
 {
 	if(sp->get_welt()->gib_spieler(0)!=sp) {
 		sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(sp->gib_name()) );

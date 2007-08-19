@@ -58,6 +58,9 @@ sint64 umgebung_t::starting_money = 20000000;
 
 sint32 umgebung_t::maint_building = 500;
 
+uint8 umgebung_t::default_sortmode = 1;	// sort by amount
+sint8 umgebung_t::default_mapmode = 0;	// show cities
+
 /**
  * Use numbering for stations?
  *

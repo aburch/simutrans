@@ -54,7 +54,7 @@ int freight_list_sorter_t::compare_ware(const void *td1, const void *td2)
 		return index;
 	}
 	// then according to freight
-	index = ware1.gib_typ()->gib_index()-ware2.gib_typ()->gib_index();
+	index = ware1.gib_besch()->gib_index()-ware2.gib_besch()->gib_index();
 	if(index!=0) {
 		return index;
 	}
@@ -99,10 +99,10 @@ freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max,
 		buf.append("/");
 		buf.append(max);
 	}
-	buf.append(translator::translate(ware->gib_typ()->gib_mass()));
+	buf.append(translator::translate(ware->gib_besch()->gib_mass()));
 	buf.append(" ");
 	// special freight (catg==0) need own name
-	buf.append( translator::translate( ware->gib_catg()!=0 ? ware->gib_typ()->gib_catg_name() : ware->gib_typ()->gib_name() ));
+	buf.append( translator::translate( ware->gib_catg()!=0 ? ware->gib_besch()->gib_catg_name() : ware->gib_besch()->gib_name() ));
 	buf.append(" ");
 	buf.append(translator::translate(what_doing));
 	buf.append("\n");
@@ -125,7 +125,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 
 	for(unsigned i=0;  i<warray->get_count();  i++  ) {
 		const ware_t &ware = (*warray)[i];
-		if(ware.gib_typ()==warenbauer_t::nichts  ||  ware.menge==0) {
+		if(ware.gib_besch()==warenbauer_t::nichts  ||  ware.menge==0) {
 			continue;
 		}
 //DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i",pos);
@@ -137,7 +137,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 //DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i check connection",pos);
 			// only add it, if there is not another thing waiting with the same via but another destination
 			for( int i=0;  i<pos;  i++ ) {
-				if(tdlist[i].ware.gib_typ()==tdlist[pos].ware.gib_typ()  &&  tdlist[i].via_destination==tdlist[pos].via_destination  &&  tdlist[i].destination!=tdlist[i].via_destination) {
+				if(tdlist[i].ware.gib_index()==tdlist[pos].ware.gib_index()  &&  tdlist[i].via_destination==tdlist[pos].via_destination  &&  tdlist[i].destination!=tdlist[i].via_destination) {
 					tdlist[i].ware.menge += tdlist[pos--].ware.menge;
 					break;
 				}
@@ -167,13 +167,13 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			}
 
 			const ware_t& ware = tdlist[j].ware;
-			if(last_ware_index!=ware.gib_typ()->gib_index()  &&  last_ware_catg!=ware.gib_catg()) {
+			if(last_ware_index!=ware.gib_index()  &&  last_ware_catg!=ware.gib_catg()) {
 				sint32 sum = 0;
-				last_ware_index = ware.gib_typ()->gib_index();
+				last_ware_index = ware.gib_index();
 				last_ware_catg = (ware.gib_catg()!=0) ? ware.gib_catg() : -1;
 				for(int i=j;  i<pos;  i++  ) {
 					const ware_t& sumware = tdlist[i].ware;
-					if(last_ware_index!=sumware.gib_typ()->gib_index()) {
+					if(last_ware_index!=sumware.gib_index()) {
 						if(last_ware_catg!=sumware.gib_catg()) {
 							break;	// next category reached ...
 						}
@@ -193,7 +193,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 					while(list_finish  &&  (list_finish=full_iter.next())!=0) {
 
 						const ware_t& current = full_iter.get_current();
-						if(last_ware_index==current.gib_typ()->gib_index()  ||  last_ware_catg==current.gib_catg()) {
+						if(last_ware_index==current.gib_index()  ||  last_ware_catg==current.gib_catg()) {
 							add_ware_heading( buf, sum, current.menge, &current, what_doing );
 							break;
 						}
@@ -206,9 +206,9 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			// detail amount
 			buf.append("   ");
 			buf.append(ware.menge);
-			buf.append(translator::translate(ware.gib_typ()->gib_mass()));
+			buf.append(translator::translate(ware.gib_besch()->gib_mass()));
 			buf.append(" ");
-			buf.append(translator::translate(ware.gib_typ()->gib_name()));
+			buf.append(translator::translate(ware.gib_besch()->gib_name()));
 			buf.append(" > ");
 			// the target name is not correct for the via sort
 			if(sortby!=by_via_sum  ||  via_halt==halt  ) {

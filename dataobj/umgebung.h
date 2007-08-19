@@ -184,6 +184,12 @@ public:
 	*/
 	static sint32 maint_way;
 
+	// how to sort stations/convois
+	static uint8 default_sortmode;
+
+	// what is selected for maps
+	static sint8 default_mapmode;
+
 	/**
 	* Use numbering for stations?
 	*

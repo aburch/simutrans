@@ -686,8 +686,17 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		sound_set_midi_volume(midi_volume);
 
 		int i_shuffle_music=false;
-		fscanf(config, "SoundShuffle=%d\n", &i_shuffle_music );
+		fscanf(config, "SoundShuffle=%d,%*d\n", &i_shuffle_music );
 		sound_set_shuffle_midi( i_shuffle_music!=0 );
+
+		int map_mode=0;
+		fscanf(config, "MapMode=%d\n", &map_mode );
+		umgebung_t::default_mapmode = map_mode;
+
+		int sort_mode=0;
+		fscanf(config, "WareSortMode=%d\n", &sort_mode );
+		umgebung_t::default_sortmode = sort_mode;
+
 		fclose(config);
 	}
 
@@ -941,6 +950,8 @@ DBG_MESSAGE("init","map");
 		);
 		fprintf(config, "SoundMidiVolume=%d,%d\n", sound_get_global_volume(), sound_get_midi_volume() );
 		fprintf(config, "SoundShuffle=%d,%d\n", sound_get_shuffle_midi(), 0 );
+		fprintf(config, "MapMode=%d\n", umgebung_t::default_mapmode );
+		fprintf(config, "WareSortMode=%d\n", umgebung_t::default_sortmode );
 		fclose(config);
 	}
 

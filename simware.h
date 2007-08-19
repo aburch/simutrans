@@ -51,7 +51,7 @@ public:
 	void setze_zwischenziel(halthandle_t zwischenziel) { this->zwischenziel = zwischenziel; }
 
 	koord gib_zielpos() const { return zielpos; }
-	void setze_zielpos(koord zielpos) { this->zielpos = zielpos; }
+	void setze_zielpos(const koord zielpos) { this->zielpos = zielpos; }
 
 	ware_t();
 	ware_t(const ware_besch_t *typ);
@@ -61,14 +61,14 @@ public:
 	 * gibt den nicht-uebersetzten warennamen zurück
 	 * @author Hj. Malthaner
 	 */
-	const char *gib_name() const { return gib_typ()->gib_name(); }
-	const char *gib_mass() const { return gib_typ()->gib_mass(); }
-	uint16 gib_preis() const { return gib_typ()->gib_preis(); }
-	uint8 gib_catg() const { return gib_typ()->gib_catg(); }
+	const char *gib_name() const { return gib_besch()->gib_name(); }
+	const char *gib_mass() const { return gib_besch()->gib_mass(); }
+	uint16 gib_preis() const { return gib_besch()->gib_preis(); }
+	uint8 gib_catg() const { return gib_besch()->gib_catg(); }
 	uint8 gib_index() const { return index; }
 
-	const ware_besch_t* gib_typ() const { return index_to_besch[index]; }
-	void setze_typ(const ware_besch_t* type);
+	const ware_besch_t* gib_besch() const { return index_to_besch[index]; }
+	void setze_besch(const ware_besch_t* type);
 
 	void rdwr(karte_t *welt,loadsave_t *file);
 

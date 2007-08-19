@@ -132,16 +132,16 @@ public:
 		node_count = 0;
 	}
 
-  ~slist_tpl()
-  {
-      clear();
-  }
+	~slist_tpl()
+	{
+		clear();
+	}
 
-  /**
-   * Inserts an element at the beginning of the list.
-   *
-   * @author Hj. Malthaner
-   */
+	/**
+	 * Inserts an element at the beginning of the list.
+	 *
+	 * @author Hj. Malthaner
+	 */
 	void insert(const T& data)
 	{
 		node_t* tmp = new node_t(data, head);
@@ -150,13 +150,13 @@ public:
 		node_count++;
 	}
 
-  /**
-   * Appends an element to the end of the list.
-   *
-   * @author Hj. Malthaner
-   */
-  void append(const T& data)
-  {
+	/**
+	 * Appends an element to the end of the list.
+	 *
+	 * @author Hj. Malthaner
+	 */
+	void append(const T& data)
+	{
 		if (tail == 0) {
 			insert(data);
 		} else {
@@ -165,15 +165,15 @@ public:
 			tail = tmp;
 			node_count++;
 		}
-  }
+	}
 
-  /**
-   * Checks if the given element is already contained in the list.
-   *
-   * @author Hj. Malthaner
-   */
-  bool contains(const T data) const
-  {
+	/**
+	 * Checks if the given element is already contained in the list.
+	 *
+	 * @author Hj. Malthaner
+	 */
+	bool contains(const T data) const
+	{
 		node_t *p = head;
 
 		while(p != 0 && p->data != data) {
@@ -341,7 +341,7 @@ public:
 			index++;
 		}
 		return t ? index : -1;
-  }
+	}
 };
 
 

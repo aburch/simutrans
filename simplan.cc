@@ -222,6 +222,11 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 			neu->set_flag(grund_t::has_text);
 			alt->clear_flag(grund_t::has_text);
 		}
+		// transfer all objects
+		while(  alt->gib_top()>0  ) {
+			neu->obj_add( alt->obj_remove_top() );
+		}
+		// delete old ground
 		delete alt;
 	}
 }

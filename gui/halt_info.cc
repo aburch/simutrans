@@ -16,7 +16,7 @@
 #include "../simskin.h"
 #include "../utils/simstring.h"
 #include "../freight_list_sorter.h"
-
+#include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 #include "components/list_button.h"
 #include "../besch/skin_besch.h"
@@ -63,17 +63,18 @@ const int cost_type_color[MAX_HALT_COST] =
 };
 
 halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
- : gui_frame_t(edit_name, halt->gib_besitzer()),
-  scrolly(&text),
-  text("                                                                                     "
-       " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-       " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-      ),
-  sort_label(translator::translate("Hier warten/lagern:")),
-   view(welt, halt->gib_basis_pos3d()),
-   freight_info(16384)
+	: gui_frame_t(edit_name, halt->gib_besitzer()),
+		scrolly(&text),
+		text("                                                                                     "
+			" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
+			" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
+		),
+		sort_label(translator::translate("Hier warten/lagern:")),
+		view(welt, halt->gib_basis_pos3d()),
+		freight_info(16384)
 {
 	this->halt = halt;
+	halt->set_sortby( umgebung_t::default_sortmode );
 
 	input.setze_pos(koord(11,4));
 	tstrncpy(edit_name, halt->gib_name(), lengthof(edit_name));
@@ -84,7 +85,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	// hsiegeln: added sort_button
 	sort_button.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	sort_button.setze_pos(koord(BUTTON1_X, 78));
-	sort_button.setze_text("Zielort");
+	sort_button.setze_text(sort_text[umgebung_t::default_sortmode]);
 	sort_button.setze_typ(button_t::roundbox);
 	sort_button.set_tooltip("Sort waiting list by");
 
@@ -238,9 +239,9 @@ bool halt_info_t::action_triggered(gui_komponente_t *comp,value_t /* */)
 	if (comp == &button) { 			// details button pressed
 		create_win(-1, -1, new halt_detail_t(halt), w_autodelete);
 	} else if (comp == &sort_button) { 	// @author hsiegeln sort button pressed
-		int sortby = ((int)(halt->get_sortby())+1)%4;
-		halt->set_sortby((freight_list_sorter_t::sort_mode_t) sortby);
-		sort_button.setze_text(sort_text[sortby]);
+		umgebung_t::default_sortmode = ((int)(halt->get_sortby())+1)%4;
+		halt->set_sortby((freight_list_sorter_t::sort_mode_t) umgebung_t::default_sortmode);
+		sort_button.setze_text(sort_text[umgebung_t::default_sortmode]);
 	} else  if (comp == &toggler) {
 		toggler.pressed ^= 1;
 		const koord offset = toggler.pressed ? koord(0, 165) : koord(0, -165);

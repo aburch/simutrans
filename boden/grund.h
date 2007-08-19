@@ -43,6 +43,7 @@ class roadsign_t;
 class senke_t;
 class signal_t;
 class stadtauto_t;
+class automobil_t;
 class tunnel_t;
 class wayobj_t;
 class zeiger_t;
@@ -62,6 +63,7 @@ template<> struct map_ding<roadsign_t>    { static const ding_t::typ code = ding
 template<> struct map_ding<senke_t>       { static const ding_t::typ code = ding_t::senke;       };
 template<> struct map_ding<signal_t>      { static const ding_t::typ code = ding_t::signal;      };
 template<> struct map_ding<stadtauto_t>   { static const ding_t::typ code = ding_t::verkehr;     };
+template<> struct map_ding<automobil_t>   { static const ding_t::typ code = ding_t::automobil;   };
 template<> struct map_ding<tunnel_t>      { static const ding_t::typ code = ding_t::tunnel;      };
 template<> struct map_ding<wayobj_t>      { static const ding_t::typ code = ding_t::wayobj;      };
 template<> struct map_ding<zeiger_t>      { static const ding_t::typ code = ding_t::zeiger;      };
