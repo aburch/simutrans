@@ -5,8 +5,9 @@
 	CHANGE: if the stop of a factory is overcrowded and there is no goods waiting for a destination while there are some for other destination of this factory, the overflowing amount is rerouted. This avoids situations where nothing was delivered to a waiting convoi because a station was overflow and thus this convoi blocked everything. Now it will be gradually loaded.
 	FIX: vehicle position was wrong after visit to depot => such convois will be vanish after reloading, sorry
 	CHANGE: sort order for convois and halt match as default; also last setting is saved
-	CHANGE: selection of map buttons is saved^
+	CHANGE: selection of map buttons is saved
 	FIX: hausbauer now handles building deletion => complete deletion of stops and factories, even non-continuoius and connected
+	FIX: pax_transported, pax_erzeugt was not saved
 
 
 Release of 99.14
