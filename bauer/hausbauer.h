@@ -143,7 +143,7 @@ class hausbauer_t
 		/* use this to remove an arbitary building
 		 * it will also take care of factories and foundations
 		 */
-		static void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb );
+		static void remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb );
 
 		/* Main function for all non-traffic buildings, including factories
 		 * building size can be larger than 1x1
