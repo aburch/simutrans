@@ -9,6 +9,7 @@
 	FIX: hausbauer now handles building deletion => complete deletion of stops and factories, even non-continuoius and connected
 	FIX: pax_transported, pax_erzeugt was not saved
 	FIX (z9999): tree density setting form uint8 to uint16
+	FIX: empty schedule during loading for convois in depot => crash
 
 
 Release of 99.14

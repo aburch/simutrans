@@ -749,7 +749,7 @@ convoi_t::betrete_depot(depot_t *dep)
 		}
 	}
 
-	dep->convoi_arrived(self, true);
+	dep->convoi_arrived(self, self->gib_fahrplan()!=0);
 
 	if(convoi_info) {
 		//  V.Meyer: destroy convoi info when entering the depot
@@ -1196,24 +1196,9 @@ convoi_t::vorfahren()
 
 			grund_t* gr = welt->lookup(v->gib_pos());
 			if(gr) {
-				// remove from blockstrecke
-				if (v->gib_waytype() == track_wt || v->gib_waytype() == monorail_wt) {
-					schiene_t* sch = (schiene_t*)gr->gib_weg(v->gib_waytype());
-					if(sch) {
-						sch->unreserve(self);
-					}
-				}
 				v->verlasse_feld();
 			}
 			v->neue_fahrt(0, true);
-			// add to blockstrecke
-			if (v->gib_waytype() == track_wt || v->gib_waytype() == monorail_wt) {
-				schiene_t* sch = (schiene_t*)gr->gib_weg(v->gib_waytype());
-				if(sch) {
-					sch->reserve(self);
-				}
-			}
-			v->setze_pos(k0);
 			v->betrete_feld();
 		}
 
