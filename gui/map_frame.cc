@@ -195,7 +195,6 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 bool
 map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
-	bool all_inactive=true;
 	reliefkarte_t::gib_karte()->calc_map();
 
 	if(komp==&b_show_legend) {
@@ -275,9 +274,6 @@ map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		reliefkarte_t::gib_karte()->set_mode((reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode);
 		for (int i=0;i<MAX_BUTTON_TYPE;i++) {
 			filter_buttons[i].pressed = i==umgebung_t::default_mapmode;
-		}
-		if(all_inactive) {
-			reliefkarte_t::gib_karte()->set_mode(reliefkarte_t::PLAIN);
 		}
 	}
 	return true;
