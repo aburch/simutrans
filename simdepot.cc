@@ -145,7 +145,7 @@ depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 	if(depot_info) {
 		depot_info->action_triggered(NULL,(long int)0);
 	}
-
+	acnv->set_home_depot( gib_pos() );
 	DBG_MESSAGE("depot_t::convoi_arrived()", "convoi %d, %p entered depot", acnv.get_id(), acnv.get_rep());
 }
 

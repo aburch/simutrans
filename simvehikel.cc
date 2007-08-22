@@ -1773,14 +1773,14 @@ waggon_t::setze_convoi(convoi_t *c)
 		if(ist_erstes) {
 			if(cnv!=NULL  &&  cnv!=(convoi_t *)1) {
 				// free route from old convoi
-				if(route_index<cnv->get_route()->gib_max_n()+1) {
+				if(route_index<cnv->get_route()->gib_max_n()-1) {
 					block_reserver( cnv->get_route(), cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->gib_route_index(), 1000, false );
 					target_halt = halthandle_t();
 				}
 			}
 			else {
 				// eventually reserve new route
-				if(c  &&  c->get_state()==convoi_t::DRIVING) {
+				if(c  &&  c->get_state()==convoi_t::DRIVING  || c->get_state()==convoi_t::LEAVING_DEPOT  ) {
 DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_route(),route_index);
 					long num_index = cnv==(convoi_t *)1 ? 1001 : 0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
 					// rereserve next block, if needed
@@ -1827,7 +1827,7 @@ DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_rou
 // need to reset halt reservation (if there was one)
 bool waggon_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
 {
-	if(ist_erstes  &&  route_index<cnv->get_route()->gib_max_n()) {
+	if(ist_erstes  &&  route_index<cnv->get_route()->gib_max_n()+1) {
 		// free all reserved blocks
 		block_reserver( cnv->get_route(), cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->gib_route_index(), target_halt.is_bound()?1000:1, false );
 	}
@@ -2153,7 +2153,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 		return 0;
 	}
 
-	if(route->position_bei(start_index)==gib_pos()) {
+	if(route->position_bei(start_index)==gib_pos()  &&  reserve) {
 		start_index++;
 	}
 
@@ -2253,7 +2253,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 	if(next_signal_index==65535) {
 		// find out if stop or waypoint, waypoint: do not brake at waypoints
 		grund_t *gr=welt->lookup(route->position_bei(route->gib_max_n()));
-		return (gr  &&  gr->is_halt()) ? route->gib_max_n() : 65535;
+		return (gr  &&  gr->is_halt()) ? route->gib_max_n()+1 : 65535;
 	}
 	return next_signal_index+1;
 }

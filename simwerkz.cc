@@ -431,7 +431,10 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->gib_pos().x, 
 						return false;
 					}
 				}
-				hausbauer_t::remove( welt, sp, gb );
+				else {
+					// townhall is also removed during town removal
+					hausbauer_t::remove( welt, sp, gb );
+				}
 			}
 			return true;
 		}
