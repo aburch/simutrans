@@ -209,7 +209,6 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 		tabs.add_tab(&scrolly_waggons, depot->gib_haenger_name());
 	}
 
-
 	pas.set_player_nr(depot->get_player_nr());
 	pas.add_listener(this);
 
@@ -569,7 +568,7 @@ void depot_frame_t::build_vehicle_lists()
 
 	const int month_now = get_welt()->get_timeline_year_month();
 
-	if (pas_vec.empty() && loks_vec.empty() && waggons_vec.empty()) {
+	if (pas_vec.empty()  &&  loks_vec.empty()  &&  waggons_vec.empty()) {
 		int loks = 0, waggons = 0, pax=0;
 		slist_iterator_tpl<const vehikel_besch_t*> vehinfo(depot->get_vehicle_type());
 		while (vehinfo.next()) {
@@ -804,10 +803,7 @@ void depot_frame_t::update_data()
 }
 
 
-
-
-sint32
-depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
+sint32 depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 {
 	sint32 wert = 0;
 
@@ -841,8 +837,7 @@ vehikel_t* depot_frame_t::find_oldest_newest(const vehikel_besch_t* besch, bool 
 
 
 
-void
-depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data)
+void depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data)
 {
 	if(bild_data->lcolor != COL_RED && bild_data->rcolor != COL_RED) {
 		// we buy/sell all vehicles together!
@@ -955,8 +950,7 @@ void depot_frame_t::image_from_convoi_list(uint nr)
 
 
 
-bool
-depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
+bool depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 {
 	convoihandle_t cnv = depot->get_convoi(icnv);
 	if(cnv.is_bound()) {

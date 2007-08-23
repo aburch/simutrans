@@ -14,6 +14,7 @@
 #include "../boden/fundament.h"
 #include "../dataobj/translator.h"
 #include "../dings/zeiger.h"
+#include "../dings/leitung2.h"
 #include "../gui/karte.h"
 #include "../gui/werkzeug_parameter_waehler.h"
 #include "../simdebug.h"
@@ -256,7 +257,44 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 					}
 				}
 			}
-
+			// remove all transformers
+			for(k.y = pos.y; k.y < pos.y+size.y;  k.y ++) {
+				k.x = pos.x-1;
+				grund_t *gr = welt->lookup_kartenboden(k);
+				if(gr) {
+					senke_t *sk = gr->find<senke_t>();
+					if(sk) delete sk;
+					pumpe_t *pp = gr->find<pumpe_t>();
+					if(pp) delete pp;
+				}
+				k.x = pos.x+size.x;
+				gr = welt->lookup_kartenboden(k);
+				if(gr) {
+					senke_t *sk = gr->find<senke_t>();
+					if(sk) delete sk;
+					pumpe_t *pp = gr->find<pumpe_t>();
+					if(pp) delete pp;
+				}
+			}
+			for(k.x = pos.x; k.x < pos.x+size.x;  k.x ++) {
+				k.y = pos.y-1;
+				grund_t *gr = welt->lookup_kartenboden(k);
+				if(gr) {
+					senke_t *sk = gr->find<senke_t>();
+					if(sk) delete sk;
+					pumpe_t *pp = gr->find<pumpe_t>();
+					if(pp) delete pp;
+				}
+				k.y = pos.y+size.y;
+				gr = welt->lookup_kartenboden(k);
+				if(gr) {
+					senke_t *sk = gr->find<senke_t>();
+					if(sk) delete sk;
+					pumpe_t *pp = gr->find<pumpe_t>();
+					if(pp) delete pp;
+				}
+			}
+			// end clean up transformers
 		}
 		welt->rem_fab(fab);
 	}
