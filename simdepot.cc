@@ -137,8 +137,15 @@ depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 		}
 		// Volker: remove depot from schedule
 		fahrplan_t *fpl = acnv->gib_fahrplan();
-		fpl->remove();
-		acnv->setze_fahrplan(fpl);
+		for(  int i=0;  i<fpl->maxi();  i++  ) {
+			// only if convoi found
+			if(fpl->eintrag[i].pos==gib_pos()) {
+				fpl->aktuell = i;
+				fpl->remove();
+				acnv->setze_fahrplan(fpl);
+				break;
+			}
+		}
 	}
 	// this part stores the covoi in the depot
 	convois.append(acnv);

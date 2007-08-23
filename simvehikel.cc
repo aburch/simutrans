@@ -1415,7 +1415,11 @@ bool
 automobil_t::ist_befahrbar(const grund_t *bd) const
 {
 	strasse_t *str=(strasse_t *)bd->gib_weg(road_wt);
-	if(str==NULL  ||  ((cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type()==vehikel_besch_t::electric)  &&  !str->is_electrified()) ) {
+	if(str==NULL) {
+		return false;
+	}
+	bool electric = cnv!=NULL  ?  cnv->needs_electrification() : besch->get_engine_type()==vehikel_besch_t::electric;
+	if(electric  &&  !str->is_electrified()) {
 		return false;
 	}
 	// check for signs
@@ -1648,7 +1652,7 @@ automobil_t::betrete_feld()
 	vehikel_t::betrete_feld();
 
 	const int cargo = gib_fracht_menge();
-	weg_t *str=welt->lookup( gib_pos() )->gib_weg(road_wt);
+	weg_t *str = welt->lookup( gib_pos() )->gib_weg(road_wt);
 	str->book(cargo, WAY_STAT_GOODS);
 	if (ist_erstes)  {
 		str->book(1, WAY_STAT_CONVOIS);

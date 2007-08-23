@@ -410,9 +410,6 @@ bool convoi_t::sync_step(long delta_t)
 
 		case LEAVING_DEPOT:
 			{
-				// we must avoid stops of the incomplete train => switch of signal checks!
-				fahr[0]->setze_erstes(false);
-
 				// ok, so we will accelerate
 				akt_speed_soll = max( akt_speed_soll, kmh_to_speed(30) );
 				calc_acceleration(delta_t);
@@ -424,7 +421,6 @@ bool convoi_t::sync_step(long delta_t)
 					int v_nr = get_vehicle_at_length(steps_driven++);
 					// until all are moving
 					if(v_nr==anz_vehikel) {
-						fahr[0]->setze_erstes(true);
 						steps_driven = -1;
 						state = DRIVING;
 						return true;
@@ -437,7 +433,6 @@ bool convoi_t::sync_step(long delta_t)
 				}
 				// go to next stop?
 				if(fahr[0]->gib_route_index()>=route.gib_max_n()) {
-					fahr[0]->setze_erstes(true);
 					drive_to_next_stop();
 					state = ROUTING_2;
 				}
@@ -621,7 +616,7 @@ void convoi_t::step()
 				int restart_speed=-1;
 				if (v->ist_weg_frei(restart_speed)) {
 					// can reserve new block => drive on
-					state = (steps_driven==0) ? LEAVING_DEPOT : DRIVING;
+					state = (steps_driven>=0) ? LEAVING_DEPOT : DRIVING;
 					if(haltestelle_t::gib_halt(welt,v->gib_pos()).is_bound()) {
 						v->play_sound();
 					}
@@ -645,7 +640,7 @@ void convoi_t::step()
 			{
 				int restart_speed=-1;
 				if (fahr[0]->ist_weg_frei(restart_speed)) {
-					state = DRIVING;
+					state = (steps_driven>=0) ? LEAVING_DEPOT : DRIVING;
 				}
 				if(restart_speed>=0) {
 					akt_speed = restart_speed;
@@ -773,7 +768,7 @@ void convoi_t::start()
 
 		// set home depot to location of depot convoi is leaving
 		if(route.gib_max_n()>0) {
-			route.position_bei(0);
+			home_depot = route.position_bei(0);
 			fahr[0]->setze_pos( home_depot );
 		}
 		else {
