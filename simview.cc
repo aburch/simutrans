@@ -167,7 +167,6 @@ karte_ansicht_t::display(bool force_dirty)
 			}
 		}
 	}
-	// finally display the maus pointer
 	ding_t *zeiger = welt->gib_zeiger();
 	if(zeiger) {
 		// better not try to twist your brain to follow the retransformation ...
@@ -175,7 +174,7 @@ karte_ansicht_t::display(bool force_dirty)
 		const koord diff = zeiger->gib_pos().gib_2d()-welt->get_world_position()-welt->gib_ansicht_ij_offset();
 		const sint16 x = (diff.x-diff.y)*(rasterweite/2) + tile_raster_scale_x(zeiger->gib_xoff(), rasterweite);
 		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( zeiger->gib_yoff()-zeiger->gib_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4);
-		zeiger->display( x+welt->gib_x_off(), y+welt->gib_y_off(), true);
+		zeiger->display( x+welt->gib_x_off(), y+welt->gib_y_off(), true );
 		zeiger->clear_flag(ding_t::dirty);
 	}
 

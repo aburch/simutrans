@@ -192,6 +192,20 @@ void
 gebaeude_t::setze_tile(const haus_tile_besch_t *new_tile)
 {
 	insta_zeit = welt->gib_zeit_ms();
+
+	if(!zeige_baugrube  &&  tile!=NULL) {
+		// mark old tile dirty
+		sint16 ypos = 0;
+		for(  int i=0;  i<256;  i++  ) {
+			image_id bild = gib_bild(i);
+			if(bild==IMG_LEER) {
+				break;
+			}
+			mark_image_dirty( bild, 0 );
+			ypos -= get_tile_raster_width();
+		}
+	}
+
 	zeige_baugrube = !new_tile->gib_besch()->ist_ohne_grube();
 	if(sync) {
 		if(new_tile->gib_phasen()<=1  &&  !zeige_baugrube) {

@@ -437,7 +437,11 @@ baum_t::check_season(long month)
 		geburt = geburt-1;
 	}
 	// tree will die after 704 month (i.e. 58 years 8 month)
-	return alter<704;
+	if(alter>=704) {
+		mark_image_dirty( gib_bild(), 0 );
+		return false;
+	}
+	return true;
 }
 
 
@@ -512,6 +516,7 @@ baum_t::entferne(spieler_t *sp)
 	if(sp != NULL) {
 		sp->buche(umgebung_t::cst_remove_tree, gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
+	mark_image_dirty( gib_bild(), 0 );
 }
 
 
