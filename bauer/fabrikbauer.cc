@@ -36,6 +36,29 @@
 // radius for checking places for construction
 #define DISTANCE 40
 
+// all factories and their exclusion areas
+static uint8 *fab_map=NULL;
+
+
+
+// marks factories with exclusion region in the position map
+static void add_factory_to_fab_map( karte_t *welt, const fabrik_t *fab )
+{
+	sint16 start_y = max( 0, fab->gib_pos().y-umgebung_t::factory_spacing );
+	const sint16 end_y = min( welt->gib_groesse_y()-1, fab->gib_pos().y+fab->gib_besch()->gib_haus()->gib_h(fab->get_rotate())+umgebung_t::factory_spacing );
+	const sint16 ww = (welt->gib_groesse_x()+7)/8;
+	const sint16 start_x = max( 0, fab->gib_pos().x-umgebung_t::factory_spacing );
+	const sint16 end_x = min( welt->gib_groesse_x()-1, fab->gib_pos().x+fab->gib_besch()->gib_haus()->gib_b(fab->get_rotate())+umgebung_t::factory_spacing );
+	while(start_y<end_y) {
+		for(  sint16 x=start_x;  x<end_x;  x++  ) {
+			fab_map[ww*start_y+(x/8)] |= 1<<(x%8);
+		}
+		start_y ++;
+	}
+}
+
+
+
 
 /**
  * bauplatz_mit_strasse_sucher_t:
@@ -47,37 +70,26 @@
 class factory_bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t  {
 
 public:
-	factory_bauplatz_mit_strasse_sucher_t(karte_t *welt) : bauplatz_sucher_t (welt) {}
-
-	// get distance to next factory
-	int find_dist_next_factory(koord pos) const {
-		const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
-		slist_iterator_tpl <fabrik_t *> iter (list);
-		int dist = welt->gib_groesse_x()+welt->gib_groesse_y();
-		while(iter.next()) {
-			fabrik_t * fab = iter.get_current();
-			int d = koord_distance(fab->gib_pos(),pos);
-			if(d<dist) {
-				dist = d;
-			}
-		}
-//DBG_DEBUG("bauplatz_mit_strasse_sucher_t::find_dist_next_factory()","returns %i",dist);
-		return dist;
-	}
+	factory_bauplatz_mit_strasse_sucher_t(karte_t *welt) : bauplatz_sucher_t(welt) {}
 
 	bool strasse_bei(sint16 x, sint16 y) const {
-		grund_t *bd = welt->lookup(koord(x, y))->gib_kartenboden();
+		grund_t *bd = welt->lookup_kartenboden( koord(x,y) );
 		return bd && bd->hat_weg(road_wt);
 	}
 
 	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
 		if(bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)) {
 			// try to built a little away from previous factory
-			if(find_dist_next_factory(pos) < (umgebung_t::station_coverage_size*2)+b+h) {
-				return false;
+			const sint16 ww = (welt->gib_groesse_x()+7)/8;
+			for(sint16 y=pos.y;  y<pos.y+h;  y++  ) {
+				for(sint16 x=pos.x;  x<pos.x+b;  x++  ) {
+					if(  fab_map[ww*y+(x/8)]&(1<<(x%8)) != 0  ) {
+						return false;
+					}
+				}
 			}
-			int i, j;
 			// check to not built on a road
+			int i, j;
 			for(j=pos.x; j<pos.x+b; j++) {
 				for(i=pos.y; i<pos.y+h; i++) {
 					if(strasse_bei(j,i)) {
@@ -242,15 +254,38 @@ fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const in
 	array_tpl<koord3d> list(4*radius*radius);
 	int index = 0;
 	koord k;
+	bool	is_fabrik = besch->gib_utyp()==haus_besch_t::fabrik;
+
+	if(is_fabrik) {
+		// new world started => needs reyize
+		if(welt->gib_fab_list().count()==0  &&  fab_map)  {
+			delete [] fab_map;
+			fab_map = NULL;
+		}
+
+		// create map with all factories and exclusion area
+		if(fab_map==NULL) {
+			fab_map = new uint8[ ((welt->gib_groesse_x()+7)/8)*welt->gib_groesse_y() ];
+			memset( fab_map, 0, ((welt->gib_groesse_x()+7)/8)*welt->gib_groesse_y() );
+			const slist_tpl<fabrik_t *> &list = welt->gib_fab_list();
+			slist_iterator_tpl <fabrik_t *> iter(list);
+			while(iter.next()) {
+				add_factory_to_fab_map( welt, iter.get_current() );
+			}
+		}
+	}
 
 	if(wasser) {
 		groesse += koord(6,6);
 	}
 	// assert(radius <= 32);
-
+	const sint16 ww = (welt->gib_groesse_x()+7)/8;
 	for(k.y=pos.y-radius; k.y<=pos.y+radius; k.y++) {
 		for(k.x=pos.x-radius; k.x<=pos.x+radius; k.x++) {
 			// climate check
+			if(is_fabrik  &&  (fab_map[ww*k.y+(k.x/8)]&(1<<(k.x%8)))!=0) {
+				continue;
+			}
 			if(fabrik_t::ist_bauplatz(welt, k, groesse,wasser,besch->get_allowed_climate_bits())) {
 				list[index++] = welt->lookup(k)->gib_kartenboden()->gib_pos();
 				// nicht gleich daneben nochmal suchen
@@ -376,6 +411,7 @@ static fabrik_t* baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_
 	// now built factory
 	fab->baue(rotate, true);
 	welt->add_fab(fab);
+	add_factory_to_fab_map( welt, fab );
 
 	// make all water station
 	if(info->gib_platzierung() == fabrik_besch_t::Wasser) {

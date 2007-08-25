@@ -261,6 +261,8 @@ public:
 	/* prissi: do autosave every month? */
 	static int autosave;
 
+	static sint16 factory_spacing;
+
 	/* prissi: crossconnect all factories (like OTTD and similar games) */
 	static bool crossconnect_factories;
 

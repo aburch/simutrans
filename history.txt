@@ -11,6 +11,7 @@
 	FIX (z9999): tree density setting form uint8 to uint16
 	FIX: empty schedule during loading for convois in depot => crash
 	FIX: signal and missing roads where overlooked when leaving depots
+	ADD: minimum factory distances more stongly enforced. Configurable via simuconf.tab (factory_spacing, default 6)
 
 
 Release of 99.14

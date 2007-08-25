@@ -250,6 +250,8 @@ public:
 	 */
 	void baue(sint32 rotate, bool clear);
 
+	sint16 get_rotate() const { return rotate; }
+
 	/* field generation code
 	 * spawns a field for sure if probability>=1000
 	 * @author Kieron Green

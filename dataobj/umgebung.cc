@@ -130,6 +130,9 @@ bool umgebung_t::crossconnect_factories=false;
 sint16 umgebung_t::crossconnect_factor=33;
 #endif
 
+/* minimum spacing between two factories */
+sint16 umgebung_t::factory_spacing = 6;
+
 /* prissi: do not distribute goods to overflowing factories */
 bool umgebung_t::just_in_time=true;
 

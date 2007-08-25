@@ -1943,7 +1943,7 @@ void spieler_t::do_ki()
 					if(fab->gib_besch()->gib_produkte()==0  &&  fab->get_status()!=fabrik_t::bad) {
 						int missing = get_factory_tree_missing_count( fab );
 						if(missing>0) {
-							start_fabs.append( fab, 100/(missing+1)+1 );
+							start_fabs.append( fab, 100/(missing+1)+1, 20 );
 						}
 					}
 				}
