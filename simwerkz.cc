@@ -1200,7 +1200,7 @@ wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 						msg = "Tile not empty.";
 						break;
 					}
-					else if (i != 0 && (!gr->ist_wasser() || gr->find<gebaeude_t>() || gr->gib_depot() || gr->is_halt())) {
+					else if (i!=0  &&  (!gr->ist_wasser() || gr->find<gebaeude_t>() || gr->gib_depot() || gr->is_halt())) {
 						msg = "Tile not empty.";
 						break;
 					}

@@ -24,11 +24,11 @@ public:
 		long time;
 	};
 
-	enum msg_typ {general=0, ai=1, city=2, convoi=3, industry=4, tourist=5, new_vehicle=6, full=7, problems=8 };
+	enum msg_typ {general=0, ai=1, city=2, convoi=3, industry=4, tourist=5, new_vehicle=6, full=7, problems=8, warnings=9 };
 
 	void add_message( const char *text, koord pos, msg_typ where, uint8 color=COL_BLACK, image_id bild=IMG_LEER );
 
-    static message_t * get_instance();
+	static message_t * get_instance();
 
 	int gib_count() const;
 

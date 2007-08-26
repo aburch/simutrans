@@ -1326,7 +1326,7 @@ bool spieler_t::find_harbour(koord &start, koord &size, koord target)
 	for(  k.y=shore.y-5;  k.y<shore.y+6; k.y++  ) {
 		for(  k.x=shore.x-5;  k.x<shore.x+6; k.x++  ) {
 			grund_t *gr = welt->lookup_kartenboden(k);
-			if(gr  &&  gr->gib_grund_hang()!=0  &&  hang_t::ist_wegbar(gr->gib_grund_hang())  &&  gr->ist_natur()  &&  gr->gib_hoehe()==welt->gib_grundwasser()) {
+			if(gr  &&  gr->gib_grund_hang()!=0  &&  hang_t::ist_wegbar(gr->gib_grund_hang())  &&  gr->ist_natur()  &&  gr->gib_hoehe()==welt->gib_grundwasser()  &&  !gr->is_halt()) {
 				koord zv = koord(gr->gib_grund_hang());
 				koord dir[2] = { zv, koord(zv.y,zv.x) };
 				koord platz = k+zv;

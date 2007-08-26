@@ -52,7 +52,7 @@ DBG_MESSAGE("message_t::message_t()","previous instance %p");
 	ignore_flags = 0;
 	if(w) {
 		win_flags = 256+8;
-		auto_win_flags = 128;
+		auto_win_flags = 128+512;
 	}
 }
 
@@ -121,10 +121,10 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 		colorval = PLAYER_FLAG|(welt->gib_spieler(color)->get_player_color1()+0);
 	}
 
-      // should we send this message to a ticker? (always done)
-      if(art&ticker_flags) {
+	// should we send this message to a ticker? (always done)
+	if(art&ticker_flags) {
 		ticker::add_msg(text, pos, colorval);
-      }
+	}
 
 	// we will not add messages two times to the list if it was within the last 20 messages or within last three months
 	sint32 now = welt->get_current_month()-2;
@@ -141,7 +141,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	}
 
 	// we do not allow messages larger than 256 bytes
-      node n;
+	node n;
 
 	tstrncpy(n.msg, text, lengthof(n.msg));
 	n.pos = pos;
@@ -153,7 +153,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	list.insert(n);
 	char* p = list.front().msg;
 	// should we open an autoclose windows?
-	if (art & auto_win_flags) {
+	if(art & auto_win_flags) {
 		news_window* news;
 		if (pos == koord::invalid) {
 			news = new news_img(p, bild, colorval);

@@ -7,12 +7,13 @@
 #include "components/gui_textarea.h"
 #include "components/gui_image.h"
 
+#define MAX_MESSAGE_TYP (10)
 
 class message_option_t : public gui_frame_t, private action_listener_t
 {
 private:
     gui_textarea_t text_label;
-    button_t buttons[3*9];
+    button_t buttons[3*MAX_MESSAGE_TYP];
     gui_image_t legend;
     int ticker_msg, window_msg, auto_msg, ignore_msg;
 

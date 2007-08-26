@@ -281,7 +281,12 @@ fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const in
 	// assert(radius <= 32);
 	const sint16 ww = (welt->gib_groesse_x()+7)/8;
 	for(k.y=pos.y-radius; k.y<=pos.y+radius; k.y++) {
+		if(k.y<0) continue;
+		if(k.y>=welt->gib_groesse_y()) break;
+
 		for(k.x=pos.x-radius; k.x<=pos.x+radius; k.x++) {
+			if(k.x<0) continue;
+			if(k.x>=welt->gib_groesse_x()) break;
 			// climate check
 			if(is_fabrik  &&  (fab_map[ww*k.y+(k.x/8)]&(1<<(k.x%8)))!=0) {
 				continue;

@@ -12,6 +12,7 @@
 	FIX: empty schedule during loading for convois in depot => crash
 	FIX: signal and missing roads where overlooked when leaving depots
 	ADD: minimum factory distances more stongly enforced. Configurable via simuconf.tab (factory_spacing, default 6)
+	ADD: new message category for warnings (like name of new player or traffic jams)
 
 
 Release of 99.14

@@ -3141,7 +3141,7 @@ void karte_t::switch_active_player(uint8 new_player)
 		active_player = spieler[new_player];
 		char buf[512];
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->gib_name() );
-		message_t::get_instance()->add_message(buf, koord::invalid, message_t::problems, get_active_player()->get_player_nr(), IMG_LEER);
+		message_t::get_instance()->add_message(buf, koord::invalid, message_t::warnings, get_active_player()->get_player_nr(), IMG_LEER);
 	}
 	// open edit tools
 	if(active_player_nr==1) {

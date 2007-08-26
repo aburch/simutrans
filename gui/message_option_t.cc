@@ -30,7 +30,7 @@ message_option_t::message_option_t() :
 
 	message_t::get_instance()->get_flags( &ticker_msg, &window_msg, &auto_msg, &ignore_msg );
 
-	for(int i=0; i<9; i++) {
+	for(int i=0; i<MAX_MESSAGE_TYP; i++) {
 		buttons[i*3].pos = koord(120,18+i*2*LINESPACE);
 		buttons[i*3].setze_typ(button_t::square_state);
 		buttons[i*3].pressed = (ticker_msg>>i)&1;
@@ -49,7 +49,7 @@ message_option_t::message_option_t() :
 		buttons[i*3+2].add_listener(this);
 		add_komponente( buttons+i*3+2 );
 	}
-	setze_fenstergroesse( koord(180, 230) );
+	setze_fenstergroesse( koord(180, 248) );
 }
 
 
@@ -58,7 +58,7 @@ bool
 message_option_t::action_triggered(gui_komponente_t *komp, value_t )
 {
 	((button_t*)komp)->pressed ^= 1;
-	for(int i=0; i<9; i++) {
+	for(int i=0; i<MAX_MESSAGE_TYP; i++) {
 		if(&buttons[i*3]==komp) {
 			ticker_msg ^= (1<<i);
 		}
