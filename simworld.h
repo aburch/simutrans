@@ -136,7 +136,7 @@ private:
 	 * water level height
 	 * @author Hj. Malthaner
 	 */
-	sint16 grundwasser;
+	sint8 grundwasser;
 
 	/**
 	 * current snow height (might change during the game)
@@ -500,7 +500,7 @@ public:
 	* Holt den Grundwasserlevel der Karte
 	* @author Hj. Malthaner
 	*/
-	sint16 gib_grundwasser() const { return grundwasser; }
+	sint8 gib_grundwasser() const { return grundwasser; }
 
 	/**
 	* returns the current snowline height

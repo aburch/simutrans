@@ -1620,11 +1620,13 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 
 		// do not block crossings
 		if(dt==NULL  &&  str->is_crossing()) {
-			// test next field
-			const uint8 nextnext_fahrtrichtung = this->calc_richtung(cnv->get_route()->position_bei(route_index).gib_2d(), cnv->get_route()->position_bei(route_index+2).gib_2d());
-			const uint8 nextnext_90fahrtrichtung = this->calc_richtung(cnv->get_route()->position_bei(route_index+1).gib_2d(), cnv->get_route()->position_bei(route_index+2).gib_2d());
-			const grund_t *gr = welt->lookup( cnv->get_route()->position_bei(route_index+1) );
-			dt = no_cars_blocking( gr, cnv, next_fahrtrichtung, nextnext_fahrtrichtung, nextnext_90fahrtrichtung );
+			if(route_index+1<cnv->get_route()->gib_max_n()) {
+				// test next field
+				const uint8 nextnext_fahrtrichtung = this->calc_richtung(cnv->get_route()->position_bei(route_index).gib_2d(), cnv->get_route()->position_bei(route_index+2).gib_2d());
+				const uint8 nextnext_90fahrtrichtung = this->calc_richtung(cnv->get_route()->position_bei(route_index+1).gib_2d(), cnv->get_route()->position_bei(route_index+2).gib_2d());
+				const grund_t *gr = welt->lookup( cnv->get_route()->position_bei(route_index+1) );
+				dt = no_cars_blocking( gr, cnv, next_fahrtrichtung, nextnext_fahrtrichtung, nextnext_90fahrtrichtung );
+			}
 			if(dt==NULL) {
 				// ok, reserve way crossing
 				crossing_t* cr = gr->find<crossing_t>(2);

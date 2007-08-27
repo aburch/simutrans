@@ -83,7 +83,7 @@ public:
 			const sint16 ww = (welt->gib_groesse_x()+7)/8;
 			for(sint16 y=pos.y;  y<pos.y+h;  y++  ) {
 				for(sint16 x=pos.x;  x<pos.x+b;  x++  ) {
-					if(  fab_map[ww*y+(x/8)]&(1<<(x%8)) != 0  ) {
+					if(  (fab_map[ww*y+(x/8)]&(1<<(x%8))) != 0  ) {
 						return false;
 					}
 				}

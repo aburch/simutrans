@@ -119,7 +119,7 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 			case haus_besch_t::weitere:
 				{
 				// allow for more than one air depot
-					long checkpos=strlen(besch->gib_name());
+					size_t checkpos=strlen(besch->gib_name());
 					if(  strcmp("AirDepot",besch->gib_name()+checkpos-8)==0  ) {
 DBG_DEBUG("hausbauer_t::register_besch()","AirDepot %s",besch->gib_name());
 						air_depot.append(besch);
@@ -418,8 +418,8 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 	if(besch->gib_utyp()>=8  &&  besch->gib_all_layouts()>1) {
 
 		// detect if we are connected at far (north/west) end
-		sint16 offset = welt->lookup( pos )->gib_weg_yoff();
-		grund_t * gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::ost : koord::sued),offset) );
+		sint8 offset = welt->lookup( pos )->gib_weg_yoff();
+		grund_t * gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::ost : koord::sued), offset) );
 		if(gr) {
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb  &&  gb->gib_tile()->gib_besch()->gib_utyp()>=8) {

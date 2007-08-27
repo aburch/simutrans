@@ -19,10 +19,10 @@ class gui_image_t : public gui_komponente_t
 {
 private:
 	image_id id;
-	uint8 player_nr;
+	uint16 player_nr;
 
 public:
-    gui_image_t(image_id i=IMG_LEER, uint16 p=0 ) { id = i; player_nr = p; }
+    gui_image_t(image_id i=IMG_LEER, uint8 p=0 ) { id = i; player_nr = p; }
 
     void set_image(image_id i) { id = i; }
 

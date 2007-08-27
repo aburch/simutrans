@@ -529,7 +529,7 @@ public:
 	* only used for bridges, which start at a slope
 	* @author V. Meyer
 	*/
-	virtual int gib_weg_yoff() const { return 0; }
+	virtual sint8 gib_weg_yoff() const { return 0; }
 
 	/**
 	* Hat der Boden mindestens ein weg_t-Objekt? Liefert false für Wasser!

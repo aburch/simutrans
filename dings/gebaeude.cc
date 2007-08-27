@@ -816,8 +816,8 @@ void gebaeude_t::entferne(spieler_t *sp)
 		// detect if we are connected at far (north/west) end
 		grund_t * gr = welt->lookup( gib_pos() );
 		if(gr) {
-			sint16 offset = gr->gib_weg_yoff();
-			gr = welt->lookup( gib_pos()+koord3d( (layout & 1 ? koord::ost : koord::sued),offset) );
+			sint8 offset = gr->gib_weg_yoff();
+			gr = welt->lookup( gib_pos()+koord3d( (layout & 1 ? koord::ost : koord::sued), offset) );
 			if(gr) {
 				gebaeude_t* gb = gr->find<gebaeude_t>();
 				if(gb  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {

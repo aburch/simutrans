@@ -74,7 +74,7 @@ brueckenboden_t::rdwr(loadsave_t *file)
 }
 
 
-int brueckenboden_t::gib_weg_yoff() const
+sint8 brueckenboden_t::gib_weg_yoff() const
 {
 	if(ist_karten_boden() && weg_hang == 0) {
 		return TILE_HEIGHT_STEP;

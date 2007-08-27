@@ -13,7 +13,7 @@ public:
 
 	virtual void rdwr(loadsave_t *file);
 
-	virtual int gib_weg_yoff() const;
+	virtual sint8 gib_weg_yoff() const;
 
 	hang_t::typ gib_weg_hang() const { return weg_hang; }
 
