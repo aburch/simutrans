@@ -43,6 +43,7 @@
 #include "simplay.h"
 #include "simwerkz.h"
 #include "simfab.h"
+#include "simcity.h"
 #include "simhalt.h"
 #include "simvehikel.h"
 #include "simconvoi.h"
@@ -74,6 +75,7 @@
 #include "bauer/brueckenbauer.h"
 #include "bauer/tunnelbauer.h"
 #include "bauer/wegbauer.h"
+#include "sucher/bauplatz_sucher.h"
 
 #include "utils/simstring.h"
 
@@ -82,7 +84,6 @@
 #include "gui/money_frame.h"
 #include "gui/schedule_list.h"
 
-#include "simcity.h"
 
 // true, if line contruction is under way
 // our "semaphore"
@@ -1241,6 +1242,53 @@ int spieler_t::get_factory_tree_missing_count( fabrik_t *fab )
 
 
 
+/**
+ * bauplatz_mit_strasse_sucher_t:
+ *
+ * Sucht einen freien Bauplatz mithilfe der Funktion suche_platz().
+ *
+ * @author V. Meyer
+ */
+class ai_bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t  {
+
+public:
+	ai_bauplatz_mit_strasse_sucher_t(karte_t *welt) : bauplatz_sucher_t(welt) {}
+
+	bool strasse_bei(sint16 x, sint16 y) const {
+		grund_t *bd = welt->lookup_kartenboden( koord(x,y) );
+		return bd && bd->hat_weg(road_wt);
+	}
+
+	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
+		if(bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)) {
+			// check to not built on a road
+			int i, j;
+			for(j=pos.x; j<pos.x+b; j++) {
+				for(i=pos.y; i<pos.y+h; i++) {
+					if(strasse_bei(j,i)) {
+						return false;
+					}
+				}
+			}
+			// now check for road connection
+			for(i = pos.y; i < pos.y + h; i++) {
+				if(strasse_bei(pos.x - 1, i) ||  strasse_bei(pos.x + b, i)) {
+					return true;
+				}
+			}
+			for(i = pos.x; i < pos.x + b; i++) {
+				if(strasse_bei(i, pos.y - 1) ||  strasse_bei(i, pos.y + h)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+};
+
+
+
+
 /* returns ok, of there is a suitable space found
  * only check into two directions, the ones given by dir
  */
@@ -1328,13 +1376,16 @@ bool spieler_t::find_harbour(koord &start, koord &size, koord target)
 			grund_t *gr = welt->lookup_kartenboden(k);
 			if(gr  &&  gr->gib_grund_hang()!=0  &&  hang_t::ist_wegbar(gr->gib_grund_hang())  &&  gr->ist_natur()  &&  gr->gib_hoehe()==welt->gib_grundwasser()  &&  !gr->is_halt()) {
 				koord zv = koord(gr->gib_grund_hang());
-				koord dir[2] = { zv, koord(zv.y,zv.x) };
-				koord platz = k+zv;
-				int current_dist = abs_distance(k,target);
-				if(  current_dist<dist  &&  suche_platz(platz,size,dir)  ){
-					// we will take the shortest route found
-					start = k;
-					dist = current_dist;
+				if(welt->lookup_kartenboden(k-zv)->gib_weg_ribi(water_wt)) {
+					// next place is also water
+					koord dir[2] = { zv, koord(zv.y,zv.x) };
+					koord platz = k+zv;
+					int current_dist = abs_distance(k,target);
+					if(  current_dist<dist  &&  suche_platz(platz,size,dir)  ){
+						// we will take the shortest route found
+						start = k;
+						dist = current_dist;
+					}
 				}
 			}
 		}
@@ -1490,6 +1541,51 @@ bool spieler_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length )
 		gr->obj_add( z );
 	}
 	return ok;
+}
+
+
+
+/* builts a headquarter or updates one */
+bool spieler_t::built_update_headquarter()
+{
+	// find next level
+	const haus_besch_t* besch = NULL;
+	for(  vector_tpl<const haus_besch_t *>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end();  iter != end;  ++iter  ) {
+		if ((*iter)->gib_bauzeit() == get_headquarter_level()) {
+			besch = (*iter);
+			break;
+		}
+	}
+	// is the a suitable one?
+	if(besch!=NULL) {
+		// cost is negative!
+		sint64 cost = umgebung_t::cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h();
+		if(  konto+cost > umgebung_t::starting_money  ) {
+			// and enough money left ...
+			koord place = headquarter_pos;
+			if(headquarter_pos!=koord::invalid) {
+				if(welt->lookup_kartenboden(headquarter_pos)->find<gebaeude_t>()->gib_tile()->gib_besch()->gib_groesse() != besch->gib_groesse()) {
+					// different size => needs new place
+					place = koord::invalid;
+				}
+				const char *msg;
+				wkz_remover_intern(this,welt,headquarter_pos,msg);
+				headquarter_pos = koord::invalid;
+			}
+			// needs new place?
+			if(place==koord::invalid) {
+				stadt_t *st = welt->suche_naechste_stadt(halt_list.front()->gib_basis_pos());
+				if(st) {
+					bool is_rotate=besch->gib_all_layouts()>1;
+					place = ai_bauplatz_mit_strasse_sucher_t(welt).suche_platz(st->gib_pos(), besch->gib_b(), besch->gib_h(), besch->get_allowed_climate_bits(), &is_rotate);
+				}
+			}
+			wkz_headquarter( this, welt, place );
+			return place != koord::invalid;
+		}
+
+	}
+	return false;
 }
 
 
@@ -1734,8 +1830,8 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road fr
 
 
 
-/* try harder to built a station:
- * check also sidewards
+/* built a station
+ * Can fail even though check has been done before
  * @author prissi
  */
 int spieler_t::baue_bahnhof(koord3d quelle, koord *p, int anz_vehikel, fabrik_t *fab)
@@ -1743,14 +1839,14 @@ int spieler_t::baue_bahnhof(koord3d quelle, koord *p, int anz_vehikel, fabrik_t 
 	int laenge = max(((rail_vehicle->get_length()*anz_vehikel)+rail_engine->get_length()+15)/16,1);
 
 	int baulaenge = 0;
-	ribi_t::ribi ribi = welt->lookup(*p)->gib_kartenboden()->gib_weg_ribi(track_wt);
-	int i;
-
+	ribi_t::ribi ribi = welt->lookup_kartenboden(*p)->gib_weg_ribi(track_wt);
+	zeiger_t *z = welt->lookup_kartenboden(*p)->find<zeiger_t>();
+	if(z) delete z;
 	koord zv ( ribi );
 	koord t = *p;
 	bool ok = true;
 
-	for(i=0; i<laenge; i++) {
+	for(  int i=0;  i<laenge;  i++  ) {
 		grund_t *gr = welt->lookup_kartenboden(t);
 		ok &= (gr != NULL) &&  !gr->has_two_ways()  &&  gr->gib_weg_hang()==hang_t::flach;
 		if(!ok) {
@@ -1933,6 +2029,7 @@ void spieler_t::do_ki()
 		case NR_INIT:
 			state = NR_SAMMLE_ROUTEN;
 			count = 0;
+			built_update_headquarter();
 			if(root==NULL) {
 				// find a tree root to complete
 				weighted_vector_tpl<fabrik_t *> start_fabs(20);
@@ -2286,9 +2383,13 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 			ziel = NULL;
 			// schilder aufraeumen
 			grund_t* gr = welt->lookup_kartenboden(platz1);
-			if (gr) gr->obj_loesche_alle(this);
+			if(gr  &&  gr->find<zeiger_t>()) {
+				delete gr->find<zeiger_t>();
+			}
 			gr = welt->lookup_kartenboden(platz2);
-			if (gr) gr->obj_loesche_alle(this);
+			if(gr  &&  gr->find<zeiger_t>()) {
+				delete gr->find<zeiger_t>();
+			}
 			state = CHECK_CONVOI;
 			break;
 		}

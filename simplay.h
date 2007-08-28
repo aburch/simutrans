@@ -523,6 +523,9 @@ private:
 
 	int baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel,fabrik_t *fab);
 
+	// AI headquarter
+	bool built_update_headquarter();
+
 	// create way and stops for these routes
 	bool create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
 	void create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
