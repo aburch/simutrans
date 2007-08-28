@@ -256,25 +256,6 @@ fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const in
 	koord k;
 	bool	is_fabrik = besch->gib_utyp()==haus_besch_t::fabrik;
 
-	if(is_fabrik) {
-		// new world started => needs reyize
-		if(welt->gib_fab_list().count()==0  &&  fab_map)  {
-			delete [] fab_map;
-			fab_map = NULL;
-		}
-
-		// create map with all factories and exclusion area
-		if(fab_map==NULL) {
-			fab_map = new uint8[ ((welt->gib_groesse_x()+7)/8)*welt->gib_groesse_y() ];
-			memset( fab_map, 0, ((welt->gib_groesse_x()+7)/8)*welt->gib_groesse_y() );
-			const slist_tpl<fabrik_t *> &list = welt->gib_fab_list();
-			slist_iterator_tpl <fabrik_t *> iter(list);
-			while(iter.next()) {
-				add_factory_to_fab_map( welt, iter.get_current() );
-			}
-		}
-	}
-
 	if(wasser) {
 		groesse += koord(6,6);
 	}
@@ -365,6 +346,23 @@ void fabrikbauer_t::verteile_industrie(karte_t* welt, int max_number_of_factorie
 	// current count
 	int factory_number=0;
 	int current_number=0;
+
+	// new world started => needs reyize
+	if(welt->gib_fab_list().count()==0  &&  fab_map)  {
+		delete [] fab_map;
+		fab_map = NULL;
+	}
+
+	// create map with all factories and exclusion area
+	if(fab_map==NULL) {
+		fab_map = new uint8[ ((welt->gib_groesse_x()+7)/8)*welt->gib_groesse_y() ];
+		memset( fab_map, 0, ((welt->gib_groesse_x()+7)/8)*welt->gib_groesse_y() );
+		const slist_tpl<fabrik_t *> &list = welt->gib_fab_list();
+		slist_iterator_tpl <fabrik_t *> iter(list);
+		while(iter.next()) {
+			add_factory_to_fab_map( welt, iter.get_current() );
+		}
+	}
 
 	// no consumer at all?
 	if(get_random_consumer(in_city,ALL_CLIMATES)==NULL) {
