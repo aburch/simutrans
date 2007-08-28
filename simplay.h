@@ -534,6 +534,10 @@ private:
 	bool create_simple_road_transport();    // neue Transportroute anlegen
 	bool create_simple_rail_transport();
 
+	// sells all stuff, destorys all stations, transfers ways to public ownership
+	void ai_bankrupt();
+
+	// man routine for AI
 	void do_ki();
 
 	// all for passenger transport

@@ -295,16 +295,25 @@ haltestelle_t::~haltestelle_t()
 		besitzer_p->halt_remove(self);
 	}
 
-	// remove ground and free name
+	// free name
 	setze_name(NULL);
+
+	// remove from ground and planquadrat haltlists
+	koord ul(32767,32767);
+	koord lr(0,0);
 	while(  !tiles.empty()  ) {
-		planquadrat_t *pl = welt->access( tiles.remove_first().grund->gib_pos().gib_2d() );
+		koord pos = tiles.remove_first().grund->gib_pos().gib_2d();
+		planquadrat_t *pl = welt->access(pos);
 		assert(pl);
 		pl->setze_halt( halthandle_t() );
 		for( uint8 i=0;  i<pl->gib_boden_count();  i++  ) {
 			pl->gib_boden_bei(i)->setze_halt( halthandle_t() );
 		}
-		pl->remove_from_haltlist( welt, self );
+		// bounding box for adjustments
+		if(ul.x>pos.x ) ul.x = pos.x;
+		if(ul.y>pos.y ) ul.y = pos.y;
+		if(lr.x<pos.x ) lr.x = pos.x;
+		if(lr.y<pos.y ) lr.y = pos.y;
 	}
 
 	/* remove probably remaining halthandle at init_pos
@@ -312,6 +321,20 @@ haltestelle_t::~haltestelle_t()
 	planquadrat_t* pl = welt->access(init_pos);
 	if(pl  &&  pl->gib_halt()==self) {
 		pl->setze_halt( halthandle_t() );
+	}
+
+	// remove from all haltlists
+	ul.x = max( 0, ul.x-umgebung_t::station_coverage_size );
+	ul.y = max( 0, ul.y-umgebung_t::station_coverage_size );
+	lr.x = min( welt->gib_groesse_x(), lr.x+1+umgebung_t::station_coverage_size );
+	lr.y = min( welt->gib_groesse_y(), lr.y+1+umgebung_t::station_coverage_size );
+	for(  int y=ul.y;  y<lr.y;  y++  ) {
+		for(  int x=ul.x;  x<lr.x;  x++  ) {
+			planquadrat_t *plan = welt->access(x,y);
+			if(plan->get_haltlist_count()>0) {
+				plan->remove_from_haltlist( welt, self );
+			}
+		}
 	}
 
 	// finally detach handle

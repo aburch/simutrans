@@ -374,7 +374,6 @@ void spieler_t::neuer_monat()
 	if(!umgebung_t::freeplay) {
 		if(konto < 0) {
 			konto_ueberzogen++;
-
 			if(this == welt->gib_spieler(0)) {
 				if(konto_ueberzogen == 1) {
 					// tell the player
@@ -388,6 +387,12 @@ void spieler_t::neuer_monat()
 					destroy_all_win();
 					create_win(280, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_autodelete);
 					welt->beenden(false);
+				}
+			}
+			else if(this!=welt->gib_spieler(1)  &&  automat) {
+				// for AI, we only declare bankrupt, if total assest are below zero
+				if(finance_history_year[0][COST_NETWEALTH]<0) {
+					ai_bankrupt();
 				}
 			}
 		} else {
@@ -1079,6 +1084,94 @@ bool spieler_t::set_active(bool new_state)
 		}
 	}
 	return automat;
+}
+
+
+
+void spieler_t::ai_bankrupt()
+{
+	DBG_MESSAGE("spieler_t::ai_bankrupt()","Removing convois");
+
+	for( int i = welt->get_convoi_count()-1;  i>=0;  i--  ) {
+		const convoihandle_t cnv = welt->get_convoi(i);
+		if(cnv->gib_besitzer()!=this) {
+			continue;
+		}
+
+		waytype_t wt = cnv->gib_vehikel(0)->gib_besch()->get_waytype();
+		linehandle_t line = cnv->get_line();
+
+		cnv->self_destruct();
+		cnv->step();	// to really get rid of it
+
+		// last vehicle on that connection (no line => railroad)
+		if(  !line.is_bound()  ||  line->count_convoys()==0  ) {
+			simlinemgmt.delete_line( line );
+		}
+	}
+
+	// remove headquarter pos
+	headquarter_pos = koord::invalid;
+
+	// remove all stops
+	while(halt_list.count()>0) {
+		halthandle_t h = halt_list.remove_first();
+		haltestelle_t::destroy( h );
+	}
+
+	// next remove all ways, depot etc, that are not road or channels
+	for( int y=0;  y<welt->gib_groesse_y();  y++  ) {
+		for( int x=0;  x<welt->gib_groesse_x();  x++  ) {
+			planquadrat_t *plan = welt->access(x,y);
+			for(  int b=0;  b<plan->gib_boden_count();  b++  ) {
+				grund_t *gr = plan->gib_boden_bei(b);
+				for(  int i=gr->gib_top()-1;  i>=0;  i--  ) {
+					ding_t *dt = gr->obj_bei(i);
+					if(dt->gib_besitzer()==this) {
+						switch(dt->gib_typ()) {
+							case ding_t::airdepot:
+							case ding_t::bahndepot:
+							case ding_t::monoraildepot:
+							case ding_t::tramdepot:
+							case ding_t::strassendepot:
+							case ding_t::schiffdepot:
+							case ding_t::leitung:
+							case ding_t::senke:
+							case ding_t::pumpe:
+							case ding_t::signal:
+							case ding_t::wayobj:
+							case ding_t::roadsign:
+								dt->entferne(this);
+								delete dt;
+								break;
+							case ding_t::gebaeude:
+								hausbauer_t::remove( welt, this, (gebaeude_t *)dt );
+								break;
+							case ding_t::way:
+							{
+								weg_t *w=(weg_t *)dt;
+								if(w->gib_waytype()==road_wt  ||  w->gib_waytype()==water_wt) {
+									add_maintenance( -w->gib_besch()->gib_wartung() );
+									w->setze_besitzer( NULL );
+								}
+								else {
+									gr->weg_entfernen( w->gib_waytype(), true );
+								}
+								break;
+							}
+							default:
+								gr->obj_bei(i)->setze_besitzer( welt->gib_spieler(1) );
+						}
+					}
+				}
+			}
+		}
+	}
+
+	automat = false;
+	char buf[256];
+	sprintf(buf, translator::translate("%s\nwas liquidated."), gib_name() );
+	message_t::get_instance()->add_message( buf, koord::invalid, message_t::ai, player_nr );
 }
 
 
@@ -1778,6 +1871,12 @@ void spieler_t::create_rail_transport_vehikel(const koord platz1, const koord pl
 
 bool spieler_t::create_simple_road_transport()
 {
+	// remove pointer
+	zeiger_t *z = welt->lookup_kartenboden(platz1)->find<zeiger_t>();
+	if(z) delete z;
+	z = welt->lookup_kartenboden(platz2)->find<zeiger_t>();
+	if(z) delete z;
+
 	if(!(welt->ebne_planquadrat( this, platz1, welt->lookup_kartenboden(platz1)->gib_hoehe() )  &&  welt->ebne_planquadrat( this, platz2, welt->lookup_kartenboden(platz2)->gib_hoehe() ))  ) {
 		// no flat land here?!?
 		return false;
