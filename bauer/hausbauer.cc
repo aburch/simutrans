@@ -318,6 +318,13 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 						const koord newk = k+pos.gib_2d();
 						const uint8 new_slope = gr->gib_hoehe()==welt->min_hgt(newk) ? 0 : welt->calc_natural_slope(newk);
 						welt->access(newk)->kartenboden_setzen(new boden_t(welt, koord3d(newk,welt->min_hgt(newk) ), new_slope) );
+						// there might be walls from foundations left => thus some tiles may needs to be redraw
+						if(new_slope!=0) {
+							if(pos.x<welt->gib_groesse_x()-1)
+								welt->lookup_kartenboden(newk+koord::ost)->calc_bild();
+							if(pos.y<welt->gib_groesse_y()-1)
+								welt->lookup_kartenboden(newk+koord::sued)->calc_bild();
+						}
 					}
 				}
 			}

@@ -885,25 +885,8 @@ stadt_t::~stadt_t()
 		// remove city info and houses
 		while (!buildings.empty()) {
 			// old buildings are not where they think they are, so we ask for map floor
-			grund_t* gr = welt->lookup_kartenboden(buildings.front()->gib_pos().gib_2d());
-			if (gr != NULL) {
-				koord pos = gr->gib_pos().gib_2d();
-				gr->obj_loesche_alle(welt->gib_spieler(1));
-				/* since foundations are always under buildings
-				 * and their slope is always flat,
-				 * we must restore the shape, and then normal ground */
-				uint8 new_slope = (gr->gib_hoehe() == welt->min_hgt(pos) ? 0 : welt->calc_natural_slope(pos));
-				welt->access(pos)->kartenboden_setzen(new boden_t(welt, koord3d(pos, welt->min_hgt(pos)), new_slope));
-				// there might be walls from foundations left => thus some tiles may needs to be redraw
-				if(new_slope!=0) {
-					if(pos.x<welt->gib_groesse_x()-1)
-						welt->lookup_kartenboden(pos+koord::ost)->calc_bild();
-					if(pos.y<welt->gib_groesse_y()-1)
-						welt->lookup_kartenboden(pos+koord::sued)->calc_bild();
-				}
-			} else {
-				buildings.remove_at(0);
-			}
+			hausbauer_t::remove( welt, welt->gib_spieler(1), (gebaeude_t *)buildings.front() );
+			buildings.remove_at(0);
 		}
 	}
 	buildings.clear();

@@ -496,16 +496,27 @@ bool karte_t::rem_stadt(stadt_t *s)
 		// no town there to delete ...
 		return false;
 	}
-	// ok, we can delete this
-	stadt.remove(s);
-	delete s;
+
+	DBG_MESSAGE("karte_t::rem_stadt()", s->gib_name() );
+
 	// reduce number of towns
+	stadt.remove(s);
+
+	DBG_MESSAGE("karte_t::rem_stadt()", "reduce city to %i", einstellungen->gib_anzahl_staedte()-1 );
 	einstellungen->setze_anzahl_staedte(einstellungen->gib_anzahl_staedte()-1);
+
+
 	// remove all links from factories
-	slist_iterator_tpl<fabrik_t *> iter (fab_list);
+	DBG_MESSAGE("karte_t::rem_stadt()", "fab_list %i", fab_list.count() );
+	slist_iterator_tpl<fabrik_t *> iter(fab_list);
 	while(iter.next()) {
-		iter.get_current()->remove_arbeiterziel(s);
+		(iter.get_current())->remove_arbeiterziel(s);
 	}
+
+	// ok, we can delete this
+	DBG_MESSAGE("karte_t::rem_stadt()", "delete" );
+	delete s;
+
 	return true;
 }
 
@@ -2315,7 +2326,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved hgt");
 
 	sint32 fabs = fab_list.count();
 	file->rdwr_long(fabs, "\n");
-	slist_iterator_tpl<fabrik_t*> fiter ( fab_list );
+	slist_iterator_tpl<fabrik_t*> fiter( fab_list );
 	while(fiter.next()) {
 		(fiter.get_current())->rdwr(file);
 		if(silent) {
