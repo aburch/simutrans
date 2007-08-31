@@ -781,6 +781,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb)
 void stadt_t::remove_gebaeude_from_stadt(const gebaeude_t* gb)
 {
 	buildings.remove(gb);
+	((gebaeude_t *)gb)->setze_stadt(NULL);
 	recalc_city_size();
 }
 
