@@ -497,14 +497,11 @@ bool karte_t::rem_stadt(stadt_t *s)
 		return false;
 	}
 
-	DBG_MESSAGE("karte_t::rem_stadt()", s->gib_name() );
-
 	// reduce number of towns
+	DBG_MESSAGE("karte_t::rem_stadt()", s->gib_name() );
 	stadt.remove(s);
-
 	DBG_MESSAGE("karte_t::rem_stadt()", "reduce city to %i", einstellungen->gib_anzahl_staedte()-1 );
 	einstellungen->setze_anzahl_staedte(einstellungen->gib_anzahl_staedte()-1);
-
 
 	// remove all links from factories
 	DBG_MESSAGE("karte_t::rem_stadt()", "fab_list %i", fab_list.count() );
@@ -1475,22 +1472,18 @@ karte_t::gib_random_ausflugsziel() const
 
 // -------- Verwaltung von Staedten -----------------------------
 
-stadt_t *
-karte_t::suche_naechste_stadt(const koord pos) const
+stadt_t *karte_t::suche_naechste_stadt(const koord pos) const
 {
     long min_dist = 99999999;
-    stadt_t * best = NULL;
+    stadt_t *best = NULL;
 
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		stadt_t* s = *i;
 		const koord k = s->gib_pos();
-
 	    const long dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
 
 	    if(dist < min_dist) {
-
-//		printf("dist %d  stadt %d\n", dist, n);
-		min_dist = dist;
+			min_dist = dist;
 			best = s;
 	    }
     }

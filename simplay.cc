@@ -556,7 +556,7 @@ sint64 spieler_t::buche(const sint64 betrag, int type)
  */
 bool spieler_t::check_owner( const spieler_t *sp ) const
 {
-	return (this==sp)  ||  (sp==NULL)  ||  (sp==welt->gib_spieler(1));
+	return (this==NULL)  ||  (this==sp)  ||  (sp==NULL)  ||  (sp==welt->gib_spieler(1));
 }
 
 
