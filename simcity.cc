@@ -885,8 +885,16 @@ stadt_t::~stadt_t()
 		// remove city info and houses
 		while (!buildings.empty()) {
 			// old buildings are not where they think they are, so we ask for map floor
-			hausbauer_t::remove( welt, welt->gib_spieler(1), (gebaeude_t *)buildings.front() );
-			buildings.remove_at(0);
+			gebaeude_t* gb = (gebaeude_t *)buildings.front();
+			buildings.remove(gb);
+			assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
+			if(gb->gib_tile()->gib_besch()->gib_utyp()==haus_besch_t::firmensitz) {
+				gb->setze_stadt( welt->suche_naechste_stadt(gb->gib_pos().gib_2d()) );
+			}
+			else {
+				gb->setze_stadt( NULL );
+				hausbauer_t::remove(welt,welt->gib_spieler(1),gb);
+			}
 		}
 	}
 	buildings.clear();

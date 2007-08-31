@@ -51,7 +51,7 @@ void gebaeude_t::init()
 {
 	tile = NULL;
 	ptr.fab = 0;
-	is_factory = true;
+	is_factory = false;
 	anim_time = 0;
 	sync = false;
 	count = 0;
@@ -634,9 +634,8 @@ void gebaeude_t::info(cbuffer_t & buf) const
 void
 gebaeude_t::rdwr(loadsave_t *file)
 {
-	if(get_fabrik()==NULL  ||  file->is_loading()) {
-		// Gebaude, die zu einer Fabrik gehoeren werden beim laden
-		// der Fabrik neu erzeugt
+	if(!is_factory) {
+		// do not save factory buildings => factory will reconstruct them
 		ding_t::rdwr(file);
 
 		char  buf[256];
@@ -732,7 +731,6 @@ DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found 
 		}
 
 		// restore city pointer here
-		ptr.stadt = 0;
 		if(  file->get_version()>=99014  ) {
 			sint32 city_index = -1;
 			if(  file->is_saving()  &&  ptr.stadt!=NULL  ) {
@@ -782,11 +780,11 @@ gebaeude_t::laden_abschliessen()
 		gib_besitzer()->add_maintenance(umgebung_t::maint_building);
 	}
 	// citybuilding, but no town?
-	if(tile->gib_besch()->is_connected_with_town()  &&  ptr.stadt==NULL) {
-		// so we add it to the next one
-		stadt_t *city = welt->suche_naechste_stadt( gib_pos().gib_2d() );
-		assert(city);
-		city->add_gebaeude_to_stadt(this);
+	if(tile->gib_offset()==koord(0,0)  &&  tile->gib_besch()->is_connected_with_town()) {
+		stadt_t *city = (ptr.stadt==NULL) ? welt->suche_naechste_stadt( gib_pos().gib_2d() ) : ptr.stadt;
+		if(city) {
+			city->add_gebaeude_to_stadt(this);
+		}
 	}
 }
 
