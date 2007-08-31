@@ -1673,7 +1673,12 @@ bool spieler_t::built_update_headquarter()
 					place = ai_bauplatz_mit_strasse_sucher_t(welt).suche_platz(st->gib_pos(), besch->gib_b(), besch->gib_h(), besch->get_allowed_climate_bits(), &is_rotate);
 				}
 			}
-			wkz_headquarter( this, welt, place );
+			if(place!=koord::invalid  &&  wkz_headquarter( this, welt, place )) {
+				// tell the player
+				char buf[256];
+				sprintf(buf, translator::translate("%s's\nheadquarter now\nat (%i,%i)."), gib_name(), place.x, place.y );
+				message_t::get_instance()->add_message(buf, place, message_t::ai,player_nr, welt->lookup_kartenboden(place)->find<gebaeude_t>()->gib_tile()->gib_hintergrund(0,0,0) );
+			}
 			return place != koord::invalid;
 		}
 

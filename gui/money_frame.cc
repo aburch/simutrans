@@ -356,6 +356,13 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	}
 	warn.setze_text(str_buf[15]);
 
+	if (sp->get_headquarter_pos()!=koord::invalid  &&  old_hq!=sp->get_headquarter_pos()) {
+		remove_komponente(&headquarter_view);
+		headquarter_view.setze_groesse( koord(120, 70) );
+		headquarter_view.set_location( sp->get_welt()->lookup_kartenboden(sp->get_headquarter_pos())->gib_pos() );
+		headquarter.setze_text( "upgrade HQ" );
+		add_komponente(&headquarter_view);
+	}
 	if(sp!=sp->get_welt()->get_active_player()) {
 		headquarter.disable();
 		headquarter.set_tooltip( NULL );
@@ -363,8 +370,6 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	else {
 		headquarter.enable();
 		if (sp->get_headquarter_pos()!=koord::invalid  &&  old_hq!=sp->get_headquarter_pos()) {
-			headquarter_view.set_location( sp->get_welt()->lookup_kartenboden(sp->get_headquarter_pos())->gib_pos() );
-			headquarter.setze_text( "upgrade HQ" );
 			if(sp->get_headquarter_level()==hausbauer_t::headquarter.get_count()) {
 				headquarter.disable();
 				headquarter.set_tooltip( NULL );
@@ -375,7 +380,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 					const haus_besch_t* besch = (*iter);
 					if (besch->gib_bauzeit() == sp->get_headquarter_level()) {
 						double cost = umgebung_t::cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h()/-100.0;
-						money_to_string( headquarter_tooltip+sprintf( headquarter_tooltip, "%s ", translator::translate(besch->gib_name())), cost );
+						money_to_string( headquarter_tooltip+sprintf( headquarter_tooltip, "%s ", translator::translate(besch->gib_name())), (sint32)cost );
 						headquarter.set_tooltip( headquarter_tooltip );
 						break;
 					}

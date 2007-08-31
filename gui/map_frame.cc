@@ -253,11 +253,11 @@ map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	}
 	else if(komp==&b_show_schedule) {
 		//	show/hide schedule of convoi
-		reliefkarte_t::gib_karte()->is_show_schedule ^= 1;
+		reliefkarte_t::gib_karte()->is_show_schedule = !reliefkarte_t::gib_karte()->is_show_schedule;
 	}
 	else if(komp==&b_show_fab_connections) {
 		//	show/hide schedule of convoi
-		reliefkarte_t::gib_karte()->is_show_fab ^= 1;
+		reliefkarte_t::gib_karte()->is_show_fab = !reliefkarte_t::gib_karte()->is_show_fab;
 	}
 
 	else {

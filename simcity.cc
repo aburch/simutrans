@@ -890,7 +890,11 @@ stadt_t::~stadt_t()
 			buildings.remove(gb);
 			assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
 			if(gb->gib_tile()->gib_besch()->gib_utyp()==haus_besch_t::firmensitz) {
-				gb->setze_stadt( welt->suche_naechste_stadt(gb->gib_pos().gib_2d()) );
+				stadt_t *city = welt->suche_naechste_stadt(gb->gib_pos().gib_2d());
+				gb->setze_stadt( city );
+				if(city) {
+					city->add_gebaeude_to_stadt( gb );
+				}
 			}
 			else {
 				gb->setze_stadt( NULL );

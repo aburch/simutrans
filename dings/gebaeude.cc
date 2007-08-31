@@ -161,18 +161,12 @@ gebaeude_t::setze_fab(fabrik_t *fb)
 void
 gebaeude_t::setze_stadt(stadt_t *s)
 {
+	if(is_factory  &&  ptr.fab!=NULL) {
+		dbg->fatal("gebaeude_t::setze_stadt()","building already bound to factory!");
+	}
 	// sets the pointer in non-zero
-	if(s) {
-		if(is_factory  &&  ptr.fab!=NULL) {
-			dbg->fatal("gebaeude_t::setze_stadt()","building already bound to factory!");
-		}
-		is_factory = false;
-		ptr.stadt = s;
-	}
-	else if(!is_factory) {
-		is_factory = true;
-		ptr.stadt = NULL;
-	}
+	is_factory = false;
+	ptr.stadt = s;
 }
 
 
