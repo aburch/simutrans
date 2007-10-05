@@ -653,6 +653,7 @@ void haltestelle_t::rebuild_destinations()
 		const linehandle_t line = registered_lines[i];
 		fahrplan_t *fpl = line->get_fahrplan();
 		assert(fpl);
+		// ok, now add line to the connections
 		if(line->count_convoys()>0  &&  (i_am_public  ||  line->get_convoy(0)->gib_besitzer()==gib_besitzer())) {
 			for( int j=0; j<line->get_goods_catg_index().get_count();  j++  ) {
 				hat_gehalten( warenbauer_t::gib_info_catg_index(line->get_goods_catg_index()[j]), fpl );
@@ -1861,6 +1862,42 @@ bool haltestelle_t::add_grund(grund_t *gr)
 		}
 	}
 
+	// check, if we have to add a line to this coordinate
+	vector_tpl<linehandle_t> line;
+	if(gib_besitzer()==welt->gib_spieler(1)) {
+		// must iterate over all players lines ...
+		for(  int i=0;  i<MAX_PLAYER_COUNT;  i  ) {
+			welt->gib_spieler(i)->simlinemgmt.get_lines(simline_t::line, &line);
+			for(  int j=0;  j<line.get_count();  j++  ) {
+				// only add unknow lines
+				if(  !registered_lines.is_contained(line[j])  ) {
+					const fahrplan_t *fpl = line[j]->get_fahrplan();
+					for(  int k=0;  k<fpl->maxi();  k++  ) {
+						if(gib_halt(welt,fpl->eintrag[k].pos)==self) {
+							registered_lines.append( line[j], 8 );
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	else {
+		gib_besitzer()->simlinemgmt.get_lines(simline_t::line, &line);
+		for(  uint32 j=0;  j<line.get_count();  j++  ) {
+			// only add unknow lines
+			if(  !registered_lines.is_contained(line[j])  ) {
+				const fahrplan_t *fpl = line[j]->get_fahrplan();
+				for(  int k=0;  k<fpl->maxi();  k++  ) {
+					if(gib_halt(welt,fpl->eintrag[k].pos)==self) {
+						registered_lines.append( line[j], 8 );
+						break;
+					}
+				}
+			}
+		}
+	}
+
 	assert(welt->lookup(pos)->gib_halt() == self  &&  gr->is_halt());
 	init_pos = tiles.front().grund->gib_pos().gib_2d();
 	return true;
@@ -1868,11 +1905,11 @@ bool haltestelle_t::add_grund(grund_t *gr)
 
 
 
-void haltestelle_t::rem_grund(grund_t *gb)
+void haltestelle_t::rem_grund(grund_t *gr)
 {
 	// namen merken
-	if(gb) {
-		slist_tpl<tile>::iterator i = std::find(tiles.begin(), tiles.end(), gb);
+	if(gr) {
+		slist_tpl<tile>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
 		if (i == tiles.end()) {
 			// was not part of station => do nothing
 			dbg->error("haltestelle_t::rem_grund()","removed illegal ground from halt");
@@ -1892,6 +1929,7 @@ void haltestelle_t::rem_grund(grund_t *gb)
 		tiles.erase(i);
 		init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->gib_pos().gib_2d();
 
+		// re-add name
 		if (station_name_to_transfer != NULL) {
 			grund_t* bd = welt->lookup_kartenboden(init_pos);
 			if (bd && bd->find<label_t>()) {
@@ -1900,10 +1938,10 @@ void haltestelle_t::rem_grund(grund_t *gb)
 			setze_name( station_name_to_transfer );
 		}
 
-		planquadrat_t *pl = welt->access( gb->gib_pos().gib_2d() );
+		planquadrat_t *pl = welt->access( gr->gib_pos().gib_2d() );
 		if(pl) {
 			// no longer connected (upper level)
-			gb->setze_halt(halthandle_t());
+			gr->setze_halt(halthandle_t());
 			// still connected elsewhere?
 			for(unsigned i=0;  i<pl->gib_boden_count();  i++  ) {
 				if(pl->gib_boden_bei(i)->gib_halt().is_bound()) {
@@ -1921,7 +1959,7 @@ void haltestelle_t::rem_grund(grund_t *gb)
 		int cov = welt->gib_einstellungen()->gib_station_coverage();
 		for (int y = -cov; y <= cov; y++) {
 			for (int x = -cov; x <= cov; x++) {
-				planquadrat_t *pl = welt->access( gb->gib_pos().gib_2d()+koord(x,y) );
+				planquadrat_t *pl = welt->access( gr->gib_pos().gib_2d()+koord(x,y) );
 				if(pl) {
 					pl->remove_from_haltlist(welt,self);
 					pl->gib_kartenboden()->set_flag(grund_t::dirty);
@@ -1931,6 +1969,23 @@ void haltestelle_t::rem_grund(grund_t *gb)
 
 		// factory reach may have been changed ...
 		verbinde_fabriken();
+
+		// remove lines eventually
+		for(  int j=registered_lines.get_count()-1;  j>=0;  j--  ) {
+			const fahrplan_t *fpl = registered_lines[j]->get_fahrplan();
+			bool ok=false;
+			for(  int k=0;  k<fpl->maxi();  k++  ) {
+				if(gib_halt(welt,fpl->eintrag[k].pos)==self) {
+					ok = true;
+					break;
+				}
+			}
+			// need removal?
+			if(!ok) {
+				registered_lines.remove_at(j);
+			}
+		}
+
 	}
 }
 
