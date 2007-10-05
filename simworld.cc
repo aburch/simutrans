@@ -2162,7 +2162,8 @@ karte_t::ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate_bits
 		return false;
 	}
 
-	const sint16 platz_h = max_hgt(pos);	// remember the max height of the first tile
+	grund_t *gr = lookup_kartenboden(pos);
+	const sint16 platz_h = gr->gib_grund_hang() ? max_hgt(pos) : gr->gib_hoehe();	// remember the max height of the first tile
 
 	// ACHTUNG: Schleifen sind mit finde_plaetze koordiniert, damit wir ein
 	// paar Abfragen einsparen können bei h > 1!

@@ -65,9 +65,6 @@
 #include "dings/leitung2.h"
 #include "dings/baum.h"
 #include "dings/field.h"
-#ifdef LAGER_NOT_IN_USE
-#include "dings/lagerhaus.h"
-#endif
 
 #include "dataobj/einstellungen.h"
 #include "dataobj/umgebung.h"
@@ -1114,41 +1111,6 @@ int wkz_station_building(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 	wkz_station_building_aux(sp, welt, pos, (const haus_besch_t *)value.p);
 	return true;
 }
-
-
-#ifdef LAGER_NOT_IN_USE
-int
-wkz_lagerhaus(spieler_t *sp, karte_t *welt, koord pos)
-{
-    DBG_MESSAGE("wkz_lagerhaus()", "building storage shed on square %d,%d", pos.x, pos.y);
-
-    if(welt->ist_in_kartengrenzen(pos)) {
-  bool can_build = (welt->lookup(pos)->gib_boden()->kann_alle_obj_entfernen(sp) == NULL);
-
-  if( can_build ) {
-      halthandle_t halt = suche_nahe_haltestelle(sp, welt, pos);
-
-      if(halt.is_bound()) {
-    grund_t *gr = welt->lookup(pos)->gib_boden();
-    lagerhaus_t *lager = new lagerhaus_t( welt, gr->gib_pos(), sp );
-    lager->setze_name( halt->gib_name() );
-    gr->baue_gebaeude( IMG_LAGERHAUS, lager, true );
-                gr = NULL;
-
-    halt->add_grund(welt->lookup(pos)->gib_boden());
-    halt->setze_lager( lager );
-
-      } else {
-			create_win(-1, -1, MESG_WAIT, new news_img("Lager muss neben\nHaltestelle\nliegen!\n"), w_autodelete);
-      }
-  }
-  return true;
-    } else {
-  return false;
-    }
-}
-#endif
-
 
 
 /* build a dock either small or large */

@@ -24,6 +24,7 @@
 	FIX: revenue will be only given for cars in station
 	FIX: slope entering by a curve would not give slope penalty
 	FIX: tram tracks on bridges were visible in underground mode
+	FIX: build station extension building again on flattened slopes
 
 
 Release of 99.14
