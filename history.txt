@@ -17,6 +17,7 @@
 	FIX: correctly building ways from/in depots and stops
 	CHANGE: AI now announces headquarter construction with <<%s's\nheadquarter now\nat (%i,%i).>>
 	FIX: redistribution of goods on stations with three destinations was faulty
+	FIX: building txiways again
 
 
 Release of 99.14
