@@ -827,25 +827,26 @@ DBG_MESSAGE("vehikel_t::hop()","reverse dir at route index %d",route_index);
 void
 vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu)
 {
-	// assume straigh flat track
+
+	// assume straigth flat track
 	current_friction = 1;
+
+	// curve: higher friction
+	if(alte_fahrtrichtung != fahrtrichtung) {
+		current_friction = 8;
+	}
 
 	// or a hill?
 	const hang_t::typ hang = gr->gib_weg_hang();
 	if(hang!=hang_t::flach) {
 		if(ribi_typ(hang)==fahrtrichtung) {
 			// hill up, since height offsets are negative: heavy deccelerate
-			current_friction = 24;
+			current_friction += 23;
 		}
 		else {
 			// hill down: accelrate
-			current_friction = -12;
+			current_friction -= -11;
 		}
-	}
-
-	// curve: higher friction
-	if(alte_fahrtrichtung != fahrtrichtung) {
-		current_friction = 8;
 	}
 
 	if(ist_erstes) {
@@ -954,7 +955,7 @@ vehikel_t::fahre()
  * @return income total for last hop
  * @author Hj. Malthaner
  */
-sint64 vehikel_t::calc_gewinn(koord3d start, koord3d end) const
+sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 {
 	const long dist = abs(end.x - start.x) + abs(end.y - start.y);
 
@@ -1249,6 +1250,11 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 		bool dummy = 0;
 		file->rdwr_bool(dummy, " ");
 		file->rdwr_bool(dummy, " ");
+	}
+
+	// koordinate of the last stop
+	if(file->get_version()>=99015) {
+		last_stop_pos.rdwr(file);
 	}
 
 	if(file->is_loading()) {
@@ -2418,17 +2424,19 @@ schiff_t::ist_befahrbar(const grund_t *bd) const
 void
 schiff_t::calc_akt_speed(const grund_t *gr)
 {
-	// even track
-	current_friction = 1;
 	// or a hill?
 	if(gr->gib_weg_hang()) {
 		// hill up or down => in lock => deccelarte
 		current_friction = 16;
 	}
+	else {
+		// flat track
+		current_friction = 1;
+	}
 
-	// curve: higher friction
 	if(alte_fahrtrichtung != fahrtrichtung) {
-		current_friction = 2;
+		// curve: higher friction
+		current_friction *= 2;
 	}
 
 	if(ist_erstes) {

@@ -223,6 +223,9 @@ protected:
 	virtual bool ist_befahrbar(const grund_t* ) const {return false;}
 
 public:
+	// the coordinates, where the vehicle was loaded the last time
+	koord last_stop_pos;
+
 	enum { SPEED_UNLIMITED=0x07FFFFFF };
 
 	convoi_t *get_convoi() const { return cnv; }
@@ -385,7 +388,7 @@ public:
 	* @return income total for last hop
 	* @author Hj. Malthaner
 	*/
-	sint64  calc_gewinn(koord3d start, koord3d end) const;
+	sint64  calc_gewinn(koord start, koord end) const;
 
 	/**
 	* fahrzeug an haltestelle entladen

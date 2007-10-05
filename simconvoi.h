@@ -231,6 +231,7 @@ private:
 
 	/**
 	* Set, when there was a income calculation (avoids some cheats)
+	* Since 99.15 it will stored directly in the vehikel_t
 	* @author prissi
 	*/
 	koord3d last_stop_pos;
@@ -288,10 +289,10 @@ private:
 
 	/**
 	* calculate income for last hop
-	* if true, then only vehicles in station are used to calculate
+	* only used for entering depot or recalculating routes when a schedule window is opened
 	* @author Hj. Malthaner
 	*/
-	void calc_gewinn(bool);
+	void calc_gewinn();
 
 	/**
 	* Recalculates loading level and limit.

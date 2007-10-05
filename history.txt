@@ -21,6 +21,8 @@
 	FIX: lines again automatically connect and detach from a stop
 	FIX: depot closed, if there was only a single depot and the next/previous depot was searched
 	FIX: reaching destination while just leaving depot will skip destination
+	FIX: revenue will be only given for cars in station
+	FIX: slope entering by a curve would not give slope penalty
 
 
 Release of 99.14

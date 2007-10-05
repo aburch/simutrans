@@ -800,7 +800,7 @@ void convoi_t::ziel_erreicht()
 		char buf[128];
 
 		// we still book the money for the trip; however, the frieght will be lost
-		calc_gewinn(false);
+		calc_gewinn();
 
 		akt_speed = 0;
 		sprintf(buf, translator::translate("!1_DEPOT_REACHED"), gib_name());
@@ -813,7 +813,6 @@ void convoi_t::ziel_erreicht()
 		halthandle_t halt = gr->ist_wasser() ? haltestelle_t::gib_halt(welt, v->gib_pos()) : gr->gib_halt();
 		if(  halt.is_bound() &&  gr->gib_weg_ribi(v->gib_waytype())!=0  ) {
 			// seems to be a stop, so book the money for the trip
-			calc_gewinn(true);
 			akt_speed = 0;
 			halt->book(1, HALT_CONVOIS_ARRIVED);
 			state = LOADING;
@@ -1546,11 +1545,19 @@ convoi_t::rdwr(loadsave_t *file)
 		last_stop_pos = route.gib_max_n() > 1 ? route.position_bei(0) : (anz_vehikel > 0 ? fahr[0]->gib_pos() : koord3d(0, 0, 0));
 	}
 
+	// for leaving the depot routine
 	if(file->get_version()<99014) {
 		steps_driven = -1;
 	}
 	else {
 		file->rdwr_short( steps_driven, "s" );
+	}
+
+	// since 99015, the last stop will be maintained by the vehikels themselves
+	if(file->get_version()<99015) {
+		for(unsigned i=0; i<anz_vehikel; i++) {
+			fahr[i]->last_stop_pos = last_stop_pos.gib_2d();
+		}
 	}
 }
 
@@ -1717,8 +1724,8 @@ void convoi_t::open_schedule_window()
 	}
 
 	if(state==DRIVING) {
-		//recalc current amount of goods
-		calc_gewinn(false);
+		// book the current value of goods
+		calc_gewinn();
 	}
 
 	akt_speed = 0;	// stop the train ...
@@ -1869,31 +1876,23 @@ void convoi_t::laden()
  * calculate income for last hop
  * @author Hj. Malthaner
  */
-void convoi_t::calc_gewinn(bool in_station)
+void convoi_t::calc_gewinn()
 {
 	sint64 gewinn = 0;
 
-	const vehikel_t* head = fahr[0];
-	// ships will be always considered fully in harbour
-	in_station &= (head->gib_waytype() != water_wt);
-
 	for(unsigned i=0; i<anz_vehikel; i++) {
-		const vehikel_t* v = fahr[i];
-		if(!in_station  ||  welt->lookup(v->gib_pos())->is_halt()) {
-			// in a station, calc only for vehicles which are unloaded
-			gewinn += v->calc_gewinn(last_stop_pos, head->gib_pos());
-		}
-	}
-	if(anz_vehikel>0) {
-		last_stop_pos = head->gib_pos();
+		vehikel_t* v = fahr[i];
+		gewinn += v->calc_gewinn(v->last_stop_pos, v->gib_pos().gib_2d() );
+		v->last_stop_pos = v->gib_pos().gib_2d();
 	}
 
-	besitzer_p->buche(gewinn, head->gib_pos().gib_2d(), COST_INCOME);
-	jahresgewinn += gewinn;
+	if(gewinn) {
+		besitzer_p->buche(gewinn, fahr[0]->gib_pos().gib_2d(), COST_INCOME);
+		jahresgewinn += gewinn;
 
-	// hsiegeln
-	book(gewinn, CONVOI_PROFIT);
-	book(gewinn, CONVOI_REVENUE);
+		book(gewinn, CONVOI_PROFIT);
+		book(gewinn, CONVOI_REVENUE);
+	}
 }
 
 
@@ -1905,6 +1904,7 @@ void convoi_t::calc_gewinn(bool in_station)
  */
 void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 {
+	sint64 gewinn = 0;
 	grund_t *gr=welt->lookup(fahr[0]->gib_pos());
 
 	int station_lenght=0;
@@ -1929,6 +1929,10 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 	for(unsigned i=0; i<anz_vehikel  &&  station_lenght>0; i++) {
 		vehikel_t* v = fahr[i];
 
+		// calc_revenue
+		gewinn += v->calc_gewinn(v->last_stop_pos, v->gib_pos().gib_2d() );
+		v->last_stop_pos = v->gib_pos().gib_2d();
+
 		freight_info_resort |= v->entladen(k, halt);
 		if(!no_load) {
 			// do not load anymore
@@ -1941,6 +1945,14 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 	// any loading went on?
 	calc_loading();
 	loading_limit = fpl->eintrag[fpl->aktuell].ladegrad;
+
+	if(gewinn) {
+		besitzer_p->buche(gewinn, fahr[0]->gib_pos().gib_2d(), COST_INCOME);
+		jahresgewinn += gewinn;
+
+		book(gewinn, CONVOI_PROFIT);
+		book(gewinn, CONVOI_REVENUE);
+	}
 }
 
 
