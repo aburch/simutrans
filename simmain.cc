@@ -625,6 +625,7 @@ extern "C" int simu_main(int argc, char** argv)
 		new_world = false;
 	}
 	else {
+		chdir( umgebung_t::program_dir );
 		char buffer[256];
 		sprintf(buffer, "%sdemo.sve", (const char*)umgebung_t::objfilename);
 		// access did not work!
@@ -726,7 +727,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		umgebung_t::fps = want_refresh < 5 ? 5 : (want_refresh > 100 ? 100 : want_refresh);
 	}
 
-	chdir(umgebung_t::program_dir);
+	chdir(umgebung_t::user_dir);
 	if(loadgame==""  ||  !welt->laden(loadgame)) {
 		// create a default map
 DBG_MESSAGE("init","map");
