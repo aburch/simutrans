@@ -928,42 +928,34 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 				// Station can only store up to a maximum amount of goods per square
 				const sint32 halt_left = (sint32)halt->get_capacity() - (sint32)halt->gib_ware_summe(ware.gib_besch());
-				if(1)//halt_left>0)
-				{
-					// ok, still enough space
-					halt->suche_route(ware);
+				// ok, still enough space
+				halt->suche_route(ware);
 
 //DBG_MESSAGE("verteile_waren()","searched for route for %s with result %i,%i",translator::translate(ware.gib_name()),ware.gib_ziel().x,ware.gib_ziel().y);
-					if(ware.gib_ziel().is_bound()) {
-						// if only overflown factories found => deliver to first
-						// else deliver to non-overflown factory
-						bool overflown = (ziel_fab->gib_eingang()[w].menge >= ziel_fab->gib_eingang()[w].max);
+				if(ware.gib_ziel().is_bound()) {
+					// if only overflown factories found => deliver to first
+					// else deliver to non-overflown factory
+					bool overflown = (ziel_fab->gib_eingang()[w].menge >= ziel_fab->gib_eingang()[w].max);
 
-						if(!welt->gib_einstellungen()->gib_just_in_time()) {
+					if(!welt->gib_einstellungen()->gib_just_in_time()) {
 
-							// distribution also to overflowing factories
-							if(still_overflow  &&  !overflown) {
-								// not overflowing factory found
-								still_overflow = false;
-								dist_list.clear();
-							}
-							if(still_overflow  ||  !overflown) {
-								dist_list.insert( distribute_ware_t( halt, halt_left, ware ) );
-							}
+						// distribution also to overflowing factories
+						if(still_overflow  &&  !overflown) {
+							// not overflowing factory found
+							still_overflow = false;
+							dist_list.clear();
 						}
-						else {
-
-							// only distribute to no-overflowed factories
-							if(!overflown) {
-								dist_list.insert( distribute_ware_t( halt, halt_left, ware ) );
-							}
+						if(still_overflow  ||  !overflown) {
+							dist_list.insert( distribute_ware_t( halt, halt_left, ware ) );
 						}
 					}
+					else {
 
-				}
-				else {
-					// Station too full, notify player
-					halt->bescheid_station_voll();
+						// only distribute to no-overflowed factories
+						if(!overflown) {
+							dist_list.insert( distribute_ware_t( halt, halt_left, ware ) );
+						}
+					}
 				}
 			}
 		}
@@ -997,13 +989,25 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		menge = max( 10, min( menge, 9+capacity_left ) );
 		best_ware.menge = menge;
 		if(capacity_left<0) {
+
+			// find, what is most waiting here from us
+			ware_t most_waiting(ausgang[produkt].gib_typ());
+			most_waiting.menge = 0;
+			for(uint32 n=0; n<lieferziele.get_count(); n++) {
+				const uint32 amount = (sint32)best_halt->gib_ware_fuer_zielpos( ausgang[produkt].gib_typ(), lieferziele[n] );
+				if(amount > most_waiting.menge) {
+					most_waiting.setze_zielpos( lieferziele[n] );
+					most_waiting.menge = amount;
+				}
+			}
+
+
 			//  we will reroute some goods
-			if(best_amount==0) {
-				// remove something from the most wating goods
-				ware_t recall = best_ware;
-				if(best_halt->recall_ware( recall, 1-capacity_left, this)) {
-					best_ware.menge += recall.menge;
-					assert( best_halt->gib_ware_summe(best_ware.gib_besch())==(sint32)best_halt->get_capacity()-capacity_left-(sint32)recall.menge );
+			if(best_amount==0  &&  most_waiting.menge>0) {
+				// remove something from the most waiting goods
+				if(best_halt->recall_ware( most_waiting, min(most_waiting.menge/2,1-capacity_left) ) ) {
+					best_ware.menge += most_waiting.menge;
+					assert( best_halt->gib_ware_summe(best_ware.gib_besch())==(sint32)best_halt->get_capacity()-capacity_left-(sint32)most_waiting.menge );
 				}
 				else {
 					// overcrowded with other stuff (not from us)
@@ -1012,6 +1016,10 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			}
 			else {
 				// overflowed with our own ware!
+				/*
+					Station too full, notify player
+					halt->bescheid_station_voll();
+				*/
 				return;
 			}
 		}

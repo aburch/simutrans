@@ -455,7 +455,7 @@ public:
 	/* retrieves a ware packet for any destination in the list
 	 * needed, if the factory in question wants to remove something
 	 */
-	bool recall_ware( ware_t& w, uint32 menge, const fabrik_t *fab );
+	bool recall_ware( ware_t& w, uint32 menge );
 
 	/**
 	 * holt ware ab

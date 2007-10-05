@@ -982,39 +982,34 @@ void haltestelle_t::liefere_an_fabrik(const ware_t& ware)
 /* retrieves a ware packet for any destination in the list
  * needed, if the factory in question wants to remove something
  */
-bool haltestelle_t::recall_ware( ware_t& w, uint32 menge, const fabrik_t *fab )
+bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 {
 	w.menge = 0;
 	vector_tpl<ware_t> * warray = waren[w.gib_besch()->gib_catg_index()];
 	if(warray!=NULL) {
 
+		for(unsigned i=0;  i<warray->get_count();  i++ ) {
+			ware_t &tmp = (*warray)[i];
 
-		for(unsigned j=0;  j<fab->gib_lieferziele().get_count();  j++ ) {
-			w.setze_zielpos( fab->gib_lieferziele()[j] );
-
-			for(unsigned i=0;  i<warray->get_count();  i++ ) {
-				ware_t &tmp = (*warray)[i];
-
-				// skip empty entries
-				if(tmp.menge==0  ||  w.gib_index()!=tmp.gib_index()  ||  w.gib_zielpos()!=tmp.gib_zielpos()) {
-					continue;
-				}
-
-				// not too much?
-				if(tmp.menge > menge) {
-					// not all can be loaded
-					tmp.menge -= menge;
-					w.menge = menge;
-				}
-				else {
-					// leave an empty entry => joining will more often work
-					w.menge = tmp.menge;
-					tmp.menge = 0;
-				}
-				book(w.menge, HALT_ARRIVED);
-				resort_freight_info = true;
-				return true;
+			// skip empty entries
+			if(tmp.menge==0  ||  w.gib_index()!=tmp.gib_index()  ||  w.gib_zielpos()!=tmp.gib_zielpos()) {
+				continue;
 			}
+
+			// not too much?
+			if(tmp.menge > menge) {
+				// not all can be loaded
+				tmp.menge -= menge;
+				w.menge = menge;
+			}
+			else {
+				// leave an empty entry => joining will more often work
+				w.menge = tmp.menge;
+				tmp.menge = 0;
+			}
+			book(w.menge, HALT_ARRIVED);
+			resort_freight_info = true;
+			return true;
 		}
 	}
 	// nothing to take out
