@@ -303,7 +303,7 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 	for(k.y = 0; k.y < size.y; k.y ++) {
 		for(k.x = 0; k.x < size.x; k.x ++) {
 			grund_t *gr = welt->lookup(koord3d(k,0)+pos);
-			if(gb) {
+			if(gr) {
 				gebaeude_t *gb_part = gr->find<gebaeude_t>();
 				// there may be buildings with holes, so we only remove our!
 				if(gb_part->gib_tile()->gib_besch()==hb) {
