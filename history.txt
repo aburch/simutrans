@@ -23,6 +23,7 @@
 	FIX: reaching destination while just leaving depot will skip destination
 	FIX: revenue will be only given for cars in station
 	FIX: slope entering by a curve would not give slope penalty
+	FIX: tram tracks on bridges were visible in underground mode
 
 
 Release of 99.14

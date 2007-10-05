@@ -679,23 +679,26 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos) const
 		}
 	}
 
-	if(  flags&has_way1  ) {
-		sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
-		const ding_t* d = obj_bei(0);
-		display_color_img( d->gib_bild(), xpos, ynpos, d->get_player_nr(), true, dirty );
-		PLAYER_COLOR_VAL pc = d->gib_outline_colour();
-		if(pc) {
-			display_img_blend( d->gib_bild(), xpos, ynpos, pc, true, dirty );
+	// no ground, and underground mode => likely a bridge => do not show then
+	if(bild!=IMG_LEER  ||  !underground_mode) {
+		if(  flags&has_way1  ) {
+			sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
+			const ding_t* d = obj_bei(0);
+			display_color_img( d->gib_bild(), xpos, ynpos, d->get_player_nr(), true, dirty );
+			PLAYER_COLOR_VAL pc = d->gib_outline_colour();
+			if(pc) {
+				display_img_blend( d->gib_bild(), xpos, ynpos, pc, true, dirty );
+			}
 		}
-	}
 
-	if(  flags&has_way2  ){
-		sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
-		const ding_t* d = obj_bei(1);
-		display_color_img( d->gib_bild(), xpos, ynpos, d->get_player_nr(), true, dirty );
-		PLAYER_COLOR_VAL pc = d->gib_outline_colour();
-		if(pc) {
-			display_img_blend( d->gib_bild(), xpos, ynpos, pc, true, dirty );
+		if(  flags&has_way2  ){
+			sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
+			const ding_t* d = obj_bei(1);
+			display_color_img( d->gib_bild(), xpos, ynpos, d->get_player_nr(), true, dirty );
+			PLAYER_COLOR_VAL pc = d->gib_outline_colour();
+			if(pc) {
+				display_img_blend( d->gib_bild(), xpos, ynpos, pc, true, dirty );
+			}
 		}
 	}
 }
