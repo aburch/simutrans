@@ -431,11 +431,6 @@ bool convoi_t::sync_step(long delta_t)
 					}
 
 				}
-				// go to next stop?
-				if(fahr[0]->gib_route_index()>=route.gib_max_n()) {
-					drive_to_next_stop();
-					state = ROUTING_2;
-				}
 				// maybe we have been stopped be something => avoid jumps
 				sp_soll &= (65536-1);
 
