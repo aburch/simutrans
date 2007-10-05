@@ -1055,7 +1055,7 @@ void depot_frame_t::infowin_event(const event_t *ev)
 			}
 		}
 
-		if(next_dep) {
+		if(next_dep  &&  next_dep!=this->depot) {
 			/**
 			 * Replace our depot_frame_t with a new at the same position.
 			 * Volker Meyer

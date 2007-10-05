@@ -19,6 +19,7 @@
 	FIX: redistribution of goods on stations with three destinations was faulty
 	FIX: building taxiways again
 	FIX: lines again automatically connect and detach from a stop
+	FIX: depot closed, if there was only a single depot and the next/previous depot was searched
 
 
 Release of 99.14
