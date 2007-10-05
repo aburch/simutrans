@@ -25,6 +25,7 @@
 	FIX: slope entering by a curve would not give slope penalty
 	FIX: tram tracks on bridges were visible in underground mode
 	FIX: build station extension building again on flattened slopes
+	FIX (kierongreen): station layout patch supplied with some fixes
 
 
 Release of 99.14

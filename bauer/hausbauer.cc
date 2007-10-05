@@ -424,9 +424,18 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 	// adjust layout of neighbouring building
 	if(besch->gib_utyp()>=8  &&  besch->gib_all_layouts()>1) {
 
+		layout = layout & 9;
+
 		// detect if we are connected at far (north/west) end
-		sint8 offset = welt->lookup( pos )->gib_weg_yoff();
+		sint8 offset = welt->lookup( pos )->gib_weg_yoff()/TILE_HEIGHT_STEP;
 		grund_t * gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::ost : koord::sued), offset) );
+		if(!gr) {
+			// check whether bridge end tile
+			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::ost : koord::sued),offset - 1) );
+			if(gr_tmp && gr_tmp->gib_weg_yoff()/TILE_HEIGHT_STEP == 1) {
+				gr = gr_tmp;
+			}
+		}
 		if(gr) {
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb  &&  gb->gib_tile()->gib_besch()->gib_utyp()>=8) {
@@ -434,14 +443,23 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 				if(gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
 					koord xy = gb->gib_tile()->gib_offset();
 					uint8 layoutbase = gb->gib_tile()->gib_layout();
-					layoutbase &= ~4; // clear near bit on neighbour
-					gb->setze_tile(gb->gib_tile()->gib_besch()->gib_tile(layoutbase, xy.x, xy.y));
+					if((layoutbase & 1) == (layout & 1)) {
+						layoutbase &= 0xb; // clear near bit on neighbour
+						gb->setze_tile(gb->gib_tile()->gib_besch()->gib_tile(layoutbase, xy.x, xy.y));
+					}
 				}
 			}
 		}
 
 		// detect if near (south/east) end
 		gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::nord), offset) );
+		if(!gr) {
+			// check whether bridge end tile
+			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::nord),offset - 1) );
+			if(gr_tmp && gr_tmp->gib_weg_yoff()/TILE_HEIGHT_STEP == 1) {
+				gr = gr_tmp;
+			}
+		}
 		if(gr) {
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb  &&  gb->gib_tile()->gib_besch()->gib_utyp()>=8) {
@@ -449,8 +467,10 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 				if(gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
 					koord xy = gb->gib_tile()->gib_offset();
 					uint8 layoutbase = gb->gib_tile()->gib_layout();
-					layoutbase &= ~2; // clear far bit on neighbour
-					gb->setze_tile(gb->gib_tile()->gib_besch()->gib_tile(layoutbase, xy.x, xy.y));
+					if((layoutbase & 1) == (layout & 1)) {
+						layoutbase &= 0xd; // clear far bit on neighbour
+						gb->setze_tile(gb->gib_tile()->gib_besch()->gib_tile(layoutbase, xy.x, xy.y));
+					}
 				}
 			}
 		}

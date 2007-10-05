@@ -1334,32 +1334,33 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 		ribi_t::ribi next_halt = ribi_t::keine;
 		ribi_t::ribi next_own = ribi_t::keine;
 
-		koord3d pos3d=koord3d(pos,bd->gib_hoehe()+bd->gib_weg_yoff());
+		sint16 offset = bd->gib_hoehe()+bd->gib_weg_yoff()/TILE_HEIGHT_STEP;
 
 		grund_t *gr;
+		sint32 neighbour_layout[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 		for(unsigned i=0;  i<4;  i++) {
-			// oriented buildings here
+			// oriented buildings here - get neighbouring layouts
 			const planquadrat_t *plan = welt->lookup(pos+koord::nsow[i]);
 			if(plan  &&  plan->gib_halt().is_bound()) {
 				// ok, here is a halt at least
 				next_halt |= ribi_t::nsow[i];
-				gr = plan->gib_boden_in_hoehe(bd->gib_hoehe()+bd->gib_weg_yoff());
+				gr = welt->lookup(koord3d(pos+koord::nsow[i],offset));
+				if(!gr) {
+					// check whether bridge end tile
+					grund_t * gr_tmp = welt->lookup(koord3d(pos+koord::nsow[i],offset-1));
+					if(gr_tmp && gr_tmp->gib_weg_yoff()/TILE_HEIGHT_STEP == 1) {
+						gr = gr_tmp;
+					}
+				}
 				if(gr) {
 					// check, if there is an oriented stop
 					const gebaeude_t* gb = gr->find<gebaeude_t>();
 					if(gb  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
 						next_own |= ribi_t::nsow[i];
+						neighbour_layout[ribi_t::nsow[i]] = gb->gib_tile()->gib_layout();
 					}
 				}
 			}
-		}
-
-		// find about ends (but will be overwritten from hausbauer anyway)
-		if((next_halt&ribi&ribi_t::suedost)==0) {
-			layout |= 2;
-		}
-		if((next_halt&ribi&ribi_t::nordwest)==0) {
-			layout |= 4;
 		}
 
 		// now for the details
@@ -1367,70 +1368,31 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 		ribi_t::ribi waagerecht = ribi_t::doppelt(ribi);
 		if(next_own!=ribi_t::keine) {
 			// oriented buildings here
-			if(ribi_t::ist_einfach(ribi&next_own)) {
-				// only a single next neightbour
-				const gebaeude_t* gb = welt->lookup(pos3d + koord((ribi_t::ribi)(ribi & next_own)))->find<gebaeude_t>();
-				uint8 other_layout = gb->gib_tile()->gib_layout();
-				layout |= other_layout&8;
-
-				if(~ribi&waagerecht&next_own) {
-					// set end flags if station continues beyond end of track
-					layout &= (~ribi&waagerecht&next_own&ribi_t::nordwest)?~4:~2;
-				}
+			if(ribi_t::ist_einfach(ribi & next_own)) {
+				// only a single next neighbour on the same track
+				layout |= neighbour_layout[ribi & next_own] & 8;
 			}
-			else if(ribi_t::ist_gerade(waagerecht&next_own) && !ribi_t::ist_einfach(~ribi&waagerecht&next_own)) {
-				// oriented buildings left and right
-				layout &= ~6;
-				// take layout from one of them; prefer the one one the same track, if two tracks go to each other
-				ribi_t::ribi dir = (ribi&next_own&ribi_t::nordwest)==0 ? ribi&next_own : waagerecht&next_own&ribi_t::nordwest;
-				const gebaeude_t* gb = welt->lookup(pos3d + koord(dir))->find<gebaeude_t>();
-				layout |= gb->gib_tile()->gib_layout()&8;
+			else if(ribi_t::ist_gerade(ribi & next_own)) {
+				// two neighbours on the same track, use the north/west one
+				layout |= neighbour_layout[ribi & next_own & ribi_t::nordwest] & 8;
 			}
-			else if(ribi_t::ist_einfach(~ribi&waagerecht&next_own) && !next_own&senkrecht) {
+			else if(ribi_t::ist_einfach((~ribi) & waagerecht & next_own)) {
 				// neighbour across break in track
-				const gebaeude_t* gb = welt->lookup(pos3d + koord((ribi_t::ribi)(~ribi & waagerecht & next_own)))->find<gebaeude_t>();
-				uint8 other_layout = gb->gib_tile()->gib_layout();
-				layout |= other_layout&8;
-
-				// set end flags
-				layout &= (~ribi&waagerecht&next_own&ribi_t::nordwest)?~4:~2;
+				layout |= neighbour_layout[(~ribi) & waagerecht & next_own] & 8;
 			}
 			else {
 				// no buildings left and right
 				// oriented buildings left and right
-				const gebaeude_t* gb = welt->lookup(pos3d + koord((ribi_t::ribi)(senkrecht & next_own & ribi_t::nordwest)))->find<gebaeude_t>();
-				if(gb) {
+				if(neighbour_layout[senkrecht & next_own & ribi_t::nordwest] != -1) {
 					// just rotate layout
-					assert(gb->gib_tile()->gib_besch()->gib_all_layouts()>4);
-					layout |= 8-(gb->gib_tile()->gib_layout()&8);
+					layout |= 8-(neighbour_layout[senkrecht & next_own & ribi_t::nordwest]&8);
 				}
 				else {
-					const gebaeude_t* gb = welt->lookup(pos3d + koord((ribi_t::ribi)(senkrecht & next_own & ribi_t::suedost)))->find<gebaeude_t>();
-					if(gb) {
-						assert(gb->gib_tile()->gib_besch()->gib_all_layouts()>4);
-						layout |= 8-(gb->gib_tile()->gib_layout()&8);
-					}
-					else {
-						// no building => take default
-						layout &= ~ 6;
+					if(neighbour_layout[senkrecht & next_own & ribi_t::suedost] != -1) {
+						layout |= 8-(neighbour_layout[senkrecht & next_own & ribi_t::suedost]&8);
 					}
 				}
-
-				if(~ribi&waagerecht&next_own) {
-					// set end flags if station continues beyond end of track
-					layout &= (~ribi&waagerecht&next_own&ribi_t::nordwest)?~4:~2;
-				}
 			}
-		}
-		else if(next_halt!=ribi_t::keine) {
-			// a previous stop here
-			// first check orientation: only use our side if stop in south/east of our way
-			if(next_halt&ribi_t::suedost&senkrecht) {
-				layout |= 8;
-			}
-		}
-		else {
-			// we are the first to built here ...
 		}
 		// avoid orientation on 8 tiled buildings
 		layout &= (besch->gib_all_layouts()-1);

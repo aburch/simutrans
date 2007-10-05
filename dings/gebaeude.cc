@@ -808,27 +808,45 @@ void gebaeude_t::entferne(spieler_t *sp)
 		// detect if we are connected at far (north/west) end
 		grund_t * gr = welt->lookup( gib_pos() );
 		if(gr) {
-			sint8 offset = gr->gib_weg_yoff();
+			sint8 offset = gr->gib_weg_yoff()/TILE_HEIGHT_STEP;
 			gr = welt->lookup( gib_pos()+koord3d( (layout & 1 ? koord::ost : koord::sued), offset) );
+			if(!gr) {
+				// check whether bridge end tile
+				grund_t * gr_tmp = welt->lookup( gib_pos()+koord3d( (layout & 1 ? koord::ost : koord::sued),offset - 1) );
+				if(gr_tmp && gr_tmp->gib_weg_yoff()/TILE_HEIGHT_STEP == 1) {
+					gr = gr_tmp;
+				}
+			}
 			if(gr) {
 				gebaeude_t* gb = gr->find<gebaeude_t>();
 				if(gb  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
 					koord xy = gb->gib_tile()->gib_offset();
 					uint8 layoutbase = gb->gib_tile()->gib_layout();
-					layoutbase |= 4; // set far bit on neighbour
-					gb->setze_tile(gb->gib_tile()->gib_besch()->gib_tile(layoutbase, xy.x, xy.y));
+					if((layoutbase & 1) == (layout & 1)) {
+						layoutbase |= 4; // set far bit on neighbour
+						gb->setze_tile(gb->gib_tile()->gib_besch()->gib_tile(layoutbase, xy.x, xy.y));
+					}
 				}
 			}
 
 			// detect if near (south/east) end
 			gr = welt->lookup( gib_pos()+koord3d( (layout & 1 ? koord::west : koord::nord), offset) );
+			if(!gr) {
+				// check whether bridge end tile
+				grund_t * gr_tmp = welt->lookup( gib_pos()+koord3d( (layout & 1 ? koord::west : koord::nord),offset - 1) );
+				if(gr_tmp && gr_tmp->gib_weg_yoff()/TILE_HEIGHT_STEP == 1) {
+					gr = gr_tmp;
+				}
+			}
 			if(gr) {
 				gebaeude_t* gb = gr->find<gebaeude_t>();
 				if(gb  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
 					koord xy = gb->gib_tile()->gib_offset();
 					uint8 layoutbase = gb->gib_tile()->gib_layout();
-					layoutbase |= 2; // set near bit on neighbour
-					gb->setze_tile(gb->gib_tile()->gib_besch()->gib_tile(layoutbase, xy.x, xy.y));
+					if((layoutbase & 1) == (layout & 1)) {
+						layoutbase |= 2; // set near bit on neighbour
+						gb->setze_tile(gb->gib_tile()->gib_besch()->gib_tile(layoutbase, xy.x, xy.y));
+					}
 				}
 			}
 		}
