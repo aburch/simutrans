@@ -110,8 +110,11 @@ void bruecke_t::laden_abschliessen()
 	assert(gr->obj_bei(0)!=this);
 	spieler_t *sp=gib_besitzer();
 	if(sp) {
-		// change maitainance
+		// change maintainance
 		weg_t *weg = gr->gib_weg(besch->gib_waytype());
+		if(!weg) {
+			dbg->fatal("bruecke_t::laden_abschliessen()","Bridge without way!");
+		}
 		weg->setze_max_speed(besch->gib_topspeed());
 		weg->setze_besitzer(sp);
 		sp->add_maintenance(-weg->gib_besch()->gib_wartung());

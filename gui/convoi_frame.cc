@@ -303,7 +303,8 @@ void convoi_frame_t::resize(const koord size_change)                          //
 		add_komponente(&vscroll);
 		vscroll.setze_pos(koord(groesse.x-11, 47-16));
 		vscroll.setze_groesse(groesse-koord(0,11));
-		vscroll.setze_knob( max( 1, (groesse.y-47)/40)+1, convois.get_count() );
+		vscroll.setze_knob( (groesse.y-47)/40, convois.get_count() );
+		vscroll.setze_scroll_amount( 1 );
 	}
 }
 

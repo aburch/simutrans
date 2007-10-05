@@ -1863,18 +1863,18 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	}
 
 	// check, if we have to add a line to this coordinate
-	vector_tpl<linehandle_t> line;
+	vector_tpl<linehandle_t> check_line(0);
 	if(gib_besitzer()==welt->gib_spieler(1)) {
 		// must iterate over all players lines ...
-		for(  int i=0;  i<MAX_PLAYER_COUNT;  i  ) {
-			welt->gib_spieler(i)->simlinemgmt.get_lines(simline_t::line, &line);
-			for(  int j=0;  j<line.get_count();  j++  ) {
+		for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+			welt->gib_spieler(i)->simlinemgmt.get_lines(simline_t::line, &check_line);
+			for(  int j=0;  j<check_line.get_count();  j++  ) {
 				// only add unknow lines
-				if(  !registered_lines.is_contained(line[j])  ) {
-					const fahrplan_t *fpl = line[j]->get_fahrplan();
+				if(  !registered_lines.is_contained(check_line[j])  ) {
+					const fahrplan_t *fpl = check_line[j]->get_fahrplan();
 					for(  int k=0;  k<fpl->maxi();  k++  ) {
 						if(gib_halt(welt,fpl->eintrag[k].pos)==self) {
-							registered_lines.append( line[j], 8 );
+							registered_lines.append( check_line[j], 8 );
 							break;
 						}
 					}
@@ -1883,14 +1883,14 @@ bool haltestelle_t::add_grund(grund_t *gr)
 		}
 	}
 	else {
-		gib_besitzer()->simlinemgmt.get_lines(simline_t::line, &line);
-		for(  uint32 j=0;  j<line.get_count();  j++  ) {
+		gib_besitzer()->simlinemgmt.get_lines(simline_t::line, &check_line);
+		for(  uint32 j=0;  j<check_line.get_count();  j++  ) {
 			// only add unknow lines
-			if(  !registered_lines.is_contained(line[j])  ) {
-				const fahrplan_t *fpl = line[j]->get_fahrplan();
+			if(  !registered_lines.is_contained(check_line[j])  ) {
+				const fahrplan_t *fpl = check_line[j]->get_fahrplan();
 				for(  int k=0;  k<fpl->maxi();  k++  ) {
 					if(gib_halt(welt,fpl->eintrag[k].pos)==self) {
-						registered_lines.append( line[j], 8 );
+						registered_lines.append( check_line[j], 8 );
 						break;
 					}
 				}
