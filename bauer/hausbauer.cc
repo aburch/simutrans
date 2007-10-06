@@ -415,7 +415,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int lay
 
 
 gebaeude_t *
-hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layout, const haus_besch_t *besch, void *param)
+hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built_layout, const haus_besch_t *besch, void *param)
 {
 	gebaeude_t *gb;
 
@@ -424,7 +424,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 	// adjust layout of neighbouring building
 	if(besch->gib_utyp()>=8  &&  besch->gib_all_layouts()>1) {
 
-		layout = layout & 9;
+		int layout = built_layout & 9;
 
 		// detect if we are connected at far (north/west) end
 		sint8 offset = welt->lookup( pos )->gib_weg_yoff()/TILE_HEIGHT_STEP;
@@ -478,10 +478,10 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 
 	// adjust layouts of the new building
 	if(besch->gib_all_layouts()>4) {
-		layout = (corner_layout | layout) % besch->gib_all_layouts();
+		built_layout = (corner_layout | (built_layout&9) ) % besch->gib_all_layouts();
 	}
 
-	const haus_tile_besch_t *tile = besch->gib_tile(layout, 0, 0);
+	const haus_tile_besch_t *tile = besch->gib_tile(built_layout, 0, 0);
 	if(besch == bahn_depot_besch) {
 		gb = new bahndepot_t(welt, pos, sp, tile);
 	} else if(besch == tram_depot_besch) {
