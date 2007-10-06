@@ -368,9 +368,7 @@ roadsign_t::rdwr(loadsave_t *file)
 void
 roadsign_t::entferne(spieler_t *sp)
 {
-	if(sp!=NULL) {
-		sp->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
-	}
+	sp->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
 }
 
 

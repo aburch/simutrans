@@ -733,7 +733,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 		break;
 
 		case MENU_SPECIAL:
-    {
+		{
 			werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "SPECIALTOOLS");
 
 			wzw->setze_hilfe_datei("special.txt");
@@ -813,6 +813,15 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					wegbauer_t::leitung_besch->gib_preis()/100l,
 					(wegbauer_t::leitung_besch->gib_wartung()<<shift_maintanance)/100l
 					);
+
+				brueckenbauer_t::fill_menu(wzw,
+					powerline_wt,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					welt
+					);
+
+
 
 				wzw->add_param_tool(wkz_wegebau,
 					(const void *)wegbauer_t::leitung_besch,

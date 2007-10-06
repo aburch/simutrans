@@ -17,6 +17,7 @@
 #include "../simimg.h"
 #include "../simmem.h"
 #include "../bauer/brueckenbauer.h"
+#include "../bauer/wegbauer.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 
@@ -38,9 +39,7 @@ bruecke_t::bruecke_t(karte_t *welt, koord3d pos, spieler_t *sp,
 	this->besch = besch;
 	this->img = img;
 	setze_besitzer( sp );
-	if(gib_besitzer()) {
-		gib_besitzer()->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
-	}
+	gib_besitzer()->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
 }
 
 
@@ -107,17 +106,18 @@ void bruecke_t::rdwr(loadsave_t *file)
 void bruecke_t::laden_abschliessen()
 {
 	const grund_t *gr = welt->lookup(gib_pos());
-	assert(gr->obj_bei(0)!=this);
 	spieler_t *sp=gib_besitzer();
 	if(sp) {
 		// change maintainance
 		weg_t *weg = gr->gib_weg(besch->gib_waytype());
-		if(!weg) {
+		if(weg) {
+			weg->setze_max_speed(besch->gib_topspeed());
+			weg->setze_besitzer(sp);
+			sp->add_maintenance(-weg->gib_besch()->gib_wartung());
+		}
+		else if(besch->gib_waytype()!=powerline_wt) {
 			dbg->fatal("bruecke_t::laden_abschliessen()","Bridge without way!");
 		}
-		weg->setze_max_speed(besch->gib_topspeed());
-		weg->setze_besitzer(sp);
-		sp->add_maintenance(-weg->gib_besch()->gib_wartung());
 		sp->add_maintenance( besch->gib_wartung() );
 	}
 }
@@ -137,13 +137,12 @@ void bruecke_t::entferne( spieler_t *sp2 )
 		const grund_t *gr = welt->lookup(gib_pos());
 		if(gr) {
 			weg_t *weg = gr->gib_weg( besch->gib_waytype() );
-			assert(weg);
-			weg->setze_max_speed( weg->gib_besch()->gib_topspeed() );
-			sp->add_maintenance( weg->gib_besch()->gib_wartung());
+			if(weg) {
+				weg->setze_max_speed( weg->gib_besch()->gib_topspeed() );
+				sp->add_maintenance( weg->gib_besch()->gib_wartung());
+			}
 			sp->add_maintenance( -besch->gib_wartung() );
 		}
 	}
-	if(sp2) {
-		sp2->buche( -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION );
-	}
+	sp2->buche( -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION );
 }

@@ -181,26 +181,6 @@ protected:
 	 */
 	bool is_connected(const grund_t *gr, waytype_t wegtyp, koord dv) const;
 
-	/**
-	 * Description;
-	 *      Check, whether it is possible that a way goes up or down in dv
-	 *      direction. The result depends of the ground type (i.e tunnel entries)
-	 *      and the "hang_typ" of the ground.
-	 *
-	 *      Returns 1, if it is possible to go up
-	 *      Returns -1, if it is possible to go down
-	 *      Returns 0 otherwise.
-	 *
-	 * Notice:
-	 *      helper function for "get_neighbour"
-	 *      Was previously a part of the simposition module.
-	 *
-	 * @author: Volker Meyer
-	 * @date: 21.05.2003
-	 */
-	int get_vmove(koord dir) const;
-
-protected:
 	grund_t(karte_t *wl);
 
 public:
@@ -358,6 +338,12 @@ public:
 	/* this will be stored locally, since it is called many, many times */
 	inline uint8 ist_karten_boden() const {return (flags&is_kartenboden);}
 	void set_kartenboden(bool tf) {if(tf) {flags|=is_kartenboden;} else {flags&=~is_kartenboden;} }
+
+	/**
+	* returns powerline here
+	* @author Kieron Green
+	*/
+	leitung_t *gib_leitung() const { return (leitung_t *) dinge.get_leitung(); }
 
 	/**
 	* Laedt oder speichert die Daten des Untergrundes in eine Datei.
@@ -613,6 +599,25 @@ public:
 	 * @date: 21.05.2003
 	 */
 	bool get_neighbour(grund_t *&to, waytype_t type, koord dir) const;
+
+	/**
+	 * Description;
+	 *      Check, whether it is possible that a way goes up or down in dv
+	 *      direction. The result depends of the ground type (i.e tunnel entries)
+	 *      and the "hang_typ" of the ground.
+	 *
+	 *      Returns 1, if it is possible to go up
+	 *      Returns -1, if it is possible to go down
+	 *      Returns 0 otherwise.
+	 *
+	 * Notice:
+	 *      helper function for "get_neighbour"
+	 *      Was previously a part of the simposition module.
+	 *
+	 * @author: Volker Meyer
+	 * @date: 21.05.2003
+	 */
+	sint16 get_vmove(koord dir) const;
 
 	/* removes everything from a tile, including a halt but i.e. leave a
 	 * powerline ond other stuff

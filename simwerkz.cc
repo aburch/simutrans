@@ -327,11 +327,21 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 	}
 
 	// prissi: Leitung prüfen (can cross ground of another player)
-	leitung_t* lt = gr->find<leitung_t>();
+	leitung_t* lt = gr->gib_leitung();
 	if(lt!=NULL  &&  lt->gib_besitzer()==sp) {
-		gr->obj_remove(lt);
-		delete lt;
-		return true;
+		bool is_leitungsbruecke = false;
+		if(gr->ist_bruecke()  &&  gr->ist_karten_boden()) {
+			bruecke_t* br = gr->find<bruecke_t>();
+			is_leitungsbruecke = br->gib_besch()->gib_waytype()==powerline_wt;
+		}
+		if(is_leitungsbruecke) {
+			msg = brueckenbauer_t::remove(welt, sp, gr->gib_pos(), powerline_wt );
+			return msg == NULL;
+		}
+		else {
+			delete lt;
+			return true;
+		}
 	}
 
 	// check for signal

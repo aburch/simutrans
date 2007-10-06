@@ -598,6 +598,31 @@ dingliste_t::suche(ding_t::typ typ,uint8 start) const
 
 
 
+ding_t *
+dingliste_t::get_leitung() const
+{
+	if(capacity==0) {
+		return NULL;
+	}
+	else if(capacity==1) {
+		if(obj.one->gib_typ()>=ding_t::leitung  &&  obj.one->gib_typ()<=ding_t::senke) {
+			return obj.one;
+		}
+	}
+	else if(top>0) {
+		// else we have to search the list
+		for(uint8 i=0; i<top; i++) {
+			uint8 typ = obj.some[i]->gib_typ();
+			if(typ>=ding_t::leitung  &&  typ<=ding_t::senke) {
+				return obj.some[i];
+			}
+		}
+	}
+	return NULL;
+}
+
+
+
 void
 dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 {

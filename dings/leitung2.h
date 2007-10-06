@@ -35,7 +35,7 @@ protected:
 	*/
 	void verbinde();
 
-	void replace(koord base_pos, powernet_t* neu);
+	void replace(powernet_t* neu);
 
 public:
 	powernet_t* get_net() const { return net; }
@@ -43,10 +43,8 @@ public:
 
 	ribi_t::ribi gib_ribi();
 
+	int gimme_neighbours(leitung_t **conn);
 	static fabrik_t * suche_fab_4(koord pos);
-
-	// return pointer to leitung/pumpe/senke, if there
-	static leitung_t *ist_leitung(karte_t *welt, koord pos);
 
 	leitung_t(karte_t *welt, loadsave_t *file);
 	leitung_t(karte_t *welt, koord3d pos, spieler_t *sp);

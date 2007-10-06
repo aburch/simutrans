@@ -70,9 +70,7 @@ field_t::ist_entfernbar(const spieler_t *)
 void
 field_t::entferne(spieler_t *sp)
 {
-	if(sp) {
-		sp->buche(umgebung_t::cst_multiply_remove_field, gib_pos().gib_2d(), COST_CONSTRUCTION);
-	}
+	sp->buche(umgebung_t::cst_multiply_remove_field, gib_pos().gib_2d(), COST_CONSTRUCTION);
 }
 
 

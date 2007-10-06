@@ -513,9 +513,7 @@ void baum_t::info(cbuffer_t & buf) const
 void
 baum_t::entferne(spieler_t *sp)
 {
-	if(sp != NULL) {
-		sp->buche(umgebung_t::cst_remove_tree, gib_pos().gib_2d(), COST_CONSTRUCTION);
-	}
+	sp->buche(umgebung_t::cst_remove_tree, gib_pos().gib_2d(), COST_CONSTRUCTION);
 	mark_image_dirty( gib_bild(), 0 );
 }
 

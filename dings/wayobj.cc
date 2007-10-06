@@ -125,7 +125,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 void
 wayobj_t::entferne(spieler_t *sp)
 {
-	if(sp!=NULL  &&  besch) {
+	if(besch) {
 		sp->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
 }

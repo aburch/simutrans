@@ -558,7 +558,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 	if((bautyp&tunnel_flag)==0) {
 		if(to->gib_typ()==grund_t::brueckenboden  ||  to->gib_typ()==grund_t::tunnelboden) {
 			weg_t *weg=to->gib_weg_nr(0);
-			if(!ribi_t::ist_gerade(weg->gib_ribi_unmasked()|ribi_typ(zv))) {
+			if(weg && !ribi_t::ist_gerade(weg->gib_ribi_unmasked()|ribi_typ(zv))) {
 				return false;
 			}
 		}
@@ -716,7 +716,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			}
 			// do not connect to other powerlines
 			{
-				leitung_t *lt = leitung_t::ist_leitung(welt,to->gib_pos().gib_2d());
+				leitung_t *lt = to->gib_leitung();
 				ok &= (lt==NULL)  ||  check_owner(sp, lt->gib_besitzer());
 			}
 			// only fields are allowed
@@ -1745,9 +1745,7 @@ wegbauer_t::baue_tunnelboden()
 			gr->weg_erweitern(tunnel_besch->gib_waytype(),calc_ribi(i));
 		}
 	}
-	if(cost && sp) {
-		sp->buche(cost, route[0].gib_2d(), COST_CONSTRUCTION);
-	}
+	sp->buche(cost, route[0].gib_2d(), COST_CONSTRUCTION);
 	return true;
 }
 
@@ -1838,10 +1836,7 @@ wegbauer_t::baue_strasse()
 		}
 		gr->calc_bild();	// because it may be a crossing ...
 		reliefkarte_t::gib_karte()->calc_map_pixel(k);
-
-		if(cost && sp) {
-			sp->buche(cost, k, COST_CONSTRUCTION);
-		}
+		sp->buche(cost, k, COST_CONSTRUCTION);
 	} // for
 }
 
@@ -1902,12 +1897,9 @@ wegbauer_t::baue_schiene()
 				sp->add_undo( position_bei(i) );
 			}
 
-			if(cost  &&  sp) {
-				sp->buche(cost, gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
-			}
-
 			gr->calc_bild();
 			reliefkarte_t::gib_karte()->calc_map_pixel( gr->gib_pos().gib_2d() );
+			sp->buche(cost, gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
 
 			if((i&3)==0) {
 				INT_CHECK( "wegbauer 1584" );
@@ -1925,23 +1917,22 @@ wegbauer_t::baue_leitung()
 	for(i=0; i<=max_n; i++) {
 		grund_t* gr = welt->lookup(route[i]);
 
-		leitung_t* lt = gr->find<leitung_t>();
-		if (lt == 0) lt = gr->find<pumpe_t>();
-		if (lt == 0) lt = gr->find<senke_t>();
+		leitung_t* lt = gr->gib_leitung();
 		// ok, really no lt here ...
-		if(lt == 0) {
-			lt = new leitung_t(welt, gr->gib_pos(), sp);
+		if(!lt) {
 			if(gr->ist_natur()) {
 				// remove trees etc.
 				gr->obj_loesche_alle(sp);
 			}
-			if(sp) {
-				sp->add_maintenance(leitung_besch->gib_wartung());
-				sp->buche(-leitung_besch->gib_preis(), gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
-			}
+			lt = new leitung_t( welt, route[i], sp );
+			sp->buche(-leitung_besch->gib_preis(), gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
 			gr->obj_add(lt);
 		}
-		lt->calc_neighbourhood();
+		else {
+			lt->gib_besitzer()->add_maintenance( -wegbauer_t::leitung_besch->gib_wartung() );
+		}
+		lt->laden_abschliessen();
+
 		if((i&3)==0) {
 			INT_CHECK( "wegbauer 1584" );
 		}

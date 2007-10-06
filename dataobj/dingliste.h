@@ -39,6 +39,9 @@ public:
 
 	ding_t * suche(ding_t::typ typ,uint8 start) const;
 
+	// since this is often needed, it is defined here
+	ding_t * get_leitung() const;
+
 	// show all info about the current liste and its objects
 	void dump() const;
 

@@ -510,6 +510,10 @@ void spieler_t::calc_finance_history()
 // add and amount, including the display of the message and some other things ...
 sint64 spieler_t::buche(const sint64 betrag, const koord pos, const int type)
 {
+	if(this==NULL  ||  this==welt->gib_spieler(1)) {
+		return 0;
+	}
+
 	buche(betrag, type);
 
 	if(betrag != 0) {

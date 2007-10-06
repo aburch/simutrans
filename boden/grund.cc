@@ -215,34 +215,34 @@ void grund_t::rdwr(loadsave_t *file)
 			weg_t *weg = NULL;
 
 			if(++i < 2) {
-					switch(wtyp) {
-						default:
-							break;
+				switch(wtyp) {
+					default:
+						break;
 
-						case road_wt:
-							weg = new strasse_t (welt, file);
-							break;
+					case road_wt:
+						weg = new strasse_t (welt, file);
+						break;
 
-						case monorail_wt:
-							weg = new monorail_t (welt, file);
-							break;
+					case monorail_wt:
+						weg = new monorail_t (welt, file);
+						break;
 
-						case track_wt: {
-							schiene_t *sch = new schiene_t (welt, file);
-							if(sch->gib_besch()->gib_wtyp()==monorail_wt) {
-								dbg->warning("grund_t::rdwr()", "converting railroad to monorail at (%i,%i)",gib_pos().x, gib_pos().y);
-								// compatibility code: Convert to monorail
-								monorail_t *w= new monorail_t(welt);
-								w->setze_besch(sch->gib_besch());
-								w->setze_max_speed(sch->gib_max_speed());
-								w->setze_ribi(sch->gib_ribi_unmasked());
-								delete sch;
-								weg = w;
-							}
-							else {
-								weg = sch;
-							}
-						} break;
+					case track_wt: {
+						schiene_t *sch = new schiene_t (welt, file);
+						if(sch->gib_besch()->gib_wtyp()==monorail_wt) {
+							dbg->warning("grund_t::rdwr()", "converting railroad to monorail at (%i,%i)",gib_pos().x, gib_pos().y);
+							// compatibility code: Convert to monorail
+							monorail_t *w= new monorail_t(welt);
+							w->setze_besch(sch->gib_besch());
+							w->setze_max_speed(sch->gib_max_speed());
+							w->setze_ribi(sch->gib_ribi_unmasked());
+							delete sch;
+							weg = w;
+						}
+						else {
+							weg = sch;
+						}
+					} break;
 
 					case tram_wt:
 						weg = new schiene_t (welt, file);
@@ -975,7 +975,8 @@ bool grund_t::is_connected(const grund_t *gr, waytype_t wegtyp, koord dv) const
 
 
 // now we need a more sophisticated calculations ...
-int grund_t::get_vmove(koord dir) const
+sint16
+grund_t::get_vmove(koord dir) const
 {
 	const sint8 slope=gib_weg_hang();
 	sint16 h=gib_hoehe();
