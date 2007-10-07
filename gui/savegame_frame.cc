@@ -284,7 +284,6 @@ bool savegame_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		//--------------------------
 		for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
 			if (komp == i->button || komp == i->del) {
-				destroy_win(this);
 				intr_refresh_display( true );
 
 				tstrncpy(buf, SAVE_PATH_X, lengthof(buf));
@@ -296,6 +295,7 @@ bool savegame_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 				} else {
 					del_action(buf);
 				}
+				destroy_win(this);
 				break;
 			}
 		}

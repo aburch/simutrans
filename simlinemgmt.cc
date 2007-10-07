@@ -8,10 +8,13 @@
 #include "simlinemgmt.h"
 #include "simline.h"
 #include "simhalt.h"
+#include "simwin.h"
 #include "simtypes.h"
 #include "simintr.h"
 
 #include "dataobj/fahrplan.h"
+
+#include "gui/schedule_list.h"
 
 uint8 simlinemgmt_t::used_ids[8192];
 
@@ -28,6 +31,17 @@ void simlinemgmt_t::init_line_ids()
 simlinemgmt_t::simlinemgmt_t(karte_t* welt)
 {
 	this->welt = welt;
+}
+
+simlinemgmt_t::~simlinemgmt_t()
+{
+	destroy_win( (long)this );
+}
+
+void
+simlinemgmt_t::zeige_info(spieler_t *sp) const
+{
+	create_win( new schedule_list_gui_t(sp), w_info, (long)this );
 }
 
 void

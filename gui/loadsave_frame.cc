@@ -21,9 +21,8 @@ void loadsave_frame_t::action(const char *filename)
 		welt->laden(filename);
 	} else {
 		welt->speichern(filename,false);
+		welt->setze_dirty();
 	}
-
-	welt->setze_dirty();
 }
 
 void loadsave_frame_t::del_action(const char *filename)

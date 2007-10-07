@@ -39,8 +39,6 @@ protected:
 public:
     ding_infowin_t(const ding_t* ding);
 
-    virtual ~ding_infowin_t() { ding->entferne_ding_info(); }
-
     /**
      * @return window title
      *

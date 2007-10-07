@@ -229,9 +229,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	sortierung = freight_list_sorter_t::by_name;
 	resort_freight_info = true;
 
-	// Lazy init at opening!
-	halt_info = NULL;
-
 	rdwr(file);
 
 	alle_haltestellen.insert(self);
@@ -268,8 +265,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	sortierung = freight_list_sorter_t::by_name;
 	init_financial_history();
 
-	// Lazy init at opening!
-	halt_info = NULL;
 	if(welt->ist_in_kartengrenzen(k)) {
 		welt->access(k)->setze_halt(self);
 	}
@@ -341,10 +336,7 @@ haltestelle_t::~haltestelle_t()
 	// before it is needed for clearing up the planqudrat and tiles
 	self.detach();
 
-	if(halt_info) {
-		destroy_win(halt_info);
-		delete halt_info;
-	}
+	destroy_win((long)this);
 
 	for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
 		if(waren[i]) {
@@ -1412,11 +1404,7 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf)
 
 void haltestelle_t::zeige_info()
 {
-	// open window
-	if(halt_info == 0) {
-		halt_info = new halt_info_t(welt, self);
-	}
-	create_win(-1, -1, halt_info, w_info);
+	create_win(new halt_info_t(welt, self), w_info, (long)this );
 }
 
 

@@ -1419,7 +1419,7 @@ wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d)
 	if(	!(welt->ist_in_kartengrenzen(start-koord(5,5))  &&  welt->ist_in_kartengrenzen(start+koord(5,5)))  ||
 		!(welt->ist_in_kartengrenzen(ziel-koord(5,5))  &&  welt->ist_in_kartengrenzen(ziel+koord(5,5)))  ) {
 		if(sp==welt->get_active_player()) {
-			create_win(-1, -1, MESG_WAIT, new news_img("Zu nah am Kartenrand"), w_autodelete);
+			create_win( new news_img("Zu nah am Kartenrand"), w_time_delete, magic_none);
 			return false;
 		}
 	}

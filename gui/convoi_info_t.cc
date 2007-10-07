@@ -305,7 +305,7 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 
 	// datails?
 	if(komp == &details_button) {
-		create_win(20, 20, -1, new convoi_detail_t(cnv), w_autodelete);
+		create_win(20, 20, new convoi_detail_t(cnv), w_info, (long)this);
 		return true;
 	}
 
@@ -385,7 +385,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			} else {
 				txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
 			}
-			create_win(-1, -1, 120, new news_img(txt), w_autodelete);
+			create_win( new news_img(txt), w_time_delete, magic_none);
 		} // end go home button
 	}
 

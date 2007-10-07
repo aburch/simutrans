@@ -151,9 +151,6 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 
 	init_texte();
 
-	money_frame = NULL;
-	line_frame = NULL;
-
 	passenger_transport = true;
 
 	// we have different AI, try to find out our type:
@@ -189,43 +186,17 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 
 spieler_t::~spieler_t()
 {
-	// maybe free money frame
-	if(money_frame!=NULL) {
-		delete money_frame;
-	}
-	money_frame = NULL;
-	// maybe free line frame
-	if(line_frame!=NULL) {
-		delete line_frame;
-	}
-	line_frame = NULL;
+	destroy_win( (long)this );
 }
 
 
 /* returns the money dialoge of a player
  * @author prissi
  */
-money_frame_t *
-spieler_t::gib_money_frame(void)
+void
+spieler_t::zeige_info()
 {
-	if(money_frame==NULL) {
-		money_frame = new money_frame_t(this);
-	}
-	return money_frame;
-}
-
-
-
-/* returns the line dialoge of a player
- * @author prissi
- */
-schedule_list_gui_t *
-spieler_t::get_line_frame(void)
-{
-	if(line_frame==NULL) {
-		line_frame = new schedule_list_gui_t(this);
-	}
-	return line_frame;
+	create_win( new money_frame_t(this), w_info, (long)this );
 }
 
 
@@ -385,7 +356,7 @@ void spieler_t::neuer_monat()
 					message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				} else {
 					destroy_all_win();
-					create_win(280, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_autodelete);
+					create_win(280, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
 					welt->beenden(false);
 				}
 			}

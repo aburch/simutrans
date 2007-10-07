@@ -237,7 +237,7 @@ halt_info_t::zeichnen(koord pos, koord gr)
 bool halt_info_t::action_triggered(gui_komponente_t *comp,value_t /* */)
 {
 	if (comp == &button) { 			// details button pressed
-		create_win(-1, -1, new halt_detail_t(halt), w_autodelete);
+		create_win( new halt_detail_t(halt), w_info, (long)this);
 	} else if (comp == &sort_button) { 	// @author hsiegeln sort button pressed
 		umgebung_t::default_sortmode = ((int)(halt->get_sortby())+1)%4;
 		halt->set_sortby((freight_list_sorter_t::sort_mode_t) umgebung_t::default_sortmode);

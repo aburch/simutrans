@@ -45,7 +45,6 @@ class lagerhaus_t;
 class ware_t;
 class grund_t;
 class fahrplan_t;
-class halt_info_t;
 class cbuffer_t;
 
 #include "halthandle_t.h"
@@ -249,8 +248,6 @@ private:
 	// for station rating
 	const char * quote_bezeichnung(int quote) const;
 #endif
-
-	halt_info_t *halt_info;
 
 	/**
 	 * versucht die ware mit beriets wartender ware zusammenzufassen

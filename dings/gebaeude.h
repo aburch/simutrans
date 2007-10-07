@@ -88,12 +88,6 @@ private:
 protected:
 	gebaeude_t(karte_t *welt);
 
-	/**
-	 * Erzeugt ein Info-Fenster für dieses Objekt
-	 * @author V. Meyer
-	 */
-	ding_infowin_t *new_info();
-
 public:
 	gebaeude_t(karte_t *welt, loadsave_t *file);
 	gebaeude_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);

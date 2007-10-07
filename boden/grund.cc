@@ -63,8 +63,6 @@
 #include "../simmem.h"
 #include "../simgraph.h"
 
-
-#include "../tpl/ptrhashtable_tpl.h"
 #include "../tpl/inthashtable_tpl.h"
 
 #include "../dings/leitung2.h"	// for construction of new ways ...
@@ -98,15 +96,6 @@ bool grund_t::show_grid = false;
 bool grund_t::underground_mode = false;
 
 uint8 grund_t::offsets[4]={0,1,2/*illegal!*/,2};
-
-
-ptrhashtable_tpl<const grund_t*, grund_info_t*> grund_t::grund_infos;
-
-
-void grund_t::entferne_grund_info() const
-{
-	grund_infos.remove(this);
-}
 
 
 
@@ -335,7 +324,7 @@ grund_t::grund_t(karte_t *wl, koord3d pos)
 
 grund_t::~grund_t()
 {
-	destroy_win(grund_infos.get(this));
+	destroy_win((long)this);
 
 	// remove text from table
 	setze_text(NULL);
@@ -368,7 +357,27 @@ void grund_t::take_obj_from(grund_t* other_gr)
 
 
 
-void grund_t::info(cbuffer_t& buf) const
+bool
+grund_t::zeige_info()
+{
+	bool already_halt = true;
+	if(gib_halt().is_bound()) {
+		gib_halt()->zeige_info();
+		return true;
+	}
+	else {
+		if(umgebung_t::ground_info  ||  hat_wege()) {
+			create_win(new grund_info_t(this), w_info, (long)this);
+			return true;
+		}
+	}
+	return false;
+}
+
+
+
+void
+grund_t::info(cbuffer_t& buf) const
 {
 	if(flags&is_halt_flag) {
 		welt->lookup(pos.gib_2d())->gib_halt()->info( buf );

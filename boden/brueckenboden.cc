@@ -93,16 +93,8 @@ brueckenboden_t::zeige_info()
 		return true;
 	}
 	else {
-		if(hat_wege()) {	// if this is true, then all land info is shown
-			// there is some info!
-			grund_info_t* gi = grund_infos.get(this);
-			if (gi == NULL) {
-				gi = new grund_info_t(this);
-				grund_infos.put(this, gi);
-			}
-			create_win(-1, -1, gi, w_autodelete);
-			return true;
-		}
+		create_win(new grund_info_t(this), w_info, (long)this);
+		return true;
 	}
 	return false;
 }

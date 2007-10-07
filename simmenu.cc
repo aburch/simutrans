@@ -248,7 +248,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				wzw->zeige_info(magic_railtools);
 			}
 			else {
-				create_win(-1, -1, 60, new news_img("Trains are not available yet!"), w_autodelete);
+				create_win( new news_img("Trains are not available yet!"), w_time_delete, magic_none );
 			}
 		break;
 
@@ -348,7 +348,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				wzw->zeige_info(magic_monorailtools);
 			}
 			else {
-				create_win(-1, -1, 60, new news_img("Monorails are not available yet!"), w_autodelete);
+				create_win( new news_img("Monorails are not available yet!"), w_time_delete, magic_none);
 			}
 		break;
 
@@ -425,7 +425,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				wzw->zeige_info(magic_tramtools);
 			}
 			else {
-				create_win(-1, -1, 60, new news_img("Trams are not available yet!"), w_autodelete);
+				create_win( new news_img("Trams are not available yet!"), w_time_delete, magic_none);
 			}
 		break;
 
@@ -540,7 +540,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				wzw->zeige_info(magic_roadtools);
 			  }
 			else {
-				create_win(-1, -1, 60, new news_img("Cars are not available yet!"), w_autodelete);
+				create_win( new news_img("Cars are not available yet!"), w_time_delete, magic_none);
 			}
 		break;
 
@@ -728,7 +728,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				// end aircraft
 			}
 			else {
-				create_win(-1, -1, 60, new news_img("Planes are not available yet!"), w_autodelete);
+				create_win( new news_img("Planes are not available yet!"), w_time_delete, magic_none);
 			}
 		break;
 

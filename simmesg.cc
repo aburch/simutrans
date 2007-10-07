@@ -160,7 +160,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 		} else {
 			news = new news_loc(welt, p, pos, colorval);
 		}
-		create_win(-1, -1, MESG_WAIT, news, w_autodelete);
+		create_win(  news, w_time_delete, magic_none );
 	}
 
 	// should we open a normal windows?
@@ -171,6 +171,6 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 		} else {
 			news = new news_loc(welt, p, pos, colorval);
 		}
-		create_win(-1, -1, news, w_autodelete);
+		create_win(-1, -1, news, w_info, magic_none);
 	}
 }

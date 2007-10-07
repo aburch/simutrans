@@ -49,13 +49,7 @@ void factorylist_stats_t::infowin_event(const event_t * ev)
 
 	const koord3d pos = fab->gib_pos();
 	if (IS_LEFTRELEASE(ev)) {
-		grund_t *gr = welt->lookup(pos.gib_2d())->gib_kartenboden();
-		if (gr) {
-			gebaeude_t* gb = gr->find<gebaeude_t>();
-			if (gb) {
-				create_win(320, 0, -1, new fabrik_info_t(fab, gb), w_info, magic_none);
-			}
-		}
+		fab->zeige_info();
 	}
 	else if (IS_RIGHTRELEASE(ev)) {
 		welt->change_world_position(pos);

@@ -177,7 +177,7 @@ static void zeige_banner(karte_t *welt)
 
 	destroy_all_win();	// since eventually the successful load message is still there ....
 
-	create_win(0, -48, -1, b, w_autodelete);
+	create_win(0, -48, b, w_info, magic_none );
 
 	// hide titelbar with this trick
 	win_set_pos( b, 0, -48 );
@@ -830,9 +830,9 @@ DBG_MESSAGE("init","map");
 
 			// we want to center wg (width 260) between sg (width 220) and cg (176)
 
-			create_win(10, 40, -1, sg, w_info);
-			create_win((disp_width - 220 - 176 -10 -10- 260)/2 + 220 + 10, (disp_height - 300) / 2, -1, wg, w_info);
-			create_win((disp_width - 176-10), 40, -1, cg, w_info);
+			create_win(10, 40, sg, w_info, magic_sprachengui_t );
+			create_win((disp_width - 220 - 176 -10 -10- 260)/2 + 220 + 10, (disp_height - 300) / 2, wg, w_do_not_delete, magic_welt_gui_t );
+			create_win((disp_width - 176-10), 40, cg, w_info, magic_climate );
 
 			setsimrand(dr_time(), dr_time());
 
@@ -859,11 +859,13 @@ DBG_MESSAGE("init","map");
 
 			// Neue Karte erzeugen
 			if (wg->gib_start()) {
-				destroy_win(wg);
-				destroy_win(sg);
-				destroy_win(cg);
+				destroy_win( magic_climate );
+				destroy_win( magic_sprachengui_t );
+				destroy_win( magic_welt_gui_t );
+				// since not autodelete
+				delete wg;
 
-				create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->gib_bild_nr(0)), w_autodelete);
+				create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->gib_bild_nr(0)), w_info, magic_none);
 				intr_refresh_display(true);
 
 				sets->heightfield = "";
@@ -877,22 +879,25 @@ DBG_MESSAGE("init","map");
 				}
 				destroy_all_win();
 			} else if(wg->gib_load()) {
-				destroy_win(wg);
-				destroy_win(sg);
-				destroy_win(cg);
-				create_win(new loadsave_frame_t(welt, true), w_info, magic_load_t);
+				destroy_win( magic_climate );
+				destroy_win( magic_sprachengui_t );
+				destroy_win( magic_welt_gui_t );
+				delete wg;
+				create_win( new loadsave_frame_t(welt, true), w_info, magic_load_t);
 			} else if(wg->gib_load_heightfield()) {
-				destroy_win(wg);
-				destroy_win(sg);
-				destroy_win(cg);
+				destroy_win( magic_climate );
+				destroy_win( magic_sprachengui_t );
+				destroy_win( magic_welt_gui_t );
 				einstellungen_t *sets = wg->gib_sets();
 				welt->load_heightfield(sets);
+				delete wg;
 			} else {
-				destroy_win(wg);
-				destroy_win(sg);
-				destroy_win(cg);
+				destroy_win( magic_climate );
+				destroy_win( magic_sprachengui_t );
+				destroy_win( magic_welt_gui_t );
 				// quit the game
 				if (wg->gib_quit()) break;
+				delete wg;
 			}
 		}
 

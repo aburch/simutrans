@@ -118,14 +118,14 @@ void werkzeug_parameter_waehler_t::add_param_tool(int (* wz1)(spieler_t *, karte
 
 int werkzeug_parameter_waehler_t::zeige_info(int magic)
 {
-  // an mauskoordinate anzeigen
-  return create_win(-1, -1, -1, this, w_autodelete, magic);
+	// an mauskoordinate anzeigen
+	return create_win( this, w_info, magic );
 }
 
 
 const char *werkzeug_parameter_waehler_t::gib_name() const
 {
-  return titel;
+	return titel;
 }
 
 

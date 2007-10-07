@@ -82,7 +82,7 @@ ki_kontroll_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		if(komp==(player_get_finances+i)) {
 			// get finances
 			player_get_finances[i].pressed = false;
-			create_win(-1, -1, -1, welt->gib_spieler(i)->gib_money_frame(), w_info );
+			welt->gib_spieler(i)->zeige_info();
 			break;
 		}
 		if(komp==(player_change_to+i)) {

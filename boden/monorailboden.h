@@ -14,7 +14,6 @@ public:
 	const char *gib_name() const {return "Monorailboden";}
 	enum grund_t::typ gib_typ() const {return monorailboden;}
 
-	virtual bool zeige_info();
 	void calc_bild();
 };
 

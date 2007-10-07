@@ -23,7 +23,6 @@ class depot_t;
 class karte_t;
 class grund_info_t;
 class cbuffer_t;
-template <class K, class V> class ptrhashtable_tpl;
 
 
 /* A map from ding_t subtypes to their enum equivalent
@@ -68,10 +67,6 @@ template<> struct map_ding<tunnel_t>      { static const ding_t::typ code = ding
 template<> struct map_ding<wayobj_t>      { static const ding_t::typ code = ding_t::wayobj;      };
 template<> struct map_ding<zeiger_t>      { static const ding_t::typ code = ding_t::zeiger;      };
 
-#if defined LAGER_NOT_IN_USE
-class lagerhaus_t;
-template<> struct map_ding<lagerhaus_t> { static const ding_t::typ code = ding_t::lagerhaus };
-#endif
 
 
 /**
@@ -108,13 +103,6 @@ public:
 
 	// just to calculate the offset for skipping the ways ...
 	static uint8 offsets[4];
-
-protected:
-	/**
-	 * Offene Info-Fenster
-	 * @author V. Meyer
-	 */
-	static ptrhashtable_tpl<const grund_t*, grund_info_t*> grund_infos;
 
 public:
 	/** true, when showing a grid
@@ -289,7 +277,7 @@ public:
 	* Oeffnet standardmaessig kein Infofenster.
 	* @author Hj. Malthaner
 	*/
-	virtual bool zeige_info() { return false; }
+	bool zeige_info();
 
 	/**
 	* Gibt die Farbe des Beschreibungstexthintergrundes zuurck

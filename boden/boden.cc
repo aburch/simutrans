@@ -54,29 +54,6 @@ const char *boden_t::gib_name() const
 }
 
 
-bool
-boden_t::zeige_info()
-{
-	if(gib_halt().is_bound()) {
-		gib_halt()->zeige_info();
-		return true;
-	}
-	else {
-		if(umgebung_t::ground_info  ||  hat_wege()) {
-			// there is some info!
-			grund_info_t* gi = grund_infos.get(this);
-			if (gi == NULL) {
-				gi = new grund_info_t(this);
-				grund_infos.put(this, gi);
-			}
-			create_win(-1, -1, gi, w_autodelete);
-			return true;
-		}
-	}
-	return false;
-}
-
-
 void
 boden_t::calc_bild()
 {

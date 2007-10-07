@@ -31,8 +31,7 @@ protected:
 	world_view_t view;
 
 public:
-    grund_info_t(const grund_t* gr);
-    ~grund_info_t() { gr->entferne_grund_info(); }
+	grund_info_t(const grund_t* gr);
 
 	void zeichnen(koord pos, koord gr);
 };

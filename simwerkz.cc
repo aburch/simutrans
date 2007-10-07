@@ -161,8 +161,6 @@ wkz_abfrage(spieler_t *, karte_t *welt, koord pos)
 	bool ok = false;
 
 	if(welt->ist_in_kartengrenzen(pos)) {
-		// remember top window
-		const gui_fenster_t *old_top = win_get_top();
 
 		const planquadrat_t *plan = welt->lookup(pos);
 		const bool backwards = (event_get_last_control_shift()==2);
@@ -171,14 +169,14 @@ wkz_abfrage(spieler_t *, karte_t *welt, koord pos)
 
 			if(gr) {
 
-				old_top = win_get_top();
+				int old_count = win_get_open_count();
 				for(int n=0; n<gr->gib_top(); n++) {
 					ding_t *dt = gr->obj_bei(n);
 					if(dt  &&  (dt->gib_typ()!=ding_t::wayobj  ||  dt->gib_typ()!=ding_t::pillar)) {
 						DBG_MESSAGE("wkz_abfrage()", "index %d", n);
 						dt->zeige_info();
 						// did some new window open?
-						if(umgebung_t::single_info  &&  old_top!=win_get_top()  &&  !gr->ist_wasser()) {
+						if(umgebung_t::single_info  &&  old_count!=win_get_open_count()  &&  !gr->ist_wasser()) {
 							return true;
 						}
 					}
@@ -212,7 +210,7 @@ int wkz_raise(spieler_t *sp, karte_t *welt, koord pos)
 			int n = welt->raise(pos);
 			ok = (n!=0);
 			if(!ok) {
-				create_win(-1, -1, MESG_WAIT, new news_img("Tile not empty."), w_autodelete);
+				create_win( new news_img("Tile not empty."), w_time_delete, magic_none);
 				return false;
 			}
 			else {
@@ -252,7 +250,7 @@ wkz_lower(spieler_t *sp, karte_t *welt, koord pos)
 			int n = welt->lower(pos);
 			ok = (n!=0);
 			if(!ok) {
-				create_win(-1, -1, MESG_WAIT, new news_img("Tile not empty."), w_autodelete);
+				create_win( new news_img("Tile not empty."), w_time_delete, magic_none);
 			}
 			else {
 				sp->buche(umgebung_t::cst_alter_land*n, pos, COST_CONSTRUCTION);
@@ -554,7 +552,7 @@ wkz_remover(spieler_t *sp, karte_t *welt, koord pos)
 
 	if(!wkz_remover_intern(sp, welt, pos, fail)) {
 		if(fail) {
-			create_win(-1, -1, MESG_WAIT, new news_img(fail), w_autodelete);
+			create_win( new news_img(fail), w_time_delete, magic_none);
 		}
 		return false;
 	}
@@ -1087,14 +1085,14 @@ dbg->warning("wkz_station_building_aux()","no near building for a station extens
 		// is there already a halt to connect?
 		if(halt.is_bound()) {
 			if(is_post  &&  halt->get_post_enabled()) {
-				create_win(-1, -1, MESG_WAIT, new news_img("Station already\nhas a post office!\n"), w_autodelete);
+				create_win( new news_img("Station already\nhas a post office!\n"), w_time_delete, magic_none);
 			}
 			hausbauer_t::baue(welt, halt->gib_besitzer(), k, rotate, besch, true, &halt);
 			sp->buche(umgebung_t::cst_multiply_post*besch->gib_level()*besch->gib_b()*besch->gib_h(), pos, COST_CONSTRUCTION);
 			halt->recalc_station_type();
 		}
 		else {
-			create_win(-1, -1, MESG_WAIT, new news_img("Post muss neben\nHaltestelle\nliegen!\n", besch->gib_cursor()->gib_bild_nr(0)), w_autodelete);
+			create_win( new news_img("Post muss neben\nHaltestelle\nliegen!\n", besch->gib_cursor()->gib_bild_nr(0)), w_time_delete, magic_none);
 		}
 		return true;
 	}
@@ -1115,7 +1113,7 @@ int wkz_station_building(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 	halthandle_t halt=haltestelle_t::gib_halt(welt,pos);
 	if(halt.is_bound()  &&  !sp->check_owner(halt->gib_besitzer())) {
 		// we cannot connect to this halt!
-		create_win(-1, -1, MESG_WAIT, new news_img("Das Feld gehoert\neinem anderen Spieler\n"), w_autodelete);
+		create_win( new news_img("Das Feld gehoert\neinem anderen Spieler\n"), w_time_delete, magic_none);
 		return false;
 	}
 	wkz_station_building_aux(sp, welt, pos, (const haus_besch_t *)value.p);
@@ -1250,7 +1248,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 		return true;
 	}
 	else {
-		create_win(-1, -1, MESG_WAIT, new news_img(msg), w_autodelete);
+		create_win( new news_img(msg), w_time_delete, magic_none);
 		return false;
 	}
 }
@@ -1269,7 +1267,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	}
 	if(!bd  ||  bd->gib_weg_hang()!=hang_t::flach  ||  bd->is_halt()) {
 		if(sp==welt->get_active_player()) {
-			create_win( -1, -1, MESG_WAIT, new news_img(p_error), w_autodelete );
+			create_win(new news_img(p_error), w_time_delete, magic_none );
 		}
 		dbg->warning("wkz_halt_aux()", "%s at (%i,%i)", p_error, pos.x, pos.y );
 		return false;
@@ -1280,7 +1278,7 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 	if(bd->gib_depot()) {
 		p_error = "Tile not empty.";
 		if(sp==welt->get_active_player()) {
-			create_win( -1, -1, MESG_WAIT, new news_img(p_error), w_autodelete );
+			create_win( new news_img(p_error), w_time_delete, magic_none);
 		}
 		dbg->warning("wkz_halt_aux()", "%s at (%i,%i)", p_error, pos.x, pos.y );
 		return false;
@@ -1301,7 +1299,7 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 		// not straight: sorry cannot built here ...
 		if(!ribi_t::ist_gerade(ribi)) {
 			if(sp==welt->get_active_player()) {
-				create_win( -1, -1, MESG_WAIT, new news_img(p_error), w_autodelete );
+				create_win( new news_img(p_error), w_time_delete, magic_none);
 			}
 			dbg->warning("wkz_halt_aux()", "%s at (%i,%i)", p_error, pos.x, pos.y );
 			return false;
@@ -1314,7 +1312,7 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 		// sorry cannot built here ... (not a terminal tile)
 		if(!ribi_t::ist_einfach(ribi)) {
 			if(sp==welt->get_active_player()) {
-				create_win( -1, -1, MESG_WAIT, new news_img(p_error), w_autodelete );
+				create_win( new news_img(p_error), w_time_delete, magic_none);
 			}
 			dbg->warning("wkz_halt_aux()", "%s at (%i,%i)", p_error, pos.x, pos.y );
 			return false;
@@ -1472,7 +1470,7 @@ int wkz_halt(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 	halthandle_t halt=haltestelle_t::gib_halt(welt,pos);
 	if(halt.is_bound()  &&  !sp->check_owner(halt->gib_besitzer())) {
 		// we cannot connect to this halt!
-		create_win(-1, -1, MESG_WAIT, new news_img("Das Feld gehoert\neinem anderen Spieler\n"), w_autodelete);
+		create_win( new news_img("Das Feld gehoert\neinem anderen Spieler\n"), w_time_delete, magic_none);
 		return false;
 	}
 
@@ -1515,7 +1513,7 @@ DBG_MESSAGE("wkz_senke()","no factory near (%i,%i)",pos.x, pos.y);
 		const char *fail = NULL;
 		if(!wkz_remover_intern(sp, welt, pos, fail)) {
 			if(fail) {
-				create_win(-1, -1, MESG_WAIT, new news_img(fail), w_autodelete);
+				create_win( new news_img(fail), w_time_delete, magic_none);
 			}
 		}
 		// now decide from the string whether a source or drain is built
@@ -1621,7 +1619,7 @@ built_sign:
 		}
 
 		if(error != NULL) {
-			create_win(-1, -1, MESG_WAIT, new news_img(error), w_autodelete);
+			create_win( new news_img(error), w_time_delete, magic_none);
 		}
 		return error == NULL;
 
@@ -1652,19 +1650,19 @@ wkz_depot_aux(spieler_t *sp, karte_t *welt, koord pos, const haus_besch_t *besch
 		}
 		if(!bd  ||  bd->has_two_ways()) {
 			// no monorail here ...
-			create_win(-1, -1, MESG_WAIT, new news_img("Cannot built depot here!"), w_autodelete);
+			create_win( new news_img("Cannot built depot here!"), w_time_delete, magic_none);
 			return false;
 		}
 
 		const char *p=bd->kann_alle_obj_entfernen(sp);
 		if(p) {
-			create_win(-1, -1, MESG_WAIT, new news_img(p), w_autodelete);
+			create_win( new news_img(p), w_time_delete, magic_none);
 			return false;
 		}
 
 		// avoid building over a stop
 		if(bd->is_halt()  ||  bd->gib_depot()!=NULL) {
-			create_win(-1, -1, MESG_WAIT, new news_img("Tile not empty."), w_autodelete);
+			create_win( new news_img("Tile not empty."), w_time_delete, magic_none);
 			return false;
 		}
 
@@ -1692,7 +1690,7 @@ wkz_depot_aux(spieler_t *sp, karte_t *welt, koord pos, const haus_besch_t *besch
 			return true;
 		}
 	}
-	create_win(-1, -1, MESG_WAIT, new news_img("Cannot built depot here!"), w_autodelete);
+	create_win( new news_img("Cannot built depot here!"), w_time_delete, magic_none);
 	return false;
 }
 
@@ -1811,7 +1809,7 @@ dbg->warning("wkz_fahrplan_insert_aux()","Schedule is (null), doing nothing");
 		else {
 			// here we failed
 			if(wrong_owner) {
-				create_win(-1, -1, MESG_WAIT, new news_img("Das Feld gehoert\neinem anderen Spieler\n"), w_autodelete);
+				create_win( new news_img("Das Feld gehoert\neinem anderen Spieler\n"), w_time_delete, magic_none);
 			}
 			else {
 				fpl->zeige_fehlermeldung();
@@ -1841,7 +1839,7 @@ int wkz_fahrplan_ins(spieler_t *sp, karte_t *welt, koord pos,value_t f)
 int wkz_marker(spieler_t *sp, karte_t *welt, koord pos)
 {
 	if(welt->ist_in_kartengrenzen(pos)) {
-		create_win(-1, -1, -1, new label_frame_t(welt, sp, pos), w_autodelete, magic_label_frame);
+		create_win( new label_frame_t(welt, sp, pos), w_info, magic_label_frame);
 		return true;
 	}
 	return false;
@@ -1914,7 +1912,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 
 		// at least a pixel away from the border?
 		if(welt->min_hgt(pos)<welt->gib_grundwasser()  ||  !welt->ist_in_kartengrenzen(pos+koord(1,1))  ||  !welt->ist_in_kartengrenzen(pos+koord(-1,-1))) {
-			create_win(-1, -1, MESG_WAIT, new news_img("Maximum tile height difference reached."), w_autodelete);
+			create_win( new news_img("Maximum tile height difference reached."), w_time_delete, magic_none);
 			return false;
 		}
 
@@ -1928,7 +1926,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 				return true;
 			}
 			else {
-				create_win(-1, -1, MESG_WAIT, new news_img("Tile not empty."), w_autodelete);
+				create_win( new news_img("Tile not empty."), w_time_delete, magic_none);
 				return false;
 			}
 		}
@@ -1937,7 +1935,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 		if(new_slope==0) {
 			planquadrat_t *plan=welt->access(pos);
 			if(gr1->gib_grund_hang()!=0  ||  welt->max_hgt(pos)<=gr1->gib_hoehe()) {
-				create_win(-1, -1, MESG_WAIT, new news_img("Cannot cover this tile."), w_autodelete);
+				create_win( new news_img("Cannot cover this tile."), w_time_delete, magic_none);
 				return false;
 			}
 			plan->kartenboden_insert( new boden_t(welt,koord3d(pos,welt->max_hgt(pos)),0) );
@@ -1948,7 +1946,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 
 		// finally: empty
 		if (gr1->find<gebaeude_t>() || gr1->hat_wege() || gr1->kann_alle_obj_entfernen(sp)) {
-			create_win(-1, -1, MESG_WAIT, new news_img("Tile not empty."), w_autodelete);
+			create_win( new news_img("Tile not empty."), w_time_delete, magic_none);
 			return false;
 		}
 
@@ -1990,7 +1988,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 			const sint8 diff_from_ground_1 = left_hgt+corner2(slope)-hgt;
 			const sint8 diff_from_ground_2 = left_hgt+corner3(slope)-hgt;
 			if(diff_from_ground_1>2  ||  diff_from_ground_2>2) {
-				create_win(-1, -1, MESG_WAIT, new news_img("Maximum tile height difference reached."), w_autodelete);
+				create_win( new news_img("Maximum tile height difference reached."), w_time_delete, magic_none);
 				return false;
 			}
 		}
@@ -2002,7 +2000,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 			const sint8 diff_from_ground_1 = hgt+corner2(slope_this)-right_hgt;
 			const sint8 diff_from_ground_2 = hgt+corner3(slope_this)-right_hgt;
 			if(diff_from_ground_1>2  ||  diff_from_ground_2>2) {
-				create_win(-1, -1, MESG_WAIT, new news_img("Maximum tile height difference reached."), w_autodelete);
+				create_win( new news_img("Maximum tile height difference reached."), w_time_delete, magic_none);
 				return false;
 			}
 		}
@@ -2014,7 +2012,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 			const sint8 diff_from_ground_1 = back_hgt+corner1(slope)-hgt;
 			const sint8 diff_from_ground_2 = back_hgt+corner2(slope)-hgt;
 			if(diff_from_ground_1>2  ||  diff_from_ground_2>2) {
-				create_win(-1, -1, MESG_WAIT, new news_img("Maximum tile height difference reached."), w_autodelete);
+				create_win( new news_img("Maximum tile height difference reached."), w_time_delete, magic_none);
 				return false;
 			}
 		}
@@ -2025,7 +2023,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 			const sint8 diff_from_ground_1 = hgt+corner1(slope_this)-front_hgt;
 			const sint8 diff_from_ground_2 = hgt+corner2(slope_this)-front_hgt;
 			if(diff_from_ground_1>2  ||  diff_from_ground_2>2) {
-				create_win(-1, -1, MESG_WAIT, new news_img("Maximum tile height difference reached."), w_autodelete);
+				create_win( new news_img("Maximum tile height difference reached."), w_time_delete, magic_none);
 				return false;
 			}
 		}
@@ -2038,7 +2036,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 
 			// already some ground here (tunnel, bridge, monorail?)
 			if(new_pos!=gr1->gib_pos()  &&  welt->lookup(new_pos)!=NULL) {
-				create_win(-1, -1, MESG_WAIT, new news_img("Tile not empty."), w_autodelete);
+				create_win( new news_img("Tile not empty."), w_time_delete, magic_none);
 				return false;
 			}
 
@@ -2167,7 +2165,7 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos)
 int wkz_list_halt_tool(spieler_t *sp, karte_t *welt,koord k)
 {
 	if(k == INIT) {//see simworld.cc, karte_t::setze_maus_funktion
-		create_win(-1, -1, -1, new halt_list_frame_t(sp), w_autodelete, magic_halt_list_t);
+		create_win( new halt_list_frame_t(sp), w_info, magic_halt_list_t );
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
 	}
 	return false;
@@ -2178,7 +2176,7 @@ int wkz_list_halt_tool(spieler_t *sp, karte_t *welt,koord k)
 int wkz_list_vehicle_tool(spieler_t *sp, karte_t *welt,koord k)
 {
 	if(k == INIT) {//see simworld.cc, karte_t::setze_maus_funktion
-		create_win(-1, -1, -1, new convoi_frame_t(sp), w_autodelete, magic_convoi_t);
+		create_win( new convoi_frame_t(sp), w_info, magic_convoi_t );
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
 	}
 	return false;
@@ -2189,7 +2187,7 @@ int wkz_list_vehicle_tool(spieler_t *sp, karte_t *welt,koord k)
 int wkz_list_town_tool(spieler_t *, karte_t *welt,koord k)
 {
 	if(k == INIT) {//see simworld.cc, karte_t::setze_maus_funktion
-		create_win(0, 0, new citylist_frame_t(welt), w_info);
+		create_win( new citylist_frame_t(welt), w_info, magic_citylist_frame_t );
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
 	}
 	return false;
@@ -2201,7 +2199,7 @@ int wkz_list_town_tool(spieler_t *, karte_t *welt,koord k)
 int wkz_list_good_tool(spieler_t *, karte_t *welt,koord k)
 {
 	if(k == INIT) {//see simworld.cc, karte_t::setze_maus_funktion
-		create_win(0, 0,new goods_frame_t(welt), w_autodelete);
+		create_win(new goods_frame_t(welt), w_info, magic_goodslist);
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
 	}
 	return false;
@@ -2213,7 +2211,7 @@ int wkz_list_good_tool(spieler_t *, karte_t *welt,koord k)
 int wkz_list_factory_tool(spieler_t *, karte_t *welt,koord k)
 {
 	if(k == INIT) {
-		create_win(0, 0,new factorylist_frame_t(welt), w_autodelete);
+		create_win(new factorylist_frame_t(welt), w_info, magic_factorylist );
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
 	}
 	return false;
@@ -2224,7 +2222,7 @@ int wkz_list_factory_tool(spieler_t *, karte_t *welt,koord k)
 int wkz_list_curiosity_tool(spieler_t *, karte_t *welt,koord k)
 {
 	if(k == INIT) {
-		create_win(0, 0,new curiositylist_frame_t(welt), w_autodelete);
+		create_win(new curiositylist_frame_t(welt), w_info, magic_curiositylist );
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
 	}
 	return false;
@@ -2235,7 +2233,7 @@ int wkz_list_curiosity_tool(spieler_t *, karte_t *welt,koord k)
 int wkz_undo(spieler_t* sp)
 {
 	if(!sp->undo()) {
-		create_win(-1, -1, MESG_WAIT, new news_img("UNDO failed!"), w_autodelete);
+		create_win( new news_img("UNDO failed!"), w_time_delete, magic_none);
 	}
 	return false;
 }
@@ -2301,7 +2299,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			sp->buche(umgebung_t::cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h(), pos, COST_CONSTRUCTION * size.x * size.y);
 		}
 		else {
-			create_win(-1, -1, MESG_WAIT, new news_img("Tile not empty."), w_autodelete);
+			create_win( new news_img("Tile not empty."), w_time_delete, magic_none);
 		}
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), karte_t::Z_PLAN,  NO_SOUND, NO_SOUND );
 	}

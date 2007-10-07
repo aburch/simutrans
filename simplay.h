@@ -49,8 +49,6 @@ class fabrik_t;
 class stadt_t;
 class gebaeude_t;
 class koord3d;
-class money_frame_t;
-class schedule_list_gui_t;
 class ware_production_t;
 
 /**
@@ -101,16 +99,6 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	karte_t *welt;
-
-	/* Money dialoge, unique for every player
-	 * @author prissi
-	 */
-	money_frame_t *money_frame;
-
-	/* Line dialoge, unique for every player
-	 * @author prissi
-	 */
-	schedule_list_gui_t *line_frame;
 
 	/**
 	 * Der Kontostand.
@@ -165,7 +153,6 @@ public:
 
 	// @author hsiegeln
 	simlinemgmt_t simlinemgmt;
-	schedule_list_gui_t *get_line_frame();
 
 	/**
 	 * Age messages (move them upwards)
@@ -355,7 +342,7 @@ public:
 	 * returns pointer to our money frame
 	 * @author prissi
 	 */
-	money_frame_t *gib_money_frame();
+	void zeige_info();
 
 	/**
 	 * Rückruf, um uns zu informieren, dass eine Station voll ist

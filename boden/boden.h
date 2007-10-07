@@ -27,12 +27,6 @@ public:
 
 	inline bool ist_natur() const { return !hat_wege(); }
 
-	/**
-	 * Öffnet ein Info-Fenster für diesen Boden
-	 * @author Hj. Malthaner
-	 */
-	virtual bool zeige_info();
-
 	void calc_bild();
 
 	const char *gib_name() const;

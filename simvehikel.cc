@@ -845,7 +845,7 @@ vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu
 		}
 		else {
 			// hill down: accelrate
-			current_friction -= -11;
+			current_friction += -13;
 		}
 	}
 

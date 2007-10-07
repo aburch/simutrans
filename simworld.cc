@@ -2251,7 +2251,7 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 
 	display_show_load_pointer( true );
 	if(!file.wr_open(filename,loadsave_t::save_mode,umgebung_t::objfilename)) {
-		create_win(-1, -1, new news_img("Kann Spielstand\nnicht speichern.\n"), w_autodelete);
+		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
 		dbg->error("karte_t::speichern()","cannot open file for writing! check permissions!");
 	}
 	else {
@@ -2260,11 +2260,11 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 		if(success) {
 			static char err_str[512];
 			sprintf( err_str, translator::translate("Error during saving:\n%s"), success );
-			create_win(-1, -1, 30, new news_img(err_str), w_autodelete);
+			create_win( new news_img(err_str), w_time_delete, magic_none);
 		}
 		else {
 			if(!silent) {
-				create_win(-1, -1, 30, new news_img("Spielstand wurde\ngespeichert!\n"), w_autodelete);
+				create_win( new news_img("Spielstand wurde\ngespeichert!\n"), w_time_delete, magic_none);
 				// update the filename, if no autosave
 				einstellungen->setze_filename(filename);
 			}
@@ -2382,27 +2382,29 @@ karte_t::laden(const char *filename)
 	if(!file.rd_open(filename)) {
 
 		if(file.get_version() == -1) {
-			create_win(-1, -1, new news_img("WRONGSAVE"), w_autodelete);
+			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
 		}
 		else {
-			create_win(-1, -1, new news_img("Kann Spielstand\nnicht laden.\n"), w_autodelete);
+			create_win(new news_img("Kann Spielstand\nnicht laden.\n"), w_info, magic_none);
 		}
 	} else if(file.get_version() < 84006) {
 		// too old
-		create_win(-1, -1, new news_img("WRONGSAVE"), w_autodelete);
+		create_win(new news_img("WRONGSAVE"), w_info, magic_none);
 	}
 	else {
 		destroy_all_win();
+/*
 		event_t ev;
 		ev.ev_class=EVENT_NONE;
 		check_pos_win(&ev);
-
+*/
 DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
 		laden(&file);
 		ok = true;
 		file.close();
-		create_win(-1, -1, 30, new news_img("Spielstand wurde\ngeladen!\n"), w_autodelete);
+		create_win( new news_img("Spielstand wurde\ngeladen!\n"), w_time_delete, magic_none);
+		setze_dirty();
 	}
 #endif
 	einstellungen->setze_filename(filename);
@@ -2841,7 +2843,6 @@ karte_t::sp2num(spieler_t *sp)
 void karte_t::load_heightfield(einstellungen_t *sets)
 {
   FILE *file = fopen(sets->heightfield, "rb");
-
   if(file) {
     char buf [256];
     int w, h;
@@ -2849,34 +2850,29 @@ void karte_t::load_heightfield(einstellungen_t *sets)
     read_line(buf, 255, file);
 
     if(strncmp(buf, "P6", 2)) {
-      dbg->error("karte_t::load_heightfield()",
-		 "Heightfield has wrong image type %s", buf);
-      create_win(-1, -1, new news_img("\nHeightfield has wrong image type.\n"), w_autodelete);
+      dbg->error("karte_t::load_heightfield()","Heightfield has wrong image type %s", buf);
+      create_win( new news_img("\nHeightfield has wrong image type.\n"), w_info, magic_none );
       return;
     }
 
     read_line(buf, 255, file);
-
     sscanf(buf, "%d %d", &w, &h);
-    sets->setze_groesse(w,h);
-
     read_line(buf, 255, file);
 
     if(strncmp(buf, "255", 2)) {
-      dbg->fatal("karte_t::load_heightfield()",
-		 "Heightfield has wrong color depth %s", buf);
+      dbg->error("karte_t::load_heightfield()","Heightfield has wrong color depth %s", buf);
+      create_win( new news_img("\nHeightfield has wrong image type.\n"), w_info, magic_none );
     }
-
-
-    // create map
-    init(sets);
+		else {
+			sets->setze_groesse(w,h);
+			// create map
+			init(sets);
+			fclose(file);
+		}
   }
   else {
-    dbg->error("karte_t::load_heightfield()",
-			"Cant open file '%s'", (const char*)sets->heightfield
-		);
-
-    create_win(-1, -1, new news_img("\nCan't open heightfield file.\n"), w_autodelete);
+    dbg->error("karte_t::load_heightfield()","Cant open file '%s'", (const char*)sets->heightfield);
+    create_win( new news_img("\nCan't open heightfield file.\n"), w_info, magic_none );
   }
 }
 
@@ -3198,414 +3194,405 @@ karte_t::interactive_event(event_t &ev)
 	if(ev.ev_class == EVENT_KEYBOARD) {
 		DBG_MESSAGE("karte_t::interactive_event()","Keyboard event with code %d '%c'", ev.ev_code, ev.ev_code);
 
-	switch(ev.ev_code) {
-	case ',':
-			if(time_multiplier>1) {
-		    time_multiplier--;
-		    sound_play(click_sound);
-			}
-			if(fast_forward) {
-				fast_forward = false;
-				reset_timer();
-			}
-	    break;
-	case '.':
-	    sound_play(click_sound);
-	    time_multiplier++;
-			if(fast_forward) {
-				fast_forward = false;
-				reset_timer();
-			}
-	    break;
-	case '!':
-	    sound_play(click_sound);
-      umgebung_t::show_names = (umgebung_t::show_names+1) & 3;
-	    setze_dirty();
-	    break;
-	case '"':
-	    sound_play(click_sound);
-			umgebung_t::hide_buildings ++;
-			if(umgebung_t::hide_buildings>umgebung_t::ALL_HIDDEN_BUIDLING) {
-				umgebung_t::hide_buildings = umgebung_t::NOT_HIDE;
-	    }
-	    umgebung_t::hide_trees = !umgebung_t::hide_trees;
-	    setze_dirty();
-	    break;
-	case '#':
-	    sound_play(click_sound);
-	    grund_t::toggle_grid();
-	    setze_dirty();
-	    break;
-	case 'U':
-	    sound_play(click_sound);
-	    grund_t::toggle_underground_mode();
-			for(int y=0; y<gib_groesse_y(); y++) {
-				for(int x=0; x<gib_groesse_x(); x++) {
-					const planquadrat_t *plan = lookup(koord(x,y));
-					const int boden_count = plan->gib_boden_count();
-					for(int schicht=0; schicht<boden_count; schicht++) {
-						grund_t *gr = plan->gib_boden_bei(schicht);
-						gr->calc_bild();
-					}
+		switch(ev.ev_code) {
+			case ',':
+				if(time_multiplier>1) {
+					time_multiplier--;
+					sound_play(click_sound);
 				}
-			}
-	    setze_dirty();
-	    break;
-	case 167:    // Hajo: '§'
-		baum_t::distribute_trees( this, 3 );
-	    break;
-
-	case 'a':
-	  setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
-	    break;
-	case 'b':
-	    sound_play(click_sound);
-	    schiene_t::show_reservations = !schiene_t::show_reservations;
-	    setze_dirty();
-	    break;
-	case 'B':
-	    sound_play(click_sound);
-	    create_win(0, 0, new message_frame_t(this), w_info);
-	    break;
-	case 'c':
-	    sound_play(click_sound);
-	    display_snapshot();
-	    create_win(-1, -1, 60, new news_img("Screenshot\ngespeichert.\n"), w_autodelete);
-            break;
-	case 'd':
-	    setze_maus_funktion(wkz_lower, skinverwaltung_t::downzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );
-	    break;
-	case 'e':
-		if(default_electric==NULL) {
-			default_electric = wayobj_t::wayobj_search(track_wt,overheadlines_wt,get_timeline_year_month());
-		}
-		if(default_electric) {
-			setze_maus_funktion(wkz_wayobj, default_electric->gib_cursor()->gib_bild_nr(0), Z_PLAN, (long)default_electric, SFX_JACKHAMMER, SFX_FAILURE);
-		}
-	    break;
-	case 'f': /* OCR: Finances */
-	    sound_play(click_sound);
-         create_win(-1, -1, -1, get_active_player()->gib_money_frame(), w_info);
-	    break;
-	case 'g':
-	    if(skinverwaltung_t::senke) {
-			setze_maus_funktion(wkz_senke, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
-	    }
-	    break;
-
-	case 'H':
-	    if (!hausbauer_t::headquarter.empty()) {
-			setze_maus_funktion(wkz_headquarter, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, SFX_JACKHAMMER, SFX_FAILURE);
-	    }
-	    break;
-
-	case 'I':
-		if(einstellungen->gib_allow_player_change()) {
-			setze_maus_funktion(wkz_build_industries_land, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
-		}
-		else {
-			message_t::get_instance()->add_message(translator::translate("On this map, you are not\nallowed to change player!\n"), koord::invalid, message_t::problems, get_active_player()->get_player_nr(), IMG_LEER);
-		}
-	    break;
-
-	case 'k':
-	    create_win(272,160, -1, new ki_kontroll_t(this), w_info, magic_ki_kontroll_t);
-	    break;
-	case 'l':
-	    if(wegbauer_t::leitung_besch) {
-			setze_maus_funktion(wkz_wegebau,
+				if(fast_forward) {
+					fast_forward = false;
+					reset_timer();
+				}
+				break;
+			case '.':
+				sound_play(click_sound);
+				time_multiplier++;
+				if(fast_forward) {
+					fast_forward = false;
+					reset_timer();
+				}
+				break;
+			case '!':
+				sound_play(click_sound);
+				umgebung_t::show_names = (umgebung_t::show_names+1) & 3;
+				setze_dirty();
+				break;
+			case '"':
+				sound_play(click_sound);
+				umgebung_t::hide_buildings ++;
+				if(umgebung_t::hide_buildings>umgebung_t::ALL_HIDDEN_BUIDLING) {
+					umgebung_t::hide_buildings = umgebung_t::NOT_HIDE;
+				}
+				umgebung_t::hide_trees = !umgebung_t::hide_trees;
+				setze_dirty();
+				break;
+			case '#':
+				sound_play(click_sound);
+				grund_t::toggle_grid();
+				setze_dirty();
+				break;
+			case 'U':
+				sound_play(click_sound);
+				grund_t::toggle_underground_mode();
+				for(int y=0; y<gib_groesse_y(); y++) {
+					for(int x=0; x<gib_groesse_x(); x++) {
+						const planquadrat_t *plan = lookup(koord(x,y));
+						const int boden_count = plan->gib_boden_count();
+						for(int schicht=0; schicht<boden_count; schicht++) {
+							grund_t *gr = plan->gib_boden_bei(schicht);
+							gr->calc_bild();
+						}
+					}
+					}
+				setze_dirty();
+				break;
+			case 167:    // Hajo: '§'
+				baum_t::distribute_trees( this, 3 );
+				break;
+			case 'a':
+				setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+				break;
+			case 'b':
+				sound_play(click_sound);
+				schiene_t::show_reservations = !schiene_t::show_reservations;
+				setze_dirty();
+				break;
+			case 'B':
+				sound_play(click_sound);
+				create_win( new message_frame_t(this), w_info, magic_messageframe );
+				break;
+			case 'c':
+				sound_play(click_sound);
+				display_snapshot();
+				create_win( new news_img("Screenshot\ngespeichert.\n"), w_time_delete, magic_none);
+				break;
+			case 'C':
+				sound_play(click_sound);
+				setze_maus_funktion(wkz_add_city, skinverwaltung_t::stadtzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );
+				break;
+			case 'd':
+				setze_maus_funktion(wkz_lower, skinverwaltung_t::downzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );
+				break;
+			case 'e':
+				if(default_electric==NULL) {
+					default_electric = wayobj_t::wayobj_search(track_wt,overheadlines_wt,get_timeline_year_month());
+				}
+				if(default_electric) {
+					setze_maus_funktion(wkz_wayobj, default_electric->gib_cursor()->gib_bild_nr(0), Z_PLAN, (long)default_electric, SFX_JACKHAMMER, SFX_FAILURE);
+				}
+				break;
+			case 'f': /* OCR: Finances */
+				sound_play(click_sound);
+				get_active_player()->zeige_info();
+				break;
+			case 'g':
+				if(skinverwaltung_t::senke) {
+					setze_maus_funktion(wkz_senke, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+				}
+				break;
+			case 'G':
+				create_win( new goods_frame_t(this), w_info, magic_goodslist );
+				break;
+			case 'L':
+				sound_play(click_sound);
+				create_win( new loadsave_frame_t(this, true), w_info, magic_load_t);
+				break;
+			case 'H':
+				if (!hausbauer_t::headquarter.empty()) {
+					setze_maus_funktion(wkz_headquarter, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, SFX_JACKHAMMER, SFX_FAILURE);
+				}
+				break;
+			case 'I':
+				if(einstellungen->gib_allow_player_change()) {
+					setze_maus_funktion(wkz_build_industries_land, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+				}
+				else {
+					message_t::get_instance()->add_message(translator::translate("On this map, you are not\nallowed to change player!\n"), koord::invalid, message_t::problems, get_active_player()->get_player_nr(), IMG_LEER);
+				}
+				break;
+			case 'J':
+				create_win( new jump_frame_t(this), w_info, magic_jump);
+				break;
+			case 'k':
+				create_win( 272, 160, new ki_kontroll_t(this), w_info, magic_ki_kontroll_t);
+				break;
+			case 'l':
+				if(wegbauer_t::leitung_besch) {
+					setze_maus_funktion(wkz_wegebau,
 					wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(0),
-					    Z_PLAN,
-					    (const void *)wegbauer_t::leitung_besch, 0, 0);
-	    }
-	    break;
-	case 'm':
-	    create_win(-1, -1, -1, new map_frame_t(this), w_info, magic_reliefmap);
-	    break;
-	case 'M':
-	    setze_maus_funktion(wkz_marker, skinverwaltung_t::belegtzeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
-	    break;
-	case 'P':
-		sound_play(click_sound);
-		switch_active_player( active_player_nr+1 );
-		break;
-	case 'p':
-	    sound_play(click_sound);
-	    do_pause();
-	    break;
-	case 'r':
-	    setze_maus_funktion(wkz_remover, skinverwaltung_t::killzeiger->gib_bild_nr(0), Z_PLAN, SFX_REMOVER, SFX_FAILURE);
-	    break;
-	case 's':
-	    if(default_road==NULL) {
-			default_road = wegbauer_t::weg_search(road_wt,90,get_timeline_year_month(),weg_t::type_flat);
-	    }
-	    setze_maus_funktion(wkz_wegebau, default_road->gib_cursor()->gib_bild_nr(0), Z_PLAN, (long)default_road, SFX_JACKHAMMER, SFX_FAILURE);
-	    break;
-	case 'v':
-	    umgebung_t::station_coverage_show = !umgebung_t::station_coverage_show;
-	    setze_dirty();
-	    break;
-	case 't':
-	    if(default_track==NULL) {
-			default_track = wegbauer_t::weg_search(track_wt,100,get_timeline_year_month(),weg_t::type_flat);
-	  	}
-	  	// may be NULL, if no track exists ...
-	    if(default_track!=NULL) {
-	    	setze_maus_funktion(wkz_wegebau, default_track->gib_cursor()->gib_bild_nr(0), Z_PLAN,	(long)default_track, SFX_JACKHAMMER, SFX_FAILURE);
-	    }
-	    break;
-	case 'u':
-	    setze_maus_funktion(wkz_raise, skinverwaltung_t::upzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );
-	    break;
-	case 'W':
-		fast_forward ^= 1;
-		reset_timer();
-		break;
-	case 'w':
-	    sound_play(click_sound);
-	    create_win(-1, -1, -1, get_active_player()->get_line_frame(), w_info);
-	    break;
-	case '+':
-	    display_set_light(display_get_light()+1);
-	    setze_dirty();
-	    break;
-	case '-':
-	    display_set_light(display_get_light()-1);
-	    setze_dirty();
-	    break;
-	case 'C':
-	    sound_play(click_sound);
-	    setze_maus_funktion(wkz_add_city, skinverwaltung_t::stadtzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );
-	    break;
+							Z_PLAN,
+							(const void *)wegbauer_t::leitung_besch, 0, 0);
+				}
+				break;
+			case 'm':
+				create_win( new map_frame_t(this), w_info, magic_reliefmap);
+				break;
+			case 'M':
+				setze_maus_funktion(wkz_marker, skinverwaltung_t::belegtzeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+				break;
+			case 'P':
+				sound_play(click_sound);
+				switch_active_player( active_player_nr+1 );
+				break;
+			case 'p':
+				sound_play(click_sound);
+				do_pause();
+				break;
+			case 'Q':
+				create_win( new optionen_gui_t(this), w_info, magic_optionen_gui_t );
+				break;
+			case 'r':
+				setze_maus_funktion(wkz_remover, skinverwaltung_t::killzeiger->gib_bild_nr(0), Z_PLAN, SFX_REMOVER, SFX_FAILURE);
+				break;
+			case 's':
+				if(default_road==NULL) {
+					default_road = wegbauer_t::weg_search(road_wt,90,get_timeline_year_month(),weg_t::type_flat);
+				}
+				setze_maus_funktion(wkz_wegebau, default_road->gib_cursor()->gib_bild_nr(0), Z_PLAN, (long)default_road, SFX_JACKHAMMER, SFX_FAILURE);
+				break;
+			case 'v':
+				umgebung_t::station_coverage_show = !umgebung_t::station_coverage_show;
+				setze_dirty();
+				break;
+			case 'S':
+				sound_play(click_sound);
+				create_win(new loadsave_frame_t(this, false), w_info, magic_save_t);
+				break;
+			case 't':
+				if(default_track==NULL) {
+					default_track = wegbauer_t::weg_search(track_wt,100,get_timeline_year_month(),weg_t::type_flat);
+				}
+				// may be NULL, if no track exists ...
+				if(default_track!=NULL) {
+					setze_maus_funktion(wkz_wegebau, default_track->gib_cursor()->gib_bild_nr(0), Z_PLAN,	(long)default_track, SFX_JACKHAMMER, SFX_FAILURE);
+				}
+				break;
+			case 'T':
+				sound_play(click_sound);
+				create_win(new citylist_frame_t(this), w_info, magic_citylist_frame_t);
+				break;
+			case 'u':
+				setze_maus_funktion(wkz_raise, skinverwaltung_t::upzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );
+				break;
+			case 'V':
+				sound_play(click_sound);
+				create_win( new convoi_frame_t(get_active_player()), w_info, magic_convoi_t);
+				break;
+			case 'W':
+				fast_forward ^= 1;
+				reset_timer();
+				break;
+			case 'w':
+				sound_play(click_sound);
+				get_active_player()->simlinemgmt.zeige_info(get_active_player());
+				break;
+			case 'X':
+				sound_play(click_sound);
+				destroy_all_win();
+				beenden(false);
+				break;
+			case 'z':
+				wkz_undo(get_active_player());
+				break;
 
-	case 'G':
-	  create_win(-1, -1,new goods_frame_t(this), w_autodelete);
-	  break;
+			case '+':
+				display_set_light(display_get_light()+1);
+				setze_dirty();
+				break;
+			case '-':
+				display_set_light(display_get_light()-1);
+				setze_dirty();
+				break;
 
-	case 'J':
-	  create_win(-1, -1,new jump_frame_t(this), w_autodelete);
-	  break;
+			// shortcut system
+			case SIM_KEY_F2:
+			case SIM_KEY_F3:
+			case SIM_KEY_F4:
+			case SIM_KEY_F5:
+			case SIM_KEY_F6:
+			case SIM_KEY_F7:
+			case SIM_KEY_F8:
+			case SIM_KEY_F9:
+			case SIM_KEY_F10:
+			case SIM_KEY_F11:
+			case SIM_KEY_F12:
+			case SIM_KEY_F13:
+			case SIM_KEY_F14:
+			case SIM_KEY_F15:
+			{
+				int num = ev.ev_code - SIM_KEY_F2;
+				save_mouse_func*& shortcut = quick_shortcuts[num];
+				if (event_get_last_control_shift() == 2) {
+					if (shortcut == NULL)
+						shortcut = new save_mouse_func;
 
-	case 'Q':
-	  create_win(-1, -1,new optionen_gui_t(this), w_autodelete);
-	  break;
-
-	case 'X':
-			sound_play(click_sound);
-			destroy_all_win();
-			beenden(false);
-	    break;
-
-	case 'L':
-	    sound_play(click_sound);
-	    create_win(new loadsave_frame_t(this, true), w_info, magic_load_t);
-	    break;
-
-	case 'S':
-	    sound_play(click_sound);
-	    create_win(new loadsave_frame_t(this, false), w_info, magic_save_t);
-	    break;
-
-	case 'T':
-	    sound_play(click_sound);
-	    create_win(0, 0, new citylist_frame_t(this), w_info);
-	    break;
-
-	case 'z':
-		wkz_undo(get_active_player());
-		break;
-
-	case 'V':
-	    sound_play(click_sound);
-	    create_win(-1, -1, -1, new convoi_frame_t(get_active_player()), w_autodelete, magic_convoi_t);
-	    break;
-		case SIM_KEY_F2:
-		case SIM_KEY_F3:
-		case SIM_KEY_F4:
-		case SIM_KEY_F5:
-		case SIM_KEY_F6:
-		case SIM_KEY_F7:
-		case SIM_KEY_F8:
-		case SIM_KEY_F9:
-		case SIM_KEY_F10:
-		case SIM_KEY_F11:
-		case SIM_KEY_F12:
-		case SIM_KEY_F13:
-		case SIM_KEY_F14:
-		case SIM_KEY_F15:
-		{
-			int num = ev.ev_code - SIM_KEY_F2;
-			save_mouse_func*& shortcut = quick_shortcuts[num];
-
-			if (event_get_last_control_shift() == 2) {
-				DBG_MESSAGE("karte_t()","Save mouse_funk");
-				if (shortcut == NULL)
-					shortcut = new save_mouse_func;
-
-				shortcut->save_mouse_funk     = mouse_funk;
-				shortcut->mouse_funk_param    = mouse_funk_param;
-				shortcut->mouse_funk_ok_sound = mouse_funk_ok_sound;
-				shortcut->mouse_funk_ko_sound = mouse_funk_ko_sound;
-				shortcut->zeiger_versatz      = zeiger->gib_yoff();
-				shortcut->zeiger_bild         = zeiger->gib_bild();
+						shortcut->save_mouse_funk     = mouse_funk;
+						shortcut->mouse_funk_param    = mouse_funk_param;
+						shortcut->mouse_funk_ok_sound = mouse_funk_ok_sound;
+						shortcut->mouse_funk_ko_sound = mouse_funk_ko_sound;
+						shortcut->zeiger_versatz      = zeiger->gib_yoff();
+						shortcut->zeiger_bild         = zeiger->gib_bild();
+					}
+					else if (shortcut != NULL) {
+						DBG_MESSAGE("karte_t()","Recall mouse_funk");
+						mouse_funk          = shortcut->save_mouse_funk;
+						mouse_funk_param    = shortcut->mouse_funk_param;
+						mouse_funk_ok_sound = shortcut->mouse_funk_ok_sound;
+						mouse_funk_ko_sound = shortcut->mouse_funk_ko_sound;
+						zeiger->setze_yoff(shortcut->zeiger_versatz);
+						zeiger->setze_bild(shortcut->zeiger_bild);
+						zeiger->set_flag(ding_t::dirty);
+					}
+				break;
 			}
-			else if (shortcut != NULL) {
-				DBG_MESSAGE("karte_t()","Recall mouse_funk");
-				mouse_funk          = shortcut->save_mouse_funk;
-				mouse_funk_param    = shortcut->mouse_funk_param;
-				mouse_funk_ok_sound = shortcut->mouse_funk_ok_sound;
-				mouse_funk_ko_sound = shortcut->mouse_funk_ko_sound;
-				zeiger->setze_yoff(shortcut->zeiger_versatz);
-				zeiger->setze_bild(shortcut->zeiger_bild);
-				zeiger->set_flag(ding_t::dirty);
-			}
-		}
-		break;
-	case '9':
-	    ij_off += koord::nord;
-	    dirty = true;
-	    break;
-	case '1':
-	    ij_off += koord::sued;
-	    dirty = true;
-	    break;
-	case '7':
-	    ij_off += koord::west;
-	    dirty = true;
-	    break;
-	case '3':
-	    ij_off += koord::ost;
-	    dirty = true;
-	    break;
 
-	case '6':
-	case SIM_KEY_RIGHT:
-			ij_off += koord(+1,-1);
-	    dirty = true;
-	    break;
-	case '2':
-	case SIM_KEY_DOWN:
-			ij_off += koord(+1,+1);
-	    dirty = true;
-	    break;
-	case '8':
-	case SIM_KEY_UP:
-			ij_off += koord(-1,-1);
-	    dirty = true;
-	    break;
-	case '4':
-	case SIM_KEY_LEFT:
-			ij_off += koord(-1,+1);
-	    dirty = true;
-	    break;
+			// cursor movements
+			case '9':
+				ij_off += koord::nord;
+				dirty = true;
+				break;
+			case '1':
+				ij_off += koord::sued;
+				dirty = true;
+				break;
+			case '7':
+				ij_off += koord::west;
+				dirty = true;
+				break;
+			case '3':
+				ij_off += koord::ost;
+				dirty = true;
+				break;
+			case '6':
+			case SIM_KEY_RIGHT:
+				ij_off += koord(+1,-1);
+				dirty = true;
+				break;
+			case '2':
+			case SIM_KEY_DOWN:
+				ij_off += koord(+1,+1);
+				dirty = true;
+				break;
+			case '8':
+			case SIM_KEY_UP:
+				ij_off += koord(-1,-1);
+				dirty = true;
+				break;
+			case '4':
+			case SIM_KEY_LEFT:
+				ij_off += koord(-1,+1);
+				dirty = true;
+				break;
 
+			// zoom
+			case '>':
+				win_set_zoom_factor(get_zoom_factor() > 1 ? get_zoom_factor()-1 : 1);
+				setze_dirty();
+				break;
+			case '<':
+				win_set_zoom_factor(get_zoom_factor() < 4 ? get_zoom_factor()+1 : 4);
+				setze_dirty();
+				break;
 
-	case '>':
-	  win_set_zoom_factor(get_zoom_factor() > 1 ? get_zoom_factor()-1 : 1);
-	  setze_dirty();
-	  break;
+			// closing windows
+			case 27:
+			case 127:
+				// close topmost win
+				destroy_win( win_get_top() );
+				break;
+			case 8:
+				sound_play(click_sound);
+				destroy_all_win();
+				break;
 
-	case '<':
-	  win_set_zoom_factor(get_zoom_factor() < 4 ? get_zoom_factor()+1 : 4);
-	  setze_dirty();
-	  break;
+			case SIM_KEY_F1:
+				create_win(new help_frame_t("general.txt"), w_info, magic_mainhelp);
+				break;
 
-	case 27:
-	case 127:
-		// close topmost win
-		destroy_win( win_get_top() );
-		break;
+			// just ignore the key
+			case 0:
+			case 13:
+				break;
 
-	case 8:
-	    sound_play(click_sound);
-	    destroy_all_win();
-	    break;
-
-	case SIM_KEY_F1:
-	    create_win(new help_frame_t("general.txt"), w_autodelete, magic_none);
-
-	    break;
-	case 0:
-	case 13:
-	    // just ignore the key
-	    break;
-	default:
-		// ignore special keys
-		if (ev.ev_code <= 255) {
-DBG_MESSAGE("karte_t::interactive_event()","key `%c` is not bound to a function.",ev.ev_code);
-			create_win(new help_frame_t("keys.txt"), w_autodelete, magic_keyhelp);
+			// show help dialoge for unknown keys
+			default:
+				if (ev.ev_code <= 255) {
+					DBG_MESSAGE("karte_t::interactive_event()","key `%c` is not bound to a function.",ev.ev_code);
+					create_win(new help_frame_t("keys.txt"), w_info, magic_keyhelp);
+				}
 		}
 	}
-}
 
-    if (IS_LEFTRELEASE(&ev)) {
+	if(IS_LEFTRELEASE(&ev)) {
 
-	if(ev.my < 32) {
-	    switch( ev.mx/32 ) {
-	    case 0:
-		sound_play(click_sound);
-		create_win(240, 120, -1, new optionen_gui_t(this), w_info,
-			   magic_optionen_gui_t);
-		break;
-	    case 1:
-		sound_play(click_sound);
-		create_win(-1, -1, -1, new map_frame_t(this), w_info, magic_reliefmap);
-		break;
-	    case 2:
-		setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
-		break;
-	    case 3:
-	    	menu_open(this,MENU_SLOPE,active_player);
-		break;
-	    case 4:
-	    	menu_open(this,MENU_RAIL,active_player);
-		break;
-	    case 5:
-	    	menu_open(this,MENU_MONORAIL,active_player);
-		break;
-	    case 6:
-	    	menu_open(this,MENU_TRAM,active_player);
-		break;
-	    case 7:
-	    	menu_open(this,MENU_ROAD,active_player);
-		break;
-	    case 8:
-	    	menu_open(this,MENU_SHIP,active_player);
-	    	break;
-	    case 9:
-	    	menu_open(this,MENU_AIRPORT,active_player);
-		break;
-	    case 10:
-	    	menu_open(this,MENU_SPECIAL,active_player);
-		break;
-	    case 11:
-		setze_maus_funktion(wkz_remover, skinverwaltung_t::killzeiger->gib_bild_nr(0), Z_PLAN, SFX_REMOVER, SFX_FAILURE);
-		break;
-	    case 12:
-	      // left empty
-	    break;
-	    case 13:
-	      sound_play(click_sound);
-	    create_win(-1, -1, -1, get_active_player()->get_line_frame(), w_info);
-	      break;
-	    case 14:
-	    	menu_open(this,MENU_LISTS,active_player);
-		break;
-	    case 15:
-	    	// line info
-		sound_play(click_sound);
-	    create_win(0, 0, new message_frame_t(this), w_info);
-		break;
-	    case 16:
-		sound_play(click_sound);
-           create_win(-1, -1, -1, get_active_player()->gib_money_frame(), w_info);
-		break;
-	    case 18:
-		sound_play(click_sound);
-                display_snapshot();
-		create_win(-1, -1, 60, new news_img("Screenshot\ngespeichert.\n"), w_autodelete);
-		break;
+		// in main top menu?
+		if(ev.my < 32) {
+
+			switch( ev.mx/32 ) {
+				case 0:
+					sound_play(click_sound);
+					create_win(240, 120, new optionen_gui_t(this), w_info,
+					magic_optionen_gui_t);
+					break;
+				case 1:
+					sound_play(click_sound);
+					create_win( new map_frame_t(this), w_info, magic_reliefmap);
+					break;
+				case 2:
+					setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+					break;
+				case 3:
+					menu_open(this,MENU_SLOPE,active_player);
+					break;
+				case 4:
+					menu_open(this,MENU_RAIL,active_player);
+					break;
+				case 5:
+					menu_open(this,MENU_MONORAIL,active_player);
+					break;
+				case 6:
+					menu_open(this,MENU_TRAM,active_player);
+					break;
+				case 7:
+					menu_open(this,MENU_ROAD,active_player);
+					break;
+				case 8:
+					menu_open(this,MENU_SHIP,active_player);
+					break;
+				case 9:
+					menu_open(this,MENU_AIRPORT,active_player);
+					break;
+				case 10:
+					menu_open(this,MENU_SPECIAL,active_player);
+					break;
+				case 11:
+					setze_maus_funktion(wkz_remover, skinverwaltung_t::killzeiger->gib_bild_nr(0), Z_PLAN, SFX_REMOVER, SFX_FAILURE);
+					break;
+				case 12:
+					// left empty
+					break;
+				case 13:
+					sound_play(click_sound);
+					get_active_player()->simlinemgmt.zeige_info( get_active_player() );
+					break;
+				case 14:
+					menu_open(this,MENU_LISTS,active_player);
+					break;
+				case 15:
+					// line info
+					sound_play(click_sound);
+					create_win( new message_frame_t(this), w_info, magic_messageframe );
+					break;
+				case 16:
+					sound_play(click_sound);
+					get_active_player()->zeige_info();
+					break;
+				case 18:
+					sound_play(click_sound);
+					display_snapshot();
+					create_win( new news_img("Screenshot\ngespeichert.\n"), w_time_delete, magic_none);
+					break;
 				case 19:
 					// Pause: warten auf die nächste Taste
 					do_pause();
@@ -3617,7 +3604,7 @@ DBG_MESSAGE("karte_t::interactive_event()","key `%c` is not bound to a function.
 					break;
 				case 21:
 					sound_play(click_sound);
-					create_win(new help_frame_t("general.txt"), w_autodelete, magic_mainhelp);
+					create_win(new help_frame_t("general.txt"), w_info, magic_mainhelp);
 					break;
 			}
 		}

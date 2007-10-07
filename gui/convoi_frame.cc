@@ -283,7 +283,7 @@ bool convoi_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)     
 		}
 		else {
 			filter_frame = new convoi_filter_frame_t(owner, this);
-			create_win(filter_frame, w_autodelete, -1);
+			create_win(filter_frame, w_info, (long)this);
 		}
 	}
 	return true;

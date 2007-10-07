@@ -1065,7 +1065,7 @@ void depot_frame_t::infowin_event(const event_t *ev)
 			destroy_win( this );
 
 			next_dep->zeige_info();
-			win_set_pos(next_dep->get_info_win(), x, y);
+			win_set_pos( win_get_magic((long)next_dep), x, y );
 			get_welt()->change_world_position(next_dep->gib_pos());
 		}
 	} else if(IS_WINDOW_REZOOM(ev)) {
@@ -1145,7 +1145,7 @@ void depot_frame_t::new_line()
 DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
 	layout(NULL);
 	update_data();
-	create_win(-1, -1, new line_management_gui_t(selected_line, depot->gib_besitzer()), w_info);
+	create_win(new line_management_gui_t(selected_line, depot->gib_besitzer()), w_info, (long)(selected_line->get_fahrplan()) );
 DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
 }
 
@@ -1173,7 +1173,7 @@ void depot_frame_t::apply_line()
 void depot_frame_t::change_line()
 {
 	if(selected_line.is_bound()) {
-		create_win(-1, -1, new line_management_gui_t(selected_line, depot->gib_besitzer()), w_info);
+		create_win(new line_management_gui_t(selected_line, depot->gib_besitzer()), w_info, (long)selected_line->get_fahrplan() );
 	}
 }
 
@@ -1191,7 +1191,7 @@ void depot_frame_t::fahrplaneingabe()
 		if(fpl != NULL && fpl->ist_abgeschlossen()) {
 
 			// Fahrplandialog oeffnen
-			create_win(-1, -1, new fahrplan_gui_t(fpl, cnv->gib_besitzer()), w_info);
+			create_win(new fahrplan_gui_t(fpl, cnv->gib_besitzer()), w_info, (long)fpl);
 
 			// evtl. hat ein callback cnv gelöscht, so erneut testen
 			if(cnv.is_bound() && fpl != NULL) {
@@ -1199,11 +1199,11 @@ void depot_frame_t::fahrplaneingabe()
 			}
 		}
 		else {
-			create_win(100, 64, new news_img("Es wird bereits\nein Fahrplan\neingegeben\n"), w_autodelete);
+			create_win( new news_img("Es wird bereits\nein Fahrplan\neingegeben\n"), w_time_delete, magic_none);
 		}
 	}
 	else {
-		create_win(100, 64, new news_img("Please choose vehicles first\n"), w_autodelete);
+		create_win( new news_img("Please choose vehicles first\n"), w_time_delete, magic_none);
 	}
 }
 

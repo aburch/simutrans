@@ -28,13 +28,6 @@ class vehikel_besch_t;
  */
 class depot_t : public gebaeude_t
 {
-private:
-	/**
-	 * Anzeigefenster für Depotmanagement
-	 * @author Hj. Malthaner
-	 */
-	depot_frame_t *depot_info;
-
 protected:
 	/**
 	 * Reworked depot data!
@@ -201,13 +194,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void zeige_info();
-
-	/**
-	 * Access needed by depot_frame_t
-	 * @author Volker Meyer
-	 * @date  11.06.2003
-	 */
-	depot_frame_t *get_info_win() const { return depot_info; }
 
 	/**
 	 * @returns NULL wenn OK, ansonsten eine Fehlermeldung

@@ -185,7 +185,7 @@ bool fabrik_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		char key[256];
 		sprintf(key, "factory_%s_details", fab->gib_besch()->gib_name());
 		frame->setze_text(translator::translate(key));
-		create_win(frame, w_autodelete, magic_none);
+		create_win(frame, w_info, (long)this);
 	}
 
 	return true;

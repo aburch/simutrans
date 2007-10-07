@@ -220,6 +220,7 @@ public:
 	sint32 gib_kennfarbe() const { return besch ? besch->gib_kennfarbe() : 0; }
 	spieler_t *gib_besitzer() const { return welt->lookup(pos) ? welt->lookup(pos)->first_obj()->gib_besitzer() : NULL; }
 
+	void zeige_info() const;
 	void info(cbuffer_t& buf) const;
 
 	void rdwr(loadsave_t *file);

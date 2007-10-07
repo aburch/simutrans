@@ -51,8 +51,11 @@
 #include "bauer/warenbauer.h"
 #include "bauer/fabrikbauer.h"
 
+#include "gui/fabrik_info.h"
+
 #include "utils/cbuffer_t.h"
 
+#include "simwin.h"
 #include "simgraph.h"
 #include "simdisplay.h"
 
@@ -1193,7 +1196,16 @@ void fabrik_t::recalc_factory_status()
 }
 
 
-void fabrik_t::info(cbuffer_t& buf) const
+void
+fabrik_t::zeige_info() const
+{
+	gebaeude_t *gb = welt->lookup(pos)->find<gebaeude_t>();
+	create_win(new fabrik_info_t(this, gb), w_info, (long)this );
+}
+
+
+void
+fabrik_t::info(cbuffer_t& buf) const
 {
 	buf.append("\n");
 	buf.append(translator::translate("Produktion"));

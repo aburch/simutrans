@@ -30,7 +30,6 @@
 #include "boden/grund.h"
 #include "gui/thing_info.h"
 #include "utils/cbuffer_t.h"
-#include "tpl/ptrhashtable_tpl.h"
 
 
 
@@ -40,14 +39,6 @@
  * @author Hj. Malthaner
  */
 karte_t * ding_t::welt = NULL;
-
-
-static ptrhashtable_tpl<const ding_t*, ding_infowin_t*> ding_infos;
-
-
-void ding_t::entferne_ding_info() const {
-	ding_infos.remove(this);
-}
 
 
 void ding_t::init(karte_t *wl)
@@ -88,7 +79,7 @@ ding_t::ding_t(karte_t *wl, koord3d pos)
 // removes an object and tries to delete it also form the corresponding dinglist
 ding_t::~ding_t()
 {
-	destroy_win(ding_infos.get(this));
+	destroy_win((long)this);
 
 	if(flags&not_on_map  ||  !welt->ist_in_kartengrenzen(pos.gib_2d())) {
 //		DBG_MESSAGE("ding_t::~ding_t()","deleted %p not on the map",this);
@@ -175,21 +166,10 @@ ding_t::info(cbuffer_t & buf) const
 }
 
 
-ding_infowin_t* ding_t::new_info()
-{
-	return new ding_infowin_t(this);
-}
-
-
 void
 ding_t::zeige_info()
 {
-	ding_infowin_t* info = ding_infos.get(this);
-	if (info == NULL) {
-		info = new_info();
-		ding_infos.put(this, info);
-	}
-	create_win(-1, -1, info, w_autodelete);
+	create_win( new ding_infowin_t(this), w_info, (long)this);
 }
 
 

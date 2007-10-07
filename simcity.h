@@ -18,7 +18,6 @@
 class karte_t;
 class spieler_t;
 class cbuffer_t;
-class stadt_info_t;
 
 // part of passengers going to factories or toursit attractions (100% mx)
 #define FACTORY_PAX 33	// workers
@@ -161,8 +160,6 @@ private:
 	*/
 	void roll_history(void);
 
-	stadt_info_t *stadt_info;
-
 public:
 	/**
 	 * Returns pointer to history for city
@@ -170,11 +167,6 @@ public:
 	 */
 	sint64* get_city_history_year() { return *city_history_year; }
 	sint64* get_city_history_month() { return *city_history_month; }
-
-	/* returns the money dialoge of a city
-	 * @author prissi
-	 */
-	stadt_info_t *gib_stadt_info();
 
 	// just needed by stadt_info.cc
 	static inline karte_t* get_welt() { return welt; }
@@ -439,6 +431,8 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	static vector_tpl<koord> *random_place(const karte_t *wl, sint32 anzahl);	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
+
+	void zeige_info(void);
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem

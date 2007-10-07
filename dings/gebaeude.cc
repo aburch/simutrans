@@ -11,6 +11,7 @@
 #include "../simdings.h"
 #include "../simfab.h"
 #include "../simimg.h"
+#include "../simgraph.h"
 #include "../simhalt.h"
 #include "../simwin.h"
 #include "../simcity.h"
@@ -36,9 +37,8 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
-#include "../gui/stadt_info.h"
-#include "../gui/fabrik_info.h"
-#include "../gui/money_frame.h"
+
+#include "../gui/thing_info.h"
 
 #include "gebaeude.h"
 
@@ -460,19 +460,6 @@ gebaeude_t::typ gebaeude_t::gib_haustyp() const
 }
 
 
-
-ding_infowin_t *gebaeude_t::new_info()
-{
-	if (is_factory  &&  ptr.fab) {
-		return new fabrik_info_t(ptr.fab, this);
-	}
-	else {
-		return ding_t::new_info();
-	}
-}
-
-
-
 void
 gebaeude_t::zeige_info()
 {
@@ -496,24 +483,26 @@ gebaeude_t::zeige_info()
 DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", gib_pos().x, gib_pos().y, gib_name());
 
 		if(ist_firmensitz()) {
-			if(umgebung_t::townhall_info) {
-				ding_t::zeige_info();
+			int old_count = win_get_open_count();
+			gib_besitzer()->zeige_info();
+			// already open?
+			if(umgebung_t::townhall_info  &&  old_count==win_get_open_count()) {
+				create_win( new ding_infowin_t(this), w_info, (long)this);
 			}
-			create_win(-1, -1, -1, gib_besitzer()->gib_money_frame(), w_info);
 		}
 
 		if(!tile->gib_besch()->ist_ohne_info()) {
 
 			if(ist_rathaus()) {
-				stadt_t *city = welt->suche_naechste_stadt(gib_pos().gib_2d());
-				create_win(-1, -1, -1, city->gib_stadt_info(), w_info, magic_none); /* otherwise only on image is allowed */
-
-				if(umgebung_t::townhall_info) {
-					ding_t::zeige_info();
+				int old_count = win_get_open_count();
+				welt->suche_naechste_stadt(gib_pos().gib_2d())->zeige_info();
+				// already open?
+				if(umgebung_t::townhall_info  &&  old_count==win_get_open_count()) {
+					create_win( new ding_infowin_t(this), w_info, (long)this);
 				}
 			}
 			else {
-				ding_t::zeige_info();
+				create_win( new ding_infowin_t(this), w_info, (long)this);
 			}
 		}
 	}

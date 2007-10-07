@@ -40,7 +40,6 @@ slist_tpl<depot_t *> depot_t::all_depots;
 
 depot_t::depot_t(karte_t *welt,loadsave_t *file) : gebaeude_t(welt)
 {
-	depot_info = NULL;
 	rdwr(file);
 	if(file->get_version()<88002) {
 		setze_yoff(0);
@@ -53,18 +52,13 @@ depot_t::depot_t(karte_t *welt,loadsave_t *file) : gebaeude_t(welt)
 depot_t::depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
     gebaeude_t(welt, pos, sp, t)
 {
-	depot_info = NULL;
 	all_depots.append(this);
 }
 
 
 depot_t::~depot_t()
 {
-	if(depot_info) {
-		destroy_win(depot_info);
-		delete depot_info;
-		depot_info = NULL;
-	}
+	destroy_win((long)this);
 	all_depots.remove(this);
 }
 
@@ -149,8 +143,9 @@ depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 	}
 	// this part stores the covoi in the depot
 	convois.append(acnv);
-	if(depot_info) {
-		depot_info->action_triggered(NULL,(long int)0);
+	depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+	if(depot_frame) {
+		depot_frame->action_triggered(NULL,(long int)0);
 	}
 	acnv->set_home_depot( gib_pos() );
 	DBG_MESSAGE("depot_t::convoi_arrived()", "convoi %d, %p entered depot", acnv.get_id(), acnv.get_rep());
@@ -160,10 +155,7 @@ depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 void
 depot_t::zeige_info()
 {
-	if(depot_info==NULL) {
-		depot_info = new depot_frame_t(this);
-	}
-	create_win(20, 20, depot_info, w_info);
+	create_win(20, 20, new depot_frame_t(this), w_info, (long)this);
 }
 
 
@@ -302,12 +294,12 @@ bool depot_t::start_convoi(convoihandle_t cnv)
 
 		// pruefen ob zug vollstaendig
 		if(cnv->gib_sum_leistung() == 0 || !cnv->pruefe_alle()) {
-			create_win(100, 64, MESG_WAIT, new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_autodelete);
+			create_win( new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_time_delete, magic_none);
 		} else if (!cnv->gib_vehikel(0)->calc_route(this->gib_pos(), cur_pos, cnv->gib_min_top_speed(), cnv->get_route())) {
 			// no route to go ...
 			static char buf[256];
 			sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->gib_name());
-			create_win(100, 64, MESG_WAIT, new news_img(buf), w_autodelete);
+			create_win( new news_img(buf), w_time_delete, magic_none);
 		} else if (can_convoi_start(cnv)) {
 			// der Convoi kann losdüsen
 			cnv->setze_fahrplan( cnv->gib_fahrplan() );     // do not delete: this inform all stops!
@@ -318,11 +310,11 @@ bool depot_t::start_convoi(convoihandle_t cnv)
 			return true;
 		}
 		else {
-			create_win(100, 64, new news_img("Blockstrecke ist\nbelegt\n"), w_autodelete);
+			create_win(new news_img("Blockstrecke ist\nbelegt\n"), w_time_delete, magic_none);
 		}
 	}
 	else {
-		create_win(100, 64, new news_img("Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n"), w_autodelete);
+		create_win( new news_img("Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n"), w_time_delete, magic_none);
 
 		if(!cnv.is_bound()) {
 			dbg->warning("depot_t::start_convoi()","No convoi to start!");

@@ -14,7 +14,6 @@
 #include "dataobj/koord3d.h"
 
 
-class ding_infowin_t;
 class cbuffer_t;
 class fabrik_t;
 class karte_t;
@@ -82,12 +81,6 @@ protected:
 	void set_player_nr(sint8 s) { besitzer_n = s; }
 
 	/**
-	* Erzeugt ein Info-Fenster für dieses Objekt
-	* @author V. Meyer
-	*/
-	virtual ding_infowin_t *new_info();
-
-	/**
 	* Pointer to the world of this thing. Static to conserve space.
 	* Change to instance variable once more than one world is available.
 	* @author Hj. Malthaner
@@ -113,8 +106,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	spieler_t * gib_besitzer() const;
-
-	void entferne_ding_info() const;
 
 	/**
 	* setzt ein flag im flag-set des dings. Siehe auch flag_values

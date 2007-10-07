@@ -18,13 +18,17 @@
 #include "simdebug.h"
 
 class fahrplan_t;
+class spieler_t;
 
 #define INVALID_LINE_ID ((uint16)(-1))
 
 class simlinemgmt_t
 {
- public:
+public:
  	simlinemgmt_t(karte_t* welt);
+ 	~simlinemgmt_t();
+
+	void zeige_info(spieler_t *) const;
 
 	/*
 	 * add a line

@@ -118,7 +118,7 @@ bool fahrplan_t::insert(const grund_t* gr, int ladegrad)
 #endif
 	// stored in minivec, so wie have to avoid adding too many
 	if(eintrag.get_count()>=254) {
-		create_win(-1, -1, 60, new news_img("Maximum 254 stops\nin a schedule!\n"), w_autodelete);
+		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
 		return false;
 	}
 
@@ -148,7 +148,7 @@ bool fahrplan_t::append(const grund_t* gr, int ladegrad)
 
 	// stored in minivec, so wie have to avoid adding too many
 	if(eintrag.get_count()>=254) {
-		create_win(-1, -1, 60, new news_img("Maximum 254 stops\nin a schedule!\n"), w_autodelete);
+		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
 		return false;
 	}
 
@@ -321,7 +321,7 @@ DBG_MESSAGE("zugfahrplan_t::ist_halt_erlaubt()","track ok");
 
 void zugfahrplan_t::zeige_fehlermeldung() const
 {
-	create_win(-1, -1, 60, new news_img("Zughalt muss auf\nSchiene liegen!\n"), w_autodelete);
+	create_win( new news_img("Zughalt muss auf\nSchiene liegen!\n"), w_time_delete, magic_none);
 }
 
 
@@ -347,7 +347,7 @@ autofahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 
 void autofahrplan_t::zeige_fehlermeldung() const
 {
-	create_win(-1, -1, 60, new news_img("Autohalt muss auf\nStrasse liegen!\n"), w_autodelete);
+	create_win( new news_img("Autohalt muss auf\nStrasse liegen!\n"), w_time_delete, magic_none);
 }
 
 
@@ -360,7 +360,7 @@ schifffahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 
 void schifffahrplan_t::zeige_fehlermeldung() const
 {
-	create_win(-1, -1, 60, new news_img("Schiffhalt muss im\nWasser liegen!\n"), w_autodelete);
+	create_win( new news_img("Schiffhalt muss im\nWasser liegen!\n"), w_time_delete, magic_none);
 }
 
 
@@ -374,7 +374,7 @@ airfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 
 void airfahrplan_t::zeige_fehlermeldung() const
 {
-	create_win(-1, -1, 60, new news_img("Flugzeughalt muss auf\nRunway liegen!\n"), w_autodelete);
+	create_win( new news_img("Flugzeughalt muss auf\nRunway liegen!\n"), w_time_delete, magic_none);
 }
 
 
@@ -387,5 +387,5 @@ monorailfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 
 void monorailfahrplan_t::zeige_fehlermeldung() const
 {
-	create_win(-1, -1, 60, new news_img("Monorailhalt muss auf\nMonorail liegen!\n"), w_autodelete);
+	create_win( new news_img("Monorailhalt muss auf\nMonorail liegen!\n"), w_time_delete, magic_none);
 }

@@ -106,8 +106,6 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	line = linehandle_t();
 	line_id = INVALID_LINE_ID;
 
-	convoi_info = NULL;
-
 	anz_vehikel = 0;
 	steps_driven = -1;
 	withdraw = false;
@@ -189,11 +187,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 		delete fpl;
 	}
 
-	if(convoi_info) {
-		destroy_win(convoi_info);
-		delete convoi_info;
-	}
-	convoi_info = 0;
+	destroy_win((long)this);
 }
 
 
@@ -740,13 +734,7 @@ convoi_t::betrete_depot(depot_t *dep)
 	}
 
 	dep->convoi_arrived(self, self->gib_fahrplan()!=0);
-
-	if(convoi_info) {
-		//  V.Meyer: destroy convoi info when entering the depot
-		destroy_win(convoi_info);
-		delete convoi_info;
-		convoi_info = NULL;
-	}
+	destroy_win((long)this);
 
 	// Hajo: since 0.81.5exp it's safe to
 	// remove the current sync object from
@@ -1574,15 +1562,7 @@ convoi_t::zeige_info()
 			}
 		}
 
-		if(!convoi_info) {
-			convoi_info = new convoi_info_t(self);
-			create_win(-1, -1, convoi_info, w_info);
-		}
-		else {
-			if(!top_win(convoi_info)) {
-				create_win(-1, -1, convoi_info, w_info);
-			}
-		}
+		create_win( new convoi_info_t(self), w_info, (long)this );
 	}
 }
 
@@ -1719,7 +1699,7 @@ void convoi_t::open_schedule_window()
 	// - just starting
 	// - a line update is pending
 	if(  state==FAHRPLANEINGABE  ||  line_update_pending!=INVALID_LINE_ID  ) {
-		create_win(-1, -1, 120, new news_img("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_autodelete);
+		create_win( new news_img("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_time_delete, magic_none );
 		return;
 	}
 
@@ -1733,7 +1713,7 @@ void convoi_t::open_schedule_window()
 	alte_richtung = fahr[0]->gib_fahrtrichtung();
 
 	// Fahrplandialog oeffnen
-	create_win(-1, -1, new fahrplan_gui_t(self), w_info);
+	create_win( new fahrplan_gui_t(self), w_info, (long)this );
 }
 
 

@@ -54,27 +54,3 @@ void monorailboden_t::calc_bild()
 		}
 	}
 }
-
-
-bool
-monorailboden_t::zeige_info()
-{
-	if(gib_halt().is_bound()) {
-		gib_halt()->zeige_info();
-		return true;
-	}
-	else {
-		if(hat_wege()) {	// if this is true, then all land info is shown
-DBG_MESSAGE("monorailboden_t::zeige_info()","with ribis %x",grund_t::gib_weg_ribi_unmasked(monorail_wt));
-			// there is some info!
-			grund_info_t* gi = grund_infos.get(this);
-			if (gi == NULL) {
-				gi = new grund_info_t(this);
-				grund_infos.put(this, gi);
-			}
-			create_win(-1, -1, gi, w_autodelete);
-			return true;
-		}
-	}
-	return false;
-}

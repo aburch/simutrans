@@ -27,6 +27,7 @@
 	FIX: build station extension building again on flattened slopes
 	FIX (kierongreen): station layout patch supplied with some fixes
 	ADD (kierongreen): powerline bridges
+	FIX/CHANGE: window system was really a little broken
 
 
 Release of 99.14

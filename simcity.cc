@@ -873,10 +873,8 @@ void stadt_t::init_pax_ziele()
 
 stadt_t::~stadt_t()
 {
-	// close window if needed
-	if (stadt_info != NULL) {
-		destroy_win(stadt_info);
-	}
+	// close info win
+	destroy_win((long)this);
 
 	// olny if there is still a world left to delete from
 	if(welt->gib_groesse_x()>1) {
@@ -990,8 +988,6 @@ next_name:;
 	city_history_month[0][HIST_CITICENS] = last_month_bev = gib_einwohner();
 	this_year_transported = 0;
 	this_year_pax = 0;
-
-	stadt_info = NULL;
 }
 
 
@@ -1016,8 +1012,6 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	rdwr(file);
 
 	verbinde_fabriken();
-
-	stadt_info = NULL;
 }
 
 
@@ -1181,15 +1175,13 @@ void stadt_t::laden_abschliessen()
 }
 
 
-/* returns the money dialoge of a city
+/* show city info dialoge
  * @author prissi
  */
-stadt_info_t* stadt_t::gib_stadt_info(void)
+void
+stadt_t::zeige_info(void)
 {
-	if (stadt_info == NULL) {
-		stadt_info = new stadt_info_t(this);
-	}
-	return stadt_info;
+	create_win( new stadt_info_t(this), w_info, (long)this );
 }
 
 
