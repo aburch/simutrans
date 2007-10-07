@@ -81,7 +81,7 @@ public:
 private:
 	static karte_t *welt;
 	spieler_t *besitzer_p;
-	const char *load_name;	// only during load_time
+	const char *name;
 
 	weighted_vector_tpl <const gebaeude_t *> buildings;
 
@@ -324,7 +324,7 @@ public:
 	 * Gibt den Namen der Stadt zurück.
 	 * @author Hj. Malthaner
 	 */
-	const char *gib_name() const;
+	const char *gib_name() const { return name; }
 
 	/**
 	 * Ermöglicht Zugriff auf Namesnarray
