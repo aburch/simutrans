@@ -158,20 +158,12 @@ climate_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	if(komp==water_level+0) {
 		if(sets->gib_grundwasser() > -10*Z_TILE_STEP ) {
 			sets->setze_grundwasser( sets->gib_grundwasser() - 2*Z_TILE_STEP );
-			if(welt_gui->get_loaded_heightfield()) {
-				welt_gui->clear_loaded_heightfield();
-			}
-			else {
-				welt_gui->update_preview();
-			}
+			welt_gui->update_preview();
 		}
 	}
 	else if(komp==water_level+1) {
 		if(sets->gib_grundwasser() < 0 ) {
 			sets->setze_grundwasser( sets->gib_grundwasser() + 2*Z_TILE_STEP );
-			if(welt_gui->get_loaded_heightfield()) {
-				welt_gui->clear_loaded_heightfield();
-			}
 			welt_gui->update_preview();
 		}
 	}

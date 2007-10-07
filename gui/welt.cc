@@ -293,7 +293,6 @@ welt_gui_t::update_from_heightfield(const char *filename)
 		int w=param[0], h=param[1];
 		sets->setze_groesse_x(w);
 		sets->setze_groesse_y(h);
-		sets->setze_grundwasser(-2);
 
 		// ensure correct display under all circumstances
 		const float skip_x = (float)preview_size/(float)w;
@@ -361,14 +360,19 @@ welt_gui_t::update_preview()
 	const int mx = sets->gib_groesse_x()/preview_size;
 	const int my = sets->gib_groesse_y()/preview_size;
 
-	setsimrand( 0xFFFFFFFF, sets->gib_karte_nummer() );
-	for(int j=0; j<preview_size; j++) {
-		for(int i=0; i<preview_size; i++) {
-			karte[j*preview_size+i] = reliefkarte_t::calc_hoehe_farbe((karte_t::perlin_hoehe(i*mx, j*my, sets->gib_map_roughness(), sets->gib_max_mountain_height())/16)+1, sets->gib_grundwasser()/Z_TILE_STEP);
-		}
+	if(loaded_heightfield) {
+		update_from_heightfield(sets->heightfield);
 	}
-	sets->heightfield = "";
-	loaded_heightfield = false;
+	else {
+		setsimrand( 0xFFFFFFFF, sets->gib_karte_nummer() );
+		for(int j=0; j<preview_size; j++) {
+			for(int i=0; i<preview_size; i++) {
+				karte[j*preview_size+i] = reliefkarte_t::calc_hoehe_farbe((karte_t::perlin_hoehe(i*mx, j*my, sets->gib_map_roughness(), sets->gib_max_mountain_height())/16)+1, sets->gib_grundwasser()/Z_TILE_STEP);
+			}
+		}
+		sets->heightfield = "";
+		loaded_heightfield = false;
+	}
 
 	x_size[0].enable();
 	x_size[1].enable();
@@ -508,6 +512,7 @@ welt_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		// load relief
 		loaded_heightfield = false;
 		sets->heightfield = "";
+		sets->setze_grundwasser(-2);
 		create_win(new load_relief_frame_t(sets), w_info, magic_load_t);
 		knr = sets->gib_karte_nummer();	// otherwise using cancel would not show the normal generated map again
 	}

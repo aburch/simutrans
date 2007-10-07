@@ -14,8 +14,11 @@
 #include "../dataobj/translator.h"
 
 // for chdir
-#ifdef _MSC_VER
+#ifdef WIN32
 #include <direct.h>
+#ifdef __MINGW32CE__
+#define _chdir(i) chdir(i)
+#endif
 #else
 #include <unistd.h>
 #endif

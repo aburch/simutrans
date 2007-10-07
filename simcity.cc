@@ -1907,6 +1907,11 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		if (neugruendung || umziehen) {
 			best_pos = rathausplatz_sucher_t(welt).suche_platz(pos, besch->gib_b(layout), besch->gib_h(layout) + 1, besch->get_allowed_climate_bits());
 		}
+		// check, if the was something found
+		if(best_pos==koord::invalid) {
+			dbg->error( "stadt_t::check_bau_rathaus", "no better postion found!" );
+			return;
+		}
 		gb = hausbauer_t::baue(welt, besitzer_p, welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), layout, besch);
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);
 		add_gebaeude_to_stadt(gb);
