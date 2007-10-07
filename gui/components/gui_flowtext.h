@@ -38,6 +38,9 @@ class gui_flowtext_t : public gui_komponente_action_creator_t
 		 */
 		void infowin_event(const event_t*);
 
+		bool dirty;
+		koord last_offset;
+
 	private:
 		koord output(koord pos, bool doit);
 

@@ -8,6 +8,7 @@
 gui_flowtext_t::gui_flowtext_t()
 {
 	title[0] = '\0';
+	last_offset = koord::invalid;
 }
 
 
@@ -109,6 +110,7 @@ void gui_flowtext_t::set_text(const char *text)
 		}
 		tail = lead;
 	}
+	dirty = true;
 }
 
 
@@ -127,6 +129,10 @@ koord gui_flowtext_t::get_preferred_size()
 void gui_flowtext_t::zeichnen(koord offset)
 {
 	offset += pos;
+	if(offset!=last_offset) {
+		dirty = true;
+		last_offset = offset;
+	}
 	output(offset, true);
 }
 
@@ -161,9 +167,9 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 
 				if (doit) {
 					if (double_it) {
-						display_proportional_clip(offset.x + xpos + 1, offset.y + ypos + 1, node->text, 0, double_color, true);
+						display_proportional_clip(offset.x + xpos + 1, offset.y + ypos + 1, node->text, 0, double_color, false);
 					}
-					display_proportional_clip(offset.x + xpos, offset.y + ypos, node->text, 0, color, true);
+					display_proportional_clip(offset.x + xpos, offset.y + ypos, node->text, 0, color, false);
 				}
 
 				xpos = nxpos;
@@ -191,7 +197,7 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 				}
 
 				if (doit) {
-					display_fillbox_wh_clip(link->tl.x + offset.x, link->tl.y + offset.y + 10, link->br.x - link->tl.x - 4, 1, color, true);
+					display_fillbox_wh_clip(link->tl.x + offset.x, link->tl.y + offset.y + 10, link->br.x - link->tl.x - 4, 1, color, false);
 				}
 
 				++link;
@@ -208,8 +214,8 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 				color     = COL_BLACK;
 				double_it = false;
 				if (doit) {
-					display_fillbox_wh_clip(offset.x + 1, offset.y + ypos + 10 + 1, xpos - 4, 1, COL_WHITE, true);
-					display_fillbox_wh_clip(offset.x,     offset.y + ypos + 10,     xpos - 4, 1, color,     true);
+					display_fillbox_wh_clip(offset.x + 1, offset.y + ypos + 10 + 1, xpos - 4, 1, COL_WHITE, false);
+					display_fillbox_wh_clip(offset.x,     offset.y + ypos + 10,     xpos - 4, 1, color,     false);
 				}
 				xpos = 0;
 				ypos += LINESPACE;
@@ -243,6 +249,10 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 
 			default: break;
 		}
+	}
+	if(dirty) {
+		mark_rect_dirty_wc( offset.x, offset.y, offset.x+max_width, offset.y+ypos+LINESPACE );
+		dirty = false;
 	}
 	return koord(max_width, ypos + LINESPACE);
 }
