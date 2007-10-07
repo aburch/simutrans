@@ -840,4 +840,9 @@ void gebaeude_t::entferne(spieler_t *sp)
 			}
 		}
 	}
+
+	// remove all traces from the screen
+	for(  int i=0;  gib_bild(i)!=IMG_LEER;  i++ ) {
+		mark_image_dirty( gib_bild(i), -get_tile_raster_width()*i );
+	}
 }

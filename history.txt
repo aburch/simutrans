@@ -28,6 +28,7 @@
 	FIX (kierongreen): station layout patch supplied with some fixes
 	ADD (kierongreen): powerline bridges
 	FIX/CHANGE: window system was really a little broken
+	FIX: remove tall buildings without residuals
 
 
 Release of 99.14
