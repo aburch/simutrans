@@ -482,7 +482,10 @@ gebaeude_t::zeige_info()
 	else {
 DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", gib_pos().x, gib_pos().y, gib_name());
 
-		if(ist_firmensitz()) {
+		if(get_fabrik()) {
+			ptr.fab->zeige_info();
+		}
+		else if(ist_firmensitz()) {
 			int old_count = win_get_open_count();
 			gib_besitzer()->zeige_info();
 			// already open?
@@ -490,9 +493,7 @@ DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", gib_pos().x, 
 				create_win( new ding_infowin_t(this), w_info, (long)this);
 			}
 		}
-
-		if(!tile->gib_besch()->ist_ohne_info()) {
-
+		else if(!tile->gib_besch()->ist_ohne_info()) {
 			if(ist_rathaus()) {
 				int old_count = win_get_open_count();
 				welt->suche_naechste_stadt(gib_pos().gib_2d())->zeige_info();
