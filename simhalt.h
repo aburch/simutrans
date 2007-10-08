@@ -199,10 +199,6 @@ private:
 	spieler_t   *besitzer_p;
 	static karte_t *welt;
 
-#ifdef LAGER_NOT_IN_USE
-	lagerhaus_t *lager;         // unser lager, falls vorhanden
-#endif
-
 	/**
 	 * What is that for a station (for the image)
 	 * @author prissi

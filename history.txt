@@ -29,6 +29,7 @@
 	ADD (kierongreen): powerline bridges
 	FIX/CHANGE: window system was really a little broken
 	FIX: remove tall buildings without residuals
+	CHANGE: bus AI now tries to connect intown as well => less worse competition
 
 
 Release of 99.14

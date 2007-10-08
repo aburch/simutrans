@@ -1145,7 +1145,7 @@ void depot_frame_t::new_line()
 DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
 	layout(NULL);
 	update_data();
-	create_win(new line_management_gui_t(selected_line, depot->gib_besitzer()), w_info, (long)(selected_line->get_fahrplan()) );
+	create_win(new line_management_gui_t(selected_line, depot->gib_besitzer()), w_info, (long)selected_line.get_rep() );
 DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
 }
 
@@ -1173,7 +1173,7 @@ void depot_frame_t::apply_line()
 void depot_frame_t::change_line()
 {
 	if(selected_line.is_bound()) {
-		create_win(new line_management_gui_t(selected_line, depot->gib_besitzer()), w_info, (long)selected_line->get_fahrplan() );
+		create_win(new line_management_gui_t(selected_line, depot->gib_besitzer()), w_info, (long)selected_line.get_rep() );
 	}
 }
 

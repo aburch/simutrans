@@ -203,7 +203,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
 	if (komp == &bt_change_line) {
 		if (line.is_bound()) {
-			create_win( new line_management_gui_t(line, sp), w_info, (long)line->get_fahrplan() );
+			create_win( new line_management_gui_t(line, sp), w_info, (long)line.get_rep() );
 		}
 	}
 	else if (komp == &bt_new_line) {
@@ -211,7 +211,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			// create typed line
 			uint8 type=tabs_to_lineindex[tabs.get_active_tab_index()];
 			linehandle_t new_line = sp->simlinemgmt.create_line(type);
-			create_win( new line_management_gui_t(new_line, sp), w_info, (long)line->get_fahrplan());
+			create_win( new line_management_gui_t(new_line, sp), w_info, (long)line.get_rep());
 			update_lineinfo( new_line );
 			build_line_list( tabs.get_active_tab_index() );
 		}

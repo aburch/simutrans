@@ -2719,11 +2719,125 @@ DBG_MESSAGE("spieler_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpo
 }
 
 
+// now we follow all adjacent streets recursively and mark them
+// if they below to this stop, then we continue
+void
+spieler_t::walk_city( linehandle_t &line, grund_t *&start, const int limit )
+{
+	//maximum number of stops reached?
+	if(line->get_fahrplan()->maxi()>=limit)  {
+		return;
+	}
+
+	ribi_t::ribi ribi = start->gib_weg_ribi(road_wt);
+
+	for(int r=0; r<4; r++) {
+
+		// a way in our direction?
+		if(  (ribi & ribi_t::nsow[r])==0  ) {
+			continue;
+		}
+
+		// ok, if connected, not marked, and not owner by somebody else
+		grund_t *to;
+		if(start->get_neighbour(to, road_wt, koord::nsow[r] )  &&  !welt->ist_markiert(to)  &&  check_owner(to->obj_bei(0)->gib_besitzer())) {
+
+			// ok, here is a valid street tile
+			welt->markiere(to);
+
+			// can built a station here
+			if(  ribi_t::ist_gerade(to->gib_weg_ribi(road_wt))  ) {
+
+				// find out how many tiles we have covered already
+				int covered_tiles=0;
+				int house_tiles=0;
+				for(  sint16 y=to->gib_pos().y-umgebung_t::station_coverage_size;  y<=to->gib_pos().y+umgebung_t::station_coverage_size+1;  y++  ) {
+					for(  sint16 x=to->gib_pos().x-umgebung_t::station_coverage_size;  x<=to->gib_pos().x+umgebung_t::station_coverage_size+1;  x++  ) {
+						const planquadrat_t *pl = welt->lookup(koord(x,y));
+						// check, if we have a passenger stop already here
+						if(pl  &&  pl->get_haltlist_count()>0) {
+							const halthandle_t *hl=pl->get_haltlist();
+							for( uint8 own=0;  own<pl->get_haltlist_count();  own++  ) {
+								if(  hl[own]->is_enabled(warenbauer_t::passagiere)  ) {
+									if(  hl[own]->gib_besitzer()==this  ) {
+										covered_tiles ++;
+										break;
+									}
+								}
+							}
+						}
+						// check for houses
+						if(pl  &&  pl->gib_kartenboden()->gib_typ()==grund_t::fundament) {
+							house_tiles++;
+						}
+					}
+				}
+				// now decide, if we build here
+				// just using the ration of covered tiles versus house tiles
+				const int max_tiles = (umgebung_t::station_coverage_size*2+1);
+				if(  covered_tiles<(max_tiles*max_tiles)/3  &&  house_tiles>=3  ) {
+					// ok, lets do it
+					const haus_besch_t* bs = hausbauer_t::gib_random_station(haus_besch_t::bushalt, welt->get_timeline_year_month(), haltestelle_t::PAX);
+					if(  wkz_halt(this, welt, to->gib_pos().gib_2d(), bs )  ) {
+						//add to line
+						line->get_fahrplan()->append(to,0); // no need to register it yet; done automatically, when convois will be assinged
+					}
+				}
+				// start road, but no houses anywhere => stop searching
+				if(house_tiles==0) {
+					return;
+				}
+			}
+			// now do recursion
+			walk_city( line, to, limit );
+		}
+	}
+}
+
+
+
+/* tries to cover a city with bus stops that does not overlap much and cover as much as possible
+ * returns the line created, if sucessful
+ */
+void
+spieler_t::cover_city_with_bus_route( const stadt_t *city, koord start_pos, int number_of_stops )
+{
+	// nothing in lists
+	welt->unmarkiere_alle();
+
+	// and init all stuff for recursion
+	grund_t *start = welt->lookup_kartenboden(start_pos);
+	linehandle_t line = simlinemgmt.create_line( simline_t::truckline, new autofahrplan_t() );
+	line->get_fahrplan()->append(start,0);
+
+	// now create a line
+	walk_city( line, start, number_of_stops );
+
+	if( line->get_fahrplan()->maxi()>1  ) {
+		// success: add a bus to the line
+		vehikel_t* v = vehikelbauer_t::baue(start->gib_pos(), this, NULL, road_vehicle);
+		convoi_t* cnv = new convoi_t(this);
+
+		cnv->setze_name(v->gib_besch()->gib_name());
+		cnv->add_vehikel( v );
+
+		welt->sync_add( cnv );
+		cnv->set_line(line);
+		cnv->start();
+	}
+	else {
+		simlinemgmt.delete_line( line );
+	}
+}
+
+
+
 
 // BUS AI
 void spieler_t::do_passenger_ki()
 {
-	if((steps/MAX_PLAYER_COUNT)&7) {
+	// one route per month ...
+	if(  steps < next_contruction_steps  ) {
 		return;
 	}
 
@@ -2847,35 +2961,22 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","decision: %s wants to built network 
 			else {
 DBG_MESSAGE("spieler_t::do_passenger_ki()","searching town");
 				count = 1;
+				int last_dist = 9999999;
 				// find a good route
 				for( int i=0;  i<anzahl;  i++  ) {
 					const int nr = (i+offset)%anzahl;
 					const stadt_t* cur = staedte[nr];
-assert(cur!=NULL);
 					if(cur!=last_start_stadt  &&  cur!=start_stadt) {
-						int	dist=-1;
-						if(end_stadt!=NULL) {
-							halthandle_t end_halt = get_our_hub(cur);
-DBG_MESSAGE("spieler_t::do_passenger_ki()","found end hub");
-							int dist1 = abs_distance(platz1,cur->gib_pos());
-
-							// if there is a not too long route (less than 4 times changes), then do not built a line between
-							if(start_halt.is_bound()  &&  end_halt.is_bound()) {
-								ware_t pax(warenbauer_t::passagiere);
-								pax.setze_zielpos(end_halt->gib_basis_pos());
-								INT_CHECK("simplay 838");
-								start_halt->suche_route(pax);
-								if(!pax.gib_ziel().is_bound()  &&  dist1>welt->gib_groesse_max()/3) {
-									// already connected
-									continue;
-								}
-							}
-							int dist2 = abs_distance(platz1,end_stadt->gib_pos());
-							dist = dist1-dist2;
+						halthandle_t end_halt = get_our_hub(cur);
+						int dist = abs_distance(platz1,cur->gib_pos());
+						if(  end_halt.is_bound()  &&  is_connected(platz1,end_halt->gib_basis_pos(),warenbauer_t::passagiere) ) {
+							// already connected
+							continue;
 						}
-						// check if more close or NULL
-						if(end_stadt==NULL  ||  dist<0  ) {
+						// check if more close
+						if(  dist<last_dist  ) {
 							end_stadt = cur;
+							last_dist = dist;
 						}
 					}
 				}
@@ -2934,7 +3035,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","no suitable hub found");
 			uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);
 
 			// we want the fastest we can get!
-			road_vehicle = vehikelbauer_t::vehikel_search( road_wt, month_now, 10, 80, warenbauer_t::passagiere );
+			road_vehicle = vehikelbauer_t::vehikel_search( road_wt, month_now, 50, 80, warenbauer_t::passagiere );
 			if(road_vehicle!=NULL) {
 //						road_weg = wegbauer_t::weg_search( road_wt, road_vehicle->gib_geschw(), welt->get_timeline_year_month(),weg_t::type_flat );
 				// find the really cheapest road
@@ -3000,9 +3101,13 @@ DBG_DEBUG("do_passenger_ki()","factory success1");
 			}
 			else {
 				sprintf(buf, translator::translate("Travellers now\nuse %s's\nbusses between\n%s \nand %s.\n"), gib_name(), start_stadt->gib_name(), end_stadt->gib_name() );
+				// add two intown routes
+				cover_city_with_bus_route( start_stadt, platz1, 6 );
+				cover_city_with_bus_route( end_stadt, platz2, 6 );
 			}
 DBG_DEBUG("do_passenger_ki()","calling message_t()");
 			message_t::get_instance()->add_message(buf,platz1,message_t::ai,player_nr,road_vehicle->gib_basis_bild());
+			next_contruction_steps = steps + simrand( 50 );
 		}
 		break;
 
@@ -3068,6 +3173,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","copy convoi %s on route %s to %s",cn
 				}
 			}
 			state = NR_INIT;
+			next_contruction_steps = steps + simrand( 1000 );
 		}
 		break;
 

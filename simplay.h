@@ -534,6 +534,13 @@ private:
 
 	halthandle_t  get_our_hub( const stadt_t *s );
 	koord built_hub( const koord pos, int radius );
+
+	// helper function for bus stops intown
+	void walk_city( linehandle_t &line, grund_t *&start, const int limit );
+
+	// tries to cover a city with bus stops that does not overlap much and cover as much as possible
+	void cover_city_with_bus_route( const stadt_t *city, koord start_pos, int number_of_stops );
+
 	void create_bus_transport_vehikel(koord startpos,int anz_vehikel,koord *stops,int anzahl,bool do_wait);
 
 	void do_passenger_ki();

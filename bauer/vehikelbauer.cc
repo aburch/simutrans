@@ -283,7 +283,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t typ, const uint
 			// assign this vehicle, if we have none found one yet, or we found only a too week one
 			if(  besch!=NULL  ) {
 				// it is cheaper to run? (this is most important)
-				difference += (besch->gib_zuladung()*1000)/besch->gib_betriebskosten() > (test_besch->gib_zuladung()*1000)/test_besch->gib_betriebskosten() ? -20 : 20;
+				difference += (besch->gib_zuladung()*1000)/besch->gib_betriebskosten() < (test_besch->gib_zuladung()*1000)/test_besch->gib_betriebskosten() ? -20 : 20;
 				if(  target_weight>0  ) {
 					// it is strongerer?
 					difference += (besch->gib_leistung()*besch->get_gear())/64 < power ? -10 : 10;
