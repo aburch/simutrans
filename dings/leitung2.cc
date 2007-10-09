@@ -312,9 +312,6 @@ void leitung_t::info(cbuffer_t & buf) const
 	buf.append(get_net()->get_capacity());
 	buf.append("\nNet: ");
 	buf.append((unsigned long)get_net());
-	// bdebug
-	buf.append("\n");
-	buf.append((int)ribi);
 }
 
 

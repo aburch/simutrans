@@ -30,6 +30,7 @@
 	FIX/CHANGE: window system was really a little broken
 	FIX: remove tall buildings without residuals
 	CHANGE: bus AI now tries to connect intown as well => less worse competition
+	FIX: deletion of powerline was free up to now ...
 
 
 Release of 99.14
