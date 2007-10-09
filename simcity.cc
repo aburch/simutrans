@@ -39,7 +39,6 @@
 #include "simdebug.h"
 
 #include "dings/gebaeude.h"
-#include "dings/leitung2.h"
 
 #include "dataobj/translator.h"
 #include "dataobj/einstellungen.h"

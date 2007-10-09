@@ -49,14 +49,11 @@ leitung_t::gimme_neighbours(leitung_t **conn)
 	grund_t *gr_base = welt->lookup(gib_pos());
 	for(int i=0; i<4; i++) {
 		// get next connected tile (if there)
-		const koord dir = koord::nsow[i];
-		const sint16 this_height = gr_base->get_vmove(dir);
-		grund_t *gr = welt->lookup( koord3d( gib_pos().gib_2d()+dir, this_height ) );
+		grund_t *gr;
 		conn[i] = NULL;
-		// and check, if the ownership allows for connection
-		if(gr  &&  gr->get_vmove(-dir)==this_height) {
+		if(  gr_base->get_neighbour( gr, invalid_wt, koord::nsow[i] ) ) {
 			leitung_t *lt = gr->gib_leitung();
-			if(lt  &&  gib_besitzer()->check_owner(lt->gib_besitzer())) {
+			if(  lt  &&  gib_besitzer()->check_owner(lt->gib_besitzer())  ) {
 				conn[i] = lt;
 				count++;
 			}
@@ -94,6 +91,7 @@ leitung_t::leitung_t(karte_t *welt, koord3d pos, spieler_t *sp) : ding_t(welt, p
 }
 
 
+
 leitung_t::~leitung_t()
 {
 	grund_t *gr = welt->lookup(gib_pos());
@@ -101,7 +99,7 @@ leitung_t::~leitung_t()
 		leitung_t *conn[4];
 		int neighbours = gimme_neighbours(conn);
 		gr->obj_remove(this);
-		setze_pos(koord3d::invalid);
+		set_flag( ding_t::not_on_map );
 
 		powernet_t *new_net = NULL;
 		if(neighbours>1) {
@@ -114,10 +112,16 @@ leitung_t::~leitung_t()
 						new_net = new powernet_t();
 						welt->sync_add(new_net);
 						conn[i]->replace(new_net);
-						conn[i]->calc_neighbourhood();
 					}
 					first = false;
 				}
+			}
+		}
+
+		// recalc images
+		for(int i=0; i<4; i++) {
+			if(conn[i]!=NULL) {
+				conn[i]->calc_neighbourhood();
 			}
 		}
 
@@ -135,6 +139,18 @@ leitung_t::~leitung_t()
 		gib_besitzer()->add_maintenance(-wegbauer_t::leitung_besch->gib_wartung());
 	}
 }
+
+
+
+void
+leitung_t::entferne(spieler_t *sp)
+{
+	if(sp) {
+		sp->buche( wegbauer_t::leitung_besch->gib_preis()/2, gib_pos().gib_2d(), COST_CONSTRUCTION);
+	}
+	mark_image_dirty( bild, 0 );
+}
+
 
 
 /* replace networks connection
@@ -210,24 +226,8 @@ void leitung_t::verbinde()
 
 
 
-ribi_t::ribi leitung_t::gib_ribi()
-{
-	ribi_t::ribi ribi = ribi_t::keine;
-	leitung_t * conn[4];
-	if(gimme_neighbours(conn)>0) {
-		for( uint8 i=0;  i<4;  i++  ) {
-			if(conn[i]) {
-				ribi |= ribi_t::nsow[i];
-			}
-		}
-	}
-	return ribi;
-}
-
-
-
 /* extended by prissi */
-void leitung_t::calc_bild()
+void leitung_t::recalc_bild()
 {
 	const koord pos = gib_pos().gib_2d();
 
@@ -241,8 +241,8 @@ void leitung_t::calc_bild()
 		setze_bild(IMG_LEER);
 		return;
 	}
-	const ribi_t::ribi ribi=gib_ribi();
-	hang_t::typ hang = gr->gib_grund_hang();
+
+	hang_t::typ hang = gr->gib_weg_hang();
 	if(hang != hang_t::flach) {
 		setze_bild( wegbauer_t::leitung_besch->gib_hang_bild_nr(hang, 0));
 	}
@@ -283,16 +283,21 @@ void leitung_t::calc_bild()
  */
 void leitung_t::calc_neighbourhood()
 {
-	leitung_t * conn[4];
+	leitung_t *conn[4];
+	ribi = ribi_t::keine;
 	if(gimme_neighbours(conn)>0) {
 		for( uint8 i=0;  i<4 ;  i++  ) {
-			if(conn[i]) {
-				conn[i]->calc_bild();
+			if(conn[i]  &&  conn[i]->get_net()==get_net()) {
+				ribi |= ribi_t::nsow[i];
+				conn[i]->add_ribi(ribi_t::rueckwaerts(ribi_t::nsow[i]));
+				conn[i]->recalc_bild();
 			}
 		}
 	}
-	calc_bild();
+	set_flag( ding_t::dirty );
+	recalc_bild();
 }
+
 
 
 /**
@@ -307,6 +312,9 @@ void leitung_t::info(cbuffer_t & buf) const
 	buf.append(get_net()->get_capacity());
 	buf.append("\nNet: ");
 	buf.append((unsigned long)get_net());
+	// bdebug
+	buf.append("\n");
+	buf.append((int)ribi);
 }
 
 
@@ -318,8 +326,8 @@ void leitung_t::info(cbuffer_t & buf) const
  */
 void leitung_t::laden_abschliessen()
 {
-	calc_neighbourhood();
 	verbinde();
+	calc_neighbourhood();
 	grund_t *gr = welt->lookup(gib_pos());
 	assert(gr);
 	gib_besitzer()->add_maintenance(wegbauer_t::leitung_besch->gib_wartung());

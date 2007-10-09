@@ -337,6 +337,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 			return msg == NULL;
 		}
 		else {
+			lt->entferne(sp);
 			delete lt;
 			return true;
 		}

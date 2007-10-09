@@ -11,6 +11,7 @@
 
 #include "../ifc/sync_steppable.h"
 #include "../dataobj/koord3d.h"
+#include "../dataobj/ribi.h"
 #include "../simdings.h"
 
 class powernet_t;
@@ -21,6 +22,9 @@ class leitung_t : public ding_t
 {
 protected:
 	image_id bild;
+
+	// direction of the next pylon
+	ribi_t::ribi ribi;
 
 	/**
 	* We are part of this network
@@ -37,11 +41,17 @@ protected:
 
 	void replace(powernet_t* neu);
 
+	void add_ribi(ribi_t::ribi r) { ribi |= r; }
+
+	/**
+	* Dient zur Neuberechnung des Bildes
+	* @author Hj. Malthaner
+	*/
+	void recalc_bild();
+
 public:
 	powernet_t* get_net() const { return net; }
 	void set_net(powernet_t* p) { net = p; }
-
-	ribi_t::ribi gib_ribi();
 
 	int gimme_neighbours(leitung_t **conn);
 	static fabrik_t * suche_fab_4(koord pos);
@@ -49,6 +59,9 @@ public:
 	leitung_t(karte_t *welt, loadsave_t *file);
 	leitung_t(karte_t *welt, koord3d pos, spieler_t *sp);
 	virtual ~leitung_t();
+
+	// just book the costs for destruction
+	void entferne(spieler_t *);
 
 	enum ding_t::typ gib_typ() const {return leitung;}
 
@@ -61,14 +74,10 @@ public:
 	*/
 	void info(cbuffer_t & buf) const;
 
+	ribi_t::ribi gib_ribi(void) const { return ribi; }
+
 	inline void setze_bild( image_id b ) { bild = b; }
 	image_id gib_bild() const {return bild;}
-
-	/**
-	* Dient zur Neuberechnung des Bildes
-	* @author Hj. Malthaner
-	*/
-	virtual void calc_bild();
 
 	/**
 	* Recalculates the images of all neighbouring

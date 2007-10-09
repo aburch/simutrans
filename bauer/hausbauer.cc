@@ -7,16 +7,22 @@
 
 #include <algorithm>
 #include <string.h>
+
 #include "../besch/haus_besch.h"
 #include "../besch/skin_besch.h"
 #include "../besch/spezial_obj_tpl.h"
+
 #include "../boden/boden.h"
 #include "../boden/fundament.h"
+
 #include "../dataobj/translator.h"
-#include "../dings/zeiger.h"
+
 #include "../dings/leitung2.h"
+#include "../dings/zeiger.h"
+
 #include "../gui/karte.h"
 #include "../gui/werkzeug_parameter_waehler.h"
+
 #include "../simdebug.h"
 #include "../simdepot.h"
 #include "../simhalt.h"
