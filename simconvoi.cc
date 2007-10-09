@@ -1441,8 +1441,8 @@ convoi_t::rdwr(loadsave_t *file)
 					if(gr->ist_uebergang()) {
 						gr->find<crossing_t>()->add_to_crossing(v);
 					}
-					gr->obj_add(v);
 				}
+				gr->obj_add(v);
 			}
 
 			// add to convoi
