@@ -179,10 +179,10 @@ verkehrsteilnehmer_t::hop()
 
 	if(count > 1) {
 		pos_next = liste[simrand(count)]->gib_pos();
-		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+		fahrtrichtung = calc_set_richtung(gib_pos().gib_2d(), pos_next.gib_2d());
 	} else if(count==1) {
 		pos_next = liste[0]->gib_pos();
-		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+		fahrtrichtung = calc_set_richtung(gib_pos().gib_2d(), pos_next.gib_2d());
 	}
 	else {
 		fahrtrichtung = gegenrichtung;
@@ -594,7 +594,7 @@ stadtauto_t::hop()
 		current_speed = 16;
 	}
 	else {
-		fahrtrichtung = calc_richtung( gib_pos().gib_2d(), pos_next_next.gib_2d(), dx, dy );
+		fahrtrichtung = calc_set_richtung( gib_pos().gib_2d(), pos_next_next.gib_2d() );
 		calc_current_speed();
 	}
 	// and add to next tile
@@ -648,7 +648,7 @@ stadtauto_t::hop_check()
 			}
 			if(add) {
 				pos_next_next = to->gib_pos();
-				fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+				fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d() );
 			}
 			else {
 				// turn around

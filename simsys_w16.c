@@ -38,8 +38,11 @@
 #include "simversion.h"
 #include "simsys.h"
 #include "simevent.h"
+#include "simdebug.h"
 
 static HWND hwnd;
+static bool is_fullscreen = false;
+static bool is_not_top = false;
 static MSG msg;
 static RECT WindowSize = { 0, 0, 0, 0 };
 static RECT MaxSize;
@@ -49,6 +52,13 @@ static BITMAPINFOHEADER *AllDib = NULL;
 static unsigned short *AllDibData = NULL;
 
 static HDC hdc = NULL;
+
+const wchar_t* const title =
+#ifdef _MSC_VER
+			L"Simutrans " WIDE_VERSION_NUMBER;
+#else
+			L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE;
+#endif
 
 
 /*
@@ -92,21 +102,41 @@ char *dr_query_homedir()
 // open the window
 int dr_os_open(int w, int h, int bpp, int fullscreen)
 {
-	const wchar_t* const title =
-#ifdef _MSC_VER
-			L"Simutrans " WIDE_VERSION_NUMBER;
-#else
-			L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE;
-#endif
-
 	// fake fullscreen
-	if (fullscreen && w == MaxSize.right && h == MaxSize.bottom) {
+	if (fullscreen) {
+		// try to force display mode and size
+		DEVMODE settings;
+
+		memset(&settings, 0, sizeof(settings));
+		settings.dmSize = sizeof(settings);
+		settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+#ifdef USE_16BIT_DIB
+		settings.dmBitsPerPel = 16;
+#else
+		settings.dmBitsPerPel = 16;
+#endif
+		settings.dmPelsWidth  = w;
+		settings.dmPelsHeight = h;
+		settings.dmDisplayFrequency = 0;
+
+		if(  ChangeDisplaySettings(&settings, CDS_FULLSCREEN)!=DISP_CHANGE_SUCCESSFUL  &&  w!=MaxSize.right  &&  h!=MaxSize.bottom) {
+			ChangeDisplaySettings( NULL, 0 );
+			printf( "dr_os_open()::Could not reduce color depth to 16 Bit in fullscreen." );
+			fullscreen = false;
+		}
+		else {
+			MaxSize.right = w;
+			MaxSize.bottom = h;
+		}
+		is_fullscreen = fullscreen;
+	}
+	if(  fullscreen  ) {
 		hwnd = CreateWindowEx(
 			WS_EX_TOPMOST,
 			L"Simu", title,
 			WS_POPUP,
 			0, 0,
-			w, h - 1,
+			w, h,
 			NULL, NULL, hInstance, NULL
 		);
 	} else {
@@ -122,7 +152,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 	ShowWindow(hwnd, SW_SHOW);
 
 	WindowSize.right  = w;
-	WindowSize.bottom = h - 1;
+	WindowSize.bottom = h;
 
 	AllDib = GlobalAlloc(GMEM_FIXED, sizeof(BITMAPINFOHEADER) + sizeof(DWORD) * 3);
 	AllDib->biSize = sizeof(BITMAPINFOHEADER);
@@ -166,6 +196,7 @@ int dr_os_close(void)
 		GlobalFree(AllDib);
 		AllDib = NULL;
 	}
+	ChangeDisplaySettings(NULL, 0);
 	return TRUE;
 }
 
@@ -184,7 +215,7 @@ int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 	}
 	AllDib->biWidth   = w;
 	WindowSize.right  = w;
-	WindowSize.bottom = h - 1;
+	WindowSize.bottom = h;
 	return TRUE;
 }
 
@@ -294,9 +325,74 @@ int dr_screenshot(const char *filename)
 struct sys_event sys_event;
 
 /* Windows eventhandler: does most of the work */
-LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg) {
+
+		case WM_ACTIVATE: // may check, if we have to restore color depth
+			if(is_fullscreen) {
+				// avoid double calls
+				static bool while_handling = false;
+				if(while_handling) {
+					break;
+				}
+				while_handling = true;
+
+				if(LOWORD(wParam)!=WA_INACTIVE  &&  is_not_top) {
+					// try to force display mode and size
+					DEVMODE settings;
+
+					memset(&settings, 0, sizeof(settings));
+					settings.dmSize = sizeof(settings);
+					settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+#ifdef USE_16BIT_DIB
+					settings.dmBitsPerPel = 16;
+#else
+					settings.dmBitsPerPel = 16;
+#endif
+					settings.dmPelsWidth  = MaxSize.right;
+					settings.dmPelsHeight = MaxSize.bottom;
+					settings.dmDisplayFrequency = 0;
+
+					// should be alsway sucessful, since it worked as least once ...
+					ChangeDisplaySettings(&settings, CDS_FULLSCREEN);
+					is_not_top = false;
+
+					Beep( 110, 250 );
+					// must reshow window, otherwise startbar will be topmost ...
+					hwnd = CreateWindowEx(
+						WS_EX_TOPMOST,
+						L"Simu", title,
+						WS_POPUP,
+						0, 0,
+						MaxSize.right, MaxSize.bottom,
+						NULL, NULL, hInstance, NULL
+					);
+					ShowWindow( hwnd, SW_SHOW );
+					DestroyWindow( this_hwnd );
+					while_handling = false;
+					return true;
+				}
+				else if(LOWORD(wParam)==WA_INACTIVE  &&  !is_not_top) {
+					// restore default
+					CloseWindow( hwnd );
+					ChangeDisplaySettings( NULL, 0 );
+					is_not_top = true;
+					Beep( 440, 250 );
+				}
+
+				while_handling = false;
+			}
+			break;
+
+		case WM_GETMINMAXINFO:
+			if(is_fullscreen) {
+				LPMINMAXINFO lpmmi = (LPMINMAXINFO) lParam;
+				lpmmi->ptMaxPosition.x = 0;
+				lpmmi->ptMaxPosition.y = 0;
+			}
+			break;
+
 		case WM_LBUTTONDOWN: /* originally ButtonPress */
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_LEFTBUTTON;
@@ -343,14 +439,16 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			return 0;
 
 		case WM_SIZE: // resize client area
-			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_RESIZE;
+			if(lParam!=0) {
+				sys_event.type = SIM_SYSTEM;
+				sys_event.code = SIM_SYSTEM_RESIZE;
 
-			sys_event.mx = LOWORD(lParam) + 1;
-			if (sys_event.mx <= 0) sys_event.mx = 4;
+				sys_event.mx = LOWORD(lParam) + 1;
+				if (sys_event.mx <= 0) sys_event.mx = 4;
 
-			sys_event.my = HIWORD(lParam);
-			if (sys_event.my <= 1) sys_event.my = 64;
+				sys_event.my = HIWORD(lParam);
+				if (sys_event.my <= 1) sys_event.my = 64;
+			}
 			break;
 
 		case WM_PAINT: {
@@ -358,12 +456,12 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			HDC hdcp;
 
 			if (hdc != NULL) {
-				ReleaseDC(hwnd, hdc);
+				ReleaseDC(this_hwnd, hdc);
 				hdc = NULL;
 			}
 
 			hdcp = BeginPaint(hwnd, &ps);
-			AllDib->biHeight = WindowSize.bottom + 1;
+			AllDib->biHeight = WindowSize.bottom;
 			StretchDIBits(
 				hdcp,
 				0, 0, WindowSize.right, WindowSize.bottom,
@@ -371,7 +469,7 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				(LPSTR)AllDibData, (LPBITMAPINFO)AllDib,
 				DIB_RGB_COLORS, SRCCOPY
 			);
-			EndPaint(hwnd, &ps);
+			EndPaint(this_hwnd, &ps);
 			break;
 		}
 
@@ -450,7 +548,7 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			return FALSE;
 
 		default:
-			return DefWindowProc(hwnd, msg, wParam, lParam);
+			return DefWindowProc(this_hwnd, msg, wParam, lParam);
 	}
 	return FALSE;
 }

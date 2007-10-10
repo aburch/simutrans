@@ -97,10 +97,6 @@ protected:
 	void fahre_basis();	// basis movement code
 	int  calc_height();		// Offset Bergauf/Bergab
 
-	virtual int  gib_dx() const {return dx;}
-	virtual int  gib_dy() const {return dy;}
-	virtual int  gib_hoff() const {return hoff;}
-
 	virtual bool hop_check() = 0;
 	virtual void hop() = 0;
 
@@ -110,8 +106,10 @@ public:
 	inline void setze_bild( image_id b ) { bild = b; }
 	virtual image_id gib_bild() const {return bild;}
 
+	int  gib_hoff() const {return hoff;}
+
 	ribi_t::ribi calc_richtung(koord start, koord ende) const;
-	ribi_t::ribi calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) const;
+	ribi_t::ribi calc_set_richtung(koord start, koord ende);
 
 	ribi_t::ribi gib_fahrtrichtung() const {return fahrtrichtung;}
 

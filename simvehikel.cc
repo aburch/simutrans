@@ -171,8 +171,8 @@ inline bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff )
 void
 vehikel_basis_t::fahre_basis()
 {
-	const sint8 neu_xoff = gib_xoff() + gib_dx();
-	const sint8 neu_yoff = gib_yoff() + gib_dy();
+	const sint8 neu_xoff = gib_xoff() + dx;
+	const sint8 neu_yoff = gib_yoff() + dy;
 
 	// want to go to next field and want to step
 	if(is_about_to_hop(neu_xoff,neu_yoff)) {
@@ -214,8 +214,9 @@ vehikel_basis_t::fahre_basis()
 
 
 
+// calcs new direction and applies it to the vehicles
 ribi_t::ribi
-vehikel_basis_t::calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) const
+vehikel_basis_t::calc_set_richtung(koord start, koord ende)
 {
 	ribi_t::ribi richtung = ribi_t::keine;
 
@@ -610,7 +611,7 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 		setze_pos( cnv->get_route()->position_bei(start_route_index) );
 
 		alte_fahrtrichtung = fahrtrichtung;
-		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+		fahrtrichtung = calc_set_richtung( gib_pos().gib_2d(), pos_next.gib_2d() );
 		hoff = 0;
 
 		const sint8 li = -16;
@@ -789,16 +790,16 @@ vehikel_t::hop()
 	// this is a required hack for aircrafts! Aircrafts can turn on a single square, and this confuses the previous calculation!
 	// author: hsiegeln
 	if (pos_prev.gib_2d()==pos_next.gib_2d()) {
-		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+		fahrtrichtung = calc_set_richtung( gib_pos().gib_2d(), pos_next.gib_2d() );
 DBG_MESSAGE("vehikel_t::hop()","reverse dir at route index %d",route_index);
 	}
 	else {
 		if(pos_next!=gib_pos()) {
-			fahrtrichtung = calc_richtung(pos_prev.gib_2d(), pos_next.gib_2d(), dx, dy);
+			fahrtrichtung = calc_set_richtung( pos_prev.gib_2d(), pos_next.gib_2d() );
 		}
 		else if(  (  check_for_finish  &&  welt->lookup(pos_next)  &&  ribi_t::ist_gerade(welt->lookup(pos_next)->gib_weg_ribi_unmasked(gib_waytype()))  )  ||  welt->lookup(pos_next)->is_halt()) {
 			// allow diagonal stops at waypoints on diagonal tracks but avoid them on halts and at straight tracks...
-			fahrtrichtung = calc_richtung(pos_prev.gib_2d(), pos_next.gib_2d(), dx, dy);
+			fahrtrichtung = calc_set_richtung( pos_prev.gib_2d(), pos_next.gib_2d() );
 		}
 	}
 	calc_bild();
@@ -933,8 +934,8 @@ vehikel_t::fahre()
 		// this is also the correct value for diagonals
 		const sint8 iterations = (fahrtrichtung==ribi_t::nord  || fahrtrichtung==ribi_t::west) ? 8 : 1;
 
-		const sint8 neu_xoff = gib_xoff() + gib_dx()*iterations;
-		const sint8 neu_yoff = gib_yoff() + gib_dy()*iterations;
+		const sint8 neu_xoff = gib_xoff() + dx*iterations;
+		const sint8 neu_yoff = gib_yoff() + dy*iterations;
 
 		// want to go to next field and want to step
 		if(is_about_to_hop(neu_xoff,neu_yoff)) {

@@ -1086,18 +1086,6 @@ convoi_t::can_go_alte_richtung()
 	koord3d pos = fahr[0]->gib_pos();
 	assert(pos==route.position_bei(0));
 	if(welt->lookup(pos)->gib_depot()) {
-#if 0
-		// add only depot direction to the convoi
-		sint32 len = 0;
-		for(i=0; i<anz_vehikel; i++) {
-			vehikel_t* v = fahr[i];
-			len += v->gib_besch()->get_length();
-			if(len>=16) {
-				route.insert(pos);
-				len -= 16;
-			}
-		}
-#endif
 		return false;
 	}
 	else {
@@ -1127,7 +1115,7 @@ convoi_t::can_go_alte_richtung()
 		const koord3d vehicle_start_pos = v->gib_pos();
 		for( int idx=0;  idx<=length;  idx++  ) {
 			if(route.position_bei(idx)==vehicle_start_pos) {
-				v->neue_fahrt(idx, false);
+				v->neue_fahrt(idx, false );
 				ok = true;
 				break;
 			}
@@ -1145,7 +1133,7 @@ convoi_t::can_go_alte_richtung()
 		uint8 richtung = v->gib_fahrtrichtung();
 		uint8 neu_richtung = v->richtung();
 		// we need to move to this place ...
-		if(neu_richtung!=richtung  &&  (i!=0  ||  anz_vehikel==1)) {
+		if(neu_richtung!=richtung  &&  (i!=0  ||  anz_vehikel==1  ||  ribi_t::ist_kurve(neu_richtung)) ) {
 			// 90 deg bend!
 			return false;
 		}
@@ -1164,7 +1152,7 @@ convoi_t::vorfahren()
 
 	setze_akt_speed_soll( vehikel_t::SPEED_UNLIMITED );
 
-	const koord3d k0 = route.position_bei(0);
+	koord3d k0 = route.position_bei(0);
 	grund_t *gr = welt->lookup(k0);
 	if(gr  &&  gr->gib_depot()) {
 		// start in depot
@@ -1198,9 +1186,12 @@ convoi_t::vorfahren()
 	else {
 		// still leaving depot (steps_driven!=0) or going in other direction or misalignment?
 		if(steps_driven>0  ||  !can_go_alte_richtung()) {
-			// then we must realign the vehicles on the track ...
+
+			// since start may have been changed
+			k0 = route.position_bei(0);
+
 			for(unsigned i=0; i<anz_vehikel; i++) {
-				vehikel_t* v = fahr[i];
+				vehikel_t *v = fahr[i];
 
 				steps_driven = -1;
 				grund_t* gr = welt->lookup(v->gib_pos());
@@ -1212,10 +1203,16 @@ convoi_t::vorfahren()
 							sch->unreserve(self);
 						}
 					}
+					v->mark_image_dirty( v->gib_bild(), v->gib_hoff() );
 					v->verlasse_feld();
 				}
+				/* we will set by this method the pos_prev to the starting point;
+				 * otherwise it may be elsewhere, especially on curves and with already
+				 * broken convois.
+				 */
+				v->setze_pos(k0);
 				v->neue_fahrt(0, true);
-				gr=welt->lookup(k0);
+				gr=welt->lookup(v->gib_pos());
 				if(gr) {
 					// add to blockstrecke
 					if (v->gib_waytype() == track_wt || v->gib_waytype() == monorail_wt) {
