@@ -31,6 +31,7 @@
 	FIX: remove tall buildings without residuals
 	CHANGE: bus AI now tries to connect intown as well => less worse competition
 	FIX: deletion of powerline was free up to now ...
+	CHANGE: two less virtual functions in vehikel_t::sync_step() (most often called routinen) => speedup
 
 
 Release of 99.14

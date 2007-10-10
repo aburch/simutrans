@@ -168,7 +168,8 @@ inline bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff )
 }
 
 
-void vehikel_basis_t::fahre()
+void
+vehikel_basis_t::fahre_basis()
 {
 	const sint8 neu_xoff = gib_xoff() + gib_dx();
 	const sint8 neu_yoff = gib_yoff() + gib_dy();
@@ -939,11 +940,15 @@ vehikel_t::fahre()
 		if(is_about_to_hop(neu_xoff,neu_yoff)) {
 			// so we are there yet?
 			cnv->ziel_erreicht();
+			if(cnv->get_state()==convoi_t::INITIAL) {
+				// to avoid crashes with airplanes
+				use_calc_height = false;
+			}
 			return;
 		}
 	}
 
-	vehikel_basis_t::fahre();
+	fahre_basis();
 }
 
 
@@ -3161,7 +3166,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route
 
 
 // well, the heihgt is of course most important for an aircraft ...
-int aircraft_t::calc_height()
+int aircraft_t::calc_flight_height()
 {
 	const sint16 h_cur = height_scaling(gib_pos().z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
 
@@ -3258,8 +3263,11 @@ void aircraft_t::sync_step()
 		mark_image_dirty( bild, hoff );
 	}
 	flughoehe += height_scaling(gib_pos().z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
+	use_calc_height = true;
 	fahre();
-	hoff = calc_height();
+	if(use_calc_height) {
+		hoff = calc_flight_height();
+	}
 	setze_yoff( gib_yoff() + hoff );
 }
 

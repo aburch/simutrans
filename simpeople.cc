@@ -150,7 +150,7 @@ fussgaenger_t::sync_step(long delta_t)
 	weg_next += (128*delta_t) / 64;
 	while(1024 < weg_next) {
 		weg_next -= 1024;
-		fahre();
+		fahre_basis();
 	}
 
 	return true;

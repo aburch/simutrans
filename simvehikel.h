@@ -94,8 +94,8 @@ protected:
 	// cached image
 	image_id bild;
 
-	virtual void fahre();
-	virtual int  calc_height();		// Offset Bergauf/Bergab
+	void fahre_basis();	// basis movement code
+	int  calc_height();		// Offset Bergauf/Bergab
 
 	virtual int  gib_dx() const {return dx;}
 	virtual int  gib_dy() const {return dy;}
@@ -664,7 +664,7 @@ public:
 
 	virtual void sync_step();
 
-	virtual int calc_height();
+	int calc_flight_height();
 
 	int gib_flyingheight() const {return flughoehe-hoff-2;}
 
