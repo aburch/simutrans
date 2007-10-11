@@ -46,6 +46,9 @@ typedef unsigned char COLOR_VAL;
 #define COL_PURPLE     (76)
 #define COL_DARK_PURPLE     (73)
 #define COL_LIGHT_PURPLE      (79)
+#define COL_TURQUOISE (53)
+#define COL_LIGHT_TURQUOISE (55)
+#define COLD_DARK_TURQOISE (50)
 
 // message colors
 #define CITY_KI (209)

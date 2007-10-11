@@ -32,8 +32,8 @@ curiositylist_stats_t::curiositylist_stats_t(karte_t* w, curiositylist::sort_mod
     attractions(10)
 {
 	welt = w;
-    get_unique_attractions(sortby,sortreverse);
-    setze_groesse(koord(210, attractions.get_count()*(LINESPACE+1)-10));
+	get_unique_attractions(sortby,sortreverse);
+	setze_groesse(koord(210, attractions.get_count()*(LINESPACE+1)-10));
 }
 
 
@@ -174,7 +174,7 @@ void curiositylist_stats_t::zeichnen(koord offset)
 			indicatorfarbe = all_crowded ? COL_RED : COL_ORANGE;
 		}
 		else if(pax) {
-			indicatorfarbe = post ? 190 : COL_GREEN;
+			indicatorfarbe = post ? COL_TURQUOISE : COL_GREEN;
 		}
 		else {
 			indicatorfarbe = post ? COL_BLUE : COL_YELLOW;
