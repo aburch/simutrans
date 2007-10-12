@@ -69,13 +69,14 @@ private:
 	// all cursor interaction goes via this function
 	// it will call save_mouse_funk first with init, then with the position and with exit, when another tool is selected without click
 	// see simwerkz.cc for practical examples of such functions
-	struct save_mouse_func {
-		int (*save_mouse_funk)(spieler_t *, karte_t *, koord pos, value_t param);
-		value_t mouse_funk_param;
-		int mouse_funk_ok_sound;
-		int mouse_funk_ko_sound;
+	struct save_mouse_func_t {
+		int (*funk)(spieler_t *, karte_t *, koord pos, value_t param);
+		value_t param;
+		int ok_sound;
+		int ko_sound;
 		int zeiger_versatz;
 		int zeiger_bild;
+		koord last_pos;	// if koord::invalid, INIT is still needed
 	};
 
 	// die Einstellungen
@@ -91,11 +92,7 @@ private:
 	int cached_groesse_max;
 
 	// die mausfunktion
-	int (* mouse_funk)(spieler_t *, karte_t *, koord pos, value_t param);
-
-	value_t mouse_funk_param;
-	int mouse_funk_ok_sound;
-	int mouse_funk_ko_sound;
+	save_mouse_func_t current_mouse_funk;
 
 	/**
 	 * redraw whole map
@@ -172,7 +169,7 @@ private:
 
 	weighted_vector_tpl<stadt_t*> stadt;
 
-	vector_tpl<save_mouse_func*> quick_shortcuts;
+	vector_tpl<save_mouse_func_t *> quick_shortcuts;
 
 	karte_ansicht_t *view;
 

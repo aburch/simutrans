@@ -19,6 +19,7 @@ bool wkz_halt_aux(spieler_t *sp, karte_t *welt, koord pos, const haus_besch_t *b
 
 #define INIT  koord(-1,-1)
 #define EXIT  koord(-2,-2)
+#define DRAGGING  koord(-3,-3)
 
 int wkz_abfrage(spieler_t *, karte_t *welt, koord pos);
 int wkz_raise(spieler_t *sp, karte_t *welt, koord pos);

@@ -592,7 +592,7 @@ void karte_t::init(einstellungen_t* sets)
 	next_month_ticks =  karte_t::ticks_per_tag;
 	season=(2+letzter_monat/3)&3; // summer always zero
 	snowline = sets->gib_winter_snowline()*Z_TILE_STEP + grundwasser;
-	mouse_funk = NULL;
+	current_mouse_funk.funk = NULL;
 	steps = 0;
 	recalc_average_speed();	// resets timeline
 
@@ -797,7 +797,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 	// finishes the line preparation and sets id 0 to invalid ...
 	spieler[0]->simlinemgmt.laden_abschliessen();
 
-	mouse_funk = NULL;
+	current_mouse_funk.funk = NULL;
 	setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 
 	recalc_average_speed();
@@ -1298,8 +1298,8 @@ void karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord
 	// gibt es eien neue funktion ?
 	if(funktion != NULL) {
 		// gab es eine alte funktion ?
-		if(mouse_funk != NULL) {
-			mouse_funk(get_active_player(), this, EXIT, mouse_funk_param);
+		if(current_mouse_funk.funk != NULL  &&  current_mouse_funk.last_pos != koord::invalid) {
+			current_mouse_funk.funk(get_active_player(), this, EXIT, current_mouse_funk.param);
 		}
 
 		struct sound_info info;
@@ -1308,20 +1308,23 @@ void karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord
 		info.pri = 0;
 		sound_play(info);
 
-		mouse_funk = funktion;
-		mouse_funk_param = param;
+		current_mouse_funk.funk = funktion;
+		current_mouse_funk.param = param;
+		current_mouse_funk.ok_sound = ok_sound;
+		current_mouse_funk.ko_sound = ko_sound;
+		current_mouse_funk.last_pos = koord::invalid;
+		current_mouse_funk.zeiger_versatz = zeiger_versatz;
+		current_mouse_funk.zeiger_bild = zeiger_bild;
+
+		// reset pointer
 		koord3d zpos = zeiger->gib_pos();
 		zeiger->change_pos( koord3d::invalid );
 		zeiger->setze_area(0);	// reset size
 		zeiger->setze_yoff(zeiger_versatz);
 		zeiger->setze_bild(zeiger_bild);
 		zeiger->change_pos( zpos );
-
-		mouse_funk(get_active_player(), this, INIT, mouse_funk_param);
 	}
 
-	mouse_funk_ok_sound = ok_sound;
-	mouse_funk_ko_sound = ko_sound;
 }
 
 
@@ -2449,7 +2452,7 @@ void karte_t::laden(loadsave_t *file)
 	// just an initialisation for the loading
 	season = (2+letzter_monat/3)&3; // summer always zero
 	snowline = einstellungen->gib_winter_snowline()*Z_TILE_STEP + grundwasser;
-	mouse_funk = NULL;
+	current_mouse_funk.funk = NULL;
 
 DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i beginner=%i",einstellungen->gib_groesse_x(),einstellungen->gib_groesse_y(),umgebung_t::use_timeline,einstellungen->gib_beginner_mode());
 
@@ -3046,14 +3049,14 @@ void karte_t::bewege_zeiger(const event_t *ev)
 					}
 				}
 			}
-			if(!found && mouse_funk!=tunnelbauer_t::baue) {
+			if(!found  &&  current_mouse_funk.funk!=tunnelbauer_t::baue) {
 				zeiger->change_pos( koord3d::invalid );
 				return;
 			}
 			hgt = found_hgt;
 		}
 		if(!found) {
-			if(mouse_funk==tunnelbauer_t::baue) {
+			if(current_mouse_funk.funk!=tunnelbauer_t::baue) {
 				hgt = zeiger->gib_pos().z;
 			}
 
@@ -3066,7 +3069,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 				mj = ((int)floor(base_j/(double)rw4)) + j_off;
 
 				const planquadrat_t *plan = lookup(koord(mi,mj));
-				if(mouse_funk==tunnelbauer_t::baue) {
+				if(current_mouse_funk.funk==tunnelbauer_t::baue) {
 					found = true;
 				} else if(plan != NULL) {
 					hgt = plan->gib_kartenboden()->gib_hoehe();
@@ -3112,6 +3115,14 @@ void karte_t::bewege_zeiger(const event_t *ev)
 				}
 			}
 			zeiger->change_pos(pos);
+			// resend init message, if mouse button pressed to enable dragging
+			if(current_mouse_funk.funk!=NULL  &&  ev->button_state==MOUSE_LEFTBUTTON  &&  current_mouse_funk.last_pos!=pos.gib_2d()) {
+				if(current_mouse_funk.last_pos==koord::invalid) {
+					current_mouse_funk.funk(get_active_player(), this, INIT, current_mouse_funk.param);
+				}
+				current_mouse_funk.funk(get_active_player(), this, DRAGGING, current_mouse_funk.param);
+				current_mouse_funk.last_pos = pos.gib_2d();
+			}
 		}
 	}
 }
@@ -3422,24 +3433,16 @@ karte_t::interactive_event(event_t &ev)
 			case SIM_KEY_F15:
 			{
 				int num = ev.ev_code - SIM_KEY_F2;
-				save_mouse_func*& shortcut = quick_shortcuts[num];
+				save_mouse_func_t *& shortcut = quick_shortcuts[num];
 				if (event_get_last_control_shift() == 2) {
 					if (shortcut == NULL)
-						shortcut = new save_mouse_func;
-
-						shortcut->save_mouse_funk     = mouse_funk;
-						shortcut->mouse_funk_param    = mouse_funk_param;
-						shortcut->mouse_funk_ok_sound = mouse_funk_ok_sound;
-						shortcut->mouse_funk_ko_sound = mouse_funk_ko_sound;
-						shortcut->zeiger_versatz      = zeiger->gib_yoff();
-						shortcut->zeiger_bild         = zeiger->gib_bild();
+						shortcut = new save_mouse_func_t;
+						*shortcut = current_mouse_funk;
 					}
 					else if (shortcut != NULL) {
 						DBG_MESSAGE("karte_t()","Recall mouse_funk");
-						mouse_funk          = shortcut->save_mouse_funk;
-						mouse_funk_param    = shortcut->mouse_funk_param;
-						mouse_funk_ok_sound = shortcut->mouse_funk_ok_sound;
-						mouse_funk_ko_sound = shortcut->mouse_funk_ko_sound;
+						current_mouse_funk = *shortcut;
+						current_mouse_funk.last_pos = koord::invalid;
 						zeiger->setze_yoff(shortcut->zeiger_versatz);
 						zeiger->setze_bild(shortcut->zeiger_bild);
 						zeiger->set_flag(ding_t::dirty);
@@ -3609,21 +3612,26 @@ karte_t::interactive_event(event_t &ev)
 			}
 		}
 		else {
-			if(mouse_funk != NULL) {
+			// do some interactive building
+			if(current_mouse_funk.funk != NULL) {
 				koord pos (mi,mj);
 
 DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
-				const int ok = mouse_funk(get_active_player(), this, pos, mouse_funk_param);
+				if(current_mouse_funk.last_pos!=koord::invalid) {
+					current_mouse_funk.funk(get_active_player(), this, INIT, current_mouse_funk.param);
+				}
+				bool ok = false;
+				if(current_mouse_funk.last_pos!=pos) {
+					ok = current_mouse_funk.funk(get_active_player(), this, pos, current_mouse_funk.param);
+				}
 				if(ok) {
-					if(mouse_funk_ok_sound!=NO_SOUND) {
-						struct sound_info info = {mouse_funk_ok_sound,255,0};
-//DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "play sound %i",mouse_funk_ok_sound);
+					if(current_mouse_funk.ok_sound!=NO_SOUND) {
+						struct sound_info info = {current_mouse_funk.ok_sound,255,0};
 						sound_play(info);
 					}
 				} else {
-					if(mouse_funk_ko_sound!=NO_SOUND) {
-						struct sound_info info = {mouse_funk_ko_sound,255,0};
-//DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "play sound %i",mouse_funk_ko_sound);
+					if(current_mouse_funk.ko_sound!=NO_SOUND) {
+						struct sound_info info = {current_mouse_funk.ko_sound,255,0};
 						sound_play(info);
 					}
 				}
@@ -3692,7 +3700,7 @@ karte_t::interactive()
 				blick_aendern(&ev);
 			}
 
-			if(ev.button_state==0  &&  ev.ev_class==EVENT_MOVE) {
+			if(  (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON)  ||  (ev.button_state==0  &&  ev.ev_class==EVENT_MOVE)) {
 				bewege_zeiger(&ev);
 			}
 		}

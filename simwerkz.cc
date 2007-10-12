@@ -201,19 +201,51 @@ int wkz_raise(spieler_t *sp, karte_t *welt, koord pos)
 {
 //DBG_MESSAGE("wkz_raise()","raising square (%d,%d) to %d",pos.x, pos.y, welt->lookup_hgt(pos)+Z_TILE_STEP);
 	bool ok = false;
+	static bool dragging = false;
+	static sint16 drag_height = 0;
+
+	// enable DRAGGING
+	if(pos==DRAGGING) {
+		pos = welt->gib_zeiger()->gib_pos().gib_2d();
+		if(!dragging) {
+			drag_height = welt->lookup_hgt(pos)+Z_TILE_STEP;
+		}
+		dragging = true;
+	}
+	if(pos==EXIT  ||  pos==INIT) {
+		dragging = false;
+	}
 
 	if(welt->ist_in_gittergrenzen(pos)) {
 		const int hgt = welt->lookup_hgt(pos);
 
 		if(hgt < 14*Z_TILE_STEP) {
 
-			int n = welt->raise(pos);
-			ok = (n!=0);
+			int n = 0;	// tiles changed
+			if(dragging) {
+				ok = true;
+				// dragging may be goind up or down!
+				while(welt->lookup_hgt(pos)<drag_height) {
+					int diff = welt->raise(pos);
+					if(diff==0) break;
+					n += diff;
+				}
+				while(welt->lookup_hgt(pos)>drag_height) {
+					int diff = welt->lower(pos);
+					if(diff==0) break;
+					n += diff;
+				}
+				ok = true;
+			}
+			else {
+				n = welt->raise(pos);
+				ok = (n!=0);
+			}
 			if(!ok) {
 				create_win( new news_img("Tile not empty."), w_time_delete, magic_none);
 				return false;
 			}
-			else {
+			if(n>0) {
 				sp->buche(umgebung_t::cst_alter_land*n, pos, COST_CONSTRUCTION);
 				// update image
 				for(int j=-n; j<=n; j++) {
@@ -226,9 +258,6 @@ int wkz_raise(spieler_t *sp, karte_t *welt, koord pos)
 					}
 				}
 			}
-//DBG_MESSAGE("wkz_raise()", "%d squares changed", n);
-		} else {
-//DBG_MESSAGE("wkz_raise()", "Maximum height reached");
 		}
 	}
 	return ok;
@@ -238,8 +267,21 @@ int
 wkz_lower(spieler_t *sp, karte_t *welt, koord pos)
 {
 // DBG_MESSAGE("wkz_lower()","lowering square %d,%d to %d", pos.x, pos.y, welt->lookup_hgt(pos)-Z_TILE_STEP);
-
 	bool ok = false;
+	static bool dragging = false;
+	static sint16 drag_height = 0;
+
+	// enable DRAGGING
+	if(pos==DRAGGING) {
+		pos = welt->gib_zeiger()->gib_pos().gib_2d();
+		if(!dragging) {
+			drag_height = welt->lookup_hgt(pos)-Z_TILE_STEP;
+		}
+		dragging = true;
+	}
+	if(pos==EXIT  ||  pos==INIT) {
+		dragging = false;
+	}
 
 	if(welt->ist_in_gittergrenzen(pos)) {
 
@@ -247,15 +289,32 @@ wkz_lower(spieler_t *sp, karte_t *welt, koord pos)
 
 		if(hgt > welt->gib_grundwasser()) {
 
-			int n = welt->lower(pos);
-			ok = (n!=0);
-			if(!ok) {
-				create_win( new news_img("Tile not empty."), w_time_delete, magic_none);
+			int n = 0;	// tiles changed
+			if(dragging) {
+				ok = true;
+				// dragging may be goind up or down!
+				while(welt->lookup_hgt(pos)<drag_height) {
+					int diff = welt->raise(pos);
+					if(diff==0) break;
+					n += diff;
+				}
+				while(welt->lookup_hgt(pos)>drag_height) {
+					int diff = welt->lower(pos);
+					if(diff==0) break;
+					n += diff;
+				}
+				ok = true;
 			}
 			else {
+				n = welt->lower(pos);
+				ok = (n!=0);
+			}
+			if(!ok) {
+				create_win( new news_img("Tile not empty."), w_time_delete, magic_none);
+				return false;
+			}
+			if(n>0) {
 				sp->buche(umgebung_t::cst_alter_land*n, pos, COST_CONSTRUCTION);
-//      DBG_MESSAGE("wkz_lower()", "%d squares changed", n);
-
 				// update image
 				for(int j=-n; j<=n; j++) {
 					for(int i=-n; i<=n; i++) {
@@ -267,9 +326,6 @@ wkz_lower(spieler_t *sp, karte_t *welt, koord pos)
 					}
 				}
 			}
-
-		} else {
-//      DBG_MESSAGE("wkz_lower()", "Minimum height reached");
 		}
 	}
 

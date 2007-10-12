@@ -174,7 +174,7 @@ void curiositylist_stats_t::zeichnen(koord offset)
 			indicatorfarbe = all_crowded ? COL_RED : COL_ORANGE;
 		}
 		else if(pax) {
-			indicatorfarbe = post ? COL_TURQUOISE : COL_GREEN;
+			indicatorfarbe = post ? COL_TURQUOISE : COL_DARK_GREEN;
 		}
 		else {
 			indicatorfarbe = post ? COL_BLUE : COL_YELLOW;
