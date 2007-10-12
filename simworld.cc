@@ -1298,7 +1298,7 @@ void karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord
 	// gibt es eien neue funktion ?
 	if(funktion != NULL) {
 		// gab es eine alte funktion ?
-		if(current_mouse_funk.funk != NULL  &&  current_mouse_funk.last_pos != koord::invalid) {
+		if(current_mouse_funk.funk!=NULL) {
 			current_mouse_funk.funk(get_active_player(), this, EXIT, current_mouse_funk.param);
 		}
 
@@ -1323,8 +1323,9 @@ void karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord
 		zeiger->setze_yoff(zeiger_versatz);
 		zeiger->setze_bild(zeiger_bild);
 		zeiger->change_pos( zpos );
-	}
 
+		current_mouse_funk.funk(get_active_player(), this, INIT, current_mouse_funk.param);
+	}
 }
 
 
@@ -3117,9 +3118,6 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			zeiger->change_pos(pos);
 			// resend init message, if mouse button pressed to enable dragging
 			if(current_mouse_funk.funk!=NULL  &&  ev->button_state==MOUSE_LEFTBUTTON  &&  current_mouse_funk.last_pos!=pos.gib_2d()) {
-				if(current_mouse_funk.last_pos==koord::invalid) {
-					current_mouse_funk.funk(get_active_player(), this, INIT, current_mouse_funk.param);
-				}
 				current_mouse_funk.funk(get_active_player(), this, DRAGGING, current_mouse_funk.param);
 				current_mouse_funk.last_pos = pos.gib_2d();
 			}
@@ -3432,20 +3430,29 @@ karte_t::interactive_event(event_t &ev)
 			case SIM_KEY_F14:
 			case SIM_KEY_F15:
 			{
+				// save/recall commands
 				int num = ev.ev_code - SIM_KEY_F2;
 				save_mouse_func_t *& shortcut = quick_shortcuts[num];
+
 				if (event_get_last_control_shift() == 2) {
-					if (shortcut == NULL)
+					if (shortcut == NULL) {
 						shortcut = new save_mouse_func_t;
-						*shortcut = current_mouse_funk;
 					}
-					else if (shortcut != NULL) {
+					*shortcut = current_mouse_funk;
+				}
+				else if (shortcut != NULL) {
+						// gab es eine alte funktion ?
+						if(current_mouse_funk.funk!=NULL) {
+							current_mouse_funk.funk(get_active_player(), this, EXIT, current_mouse_funk.param);
+						}
 						DBG_MESSAGE("karte_t()","Recall mouse_funk");
 						current_mouse_funk = *shortcut;
 						current_mouse_funk.last_pos = koord::invalid;
 						zeiger->setze_yoff(shortcut->zeiger_versatz);
 						zeiger->setze_bild(shortcut->zeiger_bild);
 						zeiger->set_flag(ding_t::dirty);
+
+						current_mouse_funk.funk(get_active_player(), this, INIT, current_mouse_funk.param);
 					}
 				break;
 			}
@@ -3617,9 +3624,6 @@ karte_t::interactive_event(event_t &ev)
 				koord pos (mi,mj);
 
 DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
-				if(current_mouse_funk.last_pos!=koord::invalid) {
-					current_mouse_funk.funk(get_active_player(), this, INIT, current_mouse_funk.param);
-				}
 				bool ok = false;
 				if(current_mouse_funk.last_pos!=pos) {
 					ok = current_mouse_funk.funk(get_active_player(), this, pos, current_mouse_funk.param);
