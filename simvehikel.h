@@ -32,32 +32,6 @@ class signal_t;
 class ware_t;
 class route_t;
 
-
-/*
- * Global vehicle speed conversion factor between Simutrans speed
- * and km/h
- * @author Hj. Malthaner
- */
-#define VEHICLE_SPEED_FACTOR  80
-
-
-/**
- * Converts speed value to km/h
- * @author Hj. Matthaner
- */
-#define speed_to_kmh(speed) (((speed)*VEHICLE_SPEED_FACTOR+511) >> 10)
-
-
-/**
- * Converts km/h value to speed
- * @author Hj. Matthaner
- */
-#define kmh_to_speed(speed) (((speed) << 10) / VEHICLE_SPEED_FACTOR)
-
-
-
-
-
 /*----------------------- Fahrdings ------------------------------------*/
 
 /**

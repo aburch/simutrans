@@ -192,12 +192,12 @@ ding_t::rdwr(loadsave_t *file)
 	file->wr_obj_id(gib_typ());
 	pos.rdwr( file );
 
-	sint8 byte=xoff;
+	sint8 byte = 16*xoff/TILE_HEIGHT_STEP;
 	file->rdwr_byte(byte, " ");
-	xoff = byte;
-	byte=yoff;
+	xoff = byte*(TILE_HEIGHT_STEP/16);
+	byte = 16*xoff/TILE_HEIGHT_STEP;
 	file->rdwr_byte(byte, "\n");
-	yoff = byte;
+	yoff = byte*(TILE_HEIGHT_STEP/16);
 	byte = besitzer_n;
 	file->rdwr_byte(byte, "\n");
 	besitzer_n = byte;

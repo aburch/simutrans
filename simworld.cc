@@ -832,6 +832,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), quick_shortcu
 	fast_forward = false;
 	time_multiplier = 16;
 	next_wait_time = this_wait_time = 30;
+	current_mouse_funk.funk = NULL;
 
 	for (unsigned int i=0; i<15; i++) {
 //DBG_MESSAGE("karte_t::karte_t()","Append NULL to quick_shortcuts at %d\n",i);

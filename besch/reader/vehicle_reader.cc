@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "../../simdebug.h"
+#include "../../simconst.h"
 #include "../../bauer/vehikelbauer.h"
 #include "../../boden/wege/weg.h"
 #include "../sound_besch.h"
@@ -215,6 +216,9 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(version<7) {
 		besch->len = 8;
 	}
+
+	// adjust lenght for different step sizes (which may arise in future)
+	besch->len *= TILE_HEIGHT_STEP/16;
 
 	// before version 8 vehicles could only have one freight image in each direction
 	if(version<8) {

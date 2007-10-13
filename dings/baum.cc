@@ -259,10 +259,10 @@ baum_t::calc_off()
 		case 11:
 		case 14:
 		case 15:
-			liob=simrand(16)-8;
-			reob=simrand(16)-8;
+			liob=simrand(TILE_HEIGHT_STEP)-(TILE_HEIGHT_STEP/2);
+			reob=simrand(TILE_HEIGHT_STEP)-(TILE_HEIGHT_STEP/2);
 			setze_xoff( reob + liob  );
-			setze_yoff(-10-(reob - liob)/2 );
+			setze_yoff( -(10*TILE_HEIGHT_STEP/16)-(reob - liob)/2 );
 			break;
 	}
 }

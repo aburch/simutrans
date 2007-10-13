@@ -1230,7 +1230,7 @@ convoi_t::vorfahren()
 	//		int train_length = (alte_richtung==ribi_t::sued  ||  alte_richtung==ribi_t::ost) ? 0 : fahr[0]->gib_besch()->get_length();
 			int train_length = 0;
 			for(unsigned i=0; i<anz_vehikel-1; i++) {
-				train_length += fahr[i]->gib_besch()->get_length(); // this give the length in 1/16 of a full tile
+				train_length += fahr[i]->gib_besch()->get_length(); // this give the length in 1/TILE_HEIGHT_STEP of a full tile
 			}
 			// in north/west direction, we leave the vehicle away to start as much back as possible
 			ribi_t::ribi neue_richtung = fahr[0]->gib_fahrtrichtung();
@@ -1251,7 +1251,7 @@ convoi_t::vorfahren()
 				for(int j=0; j<train_length; j++) {
 					v->sync_step();
 				}
-				train_length -= v->gib_besch()->get_length();	// this give the length in 1/16 of a full tile => all cars closely coupled!
+				train_length -= v->gib_besch()->get_length();	// this give the length in 1/TILE_HEIGHT_STEP of a full tile => all cars closely coupled!
 				v->darf_rauchen(true);
 			}
 			fahr[0]->setze_erstes(true);
@@ -1895,7 +1895,7 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 		koord pos = fahr[0]->gib_pos().gib_2d();
 		const planquadrat_t *plan=welt->lookup(pos);
 		while(plan  &&  plan->gib_halt()==halt) {
-			station_lenght += 16;
+			station_lenght += TILE_HEIGHT_STEP;
 			pos += zv;
 			plan = welt->lookup(pos);
 		}

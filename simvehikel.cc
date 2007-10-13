@@ -164,7 +164,7 @@ inline bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff )
     const sint8 c_plus  = y_off_2 + neu_xoff;
     const sint8 c_minus = y_off_2 - neu_xoff;
 
-    return ! (c_plus < 32 && c_minus < 32 && c_plus > -32 && c_minus > -32);
+    return ! (c_plus < TILE_HEIGHT_STEP*2  &&  c_minus < TILE_HEIGHT_STEP*2  &&  c_plus > -TILE_HEIGHT_STEP*2  &&  c_minus > -TILE_HEIGHT_STEP*2);
 }
 
 
@@ -176,8 +176,6 @@ vehikel_basis_t::fahre_basis()
 
 	// want to go to next field and want to step
 	if(is_about_to_hop(neu_xoff,neu_yoff)) {
-
-//		assert(abs(neu_xoff)==16  &&  abs(neu_yoff)==8);
 
 		if( !hop_check() ) {
 			// red signal etc ...
@@ -195,8 +193,8 @@ vehikel_basis_t::fahre_basis()
 		use_calc_height = true;
 		hoff = 0;
 
-		setze_xoff( (neu_xoff < 0) ? 16 : -16 );
-		setze_yoff( (neu_yoff < 0) ? 8 : -8 );
+		setze_xoff( (neu_xoff < 0) ? TILE_HEIGHT_STEP : -TILE_HEIGHT_STEP );
+		setze_yoff( (neu_yoff < 0) ? TILE_HEIGHT_STEP/2 : -TILE_HEIGHT_STEP/2 );
 	}
 	else {
 		// driving on the same tile
@@ -307,7 +305,7 @@ vehikel_basis_t::calc_height()
 			// need hiding?
 			switch(gr->gib_grund_hang()) {
 			case 3:	// nordhang
-				if(vehikel_basis_t::gib_yoff()>-7) {
+				if(gib_yoff() > -(7*TILE_HEIGHT_STEP/16)) {
 					setze_bild(IMG_LEER);
 				}
 				else {
@@ -315,7 +313,7 @@ vehikel_basis_t::calc_height()
 				}
 				break;
 			case 6:	// westhang
-				if(vehikel_basis_t::gib_xoff()>-12) {
+				if(gib_xoff() > -(12*TILE_HEIGHT_STEP/16)) {
 					setze_bild(IMG_LEER);
 				}
 				else {
@@ -323,7 +321,7 @@ vehikel_basis_t::calc_height()
 				}
 				break;
 			case 9:	// osthang
-				if(vehikel_basis_t::gib_xoff()<6) {
+				if(gib_xoff() < (6*TILE_HEIGHT_STEP/16)) {
 					setze_bild(IMG_LEER);
 				}
 				else {
@@ -331,7 +329,7 @@ vehikel_basis_t::calc_height()
 				}
 				break;
 			case 12:    // suedhang
-				if(vehikel_basis_t::gib_yoff()<7) {
+				if(gib_yoff() < (7*TILE_HEIGHT_STEP/16)) {
 					setze_bild(IMG_LEER);
 				}
 				else {
@@ -342,15 +340,16 @@ vehikel_basis_t::calc_height()
 		}
 	}
 	else {
+		// normal slope
 		switch(gr->gib_weg_hang()) {
 			case 3:	// nordhang
 			case 6:	// westhang
-				hoff = -vehikel_basis_t::gib_yoff() - 8;
+				hoff = -gib_yoff() - (TILE_HEIGHT_STEP/2);
 				use_calc_height = true;
 				break;
 			case 9:	// osthang
-			case 12:    // suedhang
-				hoff = vehikel_basis_t::gib_yoff() - 8;
+			case 12:// suedhang
+				hoff = gib_yoff() - (TILE_HEIGHT_STEP/2);
 				use_calc_height = true;
 				break;
 			case 0:
@@ -1156,7 +1155,7 @@ vehikel_t::rdwr(loadsave_t *file)
 		file->rdwr_long(l, "\n");
 		dy = (sint8)l;
 		file->rdwr_long(l, "\n");
-		hoff = (sint8)l;
+		hoff = (sint8)(l*TILE_HEIGHT_STEP/16);
 		file->rdwr_long(speed_limit, "\n");
 		file->rdwr_enum(fahrtrichtung, " ");
 		file->rdwr_enum(alte_fahrtrichtung, "\n");

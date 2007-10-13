@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "../../simconst.h"
 #include "../../simvehikel.h"
 #include "../../simverkehr.h"
 #include "../stadtauto_besch.h"

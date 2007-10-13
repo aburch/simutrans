@@ -111,15 +111,39 @@
 #define height_unscaling(i) ((i)<<1)
 
 #else
-// 16 pix per height, koord3d.z granularity is 1
+// 16 inrternal pixels per tile, koord3d.z granularity is 1,
 #define Z_TILE_STEP (1)
-#define TILE_HEIGHT_STEP (16)
-#define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)
-#define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 6)
+#define TILE_HEIGHT_STEP (32)
+#define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 7)	// these must be changed for according to TILE_HEIGHT_STEP!
+#define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 7)
 #define height_scaling(i) (i)
 #define height_unscaling(i) (i)
 
 #endif
+
+/*
+ * Global vehicle speed conversion factor between Simutrans speed
+ * and km/h
+ * @author Hj. Malthaner
+ */
+#define VEHICLE_SPEED_FACTOR  ((80*16)/TILE_HEIGHT_STEP)
+
+/**
+ * Converts speed value to km/h
+ * @author Hj. Matthaner
+ */
+#define speed_to_kmh(speed) (((speed)*VEHICLE_SPEED_FACTOR+511) >> 10)
+
+/**
+ * Converts km/h value to speed
+ * @author Hj. Matthaner
+ */
+#define kmh_to_speed(speed) (((speed) << 10) / VEHICLE_SPEED_FACTOR)
+
+
+
+
+
 
 #ifdef OTTD_LIKE
 #define DEFAULT_OBJPATH "pak.ttd/"
