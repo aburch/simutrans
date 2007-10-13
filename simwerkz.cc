@@ -631,7 +631,7 @@ wkz_remover(spieler_t *sp, karte_t *welt, koord pos)
 
 
 /*
- * aufruf mit i == -1, j == -1 initialisiert
+ * aufruf mit INIT initialisiert
  *
  * erster aufruf setzt start
  * zweiter aufruf setzt ende und baut
@@ -702,7 +702,7 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 				}
 				// check for ownership
 				if(sp!=NULL  &&  (gr->obj_count()==0  ||  !sp->check_owner(gr->obj_bei(0)->gib_besitzer()))){
-					if(!(bautyp==wegbauer_t::strasse  ||  bautyp!=wegbauer_t::schiene_tram)  &&  !gr->hat_weg(road_wt)) {
+					if(  !(bautyp!=wegbauer_t::strasse  ||  bautyp!=wegbauer_t::wasser)  ||  (bautyp==wegbauer_t::schiene_tram  &&  gr->hat_weg(road_wt)==NULL)  ) {
 						// we allow connection to other players roads
 						gr = NULL;
 						continue;
@@ -713,7 +713,7 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 		else {
 			// normal ground; just check for ownership
 			gr = plan->gib_kartenboden();
-			if(gr->kann_alle_obj_entfernen(sp)){
+			if(gr->kann_alle_obj_entfernen(sp)!=NULL  &&  gr->gib_weg((waytype_t)besch->gib_wtyp())==NULL) {
 				gr = NULL;
 			}
 		}
