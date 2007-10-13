@@ -34,6 +34,7 @@
 	CHANGE: two less virtual functions in vehikel_t::sync_step() (most often called routinen) => speedup
 	FIX: convois with waypoints at bends were still jumping for certain vehikel length (sigh ...)
 	CHANGE: GDI fullscreen mode correct and due to switching resolution ~50% faster redraws
+	ADD: manufacturer name for each car shown in the convoi detail dialogue
 
 
 Release of 99.14

@@ -180,6 +180,10 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			// now add the other info
 			int extra_y=0;
 
+			// name of this
+			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate(v->gib_besch()->gib_name()), ALIGN_LEFT, COL_BLACK, true );
+			extra_y += LINESPACE;
+
 			// age
 			sint32 month = v->gib_insta_zeit();
 			sprintf( buf, "%s %s %i", translator::translate("Manufactured:"), translator::get_month_name(month%12), month/12  );
