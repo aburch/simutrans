@@ -1102,7 +1102,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 			}
 			sprintf(txt_convoi_count, "%s %d (%s %i)",
 				translator::translate("Fahrzeuge:"), cnv->gib_vehikel_anzahl(),
-				translator::translate("Station tiles:"), (length+TILE_HEIGHT_STEP-1)/TILE_HEIGHT_STEP );
+				translator::translate("Station tiles:"), (length+TILE_STEPS-1)/TILE_STEPS );
 			sprintf(txt_convoi_value, "%s %d$", translator::translate("Restwert:"), cnv->calc_restwert()/100);
 			if (cnv->get_line().is_bound()) {
 				sprintf(txt_convoi_line, "%s %s", translator::translate("Serves Line:"), 	cnv->get_line()->get_name());

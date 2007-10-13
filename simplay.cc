@@ -1915,7 +1915,7 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road fr
  */
 int spieler_t::baue_bahnhof(koord3d quelle, koord *p, int anz_vehikel, fabrik_t *fab)
 {
-	int laenge = max(((rail_vehicle->get_length()*anz_vehikel)+rail_engine->get_length()+TILE_HEIGHT_STEP-1)/TILE_HEIGHT_STEP,1);
+	int laenge = max(((rail_vehicle->get_length()*anz_vehikel)+rail_engine->get_length()+TILE_STEPS-1)/TILE_STEPS,1);
 
 	int baulaenge = 0;
 	ribi_t::ribi ribi = welt->lookup_kartenboden(*p)->gib_weg_ribi(track_wt);
@@ -1961,7 +1961,7 @@ int spieler_t::baue_bahnhof(koord3d quelle, koord *p, int anz_vehikel, fabrik_t 
 		}
 	}
 
-	laenge = min( anz_vehikel, (baulaenge*TILE_HEIGHT_STEP - rail_engine->get_length())/rail_vehicle->get_length() );
+	laenge = min( anz_vehikel, (baulaenge*TILE_STEPS - rail_engine->get_length())/rail_vehicle->get_length() );
 //DBG_MESSAGE("spieler_t::baue_bahnhof","Final station at (%i,%i) with %i tiles for %i cars",p->x,p->y,baulaenge,laenge);
 	return laenge;
 }
@@ -2313,7 +2313,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 				// road or rail?
 				int length = 1;
 				if(  cost_rail<cost_road  ) {
-					length = (rail_engine->get_length() + count_rail*rail_vehicle->get_length()+TILE_HEIGHT_STEP-1)/TILE_HEIGHT_STEP;
+					length = (rail_engine->get_length() + count_rail*rail_vehicle->get_length()+TILE_STEPS-1)/TILE_STEPS;
 					if(suche_platz1_platz2(start, ziel, length)) {
 						state = ship_vehicle ? NR_BAUE_WATER_ROUTE : NR_BAUE_SIMPLE_SCHIENEN_ROUTE;
 					}

@@ -39,7 +39,7 @@ world_view_t::world_view_t(const ding_t* dt) :
 	raster(0),
 	welt(dt->get_welt())
 {
-    setze_groesse(koord(64,56));
+	setze_groesse(koord(64,56));
 }
 
 
@@ -74,8 +74,8 @@ world_view_t::zeichnen(koord offset)
 	sint16 y_offset=0;
 	// offsets?
 	if(ding) {
-		fine_here = koord( 	tile_raster_scale_x(-ding->gib_xoff(),raster), tile_raster_scale_x(-ding->gib_yoff()%32,raster) );
-		y_offset = (ding->gib_yoff()/32);
+		fine_here = koord( 	tile_raster_scale_x(-ding->gib_xoff(),raster), tile_raster_scale_x(-ding->gib_yoff()%(TILE_STEPS*2),raster) );
+		y_offset = (ding->gib_yoff()/(32*TILE_STEPS/16));
 	}
 
 	const planquadrat_t * plan = welt->lookup(here);
@@ -142,7 +142,7 @@ world_view_t::zeichnen(koord offset)
 
 			plan = welt->lookup(k);
 			if(plan  &&  plan->gib_kartenboden()) {
-				const sint16 yypos = display_off.y + tile_raster_scale_x((offsets[i].y + offsets[i].x) * 16, raster) - tile_raster_scale_y(plan->gib_kartenboden()->gib_hoehe() * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
+				const sint16 yypos = display_off.y + (offsets[i].y + offsets[i].x) * 16 * raster / 64 - tile_raster_scale_y(plan->gib_kartenboden()->gib_hoehe() * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
 				if(yypos-(raster*2)<gr.y  &&  yypos+raster>=0) {
 					plan->display_dinge(pos.x+off_x,pos.y+yypos,raster,false);
 				}

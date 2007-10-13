@@ -453,7 +453,7 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 	for(unsigned i=0;  i<cnv->gib_vehikel_anzahl();  i++) {
 		tiles += cnv->gib_vehikel(i)->gib_besch()->get_length();
 	}
-	tiles = (tiles+TILE_HEIGHT_STEP-1)/TILE_HEIGHT_STEP;
+	tiles = (tiles+TILE_STEPS-1)/TILE_STEPS;
 
 	schiene_t* sch0 = (schiene_t *)welt->lookup(gib_pos())->gib_weg(wt);
 	if(sch0==NULL) {

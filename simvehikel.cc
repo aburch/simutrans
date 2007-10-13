@@ -164,7 +164,7 @@ inline bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff )
     const sint8 c_plus  = y_off_2 + neu_xoff;
     const sint8 c_minus = y_off_2 - neu_xoff;
 
-    return ! (c_plus < TILE_HEIGHT_STEP*2  &&  c_minus < TILE_HEIGHT_STEP*2  &&  c_plus > -TILE_HEIGHT_STEP*2  &&  c_minus > -TILE_HEIGHT_STEP*2);
+    return ! (c_plus < TILE_STEPS*2  &&  c_minus < TILE_STEPS*2  &&  c_plus > -TILE_STEPS*2  &&  c_minus > -TILE_STEPS*2);
 }
 
 
@@ -193,8 +193,8 @@ vehikel_basis_t::fahre_basis()
 		use_calc_height = true;
 		hoff = 0;
 
-		setze_xoff( (neu_xoff < 0) ? TILE_HEIGHT_STEP : -TILE_HEIGHT_STEP );
-		setze_yoff( (neu_yoff < 0) ? TILE_HEIGHT_STEP/2 : -TILE_HEIGHT_STEP/2 );
+		setze_xoff( (neu_xoff < 0) ? TILE_STEPS : -TILE_STEPS );
+		setze_yoff( (neu_yoff < 0) ? TILE_STEPS/2 : -TILE_STEPS/2 );
 	}
 	else {
 		// driving on the same tile
@@ -305,7 +305,7 @@ vehikel_basis_t::calc_height()
 			// need hiding?
 			switch(gr->gib_grund_hang()) {
 			case 3:	// nordhang
-				if(gib_yoff() > -(7*TILE_HEIGHT_STEP/16)) {
+				if(gib_yoff() > -(7*TILE_STEPS/16)) {
 					setze_bild(IMG_LEER);
 				}
 				else {
@@ -313,7 +313,7 @@ vehikel_basis_t::calc_height()
 				}
 				break;
 			case 6:	// westhang
-				if(gib_xoff() > -(12*TILE_HEIGHT_STEP/16)) {
+				if(gib_xoff() > -(12*TILE_STEPS/16)) {
 					setze_bild(IMG_LEER);
 				}
 				else {
@@ -321,7 +321,7 @@ vehikel_basis_t::calc_height()
 				}
 				break;
 			case 9:	// osthang
-				if(gib_xoff() < (6*TILE_HEIGHT_STEP/16)) {
+				if(gib_xoff() < (6*TILE_STEPS/16)) {
 					setze_bild(IMG_LEER);
 				}
 				else {
@@ -329,7 +329,7 @@ vehikel_basis_t::calc_height()
 				}
 				break;
 			case 12:    // suedhang
-				if(gib_yoff() < (7*TILE_HEIGHT_STEP/16)) {
+				if(gib_yoff() < (7*TILE_STEPS/16)) {
 					setze_bild(IMG_LEER);
 				}
 				else {
@@ -344,12 +344,12 @@ vehikel_basis_t::calc_height()
 		switch(gr->gib_weg_hang()) {
 			case 3:	// nordhang
 			case 6:	// westhang
-				hoff = -gib_yoff() - (TILE_HEIGHT_STEP/2);
+				hoff = -gib_yoff() - (TILE_STEPS/2);
 				use_calc_height = true;
 				break;
 			case 9:	// osthang
 			case 12:// suedhang
-				hoff = gib_yoff() - (TILE_HEIGHT_STEP/2);
+				hoff = gib_yoff() - (TILE_STEPS/2);
 				use_calc_height = true;
 				break;
 			case 0:
@@ -1155,7 +1155,7 @@ vehikel_t::rdwr(loadsave_t *file)
 		file->rdwr_long(l, "\n");
 		dy = (sint8)l;
 		file->rdwr_long(l, "\n");
-		hoff = (sint8)(l*TILE_HEIGHT_STEP/16);
+		hoff = (sint8)(l*TILE_STEPS/16);
 		file->rdwr_long(speed_limit, "\n");
 		file->rdwr_enum(fahrtrichtung, " ");
 		file->rdwr_enum(alte_fahrtrichtung, "\n");

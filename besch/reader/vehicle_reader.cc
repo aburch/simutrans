@@ -218,7 +218,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	// adjust lenght for different step sizes (which may arise in future)
-	besch->len *= TILE_HEIGHT_STEP/16;
+	besch->len *= TILE_STEPS/16;
 
 	// before version 8 vehicles could only have one freight image in each direction
 	if(version<8) {
