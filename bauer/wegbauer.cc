@@ -1736,6 +1736,7 @@ wegbauer_t::baue_tunnelboden()
 			tunnel->neuen_weg_bauen(weg, calc_ribi(i), sp);
 			tunnel->obj_add(new tunnel_t(welt, route[i], sp, tunnel_besch));
 			weg->setze_max_speed(tunnel_besch->gib_topspeed());
+			tunnel->calc_bild();
 			cost -= tunnel_besch->gib_preis();
 			sp->add_maintenance(-weg->gib_besch()->gib_wartung());
 			sp->add_maintenance( tunnel_besch->gib_wartung() );

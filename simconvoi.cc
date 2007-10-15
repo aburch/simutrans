@@ -410,8 +410,8 @@ bool convoi_t::sync_step(long delta_t)
 				sp_soll += (akt_speed*delta_t);
 
 				// now actually move the units
-				while(65536<sp_soll) {
-					sp_soll -= 65536;
+				while(SPEED_STEP_WIDTH<sp_soll) {
+					sp_soll -= SPEED_STEP_WIDTH;
 					int v_nr = get_vehicle_at_length(steps_driven++);
 					// until all are moving
 					if(v_nr==anz_vehikel) {
@@ -426,7 +426,7 @@ bool convoi_t::sync_step(long delta_t)
 
 				}
 				// maybe we have been stopped be something => avoid jumps
-				sp_soll &= (65536-1);
+				sp_soll &= SPEED_STEP_WIDTH-1;
 
 				// smoke for the engines
 				next_wolke += delta_t;
@@ -444,8 +444,8 @@ bool convoi_t::sync_step(long delta_t)
 
 			// now actually move the units
 			sp_soll += (akt_speed*delta_t);
-			while(65536<sp_soll) {
-				sp_soll -= 65536;
+			while(SPEED_STEP_WIDTH<sp_soll) {
+				sp_soll -= SPEED_STEP_WIDTH;
 				fahr[0]->sync_step();
 				// state may have change
 				if(state!=DRIVING) {
@@ -457,7 +457,7 @@ bool convoi_t::sync_step(long delta_t)
 				}
 			}
 			// maybe we have been stopped be something => avoid jumps
-			sp_soll &= (65536-1);
+			sp_soll &= (SPEED_STEP_WIDTH-1);
 
 			// smoke for the engines
 			next_wolke += delta_t;

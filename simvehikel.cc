@@ -68,13 +68,20 @@
 #include "bauer/vehikelbauer.h"
 
 
-class route_t;
 
+/**
+ * Checks if this vehicle must change the square upon next move
+ * @author Hj. Malthaner
+ */
+inline bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff )
+{
+    const sint8 y_off_2 = 2*neu_yoff;
+    const sint8 c_plus  = y_off_2 + neu_xoff;
+    const sint8 c_minus = y_off_2 - neu_xoff;
 
-static const uint8 offset_array[8] = {
-//dir_sued, dir_west, dir_suedwest, dir_suedost, dir_nord, dir_ost, dir_nordost, dir_nordwest
-0, 0, 0, 0, 1, 1, 1, 1
-};
+    return ! (c_plus < TILE_STEPS*2  &&  c_minus < TILE_STEPS*2  &&  c_plus > -TILE_STEPS*2  &&  c_minus > -TILE_STEPS*2);
+}
+
 
 
 vehikel_basis_t::vehikel_basis_t(karte_t *welt):
@@ -154,22 +161,7 @@ void vehikel_basis_t::betrete_feld()
 }
 
 
-/**
- * Checks if this vehicle must change the square upon next move
- * @author Hj. Malthaner
- */
-inline bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff )
-{
-    const sint8 y_off_2 = 2*neu_yoff;
-    const sint8 c_plus  = y_off_2 + neu_xoff;
-    const sint8 c_minus = y_off_2 - neu_xoff;
-
-    return ! (c_plus < TILE_STEPS*2  &&  c_minus < TILE_STEPS*2  &&  c_plus > -TILE_STEPS*2  &&  c_minus > -TILE_STEPS*2);
-}
-
-
-void
-vehikel_basis_t::fahre_basis()
+void vehikel_basis_t::fahre_basis()
 {
 	const sint8 neu_xoff = gib_xoff() + dx;
 	const sint8 neu_yoff = gib_yoff() + dy;
@@ -193,6 +185,7 @@ vehikel_basis_t::fahre_basis()
 		use_calc_height = true;
 		hoff = 0;
 
+		// will automatically correct wrong position on the next tile
 		setze_xoff( (neu_xoff < 0) ? TILE_STEPS : -TILE_STEPS );
 		setze_yoff( (neu_yoff < 0) ? TILE_STEPS/2 : -TILE_STEPS/2 );
 	}
@@ -613,31 +606,10 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 		fahrtrichtung = calc_set_richtung( gib_pos().gib_2d(), pos_next.gib_2d() );
 		hoff = 0;
 
-		const sint8 li = -16;
-		const sint8 re = 16;
-		const sint8 ob = -8;
-		const sint8 un = 8;
+		setze_xoff( (dx<0) ? TILE_STEPS : -TILE_STEPS );
+		setze_yoff( (dy<0) ? TILE_STEPS/2 : -TILE_STEPS/2 );
 
-		sint8 yoff;
-		if (dy < 0) {
-			yoff = un;
-		}
-		else {
-			yoff = ob;
-		}
-
-		sint8 xoff;
-		if (dx < 0) {
-			xoff = re;
-		}
-		else {
-			xoff = li;
-		}
-
-		setze_xoff( xoff );
-		setze_yoff( yoff );
-
-	  calc_bild();
+		calc_bild();
 	}
 }
 
@@ -1171,9 +1143,9 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 		file->rdwr_long(insta_zeit, "\n");
 		file->rdwr_byte(dx, " ");
 		file->rdwr_byte(dy, "\n");
-		sint16 dummy16=hoff;
+		sint16 dummy16 = ((16*(sint16)hoff)/TILE_STEPS);
 		file->rdwr_short(dummy16, "\n");
-		hoff = (sint8)dummy16;
+		hoff = (sint8)((TILE_STEPS*(sint16)dummy16)/16);
 		file->rdwr_long(speed_limit, "\n");
 		file->rdwr_enum(fahrtrichtung, " ");
 		file->rdwr_enum(alte_fahrtrichtung, "\n");
