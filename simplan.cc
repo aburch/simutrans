@@ -266,12 +266,12 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file)
 					dbg->fatal("planquadrat_t::rdwr()","Error while loading game: Unknown ground type '%d'",gtyp);
 			}
 			// check if we have a matching building here, otherwise set to nothing
-			if (gr  &&  gtyp == grund_t::fundament  &&  gr->find<gebaeude_t>() == 0) {
+			if (gr  &&  gtyp == grund_t::fundament  &&  gr->find<gebaeude_t>() == NULL) {
 				koord3d pos = gr->gib_pos();
 				// show normal ground here
 				grund_t *gr2 = new boden_t(welt, pos, 0);
-				if(gr->get_flag(grund_t::has_text)) {
-					gr2->set_flag( grund_t::has_text );
+				if(gr->get_flag( grund_t::has_text )) {
+					gr2->setze_text( gr->gib_text() );
 				}
 				delete gr;
 				gr = gr2;
@@ -286,11 +286,6 @@ DBG_MESSAGE("planquadrat_t::rwdr", "unknown building (or prepare for factory) at
 				}
 				else {
 					boden_hinzufuegen(gr);
-					// only ground can have text => transfer text
-					if(ground_size>1  &&  gr->get_flag(grund_t::has_text)) {
-						data.some[0]->set_flag(grund_t::has_text);
-						gr->clear_flag(grund_t::has_text);
-					}
 				}
 			}
 		} while(gr != 0);
@@ -436,7 +431,17 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 		}
 	}
 
-	gr->display_overlay(xpos, ypos);
+	if(ground_size>1) {
+		const sint16 h0 = gr->gib_hoehe();
+		for(uint8 i=0;  i<ground_size;  i++) {
+			gr=data.some[i];
+			const sint16 yypos = ypos - (gr->gib_hoehe()-h0)*get_tile_raster_width()/(2*Z_TILE_STEP);
+			gr->display_overlay(xpos, yypos );
+		}
+	}
+	else {
+		gr->display_overlay(xpos, ypos );
+	}
 }
 
 /**

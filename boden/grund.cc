@@ -80,7 +80,8 @@ static inthashtable_tpl<uint32, char*> ground_texts;
 
 static inline uint32 get_ground_text_key(const karte_t* welt, const koord3d& k)
 {
-	return (k.x << 19) + (k.y <<  6);
+	// text for all common heights
+	return (k.x << 19) + (k.y << 6) + ((48-(k.z/Z_TILE_STEP))&0x3F);
 // only kartenboden can have text!
 //		(k.x << 19) + (k.y <<  6) + ((k.z - welt->gib_grundwasser()) / Z_TILE_STEP);
 }
@@ -101,7 +102,7 @@ uint8 grund_t::offsets[4]={0,1,2/*illegal!*/,2};
 
 void grund_t::setze_text(const char *text)
 {
-	if(get_flag(grund_t::is_kartenboden)) {
+//	if(get_flag(grund_t::is_kartenboden)) {
 		const uint32 n = get_ground_text_key(welt, pos);
 		if(text) {
 			char* new_text = strdup(text);
@@ -112,13 +113,13 @@ void grund_t::setze_text(const char *text)
 			welt->setze_dirty();
 		} else if(get_flag(has_text)) {
 			char *txt=ground_texts.remove(n);
-			assert(txt);
+//			assert(txt);
 			free(txt);
 			clear_flag(has_text);
 			set_flag(dirty);
 			welt->setze_dirty();
 		}
-	}
+//>	}
 }
 
 
@@ -131,7 +132,7 @@ const char* grund_t::gib_text() const
 		if(result==NULL) {
 			return "undef";
 		}
-//		assert(result);
+		assert(result);
 	}
 	return result;
 }
@@ -169,11 +170,8 @@ void grund_t::rdwr(loadsave_t *file)
 		const char *text = 0;
 		file->rdwr_str(text, "+");
 		if(text) {
-			// since only map gounrd may have text, we are map ground for a second
-			flags |= is_kartenboden;
 			setze_text(text);
 			guarded_free((void *)text);
-			flags &= ~is_kartenboden;
 		}
 	}
 

@@ -91,17 +91,17 @@ int halt_list_frame_t::compare_halts(const void *p1, const void *p2)
 			order = halt1->get_station_type() - halt2->get_station_type();
 			break;
 	}
-    /**
-     * use name as an additional sort, to make sort more stable.
-     */
-    if(order == 0) {
-	order = strcmp(halt1->gib_name(), halt2->gib_name());
-    }
-   /***********************************
-    * Beruecksichtige die
-    * Sortierreihenfolge
-    ***********************************/
-    return sortreverse ? -order : order;
+	/**
+	 * use name as an additional sort, to make sort more stable.
+	 */
+	if(order == 0) {
+		order = strcmp(halt1->gib_name(), halt2->gib_name());
+	}
+	/***********************************
+	 * Beruecksichtige die
+	 * Sortierreihenfolge
+	 ***********************************/
+	return sortreverse ? -order : order;
 }
 
 

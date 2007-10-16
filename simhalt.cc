@@ -380,7 +380,7 @@ haltestelle_t::rotate90()
 void
 haltestelle_t::setze_name(const char *new_name)
 {
-	grund_t *gr = welt->lookup_kartenboden(gib_basis_pos());
+	grund_t *gr = welt->lookup(gib_basis_pos3d());
 	if(gr  &&  !gr->find<label_t>()) {
 		gr->setze_text( new_name );
 	}
@@ -1537,10 +1537,8 @@ const char* haltestelle_t::gib_name() const
 	if (tiles.empty()) {
 		name = "Unnamed";
 	} else {
-		grund_t* bd = welt->lookup_kartenboden(gib_basis_pos());
-		if(bd!=NULL  &&  bd->get_flag(grund_t::has_text)) {
-			name = bd->gib_text();
-		}
+		grund_t* bd = welt->lookup(gib_basis_pos3d());
+		name = bd->gib_text();
 	}
 	return name;
 }
@@ -1587,7 +1585,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			grund_t *gr = welt->lookup(k);
 			if(!gr) {
 				gr = welt->lookup(k.gib_2d())->gib_kartenboden();
-				dbg->warning("haltestelle_t::rdwr()", "invalid position %s (setting to ground %s)\n", (const char*)k3_to_cstr(k), (const char*)k3_to_cstr(gr->gib_pos()) );
+				dbg->error("haltestelle_t::rdwr()", "invalid position %s (setting to ground %s)\n", (const char*)k3_to_cstr(k), (const char*)k3_to_cstr(gr->gib_pos()) );
 			}
 			// during loading and saving halts will be referred by their base postion
 			// so we may alrady be defined ...
@@ -1661,9 +1659,12 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 
 		// handle name for old stations which don't exist in kartenboden
-		grund_t* bd = welt->lookup_kartenboden(gib_basis_pos());
+		grund_t* bd = welt->lookup(gib_basis_pos3d());
 		if(bd==NULL  ||  !bd->get_flag(grund_t::has_text) ) {
-			bd = welt->lookup(gib_basis_pos3d());
+			bd = welt->lookup_kartenboden(gib_basis_pos());
+			if(bd) {
+				setze_name( bd->gib_text() );
+			}
 		}
 	}
 
@@ -1939,10 +1940,10 @@ void haltestelle_t::rem_grund(grund_t *gr)
 		init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->gib_pos().gib_2d();
 
 		// re-add name
-		if (station_name_to_transfer != NULL) {
-			grund_t* bd = welt->lookup_kartenboden(init_pos);
-			if (bd && bd->find<label_t>()) {
-				delete bd->find<label_t>();
+		if (station_name_to_transfer != NULL  &&  !tiles.empty()) {
+			label_t *lb = tiles.front().grund->find<label_t>();
+			if(lb) {
+				delete lb;
 			}
 			setze_name( station_name_to_transfer );
 		}

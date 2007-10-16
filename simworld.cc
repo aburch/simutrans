@@ -2600,7 +2600,8 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 			for (int x = 0; x <= gib_groesse_x(); x++) {
 				sint32 hgt;
 				file->rdwr_long(hgt, "\n");
-				setze_grid_hgt(koord(x, y), (hgt*Z_TILE_STEP)/TILE_HEIGHT_STEP);
+				// old height step was 16!
+				setze_grid_hgt(koord(x, y), (hgt*Z_TILE_STEP)/16 );
 			}
 		}
 	}
