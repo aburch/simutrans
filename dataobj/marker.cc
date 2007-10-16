@@ -15,30 +15,31 @@
 
 void marker_t::init(int welt_groesse_x,int welt_groesse_y)
 {
-    cached_groesse = welt_groesse_x;
-    bits_groesse = (welt_groesse_x*welt_groesse_y + bit_mask) / (bit_unit);
-    if(bits)
-	delete [] bits;
-
-    if(bits_groesse)
-	bits = new unsigned char[bits_groesse];
-    else
-	bits = NULL;
-
-    unmarkiere_alle();
+	cached_groesse = welt_groesse_x;
+	bits_groesse = (welt_groesse_x*welt_groesse_y + bit_mask) / (bit_unit);
+	if(bits) {
+		delete [] bits;
+	}
+	if(bits_groesse) {
+		bits = new unsigned char[bits_groesse];
+	}
+	else {
+		bits = NULL;
+	}
+	unmarkiere_alle();
 }
 
 marker_t::~marker_t()
 {
-    delete [] bits;
+	delete [] bits;
 }
 
 void marker_t::unmarkiere_alle()
 {
-    if(bits)
-	memset(bits, 0, bits_groesse);
-
-    more.clear();
+	if(bits) {
+		memset(bits, 0, bits_groesse);
+	}
+	more.clear();
 }
 
 void marker_t::markiere(const grund_t *gr)

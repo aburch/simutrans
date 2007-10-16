@@ -49,6 +49,8 @@ public:
 
 	const way_obj_besch_t *gib_besch() const {return besch;}
 
+	void rotate90();
+
 	/**
 	* the front image, drawn before vehicles
 	* @author V. Meyer

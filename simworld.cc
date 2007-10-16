@@ -1433,11 +1433,17 @@ karte_t::rotate90()
 	cached_groesse_gitter_x = cached_groesse_gitter_y;
 	cached_groesse_gitter_y = wx;
 
+	if(cached_groesse_gitter_x != cached_groesse_gitter_y) {
+		// the marking array and the map must be reinit
+		marker.init( cached_groesse_gitter_x, cached_groesse_gitter_y );
+		reliefkarte_t::gib_karte()->setze_welt( this );
+	}
 	// update minimap
-	reliefkarte_t::gib_karte()->setze_welt( this );
 	if(reliefkarte_t::is_visible) {
 		reliefkarte_t::gib_karte()->set_mode( reliefkarte_t::gib_karte()->get_mode() );
 	}
+
+	setze_dirty();
 }
 // -------- Verwaltung von Fabriken -----------------------------
 

@@ -173,6 +173,14 @@ wayobj_t::laden_abschliessen()
 
 
 
+void wayobj_t::rotate90()
+{
+	ding_t::rotate90();
+	dir = ribi_t::rotate90( dir);
+	hang = hang_t::rotate90( hang );
+}
+
+
 // helper function: gets the ribi on next tile
 ribi_t::ribi
 wayobj_t::find_next_ribi(const grund_t *start, const koord dir) const

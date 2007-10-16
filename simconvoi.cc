@@ -224,6 +224,7 @@ void convoi_t::rotate90()
 	const sint16 y_size = welt->gib_groesse_y()-1;
 	last_stop_pos.rotate90( y_size );
 	record_pos.rotate90( y_size );
+	home_depot.rotate90( y_size );
 	for(  int i=0;  i<=route.gib_max_n();  i++  ) {
 		route.access_position_bei(i).rotate90( y_size );
 	}
@@ -1441,7 +1442,14 @@ convoi_t::rdwr(loadsave_t *file)
 				gr = welt->lookup(v->gib_pos());
 				if(!gr) {
 					gr = welt->lookup_kartenboden(v->gib_pos().gib_2d());
-					dbg->error("convoi_t::rdwr()", "invalid position %s for vehicle %s in state %d (setting to ground %s)", (const char*)k3_to_cstr(v->gib_pos()), v->gib_name(), state, (const char*)k3_to_cstr(v->gib_pos()));
+					if(gr) {
+						dbg->error("convoi_t::rdwr()", "invalid position %s for vehicle %s in state %d (setting to ground %s)", (const char*)k3_to_cstr(v->gib_pos()), v->gib_name(), state, (const char*)k3_to_cstr(v->gib_pos()));
+						v->setze_pos( gr->gib_pos() );
+					}
+					else {
+						dbg->fatal("convoi_t::rdwr()", "invalid position %s for vehicle %s in state %d (setting to ground %s)", (const char*)k3_to_cstr(v->gib_pos()), v->gib_name(), state, (const char*)k3_to_cstr(v->gib_pos()));
+					}
+					state = INITIAL;
 				}
 				// add to blockstrecke
 				if(gr  &&  v->gib_waytype()==track_wt  ||  v->gib_waytype()==monorail_wt) {

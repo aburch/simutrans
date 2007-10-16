@@ -1151,6 +1151,8 @@ void stadt_t::rotate90()
 	pos.rotate90( welt->gib_groesse_y()-1 );
 	lo.rotate90( welt->gib_groesse_y()-1 );
 	ur.rotate90( welt->gib_groesse_y()-1 );
+	best_strasse.reset(pos);
+	best_haus.reset(pos);
 }
 
 
@@ -1406,7 +1408,6 @@ void stadt_t::step_bau()
 
 		for (int i = 0; i < 30 && bev * 2 > won + arb + 100; i++) {
 			bewerte();
-			INT_CHECK("simcity 271");
 			baue();
 			INT_CHECK("simcity 273");
 		}

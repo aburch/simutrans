@@ -789,10 +789,6 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::sync_wolke: { wolke_t(welt, file); break; }
 				case ding_t::async_wolke: { async_wolke_t(welt, file); break; }
 
-#ifdef LAGER_NOT_IN_USE
-				case ding_t::lagerhaus:	    d = new lagerhaus_t (welt, file);	        break;
-#endif
-
 				default:
 					dbg->fatal("dingliste_t::laden()", "During loading: Unknown object type '%d'", typ);
 			}
@@ -803,7 +799,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			}
 
 			if(d  &&  d->gib_pos()!=current_pos) {
-				dbg->warning("dingliste_t::rdwr()","position error: %i,%i instead %i,%i (object will be ignored)",d->gib_pos().x,d->gib_pos().y,current_pos.x,current_pos.y);
+				dbg->warning("dingliste_t::rdwr()","position error: %i,%i,%i instead %i,%i,%i (object will be ignored)",d->gib_pos().x,d->gib_pos().y,d->gib_pos().z,current_pos.x,current_pos.y,current_pos.z);
 				d = NULL;
 			}
 

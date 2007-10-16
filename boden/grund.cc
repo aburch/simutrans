@@ -102,24 +102,22 @@ uint8 grund_t::offsets[4]={0,1,2/*illegal!*/,2};
 
 void grund_t::setze_text(const char *text)
 {
-//	if(get_flag(grund_t::is_kartenboden)) {
-		const uint32 n = get_ground_text_key(welt, pos);
-		if(text) {
-			char* new_text = strdup(text);
-			free(ground_texts.remove(n));
-			ground_texts.put(n, new_text);
-			set_flag(has_text);
-			set_flag(dirty);
-			welt->setze_dirty();
-		} else if(get_flag(has_text)) {
-			char *txt=ground_texts.remove(n);
+	const uint32 n = get_ground_text_key(welt, pos);
+	if(text) {
+		char* new_text = strdup(text);
+		free(ground_texts.remove(n));
+		ground_texts.put(n, new_text);
+		set_flag(has_text);
+		set_flag(dirty);
+		welt->setze_dirty();
+	} else if(get_flag(has_text)) {
+		char *txt=ground_texts.remove(n);
 //			assert(txt);
-			free(txt);
-			clear_flag(has_text);
-			set_flag(dirty);
-			welt->setze_dirty();
-		}
-//>	}
+		free(txt);
+		clear_flag(has_text);
+		set_flag(dirty);
+		welt->setze_dirty();
+	}
 }
 
 
