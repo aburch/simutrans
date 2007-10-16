@@ -12,7 +12,6 @@
 #include "../simtypes.h"
 #include "../simimg.h"
 #include "../besch/kreuzung_besch.h"
-#include "../ifc/sync_steppable.h"
 #include "../tpl/minivec_tpl.h"
 #include "../tpl/slist_tpl.h"
 
@@ -22,7 +21,7 @@ class vehikel_basis_t;
  * road sign for traffic (one way minimum speed, traffic lights)
  * @author Hj. Malthaner
  */
-class crossing_t : public ding_t, public sync_steppable
+class crossing_t : public ding_t
 {
 protected:
 	image_id after_bild, bild;
@@ -44,11 +43,9 @@ public:
 	crossing_t(karte_t *welt, loadsave_t *file);
 	crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wt1, waytype_t wt2);
 
-	/**
-	 * signale muessen bei der destruktion von der
-	 * Blockstrecke abgemeldet werden
-	 */
-	virtual ~crossing_t();
+	virtual ~crossing_t() {}
+
+	void rotate90();
 
 	const kreuzung_besch_t *gib_besch() const { return besch; }
 
@@ -98,10 +95,6 @@ public:
 	void entferne(spieler_t *sp);
 
 	void laden_abschliessen();
-
-	// to be used for animations
-	bool sync_step(long) { return false; }
-
 
 	// static routines from here
 private:

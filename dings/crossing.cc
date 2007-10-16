@@ -54,9 +54,11 @@ crossing_t::crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t w1, 
 
 
 
-crossing_t::~crossing_t()
+void
+crossing_t::rotate90()
 {
-//	welt->sync_remove( this );
+	ding_t::rotate90();
+	ns = ~ns;
 }
 
 
@@ -261,7 +263,6 @@ void crossing_t::laden_abschliessen()
 		weg_t *w2=gr->gib_weg(besch->get_waytype(1));
 		w2->count_sign();
 		ns = ribi_t::ist_gerade_ns(w2->gib_ribi_unmasked());
-//		welt->sync_add( this );
 	}
 }
 
