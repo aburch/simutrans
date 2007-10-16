@@ -74,6 +74,13 @@ brueckenboden_t::rdwr(loadsave_t *file)
 }
 
 
+void brueckenboden_t::rotate90()
+{
+	weg_hang = hang_t::rotate90( weg_hang );
+	grund_t::rotate90();
+}
+
+
 sint8 brueckenboden_t::gib_weg_yoff() const
 {
 	if(ist_karten_boden() && weg_hang == 0) {

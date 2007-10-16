@@ -146,3 +146,20 @@ void bruecke_t::entferne( spieler_t *sp2 )
 	}
 	sp2->buche( -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION );
 }
+
+
+// rotated segment names
+static bruecke_besch_t::img_t rotate90_img[12]= {
+	bruecke_besch_t::OW_Segment, bruecke_besch_t::NS_Segment,
+	bruecke_besch_t::O_Start, bruecke_besch_t::W_Start, bruecke_besch_t::S_Start, bruecke_besch_t::N_Start,
+	bruecke_besch_t::O_Rampe, bruecke_besch_t::W_Rampe, bruecke_besch_t::S_Rampe, bruecke_besch_t::N_Rampe,
+	bruecke_besch_t::OW_Pillar, bruecke_besch_t::NS_Pillar
+};
+
+void bruecke_t::rotate90()
+{
+	setze_yoff(0);
+	ding_t::rotate90();
+	// the rotated image parameter is just one in front/back
+	img = rotate90_img[img];
+}

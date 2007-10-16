@@ -74,6 +74,8 @@ public:
 	 */
 	void laden_abschliessen();
 
+	void rotate90( sint16 y_size );
+
 	/**
 	 * Creates a unique line id.
 	 * @author Hj. Malthaner

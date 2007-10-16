@@ -77,6 +77,12 @@ public:
 	const koord3d& position_bei(const unsigned int n) const { return route[n]; }
 
 	/**
+	 * @return Koordinate an index n
+	 * @author Hj. Malthaner
+	 */
+	koord3d& access_position_bei(const unsigned int n) { return route[n]; }
+
+	/**
 	 * @return letzer index in der Koordinatenliste
 	 * @author Hj. Malthaner
 	 */

@@ -111,7 +111,9 @@ void grund_t::setze_text(const char *text)
 			set_flag(dirty);
 			welt->setze_dirty();
 		} else if(get_flag(has_text)) {
-			free(ground_texts.remove(n));
+			char *txt=ground_texts.remove(n);
+			assert(txt);
+			free(txt);
 			clear_flag(has_text);
 			set_flag(dirty);
 			welt->setze_dirty();
@@ -126,7 +128,10 @@ const char* grund_t::gib_text() const
 	const char * result = 0;
 	if(flags&has_text) {
 		result = ground_texts.get( get_ground_text_key(welt, pos) );
-		assert(result);
+		if(result==NULL) {
+			return "undef";
+		}
+//		assert(result);
 	}
 	return result;
 }
@@ -335,6 +340,38 @@ grund_t::~grund_t()
 	}
 }
 
+
+
+
+void grund_t::rotate90()
+{
+	const bool finish_rotate90 = (pos.x==welt->gib_groesse_x()-1)  &&  (pos.y==welt->gib_groesse_y()-1);
+	static inthashtable_tpl<uint32, char*> ground_texts_rotating;
+	const uint32 old_n = get_ground_text_key(welt, pos);
+	// first internal corrections
+	// since the hash changes, we must put the text to the new position
+	pos.rotate90( welt->gib_groesse_y()-1 );
+	slope = hang_t::rotate90( slope );
+	// then rotate the things on this tile
+	for(  int i=0;  i<dinge.gib_top();  i++  ) {
+		obj_bei(i)->rotate90();
+	}
+	// then the text ...
+	if(flags&has_text) {
+		const uint32 n = get_ground_text_key(welt, pos);
+		char *txt = ground_texts.get( old_n );
+		ground_texts.put( old_n, NULL );
+		ground_texts_rotating.put( n, txt );
+	}
+	// after processing the last tile, we have to transfer the entries into the original hashtable
+	if(finish_rotate90) {
+		inthashtable_iterator_tpl<uint32, char*> iter(ground_texts_rotating);
+		while(iter.next()) {
+			ground_texts.put( iter.get_current_key(), iter.get_current_value() );
+		}
+		ground_texts_rotating.clear();
+	}
+}
 
 
 // moves all objects from the old to the new grund_t

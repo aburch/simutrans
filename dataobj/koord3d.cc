@@ -14,6 +14,15 @@ const koord3d koord3d::invalid(-1, -1, -1);
 
 
 void
+koord3d::rotate90( sint16 y_diff )
+{
+	sint16 new_x = y_diff-y;
+	y = x;
+	x = new_x;
+}
+
+
+void
 koord3d::rdwr(loadsave_t *file)
 {
 	sint16 v16;

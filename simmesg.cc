@@ -85,12 +85,6 @@ void message_t::set_flags( int t, int w, int a, int i)
 }
 
 
-int message_t::gib_count() const
-{
-  return list.count();
-}
-
-
 message_t::node* message_t::get_node(unsigned i)
 {
 	return i < list.count() ? &list.at(i) : NULL;

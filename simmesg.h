@@ -30,7 +30,9 @@ public:
 
 	static message_t * get_instance();
 
-	int gib_count() const;
+	int gib_count() const { return list.count(); }
+
+	void clear() { list.clear(); }
 
 	/* determines, which message is displayed where */
 	void get_flags( int *t, int *w, int *a, int  *i);

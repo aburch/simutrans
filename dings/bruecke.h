@@ -40,6 +40,8 @@ public:
 	void entferne(spieler_t *sp);
 
 	void zeige_info() {} // show no info
+
+	void rotate90();
 };
 
 #endif

@@ -37,6 +37,8 @@
 	CHANGE: dragging during raising and lowering land enabled
 	ADD: manufacturer name for each car shown in the convoi detail dialogue
 	FIX: start/end way building under cars and filled depots
+	CHANGE: preliminary map rotation (for these places behind a slope) with 'R'
+	FIX: clear all old entries in the message list upon starting a new game
 
 
 Release of 99.14

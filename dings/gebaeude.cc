@@ -134,6 +134,36 @@ gebaeude_t::~gebaeude_t()
 
 
 
+void
+gebaeude_t::rotate90()
+{
+	ding_t::rotate90();
+
+	// can rotate?
+	if(tile->gib_besch()->gib_all_layouts()>1  ||  tile->gib_besch()->gib_b()*tile->gib_besch()->gib_h()>1) {
+		uint8 layout = tile->gib_layout();
+		koord new_offset = tile->gib_offset();
+		if(tile->gib_besch()->gib_all_layouts()>1) {
+			// rotate it
+			layout += 3;
+			layout %= tile->gib_besch()->gib_all_layouts()==4 ? 4 : 2;
+			layout |=	 (tile->gib_layout()&0x18);
+		}
+		// have to rotate the tiles :(
+		new_offset = koord( tile->gib_besch()->gib_h(tile->gib_layout()) - 1 - new_offset.y, new_offset.x );
+		// suche a tile existst?
+		if(tile->gib_besch()->gib_b(layout)>new_offset.x  &&  tile->gib_besch()->gib_h(layout)>new_offset.y)  {
+			const haus_tile_besch_t *new_tile = tile->gib_besch()->gib_tile( layout, new_offset.x, new_offset.y );
+			// add new tile: but make them old (no construction)
+			uint32 old_insta_zeit = insta_zeit;
+			setze_tile( new_tile );
+			insta_zeit = old_insta_zeit;
+		}
+	}
+}
+
+
+
 /* sets the corresponding pointer to a factory
  * @author prissi
  */

@@ -153,6 +153,69 @@ leitung_t::entferne(spieler_t *sp)
 
 
 
+/**
+ * called during map rotation
+ * @author priss
+ */
+void leitung_t::rotate90()
+{
+	ding_t::rotate90();
+	ribi_t::ribi old_ribi = ribi;
+	ribi = ribi_t::rotate90( ribi );
+
+	// a little complex, since we cannot access the ground right now
+	if(bild==wegbauer_t::leitung_besch->gib_hang_bild_nr(old_ribi,0)) {
+		// is on a slope
+		if(old_ribi==ribi_t::nordsued) {
+			if(bild==wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::nord, 0)) {
+				bild = wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::ost, 0);
+			}
+			else {
+				bild = wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::west, 0);
+			}
+		}
+		else {
+			if(bild==wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::west, 0)) {
+				bild = wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::nord, 0);
+			}
+			else {
+				bild = wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::sued, 0);
+			}
+		}
+		return;
+	}
+
+	if(bild != wegbauer_t::leitung_besch->gib_bild_nr(old_ribi,0)) {
+		// missing mast or crossing graphics are saved here
+		bool ok;
+		if(ribi_t::ist_gerade_ns(old_ribi)) {
+			if(bild==wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::ost,0)) {
+				// crossing
+				bild = wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::ost,0);
+			}
+			else {
+				// missing mast
+				bild = wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::west,0);
+			}
+		}
+		else {
+			if(bild==wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::ost,0)) {
+				// crossing
+				bild = wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::ost,0);
+			}
+			else {
+				// missing mast
+				bild = wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::west,0);
+			}
+		}
+	}
+	else {
+		// or just a normal tile ...
+		bild = wegbauer_t::leitung_besch->gib_bild_nr(ribi,0);
+	}
+}
+
+
 /* replace networks connection
  * non-trivial to handle transformers correctly
  * @author prissi

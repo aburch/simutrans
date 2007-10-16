@@ -259,6 +259,16 @@ fahrplan_t::rdwr(loadsave_t *file)
 
 
 
+void fahrplan_t::rotate90( sint16 y_size )
+{
+ 	// now we have to rotate all entries ...
+	for(unsigned i = 0; i<eintrag.get_count(); i++) {
+		eintrag[i].pos.rotate90(y_size);
+	}
+}
+
+
+
 /*
  * compare this fahrplan with another, passed in fahrplan
  * @author hsiegeln

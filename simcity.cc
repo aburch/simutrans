@@ -761,9 +761,11 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb)
 		for (k.y = 0; k.y < size.y; k.y++) {
 			for (k.x = 0; k.x < size.x; k.x++) {
 				gebaeude_t* add_gb = dynamic_cast<gebaeude_t*>(welt->lookup_kartenboden(pos + k)->first_obj());
+				if(add_gb) {
 //				DBG_MESSAGE("stadt_t::add_gebaeude_to_stadt()", "geb=%p at (%i,%i)", add_gb, pos.x + k.x, pos.y + k.y);
-				buildings.append(add_gb, tile->gib_besch()->gib_level() + 1, 16);
-				add_gb->setze_stadt(this);
+					buildings.append(add_gb, tile->gib_besch()->gib_level() + 1, 16);
+					add_gb->setze_stadt(this);
+				}
 			}
 		}
 		// check borders
@@ -1114,20 +1116,6 @@ void stadt_t::rdwr(loadsave_t* file)
 
 
 
-void stadt_t::setze_name(const char *new_name)
-{
-	if(name==NULL  ||  strcmp(name,new_name)) {
-		free( (void *)name );
-		name = strdup( new_name );
-	}
-	grund_t *gr = welt->lookup_kartenboden(pos);
-	if(gr) {
-		gr->setze_text( name );
-	}
-}
-
-
-
 /**
  * Wird am Ende der Laderoutine aufgerufen, wenn die Welt geladen ist
  * und nur noch die Datenstrukturenneu verknüpft werden müssen.
@@ -1155,6 +1143,30 @@ void stadt_t::laden_abschliessen()
 	next_step = 0;
 	next_bau_step = 0;
 }
+
+
+
+void stadt_t::rotate90()
+{
+	pos.rotate90( welt->gib_groesse_y()-1 );
+	lo.rotate90( welt->gib_groesse_y()-1 );
+	ur.rotate90( welt->gib_groesse_y()-1 );
+}
+
+
+
+void stadt_t::setze_name(const char *new_name)
+{
+	if(name==NULL  ||  strcmp(name,new_name)) {
+		free( (void *)name );
+		name = strdup( new_name );
+	}
+	grund_t *gr = welt->lookup_kartenboden(pos);
+	if(gr) {
+		gr->setze_text( name );
+	}
+}
+
 
 
 /* show city info dialoge

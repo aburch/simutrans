@@ -39,6 +39,8 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void zeige_info();
+
+	void rotate90();
 };
 
 #endif

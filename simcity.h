@@ -179,9 +179,6 @@ private:
 	best_t best_haus;
 	best_t best_strasse;
 
-	koord strasse_anfang_pos;
-	koord strasse_best_anfang_pos;
-
 	/**
 	 * Arbeitsplätze der Einwohner
 	 * @author Hj. Malthaner
@@ -391,6 +388,8 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void laden_abschliessen();
+
+	void rotate90();
 
 	/* change size of city
 	* @author prissi */

@@ -103,6 +103,8 @@ public:
 
 	void rdwr(loadsave_t *file);
 
+	void rotate90();
+
 	// substracts cost
 	void entferne(spieler_t *sp);
 

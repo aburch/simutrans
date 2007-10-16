@@ -1,5 +1,5 @@
 /*
- * Brueckenteile (sichtbar)
+ * Support for bridges
  *
  * Hj. Malthaner
  */
@@ -89,4 +89,13 @@ void pillar_t::rdwr(loadsave_t *file)
 		}
 		guarded_free(const_cast<char *>(s));
 	}
+}
+
+
+
+void pillar_t::rotate90()
+{
+	ding_t::rotate90();
+	// the rotated image parameter is just one in front/back
+	dir = (dir == bruecke_besch_t::NS_Pillar) ? bruecke_besch_t::OW_Pillar : bruecke_besch_t::NS_Pillar;
 }

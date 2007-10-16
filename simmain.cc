@@ -773,6 +773,7 @@ DBG_MESSAGE("init","map");
 
 	translator::set_language("en");
 
+	message_t::get_instance()->clear();
 	ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 
 	zeige_banner(welt);

@@ -13,6 +13,9 @@ public:
 
 	virtual void rdwr(loadsave_t *file);
 
+	// map rotation
+	virtual void rotate90();
+
 	virtual sint8 gib_weg_yoff() const;
 
 	hang_t::typ gib_weg_hang() const { return weg_hang; }

@@ -1369,6 +1369,76 @@ karte_t::max_hgt(const koord pos) const
 }
 
 
+void
+karte_t::rotate90()
+{
+	// first: rotate all things on the map
+	planquadrat_t *new_plan = new planquadrat_t[cached_groesse_gitter_y*cached_groesse_gitter_x];
+	for( int x=0;  x<cached_groesse_gitter_x;  x++  ) {
+		for( int y=0;  y<cached_groesse_gitter_y;  y++  ) {
+			int nr = x+(y*cached_groesse_gitter_x);
+			int new_nr = (cached_groesse_karte_y-y)+(x*cached_groesse_gitter_y);
+			new_plan[new_nr] = plan[nr];
+			plan[nr] = planquadrat_t();
+			// now rotate everything on the ground(s)
+			for(  int i=0;  i<new_plan[new_nr].gib_boden_count();  i++  ) {
+				new_plan[new_nr].gib_boden_bei(i)->rotate90();
+			}
+		}
+	}
+	delete [] plan;
+	plan = new_plan;
+
+	// rotate all other objects like factories and convois
+	for(unsigned i=0; i<convoi_array.get_count();  i++) {
+		convoi_array[i]->rotate90();
+	}
+
+	// now step all towns (to generate passengers)
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		(*i)->rotate90();
+	}
+
+	slist_iterator_tpl<fabrik_t *> iter(fab_list);
+	while(iter.next()) {
+		iter.get_current()->rotate90();
+	}
+
+	slist_iterator_tpl <halthandle_t> halt_iter (haltestelle_t::gib_alle_haltestellen());
+	while( halt_iter.next() ) {
+		halt_iter.get_current()->rotate90();
+	}
+
+	// rotate heightmap
+	sint8 *new_hgts = new sint8[(cached_groesse_gitter_x+1)*(cached_groesse_gitter_y+1)];
+	for( int x=0;  x<=cached_groesse_gitter_x;  x++  ) {
+		for( int y=0;  y<=cached_groesse_gitter_y;  y++  ) {
+			int nr = x+(y*(cached_groesse_gitter_x+1));
+			int new_nr = (cached_groesse_gitter_y-y)+(x*(cached_groesse_gitter_y+1));
+			new_hgts[new_nr] = grid_hgts[nr];
+		}
+	}
+	delete [] grid_hgts;
+	grid_hgts = new_hgts;
+
+	// rotate view
+	ij_off.rotate90( cached_groesse_karte_y );
+
+	// rotate borders
+	sint16 xw = cached_groesse_karte_x;
+	cached_groesse_karte_x = cached_groesse_karte_y;
+	cached_groesse_karte_y = xw;
+
+	int wx = cached_groesse_gitter_x;
+	cached_groesse_gitter_x = cached_groesse_gitter_y;
+	cached_groesse_gitter_y = wx;
+
+	// update minimap
+	reliefkarte_t::gib_karte()->setze_welt( this );
+	if(reliefkarte_t::is_visible) {
+		reliefkarte_t::gib_karte()->set_mode( reliefkarte_t::gib_karte()->get_mode() );
+	}
+}
 // -------- Verwaltung von Fabriken -----------------------------
 
 
@@ -3254,7 +3324,7 @@ karte_t::interactive_event(event_t &ev)
 							gr->calc_bild();
 						}
 					}
-					}
+				}
 				setze_dirty();
 				break;
 			case 167:    // Hajo: '§'
@@ -3354,6 +3424,17 @@ karte_t::interactive_event(event_t &ev)
 				break;
 			case 'r':
 				setze_maus_funktion(wkz_remover, skinverwaltung_t::killzeiger->gib_bild_nr(0), Z_PLAN, SFX_REMOVER, SFX_FAILURE);
+				break;
+			case 'R':
+				rotate90();
+				for(  int i=0;  i<cached_groesse_gitter_x*cached_groesse_gitter_y;  i++  ) {
+					const int boden_count = plan[i].gib_boden_count();
+					for(int schicht=0; schicht<boden_count; schicht++) {
+						grund_t *gr = plan[i].gib_boden_bei(schicht);
+						gr->calc_bild();
+					}
+				}
+				setze_dirty();
 				break;
 			case 's':
 				if(default_road==NULL) {

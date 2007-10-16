@@ -423,7 +423,15 @@ public:
 
 	virtual ~convoi_t();
 
+	/**
+	* Load or save this convoi data
+	* @author Hj. Malthaner
+	*/
+	void rdwr(loadsave_t *file);
+
 	void laden_abschliessen();
+
+	void rotate90();
 
 	/**
 	* Called if a vehicle enters a depot
@@ -590,12 +598,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	spieler_t * gib_besitzer() { return besitzer_p; }
-
-	/**
-	* Load or save this convoi data
-	* @author Hj. Malthaner
-	*/
-	void rdwr(loadsave_t *file);
 
 	/**
 	* Opens an information window

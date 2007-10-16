@@ -219,6 +219,21 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 
 
 
+void convoi_t::rotate90()
+{
+	const sint16 y_size = welt->gib_groesse_y()-1;
+	last_stop_pos.rotate90( y_size );
+	record_pos.rotate90( y_size );
+	for(  int i=0;  i<=route.gib_max_n();  i++  ) {
+		route.access_position_bei(i).rotate90( y_size );
+	}
+	if(fpl) {
+		fpl->rotate90( y_size );
+	}
+}
+
+
+
 /**
  * Gibt die Position des Convois zurück.
  * @return Position des Convois

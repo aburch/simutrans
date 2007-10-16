@@ -224,6 +224,12 @@ public:
 	ribi_t::ribi gib_ribi_maske() const { return (ribi_t::ribi)ribi_maske; }
 
 	/**
+	 * called during map rotation
+	 * @author priss
+	 */
+	void rotate90();
+
+	/**
 	* book statistics - is called very often and therefore inline
 	* @author hsiegeln
 	*/

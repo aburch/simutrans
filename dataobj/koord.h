@@ -39,6 +39,13 @@ public:
 		return *this;
 	}
 
+	void rotate90( sint16 y_size )
+	{
+		sint16 new_x = y_size-y;
+		y = x;
+		x = new_x;
+	}
+
 	static const koord invalid;
 	static const koord nord;
 	static const koord sued;

@@ -352,6 +352,27 @@ haltestelle_t::~haltestelle_t()
 }
 
 
+void
+haltestelle_t::rotate90()
+{
+	const sint16 y_size = welt->gib_groesse_y()-1;
+	init_pos.rotate90( y_size );
+	// rotate waren destinations
+	// iterate over all different categories
+	for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
+		if(waren[i]) {
+			vector_tpl<ware_t> * warray = waren[i];
+			for(int j=warray->get_count()-1;  j>=0;  j--  ) {
+				ware_t & ware = (*warray)[j];
+				koord k = ware.gib_zielpos();
+				k.rotate90( y_size );
+				ware.setze_zielpos( k );
+			}
+		}
+	}
+}
+
+
 /**
  * Sets the name. Creates a copy of name.
  * @author Hj. Malthaner

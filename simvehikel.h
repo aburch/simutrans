@@ -82,6 +82,8 @@ public:
 
 	int  gib_hoff() const {return hoff;}
 
+	virtual void rotate90();
+
 	ribi_t::ribi calc_richtung(koord start, koord ende) const;
 	ribi_t::ribi calc_set_richtung(koord start, koord ende);
 
@@ -201,6 +203,8 @@ public:
 	enum { SPEED_UNLIMITED=0x07FFFFFF };
 
 	convoi_t *get_convoi() const { return cnv; }
+
+	virtual void rotate90();
 
 	virtual bool ist_weg_frei(int &/*restart_speed*/) {return true;}
 

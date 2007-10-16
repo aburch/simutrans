@@ -258,6 +258,18 @@ void weg_t::info(cbuffer_t & buf) const
 
 
 /**
+ * called during map rotation
+ * @author priss
+ */
+void weg_t::rotate90()
+{
+	ding_t::rotate90();
+	ribi = ribi_t::rotate90( ribi );
+	ribi_maske = ribi_t::rotate90( ribi_maske );
+}
+
+
+/**
  * counts signals on this tile;
  * It would be enough for the signals to register and unreigister themselves, but this is more secure ...
  * @author prissi

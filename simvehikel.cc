@@ -103,6 +103,26 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
 
 
 
+void vehikel_basis_t::rotate90()
+{
+	koord3d pos_cur = gib_pos();
+	pos_cur.rotate90( welt->gib_groesse_y()-1 );
+	setze_pos( pos_cur );
+	// directions are counterclockwise to ribis!
+	fahrtrichtung = ribi_t::rotate90( fahrtrichtung );
+	pos_next.rotate90( welt->gib_groesse_y()-1 );
+	// new offsets: very tricky ...
+	sint8 new_dx = -dy*2;
+	dy = dx/2;
+	dx = new_dx;
+	// new pos + step offsets (only possible, since we know the height!
+	sint8 neu_yoff = gib_xoff()/2;
+	setze_xoff( -(gib_yoff()-hoff)*2 );
+	setze_yoff( neu_yoff+hoff );
+}
+
+
+
 void
 vehikel_basis_t::verlasse_feld()
 {
@@ -355,6 +375,25 @@ vehikel_basis_t::calc_height()
 	hoff = height_scaling(hoff);
 
 	return hoff;
+}
+
+
+
+void
+vehikel_t::rotate90()
+{
+	vehikel_basis_t::rotate90();
+	alte_fahrtrichtung = ribi_t::rotate90( alte_fahrtrichtung );
+	pos_prev.rotate90( welt->gib_groesse_y()-1 );
+	last_stop_pos.rotate90( welt->gib_groesse_y()-1 );
+	// now rotate the freight
+	slist_iterator_tpl<ware_t> iter (fracht);
+	while(iter.next()) {
+		ware_t& tmp = iter.access_current();
+		koord k = tmp.gib_zielpos();
+		k.rotate90( welt->gib_groesse_y()-1 );
+		tmp.setze_zielpos( k );
+	}
 }
 
 

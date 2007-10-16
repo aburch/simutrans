@@ -1325,6 +1325,8 @@ fabrik_t::info(cbuffer_t& buf) const
 	}
 }
 
+
+
 void fabrik_t::laden_abschliessen()
 {
 	for(uint32 i=0; i<lieferziele.get_count(); i++) {
@@ -1337,6 +1339,23 @@ void fabrik_t::laden_abschliessen()
 
 
 
+void fabrik_t::rotate90()
+{
+	const sint16 y_size = welt->gib_groesse_y()-1;
+	pos.rotate90( y_size );
+	for( int i=0;  i<lieferziele.get_count();  i++  ) {
+		lieferziele[i].rotate90( y_size );
+	}
+	for( int i=0;  i<suppliers.get_count();  i++  ) {
+		suppliers[i].rotate90( y_size );
+	}
+	for( int i=0;  i<fields.get_count();  i++  ) {
+		fields[i].rotate90( y_size );
+	}
+}
+
+
+
 void
 fabrik_t::add_supplier(koord pos)
 {
@@ -1344,11 +1363,13 @@ fabrik_t::add_supplier(koord pos)
 }
 
 
+
 void
 fabrik_t::rem_supplier(koord pos)
 {
 	suppliers.remove(pos);
 }
+
 
 
 /** crossconnect everything possible

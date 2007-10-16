@@ -168,6 +168,19 @@ simlinemgmt_t::laden_abschliessen()
 }
 
 
+void
+simlinemgmt_t::rotate90( sint16 y_size )
+{
+	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
+		fahrplan_t *fpl = (*i)->get_fahrplan();
+		if(fpl) {
+			fpl->rotate90( y_size );
+		}
+	}
+}
+
+
+
 /**
  * Creates a unique line id. (max uint16, but this should be enough anyway)
  * @author prissi

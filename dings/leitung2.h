@@ -63,6 +63,9 @@ public:
 	// just book the costs for destruction
 	void entferne(spieler_t *);
 
+	// for map rotation
+	void rotate90();
+
 	enum ding_t::typ gib_typ() const {return leitung;}
 
 	const char *gib_name() const {return "Leitung"; }

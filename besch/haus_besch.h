@@ -184,9 +184,9 @@ public:
 		return (layout & 1) ? groesse.y : groesse.x;
 	}
 
-    int gib_all_layouts() const { return layouts; }
+	int gib_all_layouts() const { return layouts; }
 
-    int gib_bauzeit() const { return bauzeit; }
+	int gib_bauzeit() const { return bauzeit; }
 
 	// ground is transparent
 	bool ist_mit_boden() const { return (flags & FLAG_NEED_GROUND) != 0; }

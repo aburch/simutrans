@@ -11,6 +11,7 @@
 #include "../dataobj/loadsave.h"
 #include "monorailboden.h"
 
+
 monorailboden_t::monorailboden_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 {
 	rdwr(file);

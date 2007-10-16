@@ -108,6 +108,8 @@ public:
 
 	void rdwr(loadsave_t *file);
 
+	void rotate90( sint16 y_size );
+
 	/**
 	 * if the passed in fahrplan matches "this", then return true
 	 * @author hsiegeln

@@ -307,6 +307,17 @@ roadsign_t::sync_step(long delta_t)
 
 
 
+void
+roadsign_t::rotate90()
+{
+	// only meaningful for traffic lights
+	if(automatic) {
+		zustand = (zustand+1)&1;
+	}
+}
+
+
+
 // to correct offset on slopes
 void
 roadsign_t::display_after(int xpos, int ypos, bool ) const

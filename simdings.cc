@@ -192,7 +192,7 @@ ding_t::rdwr(loadsave_t *file)
 	file->wr_obj_id(gib_typ());
 	pos.rdwr( file );
 
-	sint8 byte = (sint8)(((sint16)16*(sint16)yoff)/TILE_STEPS);
+	sint8 byte = (sint8)(((sint16)16*(sint16)xoff)/TILE_STEPS);
 	file->rdwr_byte(byte, " ");
 	xoff = (sint8)(((sint16)byte*TILE_STEPS)/16);
 	byte = (sint8)(((sint16)16*(sint16)yoff)/TILE_STEPS);
@@ -238,6 +238,21 @@ ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 	if(TRANSPARENT_FLAGS&transparent) {
 		// only transparent outline
 		display_img_blend(gib_outline_bild(), xpos, start_ypos, transparent, 0, dirty);
+	}
+}
+
+
+
+// called during map rotation
+void ding_t::rotate90()
+{
+	// most basic: rotate coordinate
+	pos.rotate90( welt->gib_groesse_y()-1 );
+	if(xoff!=0) {
+		// these is no simple height
+		sint8 new_dx = -2*yoff;
+		yoff = xoff/2;
+		xoff = new_dx;
 	}
 }
 

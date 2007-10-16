@@ -340,6 +340,9 @@ public:
 	*/
 	virtual void rdwr(loadsave_t *file);
 
+	// map rotation
+	virtual void rotate90();
+
 	/**
 	* Gibt die 3d-Koordinaten des Planquadrates zurueck, zu dem der
 	* Untergrund gehoert.

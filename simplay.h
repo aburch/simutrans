@@ -293,6 +293,8 @@ public:
 	 */
 	void laden_abschliessen();
 
+	void rotate90();
+
 	/**
 	 * Returns the amount of money for a certain finance section
 	 * @author Owen Rudge

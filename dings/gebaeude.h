@@ -93,6 +93,8 @@ public:
 	gebaeude_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
 	virtual ~gebaeude_t();
 
+	void rotate90();
+
 	typ gib_haustyp() const;
 
 	void add_alter(uint32 a);

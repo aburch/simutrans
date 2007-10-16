@@ -48,6 +48,7 @@ public:
 	// Ein bischen tricky implementiert:
 	static bool ist_gegenueber(typ x, typ y) { return ist_einfach(x) && ist_einfach(y) && x + y == erhoben; }
 	static typ gegenueber(typ x) { return ist_einfach(x) ? erhoben - x : flach; }
+	static typ rotate90(typ x) { return ( (x&1) ? 8|(x>>1) : x>>1); }
 
 #else
 	enum _typ {
@@ -145,6 +146,7 @@ public:
 	static ribi doppelt(ribi x) { return doppelr[x]; }
 	static ribi rueckwaerts(ribi x) { return rwr[x]; }
 	static ribi gib_forward(ribi x) { return fwrd[x]; }	// all ribis, that are in front of this thing
+	static ribi rotate90(ribi x) { return ((x&8) ? 1|((x<<1)&0x0E) : x<<1); }
 
 	static bool is_twoway(ribi x) { return (flags[x]&twoway)!=0; }
 	static bool is_threeway(ribi x) { return (flags[x]&threeway)!=0; }

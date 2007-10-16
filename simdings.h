@@ -230,10 +230,16 @@ public:
 
 	/*
 	* called whenever the snowline height changes
-	* return fals and the ding_t will be deleted
+	* return false and the ding_t will be deleted
 	* @author prissi
 	*/
 	virtual bool check_season(const long /*month*/) { return true; }
+
+	/**
+	 * called during map rotation
+	 * @author priss
+	 */
+	virtual void rotate90();
 
 	/**
 	 * Jedes Objekt braucht ein Bild.

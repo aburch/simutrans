@@ -162,10 +162,9 @@ public:
 	 */
 	const fabrik_besch_t *gib_besch() const {return besch; }
 
-	/**
-	* @author hsiegeln
-	*/
 	void laden_abschliessen();
+
+	void rotate90();
 
 	void link_halt(halthandle_t halt);
 	void unlink_halt(halthandle_t halt);
