@@ -9,6 +9,7 @@
 #define fabrikbauer_t_h
 
 #include "../tpl/stringhashtable_tpl.h"
+#include "../tpl/array_tpl.h"
 #include "../dataobj/koord3d.h"
 
 class haus_besch_t;
@@ -64,6 +65,13 @@ private:
 
 public:
 	static void register_besch(fabrik_besch_t *besch);
+
+	/**
+	 * Teilt dem Hausbauer mit, dass eine neue Karte geladen oder generiert wird.
+	 * In diesem Fall müssen wir die Liste der Fabrikpositionen neu initialisieren
+	 * @author V. Meyer
+	 */
+	static void neue_karte( karte_t * );
 
 	/* Create a certain numer of tourist attractions
 	* @author prissi

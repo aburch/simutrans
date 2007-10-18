@@ -670,6 +670,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 print("Creating cities ...\n");
 DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
 	hausbauer_t::neue_karte();
+	fabrikbauer_t::neue_karte(this);
 
 DBG_DEBUG("karte_t::init()","prepare cities");
 	stadt.clear();
@@ -1438,6 +1439,10 @@ karte_t::rotate90()
 		marker.init( cached_groesse_gitter_x, cached_groesse_gitter_y );
 		reliefkarte_t::gib_karte()->setze_welt( this );
 	}
+
+	//  rotate map search array
+	fabrikbauer_t::neue_karte( this );
+
 	// update minimap
 	if(reliefkarte_t::is_visible) {
 		reliefkarte_t::gib_karte()->set_mode( reliefkarte_t::gib_karte()->get_mode() );
@@ -1499,6 +1504,9 @@ bool karte_t::rem_fab(fabrik_t *fab)
 
 		// finally delete it
 		delete fab;
+
+		// recalculate factory position map
+		fabrikbauer_t::neue_karte(this);
 	}
 	return true;
 }
@@ -2558,9 +2566,10 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	zeiger = new zeiger_t(this, koord3d::invalid, spieler[0]);
 	setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 
-DBG_DEBUG("karte_t::laden", "init felder ok");
-
 	hausbauer_t::neue_karte();
+	fabrikbauer_t::neue_karte(this);
+
+DBG_DEBUG("karte_t::laden", "init felder ok");
 
 	file->rdwr_long(ticks, " ");
 	file->rdwr_long(letzter_monat, " ");

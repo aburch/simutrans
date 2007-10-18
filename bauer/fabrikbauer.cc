@@ -27,6 +27,8 @@
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 
+#include "../tpl/vector_tpl.h"
+#include "../tpl/array_tpl.h"
 #include "../sucher/bauplatz_sucher.h"
 
 #include "../gui/karte.h"	// to update map after construction of new industry
@@ -34,27 +36,56 @@
 // radius for checking places for construction
 #define DISTANCE 40
 
-// all factories and their exclusion areas
-static uint8 *fab_map=NULL;
 
+// all factories and their exclusion areas
+static array_tpl<uint8> fab_map;
+static sint32 fab_map_w=0;
 
 
 // marks factories with exclusion region in the position map
-static void add_factory_to_fab_map( karte_t *welt, const fabrik_t *fab )
+void add_factory_to_fab_map( karte_t *welt, const fabrik_t *fab )
 {
 	sint16 start_y = max( 0, fab->gib_pos().y-umgebung_t::factory_spacing );
 	const sint16 end_y = min( welt->gib_groesse_y()-1, fab->gib_pos().y+fab->gib_besch()->gib_haus()->gib_h(fab->get_rotate())+umgebung_t::factory_spacing );
-	const sint16 ww = (welt->gib_groesse_x()+7)/8;
 	const sint16 start_x = max( 0, fab->gib_pos().x-umgebung_t::factory_spacing );
 	const sint16 end_x = min( welt->gib_groesse_x()-1, fab->gib_pos().x+fab->gib_besch()->gib_haus()->gib_b(fab->get_rotate())+umgebung_t::factory_spacing );
 	while(start_y<end_y) {
 		for(  sint16 x=start_x;  x<end_x;  x++  ) {
-			fab_map[ww*start_y+(x/8)] |= 1<<(x%8);
+			fab_map[fab_map_w*start_y+(x/8)] |= 1<<(x%8);
 		}
 		start_y ++;
 	}
 }
 
+
+
+// create map with all factories and exclusion area
+void init_fab_map( karte_t *welt )
+{
+	fab_map_w = ((welt->gib_groesse_x()+7)/8);
+	fab_map.resize( fab_map_w*welt->gib_groesse_y() );
+	for( int i=0;  i<fab_map_w*welt->gib_groesse_y();  i++ ) {
+		fab_map[0] = 0;
+	}
+	slist_iterator_tpl <fabrik_t *> iter(welt->gib_fab_list());
+	while(iter.next()) {
+		add_factory_to_fab_map( welt, iter.get_current() );
+	}
+}
+
+
+
+// true, if factory coordinate
+inline bool is_factory_at( sint16 x, sint16 y)
+{
+	return (fab_map[(fab_map_w*y)+(x/8)]&(1<<(x%8)))!=0;
+}
+
+
+void fabrikbauer_t::neue_karte(karte_t *welt)
+{
+	init_fab_map( welt );
+}
 
 
 
@@ -81,7 +112,7 @@ public:
 			const sint16 ww = (welt->gib_groesse_x()+7)/8;
 			for(sint16 y=pos.y;  y<pos.y+h;  y++  ) {
 				for(sint16 x=pos.x;  x<pos.x+b;  x++  ) {
-					if(  (fab_map[ww*y+(x/8)]&(1<<(x%8))) != 0  ) {
+					if( is_factory_at(x,y)  ) {
 						return false;
 					}
 				}
@@ -249,11 +280,11 @@ DBG_MESSAGE("fabrikbauer_t::finde_hersteller()","producer for good '%s' was foun
 koord3d
 fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const int radius, koord groesse, bool wasser, const haus_besch_t *besch)
 {
-	array_tpl<koord3d> list(4*radius*radius);
-	int index = 0;
+	static vector_tpl<koord3d> list(10000);
 	koord k;
-	bool	is_fabrik = besch->gib_utyp()==haus_besch_t::fabrik;
+	bool is_fabrik = besch->gib_utyp()==haus_besch_t::fabrik;
 
+	list.clear();
 	if(wasser) {
 		groesse += koord(6,6);
 	}
@@ -267,27 +298,30 @@ fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const in
 			if(k.x<0) continue;
 			if(k.x>=welt->gib_groesse_x()) break;
 			// climate check
-			if(is_fabrik  &&  (fab_map[ww*k.y+(k.x/8)]&(1<<(k.x%8)))!=0) {
+			if(is_fabrik  &&  is_factory_at(k.x,k.y)) {
 				continue;
 			}
 			if(fabrik_t::ist_bauplatz(welt, k, groesse,wasser,besch->get_allowed_climate_bits())) {
-				list[index++] = welt->lookup(k)->gib_kartenboden()->gib_pos();
+				list.append( welt->lookup(k)->gib_kartenboden()->gib_pos() );
 				// nicht gleich daneben nochmal suchen
 				k.x += 4;
+				if(list.get_count()>=10000) {
+					goto finish;
+				}
 			}
 		}
 	}
-
+finish:
 	// printf("Zufallsbauplatzindex %d\n", index);
-	if(index == 0) {
+	if(list.get_count()==0) {
 		return koord3d(-1, -1, -1);
 	}
 	else {
 		if(wasser) {
 			// take care of offset
-			return list[simrand(index)] + koord3d(3, 3, 0);
+			return list[simrand(list.get_count())] + koord3d(3, 3, 0);
 		}
-		return list[simrand(index)];
+		return list[simrand(list.get_count())];
 	}
 }
 
@@ -344,23 +378,6 @@ void fabrikbauer_t::verteile_industrie(karte_t* welt, int max_number_of_factorie
 	// current count
 	int factory_number=0;
 	int current_number=0;
-
-	// new world started => needs reyize
-	if(welt->gib_fab_list().count()==0  &&  fab_map)  {
-		delete [] fab_map;
-		fab_map = NULL;
-	}
-
-	// create map with all factories and exclusion area
-	if(fab_map==NULL) {
-		fab_map = new uint8[ ((welt->gib_groesse_x()+7)/8)*welt->gib_groesse_y() ];
-		memset( fab_map, 0, ((welt->gib_groesse_x()+7)/8)*welt->gib_groesse_y() );
-		const slist_tpl<fabrik_t *> &list = welt->gib_fab_list();
-		slist_iterator_tpl <fabrik_t *> iter(list);
-		while(iter.next()) {
-			add_factory_to_fab_map( welt, iter.get_current() );
-		}
-	}
 
 	// no consumer at all?
 	if(get_random_consumer(in_city,ALL_CLIMATES)==NULL) {
