@@ -110,15 +110,15 @@ const haus_tile_besch_t *haus_besch_t::gib_tile(int layout, int x, int y) const
  */
 int haus_besch_t::layout_anpassen(int layout) const
 {
-    if(layout >= 2 && layouts <= 2) {
-	// Sind Layout C und D nicht definiert, nehemen wir ersatzweise A und B
-	layout -= 2;
-    }
-    if(layout > 0 && layouts <= 1) {
-	// Ist Layout B nicht definiert und das Teil quadratisch, nehmen wir ersatzweise A
-	if(groesse.x == groesse.y) {
-	    layout--;
+	if(layout >= 2 && layouts <= 2) {
+		// Sind Layout C und D nicht definiert, nehemen wir ersatzweise A und B
+		layout -= 2;
 	}
-    }
-    return layout;
+	if(layout > 0 && layouts <= 1) {
+		// Ist Layout B nicht definiert und das Teil quadratisch, nehmen wir ersatzweise A
+		if(groesse.x == groesse.y) {
+			layout--;
+		}
+	}
+	return layout;
 }

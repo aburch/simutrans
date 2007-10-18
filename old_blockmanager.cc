@@ -141,7 +141,7 @@ old_blockmanager_t::rdwr(karte_t *welt, loadsave_t *file)
 void
 old_blockmanager_t::laden_abschliessen(karte_t *welt)
 {
-	DBG_MESSAGE("old_blockmanager::laden_abschliessen()","convert olf to new signals" );
+	DBG_MESSAGE("old_blockmanager::laden_abschliessen()","convert old to new signals" );
 	char buf[256];
 	const char *err_text=translator::translate("Error restoring old signal near (%i,%i)!");
 	int failure=0;
@@ -251,5 +251,7 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 			delete os2;
 		}
 	}
-	dbg->warning("old_blockmanager_t::laden_abschliessen()","failed on %d signal pairs.",failure);
+	if(failure) {
+		dbg->warning("old_blockmanager_t::laden_abschliessen()","failed on %d signal pairs.",failure);
+	}
 }

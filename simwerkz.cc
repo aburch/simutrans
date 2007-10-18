@@ -1144,7 +1144,7 @@ dbg->warning("wkz_station_building_aux()","no near building for a station extens
 			if(is_post  &&  halt->get_post_enabled()) {
 				create_win( new news_img("Station already\nhas a post office!\n"), w_time_delete, magic_none);
 			}
-			hausbauer_t::baue(welt, halt->gib_besitzer(), k, rotate, besch, true, &halt);
+			hausbauer_t::baue(welt, halt->gib_besitzer(), k, rotate, besch, 0, &halt);
 			sp->buche(umgebung_t::cst_multiply_post*besch->gib_level()*besch->gib_b()*besch->gib_h(), pos, COST_CONSTRUCTION);
 			halt->recalc_station_type();
 		}
@@ -1268,7 +1268,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 		}
 
 //DBG_MESSAGE("wkz_dockbau()","finally errect it");
-		hausbauer_t::baue(welt, halt->gib_besitzer(), bau_pos, layout,besch, 0, &halt);
+		hausbauer_t::baue(welt, halt->gib_besitzer(), bau_pos, layout, besch, 0, &halt);
 
 //DBG_MESSAGE("wkz_dockbau()","clean up");
 		for(int i=0;  i<=len;  i++ ) {

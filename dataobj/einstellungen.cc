@@ -56,6 +56,8 @@ einstellungen_t::einstellungen_t() :
 	bits_per_month = umgebung_t::bits_per_month;
 
 	beginner_mode = false;
+
+	rotation = 0;
 }
 
 
@@ -99,6 +101,7 @@ einstellungen_t::rdwr(loadsave_t *file)
 
 		station_coverage_size = 3;
 		beginner_mode = false;
+		rotation = 0;
 	}
 	else {
 		// newer versions
@@ -174,6 +177,13 @@ einstellungen_t::rdwr(loadsave_t *file)
 		}
 		else {
 			just_in_time = umgebung_t::just_in_time;
+		}
+		// rotation of the map with respect to the original value
+		if(file->get_version()>=99015) {
+			file->rdwr_byte(rotation,"\n");
+		}
+		else {
+			rotation = 0;
 		}
 
 		// clear the name when loading ...

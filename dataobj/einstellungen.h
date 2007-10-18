@@ -66,6 +66,9 @@ private:
 	bool beginner_mode;
 	bool just_in_time;
 
+	// default 0, will be incremented after each 90 degree rotation until 4
+	uint8 rotation;
+
 public:
 
 	/**
@@ -150,6 +153,9 @@ public:
 
 	void setze_winter_snowline(sint16 sl) { winter_snowline = sl; }
 	const sint16 gib_winter_snowline() const {return winter_snowline;}
+
+	void rotate90() { rotation = (rotation+1)&3; }
+	uint8 get_rotation() const { return rotation; }
 };
 
 #endif

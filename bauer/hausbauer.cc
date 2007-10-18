@@ -255,53 +255,59 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 		for(k.y = 0; k.y < size.y; k.y ++) {
 			for(k.x = 0; k.x < size.x; k.x ++) {
 				grund_t *gr = welt->lookup(koord3d(k,0)+pos);
+				gebaeude_t *gb_part = gr->find<gebaeude_t>();
 				if(gb) {
-					gebaeude_t *gb_part = gr->find<gebaeude_t>();
 					// there may be buildings with holes, so we only remove our!
 					if(gb_part->gib_tile()->gib_besch()==hb) {
 						gb_part->setze_fab( NULL );
+						planquadrat_t *plan = welt->access( k+pos.gib_2d() );
+						for( int i=plan->get_haltlist_count()-1;  i>=0;  i--  ) {
+							halthandle_t halt = plan->get_haltlist()[i];
+							halt->remove_fabriken( fab );
+							plan->remove_from_haltlist( welt, halt );
+						}
 					}
 				}
 			}
-			// remove all transformers
-			for(k.y = pos.y; k.y < pos.y+size.y;  k.y ++) {
-				k.x = pos.x-1;
-				grund_t *gr = welt->lookup_kartenboden(k);
-				if(gr) {
-					senke_t *sk = gr->find<senke_t>();
-					if(sk) delete sk;
-					pumpe_t *pp = gr->find<pumpe_t>();
-					if(pp) delete pp;
-				}
-				k.x = pos.x+size.x;
-				gr = welt->lookup_kartenboden(k);
-				if(gr) {
-					senke_t *sk = gr->find<senke_t>();
-					if(sk) delete sk;
-					pumpe_t *pp = gr->find<pumpe_t>();
-					if(pp) delete pp;
-				}
-			}
-			for(k.x = pos.x; k.x < pos.x+size.x;  k.x ++) {
-				k.y = pos.y-1;
-				grund_t *gr = welt->lookup_kartenboden(k);
-				if(gr) {
-					senke_t *sk = gr->find<senke_t>();
-					if(sk) delete sk;
-					pumpe_t *pp = gr->find<pumpe_t>();
-					if(pp) delete pp;
-				}
-				k.y = pos.y+size.y;
-				gr = welt->lookup_kartenboden(k);
-				if(gr) {
-					senke_t *sk = gr->find<senke_t>();
-					if(sk) delete sk;
-					pumpe_t *pp = gr->find<pumpe_t>();
-					if(pp) delete pp;
-				}
-			}
-			// end clean up transformers
 		}
+		// remove all transformers
+		for(k.y = pos.y; k.y < pos.y+size.y;  k.y ++) {
+			k.x = pos.x-1;
+			grund_t *gr = welt->lookup_kartenboden(k);
+			if(gr) {
+				senke_t *sk = gr->find<senke_t>();
+				if(sk) delete sk;
+				pumpe_t *pp = gr->find<pumpe_t>();
+				if(pp) delete pp;
+			}
+			k.x = pos.x+size.x;
+			gr = welt->lookup_kartenboden(k);
+			if(gr) {
+				senke_t *sk = gr->find<senke_t>();
+				if(sk) delete sk;
+				pumpe_t *pp = gr->find<pumpe_t>();
+				if(pp) delete pp;
+			}
+		}
+		for(k.x = pos.x; k.x < pos.x+size.x;  k.x ++) {
+			k.y = pos.y-1;
+			grund_t *gr = welt->lookup_kartenboden(k);
+			if(gr) {
+				senke_t *sk = gr->find<senke_t>();
+				if(sk) delete sk;
+				pumpe_t *pp = gr->find<pumpe_t>();
+				if(pp) delete pp;
+			}
+			k.y = pos.y+size.y;
+			gr = welt->lookup_kartenboden(k);
+			if(gr) {
+				senke_t *sk = gr->find<senke_t>();
+				if(sk) delete sk;
+				pumpe_t *pp = gr->find<pumpe_t>();
+				if(pp) delete pp;
+			}
+		}
+		// end clean up transformers
 		welt->rem_fab(fab);
 	}
 
@@ -313,6 +319,7 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 				gebaeude_t *gb_part = gr->find<gebaeude_t>();
 				// there may be buildings with holes, so we only remove our!
 				if(gb_part  &&  gb_part->gib_tile()->gib_besch()==hb) {
+					// ok, now we can go on with deletion
 					gb_part->entferne( sp );
 					delete gb_part;
 					// if this was a station building: delete ground
@@ -340,14 +347,14 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 
 
 
-gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, bool clear, void* param)
+gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org_layout, const haus_besch_t* besch, bool clear, void* param)
 {
 	gebaeude_t* first_building = NULL;
 	koord k;
 	koord dim;
 
-	layout = besch->layout_anpassen(layout);
-	dim = besch->gib_groesse(layout);
+	uint8 layout = besch->layout_anpassen(org_layout);
+	dim = besch->gib_groesse(org_layout);
 	bool needs_ground_recalc = false;
 
 	for(k.y = 0; k.y < dim.y; k.y ++) {
@@ -361,11 +368,14 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int lay
 						tile->gib_hintergrund(0, 0, 0) == IMG_LEER &&
 						tile->gib_vordergrund(0, 0)    == IMG_LEER
 					)) {
-				DBG_MESSAGE("hausbauer_t::baue()","get_tile() empty at %i,%i",k.x,k.y);
+						// may have a rotation, that is not recoverable
+						DBG_MESSAGE("hausbauer_t::baue()","get_tile() empty at %i,%i",k.x,k.y);
 				continue;
 			}
 			gebaeude_t *gb = new gebaeude_t(welt, pos + k, sp, tile);
-			if (first_building == NULL) first_building = gb;
+			if (first_building == NULL) {
+				first_building = gb;
+			}
 
 			if(besch->ist_fabrik()) {
 //DBG_DEBUG("hausbauer_t::baue()","setze_fab() at %i,%i",k.x,k.y);
@@ -535,7 +545,7 @@ const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int idx)
 		const int size = besch->gib_h()*besch->gib_b();
 		if(  idx >= besch->gib_all_layouts()*size  ) {
 			return NULL;
-			// try to keep as much of the orientation as possible
+			// below: try to keep as much of the orientation as possible (not a good idea)
 //			idx = (idx>2*size) ? idx%size : idx%(2*size);
 		}
 		return besch->gib_tile(idx);

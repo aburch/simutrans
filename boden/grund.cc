@@ -363,7 +363,8 @@ void grund_t::rotate90()
 	if(finish_rotate90) {
 		inthashtable_iterator_tpl<uint32, char*> iter(ground_texts_rotating);
 		while(iter.next()) {
-			ground_texts.put( iter.get_current_key(), iter.get_current_value() );
+			char *txt = iter.get_current_value();
+			ground_texts.put( iter.get_current_key(), txt );
 		}
 		ground_texts_rotating.clear();
 	}

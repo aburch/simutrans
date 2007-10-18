@@ -1448,6 +1448,8 @@ karte_t::rotate90()
 		reliefkarte_t::gib_karte()->set_mode( reliefkarte_t::gib_karte()->get_mode() );
 	}
 
+	einstellungen->rotate90();
+
 	setze_dirty();
 }
 // -------- Verwaltung von Fabriken -----------------------------
@@ -1570,10 +1572,9 @@ stadt_t *karte_t::suche_naechste_stadt(const koord pos) const
 		stadt_t* s = *i;
 		const koord k = s->gib_pos();
 	    const long dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
-
 	    if(dist < min_dist) {
-			min_dist = dist;
-			best = s;
+				min_dist = dist;
+				best = s;
 	    }
     }
     return best;

@@ -762,6 +762,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb)
 			for (k.x = 0; k.x < size.x; k.x++) {
 				gebaeude_t* add_gb = dynamic_cast<gebaeude_t*>(welt->lookup_kartenboden(pos + k)->first_obj());
 				if(add_gb) {
+					assert(add_gb->gib_tile()->gib_besch()==gb->gib_tile()->gib_besch());
 //				DBG_MESSAGE("stadt_t::add_gebaeude_to_stadt()", "geb=%p at (%i,%i)", add_gb, pos.x + k.x, pos.y + k.y);
 					buildings.append(add_gb, tile->gib_besch()->gib_level() + 1, 16);
 					add_gb->setze_stadt(this);
@@ -1153,6 +1154,8 @@ void stadt_t::rotate90()
 	ur.rotate90( welt->gib_groesse_y()-1 );
 	best_strasse.reset(pos);
 	best_haus.reset(pos);
+	// rathaus position may be changed a little!
+	// pax arrays!
 }
 
 
