@@ -123,6 +123,9 @@ private:
 	 */
 	bool scroll_lock;
 
+	// if true, this map cannot be saved
+	bool nosave;
+
 	/*
 	* the current convoi to follow
 	* @author prissi
@@ -790,10 +793,9 @@ public:
 	 */
 	stadt_t * suche_naechste_stadt(koord pos) const;
 
+	void set_nosave() { nosave = true; }
+
 	// rotate map view by 90 degree
-	koord rotate90( koord k, sint16 ysize ) { return koord( ysize-k.y, k.x ); }
-	hang_t::typ rotate90( hang_t::typ h ) { return (h&1) ? 15|(h>>1) : h>>1; }
-	ribi_t::ribi rotate90( ribi_t::ribi h ) { return ((h&8) ? 1|(h<<1) : h<<1) & 0xF; }
 	void rotate90();
 
 	bool sync_add(sync_steppable *obj);

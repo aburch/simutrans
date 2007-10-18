@@ -164,6 +164,8 @@ public:
 
 	void laden_abschliessen();
 
+	void setze_pos( koord3d p ) { pos = p; }
+
 	void rotate90();
 
 	void link_halt(halthandle_t halt);

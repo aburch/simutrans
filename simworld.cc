@@ -561,6 +561,8 @@ karte_t::init_felder()
 		last_frame_ms[i] = 0x7FFFFFFFu;
 	}
 	last_frame_idx = 0;
+
+	nosave = false;
 }
 
 
@@ -1373,6 +1375,16 @@ karte_t::max_hgt(const koord pos) const
 void
 karte_t::rotate90()
 {
+	// asumme we can save this rotation
+	nosave = false;
+
+	//announce current target rotation
+	einstellungen->rotate90();
+
+	// clear marked region
+	zeiger->change_pos( koord3d::invalid );
+//	zeiger->setze_area(0);	// reset size
+
 	// first: rotate all things on the map
 	planquadrat_t *new_plan = new planquadrat_t[cached_groesse_gitter_y*cached_groesse_gitter_x];
 	for( int x=0;  x<cached_groesse_gitter_x;  x++  ) {
@@ -1447,8 +1459,6 @@ karte_t::rotate90()
 	if(reliefkarte_t::is_visible) {
 		reliefkarte_t::gib_karte()->set_mode( reliefkarte_t::gib_karte()->get_mode() );
 	}
-
-	einstellungen->rotate90();
 
 	setze_dirty();
 }
@@ -2368,12 +2378,22 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 void
 karte_t::speichern(loadsave_t *file,bool silent)
 {
+	bool needs_redraw = false;
+
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	if(!silent) {
 		display_set_progress_text(translator::translate("Saving map ..."));
 		display_progress(0,gib_groesse_y());
 		display_flush(IMG_LEER, 0, "", "", 0, 0);
 	}
+
+	// rotate the map until it can be saved
+	for( int i=0;  i<4  &&  nosave;  i++  ) {
+		nosave = false;
+		rotate90();
+		needs_redraw = true;
+	}
+	assert( !nosave );
 
 	einstellungen->rdwr(file);
 
@@ -2452,6 +2472,19 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 	file->rdwr_long(dummy, " ");
 	dummy = ij_off.y;
 	file->rdwr_long(dummy, "\n");
+
+	if(needs_redraw) {
+		for(int y=0; y<gib_groesse_y(); y++) {
+			for(int x=0; x<gib_groesse_x(); x++) {
+				const planquadrat_t *plan = lookup(koord(x,y));
+				const int boden_count = plan->gib_boden_count();
+				for(int schicht=0; schicht<boden_count; schicht++) {
+					grund_t *gr = plan->gib_boden_bei(schicht);
+					gr->calc_bild();
+				}
+			}
+		}
+	}
 }
 
 
