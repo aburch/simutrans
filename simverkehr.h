@@ -88,7 +88,7 @@ private:
 	 */
 	uint16 current_speed;
 
-	sint32 ms_traffic_jam;
+	uint32 ms_traffic_jam;
 
 	virtual bool hop_check();
 	virtual bool ist_weg_frei();

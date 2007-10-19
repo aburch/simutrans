@@ -385,7 +385,7 @@ void spieler_t::neues_jahr()
 
 	// AI will reconsider the oldes unbuiltable lines again
 	if(automat) {
-		int remove = max(0,forbidden_conections.count()-3);
+		uint remove = (uint)max(0,(int)forbidden_conections.count()-3);
 		while(  remove < forbidden_conections.count()  ) {
 			forbidden_conections.remove_first();
 		}
@@ -1085,7 +1085,6 @@ void spieler_t::ai_bankrupt()
 			continue;
 		}
 
-		waytype_t wt = cnv->gib_vehikel(0)->gib_besch()->get_waytype();
 		linehandle_t line = cnv->get_line();
 
 		cnv->self_destruct();
@@ -1110,7 +1109,7 @@ void spieler_t::ai_bankrupt()
 	for( int y=0;  y<welt->gib_groesse_y();  y++  ) {
 		for( int x=0;  x<welt->gib_groesse_x();  x++  ) {
 			planquadrat_t *plan = welt->access(x,y);
-			for(  int b=0;  b<plan->gib_boden_count();  b++  ) {
+			for(  uint b=0;  b<plan->gib_boden_count();  b++  ) {
 				grund_t *gr = plan->gib_boden_bei(b);
 				for(  int i=gr->gib_top()-1;  i>=0;  i--  ) {
 					ding_t *dt = gr->obj_bei(i);
@@ -1234,13 +1233,13 @@ bool spieler_t::is_connected( const koord start_pos, const koord dest_pos, const
 bool spieler_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 {
 	// now check for all products (should be changed later for the root)
-	for( unsigned i=0;  i<fab->gib_besch()->gib_lieferanten();  i++  ) {
+	for( int i=0;  i<fab->gib_besch()->gib_lieferanten();  i++  ) {
 		const ware_besch_t *ware = fab->gib_besch()->gib_lieferant(i)->gib_ware();
 
 		// find out how much is there
 		const vector_tpl<ware_production_t>& eingang = fab->gib_eingang();
-		int ware_nr;
-		for(ware_nr=0;  ware_nr<eingang.get_count()  &&  eingang[ware_nr].gib_typ()!=ware;  ware_nr++  ) ;
+		uint ware_nr;
+		for(  ware_nr=0;  ware_nr<eingang.get_count()  &&  eingang[ware_nr].gib_typ()!=ware;  ware_nr++  ) ;
 		if(  eingang[ware_nr].menge > eingang[ware_nr].max/10  ) {
 			// already enough supplied to
 			continue;
@@ -1255,8 +1254,9 @@ bool spieler_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 						&&  !is_connected( sources[q], fab->gib_pos().gib_2d(), ware )  ) {
 					// find out how much is there
 					const vector_tpl<ware_production_t>& ausgang = qfab->gib_ausgang();
-					int ware_nr;
-					for(ware_nr=0;  ware_nr<ausgang.get_count()  &&  ausgang[ware_nr].gib_typ()!=ware;  ware_nr++  ) ;
+					uint ware_nr;
+					for(ware_nr=0;  ware_nr<ausgang.get_count()  &&  ausgang[ware_nr].gib_typ()!=ware;  ware_nr++  )
+						;
 					// ok, there is no connection and it is not banned, so we if there is enough for us
 					if(  ((ausgang[ware_nr].menge*4)/3) > ausgang[ware_nr].max  ) {
 						// bingo: soure
@@ -1293,7 +1293,7 @@ int spieler_t::get_factory_tree_missing_count( fabrik_t *fab )
 	}
 
 	// now check for all
-	for( unsigned i=0;  i<fab->gib_besch()->gib_lieferanten();  i++  ) {
+	for( int i=0;  i<fab->gib_besch()->gib_lieferanten();  i++  ) {
 		const ware_besch_t *ware = fab->gib_besch()->gib_lieferant(i)->gib_ware();
 
 		bool complete = false;	// found at least one factory
@@ -2222,7 +2222,7 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 
 			// properly calculate production
 			const vector_tpl<ware_production_t>& ausgang = start->gib_ausgang();
-			int start_ware=0;
+			uint start_ware=0;
 			while(  start_ware<ausgang.get_count()  &&  ausgang[start_ware].gib_typ()!=freight  ) {
 				start_ware++;
 			}
@@ -2351,7 +2351,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 			else {
 				// properly calculate production
 				const vector_tpl<ware_production_t>& ausgang = start->gib_ausgang();
-				int start_ware=0;
+				uint start_ware=0;
 				while(  start_ware<ausgang.get_count()  &&  ausgang[start_ware].gib_typ()!=freight  ) {
 					start_ware++;
 				}

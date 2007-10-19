@@ -109,7 +109,6 @@ public:
 	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
 		if(bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)) {
 			// try to built a little away from previous factory
-			const sint16 ww = (welt->gib_groesse_x()+7)/8;
 			for(sint16 y=pos.y;  y<pos.y+h;  y++  ) {
 				for(sint16 x=pos.x;  x<pos.x+b;  x++  ) {
 					if( is_factory_at(x,y)  ) {
@@ -288,8 +287,8 @@ fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const in
 	if(wasser) {
 		groesse += koord(6,6);
 	}
-	// assert(radius <= 32);
-	const sint16 ww = (welt->gib_groesse_x()+7)/8;
+
+	// check no factory but otherwise good place
 	for(k.y=pos.y-radius; k.y<=pos.y+radius; k.y++) {
 		if(k.y<0) continue;
 		if(k.y>=welt->gib_groesse_y()) break;
@@ -604,7 +603,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware  &&  fab->gib_lieferziele().get_count()<10) {	// does not make sense to split into more ...
 							sint32 production_left = fab->get_base_production()*fab->gib_besch()->gib_produkt(gg)->gib_faktor();
 							const vector_tpl <koord> & lieferziele = fab->gib_lieferziele();
-							for( unsigned ziel=0;  ziel<lieferziele.get_count()  &&  production_left>0;  ziel++  ) {
+							for( uint32 ziel=0;  ziel<lieferziele.get_count()  &&  production_left>0;  ziel++  ) {
 								fabrik_t *zfab=fabrik_t::gib_fab(welt,lieferziele[ziel]);
 								for(int zz=0;  zz<zfab->gib_besch()->gib_lieferanten();  zz++) {
 									if(zfab->gib_besch()->gib_lieferant(zz)->gib_ware()==ware) {
@@ -614,7 +613,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 								}
 							}
 							// here is actually capacity left (or sometimes just connect anyway)!
-							if(production_left>0  ||  simrand(100)<umgebung_t::crossconnect_factor) {
+							if(production_left>0  ||  simrand(100)<(uint32)umgebung_t::crossconnect_factor) {
 								found = true;
 								if(production_left>0) {
 									verbrauch -= production_left;

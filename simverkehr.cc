@@ -367,7 +367,7 @@ stadtauto_t::sync_step(long delta_t)
 
 	if(current_speed==0) {
 		// stuck in traffic jam
-		sint32 old_ms_traffic_jam = ms_traffic_jam;
+		uint32 old_ms_traffic_jam = ms_traffic_jam;
 		ms_traffic_jam -= delta_t;
 		if((ms_traffic_jam>>7)!=(old_ms_traffic_jam>>7)) {
 			if(ist_weg_frei()) {

@@ -78,7 +78,7 @@
 static inthashtable_tpl<uint32, char*> ground_texts;
 
 
-static inline uint32 get_ground_text_key(const karte_t* welt, const koord3d& k)
+static inline uint32 get_ground_text_key(const koord3d& k)
 {
 	// text for all common heights
 	return (k.x << 19) + (k.y << 6) + ((48-(k.z/Z_TILE_STEP))&0x3F);
@@ -102,7 +102,7 @@ uint8 grund_t::offsets[4]={0,1,2/*illegal!*/,2};
 
 void grund_t::setze_text(const char *text)
 {
-	const uint32 n = get_ground_text_key(welt, pos);
+	const uint32 n = get_ground_text_key(pos);
 	if(text) {
 		char* new_text = strdup(text);
 		free(ground_texts.remove(n));
@@ -126,7 +126,7 @@ const char* grund_t::gib_text() const
 {
 	const char * result = 0;
 	if(flags&has_text) {
-		result = ground_texts.get( get_ground_text_key(welt, pos) );
+		result = ground_texts.get( get_ground_text_key(pos) );
 		if(result==NULL) {
 			return "undef";
 		}
@@ -343,7 +343,7 @@ void grund_t::rotate90()
 {
 	const bool finish_rotate90 = (pos.x==welt->gib_groesse_x()-1)  &&  (pos.y==welt->gib_groesse_y()-1);
 	static inthashtable_tpl<uint32, char*> ground_texts_rotating;
-	const uint32 old_n = get_ground_text_key(welt, pos);
+	const uint32 old_n = get_ground_text_key(pos);
 	// first internal corrections
 	// since the hash changes, we must put the text to the new position
 	pos.rotate90( welt->gib_groesse_y()-1 );
@@ -354,7 +354,7 @@ void grund_t::rotate90()
 	}
 	// then the text ...
 	if(flags&has_text) {
-		const uint32 n = get_ground_text_key(welt, pos);
+		const uint32 n = get_ground_text_key(pos);
 		char *txt = ground_texts.get( old_n );
 		ground_texts.put( old_n, NULL );
 		ground_texts_rotating.put( n, txt );
@@ -394,7 +394,6 @@ void grund_t::take_obj_from(grund_t* other_gr)
 bool
 grund_t::zeige_info()
 {
-	bool already_halt = true;
 	if(gib_halt().is_bound()) {
 		gib_halt()->zeige_info();
 		return true;

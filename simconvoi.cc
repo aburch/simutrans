@@ -1650,8 +1650,6 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 				ware_t ware = iter_vehicle_ware.get_current();
 				for(unsigned i=0;  i<total_fracht.get_count();  i++ ) {
 
-					const bool is_pax = !ware.is_freight();
-
 					// could this be joined with existing freight?
 					ware_t &tmp = total_fracht[i];
 

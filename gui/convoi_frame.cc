@@ -158,9 +158,6 @@ int convoi_frame_t::compare_convois(const void *a, const void *b)
 void convoi_frame_t::sort_list()
 {
 	const karte_t* welt = owner->get_welt();
-	const unsigned count = welt->get_convoi_count();
-	int n = 0;
-	int ypos = 0;
 
 	convois.resize( welt->get_convoi_count() );
 	convois.clear();
@@ -246,7 +243,7 @@ void convoi_frame_t::infowin_event(const event_t *ev)
 	}
 	else if((IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx+11<gib_fenstergroesse().x) {
 		int y = (ev->my-47)/40 + vscroll.gib_knob_offset();
-		if(y<convois.get_count()) {
+		if(y<(sint32)convois.get_count()) {
 			// let gui_convoiinfo_t() handle this, since then it will be automatically consistent
 			gui_convoiinfo_t ci(convois[y], 0);
 			ci.infowin_event( ev );
@@ -296,7 +293,7 @@ void convoi_frame_t::resize(const koord size_change)                          //
 	gui_frame_t::resize(size_change);
 	koord groesse = gib_fenstergroesse()-koord(0,47);
 	remove_komponente(&vscroll);
-	if(convois.get_count()-1<=(groesse.y-47)/40) {
+	if((sint32)convois.get_count()-1<=(groesse.y-47)/40) {
 		vscroll.setze_knob_offset(0);
 	}
 	else {
@@ -315,9 +312,6 @@ void convoi_frame_t::zeichnen(koord pos, koord gr)
 	filter_details.pressed = filter_frame != NULL;
 
 	gui_frame_t::zeichnen(pos, gr);
-
-	// now drawing the convois ...
-	static char buf[256];
 
 	PUSH_CLIP(pos.x, pos.y+47, gr.x-11, gr.y-48 );
 

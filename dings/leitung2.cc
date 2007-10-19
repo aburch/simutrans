@@ -163,31 +163,31 @@ void leitung_t::rotate90()
 	ribi_t::ribi old_ribi = ribi;
 	ribi = ribi_t::rotate90( ribi );
 
+	// fisrt: test for slope
 	// a little complex, since we cannot access the ground right now
-	if(bild==wegbauer_t::leitung_besch->gib_hang_bild_nr(old_ribi,0)) {
-		// is on a slope
-		if(old_ribi==ribi_t::nordsued) {
-			if(bild==wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::nord, 0)) {
-				bild = wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::ost, 0);
-			}
-			else {
-				bild = wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::west, 0);
-			}
+	if(old_ribi==ribi_t::nordsued) {
+		if(bild==wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::nord, 0)) {
+			bild = wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::ost, 0);
+			return;
 		}
-		else {
-			if(bild==wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::west, 0)) {
-				bild = wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::nord, 0);
-			}
-			else {
-				bild = wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::sued, 0);
-			}
+		else if(bild==wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::sued, 0)) {
+			bild = wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::west, 0);
+			return;
 		}
-		return;
+	}
+	else {
+		if(bild==wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::west, 0)) {
+			bild = wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::nord, 0);
+			return;
+		}
+		else if(bild==wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::ost, 0)) {
+			bild = wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::sued, 0);
+			return;
+		}
 	}
 
 	if(bild != wegbauer_t::leitung_besch->gib_bild_nr(old_ribi,0)) {
 		// missing mast or crossing graphics are saved here
-		bool ok;
 		if(ribi_t::ist_gerade_ns(old_ribi)) {
 			if(bild==wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::ost,0)) {
 				// crossing

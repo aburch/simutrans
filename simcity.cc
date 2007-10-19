@@ -1149,13 +1149,27 @@ void stadt_t::laden_abschliessen()
 
 void stadt_t::rotate90()
 {
+	// rotate town origin
 	pos.rotate90( welt->gib_groesse_y()-1 );
+	// rotate an rectangle
 	lo.rotate90( welt->gib_groesse_y()-1 );
 	ur.rotate90( welt->gib_groesse_y()-1 );
+	sint16 lox = lo.x;
+	lo.x = ur.x;
+	ur.x = lox;
+	// reset building search
 	best_strasse.reset(pos);
 	best_haus.reset(pos);
 	// rathaus position may be changed a little!
-	// pax arrays!
+	array2d_tpl<uint8> pax_ziele_temp( 128, 128 );
+	pax_ziele_temp.copy_from( pax_ziele_neu );
+	for( int y=0;  y<128;  y++  ) {
+		for( int x=0;  x<128;  x++  ) {
+			pax_ziele_neu.at( 127-y, x) = pax_ziele_temp.at(x, y);
+			pax_ziele_temp.at( x, y ) = pax_ziele_alt.at( 127-y, x );
+		}
+	}
+	pax_ziele_alt.copy_from( pax_ziele_temp );
 }
 
 

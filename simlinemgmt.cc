@@ -120,9 +120,9 @@ simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file)
 			file->rdwr_long(totalLines, " ");
 DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 			for (int i = 0; i<totalLines; i++) {
-				simline_t * line;
-				simline_t::linetype lt;
+				simline_t::linetype lt=simline_t::line;
 				file->rdwr_enum(lt, "\n");
+				simline_t * line;
 				switch(lt) {
 					case simline_t::truckline:    line = new truckline_t(   welt, file); break;
 					case simline_t::trainline:    line = new trainline_t(   welt, file); break;

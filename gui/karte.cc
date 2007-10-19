@@ -538,7 +538,7 @@ reliefkarte_t::calc_map()
 	koord size = rotate45 ?
 			koord( ((welt->gib_groesse_y()+zoom_in)*zoom_out)/zoom_in+((welt->gib_groesse_x()+zoom_in)*zoom_out)/zoom_in+1, ((welt->gib_groesse_y()+zoom_in-1)*zoom_out)/zoom_in+((welt->gib_groesse_x()+zoom_in-1)*zoom_out)/zoom_in ) :
 			koord( ((welt->gib_groesse_x()+zoom_in-1)*zoom_out)/zoom_in, ((welt->gib_groesse_y()+zoom_in-1)*zoom_out)/zoom_in );
-	if(relief->get_width()!=size.x  ||  relief->get_height()!=size.y) {
+	if((sint16)relief->get_width()!=size.x  ||  (sint16)relief->get_height()!=size.y) {
 		delete relief;
 		relief = new array2d_tpl<unsigned char> (size.x,size.y);
 		setze_groesse(size);	// of the gui_komponete to adjust scroll bars

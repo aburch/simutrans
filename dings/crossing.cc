@@ -211,36 +211,12 @@ crossing_t::rdwr(loadsave_t *file)
 		if(besch==NULL) {
 			dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", w1, w2 );
 		}
-		uint new_state = zustand;
+		crossing_state_t new_state = (crossing_state_t)zustand;
 		zustand = CROSSING_INVALID;
 		set_state( new_state==CROSSING_INVALID ? CROSSING_OPEN : new_state );
 	}
 }
 
-
-
-
-void
-crossing_t::entferne(spieler_t *sp)
-{
-/*
-	grund_t *gr=welt->lookup(gib_pos());
-	if(gr==NULL) {
-		dbg->error("crossing_t::entferne","ground missing at %i,%i => ignore", gib_pos().x, gib_pos().y );
-	}
-	else {
-		// after loading restore speedlimits
-		weg_t *w1=gr->gib_weg(besch->get_waytype(0));
-		if(w1  &&  w1->gib_besch()->gib_topspeed()>besch->gib_maxspeed(0)) {
-			w1->setze_besch( w1->gib_besch() );
-		}
-		weg_t *w2=gr->gib_weg(besch->get_waytype(1));
-		if(w2  &&  w2->gib_besch()->gib_topspeed()>besch->gib_maxspeed(1)) {
-			w2->setze_besch( w2->gib_besch() );
-		}
-	}
-*/
-}
 
 
 

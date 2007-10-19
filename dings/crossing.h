@@ -70,7 +70,7 @@ public:
 	/* states of the crossing;
 	 * since way2 has priority over way1 there is a third state, during a closing request
 	 */
-	enum { CROSSING_INVALID=0, CROSSING_OPEN, CROSSING_REQUEST_CLOSE, CROSSING_CLOSED };
+	enum crossing_state_t { CROSSING_INVALID=0, CROSSING_OPEN, CROSSING_REQUEST_CLOSE, CROSSING_CLOSED };
 	void set_state( uint8 new_state );
 	uint8 get_state() { return zustand; }
 
@@ -90,9 +90,6 @@ public:
 	image_id gib_after_bild() const { return after_bild; }
 
 	void rdwr(loadsave_t *file);
-
-	// substracts cost
-	void entferne(spieler_t *sp);
 
 	void laden_abschliessen();
 

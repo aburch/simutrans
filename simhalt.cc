@@ -662,13 +662,13 @@ void haltestelle_t::rebuild_destinations()
 	}
 
 	// now for the lines
-	for(unsigned i=0; i<registered_lines.get_count(); i++) {
+	for(uint i=0; i<registered_lines.get_count(); i++) {
 		const linehandle_t line = registered_lines[i];
 		fahrplan_t *fpl = line->get_fahrplan();
 		assert(fpl);
 		// ok, now add line to the connections
 		if(line->count_convoys()>0  &&  (i_am_public  ||  line->get_convoy(0)->gib_besitzer()==gib_besitzer())) {
-			for( int j=0; j<line->get_goods_catg_index().get_count();  j++  ) {
+			for( uint j=0; j<line->get_goods_catg_index().get_count();  j++  ) {
 				hat_gehalten( warenbauer_t::gib_info_catg_index(line->get_goods_catg_index()[j]), fpl );
 			}
 		}
@@ -1878,7 +1878,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 		// must iterate over all players lines ...
 		for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 			welt->gib_spieler(i)->simlinemgmt.get_lines(simline_t::line, &check_line);
-			for(  int j=0;  j<check_line.get_count();  j++  ) {
+			for(  uint j=0;  j<check_line.get_count();  j++  ) {
 				// only add unknow lines
 				if(  !registered_lines.is_contained(check_line[j])  ) {
 					const fahrplan_t *fpl = check_line[j]->get_fahrplan();
