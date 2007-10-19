@@ -51,17 +51,23 @@ char * tool_tip_with_price(const char * tip, sint64 price)
 
 // open a menu tool window
 // player 1 gets a different one!
-void
-menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
+werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp )
 {
 	static char buf[512];
 	struct sound_info click_sound = { SFX_SELECT, 255, 0 };
+	werkzeug_parameter_waehler_t *wzw = (werkzeug_parameter_waehler_t *)win_get_magic(magic);
 
-	switch(menu_nr) {
-		case MENU_SLOPE:
+	switch(magic) {
+
+		case magic_slopetools:
 		{
-			werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "SLOPETOOLS");
-			wzw->setze_hilfe_datei("slopetools.txt");
+			if(wzw==NULL) {
+				wzw = new werkzeug_parameter_waehler_t(welt, "SLOPETOOLS");
+				wzw->setze_hilfe_datei("slopetools.txt");
+			}
+			else {
+				wzw->reset_tools();
+			}
 
 			wzw->add_tool(wkz_raise,
 				karte_t::Z_GRID,
@@ -147,16 +153,18 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				tool_tip_with_price(translator::translate("Restore natural slope"), umgebung_t::cst_alter_land));
 
 			sound_play(click_sound);
-
-			wzw->zeige_info(magic_slopetools);
 		}
 		break;
 
-		case MENU_RAIL:
+		case magic_railtools:
 			if(wegbauer_t::weg_search(track_wt,1,welt->get_timeline_year_month(),weg_t::type_flat)!=NULL) {
-				werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "RAILTOOLS");
-
-				wzw->setze_hilfe_datei("railtools.txt");
+				if(wzw==NULL) {
+					wzw = new werkzeug_parameter_waehler_t(welt, "RAILTOOLS");
+					wzw->setze_hilfe_datei("railtools.txt");
+				}
+				else {
+					wzw->reset_tools();
+				}
 
 				if(sp!=welt->gib_spieler(1)) {
 					// public player is not allowed to run vehicles ...
@@ -244,19 +252,21 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					welt );
 
 				sound_play(click_sound);
-
-				wzw->zeige_info(magic_railtools);
 			}
 			else {
 				create_win( new news_img("Trains are not available yet!"), w_time_delete, magic_none );
 			}
 		break;
 
-		case MENU_MONORAIL:
+		case magic_monorailtools:
 			if(wegbauer_t::weg_search(monorail_wt,1,welt->get_timeline_year_month(),weg_t::type_all)!=NULL  &&  hausbauer_t::monorail_depot_besch!=NULL) {
-				werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "MONORAILTOOLS");
-
-				wzw->setze_hilfe_datei("monorailtools.txt");
+				if(wzw==NULL) {
+					wzw = new werkzeug_parameter_waehler_t(welt, "MONORAILTOOLS");
+					wzw->setze_hilfe_datei("monorailtools.txt");
+				}
+				else {
+					wzw->reset_tools();
+				}
 
 				if(sp!=welt->gib_spieler(1)) {
 					// public player is not allowed to run vehicles ...
@@ -344,19 +354,21 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					welt );
 
 				sound_play(click_sound);
-
-				wzw->zeige_info(magic_monorailtools);
 			}
 			else {
-				create_win( new news_img("Monorails are not available yet!"), w_time_delete, magic_none);
+				create_win( new news_img("Monorails are not available yet!"), w_time_delete, magic_none );
 			}
 		break;
 
-		case MENU_TRAM:
-			if(wegbauer_t::weg_search(tram_wt,1,welt->get_timeline_year_month(),weg_t::type_tram)!=NULL  &&  hausbauer_t::tram_depot_besch!=NULL) {
-				werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "TRAMTOOLS");
-
-				wzw->setze_hilfe_datei("tramtools.txt");
+		case magic_tramtools:
+			if(wegbauer_t::weg_search(tram_wt,1,welt->get_timeline_year_month(),weg_t::type_all)!=NULL  &&  hausbauer_t::monorail_depot_besch!=NULL) {
+				if(wzw==NULL) {
+					wzw = new werkzeug_parameter_waehler_t(welt, "TRAMTOOLS");
+					wzw->setze_hilfe_datei("tramtools.txt");
+				}
+				else {
+					wzw->reset_tools();
+				}
 
 				if(sp!=welt->gib_spieler(1)) {
 
@@ -421,19 +433,21 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					welt );
 
 				sound_play(click_sound);
-
-				wzw->zeige_info(magic_tramtools);
 			}
 			else {
-				create_win( new news_img("Trams are not available yet!"), w_time_delete, magic_none);
+				create_win( new news_img("Trams are not available yet!"), w_time_delete, magic_none );
 			}
 		break;
 
-		case MENU_ROAD:
-			if(wegbauer_t::weg_search(road_wt,1,welt->get_timeline_year_month(),weg_t::type_flat)!=NULL) {
-				werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "ROADTOOLS");
-
-				wzw->setze_hilfe_datei("roadtools.txt");
+		case magic_roadtools:
+			if(wegbauer_t::weg_search(road_wt,1,welt->get_timeline_year_month(),weg_t::type_all)!=NULL  &&  hausbauer_t::monorail_depot_besch!=NULL) {
+				if(wzw==NULL) {
+					wzw = new werkzeug_parameter_waehler_t(welt, "ROADTOOLS");
+					wzw->setze_hilfe_datei("roadtools.txt");
+				}
+				else {
+					wzw->reset_tools();
+				}
 
 				wegbauer_t::fill_menu(wzw,
 					road_wt,
@@ -536,19 +550,21 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					welt );
 
 				sound_play(click_sound);
-
-				wzw->zeige_info(magic_roadtools);
-			  }
+			}
 			else {
-				create_win( new news_img("Cars are not available yet!"), w_time_delete, magic_none);
+				create_win( new news_img("Cars are not available yet!"), w_time_delete, magic_none );
 			}
 		break;
 
-		case MENU_SHIP:
+		case magic_shiptools:
 		{
-			werkzeug_parameter_waehler_t *wzw =  new werkzeug_parameter_waehler_t(welt, "SHIPTOOLS");
-
-			wzw->setze_hilfe_datei("shiptools.txt");
+			if(wzw==NULL) {
+				wzw = new werkzeug_parameter_waehler_t(welt, "SHIPTOOLS");
+				wzw->setze_hilfe_datei("shiptools.txt");
+			}
+			else {
+				wzw->reset_tools();
+			}
 
 			wegbauer_t::fill_menu(wzw,
 				water_wt,
@@ -643,17 +659,25 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				welt );
 
 			sound_play(click_sound);
-
-			wzw->zeige_info(magic_shiptools);
 		}
 		break;
 
-		case MENU_AIRPORT:
+		case magic_airtools:
 			if (!hausbauer_t::air_depot.empty() && wegbauer_t::weg_search(air_wt, 1, welt->get_timeline_year_month(),weg_t::type_all) != NULL) {
-				// start aircraft
-				werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "AIRTOOLS");
 
-				wzw->setze_hilfe_datei("airtools.txt");
+				if(wzw  &&  sp==welt->gib_spieler(1)) {
+					// no airports for player 1
+					destroy_win( wzw );
+					return NULL;
+				}
+
+				if(wzw==NULL) {
+					wzw = new werkzeug_parameter_waehler_t(welt, "AIRTOOLS");
+					wzw->setze_hilfe_datei("airtools.txt");
+				}
+				else {
+					wzw->reset_tools();
+				}
 
 				wegbauer_t::fill_menu(wzw,
 					air_wt,
@@ -723,20 +747,21 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_FAILURE,
 					umgebung_t::cst_multiply_post,
 					welt );
-
-				wzw->zeige_info(magic_airtools);
-				// end aircraft
 			}
 			else {
 				create_win( new news_img("Planes are not available yet!"), w_time_delete, magic_none);
 			}
 		break;
 
-		case MENU_SPECIAL:
+		case magic_specialtools:
 		{
-			werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "SPECIALTOOLS");
-
-			wzw->setze_hilfe_datei("special.txt");
+			if(wzw==NULL) {
+				wzw = new werkzeug_parameter_waehler_t(welt, "SPECIALTOOLS");
+				wzw->setze_hilfe_datei("special.txt");
+			}
+			else {
+				wzw->reset_tools();
+			}
 
 			wegbauer_t::fill_menu(wzw,
 				road_wt,
@@ -821,8 +846,6 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					welt
 					);
 
-
-
 				wzw->add_param_tool(wkz_wegebau,
 					(const void *)wegbauer_t::leitung_besch,
 					karte_t::Z_PLAN,
@@ -857,15 +880,18 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				translator::translate("Marker"));
 
 			sound_play(click_sound);
-			wzw->zeige_info(magic_specialtools);
 		}
 		break;
 
-		case MENU_LISTS:
+		case magic_listtools:
 		{
-			werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "LISTTOOLS");
-
-			wzw->setze_hilfe_datei("list.txt");
+			if(wzw==NULL) {
+				wzw = new werkzeug_parameter_waehler_t(welt, "LISTTOOLS");
+				wzw->setze_hilfe_datei("list.txt");
+			}
+			else {
+				wzw->reset_tools();
+			}
 
 			wzw->add_tool(wkz_list_halt_tool,
 				karte_t::Z_PLAN,
@@ -916,16 +942,18 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				translator::translate("curlist_title"));
 
 			sound_play(click_sound);
-
-			wzw->zeige_info(magic_listtools);
 		}
 		break;
 
-		case MENU_EDIT:
+		case magic_edittools:
 		{
-			werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "EDITTOOLS");
-
-			wzw->setze_hilfe_datei("edittools.txt");
+			if(wzw==NULL) {
+				wzw = new werkzeug_parameter_waehler_t(welt, "EDITTOOLS");
+				wzw->setze_hilfe_datei("edittools.txt");
+			}
+			else {
+				wzw->reset_tools();
+			}
 
 			wzw->add_param_tool(&wkz_grow_city,
 				(long)100,
@@ -1003,10 +1031,8 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				skinverwaltung_t::edit_werkzeug->gib_bild_nr(6),
 				skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
 				translator::translate("Step timeline one year"));
-
-			wzw->zeige_info(magic_edittools);
 		}
 		break;
 	}
-
+	return wzw;
 }

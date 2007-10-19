@@ -69,9 +69,9 @@ class simwin
 {
 public:
 	koord pos;         // Fensterposition
-	int dauer;        // Wie lange soll das Fenster angezeigt werden ?
-	int xoff, yoff;   // Offsets zur Maus beim verschieben
-	enum wintype wt;
+	uint32 dauer;        // Wie lange soll das Fenster angezeigt werden ?
+	sint16 xoff, yoff;   // Offsets zur Maus beim verschieben
+	uint8 wt;	// the flags for the window type
 	long magic_number;	// either magic number or this pointer (which is unique too)
 	gui_fenster_t *gui;
 	bool closing;
@@ -381,13 +381,13 @@ bool win_is_top(const gui_fenster_t *ig)
 // window functions
 
 int
-create_win(gui_fenster_t *gui, enum wintype wt, long magic)
+create_win(gui_fenster_t *gui, uint8 wt, long magic)
 {
 	return create_win( -1, -1, gui, wt, magic);
 }
 
 int
-create_win(int x, int y, gui_fenster_t *gui, enum wintype wt, long magic)
+create_win(int x, int y, gui_fenster_t *gui, uint8 wt, long magic)
 {
 DBG_DEBUG("create_win()","ins_win=%d", ins_win);
 	assert(ins_win >= 0);
@@ -409,14 +409,9 @@ DBG_DEBUG("create_win()","ins_win=%d", ins_win);
 				if(wins[i].wt==wt  &&  wins[i].magic_number==magic) {
 					// gibts schon, wir machen kein neues
 					// aber wir machen es sichtbar, falls verdeckt
-DBG_DEBUG("create_win()","magic=%d already there, bring to fornt", magic);
+DBG_DEBUG("create_win()","magic=%d already there, bring to front", magic);
 					focus = NULL;	// free focus
 					top_win(i);
-
-					// if 'special' magic number, delete 'new'-ed object
-					if (magic >= 0  &&  magic<magic_info_pointer) {
-						delete gui;
-					}
 					return -1;
 				}
 			}
@@ -449,8 +444,8 @@ DBG_DEBUG("create_win()","magic=%d already there, bring to fornt", magic);
 
 		// take care of time delete windows ...
 		wins[ins_win].gui = gui;
-		wins[ins_win].wt = wt==w_time_delete ? w_info : wt;
-		wins[ins_win].dauer = wt&w_time_delete ? MESG_WAIT : -1;
+		wins[ins_win].wt = (wt&w_time_delete) ? w_info : wt;
+		wins[ins_win].dauer = (wt&w_time_delete) ? MESG_WAIT : -1;
 		wins[ins_win].magic_number = magic;
 		wins[ins_win].closing = false;
 
@@ -464,8 +459,29 @@ DBG_DEBUG("create_win()","magic=%d already there, bring to fornt", magic);
 		}
 
 		if(x == -1) {
-			x = min(gib_maus_x() - gr.x/2, display_get_width()-gr.x);
-			y = min(gib_maus_y() - gr.y-32, display_get_height()-gr.y);
+			// try to keep the toolbar below all other toolbars
+			y = 32;
+			if(wt & w_no_overlap) {
+				for(int i=0; i<ins_win; i++) {
+					if(wins[i].wt & w_no_overlap) {
+						if(wins[i].pos.y>=y) {
+							sint16 lower_y = wins[i].pos.y + wins[i].gui->gib_fenstergroesse().y;
+							if(lower_y >= y) {
+								y = lower_y;
+							}
+						}
+					}
+				}
+				// right aligned
+//				x = max( 0, display_get_width()-gr.x );
+				// but we go for left
+				x = 0;
+				y = min( y, display_get_height()-gr.y );
+			}
+			else {
+				x = min(gib_maus_x() - gr.x/2, display_get_width()-gr.x);
+				y = min(gib_maus_y() - gr.y-32, display_get_height()-gr.y);
+			}
 		}
 		if(x<0) {
 			x = 0;

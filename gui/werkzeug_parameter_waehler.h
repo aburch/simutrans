@@ -48,13 +48,7 @@ private:
 		cstring_t tooltip;
 	};
 
-
-	/**
-	* The tools will be applied to this map
-	* @author Hj. Malthaner
-	*/
 	karte_t *welt;
-
 
 	/**
 	* The tool definitions
@@ -63,36 +57,38 @@ private:
 	vector_tpl<werkzeug_t> tools;
 
 	/**
-	* window width in toolboxes
-	* @author Hj. Malthaner
-	*/
+	 * window width in toolboxes
+	 * @author Hj. Malthaner
+	 */
 	int tool_icon_width;
 
+	koord groesse;
+
 	/**
-	* Fenstertitel
-	* @author Hj. Malthaner
-	*/
+	 * Fenstertitel
+	 * @author Hj. Malthaner
+	 */
 	const char * titel;
 
 
 	/**
-	* Name of the help file
-	* @author Hj. Malthaner
-	*/
-	const char * hilfe_datei;
+	 * Name of the help file
+	 * @author Hj. Malthaner
+	 */
+	const char *hilfe_datei;
 
 	// needs dirty redraw (only when changed)
 	bool dirty;
 
 public:
-    werkzeug_parameter_waehler_t(karte_t *welt, const char * titel);
+	werkzeug_parameter_waehler_t(karte_t *welt, const char * titel);
 
-    /**
-     * Add a new tool with values and tooltip text.
-     * Text must already be translated.
-     * @author Hj. Malthaner
-     */
-    void add_tool(int (* wz1)(spieler_t *, karte_t *, koord),
+	/**
+	 * Add a new tool with values and tooltip text.
+	 * Text must already be translated.
+	 * @author Hj. Malthaner
+	 */
+	void add_tool(int (* wz1)(spieler_t *, karte_t *, koord),
 		int versatz,
 		int sound_ok,
 		int sound_ko,
@@ -100,12 +96,12 @@ public:
 		int cursor,
 		cstring_t tooltip);
 
-    /**
-     * Add a new tool with parameter values and tooltip text.
-     * Text must already be translated.
-     * @author Hj. Malthaner
-     */
-    void add_param_tool(int (* wz1)(spieler_t *, karte_t *, koord, value_t),
+  /**
+   * Add a new tool with parameter values and tooltip text.
+   * Text must already be translated.
+   * @author Hj. Malthaner
+   */
+  void add_param_tool(int (* wz1)(spieler_t *, karte_t *, koord, value_t),
 		value_t param,
 		int versatz,
 		int sound_ok,
@@ -114,39 +110,23 @@ public:
 		int cursor,
 		cstring_t tooltip);
 
+	// pruges toolbar
+	void reset_tools();
+
 	/**
 	* Manche Fenster haben einen Hilfetext assoziiert.
 	* @return den Dateinamen für die Hilfe, oder NULL
 	* @author Hj. Malthaner
 	*/
-	const char * gib_hilfe_datei() const {return hilfe_datei;}
+	const char *gib_hilfe_datei() const {return hilfe_datei;}
 
 	void setze_hilfe_datei(const char *datei) {hilfe_datei = datei;}
 
-	/**
-	* manche Fenster kanns nur einmal geben, dazu die magic number
-	* @return -1 wenn fenster schon vorhanden, sonst >= 0
-	* @author Hj. Malthaner
-	*/
-	int zeige_info(int magic);
+	const char *gib_name() const { return titel; }
 
-	/**
-	* Fenstertitel
-	* @author Hj. Malthaner
-	*/
-	const char *gib_name() const;
+	koord gib_fenstergroesse() const { return groesse; }
 
-	/**
-	* @return gibt wunschgroesse für das beobachtungsfenster zurueck
-	*/
-	koord gib_fenstergroesse() const;
-
-	/**
-	* gibt farbinformationen fuer Fenstertitel, -ränder und -körper
-	* zurück
-	* @author Hj. Malthaner
-	*/
-	PLAYER_COLOR_VAL get_titelcolor() const;
+	PLAYER_COLOR_VAL get_titelcolor() const { return WIN_TITEL; }
 
 	/* returns true, if inside window area ...
 	* @author Hj. Malthaner

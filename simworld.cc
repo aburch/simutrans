@@ -84,6 +84,7 @@
 #include "gui/help_frame.h"
 #include "gui/goods_frame_t.h"
 #include "gui/jump_frame.h"
+#include "gui/werkzeug_parameter_waehler.h"
 
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
@@ -3274,9 +3275,25 @@ void karte_t::switch_active_player(uint8 new_player)
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->gib_name() );
 		message_t::get_instance()->add_message(buf, koord::invalid, message_t::warnings, get_active_player()->get_player_nr(), IMG_LEER);
 	}
+
+	// update menue entries (we do not want player1 to run anything)
+	if(renew_menu) {
+		static magic_numbers all_menu[6]= { magic_railtools, magic_monorailtools, magic_tramtools, magic_roadtools, magic_shiptools, magic_airtools };
+		for( int i=0;  i<6;  i++  ) {
+			gui_fenster_t *gui=win_get_magic(all_menu[i]);
+			if(gui) {
+				menu_fill( this, all_menu[i], active_player );
+			}
+		}
+		setze_dirty();
+	}
+
 	// open edit tools
 	if(active_player_nr==1) {
-		menu_open(this,MENU_EDIT,active_player);
+		gui_fenster_t *gui=win_get_magic(magic_edittools);
+		if(!gui) {
+			create_win( menu_fill( this, magic_edittools, active_player), w_info|w_no_overlap, magic_edittools );
+		}
 	}
 	else {
 		// close edit tools
@@ -3286,24 +3303,6 @@ void karte_t::switch_active_player(uint8 new_player)
 		}
 	}
 
-	if(renew_menu) {
-		// eventually we have to close and reopen several menues, since player 1 is not allowed to run vehicles
-		static magic_numbers all_menu[6]= { magic_railtools, magic_monorailtools, magic_tramtools, magic_roadtools, magic_shiptools, magic_airtools };
-		for( int i=0;  i<6;  i++  ) {
-			gui_fenster_t *gui=win_get_magic(all_menu[i]);
-			if(gui) {
-				// now save coordinates
-				int x = win_get_posx(gui);
-				int y = win_get_posy(gui);
-				// close it
-				destroy_win(gui);
-				// reopen it as the current player at the same position
-				menu_open( this, (menu_entries)(i+1), active_player );
-				gui=win_get_magic(all_menu[i] );
-				win_set_pos( gui, x, y );
-			}
-		}
-	}
 	setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 }
 
@@ -3685,28 +3684,66 @@ karte_t::interactive_event(event_t &ev)
 					setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 					break;
 				case 3:
-					menu_open(this,MENU_SLOPE,active_player);
+					{
+						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_slopetools, active_player );
+						create_win( wzw, w_info|w_no_overlap, magic_slopetools );
+					}
 					break;
 				case 4:
-					menu_open(this,MENU_RAIL,active_player);
+					{
+						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_railtools, active_player );
+						if(wzw) {
+							create_win( wzw, w_info|w_no_overlap, magic_railtools );
+						}
+					}
 					break;
 				case 5:
-					menu_open(this,MENU_MONORAIL,active_player);
+					{
+						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_monorailtools, active_player );
+						if(wzw) {
+							create_win( wzw, w_info|w_no_overlap, magic_monorailtools );
+						}
+					}
 					break;
 				case 6:
-					menu_open(this,MENU_TRAM,active_player);
+					{
+						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_tramtools, active_player );
+						if(wzw) {
+							create_win( wzw, w_info|w_no_overlap, magic_tramtools );
+						}
+					}
 					break;
 				case 7:
-					menu_open(this,MENU_ROAD,active_player);
+					{
+						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_roadtools, active_player );
+						if(wzw) {
+							create_win( wzw, w_info|w_no_overlap, magic_roadtools );
+						}
+					}
 					break;
 				case 8:
-					menu_open(this,MENU_SHIP,active_player);
+					{
+						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_shiptools, active_player );
+						if(wzw) {
+							create_win( wzw, w_info|w_no_overlap, magic_shiptools );
+						}
+					}
 					break;
 				case 9:
-					menu_open(this,MENU_AIRPORT,active_player);
+					{
+						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_airtools, active_player );
+						if(wzw) {
+							create_win( wzw, w_info|w_no_overlap, magic_airtools );
+						}
+					}
 					break;
 				case 10:
-					menu_open(this,MENU_SPECIAL,active_player);
+					{
+						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_specialtools, active_player );
+						if(wzw) {
+							create_win( wzw, w_info|w_no_overlap, magic_specialtools );
+						}
+					}
 					break;
 				case 11:
 					setze_maus_funktion(wkz_remover, skinverwaltung_t::killzeiger->gib_bild_nr(0), Z_PLAN, SFX_REMOVER, SFX_FAILURE);
@@ -3719,7 +3756,12 @@ karte_t::interactive_event(event_t &ev)
 					get_active_player()->simlinemgmt.zeige_info( get_active_player() );
 					break;
 				case 14:
-					menu_open(this,MENU_LISTS,active_player);
+					{
+						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_listtools, active_player );
+						if(wzw) {
+							create_win( wzw, w_info|w_no_overlap, magic_listtools );
+						}
+					}
 					break;
 				case 15:
 					// line info

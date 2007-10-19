@@ -18,7 +18,7 @@
 
 
 werkzeug_parameter_waehler_t::werkzeug_parameter_waehler_t(karte_t* welt, const char* titel) :
-	tools(32)
+	tools(32), groesse(32, 16)
 {
     this->welt = welt;
     this->titel  = titel;
@@ -68,6 +68,8 @@ DBG_DEBUG("werkzeug_parameter_waehler_t::add_tool()","ww=%i, rows=%i",ww,rows);
 		tool_icon_width = (tool_icon_width+rows-1)/rows;
 	}
 	dirty = true;
+	groesse = koord( tool_icon_width*32, ((tools.get_count()-1)/tool_icon_width) * 32 + 16 + 32 );
+
 	DBG_DEBUG("werkzeug_parameter_waehler_t::add_tool()", "at position %i (width %i)", tools.get_count(), tool_icon_width);
 }
 
@@ -111,45 +113,18 @@ void werkzeug_parameter_waehler_t::add_param_tool(int (* wz1)(spieler_t *, karte
 		// assure equal distribution if more than a single row is needed
 		tool_icon_width = (tool_icon_width+rows-1)/rows;
 	}
+	groesse = koord( tool_icon_width*32, ((tools.get_count()-1)/tool_icon_width) * 32 + 16 + 32 );
 	dirty = true;
 //	DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()", "at position %i (width %i)", tools.get_count(), tool_icon_width);
 }
 
 
-int werkzeug_parameter_waehler_t::zeige_info(int magic)
+// reset the tools to empty state
+void werkzeug_parameter_waehler_t::reset_tools()
 {
-	// an mauskoordinate anzeigen
-	return create_win( this, w_info, magic );
-}
-
-
-const char *werkzeug_parameter_waehler_t::gib_name() const
-{
-	return titel;
-}
-
-
-/**
- * @return gibt wunschgroesse für das beobachtungsfenster zurueck
- */
-koord werkzeug_parameter_waehler_t::gib_fenstergroesse() const
-{
-	if(tool_icon_width>0) {
-		return koord(tool_icon_width * 32, tools.get_count() / tool_icon_width * 32 + 16 + 32);
-	}
-	else {
-		return koord(32, 16);
-	}
-}
-
-
-/**
- * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
- * zurück
- */
-PLAYER_COLOR_VAL werkzeug_parameter_waehler_t::get_titelcolor() const
-{
-  return WIN_TITEL;
+	tools.clear();
+	groesse = koord( 32, 16 );
+	tool_icon_width = 0;
 }
 
 

@@ -20,54 +20,55 @@ class gui_komponente_t;
 /* Typen fuer die Fenster */
 
 enum wintype {
-  w_info=1,	 	    // Ein Info-Fenster
-  w_do_not_delete=2, // Ein Info-Fenster dessen GUI-Objekt beimschliessen gelöscht werden soll
-	w_time_delete=8	// deletion after MESG_WAIT has elapsed
+  w_info         = 1,	// Ein Info-Fenster
+  w_do_not_delete= 2, // Ein Info-Fenster dessen GUI-Objekt beimschliessen gelöscht werden soll
+	w_no_overlap   = 4, // try to place it below a previous window with the same flag
+	w_time_delete  = 8	// deletion after MESG_WAIT has elapsed
 };
 
 
 enum magic_numbers {
-    magic_none = -1,
-    magic_reserved = 0,
+	magic_none = -1,
+	magic_reserved = 0,
 
-    // from here on, delete second 'new'-ed object in create_win
-    magic_sprachengui_t,
-    magic_welt_gui_t,
-		magic_climate,
-    magic_reliefmap,
-    magic_farbengui_t,
-    magic_color_gui_t,
-    magic_ki_kontroll_t,
-    magic_optionen_gui_t,
-    magic_sound_kontroll_t,
-    magic_load_t,
-    magic_save_t,
-    magic_bridgetools,
-    magic_railtools,
-    magic_monorailtools,
-    magic_tramtools, // Dario: Tramway
-    magic_roadtools,
-    magic_shiptools,
-    magic_airtools,
-    magic_slopetools,
-    magic_halt_list_t,
-    magic_label_frame,
-    magic_city_info_t,
-		magic_citylist_frame_t,
-    magic_specialtools,
-    magic_listtools,
-    magic_edittools,
-    magic_keyhelp,
-    magic_mainhelp,
-    magic_finances_t,
-		magic_help,
-		magic_convoi_t,
-		magic_jump,
-		magic_curiositylist,
-		magic_factorylist,
-		magic_goodslist,
-		magic_messageframe,
-		magic_info_pointer	// mark end of the list
+	// from here on, delete second 'new'-ed object in create_win
+	magic_sprachengui_t,
+	magic_welt_gui_t,
+	magic_climate,
+	magic_reliefmap,
+	magic_farbengui_t,
+	magic_color_gui_t,
+	magic_ki_kontroll_t,
+	magic_optionen_gui_t,
+	magic_sound_kontroll_t,
+	magic_load_t,
+	magic_save_t,
+	magic_bridgetools,
+	magic_railtools,
+	magic_monorailtools,
+	magic_tramtools, // Dario: Tramway
+	magic_roadtools,
+	magic_shiptools,
+	magic_airtools,
+	magic_slopetools,
+	magic_halt_list_t,
+	magic_label_frame,
+	magic_city_info_t,
+	magic_citylist_frame_t,
+	magic_specialtools,
+	magic_listtools,
+	magic_edittools,
+	magic_keyhelp,
+	magic_mainhelp,
+	magic_finances_t,
+	magic_help,
+	magic_convoi_t,
+	magic_jump,
+	magic_curiositylist,
+	magic_factorylist,
+	magic_goodslist,
+	magic_messageframe,
+	magic_info_pointer	// mark end of the list
 };
 
 // Haltezeit für Nachrichtenfenster
@@ -103,8 +104,8 @@ bool has_focus(const gui_komponente_t *);
 void release_focus(gui_komponente_t *);
 
 
-int create_win(gui_fenster_t *ig, enum wintype wt, long magic);
-int create_win(int x, int y, gui_fenster_t *ig, enum wintype wt, long magic);
+int create_win(gui_fenster_t *ig, uint8 wt, long magic);
+int create_win(int x, int y, gui_fenster_t *ig, uint8 wt, long magic);
 
 bool check_pos_win(struct event_t *ev);
 
