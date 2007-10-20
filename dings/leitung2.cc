@@ -163,8 +163,15 @@ void leitung_t::rotate90()
 	ribi_t::ribi old_ribi = ribi;
 	ribi = ribi_t::rotate90( ribi );
 
-	// fisrt: test for slope
+	// determine new image
 	// a little complex, since we cannot access the ground right now
+
+	if(bild==IMG_LEER) {
+		// most likely on a bridge
+		return;
+	}
+
+	// first: test for slope
 	if(old_ribi==ribi_t::nordsued) {
 		if(bild==wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::nord, 0)) {
 			bild = wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::ost, 0);

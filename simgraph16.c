@@ -816,7 +816,7 @@ static void rezoom_img(const unsigned int n)
 
 		if (images[n].h > 0 && images[n].w > 0) {
 			// just recalculate the image in the new size
-			unsigned char y_left = (images[n].base_y + zoom_factor - 1) % zoom_factor;
+			unsigned char y_left = max( 0, (images[n].base_y + zoom_factor - 1) % zoom_factor );
 			unsigned char h = images[n].base_h;
 
 			static PIXVAL line[512];
@@ -1771,14 +1771,8 @@ static void display_color_img_aux(const unsigned n, const KOORD_VAL xp, const KO
 void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty)
 {
 	if (n < anz_images) {
-		// Hajo: since the colors for player 0 are already right,
-		// only use the expensive replacement routine for colored images
-		// of other players
-		if ((daynight  ||  night_shift==0)  &&  (player_nr<=0  ||  (images[n].recode_flags & FLAG_PLAYERCOLOR)==0)) {
-			display_img_aux(n, xp, yp, dirty, false);
-			return;
-		}
 
+		// first: size check
 		if (images[n].recode_flags&FLAG_REZOOM) {
 			rezoom_img(n);
 		}
@@ -1794,6 +1788,14 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 				display_img_aux(n, xp, yp, dirty, true);
 				return;
 			}
+		}
+
+		// Hajo: since the colors for player 0 are already right,
+		// only use the expensive replacement routine for colored images
+		// of other players
+		if ((daynight  ||  night_shift==0)  &&  (player_nr<=0  ||  (images[n].recode_flags & FLAG_PLAYERCOLOR)==0)) {
+			display_img_aux(n, xp, yp, dirty, false);
+			return;
 		}
 
 		// prissi: now test if visible and clipping needed

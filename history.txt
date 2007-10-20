@@ -41,7 +41,8 @@
 	FIX: clear all old entries in the message list upon starting a new game
 	FIX: text labels again on any height (did affect towns below bridges)
 	FIX: frame delay time does now slower increase/decrease => smoother response
-	CHANGE: allt toolrbar open directly below each others
+	CHANGE: all toolbars open directly below each others
+	FIX: crash when zooming out images with negative y-offsets
 
 
 Release of 99.14
