@@ -816,7 +816,7 @@ static void rezoom_img(const unsigned int n)
 
 		if (images[n].h > 0 && images[n].w > 0) {
 			// just recalculate the image in the new size
-			unsigned char y_left = max( 0, (images[n].base_y + zoom_factor - 1) % zoom_factor );
+			unsigned char y_left = (unsigned char) (((short)images[n].base_y + zoom_factor - 1 + 64*zoom_factor) % zoom_factor );
 			unsigned char h = images[n].base_h;
 
 			static PIXVAL line[512];
