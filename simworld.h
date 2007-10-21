@@ -347,6 +347,9 @@ public:
 	void setze_dirty_zurueck() {dirty=false;}
 	bool ist_dirty() const {return dirty;}
 
+	// recalcs all map images
+	void update_map();
+
 	karte_ansicht_t *gib_ansicht() const { return view; }
 	void setze_ansicht(karte_ansicht_t *v) { view = v; }
 
@@ -793,6 +796,7 @@ public:
 	 */
 	stadt_t * suche_naechste_stadt(koord pos) const;
 
+	bool cannot_save() const { return nosave; }
 	void set_nosave() { nosave = true; }
 
 	// rotate map view by 90 degree

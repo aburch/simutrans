@@ -34,14 +34,14 @@ class skin_besch_t;
  *	... ...
  */
 class haus_tile_besch_t : public obj_besch_t {
-    friend class tile_writer_t;
-    friend class tile_reader_t;
+	friend class tile_writer_t;
+	friend class tile_reader_t;
 
-    const haus_besch_t	*haus;
+	const haus_besch_t	*haus;
 
-    uint8		seasons;
-    uint8		phasen;	    // Wie viele Animationsphasen haben wir?
-    uint16		index;
+	uint8  seasons;
+	uint8  phasen;	    // Wie viele Animationsphasen haben wir?
+	uint16 index;
 
 public:
 	void setze_besch(const haus_besch_t *haus_besch) { haus = haus_besch; }
@@ -51,6 +51,10 @@ public:
 	int gib_index() const { return index; }
 	int get_seasons() const { return seasons; }
 	int gib_phasen() const { return phasen; }
+
+	bool has_image() const {
+		return gib_hintergrund(0,0,0)!=IMG_LEER  ||  gib_vordergrund(0,0)!=IMG_LEER;
+	}
 
 	image_id gib_hintergrund(int phase, int hoehe,int season) const
 	{
@@ -147,14 +151,14 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 	gebaeude_t::typ     gtyp;      // Hajo: this is the type of the building
 	utyp            utype; // Hajo: if gtyp == gebaeude_t::unbekannt, then this is the real type
 
-	uint16		animation_time;	// in ms
-	uint16		bauzeit;        // == inhabitants at build time
-	koord		groesse;
-	flag_t		flags;
-	int			level;          // or passengers;
-	uint8		layouts;        // 1 2 oder 4
-	uint8		enables;		// if it is a stop, what is enabled ...
-	uint8		chance;         // Hajo: chance to build, special buildings, only other is weight factor
+	uint16 animation_time;	// in ms
+	uint16 bauzeit;        // == inhabitants at build time
+	koord  groesse;
+	flag_t flags;
+	uint16 level;          // or passengers;
+	uint8  layouts;        // 1 2 oder 4
+	uint8  enables;		// if it is a stop, what is enabled ...
+	uint8  chance;         // Hajo: chance to build, special buildings, only other is weight factor
 
 	climate_bits	allowed_climates;
 
@@ -230,6 +234,23 @@ public:
 	}
 
 	const haus_tile_besch_t *gib_tile(int layout, int x, int y) const;
+
+	// returns true,if building can be rotated
+	bool can_rotate() const {
+		if(groesse.x!=groesse.y  &&  layouts==1) {
+			return false;
+		}
+		// check for missing tiles after rotation
+		for( int x=0;  x<groesse.x;  x++  ) {
+			for( int y=0;  x<groesse.y;  y++  ) {
+				// only true, if one is missing
+				if(gib_tile( 0, x, y )->has_image()  ^  gib_tile( 1, gib_h(1)-y-1, x )->has_image()) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 
 	int layout_anpassen(int layout) const;
 

@@ -652,6 +652,7 @@ DBG_DEBUG("karte_t::init()","calc_hoehe_mit_heightfield");
 
 DBG_DEBUG("karte_t::init()","cleanup karte");
 	cleanup_karte();
+	nosave = false;
 
 DBG_DEBUG("karte_t::init()","set ground");
 	// Hajo: init slopes
@@ -2475,16 +2476,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 	file->rdwr_long(dummy, "\n");
 
 	if(needs_redraw) {
-		for(int y=0; y<gib_groesse_y(); y++) {
-			for(int x=0; x<gib_groesse_x(); x++) {
-				const planquadrat_t *plan = lookup(koord(x,y));
-				const int boden_count = plan->gib_boden_count();
-				for(int schicht=0; schicht<boden_count; schicht++) {
-					grund_t *gr = plan->gib_boden_bei(schicht);
-					gr->calc_bild();
-				}
-			}
-		}
+		update_map();
 	}
 }
 
@@ -2551,9 +2543,8 @@ void karte_t::laden(loadsave_t *file)
 
 	destroy();
 
-
 	// powernets zum laden vorbereiten -> tabelle loeschen
-	powernet_t::prepare_loading();
+	powernet_t::neue_karte(this);
 
 	// jetzt geht das laden los
 	DBG_MESSAGE("karte_t::laden", "Fileversion: %d, %p", file->get_version(), einstellungen);
@@ -2926,6 +2917,19 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 }
 
+
+// recalcs all ground tiles on the map
+void karte_t::update_map()
+{
+	for(  int i=0;  i<cached_groesse_gitter_x*cached_groesse_gitter_y;  i++  ) {
+		const int boden_count = plan[i].gib_boden_count();
+		for(int schicht=0; schicht<boden_count; schicht++) {
+			grund_t *gr = plan[i].gib_boden_bei(schicht);
+			gr->calc_bild();
+		}
+	}
+	setze_dirty();
+}
 
 
 // return an index to a halt (or creates a new one)
@@ -3364,17 +3368,7 @@ karte_t::interactive_event(event_t &ev)
 			case 'U':
 				sound_play(click_sound);
 				grund_t::toggle_underground_mode();
-				for(int y=0; y<gib_groesse_y(); y++) {
-					for(int x=0; x<gib_groesse_x(); x++) {
-						const planquadrat_t *plan = lookup(koord(x,y));
-						const int boden_count = plan->gib_boden_count();
-						for(int schicht=0; schicht<boden_count; schicht++) {
-							grund_t *gr = plan->gib_boden_bei(schicht);
-							gr->calc_bild();
-						}
-					}
-				}
-				setze_dirty();
+				update_map();
 				break;
 			case 167:    // Hajo: '§'
 				baum_t::distribute_trees( this, 3 );
@@ -3476,14 +3470,7 @@ karte_t::interactive_event(event_t &ev)
 				break;
 			case 'R':
 				rotate90();
-				for(  int i=0;  i<cached_groesse_gitter_x*cached_groesse_gitter_y;  i++  ) {
-					const int boden_count = plan[i].gib_boden_count();
-					for(int schicht=0; schicht<boden_count; schicht++) {
-						grund_t *gr = plan[i].gib_boden_bei(schicht);
-						gr->calc_bild();
-					}
-				}
-				setze_dirty();
+				update_map();
 				break;
 			case 's':
 				if(default_road==NULL) {

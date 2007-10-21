@@ -11,6 +11,8 @@
 #include "../ifc/sync_steppable.h"
 #include "../simtypes.h"
 
+class karte_t;
+
 /**
  * Data class for power networks. A two phase queue to store
  * and hand out power.
@@ -24,7 +26,7 @@ public:
 	* table of networks
 	* @author Hj. Malthaner
 	*/
-	static void prepare_loading();
+	static void neue_karte(karte_t *);
 
 	/**
 	* Loads a powernet object or hand back already loaded object

@@ -18,7 +18,7 @@ static ptrhashtable_tpl <powernet_t *, powernet_t *> loading_table;
  * table of networks
  * @author Hj. Malthaner
  */
-void powernet_t::prepare_loading()
+void powernet_t::neue_karte(karte_t *)
 {
 	loading_table.clear();
 }

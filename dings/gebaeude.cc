@@ -176,11 +176,8 @@ gebaeude_t::rotate90()
 			// add new tile: but make them old (no construction)
 			uint32 old_insta_zeit = insta_zeit;
 			setze_tile( new_tile );
-			if( new_offset != koord(0, 0) &&
-					tile->gib_besch()->gib_utyp() != haus_besch_t::hafen &&
-					tile->gib_hintergrund(0, 0, 0) == IMG_LEER &&
-					tile->gib_vordergrund(0, 0)    == IMG_LEER
-				) {
+			if(  tile->gib_besch()->gib_utyp() != haus_besch_t::hafen
+				&&  new_offset != koord(0, 0)  &&  !tile->has_image()  ) {
 				// may have a rotation, that is not recoverable
 				// => this map rotation cannot be reloaded!
 				welt->set_nosave();

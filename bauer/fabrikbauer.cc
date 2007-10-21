@@ -489,26 +489,37 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 {
 	karte_t* welt = sp->get_welt();
 	int n = 1;
+	int org_rotation = -1;
 
 	if(info==NULL) {
 		// no industry found
 		return 0;
 	}
 
-	if (info->gib_platzierung() == fabrik_besch_t::Stadt && !welt->gib_staedte().empty()) {
-		// built consumer (factory) intown:
+	// no cities at all?
+	if (info->gib_platzierung() == fabrik_besch_t::Stadt  &&  welt->gib_staedte().empty()) {
+		return 0;
+	}
+
+	// rotate until we can save it, if the factory is non-rotateable ...
+	if(welt->cannot_save()) {
+		assert(parent==NULL);
+		org_rotation = welt->gib_einstellungen()->get_rotation();
+		for(  int i=0;  i<4  &&  welt->cannot_save();  i++  ) {
+			pos->rotate90( welt->gib_groesse_y()-1 );
+			welt->rotate90();
+		}
+	}
+
+	// intown needs different place search
+	if (info->gib_platzierung() == fabrik_besch_t::Stadt) {
 		stadt_fabrik_t sf;
 		koord k=pos->gib_2d();
 
 		koord size=info->gib_haus()->gib_groesse(0);
-//DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i,%i) size.",size.x,size.y);
 
+		// built consumer (factory) intown
 		sf.stadt = welt->suche_naechste_stadt(k);
-		if(sf.stadt==NULL) {
-			return 0;
-		}
-
-		INT_CHECK( "fabrikbauer 574" );
 
 		//
 		// Drei Varianten:
@@ -538,8 +549,9 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 		if(k != koord::invalid) {
 			*pos = welt->lookup(k)->gib_kartenboden()->gib_pos();
 		}
-		else
+		else {
 			return 0;
+		}
 	}
 
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",info->gib_name(),pos->x,pos->y);
@@ -671,7 +683,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i o
 			if(retry==0  ||  retry>25) {
 				hersteller = finde_hersteller(ware,j%anzahl_hersteller);
 				if(info==hersteller) {
-					dbg->error("fabrikbauer_t::baue_hierarchie()","found myself! (pak corrupted?)");
+					dbg->fatal("fabrikbauer_t::baue_hierarchie()","found myself! (pak corrupted?)");
 					return n;
 				}
 				retry = 0;
@@ -748,6 +760,17 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","failed to built lieferant %s aroun
 		reliefkarte_t::gib_karte()->calc_map();
 
 		INT_CHECK( "fabrikbauer 730" );
+
+		// must rotate back?
+		if(org_rotation>=0) {
+/* leaves ugly holes on slope foundations
+			for(  int i=0;  i<4  &&  welt->gib_einstellungen()->get_rotation()!=org_rotation;  i++  ) {
+				pos->rotate90( welt->gib_groesse_y()-1 );
+				welt->rotate90();
+			}
+*/
+			welt->update_map();
+		}
 	}
 
 	return n;
