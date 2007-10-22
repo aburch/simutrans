@@ -394,8 +394,8 @@ stadtauto_t::sync_step(long delta_t)
 	else {
 		setze_yoff( gib_yoff() - hoff );
 		weg_next += current_speed*delta_t;
-		while(65536 < weg_next) {
-			weg_next -= 65536;
+		while(SPEED_STEP_WIDTH < weg_next) {
+			weg_next -= SPEED_STEP_WIDTH;
 			fahre_basis();
 		}
 		if(use_calc_height) {

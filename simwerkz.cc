@@ -2171,17 +2171,19 @@ int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos)
 		koord3d k = g->gib_pos();
 		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, info, rotation, &k, welt->gib_spieler(1));
 
-		// crossconnect all?
-		if(umgebung_t::crossconnect_factories) {
-			const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
-			slist_iterator_tpl <fabrik_t *> iter (list);
-			while( iter.next() ) {
-				iter.get_current()->add_all_suppliers();
-			}
-		}
-
-		if(sp) {
+		if(anzahl>0) {
+			// least one factory has been built
+			welt->change_world_position( k.gib_2d(), 0, 0 );
 			sp->buche( anzahl*umgebung_t::cst_multiply_found_industry, pos, COST_CONSTRUCTION );
+
+			// crossconnect all?
+			if(umgebung_t::crossconnect_factories) {
+				const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
+				slist_iterator_tpl <fabrik_t *> iter (list);
+				while( iter.next() ) {
+					iter.get_current()->add_all_suppliers();
+				}
+			}
 		}
 
 		return true;
@@ -2201,17 +2203,22 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos)
 		const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(true,(climate_bits)(1<<welt->get_climate(pos3d.z)));
 		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, info, false, &pos3d, welt->gib_spieler(1));
 
-		// crossconnect all?
-		if(umgebung_t::crossconnect_factories) {
-			const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
-			slist_iterator_tpl <fabrik_t *> iter (list);
-			while( iter.next() ) {
-				iter.get_current()->add_all_suppliers();
-			}
-		}
+		if(anzahl>0) {
+			// least one factory has been built
+			welt->change_world_position( pos3d.gib_2d(), 0, 0 );
 
-		if(sp) {
-			sp->buche( anzahl*umgebung_t::cst_multiply_found_industry, pos, COST_CONSTRUCTION );
+			// crossconnect all?
+			if(umgebung_t::crossconnect_factories) {
+				const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
+				slist_iterator_tpl <fabrik_t *> iter (list);
+				while( iter.next() ) {
+					iter.get_current()->add_all_suppliers();
+				}
+			}
+			// ain't going to be cheap
+			if(sp) {
+				sp->buche( anzahl*umgebung_t::cst_multiply_found_industry, pos, COST_CONSTRUCTION );
+			}
 		}
 	}
 	return plan != 0;

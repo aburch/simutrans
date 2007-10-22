@@ -137,10 +137,10 @@ static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap,
 	*/
 
 	// we will need them very often ...
-	const sint16 corner1_y = (3*x_y)/4 - (corner1(slope)*TILE_HEIGHT_STEP*x_y)/64;
-	const sint16 corner2_y = x_y - (corner2(slope)*TILE_HEIGHT_STEP*x_y)/64;
-	const sint16 corner3_y = (3*x_y)/4 - (corner3(slope)*TILE_HEIGHT_STEP*x_y)/64;
-	const sint16 corner4_y = (x_y/2) - (corner4(slope)*TILE_HEIGHT_STEP*x_y)/64;
+	const sint16 corner1_y = (3*x_y)/4 - corner1(slope)*tile_raster_scale_y(TILE_HEIGHT_STEP,x_y);
+	const sint16 corner2_y = x_y - corner2(slope)*tile_raster_scale_y(TILE_HEIGHT_STEP,x_y);
+	const sint16 corner3_y = (3*x_y)/4 - corner3(slope)*tile_raster_scale_y(TILE_HEIGHT_STEP,x_y);
+	const sint16 corner4_y = (x_y/2) - corner4(slope)*tile_raster_scale_y(TILE_HEIGHT_STEP,x_y);
 	const sint16 middle_y = (corner2_y+corner4_y)/2;
 
 	// now mix the images

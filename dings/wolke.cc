@@ -21,9 +21,9 @@
 wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, image_id bild, bool increment) :
     ding_t(welt, pos)
 {
-	setze_yoff( y_off-8 );
-	setze_xoff( x_off );
-	base_y_off = y_off-8;
+	base_y_off = ((y_off-8)*TILE_STEPS)/16;
+	setze_yoff( base_y_off );
+	setze_xoff( (x_off*TILE_STEPS)/16 );
 	insta_zeit = 0;
 	this->increment = increment;
 	base_image = bild;
@@ -73,12 +73,12 @@ wolke_t::sync_step(long delta_t)
 {
 	insta_zeit += delta_t;
 	if(insta_zeit<2500) {
-		if(base_y_off - (insta_zeit >> 7)!=gib_yoff()) {
+		if(base_y_off - ((insta_zeit*TILE_STEPS) >> 12)!=gib_yoff()) {
 			// move/change cloud ...
 			if(!get_flag(ding_t::dirty)) {
 				mark_image_dirty(gib_bild(),0);
 			}
-			setze_yoff(base_y_off - (insta_zeit >> 7));
+			setze_yoff(base_y_off - ((insta_zeit*TILE_STEPS) >> 12));
 			set_flag(ding_t::dirty);
 		}
 		return true;

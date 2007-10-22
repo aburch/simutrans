@@ -482,6 +482,42 @@ static fabrik_t* baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_
 }
 
 
+// check, if we have to rotate the factories before building this tree
+bool fabrikbauer_t::can_factory_tree_rotate( const fabrik_besch_t *besch )
+{
+	// we are finished: we cannont rotate
+	if(!besch->gib_haus()->can_rotate()) {
+		return false;
+	}
+
+	// now check for all products (should be changed later for the root)
+	for( int i=0;  i<besch->gib_lieferanten();  i++  ) {
+
+		const ware_besch_t *ware = besch->gib_lieferant(i)->gib_ware();
+		stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
+
+		// infortunately, for every for iteration, we have to check all factories ...
+		while(iter.next()) {
+			const fabrik_besch_t *tmp = iter.get_current_value();
+
+			// now check, if we produce this ...
+			for(int i = 0; i<tmp->gib_produkte(); i++) {
+				if(tmp->gib_produkt(i)->gib_ware()==ware  &&  tmp->gib_gewichtung()>0) {
+
+					if(!can_factory_tree_rotate( tmp )) {
+						return false;
+					}
+					// check next factory
+					break;
+				}
+			}
+		}
+	}
+	// all good -> true;
+	return true;
+}
+
+
 /**
  * vorbedingung: pos ist für fabrikbau geeignet
  */
@@ -501,12 +537,11 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 		return 0;
 	}
 
-	// rotate until we can save it, if the factory is non-rotateable ...
-	if(welt->cannot_save()) {
-		assert(parent==NULL);
+	// rotate until we can save it, if one of the factory is non-rotateable ...
+	if(welt->cannot_save()  &&  parent==NULL  &&  !can_factory_tree_rotate(info)  ) {
 		org_rotation = welt->gib_einstellungen()->get_rotation();
 		for(  int i=0;  i<4  &&  welt->cannot_save();  i++  ) {
-			pos->rotate90( welt->gib_groesse_y()-1 );
+			pos->rotate90( welt->gib_groesse_y()-info->gib_haus()->gib_h(rotate) );
 			welt->rotate90();
 		}
 	}
@@ -763,12 +798,10 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","failed to built lieferant %s aroun
 
 		// must rotate back?
 		if(org_rotation>=0) {
-/* leaves ugly holes on slope foundations
 			for(  int i=0;  i<4  &&  welt->gib_einstellungen()->get_rotation()!=org_rotation;  i++  ) {
 				pos->rotate90( welt->gib_groesse_y()-1 );
 				welt->rotate90();
 			}
-*/
 			welt->update_map();
 		}
 	}

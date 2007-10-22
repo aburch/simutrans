@@ -43,6 +43,8 @@
 	FIX: frame delay time does now slower increase/decrease => smoother response
 	CHANGE: all toolbars open directly below each others
 	FIX: crash when zooming out images with negative y-offsets
+	FIX: rotate map, when building a tree with nonratable factories
+	FIX: ground calculation fixed again
 
 
 Release of 99.14

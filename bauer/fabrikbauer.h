@@ -110,6 +110,9 @@ public:
 private:
 	// bauhilfen
 	static koord3d finde_zufallsbauplatz(karte_t *welt, koord3d pos, int radius, koord groesse,bool on_water, const haus_besch_t *besch);
+
+	// check, if we have to rotate the factories before building this tree
+	static bool can_factory_tree_rotate( const fabrik_besch_t *besch );
 };
 
 #endif

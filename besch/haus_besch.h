@@ -242,9 +242,9 @@ public:
 		}
 		// check for missing tiles after rotation
 		for( int x=0;  x<groesse.x;  x++  ) {
-			for( int y=0;  x<groesse.y;  y++  ) {
+			for( int y=0;  y<groesse.y;  y++  ) {
 				// only true, if one is missing
-				if(gib_tile( 0, x, y )->has_image()  ^  gib_tile( 1, gib_h(1)-y-1, x )->has_image()) {
+				if(gib_tile( 0, x, y )->has_image()  ^  gib_tile( 1, gib_b(1)-y-1, x )->has_image()) {
 					return false;
 				}
 			}

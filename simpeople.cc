@@ -147,9 +147,9 @@ fussgaenger_t::sync_step(long delta_t)
 
 	time_to_life -= delta_t;
 
-	weg_next += (128*delta_t*TILE_STEPS) / (64*16);
-	while(1024 < weg_next) {
-		weg_next -= 1024;
+	weg_next += 128*delta_t;
+	while(SPEED_STEP_WIDTH < weg_next) {
+		weg_next -= SPEED_STEP_WIDTH;
 		setze_yoff( gib_yoff() - hoff );
 		fahre_basis();
 		if(use_calc_height) {

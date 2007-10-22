@@ -91,7 +91,7 @@ const haus_tile_besch_t *haus_besch_t::gib_tile(int layout, int x, int y) const
     layout = layout_anpassen(layout);
     koord dims = gib_groesse(layout);
 
-    if(layout < 0 || x < 0 || y < 0 ||layout >= layouts || x >= gib_b(layout) || y >= gib_h(layout)) {
+    if(layout < 0  ||  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= gib_b(layout)  ||  y >= gib_h(layout)) {
 	dbg->fatal("hausbauer_t::gib_tile()",
 	           "invalid request for l=%d, x=%d, y=%d on building %s (l=%d, x=%d, y=%d)",
 		   layout, x, y, gib_name(), layouts, groesse.x, groesse.y);
