@@ -45,6 +45,8 @@
 	FIX: crash when zooming out images with negative y-offsets
 	FIX: rotate map, when building a tree with nonratable factories
 	FIX: ground calculation fixed again
+	FIX: smoke offsets
+	FIX: more responsive interface by changing frame time calculation again for extreme cases
 
 
 Release of 99.14

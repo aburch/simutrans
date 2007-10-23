@@ -1699,7 +1699,13 @@ karte_t::update_frame_sleep_time()
 	if(!fast_forward) {
 		// change pause/frame spacing ...
 		// the frame spacing will be only touched in emergencies
-		if(simloops<=20) {
+		if(simloops<=10) {
+			if(next_wait_time==0) {
+				set_frame_time( get_frame_time()+2 );
+			}
+			next_wait_time = 0;
+		}
+		else if(simloops<=20) {
 			next_wait_time = 0;
 			increase_frame_time();
 		}
@@ -1722,7 +1728,12 @@ karte_t::update_frame_sleep_time()
 			}
 		}
 		else if(realFPS<umgebung_t::fps) {
-			reduce_frame_time();
+			if(realFPS<(umgebung_t::fps/2)  &&  next_wait_time>0) {
+				set_frame_time( get_frame_time()-1 );
+			}
+			else {
+				reduce_frame_time();
+			}
 		}
 	}
 	else if((last_frame_idx&7)==0){

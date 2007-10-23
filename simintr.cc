@@ -60,11 +60,7 @@ long get_frame_time()
 
 void set_frame_time(long time)
 {
-	time *= FRAME_TIME_MULTI;
-	if(time>250*FRAME_TIME_MULTI) {
-		time = 250*FRAME_TIME_MULTI;
-	}
-	frame_time = time;
+	frame_time = clamp( time, 10, 250 )*FRAME_TIME_MULTI;
 }
 
 void
