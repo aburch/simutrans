@@ -2856,6 +2856,10 @@ void spieler_t::do_passenger_ki()
 	switch(state) {
 		case NR_INIT:
 		{
+			// time to update hq?
+			built_update_headquarter();
+
+
 			// assume fail
 			state = CHECK_CONVOI;
 

@@ -641,6 +641,10 @@ void display_win(int win)
 			translator::translate(komp->gib_name()),
 			wins[win].closing,
 			( & wins[win].flags ) );
+	// mark top window, if requested
+	if(umgebung_t::window_frame_active  &&  win==ins_win-1) {
+		display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1, gr.x+2, gr.y+2 , titel_farbe, titel_farbe+1 );
+	}
 	komp->zeichnen(wins[win].pos, gr);
 
 	// dragger zeichnen
@@ -928,6 +932,7 @@ win_get_event(struct event_t *ev)
   display_get_event(ev);
 }
 
+
 void
 win_poll_event(struct event_t *ev)
 {
@@ -1160,30 +1165,32 @@ void win_display_flush(double konto)
 	display_flush(season_img, konto, time, info, active_player_name, wl->get_active_player()->get_player_color1());
 }
 
+
 void win_setze_welt(karte_t *welt)
 {
     wl = welt;
 }
 
+
 void win_set_zoom_factor(int rw)
 {
-    if(rw != get_zoom_factor()) {
-	set_zoom_factor(rw);
+	if(rw != get_zoom_factor()) {
+		set_zoom_factor(rw);
 
-	event_t ev;
+		event_t ev;
 
-	ev.ev_class = WINDOW_REZOOM;
-	ev.ev_code = rw;
-	ev.mx = 0;
-	ev.my = 0;
-	ev.cx = 0;
-	ev.cy = 0;
-  	ev.button_state = 0;
+		ev.ev_class = WINDOW_REZOOM;
+		ev.ev_code = rw;
+		ev.mx = 0;
+		ev.my = 0;
+		ev.cx = 0;
+		ev.cy = 0;
+		ev.button_state = 0;
 
-	for(int i=0; i<ins_win; i++) {
-	    wins[i].gui->infowin_event(&ev);
+		for(int i=0; i<ins_win; i++) {
+			wins[i].gui->infowin_event(&ev);
+		}
 	}
-    }
 }
 
 

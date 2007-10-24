@@ -148,10 +148,15 @@ public:
 	static bool single_info;
 
 	/**
-	* Only one info window
+	* window button at right corner (like Windows)
 	* @author prissi
 	*/
 	static bool window_buttons_right;
+
+	/*
+	 * frame active window
+	 */
+	static bool window_frame_active;
 
 	/**
 	* Produce more debug info ?

@@ -87,36 +87,36 @@ int money_frame_t::get_money_colour(int type, int old)
 
 money_frame_t::money_frame_t(spieler_t *sp)
   : gui_frame_t("Finanzen", sp),
-    tylabel("This Year", COL_WHITE, gui_label_t::right),
-    lylabel("Last Year", COL_WHITE, gui_label_t::right),
-    conmoney(NULL, COL_WHITE, gui_label_t::money),
-    nvmoney(NULL, COL_WHITE, gui_label_t::money),
-    vrmoney(NULL, COL_WHITE, gui_label_t::money),
-    imoney(NULL, COL_WHITE, gui_label_t::money),
-    tmoney(NULL, COL_WHITE, gui_label_t::money),
-    mmoney(NULL, COL_WHITE, gui_label_t::money),
-    pmoney(NULL, COL_WHITE, gui_label_t::money),
-    omoney(NULL, COL_WHITE, gui_label_t::money),
-    old_conmoney(NULL, COL_WHITE, gui_label_t::money),
-    old_nvmoney(NULL, COL_WHITE, gui_label_t::money),
-    old_vrmoney(NULL, COL_WHITE, gui_label_t::money),
-    old_imoney(NULL, COL_WHITE, gui_label_t::money),
-    old_tmoney(NULL, COL_WHITE, gui_label_t::money),
-    old_mmoney(NULL, COL_WHITE, gui_label_t::money),
-    old_pmoney(NULL, COL_WHITE, gui_label_t::money),
-    old_omoney(NULL, COL_WHITE, gui_label_t::money),
-    tylabel2("This Year", COL_WHITE, gui_label_t::right),
-    gtmoney(NULL, COL_WHITE, gui_label_t::money),
-    vtmoney(NULL, COL_WHITE, gui_label_t::money),
-    money(NULL, COL_WHITE, gui_label_t::money),
-    margin(NULL, COL_WHITE, gui_label_t::money),
-    transport(NULL, COL_WHITE, gui_label_t::right),
-    old_transport(NULL, COL_WHITE, gui_label_t::right),
-    maintenance_label("This Month",COL_WHITE, gui_label_t::right),
-    maintenance_money(NULL, COL_RED, gui_label_t::money),
-	warn("", COL_RED),
-	headquarter_view(sp->get_welt(), koord3d::invalid),
-	old_hq(koord::invalid)
+		tylabel("This Year", COL_WHITE, gui_label_t::right),
+		lylabel("Last Year", COL_WHITE, gui_label_t::right),
+		conmoney(NULL, COL_WHITE, gui_label_t::money),
+		nvmoney(NULL, COL_WHITE, gui_label_t::money),
+		vrmoney(NULL, COL_WHITE, gui_label_t::money),
+		imoney(NULL, COL_WHITE, gui_label_t::money),
+		tmoney(NULL, COL_WHITE, gui_label_t::money),
+		mmoney(NULL, COL_WHITE, gui_label_t::money),
+		pmoney(NULL, COL_WHITE, gui_label_t::money),
+		omoney(NULL, COL_WHITE, gui_label_t::money),
+		old_conmoney(NULL, COL_WHITE, gui_label_t::money),
+		old_nvmoney(NULL, COL_WHITE, gui_label_t::money),
+		old_vrmoney(NULL, COL_WHITE, gui_label_t::money),
+		old_imoney(NULL, COL_WHITE, gui_label_t::money),
+		old_tmoney(NULL, COL_WHITE, gui_label_t::money),
+		old_mmoney(NULL, COL_WHITE, gui_label_t::money),
+		old_pmoney(NULL, COL_WHITE, gui_label_t::money),
+		old_omoney(NULL, COL_WHITE, gui_label_t::money),
+		tylabel2("This Year", COL_WHITE, gui_label_t::right),
+		gtmoney(NULL, COL_WHITE, gui_label_t::money),
+		vtmoney(NULL, COL_WHITE, gui_label_t::money),
+		money(NULL, COL_WHITE, gui_label_t::money),
+		margin(NULL, COL_WHITE, gui_label_t::money),
+		transport(NULL, COL_WHITE, gui_label_t::right),
+		old_transport(NULL, COL_WHITE, gui_label_t::right),
+		maintenance_label("This Month",COL_WHITE, gui_label_t::right),
+		maintenance_money(NULL, COL_RED, gui_label_t::money),
+		warn("", COL_RED),
+		headquarter_view(sp->get_welt(), koord3d::invalid),
+		old_hq(koord::invalid)
 {
 	if(sp->get_welt()->gib_spieler(0)!=sp) {
 		sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(sp->gib_name()) );
@@ -348,8 +348,13 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	margin.set_color(get_money_colour(COST_MARGIN, 0));
 
 	if(sp->gib_konto_ueberzogen()) {
-		sprintf(str_buf[15], translator::translate("Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen"),
-		spieler_t::MAX_KONTO_VERZUG-sp->gib_konto_ueberzogen()+1);
+		if(sp->get_finance_history_year(0, COST_NETWEALTH)<0) {
+			sprintf(str_buf[15], translator::translate("Company bankrupt") );
+		}
+		else {
+			sprintf(str_buf[15], translator::translate("Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen"),
+			spieler_t::MAX_KONTO_VERZUG-sp->gib_konto_ueberzogen()+1);
+		}
 	}
 	else {
 		str_buf[15][0] = '\0';
@@ -405,6 +410,8 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 
 	gui_frame_t::zeichnen(pos, gr);
 }
+
+
 
 bool money_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {

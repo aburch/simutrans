@@ -22,6 +22,8 @@
 
 #include "besch/haus_besch.h"
 
+#include "boden/grund.h"
+
 #include "dataobj/translator.h"
 #include "dataobj/umgebung.h"
 
@@ -56,104 +58,109 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 	static char buf[512];
 	struct sound_info click_sound = { SFX_SELECT, 255, 0 };
 	werkzeug_parameter_waehler_t *wzw = (werkzeug_parameter_waehler_t *)win_get_magic(magic);
+	bool do_sound = (wzw==NULL);
 
 	switch(magic) {
 
 		case magic_slopetools:
-		{
-			if(wzw==NULL) {
-				wzw = new werkzeug_parameter_waehler_t(welt, "SLOPETOOLS");
-				wzw->setze_hilfe_datei("slopetools.txt");
+			if(!grund_t::underground_mode) {
+
+				if(wzw==NULL) {
+					wzw = new werkzeug_parameter_waehler_t(welt, "SLOPETOOLS");
+					wzw->setze_hilfe_datei("slopetools.txt");
+				}
+				else {
+					wzw->reset_tools();
+				}
+
+				wzw->add_tool(wkz_raise,
+					karte_t::Z_GRID,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					skinverwaltung_t::hang_werkzeug->gib_bild_nr(8),
+					skinverwaltung_t::upzeiger->gib_bild_nr(0),
+					tool_tip_with_price(translator::translate("Anheben"), umgebung_t::cst_alter_land));
+
+				wzw->add_tool(wkz_lower,
+					karte_t::Z_GRID,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					skinverwaltung_t::hang_werkzeug->gib_bild_nr(9),
+					skinverwaltung_t::downzeiger->gib_bild_nr(0),
+					tool_tip_with_price(translator::translate("Absenken"), umgebung_t::cst_alter_land));
+
+				wzw->add_param_tool(wkz_set_slope,(long)SOUTH_SLOPE,
+					karte_t::Z_PLAN,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					skinverwaltung_t::hang_werkzeug->gib_bild_nr(0),
+					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
+					tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
+
+				wzw->add_param_tool(wkz_set_slope,(long)NORTH_SLOPE,
+					karte_t::Z_PLAN,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					skinverwaltung_t::hang_werkzeug->gib_bild_nr(1),
+					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
+					tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
+
+				wzw->add_param_tool(wkz_set_slope,(long)WEST_SLOPE,
+					karte_t::Z_PLAN,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					skinverwaltung_t::hang_werkzeug->gib_bild_nr(2),
+					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
+					tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
+
+				wzw->add_param_tool(wkz_set_slope,(long)EAST_SLOPE,
+					karte_t::Z_PLAN,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					skinverwaltung_t::hang_werkzeug->gib_bild_nr(3),
+					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
+					tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
+
+				wzw->add_param_tool(wkz_set_slope,(long)ALL_DOWN_SLOPE,
+					karte_t::Z_PLAN,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					skinverwaltung_t::hang_werkzeug->gib_bild_nr(5),
+					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
+					tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
+
+				wzw->add_param_tool(wkz_set_slope,(long)ALL_UP_SLOPE,
+					karte_t::Z_PLAN,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					skinverwaltung_t::hang_werkzeug->gib_bild_nr(6),
+					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
+					tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
+
+		#ifdef COVER_TILES
+				// cover tile
+				wzw->add_param_tool(wkz_set_slope,(long)0,
+					karte_t::Z_PLAN,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					skinverwaltung_t::hang_werkzeug->gib_bild_nr(4),
+					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
+					tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
+		#endif
+
+				wzw->add_param_tool(wkz_set_slope,(long)RESTORE_SLOPE,
+					karte_t::Z_PLAN,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					skinverwaltung_t::hang_werkzeug->gib_bild_nr(7),
+					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
+					tool_tip_with_price(translator::translate("Restore natural slope"), umgebung_t::cst_alter_land));
+
 			}
-			else {
-				wzw->reset_tools();
+			else if(wzw!=NULL) {
+				destroy_win( wzw );
+				wzw = NULL;
 			}
-
-			wzw->add_tool(wkz_raise,
-				karte_t::Z_GRID,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				skinverwaltung_t::hang_werkzeug->gib_bild_nr(8),
-				skinverwaltung_t::upzeiger->gib_bild_nr(0),
-				tool_tip_with_price(translator::translate("Anheben"), umgebung_t::cst_alter_land));
-
-			wzw->add_tool(wkz_lower,
-				karte_t::Z_GRID,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				skinverwaltung_t::hang_werkzeug->gib_bild_nr(9),
-				skinverwaltung_t::downzeiger->gib_bild_nr(0),
-				tool_tip_with_price(translator::translate("Absenken"), umgebung_t::cst_alter_land));
-
-			wzw->add_param_tool(wkz_set_slope,(long)SOUTH_SLOPE,
-				karte_t::Z_PLAN,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				skinverwaltung_t::hang_werkzeug->gib_bild_nr(0),
-				skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-				tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
-
-			wzw->add_param_tool(wkz_set_slope,(long)NORTH_SLOPE,
-				karte_t::Z_PLAN,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				skinverwaltung_t::hang_werkzeug->gib_bild_nr(1),
-				skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-				tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
-
-			wzw->add_param_tool(wkz_set_slope,(long)WEST_SLOPE,
-				karte_t::Z_PLAN,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				skinverwaltung_t::hang_werkzeug->gib_bild_nr(2),
-				skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-				tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
-
-			wzw->add_param_tool(wkz_set_slope,(long)EAST_SLOPE,
-				karte_t::Z_PLAN,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				skinverwaltung_t::hang_werkzeug->gib_bild_nr(3),
-				skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-				tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
-
-			wzw->add_param_tool(wkz_set_slope,(long)ALL_DOWN_SLOPE,
-				karte_t::Z_PLAN,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				skinverwaltung_t::hang_werkzeug->gib_bild_nr(5),
-				skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-				tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
-
-			wzw->add_param_tool(wkz_set_slope,(long)ALL_UP_SLOPE,
-				karte_t::Z_PLAN,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				skinverwaltung_t::hang_werkzeug->gib_bild_nr(6),
-				skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-				tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
-
-#ifdef COVER_TILES
-			// cover tile
-			wzw->add_param_tool(wkz_set_slope,(long)0,
-				karte_t::Z_PLAN,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				skinverwaltung_t::hang_werkzeug->gib_bild_nr(4),
-				skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-				tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
-#endif
-
-			wzw->add_param_tool(wkz_set_slope,(long)RESTORE_SLOPE,
-				karte_t::Z_PLAN,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				skinverwaltung_t::hang_werkzeug->gib_bild_nr(7),
-				skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-				tool_tip_with_price(translator::translate("Restore natural slope"), umgebung_t::cst_alter_land));
-
-			sound_play(click_sound);
-		}
 		break;
 
 		case magic_railtools:
@@ -166,7 +173,7 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 					wzw->reset_tools();
 				}
 
-				if(sp!=welt->gib_spieler(1)) {
+				if(sp!=welt->gib_spieler(1)  &&  !grund_t::underground_mode) {
 					// public player is not allowed to run vehicles ...
 					wegbauer_t::fill_menu(wzw,
 						track_wt,
@@ -185,7 +192,9 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 						welt,
 						weg_t::type_elevated
 						);
+				}
 
+				if(sp!=welt->gib_spieler(1)) {
 					wayobj_t::fill_menu(wzw,
 						track_wt,
 						wkz_wayobj,
@@ -203,12 +212,15 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 						skinverwaltung_t::killzeiger->gib_bild_nr(0),
 						translator::translate("remove tracks"));
 
-					brueckenbauer_t::fill_menu(wzw,
-						track_wt,
-						SFX_JACKHAMMER,
-						SFX_FAILURE,
-						welt
-						);
+					if(!grund_t::underground_mode) {
+						// no bridges in tunnels ...
+						brueckenbauer_t::fill_menu(wzw,
+							track_wt,
+							SFX_JACKHAMMER,
+							SFX_FAILURE,
+							welt
+							);
+					}
 
 					tunnelbauer_t::fill_menu(wzw,
 						track_wt,
@@ -243,15 +255,15 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 					umgebung_t::cst_multiply_station,
 					welt );
 
-				hausbauer_t::fill_menu(wzw,
-					haus_besch_t::bahnhof_geb,
-					wkz_station_building,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					umgebung_t::cst_multiply_post,
-					welt );
-
-				sound_play(click_sound);
+				if(!grund_t::underground_mode) {
+					hausbauer_t::fill_menu(wzw,
+						haus_besch_t::bahnhof_geb,
+						wkz_station_building,
+						SFX_JACKHAMMER,
+						SFX_FAILURE,
+						umgebung_t::cst_multiply_post,
+						welt );
+				}
 			}
 			else {
 				create_win( new news_img("Trains are not available yet!"), w_time_delete, magic_none );
@@ -268,7 +280,7 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 					wzw->reset_tools();
 				}
 
-				if(sp!=welt->gib_spieler(1)) {
+				if(sp!=welt->gib_spieler(1)  &&  !grund_t::underground_mode) {
 					// public player is not allowed to run vehicles ...
 					wegbauer_t::fill_menu(wzw,
 						monorail_wt,
@@ -295,7 +307,9 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 						SFX_FAILURE,
 						welt
 						);
+				}
 
+				if(sp!=welt->gib_spieler(1)) {
 					wzw->add_param_tool(&wkz_wayremover,
 						(const int)monorail_wt,
 						karte_t::Z_PLAN,
@@ -305,12 +319,14 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 						skinverwaltung_t::killzeiger->gib_bild_nr(0),
 						translator::translate("remove monorails"));
 
-					brueckenbauer_t::fill_menu(wzw,
-						monorail_wt,
-						SFX_JACKHAMMER,
-						SFX_FAILURE,
-						welt
-						);
+					if(!grund_t::underground_mode) {
+						brueckenbauer_t::fill_menu(wzw,
+							monorail_wt,
+							SFX_JACKHAMMER,
+							SFX_FAILURE,
+							welt
+							);
+					}
 
 					tunnelbauer_t::fill_menu(wzw,
 						monorail_wt,
@@ -345,15 +361,15 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 					umgebung_t::cst_multiply_station,
 					welt );
 
-				hausbauer_t::fill_menu(wzw,
-					haus_besch_t::monorail_geb,
-					wkz_station_building,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					umgebung_t::cst_multiply_station,
-					welt );
-
-				sound_play(click_sound);
+				if(!grund_t::underground_mode) {
+					hausbauer_t::fill_menu(wzw,
+						haus_besch_t::monorail_geb,
+						wkz_station_building,
+						SFX_JACKHAMMER,
+						SFX_FAILURE,
+						umgebung_t::cst_multiply_station,
+						welt );
+				}
 			}
 			else {
 				create_win( new news_img("Monorails are not available yet!"), w_time_delete, magic_none );
@@ -370,7 +386,7 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 					wzw->reset_tools();
 				}
 
-				if(sp!=welt->gib_spieler(1)) {
+				if(sp!=welt->gib_spieler(1)  &&  !grund_t::underground_mode) {
 
 					wegbauer_t::fill_menu(wzw,
 						track_wt,
@@ -405,7 +421,9 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 						SFX_FAILURE,
 						welt
 						);
+				}
 
+				if(sp!=welt->gib_spieler(1)) {
 					wzw->add_param_tool(wkz_depot,
 						hausbauer_t::tram_depot_besch,
 						karte_t::Z_PLAN,
@@ -431,8 +449,6 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 					SFX_FAILURE,
 					umgebung_t::cst_multiply_roadstop,
 					welt );
-
-				sound_play(click_sound);
 			}
 			else {
 				create_win( new news_img("Trams are not available yet!"), w_time_delete, magic_none );
@@ -449,23 +465,25 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 					wzw->reset_tools();
 				}
 
-				wegbauer_t::fill_menu(wzw,
-					road_wt,
-					wkz_wegebau,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					welt,
-					weg_t::type_flat
-					);
+				if(!grund_t::underground_mode) {
+					wegbauer_t::fill_menu(wzw,
+						road_wt,
+						wkz_wegebau,
+						SFX_JACKHAMMER,
+						SFX_FAILURE,
+						welt,
+						weg_t::type_flat
+						);
 
-				wegbauer_t::fill_menu(wzw,
-					road_wt,
-					wkz_wegebau,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					welt,
-					weg_t::type_elevated
-					);
+					wegbauer_t::fill_menu(wzw,
+						road_wt,
+						wkz_wegebau,
+						SFX_JACKHAMMER,
+						SFX_FAILURE,
+						welt,
+						weg_t::type_elevated
+						);
+				}
 
 				wayobj_t::fill_menu(wzw,
 					road_wt,
@@ -484,12 +502,14 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 					skinverwaltung_t::killzeiger->gib_bild_nr(0),
 					translator::translate("remove roads"));
 
-				brueckenbauer_t::fill_menu(wzw,
-					road_wt,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					welt
-					);
+				if(!grund_t::underground_mode) {
+					brueckenbauer_t::fill_menu(wzw,
+						road_wt,
+						SFX_JACKHAMMER,
+						SFX_FAILURE,
+						welt
+						);
+				}
 
 				tunnelbauer_t::fill_menu(wzw,
 					road_wt,
@@ -533,23 +553,23 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 					umgebung_t::cst_multiply_roadstop,
 					welt );
 
-				hausbauer_t::fill_menu(wzw,
-					haus_besch_t::bushalt_geb,
-					wkz_station_building,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					umgebung_t::cst_multiply_post,
-					welt );
+				if(!grund_t::underground_mode) {
+					hausbauer_t::fill_menu(wzw,
+						haus_besch_t::bushalt_geb,
+						wkz_station_building,
+						SFX_JACKHAMMER,
+						SFX_FAILURE,
+						umgebung_t::cst_multiply_post,
+						welt );
 
-				hausbauer_t::fill_menu(wzw,
-					haus_besch_t::ladebucht_geb,
-					wkz_station_building,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					umgebung_t::cst_multiply_post,
-					welt );
-
-				sound_play(click_sound);
+					hausbauer_t::fill_menu(wzw,
+						haus_besch_t::ladebucht_geb,
+						wkz_station_building,
+						SFX_JACKHAMMER,
+						SFX_FAILURE,
+						umgebung_t::cst_multiply_post,
+						welt );
+				}
 			}
 			else {
 				create_win( new news_img("Cars are not available yet!"), w_time_delete, magic_none );
@@ -566,14 +586,16 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 				wzw->reset_tools();
 			}
 
-			wegbauer_t::fill_menu(wzw,
-				water_wt,
-				wkz_wegebau,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				welt,
-				weg_t::type_flat
-				);
+			if(!grund_t::underground_mode) {
+				wegbauer_t::fill_menu(wzw,
+					water_wt,
+					wkz_wegebau,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					welt,
+					weg_t::type_flat
+					);
+			}
 
 			wayobj_t::fill_menu(wzw,
 				water_wt,
@@ -592,12 +614,14 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 				skinverwaltung_t::killzeiger->gib_bild_nr(0),
 				translator::translate("remove channels"));
 
-			brueckenbauer_t::fill_menu(wzw,
-				water_wt,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				welt
-				);
+			if(!grund_t::underground_mode) {
+				brueckenbauer_t::fill_menu(wzw,
+					water_wt,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					welt
+					);
+			}
 
 			tunnelbauer_t::fill_menu(wzw,
 				water_wt,
@@ -623,13 +647,15 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 				welt );
 
 
-			hausbauer_t::fill_menu(wzw,
-				haus_besch_t::hafen,
-				wkz_dockbau,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				umgebung_t::cst_multiply_dock,
-				welt );
+			if(!grund_t::underground_mode) {
+				hausbauer_t::fill_menu(wzw,
+					haus_besch_t::hafen,
+					wkz_dockbau,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					umgebung_t::cst_multiply_dock,
+					welt );
+			}
 
 			if(sp!=welt->gib_spieler(1)) {
 				wzw->add_param_tool(wkz_depot,
@@ -642,30 +668,30 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 					tool_tip_with_price(translator::translate("Build ship depot"), umgebung_t::cst_depot_ship));
 			}
 
-			hausbauer_t::fill_menu(wzw,
-				haus_besch_t::binnenhafen_geb,
-				wkz_station_building,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				umgebung_t::cst_multiply_post,
-				welt );
+			if(!grund_t::underground_mode) {
+				hausbauer_t::fill_menu(wzw,
+					haus_besch_t::binnenhafen_geb,
+					wkz_station_building,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					umgebung_t::cst_multiply_post,
+					welt );
 
-			hausbauer_t::fill_menu(wzw,
-				haus_besch_t::hafen_geb,
-				wkz_station_building,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				umgebung_t::cst_multiply_post,
-				welt );
-
-			sound_play(click_sound);
+				hausbauer_t::fill_menu(wzw,
+					haus_besch_t::hafen_geb,
+					wkz_station_building,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					umgebung_t::cst_multiply_post,
+					welt );
+			}
 		}
 		break;
 
 		case magic_airtools:
 			if (!hausbauer_t::air_depot.empty() && wegbauer_t::weg_search(air_wt, 1, welt->get_timeline_year_month(),weg_t::type_all) != NULL) {
 
-				if(wzw  &&  sp==welt->gib_spieler(1)) {
+				if(wzw  &&  (sp==welt->gib_spieler(1)  ||  grund_t::underground_mode)) {
 					// no airports for player 1
 					destroy_win( wzw );
 					return NULL;
@@ -754,133 +780,135 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 		break;
 
 		case magic_specialtools:
-		{
-			if(wzw==NULL) {
-				wzw = new werkzeug_parameter_waehler_t(welt, "SPECIALTOOLS");
-				wzw->setze_hilfe_datei("special.txt");
-			}
-			else {
-				wzw->reset_tools();
-			}
+			if(!grund_t::underground_mode) {
+				if(wzw==NULL) {
+					wzw = new werkzeug_parameter_waehler_t(welt, "SPECIALTOOLS");
+					wzw->setze_hilfe_datei("special.txt");
+				}
+				else {
+					wzw->reset_tools();
+				}
 
-			wegbauer_t::fill_menu(wzw,
-				road_wt,
-				wkz_wegebau,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				welt,
-				weg_t::type_all
-				);
-
-			wegbauer_t::fill_menu(wzw,
-				track_wt,
-				wkz_wegebau,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				welt,
-				weg_t::type_all
-				);
-
-			hausbauer_t::fill_menu(wzw,
-				haus_besch_t::post,
-				wkz_station_building,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				umgebung_t::cst_multiply_post,
-				welt );
-
-			hausbauer_t::fill_menu(wzw,
-				haus_besch_t::wartehalle,
-				wkz_station_building,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				umgebung_t::cst_multiply_post,
-				welt );
-
-			hausbauer_t::fill_menu(wzw,
-				haus_besch_t::lagerhalle,
-				wkz_station_building,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				umgebung_t::cst_multiply_post,
-				welt );
-
-			wzw->add_tool(wkz_switch_player,
-				karte_t::Z_PLAN,
-				-1,
-				-1,
-				skinverwaltung_t::edit_werkzeug->gib_bild_nr(4),
-				IMG_LEER,
-				translator::translate("Change player") );
-
-			wzw->add_tool(wkz_add_city,
-				karte_t::Z_PLAN,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				skinverwaltung_t::special_werkzeug->gib_bild_nr(0),
-				skinverwaltung_t::stadtzeiger->gib_bild_nr(0),
-				tool_tip_with_price(translator::translate("Found new city"), umgebung_t::cst_found_city));
-
-			wzw->add_tool(wkz_pflanze_baum,
-				karte_t::Z_PLAN,
-				SFX_SELECT,
-				SFX_FAILURE,
-				skinverwaltung_t::special_werkzeug->gib_bild_nr(6),
-				skinverwaltung_t::baumzeiger->gib_bild_nr(0),
-				translator::translate("Plant tree"));
-
-			if(wegbauer_t::leitung_besch) {
-				char buf[128];
-				const sint32 shift_maintanance = (welt->ticks_bits_per_tag-18);
-
-				sprintf(buf, "%s, %ld$ (%ld$)",
-					translator::translate("Build powerline"),
-					wegbauer_t::leitung_besch->gib_preis()/100l,
-					(wegbauer_t::leitung_besch->gib_wartung()<<shift_maintanance)/100l
-					);
-
-				brueckenbauer_t::fill_menu(wzw,
-					powerline_wt,
+				wegbauer_t::fill_menu(wzw,
+					road_wt,
+					wkz_wegebau,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
-					welt
+					welt,
+					weg_t::type_all
 					);
 
-				wzw->add_param_tool(wkz_wegebau,
-					(const void *)wegbauer_t::leitung_besch,
+				wegbauer_t::fill_menu(wzw,
+					track_wt,
+					wkz_wegebau,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					welt,
+					weg_t::type_all
+					);
+
+				hausbauer_t::fill_menu(wzw,
+					haus_besch_t::post,
+					wkz_station_building,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					umgebung_t::cst_multiply_post,
+					welt );
+
+				hausbauer_t::fill_menu(wzw,
+					haus_besch_t::wartehalle,
+					wkz_station_building,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					umgebung_t::cst_multiply_post,
+					welt );
+
+				hausbauer_t::fill_menu(wzw,
+					haus_besch_t::lagerhalle,
+					wkz_station_building,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					umgebung_t::cst_multiply_post,
+					welt );
+
+				wzw->add_tool(wkz_switch_player,
+					karte_t::Z_PLAN,
+					-1,
+					-1,
+					skinverwaltung_t::edit_werkzeug->gib_bild_nr(4),
+					IMG_LEER,
+					translator::translate("Change player") );
+
+				wzw->add_tool(wkz_add_city,
 					karte_t::Z_PLAN,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
-					wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(1),
-					wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(0),
-					buf
-					);
+					skinverwaltung_t::special_werkzeug->gib_bild_nr(0),
+					skinverwaltung_t::stadtzeiger->gib_bild_nr(0),
+					tool_tip_with_price(translator::translate("Found new city"), umgebung_t::cst_found_city));
 
-				sprintf(buf, "%s, %ld$ (%ld$)",
-					translator::translate("Build drain"),
-					(long)(umgebung_t::cst_transformer/-100l),
-					(long)(umgebung_t::cst_maintain_transformer<<shift_maintanance)/-100l
-					);
+				wzw->add_tool(wkz_pflanze_baum,
+					karte_t::Z_PLAN,
+					SFX_SELECT,
+					SFX_FAILURE,
+					skinverwaltung_t::special_werkzeug->gib_bild_nr(6),
+					skinverwaltung_t::baumzeiger->gib_bild_nr(0),
+					translator::translate("Plant tree"));
 
-				wzw->add_tool(wkz_senke,
+				if(wegbauer_t::leitung_besch) {
+					char buf[128];
+					const sint32 shift_maintanance = (welt->ticks_bits_per_tag-18);
+
+					sprintf(buf, "%s, %ld$ (%ld$)",
+						translator::translate("Build powerline"),
+						wegbauer_t::leitung_besch->gib_preis()/100l,
+						(wegbauer_t::leitung_besch->gib_wartung()<<shift_maintanance)/100l
+						);
+
+					brueckenbauer_t::fill_menu(wzw,
+						powerline_wt,
+						SFX_JACKHAMMER,
+						SFX_FAILURE,
+						welt
+						);
+
+					wzw->add_param_tool(wkz_wegebau,
+						(const void *)wegbauer_t::leitung_besch,
+						karte_t::Z_PLAN,
+						SFX_JACKHAMMER,
+						SFX_FAILURE,
+						wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(1),
+						wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(0),
+						buf
+						);
+
+					sprintf(buf, "%s, %ld$ (%ld$)",
+						translator::translate("Build drain"),
+						(long)(umgebung_t::cst_transformer/-100l),
+						(long)(umgebung_t::cst_maintain_transformer<<shift_maintanance)/-100l
+						);
+
+					wzw->add_tool(wkz_senke,
+						karte_t::Z_PLAN,
+						SFX_JACKHAMMER,
+						SFX_FAILURE,
+						skinverwaltung_t::special_werkzeug->gib_bild_nr(2),
+						skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
+						buf);
+				}
+
+				wzw->add_tool(wkz_marker,
 					karte_t::Z_PLAN,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
-					skinverwaltung_t::special_werkzeug->gib_bild_nr(2),
-					skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
-					buf);
+					skinverwaltung_t::special_werkzeug->gib_bild_nr(5),
+					skinverwaltung_t::belegtzeiger->gib_bild_nr(0),
+					translator::translate("Marker"));
 			}
-
-			wzw->add_tool(wkz_marker,
-				karte_t::Z_PLAN,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				skinverwaltung_t::special_werkzeug->gib_bild_nr(5),
-				skinverwaltung_t::belegtzeiger->gib_bild_nr(0),
-				translator::translate("Marker"));
-
-			sound_play(click_sound);
-		}
+			else if( wzw!=NULL ) {
+				destroy_win( wzw );
+				wzw = NULL;
+			}
 		break;
 
 		case magic_listtools:
@@ -940,8 +968,6 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 				skinverwaltung_t::listen_werkzeug->gib_bild_nr(5),
 				IMG_LEER,
 				translator::translate("curlist_title"));
-
-			sound_play(click_sound);
 		}
 		break;
 
@@ -1033,6 +1059,10 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 				translator::translate("Step timeline one year"));
 		}
 		break;
+	}
+	// windows newly opened?
+	if(wzw!=NULL  &&  do_sound) {
+		sound_play(click_sound);
 	}
 	return wzw;
 }

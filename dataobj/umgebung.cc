@@ -51,6 +51,7 @@ bool umgebung_t::townhall_info = false;
 bool umgebung_t::single_info = false;
 
 bool umgebung_t::window_buttons_right = false;
+bool umgebung_t::window_frame_active = false;
 
 bool umgebung_t::verbose_debug = false;
 

@@ -1725,8 +1725,9 @@ karte_t::update_frame_sleep_time()
 		}
 	}
 	else if((last_frame_idx&7)==0){
-		// try to get a target speed
+		// fast forward mode
 
+		// try to get a target speed
 		int five_back = (last_frame_idx+31-6)%32;
 		int one_back = (last_frame_idx+32-1)%32;
 		uint32 last_simloops = ((last_step_nr[one_back]-last_step_nr[five_back])*10000)/(last_frame_ms[one_back]-last_frame_ms[five_back]);
@@ -1742,12 +1743,23 @@ karte_t::update_frame_sleep_time()
 			else {
 				if(last_simloops<umgebung_t::max_acceleration*50) {
 					if(next_wait_time>0) {
-						next_wait_time --;
+						if(last_simloops<umgebung_t::max_acceleration*5) {
+							next_wait_time = max( next_wait_time-3, 0 );
+						}
+						else {
+							next_wait_time --;
+						}
 					}
 				}
 				else if(last_simloops>umgebung_t::max_acceleration*50) {
 					if(next_wait_time<90) {
-						next_wait_time ++;
+						if(last_simloops>umgebung_t::max_acceleration*5) {
+							// brake much more ...
+							next_wait_time += 5;
+						}
+						else {
+							next_wait_time ++;
+						}
 					}
 				}
 			}
@@ -3389,10 +3401,21 @@ karte_t::interactive_event(event_t &ev)
 				setze_dirty();
 				break;
 			case 'U':
+			{
+				static magic_numbers all_menu_tools[10]= { magic_slopetools, magic_railtools, magic_monorailtools, magic_tramtools, magic_roadtools, magic_shiptools, magic_airtools, magic_specialtools, magic_edittools, magic_listtools };
+
 				sound_play(click_sound);
 				grund_t::toggle_underground_mode();
+				for( int i=0;  i<10;  i++  ) {
+					gui_fenster_t *gui=win_get_magic(all_menu_tools[i]);
+					if(gui) {
+						menu_fill( this, all_menu_tools[i], active_player );
+					}
+				}
+				setze_dirty();
 				update_map();
 				break;
+			}
 			case 167:    // Hajo: '§'
 				baum_t::distribute_trees( this, 3 );
 				break;
@@ -3880,7 +3903,7 @@ karte_t::interactive()
 				display_show_pointer(false);
 			} else if(IS_RIGHTRELEASE(&ev)) {
 				display_show_pointer(true);
-			} else if(ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_RIGHTBUTTON) {
+			} else if(!swallowed  &&  ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_RIGHTBUTTON) {
 				// unset following
 				if(follow_convoi.is_bound()) {
 					follow_convoi = convoihandle_t();

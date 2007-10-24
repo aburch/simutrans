@@ -47,6 +47,9 @@
 	FIX: ground calculation fixed again
 	FIX: smoke offsets
 	FIX: more responsive interface by changing frame time calculation again for extreme cases
+	ADD: frame around active window if requested (window_frame_active in simuconf.tab)
+	FIX: toolbars now also change with underground mode
+	ADD: new message for AI going bankrupt (Company bankrupt)
 
 
 Release of 99.14
