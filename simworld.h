@@ -145,8 +145,12 @@ private:
 	sint16 snowline;
 
 	// changes the snowline height (for the seasons)
+	// returns true if a change is needed
 	// @author prissi
-	void recalc_snowline();
+	bool recalc_snowline();
+
+	// >0 means a season change is needed
+	int pending_season_change;
 
 	// recalculates sleep time etc.
 	void update_frame_sleep_time();

@@ -124,7 +124,7 @@ const int karte_t::Z_GRID      = 0;
 
 
 // changes the snowline height (for the seasons)
-void
+bool
 karte_t::recalc_snowline()
 {
 	static int mfactor[12] = { 100, 90, 75, 50, 25, 10, 0, 10, 25, 50, 75, 90 };
@@ -147,20 +147,7 @@ karte_t::recalc_snowline()
 	snowline = (snowline*Z_TILE_STEP)+grundwasser;
 
 	// changed => we update all tiles ...
-	if(old_snowline!=snowline  ||  old_season!=season) {
-DBG_MESSAGE("karte_t::neuer_monat()","process seasons %i snowline %i",season,snowline/Z_TILE_STEP);
-		// give most objects the chance to change according to the seasons
-		int check_counter = 0;
-		const int cached_groesse2 = cached_groesse_gitter_x*cached_groesse_gitter_y;
-		for(int i=0; i<cached_groesse2; i++) {
-			plan[i].check_season(current_month);
-
-			if(((++check_counter) & 63) == 0) {	// every 64 one update ...
-				INT_CHECK("simworld 1076");
-			}
-		}
-		setze_dirty();
-	}
+	return (old_snowline!=snowline  ||  old_season!=season);
 }
 
 
@@ -493,13 +480,13 @@ void karte_t::add_stadt(stadt_t *s)
  */
 bool karte_t::rem_stadt(stadt_t *s)
 {
-	if(stadt.empty()  ||  s == NULL) {
+	if(s == NULL  ||  stadt.empty()) {
 		// no town there to delete ...
 		return false;
 	}
 
 	// reduce number of towns
-	DBG_MESSAGE("karte_t::rem_stadt()", s->gib_name() );
+	if(s->gib_name()) { DBG_MESSAGE("karte_t::rem_stadt()", s->gib_name() ); }
 	stadt.remove(s);
 	DBG_MESSAGE("karte_t::rem_stadt()", "reduce city to %i", einstellungen->gib_anzahl_staedte()-1 );
 	einstellungen->setze_anzahl_staedte(einstellungen->gib_anzahl_staedte()-1);
@@ -562,6 +549,7 @@ karte_t::init_felder()
 		last_frame_ms[i] = 0x7FFFFFFFu;
 	}
 	last_frame_idx = 0;
+	pending_season_change = 0;
 
 	nosave = false;
 }
@@ -2065,6 +2053,8 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 void
 karte_t::step()
 {
+	static uint32 tile_counter = 0;
+
 	// first: check for new month
 	if(ticks > next_month_ticks) {
 
@@ -2079,6 +2069,26 @@ karte_t::step()
 		}
 
 		neuer_monat();
+	}
+
+	// to make sure the tick counter will be updated
+	INT_CHECK("karte_t::step");
+
+	// check for pending seasons change
+	if(pending_season_change>0) {
+		// process
+		const uint32 end_count = min( cached_groesse_gitter_x*cached_groesse_gitter_y,  tile_counter + max( 16384, cached_groesse_gitter_x*cached_groesse_gitter_y/16 ) );
+		while(  tile_counter < end_count  ) {
+			plan[tile_counter].check_season(current_month);
+			tile_counter ++;
+			if((tile_counter&0x3FF)==0) {
+				INT_CHECK("karte_t::step");
+			}
+		}
+		if(tile_counter >= cached_groesse_gitter_x*cached_groesse_gitter_y) {
+			pending_season_change --;
+			tile_counter = 0;
+		}
 	}
 
 	// to make sure the tick counter will be updated
@@ -2131,7 +2141,9 @@ karte_t::step()
 	}
 
 	// will also call all objects if needed ...
-	recalc_snowline();
+	if(  recalc_snowline()  ) {
+		pending_season_change ++;
+	}
 }
 
 
