@@ -642,6 +642,9 @@ DBG_DEBUG("karte_t::init()","cleanup karte");
 	cleanup_karte();
 	nosave = false;
 
+	// right season for recalculations
+	recalc_snowline();
+
 DBG_DEBUG("karte_t::init()","set ground");
 	// Hajo: init slopes
 	koord k;
@@ -2865,6 +2868,9 @@ DBG_MESSAGE("karte_t::laden()", "players loaded");
 		change_world_position( koord3d(mi,mj,0) );
 	}
 
+	// right season for recalculations
+	recalc_snowline();
+
 DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count());
 	for (int y = 0; y < gib_groesse_y(); y++) {
 		for (int x = 0; x < gib_groesse_x(); x++) {
@@ -2939,13 +2945,9 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 
 	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_bits_per_tag);
 
-	recalc_snowline();
-	setze_dirty();
-
-//	schedule_counter++;	// force check for unroutable goods and connections
-
 	reset_timer();
 	recalc_average_speed();
+	setze_dirty();
 	mute_sound(false);
 
 	setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
