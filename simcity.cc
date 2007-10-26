@@ -1128,6 +1128,7 @@ void stadt_t::laden_abschliessen()
 	if (pax_transport > 0 && pax_erzeugt == 0) {
 		step_bau();
 		pax_transport = 0;
+		last_month_bev = last_year_bev = gib_einwohner();
 	}
 
 	// clear the minimaps
@@ -2572,10 +2573,10 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl)
  */
 char* stadt_t::info(char* buf) const
 {
-	buf += sprintf(buf, "%s: %d (+%d)\n",
+	buf += sprintf(buf, "%s: %d (%+.1f)\n",
 		translator::translate("City size"),
 		gib_einwohner(),
-		gib_wachstum()
+		gib_wachstum()/10.0
 	);
 
 	buf += sprintf(buf, translator::translate("%d buildings\n"), buildings.get_count());

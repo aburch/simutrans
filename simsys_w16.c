@@ -68,6 +68,10 @@ const wchar_t* const title =
  */
 int dr_os_init(const int* parameter)
 {
+	// prepare for next event
+	sys_event.type = SIM_NOEVENT;
+	sys_event.code = 0;
+
 	return TRUE;
 }
 
@@ -556,38 +560,27 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 static void internal_GetEvents(int wait)
 {
-	sys_event.type = SIM_NOEVENT;
-	sys_event.code = 0;
-
 	do {
 		// wait for keybord/mouse event
 		GetMessage(&msg, NULL, 0, 0);
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
-
-		if (sys_event.type == SIM_NOEVENT) {
-			switch (msg.message) {
-				default:
-					//printf("Unbekanntes Ereignis # %d!\n",msg.message);
-					sys_event.type = SIM_IGNORE_EVENT;
-					sys_event.code = 0;
-			}
-		}
-	} while (wait && sys_event.type == SIM_IGNORE_EVENT);
+	} while (wait && sys_event.type == SIM_NOEVENT);
 }
 
 
 void GetEvents()
 {
-	internal_GetEvents(TRUE);
+	// already even processed?
+	if(sys_event.type==SIM_NOEVENT) {
+		internal_GetEvents(TRUE);
+	}
 }
 
 
 void GetEventsNoWait()
 {
-	sys_event.type = SIM_NOEVENT;
-	sys_event.code = 0;
-	if (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
+	if (sys_event.type==SIM_NOEVENT  &&  PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
 		internal_GetEvents(FALSE);
 	}
 }

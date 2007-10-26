@@ -42,7 +42,7 @@ static void fill_event(struct event_t *ev)
 	// code by Niels Roest and Hj. Maltahner
 
 	static int  pressed_buttons = 0; // assume: at startup no button pressed
-	static int  clicked_button = 0; // must remember clicked button for correct release message
+//	static int  clicked_button = 0; // must remember clicked button for correct release message
 	static unsigned long lb_time = 0;
 	static long repeat_time = 500;
 
@@ -65,86 +65,86 @@ static void fill_event(struct event_t *ev)
 
 		case SIM_MOUSE_BUTTONS:
 			// press only acknowledged when no buttons are pressed
-			if (pressed_buttons == 0) {
-				switch (sys_event.code) {
-					case SIM_MOUSE_LEFTBUTTON:
-						ev->ev_class = EVENT_CLICK;
-						clicked_button = ev->ev_code = MOUSE_LEFTBUTTON;
-						ev->cx = cx = sys_event.mx;
-						ev->cy = cy = sys_event.my;
-						break;
+			switch (sys_event.code) {
+				case SIM_MOUSE_LEFTBUTTON:
+					ev->ev_class = EVENT_CLICK;
+					pressed_buttons |= MOUSE_LEFTBUTTON;
+					ev->ev_code = MOUSE_LEFTBUTTON;
+					ev->cx = cx = sys_event.mx;
+					ev->cy = cy = sys_event.my;
+					break;
 
-					case SIM_MOUSE_RIGHTBUTTON:
-						ev->ev_class = EVENT_CLICK;
-						clicked_button = ev->ev_code = MOUSE_RIGHTBUTTON;
-						ev->cx = cx = sys_event.mx;
-						ev->cy = cy = sys_event.my;
-						break;
+				case SIM_MOUSE_RIGHTBUTTON:
+					ev->ev_class = EVENT_CLICK;
+					pressed_buttons |= MOUSE_RIGHTBUTTON;
+					ev->ev_code = MOUSE_RIGHTBUTTON;
+					ev->cx = cx = sys_event.mx;
+					ev->cy = cy = sys_event.my;
+					break;
 
-					case SIM_MOUSE_MIDBUTTON:
-						ev->ev_class = EVENT_CLICK;
-						clicked_button = ev->ev_code = MOUSE_MIDBUTTON;
-						ev->cx = cx = sys_event.mx;
-						ev->cy = cy = sys_event.my;
-						break;
+				case SIM_MOUSE_MIDBUTTON:
+					ev->ev_class = EVENT_CLICK;
+					pressed_buttons |= MOUSE_MIDBUTTON;
+					ev->ev_code = MOUSE_MIDBUTTON;
+					ev->cx = cx = sys_event.mx;
+					ev->cy = cy = sys_event.my;
+					break;
 
-					case SIM_MOUSE_WHEELUP:
-						ev->ev_class = EVENT_CLICK;
-						ev->ev_code = MOUSE_WHEELUP;
-						ev->cx = cx = sys_event.mx;
-						ev->cy = cy = sys_event.my;
-						break;
+				case SIM_MOUSE_WHEELUP:
+					ev->ev_class = EVENT_CLICK;
+					ev->ev_code = MOUSE_WHEELUP;
+					ev->cx = cx = sys_event.mx;
+					ev->cy = cy = sys_event.my;
+					break;
 
-					case SIM_MOUSE_WHEELDOWN:
-						ev->ev_class = EVENT_CLICK;
-						ev->ev_code = MOUSE_WHEELDOWN;
-						ev->cx = cx = sys_event.mx;
-						ev->cy = cy = sys_event.my;
-						break;
-				}
+				case SIM_MOUSE_WHEELDOWN:
+					ev->ev_class = EVENT_CLICK;
+					ev->ev_code = MOUSE_WHEELDOWN;
+					ev->cx = cx = sys_event.mx;
+					ev->cy = cy = sys_event.my;
+					break;
+/*
 			}
 
 			// recalculate pressed_buttons
 			switch (sys_event.code) {
-				case SIM_MOUSE_LEFTBUTTON:  pressed_buttons |=  1; break;
-				case SIM_MOUSE_RIGHTBUTTON: pressed_buttons |=  2; break;
-				case SIM_MOUSE_MIDBUTTON:   pressed_buttons |=  4; break;
-				case SIM_MOUSE_LEFTUP:      pressed_buttons &= ~1; break;
-				case SIM_MOUSE_RIGHTUP:     pressed_buttons &= ~2; break;
-				case SIM_MOUSE_MIDUP:       pressed_buttons &= ~4; break;
+				case SIM_MOUSE_LEFTBUTTON:  pressed_buttons |=  MOUSE_LEFTBUTTON; break;
+				case SIM_MOUSE_RIGHTBUTTON: pressed_buttons |=  MOUSE_RIGHTBUTTON; break;
+				case SIM_MOUSE_MIDBUTTON:   pressed_buttons |=  MOUSE_MIDBUTTON; break;
+				case SIM_MOUSE_LEFTUP:      pressed_buttons &= ~MOUSE_LEFTBUTTON; break;
+				case SIM_MOUSE_RIGHTUP:     pressed_buttons &= ~MOUSE_RIGHTBUTTON; break;
+				case SIM_MOUSE_MIDUP:       pressed_buttons &= ~MOUSE_MIDBUTTON; break;
 			}
 
 			// if press event found, skip this
 			if (ev->ev_class == EVENT_CLICK) break;
 
 			// release only when all buttons are released
-			if (pressed_buttons == 0) {
-				switch(sys_event.code) {
-					case SIM_MOUSE_LEFTUP:
-						ev->ev_class = EVENT_RELEASE;
-						ev->ev_code = clicked_button;
-						clicked_button = 0;
-						break;
+			switch(sys_event.code) {*/
+				case SIM_MOUSE_LEFTUP:
+					ev->ev_class = EVENT_RELEASE;
+					ev->ev_code = MOUSE_LEFTBUTTON;
+					pressed_buttons &= ~MOUSE_LEFTBUTTON;
+					break;
 
-					case SIM_MOUSE_RIGHTUP:
-						ev->ev_class = EVENT_RELEASE;
-						ev->ev_code = clicked_button;
-						clicked_button = 0;
-						break;
+				case SIM_MOUSE_RIGHTUP:
+					ev->ev_class = EVENT_RELEASE;
+					ev->ev_code = MOUSE_RIGHTBUTTON;
+					pressed_buttons &= ~MOUSE_RIGHTBUTTON;
+					break;
 
-					case SIM_MOUSE_MIDUP:
-						ev->ev_class = EVENT_RELEASE;
-						ev->ev_code = clicked_button;
-						clicked_button = 0;
-						break;
-				}
+				case SIM_MOUSE_MIDUP:
+					ev->ev_class = EVENT_RELEASE;
+					ev->ev_code = MOUSE_MIDBUTTON;
+					pressed_buttons &= ~MOUSE_MIDBUTTON;
+					break;
 			}
 			break;
 
 		case SIM_MOUSE_MOVE:
-			if (clicked_button) { // drag
+			if (pressed_buttons) { // drag
 				ev->ev_class = EVENT_DRAG;
-				ev->ev_code  = clicked_button;
+				ev->ev_code  = pressed_buttons;
 			} else { // move
 				ev->ev_class = EVENT_MOVE;
 				ev->ev_code  = 0;
@@ -161,7 +161,7 @@ static void fill_event(struct event_t *ev)
 		// remember button press
 		lb_time = dr_time();
 		repeat_time = 400;
-	} else if (clicked_button == 0) {
+	} else if (pressed_buttons == 0) {
 		lb_time = 0;
 	} else { // the else is to prevent race conditions
 		/* Hajo: this would transform non-left button presses always
@@ -169,14 +169,14 @@ static void fill_event(struct event_t *ev)
 		 * I have no idea how thiscan be done cleanly, currently just
 		 * disabling the repeat feature for non-left buttons
 		 */
-		if (clicked_button == MOUSE_LEFTBUTTON) {
+		if (pressed_buttons == MOUSE_LEFTBUTTON) {
 			unsigned long now = dr_time();
 
 			if (now > lb_time + repeat_time) {
 				repeat_time = 100;
 				lb_time = now;
 				ev->ev_class = EVENT_REPEAT;
-				ev->ev_code = clicked_button;
+				ev->ev_code = pressed_buttons;
 			}
 		}
 	}
@@ -193,6 +193,9 @@ void display_poll_event(struct event_t *ev)
 {
 	GetEventsNoWait();
 	fill_event(ev);
+	// prepare for next event
+	sys_event.type = SIM_NOEVENT;
+	sys_event.code = 0;
 }
 
 
@@ -204,4 +207,7 @@ void display_get_event(struct event_t *ev)
 {
 	GetEvents();
 	fill_event(ev);
+	// prepare for next event
+	sys_event.type = SIM_NOEVENT;
+	sys_event.code = 0;
 }

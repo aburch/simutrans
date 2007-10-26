@@ -309,7 +309,7 @@ public:
 
 	sint32 gib_pax_erzeugt() const {return pax_erzeugt;}
 	sint32 gib_pax_transport() const {return pax_transport;}
-	sint32 gib_wachstum() const {return wachstum;}
+	sint32 gib_wachstum() const {return (city_history_month[0][HIST_GROWTH]*5) + (city_history_month[1][HIST_GROWTH]*4) + city_history_month[2][HIST_GROWTH]; }
 
 	/**
 	 * ermittelt die Einwohnerzahl der Stadt

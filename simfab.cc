@@ -198,7 +198,7 @@ void fabrik_t::baue(sint32 rotate, bool clear)
 	if(besch) {
 		this->rotate = rotate;
 		pos = welt->lookup_kartenboden(pos.gib_2d())->gib_pos();
-		hausbauer_t::baue(welt, besitzer_p, pos, rotate, besch->gib_haus(), clear, this);
+		hausbauer_t::baue(welt, besitzer_p, pos, rotate, besch->gib_haus(), this);
 		pos = welt->lookup_kartenboden(pos.gib_2d())->gib_pos();
 		if(besch->gib_field()) {
 			// if there are fields

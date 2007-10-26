@@ -483,12 +483,17 @@ dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 	bool ok=false;
 
 	if(capacity>1) {
-		while( top>offset  ) {
+		while(  top>offset  ) {
 			top --;
 			ding_t *dt = obj.some[top];
-			dt->entferne(sp);
-			dt->set_flag(ding_t::not_on_map);
-			delete dt;
+			if(dt->is_moving()) {
+				((vehikel_t *)dt)->verlasse_feld();
+			}
+			else {
+				dt->entferne(sp);
+				dt->set_flag(ding_t::not_on_map);
+				delete dt;
+			}
 			obj.some[top] = NULL;
 			ok = true;
 		}
@@ -496,9 +501,14 @@ dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 	else {
 		if(capacity==1) {
 			ding_t *dt = obj.one;
-			dt->entferne(sp);
-			dt->set_flag(ding_t::not_on_map);
-			delete dt;
+			if(dt->is_moving()) {
+				((vehikel_t *)dt)->verlasse_feld();
+			}
+			else {
+				dt->entferne(sp);
+				dt->set_flag(ding_t::not_on_map);
+				delete dt;
+			}
 			ok = true;
 			obj.one = NULL;
 			capacity = top = 0;

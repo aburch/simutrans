@@ -1144,7 +1144,7 @@ dbg->warning("wkz_station_building_aux()","no near building for a station extens
 			if(is_post  &&  halt->get_post_enabled()) {
 				create_win( new news_img("Station already\nhas a post office!\n"), w_time_delete, magic_none);
 			}
-			hausbauer_t::baue(welt, halt->gib_besitzer(), k, rotate, besch, 0, &halt);
+			hausbauer_t::baue(welt, halt->gib_besitzer(), k, rotate, besch, &halt);
 			sp->buche(umgebung_t::cst_multiply_post*besch->gib_level()*besch->gib_b()*besch->gib_h(), pos, COST_CONSTRUCTION);
 			halt->recalc_station_type();
 		}
@@ -1268,7 +1268,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 		}
 
 //DBG_MESSAGE("wkz_dockbau()","finally errect it");
-		hausbauer_t::baue(welt, halt->gib_besitzer(), bau_pos, layout, besch, 0, &halt);
+		hausbauer_t::baue(welt, halt->gib_besitzer(), bau_pos, layout, besch, &halt);
 
 //DBG_MESSAGE("wkz_dockbau()","clean up");
 		for(int i=0;  i<=len;  i++ ) {
@@ -1776,7 +1776,7 @@ int wkz_depot(spieler_t *sp, karte_t *welt, koord pos,value_t w)
 		if( wkz_depot_aux( sp, welt, pos, besch, monorail_wt, umgebung_t::cst_depot_rail ) ) {
 			grund_t *bd = welt->lookup(pos)->gib_kartenboden();
 			if(bd->gib_depot()==NULL  &&  bd->first_obj()==NULL) {
-				hausbauer_t::baue( welt, sp, bd->gib_pos(), 0, hausbauer_t::monorail_foundation_besch, true );
+				hausbauer_t::baue( welt, sp, bd->gib_pos(), 0, hausbauer_t::monorail_foundation_besch );
 			}
 		}
 		return true;
@@ -2354,7 +2354,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 				wkz_remover(sp,welt,previous);
 			}
 			// then built is
-			gebaeude_t *hq = hausbauer_t::baue(welt, sp, welt->lookup(pos)->gib_kartenboden()->gib_pos(), rotate, besch, true, NULL);
+			gebaeude_t *hq = hausbauer_t::baue(welt, sp, welt->lookup(pos)->gib_kartenboden()->gib_pos(), rotate, besch, NULL);
 			stadt_t *city = welt->suche_naechste_stadt( pos );
 			if(city) {
 				city->add_gebaeude_to_stadt( hq );

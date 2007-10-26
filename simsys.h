@@ -51,10 +51,10 @@ extern "C" {
 
 struct sys_event
 {
-    unsigned long type;
-    unsigned long code;
-    int mx;                  /* es sind negative Koodinaten mgl */
-    int my;
+	unsigned long type;
+	unsigned long code;
+	int mx;                  /* es sind negative Koodinaten mgl */
+	int my;
 	unsigned int key_mod; /* key mod, like ALT, STRG, SHIFT */
 };
 

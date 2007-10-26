@@ -160,6 +160,10 @@ int dr_os_init(const int* parameter)
 {
 	int ok = allegro_init();
 
+	// prepare for next event
+	sys_event.type = SIM_NOEVENT;
+	sys_event.code = 0;
+
 	LOCK_VARIABLE(event_top_mark);
 	LOCK_VARIABLE(event_bot_mark);
 	LOCK_VARIABLE(event_queue);
@@ -377,8 +381,12 @@ void GetEvents(void)
 {
 	while (event_top_mark == event_bot_mark) {
 		// try to be nice where possible
-#if !defined(__MINGW32__) && !defined(__BEOS__)
+#if !defined(__MINGW32__)
+#if!defined(__BEOS__)
 		usleep(1000);
+#endif
+#else
+		Sleep(5);
 #endif
 	}
 

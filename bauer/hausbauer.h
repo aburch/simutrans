@@ -152,7 +152,7 @@ class hausbauer_t
 		 *         part is not empty.
 		 * @author V. Meyer
 		 */
-		static gebaeude_t* baue(karte_t* welt, spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, bool clear = true, void* param = NULL);
+		static gebaeude_t* baue(karte_t* welt, spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
 
 		/* build all kind of stops and depots
 		 * The building size must be 1x1

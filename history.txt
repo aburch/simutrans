@@ -1,3 +1,5 @@
+known problem: Sometimes clicking in windows dos not produce results.
+
 	FIX: AI terraforming was free of charge
 	FIX: AI never changed convoi, when building does not succeeded
 	FIX: powerlines did not disconnect during deletion

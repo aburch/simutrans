@@ -795,6 +795,7 @@ check_pos_win(event_t *ev)
 			if(wl->ist_in_kartengrenzen(p)) {
 				wl->change_world_position(koord3d(p,wl->min_hgt(p)));
 			}
+			inside_event_handling = false;
 			return true;
 		}
 	}
@@ -803,11 +804,11 @@ check_pos_win(event_t *ev)
 	for(i=ins_win-1; i>=0; i--) {
 
 		// check click inside window
-		if((ev->ev_class != EVENT_NONE && wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y ))
+		if(((ev->ev_class!=EVENT_NONE  &&  ev->ev_class!=EVENT_MOVE)  && wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y ))
 			||  (is_resizing && i==ins_win-1)) {
 
-			// Top first
-			if (IS_LEFTCLICK(ev)) {
+			// Top window first
+			if(ins_win-1>i  &&  IS_LEFTCLICK(ev)) {
 				i = top_win(i);
 			}
 
@@ -926,15 +927,13 @@ check_pos_win(event_t *ev)
 }
 
 
-void
-win_get_event(struct event_t *ev)
+void win_get_event(struct event_t *ev)
 {
   display_get_event(ev);
 }
 
 
-void
-win_poll_event(struct event_t *ev)
+void win_poll_event(struct event_t *ev)
 {
 	display_poll_event(ev);
 	// main window resized

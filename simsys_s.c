@@ -119,6 +119,10 @@ int dr_os_init(const int* parameter)
 
 	sync_blit = parameter[1];
 
+	// prepare for next event
+	sys_event.type = SIM_NOEVENT;
+	sys_event.code = 0;
+
 	atexit(SDL_Quit); // clean up on exit
 	return TRUE;
 }

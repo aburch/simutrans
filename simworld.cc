@@ -1312,7 +1312,6 @@ void karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord
 
 		// reset pointer
 		koord3d zpos = zeiger->gib_pos();
-		zeiger->change_pos( koord3d::invalid );
 		zeiger->setze_area(0);	// reset size
 		zeiger->setze_yoff(zeiger_versatz);
 		zeiger->setze_bild(zeiger_bild);
@@ -3044,11 +3043,9 @@ void karte_t::load_heightfield(einstellungen_t *sets)
 
 static void warte_auf_mausklick_oder_taste(event_t *ev)
 {
-    do {
-	win_get_event(ev);
-    }while( !(IS_LEFTRELEASE(ev) ||
-	      (ev->ev_class == EVENT_KEYBOARD &&
-	       (ev->ev_code >= 32 && ev->ev_code < 256))));
+	do {
+		win_get_event(ev);
+	}while( !(IS_LEFTRELEASE(ev)  ||  (ev->ev_class == EVENT_KEYBOARD  &&  (ev->ev_code >= 32  &&  ev->ev_code < 256) ) ) );
 }
 
 
@@ -3524,10 +3521,6 @@ karte_t::interactive_event(event_t &ev)
 				}
 				setze_maus_funktion(wkz_wegebau, default_road->gib_cursor()->gib_bild_nr(0), Z_PLAN, (long)default_road, SFX_JACKHAMMER, SFX_FAILURE);
 				break;
-			case 'v':
-				umgebung_t::station_coverage_show = !umgebung_t::station_coverage_show;
-				setze_dirty();
-				break;
 			case 'S':
 				sound_play(click_sound);
 				create_win(new loadsave_frame_t(this, false), w_info, magic_save_t);
@@ -3547,6 +3540,10 @@ karte_t::interactive_event(event_t &ev)
 				break;
 			case 'u':
 				setze_maus_funktion(wkz_raise, skinverwaltung_t::upzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );
+				break;
+			case 'v':
+				umgebung_t::station_coverage_show = !umgebung_t::station_coverage_show;
+				setze_dirty();
 				break;
 			case 'V':
 				sound_play(click_sound);

@@ -41,9 +41,9 @@ extern "C" {
 
 #define MOUSE_LEFTBUTTON        1
 #define MOUSE_RIGHTBUTTON       2
-#define MOUSE_MIDBUTTON         3
-#define MOUSE_WHEELUP           4  //hsiegeln 2003-11-04 added
-#define MOUSE_WHEELDOWN         5  //hsiegeln 2003-11-04 added
+#define MOUSE_MIDBUTTON         4
+#define MOUSE_WHEELUP           8  //hsiegeln 2003-11-04 added
+#define MOUSE_WHEELDOWN        16  //hsiegeln 2003-11-04 added
 
 #define WIN_OPEN    1
 #define WIN_CLOSE   2

@@ -93,22 +93,19 @@ void citylist_stats_t::zeichnen(koord offset)
 
 	for (uint i = 0; i < city_list.get_count(); i++) {
 		const stadt_t* stadt = city_list[i];
-		buf.clear();
-		buf.append(stadt->gib_name());
-		buf.append(": ");
-		buf.append(stadt->gib_einwohner());
-		buf.append(" (+");
-		buf.append(stadt->gib_wachstum());
-		buf.append(")");
+		static char buf[256];
+		sint32 bev = stadt->gib_einwohner();
+		sint32 growth = stadt->gib_wachstum();
 
+		sprintf( buf, "%s: %i (%+.1f)", stadt->gib_name(), bev, growth/10.0 );
 		display_proportional_clip(offset.x + 4, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, COL_BLACK, true);
 
-		total_bev    += stadt->gib_einwohner();
-		total_growth += stadt->gib_wachstum();
+		total_bev    += bev;
+		total_growth += growth;
 	}
 	// some cities there?
 	if (total_bev > 0) {
-		sprintf(total_bev_string,"%s %d (%+d)", total_bev_translation, total_bev, total_growth);
+		sprintf(total_bev_string,"%s %d (%+.1f)", total_bev_translation, total_bev, total_growth/10.0 );
 	} else {
 		total_bev_string[0] = 0;
 	}

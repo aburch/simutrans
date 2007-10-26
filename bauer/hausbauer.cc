@@ -347,7 +347,7 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 
 
 
-gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org_layout, const haus_besch_t* besch, bool clear, void* param)
+gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org_layout, const haus_besch_t* besch, void* param)
 {
 	gebaeude_t* first_building = NULL;
 	koord k;
@@ -393,8 +393,14 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 				// its a dock!
 				gr->obj_add(gb);
 			} else {
-				if(clear) {
-					gr->obj_loesche_alle(sp);	// alles weg
+				// very likely remove all
+				leitung_t *lt = NULL;
+				if(!gr->hat_wege()) {
+					lt = gr->find<leitung_t>();
+					if(lt) {
+						gr->obj_remove(lt);
+					}
+					gr->obj_loesche_alle(sp);	// alles weg außer vehikel ...
 				}
 				needs_ground_recalc |= gr->gib_grund_hang()!=hang_t::flach;
 				grund_t *gr2 = new fundament_t(welt, gr->gib_pos(), gr->gib_grund_hang());
@@ -403,6 +409,9 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
 				gr->obj_add( gb );
 				gb->setze_pos( gr->gib_pos() );
+				if(lt) {
+					gr->obj_add( lt );
+				}
 				if(needs_ground_recalc  &&  welt->ist_in_kartengrenzen(pos.gib_2d()+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x)) {
 					welt->lookup(pos.gib_2d()+k+koord(1,0))->gib_kartenboden()->calc_bild();
 					welt->lookup(pos.gib_2d()+k+koord(0,1))->gib_kartenboden()->calc_bild();

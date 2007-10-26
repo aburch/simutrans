@@ -103,11 +103,8 @@ stadt_info_t::zeichnen(koord pos, koord gr)
 
 	display_multiline_text(pos.x+8, pos.y+48, buf, COL_BLACK);
 
-//    display_proportional_clip(pos.x+144, pos.y+24, translator::translate("Passagierziele"), ALIGN_LEFT, COL_BLACK, true);
-//    display_proportional_clip(pos.x+144, pos.y+24+LINESPACE, translator::translate("letzen Monat: diesen Monat:"), ALIGN_LEFT, COL_BLACK, true);
-
-    display_array_wh(pos.x+140, pos.y+24, 128, 128, stadt->gib_pax_ziele_alt()->to_array());
-    display_array_wh(pos.x+140 + 128 + 4, pos.y+24, 128, 128, stadt->gib_pax_ziele_neu()->to_array());
+	display_array_wh(pos.x+140, pos.y+24, 128, 128, stadt->gib_pax_ziele_alt()->to_array());
+	display_array_wh(pos.x+140 + 128 + 4, pos.y+24, 128, 128, stadt->gib_pax_ziele_neu()->to_array());
 
 #if 0
     sprintf(buf, "%s: %d/%d",
