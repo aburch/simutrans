@@ -511,8 +511,6 @@ static void destroy_framed_win(simwin *wins)
 	koord gr = wins->gui->gib_fenstergroesse();
 	mark_rect_dirty_wc( wins->pos.x, wins->pos.y, wins->pos.x+gr.x, wins->pos.y+gr.y );
 
-	gui_fenster_t *tmp = NULL;
-
 	if(wins->gui) {
 
 		event_t ev;
