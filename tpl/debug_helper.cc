@@ -5,7 +5,6 @@
 #include "debug_helper.h"
 #include "../simdebug.h"
 
-static char tmp[2048];
 
 void out_error(const char *who, const char *format, ...)
 {
@@ -13,6 +12,7 @@ void out_error(const char *who, const char *format, ...)
 	va_start(argptr, format);
 
 	if(dbg) {
+		char tmp[2048];
 		vsprintf( tmp, format, argptr );
 		dbg->error(who,tmp);
 		return;
@@ -27,7 +27,8 @@ void out_warning(const char *who, const char *format, ...)
     va_list argptr;
     va_start(argptr, format);
 
-  	if(dbg) {
+	if(dbg) {
+		char tmp[2048];
 		vsprintf( tmp, format, argptr );
 		dbg->warning(who,tmp);
 		return;
@@ -42,6 +43,7 @@ void out_message(const char *who, const char *format, ...)
 	va_list argptr;
 	va_start(argptr, format);
 	if(dbg) {
+		char tmp[2048];
 		vsprintf( tmp, format, argptr );
 		dbg->message(who,tmp);
 		return;

@@ -333,8 +333,6 @@ void spieler_t::step()
  */
 void spieler_t::neuer_monat()
 {
-	static char buf[256];
-
 	// Wartungskosten abziehen
 	buche( -((sint64)maintenance) <<((sint64)welt->ticks_bits_per_tag-18ll), COST_MAINTENANCE);
 	calc_finance_history();
@@ -352,6 +350,7 @@ void spieler_t::neuer_monat()
 					sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"), MAX_KONTO_VERZUG-konto_ueberzogen+1 );
 					message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				} else if(konto_ueberzogen <= MAX_KONTO_VERZUG) {
+					char buf[256];
 					sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"), MAX_KONTO_VERZUG-konto_ueberzogen+1);
 					message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				} else {

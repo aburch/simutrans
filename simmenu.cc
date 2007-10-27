@@ -55,7 +55,6 @@ char * tool_tip_with_price(const char * tip, sint64 price)
 // player 1 gets a different one!
 werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp )
 {
-	static char buf[512];
 	struct sound_info click_sound = { SFX_SELECT, 255, 0 };
 	werkzeug_parameter_waehler_t *wzw = (werkzeug_parameter_waehler_t *)win_get_magic(magic);
 	bool do_sound = (wzw==NULL);
@@ -1002,6 +1001,7 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 			// cityroads
 			const weg_besch_t *besch = welt->get_city_road();
 			if(besch!=NULL) {
+				char buf[512];
 				sprintf(buf, "%s, %ld$ (%ld$), %dkm/h",
 					translator::translate(besch->gib_name()),
 					besch->gib_preis()/100,

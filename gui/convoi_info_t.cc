@@ -235,7 +235,7 @@ enable_home:
 		gui_frame_t::zeichnen(pos, gr);
 
 		// convoi information
-		static char tmp[256];
+		char tmp[256];
 		static cbuffer_t info_buf(256);
 
 		// use median speed to avoid flickering

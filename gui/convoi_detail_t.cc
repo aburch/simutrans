@@ -92,13 +92,14 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		int offset_y = pos.y+14+16;
 
 		// current value
-		static char tmp[256], buf[32];
+		char tmp[256];
 
 		// current power
 		sprintf( tmp, translator::translate("Leistung: %d kW"), cnv->gib_sum_leistung() );
 		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );
 		offset_y += LINESPACE;
 
+		char buf[32];
 		money_to_string( buf, cnv->calc_restwert()/100.0 );
 		sprintf( tmp, "%s %s", translator::translate("Restwert:"), buf );
 		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );

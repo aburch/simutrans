@@ -1212,7 +1212,7 @@ void depot_frame_t::fahrplaneingabe()
 void
 depot_frame_t::draw_vehicle_info_text(koord pos)
 {
-	static char buf[1024];
+	char buf[1024];
 	const char *c;
 
 	gui_image_list_t *lst = dynamic_cast<gui_image_list_t *>(tabs.get_active_tab_index() == 0 ? &pas :(tabs.get_active_tab_index() == 1 ? &loks : &waggons));

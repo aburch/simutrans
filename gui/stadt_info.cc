@@ -98,7 +98,7 @@ stadt_info_t::zeichnen(koord pos, koord gr)
 
 	gui_frame_t::zeichnen(pos, gr);
 
-	static char buf[1024];
+	char buf[1024];
 	stadt->info(buf);
 
 	display_multiline_text(pos.x+8, pos.y+48, buf, COL_BLACK);

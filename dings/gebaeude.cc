@@ -629,7 +629,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 
 		// belongs to which city?
 		if (!is_factory && ptr.stadt != NULL) {
-			static char buffer[256];
+			char buffer[256];
 			sprintf(buffer,translator::translate("Town: %s\n"),ptr.stadt->gib_name());
 			buf.append(buffer);
 		}
