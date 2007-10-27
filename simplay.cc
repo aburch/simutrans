@@ -2811,8 +2811,7 @@ spieler_t::walk_city( linehandle_t &line, grund_t *&start, const int limit )
 /* tries to cover a city with bus stops that does not overlap much and cover as much as possible
  * returns the line created, if sucessful
  */
-void
-spieler_t::cover_city_with_bus_route( const stadt_t *city, koord start_pos, int number_of_stops )
+void spieler_t::cover_city_with_bus_route(koord start_pos, int number_of_stops)
 {
 	// nothing in lists
 	welt->unmarkiere_alle();
@@ -3118,8 +3117,8 @@ DBG_DEBUG("do_passenger_ki()","factory success1");
 			else {
 				sprintf(buf, translator::translate("Travellers now\nuse %s's\nbusses between\n%s \nand %s.\n"), gib_name(), start_stadt->gib_name(), end_stadt->gib_name() );
 				// add two intown routes
-				cover_city_with_bus_route( start_stadt, platz1, 6 );
-				cover_city_with_bus_route( end_stadt, platz2, 6 );
+				cover_city_with_bus_route(platz1, 6);
+				cover_city_with_bus_route(platz2, 6);
 			}
 DBG_DEBUG("do_passenger_ki()","calling message_t()");
 			message_t::get_instance()->add_message(buf,platz1,message_t::ai,player_nr,road_vehicle->gib_basis_bild());

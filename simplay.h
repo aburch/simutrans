@@ -541,7 +541,7 @@ private:
 	void walk_city( linehandle_t &line, grund_t *&start, const int limit );
 
 	// tries to cover a city with bus stops that does not overlap much and cover as much as possible
-	void cover_city_with_bus_route( const stadt_t *city, koord start_pos, int number_of_stops );
+	void cover_city_with_bus_route(koord start_pos, int number_of_stops);
 
 	void create_bus_transport_vehikel(koord startpos,int anz_vehikel,koord *stops,int anzahl,bool do_wait);
 
