@@ -175,4 +175,3 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 
 	node.write(outfp);
 }
-

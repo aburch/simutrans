@@ -110,7 +110,3 @@ void field_t::zeige_info()
 	gebaeude_t* gb = gr->find<gebaeude_t>();
 	gb->zeige_info();
 }
-
-
-
-

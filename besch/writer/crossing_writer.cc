@@ -245,4 +245,3 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	node.write(fp);
 }
-

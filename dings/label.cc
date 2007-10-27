@@ -69,4 +69,3 @@ image_id label_t::gib_bild() const
 	grund_t *gr=welt->lookup(gib_pos());
 	return (gr  &&  gr->obj_bei(0)==this) ? skinverwaltung_t::belegtzeiger->gib_bild_nr(0) : IMG_LEER;
 }
-

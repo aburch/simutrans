@@ -137,5 +137,3 @@ intr_enable()
 {
 	enabled = true;
 }
-
-

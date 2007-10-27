@@ -59,6 +59,3 @@ bool jump_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	}
 	return true;
 }
-
-
-

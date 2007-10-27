@@ -3944,6 +3944,3 @@ karte_t::interactive()
 	}
 	return finish_loop;
 }
-
-
-

@@ -798,8 +798,3 @@ stadtauto_t::info(cbuffer_t & buf) const
 	sprintf(str, translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), besch->gib_name(), current_speed, besch->gib_geschw(), dx, dy );
 	buf.append(str);
 }
-
-
-
-
-

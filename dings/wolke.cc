@@ -129,6 +129,3 @@ async_wolke_t::async_wolke_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 	// do not remove from this position, since there will be nothing
 	ding_t::set_flag(ding_t::not_on_map);
 }
-
-
-
