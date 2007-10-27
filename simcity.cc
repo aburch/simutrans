@@ -583,7 +583,7 @@ char *stadt_t::haltestellenname(koord k, const char *typ, sint32 number)
 							this_distance = distance;
 						} else if (gb->ist_rathaus() ||
 								gb->gib_tile()->gib_besch()->gib_utyp() == haus_besch_t::attraction_land || // land attraction
-								gb->gib_tile()->gib_besch()->gib_utyp() == haus_besch_t::attraction_city) {           // town attraction
+								gb->gib_tile()->gib_besch()->gib_utyp() == haus_besch_t::attraction_city) { // town attraction
 							building = make_single_line_string(translator::translate(gb->gib_tile()->gib_besch()->gib_name()), 2);
 							this_distance = distance;
 						}

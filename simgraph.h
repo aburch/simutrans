@@ -179,7 +179,7 @@ enum
 	DT_CLIP      = 1 << 3
 };
 
-int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, int flags, const PLAYER_COLOR_VAL color_index, int len);
+int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, int flags, PLAYER_COLOR_VAL color_index, int len);
 /* macro are for compatibility */
 #define display_proportional(     x,  y, txt, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0),           color,  -1)
 #define display_proportional_clip(x,  y, txt, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0) | DT_CLIP, color,  -1)

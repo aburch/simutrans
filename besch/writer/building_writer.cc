@@ -90,7 +90,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	delete [] ints;
 
 	besch.gtyp             = gebaeude_t::unbekannt;
-	besch.utype = haus_besch_t::unbekannt;
+	besch.utype            = haus_besch_t::unbekannt;
 	besch.bauzeit          = 0;
 	besch.allowed_climates = all_but_water_climate; // all but water
 	besch.enables          = 0;
@@ -166,7 +166,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	if (besch.utype >= haus_besch_t::bahnhof && besch.utype <= haus_besch_t::monorailstop+1) {
 		// is is an station extension building?
 		if (obj.get_int("extension_building", 0) > 0) {
-			besch.utype = (enum haus_besch_t::utyp)(8 + (int)besch.utype);
+			besch.utype = (haus_besch_t::utyp)(8 + (int)besch.utype);
 		}
 	}
 
