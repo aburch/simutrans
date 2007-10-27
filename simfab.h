@@ -250,7 +250,7 @@ public:
 	 *
 	 * @author Hj. Malthaner, V. Meyer
 	 */
-	void baue(sint32 rotate, bool clear);
+	void baue(sint32 rotate);
 
 	sint16 get_rotate() const { return rotate; }
 

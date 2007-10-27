@@ -425,8 +425,8 @@ static fabrik_t* baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_
 		fab->add_lieferziel(parent->gib_2d());
 	}
 
-	// now built factory
-	fab->baue(rotate, true);
+	// now build factory
+	fab->baue(rotate);
 	welt->add_fab(fab);
 	add_factory_to_fab_map( welt, fab );
 

@@ -188,12 +188,7 @@ fabrik_t::~fabrik_t()
 
 
 
-/**
- * Baut Gebäude für die Fabrik
- *
- * @author Hj. Malthaner
- */
-void fabrik_t::baue(sint32 rotate, bool clear)
+void fabrik_t::baue(sint32 rotate)
 {
 	if(besch) {
 		this->rotate = rotate;
@@ -554,8 +549,7 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 	}
 
 	if(file->is_loading()  &&  besch) {
-		// clear everything, even though it might be something important ...
-		baue(rotate, true);
+		baue(rotate);
 	}
 
 	// restore city pointer here
