@@ -87,7 +87,6 @@ void citylist_stats_t::infowin_event(const event_t * ev)
 
 void citylist_stats_t::zeichnen(koord offset)
 {
-	static cbuffer_t buf(256);
 	sint32 total_bev = 0;
 	sint32 total_growth = 0;
 
