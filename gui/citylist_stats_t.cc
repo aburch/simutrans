@@ -92,10 +92,10 @@ void citylist_stats_t::zeichnen(koord offset)
 
 	for (uint i = 0; i < city_list.get_count(); i++) {
 		const stadt_t* stadt = city_list[i];
-		static char buf[256];
 		sint32 bev = stadt->gib_einwohner();
 		sint32 growth = stadt->gib_wachstum();
 
+		char buf[256];
 		sprintf( buf, "%s: %i (%+.1f)", stadt->gib_name(), bev, growth/10.0 );
 		display_proportional_clip(offset.x + 4, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, COL_BLACK, true);
 
