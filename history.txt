@@ -52,6 +52,8 @@ known problem: Sometimes clicking in windows dos not produce results.
 	ADD: frame around active window if requested (window_frame_active in simuconf.tab)
 	FIX: toolbars now also change with underground mode
 	ADD: new message for AI going bankrupt (Company bankrupt)
+	FIX: no route message shown again
+	FIX: roadsign rotation corrected
 
 
 Release of 99.14

@@ -13,7 +13,7 @@
 template<class T> class array_tpl
 {
 	public:
-		typedef uint16 index;
+		typedef uint32 index;
 
 		explicit array_tpl() : data(NULL), size(0) {}
 

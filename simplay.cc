@@ -934,7 +934,7 @@ void spieler_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
 {
 	switch(cnv->get_state()) {
 
-		case convoi_t::ROUTING_2:
+		case convoi_t::NO_ROUTE:
 DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->gib_name(),ziel.x,ziel.y);
 			if(this==welt->get_active_player()) {
 				char buf[256];

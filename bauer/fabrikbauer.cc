@@ -109,8 +109,10 @@ public:
 	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
 		if(bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)) {
 			// try to built a little away from previous factory
-			for(sint16 y=pos.y;  y<pos.y+h;  y++  ) {
-				for(sint16 x=pos.x;  x<pos.x+b;  x++  ) {
+			sint16 max_x = min( pos.x+b, welt->gib_groesse_x()-1 );
+			sint16 max_y = min( pos.y+h, welt->gib_groesse_y()-1 );
+			for(sint16 y=pos.y;  y<max_y;  y++  ) {
+				for(sint16 x=pos.x;  x<max_x;  x++  ) {
 					if( is_factory_at(x,y)  ) {
 						return false;
 					}

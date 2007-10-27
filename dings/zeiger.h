@@ -39,7 +39,7 @@ public:
 
 	void setze_area( uint8 area );
 
-	inline void setze_bild( image_id b ) { bild = b; }
+	void setze_bild( image_id b );
 	image_id gib_bild() const {return bild;}
 };
 

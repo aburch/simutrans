@@ -2,6 +2,8 @@
 #define KOORD_H
 
 #include <cstdlib>
+#include <assert.h>
+
 #include "ribi.h"
 #include "../simtypes.h"
 
@@ -41,6 +43,7 @@ public:
 
 	void rotate90( sint16 y_size )
 	{
+		if(x<0  ||  y<0) return;
 		sint16 new_x = y_size-y;
 		y = x;
 		x = new_x;

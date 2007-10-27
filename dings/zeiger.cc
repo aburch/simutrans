@@ -74,6 +74,19 @@ zeiger_t::setze_richtung(ribi_t::ribi r)
 }
 
 
+void
+zeiger_t::setze_bild( image_id b )
+{
+	// mark dirty
+	mark_image_dirty( bild, 0 );
+	mark_image_dirty( b, 0 );
+	bild = b;
+	if(area>0) {
+		welt->mark_area( gib_pos().x, gib_pos().y, area, false );
+	}
+	area = 0;
+}
+
 
 /* change the marked area around the cursor */
 void

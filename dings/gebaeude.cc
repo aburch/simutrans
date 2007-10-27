@@ -185,6 +185,10 @@ gebaeude_t::rotate90()
 			insta_zeit = old_insta_zeit;
 		}
 	}
+	// do not need to rotate, but must update factory position
+	else if(is_factory  &&  ptr.fab) {
+		ptr.fab->setze_pos( gib_pos() );
+	}
 }
 
 

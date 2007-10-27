@@ -885,6 +885,9 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 	// not connected?
 	const planquadrat_t *plan = welt->lookup(pos.gib_2d());
+	if(plan==NULL) {
+		dbg->fatal("fabrik_t::verteile_waren", "%s has not distibution target", gib_name() );
+	}
 	if(plan->get_haltlist_count()==0) {
 		return;
 	}

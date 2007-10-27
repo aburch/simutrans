@@ -310,10 +310,13 @@ roadsign_t::sync_step(long delta_t)
 void
 roadsign_t::rotate90()
 {
+	ding_t::rotate90();
 	// only meaningful for traffic lights
 	if(automatic) {
 		zustand = (zustand+1)&1;
 	}
+	dir = ribi_t::rotate90( dir );
+	calc_bild();
 }
 
 

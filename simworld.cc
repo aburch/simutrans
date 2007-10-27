@@ -1315,9 +1315,8 @@ void karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord
 
 		// reset pointer
 		koord3d zpos = zeiger->gib_pos();
-		zeiger->setze_area(0);	// reset size
-		zeiger->setze_yoff(zeiger_versatz);
 		zeiger->setze_bild(zeiger_bild);
+		zeiger->setze_yoff(zeiger_versatz);
 		zeiger->change_pos( zpos );
 
 		current_mouse_funk.funk(get_active_player(), this, INIT, current_mouse_funk.param);
@@ -1375,7 +1374,6 @@ karte_t::rotate90()
 
 	// clear marked region
 	zeiger->change_pos( koord3d::invalid );
-//	zeiger->setze_area(0);	// reset size
 
 	// first: rotate all things on the map
 	planquadrat_t *new_plan = new planquadrat_t[cached_groesse_gitter_y*cached_groesse_gitter_x];
@@ -1412,6 +1410,10 @@ karte_t::rotate90()
 	slist_iterator_tpl <halthandle_t> halt_iter (haltestelle_t::gib_alle_haltestellen());
 	while( halt_iter.next() ) {
 		halt_iter.get_current()->rotate90();
+	}
+
+	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+		spieler[i]->rotate90();
 	}
 
 	// rotate heightmap

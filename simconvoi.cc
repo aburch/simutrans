@@ -65,7 +65,7 @@ static const char * state_names[] =
 	"ROUTING_1",
 	"DUMMY",
 	"DUMMY",
-	"ROUTING_2",
+	"NO_ROUTE",
 	"DRIVING",
 	"LOADING",
 	"WAITING_FOR_CLEARANCE",
@@ -394,13 +394,13 @@ bool convoi_t::sync_step(long delta_t)
 
 				if(fpl->maxi()==0) {
 					// no entry => no route ...
-					state = ROUTING_2;
+					state = NO_ROUTE;
 					wait_lock = 0;
 				}
 				else {
 					// Schedule changed at station
 					// this station? then complete loading task else drive on
-					state = (gib_pos() == fpl->eintrag[fpl->aktuell].pos ? LOADING : ROUTING_2);
+					state = (gib_pos() == fpl->eintrag[fpl->aktuell].pos ? LOADING : ROUTING_1);
 				}
 			}
 			break;
@@ -408,7 +408,7 @@ bool convoi_t::sync_step(long delta_t)
 		case ROUTING_1:
 		case DUMMY4:
 		case DUMMY5:
-		case ROUTING_2:
+		case NO_ROUTE:
 		case CAN_START:
 		case CAN_START_ONE_MONTH:
 		case CAN_START_TWO_MONTHS:
@@ -553,7 +553,7 @@ void convoi_t::drive_to_next_stop()
  */
 void convoi_t::suche_neue_route()
 {
-  state = ROUTING_2;
+  state = ROUTING_1;
 	wait_lock = 0;
 }
 
@@ -584,15 +584,11 @@ void convoi_t::step()
 		case DUMMY4:
 		case DUMMY5:
 		case ROUTING_1:
-		case ROUTING_2:
 			{
 				vehikel_t* v = fahr[0];
 
 				if(fpl->maxi()==0) {
-					// no entries => no route ...
-					gib_besitzer()->bescheid_vehikel_problem(self, v->gib_pos());
-					// wait 10s before next attempt
-					wait_lock = 10000;
+					state = NO_ROUTE;
 				}
 				else {
 					// check first, if we are already there:
@@ -604,10 +600,34 @@ void convoi_t::step()
 					if(route.gib_max_n() > 0) {
 						vorfahren();
 					}
+					else {
+						state = NO_ROUTE;
+					}
+					// finally, was there a record last time?
+					if(max_record_speed>welt->get_record_speed(fahr[0]->gib_waytype())) {
+						welt->notify_record(self, max_record_speed, record_pos);
+					}
 				}
-				// finally, was there a record last time?
-				if(max_record_speed>welt->get_record_speed(fahr[0]->gib_waytype())) {
-					welt->notify_record(self, max_record_speed, record_pos);
+			}
+			break;
+
+		case NO_ROUTE:
+			// stucked vehicles
+			{
+				vehikel_t* v = fahr[0];
+
+				if(fpl->maxi()==0) {
+					// no entries => no route ...
+					gib_besitzer()->bescheid_vehikel_problem(self, v->gib_pos());
+					// wait 10s before next attempt
+					wait_lock = 10000;
+				}
+				else {
+					// Hajo: now calculate a new route
+					drive_to(v->gib_pos(), fpl->eintrag[fpl->get_aktuell()].pos);
+					if(route.gib_max_n() > 0) {
+						vorfahren();
+					}
 				}
 			}
 			break;
@@ -776,7 +796,7 @@ void convoi_t::start()
 
 		alte_richtung = ribi_t::keine;
 
-		state = ROUTING_2;
+		state = ROUTING_1;
 		calc_loading();
 
 		DBG_MESSAGE("convoi_t::start()","Convoi %s wechselt von INITIAL nach ROUTING_1", name_and_id);
@@ -824,7 +844,7 @@ void convoi_t::ziel_erreicht()
 		else {
 			// Neither depot nor station: waypoint
 			drive_to_next_stop();
-			state = ROUTING_2;
+			state = ROUTING_1;
 		}
 	}
 	wait_lock = 0;
@@ -1040,12 +1060,12 @@ bool
 convoi_t::can_go_alte_richtung()
 {
 	// invalid route?
-	if(route.gib_max_n()<=2) {
+	if(route.gib_max_n()<1) {
 		return false;
 	}
 
 	// going backwards? then recalculate all
-	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(fahr[0]->calc_richtung(route.position_bei(0).gib_2d(), route.position_bei(2).gib_2d()));
+	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(fahr[0]->calc_richtung(route.position_bei(0).gib_2d(), route.position_bei(min(2,route.gib_max_n())).gib_2d()));
 //	DBG_MESSAGE("convoi_t::go_alte_richtung()","neu=%i,rwr_neu=%i,alt=%i",neue_richtung_rwr,ribi_t::rueckwaerts(neue_richtung_rwr),alte_richtung);
 	if(neue_richtung_rwr&alte_richtung) {
 		akt_speed = 8;
@@ -1861,7 +1881,7 @@ void convoi_t::laden()
 
 		// Advance schedule
 		drive_to_next_stop();
-		state = ROUTING_2;
+		state = ROUTING_1;
 	}
 	else {
 		// Hajo: wait a few frames ... 250ms looks ok to me
@@ -2063,7 +2083,7 @@ void convoi_t::dump() const
  */
 bool convoi_t::hat_keine_route() const
 {
-  return (state==DRIVING  &&  route.gib_max_n() < 0);
+  return (state==NO_ROUTE);
 }
 
 
@@ -2216,7 +2236,7 @@ uint8 convoi_t::get_status_color() const
 		// in depot/under assembly
 		return COL_WHITE;
 	}
-	else if(state==WAITING_FOR_CLEARANCE_ONE_MONTH  ||  state==CAN_START_ONE_MONTH  ||  (state==ROUTING_2  &&  route.gib_max_n()==0)) {
+	else if(state==WAITING_FOR_CLEARANCE_ONE_MONTH  ||  state==CAN_START_ONE_MONTH  ||  hat_keine_route()) {
 		// stuck or no route
 		return COL_ORANGE;
 	}
