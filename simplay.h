@@ -510,7 +510,7 @@ private:
 	bool suche_platz(koord &start, koord &size, koord target, koord off);
 	bool suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length);
 
-	int baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel,fabrik_t *fab);
+	int baue_bahnhof(const koord* p, int anz_vehikel);
 
 	// AI headquarter
 	bool built_update_headquarter();

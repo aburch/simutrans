@@ -1925,7 +1925,7 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road fr
  * Can fail even though check has been done before
  * @author prissi
  */
-int spieler_t::baue_bahnhof(koord3d quelle, koord *p, int anz_vehikel, fabrik_t *fab)
+int spieler_t::baue_bahnhof(const koord* p, int anz_vehikel)
 {
 	int laenge = max(((rail_vehicle->get_length()*anz_vehikel)+rail_engine->get_length()+TILE_STEPS-1)/TILE_STEPS,1);
 
@@ -2389,9 +2389,9 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 			}
 			else if(create_simple_rail_transport()) {
 				sint16 org_count_rail = count_rail;
-				count_rail = baue_bahnhof(start->gib_pos(), &platz1, count_rail, ziel);
+				count_rail = baue_bahnhof(&platz1, count_rail);
 				if(count_rail>=3) {
-					count_rail = baue_bahnhof(ziel->gib_pos(), &platz2, count_rail, start);
+					count_rail = baue_bahnhof(&platz2, count_rail);
 				}
 				if(count_rail>=3) {
 					if(count_rail<org_count_rail) {
