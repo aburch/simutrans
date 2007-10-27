@@ -2563,34 +2563,3 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl)
 
 	return result;
 }
-
-
-/**
- * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
- * Beobachtungsfenster angezeigt wird.
- * @author Hj. Malthaner
- * @see simwin
- */
-char* stadt_t::info(char* buf) const
-{
-	buf += sprintf(buf, "%s: %d (%+.1f)\n",
-		translator::translate("City size"),
-		gib_einwohner(),
-		gib_wachstum()/10.0
-	);
-
-	buf += sprintf(buf, translator::translate("%d buildings\n"), buildings.get_count());
-
-	buf += sprintf(buf, "\n%d,%d - %d,%d\n\n",
-		lo.x, lo.y, ur.x , ur.y
-	);
-
-	buf += sprintf(buf, "%s: %d\n%s: %d\n\n",
-		translator::translate("Unemployed"),
-		bev - arb,
-		translator::translate("Homeless"),
-		bev - won
-	);
-
-	return buf;
-}

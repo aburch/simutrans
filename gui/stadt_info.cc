@@ -89,22 +89,40 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 void
 stadt_info_t::zeichnen(koord pos, koord gr)
 {
-	if(strcmp(name,stadt->gib_name())) {
-		stadt->setze_name( name );
-	}
+	stadt_t* const c = stadt;
+
+	if (strcmp(name, c->gib_name())) c->setze_name(name);
 
 	// Hajo: update chart seed
-	chart.set_seed(stadt->get_welt()->get_last_year());
+	chart.set_seed(c->get_welt()->get_last_year());
 
 	gui_frame_t::zeichnen(pos, gr);
 
 	char buf[1024];
-	stadt->info(buf);
+	char* b = buf;
+	b += sprintf(b, "%s: %d (%+.1f)\n",
+		translator::translate("City size"),
+		c->gib_einwohner(),
+		c->gib_wachstum() / 10.0
+	);
+
+	b += sprintf(b, translator::translate("%d buildings\n"), c->get_buildings());
+
+	const koord ul = c->get_linksoben();
+	const koord lr = c->get_rechtsunten();
+	b += sprintf(b, "\n%d,%d - %d,%d\n\n", ul.x, ul.y, lr.x , lr.y);
+
+	b += sprintf(b, "%s: %d\n%s: %d\n\n",
+		translator::translate("Unemployed"),
+		c->get_unemployed(),
+		translator::translate("Homeless"),
+		c->get_homeless()
+	);
 
 	display_multiline_text(pos.x+8, pos.y+48, buf, COL_BLACK);
 
-	display_array_wh(pos.x+140, pos.y+24, 128, 128, stadt->gib_pax_ziele_alt()->to_array());
-	display_array_wh(pos.x+140 + 128 + 4, pos.y+24, 128, 128, stadt->gib_pax_ziele_neu()->to_array());
+	display_array_wh(pos.x + 140,           pos.y + 24, 128, 128, c->gib_pax_ziele_alt()->to_array());
+	display_array_wh(pos.x + 140 + 128 + 4, pos.y + 24, 128, 128, c->gib_pax_ziele_neu()->to_array());
 
 #if 0
     sprintf(buf, "%s: %d/%d",

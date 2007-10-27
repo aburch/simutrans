@@ -43,8 +43,8 @@ class cstring_t;
  * wachsen automatisch.
  * @author Hj. Malthaner
  */
-class stadt_t {
-
+class stadt_t
+{
 	/**
 	* best_t:
 	*
@@ -317,6 +317,10 @@ public:
 	 */
 	sint32 gib_einwohner() const {return (buildings.get_sum_weight()*6)+((2*bev-arb-won)>>1);}
 
+	uint32 get_buildings()  const { return buildings.get_count(); }
+	sint32 get_unemployed() const { return bev - arb; }
+	sint32 get_homeless()   const { return bev - won; }
+
 	/**
 	 * Gibt den Namen der Stadt zurück.
 	 * @author Hj. Malthaner
@@ -432,14 +436,6 @@ public:
 	static vector_tpl<koord> *random_place(const karte_t *wl, sint32 anzahl);	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
 
 	void zeige_info(void);
-
-	/**
-	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-	 * Beobachtungsfenster angezeigt wird.
-	 * @author Hj. Malthaner
-	 * @see simwin
-	 */
-	char *info(char *buf) const;
 
 	void add_factory_arbeiterziel(fabrik_t *fab);
 };
