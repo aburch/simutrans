@@ -2631,7 +2631,6 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 /************************************** from here on passenger AI ******************************/
 
 
-
 /* return the hub of a city (always the very first stop) or zero
  * @author prissi
  */
