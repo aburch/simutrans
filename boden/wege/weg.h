@@ -121,6 +121,9 @@ public:
 
 	virtual ~weg_t();
 
+	/* seasonal image recalculation */
+	bool check_season(const long /*month*/) { calc_bild(); return true; }
+
 	/* actual image recalculation */
 	void calc_bild();
 

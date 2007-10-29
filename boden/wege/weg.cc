@@ -330,7 +330,7 @@ weg_t::calc_bild()
 	}
 
 	// use snow image if above snowline and above ground
-	bool snow = (gib_pos().z >= welt->get_snowline()) && (gib_pos().z >= welt->lookup(gib_pos().gib_2d())->gib_kartenboden()->gib_hoehe());
+	bool snow = (gib_pos().z >= welt->get_snowline());
 
 	hang_t::typ hang = from->gib_weg_hang();
 	if(hang != hang_t::flach) {
