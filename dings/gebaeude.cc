@@ -186,7 +186,7 @@ gebaeude_t::rotate90()
 		}
 	}
 	// do not need to rotate, but must update factory position
-	else if(is_factory  &&  ptr.fab) {
+	else if(is_factory  &&  ptr.fab  &&  tile->gib_offset()==koord(0,0)) {
 		ptr.fab->setze_pos( gib_pos() );
 	}
 }
