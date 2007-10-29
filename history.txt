@@ -54,6 +54,7 @@ known problem: Sometimes clicking in windows dos not produce results.
 	ADD: new message for AI going bankrupt (Company bankrupt)
 	FIX: no route message shown again
 	FIX: roadsign rotation corrected
+	FIX: snowline height fixed
 
 
 Release of 99.14

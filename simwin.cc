@@ -127,22 +127,22 @@ static int display_gadget_box(simwin_gadget_et const  code,
 			      int const color,
 			      bool const pushed)
 {
-    display_vline_wh(x,    y,   16, color+1, false);
-    display_vline_wh(x+15, y+1, 14, COL_BLACK, false);
-    display_vline_wh(x+16, y+1, 14, color+1, false);
+	display_vline_wh(x,    y,   16, color+1, false);
+	display_vline_wh(x+15, y+1, 14, COL_BLACK, false);
+	display_vline_wh(x+16, y+1, 14, color+1, false);
 
-    if(pushed) {
-	display_fillbox_wh(x+1, y+1, 14, 14, color+1, false);
-    }
+	if(pushed) {
+		display_fillbox_wh(x+1, y+1, 14, 14, color+1, false);
+	}
 
-    // "x", "?", "=", "«", "»"
-    const int img = skinverwaltung_t::window_skin->gib_bild(code+1)->gib_nummer();
+	// "x", "?", "=", "«", "»"
+	const int img = skinverwaltung_t::window_skin->gib_bild(code+1)->gib_nummer();
 
 	// to prevent day and nightchange
-    display_color_img(img, x, y, 0, false, false);
+	display_color_img(img, x, y, 0, false, false);
 
-    // Hajo: return width of gadget
-    return 16;
+	// Hajo: return width of gadget
+	return 16;
 }
 
 
@@ -1137,15 +1137,15 @@ void win_display_flush(double konto)
 						translator::translate(seasons[wl->gib_jahreszeit()]),
 						year);
 					break;
-		}
+	}
 
-		// time multiplier text
-		if(wl->is_fast_forward()) {
-			sprintf(stretch_text, ">> (T~%1.2f)", wl->gib_simloops()/50.0 );
-		}
-		else {
-			sprintf(stretch_text, "(T=%1.2f)", wl->get_time_multiplier()/16.0 );
-		}
+	// time multiplier text
+	if(wl->is_fast_forward()) {
+		sprintf(stretch_text, ">> (T~%1.2f)", wl->gib_simloops()/50.0 );
+	}
+	else {
+		sprintf(stretch_text, "(T=%1.2f)", wl->get_time_multiplier()/16.0 );
+	}
 
 	extern koord3d wkz_wegebau_start;
 	if(wkz_wegebau_start!=koord3d::invalid  &&  wkz_wegebau_start!=pos) {
