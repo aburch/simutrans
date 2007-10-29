@@ -194,6 +194,9 @@ protected:
 	// calculates the slope image and sets the draw_as_ding flag correctly
 	void calc_back_bild(const sint8 hgt,const sint8 slope_this);
 
+	// this is the real image calculation, called for the actual ground image
+	virtual void calc_bild_internal() = 0;
+
 public:
 	enum typ {grund, boden, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
 
@@ -229,7 +232,14 @@ public:
 	* start a new month (and toggle the seasons)
 	* @author prissi
 	*/
-	void check_season(const long month) { calc_bild(); dinge.check_season(month); }
+	void check_season(const long month) { calc_bild_internal(); dinge.check_season(month); }
+
+	/**
+	 * Dient zur Neuberechnung des Bildes, wenn sich die Umgebung
+	 * oder die Lage (Hang) des grundes geaendert hat.
+	 * @author Hj. Malthaner
+	 */
+	void calc_bild();
 
 	/**
 	* Gibt die Nummer des Bildes des Untergrundes zurueck.
@@ -285,13 +295,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	PLAYER_COLOR_VAL text_farbe() const;
-
-	/**
-	* Dient zur Neuberechnung des Bildes, wenn sich die Umgebung
-	* oder die Lage (Hang) des grundes geaendert hat.
-	* @author Hj. Malthaner
-	*/
-	virtual void calc_bild();
 
 	/**
 	 * Sets the label text (by copying it)

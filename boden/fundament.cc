@@ -52,7 +52,7 @@ bool fundament_t::zeige_info()
 
 
 void
-fundament_t::calc_bild()
+fundament_t::calc_bild_internal()
 {
 	slope = 0;
 	if(ist_im_tunnel()) {
@@ -60,7 +60,6 @@ fundament_t::calc_bild()
 		setze_bild(IMG_LEER);
 	}
 	else {
-		grund_t::calc_bild();
 		setze_bild( grund_besch_t::gib_ground_tile(0,gib_pos().z) );
 		grund_t::calc_back_bild(gib_pos().z/Z_TILE_STEP,0);
 	}

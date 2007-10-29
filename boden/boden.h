@@ -21,13 +21,13 @@ class boden_t : public grund_t
 protected:
 	static bool show_grid;
 
+	virtual void calc_bild_internal();
+
 public:
 	boden_t(karte_t *welt, loadsave_t *file);
 	boden_t(karte_t *welt, koord3d pos, hang_t::typ slope);
 
 	inline bool ist_natur() const { return !hat_wege(); }
-
-	void calc_bild();
 
 	const char *gib_name() const;
 

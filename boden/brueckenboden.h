@@ -5,7 +5,11 @@
 
 class brueckenboden_t : public grund_t
 {
+private:
 	uint8 weg_hang;
+
+protected:
+	void calc_bild_internal();
 
 public:
 	brueckenboden_t(karte_t *welt, loadsave_t *file);
@@ -19,8 +23,6 @@ public:
 	virtual sint8 gib_weg_yoff() const;
 
 	hang_t::typ gib_weg_hang() const { return weg_hang; }
-
-	void calc_bild();
 
 	/**
 	* ground info, needed for stops

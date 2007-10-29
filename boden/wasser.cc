@@ -29,7 +29,7 @@ wasser_t::zeige_info()
 
 
 void
-wasser_t::calc_bild()
+wasser_t::calc_bild_internal()
 {
 	setze_hoehe( welt->gib_grundwasser() );
 	sint16 zpos = min( welt->lookup_hgt(gib_pos().gib_2d()), welt->gib_grundwasser() ); // otherwise slope will fail ...

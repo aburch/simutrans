@@ -11,6 +11,9 @@
 
 class wasser_t : public grund_t
 {
+protected:
+	void calc_bild_internal();
+
 public:
 	wasser_t(karte_t *welt, loadsave_t *file) : grund_t (welt) { rdwr(file); }
 	wasser_t(karte_t *welt, koord3d pos) : grund_t(welt, pos) {}
@@ -26,8 +29,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	virtual bool zeige_info();
-
-	void calc_bild();
 
 	const char *gib_name() const {return "Wasser";}
 	grund_t::typ gib_typ() const {return wasser;}

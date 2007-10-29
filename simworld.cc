@@ -127,13 +127,13 @@ const int karte_t::Z_GRID      = 0;
 bool
 karte_t::recalc_snowline()
 {
-	static int mfactor[12] = { 100, 90, 75, 50, 25, 10, 0, 10, 25, 50, 75, 90 };
+	static int mfactor[12] = { 99, 95, 80, 50, 25, 10, 0, 5, 20, 35, 65, 85 };
 	static uint8 month_to_season[12] = { 2, 2, 2, 3, 3, 0, 0, 0, 0, 1, 1, 2 };
 
 	// calculate snowline with day precicion
 	// use linear interpolation
 	const long ticks_this_month = gib_zeit_ms() & (karte_t::ticks_per_tag-1);
-	const long faktor = mfactor[letzter_monat] + ( (mfactor[(letzter_monat+1)%12]-mfactor[letzter_monat])*ticks_this_month ) / (long)karte_t::ticks_per_tag;
+	const long faktor = mfactor[letzter_monat] + (  ( (mfactor[(letzter_monat+1)%12]-mfactor[letzter_monat])*(ticks_this_month>>12) ) >> (karte_t::ticks_bits_per_tag-12) );
 
 	// just remember them
 	const sint16 old_snowline = snowline;
@@ -142,9 +142,9 @@ karte_t::recalc_snowline()
 	// and calculate new values
 	season=month_to_season[letzter_monat];   //  (2+letzter_monat/3)&3; // summer always zero
 	const int winterline = einstellungen->gib_winter_snowline();
-	const int summerline = einstellungen->gib_climate_borders()[arctic_climate]+1;
+	const int summerline = einstellungen->gib_climate_borders()[arctic_climate]+2;
 	snowline = summerline - (sint16)(((summerline-winterline)*faktor)/100);
-	snowline = (snowline*Z_TILE_STEP)+grundwasser;
+	snowline = (snowline*Z_TILE_STEP) + grundwasser;
 
 	// changed => we update all tiles ...
 	return (old_snowline!=snowline  ||  old_season!=season);

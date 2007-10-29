@@ -54,20 +54,11 @@ const char *boden_t::gib_name() const
 }
 
 
-void
-boden_t::calc_bild()
+void boden_t::calc_bild_internal()
 {
-	grund_t::calc_bild();
-
 	if(ist_im_tunnel()) {
 		clear_back_bild();
 		setze_bild(IMG_LEER);
-		if(flags&has_way1) {
-			((weg_t *)obj_bei(0))->setze_bild(IMG_LEER);
-		}
-		if(flags&has_way2) {
-			((weg_t *)obj_bei(1))->setze_bild(IMG_LEER);
-		}
 	}
 #ifdef COVER_TILES
 	else 	if(get_flag(grund_t::is_cover_tile)) {

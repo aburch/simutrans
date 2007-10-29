@@ -34,7 +34,7 @@ tunnelboden_t::tunnelboden_t(karte_t *welt, loadsave_t *file) : boden_t(welt, ko
 
 
 void
-tunnelboden_t::calc_bild()
+tunnelboden_t::calc_bild_internal()
 {
 	if(!ist_tunnel()) {
 		// only here, when undergound_mode is true
@@ -45,16 +45,14 @@ tunnelboden_t::calc_bild()
 		else {
 			// default tunnel ground images
 			setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(0));
-			grund_t::calc_bild();
 		}
 	}
 	else if(ist_karten_boden()) {
 		// calculate the slope of ground
-		boden_t::calc_bild();
+		boden_t::calc_bild_internal();
 		set_flag(draw_as_ding);
 	}
 	else {
-		grund_t::calc_bild(); // they will hide their image then ...
 		clear_back_bild();
 		setze_bild(IMG_LEER);
 	}

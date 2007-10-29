@@ -25,17 +25,11 @@ brueckenboden_t::brueckenboden_t(karte_t *welt, koord3d pos, int grund_hang, int
 }
 
 
-void brueckenboden_t::calc_bild()
+void brueckenboden_t::calc_bild_internal()
 {
 	if(ist_tunnel()) {
 		clear_back_bild();
 		setze_bild(IMG_LEER);
-		if(flags&has_way1) {
-			((weg_t *)obj_bei(0))->setze_bild(IMG_LEER);
-		}
-		if(flags&has_way2) {
-			((weg_t *)obj_bei(0))->setze_bild(IMG_LEER);
-		}
 	}
 	else {
 		if(ist_karten_boden()) {
@@ -48,12 +42,6 @@ void brueckenboden_t::calc_bild()
 		}
 		if(flags&has_way2) {
 			((weg_t *)obj_bei(0))->setze_bild(IMG_LEER);
-		}
-		for(uint8 i=0;  i<gib_top();  i++  ) {
-			ding_t *dt=obj_bei(i);
-			if(dt) {
-				dt->calc_bild();
-			}
 		}
 		set_flag(draw_as_ding);
 	}

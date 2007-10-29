@@ -479,6 +479,8 @@ void grund_t::calc_bild()
 {
 	// will automatically recalculate ways ...
 	dinge.calc_bild();
+	// since bridges may alter images of ways, this order is needed!
+	calc_bild_internal();
 }
 
 

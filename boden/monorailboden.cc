@@ -42,7 +42,8 @@ monorailboden_t::rdwr(loadsave_t *file)
 	}
 }
 
-void monorailboden_t::calc_bild()
+
+void monorailboden_t::calc_bild_internal()
 {
 	setze_bild( IMG_LEER );
 	clear_back_bild();
