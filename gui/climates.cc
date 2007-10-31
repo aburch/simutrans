@@ -73,13 +73,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( mountain_roughness+1 );
 	intTopOfButton += 12+5;
 
-	// snowline stuff
-	snowline_summer[0].init( button_t::repeatarrowleft, NULL, koord(LEFT_ARROW,intTopOfButton) );
-	snowline_summer[0].add_listener( this );
-	add_komponente( snowline_summer+0 );
-	snowline_summer[1].init( button_t::repeatarrowright, NULL, koord(RIGHT_ARROW,intTopOfButton) );
-	snowline_summer[1].add_listener( this );
-	add_komponente( snowline_summer+1 );
+	// summer snowline alsway startig above highest climate
 	intTopOfButton += 12;
 
 	snowline_winter[0].init( button_t::repeatarrowleft, NULL, koord(LEFT_ARROW,intTopOfButton) );
@@ -199,23 +193,13 @@ climate_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		// all climate borders from here on
 		sint16 *climate_borders = (sint16 *)sets->gib_climate_borders();
 
-		if(komp==snowline_summer+0) {
-			if(climate_borders[arctic_climate]>sets->gib_winter_snowline()) {
-				climate_borders[arctic_climate]--;
-			}
-		}
-		else if(komp==snowline_summer+1) {
-			climate_borders[arctic_climate]++;
-		}
-		 else if(komp==snowline_winter+0) {
+		if(komp==snowline_winter+0) {
 			if(sets->gib_winter_snowline()>0) {
 				sets->setze_winter_snowline( sets->gib_winter_snowline()-1 );
 			}
 		}
 		else if(komp==snowline_winter+1) {
-			if(sets->gib_winter_snowline()<climate_borders[arctic_climate]) {
-				sets->setze_winter_snowline( sets->gib_winter_snowline()+1 );
-			}
+			sets->setze_winter_snowline( sets->gib_winter_snowline()+1 );
 		}
 		else if(komp==end_desert+0) {
 			if(climate_borders[desert_climate]>0) {
@@ -223,9 +207,7 @@ climate_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			}
 		}
 		else if(komp==end_desert+1) {
-			if(climate_borders[desert_climate]<climate_borders[arctic_climate]) {
-				climate_borders[desert_climate]++;
-			}
+			climate_borders[desert_climate]++;
 		}
 		else if(komp==end_tropic+0) {
 			if(climate_borders[tropic_climate]>0) {
@@ -233,9 +215,7 @@ climate_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			}
 		}
 		else if(komp==end_tropic+1) {
-			if(climate_borders[tropic_climate]<climate_borders[arctic_climate]) {
-				climate_borders[tropic_climate]++;
-			}
+			climate_borders[tropic_climate]++;
 		}
 		else if(komp==end_mediterran+0) {
 			if(climate_borders[mediterran_climate]>0) {
@@ -243,9 +223,7 @@ climate_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			}
 		}
 		else if(komp==end_mediterran+1) {
-			if(climate_borders[mediterran_climate]<climate_borders[arctic_climate]) {
-				climate_borders[mediterran_climate]++;
-			}
+			climate_borders[mediterran_climate]++;
 		}
 		else if(komp==end_temperate+0) {
 			if(climate_borders[temperate_climate]>0) {
@@ -253,9 +231,7 @@ climate_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			}
 		}
 		else if(komp==end_temperate+1) {
-			if(climate_borders[temperate_climate]<climate_borders[arctic_climate]) {
-				climate_borders[temperate_climate]++;
-			}
+			climate_borders[temperate_climate]++;
 		}
 		else if(komp==end_tundra+0) {
 			if(climate_borders[tundra_climate]>0) {
@@ -263,9 +239,7 @@ climate_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			}
 		}
 		else if(komp==end_tundra+1) {
-			if(climate_borders[tundra_climate]<climate_borders[arctic_climate]) {
-				climate_borders[tundra_climate]++;
-			}
+			climate_borders[tundra_climate]++;
 		}
 		else if(komp==end_rocky+0) {
 			if(climate_borders[rocky_climate]>0) {
@@ -273,9 +247,21 @@ climate_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			}
 		}
 		else if(komp==end_rocky+1) {
-			if(climate_borders[rocky_climate]<climate_borders[arctic_climate]) {
-				climate_borders[rocky_climate]++;
+			climate_borders[rocky_climate]++;
+		}
+
+		// artic starts at maximum end of climate
+		sint16 arctic = 0;
+		for(  int i=0;  i<MAX_CLIMATES-1;  i++  ) {
+			if(climate_borders[i]>arctic) {
+				arctic = climate_borders[i];
 			}
+		}
+		climate_borders[arctic_climate] = arctic;
+
+		// correct summer snowline too
+		if(arctic<sets->gib_winter_snowline()) {
+			sets->setze_winter_snowline( arctic );
 		}
 	}
 	return true;
