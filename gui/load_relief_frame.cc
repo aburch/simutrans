@@ -29,7 +29,7 @@ void load_relief_frame_t::del_action(const char *filename)
 }
 
 
-load_relief_frame_t::load_relief_frame_t(einstellungen_t* sets) : savegame_frame_t(".ppm")
+load_relief_frame_t::load_relief_frame_t(einstellungen_t* sets) : savegame_frame_t(".ppm",NULL)
 {
     setze_name("Laden");
 

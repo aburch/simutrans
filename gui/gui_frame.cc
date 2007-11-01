@@ -13,8 +13,10 @@
 
 #include "gui_frame.h"
 #include "../simcolor.h"
+#include "../simintr.h"
 #include "../simgraph.h"
 
+#include "../besch/reader/obj_reader.h"
 #include "../simskin.h"
 #include "../besch/skin_besch.h"
 
@@ -134,17 +136,23 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 
 	if(opaque) {
 		// Hajo: skinned windows code
-		// draw background
-		PUSH_CLIP(pos.x+1,pos.y+16,gr.x-2,gr.y-16);
-		const int img = skinverwaltung_t::window_skin->gib_bild(0)->gib_nummer();
+		if(obj_reader_t::has_been_init) {
+			// draw background
+			PUSH_CLIP(pos.x+1,pos.y+16,gr.x-2,gr.y-16);
+			const int img = skinverwaltung_t::window_skin->gib_bild(0)->gib_nummer();
 
-		for(int j=0; j<gr.y; j+=64) {
-			for(int i=0; i<gr.x; i+=64) {
-				// the background will not trigger a redraw!
-				display_color_img(img, pos.x+1 + i, pos.y+16 + j, 0, false, false);
+			for(int j=0; j<gr.y; j+=64) {
+				for(int i=0; i<gr.x; i+=64) {
+					// the background will not trigger a redraw!
+					display_color_img(img, pos.x+1 + i, pos.y+16 + j, 0, false, false);
+				}
 			}
+			POP_CLIP();
 		}
-		POP_CLIP();
+		else {
+			// empty box
+			display_fillbox_wh(pos.x, pos.y, gr.x, gr.y, MN_GREY1, false);
+		}
 
 		// Hajo: left, right
 		display_vline_wh(pos.x, pos.y+16, gr.y-16, MN_GREY4, false);

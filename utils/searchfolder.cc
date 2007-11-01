@@ -47,25 +47,26 @@ int searchfolder_t::search(const char *filepath, const char *extension)
 	}
 	files.clear();
 
-    if(path.right(1) == "/") {
+	if(path.right(1) == "/") {
 		// Look for a directory
 		name = "*";
 		ext = cstring_t(".") + extension;
-    } else {
+	}
+	else {
 		int slash = path.find_back('/');
 		int dot = path.find_back('.');
 
 		if(dot == -1 || dot < slash) {
-		    // Look for a file with default extension
-		    name = path.mid(slash + 1);
-		    path = path.left(slash + 1);
-		    ext = cstring_t(".") + extension;
+			// Look for a file with default extension
+			name = path.mid(slash + 1);
+			path = path.left(slash + 1);
+			ext = cstring_t(".") + extension;
 		}
 		else {
-		    // Look for a file with own extension
-		    ext = path.mid(dot);
-		    name = path.mid(slash + 1, dot - slash - 1);
-		    path = path.left(slash + 1);
+			// Look for a file with own extension
+			ext = path.mid(dot);
+			name = path.mid(slash + 1, dot - slash - 1);
+			path = path.left(slash + 1);
 		}
 	}
 #ifdef _MSC_VER

@@ -25,6 +25,22 @@ class savegame_frame_t : public gui_frame_t, action_listener_t
 private:
 	char ibuf[64];
 
+	/**
+	 * Filename suffix, i.e. ".sve", must be four characters
+	 * @author Hj. Malthaner
+	 */
+	const char *suffix;
+
+	// path, to be put in front
+	const char *fullpath;
+
+	// true, if there is additional information, i.e. loading a game
+	bool use_pak_extension;
+
+	void add_file(const char *filename, const char *pak, const bool no_cutting_suffix );
+
+protected:
+
 	gui_textinput_t input;
 	gui_divider_t divider1;                               // 30-Oct-2001  Markus Weber    Added
 	button_t savebutton;                                  // 29-Oct-2001  Markus Weber    Added
@@ -34,23 +50,11 @@ private:
 	gui_scrollpane_t scrolly;
 
 	/**
-	 * Filename suffix, i.e. ".sve", must be four characters
-	 * @author Hj. Malthaner
-	 */
-	const char *suffix;
-
-	// true, if there is additional information, i.e. loading a game
-	bool use_pak_extension;
-
-	void add_file(const char *filename, const char *pak);
-
-protected:
-	/**
 	 * Name des Spieles in der Datei.
 	 * @aparam filename Name der Spielstandsdatei
 	 * @author Hansjörg Malthaner
 	 */
-	const char * gib_spiel_name(const char *filename);
+	const char *gib_spiel_name(const char *filename);
 
 	/**
 	 * Aktion, die nach Knopfdruck gestartet wird.
@@ -67,12 +71,14 @@ protected:
 	// sets the filename in the edit field
 	void set_filename( const char *fn );
 
+	static bool check_file( const char *filename, const char *suffix );
+
 public:
 	/**
 	 * @param suffix Filename suffix, i.e. ".sve", must be four characters
 	 * @author Hj. Malthaner
 	 */
-	savegame_frame_t(const char *suffix);
+	savegame_frame_t(const char *suffix, const char *path, bool (*check)(const char *, const char *) = savegame_frame_t::check_file );
 
 	virtual ~savegame_frame_t();
 

@@ -230,6 +230,7 @@ SOURCES += gui/message_stats_t.cc
 SOURCES += gui/messagebox.cc
 SOURCES += gui/money_frame.cc
 SOURCES += gui/optionen.cc
+SOURCES += gui/pakselector.cc
 SOURCES += gui/player_frame_t.cc
 SOURCES += gui/savegame_frame.cc
 SOURCES += gui/schedule_list.cc

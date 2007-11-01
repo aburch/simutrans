@@ -43,6 +43,7 @@
 #include "simversion.h"
 
 #include "gui/banner.h"
+#include "gui/pakselector.h"
 #include "gui/welt.h"
 #include "gui/sprachen.h"
 #include "gui/climates.h"
@@ -199,6 +200,55 @@ static void zeige_banner(karte_t *welt)
 
 
 
+/**
+ * Show pak selector
+ */
+static void ask_objfilename()
+{
+	// find out, how many paks we have by checking the most common names
+	const char *pathes[9] = { "pak", "pak128", "pak.german", "pak96", "pak32", "pak.ttd", "pak.japan", "pak128.japan", "pak.Hajo" };
+	int good = 0;
+	const char *good_str = NULL;
+	for(  int i=0;  i<9;  i++  ) {
+		if(  chdir( pathes[i] )==0  ) {
+			good_str = pathes[i];
+			good ++;
+			chdir("..");
+		}
+	}
+	// succes or complete failure?
+	if(good<=1) {
+		if(good_str) {
+			umgebung_t::objfilename.printf( "%s/", good_str );
+		}
+		return;
+	}
+	// more than one => show selector box (ugly and without translations ...
+	set_pointer(0);
+	show_pointer(1);
+	pakselector_t* sel = new pakselector_t();
+	koord xy( display_get_width()/2 - 180, display_get_height()/2 - sel->gib_fenstergroesse().y/2 );
+	event_t ev;
+
+	destroy_all_win();	// since eventually the successful load message is still there ....
+
+	create_win( xy.x, xy.y, sel, w_info, magic_none );
+
+	do {
+		// do not move, do not close it!
+		sel->zeichnen( xy, sel->gib_fenstergroesse() );
+		dr_sleep(50);
+		display_poll_event(&ev);
+		// main window resized
+		check_pos_win(&ev);
+		display_flush( IMG_LEER, 0.0, "", "", "", 0 );
+	} while(umgebung_t::objfilename.len()==0);
+	set_pointer(1);
+	show_pointer(0);
+}
+
+
+
 // read the settings from this file
 void
 parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &fullscreen, cstring_t &objfilename, bool &multiuser )
@@ -333,7 +383,7 @@ parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &ful
 	umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps);
 
 	// Default pak file path
-	objfilename = ltrim(contents.get_string("pak_file_path", DEFAULT_OBJPATH));
+	objfilename = ltrim(contents.get_string("pak_file_path", "" ));
 
 	// use different save directories
 	multiuser &= contents.get_int("singleuser_install", 1)==1;
@@ -465,12 +515,7 @@ extern "C" int simu_main(int argc, char** argv)
 
 		cstring_t obj_conf = umgebung_t::user_dir;
 		if(simuconf.open(obj_conf + "simuconf.tab")) {
-			// determine my pak file path
-			tabfileobj_t contents;
-			simuconf.read(contents);
-			umgebung_t::objfilename = ltrim(contents.get_string("pak_file_path", DEFAULT_OBJPATH));
-			found_simuconf = true;
-			simuconf.close();
+			parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename, multiuser );
 		}
 	}
 	else {
@@ -483,23 +528,15 @@ extern "C" int simu_main(int argc, char** argv)
 		umgebung_t::objfilename = gimme_arg(argc, argv, "-objects", 1);
 	}
 
-	// now find the pak specific tab file ...
-	cstring_t obj_conf = umgebung_t::objfilename + "config/simuconf.tab";
-	cstring_t dummy("");
-	if(simuconf.open((const char *)obj_conf)) {
-		parse_simuconf( simuconf, disp_width, disp_height, fullscreen, dummy, multiuser );
-		found_simuconf = true;
-	}
-
 	// now parse the user settings
 	if(umgebung_t::user_dir!=umgebung_t::program_dir) {
 		cstring_t obj_conf = umgebung_t::user_dir;
 		if(simuconf.open(obj_conf + "simuconf.tab")) {
+			cstring_t dummy;
 			parse_simuconf( simuconf, disp_width, disp_height, fullscreen, dummy, multiuser );
 			found_simuconf = true;
 		}
 	}
-	simuconf.close();
 
 	chdir( umgebung_t::user_dir );
 	if (gimme_arg(argc, argv, "-log", 0)) {
@@ -520,19 +557,7 @@ extern "C" int simu_main(int argc, char** argv)
 #endif
 	chdir( umgebung_t::program_dir );
 
-	convoihandle_t::init( umgebung_t::max_convoihandles );
-	linehandle_t::init( umgebung_t::max_linehandles );
-	halthandle_t::init( umgebung_t::max_halthandles );
-	// Max number of steps in goods pathfinding
-	haltestelle_t::set_max_hops( umgebung_t::set_max_hops );
-
 	// likely only the programm without graphics was downloaded
-	if(!found_simuconf) {
-		fprintf(stderr, "*** No simuconf.tab found ***\n\nPlease install a complete system\n");
-		dr_fatal_notify( "*** No simuconf.tab found ***\n\nPlease install a complete system\n", 0 );
-		return 0;
-	}
-
 	if (gimme_arg(argc, argv, "-res", 0) != NULL) {
 		const char* res_str = gimme_arg(argc, argv, "-res", 1);
 		const int res = *res_str - '1';
@@ -586,6 +611,41 @@ extern "C" int simu_main(int argc, char** argv)
 	print("Preparing display ...\n");
 	simgraph_init(disp_width, disp_height, use_shm == NULL, do_sync == NULL, fullscreen);
 
+	// if no object files given, we ask the user
+	if(  umgebung_t::objfilename.len()==0  ) {
+		ask_objfilename();
+		if(  umgebung_t::objfilename.len()==0  ) {
+			// nothing to be loaded => exit
+			fprintf(stderr, "*** No simuconf.tab found ***\n\nPlease install a complete system\n");
+			dr_fatal_notify( "*** No simuconf.tab found ***\n\nPlease install a complete system\n", 0 );
+			simgraph_exit();
+			return 0;
+		}
+	}
+
+	// now find the pak specific tab file ...
+	cstring_t obj_conf = umgebung_t::objfilename + "config/simuconf.tab";
+	cstring_t dummy("");
+	if(simuconf.open((const char *)obj_conf)) {
+		parse_simuconf( simuconf, disp_width, disp_height, fullscreen, dummy, multiuser );
+		simuconf.close();
+	}
+	// and parse again parse the user settings
+	if(umgebung_t::user_dir!=umgebung_t::program_dir) {
+		cstring_t obj_conf = umgebung_t::user_dir;
+		if(simuconf.open(obj_conf + "simuconf.tab")) {
+			parse_simuconf( simuconf, disp_width, disp_height, fullscreen, dummy, multiuser );
+			simuconf.close();
+		}
+	}
+
+
+	convoihandle_t::init( umgebung_t::max_convoihandles );
+	linehandle_t::init( umgebung_t::max_linehandles );
+	halthandle_t::init( umgebung_t::max_halthandles );
+	// Max number of steps in goods pathfinding
+	haltestelle_t::set_max_hops( umgebung_t::set_max_hops );
+
 	// just check before loading objects
 	if (!gimme_arg(argc, argv, "-nosound", 0)) {
 		print("Reading compatibility sound data ...\n");
@@ -611,6 +671,7 @@ extern "C" int simu_main(int argc, char** argv)
 		fprintf(stderr, "reading object data failed.\n");
 		exit(11);
 	}
+	obj_reader_t::has_been_init = true;
 
 	bool new_world = true;
 	cstring_t loadgame = "";
@@ -777,6 +838,7 @@ DBG_MESSAGE("init","map");
 	message_t::get_instance()->clear();
 	ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 
+	set_pointer(0);
 	zeige_banner(welt);
 
 	intr_set(welt, view);

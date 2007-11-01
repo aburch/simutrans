@@ -29,38 +29,70 @@
 #define DIALOG_WIDTH (360)
 
 
-savegame_frame_t::savegame_frame_t(const char *suffix) :
+bool savegame_frame_t::check_file( const char *filename, const char *suffix )
+{
+	// assume truth, if there is no pattern to compare
+	return suffix==NULL  ||  (strncmp( filename + strlen(filename) - 4, suffix, 4) == 0);
+}
+
+
+// we need this trick, with the function pointer.
+// Since during initialisations virtual functions do not work yet
+// in derived classes (since the object in question is not full initialized yet)
+// this functions returns true for files to be added.
+savegame_frame_t::savegame_frame_t(const char *suffix, const char *path, bool (*check)( const char *, const char *) ) :
 	gui_frame_t("Load/Save") ,
 	fnlabel("Filename"),
 	scrolly(&button_frame)
 {
 	this->suffix = suffix;
-	use_pak_extension = strcmp( suffix, ".sve" )==0;
+	use_pak_extension = suffix==NULL  ||  strcmp( suffix, ".sve" )==0;
+	char searchpath[1024];
+	bool not_cutting_extension = (suffix==NULL  ||  suffix[0]!='.');
 
-#ifdef WIN32
-	//CreateDirectoryA(SAVE_PATH);
-	mkdir(SAVE_PATH);
+	// both NULL is not acceptable
+	assert(suffix!=path);
+
+	if(path==NULL) {
+#ifndef _MSC_VER
+		sprintf( searchpath, "%s/.", SAVE_PATH );
 #else
-	mkdir(SAVE_PATH, 0700);
+		sprintf( searchpath, "%s/*%s", SAVE_PATH, suffix==NULL ? "" : suffix );
 #endif
+#ifndef	WIN32
+		mkdir(SAVE_PATH, 0700);
+#else
+		mkdir(SAVE_PATH);
+#endif
+		fullpath = SAVE_PATH_X;
+	}
+	else {
+		// we provide everything
+		fullpath = NULL;
+#ifndef _MSC_VER
+		sprintf( searchpath, "%s.", path );
+#else
+		sprintf( searchpath, "%s*", path );
+#endif
+	}
 
 #ifndef _MSC_VER
 	// find filenames
 	DIR     *dir;                      /* Schnittstellen zum BS */
 
-	dir=opendir(SAVE_PATH_X ".");
-
+	dir=opendir( searchpath );
 	if(dir==NULL) {
 		dbg->warning("savegame_frame_t::savegame_frame_t()","Couldn't read directory.");
-	} else {
+	}
+	else {
 		const dirent* entry;
 		do {
 			entry=readdir(dir);
 			if(entry!=NULL) {
 				if(entry->d_name[0]!='.' ||  (entry->d_name[1]!='.' && entry->d_name[1]!=0)) {
-					if(strncmp(entry->d_name + strlen(entry->d_name) - 4, suffix, 4) == 0) {
+					if(check(entry->d_name,suffix)) {
 						if(!use_pak_extension) {
-							add_file(entry->d_name, "");
+							add_file(entry->d_name, "", not_cutting_extension );
 						}
 						else {
 							// this is a savegame:
@@ -69,7 +101,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 							char p[1024];
 							sprintf( p, "%s%s", SAVE_PATH_X, entry->d_name );
 							test.rd_open(p);
-							add_file( entry->d_name, test.get_pak_extension() );
+							add_file( entry->d_name, test.get_pak_extension(), not_cutting_extension );
 						}
 					}
 				}
@@ -82,26 +114,25 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 		struct _finddata_t entry;
 		long hfind;
 
-		char wild[32];
-		tstrncpy(wild, SAVE_PATH_X "*", lengthof(wild));
-		strcat(wild, suffix);
-
-		hfind = _findfirst( wild, &entry);
+		hfind = _findfirst( searchpath, &entry);
 		if(hfind == -1) {
 			dbg->warning("savegame_frame_t::savegame_frame_t()","Couldn't read directory.");
-		} else {
-			do{
-				if(!use_pak_extension) {
-					add_file(entry.name, "");
-				}
-				else {
-					// this is a savegame:
-					// read also the pak extension
-					loadsave_t test;
-					char p[1024];
-					sprintf( p, "%s%s", SAVE_PATH_X, entry.name );
-					test.rd_open(p);
-					add_file( entry.name, test.get_pak_extension() );
+		}
+		else {
+			do {
+				if(check(entry.name,suffix)) {
+					if(!use_pak_extension) {
+						add_file(entry.name, "", not_cutting_extension);
+					}
+					else {
+						// this is a savegame:
+						// read also the pak extension
+						loadsave_t test;
+						char p[1024];
+						sprintf( p, "%s%s", SAVE_PATH_X, entry.name );
+						test.rd_open(p);
+						add_file( entry.name, test.get_pak_extension(), not_cutting_extension );
+					}
 				}
 			} while(_findnext(hfind, &entry) == 0 );
 		}
@@ -209,34 +240,38 @@ savegame_frame_t::set_filename(const char *fn)
 
 
 void
-savegame_frame_t::add_file(const char *filename, const char *pak)
+savegame_frame_t::add_file(const char *filename, const char *pak, const bool no_cutting_suffix )
 {
 	button_t * button = new button_t();
 	char * name = new char [strlen(filename)+10];
 	char * date = new char[18+strlen(pak)+3];
 
 	//DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );
-	sprintf(name, SAVE_PATH_X "%s", filename);
+	sprintf(name, "%s%s", fullpath, filename);
 
+	// sometime the time retrieval strokes on folders
+	date[0] = 0;
 	struct stat  sb;
-	stat(name, &sb);
+	if(stat(name, &sb)==0) {
+		// add pak extension
+		size_t n = *pak!=0 ? sprintf( date, "%s - ", pak ) : 0;
 
-	// add pak extension
-	size_t n = *pak!=0 ? sprintf( date, "%s - ", pak ) : 0;
-
-	// add the time too
-	struct tm *tm = localtime(&sb.st_mtime);
-	if(tm) {
-		strftime(date+n, 18, "%Y-%m-%d %H:%M", tm);
-	}
-	else {
-		tstrncpy(date, "??.??.???? ??:??", 15);
+		// add the time too
+		struct tm *tm = localtime(&sb.st_mtime);
+		if(tm) {
+			strftime(date+n, 18, "%Y-%m-%d %H:%M", tm);
+		}
+		else {
+			tstrncpy(date, "??.??.???? ??:??", 15);
+		}
 	}
 
 	sprintf(name, "%s", filename);
-	name[strlen(name)-4] = '\0';
-	button->setze_text(name);	// to avoid translation
+	if(!no_cutting_suffix) {
+		name[strlen(name)-4] = '\0';
+	}
 	button->set_no_translate(true);
+	button->setze_text(name);	// to avoid translation
 
 	// sort by date descending:
 	slist_tpl<entry>::iterator i = entries.begin();
@@ -284,11 +319,14 @@ bool savegame_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		//--------------------------
 		for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
 			if (komp == i->button || komp == i->del) {
-				intr_refresh_display( true );
-
-				tstrncpy(buf, SAVE_PATH_X, lengthof(buf));
+				buf[0] = 0;
+				if(fullpath) {
+					tstrncpy(buf, fullpath, lengthof(buf));
+				}
 				strcat(buf, i->button->gib_text());
-				strcat(buf, suffix);
+				if(fullpath) {
+					strcat(buf, suffix);
+				}
 
 				if (komp == i->button) {
 					action(buf);

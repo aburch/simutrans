@@ -38,6 +38,7 @@ inthashtable_tpl<obj_type, stringhashtable_tpl<obj_besch_t *> > obj_reader_t::lo
 inthashtable_tpl<obj_type, stringhashtable_tpl< slist_tpl<obj_besch_t **> > > obj_reader_t::unresolved;
 ptrhashtable_tpl<obj_besch_t **, int> obj_reader_t::fatals;
 
+bool obj_reader_t::has_been_init = false;
 
 void obj_reader_t::register_reader()
 {

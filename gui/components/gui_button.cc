@@ -12,10 +12,14 @@
 #include "../../simgraph.h"
 #include "../../simevent.h"
 #include "../../simwin.h"
+
+#include "../../besch/reader/obj_reader.h"
+
 #include "../../dataobj/translator.h"
 
 #include "../../simskin.h"
 #include "../../besch/skin_besch.h"
+#include "../../utils/cstring_t.h"
 
 #define STATE_MASK (127)
 static const char *empty="";
@@ -54,7 +58,7 @@ static image_id b_cap_right_p = IMG_LEER;
  */
 static void init_button_images()
 {
-	if(square_button_pushed == IMG_LEER) {
+	if(square_button_pushed==IMG_LEER  &&  obj_reader_t::has_been_init) {
 
 		square_button_normal = skinverwaltung_t::window_skin->gib_bild(6)->gib_nummer();
 		square_button_pushed = skinverwaltung_t::window_skin->gib_bild(7)->gib_nummer();

@@ -601,6 +601,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\pakselector.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\besch\reader\pedestrian_reader.cc"
 				>
 			</File>

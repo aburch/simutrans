@@ -54,7 +54,8 @@ known problem: Sometimes clicking in windows dos not produce results.
 	ADD: new message for AI going bankrupt (Company bankrupt)
 	FIX: no route message shown again
 	FIX: roadsign rotation corrected
-	FIX: snowline height fixed
+	FIX: snowline height fixed (automatically set be the end of the highest climate)
+	CHANGE: if no pak defined in config or commandline then a) if only a single pak exists load this or b) display a dialog for choosing one
 
 
 Release of 99.14

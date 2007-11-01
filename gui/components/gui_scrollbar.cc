@@ -49,7 +49,7 @@ void scrollbar_t::setze_groesse(koord groesse)
 void scrollbar_t::setze_knob(sint32 size, sint32 area)
 {
 	if(size<1  ||  area<1) {
-		dbg->warning("scrollbar_t::setze_knob()","size=%i, area=%i not in 1...x",size,area);
+//		dbg->warning("scrollbar_t::setze_knob()","size=%i, area=%i not in 1...x",size,area);
 	}
 	knob_size = max(1,size);
 	knob_area = max(1,area);
