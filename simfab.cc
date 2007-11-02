@@ -1341,9 +1341,12 @@ void fabrik_t::rotate90()
 	const sint16 y_size = welt->gib_groesse_y()-1;
 	for( int i=0;  i<lieferziele.get_count();  i++  ) {
 		lieferziele[i].rotate90( y_size );
+		// on larger factories the target position changed too
+		lieferziele[i] = gib_fab( welt, lieferziele[i] )->gib_pos().gib_2d();
 	}
 	for( int i=0;  i<suppliers.get_count();  i++  ) {
 		suppliers[i].rotate90( y_size );
+		suppliers[i] = gib_fab( welt, suppliers[i] )->gib_pos().gib_2d();
 	}
 	for( int i=0;  i<fields.get_count();  i++  ) {
 		fields[i].rotate90( y_size );

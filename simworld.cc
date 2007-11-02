@@ -1454,6 +1454,9 @@ karte_t::rotate90()
 		reliefkarte_t::gib_karte()->set_mode( reliefkarte_t::gib_karte()->get_mode() );
 	}
 
+	// finally recalculate schedules for goods in transit ...
+	set_schedule_counter();
+
 	setze_dirty();
 }
 // -------- Verwaltung von Fabriken -----------------------------

@@ -1091,6 +1091,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 {
 	if (get_welt()->get_active_player() != depot->gib_besitzer()) {
 		destroy_win(this);
+		return;
 	}
 
 	const convoihandle_t cnv = depot->get_convoi(icnv);

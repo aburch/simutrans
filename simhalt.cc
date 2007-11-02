@@ -370,6 +370,7 @@ haltestelle_t::rotate90()
 			}
 		}
 	}
+	verbinde_fabriken();
 }
 
 
