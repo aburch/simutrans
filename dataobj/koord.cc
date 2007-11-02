@@ -95,3 +95,14 @@ koord::koord(loadsave_t *file)
 {
 	rdwr(file);
 }
+
+// für debugmeldungen ...
+const char *koord::gib_str() const
+{
+	static char pos_str[32];
+	if(x==-1  &&  y==-1) {
+		return "koord invalid";
+	}
+	sprintf( pos_str, "%i,%i", x, y );
+	return pos_str;
+}

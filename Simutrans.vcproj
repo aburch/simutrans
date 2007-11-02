@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;G:\Projects\SDL-1.2.10\include&quot;;&quot;G:\Program Files\PlatformSDK\Include&quot;;G:\Projects\zlib\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;LITTLE_ENDIAN;USE_C"
+				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;LITTLE_ENDIAN;USE_C;STEPS16"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"

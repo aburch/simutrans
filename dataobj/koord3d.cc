@@ -56,3 +56,15 @@ koord3d::koord3d(loadsave_t *file)
 {
 	rdwr(file);
 }
+
+
+// für debugmeldungen ...
+const char *koord3d::gib_str() const
+{
+	static char pos_str[32];
+	if(x==-1  &&  y==-1  &&  z==-1) {
+		return "koord3d invalid";
+	}
+	sprintf( pos_str, "%i,%i,%i", x, y, z );
+	return pos_str;
+}

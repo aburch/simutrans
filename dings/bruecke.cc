@@ -105,18 +105,20 @@ void bruecke_t::rdwr(loadsave_t *file)
 // correct speed and maitainace
 void bruecke_t::laden_abschliessen()
 {
-	const grund_t *gr = welt->lookup(gib_pos());
+	grund_t *gr = welt->lookup(gib_pos());
 	spieler_t *sp=gib_besitzer();
 	if(sp) {
 		// change maintainance
-		weg_t *weg = gr->gib_weg(besch->gib_waytype());
-		if(weg) {
+		if(besch->gib_waytype()!=powerline_wt) {
+			weg_t *weg = gr->gib_weg(besch->gib_waytype());
+			if(weg==NULL) {
+				dbg->error("bruecke_t::laden_abschliessen()","Bridge without way at(%s)!", gr->gib_pos().gib_str() );
+				weg = weg_t::alloc( besch->gib_waytype() );
+				gr->neuen_weg_bauen( weg, 0, welt->gib_spieler(1) );
+			}
 			weg->setze_max_speed(besch->gib_topspeed());
 			weg->setze_besitzer(sp);
 			sp->add_maintenance(-weg->gib_besch()->gib_wartung());
-		}
-		else if(besch->gib_waytype()!=powerline_wt) {
-			dbg->fatal("bruecke_t::laden_abschliessen()","Bridge without way!");
 		}
 		sp->add_maintenance( besch->gib_wartung() );
 	}

@@ -27,6 +27,8 @@ public:
 
 	void rdwr(loadsave_t *file);
 
+	const char *gib_str() const;
+
 	const koord& operator += (const koord & k)
 	{
 		x += k.x;
