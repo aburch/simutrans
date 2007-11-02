@@ -1416,6 +1416,12 @@ karte_t::rotate90()
 		spieler[i]->rotate90();
 	}
 
+	// rotate label texts
+	slist_iterator_tpl <koord> label_iter (labels);
+	while( label_iter.next() ) {
+		label_iter.access_current().rotate90( cached_groesse_karte_y );
+	}
+
 	// rotate heightmap
 	sint8 *new_hgts = new sint8[(cached_groesse_gitter_x+1)*(cached_groesse_gitter_y+1)];
 	for( int x=0;  x<=cached_groesse_gitter_x;  x++  ) {
