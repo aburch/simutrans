@@ -68,6 +68,21 @@
 #include "bauer/vehikelbauer.h"
 
 
+/* get dx and dy from dir (just to remind you)
+ * any vehikel (including city cars and pedestrians)
+ * will go this distance per sync step.
+static sint8 dxdy[ 8*2 ] = {
+	-2, 1,	// s
+	-2, -1,	// w
+	-4, 0,	// sw
+	0, 2,	//se
+	2, -1, // n
+	2, 1,	// e
+	4, 0,	// ne
+	0, -2	// nw
+};
+*/
+
 
 /**
  * Checks if this vehicle must change the square upon next move

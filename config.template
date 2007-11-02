@@ -42,4 +42,5 @@
 # DESTINATION_CITYCARS: Citycars can have a destination (not recommended)
 # USE_C: no assembler for copying
 # LITTLE_ENDIAN: Intel byte order
-FLAGS = -DLITTLE_ENDIAN 
+# STEPS16: 16 steps per tile - nicer on pak64
+FLAGS = -DLITTLE_ENDIAN -DSTEPS16
