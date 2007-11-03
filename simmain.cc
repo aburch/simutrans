@@ -225,7 +225,6 @@ static void ask_objfilename()
 	}
 	// more than one => show selector box (ugly and without translations ...
 	set_pointer(0);
-	show_pointer(1);
 	pakselector_t* sel = new pakselector_t();
 	koord xy( display_get_width()/2 - 180, display_get_height()/2 - sel->gib_fenstergroesse().y/2 );
 	event_t ev;
@@ -244,7 +243,6 @@ static void ask_objfilename()
 		display_flush( IMG_LEER, 0.0, "", "", "", 0 );
 	} while(umgebung_t::objfilename.len()==0);
 	set_pointer(1);
-	show_pointer(0);
 }
 
 
@@ -613,7 +611,9 @@ extern "C" int simu_main(int argc, char** argv)
 
 	// if no object files given, we ask the user
 	if(  umgebung_t::objfilename.len()==0  ) {
+		show_pointer(1);
 		ask_objfilename();
+		show_pointer(0);
 		if(  umgebung_t::objfilename.len()==0  ) {
 			// nothing to be loaded => exit
 			fprintf(stderr, "*** No simuconf.tab found ***\n\nPlease install a complete system\n");
@@ -830,6 +830,8 @@ DBG_MESSAGE("init","map");
 	}
 #endif
 	display_show_pointer(true);
+	show_pointer(1);
+	set_pointer(0);
 
 	welt->setze_dirty();
 
@@ -838,7 +840,6 @@ DBG_MESSAGE("init","map");
 	message_t::get_instance()->clear();
 	ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 
-	set_pointer(0);
 	zeige_banner(welt);
 
 	intr_set(welt, view);
