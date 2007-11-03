@@ -1148,13 +1148,13 @@ void stadt_t::laden_abschliessen()
 
 
 
-void stadt_t::rotate90()
+void stadt_t::rotate90( const sint16 y_size )
 {
 	// rotate town origin
-	pos.rotate90( welt->gib_groesse_y()-1 );
+	pos.rotate90( y_size );
 	// rotate an rectangle
-	lo.rotate90( welt->gib_groesse_y()-1 );
-	ur.rotate90( welt->gib_groesse_y()-1 );
+	lo.rotate90( y_size );
+	ur.rotate90( y_size );
 	sint16 lox = lo.x;
 	lo.x = ur.x;
 	ur.x = lox;

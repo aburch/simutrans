@@ -857,9 +857,8 @@ void spieler_t::laden_abschliessen()
 
 
 
-void spieler_t::rotate90()
+void spieler_t::rotate90( const sint16 y_size )
 {
-	const sint16 y_size = welt->gib_groesse_y()-1;
 	simlinemgmt.rotate90( y_size );
 	headquarter_pos.rotate90( y_size );
 	for(int n=0; n<=last_message_index; n++) {

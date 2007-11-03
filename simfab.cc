@@ -1336,9 +1336,9 @@ void fabrik_t::laden_abschliessen()
 
 
 
-void fabrik_t::rotate90()
+void fabrik_t::rotate90( const sint16 y_size )
 {
-	const sint16 y_size = welt->gib_groesse_y()-1;
+	assert( welt->ist_in_kartengrenzen( pos.gib_2d() ) );
 	for( int i=0;  i<lieferziele.get_count();  i++  ) {
 		lieferziele[i].rotate90( y_size );
 		// on larger factories the target position changed too

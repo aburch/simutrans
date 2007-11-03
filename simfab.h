@@ -166,7 +166,7 @@ public:
 
 	void setze_pos( koord3d p ) { pos = p; }
 
-	void rotate90();
+	void rotate90( const sint16 y_size );
 
 	void link_halt(halthandle_t halt);
 	void unlink_halt(halthandle_t halt);

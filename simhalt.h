@@ -314,7 +314,7 @@ public:
 	 */
 	void rebuild_destinations();
 
-	void rotate90();
+	void rotate90( const sint16 y_size );
 
 	spieler_t *gib_besitzer() const {return besitzer_p;}
 	void transfer_to_public_owner();

@@ -1392,36 +1392,6 @@ karte_t::rotate90()
 	delete [] plan;
 	plan = new_plan;
 
-	// rotate all other objects like factories and convois
-	for(unsigned i=0; i<convoi_array.get_count();  i++) {
-		convoi_array[i]->rotate90();
-	}
-
-	// now step all towns (to generate passengers)
-	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
-		(*i)->rotate90();
-	}
-
-	slist_iterator_tpl<fabrik_t *> iter(fab_list);
-	while(iter.next()) {
-		iter.get_current()->rotate90();
-	}
-
-	slist_iterator_tpl <halthandle_t> halt_iter (haltestelle_t::gib_alle_haltestellen());
-	while( halt_iter.next() ) {
-		halt_iter.get_current()->rotate90();
-	}
-
-	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		spieler[i]->rotate90();
-	}
-
-	// rotate label texts
-	slist_iterator_tpl <koord> label_iter (labels);
-	while( label_iter.next() ) {
-		label_iter.access_current().rotate90( cached_groesse_karte_y );
-	}
-
 	// rotate heightmap
 	sint8 *new_hgts = new sint8[(cached_groesse_gitter_x+1)*(cached_groesse_gitter_y+1)];
 	for( int x=0;  x<=cached_groesse_gitter_x;  x++  ) {
@@ -1434,9 +1404,6 @@ karte_t::rotate90()
 	delete [] grid_hgts;
 	grid_hgts = new_hgts;
 
-	// rotate view
-	ij_off.rotate90( cached_groesse_karte_y );
-
 	// rotate borders
 	sint16 xw = cached_groesse_karte_x;
 	cached_groesse_karte_x = cached_groesse_karte_y;
@@ -1445,6 +1412,39 @@ karte_t::rotate90()
 	int wx = cached_groesse_gitter_x;
 	cached_groesse_gitter_x = cached_groesse_gitter_y;
 	cached_groesse_gitter_y = wx;
+
+	// rotate all other objects like factories and convois
+	for(unsigned i=0; i<convoi_array.get_count();  i++) {
+		convoi_array[i]->rotate90( cached_groesse_karte_x );
+	}
+
+	// now step all towns (to generate passengers)
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		(*i)->rotate90( cached_groesse_karte_x );
+	}
+
+	slist_iterator_tpl<fabrik_t *> iter(fab_list);
+	while(iter.next()) {
+		iter.get_current()->rotate90( cached_groesse_karte_x );
+	}
+
+	slist_iterator_tpl <halthandle_t> halt_iter (haltestelle_t::gib_alle_haltestellen());
+	while( halt_iter.next() ) {
+		halt_iter.get_current()->rotate90( cached_groesse_karte_x );
+	}
+
+	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+		spieler[i]->rotate90( cached_groesse_karte_x );
+	}
+
+	// rotate label texts
+	slist_iterator_tpl <koord> label_iter (labels);
+	while( label_iter.next() ) {
+		label_iter.access_current().rotate90( cached_groesse_karte_x );
+	}
+
+	// rotate view
+	ij_off.rotate90( cached_groesse_karte_x );
 
 	if(cached_groesse_gitter_x != cached_groesse_gitter_y) {
 		// the marking array and the map must be reinit

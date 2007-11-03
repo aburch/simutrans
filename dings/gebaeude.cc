@@ -150,13 +150,14 @@ gebaeude_t::rotate90()
 			layout |=	 (tile->gib_layout()&0x18);
 		}
 		// have to rotate the tiles :(
-		if(tile->gib_besch()->gib_all_layouts()==1  &&  tile->gib_besch()->gib_b()!=tile->gib_besch()->gib_h())  {
-			if((welt->gib_einstellungen()->get_rotation()&1)==0) {
+		if(!tile->gib_besch()->can_rotate()) {
+			if(tile->gib_besch()->gib_all_layouts()==1  &&  (welt->gib_einstellungen()->get_rotation()&1)==0) {
 				// rotate 180 degree
 				new_offset = koord( tile->gib_besch()->gib_b() - 1 - new_offset.x, tile->gib_besch()->gib_h() - 1 - new_offset.y );
 			}
 			else {
 				// this map rotation cannot be reloaded!
+				// we rotate this, but the tiles will be mixed (ugly!)
 				welt->set_nosave();
 			}
 		}
@@ -176,13 +177,12 @@ gebaeude_t::rotate90()
 			// add new tile: but make them old (no construction)
 			uint32 old_insta_zeit = insta_zeit;
 			setze_tile( new_tile );
-			if(  tile->gib_besch()->gib_utyp() != haus_besch_t::hafen
-				&&  new_offset != koord(0, 0)  &&  !tile->has_image()  ) {
+			insta_zeit = old_insta_zeit;
+			if(  tile->gib_besch()->gib_utyp() != haus_besch_t::hafen  &&  !tile->has_image()  ) {
 				// may have a rotation, that is not recoverable
 				// => this map rotation cannot be reloaded!
 				welt->set_nosave();
 			}
-			insta_zeit = old_insta_zeit;
 		}
 	}
 	// do not need to rotate, but must update factory position
@@ -337,7 +337,7 @@ void
 gebaeude_t::calc_bild()
 {
 	// need no ground?
-	if(!tile->gib_besch()->ist_mit_boden()) {
+	if(!tile->gib_besch()->ist_mit_boden()  ||  !tile->has_image()) {
 		grund_t *gr=welt->lookup(gib_pos());
 		if(gr  &&  gr->gib_typ()==grund_t::fundament) {
 			gr->setze_bild( IMG_LEER );
@@ -354,10 +354,10 @@ gebaeude_t::gib_bild() const
 		// opaque houses
 		if(gib_haustyp()!=unbekannt) {
 			return umgebung_t::hide_with_transparency ? skinverwaltung_t::fussweg->gib_bild_nr(0) : skinverwaltung_t::construction_site->gib_bild_nr(0);
-		} else if (umgebung_t::hide_buildings == umgebung_t::ALL_HIDDEN_BUIDLING && tile->gib_besch()->gib_utyp() < haus_besch_t::weitere) {
-			// special bilding
-			if(umgebung_t::hide_with_transparency ) {
-				if (tile->gib_besch()->gib_utyp() == haus_besch_t::fabrik && ptr.fab->gib_besch()->gib_platzierung() == fabrik_besch_t::Wasser) {
+		} else if(  (umgebung_t::hide_buildings == umgebung_t::ALL_HIDDEN_BUIDLING  &&  tile->gib_besch()->gib_utyp() < haus_besch_t::weitere)  ||  !tile->has_image()) {
+			// hide with transparency or tile without information
+			if(umgebung_t::hide_with_transparency) {
+				if(tile->gib_besch()->gib_utyp() == haus_besch_t::fabrik  &&  ptr.fab->gib_besch()->gib_platzierung() == fabrik_besch_t::Wasser) {
 					// no ground tiles for water thingies
 					return IMG_LEER;
 				}

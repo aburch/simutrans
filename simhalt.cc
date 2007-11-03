@@ -353,9 +353,8 @@ haltestelle_t::~haltestelle_t()
 
 
 void
-haltestelle_t::rotate90()
+haltestelle_t::rotate90( const sint16 y_size )
 {
-	const sint16 y_size = welt->gib_groesse_y()-1;
 	init_pos.rotate90( y_size );
 	// rotate waren destinations
 	// iterate over all different categories

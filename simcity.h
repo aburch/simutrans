@@ -393,7 +393,7 @@ public:
 	 */
 	void laden_abschliessen();
 
-	void rotate90();
+	void rotate90( const sint16 y_size );
 
 	/* change size of city
 	* @author prissi */
