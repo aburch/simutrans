@@ -38,7 +38,7 @@ void pakselector_t::zeichnen(koord p, koord gr)
 static bool check_for_pak( const char *filename, const char * )
 {
 	char buf[1024];
-	sprintf( buf, "%s/good.Passagiere.pak", filename );
+	sprintf( buf, "%s/ground.Outside.pak", filename );
 	FILE *f=fopen( buf, "r" );
 	if(f) {
 		fclose(f);
