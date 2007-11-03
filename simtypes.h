@@ -33,7 +33,7 @@
  */
 enum climate
 {
-	water_climate,
+	water_climate = 0,
 	desert_climate,
 	tropic_climate,
 	mediterran_climate,
@@ -88,8 +88,14 @@ typedef   signed char       sint8;
 typedef unsigned char       uint8;
 typedef   signed short      sint16;
 typedef unsigned short      uint16;
+#ifndef __BEOS__
 typedef   signed int        sint32;
 typedef unsigned int        uint32;
+#else
+// BeOS: int!=long (even though both 32 bit)
+typedef   signed long       sint32;
+typedef unsigned long       uint32;
+#endif
 #ifdef _MSC_VER
 typedef   signed __int64	  sint64;
 typedef unsigned __int64    uint64;

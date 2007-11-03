@@ -1,5 +1,6 @@
-known problem: Sometimes clicking in windows dos not produce results.
+Release of 99.15
 
+3-Nov-2007:
 	FIX: AI terraforming was free of charge
 	FIX: AI never changed convoi, when building does not succeeded
 	FIX: powerlines did not disconnect during deletion
