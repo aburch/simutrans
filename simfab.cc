@@ -20,6 +20,7 @@
 #include "simmem.h"
 #include "simcolor.h"
 #include "boden/grund.h"
+#include "boden/boden.h"
 #include "boden/fundament.h"
 #include "simfab.h"
 #include "simcity.h"
@@ -175,14 +176,14 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 fabrik_t::~fabrik_t()
 {
 	while(!fields.empty()) {
-		grund_t *gr = welt->lookup_kartenboden( fields.back() );
-		if(gr) {
-			field_t* f = gr->find<field_t>();
-			delete f;
-		}
-		else {
-			fields.remove_at( fields.get_count()-1 );
-		}
+		planquadrat_t *plan = welt->access( fields.back() );
+		assert(plan);
+		grund_t *gr = plan->gib_kartenboden();
+		field_t* f = plan->gib_kartenboden()->find<field_t>();
+		assert(f);
+		delete f;
+		plan->boden_ersetzen( gr, new boden_t( welt, gr->gib_pos(), hang_t::flach ) );
+		plan->gib_kartenboden()->calc_bild();
 	}
 }
 
@@ -1197,7 +1198,7 @@ void
 fabrik_t::zeige_info() const
 {
 	gebaeude_t *gb = welt->lookup(pos)->find<gebaeude_t>();
-	create_win(new fabrik_info_t(this, gb), w_info, (long)this );
+	create_win(new fabrik_info_t(this, gb), w_info, (long)gb );
 }
 
 

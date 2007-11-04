@@ -8,7 +8,7 @@
 
 char umgebung_t::program_dir[1024];
 const char *umgebung_t::user_dir = 0;
-cstring_t umgebung_t::objfilename(DEFAULT_OBJPATH);
+cstring_t umgebung_t::objfilename;	// will start empty ...
 
 uint16 umgebung_t::max_convoihandles = 8192;
 uint16 umgebung_t::max_linehandles = 2048;

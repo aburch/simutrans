@@ -206,7 +206,7 @@ static void zeige_banner(karte_t *welt)
 static void ask_objfilename()
 {
 	// find out, how many paks we have by checking the most common names
-	const char *pathes[9] = { "pak", "pak128", "pak.german", "pak96", "pak32", "pak.ttd", "pak.japan", "pak128.japan", "pak.Hajo" };
+	const char *pathes[9] = { "pak", "pak128", "pak.german", "pak96", "pak32", "pak.ttd", "pak.japan", "pak128.japan", "pakHAJO" };
 	int good = 0;
 	const char *good_str = NULL;
 	for(  int i=0;  i<9;  i++  ) {
@@ -241,7 +241,7 @@ static void ask_objfilename()
 		// main window resized
 		check_pos_win(&ev);
 		display_flush( IMG_LEER, 0.0, "", "", "", 0 );
-	} while(umgebung_t::objfilename.len()==0);
+	} while(umgebung_t::objfilename.empty());
 	set_pointer(1);
 }
 
@@ -610,11 +610,11 @@ extern "C" int simu_main(int argc, char** argv)
 	simgraph_init(disp_width, disp_height, use_shm == NULL, do_sync == NULL, fullscreen);
 
 	// if no object files given, we ask the user
-	if(  umgebung_t::objfilename.len()==0  ) {
+	if(  umgebung_t::objfilename.empty()  ) {
 		show_pointer(1);
 		ask_objfilename();
 		show_pointer(0);
-		if(  umgebung_t::objfilename.len()==0  ) {
+		if(  umgebung_t::objfilename.empty()  ) {
 			// nothing to be loaded => exit
 			fprintf(stderr, "*** No simuconf.tab found ***\n\nPlease install a complete system\n");
 			dr_fatal_notify( "*** No simuconf.tab found ***\n\nPlease install a complete system\n", 0 );

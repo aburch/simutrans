@@ -3727,7 +3727,7 @@ karte_t::interactive_event(event_t &ev)
 					setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 					break;
 				case 3:
-					{
+					if(!grund_t::underground_mode) {
 						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_slopetools, active_player );
 						create_win( wzw, w_info|w_no_overlap, magic_slopetools );
 					}
