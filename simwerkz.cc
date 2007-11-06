@@ -474,7 +474,11 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->gib_pos().x, 
 	gebaeude_t* gb = gr->find<gebaeude_t>();
 	if (gb != NULL) {
 		const spieler_t* owner = gb->gib_besitzer();
-		if (owner == sp || owner == NULL) {
+		if (owner == sp || owner == NULL  ||  sp==welt->gib_spieler(1)) {
+			if(!gb->gib_tile()->gib_besch()->can_rotate()  &&  welt->cannot_save()) {
+				msg = "Not possible in this rotation!";
+				return false;
+			}
 			DBG_MESSAGE("wkz_remover()",  "removing building" );
 			const haus_tile_besch_t *tile  = gb->gib_tile();
 			koord size = tile->gib_besch()->gib_groesse( tile->gib_layout() );

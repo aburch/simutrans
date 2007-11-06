@@ -3,6 +3,7 @@
 	FIX: pal selector was not always shown
 	FIX: crash when openig slopetools in underground mode
 	FIX: windows gain not focus during dragging with mousebutton
+	ADD: new error message 'Not possible in this rotation!'
 
 
 Release of 99.15

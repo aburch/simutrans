@@ -177,7 +177,7 @@ ding_t::zeige_info()
 const char *
 ding_t::ist_entfernbar(const spieler_t *sp)
 {
-	if(besitzer_n<0 || gib_besitzer() == sp) {
+	if(besitzer_n<0  ||  gib_besitzer() == sp) {
 		return NULL;
 	} else {
 		return "Der Besitzer erlaubt das Entfernen nicht";
