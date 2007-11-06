@@ -799,7 +799,7 @@ check_pos_win(event_t *ev)
 	}
 
 
-	for(i=ins_win-1; i>=0; i--) {
+	for(i=ins_win-1; i>=0  &&  !swallowed; i--) {
 
 		// check click inside window
 		if(((ev->ev_class!=EVENT_NONE  &&  ev->ev_class!=EVENT_MOVE)  && wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y ))
@@ -845,8 +845,6 @@ check_pos_win(event_t *ev)
 						if (IS_LEFTCLICK(ev)) {
 							create_win(new help_frame_t(wins[i].gui->gib_hilfe_datei()), w_info, (long)(wins[i].gui->gib_hilfe_datei()) );
 							inside_event_handling = false;
-							process_kill_list();
-							return swallowed;
 						}
 						break;
 					case GADGET_PREV:
@@ -905,11 +903,8 @@ check_pos_win(event_t *ev)
 					event_t wev = *ev;
 					translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
 					wins[i].gui->infowin_event( &wev );
-					break;
 				}
-				break;
 			}
-			continue;
 		}
 	}
 

@@ -3921,7 +3921,7 @@ karte_t::interactive()
 				blick_aendern(&ev);
 			}
 
-			if(  (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON)  ||  (ev.button_state==0  &&  ev.ev_class==EVENT_MOVE)) {
+			if(!swallowed  &&  (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON)  ||  (ev.button_state==0  &&  ev.ev_class==EVENT_MOVE)) {
 				bewege_zeiger(&ev);
 			}
 		}

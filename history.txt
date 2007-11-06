@@ -2,6 +2,7 @@
 	FIX: deleting a factory with an open info window lead to crash
 	FIX: pal selector was not always shown
 	FIX: crash when openig slopetools in underground mode
+	FIX: windows gain not focus during dragging with mousebutton
 
 
 Release of 99.15
