@@ -1,9 +1,10 @@
 	FIX: image under fields were not recalculated after removal
-	FIX: deleting a factory with an open info window lead to crash
+	FIX: deleting a factory with an open info window lead to crash (also during map destroying)
 	FIX: pal selector was not always shown
 	FIX: crash when openig slopetools in underground mode
 	FIX: windows gain not focus during dragging with mousebutton
 	ADD: new error message 'Not possible in this rotation!'
+	FIX: bridges ending on elevated monorail or flat tiles fixed
 
 
 Release of 99.15

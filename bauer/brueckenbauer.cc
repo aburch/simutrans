@@ -212,26 +212,28 @@ brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegt
 					ribi = lt->gib_ribi();
 				}
 			}
-			if(gr2->gib_grund_hang() == hang_t::flach) {
-				if(ribi_t::ist_einfach(ribi) && koord(ribi) == zv) {
-					// Ende mit Rampe - Endschiene vorhanden
-					return pos;
-				}
-				if(!ribi && wegtyp!=powerline_wt && gr2->hat_weg(wegtyp)) {
-					// Ende mit Rampe - Endschiene hat keine ribis
-					return pos;
-				}
-				if(!ribi && wegtyp==powerline_wt && gr2->suche_obj(ding_t::leitung)) {
-					// Ende mit Rampe - Endschiene hat keine ribis
-					return pos;
+			if(gr2->gib_grund_hang()==hang_t::flach) {
+				if(gr2->gib_typ()!=grund_t::monorailboden) {
+					if(ribi_t::ist_einfach(ribi) && koord(ribi) == zv) {
+						// Ende mit Rampe - Endschiene vorhanden
+						return pos;
+					}
+					if(!ribi && wegtyp!=powerline_wt && gr2->hat_weg(wegtyp)) {
+						// Ende mit Rampe - Endschiene hat keine ribis
+						return pos;
+					}
+					if(!ribi && wegtyp==powerline_wt && gr2->suche_obj(ding_t::leitung)) {
+						// Ende mit Rampe - Endschiene hat keine ribis
+						return pos;
+					}
 				}
 			}
 			else {
-				if(ribi_t::ist_einfach(ribi) && koord(ribi) == zv) {
+				if(ribi_t::ist_einfach(ribi)  &&  koord(ribi) == zv) {
 					// Ende am Hang - Endschiene vorhanden
 					return pos;
 				}
-				if(!ribi && gr2->gib_grund_hang() == hang_typ(zv)) {
+				if(!ribi  &&  gr2->gib_grund_hang()==hang_typ(zv)) {
 					// Ende am Hang - Endschiene fehlt oder hat keine ribis
 					// Wir prüfen noch, ob uns dort ein anderer Weg stört
 					if(wegtyp!=powerline_wt && (!gr2->hat_wege() || gr2->hat_weg(wegtyp))) {
@@ -391,7 +393,7 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 	ribi_t::ribi ribi = 0;
 	weg_t *weg=NULL;	// =NULL to keep compiler happy
 
-	DBG_MESSAGE("brueckenbauer_t::baue()", "build from %d,%d", pos.x, pos.y);
+	DBG_MESSAGE("brueckenbauer_t::baue()", "build from %s", pos.gib_str() );
 	baue_auffahrt(welt, sp, pos, zv, besch, weg_besch );
 	if(besch->gib_waytype() != powerline_wt) {
 		ribi = welt->lookup(pos)->gib_weg_ribi_unmasked(besch->gib_waytype());
@@ -404,7 +406,7 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 	pos = pos + zv;
 
 	while(pos.gib_2d()!=end.gib_2d()) {
-		brueckenboden_t *bruecke = new  brueckenboden_t(welt, pos + koord3d(0, 0, Z_TILE_STEP), 0, 0);
+		brueckenboden_t *bruecke = new brueckenboden_t(welt, pos + koord3d(0, 0, Z_TILE_STEP), 0, 0);
 		welt->access(pos.gib_2d())->boden_hinzufuegen(bruecke);
 		if(besch->gib_waytype() != powerline_wt) {
 			weg = weg_t::alloc(besch->gib_waytype());
@@ -439,15 +441,34 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 		pos = pos + zv;
 	}
 
-	if(pos.z==end.z) {
+	// must determine end tile: on a slope => likely need auffahrt
+	bool need_auffahrt = (pos.z==end.z);
+	if(need_auffahrt) {
+		grund_t *gr = welt->lookup(end);
+		weg_t *w = gr->gib_weg( (waytype_t)weg_besch->gib_wtyp());
+		if(w) {
+			need_auffahrt &= w->gib_besch()->gib_styp()!=weg_besch_t::elevated;
+		}
+	}
+
+	if(need_auffahrt) {
 		// not ending at a bridge
 		baue_auffahrt(welt, sp, pos, -zv, besch, weg_besch);
 	}
 	else {
+		// ending on a slope/elevated way
 		grund_t *gr=welt->lookup(end);
 		if(besch->gib_waytype() != powerline_wt) {
 			// just connect to existing way
-			gr->weg_erweitern(besch->gib_waytype(),ribi_t::doppelt(ribi));
+			ribi = ribi_t::rueckwaerts( ribi_typ(zv) );
+			if(  !gr->weg_erweitern( besch->gib_waytype(), ribi )  ) {
+				// builds new way
+				weg = weg_t::alloc( besch->gib_waytype() );
+				weg->setze_besch( weg_besch );
+				sp->buche( gr->neuen_weg_bauen( weg, ribi, sp ), end.gib_2d(), COST_CONSTRUCTION);
+				weg->laden_abschliessen();
+			}
+			gr->calc_bild();
 		} else {
 			leitung_t *lt = gr->gib_leitung();
 			lt->calc_neighbourhood();
@@ -481,20 +502,16 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 
 	weg_t *weg = NULL;
 	if(besch->gib_waytype() != powerline_wt) {
-		weg=alter_boden->gib_weg( besch->gib_waytype() );
+		weg = alter_boden->gib_weg( besch->gib_waytype() );
 	}
 	// take care of everything on that tile ...
 	bruecke->take_obj_from( alter_boden );
 	welt->access(end.gib_2d())->kartenboden_setzen( bruecke );
 	if(besch->gib_waytype() != powerline_wt) {
-		if(weg) {
-			// has already a way
-			bruecke->weg_erweitern(besch->gib_waytype(), ribi_t::doppelt(ribi_neu));
-		}
-		else {
+		if(  !bruecke->weg_erweitern( besch->gib_waytype(), ribi_neu)  ) {
 			// needs still one
 			weg = weg_t::alloc( besch->gib_waytype() );
-			bruecke->neuen_weg_bauen( weg, ribi_t::doppelt(ribi_neu), sp );
+			bruecke->neuen_weg_bauen( weg, ribi_neu, sp );
 		}
 		weg->setze_max_speed( besch->gib_topspeed() );
 	} else {

@@ -372,8 +372,15 @@ karte_t::destroy()
 {
 DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
-	printf("Destroying world ... ");
+	// rotate the map until it can be saved
+	for( int i=0;  i<4  &&  nosave;  i++  ) {
+DBG_MESSAGE("karte_t::destroy()", "rotating");
+		nosave = false;
+		rotate90();
+	}
+	assert( !nosave );
 
+DBG_MESSAGE("karte_t::destroy()", "label clear");
 	labels.clear();
 
 	if(zeiger) {
@@ -454,7 +461,7 @@ DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 assert( depot_t::get_depot_list().empty() );
 
 DBG_MESSAGE("karte_t::destroy()", "world destroyed");
-	printf("destroyed.\n");
+	printf("World destroyed.\n");
 }
 
 
@@ -560,7 +567,9 @@ void karte_t::init(einstellungen_t* sets)
 	mute_sound(true);
 
 	intr_disable();
-	destroy();
+	if(plan) {
+		destroy();
+	}
 
 	if(is_display_init()) {
 		display_show_pointer(false);

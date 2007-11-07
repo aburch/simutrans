@@ -32,6 +32,9 @@ class weg_besch_t : public obj_besch_std_name_t {
     friend class way_writer_t;
     friend class way_reader_t;
 
+public:
+		enum { elevated=1, joined=7 /* only tram */, special=255 };
+
 private:
 	/**
 	 * Price per square
@@ -73,7 +76,7 @@ private:
 
 	/**
 	 * Way system type: i.e. for wtyp == track this
-	 * can be used to select track system type (rail, monorail, maglev)
+	 * can be used to select track system type (tramlike=7, elevated=1, ignore=255)
 	 * @author Hj. Malthaner
 	 */
 	uint8 styp;
