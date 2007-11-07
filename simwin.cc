@@ -678,8 +678,8 @@ static void remove_old_win()
 	}
 }
 
-void
-move_win(int win, event_t *ev)
+
+void move_win(int win, event_t *ev)
 {
 	koord gr = wins[win].gui->gib_fenstergroesse();
 
@@ -759,8 +759,7 @@ static void process_kill_list()
  * renovated may 2005 by prissi to take care of irregularly shaped windows
  * also remove some unneccessary calls
  */
-bool
-check_pos_win(event_t *ev)
+bool check_pos_win(event_t *ev)
 {
 	static bool is_resizing = false;
 
@@ -802,8 +801,10 @@ check_pos_win(event_t *ev)
 	for(i=ins_win-1; i>=0  &&  !swallowed; i--) {
 
 		// check click inside window
-		if(((ev->ev_class!=EVENT_NONE  &&  ev->ev_class!=EVENT_MOVE)  && wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y ))
-			||  (is_resizing && i==ins_win-1)) {
+		if(
+			(i==ins_win-1  &&  wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y ))  ||
+			( (ev->ev_class!=EVENT_NONE  &&  ev->ev_class!=EVENT_MOVE)  &&  wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y ) )
+		) {
 
 			// Top window first
 			if(ins_win-1>i  &&  IS_LEFTCLICK(ev)) {
@@ -1192,7 +1193,7 @@ void win_set_zoom_factor(int rw)
  */
 void win_set_tooltip(int xpos, int ypos, const char *text)
 {
-  tooltip_xpos = xpos;
-  tooltip_ypos = max(32+7,ypos);
-  tooltip_text = text;
+	tooltip_xpos = xpos;
+	tooltip_ypos = max(32+7,ypos);
+	tooltip_text = text;
 }
