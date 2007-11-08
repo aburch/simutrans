@@ -1538,7 +1538,9 @@ const char* haltestelle_t::gib_name() const
 		name = "Unnamed";
 	} else {
 		grund_t* bd = welt->lookup(gib_basis_pos3d());
-		name = bd->gib_text();
+		if(bd  &&  bd->get_flag(grund_t::has_text)) {
+			name = bd->gib_text();
+		}
 	}
 	return name;
 }

@@ -1124,6 +1124,11 @@ void stadt_t::rdwr(loadsave_t* file)
  */
 void stadt_t::laden_abschliessen()
 {
+	// there might be broken savegames
+	if(name==NULL) {
+		setze_name( "simcity" );
+	}
+
 	// very young city => need to grow again
 	if (pax_transport > 0 && pax_erzeugt == 0) {
 		step_bau();
