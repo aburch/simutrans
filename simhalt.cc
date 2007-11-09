@@ -1709,6 +1709,11 @@ void haltestelle_t::laden_abschliessen()
 	}
     }
 #endif
+	// check for name;
+	grund_t* bd = welt->lookup(gib_basis_pos3d());
+	if(bd!=NULL  &&  !bd->get_flag(grund_t::has_text)) {
+		bd->setze_text("Unknown");
+	}
 }
 
 
