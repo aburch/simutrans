@@ -884,6 +884,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), quick_shortcu
 	grid_hgts = 0;
 	einstellungen = sets;
 	schedule_counter = 0;
+	nosave = false;
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		spieler[i] = 0;
@@ -894,6 +895,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), quick_shortcu
 	wkz_wegebau_start = koord3d::invalid;
 }
 
+
 karte_t::~karte_t()
 {
     destroy();
@@ -903,6 +905,7 @@ karte_t::~karte_t()
         einstellungen = NULL;
     }
 }
+
 
 bool karte_t::can_lower_plan_to(sint16 x, sint16 y, sint16 h) const
 {
@@ -922,6 +925,7 @@ bool karte_t::can_lower_plan_to(sint16 x, sint16 y, sint16 h) const
 	}
 	return true;
 }
+
 
 bool karte_t::can_raise_plan_to(sint16 x, sint16 y, sint16 h) const
 {
@@ -944,28 +948,28 @@ bool karte_t::can_raise_plan_to(sint16 x, sint16 y, sint16 h) const
 
 bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 {
-    const planquadrat_t *plan = lookup(koord(x,y));
-    bool ok = true;
+	const planquadrat_t *plan = lookup(koord(x,y));
+	bool ok = true;
 
-    if(plan != NULL) {
-	grund_t *gr = plan->gib_kartenboden();
+	if(plan != NULL) {
+		grund_t *gr = plan->gib_kartenboden();
 
-	ok = (gr->ist_natur() || gr->ist_wasser())  &&  !gr->hat_wege();
+		ok = (gr->ist_natur() || gr->ist_wasser())  &&  !gr->hat_wege();
 
-	for(int i=0; ok && i<gr->gib_top(); i++) {
-	    const ding_t *dt = gr->obj_bei(i);
-	    if(dt != NULL) {
-		ok =
-		    dt->gib_typ() == ding_t::baum  ||
-		    dt->gib_typ() == ding_t::zeiger  ||
-		    dt->gib_typ() == ding_t::wolke  ||
-		    dt->gib_typ() == ding_t::sync_wolke  ||
-		    dt->gib_typ() == ding_t::async_wolke;
-	    }
+		for(  int i=0; ok  &&  i<gr->gib_top(); i++  ) {
+			const ding_t *dt = gr->obj_bei(i);
+			if(dt != NULL) {
+			ok =
+				dt->gib_typ() == ding_t::baum  ||
+				dt->gib_typ() == ding_t::zeiger  ||
+				dt->gib_typ() == ding_t::wolke  ||
+				dt->gib_typ() == ding_t::sync_wolke  ||
+				dt->gib_typ() == ding_t::async_wolke;
+			}
+		}
 	}
-    }
 
-    return ok;
+	return ok;
 }
 
 

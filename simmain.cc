@@ -689,9 +689,9 @@ extern "C" int simu_main(int argc, char** argv)
 	else {
 		chdir( umgebung_t::program_dir );
 		char buffer[256];
-		sprintf(buffer, "%sdemo.sve", (const char*)umgebung_t::objfilename);
+		sprintf(buffer, "%s%sdemo.sve", (const char*)umgebung_t::program_dir, (const char*)umgebung_t::objfilename);
 		// access did not work!
-		FILE *f=fopen(umgebung_t::objfilename+"demo.sve","rb");
+		FILE *f=fopen(buffer,"rb");
 		if(f) {
 			// there is a demo game to load
 			loadgame = buffer;
