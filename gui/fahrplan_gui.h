@@ -62,35 +62,35 @@ class fahrplan_gui_t :	public gui_frame_t,
 private:
 	static char no_line[128];
 
-    enum mode_t {adding, inserting, removing, none};
+	enum mode_t {adding, inserting, removing, none};
 
 	vector_tpl<linehandle_t> lines;
 
-    mode_t mode;
+	mode_t mode;
 
-    button_t bt_add;
-    button_t bt_insert;
-    button_t bt_remove;
-    button_t bt_prev;
-    button_t bt_next;
-    button_t bt_promote_to_line;
-    button_t bt_return;
+	button_t bt_add;
+	button_t bt_insert;
+	button_t bt_remove;
+	button_t bt_prev;
+	button_t bt_next;
+	button_t bt_promote_to_line;
+	button_t bt_return;
 
-    gui_scrollpane_t scrolly;
-    gui_textarea_t fpl_text;
-    gui_combobox_t line_selector;
-    gui_label_t lb_line;
-    gui_label_t lb_load;
+	gui_scrollpane_t scrolly;
+	gui_textarea_t fpl_text;
+	gui_combobox_t line_selector;
+	gui_label_t lb_line;
+	gui_label_t lb_load;
 
-		fahrplan_t* fpl;
-    spieler_t *sp;
-    convoihandle_t cnv;
+	fahrplan_t* fpl;
+	spieler_t *sp;
+	convoihandle_t cnv;
 
-    cbuffer_t buf;
+	cbuffer_t buf;
 
-    linehandle_t new_line;
+	linehandle_t new_line;
 
-    void init_line_selector();
+	void init_line_selector();
 
 	/**
 	 * initialize layout, etc.

@@ -50,7 +50,7 @@ template<class besch_t> bool alles_geladen(spezial_obj_tpl<besch_t>* so)
 {
 	for (; so->name; ++so) {
 		if (!*so->besch) {
-			ERROR("alles_geladen()", "%s-object %s not found.\n*** PLEASE INSTALL PROPER BASE FILE AND CHECK PATH ***", typeid(**so->besch).name(), so->name);
+			dbg->fatal("alles_geladen()", "%s-object %s not found.\n*** PLEASE INSTALL PROPER BASE FILE AND CHECK PATH ***", typeid(**so->besch).name(), so->name);
 			return false;
 		}
 	}
