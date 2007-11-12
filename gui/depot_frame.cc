@@ -1043,15 +1043,15 @@ void depot_frame_t::infowin_event(const event_t *ev)
 	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
 
 		bool dir = (ev->ev_code==NEXT_WINDOW);
-		depot_t *next_dep = depot_t::find_depot( depot->gib_pos(), depot->gib_typ(), dir == NEXT_WINDOW );
+		depot_t *next_dep = depot_t::find_depot( depot->gib_pos(), depot->gib_typ(), depot->gib_besitzer(), dir == NEXT_WINDOW );
 		if(next_dep == NULL) {
 			if(dir == NEXT_WINDOW) {
 				// check the next from start of map
-				next_dep = depot_t::find_depot( koord3d(-1,-1,0), depot->gib_typ(), true );
+				next_dep = depot_t::find_depot( koord3d(-1,-1,0), depot->gib_typ(), depot->gib_besitzer(), true );
 			}
 			else {
 				// respecive end of map
-				next_dep = depot_t::find_depot( koord3d(8192,8192,127), depot->gib_typ(), false );
+				next_dep = depot_t::find_depot( koord3d(8192,8192,127), depot->gib_typ(), depot->gib_besitzer(), false );
 			}
 		}
 

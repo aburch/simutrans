@@ -64,7 +64,7 @@ depot_t::~depot_t()
 
 
 // finds the next/previous depot relative to the current position
-depot_t *depot_t::find_depot( koord3d start, ding_t::typ depot_type, bool forward)
+depot_t *depot_t::find_depot( koord3d start, const ding_t::typ depot_type, const spieler_t *sp, bool forward)
 {
 	depot_t *found = NULL;
 	koord3d found_pos = forward ? koord3d(welt->gib_groesse_x()+1,welt->gib_groesse_y()+1,welt->gib_grundwasser()) : koord3d(-1,-1,-1);
@@ -73,7 +73,7 @@ depot_t *depot_t::find_depot( koord3d start, ding_t::typ depot_type, bool forwar
 	slist_iterator_tpl<depot_t *> iter(all_depots);
 	while(iter.next()) {
 		depot_t *d = iter.access_current();
-		if(d->gib_typ()==depot_type) {
+		if(d->gib_typ()==depot_type  &&  d->gib_besitzer()==sp) {
 			// ok, the right type of depot
 			const koord3d pos = d->gib_pos();
 			if(pos==start) {

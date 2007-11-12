@@ -53,7 +53,7 @@ protected:
 
 public:
 	// finds the next/previous depot relative to the current position
-	static depot_t *find_depot( koord3d start, ding_t::typ depot_type, bool next);
+	static depot_t *find_depot( koord3d start, const ding_t::typ depot_type, const spieler_t *sp, bool next);
 
 	static const slist_tpl<depot_t *>& get_depot_list() { return all_depots; }
 
