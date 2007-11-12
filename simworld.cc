@@ -3486,10 +3486,6 @@ karte_t::interactive_event(event_t &ev)
 			case 'G':
 				create_win( new goods_frame_t(this), w_info, magic_goodslist );
 				break;
-			case 'L':
-				sound_play(click_sound);
-				create_win( new loadsave_frame_t(this, true), w_info, magic_load_t);
-				break;
 			case 'H':
 				if (!hausbauer_t::headquarter.empty()) {
 					setze_maus_funktion(wkz_headquarter, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, SFX_JACKHAMMER, SFX_FAILURE);
@@ -3514,8 +3510,14 @@ karte_t::interactive_event(event_t &ev)
 					setze_maus_funktion(wkz_wegebau,
 					wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(0),
 							Z_PLAN,
-							(const void *)wegbauer_t::leitung_besch, 0, 0);
+							(const void *)wegbauer_t::leitung_besch,
+							SFX_JACKHAMMER,
+							SFX_FAILURE );
 				}
+				break;
+			case 'L':
+				sound_play(click_sound);
+				create_win( new loadsave_frame_t(this, true), w_info, magic_load_t);
 				break;
 			case 'm':
 				create_win( new map_frame_t(this), w_info, magic_reliefmap);
