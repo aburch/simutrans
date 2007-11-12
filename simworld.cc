@@ -122,6 +122,9 @@ const int karte_t::Z_PLAN      = 4;
 const int karte_t::Z_GRID      = 0;
 
 
+static bool is_dragging = false;
+
+
 
 // changes the snowline height (for the seasons)
 bool
@@ -593,6 +596,7 @@ void karte_t::init(einstellungen_t* sets)
 	season=(2+letzter_monat/3)&3; // summer always zero
 	snowline = sets->gib_winter_snowline()*Z_TILE_STEP + grundwasser;
 	current_mouse_funk.funk = NULL;
+	is_dragging = false;
 	steps = 0;
 	recalc_average_speed();	// resets timeline
 
@@ -1311,6 +1315,8 @@ void karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord
 		if(current_mouse_funk.funk!=NULL) {
 			current_mouse_funk.funk(get_active_player(), this, EXIT, current_mouse_funk.param);
 		}
+
+		is_dragging = false;
 
 		struct sound_info info;
 		info.index = SFX_SELECT;
@@ -3301,7 +3307,13 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			}
 			zeiger->change_pos(pos);
 			// resend init message, if mouse button pressed to enable dragging
-			if(current_mouse_funk.funk!=NULL  &&  ev->button_state==MOUSE_LEFTBUTTON  &&  current_mouse_funk.last_pos!=pos.gib_2d()) {
+			if(is_dragging  &&  ev->button_state==0) {
+				is_dragging = false;
+				current_mouse_funk.last_pos = INIT;
+				current_mouse_funk.funk(get_active_player(), this, INIT, current_mouse_funk.param);
+			}
+			else if(current_mouse_funk.funk!=NULL  &&  ev->ev_class==EVENT_DRAG  &&  current_mouse_funk.last_pos!=pos.gib_2d()) {
+				is_dragging = true;
 				current_mouse_funk.funk(get_active_player(), this, DRAGGING, current_mouse_funk.param);
 				current_mouse_funk.last_pos = pos.gib_2d();
 			}
