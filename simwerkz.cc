@@ -418,7 +418,8 @@ DBG_MESSAGE("wkz_remover()",  "removing roadsign %d,%d",  pos.x, pos.y);
 	// Haltestelle prüfen
 	halthandle_t halt = plan->gib_halt();
 DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
-	if (gr->is_halt() && halt.is_bound()) {
+	if (gr->is_halt()  &&  halt.is_bound()  &&  fabrik_t::gib_fab(welt,pos)==NULL) {
+		// halt and not a factory (oil rig etc.)
 		const spieler_t* owner = halt->gib_besitzer();
 		if (owner == sp || owner == welt->gib_spieler(1)) {
 			return haltestelle_t::remove(welt, sp, gr->gib_pos(), msg);
