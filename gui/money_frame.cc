@@ -26,6 +26,9 @@
 #include "../besch/haus_besch.h"
 
 
+// remebers last settings
+static uint32 bFilterStates[MAX_PLAYER_COUNT];
+
 #define COST_BALANCE    10 // bank balance
 
 #define BUTTONSPACE 14
@@ -257,7 +260,6 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		filterButtons[ibutton].init(button_t::box, cost_type[ibutton], koord(left, top+i*BUTTONSPACE-2), koord(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background = cost_type_color[ibutton];
-		bFilterIsActive[ibutton] = false;
 		add_komponente(filterButtons + ibutton);
 	}
 	for(int i=9;  i<13;  i++) {
@@ -265,8 +267,19 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		filterButtons[ibutton].init(button_t::box, cost_type[ibutton], koord(left+335, top+(i-4)*BUTTONSPACE-2), koord(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background = cost_type_color[ibutton];
-		bFilterIsActive[ibutton] = false;
 		add_komponente(filterButtons + ibutton);
+	}
+
+	// states ...
+	for ( int i = 0; i<MAX_COST; i++) {
+		if (bFilterStates[sp->get_player_nr()] & (1<<i)) {
+			chart.show_curve(i);
+			mchart.show_curve(i);
+		}
+		else {
+			chart.hide_curve(i);
+			mchart.hide_curve(i);
+		}
 	}
 
 	setze_fenstergroesse(koord(582, 340));
@@ -401,7 +414,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	maintenance_money.set_color(sp->add_maintenance(0)>=0?MONEY_PLUS:MONEY_MINUS);
 
 	for (int i = 0;  i<MAX_COST;  i++) {
-		filterButtons[i].pressed = bFilterIsActive[i];
+		filterButtons[i].pressed = ( (bFilterStates[sp->get_player_nr()]&(1<<i)) != 0 );
 		// year_month_toggle.pressed = mchart.is_visible();
 	}
 
@@ -421,9 +434,9 @@ bool money_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	}
 
 	for ( int i = 0; i<MAX_COST; i++) {
-    	if (komp == &filterButtons[i]) {
-			bFilterIsActive[i] = !bFilterIsActive[i];
-			if (bFilterIsActive[i]) {
+		if (komp == &filterButtons[i]) {
+			bFilterStates[sp->get_player_nr()] ^= (1<<i);
+			if (bFilterStates[sp->get_player_nr()] & (1<<i)) {
 				chart.show_curve(i);
 				mchart.show_curve(i);
 			}
@@ -431,8 +444,8 @@ bool money_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 				chart.hide_curve(i);
 				mchart.hide_curve(i);
 			}
-    		return true;
-    	}
-    }
-    return false;
+			return true;
+		}
+	}
+	return false;
 }

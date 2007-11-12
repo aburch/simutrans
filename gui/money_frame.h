@@ -85,7 +85,6 @@ private:
 	sint64 baseline, scale;
 	char cmoney_min[128], cmoney_max[128];
 	button_t filterButtons[MAX_COST];
-	bool bFilterIsActive[MAX_COST];
 	void calc_chart_values();
 	static const char cost_type[MAX_COST][64];
 	static const int cost_type_color[MAX_COST];
