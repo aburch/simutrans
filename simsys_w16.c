@@ -61,6 +61,7 @@ const wchar_t* const title =
 #endif
 
 
+
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der
  * Schnittstelle untergebracht
@@ -288,6 +289,9 @@ void set_pointer(int loading)
 }
 
 
+// try using GDIplus to save an screenshot
+extern bool dr_screenshot_png(const char *filename, int w, int h, unsigned short *AllDibData );
+
 /**
  * Some wrappers can save screenshots.
  * @return 1 on success, 0 if not implemented for a particular wrapper and -1
@@ -296,27 +300,36 @@ void set_pointer(int loading)
  */
 int dr_screenshot(const char *filename)
 {
-	FILE *fBmp = fopen(filename, "wb");
+#ifdef USE_16BIT_DIB
+	if(!dr_screenshot_png(filename,AllDib->biWidth,WindowSize.bottom + 1,AllDibData,16)) {
+#else
+	if(!dr_screenshot_png(filename,AllDib->biWidth,WindowSize.bottom + 1,AllDibData,15)) {
+#endif
+		// not successful => save as BMP
+		FILE *fBmp = fopen(filename, "wb");
+		if (fBmp) {
+			BITMAPFILEHEADER bf;
+			unsigned i;
 
-	if (fBmp) {
-		BITMAPFILEHEADER bf;
-		unsigned i;
+			AllDib->biHeight = WindowSize.bottom + 1;
 
-		AllDib->biHeight = WindowSize.bottom + 1;
+			bf.bfType = 0x4d42; //"BM"
+			bf.bfReserved1 = 0;
+			bf.bfReserved2 = 0;
+			bf.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + sizeof(DWORD)*3;
+			bf.bfSize = (bf.bfOffBits + AllDib->biHeight * AllDib->biWidth * 2l + 3l) / 4l;
+			fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, fBmp);
+			fwrite(AllDib, sizeof(BITMAPINFOHEADER) + sizeof(DWORD) * 3, 1, fBmp);
 
-		bf.bfType = 0x4d42; //"BM"
-		bf.bfReserved1 = 0;
-		bf.bfReserved2 = 0;
-		bf.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + sizeof(DWORD)*3;
-		bf.bfSize = (bf.bfOffBits + AllDib->biHeight * AllDib->biWidth * 2l + 3l) / 4l;
-		fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, fBmp);
-		fwrite(AllDib, sizeof(BITMAPINFOHEADER) + sizeof(DWORD) * 3, 1, fBmp);
+			for (i = 0; i < AllDib->biHeight; i++) {
+				fwrite(AllDibData + (AllDib->biHeight - 1 - i) * AllDib->biWidth, AllDib->biWidth, 2, fBmp);
+			}
 
-		for (i = 0; i < AllDib->biHeight; i++) {
-			fwrite(AllDibData + (AllDib->biHeight - 1 - i) * AllDib->biWidth, AllDib->biWidth, 2, fBmp);
+			fclose(fBmp);
 		}
-
-		fclose(fBmp);
+		else {
+			return -1;
+		}
 	}
 	return 0;
 }

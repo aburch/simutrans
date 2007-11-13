@@ -312,6 +312,9 @@ void set_pointer(int loading)
 }
 
 
+// try using GDIplus to save an screenshot
+extern bool dr_screenshot_png(const char *filename, int w, int h, unsigned short *AllDibData );
+
 /**
  * Some wrappers can save screenshots.
  * @return 1 on success, 0 if not implemented for a particular wrapper and -1
@@ -320,6 +323,11 @@ void set_pointer(int loading)
  */
 int dr_screenshot(const char *filename)
 {
+#ifdef WIN32
+	if(dr_screenshot_png(filename, width, height, screen->pixels, bpp)) {
+		return true;
+	}
+#endif
 	return SDL_SaveBMP(SDL_GetVideoSurface(), filename) == 0 ? 1 : -1;
 }
 

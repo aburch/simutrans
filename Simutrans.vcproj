@@ -64,7 +64,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlib.lib advapi32.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlib.lib advapi32.lib $(NOINHERIT) gdiplus.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;G:\Program Files\PlatformSDK\Lib&quot;;G:\Projects\zlib\lib"
 				GenerateDebugInformation="true"
@@ -766,6 +766,10 @@
 			</File>
 			<File
 				RelativePath=".\utils\simstring.c"
+				>
+			</File>
+			<File
+				RelativePath=".\simsys_screenshot.cc"
 				>
 			</File>
 			<File
