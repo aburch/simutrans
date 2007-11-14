@@ -44,8 +44,7 @@ bruecke_t::bruecke_t(karte_t *welt, koord3d pos, spieler_t *sp,
 
 
 
-void
-bruecke_t::calc_bild()
+void bruecke_t::calc_bild()
 {
 	grund_t *gr=welt->lookup(gib_pos());
 	if(gr) {

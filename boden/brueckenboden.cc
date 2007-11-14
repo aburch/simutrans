@@ -38,10 +38,7 @@ void brueckenboden_t::calc_bild_internal()
 		}
 		else {
 			clear_back_bild();
-			setze_bild(IMG_LEER);
-		}
-		if(flags&has_way2) {
-			((weg_t *)obj_bei(0))->setze_bild(IMG_LEER);
+			setze_bild( IMG_LEER );
 		}
 		set_flag(draw_as_ding);
 	}

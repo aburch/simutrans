@@ -2,10 +2,11 @@ CHECK:
 resize greater than 2400*1536 crashes simutrans
 month to bankrupt into simuconf.tab
 bridges and tunnels with no initial road
-bahnhofsdetaildialog
+bahnhofsdetaildialog??
 Toolwindow with 10 last used tools (in fixed order)
 timeline speeds from file instead calculation
 A* for goods
+Sort signals so simple signal is first
 
 
 Stichpunkte
