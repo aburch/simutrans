@@ -2046,8 +2046,7 @@ void haltestelle_t::mark_unmark_coverage(const bool mark) const
 {
 	// iterate over all tiles
 	for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
-		koord p = i->grund->gib_pos().gib_2d();
-		welt->mark_area( p.x, p.y, welt->gib_einstellungen()->gib_station_coverage(), mark );
+		welt->mark_area( i->grund->gib_pos(), welt->gib_einstellungen()->gib_station_coverage(), mark );
 	}
 }
 

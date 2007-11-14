@@ -32,33 +32,39 @@ zeiger_t::zeiger_t(karte_t *welt, koord3d pos, spieler_t *sp) :
 
 
 void
-zeiger_t::change_pos(koord3d k)
+zeiger_t::change_pos(koord3d k )
 {
 	if(k!=gib_pos()) {
 		// remove from old position
 		// and clear mark
-		grund_t *gr=welt->lookup_kartenboden(gib_pos().gib_2d());
+		grund_t *gr = welt->lookup(gib_pos());
+		if(gr==NULL) {
+			gr = welt->lookup_kartenboden(gib_pos().gib_2d());
+		}
 		if(gr) {
 			if(gr->gib_halt().is_bound()) {
 				gr->gib_halt()->mark_unmark_coverage( false );
 			}
-			welt->mark_area( gib_pos().x, gib_pos().y, area, false );
+			welt->mark_area( gib_pos(), area, false );
 		}
 		mark_image_dirty( gib_bild(), 0 );
 		set_flag(ding_t::dirty);
 
 		ding_t::setze_pos(k);
 		if(gib_yoff()==welt->Z_PLAN) {
-			gr=welt->lookup_kartenboden(k.gib_2d());
+			gr = welt->lookup(k);
+			if(gr==NULL) {
+				gr = welt->lookup_kartenboden(k.gib_2d());
+			}
 			if(gr) {
 				if(gr->gib_halt().is_bound()  &&  umgebung_t::station_coverage_show) {
 					gr->gib_halt()->mark_unmark_coverage( true );
 				}
 				// only mark this, if it is not in underground mode
 				// or in underground mode, if it is deep enough
-				if(!grund_t::underground_mode  ||  gib_pos().z<gr->gib_hoehe()) {
-					welt->mark_area( gib_pos().x, gib_pos().y, area, true );
-				}
+//				if(!grund_t::underground_mode  ||  gib_pos().z<gr->gib_hoehe()) {
+					welt->mark_area( k, area, true );
+				//}
 			}
 		}
 	}
@@ -82,7 +88,7 @@ zeiger_t::setze_bild( image_id b )
 	mark_image_dirty( b, 0 );
 	bild = b;
 	if(area>0) {
-		welt->mark_area( gib_pos().x, gib_pos().y, area, false );
+		welt->mark_area( gib_pos(), area, false );
 	}
 	area = 0;
 }
@@ -96,8 +102,8 @@ zeiger_t::setze_area(uint8 new_area)
 		return;
 	}
 	if(new_area < area) {
-		welt->mark_area( gib_pos().x, gib_pos().y, area, false );
+		welt->mark_area( gib_pos(), area, false );
 	}
 	area = new_area;
-	welt->mark_area( gib_pos().x, gib_pos().y, area, true );
+	welt->mark_area( gib_pos(), area, true );
 }

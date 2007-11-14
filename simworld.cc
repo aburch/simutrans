@@ -3095,10 +3095,10 @@ bool karte_t::is_fast_forward()
  * @author prissi
  */
 void
-karte_t::mark_area( const sint16 lx, const sint16 uy, const uint8 radius, const bool mark )
+karte_t::mark_area( const koord3d pos, const uint8 radius, const bool mark )
 {
-	for( sint16 y=uy-radius;  y<uy+radius+1;  y++  ) {
-		for( sint16 x=lx-radius;  x<lx+radius+1;  x++  ) {
+	for( sint16 y=pos.y-radius;  y<pos.y+radius+1;  y++  ) {
+		for( sint16 x=pos.x-radius;  x<pos.x+radius+1;  x++  ) {
 			grund_t *gr = lookup_kartenboden( koord(x,y) );
 			if(gr) {
 				if(mark) {
@@ -3221,7 +3221,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 		bool found = false;
 		if(grund_t::underground_mode) {
-			sint8 found_hgt = grundwasser;
+			static sint8 found_hgt = grundwasser;
 
 			for( hgt = grundwasser ; hgt < 32  && !found ; hgt++) {
 				const int base_i = (screen_x+screen_y + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1) )/2;
