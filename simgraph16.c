@@ -2903,9 +2903,15 @@ void display_snapshot()
 	mkdir(SCRENSHOT_PATH, 0700);
 #endif
 
+	// find the first not used screenshot image
 	do {
-		sprintf(buf, SCRENSHOT_PATH_X "simscr%02d.bmp", number++);
+		sprintf(buf, SCRENSHOT_PATH_X "simscr%02d.png", number);
+		if(access(buf, W_OK) == -1) {
+			sprintf(buf, SCRENSHOT_PATH_X "simscr%02d.bmp", number);
+		}
+		number ++;
 	} while (access(buf, W_OK) != -1);
+	sprintf(buf, SCRENSHOT_PATH_X "simscr%02d.bmp", number-1);
 
 	dr_screenshot(buf);
 }

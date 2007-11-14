@@ -5,7 +5,7 @@
 	FIX: windows gain not focus during dragging with mousebutton
 	ADD: new error message 'Not possible in this rotation!'
 	FIX: bridges ending on elevated monorail or flat tiles fixed
-	ADD: screenshot under windows as png
+	ADD: screenshot under windows as png (if gdiplus.dll is present, i.e XP or .NET there)
 
 
 Release of 99.15

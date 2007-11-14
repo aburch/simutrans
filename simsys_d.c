@@ -324,6 +324,9 @@ void dr_flush(void)
 }
 
 
+// try saving png using gdiplus.dll
+extern int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data, int bitdepth );
+
 /**
  * Some wrappers can save screenshots.
  * @return 1 on success, 0 if not implemented for a particular wrapper and -1
@@ -332,6 +335,11 @@ void dr_flush(void)
  */
 int dr_screenshot(const char *filename)
 {
+#ifdef WIN32
+	if(dr_screenshot_png(filename, width, height, textur, 16)) {
+		return 1;
+	}
+#endif
 	return 0;
 }
 
