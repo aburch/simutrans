@@ -7,6 +7,7 @@
 	FIX: bridges ending on elevated monorail or flat tiles fixed
 	ADD: screenshot under windows as png (if gdiplus.dll is present, i.e XP or .NET there)
 	FIX: transparent/no season recognizing bridges
+	FIX: double or "unkown" names for stations on bridges/tunnels for 99.14 and older games
 
 
 Release of 99.15

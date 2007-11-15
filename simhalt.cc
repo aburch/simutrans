@@ -1660,14 +1660,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			}
 		}
 
-		// handle name for old stations which don't exist in kartenboden
-		grund_t* bd = welt->lookup(gib_basis_pos3d());
-		if(bd==NULL  ||  !bd->get_flag(grund_t::has_text) ) {
-			bd = welt->lookup_kartenboden(gib_basis_pos());
-			if(bd) {
-				setze_name( bd->gib_text() );
-			}
-		}
 	}
 
 	for (int j = 0; j<MAX_HALT_COST; j++) {
@@ -1700,19 +1692,32 @@ void haltestelle_t::laden_abschliessen()
 #ifdef LAGER_NOT_IN_USE
 	for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
 		koord3d k(i->grund->gib_pos());
-	// nach sondergebaeuden suchen
+		// nach sondergebaeuden suchen
 
 		lagerhaus_t* l = welt->lookup(k)->find<lagerhaus_t>();
 		if  (l != NULL) {
 			lager = l;
-	    break;
+		break;
+		}
 	}
-    }
 #endif
-	// check for name;
+
+	// handle name for old stations which don't exist in kartenboden
 	grund_t* bd = welt->lookup(gib_basis_pos3d());
-	if(bd!=NULL  &&  !bd->get_flag(grund_t::has_text)) {
-		bd->setze_text("Unknown");
+	if(bd==NULL  ||  !bd->get_flag(grund_t::has_text) ) {
+		// restore label und bridges
+		bd = welt->lookup_kartenboden(gib_basis_pos());
+		if(bd) {
+			// transfer name (if there)
+			const char *name = bd->gib_text();
+			if(name) {
+				setze_name( name );
+				bd->setze_text( NULL );
+			}
+			else {
+				setze_name( "Unknown" );
+			}
+		}
 	}
 }
 
