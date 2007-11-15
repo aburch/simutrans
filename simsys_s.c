@@ -376,6 +376,8 @@ static void internal_GetEvents(int wait)
 					sys_event.code = SIM_MOUSE_MOVED;
 					sys_event.mx   = event.motion.x;
 					sys_event.my   = event.motion.y;
+					sys_event.mb = event.motion.state;
+					sys_event.mb = (sys_event.mb &1) + ((sys_event.mb>>1) & 2) + ((sys_event.mb<<1) & 4);
 				}
 			}
 		} while (n != 0 && event.type == SDL_MOUSEMOTION);
@@ -383,7 +385,6 @@ static void internal_GetEvents(int wait)
 		if (!got_one) return;
 	}
 
-	sys_event.mb = SDL_GetMouseState( 0, 0 );
 	switch (event.type) {
 		case SDL_VIDEORESIZE:
 			sys_event.type = SIM_SYSTEM;
@@ -404,6 +405,7 @@ static void internal_GetEvents(int wait)
 			sys_event.key_mod = ModifierKeys();
 			sys_event.mx      = event.button.x;
 			sys_event.my      = event.button.y;
+			sys_event.mb = SDL_GetMouseState( 0, 0 );
 			switch (event.button.button) {
 				case 1: sys_event.code = SIM_MOUSE_LEFTBUTTON;  break;
 				case 2: sys_event.code = SIM_MOUSE_MIDBUTTON;   break;
@@ -418,6 +420,8 @@ static void internal_GetEvents(int wait)
 			sys_event.key_mod = ModifierKeys();
 			sys_event.mx      = event.button.x;
 			sys_event.my      = event.button.y;
+			sys_event.mb = SDL_GetMouseState( 0, 0 );
+			sys_event.mb = (sys_event.mb &1) + ((sys_event.mb>>1) & 2) + ((sys_event.mb<<1) & 4);
 			switch (event.button.button) {
 				case 1: sys_event.code = SIM_MOUSE_LEFTUP;  break;
 				case 2: sys_event.code = SIM_MOUSE_MIDUP;   break;
@@ -448,13 +452,13 @@ static void internal_GetEvents(int wait)
 			} else if (event.key.keysym.sym == SDLK_DELETE) {
 				sys_event.code = 127;
 			} else if (event.key.keysym.unicode > 0) {
-				printf("Unicode ");
+				// printf("Unicode ");
 				sys_event.code = event.key.keysym.unicode;
 			} else if (event.key.keysym.sym >= SDLK_F1 && event.key.keysym.sym <= SDLK_F15) {
-				printf("Function ");
+				// printf("Function ");
 				sys_event.code = event.key.keysym.sym - SDLK_F1 + SIM_KEY_F1;
 			} else if (event.key.keysym.sym > 0 && event.key.keysym.sym < 127) {
-				printf("ASCII ");
+				// printf("ASCII ");
 				sys_event.code = event.key.keysym.sym;	// try with the ASCII code ...
 			} else {
 				switch (event.key.keysym.sym) {
@@ -469,10 +473,6 @@ static void internal_GetEvents(int wait)
 					default:            sys_event.code = 0;             break;
 				}
 			}
-			printf(
-				"Event Key '%c' (%i) was generated\n",
-				(int)sys_event.code, (int)sys_event.code
-			);
 			break;
 
 		case SDL_MOUSEMOTION:
@@ -480,6 +480,8 @@ static void internal_GetEvents(int wait)
 			sys_event.code = SIM_MOUSE_MOVED;
 			sys_event.mx   = event.motion.x;
 			sys_event.my   = event.motion.y;
+			sys_event.mb = event.motion.state;
+			sys_event.mb = (sys_event.mb &1) + ((sys_event.mb>>1) & 2) + ((sys_event.mb<<1) & 4);
 			break;
 
 		case 1:
