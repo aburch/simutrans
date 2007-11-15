@@ -344,6 +344,7 @@ struct sys_event sys_event;
 /* Windows eventhandler: does most of the work */
 LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	static int last_mb = 0;	// last mouse button state
 	switch (msg) {
 
 		case WM_ACTIVATE: // may check, if we have to restore color depth
@@ -413,7 +414,8 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_LBUTTONDOWN: /* originally ButtonPress */
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_LEFTBUTTON;
-			sys_event.key_mod = wParam >> 2;
+			sys_event.key_mod = wParam>>2;
+			sys_event.mb = last_mb = (wParam&3);
 			sys_event.mx      = LOWORD(lParam);
 			sys_event.my      = HIWORD(lParam);
 			break;
@@ -421,7 +423,8 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_LBUTTONUP: /* originally ButtonRelease */
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_LEFTUP;
-			sys_event.key_mod = wParam >> 2;
+			sys_event.key_mod = wParam>>2;
+			sys_event.mb = last_mb = (wParam&3);
 			sys_event.mx      = LOWORD(lParam);
 			sys_event.my      = HIWORD(lParam);
 			break;
@@ -429,7 +432,8 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_RBUTTONDOWN: /* originally ButtonPress */
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_RIGHTBUTTON;
-			sys_event.key_mod = wParam >> 2;
+			sys_event.key_mod = wParam>>2;
+			sys_event.mb = last_mb = (wParam&3);
 			sys_event.mx      = LOWORD(lParam);
 			sys_event.my      = HIWORD(lParam);
 			break;
@@ -437,7 +441,8 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_RBUTTONUP: /* originally ButtonRelease */
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_RIGHTUP;
-			sys_event.key_mod = wParam >> 2;
+			sys_event.key_mod = wParam>>2;
+			sys_event.mb = last_mb = (wParam&3);
 			sys_event.mx      = LOWORD(lParam);
 			sys_event.my      = HIWORD(lParam);
 			break;
@@ -445,7 +450,8 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_MOUSEMOVE:
 			sys_event.type    = SIM_MOUSE_MOVE;
 			sys_event.code    = SIM_MOUSE_MOVED;
-			sys_event.key_mod = wParam >> 2;
+			sys_event.key_mod = wParam>>2;
+			sys_event.mb = last_mb = (wParam&3);
 			sys_event.mx      = LOWORD(lParam);
 			sys_event.my      = HIWORD(lParam);
 			break;

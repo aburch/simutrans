@@ -383,6 +383,7 @@ static void internal_GetEvents(int wait)
 		if (!got_one) return;
 	}
 
+	sys_event.mb = SDL_GetMouseState( 0, 0 );
 	switch (event.type) {
 		case SDL_VIDEORESIZE:
 			sys_event.type = SIM_SYSTEM;

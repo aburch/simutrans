@@ -41,8 +41,7 @@ static void fill_event(struct event_t *ev)
 	// for autorepeat buttons we track button state, press time and a repeat time
 	// code by Niels Roest and Hj. Maltahner
 
-	static int  pressed_buttons = 0; // assume: at startup no button pressed
-//	static int  clicked_button = 0; // must remember clicked button for correct release message
+	static int  pressed_buttons = 0; // assume: at startup no button pressed (nneded for some backends)
 	static unsigned long lb_time = 0;
 	static long repeat_time = 500;
 
@@ -65,6 +64,7 @@ static void fill_event(struct event_t *ev)
 
 		case SIM_MOUSE_BUTTONS:
 			// press only acknowledged when no buttons are pressed
+			pressed_buttons = sys_event.mb;
 			switch (sys_event.code) {
 				case SIM_MOUSE_LEFTBUTTON:
 					ev->ev_class = EVENT_CLICK;
@@ -103,24 +103,7 @@ static void fill_event(struct event_t *ev)
 					ev->cx = cx = sys_event.mx;
 					ev->cy = cy = sys_event.my;
 					break;
-/*
-			}
 
-			// recalculate pressed_buttons
-			switch (sys_event.code) {
-				case SIM_MOUSE_LEFTBUTTON:  pressed_buttons |=  MOUSE_LEFTBUTTON; break;
-				case SIM_MOUSE_RIGHTBUTTON: pressed_buttons |=  MOUSE_RIGHTBUTTON; break;
-				case SIM_MOUSE_MIDBUTTON:   pressed_buttons |=  MOUSE_MIDBUTTON; break;
-				case SIM_MOUSE_LEFTUP:      pressed_buttons &= ~MOUSE_LEFTBUTTON; break;
-				case SIM_MOUSE_RIGHTUP:     pressed_buttons &= ~MOUSE_RIGHTBUTTON; break;
-				case SIM_MOUSE_MIDUP:       pressed_buttons &= ~MOUSE_MIDBUTTON; break;
-			}
-
-			// if press event found, skip this
-			if (ev->ev_class == EVENT_CLICK) break;
-
-			// release only when all buttons are released
-			switch(sys_event.code) {*/
 				case SIM_MOUSE_LEFTUP:
 					ev->ev_class = EVENT_RELEASE;
 					ev->ev_code = MOUSE_LEFTBUTTON;
@@ -142,9 +125,9 @@ static void fill_event(struct event_t *ev)
 			break;
 
 		case SIM_MOUSE_MOVE:
-			if (pressed_buttons) { // drag
+			if (sys_event.mb) { // drag
 				ev->ev_class = EVENT_DRAG;
-				ev->ev_code  = pressed_buttons;
+				ev->ev_code  = sys_event.mb;
 			} else { // move
 				ev->ev_class = EVENT_MOVE;
 				ev->ev_code  = 0;

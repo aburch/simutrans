@@ -41,42 +41,43 @@ static volatile unsigned int event_bot_mark = 0;
 static volatile int event_queue[queue_length * 4 + 8];
 
 
-#define INSERT_EVENT(a, b, c, d) \
+#define INSERT_EVENT(a, b) \
 	event_queue[event_top_mark++] = a; \
 	event_queue[event_top_mark++] = b; \
-	event_queue[event_top_mark++] = c; \
-	event_queue[event_top_mark++] = d; \
+	event_queue[event_top_mark++] = mouse_x; \
+	event_queue[event_top_mark++] = mouse_y; \
+	event_queue[event_top_mark++] = mouse_b; \
 	if (event_top_mark >= queue_length * 4) event_top_mark = 0;
 
 
 void my_mouse_callback(int flags)
 {
 	if (flags & MOUSE_FLAG_MOVE) {
-		INSERT_EVENT(SIM_MOUSE_MOVE, SIM_MOUSE_MOVED, mouse_x, mouse_y)
+		INSERT_EVENT(SIM_MOUSE_MOVE, SIM_MOUSE_MOVED)
 	}
 
 	if (flags & MOUSE_FLAG_LEFT_DOWN) {
-		INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_LEFTBUTTON, mouse_x, mouse_y)
+		INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_LEFTBUTTON)
 	}
 
 	if (flags & MOUSE_FLAG_MIDDLE_DOWN) {
-		INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_MIDBUTTON, mouse_x, mouse_y)
+		INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_MIDBUTTON)
 	}
 
 	if (flags & MOUSE_FLAG_RIGHT_DOWN) {
-		INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_RIGHTBUTTON, mouse_x, mouse_y)
+		INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_RIGHTBUTTON)
 	}
 
 	if (flags & MOUSE_FLAG_LEFT_UP) {
-		INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_LEFTUP, mouse_x, mouse_y)
+		INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_LEFTUP)
 	}
 
 	if (flags & MOUSE_FLAG_MIDDLE_UP) {
-		INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_MIDUP, mouse_x, mouse_y)
+		INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_MIDUP)
 	}
 
 	if (flags & MOUSE_FLAG_RIGHT_UP) {
-		INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_RIGHTUP, mouse_x, mouse_y)
+		INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_RIGHTUP)
 	}
 }
 END_OF_FUNCTION(my_mouse_callback)
@@ -86,7 +87,7 @@ static int my_keyboard_callback(int this_key, int* scancode)
 {
 	if (this_key > 0) {
 		// seems to be ASCII
-		INSERT_EVENT(SIM_KEYBOARD, this_key, mouse_x, mouse_y);
+		INSERT_EVENT(SIM_KEYBOARD, this_key);
 		*scancode = 0;
 		return 0;
 	}
@@ -143,7 +144,7 @@ static int my_keyboard_callback(int this_key, int* scancode)
 			return 0;
 	}
 
-	INSERT_EVENT(SIM_KEYBOARD, this_key, mouse_x, mouse_y);
+	INSERT_EVENT(SIM_KEYBOARD, this_key);
 	*scancode = 0;
 	return 0;
 }

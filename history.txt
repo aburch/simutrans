@@ -8,6 +8,7 @@
 	ADD: screenshot under windows as png (if gdiplus.dll is present, i.e XP or .NET there)
 	FIX: transparent/no season recognizing bridges
 	FIX: double or "unkown" names for stations on bridges/tunnels for 99.14 and older games
+	CHANGE: events now internally carry always the mousebutton states => fixing problem when scrolling with right mouse button (and so others too)
 
 
 Release of 99.15

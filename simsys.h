@@ -55,6 +55,7 @@ struct sys_event
 	unsigned long code;
 	int mx;                  /* es sind negative Koodinaten mgl */
 	int my;
+	int mb;
 	unsigned int key_mod; /* key mod, like ALT, STRG, SHIFT */
 };
 
