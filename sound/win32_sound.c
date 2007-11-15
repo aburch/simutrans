@@ -17,6 +17,7 @@
  */
 static int use_sound = 0;
 
+//#define USE_LOW_LEVEL_AUDIO
 
 /* this list contains all the samples
  */
@@ -35,18 +36,28 @@ static HWAVEOUT wave_out=NULL;
 void dr_init_sound()
 {
 #ifdef USE_LOW_LEVEL_AUDIO
-//	extern HINSTANCE hInstance;
-	WAVEFORMATEX wf= { WAVE_FORMAT_PCM, 1, 44100, 88200, 2, 16, 0 };
-	use_sound = waveOutOpen( &wave_out, WAVE_MAPPER, &wf, 0, 0, 0 );
-	if(use_sound) {
-		WARNING( "dr_init_sound()","waveOutOpen() failed with error %i", use_sound );
-		getchar();
-		use_sound = 0;
+	WAVEFORMATEX wf = { WAVE_FORMAT_PCM, 1, 44100, 88200, 2, 16, 0 };
+	UINT dev_count=waveOutGetNumDevs();
+	UINT i;
+	for(  i=0;  i<dev_count;  i++  ) {
+		WAVEOUTCAPS wc;
+		if(	waveOutGetDevCaps( i, &wc, sizeof(wc) )==MMSYSERR_NOERROR) {
+			if((wc.dwSupport & WAVECAPS_PLAYBACKRATE)!=0) {
+				use_sound = waveOutOpen( &wave_out, i, &wf, 0, 0, 0 );
+				if(use_sound==MMSYSERR_NOERROR) {
+					use_sound = 1;
+					return;
+				}
+			}
+		}
+	}
+	if(!use_sound) {
+		WARNING( "dr_init_sound()", "waveOutOpen() no matching device found!" );
 		return;
 	}
-	MESSAGE( "dr_init_sound()","success" );
-#endif
+#else
 	use_sound = 1;
+#endif
 }
 
 
@@ -56,7 +67,7 @@ void dr_init_sound()
  * @return a handle for that sample or -1 on failure
  * @author Hj. Malthaner
  */
-int dr_load_sample(const char *filename)
+int dr_load_sample(char *filename)
 {
 	if(use_sound  &&  sample_number>=0  &&  sample_number<64) {
 
@@ -65,6 +76,9 @@ int dr_load_sample(const char *filename)
 		HMMIO AudioHandle;
 		MMCKINFO ckInfoRIFF;
 		MMCKINFO ckInfoChunk;
+		DWORD len;
+		WAVEHDR *whdr;
+		DWORD sps;
 		// Datei wird geöffnet
 		AudioHandle = mmioOpenA(filename, NULL, MMIO_READ);
 		if(AudioHandle==NULL) {
@@ -105,18 +119,17 @@ int dr_load_sample(const char *filename)
 			return -1;
 		}
 		// now we know everything, we can start allocing a structure and read the data
-		DWORD len = ckInfoChunk.cksize;
+		len = ckInfoChunk.cksize;
 		samples[sample_number] = GlobalLock( GlobalAlloc(  GMEM_MOVEABLE, (len+4)&0x7FFFFFFCl ) );
 		mmioRead(AudioHandle, samples[sample_number], len);	// assuming success, if we finally go here ...
 		mmioClose(AudioHandle, 0);
 		// now convert it to a header
-		WAVEHDR *whdr=GlobalLock( GlobalAlloc(  GMEM_MOVEABLE, sizeof(WAVEHDR) ) );
+		whdr=GlobalLock( GlobalAlloc(  GMEM_MOVEABLE, sizeof(WAVEHDR) ) );
 		whdr->lpData = samples[sample_number];
 		whdr->dwBufferLength = len;
-		DWORD sps= ((FormatDescription.nSamplesPerSec/44100l)<<16) + (32768l*(FormatDescription.nSamplesPerSec%44100l))/44100l;
-		whdr->dwUser = sps;
+		sps = ((FormatDescription.nSamplesPerSec/44100l)<<16) + ((65536*(FormatDescription.nSamplesPerSec%44100l))/44100l);
+		whdr->dwUser = FormatDescription.nSamplesPerSec;//sps;
 MESSAGE( "dr_load_sample()","sample rate %i to with sample rate factor %x",FormatDescription.nSamplesPerSec,sps );
-getchar();
 		whdr->dwFlags = 0;
 		whdr->dwLoops = 0;
 		waveOutPrepareHeader( wave_out, whdr, sizeof(WAVEHDR) );
@@ -157,9 +170,9 @@ void dr_play_sample(int sample_number, int volume)
 	if(use_sound!=0  &&  sample_number>=0  &&  sample_number<64  &&  volume>1) {
 
 #ifdef USE_LOW_LEVEL_AUDIO
-out_message("dr_play_sample()", "%i sample %i, volume %i ",use_sound,sample_number,volume);
    		// prissis short version
 		static int oldvol = -1;
+		int i;
 		volume = (volume<<8)-1;
 		if(oldvol!=volume) {
 			long vol = (volume<<16)|volume;
@@ -169,7 +182,7 @@ out_message("dr_play_sample()", "%i sample %i, volume %i ",use_sound,sample_numb
 		waveOutSetPlaybackRate( wave_out, ((WAVEHDR *)samples[sample_number])->dwUser );
 		waveOutWrite( wave_out,  (WAVEHDR *)samples[sample_number], sizeof(WAVEHDR) );
 #else
-//out_message("dr_play_sample()", "%i sample %i, volume %i ",use_sound,sample_number,volume);
+//MESSAGE("dr_play_sample()", "%i sample %i, volume %i ",use_sound,sample_number,volume);
 		// prissis short version
 		static int oldvol = -1;
 		volume = (volume<<8)-1;

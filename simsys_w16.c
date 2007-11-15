@@ -290,7 +290,7 @@ void set_pointer(int loading)
 
 
 // try using GDIplus to save an screenshot
-extern bool dr_screenshot_png(const char *filename, int w, int h, unsigned short *AllDibData );
+extern bool dr_screenshot_png(const char *filename, int w, int h, unsigned short *data, int bpp );
 
 /**
  * Some wrappers can save screenshots.
