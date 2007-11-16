@@ -24,6 +24,8 @@ private:
     scrollbar_t midi;
     gui_label_t dlabel;
     gui_label_t mlabel;
+    button_t digi_mute;
+    button_t midi_mute;
     button_t nextbtn;
     button_t prevbtn;
     button_t shufflebtn;

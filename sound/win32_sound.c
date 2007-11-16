@@ -14,10 +14,15 @@
 
 /*
  * Hajo: flag if sound module should be used
+ * with Win32 the number+1 of the device used
  */
 static int use_sound = 0;
 
+// only disadvantages; better not use this
 //#define USE_LOW_LEVEL_AUDIO
+
+// also not better
+//#define USE_MCI_AUDIO
 
 /* this list contains all the samples
  */
@@ -28,7 +33,15 @@ static int sample_number = 0;
 // #define USE_LOW_LEVEL_AUDIO
 #ifdef USE_LOW_LEVEL_AUDIO
 static HWAVEOUT wave_out=NULL;
+static can_resample = FALSE;
+static ULONG rate = 0;	// sample rate of device; needed to adjust sample per second
 #endif
+
+#ifdef USE_MCI_AUDIO
+static UINT wDeviceID;
+static MCI_OPEN_PARMS mciOpenParms;
+#endif
+
 
 /**
  * Sound initialisation routine
@@ -36,26 +49,49 @@ static HWAVEOUT wave_out=NULL;
 void dr_init_sound()
 {
 #ifdef USE_LOW_LEVEL_AUDIO
-	WAVEFORMATEX wf = { WAVE_FORMAT_PCM, 1, 44100, 88200, 2, 16, 0 };
 	UINT dev_count=waveOutGetNumDevs();
 	UINT i;
+
+	use_sound = 0;
 	for(  i=0;  i<dev_count;  i++  ) {
 		WAVEOUTCAPS wc;
-		if(	waveOutGetDevCaps( i, &wc, sizeof(wc) )==MMSYSERR_NOERROR) {
+
+		// device there?
+		if(	waveOutGetDevCaps( i, &wc, sizeof(wc) )==MMSYSERR_NOERROR  &&  (wc.dwSupport & WAVECAPS_SYNC)==0) {
+			// device can play async, i.e. not stopping our program
+			use_sound = i+1;
 			if((wc.dwSupport & WAVECAPS_PLAYBACKRATE)!=0) {
-				use_sound = waveOutOpen( &wave_out, i, &wf, 0, 0, 0 );
-				if(use_sound==MMSYSERR_NOERROR) {
-					use_sound = 1;
-					return;
-				}
+				// and can resample (good)
+				can_resample = TRUE;
+				return;
 			}
 		}
 	}
-	if(!use_sound) {
+	if(use_sound==0) {
 		WARNING( "dr_init_sound()", "waveOutOpen() no matching device found!" );
 		return;
 	}
 #else
+#ifdef USE_MCI_AUDIO
+	/*
+	 * Open the device by specifying both the device
+	 * element and the device name.
+	 */
+	mciOpenParms.lpstrDeviceType = "waveaudio";
+	if (mciSendCommand(0,  /* device ID */
+		MCI_OPEN,            /* command   */
+		MCI_OPEN_TYPE,       /* flags     */
+		(DWORD) (LPVOID) &mciOpenParms) /* parameter block */
+	) {
+		/* Error, unable to open device. */
+		use_sound = 0;
+		return;
+	}
+	else {
+		/* Device opened successfully. Get the device ID. */
+		wDeviceID = mciOpenParms.wDeviceID;
+	}
+#endif
 	use_sound = 1;
 #endif
 }
@@ -123,11 +159,27 @@ int dr_load_sample(char *filename)
 		samples[sample_number] = GlobalLock( GlobalAlloc(  GMEM_MOVEABLE, (len+4)&0x7FFFFFFCl ) );
 		mmioRead(AudioHandle, samples[sample_number], len);	// assuming success, if we finally go here ...
 		mmioClose(AudioHandle, 0);
+
+		// now open a matching device with this sample rate
+		if(sample_number==0) {
+			WAVEFORMATEX wf = { WAVE_FORMAT_PCM, 1, 44100, 88200, 2, 16, 0 };
+			rate = ((FormatDescription.nSamplesPerSec+11024)/11025)*11025;
+			wf.nSamplesPerSec = rate;
+			wf.nAvgBytesPerSec = 2*rate;
+			if(waveOutOpen( &wave_out, use_sound-1, &wf, 0, 0, 0 )!=MMSYSERR_NOERROR) {
+				// should not happen here, but who knows windows ...
+				use_sound = 0;
+				waveOutClose( wave_out );
+				wave_out = NULL;
+				return;
+			}
+		}
+
 		// now convert it to a header
 		whdr=GlobalLock( GlobalAlloc(  GMEM_MOVEABLE, sizeof(WAVEHDR) ) );
 		whdr->lpData = samples[sample_number];
 		whdr->dwBufferLength = len;
-		sps = ((FormatDescription.nSamplesPerSec/44100l)<<16) + ((65536*(FormatDescription.nSamplesPerSec%44100l))/44100l);
+		sps = ((FormatDescription.nSamplesPerSec/rate)<<16) + ((65536*(FormatDescription.nSamplesPerSec%rate))/rate);
 		whdr->dwUser = FormatDescription.nSamplesPerSec;//sps;
 MESSAGE( "dr_load_sample()","sample rate %i to with sample rate factor %x",FormatDescription.nSamplesPerSec,sps );
 		whdr->dwFlags = 0;
@@ -136,6 +188,21 @@ MESSAGE( "dr_load_sample()","sample rate %i to with sample rate factor %x",Forma
 		samples[sample_number] = whdr;
 		return sample_number++;
 	}
+#else
+#ifdef USE_MCI_AUDIO
+		// MCI just needs the full path with name
+		char *str = strdup(filename);
+		int j;
+
+		// MCI doesn't like relative paths
+		// need to make dos path seperators
+		for (j = 0; j < strlen(str); j++)	{
+			if (str[j] == '/') {
+				str[j] = '\\';
+			}
+		}
+		samples[sample_number] = str;
+		sample_number++;
 #else
 		FILE *fIn=fopen(filename,"rb");
 		if(fIn) {
@@ -154,6 +221,7 @@ MESSAGE( "dr_load_sample()","sample rate %i to with sample rate factor %x",Forma
 			}
 		}
 	}
+#endif
 #endif
 	return -1;
 }
@@ -179,8 +247,13 @@ void dr_play_sample(int sample_number, int volume)
 			waveOutSetVolume( wave_out, vol );
 			oldvol = volume;
 		}
-		waveOutSetPlaybackRate( wave_out, ((WAVEHDR *)samples[sample_number])->dwUser );
-		waveOutWrite( wave_out,  (WAVEHDR *)samples[sample_number], sizeof(WAVEHDR) );
+		if(can_resample) {
+			waveOutSetPlaybackRate( wave_out, ((WAVEHDR *)samples[sample_number])->dwUser );
+		}
+		waveOutWrite( wave_out, (WAVEHDR *)samples[sample_number], sizeof(WAVEHDR) );
+#else
+#ifdef USE_MCI_AUDIO
+	#error "not finished!"
 #else
 //MESSAGE("dr_play_sample()", "%i sample %i, volume %i ",use_sound,sample_number,volume);
 		// prissis short version
@@ -195,6 +268,7 @@ void dr_play_sample(int sample_number, int volume)
 		sndPlaySound( NULL, SND_ASYNC );
 		// now play
 		sndPlaySound( samples[sample_number], SND_MEMORY|SND_ASYNC|SND_NODEFAULT );
+#endif
 #endif
 	}
 }

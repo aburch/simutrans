@@ -11,6 +11,9 @@
 #include "../simsound.h"
 #include "../simintr.h"
 
+static int non_muted_digi_volume = -1;
+static int non_muted_midi_volume = -1;
+
 
 const char *sound_frame_t::make_song_name()
 {
@@ -35,54 +38,72 @@ sound_frame_t::sound_frame_t()
     curlabel(make_song_name()),
     cplaying("Currently playing:")
 {
-    digi.setze_groesse(koord(256, 10));
-    digi.setze_pos(koord(22, 30));
-    digi.setze_knob(32, 255+32);
-    digi.setze_knob_offset(sound_get_global_volume());
-    digi.add_listener( this );
+	dlabel.setze_pos(koord(10,10));
+	add_komponente(&dlabel);
 
-    dlabel.setze_pos(koord(22,14));
+	if(non_muted_digi_volume==-1) {
+		non_muted_digi_volume = sound_get_global_volume();
+	}
+	digi.setze_groesse(koord(255, 10));
+	digi.setze_pos(koord(10, 22));
+	digi.setze_knob(32, 255+32);
+	digi.setze_knob_offset(non_muted_digi_volume);
+	add_komponente(&digi);
+	digi.add_listener( this );
 
-    midi.setze_groesse(koord(255, 10));
-    midi.setze_pos(koord(22, 80));
-    midi.setze_knob(32, 255+32);
-    midi.setze_knob_offset(sound_get_midi_volume());
-    midi.add_listener( this );
+	digi_mute.setze_pos(koord(10,36));
+	digi_mute.setze_typ(button_t::square_state);
+	digi_mute.setze_text("mute sound");
+	digi_mute.pressed = (sound_get_global_volume()==0);
+	add_komponente(&digi_mute);
+	digi_mute.add_listener( this );
 
-    mlabel.setze_pos(koord(22,64));
+	// now midi
+  mlabel.setze_pos(koord(10,58));
+	add_komponente(&mlabel);
 
-    nextbtn.setze_pos(koord(38,133));
-    nextbtn.setze_typ(button_t::arrowright);
+	if(non_muted_midi_volume==-1) {
+		non_muted_midi_volume = sound_get_midi_volume();
+	}
+  midi.setze_groesse(koord(255, 10));
+  midi.setze_pos(koord(10, 70));
+  midi.setze_knob(32, 255+32);
+  midi.setze_knob_offset(non_muted_midi_volume);
+  midi.add_listener( this );
+	add_komponente(&midi);
 
-    prevbtn.setze_pos(koord(22,133));
-    prevbtn.setze_typ(button_t::arrowleft);
+  midi_mute.setze_pos(koord(10,84));
+  midi_mute.setze_typ(button_t::square_state);
+  midi_mute.setze_text("mute sound");
+	midi_mute.pressed = (sound_get_global_volume()==0);
+  midi_mute.add_listener( this );
+	add_komponente(&midi_mute);
 
-    shufflebtn.setze_pos(koord(22,146));
-    shufflebtn.setze_typ(button_t::square_state);
-    shufflebtn.setze_text("shuffle midis");
-		shufflebtn.pressed = sound_get_shuffle_midi();
+	// song selection
+	cplaying.setze_pos(koord(10,106)); // "Currently Playing:"
+	add_komponente(&cplaying);
 
-		cplaying.setze_pos(koord(22,114)); // "Currently Playing:"
-    curlabel.setze_pos(koord(60,134)); // "Jazz"
+	prevbtn.setze_pos(koord(10,118));
+	prevbtn.setze_typ(button_t::arrowleft);
+	prevbtn.add_listener(this);
+	add_komponente(&prevbtn);
 
-    add_komponente(&dlabel);
-    add_komponente(&digi);
+	nextbtn.setze_pos(koord(24,118));
+	nextbtn.setze_typ(button_t::arrowright);
+	nextbtn.add_listener(this);
+	add_komponente(&nextbtn);
 
-    add_komponente(&mlabel);
-    add_komponente(&midi);
+	curlabel.setze_pos(koord(42,118)); // "Jazz"
+	add_komponente(&curlabel);
 
-    add_komponente(&cplaying);
-    add_komponente(&curlabel);
+	shufflebtn.setze_pos(koord(10,130));
+	shufflebtn.setze_typ(button_t::square_state);
+	shufflebtn.setze_text("shuffle midis");
+	shufflebtn.pressed = sound_get_shuffle_midi();
+	shufflebtn.add_listener(this);
+	add_komponente(&shufflebtn);
 
-    nextbtn.add_listener(this);
-    prevbtn.add_listener(this);
-    shufflebtn.add_listener(this);
-
-    add_komponente(&nextbtn);
-    add_komponente(&prevbtn);
-    add_komponente(&shufflebtn);
-
-    setze_fenstergroesse(koord(300, 180));
+	setze_fenstergroesse(koord(276, 164));
 }
 
 
@@ -108,11 +129,23 @@ sound_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 		sound_set_shuffle_midi( !sound_get_shuffle_midi() );
 		shufflebtn.pressed = sound_get_shuffle_midi();
 	}
+	else if (komp == &digi_mute) {
+		sound_set_global_volume( sound_get_global_volume()==0 ? non_muted_digi_volume : 0 );
+		digi_mute.pressed = (sound_get_global_volume()==0);
+	}
+	else if (komp == &midi_mute) {
+		sound_set_global_volume( sound_get_midi_volume()==0 ? non_muted_midi_volume : 0);
+		midi_mute.pressed = (sound_get_midi_volume()==0);
+	}
 	else if (komp == &digi) {
-		sound_set_global_volume(p.i);
+		non_muted_digi_volume = p.i;
+		sound_set_global_volume(non_muted_digi_volume);
+		digi_mute.pressed = (sound_get_global_volume()==0);
 	}
 	else if (komp == &midi) {
-		sound_set_midi_volume(p.i);
+		non_muted_midi_volume = p.i;
+		sound_set_midi_volume(non_muted_midi_volume);
+		midi_mute.pressed = (sound_get_midi_volume()==0);
 	}
 	return true;
 }
