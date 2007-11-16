@@ -604,6 +604,10 @@ protected:
 
 	void betrete_feld();
 
+	void verlasse_feld();
+
+	bool block_reserver( uint32 start, uint32 end, bool reserve );
+
 	// find a route and reserve the stop position
 	bool find_route_to_stop_position();
 

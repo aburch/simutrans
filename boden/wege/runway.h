@@ -9,7 +9,7 @@
 #define boden_wege_runway_h
 
 
-#include "weg.h"
+#include "schiene.h"
 
 
 /**
@@ -18,7 +18,7 @@
  *
  * @author Hj. Malthaner
  */
-class runway_t : public weg_t
+class runway_t : public schiene_t
 {
 public:
 	static const weg_besch_t *default_runway;

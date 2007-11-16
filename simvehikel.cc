@@ -2310,7 +2310,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 
 
 
-/* beware: we must take unreserve railblocks ... */
+/* beware: we must unreserve railblocks ... */
 void
 waggon_t::verlasse_feld()
 {
@@ -2748,11 +2748,74 @@ DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free 
 }
 
 
+/* reserves runways (reserve true) or removes the reservation
+ * finishes when reaching end tile or leaving the ground (end of runway)
+ * @return true if the reservation is successfull
+ */
+bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve )
+{
+	bool start_now = false;
+	bool success = true;
+	uint32 i;
+
+	route_t *route = cnv->get_route();
+	for(  uint32 i=start; success  &&  i<end  &&  i<=route->gib_max_n(); i++) {
+
+		grund_t *gr = welt->lookup(route->position_bei(i));
+		runway_t * sch1 = gr ? (runway_t *)gr->gib_weg(air_wt) : NULL;
+		if(sch1==NULL) {
+			if(reserve) {
+				if(!start_now) {
+					// touched down here
+					start = i;
+				}
+				else {
+					// most likely left the ground here ...
+					end = i;
+					break;
+				}
+			}
+		}
+		else {
+			// we unreserve also nonexisting tiles! (may happen during deletion)
+			if(reserve) {
+				start_now = true;
+				if(!sch1->reserve(cnv->self)) {
+					// unsuccessful => must unreserve all
+					success = false;
+					end = i;
+					break;
+				}
+			}
+			else if(!sch1->unreserve(cnv->self)) {
+				if(start_now) {
+					// reached an reserved or free track => finished
+					return true;
+				}
+			}
+			else {
+				// unreserve from here (only used during sale, since there might be reserved tiles not freed)
+				start_now = true;
+			}
+		}
+	}
+
+	// unreserve if not successful
+	if(!success  &&  reserve) {
+		for(  i=start;  i<end;  i++  ) {
+			runway_t * sch1 = (runway_t *)welt->lookup(route->position_bei(i))->gib_weg(air_wt);
+			if(sch1) {
+				sch1->unreserve(cnv->self);
+			}
+		}
+	}
+	return success;
+}
 
 
 
-bool
-aircraft_t::ist_weg_frei(int & restart_speed)
+// handles all the decisions on the ground an in the air
+bool aircraft_t::ist_weg_frei(int & restart_speed)
 {
 	restart_speed = -1;
 
@@ -2767,6 +2830,24 @@ aircraft_t::ist_weg_frei(int & restart_speed)
 		return false;
 	}
 
+	if(route_index<takeoff) {
+		runway_t *rw = (runway_t *)welt->lookup(pos_next)->gib_weg(air_wt);
+		if(rw==NULL) {
+			cnv->suche_neue_route();
+			return false;
+		}
+		// next tile a runway => then reserve
+		if(rw->gib_besch()->gib_styp()==1) {
+			// try to resever the runway
+			if(!block_reserver(takeoff,takeoff+100,true)) {
+				// runway already blocked ...
+				restart_speed = 0;
+				return false;
+			}
+		}
+		return true;
+	}
+
 	if(route_index==takeoff  &&  state==taxiing) {
 		// stop shortly at the end of the runway
 		state = departing;
@@ -2777,42 +2858,41 @@ aircraft_t::ist_weg_frei(int & restart_speed)
 //DBG_MESSAGE("aircraft_t::ist_weg_frei()","index %i<>%i",route_index,touchdown);
 
 	// check for another circle ...
-	if(route_index==(touchdown-4)  &&  !target_halt.is_bound()) {
-		// circle slowly next round
-		cnv->setze_akt_speed_soll( kmh_to_speed(besch->gib_geschw())/2 );
-		route_index -= 16;
-		state = flying;
+	if(route_index==(touchdown-3)) {
+		if(state!=flying2  &&  !block_reserver( touchdown-1, suchen, true )) {
+			// circle slowly next round
+			cnv->setze_akt_speed_soll( kmh_to_speed(besch->gib_geschw())/2 );
+			route_index -= 16;
+		}
 		return true;
 	}
 
 	if(route_index==touchdown-16-3  &&  state!=flying2) {
+		// just check, if the end of runway ist free; we will wait there
+		if(block_reserver( touchdown-1, suchen, true )) {
+			route_index += 16;
+			state = flying2;
+		}
+		return true;
+	}
+
+	if(route_index==suchen  &&  state==landing  &&  !target_halt.is_bound()) {
+
 		// if we fail, we will wait in a step, much more simulation friendly
 		// and the route finder is not reentrant!
 		if(!cnv->is_waiting()) {
 			return false;
 		}
 
+		// nothing free here?
 		if(find_route_to_stop_position()) {
 			// stop reservation successful
 			route_t *rt=cnv->get_route();
-			route_index += 16;
 			pos_next==rt->position_bei(route_index);
-			state = flying2;
+			block_reserver( touchdown-1, suchen+1, false );
+			state = taxiing;
+			return true;
 		}
-		else {
-			// circle slowly
-			cnv->setze_akt_speed_soll( kmh_to_speed(besch->gib_geschw())/2 );
-			route_t *rt=cnv->get_route();
-			pos_next==rt->position_bei(route_index);
-			state = flying2;
-//DBG_MESSAGE("aircraft_t::ist_weg_frei()","%i circles from idx %i",cnv->self.get_id(),route_index );
-		}
-		return true;
-	}
-
-	if(route_index==suchen  &&  state==landing) {
-		// stop shortly at the end of the runway
-		state = taxiing;
 		restart_speed = 0;
 		return false;
 	}
@@ -2821,7 +2901,7 @@ aircraft_t::ist_weg_frei(int & restart_speed)
 		state = taxiing;
 	}
 
-	if (state == taxiing && gr->is_halt() && gr->find<aircraft_t>()) {
+	if(state == taxiing  &&  gr->is_halt()  &&  gr->find<aircraft_t>()) {
 		// the next step is a parking position. We do not enter, if occupied!
 		restart_speed = 0;
 		return false;
@@ -2846,7 +2926,7 @@ aircraft_t::betrete_feld()
 		}
 	}
 	else {
-		weg_t *w=welt->lookup(gib_pos())->gib_weg(air_wt);
+		runway_t *w=(runway_t *)welt->lookup(gib_pos())->gib_weg(air_wt);
 		if(w) {
 			const int cargo = gib_fracht_menge();
 			w->book(cargo, WAY_STAT_GOODS);
@@ -2858,6 +2938,11 @@ aircraft_t::betrete_feld()
 }
 
 
+
+void aircraft_t::verlasse_feld()
+{
+	vehikel_t::verlasse_feld();
+}
 
 
 aircraft_t::aircraft_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
@@ -3207,6 +3292,7 @@ int aircraft_t::calc_flight_height()
 				if((weg==NULL  ||  weg->gib_besch()->gib_styp()!=1)  ||  cnv->gib_akt_speed()>kmh_to_speed(besch->gib_geschw())/3 ) {
 					state = flying;
 					current_friction = 16;
+					block_reserver( takeoff, takeoff+100, false );
 					target_height = h_cur+TILE_HEIGHT_STEP*3;
 				}
 			}
