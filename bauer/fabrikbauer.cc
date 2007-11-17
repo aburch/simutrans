@@ -349,7 +349,8 @@ void fabrikbauer_t::verteile_tourist(karte_t* welt, int max_number)
 		koord3d	pos=koord3d(simrand(welt->gib_groesse_x()),simrand(welt->gib_groesse_y()),1);
 		const haus_besch_t *attraction=hausbauer_t::waehle_sehenswuerdigkeit(0,(climate)simrand((int)arctic_climate+1));
 
-		if(attraction==NULL) {
+		// no attractions for that climate or too new
+		if(attraction==NULL  ||  (welt->use_timeline()  &&  attraction->get_intro_year_month()>welt->get_current_month()) ) {
 			continue;
 		}
 

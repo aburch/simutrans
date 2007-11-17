@@ -470,7 +470,7 @@ public:
 	uint32 gib_zeit_ms() const { return ticks; }
 
 	/**
-	 * Absoluter Monat
+	 * absolute month (count start year zero)
 	 * @author prissi
 	 */
 	uint32 get_current_month() const { return current_month; }

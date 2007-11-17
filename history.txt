@@ -9,6 +9,8 @@
 	FIX: transparent/no season recognizing bridges
 	FIX: double or "unkown" names for stations on bridges/tunnels for 99.14 and older games
 	CHANGE: events now internally carry always the mousebutton states => fixing problem when scrolling with right mouse button (and so others too)
+	ADD: airplanes now reserve the runway for the entire time of takeoff/landing (more realistic, smoother waiting circles)
+	ADD: during world creation no tourist attractions new than the year will appear with timeline
 
 
 Release of 99.15

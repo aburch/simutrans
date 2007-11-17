@@ -7,6 +7,7 @@ Toolwindow with 10 last used tools (in fixed order)
 timeline speeds from file instead calculation
 A* for goods
 Sort signals so simple signal is first
+timeline factories
 
 
 Stichpunkte
