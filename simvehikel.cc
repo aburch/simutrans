@@ -2786,6 +2786,10 @@ bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve )
 					end = i;
 					break;
 				}
+				// end of runway?
+				if(i>start  &&  ribi_t::ist_einfach(sch1->gib_ribi_unmasked())  ) {
+					return true;
+				}
 			}
 			else if(!sch1->unreserve(cnv->self)) {
 				if(start_now) {
@@ -2831,7 +2835,13 @@ bool aircraft_t::ist_weg_frei(int & restart_speed)
 	}
 
 	if(route_index<takeoff) {
-		runway_t *rw = (runway_t *)welt->lookup(pos_next)->gib_weg(air_wt);
+		if(route_index>1 &&  gr->suche_obj(ding_t::aircraft)) {
+			// check, if tile occupied, if not on stop
+			restart_speed = 0;
+			return false;
+		}
+		// need to reserve runway?
+		runway_t *rw = (runway_t *)gr->gib_weg(air_wt);
 		if(rw==NULL) {
 			cnv->suche_neue_route();
 			return false;
@@ -2976,26 +2986,46 @@ aircraft_t::~aircraft_t()
 void
 aircraft_t::setze_convoi(convoi_t *c)
 {
-	DBG_MESSAGE("automobil_t::setze_convoi()","%p",c);
+	DBG_MESSAGE("aircraft_t::setze_convoi()","%p",c);
+	if(ist_erstes  &&  (unsigned long)cnv > 1) {
+		// free stop reservation
+		if(target_halt.is_bound()) {
+			target_halt->unreserve_position(welt->lookup(cnv->get_route()->position_bei(cnv->get_route()->gib_max_n())),cnv->self);
+			target_halt = halthandle_t();
+		}
+		// free runway reservation
+		if(route_index>=takeoff  &&  route_index<touchdown-4  &&  state!=flying) {
+			block_reserver( takeoff, takeoff+100, false );
+		}
+		else if(route_index>=touchdown-1  &&  state!=taxiing) {
+			block_reserver( touchdown-1, suchen, false );
+		}
+	}
+	// maybe need to restore state?
 	if(c!=NULL) {
 		bool target=(bool)cnv;
 		vehikel_t::setze_convoi(c);
-		if(target  &&  ist_erstes) {
-			// reintitialize the target halt
-			route_t *rt=cnv->get_route();
-			grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
-			target_halt = target->gib_halt();
-			if(target_halt.is_bound()) {
-				target_halt->reserve_position(target,cnv->self);
+		if(ist_erstes) {
+			if(target) {
+				// reintitialize the target halt
+				route_t *rt=cnv->get_route();
+				grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
+				target_halt = target->gib_halt();
+				if(target_halt.is_bound()) {
+					target_halt->reserve_position(target,cnv->self);
+				}
+			}
+			// restore reservation
+			if(route_index>=takeoff  &&  route_index<touchdown-21  &&  state!=flying) {
+				block_reserver( takeoff, takeoff+100, true );
+			}
+			else if(route_index>=touchdown-1  &&  state!=taxiing) {
+				block_reserver( touchdown-1, suchen, true );
 			}
 		}
 	}
 	else {
-		if(ist_erstes  &&  target_halt.is_bound()) {
-			target_halt->unreserve_position(welt->lookup(cnv->get_route()->position_bei(cnv->get_route()->gib_max_n())),cnv->self);
-			target_halt = halthandle_t();
-		}
-		cnv = NULL;
+		vehikel_t::setze_convoi(NULL);
 	}
 }
 
@@ -3065,12 +3095,21 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route
 {
 //DBG_MESSAGE("aircraft_t::calc_route()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
 
-	// free target reservation
-	if(ist_erstes  &&  alte_fahrtrichtung!=ribi_t::keine  &&  cnv  &&  target_halt.is_bound() ) {
-		route_t *rt=cnv->get_route();
-		grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
-		if(target) {
-			target_halt->unreserve_position(target,cnv->self);
+	if(ist_erstes  &&  cnv) {
+		// free target reservation
+		if(  target_halt.is_bound() ) {
+			route_t *rt=cnv->get_route();
+			grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
+			if(target) {
+				target_halt->unreserve_position(target,cnv->self);
+			}
+		}
+		// free runway reservation
+		if(route_index>=takeoff  &&  route_index<touchdown-21  &&  state!=flying) {
+			block_reserver( takeoff, takeoff+100, false );
+		}
+		else if(route_index>=touchdown-1  &&  state!=taxiing) {
+			block_reserver( touchdown-1, suchen, false );
 		}
 	}
 	target_halt = halthandle_t();	// no block reserved
@@ -3146,19 +3185,23 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route
 		koord start_dir(welt->lookup(search_start)->gib_weg_ribi(air_wt));
 		if(start_dir!=koord(0,0)) {
 			// add the start
+			ribi_t::ribi start_ribi = ribi_t::rueckwaerts(ribi_typ(start_dir));
 			const grund_t *gr=NULL;
-			int endi = 4;
+			// add the start
+			int endi = 1;
+			int over = 3;
 			// now add all runway + 3 ...
-			for( int i=1;  i<endi;  i++  ) {
-				if(!welt->ist_in_kartengrenzen(search_start.gib_2d()+(start_dir*i)) ) {
+			do {
+				if(!welt->ist_in_kartengrenzen(search_start.gib_2d()+(start_dir*endi)) ) {
 					break;
 				}
-				gr = welt->lookup_kartenboden(search_start.gib_2d()+(start_dir*i));
-				if(gr->hat_weg(air_wt)) {
-					endi ++;
+				gr = welt->lookup_kartenboden(search_start.gib_2d()+(start_dir*endi));
+				if(over<3  ||  (gr->gib_weg_ribi(air_wt)&start_ribi)==0) {
+					over --;
 				}
+				endi ++;
 				route->append(gr->gib_pos());
-			}
+			} while(  over>0  );
 			// out of map
 			if(gr==NULL) {
 				dbg->error("aircraft_t::calc_route()","out of map!");
@@ -3197,22 +3240,26 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route
 	koord3d landing_start=search_end;
 	if(!end_in_air) {
 		// now find way to start of landing pos
-		koord end_dir(welt->lookup(search_end)->gib_weg_ribi(air_wt));
+		ribi_t::ribi end_ribi = welt->lookup(search_end)->gib_weg_ribi(air_wt);
+		koord end_dir(end_ribi);
+		end_ribi = ribi_t::rueckwaerts(end_ribi);
 		if(end_dir!=koord(0,0)) {
 			// add the start
 			const grund_t *gr;
-			int endi = 3;
+			int endi = 1;
+			int over = 3;
 			// now add all runway + 3 ...
-			for( int i=0;  i<endi;  i++  ) {
-				if(!welt->ist_in_kartengrenzen(search_end.gib_2d()+(end_dir*i)) ) {
+			do {
+				if(!welt->ist_in_kartengrenzen(search_end.gib_2d()+(end_dir*endi)) ) {
 					break;
 				}
-				gr=welt->lookup_kartenboden(search_end.gib_2d()+(end_dir*i));
-				if(gr->hat_weg(air_wt)) {
-					endi ++;
+				gr = welt->lookup_kartenboden(search_end.gib_2d()+(end_dir*endi));
+				if(over<3  ||  (gr->gib_weg_ribi(air_wt)&end_ribi)==0) {
+					over --;
 				}
+				endi ++;
 				landing_start = gr->gib_pos();
-			}
+			} while(  over>0  );
 		}
 	}
 	else {
@@ -3284,12 +3331,17 @@ int aircraft_t::calc_flight_height()
 		case departing:
 			{
 				flughoehe = 0;
-				current_friction = 14;
+				current_friction = max( 0, 25-route_index-takeoff )*4;
 				speed_limit = SPEED_UNLIMITED;
 
 				// take off, when a) end of runway or b) last tile of runway or c) fast enough
 				weg_t *weg=welt->lookup(gib_pos())->gib_weg(air_wt);
-				if((weg==NULL  ||  weg->gib_besch()->gib_styp()!=1)  ||  cnv->gib_akt_speed()>kmh_to_speed(besch->gib_geschw())/3 ) {
+				if(
+					(weg==NULL  ||  // end of runway (broken runway)
+					 weg->gib_besch()->gib_styp()!=1  ||  // end of runway (gras now ... )
+					 (route_index>takeoff+1  &&  ribi_t::ist_einfach(weg->gib_ribi_unmasked())) )  ||  // single ribi at end of runway
+					 cnv->gib_akt_speed()>kmh_to_speed(besch->gib_geschw())/3 // fast enough
+				){
 					state = flying;
 					current_friction = 16;
 					block_reserver( takeoff, takeoff+100, false );
