@@ -1943,8 +1943,13 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 
 	// only load vehicles in station
 	// don't load when vehicle is being withdrawn
-	for(unsigned i=0; i<anz_vehikel  &&  station_lenght>0; i++) {
+	for(unsigned i=0; i<anz_vehikel; i++) {
 		vehikel_t* v = fahr[i];
+
+		station_lenght -= v->gib_besch()->get_length();
+		if(station_lenght<0) {
+			break;
+		}
 
 		// calc_revenue
 		gewinn += v->calc_gewinn(v->last_stop_pos, v->gib_pos().gib_2d() );
@@ -1956,7 +1961,6 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 			freight_info_resort |= v->beladen(k, halt);
 		}
 
-		station_lenght -= v->gib_besch()->get_length();
 	}
 
 	// any loading went on?
