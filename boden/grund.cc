@@ -361,6 +361,9 @@ void grund_t::rotate90()
 	}
 	// after processing the last tile, we have to transfer the entries into the original hashtable
 	if(finish_rotate90) {
+		// first of course remove the old positions
+		ground_texts.clear();
+		// then transfer all rotated texts
 		inthashtable_iterator_tpl<uint32, char*> iter(ground_texts_rotating);
 		while(iter.next()) {
 			char *txt = iter.get_current_value();
