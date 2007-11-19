@@ -1346,12 +1346,8 @@ void fabrik_t::rotate90( const sint16 y_size )
 		lieferziele[i] = gib_fab( welt, lieferziele[i] )->gib_pos().gib_2d();
 	}
 	for( int i=0;  i<suppliers.get_count();  i++  ) {
-		koord oldpos(suppliers[i]);
 		suppliers[i].rotate90( y_size );
-		// on larger factories the target position changed too
-		fabrik_t *fab = gib_fab( welt, suppliers[i] );
-		DBG_MESSAGE( "fabrik_t::rotate()","fab %p at (%s) previous (%s)", fab, suppliers[i].gib_str(), oldpos.gib_str() );
-		suppliers[i] = fab->gib_pos().gib_2d();
+		suppliers[i] = gib_fab( welt, suppliers[i] )->gib_pos().gib_2d();
 	}
 	for( int i=0;  i<fields.get_count();  i++  ) {
 		fields[i].rotate90( y_size );
