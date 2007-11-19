@@ -187,16 +187,35 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 
 
 koord3d
-brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp)
+brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, char *&error_msg )
 {
 	const grund_t *gr1; // auf Brückenebene
 	const grund_t *gr2; // unter Brückenebene
+	waytype_t wegtyp = besch->gib_waytype();
 	leitung_t *lt;
+	error_msg = NULL;
+	sint16 length = 0;
 	do {
+		length ++;
 		pos = pos + zv;
+
+		// test may length
+		if(besch->gib_max_length()>0  &&  length > besch->gib_max_length()) {
+			error_msg = "Bridge is too long for this type!\n";
+			return false;
+		}
+
 		if(!welt->ist_in_kartengrenzen(pos.gib_2d())) {
+			error_msg = "Bridge is too long for this type!\n";
 			return koord3d::invalid;
 		}
+		// check for height
+		sint16 height = pos.z -welt->lookup_kartenboden(pos.gib_2d())->gib_hoehe();
+		if(besch->gib_max_height()!=0  &&  height>besch->gib_max_height()  ) {
+			error_msg = "bridge is too high for its type!";
+			return koord3d::invalid;
+		}
+
 		gr1 = welt->lookup(pos + koord3d(0, 0, Z_TILE_STEP));
 		if(gr1 && gr1->gib_weg_hang()==hang_t::flach) {
 			return gr1->gib_pos();        // Ende an Querbrücke
@@ -248,6 +267,7 @@ brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegt
 	} while(!gr1 &&                             // keine Brücke im Weg
 		(!gr2 || gr2->gib_grund_hang()==hang_t::flach  ||  gr2->gib_hoehe()<pos.z ) ); // Boden kommt nicht hoch
 
+	error_msg = "A bridge must end on a way!";
 	return koord3d::invalid;
 }
 
@@ -360,17 +380,13 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "no way %x found",besch->gib_waytype());
 
 	zv = koord(ribi_t::rueckwaerts(ribi));
 	// Brückenende suchen
-	koord3d end = finde_ende(welt, gr->gib_pos(), zv, besch->gib_waytype());
+	char *msg;
+	koord3d end = finde_ende(welt, gr->gib_pos(), zv, besch, msg );
 
-	if(besch->gib_max_length()>0  &&  abs_distance(gr->gib_pos().gib_2d(),end.gib_2d())>(unsigned)besch->gib_max_length()) {
-		create_win( new news_img("Bridge is too long for this type!\n"), w_time_delete, magic_none);
-		return false;
-	}
-
-	// pruefe ob bruecke auf strasse/schiene endet
-	if(!welt->ist_in_kartengrenzen(end.gib_2d()) || !ist_ende_ok(sp, welt->lookup(end))) {
+	// found something?
+	if(msg!=NULL) {
 DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
-		create_win( new news_img("A bridge must end on a way!"), w_time_delete, magic_none);
+		create_win( new news_img(msg), w_time_delete, magic_none);
 		return false;
 	}
 
@@ -429,7 +445,6 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 //DBG_MESSAGE("bool brueckenbauer_t::baue_bruecke()","h1=%i, h2=%i",pos.z,gr->gib_pos().z);
 				sint16 height = (pos.z - gr->gib_pos().z)/Z_TILE_STEP+1;
 				while(height-->0) {
-					// can overflow, did never happened apparently
 					if(height_scaling(TILE_HEIGHT_STEP*height)<=127) {
 						// eventual more than one part needed, if it is too high ...
 						gr->obj_add( new pillar_t(welt,gr->gib_pos(),sp,besch,besch->gib_pillar(ribi), height_scaling(TILE_HEIGHT_STEP*height)) );

@@ -13,6 +13,7 @@
 	ADD: during world creation no tourist attractions new than the year will appear with timeline
 	FIX: under certain cases station (length!=8) stations load one vehicle too many
 	FIX: old texts weren not deleted from nonrotated hashtable during rotation
+	ADD: 'pillar_asymmetric' for bridges with shorter pillars on north resp west slopes and 'max_height' for bridges + new error message 'bridge is too high for its type!'
 
 
 Release of 99.15

@@ -45,7 +45,9 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// some defaults
 	besch->maintenance = 800;
 	besch->pillars_every = 0;
+	besch->pillars_asymmetric = false;
 	besch->max_length = 0;
+	besch->max_height = 0;
 	besch->intro_date = DEFAULT_INTRO_DATE*12;
 	besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
 	besch->number_seasons = 0;
@@ -119,6 +121,23 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = decode_uint16(p);
 		besch->number_seasons = decode_uint8(p);
 
+	} else if (version == 7) {
+
+		// Versioned node, version 7
+		// max_height, assymetric pillars
+
+		besch->topspeed = decode_uint16(p);
+		besch->preis = decode_uint32(p);
+		besch->maintenance = decode_uint32(p);
+		besch->wegtyp = decode_uint8(p);
+		besch->pillars_every = decode_uint8(p);
+		besch->max_length = decode_uint8(p);
+		besch->intro_date = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->pillars_asymmetric = (decode_uint8(p)!=0);
+		besch->max_height = decode_uint8(p);
+		besch->number_seasons = decode_uint8(p);
+
 	} else {
 		// old node, version 0
 
@@ -128,7 +147,12 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->topspeed = 999;               // Safe default ...
 	}
 
-  DBG_DEBUG("bridge_reader_t::read_node()",
+	// pillars cannot be heigher than this to avoid drawing errors
+	if(besch->pillars_every>0  &&  besch->max_height==0) {
+		besch->max_height = 7;
+	}
+
+	DBG_DEBUG("bridge_reader_t::read_node()",
 	"version=%d waytype=%d price=%d topspeed=%d,pillars=%i,max_length=%i",
 	version, besch->wegtyp, besch->preis, besch->topspeed,besch->pillars_every,besch->max_length);
 

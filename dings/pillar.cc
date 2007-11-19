@@ -26,6 +26,7 @@
 pillar_t::pillar_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
 	besch = NULL;
+	hide = false;
 	rdwr(file);
 }
 
@@ -37,8 +38,28 @@ pillar_t::pillar_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_besc
 	this->dir = (uint8)img;
 	setze_yoff(-hoehe);
 	setze_besitzer( sp );
+	hide = false;
+	if(hoehe==0  &&  besch->has_pillar_asymmetric()) {
+		hang_t::typ h = welt->lookup(pos)->gib_grund_hang();
+		if(h==hang_t::nord  ||  h==hang_t::west) {
+			hide = true;
+		}
+	}
 }
 
+
+
+// check for asymmetric pillars
+void pillar_t::laden_abschliessen()
+{
+	hide = false;
+	if(gib_yoff()==0  &&  besch->has_pillar_asymmetric()) {
+		hang_t::typ h = welt->lookup(gib_pos())->gib_grund_hang();
+		if(h==hang_t::nord  ||  h==hang_t::west) {
+			hide = true;
+		}
+	}
+}
 
 
 
@@ -96,6 +117,17 @@ void pillar_t::rdwr(loadsave_t *file)
 void pillar_t::rotate90()
 {
 	ding_t::rotate90();
+	// may need to hide/show asymmetric pillars
+	if(gib_yoff()==0  &&  besch->has_pillar_asymmetric()) {
+		// we must hide, if prevous NS and visible
+		// we must show, if preivous NS and hidden
+		if(hide) {
+			hide = (dir==bruecke_besch_t::OW_Pillar);
+		}
+		else {
+			hide = (dir==bruecke_besch_t::NS_Pillar);
+		}
+	}
 	// the rotated image parameter is just one in front/back
 	dir = (dir == bruecke_besch_t::NS_Pillar) ? bruecke_besch_t::OW_Pillar : bruecke_besch_t::NS_Pillar;
 }

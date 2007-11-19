@@ -1,7 +1,7 @@
 #ifndef simversion_h
 #define simversion_h
 
-#define MAKEOBJ_VERSION "47"
+#define MAKEOBJ_VERSION "48"
 
 #define VERSION_NUMBER "99.15.1 nightly"
 #define WIDE_VERSION_NUMBER L"99.15.1 nightly"

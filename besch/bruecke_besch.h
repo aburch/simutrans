@@ -41,7 +41,10 @@ private:
 
 	uint8  wegtyp;
 	uint8 pillars_every;	// =0 off
+	bool pillars_asymmetric;	// =0 off else leave one off for north/west slopes
+
 	uint8 max_length;	// =0 off, else maximum length
+	uint8 max_height;	// =0 off, else maximum length
 
 	// allowed eara
 	uint16 intro_date;
@@ -66,8 +69,7 @@ public:
 
 	const skin_besch_t *gib_cursor() const { return static_cast<const skin_besch_t *>(gib_kind(2)); }
 
-	image_id gib_hintergrund(img_t img, uint8 season) const
-	{
+	image_id gib_hintergrund(img_t img, uint8 season) const 	{
 		const bild_besch_t *bild = NULL;
 		if(season && number_seasons == 1) {
 			bild = static_cast<const bildliste_besch_t *>(gib_kind(3))->gib_bild(img);
@@ -78,8 +80,7 @@ public:
 		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
 	}
 
-	image_id gib_vordergrund(img_t img, uint8 season) const
-	{
+	image_id gib_vordergrund(img_t img, uint8 season) const {
 		const bild_besch_t *bild = NULL;
 		if(season && number_seasons == 1) {
 			bild = static_cast<const bildliste_besch_t *>(gib_kind(4))->gib_bild(img);
@@ -114,10 +115,22 @@ public:
 	int  gib_pillar() const { return pillars_every; }
 
 	/**
+	 * skips lowest pillar on south/west slopes?
+	 * @author prissi
+	 */
+	bool  has_pillar_asymmetric() const { return pillars_asymmetric; }
+
+	/**
 	 * maximum bridge span (=0 for infinite)
 	 * @author prissi
 	 */
 	int  gib_max_length() const { return max_length; }
+
+	/**
+	 * maximum bridge height (=0 for infinite)
+	 * @author prissi
+	 */
+	int  gib_max_height() const { return max_height; }
 
 	/**
 	 * @return introduction month

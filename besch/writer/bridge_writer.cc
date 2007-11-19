@@ -12,14 +12,16 @@
 
 void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 20, &parent, false);
+	obj_node_t node(this, 22, &parent, false);
 
 	uint8  wegtyp        = get_waytype(obj.get("waytype"));
 	uint16 topspeed      = obj.get_int("topspeed", 999);
 	uint32 preis         = obj.get_int("cost", 0);
 	uint32 maintenance   = obj.get_int("maintenance", 1000);
 	uint8  pillars_every = obj.get_int("pillar_distance",0); // distance==0 is off
+	uint8  pillar_asymmetric = obj.get_int("pillar_asymmetric",0); // middle of tile
 	uint8  max_lenght    = obj.get_int("max_lenght",0); // max_lenght==0: unlimited
+	uint8  max_height    = obj.get_int("max_height",0); // max_height==0: unlimited
 
 	// prissi: timeline
 	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
@@ -32,7 +34,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 version = 0x8006;
+	uint16 version = 0x8007;
 	node.write_data_at(outfp, &version,        0, 2);
 	node.write_data_at(outfp, &topspeed,       2, 2);
 	node.write_data_at(outfp, &preis,          4, 4);
@@ -42,6 +44,8 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	node.write_data_at(outfp, &max_lenght,    14, 1);
 	node.write_data_at(outfp, &intro_date,    15, sizeof(uint16));
 	node.write_data_at(outfp, &obsolete_date, 17, sizeof(uint16));
+	node.write_data_at(outfp, &pillar_asymmetric, 19, 1);
+	node.write_data_at(outfp, &max_height,    20, 1);
 
 	static const char* const names[] = {
 		"image",
@@ -63,7 +67,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 
 	cstring_t str = obj.get("backimage[ns][0]");
 	if(strlen(str) == 0) {
-		node.write_data_at(outfp, &number_seasons, 19, sizeof(uint8));
+		node.write_data_at(outfp, &number_seasons, 21, sizeof(uint8));
 		const char* const * ptr = names;
 		const char* keyname = *ptr++;
 
@@ -109,7 +113,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 			}
 		}
 
-		node.write_data_at(outfp, &number_seasons, 19, sizeof(uint8));
+		node.write_data_at(outfp, &number_seasons, 21, sizeof(uint8));
 
 		for(uint8 season = 0 ; season <= number_seasons ; season++) {
 			const char* const * ptr = names;
