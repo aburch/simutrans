@@ -427,7 +427,7 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 			if(besch->gib_pillar()==1  ||  (pos.x*zv.x+pos.y*zv.y)%besch->gib_pillar()==0) {
 				grund_t *gr = welt->lookup(pos.gib_2d())->gib_kartenboden();
 //DBG_MESSAGE("bool brueckenbauer_t::baue_bruecke()","h1=%i, h2=%i",pos.z,gr->gib_pos().z);
-				sint8 height = (pos.z - gr->gib_pos().z)/Z_TILE_STEP+1;
+				sint16 height = (pos.z - gr->gib_pos().z)/Z_TILE_STEP+1;
 				while(height-->0) {
 					// can overflow, did never happened apparently
 					if(height_scaling(TILE_HEIGHT_STEP*height)<=127) {

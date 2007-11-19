@@ -151,19 +151,13 @@ void simlinemgmt_t::sort_lines()
 }
 
 
-void simlinemgmt_t::register_all_stops()
-{
-	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
-		(*i)->laden_abschliessen();
-	}
-}
-
-
 void
 simlinemgmt_t::laden_abschliessen()
 {
 	sort_lines();
-	register_all_stops();
+	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
+		(*i)->laden_abschliessen();
+	}
 	used_ids[0] |= 1;	// assure, that future ids start at 1 ...
 }
 
