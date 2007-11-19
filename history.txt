@@ -11,6 +11,7 @@
 	CHANGE: events now internally carry always the mousebutton states => fixing problem when scrolling with right mouse button (and so others too)
 	ADD: airplanes now reserve the runway for the entire time of takeoff/landing (more realistic, smoother waiting circles)
 	ADD: during world creation no tourist attractions new than the year will appear with timeline
+	FIX: under certain cases station (length!=8) stations load one vehicle too many
 
 
 Release of 99.15
