@@ -151,32 +151,22 @@ gebaeude_t::rotate90()
 			layout |=	 (tile->gib_layout()&0x18);
 		}
 		// have to rotate the tiles :(
-		if(!tile->gib_besch()->can_rotate()) {
-			if(tile->gib_besch()->gib_all_layouts()==1  &&  (welt->gib_einstellungen()->get_rotation()&1)==0) {
-				// rotate 180 degree
-				new_offset = koord( tile->gib_besch()->gib_b() - 1 - new_offset.x, tile->gib_besch()->gib_h() - 1 - new_offset.y );
-			}
-			else {
-				// this map rotation cannot be reloaded!
-				// we rotate this, but the tiles will be mixed (ugly!)
-				welt->set_nosave();
-				no_rotate = true;
-				if(is_factory  &&  new_offset==koord(0,0)) {
-					ptr.fab->setze_pos( gib_pos() );
-				}
-			}
+		if(!tile->gib_besch()->can_rotate()  &&  tile->gib_besch()->gib_all_layouts()==1  &&  (welt->gib_einstellungen()->get_rotation()&1)==0) {
+			// rotate 180 degree
+			new_offset = koord( tile->gib_besch()->gib_b() - 1 - new_offset.x, tile->gib_besch()->gib_h() - 1 - new_offset.y );
 		}
 		else {
 			// rotate on ...
 			new_offset = koord( tile->gib_besch()->gib_h(tile->gib_layout()) - 1 - new_offset.y, new_offset.x );
 		}
 
+		// correct factory zero pos
 		if(is_factory  &&  new_offset==koord(0,0)) {
 			ptr.fab->setze_pos( gib_pos() );
 		}
 
 		// suche a tile exist?
-		if(!no_rotate  &&  tile->gib_besch()->gib_b(layout)>new_offset.x  &&  tile->gib_besch()->gib_h(layout)>new_offset.y)  {
+		if(tile->gib_besch()->gib_b(layout)>new_offset.x  &&  tile->gib_besch()->gib_h(layout)>new_offset.y) {
 			const haus_tile_besch_t *new_tile = tile->gib_besch()->gib_tile( layout, new_offset.x, new_offset.y );
 			// add new tile: but make them old (no construction)
 			uint32 old_insta_zeit = insta_zeit;
@@ -184,15 +174,17 @@ gebaeude_t::rotate90()
 			insta_zeit = old_insta_zeit;
 			if(  tile->gib_besch()->gib_utyp() != haus_besch_t::hafen  &&  !tile->has_image()  ) {
 				// may have a rotation, that is not recoverable
-				// => this map rotation cannot be reloaded!
-				welt->set_nosave();
+				if(!is_factory  ||  new_offset!=koord(0,0)  ||  ptr.fab->gib_besch()->gib_haus()->gib_tile(0,0,0)==NULL) {
+					// there are factories without a valid zero tile
+					// => this map rotation cannot be reloaded!
+					welt->set_nosave();
+				}
 			}
 		}
+		else {
+			welt->set_nosave();
+		}
 	}
-	// only update factory position
-//	else if(is_factory  &&  ptr.fab  &&  tile->gib_offset()==koord(0,0)) {
-//		ptr.fab->setze_pos( gib_pos() );
-//	}
 }
 
 
