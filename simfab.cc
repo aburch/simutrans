@@ -1339,15 +1339,26 @@ void fabrik_t::laden_abschliessen()
 
 void fabrik_t::rotate90( const sint16 y_size )
 {
-	assert( welt->ist_in_kartengrenzen( pos.gib_2d() ) );
+	if(  this!=gib_fab( welt, pos.gib_2d() )  ){
+		// was not rotated, because tile (0,0) is missing
+		pos.rotate90( y_size );
+		dbg->warning( "fabrik_t::rotate90()","no tile zero form %s at (%s)", gib_name(), pos.gib_str() );
+	}
+
 	for( int i=0;  i<lieferziele.get_count();  i++  ) {
 		lieferziele[i].rotate90( y_size );
 		// on larger factories the target position changed too
-		lieferziele[i] = gib_fab( welt, lieferziele[i] )->gib_pos().gib_2d();
+		fabrik_t *fab = gib_fab( welt, lieferziele[i] );
+		if(  fab  ) {
+			lieferziele[i] = fab->gib_pos().gib_2d();
+		}
 	}
 	for( int i=0;  i<suppliers.get_count();  i++  ) {
 		suppliers[i].rotate90( y_size );
-		suppliers[i] = gib_fab( welt, suppliers[i] )->gib_pos().gib_2d();
+		fabrik_t *fab = gib_fab( welt, suppliers[i] );
+		if(  fab  ) {
+			suppliers[i] = fab->gib_pos().gib_2d();
+		}
 	}
 	for( int i=0;  i<fields.get_count();  i++  ) {
 		fields[i].rotate90( y_size );
