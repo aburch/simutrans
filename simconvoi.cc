@@ -1868,6 +1868,7 @@ void convoi_t::laden()
 
 		if(withdraw  &&  loading_level==0) {
 			// destroy when empty
+			besitzer_p->buche( calc_restwert(), COST_NEW_VEHICLE );
 			destroy();
 			return;
 		}
