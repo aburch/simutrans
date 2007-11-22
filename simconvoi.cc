@@ -425,7 +425,7 @@ bool convoi_t::sync_step(long delta_t)
 				sp_soll += (akt_speed*delta_t);
 
 				// now actually move the units
-				while(SPEED_STEP_WIDTH<sp_soll) {
+				while((sint32)SPEED_STEP_WIDTH<sp_soll) {
 					sp_soll -= SPEED_STEP_WIDTH;
 					int v_nr = get_vehicle_at_length(steps_driven++);
 					// until all are moving
@@ -459,7 +459,7 @@ bool convoi_t::sync_step(long delta_t)
 
 			// now actually move the units
 			sp_soll += (akt_speed*delta_t);
-			while(SPEED_STEP_WIDTH<sp_soll) {
+			while((sint32)SPEED_STEP_WIDTH<sp_soll) {
 				sp_soll -= SPEED_STEP_WIDTH;
 				fahr[0]->sync_step();
 				// state may have change
@@ -1264,7 +1264,7 @@ convoi_t::vorfahren()
 			// move one train length to the start position ...
 	//		int train_length = (alte_richtung==ribi_t::sued  ||  alte_richtung==ribi_t::ost) ? 0 : fahr[0]->gib_besch()->get_length();
 			int train_length = 0;
-			for(unsigned i=0; i<anz_vehikel-1; i++) {
+			for(unsigned i=0; i<anz_vehikel-1u; i++) {
 				train_length += fahr[i]->gib_besch()->get_length(); // this give the length in 1/TILE_STEPS of a full tile
 			}
 			// in north/west direction, we leave the vehicle away to start as much back as possible

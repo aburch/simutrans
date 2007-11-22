@@ -647,7 +647,7 @@ void haltestelle_t::rebuild_destinations()
 
 						// what goods can this line transport?
 						add_catg_index.clear();
-						for(int i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {
+						for(uint i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {
 							const ware_besch_t *ware=cnv->gib_vehikel(i)->gib_fracht_typ();
 							if(ware!=warenbauer_t::nichts  &&  !add_catg_index.is_contained(ware->gib_catg_index())) {
 								// now add the freights

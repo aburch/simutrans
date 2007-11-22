@@ -187,7 +187,7 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 
 
 koord3d
-brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, char *&error_msg )
+brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&error_msg )
 {
 	const grund_t *gr1; // auf Brückenebene
 	const grund_t *gr2; // unter Brückenebene
@@ -380,7 +380,7 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "no way %x found",besch->gib_waytype());
 
 	zv = koord(ribi_t::rueckwaerts(ribi));
 	// Brückenende suchen
-	char *msg;
+	const char *msg;
 	koord3d end = finde_ende(welt, gr->gib_pos(), zv, besch, msg );
 
 	// found something?

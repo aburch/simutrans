@@ -1118,7 +1118,8 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 		}
 	}
 	else {
-		inp_name.setze_text("\0", 0);
+		static char empty[2] = "\0";
+		inp_name.setze_text( empty, 0);
 		*txt_convoi_count = '\0';
 		*txt_convoi_value = '\0';
 		*txt_convoi_line = '\0';

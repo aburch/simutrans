@@ -117,7 +117,7 @@
 #define TILE_HEIGHT_STEP (16)
 #define TILE_STEPS (16)
 #define TILE_SHIFT (4)
-#define SPEED_STEP_WIDTH (1ul<<16)
+#define SPEED_STEP_WIDTH (1l<<16)
 #define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)	// these must be changed for according to TILE_STEPS!
 #define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 6)
 #define height_scaling(i) (i)

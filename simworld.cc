@@ -1403,7 +1403,7 @@ karte_t::rotate90()
 			new_plan[new_nr] = plan[nr];
 			plan[nr] = planquadrat_t();
 			// now rotate everything on the ground(s)
-			for(  int i=0;  i<new_plan[new_nr].gib_boden_count();  i++  ) {
+			for(  uint i=0;  i<new_plan[new_nr].gib_boden_count();  i++  ) {
 				new_plan[new_nr].gib_boden_bei(i)->rotate90();
 			}
 		}
@@ -1732,7 +1732,7 @@ karte_t::update_frame_sleep_time()
 			increase_frame_time();
 		}
 		else if(simloops>50) {
-			if(next_wait_time+1<get_frame_time()) {
+			if(next_wait_time+1<(uint32)get_frame_time()) {
 				next_wait_time ++;
 			}
 			else {
@@ -1743,14 +1743,14 @@ karte_t::update_frame_sleep_time()
 			next_wait_time --;
 		}
 
-		if(realFPS>(umgebung_t::fps*17)/16  ||  simloops<=30) {
+		if(realFPS>(uint16)(umgebung_t::fps*17)/16  ||  simloops<=30) {
 			increase_frame_time();
 			if(next_wait_time>0) {
 				next_wait_time --;
 			}
 		}
-		else if(realFPS<umgebung_t::fps) {
-			if(realFPS<(umgebung_t::fps/2)  &&  next_wait_time>0) {
+		else if(realFPS<(uint16)umgebung_t::fps) {
+			if(realFPS<(uint16)(umgebung_t::fps/2)  &&  next_wait_time>0) {
 				set_frame_time( get_frame_time()-1 );
 			}
 			else {
@@ -1764,7 +1764,7 @@ karte_t::update_frame_sleep_time()
 		// try to get a target speed
 		int five_back = (last_frame_idx+31-6)%32;
 		int one_back = (last_frame_idx+32-1)%32;
-		uint32 last_simloops = ((last_step_nr[one_back]-last_step_nr[five_back])*10000)/(last_frame_ms[one_back]-last_frame_ms[five_back]);
+		sint32 last_simloops = ((last_step_nr[one_back]-last_step_nr[five_back])*10000)/(last_frame_ms[one_back]-last_frame_ms[five_back]);
 
 		if(last_simloops<=10) {
 			increase_frame_time();
@@ -2131,7 +2131,7 @@ karte_t::step()
 				INT_CHECK("karte_t::step");
 			}
 		}
-		if(tile_counter >= cached_groesse_gitter_x*cached_groesse_gitter_y) {
+		if(  tile_counter >= (uint16)(cached_groesse_gitter_x*cached_groesse_gitter_y)  ) {
 			pending_season_change --;
 			tile_counter = 0;
 		}
@@ -2566,7 +2566,7 @@ karte_t::laden(const char *filename)
 
 	if(!file.rd_open(filename)) {
 
-		if(file.get_version() == -1) {
+		if((sint32)file.get_version() == -1) {
 			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
 		}
 		else {
@@ -2718,7 +2718,7 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 	}
 	else {
 		// hgt now bytes
-		for( uint32 i=0;  i<(gib_groesse_y()+1)*(gib_groesse_x()+1);  i++  ) {
+		for( sint32 i=0;  i<(gib_groesse_y()+1)*(gib_groesse_x()+1);  i++  ) {
 			file->rdwr_byte( grid_hgts[i], "\n" );
 		}
 	}

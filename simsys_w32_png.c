@@ -124,11 +124,13 @@ int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data,
 	// ...oder image/gif um gif's zu speichern, ...
 	if(myImage!=NULL  &&  GetEncoderClsid(L"image/png", &encoderClsid)!=-1) {
 		EncoderParameters ep;
+		char cfilename[1024];
 		unsigned short wfilename[1024];
 
-		strcpy( filename+strlen(filename)-3, "png" );
+		strcpy( cfilename, filename );
+		strcpy( cfilename+strlen(cfilename)-3, "png" );
 
-		MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED, filename, -1, wfilename, 1024 );
+		MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED, cfilename, -1, wfilename, 1024 );
 		ep.Count = 0;
 
 		if(  (*GdipSaveImageToFile)(myImage,wfilename,&encoderClsid,&ep) == 0  ) {

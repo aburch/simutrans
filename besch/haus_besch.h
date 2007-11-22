@@ -166,25 +166,22 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 	uint16 intro_date;
 	uint16 obsolete_date;
 
-	bool ist_utyp(utyp u) const
-	{
+	bool ist_utyp(utyp u) const {
 		return gtyp == gebaeude_t::unbekannt && utype == u;
 	}
 
 public:
 
-	koord gib_groesse(int layout = 0) const
-	{
+	koord gib_groesse(int layout = 0) const {
 		return (layout & 1) ? koord(groesse.y, groesse.x) : groesse;
 	}
 
 	// size of the building
-	int gib_h(int layout = 0) const
-	{
+	int gib_h(int layout = 0) const {
 		return (layout & 1) ? groesse.x: groesse.y;
 	}
-	int gib_b(int layout = 0) const
-	{
+
+	int gib_b(int layout = 0) const {
 		return (layout & 1) ? groesse.y : groesse.x;
 	}
 
@@ -227,8 +224,7 @@ public:
 	// how often will this appear
 	int gib_chance() const { return chance; }
 
-	const haus_tile_besch_t *gib_tile(int index) const
-	{
+	const haus_tile_besch_t *gib_tile(int index) const {
 		assert(0<=index  &&  index < layouts * groesse.x * groesse.y);
 		return static_cast<const haus_tile_besch_t*>(gib_kind(index + 2));
 	}
@@ -264,13 +260,13 @@ public:
 	* @return introduction month
 	* @author Hj. Malthaner
 	*/
-	int get_intro_year_month() const { return intro_date; }
+	uint32 get_intro_year_month() const { return intro_date; }
 
 	/**
 	* @return time when obsolete
 	* @author prissi
 	*/
-	int get_retire_year_month() const { return obsolete_date; }
+	uint32 get_retire_year_month() const { return obsolete_date; }
 
 	// the right house for this area?
 	bool is_allowed_climate( climate cl ) const { return ((1<<cl)&allowed_climates)!=0; }

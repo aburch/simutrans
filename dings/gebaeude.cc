@@ -143,7 +143,7 @@ gebaeude_t::rotate90()
 	if(is_factory  ||  tile->gib_besch()->gib_all_layouts()>1  ||  tile->gib_besch()->gib_b()*tile->gib_besch()->gib_h()>1) {
 		uint8 layout = tile->gib_layout();
 		koord new_offset = tile->gib_offset();
-		bool no_rotate = false;
+
 		if(tile->gib_besch()->gib_all_layouts()>1) {
 			// rotate it
 			layout += 3;

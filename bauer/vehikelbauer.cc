@@ -317,7 +317,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t typ, const uint
 				current_index -= 250;
 			}
 			// too weak to to reach full speed?
-			if(max_weight < (sint32)(target_weight+test_besch->gib_gewicht())) {
+			if(  max_weight < target_weight+test_besch->gib_gewicht()  ) {
 				current_index += max_weight - (sint32)(target_weight+test_besch->gib_gewicht());
 			}
 			current_index += simrand(100);

@@ -99,7 +99,7 @@ void simline_t::add_convoy(convoihandle_t cnv)
 	line_managed_convoys.append_unique(cnv,16);
 
 	// what goods can this line transport?
-	for(int i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {
+	for(uint i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {
 		const ware_besch_t *ware=cnv->gib_vehikel(i)->gib_fracht_typ();
 		if(ware!=warenbauer_t::nichts) {
 			goods_catg_index.append_unique( ware->gib_catg_index(), 1 );
@@ -290,7 +290,7 @@ void simline_t::recalc_catg_index()
 	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
 		// what goods can this line transport?
 		const convoihandle_t cnv = line_managed_convoys[i];
-		for(int i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {
+		for(uint i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {
 			const ware_besch_t *ware=cnv->gib_vehikel(i)->gib_fracht_typ();
 			if(ware!=warenbauer_t::nichts) {
 				goods_catg_index.append_unique( ware->gib_catg_index(), 1 );

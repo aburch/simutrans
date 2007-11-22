@@ -881,7 +881,7 @@ vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu
 	}
 
 	if(ist_erstes) {
-		sint32 akt_speed = speed_limit;
+		uint32 akt_speed = speed_limit;
 
 		uint32 tiles_left = cnv->get_next_stop_index()+1-route_index;
 		if(tiles_left<4) {
@@ -901,7 +901,7 @@ vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu
 					default: break;
 				}
 			}
-			if(brake_speed_soll<akt_speed) {
+			if(brake_speed_soll<(uint32)akt_speed) {
 				akt_speed = brake_speed_soll;
 			}
 		}
@@ -923,7 +923,7 @@ vehikel_t::rauche()
 		if(!smoke) {
 			// Hajo: only produce smoke when heavily accelerating
 			//       or steam engine
-			int akt_speed = kmh_to_speed(besch->gib_geschw());
+			uint32 akt_speed = kmh_to_speed(besch->gib_geschw());
 			if(akt_speed > speed_limit) {
 				akt_speed = speed_limit;
 			}
@@ -1385,7 +1385,7 @@ vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 {
 	if(is_gobal  &&  cnv  &&  ist_erstes) {
 
-		COLOR_VAL color;
+		COLOR_VAL color = COL_GREEN; // not used, but stop compiler warning about uninitialized
 		char tooltip_text[1024];
 		tooltip_text[0] = 0;
 
@@ -2768,7 +2768,7 @@ bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve )
 	uint32 i;
 
 	route_t *route = cnv->get_route();
-	for(  uint32 i=start; success  &&  i<end  &&  i<=route->gib_max_n(); i++) {
+	for(  uint32 i=start; success  &&  i<end  &&  (sint32)i<=route->gib_max_n(); i++) {
 
 		grund_t *gr = welt->lookup(route->position_bei(i));
 		runway_t * sch1 = gr ? (runway_t *)gr->gib_weg(air_wt) : NULL;

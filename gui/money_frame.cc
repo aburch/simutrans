@@ -388,7 +388,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	else {
 		headquarter.enable();
 		if (sp->get_headquarter_pos()!=koord::invalid  &&  old_hq!=sp->get_headquarter_pos()) {
-			if(sp->get_headquarter_level()==hausbauer_t::headquarter.get_count()) {
+			if(sp->get_headquarter_level()==(uint16)hausbauer_t::headquarter.get_count()) {
 				headquarter.disable();
 				headquarter.set_tooltip( NULL );
 			}

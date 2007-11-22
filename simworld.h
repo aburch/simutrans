@@ -187,7 +187,7 @@ private:
 		sint32	speed;
 		koord	pos;
 		spieler_t *besitzer;
-		uint32 year_month;
+		sint32 year_month;
 
 		speed_record_t() : cnv(), speed(0), pos(koord::invalid), besitzer(NULL), year_month(0) {}
 	};

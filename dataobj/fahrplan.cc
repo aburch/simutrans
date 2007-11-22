@@ -240,7 +240,7 @@ fahrplan_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// loading/saving new version
-		for(unsigned i=0; i<maxi; i++) {
+		for(sint32 i=0; i<maxi; i++) {
 			if(eintrag.get_count()<=i) {
 				eintrag.append( linieneintrag_t() );
 			}

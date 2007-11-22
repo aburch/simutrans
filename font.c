@@ -68,7 +68,7 @@ static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_
 		// endcoding (sint8 number) in decimal
 		if (strncmp(str, "ENCODING", 8) == 0) {
 			char_nr = atoi(str + 8);
-			if (char_nr == 0 || char_nr >= char_limit) {
+			if (char_nr == 0 || (sint32)char_nr >= char_limit) {
 				fprintf(stderr, "Unexpected character (%i) for %i character font!\n", char_nr, char_limit);
 				char_nr = 0;
 			}

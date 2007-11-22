@@ -154,6 +154,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 		const fabrik_lieferant_besch_t *lieferant = fabesch->gib_lieferant(i);
 		ware_production_t ware;
 		ware.setze_typ( lieferant->gib_ware() );
+		ware.abgabe_letzt = ware.abgabe_sum = 0;
 		ware.max = lieferant->gib_kapazitaet() << fabrik_t::precision_bits;
 		ware.menge = 0;
 		eingang.append(ware,1);
@@ -164,6 +165,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 		const fabrik_produkt_besch_t *produkt = fabesch->gib_produkt(i);
 		ware_production_t ware;
 		ware.setze_typ( produkt->gib_ware() );
+		ware.abgabe_letzt = ware.abgabe_sum = 0;
 		ware.max = produkt->gib_kapazitaet() << fabrik_t::precision_bits;
 		// if source then start with full storage (thus AI will built immeadiately lines)
 		ware.menge = (fabesch->gib_lieferanten()==0) ? ware.max-(16<<fabrik_t::precision_bits) : 0;
@@ -1008,7 +1010,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				// remove something from the most waiting goods
 				if(best_halt->recall_ware( most_waiting, min(most_waiting.menge/2,1-capacity_left) ) ) {
 					best_ware.menge += most_waiting.menge;
-					assert( best_halt->gib_ware_summe(best_ware.gib_besch())==(sint32)best_halt->get_capacity()-capacity_left-(sint32)most_waiting.menge );
+					assert( (sint32)best_halt->gib_ware_summe(best_ware.gib_besch())==(sint32)best_halt->get_capacity()-capacity_left-(sint32)most_waiting.menge );
 				}
 				else {
 					// overcrowded with other stuff (not from us)
@@ -1345,7 +1347,7 @@ void fabrik_t::rotate90( const sint16 y_size )
 		dbg->warning( "fabrik_t::rotate90()","no tile zero form %s at (%s)", gib_name(), pos.gib_str() );
 	}
 
-	for( int i=0;  i<lieferziele.get_count();  i++  ) {
+	for( uint32 i=0;  i<lieferziele.get_count();  i++  ) {
 		lieferziele[i].rotate90( y_size );
 		// on larger factories the target position changed too
 		fabrik_t *fab = gib_fab( welt, lieferziele[i] );
@@ -1353,14 +1355,14 @@ void fabrik_t::rotate90( const sint16 y_size )
 			lieferziele[i] = fab->gib_pos().gib_2d();
 		}
 	}
-	for( int i=0;  i<suppliers.get_count();  i++  ) {
+	for( uint32 i=0;  i<suppliers.get_count();  i++  ) {
 		suppliers[i].rotate90( y_size );
 		fabrik_t *fab = gib_fab( welt, suppliers[i] );
 		if(  fab  ) {
 			suppliers[i] = fab->gib_pos().gib_2d();
 		}
 	}
-	for( int i=0;  i<fields.get_count();  i++  ) {
+	for( uint32 i=0;  i<fields.get_count();  i++  ) {
 		fields[i].rotate90( y_size );
 	}
 }

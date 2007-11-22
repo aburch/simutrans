@@ -259,7 +259,7 @@ void ding_t::rotate90()
 
 
 void
-ding_t::display_after(int xpos, int ypos, bool is_global) const
+ding_t::display_after(int xpos, int ypos, bool /*is_global*/ ) const
 {
 	image_id bild = gib_after_bild();
 	if(bild != IMG_LEER) {

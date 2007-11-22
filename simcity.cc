@@ -76,7 +76,7 @@ static int minimum_city_distance = 16;
  * chance to do renovation instead new building (in percent)
  * @author prissi
  */
-static int renovation_percentage = 12;
+static uint32 renovation_percentage = 12;
 
 /**
  * add a new consumer every % people increase
@@ -321,7 +321,7 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 	char buf[128];
 
 	minimum_city_distance = contents.get_int("minimum_city_distance", 16);
-	renovation_percentage = contents.get_int("renovation_percentage", 25);
+	renovation_percentage = (uint32)contents.get_int("renovation_percentage", 25);
 	int ind_increase = contents.get_int("industry_increase_every", 0);
 	for (int i = 0; i < 8; i++) {
 		industry_increase_every[i] = ind_increase << i;
@@ -378,9 +378,9 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 		while (*rule == ' ') rule++;
 
 		// find out rule size
-		int size = 0;
+		size_t size = 0;
 		size_t maxlen = strlen(rule);
-		while (size < maxlen && rule[size] != ' ') size++;
+		while (size < maxlen  &&  rule[size]!=' ') size++;
 
 		if (size > 7 || maxlen < size * (size + 1) - 1 || (size & 1) == 0 || size <= 2) {
 			dbg->fatal("stadt_t::cityrules_init()", "house rule %d has bad format!", i + 1);
@@ -388,8 +388,8 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 
 		// put rule into memory
 		const uint8 offset = (7 - size) / 2;
-		for (int y = 0; y < size; y++) {
-			for (int x = 0; x < size; x++) {
+		for (uint y = 0; y < size; y++) {
+			for (uint x = 0; x < size; x++) {
 				house_rules[i].rule[(offset + y) * 7 + x + offset] = rule[x + y * (size + 1)];
 			}
 		}
@@ -408,7 +408,7 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 		while (*rule == ' ') rule++;
 
 		// find out rule size
-		int size = 0;
+		size_t size = 0;
 		size_t maxlen = strlen(rule);
 		while (size < maxlen && rule[size] != ' ') size++;
 
@@ -418,8 +418,8 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 
 		// put rule into memory
 		const uint8 offset = (7 - size) / 2;
-		for (int y = 0; y < size; y++) {
-			for (int x = 0; x < size; x++) {
+		for (uint y = 0; y < size; y++) {
+			for (uint x = 0; x < size; x++) {
 				road_rules[i].rule[(offset + y) * 7 + x + offset] = rule[x + y * (size + 1)];
 			}
 		}
@@ -2494,7 +2494,7 @@ void stadt_t::baue()
 
 
 	// renovation (only done when nothing matches a certain location
-	if (!buildings.empty() && simrand(100) <= renovation_percentage) {
+	if (!buildings.empty()  &&  simrand(100) <= renovation_percentage) {
 		renoviere_gebaeude(buildings[simrand(buildings.get_count())]->gib_pos().gib_2d());
 		INT_CHECK("simcity 876");
 	}

@@ -38,7 +38,7 @@ private:
      *
      * @author V. Meyer
      */
-    static koord3d finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, char *&msg );
+    static koord3d finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&msg );
 
     /*
      * Brückenendpunkte bei Rampen werden auf flachem Grund gebaut und müssen daher genauer

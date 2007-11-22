@@ -10,7 +10,7 @@
 #include "obj_besch_std_name.h"
 #include "../simtypes.h"
 
-#define NO_SOUND (0xFFFFu)
+#define NO_SOUND (sint16)(0xFFFFu)
 #define LOAD_SOUND (sint8)(0xFFFEu)
 
 /*
