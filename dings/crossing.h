@@ -8,12 +8,10 @@
 #ifndef dings_crossing_h
 #define dings_crossing_h
 
-#include "../simdings.h"
 #include "../simtypes.h"
 #include "../simimg.h"
 #include "../besch/kreuzung_besch.h"
-#include "../tpl/minivec_tpl.h"
-#include "../tpl/slist_tpl.h"
+#include "../dataobj/crossing_logic.h"
 
 class vehikel_basis_t;
 
@@ -25,25 +23,18 @@ class crossing_t : public ding_t
 {
 protected:
 	image_id after_bild, bild;
-	uint8 zustand:4;	// counter for steps ...
-	uint8 ns:1;				// direction
-	uint8 phase;
-
-	minivec_tpl<const vehikel_basis_t *>on_way1;
-	minivec_tpl<const vehikel_basis_t *>on_way2;
-
+	uint8 ns;				// direction
+	crossing_logic_t *logic;
 	const kreuzung_besch_t *besch;
-
-	uint32 timer;	// change animation state here ...
 
 public:
 	enum ding_t::typ gib_typ() const { return crossing; }
 	const char* gib_name() const { return "Kreuzung"; }
 
 	crossing_t(karte_t *welt, loadsave_t *file);
-	crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wt1, waytype_t wt2);
+	crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wt1, waytype_t wt2, uint8 ns = 0);
 
-	virtual ~crossing_t() {}
+	virtual ~crossing_t();
 
 	void rotate90();
 
@@ -53,26 +44,29 @@ public:
 	 * @return string (only used for debugg at the moment)
 	 * @author prissi
 	 */
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf) const { logic->info(buf); }
 
 	// no info
 	void zeige_info() {}
 
 	// returns true, if the crossing can be passed by this vehicle
-	bool request_crossing( const vehikel_basis_t * );
+	bool request_crossing( const vehikel_basis_t *v ) { return logic->request_crossing( v ); }
 
 	// adds to crossing
-	void add_to_crossing( const vehikel_basis_t *v );
+	void add_to_crossing( const vehikel_basis_t *v ) { return logic->add_to_crossing( v ); }
 
 	// removes the vehicle from the crossing
-	void release_crossing( const vehikel_basis_t * );
+	void release_crossing( const vehikel_basis_t *v ) { return logic->release_crossing( v ); }
 
-	/* states of the crossing;
-	 * since way2 has priority over way1 there is a third state, during a closing request
-	 */
-	enum crossing_state_t { CROSSING_INVALID=0, CROSSING_OPEN, CROSSING_REQUEST_CLOSE, CROSSING_CLOSED };
-	void set_state( uint8 new_state );
-	uint8 get_state() { return zustand; }
+	uint8 get_state() { return logic->get_state(); }
+
+	// called from the logic directly
+	void state_changed();
+
+	uint8 get_dir() { return ns; }
+
+	void set_logic( crossing_logic_t *l ) { logic = l; }
+	crossing_logic_t *get_logic() { return logic; }
 
 	/**
 	 * Dient zur Neuberechnung des Bildes
@@ -92,20 +86,6 @@ public:
 	void rdwr(loadsave_t *file);
 
 	void laden_abschliessen();
-
-	// static routines from here
-private:
-	static slist_tpl<const kreuzung_besch_t *> liste;
-	static kreuzung_besch_t *can_cross_array[8][8];
-
-public:
-	static bool register_besch(kreuzung_besch_t *besch);
-	static bool alles_geladen() {return true; }
-
-	static const kreuzung_besch_t *get_crossing(const waytype_t ns, const waytype_t ow) {
-		if(ns>7  ||  ow>7) return NULL;
-		return can_cross_array[(int)ns][(int)ow];
-	}
 };
 
 #endif

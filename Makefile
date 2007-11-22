@@ -146,6 +146,7 @@ SOURCES += boden/wege/runway.cc
 SOURCES += boden/wege/schiene.cc
 SOURCES += boden/wege/strasse.cc
 SOURCES += boden/wege/weg.cc
+SOURCES += dataobj/crossing_logic.cc
 SOURCES += dataobj/dingliste.cc
 SOURCES += dataobj/einstellungen.cc
 SOURCES += dataobj/fahrplan.cc

@@ -32,30 +32,42 @@
 crossing_t::crossing_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
 	bild = after_bild = IMG_LEER;
+	logic = NULL;
 	rdwr(file);
+	assert(logic);
 }
 
 
 
-crossing_t::crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t w1, waytype_t w2) :  ding_t(welt, pos)
+crossing_t::crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t w1, waytype_t w2, uint8 ns ) :  ding_t(welt, pos)
 {
-	besch = get_crossing( w1, w2 );
+	besch = crossing_logic_t::get_crossing( w1, w2 );
 	if(besch==NULL) {
 		dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", w1, w2 );
 	}
-	zustand = CROSSING_INVALID;
-	phase = 0;
-	timer = 0;
-	ns = 0;
+	this->ns = ns;
+	logic = NULL;
 	bild = after_bild = IMG_LEER;
-	set_state( CROSSING_OPEN );
 	setze_besitzer( sp );
 }
 
 
 
-void
-crossing_t::rotate90()
+crossing_t::~crossing_t()
+{
+	grund_t *gr = welt->lookup( gib_pos() );
+	if(gr) {
+		gr->obj_remove(this);
+		setze_pos(koord3d::invalid);
+	}
+	if(logic) {
+		logic->remove(this);
+	}
+}
+
+
+
+void crossing_t::rotate90()
 {
 	ding_t::rotate90();
 	ns = ~ns;
@@ -63,107 +75,13 @@ crossing_t::rotate90()
 
 
 
-/**
- * @return string; currently unused but useful for debugging
- * @author prissi
- */
-void crossing_t::info(cbuffer_t & buf) const
-{
-	buf.append("way1 reserved by ");
-	buf.append(on_way1.get_count());
-	buf.append("cars.\nway2 reserved by ");
-	buf.append(on_way2.get_count());
-	buf.append("cars.\nstate ");
-	buf.append(zustand);
-}
-
-
-// request permission to pass crossing
-bool
-crossing_t::request_crossing( const vehikel_basis_t *v )
-{
-	if(v->gib_waytype()==besch->get_waytype(0)) {
-		if (on_way2.empty() && zustand == CROSSING_OPEN) {
-			// way2 is empty ...
-			return true;
-		}
-		// passage denied, since there are vehicle on way2
-		// which has priority
-		// => ok only if I am already crossing
-		return on_way1.is_contained(v);
-	}
-	else {
-		// vehikel from way2 arrives
-		if(on_way1.get_count()) {
-			// sorry, still things on the crossing, but we will prepare
-			set_state( CROSSING_REQUEST_CLOSE );
-			return false;
-		}
-		else {
-			set_state( CROSSING_CLOSED );
-			return true;
-		}
-	}
-}
-
-
-
-// request permission to pass crossing
-void
-crossing_t::add_to_crossing( const vehikel_basis_t *v )
-{
-	if(v->gib_waytype()==besch->get_waytype(0)) {
-		on_way1.append_unique(v);
-	}
-	else {
-		// add it and close crossing
-		on_way2.append_unique(v);
-		set_state( CROSSING_CLOSED );
-	}
-}
-
-
-
-// called after passing of the last vehicle (in a convoi)
-// or of a city car; releases the crossing which may switch state
-void
-crossing_t::release_crossing( const vehikel_basis_t *v )
-{
-	if(v->gib_waytype()==besch->get_waytype(0)) {
-		on_way1.remove(v);
-		if (zustand == CROSSING_REQUEST_CLOSE && on_way1.empty()) {
-			set_state( CROSSING_CLOSED );
-		}
-	}
-	else {
-		on_way2.remove(v);
-		if (on_way2.empty()) {
-			set_state( CROSSING_OPEN );
-		}
-	}
-}
-
-
-
 // change state; mark dirty and plays sound
-void
-crossing_t::set_state( uint8 new_state )
+void crossing_t::state_changed()
 {
-	if(new_state!=zustand) {
-		mark_image_dirty( bild, 0 );
-		mark_image_dirty( after_bild, 0 );
-		set_flag(ding_t::dirty);
-		// play sound (if there and closing)
-		if(new_state==CROSSING_CLOSED  &&  besch->gib_sound()>=0) {
-			struct sound_info info;
-			info.index = besch->gib_sound();
-			info.volume = 255;
-			info.pri = 0;
-			welt->play_sound_area_clipped(gib_pos().gib_2d(), info);
-		}
-		zustand = new_state;
-		calc_bild();
-	}
+	mark_image_dirty( bild, 0 );
+	mark_image_dirty( after_bild, 0 );
+	calc_bild();
+	set_flag(ding_t::dirty);
 }
 
 
@@ -175,11 +93,14 @@ crossing_t::set_state( uint8 new_state )
 void
 crossing_t::calc_bild()
 {
-	// recalc bild each step ...
-	const bild_besch_t *a = besch->gib_bild_after( ns, zustand!=CROSSING_CLOSED, 0 );
-	after_bild = a ? a->gib_nummer() : IMG_LEER;
-	const bild_besch_t *b = besch->gib_bild( ns, zustand!=CROSSING_CLOSED, 0 );
-	bild = b ? b->gib_nummer() : IMG_LEER;
+	if(logic) {
+		uint8 zustand = logic->get_state();
+		// recalc bild each step ...
+		const bild_besch_t *a = besch->gib_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0 );
+		after_bild = a ? a->gib_nummer() : IMG_LEER;
+		const bild_besch_t *b = besch->gib_bild( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0 );
+		bild = b ? b->gib_nummer() : IMG_LEER;
+	}
 }
 
 
@@ -187,16 +108,19 @@ crossing_t::calc_bild()
 void
 crossing_t::rdwr(loadsave_t *file)
 {
+	uint8 zustand = logic==NULL ? crossing_logic_t::CROSSING_INVALID : logic->get_state();
 	ding_t::rdwr(file);
 
-	uint8 dummy = zustand;
-	file->rdwr_byte(dummy, " ");
-	zustand = dummy;
-	dummy = ns;
-	file->rdwr_byte(dummy, " ");
-	ns = dummy;
-	file->rdwr_byte(phase, " ");
-	file->rdwr_long(timer, " ");
+	// variables ... attention, logic now in crossing_logic_t
+	file->rdwr_byte(zustand, " ");
+	file->rdwr_byte(ns, " ");
+	if(file->get_version()<99016) {
+		uint32 ldummy=0;
+		uint8 bdummy=0;
+		file->rdwr_byte(bdummy, " ");
+		file->rdwr_long(ldummy, " ");
+	}
+	// which waytypes?
 	if(file->is_saving()) {
 		uint8 wt = besch->get_waytype(0);
 		file->rdwr_byte(wt,"w");
@@ -207,13 +131,11 @@ crossing_t::rdwr(loadsave_t *file)
 		uint8 w1, w2;
 		file->rdwr_byte(w1,"w");
 		file->rdwr_byte(w2,"w");
-		besch = get_crossing( (waytype_t)w1, (waytype_t)w2 );
+		besch = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2 );
 		if(besch==NULL) {
 			dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", w1, w2 );
 		}
-		crossing_state_t new_state = (crossing_state_t)zustand;
-		zustand = CROSSING_INVALID;
-		set_state( new_state==CROSSING_INVALID ? CROSSING_OPEN : new_state );
+		crossing_logic_t::add( welt, this, zustand );
 	}
 }
 
@@ -239,34 +161,12 @@ void crossing_t::laden_abschliessen()
 		weg_t *w2=gr->gib_weg(besch->get_waytype(1));
 		w2->count_sign();
 		ns = ribi_t::ist_gerade_ns(w2->gib_ribi_unmasked());
+		if(logic==NULL) {
+			crossing_logic_t::add( welt, this, crossing_logic_t::CROSSING_INVALID );
+		}
+		else {
+			logic->recalc_state();
+		}
 	}
 }
 
-
-/* static stuff from here on ... */
-
-
-// nothing can cross airways, so waytype 0..7 is enough
-kreuzung_besch_t* crossing_t::can_cross_array[8][8] =
-{
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
-};
-
-
-bool crossing_t::register_besch(kreuzung_besch_t *besch)
-{
-	// mark if crossing possible
-	if(besch->get_waytype(0)<8  &&  besch->get_waytype(1)<8) {
-		can_cross_array[besch->get_waytype(0)][besch->get_waytype(1)] = besch;
-		can_cross_array[besch->get_waytype(1)][besch->get_waytype(0)] = besch;
-	}
-DBG_DEBUG( "crossing_t::register_besch()","%s", besch->gib_name() );
-	return true;
-}

@@ -574,6 +574,7 @@ void karte_t::init(einstellungen_t* sets)
 		destroy();
 	}
 
+	current_mouse_funk.funk = NULL;
 	if(is_display_init()) {
 		display_show_pointer(false);
 	}
@@ -806,7 +807,6 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 	// finishes the line preparation and sets id 0 to invalid ...
 	spieler[0]->simlinemgmt.laden_abschliessen();
 
-	current_mouse_funk.funk = NULL;
 	setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 
 	recalc_average_speed();
@@ -2577,7 +2577,6 @@ karte_t::laden(const char *filename)
 		create_win(new news_img("WRONGSAVE"), w_info, magic_none);
 	}
 	else {
-		destroy_all_win();
 /*
 		event_t ev;
 		ev.ev_class=EVENT_NONE;
@@ -2603,8 +2602,10 @@ void karte_t::laden(loadsave_t *file)
 {
 	char buf[80];
 
-	destroy_all_win();
 	intr_disable();
+	current_mouse_funk.funk = NULL;
+	destroy_all_win();
+
 
 	display_set_progress_text(translator::translate("Loading map ..."));
 	display_progress(0, 100);	// does not matter, since fixed width

@@ -14,6 +14,7 @@
 	FIX: under certain cases station (length!=8) stations load one vehicle too many
 	FIX: old texts weren not deleted from nonrotated hashtable during rotation
 	ADD: 'pillar_asymmetric' for bridges with shorter pillars on north resp. west slopes and 'max_height' for bridges + new error message 'bridge is too high for its type!'
+	ADD: new crossing logic: crossing is one object only (new strings: "invalid", "open", "request closing", "closed", "way1 reserved by" , "cars.\nway2 reserved by", "cars.\nstate")
 
 
 Release of 99.15

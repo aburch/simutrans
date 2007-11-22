@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "../../dings/crossing.h"
+#include "../../dataobj/crossing_logic.h"
 
 #include "../sound_besch.h"
 #include "../kreuzung_besch.h"
@@ -15,7 +15,7 @@ void crossing_reader_t::register_obj(obj_besch_t *&data)
 {
 	kreuzung_besch_t *besch = static_cast<kreuzung_besch_t *>(data);
 	if(besch->topspeed1!=0) {
-		crossing_t::register_besch(besch);
+		crossing_logic_t::register_besch(besch);
 	}
 }
 
@@ -23,7 +23,7 @@ void crossing_reader_t::register_obj(obj_besch_t *&data)
 
 bool crossing_reader_t::successfully_loaded() const
 {
-	return crossing_t::alles_geladen();
+	return crossing_logic_t::alles_geladen();
 }
 
 
@@ -31,17 +31,17 @@ obj_besch_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
-  kreuzung_besch_t *besch = new kreuzung_besch_t();
+	kreuzung_besch_t *besch = new kreuzung_besch_t();
 	besch->node_info = new obj_besch_t*[node.children];
 
-  // Hajo: Read data
-  fread(besch_buf, node.size, 1, fp);
-  char * p = besch_buf;
+	// Hajo: Read data
+	fread(besch_buf, node.size, 1, fp);
+	char * p = besch_buf;
 
-  // Hajo: old versions of PAK files have no version stamp.
-  // But we know, the higher most bit was always cleared.
-  const uint16 v = decode_uint16(p);
-  const int version = v & 0x8000 ? v & 0x7FFF : 0;
+	// Hajo: old versions of PAK files have no version stamp.
+	// But we know, the higher most bit was always cleared.
+	const uint16 v = decode_uint16(p);
+	const int version = v & 0x8000 ? v & 0x7FFF : 0;
 
 	if(version == 0) {
 		dbg->error("crossing_reader_t::read_node()","Old version of crossings cannot be used!");
@@ -76,7 +76,7 @@ DBG_MESSAGE("crossing_reader_t::register_obj()","sound %s to %i",wavname,besch->
 DBG_MESSAGE("crossing_reader_t::register_obj()","old sound %i to %i",old_id,besch->sound);
 		}
 
-		DBG_DEBUG("crossing_reader_t::read_node()","version=%i, w1=%d, speed1=%i, w2=%d, speed2=%d",v,besch->wegtyp1,besch->topspeed1,besch->wegtyp2,besch->topspeed2);
+DBG_DEBUG("crossing_reader_t::read_node()","version=%i, w1=%d, speed1=%i, w2=%d, speed2=%d",v,besch->wegtyp1,besch->topspeed1,besch->wegtyp2,besch->topspeed2);
 	}
 	return besch;
 }

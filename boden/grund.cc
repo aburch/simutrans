@@ -306,7 +306,9 @@ void grund_t::rdwr(loadsave_t *file)
 
 	// need to add a crossing for old games ...
 	if (file->is_loading()  &&  ist_uebergang()  &&  !find<crossing_t>(2)) {
-		dinge.add( new crossing_t(welt, obj_bei(0)->gib_besitzer(), pos, ((weg_t *)obj_bei(0))->gib_waytype(), ((weg_t *)obj_bei(1))->gib_waytype() ) );
+		crossing_t *cr = new crossing_t( welt, obj_bei(0)->gib_besitzer(), pos, ((weg_t *)obj_bei(0))->gib_waytype(), ((weg_t *)obj_bei(1))->gib_waytype(), ribi_t::ist_gerade_ns(((weg_t *)obj_bei(1))->gib_ribi_unmasked()) );
+		dinge.add( cr );
+		crossing_logic_t::add( welt, cr, crossing_logic_t::CROSSING_INVALID );
 	}
 }
 
@@ -425,6 +427,9 @@ grund_t::info(cbuffer_t& buf) const
 		}
 		if(flags&has_way2) {
 			obj_bei(1)->info(buf);
+		}
+		if(ist_uebergang()) {
+			find<crossing_t>(2)->get_logic()->info(buf);
 		}
 	}
 

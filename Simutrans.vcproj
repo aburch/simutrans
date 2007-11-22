@@ -269,6 +269,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\crossing_logic.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\besch\reader\crossing_reader.cc"
 				>
 			</File>

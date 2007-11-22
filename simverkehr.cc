@@ -379,7 +379,7 @@ stadtauto_t::sync_step(long delta_t)
 					// message after two month, reset waiting timer
 					message_t::get_instance()->add_message( translator::translate("To heavy traffic\nresults in traffic jam.\n"), gib_pos().gib_2d(), message_t::warnings, COL_ORANGE );
 				}
-				else if(ms_traffic_jam<0) {
+				else if(ms_traffic_jam<=0) {
 					// try to turn around ...
 					fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
 					pos_next = gib_pos();//welt->lookup_kartenboden(gib_pos().gib_2d()+koord(fahrtrichtung))->gib_pos();

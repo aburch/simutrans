@@ -2042,9 +2042,14 @@ void convoi_t::destroy()
 	for(int i=anz_vehikel-1;  i>=0; i--) {
 		if(  !fahr[i]->get_flag( ding_t::not_on_map )  ) {
 			// remove from rails/roads/crossings
+			grund_t *gr = welt->lookup(fahr[i]->gib_pos());
 			fahr[i]->setze_letztes( true );
 			fahr[i]->verlasse_feld();
+			if(gr  &&  gr->ist_uebergang()) {
+				gr->find<crossing_t>()->release_crossing(fahr[i]);
+			}
 			fahr[i]->set_flag( ding_t::not_on_map );
+
 		}
 		delete fahr[i];
 	}

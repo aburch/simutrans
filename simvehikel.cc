@@ -144,7 +144,11 @@ vehikel_basis_t::verlasse_feld()
 	// first: release crossing
 	grund_t *gr = welt->lookup(gib_pos());
 	if(gr  &&  gr->ist_uebergang()) {
-		gr->find<crossing_t>(2)->release_crossing(this);
+		crossing_t *cr = gr->find<crossing_t>(2);
+		grund_t *gr2 = welt->lookup(pos_next);
+		if(gr2==NULL  ||  !gr2->ist_uebergang()  ||  cr->gib_besch()!=gr2->find<crossing_t>(2)->gib_besch()) {
+			cr->release_crossing(this);
+		}
 	}
 
 	// then remove from ground (or search whole map, if failed)
@@ -1367,7 +1371,8 @@ vehikel_t::ist_entfernbar(const spieler_t *)
 
 vehikel_t::~vehikel_t()
 {
-	if(welt->lookup(gib_pos())) {
+	grund_t *gr = welt->lookup(gib_pos());
+	if(gr) {
 		// remove vehicle's marker from the reliefmap
 		reliefkarte_t::gib_karte()->calc_map_pixel(gib_pos().gib_2d());
 	}
@@ -1860,6 +1865,10 @@ DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_rou
 								break;
 							}
 							if(sch->has_signal()) {
+								next_signal_index = i+1;
+								break;
+							}
+							if(sch->is_crossing()) {
 								next_signal_index = i+1;
 								break;
 							}
