@@ -285,7 +285,9 @@ void crossing_logic_t::add( karte_t *w, crossing_t *start_cr, uint8 zustand )
 		found_logic->append_crossing( cr );
 	}
 	found_logic->recalc_state();
-	found_logic->set_state( zustand );
+	if(  zustand!=CROSSING_INVALID  ) {
+		found_logic->set_state( zustand );
+	}
 }
 
 
