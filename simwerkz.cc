@@ -1315,31 +1315,32 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 
 
 // built all types of stops but sea harbours
-bool wkz_halt_aux(spieler_t *sp, karte_t *welt, koord pos,const haus_besch_t *besch,waytype_t wegtype,sint64 cost,const char *type_name)
+bool wkz_halt_aux(spieler_t *sp, karte_t *welt, koord pos, const char *&p_error, const haus_besch_t *besch,waytype_t wegtype,sint64 cost,const char *type_name)
 {
 DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besch->gib_name(), pos.x, pos.y, wegtype);
-	const char *p_error=(besch->gib_all_layouts()==4) ? "No terminal station here!" : "No through station here!";
+	p_error=(besch->gib_all_layouts()==4) ? "No terminal station here!" : "No through station here!";
 
 	grund_t *bd = wkz_intern_koord_to_weg_grund(sp==welt->gib_spieler(1)?NULL:sp,welt,pos,wegtype);
 	if(!bd  &&  track_wt) {
 		bd = wkz_intern_koord_to_weg_grund(sp==welt->gib_spieler(1)?NULL:sp,welt,pos,monorail_wt);
 	}
+
 	if(!bd  ||  bd->gib_weg_hang()!=hang_t::flach  ||  bd->is_halt()) {
-		if(sp==welt->get_active_player()) {
-			create_win(new news_img(p_error), w_time_delete, magic_none );
-		}
-		dbg->warning("wkz_halt_aux()", "%s at (%i,%i)", p_error, pos.x, pos.y );
+		// only flat tiles, only one stop per map square
 		return false;
 	}
 
-DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
+	if(bd->gib_typ()==grund_t::tunnelboden  &&  bd->ist_karten_boden()) {
+		// do not build on tunnel entries
+		return false;
+	}
 
 	if(bd->gib_depot()) {
 		p_error = "Tile not empty.";
-		if(sp==welt->get_active_player()) {
-			create_win( new news_img(p_error), w_time_delete, magic_none);
-		}
-		dbg->warning("wkz_halt_aux()", "%s at (%i,%i)", p_error, pos.x, pos.y );
+		return false;
+	}
+
+	if(bd->hat_weg(air_wt)  &&  bd->gib_weg(air_wt)->gib_besch()->gib_styp()==1) {
 		return false;
 	}
 
@@ -1357,10 +1358,6 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 		}
 		// not straight: sorry cannot built here ...
 		if(!ribi_t::ist_gerade(ribi)) {
-			if(sp==welt->get_active_player()) {
-				create_win( new news_img(p_error), w_time_delete, magic_none);
-			}
-			dbg->warning("wkz_halt_aux()", "%s at (%i,%i)", p_error, pos.x, pos.y );
 			return false;
 		}
 		layout = (ribi & ribi_t::nordsued)?0 :1;
@@ -1370,10 +1367,6 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 		ribi = bd->gib_weg_ribi_unmasked(wegtype);
 		// sorry cannot built here ... (not a terminal tile)
 		if(!ribi_t::ist_einfach(ribi)) {
-			if(sp==welt->get_active_player()) {
-				create_win( new news_img(p_error), w_time_delete, magic_none);
-			}
-			dbg->warning("wkz_halt_aux()", "%s at (%i,%i)", p_error, pos.x, pos.y );
 			return false;
 		}
 
@@ -1525,27 +1518,44 @@ int wkz_halt(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 		return true;
 	}
 
-	// are we allowed to built here?
-	halthandle_t halt=haltestelle_t::gib_halt(welt,pos);
-	if(halt.is_bound()  &&  !sp->check_owner(halt->gib_besitzer())) {
-		// we cannot connect to this halt!
-		create_win( new news_img("Das Feld gehoert\neinem anderen Spieler\n"), w_time_delete, magic_none);
-		return false;
+	if(!welt->ist_in_kartengrenzen(pos)) {
+		return pos==DRAGGING;
 	}
+
+	bool success = false;
+	const char *msg = NULL;
 
 	const haus_besch_t *besch=(const haus_besch_t *)value.p;
 	switch (besch->gib_utyp()) {
-		case haus_besch_t::bahnhof:      return wkz_halt_aux(sp, welt, pos, besch, track_wt,    umgebung_t::cst_multiply_station,     "BF");
-		case haus_besch_t::monorailstop: return wkz_halt_aux(sp, welt, pos, besch, monorail_wt, umgebung_t::cst_multiply_station,     "BF");
+		case haus_besch_t::bahnhof:
+			success = wkz_halt_aux(sp, welt, pos, msg, besch, track_wt,    umgebung_t::cst_multiply_station,     "BF");
+			break;
+		case haus_besch_t::monorailstop:
+			success = wkz_halt_aux(sp, welt, pos, msg, besch, monorail_wt, umgebung_t::cst_multiply_station,     "BF");
+			break;
 		case haus_besch_t::bushalt:
-		case haus_besch_t::ladebucht:    return wkz_halt_aux(sp, welt, pos, besch, road_wt,     umgebung_t::cst_multiply_roadstop,    "H");
-		case haus_besch_t::binnenhafen:  return wkz_halt_aux(sp, welt, pos, besch, water_wt,    umgebung_t::cst_multiply_dock,        "Dock");
-		case haus_besch_t::airport:      return wkz_halt_aux(sp, welt, pos, besch, air_wt,      umgebung_t::cst_multiply_airterminal, "Airport");
-
+		case haus_besch_t::ladebucht:
+			success = wkz_halt_aux(sp, welt, pos, msg, besch, road_wt,     umgebung_t::cst_multiply_roadstop,    "H");
+			break;
+		case haus_besch_t::binnenhafen:
+			success = wkz_halt_aux(sp, welt, pos, msg, besch, water_wt,    umgebung_t::cst_multiply_dock,        "Dock");
+			break;
+		case haus_besch_t::airport:
+			success = wkz_halt_aux(sp, welt, pos, msg, besch, air_wt,      umgebung_t::cst_multiply_airterminal, "Airport");
+			break;
 		default:
 			DBG_MESSAGE("wkz_halt()", "called with unknown besch %s", besch->gib_name());
 			return false;
 	}
+
+	// we had an error?
+	if(!success) {
+		dbg->warning("wkz_halt_aux()", "failed '%s' at (%i,%i)", msg, pos.x, pos.y );
+		if(sp==welt->get_active_player()) {
+			create_win(new news_img(msg), w_time_delete, magic_none );
+		}
+	}
+	return success;
 }
 
 

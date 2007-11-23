@@ -14,7 +14,7 @@ class haus_besch_t;
 
 /* internal functions: Only for AI (gives no error messages) */
 int wkz_remover_intern(spieler_t *sp, karte_t *welt, koord pos, const char *&msg);
-bool wkz_halt_aux(spieler_t *sp, karte_t *welt, koord pos, const haus_besch_t *besch, waytype_t wegtype, sint64 cost, const char *type_name);
+bool wkz_halt_aux(spieler_t *sp, karte_t *welt, koord pos, const char *&msg, const haus_besch_t *besch, waytype_t wegtype, sint64 cost, const char *type_name);
 
 
 #define INIT  koord(-1,-1)

@@ -1960,14 +1960,14 @@ int spieler_t::baue_bahnhof(const koord* p, int anz_vehikel)
 		if(  make_all_bahnhof  ||  is_my_halt(pos+koord(-1,-1))  ||  is_my_halt(pos+koord(-1,1))  ||  is_my_halt(pos+koord(1,-1))  ||  is_my_halt(pos+koord(1,1))  ) {
 			// start building, if next to an existing station
 			make_all_bahnhof = true;
-			wkz_halt_aux(this, welt, pos, besch, track_wt, umgebung_t::cst_multiply_station, "BF");
+			wkz_halt(this, welt, pos, besch );
 		}
 		INT_CHECK("simplay 753");
 	}
 	// now add the other squares (going backwards)
 	for(  pos=*p;  pos!=t;  pos+=zv ) {
 		if(  !is_my_halt(pos)  ) {
-			wkz_halt_aux(this, welt, pos, besch, track_wt, umgebung_t::cst_multiply_station, "BF");
+			wkz_halt(this, welt, pos, besch );
 		}
 	}
 

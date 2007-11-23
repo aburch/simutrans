@@ -8,6 +8,7 @@ timeline speeds from file instead calculation
 A* for goods
 Sort signals so simple signal is first
 timeline factories
+Setting force of AI bei contruction delay times.
 
 
 Stichpunkte
