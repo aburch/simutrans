@@ -2843,8 +2843,8 @@ bool aircraft_t::ist_weg_frei(int & restart_speed)
 		return false;
 	}
 
-	if(route_index<takeoff) {
-		if(route_index>1 &&  gr->suche_obj(ding_t::aircraft)) {
+	if(route_index<takeoff  &&  route_index>1) {
+		if(route_index>1  &&  gr->suche_obj(ding_t::aircraft)) {
 			// check, if tile occupied, if not on stop
 			restart_speed = 0;
 			return false;
@@ -2857,7 +2857,7 @@ bool aircraft_t::ist_weg_frei(int & restart_speed)
 		}
 		// next tile a runway => then reserve
 		if(rw->gib_besch()->gib_styp()==1) {
-			// try to resever the runway
+			// try to reserve the runway
 			if(!block_reserver(takeoff,takeoff+100,true)) {
 				// runway already blocked ...
 				restart_speed = 0;
@@ -2868,6 +2868,12 @@ bool aircraft_t::ist_weg_frei(int & restart_speed)
 	}
 
 	if(route_index==takeoff  &&  state==taxiing) {
+		// try to reserve the runway
+		if(!block_reserver(takeoff,takeoff+100,true)) {
+			// runway already blocked ...
+			restart_speed = 0;
+			return false;
+		}
 		// stop shortly at the end of the runway
 		state = departing;
 		restart_speed = 0;
