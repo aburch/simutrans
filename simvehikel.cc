@@ -2868,9 +2868,9 @@ bool aircraft_t::ist_weg_frei(int & restart_speed)
 	}
 
 	if(route_index==takeoff  &&  state==taxiing) {
-		// try to reserve the runway
-		if(!block_reserver(takeoff,takeoff+100,true)) {
-			// runway already blocked ...
+		// try to reserve the runway if not already done
+		if(route_index==2  &&  !block_reserver(takeoff,takeoff+100,true)) {
+			// runway blocked, wait at start of runway
 			restart_speed = 0;
 			return false;
 		}
