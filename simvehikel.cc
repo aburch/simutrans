@@ -146,7 +146,7 @@ vehikel_basis_t::verlasse_feld()
 	if(gr  &&  gr->ist_uebergang()) {
 		crossing_t *cr = gr->find<crossing_t>(2);
 		grund_t *gr2 = welt->lookup(pos_next);
-		if(gr2==NULL  ||  !gr2->ist_uebergang()  ||  cr->gib_besch()!=gr2->find<crossing_t>(2)->gib_besch()) {
+		if(gr2==NULL  ||  gr2==gr  ||  !gr2->ist_uebergang()  ||  cr->get_logic()!=gr2->find<crossing_t>(2)->get_logic()) {
 			cr->release_crossing(this);
 		}
 	}

@@ -32,7 +32,7 @@ public:
 	const char* gib_name() const { return "Kreuzung"; }
 
 	crossing_t(karte_t *welt, loadsave_t *file);
-	crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wt1, waytype_t wt2, uint8 ns = 0);
+	crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, const kreuzung_besch_t *besch, uint8 ns = 0);
 
 	virtual ~crossing_t();
 

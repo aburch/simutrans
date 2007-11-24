@@ -39,13 +39,10 @@ crossing_t::crossing_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 
 
 
-crossing_t::crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t w1, waytype_t w2, uint8 ns ) :  ding_t(welt, pos)
+crossing_t::crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, const kreuzung_besch_t *besch, uint8 ns ) :  ding_t(welt, pos)
 {
-	besch = crossing_logic_t::get_crossing( w1, w2 );
-	if(besch==NULL) {
-		dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", w1, w2 );
-	}
 	this->ns = ns;
+	this->besch = besch;
 	logic = NULL;
 	bild = after_bild = IMG_LEER;
 	setze_besitzer( sp );

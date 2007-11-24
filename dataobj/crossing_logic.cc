@@ -44,7 +44,7 @@ crossing_logic_t::crossing_logic_t( const kreuzung_besch_t *besch )
 void crossing_logic_t::info(cbuffer_t & buf) const
 {
 	static const char *state_str[4] = { "invalid", "open", "request closing", "closed" };
-	buf.append( translator::translate("way1 reserved by ") );
+	buf.append( translator::translate("\nway1 reserved by ") );
 	buf.append( on_way1.get_count() );
 	buf.append( translator::translate("cars.\nway2 reserved by ") );
 	buf.append( on_way2.get_count() );
@@ -144,7 +144,7 @@ crossing_logic_t::release_crossing( const vehikel_basis_t *v )
 			set_state( CROSSING_CLOSED );
 		}
 	}
-	else if(v->gib_waytype()==besch->get_waytype(1)) {
+	else {
 		on_way2.remove(v);
 		if(on_way2.empty()) {
 			set_state( CROSSING_OPEN );
@@ -237,7 +237,6 @@ void crossing_logic_t::add( karte_t *w, crossing_t *start_cr, uint8 zustand )
 	// go east/south
 	pos = start_cr->gib_pos();
 	while(1) {
-		uint8 new_state = CROSSING_INVALID;
 		pos -= zv;
 		grund_t *gr = welt->lookup( pos );
 		if(gr==NULL) {
@@ -249,14 +248,6 @@ void crossing_logic_t::add( karte_t *w, crossing_t *start_cr, uint8 zustand )
 		}
 		crossings.append( found_cr );
 		if(  found_cr->get_logic()!=NULL  ) {
-			// transfer state:
-			uint8 found_state = found_cr->get_logic()->get_state();
-			if(  new_state==CROSSING_INVALID  ||  new_state==CROSSING_OPEN  ) {
-				new_state = found_state;
-			}
-			else if(  found_state==CROSSING_CLOSED  ) {
-				new_state = CROSSING_CLOSED;
-			}
 			crossings_logics.append_unique( found_cr->get_logic() );
 		}
 	}

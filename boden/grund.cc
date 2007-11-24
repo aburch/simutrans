@@ -306,7 +306,11 @@ void grund_t::rdwr(loadsave_t *file)
 
 	// need to add a crossing for old games ...
 	if (file->is_loading()  &&  ist_uebergang()  &&  !find<crossing_t>(2)) {
-		crossing_t *cr = new crossing_t( welt, obj_bei(0)->gib_besitzer(), pos, ((weg_t *)obj_bei(0))->gib_waytype(), ((weg_t *)obj_bei(1))->gib_waytype(), ribi_t::ist_gerade_ns(((weg_t *)obj_bei(1))->gib_ribi_unmasked()) );
+		const kreuzung_besch_t *cr_besch = crossing_logic_t::get_crossing( ((weg_t *)obj_bei(0))->gib_waytype(), ((weg_t *)obj_bei(1))->gib_waytype() );
+		if(cr_besch==0) {
+			dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", ((weg_t *)obj_bei(0))->gib_waytype(), ((weg_t *)obj_bei(1))->gib_waytype() );
+		}
+		crossing_t *cr = new crossing_t( welt, obj_bei(0)->gib_besitzer(), pos, cr_besch, ribi_t::ist_gerade_ns(gib_weg(cr_besch->get_waytype(1))->gib_ribi_unmasked()) );
 		dinge.add( cr );
 		crossing_logic_t::add( welt, cr, crossing_logic_t::CROSSING_INVALID );
 	}
@@ -892,10 +896,14 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			weg->setze_ribi(ribi);
 			weg->setze_pos(pos);
 			flags |= has_way2;
-			if(weg->gib_besch()->gib_styp()!=7) {
+			if(ist_uebergang()) {
 				// no tram => crossing needed!
 				waytype_t w2 =  ((weg_t *)obj_bei( obj_bei(0)==weg ? 1 : 0 ))->gib_waytype();
-				crossing_t *cr = new crossing_t(welt,sp,pos,w2,weg->gib_waytype());
+				const kreuzung_besch_t *cr_besch = crossing_logic_t::get_crossing( weg->gib_waytype(), w2 );
+				if(cr_besch==0) {
+					dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", weg->gib_waytype(), w2 );
+				}
+				crossing_t *cr = new crossing_t( welt, obj_bei(0)->gib_besitzer(), pos, cr_besch, ribi_t::ist_gerade_ns(gib_weg(cr_besch->get_waytype(1))->gib_ribi_unmasked()) );
 				dinge.add( cr );
 				cr->laden_abschliessen();
 			}
