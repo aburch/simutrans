@@ -67,7 +67,7 @@ crossing_t::~crossing_t()
 void crossing_t::rotate90()
 {
 	ding_t::rotate90();
-	ns = ~ns;
+	ns ^= 1;
 }
 
 
