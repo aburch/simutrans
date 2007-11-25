@@ -91,10 +91,20 @@ bool wegbauer_t::alle_wege_geladen()
 {
 	// some defaults to avoid hardcoded values
 	strasse_t::default_strasse = wegbauer_t::weg_search(road_wt,50,0,weg_t::type_flat);
+	if(strasse_t::default_strasse==NULL) {
+		strasse_t::default_strasse = wegbauer_t::weg_search(road_wt,1,0,weg_t::type_flat);
+	}
 	schiene_t::default_schiene = wegbauer_t::weg_search(track_wt,80,0,weg_t::type_flat);
-	monorail_t::default_monorail = wegbauer_t::weg_search(monorail_wt,120,0,weg_t::type_flat);
-	kanal_t::default_kanal = wegbauer_t::weg_search(water_wt,20,0,weg_t::type_flat);
-	runway_t::default_runway = wegbauer_t::weg_search(air_wt,20,0,weg_t::type_flat);
+	if(schiene_t::default_schiene==NULL) {
+		schiene_t::default_schiene = wegbauer_t::weg_search(track_wt,1,0,weg_t::type_flat);
+	}
+	monorail_t::default_monorail = wegbauer_t::weg_search(monorail_wt,1,0,weg_t::type_flat);
+	if(monorail_t::default_monorail==NULL) {
+		// only elevated???
+		monorail_t::default_monorail = wegbauer_t::weg_search(monorail_wt,1,0,weg_t::type_elevated);
+	}
+	kanal_t::default_kanal = wegbauer_t::weg_search(water_wt,1,0,weg_t::type_flat);
+	runway_t::default_runway = wegbauer_t::weg_search(air_wt,1,0,weg_t::type_flat);
 	return ::alles_geladen(spezial_objekte + 1);
 }
 
