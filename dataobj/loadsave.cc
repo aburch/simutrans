@@ -3,11 +3,10 @@
 #include <string.h>
 #include <ctype.h>
 #include <assert.h>
-#include <zlib.h>
 #include <errno.h>
 
-#include "../macros.h"
 #include "../simtypes.h"
+#include "../macros.h"
 #include "../simversion.h"
 #include "../simmem.h"
 #include "../simdebug.h"
@@ -15,10 +14,11 @@
 
 #include "../utils/simstring.h"
 
+#include <zlib.h>
+
 loadsave_t::mode_t loadsave_t::save_mode = binary;	// default to use for saving
 
-loadsave_t::loadsave_t() :
-	filename()
+loadsave_t::loadsave_t() : filename()
 {
 	fp = NULL;
 }

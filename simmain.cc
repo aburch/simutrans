@@ -737,12 +737,20 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 			&umgebung_t::message_flags[3]
 		);
 
-		fscanf(config, "Visual=%i,%i,%i,%i,%i\n", &b[0], &b[1], &b[2], &b[3], &b[4] );
+		// set visual defaults
+		b[0] = umgebung_t::hide_with_transparency;
+		b[1] = umgebung_t::hide_trees;
+		b[2] = umgebung_t::hide_buildings;
+		b[3] = umgebung_t::use_transparency_station_coverage;
+		b[4] = umgebung_t::station_coverage_show;
+		b[5] = umgebung_t::show_names;
+		fscanf(config, "Visual=%d,%d,%d,%d,%d\n", &b[0], &b[1], &b[2], &b[3], &b[4], &b[5] );
 		umgebung_t::hide_with_transparency = b[0]!=0;
 		umgebung_t::hide_trees = b[1]!=0;
 		umgebung_t::hide_buildings = b[2];
 		umgebung_t::use_transparency_station_coverage = b[3]!=0;
 		umgebung_t::station_coverage_show = b[4]!=0;
+		umgebung_t::show_names = b[5];
 
 		int midi_volume=128, sound_volume=128;
 		fscanf(config, "SoundMidiVolume=%d,%d\n", &sound_volume, &midi_volume );
@@ -1013,12 +1021,13 @@ DBG_MESSAGE("init","map");
 			umgebung_t::message_flags[3]
 		);
 		fprintf(
-			config, "Visual=%d,%d,%d,%d,%d\n",
+			config, "Visual=%d,%d,%d,%d,%d,%d\n",
 			umgebung_t::hide_with_transparency,
 			umgebung_t::hide_trees,
 			umgebung_t::hide_buildings,
 			umgebung_t::use_transparency_station_coverage,
-			umgebung_t::station_coverage_show
+			umgebung_t::station_coverage_show,
+			umgebung_t::show_names
 		);
 		fprintf(config, "SoundMidiVolume=%d,%d\n", sound_get_global_volume(), sound_get_midi_volume() );
 		fprintf(config, "SoundShuffle=%d,%d\n", sound_get_shuffle_midi(), 0 );

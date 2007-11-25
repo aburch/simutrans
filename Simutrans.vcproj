@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;G:\Projects\SDL-1.2.10\include&quot;;&quot;G:\Program Files\PlatformSDK\Include&quot;;G:\Projects\zlib\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;LITTLE_ENDIAN;USE_C;STEPS16"
+				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -64,9 +64,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlib.lib advapi32.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib $(NOINHERIT)"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;G:\Program Files\PlatformSDK\Lib&quot;;G:\Projects\zlib\lib"
+				IgnoreAllDefaultLibraries="false"
+				IgnoreDefaultLibraryNames="libcmt.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -122,7 +124,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="&quot;G:\Projects\SDL-1.2.10\include&quot;;&quot;G:\Program Files\PlatformSDK\Include&quot;;G:\Projects\zlib\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;USE_C"
+				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -141,9 +143,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlib.lib advapi32.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib $(NOINHERIT)"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;G:\Program Files\PlatformSDK\Lib&quot;;G:\Projects\zlib\lib"
+				IgnoreDefaultLibraryNames="libcmt.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
