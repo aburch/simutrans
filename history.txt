@@ -17,6 +17,7 @@
 	ADD: new crossing logic: crossing is one object only (new strings: "invalid", "open", "request closing", "closed", "\nway1 reserved by" , "cars.\nway2 reserved by", "cars.\nstate")
 	FIX: no stops on tunnel entries or on runways
 	FIX: calc load and image correctly after leaving depot
+	FIX: smoke offset of trains fixed
 
 
 Release of 99.15

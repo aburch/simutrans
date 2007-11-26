@@ -21,9 +21,9 @@
 wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, image_id bild, bool increment) :
     ding_t(welt, pos)
 {
-	base_y_off = ((y_off-8)*TILE_STEPS)/16;
-	setze_yoff( base_y_off );
+	base_y_off = (y_off*TILE_STEPS-(TILE_STEPS/2))/16;
 	setze_xoff( (x_off*TILE_STEPS)/16 );
+	setze_yoff( base_y_off );
 	insta_zeit = 0;
 	this->increment = increment;
 	base_image = bild;
