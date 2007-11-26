@@ -796,7 +796,13 @@ void convoi_t::start()
 		alte_richtung = ribi_t::keine;
 
 		state = ROUTING_1;
+		// recalc weight and image
+		for(unsigned i=0; i<anz_vehikel; i++) {
+			fahr[i]->beladen( home_depot.gib_2d(), halthandle_t() );
+		}
+		// calc state for convoi
 		calc_loading();
+
 
 		DBG_MESSAGE("convoi_t::start()","Convoi %s wechselt von INITIAL nach ROUTING_1", name_and_id);
 	} else {

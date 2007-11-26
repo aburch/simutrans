@@ -1089,9 +1089,11 @@ vehikel_t::loesche_fracht()
 bool
 vehikel_t::beladen(koord , halthandle_t halt)
 {
-	const bool ok= load_freight(halt);
+	bool ok = true;
+	if(halt.is_bound()) {
+		ok = load_freight(halt);
+	}
 	sum_weight =  (gib_fracht_gewicht()+499)/1000 + besch->gib_gewicht();
-
 	calc_bild();
 	return ok;
 }
