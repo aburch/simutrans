@@ -44,13 +44,13 @@ endif
 ifeq ($(OSTYPE),cygwin)
   OS_INC   ?= -I/usr/include/mingw
   OS_OPT   ?= -mwin32
-  STD_LIBS ?= -lgdi32 -lwinmm -lz -mno-cygwin
+  STD_LIBS ?= -lgdi32 -lwinmm -lz
 endif
 
 ifeq ($(OSTYPE),mingw)
   SOURCES += simsys_w32_png.cc
   OS_OPT   ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
-  STD_LIBS ?=  -lunicows -lz -lmingw32 -lgdi32 -lwinmm
+  STD_LIBS ?= -lz -lmingw32 -lgdi32 -lwinmm
 endif
 
 ALLEGRO_CONFIG ?= allegro-config
@@ -305,6 +305,7 @@ endif
 
 ifeq ($(BACKEND),gdi)
   SOURCES += simsys_w$(COLOUR_DEPTH).c
+  STD_LIBS ?=  -lunicows
 endif
 
 ifeq ($(BACKEND),sdl)
@@ -318,8 +319,6 @@ ifeq ($(BACKEND),sdl)
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
     SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
   endif
-
-  SDL_LDFLAGS+= -lSDL_mixer
 
   CFLAGS   += $(SDL_CFLAGS)
   CXXFLAGS += $(SDL_CFLAGS)
@@ -341,31 +340,29 @@ endif
 
 
 ifeq ($(BACKEND), sdl)
-  SOURCES += music/sdl_midi.c
-  SOURCES += sound/sdl_sound.c
-else
   ifeq ($(findstring $(OSTYPE), cygwin mingw),)
-    ifeq ($(BACKEND), allegro)
-      SOURCES += music/allegro_midi.c
-    else
-      SOURCES += music/no_midi.c
-    endif
+    SOURCES += sound/sdl_mixer_sound.c
+    SOURCES += music/sdl_midi.c
+    SDL_LDFLAGS += -lSDL_mixer
   else
+    SOURCES += sound/sdl_sound.c
     SOURCES += music/w32_midi.c
   endif
 endif
 
-
 ifeq ($(BACKEND), allegro)
   SOURCES += sound/allegro_sound.c
+  SOURCES += music/allegro_midi.c
 endif
 
 ifeq ($(BACKEND), gdi)
+  SOURCES += music/w32_midi.c
   SOURCES += sound/win32_sound.c
 endif
 
 ifeq ($(BACKEND), x11)
   SOURCES += sound/no_sound.c
+  SOURCES += sound/no_midi.c
 endif
 
 

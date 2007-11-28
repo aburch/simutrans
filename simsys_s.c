@@ -5,7 +5,7 @@
  * in other projects without written permission of the author.
  */
 
-#include <SDL.h>
+#include <SDL/SDL.h>
 
 #ifndef _MSC_VER
 #include <unistd.h>
@@ -13,7 +13,7 @@
 #endif
 
 #ifdef _WIN32
-#include "SDL_syswm.h"
+#include <SDL/SDL_syswm.h>
 #include <windows.h>
 #else
 #include <sys/stat.h>
