@@ -16,8 +16,8 @@ class wolke_t : public ding_t, public sync_steppable
 {
 private:
 	sint32 insta_zeit;	// Wolken verschwinden, wenn alter max. erreicht
-	uint8 base_y_off;
 	uint8 increment:1;
+	sint16 base_y_off;
 	image_id base_image;
 
 public:
