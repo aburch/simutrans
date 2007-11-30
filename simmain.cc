@@ -861,7 +861,10 @@ DBG_MESSAGE("init","map");
 	if(new_world) {
 		// load the default settings for new maps
 		loadsave_t  file;
-		if(file.rd_open("default.sve")) {
+		if(file.rd_open("default.sve")  &&
+			// correct version number?
+			(  (sint32)file.get_version()!=-1  ||  file.get_version()<=loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL )  )
+		) {
 			sets->rdwr(&file);
 			file.close();
 		}

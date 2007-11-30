@@ -42,8 +42,6 @@ private:
 
 	FILE *fp;
 
-	static uint32 int_version(const char *version_text, mode_t *mode, char *pak);
-
 	// Hajo: putc got a name clash on my system
 	int lsputc(int c);
 
@@ -53,6 +51,7 @@ private:
 	long read (void *buf, unsigned long len);
 
 public:
+	static uint32 int_version(const char *version_text, mode_t *mode, char *pak);
 	static mode_t save_mode;	// default to use for saving
 
 	loadsave_t();

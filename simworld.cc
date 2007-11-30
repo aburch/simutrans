@@ -2566,7 +2566,7 @@ karte_t::laden(const char *filename)
 
 	if(!file.rd_open(filename)) {
 
-		if((sint32)file.get_version() == -1) {
+		if(  (sint32)file.get_version()==-1  ||  file.get_version()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL )  ) {
 			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
 		}
 		else {
