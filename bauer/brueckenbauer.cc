@@ -202,7 +202,7 @@ brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_
 		// test may length
 		if(besch->gib_max_length()>0  &&  length > besch->gib_max_length()) {
 			error_msg = "Bridge is too long for this type!\n";
-			return false;
+			return koord3d::invalid;
 		}
 
 		if(!welt->ist_in_kartengrenzen(pos.gib_2d())) {
