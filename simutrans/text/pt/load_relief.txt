@@ -1,0 +1,23 @@
+<title>Ajuda - Carregar terreno</title>
+
+<h1><strong>Carregar terreno</strong></h1>
+
+<p>
+A janela <strong>Carregar terreno</strong> é usada para abrir um arquivo de mapa personalizado (para ser usado em um novo jogo) e pode ser usada para deletar esses arquivos.<br>
+<p>
+<strong>Carregar terreno</strong> abre a partir da janela de <a href="new_world.txt">Novo mundo</a> e lista nomes, data e hora de salvamento dos mapas disponíveis.<br>
+Se todos os arquivos não estiverem visíveis: use a <a href="mouse.txt">barra de rolagem</a> no lado direito da lista para percorrer os nomes.
+</p>
+<p>
+Clique em um nome da lista para usar; ou digite o nome na caixa de nome no topo da janela: clique na caixa, digite o nome e pressione <a href="keys.txt">[Enter]</a> ou [Return], ou clique em <em>OK</em> (um nome incorreto fechará a janela, tente novamente).
+</p>
+<p>
+AVISO: clique no X ao lado do nome para DELETAR o mapa imediata e permanentemente. O nome é removido da lista e a janela <strong>Carregar terreno</strong> se fecha. Use com cuidado.
+</p>
+<p>
+Alguns mapas personalizados e informações de como criar um estão disponíveis na Internet em http://maps.simutrans.com.<br>
+O arquivo de mapa deverá conter a extensão .ppm e colocado no diretório (ou pasta) chamada ...simutrans/save/
+</p>
+<p>
+Clique em <em>Cancelar</em> para fechar a janela <strong>Carregar terreno</strong>, ou no x do canto superior esquerdo, ou use o teclado.
+</p>

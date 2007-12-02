@@ -1,0 +1,41 @@
+<title>Kartenfenster Hilfe</title>
+
+<h1><strong>Kartenfenster</strong></h1>
+
+<p>
+Das Kartenfenster öffnest Du entweder mit dem <em>m</em> auf der Tastatur oder über das <em>Kartensymbol</em> in der Hauptmenüleiste.<br/>
+Die <em>Kartenlegende</em> wird zusätzlich zur Karte geöffnet.
+<em>Hinweis:</em> Sollte die Legende nicht sichtbar sein, befindet sie sich unter der Reliefkarte.
+</p>
+<p>
+Durch klicken mit der rechten Maustaste kannst Du die Karte in drei Größen anzeigen lassen. Durch drehen des Mausrades erreichst Du den gleichen Effekt.
+</p>
+<p>
+Die Relifkarte zeigt die Welt mit allen Objekten wie Industrien, Verkehrswegen, Städten und Fahrzeugen. Du kannst schnell zu jedem beliebigen Ort auf der Karte springen, indem Du die Position in der Relifkarte anklickst.
+</p>
+<p>
+Zeigt die Maus auf eine Industrie, werden deren Abnehmer angezeigt. Drücke gleichzeitig die <em>Shift</em>-Taste, wenn Du die Lieferanten angezeigt haben möchtest. <em>Hinweis:</em> Sollte nichts angezeigt werden, dann einmal in das Kartenfenster klicken.
+</p>
+<p>
+<strong>Kartenlegende</strong>
+</p><p>
+<em>min/max</em> Wenn nicht anders beschrieben, werden Anzeigen nach diesem Farbschema relativ zueinander eingefärbt.<br/><br/>
+Die farbigen Schaltflächen in der Legende tragen verschiedene Informationen in die Karte ein:
+</p><p>
+<em>Städtenamen</em> blendet die Städtenamen weiss in der Karte ein.<br/>
+<em>Passagiere</em> markiert grob alle Gebiete in Spielerfarbe, welche im Einzugsgebiet von Haltestellen mit Personenverkehr liegen. Eine genaue Anzeige auf der Hauptkarte liefert die Taste <em>v</em>.<br/>
+<em>Post</em>markiert grob alle Gebiete in Spielerfarbe, welche im Einzugsgebiet von Haltestellen mit Personenverkehr liegen.<br/>
+<em>Fracht</em> zeigt, wieviel Fracht (Einheiten von Passagieren und Gütern) auf den Verkehrswegen transportiert wird.<br/>
+<em>Haltstatus</em> zeigt an, ob an einer Haltestelle unzufriedene Passagiere erzeugt werden. Die gleiche Anzeigefarbe wird auch in der <a href="haltlist.txt">Haltestellenliste</a> und im Statusbalken beim <a href="station.txt">Haltestellennamen</a> verwendet.<br/>
+<em>An-/Abfahrten</em> zeigt an, wieviele Fahrten zu und ab einer Haltestelle gegangen sind.<br/>
+<em>Verkehr</em> zeigt die Auslastung einer Strecke an.<br/>
+<em>Abfahrtsort</em> zeigt an, wieviele Waren und Personen diese Haltestelle als Ausgangspunkt haben.<br/>
+<em>Zielort</em> zeigt an, wieviele Waren und Personen diese Haltestelle als Endpunkt haben.<br/>
+<em>Wartend</em> zeigt an, wieviele Waren und Personen an einer Haltestelle auf Beförderung warten.<br/>
+<em>Gleistrassen</em> hebt Eisenbahnlinien weiß hervor; elektrifizierte Bahnstrecken werden braun hervorgehoben. Signale werden mit gelben Punkten markiert.<br/>
+<em>Tempolimit</em> zeigt Höchstgeschwindigkeiten auf Straßen und Schienen an.<br/>
+<em>Freileitungen</em> trägt die Hochspannungsleitungen in die Karte ein. Die Farbe kodiert die aktuelle Stromleistung beim öffnen der Karte (wird nicht automatisch aktualisiert!).<br/>
+<em>Attraktionen</em> vergrößert die eingetragenen Touristenattraktionen in der Karte und färbt sie nach ihrem Passagieraufkommen ein.<br/>
+<em>Fabriken</em> vergrößert die Anzeige der Industrien in der Karte.
+</p>
+<p>Im unteren Teil wird die Farblegende zu den Industrien angezeigt.</p>

@@ -1,0 +1,56 @@
+<title>Monorail/maglev Tools Help</title>
+
+<h1><strong>Monorail/maglev Tools</strong></h1>
+
+<p>
+<strong>Monorail/maglev Tools</strong> construct a Monorail/maglev transport network. Tools may build or remove: monorail and maglev track; bridges; tunnels; signals; depots; station-platforms; & extensions. If playing with <a href="new_world.txt">timeline</a>, then as time passes in Simutrans more tool-options may appear.
+</p>
+<p>
+Click monorail/maglev-icon at top of game-view to open toolbar.<br>
+Hover mouse-cursor over tool-option (after opening or clicking on toolbar) to see name & where appropriate: construction <a href="finances.txt">cost</a>, maintenance cost in brackets, maximum speed limit & maximum length.
+</p>
+<p>
+<strong>Monorail/maglev Tools</strong> include, from left to right:
+</p>
+<p>
+<em>Monorail/maglev Track:</em> tools build Tracks, for monorail/maglev vehicles between two points. Tracks can only be built on slopes in the direction of the slope & may not find a path across rough terrain, water and obstructions. New Track built may use existing Track in its path.<br>
+To build Track: click on tool to select Track (changes cursor to track), then click on game-view for start-point of Track (shows a bulldozer in game-view and map co-ordinates at on right of bottom-bar under game-view), & finally click on game-view for end-point for Track.<br>
+{Tips: Different types of Tracks may connect (however not when built by some other <a href="players.txt">players</a>). Use <a href="slopetools.txt"> Landscape tools</a> to change terrain, to enable paths for Track. Use Destroy/Remove to remove individual pieces of Track & some obstructions. Use <a href="keys.txt">[Ctrl]</a> at same time for extra functions. Undo last route construction, [z], does not refund constructions costs.}
+</p>
+<p>
+<em>Remove monorails:</em> tool removes monorail/maglev Track, when no vehicles are present, between two points in game-view (platforms and signals in path are removed too).<br>
+Use of tool incurs a <a href="finances.txt">construction cost</a>.<br>
+To remove Track: click on tool (changes cursor to a red-cross); then click on Track that is to be deleted (selects deletion point shown by a red cross in game-view); & finally click at another point on track, to remove portion up to first deletion point.<br>
+{Tips: Operate as another player to remove their Tracks.}
+</p>
+<p>
+<em>Ramps</em> and <em>Bridges:</em> tools build straight bridges, for monorail/maglev vehicles to pass, between two pieces of monorail/maglev Track in game-view. Bridges have a maximum span. Tools build bridges from an end of a Track to a suitable place (another Track-end or slightly higher land, within span).<br>
+To build a ramp or bridge: click on tool to select (changes cursor to bridge), then click on the end of a Track (start-point of bridge) to build. Some obstructions or lack of a suitable place for bridge-ends will prevent bridge being built: place Track at both sides that is to be bridged, & try again.<br>
+{Tips: Use Destroy/Remove to remove bridges (click on bridge-end) & some obstructions to bridge building. Use Track tools to connect bridge-ends to Track.}
+</p>
+<p>
+<em>Monorail Signals:</em> tools build signals for monorail and maglev vehicles on a Track in game-view. Signals direct & regulate flow of vehicles on Tracks & bridges, junctions & <a href="station.txt">Stops</a> (where vehicles pick-up and drop off passengers).<br>
+Two-way & one-way versions of signals can be built. To build a two-way signal on Track: click on tool to select signal (changes cursor to signals); then click on Track. To build a one-way signal: click again at same point, with signals-cursor, to cycle through one-way signals, back to a two-way signal.<br>
+IMPORTANT: Take care not to place one-way signals that prevent vehicles reaching their destination, by default vehicles drive on the right (can be changed in simuconf.tab).<br>
+- <em>Signals:</em> vehicles proceed only if Track ahead up to next signal or destination in <a href="schedule.txt">Schedule</a> (a <a href="station.txt">Stop</a> or waypoint) is not occupied by another vehicle. In one-way mode vehicles pass in one direction only.<br>
+- <em>PreSignals:</em> vehicles proceed if area of Track ahead (either between three consecutive signals or to next destination in <a href="schedule.txt">Schedule</a>) is not occupied by another vehicle. In one-way mode they let vehicles pass in one direction only.<br>
+- <em>ChooseSignals:</em> direct vehicles to an empty station-platform, at a multi-platform <a href="station.txt">Stop</a>: a vehicle passing this signal may use any empty platform at its next destination, and not just the one assigned in its <a href="schedule.txt">schedule</a>. If no empty platform or clear route to next destination is found, then vehicles wait at signal.<br>
+{Tips:  Remove signals with Destroy/Remove. Hold down [Ctrl] to place signals on bridges over lower Tracks.}
+</p>
+<p>
+<em>Monorail</em> <a href="depot.txt"><em>Depot:</em></a> tool builds a depot for purchasing & managing monrail/maglev vehicles and carriages. Depots have a maintenance cost & are built on the end of monorail/maglev Track in game-view.<br>
+To build a monorail depot: click on tool (changes cursor to a depot), then click on end of Track.
+</p>
+<p>
+<em>Train-stops:</em> tools build station-platforms, used by monorail/maglev vehicles to pick-up and drop-off passengers & mail.<br>
+A station-platform when not built adjacent to an existing <a href="station.txt">Stop</a> will create a new Stop.<br>
+Train-stops have a maintenance cost & are built on track (but not at bends and junctions in track).<br>
+Train-stops have a catchment area for goods, passengers & mail. Different station-platforms may have different capacities for goods, passengers & mail. . In the corner of some tool-options an icon (used in <a href="haltlist.txt">Station List</a> & <a href="station.txt">Stop Information</a>) shows which items the station-platform allows a Stop to handle.<br>
+To build a a station-platform: click on tool to select (changes cursor to a platform), then click on Track.<br>
+{Tips: Remove train-stops with Destroy/Remove. Extend station-platforms & build multi-platform Stops (by building more platform sections on adjacent track) to accommodate longer and more vehicles, increase capacity & catchment area. Press [v] to show/hide catchment area for goods & passengers in game-view. Hold down [Ctrl] to build on bridges or elevated Track above lower Tracks.}
+</p>
+<p>
+<em>Monorail Foundation:</em>tool constructs ?an extension to a <a href="station.txt">Stop</a> and increases the capacity of the Stop. Monorail foundations are built on ends of monorail/maglev Track and have a maintenance cost.<br>
+To build an monorail foundation: click on tool to select (changes cursor to foundation), then click required position on the end of a track.<br>
+{Tips: Remove monorail foundations with Destroy/Remove.}
+</p>

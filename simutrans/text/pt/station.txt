@@ -1,0 +1,33 @@
+<title>Ajuda - Informações das estações</title>
+
+<h1>Informações das estações</h1>
+
+<p>
+Nesta janela você obtém informações sobre a estação ou parada ou terminal onde você clicou.
+É mostrada a quantidade de mercadoria ou de passageiros esperando.
+O botão "Detalhes" abre uma outra janela onde se mostra as mercadorias que as indústrias próximas estão esperando e as estações conectadas com a estação em análise, separadas por tipo de transporte.
+</p>
+
+<p>
+Na caixa onde está escrito o nome da estação, você pode escrever o nome que você quiser. Quando terminar tecle "enter"
+</p>
+<p>
+As mercadorias e passageiros são mostrados da seguinte forma:
+<br>
+402 automóveis esperando
+-250 automóveis    > Rio de Julho parada noroeste<br>
+-152 automóveis    > Alto dos Campos parada externa<br>
+
+302 passageiros esperando
+-1 passageiro      > Lagoa da Esperança Estação Norte<br>
+-150 passageiros   > Vila Alegre parada Central<br>
+-76 passageiros    > Baixo de Dentro parada República<br>
+-75 passageiros    > Lagoa da Esperança Estação Sul
+</p>
+<p>
+As listas são atualizadas em tempo real, sem necessidade de abrir e fechar de novo.
+</p>
+<p>
+Atualizado para Simutrans 0.81.32<br>
+18/05/2003
+</p>

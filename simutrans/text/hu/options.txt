@@ -1,0 +1,22 @@
+<title>Játék beállítások Sugó</title>
+<h1>Játék beállítások</h1>
+
+<p>
+Itt lehet a mindenféle beállítási lehetõségeket kihasználni és alkalmazni
+</p>
+
+<p>
+<em>Nyelv</em> - A játék nyelvének a megváltoztatása.<br>
+<em>Játékos szín</em> - Saját színed megváltoztatása.<br>
+<em>Képernyõ</em> - Képernyõvel kapcsolatos beállítások.<br>
+<em>Hang</em> - Hangokkal kapcsolatos beállítások.<br>
+<em>Játékosok</em> - Itt tudod a számítogépes ellenfeleidet (AI) kiválasztani.<br>
+<em>Betöltés</em> - Lementett játék betöltése<br>
+<em>Mentés</em> - Az aktuális játék lementése.<br>
+<em>Új térkép</em> - Új térkép létrehozása (figyelem a régi mentés nélkül lezárodik)<br>
+<em>Kilépés</em> - Kilépés a játékból (nincs figyelmeztetés és nem menti a játékot).<br>
+</p>
+
+<p>
+Részleteket az egyes opciók helyi sugójánál találsz.
+</p>

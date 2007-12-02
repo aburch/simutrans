@@ -1,0 +1,42 @@
+<title>Ajuda - Detalhes do Comboio</title>
+
+<h1><strong>Detalhes do Comboio</strong></h1>
+
+<p>
+Os <strong>Detalhes do Comboio</strong> dão informações sobre um Comboio (um veículo operacional ou combinação de veículos) e pode ser usado para vender o Comboio imediatamente.
+</p>
+<p>
+
+Os <strong>Detalhes do Comboio</strong> abrem-se do
+botão de opções <a href="convoiinfo.txt">
+Detalhes</a> na janela da Informação do Comboio (use a <a href="inspection_tool.txt">ferramenta Verificar</a> sobre um Comboio)</strong>.
+<br>
+Se todos os itens não estão visíveis, <a href="mouse.txt">reajuste</a> a janela dos <strong>Detalhes do Comboio</strong> ou use as barras laterais para ver os outros itens.
+</p>
+<p>
+
+As informações mostradas na janela dos
+<strong>Detalhes do Comboio</strong> incluem:
+</p>
+<p>
+<em>Potência</em> do Comboio (potência combinada de todos os veículos motorizados no Comboio).
+</p>
+<p>
+<em>Valor de Venda:</em> dinheiro recebido se o Comboio for vendido (valor de compra do Comboio menos qualquer depreciação).
+</p>
+<p>
+<h1><strong>AVISO:</strong></h1> Clique no botão <em>Vender</em> para que o Comboio seja vendido imediatamente. Além disso, nenhuma confirmação é pedida. O Comboio é removido do jogo e o jogador recebe o valor de venda.
+</p>
+<p>
+<strong>Detalhes do Comboio</strong> lista todos os veículos no Comboio.<br>
+As informações listadas para todos os veículos incluem:<br>
+- <em>Ícone do veículo:</em> uma imagem do veículo (também usado em <a href="depot.txt">depósitos</a>).<br>
+- <em>Manufaturado:</em> mês e ano da manufatura e data de introdução do veículo se estiver jogando com a <a href="new_world.txt">Linha do Tempo</a>.<br>
+- <em>Valor de venda:</em> quantidade de dinheiro recebida se o veículo for vendido.<br>
+- <em>Potência:</em> potência gerada (por veículos motorizados).<br>
+- <em>Fator de atrito atual:</em> nível de atrito atual.<br>
+- <em>Faturamento máximo:</em> lucro do veículo pelo tipo de item transportado pelo Comboio.<br>
+- <em>Itens carregados:</em> quantidade e destino dos itens atualmente carregados pelo veículo.
+</p>
+<p>Traduzido para versão Simutrans 0.99.14.
+</p>

@@ -1,0 +1,40 @@
+<title>Jármûlista filter Sugó</title>
+<h1>Jármûlista filter</h1>
+
+<p>
+<em>Beállítási lehetõségek:</em>
+</p>
+
+<p>
+<em>1.) Filter neve:</em><br>
+A filtereket el lehet nevezni.
+</p>
+
+<p>
+<em>2.) Filter tipusa:</em><br>
+Jármûcsoportonként lehet választani. A jármûcsoportok melleti
+kis gombocskát megnyomva lehet aktiválni a kívánt filtert.
+</p>
+
+<p>
+<em>3.) Speciális filter:</em><br>
+Itt lehet a speciális igényeket kiválasztani. Az eltéved jármûveket (vagy a depóban lévõket) itt nagyon könnyen meg tudod találni.
+Eltévedt jármû az a jármû amelyik nem kapja az útvonalát. Ennek több oka lehet: vagy az történt, hogy építkezéseid során
+egy kapcsolódási pontot megszüntettél, vagy pont egy olyan állomást töröltél ahova a kérdéses jármû épp indulni készült.
+Utóbbi esetben ellenõrizd le a jármû <a href='schedule.txt'>menetrendjét</a> vagy a hozzá rendelt vonalat.
+</p>
+
+<p>
+<em>4.) Javak filtere:</em><br>
+Itt lehet még jobban szûkíteni a kersett jármûvek listáját. A javak kiválasztásával csak azok a jármûvek jelennek meg
+amelyek az általad kiválasztott javakat szállítják. A <strong>"mind"</strong> gombbal a teljes javak listája kiválasztódik,
+a <strong>"semmi"</strong> mindent töröl, a <strong>"ford."</strong> az aktuális kiválasztást megfordítja.
+</p>
+
+<p>
+-><a href="convoi.txt">Kis segédlet a konvojokról</a>
+</p>
+
+<p>
+-><a href="general.txt">Általános információk</a>
+</p>

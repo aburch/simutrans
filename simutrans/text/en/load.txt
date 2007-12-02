@@ -1,0 +1,25 @@
+<title>Load Help</title>
+
+<h1><strong>Load</strong></h1>
+
+<p>
+<strong>Load</strong> re-starts a <a href="save.txt">saved</a> game (to continue play) & can be used to delete these games. A game that is re-started replaces the current world which is lost.
+</p>
+<p>
+<strong>Load</strong> opens from <a href="new_world.txt">Create New World</a> & <a href="options.txt">Game Options</a> or by pressing <a href="keys.txt">[L]</a>; & list names, date & time (of save) of available games.<br>
+If all games are not visible: use <a href="mouse.txt">slider-bar</a> on right-side of list to scroll names.
+</p>
+<p>
+Click on name in list to re-start game; or enter name into box at top of Load: click on box, type name, & press [Enter] or [Return] or click on <em>OK</em>.<br>
+An incorrect name will receive an error message: close message, try again.
+</p>
+<p>
+WARNING: Click x-button by name to DELETE game immediately & permanently.<br>
+The name is removed from list and <strong>Load</strong> closes. Use this function carefully.
+</p>
+<p>
+IMPORTANT: New releases of Simutrans appear regularly & games from previous releases of Simutrans may not work with later versions; please read release notes for later version to see if old games are compatible.
+</p>
+<p>
+Click on <em>Cancel</em> to close <strong>Load</strong>; or x in top-left-corner; or use keyboard.
+</p>

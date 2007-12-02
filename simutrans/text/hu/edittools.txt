@@ -1,0 +1,26 @@
+<title>Szerkesztõ eszközök Sugó</title>
+
+<h1>Szerkesztõ eszközök</h1>
+
+<p>
+<br>
+<em>Város növelése:</em> egyszer kiválasztod a megfelelõ várost, megkeresed a <strong>Városházát</strong> majd ráklikkelsz. Egy klikkelés +100 lakost add hozzá a város aktuális lakósszámához.
+<br>
+<br>
+<em>Város csökkentése:</em> egyszer kiválasztod a megfelelõ várost, megkeresed a <strong>Városházát</strong> majd ráklikkelsz. Egy klikkelés -100 lakost vesz el a város aktuális lakósszámából.
+<br>
+<br>
+<em>Városi út építése:</em> 50 km/h sebességû utakat tudsz építeni.
+<br>
+<br>
+<em>Véletlenszerû turista attrakció építése:</em> véletlenszerûen turista attrakciókat épít, így növelheted az utasforgalmat.
+<br>
+<br>
+<em>Hõerõmû építése:</em> ha a meglévõ hõerõmûveid nem tudják kielégíteni az energia igényeidet akkor ezzel az eszközzel újabb hõerõmûveket építhetsz. A játék a hõerõmûhõz automatikusan szénbányákat is generál.
+<br>
+<br>
+<em>Fogyasztó/ipari egység építése:</em> evvel az eszközzel tudsz új ipari egységeket építeni.
+<br>
+<br>
+<em>Játék zárolása:</em> evvel az eszközzel megakadájozhatod azt, hogy a térképen módosítani lehessen.
+</p>

@@ -1,0 +1,68 @@
+<title>Finances Help</title>
+
+<h1><strong>Finances</strong></h1>
+
+<p>
+<strong>Finances</strong> provides an overview of the financial status of the player company.
+</p>
+<p>
+Click money-icon at top of game-view, or press <a href="keys.txt">[f]</a>, or click on player name in <a href="players.txt">Players</a>, to open <strong>Finances</strong>.
+</p>
+<p>
+Values (in Hajo Credits) are listed for present and previous calendar years.<br>
+<em>This Year:</em> current game calendar year.<br>
+<em>Last Year:</em> previous game calendar year.
+</p>
+<p>
+Annual values can also be seen in a graph for the last ten years, or monthly values for the last year.<br>
+Click on value name-button to toggle details on the graph: The y-axis is quantity, the x-axis is time.<br>
+Click on graph index-tab to change scale of x-axis:<br>
+<em>Years:</em> shows annual values for last ten game calendar years.<br>
+<em>Months:</em> shows monthly values for last 12 game months
+</p>
+<p>
+Values (click on name-button to view details on graph), include:
+</p>
+<p>
+<em>Proceeds</em> - total income from the transport of passengers, goods, mail and from <a href="special.txt">high power transmission</a>.
+</p>
+<p>
+<em>Operation Costs</em> - total cost incurred by all <a href="convoiinfo.txt">Convoys</a> when in transit.<br>
+{Tips: The operation cost per kilometer for vehicles can be seen in a <a href="depot.txt">depot</a> and from Convoy Information.}
+</p>
+<p>
+<em>Maintenance</em> - total cost incurred maintaining the transportation network.<br>
+{Tips: The cost per month for maintaining the network (<em>Maintenance (monthly)</em> shown on the right of <strong>Finances</strong>) is deducted at the end of the game calendar month.}
+</p>
+<p>
+<em>Operational Profit</em> - profit from transportation of goods, passengers and mail and high power transmission (Proceeds less Operation Costs and Maintenance).
+</p>
+<p>
+<em>New Vehicles</em> - expenditure on and income received from the purchase and sale of vehicles.
+</p>
+<p>
+<em>Construction site</em> - total cost incurred by construction of transport networks, landscaping, high power transmission lines, and using <a href="removal_tool.txt">Destroy/Remove</a> and other removal tools for ways (tracks, road, canals and airstrips).
+</p>
+<p>
+<em>Cash Flow</em> - total income less total expenditure (costs).
+</p>
+<p>
+<em>Account Balance</em> - the current cash available for construction or purchasing vehicles (also shown in the centre of bottom-bar under game-view.<br>
+{Tips: If human player is in the red (negative account balance) for three consecutive months, the player is bankrupt and the game is over}.
+</p>
+<p>
+<em>Assets</em> - the value of all company vehicles at the end of the last calendar month.<br>
+{Tips: each month the value of operational vehicles depreciate slightly, current selling value for vehicles can be seen in <a href="convoidetail.txt">Convoy Details</a> or when vehicle is in a depot.}
+</p>
+<p>
+<em>Net Wealth</em> - Account Balance plus Assets.
+</p>
+<p>
+<em>Margin</em> - is the ratio of Operational Profit to Proceeds.
+</p>
+<p>
+<em>Travel?led</em> - total number of goods, passengers and mail transported.
+</p>
+<p>
+{Tips: Some costs, starting balance and finances in game can be changed in simuconf.tab}
+</p>

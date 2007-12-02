@@ -1,0 +1,68 @@
+<title>Ayuda de Finanzas</title>
+
+<h1><strong>Finanzas</strong></h1>
+
+<p>
+<strong>Finanzas</strong> provee de un vista general del estado financiero del jugador.
+</p>
+<p>
+Pulsa en el icono del dolar en la parte superior, o presiona <a href="keys.txt">[f]</a>, o pulsa en el nombre del jugador en <a href="players.txt">Jugadores</a>, para abrir <strong>Finanzas</strong>.
+</p>
+<p>
+Los valores (en Creditos Hajo ) estan listados para el año actual y los siguientes.<br>
+<em>Este año:</em> año actual en juego.<br>
+<em>Ultimos años:</em> años previos de juego.
+</p>
+<p>
+Los valores anuales pueden mostrarse en un grafico de los ultimos diez años, o de los ultimos doce meses del año actual en juego.<br>
+Pulsa en el boton con el nombre de valor para mostrar los detalles en el grafico: El eje Y es la cantidad, el eje X es el tiempo.<br>
+Pulsa en el pestaña del grafico para cambiar la escala del eje X:<br>
+<em>Años:</em> muestra los valores anuales de los ultimos 10 años de juego.<br>
+<em>Meses:</em> muestra los valores mensuales de los 12 ultimos meses de juego
+</p>
+<p>
+Entre los valores (pulsa en los botones con los nombres para ver los detalles), se incluyen:
+</p>
+<p>
+<em>Ingresos</em> - ingresos totales del transporte de pasajeros, mercancias, correo y <a href="special.txt">eneriga electrica</a>.
+</p>
+<p>
+<em>Operacion</em> - coste total generado por todos los <a href="convoiinfo.txt">Convoys</a> en movimiento.<br>
+{Consejos: El coste operacional por kilometro se puede ver en el <a href="depot.txt">deposito</a> y en la venta Informacion del Convoy.}
+</p>
+<p>
+<em>Mantenimiento</em> - coste total del mantenimiento de la red de transporte.<br>
+{Consejos: El coste mensual de mantenimiento de la red (<em>Mantenimiento (mensual)</em> se muestra a la derecha en la ventana <strong>Finanzas</strong>) es deducido el final del mes.}
+</p>
+<p>
+<em>Beneficio por Operaciones</em> - beneficio por transporte de mercancias, pasajeros, correo y energia electrica (Ingresos menos Costes de Operacion y Mantenimiento).
+</p>
+<p>
+<em>Nuevos Vehiculos</em> - creditos gastados e ingresados por la venta y compra de vehiculos.
+</p>
+<p>
+<em>Construccion</em> - coste total generado por la construccion de redes de transporte, modificaciones del terreno, lineas de transporte de energia electrica, y por el uso de la herramienta <a href="removal_tool.txt">Eliminar</a>.
+</p>
+<p>
+<em>Beneficio bruto</em> - ingresos totales menos los costes totales.
+</p>
+<p>
+<em>Efectivo</em> - los creditos actualmente disponibles para construir y comprar vehiculos (se muestra en el centro de la parte inferior de la pantalla.<br>
+{Consejos: Si el jugador humano esta en numeros rojos (balance negativo) durante tres meses consecutivos, el jugador se declara en bancarrota y el juego termina}.
+</p>
+<p>
+<em>Activos</em> - El valor de todos los vehiculos del jugador al final del ultimo mes.<br>
+{Consejos: cada mes el valor de los vehiculos en uso desciende ligeramente, el valor actual se puede ver en <a href="convoidetail.txt">Detalles del Convoy</a> o cuando el vehiculo esta en un deposito.}
+</p>
+<p>
+<em>Valor Neto</em> - Balance mas Activos.
+</p>
+<p>
+<em>Margen</em> - porcentaje entre el Beneficio por operacion y los Ingresos.
+</p>
+<p>
+<em>Recorrido</em> - total de mercancias, pasajeros y correo transportados.
+</p>
+<p>
+{Consejos: Algunos costes, tales como la cantidad inicial y las finazas se pueden cambiar a traves del archivo simuconf.tab}
+</p>

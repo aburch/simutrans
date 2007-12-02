@@ -1,0 +1,11 @@
+<title>Aiuto - Opzioni Schermo</title>
+
+<h1>Opzioni Schermo</h1>
+
+<p>
+ancora da scrivere
+</p>
+
+<p>
+(c) Hj. Malthaner
+</p>

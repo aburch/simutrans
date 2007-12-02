@@ -1,0 +1,27 @@
+<title>Ajuda - Preferências</title>
+
+<h1>Preferências</h1>
+
+<p>
+Essa caixa dá acesso a várias outras caixas que permitem modificar diversos parâmetros do jogo.
+Também permite carregar um jogo, salvar, começar um novo e sair do Simutrans.
+</p>
+
+<p>
+<a href="language.txt">Idioma</a>          - Escolha o idioma do Simutrans<br>
+<a href="color.txt">Cor</a>            - Altere a cor de sua companhia<br>
+<a href="display.txt">Vídeo</a>  - Veja detalhes sobre a exibição do jogo<br>
+<a href="sound.txt">Som</a>             - Ajuste o som e a música como preferir<br>
+<a href="players.txt">Jogadores</a>       - Estabeleça quantos competidores o computador deverá gerenciar<br>
+<a href="new_world.txt">Novo Mundo</a>      - Comece um novo mundo<br>
+<a href="load.txt">Carregar</a>      - Carregue um jogo já salvo<br>
+<a href="save.txt">Salvar</a>          - Salve o jogo<br>
+Sair do Jogo    - Termine o jogo<br>
+</p>
+<p>
+Informações mais detalhadas sobre as opções nos links acima ou nas ajudas específicas de cada opção.
+</p>
+<p>
+Atualizado para Simutrans 0.81.32<br>
+18/05/2003
+</p>

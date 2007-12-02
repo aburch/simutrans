@@ -1,0 +1,45 @@
+<title>Cestovný poriadok - pomoc</title>
+
+<h1>Cestovný poriadok</h1>
+
+<p>
+Popis tlaèidiel :
+</p>
+<p>
+<em>Pridat'</em> - toto tlaèidlo je aktívne hneï po zobrazení.
+Namiesto kurzora s lupou by mal byt' ¾ltý znaèkovaè, ktorým
+pooznaèuj v logickom slede v¹etky zastávky, stanice alebo
+nákladné rampy.<br>
+U ka¾dej zastávky, stanice alebo nákladnej rampy mô¾e¹ urèit' s akým
+minimálnym vyt'a¾ením bude dopravný prostriedok odchádzat' (u nákladných
+dopravných prostriedkov odporúèam pre nakladanie 80-100%, u autobusov je
+lep¹ie ostat' na 0%). Då¾ku vlakov odporúèam väè¹iu ako u konkurencie.<br>
+Ak by si vykonával nejaké úpravy terénu, cesty alebo ¾eleznice poèas
+zadávania cestovného poriadku a vrátil sa spät' k zadávaniu, musí¹ kliknút'
+napr. na tlaèidlo ,,Vlo¾it' '' a následne na ,,Pridat' ''. Tým obnoví¹
+zobrazenie ¾ltého znaèkovaèa a mô¾e¹ pokraèovat' v zadávaní.<br>
+<strong>Maximálny poèet zastávok alebo staníc v cestovnom poriadku mô¾e byt' 16 !</strong>
+(Obmedzenie ich fyzického poètu na mape som zatiaµ nezistil).<br>
+Tip : Ak má¹ zapnutú konkurenciu, konkurencia mô¾e (ale nemusí) mat' vyt'a¾enie
+men¹ie ako 100% a chodit' tak poloprázdna a¾ takmer prázdna. Vykazuje tým ni¾¹í zisk.
+Pri odporúèanom nastavení vyt'a¾enia nákladných dopravných prostriedkov mô¾e¹ takto
+konkurenciu predbehnút' v zisku. Ak prevá¾a¹ suroviny alebo tovar, kde je aj konkurencia,
+tam je lep¹ie nastavit' minimálne vyt'a¾enie na 100% (=plne nalo¾it') ;-).
+</p>
+<p>
+<em>Vlo¾it'</em> - zapnutím tohto tlaèidla mô¾e¹ vlo¾it' pred oznaèenú zastávku alebo stanicu
+ïal¹iu (napr. po roz¹írení siete zastávok alebo staníc). Opät' pozor na maximálny poèet
+zastávok alebo staníc.
+</p>
+<p>
+<em>Zmazat'</em> - zapnutím tohto tlaèidla môze¹ vymazat' µubovolnú zastávku, stanicu
+alebo nákladnú rampu z cestovného poriadku (zastávka, stanica alebo nákladná
+rampa ale fyzicky zostáva, a¾ kým ju nezbúra¹)
+</p>
+<p>
+<em>Hotovo</em> - potvrdením ukonèí¹ zadávanie cestovného poriadku.
+</p>
+<p>
+Pozn. prekladateµa : Pri zadávaní cestovného poriadku musí¹ kalkulovat' s trasou tak,
+aby si neprekroèil maximálny poèet zastávok.
+</p>

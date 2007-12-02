@@ -1,0 +1,16 @@
+<title>Geländewerkzeuge Hilfe</title>
+
+<h1><strong>Geländewerkzeuge Hilfe</strong></h1>
+
+<p>
+Wenn eine Bahnlinie/Straße durch unwegsames Gelände geführt werden soll, empfehlen sich die Erdbewegungswerkzeuge. Sie können nur eingesetzt werden, wenn alle betroffenen Felder unbebaut sind.
+</p>
+<p>
+<em> Gelände anheben/absenken</em> Der Cursor verwandelt sich in einen nach oben/unten zeigenden Pfeil. Mit dem Werkzeug wird das Gelände am Gitterpunkt unter dem Cursor angehoben/abgesenkt. Das Gitternetz (nur in der größten Kartenansicht) lässt sich mittels der Taste <em>#</em> ein- und ausschalten.<br><br>
+<em>Rampen legen</em>Die nächsten vier Werkzeuge legen Rampen in südlicher, nördlicher, westlicher und östlicher Richtung an. Mit einem fünften Tool werden Hangfelder eingeebnet. Über so bearbeitetes Gelände können dann normal Wege gebaut werden.<br>
+Beim Einsatz der Geländewerkzeuge können senkrechte Böschungen entstehen. Über diese Klippen können keine Wege gebaut werden, sie können auch nicht Endpunkte von Tunnels oder Brücken sein.<br><br>
+<em>Niveau absenken/anheben</em> Senkt oder hebt das Grundniveau eines Feldes. Das Grundniveau ist die Höhe des tiefstliegenden Eckpunktes eines Feldes. Beim Senken oder Heben des Niveaus wird das Feld zugleich eingeebnet, Rampen oder Kanten verschwinden.<br>
+<strong>Achtung:</strong> Absenken auf das neue Niveau des Meeresspiegel bildet einen Kanal.
+<br/><br>
+<em>Renaturierung</em> Stellt den ursprünglichen Zustand wieder her.
+</p>

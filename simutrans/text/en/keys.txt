@@ -1,0 +1,95 @@
+<title>Keyboard Help</title>
+
+<h1><strong>Keyboard Help</strong></h1>
+
+<p>
+<strong>Keyboard Help</strong> shows functions for various key presses on the keyboard.
+</p>
+<p>
+<strong>Keyboard Help</strong> opens when an unassigned key is pressed or from <a href="general.txt">General Help</a>.
+</p>
+<p>
+Key presses are case sensitive (use [<em>Shift</em>] for upper-case letters).
+</p>
+<p>
+Keys with assigned functions include:
+</p>
+<p>
+
+[<em>.</em>] / [<em>,</em>]: accelerate/decelerate rate that time passes in game, <a href="window.txt">T</a>, (<a href="display.txt"><strong>Display Information</strong></a> indicates if the computer can cope).<br>
+
+[<em>!</em>]: toggle in game-view names of <a href="station.txt">Stops</a> & <a href="citywindow.txt">urban areas</a> and <a href="special.txt">text for Signs</a>, status-colour-bars (that indicate how crowded Stop is) and goods-colour-bars (that indicate quantity of <a href="goods_filter.txt">items</a> at Stops ready for transport).<br>
+
+[<em>"</em>]: toggle minimised view of trees and buildings in 5 stages (firstly, only city buildings and trees; then all buildings including factories and attractions; then just trees; then just city buildings; finally, trees and all buildings).<br>
+
+[<em>#</em>]: toggle view of grid in game-view (only visible on zoomed-in game-view).<br>
+
+[<em>§</em>], or [<em>Shift</em>] + [<em>3</em>]: select global forestation routine (not available on all keyboards).<br>
+
+[<em>+</em>] / [<em>-</em>]: sets <a href="display.txt">Brightness</a>
+</p>
+<p>
+[<em>Arrow Keys</em>]: scroll game-view in direction of arrow.<br>
+[<em>Backspace</em>]: close all windows, toolbars and help-texts in game-view.<br>
+[<em>Delete</em>], or [<em>Escape</em>]: close top window, toolbar or help-text in game-view.<br>
+[<em>Enter</em>], or [<em>Return</em>]: used to confirm actions.<br>
+[<em>Page-Up</em>], or [<em>></em>]: zoom-in game-view.<br>
+[<em>Page-Down</em>], or  [<em> less than symbol</em>]: zoom-out game-view.
+</p>
+<p>
+[<em>a</em>]: select <a href="inspection_tool.txt">Inspection Tool</a>.<br>
+[<em>b</em>]: highlight reserved tracks.<br>
+[<em>B</em>]: open <a href="mailbox.txt">Message Centre</a>.<br>
+[<em>c</em>]: take screenshot of game-view (camera).<br>
+[<em>C</em>]: select <a href="special.txt">found a new city</a> tool.<br>
+[<em>e</em>]: select last Electrify Track tool used.<br>
+[<em>d</em>]: select <a href="slopetools.txt">Lower Land</a> tool.<br>
+[<em>f</em>]: open <a href="finances.txt">Finances</a>.<br>
+[<em>g</em>]: select <a href="special.txt">Transformer station</a> tool.<br>
+[<em>G</em>]: open <a href="goods_filter.txt">Goods List</a>.<br>
+[<em>H</em>]: select headquarters construction tool (not in use in all paks).<br>
+[<em>I</em>]: select <a href="edittools.txt">Build a new power station</a> tool.<br>
+[<em>J</em>]: open <a href="jump_frame.txt">Jump to</a> dialogue.<br>
+[<em>k</em>]: open <a href="players.txt">Player List</a>.<br>
+[<em>l</em>]: select <a href="special.txt">Build Power Transmission Line</a> tool<br>
+[<em>L</em>]: open <a href="load.txt">Load</a>.<br>
+[<em>m</em>]: open <a href="map.txt">Map</a>.<br>
+[<em>M</em>]: select <a href="special.txt">Make a Sign</a> tool.<br>
+[<em>p</em>]: pause/unpause game.<br>
+[<em>P</em>]: cycle through different <a href="players.txt">player</a> companies.<br>
+[<em>Q</em>]: open <a href="new_world.txt">Create a New Game</a>.<br>
+[<em>r</em>]: select Destroy/Remove tool.<br>
+[<em>R</em>]: rotate map by 90 degree.<br>
+[<em>s</em>]: select last <a href="roadtools.txt">?Road</a> building tool used.<br>
+[<em>S</em>]: open <a href="save.txt">Save</a>.<br>
+[<em>t</em>]: select last <a href="railtools.txt">Rail Track</a> building tool used.<br>
+[<em>T</em>]: open <a href="citylist_filter.txt">City List</a>.<br>
+[<em>u</em>]: select <a href="slopetools.txt">Raise Land</a> tool.<br>
+[<em>U</em>]: Underground mode<br>
+[<em>v</em>]: toggle catchment area of <a href="station.txt">Stops</a> in game-view (squares are in <a href="color.txt">company colour</a>).<br>
+[<em>V</em>]: open <a href="convoi.txt">Vehicle List</a><br>
+[<em>w</em>]: open <a href="linemanagement.txt">Line Management</a>.<br>
+[<em>W</em>]: select/deselect FastForward.<br>
+[<em>X</em>]: open <a href="new_world.txt">Create a New Game</a>.<br>
+[<em>z</em>]: undo last route construction (construction costs are not refunded).
+</p>
+<p>
+[<em>1</em>]: scroll game-view south-wards.<br>
+[<em>2</em>]: scroll game-view south-east-wards.<br>
+[<em>3</em>]: scroll game-view east-wards.<br>
+[<em>4</em>]: scroll game-view south-west-wards.<br>
+[<em>6</em>]: scroll game-view north-east-wards.<br>
+[<em>7</em>]: scroll game-view west-wards.<br>
+[<em>8</em>]: scroll game-view north-west-wards.<br>
+[<em>9</em>]: scroll game-view north-wards.
+</p>
+<p>
+[<em>Shift</em>] + <a href="mouse.txt">mouse</a>: used on <a href="map.txt">Map</a> to see links in <a href="industry_info.txt">Industry Supply Chain</a>.<br>
+[<em>CTRL</em>] + tool: construct (signals & <a href="station.txt">Stops</a>) on upper level; or build slower roads and tracks over faster ones; or build straighter (more direct) roads and tracks.<br>
+[<em>CTRL</em>] + ([<em>F2</em>] to [<em>F12</em>]): sets select current tool to keypresses [<em>F2</em>] to [<em>F12</em>].
+</p>
+<p>
+[<em>F1</em>]: open <a href="general.txt">Simutrans Help</a>.<br>
+[<em>F10</em>]: pause/unpause game.<br>
+[<em>F2</em>] to [<em>F12</em>]: selects pre-set tool
+</p>

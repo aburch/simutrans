@@ -1,0 +1,23 @@
+This is a form for submitting change requests for Simutrans.
+
+Please send all change requests to team@64.simutrans.com
+
+
+1.) What should be changed?
+->
+
+2.) Why should this be changed?
+->
+
+3.) How urgent is this change from your point of view?
+(high, medium, low)
+->
+
+4.) Which Simutrans version do you refer to?
+->
+
+
+Please don't forget to note your name and email address somewhere!
+
+
+Better though, submit your request to the forum: http://forum.simutrans.com

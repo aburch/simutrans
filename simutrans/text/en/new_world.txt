@@ -1,0 +1,82 @@
+<title>Create a New Game Help</title>
+
+<h1><strong>Create a New Game</strong></h1>
+
+<p>
+<strong>Create a New Game</strong> sets options for a new game, with a new map & settings.<br>
+Many variables include: size of terrain, initial number of urban areas & industries.<br>
+A preview of the terrain, settings generate, is shown.
+</p>
+<p>
+<strong>Create a New Game</strong> opens with <a href="language.txt">Language</a> and <a href="climates.txt">Climate Control</a> when Simutrans starts (other game-options are disabled) & also opens from <a href="options.txt">Game Options</a> (other toolbars, texts & options in current game close).<br>
+Keyboard shortcuts to open <strong>Create a New Game</strong> include keypress <a href="keys.txt">[Q]</a> and [X].
+</p>
+<p>
+To return to current game, close <strong>Create a New Game</strong>: click x in top-left-corner; or use keyboard.
+</p>
+<p>
+Arrow-buttons adjust settings and buttons switch on/off options or open new controls:
+</p>
+<p>
+<em>Map Number:</em> selects a terrain to use for game.<br>
+Click on number-box and type required number or use arrow-buttons to cycle through many terrains.<br>
+The preview shows terrain selected (water is blue, lower land is darker than higher land).
+</p>
+<p>
+<em>Size:</em> sets size of map (top number is width, bottom is height).<br>
+Number in brackets is memory required by the map<br>
+IMPORTANT: Large maps need more memory & take more time to generate. The game & other graphics require about a further 88MB in pak64 and 144MB in pak128. As a general rule of thumb, on a computer with 256MB RAM do not try maps much larger than 512 x 512 squares.
+</p>
+<p>
+<em>Random map:</em> selects new terrain i.e. a random map number, other settings remain.
+</p>
+<p>
+<a href="load_relief.txt"><em>Load Height Map:</em></a> opens controls to use available custom terrains.
+</p>
+<p>
+<em>Nr. of cities:</em> sets initial number of <a href="citywindow.txt">urban areas</a> in game.
+</p>
+<p>
+<em>Median Citizens per City:</em> sets initial population of urban areas.<br>
+The setting is an average value, Simutrans will try to generate more small villages than large cities.
+</p>
+<p>
+<em>Intercity Road Length:</em> sets initial length of roads, between urban areas, for a new game.
+</p>
+<p>
+<em>Traffic density:</em> sets number of private cars in urban areas.<br>
+Higher values create more private traffic, 0 generates none. New cars appear as urban areas grow.
+</p>
+<p>
+<em>Factories outside Cities:</em> sets initial number of <a href="industry_info.txt">Industry Supply Chains</a> outside urban areas.<br>
+If the terrain is very hilly suitable space may not be found and less industry will appear.
+</p>
+<p>
+<em>Markets in cities:</em>sets initial number of <a href="industry_info.txt">end-consumers</a> of goods in urban areas.<br>
+New consumers (and possibly suppliers, not necessarily in urban areas) appear each time the population doubles from about 2000 inhabitants onwards.
+</p>
+<p>
+<a href="curiositylist_filter.txt"><em>Tourist attractions:</em></a> sets inital number of sites outside of urban areas that attract passengers and mail.<br>
+These appear outside of urban areas and in addtion to any attractions generated with new towns or cities at the start of the game. Attractions also generate passengers and mail.
+</p>
+<p>
+<em>Use a Timeline from Year:</em> sets start year for game-world.
+When square-button is indented timeline is selected and as time passes in game more vehicles and construction options may appear.<br>
+When not selected: game-world still starts in chosen year but all vehicles & construction options appear immediately; urban areas appear with buildings from all periods; & slower vehicles are not as profitable (as income is calculated by average speed of available transport).
+</p>
+<p>
+<em>Allow player change:</em> option to play game as an AI or public service <a href="players.txt">player</a> company (option can not be accessed after new game has started).
+</p>
+<p>
+<em>Beginner mode:</em> option allows a higher level of income to be received in game-play from transporting goods and passengers (by default: 150% of values received in normal mode). Furthermore, <a href="industry_info.txt">Industry</a> will not cease supply when consumer(s) have excess supply.
+</p>
+<p>
+<a href="load.txt">
+<em>Load game:</em></a> opens controls to re-start a previously <a href="save.txt">saved</a> game, replacing the current world which is lost.
+</p>
+<p>
+<em>Start Game:</em> creates a new world, using the settings displayed. Click to start playing - Good Luck and Enjoy!
+</p>
+<p>
+{Tips: Default values when Simutrans starts and other properties can be changed in simuconf.tab}
+</p>

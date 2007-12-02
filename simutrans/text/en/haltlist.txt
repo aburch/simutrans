@@ -1,0 +1,62 @@
+<title>Station List Help</title>
+
+<h1><strong>Station List</strong></h1>
+
+<p>
+<strong>Station List</strong> shows information and has controls to filter and list different <a href="station.txt">Stops</a> (but not Stops just for water transport vehicles), where vehicles pick-up and drop-off goods & passengers.
+</p>
+<p>
+To open: click on station-list-tool in <a href="list.txt">List Management</a>. <strong>Station List</strong> has four option buttons, two are used to order items in a list and two are used to apply options to select items to show in list. Below buttons is a list of <a href="station.txt">Stops</a> that fit criteria for filter options.<br>
+{Tips: If no Stops are listed change <em>Filter</em> options. If items in list are only partially visible, then <a href="mouse.txt">re-size</a> <strong>Station List</strong> or scroll list with slider-bar.}
+</p>
+<p>
+Click on buttons to cycle through options (changes name of option-button) or open Filter Settings controls:
+</p>
+<p>
+<em>Sorted by:</em> two option-buttons determine the order of <a href="station.txt">Stops</a> shown in list:
+</p>
+<p>
+- <em>Type</em> orders by type of vehicle that is accepted.<br>
+- <em>unsorted</em> ?orders in random order.<br>
+- <em>Name</em> orders alphanumerically within ASCII-code order (capital letters before lower case letters) of assigned <a href="station.txt">name</a>.<br>
+- <em>waiting</em>orders by amount of goods & passengers present in relation to waiting capacity and transport service provided.
+</p>
+<p>
+- <em>ascending</em> / <em>descending</em> reverses order of list.
+</p>
+<p>
+<em>Filter:</em> Two option buttons, switch on/off selection criteria for list and access controls to change criteria.
+</p>
+<p>
+- <em>enabled</em> / <em>disabled</em> click to toggle filter criteria.
+</p>
+<p>
+- <a href="haltlist_filter.txt"><em>Settings</em></a> click to open controls to change filter criteria.
+</p>
+<p>
+Click on a item listed in<strong>Station List</strong>to see more <a href="station.txt">information</a> about that Stop.<br>
+Items listed for each Stop include:
+</p>
+<p>
+<em>status-colour-bar:</em> colours indicate operation of <a href="station.txt">Stop</a> with regards to how overcrowded it is. The colour-bar is also used in Stop Information and <a href="linemanagement.txt">Line Management</a> and is the same colour displayed in the colour-bar above Stop in game-display:<br>
+- <em>yellow:</em> no transport service.<br>
+- <em>green:</em> no improvements necessary.<br>
+- <em>orange:</em> improvements possible.<br>
+- <em>red:</em> improvements recommended.<br>
+{Tips: Use [!] to toggle colour-bar above Stop in game display.}
+</p>
+<p>
+<em>name</em> that has been assigned
+{Tips: Option to assign numbers in Stop name available in simuconf.tab}.
+</p>
+<p>
+<em>vehicle icon(s)</em> indicate which types of vehicle can use <a href="station.txt">Stop</a> (also used in Stop Information and Line Management).<br>
+Icons include: bus (for road passenger vehicles), truck (for road goods vehicles), train, boat and airplane. Trams can be indicated by a bus-icon or a train-icon depending on type of Stop.
+</p>
+<p>
+<em>freight icon(s)</em> indicate which items (passengers, goods and/or mail) the <a href="station.txt">Stop</a> can handle (also used in Stop Information and Line Management).<br>
+{Tips: adding appropriate extensions changes the category of items a stop can handle. <a href="special.txt">Post offices</a> may be added to Stops to enable handling of mail}.
+</p>
+<p>
+<em>waiting</em> details of different goods and passengers at <a href="station.txt">Stop</a>.
+</p>

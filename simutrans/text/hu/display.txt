@@ -1,0 +1,24 @@
+<title>Képernyõ beállítások Sugó</title>
+
+<h1>Képernyõ beállítások</h1>
+
+<p>
+Itt tudod a Simutrans megjelenítésével kapcsolatos beállításokat elvégezni.<br>
+A következõ dolgokat tudod állítani:</p>
+
+<p>
+<em>Fényesség</em> - Sötétítí világosítja a képernyõt (- irányba sötétedik).<br>
+<em>Színek száma</em> - Nem mûködik<br>
+<em>Görg. sebes.</em> - A képernyõ görgetési sebességét lehet szabályozni (a nagyobb gyorsabb).
+</p>
+
+<p>
+<em>Fordított görgetés</em> - A képernyõ görgetési irányának a megfordítása<br>
+<em>Gyalogost megáll. mutat</em> -  Mutatja/elrejti a gyalogosokat a megállókban. Ha a géped egy kicsit lassú kapcsold ki.<br>
+<em>Gyalogost városb. mutat</em> -  Mutatja/elrejti a gyalogosokat a városokban. Ha a géped egy kicsit lassú kapcsold ki.<br>
+<em>Éjszaka/nappal mód</em> - Mutatja a nappalt és az éjszakákat. Elég érdekes effektus, fõleg az éjszaka.
+</p>
+<p>
+Az ablak alsó részén, a játék szempontjából lényegtelen információk találhatók. Ellenben ha valami hiba van és
+netán levelezni fogsz a fejlesztõkkel, akkor valoszínû errõl fognak egy pár dolgot kérdezni.
+</p>

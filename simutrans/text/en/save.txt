@@ -1,0 +1,35 @@
+<title>Save Help</title>
+
+<h1><strong>Save</strong></h1>
+
+<p>
+<strong>Save</strong> stores the current game to a file (to continue play at a later time) & can be used to delete these files.
+</p>
+<p>
+<strong>Save</strong> opens from <a href="options.txt">Game Options</a> or by pressing <a href="keys.txt">[S]</a>; & list names, date & time of previous games.<br>
+If all games are not visible: use <a href="mouse.txt">slider-bar</a> on right-side of list to scroll names.
+</p>
+<p>
+The current game can be saved to a new file or over an existing game.<br>
+To save game to new file, enter new name into box at top of
+ <strong>Save</strong>: click on box, type name & press [Enter] or [Return] or click on <em>OK</em>; the new filename is listed.<br>
+IMPORTANT: If a listed filename is used: old game is replaced, by current game, & lost.
+</p>
+<p>
+By default the current game appears in filename box, to save to this file: click <em>OK</em> (old data is lost and replaced with current data).<br>
+To save game to file over an old game: click on a name in list (old game is replaced by current game).
+</p>
+<p>
+Filenames can be a combination of letters, numbers & symbols to a maximum length of 57 characters; after save, only 20 (approx.) characters are shown in <strong>Save</strong> &
+<a href="load.txt">Load</a>.
+</p>
+<p>
+WARNING: Click x-button by filename to DELETE game immediately & permanently, the filename is removed from list and <strong>Save</strong> closes. Use this function carefully.
+</p>
+<p>
+{Tips: Re-start a saved game from Load.<br>
+Change autosave (automatic game save) in simuconf.tab}.
+</p>
+<p>
+Click on <em>Cancel</em> to close <strong>Save</strong>; or x in top-left-corner; or use keyboard.
+</p>

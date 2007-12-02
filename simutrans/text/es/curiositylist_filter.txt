@@ -1,0 +1,50 @@
+<title>Ayuda de la Lista de Atracciones</title>
+
+<h1><strong>Lista de Atracciones</strong></h1>
+
+<p>
+<strong>Lista de Atracciones</strong> tiene informacion acerca de todas las atracciones turisticas que tiene un origen y destino para correo y pasajeros.
+</p>
+<p>
+Para abrir <strong>Lista de Atracciones</strong>: pulsa en la herramienta de la Lista de Atracciones en el icono de <a href="list.txt">Administracion de Listas</a>.<br>
+{Consejos: Si los elementos de la lista son parcialmente visibles, entonces <a href="mouse.txt">ajusta</a> la ventana de <strong>Lista de Atracciones</strong> o desplaza la lista con la barra de desplazamiento.}
+</p>
+<p>
+<em>Ordenado por:</em> tiene opciones que determinan el orden de las atracciones turisticas mostradas.<br>
+Pulsa en los botones para pasar a la siguiente opcion (cambia el nombre del boton de opcion):
+</p>
+<p>
+- <em>Nombre</em> ordena alfabeticamente por nombre.<br>
+- <em>Nivel de Pasajeros</em> ordena por popularidad relativa como destino de pasajeros y correo.
+</p>
+<p>
+- <em>ascendente</em> / <em>descendente</em> invierte el orden de la lista.
+</p>
+<p>
+Pulsa en un elemento de la <strong>Lista de Atracciones</strong> para ver mas informacion acerca de esa atraccion turistica.<br>
+{Consejos: pulsa en el dibujo de la atraccion turistica en la ventana Informacion para situar la vista de juego sobre la atraccion.}
+</p>
+<p>
+Los elementos listados para cada atraccion turistica incluyen:
+</p>
+<p>
+<em>La barra de color de estado</em> indica el nivel de popularidad de la atraccion:<br>
+- <em>amarillo:</em>no esta en el area de influencia de una <a href="station.txt">Parada</a>.<br>
+- <em>verde:</em> tiene asociada una(s) Parada(s) de pasajeros.<br>
+- <em>azul:</em> tiene asociada una(s) Parada(s) de correo.<br>
+- <em>turquesa:</em> tiene asociada una(s) Parada(s) de pasajeros y correo.<br>
+- <em>naranja:</em> un Parada asociada esta abarrotada.<br>
+- <em>rojo:</em> todas las Paradas asociadas estan abarrotadas.
+</p>
+<p>
+<em>grafico del edificio</em> indica si es un atraccion en la <a href="citywindow.txt">ciudad</a>.
+</p>
+<p>
+<em>nombre</em> de la atraccion turistica.
+</p>
+<p>
+<em>nivel de pasajeros</em> entre parentesis es un valor que indica la popularidad relativa como destino de pasajeros y correo.
+</p>
+<p>
+{Consejos: Para proveer de un servicio optimo, la atraccion turistica completa debe estar en el area de influencia de una o varias Paradas.}
+</p>

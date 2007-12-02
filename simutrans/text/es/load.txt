@@ -1,0 +1,25 @@
+<title>Ayuda de Cargar</title>
+
+<h1><strong>Cargar</strong></h1>
+
+<p>
+<strong>Cargar</strong> retoma un <a href="save.txt">juego salvado</a> (para continuar jugando) y puede ser usado para borrar esas partidas. Un juego que es retomado sustituye el mundo actual en juego, el cual se pierde.
+</p>
+<p>
+<strong>Cargar</strong> se abre desde <a href="new_world.txt">Crear un Nuevo Mundo</a> y desde <a href="options.txt">Opciones de Juego</a> o presionando <a href="keys.txt">[L]</a>; y lista el nombre, fecha y hora de las partidas salvadas disponibles.<br>
+Si no estan visibles todos las partidas: usa las <a href="mouse.txt">barras de desplazamiento</a> en la parte izquierda de la lista para desplazar los nombres.
+</p>
+<p>
+Pulsa en un nombre de la lista para retomar una partida salvada; o teclea un nombre en la caja de texto en la parte de arriba de la ventana Cargar: pulsa en la caja de texto, escribe el nombre, y presiona [Enter] o [Return], o pulsa en <em>OK</em>.<br>
+Un nombre de partida incorrecto, se notificara mediante un mensaje de error : cierra el mensaje y prueba de nuevo.
+</p>
+<p>
+CUIDADO: Pulsando en el boton X BORRARAS LA PARTIDA SALVADA de forma inmediata y permanente.<br>
+El nombre de la partida se eliminara de la lista y la ventana de <strong>Cargar</strong> se cerrara. USA ESTA FUNCION CON MUCHO CUIDADO.
+</p>
+<p>
+IMPORTANTE: Nuevas versiones de Simutrans aparecen regularmente y las partidas salvadas de versiones previas podrian no funcionar con las ultimas versiones; por favor, lee las especificaciones de cada version para saber si las partidas antiguas son compatibles.
+</p>
+<p>
+Pulsa en <em>Cancelar</em> para cerrar <strong>Cargar</strong>; o X en la parte superior derecha de la ventana; o usa el teclado.
+</p>

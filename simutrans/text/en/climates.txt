@@ -1,0 +1,66 @@
+<title>Climate Control Help</title>
+
+<h1><strong>Climate Control</strong></h1>
+
+<p>
+<strong>Climate Control</strong> sets options for topograhical and meterological aspects of the game world<br>
+<p>
+<strong>Climate Control</strong> opens with <a href="new_world.txt">Create a New Game</a>.
+</p>
+<p>
+Arrow-buttons adjust settings:
+</p>
+<p>
+<it> options:</it>
+</p>
+<p>
+
+<em>Water level:</em> sets how high water is on map.
+</p>
+<p>
+
+<em>Mountain height:</em> sets maximum height of terrain.
+</p>
+<p>
+
+
+<em>Map roughness:</em> sets roughness of terrain; a larger number creates more undulations.<br>
+</p>
+<p>
+<it>snowline options:</it>
+</p>
+<p>
+
+<em>summer snowline:</em> ?sets height of snowline in summer
+</p>
+<p>
+
+<em>winter snowline:</em> ?sets height of snowline in winter.<br>
+</p>
+<p>
+?<it>climate options:</it>
+</p>
+<p>
+
+<em>desert climate:</em>  ? very little precipitation, extremes in temperature
+</p>
+<p>
+
+<em>tropical climate:</em> ? typical of non-arid areas around equator, constant high temperature at sea level and low elevations).
+</p>
+<p>
+
+<em>mediterranean climate:</em> ?moderate changeable wet weather
+</p>
+<p>
+
+<em>temperate:</em> ?found in areas between tropics and polar caps, changeable weather.
+</p>
+<p>
+
+<em>tundra:</em> ?low temperatures, edges of polar caps
+</p>
+<p>
+
+<em>rocky:</em> sets ?.
+</p>

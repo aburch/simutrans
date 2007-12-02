@@ -1,0 +1,15 @@
+<title>Monorailbau Hilfe</title>
+
+<h1><strong>Monorailbauwerkzeuge</strong></h1>
+
+<p>
+Diese Werkzeugleiste dient dem Bau von Monorailgleisen, Brücken, usw. Wird Simutrans in einem kleineren Fenster gespielt, können die letzten Symbole auf die nächste Zeile umgebrochen sein.
+Bei der Auswahl eines Werkzeuges verwandelt sich der Cursor in das jeweilige Symbol.
+</p>
+<p>
+<p>
+<em>Monorails</em> gibt es im Unterschied zur normalen <a href="railtools.txt">Eisenbahn</a> auch als Hochbahn. Sie lässt sich über einstöckige Häuser und oberhalb von Straßen bis in die Innenstädte legen.
+Um ein Hochbahngleis mit einem ebenerdigen zu verbinden, baut man eine Brücke. <em>Hinweis:</em> Die Possitionierung der Maus bei Hochbahnen erfolgt auf dem Feld darunter.</p>
+<p>
+Für die weiteren Erläuterungen siehe die <a href="railrools.txt">Eisenbahnbauwerkzeuge</a>.
+</p>

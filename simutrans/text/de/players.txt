@@ -1,0 +1,24 @@
+<title>Spieler Hilfe</title>
+
+<h1><strong>Spieler Menü</strong></h1>
+
+<p>
+Im Spieler-Menü kannst Du bestimmen, wie viele Computergegner mitspielen sollen.
+Drücke für jeden KI-Spieler, der am Spiel beteiligt sein soll, den Schalter ein.
+Er wird sich alsbald auf die Suche nach neuen Transportmöglichkeiten machen und eigene Linien eröffnen.
+Wenn Du den KI-Spieler wieder deaktivierst, wird er keine neuen Verbindungen mehr suchen, den bisherigen Betrieb aber weiterführen.<br>
+Die öffentliche Hand kümmert sich nur um den Ausbau der Städte.<br>
+<em>KI-Spieler:</em> Die Firmennamen der KI-Spieler stehen auf Schaltflächen, die die Spielerfarben des entsprechenden KI-Spielers tragen.
+Drücke eine dieser Schaltflächen, um dessen <a href="finances.txt">Finanzfenster</a> einzusehen.
+Das aktuelle Barvermögen der KI-Spieler wird rechts angezeigt.
+</p>
+
+<p>
+<strong>Taktiken der KI-Spieler:</strong>
+<br/>· <em>KI 1, Napik 128 AS</em> wird nie die Eisenbahn nutzen.
+<br/>· <em>KI 2, Tikky Transport</em> befördert ausschließlich Passagiere.
+<br/>· <em>KI 3, Meyer Moving Co.</em> transportiert Güter mit maximaler Effizienz.
+<br/>· <em>KI 4, Spedition VM</em> transportiert Güter mit maximaler Effizienz.
+<br/>· <em>KI 5, H-Trans GmbH</em> transportiert Güter mit maximaler Effizienz.
+<br/>· <em>KI 6, PSK & Co KG</em> nutzt niemals den Straßentransport.
+</p>

@@ -1,0 +1,105 @@
+<title>Ayuda de Simutrans</title>
+
+<h1><strong>Ayuda General</strong></h1>
+<br>
+- <a href="simutrans.txt">Bienvenido</a>
+<br>
+- <a href="window.txt">Interfaz del Juego/Ventanas</a><br>
+- <a href="mouse.txt">Ayuda de Raton</a> (en construccion)<br>
+- <a href="keys.txt">Ayuda de Teclado</a>
+<br>
+<p>
+<a href="options.txt">
+<strong>Opciones de Juego</strong></a>
+<br>
+- <a href="language.txt">Idioma</a><br>
+- <a href="color.txt">Color del Jugador</a>
+<br>
+- <a href="display.txt">Opciones de Pantalla</a><br>
+- <a href="sound.txt">Sonido y Musica</a>
+<br>
+- <a href="players.txt">Jugadores</a>
+<br>
+- <a href="load.txt">Cargar Juego</a>
+<br>
+- <a href="save.txt">Guardar Juego</a>
+<br>
+- <a href="new_world.txt">Nuevo Juego</a><br>
+- - <a href="climates.txt">Controles del Clima</a><br>
+- - <a href="load_relief.txt">Cargar Topografia</a>
+</p>
+
+<p>
+<a href="window.txt"><strong>Menu Principal</strong></a><br>
+- <a href="options.txt">
+Opciones de Juego</a><br>
+- <a href="map.txt">Mapa</a>
+<br>
+- <a href="inspection_tool.txt">Herramienta de Exploracion</a><br>
+- <a href="slopetools.txt">Herramientas de Modelado del Terreno</a><br>
+- <a href="railtools.txt">Herramientas de Ferrocarriles/Vias</a>
+<br>
+- <a href="monorailtools.txt">Herramientas de Monorail</a><br>
+- <a href="tramtools.txt">Herramientas de Tranvia</a>
+<br>
+- <a href="roadtools.txt">Herramientas de Carreteras</a><br>
+- <a href="shiptools.txt">Herramientas de Puertos</a>
+<br>
+- <a href="airtools.txt">Herramientas de Aeropuertos</a>
+<br>
+- <a href="special.txt">Herramientas Especiales de Construction</a><br>
+- <a href="edittools.txt">Herramientas de Edicion del Mapa</a><br>
+- <a href="removal_tool.txt">Herramienta Eliminar</a>
+</p>
+<p>
+<a href="window.txt"><strong>Menus de Administracion</strong></a><br>
+- <a href="linemanagement.txt">Administracion de Lineas</a>
+<br>
+- <a href="list.txt">Listas</a>
+<br>
+- - <a href="haltlist.txt">Lista de Paradas/Estaciones</a><br>
+- - - <a href="haltlist_filter.txt">Filtro para Paradas/Estaciones</a><br>
+- - <a href="convoi.txt">Lista de Vehiculos</a><br>
+- - - <a href="convoi_filter.txt">Filtro de Vehiculos</a>
+<br>
+- - <a href="citylist_filter.txt">Lista de Ciudades</a><br>
+- - <a href="goods_filter.txt">Lista de Mercancias</a>
+<br>
+- - <a href="factorylist_filter.txt">Lista de Industrias</a>
+<br>
+- - <a href="curiositylist_filter.txt">Lista de Atracciones</a>
+<br>
+- <a href="mailbox.txt">Buzon</a>
+<br>
+- <a href="finances.txt">Finanzas</a>
+</p>
+<p>
+<a href="window.txt"><strong>Otras Opciones</strong></a><br>
+- <a href="window.txt">Guardar Captura de Pantalla</a><br>
+- <a href="window.txt">Pausa</a>
+<br>
+- <a href="window.txt">Acelerar</a><br>
+- <a href="window.txt">Ayuda</a>
+</p>
+
+<p>
+<a href="inspection_tool.txt"><strong>Otros Menus</strong></a><br>
+-<a href="depot.txt">Controles de las Cocheras</a>
+<br>
+-<a href="schedule.txt">Controles de Enrutar</a>
+<br>
+- <a href="station.txt">Informacion de las Paradas</a><br>
+- - <a href="station_details.txt">Detalles de las Paradas</a><br>
+- <a href="convoiinfo.txt">Informacion de los Convoys/Vehiculos </a><br>
+- - <a href="convoidetail.txt">Detalles de los Convoys/Vehiculos</a><br>
+- <a href="citywindow.txt">Informacion de las Ciudades</a><br>
+- <a href="industry_info.txt">Informacion de las Industrias</a>
+</p>
+
+<p>
+Si nada de esto te ayuda, prueba en<br>
+<em>http://guide.simutrans.com</em><br>
+<em>http://wiki.simutrans.com</em><br>
+<em>http://simutrans-tips.com</em><br>
+<em>http://forum.simutrans.com</em>
+</p>

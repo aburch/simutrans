@@ -1,0 +1,54 @@
+<title>Ayuda de Herramientas de edicion de mapa</title>
+
+<h1><strong>Herramientas de edicion de mapa</strong></h1>
+
+<p>
+<strong>Herramientas de edicion de mapa</strong> permite personalizar el terreno de la partida actual.<br>
+Las herramientas pueden: cambiar poblaciones de las ciudades; crear carreteras urbanas, atracciones turisticas, centrales energeticas e industrias; la opcion Eliminar para jugar como otro jugador; y tambien para avanzar un año en la cronologia del juego.
+</p>
+<p>
+La barra de herramientas se abre cuando juegas como el jugador servicio publico, que se puede seleccionar desde el menu <a href="players.txt">Jugadores</a> o el boton <a href="special.txt">P+</a> en el menu Herramientas especiales de construccion(tambien pulsando la tecla <a href="keys.txt">[P]</a>). La barra de herramientas continua abierta incluso cuando usas de nuevo la opcion cambiar de jugador.<br>
+Pasa el raton sobre la opcion (despues de abrir el menu o pulsando en la barra de herramienta) para ver el nombre y demas informacion de varias opciones-herramientas.
+</p>
+<p>
+Las herramientas-opciones incluyen, de izquierda a derecha:
+</p>
+<p>
+<em>Ampliar ciudad:</em> herramienta que incrementa la poblacion de una <a href="citywindow.txt">ciudad</a> en 100 habitantes, construyendo nuevas carreteras y edificios si es necesario.<br>
+Para usarla: pulsa en la herramientas para seleccionar, el cursor cambiara a una flecha hacia arriba, y despues pulsa en una ciudad.
+</p>
+<p>
+<em>Reducir ciudad:</em> herrramienta que reduce la poblacion de una <a href="citywindow.txt">ciudad</a> en 100 habitantes. Las ciudades solo creceran si los niveles de Sin hogar y Desempleados aumentan.<br>
+Para usarla: pulsa en la herramientas para seleccionar, el cursor cambiara a una flecha hacia abajo, y despues pulsa en una ciudad.
+
+</p>
+<p>
+<em>Carretera urbana:</em> herramienta que construye una carretera urbana entre dos puntos, y que como jugador servicio publico todo jugador deberia usar. Las carreteras urbanas no pueden ser construidas en areas ocupadas por otros edificios, y no encontraran un camino en terreno escarpado, agua y obstrucciones. La carretera urbana construida entre puntos, puede usar carreteras existentes en su camino.<br>
+Situa el cursor sobre la herramienta-opcion (despues de abrir o pulsando en la barra de herramientas) para ver el nombre, costes de construccion y mantenimiento para el jugador servicio publico y limite de velocidad maxima.
+Para construir una carretera urbana: pulsa en la herramienta parar seleccionar (el cursor cambiara de forma), despues pulsa en la vista del juego para marcar el punto de inicio (mostrara una bulldozer y las coordenadas en la parte derecha de la barra inferior de la pantalla), y finalmente pulsa en el terreno para el punto final.<br>
+{Consejos: Los diferentes tipos de carreteras se puede conectar. Usa los puentes y tuneles para conectar las carreteras a traves de terreno escarpado o para evitar obstaculos. Usa las <a href="slopetools.txt">Herramientas del Terreno</a> para cambiar el terreno, para crear caminos para carreteras. Usa la herramienta Eliminar para eliminar carreteras urbanas y algunos obstaculos. Usa la tecla <a href="keys.txt">[Ctrl]</a> al mismo tiempo para habilitar funciones extra.}
+</p>
+<p>
+<em>Construir atracciones turisticas aleatorias:</em> herramienta para construir una atraccion turistica que los pasajeros querran visitar. Las diferentes atracciones generan tambien diferentes cantidades de pasajeros y correo. El tipo de atraccion construida es aleatorio y solo aparece si existe el suficiente espacio libre de obstaculos.<br>
+Para construir una atraccion: pulsa en la herramienta para seleccionar (el cursor cambiara de forma, punto rojo en circulo amarillo), despues pulsa en la posicion deseada del terreno.<br>
+{Consejos: Usa la herramienta Eliminar siendo jugador servicio publico para eliminar atracciones turisticas. Usa la herramienta Eliminar o las herramientas del Terreno para crear espacios adecuados para las atracciones.}
+</p>
+<p>
+<em>Construir nueva central electrica:</em> herramienta que construye una central electrica (y sus posibles proveedores). El tipo de central electrica construida es aleatorio y solo aparece si existe el suficiente espacio libre de obstaculos..<br>
+Para construir una central electrica: pulsa en la herramienta o pulsa la tecla [I] para seleccionar (el cursor cambiara de forma, punto rojo en circulo amarillo), despues pulsa en la posicion deseada en el terreno.<br>
+{Consejos: Usa la herramienta Eliminar siendo jugador servicio publico para eliminar centrales electrica. Usa la herramienta Eliminar o las herramientas del Terreno para crear espacios adecuados para las centrales electricas.}
+</p>
+<p>
+<em>Construir un nuevo mercado en la ciudad mas cercana:</em> herramienta que construye un consumidor final de mercancias en una <a href="citywindow.txt">ciudad</a> (y los posibles proveedores, no necesariamente en la ciudad). El tipo de industria construida es aleatorio y solo aparece si existe suficiente espacio libre de obstaculos.<br>
+Para usarlo: pulsa en la herramienta para seleccionar (el cursor cambiara de forma, punto rojo en circulo amarillo), despues pulsa en una ciudad para construir un consumidor final.<br>
+<br>
+{Consejos: Usa la herramienta Eliminar jugando como jugador servicio publico para eliminar consumidores. Usa la herramienta eliminar o las herramientas del terreno para crear espacios libres de obstaculos para las industrias.}
+</p>
+<p>
+<em>Impedir cambio de jugador:</em> herramienta que elimina la opcion para jugar como otro <a href="players.txt">jugador</a> y abre el menu <strong>Herramientas de edicion de mapa</strong>.<br>
+Para usarlo: pulsa en la herramienta seleccionada (el cursor cambia a un candado), y despues pulsa en cualquier parte. No requiere confirmacion.
+</p>
+<p>
+<em>Avanzar cronologia un año:</em> avanza el tiempo en un año. Si estas jugando con <a href="new_world.txt">cronologia</a>, a medida que pasa el tiempo apareceran mas transportes y opciones de construcion, y los vehiculos mas lentos que no sean rentables desapareceran (ya que los ingresos se calculan a partir de la velocidad media del vehiculo) .<br>
+Para usarlo: pulsa en la herramienta. No requiere confirmacion (la fecha cambia en la parte izquierda de la barra en la parte inferior de la pantalla).
+</p>

@@ -1,0 +1,68 @@
+<title>Finanser dialog hjælp</title>
+
+<h1>Finanser <em>(f)</em></h1>
+
+<p>
+<em>Beskrivelse:</em><br>
+Finanser dialogen viser dig såvel din aktuelle finansielle status som din
+status for sidste år. Dette giver dig indblik i din samlede profit eller tab
+!<br>
+Dialogen indeholder forskellige kategorier og viser den finansielle status for
+hver enkelt.
+</p>
+
+<p>
+<em>Udseende:</em><br>
+Øverst til venstre er for kategorierne: Byggeudgifter, Nye køretøjer,
+Driftsomkostninger, Vedligeholdelse, Indkomst og Overskud vist to kolonner med
+resultaterne for henholdsvis dette år og sidste år.<br>
+Herunder er to linier, der henholdvis viser Kassebeholdning og
+vedligeholdelsesudgifterne pr. måned.<br>
+Nederst i dialogen er et grafisk visningsareal, hvor en enkelt, flere eller
+alle kategorier kan afbildes grafisk. Dette gøres for hver enkelt kategori ved
+at vælge kategorien på knapperne øverst til højre i dialogen.
+</p>
+
+<p>
+Kategorierne er følgende:
+</p>
+
+<p>
+<em>Byggeudgifter:</em><br>
+De samlede udgifter for alt du har bygget: Jernbaner, bygninger, veje,
+signaler, havne etc.
+</p>
+
+<p>
+<em>Nye køretøjer:</em><br>
+De samlede udgifter for alle køretøjer: Toge, togvogne, lastbiler/busser,
+anhængere eller skibe, som du har købt.
+</p>
+
+<p>
+<em>Driftsomkostninger:</em><br>
+De samlede kørselsomkostninger for alle dine køretøjer.<br>
+For hvert enkelt køretøj kan omkostninger pr. kørt km. ses under oplysningerne
+for køretøjet i <a href="depot.txt">depotdialogen.</a>
+</p>
+
+<p>
+<em>Vedligeholdelse:</em><br>
+Det beløb du skal betale for at vedligeholde dine jernbaner/veje/bygninger.
+</p>
+
+<p>
+<em>Indkomst:</em><br>
+Den samlede indtjening for alle køretøjer.<br>
+Fortjenesten (indtjening - driftsomkostninger) for hvert enkelt køretøj kan
+ses i menuen: Køretøjsliste.
+</p>
+
+<p>
+<em>Overskud:</em><br>
+Det samlede overskud. Udregnes som summen af de ovennævnte kategorier.
+</p>
+
+<p>
+<a href="finances2.txt">Finanser dialog hjælp (fortsat)</a>
+<p>

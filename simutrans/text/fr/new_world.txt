@@ -1,0 +1,74 @@
+<title>Aide sur le nouveau jeu</title>
+<h1>Créer un nouveau jeu</h1>
+
+<p>
+Cet écran vous permet de créer une nouvelle carte (donc un nouveau jeu), en définissant
+les divers paramètres tels que la taille de la carte jusqu'à la densité d'industries.
+</p>
+
+<p>
+Ci-dessous, vous trouverez les différentes options, ainsi qu'une description sommaire
+de son effet sur la nouvelle carte.</p>
+
+<p>
+<em>Carte N°</em> - Détermine le 'profil' de la carte, incluant les positions des
+villes, de la mer et des plaines. Un modèle de chaque carte est affiché et mis à
+jour à chque changement de paramètre. La numéro de carte par défaut est 33.
+<br>
+<em>Dimensions</em> - Définit le nombre de carrés de la carte, allant de 128*128
+à 768*768 carrés. La valeur par défaut est 256.<br>
+<em>Important</em> Plau la carte est grande, plus vous consommerez de mémoire.
+Assurez-vous d'en posséder suffisamment pour jouer avec une grande carte.
+</p>
+
+<p>
+<em>Industries</em> - Densité des industries sur la carte.
+Moins vous mettrez d'industries sur la carte, plus le jeu sera difficile et vous
+n'aurez pas grand choix de transport entre celles-ci.
+La valeur par défaut est 125.
+<br>
+<em>Nb villes</em> - Définit le nombre de ville sur votre carte.
+La valeur s'étend entre 2 et 64 villes. La valeur par défaut est de 16 villes.
+<br>
+<em>Densité traffic</em> - Densité des véhicules privés sur la carte.
+La valeur par défaut est 8.
+</p>
+
+<p>
+<em>Niveau de la mer</em> - Définit l'altitude du niveau de la mer. Plus il est
+bas, plus vous aurez de terre et vice-versa. La valeur par défaut est 4.
+<br>
+<em>Hauteur montagne</em> -  Détermine la hauteur de la plus haute montagne de
+votre carte. La valeur par défaut est 160. Plus ce nombre est bas, moins vos montagnes
+seront hautes. La plage de valeur est située entre 0 et 160.
+<br>
+<em>Dénivelé carte</em> - Définit la différence d'altitude moyenne de votre carte.
+Les valeurs varient entre 1 et 3.
+</p>
+
+<p>
+<em>Carte quelconque</em> -  Choisit aléatoirement un numéro de carte(Sans modifier
+les autres paramètres).
+</p>
+
+<p>
+<em>Afficher les piétons</em> - Affiche ou pas les piétons dans les villes.
+Peut être modifié en cours de jeu par l'intermédiaire de l'écran <a href="display.txt">d'affichage</a>.
+<br>
+<em>Mode jour/nuit</em> - Pour simuler le passage du jour et de la nuit.
+Peut être modifié en cours de jeu par l'intermédiaire de l'écran <a href="display.txt">d'affichage</a>.
+</p>
+
+<p>
+<em>Charger un jeu</em> - Charger un jeu précédemment sauvegardé. (CF l'écran
+<a href="load.txt">sauvegarde</a> pour plus d'informations)<br>
+<em>C'est parti</em> - Créer le nouveau jeu avec la carte définie par les paramètres.
+Plus la carte est grande, plus le temps de création est important.<br>
+<em>Charger un relief</em> - Permet de charger un fichier image servant de support
+au modèle de carte.
+<em>Quitter</em> - Quitte Simutrans, sans poser de questions.<br>
+</p>
+<p>
+Actualisé pour Simutrans 0.83.1.2<br>
+02/01/2003
+</p>

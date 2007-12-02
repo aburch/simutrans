@@ -1,0 +1,14 @@
+<title>Prehµad vozidiel - pomoc</title>
+<em>Prehµad ponúka nasledovné mo¾nosti:</em>
+<p>
+1.) Triedenie :<br>
+Klikaním na prvé tlaèidlo zµava mení¹ kritéria, t.j. podµa
+èoho bude zoznam triedený : názvu, príjmu alebo typu.<br>
+Druhým tlaèidlom zµava si nastavuje¹ vzostupné alebo zostupné triedenie.
+</p>
+<p>
+2.) Filter :<br>
+Klikaním na tretie tlaèidlo zµava zapína¹ alebo vypína¹ filter.<br>
+Posledným tlaèidlom ,,Nastavenia'' zobrazí¹ podrobný zoznam v¹etkých
+kritérií a mo¾ností filtrovania.
+</p>

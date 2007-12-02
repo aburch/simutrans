@@ -1,0 +1,50 @@
+<title>Spielsteuerung Hilfe</title>
+
+<h1><strong>Spielsteuerung</strong></h1>
+
+<p>
+<em>Allgemeines</em>
+<br/>Simutrans lässt sich über die Maus und teilweise auch über die <em>Tastatur</em> steuern; die <a href="keys.txt">Tastaturbelegung</a> ist über den gleichnamigen Menüpunkt im Hilfemenü (Taste <em>F1</em>) verfügbar und erscheint auch jedesmal, wenn eine Taste ohne Funktion gedrückt wird (z. B. 5).<br/>
+Die Tasten sind in der Hilfe weiß hervorgehoben. <em>Achtung</em> es wird zwischen Groß- und Kleinschreibung unterschieden.
+</p>
+<p>
+<em>Auswahlen und Platzierungen</em>
+<br/>Die Nutzung der Schaltflächen und Objektauswahlen sowie Objektplazierungen im Spiel erfolgen über Klicken mit der linken Maustaste. In der Hilfe werden die Begriffe "auswählen" und "platzieren" bzw. Begriffe mit vergleichbarem Sinn benutzt.
+</p>
+<p>
+<em>Bewegen der Spielkarte</em>
+<br/><em>·</em> Halte die rechte Maustaste gedrückt und verschiebe die Karte in beliebiger Richtung zu Deiner Wunschposition. In der Grundeinstellung verschiebt sich die Karte entgegen der Mausbewegung. Du kannst das Verhalten über die <a href="options.txt">Einstellungen</a> ändern.
+<br/><em>·</em> Die Karte lässt sich auch über die Tastatur (Ziffern auf dem Nummernblock) bewegen.
+<br/><em>·</em> Du hast auch die Möglichkeit, den gewünschten Kartenausschnitt durch Anwahl des entsprechenden Punktes auf der <a href="map.txt">Reliefkarte</a> direkt anzuspringen.
+</p>
+<p>
+<em>Ändern der Kartenansicht (zoomen)</em>
+<br/>Die Ansicht der Karte lässt sich in 4 Größenstufen darstellen. Verfügt Deine Maus über ein Mausrad, kannst Du die Größenstufe durch drehen des Mausrades einstellen. Mit den Tasten <em>Page Up</em> und <em>Page Down</em> erreichst Du den gleichen Effekt.
+</p>
+<p>
+<em>Spielgeschwindigkeit</em>
+<br/>Die in der Statusleiste angezeigte Spielgeschwindigkeit (T=1.00) entspricht der Standardgeschwindigkeit. Alle Aktivitäten im Spiel laufen wirklichkeitskonform.
+</p>
+<p>
+Mitunter mag Dir eine höhere Geschwindigkeit sinnvoll erscheinen, vor allem, wenn der Kassenbestand knapp wird und Du auf Belieferung und das Kassieren der Frachten wartest. Ändere die Geschwindigkeit bei Bedarf mit den Tasten <em>.</em> (schneller) und <em>,</em> (langsamer).
+Einiges an Tempo wird das Spiel problemlos umsetzen. Bei Geschwindigkeiten, die die Leistung Deines Computers überschreiten, sind Unregelmäßigkeiten im Spielablauf, wie etwa in den Bahnhöfen stehenbleibende Züge, zu geringe Passagiererzeugung oder fehlerhafte Beladung bis hin zum Einfrieren des Spiels, nicht ausgeschlossen. Bei den<a href="display.txt">Anzeigeeinstellungen</a> befinden sich diesbezügliche Kontrollmöglichkeiten. Ein automatischer schneller Vorlauf lässt sich über die Taste <em>W</em> oder das Vorlaufsymbol in der <a href="mainmenu2.txt">Hauptenüleiste</a> ein- und ausschalten.
+</p>
+<p>
+<em>Einstellung der Helligkeit</em>
+<br/>Zur Regulierung der Helligkeit siehe <a href="display.txt">Anzeigeeinstellungen</a>.
+</p>
+<p>
+<em>Editieren von Namen</em>
+<br/>
+Die Namensfelder in einigen Fenstern, wie Haltestellen-, Fahrzeug- und Liniennamen, sind editierbar. Sie sind von der Fensteroberfläche zurückgesetzt und zeigen glatte Beschriftungsflächen. Zum editieren, klicke mit der Maus in das Namensfeld. Bearbeite nun den Text. Editierungen werden unmittelbar wirksam. Drücke zum Verlassen des Feldes die Taste <em>RETURN</em>.
+</p>
+<p>
+<em>Pfeilschalter</em>
+<br/>
+In vielen Fenstern findest Du Wertangaben zwischen zwei Pfeilschaltern. Mit einem Klick auf den linken Schalter verringerst Du den Wert, mit einem Klick auf den rechten erhöhst Du den Wert. Halte die linke Maustaste gedrückt, wenn Du größere Wertebereiche durchlaufen möchtest.
+</p>
+<p>
+<em>Auswahlmenüs</em>
+<br/>
+Linienauswahlmenüs in den Depotfenstern und in den Fahrplanfenstern sind wie die Namensfelder zurückgesetzt und zusätzlich mit Pfeilschaltern versehen. Wenn Du auf eine Menüfläche klickst, wird das Auswahlmenü geöffnet. Wählst Du einen Eintrag aus, springt er in die Anzeigezeile und stellt nun die neue Auswahl dar. Die Zeile kann auch editiert werden, aus eigener Erfahrung rät der Autor, Editierungen bevorzugt in speziell dafür vorgesehenen Fenstern vorzunehmen.
+</p>

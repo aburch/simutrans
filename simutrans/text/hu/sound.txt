@@ -1,0 +1,14 @@
+<title>Hang beállítások Sugó</title>
+
+<h1>Hang beállítások</h1>
+<p>
+Itt tudod a játék hang- és zeneeffektusait beállítani.
+</p>
+
+<p>
+<em>Effektus hangerõ</em> - A játék hangeffetusait szabályozod (pld. vonat fütyülése stb.)<br>
+<em>Zene hangerõ:</em> - A zene hangereját szabályozod. <strong>Figyelem a játékhoz nem minden
+esetben tartozik zene (attól függ honnan töltötted le). Ha nincsenek hangfájlok akkor ez
+a csuszka nem változtat semmin. Azt, hogy épp milyen hangfájl van használatban az két sorral
+lejjebb lehet látni.</strong>
+</p>

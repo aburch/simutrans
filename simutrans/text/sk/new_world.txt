@@ -1,0 +1,44 @@
+<title>Nový svet - pomoc</title>
+<h1>Nový svet</h1>
+<p>
+Tento re¾im ponúka nastavenie parametrov, ktoré budú urèovat'
+charakter mapy vytvorenej pre novú hru. V µavom hornom rohu
+obrazovky sa zároveò zobrazí ponuka na výber jazyka.
+</p>
+<p>
+<em>Èíslo mapy</em> - èíslo ,,schémy'' mapy, vrátane mno¾sta a umiestnenia
+vody, kopcov, osadenia stromov, umiestnenia miest a priemyslu. Predbe¾né
+zobrazenie (náhµad) je zobrazený pri ka¾dej mape. ©tandardne je nastavená mapa
+èíslo 33.<br>
+<em>Veµkost mapy</em> - akú veµkú mapu chce¹ hrat'. Rozmedzie
+je 128x128 - 576x576 stvorcekov. ©tandardné nastavenie je 256x256 ¹tvorèekov.<br>
+<em>Hustota priemyslu</em> - index urèuje, ako husto bude priemysel rozmiestnený
+na mape. Èím je hustota priemyslu ni¾¹ia, tým sa stáva hra ta¾¹ou a
+tým sú mo¾nosti prepravy surovín alebo tovaru men¹ie. ©tandardné nastavenie je 125.<br>
+<em>Poèet miest</em> - koµko miest celkom bude rozmiestnených na mape.
+Rozmedzie je 2 - 64 miest. ©tandardné nastavenie je 16 miest.<br>
+<em>Hustota dopravy</em> - index urèuje, aká bude hustota premávky súkromných áut na cestách.
+©tandardné nastavenie je 8.<br>
+<em>Hladina vody</em> - index urèuje, aké mno¾stvo vody bude¹ mat' na mape.
+Èím bude hodnota väcsia, tým bude menej pevniny a naopak. ©tandardné nastavenie je 4.<br>
+<em>Vý¹kový rozdiel</em> urèuje rozdiel medzi hladinou vody a najvy¹¹ím vrchom,
+t.j. maximálnu nadmorskú vý¹ku na mape. ©tandardné nastavenie je 160.<br>
+<em>Èlenitost' mapy</em> - index urèuje, èi pôjde o preva¾ne rovinu, pahorkatinu alebo
+horskú krajinu. Rovine zodpovedá najni¾¹ie èíslo a horskej krajine najvy¹¹ie císlo.
+Rozmedzie je 1 - 3. ©tandardné nastavenie je 2.
+</p>
+<p>
+<strong>Tlaèidlá :</strong><br>
+<em>Náhodná mapa</em> - tlaèidlom si vyberá¹ mapu, ktorú hra náhodne vyberie a ponúkne.
+Tým sa nemenia iné nastavenia parametrov mapy.<br>
+<em>Ukázat' chodcov</em> - zapnutím bude hra zobrazovat' chodcov na ulici alebo vystupujúcich
+z vlaku alebo autobusu. Toto nastavenie mô¾e¹ menit' aj neskôr v nastaveniach obrazu -
+<a href="display.txt">Obraz</a>.<br>
+<em>Striedat' noc a deò</em> - zapnutím bude bude hra napodobnovat' chovanie sa dòa a noci.
+Toto nastavenie mô¾e¹ menit' aj neskôr v nastaveniach obrazu <a href="display.txt">Obraz</a>.<br>
+<em>Naèítat' hru</em> - umo¾ní Ti vybrat' a spustit' niektorú z ulo¾ených hier.<br>
+<em>Naèítat' reliéf</em> - umo¾ní Ti vybrat' alternatívnu krajinu.<br>
+<em>Spustit' hru</em> - spustenie novej hry s tými parametrami mapy, aké má¹ momentálne
+nastavené.<br>
+<em>Skoncit'</em> - ukoncí¹ hru Simutrans.
+</p>

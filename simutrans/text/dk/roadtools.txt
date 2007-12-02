@@ -1,0 +1,68 @@
+<title>Vejanlæg dialog hjælp </title>
+
+<h1>Vejanlæg dialog</h1>
+
+<p>
+<em>Beskrivelse:</em><br>
+Denne dialog indeholder værktøjer til at bygge veje, busstoppesteder,
+tunneller, lastepladser, vejdepoter og jernbaneovergange.
+</p>
+
+<p>
+<em>Udseende:</em><br>
+Dialogen består af seks (6) symboler, der hver repræsenterer et byggeværktøj.
+</p>
+
+<p>
+Gående fra venstre mod højre samt oppefra og ned er de forskellige symboler:
+</p>
+
+<p>
+<em>Byg vejanlæg:</em><br>
+
+Dette værktøj vil bygge en vej imellem to kort-kvadrater. Ved venstreklik på
+symbolet forandres cursoren til et vej-symbol. For at bygge en vej
+venstreklikkes på start-kvadratet. Cursoren forandres derved til en
+bulldozer. Venstreklik derefter på slut-kvadratet. Simutrans vil nu bygge en
+vej imellem de to kvadrater.<br>
+Der bliver kun bygget på frie kvadrater og over egne og andre spilleres veje.
+Andre spilleres jernbanespor vil ikke blive krydset. Benyt jernbaneovergange,
+broer eller tunneller til at krydse disse "forhindringer".<br>
+Hvis der ikke kan findes en forbindelse imellem de to kvadrater vil der ikke
+blive bygget noget overhovedet.
+</p>
+
+<p>
+<em>Byg busstoppested:</em><br>
+Dette værktøj benyttes til at bygge busstoppesteder på veje. Ved venstreklik
+på symbolet forandres cursoren til et stoppestedssymbol. Venstreklik derefter
+på en vej, hvor du vil have stoppestedet placeret.
+</p>
+
+<p>
+<em>Byg tunneller:</em><br>
+Dette værktøj benyttes til at bygge tuneller. Ved venstreklik på symbolet
+ændres cursoren til et tunnelsymbol. Tunneller benyttes til at lave
+<strong>lige</strong> vejstrækninger igennem et bjerg. Benyt tunneller til at
+undgå at skulle bygge udenom eller over bjerget.<br>
+For at bygge en tunnel skal vejene, der skal forbindes, bygges først. Byg de
+to veje så de ender overfor hinanden og opad en skråning på det bjerg,
+tunnellen skal gå igennnem. Det er vigtigt, at vejene er på samme niveau på
+hver side af bjerget.<br>
+Venstreklik derefter på en af vejafslutningerne, hvorefter de vil blive
+forbundet med en tunnel.
+</p>
+
+<p>
+<em>Byg lasteplads:</em><br>
+Dette værktøj benyttes til at bygge lastepladser. Lastepladser benyttes af
+dine lastbiler til at laste eller aflevere varer. En lasteplads bygges ved at
+venstreklikke på symbolet, hvorved cursoren forandres til et lastepladssymbol,
+og derefter venstreklikke på en <strong>vejafslutning</strong>, hvor du vil
+have lastepladsen placeret. <strong>Bemærk at der højest kan være to køretøjer
+på en lastplads af gangen</strong>
+</p>
+
+<p>
+<a href="roadtools2.txt">Vejanlæg dialog hjælp (fortsat)</a>
+</p>

@@ -1,0 +1,12 @@
+<title>Nápovìda - výbìr barev</title>
+<h1>Výbìr barev</h1>
+
+<p>
+Zde si mù¾ete vybrat barvu Va¹í spoleènosti.
+Je to barva, kterou bude mít Vá¹ majetek, jako jsou vlaky, nákladní auta, depa, stanice atd.<br>
+Ov¹em není to pravidlem, nìkterý majetek tuto barvu mít nebude.
+</p>
+
+<p>
+-><a href="about.txt">Informace o pøekladu</a>
+</p>

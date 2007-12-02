@@ -1,0 +1,22 @@
+Simutrans is copyright (C) 1997-2004 by Hansjoerg Malthaner.
+(c) 2004-2007 Simutrans Team
+
+>>>>>>>>>>> NO WARRANTIES, EXPRESS OR IMPLIED. <<<<<<<<<<<
+
+Simutrans may not be sold or modified in any way without
+written  permission by the author.
+
+The original author:
+   Hansjoerg Malthaner
+   D 70563 Stuttgart (Germany)
+   Fuggerstr. 1
+
+Have lots of fun playing Simutrans!
+
+The version is built by Markus Pristovsek. All complains, or any other
+comments please send to:
+	team@64.simutrans.com
+
+The source code from the program is available under the Artistic Licence.
+Download the source from https://sourceforge.net/projects/simutrans or
+find out about our svn in the forum.

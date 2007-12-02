@@ -1,0 +1,16 @@
+<title>Lademenü Hilfe</title>
+
+<h1><strong>Lademenü</strong></h1>
+
+<p>
+Wenn Du das Lademenü öffnest, erscheint eine Liste aller verfügbaren gespeicherten Spielstände. Nach der Anwahl eines Eintrages wird der Spielstand ohne weitere Rückfrage geladen.
+</p>
+<p>
+Spielstände, die durch die autosave-Option gespeichert wurden, tragen den Namen 'autosave' mit 2 angehängten Ziffern. Die Ziffern geben den gespeicherten Monat an.
+</p>
+<p>
+<em>Achtung!</em> Das aktuelle Spiel wird verworfen und nicht automatisch gesichert!
+</p>
+<p>
+<strong>Warnung!</strong> Ein Klick auf das mit X bezeichnete Feld vor dem Dateinamen führt zur umgehenden Löschung des Spielstands!
+</p>

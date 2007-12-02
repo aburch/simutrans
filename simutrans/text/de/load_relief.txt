@@ -1,0 +1,10 @@
+<title>Lademenü Hilfe</title>
+
+<h1><strong>Relief-Lademenü</strong></h1>
+
+<p>
+Im Relief-Lademenü werden alle Relief-Karten gelistet, welche sich im Verzeichnis <em>simutrans/save</em> befinden. Es handelt sich um Graustufenbilder, die Du in verschiedenen Grafik- und Bildbetrachtungsprogrammen aus farbigen Bitmapdateien oder aus Graustufenbitmaps erstellen kannst. Sie werden im Format <em>.ppm</em> gespeichert.
+</p>
+<p>
+Weitere Details zur Nutzung von Lade-Menüs findest Du in der Hilfe zum <a href="load.txt">Lademenü</a>.
+</p>

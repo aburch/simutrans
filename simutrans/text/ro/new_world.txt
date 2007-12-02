@@ -1,0 +1,57 @@
+<title>Help Hartã nouã</title>
+<h1>Hartã nouã</h1>
+
+<p>
+Aici se poate ajusta harta nou creatã.
+</p>
+
+<p>
+<em>Nr. hartã</em> - Aici se poate alege harta doritã. Un mic preview
+este afiºat în partea dreaptã.
+<br>
+<em>Mãrime</em> - Mãrimea hãrþii. Valoare iniþialã este de 256.<br>
+<em>Important!</em>Cu cât harta e mai mare cu atât creºte ºi nevoia de
+putere de calcul ºi multã memorie.
+</p>
+
+<p>
+<em>Densit. industriei</em> - Se poate seta densitatea unitãþilor industriale.
+Valoarea iniþialã este de 125.
+<br>
+<em>Nr. oraºelor</em> - SE poate seta nr. oraºelor (min. 2 max. 64)
+Valoare iniþialã 16.
+<br>
+<em>Densit. traficului</em> - Se poate regla densitatea traficului din oraºe.
+Valoarea mai micã poate accelera jocul.
+</p>
+
+<p>
+<em>Adâncime apã</em> - Aici se poate ajusta cantitatea de apã afiºat pe hartã.
+Valoare mai mare cantitate mai mare. Valoare iniþialã 4.
+<br>
+<em>Înãlþime munþi</em> - Se poate ajusta nivelul munþilor. Valorile mai mari cauzeazã
+un teren cu mai multe culmi. Valoarea iniþialã este de 160.
+<br>
+<em>Dificultate teren</em> - Se poate ajusta dificultatea terenului
+</p>
+
+<p>
+<em>Hartã aleatorie</em> - Generare de hartã aleatorie.
+</p>
+
+<p>
+<em>Aratã pietonii</em> - Se poate seta sã afiºeze sau nu pietonii din oraºe. Dupã pornirea
+unei noi hãrþi valoarea se poate modifica in meniul <a href="display.txt">"Monitor"</a>
+<br>
+<em>Mod zi/noapte</em> - Aici se poate seta ca jocul sã arate trecerea timpului sub formã de zi
+ºi noapte. Neactivat înseamnã cã întotdeauna este ziua.Dupã pornirea
+unei noi hãrþi valoarea se poate modifica in meniul <a href="display.txt">"Monitor"</a>
+</p>
+
+<p>
+<em>Încarcã joc</em> - Încarcã un joc salvat.
+(vezi la Opþiuni meniul <a href="load.txt">"Salvare"</a>.)<br>
+<em>Porneºte joc</em> Pornirea jocului.
+<br>
+<em>Terminare joc</em> - Ieºire din joc (fãrã confirmare).<br>
+</p>

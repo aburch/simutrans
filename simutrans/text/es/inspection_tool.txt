@@ -1,0 +1,91 @@
+<title>Ayuda de Herramienta de Exploracion</title>
+
+<h1><strong>Herramienta de Exploracion</strong></h1>
+
+<p>
+<strong>Exploracion</strong> se usa para abrir ventanas de dialogo que dan informacion u opciones de control para distintos elementos.
+</p>
+<p>
+Pulsando en el icono de la lupa en la barra de herramientas, en la parte superior de la pantalla, o pulsando <a href="keys.txt">[a]</a> para abrir <strong>Exploracion</strong> (cambia el cursor a una lupa).
+</p>
+<p>
+Para usar la herramienta de Exploracion: posiciona el cursor de la lupa en el sitio deseado y pulsa para abrir la ventana de dialogo. Si hay mas de un elemento en ese sitio, vuelve a pulsar para abrir una segunda venta de dialogo.
+{Consejos: La opcion de abrir una o varias ventanas de dialogo se puede modificar en el archivo simuconf.tab}
+</p>
+<p>
+Pulsando en los siguientes elementos,se abren distintas ventanas de dialogo:
+</p>
+<p>
+<em>Depositos
+</em> - abre los <a href="depot.txt">controles</a> para comprar y administrar vehiculos en el deposito.
+</p>
+<p>
+<em>Paradas</em> - abre la ventana <a href="station.txt">Informacion de la Parada</a> para esa parada.
+</p>
+<p>
+<em>Vehiculos</em> - abre la ventana <a href="convoiinfo.txt">Informacino del Convoy/Vehiculo</a> para ese vehiculo.
+</p>
+<p>
+<em>Ayuntamiento</em> - abre la ventana <a href="citywindow.txt">Estadisticas de Poblacion</a> para esa area urbana.
+{Consejos: La opcion de abrir una o varias ventanas de dialogo para dar informacion acerca de un poblacion esta disponible en el fichero simuconf.tab}
+</p>
+<p>
+<em>Industrias</em> - abre la ventana <a href="industry_info.txt">Informacion de la Industria</a> para esa industria.
+</p>
+<p>
+<em>Edificios de Ciudad</em> abre una ventana de dialogo que da informacion acerca del edificio (El titulo de la ventana es 'Edificio'). La informacion contenida en la ventana incluye:<br>
+- <em>descripcion</em> da informaccion acerca del edificio. Si no esta disponible la descripcion se muestra como 'casa residencial', 'edificio industrial', 'tiendas y almacenes' (para edificios comerciales). <br>
+- <em>Ciudad de</em>: indica a que area urbana pertence el edificio.<br>
+- <em>Nivel de Pasajeros:</em> es la popularidad relativa como destino de pasajeros.<br>
+- <em>Nivel de Correo:</em> es la popularidad relativa como destino para correo.<br>
+- <em>Aparece desde</em>: indica el año en que aparece el edificio si esta jugando con<a href="new_world.txt">cronologia</a>.<br>
+- <em>Valor:</em>: indica los costes de eliminacion del edificio si se usa la herramienta <a href="window.txt">Eliminar</a>.<br>
+- <em>Pintado por </em>: nombre de la persona que diseño y pinto el edificio para Simutrans
+</p>
+<p>
+<em>Monumentos</em> / <a href="curiositylist_filter.txt"><em>Atracciones turisticas</em></a> abre una ventana de dialogo que da informacion acerca de una atraccion (el titulo de la ventana indica si es un monumento o una atraccion turistica). La informacion contenida incluye:<br>
+- <em>Propiedad Publica</em> indica que el elemento no pertenece a ningun jugador.<br>
+- <em>descripcion</em> da informacion acerca de la atraccion.<br>
+- <em>Nivel de Pasajeros:</em> es la popularidad relativa como destino de pasajeros.<br>
+- <em>Nivel de Correo:</em>es la popularidad relativa como destino para correo.<br>
+- <em>Aparece desde</em>:indica el año en que aparece el edificio si esta jugando con<a href="new_world.txt">cronologia</a>.<br>
+-<em>Pintado por </em>: nombre de la persona que diseño y pinto la atraccion para Simutrans
+</p>
+<p>
+<em>Carreteras y Vias</em> abre una ventana de dialogo que da informacion acerca de una carretera o via (el titulo de la ventana indica el tipo de via que es - en el caso de vias de tranvia sobre carreteras, indica el tipo de carretera).<br>
+Information contained in dialogue:<br>
+- <em>Vel. Max</em>: velocidad maxima permitida en esa via o carretera.<br>
+- <em>Ribi (unmasked)</em>:<br> es un contador interno que indica la direccion de la via.<br>
+- <em>Ribi (masked)</em>: es un contador interno que indica la direccion de la via teniendo en cuenta las señales.<br>
+- <em>with sign/signal</em> is shown if there is a signal or sign present.<br>
+- <em>electrificado</em>/<em>no electrificado</em> indica si la via esta electrificada.<br>
+- <em>vehiculos el mes pasado</em> indica el numero de <a href="convoiinfo.txt">Vehiculos</a> que han usado la via en el mes previo de juego.<br>
+- <em>reservado<por/em> indica el tipo de vehiculo que ha reservado la via pasa su uso hasta que haya pasado por ella.<br>
+- <em>inclinacion</em> indica la direccion de inclinacion si existe<br>
+- <em>coordenadas del mapa</em> mostradas en la barra inferior de la <a href="window.txt">pantalla<br>
+En el caso de la vias del tranviaconstruidas sobre carreteras: la informacion se muestra dos veces, la primera por la carretera y la segunda por la via del tranvia.
+</p>
+<p>
+<em>Señales</em>/<em>Signos</em> abre la ventana de dialogo, el titulo de la ventana indica si es una señal normal o de carretera.
+La informacion mostrada incluye:<br>
+- <em>direccion</em> es un contador interno que indica la direccion impuesta por la señal.
+</p>
+<p>
+<a href="special.txt"><em>Tendido electrico</em></a> / <em>Subestacion transformadora</em> abre una ventana de dialogo que da informacion acerca del suministro de electricidad (el titulo de la ventana es 'Linea Electrica'). La informacion mostrada incluye :<br>
+- <em>Potencia:</em> valor que indica la cantidad de energia electrica suministrada.<br>
+- <em>Disponible:</em>: valor mostrado para <a href="special.txt">subestacion Transformadora</a> en <a href="industry_info.txt">Industria</a> indicando la cantidad relativa de energia suministrada.<br>
+- <em>Net:</em> es un numero ID del red. Dos puntos con el mismo ID estaran conectados.
+</p>
+<p>
+<it>Arboles</it> abre una ventana de dialogo, cuyo titulo es 'Arbol'. La informacion mostrada incluye:<br>
+- <em>nombre : </em> dado por la especie de arbol.<br>
+- <em>edad :</em> edad del arbol en meses.
+</p>
+<p>
+<em>Terreno</em> abre una ventana de dialogo, cuyo titulo es 'Terreno'. La informacion mostrada incluye:<br>
+- <it>pendiente :</it> da las especies de arboles.<br>
+- <it>coordenadas del mapa : </it> son mostradas en la <a href="window.txt">barra inferior</a> de la pantalla.
+</p>
+<p>
+{Consejos: La opcion de abrir ventanas de dialogo para carretera y peatones esta disponible en el archivo simunconf.tab}.
+</p>

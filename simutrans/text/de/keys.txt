@@ -1,0 +1,62 @@
+<title>Tastaturhilfe</title>
+
+<h1><strong>Tastatur-Belegung</strong></h1>
+
+<p>
+<em>.</em>/<em>,</em> - Spiel beschleunigen/abbremsen. Kann zu <a href="game_control.txt"><strong>ungewollten</strong></a>Effekten führen.<br>
+<em>!</em> - Haltestellen-Anzeigeelemente in 4 Schaltstufen anzeigen/verbergen<br>
+<em>"</em> - Anzeige von Häusern und Bäumen an/abschalten<br>
+<em>#</em> - Kartengitter an-/abschalten (nur in der größten Ansicht)<br>
+<em>§</em> - Baumpflanzwerkzeug<br>
+<em>a</em> - Abfragewerkzeug<br>
+<em>b</em> - Zeige reservierte Schienenabschnitte<br>
+<em>c</em> - Screenshot speichern (Kamera)<br>
+<em>d</em> - Land absenken<br>
+<em>e</em> - Schienen elektrifizieren<br>
+<em>f</em> - Finanzenfenster öffnen<br>
+<em>g</em> - Baue Umspannwerk<br>
+<em>k</em> - Spielerliste öffnen<br>
+<em>l</em> - Baue Hochspannungsleistung<br>
+<em>m</em> - Weltkarte öffnen<br>
+<em>p</em> - Spiel pausieren<br>
+<em>r</em> - Abrisswerkzeug<br>
+<em>s</em> - Letzten benutzen Straßentyp aufrufen, ansonsten Asphaltierte Straße<br>
+<em>t</em> - Letzten benutzen Schienentyp aufrufen, ansonsten Schienen mit Holzschwellen<br>
+<em>u</em> - Land anheben<br>
+<em>v</em> - Einzugsbereich von Haltestellen ein-/ausblenden<br>
+<em>w</em> - Linienverwaltung<br>
+<em>z</em> - Letzen Verkehrswegbau rückgängig machen<br>
+<em>+</em>/<em>-</em> - Anzeige heller/dunkler<br>
+<em>B</em> - Mitteilungsfenster öffnen<br>
+<em>C</em> - Stadtbauwerkzeug<br>
+<em>G</em> - Zeige Warenliste, Transportpreise<br>
+<em>J</em> - Spinge zu Kartenposition<br>
+<em>H</em> - Firmensitz erstellen/erweitern (nur spezielle paks), kann je nach Passagierlevel Millionen kosten!<br>
+<em>I</em> - Baue Landfabrikkette (Kraftwerk)<br>
+<em>J</em> - Zentriere Bildschirm auf einer Koordinate<br>
+<em>L</em>/<em>S</em> - Spiel laden/speichern<br>
+<em>M</em> - Textmarkierung setzen<br>
+<em>P</em> - Zum nächsten Spieler wechseln<br>
+<em>R</em> - Karte um 90° drehen (experimentell)<br>
+<em>Q</em>, <em>X</em> - Spiel beenden<br>
+<em>T</em> - Zeige Städteliste<br>
+<em>U</em> - Untergrund-Baumodus (Tunnel erweitern mit Tunnelwerkzeug)<br>
+<em>V</em> - Zeige Fahrzeugliste<br>
+<em>W</em> - Vorlauf ein-/ausschalten<br>
+<em>1</em> - Karte südwestlich schieben<br>
+<em>2</em> - Karte südlich schieben<br>
+<em>3</em> - Karte südöstlich schieben<br>
+<em>4</em> - Karte westlich schieben<br>
+<em>6</em> - Karte östlich schieben<br>
+<em>7</em> - Karte nordwestlich schieben<br>
+<em>8</em> - Karte nördlich schieben<br>
+<em>9</em> - Karte nordöstlich schieben<br>
+<em>Esc</em>, <em>Delete</em>: Oberstes Fenster schließen<br>
+<em>Backspace</em>: Alle Fenster schließen<br>
+<em>Page Down</em>/<em>Page up</em>, <em>&lt;</em>/<em>></em>: Zoom kleiner/größer<br>
+<em>Ctrl</em>(<em>Strg</em>) + Werkzeug - auf oberer Ebene agieren<br>
+<em>Ctrl</em>(<em>Strg</em>) + Klick - unterdrücke Infofenster (nur an einigen Orten)<br>
+<em>Ctrl</em>(<em>Strg</em>) + <em>F2</em> - <em>F12</em>: Funktionstaste mit Bauwerkzeug programmieren<br>
+<em>F2</em> - <em>F12</em>: programmiertes Bauwerkzeug aufrufen<br>
+<em>F1</em> - Simutrans Hilfe - Übersicht
+</p>

@@ -1,0 +1,15 @@
+<title>Stadtliste Hilfe</title>
+
+<h1><strong>Stadtliste</strong></h1>
+
+<p>
+Die Stadtliste wird mit <em>Shift</em>+<em>T</em> oder über die <a href="list.txt">Listenverwaltung</a> aufgerufen.<br/>
+Im Fenster sind alle Städte in der Reihenfolge gelistet, in welcher sie am Beginn eines Spieles entstanden sowie später gegründet wurden. Es gibt keine Sortier- oder Filterfunktionen.
+</p>
+<p>
+<em>Listeneinträge:</em> Klickst Du einen Stadtnamen an, wird die Karte auf die Stadt zentriert, das Fenster der <a href="citywindow.txt">Stadtinformation</a> öffnet sich.<br/>
+· <em>Ordnungszahl:</em> Der Wert wird fortlaufend vom Spiel vergeben.<br/>
+· <em>Stadtname:</em> Den Namen der Stadt kannst Du in der <a href="citywindow.txt">Stadtinformation</a> ändern.<br/>
+· <em>Einwohnerzahl:</em> Die Zahl der Einwohner wird angezeigt.<br/>
+· <em>Wachstumsfaktor:</em> Der Wachstumsfaktor lässt Rückschlüsse auf die Wachstumsrate der Stadt und deren Beförderungsversorgung zu. Je höher der Wert ist, desto geringer ist die Differenz zwischen Beförderungsbedarf und der erbrachten Beförderungsleistung.
+</p>

@@ -1,0 +1,11 @@
+<title>Help Jucãtori</title>
+<h1>Jucãtori</h1>
+
+<p>Aici poþi activa sau deactiva jucãtorii manipulati de calculator.</p>
+
+<p>Deactivarea unui jucãtor înseamnã defatp "hibernarea" acestuia, adicã unitãþile
+de producþie controlate de jucãtorul respectiv vor produce în continuare, însã nu se
+vor înfiinþa noi legãturi ºi industrii.
+</p>
+
+<p>Sunt afiºate banii deþinuþi de jucãtori.</p>

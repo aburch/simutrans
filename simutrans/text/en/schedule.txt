@@ -1,0 +1,49 @@
+<title>Schedule Controls Help</title>
+
+<h1><strong>Schedule Controls</strong></h1>
+
+<p>
+<strong>Schedule Controls</strong> sets the Schedule (route and minimum quantity of goods and passengers required by a <a href="convoiinfo.txt">Convoy</a> to proceed) for a Convoy or a <a href="linemanagement.txt">Line</a>.<br>
+It lists<a href="station.txt">Stops</a> (where Convoys pick-up and drop-off goods and passengers) and waypoints (which can be used to direct Convoys to a path if more than one is available or provide interim destination points) with their map co-ordinates.
+</p>
+<p>
+<strong>Schedule Controls</strong> for a Convoy opens from Schedule option-button in <a href="convoiinfo.txt">Convoy Information</a> and <a href="depot.txt">Depot Controls</a>.<br>
+Controls for the Schedule of a Line open from New Line and Update Line option-buttons in <a href="linemanagement.txt">Line Management</a> and <a href="depot.txt">Depot Controls</a>.
+</p>
+<p>
+When <strong>Schedule Controls</strong> is opened from Convoy Information the assigned Line (if any) is shown at top of controls.<br>
+<a href="linemanagement.txt"><em>Line</em></a> <em>Name:</em> Click on left/right-arrow buttons by name to cycle through Lines or click on name-box to open a drop-down-list of Lines (click on Line in drop-down list to select). <br>
+Click on name-box and type new name to change name of Line.
+</p>
+<p>
+<em>Wait For:</em> sets the minimum quantity of goods and passengers required by a <a href="convoiinfo.txt">Convoy</a> to proceed.
+The percentage figure refers to the total capacity of the Convoy and not an indiviual type of item carried.<br>
+A Convoy will wait at Stop until required percentage is on board.<br>
+To use: click on Stop in list to select (> by name shows that Stop has been selected), then use arrow-buttons to cycle through percentages.<br>
+{Tips: To set or change Wait For levels for all Convoys on a Line, use Update Line option-button in <a href="linemanagement.txt">Line Management</a> or <a href="depot.txt">Depot Controls</a>. To set or change the Wait For level for a Convoy and no other Convoy on assigned Line, use Schedule option-button in <a href="convoiinfo.txt">Convoy Information</a> or Depot Controls.}
+</p>
+<p>
+Option-buttons (click to use, button is indented when selected) include:
+</p>
+<p>
+<em>Add</em> <a href="station.txt"><em>Stop:</em></a> option places a Stop used by vehicles to pick-up or drop-off goods and passengers (water transport vehicles may use any square of water in the catchment area of a dock) or waypoint on route.<br>
+To add a Stop or waypoint: click on option to select (changes cursor to halt-arrow), then click required point in game-view for Stop or waypoint (point on road, track or water as appropriate for type of vehicle). The Stop or waypoint, is now listed in <strong>Schedule Controls</strong>.<br>
+{Tips: Vehicles do not pick-up or drop-off goods & passengers at waypoints.}
+</p>
+<p>
+<em>Insert:</em> option places a <a href="station.txt">Stop</a> or waypoint on route, before an existing Stop/waypoint.<br>
+To insert a Stop or waypoint: click on an existing stop/waypoint in list to select (> by name shows Stop/waypoint is selected), then click on Insert option-button (changes cursor to halt-arrow), then click required point in game-view for Stop or waypoint (point on road, track or water as appropriate for type of vehicle).<br>
+The new Stop or waypoint is listed in <strong>Schedule Controls</strong> before the previously selected Stop/waypoint.<br>
+{Tips: Vehicles do not pick-up or drop-off goods or passengers at waypoints.}
+</p>
+<p>
+<em>Remove:</em> option deletes a <a href="station.txt">Stop</a> or waypoint from the route.<br>
+Click on option-button to select, then click on item in list to remove.
+</p>
+<p>
+<em>replicate backwards:</em> option adds existing <a href="station.txt">Stops</a> and waypoints in reverse order to route. <em>Wait For</em> levels are also replicated. Click on option-button to use: <strong>Schedule Controls</strong> lists new route.
+</p>
+<p>
+<em>Promote to</em> <a href="linemanagement.txt"><em>Line:</em></a> (only available when <strong>Schedule Controls</strong> is opened from <a href="convoiinfo.txt">Convoy Information</a>) creates a new Line
+ using current Schedule. The new Line is assigned a number and listed in Line Management.
+</p>

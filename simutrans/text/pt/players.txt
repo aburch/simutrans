@@ -1,0 +1,34 @@
+<title>Ajuda - Lista de jogadores</title>
+
+<h1><strong>Lista de jogadores</strong></h1>
+
+<p>
+A <strong>Lista de jogadores</strong> fornece informação e possui controles para as diferentes companhias dos jogadores.
+</p>
+<p>
+Clique em 'Jogadores' na janela <a href="options.txt">Preferências</a> ou pressione <a href="keys.txt">[k]</a> para abrir a <strong>Lista de jogadores</strong>, que mostra o nome das companhias e seus <a href="finances.txt">balanços</a>.
+</p>
+<p>
+Há oito jogadores: jogador humano, Poder público e seis jogadores controlados por inteligência artificial (IA). Os controles permitem jogar como outra companhia de transporte se <a href="new_world.txt">Permitir mudança de jogador</a> foi selecionado na criação do jogo.
+</p>
+<p>
+Clique no botão em forma de seta para atuar como aquela companhia no jogo atual. Uma mensagem de confirmação aparece quando se é trocado o jogador: clique no x do canto superior esquerdo da mensagem ou use o teclado para fechá-la.
+</p>
+<p>
+Clique no nome do jogador para ver suas <a href="finances.txt">Finanças</a>.
+</p>
+<p>
+Clique no botão quadrado ao lado de um jogador de IA para ativá-lo/desativá-lo (o botão aparece pressionado quando a opção é selecionada).
+</p>
+<p>
+Jogadores de IA não vão à bancarrota e gerenciam seus veículos com máxima eficiência.<br>
+Desativando um jogador de IA durante o jogo não removerá sua rede de transporte.<br>
+Alguns jogadores de IA podem usar somente veículos de estradas ou ferrovias, alguns podem somente transportar mercadorias ou passageiros.
+</p>
+<p>
+{Dicas: veículos não podem usar trilhos de outro jogador ou <a href="station.txt">estações</a> (de qualquer modo, veículos de todos os jogadores podem usar itens construídos pelo Poder público).<br>
+Jogadores não podem construir itens ou colocar <a href="special.txt">marcadores</a> nos <a href="railtools.txt">trilhos</a> ou <a href="roadtools.txt">estradas</a> de outro jogador, ou remover itens construídos por outro jogador (de qualquer modo, alguns itens construídos pelo Poder público podem ser removidos usando a ferramenta <a href="removal_tool.txt">Eliminar</a>).<br>
+Desabilitar a mudança de jogador também restringe as <a href="edittools.txt">ferramentas</a> extras como Poder público.}
+</p>
+<p>Traduzido para versão Simutrans 0.99.14.
+</p>

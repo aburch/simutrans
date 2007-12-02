@@ -1,0 +1,32 @@
+<title>Karteneditor Hilfe</title>
+
+<h1><strong>Karteneditor</strong></h1>
+<p>
+Mit den Werkzeugen des Karteneditors kannst Du in den natürlichen Wachstumsprozess von Städten und Industrien eingegreifen. Das Menüfenster steht dem Spieler "öffentliche Hand" zur Verfügung. Sofern Du den Spielerwechsel bei der <a href="new_world.txt">Welterstellung</a> zugelassen hattest, kannst Du im Fenster der <a href="special.txt">Spezialbauwerkzeuge</a> mit der Schaltfläche <strong>P+</strong> oder Über die Tastatur mittels <em>Shift</em>+<em>P</em> zur öffentlichen Hand wechseln. Auch bei weiteren Spielerwechseln bleibt der Karteneditor geöffnet.
+</p>
+<p>
+Eine zu leicht spielbar organisierte Welt wird Dir bereits mit wenig Spielerfahrung jeden Anreiz und jeden Spielspaß rauben. Setze die Werkzeuge gar nicht oder überlegt ein. Realisiere bauliche Situationen, wie sie bei der Autogenerierung praktisch nicht erreicht werden können. Ein dichtes und schwer handhabbares Industrierevier auf einer Insel, der Fremdenverkehrsort mit seiner Attraktion in der schwer zugänglichen Gebirgslage, der Erlebnispark in der Nähe einer kleinen Stadt, die Erdölförderung nur an ausgewählten Küstenstreifen oder die Landwirtschaft als Schwerpunkt in einer ländlichen Umgebung stellen nur einige Beispiele aus der reichen Möglichkeitenpalette dar.
+</p>
+<p>
+· <em>Stadtwachstum:</em> Setze eines der beiden Werkzeuge in dem Gebiet der Stadt ein, deren Einwohnerzahl Du ändern möchtest. Nutzt Du das Werkzeug im Überschneidungsgebiet von Städten, wirkt sich die Aktion nur auf eine Stadt aus.<br/>
+- <em>+100:</em> Das Wachstumswerkzeug stellt einen nach oben weisen Pfeil dar. Bei jeder Werkzeugnutzung wird die Stadt um 100 Einwohner wachsen. Es werden sofort Gebäude erneuert oder frisch gebaut, da mit der Aktion die Arbeits- und Obdachlosenzahlen steigen.<br>
+- <em>-100:</em> Das Wachstumswerkzeug stellt einen nach unten weisen Pfeil dar. Die Einwohnerzahl der Stadt wird bei jeder Werkzeugnutzung um 100 schrumpfen. Alle Gebäude bleiben erhalten. Die Werte für Arbeitslose und Obdachlose geraten in negative Bereiche. Die Stadt wird erst wieder bauliche Entwicklung zeigen, wenn durch Wachstum Bedarf an Baumaßnahmen entstanden ist.
+</p>
+<p>
+· <em>Stadtstraße bauen:</em> Das Bauwerkzeug stellt eine Straße dar. Straßen, die Du mit dem Werkzeug baust, können von allen Spielern kostenlos genutzt werden.
+</p>
+<p>
+· <em>Sehenswürdigkeit:</em> Das Platzierungswerkzeug ist ein roter Zentralpunkt in einem gelben Kreis. An der Kartenposition, an welcher Du das Werkzeug einsetzt, entsteht eine zufällig ausgewählte Touristenattraktion. Wird keine Attraktion gebaut, war am Bauort zu wenig Platz für das Objekt vorhanden.
+</p>
+<p>
+· <em>Industriekette:</em> Das Platzierungswerkzeug ist ein roter Zentralpunkt in einem gelben Kreis. Mit dem Werkzeug kannst Du eine Industrie auf dem Land samt allen Zulieferern generieren.
+</p>
+<p>
+· <em>Stadtgeschäft:</em> Das Platzierungswerkzeug ist ein roter Zentralpunkt in einem gelben Kreis. Eine Industriekette, bestehend aus Rohstoffproduktionen, Weiterverarbeitungen und einem Endverkäufer in einer Stadt wird errichtet.
+</p>
+<p>
+· <em>Spiel sperren:</em> Nachdem Deine Arbeiten mit dem Karteneditor beendet sind, kannst Du das Spiel für jede weitere Editorarbeit sperren. Platziere dazu das Schlosswerkzeug an einer beliebigen Kartenposition. Das Fenster des Karteneditors wird geschlossen und kann nicht wieder aufgerufen werden.
+</p>
+<p>
+· <em>Jahr überspringen:</em>Die Simutrans-Zeit wird um ein Jahr nach vorne gestellt, neue Fahrzeuge werden verfügbar.
+</p>

@@ -1,0 +1,52 @@
+<title>?Game (map) edit tools Help</title>
+
+<h1><strong>?Game (map) edit tools</strong></h1>
+
+<p>
+<strong>Game edit tools</strong> allow further customisation of the current game world.<br>
+Tools can: change populations of urban areas; build urban roads, attractions, power plants & industry; remove option to operate as another player company; and also advance the game by one year.
+</p>
+<p>
+The toolbar opens when option to operate as public service player is selected from either <a href="players.txt">Players</a> or <a href="special.txt">P+</a> in Special Contruction Tools (or by keypress <a href="keys.txt">[P]</a>). The toolbar remains open even if option to change player is used again.<br>
+Hover mouse-cursor over tool-option (after opening or clicking on toolbar) to see name & more information for some tool-options.
+</p>
+<p>
+Tool-options include, from left to right:
+</p>
+<p>
+<em>Grow city:</em> tool increases the population of an <a href="citywindow.txt">urban area</a> by 100, constructing new roads and buildings if necessary.<br>
+To use: click on tool to select, changes cursor to an red-up-arrow, then click on urban area.
+</p>
+<p>
+<em>Shrink city:</em> tool reduces the population of an <a href="citywindow.txt">urban area</a> by 100. Urban areas will only continue to grow if homeless and unemployment levels rise.<br>
+To use: click on tool to select, changes cursor to an red-down-arrow, then click on urban area.
+</p>
+<p>
+<em>City road:</em>tool builds an urban road between two points, as the public service player that every player may use. City-roads may not be built on areas occupied by other buildings, & may not find a path across rough terrain, water and obstructions. City-road built between points, may use existing road in its path.<br>
+Hover mouse-cursor over tool-option (after opening or clicking on toolbar) to see name, construction and maintenance cost incurred by public service player and maximum speed limit.
+To build a City-road: click on tool to select (changes cursor to city-road), then click on game-view for start-point of road (shows a bulldozer in game-view and map co-ordinates on right of bottom-bar under game-view), & finally click on terrain for end-point for road.<br>
+{Tips: Different types of roads may connect. Use bridges & tunnels to connect roads across rough terrain, or to avoid obstructions. Use <a href="slopetools.txt">?Landscape tools</a> to change terrain, to enable paths for road. Use Destroy/Remove to remove city-road & some obstructions. Use <a href="keys.txt">[Ctrl]</a> at same time for extra functions.}
+</p>
+<p>
+<em>Build a random attraction:</em> tool constructs an attraction that passengers will want to visit. Different attractions also generate diffferent amounts of passengers and mail. The type of attraction built is random and only appears if suitable space free of obstructions is found.<br>
+To build an attraction: click on tool to select (changes cursor to red-drop-in-yellow-circle-icon), then click on required position on terrain in game-view.<br>
+{Tips: Use Destroy/Remove as the public service player to remove attractions. Use Destroy/Remove and/or Landscape tools to create suitable places for attractions.}
+</p>
+<p>
+<em>Build a new power station:</em> tool constructs a power station (and possible suppliers). The type of power plant built is random and only appears if suitable space free of obstructions is found.<br>
+To build a power plant: click on tool or press [I] to select (changes cursor to red-drop-in-yellow-circle-icon), then click on required position on terrain in game-view.<br>
+{Tips: Use Destroy/Remove as the public service player to remove power stations. Use Destroy/Remove and/or Landscape tools to create suitable places for power stations.}
+</p>
+<p>
+<em>Build a new market in the nearest city:</em> tool constructs an end-consumer of goods in an <a href="citywindow.txt">urban area</a> (and possible suppliers not necessarily in the urban area). The type of industry built is random and only appears if suitable space free of obstructions is found.<br>
+To use: click on tool to select (changes cursor to red-drop-in-yellow-circle-icon), then click in game-view to build consumer in nearest urban area.<br>
+{Tips: Use Destroy/Remove as the public service player to remove power stations. Use Destroy/Remove and/or ?Landscape tools to create suitable places for industry.}
+</p>
+<p>
+<em>?Disallow further player change:</em> tool removes option to operate as other <a href="players.txt">player</a> companies and open<strong>Game (map) edit tools</strong>.<br>
+To use: click on tool to select (changes cursor to a padlock), then click anywhere in game-view, no confirmation is required.
+</p>
+<p>
+<em>Step time-line by a year:</em> advances date in game by one year. If playing with <a href="new_world.txt">timeline</a>, as time passes more transport and construction options may become available and slower vehicles are not as profitable (as income is calculated by average speed of available transport) .<br>
+To use: click on tool, no further confirmation is required (date changes on left of bottom-bar under game-view).
+</p>

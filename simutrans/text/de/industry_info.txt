@@ -1,0 +1,18 @@
+<title>Fabrikfenster Hilfe</title>
+
+<h1><strong>Fabrikfenster</strong></h1>
+
+<p>
+Das <strong>Fabrikfenster</strong> erscheint, sobald auf eine Fabrik geklickt wird. Es enthält verschiedene Informationen über diese Farbik.<br>
+Fabriken können Verbraucher,  Produzenten oder verarbeitende Industrie sein. Reine Verbraucher sind zum Beispiel Kraftwerke oder der Supermarkt, reine Produzenten eine Kohlegrube oder eine Müllhalde und ein Stahlwerk oder eine Raffinerie sind eine verarbeitende Fabrik.
+</p><p>
+Da in Simutrans eine Fabrik feste Verträge mit anderen Fabriken hat, sind in dem Dialog als erstes die Verbraucher aufgelistet. Nur diese nehmen Produkte von hier an. Ein Klick auf das Dreieck springt zu der jeweiligen Fabrik. Bei reinen Verbrauchern fehlt dieses Feld.
+</p><p>
+Als nächstes kommen die Produzenten, die diese Fabrik mit Rohstoffen versorgen. Nur von diesen Fabriken werden Waren verarbeitet. Auch hier kann man mit dem Dreieck wieder zu der jeweiligen Fabrik springen.
+</p><p>
+Darunter findet man die Städte, aus denen die Arbeiter für dieese Fabrik kommen mit dem Passagier- und Postaufkommen der Fabrik. Ist die Liste leer, dann sind die Städte zu weit entfernt.
+</p><p>
+Als vorletztes findet man die aktuellen Lagermengen. Stauen sich produzierte Waren, dann sind alle Abnehmer überfüllt oder es gibt keine Verbindung. Ist das Lager für ankommende Waren überfüllt, dann fordert die Fabrik auch keine neuen Waren mehr an. (Diese Verhalten kann mit dem Eintrag "just_in_time" in der simuconf.tab angepasst werden.)
+</p><p>
+Als letztes findet man noch eine Liste der Stationen, die mit dieser Fabrik verbunden sind.
+</p>

@@ -1,0 +1,17 @@
+<title>Listenverwaltung Hilfe</title>
+
+<h1><strong>Listenverwaltung</strong></h1>
+
+<p>
+Die Listenverwaltung wird über die <a href="mainmenu2.txt">Hauptmenüleiste</a> aufgerufen.<br/>
+Im Listenverwaltungsmenü gibt es sechs Einträge. <br/>
+Von links nach rechts:
+</p>
+<p>
+<a href="haltlist.txt">Haltestellenliste</a><br/>
+<a href="convoi.txt">Fahrzeugliste</a><br/>
+<a href="citylist_filter.txt">Stadtliste</a><br/>
+<a href="goods_filter.txt">Warenliste</a><br/>
+<a href="factorylist_filter.txt">Fabrikliste</a><br/>
+<a href="curiositylist_filter.txt">Touristenzielliste</a><br/>
+</p>

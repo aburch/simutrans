@@ -1,0 +1,16 @@
+<title>Fahrzeugdetailfenster Hilfe</title>
+
+<h1><strong>Fahrzeugdetailfenster</strong></h1>
+
+<p>
+Diese Fenster erreicht man durch Auswahl von <em>Details</em> im <a href="convoiinfo.txt">Konvoifenster</a>. Es werden weitere technische Daten angezeigt, wie z.B. der aktuelle Zeitwert.
+</p>
+<p>
+Mit dem Knopf <em>Verkaufen</em> kann der Fahrzeugverband sofort an dieser Position verkauft werden, ohne zuvor in ein Depot fahren zu müssen.
+</p>
+<p>
+Weiterhin gibt es noch <em>Außerdinststellen</em>, danach läde der Fahrzeugverband nur noch seine Waren ab und verkauft sich selbst, sobald er leer ist.
+</p>
+<p>
+Darunter folgt die Liste aller Einzelfahrzeuge mit der Anzeige von genutzte Laderaum, der verfügbare Laderaum sowie das Ladegut des Einzelfahrzeuges angegeben und weiteren Daten. Die folgenden Zeilen schlüsseln die Ladung nach ihrem Ziel auf.
+</p>

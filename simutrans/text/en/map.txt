@@ -1,0 +1,76 @@
+<title>Map Help</title>
+
+<h1><strong>Map</strong></h1>
+
+<p>
+<strong>Map</strong> provides a map of the current world giving information on terrain, important locations, & transport networks. It also provides a way to move game-view around world.
+</p>
+<p>
+Click on map-icon at top of game-view or press <a href="keys.txt">[m]</a> to open <strong>Map</strong>, which can be <a href="mouse.txt">re-sized</a> or minimised. The left/right-arrows, on the titlebar, close/open in stages: map options, a min-max colour scale that shows activity level for some of the options, & a key to colours of <a href="industry_info.txt">industry</a> seen on the map.
+</p>
+<p>
+The map has three different scales: right-click on Map (or point cursor & use mouse-wheel) to cycle through scales. If whole map is not visible then change the map scale, or re-size <strong>Map</strong>, or move map to see required portion: right-click-drag map (or use slider-bars at sides).
+<p>
+</p>
+On the map, water is blue & lower land is darker than higher land. Part of world in game-view, is shown by a white-square outline in <strong>Map</strong>: top of game-view corresponds to top-left-side of white-square (North is at top of map, North-West is at top of game-view). If the white-square falls off the map, water is seen in game-view for corresponding area.
+</p>
+<p>
+To move game-view across large distances in world, left-click on map at required point or left-click-drag white-square.
+</p>
+<p>
+Point mouse-cursor at an <a href="industry_info.txt">industry</a> on map, to see name & a white line linking customer(s) which flash; hold down [Shift] first to show a red line to supplier(s).
+</p>
+<p>
+On the map (when not using the options): <a href="citywindow.txt">urban areas</a>, attractions, tunnels, ?canals appear dark grey; roads, black; rail & tram tracks, medium grey; bridges, light grey; <a href="station.txt">Stops</a>,?red/yellow; ; monorail/maglev track, ?orange; airport areas, ?off-white; & vehicles, yellow.
+</p>
+<p>
+Click option-buttons to show/hide details on map of:
+</p>
+<p>
+<em>Cities:</em> names of <a href="citywindow.txt">urban areas</a>.
+</p>
+<p>
+<em>passengers:</em> catchment area for passengers by <a href="station.txt">Stops</a>.
+</p>
+<p>
+<em>Mail:</em> catchment area for mail by <a href="station.txt">Stops</a>.
+</p>
+<p>
+<em>Freight:</em>level of goods & passengers on roads & track (use min-max scale).
+</p>
+<p>
+<a href="station.txt"><em>Stop</em></a> <em>status:</em> colours indicate operation of Stop with regards to how overcrowded it is. The same colour is shown in status-colour-bars in <a href="haltlist.txt">Station List</a> & <a href="station.txt">Stop Information</a> & <a href="linemanagement.txt">Line Management</a> and is the same colour displayed in the colour-bar above the name of a Stop in game-display).
+</p>
+<p>
+<em>Service:</em> level of goods & passengers using a <a href="station.txt">Stop</a>(use min-max scale).
+</p>
+<p>
+<em>Traffic:</em> level of <a href="convoiinfo.txt">vehicles</a> on roads & track (use min-max scale).
+</p>
+<p>
+<em>Origin:</em> level of goods & passengers that start journey at <a href="station.txt">Stop</a> (use min-max scale).
+</p>
+<p>
+<em>Destination:</em> level of goods & passengers terminating journey at a <a href="station.txt">Stop</a> (use min-max scale).
+</p>
+<p>
+<em>Waiting:</em> level of goods & passengers waiting for transport at a <a href="station.txt">Stop</a> (use min-max scale).
+</p>
+<p>
+<em>Tracks:</em> rail & tram tracks & signals; tracks, bridges & tunnels are shown as white (red if electric) & signals are shown as yellow.
+</p>
+<p>
+<em>Speed Limit:</em> road & track is shown by maximum speed allowed (use min-max scale).
+</p>
+<p>
+<em>Powerlines:</em> <a href="special.txt">power transmission lines</a> (use min-max scale to see supply level at time Map was opened).
+</p>
+<p>
+<em>Attractions:</em> level of passengers that tourist attractions generate (use min-max scale), option also emphasizes attraction on map.
+</p>
+<p>
+<em>Factories:</em> emphasized <a href="industry_info.txt">industry</a>; highlights consumers & suppliers on map.
+</p>
+<p>
+<em>Depots:</em> emphasized <a href="depot.txt">depots</a>. ?Colours indicate transport type: ship, yellow; road, orange; rail, red; aircraft, green; trams, blue; and monorail, grey.
+</p>

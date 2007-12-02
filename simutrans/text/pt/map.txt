@@ -1,0 +1,17 @@
+<title>Ajuda - Mapa</title>
+
+<h1>Mapa (teclado: m)</h1>
+
+<p>
+O mapa permite ver o mundo em miniatura, podendo-se ter uma visão mais ampla da rede de transportes e das posições das indústrias e cidades no mundo.
+</p>
+<p>
+Ele permite o acesso rápido a partes distantes do mundo, clicando-se com o botão esquerdo onde desejado. O jogo será centralizado na posição clicada no mapa.
+</p>
+<p>
+O botão direito do mouse tem a função de aproximar ou distanciar o mapa. Só há um nível de zoom.
+</p>
+<p>
+Atualizado para Simutrans 0.81.32<br>
+18/05/2003
+</p>

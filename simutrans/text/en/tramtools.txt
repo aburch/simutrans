@@ -1,0 +1,68 @@
+<title>Tram/light rail tools Help</title>
+
+<h1><strong>Tram/light rail tools</strong></h1>
+
+<p>
+<strong>Tram/light rail tools</strong> construct a tram transport network. The tools may build: tramtrack (and electrify or remove it), signals, a tram depot, and tram stops.
+If playing with <a href="new_world.txt">timeline</a>, then as time passes in Simutrans more tool-options may appear.
+</p>
+<p>
+Click tram-icon at top of game-view to open toolbar.<br>
+Hover mouse-cursor over tool-option (after opening or clicking on toolbar) to see name & where appropriate: construction <a href="finances.txt">cost</a>, & maximum speed limit.
+</p>
+<p>
+<strong>Tram/light rail tools</strong> include, from left to right:
+</p>
+<p>
+<em>Tram Track:</em> tools build Track, for rail vehicles between two points.<br>
+Tram Track can be built along roads and in urban areas, but not on areas occupied by other buildings. Tracks can only be built on slopes in the direction of the slope & not over rough terrain, water and obstructions. New Track built may use existing track in its path.<br>
+To build Track: click on tool to select Track (changes cursor to track); then click on game-view for start-point of Track (shows a bulldozer in game-view and displays map co-ordinates on right of bottom-bar under game-view); & finally click on game-view for end-point for Track.<br>
+{Tips:  Different types of tracks may connect (however not when built by some other <a href="players.txt">players</a>). Use <a href="railtools.txt">bridges</a> & tunnels to connect tracks across rough terrain or to avoid obstructions. Use Destroy/Remove to remove individual pieces of Track & some obstructions. Use <a href="keys.txt">[Ctrl]</a> at same time for extra functions. Undo [z] does not refund constructions costs.}
+</p>
+<p>
+<em>
+Electrify Track:</em> tools electrify Track, bridges or tunnels between two points in game-view, for use by electric vehicles.<br>
+To electrify Track: click on tool or press [e] (changes cursor to electric-track-icon) to select, then click on Track in game-view for start-point of electrification (places a electric-track-icon in game-view), & finally click on a second point on Track, to electrify portion of Track up to start-point.<br>
+{Tips: Use Destroy/Remove to change back to non-electric Tracks.}
+</p>
+<p>
+<em>Remove Tracks:</em> tool removes Track & electric Track, when no vehicles are present, between two points in game-view (station-platforms, road-stops, signals, tunnels & bridges in path are removed too). Use of tool incurs a <a href="finances.txt">construction cost</a>.<br>
+To remove Track: click on tool (changes cursor to a red-cross); then click on track that is to be deleted (selects deletion-point shown by a red cross in game-view); & finally click at a second-point on connected Track, to remove portion up to first deletion-point.<br>
+{Tips: Operate as another player to remove their Tracks.}
+</p>
+<p>
+<em>Rail Signals:</em> tools build signals for rail vehicles on a Track in game-view. Signals direct & regulate flow of vehicles on tracks & bridges, junctions & <a href="station.txt">Stops</a> (where vehicles pick-up and drop-off goods and passengers).<br>
+Two-way & one-way versions of signals can be built. To build a two-way signal on track: click on tool to select signal (changes cursor to signals); then click on track. To build a one-way signal: click again at same point, with signals-cursor, to cycle through one-way signals, back to a two-way signal.<br>
+IMPORTANT: Take care not to place one-way signals that prevent vehicles reaching their destination, by default vehicles drive on the right (can be changed in simuconf.tab).<br>
+- <em>Signals:</em> vehicles proceed only if Track ahead up to next signal or destination in <a href="schedule.txt">Schedule</a> (a <a href="station.txt">Stop</a> or waypoint) is not occupied by another vehicle. In one-way mode vehicles pass in one direction only.<br>
+- <em>RailClose:</em> vehicles do not proceed beyond signal (available in one-way mode only).<br>
+- <em>PreSignals:</em> vehicles proceed if area of Track ahead (either between three consecutive signals or to next destination in <a href="schedule.txt">Schedule</a>) is not occupied by another vehicle. In one-way mode they let vehicles pass in one direction only.<br>
+- <em>ChooseSignals:</em> direct vehicles to an empty station-platform, at a multi-platform <a href="station.txt">Stop</a>: a vehicle passing this signal may use any empty platform at its next destination, and not just the one assigned in its <a href="schedule.txt">schedule</a>. If no empty platform or clear route to next destination is found, then vehicles wait at signal.<br>
+{Tips:  Remove signals with Destroy/Remove. Hold down [Ctrl] to place signals on bridges over lower Tracks.}
+</p>
+<p>
+<em>Tram</em> <a href="depot.txt"><em>Depot:</em></a> tool builds a depot for purchasing & managing trams.<br>
+Depots have a maintenance cost & are built on the end of track in game-view.<br>
+To build a tram depot: click on tool (changes cursor to a depot), then click on end of Track.<br>
+{Tips: Depots only show electric vehicles if they are on electric Track. Remove depots with Destroy/Remove.}
+</p>
+<p>
+<em>?Rail-stops:</em> tools build station-platforms, used by rail vehicles to pick-up and drop-off goods, passengers & mail.<br>
+A station-platform when not built adjacent to an existing <a href="station.txt">Stop</a> will create a new Stop.<br>
+Rail-stops have a maintenance cost & are built on Track (but not at bends and junctions in Track).<br>
+Rail-stops have a catchment area for goods, passengers & mail. Different station-platforms may have different capacities for passengers and mail. In the corner of some tool-options an icon (used in <a href="haltlist.txt">Station List</a> & Stop Information) shows which items the station-platform allows a Stop to handle.<br>
+To build a a station-platform: click on tool to select (changes cursor to a platform), then click on Track.<br>
+{Tips: Remove Rail-stops with Destroy/Remove. Extend station-platforms & build multi-platform Stops (by building more platform sections on adjacent Track) to accommodate longer and more vehicles, increase capacity & catchment area. Press [v] to show/hide catchment area for goods & passengers in game-view. Hold down [Ctrl] to build on bridges above lower Tracks.}
+</p>
+<p>
+<em>Car Parking:</em> (available only in pak 128) tools construct extensions for <a href="station.txt">Stops</a> which increase capacity & catchment area for goods & passengers, and maintenance cost.<br>
+To build an extension: click on tool to select extension (changes cursor to extension), then click required position on a road, beside an existing Stop in game-view. The new extension is now considered to be part of the Stop.<br>
+{Tips: Remove extensions with the Destroy/Remove.}
+</p>
+<p>
+<em>?Road-stops:</em> tools build places for trams and road vehicles to pick-up and drop-off goods, mail, and passengers.<br>
+A Road-stop when not built adjacent to an existing <a href="station.txt">Stop</a> will create a new Stop.
+Road-stops are built on<a href="roadtools.txt">road</a>& have a maintenance cost and a catchment area for goods, passengers & mail. In the corner of some tool-options an icon (used in Station List & Stop Information) shows which items the Road-stop allows a Stop to handle. Different Road-stops may have different capacities for goods, passengers & mail.<br>
+To build a Road-stop: click on tool to select (changes cursor to roadstop), then click required position on a road in game-view.<br>
+{Tips: Remove Road-stops with the Destroy/Remove. Hold down [Ctrl] to build on bridges above lower roads.}
+</p>

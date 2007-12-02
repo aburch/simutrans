@@ -1,0 +1,62 @@
+<title>Ayuda de Opciones de Pantalla</title>
+
+<h1><strong>Opciones de Pantalla</strong></h1>
+
+<p>
+<strong>Pantalla</strong> tiene controles acerca de la apariencia del juego; y da informaccion acerca del rendimiento del ordenador.
+</p>
+<p>
+Pulsa en el boton Pantalla en el menu <a href="options.txt">Opciones de Juego</a> para abrir <strong>Opciones de Pantalla</strong>.
+</p>
+<p>
+Pulsa en los botones para seleccionar las distintas opciones (el boton se oscurece cuando seleccionas la opcion), o usa los <a href="mouse.txt">botones de flechas</a> para ajustar las opciones:
+</p>
+<p>
+<em>Usar modo dia y noche:</em> vista nocturna del juego.
+</p>
+<p>
+<em>
+Luminosidad:</em>ajusta el brillo de la imagen; numeros negativos para oscurecer; valores muy altos o muy bajos pueden dar problemas; usa <a href="keys.txt">[+]</a> para incrementar el valor sobre 0.
+</p>
+<p>
+<em>Invertir desplazamiento:</em> invierte la direccion de desplazamiento en la <a href="window.txt">Ventana de juego</a>.
+</p>
+<p>
+<em>
+Velocidad de desplazamiento:</em> establece la velocidad de desplazamiento de la Ventana de Juego.
+</p>
+<p>
+<em>Peatones en ciudades:</em> muestra los peatones que aparecen en las <a href="citywindow.txt">areas urbanas</a>.
+</p>
+<p>
+<em>Pedestrians en paradas:</em> muestra los peatones que aparecen cuando un vehiculo llega a una <a href="station.txt">Parada</a>.
+</p>
+<p>
+<em>Densidad de trafico:</em> establece el numero de vehiculos privador en las <a href="citywindow.txt">areas urbanas</a>.<br>
+El numero de nuevos vehiculos priados que apareccen en las areas urbanas en crecimiento depende del tamaño y la densidad de trafico. Los valores altos crean mas trafico, el 0 no genera nada.
+</p>
+<p>
+{Consejos: Se pueden cambiar mas opciones y valores en el archivo simuconf.tab}.
+</p>
+<br>
+<p>
+<strong>Informacion de Pantalla:</strong>
+</p>
+<p>
+Debajo de estas opciones , se muestra informacion acerca del rendimiento del ordenador durante la ejecucion del juego Simutrans.<br>
+Si los numeros (normalmente en blanco) estan en rojo o amarillo, tendras que cambiar los parametros.<br>
+Cambios en el ritmo en el que pasa el tiempo en el juego, <a href="window.txt">T</a>, (usando el icono Acelerar  >>  en la parte superior de la pantalla, o [,]/ [.]) pueden cambiar el color de los numeros.
+</p>
+<p>
+<em>Frame Time:</em> La primera cifra es el tiempo entre frames; la segunda es el tiempo exacto entre frames.
+</p>
+<p>
+<em>Inactivo:</em> Cuando esta por debajo de 0, el ordendor tiene capacidad para ejecutar mas programas.
+</p>
+<p>
+<em>
+FPS:</em> Valores altos significan animaciones mas suaves. Si los numeros estan en rojo, el ordenador es demasiado lento para los parametros actuales (intenta reducir la resolucion de la pantalla del juego).
+</p>
+<p>
+<em>Sim:</em> Si esta en numeros rojos, el ordenador es demasiado lento para los parametros actuales - intentalo con un mapa de menor dimension con menos ciudades.
+</p>

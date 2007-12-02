@@ -1,0 +1,24 @@
+<title>Klimazonen Hilfe</title>
+
+<h1><strong>Kliamzonen Hilfe</strong></h1>
+
+<p>
+Dieser Dialog erscheint immer zusammen mit dem <a href="new_world.txt">Neue Welt</a> Dialog. mit ihm können diverse Details zu den Klimazonen und Bergen der neuen Karte eingestellt werden.</p>
+<p>
+· <em>Grundwasser:</em> Den Pegel des Grundwassers kannst Du von 0 bis 5 festlegen. Je niedriger der Pegel ist, desto mehr Land erscheint und umgekehrt. Die Vorgabe ist 4.</p>
+<p>
+· <em>Berghöhe:</em> Der Maximalwert für die Höhe der höchsten Berge beträgt 320. Die Vorgabe ist 160.</p>
+<p>
+· <em>Bergigkeit:</em> Dieser Wert bestimmt, wieviel kleinere Hügel und Täler generiert werden. Mögliche Werte sind 0 bis 4. Die Vorgabe ist 2. Eine zu rauhe Karte wird eventuell nicht so viele Städte, Insdustrien oder Verbindungsstraßen erzeugen können, wir eingestellt.</p>
+
+<br>
+<p>
+Im folgenden wird die Grenzen der Schneezone festgelegt. Im Laufe des Jahres sinkt und steigt die Schneegrenze in Simutrans entsprechend der gewählten Einstellung.</p>
+
+· <em>Sommerschnee:</em> Ab dieser Höhe beginnt der ewige Schnee. Dort gibt es keine Felder und viele andere Industrien gibt es dort auch nicht. Dafür aber Ölfelder und Kohleminen.</p>
+· <em>Winterschnee:</em> Bis zu dieser Höhe fällt im Winter Schnee. Das hat keine Auswirkungen auf das Spiel sondern dient allein der Optik.</p>
+
+<br>
+<p>
+Zum Schluss werden die Grenzen der einzelnen Klimazonen bestimmt. Diese werden in Höhenstufen ab Grundwasser gerechnet. Die niedrigste Nummer geht von Null bis zu der Nummer und so weiter. Man kann also Wüste in Tundra und wieder ind Tropen übergehen lassen, wenn man es denn will.</br>
+In bestimmten Klimazonen können nur ausgewählte Industrien auftauchen; eventuell ist auch die Gründung von Städten dort verboten, das liegt ganz in der Händen der Grafiker.</p>

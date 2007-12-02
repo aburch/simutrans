@@ -1,0 +1,63 @@
+<title>Beeldscherm instellingen help (Nederlands)</title>
+
+<h1><strong>Beeldscherm instellingen</strong></h1>
+
+<p>
+<strong>Beeldscherm instellingen</strong> bevat instellingen waarmee de wijze waarop het spel wordt getoond kunnen worden be-invloed; & geeft informatie over de prestaties van de computer.</p>
+<p>
+Om het scherm <strong>beeldscherm instellingen</strong> te openen dien je op de Scherm knop klikken in het  <a href="options.txt">Spel instellingen</a> scherm.</p>
+<p>
+Klik op de kleine vierkante knoppen om een instelling te activeren of te deactiveren, of gebruik de <a href="mouse.txt">horizontale pijltjes</a> om de instelling aan te passen:</p>
+<p>
+<em>underground mode:</em> zet het spel in ondergrondse modus (in 99.08.1 nog erg experimenteel) </p>
+<p>
+<em>Dag en Nacht Modules:</em> zet het spel in dag en nacht modus (licht en donker).</p>
+<p>
+<em>
+Helderheid:</em>bepaalt de helderheid van het scherm tijdens het spel; bij een lagere waarde neemt de helderheid af; te lage of hoge waardes kunnen problemen veroorzaken (dus wees voorzichtig met wijzigen van deze instelling); om de helderheid boven 0 te laten stijgen dien je de  <a href="keys.txt">[+]</a> toets te gebruiken. Met de <a href="mouse.txt">muis</a> is een waarde tot maximaal 0 in te stellen. </p>
+<p>
+<em>Scroll omdraaien:</em> draait de richting om bij het scrollen in het spel in het <a href="window.txt">spel scherm (wereld/kaart)</a>.</p>
+<p>
+<em>Scroll snelheid:</em> bepaalt de snelheid van het scrollen tijden het spelen in het <a href="window.txt">spel scherm (wereld/kaart)</a>.</p>
+<p>
+<em>Verberg objecten transparant:</em> toont doorzichtige objecten met een kleurmarkering in het <a href="window.txt">spel scherm</a> wanneer betreffende objecten verborgen zijn (zie de instellingen hierna, verbergen kan ook met de <a href="keys.txt">["]</a> toets).</p>
+<p>
+<em>Verberg bomen:</em> verbergt bomen in het spel, bomen worden nu of transparant (zie hierboven) of geminimaliseerd getoond wanneer deze instelling is gekozen.</p>
+<p>
+<em>Verberg stadsgebouwen:</em> verbergt alle huizen, kantoren, industrie en winkels in een stad behalve speciale gebouwen.</p>
+<p>
+<em>Verberg alle gebouwen:</em> verbergt alle gebouwen. Deze optie zet tevens de bovenliggende optie aan.</p>
+<p>
+<em>Transparante stations dekking:</em> toont het gebied dat wordt verzorgd door een station als een doorzichtig gekleurd vlak in plaats van de markering met vierkante blokjes.</p>
+<p>
+<em>Toon stations dekking:</em> om tijdens het spel de zichtbaarheid van de dekking van een station aan of uit te zetten kun je ook de <a href="keys.txt">[v]</a> toets gebruiken </p>
+<p>
+<em>Voetgangers (stad):</em> toont voetgangers in een <a href="citywindow.txt">dorp of stad</a>.</p>
+<p>
+<em>Voetgangers (halte):</em> toont voetgangers bij een <a href="station.txt">halte of station</a>.</p>
+<p>
+<em>Stadsverkeer:</em> bepaalt de hoeveelheid particuliere voertuigen in <a href="citywindow.txt">steden en dorpen</a>.<br>
+De hoeveelheid particuliere voertuigen is afhankelijk van de grootte van het dorp of de stad en deze instelling. Hoge waardes zorgen voor veel verkeer, 0 zet het genereren van stadsverkeer uit.</p>
+<p>
+{TIP: Meer instellingen en de standaard waardes kunnen worden gezet in simuconf.tab}.
+</p>
+<br>
+<p>
+<strong>Prestaties van de computer:</strong>
+</p>
+<p>
+Onder bovenstaande instellingen wordt informatie getoond over de prestaties van de computer tijdens het spelen van .<br>
+Indien de getallen (normaal gesproken wit gekleurd) in het rood of geel worden getoond kan het noodzakelijk zijn om de instellingen van de computer te wijzigen.<br>
+Wijzigingen in de snelheid van het spel, <a href="window.txt">W</a>, (of de Snel voorwaarts in tijd  >> icoon, of [,]/ [.]) kunnen deze kleur be-invloeden. </p>
+<p>
+<em>Beeldfrequentie:</em> geeft de snelheid van een enkel beeld aan.
+</p>
+<p>
+<em>Werkloos:</em> Indien deze waarde groter is dan 0,  heeft de computer tijd over voor andere taken.
+</p>
+<p>
+<em>
+FPS:</em> Hogere waardes geven aan dat het systeem in staat om bijvoorbeeld de voertuigen in het spel vloeiend voort te bewegen. Indien deze waarde rood blijft is dat een indicatie voor het feit dat de computer te traag is om Simutrans goed te kunnen draaien met de huidige instellingen ( probeer eens een kleiner formaat voor het Simutrans scherm).
+</p>
+<p>
+<em>Simloops:</em>Indien deze waarde rood blijft is dat een indicatie voor het feit dat de computer te traag is om Simutrans goed te kunnen draaien met de huidige instellingen ( probeer eens een kleiner formaat voor het Simutrans scherm).</p>

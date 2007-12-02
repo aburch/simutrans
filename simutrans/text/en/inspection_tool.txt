@@ -1,0 +1,91 @@
+<title>Inspection Tool Help</title>
+
+<h1><strong>Inspection Tool</strong></h1>
+
+<p>
+<strong>Inspection Tool</strong> is used to open dialogues that provide information or option-controls for various items.
+</p>
+<p>
+Click magnifying-glass-icon at top of game-view or press <a href="keys.txt">[a]</a> to open <strong>Inspection Tool</strong> (changes cursor to a magnifying-glass).
+</p>
+<p>
+To use Inspection Tool: position magnifying-glass-cursor in game-view at required postion and click to open dialogue. If more than one item is at required postion, a further click will open a second dialogue.
+{Tips: Option to open one dialogue or all dialogues for a given cursor position available in simuconf.tab}
+</p>
+<p>
+Click on following items in game-view with tool to open various dialogues:
+</p>
+<p>
+<em>Depots
+</em> - opens <a href="depot.txt">controls</a> to purchase and manage vehicles at that depot.
+</p>
+<p>
+<em>Stops</em> - opens <a href="station.txt">Stop Information</a> for that Stop.
+</p>
+<p>
+<em>Vehicles</em> - opens <a href="convoiinfo.txt">?Convoy/Vehicle Information</a> for that vehicle.
+</p>
+<p>
+<em>Town Hall</em> - opens <a href="citywindow.txt">City ?Information</a> for that urban area.
+{Tips: Option to open dialogue providing information about Town Hall available in simuconf.tab}
+</p>
+<p>
+<em>Industry</em> - opens <a href="industry_info.txt">Industry Information</a> for that industry.
+</p>
+<p>
+<em>City Buildings</em> opens a dialogue that gives information about the building (titlebar of dialogue is 'Building'). Information contained in the dialogue includes:<br>
+- <em>description</em> provides information about the building. If no description is available then either 'residential house', or 'industrial building', or 'shops and stores' (for commercial buildings) is shown. <br>
+- <em>City of</em>: indicates which urban area the City Building is part of.<br>
+- <em>Passenger level:</em> is the relative popularity as a destination for passengers .<br>
+- <em>Mail level:</em> is the relative popularity as a destination for mail.<br>
+- <em>Appears from</em>: indicates year the building appears if playing with <a href="new_world.txt">timeline</a>.<br>
+- <em>Value:</em>: indicates cost incurred if building is removed with <a href="window.txt">Destroy/Remove Tool</a>.<br>
+- <em>Painted by</em>: name of person who drew building for Simutrans
+</p>
+<p>
+<em>Monuments</em> / <a href="curiositylist_filter.txt"><em>Tourist Attractions</em></a> opens a dialogue that gives information about the attraction (titlebar of dialogue indicates whether it is a monument, or tourist attraction). Information contained in the dialogue includes:<br>
+- <em>Public property</em> indicates that item is not owned by a player company.<br>
+- <em>description</em> provides information about the attraction.<br>
+- <em>Passenger level:</em> is the relative popularity as a destination for passengers .<br>
+- <em>Mail level:</em> is the relative popularity as a destination for mail.<br>
+- <em>Appears from</em>: indicates year the building appears if playing with <a href="new_world.txt">timeline</a>.<br>
+- <em>Painted by</em>: name of person who drew attraction for Simutrans
+</p>
+<p>
+<em>Roads and Tracks</em> opens a dialogue that gives information about the Road or Track (titlebar of dialogue indicates what type of way it is - in the case of tram tracks built on road titlebar indicates type of Road).<br>
+Information contained in dialogue:<br>
+- <em>Max Speed</em>: maximum speed limit allowed on road or track.<br>
+- <em>Ribi (unmasked)</em>:<br> is an internal counter that indicates direction of way.<br>
+- <em>Ribi (masked)</em>: is an internal counter that indicates direction of way taking into consideration any signals or signs.<br>
+- <em>with sign/signal</em> is shown if there is a signal or sign present.<br>
+- <em>electrified</em>/<em>not electrified</em> indicates whether way is electrified.<br>
+- <em>convoi passed last month</em> indicates number of <a href="convoiinfo.txt">Vehicles</a> that used way in the previous game-calendar-month.<br>
+- <em>reserved by</em> indicates which vehicle has reserved a track for use till it has passed.<br>
+- <em>wayslope</em> indicates direction of slope if any<br>
+- <em>map-coordinates</em> as shown on bottom-bar <a href="window.txt"><br>
+In the case of tram tracks constructed on road: information is shown twice, first for the road and then for the tram track.
+</p>
+<p>
+<em>Signals</em>/<em>Signs</em> opens a dialogue, the titlebar of the dialogue indicates whether it is a signal or a road sign.
+Information contained in dialogue includes:<br>
+- <em>direction</em> ?is an internal counter that indicates direction to which signal applies.
+</p>
+<p>
+<a href="special.txt"><em>Powerlines</em></a> / <em>Transformer stations</em> opens dialogue that provides information about electricity supply grid (titlebar of dialogue is 'Power Lines'). Information shown includes:<br>
+- <em>Power:</em> ?value indicates amount of power supplied.<br>
+- <em>Available:</em>: ?value is shown for <a href="special.txt">Transformer Stations</a> at <a href="industry_info.txt">Industry</a> and indicates relative amount of power supplied.<br>
+- <em>Net:</em> is ID number of supply grid. Two points with the same ID number are connected.
+</p>
+<p>
+<it>Trees</it> opens a dialogue (the titlebar is 'Tree'). Information shown includes:<br>
+- <em>name</em> which provides species of tree.<br>
+- <em>age</em> age of tree in months.
+</p>
+<p>
+<em>Land</em> opens a dialogue (the titlebar is 'Land'). Information shown includes:<br>
+- <it>slope</it> which provides species of tree.<br>
+- <it>map co-ordinates</it> as shown in <a href="window.txt">bottom-bar</a>.
+</p>
+<p>
+{Tips: Option to open dialogues on private road users and pedestrians available in simunconf.tab}.
+</p>

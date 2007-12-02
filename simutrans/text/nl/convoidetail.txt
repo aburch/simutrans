@@ -1,0 +1,36 @@
+<title>Voertuig Details Help (Nederlands)</title>
+
+<h1><strong>Voertuig details</strong></h1>
+
+<p>
+<strong>Voertuig details</strong> geeft meer informatie over een voertuig (een in gebruik zijnd voertuig of samenstelling) en kan gebruikt worden om een voertuig  onmiddelijk te kunnen verkopen.
+</p>
+<p>
+
+<strong>Voertuig details</strong> worden zichtbaar door op de knop <a href="convoiinfo.txt">Details</a> te klikken in het <strong>voertuig informatie scherm</strong>.
+<br>
+Indien niet alle items zichtbaar zijn kun je de <a href="mouse.txt">grootte van het scherm wijzigen</a> of de schuifbalken om door de items te scrollen.
+</p>
+<p>
+Bovenin het scherm <strong>Voertuig details</strong> getoonde informatie bevat:
+</p>
+<p>
+<em>Vermogen:</em> in kW van het voertuig (optelsom van het vermogen van alle gemotoriseerde voertuigen in de samenstelling).
+</p>
+<p>
+<em>Verkoop waarde:</em> bedrag dat het voertuig nog oplevert indien het verkocht wordt op dat moment (is aanschafwaarde minus afschrijving).
+</p>
+<p>
+LET OP: Klik op <em>verkopen</em> knop om het voertuig onmiddelijk te verkopen. <strong>Er wordt niet om bevestiging gevraagd</strong>. Het voertuig wordt uit het spel verwijderd en de speler krijgt de verkoop waarde bijgestort in de kas. <em>Terugtrekken</em> doet hetzelfde dan <em>verkopen</em> maar zal eerst de volledige lading afleveren alvorens verkocht te worden.
+</p>
+<p>
+<strong>Voertuig details</strong> toont alle voertuigen uit de samenstelling.<br>
+Per voertuig wordt de volgende informatie getoond:<br>
+- <em>afbeelding van het voertuig</em> een afbeelding van het voertuig (wordt ook gebruikt in de <a href="depot.txt">hangar of remise (depots)</a>).<br>
+- <em>Geproduceerd:</em> jaar en maand van productie van het voertuig en indien met de  <a href="new_world.txt">tijdlijn</a> ingeschakeld wordt gespeeld wordt ook de datum van introductie van het voertuig vermeld.<br>
+- <em>Verkoop waarde:</em> bedrag dat wordt ontvangen indien het voertuig nu verkocht zou worden.<br>
+- <em>Vermogen:</em> vermogen in kW (in geval van gemotoriseerd voertuig).<br>
+- <em>Frictie:</em> huidig frictie niveau.<br>
+- <em>Max inkomsten:</em> het maximale bedrag dat het voertuig aan inkomsten heeft gegenereerd.<br>
+- <em>Lading</em> hoeveelheid en bestemming van de op dit moment aanwezige lading.
+</p>

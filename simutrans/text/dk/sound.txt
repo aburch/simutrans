@@ -1,0 +1,38 @@
+<title>Lydindstillinger dialog hjælp</title>
+
+<h1>Lydindstillinger dialog</h1>
+
+<p>
+<em>Beskrivelse:</em><br>
+I denne dialog kan du såvel ændre indstillingerne for lyden og musikken, der
+afspilles under spillet, som det musikstykke, der aktuelt afspilles.
+</p>
+
+<p>
+<em>Udseende:</em><br>
+Øverst i dialogen er to scrollbars med overskrifterne: 'Lydstyrke:' og 'Musik
+lydstyrke:'<br>
+Derunder er overskriften 'Afspiller aktuelt:' med to scroll-knapper
+tilknyttet.
+</p>
+
+<p>
+Lydstyrken for diverse lydeffekter (toge, bulldozers ol.) indstilles med den
+øverste scrollbar. Lydstyrken for baggrundsmusikken indstilles med den
+nederste scrollbar.
+</p>
+
+<p>
+Nederst i dialogen vises det aktuelt afspillede musikstykke. Der kan vælges
+tidligere eller senere musiknumre ved at benytte scroll-knapperne.
+</p>
+
+<p>
+<strong>Bemærk at Simutrans ikke inkluderer baggrundsmusik. Denne må tilføjes
+manuelt. Oplysninger om hvorledes dette gøres, kan findes på Simutrans
+hjemmesiden : www.simutrans.org</strong>
+</p>
+
+<p>
+For helt at slå lyden fra kan Simutrans startes med en -nosound option.
+</p>

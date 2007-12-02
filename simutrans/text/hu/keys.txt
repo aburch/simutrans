@@ -1,0 +1,42 @@
+<title>Billentyûzet parancsok</title>
+
+<h1>Billentyûzet parancsok:</h1>
+
+<p>
+! - Jelzõtábla nevek megmutat/elrejt kapcsoló<br>
+" - Épületek,fák megmutat/elrejt kapcsoló<br>
+# - Térképrács megmutat/elrejt kapcsoló<br>
+a - Infó eszköz<br>
+b - Vasútjavító (a jelzõlámpák alapállapotba állítása)<br>
+c - Képernyõállás mentése<br>
+d - Terep sûlyesztése<br>
+f - Pénzügyi ablak megnyitása<br>
+g - Speciális eszközök<br>
+k - Játékosok listája<br>
+l - elektromos hálózat építése<br>
+m - Térkép megnyitása<br>
+p - Játékot szüneteltet<br>
+r - Törlés<br>
+s - Közút építése<br>
+t - Vasúti sín építése<br>
+u - Terep felemelése<br>
+v - Egy megálló, vagy rakodóudvar hatóköre<br>
+w - Vonalrendszer menedzsment<br>
++/- - Világosabb/sötétebb képernyõ<br>
+C - Városépítés<br>
+G - Javak listája, szállítási költségek<br>
+L/S - Betõlti(L)/menti(S) a játékot<br>
+P - Játékos váltás<br>
+Q, X - Kilépés a játékból<br>
+V - Jármûlista megnyitása<br>
+9 - Térkép északkeletre mozog<br>
+1 - Térkép délkeletre mozog<br>
+7 - Térkép északnyugatra mozog<br>
+3 - Térkép délkeletre mozog<br>
+6 - Térkép keletre mozog<br>
+2 - Térkép délre mozog<br>
+8 - Térkép északra mozog<br>
+4 - Térkép nyugatra mozog<br>
+Delete, Backspace - Bezárja az összes ablakot<br>
+Page-Up, Page-Down: Nyagyítás/kicsinyítés
+</p>

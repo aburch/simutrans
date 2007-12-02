@@ -1,0 +1,63 @@
+<title>Ajuda - Vídeo</title>
+
+<h1><strong>Vídeo</strong></h1>
+
+<p>
+A janela <strong>Vídeo</strong> possui controles para a aparência do jogo e fornece informações da performance do computador.
+</p>
+<p>
+Clique no botão 'Vídeo' na janela <a href="options.txt">Preferências</a> para abrir as <strong>configurações de vídeo</strong>.
+</p>
+<p>
+Clique nos botões quadrados para selecionar as opções (o botão aparece pressionado quando a opção é selecionada), ou use as <a href="mouse.txt">setas</a> para ajustar as configurações:
+</p>
+<p>
+<em>Alternar dia e noite:</em> ver ciclos de dia e noite no jogo.
+</p>
+<p>
+<em>
+Luminosidade:</em> regula o quão claro/escuro o jogo aparecerá. Valores muito distantes de zero produzem resultados estranhos; use <a href="keys.txt">[+] e [-]</a> para aumentar/diminuir o valor.
+</p>
+<p>
+<em>Inverter deslocamento do mouse:</em> inverte o sentido do deslocamento da <a href="window.txt">tela do jogo</a> com o mouse.
+</p>
+<p>
+<em>Velocidade de deslocamento:</em> regula a velocidade do deslocamento pela tela do jogo.
+</p>
+<p>
+<em>Pedestres nas cidades:</em> permite a simulação de pedestres caminhando pelas <a href="citywindow.txt">áreas urbanas</a>.
+</p>
+<p>
+<em>Ver pedestres:</em> visualização dos pedestres que desembarcam dos veículos em <a href="station.txt">paradas</a>.
+</p>
+<p>
+<em>Densidade de tráfego:</em> regula o número de carros particulares em <a href="citywindow.txt">áreas urbanas</a>.<br>
+O número de carros novos que aparecem conforme a área urbana cresce depende do seu tamanho e da densidade de tráfego. Valores maiores que zero geram tráfego nas cidades.
+</p>
+<p>
+{Dica: mais opções e valores padrão para quando o Simutrans inicia podem ser mudados no arquivo simuconf.tab}.
+</p>
+<br>
+<p>
+<strong>Informações de vídeo:</strong>
+</p>
+<p>
+Abaixo dessas configurações, são mostradas informações do desempenho do computador rodando o Simutrans.<br>
+Se os números (geralmente brancos) estiverem vermelhos ou amarelos talvez você precise mudar suas configurações.<br>
+Mudanças na velocidade que o tempo passa no jogo, (usando o Avanço Rápido(>>) no topo da área de jogo, ou [,]/ [.]) podem mudar a cor do número.
+</p>
+<p>
+<em>Tempo por quadro:</em> quantidade de tempo entre os quadros.
+</p>
+<p>
+<em>Livre:</em> quando superior a zero, o computador tem capacidade de rodar outro software.
+</p>
+<p>
+<em>
+Q/s:</em> taxa de quadros por segundo. Valores altos fazem os veículos parecerem se mover mais naturalmente. Se o número continuar vermelho, tente reduzir o tamanho da tela de jogo.
+</p>
+<p>
+<em>Simloops:</em> se o número continuar vermelho, significa que o computador fica lento com as configurações atuais - tente um mapa menor com menos áreas urbanas.
+</p>
+<p>Traduzido para versão Simutrans 0.99.14. 17:37 22/9/2007
+</p>

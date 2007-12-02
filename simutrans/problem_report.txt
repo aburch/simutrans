@@ -1,0 +1,50 @@
+This is a form for reporting problems with Simutrans.
+
+If this is the first time you submit a problem report for Simutrans
+please fill the Systems specs. Later on you can leave the specs empty,
+until your system specs have changed.
+
+Please give as much information as possible, and as detailed as
+possible. This helps to fix the problems faster.
+
+Please send all problem reports to team@64.simutrans.com
+
+
+1.) System specs (CPU, memory, graphics, sound, operating system,
+preferred screen resolution):
+->
+
+
+2.) Simutrans version:
+->
+
+
+3.) Description of the found problem:
+->
+
+
+4.) How can this problem be reproded?
+(Note: if the problem can't be reproduced, there is only
+a very small chance that it can be fixed.)
+->
+
+
+5.) What did you/the game do when the problem occured?
+(Only needed if (4) is left blank.)
+->
+
+
+6.) Effect on gameplay of the found problem?
+->
+
+
+7.) Did you discover a workaround for the problem?
+->
+
+
+8.) Severity of the problem/urgency to fix it?
+(One of high, medium, low or a more detailed description)
+->
+
+
+Please don't forget to note your name and email address somewhere!

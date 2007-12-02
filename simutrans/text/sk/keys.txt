@@ -1,0 +1,44 @@
+<title>Ovládacie klávesy - pomoc</title>
+
+<h1>Ovládacie klávesy:</h1>
+<p>
+! - Zapína/vypína   názvy   (miest,  zastávok,  atd.)<br>
+A - Informácie (lupa)<br>
+B - Stavba ¾eleznicnej signalizácie<br>
+C - Nasníma raster-záber    (screenshot)<br>
+D - Zní¾it' terén<br>
+U - Zvý¹it' terén<br>
+E - Postavit' elektrickú trakciu nad koµajnice<br>
+F - Zobrazit' prehµad financií<br>
+K - Zobrazit' zoznam hráèov<br>
+M - Zobrazit' mapu<br>
+P - Zastavit'/obnovit' hru   (pauza)<br>
+R - Búranie<br>
+S - Postavit' cestu<br>
+T - Postavit' ¾eleznicu<br>
+G - Postavit' energetickú rozvodòu (zatiaµ skú¹obne)<br>
+L - Postavit' energetický rozvod el. energie (zatiaµ skú¹obne)<br>
++ - Pridat' jas<br>
+- - Ubrat' jas<br>
+W - Mana¾ment liniek
+Shift+C - Vytvorit' nové mesto (za 5.000.000)<br>
+Shift+G - Poplatky za dopravu a info o bonusoch<br>
+Shift+M - Zapnút' znaèkovaè<br>
+Shift+V - Zobrazit zoznam vozidiel<br>
+Shift+Q,X - Re¹tart hry<br>
+Shift+L - Naèítat' hru<br>
+Shift+S - Ulo¾it' hru<br>
+7 - Rolovat mapu na severo-západ<br>
+8 - Rolovat mapu na sever<br>
+9 - Rolovat mapu na severo-východ<br>
+1 - Rolovat mapu na juho-západ<br>
+2 - Rolovat mapu na juh<br>
+3 - Rolovat mapy na juho-východ<br>
+4 - Rolovat mapu na západ<br>
+6 - Rolovat mapu na východ<br>
+Backspace - uzatvorit' v¹etky prehµady<br>
+ <br>
+Pozn. prekladateµa :<br>
+(rolovanie mapy sa ovláda z textovej
+ èasti klávesnice - Shift + prísl. kláves !)<br>
+</p>

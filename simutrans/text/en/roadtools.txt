@@ -1,0 +1,66 @@
+<title>Road Tools Help</title>
+
+<h1><strong>Road Tools</strong></h1>
+
+<p>
+<strong>Road Tools</strong> construct a road transportation network for goods and passengers. Tools may build or remove: roads, bridges, tunnels, signals, depots, extensions, & <a href="station.txt">Stops</a>. If playing with <a href="new_world.txt">timeline</a>, then as time passes in Simutrans more tool-options may appear.
+</p>
+<p>
+Click truck-icon at top of game-view to open toolbar.<br>
+Hover mouse-cursor over tool-option (after opening or clicking on toolbar) to see name & where appropriate: construction <a href="finances.txt">cost,</a> maintenance cost in brackets, maximum speed limit & maximum length.
+</p>
+<p>
+<strong>Road Tools</strong> include, from left to right:
+</p>
+<p>
+<em>?Roadway:</em> tools build road between two points for road vehicles. Roads may not be built on areas occupied by other buildings. Roads can only be built on slopes in the direction of the slope & may not be built across rough terrain or water. New road built may use existing road in its path.<br>
+To build road: click on tool to select road type (changes cursor to road), then click on  in game-view for start-point of road (shows a bulldozer in game-view and map co-ordinates on right of bottom-bar under game-view), & finally click on game-view for end-point for road.<br>
+{Tips: Different types of roads may connect even when built by different <a href="players.txt">players</a> . Use bridges & tunnels to connect roads across rough terrain, or to avoid obstructions. Use <a href="slopetools.txt">?Landscape tools</a> to change terrain, to enable paths for road. Use Destroy/Remove to remove individual pieces of road & some obstructions. Use <a href="keys.txt">[Ctrl]</a> at same time for extra functions. Undo [z] does not refund constructions costs. Press [s] to select last roadway tool used.}
+</p>
+<p>
+<em>Remove roads:</em> tool removes road, when no vehicles are present, between two points in game-view (Road-stops, signals, tunnels in bridges in path are removed too). Use of tool incurs a <a href="finances.txt">construction cost</a>.<br>
+To remove road: click on tool (changes cursor to a red-cross); then click on track that is to be deleted (selects deletion point shown by a red-cross in game-view); & finally click at another point on track, to remove portion of track up to first deletion point.<br>
+{Tips: Operate as another <a href="players.txt">player</a> to remove their roads.}
+</p>
+<p>
+<em>Road Bridge:</em> tools build straight bridges, for vehicles to pass, between two pieces of road in game-view. Bridges have a maximum span. Tools build bridges from an end of a road to a suitable place (another road-end or slightly higher land, within span).<br>
+To build bridge: click on tool to select bridge (changes cursor to bridge), then click on the end of a road, (starting-point of bridge). Some obstructions or lack of a suitable place for bridge-ends may stop bridge being built: build road at both sides that is to be bridged, & try again.<br>
+{Tips: Use Destroy/Remove to remove bridges (click on bridge-end) & some obstructions to bridge building. Use <em>Roadway</em> tools to connect bridge-ends to road.}
+</p>
+<p>
+<em>Road Tunnel:</em>
+tool builds a straight tunnel, for vehicles to pass through land, between two pieces of road in game-view.
+Tunnels cannot incline: vehicles enter & leave at the same height.<br>
+Tool builds a tunnel, on an end of a road placed on a slope. To build a tunnel: click on tool (changes cursor to a tunnel), then click on road-end on slope for the tunnel entrance. If a tunnel cannot find a suitable exit (a slope free from obstructions), it will not be built: place road on both sides that is to be connected, & try again.<br>
+{Tips: Use Landscape tools & Destroy/Remove to create suitable places for tunnel entrances and exits. Use Roadway tools to connect tunnel-exits to roads.}
+</p>
+<p>
+<em>Road signals & barriers:</em> tools build signals & barriers, for road vehicles, in game-view. Signals & barriers direct & regulate flow of vehicles on roads & bridges, and at junctions & stops (where goods and passengers are picked-up and dropped-off). Two-way & one-way versions of some signals can be built.<br>
+IMPORTANT: Take care signals not place signals that prevent vehicles reaching their destination, by default vehicles drive on the right (can be changed in simuconf.tab).<br>
+- <em>Traffic lights:</em> tool builds signals in game-view to regulate the flow of road vehicles at junctions, either allowing them to proceed or making them wait for a while. Click on tool to select (changes cursor to signal), then click on road to build. Click again at junctions to change orientation of signals.<br>
+- <em>single barrier:</em> tool builds a barrier to prevent road vehicles using one side of a road. Click on tool to select (changes cursor to barrier), then click on road to build, click again at same position to change side of road to which barrier applies.<br>
+- <em>road closed:</em> tool builds a barrier to prevent road vehicles proceeding. Click on tool to select (changes cursor to barriers), then click on road to build.<br>
+- <em>no entry:</em> tool builds a signal to prevent road vehicles proceeding on one side of a road (similar to a <em>single barrier</em>. Click on tool to select (changes cursor to signal), then click on road to build, click again at same position to change side on road that signal is placed.<br>
+- <em>minimum 80km/h</em> tool builds a signal to prevent road vehicles proceeding if their maximum speed is below 80km/h. Click on tool to select (changes cursor to signal), then click on road to build, click again at same position to change side of road to which signal applies.<br>
+- <em>Choose Point:</em> tool builds a signal to direct a road vehicle to an empty Road-stop to pick-up or drop-off goods and passengers at a <a href="station.txt">Stop</a> with mulitple Road-stops: a vehicle passing this signal may use any free Road-stop at its next destination, and not just the one assigned in its <a href="schedule.txt">schedule</a>. If no empty Road-stop or clear route to next destination is found, then vehicles wait at signal. Click on tool to select (changes cursor to signal), then click on road to build, click again at same position to change side of road to which signal applies.<br>
+- <em>highways:</em> (available only in pak128) tools build a signal that only allow vehicles to proceed in one direction on a road if their maximum speed limit is over 80km/h.<br>
+Click on tool to select (changes cursor to signal), then click on road to build, click again at same position to change direction on road to which signal applies.<br>
+{Tips:  Remove signals with Destroy/Remove. Use [Ctrl] to place signals on bridges over lower roads.}
+</p>
+<p>
+<em>Road</em> <a href="depot.txt"><em>Depot:</em></a> tool builds a depot for purchasing & managing road vehicle and trailers. Depots have a maintenance cost & are built on the end of road in game-view.<br>
+To build a Road Depot: click on tool (changes cursor to a depot), then click on end of road.<br>
+{Tips: Remove depots with Destroy/Remove.}
+</p>
+<p>
+<em>Car Parking:</em> (available only in pak 128) tools construct extensions for <a href="station.txt">Stops</a> which increase capacity & catchment area for goods & passengers, and maintenance cost.<br>
+To build an extension: click on tool to select extension (changes cursor to extension), then click required position on a road, beside an existing Stop in game-view. The new extension is now considered to be part of the Stop.<br>
+{Tips: Remove extensions with the Destroy/Remove.}
+</p>
+<p>
+<em>?Road-Stops:</em> tools build places for road vehicles to pick-up and drop-off goods & passengers.<br>
+A Road-stop when not built adjacent to an existing <a href="station.txt">Stop</a> will create a new Stop.<br>
+Road-stops are built on<a href="roadtools.txt">road</a>& have a maintenance cost and a catchment area for goods, passengers & mail. In the corner of some tool-options an icon (used in Station List & Stop Information) shows which items the Road-stop allows a Stop to handle. Different Road-stops may have different capacities for goods, passengers & mail.<br>
+To build a Road-stop: click on tool to select (changes cursor to roadstop), then click required position on a road in game-view.<br>
+{Tips: Remove Road-stops with Destroy/Remove. Press [v] to toggle catchment area for goods & passengers in game-view.  Roadstops cannot be placed on road built by some other players. Use [Ctrl] to build on bridges over lower roads. Create Stops with multiple places for vehicles to increase capacity and catchment area.}
+</p>

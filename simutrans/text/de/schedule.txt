@@ -1,0 +1,33 @@
+<title>Fahrplanfenster Hilfe</title>
+
+<h1><strong>Fahrplanfenster</strong></h1>
+
+<p>
+Im Fahrplanfenster kannst Du den Fahrplan für den ausgewählten Konvoi oder den Linienfahrplan für die ausgewählte Linie bearbeiten. Ein Konvoi, dessen Fahrplan aufgerufen wurde, hält an und wartet, bis das Fahrplanfenster wieder geschlossen ist.
+</p>
+<p>
+<em>Bediente Linie</em> (nur bei Konvois ausserhalb des Depots): Das Textfeld zeigt die Linie an, in welcher der Konvoi fährt. Klicke zum Ändern der Linie ins Feld. Es öffnet sich ein Menü, in welchem alle verfügbaren Linien gelistet sind. Du kannst auch den Eintrag "keine Linie" wählen und den Konvoi nach einem individuellen Fahrplan fahren lassen.
+</p>
+<p>
+<em>Warten auf:</em> Der angezeigte Wert ist mit den Einträgen der Fahrplanhalte verbunden. Du kannst mittels der Pfeilschalter für jede Haltestelle des Fahrplans einen der verfügbaren Werte zwischen 0% und 100% einstellen. Der Konvoi wartet an der Haltestelle, bis der eingestellte Wert der Mindestbeladung erreicht ist. Zum auswählen der Haltestelle klicke auf diese, achte aber darauf das der Schalter "Löschen" nicht eingedrückt ist.
+</p>
+<p>
+<em>Fahrplanhalte:</em> Die gelisteten Haltestellen und freien Wegpunkte werden vom Konvoi der Reihe nach angefahren. Die Fahrplanhalte sind durchnummeriert. Der Doppelpfeil (<strong>>></strong>) vor einer Zeile zeigt an, zu welchem Fahrplanhalt der Konvoi momentan unterwegs ist. Wartet er auf Beladung, zeigt der Pfeil auf die aktuelle Haltestelle. Beim Verlassen des letzten Fahrplanhaltes wird wieder der erste Fahrplanhalt angesteuert.
+</p>
+<p>
+<em>Fahrplanbearbeitung:</em> Bei der Nutzung eines der Schalter "Hinzufügen"  oder "Einfügen" ändert sich der Cursor in einen Haltepunktmarker. Klickst Du mit dem Werkzeug auf ein Haltestellenfeld oder auf einen freien Wegpunkt, welcher vom Konvoityp befahren werden kann (je nach Fahrzeugart Straßen-, Wasser-, oder Gleisfeld), wird der Punkt als Fahrplanhalt in die Liste der Fahrplanhalte aufgenommen.<br>
+· Haltepunkte werden mit dem Namen der Haltestelle, der eingestellten Mindestbeladung und den Koordinaten des Feldes in die Liste eingetragen.<br>
+· Freie Wegpunkte werden mit der Bezeichnung "freier Wegpunkt" und den Koordinaten des Feldes in die Liste eingetragen. Ein Halt erfolgt nicht. Die Strecke bis zum nächsten Fahrplanhalt wird eingelesen, ein kurzes Abbremsen des Konvois ist möglich. Vermeide nach Möglichkeit die Platzierung von Wegpunkten in Kurven. Es wird zwar keine Störung verursacht, doch ordentliches Fahrverhalten kann nicht gewährleistet werden.<br/>
+· Bis zu 32 Fahrplanhalte können je Fahrplan eingerichtet werden.
+</p>
+<p>
+Die <em>Schaltfächen</em> unten haben folgende Bedeutung:<br/>
+· <em>Hinzufügen:</em> Der neue Fahrplanhalt wird am Ende der Liste angefügt.<br>
+· <em>Einfügen:</em> Der neue Fahrplanhalt wird vor dem mit <strong>>></strong> gekennzeichneten Fahrplanhalt eingefügt.<br>
+· <em>Löschen:</em> Der per Mausklick angewählte Fahrplanhalt wird aus der Liste gelöscht.<br>
+· <em>Neue Linie:</em> Eine neue Linie mit dem aktuellen Fahrplan wird erstellt.
+</p>
+<p>
+· <em>Rückfahrkarte:</em> Alle Fahrplanhalte werden bis zum Maximum von 32 Gesamteinträgen in umgekehrter Reihenfolge (ohne 1. und letzten Halt) an den bestehenden Fahrplan angefügt. Auf zweigleisigen Strecken wird die Rückfahrkarte allerdings nicht einsetzbar sein, da der Haltepunkt bei der Rückfahrt ja auf dem Gegengleis liegt.<br/>
+· Wenn du fertig bist, dann schließe einfach das Fahrplanfenster. Der Konvoi liest den Fahrplan neu ein und setzt die Reise zum dann als nächsten Halt markierten Punkt fort. Wird eine Linie als ganzes geändert, halten alle ihr zugewiesenen Fahrzeuge an, lesen den neuen Fahrplan ein und fahren weiter. Sind Zwischenhalte eingefügt worden, kann dies dazu führen, dass einige Konvois umkehren, da an derselben Position ihres Fahrplans nach der Änderung ein anderer Fahrplanhalt steht.
+</p>

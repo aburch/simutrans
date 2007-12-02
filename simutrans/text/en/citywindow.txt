@@ -1,0 +1,56 @@
+<title>?City Information Help</title>
+
+<h1><strong>?City Information</strong></h1>
+
+<p>
+<strong>?City Information</strong> shows statistics about a selected urban area (village, town or city) and can be used to change the name of the urban area.
+</p>
+<p>
+Each urban area has its own Town Hall around which it grows. Transportation of passengers and mail helps growth, which involves: roads built and taken over by the <a href="players.txt">public service player</a>; new city buildings and <a href="industry_info.txt">industries</a> appear; and city limits extend.
+</p>
+<p>
+Click on a Town Hall in game-view with the <a href="inspection_tool.txt">Inspection Tool</a> or an urban area listed in <a href="citylist_filter.txt">City List</a> to open <strong>?City Information</strong>, which contains: a name-box; statistics; two mini-maps; and a graph for the urban area.
+</p>
+<p>
+<em>name:</em> assigned name of urban area appears in a name-box at top of <strong>?City Information</strong>. <br>
+Names of urban areas are used in the default names of Stops.<br>
+To change name: click on name-box and type new name.<br>
+{Tips: Use <a href="keys.txt">[!]</a> to toggle view of name of urban area, above a Town Hall, in game-view. See readme_citylist.txt (in ...simutrans/text/) for help on name generation of urban areas}.
+</p>
+<p>
+Under the name-box statistics are provided on urban area:<br>
+<em>City size:</em> is number of citizens (population of urban area). The recent increase in population is shown in brackets.<br>
+<em>buildings:</em> number of buildings in urban area.<br>
+<em>map co-ordinates:</em> indicate boundary of city limits (changes as urban area grows).
+<p>
+</p>
+Counters increase with growth of urban area and decrease with construction of new city buildings:<br>
+<em>unemployed:</em> counter determines which type of city building (residential/commerical/industrial) may be constructed.<br>
+<em>homeless:</em> counter determines which type of city building (residential/commerical/industrial) may be constructed.
+</p>
+<p>
+<em>mini-maps</em> of the game world in <strong>?City Information</strong> indicate destinations of passengers and mail.<br>
+Destinations are shown by coloured dots for the current game-calendar-month (right mini-map) and last game-calendar-month (left mini-map). Colour of destination dots indicate details about passengers and mail:<br>
+- yellow: found a route and an uncrowded <a href="station.txt">Stop</a> to start journey (happy face shown in Stop Information).<br>
+- orange: did not find a route to this destination.<br>
+- red: found a route but Stop at start of hourney was overcrowded (sad ?unhappy face in Stop Information).
+</p>
+<p>
+<em>Graph</em> shows statistics for the urban area. <br>
+The y-axis is quantity, the x-axis is time.<br>
+Click on graph index-tab to change scale of x-axis:<br>
+<em>Years:</em> shows annual values for last ten game calendar years.<br>
+<em>Months:</em> shows monthly values for last 12 game months
+</p>
+
+<p>
+Click on graph-option-button to see information on graph (button is indented when option selected).<br>
+Colours of lines on graph correspond to colours of graph-option-buttons:<br>
+<em>Citizens:</em> population.<br>
+<em>Town growth:</em> change in population (dependent on city size and transport service provided for passengers and mail).<br>
+<em>Travel?ed:</em> passengers and mail that entered transport network (shown as a <a href="station.txt">happy face</a> in Stop Information) <br>
+<em>Passengers:</em> Total number of passengers and mail generated in urban area.
+</p>
+<p>
+{Tips: Settings related to urban areas can be changed in simuconf.tab and cityrules.tab}.
+</p>

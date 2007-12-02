@@ -1,0 +1,17 @@
+<title>Ajuda - Ferrovias</title>
+
+<h1>Ferrovias (continuação)</h1>
+
+<p>
+Na linha de baixo à esquerda, temos a ferramenta de construir estações. Clicando nela, o cursor vai ter a aparência de um segmento de estação. Para construir uma, clique no trecho de trilho onde desejar colocá-la. Este trecho deverá estar livre de qualquer interferência e ser reto. Obviamente, uma estação deve estar próxima a uma fábrica que produza alguma coisa, ou que consuma alguma coisa, ou ainda deve ter algo próximo que crie a necessidade de transportar passageiros.</p>
+<p> As indústrias somente entregam sua produção se a estação estiver com menos de 1000 toneladas esperando. Caso a espera passe desse valor, a indústria continua produzindo, mas não realiza entregas até que a estação tenha menos de 1000 toneladas de espera. Além disso, passa a ser emitido o aviso de que a estação está lotada.
+</p>
+<p>
+À direita está o pátio, que deve ser colocado em um final de trilho, de preferência em um trecho auxiliar. Aí você pode comprar, vender e programar seus trens. Mais informações em <a href="depot.txt">Pátios</a>.
+</p>
+<p>
+Por fim, existe a ferramenta de construir cruzamentos de ferrovia e estrada. Sua utilização se faz como a das outras ferramentas. Basta clicar no botão e depois no lugar da ferrovia ou da rua que vai ser o cruzamento.  A ferrovia ou a estrada já deve estar construída, e deve ser um trecho reto.</p>
+<p>
+Atualizado para Simutrans 0.81.32<br>
+18/05/2003
+</p>

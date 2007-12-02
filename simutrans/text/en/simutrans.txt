@@ -1,0 +1,33 @@
+<title>Prologue</title>
+
+<h1><strong>Welcome to Simutrans...</strong></h1>
+
+<p>
+Choose one, out of the many thousands, of Simutrans' lands. Then, put yourself in the shoes of a young entrepeneur with some money from your grandparents: eager to make them proud, with ambitions of establishing a successful transport company, your challenge now is to build a prospering enterprise.
+</p>
+<p>
+As time passes, develop your company into transport empire, keeping the economy running smoothly by delivering freight & satisifying the travel requirements of millions of passengers every month.<br>
+Transport passengers, mail & goods by rail, road, ship & even air.
+</p>
+<p>
+Every land has something different to offer. Take a good look at your surroundings...its future lies in your and your competitors' hands.
+</p>
+<p>
+In the beginning, it maybe easier to start by supplying a power station with required goods. Then, connect other factories, maybe even using central hubs where goods are reloaded.<br>
+The disadvantage of only transporting goods is that towns and cities won't grow and new industries will not appear.
+</p>
+<p>
+Alternatively, you may immediately go for passenger (and mail) transportation. This is more challenging, as the inhabitants of this world want to travel to locations they choose. <br>
+Some need to go to factories for work, some want to go shopping at the large mall in the main town, and others sightseeing.
+</p>
+<p>
+If you don't offer a connection to their destination, they will not travel with you at all. You will need to build networks. When your networks are established, you will need to upgrade them to keep abreast of demand. So plan ahead.<br>
+If passengers like your service, towns will grow and new industries will be established and only then will the economy run smoothly.
+</p>
+<p>
+You can play as long as you like. Start in 1880 and finish in 2050. There will be new vehicles and buildings throughout this time.<br>
+Play against the AI or on your own. Only if you are in debt for three months, you are bankrupt and the game is over.
+</p>
+<p>
+The <strong>Simutrans-Team</strong> and the community wish you a great time here in Simutrans!
+</p>

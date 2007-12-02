@@ -1,0 +1,55 @@
+<title>Ayuda del Buzon</title>
+
+<h1><strong>Buzon</strong></h1>
+
+<p>
+<strong>Buzon</strong> lista mensajes de la partida y abre los controles para elegir como seran mostrados los mensajes.
+</p>
+<p>
+Pulsa en el icono del buzon en la parte superior de la pantalla o presiona <a href="keys.txt">[B]</a> para abrir el <strong>Buzon</strong>, el cual lista mensajes del juego.<br>
+Pulsa en un mensaje para mover la pantalla al lugar al que hace referencia el mensaje.
+</p>
+<p>
+<em>Opciones</em> boton (pulsa para usar) que abre las <strong>Opciones del Buzon</strong> las cuales tienen controles que determinan como son mostrados los mensajes.
+</p>
+<br>
+<p>
+<strong>Opciones del Buzon</strong>
+</p>
+<p>
+<strong>Opciones del Buzon</strong> tiene tres columnas de botones cuadrados que selecionan como son mostrados los mensajes.
+</p>
+<p>
+De izquierda a derecha, las columnas seleccionan los criterios para mostrar los mensajes como: un texto en la parte inferior de la pantalla; como un aviso temporal; o como aviso permanente.<br>
+{Consejos: Pulsa la X en la esquina superior derecha del mensaje o usa el teclado para cerrar los avisos permanentes}
+</p>
+<p>
+Pulsa en los botones cuadrados para seleccionar las opciones del mensaje para los siguientes mensajes:
+</p>
+<p>
+<em>Año nuevo:</em> un nuevo periodo de 12 meses ha comenzado.
+</p>
+<p>
+<em>Noticias de la IA :</em> un <a href="players.txt">jugador</a> controlado por la maquina ha abierto una nueva linea.
+</p>
+<p>
+<em>Noticias de las Ciudades:</em> una <a href="citywindow.txt">ciudad</a> esta contruyendo un ayuntamiento mas grande.
+</p>
+<p>
+<em>Sin Ruta:</em> un vehiculo no puede encontrar la ruta al siguiente <a href="schedule.txt">destino</a> (una <a href="station.txt">Parada</a> o un punto de paso).
+</p>
+<p>
+<em>Nuevas Industrias:</em> una nueva <a href="industryinfo.txt">cadena industrial</a> (un suministrador o un consumidor final) ha sido construido debido al crecimiento de una <a href="citywindow.txt">ciudad</a>.
+</p>
+<p>
+<em>Turismo:</em> una <a href="curiositylist_filter.txt">atraccion</a> o monumento en la ciudad ha sido construido.
+</p>
+<p>
+<em>Nuevos Vehiculos:</em> un nuevo vehiculos esta disponible, o es retirado (si la <a href="new_world.txt">linea cronologica</a> esta en uso).
+</p>
+<p>
+<em>Estacion llena:</em> una <a href="station.txt">Parada</a> esta saturada.
+</p>
+<p>
+<em>Problemas:</em> el jugador esta endeudado, y otros mensajes criticos.
+</p>

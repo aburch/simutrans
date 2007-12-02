@@ -21,6 +21,7 @@ FIX: image under fields were not recalculated after removal
 	FIX: no stops on tunnel entries or on runways
 	FIX: calc load and image correctly after leaving depot
 	FIX: smoke offset of trains fixed
+	CHANGE: factory introduction dates (thus with older paks no factories before 1901)
 
 
 Release of 99.15

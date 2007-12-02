@@ -1,0 +1,43 @@
+<title>Aide sur les paramètres</title>
+
+<h1>Les paramètres passés en ligne de commande:</h1>
+<p>
+<em>Résolution graphique :</em><br>
+<strong>Simutrans -res 1</strong>  (640x480)<br>
+<strong>Simutrans -res 2</strong>  (800x600)<br>
+<strong>Simutrans -res 3</strong>  (1024x768)<br>
+<strong>Simutrans -res 4</strong>  (1280x1024)<br>
+<strong>Simutrans -res 5</strong>  Mode fenêtré (sous Windows uniquement)<br>
+Résolution personnalisée :<br>
+<strong>Simutrans -screensize AxB</strong>, avec A=nombre de pixel horizontaux et B=nombre de pixel verticaux. Le 'x' est important, ne l'oubliez pas.
+</p>
+<p>
+<em>Crédits infinis</em> (Sans risque de faillite) :<br>
+<strong>Simutrans -freeplay</strong>
+</p>
+<p>
+<em>Vitesse de rafraichissement</em> :
+<strong>Simutrans -refresh n</strong>, avec n = 1 à 16 (1=normal, 16=très accéléré).
+Sur les ordinateurs les moins performants, choissez une valeur de n entre 2 et 4.
+Au dela, les mouvements des véhicules risquent d'être saccadés.
+</p>
+<p>
+<em>Effets graphiques :</em><br>
+<strong>Simutrans -objects fichier.pak</strong>, avec fichier.pak dans le répertoire courrant.
+</p>
+<p>
+<em>Fichier de trace :</em><br>
+<strong>Simutrans -log</strong>, Ecrit les actions effectuée dans un fichier de
+trace, très utile quand vous avez un souci et que vous ne savez pas l'exprimer en anglais.
+</p>
+
+<p>
+Tous ces paramètres sont, bien sur, utilisable en combiné.<br>
+<strong>Simutrans -res 2 -log -objects winter.pak</strong><br>
+Pour plus d'informations, reportez-vous au fichier README.TXT
+</p>
+<p>
+Simutrans (c) Hj. Malthaner
+Actualisé pour Simutrans 0.83.1.2<br>
+02/01/2003
+</p>

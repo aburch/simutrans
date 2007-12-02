@@ -1,0 +1,10 @@
+<title>Help Scule pt. nave</title>
+
+<h1>Scule pt. nave</h1>
+<p>
+Aici gãseºti toate uneltele necesare pt. construire de nave ºi
+docuri maritime.
+</p>
+<p>
+Locul de ancorare trebuie ales cat mai aproape de staþia dorita.
+</p>

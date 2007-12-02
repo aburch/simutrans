@@ -1,0 +1,36 @@
+<title>Ayuda de la Lista de Vehiculos</title>
+
+<h1><strong>Filtro de la Lista de Vehiculos</strong></h1>
+
+<p>
+<strong>Filtro de la Lista de Vehiculos</strong> tiene opciones que determinan que <a href="convoiinfo.txt">Convoys</a>, se muestran en la <a href="convoi.txt">Lista de Vehiculos</a>.
+</p>
+<p>
+Pulsa en Opciones en la Lista de Vehiculos para abrir el <strong>Filtro de la Lista de Vehiculos</strong>.
+</p>
+<p>
+Los botones de Opcion seleccionan los Convoys que apareceran en la Lista de Vehiculos cuando este <a href="convoi.txt">activada</a> la opcion de Filtro. Solo los Convoys que se ajusten al los criterios seran listados.
+</p>
+<p>
+Pulsa en el boton cuadrado para establecer los criterios de flitrado (el boton de oscurece cuando es seleccionando):
+</p>
+<p>
+<em>Filtrar nombres:</em> selecciona los <a href="convoiinfo.txt">Convoys</a> por el nombre. Para usarlo: pulsa en el boton para seleccionar, despues pulsa en la caja de texto Nombre Filtro y teclea en nombre requerido con exactitud (distingue entre mayusculas y minusculas).
+</p>
+<p>
+<em>Filtros de tipo :</em> listara los Convoys por tipo de transporte seleccionado. Para usarlo: pulse en el boton seleccionado, despues pulse en el tipo(s) de transporte: autobuses/camiones, trenes, barcos y aviones.
+</p>
+<p>
+<em>Filtros especiales:</em> selecciona <a href="convoiinfo.txt">Convoys</a> para listarlos segun los siguientes criterios (pulsa en el boton Filtro Especial, despues pulsa en la opcion eleguida ):<br>
+- <em>sin camino</em> - no puede encontrar el camino al proximo destino.<br>
+- <em>sin horario</em> - no tiene asignada una <a href="schedule.txt">ruta</a>.<br>
+- <em>sin ingresos</em> - no genera beneficios.<br>
+- <em>en el deposito</em> - aquellos que estan en un <a href="depot.txt">deposito</a>.<br>
+- <em>sin linea</em> - no tiene asignada una <a href="linemanagement.txt">Linea</a>.
+</p>
+<p>
+<em>Filtro de Mercancias:</em> selecciona los Convoys por la capacidad de transportar diferentes mercancias y pasajeros. Pulsa en el boton junto al nombre del elemento(s) seleccionado(s). Usa la <a href="mouse.txt">barra de desplazamiento</a> para desplazar los elementos en la lista. Entre las opciones se incluyen:<br>
+- <em>todo</em> selecciona todos los elementos.<br>
+- <em>nada</em> no selecciona ningun elemento.<br>
+- <em>inv.</em> invierte la seleccion actual de elementos.
+</p>

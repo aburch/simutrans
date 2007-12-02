@@ -1,0 +1,37 @@
+<title>Ajuda - Salvar</title>
+
+<h1><strong>Salvar</strong></h1>
+
+<p>
+<strong>Salvar</strong> armazena o jogo atual a um arquivo (para continuar o jogo mais tarde) e pode ser usado para apagar esses arquivos.
+</p>
+<p>
+<strong>Salvar</strong> abre-se de <a href="options.txt">Opções de Jogo</a> ou prosionando a tecla <a href="keys.txt">[S]</a>; também lista nome, data e hora dos jogos precedentes.<br>
+Se todos os nomes não estiverem visíveis: use a <a href="mouse.txt">barra de rolagem</a> no lado direito para rolar os nomes.
+</p>
+<p>
+O jogo atual pode ser salvo em um novo arquivo ou em cima de um jogo já existente.<br>
+Para salvar em um novo arquivo, entre com o novo nome no campo de preenchimento "Arquivo" no topo de
+ <strong>Salvar</strong>: clique no campo "Arquivo", digite um nome e pressione [Enter] ou [Backspace] ou clique em <em>OK</em>; o novo nome de arquivo é listado.<br>
+IMPORTANTE: Se um nome de arquivo listado é usado: o jogo velho é substituído, pelo jogo atual e apagado.
+</p>
+<p>
+Por padrão o jogo atual aparece no campo "Arquivo", para salvar este arquivo: clique em <em>OK</em> (os dados velhos serão apagados e substituídos pelos novos).<br>
+Para salvar o jogo em cima de um arquivo velho: clique em um nome da lista (o jogo velho substituído pelo jogo atual).
+</p>
+<p>
+Os nome de arquivos podem ser combinações de letras, números e simbolos com o comprimento máximo de 57 caracteres; depois de salvar, só 20 (aprox.) caracteres são mostrados em <strong>Salvar</strong> e
+<a href="load.txt">Carregar</a>.
+</p>
+<p>
+AVISO: Apertando o botão X na frente do nome de um arquivo ele será APAGADO imediatamente e pemanentemente, o arquivo será retirado da lista e o <strong>Salvar</strong>será fechado. Use esta função cuidadosamente.
+</p>
+<p>
+{Dica: Recomece um jogo salvo a partir do <a href="load.txt">Carregar</a>.<br>
+Mude o autosave (salvamento automático do jogo) no simuconf.tab}.
+</p>
+<p>
+Clique em <em>Cancelar</em> para fechar <strong>Salvar</strong>; ou no X no canto superior esquerdo da janela; ou use o teclado.
+</p>
+<p>Traduzido para versão Simutrans 0.99.14.
+</p>

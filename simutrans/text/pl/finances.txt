@@ -1,0 +1,39 @@
+<title>POMOC: Finanse</title>
+
+<h1>Finanse (<em>f</em>)</h1>
+
+<p>
+W tym oknie mozesz obserwowac stan swoich finansów w danym roku i w roku poprzednim.
+</p>
+
+<p>W oknie znajduja sie ponizsze inforamcje:</p>
+
+<p>
+<em>Infrastruktura</em> - wszystko co zbudowales: koleje, drogi, budynki, sygnalizacje itp.
+</p>
+
+<p>
+<em>Nowe pojazdy</em> - Wszystkie zakupione w danym roku pojazdy/pociagi/statki.
+</p>
+
+<p>
+<em>Koszty przejazdów</em> - Koszty zwiazane z utrzymaniem wszystkich pojazdów.
+(Koszty te dostepne sa w oknie <a href="depot.txt">'Zajezdnia'</a>)
+</p>
+
+<p>
+<em>Dochód</em> - Twoje dochody zwiazane z dzialalnoscia transportowa.
+</p>
+
+<p>
+<em>Utrzymanie</em> - Koszty zwiazane z utrzymaniem budynków, dróg, mostów itp.
+(Na dole okna znajduja sie miesieczne koszty utrzymania)
+</p>
+
+<p>
+<em>Razem</em> - Suma powyzszych kwot, zyski/straty w danym roku.
+</p>
+
+<p>
+<em>Balans</em> - Pieniadze które posiadasz. Jest to kwota która mozesz inwestowac i wydawac.
+</p>

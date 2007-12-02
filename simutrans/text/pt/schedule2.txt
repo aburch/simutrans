@@ -1,0 +1,32 @@
+<title>Ajuda - Programação</title>
+
+<h1>Programação (continuação)</h1>
+<p></p>
+<p>
+Exemplo: Um trem deve transportar madeira da Floresta 1 (F1) e da Floresta 2 (F2) para a Serraria 1 (S1) e a Fábrica de Papel (FP). Você constrói os trilhos e as estações. Cria o pátio e compra o trem. E agora?
+Clique em Programar.
+Vai aparecer uma caixa escrita "Programar" na barra superior, e logo abaixo vem Carregar (mín.): 0%.
+Em baixo, quatro botões: Adicionar, Inserir, Eliminar e Pronto.</p>
+<p>
+1. Para criar a rota, clique em "Adicionar", comece da primeira parada e siga até a última do ciclo. É simples: o cursor vai se tornar numa plaquinha escrito "Halt", parada em alemão, e daí basta clicar nas estações na seqüência desejada de percurso.</p>
+<p>
+
+
+2. Caso deseje estabelecer que o trem não pode partir de F1 com menos de, digamos, 20% de sua capacidade, clique no nome da estação de F1, e em seguida, uma vez, na seta à direita do número. A outra seta diminui a lotação mínima.</p>
+<p>
+
+
+3. Vamos dizer que você queira que seu trem passe por uma outra Serraria, a Serraria 2 (S2), que ficará entre S1 e FP. Para isso, clique em "Inserir", e em seguida na estação da FP. A seguir, clique na estação da S2. Ela estará entre a da S1 e a da FP. Não se esqueça, por favor, de que deve existir uma conexão entre a estação da S2 e o circuito principal, e de que deve estar eletrificada, se seu trem for elétrico.</p>
+<p>
+
+
+4. Digamos que você vai realizar uma mudança em seu sistema para permitir a passagem de trens de passageiros, e que seja necessário para isso alterar a posição da estação da F1. Como o Simutrans armazena a coordenada da estação, ao destruí-la, o jogo passa a mostrar na programação "Ponto de passagem (x, y)", onde x e y são as coordenadas do segmento da estação onde você clicou para programar o trem. Para que ele volte a receber a madeira da F1, o tal ponto de passagem deve ser eliminado e a nova parada, inserida no lugar da antiga estação. Para eliminar, clique em "Eliminar" e no "Ponto de Passagem (x, y)". Tome o cuidado de não clicar em uma parada que não queira eliminar. Para inserir a nova estação, siga o procedimento descrito no item 3. </p>
+<p>
+
+
+5. Por alguma razão, você quer que o trem pule uma certa estação. Basta, estando com a programação do trem aberta, clicar no nome da estação a que o trem deve se dirigir.
+</p>
+<p>
+Atualizado para Simutrans 0.81.32<br>
+18/05/2003
+</p>

@@ -1,0 +1,43 @@
+<title>Ajuda - Filtro da Lista de Paradas</title>
+
+<h1><strong>Filtro da Lista de Paradas</strong></h1>
+<p>
+O <strong>Filtro da Lista de Paradas</strong> tem as opções para determinar quais <a href="station.txt">paradas</a>, onde os veículos acolhem e deixam passageiros e mercadorias, são mostradas na <a href="haltlist.txt">Lista de Paradas</a>.  (Isso só vale para paradas que não sejam exclusivas de veículos de transporte na água).
+</p>
+<p>
+Para acessar o filtro, clique sobre o botão Parâmetros na <a href="haltlist.txt">Lista de Paradas</a> para abrir o <strong>Filtro da Lista de Paradas</strong>.
+</p>
+<p>
+Os botões de opção limitam as <a href="station.txt">paradas</a> que serão listadas na <a href="haltlist.txt">Lista de Paradas</a> conforme o filtro desejado. Somente serão listadas as paradas que caibam em todos os critérios selecionados.
+</p>
+<p>
+Clique sobre um botão para selecionar critérios para a filtragem (o botão fica afundado quando selecionado):
+</p>
+<p>
+<em>Filtro por nome:</em> seleciona <a href="station.txt">paradas</a> pelo nome. Para usá-lo, clique sobre o botão para ativar o filtro, e clique então sobre a caixa de nome e digite o nome da parada exatamente. (a opção é sensível a maiúsculas e minúsculas (ou caixa alta e baixa) ).
+</p>
+<p>
+<em>Filtro por tipo:</em> listará as <a href="station.txt">paradas</a> que atendem a pelo menos um dos tipos de veículos selecionados. Para usá-lo,  clicar sobre os botões com os nomes do tipos de veículo. (Apenas as paradas exclusivas para veículos de transporte na água não são listados na lista da paradas)
+</p>
+<p>
+<em>Filtro especial:</em><br>
+- <em>lotadas:</em> não está funcionando.<br>
+- <em>não conectadas</em> seleciona <a href="station.txt">paradas</a> com nenhum serviço de transporte.
+</p>
+<p>
+<em>Necessidade:</em> Seleciona as <a href="station.txt">paradas</a> de acordo com as necessidades das indústrias próximas. Use a <a href="mouse.txt">barra de rolagem</a> para rolar pela lista dos artigos. As opções incluem:<br>
+ - <em>tudo</em> seleciona todos os artigos.<br>
+
+ - <em>nada</em> desfaz todas as seleções.<br>
+
+ - <em>inv.</em> inverte a seleção atual.
+</p>
+<p>
+<em>Produção:</em> Seleciona as <a href="station.txt">paradas</a> de acordo com os produtos das indútrias próximas. Use a <a href="mouse.txt">barra de rolagem</a> para rolar pela lista dos artigos. As opções incluem:<br>
+ - <em>tudo</em> seleciona todos os artigos.<br>
+
+ - <em>nada</em> desfaz todas as seleções.<br>
+
+ - <em>inv.</em> inverte a seleção atual. </p>
+<p>Traduzido para versão Simutrans 0.99.14.
+</p>

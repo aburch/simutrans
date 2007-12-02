@@ -1,0 +1,35 @@
+<title>Ajuda - Finanças</title>
+
+<h1>Finanças <em>(teclado: f)</em></h1>
+
+<p>Você pode ver suas finanças através dessa janela, que pode ser acessada pela tecla f ou pelo ícone que parece dinheiro na barra de ferramentas.<br>
+Aí você pode encontrar informações sobre as suas finanças dos últimos dois anos.</p>
+<p>Os campos são os seguintes:</p>
+
+<p>
+<em>Construção</em> - Soma do custo da construção de trilhos, estradas, estações, paradas e agências de correio.
+</p>
+<p>
+<em>Veículos novos</em> - Despesa com a compra de veículos durante o ano.
+</p>
+<p>
+<em>Custo de Operação</em> - Gasto com o funcionamento de todos os veículos. Os gastos individuais por quilômetro podem ser encontrados nos <a href="depot.txt">depósitos</a>. É o que tecnicamente se chama custo variável.
+</p>
+<p>
+<em>Manutenção </em> - Custo até o momento durante o ano corrente da manutenção da infra-estrutura (estações, paradas, cais, trilhos, rodovias).
+</p>
+<p>
+<em>Faturamento</em> - Faturamento com o transporte de passageiros e cargas.
+</p>
+<p>
+<em>Total</em> - É a soma de todas as linhas anteriores.
+</p>
+<p>
+<em>Balanço</em> - É a quantidade atual disponível de dinheiro. Também é mostrado na barra de status, embaixo da tela.
+</p>
+<em>Manutenção (mensal) </em> - Custo mensal da manutenção da infra-estrutura (estações, paradas, cais, trilhos, rodovias). São 5¢/quadrado de linha. É o custo fixo do sistema.
+</p>
+<p>
+Atualizado para Simutrans 0.81.32<br>
+18/05/2003
+</p>

@@ -1,0 +1,13 @@
+<title>Ajuda - Som</title>
+
+<h1>Som</h1>
+<p>
+Nesta caixa você pode alterar o volume do som e da música, bem como aquela que está tocando.
+</p>
+<p>
+Para mudar o volume, clique no regulador e leve-o para a esquerda e para a direita até achar o volume desejado. Para alterar a música, clique nos botões embaixo da caixa até encontrar a música desejada.
+</p>
+<p>
+Atualizado para Simutrans 0.81.32<br>
+18/05/2003
+</p>

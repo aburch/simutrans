@@ -1,0 +1,56 @@
+<title>Ayuda de Herramientas de Monorail/Maglev</title>
+
+<h1><strong>Herramientas de Monorail/Maglev</strong></h1>
+
+<p>
+<strong>Herramientas de Monorail/Maglev</strong> construye un red de transporte mediante Monorail/Maglev. Las herramientas pueden crear o eliminar: vias de monorail y maglev; puentes; tuneles; señales; cocheras; estaciones; y extensiones. Si estas jugando con<a href="new_world.txt">cronologia</a>, a medida que pase el tiempo apareceran nuevas herramientas.
+</p>
+<p>
+Pulsa en el icono de Herramientas de monorail/maglev en la barra de la parte superior de la pantalla para abrir el menu de herramientas.<br>
+Situa el cursor del raton encima de los icones (tras abrir la barra de herramientas) para ver el nombre, los <a href="finances.txt">costes</a> de construccion, costes de mantenimiento, limite maximo de velocidad y maxima longitud.
+</p>
+<p>
+<strong>Herramientas de Monorail/Maglev</strong> incluye, de izquierda a derecha:
+</p>
+<p>
+<em>Via de Monorail/maglev :</em> herramienta para construir vias para vehiculos monorail/maglev entre dos puntos. Las vias solo pueden ser construidas en cuestas en la direccion de dichas cuestas, y pueden no encontrar camino en terreno escarpado, agua u obstaculos. La nueva via puede usar parte de las vias ya existentes en su camino.<br>
+Para construir la via: pulsa en el icono de la herramienta Via (el cursor cambia a una via), despues pulsa en el terreno para establecer el punto inicial (se mostrara una excavadora y las coordenadas del punto en la parte izquierda de la barra inferior de la pantalla), por ultimo pulsa para el punto final de la via.<br>
+{Consejos: Los diferentes tipos de via se pueden conectar (excepto cuando intentas construir sobre vias de otros <a href="players.txt">jugadores</a>). Usa las <a href="slopetools.txt">Herramientas del terreno</a> para modificar el terreno, para permitir la construccion de vias. Usa la herramienta Eliminar para eliminar partes individuales de la via y algunos obstaculos. Usa la tecla <a href="keys.txt">[Ctrl]</a> al mismo tiempo para acceder a funciones extra. Deshaz la ultima ruta construida pulsando la tecla [z]. No se reembolsan los costes de construccion.}
+</p>
+<p>
+<em>Remove monorails:</em> herramienta para eliminar vias de monorail/maglev, cuando no hay vehiculos presentes, entre dos puntos (las estaciones y señales tambien se eliminan).<br>
+El uso de esta herramienta implica un <a href="finances.txt">coste de construccion</a>.<br>
+Para eliminar vias: pulsa en la herramienta (el cursor cambia a un cruz roja); despues pulsa en la via que quieres eliminar (en el punto seleccionado para borrar se muestra una cruz roja); por ultimo pulsa en otro punto de la via, para eliminar la parte entre ambos puntos.<br>
+{Consejos: Opera como otro jugador para eliminar sus vias.}
+</p>
+<p>
+<em>Rampas</em> y <em>Puentes:</em> herramientas que construyen puentes rectos, para que pasen vehiculos monorail/maglev, entre dos puntos con via. Los puentes tienen una maximo de distancia entre pilares. Las herramientas construyen puentes partiendo desde el final de una via hasta otro punto adecuado (otro final de via o punto elevado).<br>
+Para construir una rampa o puente: pulsa en el icono de la herramienta (el cursor cambia a un puente), a continuacion pulsa en un tramo final de via (punto de comienzo del puente) para construirlo. Algunos obstaculos o la falta de espacio adecuado para emplazar el final del puente hara que el puente no se construye: construye via en ambos lados de futuro emplazamiento del puente, y prueba de nuevo.<br>
+{Consejos: Usa la herramienta Eliminar para destruir puente (pulsa en el final del puente) y algunos de los obstaculos para la construccion del puente. Usa las herramientas de Vias para conectar las partes finales del puente a las vias.}
+</p>
+<p>
+<em>Señales de Monorail:</em> herramientas para construir señales para vehiculos monorrail y maglev en la via. Las señales dirigen y regulan el flujo de vehiculos en vias y puente, cruces y <a href="station.txt">Paradas</a> (donde los vehiculos cargan y descargan pasajeros).<br>
+Se pueden contruir señales de sentido unico o doble sentido. Para construir un señal de doble sentido en una via: pulsa en el icono de la herramienta (cambia el cursor a una señal); despues pulsa en la via. Para construir una señal de sentido unico: pulsa de nuevo en el mismo punto, con el cursor de señal, para pasar de un tipo de señal a otro.<br>
+IMPORTANTE: Ten cuidado en no poner señales de sentido unico, ya que pueden evitar que un vehiculo llegue a su destino, por defecto los vehiculos conducen por la derecha (se puede cambiar en el archivo simuconf.tab).<br>
+- <em>Señales:</em> los vehiculos continuan solo si el tramo de via hasta la siguiente señal o destino de la <a href="schedule.txt">Ruta</a> (a <a href="station.txt">Parada</a> o punto de paso) no esta ocupado por otro vehiculo. En el modo de sentido unico, los vehiculos se mueven en una unica direccion.<br>
+- <em>PreSignals:</em> los vehiculos continuan si el tramo de via (entre tres señales consecutivas o hasta el proximo destino en la <a href="schedule.txt">Ruta</a>) no esta ocupado por otro vehiculo. En el modo sentido unico, las preseñales dejan pasar a los vehiculos unicamente en un sentido.<br>
+- <em>ChooseSignals:</em> dirigen vehiculos hacia una estacion vacia, una <a href="station.txt">Estacion</a> multiple: un vehiculo pasando esta señal puede usar una estacion vacia en su proximo destino, y no justamente el que esta asignado en su <a href="schedule.txt">Ruta</a>. Si no hay estaciones vacias o una ruta clara hasta su proximo destino, los vehiculos esperaran en la señal.<br>
+{Consejo:  Elimina las señales con la herramienta Eliminar. Manten pulsado  [Ctrl] para poner señales en puentes sobre otras vias.}
+</p>
+<p>
+ <a href="depot.txt"><em>Cochera<em> de Monorail</em>:</em></a> herramienta que construye una cochera para comprar y gestionar vehiculos y vagones de monorrail/maglev.Las cocheras implican un coste de mantenimiento y se construyen al final de una via de monorrail/maglev.<br>
+Para construir una cochera de monorail: pulsa en la herramienta (el cursor cambia a una cochera), y a continuacion pulsa en un final de via.
+</p>
+<p>
+<em>Paradas de Tren:</em> herramientas para construir estaciones, usadasd por vehiculos monorrailes/maglev para cargar o dejar pasajeros y correo.<br>
+Una estacion, cuando no se construye junto a otra <a href="station.txt">Parada</a> existente dara lugar a una nueva Parada.<br>
+Las Paradas tienen un coste de mantenimiento y se construyen sobre vias (pero no en curvas ni cruces).<br>
+Las paradas tiene un area de influencia para mercancias, pasajeros y correo. Las diferentes estaciones tienen distintas capacidades para mercancias, pasajeros y correo. . En la esquina superior de algunas de las herramientas un icono (usado en <a href="haltlist.txt">Lista de Estaciones</a> y en <a href="station.txt">Informacion de la Parada</a>) muestra que elementos puede manejar la Parada.<br>
+Para construir una Parada: pulsa en el icono de la herramienta (el cursor cambia a una estacion), y despues pulsa en la via.<br>
+{Consejos: Elimina las Paradadas mediante la herramienta remove monorails. Las Paradas con extensiones y estaciones multiples (construyendo mas secciones de estacion en la via adyacente) pueden soportar vehiculos mas largos, incrementar su capacidad y area de influencia. Pulsa la tecla [v] para mostrar/ocultar el area de influencia para mercancias y pasajeros. Manten pulsado  [Ctrl] para construir puentes o vias elevadas sobre otras vias.}
+</p>
+<p>
+<em>Monorail Foundation:</em> herramienta que construye una extension de una <a href="station.txt">Parada</a> e incrementa la capacidad de dicha Parada. Las Monorail foundations se construyen en finales de vias de monorrail/maglev e implican un coste de mantenimiento.<br>
+Para construir una monorrail foundation: pulsa en la herramienta (el cursor cambia a foundation), y despues pulsa en el lugar deseado en el final de una via.<br>
+{Consejos: Elimina las monorail foundations mediante la herramienta Eliminar.}
+</p>

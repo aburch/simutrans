@@ -1,0 +1,55 @@
+<title>Dock/harbour tools Help</title>
+
+<h1><strong>Dock/harbour tools</strong></h1>
+
+<p>
+<strong>Dock/harbour tools</strong> construct a marine and waterway transport network. Tools may build or remove: canals, locks, various docks, and a ship depot. If playing with <a href="new_world.txt">timeline</a>, then as time passes in Simutrans more tool-options may appear.
+</p>
+<p>
+Click boat-icon at top of game-view to open toolbar.<br>
+Hover mouse-cursor over tool-option (after opening or clicking on toolbar) to see name & where appropriate: construction <a href="finances.txt">cost</a>, maintenance cost in brackets, and maximum speed limit.
+</p>
+<p>
+<strong>Dock/harbour tools</strong> include, from left to right:
+</p>
+<p>
+<em>Canal:</em> tool builds waterways, for boats and barges, between two points in game-view.<br>
+Canals can only be built on slopes in the direction of the slope & may not find a path across rough terrain. Canals built between points, may use existing canal in its path.<br>
+To build a canal: click on tool to select (changes cursor to canal), then click on terrain for start-point (shows a bulldozer in game-view and map co-ordinates on right of bottom-bar under game-view), & finally click on terrain for end-point.<br>
+{Tips: Canals built by different <a href="players.txt">players</a> may not connect. Use <a href="slopetools.txt">Landscape tools</a> to change terrain, to enable paths for canals. Use Destroy/Remove to remove individual pieces of canal & some obstructions. Undo last route connection <a href="keys.txt">[z]</a> does not refund constructions costs.}
+</p>
+<p>
+<em>Remove channels:</em> tool removes portion of canal, when no vehicles are present, between two points in game-view (NB: Channel-stops in path are removed too). The tool has an associated construction cost.<br>
+To remove canal: click on tool (changes cursor to a cross); then click on canal that is to be deleted (selects deletion-point shown by a red cross in game-view); & finally click at another point on canal, to remove portion up to first deletion-point.
+</p>
+<p>
+<em>Ship Hoist:</em> tool builds a canal lock and bridge to raise/lower a boat or barge by one level on a canal in game-view. The bridge has a maximum span and is built on the end of a canal to a suitable place (another canal-end or slightly higher land, within span).<br>
+To build bridge: click on tool to select bridge (changes cursor to hoist), then click on the end of a canal, (starting-point of bridge). Some obstructions or lack of a suitable place for bridge-ends may stop hoist being built: build canal at both sides that is to be bridged, & try again.<br>
+{Tips: Use Destroy/Remove to remove bridges (click on hoist-end) & some obstructions to bridge building.<br>
+Use <em>Canal</em> tools to connect bridge-ends to water ways.}.
+</p>
+<p>
+<em>Wharf</em> (<em>Canal Quay</em> in pak128) tool builds a dock on a canal in game-view for water-transport-vehicles to pick-up and drop-off cargo and passengers.<br>
+A dock when not built adjacent to an existing <a href="station.txt">Stop</a> will create a new Stop.<br>
+A dock has a catchment area for goods, passengers & mail. In the corner of the tool-option is an icon (used in <a href="haltlist.txt">Station List</a> & <a href="station.txt">Stop Information</a>) shows which items the dock allows a Stop to handle.<br>
+To build a dock: click on tool (changes cursor to a channelstop); then click on a canal in game-view to construct.<br>
+{Tips: Remove docks with Destroy/Remove. Press [v] to show/hide catchment area for goods and passengers in game-view.<br>
+Stops just for water transport vehicles will not be listed in <a href="haltlist.txt">?Stops/Station list</a>}.
+</p>
+<p>
+<em>Ship-stops:</em> tools build various items that construct docks in game-view for water-transport-vehicles to pick-up and drop-off cargo and passengers.<br>
+Docks are built at edges of straight coast.<br>
+A dock when not built adjacent to an existing <a href="station.txt">Stop</a> will create a new Stop.<br>
+Docks have a catchment area for goods, passengers & mail. In the corner of the tool-option is an icon (used in Station List & Stop Information) that shows which items the dock allows a Stop to handle. Different docks may have different capacities for goods, passengers & mail. <br>
+To build a dock: click on tool to select (changes cursor to a dock) and then click on a slope by water to build<br>
+{Tips: Remove docks with Destroy/Remove.<br>
+Size of docks can be increased by building on adjacent squares. Water-transport vehicles may use any square of water in the catchment area of a dock.<br>
+Stops just for water transport vehicles will not be listed in <a href="haltlist.txt">?Stops/Station list</a>.<br>
+Off-shore <a href="industry_info.txt">Industry</a> such as Oil Rigs do not require a dock, water-transport vehicles may use any square of water in the catchment area of an off-shore Industry.<br>
+Press [v] to show/hide catchment area for goods and passengers in game-view.}
+</p>
+<p>
+<em>Ship <a href="depot.txt"><em>Depot:</em></a></em> tool builds a depot for purchasing & managing ships, boats and barges. Depots have a maintenance cost & are built on water in game-view.<br>
+To build a ship depot: click on tool (changes cursor to a depot), then click on water in game-view.<br>
+{Tips: Remove depots with Destroy/Remove.}
+</p>

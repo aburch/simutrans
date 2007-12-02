@@ -1,0 +1,56 @@
+<title>Nástroje na stavbu ¾eleznice</title>
+<p>
+<em>Stavba koµajníc</em> - nástrojom stavia¹ ¾elezniènú trat' medzi dvoma
+µubovolne vzdialenými bodmi (¹tvorèekmi), alebo pripája¹ koµajnice èast'
+po èasti. Kliknutím na zvolené miesto vytvorených koµajníc zase vytvára¹
+kri¾ovatky. Postup : Klikni my¹ou na symbol koµajníc a pokraèuj kliknutím na bod,
+z ktorého chce¹ viest' koµajnice. Kurzor bude zobrazený ako malý buldozér.
+Premiestni sa na koniec zamý¹µanej trate a klikni tam my¹ou.
+Simutrans vytvorí spojenie medzi týmito dvomi bodmi. Pozn. prekladateµa :
+Pokiaµ by sa Ti trat' zdala príli¹ kµukatá, má¹ mo¾nost' urobit' korekcie
+(zbúrat' tú èast', kde bude¹ robit' úpravy a potom pridávat' koµajnice èast'
+po èasti. Stavbu koµajníc po uhloprieèkach je vhodnej¹ie robit' èast' po èasti.
+Výsledok je lep¹í ;-) ). Na stavbu ¾eleznice môze¹ pouzit' len voµné pozície (¹tvorceky).
+Ak nechce¹ kri¾ovat' inú trat', pou¾i stavbu mosta alebo tunela.
+Ak nie je mo¾né úspe¹ne pokracovat' v budovaní trate, skús najprv vykonat' terénne
+úpravy.<br>
+<em>Signalizácia</em> - nástroj na stavbu signalizácie. Kliknutím naò bude kurzor
+bude zobrazený vo podobe dvoch semafórov (obojsmerný). Signalizácia slú¾i
+na organizáciu pohybu vlakov. Semafóry umiestni¹ kliknutím na koµajnice napr. pred
+kri¾ovatku nejakého spoloèného jednokoµajového úseku alebo na koµajovú kri¾ovatku.
+Opakovaným klikaním na tú istú pozíciu sa Ti zobrazuje postupnost' ponúkaných typov
+semafórov. Akonáhle prejde jeden vlak cez semafór, ostané semafóry budú
+blokovat' ïalsie vlaky, a¾ kým sa trat' opät' neuvoµní.
+Semafóry potom budú pú¹t'at' vlaky podµa poradia, v akom pri¹li k semafórom.<br>
+<em>Tunel</em> - kliknutím na tento nástroj bude kurzor zobrazený symbolom tunela.
+Aby si tunel mohol úspe¹ne vytvorit', musia mat' kopce rovnú stenu na oboch stranách.
+Pomô¾ si úpravou terénu. Potiahni koµajnice e¹te o 1-nu pozíciu na kopec a tak isto aj
+na druhej strane. My¹ou klikni na nástroj tunela. Pokraèuj kliknutím na jeden z koncov
+koµajníc (na kopci). Ak Ti v¹etko presne lícuje (t.j. trafil si sa), Simutrans urobí
+tunel a odpoèíta Ti náklady na stavbu. Nadmorská vý¹ka tratí, ktoré spája¹ tunelom
+musí byt' rovnaká. Inak sa Ti tunel nevytvorí. Pozn. prekladateµa : Pokiaµ zabudne¹
+na druhej strane urobit' ukonèenie koµajníc, alebo ich tam ani nemá¹, Simutrans vie
+aj v tomto prípade urobit' tunel. Koµajnice potom pripojí¹ (po navolení koµajníc)
+k tomuto voµnému koncu kliknutím na vchod do tunela. ;-)<br>
+<em>Most</em> - klikni na text : <a href" bridges.txt">Mosty</a>.<br>
+<em>Stanica</em> - nástroj slú¾i na stavbu ¾elezniènej stanice (zvlá¹t' osobnej a nákladnej).
+Osobná stanica je zastre¹ená. Kliknutím my¹ou na tento symbol sa Ti kurzor zobrazí v tvare
+jedného segmentu stanice. Samotnú stanicu s po¾adovanou då¾kou potom stavia¹ klikaním na voµné kolajnice.
+Stanica ale musí le¾at' na rovnom teréne. V takejto stanici mô¾e¹ nakladat' a vykladat'
+suroviny, tovar (nákladaná) alebo pasa¾ierov (osobná). Mno¾stvo èakajúcich surovín, tovaru alebo poèet pasia¾ierov
+pritom nezávisí od då¾ky stanice (pozn. prekladateµa : ale èím je stanica dlh¹ia, tým viac
+toho mô¾e¹ odniest' alebo priniest' ;-) ). Jeden takýto segment doká¾e obslú¾it' max. 2 vozidlá
+(pozn. prekladateµa : prvý segment obslú¾i 1 vagón - s lokomotívou a ïal¹ie v¾dy po 2 vagónoch).
+Ak je då¾ka vlaku väè¹ia, presahujúce vagóny nebudú obslú¾ené. Ak z nejakých dôvodov nebude¹
+mat' dostatok miesta pre dlh¹iu stanicu, má¹ mo¾nost' postavit' ,,rohovú'' stanicu. Najprv
+vybuduj úsek, pokiaµ sa dá. Potom pripoj koµajnice zboku klinutím na posledný segment
+a pokraèuj potom pripájaním ïal¹ích segmentov.<br>
+<em>Depo</em> - nástrojom mô¾e¹ postavit' depo na konci koµajníc, príp. urobit' odboèku
+a umiestnit' ho na jej koniec. My¹ou klikni na nástroj depa a klinutím ho umiestni
+na ¾iadané miesto. V¹etky ostatné informácie o nákupe vozidiel sa dozvie¹
+kliknutím na vybudované depo a kliknutím na otáznik (pomoc) vedµa nadpisu.<br>
+<em>®eleznièné priecestie</em> - touto voµbou stavia¹ ¾eleznièné priecestie.
+Kliknutím na tento symbol sa kurzor zobrazí ako kri¾ovatka ¾eleznice s cestou.
+Naraz mô¾e¹ urobit' priecestie cez jednu koµaj. Ak ich tam má¹ viac, musí¹ kliknút'
+na ka¾dú jednu osobitne.
+</p>

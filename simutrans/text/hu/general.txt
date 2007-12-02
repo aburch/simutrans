@@ -1,0 +1,37 @@
+<h1>Simutrans Általános Leírása</h1>
+
+<p>
+A Simutrans egy ingyenesen letölthetõ gazdasági szimulációs program.
+Fõ cél a közlekedési hálózat felépítése és gazdaságos mûködtetése.
+Egyelõre közúti, villamos, vasúti és tengeri közlekedési vonalakat építhetsz.
+Minden egyes gazdasági egység szerzõdésben áll egy õt kiszolgáló vagy
+az õ termékét felhasználó egységgel. Ezeket kell összekötni a
+leggazdaságosaban. Alapvetõen 3 fajta termék létezik: nyersanyag,
+darabárú és szolgáltatás. Minden egyes termékcsoport szállítható
+olyan szerelvénnyel ami ugyanabba csoportba tartozik. Csak bizonyos
+anyagok igényelnek speciális szállítóeszközöket. Talán az elsõ és
+könnyebb lépés az árúk szálltása. Ez a játék elsõ felében könnyebb elérni.
+A második fázisban jönnek a szolgáltatások, vagyis az utas- és a
+postaszállítás. Ez már egy picit nehezebb elérni ugyanakkor sokkal
+jövedelmezõbb. A játékhoz több úgymond játékcsomag alkalmazható.
+Jelenleg a 64x64 pixeles és a 128x128 pixeles felbontású variációk a
+legelterjedtebbek. Azt, hogy a játék melyéket alkalmazza a <em>\config\simuconf.tab</em>
+fájlban lehet beállítani.
+Létezik egy csak japán épületeket és jármûveket tartalmazó csomag is.
+További infók a <em>forum.simutrans.com</em> vagy <em>128.simutrans.com</em> honlapokon.
+
+</p>
+<p>
+<a href="keys.txt">Billentyûzet parancsok</a>
+</p>
+
+<p>
+A játék eredeti kiötlõje: (c) Hj. Malthaner
+</p>
+<p>
+A mostani verziót a Simutrans Team csapata fejleszti.
+</p>
+<p>
+0.86.10.04 (2005.10.16.) verziót magyarra fordította:<br>Phritzy <em>(phritzy74@freemail.hu)</em><br>
+(hibajelzéseket a fenti e-mail címre várok :) )
+</p>

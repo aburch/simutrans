@@ -1,0 +1,32 @@
+<title>Player List Help</title>
+
+<h1><strong>Player List</strong></h1>
+
+<p>
+<strong>Player List</strong> provides information & has controls for different player companies.
+</p>
+<p>
+Click on Players-button in <a href="options.txt">Game Options</a> or press <a href="keys.txt">[k]</a> to open <strong>Player List</strong> which shows player names & <a href="finances.txt">Account Balances</a>.
+</p>
+<p>
+There are eight players: human, public service and six AI players. Controls enable game-play as different player companies if <a href="new_world.txt">Allow player change</a> was selected at the start of the game.
+</p>
+<p>
+Click on arrow-button to operate as that player company in the current game. A confirmation message appears that player has been changed: click on x in top-left corner of message or use keyboard to close.
+</p>
+<p>
+Click on player name to see their <a href="finances.txt">Finances</a>.
+</p>
+<p>
+Click square-button by AI player name to switch on/off AI player (button is indented when player is selected).
+</p>
+<p>
+AI players do not go bankrupt & run vehicles with maximum efficiency.<br>
+Switching off an AI player during a game will not remove its transport network.<br>
+Some AI players may use just road or rail vehicles, some may transport just goods or passengers.
+</p>
+<p>
+{Tips: Vehicles may not use another players tracks or <a href="station.txt">Stops</a> (however vehicles from all players may use items built by the public service player).<br>
+Players may not build items or place waypoints on another player's track or <a href="roadtools.txt">road</a>, or remove items built by another player (however some items built by the public service player may be removed using <a href="removal_tool.txt">Destroy/Remove</a>).<br>
+Disable player-change option and access extra <a href="edittools.txt">tools</a> as the public service player.}
+</p>

@@ -1,0 +1,43 @@
+<title>Monorail/Maglev Tools Help (Nederlands)</title>
+
+<h1><strong>Monorail/Maglev Tools</strong></h1>
+
+<p>
+Het <strong>Monorail/Maglev Tools</strong> menu bevat tools om een monorail/maglev infrastructuur te bouwen. Deze tools kunnen de volgende onderdelen bouwen of slopen: monorail- en maglevbanen, seinen, bruggen, tunnels en stations. Indien de <a href="new_world.txt">tijdlijn</a> is geactiveerd in het spel, zal met de tijd het aantal beschikbare opties aan verandering onderhevig zijn.
+</p>
+<p>
+Klik op het Monorail/Maglev icoon in het menu om het <strong>Monorail/Maglev Tools Menu</strong> te openen.
+</p>
+<p>
+In het <strong>Monorail/Maglev Werktuigen Tools Menu</strong> kunnen, van links naar rechts, de volgende tools voorkomen:
+</p>
+<p>
+<em>Monorail/Maglev baan:</em> bouwt de verschillende monorail-/maglevbaangedeeltes tussen twee punten. Een monorail- en maglevbaan kan alleen in in de richting van een helling gebouwd worden en kan niet door ruig terrein, door water en door andere obstakels gebouwd worden. Een nieuwe baan kan/mag gebruik maken van een al bestaand stuk baan dat eigendom is van dezelfde speler.<br>
+Klik om een baan te bouwen op een van de baanopties in het menu (de cursor verandert nu), klik dan in het spel-scherm op de plaats waar de baan moet beginnen en klik tenslotte in het spel-scherm op het eindpunt van de baan.<br>
+{TIPS: - verschillende baantypen kunnen gekoppeld worden door gebruik te maken van de koppelstukken uit het menu. - gebruik de <a href="slopetools.txt">Land ophogen/verlagen</a> tool om het terrein aan te passen zodat het bouwen van een baan mogelijk wordt. - gebruik de <a href="removal_tool.txt">Verwijder</a> tool om obstakels te verwijderen.}
+</p>
+<p>
+<em>Verwijder monorails:</em> verwijdert een, gedeelte van een, monorail-/maglevbaan. Er mogen geen voertuigen aanwezig zijn op het te verwijderen baangedeelte (stations en seinen op het baangedeelte worden wel verwijderd). Het gebruik van de tool kost geld.<br>
+Klik om een stuk baan te verwijderen op de Verwijder monorails tool; klik dan in het spel-scherm op de het eerste stuk baan dat verwijdert moet worden en tenslotte op het laatste stuk baan dat verwijderd moet worden. Het tussenliggende stuk baan (incl stations en seinen) wordt nu verwijderd.
+</p>
+<p>
+<em>Bruggen en koppelstukken:</em> worden gebruit om bruggen/koppelingen te bouwen tussen twee monorail/maglevbanen. Bruggen hebben een maximum lengte, als de te overbruggen afstand te groot is zal geen brug gebouwd worden. Koppelingen worden gebruikt een standaard monorailbaan en een verhoogde monorailbaan met elkaar te verbinden.<br>
+Klik om een brug of koppelstuk te bouwen op de betreffende optie in het menu (de cursor verandert nu) en klik op een uiteinde van een monorail-/maglevbaan. Op dit punt wordt gestart met het bouwen van de brug/koppelstuk.<br>
+{TIPS: - gebruik de <a href="removal_tool.txt">Verwijder</a> tool om obstakels te verwijderen. - gebruik de monorail/maglevbaan opties om een los einde van een brug te verbinden met de monorail-/maglevbaan.}
+</p>
+<p>
+<em>Seinen</em> worden gebruikt om de loop van monorail/maglevtreinen te controleren. Het werken met seinen wordt in uitgelegd in het hoofdstuk <a href="signals.txt">Seinen</a>.
+</p>
+<p>
+<em>Remise (depot):</em> bouwt een remise om monorail/maglev treinen te kopen en te beheren. Een remise heeft onderhoudskosten en wordt gebouwd op een uiteinde van een monorail-/maglevbaan.<br>
+Klik om een remise te bouwen op de remise optie in het menu (de cursor verandert in een remise) en klik op een uiteinde van een monorail-/maglevbaan.
+</p>
+<p>
+<em>Haltes:</em> noodzakelijk om het in- en uitladen van passagiers, post en vracht mogelijk te maken. Er zijn verschillende haltes voor passagiers, post en vracht. Meestal wordt dit met behulp van kleine icoontjes aangegeven. De capaciteit voor passagiers, post en vracht is per halte verschillend. Een halte heeft onderhoudskosten en kan overal op de monorail-/maglevbaan gebouwd worden (behalve in bochten en kruisingen). Wanneer een halte niet direct naast een andere halte gebouwd wordt zal er een nieuwe halte gebouwd worden.<br>
+Klik om een halte te bouwen op de betreffende halte optie in het menu (de cursor verandert in een halte) en klik op de gewenste plaats op de monorail-/maglevbaan. Door meerdere haltes direct naast elkaar te plaatsen kan de capaciteit van de halte uitgebreid worden of kan de halte geschikt gemaakt worden voor meerdere soorten vervoer. Bijvoorbeeld passagiers en vracht.<br>
+{TIPS: - verwijder uitbreidingen met de verwijder tool. - druk op [v] om het dekkingsgebied van het station te tonen of te verbergen. - gebruik [Ctrl] om monorail-/maglevbanen te bouwen op bruggen of om verhoogde banen te bouwen boven een lage baan.}
+</p>
+<p>
+<em>Monorail fundament:</em> cre-eert ?een uitbreiding voor een <a href="station.txt">halte</a> en vergroot de capaciteit van de halte. Monorail fundamenten worden gebouwd op het uiteinde van een monorail-/maglevbaan.<br>
+Klik om een fundament te bouwen op de fundament optie in het menu (de cursor verandert nu) en klik op een uiteinde van een monorail-/maglevbaan waar je het fundament wilt bouwen.
+</p>

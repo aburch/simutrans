@@ -1,0 +1,53 @@
+<title>Ajuda - Lista de paradas</title>
+
+<h1><strong>Lista de paradas</strong></h1>
+
+<p>
+A <strong>Lista de paradas</strong> mostra todas as estações, pontos de ônibus e terminais de carga do jogo, além de ter controles para filtrar essas <a href="station.txt">paradas</a>. NOTA: as paradas que são somente aquáticas, como as plataformas de petróleo, não são listadas aqui!
+</p>
+<p>
+Para abrir: clique no botão <a href="list.txt">"Listas"</a>, e na barra que se abrir, no botão "Lista de Paradas".
+A <strong>Lista de paradas</strong> tem quatro botões: dois são utilizados para ordenar os itens e dois são utilizados na filtragem deles. Abaixo desses botões, vem a lista de <a href="station.txt">paradas</a> propriamente dita, com os itens que obedeçam aos critérios de filtragem já estabelecidos.
+(Dicas: Se nenhuma  parada estiver listada, modifique as opções de <em>filtragem.</em>. Caso os itens apareçam parcialmente, então use o <a href="mouse.txt">mouse/rato</a> para redimensionar a <strong>Lista de Paradas</strong> ou para deslocar a lista com a barra de rolagem.)
+</p>
+<p>
+Ao clicar nos botões, vão-se modificando as opções que eles contêm:
+</p>
+<p>
+O botão mais à esquerda diz o critério de ordenamento da lista:<br>
+- <em>Nome</em>: ordena segundo o código ASCII: primeiro todas as letras maiúsculas, depois todas as minúsculas, em seguida as acentuadas.<br>
+- <em>Espera:</em> Ordena pela quantidade de passageiros ou mercadorias aguardando ser transportada<br>
+- <em>Tipo:</em> Ordena pelo tipo de veículo que é aceito pela parada<br>
+- <em>Sem ordem:</em>Ordena aleatoriamente.
+</p>
+<p>
+O segundo botão define se a classificação é <em>crescente</em> ou <em>decrescente</em>.<br>
+O terceiro botão define se o filtro está <em>ligado</em> ou <em>desligado</em>.<br>
+O quarto abre a janela do <a href="haltlist_filter.txt">Filtro da Lista de Paradas.</a>
+</p>
+<p>
+Clicando em um item na <strong>Lista de paradas</strong>, obtêm-se maiores  <a href="station.txt">informações</a> sobre aquela parada.<br>
+Os dados listados por parada são:
+</p>
+<p>
+<em>Estado:</em> Barra colorida onde cada cor indica o estado da parada, com relação à lotação. A mesma cor é exibida nas Informações da Parada, no <a href="linemanagement.txt">Gerenciamento de Linhas</a> e na barra acima do nome da parada que se vê no jogo:<br>
+- <em>amarelo:</em> parada sem atendimento; nenhum veículo a utiliza.<br>
+- <em>verde:</em> não é necessário melhorar o atendimento; a parada não lota.<br>
+- <em>laranja:</em> alguma melhoria é necessária.<br>
+- <em>vermelho:</em> é necessário melhorar o atendimento urgentemente.<br>
+(Dica: para ver as cores do estado do serviço no jogo, clique em (!) até que apareça.)
+</p>
+<p>
+<em>Nome</em> da parada. (Dica: é possível auto-numerar as paradas utilizando uma opção no arquivo simuconf.tab)
+</p>
+<p>
+<em>Ícones de veículos</em> que indicam quais são os veículos aceitos na parada: ônibus/autocarro, caminhão/camião, trem/comboio, barco/navio e avião. Bondes/eléctricos são ora representados pelo símbolo de ônibus/autocarro, ora pelo de trem/comboio, conforme o tipo original da parada.
+</p>
+<p>
+<em>Ícones de carga</em> que indicam o tipo de carga que a parada aceita. Podem ser passageiros, carga propriamente dita e correio. (Dica: há alguns tipos de plataforma que não aceitam nenhum tipo de carga por si sós, sendo necessário acoplar ou um quadro de um tipo de plataforma que aceite a carga desejada, ou  uma extensão que aceite a carga. Para adicionar um novo tipo de carga à parada, é necessário acoplar um quadro de plataforma ou de extensão que aceite a caraga desejada. Para transportar correio, acople uma Agência Postal.)
+</p>
+<p>
+Na <em>segunda linha</em> vêm os detalhes das diversas cargas esperando na parada.
+</p>
+<p>Traduzido para versão Simutrans 0.99.14.
+</p>

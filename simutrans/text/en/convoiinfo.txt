@@ -1,0 +1,94 @@
+<title>Convoy Information Help</title>
+
+<h1><strong>Convoy Information</strong></h1>
+
+<p>
+<strong>Convoy Information</strong> provides information about a Convoy (an operational vehicle or combination of vehicle-units) which is used to transport goods and passengers.<br>
+It lists items carried by a Convoy and also has controls to access further details and sell the Convoy; follow the Convoy in game-view; and change the name and <a href="schedule.txt">Schedule</a> of Convoy.
+</p>
+
+<p>
+A Convoy is composed of at least one powered (motorised) vehicle-unit and any attached trailers/carriages.<br>
+Examples of Convoys include: a team of horses pulling a carriage; or a train engine attached to a tender and carriages; or a bus; or a van; or a truck attached to a trailer; or connected tram cars; or a ship; or a tugboat pulling a barge; or an aircraft.<br>
+Convoys are assembled and purchased from the <a href="depot.txt">depot</a> for their type of transport.<br>
+{Tips: ?A Convoy has maximum limit to number of vehicle-units in its composition: trains, 24; road vehicles, 4 .}
+</p>
+<p>
+Click on a Convoy in game-view with the <a href="inspection_tool.txt">Inspection Tool</a> or click on a Convoy listed in <a href="convoi.txt">Vehicle List</a> or <a href="linemanagement.txt">Line Management</a> to open <strong>Convoy Information</strong><br>
+The title-bar of <strong>Convoy Information</strong> shows a unique ID number and name of Convoy (by default this is make of first vehicle unit purchased or assembled in a <a href="depot.txt">depot</a>).<br>
+<strong>Convoy Information</strong> contains a name-box; a mini-view and information about the Convoy; option buttons; and a list of all items currently carried (if all items are not visible <a href="mouse.txt">re-size</a> <strong>Convoy Information</strong> or use slider-bars to scroll items).
+</p>
+<p>
+Information shown at top of <strong>Convoy Information</strong> includes:
+</p>
+<p>
+<em>Internal ID</em>: a unique ID number for Convoy (assigned by default when Convoy is first purchased or assembled in a <a href=depot.txt">depot</a>).
+</p>
+<p>
+- <em>name</em>: shows assigned name of Convoy (by default this is make of first vehicle-unit purchased or assembled in a <a href="depot.txt">depot</a> for Convoy).<br>
+Click on name-box and type new name to change name of Convoy.
+</p>
+<p>
+- <em>speed:</em> current speed is shown in km/h.<br>
+In brackets is maximum speed limit of Convoy (determined by slowest vehicle unit in Convoy).<br>
+A green-progress-bar indicates current speed relative to maximum speed limit.
+</p>
+<p>
+- <em>Income:</em> profit made by vehicle (income generated less operation costs) in current game-calendar-year.<br>
+In brackets is operational cost of Convoy in Hajo Credits per game square.
+</p>
+<p>
+- <em>Weight:</em> current combined weight of Convoy and items carried in tonnes.<br>
+In brackets is current weight of items carried.<br>
+A green-progress-bar indicates capacity used, to carry goods and passengers.<br>
+A yellow-bar indicates <a href="schedule.txt">Wait For</a> level (minimum quantity of goods and passengers required by Convoy to proceed) set in Schedule Controls.<br>
+{Tips: To set or change Wait For levels for all Convoys on a Line, use Update Line option-button in <a href="linemanagement.txt">Line Management</a> or <a href="depot.txt">Depot Controls</a>. To set or change the Wait For level for a Convoy and no other Convoy on assigned Line, use <em>Schedule</em> option-button in <strong>Convoy Information</strong> or Depot Controls.}
+</p>
+<p>
+- <em>Destination:</em> The next <a href="station.txt">Stop</a> or waypoint in the Convoy's <a href="schedule.txt">Schedule</a>.<br>
+A green-progress-bar indicates progress by Convoy to next destination.
+</p>
+<p>
+- <em>Serves line:</em> indicates any <a href="linemanagement.txt">Line</a> assigned to Convoy.
+</p>
+<p>
+- <em>mini-view</em> shows Convoy.<br>
+Click on mini-view to centre game-view on Convoy.
+</p>
+<p>
+Click on buttons in <strong>Convoy Information</strong> to open controls or select options:
+</p>
+<p>
+<a href="schedule.txt"><em>Schedule:</em></a> opens controls to change the route and minimum quantity of goods and passengers required by Convoy to proceed.
+</p>
+<p>
+<em>go to depot:</em> sends Convoy to nearest appropriate <a href="depot.txt">depot</a>. Any items being carried are lost, though income is received for transportation to depot.<br>
+In the depot the Convoy keeps its <a href="schedule.txt">Schedule</a> and assigned <a href="linemanagement.txt">Line</a>.
+</p>
+<p>
+<em>follow me:</em> button when indented moves game-view with Convoy.<br>
+To deselect option, click on button again or left-click on <a href="map.txt">Map</a>.
+</p>
+<p>
+<em>Chart:</em> click option-button to toggle graph (button is indentented when graph is visible) in <strong>Convoy Information</strong>.<br>
+The graph shows statistics for the last 12 months (x-axis) when a graph-option is selected.<br>
+Click on graph-option-button to see information on graph (button is indented when option selected).<br>
+Colours of lines on graph correspond to colours of graph-option-buttons:<br>
+- <em>Free Capacity</em> indicates unused space on Convoy.<br>
+- <em>Travel?ed</em> indicates number of goods, passengers and mail transported.<br>
+- <em>Proceeds</em> indicates income generated by transportation.<br>
+- <em>Operation Costs</em> indicates costs incurred by Convoy when in transit.<br>
+- <em>Profit</em> indicates profit received from transportation (Proceeds less Operation Costs).
+</p>
+<p>
+<em>Details</em> opens <a href="convoidetail.txt">Convoy Details</a> which contains more information and option to sell Convoy.
+</p>
+<p>
+<em>Sort Passengers/freight by:</em> lists items currently carried by Convoy.<br>
+Information shown includes quantity carried and capacity of Convoy, type of item, final destination and first transit <a href="station.txt">Stop</a>.<br>
+Option-button (changes name with selection) sorts of items carried in groups of passengers, mail and goods:<br>
+ - <em>destination:</em> sorts items carried, alphanumerically within ASCII-code order (capital letters before lower case letters), by assigned name of final destination Stop.<br>
+ - <em>via (detail):</em> sorts items carried, alphanumerically within ASCII-code order (capital letters before lower case letters), by assigned name of first transfer Stop.<br>
+ - <em>via (amount):</em> sorts items carried by quantity headed to first transfer Stop.<br>
+ - <em>amount:</em> sorts items carried by quantity in descending order.
+</p>

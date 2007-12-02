@@ -1,0 +1,11 @@
+<title>Mentés Sugó</title>
+
+<h1>Mentés</h1>
+
+<p>
+A megfelelõ fájlnév megadásával lehet kimenteni az aktuális játékmenetet,
+ami késõbb a <a href="load.txt">"Betöltés"</a> menûpontban bármikor visszatölthetõ.
+</p>
+<p>
+Figyelem! Nagy verzióváltásoknál több mint valószínû a régebbi játékok nem tölthetõk be.
+</p>

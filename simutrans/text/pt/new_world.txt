@@ -1,0 +1,45 @@
+<title>Ajuda - Novo Mundo</title>
+
+<h1>Novo Mundo</h1>
+
+<p>
+Dessa caixa de diálogo você pode criar um novo jogo estabelecendo os parâmetros do novo mundo como desejar. Ao iniciar Simutrans, aparece também a caixa Idioma, para poder escolher a língua em que será jogado.
+</p>
+<p>
+O primeiro parâmetro é o número do mundo. Isso determina a aparência do mundo, com a localização da a'gua, das cidades, morros, árvores e indústrias. Uma miniatura de cada mundo é mostrada no canto da caixa. O número-padrão é o 33.
+</p>
+<p>
+O tamanho do mapa determina de quantos quadrados será o lado do mapa. Ele pode variar de 128 a 768. Não há padrão.
+</p>
+<p>
+A densidade industrial determina quantas indústrias haverá no mapa. Quanto menos indústrias, mais difícil o jogo se torna, porque haverá menos escolhas.<br> Padrão: 125.
+</p>
+<p>
+O número de cidades define quantas cidades o jogo terá. O mínimo é 2, o máximo é 64 e o padrão é 16.
+</p>
+<p>
+A densidade de tráfego diz qual a intensidade do tráfego de carros privados nas cidades. O normal é 8.
+</p>
+<p>
+O nivel d'água determina qual a altura da água no mapa. Quanto menor esse nível, mais terra aparece. Padrão:4
+</p>
+<p>
+O parâmetro "Planicidade" determina o quão plano será o terreno, e também a altitude máxima. O padrão é o máximo, 160. A rugosidade determina quanto o mapa terá de buracos. Quanto menor o valor da rugosidade, mais liso será o terreno.
+</p>
+<p>
+O botão "Mapa aleatório" seleciona um mundo ao azar. Os outros parâmetros não se alteram.
+</p>
+<p>
+"Mostrar pedestres" habilita o jogo a mostrar os pedestres saindo do ponto de ônibus ou da estação de trem. Esse parâmetro pode ser mudado na caixa de diálogo <a href="display.txt">Vídeo</a>.
+</p>
+<p>
+O botão "Alternar dia e noite" habilita o jogo a escurecer a tela como se fosse noite. Esse parâmetro também pode ser mudado na caixa de diálogo
+<a href="display.txt">Vídeo</a>.
+</p>
+<p>
+O botão "Carregar" abre a caixa de diálogo de carregamento de jogos. O botão "Criar" cria um novo jogo. O botão "Sair" termina o jogo fechando o Simutrans.
+</p>
+<p>
+Atualizado para Simutrans 0.81.32<br>
+18/05/2003
+</p>

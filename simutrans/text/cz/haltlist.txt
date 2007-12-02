@@ -1,0 +1,26 @@
+<title>Nápovìda - seznam stanic</title>
+<h1>Seznam stanic</h1>
+
+<p>
+<em>Seznam nabízí tyto mo¾nosti:</em>
+</p>
+
+<p>
+<em>1.) Øazení:</em><br>
+Postupným klikáním na první pøepínací tlaèítko mìníte kritéria, podle kterých bude seznam øazen.<br>
+Vedlej¹ím tlaèítkem nastavujete, zda má být øazen sestupnì nebo vzestupnì.
+</p>
+
+<p>
+<em>2.) Filtr:</em><br>
+Kliknutím na tøetí tlaèítko aktivujete, nebo deaktivujete filtr.<br>
+Mo¾nosti tohoto filtru mù¾ete mìnit po kliknutí na tlaèítko <strong>nastavení</strong>.
+</p>
+
+<p>
+-><a href="haltlist_filter.txt">Nápovìda pro filtr</a>
+</p>
+
+<p>
+-><a href="about.txt">Informace o pøekladu</a>
+</p>

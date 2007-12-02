@@ -1,0 +1,79 @@
+<title>Ayuda de Informacion de la Parada</title>
+
+<h1><strong>Informacion de la Parada</strong></h1>
+
+<p>
+<strong>Informacion de la Parada</strong> da informacion acerca de una Parada (donde los vehiculos cargan y descargan mercancias y pasajeros). Tambien tiene controles para acceder a mas opciones y cambiar el nombre de la Parada.
+</p>
+<p>
+Una Parada consiste en un lugar donde un <a href="convoiinfo.txt">Convoy</a> puede cargar y descargar pasajeros y mercancias y una serie de edificios de extension.
+</p>
+<p>
+Las herramientas para construir los lugares donde los Convoys pueden cargar o descargar estan disponibles en la respectiva barra de herramientas segun el tipo de transporte: <a href="railtools.txt">estaciones/plataformas</a>; <a href="monorailtools.txt">paradas de monorail/maglev</a>; <a href="tramtools.txt">Paradas de Tranvia</a>; <a href="roadtools.txt">Paradas de carretera</a>; <a href="shiptools.txt">Muelles</a>
+; y <a href="airtools.txt">Aeropuertos</a>.<br>
+{Consejos: los transportes maritimos pueden usar cualquier cuadricula en el agua dentro del area de influencia de un muelle, para cargar y descargar mercancias y pasajeros. Se pueden construir paradas mas grandes construyendo en cuadriculas adyacentes. Las paradas pueden construirse para uso de mas de un tipo de transporte}.
+</p>
+<p>
+Pulsa en una Parada con la <a href="inspection_tool.txt">Herramienta Explorar</a> o pulsa en una Parada listada en la <a href="haltlist.txt">Lista de Estaciones</a> o en <a href="linemanagement.txt">Administracion de Lineas</a> para abrir la ventana <strong>Informacion de la Parada</strong> que muestra el nombre de la Parada como titulo de la ventana.<br>
+<strong>Informacion de la Parada</strong> contiene una caja de texto con el nombre; un mini vista de la Parada; informacion acerca de la Parada; botones de opcion; y una lista de todos los elementos preparados para transportar en la Parada (si no son visibles todos los elementos <a href="mouse.txt">ajusta el tamaño</a> de la ventana <strong>Informacion de la Parada</strong> o usa la barra de desplazamiento):
+</p>
+<p>
+<em>Nombre</em>: nombre asignado a la Parada, que se muestra en una caja de texto en la parte superior de la ventana <strong>Informacion de la Parada</strong>.<br>
+Por defecto, el nombre se asigna automaticamente cuando se construye por primera vez y depende de la <a href="citywindow.txt">ciudad</a> relacionada con la Parada y cualquier <a href="industry_info.txt">industria</a> dentro del area de influencia de la Parada.<br>
+Para cambiar el nombre: pulsa en la caja de texto del nombre y teclea uno nuevo.<br>
+{Consejos: Usa la tecla <a href="keys.txt">[!]</a> para mostrar la vista del nombre sobre la Parada. Usa la tecla [v] para mostrar el area de influencia de la Parada. La opcion de numerar las paradas esta disponible en el archivo simuconf.tab}
+</p>
+<p>
+<em>barra de estado de color:</em> los colores indican el estado operativo de la Parada en relacion a como de abarrotada esta. La barra de estado de color se usa tambien en la Lista de Estaciones y en Administracion de Lista, y se muestra el mismo color en la barra sobre la Parada:<br>
+- <em>amarillo:</em> fuera de servicio.<br>
+- <em>verde:</em> no se necesitan mejoras.<br>
+- <em>naranja:</em> las mejoras son posibles.<br>
+- <em>rojo:</em> se recomiendan mejoras.<br>
+{Consejos: Usa la tecla <a href="keys.txt">[!]</a> para mostrar la barra de estado de color(indica como de saturada esta la Parada) sobre la Parada.}
+</p>
+<p>
+Iconos graficos tambien usado en la Lista de Estaciones y Administracion de Lista:<br>
+- <em>icono(s) de carga</em> indica que elementos (pasajeros, mercancias y correo) puede manejar una Parada.<br>
+{Consejos: añadiendo las extensiones apropiadas se puede cambiar la categoria de las mercancias que puede manejar una Parada. Las <a href="special.txt">Oficinas de Correo</a> se pueden añadir a las paradas para manejar correo}.<br>
+- <em>icono(s) de vehiculos</em> indica que tipos de vehiculos pueden usar la Parada. Los iconos incluidos: autobus (para pasajeros), camion (para mercancias), tren (por via ferrea), barco y avion. Los tranvias se indican mediante el icono del autobus o del tren dependiendo del tipo de Parada.
+</p>
+<p>
+<em>Capacidad de almacenamiento:</em> cantidad de carga de cada tipo (mercancias, pasajeros y correo) que se puede almacenar en la Parada.
+</p>
+<p>
+<em>Dibujo de la Parada</em>: es una mini vista de la Parada y cualquier convoy visible.<br>
+Pulsa en el dibujo para centrar la vista del juego en la Parada.
+</p>
+<p>
+<em>Pasajeros</em> cifras que indican la cantidad de pasajeros que inician su viajes en dicha Parada:<br>
+- <em>cara feliz</em> indica el numero de pasajeros, que han llegado a una parada no saturada como resultado de su area de influencia, han encontrado una ruta a su destino y esperan transporte.<br>
+- <em>cara triste</em> indica el numero de pasajeros que han llegado a una Parada como resultado de su area de influencia, pero no esperan transporte porque la Parada esta Saturada.<br>
+- <em>sin ruta</em> indica el numero de pasajeros que han llegado a una Parada como resultado de su area de influencia, pero no encuentran una ruta a su destino.<br>
+{Consejos: Mantener a los pasajeros contentos ayuda al crecimiento de las <a href="citywindow.txt">ciudades</a>. Se puede cambiar el numero maximo de intercambios permitidos para los pasajeros y las mercancias en el archivo simuconf.tab}.
+</p>
+<p>
+<em>Pasajeros/mercancia esperando:</em> lista la carga que esta esperando por transporte en la Parada por grupos: pasajeros; correo; y tipo de mercancias.<br>
+La informacion de la carga que se muestra incluye cantidad, tipo, destino final y primera Parada intermedia.<br>
+Los botones de opcion (el nombre cambia cuando lo pulsas) ordena la carga en gtupossorts of items within groups:<br>
+ - <em>destino:</em> ordena elementos, alfanumericamente (mayusculas antes que minusculas), por el nombre de la Parada destino final.<br>
+ - <em>via (detalle):</em> ordena elementos, alfanumericamente (mayusculas antes que minusculas), por el nombre de la primera Parada intermedia.<br>
+ - <em>via (cantidad):</em> ordena elementos por cantidad dirigida a la primera Parada intermedia.<br>
+ - <em>cantidad:</em> ordena elementos por cantidad en orden descendente.<br>
+{Consejos: las barras de color de mercancias sobre la Parada (usa la tecla [!] para mostrar) indica la cantidad de elementos que esperan transporte y tienen el mismo color que los <a href="goods_filter.txt">cuadrados de color</a> en la Lista de Mercancias.}
+</p>
+<p>
+<em>Grafica:</em> pulsa en el boton de opcion para mostrar el grafico (el boton se oscurece cuando el grafico esta visible) en la ventana <strong>Informacion de la Parada</strong>.<br>
+La grafica muestra las estadisticas de los ultimos 12 meses (eje x) cuando la opcion grafico esta seleccionada.<br>
+Pulsa en el boton grafico para ver la informacion en el grafico ((el boton se oscurece cuando el grafico esta visible).<br>
+El color de las lineas en el grafico se corresponde con el color de los botones de opcion:<br>
+- <em>Felices</em> indica el numero de pasajeros, que han llegado a una parada no saturada como resultado de su area de influencia, han encontrado una ruta hacia su destino y esperan transporte.<br>
+- <em>Descontentos</em> indica el numero de pasajeros, que han llegado a una parada como resultado de su area de influencia pero no esperan transporte porque estaba saturadad.<br>
+- <em>Sin ruta</em> indica el numero de pasajeros, que han llegado a una parada como resultado de su area de influencia pero no encuentran una ruta hacia su destino .<br>
+- <em>En espera:</em> cantidad de pasajeros y mercancias que esperan transporte en una Parada.<br>
+- <em>Llego:</em> cantidad de pasajeros y mercancias descargadas por un Convoy en una Parada que es destino final o intermedio.<br>
+- <em>Partio:</em> cantidad de pasajeros y mercancias cargadas por un Convoy en una Parada.<br>
+- <em>Vehiculos:</em> cantidad de vehiculos que han pasado por la Parada.
+</p>
+<p>
+<em>Detalles:</em> boton de opcion que abre la ventana <a href="station_details.txt">Detalles de la Parada</a> y da mas informacion acerca de la Parada.
+</p>

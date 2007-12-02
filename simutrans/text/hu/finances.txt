@@ -1,0 +1,52 @@
+<title>Pénzügyek Sugó</title>
+<h1>Pénzügyek (<em>f</em>)</h1>
+<p>
+Itt tudod a gazdasági helyzetedet ellenõrizni. Leellenõrizhetõ a
+nyereség, veszteség a gazdasági hálózatod fentartási költsége
+és minden egyéb a játék szempotntjából hasznos információ.<br>
+Több kategoriában tudsz információkat kinyerni grafikus és számszerû
+adatok formájában. Fel vannak tüntetve az ez évi és múlt évi adatok is.
+</p>
+<p>A következõ adatinformációk állank rendelkezésedre:</p>
+<p>
+<em>Árbevétel</em> - Minden ami hasznot hoz.
+</p>
+<p>
+<em>Munkálatok</em> - Minden költség amit építkezésre, hálozatfejlesztésre költöttél.
+</p>
+<p>
+<em>Karbantartás</em> - Minden karbantartás igénylõ munkálat összegzése.
+</p>
+<p>
+<em>Üzleti eredmény</em> - Bevételek összegzése.
+</p>
+<p>
+<em>Új jármû</em> - Új jármûvekre költött pénzösszeg.
+</p>
+<p>
+<em>Építkezés</em> - Építkezésre költött pénzösszegek összegzése.
+</p>
+<p>
+<em>Össz profit</em> - Minden bevétel összegzése.
+</p>
+<p>
+<em>Készpénz</em> - A pillanatnyi készpénz mennyiség (a képernyõ alján folyamatosan jelezve).
+</p>
+<p>
+<em>Vagyon</em> - Az álltalad felépített vonalak, épületek, ipari egységek össz értéke.
+</p>
+<p>
+<em>Nettó jövedelem</em> - A pillanatnyi pénzösszeg ami a kasszába befolyik.
+</p>
+<p>
+<em>Árrés</em> - A pillanatnyi költség és árbevétel közötti különbség. Minnél nagyobb annál jobb.
+</p>
+<p>
+<em>Havi karbantartás</em> - A közlekedési hálózatod fenttartási költsége.
+</p>
+<p>
+<em>Szállítmányok</em> - A szállításra költött pénzmennyiség.
+</p>
+<p>
+Az eredményeket évre, vagy hónapra lebontva lehet megjeleníteni.
+</p>

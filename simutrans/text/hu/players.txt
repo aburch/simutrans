@@ -1,0 +1,11 @@
+<title>Játékosok Sugó Help</title>
+<h1>Játékosok</h1>
+
+<p>Itt tudod a számítógép állatl vezérelt ellenfeleidet (AI - Artificial intelligence) ki, illetve bekapcsolni.</p>
+
+<p>A kikapcsolás a kis sima négyzet manipulálásával érhetõ el. Figyelem ha kikapcsolsz egy játékost
+lényegében csak annyit csinálsz, hogy "elaltatod" vagyis több fejlesztés nem lesz de a már
+felépített termelõegységek mûködni fognak.
+</p>
+
+<p>Tájékoztatásképp az egyes játékosok pénzösszegét tudod egyelõre megnézni.</p>

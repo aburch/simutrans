@@ -1,0 +1,40 @@
+<title>Convoy Details Help</title>
+
+<h1><strong>Convoy Details</strong></h1>
+
+<p>
+<strong>Convoy Details</strong> provides more information about a Convoy (an operational vehicle or combination of vehicle-units) and can be used to sell the Convoy immediately.
+</p>
+<p>
+
+<strong>Convoy Details</strong> open from
+<a href="convoiinfo.txt">
+Details</a> option-button in Convoy Information</strong>.
+<br>
+If all items are not visible <a href="mouse.txt">re-size</a> <strong>Convoy Details</strong> or use slider-bars to scroll items.
+</p>
+<p>
+At the top of
+
+<strong>Convoy Details</strong> information shown includes:
+</p>
+<p>
+<em>Power:</em> of Convoy (combined power of all motorised vehicle-units in Convoy).
+</p>
+<p>
+<em>Resale Value:</em> money received if Convoy is sold (purchase price of Convoy less any depreciation).
+</p>
+<p>
+WARNING: Click on <em>Sell mode</em> option-button to sell Convoy immediately. No further confirmation is required. The Convoy is removed from the game and the player balnce credited with the selling price .
+</p>
+<p>
+<strong>Convoy Details</strong> lists all vehicle-units in Convoy.<br>
+Information listed for all vehicle-units includes:<br>
+- <em>vehicle-unit-graphic</em> a picture of vehicle-unit (also used in <a href="depot.txt">depots</a>).<br>
+- <em>Manufactured:</em> month and year of manufacture and introduction date if playing with <a href="new_world.txt">timeline</a>.<br>
+- <em>Resale Value:</em> amount received if sold.<br>
+- <em>Power:</em> power generated (by motorised vehicle units).<br>
+- <em>Friction:</em> current friction level.<br>
+- <em>Max income:</em> ?income of vehicle-unit by type of item transported by Convoy.<br>
+- <em>items on board</em> amount and destination of items currently carried by vehicle-unit.
+</p>

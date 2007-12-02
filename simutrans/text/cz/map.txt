@@ -1,0 +1,26 @@
+<title>Nápovìda - mapa</title>
+<h1>Mapa</h1>
+
+<p>
+V tomto oknì mù¾ete prohlí¾et va¹i mapu z ptaèí perspektivy, a to vèetnì vèetnì mìst, prùmyslu, dopravy a dal¹ích volitelných údajù.
+</p>
+
+<p>
+Ka¾dý typ prùmyslu je oznaèen jinou barvou, s vysvìtlivkami v dolní èásti okna s mapou.
+Pokud nad nìjaký objekt prùmyslu pøemístíte ukazatel my¹i, zobrazí se jeho název a vyznaèí se i s názvy odbìratelé.
+</p>
+
+<p>
+Pokud chcete vidìt více detailù, kdekoliv v oknì s mapou kliknìte pravým tlaèítkem my¹i, co¾
+zpùsobí pøiblí¾ení mapy (a¾ do 2 stupòù). Oddálení je mo¾né stisknutím tlaèítka SHIFT a pravého tlaèítka my¹i.
+</p>
+
+<p>
+V dolní èásti okna se nalézají tlaèítka, po jejich¾ stisknutí se na mapì zobrazí (barvou dle intenzity) vybraná volba.<br>
+Pøi volbách "Cestujících" a "Po¹ty" bude jednou barvou zobrazeno území, které obsluhují va¹e stanice pro cestující nebo pro po¹tu.
+Pøi volbì "Tratì" budou barevnì zvýraznìny a odli¹eny rùzné druhy ¾eleznièních tra»í - bílou normální, èervenou elektrifikované, ¾lutou budou zvýraznìny semafory.
+</p>
+
+<p>
+-><a href="about.txt">Informace o pøekladu</a>
+</p>

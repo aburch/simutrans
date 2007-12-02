@@ -1,0 +1,21 @@
+<title>Haltestellen Detailinformation Hilfe</title>
+
+<h1><strong>Haltestellen Detailinformation</strong></h1>
+
+<p>
+<em>Angeschlossene Fabriken:</em> Alle im Einzugsgebiet der Haltestelle befindlichen Fabriken werden alphabetisch gelistet. Die Einzugsgebiete kannst Du mittels der Taste <em>v</em> anzeigen lassen.
+</p>
+<p>
+<em>Lagerkapazität:</em> Die gesamte Lagerkapazität der Haltestelle. Sie errechnet sich aus allen Haltestellensegmenten und Nebengebäuden, welche sich im Haltestellenverbund befinden. Jedes Segment/Gebäude steuert eine Kapazität von 128 Einheiten bei.<br/>
+Warten an einer Haltestelle mehr Passagiere, als unter Lagerkapazität angegeben ist, so werden sie unzufrieden. Weitere reisewillige Personen werden die Haltestelle verärgert wieder verlassen, ohne die Reise angetreten zu haben.<br/>
+Fabriken können nach Erreichen der Lagerkapazität ihre Produktion nicht mehr an der Haltestelle anliefern. Die Meldung <strong>Station voll</strong> weist Dich auf den Missstand hin, sofern Du deren Ausgabe in den <a href="mailbox.txt">Mailbox Optionen</a> nicht verhindert hast.
+</p>
+<p>
+<em>Angenommene Waren:</em> Alle Warenarten, welche von an die Haltestelle angeschlossenen Fabriken benötigt werden, sind alphabetisch gelistet.
+</p>
+<p>
+<em>Linien, die diesen Stop anfahren:</em> Alle Linien, welche die Haltestelle anfahren, sind alphanumerisch gelistet.
+</p>
+<p>
+<em>Verkehrsverbindungen (direkt):</em> Alle Haltestellen sind gelistet, welche direkt über Linien von der Haltestelle aus angefahren werden. Dem Namen der Haltestelle folgt jeweils in einer weiteren Zeile nach einem Bindestrich die Beförderungsart.
+</p>

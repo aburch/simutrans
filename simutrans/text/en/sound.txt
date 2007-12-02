@@ -1,0 +1,26 @@
+<title>Sound Settings Help</title>
+
+<h1><strong>Sound Settings</strong></h1>
+
+<p>
+<strong>Sound Settings</strong> has controls for sound effects & music.
+</p>
+<p>
+<strong>Sound Settings</strong> opens from <a href="options.txt">Game Options.</a>
+</p>
+<p>
+Use arrow-buttons to adjust settings or <a href="mouse.txt">slider-bars</a> to decrease/increase volume:
+</p>
+<p><em>Sound volume:</em> sets volume of sound effects in game.
+</p>
+<p>
+<em>Music volume:</em> sets volume of music. If no music is available then controls will not function.
+</p>
+<p>
+<em>Currently playing:</em>
+ changes music; arrow-buttons cycle through available music.
+</p>
+<p>
+Please note: music is not supplied with Simutrans.<br>
+Help to add music available online at http://wiki.simutrans.com
+</p>

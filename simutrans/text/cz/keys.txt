@@ -1,0 +1,48 @@
+<title>Nápovìda - klávesové zkratky</title>
+<h1>Nastavení klávesových zkratek:</h1>
+
+<p>
+<em>,</em>/<em>.</em> - Nedokumentovaná vlastnost<br>
+<em>!</em> - Vypne/zapne zobrazování nápisù <br>
+<em>"</em> - Vyp./zap. zobrazování budov a stromù<br>
+<em>#</em> - Vyp./zap. zobrazování møí¾ky na povrchu<br>
+<em>+</em>/<em>-</em> - Pøidat/ubrat jas<br>
+<em>/</em> - Zasadit strom<br>
+<em>a</em> - Inspekèní lupa<br>
+<em>b</em> - Postavit ¾eleznièní semafory<br>
+<em>c</em> - Poøídit screenshot<br>
+<em>d</em> - Sní¾it zemi<br>
+<em>f</em> - Otevøít okno "Finance"<br>
+<em>g</em> - Nedokumentovaná vlastnost<br>
+<em>k</em> - Otevøít seznam hráèù<br>
+<em>l</em> - Nedokumentovaná vlastnost<br>
+<em>m</em> - Otevøít okno mapy<br>
+<em>p</em> - Pauza<br>
+<em>r</em> - Odstranit<br>
+<em>s</em> - Postavit silnici<br>
+<em>t</em> - Postavit ¾eleznici<br>
+<em>u</em> - Zvý¹it zemi<br>
+<em>w</em> - Správa linek<br>
+Pozor - klávesové zkratky psané velkým písmenem, napø. L, znamenají napø. Shift + l<br>
+<em>C</em> - Zalo¾it mìsto (cena: 5 miliónù $)<br>
+<em>G</em> - Statistika zbo¾í<br>
+<em>L</em>/<em>S</em> - Naèíst/ulo¾it hru<br>
+<em>P</em> - Nedokumentovaná vlastnost<br>
+<em>Q</em>, <em>X</em> - Ukonèit hru<br>
+<em>T</em> - Seznam mìst<br>
+<em>V</em> - Otevøít seznam vozidel<br>
+<em>9</em> - Posunout pohled severovýchodnì<br>
+<em>1</em> - Posunout pohled jihozápadnì<br>
+<em>7</em> - Posunout pohled severozápadnì<br>
+<em>3</em> - Posunout pohled jihovýchodnì<br>
+<em>6</em> - Posunout pohled východnì<br>
+<em>2</em> - Posunout pohled ji¾nì<br>
+<em>8</em> - Posunout pohled severnì<br>
+<em>4</em> - Posunout pohled západnì<br>
+<em>Delete</em>, <em>Backspace</em> - Zavøít v¹echna okna<br>
+<em>Page-Up</em>, <em>Page-Down</em>, nebo ostré závorky - Pøiblí¾it/oddálit pohled
+</p>
+
+<p>
+-><a href="about.txt">Informace o pøekladu</a>
+</p>

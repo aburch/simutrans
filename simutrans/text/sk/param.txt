@@ -1,0 +1,34 @@
+<title>Parametre spustenia - pomoc</title>
+
+<h1>Parametre, s ktorými je mozné spustit hru :</h1>
+<p>
+<em>Rozlísenie obrazu :</em><br>
+<strong>Simutrans -res 1</strong>  (640x480)<br>
+<strong>Simutrans -res 2</strong>  (800x600)<br>
+<strong>Simutrans -res 3</strong>  (1024x768)<br>
+<strong>Simutrans -res 4</strong>  (1280x1024)<br>
+<strong>Simutrans -res 5</strong>  Okno Windows<br>
+alternatíva :<br>
+<strong>Simutrans -screensize AxB</strong>, kde A=poèet bodov horizontálne a B=poèet bodov vertikálne
+</p>
+<p>
+<em>Voµná hra</em> (bez obmedzenia financí) :<br>
+<strong>Simutrans -freeplay</strong>
+</p>
+<p>
+<em>Prekresµovanie obrazovky</em> (refresh) :
+<strong>Simutrans -refresh n</strong>, kde n = 1 az 16 (1=najpomal¹ie, 16=najrýchlej¹ie)
+</p>
+<p>
+<em>Alternatívna krajina :</em><br>
+<strong>Simutrans -graphicpack súbor.pak</strong>, kde súbor = názov alternatívneho súboru
+</p>
+<p>
+Parametre je mo¾né kombinovat', treba v¹ak dodrzat' oddeµovaciu medzeru medzi nimi, napr.<br>
+<strong>Simutrans -res 2 -log -graphicpack winter.pak</strong><br>
+Podrobný popis nájde¹ v súbore README.TXT tejto hry.
+</p>
+<p>
+Slovenský popis : Ján Krnáè<br>
+Simutrans (c) Hj. Malthaner
+</p>

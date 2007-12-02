@@ -1,0 +1,27 @@
+<title>Destroy/Remove Help</title>
+
+<h1><strong>Removal Tool</strong></h1>
+
+<p>
+<strong>Removal Tool</strong> is used to destroy and remove unwanted items and obstructions to construction on a single ?game-square in <a href="window.txt">game-view</a>.
+</p>
+<p>
+To Use: Click red-cross-icon (<it>bulldozer-icon</it> in pak128) at top of game-view or press <a href="keys.txt">[a]</a> to open <strong>Removal Tool</strong> (changes cursor to a red-cross-over-dust-cloud).<br>
+Position cursor in game view, a yellow outline indicates position on which Tool will operate (map cordinates are indicated in bottom-bar). Then click on item in game-view to remove.
+</p>
+<p>
+Cost incurred displayed in game-view and appears as under <a href="finances.txt">Construction site</a>. The cost of removal is equivalent to cost of construction for player items.<br>
+The cost of destroying <a href="inspection_tool.txt">city buildings</a> is shown as its value in dialogue opened with <it>Inspection Tool</it>. ?The cost of destroying trees is 100 Hajo credits.
+</p>
+<p>
+<strong>Removal Tool</strong> can be used to remove individual pedestrians and private citycars.
+</p>
+<p>
+Order items are removed from a single ?game-square: pedestrian or private citycar, signals, stop or station-platform, electrification of way, bridge or tunnel, way (track first if on roadway).
+</p>
+{Tips: To remove a player vehicle, sell vehicle from <a href="convoidetail.txt">Convoy Details</a>.<br>
+To remove Industry, Attractions and Town Hall switch to public service player first. <it>Please Note:</it> Use of <strong>Removal Tool</strong> on a  Town Hall removes all city buildings from urban area.<br>
+Use <a href="keys.txt">[Ctrl]</a> to use tool on upper level.<br>
+To destroy/remove another players items select to play as other <a href="players.txt">player</a> first.<br>
+To remove segments of track or road use <a href="railtools.txt">Remove Tracks</a> (also found in <a href="tramtools.txt">Tram Tools</a>) or <a href="roadtools.txt">Remove roads</a>.}
+<p>

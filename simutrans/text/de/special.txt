@@ -1,0 +1,35 @@
+<title>Spezialbauwerkzeuge Hilfe</title>
+
+<h1><strong>Spezialbauwerkzeuge</strong></h1>
+
+<p>
+In dieser Werkzeugleiste sind Bauwerkzeuge zusammengefasst, die nicht direkt mit den Transportnetzen zu tun haben. Bei der Auswahl eines Wergzeuges verwandelt sich der Cursor in das jeweilige Symbol.
+</p>
+<p>
+<em>Nebengebäude</em> Für die Gestaltung der Haltestellen stehen Dir verschiedene Nebengebäude zur Verfügung. Platziere sie entsprechend Deinen kreativen Vorstellungen direkt neben beliebige Haltestellenobjekte.
+Mit ihnen kannst Du auch flächige Haltestellenverbünde erreichen.
+Sie erweitern das Einzugsgebiet und das Fassungsvermögen der Haltestelle.
+Die meisten Nebengebäude bringen Haltestellen auch dazu, Passagiere, Post oder Güter umzuschlagen, besonders seien die Postgebäude erwähnt.
+Einige Nebengebäude sind auch in den anderen Bauwerkzeugen zu finden, unterscheiden sich aber in ihrer Funktion nicht von denen in diesem Menü.
+</p>
+<p>
+<em>Spielerwechsel</em> Bei der Betätigung der Schaltfläche <strong>P+</strong> oder der Tastenkombination <em>Shift</em>+<em>P</em> wechselst Du zunächst zum Spieler "öffentliche Hand". Das Menü <a href="edittools.txt">Karteneditor</a> wird geöffnet. Beim Weiterschalten gelangst Du nacheinander zu den KI-Spielern, danach wieder zum menschlichen Spieler. Hattest Du das Menü des Karteneditors geöffnet gelassen, kannst Du es nun auch als Spieler nutzen. Du erhältst weitreichende Gestaltungsmöglichkeiten des Spiels. Kreative Aspekte werden Dich mit etwas Übung sehr interessante Aufgabenstellungen finden und verwirklichen lassen.
+</p>
+<p>
+<em>Stadtgründungswerkzeug</em> Wo immer auf der Karte Du das Werkzeug platzierst, wird eine neue Stadt entstehen. Doch Vorsicht, von Deinem Kassenbestand werden ohne Vorwarnung 5.000.000 Credits abgezogen.
+</p>
+<p>
+<em>Aufforstwerkzeug</em> Während Rodungsarbeiten mit Unkosten verbunden sind, stellt Dir Simutrans Setzlinge für Aufforstungen gratis zur Verfügung. Die Landschaftsverschönerung kann eine reizvolle Aufgabe sein. Ökologische Aspekte sind derzeit aber nicht im Spiel implementiert.
+</p>
+<p>
+<em>Überlandleitungen</em> Einige der Produktionsstätten könnten ruhig mehr produzieren? Versorge sie mit Strom, und sie werden es tun. Platziere je ein <em>Umspannwerk</em> neben dem Kraftwerk und neben dem Betrieb, den Du versorgen möchtest.
+Durch die Verbindung der beiden Umspannwerke durch eine Überlandleitung wird der Betrieb mit Strom versorgt. Der Stromtransport stellt auch eine interessante Einnahmequelle dar.
+Solange Strom fließt, verdoppelt sich die Produktion jedes versorgten Betriebs.
+Ob eine Fabrik genug Strom erhält, sieht man im Spiel an einem roten Blitz auf dem Umspannwerk.
+</p>
+<p>
+<em>Marker</em> Den Marker kannst Du für die Einrichtung von Gedächtnisstützen nutzen.
+Plaziere ihn auf einer beliebigen Kachel. Editiere das sich öffnende Textfeld, bestätige dann mit "OK".
+Bei wiederholter Plazierung des Markers auf dem gleichen Feld kannst Du dich auch für die Entfernung des Markers entscheiden.<br/>
+Ein markiertes Feld geht in das Spielereigentum über. Es bleibt Dein Eigentum, auch wenn Du den Marker wieder entfernst. So ist es möglich, Felder vor der Bebauung zu schützen.
+</p>

@@ -1,0 +1,20 @@
+<title>Language Help</title>
+
+<h1><strong>Language</strong></h1>
+
+<p>
+<strong>Language</strong> changes the language used in the game.
+</p>
+<p>
+<strong>Language</strong> opens from <a href="options.txt">Game Options</a> & with <a href="new_world.txt">Create a New Game</a>.
+</p>
+<p>
+For the game in other languages: click button to select new language; before start of game, for place names in new language.
+</p>
+<p>
+New language may only appear in new or re-opened toolbars, options & texts in the game.<br>
+If a translation is not available in the selected language, it may appear in English.
+</p>
+<p>
+Visit http://translator.simutrans.com to help with translating.
+</p>

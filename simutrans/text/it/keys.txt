@@ -1,0 +1,41 @@
+<title>Aiuto - Tastiera</title>
+
+<h1>Configurazione Tastiera:</h1>
+
+<p>
+, - Funzione non documentata<br>
+. - Funzione non documentata<br>
+! - Attiva/disattiva visualizzazione nomi<br>
+a - Lente<br>
+b - Segnale ferroviario<br>
+c - Salva screenshot (camera)<br>
+d - Abbassa terreno<br>
+f - Apri finestra finanze<br>
+g - Funzione non documentata<br>
+k - Apri lista giocatori<br>
+l - Funzione non documentata<br>
+m - Apri finestra mappa<br>
+p - Pausa<br>
+r - Bulldozer<br>
+s - Costruisci strada<br>
+t - Costruisci binario<br>
+u - Alza terreno (up)<br>
+w - Funzione non documentata<br>
++ - Schiarisci schermo<br>
+- - Scurisci schermo<br>
+Shift-C - Costruisci nuova città<br>
+Shift-V - Apri lista veicoli<br>
+Shift-Q, X - Esci dal gioco<br>
+P - Funzione non documentata<br>
+L - Carica gioco<br>
+S - Salva gioco<br>
+9 - Scrolling della mappa a nord-est<br>
+1 - Scrolling della mappa a sud-ovest<br>
+7 - Scrolling della mappa a nord-ovest<br>
+3 - Scrolling della mappa a sud-est<br>
+6 - Scrolling della mappa a est<br>
+2 - Scrolling della mappa a sud<br>
+8 - Scrolling della mappa a nord<br>
+4 - Scrolling della mappa a ovest<br>
+Delete, Backspace - Chiudi tutte le finestre
+</p>

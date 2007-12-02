@@ -1,0 +1,67 @@
+<title>Ayuda de Informacion de Industrias</title>
+
+<h1><strong>Informacion de Industrias</strong></h1>
+
+<p>
+<strong>Informacion de Industrias</strong> muestra detalles acerca de la industria seleccionada (un proveedor o consumindor de mercancias) y permite que la vista del juego se posicione en determinados lugares.
+</p>
+<p>
+Los proveedores y consumidores de mercancias estan conectados para crear una Cadena Industrial de Suministro que termina en un consumidor final. Alguna industria es a la vez consumidor y proveedor, situandose en la mitad de la Cadena Industrial de Suministro. Si no estas jugando en <a href="new_world.txt">beginners mode</a>, la industria dejara de suministrar si el consumidor esta saturada de mercancias.<br>
+Las industrias son un destino y origen para pasajeros y correo. Los vehiculos carga y descargan mercancias y pasajeros en una industria mediante las <a href="station.txt">Paradas</a> si el area de influencia de la parada cubre una porcion del edificio de la industria y si la Parada puede manejar la mercancia de la industria.
+{Consejos: Paradas maritimas/Plataformas petroliferas/Granja de peces/areas de influencia/petroleo/correo/pasajeros/ no son listados en la lista de estaciones}
+</p>
+<p>
+El numero inicial de cadenas industriales de suministro se puede establecer en la ventana <a href="new_world.txt">Crear un nuevo Mundo</a>.
+A medida que las <a href="citywindow.txt">ciudades</a> crecen, pueden aparecen nuevas industrias. Una nueva industria aparece cada vez que la poblacion de una ciudad dobla su poblacion en 2000 habitantes.<br>
+{Consejos: Añade industrias a una ciudad usando <a href="edittools.txt">Construir un nuevo mercado en la ciudad mas cercan</a> en en menu Herramientas especiales de cosntruccion. Cambia cuando las nuevas industrias son generadas en el archivo cityrules.tab (industry_increase_every = 0 no genera nuevas industrias )}.
+</p>
+<p>
+Pulsa en una industria con la herramienta <a href="inspection_tool.txt">Explorar</a> o en una industria listada en la <a href="factorylist_filter.txt">Lista de Fabricas</a> para abrir la ventana de <strong>Informacion de la Fabrica</strong>.<br>
+Usa la <a href="mouse.txt">barra de desplazamiento</a> para desplazar los elementos si no todos son visibles.
+</p>
+<p>
+El nombre de la Industria seleccionada se muestra en el titulo de la ventana de <strong>Informacion de la Fabrica<</strong>.<br>
+Se muestra otra informacion y opciones, incluyendo:
+</p>
+<p>
+Produccion: cantidad maxima de mercancias que suministrara la industria (si es un proveedor) o consumira (si es un consumidor final) en unidades por mes/dia.<br>
+{Consejos: Añadiendo <a href="special.txt">subestaciones transformadoras</a> y suministro electrico a una industria incrementa la cantidad de mercancias producidas/consumidas}.
+</p>
+<p>
+<em>Representacion de la Industria</em> muestra una vista del edificio de la industria. Pulsa en el grafico para centrar la vista de juego en el edificio.
+</p>
+<p>
+<em>barra de color de estado</em> bajo la representacion indica el estado operativo de la industria (tambien usado en la <a href="factorylist_filter.txt">Lista de Fabricas</a>):<br>
+- <em>blanco:</em> no requiere entrada de mercancias.<br>
+- <em>amarillo:</em> conectado por transporte, pero la cadena industrial de suministro tiene un suministro pobre.<br>
+- <em>verda:</em> en estado optimo.<br>
+- <em>naranja:</em> operativa pero es posible mejorar.<br>
+- <em>rojo:</em> operativo pero la cadena industrial de suministro tiene un exceso de suministro.
+</p>
+<p>
+<em>Consumidores:</em> lista destinos en la Cadena Industrial de suministros para las mercancias producidas por la industria seleccionada. <br>
+Las industrias destino y sus coordenadas en el mapa son listadas junto a botones de flecha. Pulsa en el boton de la flecha para mover la vista del juego a ese destino.
+</p>
+<p>
+<em>Suministradores:</em> muestra el origen de las mercancias en la Cadena Industrial de suministros, requerida por la industria seleccionada.<br>
+Las industrias suministradoras y sus coordenadas del mapa se listan junto a botones de flecha. Pulsa en el boton de la flecha para mover la vista al suministrador.
+</p>
+<p>
+<em>Trabajadores de :</em> muestra en <a href="citywindow.txt">ciudades</a> cercanas viven los empleados. Los pasajeros y correo de estas ciudades necesitaran ser llevados a la industria seleccionada.<br>
+Las ciudades y sus coordenadas del mapa se listan junto a botones de flecha. Pulsa en el boton de la flecha para mover la vista al suministrador.
+</p>
+<p>
+<em>Nivel de pasajeros:</em> es la popularidad relativa como destino de pasajeros.<br>
+<em>Correo:</em> es la popularidad relativa como destino de correo.<br>
+{Consejos: unicamente una cuadricula de la industria necesita estar en el area de influencia de la parada, para dar un servicio optimo para pasajeros y correo}.
+</p>
+<p>
+<em>Produccion:</em> da detalles de la produccion de la Industria.<br>
+La informacion mostrada incluye: nombre del elemento; cantidad actualmente almacenada en relacion a la maxima capacidad de almacenamiento por elemento; <a href="goods_filter.txt">categoria de mercancia</a>; y nivel de porcentaje de produccion comparada con el suministro.
+</p>
+<p>
+<em>Consumo:</em> da detalles del consumo de la industria.<br>
+La informacion mostrada incluye: nombre del elemento; cantidad actualmente almacenada en relacion a la maxima capacidad de almacenamiento por elemento; <a href="goods_filter.txt">categoria de mercancia</a>; y nivel de porcentaje de produccion comparada con el consumo.
+<p>
+<a href="station.txt"><em>Paradas</em></a> que sirven a la industria son listadas en la parte inferior de la ventana <strong>Informacion de la Fabrica</strong>.
+</p>

@@ -1,0 +1,25 @@
+<title>Villamos eszközök Sugó</title>
+
+<h1>Villamos eszközök</h1>
+
+<p>
+Itt tudsz villamos síneket, jelzõlámpákat,
+megállókat, depókat, felüljárókat építeni.
+</p>
+<p>
+Többfajta villamos sín létezik, válaszd ki a sebesség
+függvényében a neked megfelelõt.
+</p>
+<p>
+A villamos jelzõ építésekor mikor felépíted, akkor az
+mindkét irányba fog jelezni. Sorozatos klikkeléssel éred el azt,
+hogy a megfelelõ irányba mutasson.
+</p>
+<p>
+Tudni kell, hogy villamos a rendes vasúti síneken is mûködik.
+Ezért ha hídra vagy alagútra van szükséget használd a
+<a href="railtools.txt">"Vasúti eszközöknél"</a> fellelhetõ kellékeket.
+</p>
+<p>
+A Depóban tudod összeállítani a megfelelõ villamos szerelvényt.
+</p>

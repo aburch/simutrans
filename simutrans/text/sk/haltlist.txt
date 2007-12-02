@@ -1,0 +1,15 @@
+<title>Prehµad zastávok a staníc - pomoc</title>
+<h1>Prehµad Tvojich zastávok, staníc a nakladacích rámp</h1>
+<p>
+<em>Prehµad ponúka nasledovné mo¾nosti:</em><br>
+1.) Triedenie :<br>
+Klikaním na prvé tlaèidlo zµava mení¹ kritéria, t.j. podµa
+èoho bude zoznam triedený : názvu, typu, èakania alebo èísla.<br>
+Druhým tlaèidlom zµava si nastavuje¹ vzostupné alebo zostupné triedenie.
+</p>
+<p>
+2.) Filter :<br>
+Klikaním na tretie tlaèidlo zµava zapína¹ alebo vypína¹ filter.<br>
+Posledným tlaèidlom ,,Nastavenia'' zobrazí¹ podrobný zoznam v¹etkých
+kritérií a mo¾ností filtrovania.
+</p>

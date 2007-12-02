@@ -1,0 +1,35 @@
+<title>Prólogo</title>
+
+<h1><strong>Bem-vindo ao Simutrans...</strong></h1>
+
+<p>
+Escolha um, entre alguns milhares, dos mundos do Simutrans. Então, ponha-se no lugar de um jovem empreendedor com um pouco de dinheiro dado por seus avós: ansioso para deixá-los orgulhosos, com a ambição de estabelecer uma companhia de transporte de sucesso, seu desafio a partir de agora é construir uma empresa vitoriosa.
+</p>
+<p>
+Com o passar do tempo, transforme a sua pequena companhia em um grande império de transporte, mantendo as finanças equilibradas entregando cargas e satisfazendo o desejo de viajar de milhões de passageiros todos os meses.<br>
+Transporte passageiros, correio e mercadorias por estradas, ferrovias, navios e até pelo ar.
+</p>
+<p>
+Cada mundo possui algo diferente a oferecer. Dê uma boa olhada ao seu redor... o futuro do lugar está em suas mãos e nas de seus concorrentes.
+</p>
+<p>
+No começo, pode ser mais fácil de se começar suprindo uma usina de geração de energia com aquilo que ela precisa. A seguir, conecte outras indústrias, talvez usando estações de distribuição onde as mercadorias são recarregadas.<br>
+A desvantagem de somente transportar mercadorias é que as cidades não irão crescer e novas indústrias não aparecerão.
+</p>
+<p>
+Ou então, você pode começar imediatamente a transportar passageiros (e correio). Este é mais desafiador, já que os habitantes deste mundo querem viajar para os locais de suas preferências.<br>
+Alguns precisam ir trabalhar nas indústrias, outros querem fazer compras no Shopping Center da cidade grande, enquanto outros decidem visitar pontos turísticos.
+</p>
+<p>
+Se você não oferecer uma conexão até seus destinos, os passageiros não viajarão com você para sempre. Você precisará construir redes. Quando suas redes estiverem prontas, será necessário aumentar suas capacidades para absorver a demanda. Então, continue com o planejamento.<br>
+Se eles gostarem de seus serviços, as cidades crescerão, atraindo novas indústrias, e assim a economia será próspera.
+</p>
+<p>
+Você pode jogar com o tempo que você quiser. Comece em 1880 e termine em 2050. Haverá novos veículos e edifícios durante todo esse tempo.<br>
+Jogue contra a IA ou do seu próprio jeito. Somente se ficar devendo por três meses, irá falir e será o fim de seu jogo.
+</p>
+<p>
+O <strong>Simutrans-Team</strong> e toda a comunidade te desejam muitas horas de diversão jogando Simutrans!
+</p>
+<p>Traduzido para versão Simutrans 0.99.14.
+</p>

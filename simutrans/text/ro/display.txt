@@ -1,0 +1,23 @@
+<title>Help Setare monitor</title>
+
+<h1>Setare monitor</h1>
+
+<p>
+Aici poþi defini setãrile dorite pt. monitor.
+</p>
+
+<p>
+<em>Luminozitate</em> - Schimbã lumina.<br>
+<em>Nr. de culori</em> - Nefuncþional încã<br>
+<em>Viteza de scrol</em> - Poþi seta viteza de scrol a mapei.
+</p>
+
+<p>
+<em>Scrol invers</em> - Defilarea mapei se schimbã<br>
+<em>Aratã pietonii</em> - Aratã sau nu pietonii din oraº.<br>
+<em>Mod zi/noapte</em> - Aratã sau nu trecerea zile ºi a nopþilor.
+</p>
+<p>
+Îm partea de jos sunt unele informaþii nesemnificative în timpul jocului. Însã dacã ai ceva probleme
+cu jocul ºi vrei sã vorbeºti cu autorii probabil unele informaþii afiºate aici vor fi foarte importante.
+</p>

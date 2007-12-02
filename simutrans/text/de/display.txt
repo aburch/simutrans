@@ -1,0 +1,42 @@
+<title>Anzeigeeinstellungen Hilfe</title>
+
+<h1><strong>Anzeigeeinstellungen</strong></h1>
+
+<p>
+· <em>Untergrundansicht</em>: In diesem Modus kann man Tunnelstrecken bauen, sofern schon eine Strecke unter der Erde besteht.<br>
+· <em>Tag und Nacht wechseln</em>: Soll es nachts dunkel werden in Simutrans? Gebäudefenster, Fahrzeuge und Signalmittel zeigen sich in Nachtbeleuchtung.
+· <em>Helligkeit</em>: Lege mit den Pfeiltasten die Helligkeit des Spiels fest. Nutze auch die Tasten <em>+</em> (heller) und <em>-</em> (dunkler). Werte über 0 lassen sich nur über die Tastatur einstellen. Die Einstellbarkeit ist nach oben und unten nicht begrenzt, es kommt aber sehr bald zu einer Falschfarbenanzeige.<br>
+· <em>Inverses Scrolling</em>: Kehre die Scrollrichtung bei Bedarf um, die Karte bewegt sich dann in Mausrichtung.<br>
+· <em>Scrollgeschwindigkeit</em>: Die Einstellung liefert den Multiplikator für die Kartenscrollgeschwindigkeit.
+</p>
+
+<p>
+· <em>Transparent statt minimieren</em>: Wählt den Modus aus, der benutzt werden soll, um Häuser oder Bäume zur besseren Übersicht zu verstecken.<br>
+· <em>Bäume minimieren</em>: Zeigt nur ganz kleine bzw. transparent Bäume an.<br>
+· <em>Stadtgebäude minimieren</em>: Zeigt nur ganz Fundamente bzw. schwarze Schatte der Stadtgebäude an.<br>
+· <em>alle Gebäude minimieren</em>: Zeigt nur ganz Fundamente bzw. schwarze Schatte bei Stadtgebäuden an. Andere Gebäude haben farbige Schatten, z.B. rot für Industrie.<br>
+</p>
+
+<p>
+· <em>transparent Stationsabdeckung</em>: Wählt den Modus aus, der benutzt werden soll, um die Reichweite von Halten anzuzeigen. Transparent färbt den Boden entsprechen des Besitzers, während ausgeschaltet nur ein Kästchen zu sehen ist..<br>
+· <em>Stationsabdeckung zeigen</em>: Zeigt die Stationsabdeckung an.<br>
+</p>
+
+<p>
+· <em>Fußgänger (an Halten)</em>: Sollen Fußgänger angezeigt werden, wenn Passagiere aus einem Fahrzeug aussteigen?<br>
+· <em>Fußgänger (Stadt)</em>: Sollen weitere Fußgänger zur Belebung des Stadtbildes angezeigt werden?<br>
+· <em>Verkehrsdichte:</em> Dieser Wert beeinflusst die Anzahl der privaten PKWs in den Städten.
+<br>
+</p>
+
+<p>
+<strong>Auslastungsanzeigen</strong>
+<br/>
+Im unteren Teil des Dialogs werden einige Information zur Auslastung des Computers angezeigt:
+</p>
+<p>
+· <em>Bildfrequenz</em>: zeigt die tatsächliche Zeit zwischen zwei Frames.<br>
+· <em>Untätig</em>: Zeigt an, wie lange der Computer zwischen zwei Bildschirmupdates pausiert.<br>
+· <em>Bildrate</em>: Je höher der Wert, desto ruckfreier bewegen sich die Fahrzeuge. Der Wert stellt die Bildfolgen pro Spielsekunde. Den Wert kann man mit dem Kommandzeilenparameter <strong>-fps</strong> oder in der <strong>simuconf.tab</strong> einstellen.<br>
+· <em>Simloops</em>: Anzahl der Simulationsschleifen pro Spielsekunde. Wenn der Wert dauerhaft unter 5 fällt, ist der Computer voll ausgelastet. Einige Funktionen in Simutrans können aussetzen, zum Beispiel fahren Züge nicht mehr ab. In dem Fall sollte eine kleinere Karte mit weniger Städten gespielt werden.
+</p>

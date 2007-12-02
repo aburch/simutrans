@@ -1,0 +1,25 @@
+<title>Ajuda - Ferrovias</title>
+
+<h1>Ferrovias</h1>
+
+<p>
+Esta barra contém ferramentas de construção de trilhos, sinais, túneis, eletrificação de vias, estações, pátios e cruzamentos de ferrovia e estrada.
+</p>
+<p>
+No canto superior esquerdo fica a ferramenta de construir trilhos (teclado: t). Clique no botão, o que fará o cursor se transformar num trator, e em seguida clique no mapa onde você deseja que o trilho comece. Então o cursor terá a aparência de um cruzamento. </p>
+<p>Por fim, clique onde quiser que o trilho termine. Para cruzar uma estrada, você deverá construir uma ponte ou um cruzamento especial. Para cruzar uma propriedade outro jogador, ou o jogo tentará dar a volta, ou não vai fazer nada.
+</p>
+<p>
+À direita vem o botão de construção de sinais. Ao clicar nele, o cursor se transformará em um par de sinais. Clique na posição de trilho desejada para estabelecer o sinal. Ao clicar mais uma vez nele, ele se torna um sinal de mão única.</p>
+<p> O sentido de circulação que ele determina é o que o sinal aberto fica à direita do trem. Se houver necessidade de eliminar um sinal, basta clicar nele com a função "Eliminar" ativada. Somente o sinal será eliminado.
+</p>
+<p>
+Em terceiro lugar está o de construção de túneis. Para construir um túnel é necessário que haja um talude reto, ou seja, uma caída que não seja canto de morro, dos dois lados do túnel. Tendo isso, leve o trilho até o talude. </p>
+<p>Em seguida clique na ferramenta túnel (o cursor vai se tornar uma entrada, ou emboque, de túnel), e clique então na ponta de trilho inclinada e o túnel será feito. Para continuar a ferrovia a partir do túnel, clique na outra ponta do túnel com a ferramenta de construir trilhos e continue normalmente.
+</p>
+<p>O último símbolo na linha de cima é o de eletrificação de via. Clique nele e depois no trecho da ferrovia a ser eletrificado. Vão aparecer os fios sobre a via entre os dois sinais mais próximos do lugar onde foi clicado. Lembre-se de eletrificar TODA a via onde você fizer passar trens elétricos antes de pô-los em circulação.</p>
+<a href="railtools2.txt">Continua</a>
+<p>
+Atualizado para Simutrans 0.81.32<br>
+18/05/2003
+</p>

@@ -1,0 +1,72 @@
+<title>Neue Welt Hilfe</title>
+
+<h1><strong>Erstelle eine neue Welt</strong></h1>
+
+<p>
+Der Neue Welt-Dialog erscheint bei jedem Spielstart. Im laufenden Spiel kann man ihn nach dem Anwählen der Schaltfläche <em>Neue Karte</em> im Dialog <a href="options.txt">Einstellungen</a> aufrufen.
+Dieser wird mit dem <em>Diskettensymbol</em> in der <a href="mainmenu.txt">Hauptmenüleiste</a> geöffnet.
+</p>
+<p>
+Im Dialog werden die Parameter eingestellt, die für die Generierung der Karte gelten sollen.
+Die Einstellungen erfolgen über die Pfeilschaltflächen der Einstelloptionen.
+Ein Klick auf einen Pfeil nach links verringert, ein Klick auf einen Pfeil nach rechts erhöht den entsprechenden Wert.
+</p>
+<p>
+<strong>Einstellungen für neue Karte:</strong>
+</p>
+<p>
+· <em>Kartennummer: </em> Es stehen 10.000 Simutrans-Karten zur Auswahl. Über sie werden die groben Strukturen der Welt festgelegt.
+</p>
+<p>
+· <em>Vorschaubild:</em> Das Bild zeigt die ausgewählte Karte und aktualisiert sich bei jeder Änderung der Kartenparameter.
+</p>
+<p>
+· <em>Kartengröße:</em> Wähle mit den Pfeilschalter, welche Abmessungen die Karte haben soll. Die obere Zahl gibt die Breite (x-Richtung), die untere die Höhe (y-Richtung) der Karte an. Die Einstellbereiche liegen zwischen 64 bis 4096. Der Vorgabewert ist 256x256. Unterscheiden sich die Werte, wird das Vorschaubild verzerrt dargestellt.
+<br/>Die Angabe in Klammern zeigt Dir, wieviel Arbeitsspeicher ein Spiel der eingestellten Kartengröße mindestens belegen wird.
+</p>
+<p>
+· <em>Zufallskarte:</em> Wähle eine zufällige Karte aus. Die oben gemachten Einstellungen werden nicht verändert.
+</p>
+<p>
+· <em>Lade Relief:</em> Die getroffenen Einstellungen werden anstatt auf die angezeigte Karte auf ein im Verzeichnis <em>simutrans/save</em> gespeichertes Relief übertragen. Der <a href="load_relief.txt">Relief laden</a> Dialog wird eingeblendet.
+</p>
+<p>
+· <em>Anzahl Städte:</em> Bestimmt die Anzahl der Städte auf der Karte. Der Vorgabewert ist 16. Ist eine Karte zu rauh, oder ist die Zahl der Städte zu hoch, werden weniger als die eingestellte Anzahl von Städten generiert. (Der Mindestabstand der Städte ist in der Datei <em>simutrans/config/cityrules.tab</em> als Wert der Variablen <em>minimum_city_distance</em> angegeben).
+</p>
+<p>
+· <em>Mittlere Stadtgröße:</em> Der Wert stellt eine mittlere Bezugsgröße dar. Beim Vorgabewert von 1600 bei 16 Städten werden ca. eine Stadt mit 8000-16000 Einwohnern, ein oder zwei mit 1000-5000 und die übrigen mit 200-600 generiert. Es ist durchaus erwünscht, dass immer mal wieder auch einige sehr große Städte erzeugt werden.
+</p>
+<p>
+· <em>Verbindungsstraßenlänge:</em> An Anfang werden alle Städte miteinander verbunden, wenn dies mit einer Straße kleiner als die angegebenen Zahl möglich ist. Dabei ist eine gerade Straße 2 Einheiten teuer, Kurven und Steigungen mehr.
+</p>
+<p>
+· <em>Verkehrsdichte:</em> Dieser Wert beeinflusst die Anzahl der privaten PKWs in den Städten.
+</p>
+<p>
+· <em>Landindustriezweige:</em> Der Wert bestimmt die Anzahl der Endverbraucher auf dem Land. Derzeit werden Kraftwerke und die Müllverbrennung (Ergänzungspak waste) generiert.
+</p>
+<p>
+· <em>Stadtgeschäfte:</em> Der Wert benennt die Anzahl der Endverkäufer in den Städten wie z.B. Apotheke, Autohäuser, Supermärkte usw. Der Vorgabewert ist 0, da beim Wachstum von Städten die Industrie mitwächst. Das automatische Wachstum wird in der <em>simutrans/config/cityrules.tab</em> durch den Wert der Variablen <em>industry_increase_every</em> geregelt. Der dortige Vorgabewert 2000 bedeutet, dass jeweils, wenn eine Stadt die Grösse von 2000, 4000, 8000 usw. Einwohnern erreicht, eine neue Industriekette entsteht. Mit dem Wert in der Datei <em>simuconf.tab</em> 0 wird die Errichtung neuer Industrien ausgeschaltet.
+<br/>
+Die Auswahl an Stadtgeschäften kann durch Ergänzungspaks erhöht werden.
+</p>
+<p>
+· <em>Touristenattraktionen:</em> Stelle die Anzahl von Ausflugszielen wie Burgen, Jahrmarktattraktionen usw. ein.
+</p>
+<p>
+· <em>Mit Einführungsdaten ab:</em> Drücke den Schalter ein, wenn Fahrzeuge und Gebäude erst ab ihrem Entwicklungsjahr verfügbar sein sollen. Das Startjahr wird mit den beiden Pfeilschaltern geändern. Die Vorgabe ist in der <em>simutrans/config/simuconf.tab</em> als Wert der Variablen <em>starting_year</em> eingetragen. Sinnvolle Werte sind z.B. 1910, 1930, 1950. Vor 1835 gibt es nur Pferdefuhrwerke.
+</p>
+<p>
+· <em>Erlaube Spielerwechsel:</em> Bestimme, ob während des Spiels der Spieler gewechselt werden darf. Diese Einstellung ist nachher nicht mehr zu ändern!
+</p>
+<p>
+· <em>Anfängermodus:</em> In diesem Modus liefern alle Fabriken and alle geeigneten Abnehmer für diese Waren. Außerdem sind die Frachtgewinne um den Faktor 1,5 erhöht.
+</p>
+<p>
+· <em>Laden:</em> Lade einen bereits vorhandenen Spielstand. (siehe <a href="load.txt">Lade Menü</a>)
+</p>
+<p>
+· <em>Starte Spiel:</em> Eine neue Karte wird entsprechend den Einstellungen generiert, und ein neues Spiel startet.
+<br/>
+<strong>Achtung:</strong> Der laufende Spielstand wird nicht gespeichert und geht verloren.
+</p>

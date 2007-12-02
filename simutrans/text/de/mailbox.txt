@@ -1,0 +1,29 @@
+<title>Mailbox und Mailbox Optionen Hilfe</title>
+
+<h1><strong>Mailbox und Mailbox Optionen</strong></h1>
+
+<p>
+In der Mailbox sammeln sich alle Meldungen, die seit dem Spielstart bzw. dem letzten Laden eines Spielstandes angefallen sind.<br/>
+Bei einigen Meldungen kannst Du den Bildschirm auf den Ort zentrieren, welcher die Meldung ausgelöst hat. Klicke dazu die Meldung an.
+</p>
+<p>
+<em>Optionen:</em> Über den Optionen-Schalter gelangst Du zum Dialog mit den Mailboxeinstellungen. Dort kannst Du für jede Mitteilung einstellen, ob und wie sie angezeigt werden soll. Anzeigekombinationen sind möglich.
+</p>
+<p>
+<em>Mitteilungen:</em><br>
+· <em>Neues Jahr:</em> Ein neues Jahr hat begonnen.<br>
+· <em>KI baut:</em> Ein Computergegner hat eine neue Linie in Betrieb genommen.<br>
+· <em>Stadtnachrichten:</em> Die Stadt baut ein größeres Rathaus.<br>
+· <em>Keine Route:</em> Das in der Meldung angegebene Fahrzeug findet keinen Weg mehr.<br>
+· <em>Neue Industrie:</em> Durch das Stadtwachstum wurde eine neue Industriekette mit Stadtgeschäft gebaut.<br>
+· <em>Neue Attraktion:</em> Ein neues Touristenziel oder Denkmal wurde errichtet.<br>
+· <em>Neue Fahrzeuge:</em> Ein neues Fahrzeug ist verfügbar, oder ein Fahrzeug ist veraltet.<br>
+· <em>Bahnhof voll:</em> Die angegebene Haltestelle ist überfüllt.<br>
+· <em>Warnungen:</em> Du hast 3 Monate Zeit, deine Schulden zurückzuzahlen, etc.
+</p>
+<p>
+<em>Bedeutungen der Schalter:</em><br/>
+· <em>linke Spalte:</em> Die Meldung wird im Ticker (Lauftext über der Statusleiste) ausgegeben.<br/>
+· <em>mittlere  Spalte:</em> Ein Dialog erscheint für kurze Zeit und beendet sich dann selbst.<br/>
+· <em>rechte  Spalte:</em> Ein Dialog informiert Dich. Er wird solange angezeigt, bis Du ihn schließt.
+</p>

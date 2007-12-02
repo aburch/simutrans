@@ -1,0 +1,95 @@
+<title>Ajuda - Configuração do teclado</title>
+
+<h1><strong>Configuração do teclado</strong></h1>
+
+<p>
+A <strong>configuração do teclado</strong> apresenta as funções de várias teclas do teclado.
+</p>
+<p>
+Esta janela se abre quando uma tecla sem função é pressionada ou pela <a href="general.txt">Ajuda do Simutrans</a>.
+</p>
+<p>
+O Simutrans faz diferenciação entre letras maiúculas e minúsculas, então use [<em>Shift</em>] para usar letras maiúsculas.
+</p>
+<p>
+As teclas com funções atribuídas incluem:
+</p>
+<p>
+
+[<em>.</em>] / [<em>,</em>]: acelera/desacelera o tempo do jogo, <a href="window.txt">T</a>, (a <a href="display.txt"><strong>Ajuda de vídeo</strong></a> indica se o computador pode suportar).<br>
+
+[<em>!</em>]: alterna na tela do jogo a exibição de nomes de <a href="station.txt">paradas</a>, <a href="citywindow.txt">áreas urbanas</a> e <a href="special.txt">marcadores</a>, barra de cores de status (que indica quão lotada a parada está) e barra de cores de mercadorias (que indica quantidade de <a href="goods_filter.txt">itens</a> na parada à espera de transporte).<br>
+
+[<em>"</em>]: minimiza visualização de árvores e edifícios em 5 etapas: 1) edifícios urbanos e árvores; 2) todos edifícios incluindo fábricas e atrações turísticas; 3) somente árvores; 4) somente edifícios urbanos; e 5) árvores e todos edifícios.<br>
+
+[<em>#</em>]: mostra/esconde grade na área de jogo (disponível somente no nível máximo de zoom da área de jogo).<br>
+
+[<em>§</em>], ou [<em>Shift</em>] + [<em>3</em>]: ativar rotina de arborização global (não funcional em todos os teclados).<br>
+
+[<em>+</em>] / [<em>-</em>]: configura o <a href="display.txt">brilho</a> da tela do jogo.
+</p>
+<p>
+[<em>Setas do teclado</em>]: deslocam a área de jogo para a direção da seta.<br>
+[<em>Backspace</em>]: fecha todas as janelas, barras de ferramentas e textos de ajuda abertos.<br>
+[<em>Delete</em>], ou [<em>Esc</em>]: fecha a janela, barra de ferramentas ou texto de ajuda que está mais acima dos demais.<br>
+[<em>Enter</em>], ou [<em>Return</em>]: usado para confirmar ações.<br>
+[<em>Page-Up</em>], ou [<em>tecla 'maior que'</em>]: aproximar zoom da área de jogo.<br>
+[<em>Page-Down</em>], ou [<em>tecla 'menor que'</em>]: distanciar zoom da área de jogo.
+</p>
+<p>
+[<em>a</em>]: ativa a ferramenta <a href="inspection_tool.txt">Verificar</a>.<br>
+[<em>B</em>]: abre a janela de <a href="mailbox.txt">mensagens</a>.<br>
+[<em>c</em>]: salva uma imagem da tela do jogo (câmera).<br>
+[<em>C</em>]: ativa a ferramenta <a href="special.txt">Criar nova cidade</a>.<br>
+[<em>d</em>]: ativa a ferramenta <a href="slopetools.txt">Abaixar terreno</a>.<br>
+[<em>e</em>]: ativa a última ferramenta de <a href="railtools.txt">Eletrificar trecho de ferrovia</a> usada.<br>
+[<em>f</em>]: abre as <a href="finances.txt">Finanças</a>.<br>
+[<em>g</em>]: ativa a ferramenta <a href="special.txt">Construir transformador</a>.<br>
+[<em>G</em>]: abre a lista de <a href="goods_filter.txt">Informações das cargas</a>.<br>
+[<em>H</em>]: ativa a ferramenta de construção de sede corporativa (não está em uso em todos os paks).<br>
+[<em>I</em>]: ativa a ferramenta <a href="edittools.txt">Construir usina de energia</a>.<br>
+[<em>J</em>]: abre a janela <a href="jump_frame.txt">Ir para</a>.<br>
+[<em>k</em>]: abre a <a href="players.txt">Lista de Jogadores</a>.<br>
+[<em>l</em>]: ativa a ferramenta <a href="special.txt">Construir linha elétrica</a>.<br>
+[<em>L</em>]: abre a janela <a href="load.txt">Carregar</a> jogo salvo.<br>
+[<em>m</em>]: abre o <a href="map.txt">Mapa</a>.<br>
+[<em>M</em>]: ativa a ferramenta <a href="special.txt">Marcador</a>.<br>
+[<em>p</em>]: pausa/despausa o jogo.<br>
+[<em>P</em>]: alterna entre <a href="players.txt">jogadores</a>.<br>
+[<em>Q</em>]: abre a janela <a href="new_world.txt">Novo Mundo</a>.<br>
+[<em>r</em>]: ativa a ferramenta Eliminar.<br>
+[<em>s</em>]: ativa a última ferramenta de construção de <a href="roadtools.txt">estradas</a> usada.<br>
+[<em>S</em>]: abre a janela <a href="save.txt">Salvar</a>.<br>
+[<em>t</em>]: ativa a última ferramenta de construção de <a href="roadtools.txt">ferrovias</a> usada.<br>
+[<em>T</em>]: abre a <a href="citylist_filter.txt">Lista das cidades</a>.<br>
+[<em>u</em>]: ativa a ferramenta <a href="slopetools.txt">Elevar terreno</a>.<br>
+[<em>U</em>]: ativa/desativa o modo subterrâneo.<br>
+[<em>v</em>]: mostra/esconde a área de abrangência das <a href="station.txt">paradas</a>. Os quadrados aparecem na <a href="color.txt">cor</a> da companhia.<br>
+[<em>V</em>]: abre a <a href="convoi.txt">Lista de veículos</a><br>
+[<em>w</em>]: abre o <a href="linemanagement.txt">Gerenciamento de linhas</a>.<br>
+[<em>W</em>]: ativa/desativa o Avanço Rápido do tempo no jogo.<br>
+[<em>X</em>]: abre a janela <a href="new_world.txt">Novo Mundo</a>.<br>
+[<em>z</em>]: desfaz a construção do último trecho de via (custos de construção não são reembolsados).
+</p>
+<p>
+[<em>1</em>]: desloca a área de jogo para o sul.<br>
+[<em>2</em>]: desloca a área de jogo para o sudeste.<br>
+[<em>3</em>]: desloca a área de jogo para o leste.<br>
+[<em>4</em>]: desloca a área de jogo para o sudoeste.<br>
+[<em>6</em>]: desloca a área de jogo para o nordeste.<br>
+[<em>7</em>]: desloca a área de jogo para o oeste.<br>
+[<em>8</em>]: desloca a área de jogo para o noroeste.<br>
+[<em>9</em>]: desloca a área de jogo para o norte.
+</p>
+<p>
+[<em>Shift</em>] + <a href="mouse.txt">mouse</a>: usado no <a href="map.txt">mapa</a> para ver as interligações de uma <a href="industry_info.txt">Cadeia de fornecedores da indústria</a>.<br>
+[<em>CTRL</em>] + ferramenta: construir e remover sinais e <a href="station.txt">paradas</a>) em nível superior (em pontes, por exemplo); ou construir vias lentas sobre vias mais rápidas; ou forçar construção em linha reta de estradas e trilhos (especial para se construir nas diagonais).<br>
+[<em>CTRL</em>] + ([<em>F2</em>] a [<em>F12</em>]): memoriza ferramenta ativa a uma das teclas, de [<em>F2</em>] até [<em>F12</em>].
+</p>
+<p>
+[<em>F1</em>]: abre a <a href="general.txt">Ajuda do Simutrans</a>.<br>
+[<em>F10</em>]: pausa/despausa o jogo.<br>
+[<em>F2</em>] a [<em>F12</em>]: ativa ferramenta memorizada nestas teclas.
+</p>
+<p>Traduzido para versão Simutrans 0.99.14.<br> Visite o PT-SubFórum (http://pt.simutrans.com), que é a seção em língua portuguesa do International Simutrans Forum.
+</p>

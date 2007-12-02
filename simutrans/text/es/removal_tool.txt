@@ -1,0 +1,27 @@
+<title>Ayuda de la Herramienta Eliminar</title>
+
+<h1><strong>Herramienta Eliminar</strong></h1>
+
+<p>
+<strong>Herramienta Eliminar</strong> se usa para destruir y eliminar elementos no deseados y obstaculos que impiden construir durante la <a href="window.txt">partida</a>.
+</p>
+<p>
+Uso: Pulsa el icono de la X roja (<it>un icono de bulldozer</it> en el pak128) en la barra de la parte superior de la pantalla o presiona <a href="keys.txt">[a]</a> para abrir la herramienta <strong>Eliminar</strong> (cambia el cursor a una X sobre una nube de polvo blanca).<br>
+Posiciona el cursor, un cuadrado amarillo indica la posicion donde actuara la herramienta (las coordenadas del mapa estan indicadas en la barra de la parte inferior de la pantalla). Entoces, solo tienes que pulsar en el elemento para eliminarlo.
+</p>
+<p>
+Se muestra el coste de la operacion y se suma a las cifras de <a href="finances.txt">Construccion</a>. El coste de eliminacion es equivalente al coste de contruccion para los elementos del jugador.<br>
+El coste de destruir <a href="inspection_tool.txt">edificios de la ciudad</a> se muestra como su valor en la ventana de dialogo que se abre son la herramienta de <it>Exploracion</it>. El coste de destruir arboles es 100 creditos Hajo.
+</p>
+<p>
+<strong>Herramienta Eliminar</strong> puede ser usada para eliminar peatones y coches de ciudades.
+</p>
+<p>
+El orden de eliminacion de los elementos de una cuadricula del juego es: peatones o coches privados, señaales, parada o estacion, tendido electrico, puente o tunel, via y finalmente carretera.
+</p>
+{Consejos: Para eliminar un vehiculo de un jugador, puedes venderlo desde <a href="convoidetail.txt">Detalles del Convoy</a>.<br>
+Para eliminar una Industria, Atracciones y Ayuntamiento primero cambia al jugador Servicio Publico. <it>NOTA:</it> el uso de la herramienta <strong>Eliminar</strong> sobre un Ayuntamiento elimina todos los edificios de la cuidad.<br>
+Usa <a href="keys.txt">[Ctrl]</a> para usar la herramienta en un nivel superior.<br>
+Para eliminar elementos de otros jugadores , primero selecciona jugar como otro <a href="players.txt">jugador</a> first.<br>
+Para eliminar segmentos de carreteras o vias usa <a href="railtools.txt">Eliminar vias</a> (tambien la puedes encontrar en <a href="tramtools.txt">Herramientas de Tranvia</a>) o <a href="roadtools.txt">Eliminar carreteras</a>.}
+<p>

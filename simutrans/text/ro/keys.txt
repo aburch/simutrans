@@ -1,0 +1,44 @@
+<title>Setãri tastaturã</title>
+
+<h1>Taste speciale:</h1>
+
+<p>
+,/. - Nedocumentat<br>
+! - Aratã/ascunde indicatoarele<br>
+" - Aratã/ascunde clãdirile ºi copacii<br>
+# - Aratã/ascunde grid<br>
+a - Inspecþie<br>
+b - Reparaþii cãi ferate<br>
+c - Salveazã ecran<br>
+d - Tasare sol<br>
+e - Electrificarea cãilor ferate
+f - Finaþe<br>
+g - Nedocumentat<br>
+k - Lista jucãtorilor<br>
+l - Nedocumentat<br>
+m - Aratã mapa<br>
+p - Pauzã<br>
+r - Sterge<br>
+s - Construire stradã<br>
+t - Construire cale feratã<br>
+u - Ridicare sol<br>
+w - Management trasee<br>
++/- - Schimbare luminozitate<br>
+C - Oraº nou<br>
+G - Lista bunurilor ºi rentabilitatea<br>
+L/S - Încarcã(L)/salveazã(S) joc<br>
+P - Nedocumentat<br>
+Q, X - Jeºire din joc<br>
+V - Lista vehicullelor<br>
+9 - Mutarea mapei spre nordest<br>
+1 - Mutarea mapei spre sudest<br>
+7 - Mutarea mapei spre norevest<br>
+3 - Mutarea mapei spre sudvest<br>
+6 - Mutarea mapei spre est<br>
+2 - Mutarea mapei spre sud<br>
+8 - Mutarea mapei spre nord<br>
+4 - Mutarea mapei spre vest<br>
+Delete, Backspace - Închide toate ferestrele<br>
+<, >, Page-Up, Page-Down: Mãrire/micºorare
+CTR-w - Setãri tastaturã
+</p>

@@ -1,0 +1,56 @@
+<title>Ayuda de Estadisticas de Poblacion</title>
+
+<h1><strong>Estadisticas de Poblacion</strong></h1>
+
+<p>
+<strong>Estadisticas de Poblacion</strong> muestra estadistica sobre una area urbana seleccionada (villa, pueblo o ciudad) y se puede usar para cambiar el nombre del area urbana.
+</p>
+<p>
+Cada arear urbana tiene su Ayuntamiento alrededor del cual crece. El transporte de pasajeros y correo ayuda al crecimiento, los cual supone: carreteras construidas y gestionadas por el <a href="players.txt">jugador servicio publico</a>; aparecen los nuevos edificios y las <a href="industry_info.txt">industrias</a>; y el limite de la ciudad se extiende.
+</p>
+<p>
+Pulsa en el Ayuntamiento con al herramienta de <a href="inspection_tool.txt">Exploracion</a> o en una area urbana listada en la <a href="citylist_filter.txt">Lista de Ciudades</a> para abrir las <strong>Estadisticas de Poblacion</strong>, las cuales contienen: caja de texto con el nombre; estadisticas; dos mini-mapas; y una grafico del area urbana.
+</p>
+<p>
+<em>nombre:</em> el nombre asignado al area urbana aparece en una caja de texto en lo alto de la ventana <strong>Estadisticas de Poblacion</strong>. <br>
+Los nombres de las areas urbanas se usan en los nombres por defecto de las Paradas.<br>
+Para cambiar el nombre: pulsa en la caja de texto y escribe un nuevo nombre.<br>
+{Consejos: Usa <a href="keys.txt">[!]</a> para activar la vista del nombre del area urbana, sobre el Ayuntamiento. Lee mas en el archivo readme_citylist.txt (en el directorio ...simutrans/text/) para ayuda en la generacion de nombres para areas urbanas}.
+</p>
+<p>
+Bajo la caja de texto de nombre , se muestran estadisticas del area urbana:<br>
+<em>Tam. ciudad:</em> es el numero de habitantes (poblacion del area urbana). el incremento reciente en la poblacio se muestra entre parentesis.<br>
+<em>edificios:</em> numero de edificios en el area urbana.<br>
+<em>coordenadas del mapa:</em> indica los limites de la ciudad (cambia a medida que crece el area urbana).
+<p>
+</p>
+Los contadores se incrementan con el crecimiento del area urbana y decrecen con la construccion de nuevos edificios<br>
+<em>Desempleados:</em> contador que determina que tipo de edificio (residencial/comercial/industrial) sera construido.<br>
+<em>Sin hogar:</em> contador que determina que tipo de de edificio (residencial/comercial/industrial) sera construido.<br>
+</p>
+<p>
+<em>mini-mapas</em> del mundo de juego en la ventana <strong>Estadisticas de la poblacion</strong> idica los destinos de los pasajeros y el correo.<br>
+Los destinos se muestran como puntos coloreados segun el mes actual de juego (mini-mapa de la derecha) y el ultimo mes de juego (mini-mapa de la izquierda).El color de los punto de destino da detalles acerca de los pasajeros y el correo:<br>
+- amarillo: encontro una ruta y una <a href="station.txt">Parada</a> no abarrotada para comenzar el viaje (se muestra una cara sonriente en la ventana Informacion de la Parada).<br>
+- naranja: no encontro ruta a su destino.<br>
+- rojo: encontro una ruta pero la parada inicial estaba abarrotada (se muestra una cara triste en la ventana Informacion de la Parada).
+</p>
+<p>
+<em>Grafico</em> muestra las estadisticas del area urbana. <br>
+El eje y es la cantidad, el eje X es el tiempo.<br>
+Pulsa en la etiqueta para cambiar la escla de tiempo del eje X:<br>
+<em>Años:</em> muestra valores anuales para los ultimos diez años de juego.<br>
+<em>Meses:</em> muestra valores mensuales para los ultimos 12 meses de juego
+</p>
+
+<p>
+Pulsa en los botones de opciones del grafico para ver informacion en el grafico (el boton se oscurece cuando seleccionas la opcion).<br>
+El color de las lineas del grafico corresponde con los colores de los botones de opcion:<br>
+<em>Ciudadanos:</em> poblacion.<br>
+<em>Crecimiento urbano:</em> cambios en la poblacion (depende la poblacion y los servicios de transporte proveidos para pasajeros y correo).<br>
+<em>Recorrido:</em> pasajeros y correo que gestionados a traves de la red de transporte (mostrado como una <a href="station.txt">cara feliz</a> en la ventana Informacion de la Parada) <br>
+<em>Pasajeros:</em> Numero total de pasajeros y correo generado en el area urbana.
+</p>
+<p>
+{Consejos: Las opciones relacionadas con areas urbanas se pueden cambiar en los archivos simuconf.tab y cityrules.tab}.
+</p>

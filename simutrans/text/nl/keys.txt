@@ -1,0 +1,45 @@
+<title>Keyboard help</title>
+
+<h1>Toetsenbord configuratie:</h1>
+
+<p>
+,/. - Vertragen/Versnellen<br>
+! - Weergave naamborden verbergen/weergeven<br>
+" - Gebouwen en bomen verbergen/weergeven<br>
+# - Raster weergeven/verbergen<br>
+/ - Bomen planten<br>
+a - Loep weeregeven<br>
+c - Schermafdruk maken (camera)<br>
+d - Land verlagen<br>
+f - Open financiën venster<br>
+g - Bouw transformatorstation<br>
+k - Open spelerslijst<br>
+l - Bouw HSP leiding<br>
+m - Open landkaart<br>
+p - Spel pauzeren<br>
+r - Bulldozer<br>
+s - Bouw wegen<br>
+t - Bouw spoorweg<br>
+u - Land ophogen<br>
+v - Toon/verberg dekkingsgebied<br>
+w - Beheer lijnen<br>
+z - Annuleer laatst gebouwde (spoor)weg<br>
++/- - Weergave lichter/donkerder maken<br>
+B - Open mailbox<br>
+C - Nieuwe stad bouwen<br>
+G - Open lijst met goederen/vervoer tarieven<br>
+L/S - Spel laden/opslaan<br>
+Q, X - Spel verlaten<br>
+T - Open stedenlijst<br>
+V - Open voertuigenlijst<br>
+9 - Scroll kaart noordoost<br>
+1 - Scroll kaart zuidwest<br>
+7 - Scroll kaart noordwest<br>
+3 - Scroll kaart zuidoost<br>
+6 - Scroll kaart oost<br>
+2 - Scroll kaart zuid<br>
+8 - Scroll kaart noord<br>
+4 - Scroll kaart west<br>
+Delete, Backspace - Sluit alle vensters
+<, >, Page-Up, Page-Down: Zoom in/uit
+</p>

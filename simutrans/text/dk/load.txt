@@ -1,0 +1,35 @@
+<title>Indlæs hjælp</title>
+
+<h1>Indlæs dialog</h1>
+
+<p>
+<em>Beskrivelse:</em><br>
+Indlæs dialogen giver mulighed for at fortsætte et tidligere gemt spil.
+Indlæs dialogen er opbygget analogt til<br>
+<a href="save.txt">Gem dialogen</a>
+</p>
+
+<p>
+<em>Udseende:</em><br>
+Øverst i dialogen er overskriften 'Filnavn:' med en tilhørende tekstboks. Denne
+tekstboks giver mulighed for at indtaste navnet på et tidligere gemt
+spil. Derunder er en liste bestående af de spil, der befinder sig i
+simutrans/save mappen. For alle spil er vist en slet-knap, spillets navn samt
+"gem-tidspunktet".<br>
+Nederst er en 'OK' og en 'Fortryd' knap.
+</p>
+
+<p>
+Et spil indlæses enten ved at taste navnet på spillet i tekstboksen og trykke
+på 'OK' knappen eller ved at trykke på spillets navn i listen. Hvis du prøver
+at indlæse et gemt spil, som ikke eksisterer vil du få en fejlmeddelelse, der
+fortæller dette.
+</p>
+
+<p>
+<strong>Vigtigt !</strong><br>
+Gamle gemte spil fra tidligere Simutrans versioner kan være inkompatible.<br>
+Læs venligst "release notes" for hver ny version, du anvender for at se, om
+dette er tilfældet.<br>
+Imellem "major versions" vil inkompabilitet højst sandsynlig være tilfældet.
+</p>

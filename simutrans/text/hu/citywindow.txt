@@ -1,0 +1,14 @@
+<title>Város statisztikák Sugó</title>
+
+<h1>Város statisztikák</h1>
+
+<p>
+Itt lehet a városról infókat szerezni. Kijelzi a város méretét (lakosszámban kell érteni), munkanélkülieket, hajléktalanokat stb.
+</p>
+<p>
+A két kis térképen nyomonkövetheted az e havi és múlt havi szállítmányozási célállomásokat.
+</p>
+<p>
+A grafikon pedig segít követni a városlakok számának változását, a város növekedését stb. (értelemszerûen válaszd ki a grafikon alatt lávõ gombokat, aktiváld õket és voila meglesz a grafikon :) )
+</p>
+<p>

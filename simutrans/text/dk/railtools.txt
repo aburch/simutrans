@@ -1,0 +1,56 @@
+<title>Jernbaneanlæg dialog hjælp</title>
+
+<h1>Jernbaneanlæg dialog</h1>
+
+<p>
+<em>Beskrivelse:</em><br>
+Denne dialog indeholder værktøjer til at bygge jernbanespor, signaler,
+tunneller, el-master, stationer, depoter og jernbaneovergange.
+</p>
+
+<p>
+<em>Udseende:</em><br>
+Dialogen består af syv (7) symboler, der hver repræsenterer et byggeværktøj.
+</p>
+
+<p>
+Gående fra venstre mod højre samt oppefra og ned er de forskellige symboler:
+</p>
+
+<p>
+<em>Byg jernbaneanlæg:</em><br>
+Dette værktøj vil bygge et jernbanespor imellem to kort-kvadrater. Ved
+venstreklik på symbolet forandres cursoren til et jernbanekryds-symbol. For at
+bygge et jernbanespor venstreklikkes på start-kvadratet. Cursoren forandres
+derved til en bulldozer. Venstreklik derefter på slut-kvadratet. Simutrans vil
+nu bygge et jernbanespor imellem de to kvadrater.<br>
+Der bliver kun bygget på frie kvadrater. Veje og andre spilleres jernbanespor
+vil ikke blive krydset. Benyt jernbaneovergange, broer eller tunneller til at
+krydse disse "forhindringer".<br>
+Hvis der ikke kan findes en forbindelse imellem de to kvadrater vil der ikke
+blive bygget noget overhovedet.
+</p>
+
+<p>
+<em>Byg jernbanesignal:</em><br>
+Dette værktøj benyttes til at bygge jernbanesignaler på jernbanespor. Ved
+venstreklik på symbolet forandres cursoren til et signalsymbol.<br>
+For at bygge et signal venstreklikkes på et jernbanespor, hvor signalet skal
+placeres. Signaler bygges på kvadrat-grænser, men faktisk bygges et signal på
+begge tilstødende kvadrater. Der kan kun bygges et signal på et kvadrat.<br>
+For at fjerne et signal benyttes "Fjern/riv ned" menuen. Dette vil fjerne
+signalet men lade jernbanesporet intakt.<br>
+Signaler benyttes til at begrænse toges rutemuligheder. De kan f.eks benyttes
+til at tillade to toge at benytte den samme sporstrækning.<br>
+Ensrettede signaler kan benyttes til at tvinge tog i en bestemt retning.<br>
+Et ensrettet signal fås ved at placere et normalt signal og derefter
+venstreklikke på signalet igen. Ved et yderligere venstreklik bliver retningen
+for det ensrettede signal ændret og endnu et venstreklik får signalet tilbage
+til et normalt "tovejs-signal"<br>
+Check omhyggelig om et ensrettet signal vender rigtigt, da togene i modsat
+fald ikke vil kunne finde en rute.
+</p>
+
+<p>
+<a href="railtools2.txt">Jernbaneanlæg dialog hjælp</a>
+</p>

@@ -1,0 +1,28 @@
+<title>Aide générale sur Simutrans</title>
+
+<h1>Aide générale sur Simutrans</h1>
+
+<p>
+Simutrans est un jeu de simulation de transport routier, maritime et ferroviaire.
+Le transport aérien n'est pas encore développé. Vous pourrez créer des réseaux de
+communication, et de livraison de marchandises diverses. Il faudra être vigilant
+sur la logique à tenir pour vous déployer : le fabriquant de meubles ne peut
+travailler s'il n'a pas de planches, donc il est inutile de développer le transport
+des meubles vers le supermarché avant le transport du bois vers la scierie, puis
+des planches vers le fabriquant de meubles.
+<p>
+·<a href="keys.txt">Aide sur les touches</a><br>
+·<a href="param.txt">Aide sur les différents paramètres</a> que l'on peut passer
+en ligne de commande à Simutrans.
+</p>
+
+<p>
+Une aide en ligne vous sera utile dans les divers écrans du jeu, elle sera
+accessible par le <strong>'?'</strong> situé dans le bandeau des fenêtres.
+</p>
+
+<p>
+(c) Hj. Malthaner
+Actualisé pour Simutrans 0.83.1.2<br>
+02/01/2003
+</p>
