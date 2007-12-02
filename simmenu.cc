@@ -691,7 +691,7 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 			if (!hausbauer_t::air_depot.empty() && wegbauer_t::weg_search(air_wt, 1, welt->get_timeline_year_month(),weg_t::type_all) != NULL) {
 
 				if(grund_t::underground_mode) {
-					if(wzw  &&  )) {
+					if(wzw) {
 						destroy_win( wzw );
 						return NULL;
 					}
