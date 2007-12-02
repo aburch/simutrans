@@ -1,4 +1,7 @@
-	FIX: image under fields were not recalculated after removal
+Release of 99.16
+
+2-Dec-2007:
+FIX: image under fields were not recalculated after removal
 	FIX: deleting a factory with an open info window lead to crash (also during map destroying)
 	FIX: pak selector was not always shown
 	FIX: crash when openig slopetools in underground mode

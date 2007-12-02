@@ -60,8 +60,8 @@ private:
 
 	static stringhashtable_tpl<const fabrik_besch_t *> table;
 
-	static int finde_anzahl_hersteller(const ware_besch_t *ware);
-	static const fabrik_besch_t * finde_hersteller(const ware_besch_t *ware,int nr=0);
+	static int finde_anzahl_hersteller(const ware_besch_t *ware, uint16 timeline);
+	static const fabrik_besch_t * finde_hersteller(const ware_besch_t *ware, uint16 timeline);
 
 public:
 	static void register_besch(fabrik_besch_t *besch);
@@ -98,7 +98,7 @@ public:
 	/* returns a random consumer
 	* @author prissi
 	*/
-	static const fabrik_besch_t *get_random_consumer(bool in_city,climate_bits cl);
+	static const fabrik_besch_t *get_random_consumer(bool in_city,climate_bits cl, uint16 timeline );
 
 	/**
 	* vorbedingung: pos ist für fabrikbau geeignet

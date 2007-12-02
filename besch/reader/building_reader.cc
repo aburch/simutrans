@@ -259,7 +259,9 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	     " flags=%d"
 	     " chance=%d"
 	     " climates=%X"
-	     " anim=%d",
+	     " anim=%d"
+			 " intro=%d"
+			 " retire=%d",
  	     version,
 	     besch->gtyp,
 	     besch->utype,
@@ -272,7 +274,9 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	     besch->flags,
 	     besch->chance,
 	     besch->allowed_climates,
-	     besch->animation_time
+	     besch->animation_time,
+			 besch->intro_date,
+			 besch->obsolete_date
 	     );
 
   return besch;

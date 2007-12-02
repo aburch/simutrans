@@ -1990,7 +1990,7 @@ void stadt_t::check_bau_factory(bool new_town)
 	if (!new_town && industry_increase_every[0] > 0 && bev % industry_increase_every[0] == 0) {
 		for (int i = 0; i < 8; i++) {
 			if (industry_increase_every[i] == bev) {
-				const fabrik_besch_t* market = fabrikbauer_t::get_random_consumer(true, (climate_bits)(1 << welt->get_climate(welt->lookup(pos)->gib_kartenboden()->gib_hoehe())));
+				const fabrik_besch_t* market = fabrikbauer_t::get_random_consumer(true, (climate_bits)(1 << welt->get_climate(welt->lookup(pos)->gib_kartenboden()->gib_hoehe())), welt->get_timeline_year_month() );
 				if (market != NULL) {
 					bool rotate = false;
 

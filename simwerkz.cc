@@ -2159,7 +2159,7 @@ int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos)
 	const planquadrat_t* p = welt->lookup(pos);
 	if (p == NULL) return false;
 	const grund_t* g = p->gib_kartenboden();
-	const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(false,(climate_bits)(1<<welt->get_climate(g->gib_hoehe())));
+	const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer( false, (climate_bits)(1<<welt->get_climate(g->gib_hoehe())), welt->get_timeline_year_month() );
 
 	if(info==NULL) {
 		return false;
@@ -2212,7 +2212,7 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos)
 	if(plan) {
 
 		koord3d pos3d = plan->gib_kartenboden()->gib_pos();
-		const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(true,(climate_bits)(1<<welt->get_climate(pos3d.z)));
+		const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer( true, (climate_bits)(1<<welt->get_climate(pos3d.z)), welt->get_timeline_year_month() );
 		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, info, false, &pos3d, welt->gib_spieler(1));
 
 		if(anzahl>0) {

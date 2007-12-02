@@ -150,7 +150,7 @@ stringhashtable_tpl<const fabrik_besch_t *> fabrikbauer_t::table;
 /* returns a random consumer
  * @author prissi
  */
-const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool in_city,climate_bits cl)
+const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool in_city, climate_bits cl, uint16 timeline )
 {
 	// get a random city factory
 	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
@@ -162,7 +162,8 @@ const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool in_city,climate_bi
 		// nur endverbraucher eintragen
 		if(current->gib_produkt(0)==NULL  &&  current->gib_haus()->is_allowed_climate_bits(cl)  &&
 			((in_city  &&  current->gib_platzierung() == fabrik_besch_t::Stadt)
-			||  (!in_city  &&  current->gib_platzierung() == fabrik_besch_t::Land)  )  ) {
+			||  (!in_city  &&  current->gib_platzierung() == fabrik_besch_t::Land)  )  &&
+			(timeline==0  ||  (current->gib_haus()->get_intro_year_month() <= timeline  &&  current->gib_haus()->get_retire_year_month() > timeline))  ) {
 			consumer.insert(current);
 			gewichtung += current->gib_gewichtung();
 		}
@@ -210,7 +211,7 @@ DBG_DEBUG("fabrikbauer_t::register_besch()","Correction for old factory: Increas
 
 
 int
-fabrikbauer_t::finde_anzahl_hersteller(const ware_besch_t *ware)
+fabrikbauer_t::finde_anzahl_hersteller(const ware_besch_t *ware, uint16 timeline)
 {
 	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
 	int anzahl=0;
@@ -220,7 +221,7 @@ fabrikbauer_t::finde_anzahl_hersteller(const ware_besch_t *ware)
 
 		for(int i = 0; i<tmp->gib_produkte(); i++) {
 			const fabrik_produkt_besch_t *produkt = tmp->gib_produkt(i);
-			if(produkt->gib_ware()==ware  &&  tmp->gib_gewichtung()>0) {
+			if(produkt->gib_ware()==ware  &&  tmp->gib_gewichtung()>0  &&  (timeline==0  ||  (tmp->gib_haus()->get_intro_year_month() <= timeline  &&  tmp->gib_haus()->get_retire_year_month() > timeline))  ) {
 				anzahl ++;
 			}
 		}
@@ -234,8 +235,7 @@ DBG_MESSAGE("fabrikbauer_t::finde_anzahl_hersteller()","%i producer for good '%s
 /* finds a producer;
  * also water only producer are allowed
  */
-const fabrik_besch_t *
-fabrikbauer_t::finde_hersteller(const ware_besch_t *ware,int /*nr*/)
+const fabrik_besch_t *fabrikbauer_t::finde_hersteller(const ware_besch_t *ware, uint16 timeline )
 {
 	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
 	slist_tpl <const fabrik_besch_t *> producer;
@@ -246,7 +246,7 @@ fabrikbauer_t::finde_hersteller(const ware_besch_t *ware,int /*nr*/)
 
 		for(int i = 0; i<tmp->gib_produkte(); i++) {
 			const fabrik_produkt_besch_t *produkt = tmp->gib_produkt(i);
-			if(produkt->gib_ware()==ware  &&  tmp->gib_gewichtung()>0) {
+			if(produkt->gib_ware()==ware  &&  tmp->gib_gewichtung()>0  &&  (timeline==0  ||  (tmp->gib_haus()->get_intro_year_month() <= timeline  &&  tmp->gib_haus()->get_retire_year_month() > timeline))  ) {
 				producer.insert(tmp);
 				gewichtung += tmp->gib_gewichtung();
 				break;
@@ -382,7 +382,7 @@ void fabrikbauer_t::verteile_industrie(karte_t* welt, int max_number_of_factorie
 	int current_number=0;
 
 	// no consumer at all?
-	if(get_random_consumer(in_city,ALL_CLIMATES)==NULL) {
+	if(  get_random_consumer( in_city, ALL_CLIMATES, welt->get_timeline_year_month() )==NULL  ) {
 		return;
 	}
 
@@ -392,7 +392,7 @@ void fabrikbauer_t::verteile_industrie(karte_t* welt, int max_number_of_factorie
 	int retrys = max_number_of_factories*4;
 	while(current_number<max_number_of_factories  &&  retrys-->0) {
 		koord3d	pos=koord3d(simrand(welt->gib_groesse_x()),simrand(welt->gib_groesse_y()),1);
-		const fabrik_besch_t *fab=get_random_consumer(in_city,(climate_bits)(1<<welt->get_climate(welt->lookup(pos.gib_2d())->gib_kartenboden()->gib_pos().z)));
+		const fabrik_besch_t *fab=get_random_consumer( in_city, (climate_bits)(1<<welt->get_climate(welt->lookup(pos.gib_2d())->gib_kartenboden()->gib_pos().z)), welt->get_timeline_year_month() );
 		if(fab) {
 			int	rotation=simrand(fab->gib_haus()->gib_all_layouts()-1);
 
@@ -606,10 +606,10 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",in
 	for(int i=0; i<info->gib_lieferanten(); i++) {
 		const fabrik_lieferant_besch_t *lieferant = info->gib_lieferant(i);
 		const ware_besch_t *ware = lieferant->gib_ware();
-		const int anzahl_hersteller=finde_anzahl_hersteller(ware);
+		const int anzahl_hersteller=finde_anzahl_hersteller( ware, welt->get_timeline_year_month() );
 
 		if(anzahl_hersteller==0) {
-			dbg->fatal("fabrikbauer_t::baue_hierarchie()","No producer for %s found!",ware->gib_name() );
+			dbg->warning("fabrikbauer_t::baue_hierarchie()","No producer for %s found, chain uncomplete!",ware->gib_name() );
 		}
 
 		// how much we need?
@@ -718,11 +718,23 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i o
 
 		for(int j=0;  j<50  &&  (lcount>lfound  ||  lcount==0)  &&  verbrauch>0;  j++  ) {
 
-			if(retry==0  ||  retry>25) {
-				hersteller = finde_hersteller(ware,j%anzahl_hersteller);
+			if(retry==0  ||  retry>55) {
+				hersteller = finde_hersteller( ware, welt->get_timeline_year_month() );
+				// no one at all
+				if(hersteller==NULL) {
+					if(welt->use_timeline()) {
+						// can happen with timeline
+						dbg->warning( "fabrikbauer_t::baue_hierarchie()", "no produder for %s yet!", ware->gib_name() );
+						return n;
+					}
+					else {
+						// must not happen else
+						dbg->fatal( "fabrikbauer_t::baue_hierarchie()", "no produder for %s yet!", ware->gib_name() );
+					}
+				}
 				if(info==hersteller) {
+					// loop: we must stop here!
 					dbg->fatal("fabrikbauer_t::baue_hierarchie()","found myself! (pak corrupted?)");
-					return n;
 				}
 				retry = 0;
 			}
