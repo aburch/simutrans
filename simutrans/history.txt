@@ -1,7 +1,7 @@
 Release of 99.16
 
 2-Dec-2007:
-FIX: image under fields were not recalculated after removal
+	FIX: image under fields were not recalculated after removal
 	FIX: deleting a factory with an open info window lead to crash (also during map destroying)
 	FIX: pak selector was not always shown
 	FIX: crash when openig slopetools in underground mode
@@ -13,14 +13,13 @@ FIX: image under fields were not recalculated after removal
 	FIX: double or "unkown" names for stations on bridges/tunnels for 99.14 and older games
 	CHANGE: events now internally carry always the mousebutton states => fixing problem when scrolling with right mouse button (and so others too)
 	ADD: airplanes now reserve the runway for the entire time of takeoff/landing (more realistic, smoother waiting circles)
-	ADD: during world creation no tourist attractions new than the year will appear with timeline
-	FIX: under certain cases station (length!=8) stations load one vehicle too many
+	ADD: during world creation no tourist attractions newer than the current year will appear with timeline on
+	FIX: under certain cases station (length!=8) stations loaded one vehicle too many
 	FIX: old texts weren not deleted from nonrotated hashtable during rotation
 	ADD: 'pillar_asymmetric' for bridges with shorter pillars on north resp. west slopes and 'max_height' for bridges + new error message 'bridge is too high for its type!'
 	ADD: new crossing logic: crossing is one object only (new strings: "invalid", "open", "request closing", "closed", "\nway1 reserved by" , "cars.\nway2 reserved by", "cars.\nstate")
 	FIX: no stops on tunnel entries or on runways
 	FIX: calc load and image correctly after leaving depot
-	FIX: smoke offset of trains fixed
 	CHANGE: factory introduction dates (thus with older paks no factories before 1901)
 
 
