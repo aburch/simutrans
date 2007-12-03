@@ -136,6 +136,10 @@ first_beginner = 0
 # Impact on frame time: ~10% (16 cities on a new standard map)
 random_pedestrians = 1
 
+# animate the water each intervall (if images available)
+# costs some time for the additional redraw (~1-3%)
+water_animation_ms = 250
+
 # Show info windows for private cars and pedestrians?
 # (1=on, 0=off)
 pedes_and_car_info = 0

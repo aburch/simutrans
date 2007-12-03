@@ -1,3 +1,6 @@
+	ADD: water animation (if images defined) animation images are just the second parameter in the definition; animation speed is set by water_animation_ms in simuconf.tab
+
+
 Release of 99.16
 
 2-Dec-2007:
