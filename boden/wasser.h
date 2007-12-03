@@ -32,6 +32,12 @@ public:
 
 	const char *gib_name() const {return "Wasser";}
 	grund_t::typ gib_typ() const {return wasser;}
+
+	// static stuff from here on for water animation
+	static int stage;
+	static bool change_stage;
+
+	static void prepare_for_refresh();
 };
 
 #endif

@@ -1692,7 +1692,7 @@ karte_t::sync_step(long delta_t)
 	}
 
 	if(!fast_forward  ||  delta_t!=MAGIC_STEP) {
-		// display new frame
+		// display new frame with water animation
 		intr_refresh_display( false );
 		update_frame_sleep_time();
 	}
@@ -3081,14 +3081,6 @@ static void warte_auf_mausklick_oder_taste(event_t *ev)
 	do {
 		win_get_event(ev);
 	}while( !(IS_LEFTRELEASE(ev)  ||  (ev->ev_class == EVENT_KEYBOARD  &&  (ev->ev_code >= 32  &&  ev->ev_code < 256) ) ) );
-}
-
-
-
-// in fast forward mode?
-bool karte_t::is_fast_forward()
-{
-	return fast_forward;
 }
 
 

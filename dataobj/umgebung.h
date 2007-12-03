@@ -111,6 +111,11 @@ public:
 	*/
 	static bool fussgaenger;
 
+	/* time per water animation fram (0=off)
+	 * @author prissi
+	 */
+	static uint32 water_animation;
+
 	/**
 	* Info-Fenster für Fussgänger und Privatfahrzeuge
 	*

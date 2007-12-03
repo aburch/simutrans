@@ -11,6 +11,7 @@
 #include "grund.h"
 #include "fundament.h"
 #include "tunnelboden.h"
+#include "wasser.h"
 
 #include "wege/weg.h"
 #include "wege/monorail.h"
@@ -725,13 +726,19 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos) const
 		}
 	}
 	else {
-		display_img(gib_bild(), xpos, ypos, dirty);
+		if(gib_typ()!=wasser) {
+			display_img(gib_bild(), xpos, ypos, dirty);
 
-		// we show additionally a grid
-		if((show_grid || underground_mode) &&  gib_typ()!=wasser) {
-			uint8 hang = gib_grund_hang();
-			uint8 back_hang = (hang&1) + ((hang>>1)&6);
-			display_img(grund_besch_t::borders->gib_bild(back_hang), xpos, ypos, dirty);
+			// we show additionally a grid
+			if((show_grid || underground_mode) &&  gib_typ()!=wasser) {
+				uint8 hang = gib_grund_hang();
+				uint8 back_hang = (hang&1) + ((hang>>1)&6);
+				display_img(grund_besch_t::borders->gib_bild(back_hang), xpos, ypos, dirty);
+			}
+		}
+		else {
+			// take animation into account
+			display_img(gib_bild()+wasser_t::stage, xpos, ypos, dirty|wasser_t::change_stage);
 		}
 	}
 

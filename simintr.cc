@@ -18,6 +18,7 @@
 #include "simworld.h"
 #include "simview.h"
 
+#include "boden/wasser.h"
 
 static karte_t *welt_modell = NULL;
 static karte_ansicht_t *welt_ansicht = NULL;
@@ -66,6 +67,7 @@ void set_frame_time(long time)
 void
 intr_refresh_display(bool dirty)
 {
+	wasser_t::prepare_for_refresh();
 	welt_ansicht->display( dirty );
 	win_display_flush(welt_modell->get_active_player()->gib_konto_als_double());
 }

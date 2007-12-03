@@ -36,6 +36,8 @@ private:
 	static image_id image_offset;
 
 public:
+	static int water_animation_stages;
+
 	// only these textures need external access
 	static const grund_besch_t *fundament;
 	static const grund_besch_t *slopes;
@@ -57,22 +59,22 @@ public:
 #endif
 
 	// returns the pointer to an image structure
-	const bild_besch_t *gib_bild_ptr(int typ) const
+	const bild_besch_t *gib_bild_ptr(int typ, int stage=0) const
 	{
 		const bildliste_besch_t *liste = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_liste(typ);
 		if(liste && liste->gib_anzahl() > 0) {
-			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_bild(typ,0);
+			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_bild(typ,stage);
 			return bild;
 		}
 		return NULL;
 	}
 
 	// image for all non-climate stuff like foundations ...
-	image_id gib_bild(int typ) const
+	image_id gib_bild(int typ, int stage=0) const
 	{
 		const bildliste_besch_t *liste = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_liste(typ);
 		if(liste && liste->gib_anzahl() > 0) {
-			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_bild(typ,0);
+			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_bild(typ,stage);
 			if (bild != NULL) return bild->gib_nummer();
 		}
 		return IMG_LEER;

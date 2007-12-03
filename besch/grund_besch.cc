@@ -19,6 +19,7 @@
 #include "../simconst.h"
 #include "spezial_obj_tpl.h"
 #include "grund_besch.h"
+#include "../dataobj/umgebung.h"
 
 /****************************************************************************************************
 * some functions for manipulations/blending images
@@ -276,6 +277,8 @@ const uint8 grund_besch_t::slopetable[80] =
 #else
 #endif
 
+// how many animation stages we got for waves
+int grund_besch_t::water_animation_stages = 1;
 
 static const grund_besch_t* boden_texture            = NULL;
 static const grund_besch_t* light_map                = NULL;
@@ -328,6 +331,18 @@ bool grund_besch_t::register_besch(const grund_besch_t *besch)
 		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(besch->gib_kind(2))->gib_bild(0,0);
 		dbg->message("grund_besch_t::register_besch()", "setting raster width to %i", bild->pic.w);
 		display_set_base_raster_width(bild->pic.w);
+	}
+	// find out water animation stages
+	if(strcmp("Water", besch->gib_name())==0) {
+		water_animation_stages = 0;
+		while(  besch->gib_bild(0, water_animation_stages)!=IMG_LEER  ) {
+			DBG_MESSAGE( "water", "bild(0,%i)=%u", water_animation_stages, besch->gib_bild(0, water_animation_stages) );
+			water_animation_stages ++;
+		}
+		// then ignore all ms settings
+		if(water_animation_stages==1) {
+			umgebung_t::water_animation = 0;
+		}
 	}
 	return 	::register_besch(grounds, besch);
 }

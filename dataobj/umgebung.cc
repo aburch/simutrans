@@ -41,6 +41,7 @@ bool umgebung_t::automaten[6] = {0,0,0,0,1,0};
 int umgebung_t::message_flags[4] =  { 0x017F, 0x0108, 0x0080, 0 };
 
 bool umgebung_t::fussgaenger = true;
+uint32 umgebung_t::water_animation = 250; // 250ms per wave stage
 
 long umgebung_t::stadtauto_duration = 120;	// ten years
 

@@ -20,6 +20,7 @@
 #include "simplan.h"
 #include "simplay.h"
 #include "besch/grund_besch.h"
+#include "boden/wasser.h"
 #include "dataobj/umgebung.h"
 #include "dings/zeiger.h"
 

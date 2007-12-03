@@ -191,7 +191,7 @@ bool label_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			if(komp == iter.get_current()) {
 				goto_label(iter.get_current()->gib_text());
 				destroy_win(this);
-				intr_refresh_display( true );
+				welt->setze_dirty();
 				break;
 			}
 		}

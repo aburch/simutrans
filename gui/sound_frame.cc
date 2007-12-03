@@ -116,14 +116,12 @@ sound_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 		midi_next_track();
 		check_midi();
 		curlabel.setze_text(make_song_name());
-		intr_refresh_display(true);
 	}
 	else if (komp == &prevbtn) {
 		midi_stop();
 		midi_last_track();
 		check_midi();
 		curlabel.setze_text(make_song_name());
-		intr_refresh_display(true);
 	}
 	else if (komp == &shufflebtn) {
 		sound_set_shuffle_midi( !sound_get_shuffle_midi() );
