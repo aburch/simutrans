@@ -1226,24 +1226,17 @@ convoi_t::vorfahren()
 	}
 	else {
 		// still leaving depot (steps_driven!=0) or going in other direction or misalignment?
-		if(steps_driven>0  ||  !can_go_alte_richtung()) {
+		if(  steps_driven>0  ||  !can_go_alte_richtung()  ) {
 
 			// since start may have been changed
 			k0 = route.position_bei(0);
 
 			for(unsigned i=0; i<anz_vehikel; i++) {
-				vehikel_t *v = fahr[i];
 
+				vehikel_t *v = fahr[i];
 				steps_driven = -1;
 				grund_t* gr = welt->lookup(v->gib_pos());
 				if(gr) {
-					// remove from blockstrecke
-					if (v->gib_waytype() == track_wt || v->gib_waytype() == monorail_wt) {
-						schiene_t* sch = (schiene_t*)gr->gib_weg(v->gib_waytype());
-						if(sch) {
-							sch->unreserve(self);
-						}
-					}
 					v->mark_image_dirty( v->gib_bild(), v->gib_hoff() );
 					v->verlasse_feld();
 				}
@@ -1255,13 +1248,6 @@ convoi_t::vorfahren()
 				v->neue_fahrt(0, true);
 				gr=welt->lookup(v->gib_pos());
 				if(gr) {
-					// add to blockstrecke
-					if (v->gib_waytype() == track_wt || v->gib_waytype() == monorail_wt) {
-						schiene_t* sch = (schiene_t*)gr->gib_weg(v->gib_waytype());
-						if(sch) {
-							sch->reserve(self);
-						}
-					}
 					v->setze_pos(k0);
 					v->betrete_feld();
 				}
@@ -1311,8 +1297,19 @@ convoi_t::vorfahren()
 		}
 	}
 
+	// finally reserve route (if needed)
+	for(unsigned i=0; i<anz_vehikel; i++) {
+		// eventually reserve this
+		schiene_t * sch0 = dynamic_cast<schiene_t *>( welt->lookup(fahr[i]->gib_pos())->gib_weg(fahr[i]->gib_waytype()) );
+		if(sch0) {
+			sch0->reserve(this->self);
+		}
+		else {
+			break;
+		}
+	}
+
 	INT_CHECK("simconvoi 711");
-//	calc_loading();
 }
 
 

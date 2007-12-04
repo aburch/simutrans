@@ -1,4 +1,5 @@
 	ADD: water animation (if images defined) animation images are just the second parameter in the definition; animation speed is set by water_animation_ms in simuconf.tab
+	FIX: tiles in train middle at waypoints were not properly reserved
 
 
 Release of 99.16
