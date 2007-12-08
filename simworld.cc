@@ -2131,7 +2131,7 @@ karte_t::step()
 				INT_CHECK("karte_t::step");
 			}
 		}
-		if(  tile_counter >= (uint16)(cached_groesse_gitter_x*cached_groesse_gitter_y)  ) {
+		if(  tile_counter >= (uint32)cached_groesse_gitter_x*(uint32)cached_groesse_gitter_y  ) {
 			pending_season_change --;
 			tile_counter = 0;
 		}
