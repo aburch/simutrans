@@ -2889,6 +2889,7 @@ bool aircraft_t::ist_weg_frei(int & restart_speed)
 		if(state!=flying2  &&  !block_reserver( touchdown-1, suchen, true )) {
 			// circle slowly next round
 			cnv->setze_akt_speed_soll( kmh_to_speed(besch->gib_geschw())/2 );
+			state = flying;
 			route_index -= 16;
 		}
 		return true;
