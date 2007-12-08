@@ -20,15 +20,19 @@
 
 
 // @author hsiegeln
-const char hist_type[MAX_CITY_HISTORY][64] =
+const char *hist_type[MAX_CITY_HISTORY] =
 {
-  "citicens", "Growth", "Transported", "Passagiere",
+  "citicens", "Growth", "Buildings", "Electricity",
+  "Transported", "Passagiere", "Sended", "Post",
+  "Arrived", "Goods"
 };
 
 
 const int hist_type_color[MAX_CITY_HISTORY] =
 {
-  COL_CITICENS, COL_GROWTH, COL_TRANSPORTED, COL_FREE_CAPACITY
+	COL_WHITE, COL_DARK_GREEN, COL_LIGHT_PURPLE, COL_POWERLINES,
+	COL_LIGHT_BLUE, COL_BLUE, COL_LIGHT_YELLOW, COL_YELLOW,
+	COL_LIGHT_BROWN, COL_BROWN
 };
 
 
@@ -42,7 +46,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	name_input.setze_pos(koord(8, 8));
 
 	add_komponente(&name_input);
-	setze_fenstergroesse(koord(410, 305));
+	setze_fenstergroesse(koord(410, 305+20+20));
 
 	//CHART YEAR
 	chart.setze_pos(koord(1,1));
@@ -77,7 +81,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 
 	// add filter buttons
 	for (int hist=0;hist<MAX_CITY_HISTORY;hist++) {
-		filterButtons[hist].init(button_t::box_state, translator::translate(hist_type[hist]), koord(4+hist*100,270), koord(96, BUTTON_HEIGHT));
+		filterButtons[hist].init(button_t::box_state, translator::translate(hist_type[hist]), koord(4+(hist%4)*100,270+(hist/4)*(BUTTON_HEIGHT+4)), koord(96, BUTTON_HEIGHT));
 		filterButtons[hist].add_listener(this);
 		filterButtons[hist].background = hist_type_color[hist];
 		filterButtons[hist].pressed = hist<2;

@@ -921,9 +921,6 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	step_interval = 1;
 	next_bau_step = 0;
 
-	pax_erzeugt = 0;
-	pax_transport = 0;
-
 	besitzer_p = sp;
 
 	this->pos = pos;
@@ -971,10 +968,7 @@ next_name:;
 	check_bau_rathaus(true);
 
 	wachstum = 0;
-
-	// this way, new cities are properly recognized
-	pax_transport = citizens;
-	pax_erzeugt = 0;
+	change_size( citizens );
 
 	// initialize history array
 	for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
@@ -987,10 +981,8 @@ next_name:;
 			city_history_month[month][hist_type] = 0;
 		}
 	}
-	city_history_year[0][HIST_CITICENS]  = last_year_bev  = gib_einwohner();
-	city_history_month[0][HIST_CITICENS] = last_month_bev = gib_einwohner();
-	this_year_transported = 0;
-	this_year_pax = 0;
+	city_history_year[0][HIST_CITICENS]  = gib_einwohner();
+	city_history_month[0][HIST_CITICENS] = gib_einwohner();
 }
 
 
@@ -1005,9 +997,6 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	next_step = 0;
 	step_interval = 1;
 	next_bau_step = 0;
-
-	pax_erzeugt = 0;
-	pax_transport = 0;
 
 	wachstum = 0;
 	name = NULL;
@@ -1053,9 +1042,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		besitzer_p = welt->gib_spieler(besitzer_n);
 	}
 
-	// we probably need to save the city history
-	if (file->get_version() < 86000) {
-		DBG_DEBUG("stadt_t::rdwr()", "is old version: No history!");
+	if(file->is_loading()) {
 		// initialize history array
 		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
 			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
@@ -1067,12 +1054,40 @@ void stadt_t::rdwr(loadsave_t* file)
 				city_history_month[month][hist_type] = 0;
 			}
 		}
-		city_history_year[0][HIST_CITICENS] = last_year_bev  = gib_einwohner();
-		city_history_year[0][HIST_CITICENS] = last_month_bev = gib_einwohner();
-		this_year_transported = 0;
-		this_year_pax = 0;
-	} else {
+		city_history_year[0][HIST_CITICENS] = gib_einwohner();
+		city_history_year[0][HIST_CITICENS] = gib_einwohner();
+	}
+
+	// we probably need to load/save the city history
+	if (file->get_version() < 86000) {
+		DBG_DEBUG("stadt_t::rdwr()", "is old version: No history!");
+	} else if(file->get_version()<99016) {
 		// 86.00.0 introduced city history
+		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
+			for (uint hist_type = 0; hist_type < 2; hist_type++) {
+				file->rdwr_longlong(city_history_year[year][hist_type], " ");
+			}
+			for (uint hist_type = 4; hist_type < 6; hist_type++) {
+				file->rdwr_longlong(city_history_year[year][hist_type], " ");
+			}
+		}
+		for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) {
+			for (uint hist_type = 0; hist_type < 2; hist_type++) {
+				file->rdwr_longlong(city_history_month[month][hist_type], " ");
+			}
+			for (uint hist_type = 4; hist_type < 6; hist_type++) {
+				file->rdwr_longlong(city_history_month[month][hist_type], " ");
+			}
+		}
+		// not needed any more
+		sint32 dummy = 0;
+		file->rdwr_long(dummy, " ");
+		file->rdwr_long(dummy, "\n");
+		file->rdwr_long(dummy, " ");
+		file->rdwr_long(dummy, "\n");
+	}
+	else {
+		// 99.17.0 extended city history
 		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
 			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
 				file->rdwr_longlong(city_history_year[year][hist_type], " ");
@@ -1083,16 +1098,12 @@ void stadt_t::rdwr(loadsave_t* file)
 				file->rdwr_longlong(city_history_month[month][hist_type], " ");
 			}
 		}
-		// since we add it internally
-		file->rdwr_long(last_year_bev, " ");
-		file->rdwr_long(last_month_bev, " ");
-		file->rdwr_long(this_year_transported, " ");
-		file->rdwr_long(this_year_pax, "\n");
 	}
 
-	if(file->get_version()>99014) {
-		file->rdwr_long(pax_transport, " ");
-		file->rdwr_long(pax_erzeugt, "\n");
+	if(file->get_version()>99014  &&  file->get_version()<99016) {
+		sint32 dummy = 0;
+		file->rdwr_long(dummy, " ");
+		file->rdwr_long(dummy, "\n");
 	}
 
 	// 08-Jan-03: Due to some bugs in the special buildings/town hall
@@ -1130,10 +1141,8 @@ void stadt_t::laden_abschliessen()
 	}
 
 	// very young city => need to grow again
-	if (pax_transport > 0 && pax_erzeugt == 0) {
+	if(buildings.get_count()==0) {
 		step_bau();
-		pax_transport = 0;
-		last_month_bev = last_year_bev = gib_einwohner();
 	}
 
 	// clear the minimaps
@@ -1235,30 +1244,31 @@ void stadt_t::verbinde_fabriken()
 }
 
 
+
 /* change size of city
  * @author prissi */
 void stadt_t::change_size(long delta_citicens)
 {
-	step_bau();
-	pax_erzeugt = 0;
 	DBG_MESSAGE("stadt_t::change_size()", "%i + %i", bev, delta_citicens);
 	if (delta_citicens > 0) {
-		pax_transport = delta_citicens;
+		wachstum = delta_citicens;
 		step_bau();
-		pax_transport = 0;
 	}
 	if (delta_citicens < 0) {
-		pax_transport = 0;
+		wachstum = 0;
 		if (bev > -delta_citicens) {
 			bev += delta_citicens;
-		} else {
+		}
+		else {
 //			remove_city();
 			bev = 0;
 		}
 		step_bau();
 	}
+	wachstum = 0;
 	DBG_MESSAGE("stadt_t::change_size()", "%i+%i", bev, delta_citicens);
 }
+
 
 
 void stadt_t::step(long delta_t)
@@ -1267,20 +1277,20 @@ void stadt_t::step(long delta_t)
 	next_step += delta_t;
 	next_bau_step += delta_t;
 
-	step_interval = (8 << 18u) / (buildings.get_count() * umgebung_t::passenger_factor + 1);
+	step_interval = (1 << 21u) / (buildings.get_count() * umgebung_t::passenger_factor + 1);
 	if (step_interval < 1) {
 		step_interval = 1;
 	}
 
 	// create passenger rate proportional to town size
-	while (step_interval < next_step) {
+	while(step_interval < next_step) {
 		step_passagiere();
 		step_count++;
 		next_step -= step_interval;
 	}
 
-	// construction with a fixed rate (otherwise the towns would grow with different speed)
-	while (stadt_t::step_bau_interval < next_bau_step) {
+	while(stadt_t::step_bau_interval < next_bau_step) {
+		calc_growth();
 		step_bau();
 		next_bau_step -= stadt_t::step_bau_interval;
 	}
@@ -1289,15 +1299,13 @@ void stadt_t::step(long delta_t)
 	city_history_month[0][HIST_CITICENS] = gib_einwohner();	// total number
 	city_history_year[0][HIST_CITICENS] = gib_einwohner();
 
-	city_history_month[0][HIST_GROWTH] = gib_einwohner()-last_month_bev;	// growth
-	city_history_year[0][HIST_GROWTH] = gib_einwohner()-last_year_bev;
+	city_history_month[0][HIST_GROWTH] = city_history_month[0][HIST_CITICENS]-city_history_month[1][HIST_CITICENS];	// growth
+	city_history_year[0][HIST_GROWTH] = city_history_year[0][HIST_CITICENS]-city_history_year[1][HIST_CITICENS];
 
-	city_history_month[0][HIST_TRANSPORTED] = pax_transport;	// pax transported
-	city_history_year[0][HIST_TRANSPORTED] = this_year_transported+pax_transport;
-
-	city_history_month[0][HIST_GENERATED] = pax_erzeugt;	// and all post and passengers generated
-	city_history_year[0][HIST_GENERATED] = this_year_pax+pax_erzeugt;
+	city_history_month[0][HIST_BUILDING] = buildings.get_count();
+	city_history_year[0][HIST_BUILDING] = buildings.get_count();
 }
+
 
 
 /* updates the city history
@@ -1305,24 +1313,6 @@ void stadt_t::step(long delta_t)
  */
 void stadt_t::roll_history()
 {
-	// first update history
-	city_history_month[0][HIST_CITICENS] = gib_einwohner();	// total number
-	city_history_year[0][HIST_CITICENS] = gib_einwohner();
-
-	city_history_month[0][HIST_GROWTH] = gib_einwohner()-last_month_bev;	// growth
-	city_history_year[0][HIST_GROWTH] = gib_einwohner()-last_year_bev;
-
-	city_history_month[0][HIST_TRANSPORTED] = pax_transport;	// pax transported
-	this_year_transported += pax_transport;
-	city_history_year[0][HIST_TRANSPORTED] = this_year_transported;
-
-	city_history_month[0][HIST_GENERATED] = pax_erzeugt;	// and all post and passengers generated
-	this_year_pax += pax_erzeugt;
-	city_history_year[0][HIST_GENERATED] = this_year_pax;
-
-	// init differences
-	last_month_bev = gib_einwohner();
-
 	// roll months
 	for (int i = MAX_CITY_HISTORY_MONTHS - 1; i > 0; i--) {
 		for (int hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
@@ -1333,7 +1323,9 @@ void stadt_t::roll_history()
 	for (int hist_type = 1; hist_type < MAX_CITY_HISTORY; hist_type++) {
 		city_history_month[0][hist_type] = 0;
 	}
-	city_history_month[0][0] = gib_einwohner();
+	city_history_month[0][HIST_CITICENS] = gib_einwohner();
+	city_history_month[0][HIST_BUILDING] = buildings.get_count();
+	city_history_month[0][HIST_GOODS_NEEDED] = city_history_month[1][HIST_GOODS_NEEDED];
 
 	//need to roll year too?
 	if (welt->get_last_month() == 0) {
@@ -1346,14 +1338,9 @@ void stadt_t::roll_history()
 		for (int hist_type = 1; hist_type < MAX_CITY_HISTORY; hist_type++) {
 			city_history_year[0][hist_type] = 0;
 		}
-		last_year_bev = gib_einwohner();
 		city_history_year[0][HIST_CITICENS] = gib_einwohner();
-		city_history_year[0][HIST_GROWTH] = 0;
-		city_history_year[0][HIST_TRANSPORTED] = 0;
-		city_history_year[0][HIST_GENERATED] = 0;
-		// init difference counters
-		this_year_transported = 0;
-		this_year_pax = 0;
+		city_history_year[0][HIST_BUILDING] = buildings.get_count();
+		city_history_year[0][HIST_GOODS_NEEDED] = city_history_month[1][HIST_GOODS_NEEDED];
 	}
 
 }
@@ -1375,14 +1362,11 @@ void stadt_t::neuer_monat()
 
 	roll_history();
 
-	pax_erzeugt = 0;
-	pax_transport = 0;
-
 	if (!stadtauto_t::list_empty()) {
 		// spawn eventuall citycars
 		// the more transported, the less are spawned
 		// with default density (8) for a city with 2000 people (=> ca. 1000 not transported) a car is spawned per month on average
-		double factor = log10((double)city_history_month[1][HIST_GENERATED]-(double)city_history_month[1][HIST_TRANSPORTED]+1.0) * (double)welt->gib_einstellungen()->gib_verkehr_level();
+		double factor = log10((double)city_history_month[1][HIST_PAS_GENERATED]-(double)city_history_month[1][HIST_PAS_TRANSPORTED]+1.0) * (double)welt->gib_einstellungen()->gib_verkehr_level();
 		uint16 number_of_cars = simrand( ((uint16)factor) )/16;
 
 		koord k;
@@ -1406,20 +1390,46 @@ void stadt_t::neuer_monat()
 }
 
 
+void stadt_t::calc_growth()
+{
+#if 0
+	// prissi: growth now size dependent
+	if (bev < 1000) {
+		wachstum = (city_history_month[0][HIST_PAS_TRANSPORTED] * 2) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
+	} else if (bev < 10000) {
+		wachstum = (city_history_month[0][HIST_PAS_TRANSPORTED] * 4) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
+	} else {
+		wachstum = (city_history_month[0][HIST_PAS_TRANSPORTED] * 8) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
+	}
+#else
+	/* four parts contribute to town growth:
+	 * passenger transport 40%, mail 20%, goods (30%), and electricity (10%)
+	 */
+	sint32 pas = (city_history_month[0][HIST_PAS_TRANSPORTED] * 40) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
+	sint32 mail = (city_history_month[0][HIST_MAIL_TRANSPORTED] * 20) / (city_history_month[0][HIST_MAIL_GENERATED] + 1);
+	sint32 electricity = 0;
+	sint32 goods = (city_history_month[0][HIST_GOODS_RECIEVED] * 20) / (city_history_month[0][HIST_GOODS_NEEDED] + 1);
+
+	// smaller towns should growth slower to have villages for a longer time
+	sint32 weight_factor = 100;
+	if(bev<1000) {
+		weight_factor = 250;
+	}
+	else if(bev<10000) {
+		weight_factor = 150;
+	}
+
+	// now give the growth for this step
+	const sint32 city_growth_factor = 8;
+	wachstum = ((pas+mail+electricity+goods)*city_growth_factor) / weight_factor;
+#endif
+}
+
+
+// does constructions ...
 void stadt_t::step_bau()
 {
 	bool new_town = (bev == 0);
-
-	// prissi: growth now size dependent
-	if (pax_erzeugt == 0) {
-		wachstum = pax_transport;
-	} else if (bev < 1000) {
-		wachstum = (pax_transport * 2) / (pax_erzeugt + 1);
-	} else if (bev < 10000) {
-		wachstum = (pax_transport * 4) / (pax_erzeugt + 1);
-	} else {
-		wachstum = (pax_transport * 8) / (pax_erzeugt + 1);
-	}
 
 	// Hajo: let city grow in steps of 1
 //	for (int n = 0; n < (1 + wachstum); n++) {
@@ -1441,6 +1451,7 @@ void stadt_t::step_bau()
 		// add industry? (not during creation)
 		check_bau_factory(new_town);
 	}
+	wachstum = 0;
 }
 
 
@@ -1460,6 +1471,7 @@ void stadt_t::step_passagiere()
 	else {
 		wtyp = warenbauer_t::post;
 	}
+	const int history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
 
 	// restart at first buiulding?
 	if (step_count >= buildings.get_count()) {
@@ -1471,7 +1483,7 @@ void stadt_t::step_passagiere()
 	const int num_pax =
 		(wtyp == warenbauer_t::passagiere) ?
 			(gb->gib_tile()->gib_besch()->gib_level()      + 6) >> 2 :
-			(gb->gib_tile()->gib_besch()->gib_post_level() + 5) >> 2;
+			max(1,(gb->gib_tile()->gib_besch()->gib_post_level() + 5) >> 4);
 
 	// create pedestrians in the near area?
 	if (umgebung_t::fussgaenger && wtyp == warenbauer_t::passagiere) {
@@ -1494,7 +1506,8 @@ void stadt_t::step_passagiere()
 	}
 
 	// Hajo: track number of generated passengers.
-	pax_erzeugt += num_pax;
+	city_history_year[0][history_type+1] += num_pax;
+	city_history_month[0][history_type+1] += num_pax;
 
 	// only continue, if this is a good start halt
 	if (start_halt.is_bound()) {
@@ -1552,7 +1565,8 @@ void stadt_t::step_passagiere()
 				// so we have happy passengers
 				start_halt->add_pax_happy(pax_left_to_do);
 				merke_passagier_ziel(ziel, COL_YELLOW);
-				pax_transport += pax_left_to_do;
+				city_history_year[0][history_type] += pax_left_to_do;
+				city_history_month[0][history_type] += pax_left_to_do;
 				continue;
 			}
 
@@ -1571,7 +1585,8 @@ void stadt_t::step_passagiere()
 				start_halt->add_pax_happy(pax.menge);
 				// and show it
 				merke_passagier_ziel(ziel, COL_YELLOW);
-				pax_transport += pax.menge;
+				city_history_year[0][history_type] += pax.menge;
+				city_history_month[0][history_type] += pax.menge;
 			} else {
 				start_halt->add_pax_no_route(pax_left_to_do);
 				merke_passagier_ziel(ziel, COL_DARK_ORANGE);

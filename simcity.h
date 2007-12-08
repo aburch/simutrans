@@ -27,12 +27,18 @@ class cbuffer_t;
 
 #define MAX_CITY_HISTORY_YEARS  12 // number of years to keep history
 #define MAX_CITY_HISTORY_MONTHS  12 // number of months to keep history
-#define MAX_CITY_HISTORY 4      // Total number of items in array
+#define MAX_CITY_HISTORY 10      // Total number of items in array
 
 #define HIST_CITICENS 0	// total people
 #define HIST_GROWTH 1 // growth (just for convenience)
-#define HIST_TRANSPORTED 2
-#define HIST_GENERATED 3
+#define HIST_BUILDING 2
+#define HIST_POWER_RECIEVED 3
+#define HIST_PAS_TRANSPORTED 4
+#define HIST_PAS_GENERATED 5
+#define HIST_MAIL_TRANSPORTED 6
+#define HIST_MAIL_GENERATED 7
+#define HIST_GOODS_RECIEVED 8
+#define HIST_GOODS_NEEDED 9
 
 
 
@@ -124,20 +130,6 @@ private:
 	sint32 won;	// davon mit Wohnung
 
 	/**
-	 * Counter: possible passengers in this month
-	 * transient data, not saved
-	 * @author Hj. Malthaner
-	 */
-	sint32 pax_erzeugt;
-
-	/**
-	 * Counter: transported passengers in this month
-	 * transient data, not saved
-	 * @author Hj. Malthaner
-	 */
-	sint32 pax_transport;
-
-	/**
 	 * Modifier for city growth
 	 * transient data, not saved
 	 * @author Hj. Malthaner
@@ -150,10 +142,6 @@ private:
 	*/
 	sint64 city_history_year[MAX_CITY_HISTORY_YEARS][MAX_CITY_HISTORY];
 	sint64 city_history_month[MAX_CITY_HISTORY_MONTHS][MAX_CITY_HISTORY];
-
-	sint32 last_month_bev;
-	sint32 last_year_bev;
-	sint32	this_year_pax, this_year_transported;
 
 	/* updates the city history
 	* @author prissi
@@ -196,6 +184,9 @@ private:
 
 	// recalcs city borders (after loading and deletion)
 	void recalc_city_size();
+
+	// calculates the growth rate for next step_bau using all the different indicators
+	void calc_growth();
 
 	/**
 	 * plant das bauen von Gebaeuden
@@ -307,8 +298,6 @@ public:
 	// changes the weight; must be called if there is a new definition (tile) for that house
 	void update_gebaeude_from_stadt(const gebaeude_t *gb);
 
-	sint32 gib_pax_erzeugt() const {return pax_erzeugt;}
-	sint32 gib_pax_transport() const {return pax_transport;}
 	sint32 gib_wachstum() const {return (city_history_month[0][HIST_GROWTH]*5) + (city_history_month[1][HIST_GROWTH]*4) + city_history_month[2][HIST_GROWTH]; }
 
 	/**

@@ -1,5 +1,9 @@
 	ADD: water animation (if images defined) animation images are just the second parameter in the definition; animation speed is set by water_animation_ms in simuconf.tab
 	FIX: tiles in train middle at waypoints were not properly reserved
+	FIX: sometimes planes were circling on the ground
+	FIX: winter tile change for whole map also on large maps
+	ADD: more statistics to citys / preparation for different growth models (strings now   "citicens", "Growth", "Buildings", "Electricity",  "Transported", "Passagiere", "Sended", "Post", "Arrived", "Goods")
+
 
 
 Release of 99.16
