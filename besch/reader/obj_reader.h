@@ -37,7 +37,7 @@ inline uint8 decode_uint8(char * &data)
  */
 inline uint16 decode_uint16(char * &data)
 {
-	const uint16 v = endian_uint16(data);
+	const uint16 v = endian_uint16((uint16 *)data);
 	data += 2;
 	return v;
 }
@@ -51,7 +51,7 @@ inline uint16 decode_uint16(char * &data)
  */
 inline uint32 decode_uint32(char * &data)
 {
-	const uint32 v = endian_uint32(data);
+	const uint32 v = endian_uint32((uint32 *)data);
 	data += 4;
 	return v;
 }

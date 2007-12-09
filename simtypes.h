@@ -135,30 +135,33 @@ inline uint8 endian_uint8(char * data)
 	return (uint8)*data;
 }
 
-inline uint16 endian_uint16(char * data)
+inline uint16 endian_uint16(uint16 *d)
 {
 #ifndef BIG_ENDIAN
-  return  *((uint16 *)data);
+	return  *d;
 #else
-  return ((uint16)(uint8) data[0]) | ( ((uint16)(uint8)data[1]) << 8 );
+	const uint8 *data = (const uint8 *)d;
+	return ((uint16)data[0]) | ( ((uint16)data[1]) << 8 );
 #endif
 }
 
-inline uint32 endian_uint32(char * &data)
+inline uint32 endian_uint32(uint32 *d)
 {
 #ifndef BIG_ENDIAN
-	return *((uint32 *)data);
+	return *d;
 #else
-	return  ((uint32)(uint8)data[0])  | ( ((uint32)(uint8)data[1]) << 8 )  | ( ((uint32)(uint8)data[2]) << 16 )  | ( ((uint32)(uint8)data[3]) << 24 );
+	const uint8 *data = (const uint8 *)d;
+	return  ((uint32)data[0])  | ( ((uint32)data[1]) << 8 )  | ( ((uint32)data[2]) << 16 )  | ( ((uint32)data[3]) << 24 );
 #endif
 }
 
-inline uint64 endian_uint64(char * &data)
+inline uint64 endian_uint64(uint64 * d)
 {
 #ifndef BIG_ENDIAN
-	return *((uint64 *)data);
+	return *d;
 #else
-	return  ((uint64)(uint8)data[0])  | ( ((uint64)(uint8)data[1]) << 8 )  | ( ((uint64)(uint8)data[2]) << 16 )  | ( ((uint64)(uint8)data[3]) << 24 ) | (((uint64)(uint8)data[0]) << 32 ) | ( ((uint64)(uint8)data[1]) << 40 )  | ( ((uint64)(uint8)data[2]) << 48 )  | ( ((uint64)(uint8)data[3]) << 56 );
+	const uint8 *data = (const uint8 *)d;
+	return  ((uint64)data[0])  | ( ((uint64)data[1]) << 8 )  | ( ((uint64)data[2]) << 16 )  | ( ((uint64)data[3]) << 24 ) | (((uint64)data[4]) << 32 ) | ( ((uint64)data[5]) << 40 )  | ( ((uint64)data[6]) << 48 )  | ( ((uint64)data[7]) << 56 );
 #endif
 }
 
