@@ -6,6 +6,8 @@
 #include "../obj_besch.h"
 #include "../objversion.h"
 
+#include "../../simtypes.h"
+
 
 struct obj_node_info_t;
 template<class key_t, class value_t> class inthashtable_tpl;
@@ -14,7 +16,6 @@ template<class key_t, class value_t> class ptrhashtable_tpl;
 template<class T> class slist_tpl;
 
 
-// Hajo: some decoding helper functions
 
 /**
  * Reads uint8 from memory area. Advances pointer by 1 byte.
@@ -22,12 +23,13 @@ template<class T> class slist_tpl;
  */
 inline uint8 decode_uint8(char * &data)
 {
-  const sint8 v = *((sint8 *)data);
-  data ++;
-  return v;
+	const sint8 v = *((sint8 *)data);
+	data ++;
+	return v;
 }
 
 #define decode_sint8(data)  (sint8)decode_uint8(data)
+
 
 /**
  * Reads uint16 from memory area. Advances pointer by 2 bytes.
@@ -35,14 +37,9 @@ inline uint8 decode_uint8(char * &data)
  */
 inline uint16 decode_uint16(char * &data)
 {
-#ifdef LITTLE_ENDIAN
-  const uint16 v = *((uint16 *)data);
-  data += 2;
-#else
-  uint16 v = ((uint8) *data++);
-  v |= ((uint8) *data++)<<8;
-#endif
-  return v;
+	const uint16 v = endian_uint16(data);
+	data += 2;
+	return v;
 }
 
 #define decode_sint16(data)  (sint16)decode_uint16(data)
@@ -54,17 +51,13 @@ inline uint16 decode_uint16(char * &data)
  */
 inline uint32 decode_uint32(char * &data)
 {
-#ifdef LITTLE_ENDIAN
-  const uint32 v = *((uint32 *)data);
-  data += 4;
-#else
-  uint32 v = ((uint8) *data++);
-  v |= ((uint8) *data++) << 8;
-  v |= ((uint8) *data++) << 16;
-  v |= ((uint8) *data++) << 24;
-#endif
-  return v;
+	const uint32 v = endian_uint32(data);
+	data += 4;
+	return v;
 }
+
+#define decode_sint32(data)  (sint32)decode_uint32(data)
+
 
 
 class obj_reader_t

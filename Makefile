@@ -4,7 +4,7 @@ CONFIG ?= config.default
 
 BACKENDS      = allegro gdi sdl x11
 COLOUR_DEPTHS = 8 16
-OSTYPES       = beos cygwin freebsd linux mingw macintel
+OSTYPES       = beos cygwin freebsd linux mingw mac
 
 ifeq ($(findstring $(BACKEND), $(BACKENDS)),)
   $(error Unkown BACKEND "$(BACKEND)", must be one of "$(BACKENDS)")
@@ -32,7 +32,7 @@ ifeq ($(OSTYPE),freebsd)
   STD_LIBS ?= -lz
 endif
 
-ifeq ($(OSTYPE),macintel)
+ifeq ($(OSTYPE),mac)
   CFLAGS   += -DUSE_HW -DUSE_C
   STD_LIBS ?= -lz
 endif

@@ -200,7 +200,7 @@ void obj_reader_t::read_file(const char *name)
 		n = fread(dummy, 4, 1, fp);
 		version = decode_uint32(p);
 
-//		DBG_DEBUG("obj_reader_t::read_file()", "read %d blocks, file version is %d", n, version);
+		DBG_DEBUG("obj_reader_t::read_file()", "read %d blocks, file version is %x", n, version);
 
 		if(version <= COMPILER_VERSION_CODE) {
 			obj_besch_t *data = NULL;

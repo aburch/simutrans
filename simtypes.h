@@ -128,6 +128,41 @@ static inline int max(const int a, const int b)
     return a > b ? a : b;
 }
 
+// endian coversion routines
+
+inline uint8 endian_uint8(char * data)
+{
+	return (uint8)*data;
+}
+
+inline uint16 endian_uint16(char * data)
+{
+#ifndef BIG_ENDIAN
+  return  *((uint16 *)data);
+#else
+  return ((uint16)(uint8) data[0]) | ( ((uint16)(uint8)data[1]) << 8 );
+#endif
+}
+
+inline uint32 endian_uint32(char * &data)
+{
+#ifndef BIG_ENDIAN
+	return *((uint32 *)data);
+#else
+	return  ((uint32)(uint8)data[0])  | ( ((uint32)(uint8)data[1]) << 8 )  | ( ((uint32)(uint8)data[2]) << 16 )  | ( ((uint32)(uint8)data[3]) << 24 );
+#endif
+}
+
+inline uint64 endian_uint64(char * &data)
+{
+#ifndef BIG_ENDIAN
+	return *((uint64 *)data);
+#else
+	return  ((uint64)(uint8)data[0])  | ( ((uint64)(uint8)data[1]) << 8 )  | ( ((uint64)(uint8)data[2]) << 16 )  | ( ((uint64)(uint8)data[3]) << 24 ) | (((uint64)(uint8)data[0]) << 32 ) | ( ((uint64)(uint8)data[1]) << 40 )  | ( ((uint64)(uint8)data[2]) << 48 )  | ( ((uint64)(uint8)data[3]) << 56 );
+#endif
+}
+
+
 /**
  * Sometimes we need to pass pointers as well as integers through a
  * standardized interface (i.e. via a function pointer). This union is used as

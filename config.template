@@ -16,7 +16,7 @@
 #OSTYPE = freebsd
 #OSTYPE = linux
 #OSTYPE = mingw
-#OSTYPE = macintel
+#OSTYPE = mac
 
 #DEBUG = 3    # Level 1-3, higher number means more debug-friendly, see Makefile
 #OPTIMISE = 1 # Add umpteen optimisation flags
@@ -41,6 +41,6 @@
 # OTTD_LIKE: Enables half height tiles and crossconnected industries; defaul folder pak.ttd/
 # DESTINATION_CITYCARS: Citycars can have a destination (not recommended)
 # USE_C: no assembler for copying
-# LITTLE_ENDIAN: Intel byte order
+# BIG_ENDIAN: MUST by set for PPC/Motorola byte order! (old mac, amiga)
 # STEPS16: 16 steps per tile - nicer on pak64
-FLAGS = -DLITTLE_ENDIAN -DSTEPS16
+FLAGS =  -DSTEPS16

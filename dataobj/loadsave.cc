@@ -207,11 +207,22 @@ void loadsave_t::rdwr_byte(uint8 &c, const char *delim)
 void loadsave_t::rdwr_short(sint16 &i, const char *delim)
 {
 	if(!is_text()) {
+#ifdef BIG_ENDIAN
+		if(saving) {
+			sint16 ii = (sint16)endian_uint16(&i);
+			write(&ii, sizeof(sint16));
+		} else {
+			sint16 ii;
+			read(&ii, sizeof(sint16));
+			i = (sint16)endian_uint16(&ii);
+		}
+#else
 		if(saving) {
 			write(&i, sizeof(sint16));
 		} else {
 			read(&i, sizeof(sint16));
 		}
+#endif
 	} else {
 		if(saving) {
 			fprintf(fp, "%d", i);
@@ -234,11 +245,22 @@ void loadsave_t::rdwr_short(uint16 &i, const char *delim)
 void loadsave_t::rdwr_long(sint32 &l, const char *delim)
 {
 	if(!is_text()) {
+#ifdef BIG_ENDIAN
+		if(saving) {
+			sint32 ii = (sint32)endian_uint32(&l);
+			write(&ii, sizeof(sint32));
+		} else {
+			sint32 ii;
+			read(&ii, sizeof(sint32));
+			l = (sint32)endian_uint32(&ii);
+		}
+#else
 		if(saving) {
 			write(&l, sizeof(sint32));
 		} else {
 			read(&l, sizeof(sint32));
 		}
+#endif
 	} else {
 		if(saving) {
  			if (sizeof(sint32) == sizeof(int)) {
@@ -268,11 +290,22 @@ void loadsave_t::rdwr_long(uint32 &l, const char *delim)
 void loadsave_t::rdwr_longlong(sint64 &ll, const char *delim)
 {
 	if(!is_text()) {
+#ifdef BIG_ENDIAN
+		if(saving) {
+			sint64 ii = (sint64)endian_uint64(&i);
+			write(&ii, sizeof(sint64));
+		} else {
+			sint16 ii;
+			read(&ii, sizeof(sint64));
+			i = (sint64)endian_uint64(&ii);
+		}
+#else
 		if(saving) {
 			write(&ll, sizeof(sint64));
 		} else {
 			read(&ll, sizeof(sint64));
 		}
+#endif
 	} else {
 		if(saving) {
 			fprintf(fp, "%f", (double)ll);
@@ -301,16 +334,26 @@ void loadsave_t::rdwr_bool(bool &i, const char *delim)
 void loadsave_t::rdwr_str(const char *&s, const char *null_s)
 {
 	if(!is_text()) {
-		short size;
+		sint16 size;
 		if(saving) {
 			size = s ? strlen(s) : 0;
+#ifdef BIG_ENDIAN
+			{
+				sint16 ii = (sint16)endian_uint16(size);
+				write(&ii, sizeof(sint16));
+			}
+#else
 			write(&size, sizeof(short));
+#endif
 			if(size > 0) {
 				write(s, size);
 			}
 		}
 		else {
 			read(&size, sizeof(short));
+#ifdef BIG_ENDIAN
+			size = (sint16)endian_uint16(size);
+#endif
 			char *sneu = NULL;
 			if(size > 0) {
 				sneu = (char *)guarded_malloc(size + 1);
@@ -348,14 +391,24 @@ void loadsave_t::rdwr_str(const char *&s, const char *null_s)
 void loadsave_t::rdwr_str(char *s, int /*size*/)
 {
 	if(!is_text()) {
-		short len;
+		sint16 len;
 		if(saving) {
 			len = strlen(s);
+#ifdef BIG_ENDIAN
+			{
+				sint16 ii = (sint16)endian_uint16(len);
+				write(&ii, sizeof(sint16));
+			}
+#else
 			write(&len, sizeof(short));
+#endif
 			write(s, len);
 		}
 		else {
 			read(&len, sizeof(short));
+#ifdef BIG_ENDIAN
+			len = (sint16)endian_uint16(len);
+#endif
 			//assert(len < size);
 			read(s, len);
 			s[len] = '\0';
@@ -376,6 +429,7 @@ void loadsave_t::rdwr_str(char *s, int /*size*/)
 	}
 }
 
+
 void loadsave_t::rdwr_double(double &dbl, const char *delim)                //01-Dec-01     Markus Weber    Added
 {
 	if(!is_text()) {
@@ -394,6 +448,7 @@ void loadsave_t::rdwr_double(double &dbl, const char *delim)                //01
 	rdwr_delim(delim);
 }
 
+
 void loadsave_t::wr_obj_id(sint16 id)
 {
 	if(saving) {
@@ -405,6 +460,7 @@ void loadsave_t::wr_obj_id(sint16 id)
 		}
 	}
 }
+
 
 sint16 loadsave_t::rd_obj_id()
 {
@@ -428,6 +484,7 @@ sint16 loadsave_t::rd_obj_id()
 	return id;
 }
 
+
 void loadsave_t::wr_obj_id(const char *id_text)
 {
 	if(saving) {
@@ -438,6 +495,7 @@ void loadsave_t::wr_obj_id(const char *id_text)
 		}
 	}
 }
+
 
 void loadsave_t::rd_obj_id(char *id_buf, int size)
 {
@@ -451,6 +509,7 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 	}
 }
 
+
 void loadsave_t::rdwr_delim(const char *delim)
 {
 	if(is_text()) {
@@ -461,6 +520,7 @@ void loadsave_t::rdwr_delim(const char *delim)
 		}
 	}
 }
+
 
 uint32 loadsave_t::int_version(const char *version_text, mode_t *mode, char *pak_extension)
 {
