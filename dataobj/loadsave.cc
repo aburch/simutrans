@@ -209,10 +209,10 @@ void loadsave_t::rdwr_short(sint16 &i, const char *delim)
 	if(!is_text()) {
 #ifdef BIG_ENDIAN
 		if(saving) {
-			sint16 ii = (sint16)endian_uint16(&i);
+			sint16 ii = (sint16)endian_uint16((uint16 *)&i);
 			write(&ii, sizeof(sint16));
 		} else {
-			sint16 ii;
+			uint16 ii;
 			read(&ii, sizeof(sint16));
 			i = (sint16)endian_uint16(&ii);
 		}
@@ -247,11 +247,11 @@ void loadsave_t::rdwr_long(sint32 &l, const char *delim)
 	if(!is_text()) {
 #ifdef BIG_ENDIAN
 		if(saving) {
-			sint32 ii = (sint32)endian_uint32(&l);
-			write(&ii, sizeof(sint32));
+			uint32 ii = (sint32)endian_uint32((uint32 *)&l);
+			write(&ii, sizeof(uint32));
 		} else {
-			sint32 ii;
-			read(&ii, sizeof(sint32));
+			uint32 ii;
+			read(&ii, sizeof(uint32));
 			l = (sint32)endian_uint32(&ii);
 		}
 #else
@@ -292,12 +292,12 @@ void loadsave_t::rdwr_longlong(sint64 &ll, const char *delim)
 	if(!is_text()) {
 #ifdef BIG_ENDIAN
 		if(saving) {
-			sint64 ii = (sint64)endian_uint64(&i);
+			sint64 ii = (sint64)endian_uint64((uint64 *)&ll);
 			write(&ii, sizeof(sint64));
 		} else {
-			sint16 ii;
+			uint64 ii;
 			read(&ii, sizeof(sint64));
-			i = (sint64)endian_uint64(&ii);
+			ll = (sint64)endian_uint64(&ii);
 		}
 #else
 		if(saving) {
@@ -339,7 +339,7 @@ void loadsave_t::rdwr_str(const char *&s, const char *null_s)
 			size = s ? strlen(s) : 0;
 #ifdef BIG_ENDIAN
 			{
-				sint16 ii = (sint16)endian_uint16(size);
+				sint16 ii = (sint16)endian_uint16((uint16 *)&size);
 				write(&ii, sizeof(sint16));
 			}
 #else
@@ -352,7 +352,7 @@ void loadsave_t::rdwr_str(const char *&s, const char *null_s)
 		else {
 			read(&size, sizeof(short));
 #ifdef BIG_ENDIAN
-			size = (sint16)endian_uint16(size);
+			size = (sint16)endian_uint16((uint16 *)&size);
 #endif
 			char *sneu = NULL;
 			if(size > 0) {
@@ -396,7 +396,7 @@ void loadsave_t::rdwr_str(char *s, int /*size*/)
 			len = strlen(s);
 #ifdef BIG_ENDIAN
 			{
-				sint16 ii = (sint16)endian_uint16(len);
+				sint16 ii = (sint16)endian_uint16((uint16 *)&len);
 				write(&ii, sizeof(sint16));
 			}
 #else
@@ -407,7 +407,7 @@ void loadsave_t::rdwr_str(char *s, int /*size*/)
 		else {
 			read(&len, sizeof(short));
 #ifdef BIG_ENDIAN
-			len = (sint16)endian_uint16(len);
+			len = (sint16)endian_uint16((uint16 *)&len);
 #endif
 			//assert(len < size);
 			read(s, len);
