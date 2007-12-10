@@ -6,6 +6,7 @@
 	FIX: daynight cycle for show_month<=1
 	CHANGE: town growth is now stimulated by 40% passenger transport, 20% Mail transport, and 30% for not leaving storage of consumers with workers from this town empty
 	FIX: powerlines and tunnel entries more intelligently handled during wayremoval
+	CHANGE/FIX: close schedule windows when delting a convoi or starting one from depot (removing the annoying error message when entering schedule is in progress) "Es wird bereits\nein Fahrplan\neingegeben\n"
 
 
 

@@ -1190,18 +1190,25 @@ void depot_frame_t::fahrplaneingabe()
 	if(cnv.is_bound() && cnv->gib_vehikel_anzahl() > 0) {
 
 		fahrplan_t *fpl = cnv->erzeuge_fahrplan();
-		if(fpl != NULL && fpl->ist_abgeschlossen()) {
+		if(fpl!=NULL) {
+			if(fpl->ist_abgeschlossen()) {
 
-			// Fahrplandialog oeffnen
-			create_win(new fahrplan_gui_t(fpl, cnv->gib_besitzer()), w_info, (long)fpl);
+				// Fahrplandialog oeffnen
+				create_win(new fahrplan_gui_t(fpl, cnv->gib_besitzer()), w_info, (long)fpl);
 
-			// evtl. hat ein callback cnv gelöscht, so erneut testen
-			if(cnv.is_bound() && fpl != NULL) {
-				cnv->setze_fahrplan(fpl);
+				// evtl. hat ein callback cnv gelöscht, so erneut testen
+				if(cnv.is_bound() && fpl != NULL) {
+					cnv->setze_fahrplan(fpl);
+				}
+			}
+			else {
+				gui_fenster_t *fplwin = win_get_magic((long)fpl);
+				top_win( fplwin );
+//				create_win( new news_img("Es wird bereits\nein Fahrplan\neingegeben\n"), w_time_delete, magic_none);
 			}
 		}
 		else {
-			create_win( new news_img("Es wird bereits\nein Fahrplan\neingegeben\n"), w_time_delete, magic_none);
+			dbg->error( "depot_frame_t::fahrplaneingabe()", "cannot create schedule!" );
 		}
 	}
 	else {

@@ -35,33 +35,33 @@ protected:
 	void init();
 
 public:
-  /**
-   * sollte eine Fehlermeldung ausgeben, wenn halt nicht erlaubt ist
-   * @author Hj. Malthaner
-   */
-  virtual void zeige_fehlermeldung() const {}
+	/**
+	* sollte eine Fehlermeldung ausgeben, wenn halt nicht erlaubt ist
+	* @author Hj. Malthaner
+	*/
+	virtual void zeige_fehlermeldung() const {}
 
-  /**
-   * der allgemeine Fahrplan erlaubt haltestellen überall.
-   * diese Methode sollte in den unterklassen redefiniert werden.
-   * @author Hj. Malthaner
-   */
-  virtual bool ist_halt_erlaubt(const grund_t *) const {return true;}
+	/**
+	* der allgemeine Fahrplan erlaubt haltestellen überall.
+	* diese Methode sollte in den unterklassen redefiniert werden.
+	* @author Hj. Malthaner
+	*/
+	virtual bool ist_halt_erlaubt(const grund_t *) const {return true;}
 
 	virtual waytype_t get_waytype() const {return invalid_wt;}
 
-  minivec_tpl<struct linieneintrag_t> eintrag;
-  short aktuell;
+	minivec_tpl<struct linieneintrag_t> eintrag;
+	short aktuell;
 
-  int maxi() const { return eintrag.get_count(); }
+	int maxi() const { return eintrag.get_count(); }
 
-  fahrplan_type get_type() const {return type;}
+	fahrplan_type get_type() const {return type;}
 
-  /**
-   * get current stop of fahrplan
-   * @author hsiegeln
-   */
-  int get_aktuell() const { return aktuell; }
+	/**
+	* get current stop of fahrplan
+	* @author hsiegeln
+	*/
+	int get_aktuell() const { return aktuell; }
 
 	/**
 	 * set the current stop of the fahrplan
