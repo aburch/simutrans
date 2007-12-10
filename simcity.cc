@@ -1251,7 +1251,7 @@ void stadt_t::change_size(long delta_citicens)
 {
 	DBG_MESSAGE("stadt_t::change_size()", "%i + %i", bev, delta_citicens);
 	if (delta_citicens > 0) {
-		wachstum = delta_citicens;
+		wachstum = delta_citicens<<4;
 		step_bau();
 	}
 	if (delta_citicens < 0) {
@@ -1325,7 +1325,7 @@ void stadt_t::roll_history()
 	}
 	city_history_month[0][HIST_CITICENS] = gib_einwohner();
 	city_history_month[0][HIST_BUILDING] = buildings.get_count();
-	city_history_month[0][HIST_GOODS_NEEDED] = city_history_month[1][HIST_GOODS_NEEDED];
+	city_history_month[0][HIST_GOODS_NEEDED] = 0;
 
 	//need to roll year too?
 	if (welt->get_last_month() == 0) {
@@ -1340,7 +1340,7 @@ void stadt_t::roll_history()
 		}
 		city_history_year[0][HIST_CITICENS] = gib_einwohner();
 		city_history_year[0][HIST_BUILDING] = buildings.get_count();
-		city_history_year[0][HIST_GOODS_NEEDED] = city_history_month[1][HIST_GOODS_NEEDED];
+		city_history_year[0][HIST_GOODS_NEEDED] = 0;
 	}
 
 }
@@ -1402,26 +1402,43 @@ void stadt_t::calc_growth()
 		wachstum = (city_history_month[0][HIST_PAS_TRANSPORTED] * 8) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
 	}
 #else
+	// now iterate over all factories to get the ratio of producing version nonproducing factories
+	// we use the incoming storage as a measure und we will only look for end consumers (power stations, markets)
+	for (weighted_vector_tpl<fabrik_t*>::const_iterator iter = arbeiterziele.begin(), end = arbeiterziele.end(); iter != end; ++iter) {
+		fabrik_t *fab = *iter;
+		if(fab->gib_lieferziele().get_count()==0  &&  fab->get_suppliers().get_count()!=0) {
+			// consumer => check for it storage
+			const fabrik_besch_t *besch = fab->gib_besch();
+			for(  int i=0;  i<besch->gib_lieferanten();  i++  ) {
+				city_history_month[0][HIST_GOODS_NEEDED] ++;
+				city_history_year[0][HIST_GOODS_NEEDED] ++;
+				if(  fab->input_vorrat_an( besch->gib_lieferant(i)->gib_ware() )>0  ) {
+					city_history_month[0][HIST_GOODS_RECIEVED] ++;
+					city_history_year[0][HIST_GOODS_RECIEVED] ++;
+				}
+			}
+		}
+	}
+
 	/* four parts contribute to town growth:
 	 * passenger transport 40%, mail 20%, goods (30%), and electricity (10%)
 	 */
-	sint32 pas = (city_history_month[0][HIST_PAS_TRANSPORTED] * 40) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
-	sint32 mail = (city_history_month[0][HIST_MAIL_TRANSPORTED] * 20) / (city_history_month[0][HIST_MAIL_GENERATED] + 1);
+	sint32 pas = (city_history_month[0][HIST_PAS_TRANSPORTED] * (40<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
+	sint32 mail = (city_history_month[0][HIST_MAIL_TRANSPORTED] * (20<<6)) / (city_history_month[0][HIST_MAIL_GENERATED] + 1);
 	sint32 electricity = 0;
-	sint32 goods = (city_history_month[0][HIST_GOODS_RECIEVED] * 20) / (city_history_month[0][HIST_GOODS_NEEDED] + 1);
+	sint32 goods = city_history_month[0][HIST_GOODS_NEEDED]==0 ? 0 : (city_history_month[0][HIST_GOODS_RECIEVED] * (20<<6)) / (city_history_month[0][HIST_GOODS_NEEDED]);
 
 	// smaller towns should growth slower to have villages for a longer time
 	sint32 weight_factor = 100;
 	if(bev<1000) {
-		weight_factor = 250;
+		weight_factor = 400;
 	}
 	else if(bev<10000) {
-		weight_factor = 150;
+		weight_factor = 200;
 	}
 
 	// now give the growth for this step
-	const sint32 city_growth_factor = 8;
-	wachstum = ((pas+mail+electricity+goods)*city_growth_factor) / weight_factor;
+	wachstum += (pas+mail+electricity+goods) / weight_factor;
 #endif
 }
 
@@ -1430,11 +1447,14 @@ void stadt_t::calc_growth()
 void stadt_t::step_bau()
 {
 	bool new_town = (bev == 0);
+	// since we use internall a finer value ...
+	const int	growth_step = (wachstum>>4);
+	wachstum &= 0x0F;
 
 	// Hajo: let city grow in steps of 1
 //	for (int n = 0; n < (1 + wachstum); n++) {
 	// @author prissi: No growth without development
-	for (int n = 0; n < wachstum; n++) {
+	for (int n = 0; n < growth_step; n++) {
 		bev++; // Hajo: bevoelkerung wachsen lassen
 
 		INT_CHECK("simcity 338");
@@ -1451,7 +1471,6 @@ void stadt_t::step_bau()
 		// add industry? (not during creation)
 		check_bau_factory(new_town);
 	}
-	wachstum = 0;
 }
 
 

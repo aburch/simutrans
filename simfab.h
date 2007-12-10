@@ -201,6 +201,7 @@ public:
 	 *   -1 wenn typ nicht produziert wird
 	 *   sonst die gelagerte menge
 	 */
+	sint32 input_vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
 	sint32 vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
 
 	/**

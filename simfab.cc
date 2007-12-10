@@ -619,6 +619,21 @@ uint32 fabrik_t::produktion(const uint32 produkt) const
 
 
 
+sint32 fabrik_t::input_vorrat_an(const ware_besch_t *typ)
+{
+	sint32 menge = -1;
+
+	for (uint32 index = 0; index < eingang.get_count(); index++) {
+		if (typ == eingang[index].gib_typ()) {
+			menge = eingang[index].menge >> precision_bits;
+			break;
+		}
+	}
+
+	return menge;
+}
+
+
 sint32 fabrik_t::vorrat_an(const ware_besch_t *typ)
 {
 	sint32 menge = -1;
