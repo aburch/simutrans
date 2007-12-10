@@ -953,7 +953,10 @@ DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.gib_max_n()
 					ribi_t::ribi rem2 = (i<verbindung.gib_max_n()) ? ribi_typ(verbindung.position_bei(i).gib_2d(),verbindung.position_bei(i+1).gib_2d()) : 0;
 					rem = ~(rem|rem2);
 
-					if(!gr->get_flag(grund_t::is_kartenboden)  &&  (gr->gib_typ()==grund_t::tunnelboden  ||  gr->gib_typ()==grund_t::monorailboden)  &&  gr->gib_weg_nr(0)->gib_waytype()==wt) {
+					if( 0&& (i==0  ||  i==verbindung.gib_max_n()) &&  gr->get_flag(grund_t::is_kartenboden)  &&  gr->gib_typ()==grund_t::tunnelboden)  {
+						gr->weg_entfernen( wt, rem );
+					}
+					else if(!gr->get_flag(grund_t::is_kartenboden)  &&  (gr->gib_typ()==grund_t::tunnelboden  ||  gr->gib_typ()==grund_t::monorailboden)  &&  gr->gib_weg_nr(0)->gib_waytype()==wt) {
 						can_delete &= gr->remove_everything_from_way(sp,wt,rem);
 						if(can_delete  &&  gr->gib_weg(wt)==NULL) {
 							if(gr->gib_weg_nr(0)!=0) {
@@ -1523,29 +1526,34 @@ int wkz_halt(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 	}
 
 	bool success = false;
-	const char *msg = NULL;
+	const char *msg = "Das Feld gehoert\neinem anderen Spieler\n";
 
-	const haus_besch_t *besch=(const haus_besch_t *)value.p;
-	switch (besch->gib_utyp()) {
-		case haus_besch_t::bahnhof:
-			success = wkz_halt_aux(sp, welt, pos, msg, besch, track_wt,    umgebung_t::cst_multiply_station,     "BF");
-			break;
-		case haus_besch_t::monorailstop:
-			success = wkz_halt_aux(sp, welt, pos, msg, besch, monorail_wt, umgebung_t::cst_multiply_station,     "BF");
-			break;
-		case haus_besch_t::bushalt:
-		case haus_besch_t::ladebucht:
-			success = wkz_halt_aux(sp, welt, pos, msg, besch, road_wt,     umgebung_t::cst_multiply_roadstop,    "H");
-			break;
-		case haus_besch_t::binnenhafen:
-			success = wkz_halt_aux(sp, welt, pos, msg, besch, water_wt,    umgebung_t::cst_multiply_dock,        "Dock");
-			break;
-		case haus_besch_t::airport:
-			success = wkz_halt_aux(sp, welt, pos, msg, besch, air_wt,      umgebung_t::cst_multiply_airterminal, "Airport");
-			break;
-		default:
-			DBG_MESSAGE("wkz_halt()", "called with unknown besch %s", besch->gib_name());
-			return false;
+	// ownership allowed?
+	halthandle_t halt = welt->lookup(pos)->gib_halt();
+	if(!halt.is_bound()  ||  sp->check_owner(halt->gib_besitzer())) {
+
+		const haus_besch_t *besch=(const haus_besch_t *)value.p;
+		switch (besch->gib_utyp()) {
+			case haus_besch_t::bahnhof:
+				success = wkz_halt_aux(sp, welt, pos, msg, besch, track_wt,    umgebung_t::cst_multiply_station,     "BF");
+				break;
+			case haus_besch_t::monorailstop:
+				success = wkz_halt_aux(sp, welt, pos, msg, besch, monorail_wt, umgebung_t::cst_multiply_station,     "BF");
+				break;
+			case haus_besch_t::bushalt:
+			case haus_besch_t::ladebucht:
+				success = wkz_halt_aux(sp, welt, pos, msg, besch, road_wt,     umgebung_t::cst_multiply_roadstop,    "H");
+				break;
+			case haus_besch_t::binnenhafen:
+				success = wkz_halt_aux(sp, welt, pos, msg, besch, water_wt,    umgebung_t::cst_multiply_dock,        "Dock");
+				break;
+			case haus_besch_t::airport:
+				success = wkz_halt_aux(sp, welt, pos, msg, besch, air_wt,      umgebung_t::cst_multiply_airterminal, "Airport");
+				break;
+			default:
+				DBG_MESSAGE("wkz_halt()", "called with unknown besch %s", besch->gib_name());
+				return false;
+		}
 	}
 
 	// we had an error?
@@ -1617,8 +1625,8 @@ int wkz_roadsign(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 		if(gr) {
 			// get the sign dirction
 			weg_t *weg = gr->gib_weg(besch->gib_wtyp());
-			signal_t s* = weg->find<signal_t>();
-			if(s  &&  s->gib_besch()==besch) {
+			signal_t *s = gr->find<signal_t>();
+			if(s  &&  s->gib_besch()!=besch) {
 				// only one signe per tile
 				create_win( new news_img(error), w_time_delete, magic_none);
 				return false;

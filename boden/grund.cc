@@ -1119,7 +1119,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 				delete d;
 			}
 			// wayobj: check dir
-			else if(d->gib_typ()==ding_t::wayobj  &&  ((wayobj_t *)d)->gib_besch()->gib_wtyp()==wt) {
+			else if(add==ribi_t::keine  &&  d->gib_typ()==ding_t::wayobj  &&  ((wayobj_t *)d)->gib_besch()->gib_wtyp()==wt) {
 				uint8 new_dir=((wayobj_t *)d)->get_dir()&add;
 				if(new_dir) {
 					// just change dir
@@ -1141,7 +1141,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 				delete d;
 			}
 			// remove tunnel portal, if not the last tile ...
-			else if((add==ribi_t::keine  ||  ist_karten_boden())  &&  d->gib_typ()==ding_t::tunnel) {
+			else if(add==ribi_t::keine  &&  d->gib_typ()==ding_t::tunnel) {
 				uint8 wt = ((tunnel_t *)d)->gib_besch()->gib_waytype();
 				if((flags&has_way2)==0  &&  weg->gib_waytype()==wt) {
 					// last way was belonging to this tunnel
