@@ -285,7 +285,16 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 
 bool depot_t::start_convoi(convoihandle_t cnv)
 {
-	if(cnv.is_bound() &&  cnv->gib_fahrplan() != NULL &&  cnv->gib_fahrplan()->ist_abgeschlossen() &&   cnv->gib_fahrplan()->maxi() > 0) {
+	// close schedule window if not yet closed
+	if(cnv.is_bound() &&  cnv->gib_fahrplan()!=NULL) {
+		if(!cnv->gib_fahrplan()->ist_abgeschlossen()) {
+			destroy_win((long)cnv->gib_fahrplan());
+			cnv->gib_fahrplan()->cleanup();
+			cnv->gib_fahrplan()->eingabe_abschliessen();
+		}
+	}
+
+	if(cnv.is_bound() &&  cnv->gib_fahrplan()!=NULL  &&  cnv->gib_fahrplan()->maxi() > 0) {
 		// if next schedule entry is this depot => advance to next entry
 		const koord3d& cur_pos = cnv->gib_fahrplan()->eintrag[cnv->gib_fahrplan()->aktuell].pos;
 		if (cur_pos == gib_pos()) {

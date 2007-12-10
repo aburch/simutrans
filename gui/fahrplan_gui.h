@@ -102,6 +102,8 @@ public:
     fahrplan_gui_t(fahrplan_t* fpl, spieler_t* sp);
     fahrplan_gui_t(convoihandle_t cnv);
 
+	~fahrplan_gui_t();
+
     /**
      * Mausklicks werden hiermit an die GUI-Komponenten
      * gemeldet

@@ -176,6 +176,15 @@ fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_) :
 
 
 
+fahrplan_gui_t::~fahrplan_gui_t()
+{
+	sp->get_welt()->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), sp->get_welt()->Z_PLAN, NO_SOUND, NO_SOUND);
+	// hide schedule on minimap (may not current, but for safe)
+	reliefkarte_t::gib_karte()->set_current_fpl(NULL, 0); // (*fpl,player_nr)
+}
+
+
+
 void fahrplan_gui_t::init()
 {
 	fpl->eingabe_beginnen();
@@ -305,7 +314,6 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 		fpl->cleanup();
 		fpl->eingabe_abschliessen();
 		karte_t* welt = sp->get_welt();
-		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, NO_SOUND, NO_SOUND);
 		if (cnv.is_bound()) {
 			// if a line is selected
 			if (new_line.is_bound()) {
@@ -321,8 +329,6 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 				cnv->unset_line();
 			}
 		}
-		// hide schedule on minimap (may not current, but for safe)
-		reliefkarte_t::gib_karte()->set_current_fpl(NULL, 0); // (*fpl,player_nr)
 	}
 	gui_frame_t::infowin_event(ev);
 }
@@ -334,71 +340,71 @@ fahrplan_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
 DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_selector);
 
-  if(komp == &bt_add) {
-    if(mode != adding) {
-      mode = adding;
-	bt_add.pressed = true;
-	bt_insert.pressed = false;
-	bt_remove.pressed = false;
+	if(komp == &bt_add) {
+		if(mode != adding) {
+			mode = adding;
+			bt_add.pressed = true;
+			bt_insert.pressed = false;
+			bt_remove.pressed = false;
 			karte_t* welt = sp->get_welt();
-      welt->setze_maus_funktion(wkz_fahrplan_add,
+			welt->setze_maus_funktion(wkz_fahrplan_add,
 				skinverwaltung_t::fahrplanzeiger->gib_bild_nr(0),
 				welt->Z_PLAN,
 				(value_t)fpl,
 				NO_SOUND,
 				NO_SOUND);
-    }
+		}
 
-  } else if(komp == &bt_insert) {
-    if(mode != inserting) {
-      mode = inserting;
-		bt_add.pressed = false;
-		bt_insert.pressed = true;
-		bt_remove.pressed = false;
+	} else if(komp == &bt_insert) {
+		if(mode != inserting) {
+			mode = inserting;
+			bt_add.pressed = false;
+			bt_insert.pressed = true;
+			bt_remove.pressed = false;
 			karte_t* welt = sp->get_welt();
-      welt->setze_maus_funktion(wkz_fahrplan_ins,
+			welt->setze_maus_funktion(wkz_fahrplan_ins,
 				skinverwaltung_t::fahrplanzeiger->gib_bild_nr(0),
 				welt->Z_PLAN,
 				(value_t)fpl,
 				NO_SOUND,
 				NO_SOUND);
-    }
+		}
 
-  } else if(komp == &bt_remove) {
-    if(mode != removing) {
-      mode = removing;
-		bt_add.pressed = false;
-		bt_insert.pressed = false;
-		bt_remove.pressed = true;
+	} else if(komp == &bt_remove) {
+		if(mode != removing) {
+			mode = removing;
+			bt_add.pressed = false;
+			bt_insert.pressed = false;
+			bt_remove.pressed = true;
 			karte_t* welt = sp->get_welt();
-      welt->setze_maus_funktion(wkz_abfrage,
-				skinverwaltung_t::fragezeiger->gib_bild_nr(0),
+			welt->setze_maus_funktion(wkz_abfrage,
+			skinverwaltung_t::fragezeiger->gib_bild_nr(0),
 				welt->Z_PLAN,
 				NO_SOUND,
 				NO_SOUND);
-    } else {
-      mode = none;
-    }
-  } else if(komp == &bt_prev) {
-    if(fpl->maxi() > 0) {
-      uint8& load = fpl->eintrag[fpl->aktuell].ladegrad;
-      uint8 index=0;
-      while(load>ladegrade[index]) {
-      	index ++;
-      }
-      load = ladegrade[(index+MAX_LADEGRADE-1)%MAX_LADEGRADE];
-    }
-  } else if(komp == &bt_next) {
-    if(fpl->maxi() > 0) {
-      uint8& load = fpl->eintrag[fpl->aktuell].ladegrad;
-      uint8 index=0;
-      while(load>ladegrade[index]) {
-      	index ++;
-      }
-      load = ladegrade[(index+1)%MAX_LADEGRADE];
-    }
-  } else if (komp == &bt_return) {
-    fpl->add_return_way();
+		} else {
+			mode = none;
+		}
+	} else if(komp == &bt_prev) {
+		if(fpl->maxi() > 0) {
+			uint8& load = fpl->eintrag[fpl->aktuell].ladegrad;
+			uint8 index=0;
+			while(load>ladegrade[index]) {
+				index ++;
+			}
+			load = ladegrade[(index+MAX_LADEGRADE-1)%MAX_LADEGRADE];
+		}
+	} else if(komp == &bt_next) {
+		if(fpl->maxi() > 0) {
+			uint8& load = fpl->eintrag[fpl->aktuell].ladegrad;
+			uint8 index=0;
+			while(load>ladegrade[index]) {
+				index ++;
+			}
+			load = ladegrade[(index+1)%MAX_LADEGRADE];
+		}
+	} else if (komp == &bt_return) {
+		fpl->add_return_way();
 	} else if (komp == &line_selector) {
 		int selection = line_selector.get_selection();
 DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);

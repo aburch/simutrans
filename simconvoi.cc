@@ -181,6 +181,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 
 	// force asynchronous recalculation
 	if(fpl) {
+		destroy_win((long)fpl);
 		if(fpl->maxi()>0) {
 			welt->set_schedule_counter();
 		}
