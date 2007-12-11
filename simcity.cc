@@ -921,6 +921,8 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	step_interval = 1;
 	next_bau_step = 0;
 
+	stadtinfo_options = 3;	// citicens and growth
+
 	besitzer_p = sp;
 
 	this->pos = pos;
@@ -1000,6 +1002,7 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 
 	wachstum = 0;
 	name = NULL;
+	stadtinfo_options = 3;
 
 	rdwr(file);
 
@@ -1098,6 +1101,8 @@ void stadt_t::rdwr(loadsave_t* file)
 				file->rdwr_longlong(city_history_month[month][hist_type], " ");
 			}
 		}
+		// save button settings for this town
+		file->rdwr_long( stadtinfo_options, "si" );
 	}
 
 	if(file->get_version()>99014  &&  file->get_version()<99016) {

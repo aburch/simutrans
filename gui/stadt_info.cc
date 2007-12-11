@@ -84,7 +84,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 		filterButtons[hist].init(button_t::box_state, translator::translate(hist_type[hist]), koord(4+(hist%4)*100,270+(hist/4)*(BUTTON_HEIGHT+4)), koord(96, BUTTON_HEIGHT));
 		filterButtons[hist].add_listener(this);
 		filterButtons[hist].background = hist_type_color[hist];
-		filterButtons[hist].pressed = hist<2;
+		filterButtons[hist].pressed = (stadt->stadtinfo_options & (1<<hist))!=0;
 		add_komponente(filterButtons + hist);
 	}
 }
@@ -146,10 +146,12 @@ bool stadt_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		if (komp == &filterButtons[i]) {
 			filterButtons[i].pressed ^= 1;
 			if (filterButtons[i].pressed) {
+				stadt->stadtinfo_options |= (1<<i);
 				chart.show_curve(i);
 				mchart.show_curve(i);
 			}
 			else {
+				stadt->stadtinfo_options &= ~(1<<i);
 				chart.hide_curve(i);
 				mchart.hide_curve(i);
 			}

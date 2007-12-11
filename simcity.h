@@ -159,6 +159,8 @@ public:
 	// just needed by stadt_info.cc
 	static inline karte_t* get_welt() { return welt; }
 
+	uint32 stadtinfo_options;
+
 	/* end of histroy related thingies */
 private:
 	sint32 best_haus_wert;
