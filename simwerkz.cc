@@ -1595,8 +1595,7 @@ DBG_MESSAGE("wkz_senke()","no factory near (%i,%i)",pos.x, pos.y);
 		}
 		// now decide from the string whether a source or drain is built
 		grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-		size_t fab_name_len = strlen( fab->gib_besch()->gib_name() );
-		if(fab_name_len>11   &&  (strcmp(fab->gib_besch()->gib_name()+fab_name_len-9, "kraftwerk")==0  ||  strcmp(fab->gib_besch()->gib_name()+fab_name_len-11, "Power Plant")==0)) {
+		if(fab->gib_besch()->is_electricity_producer()) {
 			pumpe_t *p = new pumpe_t(welt, gr->gib_pos(), sp);
 			gr->obj_add( p );
 			p->laden_abschliessen();

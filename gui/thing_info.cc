@@ -131,6 +131,7 @@ ding_infowin_t::calc_draw_info( koord pos, bool draw ) const
  */
 void ding_infowin_t::zeichnen(koord pos, koord gr)
 {
+	set_dirty();
 	gui_frame_t::setze_name( gib_name() );
 	gui_frame_t::zeichnen( pos, gr );
 

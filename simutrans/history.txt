@@ -7,6 +7,10 @@
 	CHANGE: town growth is now stimulated by 40% passenger transport, 20% Mail transport, and 30% for not leaving storage of consumers with workers from this town empty
 	FIX: powerlines and tunnel entries more intelligently handled during wayremoval
 	CHANGE/FIX: close schedule windows when delting a convoi or starting one from depot (removing the annoying error message when entering schedule is in progress) "Es wird bereits\nein Fahrplan\neingegeben\n"
+	CHANGE: electricity production of a power station is now fixed at 4x nominal production (does not matter how much transformers => no cheating with solar plants)
+	FIX: smoke offset revisited
+	FIX: thing info is always redrawed => less redrawing errors
+	FIX: headquarter was alsways added during drawing to money dialoge => to time left for event processing
 
 
 

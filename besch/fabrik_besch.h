@@ -165,6 +165,7 @@ private:
 	uint16 produkte;
 	uint8 fields;	// only if there are any ...
 	uint16 pax_level;
+	bool electricity_producer;
 
 public:
 	/*
@@ -204,6 +205,8 @@ public:
 
 	/* level for post and passenger generation */
 	int gib_pax_level() const { return pax_level; }
+
+	int is_electricity_producer() const { return electricity_producer; }
 };
 
 #endif

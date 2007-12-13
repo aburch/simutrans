@@ -145,6 +145,8 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	prodbase = besch->gib_produktivitaet() + simrand(besch->gib_bereich());
 
 	delta_sum = 0;
+	currently_producing = false;
+	power = 0;
 	last_lieferziel_start = 0;
 	total_input = total_output = 0;
 	status = nothing;
@@ -712,14 +714,29 @@ void fabrik_t::step(long delta_t)
 
 	if(delta_sum > PRODUCTION_DELTA_T) {
 
+		// Zeituhr zurücksetzen
+		uint32 n_intervall = 0;
+		while(  delta_sum>PRODUCTION_DELTA_T  ) {
+			delta_sum -= PRODUCTION_DELTA_T;
+			n_intervall ++;
+		}
+
 		// produce nothing/consumes nothing ...
 		if (eingang.empty() && ausgang.empty()) {
-			delta_sum += PRODUCTION_DELTA_T;
+			// power station? => store power
+			if(besch->is_electricity_producer()) {
+				currently_producing = true;
+				power = prodbase*n_intervall*PRODUCTION_DELTA_T*4;
+			}
+			// otherwise nothing to do ...
 			return;
 		}
 
-		INT_CHECK("simfab 558");
-//DBG_DEBUG("fabrik_t::step()","%s",besch->gib_name());
+		// not a producer => then consume electricity ...
+		if(!besch->is_electricity_producer()) {
+			// one may be thinking of linking this to actual production only
+			prodfaktor = 16 + (16*power)/(n_intervall*prodbase*PRODUCTION_DELTA_T);
+		}
 
 		// this we need to find out, if the was any production/consumption going on
 		// if not no fields will grow and no smokestacks will smoke
@@ -735,11 +752,16 @@ void fabrik_t::step(long delta_t)
 		const uint32 ecount = eingang.get_count();
 		uint32 index = 0;
 		uint32 produkt=0;
-		bool is_currently_producing = false;
+		currently_producing = false;
 
 		if (ausgang.empty()) {
 			// consumer only ...
-			uint32 menge = produktion(produkt) * (delta_sum/PRODUCTION_DELTA_T);
+			uint32 menge = produktion(produkt) * n_intervall;
+
+			// power stattion => store power
+			if(besch->is_electricity_producer()) {
+				power = prodbase*n_intervall*PRODUCTION_DELTA_T*4;
+			}
 
 			// finally consume stock
 			for(index = 0; index<ecount; index ++) {
@@ -749,7 +771,7 @@ void fabrik_t::step(long delta_t)
 
 				if ((uint32)eingang[index].menge > v) {
 					eingang[index].menge -= v;
-					is_currently_producing = true;
+					currently_producing = true;
 				}
 				else {
 					eingang[index].menge = 0;
@@ -757,7 +779,6 @@ void fabrik_t::step(long delta_t)
 			}
 		}
 		else {
-
 			// ok, calulate maximum allowed consumption
 			uint32 max_menge = 0x7FFFFFFF;
 			uint32 consumed_menge = 0;
@@ -778,10 +799,7 @@ void fabrik_t::step(long delta_t)
 				if(ecount>0) {
 
 					// calculate production
-					uint32 p_menge = 0;
-					for( sint32 i=delta_sum/PRODUCTION_DELTA_T;  i>0;  i--  ) {
-						p_menge += produktion(produkt);
-					}
+					const uint32 p_menge = produktion(produkt)*n_intervall;
 					menge = p_menge < max_menge ? p_menge : max_menge;  // production smaller than possible due to consumption
 					if(menge>consumed_menge) {
 						consumed_menge = menge;
@@ -790,10 +808,7 @@ void fabrik_t::step(long delta_t)
 				}
 				else {
 					// source producer
-					menge = 0;
-					for( sint32 i=delta_sum/PRODUCTION_DELTA_T;  i>0;  i--  ) {
-						menge += produktion(produkt);
-					}
+					menge = produktion(produkt)*n_intervall;
 				}
 
 				const uint32 pb = besch->gib_produkt(produkt)->gib_faktor();
@@ -802,7 +817,7 @@ void fabrik_t::step(long delta_t)
 				// produce
 				if (ausgang[produkt].menge < ausgang[produkt].max) {
 					ausgang[produkt].menge += p;
-					is_currently_producing = true;
+					currently_producing = true;
 				} else {
 					ausgang[produkt].menge = ausgang[produkt].max - 1;
 				}
@@ -816,17 +831,13 @@ void fabrik_t::step(long delta_t)
 
 				if ((uint32)eingang[index].menge > v) {
 					eingang[index].menge -= v;
-					is_currently_producing = true;
+					currently_producing = true;
 				}
 				else {
 					eingang[index].menge = 0;
 				}
 			}
-		}
 
-		// Zeituhr zurücksetzen
-		while(  delta_sum>PRODUCTION_DELTA_T) {
-			delta_sum -= PRODUCTION_DELTA_T;
 		}
 
 		// this we need to find out, if the was any production/consumption going on
@@ -848,14 +859,21 @@ void fabrik_t::step(long delta_t)
 				INT_CHECK("simfab 636");
 			}
 		}
+
+		// not a power station => then consume all electricity ...
+		if(!besch->is_electricity_producer()) {
+			/* one may thing of linking this to actual production */
+			power = 0;
+		}
+
 		recalc_factory_status();
 
-		if(total_amount!=total_amount_end) {
+		if(total_amount!=total_amount_end  ||  currently_producing) {
 			// let the chimney smoke
 			const rauch_besch_t *rada = besch->gib_rauch();
 			if(rada) {
 				grund_t *gr=welt->lookup_kartenboden(pos.gib_2d()+rada->gib_pos_off());
-				wolke_t *smoke =  new wolke_t(welt, pos+rada->gib_pos_off(), rada->gib_xy_off().x+simrand(7)-3, rada->gib_xy_off().y+simrand(7)-3, rada->gib_bilder()->gib_bild_nr(0), false );
+				wolke_t *smoke =  new wolke_t(welt, pos+rada->gib_pos_off(), ((rada->gib_xy_off().x+simrand(7)-3)*TILE_STEPS)/16, ((rada->gib_xy_off().y+simrand(7)-3)*TILE_STEPS)/16, rada->gib_bilder()->gib_bild_nr(0), false );
 
 				bool add_ok=gr->obj_add(smoke);
 				assert(add_ok);
@@ -866,6 +884,8 @@ void fabrik_t::step(long delta_t)
 				// spawn new field with given probablitily
 				add_random_field(besch->gib_field()->gib_probability());
 			}
+
+			INT_CHECK("simfab 558");
 		}
 
 	}

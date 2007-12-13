@@ -461,11 +461,11 @@ pumpe_t::sync_step(long delta_t)
 		return false;
 	}
 	image_id new_bild;
-	if (!fab->gib_eingang().empty() && fab->gib_eingang()[0].menge <= 0) {
+	if (!fab->is_currently_producing()) {
 		new_bild = skinverwaltung_t::pumpe->gib_bild_nr(0);
 	} else {
 		// no input needed or has something to consume
-		get_net()->add_power(delta_t*fab->get_base_production()*5);
+		get_net()->add_power(fab->get_power());
 		new_bild = skinverwaltung_t::pumpe->gib_bild_nr(1);
 	}
 	if(bild!=new_bild) {
@@ -485,9 +485,6 @@ pumpe_t::laden_abschliessen()
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
-		if(fab) {
-			fab->set_prodfaktor( fab->get_prodfaktor()*2 );
-		}
 	}
 	welt->sync_add(this);
 }
@@ -532,8 +529,9 @@ senke_t::sync_step(long time)
 		return false;
 	}
 
-	int want_power = time*fab->get_base_production();
-	int get_power = get_net()->withdraw_power(want_power);
+	uint32 want_power = time*fab->get_base_production();
+	uint32 get_power = get_net()->withdraw_power(want_power);
+	fab->add_power( get_power );
 	image_id new_bild;
 	if(get_power>want_power/2) {
 		new_bild = skinverwaltung_t::senke->gib_bild_nr(1);
@@ -547,7 +545,6 @@ senke_t::sync_step(long time)
 	max_einkommen += want_power;
 	einkommen += get_power;
 
-	int faktor = (16*einkommen+16)/max_einkommen;
 	if(max_einkommen>(2000<<11)) {
 		gib_besitzer()->buche(einkommen >> 11, gib_pos().gib_2d(), COST_POWERLINES);
 		gib_besitzer()->buche(einkommen >> 11, gib_pos().gib_2d(), COST_INCOME);
@@ -555,7 +552,6 @@ senke_t::sync_step(long time)
 		max_einkommen = 1;
 	}
 
-	fab->set_prodfaktor( 16+faktor );
 	return true;
 }
 

@@ -50,7 +50,7 @@ world_view_t::world_view_t(const ding_t* dt) :
  */
 void world_view_t::infowin_event(const event_t* ev)
 {
-	if (IS_LEFTRELEASE(ev)) {
+	if(IS_LEFTRELEASE(ev)) {
 		const koord3d& pos = (ding != NULL ? ding->gib_pos() : location);
 		if (welt->ist_in_kartengrenzen(pos.gib_2d())) {
 			welt->change_world_position(pos);

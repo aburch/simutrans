@@ -132,6 +132,12 @@ private:
 	 */
 	sint32 delta_sum;
 
+	// true, if the factory did produce something in the last step
+	bool currently_producing;
+
+	// power that can be currently drawn from this station (or the amount delivered)
+	uint32 power;
+
 	uint32 total_input, total_output;
 	uint8 status;
 
@@ -203,6 +209,15 @@ public:
 	 */
 	sint32 input_vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
 	sint32 vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
+
+	// returns all power and consume it
+	uint32 get_power() { uint32 p=power; power=0; return p; }
+
+	// give power to the factory to consume ...
+	void add_power(uint32 p) { power += p; }
+
+	// true, if there was production in the last step
+	bool is_currently_producing() const { return currently_producing; }
 
 	/**
 	 * @return 1 wenn verbrauch,

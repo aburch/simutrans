@@ -380,6 +380,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 		headquarter_view.set_location( sp->get_welt()->lookup_kartenboden(sp->get_headquarter_pos())->gib_pos() );
 		headquarter.setze_text( "upgrade HQ" );
 		add_komponente(&headquarter_view);
+		old_hq = sp->get_headquarter_pos();
 	}
 	if(sp!=sp->get_welt()->get_active_player()) {
 		headquarter.disable();

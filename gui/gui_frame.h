@@ -45,9 +45,13 @@ private:
 	const spieler_t *owner;
 
 	bool opaque:1;
+
+	// set true for total redraw
 	bool dirty:1;
 
 protected:
+	void set_dirty() { dirty=1; }
+
 	/**
 	 * resize window in response to a resize event
 	 * @author Markus Weber, Hj. Malthaner

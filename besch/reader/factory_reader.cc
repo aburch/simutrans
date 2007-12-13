@@ -219,5 +219,7 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 void factory_reader_t::register_obj(obj_besch_t *&data)
 {
 	fabrik_besch_t* besch = static_cast<fabrik_besch_t*>(data);
+	size_t fab_name_len = strlen( besch->gib_name() );
+	besch->electricity_producer = ( fab_name_len>11   &&  (strcmp(besch->gib_name()+fab_name_len-9, "kraftwerk")==0  ||  strcmp(besch->gib_name()+fab_name_len-11, "Power Plant")==0) );
 	fabrikbauer_t::register_besch(besch);
 }
