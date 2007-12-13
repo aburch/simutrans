@@ -745,7 +745,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		b[3] = umgebung_t::use_transparency_station_coverage;
 		b[4] = umgebung_t::station_coverage_show;
 		b[5] = umgebung_t::show_names;
-		fscanf(config, "Visual=%d,%d,%d,%d,%d\n", &b[0], &b[1], &b[2], &b[3], &b[4], &b[5] );
+		fscanf(config, "Visual=%d,%d,%d,%d,%d,%d\n", &b[0], &b[1], &b[2], &b[3], &b[4], &b[5] );
 		umgebung_t::hide_with_transparency = b[0]!=0;
 		umgebung_t::hide_trees = b[1]!=0;
 		umgebung_t::hide_buildings = b[2];
