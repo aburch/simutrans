@@ -23,8 +23,8 @@
 const char *hist_type[MAX_CITY_HISTORY] =
 {
   "citicens", "Growth", "Buildings", "Electricity",
-  "Transported", "Passagiere", "Sended", "Post",
-  "Arrived", "Goods"
+  "Transported", "Passagiere", "sended", "Post",
+  "arrived", "Goods"
 };
 
 
@@ -56,7 +56,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	chart.set_background(MN_GREY1);
 	int i;
 	for (i = 0; i<MAX_CITY_HISTORY; i++) {
-		chart.add_curve(hist_type_color[i], stadt->get_city_history_year(), MAX_CITY_HISTORY, i, 12, STANDARD, i < 2, true);
+		chart.add_curve(hist_type_color[i], stadt->get_city_history_year(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true);
 	}
 	//CHART YEAR END
 
@@ -82,10 +82,13 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	// add filter buttons
 	for (int hist=0;hist<MAX_CITY_HISTORY;hist++) {
 		filterButtons[hist].init(button_t::box_state, translator::translate(hist_type[hist]), koord(4+(hist%4)*100,270+(hist/4)*(BUTTON_HEIGHT+4)), koord(96, BUTTON_HEIGHT));
-		filterButtons[hist].add_listener(this);
 		filterButtons[hist].background = hist_type_color[hist];
 		filterButtons[hist].pressed = (stadt->stadtinfo_options & (1<<hist))!=0;
-		add_komponente(filterButtons + hist);
+		// skip electricity
+		if(hist!=3) {
+			filterButtons[hist].add_listener(this);
+			add_komponente(filterButtons + hist);
+		}
 	}
 }
 
