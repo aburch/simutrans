@@ -1379,9 +1379,19 @@ void stadt_t::neuer_monat()
 	if (!stadtauto_t::list_empty()) {
 		// spawn eventuall citycars
 		// the more transported, the less are spawned
-		// with default density (8) for a city with 2000 people (=> ca. 1000 not transported) a car is spawned per month on average
-		double factor = log10((double)city_history_month[1][HIST_PAS_GENERATED]-(double)city_history_month[1][HIST_PAS_TRANSPORTED]+1.0) * (double)welt->gib_einstellungen()->gib_verkehr_level();
-		uint16 number_of_cars = simrand( ((uint16)factor) )/16;
+		// the larger the city, the more spawned ...
+
+		double pfactor = (double)(city_history_month[1][HIST_PAS_TRANSPORTED]) / (double)(city_history_month[1][HIST_PAS_GENERATED]+1);
+		double mfactor = (double)(city_history_month[1][HIST_MAIL_TRANSPORTED]) / (double)(city_history_month[1][HIST_MAIL_GENERATED]+1);
+		double gfactor = (double)(city_history_month[1][HIST_GOODS_RECIEVED]) / (double)(city_history_month[1][HIST_GOODS_NEEDED]+1);
+
+		double factor = pfactor > mfactor ? (gfactor > pfactor ? gfactor : pfactor ) : mfactor;
+		factor = (1.0-factor)*city_history_month[1][HIST_CITICENS];
+		factor = log10( factor );
+		uint16 number_of_cars = simrand( (uint16)(factor * (double)welt->gib_einstellungen()->gib_verkehr_level()) ) / 16;
+
+		city_history_month[0][HIST_CITYCARS] = number_of_cars;
+		city_history_year[0][HIST_CITYCARS] += number_of_cars;
 
 		koord k;
 		koord pos = gib_zufallspunkt();

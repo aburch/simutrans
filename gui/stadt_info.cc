@@ -22,9 +22,9 @@
 // @author hsiegeln
 const char *hist_type[MAX_CITY_HISTORY] =
 {
-  "citicens", "Growth", "Buildings", "Electricity",
+  "citicens", "Growth", "Buildings", "Verkehrsteilnehmer",
   "Transported", "Passagiere", "sended", "Post",
-  "arrived", "Goods"
+  "arrived", "Goods", "Electricity"
 };
 
 
@@ -80,15 +80,13 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	add_komponente(&year_month_tabs);
 
 	// add filter buttons
-	for (int hist=0;hist<MAX_CITY_HISTORY;hist++) {
+	for(  int hist=0;  hist<MAX_CITY_HISTORY-1;  hist++  ) {
 		filterButtons[hist].init(button_t::box_state, translator::translate(hist_type[hist]), koord(4+(hist%4)*100,270+(hist/4)*(BUTTON_HEIGHT+4)), koord(96, BUTTON_HEIGHT));
 		filterButtons[hist].background = hist_type_color[hist];
 		filterButtons[hist].pressed = (stadt->stadtinfo_options & (1<<hist))!=0;
 		// skip electricity
-		if(hist!=3) {
-			filterButtons[hist].add_listener(this);
-			add_komponente(filterButtons + hist);
-		}
+		filterButtons[hist].add_listener(this);
+		add_komponente(filterButtons + hist);
 	}
 }
 

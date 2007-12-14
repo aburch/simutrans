@@ -27,18 +27,19 @@ class cbuffer_t;
 
 #define MAX_CITY_HISTORY_YEARS  12 // number of years to keep history
 #define MAX_CITY_HISTORY_MONTHS  12 // number of months to keep history
-#define MAX_CITY_HISTORY 10      // Total number of items in array
+#define MAX_CITY_HISTORY 11      // Total number of items in array
 
 #define HIST_CITICENS 0	// total people
 #define HIST_GROWTH 1 // growth (just for convenience)
 #define HIST_BUILDING 2
-#define HIST_POWER_RECIEVED 3
+#define HIST_CITYCARS 3
 #define HIST_PAS_TRANSPORTED 4
 #define HIST_PAS_GENERATED 5
 #define HIST_MAIL_TRANSPORTED 6
 #define HIST_MAIL_GENERATED 7
 #define HIST_GOODS_RECIEVED 8
 #define HIST_GOODS_NEEDED 9
+#define HIST_POWER_RECIEVED 10
 
 
 
