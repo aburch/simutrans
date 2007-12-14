@@ -3129,7 +3129,7 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 		{
 			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
 				const convoihandle_t cnv = *i;
-				if(cnv->gib_besitzer()==this) {
+				if(cnv->gib_besitzer()==this  &&  (cnv->gib_vehikel(0)->gib_waytype()==road_wt  ||  cnv->gib_vehikel(0)->gib_waytype()==water_wt)) {
 					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 					// take care, that the vehicle is old enough ...
 					if((welt->get_current_month()-cnv->gib_vehikel(0)->gib_insta_zeit())>2  &&  cnv->gib_jahresgewinn()==0  ){
