@@ -105,9 +105,21 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main
 
 	for(i=n=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
 		const ware_besch_t *ware = warenbauer_t::gib_info(i);
-		if(ware != warenbauer_t::nichts) {
+		if(ware == warenbauer_t::nichts) {
+			continue;
+		}
+		if(ware->gib_catg()==0) {
+			// Sonderfracht: Each good is special
 			ware_item_t *item = new ware_item_t(this, ware);
 			item->init(button_t::square, translator::translate(ware->gib_name()), koord(16, 16*n++ + 4));
+			ware_cont.add_komponente(item);
+		}
+	}
+	// no add goo categories
+	for(i=1; i<warenbauer_t::gib_max_catg_index(); i++) {
+		if(warenbauer_t::gib_info_catg(i)->gib_catg()!=0) {
+			ware_item_t *item = new ware_item_t(this, warenbauer_t::gib_info_catg(i));
+			item->init(button_t::square, translator::translate(warenbauer_t::gib_info_catg(i)->gib_catg_name()), koord(16, 16*n++ + 4));
 			ware_cont.add_komponente(item);
 		}
 	}
@@ -167,7 +179,17 @@ bool convoi_filter_frame_t::action_triggered(gui_komponente_t *komp,value_t /* *
 
 void convoi_filter_frame_t::ware_item_triggered(const ware_besch_t *ware)
 {
-	main_frame->setze_ware_filter(ware, -1);
+	if(ware->gib_catg()==0) {
+		main_frame->setze_ware_filter(ware, -1);
+	}
+	else {
+		for(uint8 i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
+			const ware_besch_t *testware = warenbauer_t::gib_info(i);
+			if(testware->gib_catg() == ware->gib_catg()) {
+				main_frame->setze_ware_filter(testware, -1);
+			}
+		}
+	}
 	main_frame->sort_list();
 }
 

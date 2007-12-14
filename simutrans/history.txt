@@ -12,6 +12,7 @@
 	FIX: thing info is always redrawed => less redrawing errors
 	FIX: headquarter was alsways added during drawing to money dialoge => to time left for event processing
 	FIX: remove trees below monorail depot
+	FIX: good filter now works with categories
 
 
 

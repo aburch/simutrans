@@ -972,14 +972,23 @@ next_name:;
 	wachstum = 0;
 	change_size( citizens );
 
+	// fill with start citicens ...
+	sint64 bew = gib_einwohner();
+	for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
+		city_history_year[year][HIST_CITICENS] = bew;
+	}
+	for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) {
+		city_history_month[month][HIST_CITICENS] = bew;
+	}
+
 	// initialize history array
 	for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
-		for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
+		for (uint hist_type = 1; hist_type < MAX_CITY_HISTORY; hist_type++) {
 			city_history_year[year][hist_type] = 0;
 		}
 	}
 	for (uint month = 0; month < MAX_CITY_HISTORY_YEARS; month++) {
-		for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
+		for (uint hist_type = 1; hist_type < MAX_CITY_HISTORY; hist_type++) {
 			city_history_month[month][hist_type] = 0;
 		}
 	}
@@ -1145,7 +1154,7 @@ void stadt_t::laden_abschliessen()
 		setze_name( "simcity" );
 	}
 
-	// very young city => need to grow again
+	// new city => need to grow
 	if(buildings.get_count()==0) {
 		step_bau();
 	}

@@ -335,7 +335,7 @@ void convoi_frame_t::zeichnen(koord pos, koord gr)
 
 void convoi_frame_t::setze_ware_filter(const ware_besch_t *ware, int mode)
 {
-	if(ware != warenbauer_t::nichts) {
+	if(ware!=warenbauer_t::nichts) {
 		if(gib_ware_filter(ware)) {
 			if(mode != 1) {
 				waren_filter.remove(ware);
