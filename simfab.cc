@@ -738,21 +738,10 @@ void fabrik_t::step(long delta_t)
 			prodfaktor = 16 + (16*power)/(n_intervall*prodbase*PRODUCTION_DELTA_T);
 		}
 
-		// this we need to find out, if the was any production/consumption going on
-		// if not no fields will grow and no smokestacks will smoke
-		uint32 total_amount = 0;
-		for (uint32 produkt = 0; produkt < eingang.get_count(); produkt++) {
-			total_amount += eingang[produkt].menge;
-		}
-		for (uint32 produkt = 0; produkt < ausgang.get_count(); produkt++) {
-			total_amount += ausgang[produkt].menge;
-		}
-		total_amount >>=  precision_bits;
-
 		const uint32 ecount = eingang.get_count();
 		uint32 index = 0;
 		uint32 produkt=0;
-		currently_producing = false;
+		currently_producing = false;	// needed for smoke, field growth ...
 
 		if (ausgang.empty()) {
 			// consumer only ...
@@ -780,15 +769,15 @@ void fabrik_t::step(long delta_t)
 		}
 		else {
 			// ok, calulate maximum allowed consumption
-			uint32 max_menge = 0x7FFFFFFF;
+			uint32 min_menge = 0x7FFFFFFF;
 			uint32 consumed_menge = 0;
 			for(index = 0; index < ecount; index ++) {
 				// verbrauch fuer eine Einheit des Produktes (in 1/256)
 				const uint32 vb = besch->gib_lieferant(index)->gib_verbrauch();
 				const uint32 n = eingang[index].menge * 256 / vb;
 
-				if(n<max_menge) {
-					max_menge = n;    // finde geringsten vorrat
+				if(n<min_menge) {
+					min_menge = n;    // finde geringsten vorrat
 				}
 			}
 
@@ -800,7 +789,7 @@ void fabrik_t::step(long delta_t)
 
 					// calculate production
 					const uint32 p_menge = produktion(produkt)*n_intervall;
-					menge = p_menge < max_menge ? p_menge : max_menge;  // production smaller than possible due to consumption
+					menge = p_menge < min_menge ? p_menge : min_menge;  // production smaller than possible due to consumption
 					if(menge>consumed_menge) {
 						consumed_menge = menge;
 					}
@@ -817,7 +806,7 @@ void fabrik_t::step(long delta_t)
 				// produce
 				if (ausgang[produkt].menge < ausgang[produkt].max) {
 					ausgang[produkt].menge += p;
-					currently_producing = true;
+					currently_producing = (p>0);
 				} else {
 					ausgang[produkt].menge = ausgang[produkt].max - 1;
 				}
@@ -831,7 +820,7 @@ void fabrik_t::step(long delta_t)
 
 				if ((uint32)eingang[index].menge > v) {
 					eingang[index].menge -= v;
-					currently_producing = true;
+					currently_producing = (v>0);
 				}
 				else {
 					eingang[index].menge = 0;
@@ -839,18 +828,6 @@ void fabrik_t::step(long delta_t)
 			}
 
 		}
-
-		// this we need to find out, if the was any production/consumption going on
-		// if not no fields will grow and no smokestacks will smoke
-		uint32 total_amount_end = 0;
-		for (uint32 produkt = 0; produkt < eingang.get_count(); produkt++) {
-			total_amount_end += eingang[produkt].menge;
-		}
-		for (uint32 produkt = 0; produkt < ausgang.get_count(); produkt++) {
-			total_amount_end += ausgang[produkt].menge;
-		}
-		total_amount_end >>=  precision_bits;
-		currently_producing = (total_amount!=total_amount_end);
 
 		// not a power station => then consume all electricity ...
 		if(!besch->is_electricity_producer()) {
