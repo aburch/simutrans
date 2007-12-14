@@ -850,6 +850,14 @@ void fabrik_t::step(long delta_t)
 			total_amount_end += ausgang[produkt].menge;
 		}
 		total_amount_end >>=  precision_bits;
+		currently_producing = (total_amount!=total_amount_end);
+
+		// not a power station => then consume all electricity ...
+		if(!besch->is_electricity_producer()) {
+			// one may think of linking this to actual production
+			// IMPORTANT: reset this to zero *before* any INT_CHECK!
+			power = 0;
+		}
 
 		// distribute, if there are more than 10 waiting ...
 		for(  uint32 produkt = 0;  produkt < ausgang.get_count();  produkt++  ) {
@@ -860,15 +868,9 @@ void fabrik_t::step(long delta_t)
 			}
 		}
 
-		// not a power station => then consume all electricity ...
-		if(!besch->is_electricity_producer()) {
-			/* one may thing of linking this to actual production */
-			power = 0;
-		}
-
 		recalc_factory_status();
 
-		if(total_amount!=total_amount_end  ||  currently_producing) {
+		if(currently_producing) {
 			// let the chimney smoke
 			const rauch_besch_t *rada = besch->gib_rauch();
 			if(rada) {

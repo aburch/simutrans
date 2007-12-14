@@ -575,7 +575,7 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 	else {
 		// remove upper ways ...
 		if(gr->gib_weg_nr(1)) {
-			gr->weg_entfernen(gr->gib_weg_nr(1)->gib_waytype(), true);
+			cost_sum = gr->weg_entfernen(gr->gib_weg_nr(1)->gib_waytype(), true);
 		}
 		else {
 			// delete tunnel here ...
@@ -1797,10 +1797,10 @@ int wkz_depot(spieler_t *sp, karte_t *welt, koord pos,value_t w)
 		return wkz_depot_aux( sp, welt, pos, besch, track_wt, umgebung_t::cst_depot_rail );
 	}
 	else if(hausbauer_t::monorail_depot_besch==besch) {
-		// since it need also a foundations, ots slightly more complex ...
+		// since it need also a foundations, this is slightly more complex ...
 		if( wkz_depot_aux( sp, welt, pos, besch, monorail_wt, umgebung_t::cst_depot_rail ) ) {
 			grund_t *bd = welt->lookup(pos)->gib_kartenboden();
-			if(bd->gib_depot()==NULL  &&  bd->first_obj()==NULL) {
+			if(bd->ist_natur()) {
 				hausbauer_t::baue( welt, sp, bd->gib_pos(), 0, hausbauer_t::monorail_foundation_besch );
 			}
 		}
