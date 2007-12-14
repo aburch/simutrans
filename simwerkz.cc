@@ -1630,6 +1630,11 @@ int wkz_roadsign(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 				create_win( new news_img(error), w_time_delete, magic_none);
 				return false;
 			}
+			if(besch->is_signal()  &&  gr->find<roadsign_t>())  {
+				// only one sign per tile
+				create_win( new news_img(error), w_time_delete, magic_none);
+				return false;
+			}
 			ribi_t::ribi dir = weg->gib_ribi_unmasked();
 
 			const bool two_way = besch->is_single_way()  ||  besch->is_signal() ||  besch->is_pre_signal();
