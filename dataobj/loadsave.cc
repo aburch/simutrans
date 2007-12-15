@@ -120,7 +120,7 @@ const char *loadsave_t::close()
 			gzclose(fp);
 		}
 		else {
-			int err_no =ferror(fp);
+			int err_no = ferror(fp);
 			fclose(fp);
 			if(err_no!=0) {
 				success = strerror(err_no);
@@ -339,20 +339,25 @@ void loadsave_t::rdwr_str(const char *&s, const char *null_s)
 			size = s ? strlen(s) : 0;
 #ifdef BIG_ENDIAN
 			{
-				sint16 ii = (sint16)endian_uint16((uint16 *)&size);
+				uint16 ii = endian_uint16((uint16 *)&size);
 				write(&ii, sizeof(sint16));
 			}
 #else
-			write(&size, sizeof(short));
+			write(&size, sizeof(sint16));
 #endif
 			if(size > 0) {
 				write(s, size);
 			}
 		}
 		else {
-			read(&size, sizeof(short));
 #ifdef BIG_ENDIAN
-			size = (sint16)endian_uint16((uint16 *)&size);
+			{
+				uint16 ii;
+				read(&ii, sizeof(uint16));
+				size = (sint16)endian_uint16(&ii);
+			}
+#else
+			read(&size, sizeof(sint16));
 #endif
 			char *sneu = NULL;
 			if(size > 0) {
@@ -453,8 +458,8 @@ void loadsave_t::wr_obj_id(sint16 id)
 {
 	if(saving) {
 		if(!is_text()) {
-			char idc = (char)id;
-			write(&idc, sizeof(char));
+			uint8 idc = (uint8)id;
+			write(&idc, sizeof(uint8));
 		} else {
 			fprintf(fp, "%d\n", id);
 		}
@@ -467,9 +472,9 @@ sint16 loadsave_t::rd_obj_id()
 	sint16   id;
 	if(!saving) {
 		if(!is_text()) {
-			char idc;
-			read(&idc, sizeof(char));
-			id = idc;
+			sint8 idc;
+			read(&idc, sizeof(sint8));
+			id = (sint8)idc;
 		} else {
 			if(fgetc(fp) == 'N') {
 				fgetc(fp); // '\n' lesen
@@ -580,6 +585,9 @@ void loadsave_t::rd_str_into(char *s, const char * /*null_s*/)
 {
 	sint16 size;
 	read(&size, sizeof(sint16));
+#ifdef BIG_ENDIAN
+	size = (sint16)endian_uint16((uint16 *)&size);
+#endif
 	if(size > 0) {
 		read(s, size);
 		s[size] = '\0';

@@ -646,7 +646,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 		dbg->error("dingliste_t::laden()","Too many objects (%i) at (%i,%i), some vehicle may not appear immediately.",max_object_index,current_pos.x,current_pos.y);
 	}
 
-	for(int i=0; i<=max_object_index; i++) {
+	for(sint32 i=0; i<=max_object_index; i++) {
 		if(file->is_loading()) {
 			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
 			// DBG_DEBUG("dingliste_t::laden()", "Thing type %d", typ);

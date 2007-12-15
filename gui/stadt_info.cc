@@ -24,7 +24,7 @@ const char *hist_type[MAX_CITY_HISTORY] =
 {
   "citicens", "Growth", "Buildings", "Verkehrsteilnehmer",
   "Transported", "Passagiere", "sended", "Post",
-  "arrived", "Goods", "Electricity"
+  "Arrived", "Goods", "Electricity"
 };
 
 
