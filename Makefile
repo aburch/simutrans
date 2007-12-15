@@ -2,7 +2,7 @@ CONFIG ?= config.default
 -include $(CONFIG)
 
 
-BACKENDS      = allegro gdi sdl x11
+BACKENDS      = allegro gdi sdl mixer_sdl x11
 COLOUR_DEPTHS = 8 16
 OSTYPES       = beos cygwin freebsd linux mingw mac
 
@@ -341,13 +341,18 @@ endif
 
 ifeq ($(BACKEND), sdl)
   ifeq ($(findstring $(OSTYPE), cygwin mingw),)
-    SOURCES += sound/sdl_mixer_sound.c
-    SOURCES += music/sdl_midi.c
-    SDL_LDFLAGS += -lSDL_mixer
+    SOURCES += sound/sdl_sound.c
+    SOURCES += music/no_midi.c
   else
     SOURCES += sound/sdl_sound.c
     SOURCES += music/w32_midi.c
   endif
+endif
+
+ifeq ($(BACKEND), mixer_sdl)
+    SOURCES += sound/sdl_mixer_sound.c
+    SOURCES += music/sdl_midi.c
+    SDL_LDFLAGS += -lSDL_mixer
 endif
 
 ifeq ($(BACKEND), allegro)
