@@ -146,7 +146,7 @@ void
 leitung_t::entferne(spieler_t *sp)
 {
 	if(sp) {
-		sp->buche( wegbauer_t::leitung_besch->gib_preis()/2, gib_pos().gib_2d(), COST_CONSTRUCTION);
+		sp->buche( -wegbauer_t::leitung_besch->gib_preis()/2, gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
 	mark_image_dirty( bild, 0 );
 }
@@ -438,6 +438,9 @@ pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
 {
 	fab = NULL;
+	if(sp) {
+		sp->buche( -umgebung_t::cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
+	}
 }
 
 
@@ -481,7 +484,7 @@ void
 pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	gib_besitzer()->add_maintenance(-umgebung_t::cst_maintain_transformer-wegbauer_t::leitung_besch->gib_wartung());
+	gib_besitzer()->add_maintenance(-umgebung_t::cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
@@ -506,6 +509,9 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 	fab = NULL;
 	einkommen = 1;
 	max_einkommen = 1;
+	if(sp) {
+		sp->buche( -umgebung_t::cst_transformer+wegbauer_t::leitung_besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
+	}
 }
 
 
@@ -561,7 +567,7 @@ void
 senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	gib_besitzer()->add_maintenance(-umgebung_t::cst_maintain_transformer-wegbauer_t::leitung_besch->gib_wartung());
+	gib_besitzer()->add_maintenance(-umgebung_t::cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
