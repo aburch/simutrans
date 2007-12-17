@@ -88,7 +88,7 @@ karte_ansicht_t::display(bool force_dirty)
 			stunden2 = ((stunden2*3) / 8192) % 48;
 		}
 		else {
-			stunden2 = (ticks_this_month * 3 * 3) >> (welt->ticks_bits_per_tag-3);
+			stunden2 = ( (ticks_this_month * 3 * 3) >> (welt->ticks_bits_per_tag-3) )%48;
 		}
 		display_day_night_shift(hours2night[stunden2]);
 	}

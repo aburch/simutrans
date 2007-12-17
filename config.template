@@ -6,6 +6,7 @@
 #BACKEND = allegro
 #BACKEND = gdi
 #BACKEND = sdl
+#BACKEND = mixer_sdl
 #BACKEND = x11
 
 #COLOUR_DEPTH = 8

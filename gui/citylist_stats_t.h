@@ -23,6 +23,8 @@ namespace citylist {
 /** City list stats display */
 class citylist_stats_t : public gui_komponente_t
 {
+	uint32 line_select;
+
 	public:
 		static char total_bev_string[128];
 
