@@ -3,16 +3,16 @@
 
 #define MAKEOBJ_VERSION "48"
 
-#define VERSION_NUMBER "99.16.1 nightly"
-#define WIDE_VERSION_NUMBER L"99.16.1 nightly"
+#define VERSION_NUMBER "99.17"
+#define WIDE_VERSION_NUMBER L"99.17"
 
 #define VERSION_DATE __DATE__
 
 #define SAVEGAME_PREFIX  "Simutrans "
 
-#define SAVEGAME_VER_NR  "0.99.15"
+#define SAVEGAME_VER_NR  "0.99.16"
 #define SAVEGAME_VERSION (SAVEGAME_PREFIX SAVEGAME_VER_NR)
 
-#define RES_VERSION_NUMBER  0, 99, 16, 1
+#define RES_VERSION_NUMBER  0, 99, 17, 0
 
 #endif
