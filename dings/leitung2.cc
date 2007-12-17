@@ -439,7 +439,7 @@ pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 {
 	fab = NULL;
 	if(sp) {
-		sp->buche( -umgebung_t::cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
+		sp->buche( umgebung_t::cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
 }
 
@@ -510,7 +510,7 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 	einkommen = 1;
 	max_einkommen = 1;
 	if(sp) {
-		sp->buche( -umgebung_t::cst_transformer+wegbauer_t::leitung_besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
+		sp->buche( umgebung_t::cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
 }
 
