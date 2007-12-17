@@ -553,7 +553,7 @@ void convoi_t::drive_to_next_stop()
  */
 void convoi_t::suche_neue_route()
 {
-  state = ROUTING_1;
+	state = ROUTING_1;
 	wait_lock = 0;
 }
 
@@ -1204,6 +1204,11 @@ convoi_t::vorfahren()
 			grund_t* gr = welt->lookup(v->gib_pos());
 			if(gr) {
 				v->verlasse_feld();
+				// eventually unreserve this
+				schiene_t * sch0 = dynamic_cast<schiene_t *>( gr->gib_weg(fahr[i]->gib_waytype()) );
+				if(sch0) {
+					sch0->unreserve(v);
+				}
 			}
 			v->neue_fahrt(0, true);
 			v->betrete_feld();
@@ -1240,6 +1245,11 @@ convoi_t::vorfahren()
 				if(gr) {
 					v->mark_image_dirty( v->gib_bild(), v->gib_hoff() );
 					v->verlasse_feld();
+					// eventually unreserve this
+					schiene_t * sch0 = dynamic_cast<schiene_t *>( gr->gib_weg(fahr[i]->gib_waytype()) );
+					if(sch0) {
+						sch0->unreserve(v);
+					}
 				}
 				/* we will set by this method the pos_prev to the starting point;
 				 * otherwise it may be elsewhere, especially on curves and with already

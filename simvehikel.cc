@@ -1583,7 +1583,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 		// pruefe auf Schienenkreuzung
 		strasse_t *str=(strasse_t *)gr->gib_weg(road_wt);
 
-		if(str==NULL  ||  gr->gib_top()>200) {
+		if(str==NULL  ||  gr->gib_top()>250) {
 			// too many cars here or no street
 			return false;
 		}
@@ -1808,7 +1808,7 @@ waggon_t::waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, con
 waggon_t::~waggon_t()
 {
 	if(cnv  &&  ist_erstes  &&  route_index<cnv->get_route()->gib_max_n()+1) {
-		// free als reserved blocks
+		// free all reserved blocks
 		block_reserver( cnv->get_route(), cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->gib_route_index(), target_halt.is_bound()?1000:1, false );
 	}
 	grund_t *gr = welt->lookup(gib_pos());
@@ -1838,20 +1838,25 @@ waggon_t::setze_convoi(convoi_t *c)
 			else {
 				// eventually reserve new route
 				if(c  &&  c->get_state()==convoi_t::DRIVING  || c->get_state()==convoi_t::LEAVING_DEPOT  ) {
-DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_route(),route_index);
-					long num_index = cnv==(convoi_t *)1 ? 1001 : 0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
-					// rereserve next block, if needed
-					cnv = c;
-					uint16 n = block_reserver( c->get_route(), route_index, num_index, true );
-					if(n) {
-						c->set_next_stop_index( n );
+					if(route_index>c->get_route()->gib_max_n()-1) {
+						c->suche_neue_route();
+						dbg->warning("waggon_t::setze_convoi()", "convoi %i had an illegal route index! (%i of max %i)", c->self.get_id(), route_index, c->get_route()->gib_max_n()-1 );
 					}
 					else {
-						c->warten_bis_weg_frei(-1);
+						long num_index = cnv==(convoi_t *)1 ? 1001 : 0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
+						// rereserve next block, if needed
+						cnv = c;
+						uint16 n = block_reserver( c->get_route(), route_index, num_index, true );
+						if(n) {
+							c->set_next_stop_index( n );
+						}
+						else {
+							c->warten_bis_weg_frei(-1);
+						}
 					}
 				}
 				if(c->get_state()>=convoi_t::WAITING_FOR_CLEARANCE) {
-DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_route(),route_index);
+//	DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_route(),route_index);
 					// find about next signal after loading
 					uint16 next_signal_index=65535;
 					route_t *route=c->get_route();
@@ -2007,7 +2012,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 	}
 
 	const grund_t *gr = welt->lookup(pos_next);
-	if(gr->gib_top()>200) {
+	if(gr->gib_top()>250) {
 		// too many objects here
 		return false;
 	}
@@ -2840,7 +2845,7 @@ bool aircraft_t::ist_weg_frei(int & restart_speed)
 		return false;
 	}
 
-	if(gr->gib_top()>200) {
+	if(gr->gib_top()>250) {
 		// too many objects here
 		return false;
 	}

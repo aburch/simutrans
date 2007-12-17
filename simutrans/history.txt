@@ -15,6 +15,7 @@
 	FIX: good filter now works with categories
 	CHANGES: city cars spawn now only if neither passengers, mail, nor goods are transported
 	CHANGES: to make list easier to navigate with left button only mouse, city list, attraction list, and factory list display jump to button
+	FIX: two errors that could lead to stuck convois
 
 
 
