@@ -34,6 +34,7 @@ curiositylist_stats_t::curiositylist_stats_t(karte_t* w, curiositylist::sort_mod
 	welt = w;
 	get_unique_attractions(sortby,sortreverse);
 	setze_groesse(koord(210, attractions.get_count()*(LINESPACE+1)-10));
+	line_selected = 0xFFFFFFFFu;
 }
 
 
@@ -97,18 +98,31 @@ void curiositylist_stats_t::infowin_event(const event_t * ev)
 {
 	const unsigned int line = (ev->cy) / (LINESPACE+1);
 
+	line_selected = 0xFFFFFFFFu;
 	if (line>=attractions.get_count()) {
 		return;
 	}
 
 	gebaeude_t* geb = attractions[line];
-	if (geb) {
-		if (IS_LEFTRELEASE(ev)) {
-			geb->zeige_info();
-		}
-		else if (IS_RIGHTRELEASE(ev)) {
+	if (geb==NULL) {
+		return;
+	}
+
+	// deperess goto button
+	if(  ev->button_state>0  &&  ev->cx>0  &&  ev->cx<15  ) {
+		line_selected = line;
+	}
+
+	if (IS_LEFTRELEASE(ev)) {
+		if(  ev->cx>0  &&  ev->cx<15  ) {
 			welt->change_world_position(geb->gib_pos());
 		}
+		else {
+			geb->zeige_info();
+		}
+	}
+	else if (IS_RIGHTRELEASE(ev)) {
+		welt->change_world_position(geb->gib_pos());
 	}
 } // end of function curiositylist_stats_t::infowin_event(const event_t * ev)
 
@@ -120,6 +134,7 @@ void curiositylist_stats_t::infowin_event(const event_t * ev)
  */
 void curiositylist_stats_t::zeichnen(koord offset)
 {
+	image_id const arrow_right_normal = skinverwaltung_t::window_skin->gib_bild(10)->gib_nummer();
 	const struct clip_dimension cd = display_gib_clip_wh();
 	const int start = cd.y-LINESPACE+1;
 	const int end = cd.yy;
@@ -127,15 +142,25 @@ void curiositylist_stats_t::zeichnen(koord offset)
 	static cbuffer_t buf(256);
 	int yoff = offset.y;
 
-	for (unsigned int i=0; i<attractions.get_count()  &&  yoff<end; i++) {
+	for (uint32 i=0; i<attractions.get_count()  &&  yoff<end; i++) {
 		const gebaeude_t* geb = attractions[i];
 
-		int xoff = offset.x;
+		int xoff = offset.x+10;
 
 		// skip invisible lines
 		if(yoff<start) {
 			yoff += LINESPACE+1;
 			continue;
+		}
+
+		if(i!=line_selected) {
+			// goto information
+			display_color_img(arrow_right_normal, xoff-8, yoff, 0, false, true);
+		}
+		else {
+			// select goto button
+			display_color_img(skinverwaltung_t::window_skin->gib_bild(11)->gib_nummer(),
+				xoff-8, yoff, 0, false, true);
 		}
 
 		buf.clear();
@@ -206,9 +231,10 @@ void curiositylist_stats_t::zeichnen(koord offset)
 
 		display_proportional_clip(xoff+INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
-		if (geb->gib_tile()->gib_besch()->gib_bauzeit() != 0)
+		if (geb->gib_tile()->gib_besch()->gib_bauzeit() != 0) {
 		    display_color_img(skinverwaltung_t::intown->gib_bild_nr(0), xoff+INDICATOR_WIDTH+9, yoff, 0, false, false);
+		}
 
-	    yoff +=LINESPACE+1;
+		yoff +=LINESPACE+1;
 	}
 }

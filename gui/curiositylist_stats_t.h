@@ -29,6 +29,7 @@ class curiositylist_stats_t : public gui_komponente_t
 private:
 	karte_t * welt;
 	vector_tpl<gebaeude_t*> attractions;
+	uint32 line_selected;
 
 public:
 	curiositylist_stats_t(karte_t* welt, curiositylist::sort_mode_t sortby, bool sortreverse);

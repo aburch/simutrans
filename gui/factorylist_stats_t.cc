@@ -14,10 +14,12 @@
 #include "../simfab.h"
 #include "../simwin.h"
 #include "../simworld.h"
+#include "../simskin.h"
 
 #include "components/list_button.h"
 
 #include "../bauer/warenbauer.h"
+#include "../besch/skin_besch.h"
 #include "../utils/cbuffer_t.h"
 
 
@@ -26,6 +28,7 @@ factorylist_stats_t::factorylist_stats_t(karte_t* w, factorylist::sort_mode_t so
 	welt = w;
 	setze_groesse(koord(210, welt->gib_fab_list().count()*(LINESPACE+1)-10));
 	sort(sortby,sortreverse);
+	line_selected = 0xFFFFFFFFu;
 }
 
 
@@ -38,6 +41,7 @@ factorylist_stats_t::factorylist_stats_t(karte_t* w, factorylist::sort_mode_t so
 void factorylist_stats_t::infowin_event(const event_t * ev)
 {
 	const unsigned int line = (ev->cy) / (LINESPACE+1);
+	line_selected = 0xFFFFFFFFu;
 	if (line >= fab_list.get_count()) {
 		return;
 	}
@@ -47,11 +51,22 @@ void factorylist_stats_t::infowin_event(const event_t * ev)
 		return;
 	}
 
-	const koord3d pos = fab->gib_pos();
+	// deperess goto button
+	if(  ev->button_state>0  &&  ev->cx>0  &&  ev->cx<15  ) {
+		line_selected = line;
+	}
+
 	if (IS_LEFTRELEASE(ev)) {
-		fab->zeige_info();
+		if(ev->cx>0  &&  ev->cx<15) {
+			const koord3d pos = fab->gib_pos();
+			welt->change_world_position(pos);
+		}
+		else {
+			fab->zeige_info();
+		}
 	}
 	else if (IS_RIGHTRELEASE(ev)) {
+		const koord3d pos = fab->gib_pos();
 		welt->change_world_position(pos);
 	}
 } // end of function factorylist_stats_t::infowin_event(const event_t * ev)
@@ -64,13 +79,13 @@ void factorylist_stats_t::infowin_event(const event_t * ev)
  */
 void factorylist_stats_t::zeichnen(koord offset)
 {
-	//DBG_DEBUG("factorylist_stats_t()","zeichnen()");
+	image_id const arrow_right_normal = skinverwaltung_t::window_skin->gib_bild(10)->gib_nummer();
 	const struct clip_dimension cd = display_gib_clip_wh();
 	const int start = cd.y-LINESPACE-1;
 	const int end = cd.yy+LINESPACE+1;
 
 	static cbuffer_t buf(256);
-	int xoff = offset.x;
+	int xoff = offset.x+16;
 	int yoff = offset.y;
 
 	for (uint32 i=0; i<fab_list.get_count()  &&  yoff<end; i++) {
@@ -121,8 +136,19 @@ void factorylist_stats_t::zeichnen(koord offset)
 
 			// show text
 			display_proportional_clip(xoff+INDICATOR_WIDTH+6+10,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
+
+			if(i!=line_selected) {
+				// goto information
+				display_color_img(arrow_right_normal, xoff-14, yoff, 0, false, true);
+			}
+			else {
+				// select goto button
+				display_color_img(skinverwaltung_t::window_skin->gib_bild(11)->gib_nummer(),
+					xoff-14, yoff, 0, false, true);
+			}
+
 		}
-	yoff += LINESPACE+1;
+		yoff += LINESPACE+1;
 	}
 }
 

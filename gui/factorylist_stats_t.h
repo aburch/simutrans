@@ -32,6 +32,7 @@ private:
 
 	karte_t * welt;
 	vector_tpl<fabrik_t*> fab_list;
+	uint32 line_selected;
 
 public:
 	factorylist_stats_t(karte_t* welt, factorylist::sort_mode_t sortby, bool sortreverse);
