@@ -323,10 +323,10 @@ vehikel_basis_t::calc_richtung(koord start, koord ende) const
 
 // this routine calculates the new height
 // beware of bridges, tunnels, slopes, ...
-int
+sint16
 vehikel_basis_t::calc_height()
 {
-	int hoff = 0;
+	sint16 hoff = 0;
 	use_calc_height = false;	// assume, we are only needed after next hop
 
 	grund_t *gr = welt->lookup(gib_pos());
@@ -372,16 +372,58 @@ vehikel_basis_t::calc_height()
 		}
 	}
 	else {
+		hang_t::typ hang = gr->gib_weg_hang();
 		// normal slope
-		switch(gr->gib_weg_hang()) {
+		switch(hang) {
+			case 1: // nordspitze
+			case 4: // suedspitze
+				if(  ( fahrtrichtung & ~(ribi_t::nordost) ) == 0  ||  ( fahrtrichtung & ~(ribi_t::suedwest) ) == 0  ) {
+					hoff = (hang==4 ? gib_yoff() : -gib_yoff() )/2 - (TILE_STEPS/2);
+				}
+				use_calc_height = true;
+				break;
+			case 2: // ostspitze
+			case 8: // westspitze
+				if(  ( fahrtrichtung & ~(ribi_t::suedost) ) == 0  ||  ( fahrtrichtung & ~(ribi_t::nordwest) ) == 0  ) {
+					// no nw->se diagonals
+					hoff = (hang==8 ? gib_yoff() : -gib_yoff() )/2 - (TILE_STEPS/2);
+				}
+				use_calc_height = true;
+				break;
 			case 3:	// nordhang
+				if((fahrtrichtung&ribi_t::nordsued)==0) {
+					hoff = -(TILE_STEPS/2);
+				}
+				else {
+					hoff = -gib_yoff() - (TILE_STEPS/2);
+				}
+				use_calc_height = true;
+				break;
 			case 6:	// westhang
-				hoff = -gib_yoff() - (TILE_STEPS/2);
+				if((fahrtrichtung&ribi_t::ostwest)==0) {
+					hoff = -(TILE_STEPS/2);
+				}
+				else {
+					hoff = -gib_yoff() - (TILE_STEPS/2);
+				}
 				use_calc_height = true;
 				break;
 			case 9:	// osthang
+				if((fahrtrichtung&ribi_t::ostwest)==0) {
+					hoff = -(TILE_STEPS/2);
+				}
+				else {
+					hoff = gib_yoff() - (TILE_STEPS/2);
+				}
+				use_calc_height = true;
+				break;
 			case 12:// suedhang
-				hoff = gib_yoff() - (TILE_STEPS/2);
+				if((fahrtrichtung&ribi_t::nordsued)==0) {
+					hoff = -(TILE_STEPS/2);
+				}
+				else {
+					hoff = gib_yoff() - (TILE_STEPS/2);
+				}
 				use_calc_height = true;
 				break;
 			case 0:

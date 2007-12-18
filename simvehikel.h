@@ -69,7 +69,7 @@ protected:
 	image_id bild;
 
 	void fahre_basis();	// basis movement code
-	int  calc_height();		// Offset Bergauf/Bergab
+	sint16 calc_height();		// Offset Bergauf/Bergab
 
 	virtual bool hop_check() = 0;
 	virtual void hop() = 0;
