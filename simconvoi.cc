@@ -795,6 +795,7 @@ void convoi_t::start()
 		}
 
 		alte_richtung = ribi_t::keine;
+		no_load = false;
 
 		state = ROUTING_1;
 		// recalc weight and image
