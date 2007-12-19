@@ -1870,7 +1870,7 @@ waggon_t::~waggon_t()
 {
 	if(cnv  &&  ist_erstes  &&  route_index<cnv->get_route()->gib_max_n()+1) {
 		// free all reserved blocks
-		block_reserver( cnv->get_route(), cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->gib_route_index(), target_halt.is_bound()?1000:1, false );
+		block_reserver( cnv->get_route(), cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->gib_route_index(), target_halt.is_bound()?100000:1, false );
 	}
 	grund_t *gr = welt->lookup(gib_pos());
 	if(gr) {
@@ -1892,16 +1892,16 @@ waggon_t::setze_convoi(convoi_t *c)
 			if(cnv!=NULL  &&  cnv!=(convoi_t *)1) {
 				// free route from old convoi
 				if(route_index<cnv->get_route()->gib_max_n()-1) {
-					block_reserver( cnv->get_route(), cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->gib_route_index(), 1000, false );
+					block_reserver( cnv->get_route(), cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->gib_route_index(), 100000, false );
 					target_halt = halthandle_t();
 				}
 			}
 			else {
 				// eventually reserve new route
 				if(c  &&  c->get_state()==convoi_t::DRIVING  || c->get_state()==convoi_t::LEAVING_DEPOT  ) {
-					if(route_index>c->get_route()->gib_max_n()-1) {
+					if(route_index>=c->get_route()->gib_max_n()) {
 						c->suche_neue_route();
-						dbg->warning("waggon_t::setze_convoi()", "convoi %i had an illegal route index! (%i of max %i)", c->self.get_id(), route_index, c->get_route()->gib_max_n()-1 );
+						dbg->warning("waggon_t::setze_convoi()", "convoi %i had a too high route index! (%i of max %i)", c->self.get_id(), route_index, c->get_route()->gib_max_n()-1 );
 					}
 					else {
 						long num_index = cnv==(convoi_t *)1 ? 1001 : 0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
@@ -1956,7 +1956,7 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t
 {
 	if(ist_erstes  &&  route_index<cnv->get_route()->gib_max_n()+1) {
 		// free all reserved blocks
-		block_reserver( cnv->get_route(), cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->gib_route_index(), target_halt.is_bound()?1000:1, false );
+		block_reserver( cnv->get_route(), cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->gib_route_index(), target_halt.is_bound()?100000:1, false );
 	}
 	target_halt = halthandle_t();	// no block reserved
 	return route->calc_route(welt, start, ziel, this, max_speed );
@@ -2078,7 +2078,8 @@ waggon_t::ist_weg_frei(int & restart_speed)
 		return false;
 	}
 
-	if(!welt->lookup( pos_next )->hat_weg(gib_waytype())) {
+	weg_t *w = welt->lookup( pos_next )->gib_weg(gib_waytype());
+	if(w==NULL) {
 		return false;
 	}
 
@@ -2164,7 +2165,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 					target_halt = target->gib_halt();
 				}
 			}
-			next_stop = block_reserver(cnv->get_route(),next_block+1,(target_halt.is_bound()?1000:sig_besch->is_pre_signal()),true);
+			next_stop = block_reserver(cnv->get_route(),next_block+1,(target_halt.is_bound()?100000:sig_besch->is_pre_signal()),true);
 
 			if(next_stop==0  &&  target_halt.is_bound()  &&  sig_besch->is_free_route()) {
 
@@ -2199,7 +2200,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 					// try to alloc the whole route
 					rt->remove_koord_from(next_block);
 					rt->append( &target_rt );
-					next_stop = block_reserver(rt,next_block,1000,true);
+					next_stop = block_reserver(rt,next_block,100000,true);
 				}
 				// reserved route to target (or not)
 			}
@@ -2242,7 +2243,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 				//  drive on ...
 			}
 			// not a signal (anymore) but we will still stop anyway
-			uint16 next_stop = block_reserver(cnv->get_route(),next_block+1,target_halt.is_bound()?1000:0,true);
+			uint16 next_stop = block_reserver(cnv->get_route(),next_block+1,target_halt.is_bound()?100000:0,true);
 			if(next_stop!=0) {
 				// can pass the non-existing signal ..
 				restart_speed = -1;
