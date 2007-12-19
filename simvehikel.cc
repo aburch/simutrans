@@ -375,21 +375,6 @@ vehikel_basis_t::calc_height()
 		hang_t::typ hang = gr->gib_weg_hang();
 		// normal slope
 		switch(hang) {
-			case 1: // nordspitze
-			case 4: // suedspitze
-				if(  ( fahrtrichtung & ~(ribi_t::nordost) ) == 0  ||  ( fahrtrichtung & ~(ribi_t::suedwest) ) == 0  ) {
-					hoff = (hang==4 ? gib_yoff() : -gib_yoff() )/2 - (TILE_STEPS/2);
-				}
-				use_calc_height = true;
-				break;
-			case 2: // ostspitze
-			case 8: // westspitze
-				if(  ( fahrtrichtung & ~(ribi_t::suedost) ) == 0  ||  ( fahrtrichtung & ~(ribi_t::nordwest) ) == 0  ) {
-					// no nw->se diagonals
-					hoff = (hang==8 ? gib_yoff() : -gib_yoff() )/2 - (TILE_STEPS/2);
-				}
-				use_calc_height = true;
-				break;
 			case 3:	// nordhang
 				if((fahrtrichtung&ribi_t::nordsued)==0) {
 					hoff = -(TILE_STEPS/2);
@@ -428,6 +413,40 @@ vehikel_basis_t::calc_height()
 				break;
 			case 0:
 				hoff = -gr->gib_weg_yoff();
+				break;
+			// from here only without a matching way (thus so far only airplanes)
+			case 1: // nordspitze
+			case 4: // suedspitze
+				if(  ( fahrtrichtung & ~(ribi_t::nordost) ) == 0  ||  ( fahrtrichtung & ~(ribi_t::suedwest) ) == 0  ) {
+					hoff = (hang==4 ? gib_yoff() : -gib_yoff() )/2 - (TILE_STEPS/2);
+				}
+				use_calc_height = true;
+				break;
+			case 2: // ostspitze
+			case 8: // westspitze
+				if(  ( fahrtrichtung & ~(ribi_t::suedost) ) == 0  ||  ( fahrtrichtung & ~(ribi_t::nordwest) ) == 0  ) {
+					// no nw->se diagonals
+					hoff = (hang==8 ? gib_yoff() : -gib_yoff() )/2 - (TILE_STEPS/2);
+				}
+				use_calc_height = true;
+				break;
+			case 5:	// valley diagonals
+			case 10:
+				hoff = -(TILE_STEPS/2);
+				use_calc_height = true;
+				break;
+			// three corner stuff
+			case 11: // south low
+			case 14: // north low
+				if(  ( fahrtrichtung & ~(ribi_t::nordost) ) == 0  ||  ( fahrtrichtung & ~(ribi_t::suedwest) ) == 0  ) {
+					hoff = (hang==14 ? gib_yoff() : -gib_yoff() )/2 - (TILE_STEPS/2);
+				}
+				use_calc_height = true;
+				break;
+			case 7:  // west low
+			case 13: // east low
+				hoff = -(TILE_STEPS/2);
+				use_calc_height = true;
 				break;
 		}
 	}
