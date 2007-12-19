@@ -290,6 +290,8 @@ SOURCES += simgraph$(COLOUR_DEPTH).c
 
 ifeq ($(BACKEND),allegro)
   SOURCES  += simsys_d.c
+  SOURCES += sound/allegro_sound.c
+  SOURCES += music/allegro_midi.c
   ifeq ($(ALLEGRO_CONFIG),)
     ALLEGRO_CFLAGS  :=
     ALLEGRO_LDFLAGS := -lalleg
@@ -303,15 +305,26 @@ ifeq ($(BACKEND),allegro)
   LIBS     += $(ALLEGRO_LDFLAGS)
 endif
 
+
 ifeq ($(BACKEND),gdi)
   SOURCES += simsys_w$(COLOUR_DEPTH).c
+  SOURCES += music/w32_midi.c
+  SOURCES += sound/win32_sound.c
   STD_LIBS ?=  -lunicows
 endif
 
-ifeq ($(findstring sdl mixer_sdl,$(BACKEND)),)
+
+ifeq ($(OSTYPE),sdl)
   SOURCES  += simsys_s.c
   CFLAGS   += -DUSE_16BIT_DIB
   CXXFLAGS   += -DUSE_16BIT_DIB
+  ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+    SOURCES += sound/sdl_sound.c
+    SOURCES += music/no_midi.c
+  else
+    SOURCES += sound/sdl_sound.c
+    SOURCES += music/w32_midi.c
+  endif
   ifeq ($(SDL_CONFIG),)
     SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL -mwindows
@@ -325,8 +338,29 @@ ifeq ($(findstring sdl mixer_sdl,$(BACKEND)),)
   LIBS     += $(SDL_LDFLAGS)
 endif
 
+
+ifeq ($(OSTYPE),mixer_sdl)
+  SOURCES  += simsys_s.c
+  SOURCES += sound/sdl_mixer_sound.c
+  SOURCES += music/sdl_midi.c
+  CFLAGS   += -DUSE_16BIT_DIB
+  CXXFLAGS   += -DUSE_16BIT_DIB
+  ifeq ($(SDL_CONFIG),)
+    SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
+    SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL -mwindows
+  else
+    SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
+    SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+  endif
+  CFLAGS   += $(SDL_CFLAGS)
+  CXXFLAGS += $(SDL_CFLAGS)
+  LIBS     += $(SDL_LDFLAGS) -lSDL_mixer
+endif
+
 ifeq ($(BACKEND),x11)
   SOURCES  += simsys_x$(COLOUR_DEPTH).c
+  SOURCES += sound/no_sound.c
+  SOURCES += sound/no_midi.c
   CFLAGS   += -I/usr/X11R6/include
   CXXFLAGS += -I/usr/X11R6/include
   LIBS     += -L/usr/X11R6/lib/ -lX11 -lXext
@@ -336,38 +370,6 @@ endif
 ifneq ($(findstring $(OSTYPE), cygwin mingw),)
   SOURCES += simres.rc
   WINDRES ?= windres
-endif
-
-
-ifeq ($(BACKEND), sdl)
-  ifeq ($(findstring $(OSTYPE), cygwin mingw),)
-    SOURCES += sound/sdl_sound.c
-    SOURCES += music/no_midi.c
-  else
-    SOURCES += sound/sdl_sound.c
-    SOURCES += music/w32_midi.c
-  endif
-endif
-
-ifeq ($(BACKEND), mixer_sdl)
-    SOURCES += sound/sdl_mixer_sound.c
-    SOURCES += music/sdl_midi.c
-    SDL_LDFLAGS += -lSDL_mixer
-endif
-
-ifeq ($(BACKEND), allegro)
-  SOURCES += sound/allegro_sound.c
-  SOURCES += music/allegro_midi.c
-endif
-
-ifeq ($(BACKEND), gdi)
-  SOURCES += music/w32_midi.c
-  SOURCES += sound/win32_sound.c
-endif
-
-ifeq ($(BACKEND), x11)
-  SOURCES += sound/no_sound.c
-  SOURCES += sound/no_midi.c
 endif
 
 
