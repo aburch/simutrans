@@ -308,7 +308,7 @@ ifeq ($(BACKEND),gdi)
   STD_LIBS ?=  -lunicows
 endif
 
-ifeq ($(BACKEND),sdl)
+ifeq ($(findstring sdl mixer_sdl,$(BACKEND)),)
   SOURCES  += simsys_s.c
   CFLAGS   += -DUSE_16BIT_DIB
   CXXFLAGS   += -DUSE_16BIT_DIB

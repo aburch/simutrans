@@ -7,8 +7,8 @@
  * date:   17-Jan-2007
  */
 
-#include <SDL.h>
-#include <SDL_mixer.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_mixer.h>
 #include "music.h"
 
 static int midi_number = -1;
