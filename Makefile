@@ -314,7 +314,7 @@ ifeq ($(BACKEND),gdi)
 endif
 
 
-ifeq ($(OSTYPE),sdl)
+ifeq ($(BACKEND),sdl)
   SOURCES  += simsys_s.c
   CFLAGS   += -DUSE_16BIT_DIB
   CXXFLAGS   += -DUSE_16BIT_DIB
@@ -339,7 +339,7 @@ ifeq ($(OSTYPE),sdl)
 endif
 
 
-ifeq ($(OSTYPE),mixer_sdl)
+ifeq ($(BACKEND),mixer_sdl)
   SOURCES  += simsys_s.c
   SOURCES += sound/sdl_mixer_sound.c
   SOURCES += music/sdl_midi.c
@@ -354,7 +354,8 @@ ifeq ($(OSTYPE),mixer_sdl)
   endif
   CFLAGS   += $(SDL_CFLAGS)
   CXXFLAGS += $(SDL_CFLAGS)
-  LIBS     += $(SDL_LDFLAGS) -lSDL_mixer
+  LIBS     += $(SDL_LDFLAGS)
+  LIBS     += -lSDL_mixer
 endif
 
 ifeq ($(BACKEND),x11)
