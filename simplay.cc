@@ -828,8 +828,8 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 		file->rdwr_long(headquarter_level, " ");
 		headquarter_pos.rdwr( file );
 		if(file->is_loading()) {
-			if(headquarter_level>=(sint32)hausbauer_t::headquarter.get_count()) {
-				headquarter_level = (sint32)hausbauer_t::headquarter.get_count()-1;
+			if(headquarter_level>(sint32)hausbauer_t::headquarter.get_count()) {
+				headquarter_level = (sint32)hausbauer_t::headquarter.get_count();
 			}
 			if(headquarter_level<0) {
 				headquarter_pos = koord::invalid;
@@ -1651,7 +1651,7 @@ bool spieler_t::built_update_headquarter()
 				headquarter_pos = koord::invalid;
 			}
 			// needs new place?
-			if(place==koord::invalid) {
+			if(place==koord::invalid  &&  !halt_list.empty()) {
 				stadt_t *st = welt->suche_naechste_stadt(halt_list.front()->gib_basis_pos());
 				if(st) {
 					bool is_rotate=besch->gib_all_layouts()>1;

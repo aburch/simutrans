@@ -1,4 +1,8 @@
-Release of 99.17
+	FIX: some errors concerning headquarters, AI and moneys frame
+	CHANGE: again only first and last vehicle reserves block
+
+
+Release of 99.17 (r1502)
 
 19-Dec-2007:
 	ADD: water animation (if images defined) animation images are just the second parameter in the definition; animation speed is set by water_animation_ms in simuconf.tab

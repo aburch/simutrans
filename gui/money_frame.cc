@@ -239,7 +239,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		// get new costs
 		for(  vector_tpl<const haus_besch_t *>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end();  iter != end;  ++iter  ) {
 			const haus_besch_t* besch = (*iter);
-			if (besch->gib_bauzeit() == sp->get_headquarter_level()) {
+			if (besch->gib_bauzeit() == sp->get_headquarter_level()-1) {
 				double cost = umgebung_t::cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h()/-100.0;
 				tstrncpy( headquarter_tooltip, translator::translate(besch->gib_name()), 100 );
 				money_to_string( headquarter_tooltip+strlen(headquarter_tooltip), cost );
@@ -248,6 +248,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 			}
 		}
 
+		headquarter_view.set_location( sp->get_welt()->lookup_kartenboden( sp->get_headquarter_pos() )->gib_pos() );
 		headquarter_view.setze_pos( koord(582-12-120, 4+BUTTONSPACE) );
 		headquarter_view.setze_groesse( koord(120, 70) );
 		add_komponente(&headquarter_view);
@@ -382,12 +383,6 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 		headquarter.enable();
 		if(old_level!=sp->get_headquarter_level()) {
 
-			remove_komponente(&headquarter_view);
-			headquarter_view.setze_groesse( koord(120, 70) );
-			headquarter_view.set_location( sp->get_welt()->lookup_kartenboden(sp->get_headquarter_pos())->gib_pos() );
-			headquarter.setze_text( "upgrade HQ" );
-			add_komponente(&headquarter_view);
-
 			if(sp->get_headquarter_level()==(uint16)hausbauer_t::headquarter.get_count()) {
 				headquarter.disable();
 				headquarter.set_tooltip( NULL );
@@ -404,8 +399,17 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 					}
 				}
 			}
-			old_level = sp->get_headquarter_level();
 		}
+	}
+
+	if(old_level!=sp->get_headquarter_level()) {
+
+		old_level = sp->get_headquarter_level();
+		remove_komponente(&headquarter_view);
+		headquarter_view.setze_groesse( koord(120, 70) );
+		headquarter_view.set_location( sp->get_welt()->lookup_kartenboden(sp->get_headquarter_pos())->gib_pos() );
+		headquarter.setze_text( "upgrade HQ" );
+		add_komponente(&headquarter_view);
 	}
 
 	// Hajo: Money is counted in credit cents (100 cents = 1 Cr)
