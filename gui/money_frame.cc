@@ -118,8 +118,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		maintenance_label("This Month",COL_WHITE, gui_label_t::right),
 		maintenance_money(NULL, COL_RED, gui_label_t::money),
 		warn("", COL_RED),
-		headquarter_view(sp->get_welt(), koord3d::invalid),
-		old_hq(koord::invalid)
+		headquarter_view(sp->get_welt(), koord3d::invalid)
 {
 	if(sp->get_welt()->gib_spieler(0)!=sp) {
 		sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(sp->gib_name()) );
@@ -253,6 +252,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		headquarter_view.setze_groesse( koord(120, 70) );
 		add_komponente(&headquarter_view);
 	}
+	old_level = sp->get_headquarter_level();
 
 	// add filter buttons
 	for(int i=0;  i<9;  i++) {
@@ -374,21 +374,20 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	}
 	warn.setze_text(str_buf[15]);
 
-	if (sp->get_headquarter_pos()!=koord::invalid  &&  old_hq!=sp->get_headquarter_pos()) {
-		remove_komponente(&headquarter_view);
-		headquarter_view.setze_groesse( koord(120, 70) );
-		headquarter_view.set_location( sp->get_welt()->lookup_kartenboden(sp->get_headquarter_pos())->gib_pos() );
-		headquarter.setze_text( "upgrade HQ" );
-		add_komponente(&headquarter_view);
-		old_hq = sp->get_headquarter_pos();
-	}
 	if(sp!=sp->get_welt()->get_active_player()) {
 		headquarter.disable();
 		headquarter.set_tooltip( NULL );
 	}
 	else {
 		headquarter.enable();
-		if (sp->get_headquarter_pos()!=koord::invalid  &&  old_hq!=sp->get_headquarter_pos()) {
+		if(old_level!=sp->get_headquarter_level()) {
+
+			remove_komponente(&headquarter_view);
+			headquarter_view.setze_groesse( koord(120, 70) );
+			headquarter_view.set_location( sp->get_welt()->lookup_kartenboden(sp->get_headquarter_pos())->gib_pos() );
+			headquarter.setze_text( "upgrade HQ" );
+			add_komponente(&headquarter_view);
+
 			if(sp->get_headquarter_level()==(uint16)hausbauer_t::headquarter.get_count()) {
 				headquarter.disable();
 				headquarter.set_tooltip( NULL );
@@ -405,7 +404,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 					}
 				}
 			}
-			old_hq = sp->get_headquarter_pos();
+			old_level = sp->get_headquarter_level();
 		}
 	}
 
