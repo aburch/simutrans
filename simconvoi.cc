@@ -463,7 +463,7 @@ bool convoi_t::sync_step(long delta_t)
 			while((sint32)SPEED_STEP_WIDTH<sp_soll) {
 				sp_soll -= SPEED_STEP_WIDTH;
 				fahr[0]->sync_step();
-				// state may have change
+				// state may have changed
 				if(state!=DRIVING) {
 					return true;
 				}

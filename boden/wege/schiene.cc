@@ -125,14 +125,14 @@ schiene_t::unreserve(vehikel_t *v)
 	if(!reserved.is_bound()) {
 		return true;
 	}
-	if(!welt->lookup(gib_pos())->suche_obj(v->gib_typ())) {
+//	if(!welt->lookup(gib_pos())->suche_obj(v->gib_typ())) {
 		reserved = convoihandle_t();
 		if(schiene_t::show_reservations) {
 			mark_image_dirty(gib_bild(),0);
 		}
 		return true;
-	}
-	return false;
+//	}
+//	return false;
 }
 
 

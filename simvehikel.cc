@@ -2422,12 +2422,12 @@ waggon_t::betrete_feld()
 
 	schiene_t * sch0 = (schiene_t *) welt->lookup(gib_pos())->gib_weg(gib_waytype());
 	if(sch0) {
-		sch0->reserve(cnv->self);
 		// way statistics
 		const int cargo = gib_fracht_menge();
 		sch0->book(cargo, WAY_STAT_GOODS);
 		if(ist_erstes) {
 			sch0->book(1, WAY_STAT_CONVOIS);
+			sch0->reserve(cnv->self);
 		}
 	}
 }
