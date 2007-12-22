@@ -1090,7 +1090,7 @@ unsigned fabrik_t::status_to_color[5] = {COL_RED, COL_ORANGE, COL_GREEN, COL_YEL
 #define FL_WARE_ALLELIMIT      8
 #define FL_WARE_UEBER75        16
 #define FL_WARE_ALLEUEBER75    32
-#define FL_WARE_HATWAS         64
+#define FL_WARE_FEHLT_WAS      64
 
 /* returns the status of the current factory, as well as output */
 void fabrik_t::recalc_factory_status()
@@ -1112,7 +1112,9 @@ void fabrik_t::recalc_factory_status()
 			status_ein &= ~FL_WARE_ALLELIMIT;
 		}
 		warenlager += eingang[j].menge;
-		status_ein |= FL_WARE_HATWAS;
+		if(  (eingang[j].menge>>fabrik_t::precision_bits)==0  ) {
+			status_ein |= FL_WARE_FEHLT_WAS;
+		}
 
 	}
 	warenlager >>= fabrik_t::precision_bits;
@@ -1120,6 +1122,12 @@ void fabrik_t::recalc_factory_status()
 		status_ein |= FL_WARE_ALLENULL;
 	}
 	total_input = warenlager;
+
+	// one ware missing, but producing
+	if(status_ein&FL_WARE_FEHLT_WAS  &&  ausgang.get_count()>0  &&  haltcount>0) {
+		status = bad;
+		return;
+	}
 
 	// set bits for output
 	warenlager = 0;

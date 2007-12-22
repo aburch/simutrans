@@ -1,5 +1,6 @@
 	FIX: some errors concerning headquarters, AI and moneys frame
 	CHANGE: again only first and last vehicle reserves block
+	CHANGE: only producing factories are consuming power
 
 
 Release of 99.17 (r1502)

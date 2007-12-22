@@ -248,7 +248,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
 			}
 		}
 
-		headquarter_view.set_location( sp->get_welt()->lookup_kartenboden( sp->get_headquarter_pos() )->gib_pos() );
+		if(sp->get_headquarter_pos()!=koord::invalid) {
+			headquarter_view.set_location( sp->get_welt()->lookup_kartenboden( sp->get_headquarter_pos() )->gib_pos() );
+		}
 		headquarter_view.setze_pos( koord(582-12-120, 4+BUTTONSPACE) );
 		headquarter_view.setze_groesse( koord(120, 70) );
 		add_komponente(&headquarter_view);

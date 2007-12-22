@@ -536,8 +536,11 @@ senke_t::sync_step(long time)
 	}
 
 	uint32 want_power = time*fab->get_base_production();
-	uint32 get_power = get_net()->withdraw_power(want_power);
-	fab->add_power( get_power );
+	uint32 get_power = 0;
+	if(fab->is_currently_producing()) {
+		get_power = get_net()->withdraw_power(want_power);
+		fab->add_power( get_power );
+	}
 	image_id new_bild;
 	if(get_power>want_power/2) {
 		new_bild = skinverwaltung_t::senke->gib_bild_nr(1);
