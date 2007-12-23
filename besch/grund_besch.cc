@@ -73,7 +73,7 @@ static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, con
 	// now mix the images
 	for (int j = 0; j < bild_dest->get_pic()->h; j++) {
 		sint16 x = *dest++;
-		const sint16 offset = (bild_dest->get_pic()->y + j) * (x_y + 3) + 2; // position of the pixel in a rectangular map
+		const sint16 offset = (bild_dest->get_pic()->y + j - bild_texture->get_pic()->y) * (x_y + 3) + 2; // position of the pixel in a rectangular map
 		do
 		{
 			sint16 runlen = *dest++;
@@ -109,22 +109,23 @@ static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, con
  * BEWARE: Assumes all images but bild_lightmap are square!
  * BEWARE: no special colors or your will see literally blue!
  */
-static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap, ribi_t::ribi slope, const bild_besch_t* bild_texture,  const bild_besch_t* bild_src1, const bild_besch_t* bild_src2, const bild_besch_t* bild_src3)
+static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap, ribi_t::ribi slope, const bild_besch_t* bild_mixmap,  const bild_besch_t* bild_src1, const bild_besch_t* bild_src2, const bild_besch_t* bild_src3)
 {
 	bild_besch_t *bild_dest = bild_lightmap->copy_rotate(0);
 
-	const PIXVAL *texture = (const PIXVAL *)bild_texture->gib_daten();
-	const PIXVAL *src1 = (const PIXVAL *)bild_src1->gib_daten();
-	const PIXVAL *src2 = (const PIXVAL *)bild_src2->gib_daten();
-	const PIXVAL *src3 = (const PIXVAL *)bild_src3->gib_daten();
+	const PIXVAL *mixmap = (const PIXVAL *)bild_mixmap->gib_daten();
+	const PIXVAL *src1 = (const PIXVAL *)bild_src1->gib_daten() - bild_src1->get_pic()->y*(bild_src1->get_pic()->w+3l);
+	const PIXVAL *src2 = (const PIXVAL *)bild_src2->gib_daten() - bild_src2->get_pic()->y*(bild_src2->get_pic()->w+3l);
+	const PIXVAL *src3 = (const PIXVAL *)bild_src3->gib_daten() - bild_src3->get_pic()->y*(bild_src3->get_pic()->w+3l);
 	const sint16 x_y = bild_src1->get_pic()->w;
+	const sint16 mix_x_y = bild_mixmap->get_pic()->w;
 	sint16 tile_x, tile_y;
 
 	/*
-	* to go from texture xy to tile xy is simple:
-	* (x,y)_tile = (texture_x+texture_y)/2 , (texture_y-texture_x)/4+(3/4)*tilesize
+	* to go from mixmap xy to tile xy is simple:
+	* (x,y)_tile = (mixmap_x+mixmap_y)/2 , (mixmap_y-mixmap_x)/4+(3/4)*tilesize
 	* This is easily inverted to
-	* (x,y)texture = x_tile-2*y_tile+(3/2)*tilesize, x_tile+2*y_tile-(3/2)*tilesize
+	* (x,y)mixmap = x_tile-2*y_tile+(3/2)*tilesize, x_tile+2*y_tile-(3/2)*tilesize
 	* tricky are slopes. There we have to add an extra distortion
 	* /4\
 	* 1+3
@@ -149,8 +150,8 @@ static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap,
 	for (int j = 0; j < bild_dest->get_pic()->h; j++) {
 		tile_y = bild_dest->get_pic()->y + j;
 		tile_x = *dest++;
-		// offset is the pixel position in the texture bitmaps;
-		// so we can avoid stretching the textures
+		// offset is the pixel position in the mixmap bitmaps;
+		// so we can avoid stretching the mixmaps
 		const sint16 offset = (bild_dest->get_pic()->y + j) * (x_y + 3) + 2;
 		do
 		{
@@ -163,7 +164,7 @@ static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap,
 				// first; check, if we are front or back half
 				// back half means, we are above a line from the left_y (corner1), middle_y, right_y (corner2)
 				const sint16 back_y = (tile_x<x_y/2) ? corner1_y + ((middle_y-corner1_y)*tile_x)/(x_y/2) : middle_y + ((corner3_y-middle_y)*(tile_x-(x_y/2)))/(x_y/2);
-				// in the middle? the it is just the diagonal in the texture
+				// in the middle? the it is just the diagonal in the mixmap
 				if(back_y==tile_y) {
 					tile_y_corrected = 0;
 				}
@@ -222,11 +223,11 @@ static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap,
 				if(x_t>=x_y) {
 					x_t = x_y-1;
 				}
-				sint16 texture_offset = y_t*(x_y+3)+2+x_t;
+				sint32 mixmap_offset = ( (y_t*mix_x_y) / x_y) *(mix_x_y+3) + 2 + (x_t * mix_x_y)/x_y;
 
-				PIXVAL mix = mixed_color(texture[texture_offset],src1[offset+tile_x],src2[offset+tile_x],src3[offset+tile_x]);
-				// to see onyl the texture for mixing, uncomment next line
-//				PIXVAL mix = texture[texture_offset];
+				PIXVAL mix = mixed_color(mixmap[mixmap_offset],src1[offset+tile_x],src2[offset+tile_x],src3[offset+tile_x]);
+				// to see onyl the mixmap for mixing, uncomment next line
+//				PIXVAL mix = mixmap[mixmap_offset];
 				PIXVAL grey = *dest;
 				PIXVAL rc = (red_comp(grey)*red_comp(mix))/16;
 				// just avoid overflow
