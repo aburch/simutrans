@@ -1,6 +1,7 @@
 	FIX: some errors concerning headquarters, AI and moneys frame
 	CHANGE: again only first and last vehicle reserves block
 	CHANGE: only producing factories are consuming power
+	CHANGE: allow for offsets in the texture files => pak192 grounds possible
 
 
 Release of 99.17 (r1502)

@@ -123,6 +123,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	besch = NULL;
 
 	besitzer_p = NULL;
+	power = 0;
 
 	rdwr(file);
 
@@ -489,6 +490,12 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	file->rdwr_long(prodbase, "\n");
 	file->rdwr_delim("Prb: ");
 	file->rdwr_long(prodfaktor, "\n");
+
+	// information on fields ...
+	if(file->get_version()>99016) {
+		file->rdwr_long(power, "\n");
+	}
+
 	// owner stuff
 	if(file->is_loading()) {
 		// take care of old files
@@ -806,7 +813,7 @@ void fabrik_t::step(long delta_t)
 				// produce
 				if (ausgang[produkt].menge < ausgang[produkt].max) {
 					ausgang[produkt].menge += p;
-					currently_producing = (p>0);
+					currently_producing |= (p>>(precision_bits-2)) > 0;
 				} else {
 					ausgang[produkt].menge = ausgang[produkt].max - 1;
 				}
@@ -820,7 +827,7 @@ void fabrik_t::step(long delta_t)
 
 				if ((uint32)eingang[index].menge > v) {
 					eingang[index].menge -= v;
-					currently_producing = (v>0);
+					currently_producing |= (v>>(precision_bits-2)) > 0;
 				}
 				else {
 					eingang[index].menge = 0;
@@ -1154,10 +1161,10 @@ void fabrik_t::recalc_factory_status()
 	total_output = warenlager;
 
 	// now calculate status bar
-	if(status_ein==(FL_WARE_ALLELIMIT|FL_WARE_ALLENULL)) {
+	if(eingang.get_count()==0) {
 		// does not consume anything, should just produce
 
-		if(status_aus==(FL_WARE_ALLEUEBER75|FL_WARE_ALLENULL)) {
+		if(ausgang.get_count()==0) {
 			// does also not produce anything
 			status = nothing;
 		}
@@ -1176,8 +1183,8 @@ void fabrik_t::recalc_factory_status()
 			status = good;
 		}
 	}
-	else if(status_aus==(FL_WARE_ALLEUEBER75|FL_WARE_ALLENULL)) {
-		// does not produce anything, just consumes
+	else if(ausgang.get_count()==0) {
+		// nothing to produce
 
 		if(status_ein&FL_WARE_ALLELIMIT) {
 			// we assume not served
