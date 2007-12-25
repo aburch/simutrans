@@ -984,6 +984,7 @@ DBG_MESSAGE("init","map");
 		while(welt->interactive())
 			;
 
+		new_world = true;
 		msg->get_flags(&umgebung_t::message_flags[0], &umgebung_t::message_flags[1], &umgebung_t::message_flags[2], &umgebung_t::message_flags[3]);
 		welt->set_fast_forward(false);
 		delete msg;
