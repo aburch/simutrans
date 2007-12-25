@@ -31,6 +31,7 @@ koord convoi_filter_frame_t::filter_buttons_pos[FILTER_BUTTONS] = {
     koord(21, 175),
     koord(21, 191),
     koord(21, 207),
+    koord(21, 223),
     koord(125, 4)
 };
 
@@ -43,9 +44,10 @@ const char *convoi_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {
     "clf_chk_aircrafts",
     "clf_chk_spezial_filter",
     "clf_chk_noroute",
-    "clf_chk_noschedule",
+		"clf_chk_stucked"
     "clf_chk_noincome",
     "clf_chk_indepot",
+    "clf_chk_noschedule",
     "clf_chk_noline",
     "clf_chk_waren"
 };
@@ -59,9 +61,10 @@ convoi_frame_t::filter_flag_t convoi_filter_frame_t::filter_buttons_types[FILTER
     convoi_frame_t::aircraft_filter,
     convoi_frame_t::spezial_filter,
     convoi_frame_t::noroute_filter,
-    convoi_frame_t::nofpl_filter,
+    convoi_frame_t::stucked_filter,
     convoi_frame_t::noincome_filter,
     convoi_frame_t::indepot_filter,
+    convoi_frame_t::nofpl_filter,
     convoi_frame_t::noline_filter,
     convoi_frame_t::ware_filter
 };

@@ -2,6 +2,7 @@
 	CHANGE: again only first and last vehicle reserves block
 	CHANGE: only producing factories are consuming power
 	CHANGE: allow for offsets in the texture files => pak192 grounds possible
+	CHANGE: new convoi filter for stuck convois 'clf_chk_stucked'
 
 
 Release of 99.17 (r1502)
