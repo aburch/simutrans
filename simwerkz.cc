@@ -1969,6 +1969,7 @@ dbg->warning("wkz_add_city()", "Already a city here");
 
 				welt->add_stadt(stadt);
 				stadt->laden_abschliessen();
+				stadt->verbinde_fabriken();
 
 				sp->buche(umgebung_t::cst_found_city, pos, COST_CONSTRUCTION);
 				ok =  true;
