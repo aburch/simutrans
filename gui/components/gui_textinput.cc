@@ -17,6 +17,7 @@
 
 #include "../../dataobj/translator.h"
 
+#include "../../simgraph.h"
 
 gui_textinput_t::gui_textinput_t()
 {
@@ -201,12 +202,29 @@ void gui_textinput_t::zeichnen(koord offset)
 			cursor_offset = 0;
 		}
 
+		// set clipping to be within textinput button
+		struct clip_dimension original_clipping = display_gib_clip_wh();
+		int text_clip_x = pos.x+offset.x + 1, text_clip_w = groesse.x - 2;
+
+		// check is within existing clipping
+		if(text_clip_x < original_clipping.x)
+		{
+			text_clip_w -= original_clipping.x - text_clip_x;
+			text_clip_x = original_clipping.x;
+		}
+		text_clip_x + text_clip_w > original_clipping.xx ? text_clip_w = original_clipping.xx - text_clip_x : 0;
+
+		display_setze_clip_wh(text_clip_x, original_clipping.y, text_clip_w, original_clipping.h);
+
 		display_proportional_clip(pos.x+offset.x+2-cursor_offset, pos.y+offset.y+2, text, ALIGN_LEFT, COL_BLACK, true);
 
 		// cursor must been shown, if textinput has focus!
 		if(has_focus(this)) {
 			display_fillbox_wh_clip(pos.x+offset.x+1+proportional_string_len_width(text, cursor_pos)-cursor_offset, pos.y+offset.y+1, 1, 11, COL_WHITE, true);
 		}
+
+		// reset clipping
+		display_setze_clip_wh(original_clipping.x, original_clipping.y, original_clipping.w, original_clipping.h);
 	}
 }
 
