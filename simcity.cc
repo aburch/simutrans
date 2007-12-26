@@ -1211,7 +1211,7 @@ void stadt_t::setze_name(const char *new_name)
 	}
 	grund_t *gr = welt->lookup_kartenboden(pos);
 	if(gr) {
-		gr->setze_text( name );
+		gr->setze_text( new_name );
 	}
 }
 

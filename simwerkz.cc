@@ -60,6 +60,7 @@
 #include "dings/bruecke.h"
 #include "dings/tunnel.h"
 #include "dings/signal.h"
+#include "dings/crossing.h"
 #include "dings/roadsign.h"
 #include "dings/wayobj.h"
 #include "dings/leitung2.h"
@@ -514,35 +515,37 @@ DBG_MESSAGE("wkz_remover()",  "took out powerline");
 		gr->obj_remove(lt);
 	}
 
-	// only crossing left .. will be deleted with the conencted way
-	if(gr->has_two_ways()  &&  gr->ist_uebergang()  &&  gr->gib_top()==3) {
-		msg = NULL;
+	// do not delete crossing, so we remove it
+	crossing_t *cr = gr->find<crossing_t>(2);
+	if(cr) {
+		gr->obj_remove(cr);
 	}
-	else {
-		// remove everything else ...
+
+	// remove all other stuff (clouds ... )
+	bool return_ok = false;
+	if(gr->obj_count()>0) {
 		msg = gr->kann_alle_obj_entfernen(sp);
-		if(msg==NULL  &&  !(gr->gib_typ()==grund_t::brueckenboden  ||  gr->gib_typ()==grund_t::tunnelboden)  &&  gr->obj_loesche_alle(sp)) {
-DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
-			// add the powerline again ...
-			if(lt) {
-DBG_MESSAGE("wkz_remover()",  "add again powerline");
-				gr->obj_add(lt);
-			}
-			return true;
-		}
+		return_ok = (msg==NULL  &&  !(gr->gib_typ()==grund_t::brueckenboden  ||  gr->gib_typ()==grund_t::tunnelboden)  &&  gr->obj_loesche_alle(sp));
+	DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
 	}
 
 	if(lt) {
 DBG_MESSAGE("wkz_remover()",  "add again powerline");
 		gr->obj_add(lt);
 	}
+	if(cr) {
+		gr->obj_add(cr);
+	}
 
 	// could not delete everything
 	if(msg) {
 		return false;
 	}
+	if(return_ok) {
+		return true;
+	}
 
-	// ok, now we removed every object, that should be removed one by one.
+	// ok, now we remove every object, that should be removed one by one.
 	// the following objects will be removed together
 DBG_MESSAGE("wkz_remover()", "removing way");
 

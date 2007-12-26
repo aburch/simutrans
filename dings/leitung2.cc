@@ -537,7 +537,7 @@ senke_t::sync_step(long time)
 
 	uint32 want_power = time*fab->get_base_production();
 	uint32 get_power = 0;
-	if(fab->is_currently_producing()  &&  fab->get_status()!=fabrik_t::bad) {
+	if(fab->is_currently_producing()) {
 		get_power = get_net()->withdraw_power(want_power);
 		fab->add_power( get_power );
 	}
