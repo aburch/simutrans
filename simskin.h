@@ -31,6 +31,7 @@ public:
     static const skin_besch_t *airhaltsymbol;
     static const skin_besch_t *monorailhaltsymbol;
     static const skin_besch_t *bushaltsymbol;
+    static const skin_besch_t *tramhaltsymbol;
 
     static const skin_besch_t *fragezeiger;
     static const skin_besch_t *signalzeiger;

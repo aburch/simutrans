@@ -19,6 +19,7 @@
 #include "../simworld.h"
 #include "../simevent.h"
 #include "../simgraph.h"
+#include "../simskin.h"
 #include "../simplay.h"
 #include "../simconvoi.h"
 #include "../simvehikel.h"
@@ -89,12 +90,12 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	tabs.setze_pos(koord(11,5));
 	tabs.setze_groesse(koord(LINE_NAME_COLUMN_WIDTH-22, SCL_HEIGHT));
 	tabs.add_tab(&scl, translator::translate("All"));
-	tabs.add_tab(&scl, translator::translate("Train"));
-	tabs.add_tab(&scl, translator::translate("Monorail"));
-	tabs.add_tab(&scl, translator::translate("Tram"));
-	tabs.add_tab(&scl, translator::translate("Truck"));
-	tabs.add_tab(&scl, translator::translate("Ship"));
-	tabs.add_tab(&scl, translator::translate("Air"));
+	tabs.add_tab(&scl, NULL, skinverwaltung_t::zughaltsymbol->gib_bild(0), translator::translate("Train"));
+	tabs.add_tab(&scl, NULL, skinverwaltung_t::monorailhaltsymbol->gib_bild(0), translator::translate("Monorail"));
+	tabs.add_tab(&scl, NULL, skinverwaltung_t::tramhaltsymbol->gib_bild(0), translator::translate("Tram"));
+	tabs.add_tab(&scl, NULL, skinverwaltung_t::autohaltsymbol->gib_bild(0), translator::translate("Truck"));
+	tabs.add_tab(&scl, NULL, skinverwaltung_t::schiffshaltsymbol->gib_bild(0), translator::translate("Ship"));
+	tabs.add_tab(&scl, NULL, skinverwaltung_t::airhaltsymbol->gib_bild(0), translator::translate("Air"));
 	tabs.add_listener(this);
 	add_komponente(&tabs);
 

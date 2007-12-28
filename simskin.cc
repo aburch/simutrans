@@ -26,6 +26,7 @@ const skin_besch_t* skinverwaltung_t::schiffshaltsymbol  = NULL;
 const skin_besch_t* skinverwaltung_t::airhaltsymbol      = NULL;
 const skin_besch_t* skinverwaltung_t::monorailhaltsymbol = NULL;
 const skin_besch_t* skinverwaltung_t::bushaltsymbol      = NULL;
+const skin_besch_t* skinverwaltung_t::tramhaltsymbol      = NULL;
 
 const skin_besch_t* skinverwaltung_t::fragezeiger        = NULL;
 const skin_besch_t* skinverwaltung_t::signalzeiger       = NULL;
@@ -100,6 +101,7 @@ static spezial_obj_tpl<skin_besch_t> symbol_objekte[] = {
 	{ &skinverwaltung_t::bushaltsymbol,      "BusStop"        },
 	{ &skinverwaltung_t::airhaltsymbol,      "AirStop"        },
 	{ &skinverwaltung_t::monorailhaltsymbol, "MonorailStop"   },
+	{ &skinverwaltung_t::tramhaltsymbol,     "TramStop"   },
 	{ &skinverwaltung_t::electricity,        "Electricity"    },
 	{ &skinverwaltung_t::intown,             "InTown"         },
 	{ &skinverwaltung_t::passagiere,         "Passagiere"     },

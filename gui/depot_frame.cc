@@ -189,7 +189,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	scrolly_pas.set_read_only(false);
 
 	// always add
-	tabs.add_tab(&scrolly_pas, depot->gib_passenger_name());
+	tabs.add_tab(&scrolly_pas, translator::translate( depot->gib_passenger_name() ) );
 
 	cont_loks.add_komponente(&loks);
 	scrolly_loks.set_show_scroll_x(false);
@@ -197,7 +197,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	scrolly_loks.set_read_only(false);
 	// add, if waggons are there ...
 	if (!loks_vec.empty() || !waggons_vec.empty()) {
-		tabs.add_tab(&scrolly_loks, depot->gib_zieher_name());
+		tabs.add_tab(&scrolly_loks, translator::translate( depot->gib_zieher_name() ) );
 	}
 
 	cont_waggons.add_komponente(&waggons);
@@ -206,7 +206,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	scrolly_waggons.set_read_only(false);
 	// only add, if there are waggons
 	if (!waggons_vec.empty()) {
-		tabs.add_tab(&scrolly_waggons, depot->gib_haenger_name());
+		tabs.add_tab(&scrolly_waggons, translator::translate( ( depot->gib_haenger_name() ) );
 	}
 
 	pas.set_player_nr(depot->get_player_nr());

@@ -2,6 +2,9 @@
 #define gui_tab_panel_h
 
 #include "../../ifc/gui_action_creator.h"
+#include "../../simimg.h"
+
+class bild_besch_t;
 
 /**
  * Eine Klasse für Registerkartenartige Aufteilung von gui_komponente_t
@@ -22,7 +25,7 @@ public:
      * @param name der Name der Registerkarte für die Komponente
      * @author Hj. Malthaner
      */
-    void add_tab(gui_komponente_t *c, const char *name);
+    void add_tab(gui_komponente_t *c, const char *name, const bild_besch_t *b=NULL, const char *tooltip=NULL );
 
     /**
      * Gibt die aktuell angezeigte Komponente zurück.
@@ -55,10 +58,12 @@ public:
 	private:
 		struct tab
 		{
-			tab(gui_komponente_t* c, const char* t) : component(c), title(t) {}
+			tab(gui_komponente_t* c, const char *name, const bild_besch_t *b, const char *tool) : component(c), title(name), img(b), tooltip(tool) {}
 
 			gui_komponente_t* component;
-			const char*       title;
+			const char *title;
+			const bild_besch_t *img;
+			const char *tooltip;
 		};
 
 		slist_tpl<tab> tabs;
