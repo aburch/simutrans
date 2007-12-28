@@ -206,7 +206,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	scrolly_waggons.set_read_only(false);
 	// only add, if there are waggons
 	if (!waggons_vec.empty()) {
-		tabs.add_tab(&scrolly_waggons, translator::translate( ( depot->gib_haenger_name() ) );
+		tabs.add_tab(&scrolly_waggons, translator::translate( depot->gib_haenger_name() ) );
 	}
 
 	pas.set_player_nr(depot->get_player_nr());
