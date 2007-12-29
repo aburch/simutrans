@@ -4,7 +4,7 @@
 	CHANGE: allow for offsets in the texture files => pak192 grounds possible
 	CHANGE: new convoi filter for stuck convois 'clf_chk_stucked'
 	FIX: could delete crossings under certain circumstances
-	CHANGE: images in line tab, translation now tooltip
+	CHANGE: images in line tab, translation now tooltip, "TramStop" pak needed
 
 
 Release of 99.17 (r1502)

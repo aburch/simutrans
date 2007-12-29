@@ -129,7 +129,7 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main
 	ware_cont.setze_groesse(koord(100, 16*n + 4));
 	ware_scrolly.setze_groesse(koord(125, 189));
 
-	setze_fenstergroesse(koord(255, 243));
+	setze_fenstergroesse(koord(255, 259));
 }
 
 

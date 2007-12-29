@@ -217,12 +217,13 @@ brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_
 		}
 
 		gr1 = welt->lookup(pos + koord3d(0, 0, Z_TILE_STEP));
-		if(gr1 && gr1->gib_weg_hang()==hang_t::flach) {
-			return gr1->gib_pos();        // Ende an Querbrücke
+		if(gr1 && gr1->gib_weg_hang()==hang_t::flach  &&  gr1->gib_typ()!=grund_t::brueckenboden) {
+			// on slope ok, but not on other bridges
+			return gr1->gib_pos();
 		}
 		gr2 = welt->lookup(pos);
 		if(gr2) {
-			ribi_t::ribi ribi = 0;
+			ribi_t::ribi ribi = ribi_t::keine;
 			if(wegtyp != powerline_wt) {
 				ribi = gr2->gib_weg_ribi_unmasked(wegtyp);
 			} else {
@@ -237,11 +238,11 @@ brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_
 						// Ende mit Rampe - Endschiene vorhanden
 						return pos;
 					}
-					if(!ribi && wegtyp!=powerline_wt && gr2->hat_weg(wegtyp)) {
+					if(ribi==ribi_t::keine && wegtyp!=powerline_wt && gr2->hat_weg(wegtyp)) {
 						// Ende mit Rampe - Endschiene hat keine ribis
 						return pos;
 					}
-					if(!ribi && wegtyp==powerline_wt && gr2->suche_obj(ding_t::leitung)) {
+					if(ribi==ribi_t::keine && wegtyp==powerline_wt && gr2->suche_obj(ding_t::leitung)) {
 						// Ende mit Rampe - Endschiene hat keine ribis
 						return pos;
 					}
