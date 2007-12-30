@@ -70,6 +70,11 @@ public:
 		return (abs(p1.x-p2.x)+abs(p1.y-p2.y)+abs(p1.z-p2.z)/16);
 	}
 
+	const bool is_contained(const koord3d k) const { return route.is_contained(k); }
+
+	const sint32 index_of(const koord3d k) const { return (sint32)(route.index_of(k)); }
+
+
 	/**
 	 * @return Koordinate an index n
 	 * @author Hj. Malthaner

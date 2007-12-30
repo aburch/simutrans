@@ -1926,6 +1926,52 @@ int wkz_fahrplan_ins(spieler_t *sp, karte_t *welt, koord pos,value_t f)
 
 
 
+int wkz_clear_reservation(spieler_t *sp, karte_t *welt, koord pos)
+{
+	if(welt->ist_in_kartengrenzen(pos)) {
+
+		const planquadrat_t *plan = welt->lookup(pos);
+		const bool backwards = (event_get_last_control_shift()==2);
+		for(unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
+			grund_t *gr=plan->gib_boden_bei( backwards ? plan->gib_boden_count()-1-i : i );
+
+			if(gr) {
+
+				for(unsigned wnr=0;  wnr<2;  wnr++  ) {
+
+					schiene_t *w = dynamic_cast<schiene_t *>(gr->gib_weg_nr(wnr));
+					// is this a reserved track?
+					if(w!=NULL  &&  w->is_reserved()) {
+						/* now we do a very crude procedure:
+						 * - we search all ways for reservations of this convoi and remove them
+						 * - we set the convoi state to ROUTING_1; it must rereserve its ways then
+						 */
+						const waytype_t waytype = w->gib_waytype();
+						const convoihandle_t cnv = w->get_reserved_convoi();
+						if(cnv->get_state()==convoi_t::DRIVING) {
+							// reset driving state
+							cnv->suche_neue_route();
+						}
+						slist_iterator_tpl<weg_t *>iter(weg_t::gib_alle_wege());
+						while(iter.next()) {
+							if(iter.get_current()->gib_waytype()==waytype) {
+								schiene_t *sch = dynamic_cast<schiene_t *>(iter.access_current());
+								if(sch->get_reserved_convoi()==cnv  &&  !gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())) {
+									// force free
+									sch->unreserve( cnv->gib_vehikel(0) );
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return true;
+}
+
+
+
 int wkz_marker(spieler_t *sp, karte_t *welt, koord pos)
 {
 	if(welt->ist_in_kartengrenzen(pos)) {

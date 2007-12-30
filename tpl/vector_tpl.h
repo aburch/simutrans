@@ -58,6 +58,18 @@ template<class T> class vector_tpl
 			return false;
 		}
 
+		/**
+		 * Checks if element elem is contained in vector.
+		 * Uses the == operator for comparison.
+		 */
+		uint32 index_of(T elem) const
+		{
+			for (uint32 i = 0; i < count; i++) {
+				if (data[i] == elem) return i;
+			}
+			return 0xFFFFFFFFu;
+		}
+
 		/** Appends the element at the end of the vector.  */
 		void append(T elem)
 		{

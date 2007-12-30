@@ -34,6 +34,8 @@ int wkz_wayremover(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam);
 /* add catenary during construction */
 int wkz_wayobj(spieler_t *sp, karte_t *welt, koord pos, value_t lParam);
 
+int wkz_clear_reservation(spieler_t *sp, karte_t *welt, koord pos);
+
 int wkz_marker(spieler_t *sp, karte_t *welt, koord pos);
 
 int wkz_senke(spieler_t *sp, karte_t *welt, koord pos);

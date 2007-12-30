@@ -3455,6 +3455,9 @@ karte_t::interactive_event(event_t &ev)
 			case 'b':
 				sound_play(click_sound);
 				schiene_t::show_reservations = !schiene_t::show_reservations;
+				if(schiene_t::show_reservations) {
+					setze_maus_funktion(wkz_clear_reservation, skinverwaltung_t::signalzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );
+				}
 				setze_dirty();
 				break;
 			case 'B':
