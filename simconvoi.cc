@@ -2238,11 +2238,13 @@ void convoi_t::check_pending_updates()
 		linehandle_t line = besitzer_p->simlinemgmt.get_line_by_id(line_update_pending);
 		// the line could have been deleted in the meantime
 		// if line was deleted ignore line update; convoi will continue with existing schedule
-		if (line.is_bound()) {
+		if(line.is_bound()) {
 			int aktuell = fpl->get_aktuell(); // save current position of schedule
 			fpl = new fahrplan_t(line->get_fahrplan());
 			fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
-			state = FAHRPLANEINGABE;
+			if(state!=INITIAL) {
+				state = FAHRPLANEINGABE;
+			}
 		}
 		line_update_pending = INVALID_LINE_ID;
 	}

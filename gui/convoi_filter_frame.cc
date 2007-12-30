@@ -36,20 +36,20 @@ koord convoi_filter_frame_t::filter_buttons_pos[FILTER_BUTTONS] = {
 };
 
 const char *convoi_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {
-    "clf_chk_name_filter",
-    "clf_chk_type_filter",
-    "clf_chk_cars",
-    "clf_chk_trains",
-    "clf_chk_ships",
-    "clf_chk_aircrafts",
-    "clf_chk_spezial_filter",
-    "clf_chk_noroute",
-		"clf_chk_stucked"
-    "clf_chk_noincome",
-    "clf_chk_indepot",
-    "clf_chk_noschedule",
-    "clf_chk_noline",
-    "clf_chk_waren"
+	"clf_chk_name_filter",
+	"clf_chk_type_filter",
+	"clf_chk_cars",
+	"clf_chk_trains",
+	"clf_chk_ships",
+	"clf_chk_aircrafts",
+	"clf_chk_spezial_filter",
+	"clf_chk_noroute",
+	"clf_chk_stucked",
+	"clf_chk_noincome",
+	"clf_chk_indepot",
+	"clf_chk_noschedule",
+	"clf_chk_noline",
+	"clf_chk_waren"
 };
 
 convoi_frame_t::filter_flag_t convoi_filter_frame_t::filter_buttons_types[FILTER_BUTTONS] = {
