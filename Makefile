@@ -65,6 +65,7 @@ ifneq ($(OPTIMISE),)
     CFLAGS   += -O3 -fomit-frame-pointer -minline-all-stringops
     CXXFLAGS += -O3 -fomit-frame-pointer
   endif
+  LDFLAGS += -ffunctions-sections
 else
   CFLAGS   += -O
   CXXFLAGS += -O
@@ -113,6 +114,7 @@ SOURCES += besch/reader/crossing_reader.cc
 SOURCES += besch/reader/factory_reader.cc
 SOURCES += besch/reader/good_reader.cc
 SOURCES += besch/reader/ground_reader.cc
+SOURCES += besch/reader/groundobj_reader.cc
 SOURCES += besch/reader/image_reader.cc
 SOURCES += besch/reader/imagelist2d_reader.cc
 SOURCES += besch/reader/imagelist_reader.cc
@@ -166,6 +168,7 @@ SOURCES += dings/baum.cc
 SOURCES += dings/bruecke.cc
 SOURCES += dings/crossing.cc
 SOURCES += dings/gebaeude.cc
+SOURCES += dings/groundobj.cc
 SOURCES += dings/field.cc
 SOURCES += dings/label.cc
 SOURCES += dings/leitung2.cc
