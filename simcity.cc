@@ -894,7 +894,6 @@ stadt_t::~stadt_t()
 				gb->setze_stadt( city );
 				if(city) {
 					city->buildings.append(gb,16);
-//					city->add_gebaeude_to_stadt( gb );
 				}
 			}
 			else {

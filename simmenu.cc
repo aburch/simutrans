@@ -376,7 +376,7 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 		break;
 
 		case magic_tramtools:
-			if(wegbauer_t::weg_search(tram_wt,1,welt->get_timeline_year_month(),weg_t::type_all)!=NULL  &&  hausbauer_t::monorail_depot_besch!=NULL) {
+			if(wegbauer_t::weg_search(tram_wt,1,welt->get_timeline_year_month(),weg_t::type_all)!=NULL  &&  hausbauer_t::tram_depot_besch!=NULL) {
 				if(wzw==NULL) {
 					wzw = new werkzeug_parameter_waehler_t(welt, "TRAMTOOLS");
 					wzw->setze_hilfe_datei("tramtools.txt");
@@ -455,7 +455,7 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 		break;
 
 		case magic_roadtools:
-			if(wegbauer_t::weg_search(road_wt,1,welt->get_timeline_year_month(),weg_t::type_all)!=NULL  &&  hausbauer_t::monorail_depot_besch!=NULL) {
+			if(wegbauer_t::weg_search(road_wt,1,welt->get_timeline_year_month(),weg_t::type_all)!=NULL  &&  hausbauer_t::str_depot_besch!=NULL) {
 				if(wzw==NULL) {
 					wzw = new werkzeug_parameter_waehler_t(welt, "ROADTOOLS");
 					wzw->setze_hilfe_datei("roadtools.txt");
@@ -533,7 +533,7 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 						SFX_FAILURE,
 						hausbauer_t::str_depot_besch->gib_cursor()->gib_bild_nr(1),
 						hausbauer_t::str_depot_besch->gib_cursor()->gib_bild_nr(0),
-						tool_tip_with_price(translator::translate("Build road depot"), umgebung_t::cst_depot_rail));
+						tool_tip_with_price(translator::translate("Build road depot"), umgebung_t::cst_depot_road));
 				}
 
 				hausbauer_t::fill_menu(wzw,
