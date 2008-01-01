@@ -29,10 +29,9 @@ private:
 	static stringhashtable_tpl<uint32> besch_names;
 	static vector_tpl<const groundobj_besch_t *> groundobj_typen;
 
-	static uint32 queried;
-
 public:
-	static bool should_i_built_groundobj();
+	static bool register_besch(groundobj_besch_t *besch);
+	static bool alles_geladen();
 
 	static const groundobj_besch_t *random_groundobj_for_climate(climate cl, hang_t::typ slope);
 
@@ -64,8 +63,8 @@ public:
 
 	const groundobj_besch_t* gib_besch() const { return groundobj_typen[groundobjtype]; }
 
-	static bool register_besch(groundobj_besch_t *besch);
-	static bool alles_geladen();
+	void * operator new(size_t s);
+	void operator delete(void *p);
 };
 
 #endif

@@ -893,7 +893,8 @@ stadt_t::~stadt_t()
 				stadt_t *city = welt->suche_naechste_stadt(gb->gib_pos().gib_2d());
 				gb->setze_stadt( city );
 				if(city) {
-					city->add_gebaeude_to_stadt( gb );
+					city->buildings.append(gb,16);
+//					city->add_gebaeude_to_stadt( gb );
 				}
 			}
 			else {

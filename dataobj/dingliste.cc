@@ -26,6 +26,7 @@
 #include "../dings/leitung2.h"
 #include "../dings/wayobj.h"
 #include "../dings/roadsign.h"
+#include "../dings/groundobj.h"
 
 #include "../simtypes.h"
 #include "../simdepot.h"
@@ -756,6 +757,19 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						delete b;
 					}
 					d = b;
+				}
+				break;
+
+				case ding_t::groundobj:
+				{
+					groundobj_t *go = new groundobj_t(welt, file);
+					if(!go->gib_besch()) {
+						// do not remove from this position, since there will be nothing
+						go->set_flag(ding_t::not_on_map);
+						// not use entferne, since it would try to lookup besch
+						delete go;
+					}
+					d = go;
 				}
 				break;
 

@@ -59,30 +59,16 @@ bool groundobj_t::alles_geladen()
 
 bool groundobj_t::register_besch(groundobj_besch_t *besch)
 {
-	groundobj_typen.append(besch,4);
+	if(groundobj_typen.get_count()==0) {
+		// NULL for empty object
+		groundobj_typen.append(NULL,4);
+	}
 	besch_names.put(besch->gib_name(), groundobj_typen.get_count() );
+	groundobj_typen.append(besch,4);
 	return true;
 }
 
 
-
-
-// number of queries so far
-uint32 groundobj_t::queried=0;
-
-// true, if now is the time to add a ground obj
-bool groundobj_t::should_i_built_groundobj()
-{
-	if(  umgebung_t::ground_object_probability*groundobj_typen.get_count() > 0  ) {
-		// ok, we might want to check for something
-		groundobj_t::queried ++;
-		if(  umgebung_t::ground_object_probability < groundobj_t::queried  ) {
-			// add a little random here and there
-			return simrand(4)==3;
-		}
-	}
-	return false;
-}
 
 
 /* also checks for distribution values
@@ -92,7 +78,7 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 {
 	int weight = 0;
 
-	for( unsigned i=0;  i<groundobj_typen.get_count();  i++  ) {
+	for( unsigned i=1;  i<groundobj_typen.get_count();  i++  ) {
 		if (groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->gib_phases()==16)  ) {
 			weight += groundobj_typen[i]->gib_distribution_weight();
 		}
@@ -102,7 +88,7 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 	if (weight > 0) {
 		const int w=simrand(weight);
 		weight = 0;
-		for( unsigned i=0; i<groundobj_typen.get_count();  i++  ) {
+		for( unsigned i=1; i<groundobj_typen.get_count();  i++  ) {
 			if (groundobj_typen[i]->is_allowed_climate(cl)) {
 				weight += groundobj_typen[i]->gib_distribution_weight();
 				if(weight>=w) {
@@ -176,8 +162,6 @@ groundobj_t::groundobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b 
 	season = 0xFF;	// mark dirty
 	groundobjtype = groundobj_typen.index_of(b);
 	calc_bild();
-	// reset probability counter
-	groundobj_t::queried = 0;
 }
 
 
@@ -207,6 +191,7 @@ void groundobj_t::rdwr(loadsave_t *file)
 		char bname[128];
 		file->rd_str_into(bname, "N");
 		groundobjtype = besch_names.get(bname);
+		// if not there, besch will be zero
 	}
 }
 
@@ -259,3 +244,16 @@ groundobj_t::entferne(spieler_t *sp)
 
 
 
+void *
+groundobj_t::operator new(size_t /*s*/)
+{
+	return freelist_t::gimme_node(sizeof(groundobj_t));
+}
+
+
+
+void
+groundobj_t::operator delete(void *p)
+{
+	freelist_t::putback_node(sizeof(groundobj_t),p);
+}

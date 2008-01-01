@@ -669,12 +669,25 @@ DBG_DEBUG("karte_t::init()","set ground");
 			grund_t *gr = lookup_kartenboden(k);
 			gr->setze_grund_hang( calc_natural_slope(k) );
 			gr->calc_bild();
-			// add eyecandy
-			if(groundobj_t::should_i_built_groundobj()) {
-				const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(gr->gib_hoehe()), gr->gib_grund_hang() );
-				if(besch) {
-					gr->obj_add( new groundobj_t( this, gr->gib_pos(), besch ) );
+		}
+	}
+
+DBG_DEBUG("karte_t::init()","distributing groundobjs");
+	if(  umgebung_t::ground_object_probability > 0  ) {
+		// add eyecandy like rocky, moles, flowers, ...
+		koord k;
+		sint32 queried = simrand(umgebung_t::ground_object_probability*2);
+		for(k.y=0; k.y<gib_groesse_y(); k.y++) {
+			for(k.x=0; k.x<gib_groesse_x(); k.x++) {
+				if(  queried<0  ) {
+					grund_t *gr = lookup_kartenboden(k);
+					const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(gr->gib_hoehe()), gr->gib_grund_hang() );
+					if(besch) {
+						queried = simrand(umgebung_t::ground_object_probability*2);
+						gr->obj_add( new groundobj_t( this, gr->gib_pos(), besch ) );
+					}
 				}
+				queried --;
 			}
 		}
 	}

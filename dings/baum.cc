@@ -21,6 +21,8 @@
 
 #include "../besch/baum_besch.h"
 
+#include "../dings/groundobj.h"
+
 #include "../utils/cbuffer_t.h"
 
 #include "../dataobj/loadsave.h"
@@ -170,7 +172,7 @@ stringhashtable_tpl<uint32> baum_t::besch_names;
 int baum_t::gib_anzahl_besch(climate cl)
 {
 	uint16 total_number=0;
-	for( unsigned i=0;  i<baum_typen.get_count();  i++  ) {
+	for( unsigned i=1;  i<baum_typen.get_count();  i++  ) {
 		if (baum_typen[i]->is_allowed_climate(cl)) {
 			total_number ++;
 		}
@@ -193,6 +195,25 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const uint8 max
 			gr->ist_natur()  &&
 			gr->gib_top()<maximum_count)
 		{
+			if(gr->gib_top()>0) {
+				switch(gr->obj_bei(0)->gib_typ()) {
+					case ding_t::wolke:
+					case ding_t::aircraft:
+					case ding_t::baum:
+					case ding_t::leitung:
+					case ding_t::label:
+					case ding_t::zeiger:
+						// ok to built here
+						break;
+					case ding_t::groundobj:
+						if(((groundobj_t *)(gr->obj_bei(0)))->gib_besch()->can_built_trees_here()) {
+							break;
+						}
+						// leave these (and all other empty)
+					default:
+						return false;
+				}
+			}
 			gr->obj_add( new baum_t(welt, gr->gib_pos()) ); //plants the tree
 			return true; //tree was planted - currently unused value is not checked
 		}
@@ -207,6 +228,7 @@ baum_t::alles_geladen()
 {
 	if (besch_names.empty()) {
 		DBG_MESSAGE("baum_t", "No trees found - feature disabled");
+		baum_typen.append(NULL,1);
 	}
 	return true;
 }
@@ -216,8 +238,12 @@ baum_t::alles_geladen()
 bool
 baum_t::register_besch(baum_besch_t *besch)
 {
-	baum_typen.append(besch,4);
+	if(baum_typen.get_count()==0) {
+		// NULL for empty object
+		baum_typen.append(NULL,4);
+	}
 	besch_names.put(besch->gib_name(), baum_typen.get_count() );
+	baum_typen.append(besch,4);
 	return true;
 }
 
@@ -340,7 +366,7 @@ baum_t::random_tree_for_climate(climate cl)
 {
 	int weight = 0;
 
-	for( unsigned i=0;  i<baum_typen.get_count();  i++  ) {
+	for( unsigned i=1;  i<baum_typen.get_count();  i++  ) {
 		if (baum_typen[i]->is_allowed_climate(cl)) {
 			weight += baum_typen[i]->gib_distribution_weight();
 		}
@@ -350,7 +376,7 @@ baum_t::random_tree_for_climate(climate cl)
 	if (weight > 0) {
 		const int w=simrand(weight);
 		weight = 0;
-		for( unsigned i=0; i<baum_typen.get_count();  i++  ) {
+		for( unsigned i=1; i<baum_typen.get_count();  i++  ) {
 			if (baum_typen[i]->is_allowed_climate(cl)) {
 				weight += baum_typen[i]->gib_distribution_weight();
 				if(weight>=w) {
@@ -465,14 +491,11 @@ baum_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 		char bname[128];
 		file->rd_str_into(bname, "N");
-
-		baumtype = 0;
 		baumtype = besch_names.get(bname);
 		if(baumtype==0) {
 			// replace with random tree
-			baumtype = simrand(baum_typen.get_count())+1;
+			baumtype = simrand(baum_typen.get_count()-1)+1;
 		}
-		baumtype --;
 	}
 }
 

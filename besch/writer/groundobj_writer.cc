@@ -11,7 +11,7 @@
 
 void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 14, &parent, false);	/* false, because we write this ourselves */
+	obj_node_t node(this, 15, &parent, false);	/* false, because we write this ourselves */
 	write_head(fp, node, obj);
 
 	// Hajodoc: Preferred height of this tree type
@@ -37,6 +37,9 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 
 	// 1 for moving objects (sheeps, birds)
 	besch.moving = obj.get_int("moving", 0)!=0;
+
+	// 1 for to allow trees on this objects
+	besch.trees_on_top = obj.get_int("trees_on_top", 1)!=0;
 
 	// waytype for moving stuff; meaningful air for birds, water for fish, does not matter for everything else
 	const char* waytype = obj.get("waytype");
@@ -89,11 +92,14 @@ finish_images:
 	v8 = (uint8) besch.moving;
 	node.write_data_at(fp, &v8, 7, sizeof(uint8));
 
+	v8 = (uint8) besch.trees_on_top;
+	node.write_data_at(fp, &v8, 8, sizeof(uint8));
+
 	v16 = (uint16)besch.waytype;
-	node.write_data_at(fp, &v16, 8, sizeof(uint16));
+	node.write_data_at(fp, &v16, 9, sizeof(uint16));
 
 	s32 = (sint32)besch.cost_removal;
-	node.write_data_at(fp, &s32, 10, sizeof(sint32));
+	node.write_data_at(fp, &s32, 11, sizeof(sint32));
 
 	node.write(fp);
 }

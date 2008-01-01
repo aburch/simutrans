@@ -7,6 +7,7 @@
 	CHANGE: images in line tab, translation now tooltip, "TramStop" pak needed
 	CHANGE: block reservation mode on will also enable "delete these reservations" cursor
 	ADD: new obj named groundobj, new string "cost for removal"
+	FIX: error with removing headquarter after rotation
 
 
 Release of 99.17 (r1502)
