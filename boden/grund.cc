@@ -37,6 +37,7 @@
 #include "../dings/bruecke.h"
 #include "../dings/tunnel.h"
 #include "../dings/gebaeude.h"
+#include "../dings/groundobj.h"
 #include "../dings/label.h"
 #include "../dings/crossing.h"
 #include "../dings/signal.h"
@@ -878,13 +879,23 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 
 			// remove all trees ...
 			while(1) {
-				ding_t *d=dinge.suche(ding_t::baum,0);
+				baum_t *d=find<baum_t>(0);
 				if(d==NULL) {
 					break;
 				}
 				delete d;
 				cost -= umgebung_t::cst_remove_tree;
 			}
+			// remove all groundobjs ...
+			while(1) {
+				groundobj_t *d=find<groundobj_t>(0);
+				if(d==NULL) {
+					break;
+				}
+				cost -= d->gib_besch()->gib_preis();
+				delete d;
+			}
+
 
 			// add
 			weg->setze_ribi(ribi);

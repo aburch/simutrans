@@ -116,6 +116,12 @@ public:
 	 */
 	static uint32 water_animation;
 
+
+	/* probability for ground objects (if in existence
+	 * @author prissi
+	 */
+	static uint32 ground_object_probability;
+
 	/**
 	* Info-Fenster für Fussgänger und Privatfahrzeuge
 	*

@@ -29,11 +29,13 @@ class cbuffer_t;
  * Used by grund_t::find<T>()
  */
 class aircraft_t;
+class baum_t;
 class bruecke_t;
 class crossing_t;
 class field_t;
 class fussgaenger_t;
 class gebaeude_t;
+class groundobj_t;
 class label_t;
 class leitung_t;
 class pillar_t;
@@ -49,11 +51,13 @@ class zeiger_t;
 
 template<typename T> struct map_ding {};
 template<> struct map_ding<aircraft_t>    { static const ding_t::typ code = ding_t::aircraft;    };
+template<> struct map_ding<baum_t>        { static const ding_t::typ code = ding_t::baum;        };
 template<> struct map_ding<bruecke_t>     { static const ding_t::typ code = ding_t::bruecke;     };
 template<> struct map_ding<crossing_t>    { static const ding_t::typ code = ding_t::crossing;    };
 template<> struct map_ding<field_t>       { static const ding_t::typ code = ding_t::field;       };
 template<> struct map_ding<fussgaenger_t> { static const ding_t::typ code = ding_t::fussgaenger; };
 template<> struct map_ding<gebaeude_t>    { static const ding_t::typ code = ding_t::gebaeude;    };
+template<> struct map_ding<groundobj_t>   { static const ding_t::typ code = ding_t::groundobj;   };
 template<> struct map_ding<label_t>       { static const ding_t::typ code = ding_t::label;       };
 template<> struct map_ding<leitung_t>     { static const ding_t::typ code = ding_t::leitung;     };
 template<> struct map_ding<pillar_t>      { static const ding_t::typ code = ding_t::pillar;      };

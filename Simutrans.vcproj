@@ -380,6 +380,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dings\groundobj.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\besch\groundobj_besch.h"
+				>
+			</File>
+			<File
+				RelativePath=".\besch\reader\groundobj_reader.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\besch\reader\groundobj_reader.h"
+				>
+			</File>
+			<File
 				RelativePath=".\boden\grund.cc"
 				>
 			</File>

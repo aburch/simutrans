@@ -23,6 +23,7 @@
 #include "factory_writer.h"
 #include "good_writer.h"
 #include "ground_writer.h"
+#include "groundobj_writer.h"
 #include "way_writer.h"
 #include "way_obj_writer.h"
 #include "root_writer.h"
@@ -68,6 +69,7 @@ bridge_writer_t bridge_writer_t::the_instance;
 tunnel_writer_t tunnel_writer_t::the_instance;
 
 field_writer_t field_writer_t::the_instance;
+groundobj_writer_t groundobj_writer_t::the_instance;
 smoke_writer_t smoke_writer_t::the_instance;
 
 building_writer_t building_writer_t::the_instance;

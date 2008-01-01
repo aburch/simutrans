@@ -5,6 +5,8 @@
 	CHANGE: new convoi filter for stuck convois 'clf_chk_stucked'
 	FIX: could delete crossings under certain circumstances
 	CHANGE: images in line tab, translation now tooltip, "TramStop" pak needed
+	CHANGE: block reservation mode on will also enable "delete these reservations" cursor
+	ADD: new obj named groundobj, new string "cost for removal"
 
 
 Release of 99.17 (r1502)

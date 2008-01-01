@@ -13,6 +13,7 @@
 #include "factory_reader.h"
 #include "good_reader.h"
 #include "ground_reader.h"
+#include "groundobj_reader.h"
 #include "way_reader.h"
 #include "way_obj_reader.h"
 #include "root_reader.h"
@@ -51,6 +52,7 @@ miscimages_reader_t miscimages_reader_t::the_instance;
 good_reader_t good_reader_t::the_instance;
 
 ground_reader_t ground_reader_t::the_instance;
+groundobj_reader_t groundobj_reader_t::the_instance;
 way_reader_t way_reader_t::the_instance;
 way_obj_reader_t way_obj_reader_t::the_instance;
 crossing_reader_t crossing_reader_t::the_instance;

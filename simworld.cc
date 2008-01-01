@@ -65,6 +65,7 @@
 #include "dings/signal.h"
 #include "dings/roadsign.h"
 #include "dings/wayobj.h"
+#include "dings/groundobj.h"
 #include "dings/gebaeude.h"
 
 #include "gui/welt.h"
@@ -665,8 +666,16 @@ DBG_DEBUG("karte_t::init()","set ground");
 	for(k.y=0; k.y<gib_groesse_y(); k.y++) {
 		for(k.x=0; k.x<gib_groesse_x(); k.x++) {
 			access(k)->abgesenkt(this);
-			lookup_kartenboden(k)->setze_grund_hang( calc_natural_slope(k) );
-			lookup_kartenboden(k)->calc_bild();
+			grund_t *gr = lookup_kartenboden(k);
+			gr->setze_grund_hang( calc_natural_slope(k) );
+			gr->calc_bild();
+			// add eyecandy
+			if(groundobj_t::should_i_built_groundobj()) {
+				const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(gr->gib_hoehe()), gr->gib_grund_hang() );
+				if(besch) {
+					gr->obj_add( new groundobj_t( this, gr->gib_pos(), besch ) );
+				}
+			}
 		}
 	}
 

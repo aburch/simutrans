@@ -136,6 +136,7 @@ public:
 		label = 27,	// indicates ownership
 		field = 28,
 		crossing = 29,
+		groundobj = 30, // lakes, stones
 
 		// after this only moving stuff
 		// vehikel sind von 64 bis 95

@@ -72,7 +72,8 @@ static uint8 type_to_pri[32]=
 	9, // label, indicates ownership: insert before trees
 	3, // field (factory extension)
 	1, // crossings, treated like bridges or tunnels
-	255, 255
+	1, // groundobjs, overlays over bare ground like lakes etc.
+	255
 };
 
 
