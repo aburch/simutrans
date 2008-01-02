@@ -42,8 +42,8 @@ obj_besch_t * groundobj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->allowed_climates = (climate_bits)decode_uint16(p);
 		besch->distribution_weight = decode_uint16(p);
 		besch->number_of_seasons = decode_uint8(p);
-		besch->speed = decode_uint16(p);
 		besch->trees_on_top = (bool)decode_uint8(p);
+		besch->speed = decode_uint16(p);
 		besch->waytype = (waytype_t)decode_uint16(p);
 		besch->cost_removal = decode_sint32(p);
 	} else {

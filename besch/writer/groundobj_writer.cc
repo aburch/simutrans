@@ -35,7 +35,7 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 	// how much for removal
 	besch.cost_removal = obj.get_int("cost", 0);
 
-	// 1 for moving objects (sheeps, birds)
+	// !=0 for moving objects (sheeps, birds)
 	besch.speed = obj.get_int("speed", 0);
 
 	// 1 for to allow trees on this objects
@@ -89,11 +89,11 @@ finish_images:
 	v8 = (uint8) besch.number_of_seasons;
 	node.write_data_at(fp, &v8, 6, sizeof(uint8));
 
-	v16 = (uint8) besch.speed;
-	node.write_data_at(fp, &v16, 7, sizeof(uint16));
-
 	v8 = (uint8) besch.trees_on_top;
-	node.write_data_at(fp, &v8, 9, sizeof(uint8));
+	node.write_data_at(fp, &v8, 7, sizeof(uint8));
+
+	v16 = (uint16) besch.speed;
+	node.write_data_at(fp, &v16, 8, sizeof(uint16));
 
 	v16 = (uint16)besch.waytype;
 	node.write_data_at(fp, &v16, 10, sizeof(uint16));
