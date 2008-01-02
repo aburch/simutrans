@@ -1378,6 +1378,7 @@ void fabrik_t::rotate90( const sint16 y_size )
 		pos.rotate90( y_size );
 		dbg->warning( "fabrik_t::rotate90()","no tile zero form %s at (%s)", gib_name(), pos.gib_str() );
 	}
+	rotate = (rotate+1)%besch->gib_haus()->gib_all_layouts();
 
 	for( uint32 i=0;  i<lieferziele.get_count();  i++  ) {
 		lieferziele[i].rotate90( y_size );

@@ -8,9 +8,10 @@
 	CHANGE: block reservation mode on will also enable "delete these reservations" cursor
 	ADD: new obj named groundobj, new string "cost for removal"
 	FIX: error with removing headquarter after rotation
+	FIX: deleting incontinous buildings and rotated buildings could crash simutrans, rotate factory base for rebuilding after loading
 
 
-Release of 99.17 (r1502)
+Release of 99.17 (r1502, stable)
 
 19-Dec-2007:
 	ADD: water animation (if images defined) animation images are just the second parameter in the definition; animation speed is set by water_animation_ms in simuconf.tab
