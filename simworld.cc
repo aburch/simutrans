@@ -3940,6 +3940,7 @@ karte_t::interactive()
 	event_t ev;
 	finish_loop = true;
 	bool swallowed = false;
+	bool cursor_hidden = false;
 
 	do {
 		// get an event
@@ -3958,8 +3959,10 @@ karte_t::interactive()
 
 			if(IS_RIGHTCLICK(&ev)) {
 				display_show_pointer(false);
+				cursor_hidden = true;
 			} else if(IS_RIGHTRELEASE(&ev)) {
 				display_show_pointer(true);
+				cursor_hidden = false;
 			} else if(!swallowed  &&  ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_RIGHTBUTTON) {
 				// unset following
 				if(follow_convoi.is_bound()) {
@@ -3967,8 +3970,14 @@ karte_t::interactive()
 				}
 				blick_aendern(&ev);
 			}
+			else {
+				if(cursor_hidden) {
+					display_show_pointer(true);
+					cursor_hidden = false;
+				}
+			}
 
-			if(!swallowed  &&  (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON)  ||  (ev.button_state==0  &&  ev.ev_class==EVENT_MOVE)) {
+			if(/*!swallowed  &&*/  (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON)  ||  (ev.button_state==0  &&  ev.ev_class==EVENT_MOVE)) {
 				bewege_zeiger(&ev);
 			}
 		}

@@ -607,7 +607,11 @@ void GetEventsNoWait()
 
 void show_pointer(int yesno)
 {
-	ShowCursor(yesno);
+	static state=true;
+	if(state^yesno) {
+		ShowCursor(yesno);
+		state = yesno;
+	}
 }
 
 
