@@ -907,6 +907,9 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), quick_shortcu
 
 	zeiger = 0;
 	plan = 0;
+	ij_off = koord::invalid;
+	x_off = 0;
+	y_off = 0;
 	grid_hgts = 0;
 	einstellungen = sets;
 	schedule_counter = 0;
