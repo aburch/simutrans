@@ -263,7 +263,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 			numkey = numkey.substr(i + 1, numkey.len());
 			i = numkey.find(',');
 			if (i != -1) {
-				bild.x = atoi(numkey.substr(0, i));
+				bild.x = atoi(numkey.substr(i+1, numkey.len()));
 				numkey = numkey.substr(i + 1, numkey.len());
 				i = numkey.find(',');
 				if(i!=-1) {
