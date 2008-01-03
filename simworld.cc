@@ -679,15 +679,17 @@ DBG_DEBUG("karte_t::init()","distributing groundobjs");
 		sint32 queried = simrand(umgebung_t::ground_object_probability*2);
 		for(k.y=0; k.y<gib_groesse_y(); k.y++) {
 			for(k.x=0; k.x<gib_groesse_x(); k.x++) {
-				if(  queried<0  ) {
-					grund_t *gr = lookup_kartenboden(k);
-					const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(gr->gib_hoehe()), gr->gib_grund_hang() );
-					if(besch) {
-						queried = simrand(umgebung_t::ground_object_probability*2);
-						gr->obj_add( new groundobj_t( this, gr->gib_pos(), besch ) );
+				grund_t *gr = lookup_kartenboden(k);
+				if(gr->gib_typ()==grund_t::boden) {
+					queried --;
+					if(  queried<0  ) {
+						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(gr->gib_hoehe()), gr->gib_grund_hang() );
+						if(besch) {
+							queried = simrand(umgebung_t::ground_object_probability*2);
+							gr->obj_add( new groundobj_t( this, gr->gib_pos(), besch ) );
+						}
 					}
 				}
-				queried --;
 			}
 		}
 	}
@@ -993,7 +995,8 @@ bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 				dt->gib_typ() == ding_t::zeiger  ||
 				dt->gib_typ() == ding_t::wolke  ||
 				dt->gib_typ() == ding_t::sync_wolke  ||
-				dt->gib_typ() == ding_t::async_wolke;
+				dt->gib_typ() == ding_t::async_wolke  ||
+				dt->gib_typ() == ding_t::groundobj;
 			}
 		}
 	}
