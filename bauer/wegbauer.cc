@@ -36,7 +36,6 @@
 #include "../simplay.h"
 #include "../simplan.h"
 #include "../simdepot.h"
-//#include "../blockmanager.h"
 
 #include "../dings/gebaeude.h"
 #include "../dings/bruecke.h"

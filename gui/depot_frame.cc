@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #include "../simworld.h"
-#include "../simvehikel.h"
+#include "../vehicle/simvehikel.h"
 #include "../simconvoi.h"
 #include "../simdepot.h"
 #include "../simwin.h"

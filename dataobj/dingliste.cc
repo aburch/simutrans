@@ -31,9 +31,11 @@
 #include "../simtypes.h"
 #include "../simdepot.h"
 #include "../simmem.h"
-#include "../simverkehr.h"
-#include "../simpeople.h"
 #include "../simplay.h"
+
+#include "../vehicle/simvehikel.h"
+#include "../vehicle/simverkehr.h"
+#include "../vehicle/simpeople.h"
 
 #include "../besch/haus_besch.h"
 #include "../dataobj/loadsave.h"

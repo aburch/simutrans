@@ -26,67 +26,62 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "simcity.h"
+#include "simcolor.h"
+#include "simconvoi.h"
 #include "simdebug.h"
+#include "simfab.h"
+#include "simgraph.h"
+#include "simhalt.h"
+#include "simimg.h"
+#include "simintr.h"
+#include "simmesg.h"
+#include "simplay.h"
+#include "simskin.h"
+#include "simsound.h"
+#include "simtools.h"
+#include "simware.h"
+#include "simwerkz.h"
+#include "simwin.h"
+#include "simworld.h"
+
+#include "bauer/brueckenbauer.h"
+#include "bauer/hausbauer.h"
+#include "bauer/tunnelbauer.h"
+#include "bauer/vehikelbauer.h"
+#include "bauer/warenbauer.h"
+#include "bauer/wegbauer.h"
 
 #include "besch/grund_besch.h"
-#include "boden/boden.h"
-
-#include "boden/grund.h"
-#include "boden/wege/weg.h"
-#include "boden/wege/strasse.h"
-#include "boden/wege/schiene.h"
-#include "simskin.h"
 #include "besch/skin_besch.h"
 #include "besch/sound_besch.h"
 #include "besch/weg_besch.h"
-#include "simworld.h"
-#include "simplay.h"
-#include "simwerkz.h"
-#include "simfab.h"
-#include "simcity.h"
-#include "simhalt.h"
-#include "simvehikel.h"
-#include "simconvoi.h"
-#include "simsound.h"
-#include "simtools.h"
-#include "simmesg.h"
-#include "simware.h"
 
-#include "simintr.h"
+#include "boden/boden.h"
+#include "boden/grund.h"
+#include "boden/wege/schiene.h"
+#include "boden/wege/strasse.h"
+#include "boden/wege/weg.h"
 
-#include "simimg.h"
-#include "simcolor.h"
-
-#include "simwin.h"
-#include "gui/messagebox.h"
-
-#include "dings/zeiger.h"
-#include "dings/gebaeude.h"
-#include "dings/wayobj.h"
-
+#include "dataobj/einstellungen.h"
 #include "dataobj/fahrplan.h"
-#include "dataobj/umgebung.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
-#include "dataobj/einstellungen.h"
-#include "bauer/hausbauer.h"
-#include "bauer/vehikelbauer.h"
-#include "bauer/warenbauer.h"
-#include "bauer/brueckenbauer.h"
-#include "bauer/tunnelbauer.h"
-#include "bauer/wegbauer.h"
+#include "dataobj/umgebung.h"
+
+#include "dings/gebaeude.h"
+#include "dings/wayobj.h"
+#include "dings/zeiger.h"
+
+#include "gui/messagebox.h"
+#include "gui/money_frame.h"
+#include "gui/schedule_list.h"
+
 #include "sucher/bauplatz_sucher.h"
 
 #include "utils/simstring.h"
 
-#include "simgraph.h"
-
-#include "gui/money_frame.h"
-#include "gui/schedule_list.h"
-
-
-// true, if line contruction is under way
-// our "semaphore"
+#include "vehicle/simvehikel.h"
 
 
 

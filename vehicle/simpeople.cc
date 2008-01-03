@@ -7,17 +7,17 @@
 
 #include <stdio.h>
 
-#include "simdebug.h"
-#include "simworld.h"
-#include "simimg.h"
+#include "../simdebug.h"
+#include "../simworld.h"
+#include "../simimg.h"
+
+#include "../simtools.h"
+#include "../simmem.h"
+#include "../boden/grund.h"
+#include "../dataobj/loadsave.h"
 
 #include "simpeople.h"
-#include "simtools.h"
-#include "simmem.h"
-#include "boden/grund.h"
-#include "dataobj/loadsave.h"
-
-#include "besch/fussgaenger_besch.h"
+#include "../besch/fussgaenger_besch.h"
 
 int fussgaenger_t::count = 0;
 

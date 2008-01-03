@@ -11,7 +11,7 @@
 #include "simware.h"
 #include "simplay.h"
 #include "simconvoi.h"
-#include "simvehikel.h"
+#include "vehicle/simvehikel.h"
 #include "simhalt.h"
 #include "simdepot.h"
 #include "simwin.h"

@@ -7,7 +7,7 @@
 
 #include <algorithm>
 #include "../simgraph.h"
-#include "../simvehikel.h"
+#include "../vehicle/simvehikel.h"
 #include "../simplay.h"
 #include "../simworld.h"  // for year/month
 #include "../simdebug.h"

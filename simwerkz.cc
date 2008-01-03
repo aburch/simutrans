@@ -19,7 +19,6 @@
 #include "simmem.h"
 #include "simskin.h"
 #include "simcity.h"
-#include "simpeople.h"
 
 #include "bauer/fabrikbauer.h"
 #include "bauer/vehikelbauer.h"
@@ -32,8 +31,6 @@
 #include "boden/wege/kanal.h"
 #include "boden/tunnelboden.h"
 
-#include "simvehikel.h"
-#include "simverkehr.h"
 #include "simdepot.h"
 #include "simfab.h"
 #include "simwin.h"
@@ -46,6 +43,10 @@
 #include "besch/haus_besch.h"
 #include "besch/way_obj_besch.h"
 #include "besch/skin_besch.h"
+
+#include "vehicle/simvehikel.h"
+#include "vehicle/simverkehr.h"
+#include "vehicle/simpeople.h"
 
 #include "gui/messagebox.h"
 #include "gui/label_frame.h"

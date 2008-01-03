@@ -13,7 +13,7 @@
 #include "../../simdings.h"
 #include "../../simgraph.h"
 #include "../../simcolor.h"
-#include "../../simvehikel.h"
+#include "../../vehicle/simvehikel.h"
 #include "../../boden/grund.h"
 #include "../../simdings.h"
 

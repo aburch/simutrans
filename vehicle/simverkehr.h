@@ -14,8 +14,8 @@
 
 #include "simvehikel.h"
 
-#include "tpl/stringhashtable_tpl.h"
-#include "ifc/sync_steppable.h"
+#include "../tpl/stringhashtable_tpl.h"
+#include "../ifc/sync_steppable.h"
 
 class stadtauto_besch_t;
 class karte_t;

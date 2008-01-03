@@ -9,37 +9,37 @@
  * April 2000
  */
 
-#include "simdebug.h"
-#include "simgraph.h"
-#include "simmesg.h"
-#include "simworld.h"
-#include "simverkehr.h"
-#include "simtools.h"
-#include "simmem.h"
-#include "simimg.h"
-#include "simconst.h"
-#include "simtypes.h"
+#include "../simdebug.h"
+#include "../simgraph.h"
+#include "../simmesg.h"
+#include "../simworld.h"
+#include "../simtools.h"
+#include "../simmem.h"
+#include "../simimg.h"
+#include "../simconst.h"
+#include "../simtypes.h"
 
+#include "simverkehr.h"
 #ifdef DESTINATION_CITYCARS
 // for final citcar destinations
 #include "simpeople.h"
 #endif
 
-#include "dataobj/translator.h"
-#include "dataobj/loadsave.h"
-#include "dataobj/umgebung.h"
+#include "../dataobj/translator.h"
+#include "../dataobj/loadsave.h"
+#include "../dataobj/umgebung.h"
 
-#include "dings/crossing.h"
-#include "dings/roadsign.h"
+#include "../dings/crossing.h"
+#include "../dings/roadsign.h"
 
-#include "boden/grund.h"
-#include "boden/wege/weg.h"
+#include "../boden/grund.h"
+#include "../boden/wege/weg.h"
 
-#include "besch/stadtauto_besch.h"
-#include "besch/roadsign_besch.h"
+#include "../besch/stadtauto_besch.h"
+#include "../besch/roadsign_besch.h"
 
 
-#include "utils/cbuffer_t.h"
+#include "../utils/cbuffer_t.h"
 
 /**********************************************************************************************************************/
 /* Verkehrsteilnehmer (basis class) from here on */

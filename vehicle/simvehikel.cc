@@ -15,58 +15,56 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "../boden/grund.h"
+#include "../boden/wege/runway.h"
+#include "../boden/wege/kanal.h"
+#include "../boden/wege/schiene.h"
+#include "../boden/wege/monorail.h"
+#include "../boden/wege/strasse.h"
+
+#include "../bauer/warenbauer.h"
+
+#include "../simworld.h"
+#include "../simdebug.h"
+
+#include "../simplay.h"
+#include "../simware.h"
+#include "../simhalt.h"
+#include "../simsound.h"
+
+#include "../simimg.h"
+#include "../simcolor.h"
+#include "../simgraph.h"
+#include "../simio.h"
+#include "../simmem.h"
+
+#include "../simline.h"
+
+#include "../simintr.h"
+
+#include "../dings/wolke.h"
+#include "../dings/signal.h"
+#include "../dings/roadsign.h"
+#include "../dings/crossing.h"
+
+#include "../gui/karte.h"
+
+#include "../besch/ware_besch.h"
+#include "../besch/skin_besch.h"
+#include "../besch/roadsign_besch.h"
+
+#include "../dataobj/fahrplan.h"
+#include "../dataobj/translator.h"
+#include "../dataobj/loadsave.h"
+#include "../dataobj/umgebung.h"
+
+#include "../utils/simstring.h"
+#include "../utils/cbuffer_t.h"
+
+
+#include "../bauer/vehikelbauer.h"
+
 #include "simvehikel.h"
-
-#include "boden/grund.h"
-#include "boden/wege/runway.h"
-#include "boden/wege/kanal.h"
-#include "boden/wege/schiene.h"
-#include "boden/wege/monorail.h"
-#include "boden/wege/strasse.h"
-
-#include "bauer/warenbauer.h"
-
-#include "simworld.h"
-#include "simdebug.h"
-
-#include "simplay.h"
-#include "simware.h"
-#include "simhalt.h"
-//#include "simconvoi.h"
-#include "simsound.h"
-
-#include "simimg.h"
-#include "simcolor.h"
-#include "simgraph.h"
-#include "simio.h"
-#include "simmem.h"
-
-#include "simline.h"
-
-#include "simintr.h"
-
-#include "dings/wolke.h"
-#include "dings/signal.h"
-#include "dings/roadsign.h"
-#include "dings/crossing.h"
-
-#include "gui/karte.h"
-
-#include "besch/ware_besch.h"
-#include "besch/skin_besch.h"
-#include "besch/roadsign_besch.h"
-
-#include "dataobj/fahrplan.h"
-#include "dataobj/translator.h"
-#include "dataobj/loadsave.h"
-#include "dataobj/umgebung.h"
-
-#include "utils/simstring.h"
-#include "utils/cbuffer_t.h"
-
-
-#include "bauer/vehikelbauer.h"
-
 
 /* get dx and dy from dir (just to remind you)
  * any vehikel (including city cars and pedestrians)

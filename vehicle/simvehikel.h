@@ -15,17 +15,16 @@
 #ifndef _simvehikel_h
 #define _simvehikel_h
 
-#include "simtypes.h"
-#include "simdings.h"
-#include "halthandle_t.h"
-#include "convoihandle_t.h"
-#include "ifc/fahrer.h"
-#include "boden/grund.h"
-#include "boden/wege/weg.h"
-#include "besch/vehikel_besch.h"
-#include "tpl/slist_tpl.h"
+#include "../simtypes.h"
+#include "../simdings.h"
+#include "../halthandle_t.h"
+#include "../convoihandle_t.h"
+#include "../ifc/fahrer.h"
+#include "../boden/grund.h"
+#include "../boden/wege/weg.h"
+#include "../besch/vehikel_besch.h"
+#include "../tpl/slist_tpl.h"
 
-class vehikel_besch_t;
 class convoi_t;
 class fahrplan_t;
 class signal_t;

@@ -1,8 +1,8 @@
 #include <stdio.h>
 
 #include "../../simconst.h"
-#include "../../simvehikel.h"
-#include "../../simverkehr.h"
+#include "../../vehicle/simvehikel.h"
+#include "../../vehicle/simverkehr.h"
 #include "../stadtauto_besch.h"
 #include "../intro_dates.h"
 

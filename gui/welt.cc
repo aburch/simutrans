@@ -27,7 +27,7 @@
 #include "../boden/wege/schiene.h"
 #include "../dings/baum.h"
 #include "../simcity.h"
-#include "../simvehikel.h"
+#include "../vehicle/simvehikel.h"
 
 #include "../simcolor.h"
 

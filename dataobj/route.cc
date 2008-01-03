@@ -33,7 +33,7 @@
 // sorted heap, since we only need insert and pop
 //#include "../tpl/sorted_heap_tpl.h" // ~10% slower
 
-// sorted heap, since we only need insert and pop
+// binary heap, the fastest
 #include "../tpl/binary_heap_tpl.h" // fastest
 
 

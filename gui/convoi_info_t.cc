@@ -12,7 +12,7 @@
 #include "../simplay.h"
 #include "../simconvoi.h"
 #include "../simdepot.h"
-#include "../simvehikel.h"
+#include "../vehicle/simvehikel.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simworld.h"

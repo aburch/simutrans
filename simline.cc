@@ -3,7 +3,7 @@
 #include "simline.h"
 #include "simhalt.h"
 #include "simplay.h"
-#include "simvehikel.h"
+#include "vehicle/simvehikel.h"
 #include "simconvoi.h"
 #include "convoihandle_t.h"
 #include "simworld.h"

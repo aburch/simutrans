@@ -24,7 +24,6 @@
 #include "boden/boden.h"
 #include "boden/wasser.h"
 #include "simcity.h"
-#include "simvehikel.h"
 #include "simfab.h"
 #include "simplay.h"
 #include "simsound.h"
@@ -65,7 +64,9 @@
 
 #include "besch/reader/obj_reader.h"
 #include "besch/sound_besch.h"
-#include "simverkehr.h"
+
+#include "vehicle/simvehikel.h"
+#include "vehicle/simverkehr.h"
 
 
 /* diagnostic routine:

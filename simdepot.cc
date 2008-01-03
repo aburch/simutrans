@@ -12,7 +12,7 @@
 #include "simintr.h"
 
 #include "simconvoi.h"
-#include "simvehikel.h"
+#include "vehicle/simvehikel.h"
 #include "simwin.h"
 #include "simware.h"
 #include "simhalt.h"

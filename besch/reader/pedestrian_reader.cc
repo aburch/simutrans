@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 
-#include "../../simpeople.h"
+#include "../../vehicle/simpeople.h"
 #include "../fussgaenger_besch.h"
 #include "../obj_node_info.h"
 

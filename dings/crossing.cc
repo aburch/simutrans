@@ -8,7 +8,6 @@
 #include <stdio.h>
 
 #include "../simdebug.h"
-#include "../simvehikel.h"
 #include "../simworld.h"
 #include "../simdings.h"
 #include "../simimg.h"

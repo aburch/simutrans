@@ -45,8 +45,8 @@
 
 #include "simimg.h"
 #include "old_blockmanager.h"
-#include "simvehikel.h"
-#include "simverkehr.h"
+#include "vehicle/simvehikel.h"
+#include "vehicle/simverkehr.h"
 #include "simworld.h"
 #include "simview.h"
 

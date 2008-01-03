@@ -12,7 +12,6 @@
 #include "simplay.h"
 #include "simmesg.h"
 #include "simimg.h"
-#include "simvehikel.h"
 #include "dings/signal.h"
 #include "dings/tunnel.h"
 #include "boden/grund.h"

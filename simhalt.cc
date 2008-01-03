@@ -13,49 +13,53 @@
  */
 #include <algorithm>
 
+#include "freight_list_sorter.h"
+#include "freight_list_sorter.h"
+#include "simcolor.h"
+#include "simconvoi.h"
 #include "simdebug.h"
+#include "simfab.h"
+#include "simgraph.h"
+#include "simhalt.h"
+#include "simintr.h"
 #include "simmem.h"
 #include "simplan.h"
-#include "boden/grund.h"
-#include "boden/boden.h"
-#include "boden/wasser.h"
-#include "boden/wege/weg.h"
-#include "boden/wege/strasse.h"
-#include "gui/karte.h"
-#include "simhalt.h"
-#include "simfab.h"
 #include "simplay.h"
-#include "simconvoi.h"
 #include "simwin.h"
 #include "simworld.h"
-#include "simintr.h"
-#include "simpeople.h"
-#include "freight_list_sorter.h"
 
-#include "simcolor.h"
-#include "simgraph.h"
-#include "freight_list_sorter.h"
+#include "bauer/hausbauer.h"
+#include "bauer/warenbauer.h"
 
-#include "gui/halt_info.h"
+#include "besch/ware_besch.h"
+
+#include "boden/boden.h"
+#include "boden/grund.h"
+#include "boden/wasser.h"
+#include "boden/wege/strasse.h"
+#include "boden/wege/weg.h"
+
+#include "dataobj/einstellungen.h"
+#include "dataobj/fahrplan.h"
+#include "dataobj/loadsave.h"
+#include "dataobj/translator.h"
+#include "dataobj/umgebung.h"
+#include "dataobj/warenziel.h"
+
 #include "dings/gebaeude.h"
 #include "dings/label.h"
+
+#include "gui/halt_info.h"
+#include "gui/karte.h"
+
+#include "utils/simstring.h"
+#include "utils/tocstring.h"
+
+#include "vehicle/simpeople.h"
+
 #ifdef LAGER_NOT_IN_USE
 #include "dings/lagerhaus.h"
 #endif
-#include "dataobj/fahrplan.h"
-#include "dataobj/warenziel.h"
-#include "dataobj/einstellungen.h"
-#include "dataobj/umgebung.h"
-#include "dataobj/loadsave.h"
-#include "dataobj/translator.h"
-
-#include "utils/tocstring.h"
-#include "utils/simstring.h"
-
-#include "besch/ware_besch.h"
-#include "bauer/warenbauer.h"
-#include "bauer/hausbauer.h"
-
 
 karte_t *haltestelle_t::welt = NULL;
 

@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #include "../simdebug.h"
-#include "../simvehikel.h"
+#include "../vehicle/simvehikel.h"
 #include "../simworld.h"
 #include "../simsound.h"
 

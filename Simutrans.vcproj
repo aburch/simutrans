@@ -768,7 +768,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\simpeople.cc"
+				RelativePath=".\vehicle\simpeople.cc"
 				>
 			</File>
 			<File
@@ -808,11 +808,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\simvehikel.cc"
+				RelativePath=".\vehicle\simvehikel.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\simverkehr.cc"
+				RelativePath=".\vehicle\simverkehr.cc"
 				>
 			</File>
 			<File

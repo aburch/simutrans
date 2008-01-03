@@ -22,7 +22,7 @@
 #include "../simskin.h"
 #include "../simplay.h"
 #include "../simconvoi.h"
-#include "../simvehikel.h"
+#include "../vehicle/simvehikel.h"
 #include "../simwin.h"
 #include "../simlinemgmt.h"
 #include "../utils/simstring.h"

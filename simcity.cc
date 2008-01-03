@@ -22,7 +22,7 @@
 #include "simplan.h"
 #include "simimg.h"
 #include "simmem.h"
-#include "simverkehr.h"
+#include "vehicle/simverkehr.h"
 #include "simtools.h"
 #include "simhalt.h"
 #include "simfab.h"

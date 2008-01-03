@@ -16,7 +16,6 @@
 #include "convoi_frame.h"
 #include "convoi_filter_frame.h"
 
-#include "../simvehikel.h"
 #include "../simconvoi.h"
 #include "../simplay.h"
 #include "../simwin.h"
@@ -30,7 +29,7 @@
 
 #include "../utils/simstring.h"
 
-//#include "../tpl/slist_tpl.h"
+#include "../vehicle/simvehikel.h"
 
  /**
  * All filter and sort settings are static, so the old settings are

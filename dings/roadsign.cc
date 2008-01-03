@@ -8,38 +8,32 @@
 #include <stdio.h>
 
 #include "../simdebug.h"
-#include "../simplay.h"
-#include "../simworld.h"
 #include "../simdings.h"
 #include "../simimg.h"
+#include "../simplay.h"
+#include "../simworld.h"
 
 #include "../besch/roadsign_besch.h"
+#include "../besch/skin_besch.h"
 
-#include "../boden/wege/strasse.h"
 #include "../boden/grund.h"
+#include "../boden/wege/strasse.h"
 
 #include "../dataobj/loadsave.h"
+#include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 
-#include "../utils/simstring.h"
-#include "../utils/cbuffer_t.h"
+#include "../gui/werkzeug_parameter_waehler.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 
-// Hajo: these are needed to build the menu entries
-#include "../gui/werkzeug_parameter_waehler.h"
-#include "../besch/skin_besch.h"
-#include "../dataobj/translator.h"
-
-#include "../simvehikel.h"	// for kmh/speed conversion
+#include "../utils/cbuffer_t.h"
+#include "../utils/simstring.h"
 
 #include "roadsign.h"
 
 
-
 const roadsign_besch_t *roadsign_t::default_signal=NULL;
-
-
 
 
 slist_tpl<const roadsign_besch_t *> roadsign_t::liste;

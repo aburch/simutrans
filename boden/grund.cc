@@ -6,69 +6,61 @@
 
 #include <string.h>
 
+#include "../simcolor.h"
+#include "../simconst.h"
 #include "../simdebug.h"
-
-#include "grund.h"
-#include "fundament.h"
-#include "tunnelboden.h"
-#include "wasser.h"
-
-#include "wege/weg.h"
-#include "wege/monorail.h"
-#include "wege/schiene.h"
-#include "wege/strasse.h"
-#include "wege/kanal.h"
-#include "wege/runway.h"
-
-#include "../gui/karte.h"
-#include "../gui/ground_info.h"
-
-#include "../simworld.h"
-#include "../simvehikel.h"
-#include "../simplay.h"
-#include "../simwin.h"
-#include "../simimg.h"
-#include "../simgraph.h"
 #include "../simdepot.h"
 #include "../simfab.h"
+#include "../simgraph.h"
+#include "../simgraph.h"
 #include "../simhalt.h"
+#include "../simimg.h"
+#include "../simmem.h"
+#include "../simplay.h"
+#include "../simwin.h"
+#include "../simworld.h"
 
-#include "../dings/baum.h"
-#include "../dings/bruecke.h"
-#include "../dings/tunnel.h"
-#include "../dings/gebaeude.h"
-#include "../dings/groundobj.h"
-#include "../dings/label.h"
-#include "../dings/crossing.h"
-#include "../dings/signal.h"
-#include "../dings/roadsign.h"
-#include "../dings/wayobj.h"
-#include "../simverkehr.h"
-#include "../simpeople.h"
+#include "../bauer/wegbauer.h"
 
 #include "../besch/grund_besch.h"
 #include "../besch/haus_besch.h"
 #include "../besch/kreuzung_besch.h"
 #include "../besch/tunnel_besch.h"
-
-#include "../bauer/wegbauer.h"
 #include "../besch/weg_besch.h"
 
 #include "../dataobj/freelist.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/umgebung.h"
 
-#include "../utils/cbuffer_t.h"
+#include "../dings/baum.h"
+#include "../dings/crossing.h"
+#include "../dings/groundobj.h"
+#include "../dings/label.h"
+#include "../dings/leitung2.h"	// for construction of new ways ...
+#include "../dings/roadsign.h"
+#include "../dings/signal.h"
+#include "../dings/tunnel.h"
+#include "../dings/wayobj.h"
 
-#include "../simcolor.h"
-#include "../simconst.h"
-#include "../simmem.h"
-#include "../simgraph.h"
+#include "../gui/ground_info.h"
+#include "../gui/karte.h"
 
 #include "../tpl/inthashtable_tpl.h"
 
-#include "../dings/leitung2.h"	// for construction of new ways ...
-#include "../dings/label.h"	// for construction of new ways ...
+#include "../utils/cbuffer_t.h"
+
+#include "wege/kanal.h"
+#include "wege/monorail.h"
+#include "wege/runway.h"
+#include "wege/schiene.h"
+#include "wege/strasse.h"
+#include "wege/weg.h"
+
+#include "fundament.h"
+#include "grund.h"
+#include "tunnelboden.h"
+#include "wasser.h"
+
 
 // klassenlose funktionen und daten
 
@@ -1142,7 +1134,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 				}
 			}
 			// citycar or pedestrians: just delete
-			else if (wt == road_wt && (d->gib_typ() == ding_t::verkehr || find<fussgaenger_t>())) {
+			else if (wt == road_wt && (d->gib_typ()==ding_t::verkehr || d->gib_typ()==ding_t::fussgaenger)) {
 				delete d;
 			}
 			// remove bridge

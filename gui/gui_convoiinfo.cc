@@ -9,7 +9,7 @@
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "../simdepot.h"
-#include "../simvehikel.h"
+#include "../vehicle/simvehikel.h"
 #include "../simconvoi.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
