@@ -1,3 +1,14 @@
+-----------------------------------------------------------------------------
+
+The most common error is the attempt to start the program without
+installing a graphics set. This is not possible!
+
+*** PLEASE MAKE SURE TO HAVE INSTALLED A PAK-SET TOO! ***
+
+Simutrans cannot start without the graphics in the pak set!
+
+-----------------------------------------------------------------------------
+
 The purpose of this document is to explain the configuration options of
 Simutrans. There are currently two styles of options:
 

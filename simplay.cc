@@ -8,12 +8,6 @@
  * @author prissi
  */
 
-/* number of lines to check (must be =>3 */
-#define KI_TEST_LINES 10
-/* No lines will be considered below */
-#define KI_MIN_PROFIT 5000
-// this does not work well together with 128er pak
-//#ifdef EARLY_SEARCH_FOR_BUYER
 // this make KI2 try passenger transport
 #define TRY_PASSENGER
 

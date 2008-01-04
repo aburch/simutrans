@@ -619,8 +619,8 @@ extern "C" int simu_main(int argc, char** argv)
 		show_pointer(0);
 		if(  umgebung_t::objfilename.empty()  ) {
 			// nothing to be loaded => exit
-			fprintf(stderr, "*** No simuconf.tab found ***\n\nPlease install a complete system\n");
-			dr_fatal_notify( "*** No simuconf.tab found ***\n\nPlease install a complete system\n", 0 );
+			fprintf(stderr, "*** No simuconf.tab found ***\n\nMost likely, you have not pak set installed.\nPlease install a complete system.\n");
+			dr_fatal_notify( "*** No simuconf.tab found ***\n\nMost likely, you have not pak set installed.\nPlease install a complete system.\n", 0 );
 			simgraph_exit();
 			return 0;
 		}
