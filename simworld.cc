@@ -3764,7 +3764,7 @@ karte_t::interactive_event(event_t &ev)
 	if(IS_LEFTRELEASE(&ev)) {
 
 		// in main top menu?
-		if(ev.my < 32) {
+		if(ev.my < 32  &&  ev.cy<32) {
 
 			switch( ev.mx/32 ) {
 				case 0:
