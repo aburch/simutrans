@@ -117,8 +117,8 @@ static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap,
 	const PIXVAL *src1 = (const PIXVAL *)bild_src1->gib_daten() - bild_src1->get_pic()->y*(bild_src1->get_pic()->w+3l);
 	const PIXVAL *src2 = (const PIXVAL *)bild_src2->gib_daten() - bild_src2->get_pic()->y*(bild_src2->get_pic()->w+3l);
 	const PIXVAL *src3 = (const PIXVAL *)bild_src3->gib_daten() - bild_src3->get_pic()->y*(bild_src3->get_pic()->w+3l);
-	const sint16 x_y = bild_src1->get_pic()->w;
-	const sint16 mix_x_y = bild_mixmap->get_pic()->w;
+	const sint32 x_y = bild_src1->get_pic()->w;
+	const sint32 mix_x_y = bild_mixmap->get_pic()->w;
 	sint16 tile_x, tile_y;
 
 	/*
@@ -152,7 +152,7 @@ static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap,
 		tile_x = *dest++;
 		// offset is the pixel position in the mixmap bitmaps;
 		// so we can avoid stretching the mixmaps
-		const sint16 offset = (bild_dest->get_pic()->y + j) * (x_y + 3) + 2;
+		const sint32 offset = (bild_dest->get_pic()->y + j) * (x_y + 3) + 2;
 		do
 		{
 			sint16 runlen = *dest++;

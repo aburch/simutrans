@@ -10,6 +10,7 @@
 	FIX: error with removing headquarter after rotation
 	FIX: deleting incontinous buildings and rotated buildings could crash simutrans, rotate factory base for rebuilding after loading
 	FIX: invisible mousecursor by moving the mouse during right click scrolling outside of window fixed
+	CHANGE: adding type to introduction/retirement message
 
 
 Release of 99.17 (r1502, stable)

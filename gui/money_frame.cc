@@ -235,18 +235,24 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		headquarter.init(button_t::box, "build HQ", koord(582-12-120, 4), koord(120, BUTTONSPACE));
 		headquarter.add_listener(this);
 		add_komponente(&headquarter);
+		headquarter.set_tooltip( NULL );
+		headquarter.disable();
 
 		// get new costs
+		const char *tooltip = NULL;
 		for(  vector_tpl<const haus_besch_t *>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end();  iter != end;  ++iter  ) {
 			const haus_besch_t* besch = (*iter);
-			if (besch->gib_bauzeit() == sp->get_headquarter_level()-1) {
+			if (besch->gib_bauzeit() <= sp->get_headquarter_level() ) {
 				double cost = umgebung_t::cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h()/-100.0;
 				tstrncpy( headquarter_tooltip, translator::translate(besch->gib_name()), 100 );
 				money_to_string( headquarter_tooltip+strlen(headquarter_tooltip), cost );
+			}
+			else {
+				headquarter.enable();
 				headquarter.set_tooltip( headquarter_tooltip );
-				break;
 			}
 		}
+
 
 		if(sp->get_headquarter_pos()!=koord::invalid) {
 			headquarter_view.set_location( sp->get_welt()->lookup_kartenboden( sp->get_headquarter_pos() )->gib_pos() );

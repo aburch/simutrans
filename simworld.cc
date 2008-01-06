@@ -1962,13 +1962,37 @@ void karte_t::recalc_average_speed()
 		for(int i=road_wt; i<=air_wt; i++) {
 			slist_tpl<const vehikel_besch_t*>* cl = vehikelbauer_t::gib_info((waytype_t)i);
 			if(cl) {
+				const char *vehicle_type=NULL;
+				switch(i) {
+					case road_wt:
+						vehicle_type = "road vehicle";
+						break;
+					case track_wt:
+						vehicle_type = "rail car";
+						break;
+					case water_wt:
+						vehicle_type = "water vehicle";
+						break;
+					case monorail_wt:
+						vehicle_type = "monorail vehicle";
+						break;
+					case tram_wt:
+						vehicle_type = "street car";
+						break;
+					case air_wt:
+						vehicle_type = "airplane";
+						break;
+				}
+				vehicle_type = translator::translate( vehicle_type );
+
 				slist_iterator_tpl<const vehikel_besch_t*> vehinfo(cl);
 				while (vehinfo.next()) {
 					const vehikel_besch_t* info = vehinfo.get_current();
 					const uint16 intro_month = info->get_intro_year_month();
 					if(intro_month == current_month) {
 						sprintf(buf,
-							translator::translate("New vehicle now available:\n%s\n"),
+							translator::translate("New %s now available:\n%s\n"),
+							vehicle_type,
 							translator::translate(info->gib_name()));
 							message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->gib_basis_bild());
 					}
@@ -1976,7 +2000,8 @@ void karte_t::recalc_average_speed()
 					const uint16 retire_month = info->get_retire_year_month();
 					if(retire_month == current_month) {
 						sprintf(buf,
-							translator::translate("Production of vehicle has been stopped:\n%s\n"),
+							translator::translate("Production of %s has been stopped:\n%s\n"),
+							vehicle_type,
 							translator::translate(info->gib_name()));
 							message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->gib_basis_bild());
 					}
