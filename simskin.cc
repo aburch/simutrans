@@ -74,9 +74,9 @@ static spezial_obj_tpl<skin_besch_t> misc_objekte[] = {
 };
 
 static spezial_obj_tpl<skin_besch_t> menu_objekte[] = {
+	{ &skinverwaltung_t::schiffs_werkzeug, "ShipTools"    },
 	{ &skinverwaltung_t::window_skin,      "WindowSkin"   },
 	{ &skinverwaltung_t::hauptmenu,        "MainMenu"     },
-	{ &skinverwaltung_t::schiffs_werkzeug, "ShipTools"    },
 	{ &skinverwaltung_t::hang_werkzeug,    "SlopeTools"   },
 	{ &skinverwaltung_t::special_werkzeug, "SpecialTools" },
 	{ &skinverwaltung_t::listen_werkzeug,  "ListTools"    },
@@ -112,6 +112,7 @@ static spezial_obj_tpl<skin_besch_t> symbol_objekte[] = {
 
 static spezial_obj_tpl<skin_besch_t> cursor_objekte[] = {
 	{ &skinverwaltung_t::mouse_cursor,   "Mouse"        },
+	{ &skinverwaltung_t::werftNSzeiger,  "ShipDepotNS"  },
 	{ &skinverwaltung_t::fragezeiger,    "Query"        },
 	{ &skinverwaltung_t::signalzeiger,   "Signal"       },
 	{ &skinverwaltung_t::downzeiger,     "Down"         },
@@ -120,8 +121,6 @@ static spezial_obj_tpl<skin_besch_t> cursor_objekte[] = {
 	{ &skinverwaltung_t::killzeiger,     "Remove"       },
 	{ &skinverwaltung_t::slopezeiger,    "Slope"        },
 	{ &skinverwaltung_t::fahrplanzeiger, "Schedule"     },
-	{ &skinverwaltung_t::werftNSzeiger,  "ShipDepotNS"  },
-	{ &skinverwaltung_t::werftOWzeiger,  "ShipDepotEW"  },
 	{ &skinverwaltung_t::stadtzeiger,    "City"         },
 	{ &skinverwaltung_t::baumzeiger,     "Baum"         },
 	{ &skinverwaltung_t::undoc_zeiger,   "Undocumented" },
@@ -133,8 +132,8 @@ bool skinverwaltung_t::alles_geladen(skintyp_t type)
 {
 	spezial_obj_tpl<skin_besch_t>* sb;
 	switch (type) {
-		case menu:    sb = menu_objekte;               break;
-		case cursor:  sb = cursor_objekte + 1;         break; // forget about mouse cursor
+		case menu:    sb = menu_objekte +1 ;           break; // forget about ship depot
+		case cursor:  sb = cursor_objekte + 1 + 1;         break; // forget about mouse cursor, ship depot
 		case symbol:  sb = symbol_objekte + 1 + 1 + 1; break; // forget about message box options, BigLogo, and seasons
 		case misc:    sb = misc_objekte;	             break; // not all signals needed
 		case nothing: return true;

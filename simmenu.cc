@@ -657,14 +657,26 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 			}
 
 			if(sp!=welt->gib_spieler(1)) {
-				wzw->add_param_tool(wkz_depot,
-					hausbauer_t::sch_depot_besch,
-					karte_t::Z_PLAN,
-					SFX_DOCK,
-					SFX_FAILURE,
-					skinverwaltung_t::schiffs_werkzeug->gib_bild_nr(0),
-					skinverwaltung_t::werftNSzeiger->gib_bild_nr(0),
-					tool_tip_with_price(translator::translate("Build ship depot"), umgebung_t::cst_depot_ship));
+				if(hausbauer_t::sch_depot_besch->gib_cursor()==NULL) {
+					wzw->add_param_tool(wkz_depot,
+						hausbauer_t::sch_depot_besch,
+						karte_t::Z_PLAN,
+						SFX_DOCK,
+						SFX_FAILURE,
+						skinverwaltung_t::schiffs_werkzeug->gib_bild_nr(0),
+						skinverwaltung_t::werftNSzeiger->gib_bild_nr(0),
+						tool_tip_with_price(translator::translate("Build ship depot"), umgebung_t::cst_depot_ship));
+				}
+				else {
+					wzw->add_param_tool(wkz_depot,
+						hausbauer_t::sch_depot_besch,
+						karte_t::Z_PLAN,
+						SFX_DOCK,
+						SFX_FAILURE,
+						hausbauer_t::sch_depot_besch->gib_cursor()->gib_bild_nr(1),
+						hausbauer_t::sch_depot_besch->gib_cursor()->gib_bild_nr(0),
+						tool_tip_with_price(translator::translate("Build ship depot"), umgebung_t::cst_depot_ship));
+				}
 			}
 
 			if(!grund_t::underground_mode) {
