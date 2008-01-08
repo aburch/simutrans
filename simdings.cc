@@ -269,6 +269,7 @@ ding_t::display_after(int xpos, int ypos, bool /*is_global*/ ) const
 		ypos += tile_raster_scale_y(gib_yoff(), raster_width);
 
 		// unfourtunately the dirty flag is already cleared, when we reach here ...
+		// thus we assume we need redraw
 		if(besitzer_n!=-1) {
 			display_color_img(bild, xpos, ypos, besitzer_n, true, false );
 		}

@@ -304,15 +304,22 @@ bool gebaeude_t::sync_step(long delta_t)
 		if(anim_time>tile->gib_besch()->get_animation_time()) {
 			if(!zeige_baugrube)  {
 
-				for(int i=1;  ;  i++) {
-					image_id bild = gib_bild(i);
-					if(bild==IMG_LEER) {
-						break;
-					}
-					mark_image_dirty(bild,-(i<<6));
-				}
 				// old positions need redraw
-				mark_image_dirty(gib_bild(),0);
+				image_id bild = gib_bild(0);
+				if(bild!=IMG_LEER) {
+					for(int i=1;  ;  i++) {
+						bild = gib_bild(i);
+						if(bild==IMG_LEER) {
+							break;
+						}
+						mark_image_dirty(bild,-(i<<6));
+					}
+				}
+				else {
+					// try foreground
+					bild = gib_after_bild();
+					mark_image_dirty(bild,0);
+				}
 
 				anim_time %= tile->gib_besch()->get_animation_time();
 				count ++;

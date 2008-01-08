@@ -2545,11 +2545,9 @@ void stadt_t::baue()
 
 	if (best_haus.found()) {
 		baue_gebaeude(best_haus.gib_pos());
-		pruefe_grenzen(best_haus.gib_pos());
 		INT_CHECK("simcity 1163");
 		return;
 	}
-
 
 	// renovation (only done when nothing matches a certain location
 	if (!buildings.empty()  &&  simrand(100) <= renovation_percentage) {
