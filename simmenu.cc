@@ -657,7 +657,7 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 			}
 
 			if(sp!=welt->gib_spieler(1)) {
-				if(hausbauer_t::sch_depot_besch->gib_cursor()==NULL) {
+				if(skinverwaltung_t::schiffs_werkzeug->gib_bild_nr(0)!=NULL) {
 					wzw->add_param_tool(wkz_depot,
 						hausbauer_t::sch_depot_besch,
 						karte_t::Z_PLAN,

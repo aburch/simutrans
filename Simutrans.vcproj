@@ -384,15 +384,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\groundobj_besch.h"
-				>
-			</File>
-			<File
 				RelativePath=".\besch\reader\groundobj_reader.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\besch\reader\groundobj_reader.h"
 				>
 			</File>
 			<File
@@ -609,6 +601,10 @@
 			</File>
 			<File
 				RelativePath=".\boden\monorailboden.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\vehicle\movingobj.cc"
 				>
 			</File>
 			<File

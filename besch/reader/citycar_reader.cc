@@ -80,6 +80,6 @@ obj_besch_t * citycar_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->intro_date = DEFAULT_INTRO_DATE*12;
     besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
   }
-  DBG_DEBUG("citycar_reader_t::read_node()","version=%i, weight=%i, intro=%i, retire=%i",version,besch->gewichtung,besch->intro_date/12,besch->obsolete_date/12);
+  DBG_DEBUG("citycar_reader_t::read_node()","version=%i, weight=%i, intro=%i, retire=%i speed=%i",version,besch->gewichtung,besch->intro_date/12,besch->obsolete_date/12, speed_to_kmh(besch->geschw) );
   return besch;
 }

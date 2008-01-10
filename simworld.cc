@@ -47,6 +47,7 @@
 #include "old_blockmanager.h"
 #include "vehicle/simvehikel.h"
 #include "vehicle/simverkehr.h"
+#include "vehicle/movingobj.h"
 #include "simworld.h"
 #include "simview.h"
 
@@ -683,10 +684,15 @@ DBG_DEBUG("karte_t::init()","distributing groundobjs");
 				if(gr->gib_typ()==grund_t::boden) {
 					queried --;
 					if(  queried<0  ) {
-						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(gr->gib_hoehe()), gr->gib_grund_hang() );
+						const groundobj_besch_t *besch = simrand(10)==0 ? movingobj_t::random_movingobj_for_climate( get_climate(gr->gib_hoehe()) ) : groundobj_t::random_groundobj_for_climate( get_climate(gr->gib_hoehe()), gr->gib_grund_hang(), 10000 );
 						if(besch) {
 							queried = simrand(umgebung_t::ground_object_probability*2);
-							gr->obj_add( new groundobj_t( this, gr->gib_pos(), besch ) );
+							if(besch->get_speed()!=0) {
+								gr->obj_add( new movingobj_t( this, gr->gib_pos(), besch ) );
+							}
+							else {
+								gr->obj_add( new groundobj_t( this, gr->gib_pos(), besch ) );
+							}
 						}
 					}
 				}

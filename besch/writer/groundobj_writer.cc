@@ -47,25 +47,51 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 
 	// now for the images
 	slist_tpl<slist_tpl<cstring_t> > keys;
-	for (unsigned int phase = 0; 1; phase++) {
-		keys.append(slist_tpl<cstring_t>());
+	if(besch.speed==0) {
+		// fixed stuff
+		for (unsigned int phase = 0; 1; phase++) {
+			keys.append(slist_tpl<cstring_t>());
 
-		for (int seasons = 0; seasons < besch.number_of_seasons; seasons++) {
-			char buf[40];
+			for (int seasons = 0; seasons < besch.number_of_seasons; seasons++) {
+				char buf[40];
 
-			// Images of the tree
-			// age is 1..5 (usually five stages, seasons is the seaons
-			sprintf(buf, "image[%d][%d]", phase, seasons);
-			cstring_t str = obj.get(buf);
-			if (str.len() == 0) {
-				if(seasons==0) {
-					goto finish_images;
+				// Images of the tree
+				// age is 1..5 (usually five stages, seasons is the seaons
+				sprintf(buf, "image[%d][%d]", phase, seasons);
+				cstring_t str = obj.get(buf);
+				if (str.len() == 0) {
+					if(seasons==0) {
+						goto finish_images;
+					}
+					else {
+						dbg->fatal("groundobj_writer_t","Season image for season %i missing!",seasons);
+					}
 				}
-				else {
-					dbg->fatal("groundobj_writer_t","Season image for season %i missing!",seasons);
-				}
+				keys.at(phase).append(str);
 			}
-			keys.at(phase).append(str);
+		}
+	}
+	else {
+		// moving stuff
+		const char* const dir_codes[] = {
+			"s", "w", "sw", "se", "n", "e", "ne", "nw"
+		};
+		for (unsigned int dir = 0; dir<8; dir++) {
+			keys.append(slist_tpl<cstring_t>());
+
+			for (int seasons = 0; seasons < besch.number_of_seasons; seasons++) {
+				char buf[40];
+
+				// Images of the tree
+				// age is 1..5 (usually five stages, seasons is the seaons
+				sprintf(buf, "image[%s][%d]", dir_codes[dir], seasons);
+				cstring_t str = obj.get(buf);
+				if (str.len() == 0) {
+					printf("Missing images in moving groundobj (expected %s)!\n", buf );
+					dbg->fatal("groundobj_writer_t","Season image for season %i missing (%s)!",seasons);
+				}
+				keys.at(dir).append(str);
+			}
 		}
 	}
 finish_images:

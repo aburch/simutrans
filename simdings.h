@@ -148,6 +148,7 @@ public:
 		maglevwaggon=69, // currently unused
 		schiff=80,
 		aircraft=81,
+		movingobj=82,
 
 		// other new dings (obsolete, only used during loading old games
 		// lagerhaus = 24, (never really used)

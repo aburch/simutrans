@@ -485,10 +485,9 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void setze_akt_speed_soll(sint32 set_akt_speed) { akt_speed_soll = min( set_akt_speed, min_top_speed ); }
-	sint32 get_akt_speed_soll() const {return akt_speed;}
 
 	/**
-	 * @return current speed, this might be different from topspeed and
+	 * @return current speed, this might be different from topspeed
 	 *         actual currently set speed.
 	 * @author Hj. Malthaner
 	 */

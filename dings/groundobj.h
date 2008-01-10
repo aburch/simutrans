@@ -33,7 +33,7 @@ public:
 	static bool register_besch(groundobj_besch_t *besch);
 	static bool alles_geladen();
 
-	static const groundobj_besch_t *random_groundobj_for_climate(climate cl, hang_t::typ slope);
+	static const groundobj_besch_t *random_groundobj_for_climate(climate cl, hang_t::typ slope, uint16 max_speed=0 );
 
 	// only the load save constructor should be called outside
 	// otherwise I suggest use the plant tree function (see below)

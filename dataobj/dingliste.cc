@@ -490,7 +490,7 @@ dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 		while(  top>offset  ) {
 			top --;
 			ding_t *dt = obj.some[top];
-			if(dt->is_moving()  &&  !(dt->gib_typ()==ding_t::fussgaenger  ||  dt->gib_typ()==ding_t::verkehr)) {
+			if(dt->is_moving()  &&  !(dt->gib_typ()==ding_t::fussgaenger  ||  dt->gib_typ()==ding_t::verkehr  ||  dt->gib_typ()==ding_t::movingobj)) {
 				((vehikel_t *)dt)->verlasse_feld();
 				assert(0);
 			}

@@ -1,8 +1,10 @@
 #include <stdio.h>
 
+#include "../../simconst.h"
 #include "../../simdings.h"
 #include "../../simdebug.h"
 #include "../../dings/groundobj.h"
+#include "../../vehicle/movingobj.h"
 
 #include "../groundobj_besch.h"
 #include "../obj_node_info.h"
@@ -12,7 +14,12 @@
 void groundobj_reader_t::register_obj(obj_besch_t *&data)
 {
 	groundobj_besch_t *besch = static_cast<groundobj_besch_t *>(data);
-	groundobj_t::register_besch(besch);
+	if(besch->speed==0) {
+		groundobj_t::register_besch(besch);
+	}
+	else {
+		movingobj_t::register_besch(besch);
+	}
 }
 
 
@@ -43,14 +50,14 @@ obj_besch_t * groundobj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->distribution_weight = decode_uint16(p);
 		besch->number_of_seasons = decode_uint8(p);
 		besch->trees_on_top = (bool)decode_uint8(p);
-		besch->speed = decode_uint16(p);
+		besch->speed = kmh_to_speed( decode_uint16(p) );
 		besch->waytype = (waytype_t)decode_uint16(p);
 		besch->cost_removal = decode_sint32(p);
 	} else {
 		// old node, version 0, never existed
 		dbg->fatal( "groundobj_reader_t::read_node()", "version %i not supported!", version );
 	}
-	DBG_DEBUG("groundobj_reader_t::read_node()", "climates=$%X, seasons %i, weight=%i, speed=%i, ways=%i, cost=%f",besch->allowed_climates,besch->number_of_seasons,besch->distribution_weight, besch->speed, besch->waytype, besch->cost_removal );
+	DBG_DEBUG("groundobj_reader_t::read_node()", "climates=$%X, seasons %i, weight=%i, speed=%i, ways=%i, cost=%f",besch->allowed_climates,besch->number_of_seasons,besch->distribution_weight, speed_to_kmh(besch->speed), besch->waytype, besch->cost_removal );
 
 	return besch;
 }

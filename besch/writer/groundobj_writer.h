@@ -18,7 +18,7 @@ class groundobj_writer_t : public obj_writer_t {
 		virtual void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj);
 
 		virtual obj_type get_type() const { return obj_groundobj; }
-		virtual const char* get_type_name() const { return "groundobj"; }
+		virtual const char* get_type_name() const { return "ground_obj"; }
 };
 
 #endif
