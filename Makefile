@@ -253,6 +253,7 @@ SOURCES += utils/log.cc
 SOURCES += utils/searchfolder.cc
 SOURCES += utils/simstring.c
 SOURCES += utils/tocstring.cc
+SOURCES += vehicle/movingobj.cc
 SOURCES += vehicle/simpeople.cc
 SOURCES += vehicle/simvehikel.cc
 SOURCES += vehicle/simverkehr.cc
