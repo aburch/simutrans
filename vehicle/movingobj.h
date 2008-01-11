@@ -24,17 +24,20 @@
 class movingobj_t : public vehikel_basis_t, public sync_steppable
 {
 private:
-	// type of tree
-	uint16 groundobjtype:12;
-	uint16 season:4;
-
-	uint32 timetolife;
-
 	/**
 	 * Entfernungszaehler
 	 * @author Hj. Malthaner
 	 */
 	uint32 weg_next;
+
+	// direction change
+	uint16 timetochange;
+
+	// type of tree
+	uint8 groundobjtype;
+	uint8 season;
+
+	koord pos_next_next;
 
 	// static for administration
 	static stringhashtable_tpl<uint32> besch_names;
@@ -59,8 +62,9 @@ public:
 	bool sync_step(long delta_t);
 
 	// prissi: always free
+	virtual bool ist_befahrbar(const grund_t *) const;
 	virtual bool ist_weg_frei() { return 1; }
-	virtual bool hop_check() { return 1; }
+	virtual bool hop_check();
 	virtual void hop();
 	virtual waytype_t gib_waytype() const { return gib_besch()->get_waytype(); }
 

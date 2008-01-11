@@ -28,8 +28,8 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/tabfile.h"
 #include "../dataobj/umgebung.h"
-#include "../dataobj/freelist.h"
 
+#include "../dings/baum.h"
 
 #include "movingobj.h"
 
@@ -158,7 +158,7 @@ movingobj_t::movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b 
 	groundobjtype = movingobj_typen.index_of(b);
 	season = 0xFF;	// mark dirty
 	weg_next = 0;
-	timetolife = simrand(100000);
+	timetochange = simrand(speed_to_kmh(gib_besch()->get_speed())/3);
 	sint8 dir = simrand(3);
 	fahrtrichtung = calc_set_richtung( pos.gib_2d(), pos.gib_2d()+startdir[dir] );
 	koord k( fahrtrichtung );
@@ -190,7 +190,7 @@ void movingobj_t::rdwr(loadsave_t *file)
 {
 	ding_t::rdwr(file);
 
-	file->rdwr_long( timetolife, "" );
+	file->rdwr_short( timetochange, "" );
 
 	if(file->is_saving()) {
 		const char *s = gib_besch()->gib_name();
@@ -258,12 +258,6 @@ movingobj_t::entferne(spieler_t *sp)
 
 bool movingobj_t::sync_step(long delta_t)
 {
-	if(timetolife<0) {
-		// remove obj
-  		return false;
-	}
-	timetolife -= delta_t;
-
 	weg_next += gib_besch()->get_speed() * delta_t;
 	while(SPEED_STEP_WIDTH < weg_next) {
 		weg_next -= SPEED_STEP_WIDTH;
@@ -280,9 +274,60 @@ bool movingobj_t::sync_step(long delta_t)
 
 
 
-void movingobj_t::hop()
+/* essential to find out about next step
+ * returns true, if we can go here
+ * (identical to fahrer)
+ */
+bool movingobj_t::ist_befahrbar( const grund_t *gr ) const
 {
-	/* since we are going diagonal without any road
+	if(gr==NULL) {
+		// no ground => we cannot check further
+		return false;
+	}
+
+	const groundobj_besch_t *besch = gib_besch();
+	if( !besch->is_allowed_climate( welt->get_climate(gr->gib_hoehe()) ) ) {
+		// not an allowed climate zone!
+		return false;
+	}
+
+	if(besch->get_waytype()==road_wt) {
+		// can cross roads
+		if(gr->gib_typ()!=grund_t::boden) {
+			return false;
+		}
+		if(gr->hat_wege()  &&  !gr->hat_weg(road_wt)) {
+			return false;
+		}
+		if(!besch->can_built_trees_here()) {
+			return gr->find<baum_t>();
+		}
+	}
+	else if(besch->get_waytype()==air_wt) {
+		// avoid towns to avoid flying through houses
+		return gr->gib_typ()==grund_t::boden  ||  gr->gib_typ()==grund_t::wasser;
+	}
+	else if(besch->get_waytype()==water_wt) {
+		// floating object
+		return gr->gib_typ()==grund_t::wasser  ||  gr->hat_weg(water_wt);
+	}
+	else if(besch->get_waytype()==ignore_wt) {
+		// crosses nothing
+		if(!gr->ist_natur()) {
+			return false;
+		}
+		if(!besch->can_built_trees_here()) {
+			return gr->find<baum_t>();
+		}
+	}
+	return true;
+}
+
+
+
+bool movingobj_t::hop_check()
+{
+	/* since we may be going diagonal without any road
 	 * determining the next koord is a little tricky:
 	 * If it is a diagonal, pos_next_next is calculated from current pos,
 	 * Else pos_next_next is a single step from pos_next.
@@ -290,12 +335,72 @@ void movingobj_t::hop()
 	 */
 	koord k(fahrtrichtung);
 	if(k.x&k.y) {
-		k += gib_pos().gib_2d();
+		pos_next_next = gib_pos().gib_2d()+k;
 	}
 	else {
-		k += pos_next.gib_2d();
+		pos_next_next = pos_next.gib_2d()+k;
 	}
 
+	if(timetochange==0  ||  !ist_befahrbar(welt->lookup_kartenboden(pos_next_next))) {
+		// direction change needed
+		timetochange = simrand(speed_to_kmh(gib_besch()->get_speed())/3);
+		const koord pos=pos_next.gib_2d();
+		const grund_t *to[4];
+		uint8 until=0;
+		// find all tiles we can go
+		for(  int i=0;  i<4;  i++  ) {
+			const grund_t *check = welt->lookup_kartenboden(pos+koord::nsow[i]);
+			if(ist_befahrbar(check)  &&  check->gib_pos()!=gib_pos()) {
+				to[until++] = check;
+			}
+		}
+		// if nothing found, return
+		if(until==0) {
+			pos_next = gib_pos();
+			pos_next_next = gib_pos().gib_2d() - koord(fahrtrichtung);
+			// (better would be destruction?)
+		}
+		else {
+			// else prepare for direction change
+			const grund_t *next = to[simrand(until)];
+			pos_next_next = next->gib_pos().gib_2d();
+		}
+
+	}
+	else {
+		timetochange--;
+	}
+	// should be always true
+	return true;
+}
+
+
+
+void movingobj_t::hop()
+{
+	const grund_t *next = welt->lookup_kartenboden(pos_next.gib_2d());
+	assert(next);
+
+	verlasse_feld();
+
+	if(next->gib_pos()==gib_pos()) {
+		fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
+		dx = -dx;
+		dy = -dy;
+		calc_bild();
+	}
+	else {
+		ribi_t::ribi old_dir = fahrtrichtung;
+		fahrtrichtung = calc_set_richtung( gib_pos().gib_2d(), pos_next_next );
+		if(old_dir!=fahrtrichtung) {
+			calc_bild();
+		}
+	}
+
+	setze_pos(next->gib_pos());
+	betrete_feld();
+	pos_next = koord3d(pos_next_next,0);
+/*
 	switch( fahrtrichtung ) {
 		case ribi_t::nord:
 			dx = 2;
@@ -330,32 +435,7 @@ void movingobj_t::hop()
 			dy = 0;
 			break;
 	}
-
-	// currently just handle end of map
-	grund_t *from = welt->lookup_kartenboden(pos_next.gib_2d());
-	if(from==NULL) {
-		fahrtrichtung = ribi_t::rueckwaerts( fahrtrichtung );
-		dx = -dx;
-		dy = -dy;
-		koord k( fahrtrichtung );
-		if(k.x&k.y) {
-			if(  (gib_pos().x+gib_pos().y)&1  ) {
-				k.y = 0;
-			}
-			else {
-				k.x = 0;
-			}
-		}
-		from = welt->lookup_kartenboden(gib_pos().gib_2d()+k);
-		pos_next = from ? from->gib_pos() : gib_pos()+k;
-		calc_bild();
-	}
-	else {
-		pos_next = koord3d( k, from->gib_hoehe() );
-		verlasse_feld();
-		setze_pos(from->gib_pos());
-		betrete_feld();
-	}
+*/
 }
 
 
