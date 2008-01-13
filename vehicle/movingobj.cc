@@ -190,6 +190,7 @@ void movingobj_t::rdwr(loadsave_t *file)
 {
 	ding_t::rdwr(file);
 
+	pos_next_next.rdwr(file);
 	file->rdwr_short( timetochange, "" );
 
 	if(file->is_saving()) {

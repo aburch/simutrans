@@ -36,6 +36,7 @@
 #include "../vehicle/simvehikel.h"
 #include "../vehicle/simverkehr.h"
 #include "../vehicle/simpeople.h"
+#include "../vehicle/movingobj.h"
 
 #include "../besch/haus_besch.h"
 #include "../dataobj/loadsave.h"
@@ -680,6 +681,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::fussgaenger: d = new fussgaenger_t (welt, file);	        break;
 				case ding_t::old_verkehr: typ = ding_t::verkehr;
 				case ding_t::verkehr:	    d = new stadtauto_t (welt, file);		break;
+				case ding_t::movingobj:	    d = new movingobj_t (welt, file);		break;
 
 				case ding_t::old_monoraildepot:
 					typ = ding_t::monoraildepot;
