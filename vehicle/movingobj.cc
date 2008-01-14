@@ -301,7 +301,7 @@ bool movingobj_t::ist_befahrbar( const grund_t *gr ) const
 			return false;
 		}
 		if(!besch->can_built_trees_here()) {
-			return gr->find<baum_t>();
+			return gr->find<baum_t>()==NULL;
 		}
 	}
 	else if(besch->get_waytype()==air_wt) {
@@ -318,7 +318,7 @@ bool movingobj_t::ist_befahrbar( const grund_t *gr ) const
 			return false;
 		}
 		if(!besch->can_built_trees_here()) {
-			return gr->find<baum_t>();
+			return gr->find<baum_t>()==NULL;
 		}
 	}
 	return true;

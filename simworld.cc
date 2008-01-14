@@ -685,7 +685,7 @@ DBG_DEBUG("karte_t::init()","distributing groundobjs");
 					queried --;
 					if(  queried<0  ) {
 						const groundobj_besch_t *besch = simrand(10)==0 ? movingobj_t::random_movingobj_for_climate( get_climate(gr->gib_hoehe()) ) : groundobj_t::random_groundobj_for_climate( get_climate(gr->gib_hoehe()), gr->gib_grund_hang(), 0 );
-						if(besch) {
+						if(besch  &&  (besch->get_speed()==0  ||  (besch->get_waytype()!=water_wt  ||  gr->hat_weg(water_wt)  ||  gr->gib_hoehe()<=gib_grundwasser()) ) ) {
 							queried = simrand(umgebung_t::ground_object_probability*2);
 							if(besch->get_speed()!=0) {
 								gr->obj_add( new movingobj_t( this, gr->gib_pos(), besch ) );
