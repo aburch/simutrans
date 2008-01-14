@@ -684,7 +684,7 @@ DBG_DEBUG("karte_t::init()","distributing groundobjs");
 				if(gr->gib_typ()==grund_t::boden) {
 					queried --;
 					if(  queried<0  ) {
-						const groundobj_besch_t *besch = simrand(10)==0 ? movingobj_t::random_movingobj_for_climate( get_climate(gr->gib_hoehe()) ) : groundobj_t::random_groundobj_for_climate( get_climate(gr->gib_hoehe()), gr->gib_grund_hang(), 10000 );
+						const groundobj_besch_t *besch = simrand(10)==0 ? movingobj_t::random_movingobj_for_climate( get_climate(gr->gib_hoehe()) ) : groundobj_t::random_groundobj_for_climate( get_climate(gr->gib_hoehe()), gr->gib_grund_hang(), 0 );
 						if(besch) {
 							queried = simrand(umgebung_t::ground_object_probability*2);
 							if(besch->get_speed()!=0) {

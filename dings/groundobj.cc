@@ -135,14 +135,13 @@ void groundobj_t::calc_bild()
 				}
 				break;
 	}
-}
-
-
-
-image_id groundobj_t::gib_bild() const
-{
-	const bild_besch_t *bild = gib_besch()->gib_bild( season, 0 );
-	return bild ? bild->gib_nummer() : IMG_LEER;
+	// check for slopes?
+	uint16 phase = 0;
+	if(besch->gib_phases()==16) {
+		phase = welt->lookup(gib_pos())->gib_grund_hang();
+	}
+	const bild_besch_t *bild_ptr = gib_besch()->gib_bild( season, phase );
+	bild = bild_ptr ? bild_ptr->gib_nummer() : IMG_LEER;
 }
 
 

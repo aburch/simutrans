@@ -25,6 +25,9 @@ private:
 	uint16 groundobjtype:12;
 	uint16 season:4;
 
+	image_id bild;
+	uint16 age;	// in month
+
 	// static for administration
 	static stringhashtable_tpl<uint32> besch_names;
 	static vector_tpl<const groundobj_besch_t *> groundobj_typen;
@@ -42,7 +45,8 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	image_id gib_bild() const;
+	// since the lookup of slopes is slow, image is cached
+	image_id gib_bild() const { return bild; }
 
 	/**
 	 * Berechnet Alter und Bild abhängig vom Alter
