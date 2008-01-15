@@ -1591,13 +1591,13 @@ static vehikel_basis_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv
 	// suche vehikel
 	const uint8 top = gr->gib_top();
 	for(  uint8 pos=0;  pos<top;  pos++ ) {
-		ding_t *dt = gr->obj_bei(pos);
-		if(dt) {
+		vehikel_basis_t *v = (vehikel_basis_t *)gr->obj_bei(pos);
+		if(v->is_moving()) {
 			uint8 other_fahrtrichtung=255;
 
 			// check for car
-			if(dt->gib_typ()==ding_t::automobil) {
-				automobil_t *at = (automobil_t *)dt;
+			if(v->gib_typ()==ding_t::automobil) {
+				automobil_t *at = (automobil_t *)v;
 				// ignore ourself
 				if(cnv==at->get_convoi()) {
 					continue;
@@ -1605,8 +1605,7 @@ static vehikel_basis_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv
 				other_fahrtrichtung = at->gib_fahrtrichtung();
 			}
 			// check for city car
-			else if(dt->gib_typ()==ding_t::verkehr) {
-				vehikel_basis_t *v = (vehikel_basis_t *)dt;
+			else if(v->gib_waytype()==road_wt  &&  v->gib_typ()!=ding_t::fussgaenger) {
 				other_fahrtrichtung = v->gib_fahrtrichtung();
 			}
 
@@ -1615,12 +1614,12 @@ static vehikel_basis_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv
 
 				if(other_fahrtrichtung==next_fahrtrichtung  ||  other_fahrtrichtung==next_90fahrtrichtung  ||  other_fahrtrichtung==current_fahrtrichtung ) {
 					// this goes into the same direction as we, so stopp and save a restart speed
-					return (vehikel_basis_t *)dt;
+					return v;
 
 				} else if(ribi_t::ist_orthogonal(other_fahrtrichtung,current_fahrtrichtung)) {
 
 					// there is a car orthogonal to us
-					return (vehikel_basis_t *)dt;
+					return v;
 				}
 			}
 		}

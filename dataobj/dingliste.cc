@@ -39,6 +39,7 @@
 #include "../vehicle/movingobj.h"
 
 #include "../besch/haus_besch.h"
+#include "../besch/groundobj_besch.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/freelist.h"
 #include "../dataobj/umgebung.h"
@@ -242,6 +243,12 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 	// it would be nice, if also the objects are inserted according to their priorities as
 	// vehicles types (number returned by gib_typ()). However, this would increase
 	// the calculation even further. :(
+
+	if(top==0  ||  obj.some[0]->gib_typ()==ding_t::baum) {
+		// airplane or movingobj
+		intern_insert_at( ding, ((vehikel_basis_t*)ding)->gib_waytype()==air_wt ? top : 0 );
+		return true;
+	}
 
 	// find out about the first car etc. moving thing.
 	// We can start to insert things after this index.

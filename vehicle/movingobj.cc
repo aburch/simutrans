@@ -294,7 +294,7 @@ bool movingobj_t::ist_befahrbar( const grund_t *gr ) const
 
 	if(besch->get_waytype()==road_wt) {
 		// can cross roads
-		if(gr->gib_typ()!=grund_t::boden) {
+		if(gr->gib_typ()!=grund_t::boden  ||  !hang_t::ist_wegbar(gr->gib_grund_hang())) {
 			return false;
 		}
 		if(gr->hat_wege()  &&  !gr->hat_weg(road_wt)) {
@@ -314,7 +314,7 @@ bool movingobj_t::ist_befahrbar( const grund_t *gr ) const
 	}
 	else if(besch->get_waytype()==ignore_wt) {
 		// crosses nothing
-		if(!gr->ist_natur()) {
+		if(!gr->ist_natur()  ||  !hang_t::ist_wegbar(gr->gib_grund_hang())) {
 			return false;
 		}
 		if(!besch->can_built_trees_here()) {
