@@ -9,8 +9,8 @@ LN= $(CC)
 
 ifeq ($(OSTYPE),mingw)
 LDLIBS=-lmingw32 -lpng -lz -lstdc++
-CFLAGS= -O
-CXXFLAGS= -O
+CFLAGS= -O -g
+CXXFLAGS= -O -g
 endif
 
 ifeq ($(OSTYPE),linux)

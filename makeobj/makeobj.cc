@@ -25,6 +25,8 @@ int main(int argc, char* argv[])
 {
 	argv++, argc--;
 
+	init_logging( "stderr", true, true );
+
 	if (argc && !STRICMP(argv[0], "quiet")) {
 		argv++, argc--;
 	} else {

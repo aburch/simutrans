@@ -1,4 +1,5 @@
 #include "../../simtypes.h"
+#include "../../simdebug.h"
 #include "../../utils/cstring_t.h"	// for STRICMP
 #include "../../dataobj/tabfile.h"
 #include "../../boden/wege/weg.h"
@@ -11,7 +12,9 @@ uint8 get_waytype(const char* waytype)
 {
 	uint8 uv8 = road_wt;
 
-	if (!STRICMP(waytype, "road")) {
+	if (!STRICMP(waytype, "none")) {
+		uv8 = 0;
+	} else if (!STRICMP(waytype, "road")) {
 		uv8 = road_wt;
 	} else if (!STRICMP(waytype, "track")) {
 		uv8 = track_wt;
@@ -30,7 +33,7 @@ uint8 get_waytype(const char* waytype)
 	} else if (!STRICMP(waytype, "power")) {
 		uv8 = powerline_wt;
 	} else {
-		fprintf(stderr, "\nFATAL\ninvalid waytype \"%s\"\n", waytype);
+		dbg->fatal("get_waytype()","invalid waytype \"%s\"\n", waytype);
 		exit(1);
 	}
 

@@ -125,7 +125,6 @@ void log_t::error(const char *who, const char *format, ...)
 		fprintf(log ,"Please report all errors to\n");
 		fprintf(log ,"team@64.simutrans.com\n");
 	}
-
 	if( tee ) {                         /* nur loggen wenn schon ein log */
 		fprintf(tee, "ERROR: %s:\t",who);      /* geoeffnet worden ist */
 		vfprintf(tee, format, argptr);
@@ -168,6 +167,10 @@ void log_t::fatal(const char *who, const char *format, ...)
 		fputs( "Aborting program execution ...\n\n", tee );
 		fputs( "Please report all fatal errors to\n", tee );
 		fputs( "team@64.simutrans.com\n", tee );
+	}
+
+	if(tee==NULL  &&  log==NULL) {
+		puts( buffer );
 	}
 
 	va_end(argptr);
