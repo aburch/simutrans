@@ -102,6 +102,8 @@ public:
 	stadtauto_t(karte_t *welt, loadsave_t *file);
 	stadtauto_t(karte_t *welt, koord3d pos, koord target);
 
+	const stadtauto_besch_t *gib_besch() const { return besch; }
+
 	bool sync_step(long delta_t);
 
 	void hop();
