@@ -20,7 +20,7 @@ public:
 	static int count;
 
 private:
-	static int strecke[8];
+	static uint32 strecke[8];
 
 	const fussgaenger_besch_t *besch;
 
@@ -32,6 +32,8 @@ protected:
 public:
 	fussgaenger_t(karte_t *welt, loadsave_t *file);
 	fussgaenger_t(karte_t *welt, koord3d pos);
+
+	const fussgaenger_besch_t *gib_besch() const { return besch; }
 
 	const char *gib_name() const {return "Fussgaenger";}
 	enum ding_t::typ gib_typ() const {return fussgaenger;}

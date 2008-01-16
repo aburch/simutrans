@@ -683,12 +683,29 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::crossing:		d = new crossing_t(welt,file); break;
 
 				// some old offsets will be converted to new ones
+				case ding_t::old_fussgaenger:
+					typ = ding_t::fussgaenger;
+				case ding_t::fussgaenger:
+					d = new fussgaenger_t (welt, file);	        break;
+					if(((fussgaenger_t *)d)->gib_besch()==NULL) {
+						// no pedestrians ... delete this
+						d->set_flag( ding_t::not_on_map );
+						delete ((fussgaenger_t *)d);
+						d = NULL;
+					}
+					break;
 
-				case ding_t::old_fussgaenger: typ = ding_t::fussgaenger;
-				case ding_t::fussgaenger: d = new fussgaenger_t (welt, file);	        break;
-				case ding_t::old_verkehr: typ = ding_t::verkehr;
-				case ding_t::verkehr:	    d = new stadtauto_t (welt, file);		break;
-				case ding_t::movingobj:	    d = new movingobj_t (welt, file);		break;
+				case ding_t::old_verkehr:
+					typ = ding_t::verkehr;
+				case ding_t::verkehr:
+					d = new stadtauto_t (welt, file);
+					if(((stadtauto_t *)d)->gib_besch()==NULL) {
+						// no citycars ... delete this
+						d->set_flag( ding_t::not_on_map );
+						delete ((stadtauto_t *)d);
+						d = NULL;
+					}
+					break;
 
 				case ding_t::old_monoraildepot:
 					typ = ding_t::monoraildepot;
@@ -772,17 +789,25 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				break;
 
 				case ding_t::groundobj:
-				{
-					groundobj_t *go = new groundobj_t(welt, file);
-					if(!go->gib_besch()) {
+					d = new groundobj_t(welt, file);
+					if(((groundobj_t *)d)->gib_besch()==NULL) {
 						// do not remove from this position, since there will be nothing
-						go->set_flag(ding_t::not_on_map);
+						d->set_flag(ding_t::not_on_map);
 						// not use entferne, since it would try to lookup besch
-						delete go;
+						delete (groundobj_t *)d;
+						d = NULL;
 					}
-					d = go;
-				}
-				break;
+					break;
+
+				case ding_t::movingobj:
+					d = new movingobj_t (welt, file);		break;
+					if(((movingobj_t *)d)->gib_besch()==NULL) {
+						// no citycars ... delete this
+						d->set_flag( ding_t::not_on_map );
+						delete (movingobj_t *)d;
+						d = NULL;
+					}
+					break;
 
 				case ding_t::gebaeude:
 				{

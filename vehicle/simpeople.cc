@@ -21,7 +21,7 @@
 
 int fussgaenger_t::count = 0;
 
-int fussgaenger_t::strecke[] = {6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000};
+uint32 fussgaenger_t::strecke[] = {6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000};
 
 static weighted_vector_tpl<const fussgaenger_besch_t*> liste;
 stringhashtable_tpl<const fussgaenger_besch_t *> fussgaenger_t::table;
@@ -48,12 +48,11 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
  : verkehrsteilnehmer_t(welt)
 {
 	rdwr(file);
-
-	if(file->get_version()<89004) {
-		time_to_life = strecke[count & 3];
-	}
 	count ++;
-	welt->sync_add(this);
+	if(besch) {
+		welt->sync_add(this);
+		calc_bild();
+	}
 }
 
 
@@ -94,10 +93,14 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 		besch = table.get(s);
 		// unknow pedestrian => create random new one
-		if(besch == 0) {
+		if(besch == NULL) {
 		    besch = liste.at_weight(simrand(liste.get_sum_weight()));
 		}
 		guarded_free(const_cast<char *>(s));
+	}
+
+	if(file->get_version()<89004) {
+		time_to_life = strecke[count & 7];
 	}
 }
 

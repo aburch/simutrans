@@ -327,7 +327,10 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file)
 {
 	rdwr(file);
 	ms_traffic_jam = 0;
-	welt->sync_add(this);
+	if(besch) {
+		welt->sync_add(this);
+		calc_bild();
+	}
 }
 
 
@@ -433,9 +436,11 @@ void stadtauto_t::rdwr(loadsave_t *file)
 		guarded_free(const_cast<char *>(s));
 
 		if(besch == 0) {
-			dbg->fatal("stadtauto_t::rdwr()", "loading game with private cars, but no private car objects found in PAK files.");
+			dbg->warning("stadtauto_t::rdwr()", "loading game with private cars, but no private car objects found in PAK files.");
 		}
-		setze_bild(besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
+		else {
+			setze_bild(besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
+		}
 	}
 
 	if(file->get_version() <= 86001) {
