@@ -673,6 +673,7 @@ DBG_DEBUG("karte_t::init()","set ground");
 		}
 	}
 
+#if 0
 DBG_DEBUG("karte_t::init()","distributing groundobjs");
 	if(  umgebung_t::ground_object_probability > 0  ) {
 		// add eyecandy like rocky, moles, flowers, ...
@@ -699,6 +700,7 @@ DBG_DEBUG("karte_t::init()","distributing groundobjs");
 			}
 		}
 	}
+#endif
 
 DBG_DEBUG("karte_t::init()","distributing trees");
 	baum_t::distribute_trees(this,3);
