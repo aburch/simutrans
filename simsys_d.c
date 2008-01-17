@@ -38,7 +38,7 @@ struct sys_event sys_event;
 
 static volatile unsigned int event_top_mark = 0;
 static volatile unsigned int event_bot_mark = 0;
-static volatile int event_queue[queue_length * 4 + 8];
+static volatile int event_queue[queue_length * 5 + 8];
 
 
 #define INSERT_EVENT(a, b) \
@@ -47,7 +47,7 @@ static volatile int event_queue[queue_length * 4 + 8];
 	event_queue[event_top_mark++] = mouse_x; \
 	event_queue[event_top_mark++] = mouse_y; \
 	event_queue[event_top_mark++] = mouse_b; \
-	if (event_top_mark >= queue_length * 4) event_top_mark = 0;
+	if (event_top_mark >= queue_length * 5) event_top_mark = 0;
 
 
 void my_mouse_callback(int flags)
@@ -374,14 +374,16 @@ static void internalGetEvents(void)
 		sys_event.code    = event_queue[event_bot_mark++];
 		sys_event.mx      = event_queue[event_bot_mark++];
 		sys_event.my      = event_queue[event_bot_mark++];
+		sys_event.mb      = event_queue[event_bot_mark++];
 		sys_event.key_mod = recalc_keys();
 
-		if (event_bot_mark >= queue_length * 4) event_bot_mark = 0;
+		if (event_bot_mark >= queue_length * 5) event_bot_mark = 0;
 	} else {
 		sys_event.type = SIM_NOEVENT;
 		sys_event.code = SIM_NOEVENT;
 		sys_event.mx   = mouse_x;
 		sys_event.my   = mouse_y;
+		sys_event.mb   = mouse_b;
 	}
 }
 
@@ -430,6 +432,7 @@ void ex_ord_update_mx_my(void)
 {
 	sys_event.mx = mouse_x;
 	sys_event.my = mouse_y;
+	sys_event.mb = mouse_b;
 }
 
 
