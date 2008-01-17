@@ -51,7 +51,6 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
 	count ++;
 	if(besch) {
 		welt->sync_add(this);
-		calc_bild();
 	}
 }
 

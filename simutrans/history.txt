@@ -1,3 +1,6 @@
+Release of 99.17.1 (r1550, stable)
+
+17-Dec-2007:
 	FIX: some errors concerning headquarters, AI and moneys frame
 	CHANGE: again only first and last vehicle reserves block
 	CHANGE: only producing factories are consuming power
@@ -11,9 +14,10 @@
 	FIX: deleting incontinous buildings and rotated buildings could crash simutrans, rotate factory base for rebuilding after loading
 	FIX: invisible mousecursor by moving the mouse during right click scrolling outside of window fixed
 	CHANGE: adding type to introduction/retirement message
+	FIX: severe bug loading pedestrians or citycars
 
 
-Release of 99.17 (r1502, stable)
+Release of 99.17 (r1502)
 
 19-Dec-2007:
 	ADD: water animation (if images defined) animation images are just the second parameter in the definition; animation speed is set by water_animation_ms in simuconf.tab

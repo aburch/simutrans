@@ -329,7 +329,6 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file)
 	ms_traffic_jam = 0;
 	if(besch) {
 		welt->sync_add(this);
-		calc_bild();
 	}
 }
 
