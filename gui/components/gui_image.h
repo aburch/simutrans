@@ -30,7 +30,7 @@ public:
      * Zeichnet die Komponente
      * @author Hj. Malthaner
      */
-    void zeichnen(koord offset) { display_color_img( id, pos.x+offset.x, pos.y+offset.y, player_nr, false, true ); }
+    void zeichnen(koord offset) { display_color_img( id, pos.x+offset.x, pos.y+offset.y, (sint8)player_nr, false, true ); }
 };
 
 #endif
