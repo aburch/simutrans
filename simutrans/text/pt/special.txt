@@ -1,0 +1,60 @@
+<title>Ajuda - Ferramentas Especiais</title>
+
+<h1><strong>Ferramentas Especiais</strong></h1>
+
+<p>
+As <strong>Ferramentas Especiais</strong> constróem itens não-relacionados com tráfego e também permitem a você atuar como um de seus concorrentes dentro do jogo.
+</p>
+<p>
+Clique no ícone representado por uma gota vermelha em um círculo amarelo (ou no de um guindaste no pak128) no topo da área de jogo para abrir a barra de ferramentas.<br>
+Passe o cursor do mouse em cima das opções (após ter aberto ou clicado na barra de ferramentas) para ver o nome e o <a href="finances.txt">custo</a> de construção.
+</p>
+<p>
+As <strong>Ferramentas Especiais</strong> incluem, da esquerda para a direita:
+</p>
+<p>
+<em>Agência dos Correios:</em> esta ferramenta constrói uma agência de correios que permite a uma <a href="station.txt">estação</a> ou parada receber correspondência. Agências de correios aumentam a capacidade e a área de coberura da estação e possuem um custo de manutenção.<br>
+Para construir uma agência: clique na ferramenta para ativá-la, e na área do jogo clique ao lado de alguma estação existente. A nova agência agora fará parte da estação.<br>
+{Dica: remova as agências e os obstáculos com a ferramenta Eliminar.}
+</p>
+<p>
+<em>Extensões para estações:</em> ferramentas que constróem prédios ou extensões para as <a href="station.txt">estações</a>. Extensões podem aumentar a capacidade e a área de coberura para cargas e passageiros, e também o custo de manutenção. No canto de algumas das opções um ícone (usado em <a href="haltlist.txt">Lista de Paradas</a> e em Informações das Paradas) mostra quais itens a extensão permite que a parada receba.<br>
+Para construir uma extensão: clique na ferramenta para ativá-la (o cursor mudará para o desenho da extensão selecionada), e clique no local desejado, ao lado de uma estação existente, na área de jogo. A nova extensão agora fará parte da estação.<br>
+{Dica: remova as extensões com a ferramenta Eliminar.}
+</p>
+<p>
+<em>Mudar jogador (P+):</em> permite atuar como outro <a href="players.txt">jogador</a> se a opção <a href="new_world.txt">Permitir mudança de jogador</a> tiver sido selecionada no início do jogo. <a href="edittools.txt">Opções</a> adicionais estão disponíveis se jogando como o Poder público.<br>
+Clique no botão (ou pressione <a href="keys.txt">[P]</a>) para alternar entre os jogadores. Uma mensagem de confirmação aparece quando se muda o jogador: clique no [X] do canto superior esquerdo da mensagem ou use o teclado para fechá-la.
+</p>
+<p>
+<em>Criar nova cidade:</em> constrói uma nova <a href="citywindow.txt">área urbana</a>.<br>
+Para construir uma nova cidade: clique na ferramenta ou pressione [C] para ativá-la (o cursor mudará para uma pequena prefeitura), e clique no local desejado, na área do jogo. A nova cidade custa 5.000.000,00 de créditos e será construída sem pedir confirmação ao jogador.<br>
+{Dica: clique na prefeitura da cidade na área de jogo com a ferramenta Eliminar para demolir as construções da nova cidade.}
+</p>
+<p>
+<em>Plantar árvore:</em> planta uma árvore na área de jogo.<br>
+Para plantar uma árvore: clique na ferramenta para ativá-la (o cursor mudará para uma árvore), e clique no lugar desejado.<br>
+{Dica: remova as árvores com a ferramenta Remover.}
+</p>
+<p>
+<em>Construir linha elétrica:</em> constrói linhas elétricas que transportam eletricidade dos transformadores das usinas de geração de energia até as <a href="industry_info.txt">indústrias</a> (para aumentar suas produtividades). O fornecimento de energia elétrica gera lucro. As linhas elétricas não podem cruzar trilhos e estradas na diagonal.<br>
+Para construir uma linha elétrica: clique na ferramenta ou pressione [l] para ativá-la (o cursor mudará para uma linha elétrica), e clique em um transformador situado em uma usina, e finalmente clique em um transformador situado em uma indústria.<br>
+{Dicas: linhas elétricas podem ser construídas em partes, clique nos pontos desejados na área de jogo. Remova as linhas elétricas com a ferramenta Eliminar.}
+</p>
+<p>
+<em>Construir transformador:</em> constrói um transformador nas usinas geradoras de energia ou nas <a href="industry_info.txt">indústrias</a> para conexão com as linhas elétricas.<br>
+Para construir um transformador: clique na ferramenta ou pressione [g] para ativá-la (o cursor mudará para uma gota vermelha em um círculo amarelo), e clique na posição desejada ao lado de uma indústria ou de uma usina de energia.<br>
+Transformadores construídos nas usinas de energia devem ser conectados com transformadores das indústrias por meio das linhas elétricas.<br>
+Se não houver eletricidade sendo fornecida, o transformador mostrará um raio de cor amarela. Quando houver fornecimento, mostrará um raio na cor vermelha.<br>
+{Dicas: indústrias e usinas de energia podem ter múltiplos transformadores para aumentar o fornecimento de eletricidade. Remova os transformadores com a ferramenta Eliminar.}
+</p>
+<p>
+<em>Marcador:</em> abre controles para a colocação de um sinal com texto personalizado na área de jogo e pode ser usado para ir de um lugar a outro na área de jogo.<br>
+Clique na ferramenta para ativá-la ou pressione [M] (o cursor mudará para um marcador), e clique no lugar desejado para abrir a janela de controles do marcador. No topo da janela estão as coordenadas no mapa da posição selecionada e uma caixa de texto vazia, digite o texto desejado nela (clique na caixa, digite o texto e clique em <em>OK</em> ou pressione [Enter] ou [Return]) para colocar o marcador. O novo marcador é mostrado na área de jogo e mostrado na janela de controles do marcador (com as coordenadas do mapa) quando reaberta.<br>
+Para se deslocar até um marcador: abra a janela de controles do marcador e clique na posição desejada na lista.<br>
+Para remover um marcador: clique na ferramenta <em>marcador</em> ou pressione [M] para ativá-la (o cursor mudará para um marcador), e clique nas coordenadas do marcador na área de jogo; logo após, clique em <em>Eliminar</em> na janela de controles do marcador.<br>
+Para fechar os controles do marcador: clique no X do canto superior esquerdo da janela; ou clique em <em>Cancelar</em>; ou use o teclado.<br>
+{Dicas: as coordenadas da posição do cursor podem ser vistas no lado direito da barra inferior do jogo. Use [!] para mostrar/esconder o texto dos marcadores na área de jogo.}
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+</p>

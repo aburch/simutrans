@@ -1,17 +1,22 @@
-<meta=helpfile to Portuguese>
-<title>Ajuda - Idioma</title>
+<title>Ajuda - Língua</title>
 
-<h1>Idioma</h1>
+<h1><strong>Linguagem</strong></h1>
 
 <p>
-Essa caixa permite mudar a língua em que Simutrans é mostrado. Basta clicar nos botões ao lado das línguas. Caso se queira criar cidades com nomes de uma outra língua, escolha essa língua antes de criar o novo mundo.<br>
-Quando se muda a língua, nem todas as janelas são atualizadas automaticamente. Basta fechar e reabrir para consertar isso.
+<strong>Língua</strong> altera o idioma utilizado no jogo.
 </p>
 <p>
-Caso não haja sua língua, existem algumas traduções na
-página do Simutrans (http://www.simutrans.de/english/download/simu/download.html). Porém muitas vezes são incompletas ou desatualizadas.
+<strong>Língua</strong> abre a partir de <a href="options.txt">Preferências</a> ou a partir de <a href="new_world.txt">Novo Mundo</a>.
 </p>
 <p>
-Atualizado para Simutrans 0.81.32<br>
-18/05/2003
+Para jogar com outro idioma: clique no botão ao lado do idioma desejado para selecionar este idioma; para que os lugares tenham os nomes no novo idioma, faça isso antes de começar um novo mapa.
+</p>
+<p>
+O novo idioma pode apenas aparecer em novas ou reabertas barras de ferramentas, opções e textos no jogo.<br>
+Se uma tradução não está disponível no idioma selecionado, ele pode abrir em inglês.
+</p>
+<p>
+Visite http://translator.simutrans.com para ajuda com traduções.
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

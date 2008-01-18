@@ -1,45 +1,84 @@
 <title>Ajuda - Novo Mundo</title>
 
-<h1>Novo Mundo</h1>
+<h1><strong>Começar um Novo Jogo</strong></h1>
 
 <p>
-Dessa caixa de diálogo você pode criar um novo jogo estabelecendo os parâmetros do novo mundo como desejar. Ao iniciar Simutrans, aparece também a caixa Idioma, para poder escolher a língua em que será jogado.
+<strong>Novo Mundo</strong> permite modificar as opções para um novo jogo, com um novo mapa e configurações.<br>
+As variáveis incluem: tamanho do terreno, número inicial de áreas urbanas e indústrias.<br>
+Uma prévia do terreno, com os ajustes, é mostrada.
 </p>
 <p>
-O primeiro parâmetro é o número do mundo. Isso determina a aparência do mundo, com a localização da a'gua, das cidades, morros, árvores e indústrias. Uma miniatura de cada mundo é mostrada no canto da caixa. O número-padrão é o 33.
+<strong>Novo Mundo</strong> abre com <a href="language.txt">Língua</a> e <a href="climates.txt">Controle do Clima</a> quando o Simutrans é iniciado (outras opções do jogo estão desligadas) e também abre do botão <a href="options.txt">Preferências</a> (quaisquer barras de ferramentas, textos e opções no jogo atual são fechados).<br>
+Os atalhos do teclado para abrir a janela <strong>Novo Mundo</strong> incluem apertar <a href="keys.txt">[Q]</a> e [X].
 </p>
 <p>
-O tamanho do mapa determina de quantos quadrados será o lado do mapa. Ele pode variar de 128 a 768. Não há padrão.
+Para retornar ao jogo atual, feche a janela <strong>Novo Mundo</strong>: clicando no x no canto superior esquerdo da janela; ou você pode utilizar o teclado.
 </p>
 <p>
-A densidade industrial determina quantas indústrias haverá no mapa. Quanto menos indústrias, mais difícil o jogo se torna, porque haverá menos escolhas.<br> Padrão: 125.
+Os botões em forma de seta permitem ajustar as configurações e os botões que podem ser "apertados" (baixo/alto relevo) ligam/desligam opções ou abrem novos controles:
 </p>
 <p>
-O número de cidades define quantas cidades o jogo terá. O mínimo é 2, o máximo é 64 e o padrão é 16.
+<em>Número:</em> seleciona o terreno a ser utilizado no jogo.<br>
+Clique na caixa de texto com o número e digite o número desejado ou use os botões em forma de seta para selecionar um entre vários terrenos.<br>
+A prévia mostra o terreno selecionado (a água é azul, e quanto mais baixo o nível da terra, mais escura fica a cor).
 </p>
 <p>
-A densidade de tráfego diz qual a intensidade do tráfego de carros privados nas cidades. O normal é 8.
+<em>Dimensão:</em> ajusta o tamanho do mapa (o número superior é largura, o inferior é altura).<br>
+O número em colchetes é a memória requerida pelo mapa.<br>
+IMPORTANTE: Mapas maiores precisam de mais memória e precisam de mais tempo para serem criados. O jogo e outros gráficos precisam de aproximadamente 88MB no pak64 e 144MB no pak128. Geralmente um computador com 256MB de memória consegue operar mapas com o tamanho de até 512 x 512 quadros.
 </p>
 <p>
-O nivel d'água determina qual a altura da água no mapa. Quanto menor esse nível, mais terra aparece. Padrão:4
+<em>Aleatório:</em> seleciona um novo terreno com um número do mapa aleatório, mas as outras opções não são alteradas.
 </p>
 <p>
-O parâmetro "Planicidade" determina o quão plano será o terreno, e também a altitude máxima. O padrão é o máximo, 160. A rugosidade determina quanto o mapa terá de buracos. Quanto menor o valor da rugosidade, mais liso será o terreno.
+<a href="load_relief.txt"><em>Carregar terreno:</em></a> abre os controles para utilizar os mapas disponíveis personalizados.
 </p>
 <p>
-O botão "Mapa aleatório" seleciona um mundo ao azar. Os outros parâmetros não se alteram.
+<em>Cidades:</em> ajusta o número inicial de <a href="citywindow.txt">áreas urbanas</a> no jogo.
 </p>
 <p>
-"Mostrar pedestres" habilita o jogo a mostrar os pedestres saindo do ponto de ônibus ou da estação de trem. Esse parâmetro pode ser mudado na caixa de diálogo <a href="display.txt">Vídeo</a>.
+<em>Moradores por cidade:</em> ajusta a população inicial das áreas urbanas.<br>
+Essa configuração é um valor médio, o Simutrans tentará gerar mais cidades pequenas do que cidades grandes.
 </p>
 <p>
-O botão "Alternar dia e noite" habilita o jogo a escurecer a tela como se fosse noite. Esse parâmetro também pode ser mudado na caixa de diálogo
-<a href="display.txt">Vídeo</a>.
+<em>Ext. vias interurbanas:</em> ajusta a extensão inicial das estradas, entre áreas urbanas, para um novo jogo.
 </p>
 <p>
-O botão "Carregar" abre a caixa de diálogo de carregamento de jogos. O botão "Criar" cria um novo jogo. O botão "Sair" termina o jogo fechando o Simutrans.
+<em>Dens. de tráfego:</em> ajusta o número de carros privados nas estradas.<br>
+Valores maiores criam mais tráfego, 0 (zero) gera nenhum. Novos carros aparecerão à medida que as áreas urbanas crescem.
 </p>
 <p>
-Atualizado para Simutrans 0.81.32<br>
-18/05/2003
+<em>Indústrias rurais:</em> ajusta o número inicial de <a href="industry_info.txt">cadeias industriais fornecedoras</a> fora das áreas urbanas.<br>
+Se o terreno é muito irregular o espaço adequado pode não ser encontrado e menos indústrias aparecerão.
+</p>
+<p>
+<em>Indústrias urbanas:</em> ajusta o número inicial de <a href="industry_info.txt">consumidores finais</a> de mercadorias nas áreas urbanas, como lojas e postos de gasolina.<br>
+Novos consumidores (e possivelmente fornecedores, sem ser necessariamente em áreas urbanas) aparecem cada vez que a população aumenta em aproximadamente 2000 habitantes.
+</p>
+<p>
+<a href="curiositylist_filter.txt"><em>Atrações turísticas:</em></a> ajusta o número inicial de construções fora das áreas urbanas que atraem passageiros e correio.<br>
+Essas atrações aparecem fora das áreas urbanas e em somam-se com quaisquer atrações geradas em novas vilas ou cidades no começo do jogo. Essas atrações também geram passageiros e correio.
+</p>
+<p>
+<em>Linha do tempo a partir de:</em> permite alterar o ano em que o jogo começa.
+Quando o botão em forma de quadrado está "apertado", essa opção está selecionada e, ao passar do tempo, mais veículos e opções de construção poderão aparecer.<br>
+Quando o botão em forma de quadrado não está "apertado": o jogo ainda iniciará no ano escolhido, mas todos os veículos e opções de contrução aparecerão imediatamente; as áreas urbanas aparecerão com prédios de todas as épocas; e veículos mais lentos não são tão lucrativos (já que o lucro é calculado pela velocidade média do transporte disponível).
+</p>
+<p>
+<em>Permitir mudança de jogador:</em> essa opção lhe deixa jogar como um <a href="players.txt">jogador</a> dono das empresas que são comandadas pela IA ou como o serviço público (esta opção não pode ser acessada após o jogo ser iniciado).
+</p>
+<p>
+<em>Modo iniciante:</em> essa opção faz com que o jogador receba um lucro maior no jogo por transportar mercadorias e passageiros (padrão: 150% dos valores recebidos no modo normal). Além disso, as <a href="industry_info.txt">Indústrias</a> não pararão de produzir quando o(s) consumidor(es) já tiver(em) excesso de mercadorias.
+</p>
+<p>
+<a href="load.txt">
+<em>Carregar jogo:</em></a> abre os controles para jogar um jogo <a href="save.txt">salvo</a> previamente, substituindo o mundo atual que é perdido ao selecionar um jogo salvo.
+</p>
+<p>
+<em>Criar:</em> cria um novo mundo, usando as configurações mostradas na tela. Clique nesse botão para começar a jogar - Boa Sorte e Curta o Jogo!
+</p>
+<p>
+{Dica: Os valores usados por padrão quando o Simutrans é iniciado e outras configurações podem ser alterados no arquivo simuconf.tab}
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

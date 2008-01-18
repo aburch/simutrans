@@ -7,8 +7,8 @@ A janela de <strong>Informações das indústrias</strong> mostra detalhes sobre um
 </p>
 <p>
 Fornecedoras e consumidoras de mercadorias são interdependentes, criando uma cadeia produtiva que termina em um consumidor-final. Algumas indústrias são ao mesmo tempo consumidoras e fornecedoras e se encontram no meio da cadeia produtiva. Se não se estiver jogando no <a href="new_world.txt">modo iniciante</a>, a indústria interromperá o fornecimento enquanto sua consumidora estiver com excesso de mercadorias.<br>
-Indústrias também podem ser um destino ou origem de passageiros e correio. Veículos recolhem e entregam mercadorias e passageiros nas indústrias através de <a href="station.txt">paradas</a> se a área de cobertura da parada abranger qualquer parte do prédio da indústria e se a parada for capaz de receber o item.
-{Dica: a área de cobertura das paradas em alto-mar/plataformas de petróleo/fazendas marinhas não aparecem na lista de paradas}
+Indústrias também podem ser um destino ou origem de passageiros e correio. Veículos recolhem e entregam mercadorias e passageiros nas indústrias através de <a href="station.txt">paradas</a> se a área de captura da parada abranger qualquer parte do prédio da indústria e se a parada for capaz de receber o item.
+{Dica: a área de captura das paradas em alto-mar/plataformas de petróleo/fazendas marinhas não aparecem na lista de paradas}
 </p>
 <p>
 O número inicial de cadeias produtivas pode ser alterado quando se cria um <a href="new_world.txt">novo mundo</a>.
@@ -53,7 +53,7 @@ Indústrias fornecedoras e suas coordenadas no mapa são listadas ao lado de um bo
 <p>
 <em>Geração de viagens:</em> é a popularidade relativa como destino para passageiros.<br>
 <em>Geração de correios:</em> é a popularidade relativa como destino para correio.<br>
-{Dica: somente uma parte da indústria precisa estar na área de cobertura da estação/parada para ser destino de passageiros ou correio}.
+{Dica: somente uma parte da indústria precisa estar na área de captura da estação/parada para ser destino de passageiros ou correio}.
 </p>
 <p>
 <em>Produção:</em> dá detalhes sobre a produção da indústria.<br>
@@ -63,5 +63,5 @@ A informação mostrada inclui: nome do item; quantidade atualmente armazenada e q
 <em>Consumo:</em> dá detalhes sobre os bens fornecidos à indústria.<br>
 A informação mostrada inclui: nome do item; quantidade atualmente armazenada e quantidade máxima armazenável do item; <a href="goods_filter.txt">categoria</a>; e porcentagem da entrada comparada com a saída.
 </p>
-<p>Traduzido para versão Simutrans 0.99.14.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

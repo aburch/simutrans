@@ -38,6 +38,7 @@ As teclas com funções atribuídas incluem:
 </p>
 <p>
 [<em>a</em>]: ativa a ferramenta <a href="inspection_tool.txt">Verificar</a>.<br>
+[<em>b</em>]: destaca trilhos reservados.<br>
 [<em>B</em>]: abre a janela de <a href="mailbox.txt">mensagens</a>.<br>
 [<em>c</em>]: salva uma imagem da tela do jogo (câmera).<br>
 [<em>C</em>]: ativa a ferramenta <a href="special.txt">Criar nova cidade</a>.<br>
@@ -58,15 +59,16 @@ As teclas com funções atribuídas incluem:
 [<em>P</em>]: alterna entre <a href="players.txt">jogadores</a>.<br>
 [<em>Q</em>]: abre a janela <a href="new_world.txt">Novo Mundo</a>.<br>
 [<em>r</em>]: ativa a ferramenta Eliminar.<br>
+[<em>R</em>]: gira o mapa em 90 graus.<br>
 [<em>s</em>]: ativa a última ferramenta de construção de <a href="roadtools.txt">estradas</a> usada.<br>
 [<em>S</em>]: abre a janela <a href="save.txt">Salvar</a>.<br>
 [<em>t</em>]: ativa a última ferramenta de construção de <a href="roadtools.txt">ferrovias</a> usada.<br>
 [<em>T</em>]: abre a <a href="citylist_filter.txt">Lista das cidades</a>.<br>
 [<em>u</em>]: ativa a ferramenta <a href="slopetools.txt">Elevar terreno</a>.<br>
 [<em>U</em>]: ativa/desativa o modo subterrâneo.<br>
-[<em>v</em>]: mostra/esconde a área de abrangência das <a href="station.txt">paradas</a>. Os quadrados aparecem na <a href="color.txt">cor</a> da companhia.<br>
+[<em>v</em>]: mostra/esconde a área de captura das <a href="station.txt">paradas</a>. Os quadrados aparecem na <a href="color.txt">cor</a> da companhia.<br>
 [<em>V</em>]: abre a <a href="convoi.txt">Lista de veículos</a><br>
-[<em>w</em>]: abre o <a href="linemanagement.txt">Gerenciamento de linhas</a>.<br>
+[<em>w</em>]: abre o <a href="linemanagement.txt">Gerenciador de linhas</a>.<br>
 [<em>W</em>]: ativa/desativa o Avanço Rápido do tempo no jogo.<br>
 [<em>X</em>]: abre a janela <a href="new_world.txt">Novo Mundo</a>.<br>
 [<em>z</em>]: desfaz a construção do último trecho de via (custos de construção não são reembolsados).
@@ -91,5 +93,5 @@ As teclas com funções atribuídas incluem:
 [<em>F10</em>]: pausa/despausa o jogo.<br>
 [<em>F2</em>] a [<em>F12</em>]: ativa ferramenta memorizada nestas teclas.
 </p>
-<p>Traduzido para versão Simutrans 0.99.14.<br> Visite o PT-SubFórum (http://pt.simutrans.com), que é a seção em língua portuguesa do International Simutrans Forum.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

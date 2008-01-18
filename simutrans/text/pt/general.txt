@@ -35,7 +35,7 @@
 </p>
 <p>
 <a href="window.txt"><strong>Opções de Gerenciamento</strong></a><br>
-- <a href="linemanagement.txt">Gerenciamento de linhas</a><br>
+- <a href="linemanagement.txt">Gerenciador de linhas</a><br>
 - <a href="list.txt">Listas</a><br>
 - - <a href="haltlist.txt">Lista de paradas</a><br>
 - - - <a href="haltlist_filter.txt">Filtro da lista de paradas</a><br>
@@ -60,7 +60,7 @@
 -<a href="depot.txt">Depósitos</a><br>
 -<a href="schedule.txt">Programação de veículos</a><br>
 - <a href="station.txt">Informações das estações</a><br>
-- - <a href="station_details.txt">Detalhes das paradas</a><br>
+- - <a href="station_details.txt">Detalhes da parada</a><br>
 - <a href="convoiinfo.txt">Informações do comboio</a><br>
 - - <a href="convoidetail.txt">Detalhes de comboio/veículo</a><br>
 - <a href="citywindow.txt">Estatísticas da cidade</a><br>
@@ -71,7 +71,27 @@ Se você não encontrou aqui a ajuda que procura, então tente:<br>
 <em>http://guide.simutrans.com</em>, ou<br>
 <em>http://wiki.simutrans.com</em>, ou<br>
 <em>http://simutrans-tips.com</em>, ou<br>
-<em>http://forum.simutrans.com</em>.
+<em>http://forum.simutrans.com</em>, ou<br>
+<em>http://pt.simutrans.com</em>.
 </p>
-<p>Traduzido para versão Simutrans 0.99.14.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+</p>
+<p>
+<strong>Equipe de tradução do Simutrans PT-SubFórum</strong>
+<p>
+Nossa equipe em 17/01/2008, em ordem alfabética:
+</p>
+</p>
+Caio R. Monteiro<br>
+DanielRS<br>
+ecostaoli<br>
+FaconBill<br>
+fire_wolf_br<br>
+Francisco Gonçalves<br>
+haspwolf<br>
+IgorTekton<br>
+Silcorfa
+</p>
+<p>
+Quaquer problema, dúvida ou sugestão em nossas traduções, contacte-nos pelo <em>http://pt.simutrans.com</em>.
 </p>

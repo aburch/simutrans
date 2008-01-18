@@ -1,0 +1,96 @@
+<title>Ajuda - Informações do Comboio</title>
+
+<h1><strong>Informações do Comboio</strong></h1>
+
+<p>
+A janela <strong>Informações do Comboio</strong> oferece informações sobre um Comboio (um veículo operacional ou uma combinação de veículos) o qual é utilizado para transportar mercadorias e passageiros.<br>
+Ela lista os itens carregados por um Comboio e também possui os controles para acessar os detalhes e vender o Comboio; seguir o Comboio na visão do jogo; e alterar o nome e a <a href="schedule.txt">Programação</a> de um Comboio.
+</p>
+
+<p>
+Um Comboio é composto de pelo menos um veículo com força (motorizado) e qualquer tipo de reboque, como um vagão.<br>
+Exemplos de Comboios incluem: um grupo de cavalos puxando uma carruagem; ou uma locomotiva ligada a um tender e a vagões; ou um ônibus; ou uma van; ou um caminhão ligado a um reboque; ou bondes conectados entre si; ou um navio; ou um rebocador puxando uma barcaça; ou um avião.<br>
+Os Comboios são montados e comprados do <a href="depot.txt">depósito</a> para o seu respectivo tipo de transporte.<br>
+{Dica: Um Comboio tem um número limite máximo de veículos em sua composição: trens, 24; veículos rodoviários, 4 .}
+</p>
+<p>
+Clique em um Comboio enquanto estiver na visão do jogo com a <a href="inspection_tool.txt">ferramenta Verificar</a> ou clique no Comboio listado na <a href="convoi.txt">Lista de Veículos</a> ou no <a href="linemanagement.txt">Gerenciador de Linhas</a> para abrir a janela <strong>Informações do Comboio</strong><br>
+A barra de título da janela <strong>Informações do Comboio</strong> mostra um número de identificação único e o nome do Comboio (por padrão isso é feito quando o primeiro veículo é comprado ou montado em um <a href="depot.txt">depósito</a>).<br>
+A janela <strong>Informações do Comboio</strong> contém uma caixa do nome; uma mini-visão e a informação sobre o Comboio; botões de opções; e uma lista de todos os itens atualmente sendo carregados (se todos os itens não estão visíveis <a href="mouse.txt">reajuste</a> a janela de <strong>Informações do Comboio</strong> ou use as barras laterais para ver os outros itens).
+</p>
+<p>
+A informação mostrada na janela de <strong>Informações do Comboio</strong> inclui:
+</p>
+<p>
+<em>ID Interno</em>: um número único de identificação para o Comboio (designado por padrão quando o Comboio é comprado ou montado pela primeira vez em um <a href=depot.txt">depósito</a>).
+</p>
+<p>
+- <em>Nome</em>: mostra o nome designado do Comboio (por padrão isso já é feito ao primeiro veículo comprado ou montado no Comboio em um <a href="depot.txt">depósito</a>).<br>
+Clique na caixa de texto e digite um novo para alterar o nome do Comboio.
+</p>
+<p>
+- <em>Velocidade:</em> velocidade atual mostrada em km/h.<br>
+Entre parênteses está localizada a velocidade máxima que pode ser atingida pelo Comboio (determinada pelo veículo mais lento no Comboio).<br>
+Uma barra de progresso verde indica a velocidade atual relativa ao limite de velocidade máxima.
+</p>
+<p>
+- <em>Renda:</em> lucro gerado por veículo (renda gerada menos os custos operacionais) de acordo com o ano atual do calendário do jogo.<br>
+Entre parênteses está o custo operacional do Comboio em Créditos Hajo.
+</p>
+<p>
+- <em>Peso:</em> peso combinado atual do Comboio e itens carregados em toneladas.<br>
+Entre parênteses está o peso atual dos veículos carregados.<br>
+Uma barra de progresso verde indica a capacidade usada, para carregar mercadorias e passageiros.<br>
+Uma barra amarela indica o nível de <a href="schedule.txt">Espera</a> (quantidade mínima de mercadorias e passageiros necessários para o Comboio prosseguir) ajustado nas opções da Linha.<br>
+{Dica: Para ajustar os níveis de Espera para todos os Comboios de uma Linha, use o botão Atualizar em <a href="linemanagement.txt">Gerenciador de Linhas</a> ou em <a href="depot.txt">Controles do Depósito</a>. Para ajustar o nível de Espera para apenas um Comboio e mais nenhum outro em uma Linha atribuída, use o botão <em>Programar</em> na janela <strong>Informações do Comboio</strong> ou Controles do Depósito.}
+</p>
+<p>
+- <em>Destino:</em> A próxima <a href="station.txt">Parada</a> ou ponto de passagem na <a href="schedule.txt">Programação</a> do Comboio.<br>
+Uma barra de progresso verde indica o progresso do Comboio até o próximo Destino.
+</p>
+<p>
+- <em>Serve a linha:</em> indica qualquer <a href="linemanagement.txt">Linha</a> atribuída ao Comboio.
+</p>
+<p>
+- <em>Mini-vista</em> mostra o Comboio.<br>
+Clique na mini-vista para centralizar a visão do jogo no Comboio.
+</p>
+<p>
+Clique nos botões da janela <strong>Informações do Comboio</strong> para abrir os controles ou selecionar as opções:
+</p>
+<p>
+<a href="schedule.txt"><em>Programar:</em></a> abre os controles para modificar a rota e a quantidade mínima de mercadorias e passageiros necessários para o Comboio prosseguir.
+</p>
+<p>
+<em>Recolher:</em> manda o Comboio ao <a href="depot.txt">depósito</a> apropriado mais próximo. Quaisquer itens carregados serão perdidos, apesar de que o faturamento é recebido pelo transporte ao depósito.<br>
+No depósto, o Comboio mantém sua <a href="schedule.txt">Programação</a> e sua <a href="linemanagement.txt">Linha</a> atribuída.
+</p>
+<p>
+<em>Siga-me:</em> botão que quando ativado move a visão do jogo junto com o Comboio.<br>
+Para desativar esta opção, clique no botão novamente ou clique com o botão direito no <a href="map.txt">Mapa</a>.
+</p>
+<p>
+<em>Gráfico:</em> clique nesse botão para ativar/desativar o gráfico (o botão fica pressionado quando o gráfico está visível) em <strong>Informações do Comboio</strong>.<br>
+O gráfico mostra as estatísticas para os últimos 12 meses (eixo horizontal) quando uma opção do gráfico está selecionada.<br>
+Clique no botão de opção de gráfico para ver a informação no gráfico (o botão fica em baixo-relevo quando a opção está selecionada).<br>
+As cores das linhas no gráfico correspondem às cores dos botões de opção do gráfico:<br>
+- <em>Capacidade</em> indica o espaço sem uso no Comboio.<br>
+- <em>Vol. Transportado</em> indica o número de mercadorias, passageiros e correio transportados.<br>
+- <em>Faturamento</em> indica o lucro gerado pelo transporte.<br>
+- <em>Operação</em> indica os custos do Comboio enquanto está trafegando.<br>
+- <em>Lucro</em> indica o lucro recebido pelo transporte (Lucro Bruto menos os custos operacionais).
+</p>
+<p>
+<em>Detalhes</em> abre os <a href="convoidetail.txt">Detalhes do Comboio</a> que contêm mais informações e a opção para vender o Comboio.
+</p>
+<p>
+<em>Passageiros/carga carregada:</em> lista os itens carregados atualmente pelo Comboio.<br>
+A informação mostrada inclui a quantidade carregada e a capacidade do Comboio, o tipo do item, o destino final e a primeira <a href="station.txt">Parada</a>.<br>
+O botão de opção (o nome varia de acordo com a seleção) organiza os itens carregados em grupos de passageiros, correio e mercadorias por:<br>
+ - <em>Destino:</em> organiza os itens carregados alfanumericamente de acordo com a ordem do código ASCII (letras maiúsculas antes das letras minúsculas), pelo nome designado da Parada final.<br>
+ - <em>Via (detalhe):</em> organiza os itens carregados alfanumericamente de acordo com a ordem do código ASCII (letras maiúsculas antes das letras minúsculas), pelo nome designado da primeira Parada de transferência.<br>
+ - <em>Via (quant.):</em> organiza os itens carregados pela quantidade levada à primeira Parada de transferência.<br>
+ - <em>Quantidade:</em> organiza os itens carregados pela quantidade em ordem decrescente.
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+</p>

@@ -14,7 +14,7 @@
 </p>
 <p>
   <em> População total:
-  </em> é o número total de habitantes do jogo (de todas as cidades). O mais recente acréscimo da população é mostrado entre parêntesis.
+  </em> é o número total de habitantes do jogo (de todas as cidades). O mais recente acréscimo da população é mostrado entre parênteses.
 </p>
 <p>
   <em> Classificadas por:
@@ -50,5 +50,5 @@
   <em> População
   </em> da área urbana, e entre parênteses está o recente acréscimo na população.
 </p>
-<p>Traduzido para versão Simutrans 0.99.14.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

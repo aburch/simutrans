@@ -1,17 +1,81 @@
 <title>Ajuda - Mapa</title>
 
-<h1>Mapa (teclado: m)</h1>
+<h1><strong>Mapa</strong></h1>
 
 <p>
-O mapa permite ver o mundo em miniatura, podendo-se ter uma visão mais ampla da rede de transportes e das posições das indústrias e cidades no mundo.
+<strong>Mapa</strong> fornece um mapa do mundo atual oferecendo informações sobre terreno, lugares importantes e redes de transporte. Ele também fornece um modo para mover a visão do jogo pelo mundo.
 </p>
 <p>
-Ele permite o acesso rápido a partes distantes do mundo, clicando-se com o botão esquerdo onde desejado. O jogo será centralizado na posição clicada no mapa.
+Clique no ícone do mapa no topo da visão do jogo ou pressione <a href="keys.txt">[m]</a> para abrir o <strong>Mapa</strong>, cujo tamanho pode ser <a href="mouse.txt">ajustado</a> ou minimizado. As setas esquerda/direita, na barra de título, abre/fecha em estágios: opções do mapa, uma escala de cor mín./máx. que mostra o nível de atividade para algumas das opções, e um botão para as cores das <a href="industry_info.txt">indústrias</a> vistas no mapa.
 </p>
 <p>
-O botão direito do mouse tem a função de aproximar ou distanciar o mapa. Só há um nível de zoom.
+O mapa possui três escalas diferentes: clique com o botão direito do mouse no Mapa (ou aponte com o cursor do mouse e use o scroll) para visualizar as diferentes escalas. Se o mapa inteiro não está visível, então mude a escala do mapa, ou redimensione o <strong>Mapa</strong>, ou mova o mapa para ver a parte desejada: enquanto clica com o botão direito do mouse no mapa, arraste-o (ou use as barras deslizantes nas laterais).
+<p>
+</p>
+No mapa, a água é azul e as terras mais baixas são mais escuras que as terras mais altas. A parte do mundo na visão do jogo é mostrada por um quadrado com contorno amarelo no <strong>Mapa</strong>: o topo da visão do jogo corresponde ao lado superior esquerdo do retângulo amarelo (o Norte está no topo do mapa, enquanto na visão do jogo está no canto superior direito). Se o retângulo amarelo sair da área do mapa, água será vista na visão do jogo na área correspondente.
 </p>
 <p>
-Atualizado para Simutrans 0.81.32<br>
-18/05/2003
+Para mover a visão do jogo por distâncias grandes no mundo, clique com o botão esquerdo no ponto desejado ou clique com o botão esquerdo do mouse e ao mesmo tempo arraste o retângulo amarelo.
+</p>
+<p>
+Aponte o cursor do mouse em uma <a href="industry_info.txt">indústria</a> no mapa, para ver o nome e uma linha branca ligando ao(s) consumidor(es); aperte [Shift] primeiro para mostrar uma linha vermelha ao(s) fornecedor(es).
+</p>
+<p>
+No mapa (quando as opções não estão sendo usadas): <a href="citywindow.txt">áreas urbanas</a>, atrações e túneis aparecem em cinza escuro; canais, azul; estradas, preto; ferrovias e trilhos de bonde, marrom escuro; pontes, cinza-claro; <a href="station.txt">Paradas</a>,vermelho; pistas de monotrilho/maglev, laranja; áreas de aeroporto, bege; e veículos, em amarelo, normalmente em movimento.
+</p>
+<p>
+Clique nos botões de opções para mostrar/ocultar detalhes no mapa de (para os botões aparecerem, clique no botão Legenda):
+</p>
+<p>
+<em>Cidades:</em> nomes das <a href="citywindow.txt">áreas urbanas</a>.
+</p>
+<p>
+<em>Passageiros:</em> área de captura para passageiros por <a href="station.txt">Paradas</a>.
+</p>
+<p>
+<em>Correio:</em> área de captura para correio por <a href="station.txt">Paradas</a>.
+</p>
+<p>
+<em>Mercadoria:</em> nível de mercadorias e passageiros em estradas e outros tipos de vias (usa a escala de cor mín./máx.).
+</p>
+<p>
+<em>Qualificação:</em> as cores indicam a operação da <a href="station.txt">Parada</a> em relação a quão lotada ela está no momento. A mesma cor é mostrada nas barras de status na <a href="haltlist.txt">Lista de Paradas</a> e <a href="station.txt">Informações das Paradas</a> e <a href="linemanagement.txt">Gerenciador de Linhas</a> e é a mesma cor mostrada na barra de cor acima do nome de uma Parada na tela do jogo.
+</p>
+<p>
+<em>Serviço:</em> nível de mercadorias e passageiros usando uma <a href="station.txt">Parada</a> (usa a escala mín./máx.).
+</p>
+<p>
+<em>Tráfego:</em> nível de <a href="convoiinfo.txt">veículos</a> em estradas e outros tipos de vias (usa a escala de cor mín./máx.).
+</p>
+<p>
+<em>Origem:</em> nível de mercadorias e passageiros que começam viagem de uma <a href="station.txt">Parada</a> (usa a escala de cor mín./máx.).
+</p>
+<p>
+<em>Destino:</em> nível de mercadorias e passageiros terminando uma viagem em uma <a href="station.txt">Parada</a> (usa a escala de cor mín./máx.).
+</p>
+<p>
+<em>Espera:</em> nível de mercadorias e passageiros esperando por transporte em uma <a href="station.txt">Parada</a> (usa a escala de cor mín./máx.).
+</p>
+<p>
+<em>Vias:</em> ferrovias e trilhos de bonde e placas; trilhos, pontes e túneis são mostrados com a cor branca (vermelha se for eletrificado) e placas são mostradas com a cor amarela.
+</p>
+<p>
+<em>Vel. Máxima:</em> estradas e pistas são mostradas pela velocidade máxima permitida (usa a escala de cor mín./máx.).
+</p>
+<p>
+<em>L. Elétricas:</em> <a href="special.txt">linhas elétricas</a> (usa a escala de cor mín./máx. para visualizar o nível de abastecimento do momento em que o Mapa foi aberto).
+</p>
+<p>
+<em>Turistas:</em> nível de passageiros que as atrações turísticas geram (usa a escala de cor mín./máx.); esta opção também mostra as atrações turísticas no mapa.
+</p>
+<p>
+<em>Fábricas:</em> enfatiza as <a href="industry_info.txt">indústrias</a>; destaca os consumidores e fornecedores no mapa.
+</p>
+<p>
+<em>Depósitos:</em> enfatiza os <a href="depot.txt">depósitos</a>. As cores indicam o tipo de transporte: navios, vermelho; estradas, amarelo; ferrovias, laranja; aviões, lilás; bondes, laranja escuro; e monotrilhos, marrom escuro.
+</p>
+<p>
+<strong>ATENÇÃO:</strong><em>Esta ajuda está desatualizada nos 2o. e 3o. parágragos! Logo estaremos atualizando-a.</em>
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

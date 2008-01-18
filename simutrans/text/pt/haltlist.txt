@@ -30,7 +30,7 @@ Clicando em um item na <strong>Lista de paradas</strong>, obtêm-se maiores  <a h
 Os dados listados por parada são:
 </p>
 <p>
-<em>Estado:</em> Barra colorida onde cada cor indica o estado da parada, com relação à lotação. A mesma cor é exibida nas Informações da Parada, no <a href="linemanagement.txt">Gerenciamento de Linhas</a> e na barra acima do nome da parada que se vê no jogo:<br>
+<em>Estado:</em> Barra colorida onde cada cor indica o estado da parada, com relação à lotação. A mesma cor é exibida nas Informações da Parada, no <a href="linemanagement.txt">Gerenciador de Linhas</a> e na barra acima do nome da parada que se vê no jogo:<br>
 - <em>amarelo:</em> parada sem atendimento; nenhum veículo a utiliza.<br>
 - <em>verde:</em> não é necessário melhorar o atendimento; a parada não lota.<br>
 - <em>laranja:</em> alguma melhoria é necessária.<br>
@@ -49,5 +49,5 @@ Os dados listados por parada são:
 <p>
 Na <em>segunda linha</em> vêm os detalhes das diversas cargas esperando na parada.
 </p>
-<p>Traduzido para versão Simutrans 0.99.14.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

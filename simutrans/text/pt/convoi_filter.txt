@@ -7,7 +7,6 @@ O <strong>Filtro da Lista de Veículos</strong> tem opções para determinar quais 
 </p>
 <p>
 Clique em Parâmetros na Lista de Veículos para abrir o <strong>Filtro da Lista de Veículos</strong>.
-
 </p>
 <p>
 Os botões de opções selecionam os Comboios a serem listados na Lista de Veículos quando a opção de filtro está <a href="convoi.txt">ligada</a>. Apenas os Comboios que estão dentro de todos os critérios selecionados são listados.
@@ -18,7 +17,6 @@ Clique em uma caixa de seleção para selecionar o critério para filtrar (o botão 
 <p>
 <em>Filtro por nome:</em> seleciona o <a href="convoiinfo.txt">Comboio</a> pelo nome. Para usar: clique no botão para selecionar, então clique na caixa de texto e digite o nome desejado exatamente (a opção diferencia letras maiúsculas de minúsculas, portanto preste muita atenção quanto a isso).
 </p>
-
 <p>
 <em>Filtro por tipo:</em> listará os Comboios por tipo de transporte se selecionado. Para usá-lo: clique no botão para selecionar, então clique no(s) tipo(s) de transporte: Caminhões, Trens, Barcos e Aviões.
 </p>
@@ -36,5 +34,5 @@ Clique em uma caixa de seleção para selecionar o critério para filtrar (o botão 
 - <em>nada</em> nenhum item é selecionado.<br>
 - <em>inv.</em> inverte a seleção atual de itens.
 </p>
-<p>Traduzido para versão Simutrans 0.99.14.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

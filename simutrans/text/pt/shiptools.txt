@@ -30,27 +30,27 @@ Para construir um canal elevado: clique na ferramenta para ativá-la (o cursor mu
 <p>
 <em>Cais de canal:</em> constrói uma doca em um canal na área de jogo para navios e barcaças recolherem e entregarem mercadorias, passageiros e correio.<br>
 Quando uma doca não for construída ao lado de uma <a href="station.txt">parada</a> existente, será criada uma nova.<br>
-Uma doca possui uma área de cobertura para mercadorias, passageiros e correio. No canto superior esquerdo um ícone (usado na <a href="haltlist.txt">Lista de paradas</a> e nas <a href="station.txt">Informações das estações</a>) mostra que tipos de itens uma parada suporta.<br>
+Uma doca possui uma área de captura para mercadorias, passageiros e correio. No canto superior esquerdo um ícone (usado na <a href="haltlist.txt">Lista de paradas</a> e nas <a href="station.txt">Informações das estações</a>) mostra que tipos de itens uma parada suporta.<br>
 Para construir uma doca: clique na ferramenta para ativá-la (o cursor mudará para um cais de canal); e clique em um ponto do canal na área de jogo.<br>
-{Dicas: remova as docas com a ferramenta Eliminar. Pressione [v] para mostrar/ocultar a área de cobertura para mercadorias, passageiros e correio na área de jogo.<br>
+{Dicas: remova as docas com a ferramenta Eliminar. Pressione [v] para mostrar/ocultar a área de captura para mercadorias, passageiros e correio na área de jogo.<br>
 Paradas somente de veículos aquáticos não serão listadas na <a href="haltlist.txt">Lista de paradas/estações</a>}.
 </p>
 <p>
 <em>Paradas marinhas:</em> os vários itens a seguir constróem docas na área de jogo para veículos aquáticos.<br>
 Docas são construídas em uma porção reta da costa.<br>
 Quando uma doca não for construída ao lado de uma <a href="station.txt">parada</a> existente, será criada uma nova.<br>
-Uma doca possui uma área de cobertura para mercadorias, passageiros e correio. No canto superior esquerdo um ícone (usado na <a href="haltlist.txt">Lista de paradas</a> e nas <a href="station.txt">Informações das Estações</a>) mostra que tipos de itens uma parada suporta. Diferentes docas podem ter diferentes capacidades para mercadorias, passageiros e correio.<br>
+Uma doca possui uma área de captura para mercadorias, passageiros e correio. No canto superior esquerdo um ícone (usado na <a href="haltlist.txt">Lista de paradas</a> e nas <a href="station.txt">Informações das Estações</a>) mostra que tipos de itens uma parada suporta. Diferentes docas podem ter diferentes capacidades para mercadorias, passageiros e correio.<br>
 Para construir uma doca: clique na ferramenta para ativá-la (o cursor mudará para uma doca) e então clique em um quadro adjacente ao mar.<br>
 {Dicas: remova docas com a ferramenta Eliminar.<br>
-O tamanho das docas pode ser incrementado construindo nos quadros adjacentes. Veículos de transporte aquático podem usar qualquer quadro de água na área de cobertura da doca.<br>
+O tamanho das docas pode ser incrementado construindo nos quadros adjacentes. Veículos de transporte aquático podem usar qualquer quadro de água na área de captura da doca.<br>
 Paradas somente de veículos aquáticos não serão listadas na <a href="haltlist.txt">Lista de paradas/estações</a>}.
-<a href="industry_info.txt">Indústrias</a> em alto-mar como plataformas de petróleo não precisam de docas. Veículos de transporte aquático podem usar qualquer quadro da área de cobertura da indústria.<br>
-Pressione [v] para mostrar/ocultar a área de cobertura para mercadorias, passageiros e correio na área de jogo.
+<a href="industry_info.txt">Indústrias</a> em alto-mar como plataformas de petróleo não precisam de docas. Veículos de transporte aquático podem usar qualquer quadro da área de captura da indústria.<br>
+Pressione [v] para mostrar/ocultar a área de captura para mercadorias, passageiros e correio na área de jogo.
 </p>
 <p>
 <em>Construir <a href="depot.txt"><em>estaleiro:</em></a></em> constrói um depósito para a compra e gerenciamento de navios, barcos e barcaças. Depósitos possuem um custo de manutenção e são construídos dentro d'água na área de jogo.<br>
 Para construir um estaleiro: clique na ferramenta para ativá-la (o cursor mudará para um estaleiro), e clique na água na área de jogo.<br>
 {Dicas: remova os depósitos com a ferramenta Eliminar.}
 </p>
-<p>Traduzido para versão Simutrans 0.99.14.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

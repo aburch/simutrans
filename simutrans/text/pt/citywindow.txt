@@ -57,10 +57,10 @@
   <br> O eixo Y (vertical) indica a quantidade, o eixo X (horizontal) indica o tempo.
   <br> Clique nas abas superiores do gráfico para alterar a escala do eixo X:
   <br>
-  <em> Últimos 12 anos:
+  <em> Anos:
   </em> mostra os valores anuais para os últimos 12 anos de jogo.
   <br>
-  <em> Últimos 12 meses:
+  <em> Meses:
   </em> mostra os valores para os últimos 12 meses de jogo.
 </p>
 <p> Clique nos botões de opções abaixo do gráfico para ver mais informações (o botão fica pressionado quando selecionado).
@@ -80,5 +80,5 @@
 </p>
 <p> {Dicas: Configurações relacioandas às cidades podem ser alteradas no arquivo simuconf.tab e cityrules.tab}.
 </p>
-<p>Traduzido para versão Simutrans 0.99.14.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

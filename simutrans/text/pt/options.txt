@@ -1,27 +1,43 @@
 <title>Ajuda - Preferências</title>
 
-<h1>Preferências</h1>
+<h1><strong>Preferências</strong></h1>
 
 <p>
-Essa caixa dá acesso a várias outras caixas que permitem modificar diversos parâmetros do jogo.
-Também permite carregar um jogo, salvar, começar um novo e sair do Simutrans.
-</p>
-
-<p>
-<a href="language.txt">Idioma</a>          - Escolha o idioma do Simutrans<br>
-<a href="color.txt">Cor</a>            - Altere a cor de sua companhia<br>
-<a href="display.txt">Vídeo</a>  - Veja detalhes sobre a exibição do jogo<br>
-<a href="sound.txt">Som</a>             - Ajuste o som e a música como preferir<br>
-<a href="players.txt">Jogadores</a>       - Estabeleça quantos competidores o computador deverá gerenciar<br>
-<a href="new_world.txt">Novo Mundo</a>      - Comece um novo mundo<br>
-<a href="load.txt">Carregar</a>      - Carregue um jogo já salvo<br>
-<a href="save.txt">Salvar</a>          - Salve o jogo<br>
-Sair do Jogo    - Termine o jogo<br>
+<strong>Preferências</strong> abre controles para a operação e apresentação do jogo; e sair do Simutrans a partir da janela <strong>Preferências</strong>.
 </p>
 <p>
-Informações mais detalhadas sobre as opções nos links acima ou nas ajudas específicas de cada opção.
+Clique sobre o ícone do disquete no topo da tela do jogo para abrir as <strong>Preferências</strong>.
 </p>
 <p>
-Atualizado para Simutrans 0.81.32<br>
-18/05/2003
+Clique sobre um botão para abrir novos controles:
+</p>
+<p>
+<a href="language.txt"><em>Idioma:</em></a> define um idioma a ser usado no jogo.
+</p>
+<p>
+<a href="color.txt"><em>Cor:</em></a> define a cor da companhia do Jogador.
+</p>
+<p>
+<a href="display.txt"><em>Vídeo:</em></a> cofigurações de como o jogo se aparentará visualmente no Simutrans.
+</p>
+<p>
+<a href="sound.txt"><em>
+Som:</em></a> cofigurações para som e música no jogo.
+</p>
+<p>
+<a href="players.txt"><em>Jogadores:</em></a> abre controles para diferentes companhias dos jogadores.
+</p>
+<p>
+<a href="load.txt"><em>Carregar:</em></a> abre controles para continuar um jogo salvo.
+</p>
+<p>
+<a href="save.txt"><em>Salvar:</em></a> abre controles para gravar o atual jogo, para continuar jogar depois.
+</p>
+<p>
+<a href="new_world.txt"><em>Novo Mapa:</em></a> abre controles para començar um novo jogo (isto fecha as barras de ferramentas, textos e opções do jogo atual).
+</p>
+<p>
+<em>Sair:</em> fecha o Simutrans, e o jogo atual não é salvo.
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

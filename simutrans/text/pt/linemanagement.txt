@@ -1,0 +1,106 @@
+<title>Ajuda - Gerenciador de Linhas</title>
+
+<h1><strong>Gerenciador de Linhas</strong></h1>
+
+<p>
+O <strong>Gerenciador de Linhas</strong> fornece informações e ferramentas para o gerenciamento de linhas (caminhos e quantidades mínimas de carregamento requeridas por uma <a href="convoiinfo.txt">composição</a> para partir) para uma composição ou mais com a mesma rota.
+</p>
+<p>
+Linhas consistem em <a href="station.txt">Paradas</a> onde os veículos pegam e deixam mercadorias e passageiros (veículos aquáticos podem usar qualquer quadro de água na área de captura de uma doca) e pontos de passagem (usados para forçar os veículos a irem por um caminho).
+</p>
+<p>
+Clique no ícone que (parece uma rede) na barra do alto da tela ou pressione <a href="keys.txt">[w]</a> para abrir a janela do <strong>Gerenciador de Linhas</strong>, que pode ser <a href="mouse.txt">redimensionada</a> (clique no botão com uma seta para baixo na barra do título para retornar ao tamanho original).
+</p>
+<p>
+O lado esquerdo do <strong>Gerenciador de Linhas</strong> lista as linhas existentes (para rolar pela lista: use a barra do lado direito da lista), que pode ser filtrado por tipo de transporte, clicando numa das abas que ficam acima da lista pra selecionar:<br>
+<em>Todos</em>: lista as linhas de todos os tipos de veículos.<br>
+<em>Trem</em>: lista as linhas para os veículos ferroviários.<br>
+<em>Monotrilho</em>: lista as linhas para os monotrilhos ou maglevs (trens magnéticos).<br>
+<em>Tram</em>: lista as linhas dos bondes/eléctricos.<br>
+<em>Caminhões</em>: lista as linhas para os veículos rodoviários.<br>
+<em>Navios</em>: lista as linhas para os veículos aquáticos.<br>
+<em>Ar</em>: lista as linhas para os veículos aéreos.
+</p>
+<p>
+A cor dos nomes das linhas significam o seguinte:<br>
+<it>branco</it> - não há nenhum veículo associado à linha<br>
+<it>amarelo</it> - não operacional, ou não está dando lucro nem prejuízo<br>
+<it>negro</it> - linha lucrativa, com capacidade ociosa, sem necessidade de melhoria<br>
+<it>azul</it> - linha lucrativa, com pouca capacidade ociosa, ou com veículos obsoletos <br>
+<it>vermelho</it> - linha com perdas<br>
+<p>
+
+Under the list of existing Lines are option-buttons for managing Lines.<br>
+Click on a Line in list to select (highlights name) and see information about <a href="station.txt">Stops</a>, income, and Convoys on selected Line.<br>
+If details about Stops or Convoys are only partially visible then re-size <strong>Line Management</strong> or use slider-bars to scroll information.
+</p>
+<p>
+Sob a lista das linhas existentes há alguns botões, que incluem:
+</p>
+<p>
+<em>Nova Linha:</em> abre controles para definir uma <a href="schedule.txt">Programação</a> (caminhos e quantidades mínimas de carregamento requeridas por uma <a href="convoiinfo.txt">composição</a> para partir) para uma nova linha.<br>
+Adicione tantas <a href="station.txt">paradas</a> ou pontos de passagem quanto necessários, estabeleça as quantidades de espera necessárias, e então feche a janela para criar a nova linha, clicando no botão "x" na barra de título ou com o <a href="keys.txt">teclado</a>). A nova linha terá associado um número e será listada na lista do <strong>Gerenciador de Linhas</strong>.<br>
+{Dicas: Selecione o tipo de transporte nas abas antes de criar uma nova linha. Os veículos não pegam nem deixam mercadorias e passageiros nos pontos de passagem.}
+</p>
+<p>
+<em>Atualizar:</em> abre os controles para modificar uma <a href="schedule.txt">Programação</a> existente. As mudanças afetarão todos os veículos associados à linha, assim que a janela desses controles for fechada.<br>
+Para usá-lo, é necessário selecionar uma linha na lista antes de clicar nele e editar a linha.
+</p>
+<p>
+<em>Apagar:</em> apaga a linha selecionada. Para usá-lo, é necessário selecionar uma linha na lista antes de clicar nele e apagar a linha.
+</p>
+<p>
+Quando uma linha é selecionada, ele fica destacada das outras, e as paradas que estão associadas à linha aparecem embaixo dos botões "Nova Linha", "Atualizar" e "Apagar". Clique numa parada para abrir suas informações.<br>
+Os itens listados para cada parada incluem:<br>
+<em>barra da cor de status:</em> as cores indicam a situação da <a href="station.txt">parada</a> com relação à sua lotação. é a mesma barra mostrada na  <a href="haltlist.txt">Lista de Paradas</a>, na janela Informações da Parada e na barra que fica acima da parada no jogo:<br>
+- <em>amarelo:</em> fora de serviço.<br>
+- <em>verde:</em> nenhuma melhoria necessária.<br>
+- <em>laranja:</em> melhorias possíveis.<br>
+- <em>vermelho:</em> melhorias necessárias.<br>
+{Dica: Use [!] para fazer aparecer a barra da cor de status acima da parada na tela do jogo.} <br>
+<em>nome</em> da parada.<br>
+<em>número</em> da parada (elas pode ser numeradas se a opção for escolhida no simuconf.tab).<br>
+<em>ícone de veículos(s)</em> indicam quais tipos de veículo podem usar a  parada. Os ícones incluem: ônibus/autocarro (para veículos rodoviários de transporte de passageiros), cami(nh)ão (para veículos rodoviários de transporte de cargas), trem/comboio, barco e avião. Bondes/eléctricos podem ser indicados por um ônibus ou trem conforme o tipo de via da parada.<br>
+<em>ícone de carga(s)</em> indica com quais itens (passageiros, cargas ou correio) uma parada pode lidar (também são usados nas Informações das Paradas e na Lista de Paradas.<br>
+{Dica: adicionar extensões apropriadas pode modificar as categorias de itens que uma parada pode lidar. <a href="special.txt">Agências de correio</a> podem ser adicionadas às paradas para o transporte de correspondências}.<br>
+<em>espera</em> detalhes das diversas mercadorias e passageiros.
+</p>
+<p>
+No lado direito do <strong>Gerenciador de Linhas</strong> são exibidos um gráfico com dados da linha selecionada, uma caixa de nome e uma lista das <a href="convoiinfo.txt">composições</a> associadas à linha.
+</p>
+<p>
+Clique no nome da linha pra selecioná-la. Ele ficará destacado. Clique nos botões para ver as informações sobre a linha, sendo que o eixo horizontal representa os últimos 12 meses:
+</p>
+<p>
+- <em>Capacidade</em> - quantidade de mercadorias ou passageiros que puderam ser transportadas no período.
+</p>
+<p>
+- <em>Vol. Transportado</em> - quantidade de mercadorias ou passageiros que realmente foram transportados.
+</p>
+<p>
+- <em>Faturamento</em> - total recebido pelo transporte de mercadorias ou passageiros.
+</p>
+<p>
+- <em>Operação</em> - custo da operação dos veículos, ou seja, de eles estarem rodando.
+</p>
+<p>
+- <a href="finances.txt"><em>Lucro</em></a> - diferença entre o faturamento e a operação.
+</p>
+<p>
+- <a href="convoiinfo.txt"><em>Veículos</em></a> - número de veículos associados à linha.
+</p>
+<p>
+Para modificar o nome da linha: clique na caixa de nome, abaixo do gráfico, onde aparece o nome da linha, e escreva o nome desejado.
+</p>
+<p>
+Abaixo da caixa de nomes aparece a lista dos <a href="convoiinfo.txt">veículos</a> associados a ela.<br>
+No topo da lista dos veículos vem a quantidade de veículos associados a ela, a renda da linha (o lucro operacional, melhor dizendo), a capacidade e a quantidade  transportada no momento, com a porcentagem da capacidade entre parênteses).<br>
+Clique num item listado para ver mais informações sobre o veículo selecionado (use a barra de rolagem para ver os outros veículos da linha).<br>
+São listados, para cada veículo:<br>
+<em>nome</em> nome dado do veículo, que normalmente é o do primeiro componente <a href="depot.txt">comprado</a> ou montado na composição).<br>
+<em>renda</em> o lucro operacional do veículo: faturamento menos custo operacional.<br>
+<em>linha:</em> mostra o nome da linha e se o veículo está num <a href="depot.txt">depósito</a>.<br>
+<em>gráfico</em> mostra o veículo e a capacidade utilizada do veículo no momento.
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+</p>
