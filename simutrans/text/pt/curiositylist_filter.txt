@@ -1,53 +1,53 @@
-<title>Ajuda - Lista de AtraÃ§Ãµes</title>
+<title>Ajuda - Lista de Atrações</title>
 
-<h1><strong>Lista de AtraÃ§Ãµes</strong></h1>
+<h1><strong>Lista de Atrações</strong></h1>
 
 <p>
-<strong>A Lista de AtraÃ§Ãµes</strong> mostra informaÃ§Ãµes sobre todas as atraÃ§Ãµes turÃ­sticas que sÃ£o um destino frequente de pessoas e correio.
+<strong>A Lista de Atrações</strong> mostra informações sobre todas as atrações turísticas que são um destino frequente de pessoas e correio.
 </p>
 <p>
-Para abrir a <strong>Lista de AtraÃ§Ãµes</strong>: clique no botÃ£o de atraÃ§Ãµes turÃ­sticas em <a href="list.txt">Listas</a>.<br>
-{OBS: Se os itens sÃ³ forem parcialmente visÃ­veis, tente <a href="mouse.txt">redimensionar</a> a <strong>Lista de AtraÃ§Ãµes</strong> ou role a barra de rolagem.}
+Para abrir a <strong>Lista de Atrações</strong>: clique no botão de atrações turísticas em <a href="list.txt">Listas</a>.<br>
+{OBS: Se os itens só forem parcialmente visíveis, tente <a href="mouse.txt">redimensionar</a> a <strong>Lista de Atrações</strong> ou role a barra de rolagem.}
 </p>
 <p>
-<em>Classificadas por:</em> tÃªm a opÃ§Ã£o de determinar a ordem das atraÃ§Ãµes turÃ­sticas.<br>
-Clique nos botÃµes para alternar ordem (o nome do botÃ£o muda ao clicar):
+<em>Classificadas por:</em> têm a opção de determinar a ordem das atrações turísticas.<br>
+Clique nos botões para alternar ordem (o nome do botão muda ao clicar):
 </p>
 <p>
-- <em>Nome</em> lista de atraÃ§Ãµes em ordem alfabÃ©tica.<br>
-- <em>GeraÃ§Ã£o de viagens</em> lista de atraÃ§Ãµes em ordem de popularidade ou destinos de passageiros ou correio.
+- <em>Nome</em> lista de atrações em ordem alfabética.<br>
+- <em>Geração de viagens</em> lista de atrações em ordem de popularidade ou destinos de passageiros ou correio.
 </p>
 <p>
 - <em>Crescente</em> / <em>Decrecente</em> reverte a ordem da lista.
 </p>
 <p>
-Clique no item listado na <strong>Lista de AtraÃ§Ãµes</strong> para abrir uma nova janela com informaÃ§Ãµes sobre o local.<br>
-{OBS: clique na imagem que aparece na janela de informaÃ§Ãµes da atraÃ§Ã£o para ser levado automaticamente atÃ© ela.}
+Clique no item listado na <strong>Lista de Atrações</strong> para abrir uma nova janela com informações sobre o local.<br>
+{OBS: clique na imagem que aparece na janela de informações da atração para ser levado automaticamente até ela.}
 </p>
 <p>
-Os items listados para cada atraÃ§Ã£o turÃ­stica incluem:
+Os items listados para cada atração turística incluem:
 </p>
 <p>
-<em>Barra de status</em> a cor indica a popularidade da atraÃ§Ã£o:<br>
-- <em>amarelo:</em> nÃ£o hÃ¡ paradas ou nÃ£o hÃ¡ veÃ­culos para poder carregar passageiros ou correio.<br>
-- <em>verde:</em> a atraÃ§Ã£o contÃ©m uma parada associada com passageiros.<br>
-- <em>azul:</em> a atraÃ§Ã£o contÃ©m uma parada associada somente a correio.<br>
-- <em>turquesa:</em> a atraÃ§Ã£o contÃ©m uma parada associada com passageiros e correio.<br>
-- <em>laranja:</em> a atraÃ§Ã£o contÃ©m uma parada quase lotada.<br>
-- <em>vermelho:</em> todas as paradas da atraÃ§Ã£o estÃ£o lotadas.
+<em>Barra de status</em> a cor indica a popularidade da atração:<br>
+- <em>amarelo:</em> não há paradas ou não há veículos para poder carregar passageiros ou correio.<br>
+- <em>verde:</em> a atração contém uma parada associada com passageiros.<br>
+- <em>azul:</em> a atração contém uma parada associada somente a correio.<br>
+- <em>turquesa:</em> a atração contém uma parada associada com passageiros e correio.<br>
+- <em>laranja:</em> a atração contém uma parada quase lotada.<br>
+- <em>vermelho:</em> todas as paradas da atração estão lotadas.
 </p>
 <p>
-<em>Ãcone de prÃ©dio</em>, se presente, indica que Ã© uma atraÃ§Ã£o da <a href="citywindow.txt">cidade</a>.
+<em>Ícone de prédio</em>, se presente, indica que é uma atração da <a href="citywindow.txt">cidade</a>.
 </p>
 <p>
-<em>Nome</em> da atraÃ§Ã£o turÃ­stica.
+<em>Nome</em> da atração turística.
 </p>
 <p>
-<em>GeraÃ§Ã£o de viagens</em> Ã© um valor que indica a popularidade do destino para passageiros e correios.
+<em>Geração de viagens</em> é um valor que indica a popularidade do destino para passageiros e correios.
 </p>
 <p>
-{OBS: Para obter um melhor serviÃ§o, as atraÃ§Ãµes turÃ­sticas devem estar inteiramente dentro da Ã¡rea de captura de uma ou mais paradas.}
+{OBS: Para obter um melhor serviço, as atrações turísticas devem estar inteiramente dentro da área de captura de uma ou mais paradas.}
 </p>
-<p> Traduzido pela Equipe de traduÃ§Ã£o do Simutrans PT-SubFÃ³rum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>
 
