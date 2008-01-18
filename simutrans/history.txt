@@ -40,7 +40,6 @@ Release of 99.17 (r1502)
 	FIX: two errors that could lead to stuck convois
 
 
-
 Release of 99.16
 
 2-Dec-2007:

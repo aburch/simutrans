@@ -23,6 +23,7 @@
 #include "besch/haus_besch.h"
 
 #include "boden/grund.h"
+#include "boden/wege/strasse.h"
 
 #include "dataobj/translator.h"
 #include "dataobj/umgebung.h"
@@ -1027,7 +1028,7 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					skinverwaltung_t::edit_werkzeug->gib_bild_nr(2),
-					wegbauer_t::gib_besch("asphalt_road")->gib_cursor()->gib_bild_nr(0),
+					strasse_t::default_strasse->gib_cursor()->gib_bild_nr(0),
 					buf);
 			}
 
