@@ -1933,7 +1933,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		koord best_pos(pos);
 		koord k;
 
-		DBG_MESSAGE("check_bau_rathaus()", "bev=%d, new=%d", bev, neugruendung);
+		DBG_MESSAGE("check_bau_rathaus()", "bev=%d, new=%d name=%s", bev, neugruendung, name);
 
 		if (!neugruendung) {
 
@@ -1943,7 +1943,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 				return; // Rathaus ist schon okay
 			}
 
-			koord pos_alt = gr->gib_pos().gib_2d() - gb->gib_tile()->gib_offset();
+			koord pos_alt = best_pos = gr->gib_pos().gib_2d() - gb->gib_tile()->gib_offset();
 			koord groesse_alt = besch_alt->gib_groesse(gb->gib_tile()->gib_layout());
 
 			// do we need to move
