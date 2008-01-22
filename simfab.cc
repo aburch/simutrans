@@ -1239,7 +1239,6 @@ fabrik_t::zeige_info() const
 void
 fabrik_t::info(cbuffer_t& buf) const
 {
-	buf.append("\n");
 	buf.append(translator::translate("Produktion"));
 	buf.append(":\n");
 	buf.append(translator::translate("Durchsatz"));
@@ -1353,6 +1352,17 @@ fabrik_t::info(cbuffer_t& buf) const
 			buf.append(", ");
 			buf.append((int)(besch->gib_lieferant(index)->gib_verbrauch()*100/256));
 			buf.append("%\n");
+		}
+	}
+
+	const planquadrat_t *plan = welt->lookup(gib_pos().gib_2d());
+	if(plan  &&  plan->get_haltlist_count()>0) {
+		buf.append("\n");
+		buf.append(translator::translate("Connected stops"));
+		buf.append("\n");
+		for(  uint i=0;  i<plan->get_haltlist_count();  i++  ) {
+			buf.append(plan->get_haltlist()[i]->gib_name());
+			buf.append("\n");
 		}
 	}
 }
