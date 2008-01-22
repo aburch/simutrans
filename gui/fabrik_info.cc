@@ -32,7 +32,7 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 {
 	this->about = 0;
 
-	txt.setze_pos(koord(16,-15));
+	txt.setze_pos(koord(16,4));
 	txt.setze_text(info_buf);
 	cont.add_komponente(&txt);
 
@@ -44,7 +44,7 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	lieferbuttons = new button_t [lieferziele.get_count()];
 #endif
 	for(unsigned i=0; i<lieferziele.get_count(); i++) {
-		lieferbuttons[i].setze_pos(koord(16, 50+i*11));
+		lieferbuttons[i].setze_pos(koord(16, 57+i*11));
 		lieferbuttons[i].setze_typ(button_t::arrowright);
 		lieferbuttons[i].add_listener(this);
 		cont.add_komponente(&lieferbuttons[i]);
@@ -59,7 +59,7 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	supplierbuttons = new button_t [suppliers.get_count()];
 #endif
 	for(unsigned i=0; i<suppliers.get_count(); i++) {
-		supplierbuttons[i].setze_pos(koord(16, 83+y_off+i*11));
+		supplierbuttons[i].setze_pos(koord(16, 90+y_off+i*11));
 		supplierbuttons[i].setze_typ(button_t::arrowright);
 		supplierbuttons[i].add_listener(this);
 		cont.add_komponente(&supplierbuttons[i]);
@@ -75,7 +75,7 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	stadtbuttons = new button_t [arbeiterziele.count()];
 #endif
 	for(unsigned i=0; i<arbeiterziele.count(); i++) {
-		stadtbuttons[i].setze_pos(koord(16, 116+y_off+i*11));
+		stadtbuttons[i].setze_pos(koord(16, 123+y_off+i*11));
 		stadtbuttons[i].setze_typ(button_t::arrowright);
 		stadtbuttons[i].add_listener(this);
 		cont.add_komponente(&stadtbuttons[i]);
@@ -95,7 +95,7 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	// calculate height
 	info_buf.clear();
 	fab->info(info_buf);
-	int  height = max(count_char(buf, '\n')*LINESPACE+40, get_tile_raster_width()+30 );
+	int  height = max(count_char(buf, '\n')*LINESPACE+30, get_tile_raster_width()+30 );
 
 	setze_fenstergroesse(koord((short)290, min(height, 408)));
 	cont.setze_groesse(koord((short)290, height-20));
