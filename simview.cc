@@ -96,7 +96,7 @@ karte_ansicht_t::display(bool force_dirty)
 	// not very elegant, but works:
 	// fill everything with black for Underground mode ...
 	if(grund_t::underground_mode) {
-		display_fillbox_wh(0, 32, disp_width, disp_height, COL_BLACK, true);
+		display_fillbox_wh(0, 32, disp_width, disp_height, COL_BLACK, force_dirty);
 	}
 
 	// first display ground
