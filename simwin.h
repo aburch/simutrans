@@ -67,6 +67,7 @@ enum magic_numbers {
 	magic_factorylist,
 	magic_goodslist,
 	magic_messageframe,
+	magic_edit_factory,
 	magic_info_pointer	// mark end of the list
 };
 

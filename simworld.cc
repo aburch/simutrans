@@ -87,6 +87,7 @@
 #include "gui/goods_frame_t.h"
 #include "gui/jump_frame.h"
 #include "gui/werkzeug_parameter_waehler.h"
+#include "gui/factory_edit.h"
 
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
@@ -3510,6 +3511,9 @@ karte_t::interactive_event(event_t &ev)
 			case 167:    // Hajo: '§'
 				baum_t::distribute_trees( this, 3 );
 				break;
+case '(':
+create_win( new factory_edit_frame_t(gib_spieler(1),this), w_info, magic_edit_factory);
+break;
 			case 'a':
 				setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 				break;
@@ -3564,7 +3568,7 @@ karte_t::interactive_event(event_t &ev)
 				break;
 			case 'I':
 				if(einstellungen->gib_allow_player_change()) {
-					setze_maus_funktion(wkz_build_industries_land, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+					setze_maus_funktion(wkz_build_industries_land, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, (const void *)NULL, NO_SOUND, NO_SOUND );
 				}
 				else {
 					message_t::get_instance()->add_message(translator::translate("On this map, you are not\nallowed to change player!\n"), koord::invalid, message_t::problems, get_active_player()->get_player_nr(), IMG_LEER);

@@ -77,8 +77,11 @@ int wkz_set_slope(spieler_t *sp, karte_t *welt, koord pos, value_t param);
  */
 int wkz_pflanze_baum(spieler_t *, karte_t *welt, koord pos);
 
-int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos);
-int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos);
+int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos, value_t param);
+int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos, value_t param);
+
+// build a single factory
+int wkz_build_fab(spieler_t *, karte_t *welt, koord pos, value_t param);
 
 /* open the list of halt */
 int wkz_list_halt_tool(spieler_t *sp, karte_t *welt,koord k);

@@ -309,11 +309,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\extend_edit.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\fabrik_info.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\bauer\fabrikbauer.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\factory_edit.cc"
 				>
 			</File>
 			<File

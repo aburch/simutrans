@@ -1040,7 +1040,8 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 				skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
 				translator::translate("Built random attraction") );
 
-			wzw->add_tool(wkz_build_industries_land,
+			wzw->add_param_tool(wkz_build_industries_land,
+				(const void *)NULL, // for random
 				karte_t::Z_PLAN,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
@@ -1048,7 +1049,8 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 				skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
 				translator::translate("Build land consumer"));
 
-			wzw->add_tool(wkz_build_industries_city,
+			wzw->add_param_tool(wkz_build_industries_city,
+				(const void *)NULL,	// for random
 				karte_t::Z_PLAN,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,

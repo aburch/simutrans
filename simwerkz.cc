@@ -19,6 +19,7 @@
 #include "simmem.h"
 #include "simskin.h"
 #include "simcity.h"
+#include "simtools.h"
 
 #include "bauer/fabrikbauer.h"
 #include "bauer/vehikelbauer.h"
@@ -55,6 +56,7 @@
 #include "gui/citylist_frame_t.h"
 #include "gui/goods_frame_t.h"
 #include "gui/factorylist_frame_t.h"
+#include "gui/factory_edit.h"
 #include "gui/curiositylist_frame_t.h"
 
 #include "dings/zeiger.h"
@@ -2223,39 +2225,60 @@ int wkz_pflanze_baum(spieler_t *, karte_t *welt, koord pos)
 
 
 /* builts a random industry chain, either in the next town */
-int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos)
+int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos, value_t param)
 {
 	const planquadrat_t* p = welt->lookup(pos);
 	if (p == NULL) return false;
-	const grund_t* g = p->gib_kartenboden();
-	const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer( false, (climate_bits)(1<<welt->get_climate(g->gib_hoehe())), welt->get_timeline_year_month() );
-
-	if(info==NULL) {
+	const grund_t* gr = p->gib_kartenboden();
+	const build_fab_struct *bfs = (const build_fab_struct *)param.p;
+	const fabrik_besch_t *fab = bfs ? bfs->besch : fabrikbauer_t::get_random_consumer( true, (climate_bits)(1<<welt->get_climate(gr->gib_hoehe())), welt->get_timeline_year_month() );
+	if(fab==NULL) {
 		return false;
 	}
 
-	koord size = info->gib_haus()->gib_groesse();
-	int rotation = 0;
+	int rotation = bfs ? bfs->rotation % fab->gib_haus()->gib_all_layouts() : simrand(fab->gib_haus()->gib_all_layouts()-1);
+	koord size = fab->gib_haus()->gib_groesse(rotation);
 
 	bool hat_platz = false;
 
-	if(welt->ist_platz_frei(pos, size.x, size.y, NULL, info->gib_haus()->get_allowed_climate_bits())) {
-		hat_platz = true;
-	}
+	// process ignore climates switch
+	climate_bits cl = (bfs!=NULL  &&  bfs->ignore_climates) ? ALL_CLIMATES : fab->gib_haus()->get_allowed_climate_bits();
 
-	if(!hat_platz &&  size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL, info->gib_haus()->get_allowed_climate_bits())) {
-		rotation = 1;
-		hat_platz = true;
+	if(fab->gib_platzierung()==fabrik_besch_t::Wasser) {
+		// at sea
+		hat_platz = welt->ist_wasser( pos, fab->gib_haus()->gib_groesse(rotation) );
+
+		if(!hat_platz  &&  size.y!=size.x  &&  fab->gib_haus()->gib_all_layouts()>1  &&  bfs->rotation==255) {
+			// try other rotation too ...
+			rotation = (rotation+1) % fab->gib_haus()->gib_all_layouts();
+			hat_platz = welt->ist_wasser( pos, fab->gib_haus()->gib_groesse(rotation) );
+		}
+	}
+	else {
+		// and on solid ground
+		hat_platz = welt->ist_platz_frei( pos, fab->gib_haus()->gib_b(rotation), fab->gib_haus()->gib_h(rotation), NULL, cl );
+
+		if(!hat_platz  &&  size.y!=size.x  &&  fab->gib_haus()->gib_all_layouts()>1  &&  bfs->rotation==255) {
+			// try other rotation too ...
+			rotation = (rotation+1) % fab->gib_haus()->gib_all_layouts();
+			hat_platz = welt->ist_platz_frei( pos, fab->gib_haus()->gib_b(rotation), fab->gib_haus()->gib_h(rotation), NULL, cl );
+		}
 	}
 
 	if(hat_platz) {
-		koord3d k = g->gib_pos();
-		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, info, rotation, &k, welt->gib_spieler(1));
+		koord3d k = gr->gib_pos();
+		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, rotation, &k, welt->gib_spieler(1));
 
 		if(anzahl>0) {
 			// least one factory has been built
 			welt->change_world_position( k.gib_2d(), 0, 0 );
 			sp->buche( anzahl*umgebung_t::cst_multiply_found_industry, pos, COST_CONSTRUCTION );
+
+			if(bfs) {
+				// eventually adjust production
+				const gebaeude_t *gb=welt->lookup_kartenboden(k.gib_2d())->find<gebaeude_t>();
+				gb->get_fabrik()->set_base_production( bfs->production>>(welt->ticks_bits_per_tag-18) );
+			}
 
 			// crossconnect all?
 			if(umgebung_t::crossconnect_factories) {
@@ -2275,18 +2298,28 @@ int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos)
 
 
 /* builts a random industry chain, either in the next town */
-int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos)
+int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos, value_t param)
 {
 	const planquadrat_t *plan = welt->lookup(pos);
 	if(plan) {
 
 		koord3d pos3d = plan->gib_kartenboden()->gib_pos();
-		const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer( true, (climate_bits)(1<<welt->get_climate(pos3d.z)), welt->get_timeline_year_month() );
-		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, info, false, &pos3d, welt->gib_spieler(1));
+		const build_fab_struct *bfs = (const build_fab_struct *)param.p;
+		const fabrik_besch_t *fab = bfs ? bfs->besch : fabrikbauer_t::get_random_consumer( true, (climate_bits)(1<<welt->get_climate(pos3d.z)), welt->get_timeline_year_month() );
+		if(fab==NULL) {
+			return false;
+		}
+		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, false, &pos3d, welt->gib_spieler(1));
 
 		if(anzahl>0) {
 			// least one factory has been built
 			welt->change_world_position( pos3d.gib_2d(), 0, 0 );
+
+			if(bfs) {
+				// eventually adjust production
+				const gebaeude_t *gb=welt->lookup_kartenboden(pos3d.gib_2d())->find<gebaeude_t>();
+				gb->get_fabrik()->set_base_production( bfs->production>>(welt->ticks_bits_per_tag-18) );
+			}
 
 			// crossconnect all?
 			if(umgebung_t::crossconnect_factories) {
@@ -2304,6 +2337,76 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos)
 	}
 	return plan != 0;
 }
+
+
+
+/*
+*	extend tool: build factory
+*/
+int wkz_build_fab(spieler_t *, karte_t *welt, koord pos, value_t param)
+{
+	if(welt->ist_in_kartengrenzen(pos)) {
+
+		const build_fab_struct *bfs = (const build_fab_struct *)param.p;
+
+		const planquadrat_t *plan = welt->lookup(pos);
+		grund_t *gr=plan->gib_boden_bei(0);
+		welt->lookup(pos)->gib_kartenboden()->gib_pos();
+
+		const fabrik_besch_t* fab = bfs->besch;
+		int rotation = bfs->rotation % fab->gib_haus()->gib_all_layouts();
+		koord size = fab->gib_haus()->gib_groesse(rotation);
+		bool hat_platz = false;
+
+		// process ignore climates switch
+		climate_bits cl = bfs->ignore_climates ? ALL_CLIMATES : fab->gib_haus()->get_allowed_climate_bits();
+
+		if(fab->gib_platzierung()==fabrik_besch_t::Wasser) {
+			// at sea
+			hat_platz = welt->ist_wasser( pos, fab->gib_haus()->gib_groesse(rotation) );
+
+			if(!hat_platz  &&  size.y!=size.x  &&  fab->gib_haus()->gib_all_layouts()>1  &&  bfs->rotation==255) {
+				// try other rotation too ...
+				rotation = (rotation+1) % fab->gib_haus()->gib_all_layouts();
+				hat_platz = welt->ist_wasser( pos, fab->gib_haus()->gib_groesse(rotation) );
+			}
+		}
+		else {
+			// and on solid ground
+			hat_platz = welt->ist_platz_frei( pos, fab->gib_haus()->gib_b(rotation), fab->gib_haus()->gib_h(rotation), NULL, cl );
+
+			if(!hat_platz  &&  size.y!=size.x  &&  fab->gib_haus()->gib_all_layouts()>1  &&  bfs->rotation==255) {
+				// try other rotation too ...
+				rotation = (rotation+1) % fab->gib_haus()->gib_all_layouts();
+				hat_platz = welt->ist_platz_frei( pos, fab->gib_haus()->gib_b(rotation), fab->gib_haus()->gib_h(rotation), NULL, cl );
+			}
+		}
+
+		// Platz gefunden ...
+		if(hat_platz) {
+			// ok! build it
+			koord3d k = gr->gib_pos();
+			fabrikbauer_t::baue_fabrik(welt, NULL, fab, rotation, k, welt->gib_spieler(1));
+			const gebaeude_t *gb=gr->find<gebaeude_t>();
+			if(gb==NULL) {
+				return false;
+			}
+			gb->get_fabrik()->set_base_production( bfs->production>>(welt->ticks_bits_per_tag-18) );
+
+			// crossconnect all?
+			if(umgebung_t::crossconnect_factories) {
+				const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
+				slist_iterator_tpl <fabrik_t *> iter (list);
+				while( iter.next() ) {
+					iter.get_current()->add_all_suppliers();
+				}
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
 
 
 /* open the list of halt */

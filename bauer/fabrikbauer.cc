@@ -419,7 +419,7 @@ void fabrikbauer_t::verteile_industrie(karte_t* welt, int max_number_of_factorie
  * baue fabrik nach Angaben in info
  * @author Hj.Malthaner
  */
-static fabrik_t* baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d pos, spieler_t* spieler)
+fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d pos, spieler_t* spieler)
 {
 	fabrik_t * fab = new fabrik_t(pos, spieler, info);
 

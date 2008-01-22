@@ -268,6 +268,18 @@ public:
 	*/
 	uint32 get_retire_year_month() const { return obsolete_date; }
 
+	// true if future
+	bool is_future (const uint16 month_now) const
+	{
+		return month_now  &&  (intro_date > month_now);
+	}
+
+	// true if obsolete
+	bool is_retired (const uint16 month_now) const
+	{
+		return month_now  &&  (obsolete_date <= month_now);
+	}
+
 	// the right house for this area?
 	bool is_allowed_climate( climate cl ) const { return ((1<<cl)&allowed_climates)!=0; }
 

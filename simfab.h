@@ -295,7 +295,8 @@ public:
 	sint32 get_prodfaktor(void) const { return prodfaktor; }
 
 	/* does not takes month length into account */
-	int get_base_production() const { return prodbase; }
+	sint32 get_base_production() const { return prodbase; }
+	void set_base_production( sint32 p ) {prodbase = p; }
 
 	/* prissi: returns the status of the current factory, as well as output */
 	enum { bad, medium, good, inactive, nothing };
