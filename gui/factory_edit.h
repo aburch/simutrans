@@ -24,15 +24,18 @@ class factory_edit_frame_t : public extend_edit_gui_t
 private:
 	build_fab_struct bfs;
 
-	char prod_str[32];
+	char prod_str[32], rot_str[16];
 
 	vector_tpl<const fabrik_besch_t *>fablist;
 
 	button_t bt_city_chain;
 	button_t bt_land_chain;
 
+	button_t bt_left_rotate, bt_right_rotate;
+	gui_label_t lb_rotation, lb_rotation_info;
+
 	button_t bt_up_production, bt_down_production;
-	gui_label_t lb_production;
+	gui_label_t lb_production, lb_production_info;
 
 	void fill_list( bool translate );
 
