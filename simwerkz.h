@@ -83,6 +83,9 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos, value_t p
 // build a single factory
 int wkz_build_fab(spieler_t *, karte_t *welt, koord pos, value_t param);
 
+// links production/consumtion between two factories
+int wkz_factory_link(spieler_t *sp, karte_t *welt, koord pos);
+
 /* open the list of halt */
 int wkz_list_halt_tool(spieler_t *sp, karte_t *welt,koord k);
 

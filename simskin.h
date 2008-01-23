@@ -3,6 +3,9 @@
 
 class skin_besch_t;
 
+// until we release new binaries
+#define linkzeiger undoc_zeiger
+
 class skinverwaltung_t {
 public:
     enum skintyp_t { nothing, menu, cursor, symbol, misc, field };

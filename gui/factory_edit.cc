@@ -140,10 +140,8 @@ void factory_edit_frame_t::fill_list( bool translate )
 			scl.setze_selection(scl.get_count()-1);
 		}
 	}
-	// current selection may be no longer valid ...
-	if(bfs.besch!=NULL  &&  scl.gib_selection()==-1) {
-		change_item_info(-1);
-	}
+	// always update curretn selection (since the tool may depend on it)
+	change_item_info( scl.gib_selection() );
 }
 
 
@@ -306,7 +304,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			welt->setze_maus_funktion( wkz_build_fab, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)&bfs,  SFX_JACKHAMMER, SFX_FAILURE );
 		}
 	}
-	else {
+	else if(bfs.besch!=NULL) {
 		bfs.besch = NULL;
 		welt->setze_maus_funktion( wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
 	}

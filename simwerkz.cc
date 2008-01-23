@@ -2224,7 +2224,7 @@ int wkz_pflanze_baum(spieler_t *, karte_t *welt, koord pos)
 
 
 
-/* builts a random industry chain, either in the next town */
+/* builts a (if param=NULL random) industry chain starting here */
 int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos, value_t param)
 {
 	const planquadrat_t* p = welt->lookup(pos);
@@ -2276,8 +2276,7 @@ int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos, value_t p
 
 			if(bfs) {
 				// eventually adjust production
-				const gebaeude_t *gb=welt->lookup_kartenboden(k.gib_2d())->find<gebaeude_t>();
-				gb->get_fabrik()->set_base_production( bfs->production>>(welt->ticks_bits_per_tag-18) );
+				fabrik_t::gib_fab(welt,k.gib_2d())->set_base_production( bfs->production>>(welt->ticks_bits_per_tag-18) );
 			}
 
 			// crossconnect all?
@@ -2297,7 +2296,8 @@ int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos, value_t p
 }
 
 
-/* builts a random industry chain, either in the next town */
+
+/* builts a (random if prama=NULL) industry chain in the next town */
 int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos, value_t param)
 {
 	const planquadrat_t *plan = welt->lookup(pos);
@@ -2317,8 +2317,7 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos, value_t p
 
 			if(bfs) {
 				// eventually adjust production
-				const gebaeude_t *gb=welt->lookup_kartenboden(pos3d.gib_2d())->find<gebaeude_t>();
-				gb->get_fabrik()->set_base_production( bfs->production>>(welt->ticks_bits_per_tag-18) );
+				fabrik_t::gib_fab(welt,pos3d.gib_2d())->set_base_production( bfs->production>>(welt->ticks_bits_per_tag-18) );
 			}
 
 			// crossconnect all?
@@ -2340,7 +2339,7 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos, value_t p
 
 
 
-/*
+/**
 *	extend tool: build factory
 */
 int wkz_build_fab(spieler_t *, karte_t *welt, koord pos, value_t param)
@@ -2386,12 +2385,11 @@ int wkz_build_fab(spieler_t *, karte_t *welt, koord pos, value_t param)
 		if(hat_platz) {
 			// ok! build it
 			koord3d k = gr->gib_pos();
-			fabrikbauer_t::baue_fabrik(welt, NULL, fab, rotation, k, welt->gib_spieler(1));
-			const gebaeude_t *gb=gr->find<gebaeude_t>();
-			if(gb==NULL) {
+			fabrik_t *f = fabrikbauer_t::baue_fabrik(welt, NULL, fab, rotation, k, welt->gib_spieler(1));
+			if(f==NULL) {
 				return false;
 			}
-			gb->get_fabrik()->set_base_production( bfs->production>>(welt->ticks_bits_per_tag-18) );
+			f->set_base_production( bfs->production>>(welt->ticks_bits_per_tag-18) );
 
 			// crossconnect all?
 			if(umgebung_t::crossconnect_factories) {
@@ -2402,6 +2400,71 @@ int wkz_build_fab(spieler_t *, karte_t *welt, koord pos, value_t param)
 				}
 			}
 			return true;
+		}
+	}
+	return false;
+}
+
+
+
+/*
+*	link tool: links products of factory one with factory two (if possible)
+*/
+int wkz_factory_link(spieler_t *sp, karte_t *welt, koord pos)
+{
+	static fabrik_t* last_fab = NULL;
+	static bool erster = true;
+	static zeiger_t* wkz_linktool = NULL;
+
+	if(pos==INIT  ||  pos==EXIT) {
+
+		erster = true;
+
+		if(wkz_linktool!=NULL) {
+			wkz_linktool->mark_image_dirty( skinverwaltung_t::linkzeiger->gib_bild_nr(0), 0 );
+			delete wkz_linktool;
+			wkz_linktool = NULL;
+		}
+		return false;
+	}
+
+	if(welt->ist_in_kartengrenzen(pos)) {
+
+		fabrik_t *fab = fabrik_t::gib_fab( welt, pos );
+		if(fab != NULL) {
+			// It's a factory
+
+			if(erster) {
+				// first click
+				grund_t *gr = welt->lookup_kartenboden(pos);
+
+				wkz_linktool = new zeiger_t(welt, gr->gib_pos(), sp);
+				wkz_linktool->setze_bild( skinverwaltung_t::linkzeiger->gib_bild_nr(0));
+				gr->obj_add(wkz_linktool);
+
+				last_fab = fab;
+				erster = false;
+
+				return true;
+			}
+			else {
+				// second click
+				if(last_fab != NULL  &&  last_fab != fab) {
+					// myself ? ignore
+
+					if(fab->add_supplier(last_fab) || last_fab->add_supplier(fab)) {
+						//ok! they are connected
+
+						// remove marker
+						wkz_linktool->mark_image_dirty( skinverwaltung_t::linkzeiger->gib_bild_nr(0), 0 );
+						delete wkz_linktool;
+						wkz_linktool = NULL;
+						erster = true;
+
+						return true;
+					}
+				}
+			}
 		}
 	}
 	return false;

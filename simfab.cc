@@ -1453,3 +1453,24 @@ fabrik_t::add_all_suppliers()
 		}
 	}
 }
+
+
+
+/* adds a new supplier to this factory
+ * fails if no matching goods are there
+ */
+bool fabrik_t::add_supplier(fabrik_t* fab)
+{
+	for(int i=0; i < besch->gib_lieferanten(); i++) {
+		const fabrik_lieferant_besch_t *lieferant = besch->gib_lieferant(i);
+		const ware_besch_t *ware = lieferant->gib_ware();
+
+			// connect to an existing one, if this is an producer
+			if(fab!=this  &&  fab->vorrat_an(ware) > -1) {
+				// add us to this factory
+				fab->add_lieferziel(pos.gib_2d());
+				return true;
+			}
+	}
+	return false;
+}

@@ -308,9 +308,14 @@ public:
 
 	/**
 	 * Crossconnects all factories
-	 * @author Hj. Malthaner
+	 * @author prissi
 	 */
 	void add_all_suppliers();
+
+	/* adds a new supplier to this factory
+	 * fails if no matching goods are there
+	 */
+	bool fabrik_t::add_supplier(fabrik_t* fab);
 };
 
 #endif

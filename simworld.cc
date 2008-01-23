@@ -3514,6 +3514,9 @@ karte_t::interactive_event(event_t &ev)
 case '(':
 create_win( new factory_edit_frame_t(gib_spieler(1),this), w_info, magic_edit_factory);
 break;
+case ')':
+setze_maus_funktion(wkz_factory_link, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+break;
 			case 'a':
 				setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 				break;
