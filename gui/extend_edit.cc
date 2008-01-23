@@ -38,9 +38,9 @@
 extend_edit_gui_t::extend_edit_gui_t(spieler_t* sp_,karte_t* welt) :
 	gui_frame_t("extend edit tool", sp_),
 	sp(sp_),
-	scrolly(&cont),
-	info_text("\n"),
 	buf(2048),
+	info_text(buf),
+	scrolly(&cont),
 	scl(gui_scrolled_list_t::select)
 {
 	this->welt = welt;

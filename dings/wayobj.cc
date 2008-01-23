@@ -21,14 +21,21 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 
+#include "../besch/bruecke_besch.h"
+#include "../besch/tunnel_besch.h"
 #include "../besch/way_obj_besch.h"
-#include "wayobj.h"
 
 #include "../gui/werkzeug_parameter_waehler.h"
+
+#include "../boden/grund.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 
 #include "../utils/simstring.h"
+
+#include "bruecke.h"
+#include "tunnel.h"
+#include "wayobj.h"
 
 // the descriptions ...
 const way_obj_besch_t *wayobj_t::default_oberleitung=NULL;
@@ -71,9 +78,14 @@ wayobj_t::~wayobj_t()
 				// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 				weg->set_electrify(false);
 				// restore old speed limit
-				if(weg->gib_besch()->gib_topspeed()>besch->gib_topspeed()) {
-					weg->setze_max_speed(weg->hat_gehweg()?50:weg->gib_besch()->gib_topspeed());
+				uint32 max_speed = weg->hat_gehweg() ? 50 : weg->gib_besch()->gib_topspeed();
+				if(gr->gib_typ()==grund_t::tunnelboden) {
+					max_speed = gr->find<tunnel_t>(1)->gib_besch()->gib_topspeed();
 				}
+				if(gr->gib_typ()==grund_t::brueckenboden) {
+					max_speed = gr->find<bruecke_t>(1)->gib_besch()->gib_topspeed();
+				}
+				weg->setze_max_speed(max_speed);
 			}
 			else {
 				dbg->warning("wayobj_t::~wayobj_t()","ground was not a way!");

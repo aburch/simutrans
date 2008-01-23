@@ -41,15 +41,12 @@ protected:
 	karte_t* welt;
 
 	cbuffer_t buf;
-
-	// scrolled list
-	gui_scrolled_list_t scl;
 	gui_textarea_t info_text;
-
-	gui_scrollpane_t scrolly;
 	gui_container_t cont;
+	gui_scrollpane_t scrolly;
 
-	// tabs
+	gui_scrolled_list_t scl;
+
 	gui_tab_panel_t tabs;
 
 	//image
@@ -63,9 +60,9 @@ protected:
 
 	void resize(const koord delta);
 
-	virtual void fill_list( bool translate ) {}
+	virtual void fill_list( bool /* translate */ ) {}
 
-	virtual void change_item_info( sint32 i ) {}
+	virtual void change_item_info( sint32 /*entry, -1= none */ ) {}
 
 public:
 	extend_edit_gui_t(spieler_t* sp,karte_t* welt);
