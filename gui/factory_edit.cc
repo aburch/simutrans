@@ -172,7 +172,7 @@ bool factory_edit_frame_t::action_triggered(gui_komponente_t *komp,value_t e)
 		else if(  komp==&bt_down_production  &&  bfs.production>0) {
 			bfs.production -= (bfs.production>200) ? 10 : 1;
 		}
-		itoa( bfs.production, prod_str, 10 );
+		sprintf( prod_str, "%i", bfs.production );
 	}
 	return extend_edit_gui_t::action_triggered(komp,e);
 }
@@ -196,7 +196,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		buf.append("\n");
 		buf.append("\n");
 		bfs.production = (fab_besch->gib_produktivitaet()+simrand(fab_besch->gib_bereich()) )<<(welt->ticks_bits_per_tag-18);
-		itoa( bfs.production, prod_str, 10 );
+		sprintf( prod_str, "%i", bfs.production );
 
 		if(fab_besch->gib_produkte()>0) {
 			buf.append( translator::translate("Produktion") );
