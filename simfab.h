@@ -315,7 +315,7 @@ public:
 	/* adds a new supplier to this factory
 	 * fails if no matching goods are there
 	 */
-	bool fabrik_t::add_supplier(fabrik_t* fab);
+	bool add_supplier(fabrik_t* fab);
 };
 
 #endif
