@@ -433,6 +433,9 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 			gr->calc_bild();
 			reliefkarte_t::gib_karte()->calc_map_pixel(gr->gib_pos().gib_2d());
 		}
+		if(besch->gib_utyp()==haus_besch_t::denkmal) {
+			ungebaute_denkmaeler.remove( besch );
+		}
 	}
 	return first_building;
 }
@@ -706,6 +709,34 @@ const haus_besch_t *hausbauer_t::waehle_aus_liste(slist_tpl<const haus_besch_t *
 		}
 		// now there is something to choose
 		return auswahl.at_weight( simrand(auswahl.get_sum_weight()) );
+	}
+	return NULL;
+}
+
+
+
+
+const slist_tpl<const haus_besch_t *> *hausbauer_t::get_list( haus_besch_t::utyp typ )
+{
+	switch(typ) {
+		case haus_besch_t::denkmal:           return &ungebaute_denkmaeler;
+		case haus_besch_t::attraction_land:   return &sehenswuerdigkeiten_land;
+		case haus_besch_t::firmensitz:        return NULL;
+		case haus_besch_t::rathaus:           return &rathaeuser;
+		case haus_besch_t::attraction_city:   return &sehenswuerdigkeiten_city;
+		case haus_besch_t::fabrik:            return NULL;
+	}
+	return NULL;
+}
+
+
+
+const vector_tpl<const haus_besch_t *> *hausbauer_t::get_citybuilding_list( gebaeude_t::typ typ )
+{
+	switch(typ) {
+		case gebaeude_t::wohnung:   return &wohnhaeuser;
+		case gebaeude_t::gewerbe:   return &gewerbehaeuser;
+		case gebaeude_t::industrie: return &industriehaeuser;
 	}
 	return NULL;
 }

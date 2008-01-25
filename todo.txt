@@ -1,12 +1,19 @@
 CHECK:
+- integrate the edit modus
+- industry density linked to population density; consumer would building branches slowly.
+- power generation linked with total industry production
+- more statistics for world and all convois
+- timeline bonus speeds from a file
+- waiting only a certain intervall (when waiting for a load percentage)
+- bankrupt only when the net company value (i.e. after selling everything) is below zero (like for AI)
 resize greater than 2400*1536 crashes simutrans
-backrupt only when toatl value below zero (like AI)
 Toolwindow with 10 last used tools (in fixed order)
+Main meinu configurable in size and order
 bahnhofsdetaildialog??
-timeline speeds from file instead calculation
 A* for goods
 Sort signals so simple signal is first
 factory density instead of fixed population linked growth
+waybuilder preview
 
 
 Stichpunkte

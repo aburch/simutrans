@@ -137,7 +137,9 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 			monorail_geb      = 22,
 			wartehalle        = 30,
 			post              = 31,
-			lagerhalle        = 32
+			lagerhalle        = 32,
+			last_haus_typ,
+			unbekannt_flag    = 128,
 		};
 
 	private:

@@ -159,6 +159,11 @@ class hausbauer_t
 		 * may change the layout of neighbouring buildings, if layout>4 and station
 		 */
 		static gebaeude_t* neues_gebaeude(karte_t* welt, spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
+
+		// currently only used for edit menu
+		static const slist_tpl<const haus_besch_t *> *get_list( haus_besch_t::utyp typ );
+		static const vector_tpl<const haus_besch_t *> *get_citybuilding_list( gebaeude_t::typ typ );
+
 };
 
 #endif

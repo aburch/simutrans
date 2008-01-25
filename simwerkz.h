@@ -12,6 +12,14 @@
 
 class haus_besch_t;
 
+typedef struct {
+	const haus_besch_t *besch;
+	bool ignore_climates;
+	bool add_to_next_city;
+	uint8 rotation; //255 for any
+} build_haus_struct;
+
+
 /* internal functions: Only for AI (gives no error messages) */
 int wkz_remover_intern(spieler_t *sp, karte_t *welt, koord pos, const char *&msg);
 bool wkz_halt_aux(spieler_t *sp, karte_t *welt, koord pos, const char *&msg, const haus_besch_t *besch, waytype_t wegtype, sint64 cost, const char *type_name);
@@ -122,7 +130,7 @@ int wkz_grow_city(spieler_t *, karte_t *welt, koord pos, value_t lParam);
 /* built random tourist attraction
  * @author prissi
  */
- int wkz_add_attraction(spieler_t *, karte_t *welt, koord pos);
+ int wkz_add_attraction(spieler_t *, karte_t *welt, koord pos, value_t lParam);
 
 // protects map from further change
 int wkz_lock( spieler_t *, karte_t *welt, koord pos);

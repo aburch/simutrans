@@ -2347,6 +2347,7 @@ int wkz_build_fab(spieler_t *, karte_t *welt, koord pos, value_t param)
 	if(welt->ist_in_kartengrenzen(pos)) {
 
 		const build_fab_struct *bfs = (const build_fab_struct *)param.p;
+		assert(bfs);
 
 		const planquadrat_t *plan = welt->lookup(pos);
 		grund_t *gr=plan->gib_boden_bei(0);
@@ -2469,6 +2470,7 @@ int wkz_factory_link(spieler_t *sp, karte_t *welt, koord pos)
 	}
 	return false;
 }
+
 
 
 
@@ -2647,35 +2649,42 @@ int wkz_grow_city(spieler_t *, karte_t *welt, koord pos, value_t lParam)
 }
 
 
-/* built random tourist attraction
+/* built (random) tourist attraction and maybe adds it to the next city
  * @author prissi
  */
-int wkz_add_attraction(spieler_t *, karte_t *welt, koord pos)
+int wkz_add_attraction(spieler_t *sp, karte_t *welt, koord pos, value_t param)
 {
-	if(pos!=INIT  && pos!=EXIT) {
-		const haus_besch_t *attraction=hausbauer_t::waehle_sehenswuerdigkeit(welt->get_timeline_year_month(),welt->get_climate(welt->max_hgt(pos)));
-
+	const planquadrat_t *plan = welt->lookup(pos);
+	if(plan) {
+		koord3d pos3d = plan->gib_kartenboden()->gib_pos();
+		const build_haus_struct *bhs = (const build_haus_struct *)param.p;
+		const haus_besch_t *attraction = (bhs  &&  bhs->besch) ? bhs->besch : hausbauer_t::waehle_sehenswuerdigkeit(welt->get_timeline_year_month(),welt->get_climate(pos3d.z));
 		if(attraction==NULL) {
 			return false;
 		}
 
-		koord size = attraction->gib_groesse();
-		int rotation = 0;
+		int rotation = bhs ? bhs->rotation % attraction->gib_all_layouts() : 0;
+		koord size = attraction->gib_groesse(rotation);
 
-		bool hat_platz = false;
+		// process ignore climates switch
+		climate_bits cl = (bhs  &&  bhs->ignore_climates) ? ALL_CLIMATES : attraction->get_allowed_climate_bits();
 
-		if(welt->ist_platz_frei(pos, size.x, size.y, NULL, attraction->get_allowed_climate_bits())) {
-			hat_platz = true;
-		}
-
-		if(!hat_platz &&  size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL, attraction->get_allowed_climate_bits())) {
-			rotation = 1;
-			hat_platz = true;
+		bool hat_platz = welt->ist_platz_frei( pos, attraction->gib_b(rotation), attraction->gib_h(rotation), NULL, cl );
+		if(!hat_platz  &&  size.y!=size.x  &&  attraction->gib_all_layouts()>1  &&  (bhs==NULL  ||  bhs->rotation==255)) {
+			// try other rotation too ...
+			rotation = (rotation+1) % attraction->gib_all_layouts();
+			hat_platz = welt->ist_platz_frei( pos, attraction->gib_b(rotation), attraction->gib_h(rotation), NULL, cl );
 		}
 
 		// Platz gefunden ...
 		if(hat_platz) {
-			hausbauer_t::baue(welt, welt->gib_spieler(1), welt->lookup(pos)->gib_kartenboden()->gib_pos(), rotation, attraction);
+			gebaeude_t *gb = hausbauer_t::baue(welt, welt->gib_spieler(1), pos3d, rotation, attraction);
+			if(gb  &&  attraction->gib_utyp()!=haus_besch_t::attraction_land) {
+				stadt_t *city = welt->suche_naechste_stadt( pos );
+				if(city) {
+					city->add_gebaeude_to_stadt(gb);
+				}
+			}
 			return true;
 		}
 	}

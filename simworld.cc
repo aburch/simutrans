@@ -88,6 +88,7 @@
 #include "gui/jump_frame.h"
 #include "gui/werkzeug_parameter_waehler.h"
 #include "gui/factory_edit.h"
+#include "gui/curiosity_edit.h"
 
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
@@ -3511,6 +3512,9 @@ karte_t::interactive_event(event_t &ev)
 			case 167:    // Hajo: '§'
 				baum_t::distribute_trees( this, 3 );
 				break;
+case '/':
+create_win( new curiosity_edit_frame_t(gib_spieler(1),this), w_info, magic_edit_factory);
+break;
 case '(':
 create_win( new factory_edit_frame_t(gib_spieler(1),this), w_info, magic_edit_factory);
 break;

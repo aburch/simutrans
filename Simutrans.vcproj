@@ -285,6 +285,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\curiosity_edit.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\curiositylist_frame_t.cc"
 				>
 			</File>
