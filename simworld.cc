@@ -3153,10 +3153,10 @@ static void warte_auf_mausklick_oder_taste(event_t *ev)
  * @author prissi
  */
 void
-karte_t::mark_area( const koord3d pos, const uint8 radius, const bool mark )
+karte_t::mark_area( const koord3d pos, const koord size, const bool mark )
 {
-	for( sint16 y=pos.y-radius;  y<pos.y+radius+1;  y++  ) {
-		for( sint16 x=pos.x-radius;  x<pos.x+radius+1;  x++  ) {
+	for( sint16 y=pos.y;  y<pos.y+size.y;  y++  ) {
+		for( sint16 x=pos.x;  x<pos.x+size.x;  x++  ) {
 			grund_t *gr = lookup_kartenboden( koord(x,y) );
 			if(gr) {
 				if(mark) {

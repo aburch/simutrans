@@ -1174,7 +1174,7 @@ int wkz_station_building(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 {
 	if(pos == INIT || pos == EXIT) {
 		// init => set area
-		welt->gib_zeiger()->setze_area( welt->gib_einstellungen()->gib_station_coverage() );
+		welt->gib_zeiger()->setze_area( koord( welt->gib_einstellungen()->gib_station_coverage()*2+1, welt->gib_einstellungen()->gib_station_coverage()*2+1 ), true );
 		return true;
 	}
 	// are we allowed to built here?
@@ -1197,7 +1197,7 @@ wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 
 	if(pos == INIT || pos == EXIT) {
 		// init und exit ignorieren
-		welt->gib_zeiger()->setze_area( welt->gib_einstellungen()->gib_station_coverage() );
+		welt->gib_zeiger()->setze_area( koord( welt->gib_einstellungen()->gib_station_coverage()*2+1, welt->gib_einstellungen()->gib_station_coverage()*2+1 ), true );
 		return true;
 	}
 	if(!welt->ist_in_kartengrenzen(pos)) {
@@ -1523,7 +1523,7 @@ DBG_MESSAGE("wkz_halt_aux()", "new segment for station");
 int wkz_halt(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 {
 	if(pos==INIT  ||  pos==EXIT) {
-		welt->gib_zeiger()->setze_area( welt->gib_einstellungen()->gib_station_coverage() );
+		welt->gib_zeiger()->setze_area( koord( welt->gib_einstellungen()->gib_station_coverage()*2+1, welt->gib_einstellungen()->gib_station_coverage()*2+1 ), true );
 		return true;
 	}
 
@@ -2227,17 +2227,24 @@ int wkz_pflanze_baum(spieler_t *, karte_t *welt, koord pos)
 /* builts a (if param=NULL random) industry chain starting here */
 int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos, value_t param)
 {
-	const planquadrat_t* p = welt->lookup(pos);
-	if (p == NULL) return false;
-	const grund_t* gr = p->gib_kartenboden();
 	const build_fab_struct *bfs = (const build_fab_struct *)param.p;
+	if(pos==INIT  &&  bfs  &&  bfs->besch!=NULL) {
+		welt->gib_zeiger()->setze_area( bfs->besch->gib_haus()->gib_groesse(bfs->rotation%bfs->besch->gib_haus()->gib_all_layouts()), false );
+		return true;
+	}
+
+	const grund_t* gr = welt->lookup_kartenboden(pos);
+	if(gr==NULL) {
+		return false;
+	}
+
 	const fabrik_besch_t *fab = bfs ? bfs->besch : fabrikbauer_t::get_random_consumer( true, (climate_bits)(1<<welt->get_climate(gr->gib_hoehe())), welt->get_timeline_year_month() );
 	if(fab==NULL) {
 		return false;
 	}
-
 	int rotation = bfs ? bfs->rotation % fab->gib_haus()->gib_all_layouts() : simrand(fab->gib_haus()->gib_all_layouts()-1);
 	koord size = fab->gib_haus()->gib_groesse(rotation);
+
 
 	bool hat_platz = false;
 
@@ -2287,11 +2294,9 @@ int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos, value_t p
 					iter.get_current()->add_all_suppliers();
 				}
 			}
+			return true;
 		}
-
-		return true;
 	}
-
 	return false;
 }
 
@@ -2300,11 +2305,13 @@ int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos, value_t p
 /* builts a (random if prama=NULL) industry chain in the next town */
 int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos, value_t param)
 {
-	const planquadrat_t *plan = welt->lookup(pos);
-	if(plan) {
+	const build_fab_struct *bfs = (const build_fab_struct *)param.p;
+	if(pos==INIT  &&  bfs  &&  bfs->besch!=NULL) {
+		welt->gib_zeiger()->setze_area( bfs->besch->gib_haus()->gib_groesse(bfs->rotation%bfs->besch->gib_haus()->gib_all_layouts()), false );
+	}
 
-		koord3d pos3d = plan->gib_kartenboden()->gib_pos();
-		const build_fab_struct *bfs = (const build_fab_struct *)param.p;
+	if(welt->ist_in_kartengrenzen(pos)) {
+		koord3d pos3d = welt->lookup_kartenboden(pos)->gib_pos();
 		const fabrik_besch_t *fab = bfs ? bfs->besch : fabrikbauer_t::get_random_consumer( true, (climate_bits)(1<<welt->get_climate(pos3d.z)), welt->get_timeline_year_month() );
 		if(fab==NULL) {
 			return false;
@@ -2332,9 +2339,10 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos, value_t p
 			if(sp) {
 				sp->buche( anzahl*umgebung_t::cst_multiply_found_industry, pos, COST_CONSTRUCTION );
 			}
+			return true;
 		}
 	}
-	return plan != 0;
+	return false;
 }
 
 
@@ -2344,14 +2352,13 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos, value_t p
 */
 int wkz_build_fab(spieler_t *, karte_t *welt, koord pos, value_t param)
 {
+	const build_fab_struct *bfs = (const build_fab_struct *)param.p;
+	if(pos==INIT  &&  bfs  &&  bfs->besch!=NULL) {
+		welt->gib_zeiger()->setze_area( bfs->besch->gib_haus()->gib_groesse(bfs->rotation%bfs->besch->gib_haus()->gib_all_layouts()), false );
+		return true;
+	}
+
 	if(welt->ist_in_kartengrenzen(pos)) {
-
-		const build_fab_struct *bfs = (const build_fab_struct *)param.p;
-		assert(bfs);
-
-		const planquadrat_t *plan = welt->lookup(pos);
-		grund_t *gr=plan->gib_boden_bei(0);
-		welt->lookup(pos)->gib_kartenboden()->gib_pos();
 
 		const fabrik_besch_t* fab = bfs->besch;
 		int rotation = bfs->rotation % fab->gib_haus()->gib_all_layouts();
@@ -2385,8 +2392,7 @@ int wkz_build_fab(spieler_t *, karte_t *welt, koord pos, value_t param)
 		// Platz gefunden ...
 		if(hat_platz) {
 			// ok! build it
-			koord3d k = gr->gib_pos();
-			fabrik_t *f = fabrikbauer_t::baue_fabrik(welt, NULL, fab, rotation, k, welt->gib_spieler(1));
+			fabrik_t *f = fabrikbauer_t::baue_fabrik(welt, NULL, fab, rotation, welt->lookup_kartenboden(pos)->gib_pos(), welt->gib_spieler(1));
 			if(f==NULL) {
 				return false;
 			}
@@ -2652,12 +2658,16 @@ int wkz_grow_city(spieler_t *, karte_t *welt, koord pos, value_t lParam)
 /* built (random) tourist attraction and maybe adds it to the next city
  * @author prissi
  */
-int wkz_add_attraction(spieler_t *sp, karte_t *welt, koord pos, value_t param)
+int wkz_add_haus(spieler_t *sp, karte_t *welt, koord pos, value_t param)
 {
-	const planquadrat_t *plan = welt->lookup(pos);
-	if(plan) {
-		koord3d pos3d = plan->gib_kartenboden()->gib_pos();
-		const build_haus_struct *bhs = (const build_haus_struct *)param.p;
+	const build_haus_struct *bhs = (const build_haus_struct *)param.p;
+	if(pos==INIT  &&  bhs  &&  bhs->besch!=NULL) {
+		welt->gib_zeiger()->setze_area( bhs->besch->gib_groesse(bhs->rotation%bhs->besch->gib_all_layouts()), false );
+		return true;
+	}
+
+	if(welt->ist_in_kartengrenzen(pos)) {
+		koord3d pos3d = welt->lookup_kartenboden(pos)->gib_pos();
 		const haus_besch_t *attraction = (bhs  &&  bhs->besch) ? bhs->besch : hausbauer_t::waehle_sehenswuerdigkeit(welt->get_timeline_year_month(),welt->get_climate(pos3d.z));
 		if(attraction==NULL) {
 			return false;
@@ -2679,13 +2689,16 @@ int wkz_add_attraction(spieler_t *sp, karte_t *welt, koord pos, value_t param)
 		// Platz gefunden ...
 		if(hat_platz) {
 			gebaeude_t *gb = hausbauer_t::baue(welt, welt->gib_spieler(1), pos3d, rotation, attraction);
-			if(gb  &&  attraction->gib_utyp()!=haus_besch_t::attraction_land) {
-				stadt_t *city = welt->suche_naechste_stadt( pos );
-				if(city) {
-					city->add_gebaeude_to_stadt(gb);
+			if(gb) {
+				// building successfull
+				if(  attraction->gib_utyp()!=haus_besch_t::attraction_land  ) {
+					stadt_t *city = welt->suche_naechste_stadt( pos );
+					if(city) {
+						city->add_gebaeude_to_stadt(gb);
+					}
 				}
+				return true;
 			}
-			return true;
 		}
 	}
 	return false;

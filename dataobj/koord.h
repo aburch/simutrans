@@ -69,9 +69,15 @@ private:
 };
 
 
-static inline koord operator * (const koord& k, const int m)
+static inline koord operator * (const koord& k, const sint16 m)
 {
 	return koord(k.x * m, k.y * m);
+}
+
+
+static inline koord operator / (const koord& k, const sint16 m)
+{
+	return koord(k.x / m, k.y / m);
 }
 
 

@@ -1032,7 +1032,7 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 					buf);
 			}
 
-			wzw->add_param_tool(&wkz_add_attraction,
+			wzw->add_param_tool(&wkz_add_haus,
 				(const void *)NULL, // for random
 				karte_t::Z_PLAN,
 				SFX_JACKHAMMER,

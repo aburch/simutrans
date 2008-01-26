@@ -419,7 +419,7 @@ public:
 	 * marks an area using the grund_t mark flag
 	 * @author prissi
 	 */
-	void mark_area( const koord3d center, const uint8 radius, const bool mark );
+	void mark_area( const koord3d center, const koord radius, const bool mark );
 
 	spieler_t * gib_spieler(int n) const {assert(((uint8)n)<MAX_PLAYER_COUNT); return spieler[n]; }
 	spieler_t* get_active_player() const { return active_player; }

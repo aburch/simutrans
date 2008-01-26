@@ -301,7 +301,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 
 		// the tools will be always updated, even though the data up there might be still current
 		bhs.add_to_next_city = besch->gib_utyp()!=haus_besch_t::attraction_land;
-		welt->setze_maus_funktion( wkz_add_attraction, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)&bhs,  SFX_JACKHAMMER, SFX_FAILURE );
+		welt->setze_maus_funktion( wkz_add_haus, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)&bhs,  SFX_JACKHAMMER, SFX_FAILURE );
 	}
 	else if(bhs.besch!=NULL) {
 		for(int i=0;  i<4;  i++  ) {

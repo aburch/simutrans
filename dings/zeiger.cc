@@ -18,6 +18,8 @@ zeiger_t::zeiger_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
 	richtung = ribi_t::alle;
 	bild = IMG_LEER;
+	area = koord(0,0);
+	center = 0;
 	rdwr(file);
 }
 
@@ -27,7 +29,8 @@ zeiger_t::zeiger_t(karte_t *welt, koord3d pos, spieler_t *sp) :
 {
 	setze_besitzer( sp );
 	richtung = ribi_t::alle;
-	area = 0;
+	area = koord(0,0);
+	center = 0;
 }
 
 
@@ -45,7 +48,7 @@ zeiger_t::change_pos(koord3d k )
 			if(gr->gib_halt().is_bound()) {
 				gr->gib_halt()->mark_unmark_coverage( false );
 			}
-			welt->mark_area( gib_pos(), area, false );
+			welt->mark_area( gib_pos()-(area*center)/2, area, false );
 		}
 		mark_image_dirty( gib_bild(), 0 );
 		set_flag(ding_t::dirty);
@@ -63,7 +66,7 @@ zeiger_t::change_pos(koord3d k )
 				// only mark this, if it is not in underground mode
 				// or in underground mode, if it is deep enough
 //				if(!grund_t::underground_mode  ||  gib_pos().z<gr->gib_hoehe()) {
-					welt->mark_area( k, area, true );
+					welt->mark_area( k-(area*center)/2, area, true );
 				//}
 			}
 		}
@@ -87,23 +90,23 @@ zeiger_t::setze_bild( image_id b )
 	mark_image_dirty( bild, 0 );
 	mark_image_dirty( b, 0 );
 	bild = b;
-	if(area>0) {
-		welt->mark_area( gib_pos(), area, false );
+	if(  (area.x|area.y)>1  ) {
+		welt->mark_area( gib_pos()-(area*center)/2, area, false );
 	}
-	area = 0;
+	area = koord(0,0);
+	center = 0;
 }
 
 
 /* change the marked area around the cursor */
 void
-zeiger_t::setze_area(uint8 new_area)
+zeiger_t::setze_area(koord new_area, uint8 new_center)
 {
-	if(new_area==area) {
+	if(new_area==area  &&  (new_center^center)) {
 		return;
 	}
-	if(new_area < area) {
-		welt->mark_area( gib_pos(), area, false );
-	}
+	welt->mark_area( gib_pos()-(area*center)/2, area, false );
 	area = new_area;
-	welt->mark_area( gib_pos(), area, true );
+	center = new_center;
+	welt->mark_area( gib_pos()-(area*center)/2, area, true );
 }
