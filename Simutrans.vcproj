@@ -197,6 +197,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\baum_edit.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\besch\bild_besch.cc"
 				>
 			</File>

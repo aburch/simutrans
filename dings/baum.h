@@ -49,7 +49,7 @@ private:
 	 */
 	void calc_off();
 
-	static uint16 random_tree_for_climate(climate cl);
+	static uint16 random_tree_for_climate_intern(climate cl);
 
 public:
 	// only the load save constructor should be called outside
@@ -57,6 +57,7 @@ public:
 	baum_t(karte_t *welt, loadsave_t *file);
 	baum_t(karte_t *welt, koord3d pos);
 	baum_t(karte_t *welt, koord3d pos, uint16 type);
+	baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch);
 
 	void rdwr(loadsave_t *file);
 
@@ -97,9 +98,15 @@ public:
 	static void distribute_trees(karte_t *welt, int dichte);
 
 	static bool plant_tree_on_coordinate(karte_t *welt, koord pos, const uint8 maximum_count);
+	static bool plant_tree_on_coordinate(karte_t *welt, koord pos, const baum_besch_t *besch, const bool check_climate, const bool random_age );
 
 	static bool register_besch(baum_besch_t *besch);
 	static bool alles_geladen();
+
+	// return list to beschs
+	static const vector_tpl<const baum_besch_t *> *gib_all_besch() { return &baum_typen; }
+
+	static const baum_besch_t *random_tree_for_climate(climate cl) { uint16 b = random_tree_for_climate_intern(cl);  return b!=0xFFFF ? baum_typen[b] : NULL; }
 
 	static int gib_anzahl_besch() { return baum_typen.get_count(); }
 	static int gib_anzahl_besch(climate cl);

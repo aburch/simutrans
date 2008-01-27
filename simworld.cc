@@ -90,6 +90,7 @@
 #include "gui/factory_edit.h"
 #include "gui/curiosity_edit.h"
 #include "gui/citybuilding_edit.h"
+#include "gui/baum_edit.h"
 
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
@@ -3511,9 +3512,10 @@ karte_t::interactive_event(event_t &ev)
 				update_map();
 				break;
 			}
-			case 167:    // Hajo: '§'
-				baum_t::distribute_trees( this, 3 );
-				break;
+case 167:    // Hajo: '§'
+//				baum_t::distribute_trees( this, 3 );
+create_win( new baum_edit_frame_t(gib_spieler(1),this), w_info, magic_edit_factory);
+break;
 case '&':
 create_win( new citybuilding_edit_frame_t(gib_spieler(1),this), w_info, magic_edit_factory);
 break;

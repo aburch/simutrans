@@ -5,6 +5,8 @@
 	ADD: factory link tool from z9999
 	ADD: attraction built tool from z9999
 	ADD: citybuilding builder inspired by z9999
+	ADD: tree planting tool inspired by z9999
+	FIX: trees are now correctly sorted by the internal tile positions (before were shadow problems)
 
 
 Release of 99.17.1 (r1550, stable)

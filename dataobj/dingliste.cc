@@ -53,12 +53,14 @@
  * ways are always first.
  */
 
+#define baum_pri (50)
+
 // priority for entering into dingliste
 // unused entries have 255
 static uint8 type_to_pri[32]=
 {
 	255, //
-	10, // baum
+	baum_pri, // baum
 	100, // zeiger
 	90, 90, 90,	// wolke
 	3, 3, // buildings
@@ -220,18 +222,12 @@ dingliste_t::shrink_capacity(uint8 o_top)
 
 inline void dingliste_t::intern_insert_at(ding_t* ding, uint8 pri)
 {
-#if 0
-	memmove( obj.some+pri+1, obj.some+pri, sizeof(ding_t*)*(top-pri) );
-	obj.some[pri] = ding;
-	top ++;
-#else
 	// we have more than one object here, thus we can use obj.some exclusively!
 	for(  uint8 i=top;  i>pri;  i--  ) {
 		obj.some[i] = obj.some[i-1];
 	}
 	obj.some[pri] = ding;
 	top++;
-#endif
 }
 
 
@@ -407,7 +403,7 @@ bool dingliste_t::add(ding_t* ding)
 	}
 
 	uint8 i;
-	for(  i=0;  i<top  &&  pri>=type_to_pri[obj.some[i]->gib_typ()];  i++  )
+	for(  i=0;  i<top  &&  pri>type_to_pri[obj.some[i]->gib_typ()];  i++  )
 		;
 	// now i contains the position, where we either insert of just add ...
 	if(i==top) {
@@ -415,7 +411,22 @@ bool dingliste_t::add(ding_t* ding)
 		top++;
 	}
 	else {
-		intern_insert_at(ding, i);
+		if(pri==baum_pri) {
+			/* trees are a little tricky, since they cast a shadow
+			 * therefore the y-order must be correct!
+			 */
+			const sint8 offset = ding->gib_yoff() + ding->gib_xoff();
+
+			for(  ;  i<top;  i++) {
+				if(obj.some[i]->gib_typ()!=ding_t::baum  ||  obj.some[i]->gib_yoff()+obj.some[i]->gib_xoff()>offset) {
+					break;
+				}
+			}
+			intern_insert_at(ding, i);
+		}
+		else {
+			intern_insert_at(ding, i);
+		}
 	}
 	// then correct the upper border
 	return true;

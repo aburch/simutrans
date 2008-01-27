@@ -223,6 +223,50 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const uint8 max
 
 
 
+/**
+ * tree planting function - it takes care of checking suitability of area
+ */
+bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const baum_besch_t *besch, const bool check_climate, const bool random_age )
+{
+	grund_t *gr = welt->lookup_kartenboden(pos);
+	if(gr) {
+		if( gr->ist_natur()  &&
+			gr->gib_top()<10  &&
+			(!check_climate  ||  besch->is_allowed_climate(welt->get_climate(gr->gib_hoehe())))
+			)
+		{
+			if(gr->gib_top()>0) {
+				switch(gr->obj_bei(0)->gib_typ()) {
+					case ding_t::wolke:
+					case ding_t::aircraft:
+					case ding_t::baum:
+					case ding_t::leitung:
+					case ding_t::label:
+					case ding_t::zeiger:
+						// ok to built here
+						break;
+					case ding_t::groundobj:
+						if(((groundobj_t *)(gr->obj_bei(0)))->gib_besch()->can_built_trees_here()) {
+							break;
+						}
+						// leave these (and all other empty)
+					default:
+						return false;
+				}
+			}
+			baum_t *b = new baum_t(welt, gr->gib_pos(), besch); //plants the tree
+			if(random_age) {
+				b->geburt = welt->get_current_month() - simrand(400);
+			}
+			gr->obj_add( b );
+			return true; //tree was planted - currently unused value is not checked
+		}
+	}
+	return false;
+}
+
+
+
 bool
 baum_t::alles_geladen()
 {
@@ -339,11 +383,11 @@ baum_t::gib_bild() const
 {
 	// alter/2048 is the age of the tree
 	if(umgebung_t::hide_trees) {
-		return umgebung_t::hide_with_transparency ? IMG_LEER : gib_besch()->gib_bild( season, 0 )->gib_nummer();
+		return umgebung_t::hide_with_transparency ? IMG_LEER : gib_besch()->gib_bild_nr( season, 0 );
 		// we need the real age for transparency or real image
 	}
 	uint8 baum_alter = baum_bild_alter[min((welt->get_current_month() - geburt)>>6, 11u)];
-	return gib_besch()->gib_bild( season, baum_alter )->gib_nummer();
+	return gib_besch()->gib_bild_nr( season, baum_alter );
 }
 
 
@@ -353,7 +397,7 @@ image_id
 baum_t::gib_outline_bild() const
 {
 	uint8 baum_alter = baum_bild_alter[min((welt->get_current_month() - geburt)>>6, 11u)];
-	return gib_besch()->gib_bild( season, baum_alter )->gib_nummer();
+	return gib_besch()->gib_bild_nr( season, baum_alter );
 }
 
 
@@ -361,7 +405,7 @@ baum_t::gib_outline_bild() const
 /* also checks for distribution values
  * @author prissi
  */
-uint16 baum_t::random_tree_for_climate(climate cl)
+uint16 baum_t::random_tree_for_climate_intern(climate cl)
 {
 	int weight = 0;
 
@@ -403,9 +447,7 @@ baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 {
 	// Hajo: auch aeltere Baeume erzeugen
 	geburt = welt->get_current_month() - simrand(400);
-
-	baumtype = random_tree_for_climate(welt->get_climate(pos.z));
-
+	baumtype = random_tree_for_climate_intern(welt->get_climate(pos.z));
 	calc_off();
 	calc_bild();
 }
@@ -421,6 +463,13 @@ baum_t::baum_t(karte_t *welt, koord3d pos, uint16 type) : ding_t(welt, pos)
 	calc_bild();
 }
 
+baum_t::baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch) : ding_t(welt, pos)
+{
+	geburt = welt->get_current_month();
+	baumtype = baum_typen.index_of(besch);
+	calc_off();
+	calc_bild();
+}
 
 
 void

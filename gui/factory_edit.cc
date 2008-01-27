@@ -10,24 +10,16 @@
 #include <algorithm>
 #include <stdio.h>
 
-#include "messagebox.h"
-
-#include "factory_edit.h"
-
 #include "../simcolor.h"
 #include "../simtools.h"
-
 #include "../simworld.h"
 #include "../simevent.h"
 #include "../simgraph.h"
 #include "../simplay.h"
+#include "../simskin.h"
 #include "../simwerkz.h"
-
 #include "../simwin.h"
 
-#include "../utils/simstring.h"
-
-#include "../dataobj/translator.h"
 #include "components/list_button.h"
 
 #include "../bauer/fabrikbauer.h"
@@ -35,7 +27,12 @@
 #include "../besch/grund_besch.h"
 #include "../besch/intro_dates.h"
 
+#include "../dataobj/translator.h"
+
+#include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
+
+#include "factory_edit.h"
 
 
 #define LINE_NAME_COLUMN_WIDTH (int)((BUTTON_WIDTH*2.25)+11)

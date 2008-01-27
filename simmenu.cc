@@ -860,7 +860,8 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 					skinverwaltung_t::stadtzeiger->gib_bild_nr(0),
 					tool_tip_with_price(translator::translate("Found new city"), umgebung_t::cst_found_city));
 
-				wzw->add_tool(wkz_pflanze_baum,
+				wzw->add_param_tool(wkz_pflanze_baum,
+					(const void *)0,
 					karte_t::Z_PLAN,
 					SFX_SELECT,
 					SFX_FAILURE,

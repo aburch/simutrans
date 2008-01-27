@@ -6,8 +6,6 @@
 #include "components/gui_label.h"
 
 #include "../besch/haus_besch.h"
-#include "../besch/fabrik_besch.h"
-#include "../utils/cbuffer_t.h"
 
 #include "../simwerkz.h"
 

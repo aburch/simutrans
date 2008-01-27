@@ -58,6 +58,7 @@
 #include "gui/factorylist_frame_t.h"
 #include "gui/factory_edit.h"
 #include "gui/curiositylist_frame_t.h"
+#include "gui/baum_edit.h"
 
 #include "dings/zeiger.h"
 #include "dings/bruecke.h"
@@ -2214,11 +2215,25 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
  * Plant a tree
  * @author Hj. Malthaner
  */
-int wkz_pflanze_baum(spieler_t *, karte_t *welt, koord pos)
+int wkz_pflanze_baum(spieler_t *, karte_t *welt, koord pos, value_t param)
 {
-	DBG_MESSAGE("wkz_pflanze_baum()", "called on %d,%d", pos.x, pos.y);
-	baum_t::plant_tree_on_coordinate(welt, pos, 10);
-	return true;
+	if(pos==INIT  || pos==EXIT) {
+		return true;
+	}
+
+	// enable DRAGGING
+	if(pos==DRAGGING) {
+		pos = welt->gib_zeiger()->gib_pos().gib_2d();
+	}
+
+	if(welt->ist_in_kartengrenzen(pos)) {
+		const build_baum_struct *bbs = (const build_baum_struct *)param.p;
+		const baum_besch_t *besch = (bbs!=NULL  &&  bbs->besch!=NULL) ? bbs->besch : baum_t::random_tree_for_climate( welt->get_climate(welt->lookup_kartenboden(pos)->gib_hoehe()) );
+		if(besch) {
+			return baum_t::plant_tree_on_coordinate( welt, pos, besch, bbs==NULL  ||  !bbs->ignore_climates, (bbs==NULL  ||  bbs->random_age) );
+		}
+	}
+	return false;
 }
 
 

@@ -42,13 +42,15 @@ public:
 
 	bool is_allowed_climate( climate cl ) const { return ((1<<cl)&allowed_climates)!=0; }
 
-	const bild_besch_t *gib_bild(int season, int i) const  	{
+	climate_bits get_allowed_climate_bits() const { return allowed_climates; }
+
+	const image_id gib_bild_nr(int season, int i) const  	{
 		if(number_of_seasons==0) {
 			// comapility mode
 			i += season*5;
 			season = 0;
 		}
-		return static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_bild(i, season);
+		return static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_bild(i, season)->gib_nummer();
 	}
 
 	// old style trees and new style tree support ...

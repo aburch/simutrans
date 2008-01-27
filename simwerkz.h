@@ -83,7 +83,7 @@ int wkz_set_slope(spieler_t *sp, karte_t *welt, koord pos, value_t param);
  * Plant a tree
  * @author Hj. Malthaner
  */
-int wkz_pflanze_baum(spieler_t *, karte_t *welt, koord pos);
+int wkz_pflanze_baum(spieler_t *, karte_t *welt, koord pos, value_t param);
 
 int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos, value_t param);
 int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos, value_t param);
