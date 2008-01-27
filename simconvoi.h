@@ -355,7 +355,7 @@ public:
 	linehandle_t get_line() const {return line;}
 
 	/* true, if electrification needed for this convoi */
-	const bool needs_electrification() const { return is_electric; }
+	bool needs_electrification() const { return is_electric; }
 
 	/**
 	* set line
@@ -554,7 +554,7 @@ public:
 	* @return Vehicle count
 	* @author Hj. Malthaner
 	*/
-	const unsigned int gib_vehikel_anzahl() const { return anz_vehikel; }
+	unsigned int gib_vehikel_anzahl() const { return anz_vehikel; }
 
 	/**
 	 * @return Vehicle at position i
@@ -756,7 +756,7 @@ public:
 	* The slowdown ist done by the vehicle routines
 	* @author prissi
 	*/
-	const uint16 get_next_stop_index() const {return next_stop_index;}
+	uint16 get_next_stop_index() const {return next_stop_index;}
 	void set_next_stop_index(uint16 n) {next_stop_index=n;}
 
 	/* the current state of the convoi */

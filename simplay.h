@@ -172,7 +172,7 @@ public:
 	 * @author player
 	 */
 	const char* gib_name() const;
-	const sint8 get_player_nr() const {return player_nr; }
+	sint8 get_player_nr() const {return player_nr; }
 
 	/* return true, if the owner is none, myself or player(1)
 	* @author prissi
@@ -474,8 +474,8 @@ private:
 	public:
 		fabconnection_t( koord k1, koord k2, const ware_besch_t *w ) : fab1(k1), fab2(k2), ware(w) {}
 
-		const bool operator != (const fabconnection_t & k) { return fab1 != k.fab1  ||  fab2 !=  k.fab2  ||  ware != k.ware; }
-		const bool operator == (const fabconnection_t & k) { return (fab1 == k.fab1  &&  fab2 ==  k.fab2  &&  ware == k.ware); }
+		bool operator != (const fabconnection_t & k) { return fab1 != k.fab1 || fab2 != k.fab2 || ware != k.ware; }
+		bool operator == (const fabconnection_t & k) { return fab1 == k.fab1 && fab2 == k.fab2 && ware == k.ware; }
 //		const bool operator < (const fabconnection_t & k) { return (abs(fab1.x)+abs(fab1.y)) - (abs(k.fab1.x)+abs(k.fab1.y)) < 0; }
 	};
 

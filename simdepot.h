@@ -168,7 +168,7 @@ public:
 	 * Returns the waytype for a certain vehicle; only way to distingiush differnt depots ...
 	 * @author prissi
 	 */
-	virtual const waytype_t get_wegtyp() const { return invalid_wt; }
+	virtual waytype_t get_wegtyp() const { return invalid_wt; }
 
 	/**
 	 * A convoi arrived at the depot and is added to the convoi list.
@@ -244,7 +244,7 @@ public:
 	int get_y_grid() const { return 24; }
 	unsigned get_max_convoi_length() const { return convoi_t::max_rail_vehicle; }
 
-	virtual const waytype_t get_wegtyp() const {return track_wt;}
+	virtual waytype_t get_wegtyp() const {return track_wt;}
 	virtual enum ding_t::typ gib_typ() const {return bahndepot;}
 	virtual const char *gib_name() const {return "Bahndepot"; }
 };
@@ -258,7 +258,7 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::tramline; }
 
-	virtual const waytype_t get_wegtyp() const {return tram_wt;}
+	virtual waytype_t get_wegtyp() const {return tram_wt;}
 	virtual enum ding_t::typ gib_typ() const { return tramdepot; }
 	virtual const char *gib_name() const {return "Tramdepot"; }
 };
@@ -271,7 +271,7 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::monorailline; }
 
-	virtual  const waytype_t get_wegtyp() const {return monorail_wt;}
+	virtual waytype_t get_wegtyp() const {return monorail_wt;}
 	virtual enum ding_t::typ gib_typ() const { return monoraildepot; }
 	virtual const char *gib_name() const {return "Monoraildepot"; }
 };
@@ -306,7 +306,7 @@ public:
 	int get_y_grid() const { return 24; }
 	unsigned get_max_convoi_length() const { return 4; }
 
-	virtual const waytype_t get_wegtyp() const {return road_wt; }
+	virtual waytype_t get_wegtyp() const {return road_wt; }
 	enum ding_t::typ gib_typ() const {return strassendepot;}
 	const char *gib_name() const {return "Strassendepot";}
 };
@@ -342,7 +342,7 @@ public:
 	int get_y_grid() const { return 46; }
 
 	unsigned get_max_convoi_length() const { return 4; }
-	virtual const waytype_t get_wegtyp() const {return water_wt; }
+	virtual waytype_t get_wegtyp() const {return water_wt; }
 	enum ding_t::typ gib_typ() const {return schiffdepot;}
 	const char *gib_name() const {return "Schiffdepot";}
 };
@@ -371,7 +371,7 @@ public:
 	int get_y_grid() const { return 36; }
 	unsigned get_max_convoi_length() const { return 1; }
 
-	virtual const waytype_t get_wegtyp() const { return air_wt; }
+	virtual waytype_t get_wegtyp() const { return air_wt; }
 	enum ding_t::typ gib_typ() const { return airdepot; }
 	const char *gib_name() const {return "Hangar";}
 };

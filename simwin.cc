@@ -343,8 +343,9 @@ win_get_top()
 	return (ins_win - 1>=0) ? wins[ins_win-1].gui : NULL;
 }
 
-const int
-win_get_open_count()
+
+
+int win_get_open_count()
 {
 	return ins_win;
 }

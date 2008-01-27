@@ -173,7 +173,7 @@ public:
 	* @author prissi
 	*/
 	const halthandle_t *get_haltlist() const { return halt_list; }
-	const uint8 get_haltlist_count() const { return halt_list_count; }
+	uint8 get_haltlist_count() const { return halt_list_count; }
 
 	void rdwr(karte_t *welt, loadsave_t *file);
 

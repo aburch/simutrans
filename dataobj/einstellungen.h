@@ -143,16 +143,16 @@ public:
 	const char* gib_filename() const { return filename; }
 
 	void setze_beginner_mode(bool yesno) {beginner_mode=yesno;}	// prissi, Aug-06
-	const bool gib_beginner_mode() const {return beginner_mode;}
+	bool gib_beginner_mode() const {return beginner_mode;}
 
 	void setze_just_in_time(bool yesno) {just_in_time=yesno;}	// prissi, Aug-06
-	const bool gib_just_in_time() const {return just_in_time;}
+	bool gib_just_in_time() const {return just_in_time;}
 
 	void setze_climate_border(sint16 *);	// prissi, Aug-06
 	const sint16 *gib_climate_borders() const {return climate_borders;}
 
 	void setze_winter_snowline(sint16 sl) { winter_snowline = sl; }
-	const sint16 gib_winter_snowline() const {return winter_snowline;}
+	sint16 gib_winter_snowline() const {return winter_snowline;}
 
 	void rotate90() { rotation = (rotation+1)&3; }
 	uint8 get_rotation() const { return rotation; }

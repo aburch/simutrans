@@ -221,12 +221,12 @@ public:
 	*/
 	virtual ribi_t::ribi gib_ribi(const grund_t* gr) const { return gr->gib_weg_ribi(gib_waytype()); }
 
-	const sint32 gib_insta_zeit() const {return insta_zeit;}
+	sint32 gib_insta_zeit() const {return insta_zeit;}
 
 	void darf_rauchen(bool yesno ) { rauchen = yesno;}
 
 	virtual bool calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route);
-	const uint16 gib_route_index() const {return route_index;}
+	uint16 gib_route_index() const {return route_index;}
 	const koord3d gib_pos_prev() const {return pos_prev;}
 
 	void setze_offsets(int x, int y);
@@ -309,12 +309,12 @@ public:
 	/* return friction constant: changes in hill and curves; may even negative downhill *
 	* @author prissi
 	*/
-	inline const int gib_frictionfactor() const { return current_friction; }
+	inline int gib_frictionfactor() const { return current_friction; }
 
 	/* Return total weight including freight*
 	* @author prissi
 	*/
-	inline const int gib_gesamtgewicht() const { return sum_weight; }
+	inline int gib_gesamtgewicht() const { return sum_weight; }
 
 	const slist_tpl<ware_t> & gib_fracht() const { return fracht;}   // liste der gerade transportierten güter
 
@@ -339,7 +339,7 @@ public:
 	/**
 	* setzt die maximale Kapazitaet
 	*/
-	const uint16 gib_fracht_max() const {return besch->gib_zuladung(); }
+	uint16 gib_fracht_max() const {return besch->gib_zuladung(); }
 
 	const char * gib_fracht_mass() const;
 

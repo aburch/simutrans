@@ -361,8 +361,7 @@ baum_t::gib_outline_bild() const
 /* also checks for distribution values
  * @author prissi
  */
-const uint16
-baum_t::random_tree_for_climate(climate cl)
+uint16 baum_t::random_tree_for_climate(climate cl)
 {
 	int weight = 0;
 

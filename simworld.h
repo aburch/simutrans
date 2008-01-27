@@ -759,7 +759,7 @@ public:
 			convoi_array.append_unique(cnv,4);
 	}
 	void rem_convoi(convoihandle_t& cnv) { convoi_array.remove(cnv); }
-	const unsigned get_convoi_count() const {return convoi_array.get_count();}
+	unsigned get_convoi_count() const {return convoi_array.get_count();}
 	const convoihandle_t get_convoi(sint32 i) const {return convoi_array[(uint32)i];}
 	vector_tpl<convoihandle_t>::const_iterator convois_begin() const { return convoi_array.begin(); }
 	vector_tpl<convoihandle_t>::const_iterator convois_end()   const { return convoi_array.end();   }

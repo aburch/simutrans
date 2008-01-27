@@ -167,8 +167,8 @@ public:
 		old_tramdepot=101,
 	};
 
-	inline const sint8 gib_xoff() const {return xoff;}
-	inline const sint8 gib_yoff() const {return yoff;}
+	inline sint8 gib_xoff() const {return xoff;}
+	inline sint8 gib_yoff() const {return yoff;}
 
 	// true for all moving objects
 	inline bool is_moving() const { return flags&is_vehicle; }

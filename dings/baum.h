@@ -49,7 +49,7 @@ private:
 	 */
 	void calc_off();
 
-	static const uint16 random_tree_for_climate(climate cl);
+	static uint16 random_tree_for_climate(climate cl);
 
 public:
 	// only the load save constructor should be called outside

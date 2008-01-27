@@ -50,19 +50,20 @@ public:
 	// moving stuff should have eight
 	// otherwise up to 16 for all slopes are ok
 	// if anzahl==1, this will not appear on slopes
-	const uint16 gib_phases() const {
+	uint16 gib_phases() const
+	{
 		return static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_anzahl();
 	}
 
-	const int gib_seasons() const { return number_of_seasons; }
+	int gib_seasons() const { return number_of_seasons; }
 
-	const uint32 get_speed() const { return speed; }
+	uint32 get_speed() const { return speed; }
 
-	const bool can_built_trees_here() const { return trees_on_top; }
+	bool can_built_trees_here() const { return trees_on_top; }
 
-	const waytype_t get_waytype() const { return waytype; }
+	waytype_t get_waytype() const { return waytype; }
 
-	const sint32 gib_preis() const { return cost_removal; }
+	sint32 gib_preis() const { return cost_removal; }
 };
 
 #endif

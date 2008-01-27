@@ -33,11 +33,11 @@ public:
 	const char *gib_name() const { return gib_bilder()->gib_name(); }
 	const char *gib_copyright() const { return gib_bilder()->gib_copyright(); }
 
-	const uint8 has_snow_bild() const { return has_winter; }
-	const uint16 gib_probability() const { return probability; }
-	const uint16 gib_max_fields() const { return max_fields; }
-	const uint16 gib_min_fields() const { return min_fields; }
-	const uint16 gib_field_production() const { return production_per_field; }
+	uint8 has_snow_bild() const { return has_winter; }
+	uint16 gib_probability() const { return probability; }
+	uint16 gib_max_fields() const { return max_fields; }
+	uint16 gib_min_fields() const { return min_fields; }
+	uint16 gib_field_production() const { return production_per_field; }
 };
 
 

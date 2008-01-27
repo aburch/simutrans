@@ -115,7 +115,7 @@ void win_set_pos(gui_fenster_t *ig, int x, int y);
 
 const gui_fenster_t *win_get_top();
 
-const int win_get_open_count();
+int win_get_open_count();
 
 // returns the window (if open) otherwise zero
 gui_fenster_t *win_get_magic(long magic);

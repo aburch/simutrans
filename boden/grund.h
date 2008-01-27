@@ -250,7 +250,7 @@ public:
 	* @return Die Nummer des Bildes des Untergrundes.
 	* @author Hj. Malthaner
 	*/
-	inline const image_id gib_bild() const {return bild_nr;}
+	inline image_id gib_bild() const {return bild_nr;}
 
 	/**
 	* Returns the number of an eventual foundation
@@ -478,7 +478,8 @@ public:
 	* @author DarioK
 	* @see gib_weg
 	*/
-	const uint8 gib_styp(waytype_t typ) const {
+	uint8 gib_styp(waytype_t typ) const
+	{
 		weg_t *weg = gib_weg(typ);
 		return (weg) ? weg->gib_besch()->gib_styp() : 0;
 	}

@@ -45,7 +45,7 @@ public:
 	static bool alles_geladen();
 	static bool register_besch(ware_besch_t *besch);
 
-	static const uint8 gib_max_catg_index() { return max_catg_index; }
+	static uint8 gib_max_catg_index() { return max_catg_index; }
 
 	/**
 	* Sucht information zur ware 'name' und gibt die

@@ -76,29 +76,29 @@ private:
 	uint8 own_wtyp;
 
 public:
-	const long gib_preis() const { return price; }
+	long gib_preis() const { return price; }
 
-	const long gib_wartung() const { return maintenance; }
+	long gib_wartung() const { return maintenance; }
 
 	/**
 	 * Determines max speed in km/h allowed on this way
 	 * @author Hj. Malthaner
 	 */
-	const uint32 gib_topspeed() const { return topspeed; }
+	uint32 gib_topspeed() const { return topspeed; }
 
 	/**
 	 * get way type
 	 * @see waytype_t
 	 * @author Hj. Malthaner
 	 */
-	const uint8 gib_wtyp() const { return wtyp; }
+	uint8 gib_wtyp() const { return wtyp; }
 
 	/**
 	* returns the system type of this way (mostly used with rails)
 	* @see weg_t::styp
 	* @author DarioK
 	*/
-	const uint8 gib_own_wtyp() const { return own_wtyp; }
+	uint8 gib_own_wtyp() const { return own_wtyp; }
 
 	// way objects can have a front and a backimage, unlike ways ...
 	image_id get_front_image_id(ribi_t::ribi ribi) const { return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild_nr(ribi); }
@@ -183,13 +183,13 @@ public:
 	* @return introduction year
 	* @author Hj. Malthaner
 	*/
-	const uint16 get_intro_year_month() const { return intro_date; }
+	uint16 get_intro_year_month() const { return intro_date; }
 
 	/**
 	* @return introduction month
 	* @author Hj. Malthaner
 	*/
-	const uint16 get_retire_year_month() const { return obsolete_date; }
+	uint16 get_retire_year_month() const { return obsolete_date; }
 
 	/**
 	* Skin: cursor (index 0) and icon (index 1)

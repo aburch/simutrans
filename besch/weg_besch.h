@@ -90,29 +90,29 @@ private:
 	sint8 number_seasons;
 
 public:
-	const long gib_preis() const { return price; }
+	long gib_preis() const { return price; }
 
-	const long gib_wartung() const { return maintenance; }
+	long gib_wartung() const { return maintenance; }
 
 	/**
 	 * Determines max speed in km/h allowed on this way
 	 * @author Hj. Malthaner
 	 */
-	const uint32 gib_topspeed() const { return topspeed; }
+	uint32 gib_topspeed() const { return topspeed; }
 
 	/**
 	 * get way type
 	 * @see waytype_t
 	 * @author Hj. Malthaner
 	 */
-	const uint8 gib_wtyp() const { return wtyp; }
+	uint8 gib_wtyp() const { return wtyp; }
 
 	/**
 	* returns the system type of this way (mostly used with rails)
 	* @see weg_t::styp
 	* @author DarioK
 	*/
-	const uint8 gib_styp() const { return styp; }
+	uint8 gib_styp() const { return styp; }
 
 	image_id gib_bild_nr(ribi_t::ribi ribi, uint8 season) const
 	{
@@ -172,13 +172,13 @@ public:
 	* @return introduction year
 	* @author Hj. Malthaner
 	*/
-	const uint16 get_intro_year_month() const { return intro_date; }
+	uint16 get_intro_year_month() const { return intro_date; }
 
 	/**
 	* @return introduction month
 	* @author Hj. Malthaner
 	*/
-	const uint16 get_retire_year_month() const { return obsolete_date; }
+	uint16 get_retire_year_month() const { return obsolete_date; }
 
 	/* true, if this tile is to be drawn as lie a normal thing */
 	bool is_draw_as_ding() const { return draw_as_ding; }

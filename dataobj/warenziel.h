@@ -57,7 +57,7 @@ public:
     void setze_zielhalt(halthandle_t &h) { halt = h; }
     const halthandle_t gib_zielhalt() const { return halt; }
 
-    const uint8 gib_catg_index() const { return catg_index; }
+    uint8 gib_catg_index() const { return catg_index; }
 
     void rdwr(loadsave_t *file);
 };

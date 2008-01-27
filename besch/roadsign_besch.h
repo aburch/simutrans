@@ -73,7 +73,7 @@ public:
 	 * @see waytype_t
 	 * @author Hj. Malthaner
 	 */
-	const waytype_t gib_wtyp() const { return (waytype_t)wtyp; }
+	waytype_t gib_wtyp() const { return (waytype_t)wtyp; }
 
 	int gib_min_speed() const { return min_speed; }
 
@@ -105,13 +105,13 @@ public:
 	* @return introduction year
 	* @author prissi
 	*/
-	const uint16 get_intro_year_month() const { return intro_date; }
+	uint16 get_intro_year_month() const { return intro_date; }
 
 	/**
 	* @return introduction month
 	* @author prissi
 	*/
-	const uint16 get_retire_year_month() const { return obsolete_date; }
+	uint16 get_retire_year_month() const { return obsolete_date; }
 };
 
 #endif

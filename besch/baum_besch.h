@@ -52,7 +52,8 @@ public:
 	}
 
 	// old style trees and new style tree support ...
-	const int gib_seasons() const {
+	int gib_seasons() const
+	{
 		if(number_of_seasons==0) {
 			return static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_anzahl()/5;
 		}
