@@ -715,28 +715,27 @@ const haus_besch_t *hausbauer_t::waehle_aus_liste(slist_tpl<const haus_besch_t *
 
 
 
-
-const slist_tpl<const haus_besch_t *> *hausbauer_t::get_list( haus_besch_t::utyp typ )
+const slist_tpl<const haus_besch_t*>* hausbauer_t::get_list(const haus_besch_t::utyp typ)
 {
-	switch(typ) {
-		case haus_besch_t::denkmal:           return &ungebaute_denkmaeler;
-		case haus_besch_t::attraction_land:   return &sehenswuerdigkeiten_land;
-		case haus_besch_t::firmensitz:        return NULL;
-		case haus_besch_t::rathaus:           return &rathaeuser;
-		case haus_besch_t::attraction_city:   return &sehenswuerdigkeiten_city;
-		case haus_besch_t::fabrik:            return NULL;
+	switch (typ) {
+		case haus_besch_t::denkmal:         return &ungebaute_denkmaeler;
+		case haus_besch_t::attraction_land: return &sehenswuerdigkeiten_land;
+		case haus_besch_t::firmensitz:      return NULL;
+		case haus_besch_t::rathaus:         return &rathaeuser;
+		case haus_besch_t::attraction_city: return &sehenswuerdigkeiten_city;
+		case haus_besch_t::fabrik:          return NULL;
+		default:                            return NULL;
 	}
-	return NULL;
 }
 
 
 
-const vector_tpl<const haus_besch_t *> *hausbauer_t::get_citybuilding_list( gebaeude_t::typ typ )
+const vector_tpl<const haus_besch_t*>* hausbauer_t::get_citybuilding_list(const gebaeude_t::typ typ)
 {
-	switch(typ) {
+	switch (typ) {
 		case gebaeude_t::wohnung:   return &wohnhaeuser;
 		case gebaeude_t::gewerbe:   return &gewerbehaeuser;
 		case gebaeude_t::industrie: return &industriehaeuser;
+		default:                    return NULL;
 	}
-	return NULL;
 }
