@@ -1944,6 +1944,10 @@ int spieler_t::baue_bahnhof(const koord* p, int anz_vehikel)
 
 	// find a freight train station
 	const haus_besch_t* besch = hausbauer_t::gib_random_station(haus_besch_t::bahnhof, welt->get_timeline_year_month(), haltestelle_t::WARE);
+	if(besch==NULL) {
+		// no freight station
+		return 0;
+	}
 	koord pos;
 	for(  pos=t-zv;  pos!=*p;  pos-=zv ) {
 		if(  make_all_bahnhof  ||  is_my_halt(pos+koord(-1,-1))  ||  is_my_halt(pos+koord(-1,1))  ||  is_my_halt(pos+koord(1,-1))  ||  is_my_halt(pos+koord(1,1))  ) {
