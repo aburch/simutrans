@@ -22,7 +22,7 @@ extern "C" {
 	extern void out_error(const char *who, const char *format, ...);
 	extern void out_warning(const char *who, const char *format, ...);
 	extern void out_message(const char *who, const char *format, ...);
-  extern void trap();
+  extern void trap(void);
 
 #ifdef __cplusplus
 }

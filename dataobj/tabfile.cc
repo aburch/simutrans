@@ -233,7 +233,7 @@ void tabfile_t::format_value(char *value)
     // trim left
     if(*value == ' ') {
         char *from;
-	for(from = value; *from == ' '; from++);
+	for(from = value; *from == ' '; from++) {}
 	while(*value) {
 	    *value++ = *from++;
         }

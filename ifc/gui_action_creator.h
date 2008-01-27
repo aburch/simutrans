@@ -33,8 +33,8 @@ protected:
 	 */
 	void call_listeners(value_t v)
 	{
-	    slist_iterator_tpl<action_listener_t *> iter (listeners);
-	    while(iter.next() && !iter.get_current()->action_triggered(this,v));
+		slist_iterator_tpl<action_listener_t *> iter (listeners);
+		while (iter.next() && !iter.get_current()->action_triggered(this, v)) {}
 	}
 
 public:
