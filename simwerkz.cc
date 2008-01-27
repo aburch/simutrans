@@ -2615,7 +2615,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 				city->add_gebaeude_to_stadt( hq );
 			}
 			sp->add_headquarter( level+1, pos );
-			sp->buche(umgebung_t::cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h(), pos, COST_CONSTRUCTION * size.x * size.y);
+			sp->buche(umgebung_t::cst_multiply_headquarter * besch->gib_level() * size.x * size.y, pos, COST_CONSTRUCTION);
 		}
 		else {
 			create_win( new news_img("Tile not empty."), w_time_delete, magic_none);
