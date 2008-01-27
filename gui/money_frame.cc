@@ -239,7 +239,6 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		headquarter.disable();
 
 		// get new costs
-		const char *tooltip = NULL;
 		for(  vector_tpl<const haus_besch_t *>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end();  iter != end;  ++iter  ) {
 			const haus_besch_t* besch = (*iter);
 			if (besch->gib_bauzeit() <= sp->get_headquarter_level() ) {

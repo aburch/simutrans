@@ -313,7 +313,6 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 
 		fpl->cleanup();
 		fpl->eingabe_abschliessen();
-		karte_t* welt = sp->get_welt();
 		if (cnv.is_bound()) {
 			// if a line is selected
 			if (new_line.is_bound()) {
