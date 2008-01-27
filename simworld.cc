@@ -2379,7 +2379,7 @@ karte_t::ist_wasser(koord pos, koord dim) const
 
 	for(k.x = pos.x; k.x < pos.x + dim.x; k.x++) {
 		for(k.y = pos.y; k.y < pos.y + dim.y; k.y++) {
-			if(lookup_hgt(k) > gib_grundwasser()) {
+			if(max_hgt(k) > gib_grundwasser()) {
 				return false;
 			}
 		}

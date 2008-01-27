@@ -7,6 +7,7 @@
  * in other projects without written permission of the author.
  */
 
+#include <algorithm>
 #include <stdio.h>
 
 #include "messagebox.h"
@@ -41,8 +42,12 @@
 #define SCL_HEIGHT (170)
 #define N_BUTTON_WIDTH  (int)(BUTTON_WIDTH*1.5)
 
-// Hajo: 17-Jan-04: changed layout to make components fit into
-// a width of 400 pixels -> original size was unuseable in 640x480
+
+static bool compare_fabrik_besch(const fabrik_besch_t* a, const fabrik_besch_t* b)
+{
+	int diff = strcmp( translator::translate(a->gib_name()), translator::translate(b->gib_name()) );
+	return diff < 0;
+}
 
 
 
@@ -139,6 +144,9 @@ void factory_edit_frame_t::fill_list( bool translate )
 			}
 		}
 	}
+
+	std::sort(fablist.begin(), fablist.end(), compare_fabrik_besch);
+
 	// now buil scrolled list
 	scl.clear_elements();
 	scl.setze_selection(-1);
