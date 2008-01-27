@@ -279,7 +279,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		uint8 rot = (bhs.rotation==255) ? 0 : bhs.rotation;
 		if(besch->gib_b(rot)==1) {
 			if(besch->gib_h(rot)==1) {
-				img[3].set_image( besch->gib_tile(0)->gib_hintergrund(0,0,0) );
+				img[3].set_image( besch->gib_tile(rot,0,0)->gib_hintergrund(0,0,0) );
 			}
 			else {
 				img[2].set_image( besch->gib_tile(rot,0,0)->gib_hintergrund(0,0,0) );

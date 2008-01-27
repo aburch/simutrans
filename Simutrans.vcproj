@@ -233,6 +233,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\citybuilding_edit.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\besch\reader\citycar_reader.cc"
 				>
 			</File>

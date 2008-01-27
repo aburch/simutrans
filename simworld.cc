@@ -89,6 +89,7 @@
 #include "gui/werkzeug_parameter_waehler.h"
 #include "gui/factory_edit.h"
 #include "gui/curiosity_edit.h"
+#include "gui/citybuilding_edit.h"
 
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
@@ -1375,6 +1376,7 @@ void karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord
 		zeiger->setze_bild(zeiger_bild);
 		zeiger->setze_yoff(zeiger_versatz);
 		zeiger->change_pos( zpos );
+		zeiger->setze_area( koord(1,1), false );
 
 		current_mouse_funk.funk(get_active_player(), this, INIT, current_mouse_funk.param);
 	}
@@ -3512,6 +3514,9 @@ karte_t::interactive_event(event_t &ev)
 			case 167:    // Hajo: '§'
 				baum_t::distribute_trees( this, 3 );
 				break;
+case '&':
+create_win( new citybuilding_edit_frame_t(gib_spieler(1),this), w_info, magic_edit_factory);
+break;
 case '/':
 create_win( new curiosity_edit_frame_t(gib_spieler(1),this), w_info, magic_edit_factory);
 break;

@@ -4,6 +4,7 @@
 	FIX: removing of wayobj in tunnel or on bridges left wrong top speed.
 	ADD: factory link tool from z9999
 	ADD: attraction built tool from z9999
+	ADD: citybuilding builder inspired by z9999
 
 
 Release of 99.17.1 (r1550, stable)
