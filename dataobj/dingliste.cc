@@ -697,14 +697,18 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::old_fussgaenger:
 					typ = ding_t::fussgaenger;
 				case ding_t::fussgaenger:
-					d = new fussgaenger_t(welt, file);
-					if(((fussgaenger_t *)d)->gib_besch()==NULL) {
+				{
+					fussgaenger_t* const pedestrian = new fussgaenger_t(welt, file);
+					if (pedestrian->gib_besch() == NULL) {
 						// no pedestrians ... delete this
-						d->set_flag( ding_t::not_on_map );
-						delete ((fussgaenger_t *)d);
+						pedestrian->set_flag(ding_t::not_on_map);
+						delete pedestrian;
 						d = NULL;
+					} else {
+						d = pedestrian;
 					}
 					break;
+				}
 
 				case ding_t::old_verkehr:
 					typ = ding_t::verkehr;
@@ -811,14 +815,18 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					break;
 
 				case ding_t::movingobj:
-					d = new movingobj_t(welt, file);
-					if(((movingobj_t *)d)->gib_besch()==NULL) {
+				{
+					movingobj_t* const movingobj = new movingobj_t(welt, file);
+					if (movingobj->gib_besch() == NULL) {
 						// no citycars ... delete this
-						d->set_flag( ding_t::not_on_map );
-						delete (movingobj_t *)d;
+						movingobj->set_flag(ding_t::not_on_map);
+						delete movingobj;
 						d = NULL;
+					} else {
+						d = movingobj;
 					}
 					break;
+				}
 
 				case ding_t::gebaeude:
 				{
