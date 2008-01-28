@@ -44,7 +44,8 @@ public:
 
 	climate_bits get_allowed_climate_bits() const { return allowed_climates; }
 
-	const image_id gib_bild_nr(int season, int i) const  	{
+	image_id gib_bild_nr(int season, int i) const
+	{
 		if(number_of_seasons==0) {
 			// comapility mode
 			i += season*5;
