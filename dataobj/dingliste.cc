@@ -713,14 +713,18 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::old_verkehr:
 					typ = ding_t::verkehr;
 				case ding_t::verkehr:
-					d = new stadtauto_t (welt, file);
-					if(((stadtauto_t *)d)->gib_besch()==NULL) {
+				{
+					stadtauto_t* const car = new stadtauto_t(welt, file);
+					if (car->gib_besch() == NULL) {
 						// no citycars ... delete this
-						d->set_flag( ding_t::not_on_map );
-						delete ((stadtauto_t *)d);
+						car->set_flag(ding_t::not_on_map);
+						delete car;
 						d = NULL;
+					} else {
+						d = car;
 					}
 					break;
+				}
 
 				case ding_t::old_monoraildepot:
 					typ = ding_t::monoraildepot;
@@ -804,15 +808,19 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				break;
 
 				case ding_t::groundobj:
-					d = new groundobj_t(welt, file);
-					if(((groundobj_t *)d)->gib_besch()==NULL) {
+				{
+					groundobj_t* const groundobj = new groundobj_t(welt, file);
+					if (groundobj->gib_besch() == NULL) {
 						// do not remove from this position, since there will be nothing
-						d->set_flag(ding_t::not_on_map);
+						groundobj->set_flag(ding_t::not_on_map);
 						// not use entferne, since it would try to lookup besch
-						delete (groundobj_t *)d;
+						delete groundobj;
 						d = NULL;
+					} else {
+						d = groundobj;
 					}
 					break;
+				}
 
 				case ding_t::movingobj:
 				{
