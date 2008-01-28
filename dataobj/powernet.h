@@ -11,7 +11,6 @@
 #include "../ifc/sync_steppable.h"
 #include "../simtypes.h"
 
-class karte_t;
 
 /**
  * Data class for power networks. A two phase queue to store
