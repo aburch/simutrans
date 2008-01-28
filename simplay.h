@@ -273,7 +273,6 @@ public:
 	 * @author prissi
 	 */
 	bool is_my_halt(koord pos) const;
-	unsigned is_my_halt(koord3d pos) const;	// return the boden_count+1, 0==fails
 
 	/**
 	 * Gets haltcount, for naming purposes

@@ -576,33 +576,6 @@ bool spieler_t::is_my_halt(koord pos) const
 
 
 
-/* return true, if my bahnhof is here
- * @author prissi
- */
-unsigned spieler_t::is_my_halt(koord3d pos) const
-{
-DBG_MESSAGE("spieler_t::is_my_halt()","called on (%i,%i)",pos.x,pos.y);
-	const planquadrat_t *plan = welt->lookup(pos.gib_2d());
-	if(plan) {
-
-		for(unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
-			grund_t *gr=plan->gib_boden_bei(i);
-			if(gr) {
-DBG_MESSAGE("spieler_t::is_my_halt()","grund %i exists",i);
-				halthandle_t halt = gr->gib_halt();
-//DBG_MESSAGE("spieler_t::is_my_halt()","check halt id %i",halt.get_id());
-				if(halt.is_bound()  &&  check_owner(halt->gib_besitzer())) {
-					return i+1;
-				}
-			}
-		}
-	}
-	// nothing here
-	return false;
-}
-
-
-
 /**
  * Speichert Zustand des Spielers
  * @param file Datei, in die gespeichert wird
