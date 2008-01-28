@@ -569,12 +569,9 @@ spieler_t::halt_remove(halthandle_t halt)
  */
 bool spieler_t::is_my_halt(koord pos) const
 {
-	halthandle_t halt = haltestelle_t::gib_halt(welt,pos);
-	if(halt.is_bound()  &&  check_owner(halt->gib_besitzer())) {
-		return true;
-	}
-	// nothing here
-	return false;
+	const halthandle_t halt = haltestelle_t::gib_halt(welt, pos);
+	return
+		halt.is_bound() && check_owner(halt->gib_besitzer());
 }
 
 
