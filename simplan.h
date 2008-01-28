@@ -104,7 +104,6 @@ public:
 
 	/**
 	* Rückegabe des Bodens, der das gegebene Objekt enthält, falls vorhanden.
-	* @return NULL wenn (this == NULL)
 	* @author V. Meyer
 	*/
 	grund_t *gib_boden_von_obj(ding_t *obj) const;
