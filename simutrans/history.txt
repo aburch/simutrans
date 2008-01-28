@@ -7,6 +7,7 @@
 	ADD: citybuilding builder inspired by z9999
 	ADD: tree planting tool inspired by z9999
 	FIX: trees are now correctly sorted by the internal tile positions (before were shadow problems)
+	CHANGE: smoother zoom out (experimental)
 
 
 Release of 99.17.1 (r1550, stable)

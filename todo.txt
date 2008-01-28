@@ -6,6 +6,7 @@ CHECK:
 - timeline bonus speeds from a file
 - waiting only a certain intervall (when waiting for a load percentage)
 - bankrupt only when the net company value (i.e. after selling everything) is below zero (like for AI)
+- synchronized traffic lights
 resize greater than 2400*1536 crashes simutrans
 Toolwindow with 10 last used tools (in fixed order)
 Main meinu configurable in size and order

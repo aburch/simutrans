@@ -2253,13 +2253,12 @@ int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos, value_t p
 		return false;
 	}
 
-	const fabrik_besch_t *fab = bfs ? bfs->besch : fabrikbauer_t::get_random_consumer( true, (climate_bits)(1<<welt->get_climate(gr->gib_hoehe())), welt->get_timeline_year_month() );
+	const fabrik_besch_t *fab = bfs ? bfs->besch : fabrikbauer_t::get_random_consumer( false, (climate_bits)(1<<welt->get_climate(gr->gib_hoehe())), welt->get_timeline_year_month() );
 	if(fab==NULL) {
 		return false;
 	}
 	int rotation = bfs ? bfs->rotation % fab->gib_haus()->gib_all_layouts() : simrand(fab->gib_haus()->gib_all_layouts()-1);
 	koord size = fab->gib_haus()->gib_groesse(rotation);
-
 
 	bool hat_platz = false;
 

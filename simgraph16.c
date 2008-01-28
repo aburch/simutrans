@@ -784,7 +784,7 @@ static void recode_color_img(const unsigned int n, const unsigned char player_nr
  * Convert base image data to actual image size
  * @author prissi (to make this much faster) ...
  */
-static void rezoom_img(const unsigned int n)
+static void rezoom_img_simple(const unsigned int n)
 {
 	// Hajo: may this image be zoomed
 	if (n < anz_images && images[n].base_h > 0) {
@@ -891,6 +891,254 @@ static void rezoom_img(const unsigned int n)
 			} while (--h != 0);
 
 			// something left?
+			{
+				const unsigned int zoom_len = dest - images[n].zoom_data;
+				if (zoom_len > images[n].len) {
+					printf("*** FATAL ***\nzoom_len (%i) > image_len (%i)", zoom_len, images[n].len);
+					fflush(NULL);
+					exit(0);
+				}
+				if (zoom_len == 0) images[n].h = 0;
+			}
+		} else {
+			if (images[n].w <= 0) {
+				// h=0 will be ignored, with w=0 there was an error!
+				printf("WARNING: image%d w=0!\n", n);
+			}
+			images[n].h = 0;
+		}
+	}
+}
+
+
+#define SumSubpixel(p) \
+	if(*(p)<255  &&  valid<255) { \
+	if(*(p)==1) { valid = 255; r = g = b = 0; } else { valid ++; } /* mark special colors */\
+		r += (p)[1]; \
+		g += (p)[2]; \
+		b += (p)[3]; \
+	}
+
+
+/**
+ * Convert base image data to actual image size
+ * Uses averages of all sampled points to get the "real" value
+ * Blurs a bit
+ * @author prissi
+ */
+static void rezoom_img(const unsigned int n)
+{
+	// Hajo: may this image be zoomed
+	if (n < anz_images && images[n].base_h > 0) {
+		// we may need night conversion afterwards
+		images[n].recode_flags &= ~FLAG_REZOOM;
+		images[n].recode_flags |= FLAG_NORMAL_RECODE;
+		images[n].player_flags = NEED_PLAYER_RECODE;
+
+		// just restore original size?
+		if (zoom_factor <= 1  ||  (images[n].recode_flags&FLAG_ZOOMABLE)==0) {
+			// this we can do be a simple copy ...
+			images[n].x = images[n].base_x;
+			images[n].w = images[n].base_w;
+			images[n].y = images[n].base_y;
+			images[n].h = images[n].base_h;
+			if (images[n].zoom_data != NULL) {
+				guarded_free(images[n].zoom_data);
+				images[n].zoom_data = NULL;
+			}
+			return;
+		}
+
+		// now we want to downsize the image
+		// just divede the sizes
+		images[n].x = images[n].base_x / zoom_factor;
+		images[n].y = images[n].base_y / zoom_factor;
+		images[n].w = (images[n].base_x + images[n].base_w) / zoom_factor - images[n].x;
+		images[n].h = images[n].base_h / zoom_factor;
+
+		if (images[n].h > 0 && images[n].w > 0) {
+			// just recalculate the image in the new size
+			unsigned char y_left = (unsigned char) (((short)images[n].base_y + zoom_factor - 1 + 64*zoom_factor) % zoom_factor );
+			unsigned char h = images[n].base_h;
+
+			static uint8 *baseimage = NULL;
+			static uint32 size = 0;
+			PIXVAL *src = images[n].base_data;
+			PIXVAL *dest = NULL;
+			uint32 x, y;
+
+			// decode/recode linewise
+			unsigned int last_color = 255; // ==255 to keep compiler happy
+
+			uint16 xoff = images[n].base_x%zoom_factor;
+			uint16 zoomwidth = ((images[n].base_x + images[n].base_w+zoom_factor-1)/zoom_factor)*zoom_factor;
+			uint16 yoff = images[n].base_y%zoom_factor;
+			uint16 zoomheight = ((yoff + images[n].base_h+zoom_factor-1)/zoom_factor)*zoom_factor;
+
+			// we will upack, resample pak it
+			if(baseimage==NULL  ||  zoomwidth*zoomheight>size) {
+				free( baseimage );
+				size = 65535;//zoomwidth*zoomheight;
+				baseimage = malloc( size*4 );
+			}
+
+			if (images[n].zoom_data == NULL) {
+				// normal len is ok, since we are only skipping parts ...
+				images[n].zoom_data = guarded_malloc(sizeof(PIXVAL) * images[n].len);
+			}
+
+			// fill with invalid data to mark transparent regions
+			memset( baseimage, 255, size*4 );
+
+			// now: unpack the image
+			for(  y=0;  y<images[n].base_h;  y++  ) {
+				unsigned int runlen;
+				uint8 *p = baseimage + (y+yoff)*(zoomwidth*4);
+
+				// decode line
+				runlen = *src++;
+				do {
+					// clear run
+					p += runlen*4;
+					// color pixel
+					runlen = *src++;
+					while (runlen--) {
+						// get rgb components
+						PIXVAL s = *src++;
+						*p++ = (s>>15);
+						*p++ = (s & 31);
+						s >>= 5;
+						*p++ = (s & 31);
+						s >>= 5;
+						*p++ = (s & 31);
+					}
+					runlen = *src++;
+				} while (runlen!=0);
+			}
+
+
+			// now we have the image, we do a repack then
+			dest = baseimage;
+			switch(zoom_factor) {
+				case 2:
+					for(  y=0;  y<zoomheight;  y+=2  ) {
+						uint8 *p1 = baseimage + y*((uint32)zoomwidth*4);
+						uint8 *p2 = p1 + (zoomwidth*4);
+						for(  x=0;  x<zoomwidth;  x+=2  ) {
+							uint8 valid=0;
+							uint8 r=0,g=0,b=0;
+							SumSubpixel(p1+x*4);
+							SumSubpixel(p1+x*4+4);
+							SumSubpixel(p2+x*4);
+							SumSubpixel(p2+x*4+4);
+							if(valid==0) {
+								*dest++ = 0x73FE;
+							}
+							else if(valid==255) {
+								*dest++ = 0x8000 | r + (((uint16)g)<<5) + (((uint16)b)<<10);
+							}
+							else {
+								*dest++ = (r/valid) + (((uint16)(g/valid))<<5) + (((uint16)(b/valid))<<10);
+							}
+						}
+					}
+					break;
+				case 3:
+					for(  y=0;  y<zoomheight;  y+=3  ) {
+						uint8 *p1 = baseimage + y*((uint16)zoomwidth*4);
+						uint8 *p2 = p1 + (zoomwidth*4);
+						uint8 *p3 = p2 + (zoomwidth*4);
+						for(  x=0;  x<zoomwidth;  x+=3  ) {
+							uint16 valid=0;
+							uint16 r=0,g=0,b=0;
+							SumSubpixel(p1+x*4);
+							SumSubpixel(p1+x*4+4);
+							SumSubpixel(p1+x*4+8);
+							SumSubpixel(p2+x*4);
+							SumSubpixel(p2+x*4+4);
+							SumSubpixel(p2+x*4+8);
+							SumSubpixel(p3+x*4);
+							SumSubpixel(p3+x*4+4);
+							SumSubpixel(p3+x*4+8);
+							if(valid==0) {
+								*dest++ = 0x73FE;
+							}
+							else if(valid==255) {
+								*dest++ = 0x8000 | r + (((uint16)g)<<5) + (((uint16)b)<<10);
+							}
+							else {
+								*dest++ = (r/valid) | (((uint16)(g/valid))<<5) | (((uint16)(b/valid))<<10);
+							}
+						}
+					}
+					break;
+				case 4:
+					for(  y=0;  y<zoomheight;  y+=4  ) {
+						uint8 *p1 = baseimage + y*((uint16)zoomwidth*4);
+						uint8 *p2 = p1 + (zoomwidth*4);
+						uint8 *p3 = p2 + (zoomwidth*4);
+						uint8 *p4 = p3 + (zoomwidth*4);
+						for(  x=0;  x<zoomwidth;  x+=4  ) {
+							uint16 valid=0;
+							uint16 r=0,g=0,b=0;
+							SumSubpixel(p1+x*4);
+							SumSubpixel(p1+x*4+4);
+							SumSubpixel(p1+x*4+8);
+							SumSubpixel(p1+x*4+12);
+							SumSubpixel(p2+x*4);
+							SumSubpixel(p2+x*4+4);
+							SumSubpixel(p2+x*4+8);
+							SumSubpixel(p2+x*4+12);
+							SumSubpixel(p3+x*4);
+							SumSubpixel(p3+x*4+4);
+							SumSubpixel(p3+x*4+8);
+							SumSubpixel(p3+x*4+12);
+							SumSubpixel(p4+x*4);
+							SumSubpixel(p4+x*4+4);
+							SumSubpixel(p4+x*4+8);
+							SumSubpixel(p4+x*4+12);
+							if(valid==0) {
+								*dest++ = 0x73FE;
+							}
+							else if(valid==255) {
+								*dest++ = 0x8000 | r + (((uint16)g)<<5) + (((uint16)b)<<10);
+							}
+							else {
+								*dest++ = (r/valid) | (((uint16)(g/valid))<<5) | (((uint16)(b/valid))<<10);
+							}
+						}
+					}
+					break;
+			}
+
+			// now encode the image again
+			dest = images[n].zoom_data;
+			zoomwidth /= zoom_factor;
+			zoomheight /= zoom_factor;
+			for(  y=0;  y<zoomheight;  y++  ) {
+				PIXVAL *line = ((PIXVAL *)baseimage) + (y*zoomwidth);
+				PIXVAL i;
+				x = 0;
+
+				do {
+					// check length of transparent pixels
+					for (i = 0;  line[x] == 0x73FE  &&  x < zoomwidth;  i++, x++)
+						{}
+					// first runlength: transparent pixels
+					*dest++ = i;
+					// copy for non-transparent
+					for (i = 0;  line[x] != 0x73FE  &&  x < zoomwidth;  i++, x++) {
+						dest[i + 1] = line[x];
+					}
+					*dest++ = i;	// number of colred pixel
+					dest += i;	// skip them
+				} while(x<zoomwidth);
+				*dest++ = 0; // mark line end
+			}
+
+			// something left?
+			images[n].w = zoomwidth;
+			images[n].h = zoomheight;
 			{
 				const unsigned int zoom_len = dest - images[n].zoom_data;
 				if (zoom_len > images[n].len) {
@@ -1691,11 +1939,11 @@ void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const i
 			const KOORD_VAL w = images[n].w;
 
 			// use horzontal clipping or skip it?
-			if (xp + x >= clip_rect.x && xp + x + w - 1 <= clip_rect.xx) {
+			if (xp + x >= clip_rect.x  &&  xp + x + w - 1 <= clip_rect.xx) {
 				// marking change?
 				if (dirty) mark_rect_dirty_nc(xp + x, yp, xp + x + w - 1, yp + h - 1);
 				display_img_nc(h, xp, yp, sp);
-			} else if (xp <= clip_rect.xx && xp + x + w > clip_rect.x) {
+			} else if (xp <= clip_rect.xx  &&  xp + x + w > clip_rect.x) {
 				display_img_wc(h, xp, yp, sp);
 				// since height may be reduced, start marking here
 				if (dirty) mark_rect_dirty_wc(xp + x, yp, xp + x + w - 1, yp + h - 1);
