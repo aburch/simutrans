@@ -22,11 +22,10 @@ class powernet_t : public sync_steppable
 {
 public:
 	/**
-	* Must be caled before powernets get loaded. Clears the
-	* table of networks
-	* @author Hj. Malthaner
-	*/
-	static void neue_karte(karte_t *);
+	 * Must be caled before powernets get loaded. Clears the table of networks
+	 * @author Hj. Malthaner
+	 */
+	static void neue_karte();
 
 	/**
 	* Loads a powernet object or hand back already loaded object

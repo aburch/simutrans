@@ -13,12 +13,7 @@
 static ptrhashtable_tpl <powernet_t *, powernet_t *> loading_table;
 
 
-/**
- * Must be caled before powernets get loaded. Clears the
- * table of networks
- * @author Hj. Malthaner
- */
-void powernet_t::neue_karte(karte_t *)
+void powernet_t::neue_karte()
 {
 	loading_table.clear();
 }

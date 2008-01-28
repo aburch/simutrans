@@ -2680,7 +2680,7 @@ void karte_t::laden(loadsave_t *file)
 	destroy();
 
 	// powernets zum laden vorbereiten -> tabelle loeschen
-	powernet_t::neue_karte(this);
+	powernet_t::neue_karte();
 
 	// jetzt geht das laden los
 	DBG_MESSAGE("karte_t::laden", "Fileversion: %d, %p", file->get_version(), einstellungen);
