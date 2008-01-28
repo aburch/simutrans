@@ -58,7 +58,7 @@ private:
 
 	koord last_world_pos;
 
-	fabrik_t *draw_fab_connections( uint8 colour, koord pos) const;
+	const fabrik_t* draw_fab_connections(uint8 colour, koord pos) const;
 
 	void draw_schedule(const koord pos) const;
 

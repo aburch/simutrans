@@ -715,9 +715,9 @@ reliefkarte_t::infowin_event(const event_t *ev)
 
 
 // helper function for redraw: factory connections
-fabrik_t *reliefkarte_t::draw_fab_connections( uint8 colour, koord pos) const
+const fabrik_t* reliefkarte_t::draw_fab_connections(const uint8 colour, const koord pos) const
 {
-	fabrik_t *fab = fabrik_t::gib_fab(welt, last_world_pos );
+	const fabrik_t* const fab = fabrik_t::gib_fab(welt, last_world_pos);
 	if(fab) {
 		koord fabpos = fab->gib_pos().gib_2d();
 		karte_to_screen( fabpos );
@@ -912,7 +912,7 @@ reliefkarte_t::zeichnen(koord pos)
 	}
 	else if(is_show_fab) {
 		// draw factory connections, if on a factory
-		fabrik_t *fab = draw_fab_connections( event_get_last_control_shift()&1 ? COL_RED : COL_WHITE, pos);
+		const fabrik_t* const fab = draw_fab_connections(event_get_last_control_shift() & 1 ? COL_RED : COL_WHITE, pos);
 		if(fab) {
 			koord fabpos = fab->gib_pos().gib_2d();
 			karte_to_screen( fabpos );
