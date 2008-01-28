@@ -67,10 +67,6 @@ baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 // fill the current fablist
 void baum_edit_frame_t::fill_list( bool translate )
 {
-	const bool allow_obsolete = bt_obsolete.pressed;
-	const bool use_timeline = bt_timeline.pressed;
-	const sint32 month_now = bt_timeline.pressed ? welt->get_current_month() : 0;
-
 	baumlist.clear();
 	const vector_tpl<const baum_besch_t *> *s = baum_t::gib_all_besch();
 	for (vector_tpl<const baum_besch_t *>::const_iterator i = s->begin(), end = s->end(); i != end; ++i) {
