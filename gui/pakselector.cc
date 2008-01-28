@@ -55,5 +55,3 @@ pakselector_t::pakselector_t() : savegame_frame_t( NULL, umgebung_t::program_dir
 	remove_komponente( &divider1 );
 	fnlabel.setze_text( "Choose one graphics set for playing:" );
 }
-
-

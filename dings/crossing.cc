@@ -165,4 +165,3 @@ void crossing_t::laden_abschliessen()
 		}
 	}
 }
-

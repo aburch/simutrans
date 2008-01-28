@@ -154,5 +154,3 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 		welt->setze_maus_funktion( wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
 	}
 }
-
-

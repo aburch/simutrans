@@ -173,5 +173,3 @@ void extend_edit_gui_t::resize(const koord delta)
 	}
 
 }
-
-

@@ -65,4 +65,3 @@ oranje: station/halte druk. Actie nemen wordt aangeraden; rood: station/halte ov
 
 <it>Depots:</it> positie van <a href="depot.txt">depots</a> in de simutranswereld. De kleuren duiden op verschillende typen. Schepen:geel; bus/truck:oranje; trein:rood; vliegtuigen:groen; trams:blauw; en monorail/maglev:grijs.
 </p>
-

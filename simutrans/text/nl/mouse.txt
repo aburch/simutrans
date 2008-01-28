@@ -14,4 +14,3 @@ Hoe een <strong>schermgrootte</strong> te wijzigen in Simutrans: klik op rechter
 </p>
 <p>Een aantal schermen heeft links en rechts van een bepaalde optie een horizontale pijl staan. Hiermee is het mogelijk om te bladeren in een lijst met waardes. <br>De linkerpijl zal naar de vorige of lagere waarde gaan<br>
 De rechterpijl zal naar de volgende of hogere waarde gaan</p>
-
