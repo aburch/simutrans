@@ -697,7 +697,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::old_fussgaenger:
 					typ = ding_t::fussgaenger;
 				case ding_t::fussgaenger:
-					d = new fussgaenger_t (welt, file);	        break;
+					d = new fussgaenger_t(welt, file);
 					if(((fussgaenger_t *)d)->gib_besch()==NULL) {
 						// no pedestrians ... delete this
 						d->set_flag( ding_t::not_on_map );
@@ -811,7 +811,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					break;
 
 				case ding_t::movingobj:
-					d = new movingobj_t (welt, file);		break;
+					d = new movingobj_t(welt, file);
 					if(((movingobj_t *)d)->gib_besch()==NULL) {
 						// no citycars ... delete this
 						d->set_flag( ding_t::not_on_map );
