@@ -140,24 +140,25 @@ gebaeude_t::rotate90()
 	ding_t::rotate90();
 
 	// must or can rotate?
-	if(is_factory  ||  tile->gib_besch()->gib_all_layouts()>1  ||  tile->gib_besch()->gib_b()*tile->gib_besch()->gib_h()>1) {
+	const haus_besch_t* const haus_besch = tile->gib_besch();
+	if (is_factory || haus_besch->gib_all_layouts() > 1 || haus_besch->gib_b() * haus_besch->gib_h() > 1) {
 		uint8 layout = tile->gib_layout();
 		koord new_offset = tile->gib_offset();
 
-		if(tile->gib_besch()->gib_all_layouts()>1) {
+		if (haus_besch->gib_all_layouts() > 1) {
 			// rotate it
 			layout += 3;
-			layout %= tile->gib_besch()->gib_all_layouts()==4 ? 4 : 2;
+			layout %= haus_besch->gib_all_layouts() == 4 ? 4 : 2;
 			layout |=	 (tile->gib_layout()&0x18);
 		}
 		// have to rotate the tiles :(
-		if(!tile->gib_besch()->can_rotate()  &&  tile->gib_besch()->gib_all_layouts()==1  &&  (welt->gib_einstellungen()->get_rotation()&1)==0) {
+		if (!haus_besch->can_rotate() && haus_besch->gib_all_layouts() == 1 && (welt->gib_einstellungen()->get_rotation() & 1) == 0) {
 			// rotate 180 degree
-			new_offset = koord( tile->gib_besch()->gib_b() - 1 - new_offset.x, tile->gib_besch()->gib_h() - 1 - new_offset.y );
+			new_offset = koord(haus_besch->gib_b() - 1 - new_offset.x, haus_besch->gib_h() - 1 - new_offset.y);
 		}
 		else {
 			// rotate on ...
-			new_offset = koord( tile->gib_besch()->gib_h(tile->gib_layout()) - 1 - new_offset.y, new_offset.x );
+			new_offset = koord(haus_besch->gib_h(tile->gib_layout()) - 1 - new_offset.y, new_offset.x);
 		}
 
 		// correct factory zero pos
@@ -166,13 +167,13 @@ gebaeude_t::rotate90()
 		}
 
 		// suche a tile exist?
-		if(tile->gib_besch()->gib_b(layout)>new_offset.x  &&  tile->gib_besch()->gib_h(layout)>new_offset.y) {
-			const haus_tile_besch_t *new_tile = tile->gib_besch()->gib_tile( layout, new_offset.x, new_offset.y );
+		if (haus_besch->gib_b(layout) > new_offset.x && haus_besch->gib_h(layout) > new_offset.y) {
+			const haus_tile_besch_t* const new_tile = haus_besch->gib_tile(layout, new_offset.x, new_offset.y);
 			// add new tile: but make them old (no construction)
 			uint32 old_insta_zeit = insta_zeit;
 			setze_tile( new_tile );
 			insta_zeit = old_insta_zeit;
-			if(  tile->gib_besch()->gib_utyp() != haus_besch_t::hafen  &&  !tile->has_image()  ) {
+			if (haus_besch->gib_utyp() != haus_besch_t::hafen && !tile->has_image()) {
 				// may have a rotation, that is not recoverable
 				if(!is_factory  ||  new_offset!=koord(0,0)  ||  ptr.fab->gib_besch()->gib_haus()->gib_tile(0,0,0)==NULL) {
 					// there are factories without a valid zero tile
