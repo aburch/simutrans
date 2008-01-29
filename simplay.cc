@@ -78,6 +78,9 @@
 #include "vehicle/simvehikel.h"
 
 
+karte_t *spieler_t::welt = NULL;
+
+
 
 spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	simlinemgmt(wl)
@@ -467,12 +470,8 @@ void spieler_t::calc_finance_history()
 
 
 // add and amount, including the display of the message and some other things ...
-sint64 spieler_t::buche(const sint64 betrag, const koord pos, const int type)
+void spieler_t::buche(const sint64 betrag, const koord pos, const int type)
 {
-	if (this == welt->gib_spieler(1)) {
-		return 0;
-	}
-
 	buche(betrag, type);
 
 	if(betrag != 0) {
@@ -488,13 +487,12 @@ sint64 spieler_t::buche(const sint64 betrag, const koord pos, const int type)
 			welt->play_sound_area_clipped(pos, info);
 		}
 	}
-	return konto;
 }
 
 
 
 // add an amout to a subcategory
-sint64 spieler_t::buche(const sint64 betrag, int type)
+void spieler_t::buche(const sint64 betrag, int type)
 {
 	konto += betrag;
 
@@ -509,8 +507,17 @@ sint64 spieler_t::buche(const sint64 betrag, int type)
 		finance_history_month[0][COST_CASH] = konto;
 		// the other will be updated only monthly or whe a finance window is shown
 	}
-	return konto;
 }
+
+
+
+void spieler_t::accounting( spieler_t *sp, const sint64 amount, koord k, enum player_cost pc )
+{
+	if(sp!=NULL  &&  sp!=welt->gib_spieler(1)) {
+		sp->buche( amount, k, pc );
+	}
+}
+
 
 
 

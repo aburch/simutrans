@@ -39,7 +39,7 @@ bruecke_t::bruecke_t(karte_t *welt, koord3d pos, spieler_t *sp,
 	this->besch = besch;
 	this->img = img;
 	setze_besitzer( sp );
-	gib_besitzer()->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
+	spieler_t::accounting( gib_besitzer(), -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
 }
 
 
@@ -128,10 +128,6 @@ void bruecke_t::laden_abschliessen()
 // correct speed and maitainace
 void bruecke_t::entferne( spieler_t *sp2 )
 {
-	if(sp2==NULL) {
-		// only set during destroying of the map
-		return;
-	}
 	spieler_t *sp = gib_besitzer();
 	if(sp) {
 		// on bridge => do nothing but change maitainance
@@ -145,8 +141,9 @@ void bruecke_t::entferne( spieler_t *sp2 )
 			sp->add_maintenance( -besch->gib_wartung() );
 		}
 	}
-	sp2->buche( -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION );
+	spieler_t::accounting( sp2, -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION );
 }
+
 
 
 // rotated segment names

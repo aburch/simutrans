@@ -1755,7 +1755,7 @@ wegbauer_t::baue_tunnelboden()
 			gr->weg_erweitern(tunnel_besch->gib_waytype(),calc_ribi(i));
 		}
 	}
-	sp->buche(cost, route[0].gib_2d(), COST_CONSTRUCTION);
+	spieler_t::accounting(sp, cost, route[0].gib_2d(), COST_CONSTRUCTION);
 	return true;
 }
 
@@ -1846,7 +1846,7 @@ wegbauer_t::baue_strasse()
 		}
 		gr->calc_bild();	// because it may be a crossing ...
 		reliefkarte_t::gib_karte()->calc_map_pixel(k);
-		sp->buche(cost, k, COST_CONSTRUCTION);
+		spieler_t::accounting(sp, cost, k, COST_CONSTRUCTION);
 	} // for
 }
 
@@ -1909,7 +1909,7 @@ wegbauer_t::baue_schiene()
 
 			gr->calc_bild();
 			reliefkarte_t::gib_karte()->calc_map_pixel( gr->gib_pos().gib_2d() );
-			sp->buche(cost, gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
+			spieler_t::accounting(sp, cost, gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
 
 			if((i&3)==0) {
 				INT_CHECK( "wegbauer 1584" );
@@ -1935,7 +1935,7 @@ wegbauer_t::baue_leitung()
 				gr->obj_loesche_alle(sp);
 			}
 			lt = new leitung_t( welt, route[i], sp );
-			sp->buche(-leitung_besch->gib_preis(), gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
+			spieler_t::accounting(sp, -leitung_besch->gib_preis(), gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
 			gr->obj_add(lt);
 		}
 		else {

@@ -120,5 +120,5 @@ void tunnel_t::entferne( spieler_t *sp2 )
 			sp->add_maintenance( -besch->gib_wartung() );
 		}
 	}
-	sp2->buche( -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION );
+	spieler_t::accounting(sp2, -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION );
 }

@@ -1327,7 +1327,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint16 hgt)
 				if(gr) gr->calc_bild();
 			}
 		}
-		sp->buche( n*umgebung_t::cst_alter_land, pos, COST_CONSTRUCTION );
+		spieler_t::accounting(sp, n*umgebung_t::cst_alter_land, pos, COST_CONSTRUCTION );
 	}
 	return ok;
 }

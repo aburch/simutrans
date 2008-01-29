@@ -841,16 +841,13 @@ void gebaeude_t::entferne(spieler_t *sp)
 {
 //	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
 	// remove costs
-	if(sp) {
-		if(gib_haustyp()!=unbekannt  ||  tile->gib_besch()->gib_utyp()<haus_besch_t::bahnhof) {
-			sp->buche(umgebung_t::cst_multiply_remove_haus*(tile->gib_besch()->gib_level()+1), gib_pos().gib_2d(), COST_CONSTRUCTION);
-		}
-		else {
-			// tearing down halts is always single costs only
-			sp->buche(umgebung_t::cst_multiply_remove_haus, gib_pos().gib_2d(), COST_CONSTRUCTION);
-		}
+	if(tile->gib_besch()->gib_utyp()<haus_besch_t::bahnhof) {
+		spieler_t::accounting(sp, umgebung_t::cst_multiply_remove_haus*(tile->gib_besch()->gib_level()+1), gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
-
+	else {
+		// tearing down halts is always single costs only
+		spieler_t::accounting(sp, umgebung_t::cst_multiply_remove_haus, gib_pos().gib_2d(), COST_CONSTRUCTION);
+	}
 
 	// may need to update next buildings, in the case of start, middle, end buildings
 	if(tile->gib_besch()->gib_all_layouts()>1  &&  gib_haustyp()==unbekannt) {

@@ -415,7 +415,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		cost += besch->gib_preis();
 	}
 
-	sp->buche( -cost, start.gib_2d(), COST_CONSTRUCTION);
+	spieler_t::accounting(sp, -cost, start.gib_2d(), COST_CONSTRUCTION);
 	return true;
 }
 

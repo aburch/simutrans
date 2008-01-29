@@ -251,7 +251,7 @@ int wkz_raise(spieler_t *sp, karte_t *welt, koord pos)
 				return false;
 			}
 			if(n>0) {
-				sp->buche(umgebung_t::cst_alter_land*n, pos, COST_CONSTRUCTION);
+				spieler_t::accounting(sp, umgebung_t::cst_alter_land*n, pos, COST_CONSTRUCTION);
 				// update image
 				for(int j=-n; j<=n; j++) {
 					for(int i=-n; i<=n; i++) {
@@ -319,7 +319,7 @@ wkz_lower(spieler_t *sp, karte_t *welt, koord pos)
 				return false;
 			}
 			if(n>0) {
-				sp->buche(umgebung_t::cst_alter_land*n, pos, COST_CONSTRUCTION);
+				spieler_t::accounting(sp, umgebung_t::cst_alter_land*n, pos, COST_CONSTRUCTION);
 				// update image
 				for(int j=-n; j<=n; j++) {
 					for(int i=-n; i<=n; i++) {
@@ -1705,7 +1705,7 @@ built_sign:
 						gr->obj_add(rs);
 						rs->laden_abschliessen();	// to make them visible
 						weg->count_sign();
-						sp->buche(-besch->gib_preis(), pos, COST_CONSTRUCTION);
+						spieler_t::accounting(sp, -besch->gib_preis(), pos, COST_CONSTRUCTION);
 					}
 				}
 				error = NULL;
@@ -2024,7 +2024,7 @@ dbg->warning("wkz_add_city()", "Already a city here");
 				stadt->laden_abschliessen();
 				stadt->verbinde_fabriken();
 
-				sp->buche(umgebung_t::cst_found_city, pos, COST_CONSTRUCTION);
+				spieler_t::accounting(sp, umgebung_t::cst_found_city, pos, COST_CONSTRUCTION);
 				ok =  true;
 			}
 		}
@@ -2063,7 +2063,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 			if(new_slope==RESTORE_SLOPE  &&  gr1->kann_alle_obj_entfernen(sp)) {
 				planquadrat_t *plan=welt->access(pos);
 				plan->boden_entfernen( plan->gib_boden_bei(1) );
-				sp->buche(umgebung_t::cst_alter_land, pos, COST_CONSTRUCTION);
+				spieler_t::accounting(sp, umgebung_t::cst_alter_land, pos, COST_CONSTRUCTION);
 				return true;
 			}
 			else {
@@ -2080,7 +2080,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 				return false;
 			}
 			plan->kartenboden_insert( new boden_t(welt,koord3d(pos,welt->max_hgt(pos)),0) );
-			sp->buche(umgebung_t::cst_alter_land, pos, COST_CONSTRUCTION);
+			spieler_t::accounting(sp, umgebung_t::cst_alter_land, pos, COST_CONSTRUCTION);
 			return true;
 		}
 #endif
@@ -2203,7 +2203,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 					gr->calc_bild();
 				}
 			}
-			sp->buche(new_slope==RESTORE_SLOPE?umgebung_t::cst_alter_land:umgebung_t::cst_set_slope, pos, COST_CONSTRUCTION);
+			spieler_t::accounting(sp, new_slope==RESTORE_SLOPE?umgebung_t::cst_alter_land:umgebung_t::cst_set_slope, pos, COST_CONSTRUCTION);
 		}
 
 	}
@@ -2293,7 +2293,7 @@ int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos, value_t p
 		if(anzahl>0) {
 			// least one factory has been built
 			welt->change_world_position( k.gib_2d(), 0, 0 );
-			sp->buche( anzahl*umgebung_t::cst_multiply_found_industry, pos, COST_CONSTRUCTION );
+			spieler_t::accounting(sp, anzahl*umgebung_t::cst_multiply_found_industry, pos, COST_CONSTRUCTION );
 
 			if(bfs) {
 				// eventually adjust production
@@ -2350,9 +2350,7 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos, value_t p
 				}
 			}
 			// ain't going to be cheap
-			if(sp) {
-				sp->buche( anzahl*umgebung_t::cst_multiply_found_industry, pos, COST_CONSTRUCTION );
-			}
+			spieler_t::accounting(sp, anzahl*umgebung_t::cst_multiply_found_industry, pos, COST_CONSTRUCTION );
 			return true;
 		}
 	}

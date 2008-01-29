@@ -24,7 +24,7 @@
 #include "tpl/vector_tpl.h"
 
 
-enum {
+enum player_cost {
 	COST_CONSTRUCTION=0,// Construction
 	COST_VEHICLE_RUN,   // Vehicle running costs
 	COST_NEW_VEHICLE,   // New vehicles
@@ -98,7 +98,7 @@ private:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	karte_t *welt;
+	static karte_t *welt;
 
 	/**
 	 * Der Kontostand.
@@ -218,8 +218,10 @@ public:
 	}
 
 	// Owen Rudge, finances
-	sint64 buche(sint64 betrag, koord k, int type);
-	sint64 buche(sint64 betrag, int type);
+	void buche(sint64 betrag, koord k, int type);
+	void buche(sint64 betrag, int type);
+
+	static void accounting( spieler_t *sp, const sint64 betrag, koord k, enum player_cost pc );
 
 	/**
 	 * @return Kontostand als double (Gleitkomma) Wert

@@ -38,15 +38,13 @@ label_t::label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text) :
 	grund_t *gr=welt->lookup_kartenboden(pos.gib_2d());
 	if(gr) {
 		ding_t *d=gr->obj_bei(0);
-		if(d==NULL  ||  d->gib_besitzer()==NULL) {
-			sp->buche( umgebung_t::cst_buy_land, pos.gib_2d(), COST_CONSTRUCTION);
-			if(d) {
-				d->setze_besitzer(sp);
-			}
+		if(d  &&  d->gib_besitzer()==NULL) {
+			d->setze_besitzer(sp);
 		}
 		if (text) {
 			gr->setze_text(text);
 		}
+		spieler_t::accounting(sp, umgebung_t::cst_buy_land, pos.gib_2d(), COST_CONSTRUCTION);
 	}
 }
 

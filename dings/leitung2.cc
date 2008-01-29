@@ -145,9 +145,7 @@ leitung_t::~leitung_t()
 void
 leitung_t::entferne(spieler_t *sp)
 {
-	if(sp) {
-		sp->buche( -wegbauer_t::leitung_besch->gib_preis()/2, gib_pos().gib_2d(), COST_CONSTRUCTION);
-	}
+	spieler_t::accounting(sp, -wegbauer_t::leitung_besch->gib_preis()/2, gib_pos().gib_2d(), COST_CONSTRUCTION);
 	mark_image_dirty( bild, 0 );
 }
 
@@ -438,9 +436,7 @@ pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
 {
 	fab = NULL;
-	if(sp) {
-		sp->buche( umgebung_t::cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
-	}
+	spieler_t::accounting(sp, umgebung_t::cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
 }
 
 
@@ -509,9 +505,7 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 	fab = NULL;
 	einkommen = 1;
 	max_einkommen = 1;
-	if(sp) {
-		sp->buche( umgebung_t::cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
-	}
+	spieler_t::accounting(sp, umgebung_t::cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
 }
 
 

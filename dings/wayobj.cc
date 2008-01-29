@@ -138,7 +138,7 @@ void
 wayobj_t::entferne(spieler_t *sp)
 {
 	if(besch) {
-		sp->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
+		spieler_t::accounting(sp, -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
 }
 
@@ -349,7 +349,7 @@ wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_
 		wo->laden_abschliessen();
 		wo->mark_image_dirty( wo->gib_after_bild(), 0 );
 		wo->set_flag(ding_t::dirty);
-		besitzer->buche( -besch->gib_preis(), pos.gib_2d(), COST_CONSTRUCTION);
+		spieler_t::accounting( besitzer,  -besch->gib_preis(), pos.gib_2d(), COST_CONSTRUCTION);
 	}
 }
 

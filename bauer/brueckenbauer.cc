@@ -481,7 +481,7 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 				// builds new way
 				weg = weg_t::alloc( besch->gib_waytype() );
 				weg->setze_besch( weg_besch );
-				sp->buche( gr->neuen_weg_bauen( weg, ribi, sp ), end.gib_2d(), COST_CONSTRUCTION);
+				spieler_t::accounting( sp, gr->neuen_weg_bauen( weg, ribi, sp ), end.gib_2d(), COST_CONSTRUCTION);
 				weg->laden_abschliessen();
 			}
 			gr->calc_bild();
