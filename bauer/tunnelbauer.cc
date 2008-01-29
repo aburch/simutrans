@@ -391,8 +391,8 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
 		tunnel->obj_add(new tunnel_t(welt, pos, sp, besch));
 		assert(!tunnel->ist_karten_boden());
-		sp->add_maintenance( -weg->gib_besch()->gib_wartung() );
-		sp->add_maintenance( besch->gib_wartung() );
+		spieler_t::add_maintenance( sp,  -weg->gib_besch()->gib_wartung() );
+		spieler_t::add_maintenance( sp,  besch->gib_wartung() );
 		cost += besch->gib_preis();
 		pos = pos + zv;
 	}
@@ -410,8 +410,8 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
 		tunnel->obj_add(new tunnel_t(welt, pos, sp, besch));
 		assert(!tunnel->ist_karten_boden());
-		sp->add_maintenance( -weg->gib_besch()->gib_wartung() );
-		sp->add_maintenance( besch->gib_wartung() );
+		spieler_t::add_maintenance( sp,  -weg->gib_besch()->gib_wartung() );
+		spieler_t::add_maintenance( sp,  besch->gib_wartung() );
 		cost += besch->gib_preis();
 	}
 
@@ -447,8 +447,8 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
 	tunnel->calc_bild();
 
 	if(sp!=NULL) {
-		sp->add_maintenance( -weg_besch->gib_wartung() );
-		sp->add_maintenance( besch->gib_wartung() );
+		spieler_t::add_maintenance( sp,  -weg_besch->gib_wartung() );
+		spieler_t::add_maintenance( sp,  besch->gib_wartung() );
 	}
 	cost += besch->gib_preis();
 }

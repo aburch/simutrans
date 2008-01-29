@@ -420,9 +420,9 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	}
 
 	// Hajo: Money is counted in credit cents (100 cents = 1 Cr)
-	money_to_string(str_buf[16], (sp->add_maintenance(0)<<((sint64)sp->get_welt()->ticks_bits_per_tag-18l))/100);
+	money_to_string(str_buf[16], (spieler_t::add_maintenance( sp, 0)<<((sint64)sp->get_welt()->ticks_bits_per_tag-18l))/100);
 	maintenance_money.setze_text(str_buf[16]);
-	maintenance_money.set_color(sp->add_maintenance(0)>=0?MONEY_PLUS:MONEY_MINUS);
+	maintenance_money.set_color(spieler_t::add_maintenance( sp, 0)>=0?MONEY_PLUS:MONEY_MINUS);
 
 	for (int i = 0;  i<MAX_COST;  i++) {
 		filterButtons[i].pressed = ( (bFilterStates[sp->get_player_nr()]&(1<<i)) != 0 );

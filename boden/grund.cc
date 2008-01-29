@@ -921,7 +921,7 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 
 		// just add the cost
 		if(sp && !ist_wasser()) {
-			sp->add_maintenance(weg->gib_besch()->gib_wartung());
+			spieler_t::add_maintenance( sp, weg->gib_besch()->gib_wartung());
 			weg->setze_besitzer( sp );
 		}
 

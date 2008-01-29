@@ -136,7 +136,7 @@ leitung_t::~leitung_t()
 				dbg->warning("~leitung()","net %p already deleted at (%i,%i)!",net,gr->gib_pos().x,gr->gib_pos().y);
 			}
 		}
-		gib_besitzer()->add_maintenance(-wegbauer_t::leitung_besch->gib_wartung());
+		spieler_t::add_maintenance(gib_besitzer(), -wegbauer_t::leitung_besch->gib_wartung());
 	}
 }
 
@@ -395,7 +395,7 @@ void leitung_t::laden_abschliessen()
 	calc_neighbourhood();
 	grund_t *gr = welt->lookup(gib_pos());
 	assert(gr);
-	gib_besitzer()->add_maintenance(wegbauer_t::leitung_besch->gib_wartung());
+	spieler_t::add_maintenance(gib_besitzer(), wegbauer_t::leitung_besch->gib_wartung());
 }
 
 
@@ -448,7 +448,7 @@ pumpe_t::~pumpe_t()
 		welt->sync_remove(this);
 		fab = NULL;
 	}
-	gib_besitzer()->add_maintenance(umgebung_t::cst_maintain_transformer);
+	spieler_t::add_maintenance(gib_besitzer(), umgebung_t::cst_maintain_transformer);
 }
 
 
@@ -480,7 +480,7 @@ void
 pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	gib_besitzer()->add_maintenance(-umgebung_t::cst_maintain_transformer);
+	spieler_t::add_maintenance(gib_besitzer(), -umgebung_t::cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
@@ -517,7 +517,7 @@ senke_t::~senke_t()
 		welt->sync_remove(this);
 		fab = NULL;
 	}
-	gib_besitzer()->add_maintenance(umgebung_t::cst_maintain_transformer);
+	spieler_t::add_maintenance(gib_besitzer(), umgebung_t::cst_maintain_transformer);
 }
 
 
@@ -564,7 +564,7 @@ void
 senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	gib_besitzer()->add_maintenance(-umgebung_t::cst_maintain_transformer);
+	spieler_t::add_maintenance(gib_besitzer(), -umgebung_t::cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());

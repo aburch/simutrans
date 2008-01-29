@@ -537,7 +537,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 			bruecke->obj_add( lt );
 		} else {
 			// remove maintainance
-			sp->add_maintenance(-wegbauer_t::leitung_besch->gib_wartung());
+			spieler_t::add_maintenance( sp, -wegbauer_t::leitung_besch->gib_wartung());
 		}
 		lt->laden_abschliessen();
 	}

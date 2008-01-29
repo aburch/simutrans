@@ -2188,7 +2188,7 @@ void stadt_t::baue_gebaeude(const koord k)
 							if(weg->gib_besitzer()!=NULL && !gr->gib_depot() && !gr->is_halt()) {
 								spieler_t *sp = weg->gib_besitzer();
 								if(sp) {
-									sp->add_maintenance(-weg->gib_besch()->gib_wartung());
+									spieler_t::add_maintenance( sp, -weg->gib_besch()->gib_wartung());
 								}
 								weg->setze_besitzer(NULL); // make public
 							}
@@ -2340,7 +2340,7 @@ void stadt_t::renoviere_gebaeude(koord k)
 						if (weg->gib_besitzer() != NULL && !gr->gib_depot() && !gr->is_halt()) {
 							spieler_t *sp = weg->gib_besitzer();
 							if(sp) {
-								sp->add_maintenance(-weg->gib_besch()->gib_wartung());
+								spieler_t::add_maintenance( sp, -weg->gib_besch()->gib_wartung());
 							}
 							weg->setze_besitzer(NULL); // make public
 						}

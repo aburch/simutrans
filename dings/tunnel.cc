@@ -94,9 +94,9 @@ void tunnel_t::laden_abschliessen()
 		weg_t *weg = gr->gib_weg(besch->gib_waytype());
 		if(weg) {
 			weg->setze_max_speed(besch->gib_topspeed());
-			sp->add_maintenance(-weg->gib_besch()->gib_wartung());
+			spieler_t::add_maintenance( sp, -weg->gib_besch()->gib_wartung());
 		}
-		sp->add_maintenance( besch->gib_wartung() );
+		spieler_t::add_maintenance( sp,  besch->gib_wartung() );
 	}
 }
 
@@ -116,8 +116,8 @@ void tunnel_t::entferne( spieler_t *sp2 )
 		if(gr) {
 			weg_t *weg = gr->gib_weg( besch->gib_waytype() );
 			weg->setze_max_speed( weg->gib_besch()->gib_topspeed() );
-			sp->add_maintenance( weg->gib_besch()->gib_wartung());
-			sp->add_maintenance( -besch->gib_wartung() );
+			spieler_t::add_maintenance( sp,  weg->gib_besch()->gib_wartung());
+			spieler_t::add_maintenance( sp,  -besch->gib_wartung() );
 		}
 	}
 	spieler_t::accounting(sp2, -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION );

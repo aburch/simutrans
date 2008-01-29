@@ -1747,8 +1747,8 @@ wegbauer_t::baue_tunnelboden()
 			weg->setze_max_speed(tunnel_besch->gib_topspeed());
 			tunnel->calc_bild();
 			cost -= tunnel_besch->gib_preis();
-			sp->add_maintenance(-weg->gib_besch()->gib_wartung());
-			sp->add_maintenance( tunnel_besch->gib_wartung() );
+			spieler_t::add_maintenance( sp, -weg->gib_besch()->gib_wartung());
+			spieler_t::add_maintenance( sp,  tunnel_besch->gib_wartung() );
 		}
 		else if(gr->gib_typ()==grund_t::tunnelboden) {
 			// check for extension only ...
@@ -1823,9 +1823,9 @@ wegbauer_t::baue_strasse()
 			else {
 				// we take ownership => we take care to maintain the roads completely ...
 				spieler_t *s = weg->gib_besitzer();
-				if(s) { s->add_maintenance(-weg->gib_besch()->gib_wartung()); }
+				spieler_t::add_maintenance(s, -weg->gib_besch()->gib_wartung());
 				weg->setze_besch(besch);
-				if(sp) { sp->add_maintenance(weg->gib_besch()->gib_wartung()); }
+				spieler_t::add_maintenance( sp, weg->gib_besch()->gib_wartung());
 				weg->setze_besitzer(sp);
 				cost -= besch->gib_preis();
 			}
@@ -1889,9 +1889,9 @@ wegbauer_t::baue_schiene()
 				else {
 					// we take ownership => we take care to maintain the roads completely ...
 					spieler_t *s = weg->gib_besitzer();
-					if(s) { s->add_maintenance(-weg->gib_besch()->gib_wartung()); }
+					spieler_t::add_maintenance( s, -weg->gib_besch()->gib_wartung());
 					weg->setze_besch(besch);
-					if(sp) { sp->add_maintenance(weg->gib_besch()->gib_wartung()); }
+					spieler_t::add_maintenance( sp, weg->gib_besch()->gib_wartung());
 					weg->setze_besitzer(sp);
 					cost -= besch->gib_preis();
 				}
@@ -1939,7 +1939,7 @@ wegbauer_t::baue_leitung()
 			gr->obj_add(lt);
 		}
 		else {
-			lt->gib_besitzer()->add_maintenance( -wegbauer_t::leitung_besch->gib_wartung() );
+			spieler_t::add_maintenance( lt->gib_besitzer(),  -wegbauer_t::leitung_besch->gib_wartung() );
 		}
 		lt->laden_abschliessen();
 

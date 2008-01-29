@@ -768,7 +768,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						d = bd;
 					}
 					d->setze_besitzer( gb->gib_besitzer() );
-					gb->gib_besitzer()->add_maintenance(umgebung_t::maint_building);
+					spieler_t::add_maintenance( gb->gib_besitzer(), umgebung_t::maint_building);
 					typ = d->gib_typ();
 
 					// do not remove from this position, since there will be nothing

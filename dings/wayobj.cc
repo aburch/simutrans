@@ -67,7 +67,7 @@ wayobj_t::~wayobj_t()
 		return;
 	}
 	if(gib_besitzer()) {
-		gib_besitzer()->add_maintenance(-besch->gib_wartung());
+		spieler_t::add_maintenance(gib_besitzer(), -besch->gib_wartung());
 	}
 	if(besch->gib_own_wtyp()==overheadlines_wt) {
 		grund_t *gr=welt->lookup(gib_pos());
@@ -177,7 +177,7 @@ wayobj_t::laden_abschliessen()
 	}
 
 	if(gib_besitzer()) {
-		gib_besitzer()->add_maintenance(besch->gib_wartung());
+		spieler_t::add_maintenance(gib_besitzer(), besch->gib_wartung());
 	}
 
 	calc_bild();

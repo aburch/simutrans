@@ -97,9 +97,7 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 		setze_yoff(-TILE_HEIGHT_STEP);
 	}
 
-	if(gib_besitzer()) {
-		gib_besitzer()->add_maintenance(umgebung_t::maint_building);
-	}
+	spieler_t::add_maintenance(gib_besitzer(), umgebung_t::maint_building);
 }
 
 
@@ -127,9 +125,7 @@ gebaeude_t::~gebaeude_t()
 
 	count = 0;
 	anim_time = 0;
-	if(gib_besitzer()) {
-		gib_besitzer()->add_maintenance(-umgebung_t::maint_building);
-	}
+	spieler_t::add_maintenance(gib_besitzer(), -umgebung_t::maint_building);
 }
 
 
@@ -823,9 +819,8 @@ gebaeude_t::laden_abschliessen()
 	else {
 		zeige_baugrube = true;
 	}
-	if(gib_besitzer()) {
-		gib_besitzer()->add_maintenance(umgebung_t::maint_building);
-	}
+	spieler_t::add_maintenance(gib_besitzer(), umgebung_t::maint_building);
+
 	// citybuilding, but no town?
 	if(tile->gib_offset()==koord(0,0)  &&  tile->gib_besch()->is_connected_with_town()) {
 		stadt_t *city = (ptr.stadt==NULL) ? welt->suche_naechste_stadt( gib_pos().gib_2d() ) : ptr.stadt;

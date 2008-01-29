@@ -470,7 +470,7 @@ void spieler_t::calc_finance_history()
 
 
 // add and amount, including the display of the message and some other things ...
-void spieler_t::buche(const sint64 betrag, const koord pos, const int type)
+void spieler_t::buche(const sint64 betrag, const koord pos, enum player_cost type)
 {
 	buche(betrag, type);
 
@@ -492,7 +492,7 @@ void spieler_t::buche(const sint64 betrag, const koord pos, const int type)
 
 
 // add an amout to a subcategory
-void spieler_t::buche(const sint64 betrag, int type)
+void spieler_t::buche(const sint64 betrag, enum player_cost type)
 {
 	konto += betrag;
 

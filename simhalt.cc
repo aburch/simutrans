@@ -1451,10 +1451,10 @@ void haltestelle_t::transfer_to_public_owner()
 			// there are also water tiles, which may not have a buidling
 			spieler_t *gb_sp=gb->gib_besitzer();
 			if(public_owner!=gb_sp) {
-				gb_sp->add_maintenance(-umgebung_t::maint_building);
-				gb_sp->buche(umgebung_t::maint_building*36*(gb->gib_tile()->gib_besch()->gib_level()+1), gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
+				spieler_t::add_maintenance( gb_sp, -umgebung_t::maint_building);
+				spieler_t::accounting(gb_sp, umgebung_t::maint_building*36*(gb->gib_tile()->gib_besch()->gib_level()+1), gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
 				gb->setze_besitzer(public_owner);
-				public_owner->add_maintenance(umgebung_t::maint_building);
+				spieler_t::add_maintenance(public_owner, umgebung_t::maint_building);
 			}
 		}
 	}

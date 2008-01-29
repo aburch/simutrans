@@ -144,6 +144,18 @@ private:
 	 */
 	uint8 player_nr;
 
+    /**
+     * Adds somme amount to the maintenance costs
+     * @param change the change
+     * @return the new maintenance costs
+     * @author Hj. Malthaner
+     */
+	sint32 add_maintenance(sint32 change)
+	{
+		maintenance += change;
+		return maintenance;
+	}
+
 public:
 	/**
 	 * Ist dieser Spieler ein automatischer Spieler?
@@ -194,33 +206,21 @@ public:
 	 */
 	void neues_jahr();
 
-	/**
-	 * Bucht einen Betrag auf das Konto des Spielers
-	 * @param betrag zu verbuchender Betrag
-	 * @author Hj. Malthaner
-	 */
-	sint64 buche(sint64 betrag)
-	{
-		konto += betrag;
-		return konto;
-	}
-
-    /**
-     * Adds somme amount to the maintenance costs
-     * @param change the change
-     * @return the new maintenance costs
-     * @author Hj. Malthaner
-     */
-	sint32 add_maintenance(sint32 change)
-	{
-		maintenance += change;
-		return maintenance;
+	static sint32 add_maintenance(spieler_t *sp, sint32 change) {
+		if(sp) {
+			sp->maintenance += change;
+			return sp->maintenance;
+		}
+		return 0;
 	}
 
 	// Owen Rudge, finances
-	void buche(sint64 betrag, koord k, int type);
-	void buche(sint64 betrag, int type);
+	void buche(sint64 betrag, koord k, enum player_cost type);
 
+	// do the internal accounting (currently only used externally for running costs of convois)
+	void buche(sint64 betrag, enum player_cost type);
+
+	// this is also save to be called with sp==NULL, we may happen for unowned objects like bridges, ways, trees, ...
 	static void accounting( spieler_t *sp, const sint64 betrag, koord k, enum player_cost pc );
 
 	/**

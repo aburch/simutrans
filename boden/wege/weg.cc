@@ -156,7 +156,7 @@ weg_t::~weg_t()
 	alle_wege.remove(this);
 	spieler_t *sp=gib_besitzer();
 	if(sp) {
-		sp->add_maintenance( -besch->gib_wartung() );
+		spieler_t::add_maintenance( sp,  -besch->gib_wartung() );
 	}
 }
 
@@ -437,6 +437,6 @@ void weg_t::laden_abschliessen()
 {
 	spieler_t *sp=gib_besitzer();
 	if(sp  &&  besch) {
-		sp->add_maintenance( besch->gib_wartung() );
+		spieler_t::add_maintenance( sp,  besch->gib_wartung() );
 	}
 }
