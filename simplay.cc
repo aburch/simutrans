@@ -521,12 +521,9 @@ void spieler_t::accounting( spieler_t *sp, const sint64 amount, koord k, enum pl
 
 
 
-/* return true, if the owner is none, myself or player(1)
- * @author prissi
- */
-bool spieler_t::check_owner( const spieler_t *sp ) const
+bool spieler_t::check_owner( const spieler_t *owner, const spieler_t *test )
 {
-	return this == sp || sp == NULL || sp == welt->gib_spieler(1);
+	return owner == test  ||  owner == NULL  ||  test == NULL  ||  test == welt->gib_spieler(1);
 }
 
 
@@ -578,7 +575,7 @@ bool spieler_t::is_my_halt(koord pos) const
 {
 	const halthandle_t halt = haltestelle_t::gib_halt(welt, pos);
 	return
-		halt.is_bound() && check_owner(halt->gib_besitzer());
+		halt.is_bound() && check_owner(this,halt->gib_besitzer());
 }
 
 
@@ -2719,7 +2716,7 @@ spieler_t::walk_city( linehandle_t &line, grund_t *&start, const int limit )
 
 		// ok, if connected, not marked, and not owner by somebody else
 		grund_t *to;
-		if(start->get_neighbour(to, road_wt, koord::nsow[r] )  &&  !welt->ist_markiert(to)  &&  check_owner(to->obj_bei(0)->gib_besitzer())) {
+		if(start->get_neighbour(to, road_wt, koord::nsow[r] )  &&  !welt->ist_markiert(to)  &&  check_owner(this, to->obj_bei(0)->gib_besitzer())) {
 
 			// ok, here is a valid street tile
 			welt->markiere(to);

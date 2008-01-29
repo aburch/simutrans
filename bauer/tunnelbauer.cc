@@ -253,7 +253,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
 			grund_t *gr=NULL;
 			for (uint i = 0; i < plan->gib_boden_count(); i++) {
 				if(plan->gib_boden_bei(i)->gib_typ()==grund_t::tunnelboden) {
-					if(sp->check_owner(plan->gib_boden_bei(i)->obj_bei(0)->gib_besitzer())) {
+					if(spieler_t::check_owner( sp, plan->gib_boden_bei(i)->obj_bei(0)->gib_besitzer())) {
 						gr = plan->gib_boden_bei(i);
 						break;
 					}

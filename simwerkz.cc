@@ -136,7 +136,7 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 	// first try to connect to our own
 	for(  int i=0;  i<iAnzahl;  i++ ) {
 		halt = haltestelle_t::gib_halt( welt, pos.gib_2d()+next_try_dir[i] );
-		if(halt.is_bound()  &&  (sp->check_owner(halt->gib_besitzer())  ||  welt->gib_spieler(1)==sp)) {
+		if(halt.is_bound()  &&  (spieler_t::check_owner( sp, halt->gib_besitzer())  ||  welt->gib_spieler(1)==sp)) {
 			return halt;
 		}
 	}
@@ -146,7 +146,7 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 	for(k.x=pos.x-1; k.x<=pos.x+b; k.x++) {
 		for(k.y=pos.y-1; k.y<=pos.y+h; k.y++) {
 			halt = haltestelle_t::gib_halt( welt, k );
-			if(halt.is_bound()  &&  (sp->check_owner(halt->gib_besitzer())  ||  welt->gib_spieler(1)==sp)) {
+			if(halt.is_bound()  &&  (spieler_t::check_owner( sp, halt->gib_besitzer())  ||  welt->gib_spieler(1)==sp)) {
 				return halt;
 			}
 		}
@@ -362,7 +362,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 			continue;
 		}
 		// ok, something to remove from here ...
-		if(gr->gib_top()>0  &&  sp->check_owner(gr->obj_bei(0)->gib_besitzer()) ) {
+		if(gr->gib_top()>0  &&  spieler_t::check_owner( sp, gr->obj_bei(0)->gib_besitzer()) ) {
 			break;
 		}
 	}
@@ -566,13 +566,13 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 			// do not delete the middle of a bridge
 			return false;
 		}
-		if(w==NULL  ||  !sp->check_owner(w->gib_besitzer())) {
+		if(w==NULL  ||  !spieler_t::check_owner( sp, w->gib_besitzer())) {
 			w = gr->gib_weg_nr(0);
 			if(w==NULL) {
 				// no way at all ...
 				return true;
 			}
-			if(!sp->check_owner(w->gib_besitzer())) {
+			if(!spieler_t::check_owner( sp, w->gib_besitzer())) {
 				msg = w->ist_entfernbar(sp);
 				return false;
 			}
@@ -713,7 +713,7 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 					continue;
 				}
 				// check for ownership
-				if(sp!=NULL  &&  (gr->obj_count()==0  ||  !sp->check_owner(gr->obj_bei(0)->gib_besitzer()))){
+				if(sp!=NULL  &&  (gr->obj_count()==0  ||  !spieler_t::check_owner( sp, gr->obj_bei(0)->gib_besitzer()))){
 					gr = NULL;
 					continue;
 				}
@@ -828,7 +828,7 @@ wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koord pos, waytype_t
 			continue;
 		}
 		// check for ownership
-		if(sp!=NULL  &&  !sp->check_owner(gr->gib_weg(wt)->gib_besitzer())){
+		if(sp!=NULL  &&  !spieler_t::check_owner( sp, gr->gib_weg(wt)->gib_besitzer())){
 			gr = NULL;
 			continue;
 		}
@@ -912,7 +912,7 @@ DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.gib_max_n()
 			for( int i=0;  can_delete  &&  i<=verbindung.gib_max_n();  i++  ) {
 				grund_t *gr=welt->lookup(verbindung.position_bei(i));
 				if(gr) {
-					if(gr->gib_weg(wt)==NULL  ||  !sp->check_owner(gr->gib_weg(wt)->gib_besitzer())) {
+					if(gr->gib_weg(wt)==NULL  ||  !spieler_t::check_owner( sp, gr->gib_weg(wt)->gib_besitzer())) {
 						can_delete = false;
 					}
 					else {
@@ -1180,7 +1180,7 @@ int wkz_station_building(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 	}
 	// are we allowed to built here?
 	halthandle_t halt=haltestelle_t::gib_halt(welt,pos);
-	if(halt.is_bound()  &&  !sp->check_owner(halt->gib_besitzer())) {
+	if(halt.is_bound()  &&  !spieler_t::check_owner( sp, halt->gib_besitzer())) {
 		// we cannot connect to this halt!
 		create_win( new news_img("Das Feld gehoert\neinem anderen Spieler\n"), w_time_delete, magic_none);
 		return false;
@@ -1225,7 +1225,7 @@ wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 			}
 			else {
 				halthandle_t halt = welt->lookup(pos-dx*i)->gib_halt();
-				if(halt.is_bound()  &&  !sp->check_owner(halt->gib_besitzer())) {
+				if(halt.is_bound()  &&  !spieler_t::check_owner( sp, halt->gib_besitzer())) {
 					msg = "Das Feld gehoert\neinem anderen Spieler\n";
 					break;
 				}
@@ -1537,7 +1537,7 @@ int wkz_halt(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 
 	// ownership allowed?
 	halthandle_t halt = welt->lookup(pos)->gib_halt();
-	if(!halt.is_bound()  ||  sp->check_owner(halt->gib_besitzer())) {
+	if(!halt.is_bound()  ||  spieler_t::check_owner( sp, halt->gib_besitzer())) {
 
 		const haus_besch_t *besch=(const haus_besch_t *)value.p;
 		switch (besch->gib_utyp()) {
@@ -1874,11 +1874,11 @@ dbg->warning("wkz_fahrplan_insert_aux()","Schedule is (null), doing nothing");
 			}
 			// now just for error messages, we assuming a valid ground
 			// and check for ownership
-			if(!bd->is_halt()  &&  bd->obj_count()!=0  &&  !sp->check_owner(bd->obj_bei(0)->gib_besitzer())) {
+			if(!bd->is_halt()  &&  bd->obj_count()!=0  &&  !spieler_t::check_owner( sp, bd->obj_bei(0)->gib_besitzer())) {
 				bd = 0;
 				continue;
 			}
-			if(bd->is_halt()  &&  !sp->check_owner(bd->gib_halt()->gib_besitzer()) ) {
+			if(bd->is_halt()  &&  !spieler_t::check_owner( sp, bd->gib_halt()->gib_besitzer()) ) {
 				bd = 0;
 				continue;
 			}

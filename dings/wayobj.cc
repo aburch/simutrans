@@ -325,7 +325,7 @@ wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_
 			for( uint8 i=0;  i<gr->gib_top();  i++  ) {
 				ding_t *d=gr->obj_bei(i);
 				if(d  &&  d->gib_typ()==ding_t::wayobj  &&  ((wayobj_t *)d)->gib_besch()->gib_wtyp()==besch->gib_wtyp()) {
-					if(((wayobj_t *)d)->gib_besch()->gib_topspeed()<besch->gib_topspeed()  &&  besitzer->check_owner(d->gib_besitzer())) {
+					if(((wayobj_t *)d)->gib_besch()->gib_topspeed()<besch->gib_topspeed()  &&  spieler_t::check_owner(besitzer, d->gib_besitzer())) {
 						// replace slower by faster
 						gr->obj_remove(d);
 						gr->set_flag(grund_t::dirty);

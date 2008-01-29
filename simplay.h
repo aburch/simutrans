@@ -186,10 +186,11 @@ public:
 	const char* gib_name() const;
 	sint8 get_player_nr() const {return player_nr; }
 
-	/* return true, if the owner is none, myself or player(1)
-	* @author prissi
-	*/
-	bool check_owner( const spieler_t *sp ) const;
+	/**
+	 * return true, if the owner is none, myself or player(1), i.e. the ownership can be taken by player test
+	 * @author prissi
+	 */
+	static bool check_owner( const spieler_t *owner, const spieler_t *test );
 
 	/**
 	 * @param welt Die Welt (Karte) des Spiels

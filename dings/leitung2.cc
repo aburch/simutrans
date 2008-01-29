@@ -53,7 +53,7 @@ leitung_t::gimme_neighbours(leitung_t **conn)
 		conn[i] = NULL;
 		if(  gr_base->get_neighbour( gr, invalid_wt, koord::nsow[i] ) ) {
 			leitung_t *lt = gr->gib_leitung();
-			if(  lt  &&  gib_besitzer()->check_owner(lt->gib_besitzer())  ) {
+			if(  lt  &&  spieler_t::check_owner(gib_besitzer(), lt->gib_besitzer())  ) {
 				conn[i] = lt;
 				count++;
 			}
@@ -436,7 +436,7 @@ pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
 {
 	fab = NULL;
-	spieler_t::accounting(sp, umgebung_t::cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
+	sp->buche( umgebung_t::cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
 }
 
 
@@ -505,7 +505,7 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 	fab = NULL;
 	einkommen = 1;
 	max_einkommen = 1;
-	spieler_t::accounting(sp, umgebung_t::cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
+	sp->buche( umgebung_t::cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
 }
 
 
