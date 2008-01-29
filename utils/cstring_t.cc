@@ -272,7 +272,7 @@ int cstring_t::vprintf(const char *format, va_list args)
 #ifdef _MSC_VER
 	nulfp = fopen("nul", "wb");
 #else
-	nulfp = fopen("/dev/nul", "wb");
+	nulfp = fopen("/dev/null", "wb");
 #endif
     }
     if(nulfp) {
