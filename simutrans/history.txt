@@ -8,6 +8,7 @@
 	ADD: tree planting tool inspired by z9999
 	FIX: trees are now correctly sorted by the internal tile positions (before were shadow problems)
 	CHANGE: smoother zoom out (experimental)
+	FIX: x-offset for images should finally work
 
 
 Release of 99.17.1 (r1550, stable)
