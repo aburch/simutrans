@@ -510,7 +510,7 @@ extern "C" int simu_main(int argc, char** argv)
 	}
 
 	// if set for multiuser, then parses the users config (if there)
-	// but just retrieve the pak-path
+	// retrieve everything (but we must do this again once more ... )
 	if(multiuser) {
 		umgebung_t::user_dir = dr_query_homedir();
 
@@ -630,18 +630,19 @@ extern "C" int simu_main(int argc, char** argv)
 	cstring_t obj_conf = umgebung_t::objfilename + "config/simuconf.tab";
 	cstring_t dummy("");
 	if(simuconf.open((const char *)obj_conf)) {
-		parse_simuconf( simuconf, disp_width, disp_height, fullscreen, dummy, multiuser );
+		int idummy;
+		parse_simuconf( simuconf, idummy, idummy, idummy, dummy, multiuser );
 		simuconf.close();
 	}
 	// and parse again parse the user settings
 	if(umgebung_t::user_dir!=umgebung_t::program_dir) {
 		cstring_t obj_conf = umgebung_t::user_dir;
 		if(simuconf.open(obj_conf + "simuconf.tab")) {
-			parse_simuconf( simuconf, disp_width, disp_height, fullscreen, dummy, multiuser );
+			int idummy;
+			parse_simuconf( simuconf, idummy, idummy, idummy, dummy, multiuser );
 			simuconf.close();
 		}
 	}
-
 
 	convoihandle_t::init( umgebung_t::max_convoihandles );
 	linehandle_t::init( umgebung_t::max_linehandles );
