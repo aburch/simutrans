@@ -850,7 +850,7 @@ static void rezoom_img(const unsigned int n)
 			// we will upack, resample pak it
 
 			// thus the unpack buffer must at least fit the window
-			x = max( orgzoomwidth*(orgzoomheight+6)*4, newzoomwidth*newzoomheight*sizeof(PIXVAL) );
+			x = orgzoomwidth*(orgzoomheight+6)*4;
 			if(size<x) {
 				size = x;
 				free( baseimage );
