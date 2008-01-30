@@ -54,11 +54,13 @@ display_setze_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h); \
  * @author Hj. Malthaner
  */
 #define get_tile_raster_width()    (tile_raster_width)
-extern int tile_raster_width;
+extern KOORD_VAL tile_raster_width;
 
 /* changes the raster width after loading */
-int display_set_base_raster_width(int new_raster);
+KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster);
 
+
+#define MAX_ZOOM_FACTOR (6)
 
 int get_zoom_factor(void);
 void set_zoom_factor(int rw);

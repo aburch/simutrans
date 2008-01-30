@@ -3779,7 +3779,7 @@ break;
 				setze_dirty();
 				break;
 			case '<':
-				win_set_zoom_factor(get_zoom_factor() < 4 ? get_zoom_factor()+1 : 4);
+				win_set_zoom_factor(get_zoom_factor() < MAX_ZOOM_FACTOR ? get_zoom_factor()+1 : MAX_ZOOM_FACTOR);
 				setze_dirty();
 				break;
 
@@ -3972,7 +3972,7 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 				  setze_dirty();
     		break;
     		case MOUSE_WHEELDOWN:
-	  			win_set_zoom_factor(get_zoom_factor() < 4 ? get_zoom_factor()+1 : 4);
+	  			win_set_zoom_factor(get_zoom_factor() < MAX_ZOOM_FACTOR ? get_zoom_factor()+1 : MAX_ZOOM_FACTOR);
 				  setze_dirty();
     		break;
     	}

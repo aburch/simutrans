@@ -165,7 +165,7 @@ void extend_edit_gui_t::resize(const koord delta)
 	cont.setze_pos( koord( 0, 0 ) );
 
 	// image placeholders
-	sint16 rw = get_tile_raster_width()/(4*get_zoom_factor());
+	sint16 rw = get_tile_raster_width();
 	static const koord img_offsets[4]={ koord(2,-6), koord(0,-5), koord(4,-5), koord(2,-4) };
 	for(  sint16 i=0;  i<4;  i++  ) {
 		koord pos = koord(4,gib_fenstergroesse().y-4-16) + img_offsets[i]*rw;

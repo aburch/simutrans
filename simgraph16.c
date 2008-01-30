@@ -496,21 +496,25 @@ static const uint8 special_pal[224*3]=
 /*
  * Hajo: tile raster width
  */
-int tile_raster_width = 16;
-static int base_tile_raster_width = 16;
+KOORD_VAL tile_raster_width = 16;
+static KOORD_VAL base_tile_raster_width = 16;
 
 /*
  * Hajo: Zoom factor
  */
-static int zoom_factor = 1;
+static uint32 zoom_factor = 1;
+
+static sint32 zoom_num[MAX_ZOOM_FACTOR+1] = { 4, 1, 3, 2, 1, 1, 1 };
+static sint32 zoom_den[MAX_ZOOM_FACTOR+1] = { 3, 1, 4, 3, 2, 3, 4 };
+
 
 
 /* changes the raster width after loading */
-int display_set_base_raster_width(int new_raster)
+KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster)
 {
-	int old = base_tile_raster_width;
+	KOORD_VAL old = base_tile_raster_width;
 	base_tile_raster_width = new_raster;
-	tile_raster_width = new_raster / zoom_factor;
+	tile_raster_width = (new_raster *  zoom_num[zoom_factor]) / zoom_den[zoom_factor];
 	return old;
 }
 
@@ -541,11 +545,11 @@ int get_zoom_factor()
 
 void set_zoom_factor(int z)
 {
-	if (z > 0) {
+	if (z >= 0  &&  z<=MAX_ZOOM_FACTOR) {
 		zoom_factor = z;
-		tile_raster_width = base_tile_raster_width / z;
+		tile_raster_width = (base_tile_raster_width * zoom_num[zoom_factor]) / zoom_den[zoom_factor];
 	}
-	fprintf(stderr, "set_zoom_factor() : factor=%d\n", zoom_factor);
+	fprintf(stderr, "set_zoom_factor() : set %d (%i/%i)\n", zoom_factor, zoom_num[zoom_factor], zoom_den[zoom_factor] );
 
 	rezoom();
 }
@@ -714,7 +718,7 @@ static void recode_normal_img(const unsigned int n)
 	PIXVAL *src = images[n].base_data;
 
 	// then use the right data
-	if (zoom_factor > 1) {
+	if (tile_raster_width != base_tile_raster_width) {
 		if (images[n].zoom_data != NULL) src = images[n].zoom_data;
 	}
 	if (images[n].data == NULL) {
@@ -765,7 +769,7 @@ static void recode_color_img(const unsigned int n, const unsigned char player_nr
 
 	images[n].player_flags = player_nr;
 	// then use the right data
-	if (zoom_factor > 1) {
+	if (tile_raster_width != base_tile_raster_width) {
 		if (images[n].zoom_data != NULL) src = images[n].zoom_data;
 	}
 	// second recode modi, for player one (city and factory AI)
@@ -778,137 +782,6 @@ static void recode_color_img(const unsigned int n, const unsigned char player_nr
 }
 
 #endif
-
-
-/**
- * Convert base image data to actual image size
- * @author prissi (to make this much faster) ...
- */
-static void rezoom_img_simple(const unsigned int n)
-{
-	// Hajo: may this image be zoomed
-	if (n < anz_images && images[n].base_h > 0) {
-		// we may need night conversion afterwards
-		images[n].recode_flags &= ~FLAG_REZOOM;
-		images[n].recode_flags |= FLAG_NORMAL_RECODE;
-		images[n].player_flags = NEED_PLAYER_RECODE;
-
-		// just restore original size?
-		if (zoom_factor <= 1  ||  (images[n].recode_flags&FLAG_ZOOMABLE)==0) {
-			// this we can do be a simple copy ...
-			images[n].x = images[n].base_x;
-			images[n].w = images[n].base_w;
-			images[n].y = images[n].base_y;
-			images[n].h = images[n].base_h;
-			if (images[n].zoom_data != NULL) {
-				guarded_free(images[n].zoom_data);
-				images[n].zoom_data = NULL;
-			}
-			return;
-		}
-
-		// now we want to downsize the image
-		// just divede the sizes
-		images[n].x = images[n].base_x / zoom_factor;
-		images[n].y = images[n].base_y / zoom_factor;
-		images[n].w = (images[n].base_x + images[n].base_w) / zoom_factor - images[n].x;
-		images[n].h = images[n].base_h / zoom_factor;
-
-		if (images[n].h > 0 && images[n].w > 0) {
-			// just recalculate the image in the new size
-			unsigned char y_left = (unsigned char) (((short)images[n].base_y + zoom_factor - 1 + 64*zoom_factor) % zoom_factor );
-			unsigned char h = images[n].base_h;
-
-			static PIXVAL line[512];
-			PIXVAL *src = images[n].base_data;
-			PIXVAL *dest, *last_dest;
-
-			// decode/recode linewise
-			unsigned int last_color = 255; // ==255 to keep compiler happy
-
-			if (images[n].zoom_data == NULL) {
-				// normal len is ok, since we are only skipping parts ...
-				images[n].zoom_data = guarded_malloc(sizeof(PIXVAL) * images[n].len);
-			}
-			last_dest = dest = images[n].zoom_data;
-
-			do { // decode/recode line
-				unsigned int runlen;
-				unsigned int color = 0;
-				PIXVAL *p = line;
-				const int imgw = images[n].base_x + images[n].base_w;
-
-				// left offset, which was left by division
-				runlen = images[n].base_x%zoom_factor;
-				while (runlen--) *p++ = 0x73FE;
-
-				// decode line
-				runlen = *src++;
-				color -= runlen;
-				do {
-					// clear run
-					while (runlen--) *p++ = 0x73FE;
-					// color pixel
-					runlen = *src++;
-					color += runlen;
-					while (runlen--) *p++ = *src++;
-				} while ((runlen = *src++));
-
-				if (y_left == 0 || last_color < color) {
-					// required; but if the following are longer, take them instead (aviods empty pixels)
-					// so we have to set/save the beginning
-					unsigned char step = 0;
-					unsigned char i;
-
-					if (y_left == 0) {
-						last_dest = dest;
-					} else {
-						dest = last_dest;
-					}
-
-					// encode this line
-					do {
-						// check length of transparent pixels
-						for (i = 0; line[step] == 0x73FE && step < imgw; i++, step += zoom_factor) {}
-						*dest++ = i;
-						// chopy for non-transparent
-						for (i = 0; line[step] != 0x73FE && step < imgw; i++, step += zoom_factor) {
-							dest[i + 1] = line[step];
-						}
-						*dest++ = i;
-						dest += i;
-					} while (step < imgw);
-					*dest++ = 0; // mark line end
-					if (y_left == 0) {
-						// ok now reset countdown counter
-						y_left = zoom_factor;
-					}
-					last_color = color;
-				}
-
-				// countdown line skip counter
-				y_left--;
-			} while (--h != 0);
-
-			// something left?
-			{
-				const unsigned int zoom_len = dest - images[n].zoom_data;
-				if (zoom_len > images[n].len) {
-					printf("*** FATAL ***\nzoom_len (%i) > image_len (%i)", zoom_len, images[n].len);
-					fflush(NULL);
-					exit(0);
-				}
-				if (zoom_len == 0) images[n].h = 0;
-			}
-		} else {
-			if (images[n].w <= 0) {
-				// h=0 will be ignored, with w=0 there was an error!
-				printf("WARNING: image%d w=0!\n", n);
-			}
-			images[n].h = 0;
-		}
-	}
-}
 
 
 #define SumSubpixel(p) \
@@ -936,7 +809,7 @@ static void rezoom_img(const unsigned int n)
 		images[n].player_flags = NEED_PLAYER_RECODE;
 
 		// just restore original size?
-		if (zoom_factor <= 1  ||  (images[n].recode_flags&FLAG_ZOOMABLE)==0) {
+		if (tile_raster_width == base_tile_raster_width  ||  (images[n].recode_flags&FLAG_ZOOMABLE)==0) {
 			// this we can do be a simple copy ...
 			images[n].x = images[n].base_x;
 			images[n].w = images[n].base_w;
@@ -951,18 +824,17 @@ static void rezoom_img(const unsigned int n)
 
 		// now we want to downsize the image
 		// just divede the sizes
-		images[n].x = images[n].base_x / zoom_factor;
-		images[n].y = images[n].base_y / zoom_factor;
-		images[n].w = (images[n].base_x + images[n].base_w) / zoom_factor - images[n].x;
-		images[n].h = images[n].base_h / zoom_factor;
+		images[n].x = (images[n].base_x*zoom_num[zoom_factor]) / zoom_den[zoom_factor];
+		images[n].y = (images[n].base_y*zoom_num[zoom_factor]) / zoom_den[zoom_factor];
+		images[n].w = (images[n].base_w*zoom_num[zoom_factor]) / zoom_den[zoom_factor];
+		images[n].h = (images[n].base_h*zoom_num[zoom_factor]) / zoom_den[zoom_factor];
 
 		if (images[n].h > 0 && images[n].w > 0) {
 			// just recalculate the image in the new size
-			unsigned char y_left = (unsigned char) (((short)images[n].base_y + zoom_factor - 1 + 64*zoom_factor) % zoom_factor );
-			unsigned char h = images[n].base_h;
-
 			static uint8 *baseimage = NULL;
-			static uint32 size = 0;
+			uint32 size = 0;
+			static PIXVAL *baseimage2 = NULL;
+			uint32 size2 = 0;
 			PIXVAL *src = images[n].base_data;
 			PIXVAL *dest = NULL;
 			uint32 x, y;
@@ -970,30 +842,41 @@ static void rezoom_img(const unsigned int n)
 			// decode/recode linewise
 			unsigned int last_color = 255; // ==255 to keep compiler happy
 
-			uint16 xoff = images[n].base_x%zoom_factor;
-			uint16 zoomwidth = ((images[n].base_x + images[n].base_w+zoom_factor-1)/zoom_factor)*zoom_factor;
-			uint16 yoff = images[n].base_y%zoom_factor;
-			uint16 zoomheight = ((yoff + images[n].base_h+zoom_factor-1)/zoom_factor)*zoom_factor;
+			uint32 orgzoomwidth = ((images[n].base_w + zoom_den[zoom_factor] - 1 ) / zoom_den[zoom_factor]) * zoom_den[zoom_factor];
+			uint32 newzoomwidth = (orgzoomwidth*zoom_num[zoom_factor])/zoom_den[zoom_factor];
+			uint32 orgzoomheight = ((images[n].base_h + zoom_den[zoom_factor] - 1 ) / zoom_den[zoom_factor]) * zoom_den[zoom_factor];
+			uint32 newzoomheight = (orgzoomheight*zoom_num[zoom_factor])/zoom_den[zoom_factor];
 
 			// we will upack, resample pak it
-			if(baseimage==NULL  ||  zoomwidth*zoomheight>size) {
+
+			// thus the unpack buffer must at least fit the window
+			x = max( orgzoomwidth*(orgzoomheight+6)*4, newzoomwidth*newzoomheight*sizeof(PIXVAL) );
+			if(size<x) {
+				size = x;
 				free( baseimage );
-				size = 65535;//zoomwidth*zoomheight;
-				baseimage = malloc( size*4 );
+				baseimage = malloc( size );
+			}
+			memset( baseimage, 255, size ); // fill with invalid data to mark transparent regions
+
+			// also the unpack buffer must fit these
+			if(size2<newzoomwidth*newzoomheight*sizeof(PIXVAL)) {
+				size2 = newzoomwidth*newzoomheight*sizeof(PIXVAL);
+				free( baseimage2 );
+				baseimage2 = malloc( size2 );
+				assert( size2<=size);
 			}
 
-			if (images[n].zoom_data == NULL) {
+			if (images[n].zoom_data != NULL) {
 				// normal len is ok, since we are only skipping parts ...
-				images[n].zoom_data = guarded_malloc(sizeof(PIXVAL) * images[n].len);
+				guarded_free(images[n].zoom_data);
+				images[n].zoom_data = NULL;
 			}
 
-			// fill with invalid data to mark transparent regions
-			memset( baseimage, 255, size*4 );
 
 			// now: unpack the image
 			for(  y=0;  y<images[n].base_h;  y++  ) {
 				unsigned int runlen;
-				uint8 *p = baseimage + (y+yoff)*(zoomwidth*4);
+				uint8 *p = baseimage + y*(orgzoomwidth*4);
 
 				// decode line
 				runlen = *src++;
@@ -1018,19 +901,21 @@ static void rezoom_img(const unsigned int n)
 
 
 			// now we have the image, we do a repack then
-			dest = baseimage;
-			switch(zoom_factor) {
+			dest = baseimage2;
+			switch(zoom_den[zoom_factor]) {
 				case 2:
-					for(  y=0;  y<zoomheight;  y+=2  ) {
-						uint8 *p1 = baseimage + y*((uint32)zoomwidth*4);
-						uint8 *p2 = p1 + (zoomwidth*4);
-						for(  x=0;  x<zoomwidth;  x+=2  ) {
+					for(  y=0;  y<newzoomheight;  y++  ) {
+						uint8 *p1 = baseimage + ((y*zoom_den[zoom_factor]+0)/zoom_num[zoom_factor])*((uint32)orgzoomwidth*4);
+						uint8 *p2 = baseimage + ((y*zoom_den[zoom_factor]+1)/zoom_num[zoom_factor])*((uint32)orgzoomwidth*4);
+						for(  x=0;  x<newzoomwidth;  x++  ) {
 							uint8 valid=0;
 							uint8 r=0,g=0,b=0;
-							SumSubpixel(p1+x*4);
-							SumSubpixel(p1+x*4+4);
-							SumSubpixel(p2+x*4);
-							SumSubpixel(p2+x*4+4);
+							sint16 xreal1 = ((x*zoom_den[zoom_factor]+0)/zoom_num[zoom_factor])*4;
+							sint16 xreal2 = ((x*zoom_den[zoom_factor]+1)/zoom_num[zoom_factor])*4;
+							SumSubpixel(p1+xreal1);
+							SumSubpixel(p1+xreal2);
+							SumSubpixel(p2+xreal1);
+							SumSubpixel(p2+xreal2);
 							if(valid==0) {
 								*dest++ = 0x73FE;
 							}
@@ -1044,22 +929,25 @@ static void rezoom_img(const unsigned int n)
 					}
 					break;
 				case 3:
-					for(  y=0;  y<zoomheight;  y+=3  ) {
-						uint8 *p1 = baseimage + y*((uint16)zoomwidth*4);
-						uint8 *p2 = p1 + (zoomwidth*4);
-						uint8 *p3 = p2 + (zoomwidth*4);
-						for(  x=0;  x<zoomwidth;  x+=3  ) {
-							uint16 valid=0;
+					for(  y=0;  y<newzoomheight;  y++  ) {
+						uint8 *p1 = baseimage + ((y*zoom_den[zoom_factor]+0)/zoom_num[zoom_factor])*((uint32)orgzoomwidth*4);
+						uint8 *p2 = baseimage + ((y*zoom_den[zoom_factor]+1)/zoom_num[zoom_factor])*((uint32)orgzoomwidth*4);
+						uint8 *p3 = baseimage + ((y*zoom_den[zoom_factor]+2)/zoom_num[zoom_factor])*((uint32)orgzoomwidth*4);
+						for(  x=0;  x<newzoomwidth;  x++  ) {
+							uint8 valid=0;
 							uint16 r=0,g=0,b=0;
-							SumSubpixel(p1+x*4);
-							SumSubpixel(p1+x*4+4);
-							SumSubpixel(p1+x*4+8);
-							SumSubpixel(p2+x*4);
-							SumSubpixel(p2+x*4+4);
-							SumSubpixel(p2+x*4+8);
-							SumSubpixel(p3+x*4);
-							SumSubpixel(p3+x*4+4);
-							SumSubpixel(p3+x*4+8);
+							sint16 xreal1 = ((x*zoom_den[zoom_factor]+0)/zoom_num[zoom_factor])*4;
+							sint16 xreal2 = ((x*zoom_den[zoom_factor]+1)/zoom_num[zoom_factor])*4;
+							sint16 xreal3 = ((x*zoom_den[zoom_factor]+2)/zoom_num[zoom_factor])*4;
+							SumSubpixel(p1+xreal1);
+							SumSubpixel(p1+xreal2);
+							SumSubpixel(p1+xreal3);
+							SumSubpixel(p2+xreal1);
+							SumSubpixel(p2+xreal2);
+							SumSubpixel(p2+xreal3);
+							SumSubpixel(p3+xreal1);
+							SumSubpixel(p3+xreal2);
+							SumSubpixel(p3+xreal3);
 							if(valid==0) {
 								*dest++ = 0x73FE;
 							}
@@ -1073,30 +961,34 @@ static void rezoom_img(const unsigned int n)
 					}
 					break;
 				case 4:
-					for(  y=0;  y<zoomheight;  y+=4  ) {
-						uint8 *p1 = baseimage + y*((uint16)zoomwidth*4);
-						uint8 *p2 = p1 + (zoomwidth*4);
-						uint8 *p3 = p2 + (zoomwidth*4);
-						uint8 *p4 = p3 + (zoomwidth*4);
-						for(  x=0;  x<zoomwidth;  x+=4  ) {
-							uint16 valid=0;
+					for(  y=0;  y<newzoomheight;  y++  ) {
+						uint8 *p1 = baseimage + ((y*zoom_den[zoom_factor]+0)/zoom_num[zoom_factor])*((uint32)orgzoomwidth*4);
+						uint8 *p2 = baseimage + ((y*zoom_den[zoom_factor]+1)/zoom_num[zoom_factor])*((uint32)orgzoomwidth*4);
+						uint8 *p3 = baseimage + ((y*zoom_den[zoom_factor]+2)/zoom_num[zoom_factor])*((uint32)orgzoomwidth*4);
+						uint8 *p4 = baseimage + ((y*zoom_den[zoom_factor]+3)/zoom_num[zoom_factor])*((uint32)orgzoomwidth*4);
+						for(  x=0;  x<newzoomwidth;  x++  ) {
+							uint8 valid=0;
 							uint16 r=0,g=0,b=0;
-							SumSubpixel(p1+x*4);
-							SumSubpixel(p1+x*4+4);
-							SumSubpixel(p1+x*4+8);
-							SumSubpixel(p1+x*4+12);
-							SumSubpixel(p2+x*4);
-							SumSubpixel(p2+x*4+4);
-							SumSubpixel(p2+x*4+8);
-							SumSubpixel(p2+x*4+12);
-							SumSubpixel(p3+x*4);
-							SumSubpixel(p3+x*4+4);
-							SumSubpixel(p3+x*4+8);
-							SumSubpixel(p3+x*4+12);
-							SumSubpixel(p4+x*4);
-							SumSubpixel(p4+x*4+4);
-							SumSubpixel(p4+x*4+8);
-							SumSubpixel(p4+x*4+12);
+							sint16 xreal1 = ((x*zoom_den[zoom_factor]+0)/zoom_num[zoom_factor])*4;
+							sint16 xreal2 = ((x*zoom_den[zoom_factor]+1)/zoom_num[zoom_factor])*4;
+							sint16 xreal3 = ((x*zoom_den[zoom_factor]+2)/zoom_num[zoom_factor])*4;
+							sint16 xreal4 = ((x*zoom_den[zoom_factor]+3)/zoom_num[zoom_factor])*4;
+							SumSubpixel(p1+xreal1);
+							SumSubpixel(p1+xreal2);
+							SumSubpixel(p1+xreal3);
+							SumSubpixel(p1+xreal4);
+							SumSubpixel(p2+xreal1);
+							SumSubpixel(p2+xreal2);
+							SumSubpixel(p2+xreal3);
+							SumSubpixel(p2+xreal4);
+							SumSubpixel(p3+xreal1);
+							SumSubpixel(p3+xreal2);
+							SumSubpixel(p3+xreal3);
+							SumSubpixel(p3+xreal4);
+							SumSubpixel(p4+xreal1);
+							SumSubpixel(p4+xreal2);
+							SumSubpixel(p4+xreal3);
+							SumSubpixel(p4+xreal4);
 							if(valid==0) {
 								*dest++ = 0x73FE;
 							}
@@ -1109,44 +1001,40 @@ static void rezoom_img(const unsigned int n)
 						}
 					}
 					break;
+				default: assert(0);
 			}
 
 			// now encode the image again
-			dest = images[n].zoom_data;
-			zoomwidth /= zoom_factor;
-			zoomheight /= zoom_factor;
-			for(  y=0;  y<zoomheight;  y++  ) {
-				PIXVAL *line = ((PIXVAL *)baseimage) + (y*zoomwidth);
+			dest = (PIXVAL*)baseimage;
+			for(  y=0;  y<newzoomheight;  y++  ) {
+				PIXVAL *line = ((PIXVAL *)baseimage2) + (y*newzoomwidth);
 				PIXVAL i;
 				x = 0;
 
 				do {
 					// check length of transparent pixels
-					for (i = 0;  line[x] == 0x73FE  &&  x < zoomwidth;  i++, x++)
+					for (i = 0;  line[x] == 0x73FE  &&  x < newzoomwidth;  i++, x++)
 						{}
 					// first runlength: transparent pixels
 					*dest++ = i;
 					// copy for non-transparent
-					for (i = 0;  line[x] != 0x73FE  &&  x < zoomwidth;  i++, x++) {
+					for (i = 0;  line[x] != 0x73FE  &&  x < newzoomwidth;  i++, x++) {
 						dest[i + 1] = line[x];
 					}
 					*dest++ = i;	// number of colred pixel
 					dest += i;	// skip them
-				} while(x<zoomwidth);
+				} while(x<newzoomwidth);
 				*dest++ = 0; // mark line end
 			}
 
 			// something left?
-			images[n].w = zoomwidth;
-			images[n].h = zoomheight;
-			{
-				const unsigned int zoom_len = dest - images[n].zoom_data;
-				if (zoom_len > images[n].len) {
-					printf("*** FATAL ***\nzoom_len (%i) > image_len (%i)", zoom_len, images[n].len);
-					fflush(NULL);
-					exit(0);
-				}
-				if (zoom_len == 0) images[n].h = 0;
+			images[n].w = newzoomwidth;
+			images[n].h = newzoomheight;
+			if(newzoomheight>0) {
+				const uint32 zoom_len = ((uint8 *)dest) - ((uint8 *)baseimage);
+				assert( zoom_len>0 );
+				images[n].zoom_data = guarded_malloc( zoom_len );
+				memmove( images[n].zoom_data, baseimage, zoom_len );
 			}
 		} else {
 			if (images[n].w <= 0) {
@@ -1967,7 +1855,7 @@ static void display_color_img_aux(const unsigned n, const KOORD_VAL xp, const KO
 
 	if (h > 0) { // clipping may have reduced it
 		// color replacement needs the original data
-		const PIXVAL *sp = (zoom_factor > 1 && images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data;
+		const PIXVAL *sp = (tile_raster_width != base_tile_raster_width  &&  images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data;
 		PIXVAL *tp = textur + y * disp_width;
 
 		// oben clippen
