@@ -2680,30 +2680,31 @@ int wkz_add_haus(spieler_t *sp, karte_t *welt, koord pos, value_t param)
 
 	if(welt->ist_in_kartengrenzen(pos)) {
 		koord3d pos3d = welt->lookup_kartenboden(pos)->gib_pos();
-		const haus_besch_t *attraction = (bhs  &&  bhs->besch) ? bhs->besch : hausbauer_t::waehle_sehenswuerdigkeit(welt->get_timeline_year_month(),welt->get_climate(pos3d.z));
-		if(attraction==NULL) {
+		const haus_besch_t *besch = (bhs  &&  bhs->besch) ? bhs->besch : hausbauer_t::waehle_sehenswuerdigkeit(welt->get_timeline_year_month(),welt->get_climate(pos3d.z));
+		if(besch==NULL) {
 			return false;
 		}
 
-		int rotation = bhs ? bhs->rotation % attraction->gib_all_layouts() : 0;
-		koord size = attraction->gib_groesse(rotation);
+		int rotation = bhs ? bhs->rotation % besch->gib_all_layouts() : 0;
+		koord size = besch->gib_groesse(rotation);
 
 		// process ignore climates switch
-		climate_bits cl = (bhs  &&  bhs->ignore_climates) ? ALL_CLIMATES : attraction->get_allowed_climate_bits();
+		climate_bits cl = (bhs  &&  bhs->ignore_climates) ? ALL_CLIMATES : besch->get_allowed_climate_bits();
 
-		bool hat_platz = welt->ist_platz_frei( pos, attraction->gib_b(rotation), attraction->gib_h(rotation), NULL, cl );
-		if(!hat_platz  &&  size.y!=size.x  &&  attraction->gib_all_layouts()>1  &&  (bhs==NULL  ||  bhs->rotation==255)) {
+		bool hat_platz = welt->ist_platz_frei( pos, besch->gib_b(rotation), besch->gib_h(rotation), NULL, cl );
+		if(!hat_platz  &&  size.y!=size.x  &&  besch->gib_all_layouts()>1  &&  (bhs==NULL  ||  bhs->rotation==255)) {
 			// try other rotation too ...
-			rotation = (rotation+1) % attraction->gib_all_layouts();
-			hat_platz = welt->ist_platz_frei( pos, attraction->gib_b(rotation), attraction->gib_h(rotation), NULL, cl );
+			rotation = (rotation+1) % besch->gib_all_layouts();
+			hat_platz = welt->ist_platz_frei( pos, besch->gib_b(rotation), besch->gib_h(rotation), NULL, cl );
 		}
 
 		// Platz gefunden ...
 		if(hat_platz) {
-			gebaeude_t *gb = hausbauer_t::baue(welt, welt->gib_spieler(1), pos3d, rotation, attraction);
+			spieler_t *gb_sp = besch->gib_typ()==gebaeude_t::unbekannt ? NULL : welt->gib_spieler(1);
+			gebaeude_t *gb = hausbauer_t::baue(welt, gb_sp, pos3d, rotation, besch);
 			if(gb) {
 				// building successfull
-				if(  attraction->gib_utyp()!=haus_besch_t::attraction_land  ) {
+				if(  besch->gib_utyp()!=haus_besch_t::attraction_land  ) {
 					stadt_t *city = welt->suche_naechste_stadt( pos );
 					if(city) {
 						city->add_gebaeude_to_stadt(gb);

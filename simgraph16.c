@@ -1871,7 +1871,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
  * Zeichnet Bild mit verticalem clipping (schnell) und horizontalem (langsam)
  * @author prissi
  */
-void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const int dirty, bool use_player)
+void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const int dirty, bool use_player)
 {
 	if (n < anz_images) {
 		// need to go to nightmode and or rezoomed?
@@ -1935,18 +1935,18 @@ void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const i
 		// new block for new variables
 		{
 			// needed now ...
-			const KOORD_VAL x = images[n].x;
 			const KOORD_VAL w = images[n].w;
+			xp += images[n].x;
 
 			// use horzontal clipping or skip it?
-			if (xp + x >= clip_rect.x  &&  xp + x + w - 1 <= clip_rect.xx) {
+			if (xp >= clip_rect.x  &&  xp + w - 1 <= clip_rect.xx) {
 				// marking change?
-				if (dirty) mark_rect_dirty_nc(xp + x, yp, xp + x + w - 1, yp + h - 1);
+				if (dirty) mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
 				display_img_nc(h, xp, yp, sp);
-			} else if (xp <= clip_rect.xx  &&  xp + x + w > clip_rect.x) {
+			} else if (xp <= clip_rect.xx  &&  xp + w > clip_rect.x) {
 				display_img_wc(h, xp, yp, sp);
 				// since height may be reduced, start marking here
-				if (dirty) mark_rect_dirty_wc(xp + x, yp, xp + x + w - 1, yp + h - 1);
+				if (dirty) mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
 			}
 		}
 	}
@@ -1961,6 +1961,7 @@ void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const i
 static void display_color_img_aux(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp )
 {
 	KOORD_VAL h = images[n].h;
+	KOORD_VAL x = xp + images[n].x;
 	KOORD_VAL y = yp + images[n].y;
 	KOORD_VAL yoff = clip_wh(&y, &h, clip_rect.y, clip_rect.yy);
 
@@ -1981,7 +1982,7 @@ static void display_color_img_aux(const unsigned n, const KOORD_VAL xp, const KO
 		}
 
 		do { // zeilen dekodieren
-			int xpos = xp;
+			int xpos = x;
 
 			// bild darstellen
 

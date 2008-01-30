@@ -117,7 +117,7 @@ void	display_scroll_band( const KOORD_VAL start_y, const KOORD_VAL x_offset, con
 void display_set_player_color_scheme(const int player, const COLOR_VAL col1, const COLOR_VAL col2 );
 
 // display image with day and night change
-void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const int dirty, bool player);
+void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const int dirty, bool player);
 #define display_img( n, x, y, d ) display_img_aux( (n), (x), (y), (d), 0 )
 
 /**

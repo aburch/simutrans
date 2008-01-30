@@ -213,7 +213,7 @@ log_t::log_t(const char *logfilename, bool force_flush, bool log_debug)
 		}
 		tee = stderr;
 	}
-	message("log_t::log_t","Starting logging to %s", logfilename);
+//	message("log_t::log_t","Starting logging to %s", logfilename);
 }
 
 

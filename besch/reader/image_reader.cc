@@ -65,6 +65,7 @@ obj_besch_t *  image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		uint16* dest = besch->pic.data;
 		p = besch_buf+12;
+
 		if (besch->pic.h > 0) {
 			for (uint i = 0; i < besch->pic.len; i++) {
 				uint16 data = decode_uint16(p);
@@ -76,7 +77,7 @@ obj_besch_t *  image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			}
 		}
 	}
-	else if(version==1) {
+	else if(version==1  ||  version==2) {
 		besch = new(node.size - 10) bild_besch_t();
 		besch->node_info = new obj_besch_t*[node.children];
 
@@ -98,6 +99,23 @@ obj_besch_t *  image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else {
 		dbg->fatal("image_reader_t::read_node()","illegal versions %d", version );
+	}
+
+	// check for left corner
+	if(version<2) {
+		// corect left border
+		uint16 *dest = besch->pic.data;
+		for( uint8 y=0;  y<besch->pic.h;  y++  ) {
+			uint16 runlen = *dest;
+			*dest++ -= besch->pic.x;
+			assert(runlen>=besch->pic.x);
+			// skip rest of the line
+			do {
+				runlen = *dest++;
+				dest += runlen;
+				runlen = *dest++;
+			} while(runlen);
+		}
 	}
 
 	return besch;
