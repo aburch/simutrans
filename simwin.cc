@@ -1166,15 +1166,14 @@ void win_setze_welt(karte_t *welt)
 }
 
 
-void win_set_zoom_factor(int rw)
+bool win_change_zoom_factor(bool magnify)
 {
-	if(rw != get_zoom_factor()) {
-		set_zoom_factor(rw);
-
+	bool ok = magnify ? zoom_factor_up() : zoom_factor_down();
+	if(ok) {
 		event_t ev;
 
 		ev.ev_class = WINDOW_REZOOM;
-		ev.ev_code = rw;
+		ev.ev_code = get_tile_raster_width();
 		ev.mx = 0;
 		ev.my = 0;
 		ev.cx = 0;
@@ -1185,6 +1184,7 @@ void win_set_zoom_factor(int rw)
 			wins[i].gui->infowin_event(&ev);
 		}
 	}
+	return ok;
 }
 
 

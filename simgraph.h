@@ -60,10 +60,8 @@ extern KOORD_VAL tile_raster_width;
 KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster);
 
 
-#define MAX_ZOOM_FACTOR (6)
-
-int get_zoom_factor(void);
-void set_zoom_factor(int rw);
+int zoom_factor_up(void);
+int zoom_factor_down(void);
 
 
 /**

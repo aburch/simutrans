@@ -145,7 +145,7 @@ void win_poll_event(struct event_t *ev);
 
 void win_setze_welt(karte_t *welt);
 
-void win_set_zoom_factor(int rw);
+bool win_change_zoom_factor(bool magnify);
 
 
 /**

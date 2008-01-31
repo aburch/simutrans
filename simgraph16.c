@@ -499,13 +499,15 @@ static const uint8 special_pal[224*3]=
 KOORD_VAL tile_raster_width = 16;
 static KOORD_VAL base_tile_raster_width = 16;
 
+#define MAX_ZOOM_FACTOR (7)
+
 /*
  * Hajo: Zoom factor
  */
-static uint32 zoom_factor = 1;
+static uint32 zoom_factor = 2;
 
-static sint32 zoom_num[MAX_ZOOM_FACTOR+1] = { 4, 1, 3, 2, 1, 1, 1 };
-static sint32 zoom_den[MAX_ZOOM_FACTOR+1] = { 3, 1, 4, 3, 2, 3, 4 };
+static sint32 zoom_num[MAX_ZOOM_FACTOR+1] = { 3, 4, 1, 3, 2, 1, 1, 1 };
+static sint32 zoom_den[MAX_ZOOM_FACTOR+1] = { 2, 3, 1, 4, 3, 2, 3, 4 };
 
 
 
@@ -537,21 +539,33 @@ static void rezoom(void)
 }
 
 
-int get_zoom_factor()
+void set_zoom_factor(int z)
 {
-	return zoom_factor;
+	zoom_factor = z;
+	tile_raster_width = (base_tile_raster_width * zoom_num[zoom_factor]) / zoom_den[zoom_factor];
+	fprintf(stderr, "set_zoom_factor() : set %d (%i/%i)\n", zoom_factor, zoom_num[zoom_factor], zoom_den[zoom_factor] );
+	rezoom();
 }
 
 
-void set_zoom_factor(int z)
-{
-	if (z >= 0  &&  z<=MAX_ZOOM_FACTOR) {
-		zoom_factor = z;
-		tile_raster_width = (base_tile_raster_width * zoom_num[zoom_factor]) / zoom_den[zoom_factor];
-	}
-	fprintf(stderr, "set_zoom_factor() : set %d (%i/%i)\n", zoom_factor, zoom_num[zoom_factor], zoom_den[zoom_factor] );
 
-	rezoom();
+int zoom_factor_up()
+{
+	if (zoom_factor>0) {
+		set_zoom_factor( zoom_factor-1 );
+		return true;
+	}
+	return false;
+}
+
+
+int zoom_factor_down()
+{
+	if (zoom_factor<MAX_ZOOM_FACTOR) {
+		set_zoom_factor( zoom_factor+1 );
+		return true;
+	}
+	return false;
 }
 
 
@@ -715,12 +729,8 @@ static void recode_img_src_target(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
  */
 static void recode_normal_img(const unsigned int n)
 {
-	PIXVAL *src = images[n].base_data;
+	PIXVAL *src = images[n].zoom_data != NULL ? images[n].zoom_data : images[n].base_data;
 
-	// then use the right data
-	if (tile_raster_width != base_tile_raster_width) {
-		if (images[n].zoom_data != NULL) src = images[n].zoom_data;
-	}
 	if (images[n].data == NULL) {
 		images[n].data = (PIXVAL*)guarded_malloc(sizeof(PIXVAL) * images[n].len);
 	}
@@ -765,16 +775,11 @@ static void recode_img_src_target_color(KOORD_VAL h, PIXVAL *src, PIXVAL *target
  */
 static void recode_color_img(const unsigned int n, const unsigned char player_nr)
 {
-	PIXVAL *src = images[n].base_data;
+	PIXVAL *src = images[n].zoom_data != NULL ? images[n].zoom_data : images[n].base_data;
 
 	images[n].player_flags = player_nr;
-	// then use the right data
-	if (tile_raster_width != base_tile_raster_width) {
-		if (images[n].zoom_data != NULL) src = images[n].zoom_data;
-	}
-	// second recode modi, for player one (city and factory AI)
 	if (images[n].player_data == NULL) {
-		images[n].player_data = (PIXVAL*)guarded_malloc(sizeof(PIXVAL) * images[n].len);
+		images[n].player_data = (PIXVAL*)guarded_malloc(sizeof(PIXVAL) * (size_t)images[n].len);
 	}
 	// contains now the player color ...
 	activate_player_color( player_nr, true );
@@ -808,16 +813,43 @@ static void rezoom_img(const unsigned int n)
 		images[n].recode_flags |= FLAG_NORMAL_RECODE;
 		images[n].player_flags = NEED_PLAYER_RECODE;
 
+		//  we recalculate the len (since it may be larger than before)
+		// thus we have to free the old caches
+		if (images[n].zoom_data != NULL) {
+			guarded_free(images[n].zoom_data);
+			images[n].zoom_data = NULL;
+		}
+		if (images[n].data != NULL) {
+			guarded_free(images[n].data);
+			images[n].data = NULL;
+		}
+		if (images[n].player_data != NULL) {
+			guarded_free(images[n].player_data);
+			images[n].player_data = NULL;
+		}
+
 		// just restore original size?
 		if (tile_raster_width == base_tile_raster_width  ||  (images[n].recode_flags&FLAG_ZOOMABLE)==0) {
+
 			// this we can do be a simple copy ...
 			images[n].x = images[n].base_x;
 			images[n].w = images[n].base_w;
 			images[n].y = images[n].base_y;
 			images[n].h = images[n].base_h;
-			if (images[n].zoom_data != NULL) {
-				guarded_free(images[n].zoom_data);
-				images[n].zoom_data = NULL;
+			{
+				// recalculate length
+				uint8 h = images[n].base_h;
+				PIXVAL *sp = images[n].base_data;
+
+				while(h--) {
+					do {
+						// clear run + colored run + next clear run
+						sp++;
+						sp += *sp + 1;
+					} while (*sp);
+					sp++;
+				}
+				images[n].len = (sp-images[n].base_data);
 			}
 			return;
 		}
@@ -832,9 +864,7 @@ static void rezoom_img(const unsigned int n)
 		if (images[n].h > 0 && images[n].w > 0) {
 			// just recalculate the image in the new size
 			static uint8 *baseimage = NULL;
-			uint32 size = 0;
 			static PIXVAL *baseimage2 = NULL;
-			uint32 size2 = 0;
 			PIXVAL *src = images[n].base_data;
 			PIXVAL *dest = NULL;
 			uint32 x, y;
@@ -850,28 +880,17 @@ static void rezoom_img(const unsigned int n)
 			// we will upack, resample pak it
 
 			// thus the unpack buffer must at least fit the window
-			x = orgzoomwidth*(orgzoomheight+6)*4;
-			if(size<x) {
-				size = x;
-				free( baseimage );
-				baseimage = malloc( size );
+			assert( orgzoomwidth*(orgzoomheight+6)*4<65536l*2 );
+			if(baseimage==NULL) {
+				baseimage = malloc( 65536l*2 );
 			}
-			memset( baseimage, 255, size ); // fill with invalid data to mark transparent regions
+			memset( baseimage, 255, 65536l*2 ); // fill with invalid data to mark transparent regions
 
 			// also the unpack buffer must fit these
-			if(size2<newzoomwidth*newzoomheight*sizeof(PIXVAL)) {
-				size2 = newzoomwidth*newzoomheight*sizeof(PIXVAL);
-				free( baseimage2 );
-				baseimage2 = malloc( size2 );
-				assert( size2<=size);
+			assert( newzoomwidth*newzoomheight*sizeof(PIXVAL)<65536 );
+			if(baseimage2==NULL) {
+				baseimage2 = malloc( 65536l );
 			}
-
-			if (images[n].zoom_data != NULL) {
-				// normal len is ok, since we are only skipping parts ...
-				guarded_free(images[n].zoom_data);
-				images[n].zoom_data = NULL;
-			}
-
 
 			// now: unpack the image
 			for(  y=0;  y<images[n].base_h;  y++  ) {
@@ -1032,9 +1051,10 @@ static void rezoom_img(const unsigned int n)
 			images[n].h = newzoomheight;
 			if(newzoomheight>0) {
 				const uint32 zoom_len = ((uint8 *)dest) - ((uint8 *)baseimage);
-				assert( zoom_len>0 );
-				images[n].zoom_data = guarded_malloc( zoom_len );
-				memmove( images[n].zoom_data, baseimage, zoom_len );
+				images[n].len = zoom_len/sizeof(PIXVAL);
+				images[n].zoom_data = guarded_malloc( images[n].len*sizeof(PIXVAL) );
+				assert( zoom_len>0  &&  zoom_len<65535  &&  images[n].zoom_data  );
+				memcpy( images[n].zoom_data, baseimage, zoom_len );
 			}
 		} else {
 			if (images[n].w <= 0) {
@@ -2968,6 +2988,9 @@ void display_free_all_images_above( unsigned above )
 		anz_images--;
 		if(images[anz_images].zoom_data!=NULL) {
 			guarded_free( images[anz_images].zoom_data );
+		}
+		if(images[anz_images].player_data!=NULL) {
+			guarded_free( images[anz_images].player_data );
 		}
 		if(images[anz_images].data!=NULL) {
 			guarded_free( images[anz_images].data );

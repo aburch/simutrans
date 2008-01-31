@@ -3775,12 +3775,14 @@ break;
 
 			// zoom
 			case '>':
-				win_set_zoom_factor(get_zoom_factor() > 1 ? get_zoom_factor()-1 : 1);
-				setze_dirty();
+				if(win_change_zoom_factor(true)) {
+					setze_dirty();
+				}
 				break;
 			case '<':
-				win_set_zoom_factor(get_zoom_factor() < MAX_ZOOM_FACTOR ? get_zoom_factor()+1 : MAX_ZOOM_FACTOR);
-				setze_dirty();
+				if(win_change_zoom_factor(false)) {
+					setze_dirty();
+				}
 				break;
 
 			// closing windows
@@ -3966,16 +3968,16 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 
     // mouse wheel scrolled -> rezoom
     if (ev.ev_class == EVENT_CLICK) {
-    	switch (ev.ev_code) {
-    		case MOUSE_WHEELUP:
-	  			win_set_zoom_factor(get_zoom_factor() > 1 ? get_zoom_factor()-1 : 1);
-				  setze_dirty();
-    		break;
-    		case MOUSE_WHEELDOWN:
-	  			win_set_zoom_factor(get_zoom_factor() < MAX_ZOOM_FACTOR ? get_zoom_factor()+1 : MAX_ZOOM_FACTOR);
-				  setze_dirty();
-    		break;
-    	}
+		if(ev.ev_code==MOUSE_WHEELUP) {
+			if(win_change_zoom_factor(true)) {
+				setze_dirty();
+			}
+		}
+		else if(ev.ev_code==MOUSE_WHEELDOWN) {
+			if(win_change_zoom_factor(false)) {
+				setze_dirty();
+			}
+		}
   	}
     INT_CHECK("simworld 2117");
 }
