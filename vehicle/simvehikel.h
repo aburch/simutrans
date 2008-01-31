@@ -75,6 +75,9 @@ protected:
 
 	virtual void calc_bild() = 0;
 
+	// check for road vehicle, if next tile is free
+	vehikel_basis_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_fahrtrichtung, const uint8 next_fahrtrichtung, const uint8 next_90fahrtrichtung );
+
 public:
 	inline void setze_bild( image_id b ) { bild = b; }
 	virtual image_id gib_bild() const {return bild;}

@@ -2147,7 +2147,7 @@ static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
  * draws the transparent outline of an image
  * @author kierongreen
  */
-void display_img_blend(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty)
+void display_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty)
 {
 	if (n < anz_images) {
 		// need to go to nightmode and or rezoomed?
@@ -2163,6 +2163,7 @@ void display_img_blend(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const
 		sp = images[n].data;
 
 		// now, since zooming may have change this image
+		xp += images[n].x;
 		yp += images[n].y;
 		h = images[n].h; // may change due to vertical clipping
 
@@ -2200,7 +2201,6 @@ void display_img_blend(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const
 		// new block for new variables
 		{
 			// needed now ...
-			const KOORD_VAL x = images[n].x;
 			const KOORD_VAL w = images[n].w;
 			// get the real color
 			const PIXVAL color = specialcolormap_all_day[color_index & 0xFF];
@@ -2208,14 +2208,14 @@ void display_img_blend(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const
 			blend_proc pix_blend = (color_index&OUTLINE_FLAG) ? outline[ (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1 ] : blend[ (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1 ];
 
 			// use horzontal clipping or skip it?
-			if (xp + x >= clip_rect.x && xp + x + w - 1 <= clip_rect.xx) {
+			if (xp >= clip_rect.x && xp + w - 1 <= clip_rect.xx) {
 				// marking change?
-				if (dirty) mark_rect_dirty_nc(xp + x, yp, xp + x + w - 1, yp + h - 1);
+				if (dirty) mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
 				display_img_blend_wc( h, xp, yp, sp, color, pix_blend );
-			} else if (xp <= clip_rect.xx && xp + x + w > clip_rect.x) {
+			} else if (xp <= clip_rect.xx && xp + w > clip_rect.x) {
 				display_img_blend_wc( h, xp, yp, sp, color, pix_blend );
 				// since height may be reduced, start marking here
-				if (dirty) mark_rect_dirty_wc(xp + x, yp, xp + x + w - 1, yp + h - 1);
+				if (dirty) mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
 			}
 		}
 	}

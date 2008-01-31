@@ -124,7 +124,7 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const int dir
  * draws the images with alpha, either blended or as outline
  * @author kierongreen
  */
-void display_img_blend(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const PLAYER_COLOR_VAL color, const int daynight, const int dirty);
+void display_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const PLAYER_COLOR_VAL color, const int daynight, const int dirty);
 
 // display image with color (if there) and optinal day and nightchange
 void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const signed char color, const int daynight, const int dirty);

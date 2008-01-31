@@ -1586,11 +1586,11 @@ bool automobil_t::ist_ziel(const grund_t *gr,const grund_t *) const
 
 
 // true, if one could pass through this field
-static vehikel_basis_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_fahrtrichtung, const uint8 next_fahrtrichtung, const uint8 next_90fahrtrichtung )
+vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_fahrtrichtung, const uint8 next_fahrtrichtung, const uint8 next_90fahrtrichtung )
 {
 	// suche vehikel
 	const uint8 top = gr->gib_top();
-	for(  uint8 pos=0;  pos<top;  pos++ ) {
+	for(  uint8 pos=1;  pos<top;  pos++ ) {
 		vehikel_basis_t *v = (vehikel_basis_t *)gr->obj_bei(pos);
 		if(v->is_moving()) {
 			uint8 other_fahrtrichtung=255;
@@ -1723,20 +1723,37 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 
 		// do not block crossings
 		if(dt==NULL  &&  str->is_crossing()) {
-			if(route_index+1<cnv->get_route()->gib_max_n()) {
-				// test next field
-				const uint8 nextnext_fahrtrichtung = this->calc_richtung(cnv->get_route()->position_bei(route_index).gib_2d(), cnv->get_route()->position_bei(route_index+2).gib_2d());
-				const uint8 nextnext_90fahrtrichtung = this->calc_richtung(cnv->get_route()->position_bei(route_index+1).gib_2d(), cnv->get_route()->position_bei(route_index+2).gib_2d());
-				const grund_t *gr = welt->lookup( cnv->get_route()->position_bei(route_index+1) );
-				dt = no_cars_blocking( gr, cnv, next_fahrtrichtung, nextnext_fahrtrichtung, nextnext_90fahrtrichtung );
+			// ok, reserve way crossing
+			crossing_t* cr = gr->find<crossing_t>(2);
+			if(  !cr->request_crossing(this)) {
+				restart_speed = 0;
+				return false;
 			}
-			if(dt==NULL) {
-				// ok, reserve way crossing
-				crossing_t* cr = gr->find<crossing_t>(2);
-				if(  !cr->request_crossing(this)) {
-					restart_speed = 0;
-					return false;
+			// no further check, when already entered a crossing (to allow leaving it)
+			grund_t *gr_here = welt->lookup(gib_pos());
+			if(gr_here  &&  gr_here->ist_uebergang()) {
+				return true;
+			}
+			// can cross, but can we leave?
+			uint test_index = route_index+1;
+			while(test_index+1<cnv->get_route()->gib_max_n()) {
+				const grund_t *test = welt->lookup(cnv->get_route()->position_bei(test_index));
+				if(!test) {
+					break;
 				}
+				// test next field after crossing
+				const uint8 nextnext_fahrtrichtung = this->calc_richtung(cnv->get_route()->position_bei(test_index-1).gib_2d(), cnv->get_route()->position_bei(test_index+1).gib_2d());
+				const uint8 nextnext_90fahrtrichtung = this->calc_richtung(cnv->get_route()->position_bei(test_index).gib_2d(), cnv->get_route()->position_bei(test_index+1).gib_2d());
+				dt = no_cars_blocking( test, cnv, next_fahrtrichtung, nextnext_fahrtrichtung, nextnext_90fahrtrichtung );
+				if(dt) {
+					// take care of warning messages
+					break;
+				}
+				if(!test->ist_uebergang()) {
+					// ok, left the crossing; check is successful
+					return true;
+				}
+				test_index ++;
 			}
 		}
 

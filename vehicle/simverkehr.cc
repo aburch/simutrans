@@ -507,50 +507,56 @@ stadtauto_t::ist_weg_frei()
 
 	// calculate new direction
 	// are we just turning around?
-	//	const uint8 this_fahrtrichtung = (gib_pos()==pos_next) ? gib_fahrtrichtung() :  ribi_t::rueckwaerts(this_fahrtrichtung);
 	const uint8 this_fahrtrichtung = gib_fahrtrichtung();
 	// next direction (is only 90° due to definition ...)
 	const uint8 next_fahrtrichtung = (gib_pos()==pos_next_next) ? ribi_t::rueckwaerts(this_fahrtrichtung) : this->calc_richtung(gib_pos().gib_2d(), pos_next_next.gib_2d());
-	uint8 next_90fahrtrichtung = this->calc_richtung(gib_pos().gib_2d(), pos_next_next.gib_2d());
-	bool frei = true;
+	uint8 next_90fahrtrichtung = this->calc_richtung(pos_next.gib_2d(), pos_next_next.gib_2d());
+	bool frei = (NULL == no_cars_blocking( gr, NULL, this_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung ));
 
-	// suche vehikel
-	const uint8 top = gr->gib_top();
-	for(  uint8 pos=0;  pos<top  && frei;  pos++ ) {
-		ding_t *dt = gr->obj_bei(pos);
-		if(dt) {
-			uint8 other_fahrtrichtung=255;
-
-			// check for car
-			if(dt->gib_typ()==ding_t::automobil) {
-				automobil_t *at = (automobil_t *)dt;
-				other_fahrtrichtung = at->gib_fahrtrichtung();
-			}
-
-			// check for city car
-			if(dt->gib_typ()==ding_t::verkehr) {
-				vehikel_basis_t *v = (vehikel_basis_t *)dt;
-				other_fahrtrichtung = v->gib_fahrtrichtung();
-			}
-
-			// ok, there is another car ...
-			if(other_fahrtrichtung!=255) {
-
-				if(other_fahrtrichtung==next_fahrtrichtung  ||  other_fahrtrichtung==next_90fahrtrichtung  ||  other_fahrtrichtung==this_fahrtrichtung ) {
-					// this goes into the same direction as we, so stopp and save a restart speed
-					frei = false;
-				} else if(ribi_t::ist_orthogonal(other_fahrtrichtung,this_fahrtrichtung )) {
-					// there is a car orthogonal to us
-					frei = false;
-				}
-			}
+	// do not block this crossing (if possible)
+	if(frei  &&  ribi_t::is_threeway(str->gib_ribi_unmasked())) {
+		grund_t *test = welt->lookup(pos_next_next);
+		if(test) {
+			// check, if it can leave this crossings
+			frei = (NULL == no_cars_blocking( test, NULL, next_fahrtrichtung, next_90fahrtrichtung, next_90fahrtrichtung ));
 		}
+		// this fails with two crossings together; however, I see no easy way out here ...
 	}
 
+	// do not block railroad crossing
 	if(frei  &&  str->is_crossing()) {
-		// railway crossing/ Bahnuebergang: waggons here
+		// can we cross?
 		crossing_t* cr = gr->find<crossing_t>(2);
-		frei = cr->request_crossing( this );
+		if(cr) {
+			// approaching railway crossing: check if empty
+			return cr->request_crossing( this );
+		}
+		// no further check, when already entered a crossing (to alloew leaving it)
+		grund_t *gr_here = welt->lookup(gib_pos());
+		if(gr_here  &&  gr_here->ist_uebergang()) {
+			return true;
+		}
+		// ok, now check for free exit
+		koord dir = pos_next.gib_2d()-gib_pos().gib_2d();
+		koord3d checkpos = pos_next+dir;
+		const uint8 nextnext_fahrtrichtung = ribi_typ(dir);
+		while(1) {
+			const grund_t *test = welt->lookup(checkpos);
+			if(!test) {
+				break;
+			}
+			// test next field after crossing
+			if(no_cars_blocking( test, NULL, next_fahrtrichtung, nextnext_fahrtrichtung, nextnext_fahrtrichtung )) {
+				return false;
+			}
+			// ok, left the crossint
+			if(!test->find<crossing_t>(2)) {
+				// approaching railway crossing: check if empty
+				crossing_t* cr = gr->find<crossing_t>(2);
+				return cr->request_crossing( this );
+			}
+			checkpos += dir;
+		}
 	}
 
 	return frei;
