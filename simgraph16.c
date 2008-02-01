@@ -551,7 +551,8 @@ void set_zoom_factor(int z)
 
 int zoom_factor_up()
 {
-	if (zoom_factor>0) {
+	// zoom out, if size permits
+	if(  zoom_factor>0  &&  (base_tile_raster_width * zoom_num[zoom_factor-1]) / zoom_den[zoom_factor-1] <= 254  ) {
 		set_zoom_factor( zoom_factor-1 );
 		return true;
 	}
@@ -864,6 +865,7 @@ static void rezoom_img(const unsigned int n)
 		if (images[n].h > 0 && images[n].w > 0) {
 			// just recalculate the image in the new size
 			static uint8 *baseimage = NULL;
+			static size = 0;
 			static PIXVAL *baseimage2 = NULL;
 			PIXVAL *src = images[n].base_data;
 			PIXVAL *dest = NULL;
@@ -877,20 +879,22 @@ static void rezoom_img(const unsigned int n)
 			uint32 orgzoomheight = ((images[n].base_h + zoom_den[zoom_factor] - 1 ) / zoom_den[zoom_factor]) * zoom_den[zoom_factor];
 			uint32 newzoomheight = (orgzoomheight*zoom_num[zoom_factor])/zoom_den[zoom_factor];
 
-			// we will upack, resample pak it
+			// we will upack, resample, pack it
 
-			// thus the unpack buffer must at least fit the window
-			assert( orgzoomwidth*(orgzoomheight+6)*4<65536l*2 );
-			if(baseimage==NULL) {
-				baseimage = malloc( 65536l*2 );
+			// thus the unpack buffer must at least fit the window => find out maximum size
+			x = newzoomwidth*(newzoomheight+3)*sizeof(PIXVAL);
+			y = orgzoomwidth*orgzoomheight*4;
+			if(y>x) {
+				x = y;
 			}
-			memset( baseimage, 255, 65536l*2 ); // fill with invalid data to mark transparent regions
-
-			// also the unpack buffer must fit these
-			assert( newzoomwidth*newzoomheight*sizeof(PIXVAL)<65536 );
-			if(baseimage2==NULL) {
-				baseimage2 = malloc( 65536l );
+			if(size < x) {
+				free( baseimage );
+				free( baseimage2 );
+				size = x;
+				baseimage = malloc( size );
+				baseimage2 = malloc( size );
 			}
+			memset( baseimage, 255, size ); // fill with invalid data to mark transparent regions
 
 			// now: unpack the image
 			for(  y=0;  y<images[n].base_h;  y++  ) {

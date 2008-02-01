@@ -9,7 +9,9 @@
 	FIX: trees are now correctly sorted by the internal tile positions (before were shadow problems)
 	CHANGE: smoother zoom out (experimental)
 	FIX: x-offset for images should finally work
-	ADD: 0.75% and 0.66% zoom out
+	ADD: following zoom-levels are now supported 1.5:1, 1.33:1, 1:1, 0.75:1, 0.66:1, 0.5:1, 0.33:1, 0.25:1 (maximum tile size zoomed in is 254!)
+	FIX: no cars entring railroad crossings when the apparently cannot exit (may fail with crossings followin immediately)
+	FIX: no citycars entring a crossing, if there is no exit
 
 
 Release of 99.17.1 (r1550, stable)
