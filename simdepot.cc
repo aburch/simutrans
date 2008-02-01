@@ -184,11 +184,8 @@ void depot_t::append_vehicle(convoihandle_t cnv, vehikel_t* veh, bool infront)
 	if (!cnv.is_bound()) {
 		cnv = add_convoi();
 	}
-
 	veh->setze_pos(gib_pos());
 	cnv->add_vehikel(veh, infront);
-	cnv->set_home_depot(gib_pos());
-
 	vehicles.remove(veh);
 }
 
@@ -214,6 +211,7 @@ void depot_t::sell_vehicle(vehikel_t* veh)
 convoihandle_t depot_t::add_convoi()
 {
 	convoi_t* new_cnv = new convoi_t(gib_besitzer());
+	new_cnv->set_home_depot(gib_pos());
     convois.append(new_cnv->self);
 
     return new_cnv->self;
