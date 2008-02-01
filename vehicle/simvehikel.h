@@ -50,6 +50,9 @@ protected:
 	// true on slope (make calc_height much faster)
 	uint8 use_calc_height:1;
 
+	// true, if hop_check failed
+	uint8 hop_check_failed:1;
+
 	sint8 dx, dy;
 
 	/**

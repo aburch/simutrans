@@ -370,25 +370,17 @@ stadtauto_t::sync_step(long delta_t)
 	if(current_speed==0) {
 		// stuck in traffic jam
 		uint32 old_ms_traffic_jam = ms_traffic_jam;
-		ms_traffic_jam -= delta_t;
+		ms_traffic_jam += delta_t;
 		if((ms_traffic_jam>>7)!=(old_ms_traffic_jam>>7)) {
-			if(ist_weg_frei()) {
+			pos_next_next = koord3d::invalid;
+			if(hop_check()) {
 				ms_traffic_jam = 0;
 				current_speed = 48;
 			}
 			else {
-				if(ms_traffic_jam<welt->ticks_per_tag  &&  old_ms_traffic_jam>=welt->ticks_per_tag) {
+				if(ms_traffic_jam>welt->ticks_per_tag  &&  old_ms_traffic_jam<=welt->ticks_per_tag) {
 					// message after two month, reset waiting timer
 					message_t::get_instance()->add_message( translator::translate("To heavy traffic\nresults in traffic jam.\n"), gib_pos().gib_2d(), message_t::warnings, COL_ORANGE );
-				}
-				else if(ms_traffic_jam<=0) {
-					// try to turn around ...
-					fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
-					pos_next = gib_pos();//welt->lookup_kartenboden(gib_pos().gib_2d()+koord(fahrtrichtung))->gib_pos();
-					dx = -dx;
-					dy = -dy;
-					// still stucked ...  => destroy oneself!
-					return ist_weg_frei();
 				}
 			}
 		}
@@ -474,89 +466,86 @@ void stadtauto_t::rdwr(loadsave_t *file)
 }
 
 
+
 bool
-stadtauto_t::ist_weg_frei()
+stadtauto_t::ist_weg_frei(grund_t *gr)
 {
-	const grund_t *gr;
-	weg_t *str;
-
-	// destroy on: no step, invalid position, no road below
-	if((gr = welt->lookup(pos_next))==NULL  ||  (str=gr->gib_weg(road_wt))==NULL) {
-		// turn around, if sudden stop is here ...
-		time_to_life = 0;
-		return false;
-	}
-
-	if(gr->gib_top()>20) {
+	if(gr->gib_top()>200) {
 		// already too many things here
 		return false;
 	}
-
-	// check for traffic lights
-	if(str->has_sign()) {
-		const roadsign_t* rs = gr->find<roadsign_t>();
-		const int richtung = ribi_typ(gib_pos().gib_2d(),pos_next.gib_2d());
-		if(rs->gib_besch()->is_traffic_light()  &&  (rs->get_dir()&richtung)==0) {
-			fahrtrichtung = richtung;
-			calc_bild();
-			current_speed = 48;
-			// wait here
-			return false;
-		}
+	weg_t * str = gr->gib_weg(road_wt);
+	if(str==NULL) {
+		time_to_life = 0;
+		return false;
 	}
 
 	// calculate new direction
 	// are we just turning around?
 	const uint8 this_fahrtrichtung = gib_fahrtrichtung();
-	// next direction (is only 90° due to definition ...)
-	const uint8 next_fahrtrichtung = (gib_pos()==pos_next_next) ? ribi_t::rueckwaerts(this_fahrtrichtung) : this->calc_richtung(gib_pos().gib_2d(), pos_next_next.gib_2d());
 	uint8 next_90fahrtrichtung = this->calc_richtung(pos_next.gib_2d(), pos_next_next.gib_2d());
-	bool frei = (NULL == no_cars_blocking( gr, NULL, this_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung ));
+	bool frei = false;
+	if(gib_pos()==pos_next_next) {
+		// turning around => single check
+		const uint8 next_fahrtrichtung = ribi_t::rueckwaerts(this_fahrtrichtung);
+		frei = (NULL == no_cars_blocking( gr, NULL, next_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung ));
 
-	// do not block this crossing (if possible)
-	if(frei  &&  ribi_t::is_threeway(str->gib_ribi_unmasked())) {
-		grund_t *test = welt->lookup(pos_next_next);
-		if(test) {
-			// check, if it can leave this crossings
-			frei = (NULL == no_cars_blocking( test, NULL, next_fahrtrichtung, next_90fahrtrichtung, next_90fahrtrichtung ));
-		}
-		// this fails with two crossings together; however, I see no easy way out here ...
 	}
+	else {
+		// driving on: check for crossongs etc. too
+		const uint8 next_fahrtrichtung = this->calc_richtung(gib_pos().gib_2d(), pos_next_next.gib_2d());
+		frei = (NULL == no_cars_blocking( gr, NULL, this_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung ));
 
-	// do not block railroad crossing
-	if(frei  &&  str->is_crossing()) {
-		// can we cross?
-		crossing_t* cr = gr->find<crossing_t>(2);
-		if(cr) {
-			// approaching railway crossing: check if empty
-			return cr->request_crossing( this );
-		}
-		// no further check, when already entered a crossing (to alloew leaving it)
-		grund_t *gr_here = welt->lookup(gib_pos());
-		if(gr_here  &&  gr_here->ist_uebergang()) {
-			return true;
-		}
-		// ok, now check for free exit
-		koord dir = pos_next.gib_2d()-gib_pos().gib_2d();
-		koord3d checkpos = pos_next+dir;
-		const uint8 nextnext_fahrtrichtung = ribi_typ(dir);
-		while(1) {
-			const grund_t *test = welt->lookup(checkpos);
-			if(!test) {
-				break;
+		// do not block this crossing (if possible)
+		if(frei  &&  ribi_t::is_threeway(str->gib_ribi_unmasked())) {
+			grund_t *test = welt->lookup(pos_next_next);
+			if(test) {
+				// check, if it can leave this crossings
+				frei = (NULL == no_cars_blocking( test, NULL, next_fahrtrichtung, next_90fahrtrichtung, next_90fahrtrichtung ));
 			}
-			// test next field after crossing
-			if(no_cars_blocking( test, NULL, next_fahrtrichtung, nextnext_fahrtrichtung, nextnext_fahrtrichtung )) {
-				return false;
-			}
-			// ok, left the crossint
-			if(!test->find<crossing_t>(2)) {
+			// this fails with two crossings together; however, I see no easy way out here ...
+		}
+
+		// do not block railroad crossing
+		if(frei  &&  str->is_crossing()) {
+			// can we cross?
+			crossing_t* cr = gr->find<crossing_t>(2);
+			if(cr) {
 				// approaching railway crossing: check if empty
-				crossing_t* cr = gr->find<crossing_t>(2);
 				return cr->request_crossing( this );
 			}
-			checkpos += dir;
+			// no further check, when already entered a crossing (to alloew leaving it)
+			grund_t *gr_here = welt->lookup(gib_pos());
+			if(gr_here  &&  gr_here->ist_uebergang()) {
+				return true;
+			}
+			// ok, now check for free exit
+			koord dir = pos_next.gib_2d()-gib_pos().gib_2d();
+			koord3d checkpos = pos_next+dir;
+			const uint8 nextnext_fahrtrichtung = ribi_typ(dir);
+			while(1) {
+				const grund_t *test = welt->lookup(checkpos);
+				if(!test) {
+					break;
+				}
+				// test next field after crossing
+				if(no_cars_blocking( test, NULL, next_fahrtrichtung, nextnext_fahrtrichtung, nextnext_fahrtrichtung )) {
+					return false;
+				}
+				// ok, left the crossint
+				if(!test->find<crossing_t>(2)) {
+					// approaching railway crossing: check if empty
+					crossing_t* cr = gr->find<crossing_t>(2);
+					return cr->request_crossing( this );
+				}
+				checkpos += dir;
+			}
 		}
+	}
+
+	if(frei  &&  current_speed==0) {
+		ms_traffic_jam = 0;
+		current_speed = 48;
 	}
 
 	return frei;
@@ -567,22 +556,113 @@ stadtauto_t::ist_weg_frei()
 void
 stadtauto_t::betrete_feld()
 {
-#ifdef DESTINATION_CITYCARS
-	if(target!=koord::invalid  &&  abs_distance(pos_next.gib_2d(),target)<10) {
-		// delete it ...
-		time_to_life = 0;
-
-		fussgaenger_t *fg = new fussgaenger_t(welt, pos_next);
-		bool ok = welt->lookup(pos_next)->obj_add(fg) != 0;
-		for(int i=0; i<(fussgaenger_t::count & 3); i++) {
-			fg->sync_step(64*24);
-		}
-		welt->sync_add( fg );
-	}
-#endif
 	vehikel_basis_t::betrete_feld();
-
 	welt->lookup( gib_pos() )->gib_weg(road_wt)->book(1, WAY_STAT_CONVOIS);
+}
+
+
+
+bool
+stadtauto_t::hop_check()
+{
+	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+	grund_t *from = welt->lookup(pos_next);
+	if(from==NULL) {
+		// nothing to go? => destroy ...
+		time_to_life = 0;
+		return false;
+	}
+
+	// find the allowed directions
+	const weg_t *weg = from->gib_weg(road_wt);
+	if(weg==NULL) {
+		// nothing to go? => destroy ...
+		time_to_life = 0;
+		return false;
+	}
+
+	// traffic light phase check (since this is on next tile, it will always be neccessary!)
+	const ribi_t::ribi fahrtrichtung90 = ribi_typ(gib_pos().gib_2d(),pos_next.gib_2d());
+	if(weg->has_sign()) {
+		const roadsign_t* rs = from->find<roadsign_t>();
+		const roadsign_besch_t* rs_besch = rs->gib_besch();
+		if(rs_besch->is_traffic_light()  &&  (rs->get_dir()&fahrtrichtung90)==0) {
+			fahrtrichtung = fahrtrichtung90;
+			calc_bild();
+			// wait here
+			current_speed = 48;
+			return false;
+		}
+	}
+
+	// next tile unknow => find next tile
+	if(pos_next_next==koord3d::invalid) {
+
+		// cul de sac: return
+		if(ribi_t::ist_einfach(weg->gib_ribi())) {
+			pos_next_next = gib_pos();
+			return ist_weg_frei(from);
+		}
+
+		grund_t *to, *emergency=NULL;
+
+		// ok, nobody did delete the road in front of us
+		// so we can check for valid directions
+		const ribi_t::ribi ribi = weg->gib_ribi() & (~ribi_t::rueckwaerts(fahrtrichtung90));
+		const uint8 offset = simrand(4);
+		for(uint8 i = 0; i < 4; i++) {
+			const uint8 r = (i+offset)&3;
+			if(  (ribi&ribi_t::nsow[r])!=0  &&  from->get_neighbour(to, road_wt, koord::nsow[r])) {
+				// check, if this is just a single tile deep after a crossing
+				weg_t *w=to->gib_weg(road_wt);
+				if(ribi_t::ist_einfach(w->gib_ribi())  &&  !ribi_t::ist_einfach(ribi)) {
+					emergency = to;
+					continue;
+				}
+				// check, if roadsign forbid next step ...
+				if(w->has_sign()) {
+					const roadsign_besch_t* rs_besch = to->find<roadsign_t>()->gib_besch();
+					if(rs_besch->gib_min_speed()>besch->gib_geschw()  ||  rs_besch->is_private_way()) {
+						// not allowed to go here
+						continue;
+					}
+				}
+				// ok, now check if we are allowed to go here (i.e. no cars blocking)
+				pos_next_next = to->gib_pos();
+				if(ist_weg_frei(from)) {
+					// ok, this direction is fine!
+					ms_traffic_jam = 0;
+					if(current_speed<48) {
+						current_speed = 48;
+					}
+					return true;
+				}
+				else {
+					pos_next_next == koord3d::invalid;
+				}
+			}
+		}
+		// only stumps at single way crossing, all other blocked => turn around
+		if(emergency) {
+			pos_next_next = gib_pos();
+			return ist_weg_frei(from);
+		}
+	}
+	else {
+		grund_t *to = welt->lookup(pos_next_next);
+		if(to  &&  ist_weg_frei(to)) {
+			// ok, this direction is fine!
+			ms_traffic_jam = 0;
+			if(current_speed<48) {
+				current_speed = 48;
+			}
+			return true;
+		}
+	}
+	// no free tiles => assume traffic jam ...
+	pos_next_next = koord3d::invalid;
+	current_speed = 0;
+	return false;
 }
 
 
@@ -616,158 +696,6 @@ stadtauto_t::hop()
 	}
 	pos_next = pos_next_next;
 	pos_next_next = koord3d::invalid;
-}
-
-
-
-bool
-stadtauto_t::hop_check()
-{
-	if(pos_next_next==koord3d::invalid) {
-		// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-		grund_t *from = welt->lookup(pos_next);
-		if(from==NULL) {
-			// nothing to go? => destroy ...
-			time_to_life = 0;
-			return false;
-		}
-
-		grund_t *to;
-
-		static weighted_vector_tpl<grund_t *> liste(4);
-		liste.clear();
-
-		// 1) find the allowed directions
-		const weg_t *weg = from->gib_weg(road_wt);
-		if(weg==NULL) {
-			// nothing to go? => destroy ...
-			time_to_life = 0;
-			return false;
-		}
-
-		// ok, nobody did delete the road in front of us
-		// so we can check for valid directions
-		ribi_t::ribi ribi = weg->gib_ribi() & (~ribi_t::rueckwaerts(fahrtrichtung));
-		if(ribi_t::ist_einfach(ribi)  &&  from->get_neighbour(to, road_wt, koord(ribi))) {
-			// we should add here
-			bool add=true;
-			// check, if roadsign forbid next step ...
-			if(to->gib_weg(road_wt)->has_sign()) {
-				const roadsign_besch_t* rs_besch = to->find<roadsign_t>()->gib_besch();
-				add = (rs_besch->is_traffic_light()  ||  rs_besch->gib_min_speed()<=besch->gib_geschw())  &&  !rs_besch->is_private_way();
-			}
-			if(add) {
-				pos_next_next = to->gib_pos();
-				fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d() );
-			}
-			else {
-				// turn around
-				pos_next_next = gib_pos();
-			}
-		}
-		else {
-			// add all good ribis here
-			ribi = weg->gib_ribi();
-			for(int r = 0; r < 4; r++) {
-				if(  (ribi&ribi_t::nsow[r])!=0  &&  from->get_neighbour(to, road_wt, koord::nsow[r])) {
-					// check, if this is just a single tile deep
-					weg_t *w=to->gib_weg(road_wt);
-					int next_ribi =  w->gib_ribi();
-					if(!ribi_t::ist_einfach(next_ribi)) {
-						bool add=true;
-						// check, if roadsign forbid next step ...
-						if(w->has_sign()) {
-							const roadsign_besch_t* rs_besch = to->find<roadsign_t>()->gib_besch();
-							add = (rs_besch->is_traffic_light()  ||  rs_besch->gib_min_speed()<=besch->gib_geschw())  &&  !rs_besch->is_private_way();
-	//DBG_MESSAGE("stadtauto_t::hop()","roadsign");
-						}
-						// ok;
-						if(add) {
-#ifdef DESTINATION_CITYCARS
-							unsigned long dist=abs_distance( to->gib_pos().gib_2d(), target );
-							liste.append( to, dist*dist );
-#else
-							liste.append( to, 1  );
-#endif
-						}
-					}
-				}
-			}
-
-			// do not go back if there are other way out
-			if(liste.get_count()>1) {
-				liste.remove( welt->lookup(gib_pos()) );
-			}
-
-			// now we can decide
-			if(liste.get_count()>1) {
-#ifdef DESTINATION_CITYCARS
-				if(target!=koord::invalid) {
-					pos_next_next = liste.at_weight(simrand(liste.get_sum_weight()))->gib_pos();
-				}
-				else
-#endif
-				{
-#if 0
-					// we are at a crossing
-					// do not enter into a road with stucked vehicles
-					static vector_tpl<grund_t *> ok_gr(4);
-					ok_gr.clear();
-					for( unsigned i = 0;  i<liste.get_count();  i++ ) {
-						grund_t *gr = liste[i];
-						bool ok = true;
-						for(  unsigned j=0;  j<gr->gib_top();  j++  ) {
-							ding_t *dt = gr->obj_bei(j);
-							if(dt  &&  dt->is_moving()  &&  ((vehikel_basis_t *)dt)->is_stuck()) {
-								ok = false;
-								break;
-							}
-						}
-						if(ok) {
-							ok_gr.append( to  );
-						}
-					}
-					// if we can, we avoid entering towards a stuck vehicle
-					if (!ok_gr.empty()) {
-						pos_next_next = liste[simrand(ok_gr.get_count())]->gib_pos();
-					}
-					else
-#endif
-					{
-						pos_next_next = liste[simrand(liste.get_count())]->gib_pos();
-					}
-				}
-			} else if(liste.get_count()==1) {
-				pos_next_next = liste.front()->gib_pos();
-			}
-			else {
-				// nowhere to go: destroy
-				time_to_life = 0;
-				return false;
-			}
-		}
-	}
-
-	// now we can check the next points ...
-	if(!ist_weg_frei()) {
-		if(current_speed!=0) {
-			ms_traffic_jam = (3<<welt->ticks_bits_per_tag);
-			current_speed = 0;
-		}
-	}
-	else {
-		if(ms_traffic_jam) {
-			ms_traffic_jam = 0;
-			current_speed = 8;
-		}
-		else {
-			if(current_speed<8) {
-				current_speed = 8;
-			}
-		}
-		return true;
-	}
-	return false;
 }
 
 

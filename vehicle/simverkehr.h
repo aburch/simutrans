@@ -37,8 +37,6 @@ protected:
 	 */
 	sint32 time_to_life;
 
-	virtual bool ist_weg_frei() {return 1; }	// always free
-
 protected:
 	virtual waytype_t gib_waytype() const { return road_wt; }
 
@@ -90,8 +88,8 @@ private:
 
 	uint32 ms_traffic_jam;
 
-	virtual bool hop_check();
-	virtual bool ist_weg_frei();
+	bool hop_check();
+	bool ist_weg_frei(grund_t *gr);
 
 protected:
 	void rdwr(loadsave_t *file);
