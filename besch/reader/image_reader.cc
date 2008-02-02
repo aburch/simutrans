@@ -107,32 +107,30 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		uint16 left = 255;
 		uint16 *dest = besch->pic.data;
 		for( uint8 y=0;  y<besch->pic.h;  y++  ) {
-			uint16 runlen = *dest++;
-			if(runlen<left) {
-				left = runlen;
+			if(*dest<left) {
+				left = *dest;
 			}
 			// skip rest of the line
 			do {
-				runlen = *dest++;
-				dest += runlen;
-				runlen = *dest++;
-			} while(runlen);
+				dest++;
+				dest += *dest + 1;
+			} while (*dest);
+			dest++;	// skip trailing zero
 		}
 
-		if(left!=besch->pic.x) {
+		if(left<besch->pic.x) {
 			dbg->warning( "image_reader_t::read_node()","left(%i)<x(%i) (may be intended)", left, besch->pic.x );
 		}
 
 		dest = besch->pic.data;
 		for( uint8 y=0;  y<besch->pic.h;  y++  ) {
-			uint16 runlen = *dest;
-			*dest++ -= left;
+			*dest -= left;
 			// skip rest of the line
 			do {
-				runlen = *dest++;
-				dest += runlen;
-				runlen = *dest++;
-			} while(runlen);
+				dest++;
+				dest += *dest + 1;
+			} while (*dest);
+			dest++;	// skip trailing zero
 		}
 	}
 

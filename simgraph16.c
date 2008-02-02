@@ -862,7 +862,7 @@ static void rezoom_img(const unsigned int n)
 		images[n].w = (images[n].base_w*zoom_num[zoom_factor]) / zoom_den[zoom_factor];
 		images[n].h = (images[n].base_h*zoom_num[zoom_factor]) / zoom_den[zoom_factor];
 
-		if (images[n].h > 0 && images[n].w > 0) {
+		if (images[n].h > 0  &&  images[n].w > 0) {
 			// just recalculate the image in the new size
 			static uint8 *baseimage = NULL;
 			static size = 0;
