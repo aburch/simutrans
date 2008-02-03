@@ -1057,7 +1057,7 @@ static void rezoom_img(const unsigned int n)
 				const uint32 zoom_len = ((uint8 *)dest) - ((uint8 *)baseimage);
 				images[n].len = zoom_len/sizeof(PIXVAL);
 				images[n].zoom_data = guarded_malloc( images[n].len*sizeof(PIXVAL) );
-				assert( zoom_len>0  &&  zoom_len<65535  &&  images[n].zoom_data  );
+				assert( zoom_len>0  &&  zoom_len<65535*sizeof(PIXVAL)  &&  images[n].zoom_data  );
 				memcpy( images[n].zoom_data, baseimage, zoom_len );
 			}
 		} else {
