@@ -31,10 +31,7 @@ news_img::news_img(const char* text, image_id id, PLAYER_COLOR_VAL color) :
 	news_window(text, color),
 	bild(id)
 {
-	int xoff;
-	int yoff;
-	int xw;
-	int yw;
+	KOORD_VAL xoff, yoff, xw, yw;
 	display_get_image_offset(id, &xoff, &yoff, &xw, &yw);
 	bild.setze_pos(koord(220 - xw - xoff, 10 - yoff)); // aligned to upper right corner
 	add_komponente(&bild);

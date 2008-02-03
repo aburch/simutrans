@@ -98,7 +98,7 @@ void gui_convoiinfo_t::zeichnen(koord offset)
 		const int xoff = max(128, max_x);
 		int left = pos.x+offset.x+xoff+4;
 		for(unsigned i=0; i<cnv->gib_vehikel_anzahl();i++) {
-			int x, y, w, h;
+			KOORD_VAL x, y, w, h;
 			const image_id bild=cnv->gib_vehikel(i)->gib_basis_bild();
 			display_get_image_offset(bild, &x, &y, &w, &h );
 			display_color_img(bild,left-x,pos.y+offset.y+13-y-h/2,cnv->gib_besitzer()->get_player_nr(),false,true);

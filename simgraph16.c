@@ -179,13 +179,13 @@ static struct imd* images = NULL;
 /*
  * Number of loaded images
  */
-static unsigned int anz_images = 0;
+static image_id anz_images = 0;
 
 /*
  * Number of allocated entries for images
  * (>= anz_images)
  */
-static unsigned int alloc_images = 0;
+static image_id alloc_images = 0;
 
 
 /*
@@ -1321,7 +1321,7 @@ void register_image(struct bild_t* bild)
 
 
 // prissi: query offsets
-void display_get_image_offset(unsigned bild, int *xoff, int *yoff, int *xw, int *yw)
+void display_get_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
 {
 	if (bild < anz_images) {
 		*xoff = images[bild].base_x;
@@ -1334,11 +1334,8 @@ void display_get_image_offset(unsigned bild, int *xoff, int *yoff, int *xw, int 
 
 // prissi: canges the offset of an image
 // we need it this complex, because the actual x-offset is coded into the image
-void display_set_image_offset(unsigned bild, int xoff, int yoff)
+void display_set_image_offset(unsigned bild, KOORD_VAL xoff, KOORD_VAL yoff)
 {
-	int h;
-	PIXVAL* sp;
-
 	if(bild >= anz_images) {
 		fprintf(stderr, "Warning: display_set_image_offset(): illegal image=%d\n", bild);
 		return;
@@ -1347,32 +1344,9 @@ void display_set_image_offset(unsigned bild, int xoff, int yoff)
 	assert(images[bild].base_h > 0);
 	assert(images[bild].base_w > 0);
 
-	h = images[bild].base_h;
-	sp = images[bild].base_data;
-
 	// avoid overflow
-	if (images[bild].base_x + xoff < 0) {
-		xoff = -images[bild].base_x;
-	}
 	images[bild].base_x += xoff;
 	images[bild].base_y += yoff;
-	// the offfset is hardcoded into the image
-	while (h-- > 0) {
-		// one line
-		*sp += xoff;	// reduce number of transparent pixels (always first)
-		do {
-			// clear run + colored run + next clear run
-			++sp;
-			sp += *sp + 1;
-		} while (*sp);
-		sp++;
-	}
-	// need recoding
-	images[anz_images].recode_flags |= FLAG_NORMAL_RECODE;
-#ifdef NEED_PLAYER_RECODE
-	images[anz_images].player_flags = NEED_PLAYER_RECODE;
-#endif
-	images[anz_images].recode_flags |= FLAG_REZOOM;
 }
 
 
