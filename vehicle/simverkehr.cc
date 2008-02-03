@@ -225,10 +225,10 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(dx, " ");
 		file->rdwr_byte(dy, "\n");
 		file->rdwr_enum(fahrtrichtung, " ");
-		if(file->get_version()<99005) {
-			sint16 dummy16;
+		if(file->get_version()<99005  ||  file->get_version()>99016) {
+			sint16 dummy16 = ((16*(sint16)hoff)/TILE_STEPS);
 			file->rdwr_short(dummy16, "\n");
-			hoff = (sint8)dummy16;
+			hoff = (sint8)((TILE_STEPS*(sint16)dummy16)/16);
 		}
 		else {
 			file->rdwr_byte(hoff, "\n");
@@ -483,27 +483,33 @@ stadtauto_t::ist_weg_frei(grund_t *gr)
 	// calculate new direction
 	// are we just turning around?
 	const uint8 this_fahrtrichtung = gib_fahrtrichtung();
-	uint8 next_90fahrtrichtung = this->calc_richtung(pos_next.gib_2d(), pos_next_next.gib_2d());
 	bool frei = false;
 	if(gib_pos()==pos_next_next) {
 		// turning around => single check
 		const uint8 next_fahrtrichtung = ribi_t::rueckwaerts(this_fahrtrichtung);
-		frei = (NULL == no_cars_blocking( gr, NULL, next_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung ));
+		frei = (NULL == no_cars_blocking( gr, NULL, next_fahrtrichtung, next_fahrtrichtung, next_fahrtrichtung ));
 
 	}
 	else {
 		// driving on: check for crossongs etc. too
 		const uint8 next_fahrtrichtung = this->calc_richtung(gib_pos().gib_2d(), pos_next_next.gib_2d());
-		frei = (NULL == no_cars_blocking( gr, NULL, this_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung ));
 
 		// do not block this crossing (if possible)
-		if(frei  &&  ribi_t::is_threeway(str->gib_ribi_unmasked())) {
+		if(ribi_t::is_threeway(str->gib_ribi_unmasked())) {
 			grund_t *test = welt->lookup(pos_next_next);
 			if(test) {
-				// check, if it can leave this crossings
-				frei = (NULL == no_cars_blocking( test, NULL, next_fahrtrichtung, next_90fahrtrichtung, next_90fahrtrichtung ));
+				uint8 next_90fahrtrichtung = this->calc_richtung(pos_next.gib_2d(), pos_next_next.gib_2d());
+				frei = (NULL == no_cars_blocking( gr, NULL, this_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung ));
+				if(frei) {
+					// check, if it can leave this crossings
+					frei = (NULL == no_cars_blocking( test, NULL, next_fahrtrichtung, next_90fahrtrichtung, next_90fahrtrichtung ));
+				}
 			}
 			// this fails with two crossings together; however, I see no easy way out here ...
+		}
+		else {
+			// not a crossing => skip 90° check!
+			frei = (NULL == no_cars_blocking( gr, NULL, this_fahrtrichtung, next_fahrtrichtung, next_fahrtrichtung ));
 		}
 
 		// do not block railroad crossing
@@ -528,7 +534,7 @@ stadtauto_t::ist_weg_frei(grund_t *gr)
 				if(!test) {
 					break;
 				}
-				// test next field after crossing
+				// test next field after way crossing
 				if(no_cars_blocking( test, NULL, next_fahrtrichtung, nextnext_fahrtrichtung, nextnext_fahrtrichtung )) {
 					return false;
 				}
@@ -598,47 +604,54 @@ stadtauto_t::hop_check()
 	// next tile unknow => find next tile
 	if(pos_next_next==koord3d::invalid) {
 
-		// cul de sac: return
-		if(ribi_t::ist_einfach(weg->gib_ribi())) {
-			pos_next_next = gib_pos();
-			return ist_weg_frei(from);
-		}
-
 		grund_t *to, *emergency=NULL;
 
 		// ok, nobody did delete the road in front of us
 		// so we can check for valid directions
 		const ribi_t::ribi ribi = weg->gib_ribi() & (~ribi_t::rueckwaerts(fahrtrichtung90));
-		const uint8 offset = simrand(4);
+
+		// cul de sac: return
+		if(ribi==0) {
+			pos_next_next = gib_pos();
+			return ist_weg_frei(from);
+		}
+
+		const uint8 offset = ribi_t::ist_einfach(ribi) ? 0 : simrand(4);
 		for(uint8 i = 0; i < 4; i++) {
 			const uint8 r = (i+offset)&3;
-			if(  (ribi&ribi_t::nsow[r])!=0  &&  from->get_neighbour(to, road_wt, koord::nsow[r])) {
-				// check, if this is just a single tile deep after a crossing
-				weg_t *w=to->gib_weg(road_wt);
-				if(ribi_t::ist_einfach(w->gib_ribi())  &&  !ribi_t::ist_einfach(ribi)) {
-					emergency = to;
-					continue;
-				}
-				// check, if roadsign forbid next step ...
-				if(w->has_sign()) {
-					const roadsign_besch_t* rs_besch = to->find<roadsign_t>()->gib_besch();
-					if(rs_besch->gib_min_speed()>besch->gib_geschw()  ||  rs_besch->is_private_way()) {
-						// not allowed to go here
+			if(  (ribi&ribi_t::nsow[r])!=0  ) {
+				if(from->get_neighbour(to, road_wt, koord::nsow[r])) {
+					// check, if this is just a single tile deep after a crossing
+					weg_t *w=to->gib_weg(road_wt);
+					if((w->gib_ribi()&~ribi_t::nsow[r])==0  &&  !ribi_t::ist_einfach(ribi)) {
+						emergency = to;
 						continue;
 					}
-				}
-				// ok, now check if we are allowed to go here (i.e. no cars blocking)
-				pos_next_next = to->gib_pos();
-				if(ist_weg_frei(from)) {
-					// ok, this direction is fine!
-					ms_traffic_jam = 0;
-					if(current_speed<48) {
-						current_speed = 48;
+					// check, if roadsign forbid next step ...
+					if(w->has_sign()) {
+						const roadsign_besch_t* rs_besch = to->find<roadsign_t>()->gib_besch();
+						if(rs_besch->gib_min_speed()>besch->gib_geschw()  ||  rs_besch->is_private_way()) {
+							// not allowed to go here
+							continue;
+						}
 					}
-					return true;
+					// ok, now check if we are allowed to go here (i.e. no cars blocking)
+					pos_next_next = to->gib_pos();
+					if(ist_weg_frei(from)) {
+						// ok, this direction is fine!
+						ms_traffic_jam = 0;
+						if(current_speed<48) {
+							current_speed = 48;
+						}
+						return true;
+					}
+					else {
+						pos_next_next == koord3d::invalid;
+					}
 				}
 				else {
-					pos_next_next == koord3d::invalid;
+					// ribi do not accord with direction => go back
+					emergency = from;
 				}
 			}
 		}
@@ -649,8 +662,8 @@ stadtauto_t::hop_check()
 		}
 	}
 	else {
-		grund_t *to = welt->lookup(pos_next_next);
-		if(to  &&  ist_weg_frei(to)) {
+//		grund_t *from = welt->lookup(pos_next_next);
+		if(from  &&  ist_weg_frei(from)) {
 			// ok, this direction is fine!
 			ms_traffic_jam = 0;
 			if(current_speed<48) {

@@ -188,8 +188,17 @@ bool movingobj_t::check_season(long month)
 
 void movingobj_t::rdwr(loadsave_t *file)
 {
-	ding_t::rdwr(file);
+	vehikel_basis_t::rdwr(file);
 
+	file->rdwr_enum(fahrtrichtung, " ");
+	file->rdwr_byte(dx, "\n");
+	file->rdwr_byte(dy, "\n");
+	// to convert between different height steps
+	sint16 dummy16 = ((16*(sint16)hoff)/TILE_STEPS);
+	file->rdwr_short(dummy16, "\n");
+	hoff = (sint8)((TILE_STEPS*(sint16)dummy16)/16);
+
+	pos_next.rdwr(file);
 	pos_next_next.rdwr(file);
 	file->rdwr_short( timetochange, "" );
 
