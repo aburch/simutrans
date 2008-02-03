@@ -623,7 +623,7 @@ stadtauto_t::hop_check()
 				if(from->get_neighbour(to, road_wt, koord::nsow[r])) {
 					// check, if this is just a single tile deep after a crossing
 					weg_t *w=to->gib_weg(road_wt);
-					if((w->gib_ribi()&~ribi_t::nsow[r])==0  &&  !ribi_t::ist_einfach(ribi)) {
+					if(ribi_t::ist_einfach(w->gib_ribi())  &&  (w->gib_ribi()&ribi_t::nsow[r])==0  &&  !ribi_t::ist_einfach(ribi)) {
 						emergency = to;
 						continue;
 					}
