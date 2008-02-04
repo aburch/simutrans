@@ -3094,7 +3094,94 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 		// add vehicles to crowded lines
 		case CHECK_CONVOI:
 		{
-			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
+			// next time: do something different
+			state = NR_INIT;
+			next_contruction_steps = steps + simrand( 1000 ) + 25;
+
+			vector_tpl<linehandle_t> lines(0);
+			simlinemgmt.get_lines( simline_t::truckline, &lines);
+			for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; ++i) {
+				linehandle_t line = (*i);
+
+				// remove empty lines
+				if(line->count_convoys()==0) {
+					simlinemgmt.delete_line(line);
+					break;
+				}
+
+				// avoid empty schedule ?!?
+				assert(line->get_fahrplan()->maxi()>0);
+
+				// made loss with this line
+				if(line->get_finance_history(0,LINE_PROFIT)<0) {
+					// try to update the vehicles
+					if(welt->use_timeline()) {
+						// find obsolete vehicles ...
+						slist_tpl <convoihandle_t> obsolete;
+						uint32 capacity = 0;
+						for(  int i=0;  i<line->count_convoys();  i++  ) {
+							convoihandle_t cnv = line->get_convoy(i);
+							if(cnv->has_obsolete_vehicles()) {
+								obsolete.append(cnv);
+								capacity += cnv->gib_vehikel(0)->gib_besch()->gib_zuladung();
+							}
+						}
+						// now try to finde new vehicle
+						if(capacity>0) {
+							road_vehicle = vehikelbauer_t::vehikel_search( road_wt, welt->get_current_month(), 50, welt->get_average_speed(road_wt), warenbauer_t::passagiere );
+							if(!road_vehicle->is_retired(welt->get_current_month())) {
+								// there is a newer one ...
+								for(  uint32 new_capacity=0;  capacity>new_capacity;  new_capacity+=road_vehicle->gib_zuladung()) {
+									vehikel_t* v = vehikelbauer_t::baue( line->get_fahrplan()->eintrag[0].pos, this, NULL, road_vehicle  );
+									convoi_t* new_cnv = new convoi_t(this);
+									new_cnv->setze_name( v->gib_besch()->gib_name() );
+									new_cnv->add_vehikel( v );
+									welt->sync_add( new_cnv );
+									new_cnv->set_line(line);
+									new_cnv->start();
+								}
+								// delete all old convois
+								while(!obsolete.empty()) {
+									obsolete.remove_first()->self_destruct();
+								}
+								return;
+							}
+						}
+					}
+				}
+				// next: check for stucked convois ...
+
+				sint64	free_cap = line->get_finance_history(0,LINE_CAPACITY);
+				sint64	used_cap = line->get_finance_history(0,LINE_TRANSPORTED_GOODS);
+
+				if(free_cap+used_cap==0) {
+					continue;
+				}
+
+				sint32 ratio = (sint32)((free_cap*100l)/(free_cap+used_cap));
+
+				// next: check for overflowing lines, i.e. running with 3/4 of the capacity
+				if(  ratio<25  ) {
+					// add the first again
+					vehikel_t* v = vehikelbauer_t::baue( line->get_fahrplan()->eintrag[0].pos, this, NULL, line->get_convoy(0)->gib_vehikel(0)->gib_besch()  );
+					convoi_t* new_cnv = new convoi_t(this);
+					new_cnv->setze_name( v->gib_besch()->gib_name() );
+					new_cnv->add_vehikel( v );
+					welt->sync_add( new_cnv );
+					new_cnv->set_line( line );
+					new_cnv->start();
+					return;
+				}
+
+				// next: check for too many cars, i.e. running with too many cars
+				if(  ratio>75  &&  line->count_convoys()>1) {
+					// remove one convoi
+					line->get_convoy(0)->self_destruct();
+					return;
+				}
+			}
+#if 0
+// old iteration over convois: just take the stuck logic still from here
 				const convoihandle_t cnv = *i;
 				if(cnv->gib_besitzer()==this  &&  (cnv->gib_vehikel(0)->gib_waytype()==road_wt  ||  cnv->gib_vehikel(0)->gib_waytype()==water_wt)) {
 					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
@@ -3153,6 +3240,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","copy convoi %s on route %s to %s",cn
 			}
 			state = NR_INIT;
 			next_contruction_steps = steps + simrand( 1000 );
+#endif
 		}
 		break;
 

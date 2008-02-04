@@ -292,6 +292,10 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t typ, const uint
 				difference += (besch->gib_geschw() < test_besch->gib_geschw())? -10 : 10;
 				// it is cheaper? (not so important)
 				difference += (besch->gib_preis() > test_besch->gib_preis())? -5 : 5;
+				// add some malus for obsolete vehicles
+				if(test_besch->is_retired(month_now)) {
+					difference += 5;
+				}
 			}
 			// ok, final check
 			if(  besch==NULL  ||  difference<(int)simrand(25)    ) {
