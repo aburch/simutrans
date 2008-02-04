@@ -893,7 +893,7 @@ stadt_t::~stadt_t()
 				stadt_t *city = welt->suche_naechste_stadt(gb->gib_pos().gib_2d());
 				gb->setze_stadt( city );
 				if(city) {
-					city->buildings.append(gb,16);
+					city->buildings.append(gb,gb->gib_passagier_level(),16);
 				}
 			}
 			else {
