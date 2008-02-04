@@ -1324,10 +1324,10 @@ void register_image(struct bild_t* bild)
 void display_get_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
 {
 	if (bild < anz_images) {
-		*xoff = images[bild].base_x;
-		*yoff = images[bild].base_y;
-		*xw   = images[bild].base_w;
-		*yw   = images[bild].base_h;
+		*xoff = images[bild].x;
+		*yoff = images[bild].y;
+		*xw   = images[bild].w;
+		*yw   = images[bild].h;
 	}
 }
 
