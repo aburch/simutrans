@@ -604,11 +604,11 @@ stadtauto_t::hop_check()
 	// next tile unknow => find next tile
 	if(pos_next_next==koord3d::invalid) {
 
-		grund_t *to, *emergency=NULL;
+		grund_t *to;
 
 		// ok, nobody did delete the road in front of us
 		// so we can check for valid directions
-		const ribi_t::ribi ribi = weg->gib_ribi() & (~ribi_t::rueckwaerts(fahrtrichtung90));
+		ribi_t::ribi ribi = weg->gib_ribi() & (~ribi_t::rueckwaerts(fahrtrichtung90));
 
 		// cul de sac: return
 		if(ribi==0) {
@@ -624,7 +624,7 @@ stadtauto_t::hop_check()
 					// check, if this is just a single tile deep after a crossing
 					weg_t *w=to->gib_weg(road_wt);
 					if(ribi_t::ist_einfach(w->gib_ribi())  &&  (w->gib_ribi()&ribi_t::nsow[r])==0  &&  !ribi_t::ist_einfach(ribi)) {
-						emergency = to;
+						ribi &= ~ribi_t::nsow[r];
 						continue;
 					}
 					// check, if roadsign forbid next step ...
@@ -632,6 +632,7 @@ stadtauto_t::hop_check()
 						const roadsign_besch_t* rs_besch = to->find<roadsign_t>()->gib_besch();
 						if(rs_besch->gib_min_speed()>besch->gib_geschw()  ||  rs_besch->is_private_way()) {
 							// not allowed to go here
+							ribi &= ~ribi_t::nsow[r];
 							continue;
 						}
 					}
@@ -649,20 +650,15 @@ stadtauto_t::hop_check()
 						pos_next_next == koord3d::invalid;
 					}
 				}
-				else {
-					// ribi do not accord with direction => go back
-					emergency = from;
-				}
 			}
 		}
 		// only stumps at single way crossing, all other blocked => turn around
-		if(emergency) {
+		if(ribi==0) {
 			pos_next_next = gib_pos();
 			return ist_weg_frei(from);
 		}
 	}
 	else {
-//		grund_t *from = welt->lookup(pos_next_next);
 		if(from  &&  ist_weg_frei(from)) {
 			// ok, this direction is fine!
 			ms_traffic_jam = 0;
