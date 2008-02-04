@@ -650,6 +650,11 @@ stadtauto_t::hop_check()
 						pos_next_next == koord3d::invalid;
 					}
 				}
+				else {
+					// not connected?!? => ribi likely wrong
+					ribi &= ~ribi_t::nsow[r];
+//					weg->setze_ribi( weg->gib_ribi_unmasked()&(~ribi_t::nsow[r]) );
+				}
 			}
 		}
 		// only stumps at single way crossing, all other blocked => turn around
