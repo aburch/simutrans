@@ -18,32 +18,30 @@
 class karte_t;
 class spieler_t;
 class cbuffer_t;
+class cstring_t;
 
 // part of passengers going to factories or toursit attractions (100% mx)
-#define FACTORY_PAX 33	// workers
-#define TOURIST_PAX 16		// tourists
-// other long-distance travellers
+#define FACTORY_PAX (33)	// workers
+#define TOURIST_PAX (16)		// tourists
 
 
-#define MAX_CITY_HISTORY_YEARS  12 // number of years to keep history
-#define MAX_CITY_HISTORY_MONTHS  12 // number of months to keep history
-#define MAX_CITY_HISTORY 11      // Total number of items in array
+#define MAX_CITY_HISTORY_YEARS  (12) // number of years to keep history
+#define MAX_CITY_HISTORY_MONTHS (12) // number of months to keep history
 
-#define HIST_CITICENS 0	// total people
-#define HIST_GROWTH 1 // growth (just for convenience)
-#define HIST_BUILDING 2
-#define HIST_CITYCARS 3
-#define HIST_PAS_TRANSPORTED 4
-#define HIST_PAS_GENERATED 5
-#define HIST_MAIL_TRANSPORTED 6
-#define HIST_MAIL_GENERATED 7
-#define HIST_GOODS_RECIEVED 8
-#define HIST_GOODS_NEEDED 9
-#define HIST_POWER_RECIEVED 10
-
-
-
-class cstring_t;
+enum city_cost {
+	HIST_CITICENS=0,// total people
+	HIST_GROWTH,	// growth (just for convenience)
+	HIST_BUILDING,	// number of buildings
+	HIST_CITYCARS,	// number of citycars generated
+	HIST_PAS_TRANSPORTED, // number of passengers who could start their journey
+	HIST_PAS_GENERATED,	// total number generated
+	HIST_MAIL_TRANSPORTED,	// letters that could be sended
+	HIST_MAIL_GENERATED,	// all letters generated
+	HIST_GOODS_RECIEVED,	// times all storages were not empty
+	HIST_GOODS_NEEDED,	// times sotrages checked
+	HIST_POWER_RECIEVED,	// power consumption (not used at the moment!)
+	MAX_CITY_HISTORY	// Total number of items in array
+};
 
 /**
  * Die Objecte der Klasse stadt_t bilden die Staedte in Simu. Sie

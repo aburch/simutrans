@@ -38,10 +38,11 @@ enum player_cost {
 	COST_MARGIN,        // COST_OPERATING_PROFIT/(COST_VEHICLE_RUN+COST_MAINTENANCE)
 	COST_TRANSPORTED_GOODS, // all transported goods
 	COST_POWERLINES,	  // revenue from the power grid
-	MAX_COST
+	MAX_PLAYER_COST
 };
-#define MAX_HISTORY_YEARS  12 // number of years to keep history
-#define MAX_HISTORY_MONTHS  12 // number of months to keep history
+
+#define MAX_PLAYER_HISTORY_YEARS  (12) // number of years to keep history
+#define MAX_PLAYER_HISTORY_MONTHS  (12) // number of months to keep history
 
 
 class karte_t;
@@ -76,16 +77,16 @@ private:
 	 * Finance array, indexed by type
 	 * @author Owen Rudge
 	 */
-	sint64 finances[MAX_COST];
-	sint64 old_finances[MAX_COST];
+	sint64 finances[MAX_PLAYER_COST];
+	sint64 old_finances[MAX_PLAYER_COST];
 
 	/**
 	* Finance History - will supercede the finances by Owen Rudge
 	* Will hold finances for the most recent 12 years
 	* @author hsiegeln
 	*/
-	sint64 finance_history_year[MAX_HISTORY_YEARS][MAX_COST];
-	sint64 finance_history_month[MAX_HISTORY_MONTHS][MAX_COST];
+	sint64 finance_history_year[MAX_PLAYER_HISTORY_YEARS][MAX_PLAYER_COST];
+	sint64 finance_history_month[MAX_PLAYER_HISTORY_MONTHS][MAX_PLAYER_COST];
 
 	/**
 	 * Monthly maintenance cost

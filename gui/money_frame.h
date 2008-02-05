@@ -84,10 +84,10 @@ private:
 	sint64 money_tmp, money_min, money_max;
 	sint64 baseline, scale;
 	char cmoney_min[128], cmoney_max[128];
-	button_t filterButtons[MAX_COST];
+	button_t filterButtons[MAX_PLAYER_COST];
 	void calc_chart_values();
-	static const char cost_type[MAX_COST][64];
-	static const int cost_type_color[MAX_COST];
+	static const char cost_type[MAX_PLAYER_COST][64];
+	static const int cost_type_color[MAX_PLAYER_COST];
 	static char digit[4];
 	gui_tab_panel_t year_month_tabs;
 

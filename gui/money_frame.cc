@@ -34,13 +34,13 @@ static uint32 bFilterStates[MAX_PLAYER_COUNT];
 #define BUTTONSPACE 14
 
 // @author hsiegeln
-const char money_frame_t::cost_type[MAX_COST][64] =
+const char money_frame_t::cost_type[MAX_PLAYER_COST][64] =
 {
   "Construction_Btn", "Operation", "New Vehicles", "Revenue",
   "Maintenance", "Assets", "Cash", "Net Wealth", "Gross Profit", "Ops Profit", "Margin (%)", "Transported", "Powerlines"
 };
 
-const int money_frame_t::cost_type_color[MAX_COST] =
+const int money_frame_t::cost_type_color[MAX_PLAYER_COST] =
 {
 	COL_CONSTRUCTION,
 	COL_OPERATION,
@@ -57,7 +57,7 @@ const int money_frame_t::cost_type_color[MAX_COST] =
 	COL_POWERLINES
 };
 
-const uint8 button_order[MAX_COST] =
+const uint8 button_order[MAX_PLAYER_COST] =
 {
 	3, 12, 1, 4, 9, 2, 0, 8, 11,
 	6, 5, 10, 7
@@ -133,22 +133,22 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	//CHART YEAR
 	chart.setze_pos(koord(1,1));
 	chart.setze_groesse(koord(443,120));
-	chart.set_dimension(MAX_HISTORY_YEARS, 10000);
+	chart.set_dimension(MAX_PLAYER_HISTORY_YEARS, 10000);
 	chart.set_seed(sp->get_welt()->get_last_year());
 	chart.set_background(MN_GREY1);
-	for (int i = 0; i<MAX_COST; i++) {
-		chart.add_curve(cost_type_color[i], sp->get_finance_history_year(), MAX_COST, i, 12, (i < 10) ||  i==COST_POWERLINES ? MONEY: STANDARD, false, false);
+	for (int i = 0; i<MAX_PLAYER_COST; i++) {
+		chart.add_curve(cost_type_color[i], sp->get_finance_history_year(), MAX_PLAYER_COST, i, 12, (i < 10) ||  i==COST_POWERLINES ? MONEY: STANDARD, false, false);
 	}
 	//CHART YEAR END
 
 	//CHART MONTH
 	mchart.setze_pos(koord(1,1));
 	mchart.setze_groesse(koord(443,120));
-	mchart.set_dimension(MAX_HISTORY_MONTHS, 10000);
+	mchart.set_dimension(MAX_PLAYER_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
 	mchart.set_background(MN_GREY1);
-	for (int i = 0; i<MAX_COST; i++) {
-		mchart.add_curve(cost_type_color[i], sp->get_finance_history_month(), MAX_COST, i, 12, (i < 10) ||  i==COST_POWERLINES ? MONEY: STANDARD, false, false);
+	for (int i = 0; i<MAX_PLAYER_COST; i++) {
+		mchart.add_curve(cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, i, 12, (i < 10) ||  i==COST_POWERLINES ? MONEY: STANDARD, false, false);
 	}
 	mchart.set_visible(false);
 	//CHART MONTH END
@@ -279,7 +279,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	}
 
 	// states ...
-	for ( int i = 0; i<MAX_COST; i++) {
+	for ( int i = 0; i<MAX_PLAYER_COST; i++) {
 		if (bFilterStates[sp->get_player_nr()] & (1<<i)) {
 			chart.show_curve(i);
 			mchart.show_curve(i);
@@ -424,7 +424,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	maintenance_money.setze_text(str_buf[16]);
 	maintenance_money.set_color(spieler_t::add_maintenance( sp, 0)>=0?MONEY_PLUS:MONEY_MINUS);
 
-	for (int i = 0;  i<MAX_COST;  i++) {
+	for (int i = 0;  i<MAX_PLAYER_COST;  i++) {
 		filterButtons[i].pressed = ( (bFilterStates[sp->get_player_nr()]&(1<<i)) != 0 );
 		// year_month_toggle.pressed = mchart.is_visible();
 	}
@@ -444,7 +444,7 @@ bool money_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		return true;
 	}
 
-	for ( int i = 0; i<MAX_COST; i++) {
+	for ( int i = 0; i<MAX_PLAYER_COST; i++) {
 		if (komp == &filterButtons[i]) {
 			bFilterStates[sp->get_player_nr()] ^= (1<<i);
 			if (bFilterStates[sp->get_player_nr()] & (1<<i)) {

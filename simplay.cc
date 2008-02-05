@@ -102,8 +102,8 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	 * @author hsiegeln
 	 */
 
-	for (int year=0; year<MAX_HISTORY_YEARS; year++) {
-		for (int cost_type=0; cost_type<MAX_COST; cost_type++) {
+	for (int year=0; year<MAX_PLAYER_HISTORY_YEARS; year++) {
+		for (int cost_type=0; cost_type<MAX_PLAYER_COST; cost_type++) {
 			finance_history_year[year][cost_type] = 0;
 			if ((cost_type == COST_CASH) || (cost_type == COST_NETWEALTH)) {
 				finance_history_year[year][cost_type] = umgebung_t::starting_money;
@@ -111,8 +111,8 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 		}
 	}
 
-	for (int month=0; month<MAX_HISTORY_MONTHS; month++) {
-		for (int cost_type=0; cost_type<MAX_COST; cost_type++) {
+	for (int month=0; month<MAX_PLAYER_HISTORY_MONTHS; month++) {
+		for (int cost_type=0; cost_type<MAX_PLAYER_COST; cost_type++) {
 			finance_history_month[month][cost_type] = 0;
 			if ((cost_type == COST_CASH) || (cost_type == COST_NETWEALTH)) {
 				finance_history_month[month][cost_type] = umgebung_t::starting_money;
@@ -393,12 +393,12 @@ void spieler_t::neues_jahr()
 void spieler_t::roll_finance_history_month()
 {
 	int i;
-	for (i=MAX_HISTORY_MONTHS-1; i>0; i--) {
-		for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
+	for (i=MAX_PLAYER_HISTORY_MONTHS-1; i>0; i--) {
+		for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) {
 			finance_history_month[i][cost_type] = finance_history_month[i-1][cost_type];
 		}
 	}
-	for (int i=0;i<MAX_COST;i++) {
+	for (int i=0;  i<MAX_PLAYER_COST;  i++) {
 		finance_history_month[0][i] = 0;
 	}
 	finance_history_year[0][COST_ASSETS] = 0;
@@ -409,12 +409,12 @@ void spieler_t::roll_finance_history_month()
 void spieler_t::roll_finance_history_year()
 {
 	int i;
-	for (i=MAX_HISTORY_YEARS-1; i>0; i--) {
-		for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
+	for (i=MAX_PLAYER_HISTORY_YEARS-1; i>0; i--) {
+		for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) {
 			finance_history_year[i][cost_type] = finance_history_year[i-1][cost_type];
 		}
 	}
-	for (int i=0;i<MAX_COST;i++) {
+	for (int i=0;  i<MAX_PLAYER_COST;  i++) {
 		finance_history_year[0][i] = 0;
 	}
 	finance_history_month[0][COST_ASSETS] = 0;
@@ -430,7 +430,7 @@ void spieler_t::calc_finance_history()
 	*/
 	sint64 profit, assets, mprofit;
 	profit = assets = mprofit = 0;
-	for (int i=0; i<MAX_COST; i++) {
+	for (int i=0; i<MAX_PLAYER_COST; i++) {
 		// all costs < COST_ASSETS influence profit, so we must sum them up
 		if(i<COST_ASSETS) {
 			profit += finance_history_year[0][i];
@@ -496,7 +496,7 @@ void spieler_t::buche(const sint64 betrag, enum player_cost type)
 {
 	konto += betrag;
 
-	if(type < MAX_COST) {
+	if(type < MAX_PLAYER_COST) {
 		// fill year history
 		finance_history_year[0][type] += betrag;
 		finance_history_year[0][COST_PROFIT] += betrag;
@@ -618,8 +618,8 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 
 	if (file->get_version() < 84008) {
 		// not so old save game
-		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
-			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
+		for (int year = 0;year<MAX_PLAYER_HISTORY_YEARS;year++) {
+			for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) {
 				if (file->get_version() < 84007) {
 					// a cost_type has has been added. For old savegames we only have 9 cost_types, now we have 10.
 					// for old savegames only load 9 types and calculate the 10th; for new savegames load all 10 values
@@ -647,7 +647,7 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 		}
 	}
 	else if (file->get_version() < 86000) {
-		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
+		for (int year = 0;year<MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<10; cost_type++) {
 				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
 			}
@@ -657,7 +657,7 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 			finance_history_year[year][COST_TRANSPORTED_GOODS] = 0;
 		}
 		// in 84008 monthly finance history was introduced
-		for (int month = 0;month<MAX_HISTORY_MONTHS;month++) {
+		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++) {
 			for (int cost_type = 0; cost_type<10; cost_type++) {
 				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
 			}
@@ -669,13 +669,13 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 	}
 	else if (file->get_version() < 99011) {
 		// powerline category missing
-		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
+		for (int year = 0;year<MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<12; cost_type++) {
 				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
 			}
 			finance_history_year[year][COST_POWERLINES] = 0;
 		}
-		for (int month = 0;month<MAX_HISTORY_MONTHS;month++) {
+		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++) {
 			for (int cost_type = 0; cost_type<12; cost_type++) {
 				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
 			}
@@ -684,13 +684,13 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 	}
 	else {
 		// most recent savegame version
-		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
-			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
+		for (int year = 0;year<MAX_PLAYER_HISTORY_YEARS;year++) {
+			for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) {
 				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
 			}
 		}
-		for (int month = 0;month<MAX_HISTORY_MONTHS;month++) {
-			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
+		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++) {
+			for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) {
 				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
 			}
 		}
@@ -729,9 +729,9 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 
 	if(file->is_loading()) {
 		// first: financial sanity check
-		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
+		for (int year = 0;year<MAX_PLAYER_HISTORY_YEARS;year++) {
 			sint64 value=0;
-			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
+			for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) {
 				value += finance_history_year[year][cost_type];
 			}
 		}
@@ -2833,7 +2833,7 @@ void spieler_t::do_passenger_ki()
 
 			const weighted_vector_tpl<stadt_t*>& staedte = welt->gib_staedte();
 			int anzahl = staedte.get_count();
-			int offset = (anzahl>1)?simrand(anzahl-1):0;
+			int offset = (anzahl>1) ? simrand(anzahl-1) : 0;
 			// start with previous target
 			const stadt_t* last_start_stadt=start_stadt;
 			start_stadt = end_stadt;
@@ -2843,7 +2843,9 @@ void spieler_t::do_passenger_ki()
 			platz2 = koord::invalid;
 			// if no previous town => find one
 			if(start_stadt==NULL) {
-				start_stadt = staedte[offset];
+				// larger start town preferred
+				start_stadt = staedte.at_weight( simrand(staedte.get_sum_weight()) );
+				offset = staedte.index_of( (stadt_t*)start_stadt );
 			}
 DBG_MESSAGE("spieler_t::do_passenger_ki()","using city %s for start",start_stadt->gib_name());
 			const halthandle_t start_halt = get_our_hub(start_stadt);
@@ -2868,20 +2870,6 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","searching attraction");
 				bool ausflug=simrand(2)!=0;	// holidays first ...
 				int ziel_count=ausflug?ausflugsziele.get_count():fabriken.get_count();
 				count = 1;	// one vehicle
-#if 0
-				// might work better, if finished ...
-				if(ausflug) {
-					const weighted_vector_tpl<gebaeude_t*> &ausflugsziele = welt->gib_ausflugsziele();
-					for(  int k=0;  k<4;  k++  ) {
-						gebaeude_t *gb = welt->gib_random_ausflugsziel();
-						if(gb->gib_post_level()<=2) {
-							// not a good object to go to ...
-							continue;
-						}
-						pos=gb->gib_pos().gib_2d();
-						size=gb->gib_tile()->gib_besch()->gib_groesse(bg->gib_tile()->gib_layout());
-				}
-#endif
 				for( int i=0;  i<ziel_count;  i++  ) {
 					unsigned	dist;
 					koord pos, size;
@@ -3100,8 +3088,9 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 
 			vector_tpl<linehandle_t> lines(0);
 			simlinemgmt.get_lines( simline_t::truckline, &lines);
-			for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; ++i) {
-				linehandle_t line = (*i);
+			const uint32 offset = simrand(lines.get_count());
+			for (uint32 i = 0;  i<lines.get_count();  i++  ) {
+				linehandle_t line = lines[(i+offset)%lines.get_count()];
 
 				// remove empty lines
 				if(line->count_convoys()==0) {
@@ -3161,7 +3150,7 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 				sint32 ratio = (sint32)((free_cap*100l)/(free_cap+used_cap));
 
 				// next: check for overflowing lines, i.e. running with 3/4 of the capacity
-				if(  ratio<25  ) {
+				if(  ratio<10  ) {
 					// add the first again
 					vehikel_t* v = vehikelbauer_t::baue( line->get_fahrplan()->eintrag[0].pos, this, NULL, line->get_convoy(0)->gib_vehikel(0)->gib_besch()  );
 					convoi_t* new_cnv = new convoi_t(this);
@@ -3174,73 +3163,12 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 				}
 
 				// next: check for too many cars, i.e. running with too many cars
-				if(  ratio>75  &&  line->count_convoys()>1) {
+				if(  ratio>40  &&  line->count_convoys()>1) {
 					// remove one convoi
 					line->get_convoy(0)->self_destruct();
 					return;
 				}
 			}
-#if 0
-// old iteration over convois: just take the stuck logic still from here
-				const convoihandle_t cnv = *i;
-				if(cnv->gib_besitzer()==this  &&  (cnv->gib_vehikel(0)->gib_waytype()==road_wt  ||  cnv->gib_vehikel(0)->gib_waytype()==water_wt)) {
-					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
-					// take care, that the vehicle is old enough ...
-					if((welt->get_current_month()-cnv->gib_vehikel(0)->gib_insta_zeit())>2  &&  cnv->gib_jahresgewinn()==0  ){
-						sint64 passenger=0;
-						for( int i=0;  i<MAX_MONTHS;  i ++) {
-							passenger += cnv->get_finance_history(i,CONVOI_TRANSPORTED_GOODS);
-						}
-						if(passenger==0) {
-							// no passengers for two months?
-							// well, then delete this (likely stucked somewhere)
-DBG_MESSAGE("spieler_t::do_passenger_ki()","convoi %s not needed!",cnv->gib_name());
-							cnv->self_destruct();
-							break;
-						}
-					}
-					// then check for overcrowded lines
-					if(cnv->gib_vehikel(0)->gib_fracht_menge()==cnv->gib_vehikel(0)->gib_fracht_max()  &&  cnv->get_line().is_bound()) {
-						INT_CHECK("simplay 889");
-						// this is our vehicle, and is 100% loaded
-						fahrplan_t  *f = cnv->gib_fahrplan();
-						koord3d startpos= cnv->gib_pos();
-						// next checkpoint also crowed with things for us?
-						halthandle_t h0 = welt->lookup(f->eintrag[0].pos)->gib_halt();
-						halthandle_t h1 = welt->lookup(f->eintrag[1].pos)->gib_halt();
-						if(!h1.is_bound() ||  !h0.is_bound()) {
-							// somebody deleted our stops or messed with the schedules ...
-							continue;
-						}
-DBG_MESSAGE("spieler_t::do_passenger_ki()","checking our convoi %s between %s and %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
-						DBG_MESSAGE(
-							"spieler_t::do_passenger_ki()", "waiting: %s (%i) and %s (%i)",
-							h0->gib_name(), h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, haltestelle_t::gib_halt(welt,f->eintrag[1].pos)),
-							h1->gib_name(), h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, haltestelle_t::gib_halt(welt,f->eintrag[0].pos))
-						);
-
-						// we assume crowed for more than 129 waiting passengers
-						if (h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, haltestelle_t::gib_halt(welt,f->eintrag[1].pos)) > h0->get_capacity() ||
-								h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, haltestelle_t::gib_halt(welt,f->eintrag[0].pos)) > h1->get_capacity()) {
-DBG_MESSAGE("spieler_t::do_passenger_ki()","copy convoi %s on route %s to %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
-							vehikel_t* v = vehikelbauer_t::baue(startpos, this, NULL, cnv->gib_vehikel(0)->gib_besch());
-							convoi_t* new_cnv = new convoi_t(this);
-							// V.Meyer: give the new convoi name from first vehicle
-							new_cnv->setze_name( v->gib_besch()->gib_name() );
-							new_cnv->add_vehikel( v );
-							// and start new convoi
-							welt->sync_add( new_cnv );
-							new_cnv->set_line(cnv->get_line());
-							new_cnv->start();
-							// we do not want too many copies, just copy once!
-							break;
-						}
-					}
-				}
-			}
-			state = NR_INIT;
-			next_contruction_steps = steps + simrand( 1000 );
-#endif
 		}
 		break;
 
