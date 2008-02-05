@@ -141,11 +141,13 @@ gebaeude_t::rotate90()
 		uint8 layout = tile->gib_layout();
 		koord new_offset = tile->gib_offset();
 
-		if (haus_besch->gib_all_layouts() > 1) {
-			// rotate it
-			layout += 3;
-			layout %= haus_besch->gib_all_layouts() == 4 ? 4 : 2;
-			layout |=	 (tile->gib_layout()&0x18);
+		if(haus_besch->gib_all_layouts()<=4) {
+			layout = (layout+3) % haus_besch->gib_all_layouts();
+		}
+		else {
+
+			static uint8 layout_rotate[16] = { 1, 8, 5, 10, 3, 12, 7, 14, 9, 0, 13, 2, 11, 4, 15, 6 };
+			layout = layout_rotate[layout] % haus_besch->gib_all_layouts();
 		}
 		// have to rotate the tiles :(
 		if (!haus_besch->can_rotate() && haus_besch->gib_all_layouts() == 1 && (welt->gib_einstellungen()->get_rotation() & 1) == 0) {

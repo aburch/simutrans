@@ -14,6 +14,7 @@
 	FIX: no citycars entring a crossing, if there is no exit
 	FIX: convois created by copying had no home depot
 	FIX: during zoomout, the tiles were clipped 32 pixels too early
+	FIX: rotation of buildings with layout>4 corrected
 
 
 Release of 99.17.1 (r1550, stable)
