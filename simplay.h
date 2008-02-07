@@ -74,13 +74,6 @@ private:
 	sint32 haltcount;
 
 	/**
-	 * Finance array, indexed by type
-	 * @author Owen Rudge
-	 */
-	sint64 finances[MAX_PLAYER_COST];
-	sint64 old_finances[MAX_PLAYER_COST];
-
-	/**
 	* Finance History - will supercede the finances by Owen Rudge
 	* Will hold finances for the most recent 12 years
 	* @author hsiegeln
@@ -299,23 +292,11 @@ public:
 	void rotate90( const sint16 y_size );
 
 	/**
-	 * Returns the amount of money for a certain finance section
-	 * @author Owen Rudge
-	 */
-	sint64 get_finance_info(int type);
-
-	/**
-	 * Returns the amount of money for a certain finance section from previous year
-	 *
-	 * @author Owen Rudge
-	 */
-	sint64 get_finance_info_old(int type);
-
-	/**
 	* Returns the finance history for player
 	* @author hsiegeln
 	*/
 	sint64 get_finance_history_year(int year, int type) { return finance_history_year[year][type]; }
+	sint64 get_finance_history_month(int month, int type) { return finance_history_month[month][type]; }
 
 	/**
 	 * Returns pointer to finance history for player

@@ -831,37 +831,6 @@ void spieler_t::rotate90( const sint16 y_size )
 
 
 
-/**
- * Returns the amount of money for a certain finance section
- *
- * @author Owen Rudge
- */
-sint64 spieler_t::get_finance_info(int type)
-{
-	if (type == COST_CASH) {
-		return konto;
-	}
-	else {
-		// return finances[type];
-		return finance_history_year[0][type];
-	}
-	return 0;
-}
-
-
-
-/**
- * Returns the amount of money for a certain finance section from previous year
- *
- * @author Owen Rudge
- */
-sint64 spieler_t::get_finance_info_old(int type)
-{
-	return finance_history_year[1][type];
-}
-
-
-
 // true, if we do passengrs (to put our stations in front of non-passenger stations)
 bool spieler_t::has_passenger() const
 {

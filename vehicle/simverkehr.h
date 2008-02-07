@@ -47,7 +47,7 @@ protected:
 	verkehrsteilnehmer_t(karte_t *welt, koord3d pos);
 
 public:
-	virtual ~	verkehrsteilnehmer_t();
+	virtual ~verkehrsteilnehmer_t();
 
 	const char *gib_name() const = 0;
 	enum ding_t::typ gib_typ() const  = 0;
@@ -99,6 +99,8 @@ protected:
 public:
 	stadtauto_t(karte_t *welt, loadsave_t *file);
 	stadtauto_t(karte_t *welt, koord3d pos, koord target);
+
+	virtual ~stadtauto_t();
 
 	const stadtauto_besch_t *gib_besch() const { return besch; }
 

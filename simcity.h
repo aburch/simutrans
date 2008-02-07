@@ -299,7 +299,15 @@ public:
 	// changes the weight; must be called if there is a new definition (tile) for that house
 	void update_gebaeude_from_stadt(const gebaeude_t *gb);
 
-	sint32 gib_wachstum() const {return (city_history_month[0][HIST_GROWTH]*5) + (city_history_month[1][HIST_GROWTH]*4) + city_history_month[2][HIST_GROWTH]; }
+	/**
+	* Returns the finance history for cities
+	* @author hsiegeln
+	*/
+	sint64 get_finance_history_year(int year, int type) { return city_history_year[year][type]; }
+	sint64 get_finance_history_month(int month, int type) { return city_history_month[month][type]; }
+
+	// growth number (smoothed!)
+	sint32 gib_wachstum() const {return ((sint32)city_history_month[0][HIST_GROWTH]*5) + (sint32)(city_history_month[1][HIST_GROWTH]*4) + (sint32)city_history_month[2][HIST_GROWTH]; }
 
 	/**
 	 * ermittelt die Einwohnerzahl der Stadt

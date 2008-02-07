@@ -322,6 +322,12 @@ bool stadtauto_t::list_empty()
 }
 
 
+stadtauto_t::~stadtauto_t()
+{
+	welt->buche( -1, karte_t::WORLD_CITYCARS );
+}
+
+
 stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file)
  : verkehrsteilnehmer_t(welt)
 {
@@ -330,6 +336,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file)
 	if(besch) {
 		welt->sync_add(this);
 	}
+	welt->buche( +1, karte_t::WORLD_CITYCARS );
 }
 
 
@@ -352,6 +359,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
 	this->target = target;
 #endif
 	calc_bild();
+	welt->buche( +1, karte_t::WORLD_CITYCARS );
 }
 
 

@@ -6,9 +6,13 @@
 #include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
+#include "components/gui_chart.h"
 #include "components/gui_scrollpane.h"
+#include "components/gui_tab_panel.h"
 
-class karte_t;
+
+// for the numger of cost entries
+#include "../simworld.h"
 
 /**
  * City list window
@@ -20,12 +24,21 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
  private:
     static const char *sort_text[citylist::SORT_MODES];
 
-    gui_label_t sort_label;
-    button_t	sortedby;
+	static const char hist_type[karte_t::MAX_WORLD_COST][20];
+	static const uint8 hist_type_color[karte_t::MAX_WORLD_COST];
+
+	gui_label_t sort_label;
+
+	button_t	sortedby;
     button_t	sorteddir;
 
     citylist_stats_t stats;
     gui_scrollpane_t scrolly;
+
+    button_t	show_stats;
+	gui_chart_t chart, mchart;
+	button_t	filterButtons[karte_t::MAX_WORLD_COST];
+	gui_tab_panel_t year_month_tabs;
 
     /*
      * All filter settings are static, so they are not reset each

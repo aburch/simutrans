@@ -567,6 +567,19 @@ karte_t::init_felder()
 	last_frame_idx = 0;
 	pending_season_change = 0;
 
+	// init global history
+	for (int year=0; year<MAX_WORLD_HISTORY_YEARS; year++) {
+		for (int cost_type=0; cost_type<MAX_WORLD_COST; cost_type++) {
+			finance_history_year[year][cost_type] = 0;
+		}
+	}
+	for (int month=0; month<MAX_WORLD_HISTORY_MONTHS; month++) {
+		for (int cost_type=0; cost_type<MAX_WORLD_COST; cost_type++) {
+			finance_history_month[month][cost_type] = 0;
+		}
+	}
+	last_maximum_bev = 0;
+
 	nosave = false;
 }
 
@@ -732,7 +745,6 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 		for (int i = 0; i < einstellungen->gib_anzahl_staedte(); i++) {
 //			int citizens=(int)(einstellungen->gib_mittlere_einwohnerzahl()*0.9);
 //			citizens = citizens/10+simrand(2*citizens+1);
-
 			int current_citicens = (2500l * einstellungen->gib_mittlere_einwohnerzahl()) /(simrand(20000)+100);
 
 			stadt_t* s = new stadt_t(spieler[1], (*pos)[i], current_citicens);
@@ -744,6 +756,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 		for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 			// Hajo: do final init after world was loaded/created
 			(*i)->laden_abschliessen();
+			last_maximum_bev += (*i)->gib_einwohner();
 			// the growth is slow, so update here the progress bar
 			if(is_display_init()) {
 				display_progress(x, max_display_progress);
@@ -754,6 +767,8 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 				printf("*");fflush(NULL);
 			}
 		}
+		finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
+		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev = last_maximum_bev;
 
 		// Hajo: connect some cities with roads
 		const weg_besch_t* besch = wegbauer_t::gib_besch(*umgebung_t::intercity_road_type);
@@ -826,11 +841,12 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 	fabrikbauer_t::verteile_industrie(this, einstellungen->gib_city_industry_chains(), true);
 	// crossconnect all?
 	if(umgebung_t::crossconnect_factories) {
-		slist_iterator_tpl <fabrik_t *> iter (this->fab_list);
+		slist_iterator_tpl <fabrik_t *> iter (fab_list);
 		while( iter.next() ) {
 			iter.get_current()->add_all_suppliers();
 		}
 	}
+	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.count();
 
 	// tourist attractions
 	fabrikbauer_t::verteile_tourist(this, einstellungen->gib_tourist_attractions());
@@ -1849,6 +1865,17 @@ karte_t::update_frame_sleep_time()
 
 
 
+// add an amout to a subcategory
+void karte_t::buche(const sint64 betrag, enum player_cost type)
+{
+	assert(type < MAX_WORLD_COST);
+	finance_history_year[0][type] += betrag;
+	finance_history_month[0][type] += betrag;
+	// to do: check for dependecies
+}
+
+
+
 void
 karte_t::neuer_monat()
 {
@@ -1858,8 +1885,16 @@ karte_t::neuer_monat()
 		letzter_monat = 0;
 	}
 	DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
-
 	DBG_MESSAGE("karte_t::neuer_monat()","sync_step %u objects", sync_list.count() );
+
+	// advance history ...
+	for(  int hist=0;  hist<karte_t::MAX_WORLD_COST;  hist++  ) {
+		last_month_bev = finance_history_month[0][0];
+		for( int y=MAX_WORLD_HISTORY_MONTHS-1; y>0;  y--  ) {
+			finance_history_month[y][hist] = finance_history_month[y-1][hist];
+		}
+	}
+
 
 	// this should be done before a map update, since the map may want an update of the way usage
 //	DBG_MESSAGE("karte_t::neuer_monat()","ways");
@@ -1946,6 +1981,13 @@ karte_t::neuer_monat()
 void karte_t::neues_jahr()
 {
 	letztes_jahr = current_month/12;
+
+	// advance history ...
+	for(  int hist=0;  hist<karte_t::MAX_WORLD_COST;  hist++  ) {
+		for( int y=MAX_WORLD_HISTORY_YEARS-1; y>0;  y--  ) {
+			finance_history_year[y][hist] = finance_history_year[y-1][hist];
+		}
+	}
 
 DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
 
@@ -2222,10 +2264,6 @@ karte_t::step()
 	}
 	last_step_ticks = ticks;
 
-	// Hajo: Convois need extra frequent steps to avoid unneccesary
-	// long waiting times
-	// the convois goes alternating up and down to avoid a preferred
-	// order and loading only of the train highest in the game
 	for(unsigned i=0; i<convoi_array.get_count();  i++) {
 		convoihandle_t cnv = convoi_array[i];
 		cnv->step();
@@ -2233,20 +2271,41 @@ karte_t::step()
 			INT_CHECK("simworld 1947");
 		}
 	}
+	finance_history_year[0][WORLD_CONVOIS] = finance_history_month[0][WORLD_CONVOIS] = convoi_array.get_count();
 
 	// now step all towns (to generate passengers)
+	sint64 bev=0;
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		(*i)->step(delta_t);
+		bev += (*i)->get_finance_history_month( 0, HIST_CITICENS );
+	}
+
+	// the inhabitants stuff
+	finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
+	finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = bev;
+	finance_history_month[0][WORLD_GROWTH] = bev-last_month_bev;
+	finance_history_year[0][WORLD_GROWTH] = bev - (finance_history_year[1][WORLD_CITICENS]==0 ? finance_history_month[0][WORLD_CITICENS] : finance_history_year[1][WORLD_CITICENS]);
+
+	// here would the new growth code for factories enter into
+	if(  last_maximum_bev < bev  ) {
+		last_maximum_bev = bev;
 	}
 
 	slist_iterator_tpl<fabrik_t *> iter(fab_list);
 	while(iter.next()) {
 		iter.get_current()->step(delta_t);
 	}
+	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.count();
 
 	// then step all players
 	INT_CHECK("simworld 1975");
-	spieler[steps & 7]->step();
+	spieler[steps % MAX_PLAYER_COUNT]->step();
+
+	// update total transported
+	sint64 transported = 0;
+	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
+		transported += spieler[i]->get_finance_history_month( 0, COST_TRANSPORTED_GOODS );
+	}
 
 	// ok, next step
 	steps ++;

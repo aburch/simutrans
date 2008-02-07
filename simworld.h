@@ -65,6 +65,22 @@ public:
 	*/
 	static int perlin_hoehe(const int x, const int y, const double frequency, const double amplitude);
 
+	enum player_cost {
+		WORLD_CITICENS=0,// total people
+		WORLD_GROWTH,	// growth (just for convenience)
+		WORLD_TOWNS,	// number of all cities
+		WORLD_FACTORIES,	// number of all consuming only factories
+		WORLD_CONVOIS,	// total number of convois
+		WORLD_CITYCARS,	// number of citycars generated
+		WORLD_PAS_GENERATED,	// total number generated
+		WORLD_MAIL_GENERATED,	// all letters generated
+		WORLD_TRANSPORTED_GOODS, // all transported goods
+		MAX_WORLD_COST
+	};
+
+	#define MAX_WORLD_HISTORY_YEARS  (12) // number of years to keep history
+	#define MAX_WORLD_HISTORY_MONTHS  (12) // number of months to keep history
+
 private:
 	// all cursor interaction goes via this function
 	// it will call save_mouse_funk first with init, then with the position and with exit, when another tool is selected without click
@@ -178,7 +194,13 @@ private:
 
 	vector_tpl<save_mouse_func_t *> quick_shortcuts;
 
-	karte_ansicht_t *view;
+	// to avoid passing a certain number of inhabitants twice, this records the maximum number so far
+	sint64 last_maximum_bev;
+	sint64 last_month_bev;
+
+	// the recorded history so far
+	sint64 finance_history_year[MAX_WORLD_HISTORY_YEARS][MAX_WORLD_COST];
+	sint64 finance_history_month[MAX_WORLD_HISTORY_MONTHS][MAX_WORLD_COST];
 
 	// word record of speed ...
 	class speed_record_t {
@@ -197,6 +219,8 @@ private:
 	speed_record_t max_road_speed;
 	speed_record_t max_ship_speed;
 	speed_record_t max_air_speed;
+
+	karte_ansicht_t *view;
 
 	/**
 	 * Fraktale, rekursive Landschaftserzeugung
@@ -351,6 +375,23 @@ public:
 	void setze_dirty() {dirty=true;}
 	void setze_dirty_zurueck() {dirty=false;}
 	bool ist_dirty() const {return dirty;}
+
+	// do the internal accounting
+	void buche(sint64 betrag, enum player_cost type);
+
+	/**
+	* Returns the finance history for player
+	* @author hsiegeln
+	*/
+	sint64 get_finance_history_year(int year, int type) { return finance_history_year[year][type]; }
+	sint64 get_finance_history_month(int month, int type) { return finance_history_month[month][type]; }
+
+	/**
+	 * Returns pointer to finance history for player
+	 * @author hsiegeln
+	 */
+	sint64* get_finance_history_year() { return *finance_history_year; }
+	sint64* get_finance_history_month() { return *finance_history_month; }
 
 	// recalcs all map images
 	void update_map();
