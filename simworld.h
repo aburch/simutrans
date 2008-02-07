@@ -283,6 +283,7 @@ private:
 
 	// true, if fast forward
 	bool fast_forward;
+	bool pause;
 
 	/**
 	 * fuer performancevergleiche
@@ -404,6 +405,7 @@ public:
 	void notify_record( convoihandle_t cnv, sint32 max_speed, koord pos );
 
 	// time lapse mode ...
+	bool is_paused() const { return pause; }
 	bool is_fast_forward() const { return fast_forward; }
 	void set_fast_forward(bool ff) { fast_forward = ff; reset_timer(); }
 

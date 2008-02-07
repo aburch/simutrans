@@ -875,6 +875,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), quick_shortcu
 	ticks_bits_per_tag = 20;
 	ticks_per_tag = (1 << ticks_bits_per_tag);
 	fast_forward = false;
+	pause = false;
 	time_multiplier = 16;
 	next_wait_time = this_wait_time = 30;
 	current_mouse_funk.funk = NULL;
@@ -1758,8 +1759,11 @@ karte_t::update_frame_sleep_time()
 		simloops = 60;
 	}
 
-	// now change the pauses
-	if(!fast_forward) {
+	if(pause) {
+		// not changing pauses
+		next_wait_time = 50;
+	}
+	else if(!fast_forward) {
 		// change pause/frame spacing ...
 		// the frame spacing will be only touched in emergencies
 		if(simloops<=10) {
@@ -3214,16 +3218,10 @@ karte_t::step_year()
 void
 karte_t::do_pause()
 {
-	display_fillbox_wh(display_get_width()/2-100, display_get_height()/2-50,
-	                           200,100, MN_GREY2, true);
-	display_ddd_box(display_get_width()/2-100, display_get_height()/2-50,
-	                            200,100, MN_GREY4, MN_GREY0);
-	display_ddd_box(display_get_width()/2-92, display_get_height()/2-42,
-	                            200-16,100-16, MN_GREY0, MN_GREY4);
-
-	display_proportional(display_get_width()/2, display_get_height()/2-5,
-	                                 translator::translate("GAME PAUSED"),
-	                                 ALIGN_MIDDLE, COL_BLACK, false);
+	display_fillbox_wh(display_get_width()/2-100, display_get_height()/2-50, 200,100, MN_GREY2, true);
+	display_ddd_box(display_get_width()/2-100, display_get_height()/2-50, 200,100, MN_GREY4, MN_GREY0);
+	display_ddd_box(display_get_width()/2-92, display_get_height()/2-42, 200-16,100-16, MN_GREY0, MN_GREY4);
+	display_proportional(display_get_width()/2, display_get_height()/2-5, translator::translate("GAME PAUSED"), ALIGN_MIDDLE, COL_BLACK, false);
 
 	// Pause: warten auf die nächste Taste
 	event_t ev;
@@ -3620,7 +3618,14 @@ break;
 				break;
 			case 'p':
 				sound_play(click_sound);
-				do_pause();
+				pause ^= 1;
+				if(pause) {
+					intr_disable();
+				}
+				else {
+					reset_timer();
+					intr_enable();
+				}
 				break;
 			case 'Q':
 				create_win( new optionen_gui_t(this), w_info, magic_optionen_gui_t );
@@ -3928,8 +3933,14 @@ break;
 					break;
 				case 19:
 					// Pause: warten auf die nächste Taste
-					do_pause();
-					setze_dirty();
+					pause ^= 1;
+					if(pause) {
+						intr_disable();
+					}
+					else {
+						reset_timer();
+						intr_enable();
+					}
 					break;
 				case 20:
 					fast_forward ^= 1;
@@ -4045,6 +4056,9 @@ karte_t::interactive()
 			sync_step( MAGIC_STEP );
 			step();
 		}
+		else if(pause) {
+			sync_step( 0 );
+		}
 		else {
 			step();
 		}
@@ -4053,7 +4067,7 @@ karte_t::interactive()
 		// average is 5 ms, so we usually
 		// are quite responsive
 		if(this_wait_time>0) {
-			if(this_wait_time<10  ||  fast_forward) {
+			if(this_wait_time<10  ||  fast_forward  ||  pause) {
 				dr_sleep( this_wait_time );
 				this_wait_time = 0;
 			}

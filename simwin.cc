@@ -1140,6 +1140,9 @@ void win_display_flush(double konto)
 	if(wl->is_fast_forward()) {
 		sprintf(stretch_text, ">> (T~%1.2f)", wl->gib_simloops()/50.0 );
 	}
+	else if(wl->is_paused()) {
+		strcpy( stretch_text, translator::translate("GAME PAUSED") );
+	}
 	else {
 		sprintf(stretch_text, "(T=%1.2f)", wl->get_time_multiplier()/16.0 );
 	}
