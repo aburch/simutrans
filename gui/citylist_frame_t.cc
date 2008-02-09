@@ -20,6 +20,8 @@
  */
 bool citylist_frame_t::sortreverse = false;
 
+karte_t *citylist_frame_t::welt = NULL;
+
 /**
  * This variable defines by which column the table is sorted
  * Values: 0 = Station number
@@ -44,8 +46,11 @@ const char citylist_frame_t::hist_type[karte_t::MAX_WORLD_COST][20] =
 	"Factories",
 	"Convois",
 	"Verkehrsteilnehmer",
+	"ratio_pax",
 	"Passagiere",
+	"sended",
 	"Post",
+	"Arrived",
 	"Transported"
 };
 
@@ -54,12 +59,31 @@ const uint8 citylist_frame_t::hist_type_color[karte_t::MAX_WORLD_COST] =
 	COL_WHITE,
 	COL_DARK_GREEN,
 	COL_LIGHT_PURPLE,
-	COL_GREEN,
+	71 /*COL_GREEN*/,
 	COL_TURQUOISE,
 	COL_POWERLINES,
+	COL_LIGHT_BLUE,
 	COL_BLUE,
+	COL_LIGHT_YELLOW,
 	COL_YELLOW,
+	COL_LIGHT_BROWN,
 	COL_BROWN
+};
+
+const uint8 citylist_frame_t::hist_type_type[karte_t::MAX_WORLD_COST] =
+{
+	STANDARD,
+	STANDARD,
+	STANDARD,
+	STANDARD,
+	STANDARD,
+	STANDARD,
+	MONEY,
+	STANDARD,
+	MONEY,
+	STANDARD,
+	MONEY,
+	STANDARD
 };
 
 #define CHART_HEIGHT (170)
@@ -72,6 +96,8 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 	stats(welt,sortby,sortreverse),
 	scrolly(&stats)
 {
+	this->welt = welt;
+
 	sort_label.setze_pos(koord(BUTTON1_X, 40-BUTTON_HEIGHT-LINESPACE));
 	add_komponente(&sort_label);
 
@@ -107,7 +133,7 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);
 	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {
-		chart.add_curve(hist_type_color[cost], welt->get_finance_history_year(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_MONTHS, STANDARD, false, true);
+		chart.add_curve(hist_type_color[cost], welt->get_finance_history_year(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_YEARS, hist_type_type[cost], false, true);
 	}
 
 	mchart.setze_pos(koord(40,8));
@@ -116,7 +142,7 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 	mchart.set_visible(false);
 	mchart.set_background(MN_GREY1);
 	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {
-		mchart.add_curve(hist_type_color[cost], welt->get_finance_history_month(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_MONTHS, STANDARD, false, true);
+		mchart.add_curve(hist_type_color[cost], welt->get_finance_history_month(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_MONTHS, hist_type_type[cost], false, true);
 	}
 
 	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {
@@ -215,6 +241,9 @@ void citylist_frame_t::resize(const koord delta)
 void
 citylist_frame_t::zeichnen(koord pos, koord gr)
 {
+	if(show_stats.pressed) {
+		welt->update_history();
+	}
 	gui_frame_t::zeichnen(pos,gr);
 
 	display_proportional(pos.x+2, pos.y+18, citylist_stats_t::total_bev_string, ALIGN_LEFT,COL_BLACK,true);

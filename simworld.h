@@ -72,8 +72,11 @@ public:
 		WORLD_FACTORIES,	// number of all consuming only factories
 		WORLD_CONVOIS,	// total number of convois
 		WORLD_CITYCARS,	// number of citycars generated
+		WORLD_PAS_RATIO,	// percentage of passengers that started suceessful
 		WORLD_PAS_GENERATED,	// total number generated
+		WORLD_MAIL_RATIO,	// percentage of mail that started sucessful
 		WORLD_MAIL_GENERATED,	// all letters generated
+		WORLD_GOODS_RATIO, // ratio of chain completeness
 		WORLD_TRANSPORTED_GOODS, // all transported goods
 		MAX_WORLD_COST
 	};
@@ -351,12 +354,14 @@ private:
 	 */
 	void speichern(loadsave_t *file,bool silent);
 
-
 	/**
 	 * internal loading method
 	 * @author Hj. Malthaner
 	 */
 	void laden(loadsave_t *file);
+
+	// restores history for older savegames
+	void restore_history();
 
 public:
 	/**
@@ -378,6 +383,9 @@ public:
 
 	// do the internal accounting
 	void buche(sint64 betrag, enum player_cost type);
+
+	// calculates the various entries
+	void update_history();
 
 	/**
 	* Returns the finance history for player

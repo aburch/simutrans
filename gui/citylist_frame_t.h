@@ -26,6 +26,9 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
 
 	static const char hist_type[karte_t::MAX_WORLD_COST][20];
 	static const uint8 hist_type_color[karte_t::MAX_WORLD_COST];
+	static const uint8 hist_type_type[karte_t::MAX_WORLD_COST];
+
+	static karte_t *welt;
 
 	gui_label_t sort_label;
 

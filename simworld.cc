@@ -1876,9 +1876,17 @@ void karte_t::buche(const sint64 betrag, enum player_cost type)
 
 
 
-void
-karte_t::neuer_monat()
+void karte_t::neuer_monat()
 {
+	update_history();
+	// advance history ...
+	last_month_bev = finance_history_month[0][WORLD_CITICENS];
+	for(  int hist=0;  hist<karte_t::MAX_WORLD_COST;  hist++  ) {
+		for( int y=MAX_WORLD_HISTORY_MONTHS-1; y>0;  y--  ) {
+			finance_history_month[y][hist] = finance_history_month[y-1][hist];
+		}
+	}
+
 	current_month ++;
 	letzter_monat ++;
 	if(letzter_monat>11) {
@@ -1886,15 +1894,6 @@ karte_t::neuer_monat()
 	}
 	DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
 	DBG_MESSAGE("karte_t::neuer_monat()","sync_step %u objects", sync_list.count() );
-
-	// advance history ...
-	for(  int hist=0;  hist<karte_t::MAX_WORLD_COST;  hist++  ) {
-		last_month_bev = finance_history_month[0][0];
-		for( int y=MAX_WORLD_HISTORY_MONTHS-1; y>0;  y--  ) {
-			finance_history_month[y][hist] = finance_history_month[y-1][hist];
-		}
-	}
-
 
 	// this should be done before a map update, since the map may want an update of the way usage
 //	DBG_MESSAGE("karte_t::neuer_monat()","ways");
@@ -2271,7 +2270,6 @@ karte_t::step()
 			INT_CHECK("simworld 1947");
 		}
 	}
-	finance_history_year[0][WORLD_CONVOIS] = finance_history_month[0][WORLD_CONVOIS] = convoi_array.get_count();
 
 	// now step all towns (to generate passengers)
 	sint64 bev=0;
@@ -2281,10 +2279,7 @@ karte_t::step()
 	}
 
 	// the inhabitants stuff
-	finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
-	finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = bev;
-	finance_history_month[0][WORLD_GROWTH] = bev-last_month_bev;
-	finance_history_year[0][WORLD_GROWTH] = bev - (finance_history_year[1][WORLD_CITICENS]==0 ? finance_history_month[0][WORLD_CITICENS] : finance_history_year[1][WORLD_CITICENS]);
+	finance_history_month[0][WORLD_CITICENS] = bev;
 
 	// here would the new growth code for factories enter into
 	if(  last_maximum_bev < bev  ) {
@@ -2301,12 +2296,6 @@ karte_t::step()
 	INT_CHECK("simworld 1975");
 	spieler[steps % MAX_PLAYER_COUNT]->step();
 
-	// update total transported
-	sint64 transported = 0;
-	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
-		transported += spieler[i]->get_finance_history_month( 0, COST_TRANSPORTED_GOODS );
-	}
-
 	// ok, next step
 	steps ++;
 	INT_CHECK("simworld 1975");
@@ -2319,6 +2308,172 @@ karte_t::step()
 	if(  recalc_snowline()  ) {
 		pending_season_change ++;
 	}
+}
+
+
+
+// recalculates world statistics for older versions
+void karte_t::restore_history()
+{
+	last_month_bev = -1;
+	for(  int m=12-1;  m>0;  m--  ) {
+		// now step all towns (to generate passengers)
+		sint64 bev=0;
+		sint64 total_pas = 1, trans_pas = 0;
+		sint64 total_mail = 1, trans_mail = 0;
+		sint64 total_goods = 1, supplied_goods = 0;
+		for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+			bev += (*i)->get_finance_history_month( m, HIST_CITICENS );
+			trans_pas += (*i)->get_finance_history_month( m, HIST_PAS_TRANSPORTED );
+			total_pas += (*i)->get_finance_history_month( m, HIST_PAS_GENERATED );
+			trans_mail += (*i)->get_finance_history_month( m, HIST_MAIL_TRANSPORTED );
+			total_mail += (*i)->get_finance_history_month( m, HIST_MAIL_GENERATED );
+			supplied_goods += (*i)->get_finance_history_month( m, HIST_GOODS_RECIEVED );
+			total_goods += (*i)->get_finance_history_month( m, HIST_GOODS_NEEDED );
+		}
+
+		// the inhabitants stuff
+		if(last_month_bev == -1) {
+			last_month_bev = bev;
+		}
+		if(  last_maximum_bev < bev  ) {
+			last_maximum_bev = bev;
+		}
+		finance_history_month[m][WORLD_GROWTH] = bev-last_month_bev;
+		finance_history_month[m][WORLD_CITICENS] = bev;
+		last_month_bev = bev;
+
+		// transportation ratio and total number
+		finance_history_month[m][WORLD_PAS_RATIO] = (10000*trans_pas)/total_pas;
+		finance_history_month[m][WORLD_PAS_GENERATED] = total_pas-1;
+		finance_history_month[m][WORLD_MAIL_RATIO] = (10000*trans_mail)/total_mail;
+		finance_history_month[m][WORLD_MAIL_GENERATED] = total_mail-1;
+		finance_history_month[m][WORLD_GOODS_RATIO] = (10000*supplied_goods)/total_goods;
+	}
+
+	// update total transported, including passenger and mail
+	for(  int m=min(MAX_WORLD_HISTORY_MONTHS,MAX_PLAYER_HISTORY_MONTHS)-1;  m>0;  m--  ) {
+		sint64 transported = 0;
+		for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
+			transported += spieler[i]->get_finance_history_month( m, COST_TRANSPORTED_GOODS );
+		}
+		finance_history_month[m][WORLD_TRANSPORTED_GOODS] = transported;
+	}
+
+	sint64 bev_last_year = -1;
+	for(  int y=min(MAX_WORLD_HISTORY_YEARS,MAX_CITY_HISTORY_YEARS)-1;  y>0;  y--  ) {
+		// now step all towns (to generate passengers)
+		sint64 bev=0;
+		sint64 total_pas_year = 1, trans_pas_year = 0;
+		sint64 total_mail_year = 1, trans_mail_year = 0;
+		sint64 total_goods_year = 1, supplied_goods_year = 0;
+		for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+			bev += (*i)->get_finance_history_year( y, HIST_CITICENS );
+			trans_pas_year += (*i)->get_finance_history_year( y, HIST_PAS_TRANSPORTED );
+			total_pas_year += (*i)->get_finance_history_year( y, HIST_PAS_GENERATED );
+			trans_mail_year += (*i)->get_finance_history_year( y, HIST_MAIL_TRANSPORTED );
+			total_mail_year += (*i)->get_finance_history_year( y, HIST_MAIL_GENERATED );
+			supplied_goods_year += (*i)->get_finance_history_year( y, HIST_GOODS_RECIEVED );
+			total_goods_year += (*i)->get_finance_history_year( y, HIST_GOODS_NEEDED );
+		}
+
+		// the inhabitants stuff
+		if(bev_last_year == -1) {
+			bev_last_year = bev;
+		}
+		if(  last_maximum_bev < bev  ) {
+			last_maximum_bev = bev;
+		}
+		finance_history_year[y][WORLD_GROWTH] = bev-bev_last_year;
+		finance_history_year[y][WORLD_CITICENS] = bev;
+		bev_last_year = bev;
+
+		// transportation ratio and total number
+		finance_history_year[y][WORLD_PAS_RATIO] = (10000*trans_pas_year)/total_pas_year;
+		finance_history_year[y][WORLD_PAS_GENERATED] = total_pas_year-1;
+		finance_history_year[y][WORLD_MAIL_RATIO] = (10000*trans_mail_year)/total_mail_year;
+		finance_history_year[y][WORLD_MAIL_GENERATED] = total_mail_year-1;
+		finance_history_year[y][WORLD_GOODS_RATIO] = (10000*supplied_goods_year)/total_goods_year;
+	}
+
+	for(  int y=min(MAX_WORLD_HISTORY_YEARS,MAX_CITY_HISTORY_YEARS)-1;  y>0;  y--  ) {
+		sint64 transported_year = 0;
+		for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
+			transported_year += spieler[i]->get_finance_history_year( y, COST_TRANSPORTED_GOODS );
+		}
+		finance_history_year[y][WORLD_TRANSPORTED_GOODS] = transported_year;
+	}
+	// fix current month/year
+	update_history();
+}
+
+
+
+void karte_t::update_history()
+{
+	finance_history_year[0][WORLD_CONVOIS] = finance_history_month[0][WORLD_CONVOIS] = convoi_array.get_count();
+	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.count();
+
+	// now step all towns (to generate passengers)
+	sint64 bev=0;
+	sint64 total_pas = 1, trans_pas = 0;
+	sint64 total_mail = 1, trans_mail = 0;
+	sint64 total_goods = 1, supplied_goods = 0;
+	sint64 total_pas_year = 1, trans_pas_year = 0;
+	sint64 total_mail_year = 1, trans_mail_year = 0;
+	sint64 total_goods_year = 1, supplied_goods_year = 0;
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		bev += (*i)->get_finance_history_month( 0, HIST_CITICENS );
+		trans_pas += (*i)->get_finance_history_month( 0, HIST_PAS_TRANSPORTED );
+		total_pas += (*i)->get_finance_history_month( 0, HIST_PAS_GENERATED );
+		trans_mail += (*i)->get_finance_history_month( 0, HIST_MAIL_TRANSPORTED );
+		total_mail += (*i)->get_finance_history_month( 0, HIST_MAIL_GENERATED );
+		supplied_goods += (*i)->get_finance_history_month( 0, HIST_GOODS_RECIEVED );
+		total_goods += (*i)->get_finance_history_month( 0, HIST_GOODS_NEEDED );
+		trans_pas_year += (*i)->get_finance_history_year( 0, HIST_PAS_TRANSPORTED );
+		total_pas_year += (*i)->get_finance_history_year( 0, HIST_PAS_GENERATED );
+		trans_mail_year += (*i)->get_finance_history_year( 0, HIST_MAIL_TRANSPORTED );
+		total_mail_year += (*i)->get_finance_history_year( 0, HIST_MAIL_GENERATED );
+		supplied_goods_year += (*i)->get_finance_history_year( 0, HIST_GOODS_RECIEVED );
+		total_goods_year += (*i)->get_finance_history_year( 0, HIST_GOODS_NEEDED );
+	}
+
+	finance_history_month[0][WORLD_GROWTH] = bev-last_month_bev;
+	finance_history_year[0][WORLD_GROWTH] = bev - (finance_history_year[1][WORLD_CITICENS]==0 ? finance_history_month[0][WORLD_CITICENS] : finance_history_year[1][WORLD_CITICENS]);
+
+	// the inhabitants stuff
+	finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
+	finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = bev;
+	finance_history_month[0][WORLD_GROWTH] = bev-last_month_bev;
+	finance_history_year[0][WORLD_GROWTH] = bev - (finance_history_year[1][WORLD_CITICENS]==0 ? finance_history_month[0][WORLD_CITICENS] : finance_history_year[1][WORLD_CITICENS]);
+
+	// transportation ratio and total number
+	finance_history_month[0][WORLD_PAS_RATIO] = (10000*trans_pas)/total_pas;
+	finance_history_month[0][WORLD_PAS_GENERATED] = total_pas-1;
+	finance_history_month[0][WORLD_MAIL_RATIO] = (10000*trans_mail)/total_mail;
+	finance_history_month[0][WORLD_MAIL_GENERATED] = total_mail-1;
+	finance_history_month[0][WORLD_GOODS_RATIO] = (10000*supplied_goods)/total_goods;
+
+	finance_history_year[0][WORLD_PAS_RATIO] = (10000*trans_pas_year)/total_pas_year;
+	finance_history_year[0][WORLD_PAS_GENERATED] = total_pas_year-1;
+	finance_history_year[0][WORLD_MAIL_RATIO] = (10000*trans_mail_year)/total_mail_year;
+	finance_history_year[0][WORLD_MAIL_GENERATED] = total_mail_year-1;
+	finance_history_year[0][WORLD_GOODS_RATIO] = (10000*supplied_goods_year)/total_goods_year;
+
+	// here would the new growth code for factories enter into
+	if(  last_maximum_bev < bev  ) {
+		last_maximum_bev = bev;
+	}
+
+	// update total transported, including passenger and mail
+	sint64 transported = 0;
+	sint64 transported_year = 0;
+	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
+		transported += spieler[i]->get_finance_history_month( 0, COST_TRANSPORTED_GOODS );
+		transported_year += spieler[i]->get_finance_history_year( 0, COST_TRANSPORTED_GOODS );
+	}
+	finance_history_month[0][WORLD_TRANSPORTED_GOODS] = transported;
+	finance_history_year[0][WORLD_TRANSPORTED_GOODS] = transported_year;
 }
 
 
@@ -2408,7 +2563,7 @@ void karte_t::blick_aendern(event_t *ev)
  * returns the natural slope a a position
  * @author prissi
  */
-uint8	karte_t::calc_natural_slope( const koord pos ) const
+uint8 karte_t::calc_natural_slope( const koord pos ) const
 {
 	if(ist_in_kartengrenzen(pos.x, pos.y)) {
 
@@ -3099,6 +3254,9 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	DBG_MESSAGE("reroute_goods()","for all haltstellen_t took %ld ms", dr_time()-dt );
 #endif
 
+	if(file->get_version()<99018) {
+		restore_history();
+	}
 
 	// make counter for next month
 	ticks = ticks % karte_t::ticks_per_tag;
