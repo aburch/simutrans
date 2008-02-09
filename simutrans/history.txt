@@ -16,6 +16,7 @@
 	FIX: during zoomout, the tiles were clipped 32 pixels too early
 	FIX: rotation of buildings with layout>4 corrected
 	ADD: more statistics for world (see in citylist)
+	FIX: show signals again in minimap
 
 
 Release of 99.17.1 (r1550, stable)

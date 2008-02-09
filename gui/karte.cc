@@ -475,7 +475,7 @@ reliefkarte_t::calc_map_pixel(const koord k)
 		case MAP_TRACKS:
 			// show track
 			if (gr->hat_weg(track_wt)) {
-				const schiene_t * sch = dynamic_cast<const schiene_t *> (gr->gib_weg(track_wt));
+				const schiene_t * sch = (const schiene_t *) (gr->gib_weg(track_wt));
 				if(sch->is_electrified()) {
 					setze_relief_farbe(k, COL_RED);
 				}
@@ -483,7 +483,7 @@ reliefkarte_t::calc_map_pixel(const koord k)
 					setze_relief_farbe(k, COL_WHITE);
 				}
 				// show signals
-				if(sch->has_sign()) {
+				if(sch->has_sign()  ||  sch->has_signal()) {
 					setze_relief_farbe(k, COL_YELLOW);
 				}
 			}
