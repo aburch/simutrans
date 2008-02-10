@@ -5,6 +5,12 @@ This is the simutrans source code.
 Simutrans source code is provided by the current simutrans team
 (team64@simutrans.com) as copyright holder under the artistic licence.
 
+This includes the translations from:
+http://translator.simutrans.com/
+the midi files and the fonts with the execption of the m+10r.bdf, which
+is taken from the M+ font project:
+http://mplus-fonts.sourceforge.jp/
+
 -----------------------------------------------------------------------------
 
 The Artistic License
