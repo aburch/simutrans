@@ -755,6 +755,6 @@ void
 stadtauto_t::info(cbuffer_t & buf) const
 {
 	char str[256];
-	sprintf(str, translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), besch->gib_name(), current_speed, besch->gib_geschw(), dx, dy );
+	sprintf(str, translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(besch->gib_name()), current_speed, besch->gib_geschw(), dx, dy );
 	buf.append(str);
 }

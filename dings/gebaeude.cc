@@ -814,14 +814,9 @@ DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found 
 void
 gebaeude_t::laden_abschliessen()
 {
-	// if there is no description (i.e. building not found) we must avoid acessing it => skip calculation
-	if(tile) {
-		calc_bild();
-	}
-	else {
-		zeige_baugrube = true;
-	}
-	spieler_t::add_maintenance(gib_besitzer(), umgebung_t::maint_building);
+	calc_bild();
+
+	spieler_t::add_maintenance(gib_besitzer(), umgebung_t::maint_building*tile->gib_besch()->gib_level() );
 
 	// citybuilding, but no town?
 	if(tile->gib_offset()==koord(0,0)  &&  tile->gib_besch()->is_connected_with_town()) {
