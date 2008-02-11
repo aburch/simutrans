@@ -141,7 +141,11 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 
 static bool compare_lines(const linehandle_t& a, const linehandle_t& b)
 {
-	return strcmp(a->get_name(), b->get_name()) < 0;
+	int diff = strcmp(a->get_name(), b->get_name());
+	if(diff==0) {
+		diff = a.get_id() - b.get_id();
+	}
+	return diff < 0;
 }
 
 

@@ -194,7 +194,14 @@ void wegbauer_t::neuer_monat(karte_t *welt)
 
 static bool compare_ways(const weg_besch_t* a, const weg_besch_t* b)
 {
-	return a->gib_topspeed() < b->gib_topspeed();
+	int cmp = a->gib_topspeed() - b->gib_topspeed();
+	if(cmp==0) {
+		cmp = (int)a->get_intro_year_month() - (int)b->get_intro_year_month();
+	}
+	if(cmp==0) {
+		cmp = strcmp(a->gib_name(), b->gib_name());
+	}
+	return cmp<0;
 }
 
 

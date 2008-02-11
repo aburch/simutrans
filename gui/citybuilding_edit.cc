@@ -48,7 +48,7 @@ static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
 		diff = a->gib_typ()-b->gib_typ();
 	}
 	if(  diff==0  ) {
-		diff = (int)a-(int)b;
+		diff = strcmp(a->gib_name(), b->gib_name());
 	}
 	return diff < 0;
 }

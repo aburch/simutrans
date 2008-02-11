@@ -42,6 +42,9 @@
 static bool compare_baum_besch(const baum_besch_t* a, const baum_besch_t* b)
 {
 	int diff = strcmp( translator::translate(a->gib_name()), translator::translate(b->gib_name()) );
+	if(diff ==0) {
+		diff = strcmp( a->gib_name(), b->gib_name() );
+	}
 	return diff < 0;
 }
 

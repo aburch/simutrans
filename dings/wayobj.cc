@@ -363,7 +363,7 @@ static bool compare_wayobj_besch(const way_obj_besch_t* a, const way_obj_besch_t
 		diff = a->gib_topspeed() - b->gib_topspeed();
 	}
 	if (diff == 0) {
-		/* Somae speed: sort by name */
+		/* Some speed: sort by name */
 		diff = strcmp(a->gib_name(), b->gib_name());
 	}
 	return diff < 0;
