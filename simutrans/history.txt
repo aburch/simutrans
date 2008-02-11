@@ -18,6 +18,7 @@
 	ADD: more statistics for world (see in citylist)
 	FIX: show signals again in minimap
 	ADD: preliminary support for automatic configuration, clarification of the licence
+	CHANGE: maintance of player buildings now depends on its level
 
 
 Release of 99.17.1 (r1550, stable)
