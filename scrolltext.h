@@ -1,10 +1,3 @@
-/*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project and may not be used
- * in other projects without written permission of the author.
- */
-
 /* prissi: first part is left, second part right side */
 
 "","",
@@ -34,11 +27,16 @@
 " Pasi Ruhanen","BeOS, SDL",
 " Mat Hounsell","GUI",
 " Christoph Mallon","Makefile, patches",
+" Kieron Green","skinned grounds",
+" z9999","misc. patches",
 "","",
 "","",
 "Game Design Assistance:","",
 "","",
 " Peter J. Dobrovka","",
+" Tomas Kubes","pak128",
+" Frank Prenz","pak.german",
+" Yoshihiro Shishido","pak.japan128",
 "","",
 "","",
 "Graphics:","",
@@ -56,6 +54,9 @@
 " Seth C. Triggs","",
 " Tomas Kubes","",
 " Guillermo 'raven' Mateo","",
+" Alexander Brose","",
+"","",
+"and many more","",
 "","",
 "","",
 "Translation:","",
@@ -67,19 +68,11 @@
 " Niels Roest","Dutch",
 " Pasi Ruhanen","Finnish",
 " Rémi Denis-Courmont","French",
-" Ferencz Szekely","",
-"","Hungary and Romanian",
+" Ferencz Szekely","Hungary and Romanian",
 " Alex Revo","Russian",
+" Roman Schwörer","",
 "","",
 "and many more","",
-"","",
-"","",
-"Manual and Documentation:","",
-"","",
-" Hansjörg Malthaner","",
-" Henrik Wolff","",
-" Dirk Burkholz","",
-" Roman Schwörer","",
 "","",
 "","",
 "Additional Thanks go to:","",
@@ -94,6 +87,10 @@
 "","for lots of help with tricky problems",
 " Vern Moorhouse", "",
 "","for some valuable technical hints",
+" Isaac Eiland-Hall","",
+"","hosting simutrans.com",
+" Dirk Burkholz","",
+"","hosting wiki and german Forum",
 "","",
 "", "",
 " And many thanks to all testers and","",
