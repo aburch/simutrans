@@ -723,8 +723,15 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i o
 				if(hersteller==NULL) {
 					if(welt->use_timeline()) {
 						// can happen with timeline
-						dbg->warning( "fabrikbauer_t::baue_hierarchie()", "no produder for %s yet!", ware->gib_name() );
-						return n;
+						if(info->gib_produkte()!=0) {
+							dbg->error( "fabrikbauer_t::baue_hierarchie()", "no produder for %s yet!", ware->gib_name() );
+							return 0;
+						}
+						else {
+							// only consumer: Will do with partly covered chains
+							dbg->warning( "fabrikbauer_t::baue_hierarchie()", "no produder for %s yet!", ware->gib_name() );
+							break;
+						}
 					}
 					else {
 						// must not happen else
