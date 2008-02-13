@@ -35,7 +35,7 @@
 "","",
 " Peter J. Dobrovka","",
 " Tomas Kubes","pak128",
-" Frank Prenz","pak.german",
+" Frank Penz","pak.german",
 " Yoshihiro Shishido","pak.japan128",
 "","",
 "","",
