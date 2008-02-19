@@ -76,6 +76,11 @@ world_view_t::zeichnen(koord offset)
 	if(ding) {
 		fine_here = koord( 	tile_raster_scale_x(-ding->gib_xoff(),raster), tile_raster_scale_x(-ding->gib_yoff()%(TILE_STEPS*2),raster) );
 		y_offset = (ding->gib_yoff()/(32*TILE_STEPS/16));
+		if(ding->is_moving()) {
+			int x=0, y=0;
+			((vehikel_basis_t *)ding)->get_screen_offset( x, y );
+			fine_here -= koord( x, y );
+		}
 	}
 
 	const planquadrat_t * plan = welt->lookup(here);

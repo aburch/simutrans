@@ -15,6 +15,7 @@ A* for goods
 Sort signals so simple signal is first
 factory density instead of fixed population linked growth
 waybuilder preview
+- smoother movements
 
 
 Stichpunkte

@@ -117,9 +117,19 @@
 #define Z_TILE_STEP (1)
 #define TILE_HEIGHT_STEP (16)
 #define TILE_STEPS (16)
-#define SPEED_STEP_WIDTH (1l<<16)
 #define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)	// these must be changed for according to TILE_STEPS!
 #define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 6)
+#define height_scaling(i) (i)
+#define height_unscaling(i) (i)
+#else
+#if defined(STEPS128)
+// 16 internal pixels per tile, koord3d.z granularity is 1,
+#define Z_TILE_STEP (1)
+#define TILE_HEIGHT_STEP (128)
+#define TILE_STEPS (128)
+#define SPEED_STEP_WIDTH (1l<<16)
+#define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 7)	// these must be changed for according to TILE_STEPS!
+#define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 7)
 #define height_scaling(i) (i)
 #define height_unscaling(i) (i)
 #else
@@ -132,6 +142,7 @@
 #define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 7)
 #define height_scaling(i) (i)
 #define height_unscaling(i) (i)
+#endif
 #endif
 #endif
 

@@ -41,6 +41,9 @@ class route_t;
 class vehikel_basis_t : public ding_t
 {
 protected:
+	// offsets for different directions
+	static sint8 dxdy[16];
+
 	/**
 	 * Aktuelle Fahrtrichtung in Bildschirm-Koordinaten
 	 * @author Hj. Malthaner
@@ -53,7 +56,9 @@ protected:
 	// true, if hop_check failed
 	uint8 hop_check_failed:1;
 
-	sint8 dx, dy;
+sint8 dx, dy;
+	// number of steps in this tile (255 per tile)
+	uint8 steps, steps_next;
 
 	/**
 	 * Next position on our path
@@ -70,7 +75,6 @@ protected:
 	// cached image
 	image_id bild;
 
-	void fahre_basis();	// basis movement code
 	sint16 calc_height();		// Offset Bergauf/Bergab
 
 	virtual bool hop_check() = 0;
@@ -81,11 +85,23 @@ protected:
 	// check for road vehicle, if next tile is free
 	vehikel_basis_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_fahrtrichtung, const uint8 next_fahrtrichtung, const uint8 next_90fahrtrichtung );
 
+	// olf way of moving vehicles!
+	inline bool vehikel_basis_t::is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff );
+
 public:
+	uint32 fahre_basis(uint32 dist);	// basis movement code
+
 	inline void setze_bild( image_id b ) { bild = b; }
 	virtual image_id gib_bild() const {return bild;}
 
-	int  gib_hoff() const {return hoff;}
+	sint16 gib_hoff() const {return hoff;}
+
+	// to make smaller steps than the tile granularity, we have to calculate our offsets ourselves!
+	void get_screen_offset( int &xoff, int &yoff ) const;
+
+	// offset in internal game coordinates
+	sint8 get_vehicle_xoff() const;
+	sint8 get_vehicle_yoff();
 
 	virtual void rotate90();
 
@@ -133,8 +149,6 @@ private:
 
 	bool hop_check();
 
-	void hop();
-
 	/**
 	 * berechnet aktuelle Geschwindigkeit aufgrund der Steigung
 	 * (Hoehendifferenz) der Fahrbahn
@@ -158,10 +172,10 @@ private:
 	bool load_freight(halthandle_t halt);
 
 protected:
+	virtual void hop();
+
 	// current limit (due to track etc.)
 	uint32 speed_limit;
-
-	void fahre();
 
 	ribi_t::ribi alte_fahrtrichtung;
 
@@ -272,12 +286,6 @@ public:
 	vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp);
 
 	~vehikel_t();
-
-	/**
-	* Vom Convoi aufgerufen.
-	* @author Hj. Malthaner
-	*/
-	virtual void sync_step();
 
 	void rauche();
 
@@ -605,6 +613,9 @@ private:
 	uint32 suchen, touchdown, takeoff;
 
 protected:
+	// jumps to next tile and correct the height ...
+	void hop();
+
 	bool ist_befahrbar(const grund_t *bd) const;
 
 	void betrete_feld();
@@ -646,10 +657,6 @@ public:
 
 	void rdwr(loadsave_t *file);
 	void rdwr(loadsave_t *file, bool force);
-
-	virtual void sync_step();
-
-	int calc_flight_height();
 
 	int gib_flyingheight() const {return flughoehe-hoff-2;}
 

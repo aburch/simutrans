@@ -61,6 +61,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt) :
  */
 verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
 {
+	mark_image_dirty( gib_bild(), 0 );
 	// first: release crossing
 	grund_t *gr = welt->lookup(gib_pos());
 	if(gr  &&  gr->ist_uebergang()) {
@@ -71,7 +72,6 @@ verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
 	if(time_to_life>=0) {
 		welt->sync_remove(this);
 	}
-	mark_image_dirty( gib_bild(), 0 );
 }
 
 
@@ -201,6 +201,14 @@ verkehrsteilnehmer_t::hop()
 
 void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 {
+	// correct old offsets ... REMOVE after savegame increase ...
+	if(file->get_version()<99018  &&  file->is_saving()) {
+		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2];
+		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1];
+		setze_xoff( gib_xoff() + ((uint16)steps*(sint16)dx)/16 );
+		setze_yoff( gib_yoff() + ((uint16)steps*(sint16)dy)/16 );
+	}
+
 	vehikel_basis_t::rdwr(file);
 
 	if(file->get_version() < 86006) {
@@ -222,8 +230,14 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 			file->rdwr_long(dummy32, "\n");
 		}
 		file->rdwr_long(weg_next, "\n");
-		file->rdwr_byte(dx, " ");
-		file->rdwr_byte(dy, "\n");
+		if(file->get_version()<99018) {
+			file->rdwr_byte(dx, " ");
+			file->rdwr_byte(dy, "\n");
+		}
+		else {
+			file->rdwr_byte(steps, " ");
+			file->rdwr_byte(steps_next, "\n");
+		}
 		file->rdwr_enum(fahrtrichtung, " ");
 		if(file->get_version()<99005  ||  file->get_version()>99016) {
 			sint16 dummy16 = ((16*(sint16)hoff)/TILE_STEPS);
@@ -235,6 +249,30 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		}
 	}
 	pos_next.rdwr(file);
+
+	// convert steps to position
+	if(file->get_version()<99018  &&  file->is_loading()) {
+		sint8 ddx=gib_xoff(), ddy=gib_yoff()-hoff;
+		sint8 i=0;
+		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2];
+		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1];
+
+		while(  !is_about_to_hop(dx*i+gib_xoff(),ddy+dy*i )  &&  i<16 ) {
+			i++;
+		}
+		if(dx*dy) {
+			steps = min( 255, 256-(i*16) );
+			setze_xoff( ddx-(16-i)*dx );
+			setze_yoff( ddy-(16-i)*dy+hoff );
+			steps_next = 255;
+		}
+		else {
+			steps = min( 127, 128-(i*8) );
+			setze_xoff( ddx-(8-i)*dx );
+			setze_yoff( ddy-(8-i)*dy+hoff );
+			steps_next = 127;
+		}
+	}
 
 	// the lifetime in ms
 	if(file->get_version()>89004) {
@@ -392,14 +430,12 @@ stadtauto_t::sync_step(long delta_t)
 				}
 			}
 		}
+		weg_next = 0;
 	}
 	else {
 		setze_yoff( gib_yoff() - hoff );
 		weg_next += current_speed*delta_t;
-		while(SPEED_STEP_WIDTH < weg_next) {
-			weg_next -= SPEED_STEP_WIDTH;
-			fahre_basis();
-		}
+		weg_next -= fahre_basis( weg_next );
 		if(use_calc_height) {
 			hoff = calc_height();
 		}
@@ -605,6 +641,7 @@ stadtauto_t::hop_check()
 			calc_bild();
 			// wait here
 			current_speed = 48;
+			weg_next = 0;
 			return false;
 		}
 	}

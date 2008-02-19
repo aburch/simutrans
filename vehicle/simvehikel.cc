@@ -69,7 +69,9 @@
 /* get dx and dy from dir (just to remind you)
  * any vehikel (including city cars and pedestrians)
  * will go this distance per sync step.
-static sint8 dxdy[ 8*2 ] = {
+ * (however, the real dirs are only calculated during display)
+ */
+sint8 vehikel_basis_t::dxdy[ 8*2 ] = {
 	-2, 1,	// s
 	-2, -1,	// w
 	-4, 0,	// sw
@@ -79,14 +81,14 @@ static sint8 dxdy[ 8*2 ] = {
 	4, 0,	// ne
 	0, -2	// nw
 };
-*/
+
 
 
 /**
  * Checks if this vehicle must change the square upon next move
  * @author Hj. Malthaner
  */
-inline bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff )
+inline bool vehikel_basis_t::is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff )
 {
     const sint8 y_off_2 = 2*neu_yoff;
     const sint8 c_plus  = y_off_2 + neu_xoff;
@@ -198,46 +200,119 @@ void vehikel_basis_t::betrete_feld()
 }
 
 
-void vehikel_basis_t::fahre_basis()
+
+/* THE routine for moving vehicles
+ * it will drive on as log as it can
+ * @return the distance actually travelled
+ */
+uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 {
-	const sint8 neu_xoff = gib_xoff() + dx;
-	const sint8 neu_yoff = gib_yoff() + dy;
+	bool has_hopped = false;
+	koord3d pos_prev;
 
-	// want to go to next field and want to step
-	if(is_about_to_hop(neu_xoff,neu_yoff)) {
+	uint32 steps_to_do = distance>>12;
+	if(steps_to_do==0) {
+		// ok, we will not move in this steps
+		return 0;
+	}
+	// ok, so moving ...
+	mark_image_dirty(gib_bild(),hoff);
+	use_calc_height = true;
+	steps_to_do += steps;
 
-		if( !hop_check() ) {
-			// red signal etc ...
-			return;
+	if(steps_to_do>steps_next) {
+
+		sint32 steps_done = - steps;
+
+		// first we hop steps ...
+		while(steps_to_do>steps_next  &&  hop_check()) {
+			steps_to_do -= steps_next+1;
+			steps_done += steps_next+1;
+			pos_prev = gib_pos();
+			hop();
+			has_hopped = true;
 		}
 
-		if(!get_flag(ding_t::dirty)) {
-			// old position needs redraw
-			mark_image_dirty(gib_bild(),hoff);
+		if(steps_to_do>steps_next) {
+			// could not go as far as we wanted => stop at end of tile
+			steps_to_do = steps_next;
 		}
+		steps = steps_to_do;
 
-		hop();
+		steps_done += steps;
+		distance = steps_done<<12;
 
-		// may ended on a slope ...
-		use_calc_height = true;
-		hoff = 0;
-
-		// will automatically correct wrong position on the next tile
-		setze_xoff( (neu_xoff < 0) ? TILE_STEPS : -TILE_STEPS );
-		setze_yoff( (neu_yoff < 0) ? TILE_STEPS/2 : -TILE_STEPS/2 );
+		if(has_hopped) {
+			setze_xoff( (dx<0) ? TILE_STEPS : -TILE_STEPS );
+			setze_yoff( (dy<0) ? TILE_STEPS/2 : -TILE_STEPS/2 );
+			if(dx*dy==0) {
+				if(dx==0) {
+					if(dy>0) {
+						setze_xoff( pos_prev.x!=gib_pos().x ? -TILE_STEPS : TILE_STEPS );
+					}
+					else {
+						setze_xoff( pos_prev.x!=gib_pos().x ? TILE_STEPS : -TILE_STEPS );
+					}
+				}
+				else {
+					if(dx>0) {
+						setze_yoff( pos_prev.y!=gib_pos().y ? TILE_STEPS/2 : -TILE_STEPS/2 );
+					}
+					else {
+						setze_yoff( pos_prev.y!=gib_pos().y ? -TILE_STEPS/2 : TILE_STEPS/2 );
+					}
+				}
+			}
+		}
 	}
 	else {
-		// driving on the same tile
-
-		if(!get_flag(ding_t::dirty)) {
-			// old position needs redraw
-			mark_image_dirty(gib_bild(),hoff);
-		}
-
-		setze_xoff( neu_xoff );
-		setze_yoff( neu_yoff );
+		distance &= 0xFFFFF000;
 	}
+	steps = steps_to_do;
+	if(use_calc_height) {
+		hoff = calc_height();
+	}
+	// remaining steps
 	set_flag(ding_t::dirty);
+	return distance;
+}
+
+
+
+// to make smaller steps than the tile granularity, we have to use this trick
+void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff ) const
+{
+	// vehicles needs finer steps to appear smoother
+	sint32 display_steps = (uint32)steps*(uint16)get_tile_raster_width();
+	if(dx*dy) {
+		display_steps &= 0xFFFFFC00;
+	}
+	xoff += (display_steps*dx) >> 10;
+	yoff += ((display_steps*dy) >> 10) + (hoff*(sint16)get_tile_raster_width())/(4*16);
+}
+
+
+
+// get the game offset in y-direction
+sint8 vehikel_basis_t::get_vehicle_xoff() const
+{
+	sint16 display_steps = (uint16)steps*TILE_STEPS;
+	if(dx*dy) {
+		display_steps &= 0xFFFFFFFE;
+	}
+	return gib_xoff() +  ( (dx*display_steps) >> 8 );
+}
+
+
+
+// get the game offset in y-direction
+sint8 vehikel_basis_t::get_vehicle_yoff()
+{
+	sint16 display_steps = (uint16)steps*TILE_STEPS;
+	if(dx*dy) {
+		display_steps &= 0xFFFFFFFE;
+	}
+	return gib_yoff() +  hoff + ( (dy*display_steps) >> 8 );
 }
 
 
@@ -255,37 +330,47 @@ vehikel_basis_t::calc_set_richtung(koord start, koord ende)
 		richtung = ribi_t::nord;
 		dx = 2;
 		dy = -1;
+		steps_next = 255;
 	} else if(dj > 0 && di == 0) {
 		richtung = ribi_t::sued;
 		dx = -2;
 		dy = 1;
+		steps_next = 255;
 	} else if(di < 0 && dj == 0) {
 		richtung = ribi_t::west;
 		dx = -2;
 		dy = -1;
+		steps_next = 255;
 	} else if(di >0 && dj == 0) {
 		richtung = ribi_t::ost;
 		dx = 2;
 		dy = 1;
+		steps_next = 255;
 	} else if(di > 0 && dj > 0) {
 		richtung = ribi_t::suedost;
 		dx = 0;
 		dy = 2;
+		steps_next = 127;
 	} else if(di < 0 && dj < 0) {
 		richtung = ribi_t::nordwest;
 		dx = 0;
 		dy = -2;
+		steps_next = 127;
 	} else if(di > 0 && dj < 0) {
 		richtung = ribi_t::nordost;
 		dx = 4;
 		dy = 0;
+		steps_next = 127;
 	} else {
 		richtung = ribi_t::suedwest;
 		dx = -4;
 		dy = 0;
+		steps_next = 127;
 	}
+	// we could artificially make diagonals shorter: but this would break existing game behaviour
 	return richtung;
 }
+
 
 
 
@@ -332,126 +417,37 @@ vehikel_basis_t::calc_height()
 		hoff = 0;
 		if(!gr->ist_im_tunnel()) {
 			use_calc_height = true;
-			// need hiding?
-			switch(gr->gib_grund_hang()) {
-			case 3:	// nordhang
-				if(gib_yoff() > -(7*TILE_STEPS/16)) {
-					setze_bild(IMG_LEER);
-				}
-				else {
-					calc_bild();
-				}
-				break;
-			case 6:	// westhang
-				if(gib_xoff() > -(12*TILE_STEPS/16)) {
-					setze_bild(IMG_LEER);
-				}
-				else {
-					calc_bild();
-				}
-				break;
-			case 9:	// osthang
-				if(gib_xoff() < (6*TILE_STEPS/16)) {
-					setze_bild(IMG_LEER);
-				}
-				else {
-					calc_bild();
-				}
-				break;
-			case 12:    // suedhang
-				if(gib_yoff() < (7*TILE_STEPS/16)) {
-					setze_bild(IMG_LEER);
-				}
-				else {
-					calc_bild();
-				}
-				break;
+			// need hiding? One of the few uses of XOR: not half driven XOR exiting => not hide!
+			ribi_t::ribi hang_ribi = ribi_typ( gr->gib_grund_hang() );
+			if((steps<(steps_next/2))  ^  (hang_ribi&fahrtrichtung)!=0  ) {
+				setze_bild(IMG_LEER);
+			}
+			else {
+				calc_bild();
 			}
 		}
 	}
 	else {
+		// will not work great with ways, but is very short!
 		hang_t::typ hang = gr->gib_weg_hang();
-		// normal slope
-		switch(hang) {
-			case 3:	// nordhang
-				if((fahrtrichtung&ribi_t::nordsued)==0) {
-					hoff = -(TILE_STEPS/2);
-				}
-				else {
-					hoff = -gib_yoff() - (TILE_STEPS/2);
-				}
-				use_calc_height = true;
-				break;
-			case 6:	// westhang
-				if((fahrtrichtung&ribi_t::ostwest)==0) {
-					hoff = -(TILE_STEPS/2);
-				}
-				else {
-					hoff = -gib_yoff() - (TILE_STEPS/2);
-				}
-				use_calc_height = true;
-				break;
-			case 9:	// osthang
-				if((fahrtrichtung&ribi_t::ostwest)==0) {
-					hoff = -(TILE_STEPS/2);
-				}
-				else {
-					hoff = gib_yoff() - (TILE_STEPS/2);
-				}
-				use_calc_height = true;
-				break;
-			case 12:// suedhang
-				if((fahrtrichtung&ribi_t::nordsued)==0) {
-					hoff = -(TILE_STEPS/2);
-				}
-				else {
-					hoff = gib_yoff() - (TILE_STEPS/2);
-				}
-				use_calc_height = true;
-				break;
-			case 0:
-				hoff = -gr->gib_weg_yoff();
-				break;
-			// from here only without a matching way (thus so far only airplanes)
-			case 1: // nordspitze
-			case 4: // suedspitze
-				if(  ( fahrtrichtung & ~(ribi_t::nordost) ) == 0  ||  ( fahrtrichtung & ~(ribi_t::suedwest) ) == 0  ) {
-					hoff = (hang==4 ? gib_yoff() : -gib_yoff() )/2 - (TILE_STEPS/2);
-				}
-				use_calc_height = true;
-				break;
-			case 2: // ostspitze
-			case 8: // westspitze
-				if(  ( fahrtrichtung & ~(ribi_t::suedost) ) == 0  ||  ( fahrtrichtung & ~(ribi_t::nordwest) ) == 0  ) {
-					// no nw->se diagonals
-					hoff = (hang==8 ? gib_yoff() : -gib_yoff() )/2 - (TILE_STEPS/2);
-				}
-				use_calc_height = true;
-				break;
-			case 5:	// valley diagonals
-			case 10:
-				hoff = -(TILE_STEPS/2);
-				use_calc_height = true;
-				break;
-			// three corner stuff
-			case 11: // south low
-			case 14: // north low
-				if(  ( fahrtrichtung & ~(ribi_t::nordost) ) == 0  ||  ( fahrtrichtung & ~(ribi_t::suedwest) ) == 0  ) {
-					hoff = (hang==14 ? gib_yoff() : -gib_yoff() )/2 - (TILE_STEPS/2);
-				}
-				use_calc_height = true;
-				break;
-			case 7:  // west low
-			case 13: // east low
-				hoff = -(TILE_STEPS/2);
-				use_calc_height = true;
-				break;
+		if(hang) {
+			ribi_t::ribi hang_ribi = ribi_typ(hang);
+			if(  ribi_t::doppelt(hang_ribi)  ==  ribi_t::doppelt(fahrtrichtung)) {
+				sint16 h_end = hang_ribi & ribi_t::rueckwaerts(fahrtrichtung) ? -TILE_HEIGHT_STEP : 0;
+				sint16 h_start = (hang_ribi & fahrtrichtung) ? -TILE_HEIGHT_STEP : 0;
+				hoff = (h_start*(sint16)(uint16)steps + h_end*(256-steps)) >> 8;
+			}
+			else {
+				// only for shadows and movingobjs ...
+				sint16 h_end = hang_ribi & ribi_t::rueckwaerts(fahrtrichtung) ? -TILE_HEIGHT_STEP : 0;
+				sint16 h_start = (hang_ribi & fahrtrichtung) ? -TILE_HEIGHT_STEP : 0;
+				hoff = ((h_start*(sint16)(uint16)steps + h_end*(256-steps)) >> 9) - TILE_HEIGHT_STEP/2;
+			}
+		}
+		else {
+			hoff = -gr->gib_weg_yoff();
 		}
 	}
-
-	// recalculate friction
-	hoff = height_scaling(hoff);
-
 	return hoff;
 }
 
@@ -722,12 +718,14 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 		alte_fahrtrichtung = fahrtrichtung;
 		fahrtrichtung = calc_set_richtung( gib_pos().gib_2d(), pos_next.gib_2d() );
 		hoff = 0;
+		steps = 0;
 
 		setze_xoff( (dx<0) ? TILE_STEPS : -TILE_STEPS );
 		setze_yoff( (dy<0) ? TILE_STEPS/2 : -TILE_STEPS/2 );
 
 		calc_bild();
 	}
+	steps_next = ribi_t::ist_einfach(fahrtrichtung) ? 255 : 127;
 }
 
 
@@ -791,6 +789,16 @@ bool vehikel_t::hop_check()
 {
 	// the leading vehicle will do all the checks
 	if(ist_erstes) {
+		if(check_for_finish) {
+			// so we are there yet?
+			cnv->ziel_erreicht();
+			if(cnv->get_state()==convoi_t::INITIAL) {
+				// to avoid crashes with airplanes
+				use_calc_height = false;
+			}
+			return false;
+		}
+
 		// now check, if we can go here
 		const grund_t *bd = welt->lookup(pos_next);
 		if(bd==NULL  ||  !ist_befahrbar(bd)) {
@@ -904,6 +912,11 @@ DBG_MESSAGE("vehikel_t::hop()","reverse dir at route index %d",route_index);
 	else {
 		speed_limit = SPEED_UNLIMITED;
 	}
+	if(check_for_finish & ist_erstes) {
+		if(  fahrtrichtung==ribi_t::nord  || fahrtrichtung==ribi_t::west ) {
+			steps_next = (steps_next/2)+1;
+		}
+	}
 
 	calc_akt_speed(gr);
 }
@@ -1004,40 +1017,6 @@ vehikel_t::rauche()
 			}
 		}
 	}
-}
-
-
-
-/* the only difference to the normal driving routine
- * that is used also by citycars without a route is the check for end
- * this is marked by repeating the same koord3d twice
- */
-void
-vehikel_t::fahre()
-{
-	// target mark: same coordinate twice (stems from very old ages, I think)
-	if(ist_erstes  &&  check_for_finish) {
-		// check a vehicle leanght ahead for a tile change
-		// for south/east going vehicles, we must add half a tile
-		// this is also the correct value for diagonals
-		const sint8 iterations = (fahrtrichtung==ribi_t::nord  || fahrtrichtung==ribi_t::west) ? 8 : 1;
-
-		const sint8 neu_xoff = gib_xoff() + dx*iterations;
-		const sint8 neu_yoff = gib_yoff() + dy*iterations;
-
-		// want to go to next field and want to step
-		if(is_about_to_hop(neu_xoff,neu_yoff)) {
-			// so we are there yet?
-			cnv->ziel_erreicht();
-			if(cnv->get_state()==convoi_t::INITIAL) {
-				// to avoid crashes with airplanes
-				use_calc_height = false;
-			}
-			return;
-		}
-	}
-
-	fahre_basis();
 }
 
 
@@ -1177,18 +1156,6 @@ bool vehikel_t::entladen(koord, halthandle_t halt)
 }
 
 
-void vehikel_t::sync_step()
-{
-	setze_yoff( gib_yoff() - hoff );
-	fahre();
-	if(use_calc_height) {
-		hoff = calc_height();
-	}
-	setze_yoff( gib_yoff() + hoff );
-}
-
-
-
 /**
  * Ermittelt fahrtrichtung
  * @author Hj. Malthaner
@@ -1225,6 +1192,7 @@ void
 vehikel_t::rdwr(loadsave_t *file)
 {
 	sint32 fracht_count = 0;
+//	sint8 dx, dy;
 
 	if(file->is_saving()) {
 		fracht_count = fracht.count();
@@ -1233,6 +1201,14 @@ vehikel_t::rdwr(loadsave_t *file)
 		if(fracht_count==0  &&  besch->gib_ware()!=warenbauer_t::nichts  &&  besch->gib_zuladung()>0) {
 			fracht_count = 1;
 		}
+	}
+
+	// correct old offsets ... REMOVE after savegame increase ...
+	if(file->get_version()<99018  &&  file->is_saving()) {
+		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2];
+		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1];
+		setze_xoff( gib_xoff() + ((uint16)steps*(sint16)dx)/16 );
+		setze_yoff( gib_yoff() + ((uint16)steps*(sint16)dy)/16 );
 	}
 
 	ding_t::rdwr(file);
@@ -1246,7 +1222,7 @@ vehikel_t::rdwr(loadsave_t *file)
 		file->rdwr_long(l, "\n");
 		dy = (sint8)l;
 		file->rdwr_long(l, "\n");
-		hoff = (sint8)(l*TILE_STEPS/16);
+		hoff = (sint8)(l*TILE_HEIGHT_STEP/16);
 		file->rdwr_long(speed_limit, "\n");
 		file->rdwr_enum(fahrtrichtung, " ");
 		file->rdwr_enum(alte_fahrtrichtung, "\n");
@@ -1260,17 +1236,47 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 	else {
 		// prissi: changed several data types to save runtime memory
 		file->rdwr_long(insta_zeit, "\n");
-		file->rdwr_byte(dx, " ");
-		file->rdwr_byte(dy, "\n");
-		sint16 dummy16 = ((16*(sint16)hoff)/TILE_STEPS);
+		if(file->get_version()<99018) {
+			file->rdwr_byte(dx, " ");
+			file->rdwr_byte(dy, "\n");
+		}
+		else {
+			file->rdwr_byte(steps, " ");
+			file->rdwr_byte(steps_next, "\n");
+		}
+		sint16 dummy16 = ((16*(sint16)hoff)/TILE_HEIGHT_STEP);
 		file->rdwr_short(dummy16, "\n");
-		hoff = (sint8)((TILE_STEPS*(sint16)dummy16)/16);
+		hoff = (sint8)((TILE_HEIGHT_STEP*(sint16)dummy16)/16);
 		file->rdwr_long(speed_limit, "\n");
 		file->rdwr_enum(fahrtrichtung, " ");
 		file->rdwr_enum(alte_fahrtrichtung, "\n");
 		file->rdwr_delim("Wre: ");
 		file->rdwr_long(fracht_count, " ");
 		file->rdwr_short(route_index, "\n");
+	}
+
+	// convert steps to position
+	if(file->get_version()<99018  &&  file->is_loading()) {
+		sint8 ddx=gib_xoff(), ddy=gib_yoff()-hoff;
+		sint8 i=1;
+		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2];
+		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1];
+
+		while(  !is_about_to_hop(ddx+dx*i,ddy+dy*i )  &&  i<16 ) {
+			i++;
+		}
+		if(dx*dy) {
+			steps = min( 255, 256-(i*16) );
+			setze_xoff( ddx-(16-i)*dx );
+			setze_yoff( ddy-(16-i)*dy+hoff );
+			steps_next = 255;
+		}
+		else {
+			steps = min( 127, 128-(i*8) );
+			setze_xoff( ddx-(8-i)*dx );
+			setze_yoff( ddy-(8-i)*dy+hoff );
+			steps_next = 127;
+		}
 	}
 
 	// information about the target halt
@@ -1341,7 +1347,7 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 		}
 	}
 
-	// skip first last info (the convoi will know this better than we!
+	// skip first last info (the convoi will know this better than we!)
 	if(file->get_version()<88007) {
 		bool dummy = 0;
 		file->rdwr_bool(dummy, " ");
@@ -1650,7 +1656,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 		if(str->has_sign()) {
 			const roadsign_t* rs = gr->find<roadsign_t>();
 			if(rs) {
-				// since at the corner, our direct may be diagonal, we make it straight
+				// since at the corner, our direction may be diagonal, we make it straight
 				const uint8 richtung = ribi_typ(gib_pos().gib_2d(),pos_next.gib_2d());
 
 				if(rs->gib_besch()->is_traffic_light()  &&  (rs->get_dir()&richtung)==0) {
@@ -3033,7 +3039,7 @@ aircraft_t::betrete_feld()
 		const short landehoehe=height_scaling(cnv->get_route()->position_bei(touchdown).z)+(touchdown-route_index);
 		if(landehoehe*TILE_HEIGHT_STEP/Z_TILE_STEP<flughoehe) {
 			state = landing;
-			target_height = height_scaling(cnv->get_route()->position_bei(touchdown).z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
+			target_height = height_scaling((sint16)cnv->get_route()->position_bei(touchdown).z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
 		}
 	}
 	else {
@@ -3163,6 +3169,7 @@ aircraft_t::rdwr(loadsave_t *file, bool force)
 		vehikel_t::rdwr(file);
 		file->rdwr_enum(state, " ");
 		file->rdwr_short(flughoehe, " ");
+		flughoehe &= ~(TILE_HEIGHT_STEP-1);
 		file->rdwr_short(target_height, "\n");
 		file->rdwr_long(suchen," ");
 		file->rdwr_long(touchdown," ");
@@ -3323,7 +3330,8 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route
 			dbg->error("aircraft_t::calc_route()","Invalid route calculation: start is on a single direction field ...");
 		}
 		state = taxiing;
-		flughoehe = gib_pos().z;
+		flughoehe = 0;
+		target_height = ((sint16)gib_pos().z*TILE_HEIGHT_STEP)/Z_TILE_STEP;
 	}
 	else {
 		// init with current pos (in air ... )
@@ -3331,10 +3339,12 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route
 		route->append( gib_pos() );
 		state = flying;
 		cnv->setze_akt_speed_soll( vehikel_t::SPEED_UNLIMITED );
-		flughoehe = gib_pos().z+48;
+		if(flughoehe==0) {
+			flughoehe = 3*TILE_HEIGHT_STEP;
+		}
 		takeoff = 0;
+		target_height = (((sint16)gib_pos().z+3)*TILE_HEIGHT_STEP)/Z_TILE_STEP;
 	}
-	target_height = gib_pos().z+48;
 
 //DBG_MESSAGE("aircraft_t::calc_route()","take off ok");
 
@@ -3423,15 +3433,26 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route
 
 
 
-// well, the heihgt is of course most important for an aircraft ...
-int aircraft_t::calc_flight_height()
+void
+aircraft_t::hop()
 {
-	const sint16 h_cur = height_scaling(gib_pos().z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
+	if(!get_flag(ding_t::dirty)) {
+		mark_image_dirty( bild, gib_yoff()-flughoehe-hoff-2 );
+		set_flag(ding_t::dirty);
+	}
 
-	switch( state ) {
+	// hop to next tile
+	vehikel_t::hop();
+
+	// take care of inflight height ...
+	const sint16 h_cur = height_scaling((sint16)gib_pos().z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
+	const sint16 h_next = height_scaling((sint16)pos_next.z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
+
+	switch(state) {
 		case departing:
 			{
 				flughoehe = 0;
+				target_height = h_cur;
 				current_friction = max( 0, 25-route_index-takeoff )*4;
 				speed_limit = SPEED_UNLIMITED;
 
@@ -3453,86 +3474,61 @@ int aircraft_t::calc_flight_height()
 
 		case flying:
 		case flying2:
-		{
-			const sint16 h_next=height_scaling(pos_next.z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
-
 			speed_limit = SPEED_UNLIMITED;
-
+			// since we are at a tile border, round up to the nearest value
+			flughoehe += h_cur;
+			if(flughoehe<target_height) {
+				flughoehe = (flughoehe+TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
+			}
+			else if(flughoehe>target_height) {
+				flughoehe = (flughoehe-TILE_HEIGHT_STEP);
+			}
+			flughoehe -= h_cur;
 			// did we have to change our flight height?
-			if(target_height-h_next>TILE_HEIGHT_STEP*5) {
+			if(target_height-h_next > TILE_HEIGHT_STEP*5) {
 				// sinken
 				target_height -= TILE_HEIGHT_STEP*2;
 			}
-			else if(target_height-h_next<TILE_HEIGHT_STEP*2) {
+			else if(target_height-h_next < TILE_HEIGHT_STEP*2) {
 				// steigen
 				target_height += TILE_HEIGHT_STEP*2;
 			}
-			// now change flight level if required
-			if(flughoehe<target_height) {
-				flughoehe ++;
-			}
-			else if(flughoehe>target_height) {
-				flughoehe --;
-			}
-			else {
-				// after reaching flight level, friction will be constant
-				current_friction = 1;
-			}
-			flughoehe -= h_cur;
-		}
-		break;
+			break;
 
 		case landing:
-		{
+			flughoehe += h_cur;
 			if(flughoehe>target_height) {
 				// still decenting
-				flughoehe--;
+				flughoehe = (flughoehe-TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
+				flughoehe -= h_cur;
 				speed_limit = kmh_to_speed(besch->gib_geschw())/2;
 				current_friction = 64;
-				flughoehe -= h_cur;
 			}
 			else {
 				// touchdown!
 				flughoehe = 0;
+				target_height = h_next;
 				// all planes taxi with same speed
 				speed_limit = kmh_to_speed(60);
 				current_friction = 16;
 			}
-		}
-		break;
+			break;
 
-	default:
-		speed_limit = kmh_to_speed(60);
-		current_friction = 16;//(alte_fahrtrichtung != fahrtrichtung) ? 512 : 128;
-		flughoehe = 0;
-		break;
+		default:
+			speed_limit = kmh_to_speed(60);
+			current_friction = 16;//(alte_fahrtrichtung != fahrtrichtung) ? 512 : 128;
+			flughoehe = 0;
+			target_height = h_next;
+			break;
 	}
 
+	// we need to stop one tile earlier
+	if(route_index>=cnv->get_route()->gib_max_n()) {
+		check_for_finish = true;
+	}
+
+	// and change flight height
 	cnv->setze_akt_speed_soll( speed_limit );
-
-	// this calculation is no really working, since it assumes straight ways ...
-	// but for a shadow it is good enough
-	return vehikel_basis_t::calc_height();
-}
-
-
-
-// needed for shadows ...
-void aircraft_t::sync_step()
-{
-	setze_yoff( gib_yoff() - hoff );
-	if(!get_flag(ding_t::dirty)) {
-		// airplane and shadow
-		mark_image_dirty( bild, gib_yoff()-flughoehe-hoff-2 );
-		mark_image_dirty( bild, hoff );
-	}
-	flughoehe += height_scaling(gib_pos().z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
-	use_calc_height = true;
-	fahre();
-	if(use_calc_height) {
-		hoff = calc_flight_height();
-	}
-	setze_yoff( gib_yoff() + hoff );
 }
 
 
@@ -3543,10 +3539,19 @@ aircraft_t::display_after(int xpos, int ypos, bool /*reset_dirty*/) const
 {
 	if(bild != IMG_LEER) {
 		const int raster_width = get_tile_raster_width();
+		get_screen_offset( xpos, ypos );
 		xpos += tile_raster_scale_x(gib_xoff(), raster_width);
-		ypos += tile_raster_scale_y(gib_yoff()-flughoehe-hoff-2, raster_width);
+		sint16 current_flughohe = flughoehe;
+		const sint16 target = target_height - ((sint16)gib_pos().z*TILE_HEIGHT_STEP)/Z_TILE_STEP;
+		if(  current_flughohe < target  ) {
+			current_flughohe += (steps*TILE_HEIGHT_STEP) >> 8;
+		}
+		else if(  current_flughohe > target  ) {
+			current_flughohe -= (steps*TILE_HEIGHT_STEP) >> 8;
+		}
+		ypos += tile_raster_scale_y(gib_yoff()-current_flughohe-hoff-2, raster_width);
 
 		// will be dirty
-		display_color_img(bild, xpos, ypos, get_player_nr(), true, get_flag(ding_t::dirty) );
+		display_color_img(bild, xpos, ypos, get_player_nr(), true, true/*get_flag(ding_t::dirty)*/ );
 	}
 }

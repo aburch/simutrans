@@ -48,6 +48,8 @@
 
 #include "simgraph.h"
 
+// undefine for debugging the update routines
+//#define DEBUG_FLUSH_BUFFER
 
 /*
  * Hajo: RGB 1555
@@ -2743,7 +2745,6 @@ void display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_CO
 }
 
 
-//#define DEBUG_FLUSH_BUFFER
 
 /**
  * copies only the changed areas to the screen using the "tile dirty buffer"

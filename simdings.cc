@@ -25,6 +25,7 @@
 #include "simworld.h"
 #include "dings/baum.h"
 #include "dings/gebaeude.h"
+#include "vehicle/simvehikel.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "boden/grund.h"
@@ -203,6 +204,20 @@ ding_t::rdwr(loadsave_t *file)
 	besitzer_n = byte;
 }
 
+
+/* get dx, dy and divider and startpos for position from dir (just to remind you) */
+static sint16 vehicle_offsets[ 8*5 ] = {
+	-2,  1, -2,  1, 4,	// s
+	-2, -1, -2, -1, 4,	// w
+	-4,  0, -2,  1, 1,	// sw
+	 0,  2,  2,  1, 1,	// se
+	 2, -1,  2, -1, 4,	// n
+	 2,  1,  2,  1, 4,	// e
+	 4,  0,  2,  1, 1,	// ne
+	 0, -2,  2, -1, 1,	// nw
+};
+
+
 /**
  * Ding zeichnen
  * (reset dirty will be done from dingliste! It is true only for drawing the main window.)
@@ -213,14 +228,20 @@ ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 {
 	const int raster_width = get_tile_raster_width();
 
-	image_id bild = gib_bild();
-
+	if(is_moving()) {
+		// vehicles needs finer steps to appear smoother
+		vehikel_basis_t *v = (vehikel_basis_t *)this;
+		v->get_screen_offset( xpos, ypos );
+	}
 	xpos += tile_raster_scale_x(gib_xoff(), raster_width);
 	ypos += tile_raster_scale_y(gib_yoff(), raster_width);
+
 	const int start_ypos = ypos;
 
 	bool dirty = get_flag(ding_t::dirty);
 	int j = 0;
+	image_id bild = gib_bild();
+
 	while(bild!=IMG_LEER) {
 
 		if(besitzer_n!=-1) {
@@ -290,11 +311,17 @@ void
 ding_t::mark_image_dirty(image_id bild,sint8 yoff) const
 {
 	if(bild!=IMG_LEER) {
+		int xpos=0, ypos=0;
+		if(is_moving()) {
+			// vehicles needs finer steps to appear smoother
+			vehikel_basis_t *v = (vehikel_basis_t *)this;
+			v->get_screen_offset( xpos, ypos );
+		}
 		// better not try to twist your brain to follow the retransformation ...
 		const sint16 rasterweite=get_tile_raster_width();
 		const koord diff = gib_pos().gib_2d()-welt->get_world_position()-welt->gib_ansicht_ij_offset();
-		const sint16 x = (diff.x-diff.y)*(rasterweite/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
-		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( yoff+gib_yoff()-gib_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4);
+		const sint16 x = (diff.x-diff.y)*(rasterweite/2) + tile_raster_scale_x(gib_xoff(), rasterweite) + xpos;
+		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( yoff+gib_yoff()-gib_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4) + ypos;
 		// mark the region after the image as dirty
 		display_mark_img_dirty( bild, x+welt->gib_x_off(), y+welt->gib_y_off() );
 	}

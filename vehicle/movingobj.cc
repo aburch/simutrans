@@ -51,6 +51,8 @@ bool movingobj_t::alles_geladen()
 {
 	if (besch_names.empty()) {
 		DBG_MESSAGE("movingobj_t", "No movingobj found - feature disabled");
+		// NULL for empty object
+		movingobj_typen.append(NULL,1);
 	}
 	return true;
 }
@@ -191,8 +193,8 @@ void movingobj_t::rdwr(loadsave_t *file)
 	vehikel_basis_t::rdwr(file);
 
 	file->rdwr_enum(fahrtrichtung, " ");
-	file->rdwr_byte(dx, "\n");
-	file->rdwr_byte(dy, "\n");
+	file->rdwr_byte(steps, " ");
+	file->rdwr_byte(steps_next, "\n");
 	// to convert between different height steps
 	sint16 dummy16 = ((16*(sint16)hoff)/TILE_STEPS);
 	file->rdwr_short(dummy16, "\n");
@@ -269,16 +271,11 @@ movingobj_t::entferne(spieler_t *sp)
 bool movingobj_t::sync_step(long delta_t)
 {
 	weg_next += gib_besch()->get_speed() * delta_t;
-	while(SPEED_STEP_WIDTH < weg_next) {
-		weg_next -= SPEED_STEP_WIDTH;
-		setze_yoff( gib_yoff() - hoff );
-		fahre_basis();
-		if(use_calc_height) {
-			hoff = calc_height();
-		}
-		setze_yoff( gib_yoff() + hoff );
+	weg_next -= fahre_basis( weg_next );
+	if(use_calc_height) {
+		hoff = calc_height();
 	}
-
+	setze_yoff( gib_yoff() + hoff );
 	return true;
 }
 
@@ -410,42 +407,6 @@ void movingobj_t::hop()
 	setze_pos(next->gib_pos());
 	betrete_feld();
 	pos_next = koord3d(pos_next_next,0);
-/*
-	switch( fahrtrichtung ) {
-		case ribi_t::nord:
-			dx = 2;
-			dy = -1;
-			break;
-		case ribi_t::sued:
-			dx = -2;
-			dy = 1;
-			break;
-		case ribi_t::west:
-			dx = -2;
-			dy = -1;
-			break;
-		case ribi_t::ost:
-			dx = 2;
-			dy = 1;
-			break;
-		case ribi_t::suedost:
-			dx = 0;
-			dy = 2;
-			break;
-		case ribi_t::nordwest:
-			dx = 0;
-			dy = -2;
-			break;
-		case ribi_t::nordost:
-			dx = 4;
-			dy = 0;
-			break;
-		case ribi_t::suedwest:
-			dx = -4;
-			dy = 0;
-			break;
-	}
-*/
 }
 
 

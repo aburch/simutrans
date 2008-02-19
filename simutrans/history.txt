@@ -19,6 +19,8 @@
 	FIX: show signals again in minimap
 	ADD: preliminary support for automatic configuration, clarification of the licence
 	CHANGE: maintance of player buildings now depends on its level
+	FIX: reloading with no matching buildings for a climate could lead to crashes
+	CHANGE: smoother movements of vehicles in all sizes and zoomlevels
 
 
 Release of 99.17.1 (r1550, stable)

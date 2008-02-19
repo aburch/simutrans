@@ -25,7 +25,8 @@ void groundobj_reader_t::register_obj(obj_besch_t *&data)
 
 bool groundobj_reader_t::successfully_loaded() const
 {
-	return groundobj_t::alles_geladen();
+	bool gok = groundobj_t::alles_geladen();
+	return movingobj_t::alles_geladen()  &&  gok;
 }
 
 

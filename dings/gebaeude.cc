@@ -741,16 +741,29 @@ gebaeude_t::rdwr(loadsave_t *file)
 						typ_str[1] = toupper(typ_str[1]);
 						typ_str[2] = toupper(typ_str[2]);
 					}
-					//		DBG_MESSAGE("gebaeude_t::rwdr", "%s level %i",typ_str,level);
+					// we try to replace citybuildings with their mathing counterparts
+					// if none are matching, we try again without climates and timeline!
 					if(strcmp(typ_str,"RES")==0) {
 DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with residence level %i",buf,level);
-						tile = hausbauer_t::gib_wohnhaus(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z))->gib_tile(0);
+						const haus_besch_t *hb = hausbauer_t::gib_wohnhaus(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z));
+						if(hb==NULL) {
+							hb = hausbauer_t::gib_wohnhaus(level,0, MAX_CLIMATES );
+						}
+						tile = hb->gib_tile(0);
 					} else if(strcmp(typ_str,"COM")==0) {
 DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i",buf,level);
-						tile = hausbauer_t::gib_gewerbe(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z))->gib_tile(0);
+						const haus_besch_t *hb = hausbauer_t::gib_gewerbe(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z));
+						if(hb==NULL) {
+							hb = hausbauer_t::gib_gewerbe(level,0, MAX_CLIMATES );
+						}
+						tile = hb->gib_tile(0);
 					} else if(strcmp(typ_str,"IND")==0) {
 DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with industrie level %i",buf,level);
-						tile = hausbauer_t::gib_industrie(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z))->gib_tile(0);
+						const haus_besch_t *hb = hausbauer_t::gib_industrie(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z));
+						if(hb==NULL) {
+							hb = hausbauer_t::gib_industrie(level,0, MAX_CLIMATES );
+						}
+						tile = hb->gib_tile(0);
 					} else {
 DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, gib_pos().x, gib_pos().y);
 					}

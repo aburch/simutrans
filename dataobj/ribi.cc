@@ -107,20 +107,20 @@ const ribi_t::ribi ribi_t::fwrd[16] = {
 // single height hangs
 static const ribi_t::ribi from_hang[16] = {
     ribi_t::keine,		// 0:flach
-    ribi_t::keine,		// 1:spitze SW
-    ribi_t::keine,		// 2:spitze SO
+    ribi_t::suedwest,	// 1:spitze SW
+    ribi_t::suedost,	// 2:spitze SO
     ribi_t::sued,		// 3:nordhang
-    ribi_t::keine,		// 4:spitze NO
-    ribi_t::keine,		// 5:spitzen SW+NO
+    ribi_t::nordost,	// 4:spitze NO
+    ribi_t::alle,		// 5:spitzen SW+NO
     ribi_t::ost,		// 6:westhang
-    ribi_t::keine,		// 7:tal NW
-    ribi_t::keine,		// 8:spitze NW
+    ribi_t::suedost,	// 7:tal NW
+    ribi_t::nordwest,	// 8:spitze NW
     ribi_t::west,		// 9:osthang
-    ribi_t::keine,		// 10:spitzen NW+SO
-    ribi_t::keine,		// 11:tal NO
+    ribi_t::alle,		// 10:spitzen NW+SO
+    ribi_t::suedwest,	// 11:tal NO
     ribi_t::nord,		// 12:suedhang
-    ribi_t::keine,		// 13:tal SO
-    ribi_t::keine,		// 14:tal SW
+    ribi_t::nordwest,	// 13:tal SO
+    ribi_t::nordost,	// 14:tal SW
     ribi_t::keine		// 15:alles oben
 };
 

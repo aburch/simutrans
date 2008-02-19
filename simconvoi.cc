@@ -426,24 +426,21 @@ bool convoi_t::sync_step(long delta_t)
 				sp_soll += (akt_speed*delta_t);
 
 				// now actually move the units
-				while((sint32)SPEED_STEP_WIDTH<sp_soll) {
-					sp_soll -= SPEED_STEP_WIDTH;
-					int v_nr = get_vehicle_at_length(steps_driven++);
-					// until all are moving
-					if(v_nr==anz_vehikel) {
+				while(sp_soll>>12) {
+					uint32 sp_hat = fahr[0]->fahre_basis(1<<12);
+					int v_nr = get_vehicle_at_length((steps_driven++)>>4);
+					// until all are moving or something went wrong (sp_hat==0)
+					if(sp_hat==0  ||  v_nr==anz_vehikel) {
 						steps_driven = -1;
 						state = DRIVING;
 						return true;
 					}
 					// now only the right numbers
-					for(int i=0; i<=v_nr; i++) {
-						fahr[i]->sync_step();
+					for(int i=1; i<=v_nr; i++) {
+						fahr[i]->fahre_basis(sp_hat);
 					}
-
+					sp_soll -= sp_hat;
 				}
-				// maybe we have been stopped be something => avoid jumps
-				sp_soll &= SPEED_STEP_WIDTH-1;
-
 				// smoke for the engines
 				next_wolke += delta_t;
 				if(next_wolke>500) {
@@ -456,31 +453,26 @@ bool convoi_t::sync_step(long delta_t)
 			break;	// LEAVING_DEPOT
 
 		case DRIVING:
-			calc_acceleration(delta_t);
+			{
+				calc_acceleration(delta_t);
 
-			// now actually move the units
-			sp_soll += (akt_speed*delta_t);
-			while((sint32)SPEED_STEP_WIDTH<sp_soll) {
-				sp_soll -= SPEED_STEP_WIDTH;
-				fahr[0]->sync_step();
-				// state may have changed
-				if(state!=DRIVING) {
-					return true;
-				}
+				// now actually move the units
+				sp_soll += (akt_speed*delta_t);
+				uint32 sp_hat = fahr[0]->fahre_basis(sp_soll);
 				// now move the rest (so all vehikel are moving synchroniously)
 				for(unsigned i=1; i<anz_vehikel; i++) {
-					fahr[i]->sync_step();
+					fahr[i]->fahre_basis(sp_hat);
 				}
-			}
-			// maybe we have been stopped be something => avoid jumps
-			sp_soll &= (SPEED_STEP_WIDTH-1);
+				// maybe we have been stopped be something => avoid wide jumps
+				sp_soll = (sp_soll-sp_hat) & 0x0FFF;
 
-			// smoke for the engines
-			next_wolke += delta_t;
-			if(next_wolke>500) {
-				next_wolke = 0;
-				for(int i=0;  i<anz_vehikel;  i++  ) {
-					fahr[i]->rauche();
+				// smoke for the engines
+				next_wolke += delta_t;
+				if(next_wolke>500) {
+					next_wolke = 0;
+					for(int i=0;  i<anz_vehikel;  i++  ) {
+						fahr[i]->rauche();
+					}
 				}
 			}
 			break;	// DRIVING
@@ -1149,7 +1141,7 @@ convoi_t::can_go_alte_richtung()
 
 	// since we need the route for every vehicle of this convoi,
 	// we must set the current route index (instead assuming 1)
-	length = min((convoi_length/16)+4,route.gib_max_n()-1);	// maximum length in tiles to check
+	length = min((convoi_length/8),route.gib_max_n()-1);	// maximum length in tiles to check
 	bool ok=false;
 	for(i=0; i<anz_vehikel; i++) {
 		vehikel_t* v = fahr[i];
@@ -1220,10 +1212,9 @@ convoi_t::vorfahren()
 		v0->setze_erstes(false); // switches off signal checks ...
 		v0->darf_rauchen(false);
 		steps_driven = 0;
+		// drive half a tile:
 		for(int i=0; i<anz_vehikel; i++) {
-			for(int j=0; j<8; j++) {
-				fahr[i]->sync_step();
-			}
+			fahr[i]->fahre_basis( 128<<12 );
 		}
 		v0->darf_rauchen(true);
 		v0->setze_erstes(true); // switches on signal checks to reserve the next route
@@ -1266,7 +1257,6 @@ convoi_t::vorfahren()
 			}
 
 			// move one train length to the start position ...
-	//		int train_length = (alte_richtung==ribi_t::sued  ||  alte_richtung==ribi_t::ost) ? 0 : fahr[0]->gib_besch()->get_length();
 			int train_length = 0;
 			for(unsigned i=0; i<anz_vehikel-1u; i++) {
 				train_length += fahr[i]->gib_besch()->get_length(); // this give the length in 1/TILE_STEPS of a full tile
@@ -1287,9 +1277,7 @@ convoi_t::vorfahren()
 				vehikel_t* v = fahr[i];
 
 				v->darf_rauchen(false);
-				for(int j=0; j<train_length; j++) {
-					v->sync_step();
-				}
+				fahr[i]->fahre_basis( ((TILE_STEPS)*train_length)<<12 );
 				train_length -= v->gib_besch()->get_length();	// this give the length in 1/TILE_STEPS of a full tile => all cars closely coupled!
 				v->darf_rauchen(true);
 			}

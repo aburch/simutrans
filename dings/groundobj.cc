@@ -51,6 +51,7 @@ bool groundobj_t::alles_geladen()
 {
 	if (besch_names.empty()) {
 		DBG_MESSAGE("groundobj_t", "No groundobj found - feature disabled");
+		groundobj_typen.append(NULL,1);
 	}
 	return true;
 }

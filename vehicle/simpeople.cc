@@ -150,15 +150,10 @@ fussgaenger_t::sync_step(long delta_t)
 	time_to_life -= delta_t;
 
 	weg_next += 128*delta_t;
-	while(SPEED_STEP_WIDTH < weg_next) {
-		weg_next -= SPEED_STEP_WIDTH;
-		setze_yoff( gib_yoff() - hoff );
-		fahre_basis();
-		if(use_calc_height) {
-			hoff = calc_height();
-		}
-		setze_yoff( gib_yoff() + hoff );
+	weg_next -= fahre_basis( weg_next );
+	if(use_calc_height) {
+		hoff = calc_height();
 	}
-
+	setze_yoff( gib_yoff() + hoff );
 	return true;
 }

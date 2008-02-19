@@ -1743,9 +1743,12 @@ karte_t::sync_step(long delta_t)
 		const koord3d new_pos=follow_convoi->gib_vehikel(0)->gib_pos();
 		if(new_pos!=koord3d::invalid) {
 			const sint16 rw = get_tile_raster_width();
-			const sint16 new_xoff = tile_raster_scale_x(-follow_convoi->gib_vehikel(0)->gib_xoff(),rw);
-			const sint16 new_yoff =	tile_raster_scale_y(-follow_convoi->gib_vehikel(0)->gib_yoff(),rw) + tile_raster_scale_y(new_pos.z*TILE_HEIGHT_STEP/Z_TILE_STEP,rw);
-			change_world_position( new_pos.gib_2d(), new_xoff, new_yoff );
+			int new_xoff = 0;
+			int new_yoff = 0;
+			follow_convoi->gib_vehikel(0)->get_screen_offset( new_xoff, new_yoff );
+			new_xoff -= tile_raster_scale_x(-follow_convoi->gib_vehikel(0)->gib_xoff(),rw);
+			new_yoff -= tile_raster_scale_y(-follow_convoi->gib_vehikel(0)->gib_yoff(),rw) + tile_raster_scale_y(new_pos.z*TILE_HEIGHT_STEP/Z_TILE_STEP,rw);
+			change_world_position( new_pos.gib_2d(), -new_xoff, -new_yoff );
 		}
 	}
 
