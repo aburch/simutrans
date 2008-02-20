@@ -1422,6 +1422,8 @@ convoi_t::rdwr(loadsave_t *file)
 				}
 			}
 
+			assert(v != 0  &&  v->gib_besch()!=NULL);
+
 			// in very old games, monorail was a railway
 			// so we need to convert this
 			// freight will be lost, but game will be loadable
@@ -1436,8 +1438,6 @@ convoi_t::rdwr(loadsave_t *file)
 			if(file->get_version()<99004) {
 				dummy_pos.rdwr(file);
 			}
-
-			assert(v != 0  &&  v->gib_besch()!=NULL);
 
 			const vehikel_besch_t *info = v->gib_besch();
 
