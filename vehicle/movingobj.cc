@@ -195,10 +195,6 @@ void movingobj_t::rdwr(loadsave_t *file)
 	file->rdwr_enum(fahrtrichtung, " ");
 	file->rdwr_byte(steps, " ");
 	file->rdwr_byte(steps_next, "\n");
-	// to convert between different height steps
-	sint16 dummy16 = ((16*(sint16)hoff)/TILE_STEPS);
-	file->rdwr_short(dummy16, "\n");
-	hoff = (sint8)((TILE_STEPS*(sint16)dummy16)/16);
 
 	pos_next.rdwr(file);
 	pos_next_next.rdwr(file);
@@ -214,6 +210,7 @@ void movingobj_t::rdwr(loadsave_t *file)
 		file->rd_str_into(bname, "N");
 		groundobjtype = besch_names.get(bname);
 		// if not there, besch will be zero
+		use_calc_height = true;
 	}
 }
 
@@ -272,10 +269,6 @@ bool movingobj_t::sync_step(long delta_t)
 {
 	weg_next += gib_besch()->get_speed() * delta_t;
 	weg_next -= fahre_basis( weg_next );
-	if(use_calc_height) {
-		hoff = calc_height();
-	}
-	setze_yoff( gib_yoff() + hoff );
 	return true;
 }
 

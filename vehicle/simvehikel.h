@@ -86,7 +86,7 @@ sint8 dx, dy;
 	vehikel_basis_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_fahrtrichtung, const uint8 next_fahrtrichtung, const uint8 next_90fahrtrichtung );
 
 	// olf way of moving vehicles!
-	inline bool vehikel_basis_t::is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff );
+	inline bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff );
 
 public:
 	uint32 fahre_basis(uint32 dist);	// basis movement code

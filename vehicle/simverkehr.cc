@@ -206,7 +206,7 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2];
 		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1];
 		setze_xoff( gib_xoff() + ((uint16)steps*(sint16)dx)/16 );
-		setze_yoff( gib_yoff() + ((uint16)steps*(sint16)dy)/16 );
+		setze_yoff( gib_yoff() + ((uint16)steps*(sint16)dy)/16 + hoff );
 	}
 
 	vehikel_basis_t::rdwr(file);
@@ -263,13 +263,13 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		if(dx*dy) {
 			steps = min( 255, 256-(i*16) );
 			setze_xoff( ddx-(16-i)*dx );
-			setze_yoff( ddy-(16-i)*dy+hoff );
+			setze_yoff( ddy-(16-i)*dy );
 			steps_next = 255;
 		}
 		else {
 			steps = min( 127, 128-(i*8) );
 			setze_xoff( ddx-(8-i)*dx );
-			setze_yoff( ddy-(8-i)*dy+hoff );
+			setze_yoff( ddy-(8-i)*dy );
 			steps_next = 127;
 		}
 	}
@@ -433,13 +433,8 @@ stadtauto_t::sync_step(long delta_t)
 		weg_next = 0;
 	}
 	else {
-		setze_yoff( gib_yoff() - hoff );
 		weg_next += current_speed*delta_t;
 		weg_next -= fahre_basis( weg_next );
-		if(use_calc_height) {
-			hoff = calc_height();
-		}
-		setze_yoff( gib_yoff() + hoff );
 	}
 
 	return true;

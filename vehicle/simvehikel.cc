@@ -132,8 +132,8 @@ void vehikel_basis_t::rotate90()
 	dx = new_dx;
 	// new pos + step offsets (only possible, since we know the height!
 	sint8 neu_yoff = gib_xoff()/2;
-	setze_xoff( -(gib_yoff()-hoff)*2 );
-	setze_yoff( neu_yoff+hoff );
+	setze_xoff( -gib_yoff()*2 );
+	setze_yoff( neu_yoff );
 }
 
 
@@ -207,7 +207,6 @@ void vehikel_basis_t::betrete_feld()
  */
 uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 {
-	bool has_hopped = false;
 	koord3d pos_prev;
 
 	uint32 steps_to_do = distance>>12;
@@ -216,13 +215,16 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 		return 0;
 	}
 	// ok, so moving ...
-	mark_image_dirty(gib_bild(),hoff);
-	use_calc_height = true;
+	if(!get_flag(ding_t::dirty)) {
+		mark_image_dirty(gib_bild(),hoff);
+		set_flag(ding_t::dirty);
+	}
 	steps_to_do += steps;
 
 	if(steps_to_do>steps_next) {
 
 		sint32 steps_done = - steps;
+		bool has_hopped = false;
 
 		// first we hop steps ...
 		while(steps_to_do>steps_next  &&  hop_check()) {
@@ -230,6 +232,7 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 			steps_done += steps_next+1;
 			pos_prev = gib_pos();
 			hop();
+			use_calc_height = true;
 			has_hopped = true;
 		}
 
@@ -443,6 +446,7 @@ vehikel_basis_t::calc_height()
 				sint16 h_start = (hang_ribi & fahrtrichtung) ? -TILE_HEIGHT_STEP : 0;
 				hoff = ((h_start*(sint16)(uint16)steps + h_end*(256-steps)) >> 9) - TILE_HEIGHT_STEP/2;
 			}
+			use_calc_height = true;	// we need to recalc again next time
 		}
 		else {
 			hoff = -gr->gib_weg_yoff();
@@ -1208,7 +1212,7 @@ vehikel_t::rdwr(loadsave_t *file)
 		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2];
 		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1];
 		setze_xoff( gib_xoff() + ((uint16)steps*(sint16)dx)/16 );
-		setze_yoff( gib_yoff() + ((uint16)steps*(sint16)dy)/16 );
+		setze_yoff( gib_yoff() + ((uint16)steps*(sint16)dy)/16 + hoff );
 	}
 
 	ding_t::rdwr(file);
@@ -1266,16 +1270,20 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 			i++;
 		}
 		if(dx*dy) {
-			steps = min( 255, 256-(i*16) );
+			if(file->is_loading()) {
+				steps = min( 255, 256-(i*16) );
+				steps_next = 255;
+			}
 			setze_xoff( ddx-(16-i)*dx );
-			setze_yoff( ddy-(16-i)*dy+hoff );
-			steps_next = 255;
+			setze_yoff( ddy-(16-i)*dy );
 		}
 		else {
-			steps = min( 127, 128-(i*8) );
+			if(file->is_loading()) {
+				steps = min( 127, 128-(i*8) );
+				steps_next = 127;
+			}
 			setze_xoff( ddx-(8-i)*dx );
-			setze_yoff( ddy-(8-i)*dy+hoff );
-			steps_next = 127;
+			setze_yoff( ddy-(8-i)*dy );
 		}
 	}
 
@@ -3438,11 +3446,10 @@ aircraft_t::hop()
 {
 	if(!get_flag(ding_t::dirty)) {
 		mark_image_dirty( bild, gib_yoff()-flughoehe-hoff-2 );
-		set_flag(ding_t::dirty);
 	}
 
-	// hop to next tile
-	vehikel_t::hop();
+	uint32 new_speed_limit = SPEED_UNLIMITED;
+	sint32 new_friction = 0;
 
 	// take care of inflight height ...
 	const sint16 h_cur = height_scaling((sint16)gib_pos().z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
@@ -3453,8 +3460,7 @@ aircraft_t::hop()
 			{
 				flughoehe = 0;
 				target_height = h_cur;
-				current_friction = max( 0, 25-route_index-takeoff )*4;
-				speed_limit = SPEED_UNLIMITED;
+				new_friction = max( 0, 25-route_index-takeoff )*4;
 
 				// take off, when a) end of runway or b) last tile of runway or c) fast enough
 				weg_t *weg=welt->lookup(gib_pos())->gib_weg(air_wt);
@@ -3465,16 +3471,17 @@ aircraft_t::hop()
 					 cnv->gib_akt_speed()>kmh_to_speed(besch->gib_geschw())/3 // fast enough
 				){
 					state = flying;
-					current_friction = 16;
+					new_friction = 16;
 					block_reserver( takeoff, takeoff+100, false );
 					target_height = h_cur+TILE_HEIGHT_STEP*3;
 				}
 			}
 			break;
 
-		case flying:
 		case flying2:
-			speed_limit = SPEED_UNLIMITED;
+			new_speed_limit = kmh_to_speed(besch->gib_geschw())/2;
+			new_friction = 64;
+		case flying:
 			// since we are at a tile border, round up to the nearest value
 			flughoehe += h_cur;
 			if(flughoehe<target_height) {
@@ -3483,7 +3490,7 @@ aircraft_t::hop()
 			else if(flughoehe>target_height) {
 				flughoehe = (flughoehe-TILE_HEIGHT_STEP);
 			}
-			flughoehe -= h_cur;
+			flughoehe -= h_next;
 			// did we have to change our flight height?
 			if(target_height-h_next > TILE_HEIGHT_STEP*5) {
 				// sinken
@@ -3500,35 +3507,34 @@ aircraft_t::hop()
 			if(flughoehe>target_height) {
 				// still decenting
 				flughoehe = (flughoehe-TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
-				flughoehe -= h_cur;
-				speed_limit = kmh_to_speed(besch->gib_geschw())/2;
-				current_friction = 64;
+				flughoehe -= h_next;
+				new_speed_limit = kmh_to_speed(besch->gib_geschw())/2;
+				new_friction = 64;
 			}
 			else {
 				// touchdown!
 				flughoehe = 0;
 				target_height = h_next;
 				// all planes taxi with same speed
-				speed_limit = kmh_to_speed(60);
-				current_friction = 16;
+				new_speed_limit = kmh_to_speed(60);
+				new_friction = 16;
 			}
 			break;
 
 		default:
-			speed_limit = kmh_to_speed(60);
-			current_friction = 16;//(alte_fahrtrichtung != fahrtrichtung) ? 512 : 128;
+			new_speed_limit = kmh_to_speed(60);
+			new_friction = 16;
 			flughoehe = 0;
 			target_height = h_next;
 			break;
 	}
 
-	// we need to stop one tile earlier
-	if(route_index>=cnv->get_route()->gib_max_n()) {
-		check_for_finish = true;
-	}
+	// hop to next tile
+	vehikel_t::hop();
 
 	// and change flight height
-	cnv->setze_akt_speed_soll( speed_limit );
+	cnv->setze_akt_speed_soll( new_speed_limit );
+	current_friction = new_friction;
 }
 
 

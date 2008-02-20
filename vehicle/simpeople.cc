@@ -151,9 +151,5 @@ fussgaenger_t::sync_step(long delta_t)
 
 	weg_next += 128*delta_t;
 	weg_next -= fahre_basis( weg_next );
-	if(use_calc_height) {
-		hoff = calc_height();
-	}
-	setze_yoff( gib_yoff() + hoff );
 	return true;
 }
