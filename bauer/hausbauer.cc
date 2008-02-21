@@ -550,15 +550,15 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 
 
 
-const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int idx)
+const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int org_idx)
 {
+	int idx = org_idx;
 	const haus_besch_t *besch = besch_names.get(name);
 	if(besch) {
 		const int size = besch->gib_h()*besch->gib_b();
 		if(  idx >= besch->gib_all_layouts()*size  ) {
-			return NULL;
-			// below: try to keep as much of the orientation as possible (not a good idea)
-//			idx = (idx>2*size) ? idx%size : idx%(2*size);
+			idx %= besch->gib_all_layouts()*size;
+			DBG_MESSAGE("gebaeude_t::rdwr()","%s using tile %i instead of %i",name,idx,org_idx);
 		}
 		return besch->gib_tile(idx);
 	}

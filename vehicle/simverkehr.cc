@@ -732,10 +732,8 @@ stadtauto_t::hop()
 	}
 	verlasse_feld();
 	if(pos_next_next==gib_pos()) {
-		fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
-		dx = -dx;
-		dy = -dy;
-		current_speed = 16;
+		fahrtrichtung = calc_set_richtung( pos_next.gib_2d(), pos_next_next.gib_2d() );
+		current_speed = 48;
 	}
 	else {
 		fahrtrichtung = calc_set_richtung( gib_pos().gib_2d(), pos_next_next.gib_2d() );

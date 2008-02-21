@@ -842,7 +842,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					// lassen wir es einfach weg. Das gibt zwar Fundamente ohne
 					// Aufbau, stürzt aber nicht ab.
 					gebaeude_t *gb = new gebaeude_t (welt, file);
-					if(!gb->gib_tile()) {
+					if(gb->gib_tile()==NULL) {
 						// do not remove from this position, since there will be nothing
 						gb->set_flag(ding_t::not_on_map);
 						delete gb;

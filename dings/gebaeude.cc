@@ -704,7 +704,10 @@ gebaeude_t::rdwr(loadsave_t *file)
 				// try with compatibility list first
 				tile = hausbauer_t::find_tile(translator::compatibility_name(buf), idx);
 				if(tile==NULL) {
-					DBG_MESSAGE("gebaeude_t::rdwr()","neither %s nor %s, tile %i not found, try replacement",translator::compatibility_name(buf),buf,idx);
+					DBG_MESSAGE("gebaeude_t::rdwr()","neither %s nor %s, tile %i not found, try other replacement",translator::compatibility_name(buf),buf,idx);
+				}
+				else {
+					DBG_MESSAGE("gebaeude_t::rdwr()","%s replaced by %s, tile %i",translator::compatibility_name(buf),buf,idx);
 				}
 			}
 			if(tile==NULL) {

@@ -232,6 +232,11 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 			steps_done += steps_next+1;
 			pos_prev = gib_pos();
 			hop();
+			// only happens with airplanes ...
+			if(steps_next==0) {
+				pos_prev = gib_pos();
+				hop();
+			}
 			use_calc_height = true;
 			has_hopped = true;
 		}
@@ -889,9 +894,9 @@ vehikel_t::hop()
 
 	// this is a required hack for aircrafts! Aircrafts can turn on a single square, and this confuses the previous calculation!
 	// author: hsiegeln
-	if (pos_prev.gib_2d()==pos_next.gib_2d()) {
+	if(pos_prev.gib_2d()==pos_next.gib_2d()) {
 		fahrtrichtung = calc_set_richtung( gib_pos().gib_2d(), pos_next.gib_2d() );
-DBG_MESSAGE("vehikel_t::hop()","reverse dir at route index %d",route_index);
+		steps_next = 0;
 	}
 	else {
 		if(pos_next!=gib_pos()) {
@@ -1011,7 +1016,7 @@ vehikel_t::rauche()
 			grund_t * gr = welt->lookup( gib_pos() );
 			// nicht im tunnel ?
 			if(gr && !gr->ist_im_tunnel() ) {
-				wolke_t *abgas =  new wolke_t(welt, gib_pos(), gib_xoff(), gib_yoff(), besch->gib_rauch()->gib_bild_nr(0), true );
+				wolke_t *abgas =  new wolke_t(welt, gib_pos(), gib_xoff()+(dx*(sint16)steps)>>8, gib_yoff()+(dy*(sint16)steps)>>8+hoff, besch->gib_rauch()->gib_bild_nr(0), true );
 
 				if( !gr->obj_add(abgas) ) {
 					delete abgas;

@@ -1422,7 +1422,13 @@ convoi_t::rdwr(loadsave_t *file)
 				}
 			}
 
-			assert(v != 0  &&  v->gib_besch()!=NULL);
+			// no matching vehicle found?
+			if(v->gib_besch()==NULL) {
+				// will create orphan object, but better than crashing at deletion ...
+				dbg->error("convoi_t::convoi_t()","Can't load vehicle and no replacement found!");
+				i --;
+				continue;
+			}
 
 			// in very old games, monorail was a railway
 			// so we need to convert this
