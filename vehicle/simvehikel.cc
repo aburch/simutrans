@@ -232,20 +232,21 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 			steps_done += steps_next+1;
 			pos_prev = gib_pos();
 			hop();
-			// only happens with airplanes ...
-			if(steps_next==0) {
-				pos_prev = gib_pos();
-				hop();
-			}
 			use_calc_height = true;
 			has_hopped = true;
+		}
+
+		if(steps_next==0) {
+			// only needed for aircrafts, which can turn on the same tile
+			// the indicate the turn with this here
+			steps_next = 255;
+			steps_to_do = 255;
 		}
 
 		if(steps_to_do>steps_next) {
 			// could not go as far as we wanted => stop at end of tile
 			steps_to_do = steps_next;
 		}
-		steps = steps_to_do;
 
 		steps_done += steps;
 		distance = steps_done<<12;
@@ -1016,7 +1017,7 @@ vehikel_t::rauche()
 			grund_t * gr = welt->lookup( gib_pos() );
 			// nicht im tunnel ?
 			if(gr && !gr->ist_im_tunnel() ) {
-				wolke_t *abgas =  new wolke_t(welt, gib_pos(), gib_xoff()+(dx*(sint16)steps)>>8, gib_yoff()+(dy*(sint16)steps)>>8+hoff, besch->gib_rauch()->gib_bild_nr(0), true );
+				wolke_t *abgas =  new wolke_t(welt, gib_pos(), gib_xoff()+(dx*(sint16)steps*TILE_STEPS)>>8, gib_yoff()+(dy*(sint16)steps*TILE_STEPS)>>8+hoff, besch->gib_rauch()->gib_bild_nr(0), true );
 
 				if( !gr->obj_add(abgas) ) {
 					delete abgas;
@@ -1214,10 +1215,10 @@ vehikel_t::rdwr(loadsave_t *file)
 
 	// correct old offsets ... REMOVE after savegame increase ...
 	if(file->get_version()<99018  &&  file->is_saving()) {
-		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2];
-		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1];
-		setze_xoff( gib_xoff() + ((uint16)steps*(sint16)dx)/16 );
-		setze_yoff( gib_yoff() + ((uint16)steps*(sint16)dy)/16 + hoff );
+		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2 ];
+		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1 ];
+		setze_xoff( gib_xoff() + ((uint16)steps*(sint16)dx*TILE_STEPS)/256 );
+		setze_yoff( gib_yoff() + ((uint16)steps*(sint16)dy*TILE_STEPS)/256 + hoff );
 	}
 
 	ding_t::rdwr(file);
@@ -1265,7 +1266,7 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 	}
 
 	// convert steps to position
-	if(file->get_version()<99018  &&  file->is_loading()) {
+	if(file->get_version()<99018) {
 		sint8 ddx=gib_xoff(), ddy=gib_yoff()-hoff;
 		sint8 i=1;
 		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2];

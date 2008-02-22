@@ -251,7 +251,7 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 	pos_next.rdwr(file);
 
 	// convert steps to position
-	if(file->get_version()<99018  &&  file->is_loading()) {
+	if(file->get_version()<99018) {
 		sint8 ddx=gib_xoff(), ddy=gib_yoff()-hoff;
 		sint8 i=0;
 		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2];
