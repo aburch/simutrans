@@ -241,12 +241,14 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 			// the indicate the turn with this here
 			steps_next = 255;
 			steps_to_do = 255;
+			steps_done -= 255;
 		}
 
 		if(steps_to_do>steps_next) {
 			// could not go as far as we wanted => stop at end of tile
 			steps_to_do = steps_next;
 		}
+		steps = steps_to_do;
 
 		steps_done += steps;
 		distance = steps_done<<12;
@@ -276,8 +278,9 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 	}
 	else {
 		distance &= 0xFFFFF000;
+		steps = steps_to_do;
 	}
-	steps = steps_to_do;
+
 	if(use_calc_height) {
 		hoff = calc_height();
 	}
@@ -1217,8 +1220,8 @@ vehikel_t::rdwr(loadsave_t *file)
 	if(file->get_version()<99018  &&  file->is_saving()) {
 		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2 ];
 		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1 ];
-		setze_xoff( gib_xoff() + ((uint16)steps*(sint16)dx*TILE_STEPS)/256 );
-		setze_yoff( gib_yoff() + ((uint16)steps*(sint16)dy*TILE_STEPS)/256 + hoff );
+		setze_xoff( gib_xoff() + (((uint16)steps*TILE_STEPS*(sint16)dx)>>8) );
+		setze_yoff( gib_yoff() + (((uint16)steps*TILE_STEPS*(sint16)dy)>>8) + hoff );
 	}
 
 	ding_t::rdwr(file);
