@@ -85,8 +85,8 @@ sint8 dx, dy;
 	// check for road vehicle, if next tile is free
 	vehikel_basis_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_fahrtrichtung, const uint8 next_fahrtrichtung, const uint8 next_90fahrtrichtung );
 
-	// olf way of moving vehicles!
-	inline bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff );
+	// only needed for old way of moving vehicles to determine position at loading time
+	bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const;
 
 public:
 	uint32 fahre_basis(uint32 dist);	// basis movement code

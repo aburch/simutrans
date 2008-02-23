@@ -88,7 +88,7 @@ sint8 vehikel_basis_t::dxdy[ 8*2 ] = {
  * Checks if this vehicle must change the square upon next move
  * @author Hj. Malthaner
  */
-inline bool vehikel_basis_t::is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff )
+bool vehikel_basis_t::is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const
 {
     const sint8 y_off_2 = 2*neu_yoff;
     const sint8 c_plus  = y_off_2 + neu_xoff;
@@ -895,7 +895,7 @@ vehikel_t::hop()
 
 	// this is a required hack for aircrafts! Aircrafts can turn on a single square, and this confuses the previous calculation!
 	// author: hsiegeln
-	if(pos_prev.gib_2d()==pos_next.gib_2d()) {
+	if(!check_for_finish  &&  pos_prev.gib_2d()==pos_next.gib_2d()) {
 		fahrtrichtung = calc_set_richtung( gib_pos().gib_2d(), pos_next.gib_2d() );
 		steps_next = 0;
 	}
