@@ -80,10 +80,16 @@ wayobj_t::~wayobj_t()
 				// restore old speed limit
 				uint32 max_speed = weg->hat_gehweg() ? 50 : weg->gib_besch()->gib_topspeed();
 				if(gr->gib_typ()==grund_t::tunnelboden) {
-					max_speed = gr->find<tunnel_t>(1)->gib_besch()->gib_topspeed();
+					tunnel_t *t = gr->find<tunnel_t>(1);
+					if(t) {
+						max_speed = t->gib_besch()->gib_topspeed();
+					}
 				}
 				if(gr->gib_typ()==grund_t::brueckenboden) {
-					max_speed = gr->find<bruecke_t>(1)->gib_besch()->gib_topspeed();
+					bruecke_t *b = gr->find<bruecke_t>(1);
+					if(b) {
+						max_speed = b->gib_besch()->gib_topspeed();
+					}
 				}
 				weg->setze_max_speed(max_speed);
 			}
