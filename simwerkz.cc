@@ -160,7 +160,7 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 // werkzeuge
 
 int
-wkz_abfrage(spieler_t *, karte_t *welt, koord pos)
+wkz_abfrage(spieler_t *sp, karte_t *welt, koord pos)
 {
 	DBG_MESSAGE("wkz_abfrage()","checking map square %d,%d", pos.x, pos.y);
 	bool ok = false;
@@ -187,7 +187,7 @@ wkz_abfrage(spieler_t *, karte_t *welt, koord pos)
 					}
 				}
 
-				if(gr->gib_depot()) {
+				if(gr->gib_depot()  &&  gr->gib_depot()->gib_besitzer()==sp) {
 					gr->gib_depot()->zeige_info();
 					return true;
 				}
