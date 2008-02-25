@@ -734,6 +734,7 @@ stadtauto_t::hop()
 	if(pos_next_next==gib_pos()) {
 		fahrtrichtung = calc_set_richtung( pos_next.gib_2d(), pos_next_next.gib_2d() );
 		current_speed = 48;
+		steps_next = 0;	// mark for starting at end of tile!
 	}
 	else {
 		fahrtrichtung = calc_set_richtung( gib_pos().gib_2d(), pos_next_next.gib_2d() );
