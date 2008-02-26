@@ -406,7 +406,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
 bool
 stadtauto_t::sync_step(long delta_t)
 {
-	if(time_to_life<0) {
+	if(time_to_life<=0) {
 		// remove obj
   		return false;
 	}

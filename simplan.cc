@@ -275,7 +275,7 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file)
 				}
 				delete gr;
 				gr = gr2;
-DBG_MESSAGE("planquadrat_t::rwdr", "unknown building (or prepare for factory) at %d,%d replaced by normal ground!", pos.x,pos.y);
+//DBG_MESSAGE("planquadrat_t::rwdr", "unknown building (or prepare for factory) at %d,%d replaced by normal ground!", pos.x,pos.y);
 			}
 			// we should also check for ground below factories
 			if(gr) {

@@ -162,10 +162,10 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 int
 wkz_abfrage(spieler_t *sp, karte_t *welt, koord pos)
 {
-	DBG_MESSAGE("wkz_abfrage()","checking map square %d,%d", pos.x, pos.y);
 	bool ok = false;
 
 	if(welt->ist_in_kartengrenzen(pos)) {
+		DBG_MESSAGE("wkz_abfrage()","checking map square %d,%d", pos.x, pos.y);
 
 		const planquadrat_t *plan = welt->lookup(pos);
 		const bool backwards = (event_get_last_control_shift()==2);
