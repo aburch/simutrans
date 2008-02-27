@@ -82,18 +82,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 			besch = brueckenbauer_t::gib_besch(translator::compatibility_name(s));
 		}
 		if(besch==NULL) {
-			if(strstr(s,"onorail") ) {
-				besch = brueckenbauer_t::find_bridge(monorail_wt,50,0);
-			}
-			else if(strstr(s,"ail") ) {
-				besch = brueckenbauer_t::find_bridge(track_wt,50,0);
-			}
-			else {
-				besch = brueckenbauer_t::find_bridge(road_wt,50,0);
-			}
-			if(besch==NULL) {
-				dbg->fatal("bruecke_t::rdwr()","Unknown bridge %s",s);
-			}
+			dbg->warning( "bruecke_t::rdwr()", "unknown bridge \"%s\" at (%i,%i) will be replaced with best match!", s, gib_pos().x, gib_pos().y );
 		}
 		guarded_free(const_cast<char *>(s));
 	}
@@ -105,6 +94,16 @@ void bruecke_t::rdwr(loadsave_t *file)
 void bruecke_t::laden_abschliessen()
 {
 	grund_t *gr = welt->lookup(gib_pos());
+	if(besch==NULL) {
+		weg_t *weg = gr->gib_weg_nr(0);
+		if(weg) {
+			besch = brueckenbauer_t::find_bridge(weg->gib_waytype(),weg->gib_max_speed(),0);
+		}
+		if(besch==NULL) {
+			dbg->fatal("bruecke_t::rdwr()","Unknown bridge type at (%i,%i)", gib_pos().x, gib_pos().y );
+		}
+	}
+
 	spieler_t *sp=gib_besitzer();
 	if(sp) {
 		// change maintainance
