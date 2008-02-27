@@ -429,6 +429,10 @@ bool convoi_t::sync_step(long delta_t)
 				while(sp_soll>>12) {
 					uint32 sp_hat = fahr[0]->fahre_basis(1<<12);
 					int v_nr = get_vehicle_at_length((steps_driven++)>>4);
+					// stop when depot reached
+					if(state==INITIAL) {
+						break;
+					}
 					// until all are moving or something went wrong (sp_hat==0)
 					if(sp_hat==0  ||  v_nr==anz_vehikel) {
 						steps_driven = -1;
@@ -459,11 +463,13 @@ bool convoi_t::sync_step(long delta_t)
 				// now actually move the units
 				sp_soll += (akt_speed*delta_t);
 				uint32 sp_hat = fahr[0]->fahre_basis(sp_soll);
+				// stop when depot reached ...
+				if(state==INITIAL) {
+					break;
+				}
 				// now move the rest (so all vehikel are moving synchroniously)
-				if(state!=INITIAL) {
-					for(unsigned i=1; i<anz_vehikel; i++) {
-						fahr[i]->fahre_basis(sp_hat);
-					}
+				for(unsigned i=1; i<anz_vehikel; i++) {
+					fahr[i]->fahre_basis(sp_hat);
 				}
 				// maybe we have been stopped be something => avoid wide jumps
 				sp_soll = (sp_soll-sp_hat) & 0x0FFF;

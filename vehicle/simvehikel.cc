@@ -1220,8 +1220,9 @@ vehikel_t::rdwr(loadsave_t *file)
 	if(file->get_version()<99018  &&  file->is_saving()) {
 		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2 ];
 		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1 ];
-		setze_xoff( gib_xoff() + (((uint16)steps*TILE_STEPS*(sint16)dx)>>8) );
-		setze_yoff( gib_yoff() + (((uint16)steps*TILE_STEPS*(sint16)dy)>>8) + hoff );
+		sint8 i = steps/16;
+		setze_xoff( gib_xoff() + i*dx );
+		setze_yoff( gib_yoff() + i*dy + hoff );
 	}
 
 	ding_t::rdwr(file);
@@ -1271,7 +1272,7 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 	// convert steps to position
 	if(file->get_version()<99018) {
 		sint8 ddx=gib_xoff(), ddy=gib_yoff()-hoff;
-		sint8 i=1;
+		sint8 i=0;
 		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2];
 		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1];
 
@@ -1280,7 +1281,7 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 		}
 		if(dx*dy) {
 			if(file->is_loading()) {
-				steps = min( 255, 256-(i*16) );
+				steps = min( 255, 255-(i*16) );
 				steps_next = 255;
 			}
 			setze_xoff( ddx-(16-i)*dx );

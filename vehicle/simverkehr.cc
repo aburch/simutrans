@@ -203,10 +203,11 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 {
 	// correct old offsets ... REMOVE after savegame increase ...
 	if(file->get_version()<99018  &&  file->is_saving()) {
-		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2];
-		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1];
-		setze_xoff( gib_xoff() + ((uint16)steps*(sint16)dx)/16 );
-		setze_yoff( gib_yoff() + ((uint16)steps*(sint16)dy)/16 + hoff );
+		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2 ];
+		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1 ];
+		sint8 i = steps/16;
+		setze_xoff( gib_xoff() + i*dx );
+		setze_yoff( gib_yoff() + i*dy + hoff );
 	}
 
 	vehikel_basis_t::rdwr(file);
@@ -257,20 +258,24 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2];
 		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1];
 
-		while(  !is_about_to_hop(dx*i+gib_xoff(),ddy+dy*i )  &&  i<16 ) {
+		while(  !is_about_to_hop(ddx+dx*i,ddy+dy*i )  &&  i<16 ) {
 			i++;
 		}
 		if(dx*dy) {
-			steps = min( 255, 256-(i*16) );
+			if(file->is_loading()) {
+				steps = min( 255, 255-(i*16) );
+				steps_next = 255;
+			}
 			setze_xoff( ddx-(16-i)*dx );
 			setze_yoff( ddy-(16-i)*dy );
-			steps_next = 255;
 		}
 		else {
-			steps = min( 127, 128-(i*8) );
+			if(file->is_loading()) {
+				steps = min( 127, 128-(i*8) );
+				steps_next = 127;
+			}
 			setze_xoff( ddx-(8-i)*dx );
 			setze_yoff( ddy-(8-i)*dy );
-			steps_next = 127;
 		}
 	}
 
@@ -693,7 +698,6 @@ stadtauto_t::hop_check()
 				else {
 					// not connected?!? => ribi likely wrong
 					ribi &= ~ribi_t::nsow[r];
-//					weg->setze_ribi( weg->gib_ribi_unmasked()&(~ribi_t::nsow[r]) );
 				}
 			}
 		}
