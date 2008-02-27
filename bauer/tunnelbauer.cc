@@ -543,6 +543,13 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 		// removes single signals, bridge head, pedestrians, stops, changes catenary etc
 		gr->remove_everything_from_way(sp,wegtyp,ribi);	// removes stop and signals correctly
 
+		// remove tunnel portals
+		tunnel_t *t = gr->find<tunnel_t>();
+		if(t) {
+			t->entferne(sp);
+			delete t;
+		}
+
 		// corrects the ways
 		weg_t *weg=gr->gib_weg_nr(0);
 		if(weg) {
