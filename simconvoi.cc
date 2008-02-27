@@ -460,8 +460,10 @@ bool convoi_t::sync_step(long delta_t)
 				sp_soll += (akt_speed*delta_t);
 				uint32 sp_hat = fahr[0]->fahre_basis(sp_soll);
 				// now move the rest (so all vehikel are moving synchroniously)
-				for(unsigned i=1; i<anz_vehikel; i++) {
-					fahr[i]->fahre_basis(sp_hat);
+				if(state!=INITIAL) {
+					for(unsigned i=1; i<anz_vehikel; i++) {
+						fahr[i]->fahre_basis(sp_hat);
+					}
 				}
 				// maybe we have been stopped be something => avoid wide jumps
 				sp_soll = (sp_soll-sp_hat) & 0x0FFF;
