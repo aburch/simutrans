@@ -2,7 +2,7 @@
  * Copyright (c) 2006 prissi
  *
  * welt file is part of the Simutrans project and may not be used
- * in other projects without written permission of the author.
+ * (see licence.txt)
  */
 
 /* menu functions in order to separate a little between menu and simworld */

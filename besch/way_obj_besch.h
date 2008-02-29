@@ -1,11 +1,10 @@
 /*
  *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
  *
- *  This file is part of the Simutrans project and may not be used in other
- *  projects without written permission of the authors.
+ * This file is part of the Simutrans project under the artistic licence.
  *
  *  Modulbeschreibung:
- *      This files describes way objects like a powerline
+ *      This files describes way objects like a electrifications
  */
 #ifndef __WAY_OBJ_BESCH_H
 #define __WAY_OBJ_BESCH_H

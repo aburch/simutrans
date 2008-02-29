@@ -1,8 +1,8 @@
 /*
  * Beschreibung der Schnittstelle zum Soundsystem.
  * von Hj. Malthaner, 1998, 2000
- * This file is part of the Simutrans project and may not be used
- * in other projects without written permission of the author.
+ * This file is part of the Simutrans project under the artistic licence.
+ * (see licence.txt)
  */
 
 #ifndef simsound_h

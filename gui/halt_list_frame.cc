@@ -3,8 +3,8 @@
  * Written (w) 2001 by Markus Weber
  * filtering added by Volker Meyer
  *
- * This file is part of the Simutrans project and may not be used
- * in other projects without written permission of the author.
+ * This file is part of the Simutrans project under the artistic licence.
+ * (see licence.txt)
  */
 
 #include <string.h>

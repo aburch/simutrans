@@ -2,7 +2,7 @@
  * Copyright (c) 2001 Hansjörg Malthaner
  *
  * This file is part of the Simugraph engine and may not be used
- * in other projects without written permission of the author.
+ * (see licence.txt)
  */
 
 /*

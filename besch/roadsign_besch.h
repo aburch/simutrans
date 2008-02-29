@@ -1,12 +1,12 @@
 /*
  *  Copyright (c) 2006 by prissi
  *
- *  This file is part of the Simutrans project and may not be used in other
- *  projects without written permission of the authors.
+ * This file is part of the Simutrans project under the artistic licence.
  *
  *  Modulbeschreibung:
  *      signs on roads and other ways
  */
+
 #ifndef __ROADSIGN_BESCH_H
 #define __ROADSIGN_BESCH_H
 

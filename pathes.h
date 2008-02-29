@@ -1,8 +1,7 @@
 /*
  *  Copyright (c) 1997 - 2003 by Volker Meyer & Hansjörg Malthaner
  *
- *  This file is part of the Simutrans project and may not be used in other
- *  projects without written permission of the authors.
+ * This file is part of the Simutrans project under the artistic licence.
  *
  *  Description:
  *      This header defines all pathes used be simutrans relative to the game

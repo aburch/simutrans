@@ -1,23 +1,15 @@
 /*
  *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
  *
- *  This file is part of the Simutrans project and may not be used in other
- *  projects without written permission of the authors.
+ * This file is part of the Simutrans project under the artistic licence.
  */
+
 #ifndef PEDESTRIAN_WRITER_H
 #define PEDESTRIAN_WRITER_H
 
 #include "obj_writer.h"
 #include "../objversion.h"
 
-
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Beschreibung:
- *      Liest Beschreibunnen der automatisch generierten Fussgänger
- */
 class pedestrian_writer_t : public obj_writer_t {
 	private:
 		static pedestrian_writer_t the_instance;

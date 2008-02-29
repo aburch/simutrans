@@ -1,10 +1,7 @@
 /*
  * Copyright (c) 2001 Hansjörg Malthaner
  *
- * This file is part of the Simugraph engine and may not be used
- * in other projects without written permission of the author.
- *
- * Usage for Iso-Angband is granted.
+ * This file is part of the Simutrans project under the artistic licence.
  */
 
 #include <stdio.h>

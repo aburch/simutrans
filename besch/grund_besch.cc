@@ -2,8 +2,7 @@
  *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
  *  2006 completely changed by prissi and Kieron Green
  *
- *  This file is part of the Simutrans project and may not be used in other
- *  projects without written permission of the authors.
+ * This file is part of the Simutrans project under the artistic licence.
  *
  *  Modulbeschreibung:
  *      Calculates the ground for different levels using the textures here
