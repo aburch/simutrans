@@ -269,12 +269,17 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file)
 			if (gr  &&  gtyp == grund_t::fundament  &&  gr->find<gebaeude_t>() == NULL) {
 				koord3d pos = gr->gib_pos();
 				// show normal ground here
-				grund_t *gr2 = new boden_t(welt, pos, 0);
-				if(gr->get_flag( grund_t::has_text )) {
-					gr2->setze_text( gr->gib_text() );
+				grund_t *neu = new boden_t(welt, pos, 0);
+				if(gr->get_flag(grund_t::has_text)) {
+					neu->set_flag(grund_t::has_text);
+					gr->clear_flag(grund_t::has_text);
+				}
+				// transfer all objects
+				while(  gr->gib_top()>0  ) {
+					neu->obj_add( gr->obj_remove_top() );
 				}
 				delete gr;
-				gr = gr2;
+				gr = neu;
 //DBG_MESSAGE("planquadrat_t::rwdr", "unknown building (or prepare for factory) at %d,%d replaced by normal ground!", pos.x,pos.y);
 			}
 			// we should also check for ground below factories
