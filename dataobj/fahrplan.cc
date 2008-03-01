@@ -106,15 +106,16 @@ void fahrplan_t::copy_from(const fahrplan_t *src)
 }
 
 
-bool fahrplan_t::insert(const grund_t* gr, int ladegrad)
+bool fahrplan_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift )
 {
 	aktuell = max(aktuell,0);
 #ifndef _MSC_VER
-	struct linieneintrag_t stop = { gr->gib_pos(), ladegrad };
+	struct linieneintrag_t stop = { gr->gib_pos(), ladegrad, waiting_time_shift };
 #else
 	struct linieneintrag_t stop;
 	stop.pos = gr->gib_pos();
 	stop.ladegrad = ladegrad;
+	stop.waiting_time_shift = waiting_time_shift;
 #endif
 	// stored in minivec, so wie have to avoid adding too many
 	if(eintrag.get_count()>=254) {
@@ -135,15 +136,16 @@ bool fahrplan_t::insert(const grund_t* gr, int ladegrad)
 
 
 
-bool fahrplan_t::append(const grund_t* gr, int ladegrad)
+bool fahrplan_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift)
 {
 	aktuell = max(aktuell,0);
 #ifndef _MSC_VER
-	struct linieneintrag_t stop = { gr->gib_pos(), ladegrad };
+	struct linieneintrag_t stop = { gr->gib_pos(), ladegrad, waiting_time_shift };
 #else
 	struct linieneintrag_t stop;
 	stop.pos = gr->gib_pos();
 	stop.ladegrad = ladegrad;
+	stop.waiting_time_shift = waiting_time_shift;
 #endif
 
 	// stored in minivec, so wie have to avoid adding too many
@@ -235,6 +237,7 @@ fahrplan_t::rdwr(loadsave_t *file)
 			struct linieneintrag_t stop;
 			stop.pos = pos;
 			stop.ladegrad = (sint8)dummy;
+			stop.waiting_time_shift = 0;
 			eintrag.append(stop);
 		}
 	}
@@ -243,9 +246,13 @@ fahrplan_t::rdwr(loadsave_t *file)
 		for(sint32 i=0; i<maxi; i++) {
 			if(eintrag.get_count()<=i) {
 				eintrag.append( linieneintrag_t() );
+				eintrag[i] .waiting_time_shift = 0;
 			}
 			eintrag[i].pos.rdwr(file);
 			file->rdwr_byte(eintrag[i].ladegrad, "\n");
+			if(file->get_version()>=99018) {
+				file->rdwr_byte( eintrag[i].waiting_time_shift, "w" );
+			}
 		}
 	}
 	if(file->is_loading()) {
@@ -289,7 +296,7 @@ fahrplan_t::matches(const fahrplan_t *fpl)
   	}
   	// now we have to check all entries ...
 	for(unsigned i = 0; i<eintrag.get_count(); i++) {
-		if (fpl->eintrag[i].pos != eintrag[i].pos) { // ladegrad ignored?
+		if (fpl->eintrag[i].pos != eintrag[i].pos) { // ladegrad ignored!
 			return false;
 		}
 	}

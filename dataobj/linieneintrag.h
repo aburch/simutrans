@@ -11,16 +11,24 @@ struct linieneintrag_t
 {
 public:
 	/**
-	* Halteposition
-	* @author Hj. Malthaner
-	*/
+	 * target position
+	 * @author Hj. Malthaner
+	 */
 	koord3d pos;
 
 	/**
-	* Geforderter Beladungsgrad an diesem Halt
-	* @author Hj. Malthaner
-	*/
+	 * Wait for % load at this stops
+	 * (ignored on waypoints)
+	 * @author Hj. Malthaner
+	 */
 	uint8 ladegrad;
+
+	/**
+	 * maximum waiting time in 1/2^n parts of a month
+	 * (only active if ladegrad!=0)
+	 * @author prissi
+	 */
+	uint8 waiting_time_shift;
 };
 
 #endif

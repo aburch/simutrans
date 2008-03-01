@@ -2831,6 +2831,20 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 	dummy = ij_off.y;
 	file->rdwr_long(dummy, "\n");
 
+	if(file->get_version()>=99018) {
+		// most recent version is 99018
+		for (int year = 0;  year</*MAX_WORLD_HISTORY_YEARS*/12;  year++) {
+			for (int cost_type = 0; cost_type</*MAX_WORLD_COST*/12; cost_type++) {
+				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+			}
+		}
+		for (int month = 0;month</*MAX_WORLD_HISTORY_MONTHS*/12;month++) {
+			for (int cost_type = 0; cost_type</*MAX_WORLD_COST*/12; cost_type++) {
+				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+			}
+		}
+	}
+
 	if(needs_redraw) {
 		update_map();
 	}
@@ -3247,7 +3261,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 		iter.get_current()->rebuild_destinations();
 	}
 
-#if 1
+#if 0
 	// reroute goods for benchmarking
 	long dt = dr_time();
 	iter.begin();
@@ -3257,8 +3271,22 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	DBG_MESSAGE("reroute_goods()","for all haltstellen_t took %ld ms", dr_time()-dt );
 #endif
 
+	// load history/create world history
 	if(file->get_version()<99018) {
 		restore_history();
+	}
+	else {
+		// most recent savegame version is 99018
+		for (int year = 0;  year</*MAX_WORLD_HISTORY_YEARS*/12;  year++) {
+			for (int cost_type = 0; cost_type</*MAX_WORLD_COST*/12; cost_type++) {
+				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+			}
+		}
+		for (int month = 0;month</*MAX_WORLD_HISTORY_MONTHS*/12;month++) {
+			for (int cost_type = 0; cost_type</*MAX_WORLD_COST*/12; cost_type++) {
+				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+			}
+		}
 	}
 
 	// make counter for next month
