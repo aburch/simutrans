@@ -1,3 +1,18 @@
+To be done:
+- connection weighted by their intermediate stops => A* for goods routing
+- when import translation: ignore entries which are identical (saving runtime)
+- limit construction costs
+- A* for goods
+- scripting for AI
+- Landfabrik alle x Jahre/Fakriken
+- merge identical images in makeobj
+- busy platforms
+- custom tool bars
+- Signals switching nearly like before (should be easy)
+- Odometer/Lifetime
+- renaming factories/player
+- longer financial history
+
 CHECK:
 - integrate the edit modus
 - industry density linked to population density; consumer would building branches slowly.
@@ -11,7 +26,6 @@ Toolwindow with 10 last used tools (in fixed order)
 Main meinu configurable in size and order
 bahnhofsdetaildialog??
 A* for goods
-Sort signals so simple signal is first
 factory density instead of fixed population linked growth
 waybuilder preview
 
@@ -62,24 +76,10 @@ Stichpunkte
 passengers from/to headquarters: done
 - synchronized traffic lights: done
 - smoother movements: done
+- Sort signals so simple signal is first: done
 
 Impossible:
 - vehicle N/E longer than 8 px must be aligned by top, not end; need change of moving code: impossible
-
-To be done:
-- connection weighted by their intermediate stops => A* for goods routing
-- when import translation: ignore entries which are identical (saving runtime)
-- limit construction costs
-- A* for goods
-- scripting for AI
-- Landfabrik alle x Jahre/Fakriken
-- merge identical images in makeobj
-- busy platforms
-- custom tool bars
-- Signals switching nearly like before (should be easy)
-- Odometer/Lifetime
-- renaming factories/player
-- longer financial history
 
 Immer zu tun:
 - Aufräumen von Datentypen für bessere Portierbarkeit
