@@ -6,7 +6,6 @@ CHECK:
 - timeline bonus speeds from a file
 - waiting only a certain intervall (when waiting for a load percentage)
 - bankrupt only when the net company value (i.e. after selling everything) is below zero (like for AI)
-- synchronized traffic lights
 resize greater than 2400*1536 crashes simutrans
 Toolwindow with 10 last used tools (in fixed order)
 Main meinu configurable in size and order
@@ -15,7 +14,6 @@ A* for goods
 Sort signals so simple signal is first
 factory density instead of fixed population linked growth
 waybuilder preview
-- smoother movements
 
 
 Stichpunkte
@@ -62,6 +60,8 @@ Stichpunkte
 - blocking crossing with animation/sound and transparent graphics: done
 - tile 2x height: halfway-> need conversion for textures needed
 passengers from/to headquarters: done
+- synchronized traffic lights: done
+- smoother movements: done
 
 Impossible:
 - vehicle N/E longer than 8 px must be aligned by top, not end; need change of moving code: impossible

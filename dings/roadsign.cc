@@ -5,6 +5,7 @@
  * (see licence.txt)
  */
 
+#include <algorithm>
 #include <stdio.h>
 
 #include "../simdebug.h"
@@ -36,7 +37,7 @@
 const roadsign_besch_t *roadsign_t::default_signal=NULL;
 
 
-slist_tpl<const roadsign_besch_t *> roadsign_t::liste;
+vector_tpl<const roadsign_besch_t *> roadsign_t::liste;
 stringhashtable_tpl<const roadsign_besch_t *> roadsign_t::table;
 
 
@@ -404,11 +405,36 @@ void roadsign_t::laden_abschliessen()
 
 
 
+// to sort compare_roadsign_besch for always the same menu order
+static bool compare_roadsign_besch(const roadsign_besch_t* a, const roadsign_besch_t* b)
+{
+	int diff = a->gib_wtyp() - b->gib_wtyp();
+	if (diff == 0) {
+		if(a->is_free_route()) {
+			diff += 120;
+		}
+		if(b->is_free_route()) {
+			diff -= 120;
+		}
+		diff += (int)(a->get_flags() & ~roadsign_besch_t::SIGN_SIGNAL) - (int)(b->get_flags()  & ~roadsign_besch_t::SIGN_SIGNAL);
+	}
+	if (diff == 0) {
+		/* Some type: sort by name */
+		diff = strcmp(a->gib_name(), b->gib_name());
+	}
+	return diff < 0;
+}
+
+
+
 /* static stuff from here on ... */
 bool roadsign_t::alles_geladen()
 {
 	if (liste.empty()) {
 		DBG_MESSAGE("roadsign_t", "No signs found - feature disabled");
+	}
+	else {
+		std::sort( liste.begin(), liste.end(), compare_roadsign_besch );
 	}
 	return true;
 }
@@ -418,7 +444,7 @@ bool roadsign_t::alles_geladen()
 bool roadsign_t::register_besch(roadsign_besch_t *besch)
 {
 	roadsign_t::table.put(besch->gib_name(), besch);
-	roadsign_t::liste.append(besch);
+	roadsign_t::liste.append(besch,16);
 	if(besch->gib_wtyp()==track_wt  &&  besch->get_flags()==roadsign_besch_t::SIGN_SIGNAL) {
 		default_signal = besch;
 	}
@@ -466,9 +492,10 @@ void roadsign_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
   const karte_t *welt)
 {
 	const uint16 time = welt->get_timeline_year_month();
-DBG_DEBUG("roadsign_t::fill_menu()","maximum %i",roadsign_t::liste.count());
-	for (slist_iterator_tpl<const roadsign_besch_t*> i(roadsign_t::liste); i.next();) {
-		const roadsign_besch_t* besch = i.get_current();
+
+DBG_DEBUG("roadsign_t::fill_menu()","maximum %i",roadsign_t::liste.get_count());
+	for (vector_tpl<const roadsign_besch_t*>::const_iterator iter = liste.begin(), end = liste.end();  iter != end;  ++iter  ) {
+		const roadsign_besch_t* besch = (*iter);
 		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
 			DBG_DEBUG("roadsign_t::fill_menu()", "try to add %s(%p)", besch->gib_name(), besch);
@@ -500,8 +527,8 @@ DBG_DEBUG("roadsign_t::fill_menu()","maximum %i",roadsign_t::liste.count());
 const roadsign_besch_t *
 roadsign_t::roadsign_search(uint8 flag,const waytype_t wt,const uint16 time)
 {
-	for (slist_iterator_tpl<const roadsign_besch_t*> i(roadsign_t::liste); i.next();) {
-		const roadsign_besch_t* besch = i.get_current();
+	for (vector_tpl<const roadsign_besch_t*>::const_iterator iter = liste.begin(), end = liste.end();  iter != end;  ++iter  ) {
+		const roadsign_besch_t* besch = (*iter);
 		if((time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))
 			&&  besch->gib_wtyp()==wt  &&  besch->get_flags()==flag) {
 				return besch;

@@ -110,7 +110,7 @@ public:
 
 	// static routines from here
 private:
-	static slist_tpl<const roadsign_besch_t *> liste;
+	static vector_tpl<const roadsign_besch_t *> liste;
 	static stringhashtable_tpl<const roadsign_besch_t *> table;
 
 protected:
