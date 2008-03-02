@@ -261,21 +261,17 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		while(  !is_about_to_hop(ddx+dx*i,ddy+dy*i )  &&  i<16 ) {
 			i++;
 		}
-		if(dx*dy) {
-			if(file->is_loading()) {
+		setze_xoff( ddx-(16-i)*dx );
+		setze_yoff( ddy-(16-i)*dy );
+		if(file->is_loading()) {
+			if(dx*dy) {
 				steps = min( 255, 255-(i*16) );
 				steps_next = 255;
 			}
-			setze_xoff( ddx-(16-i)*dx );
-			setze_yoff( ddy-(16-i)*dy );
-		}
-		else {
-			if(file->is_loading()) {
-				steps = min( 127, 128-(i*8) );
+			else {
+				steps = min( 127, 128-(i*16) );
 				steps_next = 127;
 			}
-			setze_xoff( ddx-(8-i)*dx );
-			setze_yoff( ddy-(8-i)*dy );
 		}
 	}
 

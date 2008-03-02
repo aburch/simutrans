@@ -4,7 +4,7 @@
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  *
- * Fahrzeuge in der Welt von Simutrans
+ * All moving stuff (vehikel_basis_t) and all player vehicle (derived from vehikel_t)
  *
  * 01.11.99  getrennt von simdings.cc
  *
@@ -1272,28 +1272,25 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 	// convert steps to position
 	if(file->get_version()<99018) {
 		sint8 ddx=gib_xoff(), ddy=gib_yoff()-hoff;
-		sint8 i=0;
+		sint8 i=1;
 		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2];
 		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1];
 
 		while(  !is_about_to_hop(ddx+dx*i,ddy+dy*i )  &&  i<16 ) {
 			i++;
 		}
-		if(dx*dy) {
-			if(file->is_loading()) {
+		i--;
+		setze_xoff( ddx-(16-i)*dx );
+		setze_yoff( ddy-(16-i)*dy );
+		if(file->is_loading()) {
+			if(dx*dy) {
 				steps = min( 255, 255-(i*16) );
 				steps_next = 255;
 			}
-			setze_xoff( ddx-(16-i)*dx );
-			setze_yoff( ddy-(16-i)*dy );
-		}
-		else {
-			if(file->is_loading()) {
-				steps = min( 127, 128-(i*8) );
+			else {
+				steps = min( 127, 128-(i*16) );
 				steps_next = 127;
 			}
-			setze_xoff( ddx-(8-i)*dx );
-			setze_yoff( ddy-(8-i)*dy );
 		}
 	}
 
