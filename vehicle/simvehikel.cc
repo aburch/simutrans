@@ -2172,8 +2172,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 									return true;
 								}
 								exit_loop = true;
-							} else if(sch1 && sch1->get_reserved_convoi()!=convoihandle_t()) {
-								// for some reason sch1->can_reserve() crashed from time to time so we use get_reserved_convoi instead...
+							} else if(sch1  &&  !sch1->can_reserve(cnv->self)) {
 								exit_loop = true;
 							}
 						}
