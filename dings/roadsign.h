@@ -38,8 +38,6 @@ protected:
 
 	const roadsign_besch_t *besch;
 
-	uint32 last_switch;	// change state here ...
-
 public:
 	enum signalzustand {rot=0, gruen=1, naechste_rot=2 };
 

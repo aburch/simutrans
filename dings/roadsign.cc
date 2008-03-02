@@ -48,7 +48,6 @@ roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 		// if more than one state, we will switch direction and phase for traffic lights
 		automatic = (besch->gib_bild_anzahl()>4  &&  besch->gib_wtyp()==road_wt);
 	}
-	last_switch = 0;
 }
 
 
@@ -59,7 +58,6 @@ roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi d
 	this->dir = dir;
 	bild = after_bild = IMG_LEER;
 	zustand = 0;
-	last_switch = 0;
 	setze_besitzer( sp );
 	// if more than one state, we will switch direction and phase for traffic lights
 	automatic = (besch->gib_bild_anzahl()>4  &&  besch->gib_wtyp()==road_wt);
@@ -288,12 +286,11 @@ void roadsign_t::calc_bild()
 bool
 roadsign_t::sync_step(long delta_t)
 {
-	// change every 24 hours in normal speed = (1<<18)/24
-	last_switch += delta_t;
-	if(last_switch > 10922) {
-		last_switch -= 10922;
-		zustand = (zustand+1)&1;
-		dir = (zustand==0) ? ribi_t::nordsued : ribi_t::ostwest;
+	// change every ~16s hours in normal speed
+	uint8 new_zustand = ( (welt->gib_zeit_ms()>>14) + welt->gib_einstellungen()->get_rotation() )&1;
+	if(zustand!=new_zustand) {
+		zustand = new_zustand;
+		dir = (new_zustand==0) ? ribi_t::nordsued : ribi_t::ostwest;
 		calc_bild();
 	}
 	return true;
