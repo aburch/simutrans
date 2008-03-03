@@ -100,14 +100,21 @@ public:
 	*/
 	static const fabrik_besch_t *get_random_consumer(bool in_city,climate_bits cl, uint16 timeline );
 
+	static fabrik_t* baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d pos, spieler_t* spieler);
+
 	/**
-	* vorbedingung: pos ist für fabrikbau geeignet
-	* @return: Anzahl gebauter Fabriken
-	* @author Hj.Malthaner
-	*/
+	 * vorbedingung: pos ist für fabrikbau geeignet
+	 * @return: Anzahl gebauter Fabriken
+	 * @author Hj.Malthaner
+	 */
 	static int baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d* pos, spieler_t* sp);
 
-	static fabrik_t* baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d pos, spieler_t* spieler);
+	/**
+	 * Helper function for baue_hierachie(): builts the connections (chain) for one single product)
+	 * @return: Anzahl gebauter Fabriken
+	 */
+	static int baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_besch_t* info, int lieferant_nr, koord3d* pos, spieler_t* sp);
+
 
 private:
 	// bauhilfen
