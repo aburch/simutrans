@@ -12,6 +12,7 @@
 #include "../simtypes.h"
 #include "../besch/roadsign_besch.h"
 #include "../ifc/sync_steppable.h"
+#include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 
 class werkzeug_parameter_waehler_t;
