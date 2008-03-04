@@ -23,6 +23,7 @@
 	CHANGE: smoother movements of vehicles in all sizes and zoomlevels
 	FIX: powerlines destroy on fileds during loading
 	CHANGE: all traffic lights have now synchronized phases
+	ADD: new parameter in forestconf.tab: tree_climates for climates with at least one tree per tile
 
 
 Release of 99.17.1 (r1550, stable)
