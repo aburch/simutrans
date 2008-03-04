@@ -705,10 +705,7 @@ DBG_DEBUG("karte_t::init()","distributing groundobjs");
 						const groundobj_besch_t *besch = simrand(10)==0 ? movingobj_t::random_movingobj_for_climate( get_climate(gr->gib_hoehe()) ) : groundobj_t::random_groundobj_for_climate( get_climate(gr->gib_hoehe()), gr->gib_grund_hang(), 0 );
 						if(besch  &&  (besch->get_speed()==0  ||  (besch->get_waytype()!=water_wt  ||  gr->hat_weg(water_wt)  ||  gr->gib_hoehe()<=gib_grundwasser()) ) ) {
 							queried = simrand(umgebung_t::ground_object_probability*2);
-							if(besch->get_speed()!=0) {
-								gr->obj_add( new movingobj_t( this, gr->gib_pos(), besch ) );
-							}
-							else {
+							if(besch->get_speed()==0) {
 								gr->obj_add( new groundobj_t( this, gr->gib_pos(), besch ) );
 							}
 						}
@@ -721,6 +718,32 @@ DBG_DEBUG("karte_t::init()","distributing groundobjs");
 
 DBG_DEBUG("karte_t::init()","distributing trees");
 	baum_t::distribute_trees(this,3);
+
+#if 1
+DBG_DEBUG("karte_t::init()","distributing movingobjs");
+	if(  umgebung_t::ground_object_probability > 0  ) {
+		// add eyecandy like rocky, moles, flowers, ...
+		koord k;
+		sint32 queried = simrand(umgebung_t::ground_object_probability*2);
+		for(k.y=0; k.y<gib_groesse_y(); k.y++) {
+			for(k.x=0; k.x<gib_groesse_x(); k.x++) {
+				grund_t *gr = lookup_kartenboden(k);
+				if(gr->gib_top()==0  &&  gr->gib_typ()==grund_t::boden) {
+					queried --;
+					if(  queried<0  ) {
+						const groundobj_besch_t *besch = simrand(10)==0 ? movingobj_t::random_movingobj_for_climate( get_climate(gr->gib_hoehe()) ) : groundobj_t::random_groundobj_for_climate( get_climate(gr->gib_hoehe()), gr->gib_grund_hang(), 0 );
+						if(besch  &&  (besch->get_speed()==0  ||  (besch->get_waytype()!=water_wt  ||  gr->hat_weg(water_wt)  ||  gr->gib_hoehe()<=gib_grundwasser()) ) ) {
+							if(besch->get_speed()!=0) {
+								queried = simrand(umgebung_t::ground_object_probability*2);
+								gr->obj_add( new movingobj_t( this, gr->gib_pos(), besch ) );
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 
 DBG_DEBUG("karte_t::init()","built timeline");
 	stadtauto_t::built_timeline_liste(this);

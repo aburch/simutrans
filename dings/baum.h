@@ -41,6 +41,7 @@ private:
 	static uint8 forest_boundary_thickness;
 	static uint16 forest_inverse_spare_tree_density;
 	static uint8 max_no_of_trees_on_square;
+	static uint16 tree_climates;
 
 	void saee_baum();
 
