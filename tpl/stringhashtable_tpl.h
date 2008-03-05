@@ -15,26 +15,29 @@
  */
 class stringhash_t {
 public:
-    static int hash(const char *key)
-    {
-	if(key[0] == 0) {
-	    return 0;
-	} else {
-	    return ( ((unsigned char)key[0]) + (((unsigned char)key[1])<<8));
+	static int hash(const char *key)
+	{
+		if(key[0] == 0) {
+			return 0;
+		} else {
+			return ( ((unsigned char)key[0]) + (((unsigned char)key[1])<<8));
+		}
 	}
-    }
-    static const char *null()
-    {
-	return NULL;
-    }
-    static void dump(const char *key)
-    {
-	printf("%s", key);
-    }
-    static int comp(const char *key1, const char *key2)
-    {
-	return strcmp(key1, key2);
-    }
+
+	static const char *null()
+	{
+		return NULL;
+	}
+
+	static void dump(const char *key)
+	{
+		printf("%s", key);
+	}
+
+	static int comp(const char *key1, const char *key2)
+	{
+		return strcmp(key1, key2);
+	}
 };
 
 
@@ -44,25 +47,28 @@ public:
  */
 class stringhash2_t {
 public:
-    static int hash(const char *key)
-    {
-	int code = 0;
-	while (*key)
-		code = (code<<5) + code + *key++;
-	return code;
-    }
-    static const char *null()
-    {
-	return NULL;
-    }
-    static void dump(const char *key)
-    {
-	printf("%s", key);
-    }
-    static int comp(const char *key1, const char *key2)
-    {
-	return strcmp(key1, key2);
-    }
+	static int hash(const char *key)
+	{
+		int code = 0;
+		while (*key)
+			code = (code<<5) + code + *key++;
+		return code;
+	}
+
+	static const char *null()
+	{
+		return NULL;
+	}
+
+	static void dump(const char *key)
+	{
+		printf("%s", key);
+	}
+
+	static int comp(const char *key1, const char *key2)
+	{
+		return strcmp(key1, key2);
+	}
 };
 
 
@@ -81,13 +87,10 @@ class stringhashtable_iterator_tpl : public hashtable_iterator_tpl<const char *,
 {
 public:
     stringhashtable_iterator_tpl(const hashtable_tpl<const char *, value_t, stringhash_t> *hashtable) :
-	hashtable_iterator_tpl<const char *, value_t, stringhash_t>(hashtable)
-    {
-    }
-    stringhashtable_iterator_tpl(const hashtable_tpl<const char *, value_t, stringhash_t> &hashtable) :
-	hashtable_iterator_tpl<const char *, value_t, stringhash_t>(hashtable)
-    {
-    }
+		hashtable_iterator_tpl<const char *, value_t, stringhash_t>(hashtable) {}
+
+	stringhashtable_iterator_tpl(const hashtable_tpl<const char *, value_t, stringhash_t> &hashtable) :
+		hashtable_iterator_tpl<const char *, value_t, stringhash_t>(hashtable) {}
 };
 
 
@@ -105,14 +108,10 @@ template<class value_t>
 class stringhashtable2_iterator_tpl : public hashtable_iterator_tpl<const char *, value_t, stringhash2_t>
 {
 public:
-    stringhashtable2_iterator_tpl(const hashtable_tpl<const char *, value_t, stringhash2_t> *hashtable) :
-	hashtable_iterator_tpl<const char *, value_t, stringhash2_t>(hashtable)
-    {
-    }
-    stringhashtable2_iterator_tpl(const hashtable_tpl<const char *, value_t, stringhash2_t> &hashtable) :
-	hashtable_iterator_tpl<const char *, value_t, stringhash2_t>(hashtable)
-    {
-    }
+	stringhashtable2_iterator_tpl(const hashtable_tpl<const char *, value_t, stringhash2_t> *hashtable) :
+		hashtable_iterator_tpl<const char *, value_t, stringhash2_t>(hashtable) {}
+	stringhashtable2_iterator_tpl(const hashtable_tpl<const char *, value_t, stringhash2_t> &hashtable) :
+		hashtable_iterator_tpl<const char *, value_t, stringhash2_t>(hashtable) {}
 };
 
 #endif

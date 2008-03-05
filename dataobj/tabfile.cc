@@ -68,47 +68,46 @@ bool tabfileobj_t::put(const char *key, const char *value)
 
 void tabfileobj_t::clear()
 {
-	/*
-    stringhashtable_iterator_tpl<const char *> iter(objinfo);
-
-    while(iter.next()) {
-	free(const_cast<char *>(iter.get_current_key()));
-	free(const_cast<char *>(iter.get_current_value()));
-    }*/
-    objinfo.clear();
+	stringhashtable_iterator_tpl<const char *> iter(objinfo);
+	while(iter.next()) {
+		free(const_cast<char *>(iter.get_current_key()));
+		free(const_cast<char *>(iter.get_current_value()));
+	}
+	objinfo.clear();
 }
 
 const koord &tabfileobj_t::get_koord(const char *key, koord def)
 {
-    static koord ret;
-    const char *value = get(key);
-    const char *tmp;
+	static koord ret;
+	const char *value = get(key);
+	const char *tmp;
 
-    ret = def;
+	ret = def;
 
-    if(!value || !*value) {
-        return ret;
-    }
-    // 2. Wert bestimmen
-    for(tmp = value; *tmp != ','; tmp++) {
-        if(!*tmp) {
-	    return ret;
+	if(!value || !*value) {
+		return ret;
 	}
-    }
-    ret.x = atoi(value);
-    ret.y = atoi(tmp + 1);
-    return ret;
+	// 2. Wert bestimmen
+	for(tmp = value; *tmp != ','; tmp++) {
+		if(!*tmp) {
+			return ret;
+		}
+	}
+	ret.x = atoi(value);
+	ret.y = atoi(tmp + 1);
+	return ret;
 }
 
 int tabfileobj_t::get_int(const char *key, int def)
 {
-    const char *value = get(key);
+	const char *value = get(key);
 
-    if(!value || !*value) {
-        return def;
-    } else {
-	return atoi(value);
-    }
+	if(!value || !*value) {
+		return def;
+	}
+	else {
+		return atoi(value);
+	}
 }
 
 int *tabfileobj_t::get_ints(const char *key)
@@ -125,8 +124,9 @@ int *tabfileobj_t::get_ints(const char *key)
     }
     // Anzahl bestimmen
     for(tmp = value; *tmp; tmp++) {
-        if(*tmp == ',')
+		if(*tmp == ',') {
             count++;
+		}
     }
     // Ergebnisvektor erstellen und füllen
     result = new int[count + 1];
@@ -135,8 +135,9 @@ int *tabfileobj_t::get_ints(const char *key)
     count = 1;
     result[count++] = atoi(value);
     for(tmp = value; *tmp; tmp++) {
-        if(*tmp == ',')
+		if(*tmp == ',') {
             result[count++] = atoi(tmp + 1);
+		}
     }
     return result;
 }
@@ -149,18 +150,18 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
     char line[4096];
     objinfo.clear();
 
-    do {
-	while(read_line(line, sizeof(line)) && *line != '-') {
-	    char *delim = strchr(line, '=');
+	do {
+		while(read_line(line, sizeof(line)) && *line != '-') {
+			char *delim = strchr(line, '=');
 
-	    if(delim) {
-		*delim++ = '\0';
-		format_key(line);
-		objinfo.put(line, delim);
-		lines= true;
-	    }
-	}
-    } while(!lines && !feof(file)); // skip empty objects
+			if(delim) {
+				*delim++ = '\0';
+				format_key(line);
+				objinfo.put(line, delim);
+				lines = true;
+			}
+		}
+	} while(!lines && !feof(file)); // skip empty objects
 
     return lines;
 }
@@ -169,73 +170,75 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 
 bool tabfile_t::read_line(char *s, int size)
 {
-    char *r;
-    long l;
+	char *r;
+	long l;
 
-    do {
-	r = fgets(s, size, file);
-    } while(r != NULL && (*s == '#' || *s == ' '));
+	do {
+		r = fgets(s, size, file);
+	} while(r != NULL && (*s == '#' || *s == ' '));
 
-    if(r) {
-	l = strlen(r);
-	while(l && (r[l-1] == '\n' || r[l-1] == '\r')) {
-	    r[--l] = '\0';
+	if(r) {
+		l = strlen(r);
+		while(l && (r[l-1] == '\n' || r[l-1] == '\r')) {
+			r[--l] = '\0';
+		}
 	}
-    }
-    return r != NULL;
+	return r != NULL;
 }
 
 
 
 void tabfile_t::format_key(char *key)
 {
-    char *s = key + strlen(key);
-    char *t;
+	char *s = key + strlen(key);
+	char *t;
 
-    // trim right
-    while(s > key && s[-1] == ' ') {
-	*--s = '\0';
-    }
-    // make lowercase
-    for(s = key; *s; s++) {
-	*s = tolower(*s);
-    }
-    // skip spaces inside []
-    for(s = t = key; *s; s++) {
-	if(*s == '[') {
-	    *t++ = *s++;
-
-	    while(*s && *s != ']') {
-		if(*s == ' ') {
-		    s++;
-		} else {
-		    *t++ = *s++;
-		}
-	    }
-	    s--;
-	} else {
-	    *t++ = *s;
+	// trim right
+	while(s > key && s[-1] == ' ') {
+		*--s = '\0';
 	}
-    }
-    *t = '\0';
+	// make lowercase
+	for(s = key; *s; s++) {
+		*s = tolower(*s);
+	}
+	// skip spaces inside []
+	for(s = t = key; *s; s++) {
+		if(*s == '[') {
+			*t++ = *s++;
+
+			while(*s && *s != ']') {
+				if(*s == ' ') {
+					s++;
+				}
+				else {
+					*t++ = *s++;
+				}
+			}
+			s--;
+		}
+		else {
+			*t++ = *s;
+		}
+	}
+	*t = '\0';
 }
 
 
 
 void tabfile_t::format_value(char *value)
 {
-    long len = strlen(value);
+	long len = strlen(value);
 
-    // trim right
-    while(len && value[len - 1] == ' ') {
-	value[--len] = '\0';
-    }
-    // trim left
-    if(*value == ' ') {
-        char *from;
-	for(from = value; *from == ' '; from++) {}
-	while(*value) {
-	    *value++ = *from++;
-        }
-    }
+	// trim right
+	while(len && value[len - 1] == ' ') {
+		value[--len] = '\0';
+	}
+	// trim left
+	if(*value == ' ') {
+		char *from;
+		for(from = value; *from == ' '; from++) {}
+		while(*value) {
+			*value++ = *from++;
+		}
+	}
 }

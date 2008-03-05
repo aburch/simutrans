@@ -63,8 +63,11 @@ uint16 baum_t::forest_inverse_spare_tree_density = 5;
 // Number of trees on square 2 - minimal usable, 3 good, 5 very nice looking
 uint8 baum_t::max_no_of_trees_on_square = 3;
 
-// true, bit set, if this climate is to be covered with trees entirely
+// bit set, if this climate is to be covered with trees entirely
 uint16 baum_t::tree_climates = 0;
+
+// bit set, if this climate is to be void of random trees
+uint16 baum_t::no_tree_climates = 0;
 
 
 
@@ -96,6 +99,7 @@ baum_t::forestrules_init(cstring_t objfilename)
 	baum_t::forest_inverse_spare_tree_density = contents.get_int("forest_inverse_spare_tree_density", baum_t::forest_inverse_spare_tree_density );
 	baum_t::max_no_of_trees_on_square = contents.get_int("max_no_of_trees_on_square", baum_t::max_no_of_trees_on_square );
 	baum_t::tree_climates = contents.get_int("tree_climates", baum_t::tree_climates );
+	baum_t::no_tree_climates = contents.get_int("no_tree_climates", baum_t::no_tree_climates );
 
 	return true;
 }
@@ -152,7 +156,8 @@ DBG_MESSAGE("verteile_baeume()","distributing single trees");
 			grund_t *gr = welt->lookup_kartenboden(pos);
 			if(gr->gib_top() == 0  &&  gr->gib_typ() == grund_t::boden)  {
 				// plant spare trees, (those with low preffered density) or in an entirely tree climate
-				if( ( (1<<welt->get_climate(gr->gib_hoehe())) & tree_climates ) != 0  ||  simrand(forest_inverse_spare_tree_density*dichte) < 100) {
+				uint16 cl = 1<<welt->get_climate(gr->gib_hoehe());
+				if( (cl & no_tree_climates)==0  &&  (  (cl & tree_climates)!=0  ||  simrand(forest_inverse_spare_tree_density*dichte) < 100  )  ) {
 					plant_tree_on_coordinate(welt, pos, 1);
 				}
 			}

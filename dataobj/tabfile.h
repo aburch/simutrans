@@ -48,24 +48,29 @@ class tabfile_t {
      * @author V. Meyer
      */
     bool read_line(char *s, int size);
-    /**
+
+	/**
      * Format the key string (trimright and lowercase)
      *
      * @author V. Meyer
      */
-    void format_key(char *key);
+
+	void format_key(char *key);
      /**
      * Format the value string (trimleft and trimright)
      *
      * @author V. Meyer
      */
-    void format_value(char *value);
+
+	void format_value(char *value);
+
 public:
     tabfile_t() : file(NULL) {}
     ~tabfile_t() { close(); }
 
     bool open(const char *filename);
-    void close();
+
+	void close();
 
     /**
      * Read an entire object from the open file.
@@ -75,7 +80,7 @@ public:
      *
      * @author V. Meyer
      */
-    bool read(tabfileobj_t &objinfo);
+	bool read(tabfileobj_t &objinfo);
 };
 
 
@@ -92,13 +97,15 @@ class tabfileobj_t {
 public:
     tabfileobj_t() { ; }
     ~tabfileobj_t() { clear(); }
-    /*
+
+	/*
      * add an key/value pair - should only be used be tabfile_t::read
      *
      * @author V. Meyer
      */
     bool put(const char *key, const char *value);
-    /*
+
+	/*
      * reinitializes this object
      *
      * @author V. Meyer
@@ -114,14 +121,12 @@ public:
      */
     const char *get(const char *key);
 
-
     /**
      * Get the string value for a key - key must be lowercase
      * @return def if key isn't found, value otherwise
      * @author Hj. Malthaner
      */
     const char *get_string(const char *key, const char * def);
-
 
     /**
      * Get the value for a koord key - key must be lowercase
@@ -131,7 +136,8 @@ public:
      * @author V. Meyer
      */
     const koord &get_koord(const char *key, koord def);
-    /**
+
+	/**
      * Get the value for a koord key - key must be lowercase
      *
      * @return koord	returns def, if key is not found
@@ -139,7 +145,8 @@ public:
      * @author V. Meyer
      */
     int get_int(const char *key, int def);
-    /**
+
+	/**
      * Parses a value with the format "<num 1>,<num 2>,..,<num N>"
      * and returns an allocated int[N + 1] with
      * N at pos. 0, <num 1> at pos 1, etc.
