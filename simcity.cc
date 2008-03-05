@@ -2048,19 +2048,8 @@ void stadt_t::check_bau_factory(bool new_town)
 	if (!new_town && industry_increase_every[0] > 0 && bev % industry_increase_every[0] == 0) {
 		for (int i = 0; i < 8; i++) {
 			if (industry_increase_every[i] == bev) {
-				const fabrik_besch_t* market = fabrikbauer_t::get_random_consumer(true, (climate_bits)(1 << welt->get_climate(welt->lookup(pos)->gib_kartenboden()->gib_hoehe())), welt->get_timeline_year_month() );
-				if (market != NULL) {
-					bool rotate = false;
-
-					koord3d	market_pos = welt->lookup(pos)->gib_kartenboden()->gib_pos();
-					DBG_MESSAGE("stadt_t::check_bau_factory", "adding new industry at %i inhabitants.", gib_einwohner());
-					int n = fabrikbauer_t::baue_hierarchie(NULL, market, rotate, &market_pos, welt->gib_spieler(1));
-					// tell the player
-					char buf[256];
-					sprintf(buf, translator::translate("New factory chain\nfor %s near\n%s built with\n%i factories."), translator::translate(market->gib_name()), gib_name(), n);
-					message_t::get_instance()->add_message(buf, market_pos.gib_2d(), message_t::industry, CITY_KI, market->gib_haus()->gib_tile(0)->gib_hintergrund(0, 0, 0));
-					break;
-				}
+				DBG_MESSAGE("stadt_t::check_bau_factory", "adding new industry at %i inhabitants.", gib_einwohner());
+				fabrikbauer_t::increase_industry_density( welt, true );
 			}
 		}
 	}

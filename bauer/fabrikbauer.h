@@ -63,6 +63,9 @@ private:
 	static int finde_anzahl_hersteller(const ware_besch_t *ware, uint16 timeline);
 	static const fabrik_besch_t * finde_hersteller(const ware_besch_t *ware, uint16 timeline);
 
+	static fabrik_t *last_built_consumer;
+	static int last_built_consumer_ware;
+
 public:
 	static void register_besch(fabrik_besch_t *besch);
 
@@ -104,16 +107,25 @@ public:
 
 	/**
 	 * vorbedingung: pos ist für fabrikbau geeignet
+	 / number of chains is the maximum number of waren types for which suppliers chains are built
 	 * @return: Anzahl gebauter Fabriken
 	 * @author Hj.Malthaner
 	 */
-	static int baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d* pos, spieler_t* sp);
+	static int baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d* pos, spieler_t* sp, int number_of_chains );
 
 	/**
 	 * Helper function for baue_hierachie(): builts the connections (chain) for one single product)
 	 * @return: Anzahl gebauter Fabriken
 	 */
-	static int baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_besch_t* info, int lieferant_nr, koord3d* pos, spieler_t* sp);
+	static int baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_besch_t* info, int lieferant_nr, spieler_t* sp);
+
+	/* this function is called, whenever it is time for industry growth
+	 * If there is still a pending consumer, it will first complete another chain for it
+	 * If not, it will decide to either built a power station (if power is needed)
+	 * or built a new consumer near the indicated position
+	 * @return: number of factories built
+	 */
+	static int increase_industry_density( karte_t *welt, bool tell_me );
 
 
 private:

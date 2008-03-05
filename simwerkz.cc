@@ -2288,7 +2288,7 @@ int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos, value_t p
 
 	if(hat_platz) {
 		koord3d k = gr->gib_pos();
-		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, rotation, &k, welt->gib_spieler(1));
+		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, rotation, &k, welt->gib_spieler(1), 10000 );
 
 		if(anzahl>0) {
 			// least one factory has been built
@@ -2330,7 +2330,7 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos, value_t p
 		if(fab==NULL) {
 			return false;
 		}
-		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, false, &pos3d, welt->gib_spieler(1));
+		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, false, &pos3d, welt->gib_spieler(1), 10000 );
 
 		if(anzahl>0) {
 			// least one factory has been built
