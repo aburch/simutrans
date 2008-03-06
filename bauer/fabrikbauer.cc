@@ -82,15 +82,8 @@ inline bool is_factory_at( sint16 x, sint16 y)
 }
 
 
-// for factory growth: remember last built consumer ...
-fabrik_t *fabrikbauer_t::last_built_consumer = NULL;
-int fabrikbauer_t::last_built_consumer_ware = 0;
-
-
 void fabrikbauer_t::neue_karte(karte_t *welt)
 {
-	last_built_consumer = NULL;
-	last_built_consumer_ware = 0;
 	init_fab_map( welt );
 }
 
@@ -157,7 +150,7 @@ stringhashtable_tpl<const fabrik_besch_t *> fabrikbauer_t::table;
 /* returns a random consumer
  * @author prissi
  */
-const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool in_city, climate_bits cl, uint16 timeline )
+const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool electric, climate_bits cl, uint16 timeline )
 {
 	// get a random city factory
 	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
@@ -168,8 +161,7 @@ const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool in_city, climate_b
 		const fabrik_besch_t *current=iter.get_current_value();
 		// nur endverbraucher eintragen
 		if(current->gib_produkt(0)==NULL  &&  current->gib_haus()->is_allowed_climate_bits(cl)  &&
-			((in_city  &&  current->gib_platzierung() == fabrik_besch_t::Stadt)
-			||  (!in_city  &&  current->gib_platzierung() == fabrik_besch_t::Land)  )  &&
+			(electric ^ !current->is_electricity_producer())  &&
 			(timeline==0  ||  (current->gib_haus()->get_intro_year_month() <= timeline  &&  current->gib_haus()->get_retire_year_month() > timeline))  ) {
 			consumer.insert(current);
 			gewichtung += current->gib_gewichtung();
@@ -860,6 +852,37 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","failed to built lieferant %s aroun
 int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me )
 {
 	int nr = 0;
+	fabrik_t *last_built_consumer = NULL;
+	int last_built_consumer_ware = 0;
+
+	// find last consumer
+	if(!welt->gib_fab_list().empty()) {
+		slist_iterator_tpl<fabrik_t*> iter (welt->gib_fab_list());
+		while(iter.next()) {
+			fabrik_t *fab = iter.get_current();
+			if(fab->gib_besch()->gib_produkte()==0) {
+				last_built_consumer = fab;
+			}
+		}
+		// ok, found consumer
+		if(  last_built_consumer  ) {
+			for(  int i=0;  i < last_built_consumer->gib_besch()->gib_lieferanten();  i++  ) {
+				uint8 w_idx = last_built_consumer->gib_besch()->gib_lieferant(i)->gib_ware()->gib_index();
+				for(  uint32 j=0;  j<last_built_consumer->get_suppliers().get_count();  j++  ) {
+					fabrik_t *sup = fabrik_t::gib_fab( welt, last_built_consumer->get_suppliers()[j] );
+					for(  uint32 k=0;  k<sup->gib_besch()->gib_produkte();  k++  ) {
+						if(  sup->gib_besch()->gib_produkt(k)->gib_ware()->gib_index() == w_idx  ) {
+							last_built_consumer_ware = i+1;
+							goto next_ware_check;
+						}
+					}
+				}
+next_ware_check:
+				// ok, found something, text next
+				;
+			}
+		}
+	}
 
 	// first: do we have to continue unfinished buissness?
 	if(last_built_consumer  &&  last_built_consumer_ware < last_built_consumer->gib_besch()->gib_lieferanten()) {
@@ -895,18 +918,19 @@ int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me )
 			total_produktivity += fab->get_base_production();
 		}
 	}
-	uint32 promille = total_produktivity == 0 ? 0 : (electric_productivity*100l)/total_produktivity;
+	uint32 promille = total_produktivity == 0 ? 0 : (electric_productivity*400l)/total_produktivity;
 	DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "production of electricity/total production is %i/%i (%i°/oo)", electric_productivity, total_produktivity, promille );
 
 	// now decide producer of electricity or normal ...
-	int in_city = promille > 25  &&  welt->gib_staedte().get_count() > 0 ? 1 : 0;
+	int no_electric = promille > 25  &&  welt->gib_staedte().get_count() > 0 ? 1 : 0;
 
-	while(  in_city<2  ) {
+	while(  no_electric<2  ) {
 		for(int retrys=20;  retrys>0;  retrys--  ) {
+			const fabrik_besch_t *fab=get_random_consumer( no_electric==0, ALL_CLIMATES, welt->get_timeline_year_month() );
+			const bool in_city = fab->gib_platzierung() == fabrik_besch_t::Stadt;
 			koord3d	pos = in_city ?
 				welt->lookup_kartenboden( welt->gib_staedte().at_weight( simrand( welt->gib_staedte().get_sum_weight() ) )->gib_pos() )->gib_pos() :
 				koord3d(simrand(welt->gib_groesse_x()),simrand(welt->gib_groesse_y()),1);
-			const fabrik_besch_t *fab=get_random_consumer( in_city, (climate_bits)(1<<welt->get_climate(welt->lookup(pos.gib_2d())->gib_kartenboden()->gib_hoehe())), welt->get_timeline_year_month() );
 
 			if(fab) {
 				int	rotation=simrand(fab->gib_haus()->gib_all_layouts()-1);
@@ -937,7 +961,7 @@ int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me )
 			}
 		}
 		// if electricity not sucess => try next
-		in_city ++;
+		no_electric ++;
 	}
 
 	// we should not reach here, because that means neither land nor city industries exist ...

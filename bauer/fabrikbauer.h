@@ -63,9 +63,6 @@ private:
 	static int finde_anzahl_hersteller(const ware_besch_t *ware, uint16 timeline);
 	static const fabrik_besch_t * finde_hersteller(const ware_besch_t *ware, uint16 timeline);
 
-	static fabrik_t *last_built_consumer;
-	static int last_built_consumer_ware;
-
 public:
 	static void register_besch(fabrik_besch_t *besch);
 
@@ -101,7 +98,7 @@ public:
 	/* returns a random consumer
 	* @author prissi
 	*/
-	static const fabrik_besch_t *get_random_consumer(bool in_city,climate_bits cl, uint16 timeline );
+	static const fabrik_besch_t *get_random_consumer(bool electric,climate_bits cl, uint16 timeline );
 
 	static fabrik_t* baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d pos, spieler_t* spieler);
 
