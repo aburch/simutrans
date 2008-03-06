@@ -1783,8 +1783,8 @@ wkz_depot_aux(spieler_t *sp, karte_t *welt, koord pos, const haus_besch_t *besch
 			welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), karte_t::Z_PLAN,  NO_SOUND, NO_SOUND );
 			return true;
 		}
+		create_win( new news_img("Cannot built depot here!"), w_time_delete, magic_none);
 	}
-	create_win( new news_img("Cannot built depot here!"), w_time_delete, magic_none);
 	return false;
 }
 
