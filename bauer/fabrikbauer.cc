@@ -862,6 +862,7 @@ int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me )
 			fabrik_t *fab = iter.get_current();
 			if(fab->gib_besch()->gib_produkte()==0) {
 				last_built_consumer = fab;
+				break;
 			}
 		}
 		// ok, found consumer
