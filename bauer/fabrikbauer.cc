@@ -951,7 +951,7 @@ next_ware_check:
 						// tell the player
 						if(tell_me) {
 							stadt_t *s = welt->suche_naechste_stadt( pos.gib_2d() );
-							char *stadt_name = s ? s->gib_name() : "simcity";
+							const char *stadt_name = s ? s->gib_name() : "simcity";
 							char buf[256];
 							sprintf(buf, translator::translate("New factory chain\nfor %s near\n%s built with\n%i factories."), translator::translate(our_fab->gib_name()), stadt_name, nr );
 							message_t::get_instance()->add_message(buf, pos.gib_2d(), message_t::industry, CITY_KI, our_fab->gib_besch()->gib_haus()->gib_tile(0)->gib_hintergrund(0, 0, 0));
