@@ -1681,15 +1681,17 @@ stadt_t *karte_t::suche_naechste_stadt(const koord pos) const
     long min_dist = 99999999;
     stadt_t *best = NULL;
 
-	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
-		stadt_t* s = *i;
-		const koord k = s->gib_pos();
-	    const long dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
-	    if(dist < min_dist) {
-				min_dist = dist;
-				best = s;
-	    }
-    }
+	if(ist_in_kartengrenzen(pos)) {
+		for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+			stadt_t* s = *i;
+			const koord k = s->gib_pos();
+			const long dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
+			if(dist < min_dist) {
+					min_dist = dist;
+					best = s;
+			}
+		}
+	}
     return best;
 }
 

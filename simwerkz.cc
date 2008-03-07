@@ -2659,8 +2659,7 @@ int wkz_switch_player(spieler_t *, karte_t *welt, koord pos)
 int wkz_grow_city(spieler_t *, karte_t *welt, koord pos, value_t lParam)
 {
 	stadt_t *city = welt->suche_naechste_stadt(pos);
-
-	if(pos!=INIT  && pos!=EXIT  &&  city!=NULL) {
+	if(city!=NULL) {
 		city->change_size( lParam.i );
 	}
 	return true;
