@@ -3,8 +3,6 @@
 
 class skin_besch_t;
 
-// until we release new binaries
-#define linkzeiger undoc_zeiger
 
 class skinverwaltung_t {
 public:
@@ -44,8 +42,8 @@ public:
     static const skin_besch_t *killzeiger;
     static const skin_besch_t *slopezeiger;
     static const skin_besch_t *fahrplanzeiger;
-    static const skin_besch_t *werftNSzeiger;
-    static const skin_besch_t *werftOWzeiger;
+    static const skin_besch_t *linkzeiger;
+    static const skin_besch_t *bauzeiger;
     static const skin_besch_t *stadtzeiger;
     static const skin_besch_t *baumzeiger;
     static const skin_besch_t *undoc_zeiger;

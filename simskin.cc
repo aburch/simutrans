@@ -36,8 +36,8 @@ const skin_besch_t* skinverwaltung_t::belegtzeiger       = NULL;
 const skin_besch_t* skinverwaltung_t::killzeiger         = NULL;
 const skin_besch_t* skinverwaltung_t::slopezeiger        = NULL;
 const skin_besch_t* skinverwaltung_t::fahrplanzeiger     = NULL;
-const skin_besch_t* skinverwaltung_t::werftNSzeiger      = NULL;
-const skin_besch_t* skinverwaltung_t::werftOWzeiger      = NULL;
+const skin_besch_t* skinverwaltung_t::bauzeiger          = NULL;
+const skin_besch_t* skinverwaltung_t::linkzeiger         = NULL;
 const skin_besch_t* skinverwaltung_t::stadtzeiger        = NULL;
 const skin_besch_t* skinverwaltung_t::baumzeiger         = NULL;
 const skin_besch_t* skinverwaltung_t::undoc_zeiger       = NULL;
@@ -112,7 +112,8 @@ static spezial_obj_tpl<skin_besch_t> symbol_objekte[] = {
 
 static spezial_obj_tpl<skin_besch_t> cursor_objekte[] = {
 	{ &skinverwaltung_t::mouse_cursor,   "Mouse"        },
-	{ &skinverwaltung_t::werftNSzeiger,  "ShipDepotNS"  },
+	{ &skinverwaltung_t::bauzeiger,      "Construction" },
+	{ &skinverwaltung_t::linkzeiger,     "Linktool"     },
 	{ &skinverwaltung_t::fragezeiger,    "Query"        },
 	{ &skinverwaltung_t::signalzeiger,   "Signal"       },
 	{ &skinverwaltung_t::downzeiger,     "Down"         },
@@ -133,7 +134,7 @@ bool skinverwaltung_t::alles_geladen(skintyp_t type)
 	spezial_obj_tpl<skin_besch_t>* sb;
 	switch (type) {
 		case menu:    sb = menu_objekte +1 ;           break; // forget about ship depot
-		case cursor:  sb = cursor_objekte + 1 + 1;         break; // forget about mouse cursor, ship depot
+		case cursor:  sb = cursor_objekte + 1;         break; // forget about mouse cursor, ship depot
 		case symbol:  sb = symbol_objekte + 1 + 1 + 1; break; // forget about message box options, BigLogo, and seasons
 		case misc:    sb = misc_objekte;	             break; // not all signals needed
 		case nothing: return true;

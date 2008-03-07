@@ -877,7 +877,7 @@ DBG_MESSAGE("init","map");
 			sets->setze_groesse(256, 256);
 			sets->setze_anzahl_staedte(16);
 			sets->setze_land_industry_chains(6);
-			sets->setze_city_industry_chains(0);
+			sets->setze_electric_promille(33);
 			sets->setze_tourist_attractions(12);
 			sets->setze_karte_nummer(simrand(999));
 			sets->setze_allow_player_change(true);

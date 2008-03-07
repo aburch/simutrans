@@ -220,6 +220,8 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 {
 	if(entry>=0  &&  entry<(sint32)fablist.get_count()) {
 
+		bfs.ignore_climates = bt_climates.pressed;
+
 		const fabrik_besch_t *fab_besch = fablist[entry];
 		if(fab_besch!=bfs.besch) {
 
@@ -250,6 +252,10 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 					buf.append( ")\n" );
 				}
 				buf.append("\n");
+			}
+
+			if(fab_besch->is_electricity_producer()) {
+				buf.append( translator::translate( "Electricity producer\n\n" ) );
 			}
 
 			// now the house stuff
@@ -352,13 +358,13 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 
 		// the tools will be always updated, even though the data up there might be still current
 		if(bt_land_chain.pressed) {
-			welt->setze_maus_funktion( wkz_build_industries_land, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)&bfs,  SFX_JACKHAMMER, SFX_FAILURE );
+			welt->setze_maus_funktion( wkz_build_industries_land, skinverwaltung_t::bauzeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)&bfs,  SFX_JACKHAMMER, SFX_FAILURE );
 		}
 		else if(bt_city_chain.pressed) {
-			welt->setze_maus_funktion( wkz_build_industries_city, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)&bfs,  SFX_JACKHAMMER, SFX_FAILURE );
+			welt->setze_maus_funktion( wkz_build_industries_city, skinverwaltung_t::bauzeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)&bfs,  SFX_JACKHAMMER, SFX_FAILURE );
 		}
 		else {
-			welt->setze_maus_funktion( wkz_build_fab, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)&bfs,  SFX_JACKHAMMER, SFX_FAILURE );
+			welt->setze_maus_funktion( wkz_build_fab, skinverwaltung_t::bauzeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)&bfs,  SFX_JACKHAMMER, SFX_FAILURE );
 		}
 	}
 	else if(bfs.besch!=NULL) {

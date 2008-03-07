@@ -180,7 +180,7 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 	display_set_progress_text(translator::translate("Init map ..."));
 	FILE *file = fopen(filename, "rb");
 	if(file) {
-		const int display_total = 16 + gib_einstellungen()->gib_anzahl_staedte()*4 + gib_einstellungen()->gib_land_industry_chains() + gib_einstellungen()->gib_city_industry_chains();
+		const int display_total = 16 + gib_einstellungen()->gib_anzahl_staedte()*4 + gib_einstellungen()->gib_land_industry_chains();
 		char buf [256];
 		int param[3], index=0;
 		char *c=buf+2;
@@ -275,7 +275,7 @@ void
 karte_t::calc_hoehe_mit_perlin()
 {
 	display_set_progress_text(translator::translate("Init map ..."));
-	const int display_total = 16 + gib_einstellungen()->gib_anzahl_staedte()*4 + gib_einstellungen()->gib_land_industry_chains() + gib_einstellungen()->gib_city_industry_chains();
+	const int display_total = 16 + gib_einstellungen()->gib_anzahl_staedte()*4 + gib_einstellungen()->gib_land_industry_chains();
 	for(int y=0; y<=gib_groesse_y(); y++) {
 
 		for(int x=0; x<=gib_groesse_x(); x++) {
@@ -760,7 +760,7 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 	if (pos != NULL && !pos->empty()) {
 		// prissi if we could not generate enough positions ...
 		einstellungen->setze_anzahl_staedte( pos->get_count() );	// new number of towns (if we did not found enough positions) ...
-		const int max_display_progress=16+einstellungen->gib_anzahl_staedte()*4+einstellungen->gib_land_industry_chains()+einstellungen->gib_city_industry_chains();
+		const int max_display_progress=16+einstellungen->gib_anzahl_staedte()*4+einstellungen->gib_land_industry_chains();
 
 		// Ansicht auf erste Stadt zentrieren
 		change_world_position( koord3d((*pos)[0], min_hgt((*pos)[0])) );
@@ -860,8 +860,9 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 		einstellungen->setze_anzahl_staedte( 0 );	// new number of towns (if we did not found enough positions) ...
 	}
 
+#if 0
 	fabrikbauer_t::verteile_industrie(this, einstellungen->gib_land_industry_chains(), false);
-	fabrikbauer_t::verteile_industrie(this, einstellungen->gib_city_industry_chains(), true);
+
 	// crossconnect all?
 	if(umgebung_t::crossconnect_factories) {
 		slist_iterator_tpl <fabrik_t *> iter (fab_list);
@@ -869,6 +870,16 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 			iter.get_current()->add_all_suppliers();
 		}
 	}
+#else
+	// new system ...
+	const int max_display_progress=16+einstellungen->gib_anzahl_staedte()*4+einstellungen->gib_land_industry_chains();
+	for(  sint32 i=0;  i<einstellungen->gib_land_industry_chains();  i++  ) {
+		fabrikbauer_t::increase_industry_density( this, false );
+		int progress_count = 16 + einstellungen->gib_anzahl_staedte()*4 + i;
+		display_progress(progress_count, max_display_progress );
+		display_flush(IMG_LEER, 0, "", "", 0, 0);
+	}
+#endif
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.count();
 
 	// tourist attractions
@@ -934,7 +945,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), quick_shortcu
 		sets->setze_groesse(256,384);
 		sets->setze_anzahl_staedte(16);
 		sets->setze_land_industry_chains(8);
-		sets->setze_city_industry_chains(4);
+		sets->setze_electric_promille(4);
 		sets->setze_tourist_attractions(8);
 		sets->setze_verkehr_level(7);
 		sets->setze_karte_nummer( 33 );
@@ -944,7 +955,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), quick_shortcu
 		sets->setze_groesse(64,64);
 		sets->setze_anzahl_staedte(1);
 		sets->setze_land_industry_chains(1);
-		sets->setze_city_industry_chains(0);
+		sets->setze_electric_promille(0);
 		sets->setze_tourist_attractions(1);
 		sets->setze_verkehr_level(7);
 		sets->setze_karte_nummer( 33 );
@@ -3797,7 +3808,7 @@ case '(':
 create_win( new factory_edit_frame_t(gib_spieler(1),this), w_info, magic_edit_factory);
 break;
 case ')':
-setze_maus_funktion(wkz_factory_link, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+setze_maus_funktion(wkz_factory_link, skinverwaltung_t::linkzeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 break;
 			case 'a':
 				setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
@@ -3848,12 +3859,12 @@ break;
 				break;
 			case 'H':
 				if (!hausbauer_t::headquarter.empty()) {
-					setze_maus_funktion(wkz_headquarter, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, SFX_JACKHAMMER, SFX_FAILURE);
+					setze_maus_funktion(wkz_headquarter, skinverwaltung_t::bauzeiger->gib_bild_nr(0), Z_PLAN, SFX_JACKHAMMER, SFX_FAILURE);
 				}
 				break;
 			case 'I':
 				if(einstellungen->gib_allow_player_change()) {
-					setze_maus_funktion(wkz_build_industries_land, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, (const void *)NULL, NO_SOUND, NO_SOUND );
+					setze_maus_funktion(wkz_increase_chain, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, NO_SOUND, NO_SOUND );
 				}
 				else {
 					message_t::get_instance()->add_message(translator::translate("On this map, you are not\nallowed to change player!\n"), koord::invalid, message_t::problems, get_active_player()->get_player_nr(), IMG_LEER);

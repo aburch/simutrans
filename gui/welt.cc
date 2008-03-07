@@ -170,14 +170,14 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( other_industries+1 );
 	intTopOfButton += 12;
 
-	town_industries[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
-	town_industries[0].setze_typ( button_t::repeatarrowleft );
-	town_industries[0].add_listener( this );
-	add_komponente( town_industries+0 );
-	town_industries[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
-	town_industries[1].setze_typ( button_t::repeatarrowright );
-	town_industries[1].add_listener( this );
-	add_komponente( town_industries+1 );
+	electric_producer[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
+	electric_producer[0].setze_typ( button_t::repeatarrowleft );
+	electric_producer[0].add_listener( this );
+	add_komponente( electric_producer+0 );
+	electric_producer[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
+	electric_producer[1].setze_typ( button_t::repeatarrowright );
+	electric_producer[1].add_listener( this );
+	add_komponente( electric_producer+1 );
 	intTopOfButton += 12;
 
 	tourist_attractions[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
@@ -483,13 +483,13 @@ welt_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	else if(komp==other_industries+1) {
 		sets->setze_land_industry_chains( sets->gib_land_industry_chains() + 1 );
 	}
-	else if(komp==town_industries+0) {
-		if(sets->gib_city_industry_chains() > 0) {
-			sets->setze_city_industry_chains( sets->gib_city_industry_chains() - 1 );
+	else if(komp==electric_producer+0) {
+		if(sets->gib_electric_promille() > 0) {
+			sets->setze_electric_promille( sets->gib_electric_promille() - 1 );
 		}
 	}
-	else if(komp==town_industries+1) {
-		sets->setze_city_industry_chains( sets->gib_city_industry_chains() + 1 );
+	else if(komp==electric_producer+1) {
+		sets->setze_electric_promille( sets->gib_electric_promille() + 1 );
 	}
 	else if(komp==tourist_attractions+0) {
 		if(sets->gib_tourist_attractions() > 0) {
@@ -647,8 +647,8 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x, y, translator::translate("Land industries"), ALIGN_LEFT, COL_BLACK, true);
 	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_land_industry_chains(),0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
-	display_proportional_clip(x, y, translator::translate("City industries"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_city_industry_chains(),0), ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x, y, translator::translate("Promille Electricity"), ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_electric_promille(),0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Tourist attractions"), ALIGN_LEFT, COL_BLACK, true);
 	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_tourist_attractions(),0), ALIGN_RIGHT, COL_WHITE, true);

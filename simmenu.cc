@@ -665,7 +665,7 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 						SFX_DOCK,
 						SFX_FAILURE,
 						skinverwaltung_t::schiffs_werkzeug->gib_bild_nr(0),
-						skinverwaltung_t::werftNSzeiger->gib_bild_nr(0),
+						skinverwaltung_t::bauzeiger->gib_bild_nr(0),
 						tool_tip_with_price(translator::translate("Build ship depot"), umgebung_t::cst_depot_ship));
 				}
 				else {

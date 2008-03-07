@@ -57,7 +57,7 @@ private:
 	button_t traffic_desity[2];
 
 	button_t other_industries[2];
-	button_t town_industries[2];
+	button_t electric_producer[2];
 	button_t tourist_attractions[2];
 
 	button_t use_intro_dates;

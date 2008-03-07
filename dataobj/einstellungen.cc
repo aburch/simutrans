@@ -26,7 +26,7 @@ einstellungen_t::einstellungen_t() :
 	 * @author prissi
 	 */
 	land_industry_chains = 6;
-	city_industry_chains = 1;
+	electric_promille = 33;
 	tourist_attractions = 2;
 
 	anzahl_staedte = 12;
@@ -76,7 +76,7 @@ einstellungen_t::rdwr(loadsave_t *file)
 		dummy = 0;
 		file->rdwr_long(dummy, " ");	//dummy!
 		land_industry_chains = 6;
-		city_industry_chains = 0;
+		electric_promille = 33;
 		tourist_attractions = 12;
 
 		// now towns
@@ -111,7 +111,10 @@ einstellungen_t::rdwr(loadsave_t *file)
 
 		// industries
 		file->rdwr_long(land_industry_chains, " ");
-		file->rdwr_long(city_industry_chains, " ");
+		file->rdwr_long(electric_promille, " ");
+		if(file->get_version()<99018) {
+			electric_promille = 33;
+		}
 		file->rdwr_long(tourist_attractions, "\n");
 
 		// now towns

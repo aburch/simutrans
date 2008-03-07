@@ -95,6 +95,9 @@ int wkz_build_fab(spieler_t *, karte_t *welt, koord pos, value_t param);
 int wkz_factory_link(spieler_t *sp, karte_t *welt, koord pos);
 
 /* open the list of halt */
+int wkz_increase_chain(spieler_t *sp, karte_t *welt,koord k);
+
+/* open the list of halt */
 int wkz_list_halt_tool(spieler_t *sp, karte_t *welt,koord k);
 
 /* open the list of vehicle */

@@ -2491,6 +2491,18 @@ int wkz_factory_link(spieler_t *sp, karte_t *welt, koord pos)
 
 
 
+// builts next chain
+int wkz_increase_chain( spieler_t *, karte_t *welt, koord k )
+{
+	if(  k == INIT  ) {
+		fabrikbauer_t::increase_industry_density( welt, false );
+		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
+	}
+	return false;
+}
+
+
+
 
 /* open the list of halt */
 int wkz_list_halt_tool(spieler_t *sp, karte_t *welt,koord k)

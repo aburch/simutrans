@@ -373,7 +373,7 @@ void fabrikbauer_t::verteile_industrie(karte_t* welt, int max_number_of_factorie
 {
 	// stuff for the progress bar
 	const int display_offset = 16 + welt->gib_einstellungen()->gib_anzahl_staedte()*4 + (in_city? welt->gib_einstellungen()->gib_land_industry_chains() : 0);
-	const int display_total = 16 + welt->gib_einstellungen()->gib_anzahl_staedte()*4 + welt->gib_einstellungen()->gib_land_industry_chains() + welt->gib_einstellungen()->gib_city_industry_chains();
+	const int display_total = 16 + welt->gib_einstellungen()->gib_anzahl_staedte()*4 + welt->gib_einstellungen()->gib_land_industry_chains();
 	// current count
 	int factory_number=0;
 	int current_number=0;
@@ -896,6 +896,14 @@ next_ware_check:
 		// only return, if successfull
 		if(  last_built_consumer->get_suppliers().get_count() > last_suppliers  ) {
 			DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "added ware %i to factory %s", last_built_consumer_ware, last_built_consumer->gib_name() );
+			// tell the player
+			if(tell_me) {
+				stadt_t *s = welt->suche_naechste_stadt( last_built_consumer->gib_pos().gib_2d() );
+				const char *stadt_name = s ? s->gib_name() : "simcity";
+				char buf[256];
+				sprintf(buf, translator::translate("Factory chain extended\nfor %s near\n%s built with\n%i factories."), translator::translate(last_built_consumer->gib_name()), stadt_name, nr );
+				message_t::get_instance()->add_message(buf, last_built_consumer->gib_pos().gib_2d(), message_t::industry, CITY_KI, last_built_consumer->gib_besch()->gib_haus()->gib_tile(0)->gib_hintergrund(0, 0, 0));
+			}
 			reliefkarte_t::gib_karte()->calc_map();
 			return nr;
 		}
@@ -923,7 +931,7 @@ next_ware_check:
 	DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "production of electricity/total production is %i/%i (%i°/oo)", electric_productivity, total_produktivity, promille );
 
 	// now decide producer of electricity or normal ...
-	int no_electric = promille > 25  &&  welt->gib_staedte().get_count() > 0 ? 1 : 0;
+	int no_electric = promille > welt->gib_einstellungen()->gib_electric_promille()  &&  welt->gib_staedte().get_count() > 0 ? 1 : 0;
 
 	while(  no_electric<2  ) {
 		for(int retrys=20;  retrys>0;  retrys--  ) {

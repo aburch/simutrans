@@ -25,7 +25,7 @@ private:
 	 * not used any more:    sint32 industrie_dichte;
 	 */
 	sint32 land_industry_chains;
-	sint32 city_industry_chains;
+	sint32 electric_promille;
 	sint32 tourist_attractions;
 
 	sint32 anzahl_staedte;
@@ -92,8 +92,8 @@ public:
 	void setze_land_industry_chains(sint32 d) {land_industry_chains=d;}
 	sint32 gib_land_industry_chains() const {return land_industry_chains;}
 
-	void setze_city_industry_chains(sint32 d) {city_industry_chains=d;}
-	sint32 gib_city_industry_chains() const {return city_industry_chains;}
+	void setze_electric_promille(sint32 d) {electric_promille=d;}
+	sint32 gib_electric_promille() const {return electric_promille;}
 
 	void setze_tourist_attractions(sint32 d) {tourist_attractions=d;}
 	sint32 gib_tourist_attractions() const {return tourist_attractions;}
