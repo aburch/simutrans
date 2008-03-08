@@ -860,6 +860,14 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 					skinverwaltung_t::stadtzeiger->gib_bild_nr(0),
 					tool_tip_with_price(translator::translate("Found new city"), umgebung_t::cst_found_city));
 
+				wzw->add_tool(wkz_increase_chain,
+					karte_t::Z_PLAN,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					skinverwaltung_t::special_werkzeug->gib_bild_nr(3),
+					IMG_LEER,
+					tool_tip_with_price(translator::translate("Increase industry"), umgebung_t::cst_multiply_found_industry));
+
 				wzw->add_param_tool(wkz_pflanze_baum,
 					(const void *)0,
 					karte_t::Z_PLAN,
@@ -906,8 +914,8 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 						karte_t::Z_PLAN,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						skinverwaltung_t::special_werkzeug->gib_bild_nr(2),
-						skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
+						skinverwaltung_t::pumpe->gib_bild_nr(4),
+						skinverwaltung_t::pumpe->gib_bild_nr(5),
 						buf);
 				}
 
@@ -995,6 +1003,14 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 				wzw->reset_tools();
 			}
 
+			wzw->add_tool(wkz_add_city,
+				karte_t::Z_PLAN,
+				SFX_JACKHAMMER,
+				SFX_FAILURE,
+				skinverwaltung_t::special_werkzeug->gib_bild_nr(0),
+				skinverwaltung_t::stadtzeiger->gib_bild_nr(0),
+				tool_tip_with_price(translator::translate("Found new city"), umgebung_t::cst_found_city));
+
 			wzw->add_param_tool(&wkz_grow_city,
 				(long)100,
 				karte_t::Z_PLAN,
@@ -1039,7 +1055,7 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
 				skinverwaltung_t::edit_werkzeug->gib_bild_nr(3),
-				skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
+				skinverwaltung_t::bauzeiger->gib_bild_nr(0),
 				translator::translate("Built random attraction") );
 
 			wzw->add_param_tool(wkz_build_industries_land,
@@ -1051,14 +1067,13 @@ werkzeug_parameter_waehler_t *menu_fill(karte_t *welt, long magic, spieler_t *sp
 				skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
 				translator::translate("Build land consumer"));
 
-			wzw->add_param_tool(wkz_build_industries_city,
-				(const void *)NULL,	// for random
+			wzw->add_tool(wkz_increase_chain,
 				karte_t::Z_PLAN,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
-				skinverwaltung_t::special_werkzeug->gib_bild_nr(4),
-				skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
-				translator::translate("Build city market"));
+				skinverwaltung_t::special_werkzeug->gib_bild_nr(3),
+				IMG_LEER,
+				tool_tip_with_price(translator::translate("Increase industry"), umgebung_t::cst_multiply_found_industry));
 
 			wzw->add_tool(wkz_lock,
 				karte_t::Z_PLAN,
