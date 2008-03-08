@@ -2711,7 +2711,7 @@ int wkz_add_haus(spieler_t *sp, karte_t *welt, koord pos, value_t param)
 
 		// Platz gefunden ...
 		if(hat_platz) {
-			spieler_t *gb_sp = besch->gib_typ()==gebaeude_t::unbekannt ? NULL : welt->gib_spieler(1);
+			spieler_t *gb_sp = besch->gib_typ()!=gebaeude_t::unbekannt ? NULL : welt->gib_spieler(1);
 			gebaeude_t *gb = hausbauer_t::baue(welt, gb_sp, pos3d, rotation, besch);
 			if(gb) {
 				// building successfull
