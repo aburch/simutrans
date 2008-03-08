@@ -936,12 +936,12 @@ next_ware_check:
 	while(  no_electric<2  ) {
 		for(int retrys=20;  retrys>0;  retrys--  ) {
 			const fabrik_besch_t *fab=get_random_consumer( no_electric==0, ALL_CLIMATES, welt->get_timeline_year_month() );
-			const bool in_city = fab->gib_platzierung() == fabrik_besch_t::Stadt;
-			koord3d	pos = in_city ?
-				welt->lookup_kartenboden( welt->gib_staedte().at_weight( simrand( welt->gib_staedte().get_sum_weight() ) )->gib_pos() )->gib_pos() :
-				koord3d(simrand(welt->gib_groesse_x()),simrand(welt->gib_groesse_y()),1);
-
 			if(fab) {
+				const bool in_city = fab->gib_platzierung() == fabrik_besch_t::Stadt;
+				koord3d	pos = in_city ?
+					welt->lookup_kartenboden( welt->gib_staedte().at_weight( simrand( welt->gib_staedte().get_sum_weight() ) )->gib_pos() )->gib_pos() :
+					koord3d(simrand(welt->gib_groesse_x()),simrand(welt->gib_groesse_y()),1);
+
 				int	rotation=simrand(fab->gib_haus()->gib_all_layouts()-1);
 				if(!in_city) {
 					pos = finde_zufallsbauplatz(welt, pos, 20, fab->gib_haus()->gib_groesse(rotation),fab->gib_platzierung()==fabrik_besch_t::Wasser,fab->gib_haus());
