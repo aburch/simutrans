@@ -321,6 +321,7 @@ parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &ful
 	umgebung_t::factory_spacing = contents.get_int("factory_spacing", umgebung_t::factory_spacing);
 	umgebung_t::crossconnect_factories = contents.get_int("crossconnect_factories", umgebung_t::crossconnect_factories) != 0;
 	umgebung_t::crossconnect_factor = contents.get_int("crossconnect_factories_percentage", umgebung_t::crossconnect_factor);
+	umgebung_t::default_electric_promille = contents.get_int("electric_promille", umgebung_t::default_electric_promille);
 	umgebung_t::just_in_time = contents.get_int("just_in_time", umgebung_t::just_in_time) != 0;
 	umgebung_t::beginner_price_factor = contents.get_int("beginner_price_factor", umgebung_t::beginner_price_factor); /* this manipulates the good prices in beginner mode */
 	umgebung_t::beginner_mode_first = contents.get_int("first_beginner", umgebung_t::beginner_mode_first); /* start in beginner mode */
@@ -889,6 +890,7 @@ DBG_MESSAGE("init","map");
 		sets->setze_bits_per_month(umgebung_t::bits_per_month);
 		sets->setze_beginner_mode(umgebung_t::beginner_mode_first);
 		sets->setze_just_in_time(umgebung_t::just_in_time);
+		sets->setze_electric_promille( umgebung_t::default_electric_promille );
 	}
 	delete msg;
 
