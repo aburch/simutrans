@@ -74,14 +74,9 @@ public:
 	static void neue_karte( karte_t * );
 
 	/* Create a certain numer of tourist attractions
-	* @author prissi
-	*/
+	 * @author prissi
+	 */
 	static void verteile_tourist(karte_t* welt, int max_number);
-
-	/* Create a certain numer of industries
-	* @author prissi
-	*/
-	static void verteile_industrie(karte_t* welt, int max_number, bool in_city);
 
 	/**
 	* Gives a factory description for a factory type

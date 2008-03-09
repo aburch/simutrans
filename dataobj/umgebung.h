@@ -348,6 +348,9 @@ public:
 
 	// false to quit the programs
 	static bool quit_simutrans;
+
+	// default density for electric company
+	static sint32 default_electric_promille;
 };
 
 #endif

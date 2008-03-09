@@ -647,8 +647,9 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x, y, translator::translate("Land industries"), ALIGN_LEFT, COL_BLACK, true);
 	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_land_industry_chains(),0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
-	display_proportional_clip(x, y, translator::translate("Promille Electricity"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_electric_promille(),0), ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x, y, translator::translate("Percent Electricity"), ALIGN_LEFT, COL_BLACK, true);
+	sprintf( buf, "%1.1lf", sets->gib_electric_promille()/10.0 );
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, buf, ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Tourist attractions"), ALIGN_LEFT, COL_BLACK, true);
 	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_tourist_attractions(),0), ALIGN_RIGHT, COL_WHITE, true);

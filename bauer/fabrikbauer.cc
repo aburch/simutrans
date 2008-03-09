@@ -366,52 +366,6 @@ void fabrikbauer_t::verteile_tourist(karte_t* welt, int max_number)
 }
 
 
-/* Create a certain numer of industries
- * @author prissi
- */
-void fabrikbauer_t::verteile_industrie(karte_t* welt, int max_number_of_factories, bool in_city)
-{
-	// stuff for the progress bar
-	const int display_offset = 16 + welt->gib_einstellungen()->gib_anzahl_staedte()*4 + (in_city? welt->gib_einstellungen()->gib_land_industry_chains() : 0);
-	const int display_total = 16 + welt->gib_einstellungen()->gib_anzahl_staedte()*4 + welt->gib_einstellungen()->gib_land_industry_chains();
-	// current count
-	int factory_number=0;
-	int current_number=0;
-
-	// no consumer at all?
-	if(  get_random_consumer( in_city, ALL_CLIMATES, welt->get_timeline_year_month() )==NULL  ) {
-		return;
-	}
-
-//	max_number_of_factories = (max_number_of_factories*welt->gib_groesse()*welt->gib_groesse())/(1024*1024);
-	print("Distributing about %i industries ...\n",max_number_of_factories);fflush(NULL);
-
-	int retrys = max_number_of_factories*4;
-	while(current_number<max_number_of_factories  &&  retrys-->0) {
-		koord3d	pos=koord3d(simrand(welt->gib_groesse_x()),simrand(welt->gib_groesse_y()),1);
-		const fabrik_besch_t *fab=get_random_consumer( in_city, (climate_bits)(1<<welt->get_climate(welt->lookup(pos.gib_2d())->gib_kartenboden()->gib_pos().z)), welt->get_timeline_year_month() );
-		if(fab) {
-			int	rotation=simrand(fab->gib_haus()->gib_all_layouts()-1);
-
-			pos = finde_zufallsbauplatz(welt, pos, 20, fab->gib_haus()->gib_groesse(rotation),fab->gib_platzierung()==fabrik_besch_t::Wasser,fab->gib_haus());
-			if(welt->lookup(pos)) {
-				// Platz gefunden ...
-				factory_number += baue_hierarchie(NULL, fab, rotation, &pos, welt->gib_spieler(1), 10000 );
-				current_number ++;
-				retrys = max_number_of_factories*4;
-			}
-
-		      if(is_display_init()) {
-			    display_progress(display_offset + current_number, display_total);
-				display_flush(IMG_LEER, 0, "", "", 0, 0);
-			}
-		}
-	}
-	print("Constructed %i industries ...\n",factory_number);
-	// update an open map
-	reliefkarte_t::gib_karte()->calc_map();
-}
-
 
 /**
  * baue fabrik nach Angaben in info
