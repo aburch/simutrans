@@ -78,6 +78,13 @@ static int minimum_city_distance = 16;
  */
 static uint32 renovation_percentage = 12;
 
+/*
+ * minimum ratio of city area to building area to allow expansion
+ * the higher this value, the slower the city expansion if there are still "holes"
+ * @author prissi
+ */
+static uint32 min_building_desity = 25;
+
 /**
  * add a new consumer every % people increase
  * @author prissi
@@ -322,6 +329,7 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 
 	minimum_city_distance = contents.get_int("minimum_city_distance", 16);
 	renovation_percentage = (uint32)contents.get_int("renovation_percentage", 25);
+	min_building_desity = (uint32)contents.get_int("minimum_building_desity", 25);
 	int ind_increase = contents.get_int("industry_increase_every", 0);
 	for (int i = 0; i < 8; i++) {
 		industry_increase_every[i] = ind_increase << i;
@@ -835,10 +843,12 @@ void stadt_t::recalc_city_size()
 		}
 	}
 
-	lo.x -= 1;
-	lo.y -= 1;
-	ur.x += 1;
-	ur.y += 1;
+	if(buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)) > min_building_desity  ) {
+		lo.x -= 1;
+		lo.y -= 1;
+		ur.x += 1;
+		ur.y += 1;
+	}
 
 	if (lo.x < 0) {
 		lo.x = 0;
@@ -2548,18 +2558,36 @@ void stadt_t::baue()
 
 void stadt_t::pruefe_grenzen(koord k)
 {
-	if (k.x < lo.x+2 && k.x > 1) {
-		lo.x = k.x - 2;
-	}
-	if (k.y < lo.y+2 && k.y > 1) {
-		lo.y = k.y - 2;
-	}
+	if(buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)) > min_building_desity  ) {
+		if (k.x < lo.x+2 && k.x > 1) {
+			lo.x = k.x - 2;
+		}
+		if (k.y < lo.y+2 && k.y > 1) {
+			lo.y = k.y - 2;
+		}
 
-	if (k.x > ur.x-2 && k.x < welt->gib_groesse_x() - 3) {
-		ur.x = k.x + 2;
+		if (k.x > ur.x-2 && k.x < welt->gib_groesse_x() - 3) {
+			ur.x = k.x + 2;
+		}
+		if (k.y > ur.y-2 && k.y < welt->gib_groesse_y() - 3) {
+			ur.y = k.y + 2;
+		}
 	}
-	if (k.y > ur.y-2 && k.y < welt->gib_groesse_y() - 3) {
-		ur.y = k.y + 2;
+	else {
+		// first grow within ...
+		if (k.x < lo.x && k.x > 1) {
+			lo.x = k.x;
+		}
+		if (k.y < lo.y && k.y > 1) {
+			lo.y = k.y;
+		}
+
+		if (k.x > ur.x && k.x < welt->gib_groesse_x() - 1) {
+			ur.x = k.x;
+		}
+		if (k.y > ur.y && k.y < welt->gib_groesse_y() - 1) {
+			ur.y = k.y;
+		}
 	}
 }
 

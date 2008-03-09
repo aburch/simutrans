@@ -24,6 +24,7 @@
 	FIX: powerlines destroy on fileds during loading
 	CHANGE: all traffic lights have now synchronized phases
 	ADD: new parameter in forestconf.tab: tree_climates for climates with at least one tree per tile and no_tree_climates for the reverse
+	ADD: new parameter for cityrules.tab "minimum_building_desity" in percent: if the area covered by buldings is less than this, the city borders will not increase => more compact cities, not fading out along a single street
 
 
 Release of 99.17.1 (r1550, stable)
