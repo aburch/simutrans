@@ -881,7 +881,7 @@ next_ware_check:
 			total_produktivity += fab->get_base_production();
 		}
 	}
-	uint32 promille = total_produktivity == 0 ? 1 : (electric_productivity*400l)/total_produktivity;
+	uint32 promille = total_produktivity == 0 ? 1 : (electric_productivity*4000l)/total_produktivity;
 	DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "production of electricity/total production is %i/%i (%i°/oo)", electric_productivity, total_produktivity, promille );
 
 	// now decide producer of electricity or normal ...
