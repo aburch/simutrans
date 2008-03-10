@@ -11,6 +11,7 @@
 #include "../boden/wege/weg.h"
 #include "../tpl/vector_tpl.h"
 #include "../simtypes.h"
+#include "../simwerkz.h"
 
 
 class weg_besch_t;
@@ -58,7 +59,7 @@ public:
 	 */
 	static void fill_menu(werkzeug_parameter_waehler_t *wzw,
 			const waytype_t wtyp,
-			int (* wz1)(spieler_t *, karte_t *, koord, value_t),
+			tool_func_param werkzeug,
 			const int sound_ok,
 			const int sound_ko,
 			const karte_t *welt,

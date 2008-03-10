@@ -165,7 +165,7 @@ DBG_DEBUG("hausbauer_t::register_besch()","unknown subtype %i of %s: ignored",be
 
 
 
-void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t* wzw, slist_tpl<const haus_besch_t*>& stops, tool_func werkzeug, const int sound_ok, const int sound_ko, const sint64 cost, const karte_t* welt)
+void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t* wzw, slist_tpl<const haus_besch_t*>& stops, tool_func_param werkzeug, const int sound_ok, const int sound_ko, const sint64 cost, const karte_t* welt)
 {
 	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
@@ -196,7 +196,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
 
 
 
-void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t* wzw, haus_besch_t::utyp utyp, tool_func werkzeug, const int sound_ok, const int sound_ko, const sint64 cost, const karte_t* welt)
+void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t* wzw, haus_besch_t::utyp utyp, tool_func_param werkzeug, const int sound_ok, const int sound_ko, const sint64 cost, const karte_t* welt)
 {
 	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());

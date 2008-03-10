@@ -39,8 +39,6 @@
 #include "simintr.h"
 #include "simhalt.h"
 
-#include "simwerkz.h"
-
 #include "besch/haus_besch.h"
 #include "besch/way_obj_besch.h"
 #include "besch/skin_besch.h"
@@ -86,6 +84,8 @@
 
 #include "gui/karte.h"	// to update map after construction of new industry
 #include "sucher/bauplatz_sucher.h"
+
+#include "simwerkz.h"
 
 // hilfsfunktionen
 
@@ -160,8 +160,12 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 // werkzeuge
 
 int
-wkz_abfrage(spieler_t *sp, karte_t *welt, koord pos)
+wkz_abfrage(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos)
 {
+	if(mode==WKZ_INIT  ||  mode==WKZ_EXIT  ||  mode==WKZ_DRAG) {
+		return true;
+	}
+
 	bool ok = false;
 
 	if(welt->ist_in_kartengrenzen(pos)) {
@@ -202,7 +206,7 @@ wkz_abfrage(spieler_t *sp, karte_t *welt, koord pos)
 
 
 
-int wkz_raise(spieler_t *sp, karte_t *welt, koord pos)
+int wkz_raise(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos)
 {
 //DBG_MESSAGE("wkz_raise()","raising square (%d,%d) to %d",pos.x, pos.y, welt->lookup_hgt(pos)+Z_TILE_STEP);
 	bool ok = false;
@@ -210,15 +214,17 @@ int wkz_raise(spieler_t *sp, karte_t *welt, koord pos)
 	static sint16 drag_height = 0;
 
 	// enable DRAGGING
-	if(pos==DRAGGING) {
-		pos = welt->gib_zeiger()->gib_pos().gib_2d();
+	if(mode==WKZ_DRAG) {
 		if(!dragging) {
 			drag_height = welt->lookup_hgt(pos)+Z_TILE_STEP;
 		}
 		dragging = true;
 	}
-	if(pos==EXIT  ||  pos==INIT) {
+	else {
 		dragging = false;
+		if(mode==WKZ_EXIT  ||  mode==WKZ_INIT) {
+			return true;
+		}
 	}
 
 	if(welt->ist_in_gittergrenzen(pos)) {
@@ -269,7 +275,7 @@ int wkz_raise(spieler_t *sp, karte_t *welt, koord pos)
 }
 
 int
-wkz_lower(spieler_t *sp, karte_t *welt, koord pos)
+wkz_lower(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos)
 {
 // DBG_MESSAGE("wkz_lower()","lowering square %d,%d to %d", pos.x, pos.y, welt->lookup_hgt(pos)-Z_TILE_STEP);
 	bool ok = false;
@@ -277,15 +283,17 @@ wkz_lower(spieler_t *sp, karte_t *welt, koord pos)
 	static sint16 drag_height = 0;
 
 	// enable DRAGGING
-	if(pos==DRAGGING) {
-		pos = welt->gib_zeiger()->gib_pos().gib_2d();
+	if(mode==WKZ_DRAG) {
 		if(!dragging) {
-			drag_height = welt->lookup_hgt(pos)-Z_TILE_STEP;
+			drag_height = welt->lookup_hgt(pos)+Z_TILE_STEP;
 		}
 		dragging = true;
 	}
-	if(pos==EXIT  ||  pos==INIT) {
+	else {
 		dragging = false;
+		if(mode==WKZ_EXIT  ||  mode==WKZ_INIT) {
+			return true;
+		}
 	}
 
 	if(welt->ist_in_gittergrenzen(pos)) {
@@ -614,8 +622,12 @@ DBG_MESSAGE("wkz_remover()", "removing ground");
 
 
 int
-wkz_remover(spieler_t *sp, karte_t *welt, koord pos)
+wkz_remover(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos)
 {
+	if(mode==WKZ_INIT  ||  mode==WKZ_EXIT) {
+		return true;
+	}
+
 	DBG_MESSAGE("wkz_remover()","at %d,%d", pos.x, pos.y);
 	const char *fail = NULL;
 
@@ -654,7 +666,7 @@ const weg_besch_t *default_road=NULL;
 koord3d wkz_wegebau_start=koord3d::invalid;
 
 int
-wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
+wkz_wegebau(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 {
 	static zeiger_t *wkz_wegebau_bauer = NULL;
 	static bool erster = true;
@@ -683,8 +695,9 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 		bautyp = (wegbauer_t::bautyp_t)((int)bautyp|(int)wegbauer_t::elevated_flag);
 	}
 
-	if(pos==INIT || pos == EXIT) {  // init strassenbau
+	if(mode==WKZ_INIT  ||  mode==WKZ_EXIT) {  // init strassenbau
 		erster = true;
+		start = koord3d::invalid;
 
 		if(wkz_wegebau_bauer != NULL) {
 			wkz_wegebau_bauer->mark_image_dirty( skinverwaltung_t::bauigelsymbol->gib_bild_nr(0), 0 );
@@ -692,8 +705,53 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 			wkz_wegebau_bauer = NULL;
 		}
 		wkz_wegebau_start=koord3d::invalid;
+		return true;
+	}
+	else if(mode==WKZ_DRAG) {
+		// normal ground; just check for ownership
+		grund_t *gr = welt->lookup_kartenboden(pos);
+		if(gr  &&  gr->kann_alle_obj_entfernen(sp)!=NULL) {
+			gr = NULL;
+		}
+
+		if(!gr) {
+			return false;
+		}
+
+		// does not go together with normal orperation => we use only the koord3d
+		if(!erster  ||  start==koord3d::invalid  ||  abs_distance(start.gib_2d(),gr->gib_pos().gib_2d())>1) {
+			if(wkz_wegebau_bauer != NULL) {
+				wkz_wegebau_bauer->mark_image_dirty( skinverwaltung_t::bauigelsymbol->gib_bild_nr(0), 0 );
+				delete wkz_wegebau_bauer;
+				wkz_wegebau_bauer = NULL;
+			}
+			wkz_wegebau_start=koord3d::invalid;
+			erster = true;
+			start = gr->gib_pos();
+			return true;
+		}
+
+		// straight rout, one tile ...
+		wegbauer_t bauigel(welt, sp);
+		bauigel.route_fuer(bautyp, besch);
+		bauigel.set_keep_existing_ways(false);
+		bauigel.calc_straight_route(start,gr->gib_pos());
+
+		long cost = bauigel.calc_costs();
+		welt->mute_sound(true);
+		bauigel.baue();
+		welt->mute_sound(false);
+		if(cost>10000) {
+			struct sound_info info;
+			info.index = SFX_CASH;
+			info.volume = 255;
+			info.pri = 0;
+			sound_play(info);
+		}
+		start = gr->gib_pos();
 	}
 	else {
+
 		const planquadrat_t *plan = welt->lookup(pos);
 
 		// Hajo: check if it's safe to build here
@@ -844,14 +902,17 @@ wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koord pos, waytype_t
 
 /* removes a way like a driving car ... */
 int
-wkz_wayremover(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
+wkz_wayremover(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 {
 	static zeiger_t *wkz_wayremover_bauer = NULL;
 	waytype_t wt=(waytype_t)(lParam.i);
 	static bool erster = true;
 	static koord3d start, end;
 
-	if(pos==INIT || pos == EXIT) {  // init strassenbau
+	if(mode==WKZ_DRAG) {
+		return true;
+	}
+	else if(mode==WKZ_INIT || mode==WKZ_EXIT) {  // init strassenbau
 		erster = true;
 
 		if(wkz_wayremover_bauer!=NULL) {
@@ -860,6 +921,7 @@ wkz_wayremover(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 			wkz_wayremover_bauer = NULL;
 		}
 		start = end = koord3d::invalid;
+		return true;
 	}
 	else {
 		// search for starting ground
@@ -994,7 +1056,7 @@ const way_obj_besch_t *default_electric=NULL;
 
 /* add catenary during construction */
 int
-wkz_wayobj(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
+wkz_wayobj(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 {
 	static zeiger_t *wkz_wayobj_bauer = NULL;
 	const way_obj_besch_t *besch=(const way_obj_besch_t *)(lParam.p);
@@ -1007,7 +1069,7 @@ wkz_wayobj(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 		default_electric = besch;
 	}
 
-	if(pos==INIT || pos == EXIT) {  // init strassenbau
+	if(mode==WKZ_INIT || mode==WKZ_EXIT) {  // init strassenbau
 		erster = true;
 
 		if(wkz_wayobj_bauer!=NULL) {
@@ -1015,8 +1077,13 @@ wkz_wayobj(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 			wkz_wayobj_bauer = NULL;
 		}
 		start = end = koord3d::invalid;
+		return true;
 	}
 	else {
+		if(mode==WKZ_DRAG) {
+			// no dragging yet ...
+			return true;
+		}
 		// search for starting ground
 		grund_t *gr=wkz_intern_koord_to_weg_grund(sp,welt,pos,wt);
 		if(gr==NULL) {
@@ -1171,9 +1238,9 @@ dbg->warning("wkz_station_building_aux()","no near building for a station extens
 
 
 /* any station extension building here: Alignment automatically! */
-int wkz_station_building(spieler_t *sp, karte_t *welt, koord pos, value_t value)
+int wkz_station_building(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos, value_t value)
 {
-	if(pos == INIT || pos == EXIT) {
+	if(mode == WKZ_INIT  ||  mode == WKZ_EXIT) {
 		// init => set area
 		welt->gib_zeiger()->setze_area( koord( welt->gib_einstellungen()->gib_station_coverage()*2+1, welt->gib_einstellungen()->gib_station_coverage()*2+1 ), true );
 		return true;
@@ -1192,11 +1259,11 @@ int wkz_station_building(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 
 /* build a dock either small or large */
 int
-wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos, value_t value)
+wkz_dockbau(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos, value_t value)
 {
 	const haus_besch_t *besch=(const haus_besch_t *)value.p;
 
-	if(pos == INIT || pos == EXIT) {
+	if(mode == WKZ_INIT || mode == WKZ_EXIT) {
 		// init und exit ignorieren
 		welt->gib_zeiger()->setze_area( koord( welt->gib_einstellungen()->gib_station_coverage()*2+1, welt->gib_einstellungen()->gib_station_coverage()*2+1 ), true );
 		return true;
@@ -1521,15 +1588,15 @@ DBG_MESSAGE("wkz_halt_aux()", "new segment for station");
  * cannot built sea harbours, since those are really different ...
  * @author prissi
  */
-int wkz_halt(spieler_t *sp, karte_t *welt, koord pos, value_t value)
+int wkz_halt(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos, value_t value)
 {
-	if(pos==INIT  ||  pos==EXIT) {
+	if(mode==WKZ_INIT  ||  mode==WKZ_EXIT) {
 		welt->gib_zeiger()->setze_area( koord( welt->gib_einstellungen()->gib_station_coverage()*2+1, welt->gib_einstellungen()->gib_station_coverage()*2+1 ), true );
 		return true;
 	}
 
 	if(!welt->ist_in_kartengrenzen(pos)) {
-		return pos==DRAGGING;
+		return false;
 	}
 
 	bool success = false;
@@ -1576,8 +1643,12 @@ int wkz_halt(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 
 
 int
-wkz_senke(spieler_t *sp, karte_t *welt, koord pos)
+wkz_senke(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos)
 {
+	if(mode==WKZ_INIT  ||  mode==WKZ_EXIT  ||  mode==WKZ_DRAG) {
+		return true;
+	}
+
 DBG_MESSAGE("wkz_senke()","called on %d,%d", pos.x, pos.y);
 
 	if(!welt->ist_in_kartengrenzen(pos)) {
@@ -1618,8 +1689,12 @@ DBG_MESSAGE("wkz_senke()","no factory near (%i,%i)",pos.x, pos.y);
 
 
 
-int wkz_roadsign(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
+int wkz_roadsign(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 {
+	if(mode==WKZ_INIT  ||  mode==WKZ_EXIT) {
+		return true;
+	}
+
 	DBG_MESSAGE("wkz_roadsign()","called on %d,%d", pos.x, pos.y);
 	const roadsign_besch_t * besch = (const roadsign_besch_t *) (lParam.p);
 
@@ -1793,14 +1868,14 @@ wkz_depot_aux(spieler_t *sp, karte_t *welt, koord pos, const haus_besch_t *besch
 /* prissi: universal depot tool */
 /* returns fals on success, so one can built something else
  * otherwise will return true to try again ... */
-int wkz_depot(spieler_t *sp, karte_t *welt, koord pos,value_t w)
+int wkz_depot(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos,value_t w)
 {
 	if(sp==welt->gib_spieler(1)) {
 		// no depots for player 1
 		return false;
 	}
 
-	if(pos==INIT  ||  pos==EXIT) {
+	if(mode==WKZ_INIT  ||  mode==WKZ_EXIT  ||  mode==WKZ_DRAG) {
 		return true;
 	}
 
@@ -1847,10 +1922,6 @@ int wkz_depot(spieler_t *sp, karte_t *welt, koord pos,value_t w)
 static int
 wkz_fahrplan_insert_aux(spieler_t *sp, karte_t *welt, koord pos, fahrplan_t *fpl, bool append)
 {
-	if(pos==INIT  &&  pos==EXIT) {
-		return false;
-	}
-
 	if(fpl == NULL) {
 dbg->warning("wkz_fahrplan_insert_aux()","Schedule is (null), doing nothing");
 		return false;
@@ -1916,22 +1987,34 @@ dbg->warning("wkz_fahrplan_insert_aux()","Schedule is (null), doing nothing");
 
 
 
-int wkz_fahrplan_add(spieler_t *sp, karte_t *welt, koord pos,value_t f)
+int wkz_fahrplan_add(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos,value_t f)
 {
+	if(mode==WKZ_INIT  ||  mode==WKZ_EXIT  ||  mode==WKZ_DRAG) {
+		return true;
+	}
+
 	return wkz_fahrplan_insert_aux( sp, welt, pos, (fahrplan_t *)f.p, true );
 }
 
 
 
-int wkz_fahrplan_ins(spieler_t *sp, karte_t *welt, koord pos,value_t f)
+int wkz_fahrplan_ins(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos,value_t f)
 {
+	if(mode==WKZ_INIT  ||  mode==WKZ_EXIT  ||  mode==WKZ_DRAG) {
+		return true;
+	}
+
 	return wkz_fahrplan_insert_aux( sp, welt, pos, (fahrplan_t *)f.p, false );
 }
 
 
 
-int wkz_clear_reservation(spieler_t *sp, karte_t *welt, koord pos)
+int wkz_clear_reservation(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos)
 {
+	if(mode==WKZ_INIT  ||  mode==WKZ_EXIT  ||  mode==WKZ_DRAG) {
+		return true;
+	}
+
 	if(welt->ist_in_kartengrenzen(pos)) {
 
 		const planquadrat_t *plan = welt->lookup(pos);
@@ -1976,8 +2059,12 @@ int wkz_clear_reservation(spieler_t *sp, karte_t *welt, koord pos)
 
 
 
-int wkz_marker(spieler_t *sp, karte_t *welt, koord pos)
+int wkz_marker(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos)
 {
+	if(mode==WKZ_INIT  ||  mode==WKZ_EXIT  ||  mode==WKZ_DRAG) {
+		return true;
+	}
+
 	if(welt->ist_in_kartengrenzen(pos)) {
 		create_win( new label_frame_t(welt, sp, pos), w_info, magic_label_frame);
 		return true;
@@ -1991,8 +2078,12 @@ int wkz_marker(spieler_t *sp, karte_t *welt, koord pos)
  * found a new city
  * @author Hj. Malthaner
  */
-int wkz_add_city(spieler_t *sp, karte_t *welt, koord pos)
+int wkz_add_city(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos)
 {
+	if(mode==WKZ_INIT  ||  mode==WKZ_EXIT  ||  mode==WKZ_DRAG) {
+		return true;
+	}
+
 	bool ok = false;
 
 	if(welt->ist_in_kartengrenzen(pos)) {
@@ -2042,8 +2133,12 @@ dbg->warning("wkz_add_city()", "Already a city here");
  * @param param the slope type
  * @author Hj. Malthaner
  */
-int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
+int wkz_set_slope(enum wkz_mode_t mode, spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 {
+	if(mode==WKZ_INIT  || mode==WKZ_EXIT) {
+		return true;
+	}
+
 	const sint8 new_slope = (sint8)lParam.i;
 	bool ok = false;
 
@@ -2215,15 +2310,10 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
  * Plant a tree
  * @author Hj. Malthaner
  */
-int wkz_pflanze_baum(spieler_t *, karte_t *welt, koord pos, value_t param)
+int wkz_pflanze_baum(enum wkz_mode_t mode, spieler_t *, karte_t *welt, koord pos, value_t param)
 {
-	if(pos==INIT  || pos==EXIT) {
+	if(mode==WKZ_INIT  || mode==WKZ_EXIT) {
 		return true;
-	}
-
-	// enable DRAGGING
-	if(pos==DRAGGING) {
-		pos = welt->gib_zeiger()->gib_pos().gib_2d();
 	}
 
 	if(welt->ist_in_kartengrenzen(pos)) {
@@ -2240,11 +2330,14 @@ int wkz_pflanze_baum(spieler_t *, karte_t *welt, koord pos, value_t param)
 
 
 /* builts a (if param=NULL random) industry chain starting here */
-int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos, value_t param)
+int wkz_build_industries_land(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos, value_t param)
 {
 	const build_fab_struct *bfs = (const build_fab_struct *)param.p;
-	if(pos==INIT  &&  bfs  &&  bfs->besch!=NULL) {
+	if(mode==WKZ_INIT  &&  bfs  &&  bfs->besch!=NULL) {
 		welt->gib_zeiger()->setze_area( bfs->besch->gib_haus()->gib_groesse(bfs->rotation%bfs->besch->gib_haus()->gib_all_layouts()), false );
+		return true;
+	}
+	if(mode==WKZ_EXIT  ||  mode==WKZ_DRAG) {
 		return true;
 	}
 
@@ -2317,11 +2410,15 @@ int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos, value_t p
 
 
 /* builts a (random if prama=NULL) industry chain in the next town */
-int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos, value_t param)
+int wkz_build_industries_city(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos, value_t param)
 {
 	const build_fab_struct *bfs = (const build_fab_struct *)param.p;
-	if(pos==INIT  &&  bfs  &&  bfs->besch!=NULL) {
+	if(mode==WKZ_INIT  &&  bfs  &&  bfs->besch!=NULL) {
 		welt->gib_zeiger()->setze_area( bfs->besch->gib_haus()->gib_groesse(bfs->rotation%bfs->besch->gib_haus()->gib_all_layouts()), false );
+		return true;
+	}
+	if(mode==WKZ_EXIT  ||  mode==WKZ_DRAG) {
+		return true;
 	}
 
 	if(welt->ist_in_kartengrenzen(pos)) {
@@ -2362,10 +2459,10 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos, value_t p
 /**
 *	extend tool: build factory
 */
-int wkz_build_fab(spieler_t *, karte_t *welt, koord pos, value_t param)
+int wkz_build_fab(enum wkz_mode_t mode, spieler_t *, karte_t *welt, koord pos, value_t param)
 {
 	const build_fab_struct *bfs = (const build_fab_struct *)param.p;
-	if(pos==INIT  &&  bfs  &&  bfs->besch!=NULL) {
+	if(mode==WKZ_INIT  &&  bfs  &&  bfs->besch!=NULL) {
 		welt->gib_zeiger()->setze_area( bfs->besch->gib_haus()->gib_groesse(bfs->rotation%bfs->besch->gib_haus()->gib_all_layouts()), false );
 		return true;
 	}
@@ -2429,14 +2526,18 @@ int wkz_build_fab(spieler_t *, karte_t *welt, koord pos, value_t param)
 /*
 *	link tool: links products of factory one with factory two (if possible)
 */
-int wkz_factory_link(spieler_t *sp, karte_t *welt, koord pos)
+int wkz_factory_link(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos)
 {
 	static fabrik_t* last_fab = NULL;
 	static bool erster = true;
 	static zeiger_t* wkz_linktool = NULL;
 
-	if(pos==INIT  ||  pos==EXIT) {
+	if(mode==WKZ_DRAG) {
+		return true;
+	}
 
+	// eventually remove cursor ...
+	if(mode==WKZ_INIT  ||  mode==WKZ_EXIT) {
 		erster = true;
 
 		if(wkz_linktool!=NULL) {
@@ -2492,9 +2593,9 @@ int wkz_factory_link(spieler_t *sp, karte_t *welt, koord pos)
 
 
 // builts next chain
-int wkz_increase_chain( spieler_t *, karte_t *welt, koord k )
+int wkz_increase_chain(enum wkz_mode_t mode, spieler_t *, karte_t *welt, koord k )
 {
-	if(  k == INIT  ) {
+	if(  mode==WKZ_INIT  ) {
 		fabrikbauer_t::increase_industry_density( welt, false );
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
 	}
@@ -2505,9 +2606,9 @@ int wkz_increase_chain( spieler_t *, karte_t *welt, koord k )
 
 
 /* open the list of halt */
-int wkz_list_halt_tool(spieler_t *sp, karte_t *welt,koord k)
+int wkz_list_halt_tool(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt,koord k)
 {
-	if(k == INIT) {//see simworld.cc, karte_t::setze_maus_funktion
+	if(mode == WKZ_INIT) {
 		create_win( new halt_list_frame_t(sp), w_info, magic_halt_list_t );
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
 	}
@@ -2516,9 +2617,9 @@ int wkz_list_halt_tool(spieler_t *sp, karte_t *welt,koord k)
 
 
 /* open the list of vehicle */
-int wkz_list_vehicle_tool(spieler_t *sp, karte_t *welt,koord k)
+int wkz_list_vehicle_tool(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt,koord k)
 {
-	if(k == INIT) {//see simworld.cc, karte_t::setze_maus_funktion
+	if(mode == WKZ_INIT) {
 		create_win( new convoi_frame_t(sp), w_info, magic_convoi_t );
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
 	}
@@ -2527,9 +2628,9 @@ int wkz_list_vehicle_tool(spieler_t *sp, karte_t *welt,koord k)
 
 
 /* open the list of towns */
-int wkz_list_town_tool(spieler_t *, karte_t *welt,koord k)
+int wkz_list_town_tool(enum wkz_mode_t mode, spieler_t *, karte_t *welt,koord k)
 {
-	if(k == INIT) {//see simworld.cc, karte_t::setze_maus_funktion
+	if(mode == WKZ_INIT) {
 		create_win( new citylist_frame_t(welt), w_info, magic_citylist_frame_t );
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
 	}
@@ -2539,9 +2640,9 @@ int wkz_list_town_tool(spieler_t *, karte_t *welt,koord k)
 
 
 /* open the list of goods */
-int wkz_list_good_tool(spieler_t *, karte_t *welt,koord k)
+int wkz_list_good_tool(enum wkz_mode_t mode, spieler_t *, karte_t *welt,koord k)
 {
-	if(k == INIT) {//see simworld.cc, karte_t::setze_maus_funktion
+	if(mode == WKZ_INIT) {
 		create_win(new goods_frame_t(welt), w_info, magic_goodslist);
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
 	}
@@ -2551,9 +2652,9 @@ int wkz_list_good_tool(spieler_t *, karte_t *welt,koord k)
 
 
 /* open the list of factories */
-int wkz_list_factory_tool(spieler_t *, karte_t *welt,koord k)
+int wkz_list_factory_tool(enum wkz_mode_t mode, spieler_t *, karte_t *welt,koord k)
 {
-	if(k == INIT) {
+	if(mode == WKZ_INIT) {
 		create_win(new factorylist_frame_t(welt), w_info, magic_factorylist );
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
 	}
@@ -2562,9 +2663,9 @@ int wkz_list_factory_tool(spieler_t *, karte_t *welt,koord k)
 
 
 /* open the list of attraction */
-int wkz_list_curiosity_tool(spieler_t *, karte_t *welt,koord k)
+int wkz_list_curiosity_tool(enum wkz_mode_t mode, spieler_t *, karte_t *welt,koord k)
 {
-	if(k == INIT) {
+	if(mode == WKZ_INIT) {
 		create_win(new curiositylist_frame_t(welt), w_info, magic_curiositylist );
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
 	}
@@ -2590,11 +2691,11 @@ int wkz_undo(spieler_t* sp)
 /* builds company headquarter
  * @author prissi
  */
-int wkz_headquarter(spieler_t *sp, karte_t *welt, koord pos)
+int wkz_headquarter(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos)
 {
 	bool ok=false;
 
-	if(pos==INIT  ||  pos==EXIT) {
+	if(mode == WKZ_INIT  ||  mode == WKZ_EXIT  ||  mode == WKZ_DRAG) {
 		return true;
 	}
 DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y);
@@ -2630,7 +2731,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 		if(ok) {
 			// remove previous one
 			if(previous!=koord::invalid) {
-				wkz_remover(sp,welt,previous);
+				wkz_remover(WKZ_DO,sp,welt,previous);
 			}
 			// then built is
 			gebaeude_t *hq = hausbauer_t::baue(welt, sp, welt->lookup(pos)->gib_kartenboden()->gib_pos(), rotate, besch, NULL);
@@ -2654,9 +2755,9 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 /* switch to next player
  * @author prissi
  */
-int wkz_switch_player(spieler_t *, karte_t *welt, koord pos)
+int wkz_switch_player(enum wkz_mode_t mode, spieler_t *, karte_t *welt, koord pos)
 {
-	if(pos==INIT) {
+	if(mode == WKZ_INIT) {
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), karte_t::Z_PLAN,  NO_SOUND, NO_SOUND );
 		welt->switch_active_player( welt->get_active_player_nr()+1 );
 	}
@@ -2668,8 +2769,12 @@ int wkz_switch_player(spieler_t *, karte_t *welt, koord pos)
 /* change city size
  * @author prissi
  */
-int wkz_grow_city(spieler_t *, karte_t *welt, koord pos, value_t lParam)
+int wkz_grow_city(enum wkz_mode_t mode, spieler_t *, karte_t *welt, koord pos, value_t lParam)
 {
+	if(mode == WKZ_INIT  ||  mode == WKZ_EXIT  ||  mode == WKZ_DRAG) {
+		return true;
+	}
+
 	stadt_t *city = welt->suche_naechste_stadt(pos);
 	if(city!=NULL) {
 		city->change_size( lParam.i );
@@ -2681,11 +2786,14 @@ int wkz_grow_city(spieler_t *, karte_t *welt, koord pos, value_t lParam)
 /* built (random) tourist attraction and maybe adds it to the next city
  * @author prissi
  */
-int wkz_add_haus(spieler_t *sp, karte_t *welt, koord pos, value_t param)
+int wkz_add_haus(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos, value_t param)
 {
 	const build_haus_struct *bhs = (const build_haus_struct *)param.p;
-	if(pos==INIT  &&  bhs  &&  bhs->besch!=NULL) {
+	if(mode==WKZ_INIT  &&  bhs  &&  bhs->besch!=NULL) {
 		welt->gib_zeiger()->setze_area( bhs->besch->gib_groesse(bhs->rotation%bhs->besch->gib_all_layouts()), false );
+		return true;
+	}
+	if(mode == WKZ_EXIT) {
 		return true;
 	}
 
@@ -2731,9 +2839,9 @@ int wkz_add_haus(spieler_t *sp, karte_t *welt, koord pos, value_t param)
 
 
 // protects map from further change
-int wkz_lock( spieler_t *, karte_t *welt, koord pos)
+int wkz_lock(enum wkz_mode_t mode, spieler_t *, karte_t *welt, koord pos)
 {
-	if(pos!=INIT  && pos!=EXIT) {
+	if(mode == WKZ_DO) {
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), karte_t::Z_PLAN,  NO_SOUND, NO_SOUND );
 		welt->gib_einstellungen()->setze_allow_player_change( false );
 		destroy_all_win();
@@ -2745,9 +2853,9 @@ int wkz_lock( spieler_t *, karte_t *welt, koord pos)
 
 
 // setp one year forward
-int wkz_step_year( spieler_t *, karte_t *welt, koord k)
+int wkz_step_year(enum wkz_mode_t mode, spieler_t *, karte_t *welt, koord k)
 {
-	if(k == INIT) {
+	if(mode == WKZ_INIT) {
 		welt->step_year();
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), karte_t::Z_PLAN,  NO_SOUND, NO_SOUND );
 	}

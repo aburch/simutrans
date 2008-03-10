@@ -300,23 +300,23 @@ bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 
 
 int
-brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, value_t param)
+brueckenbauer_t::baue(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos, value_t param)
 {
 	bool powerbridge = false;
 	const bruecke_besch_t *besch = (const bruecke_besch_t *)param.p;
 
-	if(!besch) {
-DBG_MESSAGE("brueckenbauer_t::baue()", "no description for bridge type");
+	if(mode!=WKZ_DO) {
+		return true;
+	}
+
+	const grund_t *gr = welt->lookup_kartenboden(pos);
+	if(  !(gr  &&  besch)  ) {
 		return false;
 	}
-DBG_MESSAGE("brueckenbauer_t::baue()", "called on %d,%d for bridge type '%s'",
+
+	DBG_MESSAGE("brueckenbauer_t::baue()", "called on %d,%d for bridge type '%s'",
 	pos.x, pos.y, besch->gib_name());
 
-	if(!welt->ist_in_kartengrenzen(pos)) {
-		return false;
-	}
-
-	const grund_t *gr = welt->lookup(pos)->gib_kartenboden();
 	koord zv;
 	ribi_t::ribi ribi = ribi_t::keine;
 	const weg_t *weg = gr->gib_weg(besch->gib_waytype());

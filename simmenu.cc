@@ -36,6 +36,7 @@
 
 #include "utils/simstring.h"
 
+
 /**
  * Creates a tooltip from tip text and money value
  * @author Hj. Malthaner

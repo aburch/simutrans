@@ -10,6 +10,7 @@
 
 #include "../simdings.h"
 #include "../simtypes.h"
+#include "../simwerkz.h"
 #include "../besch/roadsign_besch.h"
 #include "../ifc/sync_steppable.h"
 #include "../tpl/vector_tpl.h"
@@ -127,7 +128,7 @@ public:
 	 */
 	static void fill_menu(werkzeug_parameter_waehler_t *wzw,
 		waytype_t wtyp,
-		int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
+		tool_func_param wkz,
 		int sound_ok,
 		int sound_ko,
 		const karte_t *welt);

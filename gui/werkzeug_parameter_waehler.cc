@@ -32,7 +32,7 @@ werkzeug_parameter_waehler_t::werkzeug_parameter_waehler_t(karte_t* welt, const 
  * Text must already be translated.
  * @author Hj. Malthaner
  */
-void werkzeug_parameter_waehler_t::add_tool(int (* wz1)(spieler_t *, karte_t *, koord),
+void werkzeug_parameter_waehler_t::add_tool(int (* wz1)(enum wkz_mode_t, spieler_t *, karte_t *, koord),
 	      int versatz,
 	      int sound_ok,
 	      int sound_ko,
@@ -79,7 +79,7 @@ DBG_DEBUG("werkzeug_parameter_waehler_t::add_tool()","ww=%i, rows=%i",ww,rows);
  * Text must already be translated.
  * @author Hj. Malthaner
  */
-void werkzeug_parameter_waehler_t::add_param_tool(int (* wz1)(spieler_t *, karte_t *, koord, value_t),
+void werkzeug_parameter_waehler_t::add_param_tool(tool_func_param wz1,
 		    value_t param,
 		    int versatz,
 		    int sound_ok,

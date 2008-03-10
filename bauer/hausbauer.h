@@ -13,6 +13,7 @@
 #include "../simtypes.h"
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
+#include "../simwerkz.h"
 
 class gebaeude_t;
 class karte_t;
@@ -70,17 +71,15 @@ class hausbauer_t
 		static bool register_besch(const haus_besch_t *besch);
 		static bool alles_geladen();
 
-		typedef int (*tool_func)(spieler_t*, karte_t*, koord, value_t);
-
 		/* Fill menu with icons of buildings from the list
 		 * @author prissi
 		 */
-		static void fill_menu(werkzeug_parameter_waehler_t* wzw, slist_tpl<const haus_besch_t*>& stops, tool_func werkzeug, const int sound_ok, const int sound_ko, const sint64 cost, const karte_t* welt);
+		static void fill_menu(werkzeug_parameter_waehler_t* wzw, slist_tpl<const haus_besch_t*>& stops, tool_func_param werkzeug, const int sound_ok, const int sound_ko, const sint64 cost, const karte_t* welt);
 
 		/* Fill menu with icons of buildings of a given type
 		 * @author prissi
 		 */
-		static void fill_menu(werkzeug_parameter_waehler_t* wzw, haus_besch_t::utyp, tool_func werkzeug, const int sound_ok, const int sound_ko,const sint64 cost, const karte_t* welt);
+		static void fill_menu(werkzeug_parameter_waehler_t* wzw, haus_besch_t::utyp, tool_func_param werkzeug, const int sound_ok, const int sound_ko,const sint64 cost, const karte_t* welt);
 
 		/**
 		 * Gewerbegebäude passend zum Level liefern. Zur Zeit sind die Einträge

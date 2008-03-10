@@ -32,6 +32,7 @@
 #include "simintr.h"
 
 #include "simdebug.h"
+#include "simwerkz.h"
 
 struct event_t;
 struct sound_info;
@@ -89,7 +90,7 @@ private:
 	// it will call save_mouse_funk first with init, then with the position and with exit, when another tool is selected without click
 	// see simwerkz.cc for practical examples of such functions
 	struct save_mouse_func_t {
-		int (*funk)(spieler_t *, karte_t *, koord pos, value_t param);
+		tool_func_param funk;
 		value_t param;
 		int ok_sound;
 		int ko_sound;
@@ -598,7 +599,7 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	void setze_maus_funktion(int (* mouse_funk)(spieler_t *,karte_t *, koord pos),
+	void setze_maus_funktion(int (* mouse_funk)(enum wkz_mode_t, spieler_t *,karte_t *, koord pos),
 		int zeiger_bild, int zeiger_versatz,
 		int ok_sound, int ko_sound);
 
@@ -608,7 +609,7 @@ public:
 	 *       parts of the code pass pointers
 	 * @author V. Meyer, Hj. Malthaner
 	 */
-	void setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord, value_t param),
+	void setze_maus_funktion(int (* funktion)(enum wkz_mode_t, spieler_t *, karte_t *, koord, value_t param),
 		int zeiger_bild, int zeiger_versatz,
 		value_t param,
 		int ok_sound, int ko_sound);

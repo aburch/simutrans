@@ -16,6 +16,7 @@
 #include "../besch/way_obj_besch.h"
 #include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
+#include "../simwerkz.h"
 
 class spieler_t;
 class koord;
@@ -129,7 +130,7 @@ public:
 	 */
 	static void fill_menu(werkzeug_parameter_waehler_t *wzw,
 		waytype_t wtyp,
-		int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
+		tool_func_param werkzeug,
 		int sound_ok,
 		int sound_ko,
 		const karte_t *welt);

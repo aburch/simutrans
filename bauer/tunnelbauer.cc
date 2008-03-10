@@ -224,23 +224,13 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
 
 
 int
-tunnelbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, value_t param)
+tunnelbauer_t::baue(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos, value_t param)
 {
 	static koord3d start=koord3d::invalid;
 	static zeiger_t *wkz_tunnelbau_bauer = NULL;
 
-	const tunnel_besch_t *besch = (const tunnel_besch_t *)param.p;
-	if(!besch) {
-DBG_MESSAGE("brueckenbauer_t::baue()", "no description for tunnel type");
-		return false;
-	}
-DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
-	if(!welt->ist_in_kartengrenzen(pos)) {
-		return false;
-	}
-
 	// remove bulldozer?
-	if(start!=koord3d::invalid  &&  (pos==INIT || pos == EXIT  ||  !grund_t::underground_mode)) {
+	if(  start!=koord3d::invalid  &&  (mode==WKZ_INIT  ||  mode==WKZ_EXIT  ||  !grund_t::underground_mode)  ) {
 		if(wkz_tunnelbau_bauer != NULL) {
 			delete wkz_tunnelbau_bauer;
 			wkz_tunnelbau_bauer = NULL;
@@ -249,7 +239,20 @@ DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
 		if(grund_t::underground_mode) {
 			return true;
 		}
+		return true;
 	}
+
+	if(mode!=WKZ_DO) {
+		return true;
+	}
+
+	const tunnel_besch_t *besch = (const tunnel_besch_t *)param.p;
+	assert(besch);
+
+	if(!welt->ist_in_kartengrenzen(pos)) {
+		return false;
+	}
+	DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
 
 	// in underground mode, new tunnel can be made ...
 	if(grund_t::underground_mode) {

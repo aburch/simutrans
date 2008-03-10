@@ -211,7 +211,7 @@ static bool compare_ways(const weg_besch_t* a, const weg_besch_t* b)
  */
 void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	const waytype_t wtyp,
-	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
+	tool_func_param werkzeug,
 	const int sound_ok,
 	const int sound_ko,
 	const karte_t *welt,
@@ -1623,11 +1623,11 @@ wegbauer_t::baue_tunnel_und_bruecken()
 
 			if(start->gib_grund_hang()==0  ||  start->gib_grund_hang()==hang_typ(zv*(-1))) {
 				// bridge here
-				brueckenbauer_t::baue(sp, welt, route[i].gib_2d(), (value_t)bruecke_besch);
+				brueckenbauer_t::baue(WKZ_DO, sp, welt, route[i].gib_2d(), (value_t)bruecke_besch);
 			}
 			else {
 				// tunnel
-				tunnelbauer_t::baue(sp, welt, route[i].gib_2d(), tunnel_besch );
+				tunnelbauer_t::baue(WKZ_DO, sp, welt, route[i].gib_2d(), tunnel_besch );
 			}
 			INT_CHECK( "wegbauer 1584" );
 		}
@@ -1647,13 +1647,13 @@ wegbauer_t::baue_tunnel_und_bruecken()
 						// its a bridge
 						wi->setze_ribi(ribi_typ(h));
 						wi1->setze_ribi(ribi_typ(hang_t::gegenueber(h)));
-						brueckenbauer_t::baue(sp, welt, route[i].gib_2d(), (value_t)bruecke_besch);
+						brueckenbauer_t::baue(WKZ_DO, sp, welt, route[i].gib_2d(), (value_t)bruecke_besch);
 					}
 					else if(tunnel_besch) {
 						// make a short tunnel
 						wi->setze_ribi(ribi_typ(hang_t::gegenueber(h)));
 						wi1->setze_ribi(ribi_typ(h));
-						tunnelbauer_t::baue(sp, welt, route[i].gib_2d(), tunnel_besch );
+						tunnelbauer_t::baue(WKZ_DO, sp, welt, route[i].gib_2d(), tunnel_besch );
 					}
 					INT_CHECK( "wegbauer 1584" );
 				}

@@ -11,6 +11,7 @@
 #include "../ifc/gui_fenster.h"
 #include "../tpl/vector_tpl.h"
 #include "../utils/cstring_t.h"
+#include "../simwerkz.h"
 
 class spieler_t;
 class karte_t;
@@ -33,8 +34,8 @@ private:
 		*/
 		bool has_param;
 
-		int  (* wzwp)(spieler_t *, karte_t *, koord pos, value_t param);
-		int  (* wzwop)(spieler_t *, karte_t *, koord pos);
+		tool_func_param wzwp;
+		tool_func wzwop;
 
 		value_t param;
 		int  versatz;
@@ -88,7 +89,7 @@ public:
 	 * Text must already be translated.
 	 * @author Hj. Malthaner
 	 */
-	void add_tool(int (* wz1)(spieler_t *, karte_t *, koord),
+	void add_tool(tool_func wz1,
 		int versatz,
 		int sound_ok,
 		int sound_ko,
@@ -101,7 +102,7 @@ public:
    * Text must already be translated.
    * @author Hj. Malthaner
    */
-  void add_param_tool(int (* wz1)(spieler_t *, karte_t *, koord, value_t),
+  void add_param_tool(tool_func_param wz1,
 		value_t param,
 		int versatz,
 		int sound_ok,

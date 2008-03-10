@@ -89,7 +89,7 @@ public:
      *
      * @author V. Meyer
      */
-    static int baue(spieler_t *sp, karte_t *welt, koord pos, value_t param);
+    static int baue(enum wkz_mode_t, spieler_t *sp, karte_t *welt, koord pos, value_t param);
 
     /*
      * Brückenlösch-Funktion
