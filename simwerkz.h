@@ -11,6 +11,7 @@
 #include "simtypes.h"
 
 class karte_t;
+class koord;
 class spieler_t;
 class haus_besch_t;
 

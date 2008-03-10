@@ -13,6 +13,7 @@
 #include "../dataobj/koord3d.h"
 #include "../besch/tunnel_besch.h"
 #include "../boden/wege/weg.h"
+#include "../simwerkz.h"
 
 class karte_t;                 // Hajo: 22-Nov-01: Added forward declaration
 class spieler_t;               // Hajo: 22-Nov-01: Added forward declaration
