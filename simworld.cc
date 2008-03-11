@@ -1419,7 +1419,7 @@ void karte_t::setze_maus_funktion(tool_func_param funktion, int zeiger_bild, int
 		current_mouse_funk.param = param;
 		current_mouse_funk.ok_sound = ok_sound;
 		current_mouse_funk.ko_sound = ko_sound;
-		current_mouse_funk.last_pos = zeiger->gib_pos().gib_2d();
+		current_mouse_funk.last_pos = koord::invalid;
 		current_mouse_funk.zeiger_versatz = zeiger_versatz;
 		current_mouse_funk.zeiger_bild = zeiger_bild;
 
@@ -4336,7 +4336,7 @@ karte_t::interactive()
 				}
 			}
 
-			if(/*!swallowed  &&*/  (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON)  ||  (ev.button_state==0  &&  ev.ev_class==EVENT_MOVE)) {
+			if(!swallowed  &&  (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON)  ||  (ev.button_state==0  &&  ev.ev_class==EVENT_MOVE)) {
 				bewege_zeiger(&ev);
 			}
 		}

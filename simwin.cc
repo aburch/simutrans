@@ -803,17 +803,19 @@ bool check_pos_win(event_t *ev)
 
 		// check click inside window
 		if(
-			(i==ins_win-1  &&  wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y ))  ||
-			( (ev->ev_class!=EVENT_NONE  &&  ev->ev_class!=EVENT_MOVE)  &&  wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y ) )
+//			(i==ins_win-1  &&  wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y ))  ||
+//			( (ev->ev_class!=EVENT_NONE  &&  ev->ev_class!=EVENT_MOVE)  &&  wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y ) )
+			wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y )
 		) {
-
-			// Top window first
-			if(ins_win-1>i  &&  IS_LEFTCLICK(ev)) {
-				i = top_win(i);
-			}
 
 			// all events in window are swallowed
 			swallowed = true;
+
+			// Top window first
+			if(ins_win-1>i) {
+				i = top_win(i);
+				break;
+			}
 
 			// Hajo: if within title bar && window needs decoration
 			if( ev->cy < wins[i].pos.y+16 ) {
@@ -900,7 +902,7 @@ bool check_pos_win(event_t *ev)
 					translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
 					gui->infowin_event( &wev );
 				}
-				else if(wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y )) {
+				else {
 					// click in Window
 					event_t wev = *ev;
 					translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);

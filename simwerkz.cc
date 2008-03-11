@@ -285,7 +285,7 @@ wkz_lower(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos)
 	// enable DRAGGING
 	if(mode==WKZ_DRAG) {
 		if(!dragging) {
-			drag_height = welt->lookup_hgt(pos)+Z_TILE_STEP;
+			drag_height = welt->lookup_hgt(pos)-Z_TILE_STEP;
 		}
 		dragging = true;
 	}
