@@ -1194,10 +1194,10 @@ void depot_frame_t::fahrplaneingabe()
 			if(fpl->ist_abgeschlossen()) {
 
 				// Fahrplandialog oeffnen
-				create_win(new fahrplan_gui_t(fpl, cnv->gib_besitzer()), w_info, (long)fpl);
+				create_win(new fahrplan_gui_t(fpl, cnv->gib_besitzer(), convoihandle_t() ), w_info, (long)fpl);
 
 				// evtl. hat ein callback cnv gelöscht, so erneut testen
-				if(cnv.is_bound() && fpl != NULL) {
+				if(cnv.is_bound()  &&  fpl != NULL) {
 					cnv->setze_fahrplan(fpl);
 				}
 			}

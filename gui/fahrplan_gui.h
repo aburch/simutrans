@@ -27,6 +27,23 @@ class fahrplan_t;
 class spieler_t;
 
 
+class fahrplan_gui_stats_t : public gui_komponente_t
+{
+private:
+	static karte_t *welt;
+	fahrplan_t* fpl;
+
+public:
+	fahrplan_gui_stats_t(karte_t* w) { welt = w; fpl = NULL; }
+
+	void setze_fahrplan( fahrplan_t* f ) { fpl = f; }
+
+	/** Zeichnet die Komponente */
+	void zeichnen(koord offset);
+};
+
+
+
 /**
  * GUI fuer Fahrplaene
  *
@@ -68,39 +85,35 @@ private:
 
 	mode_t mode;
 
-	button_t bt_add;
-	button_t bt_insert;
-	button_t bt_remove;
-	button_t bt_prev;
-	button_t bt_next;
+	// only active with lines
 	button_t bt_promote_to_line;
-	button_t bt_return;
-
-	gui_scrollpane_t scrolly;
-	gui_textarea_t fpl_text;
 	gui_combobox_t line_selector;
 	gui_label_t lb_line;
-	gui_label_t lb_load;
+
+	// always needed
+	button_t bt_add, bt_insert, bt_remove; // stop management
+	button_t bt_prev, bt_next;	// loading level
+	button_t bt_return;
+
+	gui_label_t lb_load, lb_loadlevel;
+	gui_label_t lb_wait, lb_waitlevel;
+
+	char str_ladegrad[16];
+	char str_parts_month[32];
+
+	gui_scrollpane_t scrolly;
+	fahrplan_gui_stats_t stats;
 
 	fahrplan_t* fpl;
 	spieler_t *sp;
 	convoihandle_t cnv;
 
-	cbuffer_t buf;
-
 	linehandle_t new_line;
 
 	void init_line_selector();
 
-	/**
-	 * initialize layout, etc.
-	 * @author hsiegeln
-	 */
-	void init();
-
 public:
-    fahrplan_gui_t(fahrplan_t* fpl, spieler_t* sp);
-    fahrplan_gui_t(convoihandle_t cnv);
+    fahrplan_gui_t(fahrplan_t* fpl, spieler_t* sp, convoihandle_t cnv);
 
 	~fahrplan_gui_t();
 
@@ -110,13 +123,13 @@ public:
      */
     void infowin_event(const event_t *ev);
 
-    const char * gib_hilfe_datei() const {return "schedule.txt";}
+    const char *gib_hilfe_datei() const {return "schedule.txt";}
 
     /**
      * Zeichnet das Frame
      * @author Hansjörg Malthaner
      */
-    void zeichnen(koord pos, koord gr);
+//    void zeichnen(koord pos, koord gr);
 
     /**
      * show or hide the line selector combobox and its associated label
@@ -126,8 +139,6 @@ public:
     	line_selector.set_visible(yesno);
     	lb_line.set_visible(yesno);
     }
-
-	void get_fpl_text(cbuffer_t & buf);
 
     /**
      * This method is called if an action is triggered

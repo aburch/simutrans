@@ -1767,7 +1767,7 @@ void convoi_t::open_schedule_window()
 	alte_richtung = fahr[0]->gib_fahrtrichtung();
 
 	// Fahrplandialog oeffnen
-	create_win( new fahrplan_gui_t(self), w_info, (long)fpl );
+	create_win( new fahrplan_gui_t(fpl,gib_besitzer(),self), w_info, (long)fpl );
 }
 
 
