@@ -307,7 +307,7 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 
 		if(ev->my>=scrolly.pos.y+16) {
 			// we are now in the multiline region ...
-			const int line = ( ev->my - scrolly.pos.y - scrolly.get_scroll_y() - 16)/LINESPACE;
+			const int line = ( ev->my - scrolly.pos.y + scrolly.get_scroll_y() - 16)/(LINESPACE+1);
 
 			if(line >= 0 && line < fpl->maxi()) {
 				if(IS_RIGHTCLICK(ev)  ||  ev->mx<16) {
