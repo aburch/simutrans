@@ -92,11 +92,13 @@ private:
 
 	// always needed
 	button_t bt_add, bt_insert, bt_remove; // stop management
-	button_t bt_prev, bt_next;	// loading level
 	button_t bt_return;
 
-	gui_label_t lb_load, lb_loadlevel;
+	button_t bt_wait_prev, bt_wait_next;	// waiting in parts of month
 	gui_label_t lb_wait, lb_waitlevel;
+
+	button_t bt_prev, bt_next;	// loading level
+	gui_label_t lb_load, lb_loadlevel;
 
 	char str_ladegrad[16];
 	char str_parts_month[32];

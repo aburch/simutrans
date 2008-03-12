@@ -154,7 +154,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 			buf.clear();
 			fahrplan_gui_t::gimme_stop_name( buf, welt, fpl, i, 512 );
 			width = max( width, display_calc_proportional_string_len_width(buf,buf.len()) );
-			display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, COL_BLACK, true);
+			display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1) + 2, buf, ALIGN_LEFT, COL_BLACK, true);
 
 			if(i!=fpl->aktuell) {
 				// goto information
@@ -233,6 +233,58 @@ fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_, convoihandle_t 
 		ypos += BUTTON_HEIGHT+4;
 	}
 
+	// waiting in parts per month
+	lb_wait.setze_pos( koord( 10, ypos+2 ) );
+	add_komponente(&lb_wait);
+
+	bt_wait_prev.pos = koord( BUTTON_WIDTH*2-65, ypos+3 );
+	bt_wait_prev.setze_typ(button_t::arrowleft);
+	bt_wait_prev.add_listener(this);
+	add_komponente(&bt_wait_prev);
+
+	if(fpl->aktuell>=fpl->maxi()  ||  fpl->eintrag[fpl->aktuell].waiting_time_shift==0) {
+		strcpy( str_parts_month, translator::translate("off") );
+	}
+	else {
+		sprintf( str_parts_month, "1/%d",  fpl->eintrag[fpl->aktuell].waiting_time_shift );
+	}
+	lb_waitlevel.set_text_pointer( str_parts_month );
+	lb_waitlevel.pos = koord( BUTTON_WIDTH*2-20, ypos+3 );
+	add_komponente(&lb_waitlevel);
+
+	bt_wait_next.pos = koord( BUTTON_WIDTH*2-15, ypos+2 );
+	bt_wait_next.setze_typ(button_t::arrowright);
+	bt_wait_next.add_listener(this);
+	add_komponente(&bt_wait_next);
+
+	ypos += BUTTON_HEIGHT;
+
+	// loading level and return tickets
+	lb_load.setze_pos( koord( 10, ypos+2 ) );
+	add_komponente(&lb_load);
+
+	bt_prev.pos = koord( BUTTON_WIDTH*2-65, ypos+3 );
+	bt_prev.setze_typ(button_t::arrowleft);
+	bt_prev.add_listener(this);
+	add_komponente(&bt_prev);
+
+	sprintf( str_ladegrad, "%d%%", fpl->aktuell<fpl->maxi() ? fpl->eintrag[fpl->aktuell].ladegrad : 0 );
+	lb_loadlevel.set_text_pointer( str_ladegrad );
+	lb_loadlevel.pos = koord( BUTTON_WIDTH*2-20, ypos+3 );
+	add_komponente(&lb_loadlevel);
+
+	bt_next.pos = koord( BUTTON_WIDTH*2-15, ypos+2 );
+	bt_next.setze_typ(button_t::arrowright);
+	bt_next.add_listener(this);
+	add_komponente(&bt_next);
+
+	bt_return.init(button_t::roundbox, "return ticket", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_return.set_tooltip("Add stops for backward travel");
+	bt_return.add_listener(this);
+	add_komponente(&bt_return);
+
+	ypos += BUTTON_HEIGHT;
+
 	bt_add.init(button_t::roundbox_state, "Add Stop", koord( 0, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
 	bt_add.add_listener(this);
 	bt_add.pressed = true;
@@ -249,32 +301,6 @@ fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_, convoihandle_t 
 	add_komponente(&bt_remove);
 
 	ypos += BUTTON_HEIGHT;
-
-	lb_load.setze_pos( koord( 10, ypos+2 ) );
-	add_komponente(&lb_load);
-
-	bt_prev.pos = koord( BUTTON_WIDTH+15, ypos+3 );
-	bt_prev.setze_typ(button_t::arrowleft);
-	bt_prev.add_listener(this);
-	add_komponente(&bt_prev);
-
-	sprintf( str_ladegrad, "%d%%", fpl->aktuell<fpl->maxi() ? fpl->eintrag[fpl->aktuell].ladegrad : 0 );
-	strcpy( str_ladegrad, "0%" );
-	lb_loadlevel.set_text_pointer( str_ladegrad );
-	lb_loadlevel.pos = koord( BUTTON_WIDTH*2-25, ypos+3 );
-	add_komponente(&lb_loadlevel);
-
-	bt_next.pos = koord( BUTTON_WIDTH*2-25, ypos+2 );
-	bt_next.setze_typ(button_t::arrowright);
-	bt_next.add_listener(this);
-	add_komponente(&bt_next);
-
-	bt_return.init(button_t::roundbox, "return ticket", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
-	bt_return.set_tooltip("Add stops for backward travel");
-	bt_return.add_listener(this);
-	add_komponente(&bt_return);
-
-	ypos += BUTTON_HEIGHT+4;
 
 	scrolly.setze_pos( koord( 0, ypos ) );
 	scrolly.setze_groesse( koord(BUTTON_WIDTH*3, 280-ypos-16) );
