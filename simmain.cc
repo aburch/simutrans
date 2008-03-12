@@ -913,8 +913,8 @@ DBG_MESSAGE("init","map");
 			// we want to center wg (width 260) between sg (width 220) and cg (176)
 
 			create_win(10, 40, sg, w_info, magic_sprachengui_t );
-			create_win((disp_width - 220 - 176 -10 -10- 260)/2 + 220 + 10, (disp_height - 300) / 2, wg, w_do_not_delete, magic_welt_gui_t );
-			create_win((disp_width - 176-10), 40, cg, w_info, magic_climate );
+			create_win((disp_width - 220 - cg->gib_fenstergroesse().x -10 -10- 260)/2 + 220 + 10, (disp_height - 300) / 2, wg, w_do_not_delete, magic_welt_gui_t );
+			create_win((disp_width - cg->gib_fenstergroesse().x-10), 40, cg, w_info, magic_climate );
 
 			setsimrand(dr_time(), dr_time());
 

@@ -802,11 +802,7 @@ bool check_pos_win(event_t *ev)
 	for(i=ins_win-1; i>=0  &&  !swallowed; i--) {
 
 		// check click inside window
-		if(
-//			(i==ins_win-1  &&  wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y ))  ||
-//			( (ev->ev_class!=EVENT_NONE  &&  ev->ev_class!=EVENT_MOVE)  &&  wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y ) )
-			wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y )
-		) {
+		if(  wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y )  ) {
 
 			// all events in window are swallowed
 			swallowed = true;
@@ -814,7 +810,6 @@ bool check_pos_win(event_t *ev)
 			// Top window first
 			if(ins_win-1>i) {
 				i = top_win(i);
-				break;
 			}
 
 			// Hajo: if within title bar && window needs decoration
