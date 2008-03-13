@@ -20,5 +20,5 @@ Im folgenden wird die Grenzen der Schneezone festgelegt. Im Laufe des Jahres sin
 
 <br>
 <p>
-Zum Schluss werden die Grenzen der einzelnen Klimazonen bestimmt. Diese werden in Höhenstufen ab Grundwasser gerechnet. Die niedrigste Nummer geht von Null bis zu der Nummer und so weiter. Man kann also Wüste in Tundra und wieder ind Tropen übergehen lassen, wenn man es denn will.</br>
+Zum Schluss werden die Grenzen der einzelnen Klimazonen bestimmt. Diese werden in Höhenstufen ab Grundwasser gerechnet. Die niedrigste Nummer geht von Null bis zu der Nummer und so weiter. Man kann also Wüste in Tundra und wieder in Tropen übergehen lassen, wenn man es denn will. Haben zwei Klimazonen den gleichen Wert, so wird nur diejenige erzeugt werden, die weiter oben im Dialog steht.</br>
 In bestimmten Klimazonen können nur ausgewählte Industrien auftauchen; eventuell ist auch die Gründung von Städten dort verboten, das liegt ganz in der Händen der Grafiker.</p>

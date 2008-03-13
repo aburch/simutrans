@@ -340,11 +340,15 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 					// just center on it
 					sp->get_welt()->change_world_position( fpl->eintrag[line].pos );
 				}
-				else {
+				else if(ev->mx<scrolly.gib_groesse().x-11) {
 					fpl->aktuell = line;
 					if(mode == removing) {
 						fpl->remove();
 						action_triggered( &bt_add, value_t() );
+					}
+					// update load
+					if(fpl->maxi()>0) {
+						sprintf( str_ladegrad, "%d%%", fpl->eintrag[fpl->aktuell].ladegrad );
 					}
 				}
 			}
