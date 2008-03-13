@@ -224,6 +224,12 @@ private:
 	sint32 wait_lock;
 
 	/**
+	* time, when a convoi waiting for full load will drive on
+	* @author prissi
+	*/
+	uint32 go_on_ticks;
+
+	/**
 	* akkumulierter gewinn über ein jahr hinweg
 	* @author Hanjsörg Malthaner
 	*/

@@ -53,6 +53,13 @@
  */
 #define WTT_LOADING 2000
 
+/*
+ * Waiting time for infinite loading (ms)
+ * @author Hj- Malthaner
+ */
+#define WAIT_INFINITE 0xFFFFFFFFu
+
+
 
 /*
  * Debugging helper - translate state value to human readable name
@@ -112,6 +119,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	has_obsolete = false;
 	no_load = false;
 	wait_lock = 0;
+	go_on_ticks = WAIT_INFINITE;
 
 	jahresgewinn = 0;
 
@@ -847,6 +855,7 @@ void convoi_t::ziel_erreicht()
 			akt_speed = 0;
 			halt->book(1, HALT_CONVOIS_ARRIVED);
 			state = LOADING;
+			go_on_ticks = WAIT_INFINITE;	// we will eventually wait from now on
 		}
 		else {
 			// Neither depot nor station: waypoint
@@ -1597,6 +1606,25 @@ convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_short( steps_driven, "s" );
 	}
 
+	// waiting time left ...
+	if(file->get_version()>=99017) {
+		if(file->is_saving()) {
+			if(go_on_ticks==WAIT_INFINITE) {
+				file->rdwr_long( go_on_ticks, "dt" );
+			}
+			else {
+				uint32 diff_ticks = welt->gib_zeit_ms()>go_on_ticks ? 0 : go_on_ticks-welt->gib_zeit_ms();
+				file->rdwr_long( diff_ticks, "dt" );
+			}
+		}
+		else {
+			file->rdwr_long( go_on_ticks, "dt" );
+			if(go_on_ticks!=WAIT_INFINITE) {
+				go_on_ticks += welt->gib_zeit_ms();
+			}
+		}
+	}
+
 	// since 99015, the last stop will be maintained by the vehikels themselves
 	if(file->get_version()<99015) {
 		for(unsigned i=0; i<anz_vehikel; i++) {
@@ -1878,10 +1906,14 @@ void convoi_t::laden()
 		}
 	}
 
+	if(go_on_ticks==WAIT_INFINITE  &&  fpl->eintrag[fpl->aktuell].waiting_time_shift>0) {
+		go_on_ticks = welt->gib_zeit_ms() + (welt->ticks_per_tag >> (16-fpl->eintrag[fpl->aktuell].waiting_time_shift));
+	}
+
 	INT_CHECK("simconvoi 1077");
 
 	// Nun wurde ein/ausgeladen werden
-	if(loading_level>=loading_limit  ||  no_load)  {
+	if(loading_level>=loading_limit  ||  no_load  ||  welt->gib_zeit_ms()>go_on_ticks)  {
 
 		if(withdraw  &&  loading_level==0) {
 			// destroy when empty
@@ -1894,16 +1926,13 @@ void convoi_t::laden()
 		for (unsigned i = 0; i<anz_vehikel; i++) {
 			book(gib_vehikel(i)->gib_fracht_max()-gib_vehikel(i)->gib_fracht_menge(), CONVOI_CAPACITY);
 		}
-		wait_lock = WTT_LOADING;
 
 		// Advance schedule
 		drive_to_next_stop();
 		state = ROUTING_1;
 	}
-	else {
-		// Hajo: wait a few frames ... 250ms looks ok to me
-		wait_lock = 250;
-	}
+	// This is the minimum time it takes for loading
+	wait_lock = WTT_LOADING;
 }
 
 

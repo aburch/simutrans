@@ -24,11 +24,11 @@ public:
 	uint8 ladegrad;
 
 	/**
-	 * maximum waiting time in 1/2^n parts of a month
+	 * maximum waiting time in 1/2^(16-n) parts of a month
 	 * (only active if ladegrad!=0)
 	 * @author prissi
 	 */
-	uint8 waiting_time_shift;
+	sint8 waiting_time_shift;
 };
 
 #endif
