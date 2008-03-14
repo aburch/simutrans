@@ -1213,7 +1213,11 @@ convoi_t::vorfahren()
 
 			grund_t* gr = welt->lookup(v->gib_pos());
 			if(gr) {
-				v->verlasse_feld();
+				gr->obj_remove(v);
+				if(gr->ist_uebergang()) {
+					crossing_t *cr = gr->find<crossing_t>(2);
+					cr->release_crossing(v);
+				}
 				// eventually unreserve this
 				schiene_t * sch0 = dynamic_cast<schiene_t *>( gr->gib_weg(fahr[i]->gib_waytype()) );
 				if(sch0) {

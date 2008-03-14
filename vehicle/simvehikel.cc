@@ -152,7 +152,7 @@ vehikel_basis_t::verlasse_feld()
 	}
 
 	// then remove from ground (or search whole map, if failed)
-	if (gr==NULL  ||  !gr->obj_remove(this)) {
+	if(gr==NULL  ||  !gr->obj_remove(this)) {
 
 		// was not removed (not found?)
 		dbg->error("vehikel_basis_t::verlasse_feld()","'typ %i' %p could not be removed from %d %d", gib_typ(), this, gib_pos().x, gib_pos().y);
@@ -1267,6 +1267,9 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 		file->rdwr_delim("Wre: ");
 		file->rdwr_long(fracht_count, " ");
 		file->rdwr_short(route_index, "\n");
+		// restore dxdy information
+		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2];
+		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1];
 	}
 
 	// convert steps to position

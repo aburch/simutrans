@@ -240,6 +240,8 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 			file->rdwr_byte(steps_next, "\n");
 		}
 		file->rdwr_enum(fahrtrichtung, " ");
+		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2];
+		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1];
 		if(file->get_version()<99005  ||  file->get_version()>99016) {
 			sint16 dummy16 = ((16*(sint16)hoff)/TILE_STEPS);
 			file->rdwr_short(dummy16, "\n");
@@ -255,8 +257,6 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 	if(file->get_version()<99018) {
 		sint8 ddx=gib_xoff(), ddy=gib_yoff()-hoff;
 		sint8 i=0;
-		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2];
-		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1];
 
 		while(  !is_about_to_hop(ddx+dx*i,ddy+dy*i )  &&  i<16 ) {
 			i++;
