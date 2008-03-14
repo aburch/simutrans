@@ -900,23 +900,24 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			// here is the saving part ...
 			ding_t *d=bei(i);
 			assert(d);
-			if(d->gib_pos()==current_pos) {
-				if(d->gib_typ()!=ding_t::raucher  &&  d->gib_typ()!=ding_t::sync_wolke  &&  d->gib_typ()!=ding_t::async_wolke  &&  d->gib_typ()!=ding_t::field  &&  !d->is_way()) {
+			if(d->is_way()  ||  d->gib_typ()==ding_t::raucher  ||  d->gib_typ()==ding_t::sync_wolke  ||  d->gib_typ()==ding_t::async_wolke  ||  d->gib_typ()==ding_t::field) {
+				// these objects are simply not saved
+				file->wr_obj_id(-1);
+			}
+			else {
+				if(d->gib_pos()==current_pos) {
+					bei(i)->rdwr(file);
+				}
+				else if(bei(i)->gib_pos().gib_2d()==current_pos.gib_2d()) {
+					// ok, just error in z direction => we will correct it
+					dbg->warning( "dingliste_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i",bei(i)->gib_pos().x,bei(i)->gib_pos().y,bei(i)->gib_pos().z,current_pos.z);
+					bei(i)->setze_pos( current_pos );
 					bei(i)->rdwr(file);
 				}
 				else {
+					dbg->error( "dingliste_t::rdwr()","unresolvable position error: %i,%i instead %i,%i (object type %i will be not saved!)", bei(i)->gib_pos().x, bei(i)->gib_pos().y, current_pos.x, current_pos.y, bei(i)->gib_typ() );
 					file->wr_obj_id(-1);
 				}
-			}
-			else if(bei(i)->gib_pos().gib_2d()==current_pos.gib_2d()) {
-				// ok, just error in z direction => we will correct it
-				dbg->warning( "dingliste_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i",bei(i)->gib_pos().x,bei(i)->gib_pos().y,bei(i)->gib_pos().z,current_pos.z);
-				bei(i)->setze_pos( current_pos );
-				bei(i)->rdwr(file);
-			}
-			else {
-				dbg->error( "dingliste_t::rdwr()","position error: %i,%i instead %i,%i (object type %i will be not saved!)", bei(i)->gib_pos().x, bei(i)->gib_pos().y, current_pos.x, current_pos.y, bei(i)->gib_typ() );
-				file->wr_obj_id(-1);
 			}
 		}
 	}
