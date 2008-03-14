@@ -406,7 +406,15 @@ reliefkarte_t::calc_map_pixel(const koord k)
 						if(passed>max_passed) {
 							max_passed = passed;
 						}
-						setze_relief_farbe_area(k, 1, calc_severity_color(passed, max_passed));
+						passed = ((passed*3)<<(MAX_SEVERITY_COLORS-2)/max_passed) + 1;
+						int log_passed = MAX_SEVERITY_COLORS-1;
+						while( (1<<log_passed) > passed) {
+							log_passed --;
+						}
+						setze_relief_farbe_area(k, 1, calc_severity_color(log_passed+1, MAX_SEVERITY_COLORS ));
+					}
+					else {
+						setze_relief_farbe_area(k, 1, reliefkarte_t::severity_color[0] );
 					}
 				}
 			}
