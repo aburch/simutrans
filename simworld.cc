@@ -4262,6 +4262,7 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 						sound_play(info);
 					}
 				}
+				current_mouse_funk.last_pos = koord::invalid;
 			 }
 		}
 	}
