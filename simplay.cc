@@ -1230,6 +1230,10 @@ int spieler_t::get_factory_tree_missing_count( fabrik_t *fab )
 		const vector_tpl <koord> & sources = fab->get_suppliers();
 		for( unsigned q=0;  q<sources.get_count();  q++  ) {
 			fabrik_t *qfab = fabrik_t::gib_fab(welt,sources[q]);
+			if(!fab) {
+				dbg->error( "fabrik_t::gib_fab()","fab %s at %s does not find supplier at %s.", fab->gib_name(), fab->gib_pos().gib_str(), sources[q].gib_str() );
+				continue;
+			}
 			for(int qq=0;  qq<qfab->gib_besch()->gib_produkte();  qq++) {
 				if(qfab->gib_besch()->gib_produkt(qq)->gib_ware()==ware  &&  !is_forbidden( sources[q], fab->gib_pos().gib_2d(), ware )) {
 					int n = get_factory_tree_missing_count( qfab );

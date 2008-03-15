@@ -387,7 +387,9 @@ DBG_MESSAGE("karte_t::destroy()", "rotating");
 		nosave = false;
 		rotate90();
 	}
-	assert( !nosave );
+	if(nosave) {
+		dbg->fatal( "karte_t::destroy()","Map cannot be cleanly destroyed in any rotation!" );
+	}
 
 DBG_MESSAGE("karte_t::destroy()", "label clear");
 	labels.clear();
@@ -2787,7 +2789,11 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 		rotate90();
 		needs_redraw = true;
 	}
-	assert( !nosave );
+	if(nosave) {
+		dbg->error( "karte_t::speichern()","Map cannot be saved in any rotation!" );
+		create_win( new news_img("Map not saveable in any rotation!"), w_time_delete, magic_none);
+		return;
+	}
 
 	einstellungen->rdwr(file);
 
