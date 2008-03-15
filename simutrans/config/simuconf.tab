@@ -136,14 +136,17 @@ first_beginner = 0
 # Impact on frame time: ~10% (16 cities on a new standard map)
 random_pedestrians = 1
 
+# there are some other grounds (like rocky, lakes etc. )
+# which could be added to the map (default 10)
+# show random objects to break uniformity (every n suited tiles)
+random_grounds_probability = 10
+
+# show random moving animals (n = every n suited tiles, default 1000)
+random_wildlife_probability = 1000
+
 # animate the water each intervall (if images available)
 # costs some time for the additional redraw (~1-3%)
 water_animation_ms = 250
-
-# there are some other grounds (like rocky, lakes etc. )
-# which could be added to the map (default 10)
-# probaility is every 10*4 tile will get something
-random_grounds_probability = 10
 
 # Show info windows for private cars and pedestrians?
 # (1=on, 0=off)
@@ -182,7 +185,6 @@ numbered_stations = 0
 # 3 = names and statistics
 #
 show_names = 3
-
 
 ###################################money stuff##################################
 #

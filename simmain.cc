@@ -267,6 +267,7 @@ parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &ful
 	umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
 	umgebung_t::fussgaenger = contents.get_int("random_pedestrians", umgebung_t::fussgaenger) != 0;
 	umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
+	umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability);
 	umgebung_t::stadtauto_duration = contents.get_int("default_citycar_life", umgebung_t::stadtauto_duration);	// ten normal years
 	umgebung_t::drive_on_left = contents.get_int("drive_left", umgebung_t::drive_on_left );
 

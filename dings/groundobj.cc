@@ -80,7 +80,7 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 	int weight = 0;
 
 	for( unsigned i=1;  i<groundobj_typen.get_count();  i++  ) {
-		if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->gib_phases()==16  ||  groundobj_typen[i]->get_speed()<max_speed)  ) {
+		if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->gib_phases()==16  ||  max_speed)  &&  groundobj_typen[i]->get_speed()<max_speed  ) {
 			weight += groundobj_typen[i]->gib_distribution_weight();
 		}
 	}
@@ -90,7 +90,7 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 		const int w=simrand(weight);
 		weight = 0;
 		for( unsigned i=1; i<groundobj_typen.get_count();  i++  ) {
-			if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->gib_phases()==16  ||  groundobj_typen[i]->get_speed()<max_speed)  ) {
+			if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->gib_phases()==16  ||  max_speed)  &&  groundobj_typen[i]->get_speed()<max_speed  ) {
 				weight += groundobj_typen[i]->gib_distribution_weight();
 				if(weight>=w) {
 					return groundobj_typen[i];
