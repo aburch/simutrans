@@ -146,6 +146,11 @@ verkehrsteilnehmer_t::hop()
 	grund_t *from = welt->lookup(pos_next);
 	grund_t *to;
 
+	if(!from) {
+		time_to_life = 0;
+		return;
+	}
+
 	grund_t *liste[4];
 	int count = 0;
 

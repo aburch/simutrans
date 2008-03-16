@@ -123,6 +123,9 @@ crossconnect_factories = 0
 # (100% will give nearly the same results as crossconnect_factories=1)
 crossconnect_factories_percentage = 33
 
+# how much is the total electric power available in releation to total production) in parts per thousand
+electric_promille = 330
+
 # with this switch on (default), overcrowded factories will not recieve goods any more
 just_in_time = 1
 
