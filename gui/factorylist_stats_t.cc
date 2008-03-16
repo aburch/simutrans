@@ -26,7 +26,6 @@
 factorylist_stats_t::factorylist_stats_t(karte_t* w, factorylist::sort_mode_t sortby, bool sortreverse)
 {
 	welt = w;
-	setze_groesse(koord(210, welt->gib_fab_list().count()*(LINESPACE+1)-10));
 	sort(sortby,sortreverse);
 	line_selected = 0xFFFFFFFFu;
 }
@@ -216,4 +215,5 @@ void factorylist_stats_t::sort(factorylist::sort_mode_t sortby, bool sortreverse
 		fab_list.push_back(i.get_current());
 	}
 	std::sort(fab_list.begin(), fab_list.end(), compare_factories(sortby, sortreverse));
+	setze_groesse(koord(210, welt->gib_fab_list().count()*(LINESPACE+1)-10));
 }

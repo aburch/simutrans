@@ -868,7 +868,7 @@ next_ware_check:
 	last_built_consumer_ware = 0;
 
 	// first decide, whether a new powerplant is needed or not
-	uint32 total_produktivity = 0;
+	uint32 total_produktivity = 1;
 	uint32 electric_productivity = 0;
 
 	slist_iterator_tpl<fabrik_t*> iter (welt->gib_fab_list());
@@ -881,17 +881,21 @@ next_ware_check:
 			total_produktivity += fab->get_base_production();
 		}
 	}
-	uint32 promille = total_produktivity == 0 ? 1 : (electric_productivity*4000l)/total_produktivity;
+	uint32 promille = (electric_productivity*4000l)/total_produktivity;
 	DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "production of electricity/total production is %i/%i (%i°/oo)", electric_productivity, total_produktivity, promille );
 
 	// now decide producer of electricity or normal ...
-	int no_electric = promille > welt->gib_einstellungen()->gib_electric_promille()  &&  welt->gib_staedte().get_count() > 0 ? 1 : 0;
+	int no_electric = promille > welt->gib_einstellungen()->gib_electric_promille();
 
 	while(  no_electric<2  ) {
 		for(int retrys=20;  retrys>0;  retrys--  ) {
 			const fabrik_besch_t *fab=get_random_consumer( no_electric==0, ALL_CLIMATES, welt->get_timeline_year_month() );
 			if(fab) {
 				const bool in_city = fab->gib_platzierung() == fabrik_besch_t::Stadt;
+				if(in_city  &&  welt->gib_staedte().get_count()==0) {
+					// we cannot built this factory here
+					continue;
+				}
 				koord3d	pos = in_city ?
 					welt->lookup_kartenboden( welt->gib_staedte().at_weight( simrand( welt->gib_staedte().get_sum_weight() ) )->gib_pos() )->gib_pos() :
 					koord3d(simrand(welt->gib_groesse_x()),simrand(welt->gib_groesse_y()),1);
