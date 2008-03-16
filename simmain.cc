@@ -220,7 +220,7 @@ static void ask_objfilename()
 	// succes or complete failure?
 	if(good<=1) {
 		if(good_str) {
-			umgebung_t::objfilename.printf( "%s/", good_str );
+			umgebung_t::objfilename = (cstring_t)good_str + "/";
 		}
 		return;
 	}

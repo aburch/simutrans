@@ -83,20 +83,6 @@ public:
 	operator const char*() const { return buf; }
 
 	/**
-	 * vsprintf() for a string
-	 *
-	 * @author V. Meyer
-	 */
-	int vprintf(const char *format, va_list args);
-
-	/**
-	 * sprintf() for a string
-	 *
-	 * @author V. Meyer
-	 */
-	int printf(const char *format, ...);
-
-	/**
 	 * @return Number of characters in this string
 	 * -1 for uninitalized
 	 * @author Hj. Malthaner
@@ -144,14 +130,5 @@ public:
 	long find_back(char ) const;
 };
 
-
-/**
- * Concatenates a char array and a string
- * @author Hj. Malthaner
- */
-//cstring_t operator+ (const char *, const cstring_t &);
-
-
-cstring_t csprintf(const char *format, ...);
 
 #endif

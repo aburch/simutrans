@@ -39,7 +39,6 @@
 
 #include "dings/crossing.h"
 
-#include "utils/tocstring.h"
 #include "utils/simstring.h"
 #include "utils/cbuffer_t.h"
 
@@ -1494,11 +1493,11 @@ convoi_t::rdwr(loadsave_t *file)
 				if(!gr) {
 					gr = welt->lookup_kartenboden(v->gib_pos().gib_2d());
 					if(gr) {
-						dbg->error("convoi_t::rdwr()", "invalid position %s for vehicle %s in state %d (setting to ground %s)", (const char*)k3_to_cstr(v->gib_pos()), v->gib_name(), state, (const char*)k3_to_cstr(v->gib_pos()));
+						dbg->error("convoi_t::rdwr()", "invalid position %s for vehicle %s in state %d (setting to %i,%i,%i)", v->gib_pos().gib_str(), v->gib_name(), state, gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z );
 						v->setze_pos( gr->gib_pos() );
 					}
 					else {
-						dbg->fatal("convoi_t::rdwr()", "invalid position %s for vehicle %s in state %d (setting to ground %s)", (const char*)k3_to_cstr(v->gib_pos()), v->gib_name(), state, (const char*)k3_to_cstr(v->gib_pos()));
+						dbg->fatal("convoi_t::rdwr()", "invalid position %s for vehicle %s in state %d (setting to %i,%i,%i)", v->gib_pos().gib_str(), v->gib_name(), state, gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z );
 					}
 					state = INITIAL;
 				}

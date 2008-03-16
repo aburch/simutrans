@@ -53,7 +53,6 @@
 #include "gui/karte.h"
 
 #include "utils/simstring.h"
-#include "utils/tocstring.h"
 
 #include "vehicle/simpeople.h"
 
@@ -1591,7 +1590,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			grund_t *gr = welt->lookup(k);
 			if(!gr) {
 				gr = welt->lookup(k.gib_2d())->gib_kartenboden();
-				dbg->error("haltestelle_t::rdwr()", "invalid position %s (setting to ground %s)\n", (const char*)k3_to_cstr(k), (const char*)k3_to_cstr(gr->gib_pos()) );
+				dbg->error("haltestelle_t::rdwr()", "invalid position %s (setting to ground %s)\n", k.gib_str(), gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z );
 			}
 			// during loading and saving halts will be referred by their base postion
 			// so we may alrady be defined ...
@@ -1605,7 +1604,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				add_grund( gr );
 			}
 			else {
-				dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!", (const char*)k3_to_cstr(k));
+				dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!", k.gib_str() );
 			}
 			k.rdwr( file );
 		}

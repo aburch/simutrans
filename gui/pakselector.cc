@@ -12,14 +12,14 @@
  */
 void pakselector_t::action(const char *filename)
 {
-	umgebung_t::objfilename.printf( "%s/", filename );
+	umgebung_t::objfilename = (cstring_t)filename + "/";
 }
 
 
 void pakselector_t::del_action(const char *filename)
 {
 	// cannot delete set => use this for selection
-	umgebung_t::objfilename.printf( "%s/", filename );
+	umgebung_t::objfilename = (cstring_t)filename + "/";
 }
 
 void pakselector_t::zeichnen(koord p, koord gr)
