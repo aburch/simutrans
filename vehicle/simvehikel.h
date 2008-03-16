@@ -302,19 +302,6 @@ public:
 	void info(cbuffer_t & buf) const;
 
 	/**
-	* debug info into buffer
-	* @author Hj. Malthaner
-	*/
-	char *debug_info(char *buf) const;
-
-	/**
-	* Debug info to stderr
-	* @author Hj. Malthaner
-	* @date 26-Aug-03
-	*/
-	void dump() const;
-
-	/**
 	* Ermittelt fahrtrichtung
 	* @author Hj. Malthaner
 	*/

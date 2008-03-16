@@ -65,7 +65,7 @@
  * Debugging helper - translate state value to human readable name
  * @author Hj- Malthaner
  */
-static const char * state_names[] =
+static const char * state_names[convoi_t::MAX_STATES] =
 {
 	"INITIAL",
 	"FAHRPLANEINGABE",
@@ -82,6 +82,8 @@ static const char * state_names[] =
 	"",	// self destruct
 	"WAITING_FOR_CLEARANCE_TWO_MONTHS",
 	"CAN_START_TWO_MONTHS",
+	"LEAVING_DEPOT",
+	"ENTERING_DEPOT"
 };
 
 
@@ -1645,9 +1647,6 @@ convoi_t::zeige_info()
 
 		if(umgebung_t::verbose_debug) {
 			dump();
-			if (anz_vehikel > 0 && fahr[0]) {
-				fahr[0]->dump();
-			}
 		}
 
 		create_win( new convoi_info_t(self), w_info, (long)this );
@@ -2117,21 +2116,33 @@ void convoi_t::destroy()
  */
 void convoi_t::dump() const
 {
-    fprintf(stderr, "convoi::dump()");
-    fprintf(stderr, "anz_vehikel = %d\n", anz_vehikel);
-    fprintf(stderr, "wait_lock = %d\n", wait_lock);
-    fprintf(stderr, "besitzer_n = %d\n", welt->sp2num(besitzer_p));
-    fprintf(stderr, "akt_speed = %d\n", akt_speed);
-    fprintf(stderr, "akt_speed_soll = %d\n", akt_speed_soll);
-    fprintf(stderr, "sp_soll = %d\n", sp_soll);
-    fprintf(stderr, "state = %d\n", state);
-    fprintf(stderr, "statename = %s\n", state_names[state]);
-    fprintf(stderr, "alte_richtung = %d\n", alte_richtung);
-    fprintf(stderr, "jahresgewinn = %lld\n", jahresgewinn);
-
-    fprintf(stderr, "name = '%s'\n", name_and_id);
-    fprintf(stderr, "line_id = '%d'\n", line_id);
-    fprintf(stderr, "fpl = '%p'\n", fpl);
+    dbg->message("convoi::dump()",
+		"\nanz_vehikel = %d\n"
+		"wait_lock = %d\n"
+		"besitzer_n = %d\n"
+		"akt_speed = %d\n"
+		"akt_speed_soll = %d\n"
+		"sp_soll = %d\n"
+		"state = %d\n"
+		"statename = %s\n"
+		"alte_richtung = %d\n"
+		"jahresgewinn = %lld\n"
+		"name = '%s'\n"
+		"line_id = '%d'\n"
+		"fpl = '%p'",
+		anz_vehikel,
+		wait_lock,
+		welt->sp2num(besitzer_p),
+		akt_speed,
+		akt_speed_soll,
+		sp_soll,
+		state,
+		state_names[state],
+		alte_richtung,
+		jahresgewinn,
+		name_and_id,
+		line_id,
+		fpl );
 }
 
 

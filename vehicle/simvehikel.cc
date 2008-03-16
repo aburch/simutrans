@@ -1422,31 +1422,6 @@ void vehikel_t::info(cbuffer_t & buf) const
 }
 
 
-/**
- * debug info into buffer
- * @author Hj. Malthaner
- */
-char * vehikel_t::debug_info(char *buf) const
-{
-  buf += sprintf(buf, "ist_erstes = %d, ist_letztes = %d\n",	 ist_erstes, ist_letztes);
-  return buf;
-}
-
-
-/**
- * Debug info nach stderr
- * @author Hj. Malthaner
- * @date 26-Aug-03
- */
-void vehikel_t::dump() const
-{
-  char buf[16000];
-  debug_info(buf);
-  fprintf(stderr, buf);
-}
-
-
-
 const char *
 vehikel_t::ist_entfernbar(const spieler_t *)
 {
