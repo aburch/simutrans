@@ -242,7 +242,7 @@ fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_, convoihandle_t 
 	bt_wait_prev.add_listener(this);
 	add_komponente(&bt_wait_prev);
 
-	if(fpl->aktuell>=fpl->maxi()  ||  fpl->eintrag[fpl->aktuell].waiting_time_shift==0) {
+	if((unsigned)fpl->aktuell>=fpl->maxi()  ||  fpl->eintrag[fpl->aktuell].waiting_time_shift==0) {
 		strcpy( str_parts_month, translator::translate("off") );
 	}
 	else {
@@ -268,7 +268,7 @@ fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_, convoihandle_t 
 	bt_prev.add_listener(this);
 	add_komponente(&bt_prev);
 
-	sprintf( str_ladegrad, "%d%%", fpl->aktuell<fpl->maxi() ? fpl->eintrag[fpl->aktuell].ladegrad : 0 );
+	sprintf( str_ladegrad, "%d%%", (unsigned)fpl->aktuell<fpl->maxi() ? fpl->eintrag[fpl->aktuell].ladegrad : 0 );
 	lb_loadlevel.set_text_pointer( str_ladegrad );
 	lb_loadlevel.pos = koord( BUTTON_WIDTH*2-20, ypos+3 );
 	add_komponente(&lb_loadlevel);

@@ -222,7 +222,11 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	}
 	else if (komp == &bt_delete_line) {
 		if (line.is_bound()) {
-			// remove elements from lists
+			// close a schedule window, if stil active
+			gui_fenster_t *w = win_get_magic( (long)line.get_rep() );
+			if(w) {
+				destroy_win( w );
+			}
 			linehandle_t delete_line=line;
 			update_lineinfo( linehandle_t() );
 			sp->simlinemgmt.delete_line(delete_line);

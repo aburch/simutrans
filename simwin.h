@@ -20,8 +20,8 @@ class gui_komponente_t;
 /* Typen fuer die Fenster */
 
 enum wintype {
-  w_info         = 1,	// Ein Info-Fenster
-  w_do_not_delete= 2, // Ein Info-Fenster dessen GUI-Objekt beimschliessen gelöscht werden soll
+	w_info         = 1,	// Ein Info-Fenster
+	w_do_not_delete= 2, // Ein Info-Fenster dessen GUI-Objekt beimschliessen gelöscht werden soll
 	w_no_overlap   = 4, // try to place it below a previous window with the same flag
 	w_time_delete  = 8	// deletion after MESG_WAIT has elapsed
 };

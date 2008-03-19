@@ -808,7 +808,7 @@ bool check_pos_win(event_t *ev)
 			swallowed = true;
 
 			// Top window first
-			if(ins_win-1>i) {
+			if(ins_win-1>i  &&  IS_LEFTCLICK(ev)) {
 				i = top_win(i);
 			}
 
