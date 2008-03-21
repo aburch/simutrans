@@ -31,7 +31,6 @@ typedef int (*tool_func)(enum wkz_mode_t, spieler_t*, karte_t*, koord);
 int wkz_remover_intern(spieler_t *sp, karte_t *welt, koord pos, const char *&msg);
 bool wkz_halt_aux(enum wkz_mode_t, spieler_t *sp, karte_t *welt, koord pos, const char *&msg, const haus_besch_t *besch, waytype_t wegtype, sint64 cost, const char *type_name);
 
-
 int wkz_abfrage(enum wkz_mode_t, spieler_t *, karte_t *welt, koord pos);
 int wkz_raise(enum wkz_mode_t, spieler_t *sp, karte_t *welt, koord pos);
 int wkz_lower(enum wkz_mode_t, spieler_t *sp, karte_t *welt, koord pos);
