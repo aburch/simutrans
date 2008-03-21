@@ -320,6 +320,7 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 				// there may be buildings with holes, so we only remove our!
 				if(gb_part  &&  gb_part->gib_tile()->gib_besch()==hb) {
 					// ok, now we can go on with deletion
+					koord3d gb_pos = gb_part->gib_pos();
 					gb_part->entferne( sp );
 					delete gb_part;
 					// if this was a station building: delete ground
@@ -330,7 +331,13 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 					if(gr->gib_typ()==grund_t::fundament) {
 						const koord newk = k+pos.gib_2d();
 						const uint8 new_slope = gr->gib_hoehe()==welt->min_hgt(newk) ? 0 : welt->calc_natural_slope(newk);
-						welt->access(newk)->kartenboden_setzen(new boden_t(welt, koord3d(newk,welt->min_hgt(newk) ), new_slope) );
+						if(welt->lookup(koord3d(newk,welt->min_hgt(newk)))!=gr) {
+							// there is another ground below => do not change hight, keep foundation
+							welt->access(newk)->kartenboden_setzen( new boden_t(welt, gr->gib_pos(), hang_t::flach ) );
+						}
+						else {
+							welt->access(newk)->kartenboden_setzen(new boden_t(welt, koord3d(newk,welt->min_hgt(newk) ), new_slope) );
+						}
 						// there might be walls from foundations left => thus some tiles may needs to be redraw
 						if(new_slope!=0) {
 							if(pos.x<welt->gib_groesse_x()-1)
