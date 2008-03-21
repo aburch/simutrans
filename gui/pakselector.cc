@@ -54,4 +54,8 @@ pakselector_t::pakselector_t() : savegame_frame_t( NULL, umgebung_t::program_dir
 	remove_komponente( &cancelbutton );
 	remove_komponente( &divider1 );
 	fnlabel.setze_text( "Choose one graphics set for playing:" );
+	// found only one?
+	if(entries.count()==1) {
+		umgebung_t::objfilename = (cstring_t)entries.front().button->gib_text() + "/";
+	}
 }

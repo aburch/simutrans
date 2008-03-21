@@ -206,25 +206,7 @@ static void zeige_banner(karte_t *welt)
  */
 static void ask_objfilename()
 {
-	// find out, how many paks we have by checking the most common names
-	const char *pathes[9] = { "pak", "pak128", "pak.german", "pak96", "pak32", "pak.ttd", "pak.japan", "pak128.japan", "pakHAJO" };
-	int good = 0;
-	const char *good_str = NULL;
-	for(  int i=0;  i<9;  i++  ) {
-		if(  chdir( pathes[i] )==0  ) {
-			good_str = pathes[i];
-			good ++;
-			chdir("..");
-		}
-	}
-	// succes or complete failure?
-	if(good<=1) {
-		if(good_str) {
-			umgebung_t::objfilename = (cstring_t)good_str + "/";
-		}
-		return;
-	}
-	// more than one => show selector box (ugly and without translations ...
+	// more than one => show selector box (ugly and without translations ...)
 	set_pointer(0);
 	pakselector_t* sel = new pakselector_t();
 	koord xy( display_get_width()/2 - 180, display_get_height()/2 - sel->gib_fenstergroesse().y/2 );
@@ -234,7 +216,7 @@ static void ask_objfilename()
 
 	create_win( xy.x, xy.y, sel, w_info, magic_none );
 
-	do {
+	while(umgebung_t::objfilename.empty()) {
 		// do not move, do not close it!
 		sel->zeichnen( xy, sel->gib_fenstergroesse() );
 		dr_sleep(50);
@@ -242,7 +224,7 @@ static void ask_objfilename()
 		// main window resized
 		check_pos_win(&ev);
 		display_flush( IMG_LEER, 0.0, "", "", "", 0 );
-	} while(umgebung_t::objfilename.empty());
+	}
 	set_pointer(1);
 }
 

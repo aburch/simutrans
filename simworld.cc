@@ -910,6 +910,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 	setze_dirty();
 
 	fast_forward = false;
+	pause = false;
 	simloops = 60;
 	reset_timer();
 
@@ -3337,6 +3338,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 
 	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_bits_per_tag);
 
+	pause = false;
 	reset_timer();
 	recalc_average_speed();
 	setze_dirty();

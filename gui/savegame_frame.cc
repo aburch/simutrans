@@ -294,7 +294,7 @@ savegame_frame_t::add_file(const char *filename, const char *pak, const bool no_
  */
 bool savegame_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
-	char buf[128];	// ok, since maximum length is 58
+	char buf[1024];
 
 	if(komp == &input || komp == &savebutton) {
 		// Save/Load Button or Enter-Key pressed

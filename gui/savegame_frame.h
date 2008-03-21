@@ -23,7 +23,7 @@
 class savegame_frame_t : public gui_frame_t, action_listener_t
 {
 private:
-	char ibuf[64];
+	char ibuf[1024];
 
 	/**
 	 * Filename suffix, i.e. ".sve", must be four characters
@@ -40,6 +40,20 @@ private:
 	void add_file(const char *filename, const char *pak, const bool no_cutting_suffix );
 
 protected:
+	struct entry
+	{
+		entry(button_t* button_, button_t* del_, gui_label_t* label_) :
+			button(button_),
+			del(del_),
+			label(label_)
+		{}
+
+		button_t*    button;
+		button_t*    del;
+		gui_label_t* label;
+	};
+
+	slist_tpl<entry> entries;
 
 	gui_textinput_t input;
 	gui_divider_t divider1;                               // 30-Oct-2001  Markus Weber    Added
@@ -99,21 +113,6 @@ public:
 	 */
 	bool action_triggered(gui_komponente_t *komp, value_t extra);
 
-	private:
-		struct entry
-		{
-			entry(button_t* button_, button_t* del_, gui_label_t* label_) :
-				button(button_),
-				del(del_),
-				label(label_)
-			{}
-
-			button_t*    button;
-			button_t*    del;
-			gui_label_t* label;
-		};
-
-		slist_tpl<entry> entries;
 };
 
 #endif
