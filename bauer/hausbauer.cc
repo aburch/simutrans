@@ -320,7 +320,6 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 				// there may be buildings with holes, so we only remove our!
 				if(gb_part  &&  gb_part->gib_tile()->gib_besch()==hb) {
 					// ok, now we can go on with deletion
-					koord3d gb_pos = gb_part->gib_pos();
 					gb_part->entferne( sp );
 					delete gb_part;
 					// if this was a station building: delete ground
