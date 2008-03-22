@@ -129,7 +129,6 @@ DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at (%i,%i,%
 		ground_size ++;
 		delete [] data.some;
 		data.some = tmp;
-		bd->calc_bild();
 		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
 	}
 }

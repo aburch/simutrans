@@ -687,11 +687,20 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::pumpe:		    d = new pumpe_t (welt, file);	        break;
 				case ding_t::leitung:	    d = new leitung_t (welt, file);	        break;
 				case ding_t::senke:		    d = new senke_t (welt, file);	        break;
-				case ding_t::wayobj:	    d = new wayobj_t (welt, file);	        break;
 				case ding_t::zeiger:	    d = new zeiger_t (welt, file);	        break;
 				case ding_t::signal:	    d = new signal_t (welt, file);   break;
 				case ding_t::label:			d = new label_t(welt,file); break;
 				case ding_t::crossing:		d = new crossing_t(welt,file); break;
+
+				case ding_t::wayobj:
+					d = new wayobj_t (welt, file);
+					if(((wayobj_t *)d)->gib_besch()==NULL) {
+						// ignore missing wayobjs
+						d->set_flag(ding_t::not_on_map);
+						delete d;
+						d = NULL;
+					}
+					break;
 
 				// some old offsets will be converted to new ones
 				case ding_t::old_fussgaenger:

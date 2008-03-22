@@ -1444,7 +1444,7 @@ void karte_t::setze_maus_funktion(tool_func_param funktion, int zeiger_bild, int
  * use this method.
  * @author Hj. Malthaner
  */
-void karte_t::setze_grid_hgt(koord k, int hgt)
+void karte_t::setze_grid_hgt(koord k, sint16 hgt)
 {
 	if(ist_in_gittergrenzen(k.x, k.y)) {
 		grid_hgts[k.x + k.y*(gib_groesse_x()+1)] = (hgt/Z_TILE_STEP);
@@ -1452,8 +1452,7 @@ void karte_t::setze_grid_hgt(koord k, int hgt)
 }
 
 
-int
-karte_t::min_hgt(const koord pos) const
+sint16 karte_t::min_hgt(const koord pos) const
 {
 	const int h1 = lookup_hgt(pos);
 	const int h2 = lookup_hgt(pos+koord(1, 0));
@@ -1464,8 +1463,7 @@ karte_t::min_hgt(const koord pos) const
 }
 
 
-int
-karte_t::max_hgt(const koord pos) const
+sint16 karte_t::max_hgt(const koord pos) const
 {
 	const int h1 = lookup_hgt(pos);
 	const int h2 = lookup_hgt(pos+koord(1, 0));

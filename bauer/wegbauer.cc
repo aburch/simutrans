@@ -1780,6 +1780,7 @@ wegbauer_t::baue_elevated()
 			// add new elevated ground
 			monorailboden_t* monorail = new monorailboden_t(welt, route[i], plan->gib_kartenboden()->gib_grund_hang());
 			plan->boden_hinzufuegen(monorail);
+			monorail->calc_bild();
 		}
 	}
 }

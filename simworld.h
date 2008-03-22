@@ -877,7 +877,7 @@ public:
 	 * @return Hoehe am Gitterpunkt i,j
 	 * @author Hj. Malthaner
 	 */
-	inline int lookup_hgt(koord k) const {
+	inline sint16 lookup_hgt(koord k) const {
 		return ist_in_gittergrenzen(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_groesse_gitter_x+1)]*Z_TILE_STEP : grundwasser;
 	}
 
@@ -886,19 +886,19 @@ public:
 	 * Never set grid_hgts manually, always use this method!
 	 * @author Hj. Malthaner
 	 */
-	void setze_grid_hgt(koord k, int hgt);
+	void setze_grid_hgt(koord k, sint16 hgt);
 
 	/**
 	 * @return Minimale Hoehe des Planquadrates i,j
 	 * @author Hj. Malthaner
 	 */
-	int min_hgt(koord pos) const;
+	sint16 min_hgt(koord pos) const;
 
 	/**
 	 * @return Maximale Hoehe des Planquadrates i,j
 	 * @author Hj. Malthaner
 	 */
-	int max_hgt(koord pos) const;
+	sint16 max_hgt(koord pos) const;
 
 	/**
 	 * @return true, wenn Platz an Stelle pos mit Groesse dim Wasser ist
