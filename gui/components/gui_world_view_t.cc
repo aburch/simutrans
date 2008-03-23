@@ -78,7 +78,7 @@ world_view_t::zeichnen(koord offset)
 		y_offset = (ding->gib_yoff()/(32*TILE_STEPS/16));
 		if(ding->is_moving()) {
 			int x=0, y=0;
-			((vehikel_basis_t *)ding)->get_screen_offset( x, y );
+			((const vehikel_basis_t*)ding)->get_screen_offset(x, y);
 			fine_here -= koord( x, y );
 		}
 	}

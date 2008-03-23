@@ -230,7 +230,7 @@ ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 
 	if(is_moving()) {
 		// vehicles needs finer steps to appear smoother
-		vehikel_basis_t *v = (vehikel_basis_t *)this;
+		const vehikel_basis_t* const v = (const vehikel_basis_t*)this;
 		v->get_screen_offset( xpos, ypos );
 	}
 	xpos += tile_raster_scale_x(gib_xoff(), raster_width);
@@ -314,7 +314,7 @@ ding_t::mark_image_dirty(image_id bild,sint8 yoff) const
 		int xpos=0, ypos=0;
 		if(is_moving()) {
 			// vehicles needs finer steps to appear smoother
-			vehikel_basis_t *v = (vehikel_basis_t *)this;
+			const vehikel_basis_t* const v = (const vehikel_basis_t*)this;
 			v->get_screen_offset( xpos, ypos );
 		}
 		// better not try to twist your brain to follow the retransformation ...
