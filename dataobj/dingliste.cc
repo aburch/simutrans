@@ -693,14 +693,18 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::crossing:		d = new crossing_t(welt,file); break;
 
 				case ding_t::wayobj:
-					d = new wayobj_t (welt, file);
-					if(((wayobj_t *)d)->gib_besch()==NULL) {
+				{
+					wayobj_t* const wo = new wayobj_t(welt, file);
+					if (wo->gib_besch() == NULL) {
 						// ignore missing wayobjs
-						d->set_flag(ding_t::not_on_map);
-						delete d;
+						wo->set_flag(ding_t::not_on_map);
+						delete wo;
 						d = NULL;
+					} else {
+						d = wo;
 					}
 					break;
+				}
 
 				// some old offsets will be converted to new ones
 				case ding_t::old_fussgaenger:
