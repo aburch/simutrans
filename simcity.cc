@@ -916,7 +916,6 @@ stadt_t::~stadt_t()
 			}
 		}
 	}
-	buildings.clear();
 	free( (void *)name );
 }
 
