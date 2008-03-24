@@ -56,7 +56,14 @@ public:
 	*/
 	static const slist_tpl <weg_t *> & gib_alle_wege();
 
-	enum { HAS_WALKWAY=1, IS_ELECTRIFIED=2, HAS_SIGN=4, HAS_SIGNAL=8, HAS_WAYOBJ=16, HAS_CROSSING=32 };
+	enum {
+		HAS_SIDEWALK   = 0x01,
+		IS_ELECTRIFIED = 0x02,
+		HAS_SIGN       = 0x04,
+		HAS_SIGNAL     = 0x08,
+		HAS_WAYOBJ     = 0x10,
+		HAS_CROSSING   = 0x20
+	};
 
 	enum system_type { type_flat=0, type_elevated=1, type_tram=7, type_all=255 };
 
@@ -252,8 +259,8 @@ public:
 	void neuer_monat();
 
 	/* flag query routines */
-	void setze_gehweg(bool janein) {if(janein) { flags |= HAS_WALKWAY;} else {flags&=~HAS_WALKWAY;} }
-	inline bool hat_gehweg() const {return flags&HAS_WALKWAY; }
+	void setze_gehweg(const bool yesno) { flags = (yesno ? flags | HAS_SIDEWALK : flags & ~HAS_SIDEWALK); }
+	inline bool hat_gehweg() const { return flags & HAS_SIDEWALK; }
 
 	void set_electrify(bool janein) {janein ? flags |= IS_ELECTRIFIED : flags &= ~IS_ELECTRIFIED;}
 	inline bool is_electrified() const {return flags&IS_ELECTRIFIED; }

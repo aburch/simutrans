@@ -111,7 +111,7 @@ void weg_t::setze_max_speed(unsigned int s)
 void weg_t::setze_besch(const weg_besch_t *b)
 {
 	besch = b;
-	if(flags&HAS_WALKWAY  &&  besch->gib_wtyp()==road_wt  &&  besch->gib_topspeed()>50) {
+	if (hat_gehweg() && besch->gib_wtyp() == road_wt && besch->gib_topspeed() > 50) {
 		max_speed = 50;
 	}
 	else {
@@ -193,7 +193,7 @@ void weg_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(dummy8,"f");
 		if(file->is_loading()) {
 			// all other flags are restored afterwards
-			flags = dummy8 & HAS_WALKWAY;
+			flags = dummy8 & HAS_SIDEWALK;
 		}
 	}
 
