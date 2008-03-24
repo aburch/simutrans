@@ -191,7 +191,7 @@ public:
 	}
 
 	int gib_lieferanten() const { return lieferanten; }
-	int gib_produkte() const { return produkte; }
+	uint gib_produkte() const { return produkte; }
 
 	/* where to built */
 	enum platzierung gib_platzierung() const { return platzierung; }

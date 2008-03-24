@@ -218,7 +218,7 @@ fabrikbauer_t::finde_anzahl_hersteller(const ware_besch_t *ware, uint16 timeline
 	while(iter.next()) {
 		const fabrik_besch_t *tmp = iter.get_current_value();
 
-		for(int i = 0; i<tmp->gib_produkte(); i++) {
+		for (uint i = 0; i < tmp->gib_produkte(); i++) {
 			const fabrik_produkt_besch_t *produkt = tmp->gib_produkt(i);
 			if(produkt->gib_ware()==ware  &&  tmp->gib_gewichtung()>0  &&  (timeline==0  ||  (tmp->gib_haus()->get_intro_year_month() <= timeline  &&  tmp->gib_haus()->get_retire_year_month() > timeline))  ) {
 				anzahl ++;
@@ -243,7 +243,7 @@ const fabrik_besch_t *fabrikbauer_t::finde_hersteller(const ware_besch_t *ware, 
 	while(iter.next()) {
 		const fabrik_besch_t *tmp = iter.get_current_value();
 
-		for(int i = 0; i<tmp->gib_produkte(); i++) {
+		for (uint i = 0; i < tmp->gib_produkte(); i++) {
 			const fabrik_produkt_besch_t *produkt = tmp->gib_produkt(i);
 			if(produkt->gib_ware()==ware  &&  tmp->gib_gewichtung()>0  &&  (timeline==0  ||  (tmp->gib_haus()->get_intro_year_month() <= timeline  &&  tmp->gib_haus()->get_retire_year_month() > timeline))  ) {
 				producer.insert(tmp);
@@ -455,7 +455,7 @@ bool fabrikbauer_t::can_factory_tree_rotate( const fabrik_besch_t *besch )
 			const fabrik_besch_t *tmp = iter.get_current_value();
 
 			// now check, if we produce this ...
-			for(int i = 0; i<tmp->gib_produkte(); i++) {
+			for (uint i = 0; i < tmp->gib_produkte(); i++) {
 				if(tmp->gib_produkt(i)->gib_ware()==ware  &&  tmp->gib_gewichtung()>0) {
 
 					if(!can_factory_tree_rotate( tmp )) {
@@ -634,9 +634,10 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 				// but can she supply enough?
 
 				// now guess, how much this factory can supply
-				for(int gg=0;gg<fab->gib_besch()->gib_produkte();gg++) {
-					if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware  &&  fab->gib_lieferziele().get_count()<10) {	// does not make sense to split into more ...
-						sint32 production_left = fab->get_base_production()*fab->gib_besch()->gib_produkt(gg)->gib_faktor();
+				const fabrik_besch_t* const fb = fab->gib_besch();
+				for (uint gg = 0; gg < fb->gib_produkte(); gg++) {
+					if (fb->gib_produkt(gg)->gib_ware() == ware && fab->gib_lieferziele().get_count() < 10) { // does not make sense to split into more ...
+						sint32 production_left = fab->get_base_production() * fb->gib_produkt(gg)->gib_faktor();
 						const vector_tpl <koord> & lieferziele = fab->gib_lieferziele();
 						for( uint32 ziel=0;  ziel<lieferziele.get_count()  &&  production_left>0;  ziel++  ) {
 							fabrik_t *zfab=fabrik_t::gib_fab(welt,lieferziele[ziel]);
@@ -653,7 +654,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 							if(production_left>0) {
 								verbrauch -= production_left;
 								fab->add_lieferziel(our_fab->gib_pos().gib_2d());
-DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i of %s to us",fab->gib_besch()->gib_name(),production_left,ware->gib_name());
+								DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i of %s to us", fb->gib_name(), production_left, ware->gib_name());
 							}
 							else {
 								/* we steal something; however the total capacity
@@ -752,12 +753,13 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%
 			new_factories.append(fab);
 
 			// connect new supplier to us
-			for(int gg=0;gg<fab->gib_besch()->gib_produkte();gg++) {
-				if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware) {
-					sint32 produktion = fab->get_base_production()*fab->gib_besch()->gib_produkt(gg)->gib_faktor();
+			const fabrik_besch_t* const fb = fab->gib_besch();
+			for (uint gg = 0; gg < fab->gib_besch()->gib_produkte(); gg++) {
+				if (fb->gib_produkt(gg)->gib_ware() == ware) {
+					sint32 produktion = fab->get_base_production() * fb->gib_produkt(gg)->gib_faktor();
 					// the take care of how much this factorycould supply
 					verbrauch -= produktion;
-DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","new supplier %s can supply approx %i of %s to us",fab->gib_besch()->gib_name(),produktion,ware->gib_name());
+					DBG_MESSAGE("fabrikbauer_t::baue_hierarchie", "new supplier %s can supply approx %i of %s to us", fb->gib_name(), produktion, ware->gib_name());
 					break;
 				}
 			}
@@ -825,8 +827,9 @@ int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me )
 				uint8 w_idx = last_built_consumer->gib_besch()->gib_lieferant(i)->gib_ware()->gib_index();
 				for(  uint32 j=0;  j<last_built_consumer->get_suppliers().get_count();  j++  ) {
 					fabrik_t *sup = fabrik_t::gib_fab( welt, last_built_consumer->get_suppliers()[j] );
-					for(  uint32 k=0;  k<sup->gib_besch()->gib_produkte();  k++  ) {
-						if(  sup->gib_besch()->gib_produkt(k)->gib_ware()->gib_index() == w_idx  ) {
+					const fabrik_besch_t* const fb = sup->gib_besch();
+					for (uint32 k = 0; k < fb->gib_produkte(); k++) {
+						if (fb->gib_produkt(k)->gib_ware()->gib_index() == w_idx) {
 							last_built_consumer_ware = i+1;
 							goto next_ware_check;
 						}

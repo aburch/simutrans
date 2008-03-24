@@ -1178,8 +1178,9 @@ bool spieler_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 		const vector_tpl <koord> & sources = fab->get_suppliers();
 		for( unsigned q=0;  q<sources.get_count();  q++  ) {
 			fabrik_t *qfab = fabrik_t::gib_fab(welt,sources[q]);
-			for(int qq=0;  qq<qfab->gib_besch()->gib_produkte();  qq++) {
-				if(  qfab->gib_besch()->gib_produkt(qq)->gib_ware()==ware
+			const fabrik_besch_t* const fb = qfab->gib_besch();
+			for (uint qq = 0; qq < fb->gib_produkte(); qq++) {
+				if (fb->gib_produkt(qq)->gib_ware() == ware
 						&&  !is_forbidden( sources[q], fab->gib_pos().gib_2d(), ware )
 						&&  !is_connected( sources[q], fab->gib_pos().gib_2d(), ware )  ) {
 					// find out how much is there
@@ -1234,8 +1235,9 @@ int spieler_t::get_factory_tree_missing_count( fabrik_t *fab )
 				dbg->error( "fabrik_t::gib_fab()","fab %s at %s does not find supplier at %s.", fab->gib_name(), fab->gib_pos().gib_str(), sources[q].gib_str() );
 				continue;
 			}
-			for(int qq=0;  qq<qfab->gib_besch()->gib_produkte();  qq++) {
-				if(qfab->gib_besch()->gib_produkt(qq)->gib_ware()==ware  &&  !is_forbidden( sources[q], fab->gib_pos().gib_2d(), ware )) {
+			const fabrik_besch_t* const fb = qfab->gib_besch();
+			for (uint qq = 0; qq < fb->gib_produkte(); qq++) {
+				if (fb->gib_produkt(qq)->gib_ware() == ware && !is_forbidden(sources[q], fab->gib_pos().gib_2d(), ware)) {
 					int n = get_factory_tree_missing_count( qfab );
 					if(n>=0) {
 						complete = true;

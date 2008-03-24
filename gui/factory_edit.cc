@@ -232,7 +232,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			if(fab_besch->gib_produkte()>0) {
 				buf.append( translator::translate("Produktion") );
 				buf.append("\n");
-				for(  int i=0;  i<fab_besch->gib_produkte();  i++  ) {
+				for (uint i = 0; i < fab_besch->gib_produkte(); i++) {
 					buf.append( translator::translate(fab_besch->gib_produkt(i)->gib_ware()->gib_name()) );
 					buf.append( " (" );
 					buf.append( translator::translate(fab_besch->gib_produkt(i)->gib_ware()->gib_catg_name()) );

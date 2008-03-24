@@ -164,7 +164,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	}
 
 	// create consumer information
-	for(int i=0; i < fabesch->gib_produkte(); i++) {
+	for (uint i = 0; i < fabesch->gib_produkte(); i++) {
 		const fabrik_produkt_besch_t *produkt = fabesch->gib_produkt(i);
 		ware_production_t ware;
 		ware.setze_typ( produkt->gib_ware() );
