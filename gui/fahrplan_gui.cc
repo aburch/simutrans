@@ -152,6 +152,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 		for (uint32 i = 0; i < fpl->maxi(); i++) {
 
 			buf.clear();
+			buf.printf( "%i) ", i+1 );
 			fahrplan_gui_t::gimme_stop_name( buf, welt, fpl, i, 512 );
 			width = max( width, display_calc_proportional_string_len_width(buf,buf.len()) );
 			display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1) + 2, buf, ALIGN_LEFT, COL_BLACK, true);
@@ -286,16 +287,19 @@ fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_, convoihandle_t 
 	ypos += BUTTON_HEIGHT;
 
 	bt_add.init(button_t::roundbox_state, "Add Stop", koord( 0, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_return.set_tooltip("Appends stops at the end of the schedule");
 	bt_add.add_listener(this);
 	bt_add.pressed = true;
 	add_komponente(&bt_add);
 
 	bt_insert.init(button_t::roundbox_state, "Ins Stop", koord( BUTTON_WIDTH, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_return.set_tooltip("Insert stop before the current stop");
 	bt_insert.add_listener(this);
 	bt_insert.pressed = false;
 	add_komponente(&bt_insert);
 
 	bt_remove.init(button_t::roundbox_state, "Del Stop", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_return.set_tooltip("Delete the current stop");
 	bt_remove.add_listener(this);
 	bt_remove.pressed = false;
 	add_komponente(&bt_remove);
