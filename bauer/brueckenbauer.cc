@@ -233,7 +233,7 @@ brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_
 				}
 			}
 			if(gr2->gib_grund_hang()==hang_t::flach) {
-				if(gr2->gib_typ()!=grund_t::monorailboden) {
+				if(gr2->gib_typ()!=grund_t::monorailboden  &&  !gr2->gib_halt().is_bound()) {
 					if(ribi_t::ist_einfach(ribi) && koord(ribi) == zv) {
 						// Ende mit Rampe - Endschiene vorhanden
 						return pos;
