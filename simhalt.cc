@@ -1219,6 +1219,15 @@ void haltestelle_t::add_ware_to_halt(ware_t ware)
  */
 uint32 haltestelle_t::starte_mit_route(ware_t ware)
 {
+	if(ware.gib_ziel()==self) {
+		if(ware.is_freight()) {
+			// muss an fabrik geliefert werden
+			liefere_an_fabrik(ware);
+		}
+		// already there: finished (may be happen with overlapping areas and returning passengers)
+		return ware.menge;
+	}
+
 	// no valid next stops? Or we are the next stop?
 	if(ware.gib_zwischenziel()==self) {
 		dbg->error("haltestelle_t::starte_mit_route()","route cannot contain us as first transfer stop => recalc route!");
@@ -1228,15 +1237,6 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 			dbg->error("haltestelle_t::starte_mit_route()","no route found!");
 			return ware.menge;
 		}
-	}
-
-	if(ware.gib_ziel()==self) {
-		if(ware.is_freight()) {
-			// muss an fabrik geliefert werden
-			liefere_an_fabrik(ware);
-		}
-		// already there: finished (may be happen with overlapping areas and returning passengers)
-		return ware.menge;
 	}
 
 	// passt das zu bereits wartender ware ?
