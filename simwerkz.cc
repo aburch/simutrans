@@ -1721,7 +1721,7 @@ int wkz_roadsign(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos, 
 
 			const bool two_way = besch->is_single_way()  ||  besch->is_signal() ||  besch->is_pre_signal();
 
-			if(ribi_t::doppelt(dir)  ||  (two_way  &&  ribi_t::is_twoway(dir))  ||  (besch->is_traffic_light()  &&  ribi_t::is_threeway(dir))) {
+			if(!(besch->is_traffic_light() || two_way)  ||  (two_way  &&  ribi_t::is_twoway(dir))  ||  (besch->is_traffic_light()  &&  ribi_t::is_threeway(dir))) {
 				roadsign_t* rs;
 				if (besch->is_signal_type()) {
 					// if there is already a signal, we might need to inverse the direction
