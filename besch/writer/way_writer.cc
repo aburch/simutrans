@@ -57,7 +57,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_data_at(outfp, &maintenance,   6, 4);
 	node.write_data_at(outfp, &topspeed,     10, 4);
 	node.write_data_at(outfp, &max_weight,   14, 4);
-	node.write_data_at(outfp, &intro,        18, 4);
+	node.write_data_at(outfp, &intro,        18, 2);
 	node.write_data_at(outfp, &retire,       20, 2);
 	node.write_data_at(outfp, &wtyp,         22, 1);
 	node.write_data_at(outfp, &styp,         23, 1);

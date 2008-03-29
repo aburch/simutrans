@@ -125,7 +125,6 @@ bool root_writer_t::do_dump(const char* open_file_name)
 
 		dump_nodes(infp, 1);
 		fclose(infp);
-		fclose(infp);
 	}
 	return true;
 }
