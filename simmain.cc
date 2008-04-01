@@ -30,13 +30,13 @@
 #include "simintr.h"
 #include "simticker.h"
 #include "simmesg.h"
+#include "simwerkz.h"
 
 #include "linehandle_t.h"
 
 #include "simsys.h"
 #include "simgraph.h"
 #include "simevent.h"
-#include "simdisplay.h"
 #include "simtools.h"
 
 #include "simversion.h"
@@ -223,7 +223,7 @@ static void ask_objfilename()
 		display_poll_event(&ev);
 		// main window resized
 		check_pos_win(&ev);
-		display_flush( IMG_LEER, 0.0, "", "", "", 0 );
+		display_flush_buffer();
 	}
 	set_pointer(1);
 }
@@ -661,6 +661,9 @@ extern "C" int simu_main(int argc, char** argv)
 	}
 	obj_reader_t::has_been_init = true;
 
+	print("Reading menu configuration ...\n");
+	werkzeug_t::init_menu(umgebung_t::objfilename);
+
 	bool new_world = true;
 	cstring_t loadgame = "";
 
@@ -802,6 +805,7 @@ DBG_MESSAGE("init","map");
 	intr_set(welt, view);
 
 	win_setze_welt(welt);
+	werkzeug_t::toolbar_tool[0]->init(welt,welt->get_active_player());
 	win_display_menu();
 	view->display(true);
 	welt->set_fast_forward(true);

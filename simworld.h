@@ -32,7 +32,7 @@
 #include "simintr.h"
 
 #include "simdebug.h"
-#include "simwerkz.h"
+//#include "simwerkz.h"
 
 struct event_t;
 struct sound_info;
@@ -46,6 +46,7 @@ class planquadrat_t;
 class karte_ansicht_t;
 class sync_steppable;
 class cstring_t;
+class werkzeug_t;
 
 
 /**
@@ -86,19 +87,6 @@ public:
 	#define MAX_WORLD_HISTORY_MONTHS  (12) // number of months to keep history
 
 private:
-	// all cursor interaction goes via this function
-	// it will call save_mouse_funk first with init, then with the position and with exit, when another tool is selected without click
-	// see simwerkz.cc for practical examples of such functions
-	struct save_mouse_func_t {
-		tool_func_param funk;
-		value_t param;
-		int ok_sound;
-		int ko_sound;
-		int zeiger_versatz;
-		int zeiger_bild;
-		koord last_pos;	// if koord::invalid, INIT is still needed
-	};
-
 	// die Einstellungen
 	einstellungen_t *einstellungen;
 
@@ -111,8 +99,12 @@ private:
 	// maximum size for waitng bars etc.
 	int cached_groesse_max;
 
-	// die mausfunktion
-	save_mouse_func_t current_mouse_funk;
+	// all cursor interaction goes via this function
+	// it will call save_mouse_funk first with init, then with the position and with exit, when another tool is selected without click
+	// see simwerkz.cc for practical examples of such functions
+	werkzeug_t *werkzeug;
+	koord werkzeug_last_pos;	// last position a tool was called
+	uint8 werkzeug_last_button;
 
 	/**
 	 * redraw whole map
@@ -195,8 +187,6 @@ private:
 	slist_tpl<koord> labels;
 
 	weighted_vector_tpl<stadt_t*> stadt;
-
-	vector_tpl<save_mouse_func_t *> quick_shortcuts;
 
 	// to avoid passing a certain number of inhabitants twice, this records the maximum number so far
 	sint64 last_maximum_bev;
@@ -365,6 +355,9 @@ private:
 	void restore_history();
 
 public:
+	// set to something useful, if there is a total distance != 0 to show in the bar below
+	koord3d show_distance;
+
 	/**
 	 * Absoluter Monat
 	 * @author prissi
@@ -508,6 +501,7 @@ public:
 	void setze_ticks_bits_per_tag(uint32 bits) {ticks_bits_per_tag = bits; ticks_per_tag = (1 << ticks_bits_per_tag); }
 
 	sint32 get_time_multiplier() const { return time_multiplier; }
+	void change_time_multiplier( sint32 delta );
 
 	/**
 	 * 0=winter, 1=spring, 2=summer, 3=autumn
@@ -583,36 +577,8 @@ public:
 		return (climate)height_to_climate[h];
 	}
 
-	/**
-	 * offsets für zeigerposition
-	 * @author Hj. Malthaner
-	 */
-	static const int Z_PLAN;
-	static const int Z_GRID;
-
-	/**
-	 * Bindet einen Funktionsaufruf an einen Mausklick. Spielt zusaätzlich
-	 * einen Sound, je nachdem, ob der Aufruf erfolgreich war oder nicht.
-	 *
-	 * @param ok_sound sound für Erfolgsfall
-	 * @param ko_sound sound für Fehlerfall
-	 *
-	 * @author Hj. Malthaner
-	 */
-	void setze_maus_funktion(int (* mouse_funk)(enum wkz_mode_t, spieler_t *,karte_t *, koord pos),
-		int zeiger_bild, int zeiger_versatz,
-		int ok_sound, int ko_sound);
-
-	/**
-	 * Spezialvarainte mit einem Parameter, der immer übergeben wird
-	 * Hajo: changed parameter type from long to value_t because some
-	 *       parts of the code pass pointers
-	 * @author V. Meyer, Hj. Malthaner
-	 */
-	void setze_maus_funktion(int (* funktion)(enum wkz_mode_t, spieler_t *, karte_t *, koord, value_t param),
-		int zeiger_bild, int zeiger_versatz,
-		value_t param,
-		int ok_sound, int ko_sound);
+	void set_werkzeug( werkzeug_t *w );
+	werkzeug_t *get_werkzeug() const { return werkzeug; }
 
 	void setze_scroll_multi(int n);
 

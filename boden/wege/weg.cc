@@ -67,12 +67,21 @@ weg_t::alloc(waytype_t wt)
 {
 	weg_t *weg = NULL;
 	switch(wt) {
+		case tram_wt:
 		case track_wt:
 			weg = new schiene_t(welt);
 			break;
 		case monorail_wt:
 			weg = new monorail_t(welt);
 			break;
+/*
+		case maglev_wt:
+			weg = new maglev_t(welt);
+			break;
+		case narrowgauge_wt:
+			weg = new narrowgauge_t(welt);
+			break;
+*/
 		case road_wt:
 			weg = new strasse_t(welt);
 			break;

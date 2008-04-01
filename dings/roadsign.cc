@@ -24,7 +24,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 
-#include "../gui/werkzeug_parameter_waehler.h"
+#include "../gui/werkzeug_waehler.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 
@@ -484,36 +484,27 @@ DBG_DEBUG( "roadsign_t::register_besch()","%s", besch->gib_name() );
  * Fill menu with icons of given stops from the list
  * @author Hj. Malthaner
  */
-void roadsign_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
-	waytype_t wtyp,
-	tool_func_param werkzeug,
-	int sound_ok,
-	int sound_ko,
-  const karte_t *welt)
+void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, const karte_t *welt)
 {
+	static stringhashtable_tpl<wkz_roadsign_t *> sign_tool;
 	const uint16 time = welt->get_timeline_year_month();
 
-DBG_DEBUG("roadsign_t::fill_menu()","maximum %i",roadsign_t::liste.get_count());
 	for (vector_tpl<const roadsign_besch_t*>::const_iterator iter = liste.begin(), end = liste.end();  iter != end;  ++iter  ) {
 		const roadsign_besch_t* besch = (*iter);
 		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
-			DBG_DEBUG("roadsign_t::fill_menu()", "try to add %s(%p)", besch->gib_name(), besch);
 			if(besch->gib_cursor()->gib_bild_nr(1)!=IMG_LEER  &&  wtyp==besch->gib_wtyp()) {
 				// only add items with a cursor
-				DBG_DEBUG("roadsign_t::fill_menu()", "add %s", besch->gib_name());
-				char buf[128];
-				int n=sprintf(buf, "%s ",translator::translate(besch->gib_name()));
-				money_to_string(buf+n, besch->gib_preis()/100.0);
-
-				wzw->add_param_tool(werkzeug,
-				  (const void *)besch,
-				  karte_t::Z_PLAN,
-				  sound_ok,
-				  sound_ko,
-				  besch->gib_cursor()->gib_bild_nr(1),
-				  besch->gib_cursor()->gib_bild_nr(0),
-				  buf );
+				wkz_roadsign_t *wkz = sign_tool.get(besch->gib_name());
+				if(wkz==NULL) {
+					// not yet in hashtable
+					wkz = new wkz_roadsign_t();
+					wkz->icon = besch->gib_cursor()->gib_bild_nr(1),
+					wkz->cursor = besch->gib_cursor()->gib_bild_nr(0),
+					wkz->default_param = besch->gib_name();
+					sign_tool.put(besch->gib_name(),wkz);
+				}
+				wzw->add_werkzeug( (werkzeug_t*)wkz );
 			}
 		}
 	}

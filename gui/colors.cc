@@ -16,7 +16,6 @@
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 #include "../simgraph.h"
-#include "../simdisplay.h"
 
 #include "../utils/simstring.h"
 

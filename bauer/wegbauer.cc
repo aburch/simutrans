@@ -60,7 +60,7 @@
 
 
 // Hajo: these are needed to build the menu entries
-#include "../gui/werkzeug_parameter_waehler.h"
+#include "../gui/werkzeug_waehler.h"
 #include "../besch/skin_besch.h"
 #include "../dataobj/translator.h"
 
@@ -142,16 +142,11 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 spe
 
 
 
-/**
- * Tries to look up description for way, described by way type,
- * system type and construction type
- * @author Hj. Malthaner
- */
 const weg_besch_t * wegbauer_t::gib_besch(const char * way_name,const uint16 time)
 {
 //DBG_MESSAGE("wegbauer_t::gib_besch","return besch for %s in (%i)",way_name, time/12);
 	const weg_besch_t *besch = alle_wegtypen.get(way_name);
-	if(time==0  ||  besch==NULL  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+	if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 		return besch;
 	}
 	return NULL;
@@ -209,14 +204,9 @@ static bool compare_ways(const weg_besch_t* a, const weg_besch_t* b)
  * Fill menu with icons of given waytype, return number of added entries
  * @author Hj. Malthaner/prissi/dariok
  */
-void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
-	const waytype_t wtyp,
-	tool_func_param werkzeug,
-	const int sound_ok,
-	const int sound_ko,
-	const karte_t *welt,
-	const weg_t::system_type styp)
+void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, karte_t *welt)
 {
+	static stringhashtable_tpl<wkz_wegebau_t *> way_tool;
 	const uint16 time = welt->get_timeline_year_month();
 
 	// list of matching types (sorted by speed)
@@ -236,25 +226,20 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	}
 	std::sort(matching.begin(), matching.end(), compare_ways);
 
+	// now add sorted ways ...
 	const sint32 shift_maintanance = (welt->ticks_bits_per_tag-18);
 	for (vector_tpl<const weg_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
 		const weg_besch_t* besch = *i;
-		char buf[128];
-
-		sprintf(buf, "%s, %ld$ (%ld$), %dkm/h",
-			translator::translate(besch->gib_name()),
-			besch->gib_preis()/100l,
-			(besch->gib_wartung()<<shift_maintanance)/100l,
-			besch->gib_topspeed());
-
-		wzw->add_param_tool(werkzeug,
-			(const void *)besch,
-			karte_t::Z_PLAN,
-			sound_ok,
-			sound_ko,
-			besch->gib_cursor()->gib_bild_nr(1),
-			besch->gib_cursor()->gib_bild_nr(0),
-			buf );
+		wkz_wegebau_t *wkz = way_tool.get(besch->gib_name());
+		if(wkz==NULL) {
+			// not yet in hashtable
+			wkz = new wkz_wegebau_t();
+			wkz->icon = besch->gib_cursor()->gib_bild_nr(1),
+			wkz->cursor = besch->gib_cursor()->gib_bild_nr(0),
+			wkz->default_param = besch->gib_name();
+			way_tool.put(besch->gib_name(),wkz);
+		}
+		wzw->add_werkzeug( (werkzeug_t*)wkz );
 	}
 }
 
@@ -1623,11 +1608,11 @@ wegbauer_t::baue_tunnel_und_bruecken()
 
 			if(start->gib_grund_hang()==0  ||  start->gib_grund_hang()==hang_typ(zv*(-1))) {
 				// bridge here
-				brueckenbauer_t::baue(WKZ_DO, sp, welt, route[i].gib_2d(), (value_t)bruecke_besch);
+				brueckenbauer_t::baue( welt, sp, route[i].gib_2d(), bruecke_besch);
 			}
 			else {
 				// tunnel
-				tunnelbauer_t::baue(WKZ_DO, sp, welt, route[i].gib_2d(), tunnel_besch );
+				tunnelbauer_t::baue( welt, sp, route[i].gib_2d(), tunnel_besch );
 			}
 			INT_CHECK( "wegbauer 1584" );
 		}
@@ -1647,13 +1632,13 @@ wegbauer_t::baue_tunnel_und_bruecken()
 						// its a bridge
 						wi->setze_ribi(ribi_typ(h));
 						wi1->setze_ribi(ribi_typ(hang_t::gegenueber(h)));
-						brueckenbauer_t::baue(WKZ_DO, sp, welt, route[i].gib_2d(), (value_t)bruecke_besch);
+						brueckenbauer_t::baue( welt, sp, route[i].gib_2d(), bruecke_besch);
 					}
 					else if(tunnel_besch) {
 						// make a short tunnel
 						wi->setze_ribi(ribi_typ(hang_t::gegenueber(h)));
 						wi1->setze_ribi(ribi_typ(h));
-						tunnelbauer_t::baue(WKZ_DO, sp, welt, route[i].gib_2d(), tunnel_besch );
+						tunnelbauer_t::baue( welt, sp, route[i].gib_2d(), tunnel_besch );
 					}
 					INT_CHECK( "wegbauer 1584" );
 				}

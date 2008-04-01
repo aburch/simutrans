@@ -125,11 +125,12 @@ bool fahrplan_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 
 	if(ist_halt_erlaubt(gr)) {
 		eintrag.insert_at(aktuell, stop);
+		aktuell ++;
 		return true;
 	}
 	else {
 		// too many stops or wrong kind of stop
-		zeige_fehlermeldung();
+		create_win( new news_img(fehlermeldung()), w_time_delete, magic_none);
 		return false;
 	}
 }
@@ -161,7 +162,7 @@ bool fahrplan_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 	else {
 		DBG_MESSAGE("fahrplan_t::append()","forbidden stop at %i,%i,%i",gr->gib_pos().x, gr->gib_pos().x, gr->gib_pos().z );
 		// error
-		zeige_fehlermeldung();
+		create_win( new news_img(fehlermeldung()), w_time_delete, magic_none);
 		return false;
 	}
 }
@@ -336,12 +337,6 @@ DBG_MESSAGE("zugfahrplan_t::ist_halt_erlaubt()","track ok");
 }
 
 
-void zugfahrplan_t::zeige_fehlermeldung() const
-{
-	create_win( new news_img("Zughalt muss auf\nSchiene liegen!\n"), w_time_delete, magic_none);
-}
-
-
 bool
 autofahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
@@ -362,22 +357,10 @@ autofahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 }
 
 
-void autofahrplan_t::zeige_fehlermeldung() const
-{
-	create_win( new news_img("Autohalt muss auf\nStrasse liegen!\n"), w_time_delete, magic_none);
-}
-
-
 bool
 schifffahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
     return gr!=NULL &&  (gr->ist_wasser()  ||  gr->hat_weg(water_wt));
-}
-
-
-void schifffahrplan_t::zeige_fehlermeldung() const
-{
-	create_win( new news_img("Schiffhalt muss im\nWasser liegen!\n"), w_time_delete, magic_none);
 }
 
 
@@ -389,20 +372,8 @@ airfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 }
 
 
-void airfahrplan_t::zeige_fehlermeldung() const
-{
-	create_win( new news_img("Flugzeughalt muss auf\nRunway liegen!\n"), w_time_delete, magic_none);
-}
-
-
 bool
 monorailfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
 	return gr->hat_weg(monorail_wt);
-}
-
-
-void monorailfahrplan_t::zeige_fehlermeldung() const
-{
-	create_win( new news_img("Monorailhalt muss auf\nMonorail liegen!\n"), w_time_delete, magic_none);
 }

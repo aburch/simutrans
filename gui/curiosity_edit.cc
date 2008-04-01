@@ -41,6 +41,11 @@
 #define N_BUTTON_WIDTH  (int)(BUTTON_WIDTH*1.5)
 
 
+// new tool definition
+wkz_build_haus_t curiosity_edit_frame_t::haus_tool=wkz_build_haus_t();
+char curiosity_edit_frame_t::param_str[256];
+
+
 
 static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
 {
@@ -56,6 +61,10 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 	lb_rotation( rot_str, COL_WHITE, gui_label_t::right ),
 	lb_rotation_info( translator::translate("Rotation"), COL_BLACK, gui_label_t::left )
 {
+	besch = NULL;
+	haus_tool.default_param = NULL;
+	haus_tool.cursor = skinverwaltung_t::bauzeiger->gib_bild_nr(0);
+
 	bt_city_attraction.init( button_t::square_state, "City attraction", koord(NAME_COLUMN_WIDTH+11, offset_of_comp-4 ) );
 	bt_city_attraction.add_listener(this);
 	bt_city_attraction.pressed = true;
@@ -161,7 +170,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 		else {
 			scl.append_element( (*i)->gib_name(), color );
 		}
-		if(  (*i) == bhs.besch  ) {
+		if(  (*i) == besch  ) {
 			scl.setze_selection(scl.get_count()-1);
 		}
 	}
@@ -186,17 +195,17 @@ bool curiosity_edit_frame_t::action_triggered(gui_komponente_t *komp,value_t e)
 		bt_monuments.pressed ^= 1;
 		fill_list( is_show_trans_name );
 	}
-	else if(bhs.besch) {
-		if(  komp==&bt_left_rotate  &&  bhs.rotation!=255) {
-			if(bhs.rotation==0) {
-				bhs.rotation = 255;
+	else if(besch) {
+		if(  komp==&bt_left_rotate  &&  rotation!=255) {
+			if(rotation==0) {
+				rotation = 255;
 			}
 			else {
-				bhs.rotation --;
+				rotation --;
 			}
 		}
-		else if(  komp==&bt_right_rotate  &&  bhs.rotation!=bhs.besch->gib_all_layouts()-1) {
-			bhs.rotation ++;
+		else if(  komp==&bt_right_rotate  &&  rotation!=besch->gib_all_layouts()-1) {
+			rotation ++;
 		}
 		// update info ...
 		change_item_info( scl.gib_selection() );
@@ -210,12 +219,11 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 {
 	if(entry>=0  &&  entry<(sint32)hauslist.get_count()) {
 
-		bhs.ignore_climates = bt_climates.pressed;
-
-		const haus_besch_t *besch = hauslist[entry];
-		if(besch!=bhs.besch) {
+		const haus_besch_t *new_besch = hauslist[entry];
+		if(new_besch!=besch) {
 
 			buf.clear();
+			besch = new_besch;
 			if(besch->gib_utyp()==haus_besch_t::attraction_city) {
 				buf.printf("%s (%s: %i)",translator::translate( "City attraction" ), translator::translate("Bauzeit"),besch->gib_bauzeit());
 			}
@@ -251,23 +259,19 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 
 			// orientation (255=random)
 			if(besch->gib_all_layouts()>1) {
-				bhs.rotation = 255; // no definition yet
+				rotation = 255; // no definition yet
 			}
 			else {
-				bhs.rotation = 0;
+				rotation = 0;
 			}
-
-			// now for the tool
-			bhs.besch = besch;
-			bhs.ignore_climates = bt_climates.pressed;
 		}
 
 		// change lable numbers
-		if(bhs.rotation == 255) {
+		if(rotation == 255) {
 			tstrncpy( rot_str, translator::translate("random"), 16 );
 		}
 		else {
-			sprintf( rot_str, "%i", bhs.rotation );
+			sprintf( rot_str, "%i", rotation );
 		}
 
 		// now the images (maximum is 2x2 size)
@@ -276,7 +280,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 			img[i].set_image( IMG_LEER );
 		}
 
-		uint8 rot = (bhs.rotation==255) ? 0 : bhs.rotation;
+		uint8 rot = (rotation==255) ? 0 : rotation;
 		if(besch->gib_b(rot)==1) {
 			if(besch->gib_h(rot)==1) {
 				img[3].set_image( besch->gib_tile(rot,0,0)->gib_hintergrund(0,0,0) );
@@ -300,17 +304,19 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		}
 
 		// the tools will be always updated, even though the data up there might be still current
-		bhs.add_to_next_city = besch->gib_utyp()!=haus_besch_t::attraction_land;
-		welt->setze_maus_funktion( wkz_add_haus, skinverwaltung_t::bauzeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)&bhs,  SFX_JACKHAMMER, SFX_FAILURE );
+		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, besch->gib_name() );
+		haus_tool.default_param = param_str;
+		welt->set_werkzeug( &haus_tool );
 	}
-	else if(bhs.besch!=NULL) {
+	else if(welt->get_werkzeug()==&haus_tool) {
 		for(int i=0;  i<4;  i++  ) {
 			img[i].set_image( IMG_LEER );
 		}
-		buf.clear();
 		tstrncpy( rot_str, translator::translate("random"), 16 );
+		uint8 rot = (rotation==255) ? 0 : rotation;
+		img[3].set_image( besch->gib_tile(rot,0,0)->gib_hintergrund(0,0,0) );
 
-		bhs.besch = NULL;
-		welt->setze_maus_funktion( wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
+		besch = NULL;
+		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
 	}
 }

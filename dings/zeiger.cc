@@ -54,7 +54,7 @@ zeiger_t::change_pos(koord3d k )
 		set_flag(ding_t::dirty);
 
 		ding_t::setze_pos(k);
-		if(gib_yoff()==welt->Z_PLAN) {
+		if(gib_yoff()==Z_PLAN) {
 			gr = welt->lookup(k);
 			if(gr==NULL) {
 				gr = welt->lookup_kartenboden(k.gib_2d());

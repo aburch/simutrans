@@ -14,7 +14,7 @@
 #include "../boden/wege/weg.h"
 
 // Hajo: these are needed to build the menu entries
-#include "../gui/werkzeug_parameter_waehler.h"
+#include "../gui/werkzeug_waehler.h"
 #include "../besch/skin_besch.h"
 
 class bruecke_besch_t;
@@ -53,22 +53,11 @@ private:
 
 
 public:
-
-    /*
-     * Baut Anfang oder Ende der Brücke.
-     * (also used for monorail ramps ...)
-     * @author V. Meyer
-     */
+	// built a ramp to change level
     static void baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
 
-
-    /*
-     * Baut die Brücke wirklich, vorher sollte alles gerprüft sein.
-     *
-     * @author V. Meyer
-     */
-    static bool baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
-
+	// builds the bridge => checks should be done before
+    static void baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
 
     /**
      * Registers a new bridge type
@@ -82,14 +71,8 @@ public:
 
     static const bruecke_besch_t *gib_besch(const char *name);
 
-
-    /*
-     * Brückenbau-Funktion - Prototyp passend für den werkzeugwaehler_t.
-     * param ist ein Zeiger auf eine Brückenbeshreibung (besch_t).
-     *
-     * @author V. Meyer
-     */
-    static int baue(enum wkz_mode_t, spieler_t *sp, karte_t *welt, koord pos, value_t param);
+	// the main construction routine
+	static const char *baue( karte_t *welt, spieler_t *sp, koord pos, const bruecke_besch_t *besch);
 
     /*
      * Brückenlösch-Funktion
@@ -103,16 +86,13 @@ public:
 	 * Find a matching bridge
 	 * @author prissi
 	 */
-	static const bruecke_besch_t *
-	find_bridge(const waytype_t wtyp, const uint32 min_speed,const uint16 time);
+	static const bruecke_besch_t *find_bridge(const waytype_t wtyp, const uint32 min_speed,const uint16 time);
 
     /**
      * Fill menu with icons of given waytype
      * @author priss
      */
-    static void fill_menu(werkzeug_parameter_waehler_t *wzw,
-        const waytype_t wtyp,
-        const int sound_ok, const int sound_ko, const karte_t *welt);
+    static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const karte_t *welt);
 };
 
 #endif

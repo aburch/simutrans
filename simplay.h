@@ -481,6 +481,12 @@ private:
 	 */
 	int get_factory_tree_missing_count( fabrik_t *fab );
 
+	// prepares a general tool just like a human player work do
+	bool init_general_tool( int tool, const char *param );
+
+	// calls a general tool just like a human player work do
+	bool call_general_tool( int tool, koord k, const char *param );
+
 	/**
 	 * Find the first water tile using line algorithm von Hajo
 	 * start MUST be on land!

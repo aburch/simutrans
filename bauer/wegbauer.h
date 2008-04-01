@@ -46,39 +46,27 @@ public:
 	 */
 	static const weg_besch_t *  weg_search(const waytype_t wtyp,const uint32 speed_limit,const uint16 time, const weg_t::system_type system_type);
 
-	/**
-	 * Tries to look up description for way, described by way type,
-	 * system type and construction type
-	 * @author Hj. Malthaner
-	 */
-	static const weg_besch_t * gib_besch(const char * way_name,const uint16 time=0);
+	static const weg_besch_t * gib_besch(const char *way_name,const uint16 time=0);
 
 	/**
 	 * Fill menu with icons of given waytype
 	 * @author Hj. Malthaner
 	 */
-	static void fill_menu(werkzeug_parameter_waehler_t *wzw,
-			const waytype_t wtyp,
-			tool_func_param werkzeug,
-			const int sound_ok,
-			const int sound_ko,
-			const karte_t *welt,
-			const weg_t::system_type styp);
-
+	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, karte_t *welt );
 
 	enum bautyp_t {
-		strasse=1,
-		schiene=2,
-		schiene_tram=3, // Dario: Tramway
-		monorail=4,
-		maglev=6,
-		wasser=7,
-		luft=8,
-		leitung=15,
-		bautyp_mask=15,
-		bot_flag=32,					// do not connect to other ways
-		elevated_flag=64,			// elevated structure
-		tunnel_flag=128				// underground structure
+		strasse=road_wt,
+		schiene=track_wt,
+		schiene_tram=tram_wt, // Dario: Tramway
+		monorail=monorail_wt,
+		maglev=maglev_wt,
+		wasser=water_wt,
+		luft=air_wt,
+		leitung=powerline_wt,
+		bautyp_mask=255,
+		bot_flag=0x10,					// do not connect to other ways
+		elevated_flag=0x20,			// elevated structure
+		tunnel_flag=0x80				// underground structure
 	};
 
 private:

@@ -17,6 +17,12 @@ public:
     static const skin_besch_t *farbmenu;
     static const skin_besch_t *edit_werkzeug;
 
+	// new menu system
+    static const skin_besch_t *werkzeuge_general;
+    static const skin_besch_t *werkzeuge_simple;
+    static const skin_besch_t *werkzeuge_dialoge;
+    static const skin_besch_t *werkzeuge_toolbars;
+
     static const skin_besch_t *logosymbol;
     static const skin_besch_t *biglogosymbol;
     static const skin_besch_t *neujahrsymbol;
@@ -34,6 +40,7 @@ public:
     static const skin_besch_t *bushaltsymbol;
     static const skin_besch_t *tramhaltsymbol;
 
+    static const skin_besch_t *cursor_general;
     static const skin_besch_t *fragezeiger;
     static const skin_besch_t *signalzeiger;
     static const skin_besch_t *downzeiger;

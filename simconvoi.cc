@@ -69,8 +69,8 @@ static const char * state_names[convoi_t::MAX_STATES] =
 	"INITIAL",
 	"FAHRPLANEINGABE",
 	"ROUTING_1",
-	"DUMMY",
-	"DUMMY",
+	"",
+	"",
 	"NO_ROUTE",
 	"DRIVING",
 	"LOADING",
@@ -78,7 +78,7 @@ static const char * state_names[convoi_t::MAX_STATES] =
 	"WAITING_FOR_CLEARANCE_ONE_MONTH",
 	"CAN_START",
 	"CAN_START_ONE_MONTH",
-	"",	// self destruct
+	"SELF_DESTRUCT",	// self destruct
 	"WAITING_FOR_CLEARANCE_TWO_MONTHS",
 	"CAN_START_TWO_MONTHS",
 	"LEAVING_DEPOT",

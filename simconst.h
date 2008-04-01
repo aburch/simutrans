@@ -142,6 +142,9 @@
 #define kmh_to_speed(speed) (((speed) << 10) / VEHICLE_SPEED_FACTOR)
 
 
+// offsets for mouse pointer
+#define Z_PLAN (4)
+#define Z_GRID (0)
 
 
 

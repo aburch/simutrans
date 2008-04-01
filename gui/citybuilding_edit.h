@@ -17,7 +17,11 @@
 class citybuilding_edit_frame_t : public extend_edit_gui_t
 {
 private:
-	build_haus_struct bhs;
+	static wkz_build_haus_t haus_tool;
+	static char param_str[256];
+
+	const haus_besch_t *besch;
+	uint8 rotation;
 
 	char rot_str[16];
 

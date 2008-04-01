@@ -175,7 +175,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 
 fahrplan_gui_t::~fahrplan_gui_t()
 {
-	sp->get_welt()->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), sp->get_welt()->Z_PLAN, NO_SOUND, NO_SOUND);
+	update_werkzeug( false );
 	// hide schedule on minimap (may not current, but for safe)
 	reliefkarte_t::gib_karte()->set_current_fpl(NULL, 0); // (*fpl,player_nr)
 }
@@ -312,12 +312,42 @@ fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_, convoihandle_t 
 	add_komponente(&scrolly);
 
 	mode = adding;
-	sp->get_welt()->setze_maus_funktion(wkz_fahrplan_add, skinverwaltung_t::fahrplanzeiger->gib_bild_nr(0), karte_t::Z_PLAN, (value_t)fpl, NO_SOUND, NO_SOUND);
-
 	setze_fenstergroesse( koord(BUTTON_WIDTH*3, 280) );
 
 	// set this schedule as current to show on minimap if possible
 	reliefkarte_t::gib_karte()->set_current_fpl(fpl, sp->get_player_nr()); // (*fpl,player_nr)
+}
+
+
+
+
+void fahrplan_gui_t::update_werkzeug(bool set)
+{
+	karte_t *welt = sp->get_welt();
+	if(!set  ||  mode==removing  ||  mode==undefined_mode) {
+		// reset tools, if still selected ...
+		if(welt->get_werkzeug()==werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]) {
+			if(werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]->default_param==(const char *)fpl) {
+				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
+			}
+		}
+		else if(welt->get_werkzeug()==werkzeug_t::general_tool[WKZ_FAHRPLAN_INS]) {
+			if(werkzeug_t::general_tool[WKZ_FAHRPLAN_INS]->default_param==(const char *)fpl) {
+				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
+			}
+		}
+	}
+	else {
+		//  .. or set them again
+		if(mode==adding) {
+			werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]->default_param = (const char *)fpl;
+			sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD] );
+		}
+		else if(mode==inserting) {
+			werkzeug_t::general_tool[WKZ_FAHRPLAN_INS]->default_param = (const char *)fpl;
+			sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_INS] );
+		}
+	}
 }
 
 
@@ -364,8 +394,9 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 			}
 		}
 	}
-	else if(ev->ev_class == INFOWIN && ev->ev_code == WIN_CLOSE) {
+	else if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
 
+		update_werkzeug( false );
 		fpl->cleanup();
 		fpl->eingabe_abschliessen();
 		if (cnv.is_bound()) {
@@ -384,6 +415,10 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 			}
 		}
 	}
+	else if(ev->ev_class == INFOWIN  &&  (ev->ev_code == WIN_TOP  ||  ev->ev_code == WIN_OPEN)  ) {
+		// just to be sure, renew the tools ...
+		update_werkzeug( true );
+	}
 	gui_frame_t::infowin_event(ev);
 }
 
@@ -395,50 +430,26 @@ fahrplan_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_selector);
 
 	if(komp == &bt_add) {
-		if(mode != adding) {
-			mode = adding;
-			bt_add.pressed = true;
-			bt_insert.pressed = false;
-			bt_remove.pressed = false;
-			karte_t* welt = sp->get_welt();
-			welt->setze_maus_funktion(wkz_fahrplan_add,
-				skinverwaltung_t::fahrplanzeiger->gib_bild_nr(0),
-				welt->Z_PLAN,
-				(value_t)fpl,
-				NO_SOUND,
-				NO_SOUND);
-		}
+		mode = adding;
+		bt_add.pressed = true;
+		bt_insert.pressed = false;
+		bt_remove.pressed = false;
+		update_werkzeug( true );
 
 	} else if(komp == &bt_insert) {
-		if(mode != inserting) {
-			mode = inserting;
-			bt_add.pressed = false;
-			bt_insert.pressed = true;
-			bt_remove.pressed = false;
-			karte_t* welt = sp->get_welt();
-			welt->setze_maus_funktion(wkz_fahrplan_ins,
-				skinverwaltung_t::fahrplanzeiger->gib_bild_nr(0),
-				welt->Z_PLAN,
-				(value_t)fpl,
-				NO_SOUND,
-				NO_SOUND);
-		}
+		mode = inserting;
+		bt_add.pressed = false;
+		bt_insert.pressed = true;
+		bt_remove.pressed = false;
+		update_werkzeug( true );
 
 	} else if(komp == &bt_remove) {
-		if(mode != removing) {
-			mode = removing;
-			bt_add.pressed = false;
-			bt_insert.pressed = false;
-			bt_remove.pressed = true;
-			karte_t* welt = sp->get_welt();
-			welt->setze_maus_funktion(wkz_abfrage,
-			skinverwaltung_t::fragezeiger->gib_bild_nr(0),
-				welt->Z_PLAN,
-				NO_SOUND,
-				NO_SOUND);
-		} else {
-			mode = none;
-		}
+		mode = removing;
+		bt_add.pressed = false;
+		bt_insert.pressed = false;
+		bt_remove.pressed = true;
+		update_werkzeug( false );
+
 	} else if(komp == &bt_prev) {
 		if(fpl->maxi() > 0) {
 			uint8& load = fpl->eintrag[fpl->aktuell].ladegrad;

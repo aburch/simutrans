@@ -58,7 +58,6 @@
 
 #include "simwin.h"
 #include "simgraph.h"
-#include "simdisplay.h"
 
 // Fabrik_t
 

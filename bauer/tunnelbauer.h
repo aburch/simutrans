@@ -17,7 +17,7 @@
 
 class karte_t;                 // Hajo: 22-Nov-01: Added forward declaration
 class spieler_t;               // Hajo: 22-Nov-01: Added forward declaration
-class werkzeug_parameter_waehler_t;
+class werkzeug_waehler_t;
 
 /**
  * Baut Tunnel. Tunnel sollten nicht direkt instanziiert werden
@@ -43,9 +43,9 @@ public:
 
 	static const tunnel_besch_t *find_tunnel(const waytype_t wtyp, const uint32 min_speed,const uint16 time);
 
-	static void fill_menu(werkzeug_parameter_waehler_t *wzw, const waytype_t wtyp, const int sound_ok, const int sound_ko,const karte_t *welt);
+	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const karte_t *welt);
 
-	static int baue(enum wkz_mode_t, spieler_t *sp, karte_t *welt, koord pos, value_t param);
+	static const char *baue( karte_t *welt, spieler_t *sp, koord pos, const tunnel_besch_t *besch );
 
 	static const char *remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wegtyp);
 };

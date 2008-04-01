@@ -9,6 +9,9 @@
  * [Mathew Hounsell] Min Size Button On Map Window 20030313
  */
 
+#ifndef gui_map_frame_h
+#define gui_map_frame_h
+
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
 #include "components/action_listener.h"
@@ -133,3 +136,5 @@ public:
      */
     bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
+
+#endif

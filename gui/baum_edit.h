@@ -13,17 +13,14 @@
 #define MAX_BUILD_TYPE (6)
 
 
-typedef struct {
-	const baum_besch_t *besch;
-	bool ignore_climates;
-	bool random_age;
-} build_baum_struct;
-
 
 class baum_edit_frame_t : public extend_edit_gui_t
 {
 private:
-	build_baum_struct bbs;
+	static wkz_plant_tree_t baum_tool;
+	static char param_str[256];
+
+	const baum_besch_t *besch;
 
 	vector_tpl<const baum_besch_t *>baumlist;
 

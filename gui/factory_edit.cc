@@ -40,6 +40,11 @@
 #define N_BUTTON_WIDTH  (int)(BUTTON_WIDTH*1.5)
 
 
+wkz_build_industries_land_t factory_edit_frame_t::land_chain_tool = wkz_build_industries_land_t();
+wkz_build_industries_city_t factory_edit_frame_t::city_chain_tool = wkz_build_industries_city_t();
+wkz_build_factory_t factory_edit_frame_t::fab_tool = wkz_build_factory_t();
+char factory_edit_frame_t::param_str[256];
+
 static bool compare_fabrik_besch(const fabrik_besch_t* a, const fabrik_besch_t* b)
 {
 	int diff = strcmp( translator::translate(a->gib_name()), translator::translate(b->gib_name()) );
@@ -56,6 +61,10 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 	lb_production( prod_str, COL_WHITE, gui_label_t::right ),
 	lb_production_info( translator::translate("Produktion"), COL_BLACK, gui_label_t::left )
 {
+	land_chain_tool.default_param = city_chain_tool.default_param = fab_tool.default_param = param_str;
+	land_chain_tool.cursor = city_chain_tool.cursor = fab_tool.cursor = skinverwaltung_t::bauzeiger->gib_bild_nr(0);
+	fab_besch = NULL;
+
 	bt_city_chain.init( button_t::square_state, "Only city chains", koord(NAME_COLUMN_WIDTH+11, offset_of_comp-4 ) );
 	bt_city_chain.add_listener(this);
 	add_komponente(&bt_city_chain);
@@ -163,7 +172,7 @@ void factory_edit_frame_t::fill_list( bool translate )
 		else {
 			scl.append_element( fablist[i]->gib_name(), color );
 		}
-		if(fablist[i]==bfs.besch) {
+		if(fablist[i]==fab_besch) {
 			scl.setze_selection(scl.get_count()-1);
 		}
 	}
@@ -190,23 +199,23 @@ bool factory_edit_frame_t::action_triggered(gui_komponente_t *komp,value_t e)
 		}
 		fill_list( is_show_trans_name );
 	}
-	else if(bfs.besch) {
+	else if(fab_besch) {
 		if(  komp==&bt_up_production  ) {
-			bfs.production += (bfs.production>=200) ? 10 : 1;
+			production += (production>=200) ? 10 : 1;
 		}
-		else if(  komp==&bt_down_production  &&  bfs.production>0) {
-			bfs.production -= (bfs.production>200) ? 10 : 1;
+		else if(  komp==&bt_down_production  &&  production>0) {
+			production -= (production>200) ? 10 : 1;
 		}
-		else if(  komp==&bt_left_rotate  &&  bfs.rotation!=255) {
-			if(bfs.rotation==0) {
-				bfs.rotation = 255;
+		else if(  komp==&bt_left_rotate  &&  rotation!=255) {
+			if(rotation==0) {
+				rotation = 255;
 			}
 			else {
-				bfs.rotation --;
+				rotation --;
 			}
 		}
-		else if(  komp==&bt_right_rotate  &&  bfs.rotation!=bfs.besch->gib_haus()->gib_all_layouts()-1) {
-			bfs.rotation ++;
+		else if(  komp==&bt_right_rotate  &&  rotation!=fab_besch->gib_haus()->gib_all_layouts()-1) {
+			rotation ++;
 		}
 		// update info ...
 		change_item_info( scl.gib_selection() );
@@ -220,12 +229,11 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 {
 	if(entry>=0  &&  entry<(sint32)fablist.get_count()) {
 
-		bfs.ignore_climates = bt_climates.pressed;
+		const fabrik_besch_t *new_fab_besch = fablist[entry];
+		if(new_fab_besch!=fab_besch) {
 
-		const fabrik_besch_t *fab_besch = fablist[entry];
-		if(fab_besch!=bfs.besch) {
-
-			bfs.production = (fab_besch->gib_produktivitaet()+simrand(fab_besch->gib_bereich()) )<<(welt->ticks_bits_per_tag-18);
+			fab_besch = new_fab_besch;
+			production = (fab_besch->gib_produktivitaet()+simrand(fab_besch->gib_bereich()) )<<(welt->ticks_bits_per_tag-18);
 
 			// show produced goods
 			buf.clear();
@@ -306,24 +314,23 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 
 			// orientation (255=random)
 			if(besch->gib_all_layouts()>1) {
-				bfs.rotation = 255; // no definition yet
+				rotation = 255; // no definition yet
 			}
 			else {
-				bfs.rotation = 0;
+				rotation = 0;
 			}
 
 			// now for the tool
-			bfs.besch = fablist[entry];
-			bfs.ignore_climates = bt_climates.pressed;
+			fab_besch = fablist[entry];
 		}
 
 		// change lable numbers
-		sprintf( prod_str, "%i", bfs.production );
-		if(bfs.rotation == 255) {
+		sprintf( prod_str, "%i", production );
+		if(rotation == 255) {
 			tstrncpy( rot_str, translator::translate("random"), 16 );
 		}
 		else {
-			sprintf( rot_str, "%i", bfs.rotation );
+			sprintf( rot_str, "%i", rotation );
 		}
 
 		// now the images (maximum is 2x2 size)
@@ -333,7 +340,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		}
 
 		const haus_besch_t *besch = fab_besch->gib_haus();
-		uint8 rot = (bfs.rotation==255) ? 0 : bfs.rotation;
+		uint8 rot = (rotation==255) ? 0 : rotation;
 		if(besch->gib_b(rot)==1) {
 			if(besch->gib_h(rot)==1) {
 				img[3].set_image( besch->gib_tile(rot,0,0)->gib_hintergrund(0,0,0) );
@@ -357,25 +364,25 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		}
 
 		// the tools will be always updated, even though the data up there might be still current
+		sprintf( param_str, "%i%c%i,%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, production, fab_besch->gib_name() );
 		if(bt_land_chain.pressed) {
-			welt->setze_maus_funktion( wkz_build_industries_land, skinverwaltung_t::bauzeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)&bfs,  SFX_JACKHAMMER, SFX_FAILURE );
+			welt->set_werkzeug( &land_chain_tool );
 		}
 		else if(bt_city_chain.pressed) {
-			welt->setze_maus_funktion( wkz_build_industries_city, skinverwaltung_t::bauzeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)&bfs,  SFX_JACKHAMMER, SFX_FAILURE );
+			welt->set_werkzeug( &city_chain_tool );
 		}
 		else {
-			welt->setze_maus_funktion( wkz_build_fab, skinverwaltung_t::bauzeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)&bfs,  SFX_JACKHAMMER, SFX_FAILURE );
+			welt->set_werkzeug( &fab_tool );
 		}
 	}
-	else if(bfs.besch!=NULL) {
+	else if(fab_besch!=NULL) {
 		for(int i=0;  i<4;  i++  ) {
 			img[i].set_image( IMG_LEER );
 		}
 		buf.clear();
 		prod_str[0] = 0;
 		tstrncpy( rot_str, translator::translate("random"), 16 );
-
-		bfs.besch = NULL;
-		welt->setze_maus_funktion( wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
+		fab_besch = NULL;
+		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
 	}
 }

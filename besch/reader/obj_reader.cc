@@ -13,7 +13,6 @@
 #include "../../simimg.h"
 #include "../../simtypes.h"
 #include "../../simgraph.h"
-#include "../../simdisplay.h"
 
 #include "../skin_besch.h"	// just for the logo
 #include "../grund_besch.h"	// for the error message!
@@ -140,7 +139,6 @@ DBG_MESSAGE("obj_reader_t::init()", "reading from '%s'", (const char*)name);
 			read_file(*i);
 			if ((n & teilung) == 0 && drawing) {
 				display_progress(n, max);
-				display_flush(IMG_LEER, 0, "", "", 0, 0);
 			}
 		}
 	}

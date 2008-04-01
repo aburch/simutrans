@@ -25,7 +25,7 @@
 #include "../besch/tunnel_besch.h"
 #include "../besch/way_obj_besch.h"
 
-#include "../gui/werkzeug_parameter_waehler.h"
+#include "../gui/werkzeug_waehler.h"
 
 #include "../boden/grund.h"
 
@@ -410,13 +410,10 @@ DBG_DEBUG( "wayobj_t::register_besch()","%s", besch->gib_name() );
  * Fill menu with icons of given stops from the list
  * @author Hj. Malthaner
  */
-void wayobj_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
-	waytype_t wtyp,
-	tool_func_param werkzeug,
-	int sound_ok,
-	int sound_ko,
-	const karte_t *welt)
+void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, const karte_t *welt)
 {
+	static stringhashtable_tpl<wkz_wayobj_t *> wayobj_tool;
+
 	const uint16 time=welt->get_timeline_year_month();
 DBG_DEBUG("wayobj_t::fill_menu()","maximum %i",liste.get_count());
 	for (vector_tpl<const way_obj_besch_t*>::const_iterator iter = liste.begin(), end = liste.end();  iter != end;  ++iter  ) {
@@ -426,22 +423,16 @@ DBG_DEBUG("wayobj_t::fill_menu()","maximum %i",liste.get_count());
 			DBG_DEBUG("wayobj_t::fill_menu()", "try to add %s(%p)", besch->gib_name(), besch);
 			if(besch->gib_cursor()->gib_bild_nr(1)!=IMG_LEER  &&  wtyp==besch->gib_wtyp()) {
 				// only add items with a cursor
-				DBG_DEBUG("wayobj_t::fill_menu()", "add %s", besch->gib_name());
-				char buf[128];
-				sprintf(buf, "%s, %ld$ (%ld$), %dkm/h",
-					translator::translate(besch->gib_name()),
-					besch->gib_preis()/100l,
-					(besch->gib_wartung()<<(welt->ticks_bits_per_tag-18l))/100l,
-					besch->gib_topspeed());
-
-				wzw->add_param_tool(werkzeug,
-				  (const void *)besch,
-				  karte_t::Z_PLAN,
-				  sound_ok,
-				  sound_ko,
-				  besch->gib_cursor()->gib_bild_nr(1),
-				  besch->gib_cursor()->gib_bild_nr(0),
-				  buf );
+				wkz_wayobj_t *wkz = wayobj_tool.get(besch->gib_name());
+				if(wkz==NULL) {
+					// not yet in hashtable
+					wkz = new wkz_wayobj_t();
+					wkz->icon = besch->gib_cursor()->gib_bild_nr(1),
+					wkz->cursor = besch->gib_cursor()->gib_bild_nr(0),
+					wkz->default_param = besch->gib_name();
+					wayobj_tool.put(besch->gib_name(),wkz);
+				}
+				wzw->add_werkzeug( (werkzeug_t*)wkz );
 			}
 		}
 	}
@@ -461,3 +452,10 @@ wayobj_t::wayobj_search(waytype_t wt,waytype_t own,uint16 time)
 	}
 	return NULL;
 }
+
+
+const way_obj_besch_t* wayobj_t::gib_besch(const char *str)
+{
+	return wayobj_t::table.get(str);
+}
+

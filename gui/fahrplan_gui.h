@@ -79,7 +79,7 @@ class fahrplan_gui_t :	public gui_frame_t,
 private:
 	static char no_line[128];
 
-	enum mode_t {adding, inserting, removing, none};
+	enum mode_t {adding, inserting, removing, undefined_mode};
 
 	vector_tpl<linehandle_t> lines;
 
@@ -113,6 +113,9 @@ private:
 	linehandle_t new_line;
 
 	void init_line_selector();
+
+	// set the correct tool now ...
+	void update_werkzeug(bool set);
 
 public:
     fahrplan_gui_t(fahrplan_t* fpl, spieler_t* sp, convoihandle_t cnv);

@@ -16,7 +16,7 @@
 #include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 
-class werkzeug_parameter_waehler_t;
+class werkzeug_waehler_t;
 
 /**
  * road sign for traffic (one way minimum speed, traffic lights)
@@ -126,14 +126,11 @@ public:
 	 * Fill menu with icons of given stops from the list
 	 * @author Hj. Malthaner
 	 */
-	static void fill_menu(werkzeug_parameter_waehler_t *wzw,
-		waytype_t wtyp,
-		tool_func_param wkz,
-		int sound_ok,
-		int sound_ko,
-		const karte_t *welt);
+	static void fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, const karte_t *welt);
 
 	static const roadsign_besch_t *roadsign_search(uint8 flag,const waytype_t wt,const uint16 time);
+
+	static const roadsign_besch_t *find_besch(const char *name) { return table.get(name); }
 };
 
 #endif

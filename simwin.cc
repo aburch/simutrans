@@ -22,31 +22,30 @@
 #include <stdlib.h>
 
 #include "simwin.h"
-
 #include "simworld.h"
 #include "simplay.h"
-
-#include "dings/zeiger.h"
-
 #include "simcolor.h"
+#include "simgraph.h"
+#include "simskin.h"
+#include "simticker.h"
 
-#include "ifc/gui_fenster.h"
-#include "gui/help_frame.h"
 #include "dataobj/translator.h"
 #include "dataobj/umgebung.h"
 
-#include "simgraph.h"
-#include "simdisplay.h"
+#include "ifc/gui_fenster.h"
+#include "gui/help_frame.h"
+#include "gui/werkzeug_waehler.h"
 
-#include "simskin.h"
 #include "besch/skin_besch.h"
 
-#include "simticker.h"
+#include "dings/zeiger.h"
+
 #include "tpl/vector_tpl.h"
+
+#include "utils/simstring.h"
 
 
 #define dragger_size 12
-
 
 static gui_komponente_t * focus=NULL;
 
@@ -797,6 +796,12 @@ bool check_pos_win(event_t *ev)
 			return true;
 		}
 	}
+	else if(ev->cy<32  &&  werkzeug_t::toolbar_tool.get_count()>0) {
+		// click in main menu
+		event_t wev = *ev;
+//		translate_event(&wev, 0, 0);
+		werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()->infowin_event( &wev );
+	}
 
 
 	for(i=ins_win-1; i>=0  &&  !swallowed; i--) {
@@ -992,9 +997,12 @@ void win_display_menu()
 	const int start_y=display_get_height()-32;
 	const int width = display_get_width();
 
-	display_setze_clip_wh( 0, 0, width, 33 );
-	display_icon_leiste(-1, skinverwaltung_t::hauptmenu->gib_bild(0)->gib_nummer());
-	display_setze_clip_wh( 0, 32, width, start_y+32 );
+	werkzeug_waehler_t *main_menu = werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler();
+	if(main_menu) {
+		display_setze_clip_wh( 0, 0, width, werkzeug_t::toolbar_tool[0]->iconsize.y+1 );
+		main_menu->zeichnen(koord(0,0), koord(display_get_width(),werkzeug_t::toolbar_tool[0]->iconsize.y) );
+	}
+	display_setze_clip_wh( 0, werkzeug_t::toolbar_tool[0]->iconsize.y, width, start_y+werkzeug_t::toolbar_tool[0]->iconsize.y );
 	if (!ticker::empty()) {
 		// maybe something is omitted of the message
 		display_fillbox_wh(0, start_y, width, 1, COL_BLACK, true);
@@ -1006,6 +1014,14 @@ void win_display_menu()
 
 void win_display_flush(double konto)
 {
+	const int disp_width=display_get_width();
+	const int disp_height=display_get_height();
+
+	werkzeug_waehler_t *main_menu = werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler();
+	if(main_menu) {
+		display_setze_clip_wh( 0, 0, disp_width, werkzeug_t::toolbar_tool[0]->iconsize.y+1 );
+		main_menu->zeichnen(koord(0,-16), koord(disp_width,werkzeug_t::toolbar_tool[0]->iconsize.y) );
+	}
 #ifdef USE_SOFTPOINTER
 	display_setze_clip_wh( 0, 0, display_get_width(), display_get_height()+1 );
 	display_icon_leiste(0, skinverwaltung_t::hauptmenu->gib_bild(0)->gib_nummer());
@@ -1144,19 +1160,34 @@ void win_display_flush(double konto)
 		sprintf(stretch_text, "(T=%1.2f)", wl->get_time_multiplier()/16.0 );
 	}
 
-	extern koord3d wkz_wegebau_start;
-	if(wkz_wegebau_start!=koord3d::invalid  &&  wkz_wegebau_start!=pos) {
-		sprintf(delta_pos,"-(%d,%d) ", wkz_wegebau_start.x-pos.x, wkz_wegebau_start.y-pos.y );
+	if(wl->show_distance!=koord3d::invalid  &&  wl->show_distance!=pos) {
+		sprintf(delta_pos,"-(%d,%d) ", wl->show_distance.x-pos.x, wl->show_distance.y-pos.y );
 	}
 	else {
 		delta_pos[0] = 0;
 	}
 	sprintf(info,"(%d,%d,%d)%s %s  %s", pos.x, pos.y, pos.z/Z_TILE_STEP, delta_pos, stretch_text, translator::translate(wl->use_timeline()?"timeline":"no timeline") );
 
-	const char *active_player_name = wl->get_active_player()->get_player_nr()==0 ? "" : wl->get_active_player()->gib_name();
-	// season icon
-	image_id season_img = skinverwaltung_t::seasons_icons ? skinverwaltung_t::seasons_icons->gib_bild_nr(wl->gib_jahreszeit()) : IMG_LEER;
-	display_flush(season_img, konto, time, info, active_player_name, wl->get_active_player()->get_player_color1());
+	// bottom text line
+	display_setze_clip_wh( 0, 0, disp_width, disp_height );
+	display_fillbox_wh(0, disp_height-16, disp_width, 1, MN_GREY4, false);
+	display_fillbox_wh(0, disp_height-15, disp_width, 15, MN_GREY1, false);
+
+	if(skinverwaltung_t::seasons_icons) {
+		display_color_img( skinverwaltung_t::seasons_icons->gib_bild_nr(wl->gib_jahreszeit()), 2, disp_height-15, 0, false, true );
+	}
+
+	int w_left = 20+display_proportional(20, disp_height-12, info, ALIGN_LEFT, COL_BLACK, true);
+	int w_right = 10+display_proportional(disp_width-10, disp_height-12, stretch_text, ALIGN_RIGHT, COL_BLACK, true);
+	int middle = (disp_width+((w_left+8)&0xFFF0)-((w_right+8)&0xFFF0))/2;
+
+	if(wl->get_active_player()) {
+		char buffer[256];
+		display_proportional( middle-5, disp_height-12, wl->get_active_player()->gib_name(), ALIGN_RIGHT, PLAYER_FLAG|(wl->get_active_player()->get_player_color1()+4), true);
+		money_to_string(buffer, konto);
+		display_proportional( middle+5, disp_height-12, buffer, ALIGN_LEFT, konto >= 0.0?MONEY_PLUS:MONEY_MINUS, true);
+	}
+	display_flush_buffer();
 }
 
 

@@ -18,7 +18,7 @@
 class gebaeude_t;
 class karte_t;
 class spieler_t;
-class werkzeug_parameter_waehler_t;
+class werkzeug_waehler_t;
 
 /**
  * Diese Klasse übernimmt den Bau von mehrteiligen Gebäuden. Sie kennt die
@@ -74,12 +74,12 @@ class hausbauer_t
 		/* Fill menu with icons of buildings from the list
 		 * @author prissi
 		 */
-		static void fill_menu(werkzeug_parameter_waehler_t* wzw, slist_tpl<const haus_besch_t*>& stops, tool_func_param werkzeug, const int sound_ok, const int sound_ko, const sint64 cost, const karte_t* welt);
+		static void fill_menu(werkzeug_waehler_t* wzw, slist_tpl<const haus_besch_t*>& stops, const sint64 cost, const karte_t* welt);
 
 		/* Fill menu with icons of buildings of a given type
 		 * @author prissi
 		 */
-		static void fill_menu(werkzeug_parameter_waehler_t* wzw, haus_besch_t::utyp, tool_func_param werkzeug, const int sound_ok, const int sound_ko,const sint64 cost, const karte_t* welt);
+		static void fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp, const sint64 cost, const karte_t* welt);
 
 		/**
 		 * Gewerbegebäude passend zum Level liefern. Zur Zeit sind die Einträge

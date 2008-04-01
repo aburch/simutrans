@@ -71,7 +71,9 @@ enum waytype_t {
 	water_wt         =   3,
 	overheadlines_wt =   4,
 	monorail_wt      =   5,
+	maglev_wt        =   6,
 	tram_wt          =   7,
+	narrowgauge_wt   =   8,
 	air_wt           =  16,
 	powerline_wt     = 128
 };

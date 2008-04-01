@@ -733,10 +733,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\simdisplay.c"
-				>
-			</File>
-			<File
 				RelativePath=".\simevent.c"
 				>
 			</File>
@@ -981,7 +977,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gui\werkzeug_parameter_waehler.cc"
+				RelativePath=".\gui\werkzeug_waehler.cc"
 				>
 			</File>
 			<File

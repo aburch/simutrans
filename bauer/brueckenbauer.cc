@@ -29,7 +29,7 @@
 #include "../boden/wege/kanal.h"
 
 #include "../gui/messagebox.h"
-#include "../gui/werkzeug_parameter_waehler.h"
+#include "../gui/werkzeug_waehler.h"
 
 #include "../besch/bruecke_besch.h"
 #include "../besch/skin_besch.h"
@@ -131,13 +131,10 @@ static bool compare_bridges(const bruecke_besch_t* a, const bruecke_besch_t* b)
  * Fill menu with icons of given waytype
  * @author Hj. Malthaner
  */
-void
-brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
-         const waytype_t wtyp,
-         const int sound_ok,
-         const int sound_ko,
-         const karte_t *welt)
+void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const karte_t *welt)
 {
+	static stringhashtable_tpl<wkz_brueckenbau_t *> bruecken_tool;
+
 	const uint16 time = welt->get_timeline_year_month();
 
 	// list of matching types (sorted by speed)
@@ -158,36 +155,23 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	// now sorted ...
 	for (vector_tpl<const bruecke_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
 		const bruecke_besch_t* besch = *i;
-		char buf[256];
-
-		int n = sprintf(buf, "%s, %d$ (%d$)",
-			  translator::translate(besch->gib_name()),
-			  besch->gib_preis()/100,
-			  (besch->gib_wartung()<<shift_maintanance)/100);
-
-		if(wtyp!=powerline_wt) {
-			n += sprintf(buf+n, ", %dkm/h", besch->gib_topspeed());
+		wkz_brueckenbau_t *wkz = bruecken_tool.get(besch->gib_name());
+		if(wkz==NULL) {
+			// not yet in hashtable
+			wkz = new wkz_brueckenbau_t();
+			wkz->icon = besch->gib_cursor()->gib_bild_nr(1),
+			wkz->cursor = besch->gib_cursor()->gib_bild_nr(0),
+			wkz->default_param = besch->gib_name();
+			bruecken_tool.put(besch->gib_name(),wkz);
 		}
-		if(besch->gib_max_length()>0) {
-			n += sprintf(buf+n, ", %dkm", besch->gib_max_length());
-		}
-
-		wzw->add_param_tool(baue,
-			  (const void*) besch,
-			  karte_t::Z_PLAN,
-			  sound_ok,
-			  sound_ko,
-			  besch->gib_cursor()->gib_bild_nr(1),
-			  besch->gib_cursor()->gib_bild_nr(0),
-			  cstring_t(buf));
+		wzw->add_werkzeug( (werkzeug_t*)wkz );
 	}
 }
 
 
 
 
-koord3d
-brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&error_msg )
+koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&error_msg )
 {
 	const grund_t *gr1; // auf Brückenebene
 	const grund_t *gr2; // unter Brückenebene
@@ -233,7 +217,7 @@ brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_
 				}
 			}
 			if(gr2->gib_grund_hang()==hang_t::flach) {
-				if(gr2->gib_typ()!=grund_t::monorailboden  &&  !gr2->gib_halt().is_bound()) {
+				if(gr2->gib_typ()!=grund_t::monorailboden) {
 					if(ribi_t::ist_einfach(ribi) && koord(ribi) == zv) {
 						// Ende mit Rampe - Endschiene vorhanden
 						return pos;
@@ -299,19 +283,13 @@ bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 }
 
 
-int
-brueckenbauer_t::baue(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord pos, value_t param)
+const char *brueckenbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const bruecke_besch_t *besch)
 {
 	bool powerbridge = false;
-	const bruecke_besch_t *besch = (const bruecke_besch_t *)param.p;
-
-	if(mode!=WKZ_DO) {
-		return true;
-	}
 
 	const grund_t *gr = welt->lookup_kartenboden(pos);
 	if(  !(gr  &&  besch)  ) {
-		return false;
+		return "";
 	}
 
 	DBG_MESSAGE("brueckenbauer_t::baue()", "called on %d,%d for bridge type '%s'",
@@ -330,21 +308,16 @@ brueckenbauer_t::baue(enum wkz_mode_t mode, spieler_t *sp, karte_t *welt, koord 
 		}
 	}
 	if((!lt && !weg) || !ist_ende_ok(sp, gr)) {
-DBG_MESSAGE("brueckenbauer_t::baue()", "no way %x found",besch->gib_waytype());
-		if(welt->get_active_player()==sp) {
-			create_win( new news_img("A bridge must start on a way!"), w_time_delete, magic_none);
-		}
-		return false;
+		DBG_MESSAGE("brueckenbauer_t::baue()", "no way %x found",besch->gib_waytype());
+		return "A bridge must start on a way!";
 	}
 
 	if(gr->kann_alle_obj_entfernen(sp)) {
-		create_win( new news_img("Tile not empty."), w_time_delete, magic_none);
-		return false;
+		return "Tile not empty.";
 	}
 
 	if(!hang_t::ist_wegbar(gr->gib_grund_hang())) {
-		create_win( new news_img("Bruecke muss an\neinfachem\nHang beginnen!\n"), w_time_delete, magic_none);
-		return false;
+		return "Bruecke muss an\neinfachem\nHang beginnen!\n";
 	}
 
 	if(powerbridge) {
@@ -375,8 +348,7 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "no way %x found",besch->gib_waytype());
 	}
 
 	if(!ribi) {
-		create_win( new news_img("A bridge must start on a way!"), w_time_delete, magic_none);
-		return false;
+		return "A bridge must start on a way!";
 	}
 
 	zv = koord(ribi_t::rueckwaerts(ribi));
@@ -387,25 +359,23 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "no way %x found",besch->gib_waytype());
 	// found something?
 	if(msg!=NULL) {
 DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
-		create_win( new news_img(msg), w_time_delete, magic_none);
-		return false;
+		return msg;
 	}
 
 	grund_t * gr_end = welt->lookup(end);
 	if(gr_end->kann_alle_obj_entfernen(sp)) {
-		create_win( new news_img("Tile not empty."), w_time_delete, magic_none);
-		return false;
+		return "Tile not empty.";
 	}
 	// Anfang und ende sind geprueft, wir konnen endlich bauen
 	if(powerbridge) {
-		return baue_bruecke(welt, sp, gr->gib_pos(), end, zv, besch, wegbauer_t::leitung_besch );
+		baue_bruecke(welt, sp, gr->gib_pos(), end, zv, besch, wegbauer_t::leitung_besch );
 	} else {
-		return baue_bruecke(welt, sp, gr->gib_pos(), end, zv, besch, weg->gib_besch() );
+		baue_bruecke(welt, sp, gr->gib_pos(), end, zv, besch, weg->gib_besch() );
 	}
+	return NULL;
 }
 
-bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
-                 koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch)
+void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch)
 {
 	ribi_t::ribi ribi = 0;
 	weg_t *weg=NULL;	// =NULL to keep compiler happy
@@ -490,7 +460,6 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 			lt->calc_neighbourhood();
 		}
 	}
-	return true;
 }
 
 void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, koord zv, const bruecke_besch_t* besch, const weg_besch_t*)
@@ -550,8 +519,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 
 
 
-const char *
-brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wegtyp)
+const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wegtyp)
 {
 	marker_t    marker(welt->gib_groesse_x(),welt->gib_groesse_y());
 	slist_tpl<koord3d> end_list;

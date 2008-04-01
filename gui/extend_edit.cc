@@ -105,7 +105,6 @@ void extend_edit_gui_t::infowin_event(const event_t *ev)
 	if(ev->ev_class == INFOWIN) {
 		if(ev->ev_code == WIN_CLOSE) {
 			change_item_info(-1);
-			welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
 		}
 	}
 	gui_frame_t::infowin_event(ev);

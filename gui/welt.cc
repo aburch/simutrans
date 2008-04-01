@@ -32,7 +32,6 @@
 #include "../simcolor.h"
 
 #include "../simgraph.h"
-#include "../simdisplay.h"
 
 #include "load_relief_frame.h"
 

@@ -18,6 +18,7 @@
 #include "../simplay.h"
 #include "../simskin.h"
 #include "../simwerkz.h"
+#include "../simmenu.h"
 #include "../simwin.h"
 
 #include "../dataobj/translator.h"
@@ -38,6 +39,11 @@
 #define N_BUTTON_WIDTH  (int)(BUTTON_WIDTH*1.5)
 
 
+// new tool definition
+wkz_plant_tree_t baum_edit_frame_t::baum_tool=wkz_plant_tree_t();
+char baum_edit_frame_t::param_str[256];
+
+
 
 static bool compare_baum_besch(const baum_besch_t* a, const baum_besch_t* b)
 {
@@ -49,7 +55,6 @@ static bool compare_baum_besch(const baum_besch_t* a, const baum_besch_t* b)
 }
 
 
-
 baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 	extend_edit_gui_t(sp_,welt),
 	baumlist(16)
@@ -59,7 +64,9 @@ baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 	remove_komponente( &bt_obsolete );
 	offset_of_comp -= BUTTON_HEIGHT;
 
-	bbs.besch = NULL;
+	besch = NULL;
+	baum_tool.default_param = NULL;
+
 	fill_list( is_show_trans_name );
 
 	resize( koord(0,0) );
@@ -93,7 +100,7 @@ void baum_edit_frame_t::fill_list( bool translate )
 		else {
 			scl.append_element( (*i)->gib_name(), color );
 		}
-		if(  (*i) == bbs.besch  ) {
+		if(  (*i) == besch  ) {
 			scl.setze_selection(scl.get_count()-1);
 		}
 	}
@@ -111,14 +118,14 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 	buf.clear();
 	if(entry>=0  &&  entry<(sint32)baumlist.get_count()) {
 
-		bbs.besch = baumlist[entry];
+		besch = baumlist[entry];
 
-		buf.append(translator::translate(bbs.besch->gib_name()));
+		buf.append(translator::translate(besch->gib_name()));
 		buf.append("\n");
 
 		// climates
 		buf.append( translator::translate("allowed climates:\n") );
-		uint16 cl = bbs.besch->get_allowed_climate_bits();
+		uint16 cl = besch->get_allowed_climate_bits();
 		if(cl==0) {
 			buf.append( translator::translate("None") );
 			buf.append("\n");
@@ -132,9 +139,9 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 			}
 		}
 
-		buf.printf( "\n%s %i\n", translator::translate("Seasons"), bbs.besch->gib_seasons() );
+		buf.printf( "\n%s %i\n", translator::translate("Seasons"), besch->gib_seasons() );
 
-		const char *maker=bbs.besch->gib_copyright();
+		const char *maker=besch->gib_copyright();
 		if(maker!=NULL  && maker[0]!=0) {
 			buf.append("\n");
 			buf.printf(translator::translate("Constructed by %s"), maker);
@@ -144,16 +151,15 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 		info_text.recalc_size();
 		cont.setze_groesse( info_text.gib_groesse() );
 
-		img[3].set_image( bbs.besch->gib_bild_nr( 0, 3 ) );
+		img[3].set_image( besch->gib_bild_nr( 0, 3 ) );
 
-		bbs.ignore_climates = bt_climates.pressed;
-		bbs.random_age = bt_timeline.pressed;
-
-		// the tools will be always updated, even though the data up there might be still current
-		welt->setze_maus_funktion( wkz_pflanze_baum, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)&bbs,  SFX_JACKHAMMER, SFX_FAILURE );
+		sprintf( param_str, "%i%i%s", bt_climates.pressed, bt_timeline.pressed, besch->gib_name() );
+		baum_tool.default_param = param_str;
+		baum_tool.cursor = werkzeug_t::general_tool[WKZ_PLANT_TREE]->cursor;
+		welt->set_werkzeug( &baum_tool );
 	}
-	else if(bbs.besch!=NULL){
-		bbs.besch = NULL;
-		welt->setze_maus_funktion( wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
+	else if(welt->get_werkzeug()==&baum_tool) {
+		besch = NULL;
+		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
 	}
 }

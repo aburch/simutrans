@@ -3086,3 +3086,38 @@ void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL x
 		yp += ys;
 	}
 }
+
+/**
+ * Zeichnet eine Fortschrittsanzeige
+ * @author Hj. Malthaner
+ */
+static const char *progress_text=NULL;
+
+void display_set_progress_text(const char *t)
+{
+	progress_text = t;
+}
+
+void display_progress(int part, int total)
+{
+	const int disp_width=display_get_width();
+	const int disp_height=display_get_height();
+
+	const int width=disp_width/2;
+	part = (part*width)/total;
+
+	// outline
+	display_ddd_box(width/2-2, disp_height/2-9, width+4, 20, COL_GREY6, COL_GREY4);
+	display_ddd_box(width/2-1, disp_height/2-8, width+2, 18, COL_GREY4, COL_GREY6);
+
+	// inner
+	display_fillbox_wh(width/2, disp_height/2-7, width, 16, COL_GREY5, TRUE);
+
+	// progress
+	display_fillbox_wh(width/2, disp_height/2-5, part, 12, COL_BLUE, TRUE);
+
+	if(progress_text) {
+		display_proportional(width,display_get_height()/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);
+	}
+	display_flush_buffer();
+}

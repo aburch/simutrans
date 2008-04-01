@@ -56,7 +56,6 @@
 #include "simsound.h"
 
 #include "simgraph.h"
-#include "simdisplay.h"
 #include "simsys.h"
 
 #include "boden/wege/schiene.h"
@@ -86,7 +85,7 @@
 #include "gui/help_frame.h"
 #include "gui/goods_frame_t.h"
 #include "gui/jump_frame.h"
-#include "gui/werkzeug_parameter_waehler.h"
+#include "gui/werkzeug_waehler.h"
 #include "gui/factory_edit.h"
 #include "gui/curiosity_edit.h"
 #include "gui/citybuilding_edit.h"
@@ -122,10 +121,6 @@
 
 // frame per second for fast forward
 #define FF_PPS (10)
-
-// offsets for mouse pointer
-const int karte_t::Z_PLAN      = 4;
-const int karte_t::Z_GRID      = 0;
 
 
 static bool is_dragging = false;
@@ -240,7 +235,6 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 
 			if(is_display_init()) {
 				display_progress((y*16)/gib_groesse_y(), display_total);
-				display_flush(IMG_LEER, 0, "", "", 0, 0);
 			}
 		}
 
@@ -294,7 +288,6 @@ karte_t::calc_hoehe_mit_perlin()
 
 		if(is_display_init()) {
 			display_progress((y*16)/gib_groesse_y(), display_total);
-			display_flush(IMG_LEER, 0, "", "", 0, 0);
 		}
 		else {
 			printf("X");fflush(NULL);
@@ -595,7 +588,7 @@ void karte_t::init(einstellungen_t* sets)
 		destroy();
 	}
 
-	current_mouse_funk.funk = NULL;
+	werkzeug = NULL;
 	if(is_display_init()) {
 		display_show_pointer(false);
 	}
@@ -617,7 +610,6 @@ void karte_t::init(einstellungen_t* sets)
 	next_month_ticks =  karte_t::ticks_per_tag;
 	season=(2+letzter_monat/3)&3; // summer always zero
 	snowline = sets->gib_winter_snowline()*Z_TILE_STEP + grundwasser;
-	current_mouse_funk.funk = NULL;
 	is_dragging = false;
 	steps = 0;
 	recalc_average_speed();	// resets timeline
@@ -692,7 +684,6 @@ DBG_DEBUG("karte_t::init()","set ground");
 		}
 	}
 
-#if 1
 DBG_DEBUG("karte_t::init()","distributing groundobjs");
 	if(  umgebung_t::ground_object_probability > 0  ) {
 		// add eyecandy like rocky, moles, flowers, ...
@@ -715,12 +706,9 @@ DBG_DEBUG("karte_t::init()","distributing groundobjs");
 		}
 	}
 
-#endif
-
 DBG_DEBUG("karte_t::init()","distributing trees");
 	baum_t::distribute_trees(this,3);
 
-#if 1
 DBG_DEBUG("karte_t::init()","distributing movingobjs");
 	if(  umgebung_t::ground_object_probability > 0  ) {
 		// add eyecandy like rocky, moles, flowers, ...
@@ -744,7 +732,6 @@ DBG_DEBUG("karte_t::init()","distributing movingobjs");
 			}
 		}
 	}
-#endif
 
 DBG_DEBUG("karte_t::init()","built timeline");
 	stadtauto_t::built_timeline_liste(this);
@@ -785,7 +772,6 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 			if(is_display_init()) {
 				display_progress(x, max_display_progress);
 				x += 2;
-				display_flush(IMG_LEER, 0, "", "", 0, 0);
 			}
 			else {
 				printf("*");fflush(NULL);
@@ -844,7 +830,6 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 					int progress_count = 16+einstellungen->gib_anzahl_staedte()*2+ (count*einstellungen->gib_anzahl_staedte()*2)/max_count;
 					if(old_progress_count!=progress_count) {
 						display_progress(progress_count, max_display_progress );
-						display_flush(IMG_LEER, 0, "", "", 0, 0);
 						old_progress_count = progress_count;
 					}
 				}
@@ -878,7 +863,6 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 		fabrikbauer_t::increase_industry_density( this, false );
 		int progress_count = 16 + einstellungen->gib_anzahl_staedte()*4 + i;
 		display_progress(progress_count, max_display_progress );
-		display_flush(IMG_LEER, 0, "", "", 0, 0);
 	}
 #endif
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.count();
@@ -894,7 +878,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 	// finishes the line preparation and sets id 0 to invalid ...
 	spieler[0]->simlinemgmt.laden_abschliessen();
 
-	setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+	set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
 
 	recalc_average_speed();
 
@@ -921,7 +905,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 }
 
 
-karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), quick_shortcuts(15), marker(0,0)
+karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 {
 	// length of day and other time stuff
 	ticks_bits_per_tag = 20;
@@ -930,12 +914,10 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), quick_shortcu
 	pause = false;
 	time_multiplier = 16;
 	next_wait_time = this_wait_time = 30;
-	current_mouse_funk.funk = NULL;
 
-	for (unsigned int i=0; i<15; i++) {
-//DBG_MESSAGE("karte_t::karte_t()","Append NULL to quick_shortcuts at %d\n",i);
-		quick_shortcuts.append(NULL);
-	}
+	werkzeug = NULL;
+	werkzeug_last_pos = koord::invalid;
+	werkzeug_last_button = -1;
 
 	follow_convoi = convoihandle_t();
 	setze_dirty();
@@ -986,9 +968,8 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), quick_shortcu
 		spieler[i] = 0;
 	}
 
-	// set builder to invalid tile ...
-	extern koord3d wkz_wegebau_start;
-	wkz_wegebau_start = koord3d::invalid;
+	// no distance to show at first ...
+	show_distance = koord3d::invalid;
 }
 
 
@@ -1387,29 +1368,10 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint16 hgt)
 
 
 
-void karte_t::setze_maus_funktion( tool_func funktion, int zeiger_bild, int zeiger_versatz, int ok_sound, int ko_sound)
+// new tool definition
+void karte_t::set_werkzeug( werkzeug_t *w )
 {
-	setze_maus_funktion( (tool_func_param)funktion, zeiger_bild, zeiger_versatz, 0l, ok_sound, ko_sound);
-}
-
-
-
-/**
- * Spezialvarainte mit einem Parameter, der immer übergeben wird
- * Hajo: changed parameter type from long to value_t because some
- *       parts of the code pass pointers
- * @author V. Meyer, Hj. Malthaner
- */
-void karte_t::setze_maus_funktion(tool_func_param funktion, int zeiger_bild, int zeiger_versatz, value_t param, int ok_sound, int ko_sound)
-{
-	// gibt es eien neue funktion ?
-	if(funktion != NULL) {
-		// gab es eine alte funktion ?
-		if(current_mouse_funk.funk!=NULL) {
-			current_mouse_funk.funk( WKZ_EXIT, get_active_player(), this, koord::invalid, current_mouse_funk.param);
-		}
-
-		is_dragging = false;
+	if(w!=werkzeug  &&  w->init(this,active_player)) {
 
 		struct sound_info info;
 		info.index = SFX_SELECT;
@@ -1417,22 +1379,18 @@ void karte_t::setze_maus_funktion(tool_func_param funktion, int zeiger_bild, int
 		info.pri = 0;
 		sound_play(info);
 
-		current_mouse_funk.funk = funktion;
-		current_mouse_funk.param = param;
-		current_mouse_funk.ok_sound = ok_sound;
-		current_mouse_funk.ko_sound = ko_sound;
-		current_mouse_funk.last_pos = koord::invalid;
-		current_mouse_funk.zeiger_versatz = zeiger_versatz;
-		current_mouse_funk.zeiger_bild = zeiger_bild;
-
+		if(werkzeug) {
+			werkzeug->exit(this,active_player);
+		}
 		// reset pointer
 		koord3d zpos = zeiger->gib_pos();
-		zeiger->setze_bild(zeiger_bild);
-		zeiger->setze_yoff(zeiger_versatz);
+		zeiger->setze_bild( w->cursor );
+		zeiger->setze_yoff( w->offset );
 		zeiger->change_pos( zpos );
 		zeiger->setze_area( koord(1,1), false );
-
-		current_mouse_funk.funk(WKZ_INIT, get_active_player(), this, zpos.gib_2d(), current_mouse_funk.param);
+		werkzeug = w;
+		werkzeug_last_pos = koord::invalid;
+		werkzeug_last_button = -1;
 	}
 }
 
@@ -2778,7 +2736,6 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	if(!silent) {
 		display_set_progress_text(translator::translate("Saving map ..."));
 		display_progress(0,gib_groesse_y());
-		display_flush(IMG_LEER, 0, "", "", 0, 0);
 	}
 
 	// rotate the map until it can be saved
@@ -2816,7 +2773,6 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities ok");
 		}
 		else {
 			display_progress(j, gib_groesse_y());
-			display_flush(IMG_LEER, 0, "", "", 0, 0);
 		}
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
@@ -2944,13 +2900,12 @@ void karte_t::laden(loadsave_t *file)
 	char buf[80];
 
 	intr_disable();
-	current_mouse_funk.funk = NULL;
+	werkzeug = NULL;
 	destroy_all_win();
 
 
 	display_set_progress_text(translator::translate("Loading map ..."));
 	display_progress(0, 100);	// does not matter, since fixed width
-	display_flush(IMG_LEER, 0, "", "", 0, 0);
 
 	destroy();
 
@@ -2975,7 +2930,6 @@ void karte_t::laden(loadsave_t *file)
 	// just an initialisation for the loading
 	season = (2+letzter_monat/3)&3; // summer always zero
 	snowline = einstellungen->gib_winter_snowline()*Z_TILE_STEP + grundwasser;
-	current_mouse_funk.funk = NULL;
 
 DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i beginner=%i",einstellungen->gib_groesse_x(),einstellungen->gib_groesse_y(),umgebung_t::use_timeline,einstellungen->gib_beginner_mode());
 
@@ -3001,7 +2955,6 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 
 	// reinit pointer with new pointer object and old values
 	zeiger = new zeiger_t(this, koord3d::invalid, spieler[0]);
-	setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 
 	hausbauer_t::neue_karte();
 	fabrikbauer_t::neue_karte(this);
@@ -3043,7 +2996,6 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte()
 			access(x, y)->rdwr(this, file);
 		}
 		display_progress(y, gib_groesse_y()+stadt.get_count()+256);
-		display_flush(IMG_LEER, 0, "", "", 0, 0);
 	}
 
 DBG_MESSAGE("karte_t::laden()","loading grid");
@@ -3110,7 +3062,6 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 		}
 		if(i&7) {
 			display_progress(gib_groesse_y()+(24*i)/fabs, gib_groesse_y()+stadt.get_count()+256);
-			display_flush(IMG_LEER, 0, "", "", 0, 0);
 		}
 	}
 
@@ -3129,7 +3080,6 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 		}
 	}
 	display_progress(gib_groesse_y()+24, gib_groesse_y()+256+stadt.get_count());
-	display_flush(IMG_LEER, 0, "", "", 0, 0);
 
 DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 
@@ -3142,7 +3092,6 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 		}
 		(*i)->laden_abschliessen();
 		display_progress(x++, gib_groesse_y() + 256 + stadt.get_count());
-		display_flush(IMG_LEER, 0, "", "", 0, 0);
 	}
 
 	// must resort them ...
@@ -3211,15 +3160,12 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 		}
 	}
 
-	display_progress(gib_groesse_y()+24+stadt.get_count(), gib_groesse_y()+256+stadt.get_count());
-	display_flush(IMG_LEER, 0, "", "", 0, 0);
-DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_count());
-
 	// jetzt können die spieler geladen werden
+	display_progress(gib_groesse_y()+24+stadt.get_count(), gib_groesse_y()+256+stadt.get_count());
+DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_count());
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		spieler[i]->rdwr(file);
 		display_progress(gib_groesse_y()+24+stadt.get_count()+(i*3), gib_groesse_y()+256+stadt.get_count());
-		display_flush(IMG_LEER, 0, "", "", 0, 0);
 	}
 	for(int i=0; i<MAX_PLAYER_COUNT-2; i++) {
 		umgebung_t::automaten[i] = spieler[i+2]->is_active();
@@ -3262,7 +3208,6 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 			}
 		}
 		display_progress(gib_groesse_y()+48+stadt.get_count()+(y*128)/gib_groesse_y(), gib_groesse_y()+256+stadt.get_count());
-		display_flush(IMG_LEER, 0, "", "", 0, 0);
 	}
 
 	// assing lines and other stuff for convois
@@ -3296,7 +3241,6 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	while(iter.next()) {
 		if((hnr++%32)==0) {
 			display_progress(gib_groesse_y()+48+stadt.get_count()+128+(hnr*80)/hmax, gib_groesse_y()+256+stadt.get_count());
-			display_flush(IMG_LEER, 0, "", "", 0, 0);
 		}
 		iter.get_current()->rebuild_destinations();
 	}
@@ -3342,7 +3286,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	setze_dirty();
 	mute_sound(false);
 
-	setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+	set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
 }
 
 
@@ -3491,8 +3435,7 @@ karte_t::reset_timer()
 
 // jump one year ahead
 // (not updating history!)
-void
-karte_t::step_year()
+void karte_t::step_year()
 {
 	DBG_MESSAGE("karte_t::step_year()","called");
 //	ticks += 12*karte_t::ticks_per_tag;
@@ -3504,8 +3447,20 @@ karte_t::step_year()
 
 
 
-void
-karte_t::do_pause()
+void karte_t::change_time_multiplier(sint32 delta)
+{
+	time_multiplier += delta;
+	if(time_multiplier<=0) {
+		time_multiplier = 1;
+	}
+	if(fast_forward) {
+		fast_forward = false;
+		reset_timer();
+	}
+}
+
+
+void karte_t::do_pause()
 {
 	display_fillbox_wh(display_get_width()/2-100, display_get_height()/2-50, 200,100, MN_GREY2, true);
 	display_ddd_box(display_get_width()/2-100, display_get_height()/2-50, 200,100, MN_GREY4, MN_GREY0);
@@ -3591,18 +3546,14 @@ void karte_t::bewege_zeiger(const event_t *ev)
 					}
 				}
 			}
-			if(!found  &&  current_mouse_funk.funk!=tunnelbauer_t::baue) {
-				zeiger->change_pos( koord3d::invalid );
-				return;
-			}
 			hgt = found_hgt;
 		}
 		if(!found) {
-			if(current_mouse_funk.funk!=tunnelbauer_t::baue) {
+			if(grund_t::underground_mode) {
 				hgt = zeiger->gib_pos().z;
 			}
 
-			for(int n = 0; n < 2 && !found; n++) {
+			for(int n = 0; n < 2; n++) {
 
 				const int base_i = (screen_x+screen_y + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1) )/2;
 				const int base_j = (screen_y-screen_x + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1))/2;
@@ -3611,9 +3562,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 				mj = ((int)floor(base_j/(double)rw4)) + j_off;
 
 				const planquadrat_t *plan = lookup(koord(mi,mj));
-				if(current_mouse_funk.funk==tunnelbauer_t::baue) {
-					found = true;
-				} else if(plan != NULL) {
+				if(plan != NULL) {
 					hgt = plan->gib_kartenboden()->gib_hoehe();
 				}
 				else {
@@ -3630,7 +3579,6 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		neu_x += display_get_width()/2 + rw2;
 		neu_y += rw1;
 
-
 		// prüfe richtung d.h. welches nachbarfeld ist am naechsten
 		if(ev->mx-x_off < neu_x) {
 			zeiger->setze_richtung(ribi_t::west);
@@ -3639,21 +3587,19 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			zeiger->setze_richtung(ribi_t::nord);
 		}
 
-
 		// zeiger bewegen
 		if(mi >= 0 && mj >= 0 && mi<gib_groesse_x() && mj<gib_groesse_y() && (mi != i_alt || mj != j_alt)) {
 
 			i_alt = mi;
 			j_alt = mj;
 
-			koord3d pos = lookup(koord(mi,mj))->gib_kartenboden()->gib_pos();
+			koord3d pos = lookup_kartenboden(koord(mi,mj))->gib_pos();
 			if(grund_t::underground_mode) {
 				pos.z = hgt;
 			}
 			else {
 				if(zeiger->gib_yoff()==Z_GRID) {
 					pos.z = lookup_hgt(koord(mi,mj));
-					// pos.z = max_hgt(koord(mi,mj));
 				}
 			}
 			zeiger->change_pos(pos);
@@ -3662,13 +3608,13 @@ void karte_t::bewege_zeiger(const event_t *ev)
 				is_dragging = false;
 //				current_mouse_funk.funk(WKZ_INIT, get_active_player(), this, koord::invalid, current_mouse_funk.param);
 			}
-			else if(current_mouse_funk.funk!=NULL  &&  ev->ev_class==EVENT_DRAG  &&  current_mouse_funk.last_pos!=pos.gib_2d()) {
+			else if(werkzeug!=NULL  &&  ev->ev_class==EVENT_DRAG  &&  werkzeug_last_pos!=pos.gib_2d()) {
 				if(!is_dragging) {
-					current_mouse_funk.funk(WKZ_DRAG, get_active_player(), this, prev_pos, current_mouse_funk.param);
+					werkzeug->move( this, get_active_player(), 1, pos );
 				}
 				is_dragging = true;
-				current_mouse_funk.funk(WKZ_DRAG, get_active_player(), this, pos.gib_2d(), current_mouse_funk.param);
-				current_mouse_funk.last_pos = pos.gib_2d();
+				werkzeug->move( this, get_active_player(), 1, pos );
+				werkzeug_last_pos = pos.gib_2d();
 			}
 		}
 	}
@@ -3705,6 +3651,7 @@ void karte_t::switch_active_player(uint8 new_player)
 
 	// update menue entries (we do not want player1 to run anything)
 	if(renew_menu) {
+/*
 		static magic_numbers all_menu[6]= { magic_railtools, magic_monorailtools, magic_tramtools, magic_roadtools, magic_shiptools, magic_airtools };
 		for( int i=0;  i<6;  i++  ) {
 			gui_fenster_t *gui=win_get_magic(all_menu[i]);
@@ -3712,25 +3659,13 @@ void karte_t::switch_active_player(uint8 new_player)
 				menu_fill( this, all_menu[i], active_player );
 			}
 		}
+############### */
+		for (vector_tpl<toolbar_t *>::const_iterator i = werkzeug_t::toolbar_tool.begin(), end = werkzeug_t::toolbar_tool.end();  i != end;  ++i  ) {
+			(*i)->update(this, active_player);
+		}
 		setze_dirty();
 	}
-
-	// open edit tools
-	if(active_player_nr==1) {
-		gui_fenster_t *gui=win_get_magic(magic_edittools);
-		if(!gui) {
-			create_win( menu_fill( this, magic_edittools, active_player), w_info|w_no_overlap, magic_edittools );
-		}
-	}
-	else {
-		// close edit tools
-		gui_fenster_t *gui=win_get_magic(magic_edittools);
-		if(gui) {
-			destroy_win(gui);
-		}
-	}
-
-	setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+	set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
 }
 
 
@@ -3738,11 +3673,7 @@ void karte_t::switch_active_player(uint8 new_player)
 void
 karte_t::interactive_event(event_t &ev)
 {
-	extern const weg_besch_t *default_track;
-	extern const weg_besch_t *default_road;
-	extern const way_obj_besch_t *default_electric;
 	struct sound_info click_sound;
-
 	click_sound.index = SFX_SELECT;
 	click_sound.volume = 255;
 	click_sound.pri = 0;
@@ -3751,165 +3682,6 @@ karte_t::interactive_event(event_t &ev)
 		DBG_MESSAGE("karte_t::interactive_event()","Keyboard event with code %d '%c'", ev.ev_code, ev.ev_code);
 
 		switch(ev.ev_code) {
-			case ',':
-				if(time_multiplier>1) {
-					time_multiplier--;
-					sound_play(click_sound);
-				}
-				if(fast_forward) {
-					fast_forward = false;
-					reset_timer();
-				}
-				break;
-			case '.':
-				sound_play(click_sound);
-				time_multiplier++;
-				if(fast_forward) {
-					fast_forward = false;
-					reset_timer();
-				}
-				break;
-			case '!':
-				sound_play(click_sound);
-				umgebung_t::show_names = (umgebung_t::show_names+1) & 3;
-				setze_dirty();
-				break;
-			case '"':
-				sound_play(click_sound);
-				umgebung_t::hide_buildings ++;
-				if(umgebung_t::hide_buildings>umgebung_t::ALL_HIDDEN_BUIDLING) {
-					umgebung_t::hide_buildings = umgebung_t::NOT_HIDE;
-				}
-				umgebung_t::hide_trees = !umgebung_t::hide_trees;
-				setze_dirty();
-				break;
-			case '#':
-				sound_play(click_sound);
-				grund_t::toggle_grid();
-				setze_dirty();
-				break;
-			case 'U':
-			{
-				static magic_numbers all_menu_tools[10]= { magic_slopetools, magic_railtools, magic_monorailtools, magic_tramtools, magic_roadtools, magic_shiptools, magic_airtools, magic_specialtools, magic_edittools, magic_listtools };
-
-				sound_play(click_sound);
-				grund_t::toggle_underground_mode();
-				for( int i=0;  i<10;  i++  ) {
-					gui_fenster_t *gui=win_get_magic(all_menu_tools[i]);
-					if(gui) {
-						menu_fill( this, all_menu_tools[i], active_player );
-					}
-				}
-				setze_dirty();
-				update_map();
-				break;
-			}
-case 167:    // Hajo: '§'
-//				baum_t::distribute_trees( this, 3 );
-create_win( new baum_edit_frame_t(gib_spieler(1),this), w_info, magic_edit_factory);
-break;
-case '&':
-create_win( new citybuilding_edit_frame_t(gib_spieler(1),this), w_info, magic_edit_factory);
-break;
-case '/':
-create_win( new curiosity_edit_frame_t(gib_spieler(1),this), w_info, magic_edit_factory);
-break;
-case '(':
-create_win( new factory_edit_frame_t(gib_spieler(1),this), w_info, magic_edit_factory);
-break;
-case ')':
-setze_maus_funktion(wkz_factory_link, skinverwaltung_t::linkzeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
-break;
-			case 'a':
-				setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
-				break;
-			case 'b':
-				sound_play(click_sound);
-				schiene_t::show_reservations = !schiene_t::show_reservations;
-				if(schiene_t::show_reservations) {
-					setze_maus_funktion(wkz_clear_reservation, skinverwaltung_t::signalzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );
-				}
-				setze_dirty();
-				break;
-			case 'B':
-				sound_play(click_sound);
-				create_win( new message_frame_t(this), w_info, magic_messageframe );
-				break;
-			case 'c':
-				sound_play(click_sound);
-				display_snapshot();
-				create_win( new news_img("Screenshot\ngespeichert.\n"), w_time_delete, magic_none);
-				break;
-			case 'C':
-				sound_play(click_sound);
-				setze_maus_funktion(wkz_add_city, skinverwaltung_t::stadtzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );
-				break;
-			case 'd':
-				setze_maus_funktion(wkz_lower, skinverwaltung_t::downzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );
-				break;
-			case 'e':
-				if(default_electric==NULL) {
-					default_electric = wayobj_t::wayobj_search(track_wt,overheadlines_wt,get_timeline_year_month());
-				}
-				if(default_electric) {
-					setze_maus_funktion(wkz_wayobj, default_electric->gib_cursor()->gib_bild_nr(0), Z_PLAN, (long)default_electric, SFX_JACKHAMMER, SFX_FAILURE);
-				}
-				break;
-			case 'f': /* OCR: Finances */
-				sound_play(click_sound);
-				get_active_player()->zeige_info();
-				break;
-			case 'g':
-				if(skinverwaltung_t::senke) {
-					setze_maus_funktion(wkz_senke, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
-				}
-				break;
-			case 'G':
-				create_win( new goods_frame_t(this), w_info, magic_goodslist );
-				break;
-			case 'H':
-				if (!hausbauer_t::headquarter.empty()) {
-					setze_maus_funktion(wkz_headquarter, skinverwaltung_t::bauzeiger->gib_bild_nr(0), Z_PLAN, SFX_JACKHAMMER, SFX_FAILURE);
-				}
-				break;
-			case 'I':
-				if(einstellungen->gib_allow_player_change()) {
-					setze_maus_funktion(wkz_increase_chain, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, NO_SOUND, NO_SOUND );
-				}
-				else {
-					message_t::get_instance()->add_message(translator::translate("On this map, you are not\nallowed to change player!\n"), koord::invalid, message_t::problems, get_active_player()->get_player_nr(), IMG_LEER);
-				}
-				break;
-			case 'J':
-				create_win( new jump_frame_t(this), w_info, magic_jump);
-				break;
-			case 'k':
-				create_win( 272, 160, new ki_kontroll_t(this), w_info, magic_ki_kontroll_t);
-				break;
-			case 'l':
-				if(wegbauer_t::leitung_besch) {
-					setze_maus_funktion(wkz_wegebau,
-					wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(0),
-							Z_PLAN,
-							(const void *)wegbauer_t::leitung_besch,
-							SFX_JACKHAMMER,
-							SFX_FAILURE );
-				}
-				break;
-			case 'L':
-				sound_play(click_sound);
-				create_win( new loadsave_frame_t(this, true), w_info, magic_load_t);
-				break;
-			case 'm':
-				create_win( new map_frame_t(this), w_info, magic_reliefmap);
-				break;
-			case 'M':
-				setze_maus_funktion(wkz_marker, skinverwaltung_t::belegtzeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
-				break;
-			case 'P':
-				sound_play(click_sound);
-				switch_active_player( active_player_nr+1 );
-				break;
 			case 'p':
 				sound_play(click_sound);
 				pause ^= 1;
@@ -3920,75 +3692,6 @@ break;
 					reset_timer();
 					intr_enable();
 				}
-				break;
-			case 'Q':
-				create_win( new optionen_gui_t(this), w_info, magic_optionen_gui_t );
-				break;
-			case 'r':
-				setze_maus_funktion(wkz_remover, skinverwaltung_t::killzeiger->gib_bild_nr(0), Z_PLAN, SFX_REMOVER, SFX_FAILURE);
-				break;
-			case 'R':
-				rotate90();
-				update_map();
-				break;
-			case 's':
-				if(default_road==NULL) {
-					default_road = wegbauer_t::weg_search(road_wt,90,get_timeline_year_month(),weg_t::type_flat);
-				}
-				setze_maus_funktion(wkz_wegebau, default_road->gib_cursor()->gib_bild_nr(0), Z_PLAN, (long)default_road, SFX_JACKHAMMER, SFX_FAILURE);
-				break;
-			case 'S':
-				sound_play(click_sound);
-				create_win(new loadsave_frame_t(this, false), w_info, magic_save_t);
-				break;
-			case 't':
-				if(default_track==NULL) {
-					default_track = wegbauer_t::weg_search(track_wt,100,get_timeline_year_month(),weg_t::type_flat);
-				}
-				// may be NULL, if no track exists ...
-				if(default_track!=NULL) {
-					setze_maus_funktion(wkz_wegebau, default_track->gib_cursor()->gib_bild_nr(0), Z_PLAN,	(long)default_track, SFX_JACKHAMMER, SFX_FAILURE);
-				}
-				break;
-			case 'T':
-				sound_play(click_sound);
-				create_win(new citylist_frame_t(this), w_info, magic_citylist_frame_t);
-				break;
-			case 'u':
-				setze_maus_funktion(wkz_raise, skinverwaltung_t::upzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );
-				break;
-			case 'v':
-				umgebung_t::station_coverage_show = !umgebung_t::station_coverage_show;
-				setze_dirty();
-				break;
-			case 'V':
-				sound_play(click_sound);
-				create_win( new convoi_frame_t(get_active_player()), w_info, magic_convoi_t);
-				break;
-			case 'W':
-				fast_forward ^= 1;
-				reset_timer();
-				break;
-			case 'w':
-				sound_play(click_sound);
-				get_active_player()->simlinemgmt.zeige_info(get_active_player());
-				break;
-			case 'X':
-				sound_play(click_sound);
-				destroy_all_win();
-				beenden(false);
-				break;
-			case 'z':
-				wkz_undo(get_active_player());
-				break;
-
-			case '+':
-				display_set_light(display_get_light()+1);
-				setze_dirty();
-				break;
-			case '-':
-				display_set_light(display_get_light()-1);
-				setze_dirty();
 				break;
 
 			// shortcut system
@@ -4008,30 +3711,6 @@ break;
 			case SIM_KEY_F15:
 			{
 				// save/recall commands
-				int num = ev.ev_code - SIM_KEY_F2;
-				save_mouse_func_t *& shortcut = quick_shortcuts[num];
-
-				if (event_get_last_control_shift() == 2) {
-					if (shortcut == NULL) {
-						shortcut = new save_mouse_func_t;
-					}
-					*shortcut = current_mouse_funk;
-				}
-				else if (shortcut != NULL) {
-						// gab es eine alte funktion ?
-						if(current_mouse_funk.funk!=NULL) {
-							current_mouse_funk.funk(WKZ_EXIT, get_active_player(), this, koord::invalid, current_mouse_funk.param);
-						}
-						DBG_MESSAGE("karte_t()","Recall mouse_funk");
-						current_mouse_funk = *shortcut;
-						current_mouse_funk.last_pos = koord::invalid;
-						zeiger->setze_yoff(shortcut->zeiger_versatz);
-						zeiger->setze_bild(shortcut->zeiger_bild);
-						zeiger->set_flag(ding_t::dirty);
-
-						current_mouse_funk.funk(WKZ_INIT, get_active_player(), this, koord::invalid, current_mouse_funk.param);
-					}
-				break;
 			}
 
 			// cursor movements
@@ -4072,18 +3751,6 @@ break;
 				dirty = true;
 				break;
 
-			// zoom
-			case '>':
-				if(win_change_zoom_factor(true)) {
-					setze_dirty();
-				}
-				break;
-			case '<':
-				if(win_change_zoom_factor(false)) {
-					setze_dirty();
-				}
-				break;
-
 			// closing windows
 			case 27:
 			case 127:
@@ -4096,7 +3763,7 @@ break;
 				break;
 
 			case SIM_KEY_F1:
-				create_win(new help_frame_t("general.txt"), w_info, magic_mainhelp);
+				set_werkzeug( werkzeug_t::dialog_tool[WKZ_HELP] );
 				break;
 
 			// just ignore the key
@@ -4104,172 +3771,35 @@ break;
 			case 13:
 				break;
 
-			// show help dialoge for unknown keys
-			default:
-				if (ev.ev_code <= 255) {
-					DBG_MESSAGE("karte_t::interactive_event()","key `%c` is not bound to a function.",ev.ev_code);
-					create_win(new help_frame_t("keys.txt"), w_info, magic_keyhelp);
-				}
 		}
 	}
 
-	if(IS_LEFTRELEASE(&ev)) {
+	if(IS_LEFTRELEASE(&ev)  &&  werkzeug!=NULL) {
+DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 
-		// in main top menu?
-		if(ev.my < 32  &&  ev.cy<32) {
+		const char *err = NULL;
+		if(werkzeug_last_pos!=koord(mi,mj)) {
+			err = werkzeug->work( this, get_active_player(), zeiger->gib_pos() );
+		}
 
-			switch( ev.mx/32 ) {
-				case 0:
-					sound_play(click_sound);
-					create_win(240, 120, new optionen_gui_t(this), w_info,
-					magic_optionen_gui_t);
-					break;
-				case 1:
-					sound_play(click_sound);
-					create_win( new map_frame_t(this), w_info, magic_reliefmap);
-					break;
-				case 2:
-					setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
-					break;
-				case 3:
-					if(!grund_t::underground_mode) {
-						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_slopetools, active_player );
-						create_win( wzw, w_info|w_no_overlap, magic_slopetools );
-					}
-					break;
-				case 4:
-					{
-						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_railtools, active_player );
-						if(wzw) {
-							create_win( wzw, w_info|w_no_overlap, magic_railtools );
-						}
-					}
-					break;
-				case 5:
-					{
-						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_monorailtools, active_player );
-						if(wzw) {
-							create_win( wzw, w_info|w_no_overlap, magic_monorailtools );
-						}
-					}
-					break;
-				case 6:
-					{
-						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_tramtools, active_player );
-						if(wzw) {
-							create_win( wzw, w_info|w_no_overlap, magic_tramtools );
-						}
-					}
-					break;
-				case 7:
-					{
-						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_roadtools, active_player );
-						if(wzw) {
-							create_win( wzw, w_info|w_no_overlap, magic_roadtools );
-						}
-					}
-					break;
-				case 8:
-					{
-						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_shiptools, active_player );
-						if(wzw) {
-							create_win( wzw, w_info|w_no_overlap, magic_shiptools );
-						}
-					}
-					break;
-				case 9:
-					{
-						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_airtools, active_player );
-						if(wzw) {
-							create_win( wzw, w_info|w_no_overlap, magic_airtools );
-						}
-					}
-					break;
-				case 10:
-					{
-						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_specialtools, active_player );
-						if(wzw) {
-							create_win( wzw, w_info|w_no_overlap, magic_specialtools );
-						}
-					}
-					break;
-				case 11:
-					setze_maus_funktion(wkz_remover, skinverwaltung_t::killzeiger->gib_bild_nr(0), Z_PLAN, SFX_REMOVER, SFX_FAILURE);
-					break;
-				case 12:
-					// left empty
-					break;
-				case 13:
-					sound_play(click_sound);
-					get_active_player()->simlinemgmt.zeige_info( get_active_player() );
-					break;
-				case 14:
-					{
-						werkzeug_parameter_waehler_t *wzw = menu_fill( this, magic_listtools, active_player );
-						if(wzw) {
-							create_win( wzw, w_info|w_no_overlap, magic_listtools );
-						}
-					}
-					break;
-				case 15:
-					// line info
-					sound_play(click_sound);
-					create_win( new message_frame_t(this), w_info, magic_messageframe );
-					break;
-				case 16:
-					sound_play(click_sound);
-					get_active_player()->zeige_info();
-					break;
-				case 18:
-					sound_play(click_sound);
-					display_snapshot();
-					create_win( new news_img("Screenshot\ngespeichert.\n"), w_time_delete, magic_none);
-					break;
-				case 19:
-					// Pause: warten auf die nächste Taste
-					pause ^= 1;
-					if(pause) {
-						intr_disable();
-					}
-					else {
-						reset_timer();
-						intr_enable();
-					}
-					break;
-				case 20:
-					fast_forward ^= 1;
-					reset_timer();
-					break;
-				case 21:
-					sound_play(click_sound);
-					create_win(new help_frame_t("general.txt"), w_info, magic_mainhelp);
-					break;
+		/* tools can return three kinds of messages
+		 * NULL = success
+		 * "" = failure, but just do not try again
+		 * "bla" error message, which should be shown
+		 */
+		if(err==NULL) {
+			if(werkzeug->ok_sound!=NO_SOUND) {
+				struct sound_info info = {werkzeug->ok_sound,255,0};
+				sound_play(info);
 			}
 		}
-		else {
-			// do some interactive building
-			if(current_mouse_funk.funk != NULL) {
-				koord pos (mi,mj);
-
-DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
-				bool ok = false;
-				if(current_mouse_funk.last_pos!=pos) {
-					ok = current_mouse_funk.funk(WKZ_DO, get_active_player(), this, pos, current_mouse_funk.param);
-				}
-				if(ok) {
-					if(current_mouse_funk.ok_sound!=NO_SOUND) {
-						struct sound_info info = {current_mouse_funk.ok_sound,255,0};
-						sound_play(info);
-					}
-				} else {
-					if(current_mouse_funk.ko_sound!=NO_SOUND) {
-						struct sound_info info = {current_mouse_funk.ko_sound,255,0};
-						sound_play(info);
-					}
-				}
-				current_mouse_funk.last_pos = koord::invalid;
-			 }
+		else if(*err!=0) {
+			// something went really wrong
+			struct sound_info info = {SFX_FAILURE,255,0};
+			sound_play(info);
+			create_win( new news_img(err), w_time_delete, magic_none);
 		}
+		werkzeug_last_pos = koord::invalid;
 	}
 
     // mouse wheel scrolled -> rezoom

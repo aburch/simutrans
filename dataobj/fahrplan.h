@@ -39,7 +39,7 @@ public:
 	* sollte eine Fehlermeldung ausgeben, wenn halt nicht erlaubt ist
 	* @author Hj. Malthaner
 	*/
-	virtual void zeige_fehlermeldung() const {}
+	virtual const char *fehlermeldung() const { return ""; }
 
 	/**
 	* der allgemeine Fahrplan erlaubt haltestellen überall.
@@ -121,9 +121,9 @@ public:
 	 * will add elements 1 to maxi-1 in reverse order to schedule
 	 * @author hsiegeln
 	 */
-		void add_return_way();
+	void add_return_way();
 
-	 virtual fahrplan_t* copy() { return new fahrplan_t(this); }
+	virtual fahrplan_t* copy() { return new fahrplan_t(this); }
 
 	// copy all entries from schedule src to this and adjusts aktuell
 	void copy_from(const fahrplan_t *src);
@@ -147,7 +147,7 @@ public:
 	zugfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = zugfahrplan; }
 	zugfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = zugfahrplan; }
 	fahrplan_t* copy() { return new zugfahrplan_t(this); }
-	void zeige_fehlermeldung() const;
+	const char *fehlermeldung() const { return "Zughalt muss auf\nSchiene liegen!\n"; }
 };
 
 /* the schedule for monorail ...
@@ -182,7 +182,7 @@ public:
 	autofahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = autofahrplan; }
 	autofahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = autofahrplan; }
 	fahrplan_t* copy() { return new autofahrplan_t(this); }
-	void zeige_fehlermeldung() const;
+	const char *fehlermeldung() const { return "Autohalt muss auf\nStrasse liegen!\n"; }
 };
 
 
@@ -203,7 +203,7 @@ public:
     schifffahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = schifffahrplan; }
     schifffahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = schifffahrplan; }
     fahrplan_t* copy() { return new schifffahrplan_t(this); }
-    virtual void zeige_fehlermeldung() const;
+	const char *fehlermeldung() const { return "Schiffhalt muss im\nWasser liegen!\n"; }
 };
 
 
@@ -221,7 +221,7 @@ public:
 	airfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = airfahrplan; }
 	airfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = airfahrplan; }
 	fahrplan_t* copy() { return new airfahrplan_t(this); }
-	void zeige_fehlermeldung() const;
+	const char *fehlermeldung() const { return "Flugzeughalt muss auf\nRunway liegen!\n"; }
 };
 
 /* the schedule for monorail ...
@@ -238,7 +238,7 @@ public:
 	monorailfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = monorailfahrplan; }
 	monorailfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = monorailfahrplan; }
 	fahrplan_t* copy() { return new monorailfahrplan_t(this); }
-	void zeige_fehlermeldung() const;
+	const char *fehlermeldung() const { return "Monorailhalt muss auf\nMonorail liegen!\n"; }
 };
 
 #endif

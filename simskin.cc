@@ -13,6 +13,11 @@ const skin_besch_t* skinverwaltung_t::listen_werkzeug    = NULL;
 const skin_besch_t* skinverwaltung_t::edit_werkzeug      = NULL;
 const skin_besch_t* skinverwaltung_t::farbmenu           = NULL;
 
+const skin_besch_t* skinverwaltung_t::werkzeuge_general  = NULL;
+const skin_besch_t* skinverwaltung_t::werkzeuge_simple   = NULL;
+const skin_besch_t* skinverwaltung_t::werkzeuge_dialoge  = NULL;
+const skin_besch_t* skinverwaltung_t::werkzeuge_toolbars = NULL;
+
 const skin_besch_t* skinverwaltung_t::biglogosymbol      = NULL;
 const skin_besch_t* skinverwaltung_t::logosymbol         = NULL;
 const skin_besch_t* skinverwaltung_t::neujahrsymbol      = NULL;
@@ -28,6 +33,7 @@ const skin_besch_t* skinverwaltung_t::monorailhaltsymbol = NULL;
 const skin_besch_t* skinverwaltung_t::bushaltsymbol      = NULL;
 const skin_besch_t* skinverwaltung_t::tramhaltsymbol      = NULL;
 
+const skin_besch_t* skinverwaltung_t::cursor_general     = NULL;	// new cursors
 const skin_besch_t* skinverwaltung_t::fragezeiger        = NULL;
 const skin_besch_t* skinverwaltung_t::signalzeiger       = NULL;
 const skin_besch_t* skinverwaltung_t::downzeiger         = NULL;
@@ -82,6 +88,11 @@ static spezial_obj_tpl<skin_besch_t> menu_objekte[] = {
 	{ &skinverwaltung_t::listen_werkzeug,  "ListTools"    },
 	{ &skinverwaltung_t::farbmenu,         "ColorMenu"    },
 	{ &skinverwaltung_t::edit_werkzeug,    "EditTools"    },
+	// new menu system
+	{ &skinverwaltung_t::werkzeuge_general, "GeneralTools" },
+	{ &skinverwaltung_t::werkzeuge_simple,  "SimpleTools"  },
+	{ &skinverwaltung_t::werkzeuge_dialoge, "DialogeTools" },
+	{ &skinverwaltung_t::werkzeuge_toolbars,"BarTools"     },
 	{ NULL, NULL }
 };
 
@@ -111,7 +122,9 @@ static spezial_obj_tpl<skin_besch_t> symbol_objekte[] = {
 };
 
 static spezial_obj_tpl<skin_besch_t> cursor_objekte[] = {
+	// old cursors
 	{ &skinverwaltung_t::mouse_cursor,   "Mouse"        },
+	{ &skinverwaltung_t::cursor_general, "GeneralTools" },
 	{ &skinverwaltung_t::bauzeiger,      "Construction" },
 	{ &skinverwaltung_t::linkzeiger,     "Linktool"     },
 	{ &skinverwaltung_t::fragezeiger,    "Query"        },

@@ -195,6 +195,9 @@ struct clip_dimension display_gib_clip_wh(void);
 
 void display_snapshot(void);
 
+void display_set_progress_text(const char *text);
+void display_progress(int part, int total);
+
 #ifdef __cplusplus
 }
 #endif

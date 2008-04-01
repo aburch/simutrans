@@ -5,20 +5,20 @@
 #include "components/gui_label.h"
 #include "../besch/fabrik_besch.h"
 
-typedef struct {
-	const fabrik_besch_t *besch;
-	uint32 production;
-	bool ignore_climates;
-	uint8 rotation; //255 for any
-} build_fab_struct;
-
 
 #define MAX_BUILD_TYPE (6)
 
 class factory_edit_frame_t : public extend_edit_gui_t
 {
 private:
-	build_fab_struct bfs;
+	static wkz_build_industries_land_t land_chain_tool;
+	static wkz_build_industries_city_t city_chain_tool;
+	static wkz_build_factory_t fab_tool;
+	static char param_str[256];
+
+	const fabrik_besch_t *fab_besch;
+	uint32 production;
+	uint8 rotation; //255 for any
 
 	char prod_str[32], rot_str[16];
 

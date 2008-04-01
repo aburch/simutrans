@@ -20,7 +20,7 @@
 
 class spieler_t;
 class koord;
-class werkzeug_parameter_waehler_t;
+class werkzeug_waehler_t;
 
 /**
  * Overhead powelines for elctrifed tracks.
@@ -124,16 +124,13 @@ public:
 	// search an object (currently only used by AI for caternary)
 	static const way_obj_besch_t *wayobj_search(waytype_t wt,waytype_t own,uint16 time);
 
+	static const way_obj_besch_t *gib_besch(const char *);
+
 	/**
 	 * Fill menu with icons of given stops from the list
 	 * @author Hj. Malthaner
 	 */
-	static void fill_menu(werkzeug_parameter_waehler_t *wzw,
-		waytype_t wtyp,
-		tool_func_param werkzeug,
-		int sound_ok,
-		int sound_ko,
-		const karte_t *welt);
+	static void fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, const karte_t *welt);
 };
 
 #endif

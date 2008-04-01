@@ -81,7 +81,6 @@
 karte_t *spieler_t::welt = NULL;
 
 
-
 spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	simlinemgmt(wl)
 {
@@ -1092,6 +1091,30 @@ void spieler_t::ai_bankrupt()
 
 
 
+// prepares a general tool just like a player work do
+bool spieler_t::init_general_tool( int tool, const char *param )
+{
+	const char *old_param = werkzeug_t::general_tool[tool]->default_param;
+	werkzeug_t::general_tool[tool]->default_param = param;
+	bool ok = werkzeug_t::general_tool[tool]->init( welt, this );
+	werkzeug_t::general_tool[tool]->default_param = old_param;
+	return ok;
+}
+
+
+// calls a general tool just like a player work do
+bool spieler_t::call_general_tool( int tool, koord k, const char *param )
+{
+	grund_t *gr = welt->lookup_kartenboden(k);
+	koord3d pos = gr ? gr->gib_pos() : koord3d::invalid;
+	const char *old_param = werkzeug_t::general_tool[tool]->default_param;
+	werkzeug_t::general_tool[tool]->default_param = param;
+	bool ok = (werkzeug_t::general_tool[tool]->work( welt, this, pos )==NULL);
+	werkzeug_t::general_tool[tool]->default_param = old_param;
+	return ok;
+}
+
+
 /* returns true,
  * if there is already a connection
  * @author prissi
@@ -1580,12 +1603,12 @@ bool spieler_t::built_update_headquarter()
 			// and enough money left ...
 			koord place = headquarter_pos;
 			if(headquarter_pos!=koord::invalid) {
-				if(welt->lookup_kartenboden(headquarter_pos)->find<gebaeude_t>()->gib_tile()->gib_besch()->gib_groesse() != besch->gib_groesse()) {
-					// different size => needs new place
-					place = koord::invalid;
-				}
-				const char *msg;
-				wkz_remover_intern(this,welt,headquarter_pos,msg);
+				// remove old hq
+				grund_t *gr = welt->lookup_kartenboden(headquarter_pos);
+				gebaeude_t *prev_hq = gr->find<gebaeude_t>();
+				hausbauer_t::remove( welt, this, prev_hq );
+				// may needs new place?
+				place = koord::invalid;
 				headquarter_pos = koord::invalid;
 			}
 			// needs new place?
@@ -1596,7 +1619,7 @@ bool spieler_t::built_update_headquarter()
 					place = ai_bauplatz_mit_strasse_sucher_t(welt).suche_platz(st->gib_pos(), besch->gib_b(), besch->gib_h(), besch->get_allowed_climate_bits(), &is_rotate);
 				}
 			}
-			if(place!=koord::invalid  &&  wkz_headquarter( WKZ_DO, this, welt, place )) {
+			if(place!=koord::invalid  &&  werkzeug_t::general_tool[WKZ_HEADQUARTER]->work( welt, this, welt->lookup_kartenboden(place)->gib_pos() )) {
 				// tell the player
 				char buf[256];
 				sprintf(buf, translator::translate("%s's\nheadquarter now\nat (%i,%i)."), gib_name(), place.x, place.y );
@@ -1638,7 +1661,7 @@ bool spieler_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	if (gr) gr->obj_loesche_alle(this);
 	// try to built dock
 	const haus_besch_t* h = hausbauer_t::gib_random_station(haus_besch_t::hafen, welt->get_timeline_year_month(), haltestelle_t::WARE);
-	if(h==NULL  ||  !wkz_dockbau(WKZ_DO, this, welt, platz1, h)) {
+	if(h==NULL  ||  !call_general_tool(WKZ_STATION, platz1, h->gib_name())) {
 		return false;
 	}
 
@@ -1705,7 +1728,7 @@ void spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 {
 	const haus_besch_t* fh = hausbauer_t::gib_random_station(haus_besch_t::ladebucht, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	// succeed in frachthof creation
-	if(fh  &&  wkz_halt(WKZ_DO, this, welt, platz1, fh)  &&  wkz_halt(WKZ_DO, this, welt, platz2, fh)  ) {
+	if(fh  &&  call_general_tool(WKZ_STATION, platz1, fh->gib_name())  &&  call_general_tool(WKZ_STATION, platz2, fh->gib_name())  ) {
 		koord3d pos1 = welt->lookup(platz1)->gib_kartenboden()->gib_pos();
 		koord3d pos2 = welt->lookup(platz2)->gib_kartenboden()->gib_pos();
 
@@ -1761,12 +1784,12 @@ void spieler_t::create_rail_transport_vehikel(const koord platz1, const koord pl
 	// probably need to electrify the track?
 	if(  rail_engine->get_engine_type()==vehikel_besch_t::electric  ) {
 		// we need overhead wires
-		value_t v;
-		v.p = (const void *)(wayobj_t::wayobj_search(track_wt,overheadlines_wt,welt->get_timeline_year_month()));
-		wkz_wayobj(WKZ_INIT, this, welt, platz1, v);
-		wkz_wayobj(WKZ_DO, this, welt, platz1, v);
-		wkz_wayobj(WKZ_DO, this, welt, platz2, v );
-		wkz_wayobj(WKZ_EXIT, this, welt, platz2, v);
+		const way_obj_besch_t *e = wayobj_t::wayobj_search(track_wt,overheadlines_wt,welt->get_timeline_year_month());
+		const char *param = e->gib_name();
+		init_general_tool( WKZ_WAYOBJ, param );
+		call_general_tool( WKZ_WAYOBJ, platz1, param );
+		call_general_tool( WKZ_WAYOBJ, platz2, param );
+		werkzeug_t::general_tool[WKZ_WAYOBJ]->exit(welt,this);
 	}
 	vehikel_t* v = vehikelbauer_t::baue(pos2, this, NULL, rail_engine);
 
@@ -1903,14 +1926,14 @@ int spieler_t::baue_bahnhof(const koord* p, int anz_vehikel)
 		if(  make_all_bahnhof  ||  is_my_halt(pos+koord(-1,-1))  ||  is_my_halt(pos+koord(-1,1))  ||  is_my_halt(pos+koord(1,-1))  ||  is_my_halt(pos+koord(1,1))  ) {
 			// start building, if next to an existing station
 			make_all_bahnhof = true;
-			wkz_halt(WKZ_DO, this, welt, pos, besch );
+			call_general_tool( WKZ_STATION, pos, besch->gib_name() );
 		}
 		INT_CHECK("simplay 753");
 	}
 	// now add the other squares (going backwards)
 	for(  pos=*p;  pos!=t;  pos+=zv ) {
 		if(  !is_my_halt(pos)  ) {
-			wkz_halt(WKZ_DO, this, welt, pos, besch );
+			call_general_tool( WKZ_STATION, pos, besch->gib_name() );
 		}
 	}
 
@@ -2352,12 +2375,13 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 				}
 				else {
 DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i and %i,%i and try road",platz1.x,platz1.y,platz2.x,platz2.y);
-					value_t v;
 					// no sucess: clean route
-					v.i = (int)track_wt;
-					wkz_wayremover(WKZ_INIT, this, welt, platz1, v);
-					wkz_wayremover(WKZ_DO, this, welt, platz1, v);
-					wkz_wayremover(WKZ_DO, this, welt, platz2, v);
+					char param[16];
+					sprintf( param, "%i", track_wt );
+					init_general_tool( WKZ_WAYREMOVER, param );
+					call_general_tool( WKZ_WAYREMOVER, platz1, param );
+					call_general_tool( WKZ_WAYREMOVER, platz2, param );
+					werkzeug_t::general_tool[WKZ_WAYREMOVER]->exit(welt,this);
 					state = NR_BAUE_STRASSEN_ROUTE;
 				}
 			}
@@ -2405,8 +2429,7 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 							simlinemgmt.delete_line( line );
 						}
 						// delete harbour
-						const char *msg;
-						wkz_remover_intern(this,welt,platz1+koord::nsow[r],msg);
+						call_general_tool( WKZ_REMOVER, platz1+koord::nsow[r], NULL );
 						break;
 					}
 				}
@@ -2525,35 +2548,38 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 								simlinemgmt.delete_line( line );
 							}
 							// delete harbour
-							const char *msg;
-							wkz_remover_intern(this,welt,water_stop,msg);
+							call_general_tool( WKZ_REMOVER, water_stop, NULL );
 						}
 					}
 
-					value_t v;
-					v.i = (int)wt;
 					if(wt==track_wt) {
-						wkz_wayremover(WKZ_INIT, this, welt, koord::invalid, v);
-						wkz_wayremover(WKZ_DO, this, welt, start_pos.gib_2d(), v);
-						wkz_wayremover(WKZ_DO, this, welt, end_pos.gib_2d(), v);
+						char param[16];
+						sprintf( param, "%i", track_wt );
+						init_general_tool( WKZ_WAYREMOVER, param );
+						call_general_tool( WKZ_WAYREMOVER, start_pos.gib_2d(), param );
+						call_general_tool( WKZ_WAYREMOVER, end_pos.gib_2d(), param );
+						werkzeug_t::general_tool[WKZ_WAYREMOVER]->exit(welt,this);
 					}
 					else {
 						// last convoi => remove completely<
 						if(line.is_bound()  &&  line->count_convoys()==0) {
 							simlinemgmt.delete_line( line );
 
+							char param[16];
+							sprintf( param, "%i", wt );
 							// cannot remove all => likely some other convois there too
-							wkz_wayremover(WKZ_INIT, this, welt, start_pos.gib_2d(), v);
-							wkz_wayremover(WKZ_DO, this, welt, start_pos.gib_2d(), v);
-							if(!wkz_wayremover(WKZ_DO, this, welt, end_pos.gib_2d(), v)) {
+							init_general_tool( WKZ_WAYREMOVER, param );
+							call_general_tool( WKZ_WAYREMOVER, start_pos.gib_2d(), param );
+							if(!call_general_tool( WKZ_WAYREMOVER, end_pos.gib_2d(), param )) {
 								const char *msg;
 								// remove loading bays and road
-								wkz_remover_intern(this, welt, start_pos.gib_2d(), msg);
-								wkz_remover_intern(this, welt, start_pos.gib_2d(), msg);
+								call_general_tool( WKZ_WAYREMOVER, start_pos.gib_2d(), param );
+								call_general_tool( WKZ_WAYREMOVER, start_pos.gib_2d(), param );
 								// remove loading bays and road
-								wkz_remover_intern(this, welt, end_pos.gib_2d(), msg);
-								wkz_remover_intern(this, welt, end_pos.gib_2d(), msg);
+								call_general_tool( WKZ_WAYREMOVER, end_pos.gib_2d(), param );
+								call_general_tool( WKZ_WAYREMOVER, end_pos.gib_2d(), param );
 							}
+							werkzeug_t::general_tool[WKZ_WAYREMOVER]->exit(welt,this);
 						}
 					}
 					break;
@@ -2731,7 +2757,7 @@ spieler_t::walk_city( linehandle_t &line, grund_t *&start, const int limit )
 				if(  covered_tiles<(max_tiles*max_tiles)/3  &&  house_tiles>=3  ) {
 					// ok, lets do it
 					const haus_besch_t* bs = hausbauer_t::gib_random_station(haus_besch_t::bushalt, welt->get_timeline_year_month(), haltestelle_t::PAX);
-					if(  wkz_halt(WKZ_DO, this, welt, to->gib_pos().gib_2d(), bs )  ) {
+					if(  call_general_tool( WKZ_STATION, to->gib_pos().gib_2d(), bs->gib_name() )  ) {
 						//add to line
 						line->get_fahrplan()->append(to,0); // no need to register it yet; done automatically, when convois will be assinged
 					}
@@ -3002,8 +3028,8 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 		{
 			const haus_besch_t* bs = hausbauer_t::gib_random_station(haus_besch_t::bushalt, welt->get_timeline_year_month(), haltestelle_t::PAX);
 			if(bs  &&  create_simple_road_transport()  &&
-				(is_my_halt(platz1)  ||  wkz_halt(WKZ_DO, this, welt, platz1, bs ))  &&
-				(is_my_halt(platz2)  ||  wkz_halt(WKZ_DO, this, welt, platz2, bs ))
+				(is_my_halt(platz1)  ||  call_general_tool( WKZ_STATION, platz1, bs->gib_name() ))  &&
+				(is_my_halt(platz2)  ||  call_general_tool( WKZ_STATION, platz2, bs->gib_name() ))
 			  ) {
 				koord list[2]={ platz1, platz2 };
 				// wait only, if traget is not a hub but an attraction/factory

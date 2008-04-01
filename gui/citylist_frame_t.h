@@ -10,8 +10,7 @@
 #include "components/gui_scrollpane.h"
 #include "components/gui_tab_panel.h"
 
-
-// for the numger of cost entries
+// for the number of cost entries
 #include "../simworld.h"
 
 /**

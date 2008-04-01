@@ -21,7 +21,7 @@
 #include "../dings/zeiger.h"
 
 #include "../gui/karte.h"
-#include "../gui/werkzeug_parameter_waehler.h"
+#include "../gui/werkzeug_waehler.h"
 
 #include "../simdebug.h"
 #include "../simdepot.h"
@@ -165,8 +165,12 @@ DBG_DEBUG("hausbauer_t::register_besch()","unknown subtype %i of %s: ignored",be
 
 
 
-void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t* wzw, slist_tpl<const haus_besch_t*>& stops, tool_func_param werkzeug, const int sound_ok, const int sound_ko, const sint64 cost, const karte_t* welt)
+// the tools must survice closing ...
+static stringhashtable_tpl<wkz_station_t *> station_tool;
+
+void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, slist_tpl<const haus_besch_t*>& stops, const sint64 cost, const karte_t* welt)
 {
+	// now iterate ...
 	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
 	for (slist_iterator_tpl<const haus_besch_t*> i(stops); i.next();) {
@@ -175,20 +179,16 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
 		if(besch->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
-				// only add items with a cursor
-				DBG_DEBUG("hausbauer_t::fill_menu()", "add %s", besch->gib_name());
-				char buf[128];
-				int n=sprintf(buf, "%s ",translator::translate(besch->gib_name()));
-				money_to_string(buf+n, (cost*besch->gib_level()*besch->gib_b()*besch->gib_h())/-100.0);
-
-				wzw->add_param_tool(werkzeug,
-				  (const void *)besch,
-				  karte_t::Z_PLAN,
-				  sound_ok,
-				  sound_ko,
-				  besch->gib_cursor()->gib_bild_nr(1),
-				  besch->gib_cursor()->gib_bild_nr(0),
-				  buf );
+				wkz_station_t *wkz = station_tool.get(besch->gib_name());
+				if(wkz==NULL) {
+					// not yet in hashtable
+					wkz = new wkz_station_t();
+					wkz->icon = besch->gib_cursor()->gib_bild_nr(1),
+					wkz->cursor = besch->gib_cursor()->gib_bild_nr(0),
+					wkz->default_param = besch->gib_name();
+					station_tool.put(besch->gib_name(),wkz);
+				}
+				wzw->add_werkzeug( (werkzeug_t*)wkz );
 			}
 		}
 	}
@@ -196,7 +196,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
 
 
 
-void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t* wzw, haus_besch_t::utyp utyp, tool_func_param werkzeug, const int sound_ok, const int sound_ko, const sint64 cost, const karte_t* welt)
+void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, const sint64 cost, const karte_t* welt)
 {
 	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
@@ -206,20 +206,16 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 		if(besch->gib_utyp()==utyp  &&  besch->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
-				// only add items with a cursor
-				DBG_DEBUG("hausbauer_t::fill_menu()", "add %s", besch->gib_name());
-				char buf[128];
-				int n=sprintf(buf, "%s ",translator::translate(besch->gib_name()));
-				money_to_string(buf+n, (cost*besch->gib_level()*besch->gib_b()*besch->gib_h())/-100.0);
-
-				wzw->add_param_tool(werkzeug,
-				  (const void *)besch,
-				  karte_t::Z_PLAN,
-				  sound_ok,
-				  sound_ko,
-				  besch->gib_cursor()->gib_bild_nr(1),
-				  besch->gib_cursor()->gib_bild_nr(0),
-				  buf );
+				wkz_station_t *wkz = station_tool.get(besch->gib_name());
+				if(wkz==NULL) {
+					// not yet in hashtable
+					wkz = new wkz_station_t();
+					wkz->icon = besch->gib_cursor()->gib_bild_nr(1),
+					wkz->cursor = besch->gib_cursor()->gib_bild_nr(0),
+					wkz->default_param = besch->gib_name();
+					station_tool.put(besch->gib_name(),wkz);
+				}
+				wzw->add_werkzeug( (werkzeug_t*)wkz );
 			}
 		}
 	}
