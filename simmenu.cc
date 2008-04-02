@@ -509,7 +509,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 				while(*c  &&  *c!=','  &&  *c!=')') {
 					c++;
 				}
-				weg_t::system_type subtype = (weg_t::system_type)atoi(c);
+				weg_t::system_type subtype = (weg_t::system_type)(*c!=0 ? atoi(c+1) : 0);
 				wegbauer_t::fill_menu( wzw, way, subtype, welt );
 			}
 			else if(strstr(w->default_param,"bridges(")) {
