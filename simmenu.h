@@ -120,7 +120,7 @@ enum {
 class werkzeug_t {
 protected:
 	// defined in simwerkz.h!
-	static grund_t *werkzeug_t::wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koord pos, waytype_t wt);
+	static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koord pos, waytype_t wt);
 public:
 	image_id cursor;
 	image_id icon;

@@ -72,7 +72,7 @@ class wkz_abfrage_t : public werkzeug_t {
 // remove uppermost object from tile
 class wkz_remover_t : public werkzeug_t {
 private:
-	static bool wkz_remover_t::wkz_remover_intern(spieler_t *sp, karte_t *welt, koord pos, const char *&msg);
+	static bool wkz_remover_intern(spieler_t *sp, karte_t *welt, koord pos, const char *&msg);
 public:
 	const char *get_tooltip(spieler_t *) { return translator::translate("Abriss"); }
 	const char *work( karte_t *, spieler_t *, koord3d );
