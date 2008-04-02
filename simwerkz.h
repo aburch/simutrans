@@ -149,7 +149,7 @@ class wkz_change_city_size_t : public werkzeug_t {
 };
 
 class wkz_plant_tree_t : public werkzeug_t {
-	const char *get_tooltip(spieler_t *) { return translator::translate( atoi(default_param)>=0 ? "Grow city" : "Shrink city" ); }
+	const char *get_tooltip(spieler_t *) { return translator::translate( "Plant tree" ); }
 	virtual const char *move( karte_t *welt, spieler_t *sp, uint16 b, koord3d k ) { return b==1 ? work(welt,sp,k) : NULL; }
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 };

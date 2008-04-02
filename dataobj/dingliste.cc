@@ -765,12 +765,12 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				{
 					// for compatibilty reasons we may have to convert them to tram and monorail depots
 					gebaeude_t *gb = new gebaeude_t(welt, file);
-					if(gb->gib_tile()->gib_besch()==hausbauer_t::monorail_depot_besch) {
+					if(gb->gib_tile()->gib_besch()->gib_extra()==monorail_wt) {
 						monoraildepot_t *md = new monoraildepot_t(welt,gb->gib_pos(),(spieler_t *)NULL,gb->gib_tile());
 						md->rdwr_vehicles(file);
 						d = md;
 					}
-					else if(gb->gib_tile()->gib_besch()==hausbauer_t::tram_depot_besch) {
+					else if(gb->gib_tile()->gib_besch()->gib_extra()==tram_wt) {
 						tramdepot_t *td = new tramdepot_t(welt,gb->gib_pos(),(spieler_t *)NULL,gb->gib_tile());
 						td->rdwr_vehicles(file);
 						d = td;

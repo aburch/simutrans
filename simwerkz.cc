@@ -2104,36 +2104,33 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	const haus_besch_t *besch=hausbauer_t::find_tile(default_param,0)->gib_besch();
 	const char *msg = NULL;
 	switch (besch->gib_utyp()) {
-		case haus_besch_t::bahnhof:
-			msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, track_wt, umgebung_t::cst_multiply_station, "BF");
-			break;
-		case haus_besch_t::monorailstop:
-			msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, monorail_wt, umgebung_t::cst_multiply_station, "BF");
-			break;
-		case haus_besch_t::bushalt:
-		case haus_besch_t::ladebucht:
-			msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, road_wt, umgebung_t::cst_multiply_roadstop, "H");
-			break;
-		case haus_besch_t::binnenhafen:
-			msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, water_wt, umgebung_t::cst_multiply_dock, "Dock");
-			break;
 		case haus_besch_t::hafen:
 			msg = wkz_station_t::wkz_station_dock_aux(welt, sp, pos, besch );
 			break;
-		case haus_besch_t::airport:
-			msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, air_wt, umgebung_t::cst_multiply_airterminal, "Airport");
-			break;
-		case haus_besch_t::bahnhof_geb:
-		case haus_besch_t::bushalt_geb:
-		case haus_besch_t::ladebucht_geb:
 		case haus_besch_t::hafen_geb:
-		case haus_besch_t::binnenhafen_geb:
-		case haus_besch_t::airport_geb:
-		case haus_besch_t::monorail_geb:
-		case haus_besch_t::wartehalle:
-		case haus_besch_t::post:
-		case haus_besch_t::lagerhalle:
+		case haus_besch_t::generic_extension:
 			msg = wkz_station_t::wkz_station_building_aux(welt, sp, pos, besch );
+			break;
+		case haus_besch_t::generic_stop:
+			switch(besch->gib_extra()) {
+				case road_wt:
+					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, road_wt, umgebung_t::cst_multiply_roadstop, "H");
+					break;
+				case track_wt:
+				case monorail_wt:
+				case maglev_wt:
+				case narrowgauge_wt:
+				case tram_wt:
+					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, (waytype_t)besch->gib_extra(), umgebung_t::cst_multiply_station, "BF");
+					break;
+				case water_wt:
+					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, water_wt, umgebung_t::cst_multiply_dock, "Dock");
+					break;
+				case air_wt:
+					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, air_wt, umgebung_t::cst_multiply_station, "Airport");
+					break;
+			}
+
 			break;
 		default:
 			dbg->fatal("wkz_station_t::work()","tool called for illegal besch \"%\"", default_param );
@@ -2325,23 +2322,15 @@ bool wkz_depot_t::init( karte_t *welt, spieler_t *sp )
 const char *wkz_depot_t::get_tooltip(spieler_t *)
 {
 	const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->gib_besch();
-	if(hausbauer_t::bahn_depot_besch==besch) {
-		return tooltip_with_price( "Build train depot", umgebung_t::cst_depot_rail );
-	}
-	else if(hausbauer_t::monorail_depot_besch==besch) {
-		return tooltip_with_price( "Build monotrail depot", umgebung_t::cst_depot_rail );
-	}
-	else if(hausbauer_t::tram_depot_besch==besch) {
-		return tooltip_with_price( "Build tram depot", umgebung_t::cst_depot_rail );
-	}
-	else if(hausbauer_t::str_depot_besch==besch) {
-		return tooltip_with_price( "Build road depot", umgebung_t::cst_depot_road );
-	}
-	else if(hausbauer_t::sch_depot_besch==besch) {
-		return tooltip_with_price( "Build ship depot", umgebung_t::cst_depot_ship );
-	}
-	else if(hausbauer_t::air_depot.contains(besch)) {
-		return tooltip_with_price( "Build air depot", umgebung_t::cst_multiply_airterminal );
+	switch(besch->gib_extra()) {
+		case road_wt: return tooltip_with_price( "Build road depot", umgebung_t::cst_depot_road );
+		case track_wt: return tooltip_with_price( "Build train depot", umgebung_t::cst_depot_rail );
+		case monorail_wt: return tooltip_with_price( "Build monorail depot", umgebung_t::cst_depot_rail );
+		case maglev_wt: return tooltip_with_price( "Build maglev depot", umgebung_t::cst_depot_rail );
+		case narrowgauge_wt: return tooltip_with_price( "Build narrowgauge depot", umgebung_t::cst_depot_rail );
+		case tram_wt: return tooltip_with_price( "Build tram depot", umgebung_t::cst_depot_rail );
+		case water_wt: return tooltip_with_price( "Build ship depot", umgebung_t::cst_depot_ship );
+		case air_wt: return tooltip_with_price( "Build air depot", umgebung_t::cst_depot_air );
 	}
 	return NULL;
 }
@@ -2354,35 +2343,34 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	}
 
 	const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->gib_besch();
-	if(hausbauer_t::bahn_depot_besch==besch) {
-		return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, track_wt, umgebung_t::cst_depot_rail );
-	}
-	else if(hausbauer_t::monorail_depot_besch==besch) {
-		// since it need also a foundations, this is slightly more complex ...
-		const char *err = wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, monorail_wt, umgebung_t::cst_depot_rail );
-		if(err==NULL) {
-			grund_t *bd = welt->lookup_kartenboden(k.gib_2d());
-			if(bd->ist_natur()) {
-				hausbauer_t::baue( welt, sp, bd->gib_pos(), 0, hausbauer_t::monorail_foundation_besch );
+	switch(besch->gib_extra()) {
+		case road_wt:
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, road_wt, umgebung_t::cst_depot_road );
+		case track_wt:
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, track_wt, umgebung_t::cst_depot_rail );
+		case monorail_wt:
+			{
+				// since it need also a foundations, this is slightly more complex ...
+				const char *err = wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, monorail_wt, umgebung_t::cst_depot_rail );
+				if(err==NULL) {
+					grund_t *bd = welt->lookup_kartenboden(k.gib_2d());
+					if(bd->ist_natur()) {
+						hausbauer_t::baue( welt, sp, bd->gib_pos(), 0, hausbauer_t::monorail_foundation_besch );
+					}
+				}
+				return err;
 			}
-		}
-		return err;
-	}
-	else if(hausbauer_t::tram_depot_besch==besch) {
-		return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, track_wt, umgebung_t::cst_depot_rail );
-	}
-	else if(hausbauer_t::str_depot_besch==besch) {
-		return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, road_wt, umgebung_t::cst_depot_road );
-	}
-	else if(hausbauer_t::sch_depot_besch==besch) {
-		return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, water_wt, umgebung_t::cst_depot_ship );
-	}
-	else if(hausbauer_t::air_depot.contains(besch)) {
-		return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, air_wt, umgebung_t::cst_multiply_airterminal );
-	}
-	else {
-		dbg->fatal("wkz_depot()","called with unknown besch %s",besch->gib_name() );
-		return "";
+		case tram_wt:
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, track_wt, umgebung_t::cst_depot_rail );
+		case water_wt: return tooltip_with_price( "Build ship depot", umgebung_t::cst_depot_ship );
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, water_wt, umgebung_t::cst_depot_ship );
+		case air_wt: return tooltip_with_price( "Build air depot", umgebung_t::cst_depot_air );
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, air_wt, umgebung_t::cst_depot_air );
+		case maglev_wt:
+		case narrowgauge_wt:
+		default:
+			dbg->fatal("wkz_depot()","called with unknown besch %s",besch->gib_name() );
+			return "";
 	}
 	return NULL;
 }
@@ -2792,7 +2780,7 @@ const haus_besch_t *wkz_headquarter_t::next_level( spieler_t *sp )
 	const haus_besch_t* besch = NULL;
 	int level = sp->get_headquarter_level();
 	for(  vector_tpl<const haus_besch_t *>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end();  iter != end;  ++iter  ) {
-		if ((*iter)->gib_bauzeit() == sp->get_headquarter_level()) {
+		if ((*iter)->gib_extra() == sp->get_headquarter_level()) {
 			besch = (*iter);
 			break;
 		}
@@ -2834,7 +2822,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 		if(previous!=koord::invalid) {
 			grund_t *gr = welt->lookup_kartenboden(previous);
 			gebaeude_t *prev_hq = gr->find<gebaeude_t>();
-			sp->add_headquarter( prev_hq->gib_tile()->gib_besch()->gib_bauzeit(), koord::invalid );
+			sp->add_headquarter( prev_hq->gib_tile()->gib_besch()->gib_extra(), koord::invalid );
 			hausbauer_t::remove( welt, sp, prev_hq );
 		}
 
@@ -2856,7 +2844,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			if(city) {
 				city->add_gebaeude_to_stadt( hq );
 			}
-			sp->add_headquarter( besch->gib_bauzeit()+1, pos.gib_2d() );
+			sp->add_headquarter( besch->gib_extra()+1, pos.gib_2d() );
 			sp->buche(umgebung_t::cst_multiply_headquarter * besch->gib_level() * size.x * size.y, pos.gib_2d(), COST_CONSTRUCTION);
 			if(sp == welt->get_active_player()) {
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );

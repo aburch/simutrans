@@ -1590,7 +1590,7 @@ bool spieler_t::built_update_headquarter()
 	// find next level
 	const haus_besch_t* besch = NULL;
 	for(  vector_tpl<const haus_besch_t *>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end();  iter != end;  ++iter  ) {
-		if ((*iter)->gib_bauzeit() == get_headquarter_level()) {
+		if ((*iter)->gib_extra() == get_headquarter_level()) {
 			besch = (*iter);
 			break;
 		}

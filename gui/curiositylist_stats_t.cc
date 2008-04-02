@@ -231,7 +231,7 @@ void curiositylist_stats_t::zeichnen(koord offset)
 
 		display_proportional_clip(xoff+INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
-		if (geb->gib_tile()->gib_besch()->gib_bauzeit() != 0) {
+		if (geb->gib_tile()->gib_besch()->gib_extra() != 0) {
 		    display_color_img(skinverwaltung_t::intown->gib_bild_nr(0), xoff+INDICATOR_WIDTH+9, yoff, 0, false, false);
 		}
 

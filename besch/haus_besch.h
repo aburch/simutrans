@@ -138,6 +138,10 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 			wartehalle        = 30,
 			post              = 31,
 			lagerhalle        = 32,
+			// in these, the extra data points to a waytype
+			depot             = 33,
+			generic_stop      = 34,
+			generic_extension = 35,
 			last_haus_typ,
 			unbekannt_flag    = 128,
 		};
@@ -154,7 +158,7 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 	utyp            utype; // Hajo: if gtyp == gebaeude_t::unbekannt, then this is the real type
 
 	uint16 animation_time;	// in ms
-	uint16 bauzeit;        // == inhabitants at build time
+	uint16 extra_data;      // bauzeit (inhabitants) for city attractions, waytype for depots, player level for headquarters
 	koord  groesse;
 	flag_t flags;
 	uint16 level;          // or passengers;
@@ -189,7 +193,7 @@ public:
 
 	int gib_all_layouts() const { return layouts; }
 
-	int gib_bauzeit() const { return bauzeit; }
+	uint16 gib_extra() const { return extra_data; }
 
 	// ground is transparent
 	bool ist_mit_boden() const { return (flags & FLAG_NEED_GROUND) != 0; }

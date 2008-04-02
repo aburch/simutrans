@@ -330,7 +330,7 @@ DBG_MESSAGE("zugfahrplan_t::ist_halt_erlaubt()","track ok");
 		return true;
 	}
 	// test for no street depot (may happen with trams)
-	if(dp->gib_tile()->gib_besch()==hausbauer_t::str_depot_besch) {
+	if(dp->gib_tile()->gib_besch()->gib_extra()==track_wt) {
 		return false;
 	}
 	return true;
@@ -350,7 +350,7 @@ autofahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 		return true;
 	}
 	// test for no railway depot (may happen with trams)
-	if(gb->gib_tile()->gib_besch()==hausbauer_t::bahn_depot_besch  ||  gb->gib_tile()->gib_besch()==hausbauer_t::tram_depot_besch) {
+	if(gb->gib_tile()->gib_besch()->gib_extra()==track_wt  ||  gb->gib_tile()->gib_besch()->gib_extra()==tram_wt) {
 		return false;
 	}
 	return true;

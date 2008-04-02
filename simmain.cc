@@ -316,6 +316,7 @@ parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &ful
 	umgebung_t::cst_multiply_airterminal = contents.get_int("cost_multiply_airterminal", umgebung_t::cst_multiply_airterminal/(-100) ) * -100;
 	umgebung_t::cst_multiply_post = contents.get_int("cost_multiply_post", umgebung_t::cst_multiply_post/(-100) ) * -100;
 	umgebung_t::cst_multiply_headquarter = contents.get_int("cost_multiply_headquarter", umgebung_t::cst_multiply_headquarter/(-100) ) * -100;
+	umgebung_t::cst_depot_air = contents.get_int("cost_depot_air", umgebung_t::cst_depot_air/(-100) ) * -100;
 	umgebung_t::cst_depot_rail = contents.get_int("cost_depot_rail", umgebung_t::cst_depot_rail/(-100) ) * -100;
 	umgebung_t::cst_depot_road = contents.get_int("cost_depot_road", umgebung_t::cst_depot_road/(-100) ) * -100;
 	umgebung_t::cst_depot_ship = contents.get_int("cost_depot_ship", umgebung_t::cst_depot_ship/(-100) ) * -100;

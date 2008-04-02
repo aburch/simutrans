@@ -305,7 +305,7 @@ public:
 	static sint64 cst_depot_rail;
 	static sint64 cst_depot_road;
 	static sint64 cst_depot_ship;
-//	static sint64 cst_depot_air;	// unused
+	static sint64 cst_depot_air;
 	static sint64 cst_signal;
 	static sint64 cst_tunnel;
 	static sint64 cst_third_rail;

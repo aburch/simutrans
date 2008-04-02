@@ -41,17 +41,11 @@ class hausbauer_t
 		/**
 		 * Geb‰ude, die das Programm direkt kennen muﬂ
 		 */
-		static const haus_besch_t* bahn_depot_besch;
-		static const haus_besch_t* tram_depot_besch;
-		static const haus_besch_t* str_depot_besch;
-		static const haus_besch_t* sch_depot_besch;
-		static const haus_besch_t* monorail_depot_besch;
 		static const haus_besch_t* monorail_foundation_besch;
 
 		// to allow for an arbitary number, we use lists
 		static vector_tpl<const haus_besch_t*> station_building;
 		static vector_tpl<const haus_besch_t*> headquarter;
-		static slist_tpl<const haus_besch_t*> air_depot;
 
 	private:
 		/**
@@ -71,15 +65,11 @@ class hausbauer_t
 		static bool register_besch(const haus_besch_t *besch);
 		static bool alles_geladen();
 
-		/* Fill menu with icons of buildings from the list
-		 * @author prissi
-		 */
-		static void fill_menu(werkzeug_waehler_t* wzw, slist_tpl<const haus_besch_t*>& stops, const sint64 cost, const karte_t* welt);
-
 		/* Fill menu with icons of buildings of a given type
+		 * this is only needed for stations and depots => use waytype too!
 		 * @author prissi
 		 */
-		static void fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp, const sint64 cost, const karte_t* welt);
+		static void fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp, waytype_t wt, const karte_t* welt);
 
 		/**
 		 * Gewerbegeb‰ude passend zum Level liefern. Zur Zeit sind die Eintr‰ge

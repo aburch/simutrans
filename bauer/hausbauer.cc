@@ -56,25 +56,15 @@ static stringhashtable_tpl<const haus_besch_t*> besch_names;
  * Alle Gebäude, die die Anwendung direkt benötigt, kriegen feste IDs.
  * Außerdem müssen wir dafür sorgen, dass sie alle da sind.
  */
-const haus_besch_t *hausbauer_t::bahn_depot_besch = NULL;
-const haus_besch_t *hausbauer_t::tram_depot_besch = NULL;
-const haus_besch_t *hausbauer_t::str_depot_besch = NULL;
-const haus_besch_t *hausbauer_t::sch_depot_besch = NULL;
-const haus_besch_t *hausbauer_t::monorail_depot_besch = NULL;
 const haus_besch_t *hausbauer_t::monorail_foundation_besch = NULL;
 
+// all buildings with rails or connected to stops
 vector_tpl<const haus_besch_t *> hausbauer_t::station_building;
-vector_tpl<const haus_besch_t *> hausbauer_t::headquarter;
-slist_tpl<const haus_besch_t *> hausbauer_t::air_depot;
 
+vector_tpl<const haus_besch_t *> hausbauer_t::headquarter;
 
 static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
-    { &hausbauer_t::bahn_depot_besch,   "TrainDepot" },
-    { &hausbauer_t::tram_depot_besch,   "TramDepot" },
-    { &hausbauer_t::monorail_depot_besch,   "MonorailDepot" },
     { &hausbauer_t::monorail_foundation_besch,   "MonorailGround" },
-    { &hausbauer_t::str_depot_besch,	"CarDepot" },
-    { &hausbauer_t::sch_depot_besch,	"ShipDepot" },
     { NULL, NULL }
 };
 
@@ -122,28 +112,18 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 
 			case haus_besch_t::fabrik: break;
 
-			case haus_besch_t::weitere:
-				{
-				// allow for more than one air depot
-					size_t checkpos=strlen(besch->gib_name());
-					if(  strcmp("AirDepot",besch->gib_name()+checkpos-8)==0  ) {
-DBG_DEBUG("hausbauer_t::register_besch()","AirDepot %s",besch->gib_name());
-						air_depot.append(besch);
-					}
-				}
+			case haus_besch_t::hafen:
+			case haus_besch_t::hafen_geb:
+			case haus_besch_t::depot:
+			case haus_besch_t::generic_stop:
+			case haus_besch_t::generic_extension:
+				station_building.append(besch,16);
+DBG_DEBUG("hausbauer_t::register_besch()","Infrastructure %s",besch->gib_name());
 				break;
 
 			default:
-				// usually station buldings
-				if(  besch->gib_utyp()>=haus_besch_t::bahnhof  &&  besch->gib_utyp()<=haus_besch_t::lagerhalle  ) {
-					station_building.append(besch,16);
-DBG_DEBUG("hausbauer_t::register_besch()","Station %s",besch->gib_name());
-				}
-				else {
 DBG_DEBUG("hausbauer_t::register_besch()","unknown subtype %i of %s: ignored",besch->gib_utyp(),besch->gib_name());
-					return false;
-				}
-				break;
+				return false;
 		}
 	}
 
@@ -167,55 +147,63 @@ DBG_DEBUG("hausbauer_t::register_besch()","unknown subtype %i of %s: ignored",be
 
 // the tools must survice closing ...
 static stringhashtable_tpl<wkz_station_t *> station_tool;
+static stringhashtable_tpl<wkz_depot_t *> depot_tool;
 
-void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, slist_tpl<const haus_besch_t*>& stops, const sint64 cost, const karte_t* welt)
+// all these menus will need a waytype ...
+void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, waytype_t wt, const karte_t* welt)
 {
-	// now iterate ...
-	const uint16 time = welt->get_timeline_year_month();
-DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
-	for (slist_iterator_tpl<const haus_besch_t*> i(stops); i.next();) {
-		const haus_besch_t* besch = i.get_current();
-		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s(%p)", besch->gib_name(), besch);
-		if(besch->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
-			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
-
-				wkz_station_t *wkz = station_tool.get(besch->gib_name());
-				if(wkz==NULL) {
-					// not yet in hashtable
-					wkz = new wkz_station_t();
-					wkz->icon = besch->gib_cursor()->gib_bild_nr(1),
-					wkz->cursor = besch->gib_cursor()->gib_bild_nr(0),
-					wkz->default_param = besch->gib_name();
-					station_tool.put(besch->gib_name(),wkz);
-				}
-				wzw->add_werkzeug( (werkzeug_t*)wkz );
-			}
-		}
+	sint64 cost = umgebung_t::cst_multiply_post;
+	switch(wt) {
+		case track_wt:
+		case tram_wt:
+		case monorail_wt:
+		case maglev_wt:
+		case narrowgauge_wt:
+			cost = (  haus_besch_t::depot == utyp  ) ? umgebung_t::cst_depot_rail : umgebung_t::cst_multiply_station;
+			break;
+		case road_wt:
+			cost = (  haus_besch_t::depot == utyp  ) ? umgebung_t::cst_depot_road : umgebung_t::cst_multiply_roadstop;
+			break;
+		case water_wt:
+			cost = (  haus_besch_t::depot == utyp  ) ? umgebung_t::cst_depot_ship : umgebung_t::cst_multiply_dock;
+			break;
+		case air_wt:
+			cost = (  haus_besch_t::depot == utyp  ) ? umgebung_t::cst_depot_air : umgebung_t::cst_multiply_airterminal;
+			break;
 	}
-}
 
-
-
-void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, const sint64 cost, const karte_t* welt)
-{
 	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 	for(  vector_tpl<const haus_besch_t *>::const_iterator iter = station_building.begin(), end = station_building.end();  iter != end;  ++iter  ) {
 		const haus_besch_t* besch = (*iter);
 //		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s (%p)", besch->gib_name(), besch);
-		if(besch->gib_utyp()==utyp  &&  besch->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
+		if(  besch->gib_utyp()==utyp  &&  besch->gib_cursor()->gib_bild_nr(1) != IMG_LEER  &&  besch->gib_extra()==(uint16)wt  ) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
-				wkz_station_t *wkz = station_tool.get(besch->gib_name());
-				if(wkz==NULL) {
-					// not yet in hashtable
-					wkz = new wkz_station_t();
-					wkz->icon = besch->gib_cursor()->gib_bild_nr(1),
-					wkz->cursor = besch->gib_cursor()->gib_bild_nr(0),
-					wkz->default_param = besch->gib_name();
-					station_tool.put(besch->gib_name(),wkz);
+				if(utyp==haus_besch_t::depot) {
+					wkz_depot_t *wkz = depot_tool.get(besch->gib_name());
+					if(wkz==NULL) {
+						// not yet in hashtable
+						wkz = new wkz_depot_t();
+						wkz->icon = besch->gib_cursor()->gib_bild_nr(1),
+						wkz->cursor = besch->gib_cursor()->gib_bild_nr(0),
+						wkz->default_param = besch->gib_name();
+						depot_tool.put(besch->gib_name(),wkz);
+					}
+					wzw->add_werkzeug( (werkzeug_t*)wkz );
 				}
-				wzw->add_werkzeug( (werkzeug_t*)wkz );
+				else {
+					wkz_station_t *wkz = station_tool.get(besch->gib_name());
+					if(wkz==NULL) {
+						// not yet in hashtable
+						wkz = new wkz_station_t();
+						wkz->icon = besch->gib_cursor()->gib_bild_nr(1),
+						wkz->cursor = besch->gib_cursor()->gib_bild_nr(0),
+						wkz->default_param = besch->gib_name();
+						station_tool.put(besch->gib_name(),wkz);
+					}
+					wzw->add_werkzeug( (werkzeug_t*)wkz );
+				}
 			}
 		}
 	}
@@ -512,19 +500,33 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 	}
 
 	const haus_tile_besch_t *tile = besch->gib_tile(built_layout, 0, 0);
-	if(besch == bahn_depot_besch) {
-		gb = new bahndepot_t(welt, pos, sp, tile);
-	} else if(besch == tram_depot_besch) {
-		gb = new tramdepot_t(welt, pos, sp, tile);
-	} else if(besch == monorail_depot_besch) {
-		gb = new monoraildepot_t(welt, pos, sp, tile);
-	} else if(besch == str_depot_besch) {
-		gb = new strassendepot_t(welt, pos, sp, tile);
-	} else if(besch == sch_depot_besch) {
-		gb = new schiffdepot_t(welt, pos, sp, tile);
-	} else if(air_depot.contains(besch)) {
-		gb = new airdepot_t(welt, pos, sp, tile);
-	} else {
+	if(  besch->gib_utyp() == haus_besch_t::depot  ) {
+		switch(  besch->gib_extra()  ) {
+			case track_wt:
+				gb = new bahndepot_t(welt, pos, sp, tile);
+				break;
+			case tram_wt:
+				gb = new tramdepot_t(welt, pos, sp, tile);
+				break;
+			case monorail_wt:
+				gb = new monoraildepot_t(welt, pos, sp, tile);
+				break;
+			case maglev_wt:
+			case narrowgauge_wt:
+				assert(0);
+				break;
+			case road_wt:
+				gb = new strassendepot_t(welt, pos, sp, tile);
+				break;
+			case water_wt:
+				gb = new schiffdepot_t(welt, pos, sp, tile);
+				break;
+			case air_wt:
+				gb = new airdepot_t(welt, pos, sp, tile);
+				break;
+		}
+	}
+	else {
 		gb = new gebaeude_t(welt, pos, sp, tile);
 	}
 //DBG_MESSAGE("hausbauer_t::neues_gebaeude()","building stop pri=%i",pri);
@@ -536,7 +538,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 
 	gr->obj_add(gb);
 
-	if(station_building.is_contained(besch)) {
+	if(station_building.is_contained(besch)  &&  besch->gib_utyp()!=haus_besch_t::depot) {
 		// is a station/bus stop
 		(*static_cast<halthandle_t *>(param))->add_grund(gr);
 		gr->calc_bild();
@@ -595,7 +597,8 @@ const haus_besch_t* hausbauer_t::gib_special(int bev, haus_besch_t::utyp utype, 
 
 	while(iter.next()) {
 		const haus_besch_t *besch = iter.get_current();
-		if(bev == -1 || besch->gib_bauzeit()==bev) {
+		// extra data contains number of inhabitants for building
+		if(bev == -1 || besch->gib_extra()==bev) {
 			if(cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)) {
 				// ok, now check timeline
 				if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {

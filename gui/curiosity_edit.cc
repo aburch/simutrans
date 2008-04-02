@@ -225,7 +225,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 			buf.clear();
 			besch = new_besch;
 			if(besch->gib_utyp()==haus_besch_t::attraction_city) {
-				buf.printf("%s (%s: %i)",translator::translate( "City attraction" ), translator::translate("Bauzeit"),besch->gib_bauzeit());
+				buf.printf("%s (%s: %i)",translator::translate( "City attraction" ), translator::translate("Bauzeit"),besch->gib_extra());
 			}
 			else if(besch->gib_utyp()==haus_besch_t::attraction_land) {
 				buf.append( translator::translate( "Land attraction" ) );

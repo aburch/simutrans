@@ -6,6 +6,8 @@
  * New configurable OOP tool system
  */
 
+#include <algorithm>
+
 #include "simworld.h"
 #include "simwin.h"
 #include "simplay.h"
@@ -36,8 +38,8 @@
 #include "utils/simstring.h"
 
 
-werkzeug_t *werkzeug_t::char_to_tool[256];
-
+// for key loockup; is always sorted during the game
+vector_tpl<werkzeug_t *>werkzeug_t::char_to_tool(0);
 
 // here are the default values, icons, cursor, sound definitions ...
 vector_tpl<werkzeug_t *>werkzeug_t::general_tool(GENERAL_TOOL_COUNT);
@@ -146,7 +148,7 @@ werkzeug_t *create_dialog_tool(int toolnr)
 // read a tab file to add images, cursors and sound to the tools
 void werkzeug_t::init_menu(cstring_t objfilename)
 {
-	memset( char_to_tool, 128, sizeof(werkzeug_t *) );
+	char_to_tool.clear();
 	tabfile_t menuconf;
 	// first take user data, then user global data
 	cstring_t user_dir=umgebung_t::user_dir;
@@ -218,8 +220,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 			}
 			if(*str>=' ') {
 				w->command_key = *str;
-				char_to_tool[ w->command_key ] = w;
-//				keyhelp.append( *str, general_tool[i].get_tooltip() );
+				char_to_tool.append( w, 16 );
 			}
 		}
 		w->id = i | GENERAL_TOOL;
@@ -258,8 +259,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 			}
 			if(*str>=' ') {
 				w->command_key = *str;
-				char_to_tool[ w->command_key ] = w;
-//				keyhelp.append( *str, simple_tool[i].get_tooltip() );
+				char_to_tool.append( w, 16 );
 			}
 		}
 		w->id = i | SIMPLE_TOOL;
@@ -298,8 +298,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 			}
 			if(*str>=' ') {
 				w->command_key = *str;
-				char_to_tool[ w->command_key ] = w;
-//				keyhelp.append( *str, dialoge_tool[i].get_tooltip() );
+				char_to_tool.append( w, 16 );
 			}
 		}
 		w->id = i | DIALOGE_TOOL;
@@ -399,7 +398,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 					}
 					if(key_str!=NULL) {
 						addtool->command_key = *key_str;
-//						keyhelp.append( *str, addtool->get_tooltip() );
+						char_to_tool.append( addtool, 16 );
 					}
 					if(param_str!=NULL) {
 						addtool->default_param = strdup(param_str);
@@ -420,8 +419,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 					}
 					if(key_str!=NULL) {
 						addtool->command_key = *key_str;
-						char_to_tool[ addtool->command_key ] = addtool;
-//						keyhelp.append( *str, addtool->get_tooltip() );
+						char_to_tool.append( addtool, 16 );
 					}
 					if(param_str!=NULL) {
 						addtool->default_param = strdup(param_str);
@@ -442,7 +440,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 					}
 					if(key_str!=NULL) {
 						addtool->command_key = *key_str;
-//						keyhelp.append( *str, addtool->get_tooltip() );
+						char_to_tool.append( addtool, 16 );
 					}
 					if(param_str!=NULL) {
 						addtool->default_param = strdup(param_str);
@@ -470,7 +468,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 					}
 					if(key_str!=NULL) {
 						tb->command_key = *key_str;
-//						keyhelp.append( *str, tb->get_tooltip() );
+						char_to_tool.append( tb, 16 );
 					}
 					tb->id = toolnr | TOOLBAR_TOOL;
 					toolbar_tool.append( tb );
@@ -481,11 +479,13 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 				// make a default tool to add the parameter here
 				addtool = new werkzeug_t();
 				addtool->default_param = strdup(toolname);
-				addtool->command_key = 255;
+				addtool->command_key = 1;
 			}
 			toolbar_tool[i]->append(addtool);
 		}
 	}
+	// sort characters
+	std::sort(char_to_tool.begin(), char_to_tool.end(), compare_werkzeug);
 }
 
 
@@ -502,7 +502,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 	for (slist_tpl<werkzeug_t *>::const_iterator iter = tools.begin(), end = tools.end(); iter != end; ++iter) {
 		werkzeug_t *w = *iter;
 		// no way to call this tool? => then it is most likely a metatool
-		if(w->command_key==255  &&  w->icon==IMG_LEER  &&  w->default_param!=NULL) {
+		if(w->command_key==1  &&  w->icon==IMG_LEER  &&  w->default_param!=NULL) {
 			if(strstr(w->default_param,"ways(")) {
 				const char *c = w->default_param+5;
 				waytype_t way = (waytype_t)atoi(c);
@@ -529,15 +529,14 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 				wayobj_t::fill_menu( wzw, way, welt );
 			}
 			else if(strstr(w->default_param,"buildings(")) {
+				const char *c = w->default_param+10;
 				haus_besch_t::utyp utype = (haus_besch_t::utyp)atoi(w->default_param+10);
-				hausbauer_t::fill_menu( wzw, utype, 0, welt );
+				while(*c  &&  *c!=','  &&  *c!=')') {
+					c++;
+				}
+				waytype_t way = (waytype_t)(*c!=0 ? atoi(c+1) : 0);
+				hausbauer_t::fill_menu( wzw, utype, way, welt );
 			}
-/*
-			else if(strstr(w->default_param,"depots(") {
-				uint8 waytype = atoi(w->default_param+7);
-				roadsign_t::fill_menu( wzw, sp, utype, general_tool+WKZ_DEPOT );
-			}
-*/
 			else {
 				wzw->add_werkzeug( dummy );
 			}

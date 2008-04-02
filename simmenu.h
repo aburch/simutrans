@@ -119,6 +119,16 @@ enum {
 
 class werkzeug_t {
 public:
+	// for sorting: compare tool key
+	static bool compare_werkzeug( const werkzeug_t *a, const werkzeug_t *b) {
+		uint16 ac = a->command_key & ~32;
+		uint16 bc = b->command_key & ~32;
+		return ac==bc ? a->command_key < b->command_key : ac < bc;
+	}
+
+	// for key loockup
+	static vector_tpl<werkzeug_t *>char_to_tool;
+
 	image_id cursor;
 	image_id icon;
 	int	ok_sound;
@@ -129,7 +139,6 @@ public:
 	uint16	command_key;// key to toggle action for this function
 	uint16	id;			// value to trigger this command (see documentation)
 
-	static werkzeug_t *char_to_tool[256];
 	static vector_tpl<werkzeug_t *> general_tool;
 	static vector_tpl<werkzeug_t *> simple_tool;
 	static vector_tpl<werkzeug_t *> dialog_tool;

@@ -10,54 +10,48 @@
  * Hansjoerg Malthaner, 1997
  */
 
+#include <algorithm>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
-#ifndef simdebug_h
+#include "simcity.h"
+#include "simcolor.h"
+#include "simconvoi.h"
 #include "simdebug.h"
-#endif
+#include "simdepot.h"
+#include "simfab.h"
+#include "simgraph.h"
+#include "simhalt.h"
+#include "simimg.h"
+#include "simintr.h"
+#include "simio.h"
+#include "simlinemgmt.h"
+#include "simmenu.h"
+#include "simmesg.h"
+#include "simplay.h"
+#include "simskin.h"
+#include "simsound.h"
+#include "simsys.h"
+#include "simtools.h"
+#include "simversion.h"
+#include "simview.h"
+#include "simwerkz.h"
+#include "simwin.h"
+#include "simworld.h"
 
-#ifndef tpl_vector_h
+
 #include "tpl/vector_tpl.h"
-#endif
-
 
 #include "boden/boden.h"
 #include "boden/wasser.h"
-#include "simplay.h"
-#include "simfab.h"
-#include "simconvoi.h"
-#include "simcity.h"
-#include "simskin.h"
-#include "simwin.h"
-#include "simhalt.h"
-#include "simdepot.h"
-#include "simversion.h"
-#include "simmesg.h"
-#include "simmenu.h"
-#include "simcolor.h"
-#include "simlinemgmt.h"
 
-#include "simintr.h"
-#include "simio.h"
-
-#include "simimg.h"
 #include "old_blockmanager.h"
 #include "vehicle/simvehikel.h"
 #include "vehicle/simverkehr.h"
 #include "vehicle/movingobj.h"
-#include "simworld.h"
-#include "simview.h"
-
-#include "simwerkz.h"
-#include "simtools.h"
-#include "simsound.h"
-
-#include "simgraph.h"
-#include "simsys.h"
-
 #include "boden/wege/schiene.h"
 
 #include "dings/zeiger.h"
@@ -68,28 +62,8 @@
 #include "dings/groundobj.h"
 #include "dings/gebaeude.h"
 
-#include "gui/welt.h"
-#include "gui/karte.h"
-#include "gui/optionen.h"
-#include "gui/map_frame.h"
-#include "gui/optionen.h"
-#include "gui/player_frame_t.h"
 #include "gui/messagebox.h"
-#include "gui/loadsave_frame.h"
-#include "gui/money_frame.h"
-#include "gui/schedule_list.h"
-#include "gui/convoi_frame.h"
-#include "gui/halt_list_frame.h"        //30-Dec-01     Markus Weber    Added
-#include "gui/citylist_frame_t.h"
-#include "gui/message_frame_t.h"
 #include "gui/help_frame.h"
-#include "gui/goods_frame_t.h"
-#include "gui/jump_frame.h"
-#include "gui/werkzeug_waehler.h"
-#include "gui/factory_edit.h"
-#include "gui/curiosity_edit.h"
-#include "gui/citybuilding_edit.h"
-#include "gui/baum_edit.h"
 
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
@@ -110,7 +84,6 @@
 #include "besch/grund_besch.h"
 #include "besch/sound_besch.h"
 
-#include "ifc/sync_steppable.h"
 
 
 //#define DEMO
@@ -3772,11 +3745,22 @@ karte_t::interactive_event(event_t &ev)
 				break;
 
 			default:
-				if(werkzeug_t::char_to_tool[ev.ev_code%256]) {
-					set_werkzeug( werkzeug_t::char_to_tool[ev.ev_code%256] );
-				}
-				else {
-					// key help dialoge
+				{
+					bool ok=false;
+					for (vector_tpl<werkzeug_t *>::const_iterator iter = werkzeug_t::char_to_tool.begin(), end = werkzeug_t::char_to_tool.end(); iter != end; ++iter) {
+						if(  (*iter)->command_key==ev.ev_code  ) {
+							set_werkzeug( *iter );
+							ok = true;
+						}
+						// stop if too high, since sorted
+						if(  (*iter)->command_key>=ev.ev_code  ) {
+							break;
+						}
+					}
+					if(!ok) {
+						// key help dialoge
+						create_win(new help_frame_t("keys.txt"), w_info, magic_keyhelp);
+					}
 				}
 				break;
 		}

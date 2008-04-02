@@ -6,12 +6,17 @@
  */
 
 #include <stdio.h>
-#include "help_frame.h"
+
 #include "../simwin.h"
+#include "../simworld.h"
+
+#include "../utils/cbuffer_t.h"
 #include "../utils/cstring_t.h"
 #include "../utils/simstring.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
+
+#include "help_frame.h"
 
 // for chdir
 #ifdef WIN32
@@ -72,40 +77,52 @@ help_frame_t::help_frame_t(cstring_t filename) :
 	gui_frame_t("Help"),
 	scrolly(&flow)
 {
-	cstring_t file_prefix("text/");
-	cstring_t fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
-	chdir( umgebung_t::program_dir );
-
-	FILE * file = fopen(fullname, "rb");
-	if(!file) {
-		//Check for the 'base' language(ie en from en_gb)
-		file = fopen(file_prefix + translator::get_lang()->iso_base + "/" + filename, "rb");
-  }
-	if(!file) {
-		// Hajo: check fallback english
-		file = fopen(file_prefix+"/en/"+filename,"rb");
-	}
-	// go back to load/save dir
-	chdir( umgebung_t::user_dir );
-
-	bool success=false;
-	if(file) {
-		fseek(file,0,SEEK_END);
-		long len = ftell(file);
-		if(len>0) {
-			char *buf=(char *)malloc(len+1);
-			fseek(file,0,SEEK_SET);
-			fread(buf, 1, len, file);
-			buf[len] = '\0';
-			fclose(file);
-			success = true;
-			setze_text(buf);
-			free(buf);
+	// the key help texts are built automagically
+	if(filename=="keys.txt") {
+		cbuffer_t buf(16000);
+		buf.append( translator::translate( "<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n" ) );
+		spieler_t *sp = spieler_t::get_welt()->get_active_player();
+		for (vector_tpl<werkzeug_t *>::const_iterator iter = werkzeug_t::char_to_tool.begin(), end = werkzeug_t::char_to_tool.end(); iter != end; ++iter) {
+			buf.printf( "<em>%C</em> - %s<br>\n", (*iter)->command_key, (*iter)->get_tooltip(sp) );
 		}
+		setze_text(buf);
 	}
+	else {
+		cstring_t file_prefix("text/");
+		cstring_t fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
+		chdir( umgebung_t::program_dir );
 
-	if(!success) {
-		setze_text("<title>Error</title>Help text not found");
+		FILE * file = fopen(fullname, "rb");
+		if(!file) {
+			//Check for the 'base' language(ie en from en_gb)
+			file = fopen(file_prefix + translator::get_lang()->iso_base + "/" + filename, "rb");
+	  }
+		if(!file) {
+			// Hajo: check fallback english
+			file = fopen(file_prefix+"/en/"+filename,"rb");
+		}
+		// go back to load/save dir
+		chdir( umgebung_t::user_dir );
+
+		bool success=false;
+		if(file) {
+			fseek(file,0,SEEK_END);
+			long len = ftell(file);
+			if(len>0) {
+				char *buf=(char *)malloc(len+1);
+				fseek(file,0,SEEK_SET);
+				fread(buf, 1, len, file);
+				buf[len] = '\0';
+				fclose(file);
+				success = true;
+				setze_text(buf);
+				free(buf);
+			}
+		}
+
+		if(!success) {
+			setze_text("<title>Error</title>Help text not found");
+		}
 	}
 
 	set_resizemode(diagonal_resize);

@@ -77,15 +77,18 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 		besch->enables = 0;
 		// before station buildings were identified by their name ...
 		if(  strcmp("BusStop",besch->gib_name()+checkpos-7)==0  ) {
-			besch->utype = haus_besch_t::bushalt;
+			besch->utype = haus_besch_t::generic_stop;
+			besch->extra_data = road_wt;
 			besch->enables = 1;
 		}
 		if(  strcmp("CarStop",besch->gib_name()+checkpos-7)==0  ) {
-			besch->utype = haus_besch_t::ladebucht;
+			besch->utype = haus_besch_t::generic_stop;
+			besch->extra_data = road_wt;
 			besch->enables = 4;
 		}
 		else if(  strcmp("TrainStop",besch->gib_name()+checkpos-9)==0  ) {
-			besch->utype = haus_besch_t::bahnhof;
+			besch->utype = haus_besch_t::generic_stop;
+			besch->extra_data = track_wt;
 			besch->enables = 1|4;
 		}
 		else if(  strcmp("ShipStop",besch->gib_name()+checkpos-8)==0  ) {
@@ -93,17 +96,55 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 			besch->enables = 1|4;
 		}
 		else if(  strcmp("ChannelStop",besch->gib_name()+checkpos-11)==0  ) {
-			besch->utype = haus_besch_t::binnenhafen;
+			besch->utype = haus_besch_t::generic_stop;
+			besch->extra_data = water_wt;
 			besch->enables = 1|4;
 		}
 		else if(  strcmp("PostOffice",besch->gib_name()+checkpos-10)==0  ) {
-			besch->utype = haus_besch_t::post;
+			besch->utype = haus_besch_t::generic_extension;
+			besch->extra_data = 0;
 			besch->enables = 2;
 		}
 		else if(  strcmp("StationBlg",besch->gib_name()+checkpos-10)==0  ) {
-			besch->utype = haus_besch_t::wartehalle;
+			besch->utype = haus_besch_t::generic_extension;
+			besch->extra_data = 0;
 			besch->enables = 1|4;
 		}
+	}
+	// now old style depots ...
+	else if(besch->utype==haus_besch_t::weitere) {
+		long checkpos=strlen(besch->gib_name());
+		if(  strcmp("AirDepot",besch->gib_name()+checkpos-8)==0  ) {
+			besch->utype = haus_besch_t::depot;
+			besch->extra_data = (uint16)air_wt;
+		}
+		else if(  strcmp("TrainDepot",besch->gib_name())==0  ) {
+			besch->utype = haus_besch_t::depot;
+			besch->extra_data = (uint16)track_wt;
+		}
+		else if(  strcmp("TramDepot",besch->gib_name())==0  ) {
+			besch->utype = haus_besch_t::depot;
+			besch->extra_data = (uint16)tram_wt;
+		}
+		else if(  strcmp("MonorailDepot",besch->gib_name())==0  ) {
+			besch->utype = haus_besch_t::depot;
+			besch->extra_data = (uint16)monorail_wt;
+		}
+		else if(  strcmp("CarDepot",besch->gib_name())==0  ) {
+			besch->utype = haus_besch_t::depot;
+			besch->extra_data = (uint16)road_wt;
+		}
+		else if(  strcmp("ShipDepot",besch->gib_name())==0  ) {
+			besch->utype = haus_besch_t::depot;
+			besch->extra_data = (uint16)water_wt;
+		}
+	}
+	// and finally old stations ...
+	else if(  besch->gib_utyp()>=haus_besch_t::bahnhof  &&  besch->gib_utyp()<=haus_besch_t::lagerhalle  ) {
+		// compability stuff
+		static uint16 old_to_new_waytype[16] = { track_wt, road_wt, road_wt, 0, water_wt, air_wt, monorail_wt, 0, track_wt, road_wt, road_wt, 0 , water_wt, air_wt, monorail_wt, 0 };
+		besch->extra_data = besch->utype<=haus_besch_t::monorail_geb ? old_to_new_waytype[besch->utype-haus_besch_t::bahnhof] : 0;
+		besch->utype = besch->utype<haus_besch_t::bahnhof_geb ? haus_besch_t::generic_stop : haus_besch_t::generic_extension;
 	}
 
     hausbauer_t::register_besch(besch);
@@ -139,7 +180,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
-		besch->bauzeit   = decode_uint32(p);
+		besch->extra_data= decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
 		besch->groesse.y = decode_uint16(p);
 		besch->layouts   = decode_uint8(p);
@@ -157,7 +198,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
-		besch->bauzeit   = decode_uint32(p);
+		besch->extra_data= decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
 		besch->groesse.y = decode_uint16(p);
 		besch->layouts   = decode_uint8(p);
@@ -174,7 +215,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
-		besch->bauzeit   = decode_uint32(p);
+		besch->extra_data= decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
 		besch->groesse.y = decode_uint16(p);
 		besch->layouts   = decode_uint8(p);
@@ -191,7 +232,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
-		besch->bauzeit   = decode_uint32(p);
+		besch->extra_data= decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
 		besch->groesse.y = decode_uint16(p);
 		besch->layouts   = decode_uint8(p);
@@ -208,7 +249,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
-		besch->bauzeit   = decode_uint32(p);
+		besch->extra_data= decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
 		besch->groesse.y = decode_uint16(p);
 		besch->layouts   = decode_uint8(p);
@@ -226,7 +267,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		decode_uint16(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint32(p);
 		besch->level     = decode_uint32(p);
-		besch->bauzeit   = decode_uint32(p);
+		besch->extra_data= decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
 		besch->groesse.y = decode_uint16(p);
 		besch->layouts   = decode_uint32(p);
@@ -251,7 +292,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	     " gtyp=%d"
 	     " utyp=%d"
 	     " level=%d"
-	     " bauzeit=%d"
+	     " extra_data=%d"
 	     " groesse.x=%d"
 	     " groesse.y=%d"
 	     " layouts=%d"
@@ -262,19 +303,19 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	     " anim=%d"
 			 " intro=%d"
 			 " retire=%d",
- 	     version,
-	     besch->gtyp,
-	     besch->utype,
-	     besch->level,
-	     besch->bauzeit,
-	     besch->groesse.x,
-	     besch->groesse.y,
-	     besch->layouts,
-	     besch->enables,
-	     besch->flags,
-	     besch->chance,
-	     besch->allowed_climates,
-	     besch->animation_time,
+ 			 version,
+			 besch->gtyp,
+			 besch->utype,
+			 besch->level,
+			 besch->extra_data,
+			 besch->groesse.x,
+			 besch->groesse.y,
+			 besch->layouts,
+			 besch->enables,
+			 besch->flags,
+			 besch->chance,
+			 besch->allowed_climates,
+			 besch->animation_time,
 			 besch->intro_date,
 			 besch->obsolete_date
 	     );

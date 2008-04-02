@@ -153,6 +153,7 @@ sint64 umgebung_t::cst_multiply_headquarter=-100000;
 sint64 umgebung_t::cst_depot_rail=-100000;
 sint64 umgebung_t::cst_depot_road=-130000;
 sint64 umgebung_t::cst_depot_ship=-250000;
+sint64 umgebung_t::cst_depot_air=-500000;
 sint64 umgebung_t::cst_signal=-50000;
 sint64 umgebung_t::cst_tunnel=-1000000;
 sint64 umgebung_t::cst_third_rail=-8000;
