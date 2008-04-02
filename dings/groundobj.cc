@@ -159,14 +159,14 @@ groundobj_t::groundobj_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 
 groundobj_t::groundobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b ) : ding_t(welt, pos)
 {
-	season = 0xFF;	// mark dirty
+	season = 0xF;	// mark dirty
 	groundobjtype = groundobj_typen.index_of(b);
 	calc_bild();
 }
 
 
 
-bool groundobj_t::check_season(long month)
+bool groundobj_t::check_season(long )
 {
 	const uint8 old_season = season;
 	calc_bild();

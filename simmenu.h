@@ -118,9 +118,6 @@ enum {
 };
 
 class werkzeug_t {
-protected:
-	// defined in simwerkz.h!
-	static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koord pos, waytype_t wt);
 public:
 	image_id cursor;
 	image_id icon;
@@ -132,6 +129,7 @@ public:
 	uint16	command_key;// key to toggle action for this function
 	uint16	id;			// value to trigger this command (see documentation)
 
+	static werkzeug_t *char_to_tool[256];
 	static vector_tpl<werkzeug_t *> general_tool;
 	static vector_tpl<werkzeug_t *> simple_tool;
 	static vector_tpl<werkzeug_t *> dialog_tool;

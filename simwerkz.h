@@ -317,7 +317,7 @@ public:
 class wkz_lock_game_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Lock game"); }
 	bool init( karte_t *welt, spieler_t * ) { return welt->gib_einstellungen()->gib_allow_player_change(); }
-	const char *work( karte_t *welt, spieler_t *sp, koord3d ) {
+	const char *work( karte_t *welt, spieler_t *, koord3d ) {
 		welt->gib_einstellungen()->setze_allow_player_change( false );
 		destroy_all_win();
 		welt->switch_active_player( 0 );
@@ -330,7 +330,7 @@ class wkz_lock_game_t : public werkzeug_t {
 
 class wkz_pause_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Pause"); }
-	bool init( karte_t *welt, spieler_t * ) {
+	bool init( karte_t *, spieler_t * ) {
 //		welt->set_pause( welt->is_paused()^1 );
 //		welt->do_pause();
 		return false;
@@ -347,7 +347,7 @@ class wkz_fastforward_t : public werkzeug_t {
 
 class wkz_screenshot_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Screenshot"); }
-	bool init( karte_t *welt, spieler_t * ) {
+	bool init( karte_t *, spieler_t * ) {
 		display_snapshot();
 		create_win( new news_img("Screenshot\ngespeichert.\n"), w_time_delete, magic_none);
 		return false;
@@ -366,7 +366,7 @@ class wkz_increase_industry_t : public werkzeug_t {
 /* prissi: undo building */
 class wkz_undo_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Undo last ways construction"); }
-	bool init( karte_t *welt, spieler_t *sp ) {
+	bool init( karte_t *, spieler_t *sp ) {
 		if(!sp->undo()) {
 			create_win( new news_img("UNDO failed!"), w_time_delete, magic_none);
 		}
@@ -379,7 +379,7 @@ class wkz_undo_t : public werkzeug_t {
  */
 class wkz_switch_player_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Change player"); }
-	bool init( karte_t *welt, spieler_t *sp ) {
+	bool init( karte_t *welt, spieler_t * ) {
 		welt->switch_active_player( welt->get_active_player_nr()+1 );
 		return false;
 	}
@@ -388,7 +388,7 @@ class wkz_switch_player_t : public werkzeug_t {
 // setp one year forward
 class wkz_step_year_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Step timeline one year"); }
-	bool init( karte_t *welt, spieler_t *sp ) {
+	bool init( karte_t *welt, spieler_t * ) {
 		welt->step_year();
 		return false;
 	}
@@ -611,7 +611,7 @@ class wkz_playercolor_t : public werkzeug_t {
 // jump to position dialoge
 class wkz_jump_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Jump to"); }
-	bool init( karte_t *welt, spieler_t *sp ) {
+	bool init( karte_t *welt, spieler_t * ) {
 		create_win( new jump_frame_t(welt), w_info, magic_jump);
 		return false;
 	}

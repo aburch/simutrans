@@ -167,7 +167,7 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 
 
 // converts a 2d koord to a suitable ground pointer
-grund_t *werkzeug_t::wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koord pos, waytype_t wt)
+static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koord pos, waytype_t wt)
 {
 	const planquadrat_t *plan = welt->lookup(pos);
 
@@ -1241,7 +1241,6 @@ const char *wkz_wegebau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 		wkz_wegebau_bauer->mark_image_dirty( wkz_wegebau_bauer->gib_bild(), 0 );
 		delete wkz_wegebau_bauer;
 		wkz_wegebau_bauer = NULL;
-		welt->show_distance = start = koord3d::invalid;
 
 		wegbauer_t bauigel(welt, sp);
 
@@ -1266,6 +1265,7 @@ DBG_MESSAGE("wkz_wegebau()", "try straight route");
 			bauigel.set_keep_existing_faster_ways(true);
 			bauigel.calc_route(start,ziel);
 		}
+		welt->show_distance = start = koord3d::invalid;
 
 		DBG_MESSAGE("wkz_wegebau()", "builder found route with %d sqaures length.", bauigel.max_n);
 

@@ -159,8 +159,6 @@ void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, con
 	}
 	std::sort(matching.begin(), matching.end(), compare_tunnels);
 
-	const sint32 shift_maintanance = (welt->ticks_bits_per_tag-18);	// same costs per intervall => correct display
-
 	// now sorted ...
 	for (vector_tpl<const tunnel_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
 		const tunnel_besch_t* besch = *i;

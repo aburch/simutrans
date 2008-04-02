@@ -3771,6 +3771,14 @@ karte_t::interactive_event(event_t &ev)
 			case 13:
 				break;
 
+			default:
+				if(werkzeug_t::char_to_tool[ev.ev_code%256]) {
+					set_werkzeug( werkzeug_t::char_to_tool[ev.ev_code%256] );
+				}
+				else {
+					// key help dialoge
+				}
+				break;
 		}
 	}
 

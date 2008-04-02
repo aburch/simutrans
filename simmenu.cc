@@ -36,6 +36,9 @@
 #include "utils/simstring.h"
 
 
+werkzeug_t *werkzeug_t::char_to_tool[256];
+
+
 // here are the default values, icons, cursor, sound definitions ...
 vector_tpl<werkzeug_t *>werkzeug_t::general_tool(GENERAL_TOOL_COUNT);
 vector_tpl<werkzeug_t *>werkzeug_t::simple_tool(SIMPLE_TOOL_COUNT);
@@ -143,6 +146,7 @@ werkzeug_t *create_dialog_tool(int toolnr)
 // read a tab file to add images, cursors and sound to the tools
 void werkzeug_t::init_menu(cstring_t objfilename)
 {
+	memset( char_to_tool, 128, sizeof(werkzeug_t *) );
 	tabfile_t menuconf;
 	// first take user data, then user global data
 	cstring_t user_dir=umgebung_t::user_dir;
@@ -175,10 +179,10 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 				dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for general_tool[%i]", icon, i );
 			}
 			w->icon = skinverwaltung_t::werkzeuge_general->gib_bild_nr(icon);
-			do
-				*str++;
-			while(*str  &&  *str!=',');
 		}
+		do
+			*str++;
+		while(*str  &&  *str!=',');
 		if(*str==',') {
 			// next comes cursor
 			str++;
@@ -209,11 +213,12 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 		if(*str==',') {
 			// key
 			str++;
-			while(*str>=' ') {
+			while(*str==' ') {
 				str++;
 			}
 			if(*str>=' ') {
 				w->command_key = *str;
+				char_to_tool[ w->command_key ] = w;
 //				keyhelp.append( *str, general_tool[i].get_tooltip() );
 			}
 		}
@@ -241,18 +246,19 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 				dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for dialog_tool[%i]", icon, i );
 			}
 			w->icon = skinverwaltung_t::werkzeuge_simple->gib_bild_nr(icon);
-			do
-				*str++;
-			while(*str  &&  *str!=',');
 		}
+		do
+			*str++;
+		while(*str  &&  *str!=',');
 		if(*str==',') {
 			// key
 			str++;
-			while(*str>=' ') {
+			while(*str==' ') {
 				str++;
 			}
 			if(*str>=' ') {
 				w->command_key = *str;
+				char_to_tool[ w->command_key ] = w;
 //				keyhelp.append( *str, simple_tool[i].get_tooltip() );
 			}
 		}
@@ -280,18 +286,19 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 				dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for simple_tool[%i]", icon, i );
 			}
 			w->icon = skinverwaltung_t::werkzeuge_dialoge->gib_bild_nr(icon);
-			do
-				*str++;
-			while(*str  &&  *str!=',');
 		}
+		do {
+			*str++;
+		} while(*str  &&  *str!=',');
 		if(*str==',') {
 			// key
 			str++;
-			while(*str>=' ') {
+			while(*str==' ') {
 				str++;
 			}
 			if(*str>=' ') {
 				w->command_key = *str;
+				char_to_tool[ w->command_key ] = w;
 //				keyhelp.append( *str, dialoge_tool[i].get_tooltip() );
 			}
 		}
@@ -361,6 +368,9 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 			// key
 			if(*str==',') {
 				str++;
+				while(*str==' '  &&  *str) {
+					str ++;
+				}
 				if(*str!=',') {
 					key_str = str;
 				}
@@ -410,6 +420,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 					}
 					if(key_str!=NULL) {
 						addtool->command_key = *key_str;
+						char_to_tool[ addtool->command_key ] = addtool;
 //						keyhelp.append( *str, addtool->get_tooltip() );
 					}
 					if(param_str!=NULL) {

@@ -119,7 +119,7 @@ schiene_t::unreserve(convoihandle_t c)
 * @author prissi
 */
 bool
-schiene_t::unreserve(vehikel_t *v)
+schiene_t::unreserve(vehikel_t *)
 {
 	// is this tile empty?
 	if(!reserved.is_bound()) {

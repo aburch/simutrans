@@ -227,7 +227,6 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
 	std::sort(matching.begin(), matching.end(), compare_ways);
 
 	// now add sorted ways ...
-	const sint32 shift_maintanance = (welt->ticks_bits_per_tag-18);
 	for (vector_tpl<const weg_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
 		const weg_besch_t* besch = *i;
 		wkz_wegebau_t *wkz = way_tool.get(besch->gib_name());
