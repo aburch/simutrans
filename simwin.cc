@@ -801,6 +801,9 @@ bool check_pos_win(event_t *ev)
 		event_t wev = *ev;
 //		translate_event(&wev, 0, 0);
 		werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()->infowin_event( &wev );
+		// swallow event
+		inside_event_handling = false;
+		return true;
 	}
 
 

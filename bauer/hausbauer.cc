@@ -81,12 +81,27 @@ static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
 }
 
 
+static bool compare_station_besch(const haus_besch_t* a, const haus_besch_t* b)
+{
+	int diff = a->get_enabled() - b->get_enabled();
+	if (diff == 0) {
+		diff = a->gib_level() - b->gib_level();
+	}
+	if (diff == 0) {
+		/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
+		 * über den Namen herbei. */
+		diff = strcmp(a->gib_name(), b->gib_name());
+	}
+	return diff < 0;
+}
+
+
 bool hausbauer_t::alles_geladen()
 {
 	std::sort(wohnhaeuser.begin(),      wohnhaeuser.end(),      compare_haus_besch);
 	std::sort(gewerbehaeuser.begin(),   gewerbehaeuser.end(),   compare_haus_besch);
 	std::sort(industriehaeuser.begin(), industriehaeuser.end(), compare_haus_besch);
-	std::sort(station_building.begin(), station_building.end(), compare_haus_besch);
+	std::sort(station_building.begin(), station_building.end(), compare_station_besch);
 	std::sort(headquarter.begin(),      headquarter.end(),      compare_haus_besch);
 	warne_ungeladene(spezial_objekte, 10);
 	return true;

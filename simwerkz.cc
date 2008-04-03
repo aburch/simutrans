@@ -2362,9 +2362,9 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			}
 		case tram_wt:
 			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, track_wt, umgebung_t::cst_depot_rail );
-		case water_wt: return tooltip_with_price( "Build ship depot", umgebung_t::cst_depot_ship );
+		case water_wt:
 			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, water_wt, umgebung_t::cst_depot_ship );
-		case air_wt: return tooltip_with_price( "Build air depot", umgebung_t::cst_depot_air );
+		case air_wt:
 			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, air_wt, umgebung_t::cst_depot_air );
 		case maglev_wt:
 		case narrowgauge_wt:
