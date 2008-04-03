@@ -64,9 +64,9 @@ public:
 		luft=air_wt,
 		leitung=powerline_wt,
 		bautyp_mask=255,
-		bot_flag=0x10,					// do not connect to other ways
-		elevated_flag=0x20,			// elevated structure
-		tunnel_flag=0x80				// underground structure
+		bot_flag=0x100,					// do not connect to other ways
+		elevated_flag=0x200,			// elevated structure
+		tunnel_flag=0x800				// underground structure
 	};
 
 private:
