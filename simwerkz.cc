@@ -2061,31 +2061,28 @@ bool wkz_station_t::init( karte_t *welt, spieler_t * )
 const char *wkz_station_t::get_tooltip(spieler_t *)
 {
 	const haus_besch_t *besch=hausbauer_t::find_tile(default_param,0)->gib_besch();
-	switch (besch->gib_utyp()) {
-		case haus_besch_t::bahnhof:
-		case haus_besch_t::monorailstop:
-			return tooltip_with_price( besch->gib_name(), umgebung_t::cst_multiply_station*besch->gib_level() );
-		case haus_besch_t::bushalt:
-		case haus_besch_t::ladebucht:
-			return tooltip_with_price( besch->gib_name(), umgebung_t::cst_multiply_roadstop*besch->gib_level() );
-		case haus_besch_t::binnenhafen:
-		case haus_besch_t::hafen:
-			return tooltip_with_price( besch->gib_name(), umgebung_t::cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
-		case haus_besch_t::airport:
-			return tooltip_with_price( besch->gib_name(), umgebung_t::cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
-		case haus_besch_t::bahnhof_geb:
-		case haus_besch_t::bushalt_geb:
-		case haus_besch_t::ladebucht_geb:
-		case haus_besch_t::hafen_geb:
-		case haus_besch_t::binnenhafen_geb:
-		case haus_besch_t::airport_geb:
-		case haus_besch_t::monorail_geb:
-		case haus_besch_t::wartehalle:
-		case haus_besch_t::post:
-		case haus_besch_t::lagerhalle:
-			return tooltip_with_price( besch->gib_name(), umgebung_t::cst_multiply_post*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+	if(  besch->gib_utyp()==haus_besch_t::generic_stop  ||  besch->gib_utyp()==haus_besch_t::generic_extension  ) {
+		switch (besch->gib_extra()) {
+			case track_wt:
+			case monorail_wt:
+			case maglev_wt:
+			case tram_wt:
+			case narrowgauge_wt:
+				return tooltip_with_price( besch->gib_name(), umgebung_t::cst_multiply_station*besch->gib_level() );
+			case road_wt:
+				return tooltip_with_price( besch->gib_name(), umgebung_t::cst_multiply_roadstop*besch->gib_level() );
+			case water_wt:
+				return tooltip_with_price( besch->gib_name(), umgebung_t::cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+			case air_wt:
+				return tooltip_with_price( besch->gib_name(), umgebung_t::cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+			case 0:
+				return tooltip_with_price( besch->gib_name(), umgebung_t::cst_multiply_post*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+		}
 	}
-	return NULL;
+	else if(  besch->gib_utyp()==haus_besch_t::hafen  ) {
+		return tooltip_with_price( besch->gib_name(), umgebung_t::cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+	}
+	return "Illegal description";
 }
 
 const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )

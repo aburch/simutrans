@@ -167,26 +167,6 @@ static stringhashtable_tpl<wkz_depot_t *> depot_tool;
 // all these menus will need a waytype ...
 void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, waytype_t wt, const karte_t* welt)
 {
-	sint64 cost = umgebung_t::cst_multiply_post;
-	switch(wt) {
-		case track_wt:
-		case tram_wt:
-		case monorail_wt:
-		case maglev_wt:
-		case narrowgauge_wt:
-			cost = (  haus_besch_t::depot == utyp  ) ? umgebung_t::cst_depot_rail : umgebung_t::cst_multiply_station;
-			break;
-		case road_wt:
-			cost = (  haus_besch_t::depot == utyp  ) ? umgebung_t::cst_depot_road : umgebung_t::cst_multiply_roadstop;
-			break;
-		case water_wt:
-			cost = (  haus_besch_t::depot == utyp  ) ? umgebung_t::cst_depot_ship : umgebung_t::cst_multiply_dock;
-			break;
-		case air_wt:
-			cost = (  haus_besch_t::depot == utyp  ) ? umgebung_t::cst_depot_air : umgebung_t::cst_multiply_airterminal;
-			break;
-	}
-
 	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 	for(  vector_tpl<const haus_besch_t *>::const_iterator iter = station_building.begin(), end = station_building.end();  iter != end;  ++iter  ) {

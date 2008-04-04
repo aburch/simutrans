@@ -521,7 +521,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 			}
 			else if(strstr(w->default_param,"signs(")) {
 				waytype_t way = (waytype_t)atoi(w->default_param+6);
-				wayobj_t::fill_menu( wzw, way, welt );
+				roadsign_t::fill_menu( wzw, way, welt );
 			}
 			else if(strstr(w->default_param,"wayobjs(")) {
 				waytype_t way = (waytype_t)atoi(w->default_param+8);

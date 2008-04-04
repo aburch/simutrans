@@ -1180,13 +1180,13 @@ void win_display_flush(double konto)
 		display_color_img( skinverwaltung_t::seasons_icons->gib_bild_nr(wl->gib_jahreszeit()), 2, disp_height-15, 0, false, true );
 	}
 
-	int w_left = 20+display_proportional(20, disp_height-12, info, ALIGN_LEFT, COL_BLACK, true);
-	int w_right = 10+display_proportional(disp_width-10, disp_height-12, stretch_text, ALIGN_RIGHT, COL_BLACK, true);
+	int w_left = 20+display_proportional(20, disp_height-12, time, ALIGN_LEFT, COL_BLACK, true);
+	int w_right = 10+display_proportional(disp_width-10, disp_height-12, info, ALIGN_RIGHT, COL_BLACK, true);
 	int middle = (disp_width+((w_left+8)&0xFFF0)-((w_right+8)&0xFFF0))/2;
 
 	if(wl->get_active_player()) {
 		char buffer[256];
-		display_proportional( middle-5, disp_height-12, wl->get_active_player()->gib_name(), ALIGN_RIGHT, PLAYER_FLAG|(wl->get_active_player()->get_player_color1()+4), true);
+		display_proportional( middle-5, disp_height-12, wl->get_active_player()->gib_name(), ALIGN_RIGHT, PLAYER_FLAG|(wl->get_active_player()->get_player_color1()+2), true);
 		money_to_string(buffer, konto);
 		display_proportional( middle+5, disp_height-12, buffer, ALIGN_LEFT, konto >= 0.0?MONEY_PLUS:MONEY_MINUS, true);
 	}
