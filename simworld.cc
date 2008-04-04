@@ -3751,9 +3751,6 @@ karte_t::interactive_event(event_t &ev)
 						if(  (*iter)->command_key==ev.ev_code  ) {
 							set_werkzeug( *iter );
 							ok = true;
-						}
-						// stop if too high, since sorted
-						if(  (*iter)->command_key>=ev.ev_code  ) {
 							break;
 						}
 					}

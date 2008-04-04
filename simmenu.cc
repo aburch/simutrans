@@ -181,10 +181,10 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 				dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for general_tool[%i]", icon, i );
 			}
 			w->icon = skinverwaltung_t::werkzeuge_general->gib_bild_nr(icon);
+			do {
+				*str++;
+			} while(*str  &&  *str!=',');
 		}
-		do
-			*str++;
-		while(*str  &&  *str!=',');
 		if(*str==',') {
 			// next comes cursor
 			str++;
@@ -247,10 +247,10 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 				dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for dialog_tool[%i]", icon, i );
 			}
 			w->icon = skinverwaltung_t::werkzeuge_simple->gib_bild_nr(icon);
+			do {
+				*str++;
+			} while(*str  &&  *str!=',');
 		}
-		do
-			*str++;
-		while(*str  &&  *str!=',');
 		if(*str==',') {
 			// key
 			str++;
@@ -286,10 +286,10 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 				dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for simple_tool[%i]", icon, i );
 			}
 			w->icon = skinverwaltung_t::werkzeuge_dialoge->gib_bild_nr(icon);
+			do {
+				*str++;
+			} while(*str  &&  *str!=',');
 		}
-		do {
-			*str++;
-		} while(*str  &&  *str!=',');
 		if(*str==',') {
 			// key
 			str++;
@@ -358,9 +358,9 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 						dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for toolbar_tool[%i][%i]", icon, i, j );
 					}
 					icon = skinverwaltung_t::werkzeuge_toolbars->gib_bild_nr(icon);
-				}
-				while(*str!=','  &&  *str) {
-					str ++;
+					while(*str!=','  &&  *str) {
+						str ++;
+					}
 				}
 			}
 			// key
@@ -501,46 +501,49 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 	for (slist_tpl<werkzeug_t *>::const_iterator iter = tools.begin(), end = tools.end(); iter != end; ++iter) {
 		werkzeug_t *w = *iter;
 		// no way to call this tool? => then it is most likely a metatool
-		if(w->command_key==1  &&  w->icon==IMG_LEER  &&  w->default_param!=NULL) {
-			if(strstr(w->default_param,"ways(")) {
-				const char *c = w->default_param+5;
-				waytype_t way = (waytype_t)atoi(c);
-				while(*c  &&  *c!=','  &&  *c!=')') {
-					c++;
+		if(w->command_key==1  &&  w->icon==IMG_LEER) {
+			if(w->default_param!=NULL) {
+				if(strstr(w->default_param,"ways(")) {
+					const char *c = w->default_param+5;
+					waytype_t way = (waytype_t)atoi(c);
+					while(*c  &&  *c!=','  &&  *c!=')') {
+						c++;
+					}
+					weg_t::system_type subtype = (weg_t::system_type)(*c!=0 ? atoi(c+1) : 0);
+					wegbauer_t::fill_menu( wzw, way, subtype, welt );
 				}
-				weg_t::system_type subtype = (weg_t::system_type)(*c!=0 ? atoi(c+1) : 0);
-				wegbauer_t::fill_menu( wzw, way, subtype, welt );
-			}
-			else if(strstr(w->default_param,"bridges(")) {
-				waytype_t way = (waytype_t)atoi(w->default_param+8);
-				brueckenbauer_t::fill_menu( wzw, way, welt );
-			}
-			else if(strstr(w->default_param,"tunnels(")) {
-				waytype_t way = (waytype_t)atoi(w->default_param+8);
-				tunnelbauer_t::fill_menu( wzw, way, welt );
-			}
-			else if(strstr(w->default_param,"signs(")) {
-				waytype_t way = (waytype_t)atoi(w->default_param+6);
-				roadsign_t::fill_menu( wzw, way, welt );
-			}
-			else if(strstr(w->default_param,"wayobjs(")) {
-				waytype_t way = (waytype_t)atoi(w->default_param+8);
-				wayobj_t::fill_menu( wzw, way, welt );
-			}
-			else if(strstr(w->default_param,"buildings(")) {
-				const char *c = w->default_param+10;
-				haus_besch_t::utyp utype = (haus_besch_t::utyp)atoi(w->default_param+10);
-				while(*c  &&  *c!=','  &&  *c!=')') {
-					c++;
+				else if(strstr(w->default_param,"bridges(")) {
+					waytype_t way = (waytype_t)atoi(w->default_param+8);
+					brueckenbauer_t::fill_menu( wzw, way, welt );
 				}
-				waytype_t way = (waytype_t)(*c!=0 ? atoi(c+1) : 0);
-				hausbauer_t::fill_menu( wzw, utype, way, welt );
-			}
-			else {
-				wzw->add_werkzeug( dummy );
+				else if(strstr(w->default_param,"tunnels(")) {
+					waytype_t way = (waytype_t)atoi(w->default_param+8);
+					tunnelbauer_t::fill_menu( wzw, way, welt );
+				}
+				else if(strstr(w->default_param,"signs(")) {
+					waytype_t way = (waytype_t)atoi(w->default_param+6);
+					roadsign_t::fill_menu( wzw, way, welt );
+				}
+				else if(strstr(w->default_param,"wayobjs(")) {
+					waytype_t way = (waytype_t)atoi(w->default_param+8);
+					wayobj_t::fill_menu( wzw, way, welt );
+				}
+				else if(strstr(w->default_param,"buildings(")) {
+					const char *c = w->default_param+10;
+					haus_besch_t::utyp utype = (haus_besch_t::utyp)atoi(w->default_param+10);
+					while(*c  &&  *c!=','  &&  *c!=')') {
+						c++;
+					}
+					waytype_t way = (waytype_t)(*c!=0 ? atoi(c+1) : 0);
+					hausbauer_t::fill_menu( wzw, utype, way, welt );
+				}
+				else if(w->default_param[0]=='-') {
+					// add dummy werkzeug as seperator
+					wzw->add_werkzeug( dummy );
+				}
 			}
 		}
-		else {
+		else if(w->icon!=IMG_LEER) {
 			wzw->add_werkzeug( w );
 		}
 	}

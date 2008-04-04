@@ -1138,7 +1138,8 @@ const weg_besch_t *wkz_wegebau_t::get_besch()
 	const weg_besch_t *besch = wegbauer_t::gib_besch(default_param,0);
 	if(besch==NULL) {
 		waytype_t wt = (waytype_t)atoi(default_param);
-		if(defaults[wt&63]==NULL) {
+		besch = defaults[wt&63];
+		if(besch==NULL) {
 			if(wt<=air_wt) {
 				weg_t *w = weg_t::alloc(wt);
 				besch = defaults[wt] = w->gib_besch();
@@ -1174,7 +1175,11 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 		delete wkz_wegebau_bauer;
 		wkz_wegebau_bauer = NULL;
 	}
-	return true;
+	const weg_besch_t *besch = get_besch();
+	if(besch  &&  besch->gib_cursor()->gib_bild_nr(0) != IMG_LEER) {
+		cursor = besch->gib_cursor()->gib_bild_nr(0);
+	}
+	return besch!=NULL;
 }
 
 const char *wkz_wegebau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )

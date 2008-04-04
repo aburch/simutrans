@@ -395,7 +395,10 @@ class wkz_step_year_t : public werkzeug_t {
 };
 
 class wkz_change_game_speed_t : public werkzeug_t {
-	const char *get_tooltip(spieler_t *) { return translator::translate("Accelerate/Deccelerate time"); }
+	const char *get_tooltip(spieler_t *) {
+		int faktor = atoi(default_param);
+		return faktor>0 ? translator::translate("Accelerate time") : translator::translate("Deccelerate time");
+	}
 	bool init( karte_t *welt, spieler_t * ) {
 		welt->change_time_multiplier( atoi(default_param) );
 		return false;
@@ -484,7 +487,7 @@ class wkz_show_underground_t : public werkzeug_t {
 		for (vector_tpl<toolbar_t *>::const_iterator i = werkzeug_t::toolbar_tool.begin(), end = werkzeug_t::toolbar_tool.end();  i != end;  ++i  ) {
 			(*i)->update(welt, welt->get_active_player());
 		}
-		welt->setze_dirty();
+		welt->update_map();
 		return false;
 	}
 };
