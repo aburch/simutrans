@@ -82,8 +82,9 @@ help_frame_t::help_frame_t(cstring_t filename) :
 		cbuffer_t buf(16000);
 		buf.append( translator::translate( "<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n" ) );
 		spieler_t *sp = spieler_t::get_welt()->get_active_player();
+		const char *trad_str = translator::translate( "<em>%C</em> - %s<br>\n" );
 		for (vector_tpl<werkzeug_t *>::const_iterator iter = werkzeug_t::char_to_tool.begin(), end = werkzeug_t::char_to_tool.end(); iter != end; ++iter) {
-			buf.printf( "<em>%C</em> - %s<br>\n", (*iter)->command_key, (*iter)->get_tooltip(sp) );
+			buf.printf( trad_str, (*iter)->command_key, (*iter)->get_tooltip(sp) );
 		}
 		setze_text(buf);
 	}
@@ -139,7 +140,12 @@ help_frame_t::help_frame_t(cstring_t filename) :
 bool
 help_frame_t::action_triggered(gui_komponente_t *, value_t extra)
 {
-	create_win(new help_frame_t((const char *)(extra.p)), w_info, (long)(extra.p) );
+	const char *str = (const char *)(extra.p);
+	uint32 magic = magic_info_pointer;
+	while(*str) {
+		magic += *str++;
+	}
+	create_win(new help_frame_t((const char *)(extra.p)), w_info, magic );
 	return true;
 }
 

@@ -58,7 +58,6 @@ enum magic_numbers {
 	magic_label_frame,
 	magic_city_info_t,
 	magic_citylist_frame_t,
-	magic_keyhelp,
 	magic_mainhelp,
 	magic_finances_t,
 	magic_help,
@@ -69,7 +68,8 @@ enum magic_numbers {
 	magic_goodslist,
 	magic_messageframe,
 	magic_edit_factory,
-	magic_info_pointer	// mark end of the list
+	magic_info_pointer,	// mark end of the list
+	magic_keyhelp=magic_info_pointer+842,
 };
 
 // Haltezeit für Nachrichtenfenster
