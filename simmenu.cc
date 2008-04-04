@@ -340,7 +340,6 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 			/* first, parse the string; we could have up to four parameters */
 			const char *toolname = str;
 			image_id icon = IMG_LEER;
-			const char *icon_str = NULL;
 			const char *key_str = NULL;
 			const char *param_str = NULL;	// in case of toolbars, it will also contain the tooltip
 

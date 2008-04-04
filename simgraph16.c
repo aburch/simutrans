@@ -867,14 +867,11 @@ static void rezoom_img(const unsigned int n)
 		if (images[n].h > 0  &&  images[n].w > 0) {
 			// just recalculate the image in the new size
 			static uint8 *baseimage = NULL;
-			static size = 0;
+			static uint32 size = 0;
 			static PIXVAL *baseimage2 = NULL;
 			PIXVAL *src = images[n].base_data;
 			PIXVAL *dest = NULL;
 			uint32 x, y;
-
-			// decode/recode linewise
-			unsigned int last_color = 255; // ==255 to keep compiler happy
 
 			uint32 orgzoomwidth = ((images[n].base_w + zoom_den[zoom_factor] - 1 ) / zoom_den[zoom_factor]) * zoom_den[zoom_factor];
 			uint32 newzoomwidth = (orgzoomwidth*zoom_num[zoom_factor])/zoom_den[zoom_factor];
