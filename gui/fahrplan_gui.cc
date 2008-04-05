@@ -360,7 +360,7 @@ void fahrplan_gui_t::update_werkzeug(bool set)
 void
 fahrplan_gui_t::infowin_event(const event_t *ev)
 {
- 	if ( (ev)->ev_class == EVENT_CLICK && !line_selector.getroffen(ev->cx, ev->cy)  &&  scrolly.getroffen(ev->cx, ev->cy)) {
+	if ( (ev)->ev_class == EVENT_CLICK  && !line_selector.getroffen(ev->cx, ev->cy-16))  {//  &&  !scrolly.getroffen(ev->cx, ev->cy+16)) {
 
 		// close combo box; we must do it ourselves, since the box does not recieve outside events ...
 		line_selector.close_box();

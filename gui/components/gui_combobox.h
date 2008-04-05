@@ -27,11 +27,11 @@ private:
 	button_t bt_prev;
 	button_t bt_next;
 
-    /**
-     * the drop box list
-     * @author hsiegeln
-     */
-    gui_scrolled_list_t droplist;
+	/**
+	 * the drop box list
+	 * @author hsiegeln
+	 */
+	gui_scrolled_list_t droplist;
 
 	/*
 	 * flag for first call
@@ -43,35 +43,35 @@ private:
 	 */
 	bool finish:1;
 
-    /**
-     * the max size this component can have
-     * @author hsiegeln
-     */
-    koord max_size;
+	/**
+	 * the max size this component can have
+	 * @author hsiegeln
+	 */
+	koord max_size;
 
 public:
-    gui_combobox_t();
+	gui_combobox_t();
 
-    ~gui_combobox_t();
+	~gui_combobox_t();
 
-      /**
-     * Events werden hiermit an die GUI-Komponenten
-     * gemeldet
-     * @author Hj. Malthaner
-     */
-    void infowin_event(const event_t *);
+	  /**
+	 * Events werden hiermit an die GUI-Komponenten
+	 * gemeldet
+	 * @author Hj. Malthaner
+	 */
+	void infowin_event(const event_t *);
 
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     */
-    virtual bool action_triggered(gui_komponente_t *komp,value_t /* */);
+	/**
+	 * This method is called if an action is triggered
+	 * @author Hj. Malthaner
+	 */
+	virtual bool action_triggered(gui_komponente_t *komp,value_t /* */);
 
-    /**
-     * Zeichnet die Komponente
-     * @author Hj. Malthaner
-     */
-    void zeichnen(koord offset);
+	/**
+	 * Zeichnet die Komponente
+	 * @author Hj. Malthaner
+	 */
+	void zeichnen(koord offset);
 
 	/**
 	 * add element to droplist
@@ -101,42 +101,38 @@ public:
 	 * set maximum size for control
 	 * @author hsiegeln
 	 */
-	 void set_max_size(koord max) { max_size = max; }
-
-	 /**
-	  * returns the selection id
-	  * @author hsiegeln
-	  */
-	  int get_selection() { return droplist.gib_selection(); }
-
-	  /**
-	   * sets the selection
-	   * @author hsiegeln
-	   */
-	  void set_selection(int s);
+	void set_max_size(koord max) { max_size = max; }
 
 	/**
-	* Setzt den Textpuffer
-	*
-	* @author Hj. Malthaner
-	*/
+	 * returns the selection id
+	 * @author hsiegeln
+	 */
+	int get_selection() { return droplist.gib_selection(); }
+
+	/**
+	 * sets the selection
+	 * @author hsiegeln
+	 */
+	void set_selection(int s);
+
+	/**
+	 * Setzt den Textpuffer
+	 * @author Hj. Malthaner
+	 */
 	void setze_text(char *text, int max) {textinp.setze_text(text,max);}
 
-
 	/**
-	* Holt den Textpuffer
-	*
-	* @author Hj. Malthaner
-	*/
+	 * Holt den Textpuffer
+	 * @author Hj. Malthaner
+	 */
 	char *gib_text() const {return textinp.gib_text();}
 
-
-    /**
-     * Vorzugsweise sollte diese Methode zum Setzen der Größe benutzt werden,
-     * obwohl groesse public ist.
-     * @author Hj. Malthaner
-     */
-    void setze_groesse(koord groesse);
+	/**
+	 * Vorzugsweise sollte diese Methode zum Setzen der Größe benutzt werden,
+	 * obwohl groesse public ist.
+	 * @author Hj. Malthaner
+	 */
+	void setze_groesse(koord groesse);
 
 	/**
 	 * called when the focus should be released

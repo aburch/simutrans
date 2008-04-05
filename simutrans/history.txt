@@ -29,7 +29,8 @@
 	CHANGE: logarithmic traffic density display in minimap
 	CHANGE: cst_depot_air for charging air_depot
 	CHANGE: less subtypes for stops and depot (halfway)
-	CHANGE: neu customable toolbars (90%)
+	CHANGE: neu customable toolbars (90%) (see pak64/config/menuconf.tab)
+	FIX: schedule window last line was not selectable
 
 
 Release of 99.17.1 (r1550, stable)

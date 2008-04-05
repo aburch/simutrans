@@ -436,7 +436,7 @@ class wkz_show_name_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) {
 		return translator::translate(
 			umgebung_t::show_names==3 ? "hide station names" :
-			(umgebung_t::show_names&1) ? "show station names" : "show waiting bars");
+			(umgebung_t::show_names&1) ? "show waiting bars" : "show station names");
 	}
 	bool init( karte_t *welt, spieler_t * ) {
 		umgebung_t::show_names = (umgebung_t::show_names+1) & 3;

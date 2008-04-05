@@ -131,10 +131,12 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 			//return key
 			droplist.set_visible(false);
 			close_box();
+			// update "mouse-click-catch-area"
+			setze_groesse(koord(groesse.x, droplist.is_visible() ? max_size.y : 14));
 		}
 	}
 	// update "mouse-click-catch-area"
-	setze_groesse(koord(groesse.x, droplist.is_visible() ? max_size.y : 14));
+//	setze_groesse(koord(groesse.x, droplist.is_visible() ? max_size.y : 14));
 }
 
 
@@ -222,5 +224,5 @@ void gui_combobox_t::setze_groesse(koord gr)
 	textinp.setze_pos( pos+koord(12,0) );
 	textinp.setze_groesse( koord(gr.x-26,14) );
 	bt_next.setze_pos( koord(gr.x-12,2) );
-	groesse = gr;
+	gui_komponente_t::groesse = gr;
 }
