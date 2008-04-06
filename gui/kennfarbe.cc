@@ -20,7 +20,7 @@
 farbengui_t::farbengui_t(spieler_t *sp) :
 	gui_frame_t("Meldung",sp),
 	txt(translator::translate("COLOR_CHOOSE\n")),
-	bild(skinverwaltung_t::farbmenu->gib_bild_nr(0),PLAYER_FLAG|sp->get_player_nr())
+	bild(skinverwaltung_t::color_options->gib_bild_nr(0),PLAYER_FLAG|sp->get_player_nr())
 {
 	this->sp = sp;
 	setze_fenstergroesse( koord(180, 17+6*28) );

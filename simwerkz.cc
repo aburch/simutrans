@@ -1171,7 +1171,7 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 	erster = true;
 	welt->show_distance = start = koord3d::invalid;
 	if(wkz_wegebau_bauer != NULL) {
-		wkz_wegebau_bauer->mark_image_dirty( skinverwaltung_t::bauigelsymbol->gib_bild_nr(0), 0 );
+		wkz_wegebau_bauer->mark_image_dirty( wkz_wegebau_bauer->gib_bild(), 0 );
 		delete wkz_wegebau_bauer;
 		wkz_wegebau_bauer = NULL;
 	}
@@ -1339,7 +1339,7 @@ bool wkz_tunnelbau_t::init( karte_t *welt, spieler_t *sp )
 {
 	welt->show_distance = start = koord3d::invalid;
 	if(wkz_tunnelbau_bauer != NULL) {
-		wkz_tunnelbau_bauer->mark_image_dirty( skinverwaltung_t::bauigelsymbol->gib_bild_nr(0), 0 );
+		wkz_tunnelbau_bauer->mark_image_dirty( wkz_tunnelbau_bauer->gib_bild(), 0 );
 		delete wkz_tunnelbau_bauer;
 		wkz_tunnelbau_bauer = NULL;
 	}
@@ -1432,7 +1432,7 @@ bool wkz_wayremover_t::init( karte_t *welt, spieler_t *sp )
 	erster = true;
 	welt->show_distance = start = koord3d::invalid;
 	if(wkz_wayremover_bauer != NULL) {
-		wkz_wayremover_bauer->mark_image_dirty( skinverwaltung_t::bauigelsymbol->gib_bild_nr(0), 0 );
+		wkz_wayremover_bauer->mark_image_dirty( wkz_wayremover_bauer->gib_bild(), 0 );
 		delete wkz_wayremover_bauer;
 		wkz_wayremover_bauer = NULL;
 	}
@@ -1459,7 +1459,7 @@ const char *wkz_wayremover_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		erster = false;
 		welt->show_distance = start = gr->gib_pos();
 		wkz_wayremover_bauer = new zeiger_t(welt, start, sp);
-		wkz_wayremover_bauer->setze_bild( skinverwaltung_t::killzeiger->gib_bild_nr(0));
+		wkz_wayremover_bauer->setze_bild( cursor );
 		gr->obj_add(wkz_wayremover_bauer);
 DBG_MESSAGE("wkz_wayremover()", "Setting start to %d,%d,%d",start.x, start.y,start.z);
 	}
@@ -1467,7 +1467,7 @@ DBG_MESSAGE("wkz_wayremover()", "Setting start to %d,%d,%d",start.x, start.y,sta
 DBG_MESSAGE("wkz_wayremover()", "Setting end to %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y,gr->gib_pos().z);
 
 		// remove marker
-		wkz_wayremover_bauer->mark_image_dirty( skinverwaltung_t::killzeiger->gib_bild_nr(0), 0 );
+		wkz_wayremover_bauer->mark_image_dirty( wkz_wayremover_bauer->gib_bild(), 0 );
 		delete wkz_wayremover_bauer;
 		wkz_wayremover_bauer = NULL;
 		erster = true;

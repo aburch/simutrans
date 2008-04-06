@@ -62,7 +62,7 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 	lb_production_info( translator::translate("Produktion"), COL_BLACK, gui_label_t::left )
 {
 	land_chain_tool.default_param = city_chain_tool.default_param = fab_tool.default_param = param_str;
-	land_chain_tool.cursor = city_chain_tool.cursor = fab_tool.cursor = skinverwaltung_t::bauzeiger->gib_bild_nr(0);
+	land_chain_tool.cursor = city_chain_tool.cursor = fab_tool.cursor = werkzeug_t::general_tool[WKZ_BUILD_FACTORY]->cursor;
 	fab_besch = NULL;
 
 	bt_city_chain.init( button_t::square_state, "Only city chains", koord(NAME_COLUMN_WIDTH+11, offset_of_comp-4 ) );

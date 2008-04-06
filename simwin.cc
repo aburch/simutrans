@@ -1176,9 +1176,7 @@ void win_display_flush(double konto)
 	display_fillbox_wh(0, disp_height-16, disp_width, 1, MN_GREY4, false);
 	display_fillbox_wh(0, disp_height-15, disp_width, 15, MN_GREY1, false);
 
-	if(skinverwaltung_t::seasons_icons) {
-		display_color_img( skinverwaltung_t::seasons_icons->gib_bild_nr(wl->gib_jahreszeit()), 2, disp_height-15, 0, false, true );
-	}
+	display_color_img( skinverwaltung_t::seasons_icons->gib_bild_nr(wl->gib_jahreszeit()), 2, disp_height-15, 0, false, true );
 
 	int w_left = 20+display_proportional(20, disp_height-12, time, ALIGN_LEFT, COL_BLACK, true);
 	int w_right = 10+display_proportional(disp_width-10, disp_height-12, info, ALIGN_RIGHT, COL_BLACK, true);
