@@ -91,7 +91,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	besch.gtyp             = gebaeude_t::unbekannt;
 	besch.utype            = haus_besch_t::unbekannt;
-	besch.bauzeit          = 0;
+	besch.extra_data          = 0;
 	besch.allowed_climates = all_but_water_climate; // all but water
 	besch.enables          = 0;
 	besch.level            = obj.get_int("level", 1) - 1;
@@ -116,58 +116,57 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	} else if (!STRICMP(type_name, "ind")) {
 		besch.gtyp = gebaeude_t::industrie;
 	} else if (!STRICMP(type_name, "cur")) {
-		besch.bauzeit = obj.get_int("build_time", 0);
+		besch.extra_data = obj.get_int("build_time", 0);
 		besch.level = obj.get_int("passengers",  besch.level);
-		besch.utype = besch.bauzeit == 0 ? haus_besch_t::attraction_land : haus_besch_t::attraction_city;
+		besch.utype = besch.extra_data == 0 ? haus_besch_t::attraction_land : haus_besch_t::attraction_city;
 	} else if (!STRICMP(type_name, "mon")) {
 		besch.utype = haus_besch_t::denkmal;
 		besch.level = obj.get_int("passengers",  besch.level);
 	} else if (!STRICMP(type_name, "tow")) {
 		besch.level = obj.get_int("passengers",  besch.level);
-		besch.bauzeit = obj.get_int("build_time", 0);
+		besch.extra_data = obj.get_int("build_time", 0);
 		besch.utype = haus_besch_t::rathaus;
 	} else if (!STRICMP(type_name, "hq")) {
 		besch.level = obj.get_int("passengers",  besch.level);
-		besch.bauzeit = obj.get_int("build_time", 0);
+		besch.extra_data = obj.get_int("hq_level", 0);
 		besch.utype = haus_besch_t::firmensitz;
-	} else if (!STRICMP(type_name, "station")) {
-		besch.utype = haus_besch_t::bahnhof;
-	} else if (!STRICMP(type_name, "railstop")) {
-		besch.utype = haus_besch_t::bahnhof;
-	} else if (!STRICMP(type_name, "monorailstop")) {
-		besch.utype = haus_besch_t::monorailstop;
-	} else if (!STRICMP(type_name, "busstop")) {
-		besch.utype = haus_besch_t::bushalt;
-	} else if (!STRICMP(type_name, "carstop")) {
-		besch.utype = haus_besch_t::ladebucht;
 	} else if (!STRICMP(type_name, "habour")) {
 		besch.utype = haus_besch_t::hafen;
-	} else if (!STRICMP(type_name, "wharf")) {
-		besch.utype = haus_besch_t::binnenhafen;
-	} else if (!STRICMP(type_name, "airport")) {
-		besch.utype = haus_besch_t::airport;
-	} else if (!STRICMP(type_name, "hall")) {
-		besch.utype = haus_besch_t::wartehalle;
-	} else if (!STRICMP(type_name, "post")) {
-		besch.utype = haus_besch_t::post;
-	} else if (!STRICMP(type_name, "shed")) {
-		besch.utype = haus_besch_t::lagerhalle;
+		besch.extra_data = water_wt;
 	} else if (!STRICMP(type_name, "fac")) {
 		besch.utype = haus_besch_t::fabrik;
-	} else if (!STRICMP(type_name, "any") || *type_name == '\0') {
+		besch.enables |= 4;
+	} else if (!STRICMP(type_name, "stop")) {
+		besch.utype = haus_besch_t::generic_stop;
+		besch.extra_data = get_waytype(obj.get("waytype"));
+	} else if (!STRICMP(type_name, "extension")) {
+		besch.utype = haus_besch_t::generic_extension;
+		besch.extra_data = get_waytype(obj.get("waytype"));
+	} else if (!STRICMP(type_name, "depot")) {
 		besch.utype = haus_besch_t::weitere;
+		besch.extra_data = get_waytype(obj.get("waytype"));
+	} else if (!STRICMP(type_name, "any") || *type_name == '\0') {
+		// for instance "MonorailGround"
+		besch.utype = haus_besch_t::weitere;
+	} else if (
+		!STRICMP(type_name, "station")  ||
+		!STRICMP(type_name, "railstop")  ||
+		!STRICMP(type_name, "monorailstop")  ||
+		!STRICMP(type_name, "busstop")  ||
+		!STRICMP(type_name, "carstop")  ||
+		!STRICMP(type_name, "airport")  ||
+		!STRICMP(type_name, "wharf")
+	) {
+		dbg->fatal("building_writer_t::write_obj()","%s is obsolete type for %s; use stop/extension and waytype!", type_name, obj.get("name") );
+	} else if (!STRICMP(type_name, "hall")  ||  !STRICMP(type_name, "post")  ||  !STRICMP(type_name, "shed")  ) {
+		dbg->fatal("building_writer_t::write_obj()","%s is obsolete type for %s; use extension and waytype!", type_name, obj.get("name") );
 	} else {
-		cstring_t reason;
-		reason.printf("invalid type %s for building %s\n", type_name, obj.get("name"));
-		throw obj_pak_exception_t("building_writer_t", reason);
+		dbg->fatal( "building_writer_t::write_obj()","%s is obsolete type for %s", type_name, obj.get("name") );
 	}
 
-	// if it is a station (building), or a water factory
-	if (besch.utype >= haus_besch_t::bahnhof && besch.utype <= haus_besch_t::monorailstop+1) {
-		// is is an station extension building?
-		if (obj.get_int("extension_building", 0) > 0) {
-			besch.utype = (haus_besch_t::utyp)(8 + (int)besch.utype);
-		}
+	// is is an station extension building?
+	if (obj.get_int("extension_building", 0) > 0) {
+		dbg->fatal("building_writer_t::write_obj()","extension_building is obsolete keyword for %s; use stop/extension and waytype!", obj.get("name") );
 	}
 
 	if (obj.get_int("enables_pax", 0) > 0) {
@@ -295,7 +294,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	v16 = (uint16)besch.level;
 	node.write_data_at(fp, &v16, 4, sizeof(uint16));
 
-	v32 = (uint32)besch.bauzeit;
+	v32 = (uint32)besch.extra_data;
 	node.write_data_at(fp, &v32, 6, sizeof(uint32));
 
 	v16 = besch.groesse.x;
