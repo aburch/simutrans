@@ -56,7 +56,7 @@ static stringhashtable_tpl<const haus_besch_t*> besch_names;
  * Alle Gebäude, die die Anwendung direkt benötigt, kriegen feste IDs.
  * Außerdem müssen wir dafür sorgen, dass sie alle da sind.
  */
-const haus_besch_t *hausbauer_t::monorail_foundation_besch = NULL;
+const haus_besch_t *hausbauer_t::elevated_foundation_besch = NULL;
 
 // all buildings with rails or connected to stops
 vector_tpl<const haus_besch_t *> hausbauer_t::station_building;
@@ -64,7 +64,7 @@ vector_tpl<const haus_besch_t *> hausbauer_t::station_building;
 vector_tpl<const haus_besch_t *> hausbauer_t::headquarter;
 
 static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
-    { &hausbauer_t::monorail_foundation_besch,   "MonorailGround" },
+    { &hausbauer_t::elevated_foundation_besch,   "MonorailGround" },
     { NULL, NULL }
 };
 
@@ -103,7 +103,7 @@ bool hausbauer_t::alles_geladen()
 	std::sort(industriehaeuser.begin(), industriehaeuser.end(), compare_haus_besch);
 	std::sort(station_building.begin(), station_building.end(), compare_station_besch);
 	std::sort(headquarter.begin(),      headquarter.end(),      compare_haus_besch);
-	warne_ungeladene(spezial_objekte, 10);
+	warne_ungeladene(spezial_objekte, 1);
 	return true;
 }
 
@@ -136,6 +136,12 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 DBG_DEBUG("hausbauer_t::register_besch()","Infrastructure %s",besch->gib_name());
 				break;
 
+			case haus_besch_t::weitere:
+				if(strcmp(besch->gib_name(),"MonorailGround")==0) {
+					// foundation for elevated ways
+					elevated_foundation_besch = besch;
+					break;
+				}
 			default:
 DBG_DEBUG("hausbauer_t::register_besch()","unknown subtype %i of %s: ignored",besch->gib_utyp(),besch->gib_name());
 				return false;

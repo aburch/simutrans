@@ -41,7 +41,7 @@ class hausbauer_t
 		/**
 		 * Geb‰ude, die das Programm direkt kennen muﬂ
 		 */
-		static const haus_besch_t* monorail_foundation_besch;
+		static const haus_besch_t* elevated_foundation_besch;
 
 		// to allow for an arbitary number, we use lists
 		static vector_tpl<const haus_besch_t*> station_building;

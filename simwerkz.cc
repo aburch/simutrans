@@ -2357,7 +2357,7 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				if(err==NULL) {
 					grund_t *bd = welt->lookup_kartenboden(k.gib_2d());
 					if(bd->ist_natur()) {
-						hausbauer_t::baue( welt, sp, bd->gib_pos(), 0, hausbauer_t::monorail_foundation_besch );
+						hausbauer_t::baue( welt, sp, bd->gib_pos(), 0, hausbauer_t::elevated_foundation_besch );
 					}
 				}
 				return err;
