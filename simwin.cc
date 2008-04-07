@@ -945,46 +945,6 @@ void win_poll_event(struct event_t *ev)
 	}
 }
 
-static const char*  tooltips[22] =
-{
-    "Einstellungsfenster",
-    "Reliefkarte",
-    "Abfrage",
-    "SLOPETOOLS",
-    "RAILTOOLS",
-    "MONORAILTOOLS",
-    "TRAMTOOLS",
-    "ROADTOOLS",
-    "SHIPTOOLS",
-    "AIRTOOLS",
-    "SPECIALTOOLS",
-    "Abriss",
-    "",
-    "Line Management",
-    "LISTTOOLS",
-    "Mailbox",
-    "Finanzen",
-    "",
-    "Screenshot",
-    "Pause",
-    "Fast forward",
-    "Help"
-};
-
-
-
-// menu tooltips
-static void win_display_tooltips()
-{
-	if(gib_maus_y() <= 32 && gib_maus_x() < 704) {
-		if(*tooltips[gib_maus_x() / 32] != 0) {
-
-			tooltip_text = translator::translate(tooltips[gib_maus_x() / 32]);
-			tooltip_xpos = ((gib_maus_x() & 0xFFE0)+16);
-			tooltip_ypos = 39;
-		}
-	}
-}
 
 // since seaons 0 is always summer for backward compatibility
 static const char * seasons[] =
@@ -1052,8 +1012,6 @@ void win_display_flush(double konto)
 
 		display_all_win();
 		remove_old_win();
-
-		win_display_tooltips();
 
 		// Hajo: check if there is a tooltip to display
 		if(tooltip_text!=NULL) {
