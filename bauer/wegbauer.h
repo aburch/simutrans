@@ -164,7 +164,7 @@ private:
 	void baue_leitung();
 
 public:
-	koord gib_route_bei(int i) const { return route[i].gib_2d(); }
+	koord3d gib_route_bei(int i) const { return route[i]; }
 
 	int n, max_n;
 

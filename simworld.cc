@@ -3462,6 +3462,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 		int i_alt=zeiger->gib_pos().x;
 		int j_alt=zeiger->gib_pos().y;
+		static int mb_alt=0;
 
 		// needed for dragging
 		const koord prev_pos = zeiger->gib_pos().gib_2d();
@@ -3561,10 +3562,11 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		}
 
 		// zeiger bewegen
-		if(mi >= 0 && mj >= 0 && mi<gib_groesse_x() && mj<gib_groesse_y() && (mi != i_alt || mj != j_alt)) {
+		if(mi >= 0 && mj >= 0 &&  mi<gib_groesse_x() &&  mj<gib_groesse_y() && (mi != i_alt || mj != j_alt  ||  ev->button_state != mb_alt)) {
 
 			i_alt = mi;
 			j_alt = mj;
+			mb_alt = ev->button_state;
 
 			koord3d pos = lookup_kartenboden(koord(mi,mj))->gib_pos();
 			if(grund_t::underground_mode) {
@@ -3575,15 +3577,16 @@ void karte_t::bewege_zeiger(const event_t *ev)
 					pos.z = lookup_hgt(koord(mi,mj));
 				}
 			}
+			koord3d prev_pos = zeiger->gib_pos();
 			zeiger->change_pos(pos);
 			// resend init message, if mouse button pressed to enable dragging
 			if(is_dragging  &&  ev->button_state==0) {
 				is_dragging = false;
-//				current_mouse_funk.funk(WKZ_INIT, get_active_player(), this, koord::invalid, current_mouse_funk.param);
+				werkzeug->move( this, get_active_player(), 0, pos );
 			}
 			else if(werkzeug!=NULL  &&  ev->ev_class==EVENT_DRAG  &&  werkzeug_last_pos!=pos.gib_2d()) {
-				if(!is_dragging) {
-					werkzeug->move( this, get_active_player(), 1, pos );
+				if(!is_dragging  &&  ist_in_kartengrenzen(prev_pos.gib_2d())) {
+					werkzeug->move( this, get_active_player(), 1, prev_pos );
 				}
 				is_dragging = true;
 				werkzeug->move( this, get_active_player(), 1, pos );
@@ -3624,15 +3627,6 @@ void karte_t::switch_active_player(uint8 new_player)
 
 	// update menue entries (we do not want player1 to run anything)
 	if(renew_menu) {
-/*
-		static magic_numbers all_menu[6]= { magic_railtools, magic_monorailtools, magic_tramtools, magic_roadtools, magic_shiptools, magic_airtools };
-		for( int i=0;  i<6;  i++  ) {
-			gui_fenster_t *gui=win_get_magic(all_menu[i]);
-			if(gui) {
-				menu_fill( this, all_menu[i], active_player );
-			}
-		}
-############### */
 		for (vector_tpl<toolbar_t *>::const_iterator i = werkzeug_t::toolbar_tool.begin(), end = werkzeug_t::toolbar_tool.end();  i != end;  ++i  ) {
 			(*i)->update(this, active_player);
 		}
@@ -3861,7 +3855,7 @@ karte_t::interactive()
 				}
 			}
 
-			if(!swallowed  &&  (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON)  ||  (ev.button_state==0  &&  ev.ev_class==EVENT_MOVE)) {
+			if(!swallowed  &&  (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON)  ||  (ev.button_state==0  &&  ev.ev_class==EVENT_MOVE)  ||  ev.ev_class==EVENT_RELEASE) {
 				bewege_zeiger(&ev);
 			}
 		}

@@ -55,6 +55,7 @@ class koord3d;
 class koord;
 class toolbar_t;
 class werkzeug_waehler_t;
+class wegbauer_t;
 
 /****************************** helper functions: *****************************/
 
@@ -167,10 +168,11 @@ class wkz_fahrplan_ins_t : public werkzeug_t {
 
 class wkz_wegebau_t : public werkzeug_t {
 private:
-	bool erster;
+	static const weg_besch_t *defaults[17];	// default ways for all types
 	koord3d start;
 	zeiger_t *wkz_wegebau_bauer;
-	static const weg_besch_t *defaults[17];
+	slist_tpl <zeiger_t *>marked;
+	const weg_besch_t *besch;
 	const weg_besch_t *get_besch();
 public:
 	wkz_wegebau_t() : werkzeug_t() { wkz_wegebau_bauer=NULL; }
@@ -178,7 +180,7 @@ public:
 	bool init( karte_t *, spieler_t * );
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
 	const char *work( karte_t *, spieler_t *, koord3d );
-//	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d );
+	const char *move( karte_t *, spieler_t *, uint16 buttonstate, koord3d );
 };
 
 class wkz_brueckenbau_t : public werkzeug_t {

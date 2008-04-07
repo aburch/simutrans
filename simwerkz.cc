@@ -1133,7 +1133,7 @@ const char *wkz_fahrplan_ins_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 /* way construction */
 const weg_besch_t *wkz_wegebau_t::defaults[17] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-const weg_besch_t *wkz_wegebau_t::get_besch()
+const weg_besch_t * wkz_wegebau_t::get_besch()
 {
 	const weg_besch_t *besch = wegbauer_t::gib_besch(default_param,0);
 	if(besch==NULL) {
@@ -1150,6 +1150,8 @@ const weg_besch_t *wkz_wegebau_t::get_besch()
 			}
 		}
 		assert(besch);
+	}
+	if(besch) {
 	}
 	return besch;
 }
@@ -1168,23 +1170,35 @@ const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 
 bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 {
-	erster = true;
 	welt->show_distance = start = koord3d::invalid;
 	if(wkz_wegebau_bauer != NULL) {
 		wkz_wegebau_bauer->mark_image_dirty( wkz_wegebau_bauer->gib_bild(), 0 );
 		delete wkz_wegebau_bauer;
 		wkz_wegebau_bauer = NULL;
 	}
-	const weg_besch_t *besch = get_besch();
+	// delete old route
+	while(!marked.empty()) {
+		zeiger_t *z = marked.remove_first();
+		z->mark_image_dirty( z->gib_bild(), 0 );
+		delete z;
+	}
+	// now get current besch
+	besch = get_besch();
 	if(besch  &&  besch->gib_cursor()->gib_bild_nr(0) != IMG_LEER) {
 		cursor = besch->gib_cursor()->gib_bild_nr(0);
 	}
 	return besch!=NULL;
 }
 
-const char *wkz_wegebau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
+const char *wkz_wegebau_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate, koord3d pos )
 {
-	const weg_besch_t *besch = get_besch();
+	// on map?
+	const planquadrat_t *plan = welt->lookup(pos.gib_2d());
+	if(plan == NULL) {
+		return "";
+	}
+
+	// recalc type of construction
 	wegbauer_t::bautyp_t bautyp = (wegbauer_t::bautyp_t)besch->gib_wtyp();
 	if(besch->gib_wtyp()==track_wt  &&  besch->gib_styp()==7) {
 		bautyp = wegbauer_t::schiene_tram;
@@ -1194,6 +1208,115 @@ const char *wkz_wegebau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 		bautyp = (wegbauer_t::bautyp_t)((int)bautyp|(int)wegbauer_t::elevated_flag);
 	}
 
+	if(buttonstate==1) {
+		// delete old route
+		while(!marked.empty()) {
+			zeiger_t *z = marked.remove_first();
+			z->mark_image_dirty( z->gib_bild(), 0 );
+			delete z;
+		}
+		// check for suitable ground
+		grund_t *gr=NULL;
+		if(grund_t::underground_mode) {
+			// search all grounds for match
+			for( unsigned cnt=0;  cnt<plan->gib_boden_count();  cnt++  ) {
+				// with control backwards
+				gr = plan->gib_boden_bei(cnt);
+				// ignore tunnel
+				if(gr->gib_typ()!=grund_t::tunnelboden) {
+					gr = NULL;
+					continue;
+				}
+				// check for ownership
+				if(sp!=NULL  &&  (gr->obj_count()==0  ||  !spieler_t::check_owner( sp, gr->obj_bei(0)->gib_besitzer()))){
+					gr = NULL;
+					continue;
+				}
+			}
+		}
+		else {
+			// normal ground; just check for ownership
+			gr = plan->gib_kartenboden();
+			if(gr->kann_alle_obj_entfernen(sp)!=NULL  &&  gr->gib_weg((waytype_t)besch->gib_wtyp())==NULL) {
+				gr = NULL;
+			}
+		}
+		// calc new route (if there)
+		if(gr) {
+			if(start==koord3d::invalid) {
+				welt->show_distance = start = gr->gib_pos();
+				wkz_wegebau_bauer = new zeiger_t(welt, start, sp);
+				wkz_wegebau_bauer->setze_bild( skinverwaltung_t::bauigelsymbol->gib_bild_nr(0) );
+				gr->obj_add(wkz_wegebau_bauer);
+			}
+			else {
+				// calculate route
+				wegbauer_t bauigel(welt, sp);
+				koord3d ziel = gr->gib_pos();
+				display_show_load_pointer(true);
+				bauigel.route_fuer(bautyp, besch);
+				if(event_get_last_control_shift()==2  ||  grund_t::underground_mode) {
+					bauigel.set_keep_existing_ways(false);
+					bauigel.calc_straight_route(start,ziel);
+				}
+				else {
+					bauigel.set_keep_existing_faster_ways(true);
+					bauigel.calc_route(start,ziel);
+				}
+				// make dummy route from bauigel
+				for( int j=0;  j<=bauigel.max_n;  j++  ) {
+					koord3d pos = bauigel.gib_route_bei(j);
+					if(pos!=start) {
+						zeiger_t *way = new zeiger_t( welt, pos, sp );
+						way->setze_bild( skinverwaltung_t::bauigelsymbol->gib_bild_nr(0) );
+						welt->lookup(pos)->obj_add( way );
+						marked.insert( way );
+						way->mark_image_dirty( way->gib_bild(), 0 );
+					}
+				}
+				display_show_load_pointer(false);
+			}
+		}
+	}
+	else {
+		if(!marked.empty()) {
+			// build it!
+			wegbauer_t bauigel(welt, sp);
+			bauigel.route_fuer(bautyp, besch);
+			koord3d ziel = marked.front()->gib_pos();
+			// delete old route
+			while(!marked.empty()) {
+				zeiger_t *z = marked.remove_first();
+				z->mark_image_dirty( z->gib_bild(), 0 );
+				delete z;
+			}
+			if(event_get_last_control_shift()==2  ||  grund_t::underground_mode) {
+				bauigel.set_keep_existing_ways(false);
+				bauigel.calc_straight_route(start,ziel);
+			}
+			else {
+				bauigel.set_keep_existing_faster_ways(true);
+				bauigel.calc_route(start,ziel);
+			}
+			long cost = bauigel.calc_costs();
+			welt->mute_sound(true);
+			bauigel.baue();
+			welt->mute_sound(false);
+			if(cost>10000) {
+				struct sound_info info;
+				info.index = SFX_CASH;
+				info.volume = 255;
+				info.pri = 0;
+				sound_play(info);
+			}
+		}
+		// then init
+		init( welt, sp );
+	}
+}
+
+const char *wkz_wegebau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
+{
 	const planquadrat_t *plan = welt->lookup(pos.gib_2d());
 	if(plan == NULL) {
 		return false;
@@ -1229,12 +1352,10 @@ const char *wkz_wegebau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 		return "";
 	}
 
-	if( erster ) {
+	if(start==koord3d::invalid) {
 		welt->show_distance = start = gr->gib_pos();
 
 		DBG_MESSAGE("wkz_wegebau()", "Setting start to %d,%d,%d",start.x, start.y, start.z);
-
-		erster = false;
 
 		// symbol für strassenanfang setzen
 		wkz_wegebau_bauer = new zeiger_t(welt, start, sp);
@@ -1248,18 +1369,21 @@ const char *wkz_wegebau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 		wkz_wegebau_bauer = NULL;
 
 		wegbauer_t bauigel(welt, sp);
-
-		// Hajo: to test building as disguised AI player
-		// wegbauer_t bauigel(welt, welt->gib_spieler(2));
-		erster = true;
-
 		koord3d ziel = gr->gib_pos();
 		DBG_MESSAGE("wkz_wegebau()", "Setting end to %d,%d,%d",ziel.x, ziel.y, ziel.z);
 
-		// Hajo: to test baubaer mode (only for AI)
-		// bauigel.baubaer = true;
-
 		display_show_load_pointer(true);
+
+		// recalc type of construction
+		wegbauer_t::bautyp_t bautyp = (wegbauer_t::bautyp_t)besch->gib_wtyp();
+		if(besch->gib_wtyp()==track_wt  &&  besch->gib_styp()==7) {
+			bautyp = wegbauer_t::schiene_tram;
+		}
+		// elevated track?
+		if(besch->gib_styp()==1  &&  besch->gib_wtyp()!=air_wt) {
+			bautyp = (wegbauer_t::bautyp_t)((int)bautyp|(int)wegbauer_t::elevated_flag);
+		}
+
 		bauigel.route_fuer(bautyp, besch);
 		if(event_get_last_control_shift()==2  ||  grund_t::underground_mode) {
 DBG_MESSAGE("wkz_wegebau()", "try straight route");
