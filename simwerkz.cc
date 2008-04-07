@@ -2099,7 +2099,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 	// ownership allowed?
 	halthandle_t halt = plan->gib_halt();
-	if(halt.is_bound()  &&  spieler_t::check_owner( sp, halt->gib_besitzer())) {
+	if(halt.is_bound()  &&  !spieler_t::check_owner( sp, halt->gib_besitzer())) {
 		return "Das Feld gehoert\neinem anderen Spieler\n";
 	}
 
