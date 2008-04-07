@@ -15,7 +15,7 @@
  */
 void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	static char* const ribi_codes[16] = {
+	static const char* const ribi_codes[16] = {
 		"-", "n",  "e",  "ne",  "s",  "ns",  "se",  "nse",
 		"w", "nw", "ew", "new", "sw", "nsw", "sew", "nsew"
 	};

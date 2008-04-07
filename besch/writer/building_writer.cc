@@ -141,7 +141,11 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		besch.extra_data = get_waytype(obj.get("waytype"));
 	} else if (!STRICMP(type_name, "extension")) {
 		besch.utype = haus_besch_t::generic_extension;
-		besch.extra_data = get_waytype(obj.get("waytype"));
+		const char *wt = obj.get("waytype");
+		if(wt  &&  *wt>' ') {
+			// not waytype => just a generic exten that fits all
+			besch.extra_data = get_waytype(wt);
+		}
 	} else if (!STRICMP(type_name, "depot")) {
 		besch.utype = haus_besch_t::weitere;
 		besch.extra_data = get_waytype(obj.get("waytype"));
