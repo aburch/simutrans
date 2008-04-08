@@ -38,7 +38,7 @@ private:
 	// direction of this wayobj
 	ribi_t::ribi dir;
 
-	ribi_t::ribi find_next_ribi(const grund_t *start, const koord dir) const;
+	ribi_t::ribi find_next_ribi(const grund_t *start, const koord dir, const waytype_t wt) const;
 
 
 public:
@@ -104,7 +104,7 @@ public:
 	void laden_abschliessen();
 
 	// specific for wayobj
-	void set_dir(ribi_t::ribi dir) { this->dir = dir; calc_bild(); }
+	void set_dir(ribi_t::ribi d) { dir = dir; calc_bild(); }
 	ribi_t::ribi get_dir() const { return dir; }
 
 	/* the static routines */
@@ -124,7 +124,7 @@ public:
 	// search an object (currently only used by AI for caternary)
 	static const way_obj_besch_t *wayobj_search(waytype_t wt,waytype_t own,uint16 time);
 
-	static const way_obj_besch_t *gib_besch(const char *);
+	static const way_obj_besch_t *find_besch(const char *);
 
 	/**
 	 * Fill menu with icons of given stops from the list

@@ -178,6 +178,10 @@ public:
 		return static_cast<const bildliste_besch_t *>(gib_kind(7))->gib_bild_nr(ribi / 3 - 1);
 	}
 
+	bool has_diagonal_bild() const {
+		return static_cast<const bildliste_besch_t *>(gib_kind(4))->gib_bild_nr(0)!=IMG_LEER;
+	}
+
 	/**
 	* @return introduction year
 	* @author Hj. Malthaner

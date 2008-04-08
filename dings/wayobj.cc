@@ -52,10 +52,10 @@ wayobj_t::wayobj_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 
 
 
-wayobj_t::wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch) :  ding_t(welt, pos)
+wayobj_t::wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi d, const way_obj_besch_t *b) :  ding_t(welt, pos)
 {
-	this->besch = besch;
-	this->dir = dir;
+	besch = b;
+	dir = d;
 	setze_besitzer(besitzer);
 }
 
@@ -73,7 +73,8 @@ wayobj_t::~wayobj_t()
 		grund_t *gr=welt->lookup(gib_pos());
 		weg_t *weg=NULL;
 		if(gr) {
-			weg = gr->gib_weg((waytype_t)besch->gib_wtyp());
+			const waytype_t wt = (besch->gib_wtyp()==tram_wt) ? track_wt : besch->gib_wtyp();
+			weg = gr->gib_weg(wt);
 			if(weg) {
 				// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 				weg->set_electrify(false);
@@ -155,7 +156,8 @@ wayobj_t::laden_abschliessen()
 {
 	// (re)set dir
 	if(dir==255) {
-		weg_t *w=welt->lookup(gib_pos())->gib_weg((waytype_t)besch->gib_wtyp());
+		const waytype_t wt = (besch->gib_wtyp()==tram_wt) ? track_wt : besch->gib_wtyp();
+		weg_t *w=welt->lookup(gib_pos())->gib_weg(wt);
 		if(w) {
 			dir = w->gib_ribi_unmasked();
 		}
@@ -169,7 +171,8 @@ wayobj_t::laden_abschliessen()
 
 	// electrify a way if we are a catenary
 	if(besch->gib_own_wtyp()==overheadlines_wt) {
-		weg_t *weg = welt->lookup(gib_pos())->gib_weg((waytype_t)besch->gib_wtyp());
+		const waytype_t wt = (besch->gib_wtyp()==tram_wt) ? track_wt : besch->gib_wtyp();
+		weg_t *weg = welt->lookup(gib_pos())->gib_weg(wt);
 		if(weg) {
 			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 			weg->set_electrify(true);
@@ -201,11 +204,11 @@ void wayobj_t::rotate90()
 
 // helper function: gets the ribi on next tile
 ribi_t::ribi
-wayobj_t::find_next_ribi(const grund_t *start, const koord dir) const
+wayobj_t::find_next_ribi(const grund_t *start, const koord dir, const waytype_t wt) const
 {
 	grund_t *to;
 	ribi_t::ribi r1 = ribi_t::keine;
-	if(start->get_neighbour(to, (waytype_t)besch->gib_wtyp(),dir)) {
+	if(start->get_neighbour(to,wt,dir)) {
 		const wayobj_t* wo = to->find<wayobj_t>();
 		if(wo) {
 			r1 = wo->get_dir();
@@ -223,8 +226,10 @@ wayobj_t::calc_bild()
 	diagonal = false;
 	if(gr) {
 
-		weg_t *w=gr->gib_weg((waytype_t)besch->gib_wtyp());
+		const waytype_t wt = (besch->gib_wtyp()==tram_wt) ? track_wt : besch->gib_wtyp();
+		weg_t *w=gr->gib_weg(wt);
 		if(!w) {
+			dbg->error("wayobj_t::calc_bild()","without way at (%s)", gib_pos().gib_2d() );
 			// well, we are not on a way anymore? => delete us
 			gr->obj_remove(this);
 			entferne(gib_besitzer());
@@ -243,13 +248,13 @@ wayobj_t::calc_bild()
 		}
 
 		// find out whether using diagonals or straight lines
-		if(ribi_t::ist_kurve(dir)) {
+		if(ribi_t::ist_kurve(dir)  &&  besch->has_diagonal_bild()) {
 			ribi_t::ribi r1 = ribi_t::keine, r2 = ribi_t::keine;
 
 			switch(dir) {
 				case ribi_t::nordost:
-					r1 = find_next_ribi( gr, koord::ost );
-					r2 = find_next_ribi( gr, koord::nord );
+					r1 = find_next_ribi( gr, koord::ost, wt );
+					r2 = find_next_ribi( gr, koord::nord, wt );
 					diagonal =
 						(r1 == ribi_t::suedwest || r2 == ribi_t::suedwest) &&
 						r1 != ribi_t::nordwest &&
@@ -257,8 +262,8 @@ wayobj_t::calc_bild()
 				break;
 
 				case ribi_t::suedwest:
-					r1 = find_next_ribi( gr, koord::west );
-					r2 = find_next_ribi( gr, koord::sued );
+					r1 = find_next_ribi( gr, koord::west, wt );
+					r2 = find_next_ribi( gr, koord::sued, wt );
 					diagonal =
 						(r1 == ribi_t::nordost || r2 == ribi_t::nordost) &&
 						r1 != ribi_t::suedost &&
@@ -266,8 +271,8 @@ wayobj_t::calc_bild()
 					break;
 
 				case ribi_t::nordwest:
-					r1 = find_next_ribi( gr, koord::west );
-					r2 = find_next_ribi( gr, koord::nord );
+					r1 = find_next_ribi( gr, koord::west, wt );
+					r2 = find_next_ribi( gr, koord::nord, wt );
 					diagonal =
 						(r1 == ribi_t::suedost || r2 == ribi_t::suedost) &&
 						r1 != ribi_t::nordost &&
@@ -275,8 +280,8 @@ wayobj_t::calc_bild()
 				break;
 
 				case ribi_t::suedost:
-					r1 = find_next_ribi( gr, koord::ost );
-					r2 = find_next_ribi( gr, koord::sued );
+					r1 = find_next_ribi( gr, koord::ost, wt );
+					r2 = find_next_ribi( gr, koord::sued, wt );
 					diagonal =
 						(r1 == ribi_t::nordwest || r2 == ribi_t::nordwest) &&
 						r1 != ribi_t::suedwest &&
@@ -293,7 +298,7 @@ wayobj_t::calc_bild()
 					grund_t *to;
 					rekursion++;
 					for(int r = 0; r < 4; r++) {
-						if(gr->get_neighbour(to, (waytype_t)besch->gib_wtyp(), koord::nsow[r])) {
+						if(gr->get_neighbour(to, wt, koord::nsow[r])) {
 							wayobj_t* wo = to->find<wayobj_t>();
 							if(wo) {
 								wo->calc_bild();
@@ -454,7 +459,7 @@ wayobj_t::wayobj_search(waytype_t wt,waytype_t own,uint16 time)
 }
 
 
-const way_obj_besch_t* wayobj_t::gib_besch(const char *str)
+const way_obj_besch_t* wayobj_t::find_besch(const char *str)
 {
 	return wayobj_t::table.get(str);
 }
