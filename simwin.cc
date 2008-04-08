@@ -941,7 +941,6 @@ void win_poll_event(struct event_t *ev)
 	if(ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RESIZE) {
 		// main window resized
 		simgraph_resize( ev->mx, ev->my );
-//		win_display_menu();
 		ev->ev_class = EVENT_NONE;
 	}
 }
@@ -954,29 +953,7 @@ static const char * seasons[] =
 };
 
 
-
-// draw the menu
-void win_display_menu()
-{
-	const int start_y=display_get_height()-32;
-	const int width = display_get_width();
-
-	werkzeug_waehler_t *main_menu = werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler();
-	if(main_menu) {
-		display_setze_clip_wh( 0, 0, width, werkzeug_t::toolbar_tool[0]->iconsize.y+1 );
-		display_fillbox_wh(0, 0, width, werkzeug_t::toolbar_tool[0]->iconsize.y, MN_GREY2, false);
-		main_menu->zeichnen(koord(0,0), koord(display_get_width(),werkzeug_t::toolbar_tool[0]->iconsize.y) );
-	}
-	display_setze_clip_wh( 0, werkzeug_t::toolbar_tool[0]->iconsize.y, width, start_y+werkzeug_t::toolbar_tool[0]->iconsize.y );
-	if (!ticker::empty()) {
-		// maybe something is omitted of the message
-		display_fillbox_wh(0, start_y, width, 1, COL_BLACK, true);
-		display_fillbox_wh(0, start_y+1, width, 15, MN_GREY2, true);
-	}
-}
-
-
-
+// finally updates the display
 void win_display_flush(double konto)
 {
 	const sint16 disp_width = display_get_width();

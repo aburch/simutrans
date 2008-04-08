@@ -573,13 +573,13 @@ const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int org_idx)
 
 
 
-const haus_besch_t* hausbauer_t::gib_random_station(const haus_besch_t::utyp utype, const uint16 time, const uint8 enables)
+const haus_besch_t* hausbauer_t::gib_random_station(const haus_besch_t::utyp utype, const waytype_t wt, const uint16 time, const uint8 enables)
 {
 	vector_tpl<const haus_besch_t*> stops;
 
 	for(  vector_tpl<const haus_besch_t *>::const_iterator iter = station_building.begin(), end = station_building.end();  iter != end;  ++iter  ) {
 		const haus_besch_t* besch = (*iter);
-		if(besch->gib_utyp()==utype  &&  (besch->get_enabled()&enables)!=0) {
+		if(besch->gib_utyp()==utype  &&  besch->gib_extra()==wt  &&  (besch->get_enabled()&enables)!=0) {
 			// ok, now check timeline
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 				stops.push_back(besch);

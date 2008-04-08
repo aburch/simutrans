@@ -1109,9 +1109,17 @@ bool spieler_t::call_general_tool( int tool, koord k, const char *param )
 	koord3d pos = gr ? gr->gib_pos() : koord3d::invalid;
 	const char *old_param = werkzeug_t::general_tool[tool]->default_param;
 	werkzeug_t::general_tool[tool]->default_param = param;
-	bool ok = (werkzeug_t::general_tool[tool]->work( welt, this, pos )==NULL);
+	const char * err = werkzeug_t::general_tool[tool]->work( welt, this, pos );
+	if(err) {
+		if(*err) {
+			dbg->message("spieler_t::call_general_tool()","failed for tool %i at (%s) because of \"%s\"", tool, pos.gib_str(), err );
+		}
+		else {
+			dbg->message("spieler_t::call_general_tool()","not succesful for tool %i at (%s)", tool, pos.gib_str() );
+		}
+	}
 	werkzeug_t::general_tool[tool]->default_param = old_param;
-	return ok;
+	return err==0;
 }
 
 
@@ -1660,7 +1668,7 @@ bool spieler_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	grund_t* gr = welt->lookup_kartenboden(platz1);
 	if (gr) gr->obj_loesche_alle(this);
 	// try to built dock
-	const haus_besch_t* h = hausbauer_t::gib_random_station(haus_besch_t::hafen, welt->get_timeline_year_month(), haltestelle_t::WARE);
+	const haus_besch_t* h = hausbauer_t::gib_random_station(haus_besch_t::hafen, water_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	if(h==NULL  ||  !call_general_tool(WKZ_STATION, platz1, h->gib_name())) {
 		return false;
 	}
@@ -1726,7 +1734,7 @@ bool spieler_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
  */
 void spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 {
-	const haus_besch_t* fh = hausbauer_t::gib_random_station(haus_besch_t::ladebucht, welt->get_timeline_year_month(), haltestelle_t::WARE);
+	const haus_besch_t* fh = hausbauer_t::gib_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	// succeed in frachthof creation
 	if(fh  &&  call_general_tool(WKZ_STATION, platz1, fh->gib_name())  &&  call_general_tool(WKZ_STATION, platz2, fh->gib_name())  ) {
 		koord3d pos1 = welt->lookup(platz1)->gib_kartenboden()->gib_pos();
@@ -1916,7 +1924,7 @@ int spieler_t::baue_bahnhof(const koord* p, int anz_vehikel)
 	bool make_all_bahnhof=false;
 
 	// find a freight train station
-	const haus_besch_t* besch = hausbauer_t::gib_random_station(haus_besch_t::bahnhof, welt->get_timeline_year_month(), haltestelle_t::WARE);
+	const haus_besch_t* besch = hausbauer_t::gib_random_station(haus_besch_t::generic_stop, track_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	if(besch==NULL) {
 		// no freight station
 		return 0;
@@ -2756,7 +2764,7 @@ spieler_t::walk_city( linehandle_t &line, grund_t *&start, const int limit )
 				const int max_tiles = (umgebung_t::station_coverage_size*2+1);
 				if(  covered_tiles<(max_tiles*max_tiles)/3  &&  house_tiles>=3  ) {
 					// ok, lets do it
-					const haus_besch_t* bs = hausbauer_t::gib_random_station(haus_besch_t::bushalt, welt->get_timeline_year_month(), haltestelle_t::PAX);
+					const haus_besch_t* bs = hausbauer_t::gib_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX);
 					if(  call_general_tool( WKZ_STATION, to->gib_pos().gib_2d(), bs->gib_name() )  ) {
 						//add to line
 						line->get_fahrplan()->append(to,0); // no need to register it yet; done automatically, when convois will be assinged
@@ -3026,7 +3034,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 		// built a simple road (no bridges, no tunnels)
 		case NR_BAUE_STRASSEN_ROUTE:
 		{
-			const haus_besch_t* bs = hausbauer_t::gib_random_station(haus_besch_t::bushalt, welt->get_timeline_year_month(), haltestelle_t::PAX);
+			const haus_besch_t* bs = hausbauer_t::gib_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX);
 			if(bs  &&  create_simple_road_transport()  &&
 				(is_my_halt(platz1)  ||  call_general_tool( WKZ_STATION, platz1, bs->gib_name() ))  &&
 				(is_my_halt(platz2)  ||  call_general_tool( WKZ_STATION, platz2, bs->gib_name() ))
