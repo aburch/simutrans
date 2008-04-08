@@ -2022,7 +2022,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		return "No suitable ground!";
 	}
 
-	if(bd->hat_weg(air_wt)  &&  bd->gib_weg(air_wt)->gib_besch()->gib_styp()==1) {
+	if(bd->hat_weg(air_wt)  &&  bd->gib_weg(air_wt)->gib_besch()->gib_styp()!=0) {
 		return "No suitable ground!";
 	}
 
@@ -2040,7 +2040,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		}
 		// not straight: sorry cannot built here ...
 		if(!ribi_t::ist_gerade(ribi)) {
-			return false;
+			return p_error;
 		}
 		layout = (ribi & ribi_t::nordsued)?0 :1;
 	}
@@ -2049,7 +2049,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		ribi = bd->gib_weg_ribi_unmasked(wegtype);
 		// sorry cannot built here ... (not a terminal tile)
 		if(!ribi_t::ist_einfach(ribi)) {
-			return false;
+			return p_error;
 		}
 
 		switch(ribi) {
@@ -2392,6 +2392,11 @@ const char *wkz_depot_t::wkz_depot_aux(karte_t *welt, spieler_t *sp, koord pos, 
 			bd = wkz_intern_koord_to_weg_grund(sp,welt,pos,wegtype);
 		}
 		if(!bd  ||  bd->has_two_ways()) {
+			return "Cannot built depot here!";
+		}
+
+		// no depots on runways!
+		if(besch->gib_extra()==air_wt  &&  bd->gib_weg(air_wt)->gib_besch()->gib_styp()!=0) {
 			return "Cannot built depot here!";
 		}
 

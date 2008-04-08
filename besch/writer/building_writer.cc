@@ -147,7 +147,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 			besch.extra_data = get_waytype(wt);
 		}
 	} else if (!STRICMP(type_name, "depot")) {
-		besch.utype = haus_besch_t::weitere;
+		besch.utype = haus_besch_t::depot;
 		besch.extra_data = get_waytype(obj.get("waytype"));
 	} else if (!STRICMP(type_name, "any") || *type_name == '\0') {
 		// for instance "MonorailGround"
