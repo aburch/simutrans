@@ -655,11 +655,12 @@ void display_win(int win)
 void
 display_all_win()
 {
+	const char *current_tooltip = tooltip_text;
 	for(int i=0; i<ins_win; i++) {
 		display_win(i);
-		// prissi: tooltips are only allowed for the uppermost window
+		// prissi: tooltips are only allowed for the uppermost window and main menu
 		if(i<ins_win-1) {
-			tooltip_text = NULL;
+			tooltip_text = current_tooltip;
 		}
 	}
 }
@@ -796,10 +797,9 @@ bool check_pos_win(event_t *ev)
 			return true;
 		}
 	}
-	else if(ev->cy<32  &&  werkzeug_t::toolbar_tool.get_count()>0) {
+	else if(werkzeug_t::toolbar_tool.get_count()>0  &&  ev->cy<werkzeug_t::toolbar_tool[0]->iconsize.y) {
 		// click in main menu
 		event_t wev = *ev;
-//		translate_event(&wev, 0, 0);
 		werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()->infowin_event( &wev );
 		// swallow event
 		inside_event_handling = false;
@@ -940,7 +940,7 @@ void win_poll_event(struct event_t *ev)
 	if(ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RESIZE) {
 		// main window resized
 		simgraph_resize( ev->mx, ev->my );
-		win_display_menu();
+//		win_display_menu();
 		ev->ev_class = EVENT_NONE;
 	}
 }
@@ -963,6 +963,7 @@ void win_display_menu()
 	werkzeug_waehler_t *main_menu = werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler();
 	if(main_menu) {
 		display_setze_clip_wh( 0, 0, width, werkzeug_t::toolbar_tool[0]->iconsize.y+1 );
+		display_fillbox_wh(0, 0, width, werkzeug_t::toolbar_tool[0]->iconsize.y, MN_GREY2, false);
 		main_menu->zeichnen(koord(0,0), koord(display_get_width(),werkzeug_t::toolbar_tool[0]->iconsize.y) );
 	}
 	display_setze_clip_wh( 0, werkzeug_t::toolbar_tool[0]->iconsize.y, width, start_y+werkzeug_t::toolbar_tool[0]->iconsize.y );
@@ -977,19 +978,19 @@ void win_display_menu()
 
 void win_display_flush(double konto)
 {
-	const int disp_width=display_get_width();
-	const int disp_height=display_get_height();
+	const sint16 disp_width = display_get_width();
+	const sint16 disp_height = display_get_height();
+	const sint16 menu_height = werkzeug_t::toolbar_tool[0]->iconsize.y;
 
 	werkzeug_waehler_t *main_menu = werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler();
-	if(main_menu) {
-		display_setze_clip_wh( 0, 0, disp_width, werkzeug_t::toolbar_tool[0]->iconsize.y+1 );
-		main_menu->zeichnen(koord(0,-16), koord(disp_width,werkzeug_t::toolbar_tool[0]->iconsize.y) );
-	}
+	display_setze_clip_wh( 0, 0, disp_width, menu_height+1 );
+	display_fillbox_wh(0, 0, disp_width, menu_height, MN_GREY2, false);
+	main_menu->zeichnen(koord(0,-16), koord(disp_width,menu_height) );
 #ifdef USE_SOFTPOINTER
-	display_setze_clip_wh( 0, 0, display_get_width(), display_get_height()+1 );
+	display_setze_clip_wh( 0, menu_height, disp_width, disp_height+1 );
 	display_icon_leiste(0, skinverwaltung_t::hauptmenu->gib_bild(0)->gib_nummer());
 #else
-	display_setze_clip_wh( 0, 32, display_get_width(), display_get_height()+1 );
+	display_setze_clip_wh( 0, menu_height, disp_width, disp_height+1 );
 #endif
 
 	show_ticker = false;
@@ -1015,8 +1016,8 @@ void win_display_flush(double konto)
 
 		// Hajo: check if there is a tooltip to display
 		if(tooltip_text!=NULL) {
-			const int width = proportional_string_width(tooltip_text)+7;
-			display_ddd_proportional(tooltip_xpos, max(39,tooltip_ypos), width, 0, 4, COL_BLACK, tooltip_text, true);
+			const sint16 width = proportional_string_width(tooltip_text)+7;
+			display_ddd_proportional(min(tooltip_xpos,disp_width-width), max(39,tooltip_ypos), width, 0, 4, COL_BLACK, tooltip_text, true);
 			// Hajo: clear tooltip to avoid sticky tooltips
 			tooltip_text = 0;
 		}
