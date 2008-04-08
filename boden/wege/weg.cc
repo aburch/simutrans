@@ -349,7 +349,7 @@ weg_t::calc_bild()
 
 	const ribi_t::ribi ribi = gib_ribi_unmasked();
 
-	if(ribi_t::ist_kurve(ribi)) {
+	if(ribi_t::ist_kurve(ribi)  &&  besch->has_diagonal_bild()) {
 		ribi_t::ribi r1 = ribi_t::keine, r2 = ribi_t::keine;
 
 		bool diagonal = false;

@@ -431,7 +431,7 @@ vehikel_basis_t::calc_height()
 			use_calc_height = true;
 			// need hiding? One of the few uses of XOR: not half driven XOR exiting => not hide!
 			ribi_t::ribi hang_ribi = ribi_typ( gr->gib_grund_hang() );
-			if((steps<(steps_next/2))  ^  (hang_ribi&fahrtrichtung)!=0  ) {
+			if((steps<(steps_next/2))  ^  ((hang_ribi&fahrtrichtung)!=0)  ) {
 				setze_bild(IMG_LEER);
 			}
 			else {

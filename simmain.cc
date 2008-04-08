@@ -807,7 +807,7 @@ DBG_MESSAGE("init","map");
 
 	win_setze_welt(welt);
 	werkzeug_t::toolbar_tool[0]->init(welt,welt->get_active_player());
-	win_display_menu();
+//	win_display_menu();
 	view->display(true);
 	welt->set_fast_forward(true);
 

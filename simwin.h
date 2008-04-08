@@ -139,7 +139,6 @@ void display_win(int win);
 void display_all_win();
 void move_win(int win);
 
-void win_display_menu(); // draw the menu
 void win_display_flush(double konto); // draw the frame and all windows
 void win_get_event(struct event_t *ev);
 void win_poll_event(struct event_t *ev);
@@ -154,5 +153,12 @@ bool win_change_zoom_factor(bool magnify);
  * @author Hj. Malthaner
  */
 void win_set_tooltip(int xpos, int ypos, const char *text);
+
+/**
+ * Sets a static tooltip that follows the mouse
+ * *MUST* be explicitely unset!
+ * @author Hj. Malthaner
+ */
+void win_set_static_tooltip(const char *text);
 
 #endif

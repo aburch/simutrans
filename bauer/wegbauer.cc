@@ -1664,56 +1664,61 @@ wegbauer_t::calc_costs()
 	// construct city road?
 	const weg_besch_t *cityroad = gib_besch("city_road");
 
-	for(int i=1; i<max_n-1; i++) {
-		koord d = (route[i + 1] - route[i]).gib_2d();
+	for(int i=0; i<=max_n; i++) {
 
-		// ok, here is a gap ... => either bridge or tunnel
-		if(d.x > 1 || d.y > 1 || d.x < -1 || d.y < -1) {
+		// last tile cannot be start of tunnel/bridge
+		if(i<max_n) {
+			koord d = (route[i + 1] - route[i]).gib_2d();
 
-			koord zv = koord (sgn(d.x), sgn(d.y));
+			// ok, here is a gap ... => either bridge or tunnel
+			if(d.x > 1 || d.y > 1 || d.x < -1 || d.y < -1) {
 
-			const grund_t* start = welt->lookup(route[i]);
-			const grund_t* end   = welt->lookup(route[i + 1]);
+				koord zv = koord (sgn(d.x), sgn(d.y));
 
-			if(start->gib_weg_hang()!=start->gib_grund_hang()) {
-				// already a bridge/tunnel there ...
-				continue;
-			}
-			if(end->gib_weg_hang()!=end->gib_grund_hang()) {
-				// already a bridge/tunnel there ...
-				continue;
-			}
+				const grund_t* start = welt->lookup(route[i]);
+				const grund_t* end   = welt->lookup(route[i + 1]);
 
-			if(start->gib_grund_hang()==0  ||  start->gib_grund_hang()==hang_typ(zv*(-1))) {
-				// bridge
-				koord pos = route[i].gib_2d();
-				while (route[i + 1].gib_2d() != pos) {
-					pos += zv;
-					costs += bruecke_besch->gib_preis();
+				if(start->gib_weg_hang()!=start->gib_grund_hang()) {
+					// already a bridge/tunnel there ...
+					continue;
 				}
-			}
-			else {
-				// tunnel
-				// bridge
-				koord pos = route[i].gib_2d();
-				while (route[i + 1].gib_2d() != pos) {
-					pos += zv;
-					costs -= umgebung_t::cst_tunnel;
+				if(end->gib_weg_hang()!=end->gib_grund_hang()) {
+					// already a bridge/tunnel there ...
+					continue;
+				}
+
+				if(start->gib_grund_hang()==0  ||  start->gib_grund_hang()==hang_typ(zv*(-1))) {
+					// bridge
+					koord pos = route[i].gib_2d();
+					while (route[i + 1].gib_2d() != pos) {
+						pos += zv;
+						costs += bruecke_besch->gib_preis();
+					}
+					continue;
+				}
+				else {
+					// tunnel
+					// bridge
+					koord pos = route[i].gib_2d();
+					while (route[i + 1].gib_2d() != pos) {
+						pos += zv;
+						costs -= umgebung_t::cst_tunnel;
+					}
+					continue;
 				}
 			}
 		}
-		else {
-			// no gap => normal way
-			const grund_t* gr = welt->lookup(route[i]);
-			if(gr) {
-				const weg_t *weg=gr->gib_weg((waytype_t)besch->gib_wtyp());
-				// keep faster ways or if it is the same way ... (@author prissi)
-				if(weg!=NULL  &&  (weg->gib_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_city_roads  && weg->gib_besch()==cityroad)  ||  (keep_existing_faster_ways  &&  weg->gib_besch()->gib_topspeed()>besch->gib_topspeed()))  ) {
-						//nothing to be done
-				}
-				else {
-					costs += besch->gib_preis();
-				}
+
+		// no gap => normal way
+		const grund_t* gr = welt->lookup(route[i]);
+		if(gr) {
+			const weg_t *weg=gr->gib_weg((waytype_t)besch->gib_wtyp());
+			// keep faster ways or if it is the same way ... (@author prissi)
+			if(weg!=NULL  &&  (weg->gib_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_city_roads  && weg->gib_besch()==cityroad)  ||  (keep_existing_faster_ways  &&  weg->gib_besch()->gib_topspeed()>besch->gib_topspeed()))  ) {
+					//nothing to be done
+			}
+			else {
+				costs += besch->gib_preis();
 			}
 		}
 		// check next tile

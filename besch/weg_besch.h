@@ -105,7 +105,7 @@ public:
 	 * @see waytype_t
 	 * @author Hj. Malthaner
 	 */
-	uint8 gib_wtyp() const { return wtyp; }
+	waytype_t gib_wtyp() const { return (waytype_t)wtyp; }
 
 	/**
 	* returns the system type of this way (mostly used with rails)
@@ -159,13 +159,14 @@ public:
 
 	image_id gib_diagonal_bild_nr(ribi_t::ribi ribi, uint8 season) const
 	{
-		if(!ribi_t::ist_kurve(ribi)) {
-			return IMG_LEER;
-		}
 		if(season && number_seasons == 1) {
 			return static_cast<const bildliste_besch_t *>(gib_kind(8))->gib_bild_nr(ribi / 3 - 1);
 		}
 		return static_cast<const bildliste_besch_t *>(gib_kind(4))->gib_bild_nr(ribi / 3 - 1);
+	}
+
+	bool has_diagonal_bild() const {
+		return static_cast<const bildliste_besch_t *>(gib_kind(4))->gib_bild_nr(0)!=IMG_LEER;
 	}
 
 	/**

@@ -100,6 +100,7 @@ static karte_t* wl = NULL; // Zeiger auf aktuelle Welt, wird in win_setze_welt g
 static int tooltip_xpos = 0;
 static int tooltip_ypos = 0;
 static const char * tooltip_text = 0;
+static const char * static_tooltip_text = 0;
 
 static bool show_ticker=0;
 
@@ -1015,11 +1016,15 @@ void win_display_flush(double konto)
 		remove_old_win();
 
 		// Hajo: check if there is a tooltip to display
-		if(tooltip_text!=NULL) {
+		if(tooltip_text!=NULL  &&  *tooltip_text) {
 			const sint16 width = proportional_string_width(tooltip_text)+7;
-			display_ddd_proportional(min(tooltip_xpos,disp_width-width), max(39,tooltip_ypos), width, 0, 4, COL_BLACK, tooltip_text, true);
+			display_ddd_proportional(min(tooltip_xpos,disp_width-width), max(menu_height+7,tooltip_ypos), width, 0, 4, COL_BLACK, tooltip_text, true);
 			// Hajo: clear tooltip to avoid sticky tooltips
 			tooltip_text = 0;
+		}
+		else if(static_tooltip_text!=NULL  &&  *static_tooltip_text) {
+			const sint16 width = proportional_string_width(static_tooltip_text)+7;
+			display_ddd_proportional(min(gib_maus_x()+16,disp_width-width), max(menu_height+7,gib_maus_y()-16), width, 0, 4, COL_BLACK, static_tooltip_text, true);
 		}
 
 		display_set_height( oldh );
@@ -1188,4 +1193,15 @@ void win_set_tooltip(int xpos, int ypos, const char *text)
 	tooltip_xpos = xpos;
 	tooltip_ypos = max(32+7,ypos);
 	tooltip_text = text;
+}
+
+
+
+/**
+ * Sets the tooltip to display.
+ * @author Hj. Malthaner
+ */
+void win_set_static_tooltip(const char *text)
+{
+	static_tooltip_text = text;
 }

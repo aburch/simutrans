@@ -1151,8 +1151,6 @@ const weg_besch_t * wkz_wegebau_t::get_besch()
 		}
 		assert(besch);
 	}
-	if(besch) {
-	}
 	return besch;
 }
 
@@ -1187,6 +1185,7 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 	if(besch  &&  besch->gib_cursor()->gib_bild_nr(0) != IMG_LEER) {
 		cursor = besch->gib_cursor()->gib_bild_nr(0);
 	}
+	win_set_static_tooltip( NULL );
 	return besch!=NULL;
 }
 
@@ -1208,6 +1207,7 @@ const char *wkz_wegebau_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate
 		bautyp = (wegbauer_t::bautyp_t)((int)bautyp|(int)wegbauer_t::elevated_flag);
 	}
 
+	win_set_static_tooltip( NULL );
 	if(buttonstate==1) {
 		// delete old route
 		while(!marked.empty()) {
@@ -1263,16 +1263,33 @@ const char *wkz_wegebau_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate
 					bauigel.set_keep_existing_faster_ways(true);
 					bauigel.calc_route(start,ziel);
 				}
-				// make dummy route from bauigel
-				for( int j=0;  j<=bauigel.max_n;  j++  ) {
-					koord3d pos = bauigel.gib_route_bei(j);
-					if(pos!=start) {
+				if(bauigel.max_n>0) {
+					// make dummy route from bauigel
+					for( int j=0;  j<=bauigel.max_n;  j++  ) {
+						koord3d pos = bauigel.gib_route_bei(j);
+						grund_t *gr = welt->lookup(pos);
+						ribi_t::ribi zeige = gr->gib_weg_ribi_unmasked(besch->gib_wtyp());
+						if(j>0) {
+							zeige |= ribi_typ( bauigel.gib_route_bei(j-1).gib_2d()-pos.gib_2d() );
+						}
+						if(j<bauigel.max_n) {
+							zeige |= ribi_typ( bauigel.gib_route_bei(j+1).gib_2d()-pos.gib_2d() );
+						}
 						zeiger_t *way = new zeiger_t( welt, pos, sp );
-						way->setze_bild( skinverwaltung_t::bauigelsymbol->gib_bild_nr(0) );
+						if(gr->gib_weg_hang()) {
+							way->setze_bild( besch->gib_hang_bild_nr(gr->gib_weg_hang(),0) );
+						}
+						else if(ribi_t::ist_kurve(zeige)) {
+							way->setze_bild( besch->gib_diagonal_bild_nr(zeige,0) );
+						}
+						else {
+							way->setze_bild( besch->gib_bild_nr(zeige,0) );
+						}
 						welt->lookup(pos)->obj_add( way );
 						marked.insert( way );
 						way->mark_image_dirty( way->gib_bild(), 0 );
 					}
+					win_set_static_tooltip( tooltip_with_price("Building costs estimates", -bauigel.calc_costs() ) );
 				}
 				display_show_load_pointer(false);
 			}
@@ -1313,6 +1330,7 @@ const char *wkz_wegebau_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate
 		// then init
 		init( welt, sp );
 	}
+	return NULL;
 }
 
 const char *wkz_wegebau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )

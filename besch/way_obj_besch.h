@@ -90,14 +90,14 @@ public:
 	 * @see waytype_t
 	 * @author Hj. Malthaner
 	 */
-	uint8 gib_wtyp() const { return wtyp; }
+	waytype_t gib_wtyp() const { return (waytype_t)wtyp; }
 
 	/**
 	* returns the system type of this way (mostly used with rails)
 	* @see weg_t::styp
 	* @author DarioK
 	*/
-	uint8 gib_own_wtyp() const { return own_wtyp; }
+	waytype_t gib_own_wtyp() const { return (waytype_t)own_wtyp; }
 
 	// way objects can have a front and a backimage, unlike ways ...
 	image_id get_front_image_id(ribi_t::ribi ribi) const { return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild_nr(ribi); }
