@@ -787,9 +787,9 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// swallow all events in the infobar
-	if(ev->cy>display_get_height()-32) {
+	if(y>display_get_height()-32) {
 		// goto infowin koordinate, if ticker is active
-		if(show_ticker  &&    ev->cy<=display_get_height()-16  &&   IS_LEFTRELEASE(ev)) {
+		if(show_ticker  &&    y<=display_get_height()-16  &&   IS_LEFTRELEASE(ev)) {
 			koord p = ticker::get_welt_pos();
 			if(wl->ist_in_kartengrenzen(p)) {
 				wl->change_world_position(koord3d(p,wl->min_hgt(p)));
@@ -798,7 +798,7 @@ bool check_pos_win(event_t *ev)
 			return true;
 		}
 	}
-	else if(werkzeug_t::toolbar_tool.get_count()>0  &&  ev->cy<werkzeug_t::toolbar_tool[0]->iconsize.y) {
+	else if(werkzeug_t::toolbar_tool.get_count()>0  &&  y<werkzeug_t::toolbar_tool[0]->iconsize.y  &&  ev->ev_class!=EVENT_KEYBOARD) {
 		// click in main menu
 		event_t wev = *ev;
 		werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()->infowin_event( &wev );

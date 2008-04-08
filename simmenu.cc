@@ -487,8 +487,12 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 	std::sort(char_to_tool.begin(), char_to_tool.end(), compare_werkzeug);
 }
 
+// seperator in toolbars
+class wkz_dummy_t : public werkzeug_t {
+	bool init( karte_t *, spieler_t * ) { return false; }
+};
 
-static werkzeug_t *dummy = new werkzeug_t();
+static werkzeug_t *dummy = new wkz_dummy_t();
 
 // fills and displays a toolbar
 void toolbar_t::update(karte_t *welt, spieler_t *sp)

@@ -1737,7 +1737,7 @@ const char *wkz_wayobj_t::get_tooltip(spieler_t *sp)
 
 bool wkz_wayobj_t::init( karte_t *welt, spieler_t *sp )
 {
-	const way_obj_besch_t *besch = wayobj_t::gib_besch(default_param);
+	const way_obj_besch_t *besch = default_param ? wayobj_t::gib_besch(default_param) : NULL;
 	if(besch==NULL) {
 		besch = default_electric;
 		if(besch==NULL) {

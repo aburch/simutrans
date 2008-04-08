@@ -1281,7 +1281,9 @@ int spieler_t::get_factory_tree_missing_count( fabrik_t *fab )
 			}
 		}
 		if(!complete) {
-			return -1;
+			if(fab->gib_besch()->gib_lieferanten()==0  ||  numbers==0) {
+				return -1;
+			}
 		}
 	}
 	return numbers;
