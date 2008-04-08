@@ -21,6 +21,8 @@
 #include "schiene.h"
 #include "strasse.h"
 #include "monorail.h"
+#include "maglev.h"
+#include "narrowgauge.h"
 #include "kanal.h"
 #include "runway.h"
 
@@ -74,14 +76,12 @@ weg_t::alloc(waytype_t wt)
 		case monorail_wt:
 			weg = new monorail_t(welt);
 			break;
-/*
 		case maglev_wt:
 			weg = new maglev_t(welt);
 			break;
 		case narrowgauge_wt:
 			weg = new narrowgauge_t(welt);
 			break;
-*/
 		case road_wt:
 			weg = new strasse_t(welt);
 			break;

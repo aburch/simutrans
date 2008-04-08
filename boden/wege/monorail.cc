@@ -1,20 +1,8 @@
-/*
- * Schienen für Simutrans
- *
- * Überarbeitet Januar 2001
- * von Hj. Malthaner
- */
-
-#include <stdio.h>
-
 #include "../../simtypes.h"
 #include "../../simdebug.h"
-#include "../../simworld.h"
 #include "../grund.h"
-#include "../../dataobj/loadsave.h"
-#include "../../utils/cbuffer_t.h"
-#include "../../besch/weg_besch.h"
 #include "../../bauer/wegbauer.h"
+#include "../../besch/weg_besch.h"
 
 #include "monorail.h"
 
@@ -26,11 +14,6 @@ void monorail_t::info(cbuffer_t & buf) const
 }
 
 
-
-/**
- * File loading constructor.
- * @author prissi
- */
 monorail_t::monorail_t(karte_t *welt, loadsave_t *file) : schiene_t(welt)
 {
 	rdwr(file);
@@ -38,8 +21,7 @@ monorail_t::monorail_t(karte_t *welt, loadsave_t *file) : schiene_t(welt)
 
 
 
-void
-monorail_t::rdwr(loadsave_t *file)
+void monorail_t::rdwr(loadsave_t *file)
 {
 	schiene_t::rdwr(file);
 

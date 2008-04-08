@@ -1763,7 +1763,7 @@ const char *wkz_wayobj_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	if(besch==NULL) {
 		besch = default_electric;
 	}
-	waytype_t wt=(waytype_t)besch->gib_wtyp();
+	waytype_t wt=besch->gib_wtyp();
 	koord3d end;
 
 	// search for starting ground

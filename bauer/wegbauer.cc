@@ -18,6 +18,8 @@
 #include "../boden/wege/strasse.h"
 #include "../boden/wege/schiene.h"
 #include "../boden/wege/monorail.h"
+#include "../boden/wege/maglev.h"
+#include "../boden/wege/narrowgauge.h"
 #include "../boden/wege/kanal.h"
 #include "../boden/wege/runway.h"
 #include "../boden/brueckenboden.h"
@@ -77,12 +79,6 @@
 
 const weg_besch_t *wegbauer_t::leitung_besch = NULL;
 
-static spezial_obj_tpl<weg_besch_t> spezial_objekte[] = {
-    { &wegbauer_t::leitung_besch, "Powerline" },
-    { NULL, NULL }
-};
-
-
 static stringhashtable_tpl <const weg_besch_t *> alle_wegtypen;
 
 
@@ -102,9 +98,12 @@ bool wegbauer_t::alle_wege_geladen()
 		// only elevated???
 		monorail_t::default_monorail = wegbauer_t::weg_search(monorail_wt,1,0,weg_t::type_elevated);
 	}
+	maglev_t::default_maglev = wegbauer_t::weg_search(maglev_wt,1,0,weg_t::type_flat);
+	narrowgauge_t::default_narrowgauge = wegbauer_t::weg_search(narrowgauge_wt,1,0,weg_t::type_flat);
 	kanal_t::default_kanal = wegbauer_t::weg_search(water_wt,1,0,weg_t::type_flat);
 	runway_t::default_runway = wegbauer_t::weg_search(air_wt,1,0,weg_t::type_flat);
-	return ::alles_geladen(spezial_objekte + 1);
+	wegbauer_t::leitung_besch = wegbauer_t::weg_search(powerline_wt,1,0,weg_t::type_flat);
+	return true;
 }
 
 
@@ -112,7 +111,7 @@ bool wegbauer_t::register_besch(const weg_besch_t *besch)
 {
   DBG_DEBUG("wegbauer_t::register_besch()", besch->gib_name());
   alle_wegtypen.put(besch->gib_name(), besch);
-  return ::register_besch(spezial_objekte, besch);
+  return true;
 }
 
 
@@ -650,7 +649,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		case monorail:
 		default:
 		{
-			const weg_t *sch=to->gib_weg((waytype_t)besch->gib_wtyp());
+			const weg_t *sch=to->gib_weg(besch->gib_wtyp());
 			// extra check for AI construction (not adding to existing tracks!)
 			if(bautyp&bot_flag  &&  (gb  ||  sch  ||  to->gib_halt().is_bound())) {
 				return false;
@@ -658,7 +657,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			if((bautyp&elevated_flag)==0) {
 				// classical monorail
 				ok =	!to->ist_wasser()  &&  !fundament  &&
-					((sch  &&  check_owner(sch->gib_besitzer(),sp))  ||  !to->hat_wege()  ||  (sch==NULL  &&  check_crossing(zv,to,monorail_wt,sp)))
+					((sch  &&  check_owner(sch->gib_besitzer(),sp))  ||  !to->hat_wege()  ||  (sch==NULL  &&  check_crossing(zv,to,besch->gib_wtyp(),sp)))
 					&&  check_for_leitung(zv,to)  && !to->gib_depot();
 				// check for end/start of bridge
 				if(to->gib_weg_hang()!=to->gib_grund_hang()  &&  (sch==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked()))) {
@@ -672,7 +671,6 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			// calculate costs
 			if(ok) {
 				*costs = umgebung_t::way_count_straight;
-				// perfer ontop of ways
 				if(!to->hat_wege()) {
 					*costs += umgebung_t::way_count_straight;
 				}

@@ -589,6 +589,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\boden\wege\maglev.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\map_frame.cc"
 				>
 			</File>
@@ -626,6 +630,10 @@
 			</File>
 			<File
 				RelativePath=".\vehicle\movingobj.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\boden\wege\narrowgauge.cc"
 				>
 			</File>
 			<File

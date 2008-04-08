@@ -31,6 +31,7 @@
 	CHANGE: less subtypes for stops and depot (halfway)
 	CHANGE: neu customable toolbars (90%) (see pak64/config/menuconf.tab)
 	FIX: schedule window last line was not selectable
+	ADD: waytypes narrowgauge_track and maglev_track now functional
 
 
 Release of 99.17.1 (r1550, stable)
