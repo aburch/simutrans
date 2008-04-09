@@ -38,6 +38,8 @@ void fahrplan_t::init()
 	type = fahrplan_t::fahrplan;
 }
 
+
+
 fahrplan_t::fahrplan_t()
 {
 	init();
@@ -104,6 +106,14 @@ void fahrplan_t::copy_from(const fahrplan_t *src)
 	}
 	// do not touch abgeschlossen!
 }
+
+
+
+bool fahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
+{
+	return gr->hat_weg(get_waytype());
+}
+
 
 
 bool fahrplan_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift )
@@ -330,7 +340,29 @@ DBG_MESSAGE("zugfahrplan_t::ist_halt_erlaubt()","track ok");
 		return true;
 	}
 	// test for no street depot (may happen with trams)
-	if(dp->gib_tile()->gib_besch()->gib_extra()==track_wt) {
+	if(dp->gib_tile()->gib_besch()->gib_extra()!=track_wt) {
+		return false;
+	}
+	return true;
+}
+
+
+bool
+tramplan_t::ist_halt_erlaubt(const grund_t *gr) const
+{
+DBG_MESSAGE("tramplan_t::ist_halt_erlaubt()","Checking for stop");
+	if(!gr->hat_weg(track_wt)  ||  !gr->hat_weg(tram_wt)) {
+		// no track
+		return false;
+	}
+DBG_MESSAGE("tramplan_t::ist_halt_erlaubt()","track ok");
+	const depot_t *dp = gr->gib_depot();
+	if(dp==NULL) {
+		// empty track => ok
+		return true;
+	}
+	// test for no street depot (may happen with trams)
+	if(dp->gib_tile()->gib_besch()->gib_extra()!=tram_wt) {
 		return false;
 	}
 	return true;
@@ -350,7 +382,7 @@ autofahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 		return true;
 	}
 	// test for no railway depot (may happen with trams)
-	if(gb->gib_tile()->gib_besch()->gib_extra()==track_wt  ||  gb->gib_tile()->gib_besch()->gib_extra()==tram_wt) {
+	if(gb->gib_tile()->gib_besch()->gib_extra()!=road_wt) {
 		return false;
 	}
 	return true;
@@ -368,12 +400,11 @@ bool
 airfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
 	bool hat_halt = haltestelle_t::gib_halt(gr->get_welt(),gr->gib_pos().gib_2d()).is_bound();
+	const depot_t *gb = gr->gib_depot();
+	if(gb!=NULL  &&  gb->gib_tile()->gib_besch()->gib_extra()!=air_wt) {
+		return false;
+	}
 	return hat_halt ? gr->hat_weg(air_wt) : true;
 }
 
 
-bool
-monorailfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
-{
-	return gr->hat_weg(monorail_wt);
-}

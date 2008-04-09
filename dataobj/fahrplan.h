@@ -18,7 +18,7 @@ class fahrplan_t
 {
 public:
   enum fahrplan_type {
-    fahrplan = 0, autofahrplan = 1, zugfahrplan = 2, schifffahrplan = 3, airfahrplan = 4, monorailfahrplan = 5, tramfahrplan = 6
+    fahrplan = 0, autofahrplan = 1, zugfahrplan = 2, schifffahrplan = 3, airfahrplan = 4, monorailfahrplan = 5, tramfahrplan = 6, maglevfahrplan = 7, narrowgaugefahrplan = 8,
   };
 
 private:
@@ -46,7 +46,7 @@ public:
 	* diese Methode sollte in den unterklassen redefiniert werden.
 	* @author Hj. Malthaner
 	*/
-	virtual bool ist_halt_erlaubt(const grund_t *) const {return true;}
+	virtual bool ist_halt_erlaubt(const grund_t *gr) const;
 
 	virtual waytype_t get_waytype() const {return invalid_wt;}
 
@@ -156,6 +156,7 @@ public:
 class tramfahrplan_t : public zugfahrplan_t
 {
 protected:
+	bool ist_halt_erlaubt(const grund_t *) const;
 
 public:
 	tramfahrplan_t() : zugfahrplan_t() { type = tramfahrplan; }
@@ -229,9 +230,6 @@ public:
  */
 class monorailfahrplan_t : public fahrplan_t
 {
-protected:
-	bool ist_halt_erlaubt(const grund_t *) const;
-
 public:
 	waytype_t get_waytype() const {return monorail_wt;}
 	monorailfahrplan_t() : fahrplan_t() { type = monorailfahrplan; }
@@ -240,5 +238,34 @@ public:
 	fahrplan_t* copy() { return new monorailfahrplan_t(this); }
 	const char *fehlermeldung() const { return "Monorailhalt muss auf\nMonorail liegen!\n"; }
 };
+
+/* the schedule for maglev ...
+ * @author Hj. Malthaner
+ */
+class maglevfahrplan_t : public fahrplan_t
+{
+public:
+	waytype_t get_waytype() const {return maglev_wt;}
+	maglevfahrplan_t() : fahrplan_t() { type = maglevfahrplan; }
+	maglevfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = maglevfahrplan; }
+	maglevfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = maglevfahrplan; }
+	fahrplan_t* copy() { return new maglevfahrplan_t(this); }
+	const char *fehlermeldung() const { return "Maglevhalt muss auf\nMaglevschiene liegen!\n"; }
+};
+
+/* and narrow guage ...
+ * @author Hj. Malthaner
+ */
+class narrowgaugefahrplan_t : public fahrplan_t
+{
+public:
+	waytype_t get_waytype() const {return narrowgauge_wt;}
+	narrowgaugefahrplan_t() : fahrplan_t() { type = narrowgaugefahrplan; }
+	narrowgaugefahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = narrowgaugefahrplan; }
+	narrowgaugefahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = narrowgaugefahrplan; }
+	fahrplan_t* copy() { return new narrowgaugefahrplan_t(this); }
+	const char *fehlermeldung() const { return "On narrowgauge track only!\n"; }
+};
+
 
 #endif
