@@ -348,14 +348,14 @@ DBG_MESSAGE("zugfahrplan_t::ist_halt_erlaubt()","track ok");
 
 
 bool
-tramplan_t::ist_halt_erlaubt(const grund_t *gr) const
+tramfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
-DBG_MESSAGE("tramplan_t::ist_halt_erlaubt()","Checking for stop");
+DBG_MESSAGE("tramfahrplan_t::ist_halt_erlaubt()","Checking for stop");
 	if(!gr->hat_weg(track_wt)  ||  !gr->hat_weg(tram_wt)) {
 		// no track
 		return false;
 	}
-DBG_MESSAGE("tramplan_t::ist_halt_erlaubt()","track ok");
+DBG_MESSAGE("tramfahrplan_t::ist_halt_erlaubt()","track ok");
 	const depot_t *dp = gr->gib_depot();
 	if(dp==NULL) {
 		// empty track => ok
