@@ -651,6 +651,12 @@ void haltestelle_t::rebuild_destinations()
 						// what goods can this line transport?
 						add_catg_index.clear();
 						for(uint i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {
+							// Only consider vehicles that really transport something
+							// this helps against routing errors through passenger
+							// trains pulling only freight wagons
+							if (cnv->gib_vehikel(i)->gib_fracht_max() == 0) {
+								continue;
+							}
 							const ware_besch_t *ware=cnv->gib_vehikel(i)->gib_fracht_typ();
 							if(ware!=warenbauer_t::nichts  &&  !add_catg_index.is_contained(ware->gib_catg_index())) {
 								// now add the freights

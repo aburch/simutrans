@@ -127,8 +127,8 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 	add_komponente(&year_month_tabs);
 
 	const sint16 yb = 42+CHART_HEIGHT-BUTTON_HEIGHT*3-8;
-	chart.setze_pos(koord(40,8));
-	chart.setze_groesse(koord(TOTAL_WIDTH-40-8,yb-16-42-10-gui_tab_panel_t::HEADER_VSIZE));
+	chart.setze_pos(koord(60,8));
+	chart.setze_groesse(koord(TOTAL_WIDTH-60-8,yb-16-42-10-gui_tab_panel_t::HEADER_VSIZE));
 	chart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_YEARS);
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);

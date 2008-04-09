@@ -100,6 +100,12 @@ void simline_t::add_convoy(convoihandle_t cnv)
 
 	// what goods can this line transport?
 	for(uint i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {
+		// Only consider vehicles that really transport something
+		// this helps against routing errors through passenger
+		// trains pulling only freight wagons
+		if (cnv->gib_vehikel(i)->gib_fracht_max() == 0) {
+			continue;
+		}
 		const ware_besch_t *ware=cnv->gib_vehikel(i)->gib_fracht_typ();
 		if(ware!=warenbauer_t::nichts) {
 			goods_catg_index.append_unique( ware->gib_catg_index(), 1 );
