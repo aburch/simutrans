@@ -19,7 +19,7 @@
 
 
 werkzeug_waehler_t::werkzeug_waehler_t(karte_t* welt, const char* titel, const char *helpfile, koord icon, bool allow_break) :
-	tools(32), groesse(32, 16)
+	tools(0), groesse(icon)
 {
 	this->allow_break = allow_break;
     this->welt = welt;
@@ -37,7 +37,7 @@ werkzeug_waehler_t::werkzeug_waehler_t(karte_t* welt, const char* titel, const c
  */
 void werkzeug_waehler_t::add_werkzeug(werkzeug_t *w)
 {
-	tools.push_back(w);
+	tools.append(w,4);
 
 	int ww = (display_get_width()/icon.x)-2;
 	tool_icon_width = tools.get_count();
@@ -123,11 +123,11 @@ void werkzeug_waehler_t::zeichnen(koord pos, koord)
 			// body
 			display_fillbox_wh(draw_pos.x+1, draw_pos.y+1, icon.x-2, icon.y-2, MN_GREY2, dirty);
 			// bottom
-			display_fillbox_wh(draw_pos.x, draw_pos.y+31, icon.x, 1, MN_GREY0, dirty);
+			display_fillbox_wh(draw_pos.x, draw_pos.y+icon.y-1, icon.x, 1, MN_GREY0, dirty);
 			// Left
 			display_fillbox_wh(draw_pos.x, draw_pos.y, 1, icon.y, MN_GREY4, dirty);
 			// Right
-			display_fillbox_wh(draw_pos.x+31, draw_pos.y, 1, icon.y, MN_GREY0, dirty);
+			display_fillbox_wh(draw_pos.x+icon.x-1, draw_pos.y, 1, icon.y, MN_GREY0, dirty);
 		}
 		else {
 			display_color_img(icon_img, draw_pos.x, draw_pos.y, 0, false, dirty);

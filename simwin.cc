@@ -968,7 +968,7 @@ void win_display_flush(double konto)
 	display_setze_clip_wh( 0, menu_height, disp_width, disp_height+1 );
 	display_icon_leiste(0, skinverwaltung_t::hauptmenu->gib_bild(0)->gib_nummer());
 #else
-	display_setze_clip_wh( 0, menu_height, disp_width, disp_height+1 );
+	display_setze_clip_wh( 0, menu_height, disp_width, disp_height-menu_height+1 );
 #endif
 
 	show_ticker = false;

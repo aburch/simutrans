@@ -15,6 +15,7 @@
 #include "simdings.h"
 #include "simconst.h"
 #include "simplan.h"
+#include "simmenu.h"
 #include "simplay.h"
 #include "besch/grund_besch.h"
 #include "boden/wasser.h"
@@ -44,9 +45,10 @@ karte_ansicht_t::display(bool force_dirty)
 {
 	const sint16 disp_width = display_get_width();
 	const sint16 disp_real_height = display_get_height();
+	const sint16 menu_height = werkzeug_t::toolbar_tool[0]->iconsize.y;
 
 	const sint16 disp_height = display_get_height() - 16 - (!ticker::empty() ? 16 : 0);
-	display_setze_clip_wh( 0, 32, disp_width, disp_height-32 );
+	display_setze_clip_wh( 0, menu_height, disp_width, disp_height-menu_height );
 
 	// zuerst den boden zeichnen
 	// denn der Boden kann kein Objekt verdecken
@@ -93,7 +95,7 @@ karte_ansicht_t::display(bool force_dirty)
 	// not very elegant, but works:
 	// fill everything with black for Underground mode ...
 	if(grund_t::underground_mode) {
-		display_fillbox_wh(0, 32, disp_width, disp_height-32, COL_BLACK, force_dirty);
+		display_fillbox_wh(0, 32, disp_width, disp_height-menu_height, COL_BLACK, force_dirty);
 	}
 
 	// first display ground
@@ -112,7 +114,7 @@ karte_ansicht_t::display(bool force_dirty)
 				const planquadrat_t *plan=welt->lookup(koord(i,j));
 				if(plan  &&  plan->gib_kartenboden()) {
 					sint16 yypos = ypos - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
-					if(yypos-IMG_SIZE<disp_height  &&  yypos+IMG_SIZE>32) {
+					if(yypos-IMG_SIZE<disp_height  &&  yypos+IMG_SIZE>menu_height) {
 						plan->display_boden(xpos, yypos);
 					}
 				}
@@ -139,7 +141,7 @@ karte_ansicht_t::display(bool force_dirty)
 				const planquadrat_t *plan=welt->lookup(koord(i,j));
 				if(plan  &&  plan->gib_kartenboden()) {
 					sint16 yypos = ypos - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
-					if(yypos-IMG_SIZE*2<disp_height  &&  yypos+IMG_SIZE>32) {
+					if(yypos-IMG_SIZE*2<disp_height  &&  yypos+IMG_SIZE>menu_height) {
 						plan->display_dinge(xpos, yypos, IMG_SIZE, true);
 					}
 				}
@@ -162,7 +164,7 @@ karte_ansicht_t::display(bool force_dirty)
 				const planquadrat_t *plan=welt->lookup(koord(i,j));
 				if(plan  &&  plan->gib_kartenboden()) {
 					sint16 yypos = ypos - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
-					if(yypos-IMG_SIZE<disp_height  &&  yypos+IMG_SIZE>32) {
+					if(yypos-IMG_SIZE<disp_height  &&  yypos+IMG_SIZE>menu_height) {
 						plan->display_overlay(xpos, yypos);
 					}
 				}
