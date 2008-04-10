@@ -1279,7 +1279,7 @@ const char *wkz_wegebau_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate
 						if(gr->gib_weg_hang()) {
 							way->setze_bild( besch->gib_hang_bild_nr(gr->gib_weg_hang(),0) );
 						}
-						else if(ribi_t::ist_kurve(zeige)) {
+						else if(ribi_t::ist_kurve(zeige)  &&  besch->has_diagonal_bild()) {
 							way->setze_bild( besch->gib_diagonal_bild_nr(zeige,0) );
 						}
 						else {
@@ -1304,6 +1304,9 @@ const char *wkz_wegebau_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate
 			// delete old route
 			while(!marked.empty()) {
 				zeiger_t *z = marked.remove_first();
+				if(marked.empty()  &&  ziel==start) {
+					ziel = z->gib_pos();
+				}
 				z->mark_image_dirty( z->gib_bild(), 0 );
 				delete z;
 			}
