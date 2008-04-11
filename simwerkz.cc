@@ -1297,26 +1297,20 @@ const char *wkz_wegebau_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate
 	}
 	else {
 		if(!marked.empty()) {
-			// build it!
+			// prepare for building!
 			wegbauer_t bauigel(welt, sp);
 			bauigel.route_fuer(bautyp, besch);
-			koord3d ziel = marked.front()->gib_pos();
-			// delete old route
-			while(!marked.empty()) {
-				zeiger_t *z = marked.remove_first();
-				if(marked.empty()  &&  ziel==start) {
-					ziel = z->gib_pos();
-				}
-				z->mark_image_dirty( z->gib_bild(), 0 );
-				delete z;
-			}
+			koord3d ziel = (start!=marked.front()->gib_pos()) ? marked.front()->gib_pos() : marked.back()->gib_pos();
+			const koord3d baustart = start;
+			// remove old cursor/route markings
+			init(welt,sp);
 			if(event_get_last_control_shift()==2  ||  grund_t::underground_mode) {
 				bauigel.set_keep_existing_ways(false);
-				bauigel.calc_straight_route(start,ziel);
+				bauigel.calc_straight_route(baustart,ziel);
 			}
 			else {
 				bauigel.set_keep_existing_faster_ways(true);
-				bauigel.calc_route(start,ziel);
+				bauigel.calc_route(baustart,ziel);
 			}
 			long cost = bauigel.calc_costs();
 			welt->mute_sound(true);
@@ -1384,15 +1378,13 @@ const char *wkz_wegebau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 		gr->obj_add(wkz_wegebau_bauer);
 	}
 	else {
-		// Hajo: symbol für strassenanfang entfernen
-		wkz_wegebau_bauer->mark_image_dirty( wkz_wegebau_bauer->gib_bild(), 0 );
-		delete wkz_wegebau_bauer;
-		wkz_wegebau_bauer = NULL;
-
+		const koord3d baustart = start;
 		wegbauer_t bauigel(welt, sp);
 		koord3d ziel = gr->gib_pos();
 		DBG_MESSAGE("wkz_wegebau()", "Setting end to %d,%d,%d",ziel.x, ziel.y, ziel.z);
 
+		// remove old pointers
+		init(welt,sp);
 		display_show_load_pointer(true);
 
 		// recalc type of construction
@@ -1409,11 +1401,11 @@ const char *wkz_wegebau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 		if(event_get_last_control_shift()==2  ||  grund_t::underground_mode) {
 DBG_MESSAGE("wkz_wegebau()", "try straight route");
 			bauigel.set_keep_existing_ways(false);
-			bauigel.calc_straight_route(start,ziel);
+			bauigel.calc_straight_route(baustart,ziel);
 		}
 		else {
 			bauigel.set_keep_existing_faster_ways(true);
-			bauigel.calc_route(start,ziel);
+			bauigel.calc_route(baustart,ziel);
 		}
 		welt->show_distance = start = koord3d::invalid;
 

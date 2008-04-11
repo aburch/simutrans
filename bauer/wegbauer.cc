@@ -1929,7 +1929,7 @@ wegbauer_t::baue_leitung()
 
 		leitung_t* lt = gr->gib_leitung();
 		// ok, really no lt here ...
-		if(!lt) {
+		if(lt==NULL) {
 			if(gr->ist_natur()) {
 				// remove trees etc.
 				gr->obj_loesche_alle(sp);
