@@ -373,6 +373,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			if (shortest_route->gib_max_n() > -1) {
 				fahrplan_t *fpl = cnv->gib_fahrplan();
 				fpl->insert(cnv->get_welt()->lookup(home));
+				fpl->aktuell = (fpl->aktuell+fpl->maxi()-1)%fpl->maxi();
 				b_depot_found = cnv->setze_fahrplan(fpl);
 			}
 			delete shortest_route;
