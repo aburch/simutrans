@@ -61,6 +61,7 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 	lb_rotation( rot_str, COL_WHITE, gui_label_t::right ),
 	lb_rotation_info( translator::translate("Rotation"), COL_BLACK, gui_label_t::left )
 {
+	rot_str[0] = 0;
 	besch = NULL;
 	haus_tool.default_param = NULL;
 	haus_tool.cursor = werkzeug_t::general_tool[WKZ_BUILD_HAUS]->cursor;

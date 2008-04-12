@@ -12,7 +12,7 @@
 
 #define MAX_BUILD_TYPE (6)
 
-
+class wkz_plant_tree_t;
 
 class baum_edit_frame_t : public extend_edit_gui_t
 {

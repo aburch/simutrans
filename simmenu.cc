@@ -139,6 +139,10 @@ werkzeug_t *create_dialog_tool(int toolnr)
 		case WKZ_LIST_GOODS:     return new wkz_list_goods_t();
 		case WKZ_LIST_FACTORY:   return new wkz_list_factory_t();
 		case WKZ_LIST_CURIOSITY: return new wkz_list_curiosity_t();
+		case WKZ_EDIT_FACTORY:   return new wkz_factorybuilder_t();
+		case WKZ_EDIT_ATTRACTION:return new wkz_attractionbuilder_t();
+		case WKZ_EDIT_HOUSE:     return new wkz_housebuilder_t();
+		case WKZ_EDIT_TREE:      return new wkz_treebuilder_t();
 	}
 	dbg->fatal("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
 	return NULL;

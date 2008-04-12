@@ -1359,8 +1359,11 @@ void karte_t::set_werkzeug( werkzeug_t *w )
 		koord3d zpos = zeiger->gib_pos();
 		zeiger->setze_bild( w->cursor );
 		zeiger->setze_yoff( w->offset );
+		if(!zeiger->area_changed()) {
+			// reset to default 1,1 size
+			zeiger->setze_area( koord(1,1), false );
+		}
 		zeiger->change_pos( zpos );
-		zeiger->setze_area( koord(1,1), false );
 		werkzeug = w;
 		werkzeug_last_pos = koord::invalid;
 		werkzeug_last_button = -1;

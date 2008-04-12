@@ -2542,7 +2542,7 @@ bool wkz_build_haus_t::init( karte_t *welt, spieler_t *sp )
 		while(*c  &&  *++c!=',');
 		const haus_tile_besch_t *tile = hausbauer_t::find_tile(c,0);
 		if(tile!=NULL) {
-			int rotation = default_param[1]-'0' % tile->gib_besch()->gib_all_layouts();
+			int rotation = (default_param[1]-'0') % tile->gib_besch()->gib_all_layouts();
 			welt->gib_zeiger()->setze_area( tile->gib_besch()->gib_groesse(rotation), false );
 		}
 	}
@@ -2573,7 +2573,7 @@ const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	if(besch==NULL) {
 		return "";
 	}
-	int rotation = (default_param  &&  default_param[1]!='#') ? default_param[1]-'0' % besch->gib_all_layouts() : simrand(besch->gib_all_layouts()-1);
+	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % besch->gib_all_layouts() : simrand(besch->gib_all_layouts()-1);
 	koord size = besch->gib_groesse(rotation);
 
 	// process ignore climates switch
@@ -2612,13 +2612,13 @@ bool wkz_build_industries_land_t::init( karte_t *welt, spieler_t *sp )
 {
 	if(default_param) {
 		const char *c = default_param+2;
-		while(*c  &&  *++c!=',');
+		while(*c  &&  *c++!=',');
 		const fabrik_besch_t *fab = fabrikbauer_t::gib_fabesch(c);
 		if(fab==NULL) {
 			// wrong tool!
 			return false;
 		}
-		int rotation = default_param[1]-'0' % fab->gib_haus()->gib_all_layouts();
+		int rotation = (default_param[1]-'0') % fab->gib_haus()->gib_all_layouts();
 		welt->gib_zeiger()->setze_area( fab->gib_haus()->gib_groesse(rotation), false );
 	}
 	return true;
@@ -2642,7 +2642,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 	const fabrik_besch_t *fab = NULL;
 	if(default_param) {
 		const char *c = default_param+2;
-		while(*c  &&  *++c!=',');
+		while(*c  &&  *c++!=',');
 		fab = fabrikbauer_t::gib_fabesch(c);
 	}
 	else {
@@ -2652,7 +2652,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 	if(fab==NULL) {
 		return "";
 	}
-	int rotation = (default_param  &&  default_param[1]!='#') ? default_param[1]-'0' % fab->gib_haus()->gib_all_layouts() : simrand(fab->gib_haus()->gib_all_layouts()-1);
+	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->gib_haus()->gib_all_layouts() : simrand(fab->gib_haus()->gib_all_layouts()-1);
 	koord size = fab->gib_haus()->gib_groesse(rotation);
 
 	// process ignore climates switch
@@ -2714,13 +2714,13 @@ bool wkz_build_industries_city_t::init( karte_t *welt, spieler_t *sp )
 {
 	if(default_param) {
 		const char *c = default_param+2;
-		while(*c  &&  *++c!=',');
+		while(*c  &&  *c++!=',');
 		const fabrik_besch_t *fab = fabrikbauer_t::gib_fabesch(c);
 		if(fab==NULL) {
 			// wrong tool!
 			return false;
 		}
-		int rotation = default_param[1]-'0' % fab->gib_haus()->gib_all_layouts();
+		int rotation = (default_param[1]-'0') % fab->gib_haus()->gib_all_layouts();
 		welt->gib_zeiger()->setze_area( fab->gib_haus()->gib_groesse(rotation), false );
 	}
 	return true;
@@ -2739,7 +2739,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 	const fabrik_besch_t *fab = NULL;
 	if(default_param) {
 		const char *c = default_param+2;
-		while(*c  &&  *++c!=',');
+		while(*c  &&  *c++!=',');
 		fab = fabrikbauer_t::gib_fabesch(c);
 	}
 	else {
@@ -2749,7 +2749,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 	if(fab==NULL) {
 		return "";
 	}
-	int rotation = (default_param  &&  default_param[1]!='#') ? default_param[1]-'0' % fab->gib_haus()->gib_all_layouts() : simrand(fab->gib_haus()->gib_all_layouts()-1);
+	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->gib_haus()->gib_all_layouts() : simrand(fab->gib_haus()->gib_all_layouts()-1);
 	koord size = fab->gib_haus()->gib_groesse(rotation);
 
 	// process ignore climates switch
@@ -2788,13 +2788,13 @@ bool wkz_build_factory_t::init( karte_t *welt, spieler_t *sp )
 {
 	if(default_param) {
 		const char *c = default_param+2;
-		while(*c  &&  *++c!=',');
+		while(*c  &&  *c++!=',');
 		const fabrik_besch_t *fab = fabrikbauer_t::gib_fabesch(c);
 		if(fab==NULL) {
 			// wrong tool!
 			return false;
 		}
-		int rotation = default_param[1]-'0' % fab->gib_haus()->gib_all_layouts();
+		int rotation = (default_param[1]-'0') % fab->gib_haus()->gib_all_layouts();
 		welt->gib_zeiger()->setze_area( fab->gib_haus()->gib_groesse(rotation), false );
 		return true;
 	}
@@ -2812,7 +2812,7 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	const fabrik_besch_t *fab = NULL;
 	if(default_param) {
 		const char *c = default_param+2;
-		while(*c  &&  *++c!=',');
+		while(*c  &&  *c++!=',');
 		fab = fabrikbauer_t::gib_fabesch(c);
 	}
 	else {
@@ -2822,7 +2822,7 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	if(fab==NULL) {
 		return "";
 	}
-	int rotation = (default_param  &&  default_param[1]!='#') ? default_param[1]-'0' % fab->gib_haus()->gib_all_layouts() : simrand(fab->gib_haus()->gib_all_layouts()-1);
+	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->gib_haus()->gib_all_layouts() : simrand(fab->gib_haus()->gib_all_layouts()-1);
 	koord size = fab->gib_haus()->gib_groesse(rotation);
 
 	// process ignore climates switch

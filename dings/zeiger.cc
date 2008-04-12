@@ -16,6 +16,7 @@
 
 zeiger_t::zeiger_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
+	changed = false;
 	richtung = ribi_t::alle;
 	bild = IMG_LEER;
 	area = koord(0,0);
@@ -27,6 +28,7 @@ zeiger_t::zeiger_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 zeiger_t::zeiger_t(karte_t *welt, koord3d pos, spieler_t *sp) :
     ding_t(welt, pos)
 {
+	changed = false;
 	setze_besitzer( sp );
 	richtung = ribi_t::alle;
 	area = koord(0,0);
@@ -93,8 +95,10 @@ zeiger_t::setze_bild( image_id b )
 	if(  (area.x|area.y)>1  ) {
 		welt->mark_area( gib_pos()-(area*center)/2, area, false );
 	}
-	area = koord(0,0);
-	center = 0;
+	if(!changed) {
+		area = koord(0,0);
+		center = 0;
+	}
 }
 
 
@@ -102,6 +106,7 @@ zeiger_t::setze_bild( image_id b )
 void
 zeiger_t::setze_area(koord new_area, uint8 new_center)
 {
+	changed = true;
 	if(new_area==area  &&  (new_center^center)) {
 		return;
 	}
@@ -109,4 +114,13 @@ zeiger_t::setze_area(koord new_area, uint8 new_center)
 	area = new_area;
 	center = new_center;
 	welt->mark_area( gib_pos()-(area*center)/2, area, true );
+}
+
+
+// returns true ONCE, if the areas was change before this call
+bool zeiger_t::area_changed()
+{
+	bool ch = changed;
+	changed = false;
+	return ch;
 }

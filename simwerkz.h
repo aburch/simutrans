@@ -21,12 +21,11 @@
 #include "dataobj/umgebung.h"
 #include "dataobj/translator.h"
 
-/*
+
 #include "gui/factory_edit.h"
 #include "gui/curiosity_edit.h"
 #include "gui/citybuilding_edit.h"
 #include "gui/baum_edit.h"
-*/
 #include "gui/jump_frame.h"
 #include "gui/optionen.h"
 #include "gui/map_frame.h"
@@ -692,6 +691,42 @@ class wkz_list_curiosity_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("curlist_title"); }
 	bool init( karte_t *welt, spieler_t * ) {
 		create_win( new curiositylist_frame_t(welt), w_info, magic_curiositylist );
+		return false;
+	}
+};
+
+/* factory building dialog */
+class wkz_factorybuilder_t : public werkzeug_t {
+	const char *get_tooltip(spieler_t *) { return translator::translate("factorybuilder"); }
+	bool init( karte_t *welt, spieler_t *sp ) {
+		create_win( new factory_edit_frame_t(sp,welt), w_info, magic_edit_factory );
+		return false;
+	}
+};
+
+/* attraction building dialog */
+class wkz_attractionbuilder_t : public werkzeug_t {
+	const char *get_tooltip(spieler_t *) { return translator::translate("attractionbuilder"); }
+	bool init( karte_t *welt, spieler_t *sp ) {
+		create_win( new curiosity_edit_frame_t(sp,welt), w_info, magic_edit_attraction );
+		return false;
+	}
+};
+
+/* house building dialog */
+class wkz_housebuilder_t : public werkzeug_t {
+	const char *get_tooltip(spieler_t *) { return translator::translate("housebuilder"); }
+	bool init( karte_t *welt, spieler_t *sp ) {
+		create_win( new citybuilding_edit_frame_t(sp,welt), w_info, magic_edit_house );
+		return false;
+	}
+};
+
+/* house building dialog */
+class wkz_treebuilder_t : public werkzeug_t {
+	const char *get_tooltip(spieler_t *) { return translator::translate("treebuilder"); }
+	bool init( karte_t *welt, spieler_t *sp ) {
+		create_win( new baum_edit_frame_t(sp,welt), w_info, magic_edit_tree );
 		return false;
 	}
 };

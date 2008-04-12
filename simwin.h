@@ -68,6 +68,9 @@ enum magic_numbers {
 	magic_goodslist,
 	magic_messageframe,
 	magic_edit_factory,
+	magic_edit_attraction,
+	magic_edit_house,
+	magic_edit_tree,
 	magic_info_pointer,	// mark end of the list
 	magic_keyhelp=magic_info_pointer+842,
 };

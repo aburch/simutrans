@@ -16,6 +16,7 @@ class zeiger_t : public ding_t
 private:
 	koord area;
 	uint8 center;
+	bool changed;
 	ribi_t::ribi richtung;
 	image_id bild;
 
@@ -37,6 +38,7 @@ public:
 	enum ding_t::typ gib_typ() const {return zeiger;}
 
 	void setze_area( koord area, uint8 center );
+	bool area_changed();
 
 	void setze_bild( image_id b );
 	image_id gib_bild() const {return bild;}
