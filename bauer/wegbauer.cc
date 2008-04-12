@@ -415,6 +415,9 @@ static bool check_building( const grund_t *to, const koord dir )
 	if(dir==koord(0,0)) {
 		return true;
 	}
+	if(to->obj_count()<=0) {
+		return true;
+	}
 
 	// first find all kind of buildings
 	gebaeude_t *gb = to->find<gebaeude_t>();
@@ -425,7 +428,7 @@ static bool check_building( const grund_t *to, const koord dir )
 			gb = dynamic_cast<gebaeude_t *>(dp);
 		}
 	}
-	// check, wether we may enter
+	// check, if we may enter
 	if(gb) {
 		// now check for directions
 		uint8 layouts = gb->gib_tile()->gib_besch()->gib_all_layouts();
