@@ -146,6 +146,7 @@ class wkz_add_city_t : public werkzeug_t {
 // step size by default_param
 class wkz_change_city_size_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate( atoi(default_param)>=0 ? "Grow city" : "Shrink city" ); }
+	bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 };
 

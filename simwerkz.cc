@@ -1013,6 +1013,12 @@ const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 /* change city size
  * @author prissi
  */
+bool wkz_change_city_size_t::init( karte_t *welt, spieler_t *sp )
+{
+	cursor = atoi(default_param)>0 ? werkzeug_t::general_tool[WKZ_RAISE_LAND]->cursor : werkzeug_t::general_tool[WKZ_LOWER_LAND]->cursor;
+	return true;
+}
+
 const char *wkz_change_city_size_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
 	stadt_t *city = welt->suche_naechste_stadt(pos.gib_2d());
