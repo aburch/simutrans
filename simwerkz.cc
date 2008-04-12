@@ -1161,7 +1161,6 @@ const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 		translator::translate(besch->gib_name()),
 		besch->gib_preis()/100l,
 		(besch->gib_wartung()<<(sp->get_welt()->ticks_bits_per_tag-18))/100l,
-		besch->gib_wartung()/100l,
 		besch->gib_topspeed());
 	return toolstr;
 }

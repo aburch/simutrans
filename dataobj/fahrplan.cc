@@ -351,7 +351,7 @@ bool
 tramfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
 DBG_MESSAGE("tramfahrplan_t::ist_halt_erlaubt()","Checking for stop");
-	if(!gr->hat_weg(track_wt)  ||  !gr->hat_weg(tram_wt)) {
+	if(!(gr->hat_weg(track_wt)  ||  gr->hat_weg(tram_wt))) {
 		// no track
 		return false;
 	}
