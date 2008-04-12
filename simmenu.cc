@@ -205,7 +205,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 			if(*str!=',') {
 				int sound = atoi(str);
 				if(  sound>0  ) {
-					w->ok_sound = sound;
+					w->ok_sound = sound_besch_t::get_compatible_sound_id(sound);
 				}
 				do
 					*str++;
