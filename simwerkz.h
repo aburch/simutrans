@@ -300,6 +300,7 @@ private:
 	fabrik_t* last_fab;
 	zeiger_t *wkz_linkzeiger;
 public:
+	wkz_link_factory_t() : werkzeug_t() { wkz_linkzeiger=NULL; last_fab=NULL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Connect factory"); }
 	bool init( karte_t *, spieler_t * );
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
