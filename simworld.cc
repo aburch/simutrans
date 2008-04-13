@@ -3436,7 +3436,8 @@ void karte_t::change_time_multiplier(sint32 delta)
 }
 
 
-void karte_t::do_pause()
+
+void karte_t::do_freeze()
 {
 	display_fillbox_wh(display_get_width()/2-100, display_get_height()/2-50, 200,100, MN_GREY2, true);
 	display_ddd_box(display_get_width()/2-100, display_get_height()/2-50, 200,100, MN_GREY4, MN_GREY0);
@@ -3450,11 +3451,23 @@ void karte_t::do_pause()
 	reset_timer();
 }
 
-zeiger_t *
-karte_t::gib_zeiger() const
+
+
+void karte_t::set_pause(bool p)
 {
-    return zeiger;
+	if(p!=pause) {
+		pause = p;
+		if(p) {
+			intr_disable();
+		}
+		else {
+			reset_timer();
+			intr_enable();
+		}
+	}
 }
+
+
 
 void karte_t::bewege_zeiger(const event_t *ev)
 {
@@ -3652,17 +3665,6 @@ karte_t::interactive_event(event_t &ev)
 		DBG_MESSAGE("karte_t::interactive_event()","Keyboard event with code %d '%c'", ev.ev_code, ev.ev_code);
 
 		switch(ev.ev_code) {
-			case 'p':
-				sound_play(click_sound);
-				pause ^= 1;
-				if(pause) {
-					intr_disable();
-				}
-				else {
-					reset_timer();
-					intr_enable();
-				}
-				break;
 
 			// shortcut system
 			case SIM_KEY_F2:
@@ -3863,7 +3865,7 @@ karte_t::interactive()
 			}
 		}
 
-		if(fast_forward) {
+		if(!pause  &&  fast_forward) {
 			sync_step( MAGIC_STEP );
 			step();
 		}

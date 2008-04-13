@@ -156,6 +156,12 @@ public:
 	werkzeug_t() { id = 0xFFFFu; cursor = icon = IMG_LEER; ok_sound = failed_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; }
 	virtual ~werkzeug_t() {}
 
+	/* could be used for player dependent images
+	 * will be called, when a toolbar is opened/updated
+	 * return false to avoid inclusion
+	 */
+	virtual bool update_image(spieler_t *) { return true; }
+
 	virtual const char *get_tooltip(spieler_t *) { return NULL; }
 
 	// returning false on init will automatically invoke previous tool

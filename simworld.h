@@ -335,7 +335,6 @@ private:
 	// recalculated speed boni for different vehicles
 	void recalc_average_speed();
 
-	void do_pause();         // Spiel pausieren
 	void neuer_monat();      // Monatliche Aktionen
 	void neues_jahr();       // Jaehrliche Aktionen
 
@@ -449,16 +448,14 @@ public:
 
 	// time lapse mode ...
 	bool is_paused() const { return pause; }
+	// stop the game and all interaction
+	void do_freeze();
+	void set_pause( bool );
+
 	bool is_fast_forward() const { return fast_forward; }
 	void set_fast_forward(bool ff) { fast_forward = ff; reset_timer(); }
 
-	/**
-	 * sollte einen const zeiger_t * zurueckgeben, aber wegen der Tests
-	 * braucht man mehr Zugriff, deshalb ohne const
-	 *
-	 * @author Hj. Malthaner
-	 */
-	zeiger_t * gib_zeiger() const;
+	zeiger_t * gib_zeiger() const { return zeiger; }
 
 	/**
 	 * marks an area using the grund_t mark flag

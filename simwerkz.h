@@ -333,9 +333,8 @@ class wkz_lock_game_t : public werkzeug_t {
 
 class wkz_pause_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Pause"); }
-	bool init( karte_t *, spieler_t * ) {
-//		welt->set_pause( welt->is_paused()^1 );
-//		welt->do_pause();
+	bool init( karte_t *welt, spieler_t * ) {
+		welt->set_pause( welt->is_paused()^1 );
 		return false;
 	}
 };
