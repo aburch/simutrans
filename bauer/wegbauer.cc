@@ -29,6 +29,8 @@
 
 #include "../dataobj/umgebung.h"
 #include "../dataobj/route.h"
+#include "../dataobj/translator.h"
+
 // sorted heap, since we only need insert and pop
 #include "../tpl/binary_heap_tpl.h" // fastest
 
@@ -48,6 +50,7 @@
 #include "tunnelbauer.h"
 #include "brueckenbauer.h"
 
+#include "../besch/skin_besch.h"
 #include "../besch/weg_besch.h"
 #include "../besch/haus_besch.h"
 #include "../besch/kreuzung_besch.h"
@@ -57,14 +60,11 @@
 #include "../tpl/stringhashtable_tpl.h"
 
 #include "../dings/leitung2.h"
+#include "../dings/groundobj.h"
 
 #include "../gui/karte.h"	// for debugging
-
-
-// Hajo: these are needed to build the menu entries
 #include "../gui/werkzeug_waehler.h"
-#include "../besch/skin_besch.h"
-#include "../dataobj/translator.h"
+
 
 #ifdef DEBUG_ROUTES
 #include "../simsys.h"
@@ -1663,7 +1663,7 @@ wegbauer_t::calc_costs()
 	long costs=0;
 
 	// construct city road?
-	const weg_besch_t *cityroad = gib_besch("city_road");
+	const weg_besch_t *cityroad = welt->get_city_road();
 
 	for(int i=0; i<=max_n; i++) {
 
@@ -1718,8 +1718,21 @@ wegbauer_t::calc_costs()
 			if(weg!=NULL  &&  (weg->gib_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_city_roads  && weg->gib_besch()==cityroad)  ||  (keep_existing_faster_ways  &&  weg->gib_besch()->gib_topspeed()>besch->gib_topspeed()))  ) {
 					//nothing to be done
 			}
-			else {
+			else if(besch->gib_wtyp()!=powerline_wt  ||  gr->gib_leitung()==NULL) {
 				costs += besch->gib_preis();
+				// eventually we have to remove trees
+				for(  uint8 i=0;  i<gr->gib_top();  i++  ) {
+					ding_t *dt = gr->obj_bei(i);
+					switch(dt->gib_typ()) {
+						case ding_t::baum:
+							costs -= umgebung_t::cst_remove_tree;
+							break;
+						case ding_t::groundobj:
+						case ding_t::movingobj:
+							costs -= (dynamic_cast<groundobj_t*>(dt))->gib_besch()->gib_preis();
+							break;
+					}
+				}
 			}
 		}
 		// check next tile

@@ -1284,7 +1284,7 @@ const char *wkz_wegebau_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate
 						if(gr->gib_weg_hang()) {
 							way->setze_bild( besch->gib_hang_bild_nr(gr->gib_weg_hang(),0) );
 						}
-						else if(ribi_t::ist_kurve(zeige)  &&  besch->has_diagonal_bild()) {
+						else if(besch->gib_wtyp()!=powerline_wt  &&  ribi_t::ist_kurve(zeige)  &&  besch->has_diagonal_bild()) {
 							way->setze_bild( besch->gib_diagonal_bild_nr(zeige,0) );
 						}
 						else {
