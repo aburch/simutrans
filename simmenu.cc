@@ -502,6 +502,7 @@ static werkzeug_t *dummy = new wkz_dummy_t();
 void toolbar_t::update(karte_t *welt, spieler_t *sp)
 {
 	if(wzw==NULL) {
+		DBG_MESSAGE("toolbar_t::update()","update/create toolbar %s",default_param);
 		wzw = new werkzeug_waehler_t( welt, default_param, helpfile, iconsize, this!=werkzeug_t::toolbar_tool[0] );
 	}
 	wzw->reset_tools();
