@@ -197,7 +197,7 @@ public:
 	const char *get_tooltip(spieler_t *) { return translator::translate(default_param); }
 	werkzeug_waehler_t *get_werkzeug_waehler() const { return wzw; }
 	// show this toolbar
-	bool init(karte_t *, spieler_t *);
+	virtual bool init(karte_t *w, spieler_t *sp);
 	void update(karte_t *, spieler_t *);	// just refresh content
 	void append(werkzeug_t *w) { tools.append(w); }
 };
