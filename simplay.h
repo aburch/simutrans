@@ -64,7 +64,7 @@ public:
 	enum { MAX_KONTO_VERZUG = 3 };
 
 private:
-	char spieler_name_buf[16];
+	char spieler_name_buf[256];
 
 	/*
 	 * holds total number of all halts, ever built
@@ -498,6 +498,9 @@ private:
 	bool suche_platz(koord pos, koord &size, koord *dirs) const;
 	bool suche_platz(koord &start, koord &size, koord target, koord off);
 	bool suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length);
+
+	// removes building markers
+	void clean_marker();
 
 	int baue_bahnhof(const koord* p, int anz_vehikel);
 

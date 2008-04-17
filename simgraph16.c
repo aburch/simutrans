@@ -942,7 +942,7 @@ static void rezoom_img(const unsigned int n)
 								*dest++ = 0x73FE;
 							}
 							else if(valid==255) {
-								*dest++ = 0x8000 | r + (((uint16)g)<<5) + (((uint16)b)<<10);
+								*dest++ = (0x8000 | r) + (((uint16)g)<<5) + (((uint16)b)<<10);
 							}
 							else {
 								*dest++ = (r/valid) + (((uint16)(g/valid))<<5) + (((uint16)(b/valid))<<10);
@@ -974,7 +974,7 @@ static void rezoom_img(const unsigned int n)
 								*dest++ = 0x73FE;
 							}
 							else if(valid==255) {
-								*dest++ = 0x8000 | r + (((uint16)g)<<5) + (((uint16)b)<<10);
+								*dest++ = (0x8000 | r) + (((uint16)g)<<5) + (((uint16)b)<<10);
 							}
 							else {
 								*dest++ = (r/valid) | (((uint16)(g/valid))<<5) | (((uint16)(b/valid))<<10);
@@ -1015,7 +1015,7 @@ static void rezoom_img(const unsigned int n)
 								*dest++ = 0x73FE;
 							}
 							else if(valid==255) {
-								*dest++ = 0x8000 | r + (((uint16)g)<<5) + (((uint16)b)<<10);
+								*dest++ = (0x8000 | r) + (((uint16)g)<<5) + (((uint16)b)<<10);
 							}
 							else {
 								*dest++ = (r/valid) | (((uint16)(g/valid))<<5) | (((uint16)(b/valid))<<10);

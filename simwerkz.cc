@@ -860,14 +860,14 @@ const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 
 // show/repair blocks
-bool wkz_clear_reservation_t::init( karte_t *welt, spieler_t *sp )
+bool wkz_clear_reservation_t::init( karte_t *welt, spieler_t * )
 {
 	schiene_t::show_reservations = true;
 	welt->setze_dirty();
 	return true;
 }
 
-bool wkz_clear_reservation_t::exit( karte_t *welt, spieler_t *sp )
+bool wkz_clear_reservation_t::exit( karte_t *welt, spieler_t * )
 {
 	schiene_t::show_reservations = false;
 	welt->setze_dirty();
@@ -1013,13 +1013,13 @@ const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 /* change city size
  * @author prissi
  */
-bool wkz_change_city_size_t::init( karte_t *welt, spieler_t *sp )
+bool wkz_change_city_size_t::init( karte_t *, spieler_t * )
 {
 	cursor = atoi(default_param)>0 ? werkzeug_t::general_tool[WKZ_RAISE_LAND]->cursor : werkzeug_t::general_tool[WKZ_LOWER_LAND]->cursor;
 	return true;
 }
 
-const char *wkz_change_city_size_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
+const char *wkz_change_city_size_t::work( karte_t *welt, spieler_t *, koord3d pos )
 {
 	stadt_t *city = welt->suche_naechste_stadt(pos.gib_2d());
 	if(city!=NULL) {
@@ -1049,6 +1049,7 @@ const char *wkz_plant_tree_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		if(besch) {
 			baum_t::plant_tree_on_coordinate( welt, pos.gib_2d(), besch, ignore_climates, random_age );
 		}
+		spieler_t::accounting( sp, umgebung_t::cst_remove_tree, pos.gib_2d(), COST_CONSTRUCTION );
 	}
 	return NULL;
 }
@@ -1171,7 +1172,7 @@ const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 	return toolstr;
 }
 
-bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
+bool wkz_wegebau_t::init( karte_t *welt, spieler_t * )
 {
 	welt->show_distance = start = koord3d::invalid;
 	if(wkz_wegebau_bauer != NULL) {
@@ -1477,7 +1478,7 @@ const char *wkz_tunnelbau_t::get_tooltip(spieler_t *sp)
 	return toolstr;
 }
 
-bool wkz_tunnelbau_t::init( karte_t *welt, spieler_t *sp )
+bool wkz_tunnelbau_t::init( karte_t *welt, spieler_t * )
 {
 	welt->show_distance = start = koord3d::invalid;
 	if(wkz_tunnelbau_bauer != NULL) {
@@ -1569,7 +1570,7 @@ const char *wkz_wayremover_t::get_tooltip(spieler_t *)
 	return NULL;
 }
 
-bool wkz_wayremover_t::init( karte_t *welt, spieler_t *sp )
+bool wkz_wayremover_t::init( karte_t *welt, spieler_t * )
 {
 	erster = true;
 	welt->show_distance = start = koord3d::invalid;
@@ -1831,8 +1832,6 @@ const char *wkz_station_t::wkz_station_building_aux(karte_t *welt, spieler_t *sp
 DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building on square %d,%d", pos.x, pos.y);
 	static koord rotate_koords[4]={koord(0,-1),koord(1,0),koord(0,1),koord(-1,0)};
 
-	const bool is_post=(besch->get_enabled()&2)!=0;
-
 	koord size = besch->gib_groesse();
 	int rotate=-1, built_rotate=-1;
 	halthandle_t halt;
@@ -1899,7 +1898,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	// is there already a halt to connect?
 	if(halt.is_bound()) {
 /*
-		if(is_post  &&  halt->get_post_enabled()) {
+		if((besch->get_enabled()&2)!=0  &&  halt->get_post_enabled()) {
 			create_win( new news_img("Station already\nhas a post office!\n"), w_time_delete, magic_none);
 		}
 */
@@ -2534,7 +2533,7 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
  * finally building name
  * @author prissi
  */
-bool wkz_build_haus_t::init( karte_t *welt, spieler_t *sp )
+bool wkz_build_haus_t::init( karte_t *welt, spieler_t * )
 {
 	// eventually set size correctly
 	if(default_param) {
@@ -2608,7 +2607,7 @@ const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 
 // show industry size in cursor (in known)
-bool wkz_build_industries_land_t::init( karte_t *welt, spieler_t *sp )
+bool wkz_build_industries_land_t::init( karte_t *welt, spieler_t * )
 {
 	if(default_param) {
 		const char *c = default_param+2;
@@ -2710,7 +2709,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 
 
 // show industry size in cursor (in known)
-bool wkz_build_industries_city_t::init( karte_t *welt, spieler_t *sp )
+bool wkz_build_industries_city_t::init( karte_t *welt, spieler_t * )
 {
 	if(default_param) {
 		const char *c = default_param+2;
@@ -2752,8 +2751,8 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->gib_haus()->gib_all_layouts() : simrand(fab->gib_haus()->gib_all_layouts()-1);
 	koord size = fab->gib_haus()->gib_groesse(rotation);
 
-	// process ignore climates switch
-	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : fab->gib_haus()->get_allowed_climate_bits();
+// process ignore climates switch (not possible for chains!)
+//	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : fab->gib_haus()->get_allowed_climate_bits();
 
 	k = gr->gib_pos();
 	int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, false, &k, welt->gib_spieler(1), 10000 );
@@ -2784,7 +2783,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 
 
 // show industry size in cursor (must be known!)
-bool wkz_build_factory_t::init( karte_t *welt, spieler_t *sp )
+bool wkz_build_factory_t::init( karte_t *welt, spieler_t * )
 {
 	if(default_param) {
 		const char *c = default_param+2;
@@ -2927,9 +2926,9 @@ const haus_besch_t *wkz_headquarter_t::next_level( spieler_t *sp )
 {
 	// assume no further headquarter level
 	const haus_besch_t* besch = NULL;
-	int level = sp->get_headquarter_level();
+	const sint16 level = sp->get_headquarter_level();
 	for(  vector_tpl<const haus_besch_t *>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end();  iter != end;  ++iter  ) {
-		if ((*iter)->gib_extra() == sp->get_headquarter_level()) {
+		if ((*iter)->gib_extra() == level) {
 			besch = (*iter);
 			break;
 		}

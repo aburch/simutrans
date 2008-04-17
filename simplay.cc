@@ -1541,6 +1541,8 @@ DBG_MESSAGE("spieler_t::suche_platz()","Search around stop at (%i,%i)",x,y);
 
 bool spieler_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length )
 {
+	clean_marker();
+
 	koord start( qfab->gib_pos().gib_2d() );
 	koord start_size( length, 0 );
 	koord ziel( zfab->gib_pos().gib_2d() );
@@ -1574,22 +1576,37 @@ bool spieler_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length )
 		size2 = ziel_size;
 
 		// reserve space with marker
-		zeiger_t *z;
 		grund_t *gr;
 
 		DBG_MESSAGE( "spieler_t::suche_platz1_platz2()", "platz1=%d,%d platz2=%d,%d", platz1.x, platz1.y, platz2.x, platz2.y );
 
 		gr = welt->lookup_kartenboden(platz1);
-		z = new zeiger_t(welt, gr->gib_pos(), this);
-		z->setze_bild( skinverwaltung_t::belegtzeiger->gib_bild_nr(0) );
-		gr->obj_add( z );
+		zeiger_t *z1 = new zeiger_t(welt, gr->gib_pos(), this);
+		z1->setze_bild( skinverwaltung_t::belegtzeiger->gib_bild_nr(0) );
+		gr->obj_add( z1 );
 
 		gr = welt->lookup_kartenboden(platz2);
-		z = new zeiger_t(welt, gr->gib_pos(), this);
-		z->setze_bild( skinverwaltung_t::belegtzeiger->gib_bild_nr(0) );
-		gr->obj_add( z );
+		zeiger_t *z2 = new zeiger_t(welt, gr->gib_pos(), this);
+		z2->setze_bild( skinverwaltung_t::belegtzeiger->gib_bild_nr(0) );
+		gr->obj_add( z2 );
 	}
 	return ok;
+}
+
+
+
+void spieler_t::clean_marker()
+{
+	grund_t *gr = welt->lookup_kartenboden(platz1);
+	zeiger_t *z = gr->find<zeiger_t>();
+	if(z) {
+		delete z;
+	}
+	gr = welt->lookup_kartenboden(platz2);
+	z = gr->find<zeiger_t>();
+	if(z) {
+		delete z;
+	}
 }
 
 
@@ -1795,11 +1812,12 @@ void spieler_t::create_rail_transport_vehikel(const koord platz1, const koord pl
 	if(  rail_engine->get_engine_type()==vehikel_besch_t::electric  ) {
 		// we need overhead wires
 		const way_obj_besch_t *e = wayobj_t::wayobj_search(track_wt,overheadlines_wt,welt->get_timeline_year_month());
-		const char *param = e->gib_name();
-		init_general_tool( WKZ_WAYOBJ, param );
-		call_general_tool( WKZ_WAYOBJ, platz1, param );
-		call_general_tool( WKZ_WAYOBJ, platz2, param );
-		werkzeug_t::general_tool[WKZ_WAYOBJ]->exit(welt,this);
+		wkz_wayobj_t wkz;
+		wkz.default_param = e->gib_name();
+		wkz.init( welt, this );
+		wkz.work( welt, this, welt->lookup_kartenboden(platz1)->gib_pos() );
+		wkz.work( welt, this, welt->lookup_kartenboden(platz2)->gib_pos() );
+		wkz.exit( welt, this );
 	}
 	vehikel_t* v = vehikelbauer_t::baue(pos2, this, NULL, rail_engine);
 
@@ -1834,10 +1852,7 @@ void spieler_t::create_rail_transport_vehikel(const koord platz1, const koord pl
 bool spieler_t::create_simple_road_transport()
 {
 	// remove pointer
-	zeiger_t *z = welt->lookup_kartenboden(platz1)->find<zeiger_t>();
-	if(z) delete z;
-	z = welt->lookup_kartenboden(platz2)->find<zeiger_t>();
-	if(z) delete z;
+	clean_marker();
 
 	if(!(welt->ebne_planquadrat( this, platz1, welt->lookup_kartenboden(platz1)->gib_hoehe() )  &&  welt->ebne_planquadrat( this, platz2, welt->lookup_kartenboden(platz2)->gib_hoehe() ))  ) {
 		// no flat land here?!?
@@ -1901,8 +1916,6 @@ int spieler_t::baue_bahnhof(const koord* p, int anz_vehikel)
 
 	int baulaenge = 0;
 	ribi_t::ribi ribi = welt->lookup_kartenboden(*p)->gib_weg_ribi(track_wt);
-	zeiger_t *z = welt->lookup_kartenboden(*p)->find<zeiger_t>();
-	if(z) delete z;
 	koord zv ( ribi );
 	koord t = *p;
 	bool ok = true;
@@ -1960,6 +1973,8 @@ int spieler_t::baue_bahnhof(const koord* p, int anz_vehikel)
  */
 bool spieler_t::create_simple_rail_transport()
 {
+	clean_marker();
+
 	bool ok=true;
 	// first: make plain stations tiles as intended
 	sint16 z1 = max( welt->gib_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(platz1)->gib_hoehe() );
@@ -2388,11 +2403,12 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 					// no sucess: clean route
 					char param[16];
 					sprintf( param, "%i", track_wt );
-					init_general_tool( WKZ_WAYREMOVER, param );
-					call_general_tool( WKZ_WAYREMOVER, platz1, param );
-					call_general_tool( WKZ_WAYREMOVER, platz2, param );
-					werkzeug_t::general_tool[WKZ_WAYREMOVER]->exit(welt,this);
-					state = NR_BAUE_STRASSEN_ROUTE;
+					wkz_wayremover_t wkz;
+					wkz.default_param = param;
+					wkz.init( welt, this );
+					wkz.work( welt, this, welt->lookup_kartenboden(platz1)->gib_pos() );
+					wkz.work( welt, this, welt->lookup_kartenboden(platz2)->gib_pos() );
+					wkz.exit( welt, this );
 				}
 			}
 			else {
@@ -2447,14 +2463,7 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 			// otherwise it may always try to built the same route!
 			ziel = NULL;
 			// schilder aufraeumen
-			grund_t* gr = welt->lookup_kartenboden(platz1);
-			if(gr  &&  gr->find<zeiger_t>()) {
-				delete gr->find<zeiger_t>();
-			}
-			gr = welt->lookup_kartenboden(platz2);
-			if(gr  &&  gr->find<zeiger_t>()) {
-				delete gr->find<zeiger_t>();
-			}
+			clean_marker();
 			state = CHECK_CONVOI;
 			break;
 		}
@@ -2565,10 +2574,12 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 					if(wt==track_wt) {
 						char param[16];
 						sprintf( param, "%i", track_wt );
-						init_general_tool( WKZ_WAYREMOVER, param );
-						call_general_tool( WKZ_WAYREMOVER, start_pos.gib_2d(), param );
-						call_general_tool( WKZ_WAYREMOVER, end_pos.gib_2d(), param );
-						werkzeug_t::general_tool[WKZ_WAYREMOVER]->exit(welt,this);
+						wkz_wayremover_t wkz;
+						wkz.default_param = param;
+						wkz.init( welt, this );
+						wkz.work( welt, this, start_pos );
+						wkz.work( welt, this, end_pos );
+						wkz.exit( welt, this );
 					}
 					else {
 						// last convoi => remove completely<
@@ -2577,19 +2588,19 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 
 							char param[16];
 							sprintf( param, "%i", wt );
-							// cannot remove all => likely some other convois there too
-							init_general_tool( WKZ_WAYREMOVER, param );
-							call_general_tool( WKZ_WAYREMOVER, start_pos.gib_2d(), param );
-							if(!call_general_tool( WKZ_WAYREMOVER, end_pos.gib_2d(), param )) {
-								const char *msg;
-								// remove loading bays and road
-								call_general_tool( WKZ_WAYREMOVER, start_pos.gib_2d(), param );
-								call_general_tool( WKZ_WAYREMOVER, start_pos.gib_2d(), param );
-								// remove loading bays and road
-								call_general_tool( WKZ_WAYREMOVER, end_pos.gib_2d(), param );
-								call_general_tool( WKZ_WAYREMOVER, end_pos.gib_2d(), param );
+							wkz_wayremover_t wkz;
+							wkz.default_param = param;
+							wkz.init( welt, this );
+							wkz.work( welt, this, start_pos );
+							if(wkz.work( welt, this, end_pos )!=NULL) {
+								// cannot remove all => likely some other convois there too
+								// remove loading bays and road on start and end, if we cannot remove the whole way
+								wkz.work( welt, this, start_pos );
+								wkz.work( welt, this, start_pos );
+								wkz.work( welt, this, end_pos );
+								wkz.work( welt, this, end_pos );
 							}
-							werkzeug_t::general_tool[WKZ_WAYREMOVER]->exit(welt,this);
+							wkz.exit( welt, this );
 						}
 					}
 					break;

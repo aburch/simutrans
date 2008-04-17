@@ -54,6 +54,7 @@ fahrplan_t::fahrplan_t(fahrplan_t * old)
 	else {
 		aktuell = old->aktuell;
 		type = old->type;
+		my_waytype = old->my_waytype;
 
 		for(unsigned i=0; i<old->eintrag.get_count(); i++) {
 			eintrag.append(old->eintrag[i]);
@@ -111,7 +112,7 @@ void fahrplan_t::copy_from(const fahrplan_t *src)
 
 bool fahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
-	return gr->hat_weg(get_waytype());
+	return gr->hat_weg(my_waytype);
 }
 
 

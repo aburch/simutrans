@@ -104,7 +104,7 @@ public:
 	void laden_abschliessen();
 
 	// specific for wayobj
-	void set_dir(ribi_t::ribi d) { dir = dir; calc_bild(); }
+	void set_dir(ribi_t::ribi d) { dir = d; calc_bild(); }
 	ribi_t::ribi get_dir() const { return dir; }
 
 	/* the static routines */

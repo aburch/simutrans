@@ -25,6 +25,7 @@ private:
     bool abgeschlossen;
 
 protected:
+	waytype_t my_waytype;
     fahrplan_type type;
 
 	/*
@@ -48,7 +49,7 @@ public:
 	*/
 	virtual bool ist_halt_erlaubt(const grund_t *gr) const;
 
-	virtual waytype_t get_waytype() const {return invalid_wt;}
+	waytype_t get_waytype() const {return my_waytype;}
 
 	minivec_tpl<struct linieneintrag_t> eintrag;
 	short aktuell;
@@ -143,9 +144,8 @@ protected:
 
 public:
 	zugfahrplan_t() : fahrplan_t() { type = zugfahrplan; }
-	waytype_t get_waytype() const {return track_wt;}
-	zugfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = zugfahrplan; }
-	zugfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = zugfahrplan; }
+	zugfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = zugfahrplan; my_waytype=track_wt; }
+	zugfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = zugfahrplan; my_waytype=track_wt; }
 	fahrplan_t* copy() { return new zugfahrplan_t(this); }
 	const char *fehlermeldung() const { return "Zughalt muss auf\nSchiene liegen!\n"; }
 };
@@ -159,9 +159,9 @@ protected:
 	bool ist_halt_erlaubt(const grund_t *) const;
 
 public:
-	tramfahrplan_t() : zugfahrplan_t() { type = tramfahrplan; }
-	tramfahrplan_t(loadsave_t* file) : zugfahrplan_t(file) { type = tramfahrplan; }
-	tramfahrplan_t(fahrplan_t* fpl) : zugfahrplan_t(fpl) { type = tramfahrplan; }
+	tramfahrplan_t() : zugfahrplan_t() { type = tramfahrplan; my_waytype=track_wt; }
+	tramfahrplan_t(loadsave_t* file) : zugfahrplan_t(file) { type = tramfahrplan; my_waytype=track_wt; }
+	tramfahrplan_t(fahrplan_t* fpl) : zugfahrplan_t(fpl) { type = tramfahrplan; my_waytype=track_wt; }
 	fahrplan_t* copy() { return new tramfahrplan_t(this); }
 };
 
@@ -178,10 +178,9 @@ protected:
 	bool ist_halt_erlaubt(const grund_t *) const;
 
 public:
-	waytype_t get_waytype() const {return road_wt;}
-	autofahrplan_t() : fahrplan_t() { type = autofahrplan; }
-	autofahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = autofahrplan; }
-	autofahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = autofahrplan; }
+	autofahrplan_t() : fahrplan_t() { type = autofahrplan; my_waytype=road_wt; }
+	autofahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = autofahrplan; my_waytype=road_wt; }
+	autofahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = autofahrplan; my_waytype=road_wt; }
 	fahrplan_t* copy() { return new autofahrplan_t(this); }
 	const char *fehlermeldung() const { return "Autohalt muss auf\nStrasse liegen!\n"; }
 };
@@ -199,10 +198,9 @@ protected:
     virtual bool ist_halt_erlaubt(const grund_t *) const;
 
 public:
-	waytype_t get_waytype() const {return road_wt;}
-    schifffahrplan_t() : fahrplan_t() { type = schifffahrplan; }
-    schifffahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = schifffahrplan; }
-    schifffahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = schifffahrplan; }
+    schifffahrplan_t() : fahrplan_t() { type = schifffahrplan; my_waytype=water_wt; }
+    schifffahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = schifffahrplan; my_waytype=water_wt; }
+    schifffahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = schifffahrplan; my_waytype=water_wt; }
     fahrplan_t* copy() { return new schifffahrplan_t(this); }
 	const char *fehlermeldung() const { return "Schiffhalt muss im\nWasser liegen!\n"; }
 };
@@ -217,10 +215,9 @@ protected:
 	bool ist_halt_erlaubt(const grund_t *) const;
 
 public:
-	waytype_t get_waytype() const {return air_wt;}
-	airfahrplan_t() : fahrplan_t() { type = airfahrplan; }
-	airfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = airfahrplan; }
-	airfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = airfahrplan; }
+	airfahrplan_t() : fahrplan_t() { type = airfahrplan; my_waytype=air_wt; }
+	airfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = airfahrplan; my_waytype=air_wt; }
+	airfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = airfahrplan; my_waytype=air_wt; }
 	fahrplan_t* copy() { return new airfahrplan_t(this); }
 	const char *fehlermeldung() const { return "Flugzeughalt muss auf\nRunway liegen!\n"; }
 };
@@ -231,10 +228,9 @@ public:
 class monorailfahrplan_t : public fahrplan_t
 {
 public:
-	waytype_t get_waytype() const {return monorail_wt;}
-	monorailfahrplan_t() : fahrplan_t() { type = monorailfahrplan; }
-	monorailfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = monorailfahrplan; }
-	monorailfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = monorailfahrplan; }
+	monorailfahrplan_t() : fahrplan_t() { type = monorailfahrplan; my_waytype=monorail_wt; }
+	monorailfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = monorailfahrplan; my_waytype=monorail_wt; }
+	monorailfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = monorailfahrplan; my_waytype=monorail_wt; }
 	fahrplan_t* copy() { return new monorailfahrplan_t(this); }
 	const char *fehlermeldung() const { return "Monorailhalt muss auf\nMonorail liegen!\n"; }
 };
@@ -245,10 +241,9 @@ public:
 class maglevfahrplan_t : public fahrplan_t
 {
 public:
-	waytype_t get_waytype() const {return maglev_wt;}
-	maglevfahrplan_t() : fahrplan_t() { type = maglevfahrplan; }
-	maglevfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = maglevfahrplan; }
-	maglevfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = maglevfahrplan; }
+	maglevfahrplan_t() : fahrplan_t() { type = maglevfahrplan; my_waytype=maglev_wt; }
+	maglevfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = maglevfahrplan; my_waytype=maglev_wt; }
+	maglevfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = maglevfahrplan; my_waytype=maglev_wt; }
 	fahrplan_t* copy() { return new maglevfahrplan_t(this); }
 	const char *fehlermeldung() const { return "Maglevhalt muss auf\nMaglevschiene liegen!\n"; }
 };
@@ -259,10 +254,9 @@ public:
 class narrowgaugefahrplan_t : public fahrplan_t
 {
 public:
-	waytype_t get_waytype() const {return narrowgauge_wt;}
-	narrowgaugefahrplan_t() : fahrplan_t() { type = narrowgaugefahrplan; }
-	narrowgaugefahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = narrowgaugefahrplan; }
-	narrowgaugefahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = narrowgaugefahrplan; }
+	narrowgaugefahrplan_t() : fahrplan_t() { type = narrowgaugefahrplan; my_waytype=narrowgauge_wt; }
+	narrowgaugefahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = narrowgaugefahrplan; my_waytype=narrowgauge_wt; }
+	narrowgaugefahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = narrowgaugefahrplan; my_waytype=narrowgauge_wt; }
 	fahrplan_t* copy() { return new narrowgaugefahrplan_t(this); }
 	const char *fehlermeldung() const { return "On narrowgauge track only!\n"; }
 };

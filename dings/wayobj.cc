@@ -229,7 +229,7 @@ wayobj_t::calc_bild()
 		const waytype_t wt = (besch->gib_wtyp()==tram_wt) ? track_wt : besch->gib_wtyp();
 		weg_t *w=gr->gib_weg(wt);
 		if(!w) {
-			dbg->error("wayobj_t::calc_bild()","without way at (%s)", gib_pos().gib_2d() );
+			dbg->error("wayobj_t::calc_bild()","without way at (%s)", gib_pos().gib_str() );
 			// well, we are not on a way anymore? => delete us
 			gr->obj_remove(this);
 			entferne(gib_besitzer());

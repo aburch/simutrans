@@ -890,7 +890,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 	werkzeug = NULL;
 	werkzeug_last_pos = koord::invalid;
-	werkzeug_last_button = -1;
+	werkzeug_last_button = 0;
 
 	follow_convoi = convoihandle_t();
 	setze_dirty();
@@ -1366,7 +1366,7 @@ void karte_t::set_werkzeug( werkzeug_t *w )
 		zeiger->change_pos( zpos );
 		werkzeug = w;
 		werkzeug_last_pos = koord::invalid;
-		werkzeug_last_button = -1;
+		werkzeug_last_button = 0;
 	}
 }
 
