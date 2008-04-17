@@ -1742,6 +1742,7 @@ bool spieler_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		cnv->set_line(line);
 		cnv->start();
 	}
+	clean_marker();
 	platz1 += koord(welt->lookup_kartenboden(platz1)->gib_grund_hang());
 	return true;
 }
