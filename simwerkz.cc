@@ -1975,6 +1975,55 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 			break;
 	}
 
+	// handle 16 layouts
+	bool change_layout = false;
+	if(besch->gib_all_layouts()==16) {
+		if(layout>=2) {
+			layout = ((layout&1)^1) + 6;
+		}
+		else {
+			layout = (((layout&1)^1)|8) + 6;
+		}
+		change_layout = true;
+	}
+
+	// find out if middle end or start tile
+	grund_t *gr;
+	koord dx2( dx.y, dx.x );
+
+	// oriented buildings here - get neighbouring layouts
+	gr = welt->lookup_kartenboden(pos+dx2);
+	if(gr  &&  gr->is_halt()  &&  spieler_t::check_owner( sp, gr->gib_halt()->gib_besitzer() )) {
+		gebaeude_t *gb = gr->find<gebaeude_t>();
+		if(gb  &&  gb->gib_tile()->gib_besch()->gib_utyp()==haus_besch_t::hafen) {
+			if(change_layout) {
+				layout -= 4;
+			}
+			if(gb->gib_tile()->gib_besch()->gib_all_layouts()==16) {
+				sint8 ly = gb->gib_tile()->gib_layout();
+				if((ly&0x0F)-2>0) {
+					gb->setze_tile( gb->gib_tile()->gib_besch()->gib_tile(ly-2,0,0) );
+				}
+			}
+		}
+	}
+
+	gr = welt->lookup_kartenboden(pos-dx2);
+	if(gr  &&  gr->is_halt()  &&  spieler_t::check_owner( sp, gr->gib_halt()->gib_besitzer() )) {
+		gebaeude_t *gb = gr->find<gebaeude_t>();
+		if(gb  &&  gb->gib_tile()->gib_besch()->gib_utyp()==haus_besch_t::hafen) {
+			if(change_layout) {
+				layout -= 2;
+			}
+			if(gb->gib_tile()->gib_besch()->gib_all_layouts()==16) {
+				sint8 ly = gb->gib_tile()->gib_layout();
+				if((ly&0x0F)-4>0) {
+					gb->setze_tile( gb->gib_tile()->gib_besch()->gib_tile(ly-4,0,0) );
+				}
+			}
+		}
+	}
+
 //DBG_MESSAGE("wkz_dockbau()","search for stop");
 	halthandle_t halt = suche_nahe_haltestelle(sp, welt, welt->lookup_kartenboden(pos)->gib_pos() );
 	bool neu = !halt.is_bound();
@@ -2115,7 +2164,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 				if(gr) {
 					// check, if there is an oriented stop
 					const gebaeude_t* gb = gr->find<gebaeude_t>();
-					if(gb  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
+					if(gb  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>4  &&  gb->gib_tile()->gib_besch()->gib_utyp()>haus_besch_t::hafen) {
 						next_own |= ribi_t::nsow[i];
 						neighbour_layout[ribi_t::nsow[i]] = gb->gib_tile()->gib_layout();
 					}

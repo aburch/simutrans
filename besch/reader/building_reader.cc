@@ -93,6 +93,7 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 		}
 		else if(  strcmp("ShipStop",besch->gib_name()+checkpos-8)==0  ) {
 			besch->utype = haus_besch_t::hafen;
+			besch->extra_data = water_wt;
 			besch->enables = 1|4;
 		}
 		else if(  strcmp("ChannelStop",besch->gib_name()+checkpos-11)==0  ) {
