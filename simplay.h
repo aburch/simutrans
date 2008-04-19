@@ -500,7 +500,8 @@ private:
 	bool suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length);
 
 	// removes building markers
-	void clean_marker();
+	void clean_marker( koord place, koord size );
+	void set_marker( koord place, koord size );
 
 	int baue_bahnhof(const koord* p, int anz_vehikel);
 

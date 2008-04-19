@@ -1541,7 +1541,8 @@ DBG_MESSAGE("spieler_t::suche_platz()","Search around stop at (%i,%i)",x,y);
 
 bool spieler_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length )
 {
-	clean_marker();
+	clean_marker(platz1,size1);
+	clean_marker(platz2,size2);
 
 	koord start( qfab->gib_pos().gib_2d() );
 	koord start_size( length, 0 );
@@ -1575,37 +1576,59 @@ bool spieler_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length )
 		platz2 = ziel;
 		size2 = ziel_size;
 
-		// reserve space with marker
-		grund_t *gr;
-
 		DBG_MESSAGE( "spieler_t::suche_platz1_platz2()", "platz1=%d,%d platz2=%d,%d", platz1.x, platz1.y, platz2.x, platz2.y );
 
-		gr = welt->lookup_kartenboden(platz1);
-		zeiger_t *z1 = new zeiger_t(welt, gr->gib_pos(), this);
-		z1->setze_bild( skinverwaltung_t::belegtzeiger->gib_bild_nr(0) );
-		gr->obj_add( z1 );
-
-		gr = welt->lookup_kartenboden(platz2);
-		zeiger_t *z2 = new zeiger_t(welt, gr->gib_pos(), this);
-		z2->setze_bild( skinverwaltung_t::belegtzeiger->gib_bild_nr(0) );
-		gr->obj_add( z2 );
+		// reserve space with marker
+		set_marker( platz1, size1 );
+		set_marker( platz2, size2 );
 	}
 	return ok;
 }
 
 
 
-void spieler_t::clean_marker()
+void spieler_t::clean_marker( koord place, koord size )
 {
-	grund_t *gr = welt->lookup_kartenboden(platz1);
-	zeiger_t *z = gr->find<zeiger_t>();
-	if(z) {
-		delete z;
+	koord pos;
+	if(size.y<0) {
+		place.y += size.y;
+		size.y = -size.y;
 	}
-	gr = welt->lookup_kartenboden(platz2);
-	z = gr->find<zeiger_t>();
-	if(z) {
-		delete z;
+	if(size.x<0) {
+		place.x += size.x;
+		size.x = -size.x;
+	}
+	for(  pos.y=place.y;  pos.y<=place.y+size.y;  pos.y++  ) {
+		for(  pos.x=place.x;  pos.x<=place.x+size.x;  pos.x++  ) {
+			grund_t *gr = welt->lookup_kartenboden(pos);
+			zeiger_t *z = gr->find<zeiger_t>();
+			if(z) {
+				delete z;
+			}
+		}
+	}
+}
+
+
+
+void spieler_t::set_marker( koord place, koord size )
+{
+	koord pos;
+	if(size.y<0) {
+		place.y += size.y;
+		size.y = -size.y;
+	}
+	if(size.x<0) {
+		place.x += size.x;
+		size.x = -size.x;
+	}
+	for(  pos.y=place.y;  pos.y<=place.y+size.y;  pos.y++  ) {
+		for(  pos.x=place.x;  pos.x<=place.x+size.x;  pos.x++  ) {
+			grund_t *gr = welt->lookup_kartenboden(pos);
+			zeiger_t *z = new zeiger_t(welt, gr->gib_pos(), this);
+			z->setze_bild( skinverwaltung_t::belegtzeiger->gib_bild_nr(0) );
+			gr->obj_add( z );
+		}
 	}
 }
 
@@ -1742,7 +1765,8 @@ bool spieler_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		cnv->set_line(line);
 		cnv->start();
 	}
-	clean_marker();
+	clean_marker(platz1,size1);
+	clean_marker(platz2,size2);
 	platz1 += koord(welt->lookup_kartenboden(platz1)->gib_grund_hang());
 	return true;
 }
@@ -1853,7 +1877,8 @@ void spieler_t::create_rail_transport_vehikel(const koord platz1, const koord pl
 bool spieler_t::create_simple_road_transport()
 {
 	// remove pointer
-	clean_marker();
+	clean_marker(platz1,size1);
+	clean_marker(platz2,size2);
 
 	if(!(welt->ebne_planquadrat( this, platz1, welt->lookup_kartenboden(platz1)->gib_hoehe() )  &&  welt->ebne_planquadrat( this, platz2, welt->lookup_kartenboden(platz2)->gib_hoehe() ))  ) {
 		// no flat land here?!?
@@ -1974,7 +1999,8 @@ int spieler_t::baue_bahnhof(const koord* p, int anz_vehikel)
  */
 bool spieler_t::create_simple_rail_transport()
 {
-	clean_marker();
+	clean_marker(platz1,size1);
+	clean_marker(platz2,size2);
 
 	bool ok=true;
 	// first: make plain stations tiles as intended
@@ -2318,8 +2344,10 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 					length = (rail_engine->get_length() + count_rail*rail_vehicle->get_length()+TILE_STEPS-1)/TILE_STEPS;
 					if(suche_platz1_platz2(start, ziel, length)) {
 						state = ship_vehicle ? NR_BAUE_WATER_ROUTE : NR_BAUE_SIMPLE_SCHIENEN_ROUTE;
+next_contruction_steps = steps + 10000;
 					}
 				}
+				// if state is still NR_BAUE_ROUTE1 then there are no sutiable places
 				if(state==NR_BAUE_ROUTE1  &&  suche_platz1_platz2(start, ziel, 1)) {
 					// rail was too expensive or not successfull
 					count_rail = 255;
@@ -2464,7 +2492,8 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 			// otherwise it may always try to built the same route!
 			ziel = NULL;
 			// schilder aufraeumen
-			clean_marker();
+			clean_marker(platz1,size1);
+			clean_marker(platz2,size2);
 			state = CHECK_CONVOI;
 			break;
 		}
