@@ -2344,7 +2344,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 					length = (rail_engine->get_length() + count_rail*rail_vehicle->get_length()+TILE_STEPS-1)/TILE_STEPS;
 					if(suche_platz1_platz2(start, ziel, length)) {
 						state = ship_vehicle ? NR_BAUE_WATER_ROUTE : NR_BAUE_SIMPLE_SCHIENEN_ROUTE;
-next_contruction_steps = steps + 10000;
+						next_contruction_steps = steps + 10;
 					}
 				}
 				// if state is still NR_BAUE_ROUTE1 then there are no sutiable places
@@ -2352,6 +2352,7 @@ next_contruction_steps = steps + 10000;
 					// rail was too expensive or not successfull
 					count_rail = 255;
 					state = ship_vehicle ? NR_BAUE_WATER_ROUTE : NR_BAUE_STRASSEN_ROUTE;
+					next_contruction_steps = steps + 10;
 				}
 			}
 			// no success at all?
