@@ -3,28 +3,17 @@
 <h1><strong>Kartenfenster</strong></h1>
 
 <p>
-Das Kartenfenster öffnest Du entweder mit dem <em>m</em> auf der Tastatur oder über das <em>Kartensymbol</em> in der Hauptmenüleiste.<br/>
-Die <em>Kartenlegende</em> wird zusätzlich zur Karte geöffnet.
-<em>Hinweis:</em> Sollte die Legende nicht sichtbar sein, befindet sie sich unter der Reliefkarte.
-</p>
+Das Kartenfenster öffnest Du entweder mit dem <em>m</em> auf der Tastatur oder über das <em>Kartensymbol</em> in der Hauptmenüleiste.</p>
 <p>
-Durch klicken mit der rechten Maustaste kannst Du die Karte in drei Größen anzeigen lassen. Durch drehen des Mausrades erreichst Du den gleichen Effekt.
-</p>
+Die Reliefkarte zeigt die Welt mit allen Objekten wie Industrien, Verkehrswegen, Städten und Fahrzeugen. Du kannst schnell zu jedem beliebigen Ort auf der Karte springen, indem Du die Position in der Reliefkarte anklickst.</p>
+<p></p>
+<strong>Auswahl</strong>
 <p>
-Die Relifkarte zeigt die Welt mit allen Objekten wie Industrien, Verkehrswegen, Städten und Fahrzeugen. Du kannst schnell zu jedem beliebigen Ort auf der Karte springen, indem Du die Position in der Relifkarte anklickst.
-</p>
+Blendet die farbigen Schaltflächen ein, mit denen verschiedene Informationen in der Karte hervorgehoben werden können. Wenn nicht anders beschrieben, werden Anzeigen nach einem Farbschema von rot bis blau relativ zueinander eingefärbt.</p>
 <p>
-Zeigt die Maus auf eine Industrie, werden deren Abnehmer angezeigt. Drücke gleichzeitig die <em>Shift</em>-Taste, wenn Du die Lieferanten angezeigt haben möchtest. <em>Hinweis:</em> Sollte nichts angezeigt werden, dann einmal in das Kartenfenster klicken.
-</p>
-<p>
-<strong>Kartenlegende</strong>
-</p><p>
-<em>min/max</em> Wenn nicht anders beschrieben, werden Anzeigen nach diesem Farbschema relativ zueinander eingefärbt.<br/><br/>
-Die farbigen Schaltflächen in der Legende tragen verschiedene Informationen in die Karte ein:
-</p><p>
-<em>Städtenamen</em> blendet die Städtenamen weiss in der Karte ein.<br/>
+<em>Städtenamen</em> blendet die Städtenamen weiss in der Karte ein. (Kann auch durch Drücken der <em>Strg</em>-Taste erreicht werden.<br/>
 <em>Passagiere</em> markiert grob alle Gebiete in Spielerfarbe, welche im Einzugsgebiet von Haltestellen mit Personenverkehr liegen. Eine genaue Anzeige auf der Hauptkarte liefert die Taste <em>v</em>.<br/>
-<em>Post</em>markiert grob alle Gebiete in Spielerfarbe, welche im Einzugsgebiet von Haltestellen mit Personenverkehr liegen.<br/>
+<em>Post</em>markiert grob alle Gebiete in Spielerfarbe, welche im Einzugsgebiet von Haltestellen mit Briefkästen bzw. Postämtern liegen.<br/>
 <em>Fracht</em> zeigt, wieviel Fracht (Einheiten von Passagieren und Gütern) auf den Verkehrswegen transportiert wird.<br/>
 <em>Haltstatus</em> zeigt an, ob an einer Haltestelle unzufriedene Passagiere erzeugt werden. Die gleiche Anzeigefarbe wird auch in der <a href="haltlist.txt">Haltestellenliste</a> und im Statusbalken beim <a href="station.txt">Haltestellennamen</a> verwendet.<br/>
 <em>An-/Abfahrten</em> zeigt an, wieviele Fahrten zu und ab einer Haltestelle gegangen sind.<br/>
@@ -38,4 +27,33 @@ Die farbigen Schaltflächen in der Legende tragen verschiedene Informationen in d
 <em>Attraktionen</em> vergrößert die eingetragenen Touristenattraktionen in der Karte und färbt sie nach ihrem Passagieraufkommen ein.<br/>
 <em>Fabriken</em> vergrößert die Anzeige der Industrien in der Karte.
 </p>
-<p>Im unteren Teil wird die Farblegende zu den Industrien angezeigt.</p>
+<em>Depots</em> Hebt alle Depots in orange, gelb, rot und rosa hevor, je nach Wegtyp.
+<br/>
+<em>Wälder</em> Geschlossene Waldgebiete (mit mehr als zwei Bäumen pro Kachel) werden hellgrün hervorgehoben.
+<br/>
+<em>Stadtgrenzen:</em> Umrahmungen der Stadtgebiete, d.h. alle Gebiete, die zu einer Stadt direkt gehören.
+</p>
+<br/>
+<strong>Werteskala</strong>
+<p>
+Blendet den Balken ein, der die Farben zeigt, nach denen einige Objektauswahlen bestimmte Kartenbereiche entsprechend dem dargestellten Wert einfärben.</p>
+<br/>
+<strong>Industrieliste</strong>
+<p>
+Farbskala der Industrien.</p>
+<br/>
+<strong>Vergrößerung</strong>
+<p>Anzeige der Reliefkarte in 4 Stufen <em>Pfeilschalter</em> oder <em>Mausrad</em>.</p>
+<br/>
+<strong>Isometrische Anzeige:</strong>
+<p>
+Die Reliefkarte wird analog zur Spielfeld-Ausrichtung ausgerichtet.</p>
+<br/>
+<strong>Fabrikverbindungen:</strong>
+<p>
+<em>Abnehmer der Industrien</em> Mit der <em>Maus</em> auf eine Industrie zeigen (weisse Linien).<br/>
+<em>Zulieferer der Industrien</em> <em>Shift + mit der Maus</em> auf eine Industrie zeigen (rote Linien).<br/>
+Hinweis: Sollte nichts angezeigt werden, dann einmal in das Kartenfenster klicken.</p>
+<br/>
+<strong>Linienpläne</strong>
+<p>Bei geöffneter <a href="linemanagement.txt">Linienverwaltung</a> wird die dort markierte Linie in der Reliefkarte angezeigt.</p>
