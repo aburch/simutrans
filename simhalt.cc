@@ -1525,8 +1525,23 @@ void haltestelle_t::recalc_station_type()
 				}
 				break;
 
+			case haus_besch_t::generic_stop:
+				switch (besch->gib_extra()) {
+					case road_wt:
+						new_station_type |= (besch->get_enabled()&3)!=0 ? busstop : loadingbay;
+						break;
+					case water_wt:       new_station_type |= dock;            break;
+					case air_wt:         new_station_type |= airstop;         break;
+					case monorail_wt:    new_station_type |= monorailstop;    break;
+					case track_wt:       new_station_type |= railstation;     break;
+					case tram_wt:        new_station_type |= tramstop;        break;
+					case maglev_wt:      new_station_type |= maglevstop;      break;
+					case narrowgauge_wt: new_station_type |= narrowgaugestop; break;
+				}
+				break;
 			default: break;
 		}
+
 
 		// enabled the matching types
 		enables |= besch->get_enabled();

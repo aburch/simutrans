@@ -10,10 +10,25 @@
  */
 
 #include <algorithm>
-#include "../gui/messagebox.h"
 
 #include "../simdebug.h"
+#include "../simworld.h"
+#include "../simwerkz.h"
+#include "../simmesg.h"
+#include "../simplay.h"
+#include "../simplan.h"
+#include "../simdepot.h"
+
 #include "wegbauer.h"
+#include "brueckenbauer.h"
+#include "tunnelbauer.h"
+
+#include "../besch/skin_besch.h"
+#include "../besch/weg_besch.h"
+#include "../besch/tunnel_besch.h"
+#include "../besch/haus_besch.h"
+#include "../besch/kreuzung_besch.h"
+#include "../besch/spezial_obj_tpl.h"
 
 #include "../boden/wege/strasse.h"
 #include "../boden/wege/schiene.h"
@@ -34,34 +49,18 @@
 // sorted heap, since we only need insert and pop
 #include "../tpl/binary_heap_tpl.h" // fastest
 
-#include "../simworld.h"
-#include "../simwerkz.h"
-#include "../simmesg.h"
-#include "../simplay.h"
-#include "../simplan.h"
-#include "../simdepot.h"
-
 #include "../dings/gebaeude.h"
 #include "../dings/bruecke.h"
 #include "../dings/tunnel.h"
 #include "../dings/crossing.h"
-
-#include "../simintr.h"
-#include "tunnelbauer.h"
-#include "brueckenbauer.h"
-
-#include "../besch/skin_besch.h"
-#include "../besch/weg_besch.h"
-#include "../besch/haus_besch.h"
-#include "../besch/kreuzung_besch.h"
-#include "../besch/spezial_obj_tpl.h"
-
-
-#include "../tpl/stringhashtable_tpl.h"
-
 #include "../dings/leitung2.h"
 #include "../dings/groundobj.h"
 
+#include "../vehicle/movingobj.h"
+
+#include "../tpl/stringhashtable_tpl.h"
+
+#include "../gui/messagebox.h"
 #include "../gui/karte.h"	// for debugging
 #include "../gui/werkzeug_waehler.h"
 
@@ -1728,9 +1727,13 @@ wegbauer_t::calc_costs()
 							costs -= umgebung_t::cst_remove_tree;
 							break;
 						case ding_t::groundobj:
-						case ding_t::movingobj:
-							costs -= (dynamic_cast<groundobj_t*>(dt))->gib_besch()->gib_preis();
+							costs -= ((groundobj_t *)dt)->gib_besch()->gib_preis();
 							break;
+/*
+						case ding_t::movingobj:
+							costs -= ((movingobj_t *)dt)->gib_besch()->gib_preis();
+							break;
+*/
 					}
 				}
 			}

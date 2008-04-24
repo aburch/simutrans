@@ -66,7 +66,7 @@ public:
 	enum station_flags { NOT_ENABLED=0, PAX=1, POST=2, WARE=4, CROWDED=8 };
 
 	//13-Jan-02     Markus Weber    Added
-	enum stationtyp {invalid=0, loadingbay = 1 , railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32 }; //could be combined with or!
+	enum stationtyp {invalid=0, loadingbay=1, railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32, tramstop = 64, maglevstop=128, narrowgaugestop=256 }; //could be combined with or!
 
 private:
 	/**
