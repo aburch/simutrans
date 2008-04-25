@@ -149,20 +149,7 @@ DBG_MESSAGE("verteile_baeume()","creating %i forest",c_forest_count);
 		}
 	}
 
-DBG_MESSAGE("verteile_baeume()","distributing single trees");
-	koord pos;
-	for(pos.y=0;pos.y<welt->gib_groesse_y(); pos.y++) {
-		for(pos.x=0; pos.x<welt->gib_groesse_x(); pos.x++) {
-			grund_t *gr = welt->lookup_kartenboden(pos);
-			if(gr->gib_top() == 0  &&  gr->gib_typ() == grund_t::boden)  {
-				// plant spare trees, (those with low preffered density) or in an entirely tree climate
-				uint16 cl = 1<<welt->get_climate(gr->gib_hoehe());
-				if( (cl & no_tree_climates)==0  &&  (  (cl & tree_climates)!=0  ||  simrand(forest_inverse_spare_tree_density*dichte) < 100  )  ) {
-					plant_tree_on_coordinate(welt, pos, 1);
-				}
-			}
-		}
-	}
+	fill_trees(welt, dichte);
 }
 
 
@@ -276,6 +263,27 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const baum_besc
 		}
 	}
 	return false;
+}
+
+
+
+void
+baum_t::fill_trees(karte_t *welt, int dichte)
+{
+DBG_MESSAGE("verteile_baeume()","distributing single trees");
+	koord pos;
+	for(pos.y=0;pos.y<welt->gib_groesse_y(); pos.y++) {
+		for(pos.x=0; pos.x<welt->gib_groesse_x(); pos.x++) {
+			grund_t *gr = welt->lookup_kartenboden(pos);
+			if(gr->gib_top() == 0  &&  gr->gib_typ() == grund_t::boden)  {
+				// plant spare trees, (those with low preffered density) or in an entirely tree climate
+				uint16 cl = 1<<welt->get_climate(gr->gib_hoehe());
+				if( (cl & no_tree_climates)==0  &&  (  (cl & tree_climates)!=0  ||  simrand(forest_inverse_spare_tree_density*dichte) < 100  )  ) {
+					plant_tree_on_coordinate(welt, pos, 1);
+				}
+			}
+		}
+	}
 }
 
 

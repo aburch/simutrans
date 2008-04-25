@@ -105,13 +105,19 @@ public:
 	static bool register_besch(baum_besch_t *besch);
 	static bool alles_geladen();
 
+	static void fill_trees(karte_t *welt, int dichte);
+
+
 	// return list to beschs
 	static const vector_tpl<const baum_besch_t *> *gib_all_besch() { return &baum_typen; }
 
 	static const baum_besch_t *random_tree_for_climate(climate cl) { uint16 b = random_tree_for_climate_intern(cl);  return b!=0xFFFF ? baum_typen[b] : NULL; }
 
+	static const baum_besch_t *find_tree( const char *tree_name ) { return baum_typen.empty() ? NULL : baum_typen[besch_names.get(tree_name)]; }
+
 	static int gib_anzahl_besch() { return baum_typen.get_count(); }
 	static int gib_anzahl_besch(climate cl);
+
 };
 
 #endif

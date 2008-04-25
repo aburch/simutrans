@@ -68,6 +68,7 @@ private:
 	button_t bt_next;
 
 	gui_label_t lb_convoi_count;
+	gui_label_t lb_convoi_speed;
 	gui_label_t lb_convoi_value;
 	gui_label_t lb_convoi_line;
 
@@ -129,6 +130,7 @@ private:
 
 	char txt_convoi_count[40];
 	char txt_convoi_value[40];
+	char txt_convoi_speed[80];
 	char txt_convoi_line[128];
 
 	enum { va_append, va_insert, va_sell };

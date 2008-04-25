@@ -812,7 +812,7 @@ void fabrik_t::step(long delta_t)
 				// produce
 				if (ausgang[produkt].menge < ausgang[produkt].max) {
 					ausgang[produkt].menge += p;
-					currently_producing |= (p>>(precision_bits-2)) > 0;
+					currently_producing |= p > 0;
 				} else {
 					ausgang[produkt].menge = ausgang[produkt].max - 1;
 				}
@@ -826,7 +826,7 @@ void fabrik_t::step(long delta_t)
 
 				if ((uint32)eingang[index].menge > v) {
 					eingang[index].menge -= v;
-					currently_producing |= (v>>(precision_bits-2)) > 0;
+					currently_producing |= v > 0;
 				}
 				else {
 					eingang[index].menge = 0;

@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #include "simdebug.h"
 #include "simworld.h"
@@ -1035,21 +1036,22 @@ const char *wkz_plant_tree_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
 	if(welt->ist_in_kartengrenzen(pos.gib_2d())) {
 		const baum_besch_t *besch = NULL;
-		bool ignore_climates = false;
+		bool check_climates = true;
 		bool random_age = false;
 		if(default_param==NULL) {
 			besch = baum_t::random_tree_for_climate( welt->get_climate(pos.z) );
 		}
 		else {
 			// parse default_param: bbbesch_nr b=1 ignore climate b=1 randome age
-			ignore_climates = default_param[0]=='1';
+			check_climates = default_param[0]=='0';
 			random_age = default_param[1]=='1';
-			besch = (*baum_t::gib_all_besch())[atoi(default_param+2)];
+			besch = baum_t::find_tree(default_param+3);
 		}
-		if(besch) {
-			baum_t::plant_tree_on_coordinate( welt, pos.gib_2d(), besch, ignore_climates, random_age );
+		if(besch  &&  baum_t::plant_tree_on_coordinate( welt, pos.gib_2d(), besch, check_climates, random_age )  ) {
+			spieler_t::accounting( sp, umgebung_t::cst_remove_tree, pos.gib_2d(), COST_CONSTRUCTION );
+			return NULL;
 		}
-		spieler_t::accounting( sp, umgebung_t::cst_remove_tree, pos.gib_2d(), COST_CONSTRUCTION );
+		return "";
 	}
 	return NULL;
 }
@@ -2584,10 +2586,8 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
  */
 bool wkz_build_haus_t::init( karte_t *welt, spieler_t * )
 {
-	// eventually set size correctly
 	if(default_param) {
 		const char *c = default_param+2;
-		while(*c  &&  *++c!=',');
 		const haus_tile_besch_t *tile = hausbauer_t::find_tile(c,0);
 		if(tile!=NULL) {
 			int rotation = (default_param[1]-'0') % tile->gib_besch()->gib_all_layouts();
@@ -2608,7 +2608,6 @@ const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	const haus_besch_t *besch = NULL;
 	if(default_param) {
 		const char *c = default_param+2;
-		while(*c  &&  *++c!=',');
 		const haus_tile_besch_t *tile = hausbauer_t::find_tile(c,0);
 		if(tile) {
 			besch = tile->gib_besch();
@@ -2621,7 +2620,7 @@ const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	if(besch==NULL) {
 		return "";
 	}
-	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % besch->gib_all_layouts() : simrand(besch->gib_all_layouts()-1);
+	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % besch->gib_all_layouts() : simrand(besch->gib_all_layouts());
 	koord size = besch->gib_groesse(rotation);
 
 	// process ignore climates switch
@@ -2646,7 +2645,7 @@ const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					city->add_gebaeude_to_stadt(gb);
 				}
 			}
-			sp->buche(umgebung_t::cst_multiply_remove_haus * besch->gib_level() * size.x * size.y, pos.gib_2d(), COST_CONSTRUCTION);
+			spieler_t::accounting(sp, umgebung_t::cst_multiply_remove_haus * besch->gib_level() * size.x * size.y, pos.gib_2d(), COST_CONSTRUCTION);
 			return NULL;
 		}
 	}
@@ -2870,7 +2869,7 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	if(fab==NULL) {
 		return "";
 	}
-	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->gib_haus()->gib_all_layouts() : simrand(fab->gib_haus()->gib_all_layouts()-1);
+	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->gib_haus()->gib_all_layouts() : simrand(fab->gib_haus()->gib_all_layouts());
 	koord size = fab->gib_haus()->gib_groesse(rotation);
 
 	// process ignore climates switch
@@ -3000,6 +2999,7 @@ bool wkz_headquarter_t::init( karte_t *, spieler_t *sp )
 	return next_level(sp)!=NULL;
 }
 
+
 const char *wkz_headquarter_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
 	bool ok=false;
@@ -3053,5 +3053,181 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 		}
 	}
 	return "";
+}
+
+const char *wkz_add_citycar_t::work( karte_t *welt, spieler_t *sp, koord3d k )
+{
+	if( stadtauto_t::list_empty() ) {
+		// No citycar
+		return "";
+	}
+	grund_t *gr = wkz_intern_koord_to_weg_grund( sp, welt, k.gib_2d(), road_wt );
+
+	if(  gr != NULL  &&  ribi_t::is_twoway(gr->gib_weg_ribi_unmasked(road_wt))  &&  gr->find<stadtauto_t>() == NULL) {
+		// add citycar
+		stadtauto_t* vt = new stadtauto_t(welt, gr->gib_pos(), koord::invalid);
+		gr->obj_add(vt);
+		welt->sync_add(vt);
+		return NULL;
+	}
+	return "";
+}
+
+
+bool wkz_forest_t::init( karte_t *welt, spieler_t * )
+{
+	welt->show_distance = start = koord3d::invalid;
+
+	if(marked!=NULL) {
+		marked->mark_image_dirty( cursor, 0 );
+		delete marked;
+		marked = NULL;
+	}
+	return true;
+}
+
+const char *wkz_forest_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate, koord3d pos )
+{
+	// on map?
+	const planquadrat_t *plan = welt->lookup(pos.gib_2d());
+
+	if(plan == NULL) {
+		return "";
+	}
+	grund_t* gr = welt->lookup_kartenboden(pos.gib_2d());
+
+	if(buttonstate==1) {
+		// delete old route
+		if(marked!=NULL) {
+			welt->mark_area(nw, wh, false);
+		}
+
+		if(start==koord3d::invalid) {
+			welt->show_distance = start = gr->gib_pos();
+			marked = new zeiger_t(welt, start, sp);
+			marked->setze_bild( cursor );
+			gr->obj_add(marked);
+		}
+		else {
+			nw = gr->gib_pos();
+
+			wh.x = abs(nw.x-start.x)+1;
+			wh.y = abs(nw.y-start.y)+1;
+			nw.x = min(start.x, nw.x);
+			nw.y = min(start.y, nw.y);
+
+			welt->mark_area(nw, wh, true);
+		}
+	}
+	else {
+		if(marked!=NULL) {
+			welt->mark_area(nw, wh, false);
+			// prepare for building!
+			nw = gr->gib_pos();
+
+			wh.x = abs(nw.x-start.x)+1;
+			wh.y = abs(nw.y-start.y)+1;
+			nw.x = min(start.x, nw.x);
+			nw.y = min(start.y, nw.y);
+
+			// remove old pointers
+			init(welt,sp);
+
+			display_show_load_pointer(true);
+
+			const unsigned xpos_f = nw.x+wh.x/2;
+			const unsigned ypos_f = nw.y+wh.y/2;
+			const unsigned x_forest_boundary = wh.x;
+			const unsigned y_forest_boundary = wh.y;
+			unsigned i, j;
+			uint8 c2;
+			unsigned  x_tree_pos, y_tree_pos, distance, tree_probability;
+			for(j = 0; j < x_forest_boundary; j++) {
+				for(i = 0; i < y_forest_boundary; i++) {
+
+					x_tree_pos = (j-(wh.x>>1)); // >>1 works like 2 but is faster
+					y_tree_pos = (i-(wh.y>>1));
+
+					distance = 1 + ((int) sqrt( (double)(x_tree_pos*x_tree_pos*(wh.y*wh.y) + y_tree_pos*y_tree_pos*(wh.x*wh.x))));
+					tree_probability = ( 8 * ((wh.x*wh.x)+(wh.y*wh.y)) ) / distance;
+
+					for (c2 = 0 ; c2<3; c2++) {
+						const unsigned rating = simrand(10) + 38 + c2*2;
+						if (rating < tree_probability ) {
+							const koord pos( (sint16)(xpos_f+x_tree_pos), (sint16)(ypos_f+y_tree_pos));
+							baum_t::plant_tree_on_coordinate(welt, pos, 3 );
+
+						}
+					}
+				}
+			}
+			display_show_load_pointer(false);
+		}
+		// then init
+		init( welt, sp );
+	}
+	return NULL;
+}
+
+const char *wkz_forest_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
+{
+	const planquadrat_t *plan = welt->lookup(pos.gib_2d());
+
+	if(plan == NULL) {
+		return false;
+	}
+
+	grund_t* gr = welt->lookup_kartenboden(pos.gib_2d());
+
+	if(start==koord3d::invalid) {
+		welt->show_distance = start = gr->gib_pos();
+
+		marked = new zeiger_t(welt, start, sp);
+		marked->setze_bild( cursor );
+		gr->obj_add(marked);
+	}
+	else {
+		nw = gr->gib_pos();
+
+		wh.x = abs(nw.x-start.x)+1;
+		wh.y = abs(nw.y-start.y)+1;
+		nw.x = min(start.x, nw.x);
+		nw.y = min(start.y, nw.y);
+
+		// remove old pointers
+		init(welt,sp);
+
+		display_show_load_pointer(true);
+
+		const unsigned xpos_f = nw.x+wh.x/2;
+		const unsigned ypos_f = nw.y+wh.y/2;
+		const unsigned x_forest_boundary = wh.x;
+		const unsigned y_forest_boundary = wh.y;
+		unsigned i, j;
+		uint8 c2;
+		unsigned  x_tree_pos, y_tree_pos, distance, tree_probability;
+		for(j = 0; j < x_forest_boundary; j++) {
+			for(i = 0; i < y_forest_boundary; i++) {
+
+				x_tree_pos = (j-(wh.x>>1)); // >>1 works like 2 but is faster
+				y_tree_pos = (i-(wh.y>>1));
+
+				distance = 1 + ((int) sqrt( (double)(x_tree_pos*x_tree_pos*(wh.y*wh.y) + y_tree_pos*y_tree_pos*(wh.x*wh.x))));
+				tree_probability = ( 8 * ((wh.x*wh.x)+(wh.y*wh.y)) ) / distance;
+
+				for (c2 = 0 ; c2<3; c2++) {
+					const unsigned rating = simrand(10) + 38 + c2*2;
+					if (rating < tree_probability ) {
+						const koord pos( (sint16)(xpos_f+x_tree_pos), (sint16)(ypos_f+y_tree_pos));
+						baum_t::plant_tree_on_coordinate(welt, pos, 3 );
+					}
+				}
+			}
+		}
+		display_show_load_pointer(false);
+		// then init
+		init( welt, sp );
+	}
+	return NULL;
 }
 

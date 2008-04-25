@@ -199,3 +199,5 @@ sint16 umgebung_t::max_acceleration=1000;
 bool umgebung_t::quit_simutrans = false;
 
 sint32 	umgebung_t::default_electric_promille = 330;
+
+bool umgebung_t::no_tree=false;

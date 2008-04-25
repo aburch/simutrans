@@ -131,7 +131,7 @@ void movingobj_t::calc_bild()
 				}
 				else {
 					// resolution 1/8th month (0..95)
-					const uint32 yearsteps = ((welt->get_current_month()+11)%12)*8 + ((welt->gib_zeit_ms()>>(welt->ticks_bits_per_tag-3))&7) + 1;
+					const uint32 yearsteps = (welt->get_current_month()%12)*8 + ((welt->gib_zeit_ms()>>(welt->ticks_bits_per_tag-3))&7) + 1;
 					season = (seasons*yearsteps-1)/96;
 				}
 				break;

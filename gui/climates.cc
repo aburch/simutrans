@@ -136,6 +136,12 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	// the rocky will be alway below the snow line; no need to set this explicitely
 
 	setze_fenstergroesse( koord(RIGHT_ARROW+16, intTopOfButton+14+8+16) );
+
+	no_tree.init(button_t::square, translator::translate("no tree"), koord(14,intTopOfButton+7), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
+	no_tree.pressed=umgebung_t::no_tree;
+	no_tree.add_listener( this );
+	add_komponente( &no_tree );
+	intTopOfButton += 12;
 }
 
 
@@ -149,7 +155,12 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 bool
 climate_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
-	if(komp==water_level+0) {
+	if(komp==&no_tree) {
+		umgebung_t::no_tree ^= 1;
+		no_tree.pressed ^= 1;
+		welt_gui->update_preview();
+		}
+	else if(komp==water_level+0) {
 		if(sets->gib_grundwasser() > -10*Z_TILE_STEP ) {
 			sets->setze_grundwasser( sets->gib_grundwasser() - 2*Z_TILE_STEP );
 			welt_gui->update_preview();
@@ -189,6 +200,7 @@ climate_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			welt_gui->update_preview();
 		}
 	}
+
 	else {
 		// all climate borders from here on
 		sint16 *climate_borders = (sint16 *)sets->gib_climate_borders();
@@ -272,6 +284,8 @@ climate_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 
 void climate_gui_t::zeichnen(koord pos, koord gr)
 {
+	no_tree.pressed=umgebung_t::no_tree;
+
 	gui_frame_t::zeichnen(pos, gr);
 
 	const int x = pos.x+10;

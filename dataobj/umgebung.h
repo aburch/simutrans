@@ -355,6 +355,9 @@ public:
 
 	// default density for electric company
 	static sint32 default_electric_promille;
+
+	// new game start without tree
+	static bool no_tree;
 };
 
 #endif

@@ -64,6 +64,7 @@ bool groundobj_t::register_besch(groundobj_besch_t *besch)
 		// NULL for empty object
 		groundobj_typen.append(NULL,4);
 	}
+	assert(besch->get_speed()==0);
 	besch_names.put(besch->gib_name(), groundobj_typen.get_count() );
 	groundobj_typen.append(besch,4);
 	return true;
@@ -75,12 +76,12 @@ bool groundobj_t::register_besch(groundobj_besch_t *besch)
 /* also checks for distribution values
  * @author prissi
  */
-const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, hang_t::typ slope, uint16 max_speed  )
+const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, hang_t::typ slope  )
 {
 	int weight = 0;
 
 	for( unsigned i=1;  i<groundobj_typen.get_count();  i++  ) {
-		if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->gib_phases()==16  ||  max_speed)  &&  groundobj_typen[i]->get_speed()<max_speed  ) {
+		if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->gib_phases()==16)  ) {
 			weight += groundobj_typen[i]->gib_distribution_weight();
 		}
 	}
@@ -90,7 +91,7 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 		const int w=simrand(weight);
 		weight = 0;
 		for( unsigned i=1; i<groundobj_typen.get_count();  i++  ) {
-			if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->gib_phases()==16  ||  max_speed)  &&  groundobj_typen[i]->get_speed()<max_speed  ) {
+			if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->gib_phases()==16)  ) {
 				weight += groundobj_typen[i]->gib_distribution_weight();
 				if(weight>=w) {
 					return groundobj_typen[i];
@@ -131,7 +132,7 @@ void groundobj_t::calc_bild()
 				}
 				else {
 					// resolution 1/8th month (0..95)
-					const uint32 yearsteps = ((welt->get_current_month()+11)%12)*8 + ((welt->gib_zeit_ms()>>(welt->ticks_bits_per_tag-3))&7) + 1;
+					const uint32 yearsteps = (welt->get_current_month()%12)*8 + ((welt->gib_zeit_ms()>>(welt->ticks_bits_per_tag-3))&7) + 1;
 					season = (seasons*yearsteps-1)/96;
 				}
 				break;

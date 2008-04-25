@@ -153,7 +153,7 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 
 		img[3].set_image( besch->gib_bild_nr( 0, 3 ) );
 
-		sprintf( param_str, "%i%i%s", bt_climates.pressed, bt_timeline.pressed, besch->gib_name() );
+		sprintf( param_str, "%i%i,%s", bt_climates.pressed, bt_timeline.pressed, besch->gib_name() );
 		baum_tool.default_param = param_str;
 		baum_tool.cursor = werkzeug_t::general_tool[WKZ_PLANT_TREE]->cursor;
 		welt->set_werkzeug( &baum_tool );

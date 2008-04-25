@@ -84,6 +84,8 @@ werkzeug_t *create_general_tool(int toolnr)
 		case WKZ_LINK_FACTORY:     return new wkz_link_factory_t();
 		case WKZ_HEADQUARTER:      return new wkz_headquarter_t();
 		case WKZ_LOCK_GAME:        return new wkz_lock_game_t();
+		case WKZ_ADD_CITYCAR:         return new wkz_add_citycar_t();
+		case WKZ_FOREST:           return new wkz_forest_t();
 	}
 	dbg->fatal("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 	return NULL;
@@ -110,6 +112,7 @@ werkzeug_t *create_simple_tool(int toolnr)
 		case WKZ_SHOW_UNDERGROUND:  return new wkz_show_underground_t();
 		case WKZ_ROTATE90:          return new wkz_rotate90_t();
 		case WKZ_QUIT:              return new wkz_quit_t();
+		case WKZ_FILL_TREES:        return new wkz_fill_trees_t();
 	}
 	dbg->fatal("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 	return NULL;
@@ -154,12 +157,10 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 {
 	char_to_tool.clear();
 	tabfile_t menuconf;
-	// first take user data, then user global data
+	// only use pak sepcific menues, since otherwise images may missing
 	cstring_t user_dir=umgebung_t::user_dir;
-	if (!menuconf.open(user_dir+"menuconf.tab")) {
-		if (!menuconf.open(objfilename+"config/menuconf.tab")) {
-			dbg->fatal("werkzeug_t::init_menu()", "Can't read menuconf.tab" );
-		}
+	if (!menuconf.open(objfilename+"config/menuconf.tab")) {
+		dbg->fatal("werkzeug_t::init_menu()", "Can't read %sconfig/menuconf.tab", (const char *)objfilename );
 	}
 
 	tabfileobj_t contents;

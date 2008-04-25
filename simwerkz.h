@@ -329,6 +329,28 @@ class wkz_lock_game_t : public werkzeug_t {
 	}
 };
 
+/* add random citycar if no default is set; else add a certain city car */
+class wkz_add_citycar_t : public werkzeug_t {
+	const char *get_tooltip(spieler_t *) { return translator::translate("Add random citycar"); }
+	virtual const char *work( karte_t *, spieler_t *, koord3d );
+};
+
+/* make forest */
+class wkz_forest_t : public werkzeug_t {
+private:
+	koord3d start;
+	koord3d nw;
+	koord wh;
+	zeiger_t *marked;
+public:
+	wkz_forest_t() : werkzeug_t() { marked=NULL; }
+	const char *get_tooltip(spieler_t *) { return translator::translate("Add forest"); }
+	bool init( karte_t *, spieler_t * );
+	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
+	const char *work( karte_t *, spieler_t *, koord3d );
+	const char *move( karte_t *, spieler_t *, uint16 buttonstate, koord3d );
+};
+
 /********************* one click tools ****************************/
 
 class wkz_pause_t : public werkzeug_t {
@@ -508,6 +530,15 @@ class wkz_quit_t : public werkzeug_t {
 	bool init( karte_t *welt, spieler_t * ) {
 		destroy_all_win();
 		welt->beenden( true );
+		return false;
+	}
+};
+
+// step size by default_param
+class wkz_fill_trees_t : public werkzeug_t {
+	const char *get_tooltip(spieler_t *) { return translator::translate("Fill trees"); }
+	bool init( karte_t *welt, spieler_t * ) {
+		baum_t::fill_trees( welt, atoi(default_param) );
 		return false;
 	}
 };

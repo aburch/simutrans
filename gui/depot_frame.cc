@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#include <math.h>
 
 #include "../simworld.h"
 #include "../vehicle/simvehikel.h"
@@ -67,6 +68,7 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	icnv(depot->convoi_count()-1),
 	lb_convois(NULL, COL_BLACK, gui_label_t::left),
 	lb_convoi_count(NULL, COL_BLACK, gui_label_t::left),
+	lb_convoi_speed(NULL, COL_BLACK, gui_label_t::left),
 	lb_convoi_value(NULL, COL_BLACK, gui_label_t::right),
 	lb_convoi_line(NULL, COL_BLACK, gui_label_t::left),
 	lb_veh_action("Fahrzeuge:", COL_BLACK, gui_label_t::left),
@@ -116,6 +118,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
 	add_komponente(&convoi);
 	add_komponente(&lb_convoi_count);
+	add_komponente(&lb_convoi_speed);
 	add_komponente(&lb_convoi_value);
 	add_komponente(&lb_convoi_line);
 
@@ -248,6 +251,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	// text will be translated by ourselves (after update data)!
 	lb_convois.set_text_pointer(txt_convois);
 	lb_convoi_count.set_text_pointer(txt_convoi_count);
+	lb_convoi_speed.set_text_pointer(txt_convoi_speed);
 	lb_convoi_value.set_text_pointer(txt_convoi_value);
 	lb_convoi_line.set_text_pointer(txt_convoi_line);
 
@@ -345,7 +349,7 @@ void depot_frame_t::layout(koord *gr)
 	int SELECT_VSTART = 16;
 	int CONVOI_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE;
 	int CINFO_VSTART = CONVOI_VSTART + CLIST_HEIGHT;
-	int ACTIONS_VSTART = CINFO_VSTART + CINFO_HEIGHT + 2 + LINESPACE;
+	int ACTIONS_VSTART = CINFO_VSTART + CINFO_HEIGHT + 2 + LINESPACE * 2;
 	int PANEL_VSTART = ACTIONS_VSTART + ACTIONS_HEIGHT + 8;
 
 	/*
@@ -412,8 +416,9 @@ void depot_frame_t::layout(koord *gr)
     convoi.setze_groesse(koord(CLIST_WIDTH, CLIST_HEIGHT));
 
     lb_convoi_count.setze_pos(koord(4, CINFO_VSTART));
+    lb_convoi_speed.setze_pos(koord(4, CINFO_VSTART + LINESPACE));
     lb_convoi_value.setze_pos(koord(TOTAL_WIDTH-10, CINFO_VSTART));
-    lb_convoi_line.setze_pos(koord(4, CINFO_VSTART + LINESPACE));
+    lb_convoi_line.setze_pos(koord(4, CINFO_VSTART + LINESPACE * 2));
 
     /*
      * [ACTIONS]
@@ -1098,15 +1103,42 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 	if(cnv.is_bound()) {
 		if(cnv->gib_vehikel_anzahl() > 0) {
 			int length=0;
+			uint32 total_power=0;
+			uint32 total_max_weight=0;
+			uint32 total_min_weight=0;
+			uint16 max_speed=0;
+			uint16 min_speed=0;
 			for( unsigned i=0;  i<cnv->gib_vehikel_anzahl();  i++) {
-				length += cnv->gib_vehikel(i)->gib_besch()->get_length();
+				const vehikel_besch_t *besch = cnv->gib_vehikel(i)->gib_besch();
+
+				length += besch->get_length();
+				total_power += besch->gib_leistung()*besch->get_gear()/64;
+				total_min_weight += besch->gib_gewicht();
+				total_max_weight += besch->gib_gewicht();
+
+				uint32 max_weight =0;
+				uint32 min_weight =100000;
+				for(uint32 j=0; j<warenbauer_t::gib_waren_anzahl(); j++) {
+					const ware_besch_t *ware = warenbauer_t::gib_info(j);
+
+					if(besch->gib_ware()->gib_catg_index()==ware->gib_catg_index()) {
+						max_weight = max(max_weight, ware->gib_weight_per_unit());
+						min_weight = min(min_weight, ware->gib_weight_per_unit());
+					}
+				}
+				total_max_weight += max_weight*besch->gib_zuladung()/1000;
+				total_min_weight += min_weight*besch->gib_zuladung()/1000;
 			}
+			max_speed = min(speed_to_kmh(cnv->gib_min_top_speed()), (uint32) sqrt((((double)total_power/total_min_weight)-1)*2500));
+			min_speed = min(speed_to_kmh(cnv->gib_min_top_speed()), (uint32) sqrt((((double)total_power/total_max_weight)-1)*2500));
 			sprintf(txt_convoi_count, "%s %d (%s %i)",
 				translator::translate("Fahrzeuge:"), cnv->gib_vehikel_anzahl(),
 				translator::translate("Station tiles:"), (length+TILE_STEPS-1)/TILE_STEPS );
+			sprintf(txt_convoi_speed,  "%s %d(%d)km/h", translator::translate("Max. speed:"), min_speed, max_speed );
 			sprintf(txt_convoi_value, "%s %d$", translator::translate("Restwert:"), cnv->calc_restwert()/100);
 			if (cnv->get_line().is_bound()) {
 				sprintf(txt_convoi_line, "%s %s", translator::translate("Serves Line:"), 	cnv->get_line()->get_name());
+
 			}
 			else {
 				sprintf(txt_convoi_line, "%s %s", translator::translate("Serves Line:"), no_line_text);
@@ -1121,6 +1153,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 		static char empty[2] = "\0";
 		inp_name.setze_text( empty, 0);
 		*txt_convoi_count = '\0';
+		*txt_convoi_speed = '\0';
 		*txt_convoi_value = '\0';
 		*txt_convoi_line = '\0';
 	}

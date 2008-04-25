@@ -668,7 +668,7 @@ DBG_DEBUG("karte_t::init()","distributing groundobjs");
 				if(gr->gib_typ()==grund_t::boden) {
 					queried --;
 					if(  queried<0  ) {
-						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(gr->gib_hoehe()), gr->gib_grund_hang(), 0 );
+						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(gr->gib_hoehe()), gr->gib_grund_hang() );
 						if(besch) {
 							queried = simrand(umgebung_t::ground_object_probability*2);
 							gr->obj_add( new groundobj_t( this, gr->gib_pos(), besch ) );
@@ -680,7 +680,12 @@ DBG_DEBUG("karte_t::init()","distributing groundobjs");
 	}
 
 DBG_DEBUG("karte_t::init()","distributing trees");
-	baum_t::distribute_trees(this,3);
+	if(!umgebung_t::no_tree) {
+		baum_t::distribute_trees(this,3);
+	}
+	else {
+		umgebung_t::no_tree = false;
+	}
 
 DBG_DEBUG("karte_t::init()","distributing movingobjs");
 	if(  umgebung_t::ground_object_probability > 0  ) {
@@ -1344,7 +1349,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint16 hgt)
 // new tool definition
 void karte_t::set_werkzeug( werkzeug_t *w )
 {
-	if(w!=werkzeug  &&  w->init(this,active_player)) {
+	if(w->init(this,active_player)) {
 
 		struct sound_info info;
 		info.index = SFX_SELECT;

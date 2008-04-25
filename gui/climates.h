@@ -44,6 +44,8 @@ private:
 	button_t end_tundra[2];
 	button_t end_rocky[2];
 
+	button_t no_tree; // without tree
+
 public:
 	climate_gui_t(welt_gui_t* welt_gui, einstellungen_t* sets);
 
