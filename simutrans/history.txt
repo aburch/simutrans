@@ -33,6 +33,19 @@
 	FIX: schedule window last line was not selectable
 	ADD: waytypes narrowgauge_track and maglev_track now functional
 	FIX: trains with freight_type but total load==0 were still creating connections (caotic)
+	CHANGE: groundobj for new map again (z9999)
+	CHANGE: seasons for groundobj and movingobj (z9999)
+	CHANGE: enables all map edit tools again (z9999)
+	FIX: random rotation building problem (z9999)
+	FIX: initialize tool (z9999)
+	FIX: check climate for tree (z9999)
+	FIX: tree cost (z9999)
+	FIX: power for low producing factory (z9999)
+	ADD: Fill trees tool (z9999)
+	ADD: Add forest tool (z9999)
+	ADD: Add random city car tool (z9999)
+	ADD: option to start without trees (z9999)
+	ADD: max. speed information on depot window (z9999)
 
 
 Release of 99.17.1 (r1550, stable)

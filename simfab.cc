@@ -812,7 +812,8 @@ void fabrik_t::step(long delta_t)
 				// produce
 				if (ausgang[produkt].menge < ausgang[produkt].max) {
 					ausgang[produkt].menge += p;
-					currently_producing |= p > 0;
+					// if less than 3/4 filled we neary always consume power
+					currently_producing |= (ausgang[produkt].menge*4 < ausgang[produkt].max*3) &&  p > 0;
 				} else {
 					ausgang[produkt].menge = ausgang[produkt].max - 1;
 				}
@@ -826,7 +827,9 @@ void fabrik_t::step(long delta_t)
 
 				if ((uint32)eingang[index].menge > v) {
 					eingang[index].menge -= v;
-					currently_producing |= v > 0;
+					if(ausgang.get_count()==0  &&  v>0) {
+						currently_producing = true;
+					}
 				}
 				else {
 					eingang[index].menge = 0;
