@@ -121,9 +121,9 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = decode_uint16(p);
 		besch->number_seasons = decode_uint8(p);
 
-	} else if (version == 7) {
+	} else if (version==7  ||  version==8) {
 
-		// Versioned node, version 7
+		// Versioned node, version 7/8
 		// max_height, assymetric pillars
 
 		besch->topspeed = decode_uint16(p);
@@ -151,6 +151,8 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(besch->pillars_every>0  &&  besch->max_height==0) {
 		besch->max_height = 7;
 	}
+	// indicate for different copyright/name lookup
+	besch->offset = version<8 ? 0 : 2;
 
 	DBG_DEBUG("bridge_reader_t::read_node()",
 	"version=%d waytype=%d price=%d topspeed=%d,pillars=%i,max_length=%i",

@@ -24,22 +24,22 @@ class obj_besch_t {
  protected:
     obj_besch_t *gib_kind(int i) const { return node_info[i]; }
 
-		/*
-		 * Internal Node information - the derived class knows,
-		 * how many node child nodes really exist.
-		 */
-		obj_besch_t** node_info;
+	/*
+	 * Internal Node information - the derived class knows,
+	 * how many node child nodes really exist.
+	 */
+	obj_besch_t** node_info;
 
-	public:
-		void* operator new(size_t size)
-		{
-			return ::operator new(size);
-		}
+public:
+	void* operator new(size_t size)
+	{
+		return ::operator new(size);
+	}
 
-		void* operator new(size_t size, unsigned extra)
-		{
-			return ::operator new(size + extra);
-		}
+	void* operator new(size_t size, unsigned extra)
+	{
+		return ::operator new(size + extra);
+	}
 
 	friend class obj_reader_t;
 };

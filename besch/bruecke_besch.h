@@ -24,7 +24,7 @@
 #include "../dataobj/ribi.h"
 
 
-class bruecke_besch_t : public obj_besch_t {
+class bruecke_besch_t : public obj_besch_std_name_t {
     friend class bridge_writer_t;
     friend class bridge_reader_t;
 
@@ -41,6 +41,7 @@ private:
 	uint8  wegtyp;
 	uint8 pillars_every;	// =0 off
 	bool pillars_asymmetric;	// =0 off else leave one off for north/west slopes
+	uint offset;	// flag, because old bridges had their name/copyright at the wrong position
 
 	uint8 max_length;	// =0 off, else maximum length
 	uint8 max_height;	// =0 off, else maximum length
@@ -66,15 +67,15 @@ public:
 	const char *gib_name() const { return gib_cursor()->gib_name(); }
 	const char *gib_copyright() const { return gib_cursor()->gib_copyright(); }
 
-	const skin_besch_t *gib_cursor() const { return static_cast<const skin_besch_t *>(gib_kind(2)); }
+	const skin_besch_t *gib_cursor() const { return static_cast<const skin_besch_t *>(gib_kind(2+offset)); }
 
 	image_id gib_hintergrund(img_t img, uint8 season) const 	{
 		const bild_besch_t *bild = NULL;
 		if(season && number_seasons == 1) {
-			bild = static_cast<const bildliste_besch_t *>(gib_kind(3))->gib_bild(img);
+			bild = static_cast<const bildliste_besch_t *>(gib_kind(3+offset))->gib_bild(img);
 		}
 		if(bild == NULL) {
-			bild = static_cast<const bildliste_besch_t *>(gib_kind(0))->gib_bild(img);
+			bild = static_cast<const bildliste_besch_t *>(gib_kind(0+offset))->gib_bild(img);
 		}
 		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
 	}
@@ -82,10 +83,10 @@ public:
 	image_id gib_vordergrund(img_t img, uint8 season) const {
 		const bild_besch_t *bild = NULL;
 		if(season && number_seasons == 1) {
-			bild = static_cast<const bildliste_besch_t *>(gib_kind(4))->gib_bild(img);
+			bild = static_cast<const bildliste_besch_t *>(gib_kind(4+offset))->gib_bild(img);
 		}
 		if(bild == NULL) {
-			bild = static_cast<const bildliste_besch_t *>(gib_kind(1))->gib_bild(img);
+			bild = static_cast<const bildliste_besch_t *>(gib_kind(1+offset))->gib_bild(img);
 		}
 		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
 	}

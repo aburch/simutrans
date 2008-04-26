@@ -35,7 +35,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 version = 0x8007;
+	uint16 version = 0x8008;
 	node.write_data_at(outfp, &version,        0, 2);
 	node.write_data_at(outfp, &topspeed,       2, 2);
 	node.write_data_at(outfp, &preis,          4, 4);
@@ -69,6 +69,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	cstring_t str = obj.get("backimage[ns][0]");
 	if(strlen(str) == 0) {
 		node.write_data_at(outfp, &number_seasons, 21, sizeof(uint8));
+		write_head(outfp, node, obj);
 		const char* const * ptr = names;
 		const char* keyname = *ptr++;
 
@@ -115,6 +116,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 		}
 
 		node.write_data_at(outfp, &number_seasons, 21, sizeof(uint8));
+		write_head(outfp, node, obj);
 
 		for(uint8 season = 0 ; season <= number_seasons ; season++) {
 			const char* const * ptr = names;
