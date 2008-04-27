@@ -211,7 +211,7 @@ bool stadt_t::bewerte_loc(const koord pos, const char* regel, int rotation)
 						break;
 					case 'h':
 						// is house
-						if (gr->gib_typ() != grund_t::fundament) return false;
+						if (gr->gib_typ() != grund_t::fundament  ||  gr->obj_bei(0)->gib_typ()!=ding_t::gebaeude) return false;
 						break;
 					case 'H':
 						// no house
