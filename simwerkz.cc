@@ -3097,7 +3097,7 @@ const char *wkz_forest_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate,
 	grund_t* gr = welt->lookup_kartenboden(pos.gib_2d());
 
 	if(buttonstate==1) {
-		// delete old route
+		// delete old area
 		if(marked!=NULL) {
 			welt->mark_area(nw, wh, false);
 		}
@@ -3127,43 +3127,15 @@ const char *wkz_forest_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate,
 
 			wh.x = abs(nw.x-start.x)+1;
 			wh.y = abs(nw.y-start.y)+1;
-			nw.x = min(start.x, nw.x);
-			nw.y = min(start.y, nw.y);
+			nw.x = min(start.x, nw.x)+(wh.x/2);
+			nw.y = min(start.y, nw.y)+(wh.y/2);
 
 			// remove old pointers
 			init(welt,sp);
 
-			display_show_load_pointer(true);
-
-			const unsigned xpos_f = nw.x+wh.x/2;
-			const unsigned ypos_f = nw.y+wh.y/2;
-			const unsigned x_forest_boundary = wh.x;
-			const unsigned y_forest_boundary = wh.y;
-			unsigned i, j;
-			uint8 c2;
-			unsigned  x_tree_pos, y_tree_pos, distance, tree_probability;
-			for(j = 0; j < x_forest_boundary; j++) {
-				for(i = 0; i < y_forest_boundary; i++) {
-
-					x_tree_pos = (j-(wh.x>>1)); // >>1 works like 2 but is faster
-					y_tree_pos = (i-(wh.y>>1));
-
-					distance = 1 + ((int) sqrt( (double)(x_tree_pos*x_tree_pos*(wh.y*wh.y) + y_tree_pos*y_tree_pos*(wh.x*wh.x))));
-					tree_probability = ( 8 * ((wh.x*wh.x)+(wh.y*wh.y)) ) / distance;
-
-					for (c2 = 0 ; c2<3; c2++) {
-						const unsigned rating = simrand(10) + 38 + c2*2;
-						if (rating < tree_probability ) {
-							const koord pos( (sint16)(xpos_f+x_tree_pos), (sint16)(ypos_f+y_tree_pos));
-							baum_t::plant_tree_on_coordinate(welt, pos, 3 );
-
-						}
-					}
-				}
-			}
-			display_show_load_pointer(false);
+			baum_t::create_forest( welt, nw.gib_2d(), wh );
 		}
-		// then init
+		// init anyway
 		init( welt, sp );
 	}
 	return NULL;
@@ -3171,13 +3143,10 @@ const char *wkz_forest_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate,
 
 const char *wkz_forest_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 {
-	const planquadrat_t *plan = welt->lookup(pos.gib_2d());
-
-	if(plan == NULL) {
-		return false;
-	}
-
 	grund_t* gr = welt->lookup_kartenboden(pos.gib_2d());
+	if(!gr) {
+		return "";
+	}
 
 	if(start==koord3d::invalid) {
 		welt->show_distance = start = gr->gib_pos();
@@ -3187,44 +3156,22 @@ const char *wkz_forest_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 		gr->obj_add(marked);
 	}
 	else {
+		if(marked!=NULL) {
+			welt->mark_area(nw, wh, false);
+		}
+
 		nw = gr->gib_pos();
 
 		wh.x = abs(nw.x-start.x)+1;
 		wh.y = abs(nw.y-start.y)+1;
-		nw.x = min(start.x, nw.x);
-		nw.y = min(start.y, nw.y);
+		nw.x = min(start.x, nw.x)+(wh.x/2);
+		nw.y = min(start.y, nw.y)+(wh.y/2);
 
 		// remove old pointers
 		init(welt,sp);
 
-		display_show_load_pointer(true);
+		baum_t::create_forest( welt, nw.gib_2d(), wh );
 
-		const unsigned xpos_f = nw.x+wh.x/2;
-		const unsigned ypos_f = nw.y+wh.y/2;
-		const unsigned x_forest_boundary = wh.x;
-		const unsigned y_forest_boundary = wh.y;
-		unsigned i, j;
-		uint8 c2;
-		unsigned  x_tree_pos, y_tree_pos, distance, tree_probability;
-		for(j = 0; j < x_forest_boundary; j++) {
-			for(i = 0; i < y_forest_boundary; i++) {
-
-				x_tree_pos = (j-(wh.x>>1)); // >>1 works like 2 but is faster
-				y_tree_pos = (i-(wh.y>>1));
-
-				distance = 1 + ((int) sqrt( (double)(x_tree_pos*x_tree_pos*(wh.y*wh.y) + y_tree_pos*y_tree_pos*(wh.x*wh.x))));
-				tree_probability = ( 8 * ((wh.x*wh.x)+(wh.y*wh.y)) ) / distance;
-
-				for (c2 = 0 ; c2<3; c2++) {
-					const unsigned rating = simrand(10) + 38 + c2*2;
-					if (rating < tree_probability ) {
-						const koord pos( (sint16)(xpos_f+x_tree_pos), (sint16)(ypos_f+y_tree_pos));
-						baum_t::plant_tree_on_coordinate(welt, pos, 3 );
-					}
-				}
-			}
-		}
-		display_show_load_pointer(false);
 		// then init
 		init( welt, sp );
 	}

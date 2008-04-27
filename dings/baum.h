@@ -105,6 +105,7 @@ public:
 	static bool register_besch(baum_besch_t *besch);
 	static bool alles_geladen();
 
+	static void create_forest(karte_t *welt, koord center, koord size );
 	static void fill_trees(karte_t *welt, int dichte);
 
 

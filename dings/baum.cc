@@ -120,33 +120,7 @@ baum_t::distribute_trees(karte_t *welt, int dichte)
 
 DBG_MESSAGE("verteile_baeume()","creating %i forest",c_forest_count);
 	for (uint8 c1 = 0 ; c1 < c_forest_count ; c1++) {
-		const unsigned xpos_f = simrand(welt->gib_groesse_x());
-		const unsigned ypos_f = simrand(welt->gib_groesse_y());
-		const unsigned c_coef_x = 1+simrand(2);
-		const unsigned c_coef_y = 1+simrand(2);
-		const unsigned x_forest_boundary = t_forest_size*c_coef_x;
-		const unsigned y_forest_boundary = t_forest_size*c_coef_y;
-		unsigned i, j;
-
-		for(j = 0; j < x_forest_boundary; j++) {
-			for(i = 0; i < y_forest_boundary; i++) {
-
-				x_tree_pos = (j-(t_forest_size>>1)); // >>1 works like 2 but is faster
-				y_tree_pos = (i-(t_forest_size>>1));
-
-				distance = 1 + ((int) sqrt( (double)(x_tree_pos*x_tree_pos/c_coef_x + y_tree_pos*y_tree_pos/c_coef_y)));
-
-				tree_probability = ( 32 * (t_forest_size / 2) ) / distance;
-
-				for (c2 = 0 ; c2<max_no_of_trees_on_square; c2++) {
-					const unsigned rating = simrand(forest_boundary_blur) + 38 + c2*forest_boundary_thickness;
-					if (rating < tree_probability ) {
-						const koord pos( (sint16)(xpos_f+x_tree_pos), (sint16)(ypos_f+y_tree_pos));
-						plant_tree_on_coordinate(welt, pos, max_no_of_trees_on_square );
-					}
-				}
-			}
-		}
+		create_forest( welt, koord( simrand(welt->gib_groesse_x()), simrand(welt->gib_groesse_y()) ), koord( (t_forest_size*(1+simrand(2))), (t_forest_size*(1+simrand(2))) ) );
 	}
 
 	fill_trees(welt, dichte);
@@ -267,8 +241,32 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const baum_besc
 
 
 
-void
-baum_t::fill_trees(karte_t *welt, int dichte)
+void baum_t::create_forest(karte_t *welt, koord new_center, koord wh )
+{
+	const sint16 xpos_f = new_center.x;
+	const sint16 ypos_f = new_center.y;
+	for( sint16 j = 0; j < wh.x; j++) {
+		for( sint16 i = 0; i < wh.y; i++) {
+
+			const sint32 x_tree_pos = (j-(wh.x>>1));
+			const sint32 y_tree_pos = (i-(wh.y>>1));
+
+			const uint32 distance = 1 + ((uint32) sqrt( (double)(x_tree_pos*x_tree_pos*(wh.y*wh.y) + y_tree_pos*y_tree_pos*(wh.x*wh.x))));
+			const uint32 tree_probability = ( 8 * (uint32)((wh.x*wh.x)+(wh.y*wh.y)) ) / distance;
+
+			for (uint8 c2 = 0 ; c2<max_no_of_trees_on_square; c2++) {
+				const uint32 rating = simrand(10) + 38 + c2*2;
+				if (rating < tree_probability ) {
+					const koord pos( (sint16)(xpos_f+x_tree_pos), (sint16)(ypos_f+y_tree_pos));
+					baum_t::plant_tree_on_coordinate(welt, pos, 3 );
+				}
+			}
+		}
+	}
+}
+
+
+void baum_t::fill_trees(karte_t *welt, int dichte)
 {
 DBG_MESSAGE("verteile_baeume()","distributing single trees");
 	koord pos;
