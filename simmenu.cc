@@ -8,6 +8,9 @@
 
 #include <algorithm>
 
+#include "unicode.h"
+
+#include "simevent.h"
 #include "simworld.h"
 #include "simwin.h"
 #include "simplay.h"
@@ -84,7 +87,7 @@ werkzeug_t *create_general_tool(int toolnr)
 		case WKZ_LINK_FACTORY:     return new wkz_link_factory_t();
 		case WKZ_HEADQUARTER:      return new wkz_headquarter_t();
 		case WKZ_LOCK_GAME:        return new wkz_lock_game_t();
-		case WKZ_ADD_CITYCAR:         return new wkz_add_citycar_t();
+		case WKZ_ADD_CITYCAR:      return new wkz_add_citycar_t();
 		case WKZ_FOREST:           return new wkz_forest_t();
 	}
 	dbg->fatal("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
@@ -150,6 +153,55 @@ werkzeug_t *create_dialog_tool(int toolnr)
 	dbg->fatal("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
 	return NULL;
 }
+
+
+
+static uint16 str_to_key( const char *str )
+{
+	if(  str[1]==','  ||  str[1]<=' ') {
+		return (uint8)*str;
+	}
+	else {
+		// check for utf8
+		if(  127<(uint8)*str  ) {
+			int len=0;
+			uint16 c = utf8_to_utf16( (const utf8 *)str, &len );
+			if(str[len]==',') {
+				return c;
+			}
+		}
+		// control char
+		if(str[0]=='^') {
+			return (str[1]&(~32))-64;
+		}
+		// direct value (decimal)
+		if(str[0]=='#') {
+			return atoi(str+1);
+		}
+		// Function key?
+		if(str[0]=='F') {
+			uint8 function = atoi(str+1);
+			if(function>0) {
+				return SIM_KEY_F1+function-1;
+			}
+		}
+		// COMMA
+		if(strncmp("COMMA",str,5)==0) {
+			return ',';
+		}
+		// HOME
+		if(strncmp("HOME",str,4)==0) {
+			return SIM_KEY_HOME;
+		}
+		// END
+		if(strncmp("END",str,3)==0) {
+			return SIM_KEY_END;
+		}
+	}
+	// invalid key
+	return 0xFFFF;
+}
+
 
 
 // read a tab file to add images, cursors and sound to the tools
@@ -224,7 +276,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 				str++;
 			}
 			if(*str>=' ') {
-				w->command_key = *str;
+				w->command_key = str_to_key(str);
 				char_to_tool.append( w, 16 );
 			}
 		}
@@ -263,7 +315,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 				str++;
 			}
 			if(*str>=' ') {
-				w->command_key = *str;
+				w->command_key = str_to_key(str);
 				char_to_tool.append( w, 16 );
 			}
 		}
@@ -302,7 +354,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 				str++;
 			}
 			if(*str>=' ') {
-				w->command_key = *str;
+				w->command_key = str_to_key(str);
 				char_to_tool.append( w, 16 );
 			}
 		}
@@ -401,7 +453,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 						addtool->icon = icon;
 					}
 					if(key_str!=NULL) {
-						addtool->command_key = *key_str;
+						addtool->command_key = str_to_key(key_str);
 						char_to_tool.append( addtool, 16 );
 					}
 					if(param_str!=NULL) {
@@ -422,7 +474,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 						addtool->icon = icon;
 					}
 					if(key_str!=NULL) {
-						addtool->command_key = *key_str;
+						addtool->command_key = str_to_key(key_str);
 						char_to_tool.append( addtool, 16 );
 					}
 					if(param_str!=NULL) {
@@ -443,7 +495,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 						addtool->icon = icon;
 					}
 					if(key_str!=NULL) {
-						addtool->command_key = *key_str;
+						addtool->command_key = str_to_key(key_str);
 						char_to_tool.append( addtool, 16 );
 					}
 					if(param_str!=NULL) {
@@ -471,7 +523,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 						tb->icon = icon;
 					}
 					if(key_str!=NULL) {
-						tb->command_key = *key_str;
+						tb->command_key = str_to_key(key_str);
 						char_to_tool.append( tb, 16 );
 					}
 					tb->id = toolnr | TOOLBAR_TOOL;

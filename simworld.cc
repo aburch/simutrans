@@ -3671,25 +3671,6 @@ karte_t::interactive_event(event_t &ev)
 
 		switch(ev.ev_code) {
 
-			// shortcut system
-			case SIM_KEY_F2:
-			case SIM_KEY_F3:
-			case SIM_KEY_F4:
-			case SIM_KEY_F5:
-			case SIM_KEY_F6:
-			case SIM_KEY_F7:
-			case SIM_KEY_F8:
-			case SIM_KEY_F9:
-			case SIM_KEY_F10:
-			case SIM_KEY_F11:
-			case SIM_KEY_F12:
-			case SIM_KEY_F13:
-			case SIM_KEY_F14:
-			case SIM_KEY_F15:
-			{
-				// save/recall commands
-			}
-
 			// cursor movements
 			case '9':
 				ij_off += koord::nord;

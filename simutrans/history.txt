@@ -46,6 +46,8 @@
 	ADD: Add random city car tool (z9999)
 	ADD: option to start without trees (z9999)
 	ADD: max. speed information on depot window (z9999)
+	CHANGE: allow any key for command, include #99999 (decimal code), ^A (Control A), F99 (F1-F15), COMMA (,)
+	CHANGE: allow for &lt; and &gt; to be used in
 
 
 Release of 99.17.1 (r1550, stable)

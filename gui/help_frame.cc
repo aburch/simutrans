@@ -82,9 +82,32 @@ help_frame_t::help_frame_t(cstring_t filename) :
 		cbuffer_t buf(16000);
 		buf.append( translator::translate( "<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n" ) );
 		spieler_t *sp = spieler_t::get_welt()->get_active_player();
-		const char *trad_str = translator::translate( "<em>%C</em> - %s<br>\n" );
+		const char *trad_str = translator::translate( "<em>%s</em> - %s<br>\n" );
 		for (vector_tpl<werkzeug_t *>::const_iterator iter = werkzeug_t::char_to_tool.begin(), end = werkzeug_t::char_to_tool.end(); iter != end; ++iter) {
-			buf.printf( trad_str, (*iter)->command_key, (*iter)->get_tooltip(sp) );
+			char *c = NULL;
+			static char str[16];
+			switch(  (*iter)->command_key  ) {
+				case '<': c = "&lt;"; break;
+				case '>': c = "&gt;"; break;
+				case 27:  c = "ESC"; break;
+				default:
+					if((*iter)->command_key<32) {
+						sprintf( str, "^%C", (*iter)->command_key+64 );
+					}
+					else if((*iter)->command_key<256) {
+						sprintf( str, "%C", (*iter)->command_key );
+					}
+					else if((*iter)->command_key<SIM_KEY_F15) {
+						sprintf( str, "F%i", (*iter)->command_key-255 );
+					}
+					else {
+						// try unicode
+						str[utf16_to_utf8( (*iter)->command_key, (utf8 *)str )] = 0;
+					}
+					c = str;
+					break;
+			}
+			buf.printf( trad_str, c, (*iter)->get_tooltip(sp) );
 		}
 		setze_text(buf);
 	}

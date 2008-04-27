@@ -90,9 +90,24 @@ void gui_flowtext_t::set_text(const char *text)
 				att = ATT_UNKNOWN;
 			}
 			// end of commands
-		} else {
+		}
+		else if(  lead[0]=='&'  ) {
+			if(  lead[2]=='t'  &&  lead[3]==';'  ) {
+				// either gt or lt
+				strcpy( word, lead[1]=='l' ? "<" : ">" );
+				lead += 4;
+			}
+			else {
+				// only copy ampersand
+				strcpy( word, "&" );
+				lead ++;
+			}
+			att = ATT_NONE;
+		}
+		else {
+
 			// parse a word (and obey limits)
-			for (int i = 0;  *lead != '<' && *lead > 32 && i < 511; i++) {
+			for (int i = 0;  *lead != '<'  &&  *lead > 32  &&  i < 511  &&  *lead != '&'; i++) {
 				lead++;
 			}
 			strncpy(word, (const char*)tail, lead - tail);
