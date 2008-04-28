@@ -87,7 +87,7 @@ bool werkzeug_waehler_t::getroffen(int x, int y)
 
 void werkzeug_waehler_t::infowin_event(const event_t *ev)
 {
-	if(IS_LEFTCLICK(ev)) {
+	if(IS_LEFTRELEASE(ev)) {
 		// tooltips?
 		const int x = (ev->mx) / icon.x;
 		const int y = (ev->my-16) / icon.y;

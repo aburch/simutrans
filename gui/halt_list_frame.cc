@@ -401,14 +401,14 @@ void halt_list_frame_t::resize(const koord size_change)
 	gui_frame_t::resize(size_change);
 	koord groesse = gib_fenstergroesse()-koord(0,47);
 	remove_komponente(&vscroll);
-	if((sint32)stops.get_count()<=1+(groesse.y-31)/28) {
+	if((sint32)stops.get_count()<=groesse.y/28) {
 		vscroll.setze_knob_offset(0);
 	}
 	else {
 		add_komponente(&vscroll);
 		vscroll.setze_pos(koord(groesse.x-11, 47-16));
 		vscroll.setze_groesse(groesse-koord(0,11));
-		vscroll.setze_knob( (groesse.y-31)/28, stops.get_count()-1 );
+		vscroll.setze_knob( groesse.y/28, stops.get_count() );
 		vscroll.setze_scroll_amount( 1 );
 	}
 }
