@@ -107,11 +107,9 @@ char *tooltip_with_price(const char * tip, sint64 price)
  */
 static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d pos, sint16 b=1, sint16 h=1)
 {
-	// here below?
-	halthandle_t halt = haltestelle_t::gib_halt(welt,pos.gib_2d());
-	if(halt.is_bound()) {
-		// owner must be checked before!!!
-		return halt;
+	const planquadrat_t *plan = welt->lookup(pos.gib_2d());
+	if(plan  &&  plan->gib_halt().is_bound()) {
+		return plan->gib_halt();
 	}
 
 	ribi_t::ribi ribi = ribi_t::keine;
@@ -145,9 +143,12 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 
 	// first try to connect to our own
 	for(  int i=0;  i<iAnzahl;  i++ ) {
-		halt = haltestelle_t::gib_halt( welt, pos.gib_2d()+next_try_dir[i] );
-		if(halt.is_bound()  &&  (spieler_t::check_owner( sp, halt->gib_besitzer())  ||  welt->gib_spieler(1)==sp)) {
-			return halt;
+		const planquadrat_t *plan = welt->lookup(pos.gib_2d()+next_try_dir[i]);
+		if(plan) {
+			halthandle_t halt = plan->gib_halt();
+			if(halt.is_bound()  &&  (spieler_t::check_owner( sp, halt->gib_besitzer())  ||  welt->gib_spieler(1)==sp)) {
+				return halt;
+			}
 		}
 	}
 
@@ -155,9 +156,12 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 	koord k=pos.gib_2d();
 	for(k.x=pos.x-1; k.x<=pos.x+b; k.x++) {
 		for(k.y=pos.y-1; k.y<=pos.y+h; k.y++) {
-			halt = haltestelle_t::gib_halt( welt, k );
-			if(halt.is_bound()  &&  (spieler_t::check_owner( sp, halt->gib_besitzer())  ||  welt->gib_spieler(1)==sp)) {
-				return halt;
+			const planquadrat_t *plan = welt->lookup(k);
+			if(plan) {
+				halthandle_t halt = plan->gib_halt();
+				if(halt.is_bound()  &&  (spieler_t::check_owner( sp, halt->gib_besitzer())  ||  welt->gib_spieler(1)==sp)) {
+					return halt;
+				}
 			}
 		}
 	}
