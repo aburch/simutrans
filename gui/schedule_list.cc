@@ -69,9 +69,9 @@ uint8 schedule_list_gui_t::statistic_type[MAX_LINE_COST]={
 schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	gui_frame_t("Line Management", sp_),
 	sp(sp_),
- scrolly(&cont),
- scrolly_haltestellen(&cont_haltestellen),
- scl(gui_scrolled_list_t::select)
+	scrolly(&cont),
+	scrolly_haltestellen(&cont_haltestellen),
+	scl(gui_scrolled_list_t::select)
 {
 	capacity = load = 0;
 	selection = -1;
@@ -120,7 +120,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	add_komponente(&scrolly);
 
 	// halt list?
-	cont_haltestellen.setze_groesse(koord(500, 40));
+	cont_haltestellen.setze_groesse(koord(500, 28));
 	scrolly_haltestellen.setze_pos(koord(0, 14 + SCL_HEIGHT+BUTTON_HEIGHT+2));
 	scrolly_haltestellen.set_visible(false);
 	add_komponente(&scrolly_haltestellen);
@@ -423,9 +423,9 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 				if (!tmp.contains(fahrplan_koord)) {
 					halt_list_stats_t* cinfo = new halt_list_stats_t(halt);
 					cinfo->setze_pos(koord(0, ypos));
-					cinfo->setze_groesse(koord(500, 40));
+					cinfo->setze_groesse(koord(500, 28));
 					cont_haltestellen.add_komponente(cinfo);
-					ypos += 40;
+					ypos += 28;
 					tmp.append(fahrplan_koord);
 				}
 			}

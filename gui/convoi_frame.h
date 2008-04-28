@@ -35,26 +35,26 @@ public:
 		noroute_filter=512, nofpl_filter=1024, noincome_filter=2048, indepot_filter=4096, noline_filter=8192, stucked_filter=16384 };
 
 private:
-    spieler_t *owner;
+	spieler_t *owner;
 
-    static const char *sort_text[SORT_MODES];
+	static const char *sort_text[SORT_MODES];
 
-		/**
-		* Handle des anzuzeigenden Convois.
-		* @author Hj. Malthaner
-		*/
-		vector_tpl<convoihandle_t> convois;
+	/**
+	* Handle des anzuzeigenden Convois.
+	* @author Hj. Malthaner
+	*/
+	vector_tpl<convoihandle_t> convois;
 
-		// these two are needed for the convoi list
-		scrollbar_t vscroll;
+	// since the scrollpane can be larger than 32767, we use explicitly a scroll bar
+	scrollbar_t vscroll;
 
-		// these are part of the top UI
-    gui_label_t sort_label;
-    button_t	sortedby;
-    button_t	sorteddir;
-    gui_label_t filter_label;
-    button_t	filter_on;
-    button_t	filter_details;
+	// these are part of the top UI
+	gui_label_t sort_label;
+	button_t	sortedby;
+	button_t	sorteddir;
+	gui_label_t filter_label;
+	button_t	filter_on;
+	button_t	filter_details;
 
     /*
      * Child window, if open
@@ -91,7 +91,7 @@ public:
 
     convoi_frame_t(spieler_t *sp);
 
-		~convoi_frame_t();
+	~convoi_frame_t();
 
     /**
      * Events werden hiermit an die GUI-Komponenten

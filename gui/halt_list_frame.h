@@ -11,6 +11,7 @@
 
 #include "gui_frame.h"
 #include "gui_container.h"
+#include "halt_list_stats.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
@@ -31,15 +32,15 @@ class halt_list_frame_t : public gui_frame_t , private action_listener_t
 public:
 	enum sort_mode_t { nach_name, nach_wartend, nach_typ, SORT_MODES };
     enum filter_flag_t { any_filter=1, name_filter=2, typ_filter=4,
-	spezial_filter=8, ware_ab_filter=16, ware_an_filter=32,
-	sub_filter=64,	// Ab hier beginnen die Unterfilter!
-	frachthof_filter=64,
-	bahnhof_filter=128,
-	bushalt_filter=256,
-	dock_filter=512,
-	airport_filter=1024,
-	ueberfuellt_filter=2048,
-	ohneverb_filter=4096
+		spezial_filter=8, ware_ab_filter=16, ware_an_filter=32,
+		sub_filter=64,	// Ab hier beginnen die Unterfilter!
+		frachthof_filter=64,
+		bahnhof_filter=128,
+		bushalt_filter=256,
+		dock_filter=512,
+		airport_filter=1024,
+		ueberfuellt_filter=2048,
+		ohneverb_filter=4096
     };
 
 private:
@@ -47,11 +48,13 @@ private:
 
     static const char *sort_text[SORT_MODES];
 
-    /*
+	vector_tpl<halt_list_stats_t> stops;
+
+	/*
      * All gui elements of this dialog:
      */
-    gui_container_t cont;
-    gui_scrollpane_t scrolly;
+
+	scrollbar_t vscroll;
 
     gui_label_t sort_label;
     button_t	sortedby;
@@ -95,7 +98,7 @@ private:
 public:
     halt_list_frame_t(spieler_t *sp);
 
-		~halt_list_frame_t();
+	~halt_list_frame_t();
 
     /**
      * The filter frame tells us when it is closed.
@@ -103,13 +106,16 @@ public:
      */
     void filter_frame_closed() { filter_frame = NULL; }
 
-    /**
+	// must be handled, because we could not use scrollpane
+	void infowin_event(const event_t*);
+
+	/**
      * This method is called if the size of the window should be changed
      * @author Markus Weber
      */
     void resize(const koord size_change);
 
-    /**
+	/**
      * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
      * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
      * in dem die Komponente dargestellt wird.
@@ -158,6 +164,7 @@ public:
      * V.Meyer
      */
     bool action_triggered(gui_komponente_t *komp, value_t extra);
+
 };
 
 #endif
