@@ -68,7 +68,7 @@ public:
 	 * Konstanten
 	 * @author Hj. Malthaner
 	 */
-	enum { precision_bits = 10, old_precision_bits = 10 };
+	enum { precision_bits = 10, old_precision_bits = 10, precision_mask = 1023 };
 
 private:
 	/**

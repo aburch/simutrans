@@ -734,6 +734,14 @@ void fabrik_t::step(long delta_t)
 				currently_producing = true;
 				power = prodbase*n_intervall*PRODUCTION_DELTA_T*4;
 			}
+			// do smoking?
+			const rauch_besch_t *rada = besch->gib_rauch();
+			if(rada) {
+				grund_t *gr=welt->lookup_kartenboden(pos.gib_2d()+rada->gib_pos_off());
+				wolke_t *smoke =  new wolke_t(welt, pos+rada->gib_pos_off(), ((rada->gib_xy_off().x+simrand(7)-3)*TILE_STEPS)/16, ((rada->gib_xy_off().y+simrand(7)-3)*TILE_STEPS)/16, rada->gib_bilder()->gib_bild_nr(0), false );
+				gr->obj_add(smoke);
+				welt->sync_add( smoke );
+			}
 			// otherwise nothing to do ...
 			return;
 		}
@@ -747,7 +755,9 @@ void fabrik_t::step(long delta_t)
 		const uint32 ecount = eingang.get_count();
 		uint32 index = 0;
 		uint32 produkt=0;
-		currently_producing = false;	// needed for smoke, field growth ...
+
+		currently_producing = false;	// needed for electricity
+		uint32 delta_menge = 0;			// needed for smoke, field growth, ...
 
 		if (ausgang.empty()) {
 			// consumer only ...
@@ -767,8 +777,11 @@ void fabrik_t::step(long delta_t)
 				if ((uint32)eingang[index].menge > v) {
 					eingang[index].menge -= v;
 					currently_producing = true;
+					// to find out, if storage changed
+					delta_menge += (eingang[index].menge & fabrik_t::precision_mask) + v;
 				}
 				else {
+					delta_menge += eingang[index].menge;
 					eingang[index].menge = 0;
 				}
 			}
@@ -811,9 +824,11 @@ void fabrik_t::step(long delta_t)
 
 				// produce
 				if (ausgang[produkt].menge < ausgang[produkt].max) {
+					// to find out, if storage changed
+					delta_menge += (ausgang[produkt].menge & fabrik_t::precision_mask) + p;
 					ausgang[produkt].menge += p;
 					// if less than 3/4 filled we neary always consume power
-					currently_producing |= (ausgang[produkt].menge*4 < ausgang[produkt].max*3) &&  p > 0;
+					currently_producing |= (ausgang[produkt].menge*4 < ausgang[produkt].max*3)  &&  (p > 0);
 				} else {
 					ausgang[produkt].menge = ausgang[produkt].max - 1;
 				}
@@ -827,9 +842,6 @@ void fabrik_t::step(long delta_t)
 
 				if ((uint32)eingang[index].menge > v) {
 					eingang[index].menge -= v;
-					if(ausgang.get_count()==0  &&  v>0) {
-						currently_producing = true;
-					}
 				}
 				else {
 					eingang[index].menge = 0;
@@ -856,15 +868,13 @@ void fabrik_t::step(long delta_t)
 
 		recalc_factory_status();
 
-		if(currently_producing) {
-			// let the chimney smoke
+		if((delta_menge>>fabrik_t::precision_bits)>0) {
+			// we produce some real quantity => smoke
 			const rauch_besch_t *rada = besch->gib_rauch();
 			if(rada) {
 				grund_t *gr=welt->lookup_kartenboden(pos.gib_2d()+rada->gib_pos_off());
 				wolke_t *smoke =  new wolke_t(welt, pos+rada->gib_pos_off(), ((rada->gib_xy_off().x+simrand(7)-3)*TILE_STEPS)/16, ((rada->gib_xy_off().y+simrand(7)-3)*TILE_STEPS)/16, rada->gib_bilder()->gib_bild_nr(0), false );
-
-				bool add_ok=gr->obj_add(smoke);
-				assert(add_ok);
+				gr->obj_add(smoke);
 				welt->sync_add( smoke );
 			}
 
