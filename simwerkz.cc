@@ -3182,3 +3182,222 @@ const char *wkz_forest_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 	return NULL;
 }
 
+
+
+bool wkz_stop_moving_t::init( karte_t *, spieler_t * )
+{
+	last_pos = koord3d::invalid;
+	last_halt = halthandle_t();
+	waytype[0] = invalid_wt;
+	waytype[1] = invalid_wt;
+	if(wkz_linkzeiger!=NULL) {
+		wkz_linkzeiger->mark_image_dirty( cursor, 0 );
+		delete wkz_linkzeiger;
+		wkz_linkzeiger = NULL;
+	}
+	return true;
+}
+
+const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
+{
+	// now we can start
+	const planquadrat_t *pl = welt->lookup(pos.gib_2d());
+	if(pl) {
+		const bool backwards=event_get_last_control_shift()==2;
+		const grund_t *bd=0;
+		// search all grounds for match
+		halthandle_t h = haltestelle_t::gib_halt(welt,pos.gib_2d());
+		if(last_pos!=koord3d::invalid  &&  (h.is_bound() ^ last_halt.is_bound())) {
+			init(welt,sp);
+			return "Can only from from halt to halt or waypoint to waypoint";
+		}
+		if(h.is_bound()  &&  !spieler_t::check_owner( sp, pl->get_haltlist()[0]->gib_besitzer())) {
+			init(welt,sp);
+			return "Das Feld gehoert\neinem anderen Spieler\n";
+		}
+
+		for(  unsigned cnt=0;  cnt<pl->gib_boden_count();  cnt++  ) {
+			// with control backwards
+			const unsigned i = (backwards) ? pl->gib_boden_count()-1-cnt : cnt;
+			bd = pl->gib_boden_bei(i);
+			// ignore tunnel (can be set with Underground mode)
+			if(bd->ist_im_tunnel()) {
+				bd = 0;
+				continue;
+			}
+#if 0
+			// not halt
+			if((!bd->is_halt() && !bd->ist_wasser()) || pl->get_haltlist_count()==0) {
+				bd = 0;
+				continue;
+			}
+			// and check harbor ownership
+			if(bd->ist_wasser()) {
+				if(pl->get_haltlist_count()>0) {
+					if(spieler_t::check_owner( sp, pl->get_haltlist()[0]->gib_besitzer())) {
+						waytype1 = water_wt;
+						break;
+					}
+				}
+				bd = 0;
+				continue;
+			}
+#endif
+			// must be on a way or in the sea?
+			if(!bd->ist_wasser()) {
+				weg_t *w1 = bd->gib_weg_nr(0);
+				if(  w1==NULL  ||  !spieler_t::check_owner( w1->gib_besitzer(), sp )  ) {
+					// fails, if no way
+					bd = 0;
+					continue;
+				}
+				weg_t *w2 = bd->gib_weg_nr(1);
+				if(  w2  &&  !spieler_t::check_owner( w2->gib_besitzer(), sp )  ) {
+					// this only fails, if wrong owner
+					bd = 0;
+					continue;
+				}
+			}
+			// ok, now we have old_stop
+			break;
+		}
+		if(bd==NULL) {
+			// here we failed
+			return "";
+		}
+
+		if(last_pos == koord3d::invalid) {
+			// put cursor
+			last_pos = bd->gib_pos();
+			last_halt = bd->ist_wasser() ?  haltestelle_t::gib_halt(welt,last_pos) : bd->gib_halt();
+			if(bd->ist_wasser()) {
+				waytype[0] = water_wt;
+			}
+			else {
+				waytype[0] = bd->gib_weg_nr(0)->gib_waytype();
+				if(bd->gib_weg_nr(1)) {
+					waytype[1] = bd->gib_weg_nr(1)->gib_waytype();
+				}
+			}
+			grund_t *gr = welt->lookup_kartenboden(last_pos.gib_2d());
+			wkz_linkzeiger = new zeiger_t(welt, last_pos, sp);
+			wkz_linkzeiger->setze_bild( cursor );
+			gr->obj_add(wkz_linkzeiger);
+		}
+		else {
+			// second click
+			pos = bd->gib_pos();
+			const halthandle_t new_halt = haltestelle_t::gib_halt(welt,pos);
+			// depending on the waytype we simply built replacements lists
+			// in the wort case we have to iterate over all tiles twice ...
+			for(  uint i=0;  i<2;  i++  ) {
+				const waytype_t wt = waytype[i];
+				slist_tpl <koord3d>old_platform;
+
+				if(bd->ist_wasser()) {
+					if(wt!=water_wt) {
+						break;
+					}
+				}
+				else if(!bd->hat_weg(wt)) {
+					continue;
+				}
+				// platform, stop or just tile moving?
+				const bool catch_all_halt = (wt==water_wt  ||  wt==air_wt)  &&  last_halt.is_bound();
+				if(!last_halt.is_bound()) {
+					old_platform.append(last_pos);
+				}
+				else if(!catch_all_halt) {
+					// builds a coordinate list
+					if(wt==road_wt) {
+						old_platform.append(last_pos);
+					}
+					else {
+						// all connected tiles for start pos
+						uint8 ribi = welt->lookup(last_pos)->gib_weg_ribi_unmasked(wt);
+						koord delta = ribi_t::ist_gerade_ns(ribi) ? koord(0,1) : koord(1,0);
+						koord3d start_pos=last_pos;
+						while(ribi&12) {
+							koord3d test_pos = start_pos+delta;
+							grund_t *gr = welt->lookup(test_pos);
+							if(!gr  ||  !gr->is_halt()  ||  (ribi=gr->gib_weg_ribi_unmasked(wt))==0) {
+								break;
+							}
+							start_pos = test_pos;
+						}
+						// now add all of them
+						while(ribi&3) {
+							koord3d test_pos = start_pos-delta;
+							grund_t *gr = welt->lookup(test_pos);
+							old_platform.append(start_pos);
+							if(!gr  ||  !gr->is_halt()  ||  (ribi=gr->gib_weg_ribi_unmasked(wt))==0) {
+								break;
+							}
+							start_pos = test_pos;
+						}
+					}
+				}
+
+				// first, check convoi without line
+				for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
+					convoihandle_t cnv = *i;
+					// check line and owner
+					if(!cnv->get_line().is_bound()  &&  cnv->gib_besitzer()==sp) {
+						fahrplan_t *fpl = cnv->gib_fahrplan();
+						// check waytype
+						if(fpl->ist_halt_erlaubt(bd)) {
+							bool updated = false;
+							int aktuell = fpl->aktuell;
+							for(  int k=0;  k<fpl->maxi();  k++  ) {
+								if(  (catch_all_halt  &&  haltestelle_t::gib_halt(welt,fpl->eintrag[k].pos)==last_halt)  ||  old_platform.contains(fpl->eintrag[k].pos)  ) {
+									fpl->eintrag[k].pos = pos;
+									updated = true;
+								}
+							}
+							if(updated) {
+								fpl->cleanup();
+								// set this schedule
+								cnv->setze_fahrplan(fpl);
+							}
+						}
+					}
+				}
+				// next, check lines serving old_halt
+				vector_tpl<linehandle_t>lines;
+				sp->simlinemgmt.get_lines(simline_t::line,&lines);
+				for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; ++i) {
+					linehandle_t line = (*i);
+					fahrplan_t *fpl = line->get_fahrplan();
+					// check waytype
+					if(fpl->ist_halt_erlaubt(bd)) {
+						bool updated = false;
+						// check owner if needed
+						if(line->count_convoys()>0  ||  line->get_convoy(0)->gib_besitzer()==sp) {
+							int aktuell = fpl->aktuell;
+							for(  int k=0;  k<fpl->maxi();  k++  ) {
+								// ok!
+								if(  (catch_all_halt  &&  haltestelle_t::gib_halt(welt,fpl->eintrag[k].pos)==last_halt)  ||  old_platform.contains(fpl->eintrag[k].pos)  ) {
+									fpl->eintrag[k].pos = pos;
+									updated = true;
+								}
+							}
+							// update line
+							if(updated) {
+								fpl->cleanup();
+								sp->simlinemgmt.update_line(line);
+							}
+						}
+					}
+				}
+			}
+			// since factory connections may have changed
+			welt->set_schedule_counter();
+			//ok! they are connected => remove marker
+			init( welt, sp );
+			return NULL;
+		}
+	}
+	return "";
+
+}
+

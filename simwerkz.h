@@ -351,6 +351,21 @@ public:
 	const char *move( karte_t *, spieler_t *, uint16 buttonstate, koord3d );
 };
 
+/* stop moving tool */
+class wkz_stop_moving_t : public werkzeug_t {
+private:
+	koord3d last_pos;
+	zeiger_t *wkz_linkzeiger;
+	waytype_t waytype[2];
+	halthandle_t last_halt;
+public:
+	wkz_stop_moving_t() : werkzeug_t() { wkz_linkzeiger=NULL; }
+	const char *get_tooltip(spieler_t *) { return translator::translate("replace stop"); }
+	bool init( karte_t *, spieler_t * );
+	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
+	virtual const char *work( karte_t *, spieler_t *, koord3d );
+};
+
 /********************* one click tools ****************************/
 
 class wkz_pause_t : public werkzeug_t {

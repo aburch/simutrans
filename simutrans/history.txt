@@ -48,6 +48,7 @@
 	ADD: max. speed information on depot window (z9999)
 	CHANGE: allow any key for command, include #99999 (decimal code), ^A (Control A), F99 (F1-F15), COMMA (,)
 	CHANGE: allow for &lt; and &gt; to be used in flowtexts
+	ADD: stop mover tool (mostly z9999) tilewise for road, stopwise for water/air and platformwise for rail bound vehicles
 
 
 Release of 99.17.1 (r1550, stable)

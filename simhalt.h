@@ -115,8 +115,8 @@ public:
 	static int erzeuge_fussgaenger(karte_t *welt, koord3d pos, int anzahl);
 
 	/* searches for a stop at the given koordinate
-	 * this is called damend often, so we should thin about inline it
-	 * @return hanthandle_t(), if nothing found
+	 * this is called damend often, so we should think about inline it
+	 * @return halthandle_t(), if nothing found
 	 * @author prissi
 	 */
 	static halthandle_t gib_halt(karte_t *welt, const koord pos);
