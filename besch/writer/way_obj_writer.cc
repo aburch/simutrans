@@ -41,17 +41,16 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	uint8 wtyp     =  get_waytype(obj.get("waytype"));
 	uint8 own_wtyp =  get_waytype(obj.get("own_waytype"));
 
-	node.write_data_at(outfp, &version,      0, 2);
-	node.write_data_at(outfp, &price,        2, 4);
-	node.write_data_at(outfp, &maintenance,  6, 4);
-	node.write_data_at(outfp, &topspeed,    10, 4);
-	node.write_data_at(outfp, &intro,       14, 2);
-	node.write_data_at(outfp, &retire,      16, 2);
-	node.write_data_at(outfp, &wtyp,        18, 1);
-	node.write_data_at(outfp, &own_wtyp,    19, 1);
+	node.write_uint16(outfp, version,      0);
+	node.write_uint32(outfp, price,        2);
+	node.write_uint32(outfp, maintenance,  6);
+	node.write_uint32(outfp, topspeed,    10);
+	node.write_uint16(outfp, intro,       14);
+	node.write_uint16(outfp, retire,      16);
+	node.write_uint8 (outfp, wtyp,        18);
+	node.write_uint8 (outfp, own_wtyp,    19);
 
 	write_head(outfp, node, obj);
-
 
 	slist_tpl<cstring_t> front_list;
 	slist_tpl<cstring_t> back_list;

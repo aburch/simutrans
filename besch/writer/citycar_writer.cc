@@ -25,20 +25,11 @@ void citycar_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	besch.geschw  = obj.get_int("speed", 80) * 16;
 
 	// new version with intro and obsolete dates
-	uint16 data = 0x8002;
-	node.write_data_at(fp, &data, 0, sizeof(uint16));
-
-	data = (uint16)besch.gewichtung;
-	node.write_data_at(fp, &data, 2, sizeof(uint16));
-
-	data = (uint16)besch.geschw;
-	node.write_data_at(fp, &data, 4, sizeof(uint16));
-
-	data = besch.intro_date;
-	node.write_data_at(fp, &data, 6, sizeof(uint16));
-
-	data = besch.obsolete_date;
-	node.write_data_at(fp, &data, 8, sizeof(uint16));
+	node.write_uint16(fp, 0x8002,                    0); // version information
+	node.write_uint16(fp, (uint16) besch.gewichtung, 2);
+	node.write_uint16(fp, (uint16) besch.geschw,     4);
+	node.write_uint16(fp, besch.intro_date,          6);
+	node.write_uint16(fp, besch.obsolete_date,       8);
 
 	write_head(fp, node, obj);
 

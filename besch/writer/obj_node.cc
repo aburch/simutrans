@@ -24,7 +24,13 @@ obj_node_t::obj_node_t(obj_writer_t* writer, int size, obj_node_t* parent, bool 
 void obj_node_t::write(FILE* fp)
 {
 	fseek(fp, write_offset - sizeof(desc), SEEK_SET);
-	fwrite(&desc, sizeof(desc), 1, fp);
+
+        uint32 type = endian_uint32(&desc.type);
+        uint16 children = endian_uint16(&desc.children);
+        uint16 size = endian_uint16(&desc.size);
+	fwrite(&type, 4, 1, fp);
+	fwrite(&children, 2, 1, fp);
+	fwrite(&size, 2, 1, fp);
 	if (parent) {
 		parent->desc.children++;
 	}
@@ -56,3 +62,21 @@ void obj_node_t::write_data_at(FILE* fp, const void* data, int offset, int size)
 	fseek(fp, write_offset + offset, SEEK_SET);
 	fwrite(data, size, 1, fp);
 }
+
+void obj_node_t::write_uint8(FILE* fp, uint8 data, int offset)
+{
+	this->write_data_at(fp, &data, offset, 1);
+}
+
+void obj_node_t::write_uint16(FILE* fp, uint16 data, int offset)
+{
+	uint16 data2 = endian_uint16(&data);
+	this->write_data_at(fp, &data2, offset, 2);
+}
+
+void obj_node_t::write_uint32(FILE* fp, uint32 data, int offset)
+{
+	uint32 data2 = endian_uint32(&data);
+	this->write_data_at(fp, &data2, offset, 4);
+}
+

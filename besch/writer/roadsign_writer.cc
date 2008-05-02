@@ -29,34 +29,21 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		(obj.get_int("end_of_choose", 0) > 0) * 128;
 	besch.wtyp =  get_waytype(obj.get("waytype"));
 
-	// Hajo: temp vars of appropriate size
-	uint32 v32;
-	uint16 v16;
-	uint8 v8;
-
 	// Hajo: write version data
-	v16 = 0x8003;
-	node.write_data_at(fp, &v16, 0, sizeof(uint16));
+	node.write_uint16(fp, 0x8003,                    0);
 
-	v16 = (uint16) besch.min_speed;
-	node.write_data_at(fp, &v16, 2, sizeof(uint16));
-
-	v32 = (uint32) besch.cost;
-	node.write_data_at(fp, &v32, 4, sizeof(uint32));
-
-	v8 = (uint8)besch.flags;
-	node.write_data_at(fp, &v8, 8, sizeof(uint8));
-
-	v8 = (uint8)besch.wtyp;
-	node.write_data_at(fp, &v8, 9, sizeof(uint8));
+	node.write_uint16(fp, (uint16) besch.min_speed,  2);
+	node.write_uint32(fp, (uint32) besch.cost,       4);
+	node.write_uint8 (fp, (uint8)  besch.flags,      8);
+	node.write_uint8 (fp, (uint8)  besch.wtyp,       9);
 
 	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
 	intro += obj.get_int("intro_month", 1) - 1;
-	node.write_data_at(fp, &intro, 10, sizeof(uint16));
+	node.write_uint16(fp,          intro,           10);
 
 	uint16 retire  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
 	retire += obj.get_int("retire_month", 1) - 1;
-	node.write_data_at(fp, &retire, 12, sizeof(uint16));
+	node.write_uint16(fp,          retire,          12);
 
 	write_head(fp, node, obj);
 

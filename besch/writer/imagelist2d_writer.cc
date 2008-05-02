@@ -19,8 +19,7 @@ void imagelist2d_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_t
 	while (iter.next()) {
 		imagelist_writer_t::instance()->write_obj(fp, node, iter.get_current());
 	}
-	node.write_data_at(fp, &besch.anzahl, 0, sizeof(uint16));
-	uint16 dummy16 = 0;
-	node.write_data_at(fp, &dummy16, 2, sizeof(uint16));
+	node.write_uint16(fp, besch.anzahl, 0);
+	node.write_uint16(fp, 0,            2);
 	node.write(fp);
 }

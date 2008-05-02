@@ -31,13 +31,13 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	// Version uses always high bit set as trigger
 	// version 2: snow images
 	uint16 version = 0x8002;
-	node.write_data_at(fp, &version,        0, 2);
-	node.write_data_at(fp, &topspeed,       2, sizeof(uint32));
-	node.write_data_at(fp, &preis,          6, sizeof(uint32));
-	node.write_data_at(fp, &maintenance,   10, sizeof(uint32));
-	node.write_data_at(fp, &wegtyp,        14, sizeof(uint8));
-	node.write_data_at(fp, &intro_date,    15, sizeof(uint16));
-	node.write_data_at(fp, &obsolete_date, 17, sizeof(uint16));
+	node.write_uint16(fp, version,        0);
+	node.write_uint32(fp, topspeed,       2);
+	node.write_uint32(fp, preis,          6);
+	node.write_uint32(fp, maintenance,   10);
+	node.write_uint8 (fp, wegtyp,        14);
+	node.write_uint16(fp, intro_date,    15);
+	node.write_uint16(fp, obsolete_date, 17);
 
 	sint8 number_seasons = 0;
 
@@ -54,7 +54,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 
 	cstring_t str = obj.get(buf);
 	if (strlen(str) == 0) {
-		node.write_data_at(fp, &number_seasons, 19, sizeof(uint8));
+		node.write_sint8(fp, number_seasons, 19);
 		write_head(fp, node, obj);
 
 		for (pos = 0; pos < 2; pos++) {
@@ -79,7 +79,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 				break;
 			}
 		}
-		node.write_data_at(fp, &number_seasons, 19, sizeof(uint8));
+		node.write_sint8(fp, number_seasons, 19);
 		write_head(fp, node, obj);
 
 		for (uint8 season = 0; season <= number_seasons ; season++) {

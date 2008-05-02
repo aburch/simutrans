@@ -9,7 +9,6 @@
 
 cstring_t root_writer_t::inpath;
 
-
 void root_writer_t::write_header(FILE* fp)
 {
 	uint32 l;
@@ -20,6 +19,7 @@ void root_writer_t::write_header(FILE* fp)
 	);
 
 	l = COMPILER_VERSION_CODE;
+        l = endian_uint32(&l);
 	fwrite(&l, 1, sizeof(uint32), fp); // Compiler Version zum Checken
 
 	obj_node_t::set_start_offset(ftell(fp));
@@ -108,6 +108,15 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 	}
 }
 
+void root_writer_t::write_obj_node_info_t(FILE* outfp, const obj_node_info_t &root)
+{
+        uint32 type     = endian_uint32(&root.type);
+        uint16 children = endian_uint16(&root.children);
+        uint16 size     = endian_uint16(&root.size);
+        fwrite(&type,     4, 1, outfp);
+        fwrite(&children, 2, 1, outfp);
+        fwrite(&size,     2, 1, outfp);
+}
 
 bool root_writer_t::do_dump(const char* open_file_name)
 {
@@ -266,7 +275,7 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 	root.children = 0;	// we will change this later
 	root.size = 0;
 	root.type = obj_root;
-	fwrite(&root, sizeof(root), 1, outfp);
+	this->write_obj_node_info_t(outfp, root);
 
 	for(  int i=0;  i<argc;  i++  ) {
 		bool any = false;
@@ -286,7 +295,9 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 		}
 	}
 	fseek(outfp, start, SEEK_SET);
-	fwrite(&root, sizeof(root), 1, outfp);
+
+	this->write_obj_node_info_t(outfp, root);
+
 	fclose(outfp);
 }
 

@@ -26,6 +26,10 @@ CXXFLAGS=-O
 
 endif
 
+ifdef FLAGS
+  CFLAGS   += $(FLAGS)
+  CXXFLAGS += $(FLAGS)
+endif
 
 SOURCES=makeobj.cc
 

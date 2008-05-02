@@ -52,22 +52,12 @@ void tree_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	}
 	imagelist2d_writer_t::instance()->write_obj(fp, node, keys);
 
-	// Hajo: temp vars of appropriate size
-	uint16 v16;
-	uint8 v8;
-
 	// Hajo: write version data
-	v16 = 0x8002;
-	node.write_data_at(fp, &v16, 0, sizeof(uint16));
+	node.write_uint16(fp, 0x8002,                             0);
 
-	v16 = (uint16) besch.allowed_climates;
-	node.write_data_at(fp, &v16, 2, sizeof(uint16));
-
-	v8 = (uint8)besch.distribution_weight;
-	node.write_data_at(fp, &v8, 4, sizeof(uint8));
-
-	v8 = (uint8) besch.number_of_seasons;
-	node.write_data_at(fp, &v8, 5, sizeof(uint8));
+	node.write_uint16(fp, (uint16) besch.allowed_climates,    2);
+	node.write_uint8 (fp, (uint8)  besch.distribution_weight, 4);
+	node.write_uint8 (fp, (uint8)  besch.number_of_seasons,   5);
 
 	node.write(fp);
 }

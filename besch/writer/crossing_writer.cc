@@ -45,7 +45,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
 	uint16 uv16 = 0x8001;
-	node.write_data_at(fp, &uv16, 0, sizeof(uint16));
+	node.write_uint16(fp, 0x8001, 0);
 
 	// waytypes, waytype 2 will be on top
 	uint8 wegtyp1 = get_waytype(obj.get("waytype[0]"));
@@ -54,8 +54,8 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		printf("*** FATAL ***:\nIdentical ways cannot cross (check waytypes)!\n");
 		exit(0);
 	}
-	node.write_data_at(fp, &wegtyp1, 2, sizeof(uint8));
-	node.write_data_at(fp, &wegtyp2, 3, sizeof(uint8));
+	node.write_uint8(fp, wegtyp1, 2);
+	node.write_uint8(fp, wegtyp2, 3);
 
 	// Top speed of this way
 	uv16 = obj.get_int("speed[0]", 0);
@@ -63,21 +63,21 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		printf("*** FATAL ***:\nA maxspeed MUST be given for both ways!\n");
 		exit(0);
 	}
-	node.write_data_at(fp, &uv16, 4, sizeof(uint16));
+	node.write_uint16(fp, uv16, 4);
 	uv16 = obj.get_int("speed[1]", 0);
 	if(uv16==0) {
 		printf("*** FATAL ***:\nA maxspeed MUST be given for both ways!\n");
 		exit(0);
 	}
-	node.write_data_at(fp, &uv16, 6, sizeof(uint16));
+	node.write_uint16(fp, uv16, 6);
 
 	// time between frames for animation
 	uint32 uv32 = obj.get_int("animation_time_open", 0);
-	node.write_data_at(fp, &uv32, 8, sizeof(sint32));
+	node.write_uint32(fp, uv32, 8);
 	uv32 = obj.get_int("animation_time_closed", 0);
-	node.write_data_at(fp, &uv32, 12, sizeof(sint32));
+	node.write_uint32(fp, uv32, 12);
 
-	node.write_data_at(fp, &sound_id, 16, sizeof(uint8));
+	node.write_uint8(fp, sound_id, 16);
 
 	if(sound_str.len() > 0) {
 		sint8 sv8 = sound_str.len();

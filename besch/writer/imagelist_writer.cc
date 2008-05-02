@@ -29,8 +29,7 @@ void imagelist_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_tpl
 	}
 	besch.anzahl = count;//keys.count();
 
-	node.write_data_at(fp, &besch.anzahl, 0, sizeof(uint16));
-	uint16 dummy16 = 0;
-	node.write_data_at(fp, &dummy16, 2, sizeof(uint16));
+	node.write_uint16(fp, besch.anzahl, 0);
+	node.write_uint16(fp, 0,            2);
 	node.write(fp);
 }

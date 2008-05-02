@@ -20,8 +20,8 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	uint32 maintenance   = obj.get_int("maintenance", 1000);
 	uint8  pillars_every = obj.get_int("pillar_distance",0); // distance==0 is off
 	uint8  pillar_asymmetric = obj.get_int("pillar_asymmetric",0); // middle of tile
-	uint8  max_lenght    = obj.get_int("max_lenght",0); // max_lenght==0: unlimited
-	max_lenght    = obj.get_int("max_length",max_lenght); // with correct writing
+	uint8  max_length    = obj.get_int("max_lenght",0); // max_lenght==0: unlimited
+	max_length    = obj.get_int("max_length",0); // with correct spelling
 	uint8  max_height    = obj.get_int("max_height",0); // max_height==0: unlimited
 
 	// prissi: timeline
@@ -36,17 +36,17 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
 	uint16 version = 0x8008;
-	node.write_data_at(outfp, &version,        0, 2);
-	node.write_data_at(outfp, &topspeed,       2, 2);
-	node.write_data_at(outfp, &preis,          4, 4);
-	node.write_data_at(outfp, &maintenance,    8, 4);
-	node.write_data_at(outfp, &wegtyp,        12, 1);
-	node.write_data_at(outfp, &pillars_every, 13, 1);
-	node.write_data_at(outfp, &max_lenght,    14, 1);
-	node.write_data_at(outfp, &intro_date,    15, sizeof(uint16));
-	node.write_data_at(outfp, &obsolete_date, 17, sizeof(uint16));
-	node.write_data_at(outfp, &pillar_asymmetric, 19, 1);
-	node.write_data_at(outfp, &max_height,    20, 1);
+	node.write_uint16(outfp, version,            0);
+	node.write_uint16(outfp, topspeed,           2);
+	node.write_uint32(outfp, preis,              4);
+	node.write_uint32(outfp, maintenance,        8);
+	node.write_uint8 (outfp, wegtyp,            12);
+	node.write_uint8 (outfp, pillars_every,     13);
+	node.write_uint8 (outfp, max_length,        14);
+	node.write_uint16(outfp, intro_date,        15);
+	node.write_uint16(outfp, obsolete_date,     17);
+	node.write_uint8 (outfp, pillar_asymmetric, 19);
+	node.write_uint8 (outfp, max_height,        20);
 
 	static const char* const names[] = {
 		"image",

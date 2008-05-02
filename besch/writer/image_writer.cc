@@ -95,9 +95,12 @@ void image_writer_t::dump_special_histogramm()
  */
 static PIXVAL pixrgb_to_pixval(int rgb)
 {
+	PIXVAL pix;
+
 	for (int i = 0; i < SPECIAL; i++) {
 		if (rgbtab[i] == (PIXRGB)rgb) {
-			return 0x8000 + i;
+			pix = 0x8000 + i;
+			return endian_uint16(&pix);
 		}
 	}
 
@@ -106,7 +109,8 @@ static PIXVAL pixrgb_to_pixval(int rgb)
 	const int b = (rgb >>  0) & 0xFF;
 
 	// RGB 555
-	return ((r & 0xF8) << 7) | ((g & 0xF8) << 2) | ((b & 0xF8) >> 3);
+	pix = ((r & 0xF8) << 7) | ((g & 0xF8) << 2) | ((b & 0xF8) >> 3);
+	return endian_uint16(&pix);
 }
 
 
@@ -157,7 +161,7 @@ PIXVAL* image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 	for (line = 0; line < dim->ymax-dim->ymin + 1; line++) {
 		int   row = 0;
 		PIXRGB pix = block_getpix(x, y + line);
-		unsigned char count = 0;
+		uint16 count = 0;
 
 		do {
 			count = 0;
@@ -167,7 +171,7 @@ PIXVAL* image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 				pix = block_getpix(x + row, y + line);
 			}
 
-			*dest++ = count;
+			*dest++ = endian_uint16(&count);
 
 			run_counter = dest++;
 			count = 0;
@@ -178,7 +182,7 @@ PIXVAL* image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 				row ++;
 				pix = block_getpix(x + row, y + line);
 			}
-			*run_counter = count;
+			*run_counter = endian_uint16(&count);
 		} while (row < img_size);
 
 		*dest++ = 0;
@@ -323,16 +327,14 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 	obj_node_t node(this, 12 + (bild.len * sizeof(uint16)), &parent, false);
 
 	// to avoid any problems due to structure changes, we write manually the data
-	node.write_data_at(outfp, &bild.x, 0, sizeof(uint8));
-	node.write_data_at(outfp, &bild.w, 1, sizeof(uint8));
-	node.write_data_at(outfp, &bild.y, 2, sizeof(uint8));
-	node.write_data_at(outfp, &bild.h, 3, sizeof(uint8));
-	node.write_data_at(outfp, &bild.len, 4, sizeof(uint32));
-	uint16 dummy16=0;
-	node.write_data_at(outfp, &dummy16, 8, sizeof(uint16));
-	node.write_data_at(outfp, &bild.zoomable, 10, sizeof(uint8));
-	uint8 dummy8=0;
-	node.write_data_at(outfp, &dummy8, 11, sizeof(uint8));
+	node.write_uint8 (outfp, bild.x,         0);
+	node.write_uint8 (outfp, bild.w,         1);
+	node.write_uint8 (outfp, bild.y,         2);
+	node.write_uint8 (outfp, bild.h,         3);
+	node.write_uint32(outfp, bild.len,       4);
+	node.write_uint16(outfp, 0,              8);
+	node.write_uint8 (outfp, bild.zoomable, 10);
+	node.write_uint8 (outfp, 0,             11);
 
 	if (bild.len) {
 		// only called, if there is something to store
@@ -344,14 +346,13 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 	obj_node_t node(this, 10 + (bild.len * sizeof(uint16)), &parent, false);
 
 	// to avoid any problems due to structure changes, we write manually the data
-	node.write_data_at(outfp, &bild.x, 0, sizeof(uint16));
-	node.write_data_at(outfp, &bild.y, 2, sizeof(uint16));
-	node.write_data_at(outfp, &bild.w, 4, sizeof(uint8));
-	node.write_data_at(outfp, &bild.h, 5, sizeof(uint8));
-	uint8 version=1;
-	node.write_data_at(outfp, &version, 6, sizeof(uint8));
-	node.write_data_at(outfp, &bild.len, 7, sizeof(uint16));
-	node.write_data_at(outfp, &bild.zoomable, 9, sizeof(uint8));
+	node.write_uint16(outfp, bild.x,        0);
+	node.write_uint16(outfp, bild.y,        2);
+	node.write_uint8 (outfp, bild.w,        4);
+	node.write_uint8 (outfp, bild.h,        5);
+	node.write_uint8 (outfp, 1,             6); // version
+	node.write_uint16(outfp, bild.len,      7);
+	node.write_uint8 (outfp, bild.zoomable, 9);
 
 	if (bild.len) {
 		// only called, if there is something to store

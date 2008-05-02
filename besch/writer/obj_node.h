@@ -37,6 +37,20 @@ class obj_node_t {
 		// Throws obj_pak_exception_t
 		void write_data_at(FILE* fp, const void* data, int offset, int size);
 
+		void write_uint8(FILE* fp, uint8 data, int offset);
+		void write_uint16(FILE* fp, uint16 data, int offset);
+		void write_uint32(FILE* fp, uint32 data, int offset);
+
+		void write_sint8(FILE* fp, sint8 data, int offset) {
+			this->write_uint8(fp, (uint8) data, offset);
+		}
+		void write_sint16(FILE* fp, sint16 data, int offset) {
+			this->write_uint16(fp, (uint16) data, offset);
+		}
+		void write_sint32(FILE* fp, sint32 data, int offset) {
+			this->write_uint32(fp, (sint32) data, offset);
+		}
+
 		// Write the internal node info to the file
 		// DO THIS AFTER ALL CHILD NODES ARE WRITTEN !!!
 		void write(FILE* fp);

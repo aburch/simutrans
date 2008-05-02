@@ -20,6 +20,7 @@ class root_writer_t : public obj_writer_t {
 
 		void copy_nodes(FILE* outfp, FILE* infp, obj_node_info_t& info);
 		void write_header(FILE* fp);
+		void write_obj_node_info_t(FILE* outfp, const obj_node_info_t &root);
 
 	public:
 		void capabilites();

@@ -22,9 +22,9 @@ void xref_writer_t::write_obj(FILE* outfp, obj_node_t& parent, obj_type type, co
 
 	char c = fatal ? 1 : 0;
 
-	node.write_data_at(outfp, &type, 0, sizeof(obj_type));
-	node.write_data_at(outfp, &c, sizeof(obj_type), sizeof(char));
-	node.write_data_at(outfp, text, sizeof(obj_type) + sizeof(char), len + 1);
+	node.write_uint32(outfp, (uint32) type, 0);
+	node.write_uint8 (outfp, c, 4);
+	node.write_data_at(outfp, text, 5, len + 1);
 	node.write(outfp);
 }
 

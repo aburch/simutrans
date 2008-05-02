@@ -2334,7 +2334,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			dbg->fatal("wkz_station_t::work()","tool called for illegal besch \"%\"", default_param );
 	}
 
-	if(!msg) {
+	if(msg==NULL) {
 		// no error? => recalc all station connections
 		welt->set_schedule_counter();
 	}

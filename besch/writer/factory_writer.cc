@@ -23,23 +23,12 @@ printf("\n\n%s\n\n",s);
 	besch.max_fields = obj.get_int("max_fields", 25);
 	besch.min_fields = obj.get_int("min_fields", 5);
 
-	uint16 data = 0x8001;	// version
-	node.write_data_at(outfp, &data, 0, sizeof(uint16));
-
-	uint8 v8 = besch.has_winter;
-	node.write_data_at(outfp, &v8, 2, sizeof(uint8));
-
-	data = besch.probability;
-	node.write_data_at(outfp, &data, 3, sizeof(uint16));
-
-	data = besch.production_per_field;
-	node.write_data_at(outfp, &data, 5, sizeof(uint16));
-
-	data = besch.max_fields;
-	node.write_data_at(outfp, &data, 7, sizeof(uint16));
-
-	data = besch.min_fields;
-	node.write_data_at(outfp, &data, 9, sizeof(uint16));
+	node.write_uint16(outfp, 0x8001,                     0); // version
+	node.write_uint8 (outfp, besch.has_winter,           2);
+	node.write_uint16(outfp, besch.probability,          3);
+	node.write_uint16(outfp, besch.production_per_field, 5);
+	node.write_uint16(outfp, besch.max_fields,           7);
+	node.write_uint16(outfp, besch.min_fields,           9);
 
 	node.write(outfp);
 }
@@ -71,14 +60,10 @@ void factory_product_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int ca
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
 	// new version 2: pax-level added
-	uint16 data = 0x8001;
-	node.write_data_at(outfp, &data, 0, sizeof(uint16));
+	node.write_uint16(outfp, 0x8001,   0);
 
-	data = capacity;
-	node.write_data_at(outfp, &data, 2, sizeof(uint16));
-
-	data = factor;
-	node.write_data_at(outfp, &data, 4, sizeof(uint16));
+	node.write_uint16(outfp, capacity, 2);
+	node.write_uint16(outfp, factor,   4);
 
 	node.write(outfp);
 }
@@ -178,36 +163,17 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 
 	// new version with pax_level
-	uint16 data = 0x8002;
-	uint8 data8;
-	node.write_data_at(fp, &data, 0, sizeof(uint16));
+	node.write_uint16(fp, 0x8002,                      0); // version
 
-	data = (uint16)besch.platzierung;
-	node.write_data_at(fp, &data, 2, sizeof(uint16));
-
-	data = besch.produktivitaet;
-	node.write_data_at(fp, &data, 4, sizeof(uint16));
-
-	data = besch.bereich;
-	node.write_data_at(fp, &data, 6, sizeof(uint16));
-
-	data = besch.gewichtung;
-	node.write_data_at(fp, &data, 8, sizeof(uint16));
-
-	data8 = besch.kennfarbe;
-	node.write_data_at(fp, &data8, 10, sizeof(uint8));
-
-	data8 = besch.fields;
-	node.write_data_at(fp, &data8, 11, sizeof(uint8));
-
-	data = besch.lieferanten;
-	node.write_data_at(fp, &data, 12, sizeof(uint16));
-
-	data = besch.produkte;
-	node.write_data_at(fp, &data, 14, sizeof(uint16));
-
-	data = besch.pax_level;
-	node.write_data_at(fp, &data, 16, sizeof(uint16));
+	node.write_uint16(fp, (uint16) besch.platzierung,  2);
+	node.write_uint16(fp, besch.produktivitaet,        4);
+	node.write_uint16(fp, besch.bereich,               6);
+	node.write_uint16(fp, besch.gewichtung,            8);
+	node.write_uint8 (fp, besch.kennfarbe,            10);
+	node.write_uint8 (fp, besch.fields,               11);
+	node.write_uint16(fp, besch.lieferanten,          12);
+	node.write_uint16(fp, besch.produkte,             14);
+	node.write_uint16(fp, besch.pax_level,            16);
 
 	node.write(fp);
 }

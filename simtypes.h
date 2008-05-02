@@ -132,12 +132,12 @@ static inline int max(const int a, const int b)
 
 // endian coversion routines
 
-inline uint8 endian_uint8(char * data)
+inline uint8 endian_uint8(const char * data)
 {
 	return (uint8)*data;
 }
 
-inline uint16 endian_uint16(uint16 *d)
+inline uint16 endian_uint16(const uint16 *d)
 {
 #ifndef BIG_ENDIAN
 	return  *d;
@@ -147,7 +147,7 @@ inline uint16 endian_uint16(uint16 *d)
 #endif
 }
 
-inline uint32 endian_uint32(uint32 *d)
+inline uint32 endian_uint32(const uint32 *d)
 {
 #ifndef BIG_ENDIAN
 	return *d;
@@ -157,7 +157,7 @@ inline uint32 endian_uint32(uint32 *d)
 #endif
 }
 
-inline uint64 endian_uint64(uint64 * d)
+inline uint64 endian_uint64(const uint64 * d)
 {
 #ifndef BIG_ENDIAN
 	return *d;

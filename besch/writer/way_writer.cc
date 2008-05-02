@@ -52,16 +52,16 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	uint8 draw_as_ding = (obj.get_int("draw_as_ding", 0) == 1);
 	sint8 number_seasons = 0;
 
-	node.write_data_at(outfp, &version,       0, 2);
-	node.write_data_at(outfp, &price,         2, 4);
-	node.write_data_at(outfp, &maintenance,   6, 4);
-	node.write_data_at(outfp, &topspeed,     10, 4);
-	node.write_data_at(outfp, &max_weight,   14, 4);
-	node.write_data_at(outfp, &intro,        18, 2);
-	node.write_data_at(outfp, &retire,       20, 2);
-	node.write_data_at(outfp, &wtyp,         22, 1);
-	node.write_data_at(outfp, &styp,         23, 1);
-	node.write_data_at(outfp, &draw_as_ding, 24, 1);
+	node.write_uint16(outfp, version,       0);
+	node.write_uint32(outfp, price,         2);
+	node.write_uint32(outfp, maintenance,   6);
+	node.write_uint32(outfp, topspeed,     10);
+	node.write_uint32(outfp, max_weight,   14);
+	node.write_uint16(outfp, intro,        18);
+	node.write_uint16(outfp, retire,       20);
+	node.write_uint8 (outfp, wtyp,         22);
+	node.write_uint8 (outfp, styp,         23);
+	node.write_uint8 (outfp, draw_as_ding, 24);
 
 	slist_tpl<cstring_t> keys;
 	char buf[40];

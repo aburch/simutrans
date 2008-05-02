@@ -20,23 +20,22 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	// Hajo: version number
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	value = 0x8003;
-	node.write_data_at(fp, &value, 0, sizeof(uint16));
+	node.write_uint16(fp, 0x8003, 0);
 
 	value = obj.get_int("value", 0);
-	node.write_data_at(fp, &value, 2, sizeof(uint16));
+	node.write_uint16(fp, value,  2);
 
 	val8 = obj.get_int("catg", 0);
-	node.write_data_at(fp, &val8, 4, sizeof(uint8));
+	node.write_uint8 (fp, val8,   4);
 
 	value = obj.get_int("speed_bonus", 0);
-	node.write_data_at(fp, &value, 5, sizeof(uint16));
+	node.write_uint16(fp, value,  5);
 
 	value = obj.get_int("weight_per_unit", 100);
-	node.write_data_at(fp, &value, 7, sizeof(uint16));
+	node.write_uint16(fp, value,  7);
 
 	val8 = obj.get_int("mapcolor", 255);
-	node.write_data_at(fp, &val8, 9, sizeof(uint8));
+	node.write_uint8 (fp, val8,   9);
 
 	node.write(fp);
 }

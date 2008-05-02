@@ -48,16 +48,16 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 
 	// Hajo: write version data
 	v16 = 0x8002;
-	node.write_data_at(fp, &v16, 0, sizeof(uint16));
+	node.write_uint16(fp, v16, 0);
 
 	v16 = besch.phasen;
-	node.write_data_at(fp, &v16, 2, sizeof(uint16));
+	node.write_uint16(fp, v16, 2);
 
 	v16 = besch.index;
-	node.write_data_at(fp, &v16, 4, sizeof(uint16));
+	node.write_uint16(fp, v16, 4);
 
 	uint8 uv8 = besch.seasons;
-	node.write_data_at(fp, &uv8, 6, sizeof(uint8));
+	node.write_uint8(fp, uv8, 6);
 
 	node.write(fp);
 }
@@ -275,61 +275,24 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		}
 	}
 
-	// Hajo: old code
-	// node.write_data(fp, &besch);
-
-	// Hajo: temp vars of appropriate size
-	uint32 v32;
-	uint16 v16;
-	uint8  v8;
-
 	// Hajo: write version data
-	v16 = 0x8005;
-	node.write_data_at(fp, &v16, 0, sizeof(uint16));
+	node.write_uint16(fp, 0x8005,                           0);
 
 	// Hajo: write besch data
-
-	v8 = (uint8) besch.gtyp;
-	node.write_data_at(fp, &v8, 2, sizeof(uint8));
-
-	v8 = (uint8)besch.utype;
-	node.write_data_at(fp, &v8, 3, sizeof(uint8));
-
-	v16 = (uint16)besch.level;
-	node.write_data_at(fp, &v16, 4, sizeof(uint16));
-
-	v32 = (uint32)besch.extra_data;
-	node.write_data_at(fp, &v32, 6, sizeof(uint32));
-
-	v16 = besch.groesse.x;
-	node.write_data_at(fp, &v16, 10, sizeof(uint16));
-
-	v16 = besch.groesse.y;
-	node.write_data_at(fp, &v16, 12, sizeof(uint16));
-
-	v8 = (uint8)besch.layouts;
-	node.write_data_at(fp, &v8, 14, sizeof(uint8));
-
-	v16 = (uint16)besch.allowed_climates;
-	node.write_data_at(fp, &v16, 15, sizeof(uint16));
-
-	v8 = (uint8)besch.enables;
-	node.write_data_at(fp, &v8, 17, sizeof(uint8));
-
-	v8 = (uint8)besch.flags;
-	node.write_data_at(fp, &v8, 18, sizeof(uint8));
-
-	v8 = (uint8)besch.chance;
-	node.write_data_at(fp, &v8, 19, sizeof(uint8));
-
-	v16 = besch.intro_date;
-	node.write_data_at(fp, &v16, 20, sizeof(uint16));
-
-	v16 = besch.obsolete_date;
-	node.write_data_at(fp, &v16, 22, sizeof(uint16));
-
-	v16 = besch.animation_time;
-	node.write_data_at(fp, &v16, 24, sizeof(uint16));
+	node.write_uint8 (fp, (uint8) besch.gtyp,               2);
+	node.write_uint8 (fp, (uint8) besch.utype,              3);
+	node.write_uint16(fp, (uint16) besch.level,             4);
+	node.write_uint32(fp, (uint32) besch.extra_data,        6);
+	node.write_uint16(fp, besch.groesse.x,                 10);
+	node.write_uint16(fp, besch.groesse.y,                 12);
+	node.write_uint8 (fp, (uint8) besch.layouts,           14);
+	node.write_uint16(fp, (uint16) besch.allowed_climates, 15);
+	node.write_uint8 (fp, (uint8) besch.enables,           17);
+	node.write_uint8 (fp, (uint8) besch.flags,             18);
+	node.write_uint8 (fp, (uint8) besch.chance,            19);
+	node.write_uint16(fp, besch.intro_date,                20);
+	node.write_uint16(fp, besch.obsolete_date,             22);
+	node.write_uint16(fp, besch.animation_time,            24);
 
 	// probably add some icons, if defined
 	slist_tpl<cstring_t> cursorkeys;
