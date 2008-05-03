@@ -532,7 +532,7 @@ void haltestelle_t::verbinde_fabriken()
 	fab_list.clear();
 
 	// then reconnect
-	for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+	for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
 		grund_t* gb = i->grund;
 		koord p = gb->gib_pos().gib_2d();
 
@@ -1282,7 +1282,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 			// arriving passenger may create pedestrians
 			if(welt->gib_einstellungen()->gib_show_pax()) {
 				int menge = ware.menge;
-				for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); menge > 0 && i != end; ++i) {
+				for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); menge > 0 && i != end; ++i) {
 					grund_t* gr = i->grund;
 					menge = erzeuge_fussgaenger(welt, gr->gib_pos(), menge);
 				}
@@ -1449,7 +1449,7 @@ void haltestelle_t::transfer_to_public_owner()
 	}
 
 	// iterate over all tiles
-	for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+	for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
 		grund_t* gr = i->grund;
 		gebaeude_t* gb = gr->find<gebaeude_t>();
 		if(gb) {
@@ -1484,7 +1484,7 @@ void haltestelle_t::recalc_station_type()
 	enables &= CROWDED;	// clear flags
 
 	// iterate over all tiles
-	for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+	for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
 		grund_t* gr = i->grund;
 		const gebaeude_t* gb = gr->find<gebaeude_t>();
 		const haus_besch_t *besch=gb?gb->gib_tile()->gib_besch():NULL;
@@ -1630,7 +1630,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			k.rdwr( file );
 		}
 	} else {
-		for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+		for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
 			k = i->grund->gib_pos();
 			k.rdwr( file );
 		}
@@ -1714,7 +1714,7 @@ void haltestelle_t::laden_abschliessen()
 	// what kind of station here?
 	recalc_station_type();
 #ifdef LAGER_NOT_IN_USE
-	for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+	for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
 		koord3d k(i->grund->gib_pos());
 		// nach sondergebaeuden suchen
 
@@ -1955,7 +1955,7 @@ void haltestelle_t::rem_grund(grund_t *gr)
 {
 	// namen merken
 	if(gr) {
-		slist_tpl<tile>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
+		slist_tpl<tile_t>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
 		if (i == tiles.end()) {
 			// was not part of station => do nothing
 			dbg->error("haltestelle_t::rem_grund()","removed illegal ground from halt");
@@ -2053,7 +2053,7 @@ koord haltestelle_t::get_next_pos( koord start ) const
 	if (!tiles.empty()) {
 		// find the closest one
 		int	dist = 0x7FFF;
-		for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+		for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
 			koord p = i->grund->gib_pos().gib_2d();
 			int d = abs_distance(start, p );
 			if(d<dist) {
@@ -2074,10 +2074,26 @@ koord haltestelle_t::get_next_pos( koord start ) const
 void haltestelle_t::mark_unmark_coverage(const bool mark) const
 {
 	// iterate over all tiles
-	for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+	for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
 		koord size( welt->gib_einstellungen()->gib_station_coverage()*2+1, welt->gib_einstellungen()->gib_station_coverage()*2+1);
 		welt->mark_area( i->grund->gib_pos()-size/2, size, mark );
 	}
+}
+
+
+
+/* Find a tile where this type of vehicle could stop
+ * @author prissi
+ */
+const grund_t *haltestelle_t::find_matching_position(const waytype_t w) const
+{
+	// iterate over all tiles
+	for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+		if(i->grund->hat_weg(w)) {
+			return i->grund;
+		}
+	}
+	return NULL;
 }
 
 
@@ -2088,7 +2104,7 @@ void haltestelle_t::mark_unmark_coverage(const bool mark) const
 bool haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const ding_t::typ d) const
 {
 	// iterate over all tiles
-	for (slist_tpl<tile>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+	for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
 		if (i->reservation == cnv || !i->reservation.is_bound()) {
 			// not reseved
 			grund_t* gr = i->grund;
@@ -2110,7 +2126,7 @@ bool haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,cons
  */
 bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 {
-	slist_tpl<tile>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
+	slist_tpl<tile_t>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
 	if (i != tiles.end()) {
 		if (i->reservation == cnv) {
 //DBG_MESSAGE("haltestelle_t::reserve_position()","gr=%d,%d already reserved by cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
@@ -2141,7 +2157,7 @@ bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
  */
 bool haltestelle_t::unreserve_position(grund_t *gr, convoihandle_t cnv)
 {
-	slist_tpl<tile>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
+	slist_tpl<tile_t>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
 	if (i != tiles.end()) {
 		if (i->reservation == cnv) {
 			i->reservation = convoihandle_t();
@@ -2159,7 +2175,7 @@ DBG_MESSAGE("haltestelle_t::unreserve_position()","failed for gr=%p",gr);
  */
 bool haltestelle_t::is_reservable(grund_t *gr,convoihandle_t cnv)
 {
-	slist_tpl<tile>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
+	slist_tpl<tile_t>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
 	if (i != tiles.end()) {
 		if (i->reservation == cnv) {
 DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());

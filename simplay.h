@@ -530,6 +530,14 @@ private:
 	halthandle_t  get_our_hub( const stadt_t *s );
 	koord built_hub( const koord pos, int radius );
 
+	// builts a 3x3 airport
+	halthandle_t built_airport(const stadt_t *city, koord pos, bool rotate );
+
+	/* builts airports and planes
+	 * @author prissi
+	 */
+	bool create_air_transport_vehikel(const stadt_t *start_stadt, const stadt_t *end_stadt);
+
 	// helper function for bus stops intown
 	void walk_city( linehandle_t &line, grund_t *&start, const int limit );
 

@@ -24,21 +24,10 @@ class loadsave_t;
 class warenziel_t
 {
 private:
-//    koord ziel;
-		halthandle_t halt;
+	halthandle_t halt;
     uint8 catg_index;
 
 public:
-	/*
-    // don't use them, or fix them: Actually, these should check for stops
-    // but they are needed for list search ...
-    int operator==(const warenziel_t &wz) {
-        return (ziel == wz.gib_ziel()  &&  typ==wz.gib_typ());
-    }
-    int operator!=(const warenziel_t &wz) {
-        return ziel!=wz.gib_ziel()  ||  typ!=wz.gib_typ();
-    }
-*/
     // don't use them, or fix them: Actually, these should check for stops
     // but they are needed for list search ...
     int operator==(const warenziel_t &wz) {
@@ -48,9 +37,9 @@ public:
         return halt!=wz.gib_zielhalt()  ||  catg_index!=wz.gib_catg_index();
     }
 
-		warenziel_t() { catg_index = 255; halt = halthandle_t();}
+	warenziel_t() { catg_index = 255; halt = halthandle_t();}
 
-		warenziel_t(halthandle_t &h, const ware_besch_t *b) { halt = h; catg_index = b->gib_catg_index(); }
+	warenziel_t(halthandle_t &h, const ware_besch_t *b) { halt = h; catg_index = b->gib_catg_index(); }
 
     warenziel_t(loadsave_t *file);
 

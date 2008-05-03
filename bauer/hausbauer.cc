@@ -579,7 +579,7 @@ const haus_besch_t* hausbauer_t::gib_random_station(const haus_besch_t::utyp uty
 
 	for(  vector_tpl<const haus_besch_t *>::const_iterator iter = station_building.begin(), end = station_building.end();  iter != end;  ++iter  ) {
 		const haus_besch_t* besch = (*iter);
-		if(besch->gib_utyp()==utype  &&  besch->gib_extra()==wt  &&  (besch->get_enabled()&enables)!=0) {
+		if(besch->gib_utyp()==utype  &&  besch->gib_extra()==wt  &&  (enables==0  ||  (besch->get_enabled()&enables)!=0)) {
 			// ok, now check timeline
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 				stops.push_back(besch);

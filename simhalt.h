@@ -168,17 +168,17 @@ private:
 	 * Liste aller felder (Grund-Objekte) die zu dieser Haltestelle gehören
 	 * @author Hj. Malthaner
 	 */
-	struct tile
+	struct tile_t
 	{
-		tile(grund_t* grund_) : grund(grund_) {}
+		tile_t(grund_t* grund_) : grund(grund_) {}
 
-		bool operator ==(const tile& o) { return grund == o.grund; }
-		bool operator !=(const tile& o) { return grund != o.grund; }
+		bool operator ==(const tile_t& o) { return grund == o.grund; }
+		bool operator !=(const tile_t& o) { return grund != o.grund; }
 
 		grund_t*       grund;
 		convoihandle_t reservation;
 	};
-	slist_tpl<tile> tiles;
+	slist_tpl<tile_t> tiles;
 
 	koord init_pos;	// for halt without grounds, created during game initialisation
 
@@ -478,6 +478,8 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void hat_gehalten(const ware_besch_t *warentyp, const fahrplan_t *fpl);
+
+	const grund_t *find_matching_position(waytype_t wt) const;
 
 	/* checks, if there is an unoccupied loading bay for this kind of thing
 	* @author prissi
