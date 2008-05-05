@@ -49,6 +49,7 @@
 	CHANGE: allow any key for command, include #99999 (decimal code), ^A (Control A), F99 (F1-F15), COMMA (,)
 	CHANGE: allow for &lt; and &gt; to be used in flowtexts
 	ADD: stop mover tool (mostly z9999) tilewise for road, stopwise for water/air and platformwise for rail bound vehicles
+	ADD: AI builts airports (sometimes still too close to border) and uses them more or less wisely
 
 
 Release of 99.17.1 (r1550, stable)

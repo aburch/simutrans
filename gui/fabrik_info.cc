@@ -44,13 +44,13 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	lieferbuttons = new button_t [lieferziele.get_count()];
 #endif
 	for(unsigned i=0; i<lieferziele.get_count(); i++) {
-		lieferbuttons[i].setze_pos(koord(16, 57+i*11));
+		lieferbuttons[i].setze_pos(koord(16, 46+i*LINESPACE));
 		lieferbuttons[i].setze_typ(button_t::arrowright);
 		lieferbuttons[i].add_listener(this);
 		cont.add_komponente(&lieferbuttons[i]);
 	}
 
-	int y_off = lieferziele.get_count() ? (int)lieferziele.get_count()*11-11 : -33;
+	int y_off = (lieferziele.get_count() ? (int)lieferziele.get_count()-1 : -3)*LINESPACE;
 	const vector_tpl <koord> & suppliers =  fab->get_suppliers();
 #ifdef _MSC_VER
 	// V.Meyer: MFC has a bug with "new x[0]"
@@ -59,13 +59,13 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	supplierbuttons = new button_t [suppliers.get_count()];
 #endif
 	for(unsigned i=0; i<suppliers.get_count(); i++) {
-		supplierbuttons[i].setze_pos(koord(16, 90+y_off+i*11));
+		supplierbuttons[i].setze_pos(koord(16, 79+y_off+i*LINESPACE));
 		supplierbuttons[i].setze_typ(button_t::arrowright);
 		supplierbuttons[i].add_listener(this);
 		cont.add_komponente(&supplierbuttons[i]);
 	}
 
-	int yy_off = suppliers.get_count() ? (int)suppliers.get_count()*11-11 : -33;
+	int yy_off = (suppliers.get_count() ? (int)suppliers.get_count()-1 : -3)*LINESPACE;
 	y_off += yy_off;
 	const slist_tpl <stadt_t *> & arbeiterziele = fab->gib_arbeiterziele();
 #ifdef _MSC_VER
@@ -75,7 +75,7 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	stadtbuttons = new button_t [arbeiterziele.count()];
 #endif
 	for(unsigned i=0; i<arbeiterziele.count(); i++) {
-		stadtbuttons[i].setze_pos(koord(16, 123+y_off+i*11));
+		stadtbuttons[i].setze_pos(koord(16, 112+y_off+i*LINESPACE));
 		stadtbuttons[i].setze_typ(button_t::arrowright);
 		stadtbuttons[i].add_listener(this);
 		cont.add_komponente(&stadtbuttons[i]);

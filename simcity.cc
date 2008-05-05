@@ -1151,6 +1151,8 @@ void stadt_t::rdwr(loadsave_t* file)
 
 	if (lo.y < 0) lo.y = max(0, pos.y - 33);
 	if (ur.y >= welt->gib_groesse_y() - 1) ur.y = min(welt->gib_groesse_y() - 2, pos.y + 33);
+
+	// will be corrected later one anyways for newer versions
 }
 
 
@@ -1309,17 +1311,17 @@ void stadt_t::step(long delta_t)
 		step_interval = 1;
 	}
 
+	while(stadt_t::step_bau_interval < next_bau_step) {
+		calc_growth();
+		step_bau();
+		next_bau_step -= stadt_t::step_bau_interval;
+	}
+
 	// create passenger rate proportional to town size
 	while(step_interval < next_step) {
 		step_passagiere();
 		step_count++;
 		next_step -= step_interval;
-	}
-
-	while(stadt_t::step_bau_interval < next_bau_step) {
-		calc_growth();
-		step_bau();
-		next_bau_step -= stadt_t::step_bau_interval;
 	}
 
 	// update history (might be changed do to construction/destroying of houses)
@@ -1733,16 +1735,19 @@ void stadt_t::step_passagiere()
  */
 koord stadt_t::gib_zufallspunkt() const
 {
-	assert(!buildings.empty());
-	const gebaeude_t* gb = buildings.at_weight(simrand(buildings.get_sum_weight()));
-	koord k = gb->gib_pos().gib_2d();
-	if(!welt->ist_in_kartengrenzen(k)) {
-		// this building should not be in this list, since it has been already deleted!
-		dbg->error("stadt_t::gib_zufallspunkt()", "illegal building in city list of %s: %p removing!", this->gib_name(), gb);
-		const_cast<stadt_t*>(this)->buildings.remove(gb);
-		k = koord(0, 0);
+	if(!buildings.empty()) {
+		const gebaeude_t* gb = buildings.at_weight(simrand(buildings.get_sum_weight()));
+		koord k = gb->gib_pos().gib_2d();
+		if(!welt->ist_in_kartengrenzen(k)) {
+			// this building should not be in this list, since it has been already deleted!
+			dbg->error("stadt_t::gib_zufallspunkt()", "illegal building in city list of %s: %p removing!", this->gib_name(), gb);
+			const_cast<stadt_t*>(this)->buildings.remove(gb);
+			k = koord(0, 0);
+		}
+		return k;
 	}
-	return k;
+	// might happen on slow computers during creation of new cities or start of map
+	return koord(0,0);
 }
 
 

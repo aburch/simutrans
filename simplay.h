@@ -527,8 +527,10 @@ private:
 	const stadt_t *end_stadt;	// target is town
 	const gebaeude_t *end_ausflugsziel;
 
-	halthandle_t  get_our_hub( const stadt_t *s );
-	koord built_hub( const koord pos, int radius );
+	halthandle_t  get_our_hub( const stadt_t *s ) const;
+
+	koord find_area_for_hub( const koord lo, const koord ru, const koord basis ) const;
+	koord find_place_for_hub( const stadt_t *s ) const;
 
 	// builts a 3x3 airport
 	halthandle_t built_airport(const stadt_t *city, koord pos, bool rotate );

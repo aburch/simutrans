@@ -1251,14 +1251,8 @@ fabrik_t::zeige_info() const
 void
 fabrik_t::info(cbuffer_t& buf) const
 {
-	buf.append(translator::translate("Produktion"));
-	buf.append(":\n");
-	buf.append(translator::translate("Durchsatz"));
-	buf.append(" ");
-	buf.append( (prodbase * prodfaktor * 16l)>>(26l-(long)welt->ticks_bits_per_tag));
-	buf.append(" ");
-	buf.append(translator::translate("units/day"));
-	buf.append("\n");
+	buf.clear();
+	buf.printf("%s %li %s\n", translator::translate("Durchsatz"), (prodbase * prodfaktor * 16l)>>(26l-(long)welt->ticks_bits_per_tag), translator::translate("units/day"));
 
 	if (!lieferziele.empty()) {
 		buf.append("\n");

@@ -42,7 +42,7 @@ public:
 	 */
 	linehandle_t self;
 
-	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6};
+	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6, maglevline=7, narrowgaugeline=8};
 	static uint8 convoi_to_line_catgory[MAX_CONVOI_COST];
 
 	simline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl);
@@ -280,6 +280,30 @@ class tramline_t : public simline_t
 		{
 			type = simline_t::tramline;
 			set_fahrplan(new tramfahrplan_t(fpl));
+		}
+};
+
+class narrowgaugeline_t : public simline_t
+{
+	public:
+		narrowgaugeline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl) : simline_t(simlinemgmt, fpl) { type = simline_t::narrowgaugeline; }
+
+		narrowgaugeline_t(karte_t* welt, loadsave_t* file) : simline_t(welt, file)
+		{
+			type = simline_t::narrowgaugeline;
+			set_fahrplan(new narrowgaugefahrplan_t(fpl));
+		}
+};
+
+class maglevline_t : public simline_t
+{
+	public:
+		maglevline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl) : simline_t(simlinemgmt, fpl) { type = simline_t::maglevline; }
+
+		maglevline_t(karte_t* welt, loadsave_t* file) : simline_t(welt, file)
+		{
+			type = simline_t::maglevline;
+			set_fahrplan(new maglevfahrplan_t(fpl));
 		}
 };
 
