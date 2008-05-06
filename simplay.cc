@@ -2863,6 +2863,32 @@ halthandle_t spieler_t::built_airport( stadt_t *city, koord pos, int rotation )
 
 
 
+static koord find_airport_pos(karte_t* welt, const stadt_t *s )
+{
+	koord bestpos = koord::invalid, k;
+	sint32 bestdist = 999999;
+
+	// try to find an airport place as close to the city as possible
+	for(  k.y=max(6,s->get_linksoben().y-10); k.y<=min(welt->gib_groesse_y()-3-6,s->get_rechtsunten().y+10); k.y++  ) {
+		for(  k.x=max(6,s->get_linksoben().x-25); k.x<=min(welt->gib_groesse_x()-3-6,s->get_rechtsunten().x+10); k.x++  ) {
+			sint32 testdist = abs_distance( k, s->gib_pos() );
+			if(  testdist<bestdist  ) {
+				if(  k.x+2<s->get_linksoben().x  ||  k.y+2<s->get_linksoben().y  ||  k.x>=s->get_rechtsunten().x  ||  k.y>=s->get_rechtsunten().y  ) {
+					// malus for out of town
+					testdist += 5;
+				}
+				if(  testdist<bestdist  &&  welt->ist_platz_frei( k, 3, 3, NULL, ALL_CLIMATES )  ) {
+					bestpos = k;
+					bestdist = testdist;
+				}
+			}
+		}
+	}
+	return bestpos;
+}
+
+
+
 /* builts airports and planes
  * @author prissi
  */
@@ -2897,7 +2923,7 @@ bool spieler_t::create_air_transport_vehikel(const stadt_t *start_stadt, const s
 	}
 	// find an airport place
 	if(!start_hub.is_bound()) {
-		start_airport = bauplatz_sucher_t(welt).suche_platz( start_stadt->gib_pos(), 3, 3, ALL_CLIMATES, &start_rotate );
+		start_airport = find_airport_pos( welt, start_stadt );
 		if(start_airport==koord::invalid) {
 			// sorry, no suitable place
 			return false;
@@ -2927,7 +2953,7 @@ bool spieler_t::create_air_transport_vehikel(const stadt_t *start_stadt, const s
 	}
 	if(!end_hub.is_bound()) {
 		// find an airport place
-		end_airport = bauplatz_sucher_t(welt).suche_platz( end_stadt->gib_pos(), 3, 3, ALL_CLIMATES, &end_rotate );
+		end_airport = find_airport_pos( welt, end_stadt );
 		if(end_airport==koord::invalid) {
 			// sorry, no suitable place
 			return false;
@@ -3506,8 +3532,9 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 								capacity += cnv->gib_vehikel(0)->gib_besch()->gib_zuladung();
 							}
 						}
-						// now try to finde new vehicle
-						if(capacity>0) {
+						// do not update unimportant line with single vehilcles
+						if(capacity>0  &&  line->count_convoys()>1) {
+							// now try to finde new vehicle
 							road_vehicle = vehikelbauer_t::vehikel_search( line->get_convoy(0)->gib_vehikel(0)->gib_waytype(), welt->get_current_month(), 50, welt->get_average_speed(line->get_convoy(0)->gib_vehikel(0)->gib_waytype()), warenbauer_t::passagiere );
 							if(!road_vehicle->is_retired(welt->get_current_month())) {
 								// there is a newer one ...
@@ -3527,6 +3554,11 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 								return;
 							}
 						}
+					}
+					// check if we could use waiting for load ...
+					if(  line->get_linetype()==simline_t::airline  &&  line->get_fahrplan()->eintrag[1].ladegrad==0  ) {
+						line->get_fahrplan()->eintrag[1].ladegrad = 10;
+						return;
 					}
 				}
 				// next: check for stucked convois ...
