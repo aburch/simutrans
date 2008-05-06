@@ -3404,11 +3404,11 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 		// built a simple road (no bridges, no tunnels)
 		case NR_BAUE_STRASSEN_ROUTE:
 		{
-			bool ok = false;
+			state = NR_BAUE_WATER_ROUTE;	// assume failure
 			const haus_besch_t* bs = hausbauer_t::gib_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX);
 			if(bs  &&  create_simple_road_transport()  ) {
 				// since the road my have led to a crossing at the indended stop position ...
-				ok = true;
+				bool ok = true;
 				if(!is_my_halt(platz1)) {
 					if(  !call_general_tool( WKZ_STATION, platz1, bs->gib_name() )  ) {
 						platz1 = find_area_for_hub( platz1-koord(2,2), platz1+koord(2,2), platz1 );
@@ -3429,65 +3429,66 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 					// wait only, if target is not a hub but an attraction/factory
 					create_bus_transport_vehikel(platz1,count,list,2,end_stadt==NULL);
 					state = NR_ROAD_SUCCESS;
+					// tell the player
+					cbuffer_t buf(1024);
+					if(end_ausflugsziel!=NULL) {
+						platz1 = end_ausflugsziel->gib_pos().gib_2d();
+						buf.printf(translator::translate("%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n"), gib_name(), start_stadt->gib_name(), make_single_line_string(translator::translate(end_ausflugsziel->gib_tile()->gib_besch()->gib_name()),2), platz1.x, platz1.y );
+						end_stadt = start_stadt;
+					}
+					else if(ziel!=NULL) {
+						platz1 = ziel->gib_pos().gib_2d();
+						buf.printf( translator::translate("%s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n"), gib_name(), start_stadt->gib_name(), make_single_line_string(translator::translate(ziel->gib_name()),2), platz1.x, platz1.y );
+						end_stadt = start_stadt;
+					}
+					else {
+						buf.printf( translator::translate("Travellers now\nuse %s's\nbusses between\n%s \nand %s.\n"), gib_name(), start_stadt->gib_name(), end_stadt->gib_name() );
+						// add two intown routes
+						cover_city_with_bus_route(platz1, 6);
+						cover_city_with_bus_route(platz2, 6);
+					}
+					message_t::get_instance()->add_message((const char *)buf,platz1,message_t::ai,player_nr,road_vehicle->gib_basis_bild());
 				}
-			}
-			// maybe airplane could help
-			if(!ok) {
-				state = NR_BAUE_CLEAN_UP;
 			}
 		}
 		break;
 
-		// remove marker etc.
-		case NR_BAUE_CLEAN_UP:
+		case NR_BAUE_WATER_ROUTE:
 			if(  end_ausflugsziel==NULL  &&  ziel==NULL  ) {
-				// try airline ...
-				if(!create_air_transport_vehikel( start_stadt, end_stadt )) {
-					end_stadt = NULL;
-				}
-				else {
-					// add two intown routes
-					cover_city_with_bus_route( get_our_hub(start_stadt)->gib_basis_pos(), 6);
-					cover_city_with_bus_route( get_our_hub(end_stadt)->gib_basis_pos(), 6);
-					char buf[512];
-					sprintf(buf, translator::translate("Airline service by\n%s\nnow between\n%s \nand %s.\n"), gib_name(), start_stadt->gib_name(), end_stadt->gib_name() );
-					end_stadt = start_stadt;
-				}
+				state = NR_BAUE_SIMPLE_SCHIENEN_ROUTE;
 			}
 			else {
-				end_stadt = NULL;
+				state = NR_BAUE_CLEAN_UP;
 			}
-			state = CHECK_CONVOI;
-			// otherwise it may always try to built the same route!
 		break;
 
-		// successful rail construction
+		// despite its name: try airplane
+		case NR_BAUE_SIMPLE_SCHIENEN_ROUTE:
+			// try airline ...
+			if(!create_air_transport_vehikel( start_stadt, end_stadt )) {
+				state = NR_BAUE_CLEAN_UP;
+			}
+			else {
+				// add two intown routes
+				cover_city_with_bus_route( get_our_hub(start_stadt)->gib_basis_pos(), 6);
+				cover_city_with_bus_route( get_our_hub(end_stadt)->gib_basis_pos(), 6);
+				cbuffer_t buf(1024);
+				buf.printf( translator::translate("Airline service by\n%s\nnow between\n%s \nand %s.\n"), gib_name(), start_stadt->gib_name(), end_stadt->gib_name() );
+				message_t::get_instance()->add_message((const char *)buf,end_stadt->gib_pos(),message_t::ai,player_nr,road_vehicle->gib_basis_bild());
+				state = NR_ROAD_SUCCESS;
+			}
+		break;
+
+		// remove marker etc.
+		case NR_BAUE_CLEAN_UP:
+			state = CHECK_CONVOI;
+			end_stadt = NULL; // otherwise it may always try to built the same route!
+		break;
+
+		// successful construction
 		case NR_ROAD_SUCCESS:
 		{
 			state = CHECK_CONVOI;
-			// tell the player
-			char buf[256];
-			if(end_ausflugsziel!=NULL) {
-				platz1 = end_ausflugsziel->gib_pos().gib_2d();
-				sprintf(buf, translator::translate("%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n"), gib_name(), start_stadt->gib_name(), make_single_line_string(translator::translate(end_ausflugsziel->gib_tile()->gib_besch()->gib_name()),2), platz1.x, platz1.y );
-DBG_DEBUG("do_passenger_ki()","attraction success");
-				end_stadt = start_stadt;
-			}
-			else if(ziel!=NULL) {
-				platz1 = ziel->gib_pos().gib_2d();
-DBG_DEBUG("do_passenger_ki()","%s",translator::translate("%s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n") );
-				sprintf(buf, translator::translate("%s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n"), gib_name(), start_stadt->gib_name(), make_single_line_string(translator::translate(ziel->gib_name()),2), platz1.x, platz1.y );
-DBG_DEBUG("do_passenger_ki()","factory success1");
-				end_stadt = start_stadt;
-			}
-			else {
-				sprintf(buf, translator::translate("Travellers now\nuse %s's\nbusses between\n%s \nand %s.\n"), gib_name(), start_stadt->gib_name(), end_stadt->gib_name() );
-				// add two intown routes
-				cover_city_with_bus_route(platz1, 6);
-				cover_city_with_bus_route(platz2, 6);
-			}
-DBG_DEBUG("do_passenger_ki()","calling message_t()");
-			message_t::get_instance()->add_message(buf,platz1,message_t::ai,player_nr,road_vehicle->gib_basis_bild());
 			next_contruction_steps = steps + simrand( 50 );
 		}
 		break;
@@ -3521,7 +3522,7 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 				// made loss with this line
 				if(line->get_finance_history(0,LINE_PROFIT)<0) {
 					// try to update the vehicles
-					if(welt->use_timeline()) {
+					if(welt->use_timeline()  &&  line->count_convoys()>1) {
 						// find obsolete vehicles ...
 						slist_tpl <convoihandle_t> obsolete;
 						uint32 capacity = 0;
@@ -3533,13 +3534,13 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 							}
 						}
 						// do not update unimportant line with single vehilcles
-						if(capacity>0  &&  line->count_convoys()>1) {
+						if(capacity>0) {
 							// now try to finde new vehicle
-							road_vehicle = vehikelbauer_t::vehikel_search( line->get_convoy(0)->gib_vehikel(0)->gib_waytype(), welt->get_current_month(), 50, welt->get_average_speed(line->get_convoy(0)->gib_vehikel(0)->gib_waytype()), warenbauer_t::passagiere );
-							if(!road_vehicle->is_retired(welt->get_current_month())) {
+							const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search( line->get_convoy(0)->gib_vehikel(0)->gib_waytype(), welt->get_current_month(), 50, welt->get_average_speed(line->get_convoy(0)->gib_vehikel(0)->gib_waytype()), warenbauer_t::passagiere );
+							if(!v_besch->is_retired(welt->get_current_month())) {
 								// there is a newer one ...
 								for(  uint32 new_capacity=0;  capacity>new_capacity;  new_capacity+=road_vehicle->gib_zuladung()) {
-									vehikel_t* v = vehikelbauer_t::baue( line->get_fahrplan()->eintrag[0].pos, this, NULL, road_vehicle  );
+									vehikel_t* v = vehikelbauer_t::baue( line->get_fahrplan()->eintrag[0].pos, this, NULL, v_besch  );
 									convoi_t* new_cnv = new convoi_t(this);
 									new_cnv->setze_name( v->gib_besch()->gib_name() );
 									new_cnv->add_vehikel( v );
@@ -3556,9 +3557,15 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 						}
 					}
 					// check if we could use waiting for load ...
-					if(  line->get_linetype()==simline_t::airline  &&  line->get_fahrplan()->eintrag[1].ladegrad==0  ) {
-						line->get_fahrplan()->eintrag[1].ladegrad = 10;
-						return;
+					if(  line->count_convoys()==1  &&  line->get_linetype()==simline_t::airline  &&  line->get_finance_history(0,LINE_CAPACITY)>=(line->get_finance_history(0,LINE_TRANSPORTED_GOODS)/4)) {
+						if(  line->get_fahrplan()->eintrag[1].ladegrad==0  ) {
+							line->get_fahrplan()->eintrag[1].ladegrad = 10;
+							return;
+						}
+						else if(  line->get_fahrplan()->eintrag[1].ladegrad==10  ) {
+							line->get_fahrplan()->eintrag[1].ladegrad = 90;
+							return;
+						}
 					}
 				}
 				// next: check for stucked convois ...
