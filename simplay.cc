@@ -1420,8 +1420,8 @@ bool spieler_t::find_harbour(koord &start, koord &size, koord target)
 	int dist=0x7FFFFFFF;
 	koord k;
 	// now find a nice shore next to here
-	for(  k.y=shore.y-5;  k.y<shore.y+6; k.y++  ) {
-		for(  k.x=shore.x-5;  k.x<shore.x+6; k.x++  ) {
+	for(  k.y=max(1,shore.y-5);  k.y<shore.y+6  &&  k.y<welt->gib_groesse_y()-2; k.y++  ) {
+		for(  k.x=max(1,shore.x-5);  k.x<shore.x+6  &&  k.y<welt->gib_groesse_x()-2; k.x++  ) {
 			grund_t *gr = welt->lookup_kartenboden(k);
 			if(gr  &&  gr->gib_grund_hang()!=0  &&  hang_t::ist_wegbar(gr->gib_grund_hang())  &&  gr->ist_natur()  &&  gr->gib_hoehe()==welt->gib_grundwasser()  &&  !gr->is_halt()) {
 				koord zv = koord(gr->gib_grund_hang());
@@ -2722,8 +2722,13 @@ koord spieler_t::find_place_for_hub( const stadt_t *s ) const
 
 
 
-halthandle_t spieler_t::built_airport(const stadt_t *city, koord pos, bool rotate )
+halthandle_t spieler_t::built_airport( stadt_t *city, koord pos, int rotation )
 {
+	// not too close to border?
+	if(pos.x<6  ||  pos.y<6  ||  pos.x+3+6>=welt->gib_groesse_x()  ||  pos.y+3+6>=welt->gib_groesse_y()  ) {
+		return halthandle_t();
+	}
+	// ok, not prematurely doomed
 	bool needs_hub=false;
 	// can we built airports at all?
 	const weg_besch_t *taxi_besch = wegbauer_t::weg_search( air_wt, 25, welt->get_timeline_year_month(), weg_t::type_flat );
@@ -2791,49 +2796,69 @@ halthandle_t spieler_t::built_airport(const stadt_t *city, koord pos, bool rotat
 	// now try to connect one of the corners with a road
 	koord bushalt = koord::invalid, runwaystart, runwayend;
 	koord trypos[4] = { koord(0,0), koord(size.x,0), koord(0,size.y), koord(size.x,size.y) };
+	sint32 lenght=9999;
+	rotation=-1;
+
+	bauigel.route_fuer( wegbauer_t::strasse, wegbauer_t::weg_search( road_wt, 25, welt->get_timeline_year_month(), weg_t::type_flat ), tunnelbauer_t::find_tunnel(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()) );
+	bauigel.set_keep_existing_faster_ways(true);
+	bauigel.set_keep_city_roads(true);
+	bauigel.set_maximum(10000);
+
+	// find the closest one to town ...
 	for(  int i=0;  i<4;  i++  ) {
 		bushalt = pos+trypos[i];
-		bauigel.route_fuer( wegbauer_t::strasse, wegbauer_t::weg_search( road_wt, 25, welt->get_timeline_year_month(), weg_t::type_flat ), tunnelbauer_t::find_tunnel(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()) );
-		bauigel.set_keep_existing_faster_ways(true);
-		bauigel.set_keep_city_roads(true);
-		bauigel.set_maximum(10000);
 		bauigel.calc_route(welt->lookup_kartenboden(bushalt)->gib_pos(),welt->lookup_kartenboden(town_road)->gib_pos());
 		// no road => try next
-		if(bauigel.max_n >= 1) {
-			bauigel.baue();
-			// now the busstop (our next hub ... )
-			const haus_besch_t* busstop_besch = hausbauer_t::gib_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX );
-			call_general_tool( WKZ_STATION, bushalt, busstop_besch->gib_name() );
-			// built also runway now ...
-			bauigel.route_fuer( wegbauer_t::luft, runway_besch, NULL, NULL );
-			bauigel.calc_straight_route( welt->lookup_kartenboden(pos+trypos[i==0?3:0])->gib_pos(), welt->lookup_kartenboden(pos+trypos[1+(i&1)])->gib_pos() );
-			assert(bauigel.max_n > 1);
-			bauigel.baue();
-			// now the airstops (only on single tiles, this will always work
-			const haus_besch_t* airstop_besch = hausbauer_t::gib_random_station(haus_besch_t::generic_stop, air_wt, welt->get_timeline_year_month(), 0 );
-			for(  i=0;  i<4;  i++  ) {
-				if(  abs_distance(center+koord::nsow[i],bushalt)==1  &&  ribi_t::ist_einfach( welt->lookup_kartenboden(center+koord::nsow[i])->gib_weg_ribi_unmasked(air_wt) )  ) {
-					call_general_tool( WKZ_STATION, center+koord::nsow[i], airstop_besch->gib_name() );
-				}
-			}
-			// and now the one far away ...
-			for(  i=0;  i<4;  i++  ) {
-				if(  abs_distance(center+koord::nsow[i],bushalt)>1  &&  ribi_t::ist_einfach( welt->lookup_kartenboden(center+koord::nsow[i])->gib_weg_ribi_unmasked(air_wt) )  ) {
-					call_general_tool( WKZ_STATION, center+koord::nsow[i], airstop_besch->gib_name() );
-				}
-			}
-			assert( welt->lookup(bushalt)->gib_halt().is_bound() );
-			return welt->lookup(bushalt)->gib_halt();
-			// sucess
+		if(  bauigel.max_n>=1  &&   bauigel.max_n<lenght  ) {
+			rotation = i;
+			lenght = bauigel.max_n;
 		}
 	}
-	// if we every get here that means no connection road => remove airport
-	welt->lookup_kartenboden(center+koord::nord)->remove_everything_from_way( this, air_wt, ribi_t::keine );
-	welt->lookup_kartenboden(center+koord::sued)->remove_everything_from_way( this, air_wt, ribi_t::keine );
-	welt->lookup_kartenboden(center+koord::west)->remove_everything_from_way( this, air_wt, ribi_t::keine );
-	welt->lookup_kartenboden(center+koord::ost)->remove_everything_from_way( this, air_wt, ribi_t::keine );
-	welt->lookup_kartenboden(center)->remove_everything_from_way( this, air_wt, ribi_t::alle );
-	return halthandle_t();
+
+	if(rotation==-1) {
+		// if we every get here that means no connection road => remove airport
+		welt->lookup_kartenboden(center+koord::nord)->remove_everything_from_way( this, air_wt, ribi_t::keine );
+		welt->lookup_kartenboden(center+koord::sued)->remove_everything_from_way( this, air_wt, ribi_t::keine );
+		welt->lookup_kartenboden(center+koord::west)->remove_everything_from_way( this, air_wt, ribi_t::keine );
+		welt->lookup_kartenboden(center+koord::ost)->remove_everything_from_way( this, air_wt, ribi_t::keine );
+		welt->lookup_kartenboden(center)->remove_everything_from_way( this, air_wt, ribi_t::alle );
+		return halthandle_t();
+	}
+
+	bushalt = pos+trypos[rotation];
+	bauigel.calc_route(welt->lookup_kartenboden(bushalt)->gib_pos(),welt->lookup_kartenboden(town_road)->gib_pos());
+	bauigel.baue();
+	// now the busstop (our next hub ... )
+	const haus_besch_t* busstop_besch = hausbauer_t::gib_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX );
+	// get an airport name (even though the hub is the bus stop ... )
+	char *name = city->haltestellenname(bushalt, "Airport", get_haltcount()+1);
+	// now built the bus stop
+	call_general_tool( WKZ_STATION, bushalt, busstop_besch->gib_name() );
+	assert( welt->lookup(bushalt)->gib_halt().is_bound() );
+	// and change name to airport ...
+	halthandle_t halt = welt->lookup(bushalt)->gib_halt();
+	halt->setze_name( name );
+	free(name);
+	// built also runway now ...
+	bauigel.route_fuer( wegbauer_t::luft, runway_besch, NULL, NULL );
+	bauigel.calc_straight_route( welt->lookup_kartenboden(pos+trypos[rotation==0?3:0])->gib_pos(), welt->lookup_kartenboden(pos+trypos[1+(rotation&1)])->gib_pos() );
+	assert(bauigel.max_n > 1);
+	bauigel.baue();
+	// now the airstops (only on single tiles, this will always work
+	const haus_besch_t* airstop_besch = hausbauer_t::gib_random_station(haus_besch_t::generic_stop, air_wt, welt->get_timeline_year_month(), 0 );
+	for(  int i=0;  i<4;  i++  ) {
+		if(  abs_distance(center+koord::nsow[i],bushalt)==1  &&  ribi_t::ist_einfach( welt->lookup_kartenboden(center+koord::nsow[i])->gib_weg_ribi_unmasked(air_wt) )  ) {
+			call_general_tool( WKZ_STATION, center+koord::nsow[i], airstop_besch->gib_name() );
+		}
+	}
+	// and now the one far away ...
+	for(  int i=0;  i<4;  i++  ) {
+		if(  abs_distance(center+koord::nsow[i],bushalt)>1  &&  ribi_t::ist_einfach( welt->lookup_kartenboden(center+koord::nsow[i])->gib_weg_ribi_unmasked(air_wt) )  ) {
+			call_general_tool( WKZ_STATION, center+koord::nsow[i], airstop_besch->gib_name() );
+		}
+	}
+	// sucess
+	return halt;
 }
 
 
@@ -2872,7 +2897,7 @@ bool spieler_t::create_air_transport_vehikel(const stadt_t *start_stadt, const s
 	}
 	// find an airport place
 	if(!start_hub.is_bound()) {
-		start_airport = bauplatz_sucher_t(welt).suche_platz( start_stadt->gib_pos(), 3, 4, ALL_CLIMATES, &start_rotate );
+		start_airport = bauplatz_sucher_t(welt).suche_platz( start_stadt->gib_pos(), 3, 3, ALL_CLIMATES, &start_rotate );
 		if(start_airport==koord::invalid) {
 			// sorry, no suitable place
 			return false;
@@ -2902,7 +2927,7 @@ bool spieler_t::create_air_transport_vehikel(const stadt_t *start_stadt, const s
 	}
 	if(!end_hub.is_bound()) {
 		// find an airport place
-		end_airport = bauplatz_sucher_t(welt).suche_platz( end_stadt->gib_pos(), 3, 4, ALL_CLIMATES, &end_rotate );
+		end_airport = bauplatz_sucher_t(welt).suche_platz( end_stadt->gib_pos(), 3, 3, ALL_CLIMATES, &end_rotate );
 		if(end_airport==koord::invalid) {
 			// sorry, no suitable place
 			return false;
@@ -2912,7 +2937,7 @@ bool spieler_t::create_air_transport_vehikel(const stadt_t *start_stadt, const s
 	if(start_airport!=koord::invalid  &&  end_airport!=koord::invalid) {
 		// built the airport if neccessary
 		if(!start_hub.is_bound()) {
-			start_hub = built_airport( start_stadt, start_airport, start_rotate );
+			start_hub = built_airport( (stadt_t *)start_stadt, start_airport, start_rotate );
 			if(!start_hub.is_bound()) {
 				return false;
 			}
@@ -2927,10 +2952,18 @@ bool spieler_t::create_air_transport_vehikel(const stadt_t *start_stadt, const s
 			}
 		}
 		if(!end_hub.is_bound()) {
-			end_hub = built_airport( end_stadt, end_airport, end_rotate );
+			end_hub = built_airport( (stadt_t *)end_stadt, end_airport, end_rotate );
 			if(!end_hub.is_bound()) {
 				if(start_hub->gib_warenziele_passenger()->count()==0) {
-					// remove airport
+					// remove airport busstop
+					welt->lookup_kartenboden(start_hub->gib_basis_pos())->remove_everything_from_way( this, road_wt, ribi_t::keine );
+					koord center = start_hub->gib_basis_pos() + koord( welt->lookup_kartenboden(start_hub->gib_basis_pos())->gib_weg_ribi_unmasked( air_wt ) );
+					// now the remaining taxi-/runways
+					for( sint16 y=center.y-1;  y<=center.y+1;  y++  ) {
+						for( sint16 x=center.x-1;  x<=center.x+1;  x++  ) {
+							welt->lookup_kartenboden(koord(x,y))->remove_everything_from_way( this, air_wt, ribi_t::keine );
+						}
+					}
 				}
 				return false;
 			}
@@ -3509,7 +3542,12 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 
 				// next: check for overflowing lines, i.e. running with 3/4 of the capacity
 				if(  ratio<10  ) {
-					// add the first again
+					// gradually remove waiting for load ...
+					if(  line->count_convoys()==1  &&  line->get_fahrplan()->eintrag[1].ladegrad>0  ) {
+						line->get_fahrplan()->eintrag[1].ladegrad = line->get_fahrplan()->eintrag[1].ladegrad==90 ? 10 : 0;
+						return;
+					}
+					// else add the first convoi again
 					vehikel_t* v = vehikelbauer_t::baue( line->get_fahrplan()->eintrag[0].pos, this, NULL, line->get_convoy(0)->gib_vehikel(0)->gib_besch()  );
 					convoi_t* new_cnv = new convoi_t(this);
 					new_cnv->setze_name( v->gib_besch()->gib_name() );

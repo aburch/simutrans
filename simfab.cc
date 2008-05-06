@@ -785,6 +785,7 @@ void fabrik_t::step(long delta_t)
 					eingang[index].menge = 0;
 				}
 			}
+			delta_menge /= eingang.get_count();
 		}
 		else {
 			// ok, calulate maximum allowed consumption
@@ -833,6 +834,7 @@ void fabrik_t::step(long delta_t)
 					ausgang[produkt].menge = ausgang[produkt].max - 1;
 				}
 			}
+			delta_menge /= ausgang.get_count();
 
 			// and finally consume stock
 			for(index = 0; index<ecount; index ++) {

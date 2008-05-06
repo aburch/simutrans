@@ -1,4 +1,5 @@
 To be done:
+- names!!!
 - connection weighted by their intermediate stops => A* for goods routing
 - when import translation: ignore entries which are identical (saving runtime)
 - limit construction costs
@@ -12,14 +13,11 @@ To be done:
 - Odometer/Lifetime
 - renaming factories/player
 - longer financial history
+- maintenance cost at start of month
 
 CHECK:
 - integrate the edit modus
-- industry density linked to population density; consumer would building branches slowly.
-- power generation linked with total industry production
-- more statistics for world and all convois
 - timeline bonus speeds from a file
-- waiting only a certain intervall (when waiting for a load percentage)
 - bankrupt only when the net company value (i.e. after selling everything) is below zero (like for AI)
 resize greater than 2400*1536 crashes simutrans
 Toolwindow with 10 last used tools (in fixed order)
@@ -27,7 +25,6 @@ Main meinu configurable in size and order
 bahnhofsdetaildialog??
 A* for goods
 factory density instead of fixed population linked growth
-waybuilder preview
 
 
 Stichpunkte
@@ -77,6 +74,11 @@ passengers from/to headquarters: done
 - synchronized traffic lights: done
 - smoother movements: done
 - Sort signals so simple signal is first: done
+- industry density linked to population density; consumer would building branches slowly: done
+- power generation linked with total industry production: done
+- more statistics for world and all convois: nearly all finished
+- waiting only a certain intervall (when waiting for a load percentage): need savegame bump
+- waybuilder preview: done (drag building)
 
 Impossible:
 - vehicle N/E longer than 8 px must be aligned by top, not end; need change of moving code: impossible

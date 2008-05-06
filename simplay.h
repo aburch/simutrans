@@ -533,7 +533,7 @@ private:
 	koord find_place_for_hub( const stadt_t *s ) const;
 
 	// builts a 3x3 airport
-	halthandle_t built_airport(const stadt_t *city, koord pos, bool rotate );
+	halthandle_t built_airport( stadt_t *city, koord pos, int rotate );
 
 	/* builts airports and planes
 	 * @author prissi
