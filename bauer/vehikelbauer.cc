@@ -238,20 +238,20 @@ slist_tpl<const vehikel_besch_t*>* vehikelbauer_t::gib_info(waytype_t typ)
  * tries to get best with but adds a little random action
  * @author prissi
  */
-const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t typ, const uint16 month_now, const uint32 target_weight, const uint32 target_speed, const ware_besch_t * target_freight, bool include_electric )
+const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t typ, const uint16 month_now, const uint32 target_weight, const uint32 target_speed, const ware_besch_t * target_freight, bool include_electric, bool not_obsolete )
 {
-  // only needed for iteration
-  inthashtable_iterator_tpl<int, const vehikel_besch_t *> iter(_fahrzeuge);
+	// only needed for iteration
+	inthashtable_iterator_tpl<int, const vehikel_besch_t *> iter(_fahrzeuge);
 
 	const vehikel_besch_t *besch = NULL;
 	long besch_index=-100000;
 
-  if(  target_freight==NULL  &&  target_weight==0  ) {
-    // no power, no freight => no vehikel to search
-    return NULL;
-  }
+	if(  target_freight==NULL  &&  target_weight==0  ) {
+		// no power, no freight => no vehikel to search
+		return NULL;
+	}
 
-  while(iter.next()) {
+	while(iter.next()) {
 
 		const vehikel_besch_t *test_besch = iter.get_current_value();
 
@@ -269,6 +269,11 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t typ, const uint
 
 		// check for wegetype/too new
 		if(test_besch->get_waytype()!=typ  ||  test_besch->is_future(month_now)  ) {
+			continue;
+		}
+
+		if(  not_obsolete  &&  test_besch->is_retired(month_now)  ) {
+			// not using vintage cars here!
 			continue;
 		}
 

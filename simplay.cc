@@ -2163,7 +2163,7 @@ void spieler_t::do_ki()
 		*/
 		case NR_SAMMLE_ROUTEN:
 			if(get_factory_tree_lowest_missing(root)) {
-				if(  start->gib_besch()->gib_platzierung()!=fabrik_besch_t::Wasser  ||  vehikelbauer_t::vehikel_search( water_wt, welt->get_timeline_year_month(), 0, 10, freight, false )!=NULL  ) {
+				if(  start->gib_besch()->gib_platzierung()!=fabrik_besch_t::Wasser  ||  vehikelbauer_t::vehikel_search( water_wt, welt->get_timeline_year_month(), 0, 10, freight, false, false )!=NULL  ) {
 					DBG_MESSAGE("spieler_t::do_ki", "Consider route from %s (%i,%i) to %s (%i,%i)", start->gib_name(), start->gib_pos().x, start->gib_pos().y, ziel->gib_name(), ziel->gib_pos().x, ziel->gib_pos().y );
 					state = NR_BAUE_ROUTE1;
 				}
@@ -2209,7 +2209,7 @@ void spieler_t::do_ki()
 			// is rail transport allowed?
 			if(rail_transport) {
 				// any rail car that transport this good (actually this weg_t the largest)
-				rail_vehicle = vehikelbauer_t::vehikel_search( track_wt, month_now, 0, best_rail_speed,  freight );
+				rail_vehicle = vehikelbauer_t::vehikel_search( track_wt, month_now, 0, best_rail_speed,  freight, true, false );
 			}
 			rail_engine = NULL;
 			rail_weg = NULL;
@@ -2218,7 +2218,7 @@ DBG_MESSAGE("do_ki()","rail vehicle %p",rail_vehicle);
 			// is road transport allowed?
 			if(road_transport) {
 				// any road car that transport this good (actually this returns the largest)
-				road_vehicle = vehikelbauer_t::vehikel_search( road_wt, month_now, 10, best_road_speed, freight );
+				road_vehicle = vehikelbauer_t::vehikel_search( road_wt, month_now, 10, best_road_speed, freight, false, false );
 			}
 			road_weg = NULL;
 DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
@@ -2226,7 +2226,7 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 			ship_vehicle = NULL;
 			if(start->gib_besch()->gib_platzierung()==fabrik_besch_t::Wasser) {
 				// largest ship available
-				ship_vehicle = vehikelbauer_t::vehikel_search( water_wt, month_now, 0, 20, freight );
+				ship_vehicle = vehikelbauer_t::vehikel_search( water_wt, month_now, 0, 20, freight, false, false );
 			}
 
 			INT_CHECK("simplay 1265");
@@ -2253,7 +2253,7 @@ DBG_MESSAGE("do_ki()","check railway");
 				// assume the engine weight 100 tons for power needed calcualtion
 				int total_weight = count_rail*( (rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit())/1000 + rail_vehicle->gib_gewicht());
 //				long power_needed = (long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->gib_gewicht()+rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit()*0.001)));
-				rail_engine = vehikelbauer_t::vehikel_search( track_wt, month_now, total_weight, best_rail_speed, NULL, wayobj_t::default_oberleitung!=NULL );
+				rail_engine = vehikelbauer_t::vehikel_search( track_wt, month_now, total_weight, best_rail_speed, NULL, wayobj_t::default_oberleitung!=NULL, false );
 				if(  rail_engine!=NULL  ) {
 				 	best_rail_speed = min(rail_engine->gib_geschw(),rail_vehicle->gib_geschw());
 				  // find cheapest track with that speed (and no monorail/elevated/tram tracks, please)
@@ -2416,7 +2416,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 						uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);
 						// for engine: gues number of cars
 						long power_needed=(long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->gib_gewicht()+rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit()*0.001)));
-						const vehikel_besch_t *v=vehikelbauer_t::vehikel_search( track_wt, month_now, power_needed, best_rail_speed, NULL );
+						const vehikel_besch_t *v=vehikelbauer_t::vehikel_search( track_wt, month_now, power_needed, best_rail_speed, NULL, false, false );
 						if(v->gib_betriebskosten()<rail_engine->gib_betriebskosten()) {
 							rail_engine = v;
 						}
@@ -2757,9 +2757,9 @@ static koord find_harbour_pos(karte_t* welt, const stadt_t *s )
  */
 bool spieler_t::create_water_transport_vehikel( stadt_t *start_stadt, const koord target_pos)
 {
-	const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search(water_wt, welt->get_timeline_year_month(), 10, 900, warenbauer_t::passagiere, false );
+	const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search(water_wt, welt->get_timeline_year_month(), 10, 40, warenbauer_t::passagiere, false, true );
 	if(v_besch==NULL) {
-		// no aircraft there
+		// no ship there
 		return false;
 	}
 
@@ -2895,6 +2895,9 @@ bool spieler_t::create_water_transport_vehikel( stadt_t *start_stadt, const koor
 		call_general_tool( WKZ_STATION, bushalt, busstop_besch->gib_name() );
 		// and change name to dock ...
 		halthandle_t halt = welt->lookup(bushalt)->gib_halt();
+		if(!halt.is_bound()) {
+			return false;
+		}
 		halt->setze_name( name );
 		free(name);
 		// finally built the dock
@@ -3181,7 +3184,7 @@ static koord find_airport_pos(karte_t* welt, const stadt_t *s )
  */
 bool spieler_t::create_air_transport_vehikel(const stadt_t *start_stadt, const stadt_t *end_stadt)
 {
-	const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search(air_wt, welt->get_timeline_year_month(), 10, 900, warenbauer_t::passagiere, false );
+	const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search(air_wt, welt->get_timeline_year_month(), 10, 900, warenbauer_t::passagiere, false, true );
 	if(v_besch==NULL) {
 		// no aircraft there
 		return false;
@@ -3456,6 +3459,7 @@ void spieler_t::cover_city_with_bus_route(koord start_pos, int number_of_stops)
 	// now create a line
 	walk_city( line, start, number_of_stops );
 
+	road_vehicle = vehikelbauer_t::vehikel_search( road_wt, welt->get_timeline_year_month(), 1, 50, warenbauer_t::passagiere, false, false );
 	if( line->get_fahrplan()->maxi()>1  ) {
 		// success: add a bus to the line
 		vehikel_t* v = vehikelbauer_t::baue(start->gib_pos(), this, NULL, road_vehicle);
@@ -3664,11 +3668,8 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","no suitable hub found");
 		case NR_BAUE_ROUTE1:
 		// wait for construction semaphore
 		{
-		  	// obey timeline
-			uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);
-
 			// we want the fastest we can get!
-			road_vehicle = vehikelbauer_t::vehikel_search( road_wt, month_now, 50, 80, warenbauer_t::passagiere );
+			road_vehicle = vehikelbauer_t::vehikel_search( road_wt, welt->get_timeline_year_month(), 50, 80, warenbauer_t::passagiere, false, false );
 			if(road_vehicle!=NULL) {
 				// find the best => AI will never survive
 //				road_weg = wegbauer_t::weg_search( road_wt, road_vehicle->gib_geschw(), welt->get_timeline_year_month(),weg_t::type_flat );
@@ -3839,8 +3840,8 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 						// do not update unimportant line with single vehilcles
 						if(capacity>0) {
 							// now try to finde new vehicle
-							const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search( line->get_convoy(0)->gib_vehikel(0)->gib_waytype(), welt->get_current_month(), 50, welt->get_average_speed(line->get_convoy(0)->gib_vehikel(0)->gib_waytype()), warenbauer_t::passagiere );
-							if(!v_besch->is_retired(welt->get_current_month())) {
+							const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search( line->get_convoy(0)->gib_vehikel(0)->gib_waytype(), welt->get_current_month(), 50, welt->get_average_speed(line->get_convoy(0)->gib_vehikel(0)->gib_waytype()), warenbauer_t::passagiere, false, false );
+							if(  !v_besch->is_retired(welt->get_current_month())  &&  v_besch!=line->get_convoy(0)->gib_vehikel(0)->gib_besch()) {
 								// there is a newer one ...
 								for(  uint32 new_capacity=0;  capacity>new_capacity;  new_capacity+=road_vehicle->gib_zuladung()) {
 									vehikel_t* v = vehikelbauer_t::baue( line->get_fahrplan()->eintrag[0].pos, this, NULL, v_besch  );
@@ -3859,17 +3860,6 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 							}
 						}
 					}
-					// check if we could use waiting for load ...
-					if(  line->count_convoys()==1  &&  line->get_linetype()==simline_t::airline  &&  line->get_finance_history(0,LINE_CAPACITY)>=(line->get_finance_history(0,LINE_TRANSPORTED_GOODS)/4)) {
-						if(  line->get_fahrplan()->eintrag[1].ladegrad==0  ) {
-							line->get_fahrplan()->eintrag[1].ladegrad = 10;
-							return;
-						}
-						else if(  line->get_fahrplan()->eintrag[1].ladegrad==10  ) {
-							line->get_fahrplan()->eintrag[1].ladegrad = 90;
-							return;
-						}
-					}
 				}
 				// next: check for stucked convois ...
 
@@ -3884,11 +3874,6 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 
 				// next: check for overflowing lines, i.e. running with 3/4 of the capacity
 				if(  ratio<10  ) {
-					// gradually remove waiting for load ...
-					if(  line->count_convoys()==1  &&  line->get_fahrplan()->eintrag[1].ladegrad>0  ) {
-						line->get_fahrplan()->eintrag[1].ladegrad = line->get_fahrplan()->eintrag[1].ladegrad==90 ? 10 : 0;
-						return;
-					}
 					// else add the first convoi again
 					vehikel_t* v = vehikelbauer_t::baue( line->get_fahrplan()->eintrag[0].pos, this, NULL, line->get_convoy(0)->gib_vehikel(0)->gib_besch()  );
 					convoi_t* new_cnv = new convoi_t(this);
@@ -3896,6 +3881,11 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 					new_cnv->add_vehikel( v );
 					welt->sync_add( new_cnv );
 					new_cnv->set_line( line );
+					// on waiting line, wait at alternating stations for load balancing
+					if(  line->get_fahrplan()->eintrag[1].ladegrad==90  &&  line->get_linetype()!=simline_t::truckline  &&  (line->count_convoys()&1)==0  ) {
+						new_cnv->gib_fahrplan()->eintrag[0].ladegrad = 90;
+						new_cnv->gib_fahrplan()->eintrag[1].ladegrad = 0;
+					}
 					new_cnv->start();
 					return;
 				}

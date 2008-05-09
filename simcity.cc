@@ -1535,6 +1535,9 @@ void stadt_t::step_passagiere()
 	if (step_count >= buildings.get_count()) {
 		step_count = 0;
 	}
+	if(buildings.get_count()==0) {
+		return;
+	}
 	const gebaeude_t* gb = buildings[step_count];
 
 	// prissi: since now backtravels occur, we damp the numbers a little
