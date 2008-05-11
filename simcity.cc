@@ -1831,6 +1831,16 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 		virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const
 		{
 			if (bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)) {
+				// nothing on top like elevated monorails?
+				for (sint16 y = pos.y;  y < pos.y + h; y++) {
+					for (sint16 x = pos.x; x < pos.x + b; x++) {
+						grund_t *gr = welt->lookup_kartenboden(koord(x,y));
+						if(gr->gib_leitung()!=NULL  ||  welt->lookup(gr->gib_pos()+koord3d(0,0,1))!=NULL) {
+							// something on top (monorail or powerlines)
+							return false;
+						}
+					}
+				}
 				// try to built a little away from previous ones
 				if (find_dist_next_special(pos) < b + h + 1) {
 					return false;

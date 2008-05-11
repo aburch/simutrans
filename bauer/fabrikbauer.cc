@@ -108,11 +108,14 @@ public:
 	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
 		if(bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)) {
 			// try to built a little away from previous factory
-			sint16 max_x = min( pos.x+b, welt->gib_groesse_x()-1 );
-			sint16 max_y = min( pos.y+h, welt->gib_groesse_y()-1 );
-			for(sint16 y=pos.y;  y<max_y;  y++  ) {
-				for(sint16 x=pos.x;  x<max_x;  x++  ) {
+			for(sint16 y=pos.y;  y<pos.y+h;  y++  ) {
+				for(sint16 x=pos.x;  x<pos.x+b;  x++  ) {
 					if( is_factory_at(x,y)  ) {
+						return false;
+					}
+					grund_t *gr = welt->lookup_kartenboden(koord(x,y));
+					if(gr->gib_leitung()!=NULL  ||  welt->lookup(gr->gib_pos()+koord3d(0,0,1))!=NULL) {
+						// something on top (monorail or powerlines)
 						return false;
 					}
 				}

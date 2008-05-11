@@ -2740,8 +2740,13 @@ static koord find_harbour_pos(karte_t* welt, const stadt_t *s )
 					grund_t *gr = welt->lookup_kartenboden(k);
 					hang_t::typ hang = gr->gib_grund_hang();
 					if(gr->ist_natur()  &&  gr->gib_hoehe()==welt->gib_grundwasser()  &&  hang_t::ist_wegbar(hang)  &&  welt->ist_wasser(k-koord(hang),koord(hang)*4+koord(1,1))  ) {
-						bestpos = k;
-						bestdist = testdist;
+						// can built busstop here?
+						koord bushalt = k+koord(hang);
+						gr = welt->lookup_kartenboden(bushalt);
+						if(gr  &&  gr->ist_natur()) {
+							bestpos = k;
+							bestdist = testdist;
+						}
 					}
 				}
 			}
@@ -2855,7 +2860,8 @@ bool spieler_t::create_water_transport_vehikel( stadt_t *start_stadt, const koor
 		// first: built street to harbour
 		if(town_road!=bushalt) {
 			wegbauer_t bauigel(welt, this);
-			bauigel.route_fuer( wegbauer_t::strasse, wegbauer_t::weg_search( road_wt, 25, welt->get_timeline_year_month(), weg_t::type_flat ), tunnelbauer_t::find_tunnel(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()) );
+			// no bridges => otherwise first tile might be bridge start ...
+			bauigel.route_fuer( wegbauer_t::strasse, wegbauer_t::weg_search( road_wt, 25, welt->get_timeline_year_month(), weg_t::type_flat ), tunnelbauer_t::find_tunnel(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()), NULL );
 			bauigel.set_keep_existing_faster_ways(true);
 			bauigel.set_keep_city_roads(true);
 			bauigel.set_maximum(10000);
@@ -2872,7 +2878,8 @@ bool spieler_t::create_water_transport_vehikel( stadt_t *start_stadt, const koor
 		// first: built street to harbour
 		if(town_road!=bushalt) {
 			wegbauer_t bauigel(welt, this);
-			bauigel.route_fuer( wegbauer_t::strasse, wegbauer_t::weg_search( road_wt, 25, welt->get_timeline_year_month(), weg_t::type_flat ), tunnelbauer_t::find_tunnel(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()) );
+			// no bridges => otherwise first tile might be bridge start ...
+			bauigel.route_fuer( wegbauer_t::strasse, wegbauer_t::weg_search( road_wt, 25, welt->get_timeline_year_month(), weg_t::type_flat ), tunnelbauer_t::find_tunnel(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()), NULL );
 			bauigel.set_keep_existing_faster_ways(true);
 			bauigel.set_keep_city_roads(true);
 			bauigel.set_maximum(10000);
@@ -2892,12 +2899,11 @@ bool spieler_t::create_water_transport_vehikel( stadt_t *start_stadt, const koor
 		const haus_besch_t* busstop_besch = hausbauer_t::gib_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX );
 		char *name = ((stadt_t *)start_stadt)->haltestellenname(bushalt, "Dock", get_haltcount()+1);
 		// now built the bus stop
-		call_general_tool( WKZ_STATION, bushalt, busstop_besch->gib_name() );
-		// and change name to dock ...
-		halthandle_t halt = welt->lookup(bushalt)->gib_halt();
-		if(!halt.is_bound()) {
+		if(!call_general_tool( WKZ_STATION, bushalt, busstop_besch->gib_name() )) {
 			return false;
 		}
+		// and change name to dock ...
+		halthandle_t halt = welt->lookup(bushalt)->gib_halt();
 		halt->setze_name( name );
 		free(name);
 		// finally built the dock
@@ -2922,7 +2928,9 @@ bool spieler_t::create_water_transport_vehikel( stadt_t *start_stadt, const koor
 		const haus_besch_t* busstop_besch = hausbauer_t::gib_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX );
 		char *name = end_stadt->haltestellenname(bushalt, "Dock", get_haltcount()+1);
 		// now built the bus stop
-		call_general_tool( WKZ_STATION, bushalt, busstop_besch->gib_name() );
+		if(!call_general_tool( WKZ_STATION, bushalt, busstop_besch->gib_name() )) {
+			return false;
+		}
 		// and change name to dock ...
 		halthandle_t halt = welt->lookup(bushalt)->gib_halt();
 		halt->setze_name( name );
