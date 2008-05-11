@@ -663,7 +663,7 @@ void vehikel_t::remove_stale_freight()
 			bool found = false;
 
 			for (int i = 0; i < fpl->maxi(); i++) {
-				if (haltestelle_t::gib_halt(welt, fpl->eintrag[i].pos.gib_2d()) == tmp.gib_zwischenziel()) {
+				if (haltestelle_t::gib_halt( welt, fpl->eintrag[i].pos ) == tmp.gib_zwischenziel()) {
 					found = true;
 					break;
 				}

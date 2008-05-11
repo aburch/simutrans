@@ -414,20 +414,20 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// fill haltestellen container with info of line's haltestellen
 		cont_haltestellen.remove_all();
 		ypos = 5;
-		slist_tpl<koord> tmp; // stores koords of stops that are allready displayed
+		slist_tpl<koord3d> tmp; // stores koords of stops that are allready displayed
 		for(i=0; i<new_line->get_fahrplan()->maxi(); i++) {
-			const koord fahrplan_koord = new_line->get_fahrplan()->eintrag[i].pos.gib_2d();
+			const koord3d fahrplan_koord = new_line->get_fahrplan()->eintrag[i].pos;
 			halthandle_t halt = haltestelle_t::gib_halt(sp->get_welt(), fahrplan_koord);
 			if (halt.is_bound()) {
-				// only add a haltestelle to the list, if it is not in the list allready
-				if (!tmp.contains(fahrplan_koord)) {
+//				// only add a haltestelle to the list, if it is not in the list allready
+//				if (!tmp.contains(fahrplan_koord)) {
 					halt_list_stats_t* cinfo = new halt_list_stats_t(halt);
 					cinfo->setze_pos(koord(0, ypos));
 					cinfo->setze_groesse(koord(500, 28));
 					cont_haltestellen.add_komponente(cinfo);
 					ypos += 28;
 					tmp.append(fahrplan_koord);
-				}
+//				}
 			}
 		}
 		cont_haltestellen.setze_groesse(koord(500, ypos));

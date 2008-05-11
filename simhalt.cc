@@ -86,6 +86,27 @@ haltestelle_t::gib_halt(karte_t *welt, const koord pos)
 }
 
 
+halthandle_t
+haltestelle_t::gib_halt(karte_t *welt, const koord3d pos)
+{
+	const grund_t *gr = welt->lookup(pos);
+	if(gr) {
+		if(gr->gib_halt().is_bound()) {
+			return gr->gib_halt();
+		}
+		// no halt? => we do the water check
+		if(gr->ist_wasser()) {
+			// may catch bus stops close to water ...
+			const planquadrat_t *plan = welt->lookup(pos.gib_2d());
+			if(plan->get_haltlist_count()>0) {
+				return plan->get_haltlist()[0];
+			}
+		}
+	}
+	return halthandle_t();
+}
+
+
 koord haltestelle_t::gib_basis_pos() const
 {
 	if (tiles.empty()) return koord::invalid;
@@ -1057,12 +1078,12 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, fahrplan_t 
 		for(int i=1; i<count; i++) {
 			const int wrap_i = (i + fpl->aktuell) % count;
 
-			const halthandle_t plan_halt = gib_halt(welt, fpl->eintrag[wrap_i].pos.gib_2d());
+			const halthandle_t plan_halt = gib_halt(welt, fpl->eintrag[wrap_i].pos);
 			if(plan_halt == self) {
 				// we will come later here again ...
 				break;
 			}
-			else {
+			else if(plan_halt.is_bound()) {
 
 				for(unsigned i=0;  i<warray->get_count();  i++ ) {
 					ware_t &tmp = (*warray)[i];

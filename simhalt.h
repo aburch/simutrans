@@ -123,7 +123,7 @@ public:
 
 	// Hajo: for future compatibility, migrate to this call
 	// but since we allow only for a single stop per planquadrat, this is as good as the above
-	static halthandle_t gib_halt(karte_t *welt, const koord3d pos) { return gib_halt(welt,pos.gib_2d()); }
+	static halthandle_t gib_halt(karte_t *welt, const koord3d pos);
 
 	static const slist_tpl<halthandle_t>& gib_alle_haltestellen() { return alle_haltestellen; }
 
