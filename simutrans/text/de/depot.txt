@@ -12,11 +12,11 @@
 <br/>Im editierbaren Feld kannst Du den Namen des Fahrzeugverbandes nach Belieben ändern. Klicke mit der Maus in das Feld. Bestätige den Abschluss der Arbeit mit <em>RETURN</em>.
 </p>
 <p>
-<em>Linienauswahl:</em> Du kannst eine bestehende Linie auswählen. Für die Durchschaltung der Linien stehen Dir die Pfeilschalter links und rechts der Linienauswahl zur Verfügung. Ein Klick in das Anzeigefeld öffnet ein Auswahlliste. In ihr kannst Du mit der Maus den gewünschten Eintrag auswählen. Es ist auch möglich, dort den Liniennamen zu editieren; aus eigener Erfahrung des Autors wird empfohlen, dies in der <a href="linelist.txt">Linienverwaltung</a> zu machen.
+<em>Linienauswahl:</em> Du kannst eine bestehende Linie auswählen. Für die Durchschaltung der Linien stehen Dir die Pfeilschalter links und rechts der Linienauswahl zur Verfügung. Ein Klick in das Anzeigefeld öffnet ein Auswahlliste. In ihr kannst Du mit der Maus den gewünschten Eintrag auswählen. Es ist auch möglich, dort den Liniennamen zu editieren; aus eigener Erfahrung des Autors wird empfohlen, dies in der <a href="linemanagement.txt">Linienverwaltung</a> zu machen.
 </p>
 <p>
 <em>Fahrzeugansicht:</em> Ein Fahrzeugverband besteht aus mindestens einem Einzelfahrzeug. Flugzeuge erlauben sind immer solo, Straßen- und Schiffsfahrzeugverbände können bis zu 4 Fahrzeuge, Schienenfahrzeugverbände bis zu 24 Einzelfahrzeuge enthalten. Der ausgewählte Fahrzeugverband wird in dem Feld darunter grafisch dargestellt.<br/>
-· Wenn Du die Maus über ein Einzelfahrzeug führst, werden im unteren Bereich des Fensters dessen <a href="depot3.txt">Fahrzeugdaten</a> angezeigt.<br/>
+· Wenn Du die Maus über ein Einzelfahrzeug führst, werden im unteren Bereich des Fensters dessen <a href="depot.txt">Fahrzeugdaten</a> angezeigt.<br/>
 · Klickst Du ein Einzelfahrzeug an, wird es aus dem Fahrzeugverband entfernt und im Depot eingelagert. Eine Ordnungszahl im Einzelfahrzeugdepot zeigt an, wie viele Fahrzeuge des Typs Du eingelagert hast.<br/>
 · Unter der grafischen Ansicht des Fahrzeugverbandes werden die Anzahl der Fahrzeuge, die benötigte Haltenstellenlänge, der Verkaufswert und die bediente Linie angezeigt.
 </p>
@@ -34,7 +34,7 @@
 <p>
 <em>Einzelfahrzeugdepot:</em> Im Depot sind alle derzeit verfügbaren Fahrzeuge des Depottyps nach ihrem Ladevermögen sortiert abgebildet. Mittels der Tab-Reiter sind sie nach Personen- und Postbeförderung, angetriebene und nicht angetriebene Fahrzeuge eingeteilt.<br/>
 · Elektrisch betriebene Fahrzeuge werden nur angezeigt, wenn das Feld, auf welchem das Depot steht, elektrifiziert ist.<br/>
-· Wenn Du die Maus über ein Fahrzeug führst, werden im unteren Bereich des Fensters dessen <a href="depot3.txt">Fahrzeugdaten</a> angezeigt.<br/>
+· Wenn Du die Maus über ein Fahrzeug führst, werden im unteren Bereich des Fensters dessen <a href="depot.txt">Fahrzeugdaten</a> angezeigt.<br/>
 · Fahrzeuge werden erst ab einem bestimmten Datum verfügbar. Einige Fahrzeuge veralten und werden außer Dienst gestellt. Du kannst sie, über den Knopf <em>Auch veraltete Fahrzeuge zeigen</em>, rechts unten, anzeigen lassen und sie kaufen.<br/>
 · Möchtest Du, dass alle Fahrzeuge unabhängig von deren Einführungs-Datum verfügbar sind, dann wähle die <a href="new_world.txt">Einführungsdaten</a> bei der Welterstellung ab.
 </p>
@@ -43,7 +43,7 @@
 <em>Aktionsschalter:</em> Der Schalter rechts unten wechselt bei der Betätigung zwischen 3 Funktionseinstellungen.<br/>
 · <em>anhängen:</em> Das angeklickte Einzelfahrzeug wird am Schluss des Fahrzeugverbandes angehängt.<br/>
 · <em>voranstellen:</em> Das angewählte Einzelfahrzeug wird an der Spitze des Fahrzeugverbandes vorangestellt.<br/>
-· <em>verkaufen:</em> Verkaufe ein eingelagertes Einzelfahrzeug. Der Verkaufswert aller eingelagerter Einzelfahrzeug des Typs ist bei den <a href="depot3.txt">Fahrzeugdaten</a> ersichtlich.
+· <em>verkaufen:</em> Verkaufe ein eingelagertes Einzelfahrzeug. Der Verkaufswert aller eingelagerter Einzelfahrzeug des Typs ist bei den <a href="depot.txt">Fahrzeugdaten</a> ersichtlich.
 </p>
 <p>
 Die <em>Farbbalken</em> unter den Einzelfahrzeug im Depot ändern sich je nach Schalterstellung. Wenn der Farbbalken auf einer Seite <em>gelb</em> ist, gehört ein weiteres Einzelfahrzeug zur betriebsfähigen Zusammenstellung. Wird dieses Einzelfahrzeug gekauft, wird auch das zugehörige Einzelfahrzeug dazugekauft.<br/><br/>

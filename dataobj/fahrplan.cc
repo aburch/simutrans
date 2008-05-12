@@ -400,11 +400,12 @@ schifffahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 bool
 airfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
-	bool hat_halt = haltestelle_t::gib_halt(gr->get_welt(),gr->gib_pos().gib_2d()).is_bound();
+	// since we go above everything, we must make sure, that there are no waypoints on foreign depots and halts
 	const depot_t *gb = gr->gib_depot();
 	if(gb!=NULL  &&  gb->gib_tile()->gib_besch()->gib_extra()!=air_wt) {
 		return false;
 	}
+	bool hat_halt = haltestelle_t::gib_halt(gr->get_welt(),gr->gib_pos().gib_2d()).is_bound();
 	return hat_halt ? gr->hat_weg(air_wt) : true;
 }
 

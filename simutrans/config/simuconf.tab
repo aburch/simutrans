@@ -107,6 +107,7 @@ way_max_bridge_len=15
 way_leave_road=25
 
 ##################################industry stuff#################################
+# also pak dependent
 
 # passenger generation (default is 16) Smaller values means less passengers
 passenger_factor=16
@@ -123,7 +124,7 @@ crossconnect_factories = 0
 # (100% will give nearly the same results as crossconnect_factories=1)
 crossconnect_factories_percentage = 33
 
-# how much is the total electric power available in releation to total production) in parts per thousand
+# how much is the total electric power available (in relation to total production) in parts per thousand
 electric_promille = 330
 
 # with this switch on (default), overcrowded factories will not recieve goods any more

@@ -3206,7 +3206,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		const bool backwards=event_get_last_control_shift()==2;
 		const grund_t *bd=0;
 		// search all grounds for match
-		halthandle_t h = haltestelle_t::gib_halt(welt,pos.gib_2d());
+		halthandle_t h = pl->gib_halt();
 		if(last_pos!=koord3d::invalid  &&  (h.is_bound() ^ last_halt.is_bound())) {
 			init(welt,sp);
 			return "Can only from from halt to halt or waypoint to waypoint";
