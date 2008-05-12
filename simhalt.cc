@@ -64,6 +64,8 @@ karte_t *haltestelle_t::welt = NULL;
 
 slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
 
+stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
+
 
 
 halthandle_t

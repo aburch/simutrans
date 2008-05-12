@@ -82,6 +82,12 @@ private:
 	 */
 	static slist_tpl<halthandle_t> alle_haltestellen;
 
+	/**
+	 * finds a stop by its name
+	 * @author prissi
+	 */
+	static stringhashtable_tpl<halthandle_t> all_names;
+
 	/*
 	 * struct holds new financial history for line
 	 * @author hsiegeln

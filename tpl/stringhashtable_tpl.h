@@ -17,11 +17,12 @@ class stringhash_t {
 public:
 	static int hash(const char *key)
 	{
-		if(key[0] == 0) {
-			return 0;
-		} else {
-			return ( ((unsigned char)key[0]) + (((unsigned char)key[1])<<8));
+		// a little longer but much better in balancing (since many words start with same two letters)
+		int hash = 0;
+		for(  int i=16;  (((char)i)*key[0])!=0;  i--  ) {
+			hash += *key++;
 		}
+		return hash;
 	}
 
 	static const char *null()

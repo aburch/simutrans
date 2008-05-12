@@ -115,8 +115,6 @@ baum_t::distribute_trees(karte_t *welt, int dichte)
 	// but there is some nonlinearity to ensure good forests on small maps
 	const unsigned t_forest_size = (unsigned)pow( welt->gib_groesse_max()>>7 , 0.5)*forest_base_size + (welt->gib_groesse_max()/forest_map_size_divisor);
 	const uint8 c_forest_count = welt->gib_groesse_max()/forest_count_divisor;
-	unsigned  x_tree_pos, y_tree_pos, distance, tree_probability;
-	uint8 c2;
 
 DBG_MESSAGE("verteile_baeume()","creating %i forest",c_forest_count);
 	for (uint8 c1 = 0 ; c1 < c_forest_count ; c1++) {
