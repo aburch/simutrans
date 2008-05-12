@@ -424,7 +424,7 @@ haltestelle_t::setze_name(const char *new_name)
 {
 	grund_t *gr = welt->lookup(gib_basis_pos3d());
 	if(gr) {
-		if(bd->get_flag(grund_t::has_text)) {
+		if(gr->get_flag(grund_t::has_text)) {
 			halthandle_t h = all_names.remove(gr->gib_text());
 			assert(h==self);
 		}
