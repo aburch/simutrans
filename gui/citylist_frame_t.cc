@@ -44,7 +44,7 @@ const char citylist_frame_t::hist_type[karte_t::MAX_WORLD_COST][20] =
 	"Growth",
 	"Towns",
 	"Factories",
-	"Convois",
+	"Convoys",
 	"Verkehrsteilnehmer",
 	"ratio_pax",
 	"Passagiere",
