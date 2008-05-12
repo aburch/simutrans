@@ -3052,14 +3052,6 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 		fiter.get_current()->laden_abschliessen();
 	}
 
-	// crossconnect all?
-	if(umgebung_t::crossconnect_factories) {
-	    DBG_MESSAGE("karte_t::laden()", "crossconnecting factories");
-		slist_iterator_tpl <fabrik_t *> iter (this->fab_list);
-		while( iter.next() ) {
-			iter.get_current()->add_all_suppliers();
-		}
-	}
 	display_progress(gib_groesse_y()+24, gib_groesse_y()+256+stadt.get_count());
 
 DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());

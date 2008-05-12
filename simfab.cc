@@ -1379,10 +1379,21 @@ fabrik_t::info(cbuffer_t& buf) const
 
 void fabrik_t::laden_abschliessen()
 {
-	for(uint32 i=0; i<lieferziele.get_count(); i++) {
-		fabrik_t * fab2 = fabrik_t::gib_fab(welt, lieferziele[i]);
-		if (fab2) {
-			fab2->add_supplier(pos.gib_2d());
+	if(umgebung_t::crossconnect_factories) {
+		add_all_suppliers();
+	}
+	else {
+		for(uint32 i=0; i<lieferziele.get_count(); i++) {
+			fabrik_t * fab2 = fabrik_t::gib_fab(welt, lieferziele[i]);
+			if (fab2) {
+				fab2->add_supplier(pos.gib_2d());
+			}
+			else {
+				// remove this ...
+				dbg->warning( "fabrik_t::laden_abschliessen()", "No factory at expected position %s!", lieferziele[i].gib_str() );
+				lieferziele.remove_at(i);
+				i--;
+			}
 		}
 	}
 }
