@@ -131,6 +131,10 @@ public:
 	// but since we allow only for a single stop per planquadrat, this is as good as the above
 	static halthandle_t gib_halt(karte_t *welt, const koord3d pos);
 
+	// return halt by name
+	static halthandle_t haltestelle_tgib_halt(const char *name) { return all_names.get(name); }
+
+
 	static const slist_tpl<halthandle_t>& gib_alle_haltestellen() { return alle_haltestellen; }
 
 	/**
@@ -543,7 +547,7 @@ public:
 	 * @return der Name der Haltestelle.
 	 * @author Hj. Malthaner
 	 */
-	const char * gib_name() const;
+	const char *gib_name() const;
 
 	void setze_name(const char *name);
 

@@ -68,8 +68,7 @@ stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 
 
 
-halthandle_t
-haltestelle_t::gib_halt(karte_t *welt, const koord pos)
+halthandle_t haltestelle_t::gib_halt(karte_t *welt, const koord pos)
 {
 	const planquadrat_t *plan = welt->lookup(pos);
 	if(plan) {
@@ -399,6 +398,23 @@ haltestelle_t::rotate90( const sint16 y_size )
 }
 
 
+
+const char* haltestelle_t::gib_name() const
+{
+	const char *name = "Unknown";
+	if (tiles.empty()) {
+		name = "Unnamed";
+	} else {
+		grund_t* bd = welt->lookup(gib_basis_pos3d());
+		if(bd  &&  bd->get_flag(grund_t::has_text)) {
+			name = bd->gib_text();
+		}
+	}
+	return name;
+}
+
+
+
 /**
  * Sets the name. Creates a copy of name.
  * @author Hj. Malthaner
@@ -407,8 +423,17 @@ void
 haltestelle_t::setze_name(const char *new_name)
 {
 	grund_t *gr = welt->lookup(gib_basis_pos3d());
-	if(gr  &&  !gr->find<label_t>()) {
-		gr->setze_text( new_name );
+	if(gr) {
+		if(bd->get_flag(grund_t::has_text)) {
+			halthandle_t h = all_names.remove(gr->gib_text());
+			assert(h==self);
+		}
+		if(!gr->find<label_t>()) {
+			gr->setze_text( new_name );
+			if(new_name) {
+				all_names.put(new_name,self);
+			}
+		}
 	}
 }
 
@@ -1574,22 +1599,6 @@ void haltestelle_t::recalc_station_type()
 	station_type = (haltestelle_t::stationtyp)new_station_type;
 
 //DBG_DEBUG("haltestelle_t::recalc_station_type()","result=%x, capacity=%i",new_station_type,capacity);
-}
-
-
-
-const char* haltestelle_t::gib_name() const
-{
-	const char *name = "Unknown";
-	if (tiles.empty()) {
-		name = "Unnamed";
-	} else {
-		grund_t* bd = welt->lookup(gib_basis_pos3d());
-		if(bd  &&  bd->get_flag(grund_t::has_text)) {
-			name = bd->gib_text();
-		}
-	}
-	return name;
 }
 
 
