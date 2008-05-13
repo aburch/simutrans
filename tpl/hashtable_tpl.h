@@ -30,7 +30,7 @@ class hashtable_tpl : public hash_t
 
 	slist_tpl <node_t> bags[STHT_BAGSIZE];
 
-	int get_hash(const key_t key) const
+	uint32 get_hash(const key_t key) const
 	{
 		return hash_t::hash(key) % STHT_BAGSIZE;
 	}
@@ -60,7 +60,7 @@ public:
 
 	const value_t get(const key_t key) const
 	{
-		const int code = get_hash(key);
+		const uint32 code = get_hash(key);
 
 		slist_iterator_tpl<node_t> iter(bags[code]);
 
@@ -76,7 +76,7 @@ public:
 
 	value_t *access(const key_t key)
 	{
-		const int code = get_hash(key);
+		const uint32 code = get_hash(key);
 
 		slist_iterator_tpl<node_t> iter(bags[code]);
 
@@ -96,7 +96,7 @@ public:
 	//
 	bool put(const key_t key, value_t object)
 	{
-		const int code = get_hash(key);
+		const uint32 code = get_hash(key);
 		slist_iterator_tpl<node_t> iter(bags[code]);
 
 		//
@@ -127,7 +127,7 @@ public:
 	//
 	value_t set(const key_t key, value_t object)
 	{
-		const int code = get_hash(key);
+		const uint32 code = get_hash(key);
 
 		slist_iterator_tpl<node_t> iter(bags[code]);
 
@@ -155,7 +155,7 @@ public:
 	//
 	value_t remove(const key_t key)
 	{
-		const int code = get_hash(key);
+		const uint32 code = get_hash(key);
 		slist_iterator_tpl<node_t> iter(bags[code]);
 
 		while(iter.next()) {

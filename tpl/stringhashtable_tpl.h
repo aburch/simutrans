@@ -15,12 +15,12 @@
  */
 class stringhash_t {
 public:
-	static int hash(const char *key)
+	static uint32 hash(const char *key)
 	{
 		// a little longer but much better in balancing (since many words start with same two letters)
-		int hash = 0;
+		uint32 hash = 0;
 		for(  int i=16;  (((char)i)*key[0])!=0;  i--  ) {
-			hash += *key++;
+			hash += (uint8)(*key++);
 		}
 		return hash;
 	}
@@ -48,9 +48,9 @@ public:
  */
 class stringhash2_t {
 public:
-	static int hash(const char *key)
+	static uint32 hash(const char *key)
 	{
-		int code = 0;
+		uint32 code = 0;
 		while (*key)
 			code = (code<<5) + code + *key++;
 		return code;

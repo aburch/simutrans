@@ -431,7 +431,7 @@ haltestelle_t::setze_name(const char *new_name)
 		if(!gr->find<label_t>()) {
 			gr->setze_text( new_name );
 			if(new_name) {
-				all_names.put(new_name,self);
+				all_names.put(gr->gib_text(),self);
 			}
 		}
 	}

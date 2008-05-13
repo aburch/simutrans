@@ -16,7 +16,7 @@
 template<class key_t>
 class ptrhash_tpl {
 public:
-	static long hash(const key_t key)
+	static uint32 hash(const key_t key)
 	{
 		return labs((long)key);
 	}

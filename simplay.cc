@@ -3131,8 +3131,10 @@ halthandle_t spieler_t::built_airport( stadt_t *city, koord pos, int rotation )
 	// get an airport name (even though the hub is the bus stop ... )
 	char *name = city->haltestellenname(bushalt, "Airport", get_haltcount()+1);
 	// now built the bus stop
+	if(welt->lookup(bushalt)->gib_halt().is_bound()) {
+		dbg->error("already bound",welt->lookup(bushalt)->gib_halt()->gib_name());
+	}
 	call_general_tool( WKZ_STATION, bushalt, busstop_besch->gib_name() );
-	assert( welt->lookup(bushalt)->gib_halt().is_bound() );
 	// and change name to airport ...
 	halthandle_t halt = welt->lookup(bushalt)->gib_halt();
 	halt->setze_name( name );

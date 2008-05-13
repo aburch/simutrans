@@ -14,21 +14,24 @@
 template<class key_t>
 class inthash_tpl {
 public:
-    static unsigned int hash(const key_t key)
+    static uint32 hash(const key_t key)
     {
-	return (unsigned int)key;
+		return (uint32)key;
     }
-    static key_t null()
+
+	static key_t null()
     {
-	return 0;
+		return 0;
     }
-    static void dump(const key_t key)
+
+	static void dump(const key_t key)
     {
-	printf("%d", (int)key);
+		printf("%d", (int)key);
     }
-    static int comp(key_t key1, key_t key2)
+
+	static int comp(key_t key1, key_t key2)
     {
-	return (int)key1 - (int)key2;
+		return (int)key1 - (int)key2;
     }
 };
 
