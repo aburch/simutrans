@@ -426,12 +426,14 @@ haltestelle_t::setze_name(const char *new_name)
 	if(gr) {
 		if(gr->get_flag(grund_t::has_text)) {
 			halthandle_t h = all_names.remove(gr->gib_text());
-			assert(h==self);
+			if(h!=self) {
+				DBG_MESSAGE("haltestelle_t::setze_name()","name %s already used!",gr->gib_text());
+			}
 		}
 		if(!gr->find<label_t>()) {
 			gr->setze_text( new_name );
-			if(new_name) {
-				all_names.put(gr->gib_text(),self);
+			if(new_name  &&  !all_names.put(gr->gib_text(),self)) {
+				DBG_MESSAGE("haltestelle_t::setze_name()","name %s already used!",new_name);
 			}
 		}
 	}
@@ -1760,15 +1762,15 @@ void haltestelle_t::laden_abschliessen()
 
 	// handle name for old stations which don't exist in kartenboden
 	grund_t* bd = welt->lookup(gib_basis_pos3d());
-	if(bd==NULL  ||  !bd->get_flag(grund_t::has_text) ) {
+	if(bd!=NULL  &&  !bd->get_flag(grund_t::has_text) ) {
 		// restore label und bridges
-		bd = welt->lookup_kartenboden(gib_basis_pos());
-		if(bd) {
+		grund_t* bd_old = welt->lookup_kartenboden(gib_basis_pos());
+		if(bd_old) {
 			// transfer name (if there)
 			const char *name = bd->gib_text();
 			if(name) {
 				setze_name( name );
-				bd->setze_text( NULL );
+				bd_old->setze_text( NULL );
 			}
 			else {
 				setze_name( "Unknown" );
