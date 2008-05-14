@@ -273,9 +273,6 @@ private:
 
 	void pruefe_grenzen(koord pos);
 
-	// fuer die haltestellennamen
-	sint32 zentrum_namen_cnt, aussen_namen_cnt;
-
 public:
 	/**
 	 * sucht arbeitsplätze für die Einwohner
@@ -416,13 +413,6 @@ public:
 
 	inline koord get_linksoben() const { return lo;}
 	inline koord get_rechtsunten() const { return ur;}
-
-	/**
-	 * Creates a station name
-	 * @param number if >= 0, then a number is added to the name
-	 * @author Hj. Malthaner
-	 */
-	char* haltestellenname(koord pos, const char* typ, sint32 number);
 
 	/**
 	 * Erzeugt ein Array zufaelliger Startkoordinaten,

@@ -440,6 +440,215 @@ haltestelle_t::setze_name(const char *new_name)
 }
 
 
+
+char *haltestelle_t::create_name(const koord k, const char *typ)
+{
+	stadt_t *stadt = welt->suche_naechste_stadt(k);
+	const char *stop = translator::translate(typ);
+	char buf[1024];
+
+	// this fails only, if there are no towns at all!
+	if(stadt==NULL) {
+		// get a default name
+		sprintf( buf, translator::translate("land stop %i %s"), gib_besitzer()->get_haltcount(), stop );
+		return strdup(buf);
+	}
+
+	// now we have a city
+	const char *city_name = stadt->gib_name();
+	sint16 li_gr = stadt->get_linksoben().x - 2;
+	sint16 re_gr = stadt->get_rechtsunten().x + 2;
+	sint16 ob_gr = stadt->get_linksoben().y - 2;
+	sint16 un_gr = stadt->get_rechtsunten().y + 2;
+
+	// strings for intown / outside of town
+	const bool inside = (li_gr < k.x  &&  re_gr > k.x  &&  ob_gr < k.y  &&  un_gr > k.y);
+
+	if(!umgebung_t::numbered_stations) {
+
+		static const koord next_building[24] = {
+			koord( 0, -1), // nord
+			koord( 1,  0), // ost
+			koord( 0,  1), // sued
+			koord(-1,  0), // west
+			koord( 1, -1), // nordost
+			koord( 1,  1), // suedost
+			koord(-1,  1), // suedwest
+			koord(-1, -1), // nordwest
+			koord( 0, -2),	// double nswo
+			koord( 2,  0),
+			koord( 0,  2),
+			koord(-2,  0),
+			koord( 1, -2),	// all the remaining 3s
+			koord( 2, -1),
+			koord( 2,  1),
+			koord( 1,  2),
+			koord(-1,  2),
+			koord(-2,  1),
+			koord(-2, -1),
+			koord(-1, -2),
+			koord( 2, -2),	// and now all buildings with distance 4
+			koord( 2,  2),
+			koord(-2,  2),
+			koord(-2, -2)
+		};
+
+		// standard names:
+		// order: factory, attraction, direction, normal name
+		// prissi: first we try a factory name
+		slist_tpl<fabrik_t *>fabs;
+		if (self.is_bound()) {
+			// first factories (so with same distance, they have priority)
+			int this_distance = 999;
+			slist_iterator_tpl<fabrik_t*> fab_iter(gib_fab_list());
+			while (fab_iter.next()) {
+				int distance = abs_distance(fab_iter.get_current()->gib_pos().gib_2d(), k);
+				if (distance < this_distance) {
+					fabs.insert(fab_iter.get_current());
+					distance = this_distance;
+				}
+				else {
+					fabs.append(fab_iter.get_current());
+				}
+			}
+		}
+		else {
+			// since the distance are presorted, we can just append for a good choice ...
+			for(  int test=0;  test<24;  test++  ) {
+				fabrik_t *fab = fabrik_t::gib_fab(welt,k+next_building[test]);
+				if(fab  &&  fabs.contains(fab)) {
+					fabs.append(fab);
+				}
+			}
+		}
+
+		// are there fabs?
+		const char *building_base = translator::translate("%s building %s %s");
+		slist_iterator_tpl<fabrik_t*> fab_iter(fabs);
+		while (fab_iter.next()) {
+			// with factories
+			sprintf(buf, building_base, city_name, fab_iter.get_current()->gib_name(), stop );
+			if(  !all_names.get(buf).is_bound()  ) {
+				return strdup(buf);
+			}
+		}
+
+		// no fabs or all names used up already
+		// check for other special building (townhall, monument, tourst attraction)
+		for (int i=0; i<24; i++) {
+			grund_t *gr = welt->lookup_kartenboden( next_building[i] + k);
+			if(gr==NULL  ||  gr->gib_typ()!=grund_t::fundament) {
+				// no building here
+				continue;
+			}
+			// since closes coordinates are tested first, we do not need to not sort this
+			const char *building_name = NULL;
+			const gebaeude_t* gb = gr->find<gebaeude_t>();
+			if (gb->is_monument()) {
+				building_name = translator::translate(gb->gib_name());
+			} else if (gb->ist_rathaus() ||
+				gb->gib_tile()->gib_besch()->gib_utyp() == haus_besch_t::attraction_land || // land attraction
+				gb->gib_tile()->gib_besch()->gib_utyp() == haus_besch_t::attraction_city) { // town attraction
+				building_name = make_single_line_string(translator::translate(gb->gib_tile()->gib_besch()->gib_name()), 2);
+			}
+			else {
+				// normal town house => not suitable for naming
+				continue;
+			}
+			// now we have a name: try it
+			sprintf(buf, building_base, city_name, building_name, stop );
+			if(  !all_names.get(buf).is_bound()  ) {
+				return strdup(buf);
+			}
+		}
+
+		// still all names taken => then try the normal naming scheme ...
+		char numbername[10];
+		if(inside) {
+			strcpy( numbername, "0center" );
+		} else if (li_gr - 6 < k.x  &&  re_gr + 6 > k.x  &&  ob_gr - 6 < k.y  &&  un_gr + 6 > k.y) {
+			// close to the city we use a different scheme
+			if (k.y < ob_gr) {
+				if (k.x < li_gr) {
+					strcpy( numbername, "0nordwest" );
+				} else if (k.x > re_gr) {
+					strcpy( numbername, "0nordost" );
+				} else {
+					strcpy( numbername, "0nord" );
+				}
+			} else if (k.y > un_gr) {
+				if (k.x < li_gr) {
+					strcpy( numbername, "0suedwest" );
+				} else if (k.x > re_gr) {
+					strcpy( numbername, "0suedost" );
+				} else {
+					strcpy( numbername, "0sued" );
+				}
+			} else {
+				if (k.x <= li_gr) {
+					strcpy( numbername, "0west" );
+				} else if (k.x >= re_gr) {
+					strcpy( numbername, "0ost" );
+				} else {
+					strcpy( numbername, "0center" );
+				}
+			}
+		}
+		else {
+			strcpy( numbername, "0extern" );
+		}
+		// well now try them all from "1..." over "9..." ...
+		for(  int i=1;  i<10;  i++  ) {
+			numbername[0] = '0'+i;
+			const char *base_name = translator::translate(numbername);
+			if(base_name==numbername) {
+				// not translated ... try next
+				continue;
+			}
+			// ok, try this name, if free ...
+			sprintf(buf, base_name, city_name, stop );
+			if(  !all_names.get(buf).is_bound()  ) {
+				return strdup(buf);
+			}
+		}
+		// ... to "A..." until "Z..." if there ...
+		for(  int i=1;  i<26;  i++  ) {
+			numbername[0] = 'A'+i;
+			const char *base_name = translator::translate(numbername);
+			if(base_name==numbername) {
+				// not translated ... try next
+				continue;
+			}
+			// ok, try this name, if free ...
+			sprintf(buf, base_name, city_name, stop );
+			if(  !all_names.get(buf).is_bound()  ) {
+				return strdup(buf);
+			}
+		}
+		// here we did not find a suitable name ...
+	}
+
+	/* so far we did not found a matching station name
+	 * as a last resort, we will try numbered names
+	 * (or the user requested this anyway)
+	 */
+
+	// strings for intown / outside of town
+	const char *base_name = inside ? translator::translate("%s city %d %s") : translator::translate("%s land %d %s");
+
+	// finally: is there a stop with this name alrady?
+	for(  int i=0;  i<32767;  i++  ) {
+		sprintf(buf, base_name, city_name, i, stop );
+		if(  !all_names.get(buf).is_bound()  ) {
+			return strdup(buf);
+		}
+	}
+
+	return "Unnamed";
+}
+
+
+
 void
 haltestelle_t::step()
 {

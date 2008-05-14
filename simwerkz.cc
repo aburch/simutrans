@@ -2050,20 +2050,9 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	}
 
 	if(neu) {
-		stadt_t *stadt = welt->suche_naechste_stadt(pos);
-		if(stadt) {
-			const int count = sp->get_haltcount();
-			char* name = stadt->haltestellenname(pos, "Dock", count);
-			halt->setze_name( name );
-			free(name);
-		}
-		else {
-			// get a default name
-			const int count = sp->get_haltcount();
-			char *tmp=new char[256];
-			sprintf( tmp, translator::translate("land stop %i %s"), count, translator::translate("Dock") );
-			halt->setze_name( tmp );
-		}
+		char* name = halt->create_name(pos, "Dock");
+		halt->setze_name( name );
+		free(name);
 	}
 	return NULL;
 }
@@ -2229,20 +2218,9 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	halt->recalc_station_type();
 
 	if(neu) {
-		stadt_t *stadt = welt->suche_naechste_stadt(pos);
-		if(stadt) {
-			const int count = sp->get_haltcount();
-			char* name = stadt->haltestellenname(pos, type_name, count);
-			halt->setze_name( name );
-			free(name);
-		}
-		else {
-			// get a default name
-			const int count = sp->get_haltcount();
-			char *tmp=new char[256];
-			sprintf( tmp, translator::translate("land stop %i %s"), count,  translator::translate(type_name) );
-			halt->setze_name( tmp );
-		}
+		char* name = halt->create_name(pos, type_name);
+		halt->setze_name( name );
+		free(name);
 	}
 	sp->buche(cost*besch->gib_level()*besch->gib_b()*besch->gib_h(), pos, COST_CONSTRUCTION);
 	if(umgebung_t::station_coverage_show  &&  welt->gib_zeiger()->gib_pos().gib_2d()==pos) {

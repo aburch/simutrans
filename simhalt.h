@@ -551,6 +551,9 @@ public:
 
 	void setze_name(const char *name);
 
+	// create an unique name: better to be called with valid handle, althoug it will work without
+	char *create_name(const koord k, const char *typ);
+
 	void rdwr(loadsave_t *file);
 
 	void laden_abschliessen();

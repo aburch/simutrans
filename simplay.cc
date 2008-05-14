@@ -2897,13 +2897,13 @@ bool spieler_t::create_water_transport_vehikel( stadt_t *start_stadt, const koor
 		 */
 		koord bushalt = start_harbour+start_dx;
 		const haus_besch_t* busstop_besch = hausbauer_t::gib_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX );
-		char *name = ((stadt_t *)start_stadt)->haltestellenname(bushalt, "Dock", get_haltcount()+1);
 		// now built the bus stop
 		if(!call_general_tool( WKZ_STATION, bushalt, busstop_besch->gib_name() )) {
 			return false;
 		}
 		// and change name to dock ...
 		halthandle_t halt = welt->lookup(bushalt)->gib_halt();
+		char *name = halt->create_name(bushalt, "Dock");
 		halt->setze_name( name );
 		free(name);
 		// finally built the dock
@@ -2926,13 +2926,13 @@ bool spieler_t::create_water_transport_vehikel( stadt_t *start_stadt, const koor
 		 */
 		koord bushalt = end_harbour+end_dx;
 		const haus_besch_t* busstop_besch = hausbauer_t::gib_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX );
-		char *name = end_stadt->haltestellenname(bushalt, "Dock", get_haltcount()+1);
 		// now built the bus stop
 		if(!call_general_tool( WKZ_STATION, bushalt, busstop_besch->gib_name() )) {
 			return false;
 		}
 		// and change name to dock ...
 		halthandle_t halt = welt->lookup(bushalt)->gib_halt();
+		char *name = halt->create_name(bushalt, "Dock");
 		halt->setze_name( name );
 		free(name);
 		// finally built the dock
@@ -3129,14 +3129,18 @@ halthandle_t spieler_t::built_airport( stadt_t *city, koord pos, int rotation )
 	// now the busstop (our next hub ... )
 	const haus_besch_t* busstop_besch = hausbauer_t::gib_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX );
 	// get an airport name (even though the hub is the bus stop ... )
-	char *name = city->haltestellenname(bushalt, "Airport", get_haltcount()+1);
 	// now built the bus stop
-	if(welt->lookup(bushalt)->gib_halt().is_bound()) {
-		dbg->error("already bound",welt->lookup(bushalt)->gib_halt()->gib_name());
+	if(!call_general_tool( WKZ_STATION, bushalt, busstop_besch->gib_name() )) {
+		welt->lookup_kartenboden(center+koord::nord)->remove_everything_from_way( this, air_wt, ribi_t::keine );
+		welt->lookup_kartenboden(center+koord::sued)->remove_everything_from_way( this, air_wt, ribi_t::keine );
+		welt->lookup_kartenboden(center+koord::west)->remove_everything_from_way( this, air_wt, ribi_t::keine );
+		welt->lookup_kartenboden(center+koord::ost)->remove_everything_from_way( this, air_wt, ribi_t::keine );
+		welt->lookup_kartenboden(center)->remove_everything_from_way( this, air_wt, ribi_t::alle );
+		return halthandle_t();
 	}
-	call_general_tool( WKZ_STATION, bushalt, busstop_besch->gib_name() );
 	// and change name to airport ...
 	halthandle_t halt = welt->lookup(bushalt)->gib_halt();
+	char *name = halt->create_name( bushalt, "Airport" );
 	halt->setze_name( name );
 	free(name);
 	// built also runway now ...
