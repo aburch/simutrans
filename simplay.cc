@@ -3782,8 +3782,8 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 
 		// despite its name: try airplane
 		case NR_BAUE_SIMPLE_SCHIENEN_ROUTE:
-			// try airline ...
-			if(!create_air_transport_vehikel( start_stadt, end_stadt )) {
+			// try airline (if we are wealthy enough) ...
+			if(finance_history_month[1][COST_CASH]<umgebung_t::starting_money  ||  !create_air_transport_vehikel( start_stadt, end_stadt )) {
 				state = NR_BAUE_CLEAN_UP;
 			}
 			else {
