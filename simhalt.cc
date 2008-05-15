@@ -568,30 +568,52 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 			strcpy( numbername, "0center" );
 		} else if (li_gr - 6 < k.x  &&  re_gr + 6 > k.x  &&  ob_gr - 6 < k.y  &&  un_gr + 6 > k.y) {
 			// close to the city we use a different scheme
+			const char *dirname = NULL;
 			if (k.y < ob_gr) {
 				if (k.x < li_gr) {
-					strcpy( numbername, "0nordwest" );
+					dirname = "nordwest";
 				} else if (k.x > re_gr) {
-					strcpy( numbername, "0nordost" );
+					dirname = "nordost";
 				} else {
-					strcpy( numbername, "0nord" );
+					dirname = "nord";
 				}
 			} else if (k.y > un_gr) {
 				if (k.x < li_gr) {
-					strcpy( numbername, "0suedwest" );
+					dirname = "suedwest";
 				} else if (k.x > re_gr) {
-					strcpy( numbername, "0suedost" );
+					dirname = "suedost";
 				} else {
-					strcpy( numbername, "0sued" );
+					dirname = "sued";
 				}
 			} else {
 				if (k.x <= li_gr) {
-					strcpy( numbername, "0west" );
+					dirname = "west";
 				} else if (k.x >= re_gr) {
-					strcpy( numbername, "0ost" );
+					dirname = "ost";
 				} else {
 					strcpy( numbername, "0center" );
 				}
+			}
+			// we have a translation?
+			if(dirname) {
+				// suburbs from 1...9
+				dirname = translator::translate(dirname);
+				strcpy( numbername, "0suburb" );
+				for(  int i=1;  i<10;  i++  ) {
+					numbername[0] = '0'+i;
+					const char *base_name = translator::translate(numbername);
+					if(base_name==numbername) {
+						// not translated ... try next
+						continue;
+					}
+					// ok, try this name, if free ...
+					sprintf(buf, base_name, city_name, dirname, stop );
+					if(  !all_names.get(buf).is_bound()  ) {
+						return strdup(buf);
+					}
+				}
+				// ok, no suitable suburb names, try the external ones ...
+				strcpy( numbername, "0extern" );
 			}
 		}
 		else {
@@ -612,7 +634,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 			}
 		}
 		// ... to "A..." until "Z..." if there ...
-		for(  int i=1;  i<26;  i++  ) {
+		for(  int i=0;  i<26;  i++  ) {
 			numbername[0] = 'A'+i;
 			const char *base_name = translator::translate(numbername);
 			if(base_name==numbername) {
@@ -637,7 +659,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 	const char *base_name = inside ? translator::translate("%s city %d %s") : translator::translate("%s land %d %s");
 
 	// finally: is there a stop with this name alrady?
-	for(  int i=0;  i<32767;  i++  ) {
+	for(  int i=1;  i<32767;  i++  ) {
 		sprintf(buf, base_name, city_name, i, stop );
 		if(  !all_names.get(buf).is_bound()  ) {
 			return strdup(buf);

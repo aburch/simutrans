@@ -54,8 +54,9 @@
 	FIX: waypoints under/over stops were treated as stops for good routing
 	CHANGE: all stops are now given more or less unique names. First factories,
 		then buildings, then ?standard, where "?" is 1..9 or A...Z (if available)
-		and standard is center, extern ord one of the german directions
-		nord, sued, west, ost, nordwest, ... If failed, it will be a numbered stop
+		and standard is center, extern or suburb the later with one of the german
+		directions nord, sued, west, ost, nordwest, ... If failed, it will be a
+		numbered stop (translators: please tranlate on simutranslator!)
 
 
 Release of 99.17.1 (r1550, stable)
