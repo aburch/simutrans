@@ -57,6 +57,7 @@
 		and standard is center, extern or suburb the later with one of the german
 		directions nord, sued, west, ost, nordwest, ... If failed, it will be a
 		numbered stop (translators: please tranlate on simutranslator!)
+	CHANGE: deduct maintenance at the beginning of a month => no sudden dropping below zero any more
 
 
 Release of 99.17.1 (r1550, stable)

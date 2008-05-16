@@ -325,10 +325,17 @@ void spieler_t::step()
 void spieler_t::neuer_monat()
 {
 	// Wartungskosten abziehen
-	buche( -((sint64)maintenance) <<((sint64)welt->ticks_bits_per_tag-18ll), COST_MAINTENANCE);
 	calc_finance_history();
 	roll_finance_history_month();
+	if(welt->get_last_month()==0) {
+		calc_finance_history();
+		roll_finance_history_year();
+	}
+
 	simlinemgmt.new_month();
+
+	// subtract maintenance
+	buche( -((sint64)maintenance) <<((sint64)welt->ticks_bits_per_tag-18ll), COST_MAINTENANCE);
 
 	// Bankrott ?
 	if(!umgebung_t::freeplay) {
@@ -370,9 +377,6 @@ void spieler_t::neuer_monat()
  */
 void spieler_t::neues_jahr()
 {
-	calc_finance_history();
-	roll_finance_history_year();
-
 	// AI will reconsider the oldes unbuiltable lines again
 	if(automat) {
 		uint remove = (uint)max(0,(int)forbidden_conections.count()-3);
@@ -504,7 +508,7 @@ void spieler_t::buche(const sint64 betrag, enum player_cost type)
 		finance_history_month[0][type] += betrag;
 		finance_history_month[0][COST_PROFIT] += betrag;
 		finance_history_month[0][COST_CASH] = konto;
-		// the other will be updated only monthly or whe a finance window is shown
+		// the other will be updated only monthly or when a finance window is shown
 	}
 }
 
@@ -693,6 +697,10 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
 			}
 		}
+	}
+	// we have to pay maintenance at the beginning of a month
+	if(file->get_version()<99017) {
+		buche( -finance_history_month[1][COST_MAINTENANCE], COST_MAINTENANCE );
 	}
 
 	file->rdwr_bool(automat, "\n");
