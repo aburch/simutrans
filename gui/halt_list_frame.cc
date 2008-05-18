@@ -327,7 +327,7 @@ void halt_list_frame_t::display_list(void)
 
 	// display stations
 	for (i = 0; i < n; i++) {
-		stops.append( halt_list_stats_t(a[i]) );
+		stops.push_back(halt_list_stats_t(a[i]));
 		stops.back().setze_pos(koord(0,0));
 	}
 	// hide/show scroll bar

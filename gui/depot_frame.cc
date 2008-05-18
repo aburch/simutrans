@@ -707,7 +707,7 @@ void depot_frame_t::update_data()
 			img_data.image = cnv->gib_vehikel(i)->gib_besch()->gib_basis_bild();
 			img_data.count = 0;
 			img_data.lcolor = img_data.rcolor= EMPTY_IMAGE_BAR;
-			convoi_pics.append(img_data);
+			convoi_pics.push_back(img_data);
 		}
 
 		/* color bars for current convoi: */

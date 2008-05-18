@@ -159,13 +159,13 @@ void convoi_frame_t::sort_list()
 {
 	const karte_t* welt = owner->get_welt();
 
-	convois.resize( welt->get_convoi_count() );
 	convois.clear();
+	convois.resize( welt->get_convoi_count() );
 
 	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
 		convoihandle_t cnv = *i;
 		if(cnv->gib_besitzer()==owner  &&   passes_filter(cnv)) {
-			convois.append( cnv );
+			convois.push_back(cnv);
 		}
 	}
 	qsort(convois.begin(), convois.get_count(), sizeof(convoihandle_t), compare_convois);

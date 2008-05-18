@@ -557,7 +557,7 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 			fields.resize(nr);
 			for(int i=0; i<nr; i++) {
 				k.rdwr(file);
-				fields.append(k);
+				fields.push_back(k);
 			}
 		}
 	}

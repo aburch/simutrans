@@ -283,7 +283,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 			}
 		}
 		w->id = i | GENERAL_TOOL;
-		general_tool.append(w);
+		general_tool.push_back(w);
 	}
 
 	// now the simple tools
@@ -322,7 +322,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 			}
 		}
 		w->id = i | SIMPLE_TOOL;
-		simple_tool.append( w );
+		simple_tool.push_back(w);
 	}
 
 	// now the dialoge tools
@@ -361,7 +361,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 			}
 		}
 		w->id = i | DIALOGE_TOOL;
-		dialog_tool.append( w );
+		dialog_tool.push_back(w);
 	}
 
 	// now the toolbar tools
@@ -529,7 +529,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 						char_to_tool.append( tb, 16 );
 					}
 					tb->id = toolnr | TOOLBAR_TOOL;
-					toolbar_tool.append( tb );
+					toolbar_tool.push_back(tb);
 					addtool = tb;
 				}
 			}

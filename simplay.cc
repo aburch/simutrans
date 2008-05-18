@@ -925,7 +925,7 @@ spieler_t::add_undo(koord3d k)
 {
 	if(last_built.get_size()>0) {
 //DBG_DEBUG("spieler_t::add_undo()","tile at (%i,%i)",k.x,k.y);
-		last_built.append(k);
+		last_built.push_back(k);
 	}
 }
 

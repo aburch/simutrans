@@ -70,15 +70,6 @@ template<class T> class vector_tpl
 			return 0xFFFFFFFFu;
 		}
 
-		/** Appends the element at the end of the vector.  */
-		void append(T elem)
-		{
-			if (count >= size) {
-				dbg->fatal("vector_tpl<T>::append()", "capacity %i exceeded.", size);
-			}
-			data[count++] = elem;
-		}
-
 		/**
 		 * Appends the element at the end of the vector.
 		 * if out of space, extend by this amount

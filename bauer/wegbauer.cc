@@ -1459,11 +1459,11 @@ wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d)
 			return false;
 		}
 	}
-	// now we can built here ...
+	// now we can build here
 	route.clear();
 	route.resize(dist + 2);
 	for(  int i=0;  i<=dist;  i++  ) {
-		route.append(welt->lookup(start + zv * i)->gib_kartenboden()->gib_pos());
+		route.push_back(welt->lookup(start + zv * i)->gib_kartenboden()->gib_pos());
 	}
 	max_n = dist;
 	return true;

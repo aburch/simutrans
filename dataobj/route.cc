@@ -43,10 +43,10 @@ route_t::kopiere(const route_t *r)
 {
 	assert(r != NULL);
 	const unsigned int hops = r->gib_max_n();
-	route.resize(hops+1);
 	route.clear();
+	route.resize(hops + 1);
 	for( unsigned int i=0;  i<=hops;  i++ ) {
-		route.append(r->route[i]);
+		route.push_back(r->route[i]);
 	}
 }
 
@@ -99,7 +99,7 @@ route_t::remove_koord_from(int i) {
 	while(i<gib_max_n()) {
 		route.remove_at(gib_max_n());
 	}
-	route.append(route[gib_max_n()]); // the last is always double
+	route.push_back(route[gib_max_n()]); // the last is always double
 }
 
 
@@ -547,9 +547,8 @@ bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start,
 DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x, start.y, ziel.x, ziel.y);
 		// no route found
 		route.resize(1);
-		route.append(start);	// just to be save
+		route.push_back(start); // just to be safe
 		return false;
-
 	}
 	else {
 		// drive to the end in a station
@@ -603,7 +602,7 @@ void route_t::rdwr(loadsave_t *file)
 		route.resize(max_n+2);
 		for(sint32 i=0;  i<=max_n;  i++ ) {
 			k.rdwr(file);
-			route.append( k );
+			route.push_back(k);
 		}
 	}
 	else {

@@ -2420,7 +2420,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl)
 			len--;
 			if (minimum_dist > minimum_city_distance) {
 				// all citys are far enough => ok, find next place
-				result->append(k);
+				result->push_back(k);
 				break;
 			}
 			// if we reached here, the city was not far enough => try again
