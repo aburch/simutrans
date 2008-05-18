@@ -770,8 +770,8 @@ public:
 	void new_mountain(int x, int y, int w, int h, int t);
 
 	void add_convoi(convoihandle_t &cnv) {
-			assert(cnv.is_bound());
-			convoi_array.append_unique(cnv,4);
+		assert(cnv.is_bound());
+		convoi_array.push_back_unique(cnv);
 	}
 	void rem_convoi(convoihandle_t& cnv) { convoi_array.remove(cnv); }
 	unsigned get_convoi_count() const {return convoi_array.get_count();}

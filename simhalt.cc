@@ -942,7 +942,7 @@ void haltestelle_t::rebuild_destinations()
 							if(ware!=warenbauer_t::nichts  &&  !add_catg_index.is_contained(ware->gib_catg_index())) {
 								// now add the freights
 								hat_gehalten(ware, fpl );
-								add_catg_index.append_unique( ware->gib_catg_index(), 1 );
+								add_catg_index.push_back_unique(ware->gib_catg_index());
 							}
 						}
 					}

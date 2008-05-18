@@ -95,8 +95,8 @@ void simline_t::add_convoy(convoihandle_t cnv)
 			}
 		}
 	}
-	// only add convoy if not allready member of line
-	line_managed_convoys.append_unique(cnv,16);
+	// only add convoy if not already member of line
+	line_managed_convoys.push_back_unique(cnv);
 
 	// what goods can this line transport?
 	for(uint i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {

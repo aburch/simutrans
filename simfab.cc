@@ -100,7 +100,7 @@ void fabrik_t::unlink_halt(halthandle_t halt)
 void
 fabrik_t::add_lieferziel(koord ziel)
 {
-	lieferziele.append_unique(ziel,4);
+	lieferziele.push_back_unique(ziel);
 	fabrik_t * fab = fabrik_t::gib_fab(welt, ziel);
 	if (fab) {
 		fab->add_supplier(gib_pos().gib_2d());
@@ -347,7 +347,7 @@ fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 		for(int x=min_pos.x; x<=max_pos.x; x++) {
 			fabrik_t *fab=gib_fab(welt,koord(x,y));
 			if(fab) {
-				if( fablist.append_unique( fab, 4 )  ) {
+				if (fablist.push_back_unique(fab)) {
 //DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",gr->first_obj()->get_fabrik()->gib_besch()->gib_name(),x,y);
 				}
 			}
@@ -1434,7 +1434,7 @@ void fabrik_t::rotate90( const sint16 y_size )
 void
 fabrik_t::add_supplier(koord pos)
 {
-	suppliers.append_unique(pos,4);
+	suppliers.push_back_unique(pos);
 }
 
 

@@ -562,7 +562,7 @@ public:
 	 * called, if a line serves this stop
 	 * @author hsiegeln
 	 */
-	void add_line(linehandle_t line) { registered_lines.append_unique(line,4); }
+	void add_line(linehandle_t line) { registered_lines.push_back_unique(line); }
 
 	/*
 	 * called, if a line removes this stop from it's schedule

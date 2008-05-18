@@ -90,10 +90,10 @@ template<class T> class vector_tpl
 		 * Checks if element is contained. Appends only new elements.
 		 * extend vector if nessesary
 		 */
-		bool append_unique(T elem,uint32 extend)
+		bool push_back_unique(T elem)
 		{
 			if (is_contained(elem)) return false;
-			append(elem, extend);
+			push_back(elem);
 			return true;
 		}
 
