@@ -50,8 +50,7 @@ void gui_tab_panel_t::infowin_event(const event_t *ev)
 		// Komponente getroffen
 		event_t ev2 = *ev;
 		translate_event(&ev2, 0, -HEADER_VSIZE);
-		tabs.at(active_tab).component->infowin_event(&ev2);
-
+		gib_aktives_tab()->infowin_event(&ev2);
 	}
 	else {
 		if(IS_LEFTCLICK(ev)) {
