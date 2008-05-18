@@ -81,7 +81,7 @@ void baum_edit_frame_t::fill_list( bool translate )
 	const vector_tpl<const baum_besch_t *> *s = baum_t::gib_all_besch();
 	for (vector_tpl<const baum_besch_t *>::const_iterator i = s->begin(), end = s->end(); i != end; ++i) {
 		if(*i) {
-			baumlist.append( (*i), 16 );
+			baumlist.push_back(*i);
 		}
 	}
 

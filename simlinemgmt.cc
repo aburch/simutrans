@@ -56,7 +56,7 @@ DBG_MESSAGE("simlinemgmt_t::add_line()","id=%d",new_line.get_id());
 		new_line->set_line_id( id );
 	}
 	used_ids[id/8] |= (1<<(id&7));	// should be registered anyway ...
-	all_managed_lines.append(new_line,16);
+	all_managed_lines.push_back(new_line);
 	sort_lines();
 }
 

@@ -444,7 +444,7 @@ bool roadsign_t::alles_geladen()
 bool roadsign_t::register_besch(roadsign_besch_t *besch)
 {
 	roadsign_t::table.put(besch->gib_name(), besch);
-	roadsign_t::liste.append(besch,16);
+	roadsign_t::liste.push_back(besch);
 	if(besch->gib_wtyp()==track_wt  &&  besch->get_flags()==roadsign_besch_t::SIGN_SIGNAL) {
 		default_signal = besch;
 	}

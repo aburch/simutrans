@@ -3114,7 +3114,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 		}
 		else {
 			convoi_t *cnv = new convoi_t(this, file);
-			convoi_array.append( cnv->self, 16 );
+			convoi_array.push_back(cnv->self);
 
 			if(cnv->in_depot()) {
 				grund_t * gr = lookup(cnv->gib_pos());

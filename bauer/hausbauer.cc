@@ -119,11 +119,11 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 
 		case gebaeude_t::unbekannt:
 		switch (besch->gib_utyp()) {
-			case haus_besch_t::denkmal:           denkmaeler.append(besch);               break;
-			case haus_besch_t::attraction_land:   sehenswuerdigkeiten_land.append(besch); break;
-			case haus_besch_t::firmensitz:        headquarter.append(besch,4);              break;
-			case haus_besch_t::rathaus:           rathaeuser.append(besch);               break;
-			case haus_besch_t::attraction_city:   sehenswuerdigkeiten_city.append(besch); break;
+			case haus_besch_t::denkmal:         denkmaeler.append(besch);               break;
+			case haus_besch_t::attraction_land: sehenswuerdigkeiten_land.append(besch); break;
+			case haus_besch_t::firmensitz:      headquarter.push_back(besch);           break;
+			case haus_besch_t::rathaus:         rathaeuser.append(besch);               break;
+			case haus_besch_t::attraction_city: sehenswuerdigkeiten_city.append(besch); break;
 
 			case haus_besch_t::fabrik: break;
 
@@ -132,7 +132,7 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 			case haus_besch_t::depot:
 			case haus_besch_t::generic_stop:
 			case haus_besch_t::generic_extension:
-				station_building.append(besch,16);
+				station_building.push_back(besch);
 DBG_DEBUG("hausbauer_t::register_besch()","Infrastructure %s",besch->gib_name());
 				break;
 

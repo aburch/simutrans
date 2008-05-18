@@ -51,7 +51,7 @@ bool groundobj_t::alles_geladen()
 {
 	if (besch_names.empty()) {
 		DBG_MESSAGE("groundobj_t", "No groundobj found - feature disabled");
-		groundobj_typen.append(NULL,1);
+		groundobj_typen.push_back(NULL);
 	}
 	return true;
 }
@@ -62,11 +62,11 @@ bool groundobj_t::register_besch(groundobj_besch_t *besch)
 {
 	if(groundobj_typen.get_count()==0) {
 		// NULL for empty object
-		groundobj_typen.append(NULL,4);
+		groundobj_typen.push_back(NULL);
 	}
 	assert(besch->get_speed()==0);
 	besch_names.put(besch->gib_name(), groundobj_typen.get_count() );
-	groundobj_typen.append(besch,4);
+	groundobj_typen.push_back(besch);
 	return true;
 }
 

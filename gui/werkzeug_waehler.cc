@@ -37,7 +37,7 @@ werkzeug_waehler_t::werkzeug_waehler_t(karte_t* welt, const char* titel, const c
  */
 void werkzeug_waehler_t::add_werkzeug(werkzeug_t *w)
 {
-	tools.append(w,4);
+	tools.push_back(w);
 
 	int ww = (display_get_width()/icon.x)-2;
 	tool_icon_width = tools.get_count();

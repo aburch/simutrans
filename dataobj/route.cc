@@ -70,7 +70,7 @@ DBG_MESSAGE("route_t::append()","last=%i,%i,%i   first=%i,%i,%i",
 	}
 	// then append
 	for( unsigned int i=0;  i<=hops;  i++ ) {
-		route.append(r->position_bei(i),16);
+		route.push_back(r->position_bei(i));
 	}
 }
 
@@ -88,9 +88,9 @@ route_t::append(koord3d k)
 		route.remove_at(route.get_count()-1);
 	}
 	if (route.empty() || k != route.back()) {
-		route.append(k,16);
+		route.push_back(k);
 	}
-	route.append(k,16);	// the last is always double
+	route.push_back(k);	// the last is always double
 }
 
 
@@ -136,9 +136,9 @@ DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",p
 		if(!welt->ist_in_kartengrenzen(pos)) {
 			break;
 		}
-		route.append( welt->lookup(pos)->gib_kartenboden()->gib_pos(),16 );
+		route.push_back(welt->lookup(pos)->gib_kartenboden()->gib_pos());
 	}
-	route.append(route.back(), 16);
+	route.push_back(route.back());
 	DBG_MESSAGE("route_t::append_straight_route()","to (%i,%i) found.",ziel.x,ziel.y);
 
 	return pos==ziel;
@@ -203,7 +203,7 @@ route_t::find_route(karte_t *welt,
 	tmp->count = 0;
 
 	// start in open
-	open.append(tmp,256);
+	open.push_back(tmp);
 
 //DBG_MESSAGE("route_t::find_route()","calc route from %d,%d,%d",start.x, start.y, start.z);
 	const grund_t* gr;
@@ -216,7 +216,7 @@ route_t::find_route(karte_t *welt,
 		tmp = open[0];
 		open.remove_at( 0 );
 
-		close.append(tmp,16);
+		close.push_back(tmp);
 		gr = tmp->gr;
 
 //DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z,tmp->f);
@@ -270,8 +270,7 @@ route_t::find_route(karte_t *welt,
 
 //DBG_DEBUG("insert to open","%i,%i,%i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z);
 				// insert here
-				open.append(k,16);
-
+				open.push_back(k);
 			}
 		}
 
@@ -579,9 +578,8 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 						break;
 					}
 //DBG_DEBUG("route_t::calc_route()","add station at %i,%i",gr->gib_pos().x,gr->gib_pos().y);
-					route.append(gr->gib_pos(),12);
+					route.push_back(gr->gib_pos());
 				}
-
 			}
 		}
 	}

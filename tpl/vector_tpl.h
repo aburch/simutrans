@@ -70,16 +70,6 @@ template<class T> class vector_tpl
 			return 0xFFFFFFFFu;
 		}
 
-		/**
-		 * Appends the element at the end of the vector.
-		 * if out of space, extend by this amount
-		 */
-		void append(T elem, uint32 extend)
-		{
-			if (count >= size) resize(count + extend);
-			data[count++] = elem;
-		}
-
 		void push_back(const T& elem)
 		{
 			if (count == size) resize(size == 0 ? 1 : size * 2);
@@ -123,7 +113,7 @@ template<class T> class vector_tpl
 				data[pos] = elem;
 				count++;
 			} else {
-				append(elem, 1);
+				push_back(elem);
 			}
 		}
 

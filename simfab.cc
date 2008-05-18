@@ -159,7 +159,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 		ware.abgabe_letzt = ware.abgabe_sum = 0;
 		ware.max = lieferant->gib_kapazitaet() << fabrik_t::precision_bits;
 		ware.menge = 0;
-		eingang.append(ware,1);
+		eingang.push_back(ware);
 	}
 
 	// create consumer information
@@ -171,7 +171,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 		ware.max = produkt->gib_kapazitaet() << fabrik_t::precision_bits;
 		// if source then start with full storage (thus AI will built immeadiately lines)
 		ware.menge = (fabesch->gib_lieferanten()==0) ? ware.max-(16<<fabrik_t::precision_bits) : 0;
-		ausgang.append(ware,1);
+		ausgang.push_back(ware);
 	}
 }
 
@@ -284,7 +284,7 @@ fabrik_t::add_random_field(uint16 probability)
 		// first make foundation below
 		const koord k = gr->gib_pos().gib_2d();
 		assert(!fields.is_contained(k));
-		fields.append(k,10);
+		fields.push_back(k);
 		grund_t *gr2 = new fundament_t(welt, gr->gib_pos(), gr->gib_grund_hang());
 		welt->access(k)->boden_ersetzen(gr, gr2);
 		gr2->obj_add( new field_t( welt, gr2->gib_pos(), besitzer_p, fb, this ) );
@@ -449,7 +449,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			if(dummy.menge > (FAB_MAX_INPUT << precision_bits)) {
 				dummy.menge = (FAB_MAX_INPUT << precision_bits);
 			}
-			eingang.append(dummy, 1);
+			eingang.push_back(dummy);
 		}
 	}
 
@@ -478,7 +478,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			guarded_free(const_cast<char *>(typ));
 			dummy.menge >>= (old_precision_bits-precision_bits);
 			dummy.max >>= (old_precision_bits-precision_bits);
-			ausgang.append(dummy, 4);
+			ausgang.push_back(dummy);
 		}
 	}
 	// restore other information

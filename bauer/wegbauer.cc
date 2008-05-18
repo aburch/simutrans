@@ -1313,7 +1313,7 @@ DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %
 		const long cost = tmp->g;
 		// reached => construct route
 		while(tmp != NULL) {
-			route.append(tmp->gr->gib_pos(), 256);
+			route.push_back(tmp->gr->gib_pos());
 //DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
 			tmp = tmp->parent;
 		}
@@ -1380,7 +1380,7 @@ DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %i,%i = %i",diff.x,diff.y,
 	route.clear();
 	// we can built a straight route?
 	if(ok) {
-		route.append(start, 16);
+		route.push_back(start);
 		pos = start.gib_2d();
 		while(pos!=ziel.gib_2d()) {
 			// shortest way
@@ -1393,10 +1393,10 @@ DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %i,%i = %i",diff.x,diff.y,
 			}
 			pos += diff;
 			if(bautyp&tunnel_flag) {
-				route.append(koord3d(pos, start.z), 16);
+				route.push_back(koord3d(pos, start.z));
 			}
 			else {
-				route.append(welt->lookup(pos)->gib_kartenboden()->gib_pos(), 16);
+				route.push_back(welt->lookup(pos)->gib_kartenboden()->gib_pos());
 			}
 		}
 		max_n = route.get_count() - 1;

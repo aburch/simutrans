@@ -1496,7 +1496,7 @@ void haltestelle_t::add_ware_to_halt(ware_t ware)
 		}
 	}
 	// here, if no free entries found
-	warray->append(ware,4);
+	warray->push_back(ware);
 }
 
 
@@ -2185,7 +2185,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 					const fahrplan_t *fpl = check_line[j]->get_fahrplan();
 					for(  int k=0;  k<fpl->maxi();  k++  ) {
 						if(gib_halt(welt,fpl->eintrag[k].pos)==self) {
-							registered_lines.append( check_line[j], 8 );
+							registered_lines.push_back(check_line[j]);
 							break;
 						}
 					}
@@ -2201,7 +2201,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 				const fahrplan_t *fpl = check_line[j]->get_fahrplan();
 				for(  int k=0;  k<fpl->maxi();  k++  ) {
 					if(gib_halt(welt,fpl->eintrag[k].pos)==self) {
-						registered_lines.append( check_line[j], 8 );
+						registered_lines.push_back(check_line[j]);
 						break;
 					}
 				}

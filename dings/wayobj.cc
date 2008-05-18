@@ -398,8 +398,8 @@ bool wayobj_t::alles_geladen()
 bool
 wayobj_t::register_besch(way_obj_besch_t *besch)
 {
-	wayobj_t::table.put(besch->gib_name(), besch);
-	wayobj_t::liste.append(besch,4);
+	table.put(besch->gib_name(), besch);
+	liste.push_back(besch);
 	if(besch->gib_own_wtyp()==overheadlines_wt  &&  besch->gib_wtyp()==track_wt  &&
 		(default_oberleitung==NULL  ||  default_oberleitung->gib_topspeed()<besch->gib_topspeed())) {
 		default_oberleitung = besch;

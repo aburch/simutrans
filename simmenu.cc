@@ -279,7 +279,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 			}
 			if(*str>=' ') {
 				w->command_key = str_to_key(str);
-				char_to_tool.append( w, 16 );
+				char_to_tool.push_back(w);
 			}
 		}
 		w->id = i | GENERAL_TOOL;
@@ -318,7 +318,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 			}
 			if(*str>=' ') {
 				w->command_key = str_to_key(str);
-				char_to_tool.append( w, 16 );
+				char_to_tool.push_back(w);
 			}
 		}
 		w->id = i | SIMPLE_TOOL;
@@ -357,7 +357,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 			}
 			if(*str>=' ') {
 				w->command_key = str_to_key(str);
-				char_to_tool.append( w, 16 );
+				char_to_tool.push_back(w);
 			}
 		}
 		w->id = i | DIALOGE_TOOL;
@@ -370,7 +370,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 	koord size( contents.get_int("icon_width",32), contents.get_int("icon_height",32) );
 	// first: add main menu
 	toolbar_tool.resize( skinverwaltung_t::werkzeuge_toolbars->gib_bild_anzahl() );
-	toolbar_tool.append( new toolbar_t("","",size), 0 );
+	toolbar_tool.push_back(new toolbar_t("", "", size));
 	toolbar_tool[0]->id = TOOLBAR_TOOL;
 	// now for the rest
 	for(  uint16 i=0;  i<toolbar_tool.get_count();  i++  ) {
@@ -456,7 +456,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 					}
 					if(key_str!=NULL) {
 						addtool->command_key = str_to_key(key_str);
-						char_to_tool.append( addtool, 16 );
+						char_to_tool.push_back(addtool);
 					}
 					if(param_str!=NULL) {
 						addtool->default_param = strdup(param_str);
@@ -477,7 +477,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 					}
 					if(key_str!=NULL) {
 						addtool->command_key = str_to_key(key_str);
-						char_to_tool.append( addtool, 16 );
+						char_to_tool.push_back(addtool);
 					}
 					if(param_str!=NULL) {
 						addtool->default_param = strdup(param_str);
@@ -498,7 +498,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 					}
 					if(key_str!=NULL) {
 						addtool->command_key = str_to_key(key_str);
-						char_to_tool.append( addtool, 16 );
+						char_to_tool.push_back(addtool);
 					}
 					if(param_str!=NULL) {
 						addtool->default_param = strdup(param_str);
@@ -526,7 +526,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 					}
 					if(key_str!=NULL) {
 						tb->command_key = str_to_key(key_str);
-						char_to_tool.append( tb, 16 );
+						char_to_tool.push_back(tb);
 					}
 					tb->id = toolnr | TOOLBAR_TOOL;
 					toolbar_tool.push_back(tb);
