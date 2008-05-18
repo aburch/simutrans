@@ -565,10 +565,10 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb)
 
 
 // this function removes houses from the city house list
-void stadt_t::remove_gebaeude_from_stadt(const gebaeude_t* gb)
+void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 {
 	buildings.remove(gb);
-	((gebaeude_t *)gb)->setze_stadt(NULL);
+	gb->setze_stadt(NULL);
 	recalc_city_size();
 }
 

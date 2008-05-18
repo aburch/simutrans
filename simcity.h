@@ -288,7 +288,7 @@ public:
 
 	// this function removes houses from the city house list
 	// (called when removed by player, or by town)
-	void remove_gebaeude_from_stadt(const gebaeude_t *gb);
+	void remove_gebaeude_from_stadt(gebaeude_t *gb);
 
 	// this function adds houses to the city house list
 	void add_gebaeude_to_stadt(const gebaeude_t *gb);
