@@ -1039,7 +1039,7 @@ void win_display_flush(double konto)
 
 	char time [128];
 	char info [256];
-	char stretch_text[32];
+	char stretch_text[256];
 	char delta_pos[64];
 
 //DBG_MESSAGE("umgebung_t::show_month","%d",umgebung_t::show_month);
