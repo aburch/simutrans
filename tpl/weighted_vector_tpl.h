@@ -111,7 +111,7 @@ template<class T> class weighted_vector_tpl
 		 * Checks if element elem is contained in vector.
 		 * Uses the == operator for comparison.
 		 */
-		uint32 index_of(T elem) const
+		template<typename U> uint32 index_of(U elem) const
 		{
 			for (uint32 i = 0; i < count; i++) {
 				if (nodes[i].data == elem) return i;

@@ -2765,10 +2765,7 @@ static koord find_harbour_pos(karte_t* welt, const stadt_t *s )
 
 
 
-/* builts harbours and ferrys
- * @author prissi
- */
-bool spieler_t::create_water_transport_vehikel( stadt_t *start_stadt, const koord target_pos)
+bool spieler_t::create_water_transport_vehikel(const stadt_t* start_stadt, const koord target_pos)
 {
 	const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search(water_wt, welt->get_timeline_year_month(), 10, 40, warenbauer_t::passagiere, false, true );
 	if(v_besch==NULL) {
@@ -3025,8 +3022,7 @@ bool spieler_t::create_water_transport_vehikel( stadt_t *start_stadt, const koor
 
 
 
-// build s simple three stop airport with town connection road
-halthandle_t spieler_t::built_airport( stadt_t *city, koord pos, int rotation )
+halthandle_t spieler_t::build_airport(const stadt_t* city, koord pos, int rotation)
 {
 	// not too close to border?
 	if(pos.x<6  ||  pos.y<6  ||  pos.x+3+6>=welt->gib_groesse_x()  ||  pos.y+3+6>=welt->gib_groesse_y()  ) {
@@ -3271,7 +3267,7 @@ bool spieler_t::create_air_transport_vehikel(const stadt_t *start_stadt, const s
 	if(start_airport!=koord::invalid  &&  end_airport!=koord::invalid) {
 		// built the airport if neccessary
 		if(!start_hub.is_bound()) {
-			start_hub = built_airport((stadt_t*)start_stadt, start_airport, true);
+			start_hub = build_airport(start_stadt, start_airport, true);
 			if(!start_hub.is_bound()) {
 				return false;
 			}
@@ -3286,7 +3282,7 @@ bool spieler_t::create_air_transport_vehikel(const stadt_t *start_stadt, const s
 			}
 		}
 		if(!end_hub.is_bound()) {
-			end_hub = built_airport((stadt_t*)end_stadt, end_airport, true);
+			end_hub = build_airport(end_stadt, end_airport, true);
 			if(!end_hub.is_bound()) {
 				if(start_hub->gib_warenziele_passenger()->count()==0) {
 					// remove airport busstop
@@ -3534,7 +3530,7 @@ void spieler_t::do_passenger_ki()
 			if(start_stadt==NULL) {
 				// larger start town preferred
 				start_stadt = staedte.at_weight( simrand(staedte.get_sum_weight()) );
-				offset = staedte.index_of( (stadt_t*)start_stadt );
+				offset = staedte.index_of(start_stadt);
 			}
 DBG_MESSAGE("spieler_t::do_passenger_ki()","using city %s for start",start_stadt->gib_name());
 			const halthandle_t start_halt = get_our_hub(start_stadt);
@@ -3759,7 +3755,8 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 		break;
 
 		case NR_BAUE_WATER_ROUTE:
-			if(  end_ausflugsziel==NULL  &&  create_water_transport_vehikel( (stadt_t *)start_stadt, end_stadt ? end_stadt->gib_pos() : ziel->gib_pos().gib_2d() )  ) {
+			if (end_ausflugsziel == NULL &&
+					create_water_transport_vehikel(start_stadt, end_stadt ? end_stadt->gib_pos() : ziel->gib_pos().gib_2d())) {
 				// add two intown routes
 				cover_city_with_bus_route( get_our_hub(start_stadt)->gib_basis_pos(), 6);
 				if(end_stadt!=NULL) {

@@ -532,10 +532,13 @@ private:
 	koord find_area_for_hub( const koord lo, const koord ru, const koord basis ) const;
 	koord find_place_for_hub( const stadt_t *s ) const;
 
-	bool create_water_transport_vehikel( stadt_t *start_stadt, const koord target_pos);
+	/* builds harbours and ferrys
+	 * @author prissi
+	 */
+	bool create_water_transport_vehikel(const stadt_t* start_stadt, const koord target_pos);
 
-	// builts a 3x3 airport
-	halthandle_t built_airport( stadt_t *city, koord pos, int rotate );
+	// builds a simple 3x3 three stop airport with town connection road
+	halthandle_t build_airport(const stadt_t* city, koord pos, int rotate);
 
 	/* builts airports and planes
 	 * @author prissi
