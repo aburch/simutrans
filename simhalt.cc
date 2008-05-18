@@ -666,7 +666,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 		}
 	}
 
-	return "Unnamed";
+	return strdup("Unnamed");
 }
 
 

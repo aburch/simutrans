@@ -103,8 +103,8 @@ private:
 	char str_ladegrad[16];
 	char str_parts_month[32];
 
-	gui_scrollpane_t scrolly;
 	fahrplan_gui_stats_t stats;
+	gui_scrollpane_t scrolly;
 
 	fahrplan_t* fpl;
 	spieler_t *sp;

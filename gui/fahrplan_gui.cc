@@ -184,13 +184,13 @@ fahrplan_gui_t::~fahrplan_gui_t()
 
 fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_, convoihandle_t cnv_) :
 	gui_frame_t("Fahrplan", sp_),
-	scrolly(&stats),
 	lb_line("Serves Line:"),
-	lb_load("Full load"),
-	lb_loadlevel(NULL,COL_WHITE,gui_label_t::right),
 	lb_wait("month wait time"),
-	lb_waitlevel(NULL,COL_WHITE,gui_label_t::right),
-	stats(sp_->get_welt())
+	lb_waitlevel(NULL, COL_WHITE, gui_label_t::right),
+	lb_load("Full load"),
+	lb_loadlevel(NULL, COL_WHITE, gui_label_t::right),
+	stats(sp_->get_welt()),
+	scrolly(&stats)
 {
 	this->sp = sp_;
 	this->fpl = fpl_;

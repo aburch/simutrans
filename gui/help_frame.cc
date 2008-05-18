@@ -84,8 +84,8 @@ help_frame_t::help_frame_t(cstring_t filename) :
 		spieler_t *sp = spieler_t::get_welt()->get_active_player();
 		const char *trad_str = translator::translate( "<em>%s</em> - %s<br>\n" );
 		for (vector_tpl<werkzeug_t *>::const_iterator iter = werkzeug_t::char_to_tool.begin(), end = werkzeug_t::char_to_tool.end(); iter != end; ++iter) {
-			char *c = NULL;
-			static char str[16];
+			char const* c = NULL;
+			char str[16];
 			switch(  (*iter)->command_key  ) {
 				case '<': c = "&lt;"; break;
 				case '>': c = "&gt;"; break;

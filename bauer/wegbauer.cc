@@ -1729,11 +1729,8 @@ wegbauer_t::calc_costs()
 						case ding_t::groundobj:
 							costs -= ((groundobj_t *)dt)->gib_besch()->gib_preis();
 							break;
-/*
-						case ding_t::movingobj:
-							costs -= ((movingobj_t *)dt)->gib_besch()->gib_preis();
-							break;
-*/
+
+						default: break;
 					}
 				}
 			}

@@ -2955,15 +2955,13 @@ const char *wkz_link_factory_t::work( karte_t *welt, spieler_t *sp, koord3d pos 
 const haus_besch_t *wkz_headquarter_t::next_level( spieler_t *sp )
 {
 	// assume no further headquarter level
-	const haus_besch_t* besch = NULL;
 	const sint16 level = sp->get_headquarter_level();
-	for(  vector_tpl<const haus_besch_t *>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end();  iter != end;  ++iter  ) {
+	for (vector_tpl<const haus_besch_t*>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end(); iter != end; ++iter) {
 		if ((*iter)->gib_extra() == level) {
-			besch = (*iter);
-			break;
+			return *iter;
 		}
 	}
-	return besch;
+	return NULL;
 }
 
 const char *wkz_headquarter_t::get_tooltip( spieler_t *sp )
@@ -3325,7 +3323,6 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 						// check waytype
 						if(fpl->ist_halt_erlaubt(bd)) {
 							bool updated = false;
-							int aktuell = fpl->aktuell;
 							for(  int k=0;  k<fpl->maxi();  k++  ) {
 								if(  (catch_all_halt  &&  haltestelle_t::gib_halt(welt,fpl->eintrag[k].pos)==last_halt)  ||  old_platform.contains(fpl->eintrag[k].pos)  ) {
 									fpl->eintrag[k].pos = pos;
@@ -3351,7 +3348,6 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 						bool updated = false;
 						// check owner if needed
 						if(line->count_convoys()>0  ||  line->get_convoy(0)->gib_besitzer()==sp) {
-							int aktuell = fpl->aktuell;
 							for(  int k=0;  k<fpl->maxi();  k++  ) {
 								// ok!
 								if(  (catch_all_halt  &&  haltestelle_t::gib_halt(welt,fpl->eintrag[k].pos)==last_halt)  ||  old_platform.contains(fpl->eintrag[k].pos)  ) {

@@ -2790,7 +2790,6 @@ bool spieler_t::create_water_transport_vehikel( stadt_t *start_stadt, const koor
 	halthandle_t start_hub = get_our_hub( start_stadt );
 	halthandle_t start_connect_hub = halthandle_t();
 	koord start_harbour = koord::invalid;
-	bool start_rotate = true;
 	if(start_hub.is_bound()) {
 		if(  (start_hub->get_station_type()&haltestelle_t::dock)==0  ) {
 			start_connect_hub = start_hub;
@@ -2820,7 +2819,6 @@ bool spieler_t::create_water_transport_vehikel( stadt_t *start_stadt, const koor
 	halthandle_t end_hub = end_stadt ? get_our_hub( end_stadt ) : ziel->gib_halt();
 	halthandle_t end_connect_hub = halthandle_t();
 	koord end_harbour = koord::invalid;
-	bool end_rotate = true;
 	if(end_hub.is_bound()) {
 		if(  (end_hub->get_station_type()&haltestelle_t::dock)==0  ) {
 			end_connect_hub = end_hub;
@@ -3215,7 +3213,6 @@ bool spieler_t::create_air_transport_vehikel(const stadt_t *start_stadt, const s
 	halthandle_t start_hub = get_our_hub( start_stadt );
 	halthandle_t start_connect_hub = halthandle_t();
 	koord start_airport;
-	bool start_rotate = true;
 	if(start_hub.is_bound()) {
 		if(  (start_hub->get_station_type()&haltestelle_t::airstop)==0  ) {
 			start_connect_hub = start_hub;
@@ -3245,7 +3242,6 @@ bool spieler_t::create_air_transport_vehikel(const stadt_t *start_stadt, const s
 	halthandle_t end_hub = get_our_hub( end_stadt );
 	halthandle_t end_connect_hub = halthandle_t();
 	koord end_airport;
-	bool end_rotate = true;
 	if(end_hub.is_bound()) {
 		if(  (end_hub->get_station_type()&haltestelle_t::airstop)==0  ) {
 			end_connect_hub = end_hub;
@@ -3275,7 +3271,7 @@ bool spieler_t::create_air_transport_vehikel(const stadt_t *start_stadt, const s
 	if(start_airport!=koord::invalid  &&  end_airport!=koord::invalid) {
 		// built the airport if neccessary
 		if(!start_hub.is_bound()) {
-			start_hub = built_airport( (stadt_t *)start_stadt, start_airport, start_rotate );
+			start_hub = built_airport((stadt_t*)start_stadt, start_airport, true);
 			if(!start_hub.is_bound()) {
 				return false;
 			}
@@ -3290,7 +3286,7 @@ bool spieler_t::create_air_transport_vehikel(const stadt_t *start_stadt, const s
 			}
 		}
 		if(!end_hub.is_bound()) {
-			end_hub = built_airport( (stadt_t *)end_stadt, end_airport, end_rotate );
+			end_hub = built_airport((stadt_t*)end_stadt, end_airport, true);
 			if(!end_hub.is_bound()) {
 				if(start_hub->gib_warenziele_passenger()->count()==0) {
 					// remove airport busstop
