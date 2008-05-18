@@ -2008,6 +2008,11 @@ void haltestelle_t::laden_abschliessen()
 			}
 		}
 	}
+	else {
+		if(!all_names.put(bd->gib_text(),self)) {
+			DBG_MESSAGE("haltestelle_t::setze_name()","name %s already used!",bd->gib_text());
+		}
+	}
 }
 
 

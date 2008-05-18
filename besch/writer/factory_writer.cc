@@ -15,7 +15,6 @@ void factory_field_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileo
 	obj_node_t node(this, 11, &parent, false);
 
 	xref_writer_t::instance()->write_obj(outfp, node, obj_field, s, true);
-printf("\n\n%s\n\n",s);
 
 	besch.has_winter   = obj.get_int("has_snow",   1);
 	besch.probability   = obj.get_int("probability_to_spawn",   10); // 0,1 %
