@@ -365,7 +365,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 #ifdef USE_16BIT_DIB
 					settings.dmBitsPerPel = 16;
 #else
-					settings.dmBitsPerPel = 16;
+					settings.dmBitsPerPel = 15;
 #endif
 					settings.dmPelsWidth  = MaxSize.right;
 					settings.dmPelsHeight = MaxSize.bottom;

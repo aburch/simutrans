@@ -98,7 +98,7 @@ int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data,
 	int ok=FALSE;
 	ULONG *myImage = NULL;
 
-	HMODULE hGDIplus = LoadLibraryW( L"gdiplus.dll" );
+	HMODULE hGDIplus = LoadLibraryA( "gdiplus.dll" );
 	if(hGDIplus==NULL) {
 		return FALSE;
 	}
