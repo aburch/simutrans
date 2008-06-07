@@ -174,8 +174,8 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			// first image
 			KOORD_VAL x, y, w, h;
 			const image_id bild=v->gib_basis_bild();
-			display_get_image_offset(bild, &x, &y, &w, &h );
-			display_color_img(bild,11-x+pos.x+offset.x,pos.y+offset.y+total_height-y,cnv->gib_besitzer()->get_player_nr(),false,true);
+			display_get_base_image_offset(bild, &x, &y, &w, &h );
+			display_base_img(bild,11-x+pos.x+offset.x,pos.y+offset.y+total_height-y,cnv->gib_besitzer()->get_player_nr(),false,true);
 			w = max(40,w+4)+11;
 
 			// now add the other info

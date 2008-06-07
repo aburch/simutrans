@@ -275,17 +275,17 @@ void depot_frame_t::layout(koord *gr)
 	* These parameter are adjusted to resolution.
 	* - Some extra space looks nicer.
 	*/
-	grid.x = depot->get_x_grid() * get_tile_raster_width() / 64 + 4;
-	grid.y = depot->get_y_grid() * get_tile_raster_width() / 64 + 6;
-	placement.x = depot->get_x_placement() * get_tile_raster_width() / 64 + 2;
-	placement.y = depot->get_y_placement() * get_tile_raster_width() / 64 + 2;
+	grid.x = depot->get_x_grid() * get_base_tile_raster_width() / 64 + 4;
+	grid.y = depot->get_y_grid() * get_base_tile_raster_width() / 64 + 6;
+	placement.x = depot->get_x_placement() * get_base_tile_raster_width() / 64 + 2;
+	placement.y = depot->get_y_placement() * get_base_tile_raster_width() / 64 + 2;
 	if(depot->get_wegtyp()==road_wt  &&  umgebung_t::drive_on_left) {
 		// correct for dive on left
-		placement.x -= (12*get_tile_raster_width())/64;
-		placement.y -= (6*get_tile_raster_width())/64;
+		placement.x -= (12*get_base_tile_raster_width())/64;
+		placement.y -= (6*get_base_tile_raster_width())/64;
 	}
-	grid_dx = depot->get_x_grid() * get_tile_raster_width() / 64 / 2;
-	placement_dx = depot->get_x_grid() * get_tile_raster_width() / 64 / 4;
+	grid_dx = depot->get_x_grid() * get_base_tile_raster_width() / 64 / 2;
+	placement_dx = depot->get_x_grid() * get_base_tile_raster_width() / 64 / 4;
 
 	/*
 	*	Dialog format:

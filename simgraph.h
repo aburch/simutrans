@@ -55,6 +55,9 @@ display_setze_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h); \
 #define get_tile_raster_width()    (tile_raster_width)
 extern KOORD_VAL tile_raster_width;
 
+#define get_base_tile_raster_width() (base_tile_raster_width)
+extern KOORD_VAL base_tile_raster_width;
+
 /* changes the raster width after loading */
 KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster);
 
@@ -89,8 +92,12 @@ void register_image(struct bild_t*);
 // delete all images above a certain number ...
 void display_free_all_images_above( unsigned above );
 
-void display_set_image_offset( unsigned bild, KOORD_VAL xoff, KOORD_VAL yoff );
+// unzoomed offsets
+void display_set_base_image_offset( unsigned bild, KOORD_VAL xoff, KOORD_VAL yoff );
+void display_get_base_image_offset( unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
+// zoomed offsets
 void display_get_image_offset( unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
+void display_get_base_image_offset( unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
 void display_mark_img_dirty( unsigned bild, int x, int y );
 
 int gib_maus_x(void);
@@ -127,6 +134,9 @@ void display_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const PLAYE
 
 // display image with color (if there) and optinal day and nightchange
 void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const signed char color, const int daynight, const int dirty);
+
+// display unzoomed image
+void display_base_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const signed char color, const int daynight, const int dirty);
 
 void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty);
 void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int d);

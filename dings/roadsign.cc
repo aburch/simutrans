@@ -454,23 +454,23 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 			const int XOFF=(24*get_tile_raster_width())/64;
 			const int YOFF=(16*get_tile_raster_width())/64;
 
-			display_set_image_offset( besch->gib_bild_nr(0), -XOFF, -YOFF );
-			display_set_image_offset( besch->gib_bild_nr(8), -XOFF, -YOFF );
-			display_set_image_offset( besch->gib_bild_nr(1), +XOFF, +YOFF );
-			display_set_image_offset( besch->gib_bild_nr(9), +XOFF, +YOFF );
-			display_set_image_offset( besch->gib_bild_nr(2), -XOFF, +YOFF );
-			display_set_image_offset( besch->gib_bild_nr(10), -XOFF, +YOFF );
-			display_set_image_offset( besch->gib_bild_nr(3), +XOFF, -YOFF );
-			display_set_image_offset( besch->gib_bild_nr(11), +XOFF, -YOFF );
+			display_set_base_image_offset( besch->gib_bild_nr(0), -XOFF, -YOFF );
+			display_set_base_image_offset( besch->gib_bild_nr(8), -XOFF, -YOFF );
+			display_set_base_image_offset( besch->gib_bild_nr(1), +XOFF, +YOFF );
+			display_set_base_image_offset( besch->gib_bild_nr(9), +XOFF, +YOFF );
+			display_set_base_image_offset( besch->gib_bild_nr(2), -XOFF, +YOFF );
+			display_set_base_image_offset( besch->gib_bild_nr(10), -XOFF, +YOFF );
+			display_set_base_image_offset( besch->gib_bild_nr(3), +XOFF, -YOFF );
+			display_set_base_image_offset( besch->gib_bild_nr(11), +XOFF, -YOFF );
 		}
 		else if(!besch->is_free_route()) {
 			const int XOFF=(30*get_tile_raster_width())/64;
 			const int YOFF=(14*get_tile_raster_width())/64;
 
-			display_set_image_offset( besch->gib_bild_nr(0), -XOFF, -YOFF );
-			display_set_image_offset( besch->gib_bild_nr(1), +XOFF, +YOFF );
-			display_set_image_offset( besch->gib_bild_nr(2), -XOFF, +YOFF );
-			display_set_image_offset( besch->gib_bild_nr(3), +XOFF, -YOFF );
+			display_set_base_image_offset( besch->gib_bild_nr(0), -XOFF, -YOFF );
+			display_set_base_image_offset( besch->gib_bild_nr(1), +XOFF, +YOFF );
+			display_set_base_image_offset( besch->gib_bild_nr(2), -XOFF, +YOFF );
+			display_set_base_image_offset( besch->gib_bild_nr(3), +XOFF, -YOFF );
 		}
 	}
 DBG_DEBUG( "roadsign_t::register_besch()","%s", besch->gib_name() );

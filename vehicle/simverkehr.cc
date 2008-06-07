@@ -337,14 +337,14 @@ bool stadtauto_t::register_besch(const stadtauto_besch_t *besch)
 		const int XOFF=(12*get_tile_raster_width())/64;
 		const int YOFF=(6*get_tile_raster_width())/64;
 
-		display_set_image_offset( besch->gib_bild_nr(0), +XOFF, +YOFF );
-		display_set_image_offset( besch->gib_bild_nr(1), -XOFF, +YOFF );
-		display_set_image_offset( besch->gib_bild_nr(2), 0, +YOFF );
-		display_set_image_offset( besch->gib_bild_nr(3), +XOFF, 0 );
-		display_set_image_offset( besch->gib_bild_nr(4), -XOFF, -YOFF );
-		display_set_image_offset( besch->gib_bild_nr(5), +XOFF, -YOFF );
-		display_set_image_offset( besch->gib_bild_nr(6), 0, -YOFF );
-		display_set_image_offset( besch->gib_bild_nr(7), -XOFF-YOFF, 0 );
+		display_set_base_image_offset( besch->gib_bild_nr(0), +XOFF, +YOFF );
+		display_set_base_image_offset( besch->gib_bild_nr(1), -XOFF, +YOFF );
+		display_set_base_image_offset( besch->gib_bild_nr(2), 0, +YOFF );
+		display_set_base_image_offset( besch->gib_bild_nr(3), +XOFF, 0 );
+		display_set_base_image_offset( besch->gib_bild_nr(4), -XOFF, -YOFF );
+		display_set_base_image_offset( besch->gib_bild_nr(5), +XOFF, -YOFF );
+		display_set_base_image_offset( besch->gib_bild_nr(6), 0, -YOFF );
+		display_set_base_image_offset( besch->gib_bild_nr(7), -XOFF-YOFF, 0 );
 	}
 	return true;
 }

@@ -96,7 +96,7 @@ void gui_image_list_t::zeichnen(koord parent_pos)
 			if(i == sel_index) {
 				display_ddd_box_clip(xpos, ypos, grid.x, grid.y, MN_GREY4, MN_GREY0);
 			}
-			display_color_img(idata.image, xpos + placement.x, ypos + placement.y, player_nr, false, true);
+			display_base_img(idata.image, xpos + placement.x, ypos + placement.y, player_nr, false, true);
 
 			// If necessary, display a number:
 			if(idata.count > 0) {

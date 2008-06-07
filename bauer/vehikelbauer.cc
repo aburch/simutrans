@@ -74,39 +74,39 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 		const int YOFF=(6*get_tile_raster_width())/64;
 
 		// empty image: shift to left
-		display_set_image_offset( besch->gib_bild_nr(0,NULL), +XOFF, +YOFF );
-		display_set_image_offset( besch->gib_bild_nr(1,NULL), -XOFF, +YOFF );
-		display_set_image_offset( besch->gib_bild_nr(2,NULL), 0, +YOFF );
-		display_set_image_offset( besch->gib_bild_nr(3,NULL), +XOFF, 0 );
-		display_set_image_offset( besch->gib_bild_nr(4,NULL), -XOFF, -YOFF );
-		display_set_image_offset( besch->gib_bild_nr(5,NULL), +XOFF, -YOFF );
-		display_set_image_offset( besch->gib_bild_nr(6,NULL), 0, -YOFF );
-		display_set_image_offset( besch->gib_bild_nr(7,NULL), -XOFF-YOFF, 0 );
+		display_set_base_image_offset( besch->gib_bild_nr(0,NULL), +XOFF, +YOFF );
+		display_set_base_image_offset( besch->gib_bild_nr(1,NULL), -XOFF, +YOFF );
+		display_set_base_image_offset( besch->gib_bild_nr(2,NULL), 0, +YOFF );
+		display_set_base_image_offset( besch->gib_bild_nr(3,NULL), +XOFF, 0 );
+		display_set_base_image_offset( besch->gib_bild_nr(4,NULL), -XOFF, -YOFF );
+		display_set_base_image_offset( besch->gib_bild_nr(5,NULL), +XOFF, -YOFF );
+		display_set_base_image_offset( besch->gib_bild_nr(6,NULL), 0, -YOFF );
+		display_set_base_image_offset( besch->gib_bild_nr(7,NULL), -XOFF-YOFF, 0 );
 
 		if(besch->freight_image_type>0) {
 			const bildliste2d_besch_t *liste2d = static_cast<const bildliste2d_besch_t *>(besch->gib_kind(5));
 			for(int i=0; i<besch->freight_image_type; i++) {
-				display_set_image_offset(liste2d->gib_bild(0, i)->gib_nummer(),        +XOFF, +YOFF);
-				display_set_image_offset(liste2d->gib_bild(1, i)->gib_nummer(),        -XOFF, +YOFF);
-				display_set_image_offset(liste2d->gib_bild(2, i)->gib_nummer(),            0, +YOFF);
-				display_set_image_offset(liste2d->gib_bild(3, i)->gib_nummer(),        +XOFF,     0);
-				display_set_image_offset(liste2d->gib_bild(4, i)->gib_nummer(),        -XOFF, -YOFF);
-				display_set_image_offset(liste2d->gib_bild(5, i)->gib_nummer(),        +XOFF, -YOFF);
-				display_set_image_offset(liste2d->gib_bild(6, i)->gib_nummer(),            0, -YOFF);
-				display_set_image_offset(liste2d->gib_bild(7, i)->gib_nummer(), -XOFF - YOFF,     0);
+				display_set_base_image_offset(liste2d->gib_bild(0, i)->gib_nummer(),        +XOFF, +YOFF);
+				display_set_base_image_offset(liste2d->gib_bild(1, i)->gib_nummer(),        -XOFF, +YOFF);
+				display_set_base_image_offset(liste2d->gib_bild(2, i)->gib_nummer(),            0, +YOFF);
+				display_set_base_image_offset(liste2d->gib_bild(3, i)->gib_nummer(),        +XOFF,     0);
+				display_set_base_image_offset(liste2d->gib_bild(4, i)->gib_nummer(),        -XOFF, -YOFF);
+				display_set_base_image_offset(liste2d->gib_bild(5, i)->gib_nummer(),        +XOFF, -YOFF);
+				display_set_base_image_offset(liste2d->gib_bild(6, i)->gib_nummer(),            0, -YOFF);
+				display_set_base_image_offset(liste2d->gib_bild(7, i)->gib_nummer(), -XOFF - YOFF,     0);
 			}
 		}
 		else {
 			const bildliste_besch_t *liste = static_cast<const bildliste_besch_t *>(besch->gib_kind(5));
 			if(liste) {
-				display_set_image_offset(liste->gib_bild(0)->gib_nummer(),        +XOFF, +YOFF);
-				display_set_image_offset(liste->gib_bild(1)->gib_nummer(),        -XOFF, +YOFF);
-				display_set_image_offset(liste->gib_bild(2)->gib_nummer(),            0, +YOFF);
-				display_set_image_offset(liste->gib_bild(3)->gib_nummer(),        +XOFF,     0);
-				display_set_image_offset(liste->gib_bild(4)->gib_nummer(),        -XOFF, -YOFF);
-				display_set_image_offset(liste->gib_bild(5)->gib_nummer(),        +XOFF, -YOFF);
-				display_set_image_offset(liste->gib_bild(6)->gib_nummer(),            0, -YOFF);
-				display_set_image_offset(liste->gib_bild(7)->gib_nummer(), -XOFF - YOFF,     0);
+				display_set_base_image_offset(liste->gib_bild(0)->gib_nummer(),        +XOFF, +YOFF);
+				display_set_base_image_offset(liste->gib_bild(1)->gib_nummer(),        -XOFF, +YOFF);
+				display_set_base_image_offset(liste->gib_bild(2)->gib_nummer(),            0, +YOFF);
+				display_set_base_image_offset(liste->gib_bild(3)->gib_nummer(),        +XOFF,     0);
+				display_set_base_image_offset(liste->gib_bild(4)->gib_nummer(),        -XOFF, -YOFF);
+				display_set_base_image_offset(liste->gib_bild(5)->gib_nummer(),        +XOFF, -YOFF);
+				display_set_base_image_offset(liste->gib_bild(6)->gib_nummer(),            0, -YOFF);
+				display_set_base_image_offset(liste->gib_bild(7)->gib_nummer(), -XOFF - YOFF,     0);
 			}
 		}
 

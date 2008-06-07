@@ -498,8 +498,8 @@ static const uint8 special_pal[224*3]=
 /*
  * Hajo: tile raster width
  */
-KOORD_VAL tile_raster_width = 16;
-static KOORD_VAL base_tile_raster_width = 16;
+KOORD_VAL tile_raster_width = 16;	// zoomed
+KOORD_VAL base_tile_raster_width = 16;	// original
 
 #define MAX_ZOOM_FACTOR (7)
 
@@ -1331,12 +1331,24 @@ void display_get_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, K
 }
 
 
+// prissi: query unzoiomed offsets
+void display_get_base_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
+{
+	if (bild < anz_images) {
+		*xoff = images[bild].base_x;
+		*yoff = images[bild].base_y;
+		*xw   = images[bild].base_w;
+		*yw   = images[bild].base_h;
+	}
+}
+
+
 // prissi: canges the offset of an image
 // we need it this complex, because the actual x-offset is coded into the image
-void display_set_image_offset(unsigned bild, KOORD_VAL xoff, KOORD_VAL yoff)
+void display_set_base_image_offset(unsigned bild, KOORD_VAL xoff, KOORD_VAL yoff)
 {
 	if(bild >= anz_images) {
-		fprintf(stderr, "Warning: display_set_image_offset(): illegal image=%d\n", bild);
+		fprintf(stderr, "Warning: display_set_base_image_offset(): illegal image=%d\n", bild);
 		return;
 	}
 
@@ -1843,16 +1855,13 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const int dir
  * assumes height is ok and valid data are caluclated
  * @author hajo/prissi
  */
-static void display_color_img_aux(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp )
+static void display_color_img_aux(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOORD_VAL h )
 {
-	KOORD_VAL h = images[n].h;
-	KOORD_VAL x = xp + images[n].x;
-	KOORD_VAL y = yp + images[n].y;
 	KOORD_VAL yoff = clip_wh(&y, &h, clip_rect.y, clip_rect.yy);
-
 	if (h > 0) { // clipping may have reduced it
-		// color replacement needs the original data
-		const PIXVAL *sp = (tile_raster_width != base_tile_raster_width  &&  images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data;
+
+		// color replacement needs the original data => sp points to non-cached data
+
 		PIXVAL *tp = textur + y * disp_width;
 
 		// oben clippen
@@ -1948,6 +1957,48 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 			if (dirty) {
 				mark_rect_dirty_wc(xp + x, yp + y, xp + x + w - 1, yp + y + h - 1);
 			}
+
+			// colors for 2nd company color
+			if(player_nr>=0) {
+				activate_player_color( player_nr, daynight );
+			}
+			else {
+				// no player
+				activate_player_color( 0, daynight );
+			}
+			display_color_img_aux( (tile_raster_width != base_tile_raster_width  &&  images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data, xp+x, yp+y, h );
+		}
+	} // number ok
+}
+
+
+
+/**
+ * draw unscaled images, replaces base color
+ * @author prissi
+ */
+void display_base_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty)
+{
+	if(  base_tile_raster_width==tile_raster_width  ) {
+		// same size => use standard routine
+		display_color_img( n, xp, yp, player_nr, daynight, dirty );
+	}
+	else if (n < anz_images) {
+
+		// prissi: now test if visible and clipping needed
+		const KOORD_VAL x = images[n].base_x;
+		const KOORD_VAL y = images[n].base_y;
+		const KOORD_VAL w = images[n].base_w;
+		const KOORD_VAL h = images[n].base_h;
+
+		if (h == 0 || xp > clip_rect.xx || yp + y > clip_rect.yy || xp + x + w <= clip_rect.x || yp + y + h <= clip_rect.y) {
+			// not visible => we are done
+			// happens quite often ...
+			return;
+		}
+
+		if (dirty) {
+			mark_rect_dirty_wc(xp + x, yp + y, xp + x + w - 1, yp + y + h - 1);
 		}
 
 		// colors for 2nd company color
@@ -1958,7 +2009,8 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 			// no player
 			activate_player_color( 0, daynight );
 		}
-		display_color_img_aux( n, xp, yp );
+		display_color_img_aux( images[n].base_data, xp+x, yp+y, h );
+
 	} // number ok
 }
 
