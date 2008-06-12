@@ -44,7 +44,7 @@ private:
 			button_t::infowin_event(ev);
 		}
 		virtual void zeichnen(koord offset) {
-			const_cast<ware_item_t *>(this)->pressed = parent->gib_ware_filter(ware);
+			pressed = parent->gib_ware_filter(ware);
 			button_t::zeichnen(offset);
 		}
 	};

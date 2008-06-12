@@ -113,7 +113,7 @@ bool warenbauer_t::register_besch(ware_besch_t *besch)
 {
 	besch->value = besch->base_value;
 	::register_besch(spezial_objekte, besch);
-	besch_names.put(besch->gib_name(), const_cast<ware_besch_t *>(besch));
+	besch_names.put(besch->gib_name(), besch);
 
 	if(besch==passagiere) {
 		besch->ware_index = 0;

@@ -45,10 +45,10 @@ private:
 		}
 		virtual void zeichnen(koord offset) {
 			if(ware_ab) {
-				const_cast<ware_item_t *>(this)->pressed = parent->gib_ware_filter_ab(ware_ab);
+				pressed = parent->gib_ware_filter_ab(ware_ab);
 			}
 			if(ware_an) {
-				const_cast<ware_item_t *>(this)->pressed = parent->gib_ware_filter_an(ware_an);
+				pressed = parent->gib_ware_filter_an(ware_an);
 			}
 			button_t::zeichnen(offset);
 		}
