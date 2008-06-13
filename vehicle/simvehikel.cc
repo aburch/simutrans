@@ -562,6 +562,13 @@ vehikel_t::unload_freight(halthandle_t halt)
 					int menge = halt->liefere_an(tmp);
 					sum_menge += menge;
 
+					// book delivered goods to destination
+					if(end_halt==halt) {
+						// pax is alway index 1
+						const int categorie = tmp.gib_index()>1 ? 2 : tmp.gib_index();
+						gib_besitzer()->buche( menge, (player_cost)(COST_TRANSPORTED_PAS+categorie) );
+					}
+
 					kill_queue.insert(tmp);
 
 					INT_CHECK("simvehikel 937");

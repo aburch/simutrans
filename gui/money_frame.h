@@ -41,7 +41,6 @@ private:
 	gui_label_t imoney;
 	gui_label_t tmoney;
 	gui_label_t mmoney;
-	gui_label_t pmoney;
 	gui_label_t omoney;
 
 	gui_label_t old_conmoney;
@@ -50,7 +49,6 @@ private:
 	gui_label_t old_imoney;
 	gui_label_t old_tmoney;
 	gui_label_t old_mmoney;
-	gui_label_t old_pmoney;
 	gui_label_t old_omoney;
 
 	gui_label_t tylabel2; // this year, right column
@@ -60,6 +58,7 @@ private:
 	gui_label_t money;
 	gui_label_t margin;
 	gui_label_t transport, old_transport;
+	gui_label_t powerline, old_powerline;
 
 	gui_label_t maintenance_label;
 	gui_label_t maintenance_money;

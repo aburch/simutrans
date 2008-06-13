@@ -2250,7 +2250,7 @@ void convoi_t::book(sint64 amount, int cost_type)
 	}
 
 	if (cost_type == CONVOI_TRANSPORTED_GOODS) {
-		besitzer_p->buche(amount, COST_TRANSPORTED_GOODS);
+		besitzer_p->buche(amount, COST_ALL_TRANSPORTED);
 	}
 }
 

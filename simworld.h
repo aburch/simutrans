@@ -769,11 +769,9 @@ public:
 	 */
 	void new_mountain(int x, int y, int w, int h, int t);
 
-	void add_convoi(convoihandle_t &cnv) {
-		assert(cnv.is_bound());
-		convoi_array.push_back_unique(cnv);
-	}
-	void rem_convoi(convoihandle_t& cnv) { convoi_array.remove(cnv); }
+	// the convois are also handled each steps => thus we keep track of them too
+	void add_convoi(convoihandle_t &cnv);
+	void rem_convoi(convoihandle_t& cnv);
 	unsigned get_convoi_count() const {return convoi_array.get_count();}
 	const convoihandle_t get_convoi(sint32 i) const {return convoi_array[(uint32)i];}
 	vector_tpl<convoihandle_t>::const_iterator convois_begin() const { return convoi_array.begin(); }

@@ -59,7 +59,7 @@ const int money_frame_t::cost_type_color[MAX_PLAYER_COST] =
 
 const uint8 button_order[MAX_PLAYER_COST] =
 {
-	3, 12, 1, 4, 9, 2, 0, 8, 11,
+	3, 1, 4, 9, 2, 0, 8, 12, 11,
 	6, 5, 10, 7
 };
 
@@ -98,7 +98,6 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		imoney(NULL, COL_WHITE, gui_label_t::money),
 		tmoney(NULL, COL_WHITE, gui_label_t::money),
 		mmoney(NULL, COL_WHITE, gui_label_t::money),
-		pmoney(NULL, COL_WHITE, gui_label_t::money),
 		omoney(NULL, COL_WHITE, gui_label_t::money),
 		old_conmoney(NULL, COL_WHITE, gui_label_t::money),
 		old_nvmoney(NULL, COL_WHITE, gui_label_t::money),
@@ -106,7 +105,6 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		old_imoney(NULL, COL_WHITE, gui_label_t::money),
 		old_tmoney(NULL, COL_WHITE, gui_label_t::money),
 		old_mmoney(NULL, COL_WHITE, gui_label_t::money),
-		old_pmoney(NULL, COL_WHITE, gui_label_t::money),
 		old_omoney(NULL, COL_WHITE, gui_label_t::money),
 		tylabel2("This Year", COL_WHITE, gui_label_t::right),
 		gtmoney(NULL, COL_WHITE, gui_label_t::money),
@@ -115,6 +113,8 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		margin(NULL, COL_WHITE, gui_label_t::money),
 		transport(NULL, COL_WHITE, gui_label_t::right),
 		old_transport(NULL, COL_WHITE, gui_label_t::right),
+		powerline(NULL, COL_WHITE, gui_label_t::right),
+		old_powerline(NULL, COL_WHITE, gui_label_t::right),
 		maintenance_label("This Month",COL_WHITE, gui_label_t::right),
 		maintenance_money(NULL, COL_RED, gui_label_t::money),
 		warn("", COL_RED),
@@ -127,7 +127,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 
 	this->sp = sp;
 
-	const int top = 40;
+	const int top = 30;
 	const int left = 12;
 
 	//CHART YEAR
@@ -156,36 +156,39 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	// tab (month/year)
 	year_month_tabs.add_tab(&chart, translator::translate("Years"));
 	year_month_tabs.add_tab(&mchart, translator::translate("Months"));
-	year_month_tabs.setze_pos(koord(112, top+10*BUTTONSPACE-6));
+	year_month_tabs.setze_pos(koord(112, top+11*BUTTONSPACE-6));
 	year_month_tabs.setze_groesse(koord(443, 125));
 	add_komponente(&year_month_tabs);
 
-	// left column
-	tylabel.setze_pos(koord(left+140+80,top-1*BUTTONSPACE-2));
-	lylabel.setze_pos(koord(left+240+80,top-1*BUTTONSPACE-2));
+	const sint16 tyl_x = left+140+55;
+	const sint16 lyl_x = left+240+55;
 
-	imoney.setze_pos(koord(left+140+55,top+0*BUTTONSPACE));
-	old_imoney.setze_pos(koord(left+240+55,top+0*BUTTONSPACE));
-	pmoney.setze_pos(koord(left+140+55,top+1*BUTTONSPACE));
-	old_pmoney.setze_pos(koord(left+240+55,top+1*BUTTONSPACE));
-	vrmoney.setze_pos(koord(left+140+55,top+2*BUTTONSPACE));
-	old_vrmoney.setze_pos(koord(left+240+55,top+2*BUTTONSPACE));
-	mmoney.setze_pos(koord(left+140+55,top+3*BUTTONSPACE));
-	old_mmoney.setze_pos(koord(left+240+55,top+3*BUTTONSPACE));
-	omoney.setze_pos(koord(left+140+55,top+4*BUTTONSPACE));
-	old_omoney.setze_pos(koord(left+240+55,top+4*BUTTONSPACE));
-	nvmoney.setze_pos(koord(left+140+55,top+5*BUTTONSPACE));
-	old_nvmoney.setze_pos(koord(left+240+55,top+5*BUTTONSPACE));
-	conmoney.setze_pos(koord(left+140+55,top+6*BUTTONSPACE));
-	old_conmoney.setze_pos(koord(left+240+55,top+6*BUTTONSPACE));
-	tmoney.setze_pos(koord(left+140+55,top+7*BUTTONSPACE));
-	old_tmoney.setze_pos(koord(left+240+55,top+7*BUTTONSPACE));
-	transport.setze_pos(koord(left+140+55+19, top+8*BUTTONSPACE));
-	old_transport.setze_pos(koord(left+240+55+19, top+8*BUTTONSPACE));
+	// left column
+	tylabel.setze_pos(koord(tyl_x+25,top-1*BUTTONSPACE-2));
+	lylabel.setze_pos(koord(lyl_x+25,top-1*BUTTONSPACE-2));
+
+	imoney.setze_pos(koord(tyl_x,top+0*BUTTONSPACE));
+	old_imoney.setze_pos(koord(lyl_x,top+0*BUTTONSPACE));
+	vrmoney.setze_pos(koord(tyl_x,top+1*BUTTONSPACE));
+	old_vrmoney.setze_pos(koord(lyl_x,top+1*BUTTONSPACE));
+	mmoney.setze_pos(koord(tyl_x,top+2*BUTTONSPACE));
+	old_mmoney.setze_pos(koord(lyl_x,top+2*BUTTONSPACE));
+	omoney.setze_pos(koord(tyl_x,top+3*BUTTONSPACE));
+	old_omoney.setze_pos(koord(lyl_x,top+3*BUTTONSPACE));
+	nvmoney.setze_pos(koord(tyl_x,top+4*BUTTONSPACE));
+	old_nvmoney.setze_pos(koord(lyl_x,top+4*BUTTONSPACE));
+	conmoney.setze_pos(koord(tyl_x,top+5*BUTTONSPACE));
+	old_conmoney.setze_pos(koord(lyl_x,top+5*BUTTONSPACE));
+	tmoney.setze_pos(koord(tyl_x,top+6*BUTTONSPACE));
+	old_tmoney.setze_pos(koord(lyl_x,top+6*BUTTONSPACE));
+	transport.setze_pos(koord(tyl_x+19, top+7*BUTTONSPACE));
+	old_transport.setze_pos(koord(lyl_x+19, top+7*BUTTONSPACE));
+	powerline.setze_pos(koord(tyl_x+19,top+8*BUTTONSPACE));
+	old_powerline.setze_pos(koord(lyl_x+19,top+8*BUTTONSPACE));
 
 	// right column
-	maintenance_label.setze_pos(koord(left+340+80, top+2*BUTTONSPACE-2));
-	maintenance_money.setze_pos(koord(left+340+55, top+3*BUTTONSPACE));
+	maintenance_label.setze_pos(koord(left+340+80, top+1*BUTTONSPACE-2));
+	maintenance_money.setze_pos(koord(left+340+55, top+2*BUTTONSPACE));
 
 	tylabel2.setze_pos(koord(left+140+80+335,top+4*BUTTONSPACE-2));
 	gtmoney.setze_pos(koord(left+140+335+55, top+5*BUTTONSPACE));
@@ -203,7 +206,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	add_komponente(&imoney);
 	add_komponente(&tmoney);
 	add_komponente(&omoney);
-	add_komponente(&pmoney);
+	add_komponente(&powerline);
 	add_komponente(&transport);
 
 	add_komponente(&old_conmoney);
@@ -213,7 +216,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	add_komponente(&old_imoney);
 	add_komponente(&old_tmoney);
 	add_komponente(&old_omoney);
-	add_komponente(&old_pmoney);
+	add_komponente(&old_powerline);
 	add_komponente(&old_transport);
 
 	add_komponente(&lylabel);
@@ -314,7 +317,6 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	imoney.setze_text(display_money(COST_INCOME, str_buf[4], 0));
 	tmoney.setze_text(display_money(COST_PROFIT, str_buf[5], 0));
 	omoney.setze_text(display_money(COST_OPERATING_PROFIT, str_buf[6], 0));
-	pmoney.setze_text(display_money(COST_POWERLINES, str_buf[22], 0));
 
 	old_conmoney.setze_text(display_money(COST_CONSTRUCTION, str_buf[7], 1));
 	old_nvmoney.setze_text(display_money(COST_NEW_VEHICLE, str_buf[8], 1));
@@ -323,18 +325,27 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	old_imoney.setze_text(display_money(COST_INCOME, str_buf[11], 1));
 	old_tmoney.setze_text(display_money(COST_PROFIT, str_buf[12], 1));
 	old_omoney.setze_text(display_money(COST_OPERATING_PROFIT, str_buf[13], 1));
-	old_pmoney.setze_text(display_money(COST_POWERLINES, str_buf[23], 1));
 
 	// transported goods
-	money_to_string(str_buf[20], sp->get_finance_history_year(0, COST_TRANSPORTED_GOODS) );
+	money_to_string(str_buf[20], sp->get_finance_history_year(0, COST_ALL_TRANSPORTED) );
 	str_buf[20][strlen(str_buf[20])-4] = 0;	// remove comma
 	transport.setze_text(str_buf[20]);
-	transport.set_color(get_money_colour(COST_TRANSPORTED_GOODS, 0));
+	transport.set_color(get_money_colour(COST_ALL_TRANSPORTED, 0));
 
-	money_to_string(str_buf[21], sp->get_finance_history_year(1, COST_TRANSPORTED_GOODS) );
+	money_to_string(str_buf[21], sp->get_finance_history_year(1, COST_ALL_TRANSPORTED) );
 	str_buf[21][strlen(str_buf[21])-4] = 0;	// remove comma
 	old_transport.setze_text(str_buf[21]);
-	old_transport.set_color(get_money_colour(COST_TRANSPORTED_GOODS, 0));
+	old_transport.set_color(get_money_colour(COST_ALL_TRANSPORTED, 0));
+
+	money_to_string(str_buf[22], sp->get_finance_history_year(0, COST_POWERLINES) );
+	str_buf[22][strlen(str_buf[22])-4] = 0;	// remove comma
+	powerline.setze_text(str_buf[22]);
+	powerline.set_color(get_money_colour(COST_POWERLINES, 0));
+
+	money_to_string(str_buf[23], sp->get_finance_history_year(1, COST_POWERLINES) );
+	str_buf[23][strlen(str_buf[23])-4] = 0;	// remove comma
+	old_powerline.setze_text(str_buf[23]);
+	old_powerline.set_color(get_money_colour(COST_POWERLINES, 1));
 
 	conmoney.set_color(get_money_colour(COST_CONSTRUCTION, 0));
 	nvmoney.set_color(get_money_colour(COST_NEW_VEHICLE, 0));
@@ -343,7 +354,6 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	imoney.set_color(get_money_colour(COST_INCOME, 0));
 	tmoney.set_color(get_money_colour(COST_PROFIT, 0));
 	omoney.set_color(get_money_colour(COST_OPERATING_PROFIT, 0));
-	pmoney.set_color(get_money_colour(COST_POWERLINES, 0));
 
 	old_conmoney.set_color(get_money_colour(COST_CONSTRUCTION, 1));
 	old_nvmoney.set_color(get_money_colour(COST_NEW_VEHICLE, 1));
@@ -352,7 +362,6 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	old_imoney.set_color(get_money_colour(COST_INCOME, 1));
 	old_tmoney.set_color(get_money_colour(COST_PROFIT, 1));
 	old_omoney.set_color(get_money_colour(COST_OPERATING_PROFIT, 1));
-	old_pmoney.set_color(get_money_colour(COST_POWERLINES, 1));
 
 	gtmoney.setze_text(display_money(COST_CASH, str_buf[14], 0));
 	gtmoney.set_color(get_money_colour(COST_CASH, 0));
@@ -409,7 +418,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 		}
 	}
 
-	if(old_level!=sp->get_headquarter_level()) {
+	if(old_level!=sp->get_headquarter_level()  &&  sp->get_headquarter_pos()!=koord::invalid) {
 
 		old_level = sp->get_headquarter_level();
 		remove_komponente(&headquarter_view);

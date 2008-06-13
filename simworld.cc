@@ -443,6 +443,21 @@ DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 
 
 
+void karte_t::add_convoi(convoihandle_t &cnv)
+{
+	assert(cnv.is_bound());
+	convoi_array.push_back_unique(cnv);
+	cnv->gib_besitzer()->buche( 1, COST_ALL_CONVOIS );
+}
+
+
+
+void karte_t::rem_convoi(convoihandle_t& cnv)
+{
+	convoi_array.remove(cnv);
+	cnv->gib_besitzer()->buche( -1, COST_ALL_CONVOIS );
+}
+
 /**
  * Zugriff auf das Städte Array.
  * @author Hj. Malthaner
@@ -2333,7 +2348,7 @@ void karte_t::restore_history()
 	for(  int m=min(MAX_WORLD_HISTORY_MONTHS,MAX_PLAYER_HISTORY_MONTHS)-1;  m>0;  m--  ) {
 		sint64 transported = 0;
 		for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
-			transported += spieler[i]->get_finance_history_month( m, COST_TRANSPORTED_GOODS );
+			transported += spieler[i]->get_finance_history_month( m, COST_ALL_TRANSPORTED );
 		}
 		finance_history_month[m][WORLD_TRANSPORTED_GOODS] = transported;
 	}
@@ -2377,7 +2392,7 @@ void karte_t::restore_history()
 	for(  int y=min(MAX_WORLD_HISTORY_YEARS,MAX_CITY_HISTORY_YEARS)-1;  y>0;  y--  ) {
 		sint64 transported_year = 0;
 		for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
-			transported_year += spieler[i]->get_finance_history_year( y, COST_TRANSPORTED_GOODS );
+			transported_year += spieler[i]->get_finance_history_year( y, COST_ALL_TRANSPORTED );
 		}
 		finance_history_year[y][WORLD_TRANSPORTED_GOODS] = transported_year;
 	}
@@ -2447,8 +2462,8 @@ void karte_t::update_history()
 	sint64 transported = 0;
 	sint64 transported_year = 0;
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
-		transported += spieler[i]->get_finance_history_month( 0, COST_TRANSPORTED_GOODS );
-		transported_year += spieler[i]->get_finance_history_year( 0, COST_TRANSPORTED_GOODS );
+		transported += spieler[i]->get_finance_history_month( 0, COST_ALL_TRANSPORTED );
+		transported_year += spieler[i]->get_finance_history_year( 0, COST_ALL_TRANSPORTED );
 	}
 	finance_history_month[0][WORLD_TRANSPORTED_GOODS] = transported;
 	finance_history_year[0][WORLD_TRANSPORTED_GOODS] = transported_year;

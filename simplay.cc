@@ -632,8 +632,6 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 						sint64 tmp = finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE];
 						if(tmp<0) { tmp = -tmp; }
 						finance_history_year[year][COST_MARGIN] = (tmp== 0) ? 0 : (finance_history_year[year][COST_OPERATING_PROFIT] * 100) / tmp;
-						finance_history_year[year][COST_OPERATING_PROFIT] = 0;
-						finance_history_year[year][COST_TRANSPORTED_GOODS] = 0;
 					}
 				} else {
 					if (cost_type < 10) {
@@ -642,7 +640,6 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 						sint64 tmp = finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE];
 						if(tmp<0) { tmp = -tmp; }
 						finance_history_year[year][COST_MARGIN] = (tmp==0) ? 0 : (finance_history_year[year][COST_OPERATING_PROFIT] * 100) / tmp;
-						finance_history_year[year][COST_TRANSPORTED_GOODS] = 0;
 					}
 				}
 			}
@@ -657,7 +654,6 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 			sint64 tmp = finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE];
 			if(tmp<0) { tmp = -tmp; }
 			finance_history_year[year][COST_MARGIN] = (tmp== 0) ? 0 : (finance_history_year[year][COST_OPERATING_PROFIT] * 100) / tmp;
-			finance_history_year[year][COST_TRANSPORTED_GOODS] = 0;
 		}
 		// in 84008 monthly finance history was introduced
 		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++) {
@@ -667,7 +663,6 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 			sint64 tmp = finance_history_month[month][COST_VEHICLE_RUN] + finance_history_month[month][COST_MAINTENANCE];
 			if(tmp<0) { tmp = -tmp; }
 			finance_history_month[month][COST_MARGIN] = (tmp==0) ? 0 : (finance_history_month[month][COST_OPERATING_PROFIT] * 100) / tmp;
-			finance_history_month[month][COST_TRANSPORTED_GOODS] = 0;
 		}
 	}
 	else if (file->get_version() < 99011) {
@@ -676,13 +671,24 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 			for (int cost_type = 0; cost_type<12; cost_type++) {
 				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
 			}
-			finance_history_year[year][COST_POWERLINES] = 0;
 		}
 		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++) {
 			for (int cost_type = 0; cost_type<12; cost_type++) {
 				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
 			}
-			finance_history_month[month][COST_POWERLINES] = 0;
+		}
+	}
+	else if (file->get_version() < 99017) {
+		// without detailed goo statistics
+		for (int year = 0;year<MAX_PLAYER_HISTORY_YEARS;year++) {
+			for (int cost_type = 0; cost_type<13; cost_type++) {
+				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+			}
+		}
+		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++) {
+			for (int cost_type = 0; cost_type<13; cost_type++) {
+				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+			}
 		}
 	}
 	else {
@@ -699,7 +705,7 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 		}
 	}
 	// we have to pay maintenance at the beginning of a month
-	if(file->get_version()<99017) {
+	if(file->get_version()<99018) {
 		buche( -finance_history_month[1][COST_MAINTENANCE], COST_MAINTENANCE );
 	}
 
