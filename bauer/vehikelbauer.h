@@ -11,13 +11,16 @@
 
 #include "../dataobj/koord3d.h"
 #include "../simimg.h"
+#include "../simtypes.h"
 
 class vehikel_t;
+class cstring_t;
 class spieler_t;
 class convoi_t;
 class vehikel_besch_t;
 class ware_besch_t;
 template <class T> class slist_tpl;
+template <class T> class vector_tpl;
 
 
 /**
@@ -29,8 +32,11 @@ template <class T> class slist_tpl;
 class vehikelbauer_t
 {
 public:
+	static bool speedbonus_init(cstring_t objfilename);
+	static sint32 get_speedbonus( sint32 monthyear, waytype_t wt );
+
 	static bool register_besch(const vehikel_besch_t *besch);
-	static void sort_lists();
+	static bool alles_geladen();
 
 	static vehikel_t* baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb);
 

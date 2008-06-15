@@ -330,7 +330,7 @@ private:
 	// may change due to timeline
 	const weg_besch_t *city_road;
 
-	int average_speed[4];
+	int average_speed[8];
 
 	// recalculated speed boni for different vehicles
 	void recalc_average_speed();
@@ -440,7 +440,7 @@ public:
 	einstellungen_t* gib_einstellungen() const { return einstellungen; }
 
 	// returns current speed bonus
-	int get_average_speed(waytype_t typ) const;
+	int get_average_speed(waytype_t typ) const { return average_speed[ (typ==16 ? 3 : (int)(typ-1)&7 ) ]; }
 
 	// speed record management
 	sint32 get_record_speed( waytype_t w ) const;

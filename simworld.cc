@@ -1981,7 +1981,8 @@ void karte_t::neues_jahr()
 		}
 	}
 
-DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
+DBG_MESSAGE("karte_t::neues_jahr()","speedbonus for %d %i, %i, %i, %i, %i, %i, %i, %i", letztes_jahr
+			average_speed[0], average_speed[1], average_speed[2], average_speed[3], average_speed[4], average_speed[5], average_speed[6], average_speed[7] );
 
 	char buf[256];
 	sprintf(buf,translator::translate("Year %i has started."),letztes_jahr);
@@ -2006,7 +2007,12 @@ void karte_t::recalc_average_speed()
 	// retire/allocate vehicles
 	stadtauto_t::built_timeline_liste(this);
 
-//	DBG_MESSAGE("karte_t::recalc_average_speed()","");
+	for(int i=road_wt; i<=narrowgauge_wt; i++) {
+		const int typ = i==4 ? 3 : (i-1)&7;
+		average_speed[typ] = vehikelbauer_t::get_speedbonus( this->get_timeline_year_month(), i==4 ? air_wt : (waytype_t)i );
+	}
+
+	//	DBG_MESSAGE("karte_t::recalc_average_speed()","");
 	if(use_timeline()) {
 
 		char	buf[256];
@@ -2070,57 +2076,13 @@ void karte_t::recalc_average_speed()
 			city_road = wegbauer_t::weg_search(road_wt,30,get_timeline_year_month(),weg_t::type_flat);
 		}
 
-		int num_averages[4]={0,0,0,0};
-		int speed_sum[4]={0,0,0,0};
-		const uint16 timeline_month = get_timeline_year_month();
-		for(int i=road_wt; i<=air_wt; i++) {
-			// check for speed
-			const int speed_bonus_categorie = (i>=4  &&  i<=7) ? 2 : (i==air_wt ? 4 : i );
-			slist_tpl<const vehikel_besch_t*>* cl = vehikelbauer_t::gib_info((waytype_t)i);
-			if(cl) {
-				slist_iterator_tpl<const vehikel_besch_t*> vehinfo(cl);
-				while (vehinfo.next()) {
-					const vehikel_besch_t* info = vehinfo.get_current();
-					if(info->gib_leistung()>0  &&  !info->is_future(timeline_month)  &&  !info->is_retired(timeline_month)) {
-						speed_sum[speed_bonus_categorie-1] += info->gib_geschw();
-						num_averages[speed_bonus_categorie-1] ++;
-					}
-				}
-			}
-		}
-		// recalculate them
-		for(int i=0;  i<4;  i++) {
-			if(num_averages[i]>0) {
-				average_speed[i] = speed_sum[i]/num_averages[i];
-			}
-		}
 	}
 	else {
 		// defaults
-		average_speed[0] = 60;
-		average_speed[1] = 80;
-		average_speed[2] = 40;
-		average_speed[3] = 350;
-
 		city_road = wegbauer_t::gib_besch(*umgebung_t::city_road_type, 0);
 		if(city_road==NULL) {
 			city_road = wegbauer_t::weg_search(road_wt,30,0,weg_t::type_flat);
 		}
-	}
-}
-
-
-
-int karte_t::get_average_speed(waytype_t typ) const
-{
-	switch(typ) {
-		case road_wt: return average_speed[0];
-		case track_wt:
-		case monorail_wt:
-		case tram_wt: return average_speed[1];
-		case water_wt: return average_speed[2];
-		case air_wt: return average_speed[3];
-		default: return 1;
 	}
 }
 

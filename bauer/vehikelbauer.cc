@@ -15,12 +15,16 @@
 #include "../simtypes.h"
 
 #include "../dataobj/umgebung.h"
+#include "../dataobj/tabfile.h"
 
 #include "../besch/bildliste_besch.h"
 #include "../besch/vehikel_besch.h"
 
 #include "../bauer/warenbauer.h"
 #include "../bauer/vehikelbauer.h"
+
+#include "../utils/cstring_t.h"
+
 #include "../tpl/inthashtable_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 
@@ -28,6 +32,120 @@
 static inthashtable_tpl<int, const vehikel_besch_t*> _fahrzeuge;
 static stringhashtable_tpl<const vehikel_besch_t*> name_fahrzeuge;
 static inthashtable_tpl<waytype_t, slist_tpl<const vehikel_besch_t*> > typ_fahrzeuge;
+
+
+
+class bonus_record_t {
+public:
+	sint32 year;
+	sint32 speed;
+	bonus_record_t( sint32 y=0, sint32 kmh=0 ) {
+		year = y*12;
+		speed = kmh;
+	};
+};
+
+// speed boni
+static vector_tpl<bonus_record_t>speedbonus[8];
+
+static sint32 default_speedbonus[8] =
+{
+	60,	// road
+	80,	// track
+	35,	// water
+	350,	// air
+	80,	// monorail
+	200,	// maglev
+	60,	// tram
+	60	// narrowgauge
+};
+
+bool vehikelbauer_t::speedbonus_init(cstring_t objfilename)
+{
+	tabfile_t bonusconf;
+	// first take user data, then user global data
+	if (!bonusconf.open(objfilename+"config/speedbonus.tab")) {
+		dbg->error("vehikelbauer_t::speedbonus_init()", "Can't read speedbonus.tab" );
+		return false;
+	}
+
+	tabfileobj_t contents;
+	bonusconf.read(contents);
+
+	/* init the values from line with the form year, speed, year, speed
+	 * must be increasing order!
+	 */
+	for(  int j=0;  j<8;  j++  ) {
+		int *tracks = contents.get_ints(weg_t::waytype_to_string(j==3?air_wt:(waytype_t)(j+1)));
+		if((tracks[0]&1)==1) {
+			dbg->fatal( "vehikelbauer_t::speedbonus_init()", "Ill formed line in speedbonus.tab\nFormat is year,speed[year,speed]!" );
+		}
+		speedbonus[j].resize( tracks[0]/2 );
+		for(  int i=1;  i<tracks[0];  i+=2  ) {
+			bonus_record_t b( tracks[i], tracks[i+1] );
+			speedbonus[j].push_back( b );
+		}
+		delete [] tracks;
+	}
+
+	return true;
+}
+
+
+
+sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
+{
+	const int typ = wt==air_wt ? 3 : (wt-1)&7;
+
+	if(  monthyear==0  ) {
+		return default_speedbonus[typ];
+	}
+
+	// ok, now lets see if we have data for this
+	if(speedbonus[typ].get_count()) {
+		int i=0;
+		while(  i<speedbonus[typ].get_count()  &&  monthyear>=speedbonus[typ][i].year  ) {
+			i++;
+		}
+		if(  i==speedbonus[typ].get_count()  ) {
+			// maxspeed already?
+			return speedbonus[typ][i-1].speed;
+		}
+		else if(i==0) {
+			// minspeed below
+			return speedbonus[typ][0].speed;
+		}
+		else {
+			// interpolate linear
+			const sint32 delta_speed = speedbonus[typ][i].speed - speedbonus[typ][i-1].speed;
+			const sint32 delta_years = speedbonus[typ][i].year - speedbonus[typ][i-1].year;
+			return ( (delta_speed*(monthyear-speedbonus[typ][i-1].year)) / delta_years ) + speedbonus[typ][i-1].speed;
+		}
+	}
+	else {
+		sint32 speed_sum = 0;
+		sint32 num_averages = 0;
+		// neew to do it the old way => iterate over all vehicles with this type ...
+		if(typ_fahrzeuge.access(wt)) {
+			slist_iterator_tpl<const vehikel_besch_t*> vehinfo(typ_fahrzeuge.access(wt));
+			while (vehinfo.next()) {
+				const vehikel_besch_t* info = vehinfo.get_current();
+				if(info->gib_leistung()>0  &&  !info->is_future(monthyear)  &&  !info->is_retired(monthyear)) {
+					speed_sum += info->gib_geschw();
+					num_averages ++;
+				}
+			}
+		}
+		if(  num_averages>0  ) {
+			return speed_sum / num_averages;
+		}
+	}
+
+	// no vehicles => return default
+	return default_speedbonus[typ];
+}
+
+
 
 
 vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb)
@@ -160,8 +278,9 @@ static bool compare_vehikel_besch(const vehikel_besch_t* a, const vehikel_besch_
 }
 
 
-void vehikelbauer_t::sort_lists()
+bool vehikelbauer_t::alles_geladen()
 {
+	// first: check for bonus tables
 	DBG_MESSAGE("vehikelbauer_t::sort_lists()","called");
 	inthashtable_iterator_tpl<waytype_t, slist_tpl<const vehikel_besch_t*> > typ_iter(typ_fahrzeuge);
 	while (typ_iter.next()) {
@@ -179,7 +298,9 @@ void vehikelbauer_t::sort_lists()
 		}
 		delete [] tmp;
 	}
+	return true;
 }
+
 
 
 /**

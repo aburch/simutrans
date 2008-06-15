@@ -705,7 +705,7 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 		}
 	}
 	// we have to pay maintenance at the beginning of a month
-	if(file->get_version()<99018) {
+	if(file->get_version()<99018  &&  file->is_loading()) {
 		buche( -finance_history_month[1][COST_MAINTENANCE], COST_MAINTENANCE );
 	}
 

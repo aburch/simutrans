@@ -102,6 +102,25 @@ weg_t::alloc(waytype_t wt)
 
 
 
+// returns a way with matchin waytype
+const char* weg_t::waytype_to_string(waytype_t wt)
+{
+	switch(wt) {
+		case tram_wt:	return "tram_track";
+		case track_wt:	return "track";
+		case monorail_wt: return "monorail_track";
+		case maglev_wt: return "maglev_track";
+		case narrowgauge_wt: return "narrowgauge_track";
+		case road_wt:	return "road";
+		case water_wt:	return "water";
+		case air_wt:	return "air";
+	}
+	return "invalid waytype";
+}
+
+
+
+
 /**
  * Setzt die erlaubte Höchstgeschwindigkeit
  * @author Hj. Malthaner

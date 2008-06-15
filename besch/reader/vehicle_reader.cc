@@ -25,8 +25,7 @@ vehicle_reader_t::register_obj(obj_besch_t *&data)
 bool
 vehicle_reader_t::successfully_loaded() const
 {
-    vehikelbauer_t::sort_lists();
-    return true;
+    return vehikelbauer_t::alles_geladen();
 }
 
 

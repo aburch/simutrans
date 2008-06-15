@@ -65,6 +65,7 @@
 #include "besch/reader/obj_reader.h"
 #include "besch/sound_besch.h"
 
+#include "bauer/vehikelbauer.h"
 #include "vehicle/simvehikel.h"
 #include "vehicle/simverkehr.h"
 
@@ -650,6 +651,9 @@ extern "C" int simu_main(int argc, char** argv)
 
 	print("Reading city configuration ...\n");
 	stadt_t::cityrules_init(umgebung_t::objfilename);
+
+	print("Reading speedbonus configuration ...\n");
+	vehikelbauer_t::speedbonus_init(umgebung_t::objfilename);
 
 	print("Reading forest configuration ...\n");
 	baum_t::forestrules_init(umgebung_t::objfilename);
