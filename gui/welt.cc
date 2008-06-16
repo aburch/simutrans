@@ -59,7 +59,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	this->old_lang = -1;
 	this->sets->setze_beginner_mode(umgebung_t::beginner_mode_first);
 	loaded_heightfield = load_heightfield = false;
-	load = start = close = false;
+	load = start = close = scenario = quit = false;
 	int intTopOfButton=START_HEIGHT;
 	sets->heightfield = "";
 
@@ -219,21 +219,35 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( &use_beginner_mode );
 	intTopOfButton += 12;
 
-	// final stating buttons
+	// load scenario
 	intTopOfButton += 10;
-	load_game.setze_pos( koord(10, intTopOfButton) );
+	load_scenario.setze_pos( koord(10, intTopOfButton) );
+	load_scenario.setze_groesse( koord(104, 14) );
+	load_scenario.setze_typ(button_t::roundbox);
+	load_scenario.add_listener( this );
+	add_komponente( &load_scenario );
+
+	// load game
+	load_game.setze_pos( koord(104+11+30, intTopOfButton) );
 	load_game.setze_groesse( koord(104, 14) );
 	load_game.setze_typ(button_t::roundbox);
 	load_game.add_listener( this );
 	add_komponente( &load_game );
 
-	// Start game
-	//----------------------
-	start_game.setze_pos( koord(104+11+30, intTopOfButton) );
+	// start game
+	intTopOfButton += 5+BUTTON_HEIGHT;
+	start_game.setze_pos( koord(10, intTopOfButton) );
 	start_game.setze_groesse( koord(104, 14) );
 	start_game.setze_typ(button_t::roundbox);
 	start_game.add_listener( this );
 	add_komponente( &start_game );
+
+	// quit game
+	quit_game.setze_pos( koord(104+11+30, intTopOfButton) );
+	quit_game.setze_groesse( koord(104, 14) );
+	quit_game.setze_typ(button_t::roundbox);
+	quit_game.add_listener( this );
+	add_komponente( &quit_game );
 
 	setze_fenstergroesse( koord(260, intTopOfButton+14+8+16) );
 
@@ -527,6 +541,9 @@ welt_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	else if(komp==&load_game) {
 		load = true;
 	}
+	else if(komp==&load_scenario) {
+		scenario = true;
+	}
 	else if(komp==&start_game) {
 		if(loaded_heightfield) {
 			load_heightfield = true;
@@ -534,6 +551,9 @@ welt_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		else {
 			start = true;
 		}
+	}
+	else if(komp==&quit_game) {
+		quit = true;
 	}
 
 	if(knr>=0) {
@@ -585,7 +605,9 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 		allow_player_change.setze_text("Allow player change");
 		use_beginner_mode.setze_text("Beginner mode");
 		load_game.setze_text("Load game");
+		load_scenario.setze_text("Load scenario");
 		start_game.setze_text("Starte Spiel");
+		quit_game.setze_text("Beenden");
 		old_lang = translator::get_language();
 		welt->setze_dirty();
 	}

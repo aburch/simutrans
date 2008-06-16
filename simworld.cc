@@ -67,6 +67,7 @@
 
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
+#include "dataobj/scenario.h"
 #include "dataobj/einstellungen.h"
 #include "dataobj/umgebung.h"
 #include "dataobj/tabfile.h"
@@ -435,6 +436,9 @@ DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
 	ausflugsziele.clear();
 DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 
+	delete scenario;
+	scenario = NULL;
+
 assert( depot_t::get_depot_list().empty() );
 
 DBG_MESSAGE("karte_t::destroy()", "world destroyed");
@@ -562,6 +566,8 @@ karte_t::init_felder()
 		}
 	}
 	last_maximum_bev = 0;
+
+	scenario = new scenario_t(this);
 
 	nosave = false;
 }
@@ -2799,6 +2805,9 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 		}
 	}
 
+	// finally a possible scenario
+	scenario->rdwr( file );
+
 	if(needs_redraw) {
 		update_map();
 	}
@@ -3227,6 +3236,11 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	ticks = ticks % karte_t::ticks_per_tag;
 	next_month_ticks = karte_t::ticks_per_tag;
 	letzter_monat %= 12;
+
+	// finally: do we run a scenario?
+	if(file->get_version()>=99018) {
+		scenario->rdwr(file);
+	}
 
 	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_bits_per_tag);
 

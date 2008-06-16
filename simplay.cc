@@ -58,6 +58,7 @@
 #include "boden/wege/weg.h"
 
 #include "dataobj/einstellungen.h"
+#include "dataobj/scenario.h"
 #include "dataobj/fahrplan.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
@@ -342,16 +343,13 @@ void spieler_t::neuer_monat()
 		if(konto < 0) {
 			konto_ueberzogen++;
 			if(this == welt->gib_spieler(0)) {
-				if(konto_ueberzogen == 1) {
+				if(konto_ueberzogen > 0 ) {
 					// tell the player
 					char buf[256];
-					sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"), MAX_KONTO_VERZUG-konto_ueberzogen+1 );
+					sprintf(buf, translator::translate("On loan since %i month(s)"), konto_ueberzogen );
+//					sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"), MAX_KONTO_VERZUG-konto_ueberzogen+1 );
 					message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
-				} else if(konto_ueberzogen <= MAX_KONTO_VERZUG) {
-					char buf[256];
-					sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"), MAX_KONTO_VERZUG-konto_ueberzogen+1);
-					message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
-				} else {
+				} else if(finance_history_year[0][COST_NETWEALTH]<0) {
 					destroy_all_win();
 					create_win(280, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
 					welt->beenden(false);
@@ -467,7 +465,9 @@ void spieler_t::calc_finance_history()
 	finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE];
 	margin_div = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]);
 	if(margin_div<0) { margin_div = -margin_div; }
-	finance_history_month[0][COST_MARGIN] = margin_div!= 0 ? (100*finance_history_month[0][COST_OPERATING_PROFIT]) / margin_div : 0;
+	finance_history_month[0][COST_MARGIN] = margin_div!=0 ? (100*finance_history_month[0][COST_OPERATING_PROFIT]) / margin_div : 0;
+
+	finance_history_month[0][COST_SCENARIO_COMPLETED] = finance_history_year[0][COST_SCENARIO_COMPLETED] = welt->get_scenario()->completed(player_nr);
 }
 
 

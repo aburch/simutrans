@@ -49,6 +49,7 @@
 #include "gui/messagebox.h"
 #include "gui/loadsave_frame.h"
 #include "gui/load_relief_frame.h"
+#include "gui/scenario_frame.h"
 
 #include "dings/baum.h"
 
@@ -918,6 +919,7 @@ DBG_MESSAGE("init","map");
 				dr_sleep(5);
 			} while(
 				!wg->gib_load() &&
+				!wg->gib_scenario() &&
 				!wg->gib_load_heightfield() &&
 				!wg->gib_start() &&
 				!wg->gib_close() &&
@@ -930,8 +932,20 @@ DBG_MESSAGE("init","map");
 				} while (!IS_LEFTRELEASE(&ev));
 			}
 
+			// scenario?
+			if(wg->gib_scenario()) {
+				char path[1024];
+				destroy_win( magic_climate );
+				destroy_win( magic_sprachengui_t );
+				destroy_win( magic_welt_gui_t );
+				delete wg;
+				sprintf( path, "%s%sscenario/", umgebung_t::program_dir, (const char *)umgebung_t::objfilename );
+				chdir( path );
+				create_win( new scenario_frame_t(welt, true), w_info, magic_load_t );
+				chdir( umgebung_t::user_dir );
+			}
 			// Neue Karte erzeugen
-			if (wg->gib_start()) {
+			else if (wg->gib_start()) {
 				destroy_win( magic_climate );
 				destroy_win( magic_sprachengui_t );
 				destroy_win( magic_welt_gui_t );
@@ -943,6 +957,7 @@ DBG_MESSAGE("init","map");
 
 				sets->heightfield = "";
 				welt->init(sets);
+
 				// save setting ...
 				loadsave_t file;
 				if(file.wr_open("default.sve",loadsave_t::binary,"settings only")) {

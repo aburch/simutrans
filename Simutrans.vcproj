@@ -701,6 +701,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\scenario.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\scenario_frame.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\schedule_list.cc"
 				>
 			</File>

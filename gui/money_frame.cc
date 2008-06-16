@@ -18,6 +18,7 @@
 #include "../utils/simstring.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
+#include "../dataobj/scenario.h"
 
 // for headquarter construction only ...
 #include "../simskin.h"
@@ -117,7 +118,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		old_powerline(NULL, COL_WHITE, gui_label_t::right),
 		maintenance_label("This Month",COL_WHITE, gui_label_t::right),
 		maintenance_money(NULL, COL_RED, gui_label_t::money),
-		warn("", COL_RED),
+		warn("", COL_YELLOW, gui_label_t::left),
 		headquarter_view(sp->get_welt(), koord3d::invalid)
 {
 	if(sp->get_welt()->gib_spieler(0)!=sp) {
@@ -197,7 +198,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	money.setze_pos(koord(left+140+335+55, top+8*BUTTONSPACE));
 
 	// return money or else stuff ...
-	warn.setze_pos(koord(left, 2));
+	warn.setze_pos(koord(left+335, top+10*BUTTONSPACE));
 
 	add_komponente(&conmoney);
 	add_komponente(&nvmoney);
@@ -377,13 +378,17 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	margin.setze_text(str_buf[19]);
 	margin.set_color(get_money_colour(COST_MARGIN, 0));
 
-	if(sp->gib_konto_ueberzogen()) {
+	// warning/success messages
+	if(sp->get_player_nr()==0  &&  sp->get_welt()->get_scenario()->active()) {
+		sprintf( str_buf[15], translator::translate("Scenario complete: %i%%"), sp->get_welt()->get_scenario()->completed(0) );
+	}
+	else if(sp->gib_konto_ueberzogen()) {
+		warn.set_color( COL_RED );
 		if(sp->get_finance_history_year(0, COST_NETWEALTH)<0) {
 			sprintf(str_buf[15], translator::translate("Company bankrupt") );
 		}
 		else {
-			sprintf(str_buf[15], translator::translate("Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen"),
-			spieler_t::MAX_KONTO_VERZUG-sp->gib_konto_ueberzogen()+1);
+			sprintf(str_buf[15], translator::translate("On loan since %i month(s)"), sp->gib_konto_ueberzogen() );
 		}
 	}
 	else {

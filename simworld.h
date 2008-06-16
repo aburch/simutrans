@@ -47,6 +47,7 @@ class karte_ansicht_t;
 class sync_steppable;
 class cstring_t;
 class werkzeug_t;
+class scenario_t;
 
 
 /**
@@ -330,6 +331,9 @@ private:
 	// may change due to timeline
 	const weg_besch_t *city_road;
 
+	// what game objectives
+	scenario_t *scenario;
+
 	int average_speed[8];
 
 	// recalculated speed boni for different vehicles
@@ -379,6 +383,8 @@ public:
 
 	// calculates the various entries
 	void update_history();
+
+	scenario_t *get_scenario() const { return scenario; }
 
 	/**
 	* Returns the finance history for player

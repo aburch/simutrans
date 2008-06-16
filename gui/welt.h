@@ -41,6 +41,8 @@ private:
 	bool load;
 	bool start;
 	bool close;
+	bool scenario;
+	bool quit;
 
 	int old_lang;
 
@@ -66,7 +68,9 @@ private:
 	button_t use_beginner_mode;
 
 	button_t load_game;
+	button_t load_scenario;
 	button_t start_game;
+	button_t quit_game;
 
 	karte_t *welt;
 
@@ -98,10 +102,11 @@ public:
 	const char * gib_hilfe_datei() const {return "new_world.txt";}
 
 	bool gib_load_heightfield() const {return load_heightfield;}
+	bool gib_scenario() const {return scenario;}
 	bool gib_load() const {return load;}
 	bool gib_start() const {return start;}
 	bool gib_close() const {return close;}
-	bool gib_quit() const {return false;}
+	bool gib_quit() const {return quit;}
 
 	einstellungen_t* gib_sets() const { return sets; }
 

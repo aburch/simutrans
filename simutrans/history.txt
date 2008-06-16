@@ -59,7 +59,8 @@
 		numbered stop (translators: please tranlate on simutranslator!)
 	CHANGE: deduct maintenance at the beginning of a month => no sudden dropping below zero any more
 	CHANGE: no zooming in/out of vehicle images in depot and lists
-	CHANGE:speedbonus taken now from config/speedbonus.tab (if present)
+	CHANGE: speedbonus taken now from config/speedbonus.tab (if present)
+	CHANGE: scenarios added (i.e. you can play for a goal), bankrupt only after net wealth is below zero
 
 
 Release of 99.17.1 (r1550, stable)
