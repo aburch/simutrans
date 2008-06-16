@@ -100,11 +100,10 @@ void werkzeug_waehler_t::infowin_event(const event_t *ev)
 			}
 		}
 	}
-/* this would reset to query-tool, when closing toolsbar ...
+	/* this resets to query-tool, when closing toolsbar ... */
 	else if(ev->ev_class==INFOWIN &&  ev->ev_code==WIN_CLOSE) {
-		welt->set_werkzeug( werkzeug_t::general_tool+WKZ_ABFRAGE );
+		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
 	}
-*/
 }
 
 
