@@ -388,9 +388,17 @@ haltestelle_t::rotate90( const sint16 y_size )
 			vector_tpl<ware_t> * warray = waren[i];
 			for(int j=warray->get_count()-1;  j>=0;  j--  ) {
 				ware_t & ware = (*warray)[j];
-				koord k = ware.gib_zielpos();
-				k.rotate90( y_size );
-				ware.setze_zielpos( k );
+				if(ware.menge>0) {
+					koord k = ware.gib_zielpos();
+					k.rotate90( y_size );
+					// since we need to point at factory (0,0)
+					fabrik_t *fab = fabrik_t::gib_fab( welt, k );
+					ware.setze_zielpos( fab ? fab->gib_pos().gib_2d() : k );
+				}
+				else {
+					// empty => remove
+					(*warray).remove_at( j );
+				}
 			}
 		}
 	}
@@ -1715,6 +1723,22 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf)
 
 void haltestelle_t::zeige_info()
 {
+#if 1
+	cbuffer_t buf(8192);
+	for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
+		if(waren[i]) {
+			buf.printf("\ncatg %i:",i);
+			vector_tpl<ware_t> * warray = waren[i];
+			for(int j=warray->get_count()-1;  j>=0;  j--  ) {
+				ware_t & ware = (*warray)[j];
+				if(ware.menge>0) {
+					buf.printf( "%i-(%s), ", ware.menge, ware.gib_zielpos().gib_str());
+				}
+			}
+		}
+	}
+	dbg->message("haltestelle_t::zeige_info()", (const char *)buf );
+#endif
 	create_win(new halt_info_t(welt, self), w_info, (long)this );
 }
 

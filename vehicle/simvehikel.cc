@@ -479,7 +479,9 @@ vehikel_t::rotate90()
 		ware_t& tmp = iter.access_current();
 		koord k = tmp.gib_zielpos();
 		k.rotate90( welt->gib_groesse_y()-1 );
-		tmp.setze_zielpos( k );
+		// since we need to point at factory (0,0)
+		fabrik_t *fab = fabrik_t::gib_fab( welt, k );
+		tmp.setze_zielpos( fab ? fab->gib_pos().gib_2d() : k );
 	}
 }
 
