@@ -325,6 +325,9 @@ void spieler_t::step()
  */
 void spieler_t::neuer_monat()
 {
+	// since the messages must remain on the screen longer ...
+	static char buf[256];
+
 	// Wartungskosten abziehen
 	calc_finance_history();
 	roll_finance_history_month();
@@ -338,21 +341,31 @@ void spieler_t::neuer_monat()
 	// subtract maintenance
 	buche( -((sint64)maintenance) <<((sint64)welt->ticks_bits_per_tag-18ll), COST_MAINTENANCE);
 
+	if(welt->get_scenario()->active()  &&  finance_history_year[0][COST_SCENARIO_COMPLETED]>=100) {
+		destroy_all_win();
+		sint32 time = welt->get_current_month()-(welt->gib_einstellungen()->gib_starting_year()*12);
+		sprintf( buf, translator::translate("Congratulation\nScenario was complete in\n%i months %i years."), time%12, time/12 );
+		create_win(280, 40, new news_img(buf), w_info, magic_none);
+		// disable further messages
+		welt->get_scenario()->init("",welt);
+		return;
+	}
+
 	// Bankrott ?
 	if(!umgebung_t::freeplay) {
 		if(konto < 0) {
 			konto_ueberzogen++;
 			if(this == welt->gib_spieler(0)) {
-				if(konto_ueberzogen > 0 ) {
-					// tell the player
-					char buf[256];
-					sprintf(buf, translator::translate("On loan since %i month(s)"), konto_ueberzogen );
-//					sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"), MAX_KONTO_VERZUG-konto_ueberzogen+1 );
-					message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
-				} else if(finance_history_year[0][COST_NETWEALTH]<0) {
+				if(finance_history_year[0][COST_NETWEALTH]<0) {
 					destroy_all_win();
 					create_win(280, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
 					welt->beenden(false);
+				}
+				else {
+					// tell the player
+					sprintf(buf, translator::translate("On loan since %i month(s)"), konto_ueberzogen );
+//					sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"), MAX_KONTO_VERZUG-konto_ueberzogen+1 );
+					message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				}
 			}
 			else if(this!=welt->gib_spieler(1)  &&  automat) {
@@ -361,7 +374,8 @@ void spieler_t::neuer_monat()
 					ai_bankrupt();
 				}
 			}
-		} else {
+		}
+		else {
 			konto_ueberzogen = 0;
 		}
 	}

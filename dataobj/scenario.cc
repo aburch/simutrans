@@ -124,14 +124,16 @@ void scenario_t::get_factory_producing( fabrik_t *fab, int &producing, int &exis
 		own_existing ++;
 	}
 
-	// now check for all output
-	for(  int ware_nr=0;  ware_nr<fab->gib_ausgang().get_count();  ware_nr++  ) {
-		if(fab->gib_ausgang()[ware_nr].menge > 512) {
-			producing ++;
-			own_producing ++;
+	if(fab->gib_eingang().get_count()>0) {
+		// now check for all output (of not source ... )
+		for(  int ware_nr=0;  ware_nr<fab->gib_ausgang().get_count();  ware_nr++  ) {
+			if(fab->gib_ausgang()[ware_nr].menge > 512) {
+				producing ++;
+				own_producing ++;
+			}
+			existing ++;
+			own_existing ++;
 		}
-		existing ++;
-		own_existing ++;
 	}
 
 	// now all delivering factories
