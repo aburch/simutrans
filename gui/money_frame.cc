@@ -182,10 +182,10 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	old_conmoney.setze_pos(koord(lyl_x,top+5*BUTTONSPACE));
 	tmoney.setze_pos(koord(tyl_x,top+6*BUTTONSPACE));
 	old_tmoney.setze_pos(koord(lyl_x,top+6*BUTTONSPACE));
-	transport.setze_pos(koord(tyl_x+19, top+7*BUTTONSPACE));
-	old_transport.setze_pos(koord(lyl_x+19, top+7*BUTTONSPACE));
-	powerline.setze_pos(koord(tyl_x+19,top+8*BUTTONSPACE));
-	old_powerline.setze_pos(koord(lyl_x+19,top+8*BUTTONSPACE));
+	powerline.setze_pos(koord(tyl_x+19,top+7*BUTTONSPACE));
+	old_powerline.setze_pos(koord(lyl_x+19,top+7*BUTTONSPACE));
+	transport.setze_pos(koord(tyl_x+19, top+8*BUTTONSPACE));
+	old_transport.setze_pos(koord(lyl_x+19, top+8*BUTTONSPACE));
 
 	// right column
 	maintenance_label.setze_pos(koord(left+340+80, top+1*BUTTONSPACE-2));
