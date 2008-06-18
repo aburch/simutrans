@@ -1484,11 +1484,6 @@ karte_t::rotate90()
 	cached_groesse_gitter_x = cached_groesse_gitter_y;
 	cached_groesse_gitter_y = wx;
 
-	// rotate all other objects like factories and convois
-	for(unsigned i=0; i<convoi_array.get_count();  i++) {
-		convoi_array[i]->rotate90( cached_groesse_karte_x );
-	}
-
 	// now step all towns (to generate passengers)
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		(*i)->rotate90( cached_groesse_karte_x );
@@ -1502,6 +1497,11 @@ karte_t::rotate90()
 	slist_iterator_tpl <halthandle_t> halt_iter (haltestelle_t::gib_alle_haltestellen());
 	while( halt_iter.next() ) {
 		halt_iter.get_current()->rotate90( cached_groesse_karte_x );
+	}
+
+	// rotate all other objects like factories and convois
+	for(unsigned i=0; i<convoi_array.get_count();  i++) {
+		convoi_array[i]->rotate90( cached_groesse_karte_x );
 	}
 
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {

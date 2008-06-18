@@ -479,9 +479,7 @@ vehikel_t::rotate90()
 		ware_t& tmp = iter.access_current();
 		koord k = tmp.gib_zielpos();
 		k.rotate90( welt->gib_groesse_y()-1 );
-		// since we need to point at factory (0,0)
-		fabrik_t *fab = fabrik_t::gib_fab( welt, k );
-		tmp.setze_zielpos( fab ? fab->gib_pos().gib_2d() : k );
+		tmp.setze_zielpos( k );
 	}
 }
 
@@ -668,7 +666,7 @@ void vehikel_t::remove_stale_freight()
 		while(iter.next()) {
 			fahrplan_t *fpl = cnv->gib_fahrplan();
 
-			const ware_t& tmp = iter.get_current();
+			ware_t& tmp = iter.access_current();
 			bool found = false;
 
 			for (int i = 0; i < fpl->maxi(); i++) {
@@ -682,6 +680,11 @@ void vehikel_t::remove_stale_freight()
 				kill_queue.insert(tmp);
 			}
 			else {
+				// since we need to point at factory (0,0), we recheck this too
+				koord k = tmp.gib_zielpos();
+				fabrik_t *fab = fabrik_t::gib_fab( welt, k );
+				tmp.setze_zielpos( fab ? fab->gib_pos().gib_2d() : k );
+
 				total_freight += tmp.menge;
 			}
 		}

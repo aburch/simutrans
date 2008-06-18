@@ -236,7 +236,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 
 	// easier headquarter access
 	if (!hausbauer_t::headquarter.empty()) {
-		headquarter.init(button_t::box, "build HQ", koord(582-12-120, 4), koord(120, BUTTONSPACE));
+		headquarter.init(button_t::box, "build HQ", koord(582-12-120, 0), koord(120, BUTTONSPACE));
 		headquarter.add_listener(this);
 		add_komponente(&headquarter);
 		headquarter.set_tooltip( NULL );
@@ -260,8 +260,8 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		if(sp->get_headquarter_pos()!=koord::invalid) {
 			headquarter_view.set_location( sp->get_welt()->lookup_kartenboden( sp->get_headquarter_pos() )->gib_pos() );
 		}
-		headquarter_view.setze_pos( koord(582-12-120, 4+BUTTONSPACE) );
-		headquarter_view.setze_groesse( koord(120, 70) );
+		headquarter_view.setze_pos( koord(582-12-120, BUTTONSPACE) );
+		headquarter_view.setze_groesse( koord(120, 64) );
 		add_komponente(&headquarter_view);
 	}
 	old_level = sp->get_headquarter_level();
@@ -427,7 +427,6 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 
 		old_level = sp->get_headquarter_level();
 		remove_komponente(&headquarter_view);
-		headquarter_view.setze_groesse( koord(120, 70) );
 		headquarter_view.set_location( sp->get_welt()->lookup_kartenboden(sp->get_headquarter_pos())->gib_pos() );
 		headquarter.setze_text( "upgrade HQ" );
 		add_komponente(&headquarter_view);
