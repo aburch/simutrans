@@ -179,7 +179,7 @@ int scenario_t::completed(int player_nr)
 
 		case DOUBLE_INCOME:
 		{
-			int pts = (int)( (welt->gib_spieler(player_nr)->get_finance_history_month(0,COST_CASH)*100)/umgebung_t::starting_money );
+			int pts = (int)( ((welt->gib_spieler(player_nr)->get_finance_history_month(0,COST_CASH)-umgebung_t::starting_money)*100)/umgebung_t::starting_money );
 			return min( 100, pts );
 		}
 
