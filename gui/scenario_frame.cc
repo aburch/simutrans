@@ -27,6 +27,7 @@ void scenario_frame_t::action(const char *filename)
 	scn.init( path, welt );
 	sprintf( path2, "%s%sscenario/%s", umgebung_t::program_dir, (const char *)umgebung_t::objfilename, scn.get_filename() );
 	welt->laden( path2 );
+	welt->gib_einstellungen()->setze_filename( scn.get_filename() );
 	welt->get_scenario()->init( path, welt );
 }
 
