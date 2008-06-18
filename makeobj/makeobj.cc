@@ -1,5 +1,7 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
 #include "../dataobj/tabfile.h"
 #include "../simtypes.h"
 #include "../simversion.h"
