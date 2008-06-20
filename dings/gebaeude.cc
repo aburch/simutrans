@@ -97,7 +97,7 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 		setze_yoff(-TILE_HEIGHT_STEP);
 	}
 
-	spieler_t::add_maintenance(gib_besitzer(), umgebung_t::maint_building);
+	spieler_t::add_maintenance(gib_besitzer(), umgebung_t::maint_building*tile->gib_besch()->gib_level() );
 }
 
 
@@ -125,7 +125,7 @@ gebaeude_t::~gebaeude_t()
 
 	count = 0;
 	anim_time = 0;
-	spieler_t::add_maintenance(gib_besitzer(), -umgebung_t::maint_building);
+	spieler_t::add_maintenance(gib_besitzer(), -umgebung_t::maint_building*tile->gib_besch()->gib_level() );
 }
 
 
