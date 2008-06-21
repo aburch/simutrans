@@ -55,6 +55,7 @@ void scenario_t::init( const char *filename, karte_t *w )
 
 	scenario_name = strdup( contents.get( "savegame" ) );
 	what_scenario = contents.get_int( "type", 0 );
+	factor = contents.get_int( "factor", 1 );
 
 	// may have additional info like city ...
 	const char *cityname = contents.get( "cityname" );
@@ -95,6 +96,7 @@ void scenario_t::rdwr(loadsave_t *file)
 
 	file->rdwr_short( what_scenario, "" );
 	file->rdwr_long( city_nr, "" );
+	file->rdwr_long( factor, "" );
 	fabpos.rdwr( file );
 
 	if(  file->is_loading()  ) {
@@ -179,14 +181,14 @@ int scenario_t::completed(int player_nr)
 
 		case DOUBLE_INCOME:
 		{
-			int pts = (int)( ((welt->gib_spieler(player_nr)->get_finance_history_month(0,COST_CASH)-umgebung_t::starting_money)*100)/umgebung_t::starting_money );
+			int pts = (int)( ((welt->gib_spieler(player_nr)->get_finance_history_month(0,COST_CASH)-umgebung_t::starting_money)*100)/(factor*umgebung_t::starting_money) );
 			return min( 100, pts );
 		}
 
 		case BUILT_HEADQUARTER_AND_10_TRAINS:
 		{
 			spieler_t *sp = welt->gib_spieler(player_nr);
-			int pts = sp->get_headquarter_pos() != koord::invalid ? 11 : 0;
+			int pts = 0;
 			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
 				convoihandle_t cnv = *i;
 				if(  cnv->gib_besitzer() == sp  &&  cnv->gib_jahresgewinn()>0  ) {
@@ -195,11 +197,13 @@ int scenario_t::completed(int player_nr)
 					}
 				}
 			}
+			pts /= factor;
+			pts += (sp->get_headquarter_pos() != koord::invalid) ? 10 : 0;
 			return pts;
 		}
 
 		case TRANSPORT_1000_PAX:
-			return min( 100, welt->gib_spieler(player_nr)->get_finance_history_month(0,COST_TRANSPORTED_PAS)/10 );
+			return min( 100, welt->gib_spieler(player_nr)->get_finance_history_month(0,COST_TRANSPORTED_PAS)/(factor*10) );
 
 	}
 	return 0;

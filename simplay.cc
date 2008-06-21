@@ -341,7 +341,8 @@ void spieler_t::neuer_monat()
 	// subtract maintenance
 	buche( -((sint64)maintenance) <<((sint64)welt->ticks_bits_per_tag-18ll), COST_MAINTENANCE);
 
-	if(welt->get_scenario()->active()  &&  finance_history_year[0][COST_SCENARIO_COMPLETED]>=100) {
+	// enough money and scenario finished?
+	if(konto > 0  &&  welt->get_scenario()->active()  &&  finance_history_year[0][COST_SCENARIO_COMPLETED]>=100) {
 		destroy_all_win();
 		sint32 time = welt->get_current_month()-(welt->gib_einstellungen()->gib_starting_year()*12);
 		sprintf( buf, translator::translate("Congratulation\nScenario was complete in\n%i months %i years."), time%12, time/12 );
