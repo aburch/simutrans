@@ -64,6 +64,7 @@ private:
 	gui_label_t maintenance_money;
 
 	gui_label_t warn;
+	gui_label_t scenario;
 
 	/**
 	 * fills buffer (char array) with finance info

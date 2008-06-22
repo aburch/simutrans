@@ -119,6 +119,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		maintenance_label("This Month",COL_WHITE, gui_label_t::right),
 		maintenance_money(NULL, COL_RED, gui_label_t::money),
 		warn("", COL_YELLOW, gui_label_t::left),
+		scenario("", COL_BLACK, gui_label_t::left),
 		headquarter_view(sp->get_welt(), koord3d::invalid)
 {
 	if(sp->get_welt()->gib_spieler(0)!=sp) {
@@ -199,6 +200,11 @@ money_frame_t::money_frame_t(spieler_t *sp)
 
 	// return money or else stuff ...
 	warn.setze_pos(koord(left+335, top+10*BUTTONSPACE));
+	if(sp->get_player_nr()==0  &&  sp->get_welt()->get_scenario()->active()) {
+		scenario.setze_pos( koord( 10,0 ) );
+		scenario.setze_text( sp->get_welt()->get_scenario()->get_description() );
+		add_komponente(&scenario);
+	}
 
 	add_komponente(&conmoney);
 	add_komponente(&nvmoney);

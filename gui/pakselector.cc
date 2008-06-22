@@ -22,6 +22,12 @@ void pakselector_t::del_action(const char *filename)
 	umgebung_t::objfilename = (cstring_t)filename + "/";
 }
 
+const char *pakselector_t::get_info(const char *fname)
+{
+	return "";
+}
+
+
 void pakselector_t::zeichnen(koord p, koord gr)
 {
 	gui_frame_t::zeichnen( p, gr );
@@ -35,7 +41,7 @@ void pakselector_t::zeichnen(koord p, koord gr)
 }
 
 
-static bool check_for_pak( const char *filename, const char * )
+bool pakselector_t::check_file( const char *filename, const char * )
 {
 	char buf[1024];
 	sprintf( buf, "%s/ground.Outside.pak", filename );
@@ -47,7 +53,7 @@ static bool check_for_pak( const char *filename, const char * )
 }
 
 
-pakselector_t::pakselector_t() : savegame_frame_t( NULL, umgebung_t::program_dir, check_for_pak )
+pakselector_t::pakselector_t() : savegame_frame_t( NULL, umgebung_t::program_dir )
 {
 	remove_komponente( &input );
 	remove_komponente( &savebutton );

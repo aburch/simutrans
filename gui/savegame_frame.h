@@ -37,9 +37,15 @@ private:
 	// true, if there is additional information, i.e. loading a game
 	bool use_pak_extension;
 
-	void add_file(const char *filename, const char *pak, const bool no_cutting_suffix );
-
 protected:
+	gui_textinput_t input;
+	gui_divider_t divider1;                               // 30-Oct-2001  Markus Weber    Added
+	button_t savebutton;                                  // 29-Oct-2001  Markus Weber    Added
+	button_t cancelbutton;                               // 29-Oct-2001  Markus Weber    Added
+	gui_label_t fnlabel;        //filename                // 31-Oct-2001  Markus Weber    Added
+	gui_container_t button_frame;
+	gui_scrollpane_t scrolly;
+
 	struct entry
 	{
 		entry(button_t* button_, button_t* del_, gui_label_t* label_) :
@@ -53,22 +59,11 @@ protected:
 		gui_label_t* label;
 	};
 
+	void fill_list();
+
+	void add_file(const char *filename, const char *pak, const bool no_cutting_suffix );
+
 	slist_tpl<entry> entries;
-
-	gui_textinput_t input;
-	gui_divider_t divider1;                               // 30-Oct-2001  Markus Weber    Added
-	button_t savebutton;                                  // 29-Oct-2001  Markus Weber    Added
-	button_t cancelbutton;                               // 29-Oct-2001  Markus Weber    Added
-	gui_label_t fnlabel;        //filename                // 31-Oct-2001  Markus Weber    Added
-	gui_container_t button_frame;
-	gui_scrollpane_t scrolly;
-
-	/**
-	 * Name des Spieles in der Datei.
-	 * @aparam filename Name der Spielstandsdatei
-	 * @author Hansjörg Malthaner
-	 */
-	const char *gib_spiel_name(const char *filename);
 
 	/**
 	 * Aktion, die nach Knopfdruck gestartet wird.
@@ -82,17 +77,21 @@ protected:
 	 */
 	virtual void del_action(const char *filename) = 0;
 
+	// returns extra file info
+	virtual const char *get_info(const char *fname) = 0;
+
+	// true, if valid
+	virtual bool check_file( const char *filename, const char *suffix );
+
 	// sets the filename in the edit field
 	void set_filename( const char *fn );
-
-	static bool check_file( const char *filename, const char *suffix );
 
 public:
 	/**
 	 * @param suffix Filename suffix, i.e. ".sve", must be four characters
 	 * @author Hj. Malthaner
 	 */
-	savegame_frame_t(const char *suffix, const char *path, bool (*check)(const char *, const char *) = savegame_frame_t::check_file );
+	savegame_frame_t(const char *suffix, const char *path );
 
 	virtual ~savegame_frame_t();
 
@@ -113,6 +112,8 @@ public:
 	 */
 	bool action_triggered(gui_komponente_t *komp, value_t extra);
 
+	// must catch open messgae to uptade list, since I am using virtual functions
+	virtual void infowin_event(const event_t *ev);
 };
 
 #endif

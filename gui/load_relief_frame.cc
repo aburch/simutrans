@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "../simio.h"
 #include "../simdebug.h"
 #include "load_relief_frame.h"
 #include "../dataobj/einstellungen.h"
@@ -47,3 +48,52 @@ const char * load_relief_frame_t::gib_hilfe_datei() const
 {
     return "load_relief.txt";
 }
+
+
+
+const char *load_relief_frame_t::get_info(const char *filename)
+{
+	static char size[64];
+	char path[1024];
+	sprintf( path, "save/%s", filename );
+	FILE *file = fopen(path, "rb");
+	if(file) {
+		char buf [256];
+		int w, h;
+
+		read_line(buf, 255, file);
+
+		if(strncmp(buf, "P6", 2)) {
+			fclose(file);
+			return "";
+		}
+
+		read_line(buf, 255, file);
+		sscanf(buf, "%d %d", &w, &h);
+		sprintf( size, "%i x %i", w, h );
+
+		fclose(file);
+		return size;
+	}
+	return "";
+}
+
+
+
+bool load_relief_frame_t::check_file( const char *filename, const char * )
+{
+	char path[1024];
+	sprintf( path, "save/%s", filename );
+	FILE *file = fopen(path, "rb");
+	if(file) {
+		char buf [256];
+
+		read_line(buf, 255, file);
+		fclose(file);
+
+		return strncmp(buf, "P6", 2)==0;
+	}
+	return false;
+}
+
+

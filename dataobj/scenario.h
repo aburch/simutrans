@@ -42,6 +42,8 @@ public:
 
 	// true, if a scenario is present
 	bool active() const { return what_scenario>0; }
+
+	const char *get_description();
 };
 
 #endif

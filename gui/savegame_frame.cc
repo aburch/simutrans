@@ -29,31 +29,76 @@
 #define DIALOG_WIDTH (360)
 
 
-bool savegame_frame_t::check_file( const char *filename, const char *suffix )
-{
-	// assume truth, if there is no pattern to compare
-	return suffix==NULL  ||  (strncmp( filename + strlen(filename) - 4, suffix, 4) == 0);
-}
-
-
 // we need this trick, with the function pointer.
 // Since during initialisations virtual functions do not work yet
 // in derived classes (since the object in question is not full initialized yet)
 // this functions returns true for files to be added.
-savegame_frame_t::savegame_frame_t(const char *suffix, const char *path, bool (*check)( const char *, const char *) ) :
+savegame_frame_t::savegame_frame_t(const char *suffix, const char *path ) :
 	gui_frame_t("Load/Save") ,
 	fnlabel("Filename"),
 	scrolly(&button_frame)
 {
 	this->suffix = suffix;
+	this->fullpath = path;
 	use_pak_extension = suffix==NULL  ||  strcmp( suffix, ".sve" )==0;
-	char searchpath[1024];
-	bool not_cutting_extension = (suffix==NULL  ||  suffix[0]!='.');
 
 	// both NULL is not acceptable
 	assert(suffix!=path);
 
-	if(path==NULL) {
+	fnlabel.setze_pos (koord(10,12));
+	add_komponente(&fnlabel);
+
+	// Input box for game name
+	tstrncpy(ibuf, "", lengthof(ibuf));
+	input.setze_text(ibuf, 58);
+	input.add_listener(this);
+	input.setze_pos(koord(75,8));
+	input.setze_groesse(koord(DIALOG_WIDTH-75-10-10, 14));
+	add_komponente(&input);
+
+	// needs to be scrollable
+	scrolly.setze_pos( koord(0,30) );
+	scrolly.set_show_scroll_x(false);
+	scrolly.set_size_corner(false);
+	scrolly.setze_groesse( koord(DIALOG_WIDTH-12,30) );
+
+	// The file entries
+	int y = 0;
+	button_frame.setze_groesse( koord( DIALOG_WIDTH-1, y ) );
+	add_komponente(&scrolly);
+
+	y += 10+30;
+	divider1.setze_pos(koord(10,y));
+	divider1.setze_groesse(koord(DIALOG_WIDTH-20,0));
+	add_komponente(&divider1);
+
+	y += 10;
+	savebutton.setze_pos(koord(10,y));
+	savebutton.setze_groesse(koord(BUTTON_WIDTH, 14));
+	savebutton.setze_text("Ok");
+	savebutton.setze_typ(button_t::roundbox);
+	savebutton.add_listener(this);
+	add_komponente(&savebutton);
+
+	cancelbutton.setze_pos(koord(DIALOG_WIDTH-BUTTON_WIDTH-10,y));
+	cancelbutton.setze_groesse(koord(BUTTON_WIDTH, 14));
+	cancelbutton.setze_text("Cancel");
+	cancelbutton.setze_typ(button_t::roundbox);
+	cancelbutton.add_listener(this);
+	add_komponente(&cancelbutton);
+
+	setze_fenstergroesse(koord(DIALOG_WIDTH, y + 40));
+}
+
+
+
+
+void savegame_frame_t::fill_list()
+{
+	char searchpath[1024];
+	bool not_cutting_extension = (suffix==NULL  ||  suffix[0]!='.');
+
+	if(fullpath==NULL) {
 #ifndef _MSC_VER
 		sprintf( searchpath, "%s/.", SAVE_PATH );
 #else
@@ -68,12 +113,12 @@ savegame_frame_t::savegame_frame_t(const char *suffix, const char *path, bool (*
 	}
 	else {
 		// we provide everything
-		fullpath = NULL;
 #ifndef _MSC_VER
-		sprintf( searchpath, "%s.", path );
+		sprintf( searchpath, "%s.", fullpath );
 #else
-		sprintf( searchpath, "%s*", path );
+		sprintf( searchpath, "%s*", fullpath );
 #endif
+		fullpath = NULL;
 	}
 
 #ifndef _MSC_VER
@@ -90,19 +135,8 @@ savegame_frame_t::savegame_frame_t(const char *suffix, const char *path, bool (*
 			entry=readdir(dir);
 			if(entry!=NULL) {
 				if(entry->d_name[0]!='.' ||  (entry->d_name[1]!='.' && entry->d_name[1]!=0)) {
-					if(check(entry->d_name,suffix)) {
-						if(!use_pak_extension) {
-							add_file(entry->d_name, "", not_cutting_extension );
-						}
-						else {
-							// this is a savegame:
-							// read also the pak extension
-							loadsave_t test;
-							char p[1024];
-							sprintf( p, "%s%s", SAVE_PATH_X, entry->d_name );
-							test.rd_open(p);
-							add_file( entry->d_name, test.get_pak_extension(), not_cutting_extension );
-						}
+					if(check_file(entry->d_name,suffix)) {
+						add_file(entry->d_name, get_info(entry->d_name), not_cutting_extension);
 					}
 				}
 			}
@@ -120,40 +154,13 @@ savegame_frame_t::savegame_frame_t(const char *suffix, const char *path, bool (*
 		}
 		else {
 			do {
-				if(check(entry.name,suffix)) {
-					if(!use_pak_extension) {
-						add_file(entry.name, "", not_cutting_extension);
-					}
-					else {
-						// this is a savegame:
-						// read also the pak extension
-						loadsave_t test;
-						char p[1024];
-						sprintf( p, "%s%s", SAVE_PATH_X, entry.name );
-						test.rd_open(p);
-						add_file( entry.name, test.get_pak_extension(), not_cutting_extension );
-					}
+				if(check_file(entry.name,suffix)) {
+					add_file(entry.name, get_info(entry.name), not_cutting_extension);
 				}
 			} while(_findnext(hfind, &entry) == 0 );
 		}
 	}
 #endif
-	fnlabel.setze_pos (koord(10,12));
-	add_komponente(&fnlabel);
-
-	// Input box for game name
-	tstrncpy(ibuf, "", lengthof(ibuf));
-	input.setze_text(ibuf, 58);
-	input.add_listener(this);
-	input.setze_pos(koord(75,8));
-	input.setze_groesse(koord(DIALOG_WIDTH-75-10-10, 14));
-	add_komponente(&input);
-
-	// needs to be scrollable
-	scrolly.setze_pos( koord(0,30) );
-	scrolly.set_show_scroll_x(false);
-	scrolly.set_size_corner(false);
-	scrolly.setze_groesse( koord(DIALOG_WIDTH-12,30) );
 
 	// The file entries
 	int y = 0;
@@ -182,29 +189,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, const char *path, bool (*
 		y += 14;
 	}
 	button_frame.setze_groesse( koord( DIALOG_WIDTH-1, y ) );
-	add_komponente(&scrolly);
-
-	y += 10+30;
-	divider1.setze_pos(koord(10,y));
-	divider1.setze_groesse(koord(DIALOG_WIDTH-20,0));
-	add_komponente(&divider1);
-
-	y += 10;
-	savebutton.setze_pos(koord(10,y));
-	savebutton.setze_groesse(koord(BUTTON_WIDTH, 14));
-	savebutton.setze_text("Ok");
-	savebutton.setze_typ(button_t::roundbox);
-	savebutton.add_listener(this);
-	add_komponente(&savebutton);
-
-	cancelbutton.setze_pos(koord(DIALOG_WIDTH-BUTTON_WIDTH-10,y));
-	cancelbutton.setze_groesse(koord(BUTTON_WIDTH, 14));
-	cancelbutton.setze_text("Cancel");
-	cancelbutton.setze_typ(button_t::roundbox);
-	cancelbutton.add_listener(this);
-	add_komponente(&cancelbutton);
-
-	setze_fenstergroesse(koord(DIALOG_WIDTH, y + 40));
+	setze_fenstergroesse(koord(DIALOG_WIDTH, y + 90));
 }
 
 
@@ -239,33 +224,13 @@ savegame_frame_t::set_filename(const char *fn)
 
 
 
-void
-savegame_frame_t::add_file(const char *filename, const char *pak, const bool no_cutting_suffix )
+void savegame_frame_t::add_file(const char *filename, const char *pak, const bool no_cutting_suffix )
 {
 	button_t * button = new button_t();
 	char * name = new char [strlen(filename)+10];
-	char * date = new char[18+strlen(pak)+3];
+	char * date = new char[strlen(pak)+1];
 
-	//DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );
-	sprintf(name, "%s%s", fullpath, filename);
-
-	// sometime the time retrieval strokes on folders
-	date[0] = 0;
-	struct stat  sb;
-	if(stat(name, &sb)==0) {
-		// add pak extension
-		size_t n = *pak!=0 ? sprintf( date, "%s - ", pak ) : 0;
-
-		// add the time too
-		struct tm *tm = localtime(&sb.st_mtime);
-		if(tm) {
-			strftime(date+n, 18, "%Y-%m-%d %H:%M", tm);
-		}
-		else {
-			tstrncpy(date, "??.??.???? ??:??", 15);
-		}
-	}
-
+	sprintf(date, "%s", pak);
 	sprintf(name, "%s", filename);
 	if(!no_cutting_suffix) {
 		name[strlen(name)-4] = '\0';
@@ -286,6 +251,13 @@ savegame_frame_t::add_file(const char *filename, const char *pak, const bool no_
 	entries.insert(i, entry(button, new button_t, l));
 }
 
+
+// true, if this is a croorect file
+bool savegame_frame_t::check_file( const char *filename, const char *suffix )
+{
+	// assume truth, if there is no pattern to compare
+	return suffix==NULL  ||  (strncmp( filename + strlen(filename) - 4, suffix, 4) == 0);
+}
 
 
 /**
@@ -361,4 +333,16 @@ void savegame_frame_t::setze_fenstergroesse(koord groesse)
 	divider1.setze_pos(koord(10,groesse.y-44));
 	savebutton.setze_pos(koord(10,groesse.y-34));
 	cancelbutton.setze_pos(koord(DIALOG_WIDTH-BUTTON_WIDTH-10,groesse.y-34));
+}
+
+
+
+
+void savegame_frame_t::infowin_event(const event_t *ev)
+{
+	if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN) {
+		// before no virtual functions can be used ...
+		fill_list();
+	}
+	gui_frame_t::infowin_event(ev);
 }

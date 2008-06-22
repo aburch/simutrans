@@ -32,6 +32,12 @@ protected:
 	*/
 	virtual void del_action(const char *filename);
 
+	// returns extra file info
+	virtual const char *get_info(const char *fname);
+
+	// true, if valid
+	virtual bool check_file( const char *filename, const char *suffix );
+
 public:
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.

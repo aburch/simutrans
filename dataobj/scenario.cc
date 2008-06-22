@@ -8,6 +8,8 @@
 #include "../simcity.h"
 #include "../simworld.h"
 
+#include "../utils/simstring.h"
+
 #include "tabfile.h"
 #include "loadsave.h"
 #include "umgebung.h"
@@ -16,6 +18,7 @@
 
 
 karte_t *scenario_t::welt = NULL;
+
 
 
 
@@ -207,4 +210,42 @@ int scenario_t::completed(int player_nr)
 
 	}
 	return 0;
+}
+
+
+
+
+const char *scenario_t::get_description()
+{
+	static char description[512];
+	switch(  what_scenario  ) {
+
+		case CONNECT_CITY_WORKER:
+		case CONNECT_FACTORY_PAX:
+		default:
+			*description = 0;
+			break;
+
+		case CONNECT_FACTORY_GOODS:
+			if(fab) {
+				sprintf( description, translator::translate("Supply %s at (%s,%i)"), fab->gib_name(), fab->gib_pos().x, fab->gib_pos().y );
+			}
+			else {
+				tstrncpy( description, translator::translate("Connect factory"), 511 );
+			}
+			break;
+
+		case DOUBLE_INCOME:
+			sprintf( description, translator::translate("Account above %li$"), (long)(((factor+1)*umgebung_t::starting_money)/100l) );
+			break;
+
+		case BUILT_HEADQUARTER_AND_10_TRAINS:
+			sprintf( description, translator::translate("Headquartern and %i trains"), 10*factor );
+			break;
+
+		case TRANSPORT_1000_PAX:
+			sprintf( description, translator::translate("Transport %i passengers"), 1000*factor );
+			break;
+	}
+	return description;
 }

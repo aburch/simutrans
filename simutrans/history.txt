@@ -62,6 +62,7 @@
 	CHANGE: speedbonus taken now from config/speedbonus.tab (if present)
 	CHANGE: scenarios added (i.e. you can play for a goal), bankrupt only after net wealth is below zero
 	CHANGE: scenario can have an additional factor for difficulty
+	CHANGE: more description of filese before loading (ppm/scenario)
 
 
 Release of 99.17.1 (r1550, stable)

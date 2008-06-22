@@ -41,6 +41,7 @@ bool loadsave_t::rd_open(const char *filename)
 
 	char buf[80];
 	gzgets(fp, buf, 80);
+	mode = zipped;
 
 	if(strncmp(buf, SAVEGAME_PREFIX, sizeof(SAVEGAME_PREFIX) - 1)) {
 		close();

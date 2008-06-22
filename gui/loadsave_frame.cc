@@ -7,8 +7,22 @@
 
 #include "../simdebug.h"
 
+#ifndef _MSC_VER
+#include <unistd.h>
+#include <dirent.h>
+#else
+#include <io.h>
+#include <direct.h>
+#endif
+#include <sys/stat.h>
+#include <string.h>
+#include <time.h>
+
 #include "loadsave_frame.h"
+
 #include "../simworld.h"
+#include "../pathes.h"
+#include "../utils/simstring.h"
 
 
 /**
@@ -54,3 +68,37 @@ const char * loadsave_frame_t::gib_hilfe_datei() const
 {
 	return do_load ? "load.txt" : "save.txt";
 }
+
+
+
+
+const char *loadsave_frame_t::get_info(const char *fname)
+{
+	static char date[1024];
+	// first get pak name
+	loadsave_t test;
+	char path[1024];
+	sprintf( path, SAVE_PATH_X "%s", fname );
+	test.rd_open(path);
+	// then get date
+	date[0] = 0;
+	struct stat  sb;
+	if(stat(path, &sb)==0) {
+		// add pak extension
+		size_t n = sprintf( date, "%s - ", test.get_pak_extension() );
+
+		// add the time too
+		struct tm *tm = localtime(&sb.st_mtime);
+		if(tm) {
+			strftime(date+n, 18, "%Y-%m-%d %H:%M", tm);
+		}
+		else {
+			tstrncpy(date, "??.??.???? ??:??", 15);
+		}
+	}
+	return date;
+}
+
+
+
+
