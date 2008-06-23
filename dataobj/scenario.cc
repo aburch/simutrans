@@ -76,7 +76,7 @@ void scenario_t::init( const char *filename, karte_t *w )
 	// ... or factory
 	int *pos = contents.get_ints( "factorypos" );
 	fab = NULL;
-	if(*pos==2) {
+	if(*pos==2  &&  welt) {
 		fab = fabrik_t::gib_fab( welt, koord( pos[1], pos[2] ) );
 	}
 }
@@ -99,7 +99,7 @@ void scenario_t::rdwr(loadsave_t *file)
 
 	file->rdwr_short( what_scenario, "" );
 	file->rdwr_long( city_nr, "" );
-	file->rdwr_long( factor, "" );
+	file->rdwr_longlong( factor, "" );
 	fabpos.rdwr( file );
 
 	if(  file->is_loading()  ) {
@@ -184,7 +184,7 @@ int scenario_t::completed(int player_nr)
 
 		case DOUBLE_INCOME:
 		{
-			int pts = (int)( ((welt->gib_spieler(player_nr)->get_finance_history_month(0,COST_CASH)-umgebung_t::starting_money)*100)/(factor*umgebung_t::starting_money) );
+			int pts = (int)( welt->gib_spieler(player_nr)->get_finance_history_month(0,COST_CASH)/factor );
 			return min( 100, pts );
 		}
 
@@ -195,18 +195,16 @@ int scenario_t::completed(int player_nr)
 			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
 				convoihandle_t cnv = *i;
 				if(  cnv->gib_besitzer() == sp  &&  cnv->gib_jahresgewinn()>0  ) {
-					if(  pts<100  ) {
-						pts += 9;
-					}
+					pts ++;
 				}
 			}
-			pts /= factor;
+			pts = (int)( (pts*949l)/(100l*factor) );
 			pts += (sp->get_headquarter_pos() != koord::invalid) ? 10 : 0;
 			return pts;
 		}
 
 		case TRANSPORT_1000_PAX:
-			return min( 100, welt->gib_spieler(player_nr)->get_finance_history_month(0,COST_TRANSPORTED_PAS)/(factor*10) );
+			return min( 100, (welt->gib_spieler(player_nr)->get_finance_history_month(0,COST_TRANSPORTED_PAS)*(sint64)100)/(sint64)factor );
 
 	}
 	return 0;
@@ -227,7 +225,7 @@ const char *scenario_t::get_description()
 			break;
 
 		case CONNECT_FACTORY_GOODS:
-			if(fab) {
+			if(fab!=NULL) {
 				sprintf( description, translator::translate("Supply %s at (%s,%i)"), fab->gib_name(), fab->gib_pos().x, fab->gib_pos().y );
 			}
 			else {
@@ -236,15 +234,19 @@ const char *scenario_t::get_description()
 			break;
 
 		case DOUBLE_INCOME:
-			sprintf( description, translator::translate("Account above %li$"), (long)(((factor+1)*umgebung_t::starting_money)/100l) );
+			{
+				char money[64];
+				money_to_string( money, (double)factor );
+				sprintf( description, translator::translate("Account above %s"), money );
+			}
 			break;
 
 		case BUILT_HEADQUARTER_AND_10_TRAINS:
-			sprintf( description, translator::translate("Headquartern and %i trains"), 10*factor );
+			sprintf( description, translator::translate("Headquartern and %li trains"), factor );
 			break;
 
 		case TRANSPORT_1000_PAX:
-			sprintf( description, translator::translate("Transport %i passengers"), 1000*factor );
+			sprintf( description, translator::translate("Transport %li passengers"), (long)factor );
 			break;
 	}
 	return description;

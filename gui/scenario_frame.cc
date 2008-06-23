@@ -41,9 +41,9 @@ scenario_frame_t::scenario_frame_t(karte_t *welt, bool do_load) : savegame_frame
 
 const char *scenario_frame_t::get_info(const char *filename)
 {
-	scenario_t scn(welt);
+	scenario_t scn(NULL);
 	char path[1024];
 	sprintf( path, "%s%sscenario/%s", umgebung_t::program_dir, (const char *)umgebung_t::objfilename, filename );
-	scn.init( path, welt );
+	scn.init( path, NULL );
 	return scn.get_description();
 }

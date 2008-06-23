@@ -19,7 +19,7 @@ private:
 	// enum for what to check
 	uint16	what_scenario;
 
-	sint32	factor;
+	sint64	factor;
 
 	stadt_t *city;
 	fabrik_t *fab;
