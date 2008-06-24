@@ -27,7 +27,7 @@ scenario_t::scenario_t(karte_t *w)
 	welt = w;
 	what_scenario = 0;
 	city = NULL;
-	fab = NULL;
+	target_factory = NULL;
 	scenario_name = NULL;
 }
 
@@ -38,7 +38,7 @@ void scenario_t::init( const char *filename, karte_t *w )
 	welt = w;
 	what_scenario = 0;
 	city = NULL;
-	fab = NULL;
+	target_factory = NULL;
 	if(scenario_name) {
 		free( scenario_name );
 	}
@@ -75,9 +75,9 @@ void scenario_t::init( const char *filename, karte_t *w )
 
 	// ... or factory
 	int *pos = contents.get_ints( "factorypos" );
-	fab = NULL;
 	if(*pos==2  &&  welt) {
-		fab = fabrik_t::gib_fab( welt, koord( pos[1], pos[2] ) );
+		fabrik_t *f = fabrik_t::gib_fab( welt, koord( pos[1], pos[2] ) );
+		target_factory = f;
 	}
 }
 
@@ -92,8 +92,8 @@ void scenario_t::rdwr(loadsave_t *file)
 		if(city) {
 			city_nr = welt->gib_staedte().index_of( city );
 		}
-		if(  fab  ) {
-			fabpos = fab->gib_pos().gib_2d();
+		if(  target_factory  ) {
+			fabpos = target_factory->gib_pos().gib_2d();
 		}
 	}
 
@@ -106,7 +106,7 @@ void scenario_t::rdwr(loadsave_t *file)
 		if(  city_nr < welt->gib_staedte().get_count()  ) {
 			city = welt->gib_staedte()[city_nr];
 		}
-		fab = fabrik_t::gib_fab( welt, fabpos );
+		target_factory = fabrik_t::gib_fab( welt, fabpos );
 	}
 }
 
@@ -178,7 +178,7 @@ int scenario_t::completed(int player_nr)
 		{
 			// true, if this factory can produce (i.e. more than one unit per good in each input)
 			int prod=0, avail=0;
-			get_factory_producing( fab, prod, avail );
+			get_factory_producing( target_factory, prod, avail );
 			return (prod*100)/avail;
 		}
 
@@ -225,8 +225,8 @@ const char *scenario_t::get_description()
 			break;
 
 		case CONNECT_FACTORY_GOODS:
-			if(fab!=NULL) {
-				sprintf( description, translator::translate("Supply %s at (%s,%i)"), fab->gib_name(), fab->gib_pos().x, fab->gib_pos().y );
+			if(target_factory!=NULL) {
+				sprintf( description, translator::translate("Supply %s at (%i,%i)"), target_factory->gib_name(), target_factory->gib_pos().x, target_factory->gib_pos().y );
 			}
 			else {
 				tstrncpy( description, translator::translate("Connect factory"), 511 );

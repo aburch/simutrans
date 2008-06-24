@@ -22,7 +22,7 @@ private:
 	sint64	factor;
 
 	stadt_t *city;
-	fabrik_t *fab;
+	fabrik_t *target_factory;
 
 	static karte_t *welt;
 
