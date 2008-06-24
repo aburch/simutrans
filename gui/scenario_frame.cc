@@ -29,7 +29,8 @@ void scenario_frame_t::action(const char *filename)
 	welt->laden( path2 );
 	welt->get_scenario()->init( path, welt );
 	// finally set game name to scenario name ...
-	welt->gib_einstellungen()->setze_filename( filename );
+	sprintf( path, "%s.sve", filename );
+	welt->gib_einstellungen()->setze_filename( path );
 }
 
 

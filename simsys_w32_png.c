@@ -29,6 +29,7 @@ typedef struct
 #define    PixelFormat8bppIndexed     (3 | ( 8 << 8) | PixelFormatIndexed | PixelFormatGDI)
 #define    PixelFormat16bppRGB555     (5 | (16 << 8) | PixelFormatGDI)
 #define    PixelFormat16bppRGB565     (6 | (16 << 8) | PixelFormatGDI)
+#define    PixelFormat24bppRGB        (8 | (24 << 8) | PixelFormatGDI)
 
 typedef struct
 {
@@ -44,7 +45,19 @@ typedef struct
     EncoderParameter Parameter[1];   // Parameter values
 } EncoderParameters;
 
+struct GdiplusStartupInput
+{
+    UINT32 GdiplusVersion;             // Must be 1
+    void *DebugEventCallback; // Ignored on free builds
+    BOOL SuppressBackgroundThread;     // FALSE unless you're prepared to call
+                                       // the hook/unhook functions properly
+    BOOL SuppressExternalCodecs;       // FALSE unless you want GDI+ only to use
+                                       // its internal image codecs.
+};
+
 // and the functions from the library
+int (WINAPI *GdiplusStartup)(ULONG_PTR *token, struct GdiplusStartupInput *size, void *);
+int (WINAPI *GdiplusShutdown)(ULONG_PTR token);
 int (WINAPI *GdipGetImageEncodersSize)(UINT *numEncoders, UINT *size);
 int (WINAPI *GdipGetImageEncoders)(UINT numEncoders, UINT size, ImageCodecInfo *encoders);
 int (WINAPI *GdipCreateBitmapFromScan0)(INT width, INT height, INT stride, INT PixelFormat, BYTE* scan0, ULONG** bitmap);
@@ -65,6 +78,7 @@ int GetEncoderClsid(const wchar_t *format, CLSID *pClsid)
 	ImageCodecInfo* pImageCodecInfo = NULL;
 
 	(*GdipGetImageEncodersSize)(&num, &size);
+
 	if(size == 0) return -1;  // Failure
 
 	pImageCodecInfo = (ImageCodecInfo*)(malloc(size));
@@ -97,6 +111,8 @@ int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data,
 	CLSID encoderClsid;
 	int ok=FALSE;
 	ULONG *myImage = NULL;
+	struct GdiplusStartupInput gdiplusStartupInput;
+	ULONG_PTR gdiplusToken;
 
 	HMODULE hGDIplus = LoadLibraryA( "gdiplus.dll" );
 	if(hGDIplus==NULL) {
@@ -104,14 +120,43 @@ int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data,
 	}
 
 	// retrieve names ...
+	GdiplusStartup = (int (WINAPI *)(ULONG_PTR *,struct GdiplusStartupInput *,void *)) GetProcAddress( hGDIplus, "GdiplusStartup" );
+	GdiplusShutdown = (int (WINAPI *)(ULONG_PTR)) GetProcAddress( hGDIplus, "GdiplusShutdown" );
 	GdipGetImageEncodersSize = (int (WINAPI *)(UINT *,UINT *)) GetProcAddress( hGDIplus, "GdipGetImageEncodersSize" );
 	GdipGetImageEncoders = (int (WINAPI *)(UINT,UINT,ImageCodecInfo *)) GetProcAddress( hGDIplus, "GdipGetImageEncoders" );
 	GdipCreateBitmapFromScan0 = (int (WINAPI *)(INT,INT,INT,INT,BYTE *,ULONG **)) GetProcAddress( hGDIplus, "GdipCreateBitmapFromScan0" );
 	GdipDeleteCachedBitmap = (int (WINAPI *)(ULONG *)) GetProcAddress( hGDIplus, "GdipDeleteCachedBitmap" );
 	GdipSaveImageToFile = (int (WINAPI *)(ULONG *,const WCHAR *,const CLSID *,const EncoderParameters *)) GetProcAddress( hGDIplus, "GdipSaveImageToFile" );
 
-	// create a bitmap
+	/* Win2k can do without init, WinXP not ... */
+	gdiplusStartupInput.GdiplusVersion = 1;
+	gdiplusStartupInput.DebugEventCallback = NULL;
+	gdiplusStartupInput.SuppressBackgroundThread = FALSE;
+	gdiplusStartupInput.SuppressExternalCodecs = FALSE;
+	(*GdiplusStartup)(&gdiplusToken, &gdiplusStartupInput, NULL);
+
 	(*GdipCreateBitmapFromScan0)( w, h, ((w+15) & 0xFFF0)*2, bitdepth==16 ? PixelFormat16bppRGB565 : PixelFormat16bppRGB555, (BYTE *)data, &myImage );
+	if(  myImage==NULL  ) {
+		/* we may have XP or newer => have to convert them to 32 first to save them ... Grrrr */
+		BYTE *newdata = malloc( w*h*4 );
+		BYTE *dest = newdata;
+		unsigned short *src = data;
+		int ww = ((w+15) & 0xFFF0);
+		int x, y;
+
+		for(  y=0;  y<h;  y++  ) {
+			for(  x=0;  x<w;  x++  ) {
+				unsigned short color = src[x];
+				*dest++ = (color & 0xF800)>>8;
+				*dest++ = (color & 0x07E0)>>3;
+				*dest++ = (color & 0x001F)<<5;
+				*dest++ = 0xFF;
+			}
+			src += ww;
+		}
+		(*GdipCreateBitmapFromScan0)( w, h, w*4, PixelFormat24bppRGB, newdata, &myImage );
+		free( newdata );
+	}
 
 	// Passenden Encoder für jpegs suchen:
 	// Genausogut kann man auch image/png benutzen um png's zu speichern ;D
@@ -140,6 +185,7 @@ int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data,
 
 	// GDI+ freigeben:
 	(*GdipDeleteCachedBitmap)(myImage);
+	(*GdiplusShutdown)(gdiplusToken);
 	FreeLibrary( hGDIplus );
 
 	return ok;
