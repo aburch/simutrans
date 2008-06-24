@@ -34,7 +34,7 @@ endif
 
 ifeq ($(OSTYPE),mac)
   CFLAGS   += -DUSE_HW -DUSE_C
-  STD_LIBS ?= -lz
+  STD_LIBS ?= -lz -framework SDL -framework Cocoa
 endif
 
 ifeq ($(OSTYPE),linux)
@@ -62,10 +62,13 @@ ifneq ($(OPTIMISE),)
     CFLAGS   += -O3 -minline-all-stringops
     CXXFLAGS += -O3
   else
-    CFLAGS   += -O3 -fomit-frame-pointer -minline-all-stringops
+    CFLAGS   += -O3 -fomit-frame-pointer
     CXXFLAGS += -O3 -fomit-frame-pointer
   endif
-  LDFLAGS += -ffunctions-sections
+  ifneq ($(OSTYPE),mac)
+    CFLAGS   += -minline-all-stringops
+    LDFLAGS += -ffunctions-sections
+  endif
 else
   CFLAGS   += -O
   CXXFLAGS += -O
@@ -182,8 +185,6 @@ SOURCES += dings/tunnel.cc
 SOURCES += dings/wayobj.cc
 SOURCES += dings/wolke.cc
 SOURCES += dings/zeiger.cc
-SOURCES += font.cc
-SOURCES += freight_list_sorter.cc
 SOURCES += gui/banner.cc
 SOURCES += gui/baum_edit.cc
 SOURCES += gui/citybuilding_edit.cc
@@ -256,6 +257,19 @@ SOURCES += gui/stadt_info.cc
 SOURCES += gui/thing_info.cc
 SOURCES += gui/welt.cc
 SOURCES += gui/werkzeug_waehler.cc
+SOURCES += sucher/platzsucher.cc
+SOURCES += tpl/debug_helper.cc
+SOURCES += utils/cbuffer_t.cc
+SOURCES += utils/cstring_t.cc
+SOURCES += utils/log.cc
+SOURCES += utils/searchfolder.cc
+SOURCES += utils/simstring.c
+SOURCES += vehicle/movingobj.cc
+SOURCES += vehicle/simpeople.cc
+SOURCES += vehicle/simvehikel.cc
+SOURCES += vehicle/simverkehr.cc
+SOURCES += font.cc
+SOURCES += freight_list_sorter.cc
 SOURCES += old_blockmanager.cc
 SOURCES += simcity.cc
 SOURCES += simconvoi.cc
@@ -284,18 +298,7 @@ SOURCES += simware.cc
 SOURCES += simwerkz.cc
 SOURCES += simwin.cc
 SOURCES += simworld.cc
-SOURCES += sucher/platzsucher.cc
-SOURCES += tpl/debug_helper.cc
 SOURCES += unicode.c
-SOURCES += utils/cbuffer_t.cc
-SOURCES += utils/cstring_t.cc
-SOURCES += utils/log.cc
-SOURCES += utils/searchfolder.cc
-SOURCES += utils/simstring.c
-SOURCES += vehicle/movingobj.cc
-SOURCES += vehicle/simpeople.cc
-SOURCES += vehicle/simvehikel.cc
-SOURCES += vehicle/simverkehr.cc
 
 SOURCES += simgraph$(COLOUR_DEPTH).c
 
