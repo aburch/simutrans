@@ -43,12 +43,12 @@ Ein Klick auf einen Pfeil nach links verringert, ein Klick auf einen Pfeil nach 
 · <em>Verkehrsdichte:</em> Dieser Wert beeinflusst die Anzahl der privaten PKWs in den Städten.
 </p>
 <p>
-· <em>Landindustriezweige:</em> Der Wert bestimmt die Anzahl der Endverbraucher auf dem Land. Derzeit werden Kraftwerke und die Müllverbrennung (Ergänzungspak waste) generiert.
+· <em>Industriezweige:</em> Der Wert gibt an, wieviele Industriezweige beim Kartenstart  erzeugt werden sollen. Durch das Wachstum von Städten werden weitere Industriezweige erzeugt. Wann jeweils ein neuer Industriezweige erzeugt wird, regelt der Wert der Variablen <em>industry_increase_every</em> in der <em>simutrans/config/cityrules.tab</em>. Der dortige Vorgabewert 2000 bedeutet, dass jeweils, wenn eine Stadt die Grösse von 2000, 4000, 8000 usw. Einwohnern erreicht, ein neuer Industriezweig entsteht. Mit dem Wert 0 wird die Errichtung neuer Industriezweige ausgeschaltet.
 </p>
 <p>
-· <em>Stadtgeschäfte:</em> Der Wert benennt die Anzahl der Endverkäufer in den Städten wie z.B. Apotheke, Autohäuser, Supermärkte usw. Der Vorgabewert ist 0, da beim Wachstum von Städten die Industrie mitwächst. Das automatische Wachstum wird in der <em>simutrans/config/cityrules.tab</em> durch den Wert der Variablen <em>industry_increase_every</em> geregelt. Der dortige Vorgabewert 2000 bedeutet, dass jeweils, wenn eine Stadt die Grösse von 2000, 4000, 8000 usw. Einwohnern erreicht, eine neue Industriekette entsteht. Mit dem Wert in der Datei <em>simuconf.tab</em> 0 wird die Errichtung neuer Industrien ausgeschaltet.
-<br/>
-Die Auswahl an Stadtgeschäften kann durch Ergänzungspaks erhöht werden.
+· <em>Anteil Kraftwerke (%):</em> Der Wert gibt an, wieviel Prozent der Industriezweige aus Kraftwerken bestehen.
+<br />
+Die Vielfalt an Industriezweigen kann durch Ergänzungspaks erhöht werden.
 </p>
 <p>
 · <em>Touristenattraktionen:</em> Stelle die Anzahl von Ausflugszielen wie Burgen, Jahrmarktattraktionen usw. ein.
@@ -63,10 +63,22 @@ Die Auswahl an Stadtgeschäften kann durch Ergänzungspaks erhöht werden.
 · <em>Anfängermodus:</em> In diesem Modus liefern alle Fabriken and alle geeigneten Abnehmer für diese Waren. Außerdem sind die Frachtgewinne um den Faktor 1,5 erhöht.
 </p>
 <p>
-· <em>Laden:</em> Lade einen bereits vorhandenen Spielstand. (siehe <a href="load.txt">Lade Menü</a>)
+· <em>Lade Spiel:</em> Lade einen bereits vorhandenen Spielstand. (siehe <a href="load.txt">Lade Menü</a>)
+<br/>
+<strong>Achtung:</strong> Der laufende Spielstand wird nicht gespeichert und geht verloren.
+</p>
+<p>
+· <em>Lade Szenario:</em> Es stehen verschiedene Szenarien zur Auswahl. (siehe <a href="scenario.txt">Szenario Menü</a>)
+<br/>
+<strong>Achtung:</strong> Der laufende Spielstand wird nicht gespeichert und geht verloren.
 </p>
 <p>
 · <em>Starte Spiel:</em> Eine neue Karte wird entsprechend den Einstellungen generiert, und ein neues Spiel startet.
+<br/>
+<strong>Achtung:</strong> Der laufende Spielstand wird nicht gespeichert und geht verloren.
+</p>
+<p>
+· <em>Beenden:</em> Das Spiel wird beendet.
 <br/>
 <strong>Achtung:</strong> Der laufende Spielstand wird nicht gespeichert und geht verloren.
 </p>

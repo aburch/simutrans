@@ -219,20 +219,20 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( &use_beginner_mode );
 	intTopOfButton += 12;
 
-	// load scenario
-	intTopOfButton += 10;
-	load_scenario.setze_pos( koord(10, intTopOfButton) );
-	load_scenario.setze_groesse( koord(104, 14) );
-	load_scenario.setze_typ(button_t::roundbox);
-	load_scenario.add_listener( this );
-	add_komponente( &load_scenario );
-
 	// load game
-	load_game.setze_pos( koord(104+11+30, intTopOfButton) );
+	intTopOfButton += 10;
+	load_game.setze_pos( koord(10, intTopOfButton) );
 	load_game.setze_groesse( koord(104, 14) );
 	load_game.setze_typ(button_t::roundbox);
 	load_game.add_listener( this );
 	add_komponente( &load_game );
+
+	// load scenario
+	load_scenario.setze_pos( koord(104+11+30, intTopOfButton) );
+	load_scenario.setze_groesse( koord(104, 14) );
+	load_scenario.setze_typ(button_t::roundbox);
+	load_scenario.add_listener( this );
+	add_komponente( &load_scenario );
 
 	// start game
 	intTopOfButton += 5+BUTTON_HEIGHT;

@@ -1,0 +1,13 @@
+<title>Szenariomenü Hilfe</title>
+
+<h1><strong>Szenariomenü</strong></h1>
+
+<p>
+Wenn Du das Szenariomenü öffnest, erscheint eine Liste aller verfügbaren Szenarien. Nach der Anwahl eines Eintrages wird das Szenario ohne weitere Rückfrage geladen.
+</p>
+<p>
+<em>Achtung!</em> Das aktuelle Spiel wird verworfen und nicht automatisch gesichert!
+</p>
+<p>
+Weitere Szenarien können hinzugefügt werden. Die Dateien befinden sich im Verzeichnis <em>scenario</em>. Dieses befindet sich im Verzeichnis des verwendeten Paksets.
+</p>
