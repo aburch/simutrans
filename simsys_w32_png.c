@@ -77,14 +77,14 @@ int GetEncoderClsid(const wchar_t *format, CLSID *pClsid)
 	UINT j;
 	ImageCodecInfo* pImageCodecInfo = NULL;
 
-	(*GdipGetImageEncodersSize)(&num, &size);
+	GdipGetImageEncodersSize(&num, &size);
 
 	if(size == 0) return -1;  // Failure
 
 	pImageCodecInfo = (ImageCodecInfo*)(malloc(size));
 	if(pImageCodecInfo == NULL) return -1;  // Failure
 
-	(*GdipGetImageEncoders)(num, size, pImageCodecInfo);
+	GdipGetImageEncoders(num, size, pImageCodecInfo);
 
 	for(  j = 0; j < num; ++j  ) {
 		if( wcscmp(pImageCodecInfo[j].MimeType, format) == 0 ) {
@@ -133,9 +133,9 @@ int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data,
 	gdiplusStartupInput.DebugEventCallback = NULL;
 	gdiplusStartupInput.SuppressBackgroundThread = FALSE;
 	gdiplusStartupInput.SuppressExternalCodecs = FALSE;
-	(*GdiplusStartup)(&gdiplusToken, &gdiplusStartupInput, NULL);
+	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-	(*GdipCreateBitmapFromScan0)( w, h, ((w+15) & 0xFFF0)*2, bitdepth==16 ? PixelFormat16bppRGB565 : PixelFormat16bppRGB555, (BYTE *)data, &myImage );
+	GdipCreateBitmapFromScan0(w, h, ((w + 15) & 0xFFF0) * 2, bitdepth == 16 ? PixelFormat16bppRGB565 : PixelFormat16bppRGB555, (BYTE*)data, &myImage);
 	if(  myImage==NULL  ) {
 		/* we may have XP or newer => have to convert them to 32 first to save them ... Grrrr */
 		BYTE *newdata = malloc( w*h*4 );
@@ -154,7 +154,7 @@ int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data,
 			}
 			src += ww;
 		}
-		(*GdipCreateBitmapFromScan0)( w, h, w*4, PixelFormat24bppRGB, newdata, &myImage );
+		GdipCreateBitmapFromScan0(w, h, w * 4, PixelFormat24bppRGB, newdata, &myImage);
 		free( newdata );
 	}
 
@@ -172,7 +172,7 @@ int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data,
 		MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED, cfilename, -1, wfilename, 1024 );
 		ep.Count = 0;
 
-		if(  (*GdipSaveImageToFile)(myImage,wfilename,&encoderClsid,&ep) == 0  ) {
+		if (GdipSaveImageToFile(myImage, wfilename, &encoderClsid, &ep) == 0) {
 			ok = TRUE;
 		}
 		else {
@@ -184,8 +184,8 @@ int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data,
 	}
 
 	// GDI+ freigeben:
-	(*GdipDeleteCachedBitmap)(myImage);
-	(*GdiplusShutdown)(gdiplusToken);
+	GdipDeleteCachedBitmap(myImage);
+	GdiplusShutdown(gdiplusToken);
 	FreeLibrary( hGDIplus );
 
 	return ok;

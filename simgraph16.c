@@ -2160,7 +2160,7 @@ static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 				if (xpos + runlen >= clip_rect.x && xpos <= clip_rect.xx) {
 					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 					const int len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
-					(*p)(tp + xpos + left, sp + left, colour, len - left);
+					p(tp + xpos + left, sp + left, colour, len - left);
 				}
 
 				sp += runlen;
