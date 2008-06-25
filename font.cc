@@ -172,13 +172,13 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 		if (strncmp(str, "CHARS", 5) == 0  &&  str[5]<=' ') {
 			f_chars = (atoi(str + 5) > 255) ? 65535 : 255;
 
-			data = calloc(f_chars, CHARACTER_LEN);
+			data = (uint8*)calloc(f_chars, CHARACTER_LEN);
 			if (data == NULL) {
 				fprintf(stderr, "No enough memory for font allocation!\n");
 				return false;
 			}
 
-			screen_widths = calloc(f_chars, 1);
+			screen_widths = (uint8*)calloc(f_chars, 1);
 			if (screen_widths == NULL) {
 				free(data);
 				fprintf(stderr, "No enough memory for font allocation!\n");
@@ -259,8 +259,8 @@ bool load_font(font_type* fnt, const char* fname)
 		// convert to new standard font
 		guarded_free(fnt->screen_width);
 		guarded_free(fnt->char_data);
-		fnt->screen_width = guarded_malloc(256);
-		fnt->char_data    = guarded_malloc(CHARACTER_LEN * 256);
+		fnt->screen_width = (uint8*)guarded_malloc(256);
+		fnt->char_data    = (uint8*)guarded_malloc(CHARACTER_LEN * 256);
 		fnt->num_chars    = 255;
 		fnt->height       = 10;
 		fnt->descent      = -1;
@@ -343,8 +343,8 @@ bool load_font(font_type* fnt, const char* fname)
 		// convert to new standard font
 		free(fnt->screen_width);
 		free(fnt->char_data);
-		fnt->screen_width = malloc(256);
-		fnt->char_data    = malloc(CHARACTER_LEN * 256);
+		fnt->screen_width = (uint8*)malloc(256);
+		fnt->char_data    = (uint8*)malloc(CHARACTER_LEN * 256);
 		fnt->num_chars    = 255;
 		fnt->height       = 7;
 		fnt->descent      = -1;

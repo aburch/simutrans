@@ -265,7 +265,7 @@ SOURCES += simconvoi.cc
 SOURCES += simdebug.cc
 SOURCES += simdepot.cc
 SOURCES += simdings.cc
-SOURCES += simevent.c
+SOURCES += simevent.cc
 SOURCES += simfab.cc
 SOURCES += simhalt.cc
 SOURCES += simintr.cc
@@ -281,7 +281,7 @@ SOURCES += simplay.cc
 SOURCES += simskin.cc
 SOURCES += simsound.cc
 SOURCES += simticker.cc
-SOURCES += simtools.c
+SOURCES += simtools.cc
 SOURCES += simview.cc
 SOURCES += simware.cc
 SOURCES += simwerkz.cc
@@ -289,7 +289,7 @@ SOURCES += simwin.cc
 SOURCES += simworld.cc
 SOURCES += sucher/platzsucher.cc
 SOURCES += tpl/debug_helper.cc
-SOURCES += unicode.c
+SOURCES += unicode.cc
 SOURCES += utils/cbuffer_t.cc
 SOURCES += utils/cstring_t.cc
 SOURCES += utils/log.cc
@@ -332,12 +332,11 @@ endif
 ifeq ($(BACKEND),sdl)
   SOURCES  += simsys_s.c
   CFLAGS   += -DUSE_16BIT_DIB
-  CXXFLAGS   += -DUSE_16BIT_DIB
+  CXXFLAGS += -DUSE_16BIT_DIB
+	SOURCES  += sound/sdl_sound.cc
   ifeq ($(findstring $(OSTYPE), cygwin mingw),)
-    SOURCES += sound/sdl_sound.c
-    SOURCES += music/no_midi.c
+    SOURCES += music/no_midi.cc
   else
-    SOURCES += sound/sdl_sound.c
     SOURCES += music/w32_midi.c
   endif
   ifeq ($(SDL_CONFIG),)
@@ -356,8 +355,8 @@ endif
 
 ifeq ($(BACKEND),mixer_sdl)
   SOURCES  += simsys_s.c
-  SOURCES += sound/sdl_mixer_sound.c
-  SOURCES += music/sdl_midi.c
+  SOURCES += sound/sdl_mixer_sound.cc
+  SOURCES += music/sdl_midi.cc
   CFLAGS   += -DUSE_16BIT_DIB
   CXXFLAGS   += -DUSE_16BIT_DIB
   ifeq ($(SDL_CONFIG),)
@@ -375,8 +374,8 @@ endif
 
 ifeq ($(BACKEND),x11)
   SOURCES  += simsys_x$(COLOUR_DEPTH).c
-  SOURCES += sound/no_sound.c
-  SOURCES += sound/no_midi.c
+  SOURCES += sound/no_sound.cc
+  SOURCES += music/no_midi.cc
   CFLAGS   += -I/usr/X11R6/include
   CXXFLAGS += -I/usr/X11R6/include
   LIBS     += -L/usr/X11R6/lib/ -lX11 -lXext
