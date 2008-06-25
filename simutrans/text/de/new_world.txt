@@ -60,7 +60,7 @@ Die Vielfalt an Industriezweigen kann durch Ergänzungspaks erhöht werden.
 · <em>Erlaube Spielerwechsel:</em> Bestimme, ob während des Spiels der Spieler gewechselt werden darf. Diese Einstellung ist nachher nicht mehr zu ändern!
 </p>
 <p>
-· <em>Anfängermodus:</em> In diesem Modus liefern alle Fabriken and alle geeigneten Abnehmer für diese Waren. Außerdem sind die Frachtgewinne um den Faktor 1,5 erhöht.
+· <em>Anfängermodus:</em> In diesem Modus liefern alle Fabriken an alle geeigneten Abnehmer für diese Waren. Außerdem sind die Frachtgewinne um den Faktor 1,5 erhöht.
 </p>
 <p>
 · <em>Lade Spiel:</em> Lade einen bereits vorhandenen Spielstand. (siehe <a href="load.txt">Lade Menü</a>)

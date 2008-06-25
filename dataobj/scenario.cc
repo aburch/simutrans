@@ -8,11 +8,14 @@
 #include "../simcity.h"
 #include "../simworld.h"
 
+#include "../dataobj/tabfile.h"
+#include "../dataobj/loadsave.h"
+#include "../dataobj/umgebung.h"
+
+#include "../vehicle/simvehikel.h"
+
 #include "../utils/simstring.h"
 
-#include "tabfile.h"
-#include "loadsave.h"
-#include "umgebung.h"
 
 #include "scenario.h"
 
@@ -194,11 +197,11 @@ int scenario_t::completed(int player_nr)
 			int pts = 0;
 			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
 				convoihandle_t cnv = *i;
-				if(  cnv->gib_besitzer() == sp  &&  cnv->gib_jahresgewinn()>0  ) {
+				if(  cnv->gib_besitzer() == sp  &&  cnv->gib_jahresgewinn()>0  &&  cnv->gib_vehikel_anzahl()>0  &&  cnv->gib_vehikel(0)->gib_waytype()==track_wt) {
 					pts ++;
 				}
 			}
-			pts = (int)( (pts*949l)/(100l*factor) );
+			pts = (int)( (pts*90l)/factor );
 			pts += (sp->get_headquarter_pos() != koord::invalid) ? 10 : 0;
 			return pts;
 		}
