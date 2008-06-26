@@ -4,6 +4,7 @@
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  */
+#include <stdexcept>
 
 // use this for stress test; but it will return less than 32000 handles ...
 //#define HARD_DEBUG
@@ -17,30 +18,10 @@
 #include "dbgheap.cpp"
 
 
-extern "C" {
-void * guarded_malloc(int size)
-{
-	assert(size!=0);
-	void *r = malloc(size);
-	// sometime retries helps
-	assert(r!=0);
-	return r;
-}
-
-void * guarded_realloc(void *old, int newsize)
-{
-	assert(newsize!=0);
-	assert(old!=0);
-	void *r = realloc(old,newsize);
-	assert(r!=0);
-	return r;
-}
-
 void guarded_free(void *p)
 {
 	assert(p!=0);
 	free(p);
-}
 }
 
 #else
@@ -65,8 +46,6 @@ static long low_mark=0;
 #endif
 
 
-
-
 //#define DO_STATS
 
 
@@ -75,110 +54,6 @@ static long low_mark=0;
 static long block_count = 0;
 
 #endif
-
-
-extern "C" {
-
-
-
-void * guarded_malloc(int size)
-{
-#ifdef USE_KEYLOCK
-    unsigned char *base = (unsigned char *)malloc(size + sizeof(int)*3);
-    int  *p = (int *)base;
-
-    // fprintf(stderr, "Message: guarded_alloc(): allocating %d bytes, sig=%d, at %p\n", size, count, base);
-
-    // write sig
-    p[0] = count;
-
-    count = (count + 1) & 0x7FFFFFF;
-
-
-    // write length
-    p[1] = size;
-
-
-    // write end sig
-    base[size+8] = 0xde;
-    base[size+9] = 0xad;
-    base[size+10] = 0xde;
-    base[size+11] = 0xad;
-
-
-
-    // hand back pointer behind sig and count,
-    // so that sig and count are hidden
-    return base+8;
-
-#else
-
-#ifdef DO_STATS
-    block_count ++;
-    printf("Message: guarded_alloc(): allocating %d bytes, %ld block\n", size, block_count);
-#endif
-
-
-    return malloc(size);
-#endif
-}
-
-void * guarded_realloc(void *old, int newsize)
-{
-#ifdef USE_KEYLOCK
-    if(old != NULL) {
-	unsigned char * base = ((unsigned char *)old) - 8;
-	int *p = (int *)base;
-	const int check = *p;
-	const int size = *(p+1);
-	const unsigned int dead =
-	  (base[size+8] << 24) +
-	  (base[size+9] << 16) +
-	  (base[size+10] << 8) +
-	  (base[size+11] << 0);
-
-
-	// fprintf(stderr, "Message: guarded_free(): freeing %d bytes at %p, check %d, dead %x\n", size, base, check, dead);
-
-	// check sig
-	if(check < low_mark || check >= count) {
-	    dbg->fatal("guarded_realloc()",
-		       "check is %d, valid range is 0..%d\n", check, count);
-	}
-	// check size
-	if(size < 0) {
-	    dbg->fatal("guarded_realloc()",
-		       "size is %d, valid range is >= 0\n", size);
-	}
-	// check end marker
-	if(dead != 0xdeaddead) {
-	    dbg->fatal("guarded_realloc()",
-		       "dead marker for %p (%d bytes) is %d, should be 0xdeaddead\n", base, size, dead);
-	}
-	base = (unsigned char *)realloc(base, newsize + sizeof(int)*3);
-
-	// write length
-	p[1] = newsize;
-
-	// write end sig
-	base[newsize+8] = 0xde;
-	base[newsize+9] = 0xad;
-	base[newsize+10] = 0xde;
-	base[newsize+11] = 0xad;
-
-	// hand back pointer behind sig and count,
-	// so that sig and count are hidden
-	return base+8;
-    }
-    else {
-	return guarded_malloc(newsize);
-    }
-#else
-//    printf("Message: guarded_alloc(): allocating %d bytes\n", size);
-
-    return realloc(old, newsize);
-#endif
-}
 
 
 void guarded_free(void *p)
@@ -245,13 +120,10 @@ void guarded_free(void *p)
 }
 
 
-} // extern "C"
-
-
 #ifdef USE_KEYLOCK
-void * operator new(size_t size)
+void* operator new(size_t const size)
 {
-	return guarded_malloc(size);
+	return xmalloc(size);
 }
 
 void operator delete(void *p)
@@ -261,3 +133,89 @@ void operator delete(void *p)
 #endif
 
 #endif
+
+
+void* xmalloc(size_t const size)
+{
+#if defined USE_KEYLOCK
+	void* const p = malloc(size + sizeof(int) * 3);
+#else
+#	if defined DO_STATS
+	++block_count;
+	printf("Message: xmalloc(): allocating %d bytes, %ld block\n", size, block_count);
+#	endif
+
+	void* const p = malloc(size);
+#endif
+	if (!p) throw std::bad_alloc();
+
+#if defined USE_KEYLOCK
+	((int*)p)[0] = count; // write sig
+	count = (count + 1) & 0x7FFFFFF;
+
+	((int*)p)[1] = size; // write size
+
+	// write end sig
+	((unsigned char*)p)[size +  8] = 0xde;
+	((unsigned char*)p)[size +  9] = 0xad;
+	((unsigned char*)p)[size + 10] = 0xde;
+	((unsigned char*)p)[size + 11] = 0xad;
+
+	// hand back pointer behind sig and count, so that sig and count are hidden
+	return (unsigned char*)p + 8;
+#else
+	return p;
+#endif
+}
+
+
+void* xrealloc(void* const ptr, size_t const size)
+{
+#ifdef USE_KEYLOCK
+	if (ptr != NULL) {
+		unsigned char* const base  = ((unsigned char*)ptr) - 8;
+		int            const check = ((int*)p)[0];
+		int            const size  = ((int*)p)[1];
+		unsigned int   const dead  =
+			(base[size +  8] << 24) +
+			(base[size +  9] << 16) +
+			(base[size + 10] <<  8) +
+			(base[size + 11] <<  0);
+
+		if (check < low_mark || check >= count) { // check sig
+			dbg->fatal("xrealloc()", "check is %d, valid range is 0..%d\n", check, count);
+		}
+		if (size < 0) { // check size
+			dbg->fatal("xrealloc()", "size is %d, valid range is >= 0\n", size);
+		}
+		if (dead != 0xdeaddead) { // check end marker
+			dbg->fatal("xrealloc()", "dead marker for %p (%d bytes) is %d, should be 0xdeaddead\n", base, size, dead);
+		}
+	}
+
+	void* const p = realloc(ptr, size + sizeof(int) * 3);
+#else
+	void* const p = realloc(ptr, size);
+#endif
+	if (!p) throw std::bad_alloc();
+
+#if defined USE_KEYLOCK
+	if (ptr == NULL) {
+		((int*)p)[0] = count; // write sig
+		count = (count + 1) & 0x7FFFFFF;
+	}
+
+	((int*)p)[1] = size; // write size
+
+	// write end sig
+	((unsigned char*)p)[size +  8] = 0xde;
+	((unsigned char*)p)[size +  9] = 0xad;
+	((unsigned char*)p)[size + 10] = 0xde;
+	((unsigned char*)p)[size + 11] = 0xad;
+
+	// hand back pointer behind sig and count, so that sig and count are hidden
+	return (unsigned char*)p + 8;
+#else
+	return p;
+#endif
+}

@@ -182,7 +182,7 @@ int dr_load_sample(const char *filename)
 	return -1;
       }
 
-      wav_cvt.buf = (Uint8 *)guarded_malloc(wav_length*wav_cvt.len_mult);
+      wav_cvt.buf = MALLOCN(Uint8, wav_length * wav_cvt.len_mult);
       wav_cvt.len = wav_length;
       memcpy(wav_cvt.buf, wav_data, wav_length);
 

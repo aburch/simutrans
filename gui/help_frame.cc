@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 
+#include "../simmem.h"
 #include "../simwin.h"
 #include "../simworld.h"
 
@@ -133,7 +134,7 @@ help_frame_t::help_frame_t(cstring_t filename) :
 			fseek(file,0,SEEK_END);
 			long len = ftell(file);
 			if(len>0) {
-				char *buf=(char *)malloc(len+1);
+				char* const buf = MALLOCN(char, len + 1);
 				fseek(file,0,SEEK_SET);
 				fread(buf, 1, len, file);
 				buf[len] = '\0';

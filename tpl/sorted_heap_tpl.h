@@ -36,7 +36,7 @@ public:
 	sorted_heap_tpl()
 	{
 		DBG_MESSAGE("sorted_heap_tpl()","initialized");
-		nodes = (T *)malloc(sizeof(T)*4096);
+		nodes = MALLOCN(T, 4096);
 		node_size = 4096;
 		node_count = 0;
 	}
@@ -87,7 +87,7 @@ public:
 		if(node_count==node_size) {
 			T *tmp=nodes;
 			node_size += 4096;
-			nodes = (T *)malloc( sizeof(T)*node_size );
+			nodes = MALLOCN(T, node_size);
 			memcpy( nodes, tmp, sizeof(T)*(node_size-4096) );
 			free( tmp );
 		}

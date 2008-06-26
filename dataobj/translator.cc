@@ -103,10 +103,10 @@ static char* recode(const char* src, bool translate_from_utf, bool translate_to_
 	char* base;
 	if (translate_to_utf) {
 		// worst case
-		base = (char*)guarded_malloc(sizeof(char) * (strlen(src) * 2 + 2));
+		base = MALLOCN(char, strlen(src) * 2 + 2);
 	}
 	else {
-		base = (char*)guarded_malloc(sizeof(char) * (strlen(src) + 2));
+		base = MALLOCN(char, strlen(src) + 2);
 	}
 	char* dst = base;
 	char c;
@@ -246,7 +246,7 @@ static void init_city_names(bool is_utf_language)
 				const char* s2 = translator::translate(name_t2[j]);
 				const size_t l2 = strlen(s2);
 
-				char* c = (char*)guarded_malloc(l1 + l2 + 1);
+				char* const c = MALLOCN(char, l1 + l2 + 1);
 				sprintf(c, "%s%s", s1, s2);
 				namen_liste.push_back(c);
 			}

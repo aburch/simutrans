@@ -735,7 +735,7 @@ static void recode_normal_img(const unsigned int n)
 	PIXVAL *src = images[n].zoom_data != NULL ? images[n].zoom_data : images[n].base_data;
 
 	if (images[n].data == NULL) {
-		images[n].data = (PIXVAL*)guarded_malloc(sizeof(PIXVAL) * images[n].len);
+		images[n].data = MALLOCN(PIXVAL, images[n].len);
 	}
 	// now do normal recode
 	activate_player_color( 0, true );
@@ -782,7 +782,7 @@ static void recode_color_img(const unsigned int n, const unsigned char player_nr
 
 	images[n].player_flags = player_nr;
 	if (images[n].player_data == NULL) {
-		images[n].player_data = (PIXVAL*)guarded_malloc(sizeof(PIXVAL) * (size_t)images[n].len);
+		images[n].player_data = MALLOCN(PIXVAL, images[n].len);
 	}
 	// contains now the player color ...
 	activate_player_color( player_nr, true );
@@ -890,7 +890,7 @@ static void rezoom_img(const unsigned int n)
 				free( baseimage );
 				free( baseimage2 );
 				size = x;
-				baseimage  = (uint8*)malloc(size);
+				baseimage  = MALLOCN(uint8, size);
 				baseimage2 = (PIXVAL*)malloc(size); // XXX is this allocation correct? PIXVAL is 16bit
 			}
 			memset( baseimage, 255, size ); // fill with invalid data to mark transparent regions
@@ -1055,7 +1055,7 @@ static void rezoom_img(const unsigned int n)
 			if(newzoomheight>0) {
 				const uint32 zoom_len = ((uint8 *)dest) - ((uint8 *)baseimage);
 				images[n].len = zoom_len/sizeof(PIXVAL);
-				images[n].zoom_data = (PIXVAL*)guarded_malloc(images[n].len * sizeof(PIXVAL));
+				images[n].zoom_data = MALLOCN(PIXVAL, images[n].len);
 				assert( zoom_len>0  &&  zoom_len<65535*sizeof(PIXVAL)  &&  images[n].zoom_data  );
 				memcpy( images[n].zoom_data, baseimage, zoom_len );
 			}
@@ -1261,7 +1261,7 @@ void register_image(struct bild_t* bild)
 
 	if (anz_images == alloc_images) {
 		alloc_images += 128;
-		images = (imd*)guarded_realloc(images, sizeof(*images) * alloc_images);
+		images = REALLOC(images, imd, alloc_images);
 	}
 
 	bild->bild_nr = anz_images;
@@ -2946,8 +2946,8 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
 	tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
 	tile_buffer_length = (tile_lines * tiles_per_line + 7) / 8;
 
-	tile_dirty     = (unsigned char*)guarded_malloc(tile_buffer_length);
-	tile_dirty_old = (unsigned char*)guarded_malloc(tile_buffer_length);
+	tile_dirty     = MALLOCN(unsigned char, tile_buffer_length);
+	tile_dirty_old = MALLOCN(unsigned char, tile_buffer_length);
 
 	memset(tile_dirty,     255, tile_buffer_length);
 	memset(tile_dirty_old, 255, tile_buffer_length);
@@ -3064,8 +3064,8 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 		tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
 		tile_buffer_length = (tile_lines * tiles_per_line + 7) / 8;
 
-		tile_dirty     = (unsigned char*)guarded_malloc(tile_buffer_length);
-		tile_dirty_old = (unsigned char*)guarded_malloc(tile_buffer_length);
+		tile_dirty     = MALLOCN(unsigned char, tile_buffer_length);
+		tile_dirty_old = MALLOCN(unsigned char, tile_buffer_length);
 
 		memset(tile_dirty,     255, tile_buffer_length);
 		memset(tile_dirty_old, 255, tile_buffer_length);

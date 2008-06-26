@@ -102,7 +102,7 @@ static ding_t** dl_alloc(uint8 size)
 	if (size <= 16) {
 		p = static_cast<ding_t**>(freelist_t::gimme_node(size * sizeof(*p)));
 	} else {
-		p = static_cast<ding_t**>(guarded_malloc(size * sizeof(*p)));
+		p = MALLOCN(ding_t*, size);
 	}
 	return p;
 }

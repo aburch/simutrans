@@ -79,7 +79,7 @@ int searchfolder_t::search(const char *filepath, const char *extension)
 		do {
 			int entry_len = strlen(entry.name);
 			if(stricmp(entry.name + entry_len - lookfor.len(), (const char*)lookfor) == 0) {
-				char *c = (char *)guarded_malloc( entry_len+path.len()+1 );
+				char* const c = MALLOCN(char, path.len() + entry_len + 1);
 				sprintf(c,"%s%s",(const char*)path,entry.name);
 				files.push_back(c);
 			}
@@ -98,7 +98,7 @@ int searchfolder_t::search(const char *filepath, const char *extension)
 			if(entry->d_name[0]!='.' || (entry->d_name[1]!='.' && entry->d_name[1]!=0)) {
 				int entry_len = strlen(entry->d_name);
 				if (strcasecmp(entry->d_name + entry_len - lookfor.len(), lookfor) == 0) {
-					char *c = (char *)guarded_malloc( entry_len+path.len()+1 );
+					char* const c = MALLOCN(char, path.len() + entry_len + 1);
 					sprintf(c,"%s%s", (const char*)path, entry->d_name);
 					files.push_back(c);
 				}

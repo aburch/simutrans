@@ -639,7 +639,7 @@ static void init_16_to_8_conversion(void)
 		memcpy(day_pal, colortable_8bit, sizeof(day_pal));
 	}
 
-	conversion_table = (PIXVAL*)guarded_malloc(32768 + 256);
+	conversion_table = MALLOCN(PIXVAL, 32768 + 256);
 	for (red = 0; red < 256; red += 8) {
 		for (green = 0; green < 256; green += 8) {
 			for (blue = 0; blue < 256; blue += 8) {
@@ -817,7 +817,7 @@ static void rezoom_img(const unsigned int n)
 
 			if (images[n].zoom_data == NULL) {
 				// normal len is ok, since we are only skipping parts ...
-				images[n].zoom_data = (PIXVAL*)guarded_malloc(sizeof(PIXVAL) * images[n].len);
+				images[n].zoom_data = MALLOCN(PIXVAL, images[n].len);
 			}
 			last_dest = dest = images[n].zoom_data;
 
@@ -1133,7 +1133,7 @@ void register_image(struct bild_t* bild)
 
 	if (anz_images == alloc_images) {
 		alloc_images += 128;
-		images = (imd*)guarded_realloc(images, sizeof(*images) * alloc_images);
+		images = REALLOC(images, imd, alloc_images);
 	}
 
 	bild->bild_nr = anz_images;
@@ -1170,7 +1170,7 @@ void register_image(struct bild_t* bild)
 	image->player_data = NULL;	// chaches data for one AI
 	image->recode_flags[FLAGS] = (bild->zoomable&1);
 
-	image->base_data = (PIXVAL *)guarded_malloc(image->len*sizeof(PIXVAL));
+	image->base_data = MALLOCN(PIXVAL, image->len);
 	// currently, makeobj has not yet an option to pak 8 Bit images ....
 	if ((bild->zoomable & 0xFE) == 0) {
 		// this is an 16 Bit image => we need to resize it to 8 Bit ...
@@ -2297,8 +2297,8 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
 	tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
 	tile_buffer_length = (tile_lines * tiles_per_line + 7) / 8;
 
-	tile_dirty     = (unsigned char*)guarded_malloc(tile_buffer_length);
-	tile_dirty_old = (unsigned char*)guarded_malloc(tile_buffer_length);
+	tile_dirty     = MALLOCN(unsigned char, tile_buffer_length);
+	tile_dirty_old = MALLOCN(unsigned char, tile_buffer_length);
 
 	memset(tile_dirty,     255, tile_buffer_length);
 	memset(tile_dirty_old, 255, tile_buffer_length);
@@ -2384,8 +2384,8 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 		tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
 		tile_buffer_length = (tile_lines * tiles_per_line + 7) / 8;
 
-		tile_dirty     = (unsigned char*)guarded_malloc(tile_buffer_length);
-		tile_dirty_old = (unsigned char*)guarded_malloc(tile_buffer_length);
+		tile_dirty     = MALLOCN(unsigned char, tile_buffer_length);
+		tile_dirty_old = MALLOCN(unsigned char, tile_buffer_length);
 
 		memset(tile_dirty,     255, tile_buffer_length);
 		memset(tile_dirty_old, 255, tile_buffer_length);

@@ -259,8 +259,8 @@ bool load_font(font_type* fnt, const char* fname)
 		// convert to new standard font
 		guarded_free(fnt->screen_width);
 		guarded_free(fnt->char_data);
-		fnt->screen_width = (uint8*)guarded_malloc(256);
-		fnt->char_data    = (uint8*)guarded_malloc(CHARACTER_LEN * 256);
+		fnt->screen_width = MALLOCN(uint8, 256);
+		fnt->char_data    = MALLOCN(uint8, CHARACTER_LEN * 256);
 		fnt->num_chars    = 255;
 		fnt->height       = 10;
 		fnt->descent      = -1;
@@ -343,8 +343,8 @@ bool load_font(font_type* fnt, const char* fname)
 		// convert to new standard font
 		free(fnt->screen_width);
 		free(fnt->char_data);
-		fnt->screen_width = (uint8*)malloc(256);
-		fnt->char_data    = (uint8*)malloc(CHARACTER_LEN * 256);
+		fnt->screen_width = MALLOCN(uint8, 256);
+		fnt->char_data    = MALLOCN(uint8, CHARACTER_LEN * 256);
 		fnt->num_chars    = 255;
 		fnt->height       = 7;
 		fnt->descent      = -1;

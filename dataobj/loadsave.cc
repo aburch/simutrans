@@ -362,7 +362,7 @@ void loadsave_t::rdwr_str(const char *&s, const char *null_s)
 #endif
 			char *sneu = NULL;
 			if(size > 0) {
-				sneu = (char *)guarded_malloc(size + 1);
+				sneu = MALLOCN(char, size + 1);
 				read(sneu, size);
 				sneu[size] = '\0';
 			}

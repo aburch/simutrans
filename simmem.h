@@ -4,25 +4,22 @@
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  */
+#ifndef SIMMEM_H
+#define SIMMEM_H
 
 #ifdef _MSC_VER
-#include <malloc.h>
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifdef _MSC_VER
-#define guarded_malloc	malloc
-#define guarded_realloc	realloc
-#define guarded_free	free
+#	include <malloc.h>
+#	define guarded_free free
 #else
-void * guarded_malloc(int size);
-void *guarded_realloc(void *old, int newsize);
-void guarded_free(void *p);
+void guarded_free(void* ptr);
 #endif
 
-#ifdef __cplusplus
-}
+void* xmalloc(size_t size);             // Throws std::bad_alloc on failure
+void* xrealloc(void* ptr, size_t size); // Throws std::bad_alloc on failure
+
+#define MALLOC(type)     ((type*)xmalloc(sizeof(type)))       // Allocate an object of a certain type
+#define MALLOCN(type, n) ((type*)xmalloc(sizeof(type) * (n))) // Allocate n objects of a certain type
+
+#define REALLOC(ptr, type, n) (type*)xrealloc(ptr, sizeof(type) * (n)) // Reallocate n objects of a certain type
+
 #endif

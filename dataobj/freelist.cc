@@ -91,7 +91,7 @@ freelist_t::gimme_node(int size)
 	// need new memory?
 	if(*list==NULL) {
 		int num_elements = 32764/size;
-		char *p = (char *)guarded_malloc( num_elements*size+sizeof(p) );
+		char* p = (char*)xmalloc(num_elements * size + sizeof(p));
 		// put the memory into the chunklist for free it
 		nodelist_node_t *chunk = (nodelist_node_t *)p;
 		chunk->next = chunk_list;
