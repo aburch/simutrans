@@ -639,7 +639,7 @@ static void init_16_to_8_conversion(void)
 		memcpy(day_pal, colortable_8bit, sizeof(day_pal));
 	}
 
-	conversion_table = guarded_malloc(32768 + 256);
+	conversion_table = (PIXVAL*)guarded_malloc(32768 + 256);
 	for (red = 0; red < 256; red += 8) {
 		for (green = 0; green < 256; green += 8) {
 			for (blue = 0; blue < 256; blue += 8) {
@@ -817,7 +817,7 @@ static void rezoom_img(const unsigned int n)
 
 			if (images[n].zoom_data == NULL) {
 				// normal len is ok, since we are only skipping parts ...
-				images[n].zoom_data = guarded_malloc(sizeof(PIXVAL) * images[n].len);
+				images[n].zoom_data = (PIXVAL*)guarded_malloc(sizeof(PIXVAL) * images[n].len);
 			}
 			last_dest = dest = images[n].zoom_data;
 
@@ -1133,7 +1133,7 @@ void register_image(struct bild_t* bild)
 
 	if (anz_images == alloc_images) {
 		alloc_images += 128;
-		images = guarded_realloc(images, sizeof(*images) * alloc_images);
+		images = (imd*)guarded_realloc(images, sizeof(*images) * alloc_images);
 	}
 
 	bild->bild_nr = anz_images;
@@ -1825,7 +1825,7 @@ int display_calc_proportional_string_len_width(const char* text, int len)
 
 		// decode char; Unicode is always 8 pixel (so far)
 		while (iLen < len) {
-			iUnicode = utf8_to_utf16(text + iLen, &iLen);
+			iUnicode = utf8_to_utf16((utf8 const*)text + iLen, &iLen);
 			if (iUnicode == 0) return width;
 			w = fnt->screen_width[iUnicode];
 			if (w == 0) {
@@ -1967,7 +1967,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 #ifdef UNICODE_SUPPORT
 		// decode char
 		if (has_unicode) {
-			c = utf8_to_utf16(txt + iTextPos, &iTextPos);
+			c = utf8_to_utf16((utf8 const*)txt + iTextPos, &iTextPos);
 		} else {
 #endif
 			c = (unsigned char)txt[iTextPos++];
@@ -2297,8 +2297,8 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
 	tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
 	tile_buffer_length = (tile_lines * tiles_per_line + 7) / 8;
 
-	tile_dirty     = guarded_malloc(tile_buffer_length);
-	tile_dirty_old = guarded_malloc(tile_buffer_length);
+	tile_dirty     = (unsigned char*)guarded_malloc(tile_buffer_length);
+	tile_dirty_old = (unsigned char*)guarded_malloc(tile_buffer_length);
 
 	memset(tile_dirty,     255, tile_buffer_length);
 	memset(tile_dirty_old, 255, tile_buffer_length);
@@ -2384,8 +2384,8 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 		tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
 		tile_buffer_length = (tile_lines * tiles_per_line + 7) / 8;
 
-		tile_dirty     = guarded_malloc(tile_buffer_length);
-		tile_dirty_old = guarded_malloc(tile_buffer_length);
+		tile_dirty     = (unsigned char*)guarded_malloc(tile_buffer_length);
+		tile_dirty_old = (unsigned char*)guarded_malloc(tile_buffer_length);
 
 		memset(tile_dirty,     255, tile_buffer_length);
 		memset(tile_dirty_old, 255, tile_buffer_length);

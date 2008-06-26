@@ -300,7 +300,7 @@ SOURCES += vehicle/simpeople.cc
 SOURCES += vehicle/simvehikel.cc
 SOURCES += vehicle/simverkehr.cc
 
-SOURCES += simgraph$(COLOUR_DEPTH).c
+SOURCES += simgraph$(COLOUR_DEPTH).cc
 
 
 ifeq ($(BACKEND),allegro)
