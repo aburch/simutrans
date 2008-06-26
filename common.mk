@@ -19,7 +19,7 @@ $(PROG): $(OBJECTS)
 
 clean:
 	@echo "===> Cleaning up"
-	$(Q)rm -f $(OBJECTS) $(DEPS)
+	$(Q)rm -f $(PROG) $(OBJECTS) $(DEPS)
 
 ifndef NO_DEPS
 depend: $(DEPS)
