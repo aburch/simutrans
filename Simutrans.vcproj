@@ -361,7 +361,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\font.c"
+				RelativePath=".\font.cc"
 				>
 			</File>
 			<File
@@ -749,15 +749,33 @@
 				>
 			</File>
 			<File
-				RelativePath=".\simevent.c"
+				RelativePath=".\simevent.cc"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\simfab.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\simgraph16.c"
+				RelativePath=".\simgraph16.cc"
 				>
 			</File>
 			<File
@@ -833,7 +851,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\simtools.c"
+				RelativePath=".\simtools.cc"
 				>
 			</File>
 			<File
@@ -937,7 +955,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\unicode.c"
+				RelativePath=".\unicode.cc"
 				>
 			</File>
 			<File

@@ -56,13 +56,13 @@
 		then buildings, then ?standard, where "?" is 1..9 or A...Z (if available)
 		and standard is center, extern or suburb the later with one of the german
 		directions nord, sued, west, ost, nordwest, ... If failed, it will be a
-		numbered stop (translators: please tranlate on simutranslator!)
+		numbered stop (translators: please translate on simutranslator!)
 	CHANGE: deduct maintenance at the beginning of a month => no sudden dropping below zero any more
 	CHANGE: no zooming in/out of vehicle images in depot and lists
 	CHANGE: speedbonus taken now from config/speedbonus.tab (if present)
 	CHANGE: scenarios added (i.e. you can play for a goal), bankrupt only after net wealth is below zero
 	CHANGE: scenario can have an additional factor for difficulty
-	CHANGE: more description of filese before loading (ppm/scenario)
+	CHANGE: more description of files before loading (ppm/scenario)
 
 
 Release of 99.17.1 (r1550, stable)

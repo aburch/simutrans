@@ -369,7 +369,7 @@ void spieler_t::neuer_monat()
 					message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				}
 			}
-			else if(this!=welt->gib_spieler(1)  &&  automat) {
+			else if(automat  &&  this!=welt->gib_spieler(1)) {
 				// for AI, we only declare bankrupt, if total assest are below zero
 				if(finance_history_year[0][COST_NETWEALTH]<0) {
 					ai_bankrupt();

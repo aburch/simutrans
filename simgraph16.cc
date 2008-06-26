@@ -709,7 +709,7 @@ static void recode_img_src_target(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
 {
 	if (h > 0) {
 		do {
-			unsigned char runlen = *target++ = *src++;
+			uint8 runlen = *target++ = *src++;
 
 			// eine Zeile dekodieren
 			do {
@@ -2304,11 +2304,11 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 
 			if (count & 1) *p++ = longcolval;
 			count >>= 1;
-			lp = p;
+			lp = (uint32 *)p;
 			while (count-- != 0) {
 				*lp++ = longcolval;
 			}
-			p = lp;
+			p = (PIXVAL *)lp;
 #else
 			asm volatile (
 				"cld\n\t"
@@ -2778,7 +2778,7 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
 void display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_COLOR_VAL color)
 {
 	if (buf != NULL && *buf != '\0') {
-		char *next;
+		const char *next;
 
 		do {
 			next = strchr(buf, '\n');
