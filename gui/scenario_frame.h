@@ -31,7 +31,7 @@ protected:
 	 * Aktion, die nach X-Knopfdruck gestartet wird.
 	 * @author V. Meyer
 	 */
-	virtual void del_action(const char *filename) {}
+	virtual void del_action(const char *) {}
 
 	// returns extra file info
 	virtual const char *get_info(const char *fname);
@@ -44,7 +44,7 @@ public:
 	*/
 	virtual const char * gib_hilfe_datei() const { return "scenario.txt"; }
 
-	scenario_frame_t(karte_t *welt, bool do_load);
+	scenario_frame_t(karte_t *welt);
 };
 
 #endif

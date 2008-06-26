@@ -333,7 +333,7 @@ ifeq ($(BACKEND),sdl)
   SOURCES  += simsys_s.c
   CFLAGS   += -DUSE_16BIT_DIB
   CXXFLAGS += -DUSE_16BIT_DIB
-	SOURCES  += sound/sdl_sound.cc
+  SOURCES  += sound/sdl_sound.cc
   ifeq ($(findstring $(OSTYPE), cygwin mingw),)
     SOURCES += music/no_midi.cc
   else

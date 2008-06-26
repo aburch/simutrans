@@ -34,7 +34,7 @@ void scenario_frame_t::action(const char *filename)
 }
 
 
-scenario_frame_t::scenario_frame_t(karte_t *welt, bool do_load) : savegame_frame_t(".tab","./")
+scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(".tab","./")
 {
 	this->welt = welt;
 	setze_name("Load scenario");

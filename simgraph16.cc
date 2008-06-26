@@ -78,7 +78,7 @@ int old_my = -1;
  */
 static bool has_unicode = false;
 
-static font_type large_font;
+static font_type large_font = { 0, 0, 0, NULL, NULL };
 
 // needed for gui
 int large_font_height = 10;
@@ -653,8 +653,8 @@ void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
 }
 
 
-static uint8 player_night=-1;
-static uint8 player_day=-1;
+static uint8 player_night=0xFF;
+static uint8 player_day=0xFF;
 static void	activate_player_color(sint8 player_nr, bool daynight)
 {
 	// cahces the last settings
@@ -1085,6 +1085,7 @@ bool display_load_font(const char* fname)
 		return false;
 	}
 }
+
 
 
 sint16 display_get_width(void)
@@ -3003,7 +3004,7 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
  */
 int is_display_init(void)
 {
-	return textur != NULL;
+	return textur != NULL  &&  large_font.num_chars>0;
 }
 
 

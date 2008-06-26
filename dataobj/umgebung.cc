@@ -56,7 +56,8 @@ bool umgebung_t::single_info = false;
 bool umgebung_t::window_buttons_right = false;
 bool umgebung_t::window_frame_active = false;
 
-bool umgebung_t::verbose_debug = false;
+// debug level (0: only fatal, 1: error, 2: warning, 3: alles
+uint8 umgebung_t::verbose_debug = 0;
 
 sint64 umgebung_t::starting_money = 20000000;
 

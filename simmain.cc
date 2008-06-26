@@ -482,7 +482,14 @@ extern "C" int simu_main(int argc, char** argv)
 	// unmgebung init
 	umgebung_t::testlauf      = (gimme_arg(argc, argv, "-test",     0) != NULL);
 	umgebung_t::freeplay      = (gimme_arg(argc, argv, "-freeplay", 0) != NULL);
-	umgebung_t::verbose_debug = (gimme_arg(argc, argv, "-debug",    0) != NULL);
+	if(  gimme_arg(argc, argv, "-debug", 0) != NULL  ) {
+		const char *s = gimme_arg(argc, argv, "-debug", 1);
+		int level = 3;
+		if(s!=NULL  &&  s[0]>='0'  &&  s[0]<='9'  ) {
+			level = atoi(s);
+		}
+		umgebung_t::verbose_debug = level;
+	}
 
 	// parsing config/simuconf.tab
 	print("Reading low level config data ...\n");
@@ -528,13 +535,14 @@ extern "C" int simu_main(int argc, char** argv)
 
 	chdir( umgebung_t::user_dir );
 	if (gimme_arg(argc, argv, "-log", 0)) {
-		init_logging("simu.log", true, gimme_arg(argc, argv, "-debug", 0) != NULL);
+		init_logging("simu.log", true, gimme_arg(argc, argv, "-log", 0) != NULL);
 	} else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
 		init_logging("stderr", true, gimme_arg(argc, argv, "-debug", 0) != NULL);
 	} else {
 		init_logging(NULL, false, false);
 	}
-	DBG_MESSAGE("simmain::main()", "Version: " VERSION_NUMBER "  Date: " VERSION_DATE);
+	DBG_MESSAGE( "simmain::main()", "Version: " VERSION_NUMBER "  Date: " VERSION_DATE);
+	DBG_MESSAGE( "Debuglevel","%i", umgebung_t::verbose_debug );
 	DBG_MESSAGE( "program_dir", umgebung_t::program_dir );
 	DBG_MESSAGE( "home_dir", umgebung_t::user_dir );
 #ifdef DEBUG
@@ -941,7 +949,7 @@ DBG_MESSAGE("init","map");
 				delete wg;
 				sprintf( path, "%s%sscenario/", umgebung_t::program_dir, (const char *)umgebung_t::objfilename );
 				chdir( path );
-				create_win( new scenario_frame_t(welt, true), w_info, magic_load_t );
+				create_win( new scenario_frame_t(welt), w_info, magic_load_t );
 				chdir( umgebung_t::user_dir );
 			}
 			// Neue Karte erzeugen

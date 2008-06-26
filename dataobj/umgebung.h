@@ -178,7 +178,7 @@ public:
 	*
 	* @author Hj. Malthaner
 	*/
-	static bool verbose_debug;
+	static uint8 verbose_debug;
 
 
 	/**

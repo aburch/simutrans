@@ -29,6 +29,8 @@ void guarded_free(void *p)
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "simdebug.h"
+
 /*
  * Define this to use a key-lock mechanism for sanity checks.
  * This can detect some kinds of overruns, underruns and double free's of
@@ -147,7 +149,11 @@ void* xmalloc(size_t const size)
 
 	void* const p = malloc(size);
 #endif
-	if (!p) throw std::bad_alloc();
+	if (!p) {
+		//throw std::bad_alloc();
+		// use unified error handler instead
+		dbg->fatal("xmalloc()", "Could not alloc %li bytes.", (long)size );
+	}
 
 #if defined USE_KEYLOCK
 	((int*)p)[0] = count; // write sig
@@ -197,7 +203,11 @@ void* xrealloc(void* const ptr, size_t const size)
 #else
 	void* const p = realloc(ptr, size);
 #endif
-	if (!p) throw std::bad_alloc();
+	if (!p) {
+		throw std::bad_alloc();
+		// use unified error handler instead
+		dbg->fatal("realloc()", "Could not alloc %li bytes.", (long)size );
+	}
 
 #if defined USE_KEYLOCK
 	if (ptr == NULL) {

@@ -10,8 +10,14 @@
 #include <stdarg.h>
 
 #include "log.h"
+#include "../dataobj/umgebung.h"
 #include "../simdebug.h"
 #include "../simsys.h"
+
+// for display ...
+#include "../gui/messagebox.h"
+#include "../simgraph.h"
+#include "../simwin.h"
 
 
 static int make_this_a_division_by_zero = 0;
@@ -53,26 +59,28 @@ void log_t::debug(const char *who, const char *format, ...)
  */
 void log_t::message(const char *who, const char *format, ...)
 {
-    va_list argptr;
-    va_start(argptr, format);
+	if(umgebung_t::verbose_debug>2) {
+		va_list argptr;
+		va_start(argptr, format);
 
-    if( log ) {                         /* nur loggen wenn schon ein log */
-	fprintf(log ,"Message: %s:\t",who);      /* geoeffnet worden ist */
-        vfprintf(log, format, argptr);
-        fprintf(log,"\n");
+		if( log ) {                         /* nur loggen wenn schon ein log */
+		fprintf(log ,"Message: %s:\t",who);      /* geoeffnet worden ist */
+			vfprintf(log, format, argptr);
+			fprintf(log,"\n");
 
-        if( force_flush ) {
-            fflush(log);
-        }
-    }
+			if( force_flush ) {
+				fflush(log);
+			}
+		}
 
-    if( tee ) {                         /* nur loggen wenn schon ein log */
-	fprintf(tee, "Message: %s:\t",who);      /* geoeffnet worden ist */
-        vfprintf(tee, format, argptr);
-        fprintf(tee,"\n");
-    }
+		if( tee ) {                         /* nur loggen wenn schon ein log */
+		fprintf(tee, "Message: %s:\t",who);      /* geoeffnet worden ist */
+			vfprintf(tee, format, argptr);
+			fprintf(tee,"\n");
+		}
 
-    va_end(argptr);
+		va_end(argptr);
+	}
 }
 
 
@@ -82,24 +90,26 @@ void log_t::message(const char *who, const char *format, ...)
  */
 void log_t::warning(const char *who, const char *format, ...)
 {
-	va_list argptr;
-	va_start(argptr, format);
+	if(umgebung_t::verbose_debug>1) {
+		va_list argptr;
+		va_start(argptr, format);
 
-	if( log ) {                         /* nur loggen wenn schon ein log */
-		fprintf(log ,"Warning: %s:\t",who);      /* geoeffnet worden ist */
-		vfprintf(log, format, argptr);
-		fprintf(log,"\n");
+		if( log ) {                         /* nur loggen wenn schon ein log */
+			fprintf(log ,"Warning: %s:\t",who);      /* geoeffnet worden ist */
+			vfprintf(log, format, argptr);
+			fprintf(log,"\n");
 
-		if( force_flush ) {
-			fflush(log);
+			if( force_flush ) {
+				fflush(log);
+			}
 		}
+		if( tee ) {                         /* nur loggen wenn schon ein log */
+			fprintf(tee, "Warning: %s:\t",who);      /* geoeffnet worden ist */
+			vfprintf(tee, format, argptr);
+			fprintf(tee,"\n");
+		}
+		va_end(argptr);
 	}
-	if( tee ) {                         /* nur loggen wenn schon ein log */
-		fprintf(tee, "Warning: %s:\t",who);      /* geoeffnet worden ist */
-		vfprintf(tee, format, argptr);
-		fprintf(tee,"\n");
-	}
-	va_end(argptr);
 }
 
 
@@ -109,30 +119,32 @@ void log_t::warning(const char *who, const char *format, ...)
  */
 void log_t::error(const char *who, const char *format, ...)
 {
-	va_list argptr;
-	va_start(argptr, format);
+	if(umgebung_t::verbose_debug>0) {
+		va_list argptr;
+		va_start(argptr, format);
 
-	if( log ) {                         /* nur loggen wenn schon ein log */
-		fprintf(log ,"ERROR: %s:\t",who);      /* geoeffnet worden ist */
-		vfprintf(log, format, argptr);
-		fprintf(log,"\n");
+		if( log ) {                         /* nur loggen wenn schon ein log */
+			fprintf(log ,"ERROR: %s:\t",who);      /* geoeffnet worden ist */
+			vfprintf(log, format, argptr);
+			fprintf(log,"\n");
 
-		if( force_flush ) {
-			fflush(log);
+			if( force_flush ) {
+				fflush(log);
+			}
+
+			fprintf(log ,"Please report all errors to\n");
+			fprintf(log ,"team@64.simutrans.com\n");
 		}
+		if( tee ) {                         /* nur loggen wenn schon ein log */
+			fprintf(tee, "ERROR: %s:\t",who);      /* geoeffnet worden ist */
+			vfprintf(tee, format, argptr);
+			fprintf(tee,"\n");
 
-		fprintf(log ,"Please report all errors to\n");
-		fprintf(log ,"team@64.simutrans.com\n");
+			fprintf(tee ,"Please report all errors to\n");
+			fprintf(tee ,"team@64.simutrans.com\n");
+		}
+		va_end(argptr);
 	}
-	if( tee ) {                         /* nur loggen wenn schon ein log */
-		fprintf(tee, "ERROR: %s:\t",who);      /* geoeffnet worden ist */
-		vfprintf(tee, format, argptr);
-		fprintf(tee,"\n");
-
-		fprintf(tee ,"Please report all errors to\n");
-		fprintf(tee ,"team@64.simutrans.com\n");
-	}
-	va_end(argptr);
 }
 
 
@@ -173,14 +185,46 @@ void log_t::fatal(const char *who, const char *format, ...)
 	}
 
 	va_end(argptr);
+
+	int old_level = umgebung_t::verbose_debug;
+	if(is_display_init()) {
+		// show notification
+		umgebung_t::verbose_debug = 0;	// no more window concerning messages
+		destroy_all_win();
+
+		strcpy( buffer+n+1, "PRESS ANY KEY\n" );
+		news_img* sel = new news_img(buffer,IMG_LEER);
+		sel->setze_fenstergroesse( sel->gib_fenstergroesse()+koord(150,0) );
+
+		koord xy( display_get_width()/2 - 180, display_get_height()/2 - sel->gib_fenstergroesse().y/2 );
+		event_t ev;
+
+		create_win( xy.x, xy.y, sel, w_info, magic_none );
+
+		while(win_is_top(sel)) {
+			// do not move, do not close it!
+			sel->zeichnen( xy, sel->gib_fenstergroesse() );
+			dr_sleep(50);
+			display_poll_event(&ev);
+			// main window resized
+			check_pos_win(&ev);
+			if(ev.ev_class==EVENT_KEYBOARD) {
+				break;
+			}
+			display_flush_buffer();
+		}
+	}
+	else {
+		// use OS means, if there
+		dr_fatal_notify( buffer, 0 );
+	}
+
 #ifdef DEBUG
-	if(dr_fatal_notify( buffer, DEBUG )) {
+	if(old_level>3) {
 		// generate a division be zero error, if the user request it
 		printf("%i",15/make_this_a_division_by_zero);
 		make_this_a_division_by_zero &= 0xFF;
 	}
-#else
-	dr_fatal_notify( buffer, 0 );
 #endif
 	exit(0);
 }
