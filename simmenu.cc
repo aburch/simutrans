@@ -553,6 +553,14 @@ class wkz_dummy_t : public werkzeug_t {
 
 static werkzeug_t *dummy = new wkz_dummy_t();
 
+
+// simply true, if visible
+bool toolbar_t::is_selected(karte_t *welt)
+{
+	return win_get_magic((long)this);
+}
+
+
 // fills and displays a toolbar
 void toolbar_t::update(karte_t *welt, spieler_t *sp)
 {

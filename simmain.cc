@@ -484,7 +484,7 @@ extern "C" int simu_main(int argc, char** argv)
 	umgebung_t::freeplay      = (gimme_arg(argc, argv, "-freeplay", 0) != NULL);
 	if(  gimme_arg(argc, argv, "-debug", 0) != NULL  ) {
 		const char *s = gimme_arg(argc, argv, "-debug", 1);
-		int level = 3;
+		int level = 4;
 		if(s!=NULL  &&  s[0]>='0'  &&  s[0]<='9'  ) {
 			level = atoi(s);
 		}

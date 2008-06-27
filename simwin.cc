@@ -84,6 +84,8 @@ public:
 
 bool simwin::operator== (const simwin &other) const { return gui == other.gui; }
 
+// true , if windows need to be redraw "dirty" (including title)
+static bool windows_dirty = false;
 
 static vector_tpl<simwin> kill_list(64);
 
@@ -529,6 +531,7 @@ static void destroy_framed_win(simwin *wins)
 	if(  (wins->wt&w_do_not_delete)==0  ) {
 		delete wins->gui;
 	}
+	windows_dirty = true;
 }
 
 
@@ -964,6 +967,11 @@ void win_display_flush(double konto)
 	display_setze_clip_wh( 0, 0, disp_width, menu_height+1 );
 	display_fillbox_wh(0, 0, disp_width, menu_height, MN_GREY2, false);
 	main_menu->zeichnen(koord(0,-16), koord(disp_width,menu_height) );
+	// redraw all?
+	if(windows_dirty) {
+		mark_rect_dirty_wc( 0, 0, disp_width, disp_height );
+		windows_dirty = false;
+	}
 #ifdef USE_SOFTPOINTER
 	display_setze_clip_wh( 0, menu_height, disp_width, disp_height+1 );
 	display_icon_leiste(0, skinverwaltung_t::hauptmenu->gib_bild(0)->gib_nummer());

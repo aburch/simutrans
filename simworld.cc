@@ -1370,6 +1370,10 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint16 hgt)
 // new tool definition
 void karte_t::set_werkzeug( werkzeug_t *w )
 {
+	if(w==werkzeug) {
+		return;
+	}
+	setze_dirty();
 	if(w->init(this,active_player)) {
 
 		struct sound_info info;

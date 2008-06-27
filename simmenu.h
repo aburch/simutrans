@@ -160,6 +160,9 @@ public:
 	werkzeug_t() { id = 0xFFFFu; cursor = icon = IMG_LEER; ok_sound = failed_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; }
 	virtual ~werkzeug_t() {}
 
+	// this will draw the tool with some indication, if active
+	virtual bool is_selected(karte_t *welt) { return welt->get_werkzeug()==this; }
+
 	/* could be used for player dependent images
 	 * will be called, when a toolbar is opened/updated
 	 * return false to avoid inclusion
@@ -200,6 +203,7 @@ public:
 	}
 	const char *get_tooltip(spieler_t *) { return translator::translate(default_param); }
 	werkzeug_waehler_t *get_werkzeug_waehler() const { return wzw; }
+	bool is_selected(karte_t *welt);
 	// show this toolbar
 	virtual bool init(karte_t *w, spieler_t *sp);
 	void update(karte_t *, spieler_t *);	// just refresh content

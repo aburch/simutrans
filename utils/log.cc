@@ -28,12 +28,12 @@ static int make_this_a_division_by_zero = 0;
  */
 void log_t::debug(const char *who, const char *format, ...)
 {
-  if(log_debug) {
+  if(log_debug  &&  umgebung_t::verbose_debug>3) {
     va_list argptr;
     va_start(argptr, format);
 
     if( log ) {                         /* nur loggen wenn schon ein log */
-	fprintf(log ,"Debug: %s:\t",who);      /* geoeffnet worden ist */
+		fprintf(log ,"Debug: %s:\t",who);      /* geoeffnet worden ist */
         vfprintf(log, format, argptr);
         fprintf(log,"\n");
 
@@ -43,7 +43,7 @@ void log_t::debug(const char *who, const char *format, ...)
     }
 
     if( tee ) {                         /* nur loggen wenn schon ein log */
-	fprintf(tee, "Debug: %s:\t",who);      /* geoeffnet worden ist */
+		fprintf(tee, "Debug: %s:\t",who);      /* geoeffnet worden ist */
         vfprintf(tee, format, argptr);
         fprintf(tee,"\n");
     }
@@ -64,7 +64,7 @@ void log_t::message(const char *who, const char *format, ...)
 		va_start(argptr, format);
 
 		if( log ) {                         /* nur loggen wenn schon ein log */
-		fprintf(log ,"Message: %s:\t",who);      /* geoeffnet worden ist */
+			fprintf(log ,"Message: %s:\t",who);      /* geoeffnet worden ist */
 			vfprintf(log, format, argptr);
 			fprintf(log,"\n");
 
@@ -74,7 +74,7 @@ void log_t::message(const char *who, const char *format, ...)
 		}
 
 		if( tee ) {                         /* nur loggen wenn schon ein log */
-		fprintf(tee, "Message: %s:\t",who);      /* geoeffnet worden ist */
+			fprintf(tee, "Message: %s:\t",who);      /* geoeffnet worden ist */
 			vfprintf(tee, format, argptr);
 			fprintf(tee,"\n");
 		}
@@ -157,7 +157,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 	va_list argptr;
 	va_start(argptr, format);
 
-	char buffer[4096];
+	static char buffer[8192];
 
 	int n = sprintf( buffer, "FATAL ERROR: %s\n", who);
 	n += vsprintf( buffer+n, format, argptr);
@@ -187,9 +187,9 @@ void log_t::fatal(const char *who, const char *format, ...)
 	va_end(argptr);
 
 	int old_level = umgebung_t::verbose_debug;
+	umgebung_t::verbose_debug = 0;	// no more window concerning messages
 	if(is_display_init()) {
 		// show notification
-		umgebung_t::verbose_debug = 0;	// no more window concerning messages
 		destroy_all_win();
 
 		strcpy( buffer+n+1, "PRESS ANY KEY\n" );
@@ -220,7 +220,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 	}
 
 #ifdef DEBUG
-	if(old_level>3) {
+	if(old_level>4) {
 		// generate a division be zero error, if the user request it
 		printf("%i",15/make_this_a_division_by_zero);
 		make_this_a_division_by_zero &= 0xFF;

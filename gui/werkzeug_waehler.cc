@@ -130,6 +130,9 @@ void werkzeug_waehler_t::zeichnen(koord pos, koord)
 		}
 		else {
 			display_color_img(icon_img, draw_pos.x, draw_pos.y, 0, false, dirty);
+			if(  tools[i]->is_selected(welt)  ) {
+				display_img_blend( icon_img, draw_pos.x, draw_pos.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty);
+			}
 		}
 	}
 

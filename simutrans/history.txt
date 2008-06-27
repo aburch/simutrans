@@ -60,10 +60,11 @@
 	CHANGE: deduct maintenance at the beginning of a month => no sudden dropping below zero any more
 	CHANGE: no zooming in/out of vehicle images in depot and lists
 	CHANGE: speedbonus taken now from config/speedbonus.tab (if present)
-	CHANGE: scenarios added (i.e. you can play for a goal), bankrupt only after net wealth is below zero
+	ADD: scenarios (i.e. you can play for a goal), bankrupt only after net wealth is below zero
 	CHANGE: scenario can have an additional factor for difficulty
 	CHANGE: more description of files before loading (ppm/scenario)
-	CHANGE: -debug parameter now takes a debug level (1,2,3 for errors only, warnings only, all messages)
+	CHANGE: -debug parameter now takes a debug level (1,2,3,4 for errors only, warnings only, all messages,debug special messages)
+	ADD: highlight selected toolbars/tools
 
 
 Release of 99.17.1 (r1550, stable)
