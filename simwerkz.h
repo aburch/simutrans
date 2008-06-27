@@ -752,7 +752,7 @@ class wkz_factorybuilder_t : public werkzeug_t {
 
 /* attraction building dialog */
 class wkz_attractionbuilder_t : public werkzeug_t {
-	const char *get_tooltip(spieler_t *) { return translator::translate("attractionbuilder"); }
+	const char *get_tooltip(spieler_t *) { return translator::translate("curiosity builder"); }
 	bool init( karte_t *welt, spieler_t *sp ) {
 		create_win( new curiosity_edit_frame_t(sp,welt), w_info, magic_edit_attraction );
 		return false;
@@ -761,7 +761,7 @@ class wkz_attractionbuilder_t : public werkzeug_t {
 
 /* house building dialog */
 class wkz_housebuilder_t : public werkzeug_t {
-	const char *get_tooltip(spieler_t *) { return translator::translate("housebuilder"); }
+	const char *get_tooltip(spieler_t *) { return translator::translate("citybuilding builder"); }
 	bool init( karte_t *welt, spieler_t *sp ) {
 		create_win( new citybuilding_edit_frame_t(sp,welt), w_info, magic_edit_house );
 		return false;
@@ -770,7 +770,7 @@ class wkz_housebuilder_t : public werkzeug_t {
 
 /* house building dialog */
 class wkz_treebuilder_t : public werkzeug_t {
-	const char *get_tooltip(spieler_t *) { return translator::translate("treebuilder"); }
+	const char *get_tooltip(spieler_t *) { return translator::translate("baum builder"); }
 	bool init( karte_t *welt, spieler_t *sp ) {
 		create_win( new baum_edit_frame_t(sp,welt), w_info, magic_edit_tree );
 		return false;

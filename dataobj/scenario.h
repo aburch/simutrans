@@ -24,7 +24,7 @@ private:
 	stadt_t *city;
 	fabrik_t *target_factory;
 
-	static karte_t *welt;
+	karte_t *welt;
 
 	void get_factory_producing( fabrik_t *fab, int &producing, int &existing );
 

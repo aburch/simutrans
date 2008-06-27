@@ -49,7 +49,7 @@ public:
 	* @return den nicht uebersetzten Namen der Komponente
 	* @author Hj. Malthaner
 	*/
-	const char* gib_name() const { return "factory builder"; }
+	const char* gib_name() const { return "factorybuilder"; }
 
 	/**
 	* Manche Fenster haben einen Hilfetext assoziiert.
