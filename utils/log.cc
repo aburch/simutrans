@@ -34,8 +34,8 @@ void log_t::debug(const char *who, const char *format, ...)
 
     if( log ) {                         /* nur loggen wenn schon ein log */
 		fprintf(log ,"Debug: %s:\t",who);      /* geoeffnet worden ist */
-        vfprintf(log, format, argptr);
-        fprintf(log,"\n");
+		vfprintf(log, format, argptr);
+		fprintf(log,"\n");
 
         if( force_flush ) {
             fflush(log);

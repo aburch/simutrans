@@ -2118,7 +2118,7 @@ void convoi_t::destroy()
  */
 void convoi_t::dump() const
 {
-    dbg->message("convoi::dump()",
+	dbg->debug("convoi::dump()",
 		"\nanz_vehikel = %d\n"
 		"wait_lock = %d\n"
 		"besitzer_n = %d\n"
@@ -2128,23 +2128,23 @@ void convoi_t::dump() const
 		"state = %d\n"
 		"statename = %s\n"
 		"alte_richtung = %d\n"
-		"jahresgewinn = %lld\n"
+		"jahresgewinn = %ld\n"	// %lld crashes mingw now, cast gewinn to long ...
 		"name = '%s'\n"
 		"line_id = '%d'\n"
 		"fpl = '%p'",
-		anz_vehikel,
-		wait_lock,
-		welt->sp2num(besitzer_p),
-		akt_speed,
-		akt_speed_soll,
-		sp_soll,
-		state,
-		state_names[state],
-		alte_richtung,
-		jahresgewinn,
-		name_and_id,
-		line_id,
-		fpl );
+		(int)anz_vehikel,
+		(int)wait_lock,
+		(int)welt->sp2num(besitzer_p),
+		(int)akt_speed,
+		(int)akt_speed_soll,
+		(int)sp_soll,
+		(int)state,
+		(const char *)(state_names[state]),
+		(int)alte_richtung,
+		(long)(jahresgewinn/100),
+		(int)name_and_id,
+		(int)line_id,
+		(const void *)fpl );
 }
 
 
