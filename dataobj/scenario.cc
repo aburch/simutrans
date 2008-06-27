@@ -20,10 +20,6 @@
 #include "scenario.h"
 
 
-karte_t *scenario_t::welt = NULL;
-
-
-
 
 scenario_t::scenario_t(karte_t *w)
 {
