@@ -1,3 +1,6 @@
+Release of 100.0 (r1867, stable)
+
+28-June-2008:
 	FIX: rotated twonhalls could lead to crashes
 	CHANGE: show connected stops at factory again
 	ADD: factory edit modus after patch from z9999

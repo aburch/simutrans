@@ -3185,7 +3185,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		halthandle_t h = pl->gib_halt();
 		if(last_pos!=koord3d::invalid  &&  (h.is_bound() ^ last_halt.is_bound())) {
 			init(welt,sp);
-			return "Can only from from halt to halt or waypoint to waypoint";
+			return "Can only move from halt to halt or waypoint to waypoint.";
 		}
 		if(h.is_bound()  &&  !spieler_t::check_owner( sp, pl->get_haltlist()[0]->gib_besitzer())) {
 			init(welt,sp);
