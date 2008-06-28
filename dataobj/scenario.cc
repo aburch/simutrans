@@ -84,7 +84,7 @@ void scenario_t::init( const char *filename, karte_t *w )
 
 void scenario_t::rdwr(loadsave_t *file)
 {
-	int city_nr = 0x7FFFFFFFu;
+	sint32 city_nr = 0x7FFFFFFFu;
 	koord fabpos = koord::invalid;
 
 	if(  file->is_saving()  ) {

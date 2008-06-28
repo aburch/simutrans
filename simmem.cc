@@ -4,7 +4,9 @@
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  */
-#include <stdexcept>
+#include "simmem.h"
+
+#undef guarded_free
 
 // use this for stress test; but it will return less than 32000 handles ...
 //#define HARD_DEBUG
@@ -123,6 +125,8 @@ void guarded_free(void *p)
 
 
 #ifdef USE_KEYLOCK
+#error "operator new [] missing!"
+
 void* operator new(size_t const size)
 {
 	return xmalloc(size);
@@ -150,8 +154,7 @@ void* xmalloc(size_t const size)
 	void* const p = malloc(size);
 #endif
 	if (!p) {
-		//throw std::bad_alloc();
-		// use unified error handler instead
+		// use unified error handler instead, since BeOS need this as C style file!
 		dbg->fatal("xmalloc()", "Could not alloc %li bytes.", (long)size );
 	}
 
@@ -204,8 +207,7 @@ void* xrealloc(void* const ptr, size_t const size)
 	void* const p = realloc(ptr, size);
 #endif
 	if (!p) {
-		throw std::bad_alloc();
-		// use unified error handler instead
+		// use unified error handler instead, since BeOS need this as C style file!
 		dbg->fatal("realloc()", "Could not alloc %li bytes.", (long)size );
 	}
 

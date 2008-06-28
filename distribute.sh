@@ -31,7 +31,6 @@ wget http://translator.simutrans.com/tmp/language_pack-Base+texts.zip
 unzip language_pack-Base+texts.zip
 rm language_pack-Base+texts.zip
 rm ce.tab
-rm id.tab
 cd ../..
 distribute
 rm simutrans/simutrans$simexe
