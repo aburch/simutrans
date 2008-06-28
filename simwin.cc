@@ -972,12 +972,7 @@ void win_display_flush(double konto)
 		mark_rect_dirty_wc( 0, 0, disp_width, disp_height );
 		windows_dirty = false;
 	}
-#ifdef USE_SOFTPOINTER
-	display_setze_clip_wh( 0, menu_height, disp_width, disp_height+1 );
-	display_icon_leiste(0, skinverwaltung_t::hauptmenu->gib_bild(0)->gib_nummer());
-#else
 	display_setze_clip_wh( 0, menu_height, disp_width, disp_height-menu_height+1 );
-#endif
 
 	show_ticker = false;
 	if (!ticker::empty()) {

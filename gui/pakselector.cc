@@ -49,6 +49,15 @@ bool pakselector_t::check_file( const char *filename, const char * )
 	if(f) {
 		fclose(f);
 	}
+	// found only one?
+	if(f!=NULL) {
+		if(entries.count()==0) {
+			umgebung_t::objfilename = (cstring_t)filename + "/";
+		}
+		else if(  !umgebung_t::objfilename.empty()  ) {
+			umgebung_t::objfilename = "";
+		}
+	}
 	return f!=NULL;
 }
 
@@ -60,8 +69,4 @@ pakselector_t::pakselector_t() : savegame_frame_t( NULL, umgebung_t::program_dir
 	remove_komponente( &cancelbutton );
 	remove_komponente( &divider1 );
 	fnlabel.setze_text( "Choose one graphics set for playing:" );
-	// found only one?
-	if(entries.count()==1) {
-		umgebung_t::objfilename = (cstring_t)entries.front().button->gib_text() + "/";
-	}
 }

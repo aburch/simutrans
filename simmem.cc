@@ -4,6 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  */
+#include <stdio.h>	// since BeOS needs size_t from there ...
+
 #include "simmem.h"
 
 #undef guarded_free
