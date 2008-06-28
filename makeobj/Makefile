@@ -31,6 +31,8 @@ ifdef FLAGS
   CXXFLAGS += $(FLAGS)
 endif
 
+CXXFLAGS += -DMAKEOBJ
+
 SOURCES=makeobj.cc
 
 OBJECTS=makeobj.o ../besch/writer/obj_node.o \

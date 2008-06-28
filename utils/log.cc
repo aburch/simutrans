@@ -10,17 +10,25 @@
 #include <stdarg.h>
 
 #include "log.h"
-#include "../dataobj/umgebung.h"
 #include "../simdebug.h"
 #include "../simsys.h"
+
+
+static int make_this_a_division_by_zero = 0;
+
+#ifdef MAKEOBJ
+#define debuglevel (3)
+
+#else
+#define debuglevel (umgebung_t::verbose_debug)
 
 // for display ...
 #include "../gui/messagebox.h"
 #include "../simgraph.h"
 #include "../simwin.h"
 
-
-static int make_this_a_division_by_zero = 0;
+#include "../dataobj/umgebung.h"
+#endif
 
 /**
  * writes a debug message into the log.
@@ -28,7 +36,7 @@ static int make_this_a_division_by_zero = 0;
  */
 void log_t::debug(const char *who, const char *format, ...)
 {
-  if(log_debug  &&  umgebung_t::verbose_debug>3) {
+  if(log_debug  &&  debuglevel>3) {
     va_list argptr;
     va_start(argptr, format);
 
@@ -59,7 +67,7 @@ void log_t::debug(const char *who, const char *format, ...)
  */
 void log_t::message(const char *who, const char *format, ...)
 {
-	if(umgebung_t::verbose_debug>2) {
+	if(debuglevel>2) {
 		va_list argptr;
 		va_start(argptr, format);
 
@@ -90,7 +98,7 @@ void log_t::message(const char *who, const char *format, ...)
  */
 void log_t::warning(const char *who, const char *format, ...)
 {
-	if(umgebung_t::verbose_debug>1) {
+	if(debuglevel>1) {
 		va_list argptr;
 		va_start(argptr, format);
 
@@ -119,7 +127,7 @@ void log_t::warning(const char *who, const char *format, ...)
  */
 void log_t::error(const char *who, const char *format, ...)
 {
-	if(umgebung_t::verbose_debug>0) {
+	if(debuglevel>0) {
 		va_list argptr;
 		va_start(argptr, format);
 
@@ -186,6 +194,10 @@ void log_t::fatal(const char *who, const char *format, ...)
 
 	va_end(argptr);
 
+#ifdef MAKEOBJ
+	// no display available
+	puts( buffer );
+#else
 	int old_level = umgebung_t::verbose_debug;
 	umgebung_t::verbose_debug = 0;	// no more window concerning messages
 	if(is_display_init()) {
@@ -225,6 +237,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 		printf("%i",15/make_this_a_division_by_zero);
 		make_this_a_division_by_zero &= 0xFF;
 	}
+#endif
 #endif
 	exit(0);
 }
