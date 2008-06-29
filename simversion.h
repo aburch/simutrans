@@ -3,8 +3,8 @@
 
 #define MAKEOBJ_VERSION "49"
 
-#define VERSION_NUMBER "100.0"
-#define WIDE_VERSION_NUMBER L"100.0"
+#define VERSION_NUMBER "Nightly 100.1"
+#define WIDE_VERSION_NUMBER L"Nightly100.1"
 
 #define VERSION_DATE __DATE__
 

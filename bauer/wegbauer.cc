@@ -126,10 +126,10 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 spe
 		if(  (test->gib_wtyp()==wtyp  &&
 			     (test->gib_styp()==system_type  ||  system_type==weg_t::type_all)  ||  (test->gib_wtyp()==track_wt  &&  test->gib_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
 			     &&  test->gib_cursor()->gib_bild_nr(1)!=IMG_LEER  ) {
-			if(  best==NULL ||
-					(best->gib_topspeed() <  speed_limit  &&  best->gib_topspeed() < test->gib_topspeed()) ||
-					(test->gib_topspeed() >= speed_limit  &&  test->gib_wartung()  < best->gib_wartung())) {
-				if(  time==0  ||  (test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month())) {
+			if(  best==NULL  ||  time==0  ||  (test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month())) {
+				if(  best==NULL  ||
+						(test->gib_topspeed() <=  speed_limit  &&  best->gib_topspeed() < test->gib_topspeed()) ||
+						(best->gib_topspeed() > speed_limit  &&  test->gib_wartung() < best->gib_wartung())  ) {
 					best = test;
 				}
 			}

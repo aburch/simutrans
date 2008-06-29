@@ -1,3 +1,6 @@
+	FIX: weg search stooped to early => not properly upgrading city road types in pak128
+
+
 Release of 100.0 (r1867, stable)
 
 28-June-2008:

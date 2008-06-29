@@ -709,7 +709,7 @@ DBG_DEBUG("karte_t::init()","distributing trees");
 	}
 
 DBG_DEBUG("karte_t::init()","distributing movingobjs");
-	if(  umgebung_t::ground_object_probability > 0  ) {
+	if(  umgebung_t::moving_object_probability > 0  ) {
 		// add eyecandy like rocky, moles, flowers, ...
 		koord k;
 		sint32 queried = simrand(umgebung_t::moving_object_probability*2);
@@ -2083,7 +2083,7 @@ void karte_t::recalc_average_speed()
 		}
 		else {
 			DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
-			city_road = wegbauer_t::weg_search(road_wt,30,get_timeline_year_month(),weg_t::type_flat);
+			city_road = wegbauer_t::weg_search(road_wt,50,get_timeline_year_month(),weg_t::type_flat);
 		}
 
 	}
@@ -2091,7 +2091,7 @@ void karte_t::recalc_average_speed()
 		// defaults
 		city_road = wegbauer_t::gib_besch(*umgebung_t::city_road_type, 0);
 		if(city_road==NULL) {
-			city_road = wegbauer_t::weg_search(road_wt,30,0,weg_t::type_flat);
+			city_road = wegbauer_t::weg_search(road_wt,50,0,weg_t::type_flat);
 		}
 	}
 }
