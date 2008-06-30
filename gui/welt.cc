@@ -317,9 +317,9 @@ welt_gui_t::update_from_heightfield(const char *filename)
 				float rest_x=0.0;
 
 				for(int x=0; x<w; x++) {
-					sint16 R = (unsigned char)fgetc(file);
-					sint16 G = (unsigned char)fgetc(file);
-					sint16 B = (unsigned char)fgetc(file);
+					uint16 R = (uint8)fgetc(file);
+					uint16 G = (uint8)fgetc(file);
+					uint16 B = (uint8)fgetc(file);
 
 					while(karte_x<=rest_x  &&  karte_x<preview_size) {
 						karte[(karte_y*preview_size)+karte_x] = reliefkarte_t::calc_hoehe_farbe( (((R*2+G*3+B)/4 - 224+16)/16)*Z_TILE_STEP, sets->gib_grundwasser() );
