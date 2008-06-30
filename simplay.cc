@@ -3718,8 +3718,6 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 				end_stadt = NULL;
 				state = CHECK_CONVOI;
 			}
-			// ok, now I do
-			state = NR_BAUE_STRASSEN_ROUTE;
 		}
 		break;
 
@@ -3776,7 +3774,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 		break;
 
 		case NR_BAUE_WATER_ROUTE:
-			if (end_ausflugsziel == NULL &&
+			if(  end_ausflugsziel == NULL  &&
 					create_water_transport_vehikel(start_stadt, end_stadt ? end_stadt->gib_pos() : ziel->gib_pos().gib_2d())) {
 				// add two intown routes
 				cover_city_with_bus_route( get_our_hub(start_stadt)->gib_basis_pos(), 6);
