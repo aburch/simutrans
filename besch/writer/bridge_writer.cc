@@ -21,7 +21,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	uint8  pillars_every = obj.get_int("pillar_distance",0); // distance==0 is off
 	uint8  pillar_asymmetric = obj.get_int("pillar_asymmetric",0); // middle of tile
 	uint8  max_length    = obj.get_int("max_lenght",0); // max_lenght==0: unlimited
-	max_length    = obj.get_int("max_length",0); // with correct spelling
+	max_length    = obj.get_int("max_length",max_length); // with correct spelling
 	uint8  max_height    = obj.get_int("max_height",0); // max_height==0: unlimited
 
 	// prissi: timeline
