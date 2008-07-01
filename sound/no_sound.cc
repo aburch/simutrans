@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2001 Hansjörg Malthaner
+ * stub for no sound
  *
- * Usage for Iso-Angband is granted. Usage in other projects is not
- * permitted without the agreement of the author.
+ * This file is part of the Simutrans project under the artistic licence.
  */
+
 
 #include "sound.h"
 

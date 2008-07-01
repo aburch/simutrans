@@ -1,8 +1,7 @@
 /*
- * Copyright (c) 2001 Hansjörg Malthaner
+ * definitions for the system dependent part of simutrans
  *
- * Usage for Iso-Angband is granted. Usage in other projects is not
- * permitted without the agreement of the author.
+ * This file is part of the Simutrans project under the artistic licence.
  */
 
 #ifndef simsys_h

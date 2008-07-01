@@ -1,5 +1,9 @@
+/*
+ * sdl-sound without SDL_mixer.dll
+ *
+ * This file is part of the Simutrans project under the artistic licence.
+ */
 
- // sdl-sound without SDL_mixer.dll
 
 #include <SDL/SDL.h>
 #include <string.h>

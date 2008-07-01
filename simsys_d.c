@@ -1,3 +1,9 @@
+/*
+ * Bit depth independent backend using allgro (mainly for BeOS)
+ *
+ * This file is part of the Simutrans project under the artistic licence.
+ */
+
 #include "allegro.h"
 #include <stddef.h>
 #include <string.h>
