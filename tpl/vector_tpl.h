@@ -53,7 +53,9 @@ template<class T> class vector_tpl
 		bool is_contained(T elem) const
 		{
 			for (uint32 i = 0; i < count; i++) {
-				if (data[i] == elem) return true;
+				if (data[i] == elem) {
+					return true;
+				}
 			}
 			return false;
 		}
@@ -65,14 +67,18 @@ template<class T> class vector_tpl
 		uint32 index_of(T elem) const
 		{
 			for (uint32 i = 0; i < count; i++) {
-				if (data[i] == elem) return i;
+				if (data[i] == elem) {
+					return i;
+				}
 			}
 			return 0xFFFFFFFFu;
 		}
 
 		void push_back(const T& elem)
 		{
-			if (count == size) resize(size == 0 ? 1 : size * 2);
+			if (count == size) {
+				resize(size == 0 ? 1 : size * 2);
+			}
 			data[count++] = elem;
 		}
 
@@ -82,7 +88,9 @@ template<class T> class vector_tpl
 		 */
 		bool push_back_unique(T elem)
 		{
-			if (is_contained(elem)) return false;
+			if (is_contained(elem)) {
+				return false;
+			}
 			push_back(elem);
 			return true;
 		}
@@ -108,8 +116,12 @@ template<class T> class vector_tpl
 		void insert_at(uint32 pos, T elem)
 		{
 			if (pos < count) {
-				if (count == size) resize(size + 1);
-				for (uint i = count; i > pos; i--) data[i] = data[i - 1];
+				if (count == size) {
+					resize(size + 1);
+				}
+				for (uint i = count; i > pos; i--) {
+					data[i] = data[i - 1];
+				}
 				data[pos] = elem;
 				count++;
 			} else {
@@ -124,9 +136,13 @@ template<class T> class vector_tpl
 		 */
 		void store_at(uint32 pos, T elem)
 		{
-			if (pos >= size) resize((pos & 0xFFFFFFF7) + 8);
+			if (pos >= size) {
+				resize((pos & 0xFFFFFFF7) + 8);
+			}
 			data[pos] = elem;
-			if (pos >= count) count = pos + 1;
+			if (pos >= count) {
+				count = pos + 1;
+			}
 		}
 
 		/** removes element at position */
