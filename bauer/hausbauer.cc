@@ -591,7 +591,7 @@ const haus_besch_t* hausbauer_t::gib_random_station(const haus_besch_t::utyp uty
 
 
 
-const haus_besch_t* hausbauer_t::gib_special(int bev, haus_besch_t::utyp utype, uint16 time, climate cl)
+const haus_besch_t* hausbauer_t::gib_special(int bev, haus_besch_t::utyp utype, uint16 time, bool ignore_retire, climate cl)
 {
 	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
 	slist_iterator_tpl<const haus_besch_t*> iter(utype == haus_besch_t::rathaus ? rathaeuser : (bev == -1 ? sehenswuerdigkeiten_land : sehenswuerdigkeiten_city));
@@ -602,7 +602,7 @@ const haus_besch_t* hausbauer_t::gib_special(int bev, haus_besch_t::utyp utype, 
 		if(bev == -1 || besch->gib_extra()==bev) {
 			if(cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)) {
 				// ok, now check timeline
-				if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+				if(time==0  ||  (besch->get_intro_year_month()<=time  &&  (ignore_retire  ||  besch->get_retire_year_month() > time)  )  ) {
 					auswahl.append(besch,besch->gib_chance(),4);
 				}
 			}
@@ -611,7 +611,7 @@ const haus_besch_t* hausbauer_t::gib_special(int bev, haus_besch_t::utyp utype, 
 	if (auswahl.empty()) {
 		return 0;
 	}
-	else	if(auswahl.get_count()==1) {
+	else if(auswahl.get_count()==1) {
 		return auswahl.front();
 	}
 	// now there is something to choose
@@ -692,7 +692,7 @@ const haus_besch_t* hausbauer_t::gib_wohnhaus(int level, uint16 time, climate cl
 
 
 // get a random object
-const haus_besch_t *hausbauer_t::waehle_aus_liste(slist_tpl<const haus_besch_t *> &liste, uint16 time, climate cl)
+const haus_besch_t *hausbauer_t::waehle_aus_liste(slist_tpl<const haus_besch_t *> &liste, uint16 time, bool ignore_retire, climate cl)
 {
 	if (!liste.empty()) {
 		// previously just returned a random object; however, now we do als look at the chance entry
@@ -701,7 +701,7 @@ const haus_besch_t *hausbauer_t::waehle_aus_liste(slist_tpl<const haus_besch_t *
 
 		while(iter.next()) {
 			const haus_besch_t *besch = iter.get_current();
-			if((cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl))  &&  besch->gib_chance()>0  &&  (time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))) {
+			if((cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl))  &&  besch->gib_chance()>0  &&  (time==0  ||  (besch->get_intro_year_month()<=time  &&  (ignore_retire  ||  besch->get_retire_year_month()>time)  )  )  ) {
 //				DBG_MESSAGE("hausbauer_t::gib_aus_liste()","appended %s at %i", besch->gib_name(), thislevel );
 				auswahl.append(besch,besch->gib_chance(),4);
 			}

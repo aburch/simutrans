@@ -125,7 +125,9 @@ gebaeude_t::~gebaeude_t()
 
 	count = 0;
 	anim_time = 0;
-	spieler_t::add_maintenance(gib_besitzer(), -umgebung_t::maint_building*tile->gib_besch()->gib_level() );
+	if(tile) {
+		spieler_t::add_maintenance(gib_besitzer(), -umgebung_t::maint_building*tile->gib_besch()->gib_level() );
+	}
 }
 
 

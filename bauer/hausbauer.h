@@ -52,7 +52,7 @@ class hausbauer_t
 		 * Liefert einen zufälligen Eintrag aus der Liste.
 		 * @author V. Meyer
 		 */
-		static const haus_besch_t* waehle_aus_liste(slist_tpl<const haus_besch_t*>& liste, uint16 time, climate cl);
+		static const haus_besch_t* waehle_aus_liste(slist_tpl<const haus_besch_t*>& liste, uint16 time, bool ignore_retire, climate cl);
 
 	public:
 		/* finds a station building, which enables pas/mail/goods for the AI
@@ -97,9 +97,9 @@ class hausbauer_t
 		 * die bei Kartenerstellung gebaut werden kann.
 		 * @author V. Meyer
 		 */
-		static const haus_besch_t* waehle_sehenswuerdigkeit(uint16 time, climate cl)
+		static const haus_besch_t* waehle_sehenswuerdigkeit(uint16 time, bool ignore_retire, climate cl)
 		{
-			return waehle_aus_liste(sehenswuerdigkeiten_land, time, cl);
+			return waehle_aus_liste(sehenswuerdigkeiten_land, time, ignore_retire, cl);
 		}
 
 		/**
@@ -108,7 +108,7 @@ class hausbauer_t
 		 */
 		static const haus_besch_t* waehle_denkmal(uint16 time = 0)
 		{
-			return waehle_aus_liste(ungebaute_denkmaeler, time, MAX_CLIMATES);
+			return waehle_aus_liste(ungebaute_denkmaeler, time, false, MAX_CLIMATES);
 		}
 
 		/**
@@ -127,7 +127,7 @@ class hausbauer_t
 		/* called for an attraction or a townhall with a certain number of inhabitants (bev)
 		 * bev==-1 will search for an attraction outside of cities.
 		 */
-		static const haus_besch_t* gib_special(int bev, haus_besch_t::utyp utype, uint16 time, climate cl);
+		static const haus_besch_t* gib_special(int bev, haus_besch_t::utyp utype, uint16 time, bool ignore_retire, climate cl);
 
 		/* use this to remove an arbitary building
 		 * it will also take care of factories and foundations

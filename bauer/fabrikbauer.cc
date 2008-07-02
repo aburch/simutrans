@@ -334,8 +334,8 @@ void fabrikbauer_t::verteile_tourist(karte_t* welt, int max_number)
 	// current count
 	int current_number=0;
 
-	// select without timeline (otherwise no old attractions appear)
-	if(hausbauer_t::waehle_sehenswuerdigkeit(0,temperate_climate)==NULL) {
+	// select without timeline disappearing dates
+	if(hausbauer_t::waehle_sehenswuerdigkeit(welt->get_timeline_year_month(),true,temperate_climate)==NULL) {
 		// nothing at all?
 		return;
 	}
@@ -346,7 +346,7 @@ void fabrikbauer_t::verteile_tourist(karte_t* welt, int max_number)
 	int retrys = max_number*4;
 	while(current_number<max_number  &&  retrys-->0) {
 		koord3d	pos=koord3d(simrand(welt->gib_groesse_x()),simrand(welt->gib_groesse_y()),1);
-		const haus_besch_t *attraction=hausbauer_t::waehle_sehenswuerdigkeit(0,(climate)simrand((int)arctic_climate+1));
+		const haus_besch_t *attraction=hausbauer_t::waehle_sehenswuerdigkeit(welt->get_timeline_year_month(),true,(climate)simrand((int)arctic_climate+1));
 
 		// no attractions for that climate or too new
 		if(attraction==NULL  ||  (welt->use_timeline()  &&  attraction->get_intro_year_month()>welt->get_current_month()) ) {

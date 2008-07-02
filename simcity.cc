@@ -652,9 +652,7 @@ void stadt_t::init_pax_ziele()
 		for (int i = 0; i < 128; i++) {
 			const koord pos(i * gr_x / 128, j * gr_y / 128);
 			const grund_t* gr = welt->lookup(pos)->gib_kartenboden();
-//			DBG_MESSAGE("stadt_t::init_pax_ziele()", "at %i,%i = (%i,%i)", i, j, pos.x, pos.y);
 			pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i, j) = reliefkarte_t::calc_relief_farbe(gr);
-//			pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i, j) = 0;
 		}
 	}
 }
@@ -1205,16 +1203,6 @@ void stadt_t::neuer_monat()
 
 void stadt_t::calc_growth()
 {
-#if 0
-	// prissi: growth now size dependent
-	if (bev < 1000) {
-		wachstum = (city_history_month[0][HIST_PAS_TRANSPORTED] * 2) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
-	} else if (bev < 10000) {
-		wachstum = (city_history_month[0][HIST_PAS_TRANSPORTED] * 4) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
-	} else {
-		wachstum = (city_history_month[0][HIST_PAS_TRANSPORTED] * 8) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
-	}
-#else
 	// now iterate over all factories to get the ratio of producing version nonproducing factories
 	// we use the incoming storage as a measure und we will only look for end consumers (power stations, markets)
 	for (weighted_vector_tpl<fabrik_t*>::const_iterator iter = arbeiterziele.begin(), end = arbeiterziele.end(); iter != end; ++iter) {
@@ -1252,7 +1240,6 @@ void stadt_t::calc_growth()
 
 	// now give the growth for this step
 	wachstum += (pas+mail+electricity+goods) / weight_factor;
-#endif
 }
 
 
@@ -1265,7 +1252,6 @@ void stadt_t::step_bau()
 	wachstum &= 0x0F;
 
 	// Hajo: let city grow in steps of 1
-//	for (int n = 0; n < (1 + wachstum); n++) {
 	// @author prissi: No growth without development
 	for (int n = 0; n < growth_step; n++) {
 		bev++; // Hajo: bevoelkerung wachsen lassen
@@ -1639,7 +1625,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 void stadt_t::check_bau_spezial(bool new_town)
 {
 	// touristenattraktion bauen
-	const haus_besch_t* besch = hausbauer_t::gib_special(bev, haus_besch_t::attraction_city, welt->get_timeline_year_month(), welt->get_climate(welt->max_hgt(pos)));
+	const haus_besch_t* besch = hausbauer_t::gib_special(bev, haus_besch_t::attraction_city, welt->get_timeline_year_month(), new_town, welt->get_climate(welt->max_hgt(pos)));
 	if (besch != NULL) {
 		if (simrand(100) < (uint)besch->gib_chance()) {
 			// baue was immer es ist
@@ -1728,7 +1714,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 
 void stadt_t::check_bau_rathaus(bool new_town)
 {
-	const haus_besch_t* besch = hausbauer_t::gib_special(bev, haus_besch_t::rathaus, welt->get_timeline_year_month(), welt->get_climate(welt->max_hgt(pos)));
+	const haus_besch_t* besch = hausbauer_t::gib_special(bev, haus_besch_t::rathaus, welt->get_timeline_year_month(), new_town, welt->get_climate(welt->max_hgt(pos)));
 	if (besch != NULL) {
 		grund_t* gr = welt->lookup(pos)->gib_kartenboden();
 		gebaeude_t* gb = dynamic_cast<gebaeude_t*>(gr->first_obj());
@@ -2392,7 +2378,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl)
 {
 	int cl = 0;
 	for (int i = 0; i < MAX_CLIMATES; i++) {
-		if (hausbauer_t::gib_special(0, haus_besch_t::rathaus, 0, (climate)i)) {
+		if (hausbauer_t::gib_special(0, haus_besch_t::rathaus, 0, 0, (climate)i)) {
 			cl |= (1 << i);
 		}
 	}
