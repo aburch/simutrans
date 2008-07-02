@@ -3337,7 +3337,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 						}
 					}
 				}
-				// next, check lines serving old_halt
+				// next, check lines serving old_halt (no owner check needed for own lines ...
 				vector_tpl<linehandle_t>lines;
 				sp->simlinemgmt.get_lines(simline_t::line,&lines);
 				for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; ++i) {
@@ -3346,20 +3346,17 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					// check waytype
 					if(fpl->ist_halt_erlaubt(bd)) {
 						bool updated = false;
-						// check owner if needed
-						if(line->count_convoys()>0  ||  line->get_convoy(0)->gib_besitzer()==sp) {
-							for(  int k=0;  k<fpl->maxi();  k++  ) {
-								// ok!
-								if(  (catch_all_halt  &&  haltestelle_t::gib_halt(welt,fpl->eintrag[k].pos)==last_halt)  ||  old_platform.contains(fpl->eintrag[k].pos)  ) {
-									fpl->eintrag[k].pos = pos;
-									updated = true;
-								}
+						for(  int k=0;  k<fpl->maxi();  k++  ) {
+							// ok!
+							if(  (catch_all_halt  &&  haltestelle_t::gib_halt(welt,fpl->eintrag[k].pos)==last_halt)  ||  old_platform.contains(fpl->eintrag[k].pos)  ) {
+								fpl->eintrag[k].pos = pos;
+								updated = true;
 							}
-							// update line
-							if(updated) {
-								fpl->cleanup();
-								sp->simlinemgmt.update_line(line);
-							}
+						}
+						// update line
+						if(updated) {
+							fpl->cleanup();
+							sp->simlinemgmt.update_line(line);
 						}
 					}
 				}
