@@ -159,14 +159,8 @@ movingobj_t::movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b 
 	groundobjtype = movingobj_typen.index_of(b);
 	season = 0xFF;	// mark dirty
 	weg_next = 0;
-	timetochange = simrand(speed_to_kmh(gib_besch()->get_speed())/3);
-	sint8 dir = simrand(3);
-	fahrtrichtung = calc_set_richtung( pos.gib_2d(), pos.gib_2d()+startdir[dir] );
-	koord k( fahrtrichtung );
-	if(  dir>1  ) {
-		k = koord::ost;
-	}
-	pos_next = pos + k;
+	timetochange = 0;	// will do random direct change anyway during next step
+	fahrtrichtung = calc_set_richtung( koord(0,0), koord::west );
 	calc_bild();
 	welt->sync_add( this );
 }
@@ -364,7 +358,6 @@ bool movingobj_t::hop_check()
 			const grund_t *next = to[simrand(until)];
 			pos_next_next = next->gib_pos().gib_2d();
 		}
-
 	}
 	else {
 		timetochange--;
@@ -377,12 +370,9 @@ bool movingobj_t::hop_check()
 
 void movingobj_t::hop()
 {
-	const grund_t *next = welt->lookup_kartenboden(pos_next.gib_2d());
-	assert(next);
-
 	verlasse_feld();
 
-	if(next->gib_pos()==gib_pos()) {
+	if(pos_next.gib_2d()==gib_pos().gib_2d()) {
 		fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
 		dx = -dx;
 		dy = -dy;
@@ -396,9 +386,11 @@ void movingobj_t::hop()
 		}
 	}
 
-	setze_pos(next->gib_pos());
+	setze_pos(pos_next);
 	betrete_feld();
-	pos_next = koord3d(pos_next_next,0);
+	// next position
+	grund_t *gr_next = welt->lookup_kartenboden(pos_next_next);
+	pos_next = gr_next ? gr_next->gib_pos() : gib_pos();
 }
 
 

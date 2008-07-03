@@ -418,14 +418,17 @@ vehikel_basis_t::calc_richtung(koord start, koord ende) const
 
 // this routine calculates the new height
 // beware of bridges, tunnels, slopes, ...
-sint16
-vehikel_basis_t::calc_height()
+sint16 vehikel_basis_t::calc_height()
 {
 	sint16 hoff = 0;
 	use_calc_height = false;	// assume, we are only needed after next hop
 
 	grund_t *gr = welt->lookup(gib_pos());
-	if(gr->ist_tunnel()) {
+	if(gr==NULL) {
+		// slope changed below a moving thing?!?
+		return 0;
+	}
+	else if(gr->ist_tunnel()) {
 		hoff = 0;
 		if(!gr->ist_im_tunnel()) {
 			use_calc_height = true;

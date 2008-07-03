@@ -3,6 +3,7 @@
 	FIX: stop moving tool also deals with empty lines now
 	FIX: retire dates again ignored during map creation
 	FIX: no crashing when loading unavailable buildings
+	FIX: crashes with movingobjects during creation
 
 
 Release of 100.0 (r1867, stable)
