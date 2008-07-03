@@ -34,7 +34,7 @@ endif
 
 ifeq ($(OSTYPE),mac)
   CFLAGS   += -DUSE_HW -DUSE_C
-  STD_LIBS ?= -lz -framework SDL -framework Cocoa
+  STD_LIBS ?= -lz
 endif
 
 ifeq ($(OSTYPE),linux)
@@ -340,8 +340,13 @@ ifeq ($(BACKEND),sdl)
     SOURCES += music/w32_midi.c
   endif
   ifeq ($(SDL_CONFIG),)
-    SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
-    SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL -mwindows
+    ifeq ($(OSTYPE),mac)
+      SDL_CFLAGS  := -I/System/Libraries/Frameworks/SDL/Headers -Dmain=SDL_main
+      SDL_LDFLAGS := -framework SDL -framework Cocoa -I/System/Libraries/Frameworks/SDL/Headers SDLMain.m
+    else
+      SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
+      SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL -mwindows
+    endif
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
     SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)

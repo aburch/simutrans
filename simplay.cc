@@ -3861,7 +3861,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 				if(line->get_finance_history(0,LINE_PROFIT)<0) {
 					// try to update the vehicles
 					if(welt->use_timeline()  &&  line->count_convoys()>1) {
-						// find obsolete vehicles ...
+						// do not update unimportant lines with single vehicles
 						slist_tpl <convoihandle_t> obsolete;
 						uint32 capacity = 0;
 						for(  int i=0;  i<line->count_convoys();  i++  ) {
@@ -3871,13 +3871,12 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 								capacity += cnv->gib_vehikel(0)->gib_besch()->gib_zuladung();
 							}
 						}
-						// do not update unimportant line with single vehilcles
 						if(capacity>0) {
 							// now try to finde new vehicle
 							const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search( line->get_convoy(0)->gib_vehikel(0)->gib_waytype(), welt->get_current_month(), 50, welt->get_average_speed(line->get_convoy(0)->gib_vehikel(0)->gib_waytype()), warenbauer_t::passagiere, false, false );
 							if(  !v_besch->is_retired(welt->get_current_month())  &&  v_besch!=line->get_convoy(0)->gib_vehikel(0)->gib_besch()) {
 								// there is a newer one ...
-								for(  uint32 new_capacity=0;  capacity>new_capacity;  new_capacity+=road_vehicle->gib_zuladung()) {
+								for(  uint32 new_capacity=0;  capacity>new_capacity;  new_capacity+=v_besch->gib_zuladung()) {
 									vehikel_t* v = vehikelbauer_t::baue( line->get_fahrplan()->eintrag[0].pos, this, NULL, v_besch  );
 									convoi_t* new_cnv = new convoi_t(this);
 									new_cnv->setze_name( v->gib_besch()->gib_name() );

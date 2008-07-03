@@ -879,7 +879,7 @@ bool wkz_clear_reservation_t::exit( karte_t *welt, spieler_t * )
 	return true;
 }
 
-const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *sp, koord3d k )
+const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d k )
 {
 	const planquadrat_t *plan = welt->lookup(k.gib_2d());
 	if(plan) {

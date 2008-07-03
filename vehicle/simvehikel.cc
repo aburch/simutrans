@@ -3043,8 +3043,9 @@ aircraft_t::betrete_feld()
 	vehikel_t::betrete_feld();
 
 	if((state==flying2  ||  state==flying)  &&  route_index+6u>=touchdown) {
-		const short landehoehe=height_scaling(cnv->get_route()->position_bei(touchdown).z)+(touchdown-route_index);
-		if(landehoehe*TILE_HEIGHT_STEP/Z_TILE_STEP<flughoehe) {
+		const sint16 landehoehe = height_scaling(cnv->get_route()->position_bei(touchdown).z)+(touchdown-route_index);
+		const sint16 current_height = height_scaling(gib_pos().z) + (flughoehe*Z_TILE_STEP)/TILE_HEIGHT_STEP;
+		if(landehoehe<=current_height) {
 			state = landing;
 			target_height = height_scaling((sint16)cnv->get_route()->position_bei(touchdown).z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
 		}
