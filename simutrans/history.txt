@@ -4,6 +4,7 @@
 	FIX: retire dates again ignored during map creation
 	FIX: no crashing when loading unavailable buildings
 	FIX: crashes with movingobjects during creation
+	FIX: harbour tile layout==16 tile were not calaculated simular to stations
 
 
 Release of 100.0 (r1867, stable)

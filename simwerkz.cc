@@ -1964,19 +1964,24 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.x, pos.y, last_pos.x, last_pos.y);
 	int layout = 0;
 	koord3d bau_pos = welt->lookup_kartenboden(pos)->gib_pos();
+	koord dx2;
 	switch(hang) {
 		case hang_t::sued:
 			layout = 0;
+			dx2 = koord::west;
 			break;
 		case hang_t::ost:
 			layout = 1;
+			dx2 = koord::nord;
 			break;
 		case hang_t::nord:
 			layout = 2;
+			dx2 = koord::west;
 			bau_pos = welt->lookup_kartenboden(last_pos)->gib_pos();
 			break;
 		case hang_t::west:
 			layout = 3;
+			dx2 = koord::nord;
 			bau_pos = welt->lookup_kartenboden(last_pos)->gib_pos();
 			break;
 	}
@@ -1984,21 +1989,20 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	// handle 16 layouts
 	bool change_layout = false;
 	if(besch->gib_all_layouts()==16) {
-		if(layout>=2) {
-			layout = ((layout&1)^1) + 6;
+		if(  layout<2  ) {
+			layout = 15-layout;
 		}
 		else {
-			layout = (((layout&1)^1)|8) + 6;
+			layout = 9-layout;
 		}
 		change_layout = true;
 	}
 
-	// find out if middle end or start tile
-	grund_t *gr;
-	koord dx2( dx.y, dx.x );
-
 	// oriented buildings here - get neighbouring layouts
+	grund_t *gr;
 	gr = welt->lookup_kartenboden(pos+dx2);
+
+	// find out if middle end or start tile
 	if(gr  &&  gr->is_halt()  &&  spieler_t::check_owner( sp, gr->gib_halt()->gib_besitzer() )) {
 		gebaeude_t *gb = gr->find<gebaeude_t>();
 		if(gb  &&  gb->gib_tile()->gib_besch()->gib_utyp()==haus_besch_t::hafen) {
@@ -2007,8 +2011,8 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 			}
 			if(gb->gib_tile()->gib_besch()->gib_all_layouts()==16) {
 				sint8 ly = gb->gib_tile()->gib_layout();
-				if((ly&0x0F)-2>0) {
-					gb->setze_tile( gb->gib_tile()->gib_besch()->gib_tile(ly-2,0,0) );
+				if(ly&0x02) {
+					gb->setze_tile( gb->gib_tile()->gib_besch()->gib_tile(ly&0xFD,0,0) );
 				}
 			}
 		}
@@ -2023,8 +2027,8 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 			}
 			if(gb->gib_tile()->gib_besch()->gib_all_layouts()==16) {
 				sint8 ly = gb->gib_tile()->gib_layout();
-				if((ly&0x0F)-4>0) {
-					gb->setze_tile( gb->gib_tile()->gib_besch()->gib_tile(ly-4,0,0) );
+				if(ly&0x04) {
+					gb->setze_tile( gb->gib_tile()->gib_besch()->gib_tile(ly&0xFB,0,0) );
 				}
 			}
 		}
