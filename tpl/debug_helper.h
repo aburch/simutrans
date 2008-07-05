@@ -11,9 +11,8 @@
 
 #ifdef __cplusplus
 extern "C" {
-#else
-	#undef ERROR
 #endif
+	#undef ERROR
 
 	#define ERROR out_error
 	#define WARNING out_warning

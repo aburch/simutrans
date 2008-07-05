@@ -9,7 +9,10 @@
 #define UNICODE 1
 #include <windows.h>
 #include <mmsystem.h>
+
 #include "../tpl/debug_helper.h"
+#include "sound.h"
+
 
 /*
  * Hajo: flag if sound module should be used
@@ -32,7 +35,7 @@ static int sample_number = 0;
 // #define USE_LOW_LEVEL_AUDIO
 #ifdef USE_LOW_LEVEL_AUDIO
 static HWAVEOUT wave_out=NULL;
-static can_resample = FALSE;
+static bool     can_resample = FALSE;
 static ULONG rate = 0;	// sample rate of device; needed to adjust sample per second
 #endif
 
@@ -102,7 +105,7 @@ void dr_init_sound()
  * @return a handle for that sample or -1 on failure
  * @author Hj. Malthaner
  */
-int dr_load_sample(char *filename)
+int dr_load_sample(char const* filename)
 {
 	if(use_sound  &&  sample_number>=0  &&  sample_number<64) {
 
@@ -115,7 +118,7 @@ int dr_load_sample(char *filename)
 		WAVEHDR *whdr;
 		DWORD sps;
 		// Datei wird geöffnet
-		AudioHandle = mmioOpenA(filename, NULL, MMIO_READ);
+		AudioHandle = mmioOpenA(const_cast<char*>(filename), NULL, MMIO_READ);
 		if(AudioHandle==NULL) {
 			return -1;
 		}
@@ -156,7 +159,7 @@ int dr_load_sample(char *filename)
 		// now we know everything, we can start allocing a structure and read the data
 		len = ckInfoChunk.cksize;
 		samples[sample_number] = GlobalLock( GlobalAlloc(  GMEM_MOVEABLE, (len+4)&0x7FFFFFFCl ) );
-		mmioRead(AudioHandle, samples[sample_number], len);	// assuming success, if we finally go here ...
+		mmioRead(AudioHandle, static_cast<char*>(samples[sample_number]), len); // assuming success, if we finally go here ...
 		mmioClose(AudioHandle, 0);
 
 		// now open a matching device with this sample rate
@@ -170,13 +173,13 @@ int dr_load_sample(char *filename)
 				use_sound = 0;
 				waveOutClose( wave_out );
 				wave_out = NULL;
-				return;
+				return -1;
 			}
 		}
 
 		// now convert it to a header
-		whdr=GlobalLock( GlobalAlloc(  GMEM_MOVEABLE, sizeof(WAVEHDR) ) );
-		whdr->lpData = samples[sample_number];
+		whdr = static_cast<WAVEHDR*>(GlobalLock(GlobalAlloc(GMEM_MOVEABLE, sizeof(WAVEHDR))));
+		whdr->lpData = static_cast<char*>(samples[sample_number]);
 		whdr->dwBufferLength = len;
 		sps = ((FormatDescription.nSamplesPerSec/rate)<<16) + ((65536*(FormatDescription.nSamplesPerSec%rate))/rate);
 		whdr->dwUser = FormatDescription.nSamplesPerSec;//sps;
@@ -187,8 +190,7 @@ MESSAGE( "dr_load_sample()","sample rate %i to with sample rate factor %x",Forma
 		samples[sample_number] = whdr;
 		return sample_number++;
 	}
-#else
-#ifdef USE_MCI_AUDIO
+#elif defined USE_MCI_AUDIO
 		// MCI just needs the full path with name
 		char *str = strdup(filename);
 		int j;
@@ -221,7 +223,6 @@ MESSAGE( "dr_load_sample()","sample rate %i to with sample rate factor %x",Forma
 		}
 	}
 #endif
-#endif
 	return -1;
 }
 
@@ -239,7 +240,6 @@ void dr_play_sample(int sample_number, int volume)
 #ifdef USE_LOW_LEVEL_AUDIO
    		// prissis short version
 		static int oldvol = -1;
-		int i;
 		volume = (volume<<8)-1;
 		if(oldvol!=volume) {
 			long vol = (volume<<16)|volume;
@@ -250,9 +250,8 @@ void dr_play_sample(int sample_number, int volume)
 			waveOutSetPlaybackRate( wave_out, ((WAVEHDR *)samples[sample_number])->dwUser );
 		}
 		waveOutWrite( wave_out, (WAVEHDR *)samples[sample_number], sizeof(WAVEHDR) );
-#else
-#ifdef USE_MCI_AUDIO
-	#error "not finished!"
+#elif defined USE_MCI_AUDIO
+#	error "not finished!"
 #else
 //MESSAGE("dr_play_sample()", "%i sample %i, volume %i ",use_sound,sample_number,volume);
 		// prissis short version
@@ -266,8 +265,7 @@ void dr_play_sample(int sample_number, int volume)
 		// terminate the current sound
 		sndPlaySound( NULL, SND_ASYNC );
 		// now play
-		sndPlaySound( samples[sample_number], SND_MEMORY|SND_ASYNC|SND_NODEFAULT );
-#endif
+		sndPlaySound(static_cast<WCHAR const*>(samples[sample_number]), SND_MEMORY | SND_ASYNC | SND_NODEFAULT); // XXX this cast seems wrong, samples[] contains char strings, not wide char strings.
 #endif
 	}
 }

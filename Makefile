@@ -324,7 +324,7 @@ endif
 ifeq ($(BACKEND),gdi)
   SOURCES += simsys_w$(COLOUR_DEPTH).c
   SOURCES += music/w32_midi.cc
-  SOURCES += sound/win32_sound.c
+  SOURCES += sound/win32_sound.cc
   STD_LIBS ?=  -lunicows
 endif
 
