@@ -18,6 +18,7 @@
 #define PATH_MAX (1024)
 #endif
 
+#include "macros.h"
 #include "simsys.h"
 #include "simevent.h"
 
@@ -526,19 +527,16 @@ BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 int main(int argc, char **argv)
 {
 #ifndef __BEOS__
-#ifdef __APPLE__
-	/* since apple need explicitely a buffer and
-	 * crashes with a NULL pointer for realpath
-	 * (even though this was documented as only valid use!)
-	 */
-	char buffer2[PATH_MAX];
+#	if defined __GLIBC__
+	/* glibc has a non-standard extension */
+	char* buffer2 = NULL;
 #else
-	char *buffer2=NULL;
+	char buffer2[PATH_MAX];
 #endif
 	char buffer[PATH_MAX];
-	strncpy( buffer, argv[0], PATH_MAX-1 );
-	/* Read the target of /proc/self/exe. */
-	if (readlink ("/proc/self/exe", buffer, PATH_MAX)>0) {
+	int length = readlink("/proc/self/exe", buffer, lengthof(buffer) - 1);
+	if (length != -1) {
+		buffer[length] = '\0'; /* readlink() does not NUL-terminate */
 		argv[0] = buffer;
 	}
 	// no process file system => need to parse argv[0]
