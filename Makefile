@@ -304,7 +304,7 @@ SOURCES += simgraph$(COLOUR_DEPTH).cc
 
 
 ifeq ($(BACKEND),allegro)
-  SOURCES  += simsys_d.c
+  SOURCES  += simsys_d.cc
   SOURCES += sound/allegro_sound.c
   SOURCES += music/allegro_midi.c
   ifeq ($(ALLEGRO_CONFIG),)
@@ -322,7 +322,7 @@ endif
 
 
 ifeq ($(BACKEND),gdi)
-  SOURCES += simsys_w$(COLOUR_DEPTH).c
+  SOURCES += simsys_w$(COLOUR_DEPTH).cc
   SOURCES += music/w32_midi.cc
   SOURCES += sound/win32_sound.cc
   STD_LIBS ?=  -lunicows

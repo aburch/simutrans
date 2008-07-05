@@ -22,6 +22,11 @@
 #include <wingdi.h>
 #include <mmsystem.h>
 
+
+#undef max
+#undef min
+
+
 // needed for wheel
 #ifndef WM_MOUSEWHEEL
 #	define WM_MOUSEWHEEL 0x020A
@@ -84,7 +89,7 @@ char *dr_query_homedir()
 	DWORD len=960;
 	HKEY hHomeDir;
 	if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ,	&hHomeDir)==ERROR_SUCCESS) {
-		RegQueryValueExA(hHomeDir,"Personal",NULL,NULL,(LPCSTR)buffer,&len);
+		RegQueryValueExA(hHomeDir, "Personal", NULL, NULL, (BYTE*)buffer, &len);
 		strcat(buffer,"\\Simutrans");
 		CreateDirectoryA( buffer, NULL );
 		strcat(buffer, "\\");
@@ -157,7 +162,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 	WindowSize.right  = w;
 	WindowSize.bottom = h;
 
-	AllDib = GlobalAlloc(GMEM_FIXED, sizeof(BITMAPINFOHEADER) + sizeof(DWORD) * 3);
+	AllDib = static_cast<BITMAPINFOHEADER*>(GlobalAlloc(GMEM_FIXED, sizeof(BITMAPINFOHEADER) + sizeof(DWORD) * 3));
 	AllDib->biSize = sizeof(BITMAPINFOHEADER);
 	AllDib->biCompression = BI_BITFIELDS;
 	*((DWORD*)(AllDib + 1) + 0) = 0x01;
@@ -288,7 +293,7 @@ void set_pointer(int loading)
 
 
 // try using GDIplus to save an screenshot
-extern bool dr_screenshot_png(const char *filename, int w, int h, unsigned short *data, int bpp );
+extern "C" bool dr_screenshot_png(char const* filename, int w, int h, unsigned short* data, int bpp);
 
 /**
  * Some wrappers can save screenshots.
@@ -605,7 +610,7 @@ void GetEventsNoWait()
 
 void show_pointer(int yesno)
 {
-	static state=true;
+	static int state=true;
 	if(state^yesno) {
 		ShowCursor(yesno);
 		state = yesno;
@@ -647,11 +652,7 @@ bool dr_fatal_notify(const char* msg, int choices)
 }
 
 
-
-
-/************************** Winmain ***********************************/
-
-int simu_main(int argc, char **argv);
+extern "C" int simu_main(int argc, char **argv);
 
 
 BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
