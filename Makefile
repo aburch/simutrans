@@ -393,7 +393,7 @@ ifneq ($(findstring $(OSTYPE), cygwin mingw),)
 endif
 
 
-PROG = sim
+PROG ?= sim
 
 
 include common.mk
