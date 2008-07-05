@@ -483,7 +483,7 @@ unsigned long dr_time(void)
 
 void dr_sleep(uint32 usec)
 {
-	return usec;
+	rest(usec);
 }
 
 
