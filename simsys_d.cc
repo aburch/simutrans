@@ -280,7 +280,7 @@ unsigned short* dr_textur_init(void)
 		exit(1);
 	}
 
-	return texture_map->line[0];
+	return reinterpret_cast<unsigned short*>(texture_map->line[0]);
 }
 
 
@@ -504,7 +504,7 @@ bool dr_fatal_notify(const char* msg, int choices)
 }
 
 
-int simu_main(int argc, char **argv);
+extern "C" int simu_main(int argc, char **argv);
 
 #ifdef _WIN32
 BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)

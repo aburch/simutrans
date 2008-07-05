@@ -1,10 +1,6 @@
 #ifndef MUSIC_H
 #define MUSIC_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 #define MAX_MIDI (128)
 
@@ -64,9 +60,5 @@ long dr_midi_pos(void);
 void dr_destroy_midi(void);
 
 void set_midi_pos(int);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

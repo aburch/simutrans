@@ -1,9 +1,6 @@
 #ifndef SOUND_H
 #define SOUND_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * Sound initialisation routine
@@ -23,9 +20,5 @@ int dr_load_sample(const char* filename);
  * @author Hj. Malthaner
  */
 void dr_play_sample(int key, int volume);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
