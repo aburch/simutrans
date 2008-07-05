@@ -23,9 +23,6 @@ static int use_sound = 0;
 // only disadvantages; better not use this
 //#define USE_LOW_LEVEL_AUDIO
 
-// also not better
-//#define USE_MCI_AUDIO
-
 /* this list contains all the samples
  */
 static void *samples[64];
@@ -37,11 +34,6 @@ static int sample_number = 0;
 static HWAVEOUT wave_out=NULL;
 static bool     can_resample = FALSE;
 static ULONG rate = 0;	// sample rate of device; needed to adjust sample per second
-#endif
-
-#ifdef USE_MCI_AUDIO
-static UINT wDeviceID;
-static MCI_OPEN_PARMS mciOpenParms;
 #endif
 
 
@@ -74,26 +66,6 @@ void dr_init_sound()
 		return;
 	}
 #else
-#ifdef USE_MCI_AUDIO
-	/*
-	 * Open the device by specifying both the device
-	 * element and the device name.
-	 */
-	mciOpenParms.lpstrDeviceType = "waveaudio";
-	if (mciSendCommand(0,  /* device ID */
-		MCI_OPEN,            /* command   */
-		MCI_OPEN_TYPE,       /* flags     */
-		(DWORD) (LPVOID) &mciOpenParms) /* parameter block */
-	) {
-		/* Error, unable to open device. */
-		use_sound = 0;
-		return;
-	}
-	else {
-		/* Device opened successfully. Get the device ID. */
-		wDeviceID = mciOpenParms.wDeviceID;
-	}
-#endif
 	use_sound = 1;
 #endif
 }
@@ -190,20 +162,6 @@ MESSAGE( "dr_load_sample()","sample rate %i to with sample rate factor %x",Forma
 		samples[sample_number] = whdr;
 		return sample_number++;
 	}
-#elif defined USE_MCI_AUDIO
-		// MCI just needs the full path with name
-		char *str = strdup(filename);
-		int j;
-
-		// MCI doesn't like relative paths
-		// need to make dos path seperators
-		for (j = 0; j < strlen(str); j++)	{
-			if (str[j] == '/') {
-				str[j] = '\\';
-			}
-		}
-		samples[sample_number] = str;
-		sample_number++;
 #else
 		FILE *fIn=fopen(filename,"rb");
 		if(fIn) {
@@ -250,8 +208,6 @@ void dr_play_sample(int sample_number, int volume)
 			waveOutSetPlaybackRate( wave_out, ((WAVEHDR *)samples[sample_number])->dwUser );
 		}
 		waveOutWrite( wave_out, (WAVEHDR *)samples[sample_number], sizeof(WAVEHDR) );
-#elif defined USE_MCI_AUDIO
-#	error "not finished!"
 #else
 //MESSAGE("dr_play_sample()", "%i sample %i, volume %i ",use_sound,sample_number,volume);
 		// prissis short version

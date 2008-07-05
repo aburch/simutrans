@@ -12,6 +12,10 @@
 #include <stdio.h>
 #include <windows.h>
 #include <mmsystem.h>
+
+#undef max
+#undef min
+
 #include "music.h"
 #include "../simsound.h"
 

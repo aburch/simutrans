@@ -8,6 +8,9 @@
 #ifndef simsound_h
 #define simsound_h
 
+#include "simtypes.h"
+
+
 /**
  * info zu einem abzuspielenden sound
  * @author Hj. Malthaner
