@@ -7,10 +7,6 @@
 #ifndef SIMMEM_H
 #define SIMMEM_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifdef _MSC_VER
 #	include <malloc.h>
 #	define guarded_free free
@@ -25,9 +21,5 @@ void* xrealloc(void * const ptr, size_t size); // Throws std::bad_alloc on failu
 #define MALLOCN(type, n) ((type*)xmalloc(sizeof(type) * (n))) // Allocate n objects of a certain type
 
 #define REALLOC(ptr, type, n) (type*)xrealloc((void * const)ptr, sizeof(type) * (n)) // Reallocate n objects of a certain type
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
