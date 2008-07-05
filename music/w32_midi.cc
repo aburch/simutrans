@@ -254,11 +254,10 @@ void dr_init_midi(void)
 
    mixerSetControlDetails(0, &MixControlDetails, MIXER_OBJECTF_MIDIOUT | MIXER_SETCONTROLDETAILSF_VALUE);
 #else
-	long old_volume;
-
 	if( midiOutGetNumDevs()== 0 ) {
 		return;
 	}
+	DWORD old_volume;
 	midiOutGetVolume( 0, &old_volume );
 	OldMIDIVol[0] = old_volume>>24;
 	OldMIDIVol[1] = (old_volume&0x0000FF00)>>8;
