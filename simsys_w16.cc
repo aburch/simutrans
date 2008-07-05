@@ -39,6 +39,7 @@
 #define USE_16BIT_DIB
 
 #include "simmain.h"
+#include "simmem.h"
 #include "simversion.h"
 #include "simsys.h"
 #include "simevent.h"
@@ -163,7 +164,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 	WindowSize.right  = w;
 	WindowSize.bottom = h;
 
-	AllDib = static_cast<BITMAPINFOHEADER*>(GlobalAlloc(GMEM_FIXED, sizeof(BITMAPINFOHEADER) + sizeof(DWORD) * 3));
+	AllDib = MALLOCE(BITMAPINFOHEADER, DWORD, 3);
 	AllDib->biSize = sizeof(BITMAPINFOHEADER);
 	AllDib->biCompression = BI_BITFIELDS;
 	*((DWORD*)(AllDib + 1) + 0) = 0x01;
@@ -197,14 +198,10 @@ int dr_os_close(void)
 	if (hwnd != NULL) {
 		DestroyWindow(hwnd);
 	}
-	if (AllDibData != NULL) {
-		GlobalFree(GlobalHandle(AllDibData));
-		AllDibData = NULL;
-	}
-	if (AllDib != NULL) {
-		GlobalFree(AllDib);
-		AllDib = NULL;
-	}
+	free(AllDibData);
+	AllDibData = NULL;
+	free(AllDib);
+	AllDib = NULL;
 	ChangeDisplaySettings(NULL, 0);
 	return TRUE;
 }
@@ -215,11 +212,11 @@ int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 {
 	if(w>MaxSize.right+15  ||  h>MaxSize.bottom+2) {
 		// since the query routines that return the desktop data do not take into account a change of resolution
-		GlobalFree( GlobalHandle( AllDibData ) );
+		free(AllDibData);
 		AllDibData = NULL;
 		MaxSize.right = (w+16) & 0xFFF0;
 		MaxSize.bottom = h;
-		AllDibData = (unsigned short*)GlobalLock(GlobalAlloc(GMEM_MOVEABLE, (MaxSize.right + 15) * 2 * (MaxSize.bottom + 2)));
+		AllDibData = MALLOCN(unsigned short, (MaxSize.right + 15) * (MaxSize.bottom + 2));
 		*textur = AllDibData;
 	}
 	AllDib->biWidth   = w;
@@ -231,7 +228,7 @@ int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 
 unsigned short *dr_textur_init()
 {
-	AllDibData = (unsigned short*)GlobalLock( GlobalAlloc(GMEM_MOVEABLE, (MaxSize.right + 15) * 2 * (MaxSize.bottom + 2)));
+	AllDibData = MALLOCN(unsigned short, (MaxSize.right + 15) * (MaxSize.bottom + 2));
 	return AllDibData;
 }
 

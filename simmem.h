@@ -17,8 +17,9 @@ void guarded_free(void* ptr);
 void* xmalloc(size_t size);             // Throws std::bad_alloc on failure
 void* xrealloc(void * const ptr, size_t size); // Throws std::bad_alloc on failure
 
-#define MALLOC(type)     ((type*)xmalloc(sizeof(type)))       // Allocate an object of a certain type
-#define MALLOCN(type, n) ((type*)xmalloc(sizeof(type) * (n))) // Allocate n objects of a certain type
+#define MALLOC(type)            ((type*)xmalloc(sizeof(type)))       // Allocate an object of a certain type
+#define MALLOCN(type, n)        ((type*)xmalloc(sizeof(type) * (n))) // Allocate n objects of a certain type
+#define MALLOCE(type, type2, n) ((type*)xmalloc(sizeof(type) + sizeof(type2) * (n)))
 
 #define REALLOC(ptr, type, n) (type*)xrealloc((void * const)ptr, sizeof(type) * (n)) // Reallocate n objects of a certain type
 
