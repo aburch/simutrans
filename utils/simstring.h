@@ -3,9 +3,6 @@
 
 #include <stddef.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 // a single use number to string ...
 // format could be zero, the "%d" is assumed
@@ -79,9 +76,5 @@ const char * ltrim(const char *);
  * @author Hj. Malthaner
  */
 int count_char(const char* str, const char c);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
