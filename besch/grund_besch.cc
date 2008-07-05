@@ -14,7 +14,6 @@
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "../simgraph.h"
-#include "../simmem.h"
 #include "../simconst.h"
 #include "spezial_obj_tpl.h"
 #include "grund_besch.h"

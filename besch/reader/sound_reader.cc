@@ -5,7 +5,6 @@
 
 #include "../obj_node_info.h"
 
-#include "../../simmem.h"
 #include "../../simdebug.h"
 
 

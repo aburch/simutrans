@@ -10,7 +10,6 @@
 
 #include "../simworld.h"
 #include "../simintr.h"
-#include "../simmem.h"
 #include "../simhalt.h"
 #include "../boden/wege/weg.h"
 #include "../boden/grund.h"

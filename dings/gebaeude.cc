@@ -16,7 +16,6 @@
 #include "../simwin.h"
 #include "../simcity.h"
 #include "../simplay.h"
-#include "../simmem.h"
 #include "../simtools.h"
 #include "../simdebug.h"
 #include "../simintr.h"

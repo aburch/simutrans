@@ -20,7 +20,6 @@
 
 #include "simsys.h"
 #include "simevent.h"
-#include "simmem.h"
 
 
 static void simtimer_init(void);

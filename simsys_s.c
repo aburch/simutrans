@@ -31,7 +31,6 @@
 #endif
 
 #include "macros.h"
-#include "simmem.h"
 #include "simversion.h"
 #include "simsys.h"
 #include "simevent.h"

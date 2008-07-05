@@ -9,7 +9,6 @@
 #include "../simworld.h"
 #include "../simdings.h"
 #include "../simfab.h"
-#include "../simmem.h"
 #include "../simimg.h"
 
 #include "../boden/grund.h"

@@ -8,7 +8,7 @@
 #include <SDL/SDL_mixer.h>
 #include <string.h>
 #include "sound.h"
-#include "../simmem.h"
+
 
 /*
  * Hajo: flag if sound module should be used

@@ -1,5 +1,4 @@
 #include "bild_besch.h"
-#include "../simmem.h"
 #include "../simgraph.h"
 #include "../simtypes.h"
 #include "../simdebug.h"

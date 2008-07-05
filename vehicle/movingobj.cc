@@ -12,7 +12,6 @@
 #include "../simdings.h"
 #include "../simimg.h"
 #include "../simplay.h"
-#include "../simmem.h"
 #include "../simtools.h"
 #include "../simtypes.h"
 

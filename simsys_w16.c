@@ -33,7 +33,6 @@
 // 16 Bit may be much slower than 15 unfourtunately on some hardware
 #define USE_16BIT_DIB
 
-#include "simmem.h"
 #include "simversion.h"
 #include "simsys.h"
 #include "simevent.h"

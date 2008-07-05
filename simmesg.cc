@@ -13,7 +13,6 @@
 #include "simticker.h"
 #include "simgraph.h"
 #include "simcolor.h"
-#include "simmem.h"
 #include "simwin.h"
 #include "utils/simstring.h"
 #include "tpl/slist_tpl.h"

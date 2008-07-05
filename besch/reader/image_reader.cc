@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "../../simgraph.h"
-#include "../../simmem.h"
 #include "../../simdebug.h"
 #include "../../simimg.h"
 

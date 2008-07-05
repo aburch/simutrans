@@ -12,7 +12,6 @@
 #include "../simdebug.h"
 #include "koord.h"
 #include "tabfile.h"
-#include "../simmem.h"
 
 
 bool tabfile_t::open(const char *filename)

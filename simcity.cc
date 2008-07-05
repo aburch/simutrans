@@ -21,7 +21,6 @@
 #include "simplay.h"
 #include "simplan.h"
 #include "simimg.h"
-#include "simmem.h"
 #include "vehicle/simverkehr.h"
 #include "simtools.h"
 #include "simhalt.h"
