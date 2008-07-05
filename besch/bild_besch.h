@@ -7,13 +7,9 @@
 #ifndef __BILD_BESCH_H
 #define __BILD_BESCH_H
 
-#ifdef __cplusplus
+#include "../simimg.h"
 #include "obj_besch.h"
 
-extern "C" {
-#endif
-
-#include "../simimg.h"
 
 struct bild_t {
 	sint16 x;
@@ -25,10 +21,6 @@ struct bild_t {
 	image_id bild_nr;	// Speichern wir erstmal als Dummy mit, wird von register_image() ersetzt
 	uint16 data[];
 };
-
-
-#ifdef __cplusplus
-}
 
 /*
  *  Autor:
@@ -60,7 +52,5 @@ class bild_besch_t : public obj_besch_t {
 	friend class image_reader_t;
 	friend class grund_besch_t; // XXX ugly
 };
-
-#endif
 
 #endif

@@ -3,9 +3,6 @@
 
 #include "simtypes.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 uint32 setsimrand(uint32 seed, uint32 noise_seed);
 
@@ -13,9 +10,5 @@ uint32 setsimrand(uint32 seed, uint32 noise_seed);
 uint32 simrand(const uint32 max);
 
 double perlin_noise_2D(const double x, const double y, const double persistence);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

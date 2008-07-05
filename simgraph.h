@@ -14,11 +14,7 @@
 #ifndef simgraph_h
 #define simgraph_h
 
-#ifdef __cplusplus
-extern "C" {
-// since our simgraph16.c ist a plain c-file, it will never see this
 extern int large_font_height;
-#endif
 
 #include "simcolor.h"
 #include "unicode.h"
@@ -207,9 +203,5 @@ void display_snapshot(void);
 
 void display_set_progress_text(const char *text);
 void display_progress(int part, int total);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

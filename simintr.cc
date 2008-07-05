@@ -128,14 +128,12 @@ intr_get_last_time()
 }
 
 
-extern "C" void
-intr_disable()
+void intr_disable()
 {
 	enabled = false;
 }
 
-extern "C" void
-intr_enable()
+void intr_enable()
 {
 	enabled = true;
 }

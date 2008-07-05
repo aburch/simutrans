@@ -32,8 +32,8 @@ void intr_set_last_time(long time);
 long intr_get_last_time();
 
 
-extern "C" void intr_enable();
-extern "C" void intr_disable();
+void intr_enable();
+void intr_disable();
 
 
 // force sync_step (done before sleeping)

@@ -1,10 +1,6 @@
 #ifndef FONT_H
 #define FONT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "simtypes.h"
 
 typedef struct font_type {
@@ -29,10 +25,5 @@ typedef struct font_type {
  * Loads a font
  */
 bool load_font(font_type* font, const char* fname);
-
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
