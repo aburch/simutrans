@@ -114,12 +114,7 @@ void sound_set_midi_volume(int volume)
 }
 
 
-/**
- * Sets the MIDI volume variable - for internal use only
- * @param volume Volume in range 0-255
- * @author Owen Rudge
- */
-extern "C" void sound_set_midi_volume_var(int volume)
+void sound_set_midi_volume_var(int volume)
 {
 	midi_volume = volume;
 }

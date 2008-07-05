@@ -9,9 +9,6 @@
 
 #include "simtypes.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #ifndef TRUE
 #define TRUE 1
@@ -109,10 +106,5 @@ bool dr_fatal_notify(const char* msg, int choices);
  * @author Hj. Malthaner
  */
 int dr_screenshot(const char *filename);
-
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

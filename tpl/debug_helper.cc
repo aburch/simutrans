@@ -5,7 +5,6 @@
 #include "debug_helper.h"
 #include "../simdebug.h"
 
-extern "C" void out_error(const char *who, const char *format, ...);
 
 void out_error(const char *who, const char *format, ...)
 {
@@ -23,7 +22,6 @@ void out_error(const char *who, const char *format, ...)
 	fprintf(stderr,"\n");
 }
 
-extern "C" void out_warning(const char *who, const char *format, ...);
 
 void out_warning(const char *who, const char *format, ...)
 {
@@ -41,7 +39,6 @@ void out_warning(const char *who, const char *format, ...)
 	fprintf(stderr,"\n");
 }
 
-extern "C" void out_message(const char *who, const char *format, ...);
 
 void out_message(const char *who, const char *format, ...)
 {

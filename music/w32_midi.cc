@@ -13,6 +13,7 @@
 #include <windows.h>
 #include <mmsystem.h>
 #include "music.h"
+#include "../simsound.h"
 
 
 /*
@@ -30,9 +31,6 @@ char *midi_filenames[MAX_MIDI];
 
 
 static int OldMIDIVol[2] = {-1, -1};
-
-
-extern void sound_set_midi_volume_var(int volume);
 
 
 #define __MIDI_VOL_SIMU    1  // 0-255

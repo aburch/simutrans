@@ -117,4 +117,12 @@ extern void midi_next_track();
 extern void midi_last_track();
 extern void midi_stop();
 
+
+/**
+ * Sets the MIDI volume variable - for internal use only
+ * @param volume Volume in range 0-255
+ * @author Owen Rudge
+ */
+void sound_set_midi_volume_var(int volume);
+
 #endif

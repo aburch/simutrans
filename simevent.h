@@ -11,10 +11,6 @@
 #ifndef simevent_h
 #define simevent_h
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /* Messageverarbeitung */
 
@@ -176,9 +172,5 @@ void display_get_event(struct event_t *ev);
 void change_drag_start(int x, int y);
 
 int event_get_last_control_shift(void);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

@@ -9,23 +9,16 @@
 
 #else
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-	#undef ERROR
+#undef ERROR
 
-	#define ERROR out_error
-	#define WARNING out_warning
-	#define MESSAGE out_message
+#define ERROR out_error
+#define WARNING out_warning
+#define MESSAGE out_message
 
-	extern void out_error(const char *who, const char *format, ...);
-	extern void out_warning(const char *who, const char *format, ...);
-	extern void out_message(const char *who, const char *format, ...);
-  extern void trap(void);
-
-#ifdef __cplusplus
-}
-#endif
+void out_error(  const char *who, const char *format, ...);
+void out_warning(const char *who, const char *format, ...);
+void out_message(const char *who, const char *format, ...);
+void trap(void);
 
 #endif
 
