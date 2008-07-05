@@ -330,7 +330,7 @@ endif
 
 
 ifeq ($(BACKEND),sdl)
-  SOURCES  += simsys_s.c
+  SOURCES  += simsys_s.cc
   CFLAGS   += -DUSE_16BIT_DIB
   CXXFLAGS += -DUSE_16BIT_DIB
   SOURCES  += sound/sdl_sound.cc
@@ -359,7 +359,7 @@ endif
 
 
 ifeq ($(BACKEND),mixer_sdl)
-  SOURCES  += simsys_s.c
+  SOURCES  += simsys_s.cc
   SOURCES += sound/sdl_mixer_sound.cc
   SOURCES += music/sdl_midi.cc
   CFLAGS   += -DUSE_16BIT_DIB

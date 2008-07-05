@@ -11,6 +11,7 @@
 
 #include "pathes.h"
 
+#include "simmain.h"
 #include "simworld.h"
 #include "simware.h"
 #include "simview.h"
@@ -409,7 +410,7 @@ static const char *gimme_arg(int argc, char *argv[], const char *arg, int off)
 }
 
 
-extern "C" int simu_main(int argc, char** argv)
+int simu_main(int argc, char** argv)
 {
 	static const int resolutions[][2] = {
 		{  640,  480 },

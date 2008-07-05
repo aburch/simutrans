@@ -31,6 +31,7 @@
 #endif
 
 #include "macros.h"
+#include "simmain.h"
 #include "simversion.h"
 #include "simsys.h"
 #include "simevent.h"
@@ -557,8 +558,6 @@ bool dr_fatal_notify(const char* msg, int choices)
 #endif
 }
 
-
-int simu_main(int argc, char **argv);
 
 #ifdef _WIN32
 BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)

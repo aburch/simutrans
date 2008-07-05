@@ -12,6 +12,7 @@
 #include <sys/time.h>
 #include <X11/extensions/XShm.h>
 
+#include "simmain.h"
 #include "simsys.h"
 
 
@@ -494,8 +495,6 @@ void dr_sleep(unsigned long usec)
 	if (usec > 1000) usleep(usec);
 }
 
-
-int simu_main(int argc, char **argv);
 
 int main(int argc, char **argv)
 {

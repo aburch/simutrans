@@ -38,6 +38,7 @@
 // 16 Bit may be much slower than 15 unfourtunately on some hardware
 #define USE_16BIT_DIB
 
+#include "simmain.h"
 #include "simversion.h"
 #include "simsys.h"
 #include "simevent.h"
@@ -650,9 +651,6 @@ bool dr_fatal_notify(const char* msg, int choices)
 		return MessageBoxA( hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==IDRETRY;
 	}
 }
-
-
-extern "C" int simu_main(int argc, char **argv);
 
 
 BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
