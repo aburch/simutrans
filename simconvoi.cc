@@ -2142,7 +2142,7 @@ void convoi_t::dump() const
 		(const char *)(state_names[state]),
 		(int)alte_richtung,
 		(long)(jahresgewinn/100),
-		(int)name_and_id,
+		(const char *)name_and_id,
 		(int)line_id,
 		(const void *)fpl );
 }
