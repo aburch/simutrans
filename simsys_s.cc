@@ -33,6 +33,7 @@
 #undef min
 #undef max
 
+#include "macros.h"
 #include "simmain.h"
 #include "simversion.h"
 #include "simsys.h"
