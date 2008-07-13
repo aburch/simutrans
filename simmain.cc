@@ -417,13 +417,13 @@ int simu_main(int argc, char** argv)
 		{  800,  600 },
 		{ 1024,  768 },
 		{ 1280, 1024 },
-		{  672,  496 } // try to force window mode with allegro
+		{  704,  560 } // try to force window mode with allegro
 	};
 
 	FILE * config = NULL; // die konfigurationsdatei
 
-	int disp_width = 800;
-	int disp_height = 600;
+	int disp_width = 0;
+	int disp_height = 0;
 	int fullscreen = false;
 
 #ifdef _MSC_VER
@@ -565,19 +565,15 @@ int simu_main(int argc, char** argv)
 			case 2:
 			case 3:
 			case 4:
+				fullscreen = (res<=4);
 				disp_width  = resolutions[res][0];
 				disp_height = resolutions[res][1];
-				fullscreen = true;
 				break;
-
-			case 5:
-				fullscreen = false;
-				// XXX missing break?
 
 			default:
 				fprintf(stderr,
 					"invalid resolution, argument must be 1,2,3 or 4\n"
-					"1=640x480, 2=800x600, 3=1024x768, 4=1280x1024\n"
+					"1=640x480, 2=800x600, 3=1024x768, 4=1280x1024, 5=windowed\n"
 				);
 				return 0;
 		}
@@ -602,11 +598,27 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	const char* use_shm = gimme_arg(argc, argv, "-net",   0);
-	const char* do_sync = gimme_arg(argc, argv, "-async", 0);
+	int parameter[2];
+	parameter[0] = gimme_arg(argc, argv, "-net",   0)==NULL;
+	parameter[1] = gimme_arg(argc, argv, "-async", 0)==NULL;
+	dr_os_init(parameter);
+
+	// get optimal resolution ...
+	if(  disp_width==0  ||  disp_height==0  ) {
+		int scr_x = dr_query_screen_width();
+		int scr_y = dr_query_screen_height();
+		if(  fullscreen  ) {
+			disp_width = scr_x;
+			disp_height = scr_y;
+		}
+		else {
+			disp_width = min( 704, scr_x );
+			disp_height = min( 560, scr_y );
+		}
+	}
 
 	print("Preparing display ...\n");
-	simgraph_init(disp_width, disp_height, use_shm == NULL, do_sync == NULL, fullscreen);
+	simgraph_init(disp_width, disp_height, fullscreen);
 
 	// if no object files given, we ask the user
 	if(  umgebung_t::objfilename.empty()  ) {

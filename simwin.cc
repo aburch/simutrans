@@ -944,6 +944,7 @@ void win_poll_event(struct event_t *ev)
 	if(ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RESIZE) {
 		// main window resized
 		simgraph_resize( ev->mx, ev->my );
+		ticker::redraw_ticker();
 		ev->ev_class = EVENT_NONE;
 	}
 }

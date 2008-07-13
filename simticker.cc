@@ -121,3 +121,26 @@ void ticker::zeichnen(void)
 		redraw_all = false;
 	}
 }
+
+
+
+// complete redraw (after resizing)
+void ticker::redraw_ticker()
+{
+	if (!list.empty()) {
+		const int start_y=display_get_height()-32;
+		const int width = display_get_width();
+
+		// just draw the ticker grey ... (to be sure ... )
+		display_fillbox_wh(0, start_y, width, 1, COL_BLACK, true);
+		display_fillbox_wh(0, start_y+1, width, 15, MN_GREY2, true);
+		for (slist_iterator_tpl<node> i(list); i.next();) {
+			node* n = &i.access_current();
+			n->xpos -= X_DIST;
+			if(n->xpos<width) {
+				display_proportional_clip(n->xpos, start_y+4, n->msg,  ALIGN_LEFT, n->color, true);
+				default_pos = n->pos;
+			}
+		}
+	}
+}

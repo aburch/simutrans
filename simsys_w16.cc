@@ -109,6 +109,22 @@ char *dr_query_homedir()
 
 
 
+/* maximum size possible (if there) */
+int dr_query_screen_width()
+{
+	return GetSystemMetrics( SM_CXSCREEN );
+}
+
+
+
+int dr_query_screen_height()
+{
+	return GetSystemMetrics( SM_CYSCREEN );
+}
+
+
+
+
 // open the window
 int dr_os_open(int w, int h, int bpp, int fullscreen)
 {
@@ -129,12 +145,13 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 		settings.dmPelsHeight = h;
 		settings.dmDisplayFrequency = 0;
 
-		if(  ChangeDisplaySettings(&settings, CDS_FULLSCREEN)!=DISP_CHANGE_SUCCESSFUL  &&  w!=MaxSize.right  &&  h!=MaxSize.bottom) {
+		if(  ChangeDisplaySettings(&settings, CDS_TEST)!=DISP_CHANGE_SUCCESSFUL  ) {
 			ChangeDisplaySettings( NULL, 0 );
 			printf( "dr_os_open()::Could not reduce color depth to 16 Bit in fullscreen." );
 			fullscreen = false;
 		}
 		else {
+			ChangeDisplaySettings(&settings, CDS_FULLSCREEN);
 			MaxSize.right = w;
 			MaxSize.bottom = h;
 		}
@@ -216,7 +233,7 @@ int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 		AllDibData = NULL;
 		MaxSize.right = (w+16) & 0xFFF0;
 		MaxSize.bottom = h;
-		AllDibData = MALLOCN(unsigned short, (MaxSize.right + 15) * (MaxSize.bottom + 2));
+		AllDibData = MALLOCN(unsigned short, MaxSize.right * MaxSize.bottom );
 		*textur = AllDibData;
 	}
 	AllDib->biWidth   = w;
@@ -228,7 +245,9 @@ int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 
 unsigned short *dr_textur_init()
 {
-	AllDibData = MALLOCN(unsigned short, (MaxSize.right + 15) * (MaxSize.bottom + 2));
+	AllDibData = MALLOCN(unsigned short, MaxSize.right * MaxSize.bottom );
+	// start with black
+	memset( AllDibData, 0, MaxSize.right * MaxSize.bottom * sizeof(unsigned short) );
 	return AllDibData;
 }
 
@@ -468,10 +487,14 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 				sys_event.code = SIM_SYSTEM_RESIZE;
 
 				sys_event.mx = LOWORD(lParam) + 1;
-				if (sys_event.mx <= 0) sys_event.mx = 4;
+				if (sys_event.mx <= 0) {
+					sys_event.mx = 4;
+				}
 
 				sys_event.my = HIWORD(lParam);
-				if (sys_event.my <= 1) sys_event.my = 64;
+				if (sys_event.my <= 1) {
+					sys_event.my = 64;
+				}
 			}
 			break;
 

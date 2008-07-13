@@ -59,6 +59,11 @@ extern struct sys_event sys_event;
 
 
 int dr_os_init(const int* parameter);
+
+/* maximum size possible (if there) */
+int dr_query_screen_width();
+int dr_query_screen_height();
+
 int dr_os_open(int w, int h, int bpp, int fullscreen);
 int dr_os_close(void);
 

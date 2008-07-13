@@ -2913,15 +2913,9 @@ void display_show_load_pointer(int loading)
  * Initialises the graphics module
  * @author Hj. Malthaner
  */
-int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, int full_screen)
+int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 {
-	int parameter[2];
 	int i;
-
-	parameter[0] = use_shm;
-	parameter[1] = do_sync;
-
-	dr_os_init(parameter);
 
 	// make sure it something of 16 (also better for caching ... )
 	width = (width + 15) & 0x7FF0;

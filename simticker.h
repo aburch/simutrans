@@ -35,6 +35,11 @@ namespace ticker
 	 * Ticker redraw
 	 */
 	void zeichnen();
+
+	/**
+	 * Ticker text redraw after resize
+	 */
+	void redraw_ticker();
 };
 
 #endif

@@ -26,8 +26,8 @@
 
 static void simtimer_init(void);
 
-static int width  = 640;
-static int height = 480;
+static int width  = 800;
+static int height = 600;
 
 struct sys_event sys_event;
 
@@ -180,10 +180,35 @@ int dr_os_init(const int* parameter)
 	LOCK_FUNCTION(my_mouse_callback);
 	LOCK_FUNCTION(my_keyboard_callback);
 
-	if (ok == 0) simtimer_init();
+	if (ok == 0) {
+		simtimer_init();
+	}
 
 	return ok == 0;
 }
+
+
+/* maximum size possible (if there) */
+int dr_query_screen_width()
+{
+#ifdef _WIN32
+	return GetSystemMetrics( SM_CXSCREEN );
+#else
+	return width;
+#endif
+}
+
+
+
+int dr_query_screen_height()
+{
+#ifdef _WIN32
+	return GetSystemMetrics( SM_CYSCREEN );
+#else
+	return height;
+#endif
+}
+
 
 
 int dr_os_open(int w, int h, int bpp, int fullscreen)
@@ -235,7 +260,7 @@ char *dr_query_homedir(void)
 	DWORD len=960;
 	HKEY hHomeDir;
 	if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ,	&hHomeDir)==ERROR_SUCCESS) {
-		RegQueryValueExA(hHomeDir,"Personal",NULL,NULL,(LPCSTR)buffer,&len);
+		RegQueryValueExA(hHomeDir,"Personal",NULL,NULL,(BYTE *)buffer,&len);
 		strcat(buffer,"\\Simutrans");
 		CreateDirectoryA( buffer, NULL );
 		strcat(buffer, "\\");

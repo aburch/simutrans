@@ -30,7 +30,9 @@
 #define PATH_MAX (1024)
 #endif
 
-#include "macros.h"
+#undef min
+#undef max
+
 #include "simmain.h"
 #include "simversion.h"
 #include "simsys.h"
@@ -127,6 +129,38 @@ int dr_os_init(const int* parameter)
 }
 
 
+/* maximum size possible (if there) */
+int dr_query_screen_width()
+{
+	SDL_Rect **modi;
+	modi = SDL_ListModes (NULL, SDL_FULLSCREEN );
+	if (modi == NULL  ||  modi == (SDL_Rect**)-1  ) {
+		return 704;
+	}
+	else {
+		// return first
+		return modi[0]->w;
+	}
+}
+
+
+
+int dr_query_screen_height()
+{
+	SDL_Rect **modi;
+	modi = SDL_ListModes (NULL, SDL_FULLSCREEN );
+	if (modi == NULL  ||  modi == (SDL_Rect**)-1  ) {
+		return 704;
+	}
+	else {
+		// return first
+		return modi[0]->h;
+	}
+}
+
+
+
+
 // open the window
 int dr_os_open(int w, int h, int bpp, int fullscreen)
 {
@@ -206,7 +240,7 @@ char *dr_query_homedir(void)
 	DWORD len=PATH_MAX-24;
 	HKEY hHomeDir;
 	if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ,	&hHomeDir)==ERROR_SUCCESS) {
-		RegQueryValueExA(hHomeDir,"Personal",NULL,NULL,(LPCSTR)buffer,&len);
+		RegQueryValueExA(hHomeDir,"Personal",NULL,NULL,(BYTE *)buffer,&len);
 		strcat(buffer,"\\Simutrans");
 		CreateDirectoryA( buffer, NULL );
 		strcat(buffer, "\\");
@@ -314,7 +348,7 @@ void set_pointer(int loading)
 
 
 // try saving png using gdiplus.dll
-extern int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data, int bitdepth );
+extern "C" int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data, int bitdepth );
 
 /**
  * Some wrappers can save screenshots.
@@ -325,7 +359,7 @@ extern int dr_screenshot_png(const char *filename,  int w, int h, unsigned short
 int dr_screenshot(const char *filename)
 {
 #ifdef WIN32
-	if(dr_screenshot_png(filename, width, height, screen->pixels, screen->format->BitsPerPixel)) {
+	if(dr_screenshot_png(filename, width, height, ( unsigned short *)(screen->pixels), screen->format->BitsPerPixel)) {
 		return 1;
 	}
 #endif

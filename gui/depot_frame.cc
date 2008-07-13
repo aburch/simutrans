@@ -874,7 +874,9 @@ DBG_MESSAGE("depot_frame_t::image_from_storage_list()","appended %s",info->gib_n
 				*	We sell the newest vehicle - gives most money back.
 				*/
 				vehikel_t* veh = find_oldest_newest(new_vehicle_info.remove_first(), false);
-				if (veh != NULL) depot->sell_vehicle(veh);
+				if (veh != NULL) {
+					depot->sell_vehicle(veh);
+				}
 			}
 		}
 		else {
