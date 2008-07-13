@@ -9,6 +9,7 @@
 	CHANGE: -fullscreen command flag will try to detect current resolution => no need to specify size
 	FIX: scrollbar text after resize now updated properly
 	FIX: remember last selected tool
+	FIX: preserve tick count after loading saved game => wait per month should be fine now
 
 
 Release of 100.0 (r1867, stable)

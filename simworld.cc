@@ -3225,10 +3225,12 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 		}
 	}
 
-	// make counter for next month
+#if 0
+	// preserve tick counter ...
 	ticks = ticks % karte_t::ticks_per_tag;
 	next_month_ticks = karte_t::ticks_per_tag;
 	letzter_monat %= 12;
+#endif
 
 	// finally: do we run a scenario?
 	if(file->get_version()>=99018) {
