@@ -1923,7 +1923,8 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 {
 	// the cursor cannot be outside the map from here on
 	koord pos = k.gib_2d();
-	hang_t::typ hang = welt->lookup_kartenboden(pos)->gib_grund_hang();
+	grund_t *gr = welt->lookup_kartenboden(pos);
+	hang_t::typ hang = gr->gib_grund_hang();
 	// first get the size
 	int len = besch->gib_groesse().y-1;
 	koord dx = koord((hang_t::typ)hang);
@@ -1950,7 +1951,7 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 					if(msg) {
 						return msg;
 					}
-					else if(i==0  &&  (gr->ist_wasser()  ||  gr->hat_wege()  ||  gr->gib_typ()!=grund_t::boden)  ||  gr->obj_count()>0  ||  gr->is_halt()) {
+					else if(i==0  &&  (gr->ist_wasser()  ||  gr->hat_wege()  ||  gr->gib_typ()!=grund_t::boden)  ||  gr->kann_alle_obj_entfernen(sp)!=NULL  ||  gr->is_halt()) {
 						return "Tile not empty.";
 					}
 					else if (i!=0  &&  (!gr->ist_wasser() || gr->find<gebaeude_t>() || gr->gib_depot() || gr->is_halt())) {
@@ -1960,6 +1961,9 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 			}
 		}
 	}
+
+	// remove everything from tile
+	gr->obj_loesche_alle(sp);
 
 DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.x, pos.y, last_pos.x, last_pos.y);
 	int layout = 0;
@@ -1999,7 +2003,6 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	}
 
 	// oriented buildings here - get neighbouring layouts
-	grund_t *gr;
 	gr = welt->lookup_kartenboden(pos+dx2);
 
 	// find out if middle end or start tile
