@@ -1154,15 +1154,16 @@ const weg_besch_t * wkz_wegebau_t::get_besch()
 		if(besch==NULL) {
 			if(wt<=air_wt) {
 				weg_t *w = weg_t::alloc(wt);
-				besch = defaults[wt] = w->gib_besch();
+				besch = w->gib_besch();
 				delete w;
 			}
 			else {
-				besch = defaults[0] = wegbauer_t::leitung_besch;
+				besch = wegbauer_t::leitung_besch;
 			}
 		}
-		assert(besch);
 	}
+	assert(besch);
+	defaults[besch->gib_wtyp()&63] = besch;
 	return besch;
 }
 

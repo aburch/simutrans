@@ -6,6 +6,9 @@
 	FIX: crashes with movingobjects during creation
 	FIX: planes were not always correctly decending
 	FIX: harbour tile layout==16 tile were not calaculated simular to stations
+	CHANGE: -fullscreen command flag will try to detect current resolution => no need to specify size
+	FIX: scrollbar text after resize now updated properly
+	FIX: remember last selected tool
 
 
 Release of 100.0 (r1867, stable)
