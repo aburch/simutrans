@@ -2931,6 +2931,7 @@ DBG_DEBUG("karte_t::laden", "init felder ok");
 	setze_ticks_bits_per_tag(einstellungen->gib_bits_per_month());
 	current_month = letzter_monat + (letztes_jahr*12);
 	season = (2+letzter_monat/3)&3; // summer always zero
+	next_month_ticks = 	( (ticks >> karte_t::ticks_bits_per_tag) + 1 ) << karte_t::ticks_bits_per_tag;
 	steps = 0;
 
 DBG_MESSAGE("karte_t::laden()","savegame loading at tick count %i",ticks);
