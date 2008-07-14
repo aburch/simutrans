@@ -133,6 +133,13 @@ int dr_os_init(const int* parameter)
 /* maximum size possible (if there) */
 int dr_query_screen_width()
 {
+#if SDL_VERSIONNUM(SDL_MAJOR_VERSION,SDL_MINOR_VERSION,SDL_PATCHLEVEL)>=1210
+	const SDL_VideoInfo *vi=SDL_GetVideoInfo();
+	return vi->current_w;
+#else
+#ifdef _WIN32
+	return GetSystemMetrics( SM_CXSCREEN );
+#else
 	SDL_Rect **modi;
 	modi = SDL_ListModes (NULL, SDL_FULLSCREEN );
 	if (modi == NULL  ||  modi == (SDL_Rect**)-1  ) {
@@ -142,12 +149,21 @@ int dr_query_screen_width()
 		// return first
 		return modi[0]->w;
 	}
+#endif
+#endif
 }
 
 
 
 int dr_query_screen_height()
 {
+#if SDL_VERSIONNUM(SDL_MAJOR_VERSION,SDL_MINOR_VERSION,SDL_PATCHLEVEL)>=1210
+	const SDL_VideoInfo *vi=SDL_GetVideoInfo();
+	return vi->current_h;
+#else
+#ifdef _WIN32
+	return GetSystemMetrics( SM_CYSCREEN );
+#else
 	SDL_Rect **modi;
 	modi = SDL_ListModes (NULL, SDL_FULLSCREEN );
 	if (modi == NULL  ||  modi == (SDL_Rect**)-1  ) {
@@ -157,6 +173,8 @@ int dr_query_screen_height()
 		// return first
 		return modi[0]->h;
 	}
+#endif
+#endif
 }
 
 

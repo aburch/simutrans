@@ -565,6 +565,7 @@ int simu_main(int argc, char** argv)
 			case 2:
 			case 3:
 			case 4:
+			case 5:
 				fullscreen = (res<=4);
 				disp_width  = resolutions[res][0];
 				disp_height = resolutions[res][1];

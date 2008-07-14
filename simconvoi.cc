@@ -1196,6 +1196,11 @@ convoi_t::can_go_alte_richtung()
 		}
 	}
 
+	int restart_speed=-1;
+	if(!fahr[0]->ist_weg_frei(restart_speed)) {
+		state = WAITING_FOR_CLEARANCE;
+	}
+
 	return true;
 }
 
