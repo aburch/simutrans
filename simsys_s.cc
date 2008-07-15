@@ -38,6 +38,7 @@
 #include "simversion.h"
 #include "simsys.h"
 #include "simevent.h"
+#include "simgraph.h"
 
 // try to use hardware double buffering ...
 // this is equivalent on 16 bpp and much slower on 32 bpp
@@ -326,11 +327,16 @@ void dr_setRGB8multi(int first, int count, unsigned char* data)
 }
 
 
+void dr_prepare_flush()
+{
+	return;
+}
+
+
+
 void dr_flush(void)
 {
-#if 0
-	SDL_UpdateRect(screen, 0, 0, width, height);
-#endif
+	display_flush_buffer();
 #ifdef USE_HW
 	SDL_UnlockSurface(screen);
 	SDL_Flip(screen);

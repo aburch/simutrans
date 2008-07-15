@@ -28,6 +28,7 @@
 #include "simgraph.h"
 #include "simskin.h"
 #include "simticker.h"
+#include "simsys.h"
 
 #include "dataobj/translator.h"
 #include "dataobj/umgebung.h"
@@ -1133,7 +1134,7 @@ void win_display_flush(double konto)
 		money_to_string(buffer, konto);
 		display_proportional( middle+5, disp_height-12, buffer, ALIGN_LEFT, konto >= 0.0?MONEY_PLUS:MONEY_MINUS, true);
 	}
-	display_flush_buffer();
+	dr_flush();
 }
 
 

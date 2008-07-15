@@ -22,6 +22,7 @@
 #include <wingdi.h>
 #include <mmsystem.h>
 
+#include "simgraph.h"
 
 #undef max
 #undef min
@@ -56,7 +57,7 @@ static HINSTANCE hInstance;
 static BITMAPINFOHEADER *AllDib = NULL;
 static unsigned short *AllDibData = NULL;
 
-static HDC hdc = NULL;
+volatile HDC hdc = NULL;
 
 const wchar_t* const title =
 #ifdef _MSC_VER
@@ -268,9 +269,46 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 
 
 
+HANDLE	hFlushThread=0;
+
+// multhreaded screen copy ...
+DWORD WINAPI dr_flush_screen(LPVOID lpParam)
+{
+	while(1) {
+		if (hdc == NULL) {
+			hdc = GetDC(hwnd);
+		}
+		display_flush_buffer();
+		ReleaseDC(hwnd, hdc);
+		hdc = NULL;
+		// suspend myself after one update
+		SuspendThread( hFlushThread );
+	}
+	return 0;
+}
+
+void dr_prepare_flush()
+{
+	// thread there?
+	if(hFlushThread==NULL) {
+		DWORD id=22;
+		hFlushThread = CreateThread( NULL, 0, dr_flush_screen, 0, CREATE_SUSPENDED, &id );
+	}
+	// wait for finish of thread
+	while(hdc) ;
+}
+
 void dr_flush()
 {
-	if (hdc != NULL) {
+	// just let the thread do its work
+	if(ResumeThread( hFlushThread )==-1) {
+
+		// do it manually (should never happen!)
+		hFlushThread = NULL;
+		if (hdc == NULL) {
+			hdc = GetDC(hwnd);
+		}
+		display_flush_buffer();
 		ReleaseDC(hwnd, hdc);
 		hdc = NULL;
 	}
@@ -280,7 +318,6 @@ void dr_flush()
 
 void dr_textur(int xp, int yp, int w, int h)
 {
-	if (hdc == NULL) hdc = GetDC(hwnd);
 	AllDib->biHeight = h+1;
 	StretchDIBits(
 		hdc,
@@ -654,6 +691,7 @@ unsigned long dr_time(void)
 
 
 
+
 void dr_sleep(uint32 millisec)
 {
 	Sleep(millisec);
@@ -708,5 +746,8 @@ BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 
 	simu_main(argc, argv);
 
+	if(	hFlushThread ) {
+		TerminateThread( hFlushThread, 0 );
+	}
 	return 0;
 }

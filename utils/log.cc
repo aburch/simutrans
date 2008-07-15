@@ -223,7 +223,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 			if(ev.ev_class==EVENT_KEYBOARD) {
 				break;
 			}
-			display_flush_buffer();
+			dr_flush();
 		}
 	}
 	else {

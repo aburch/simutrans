@@ -22,6 +22,7 @@
 #include "simmain.h"
 #include "simsys.h"
 #include "simevent.h"
+#include "simgraph.h"
 
 
 static void simtimer_init(void);
@@ -353,9 +354,16 @@ void dr_setRGB8multi(int first, int count, unsigned char* data)
 }
 
 
+void dr_prepare_flush()
+{
+	return;
+}
+
+
+
 void dr_flush(void)
 {
-	// allegro doesn't use flush
+	display_flush_buffer();
 }
 
 

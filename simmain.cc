@@ -133,7 +133,7 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 
 	ms = dr_time();
 	for (i = 0;  i < 300;  i++)
-		display_flush_buffer();
+		dr_flush();
 	DBG_MESSAGE("test", "display_flush_buffer(): %i iterations took %i ms", i, dr_time() - ms);
 
 	ms = dr_time();
@@ -222,11 +222,11 @@ static void ask_objfilename()
 	while(umgebung_t::objfilename.empty()) {
 		// do not move, do not close it!
 		sel->zeichnen( xy, sel->gib_fenstergroesse() );
-		dr_sleep(50);
 		display_poll_event(&ev);
 		// main window resized
 		check_pos_win(&ev);
-		display_flush_buffer();
+		dr_flush();
+		dr_sleep(50);
 	}
 	set_pointer(1);
 }

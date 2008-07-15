@@ -11,6 +11,7 @@
 	FIX: remember last selected tool
 	FIX: preserve tick count after loading saved game => wait per month should be fine now
 	FIX: allow harbours also on trees ...
+	FIX: start on signal tile resp. drive thorugh closed signals when open/close schedule dialoge
 
 
 Release of 100.0 (r1867, stable)

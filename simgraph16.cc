@@ -2851,8 +2851,6 @@ void display_flush_buffer(void)
 	}
 #endif
 
-	dr_flush();
-
 	// swap tile buffers
 	tmp = tile_dirty_old;
 	tile_dirty_old = tile_dirty;
@@ -3163,5 +3161,5 @@ void display_progress(int part, int total)
 	if(progress_text) {
 		display_proportional(width,display_get_height()/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);
 	}
-	display_flush_buffer();
+	dr_flush();
 }

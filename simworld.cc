@@ -3430,7 +3430,7 @@ void karte_t::do_freeze()
 
 	// Pause: warten auf die nächste Taste
 	event_t ev;
-	display_flush_buffer();
+	dr_flush();
 	warte_auf_mausklick_oder_taste(&ev);
 	reset_timer();
 }

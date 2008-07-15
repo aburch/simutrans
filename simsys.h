@@ -75,7 +75,10 @@ unsigned short* dr_textur_init(void);
 
 void dr_textur(int xp, int yp, int w, int h);
 int dr_textur_resize(unsigned short** textur,int w, int h, int bpp);
-void dr_flush(void);
+
+// needed for screen update
+void dr_prepare_flush();	// waits, if previous update not yet finished
+void dr_flush(void);	// copy to screen (eventuall multithreaded)
 
 void dr_setRGB8multi(int first, int count, unsigned char * data);
 
