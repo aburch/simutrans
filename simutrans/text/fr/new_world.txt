@@ -1,74 +1,43 @@
-<title>Aide sur le nouveau jeu</title>
+<title>Aide sur un nouveau monde (nouveau jeu)</title>
 <h1>Créer un nouveau jeu</h1>
-
 <p>
-Cet écran vous permet de créer une nouvelle carte (donc un nouveau jeu), en définissant
-les divers paramètres tels que la taille de la carte jusqu'à la densité d'industries.
-</p>
-
+Les fenêtres qui permettent de créer un nouveau monde sont accessible au lancement du jeu et, en cours de partie, en cliquant sur la disquette (option) puis sur menu général.</p>
 <p>
-Ci-dessous, vous trouverez les différentes options, ainsi qu'une description sommaire
-de son effet sur la nouvelle carte.</p>
-
+Cet écran vous permet de créer une nouvelle carte (donc un nouveau jeu), en définissant les paramètres relatifs à l'époque, à la carte, à la météo, aux villes et aux industries.</p>
 <p>
-<em>Carte N°</em> - Détermine le 'profil' de la carte, incluant les positions des
-villes, de la mer et des plaines. Un modèle de chaque carte est affiché et mis à
-jour à chque changement de paramètre. La numéro de carte par défaut est 33.
+<em>Load game :</em> Vous permet de charger l'un de vos jeux précédemment sauvegardé.
+<a href="load.txt">Cliquez ici pour plus d'infos</a>.</p>
+<p>
+<em>Charger un relief :</em> si vous disposez d'un fichier avec un relief déterminé.</p>
+<p>
+<em>Numéro de carte :</em> Sélectionnez l'une des nombreuses cartes à jouer, soit en entrant le n° souhaité, soit en utilisant les boutons qui permettent de passer à la carte précédente/suivante, soit en cliquant sur «carte quelconque» pour qu'un numéro de carte soit tiré au sort.</p>
+<p>
+<em>Dimensions :</em> Nombre de carrés dont le monde généré sera composé. Valeur mini : 64, maxi : 4096. Attention à ne pas générer une carte trop grande pour la capacité de calcul de votre ordinateur. Une carte trop petite peut avoir pour conséquence un non respect de vos autres choix (s'il y a peu de terres, il ne pourra pas y avoir beaucoup de villes, par exemple).</p>
+<p>
+<em>Nb villes :</em> Nombre initial de villes. D'autres villes peuvent être crées en cours de partie en payant une somme importante... ou en demandant au joueur service public de le faire.</p>
+<p>
+<em>Moyenne d'habitants par Ville :</em> Nombre moyen de personnes vivant dans chaque ville (certaines villes seront bien évidemment plus grosses et d'autres plus petites, ce n'est qu'une moyenne).</p>
+<p>
+<em>Intercity road len :</em> Longueur maximale de route reliant les villes entre elles. Une valeur élevée facilite les connexions routières entre les villes dès le début de la partie.</p>
+<p>
+<em>Densité Trafic :</em> Densité Trafic : Trafic généré par l'ordinateur. Entre 0 et 16 (modifiable en cours de partie dans les <a href="display.txt">options</a>). Une valeur élevée représente un challenge pour gérer risques d'embouteillages et circulation de vos bus et camions. Une valeur nulle permet une circulation totalement privée.</p>
+<p>
+<em>Fabriques en dehors des villes :</em> Nombre d'usines : bâtiments autonomes comme l'éolienne, sites d’extraction de matières premières, agriculture et élevage, industries de transformation.</p>
+<p>
+<em>Marchés dans les villes :</em> Industries de vente dans les villes (supermarchés, etc.). Ces bâtiments consomment des biens (à y acheminer) pour les vendre à la population, il ne produisent aucun bien à transporter.</p>
+<p>
+<em>Tourist attractions :</em> Nombre initial de sites touristiques, qui génèrent du trafic passagers et de courrier.</p>
+<p>
+<em>Use timeline start year :</em> Si la case est cochée, les limitations applicables aux bâtiments et véhicules seront appliquées en fonction de l'année de départ choisie. Attention, il n'y a pas de construction de fabrique en cours de partie (sauf en jouant le joueur service public qui peut ajouter des attractions, des centrales électriques et des marchés dans les villes), et si l'année de départ est très ancienne il peut n'y avoir aucune fabrique sur la carte. Si la case n'est pas cochée, vous pouvez commencer en 1750 avec des usines électroniques et des éoliennes.</p>
+<p>
+<em>Autoriser le changement de joueur :</em> Le titre est clair. Quand le changement est possible, il permet même d'incarner temporairement un joueur spécial qui bénéficie de quelques options spéciales et d'un découvert illimité : service public.</p>
+<p>
+<em>Beginner Mode :</em> Les débutants et les mauvais gestionnaires peuvent cocher cette case pour bénéficier de revenu majorés de 50% et obliger les usines à toujours accepter les marchandises, même quand elles sont en surnombre vu la consommation du bâtiment.</p>
+<p>
+<em>C'est parti ! :</em> Est-il nécessaire de préciser l'effet d'un click sur ce bouton une fois tous vos choix paramétrés ?</p>
+<p>
+Pensez, en début de partie, à aller configurer, à partir du bouton en forme de disquette (option), les couleurs utilisées et les informations relatives aux joueurs (pour ajouter ou enlever des joueurs contrôlés par l'ordinateur, selon que vous préfériez jouer en solo ou avec des concurrents).</p>
+<p>
+Actualisé pour Simutrans 100.0
 <br>
-<em>Dimensions</em> - Définit le nombre de carrés de la carte, allant de 128*128
-à 768*768 carrés. La valeur par défaut est 256.<br>
-<em>Important</em> Plau la carte est grande, plus vous consommerez de mémoire.
-Assurez-vous d'en posséder suffisamment pour jouer avec une grande carte.
-</p>
-
-<p>
-<em>Industries</em> - Densité des industries sur la carte.
-Moins vous mettrez d'industries sur la carte, plus le jeu sera difficile et vous
-n'aurez pas grand choix de transport entre celles-ci.
-La valeur par défaut est 125.
-<br>
-<em>Nb villes</em> - Définit le nombre de ville sur votre carte.
-La valeur s'étend entre 2 et 64 villes. La valeur par défaut est de 16 villes.
-<br>
-<em>Densité traffic</em> - Densité des véhicules privés sur la carte.
-La valeur par défaut est 8.
-</p>
-
-<p>
-<em>Niveau de la mer</em> - Définit l'altitude du niveau de la mer. Plus il est
-bas, plus vous aurez de terre et vice-versa. La valeur par défaut est 4.
-<br>
-<em>Hauteur montagne</em> -  Détermine la hauteur de la plus haute montagne de
-votre carte. La valeur par défaut est 160. Plus ce nombre est bas, moins vos montagnes
-seront hautes. La plage de valeur est située entre 0 et 160.
-<br>
-<em>Dénivelé carte</em> - Définit la différence d'altitude moyenne de votre carte.
-Les valeurs varient entre 1 et 3.
-</p>
-
-<p>
-<em>Carte quelconque</em> -  Choisit aléatoirement un numéro de carte(Sans modifier
-les autres paramètres).
-</p>
-
-<p>
-<em>Afficher les piétons</em> - Affiche ou pas les piétons dans les villes.
-Peut être modifié en cours de jeu par l'intermédiaire de l'écran <a href="display.txt">d'affichage</a>.
-<br>
-<em>Mode jour/nuit</em> - Pour simuler le passage du jour et de la nuit.
-Peut être modifié en cours de jeu par l'intermédiaire de l'écran <a href="display.txt">d'affichage</a>.
-</p>
-
-<p>
-<em>Charger un jeu</em> - Charger un jeu précédemment sauvegardé. (CF l'écran
-<a href="load.txt">sauvegarde</a> pour plus d'informations)<br>
-<em>C'est parti</em> - Créer le nouveau jeu avec la carte définie par les paramètres.
-Plus la carte est grande, plus le temps de création est important.<br>
-<em>Charger un relief</em> - Permet de charger un fichier image servant de support
-au modèle de carte.
-<em>Quitter</em> - Quitte Simutrans, sans poser de questions.<br>
-</p>
-<p>
-Actualisé pour Simutrans 0.83.1.2<br>
-02/01/2003
-</p>
+05/07/2008.
