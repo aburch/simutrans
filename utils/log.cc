@@ -215,6 +215,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 
 		while(win_is_top(sel)) {
 			// do not move, do not close it!
+			dr_prepare_flush();
 			sel->zeichnen( xy, sel->gib_fenstergroesse() );
 			dr_sleep(50);
 			display_poll_event(&ev);

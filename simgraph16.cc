@@ -3148,6 +3148,8 @@ void display_progress(int part, int total)
 	const int width=disp_width/2;
 	part = (part*width)/total;
 
+	dr_prepare_flush();
+
 	// outline
 	display_ddd_box(width/2-2, disp_height/2-9, width+4, 20, COL_GREY6, COL_GREY4);
 	display_ddd_box(width/2-1, disp_height/2-8, width+2, 18, COL_GREY4, COL_GREY6);

@@ -3423,6 +3423,8 @@ void karte_t::change_time_multiplier(sint32 delta)
 
 void karte_t::do_freeze()
 {
+	dr_prepare_flush();
+
 	display_fillbox_wh(display_get_width()/2-100, display_get_height()/2-50, 200,100, MN_GREY2, true);
 	display_ddd_box(display_get_width()/2-100, display_get_height()/2-50, 200,100, MN_GREY4, MN_GREY0);
 	display_ddd_box(display_get_width()/2-92, display_get_height()/2-42, 200-16,100-16, MN_GREY0, MN_GREY4);

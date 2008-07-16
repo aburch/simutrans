@@ -57,7 +57,10 @@ static HINSTANCE hInstance;
 static BITMAPINFOHEADER *AllDib = NULL;
 static unsigned short *AllDibData = NULL;
 
-volatile HDC hdc = NULL;
+HDC hdc = NULL;
+HANDLE	hFlushThread=0;
+HANDLE	hSemaphoreRedraw=0;
+
 
 const wchar_t* const title =
 #ifdef _MSC_VER
@@ -228,6 +231,7 @@ int dr_os_close(void)
 // reiszes screen
 int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 {
+	WaitForSingleObject( hSemaphoreRedraw, INFINITE );
 	if(w>MaxSize.right+15  ||  h>MaxSize.bottom+2) {
 		// since the query routines that return the desktop data do not take into account a change of resolution
 		free(AllDibData);
@@ -240,6 +244,7 @@ int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 	AllDib->biWidth   = w;
 	WindowSize.right  = w;
 	WindowSize.bottom = h;
+	ReleaseMutex( hSemaphoreRedraw );
 	return TRUE;
 }
 
@@ -269,15 +274,12 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 
 
 
-HANDLE	hFlushThread=0;
-
 // multhreaded screen copy ...
 DWORD WINAPI dr_flush_screen(LPVOID lpParam)
 {
 	while(1) {
-		if (hdc == NULL) {
-			hdc = GetDC(hwnd);
-		}
+		// wait for finish of thread
+		hdc = GetDC(hwnd);
 		display_flush_buffer();
 		ReleaseDC(hwnd, hdc);
 		hdc = NULL;
@@ -290,21 +292,23 @@ DWORD WINAPI dr_flush_screen(LPVOID lpParam)
 void dr_prepare_flush()
 {
 	// thread there?
-	if(hFlushThread==NULL) {
+	if(hFlushThread==0) {
 		DWORD id=22;
 		hFlushThread = CreateThread( NULL, 0, dr_flush_screen, 0, CREATE_SUSPENDED, &id );
 	}
-	// wait for finish of thread
-	while(hdc) ;
+	while(hdc) {
+		Sleep(5);
+	}
 }
 
 void dr_flush()
 {
 	// just let the thread do its work
+	ResumeThread( hFlushThread );
+#if 0
 	if(ResumeThread( hFlushThread )==-1) {
 
 		// do it manually (should never happen!)
-		hFlushThread = NULL;
 		if (hdc == NULL) {
 			hdc = GetDC(hwnd);
 		}
@@ -312,6 +316,7 @@ void dr_flush()
 		ReleaseDC(hwnd, hdc);
 		hdc = NULL;
 	}
+#endif
 }
 
 

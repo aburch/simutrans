@@ -221,6 +221,7 @@ static void ask_objfilename()
 
 	while(umgebung_t::objfilename.empty()) {
 		// do not move, do not close it!
+		dr_prepare_flush();
 		sel->zeichnen( xy, sel->gib_fenstergroesse() );
 		display_poll_event(&ev);
 		// main window resized

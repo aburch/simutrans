@@ -71,6 +71,7 @@ intr_refresh_display(bool dirty)
 	dr_prepare_flush();
 	welt_ansicht->display( dirty );
 	win_display_flush(welt_modell->get_active_player()->gib_konto_als_double());
+	dr_flush();
 }
 
 
