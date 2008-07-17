@@ -57,10 +57,10 @@ static HINSTANCE hInstance;
 static BITMAPINFOHEADER *AllDib = NULL;
 static unsigned short *AllDibData = NULL;
 
-HDC hdc = NULL;
 HANDLE	hFlushThread=0;
-HANDLE	hSemaphoreRedraw=0;
+volatile HDC hdc = NULL;
 
+#define WAIT_FOR_SCREEN() {while(hdc) Sleep(5);}
 
 const wchar_t* const title =
 #ifdef _MSC_VER
@@ -212,10 +212,6 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 
 int dr_os_close(void)
 {
-	if (hdc != NULL) {
-		ReleaseDC(hwnd, hdc);
-		hdc = NULL;
-	}
 	if (hwnd != NULL) {
 		DestroyWindow(hwnd);
 	}
@@ -231,7 +227,7 @@ int dr_os_close(void)
 // reiszes screen
 int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 {
-	WaitForSingleObject( hSemaphoreRedraw, INFINITE );
+	WAIT_FOR_SCREEN();
 	if(w>MaxSize.right+15  ||  h>MaxSize.bottom+2) {
 		// since the query routines that return the desktop data do not take into account a change of resolution
 		free(AllDibData);
@@ -244,7 +240,6 @@ int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 	AllDib->biWidth   = w;
 	WindowSize.right  = w;
 	WindowSize.bottom = h;
-	ReleaseMutex( hSemaphoreRedraw );
 	return TRUE;
 }
 
@@ -278,6 +273,7 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 DWORD WINAPI dr_flush_screen(LPVOID lpParam)
 {
 	while(1) {
+		assert(hdc==NULL);
 		// wait for finish of thread
 		hdc = GetDC(hwnd);
 		display_flush_buffer();
@@ -296,9 +292,7 @@ void dr_prepare_flush()
 		DWORD id=22;
 		hFlushThread = CreateThread( NULL, 0, dr_flush_screen, 0, CREATE_SUSPENDED, &id );
 	}
-	while(hdc) {
-		Sleep(5);
-	}
+	WAIT_FOR_SCREEN();
 }
 
 void dr_flush()
@@ -544,10 +538,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			PAINTSTRUCT ps;
 			HDC hdcp;
 
-			if (hdc != NULL) {
-				ReleaseDC(this_hwnd, hdc);
-				hdc = NULL;
-			}
+			WAIT_FOR_SCREEN();
 
 			hdcp = BeginPaint(hwnd, &ps);
 			AllDib->biHeight = WindowSize.bottom;
