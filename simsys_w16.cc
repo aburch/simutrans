@@ -273,7 +273,6 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 DWORD WINAPI dr_flush_screen(LPVOID lpParam)
 {
 	while(1) {
-		assert(hdc==NULL);
 		// wait for finish of thread
 		hdc = GetDC(hwnd);
 		display_flush_buffer();

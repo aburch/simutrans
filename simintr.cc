@@ -96,7 +96,7 @@ void interrupt_check(const char* caller_info)
 		if(diff>0) {
 			enabled = false;
 			last_time = now;
-			welt_modell->sync_step( diff );
+			welt_modell->sync_step( diff, !welt_modell->is_fast_forward(), true );
 			enabled = true;
 		}
 	}

@@ -1689,59 +1689,64 @@ karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der 
  * everything else is done here
  */
 void
-karte_t::sync_step(long delta_t)
+karte_t::sync_step(long delta_t, bool sync, bool display )
 {
-	// just for progress
-	ticks += delta_t;
+	if(sync) {
+		// only omitted, when called to display a new frame during fast forward
 
-	// ingore calls by interrupt during fast forward ...
-	if (!sync_add_list.empty()) {
-		slist_iterator_tpl<sync_steppable *> iter (sync_add_list);
-		while(iter.next()) {
-			sync_steppable *ss = iter.get_current();
-			sync_list.put( ss, ss );
-		}
-		sync_add_list.clear();
-	}
+		// just for progress
+		ticks += delta_t;
 
-	ptrhashtable_iterator_tpl<sync_steppable*,sync_steppable*> iter (sync_list);
-
-	// Hajo: we use a slight hack here to remove the current
-	// object from the list without wrecking the iterator
-	bool ok = iter.next();
-	while(ok) {
-		sync_steppable *ss = iter.get_current_value();
-
-		// Hajo: advance iterator, so that we can remove the current object
-		// safely
-		ok = iter.next();
-
-		if (!ss->sync_step(delta_t)) {
-			sync_list.remove(ss);
-			delete ss;
+		// ingore calls by interrupt during fast forward ...
+		if (!sync_add_list.empty()) {
+			slist_iterator_tpl<sync_steppable *> iter (sync_add_list);
+			while(iter.next()) {
+				sync_steppable *ss = iter.get_current();
+				sync_list.put( ss, ss );
+			}
+			sync_add_list.clear();
 		}
 
-	}
+		ptrhashtable_iterator_tpl<sync_steppable*,sync_steppable*> iter (sync_list);
 
-	for(int x=0; x<8; x++) {
-		gib_spieler(x)->age_messages(delta_t);
-	}
+		// Hajo: we use a slight hack here to remove the current
+		// object from the list without wrecking the iterator
+		bool ok = iter.next();
+		while(ok) {
+			sync_steppable *ss = iter.get_current_value();
 
-	// change view due to following a convoi?
-	if(follow_convoi.is_bound()) {
-		const koord3d new_pos=follow_convoi->gib_vehikel(0)->gib_pos();
-		if(new_pos!=koord3d::invalid) {
-			const sint16 rw = get_tile_raster_width();
-			int new_xoff = 0;
-			int new_yoff = 0;
-			follow_convoi->gib_vehikel(0)->get_screen_offset( new_xoff, new_yoff );
-			new_xoff -= tile_raster_scale_x(-follow_convoi->gib_vehikel(0)->gib_xoff(),rw);
-			new_yoff -= tile_raster_scale_y(-follow_convoi->gib_vehikel(0)->gib_yoff(),rw) + tile_raster_scale_y(new_pos.z*TILE_HEIGHT_STEP/Z_TILE_STEP,rw);
-			change_world_position( new_pos.gib_2d(), -new_xoff, -new_yoff );
+			// Hajo: advance iterator, so that we can remove the current object
+			// safely
+			ok = iter.next();
+
+			if (!ss->sync_step(delta_t)) {
+				sync_list.remove(ss);
+				delete ss;
+			}
 		}
 	}
 
-	if(!fast_forward  ||  delta_t!=MAGIC_STEP) {
+	if(display) {
+		// only omitted in fast forward mode for the magic steps
+
+		for(int x=0; x<8; x++) {
+			gib_spieler(x)->age_messages(delta_t);
+		}
+
+		// change view due to following a convoi?
+		if(follow_convoi.is_bound()) {
+			const koord3d new_pos=follow_convoi->gib_vehikel(0)->gib_pos();
+			if(new_pos!=koord3d::invalid) {
+				const sint16 rw = get_tile_raster_width();
+				int new_xoff = 0;
+				int new_yoff = 0;
+				follow_convoi->gib_vehikel(0)->get_screen_offset( new_xoff, new_yoff );
+				new_xoff -= tile_raster_scale_x(-follow_convoi->gib_vehikel(0)->gib_xoff(),rw);
+				new_yoff -= tile_raster_scale_y(-follow_convoi->gib_vehikel(0)->gib_yoff(),rw) + tile_raster_scale_y(new_pos.z*TILE_HEIGHT_STEP/Z_TILE_STEP,rw);
+				change_world_position( new_pos.gib_2d(), -new_xoff, -new_yoff );
+			}
+		}
+
 		// display new frame with water animation
 		intr_refresh_display( false );
 		update_frame_sleep_time();
@@ -1749,61 +1754,38 @@ karte_t::sync_step(long delta_t)
 }
 
 
-// does all the magic about idle time and such stuff
+
+// does all the magic about frame timing
 void
 karte_t::update_frame_sleep_time()
 {
 	// get average frame time
 	uint32 last_ms = dr_time();
-	last_frame_ms[last_frame_idx] = last_ms;
-	last_step_nr[last_frame_idx] = steps;
-	last_frame_idx = (last_frame_idx+1)%32;
+	last_frame_ms[last_frame_idx++] = last_ms;
+	last_frame_idx %= 32;
 	if(last_frame_ms[last_frame_idx]<last_ms) {
 		realFPS = (1000*32) / (last_ms-last_frame_ms[last_frame_idx]);
-		simloops = ((steps-last_step_nr[last_frame_idx])*10000*16)/((last_ms-last_frame_ms[last_frame_idx])*time_multiplier);
 	}
 	else {
 		realFPS = umgebung_t::fps;
 		simloops = 60;
 	}
-
+	// calculate simloops
+	uint16 last_step = (steps+31)%32;
+	if(last_step_nr[last_step]>last_step_nr[steps%32]) {
+		simloops = (10000*32l)/(last_step_nr[last_step]-last_step_nr[steps%32]);
+	}
 	if(pause) {
 		// not changing pauses
 		next_wait_time = 50;
 	}
 	else if(!fast_forward) {
-		// change pause/frame spacing ...
-		// the frame spacing will be only touched in emergencies
-		if(simloops<=10) {
-			if(next_wait_time==0) {
-				set_frame_time( get_frame_time()+2 );
-			}
-			next_wait_time = 0;
-		}
-		else if(simloops<=20) {
-			next_wait_time = 0;
+		// change frame spacing ... (pause will be changed by step() directly)
+		if(realFPS>(uint16)(umgebung_t::fps*17)/16) {
 			increase_frame_time();
-		}
-		else if(simloops>50) {
-			if(next_wait_time+1<(uint32)get_frame_time()) {
-				next_wait_time ++;
-			}
-			else {
-				next_wait_time = get_frame_time();
-			}
-		}
-		else if(simloops<45  &&  next_wait_time>0) {
-			next_wait_time --;
-		}
-
-		if(realFPS>(uint16)(umgebung_t::fps*17)/16  ||  simloops<=30) {
-			increase_frame_time();
-			if(next_wait_time>0) {
-				next_wait_time --;
-			}
 		}
 		else if(realFPS<(uint16)umgebung_t::fps) {
-			if(realFPS<(uint16)(umgebung_t::fps/2)  &&  next_wait_time>0) {
+			if(realFPS<(uint16)(umgebung_t::fps/2)) {
 				set_frame_time( get_frame_time()-1 );
 			}
 			else {
@@ -1811,48 +1793,17 @@ karte_t::update_frame_sleep_time()
 			}
 		}
 	}
-	else if((last_frame_idx&7)==0){
-		// fast forward mode
-
-		// try to get a target speed
-		int five_back = (last_frame_idx+31-6)%32;
-		int one_back = (last_frame_idx+32-1)%32;
-		sint32 last_simloops = ((last_step_nr[one_back]-last_step_nr[five_back])*10000)/(last_frame_ms[one_back]-last_frame_ms[five_back]);
-
-		if(last_simloops<=10) {
-			increase_frame_time();
+	else {
+		// try to get 10 fps or lower rate (if set)
+		int frame_intervall = max( 100, 1000/umgebung_t::fps );
+		if(get_frame_time()>frame_intervall) {
+			reduce_frame_time();
 		}
 		else {
-			int frame_intervall = max( 100, 1000/umgebung_t::fps );
-			if(get_frame_time()>frame_intervall) {
-				reduce_frame_time();
-			}
-			else {
-				if(last_simloops<umgebung_t::max_acceleration*50) {
-					if(next_wait_time>0) {
-						if(last_simloops<umgebung_t::max_acceleration*5) {
-							next_wait_time = max( next_wait_time-3, 0 );
-						}
-						else {
-							next_wait_time --;
-						}
-					}
-				}
-				else if(last_simloops>umgebung_t::max_acceleration*50) {
-					if(next_wait_time<90) {
-						if(last_simloops>umgebung_t::max_acceleration*5) {
-							// brake much more ...
-							next_wait_time += 5;
-						}
-						else {
-							next_wait_time ++;
-						}
-					}
-				}
-			}
+			increase_frame_time();
 		}
+		// calculate current speed
 	}
-	this_wait_time = next_wait_time;
 }
 
 
@@ -2206,16 +2157,68 @@ karte_t::step()
 	INT_CHECK("karte_t::step");
 
 	const long delta_t = (long)ticks-(long)last_step_ticks;
-	// needs plausibility check?!?
-	if(delta_t>10000  || delta_t<0) {
-		last_step_ticks = ticks;
-		return;
+	if(!fast_forward) {
+		/* Try to maintain a decent pause, with a step every 170-250 ms (~5,5 simloops/s)
+		 * Also avoid too large or negative steps
+		 */
+
+		// needs plausibility check?!?
+		if(delta_t>10000  || delta_t<0) {
+			last_step_ticks = ticks;
+			return;
+		}
+
+		static bool changed = false;	// change pause only once per step
+		if(delta_t<170) {
+			// to short pause
+			if(  !changed  ) {
+				if(next_wait_time+1<(uint32)get_frame_time()) {
+					next_wait_time ++;
+				}
+				else {
+					next_wait_time = get_frame_time();
+				}
+			}
+			changed = true;
+			return;
+		}
+		else if(delta_t>250  &&  next_wait_time>0) {
+			// too long pause
+			next_wait_time --;
+		}
+		changed = false;
+		last_step_nr[steps%32] = ticks;
 	}
-	// avoid too often steps ...
-	if(delta_t<170) {
-		return;
+	else {
+		// fast forward first: get average simloops (i.e. calculate acceleration)
+		last_step_nr[steps%32] = dr_time();
+		int last_5_simloops = simloops;
+		if(  last_step_nr[(steps+32-5)%32] < last_step_nr[steps%32]  ) {
+			// since 5 steps=1s
+			last_5_simloops = (1000) / (last_step_nr[steps%32]-last_step_nr[(steps+32-5)%32]);
+		}
+		if(  last_step_nr[(steps+1)%32] < last_step_nr[steps%32]  ) {
+			simloops = (10000*32) / (last_step_nr[steps%32]-last_step_nr[(steps+1)%32]);
+		}
+		// now try to approach the target speed
+		if(last_5_simloops<umgebung_t::max_acceleration) {
+			if(next_wait_time>0) {
+				next_wait_time --;
+			}
+		}
+		else if(simloops>8*umgebung_t::max_acceleration) {
+			if(next_wait_time<get_frame_time()-10) {
+				next_wait_time ++;
+			}
+		}
+		// cap it ...
+		if(next_wait_time>=get_frame_time()-10) {
+			next_wait_time = get_frame_time()-10;
+		}
 	}
 	last_step_ticks = ticks;
+
+	this_wait_time = next_wait_time;
 
 	for(unsigned i=0; i<convoi_array.get_count();  i++) {
 		convoihandle_t cnv = convoi_array[i];
@@ -2868,6 +2871,7 @@ void karte_t::laden(loadsave_t *file)
 	display_progress(0, 100);	// does not matter, since fixed width
 
 	destroy();
+	fast_forward = false;
 
 	// powernets zum laden vorbereiten -> tabelle loeschen
 	powernet_t::neue_karte();
@@ -3833,11 +3837,11 @@ karte_t::interactive()
 		}
 
 		if(!pause  &&  fast_forward) {
-			sync_step( MAGIC_STEP );
+			sync_step( MAGIC_STEP, true, false );
 			step();
 		}
 		else if(pause) {
-			sync_step( 0 );
+			sync_step( 0, true, false );
 		}
 		else {
 			step();

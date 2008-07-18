@@ -164,10 +164,10 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 	welt->set_fast_forward(true);
 	intr_disable();
 	for (i = 0; i < 200; i++) {
-		welt->sync_step(200);
+		welt->sync_step(200,true,true);
 		welt->step();
 	}
-	DBG_MESSAGE("test", "welt->sync_step/step(200): %i iterations took %i ms", i, dr_time() - ms);
+	DBG_MESSAGE("test", "welt->sync_step/step(200,1,1): %i iterations took %i ms", i, dr_time() - ms);
 }
 
 
@@ -841,7 +841,7 @@ DBG_MESSAGE("init","map");
 	// Bringe welt in ansehnlichen Zustand
 	// bevor sie als Hintergrund für das intro dient
 	if (loadgame=="") {
-		welt->sync_step(welt->gib_zeit_ms() + welt->ticks_per_tag / 2);
+		welt->sync_step(welt->gib_zeit_ms() + welt->ticks_per_tag / 2, true, false );
 		welt->step();
 		welt->step();
 		welt->step();

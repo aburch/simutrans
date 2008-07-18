@@ -314,6 +314,7 @@ private:
 	// to calculate the fps and the simloops
 	uint32 last_frame_ms[32];
 	uint32 last_step_nr[32];
+	uint32 last_step_ticks_called;	// since the actual number of steps not neccessarily correponds with the time the routine was called
 	uint8 last_frame_idx;
 	uint32 next_wait_time;	// contains a wait executed in the interactive loop
 	uint32 this_wait_time;
@@ -828,7 +829,7 @@ public:
 	bool sync_add(sync_steppable *obj);
 	bool sync_remove(sync_steppable *obj);
 
-	void sync_step(long delta_t);	// advance also the timer
+	void sync_step(long delta_t, bool sync, bool display );	// advance also the timer
 
 	void step();
 
