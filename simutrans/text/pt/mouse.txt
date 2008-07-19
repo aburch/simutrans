@@ -1,0 +1,23 @@
+<title>Ajuda - Mouse</title>
+
+<h1><strong>Mouse</strong></h1>
+
+<p>
+Com o <strong>mouse</strong> você pode quase comandar todo o Simutrans sem o teclado.<br>
+Com ele você pode adicionar várias ferramentas nas diversas categorias:
+Trilhos, Estradas, Navegação, Aviação, Transporte Terrestre, Edição do Terreno, Excluir, Mais Ajuda, Finanças, Foto, Pausa, Ferramentas Especiais, Configurações, Novo Mapa, Salvar, Carregar, Alterar Cor da Companhia, Adicionar Jogadores, Mudar Jogador, Comprar e Vender Veículos, Criar novas Linhas de Transporte, Ver Informações de Edifícios e muitas outras.
+</p>
+<p>
+As funções dos botões:
+</p>
+<p>
+<strong>Botão Esquerdo</strong>: aplica todas as ações ou objetos que você seleciona nos menus variados, como por exemplo criar uma rua, ver informações de um determinado edifício, modificar ruas ou até adicionar um veículo.
+</p>
+<p>
+<strong>Botão Scroll</strong>: (em apenas alguns mouses) tem como serviço aumentar ou reduzir o zoom do jogo, girando-o para trás você reduz o zoom e girando-o para frente, você o aumenta.
+</p>
+<p>
+<strong>Botão Direito</strong>: clicando, segurando e arrastando ao mesmo tempo, você movimenta a tela do jogo para todos os lados até local que você deseja sem precisar do teclado ou mapa.
+</p>
+<p> Escrito pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 07/02/2008.
+</p>

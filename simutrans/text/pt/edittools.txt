@@ -50,5 +50,5 @@ Para usá-la: clique na ferramenta para ativá-la (o cursor mudará para um cadeado
 <em>Pular linha do tempo em um ano:</em> avança a data no jogo em um ano. Se estiver jogando com <a href="new_world.txt">linha do tempo</a>, conforme o tempo passa mais opções de transporte e construção aparecem e veículos lentos deixam de ser tão lucrativos (a receita é calculada pela velocidade média do transporte disponível).<br>
 Para avançar no tempo: clique na ferramenta, não é pedida confirmação ao jogador (a data muda no lado direito da barra inferior da tela do jogo).
 </p>
-<p>Traduzido para versão Simutrans 0.99.14.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

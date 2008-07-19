@@ -33,5 +33,5 @@ Mude o autosave (salvamento automático do jogo) no simuconf.tab}.
 <p>
 Clique em <em>Cancelar</em> para fechar <strong>Salvar</strong>; ou no X no canto superior esquerdo da janela; ou use o teclado.
 </p>
-<p>Traduzido para versão Simutrans 0.99.14.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

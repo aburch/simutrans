@@ -46,7 +46,7 @@ As teclas com funções atribuídas incluem:
 [<em>e</em>]: ativa a última ferramenta de <a href="railtools.txt">Eletrificar trecho de ferrovia</a> usada.<br>
 [<em>f</em>]: abre as <a href="finances.txt">Finanças</a>.<br>
 [<em>g</em>]: ativa a ferramenta <a href="special.txt">Construir transformador</a>.<br>
-[<em>G</em>]: abre a lista de <a href="goods_filter.txt">Informações das cargas</a>.<br>
+[<em>G</em>]: abre a <a href="goods_filter.txt">Lista das cargas</a>.<br>
 [<em>H</em>]: ativa a ferramenta de construção de sede corporativa (não está em uso em todos os paks).<br>
 [<em>I</em>]: ativa a ferramenta <a href="edittools.txt">Construir usina de energia</a>.<br>
 [<em>J</em>]: abre a janela <a href="jump_frame.txt">Ir para</a>.<br>
@@ -93,5 +93,5 @@ As teclas com funções atribuídas incluem:
 [<em>F10</em>]: pausa/despausa o jogo.<br>
 [<em>F2</em>] a [<em>F12</em>]: ativa ferramenta memorizada nestas teclas.
 </p>
-<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008, atualizado em 07/02/2008.
 </p>

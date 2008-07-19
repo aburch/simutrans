@@ -25,7 +25,7 @@ Clique sobre o botão para abrir os controles de informação, da esquerda para dir
 <a href="citylist_filter.txt"><em>Lista das cidades:</em></a> <a href="citywindow.txt">Áreas urbanas</a> (aldeias, vilas e cidades).
 </p>
 <p>
-<a href="goods_filter.txt"><em>Informações das cargas:</em></a> rendas, recepção de diferentes bens, passageiros e correio (está incluído um controle para ajustar renda relativa).
+<a href="goods_filter.txt"><em>Lista das cargas:</em></a> rendas, recepção de diferentes bens, passageiros e correio (está incluído um controle para ajustar renda relativa).
 </p>
 <p>
 <a href="factorylist_filter.txt"><em>Lista das Fábricas:</em></a> <a href="industry_info.txt">Fábricas</a> (consumidoras e fornecedoras de bens).
@@ -33,5 +33,5 @@ Clique sobre o botão para abrir os controles de informação, da esquerda para dir
 <p>
 <a href="curiositylist_filter.txt"><em>Lista das atrações:</em></a> atrações turísticas.
 </p>
-<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008, atualizado em 07/02/2008.
 </p>

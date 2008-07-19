@@ -38,5 +38,5 @@ As informações listadas para todos os veículos incluem:<br>
 - <em>Faturamento máximo:</em> lucro do veículo pelo tipo de item transportado pelo Comboio.<br>
 - <em>Itens carregados:</em> quantidade e destino dos itens atualmente carregados pelo veículo.
 </p>
-<p>Traduzido para versão Simutrans 0.99.14.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

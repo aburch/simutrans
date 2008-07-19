@@ -3,7 +3,7 @@
 <h1><strong>Ajuda geral</strong></h1><br>
 - <a href="simutrans.txt">Bem-vindo</a><br>
 - <a href="window.txt">Interface/janela do jogo</a><br>
-- <a href="mouse.txt">Mouse</a> (a ser escrito)<br>
+- <a href="mouse.txt">Mouse</a><br>
 - <a href="keys.txt">Configuração do teclado</a><br>
 <p>
 <a href="options.txt"><strong>Preferências</strong></a><br>
@@ -42,7 +42,7 @@
 - - <a href="convoi.txt">Lista de veículos</a><br>
 - - - <a href="convoi_filter.txt">Filtro da lista de veículos</a><br>
 - - <a href="citylist_filter.txt">Lista das cidades</a><br>
-- - <a href="goods_filter.txt">Informações das cargas</a><br>
+- - <a href="goods_filter.txt">Lista das cargas</a><br>
 - - <a href="factorylist_filter.txt">Lista das fábricas</a><br>
 - - <a href="curiositylist_filter.txt">Lista das atrações</a><br>
 - <a href="mailbox.txt">Mensagens</a><br>
@@ -74,7 +74,7 @@ Se você não encontrou aqui a ajuda que procura, então tente:<br>
 <em>http://forum.simutrans.com</em>, ou<br>
 <em>http://pt.simutrans.com</em>.
 </p>
-<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008, atualizado em 07/02/2008.
 </p>
 <p>
 <strong>Equipe de tradução do Simutrans PT-SubFórum</strong>
@@ -86,7 +86,7 @@ Caio R. Monteiro<br>
 DanielRS<br>
 ecostaoli<br>
 FaconBill<br>
-fire_wolf_br<br>
+Fire_wolf_br<br>
 Francisco Gonçalves<br>
 haspwolf<br>
 IgorTekton<br>

@@ -55,5 +55,5 @@ Itens listados para cada Comboio incluem:
 <p>
 <em>Gráficos:</em> mostra a composição e o nível atual de carregamento.
 </p>
-<p>Traduzido para versão Simutrans 0.99.14.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

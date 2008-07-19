@@ -3,7 +3,7 @@
 <h1><strong>Ferrovias</strong></h1>
 
 <p>
-A <strong>Barra Ferrovias</strong> mostra as ferramentas para contruir uma rede de transporte sobre trilhos. As ferrementas podem contruir os trilhos (tammbém eletrificar e demolir), pontes, túneis, sinais, depósitos, estações e plataformas e extensões. Se jogar com a <a href="new_world.txt">Linha do Tempo</a> ativa, com a passagem do tempo no Simutrans, novas ferramentas podem aparecer.
+A <strong>Barra Ferrovias</strong> mostra as ferramentas para contruir uma rede de transporte sobre trilhos. As ferrementas podem contruir os trilhos (também eletrificar e demolir), pontes, túneis, sinais, depósitos, estações, plataformas e extensões. Se jogar com a <a href="new_world.txt">Linha do Tempo</a> ativa, com a passagem do tempo no Simutrans, novas ferramentas podem aparecer.
 </p>
 <p>
 Clique no ícone de trem na barra de ferramentas. Mova o cursor do mouse por cima do botão, depois de abrir ou clicar na barra de ferramenta, para ver o nome e, onde for o caso, o <a href="finances.txt">custo</a> da construção, custo de manutenção (dentro dos parênteses), limite de velocidade máxima e comprimento máximo.
@@ -12,7 +12,7 @@ Clique no ícone de trem na barra de ferramentas. Mova o cursor do mouse por cima
 A <strong>Barra Ferrovias</strong> inclui, da esquerda para a direita:
 </p>
 <p>
-<em>Trilhos:</em> ferramenta de contruir trilhos, para trêns, entre dois pontos na visão do jogo. Os trilhos só podem ser construídos sobre barrancos na direção dos mesmos e não podem encontrar caminhos através de terreno acidentado ou sobre a água (só se utilizar pontes). Um trilho construído entre dois pontos pode usar um trilho existente em seu caminho.<br>
+<em>Trilhos:</em> ferramenta de contruir trilhos, para trens, entre dois pontos na visão do jogo. Os trilhos só podem ser construídos sobre barrancos na direção dos mesmos e não podem encontrar caminhos através de terreno acidentado ou sobre a água (só se utilizar pontes). Um trilho construído entre dois pontos pode usar um trilho existente em seu caminho.<br>
 Para construir um trilho: clique na ferramenta para selecionar o trilho (o cursor torna-se num trilho), em seguida, clique no terreno para dar o ponto de partida do trilho (mostra um trator na visão do jogo e exibe as coordenadas no mapa inferior direito do ecrã), e finalmente clique no terreno para o ponto final do trilho.<br>
 {Dica: Diferentes tipos de trilhos podem ser ligados (porém não quando construídos por diferentes<a href="players.txt">companhias</a>). Você pode utilizar também pontes e túneis para desviar de montanhas e obstruções. Use <a href="slopetools.txt"> Editor de terrenos</a> para mudar terreno, a fim de permitir caminhos para trilhos. Use a ferramenta Eliminar para remover pistas individuais e algumas obstruções. Use <a href="keys.txt">[Ctrl]</a> ao mesmo tempo para funções extras. Utilize o [z] para desfazer algo que ja foi feito (custos não são reembolsados). Pressione [t] para ativar a ferramenta de contrução do ultimo trilho utilizado.}
 </p>
@@ -27,7 +27,7 @@ Para remover um trecho de trilho: clique na ferramenta (cursor se muda numa cruz
 {Dica: Altere o <a href="players.txt">jogador</a> para remover os trilhos de cada companhia.}
 </p>
 <p>
-<em>Pontes:</em> ferramenta para construir pontes retas, para os veículos ferroviários passarem, entre duas seções de trilhos na visão do jogo. As pontes tem um comprimento máximo. A ferramenta contrói pontes de uma ponta de trilho até um outro lugar adequado (outra ponta de trilho ou um barranco mais alto, sempre respeitando o limite de comprimento).<br>
+<em>Pontes:</em> ferramenta para construir pontes retas, para os veículos ferroviários passarem, entre duas seções de trilhos na visão do jogo. As pontes têm um comprimento máximo. A ferramenta contrói pontes de uma ponta de trilho até um outro lugar adequado (outra ponta de trilho ou um barranco mais alto, dentro do limite de comprimento).<br>
 Para contruir uma ponte: clique num botão de ponte desejada (o cursor torna-se numa ponte), e clique no final de um trilho (ponto inicial da ponte) para contruir. Alguns obstáculos podem ser passados, mas montanhas altas ou falta de um local adequado para a ponte finalizar podem parar a sua construção, então deve-se colocar o trilho com as pontas alinhadas em ambos os lados do local onde se estará sendo contruída a ponte, e tente novamente.<br>
 {Dicas: Use a ferramenta Eliminar para remover pontes (clique sobre o ponto  final da ponte) e alguns obstáculos à frente, como um edifício alto, por exemplo. Use as ferramentas para trilhos para conectar os fins da ponte aos trilhos.}
 </p>

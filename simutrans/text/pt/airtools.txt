@@ -67,5 +67,5 @@
 <br> {Dica: Use o botão Remover <a href="keys.txt">[r]</a> para remover partes individuais das pistas de taxiamento, pouso, remover hangares e demais edifícios. O Desfazer <a href="keys.txt">[z]</a> não reembolsa os custos das construções.
 <br> Pressione <a href="keys.txt">[v]</a> para exibir ou ocultar área de captura para bens e passageiros na tela do jogo.}
 </p>
-<p>Traduzido para versão Simutrans 0.99.14.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

@@ -30,5 +30,5 @@ Alguns jogadores de IA podem usar somente veículos de estradas ou ferrovias, alg
 Jogadores não podem construir itens ou colocar <a href="special.txt">marcadores</a> nos <a href="railtools.txt">trilhos</a> ou <a href="roadtools.txt">estradas</a> de outro jogador, ou remover itens construídos por outro jogador (de qualquer modo, alguns itens construídos pelo Poder público podem ser removidos usando a ferramenta <a href="removal_tool.txt">Eliminar</a>).<br>
 Desabilitar a mudança de jogador também restringe as <a href="edittools.txt">ferramentas</a> extras como Poder público.}
 </p>
-<p>Traduzido para versão Simutrans 0.99.14.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

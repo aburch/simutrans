@@ -21,3 +21,5 @@ O arquivo de mapa deverá conter a extensão .ppm e colocado no diretório (ou past
 <p>
 Clique em <em>Cancelar</em> para fechar a janela <strong>Carregar terreno</strong>, ou no x do canto superior esquerdo, ou use o teclado.
 </p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+</p>

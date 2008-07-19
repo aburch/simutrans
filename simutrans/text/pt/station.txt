@@ -63,7 +63,7 @@ O botão de opções (que muda seu nome conforme se clica nele) organiza os itens d
  - <em>via (detalhe):</em> organiza os itens alfanumericamente, de acordo com a codificação ASCII (letra maiúsculas antes das minúsculas e estas, antes das acentuadas), pelo nome da primeira parada de transferência.<br>
  - <em>via (quantidade):</em> organiza os itens pela quantidade que vai ser transferida numa parada imediatamente posterior.<br>
  - <em>quantidade:</em> organiza por ordem decrescente da quantidade do item em espera.<br>
-(Dicas: as barras coloridas sobre uma parada indicam a quantidade de mercadoria ou de passageiros esperando para ser transportada e são as mesmas que se vê nas <a href="goods_filter.txt">Informações das Cargas</a>.)
+(Dicas: as barras coloridas sobre uma parada indicam a quantidade de mercadoria ou de passageiros esperando para ser transportada e são as mesmas que se vê na <a href="goods_filter.txt">Lista das cargas</a>.)
 </p>
 <p>
 <em>Gráfico:</em> Clique no botão para acionar os gráficos da janela de <strong>Informações da Parada</strong> (quando a área do gráfico está visível, o botão fica afundado).<br>
@@ -80,5 +80,5 @@ As cores das linha do gráfico correspondem às dos botões sobre ele:<br>
 <p>
 <em>Detalhes:</em> botão que abre a janela de <a href="station_details.txt">Detalhes da Parada</a> que fornece outras características da parada, não disponíveis na janela principal.
 </p>
-<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008, atualizado em 07/02/2008.
 </p>

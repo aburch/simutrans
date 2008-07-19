@@ -19,5 +19,5 @@ Alguns itens não estão programados para mudar de cor e portanto permanecerão ina
 <p>
 {Dica: para mudar a cor dos outros jogadores use a <a href="players.txt">Lista de jogadores</a> ou <a href="special.txt">Mudar Jogador (P+)</a> para selecioná-lo}.
 </p>
-<p>Traduzido para versão Simutrans 0.99.14.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>
