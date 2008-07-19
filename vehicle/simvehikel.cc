@@ -2092,14 +2092,22 @@ waggon_t::ist_weg_frei(int & restart_speed)
 {
 	if(ist_erstes  &&  (cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS)) {
 		// reserve first block at the start until the next signal
-		uint16 n=block_reserver(cnv->get_route(), max(route_index,1)-1, 0, true);
-		if(n==0) {
-//DBG_MESSAGE("cannot","start at index %i",route_index);
-			restart_speed = 0;
-			return false;
+		weg_t *w = welt->lookup( gib_pos() )->gib_weg(gib_waytype());
+		if(  w->has_signal()  ) {
+			// we have to use the signal routine below
+			cnv->set_next_stop_index( max(route_index,1) );
 		}
-		cnv->set_next_stop_index(n);
-		return true;
+		else {
+			// free track => reserve up to next signal
+			uint16 n=block_reserver(cnv->get_route(), max(route_index,1)-1, 0, true);
+			if(n==0) {
+	//DBG_MESSAGE("cannot","start at index %i",route_index);
+				restart_speed = 0;
+				return false;
+			}
+			cnv->set_next_stop_index(n);
+			return true;
+		}
 	}
 
 	const grund_t *gr = welt->lookup(pos_next);
@@ -2108,7 +2116,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 		return false;
 	}
 
-	weg_t *w = welt->lookup( pos_next )->gib_weg(gib_waytype());
+	weg_t *w = gr->gib_weg(gib_waytype());
 	if(w==NULL) {
 		return false;
 	}

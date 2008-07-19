@@ -215,16 +215,16 @@ void log_t::fatal(const char *who, const char *format, ...)
 
 		while(win_is_top(sel)) {
 			// do not move, do not close it!
+			dr_sleep(50);
 			dr_prepare_flush();
 			sel->zeichnen( xy, sel->gib_fenstergroesse() );
-			dr_sleep(50);
+			dr_flush();
 			display_poll_event(&ev);
 			// main window resized
 			check_pos_win(&ev);
 			if(ev.ev_class==EVENT_KEYBOARD) {
 				break;
 			}
-			dr_flush();
 		}
 	}
 	else {
