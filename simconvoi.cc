@@ -1080,8 +1080,6 @@ fahrplan_t *convoi_t::erzeuge_fahrplan()
 bool
 convoi_t::can_go_alte_richtung()
 {
-	next_stop_index = 1;
-
 	// invalid route?
 	if(route.gib_max_n()<1) {
 		return false;
@@ -1197,6 +1195,7 @@ convoi_t::can_go_alte_richtung()
 			return false;
 		}
 	}
+
 	return true;
 }
 
@@ -1310,6 +1309,7 @@ convoi_t::vorfahren()
 			}
 			fahr[0]->setze_erstes(true);
 		}
+		state = CAN_START;
 
 		// to advance more smoothly
 		int restart_speed=-1;
@@ -1320,9 +1320,6 @@ convoi_t::vorfahren()
 			}
 			wait_lock = 0;
 			state = DRIVING;
-		}
-		else {
-			state = WAITING_FOR_CLEARANCE;
 		}
 	}
 
