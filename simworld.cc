@@ -3584,7 +3584,6 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			// resend init message, if mouse button pressed to enable dragging
 			if(is_dragging  &&  ev->button_state==0) {
 				is_dragging = false;
-				werkzeug->move( this, get_active_player(), 0, pos );
 			}
 			else if(werkzeug!=NULL  &&  ev->ev_class==EVENT_DRAG  &&  werkzeug_last_pos!=pos.gib_2d()) {
 				if(!is_dragging  &&  ist_in_kartengrenzen(prev_pos.gib_2d())) {
@@ -3592,7 +3591,6 @@ void karte_t::bewege_zeiger(const event_t *ev)
 				}
 				is_dragging = true;
 				werkzeug->move( this, get_active_player(), 1, pos );
-				werkzeug_last_pos = pos.gib_2d();
 			}
 		}
 	}
@@ -3813,13 +3811,13 @@ karte_t::interactive()
 			} else if(IS_RIGHTRELEASE(&ev)) {
 				display_show_pointer(true);
 				cursor_hidden = false;
-			} else if(!swallowed  &&  ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_RIGHTBUTTON) {
+			} else if(!swallowed  &&  IS_RIGHTDRAG(&ev)) {
 				// unset following
 				if(follow_convoi.is_bound()) {
 					follow_convoi = convoihandle_t();
 				}
 				blick_aendern(&ev);
-			}
+		}
 			else {
 				if(cursor_hidden) {
 					display_show_pointer(true);
@@ -3855,6 +3853,7 @@ karte_t::interactive()
 				this_wait_time -= 5;
 				dr_sleep( 5 );
 			}
+			INT_CHECK( "karte_t::interactive()" );
 		}
 
 	} while(ev.button_state != 0);

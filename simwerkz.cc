@@ -1209,6 +1209,10 @@ const char *wkz_wegebau_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate
 		return "";
 	}
 
+	if(welt->lookup(start)==0) {
+		return "";
+	}
+
 	// recalc type of construction
 	wegbauer_t::bautyp_t bautyp = (wegbauer_t::bautyp_t)besch->gib_wtyp();
 	if(besch->gib_wtyp()==track_wt  &&  besch->gib_styp()==7) {
