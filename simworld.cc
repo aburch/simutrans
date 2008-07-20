@@ -2133,29 +2133,6 @@ karte_t::step()
 		neuer_monat();
 	}
 
-	// to make sure the tick counter will be updated
-	INT_CHECK("karte_t::step");
-
-	// check for pending seasons change
-	if(pending_season_change>0) {
-		// process
-		const uint32 end_count = min( cached_groesse_gitter_x*cached_groesse_gitter_y,  tile_counter + max( 16384, cached_groesse_gitter_x*cached_groesse_gitter_y/16 ) );
-		while(  tile_counter < end_count  ) {
-			plan[tile_counter].check_season(current_month);
-			tile_counter ++;
-			if((tile_counter&0x3FF)==0) {
-				INT_CHECK("karte_t::step");
-			}
-		}
-		if(  tile_counter >= (uint32)cached_groesse_gitter_x*(uint32)cached_groesse_gitter_y  ) {
-			pending_season_change --;
-			tile_counter = 0;
-		}
-	}
-
-	// to make sure the tick counter will be updated
-	INT_CHECK("karte_t::step");
-
 	const long delta_t = (long)ticks-(long)last_step_ticks;
 	if(!fast_forward) {
 		/* Try to maintain a decent pause, with a step every 170-250 ms (~5,5 simloops/s)
@@ -2168,25 +2145,21 @@ karte_t::step()
 			return;
 		}
 
-		static bool changed = false;	// change pause only once per step
 		if(delta_t<170) {
 			// to short pause
-			if(  !changed  ) {
-				if(next_wait_time+1<(uint32)get_frame_time()) {
-					next_wait_time ++;
-				}
-				else {
-					next_wait_time = get_frame_time();
-				}
+			if(next_wait_time+1<(uint32)get_frame_time()) {
+				next_wait_time ++;
 			}
-			changed = true;
+			else {
+				next_wait_time = get_frame_time();
+			}
+			this_wait_time = next_wait_time;
 			return;
 		}
 		else if(delta_t>250  &&  next_wait_time>0) {
 			// too long pause
 			next_wait_time --;
 		}
-		changed = false;
 		last_step_nr[steps%32] = ticks;
 	}
 	else {
@@ -2216,9 +2189,32 @@ karte_t::step()
 			next_wait_time = get_frame_time()-10;
 		}
 	}
+	// now do the step ...
 	last_step_ticks = ticks;
-
 	this_wait_time = next_wait_time;
+
+	// to make sure the tick counter will be updated
+	INT_CHECK("karte_t::step");
+
+	// check for pending seasons change
+	if(pending_season_change>0) {
+		// process
+		const uint32 end_count = min( cached_groesse_gitter_x*cached_groesse_gitter_y,  tile_counter + max( 16384, cached_groesse_gitter_x*cached_groesse_gitter_y/16 ) );
+		while(  tile_counter < end_count  ) {
+			plan[tile_counter].check_season(current_month);
+			tile_counter ++;
+			if((tile_counter&0x3FF)==0) {
+				INT_CHECK("karte_t::step");
+			}
+		}
+		if(  tile_counter >= (uint32)cached_groesse_gitter_x*(uint32)cached_groesse_gitter_y  ) {
+			pending_season_change --;
+			tile_counter = 0;
+		}
+	}
+
+	// to make sure the tick counter will be updated
+	INT_CHECK("karte_t::step");
 
 	for(unsigned i=0; i<convoi_array.get_count();  i++) {
 		convoihandle_t cnv = convoi_array[i];
@@ -3843,7 +3839,7 @@ karte_t::interactive()
 		else if(pause) {
 			sync_step( 0, true, false );
 		}
-		else {
+		else if(this_wait_time==0) {
 			step();
 		}
 

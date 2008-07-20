@@ -39,6 +39,9 @@
 // 16 Bit may be much slower than 15 unfourtunately on some hardware
 #define USE_16BIT_DIB
 
+// for redraws in another thread
+#define MULTI_THREAD
+
 #include "simmain.h"
 #include "simmem.h"
 #include "simversion.h"
@@ -57,16 +60,24 @@ static HINSTANCE hInstance;
 static BITMAPINFOHEADER *AllDib = NULL;
 static unsigned short *AllDibData = NULL;
 
-HANDLE	hFlushThread=0;
 volatile HDC hdc = NULL;
-
-#define WAIT_FOR_SCREEN() {while(hdc) Sleep(5);}
 
 const wchar_t* const title =
 #ifdef _MSC_VER
 			L"Simutrans " WIDE_VERSION_NUMBER;
 #else
 			L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE;
+#endif
+
+#ifdef MULTI_THREAD
+
+HANDLE	hFlushThread=0;
+#define WAIT_FOR_SCREEN() {while(hdc) Sleep(5);}
+
+#else
+
+// nothing to de done
+#define WAIT_FOR_SCREEN()
 #endif
 
 
@@ -269,6 +280,7 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 
 
 
+#ifdef MULTI_THREAD
 // multhreaded screen copy ...
 DWORD WINAPI dr_flush_screen(LPVOID lpParam)
 {
@@ -283,32 +295,31 @@ DWORD WINAPI dr_flush_screen(LPVOID lpParam)
 	}
 	return 0;
 }
+#endif
 
 void dr_prepare_flush()
 {
+#ifdef MULTI_THREAD
 	// thread there?
 	if(hFlushThread==0) {
 		DWORD id=22;
 		hFlushThread = CreateThread( NULL, 0, dr_flush_screen, 0, CREATE_SUSPENDED, &id );
 	}
 	WAIT_FOR_SCREEN();
+#endif
 }
 
 void dr_flush()
 {
+#ifdef MULTI_THREAD
 	// just let the thread do its work
 	ResumeThread( hFlushThread );
-#if 0
-	if(ResumeThread( hFlushThread )==-1) {
-
-		// do it manually (should never happen!)
-		if (hdc == NULL) {
-			hdc = GetDC(hwnd);
-		}
-		display_flush_buffer();
-		ReleaseDC(hwnd, hdc);
-		hdc = NULL;
-	}
+#else
+	assert(hdc==NULL);
+	hdc = GetDC(hwnd);
+	display_flush_buffer();
+	ReleaseDC(hwnd, hdc);
+	hdc = NULL;
 #endif
 }
 
@@ -741,8 +752,10 @@ BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 
 	simu_main(argc, argv);
 
+#ifdef MULTI_THREAD
 	if(	hFlushThread ) {
 		TerminateThread( hFlushThread, 0 );
 	}
+#endif
 	return 0;
 }
