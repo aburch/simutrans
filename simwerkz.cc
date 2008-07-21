@@ -1209,7 +1209,9 @@ const char *wkz_wegebau_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate
 		return "";
 	}
 
-	if(welt->lookup(start)==0) {
+	// ignore start==pos
+	if(start==pos  &&  buttonstate==0) {
+		init(welt,sp);
 		return "";
 	}
 

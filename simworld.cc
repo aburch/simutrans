@@ -3584,6 +3584,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			// resend init message, if mouse button pressed to enable dragging
 			if(is_dragging  &&  ev->button_state==0) {
 				is_dragging = false;
+				werkzeug->move( this, get_active_player(), 0, prev_pos );
 			}
 			else if(werkzeug!=NULL  &&  ev->ev_class==EVENT_DRAG  &&  werkzeug_last_pos!=pos.gib_2d()) {
 				if(!is_dragging  &&  ist_in_kartengrenzen(prev_pos.gib_2d())) {
