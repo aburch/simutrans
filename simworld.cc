@@ -3831,15 +3831,18 @@ karte_t::interactive()
 			}
 		}
 
-		if(!pause  &&  fast_forward) {
-			sync_step( MAGIC_STEP, true, false );
-			step();
-		}
-		else if(pause) {
-			sync_step( 0, true, false );
-		}
-		else if(this_wait_time==0) {
-			step();
+		if(this_wait_time==0) {
+			if(!pause  &&  fast_forward) {
+				sync_step( MAGIC_STEP, true, false );
+				step();
+			}
+			else if(pause) {
+				sync_step( 0, false, true );
+				this_wait_time = 50;
+			}
+			else {
+				step();
+			}
 		}
 
 		// we wait here for maximum 9ms
