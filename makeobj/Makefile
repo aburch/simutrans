@@ -8,22 +8,27 @@ OSTYPE = mingw
 LN= $(CC)
 
 ifeq ($(OSTYPE),mingw)
-LDLIBS=-lmingw32 -lpng -lz -lstdc++
-CFLAGS= -O -g
-CXXFLAGS= -O -g
+  LDLIBS=-lmingw32 -lpng -lz -lstdc++
+  CFLAGS= -O -g
+  CXXFLAGS= -O -g
 endif
 
 ifeq ($(OSTYPE),linux)
-LDLIBS=-lpng -lz -lstdc++ -lm
-CFLAGS   = -O
-CXXFLAGS = -O
+  LDLIBS=-lpng -lz -lstdc++ -lm
+  CFLAGS   = -O
+  CXXFLAGS = -O
 endif
 
 ifeq ($(OSTYPE),beos)
-LDLIBS=-lpng -lz -lstdc++
-CFLAGS=-O
-CXXFLAGS=-O
+  LDLIBS=-lpng -lz -lstdc++
+  CFLAGS=-O
+  CXXFLAGS=-O
+endif
 
+ifeq ($(OSTYPE),mac)
+  LDLIBS=-lpng -lz -lstdc++ -lm
+  CFLAGS=-O
+  CXXFLAGS=-O
 endif
 
 ifdef FLAGS

@@ -15,6 +15,7 @@
 	ADD: multithread support for screen copy (max. 10% faster) for GDI
 	FIX: new timing for idle and frame => fast forward speed more closely met, less CPU needed, smoother transitions
 	FIX: too sensitve mouse repaired (moving during clicking)
+	FIX: no crashes on pwoer bridges at vertical slopes
 
 
 Release of 100.0 (r1867, stable)

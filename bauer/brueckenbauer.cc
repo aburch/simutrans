@@ -455,6 +455,11 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 			gr->calc_bild();
 		} else {
 			leitung_t *lt = gr->gib_leitung();
+			if(  lt==NULL  ) {
+				lt = new leitung_t( welt, end, sp );
+				spieler_t::accounting(sp, -wegbauer_t::leitung_besch->gib_preis(), gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
+				gr->obj_add(lt);
+			}
 			lt->calc_neighbourhood();
 		}
 	}
