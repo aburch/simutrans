@@ -1313,6 +1313,7 @@ const char *wkz_wegebau_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate
 			}
 		}
 	}
+#if 0
 	else {
 		if(!marked.empty()) {
 			// prepare for building!
@@ -1345,6 +1346,7 @@ const char *wkz_wegebau_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate
 		// then init
 		init( welt, sp );
 	}
+#endif
 	return NULL;
 }
 
