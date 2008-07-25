@@ -34,6 +34,7 @@ endif
 
 ifeq ($(OSTYPE),mac)
   CFLAGS   += -DUSE_HW -DUSE_C
+  CXXFLAGS   += -DUSE_HW -DUSE_C
   STD_LIBS ?= -lz
 endif
 

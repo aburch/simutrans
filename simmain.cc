@@ -242,8 +242,6 @@ parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &ful
 
 	simuconf.read(contents);
 
-	print("Initializing tombstones ...\n");
-
 	umgebung_t::max_convoihandles = contents.get_int("convoys", umgebung_t::max_convoihandles );
 	umgebung_t::max_linehandles = contents.get_int("lines", umgebung_t::max_linehandles );
 	umgebung_t::max_halthandles = contents.get_int("stations", umgebung_t::max_halthandles );
@@ -500,7 +498,8 @@ int simu_main(int argc, char** argv)
 
 	tabfile_t simuconf;
 	if(simuconf.open("config/simuconf.tab")) {
-		parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename, multiuser );
+		printf("parse_simuconf() at config/simuconf.tab");
+ 		parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename, multiuser );
 		found_simuconf = true;
 		simuconf.close();
 	}
@@ -512,6 +511,7 @@ int simu_main(int argc, char** argv)
 
 		cstring_t obj_conf = umgebung_t::user_dir;
 		if(simuconf.open(obj_conf + "simuconf.tab")) {
+			printf("parse_simuconf() at %ssimuconf.tab", (const char *)obj_conf);
 			parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename, multiuser );
 		}
 	}
@@ -525,15 +525,18 @@ int simu_main(int argc, char** argv)
 		umgebung_t::objfilename = gimme_arg(argc, argv, "-objects", 1);
 	}
 
+#if 0
 	// now parse the user settings
 	if(umgebung_t::user_dir!=umgebung_t::program_dir) {
 		cstring_t obj_conf = umgebung_t::user_dir;
 		if(simuconf.open(obj_conf + "simuconf.tab")) {
+			printf("parse_simuconf() at %ssimuconf.tab", (const char *)obj_conf);
 			cstring_t dummy;
 			parse_simuconf( simuconf, disp_width, disp_height, fullscreen, dummy, multiuser );
 			found_simuconf = true;
 		}
 	}
+#endif
 
 	chdir( umgebung_t::user_dir );
 	if (gimme_arg(argc, argv, "-log", 0)) {
@@ -641,6 +644,7 @@ int simu_main(int argc, char** argv)
 	cstring_t dummy("");
 	if(simuconf.open((const char *)obj_conf)) {
 		int idummy;
+		printf("parse_simuconf() at %sconfig/simuconf.tab", (const char *)obj_conf);
 		parse_simuconf( simuconf, idummy, idummy, idummy, dummy, multiuser );
 		simuconf.close();
 	}
@@ -649,6 +653,7 @@ int simu_main(int argc, char** argv)
 		cstring_t obj_conf = umgebung_t::user_dir;
 		if(simuconf.open(obj_conf + "simuconf.tab")) {
 			int idummy;
+			printf("parse_simuconf() at %ssimuconf.tab", (const char *)obj_conf);
 			parse_simuconf( simuconf, idummy, idummy, idummy, dummy, multiuser );
 			simuconf.close();
 		}

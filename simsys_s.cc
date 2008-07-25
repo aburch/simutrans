@@ -192,7 +192,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 	flags |= (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE);
 #ifdef USE_HW
 	{
-		SDL_VideoInfo *vi=SDL_GetVideoInfo();
+		const SDL_VideoInfo *vi=SDL_GetVideoInfo();
 		printf( "hw_available=%i, video_mem=%i, blit_sw=%i\n", vi->hw_available, vi->video_mem, vi->blit_sw );
 		printf( "bpp=%i, bytes=%i\n", vi->vfmt->BitsPerPixel, vi->vfmt->BytesPerPixel );
 	}
