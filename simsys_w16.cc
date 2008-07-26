@@ -69,7 +69,9 @@ const wchar_t* const title =
 			L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE;
 #endif
 
-#ifdef MULTI_THREAD
+// if defined, multithreaded redraws
+//#ifdef MULTI_THREAD
+
 
 HANDLE	hFlushThread=0;
 #define WAIT_FOR_SCREEN() {while(hdc) Sleep(5);}
