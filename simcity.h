@@ -227,8 +227,6 @@ private:
 	 */
 	void check_bau_factory(bool);
 
-	void bewerte();
-
 	// bewertungsfunktionen fuer den Hauserbau
 	// wie gut passt so ein Gebaeudetyp an diese Stelle ?
 	gebaeude_t::typ was_ist_an(koord pos) const;

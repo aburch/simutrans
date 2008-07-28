@@ -723,6 +723,7 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 	if (pos != NULL && !pos->empty()) {
 		// prissi if we could not generate enough positions ...
 		einstellungen->setze_anzahl_staedte( pos->get_count() );	// new number of towns (if we did not found enough positions) ...
+		int x = 16;
 		const int max_display_progress=16+einstellungen->gib_anzahl_staedte()*4+einstellungen->gib_land_industry_chains();
 
 		// Ansicht auf erste Stadt zentrieren
@@ -736,17 +737,23 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 			stadt_t* s = new stadt_t(spieler[1], (*pos)[i], current_citicens);
 DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
 			stadt.append(s, current_citicens, 64);
+			if(is_display_init()) {
+				x ++;
+				display_progress(x, max_display_progress);
+			}
+			else {
+				printf("*");fflush(NULL);
+			}
 		}
 
-		int x = 16;
 		for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 			// Hajo: do final init after world was loaded/created
 			(*i)->laden_abschliessen();
 			last_maximum_bev += (*i)->gib_einwohner();
 			// the growth is slow, so update here the progress bar
 			if(is_display_init()) {
+				x ++;
 				display_progress(x, max_display_progress);
-				x += 2;
 			}
 			else {
 				printf("*");fflush(NULL);

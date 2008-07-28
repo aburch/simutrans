@@ -170,6 +170,8 @@ static const uint8 rotate_rules_270[] = {
  * h = muss Haus sein
  * T = not a stop	// added in 88.03.3
  * t = is a stop // added in 88.03.3
+ * u = good slope for way
+ * U = not a slope for ways
  * . = beliebig
  *
  * @param pos position to check
@@ -277,31 +279,6 @@ void stadt_t::bewerte_haus(koord k, sint32 rd, const char* regel)
 	}
 }
 
-
-/*
- * Zeichen in Regeln:
- * S = darf keine Strasse sein
- * s = muss Strasse sein
- * n = muss Natur sein
- * t = muss Stop sein ...
- * . = beliebig
- */
-void stadt_t::bewerte()
-{
-	// will check a single random pos in the city, then baue will be called
-	const koord k(lo + koord(simrand(ur.x - lo.x + 1), simrand(ur.y - lo.y + 1)));
-
-	// since only a single location is checked, we can stop after we have found a positive rule
-	best_haus.reset(k);
-	for (int i = 0; i < num_house_rules  &&  !best_haus.found(); i++) {
-		bewerte_haus(k, 8 + house_rules[i].chance, house_rules[i].rule);
-	}
-
-	best_strasse.reset(k);
-	for (int i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
-		bewerte_strasse(k, 8 + road_rules[i].chance, road_rules[i].rule);
-	}
-}
 
 
 
@@ -1255,19 +1232,14 @@ void stadt_t::step_bau()
 	for (int n = 0; n < growth_step; n++) {
 		bev++; // Hajo: bevoelkerung wachsen lassen
 
-		INT_CHECK("simcity 338");
-
 		for (int i = 0; i < 30 && bev * 2 > won + arb + 100; i++) {
-			bewerte();
 			baue();
-			INT_CHECK("simcity 273");
 		}
 
 		check_bau_spezial(new_town);
-		INT_CHECK("simcity 275");
 		check_bau_rathaus(new_town);
-		// add industry? (not during creation)
-		check_bau_factory(new_town);
+		check_bau_factory(new_town); // add industry? (not during creation)
+		INT_CHECK("simcity 275");
 	}
 }
 
@@ -2314,18 +2286,47 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 
 void stadt_t::baue()
 {
-//	printf("Haus: %d  Strasse %d\n", best_haus_wert, best_strasse_wert);
+	// will check a single random pos in the city, then baue will be called
+	const koord k(lo + koord(simrand(ur.x - lo.x + 1), simrand(ur.y - lo.y + 1)));
 
-	if (best_strasse.found()) {
-		baue_strasse(best_strasse.gib_pos(), NULL, false);
-		INT_CHECK("simcity 1156");
+	grund_t *gr = welt->lookup_kartenboden(k);
+	if(gr==NULL) {
 		return;
 	}
 
-	if (best_haus.found()) {
-		baue_gebaeude(best_haus.gib_pos());
-		INT_CHECK("simcity 1163");
-		return;
+	// checks only make sense on empty ground
+	if(gr->ist_natur()) {
+
+		// since only a single location is checked, we can stop after we have found a positive rule
+		best_strasse.reset(k);
+		int offset = simrand(num_road_rules);	// start with random rule
+		for (int i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
+			int rule = ( i+offset ) % num_road_rules;
+			bewerte_strasse(k, 8 + road_rules[rule].chance, road_rules[rule].rule);
+		}
+		// ok => then built road
+		if (best_strasse.found()) {
+			baue_strasse(best_strasse.gib_pos(), NULL, false);
+			INT_CHECK("simcity 1156");
+			return;
+		}
+
+		// not good for road => test for house
+
+		// since only a single location is checked, we can stop after we have found a positive rule
+		best_haus.reset(k);
+		offset = simrand(num_house_rules);	// start with random rule
+		for (int i = 0; i < num_house_rules  &&  !best_haus.found(); i++) {
+			int rule = ( i+offset ) % num_house_rules;
+			bewerte_haus(k, 8 + house_rules[rule].chance, house_rules[rule].rule);
+		}
+		// one rule applied?
+		if (best_haus.found()) {
+			baue_gebaeude(best_haus.gib_pos());
+			INT_CHECK("simcity 1163");
+			return;
+		}
+
 	}
 
 	// renovation (only done when nothing matches a certain location
