@@ -1313,40 +1313,6 @@ const char *wkz_wegebau_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate
 			}
 		}
 	}
-#if 0
-	else {
-		if(!marked.empty()) {
-			// prepare for building!
-			wegbauer_t bauigel(welt, sp);
-			bauigel.route_fuer(bautyp, besch);
-			koord3d ziel = (start!=marked.front()->gib_pos()) ? marked.front()->gib_pos() : marked.back()->gib_pos();
-			const koord3d baustart = start;
-			// remove old cursor/route markings
-			init(welt,sp);
-			if(event_get_last_control_shift()==2  ||  grund_t::underground_mode) {
-				bauigel.set_keep_existing_ways(false);
-				bauigel.calc_straight_route(baustart,ziel);
-			}
-			else {
-				bauigel.set_keep_existing_faster_ways(true);
-				bauigel.calc_route(baustart,ziel);
-			}
-			long cost = bauigel.calc_costs();
-			welt->mute_sound(true);
-			bauigel.baue();
-			welt->mute_sound(false);
-			if(cost>10000) {
-				struct sound_info info;
-				info.index = SFX_CASH;
-				info.volume = 255;
-				info.pri = 0;
-				sound_play(info);
-			}
-		}
-		// then init
-		init( welt, sp );
-	}
-#endif
 	return NULL;
 }
 
