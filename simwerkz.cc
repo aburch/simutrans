@@ -2218,6 +2218,21 @@ bool wkz_station_t::init( karte_t *welt, spieler_t * )
 	return true;
 }
 
+
+image_id wkz_station_t::get_icon( spieler_t * )
+{
+	if(  grund_t::underground_mode  ) {
+		// in underground mode, buildings will be done invisible above ground => disallow such confusion
+		const haus_besch_t *besch=hausbauer_t::find_tile(default_param,0)->gib_besch();
+		if(  besch->gib_utyp()!=haus_besch_t::generic_stop  ||  besch->gib_extra()==air_wt) {
+			return IMG_LEER;
+		}
+	}
+	return icon;
+}
+
+
+
 const char *wkz_station_t::get_tooltip(spieler_t *)
 {
 	const haus_besch_t *besch=hausbauer_t::find_tile(default_param,0)->gib_besch();

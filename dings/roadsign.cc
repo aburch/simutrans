@@ -499,7 +499,7 @@ void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, const karte_
 				if(wkz==NULL) {
 					// not yet in hashtable
 					wkz = new wkz_roadsign_t();
-					wkz->icon = besch->gib_cursor()->gib_bild_nr(1),
+					wkz->set_icon( besch->gib_cursor()->gib_bild_nr(1) );
 					wkz->cursor = besch->gib_cursor()->gib_bild_nr(0),
 					wkz->default_param = besch->gib_name();
 					sign_tool.put(besch->gib_name(),wkz);

@@ -186,8 +186,8 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 					if(wkz==NULL) {
 						// not yet in hashtable
 						wkz = new wkz_depot_t();
-						wkz->icon = besch->gib_cursor()->gib_bild_nr(1),
-						wkz->cursor = besch->gib_cursor()->gib_bild_nr(0),
+						wkz->set_icon( besch->gib_cursor()->gib_bild_nr(1) );
+						wkz->cursor = besch->gib_cursor()->gib_bild_nr(0);
 						wkz->default_param = besch->gib_name();
 						depot_tool.put(besch->gib_name(),wkz);
 					}
@@ -198,7 +198,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 					if(wkz==NULL) {
 						// not yet in hashtable
 						wkz = new wkz_station_t();
-						wkz->icon = besch->gib_cursor()->gib_bild_nr(1),
+						wkz->set_icon( besch->gib_cursor()->gib_bild_nr(1) );
 						wkz->cursor = besch->gib_cursor()->gib_bild_nr(0),
 						wkz->default_param = besch->gib_name();
 						station_tool.put(besch->gib_name(),wkz);

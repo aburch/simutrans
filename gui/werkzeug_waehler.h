@@ -57,7 +57,7 @@ private:
 	bool allow_break;
 
 public:
-	werkzeug_waehler_t(karte_t *welt, const char * titel, const char *helpfile, koord size, bool allow_break=true );
+	werkzeug_waehler_t(karte_t *welt, const char *titel, const char *helpfile, koord size, bool allow_break=true );
 
 	/**
 	 * Add a new tool with values and tooltip text.

@@ -126,7 +126,12 @@ enum {
 };
 
 class werkzeug_t {
+protected:
+	image_id icon;
+
 public:
+	static werkzeug_t *dummy;
+
 	// for sorting: compare tool key
 	static bool compare_werkzeug( const werkzeug_t *a, const werkzeug_t *b) {
 		uint16 ac = a->command_key & ~32;
@@ -138,7 +143,6 @@ public:
 	static vector_tpl<werkzeug_t *>char_to_tool;
 
 	image_id cursor;
-	image_id icon;
 	int	ok_sound;
 	int failed_sound;
 	sint8 offset;
@@ -159,6 +163,9 @@ public:
 
 	werkzeug_t() { id = 0xFFFFu; cursor = icon = IMG_LEER; ok_sound = failed_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; }
 	virtual ~werkzeug_t() {}
+
+	virtual image_id get_icon(spieler_t *) { return icon; }
+	void set_icon(image_id i) { icon = i; }
 
 	// this will draw the tool with some indication, if active
 	virtual bool is_selected(karte_t *welt) { return welt->get_werkzeug()==this; }
@@ -203,6 +210,7 @@ public:
 	}
 	const char *get_tooltip(spieler_t *) { return translator::translate(default_param); }
 	werkzeug_waehler_t *get_werkzeug_waehler() const { return wzw; }
+	virtual image_id get_icon(spieler_t *);
 	bool is_selected(karte_t *welt);
 	// show this toolbar
 	virtual bool init(karte_t *w, spieler_t *sp);

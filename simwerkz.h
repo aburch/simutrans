@@ -85,6 +85,7 @@ private:
 	sint16 drag_height;
 public:
 	wkz_raise_t() : werkzeug_t() { offset = Z_GRID; }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	const char *get_tooltip(spieler_t *) { return tooltip_with_price("Anheben", umgebung_t::cst_alter_land); }
 	bool init( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	bool exit( karte_t *, spieler_t * ) { is_dragging = false; return true; }
@@ -98,6 +99,7 @@ private:
 	sint16 drag_height;
 public:
 	wkz_lower_t() : werkzeug_t() { offset = Z_GRID; }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	const char *get_tooltip(spieler_t *) { return tooltip_with_price("Absenken", umgebung_t::cst_alter_land); }
 	bool init( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	bool exit( karte_t *, spieler_t * ) { is_dragging = false; return true; }
@@ -108,12 +110,14 @@ public:
 /* slope tool definitions */
 class wkz_setslope_t : public werkzeug_t {
 public:
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	static const char *wkz_set_slope_work( karte_t *welt, spieler_t *sp, koord pos, int slope );
 	const char *get_tooltip(spieler_t *) { return tooltip_with_price("Built artifical slopes", umgebung_t::cst_set_slope); }
 	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k ) { return wkz_set_slope_work( welt, sp, k.gib_2d(), atoi(default_param) ); }
 };
 
 class wkz_restoreslope_t : public werkzeug_t {
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	const char *get_tooltip(spieler_t *) { return tooltip_with_price("Restore natural slope", umgebung_t::cst_set_slope); }
 	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k ) { return wkz_setslope_t::wkz_set_slope_work( welt, sp, k.gib_2d(), RESTORE_SLOPE ); }
 };
@@ -132,11 +136,13 @@ class wkz_clear_reservation_t : public werkzeug_t {
 
 class wkz_transformer_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *);
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 };
 
 class wkz_add_city_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return tooltip_with_price( "Found new city", umgebung_t::cst_found_city ); }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 };
 
@@ -145,12 +151,14 @@ class wkz_add_city_t : public werkzeug_t {
 // step size by default_param
 class wkz_change_city_size_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate( atoi(default_param)>=0 ? "Grow city" : "Shrink city" ); }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 };
 
 class wkz_plant_tree_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate( "Plant tree" ); }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	virtual const char *move( karte_t *welt, spieler_t *sp, uint16 b, koord3d k ) { return b==1 ? work(welt,sp,k) : NULL; }
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 };
@@ -176,6 +184,7 @@ private:
 	const weg_besch_t *get_besch();
 public:
 	wkz_wegebau_t() : werkzeug_t() { wkz_wegebau_bauer=NULL; }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	const char *get_tooltip(spieler_t *);
 	bool init( karte_t *, spieler_t * );
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
@@ -185,6 +194,7 @@ public:
 
 class wkz_brueckenbau_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *);
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	const char *work( karte_t *welt, spieler_t *sp, koord3d k );
 };
 
@@ -234,6 +244,7 @@ private:
 	const char *wkz_station_dock_aux( karte_t *, spieler_t *, koord3d, const haus_besch_t * );
 	const char *wkz_station_aux( karte_t *, spieler_t *, koord3d, const haus_besch_t *, waytype_t, sint64 cost, const char *halt_suffix );
 public:
+	virtual image_id get_icon(spieler_t *);
 	const char *get_tooltip(spieler_t *);
 	bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
@@ -249,6 +260,7 @@ private:
 	static char toolstring[256];
 	const char *wkz_depot_aux(karte_t *welt, spieler_t *sp, koord pos, const haus_besch_t *besch, waytype_t wegtype, sint64 cost);
 public:
+	virtual image_id get_icon(spieler_t *sp) { return sp->get_welt()->gib_spieler(1)==sp ? IMG_LEER : icon; }
 	const char *get_tooltip(spieler_t *);
 	bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
@@ -264,6 +276,7 @@ public:
  */
 class wkz_build_haus_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Built random attraction"); }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 };
@@ -279,18 +292,21 @@ class wkz_build_haus_t : public werkzeug_t {
  */
 class wkz_build_industries_land_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Build land consumer"); }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 };
 
 class wkz_build_industries_city_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Build city market"); }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 };
 
 class wkz_build_factory_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Build city market"); }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 };
@@ -301,6 +317,7 @@ private:
 	zeiger_t *wkz_linkzeiger;
 public:
 	wkz_link_factory_t() : werkzeug_t() { wkz_linkzeiger=NULL; last_fab=NULL; }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Connect factory"); }
 	bool init( karte_t *, spieler_t * );
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
@@ -344,6 +361,7 @@ private:
 	zeiger_t *marked;
 public:
 	wkz_forest_t() : werkzeug_t() { marked=NULL; }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Add forest"); }
 	bool init( karte_t *, spieler_t * );
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
@@ -398,6 +416,7 @@ class wkz_screenshot_t : public werkzeug_t {
 // builts next chain
 class wkz_increase_industry_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Increase Industry density"); }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	bool init( karte_t *welt, spieler_t * ) {
 		fabrikbauer_t::increase_industry_density( welt, false );
 		return false;
@@ -558,6 +577,7 @@ class wkz_quit_t : public werkzeug_t {
 // step size by default_param
 class wkz_fill_trees_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Fill trees"); }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	bool init( karte_t *welt, spieler_t * ) {
 		baum_t::fill_trees( welt, atoi(default_param) );
 		return false;
@@ -770,6 +790,7 @@ class wkz_list_curiosity_t : public werkzeug_t {
 /* factory building dialog */
 class wkz_factorybuilder_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("factorybuilder"); }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	bool is_selected(karte_t *) { return win_get_magic(magic_edit_factory); }
 	bool init( karte_t *welt, spieler_t *sp ) {
 		create_win( new factory_edit_frame_t(sp,welt), w_info, magic_edit_factory );
@@ -780,6 +801,7 @@ class wkz_factorybuilder_t : public werkzeug_t {
 /* attraction building dialog */
 class wkz_attractionbuilder_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("curiosity builder"); }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	bool is_selected(karte_t *) { return win_get_magic(magic_edit_attraction); }
 	bool init( karte_t *welt, spieler_t *sp ) {
 		create_win( new curiosity_edit_frame_t(sp,welt), w_info, magic_edit_attraction );
@@ -790,6 +812,7 @@ class wkz_attractionbuilder_t : public werkzeug_t {
 /* house building dialog */
 class wkz_housebuilder_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("citybuilding builder"); }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	bool is_selected(karte_t *) { return win_get_magic(magic_edit_house); }
 	bool init( karte_t *welt, spieler_t *sp ) {
 		create_win( new citybuilding_edit_frame_t(sp,welt), w_info, magic_edit_house );
@@ -800,6 +823,7 @@ class wkz_housebuilder_t : public werkzeug_t {
 /* house building dialog */
 class wkz_treebuilder_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("baum builder"); }
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	bool is_selected(karte_t *) { return win_get_magic(magic_edit_tree); }
 	bool init( karte_t *welt, spieler_t *sp ) {
 		create_win( new baum_edit_frame_t(sp,welt), w_info, magic_edit_tree );

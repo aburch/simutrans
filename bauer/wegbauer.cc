@@ -231,8 +231,8 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
 		if(wkz==NULL) {
 			// not yet in hashtable
 			wkz = new wkz_wegebau_t();
-			wkz->icon = besch->gib_cursor()->gib_bild_nr(1),
-			wkz->cursor = besch->gib_cursor()->gib_bild_nr(0),
+			wkz->set_icon( besch->gib_cursor()->gib_bild_nr(1) );
+			wkz->cursor = besch->gib_cursor()->gib_bild_nr(0);
 			wkz->default_param = besch->gib_name();
 			way_tool.put(besch->gib_name(),wkz);
 		}

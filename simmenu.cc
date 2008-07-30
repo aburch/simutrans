@@ -551,7 +551,19 @@ class wkz_dummy_t : public werkzeug_t {
 	bool init( karte_t *, spieler_t * ) { return false; }
 };
 
-static werkzeug_t *dummy = new wkz_dummy_t();
+werkzeug_t *werkzeug_t::dummy = new wkz_dummy_t();
+
+
+
+image_id toolbar_t::get_icon(spieler_t *sp)
+{
+	// no image for edit tools => do not open
+	if(sp!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  sp!=sp->get_welt()->gib_spieler(1)  ) {
+		return IMG_LEER;
+	}
+	return icon;
+}
+
 
 
 // simply true, if visible
@@ -568,12 +580,20 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 		DBG_MESSAGE("toolbar_t::update()","update/create toolbar %s",default_param);
 		wzw = new werkzeug_waehler_t( welt, default_param, helpfile, iconsize, this!=werkzeug_t::toolbar_tool[0] );
 	}
+
+	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->gib_spieler(1))  ||
+		 (grund_t::underground_mode  &&  strcmp(default_param,"SLOPETOOLS")==0)
+		) {
+		destroy_win(wzw);
+		return;
+	}
+
 	wzw->reset_tools();
 	// now (re)fill it
 	for (slist_tpl<werkzeug_t *>::const_iterator iter = tools.begin(), end = tools.end(); iter != end; ++iter) {
 		werkzeug_t *w = *iter;
 		// no way to call this tool? => then it is most likely a metatool
-		if(w->command_key==1  &&  w->icon==IMG_LEER) {
+		if(w->command_key==1  &&  w->get_icon(welt->get_active_player())==IMG_LEER) {
 			if(w->default_param!=NULL) {
 				if(strstr(w->default_param,"ways(")) {
 					const char *c = w->default_param+5;
@@ -615,7 +635,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 				}
 			}
 		}
-		else if(w->icon!=IMG_LEER) {
+		else if(w->get_icon(welt->get_active_player())!=IMG_LEER) {
 			wzw->add_werkzeug( w );
 		}
 	}
@@ -627,11 +647,22 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 {
 	update( welt, sp );
+	bool close = (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->gib_spieler(1));
+	if(  grund_t::underground_mode  &&  strcmp(default_param,"SLOPETOOLS")==0  ) {
+		close = true;
+	}
+
 	// show/create window
 	if(win_get_magic((long)this)) {
-		top_win(wzw);
+		if(close) {
+			destroy_win(wzw);
+		}
+		else {
+			top_win(wzw);
+		}
+
 	}
-	else {
+	else if(!close) {
 		create_win( wzw, w_info|w_do_not_delete|w_no_overlap, (long)this );
 	}
 	return false;

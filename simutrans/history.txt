@@ -17,6 +17,7 @@
 	FIX: too sensitve mouse repaired (moving during clicking)
 	FIX: no crashes on pwoer bridges at vertical slopes
 	CHANGE: much faster town renovation/town growth => faster city generation
+	FIX: only tools applyable in the current situation are visible
 
 
 Release of 100.0 (r1867, stable)

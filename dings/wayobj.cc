@@ -432,8 +432,8 @@ DBG_DEBUG("wayobj_t::fill_menu()","maximum %i",liste.get_count());
 				if(wkz==NULL) {
 					// not yet in hashtable
 					wkz = new wkz_wayobj_t();
-					wkz->icon = besch->gib_cursor()->gib_bild_nr(1),
-					wkz->cursor = besch->gib_cursor()->gib_bild_nr(0),
+					wkz->set_icon( besch->gib_cursor()->gib_bild_nr(1) );
+					wkz->cursor = besch->gib_cursor()->gib_bild_nr(0);
 					wkz->default_param = besch->gib_name();
 					wayobj_tool.put(besch->gib_name(),wkz);
 				}

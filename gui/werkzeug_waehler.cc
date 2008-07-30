@@ -37,6 +37,11 @@ werkzeug_waehler_t::werkzeug_waehler_t(karte_t* welt, const char* titel, const c
  */
 void werkzeug_waehler_t::add_werkzeug(werkzeug_t *w)
 {
+	if(w->get_icon(welt->get_active_player())==IMG_LEER  &&  w!=werkzeug_t::dummy) {
+		return;
+	}
+
+	// only for non-empty icons ...
 	tools.push_back(w);
 
 	int ww = (display_get_width()/icon.x)-2;
@@ -52,7 +57,7 @@ DBG_DEBUG("werkzeug_waehler_t::add_tool()","ww=%i, rows=%i",ww,rows);
 	dirty = true;
 	groesse = koord( tool_icon_width*icon.x, ((tools.get_count()-1)/tool_icon_width) * icon.y + 16 + icon.y );
 
-	DBG_DEBUG("werkzeug_waehler_t::add_tool()", "at position %i (width %i)", tools.get_count(), tool_icon_width);
+DBG_DEBUG("werkzeug_waehler_t::add_tool()", "at position %i (width %i)", tools.get_count(), tool_icon_width);
 }
 
 
@@ -61,12 +66,6 @@ void werkzeug_waehler_t::reset_tools()
 {
 	for(  int i=tools.get_count();  i>0;  ) {
 		i--;
-#if 0
-		// our tool was active => reset to query tool
-		if(  welt->get_werkzeug()==tools[i]  ) {
-			welt->set_werkzeug( werkzeug_t::general_tool+WKZ_ABFRAGE );
-		}
-#endif
 		tools.remove_at(i);
 	}
 	groesse = koord( icon.x, 16 );
@@ -109,8 +108,9 @@ void werkzeug_waehler_t::infowin_event(const event_t *ev)
 
 void werkzeug_waehler_t::zeichnen(koord pos, koord)
 {
+	spieler_t *sp = welt->get_active_player();
 	for (uint i = 0; i < tools.get_count(); i++) {
-		const image_id icon_img = tools[i]->icon;
+		const image_id icon_img = tools[i]->get_icon(sp);
 
 		const koord draw_pos=pos+koord((i%tool_icon_width)*icon.x,16+(i/tool_icon_width)*icon.y);
 		if(icon_img == IMG_LEER) {
