@@ -88,7 +88,7 @@ private:
 	spieler_t *besitzer_p;
 	const char *name;
 
-	weighted_vector_tpl <const gebaeude_t *> buildings;
+	weighted_vector_tpl <gebaeude_t *> buildings;
 
 	array2d_tpl<uint8> pax_ziele_alt;
 	array2d_tpl<uint8> pax_ziele_neu;
@@ -239,7 +239,7 @@ private:
 	 */
 	void baue_gebaeude(koord pos);
 	void erzeuge_verkehrsteilnehmer(koord pos, sint32 level,koord target);
-	void renoviere_gebaeude(koord pos);
+	void renoviere_gebaeude(gebaeude_t *gb);
 
 	/**
 	 * baut ein Stueck Strasse
@@ -292,7 +292,7 @@ public:
 	void add_gebaeude_to_stadt(const gebaeude_t *gb);
 
 	// changes the weight; must be called if there is a new definition (tile) for that house
-	void update_gebaeude_from_stadt(const gebaeude_t *gb);
+	void update_gebaeude_from_stadt(gebaeude_t *gb);
 
 	/**
 	* Returns the finance history for cities

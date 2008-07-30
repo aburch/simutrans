@@ -551,7 +551,7 @@ void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 
 
 // just updates the weight count of this building (after a renovation)
-void stadt_t::update_gebaeude_from_stadt(const gebaeude_t* gb)
+void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
 {
 	buildings.remove(gb);
 	buildings.append(gb, gb->gib_tile()->gib_besch()->gib_level() + 1, 16);
@@ -1470,7 +1470,7 @@ void stadt_t::step_passagiere()
 koord stadt_t::gib_zufallspunkt() const
 {
 	if(!buildings.empty()) {
-		const gebaeude_t* gb = buildings.at_weight(simrand(buildings.get_sum_weight()));
+		gebaeude_t* gb = buildings.at_weight(simrand(buildings.get_sum_weight()));
 		koord k = gb->gib_pos().gib_2d();
 		if(!welt->ist_in_kartengrenzen(k)) {
 			// this building should not be in this list, since it has been already deleted!
@@ -1898,21 +1898,21 @@ void stadt_t::baue_gebaeude(const koord k)
 		const haus_besch_t* h = NULL;
 		const climate cl = welt->get_climate(welt->max_hgt(k));
 
-		if (sum_gewerbe > sum_industrie && sum_gewerbe > sum_wohnung) {
+		if (sum_gewerbe > sum_industrie  &&  sum_gewerbe > sum_wohnung) {
 			h = hausbauer_t::gib_gewerbe(0, current_month, cl);
 			if (h != NULL) {
 				arb += 20;
 			}
 		}
 
-		if (h == NULL && sum_industrie > sum_gewerbe && sum_industrie > sum_wohnung) {
+		if (h == NULL  &&  sum_industrie > sum_gewerbe  &&  sum_industrie > sum_wohnung) {
 			h = hausbauer_t::gib_industrie(0, current_month, cl);
 			if (h != NULL) {
 				arb += 20;
 			}
 		}
 
-		if (h == NULL && sum_wohnung > sum_industrie && sum_wohnung > sum_gewerbe) {
+		if (h == NULL  &&  sum_wohnung > sum_industrie  &&  sum_wohnung > sum_gewerbe) {
 			h = hausbauer_t::gib_wohnhaus(0, current_month, cl);
 			if (h != NULL) {
 				// will be aligned next to a street
@@ -1987,21 +1987,15 @@ void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 level, koord target)
 }
 
 
-void stadt_t::renoviere_gebaeude(koord k)
+void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 {
-	const gebaeude_t::typ alt_typ = was_ist_an(k);
+	const gebaeude_t::typ alt_typ = gb->gib_haustyp();
 	if (alt_typ == gebaeude_t::unbekannt) {
-		return; // kann nur bekannte gebaeude renovieren
+		return; // only renovate res, com, ind
 	}
 
-	gebaeude_t* gb = dynamic_cast<gebaeude_t*>(welt->lookup(k)->gib_kartenboden()->first_obj());
-	if (gb == NULL) {
-		dbg->error("stadt_t::renoviere_gebaeude()", "could not find a building at (%d,%d) but there should be one!", k.x, k.y);
-		return;
-	}
-
-	if (gb->get_stadt() != this  ||  gb->gib_tile()->gib_besch()->gib_b()*gb->gib_tile()->gib_besch()->gib_h()!=1) {
-		return; // not our town or too big ...
+	if (gb->gib_tile()->gib_besch()->gib_b()*gb->gib_tile()->gib_besch()->gib_h()!=1) {
+		return; // too big ...
 	}
 
 	// hier sind wir sicher dass es ein Gebaeude ist
@@ -2014,9 +2008,10 @@ void stadt_t::renoviere_gebaeude(koord k)
 
 	// does the timeline allow this buildings?
 	const uint16 current_month = welt->get_timeline_year_month();
-	const climate cl = welt->get_climate(welt->max_hgt(k));
+	const climate cl = welt->get_climate(gb->gib_pos().z);
 
 	// der Bauplatz muss bewertet werden
+	const koord k = gb->gib_pos().gib_2d();
 	int passt_industrie;
 	int passt_gewerbe;
 	int passt_wohnung;
@@ -2331,7 +2326,7 @@ void stadt_t::baue()
 
 	// renovation (only done when nothing matches a certain location
 	if (!buildings.empty()  &&  simrand(100) <= renovation_percentage) {
-		renoviere_gebaeude(buildings[simrand(buildings.get_count())]->gib_pos().gib_2d());
+		renoviere_gebaeude(buildings[simrand(buildings.get_count())]);
 		INT_CHECK("simcity 876");
 	}
 }
