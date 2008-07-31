@@ -276,7 +276,11 @@ char *dr_query_homedir(void)
 	}
 	return NULL;
 #else
+#ifndef __MACOS__
 	sprintf( buffer, "%s/simutrans", getenv("HOME") );
+#else
+	sprintf( buffer, "%s/Documents/simutrans", getenv("HOME") );
+#endif
 	int err = mkdir( buffer, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );
 	if(err  &&  err!=EEXIST) {
 		// could not create directory

@@ -18,6 +18,7 @@
 	FIX: no crashes on pwoer bridges at vertical slopes
 	CHANGE: much faster town renovation/town growth => faster city generation
 	FIX: only tools applyable in the current situation are visible
+	CHANGE: savegame path instead .simutrans now ~/simutrans on Linux/BeOS, and ~/Documents/simutrans on MacOS
 
 
 Release of 100.0 (r1867, stable)
