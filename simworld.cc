@@ -550,6 +550,7 @@ karte_t::init_felder()
 	// make timer loop invalid
 	for( int i=0;  i<32;  i++ ) {
 		last_frame_ms[i] = 0x7FFFFFFFu;
+		last_step_nr[i] = 0xFFFFFFFFu;
 	}
 	last_frame_idx = 0;
 	pending_season_change = 0;
@@ -1777,26 +1778,32 @@ karte_t::update_frame_sleep_time()
 		realFPS = umgebung_t::fps;
 		simloops = 60;
 	}
-	// calculate simloops
-	uint16 last_step = (steps+31)%32;
-	if(last_step_nr[last_step]>last_step_nr[steps%32]) {
-		simloops = (10000*32l)/(last_step_nr[last_step]-last_step_nr[steps%32]);
-	}
+
 	if(pause) {
 		// not changing pauses
 		next_wait_time = 50;
 	}
 	else if(!fast_forward) {
-		// change frame spacing ... (pause will be changed by step() directly)
-		if(realFPS>(uint16)(umgebung_t::fps*17)/16) {
+		// calculate simloops
+		uint16 last_step = (steps+31)%32;
+		if(last_step_nr[last_step]>last_step_nr[steps%32]) {
+			simloops = (10000*32l)/(last_step_nr[last_step]-last_step_nr[steps%32]);
+		}
+		if(next_wait_time<5  &&  simloops<30  &&  realFPS>simloops) {
 			increase_frame_time();
 		}
-		else if(realFPS<(uint16)umgebung_t::fps) {
-			if(realFPS<(uint16)(umgebung_t::fps/2)) {
-				set_frame_time( get_frame_time()-1 );
+		else {
+			// change frame spacing ... (pause will be changed by step() directly)
+			if(realFPS>(uint16)(umgebung_t::fps*17)/16) {
+				increase_frame_time();
 			}
-			else {
-				reduce_frame_time();
+			else if(realFPS<(uint16)umgebung_t::fps) {
+				if(realFPS<(uint16)(umgebung_t::fps/2)) {
+					set_frame_time( get_frame_time()-1 );
+				}
+				else {
+					reduce_frame_time();
+				}
 			}
 		}
 	}
