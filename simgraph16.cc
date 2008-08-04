@@ -2810,6 +2810,13 @@ void display_flush_buffer(void)
 		ex_ord_update_mx_my();
 		display_color_img(standard_pointer, sys_event.mx, sys_event.my, 0, false, true);
 	}
+	else {
+		// crosshair, if nowthing there ...
+		display_fb_internal( sys_event.mx-1, sys_event.my-3, 3, 7, COL_WHITE, 1, 0, disp_width, 0, disp_height);
+		display_fb_internal( sys_event.mx-3, sys_event.my-1, 7, 3, COL_WHITE, 1, 0, disp_width, 0, disp_height);
+		display_direct_line( sys_event.mx-2, sys_event.my, sys_event.mx+2, sys_event.my, COL_BLACK );
+		display_direct_line( sys_event.mx, sys_event.my-2, sys_event.mx, sys_event.my+2, COL_BLACK );
+	}
 	old_my = sys_event.my;
 #endif
 

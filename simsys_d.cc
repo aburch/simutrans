@@ -4,11 +4,11 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#include "allegro.h"
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -23,6 +23,17 @@
 #include "simsys.h"
 #include "simevent.h"
 #include "simgraph.h"
+
+#ifdef _WIN32
+#define BITMAP winBITMAP
+#define WinMain winWinMain
+#include <windows.h>
+#undef BITMAP
+#undef WinMain
+#endif
+
+#include <allegro.h>
+
 
 
 static void simtimer_init(void);
@@ -161,6 +172,15 @@ static int my_keyboard_callback(int this_key, int* scancode)
 END_OF_FUNCTION(my_keyboard_callback)
 
 
+
+void my_close_button_callback(void)
+{
+	INSERT_EVENT(SIM_SYSTEM, SIM_SYSTEM_QUIT)
+}
+END_OF_FUNCTION(my_close_button_callback)
+
+
+
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der Schnittstelle untergebracht
  * -> init,open,close
@@ -180,6 +200,8 @@ int dr_os_init(const int* parameter)
 	LOCK_VARIABLE(event_queue);
 	LOCK_FUNCTION(my_mouse_callback);
 	LOCK_FUNCTION(my_keyboard_callback);
+	LOCK_FUNCTION(my_close_button_callback);
+	set_close_button_callback(my_close_button_callback);
 
 	if (ok == 0) {
 		simtimer_init();
@@ -195,6 +217,10 @@ int dr_query_screen_width()
 #ifdef _WIN32
 	return GetSystemMetrics( SM_CXSCREEN );
 #else
+	int w, h;
+	if(get_desktop_resolution(&w, &h) == 0) {
+		return w;
+	}
 	return width;
 #endif
 }
@@ -206,6 +232,10 @@ int dr_query_screen_height()
 #ifdef _WIN32
 	return GetSystemMetrics( SM_CYSCREEN );
 #else
+	int w, h;
+	if(get_desktop_resolution(&w, &h) == 0) {
+		return h;
+	}
 	return height;
 #endif
 }
@@ -311,7 +341,8 @@ unsigned short* dr_textur_init(void)
 		exit(1);
 	}
 
-	return reinterpret_cast<unsigned short*>(texture_map->line[0]);
+//	return reinterpret_cast<unsigned short*>(texture_map->line[0]);
+	return (unsigned short *)(texture_map->line[0]);
 }
 
 
@@ -371,8 +402,10 @@ void dr_flush(void)
 }
 
 
+#ifdef WIN32
 // try saving png using gdiplus.dll
-extern int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data, int bitdepth );
+extern "C" int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data, int bitdepth );
+#endif
 
 /**
  * Some wrappers can save screenshots.
@@ -383,7 +416,7 @@ extern int dr_screenshot_png(const char *filename,  int w, int h, unsigned short
 int dr_screenshot(const char *filename)
 {
 #ifdef WIN32
-	if(dr_screenshot_png(filename, width, height, textur, 16)) {
+	if(dr_screenshot_png(filename, width, height, (short unsigned int *)texture_map, 16)) {
 		return 1;
 	}
 #endif
@@ -413,6 +446,7 @@ static inline int recalc_keys(void)
 }
 
 
+
 static void internalGetEvents(void)
 {
 	if (event_top_mark != event_bot_mark) {
@@ -423,7 +457,9 @@ static void internalGetEvents(void)
 		sys_event.mb      = event_queue[event_bot_mark++];
 		sys_event.key_mod = recalc_keys();
 
-		if (event_bot_mark >= queue_length * 5) event_bot_mark = 0;
+		if (event_bot_mark >= queue_length * 5) {
+			event_bot_mark = 0;
+		}
 	} else {
 		sys_event.type = SIM_NOEVENT;
 		sys_event.code = SIM_NOEVENT;
@@ -529,11 +565,11 @@ bool dr_fatal_notify(const char* msg, int choices)
 {
 #ifdef _WIN32
 	if(choices==0) {
-		MessageBox( hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_OK );
+		MessageBox( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_OK );
 		return 0;
 	}
 	else {
-		return MessageBox( hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==IDRETRY;
+		return MessageBox( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==IDRETRY;
 	}
 #else
 //	beep();
@@ -542,26 +578,15 @@ bool dr_fatal_notify(const char* msg, int choices)
 }
 
 
-#ifdef _WIN32
-BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+int main(int argc, char **argv)
 {
-	char *argv[32], *p;
-	int argc;
+#ifdef _WIN32
 	char pathname[1024];
 
 	// prepare commandline
-	argc = 0;
-	GetModuleFileNameA( hInstance, pathname, 1024 );
-	argv[argc++] = pathname;
-	p = strtok(lpCmdLine, " ");
-	while (p != NULL) {
-		argv[argc++] = p;
-		p = strtok(NULL, " ");
-	}
-	argv[argc] = NULL;
+	GetModuleFileNameA( GetModuleHandle(NULL), pathname, 1024 );
+	argv[0] = pathname;
 #else
-int main(int argc, char **argv)
-{
 #ifndef __BEOS__
 #	if defined __GLIBC__
 	/* glibc has a non-standard extension */

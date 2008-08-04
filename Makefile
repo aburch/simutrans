@@ -306,8 +306,8 @@ SOURCES += simgraph$(COLOUR_DEPTH).cc
 
 ifeq ($(BACKEND),allegro)
   SOURCES  += simsys_d.cc
-  SOURCES += sound/allegro_sound.c
-  SOURCES += music/allegro_midi.c
+  SOURCES += sound/allegro_sound.cc
+  SOURCES += music/allegro_midi.cc
   ifeq ($(ALLEGRO_CONFIG),)
     ALLEGRO_CFLAGS  :=
     ALLEGRO_LDFLAGS := -lalleg
