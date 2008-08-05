@@ -2358,6 +2358,9 @@ const char *wkz_roadsign_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				// if there is already a signal, we might need to inverse the direction
 				rs = gr->find<signal_t>();
 				if (rs) {
+					if(  !spieler_t::check_owner( rs->gib_besitzer(), sp )  ) {
+						return "Das Feld gehoert\neinem anderen Spieler\n";
+					}
 					// signals have three options
 					ribi_t::ribi sig_dir = rs->get_dir();
 					uint8 i = 0;
@@ -2388,6 +2391,9 @@ const char *wkz_roadsign_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				// if there is already a sign, we might need to inverse the direction
 				rs = gr->find<roadsign_t>();
 				if (rs) {
+					if(  !spieler_t::check_owner( rs->gib_besitzer(), sp )  ) {
+						return "Das Feld gehoert\neinem anderen Spieler\n";
+					}
 					// reverse only if single way sign
 					if (besch->is_single_way() || besch->is_free_route()) {
 						dir = ~rs->get_dir() & weg->gib_ribi_unmasked();
