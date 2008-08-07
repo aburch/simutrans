@@ -552,6 +552,11 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 			// since closes coordinates are tested first, we do not need to not sort this
 			const char *building_name = NULL;
 			const gebaeude_t* gb = gr->find<gebaeude_t>();
+			if(gb==NULL) {
+				// field may have foundations but no building
+				continue;
+			}
+			// now we have a building here
 			if (gb->is_monument()) {
 				building_name = translator::translate(gb->gib_name());
 			} else if (gb->ist_rathaus() ||

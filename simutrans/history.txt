@@ -19,6 +19,7 @@
 	CHANGE: much faster town renovation/town growth => faster city generation
 	FIX: only tools applyable in the current situation are visible
 	CHANGE: savegame path instead .simutrans now ~/simutrans on Linux/BeOS, and ~/Documents/simutrans on MacOS
+	FIX: fields next to a new station leads to crashes during name determination
 
 
 Release of 100.0 (r1867, stable)

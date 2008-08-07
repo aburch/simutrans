@@ -966,6 +966,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 	// no distance to show at first ...
 	show_distance = koord3d::invalid;
+	scenario = NULL;
 }
 
 
