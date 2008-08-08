@@ -1758,7 +1758,7 @@ karte_t::sync_step(long delta_t, bool sync, bool display )
 
 		// display new frame with water animation
 		intr_refresh_display( false );
-		update_frame_sleep_time();
+		update_frame_sleep_time(delta_t);
 	}
 }
 
@@ -1766,14 +1766,14 @@ karte_t::sync_step(long delta_t, bool sync, bool display )
 
 // does all the magic about frame timing
 void
-karte_t::update_frame_sleep_time()
+karte_t::update_frame_sleep_time(long delta_t)
 {
 	// get average frame time
 	uint32 last_ms = dr_time();
-	last_frame_ms[last_frame_idx++] = last_ms;
-	last_frame_idx %= 32;
+	last_frame_ms[last_frame_idx] = last_ms;
+	last_frame_idx = (last_frame_idx+1) % 32;
 	if(last_frame_ms[last_frame_idx]<last_ms) {
-		realFPS = (1000*32) / (last_ms-last_frame_ms[last_frame_idx]);
+		realFPS = (32000u) / (last_ms-last_frame_ms[last_frame_idx]);
 	}
 	else {
 		realFPS = umgebung_t::fps;
@@ -1790,7 +1790,11 @@ karte_t::update_frame_sleep_time()
 		if(last_step_nr[last_step]>last_step_nr[steps%32]) {
 			simloops = (10000*32l)/(last_step_nr[last_step]-last_step_nr[steps%32]);
 		}
-		if(next_wait_time<5  &&  simloops<30  &&  realFPS>simloops) {
+		// way too slow => try to increase time ...
+		if(  last_ms-last_interaction > 100  ) {
+			increase_frame_time();
+			increase_frame_time();
+			increase_frame_time();
 			increase_frame_time();
 		}
 		else {
@@ -1799,11 +1803,19 @@ karte_t::update_frame_sleep_time()
 				increase_frame_time();
 			}
 			else if(realFPS<(uint16)umgebung_t::fps) {
-				if(realFPS<(uint16)(umgebung_t::fps/2)) {
-					set_frame_time( get_frame_time()-1 );
+				if(  1000/get_frame_time() < 2*realFPS  ) {
+					if(  realFPS < (uint16)(umgebung_t::fps/2)  ) {
+						set_frame_time( get_frame_time()-1 );
+						next_wait_time = 0;
+					}
+					else {
+						reduce_frame_time();
+					}
 				}
 				else {
-					reduce_frame_time();
+					// do not set time too short!
+					set_frame_time( 500/realFPS );
+					next_wait_time = 0;
 				}
 			}
 		}
@@ -2207,6 +2219,7 @@ karte_t::step()
 	// now do the step ...
 	last_step_ticks = ticks;
 	this_wait_time = next_wait_time;
+	steps ++;
 
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step");
@@ -2265,7 +2278,6 @@ karte_t::step()
 	spieler[steps % MAX_PLAYER_COUNT]->step();
 
 	// ok, next step
-	steps ++;
 	INT_CHECK("simworld 1975");
 
 	if((steps%8)==0) {
@@ -3807,6 +3819,11 @@ karte_t::interactive()
 	bool cursor_hidden = false;
 
 	do {
+		// check for too much time eaten by frame updates ...
+		if(!fast_forward  &&  !pause) {
+			last_interaction = dr_time();
+		}
+
 		// get an event
 		win_poll_event(&ev);
 
@@ -3833,7 +3850,7 @@ karte_t::interactive()
 					follow_convoi = convoihandle_t();
 				}
 				blick_aendern(&ev);
-		}
+			}
 			else {
 				if(cursor_hidden) {
 					display_show_pointer(true);
@@ -3872,7 +3889,7 @@ karte_t::interactive()
 				this_wait_time -= 5;
 				dr_sleep( 5 );
 			}
-			INT_CHECK( "karte_t::interactive()" );
+//			INT_CHECK( "karte_t::interactive()" );
 		}
 
 	} while(ev.button_state != 0);

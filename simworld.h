@@ -166,7 +166,7 @@ private:
 	int pending_season_change;
 
 	// recalculates sleep time etc.
-	void update_frame_sleep_time();
+	void update_frame_sleep_time(long delta_t);
 
 	/**
 	 * table for fast conversion from height to climate
@@ -315,6 +315,7 @@ private:
 	uint32 last_frame_ms[32];
 	uint32 last_step_nr[32];
 	uint8 last_frame_idx;
+	uint32 last_interaction;	// ms, when the last time events were handled
 	uint32 next_wait_time;	// contains a wait executed in the interactive loop
 	uint32 this_wait_time;
 
