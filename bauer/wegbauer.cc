@@ -128,8 +128,10 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 spe
 			     &&  test->gib_cursor()->gib_bild_nr(1)!=IMG_LEER  ) {
 			if(  best==NULL  ||  time==0  ||  (test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month())) {
 				if(  best==NULL  ||
-						(test->gib_topspeed() <=  speed_limit  &&  best->gib_topspeed() < test->gib_topspeed()) ||
-						(best->gib_topspeed() > speed_limit  &&  test->gib_wartung() < best->gib_wartung())  ) {
+						(test->gib_topspeed() <=  speed_limit  &&  best->gib_topspeed() < test->gib_topspeed()) ||	// closer to desired speed (from the low end)
+						(best->gib_topspeed() > speed_limit  &&  test->gib_topspeed() < best->gib_topspeed())  ||	// closer to desired speed (from the top end)
+						(time!=0  &&  (best->get_intro_year_month()>time  ||  time>=best->get_retire_year_month()))	// current choice is acutally not really allowed, timewise
+					) {
 					best = test;
 				}
 			}
