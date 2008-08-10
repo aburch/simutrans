@@ -3850,7 +3850,6 @@ karte_t::interactive()
 					follow_convoi = convoihandle_t();
 				}
 				blick_aendern(&ev);
-				INT_CHECK( "karte_t::interactive()" );
 			}
 			else {
 				if(cursor_hidden) {
@@ -3861,10 +3860,10 @@ karte_t::interactive()
 
 			if(!swallowed  &&  (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON)  ||  (ev.button_state==0  &&  ev.ev_class==EVENT_MOVE)  ||  ev.ev_class==EVENT_RELEASE) {
 				bewege_zeiger(&ev);
-				INT_CHECK( "karte_t::interactive()" );
 			}
 		}
 
+		INT_CHECK( "karte_t::interactive()" );
 		if(this_wait_time==0) {
 			if(!pause  &&  fast_forward) {
 				sync_step( MAGIC_STEP, true, false );
