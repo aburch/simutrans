@@ -513,8 +513,9 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 				gb = new monoraildepot_t(welt, pos, sp, tile);
 				break;
 			case maglev_wt:
+				gb = new maglevdepot_t(welt, pos, sp, tile);
 			case narrowgauge_wt:
-				assert(0);
+				gb = new narrowgaugedepot_t(welt, pos, sp, tile);
 				break;
 			case road_wt:
 				gb = new strassendepot_t(welt, pos, sp, tile);
