@@ -276,6 +276,32 @@ public:
 	virtual const char *gib_name() const {return "Monoraildepot"; }
 };
 
+class maglevdepot_t : public bahndepot_t
+{
+public:
+	maglevdepot_t(karte_t *welt, loadsave_t *file):bahndepot_t(welt,file) {}
+	maglevdepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(welt,pos,sp,t) {}
+
+	virtual simline_t::linetype get_line_type() const { return simline_t::maglevline; }
+
+	virtual waytype_t get_wegtyp() const {return maglev_wt;}
+	virtual enum ding_t::typ gib_typ() const { return maglevdepot; }
+	virtual const char *gib_name() const {return "Maglevdepot"; }
+};
+
+class narrowgaugedepot_t : public bahndepot_t
+{
+public:
+	narrowgaugedepot_t(karte_t *welt, loadsave_t *file):bahndepot_t(welt,file) {}
+	narrowgaugedepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(welt,pos,sp,t) {}
+
+	virtual simline_t::linetype get_line_type() const { return simline_t::narrowgaugeline; }
+
+	virtual waytype_t get_wegtyp() const {return narrowgauge_wt;}
+	virtual enum ding_t::typ gib_typ() const { return narrowgaugedepot; }
+	virtual const char *gib_name() const {return "Narrowgaugedepot"; }
+};
+
 /**
  * Depots für Straßenfahrzeuge
  * @author Hj. Malthaner

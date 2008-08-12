@@ -1543,6 +1543,8 @@ const char *wkz_wayremover_t::get_tooltip(spieler_t *)
 		case road_wt: return translator::translate("remove roads");
 		case tram_wt:
 		case track_wt: return translator::translate("remove tracks");
+		case maglev_wt: return translator::translate("remove maglev tracks");
+		case narrowgauge_wt: return translator::translate("remove narrowgauge tracks");
 		case monorail_wt: return translator::translate("remove monorails");
 		case water_wt: return translator::translate("remove channels");
 		case air_wt: return translator::translate("remove airstrips");

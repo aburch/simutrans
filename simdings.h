@@ -128,7 +128,7 @@ public:
 		leitung = 16, pumpe = 17, senke = 18,
 		roadsign = 19, pillar = 20,
 
-		airdepot = 21, monoraildepot=22, tramdepot=23,
+		airdepot = 21, monoraildepot=22, tramdepot=23, maglevdepot=24,
 
 		wayobj = 25,
 		way = 26, // since 99.04 ways are normal things and stored in the dingliste_t!
@@ -137,6 +137,8 @@ public:
 		field = 28,
 		crossing = 29,
 		groundobj = 30, // lakes, stones
+
+		narrowgaugedepot=31,
 
 		// after this only moving stuff
 		// vehikel sind von 64 bis 95
