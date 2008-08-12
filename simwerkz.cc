@@ -570,9 +570,6 @@ const char *wkz_raise_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 		default_param = NULL;
 		return result;
 	}
-	else {
-		is_dragging = false;
-	}
 	return NULL;
 }
 
@@ -608,6 +605,10 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				ok = true;
 			}
 			else {
+				if(  is_dragging  ) {
+					is_dragging = false;
+					return NULL;
+				}
 				n = welt->raise(pos);
 				ok = (n!=0);
 			}
@@ -648,10 +649,6 @@ const char *wkz_lower_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 		default_param = NULL;
 		return result;
 	}
-	else {
-		default_param = NULL;
-		is_dragging = false;
-	}
 	return NULL;
 }
 
@@ -687,6 +684,10 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				ok = welt->lookup_hgt(pos);
 			}
 			else {
+				if(  is_dragging  ) {
+					is_dragging = false;
+					return NULL;
+				}
 				n = welt->lower(pos);
 				ok = (n!=0);
 			}
@@ -3100,25 +3101,6 @@ const char *wkz_forest_t::move(karte_t *welt, spieler_t *sp, uint16 buttonstate,
 
 			welt->mark_area(nw, wh, true);
 		}
-	}
-	else {
-		if(marked!=NULL) {
-			welt->mark_area(nw, wh, false);
-			// prepare for building!
-			nw = gr->gib_pos();
-
-			wh.x = abs(nw.x-start.x)+1;
-			wh.y = abs(nw.y-start.y)+1;
-			nw.x = min(start.x, nw.x)+(wh.x/2);
-			nw.y = min(start.y, nw.y)+(wh.y/2);
-
-			// remove old pointers
-			init(welt,sp);
-
-			baum_t::create_forest( welt, nw.gib_2d(), wh );
-		}
-		// init anyway
-		init( welt, sp );
 	}
 	return NULL;
 }
