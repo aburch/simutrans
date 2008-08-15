@@ -583,7 +583,7 @@ void karte_t::init(einstellungen_t* sets)
 		destroy();
 	}
 
-	werkzeug = NULL;
+	werkzeug = werkzeug_t::general_tool[WKZ_ABFRAGE];
 	if(is_display_init()) {
 		display_show_pointer(false);
 	}
@@ -911,7 +911,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	time_multiplier = 16;
 	next_wait_time = this_wait_time = 30;
 
-	werkzeug = NULL;
+	werkzeug = werkzeug_t::general_tool[WKZ_ABFRAGE];
 	werkzeug_last_pos = koord::invalid;
 	werkzeug_last_button = 0;
 
@@ -1368,21 +1368,22 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint16 hgt)
 // new tool definition
 void karte_t::set_werkzeug( werkzeug_t *w )
 {
-	if(w==werkzeug) {
-		return;
-	}
-	setze_dirty();
 	if(w->init(this,active_player)) {
 
-		struct sound_info info;
-		info.index = SFX_SELECT;
-		info.volume = 255;
-		info.pri = 0;
-		sound_play(info);
+		setze_dirty();
+		if(w!=werkzeug) {
 
-		if(werkzeug) {
+			// reinit same tool => do not play sound twice
+			struct sound_info info;
+			info.index = SFX_SELECT;
+			info.volume = 255;
+			info.pri = 0;
+			sound_play(info);
+
+			// only exit, if it is not the same tool again ...
 			werkzeug->exit(this,active_player);
 		}
+
 		// reset pointer
 		koord3d zpos = zeiger->gib_pos();
 		zeiger->setze_bild( w->cursor );
@@ -2886,7 +2887,7 @@ void karte_t::laden(loadsave_t *file)
 	char buf[80];
 
 	intr_disable();
-	werkzeug = NULL;
+	werkzeug = werkzeug_t::general_tool[WKZ_ABFRAGE];
 	destroy_all_win();
 
 
@@ -3613,7 +3614,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 				is_dragging = false;
 				werkzeug->move( this, get_active_player(), 0, prev_pos );
 			}
-			else if(werkzeug!=NULL  &&  ev->ev_class==EVENT_DRAG  &&  werkzeug_last_pos!=pos.gib_2d()) {
+			else if(ev->ev_class==EVENT_DRAG  &&  werkzeug_last_pos!=pos.gib_2d()) {
 				if(!is_dragging  &&  ist_in_kartengrenzen(prev_pos.gib_2d())) {
 					werkzeug->move( this, get_active_player(), 1, prev_pos );
 				}
@@ -3755,7 +3756,7 @@ karte_t::interactive_event(event_t &ev)
 		}
 	}
 
-	if(IS_LEFTRELEASE(&ev)  &&  werkzeug!=NULL) {
+	if(IS_LEFTRELEASE(&ev)) {
 DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 
 		const char *err = NULL;
