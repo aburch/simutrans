@@ -106,7 +106,6 @@ void grund_t::setze_text(const char *text)
 		welt->setze_dirty();
 	} else if(get_flag(has_text)) {
 		char *txt=ground_texts.remove(n);
-//			assert(txt);
 		free(txt);
 		clear_flag(has_text);
 		set_flag(dirty);
@@ -655,8 +654,8 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 PLAYER_COLOR_VAL grund_t::text_farbe() const
 {
 	// if this gund belongs to a halt, the color should reflect the halt owner, not the grund owner!
-	const halthandle_t halt = welt->lookup(pos.gib_2d())->gib_halt();
-	if(halt.is_bound()) {
+	if(is_halt()) {
+		const halthandle_t halt = welt->lookup(pos.gib_2d())->gib_halt();
 		const spieler_t *sp=halt->gib_besitzer();
 		if(sp) {
 			return PLAYER_FLAG|(sp->get_player_color1()+4);
@@ -818,7 +817,7 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 		// display station waiting information/status
 		if(umgebung_t::show_names & 2) {
 			const halthandle_t halt = welt->lookup(pos.gib_2d())->gib_halt();
-			if(halt.is_bound()  &&  halt->gib_basis_pos()==pos.gib_2d()) {
+			if(halt.is_bound()  &&  halt->gib_basis_pos3d()==pos) {
 				halt->display_status(xpos, ypos);
 			}
 		}
