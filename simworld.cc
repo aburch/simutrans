@@ -1815,7 +1815,7 @@ karte_t::update_frame_sleep_time(long delta_t)
 				}
 				else {
 					// do not set time too short!
-					set_frame_time( 500/realFPS );
+					set_frame_time( 500/max(1,realFPS) );
 					next_wait_time = 0;
 				}
 			}

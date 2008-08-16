@@ -21,6 +21,7 @@
 	CHANGE: savegame path instead .simutrans now ~/simutrans on Linux/BeOS, and ~/Documents/simutrans on MacOS
 	FIX: fields next to a new station leads to crashes during name determination
 	FIX: correct color for stops over townhalls for labels
+	FIX: long block signals searched always on first leg too much and stucke trains which stiop directly after them
 
 
 Release of 100.0 (r1867, stable)

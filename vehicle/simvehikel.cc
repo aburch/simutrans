@@ -2148,14 +2148,23 @@ waggon_t::ist_weg_frei(int & restart_speed)
 				int count = 0;
 				route_t target_rt;
 				koord3d cur_pos = rt->position_bei(next_block+1);
+				// next tile is end of schedule => must start with next leg of schedule
+				if(count==0  &&  next_block+1>=rt->gib_max_n()) {
+					fahrplan_index ++;
+					if(fahrplan_index >= cnv->gib_fahrplan()->maxi()) {
+						fahrplan_index = 0;
+					}
+					count++;
+				}
+				// now search
 				do {
 					// search for route
-					if(!target_rt.calc_route( welt, cur_pos , cnv->gib_fahrplan()->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->gib_min_top_speed()))) {
+					if(!target_rt.calc_route( welt, cur_pos, cnv->gib_fahrplan()->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->gib_min_top_speed()))) {
 						exit_loop = true;
 					}
 					else {
 						// check tiles of route until we find signal or reserved track
-						for (int i = 0; i<=target_rt.gib_max_n(); i++) {
+						for (int i = count==0 ? next_block+1 : 0; i<=target_rt.gib_max_n(); i++) {
 							koord3d pos = target_rt.position_bei(i);
 							grund_t *gr = welt->lookup(pos);
 							schiene_t * sch1 = gr ? (schiene_t *)gr->gib_weg(gib_waytype()) : NULL;
