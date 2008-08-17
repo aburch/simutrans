@@ -601,7 +601,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		gr = welt->lookup(pos.gib_2d())->gib_kartenboden();
 		ding_t *p;
 		while ((p = gr->find<pillar_t>()) != 0) {
-			p->entferne(sp);
+			p->entferne(p->gib_besitzer());
 			delete p;
 		}
 	}

@@ -1650,15 +1650,17 @@ DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.gib_max_n()
 			if(gr  &&  !gr->ist_wasser()) {
 
 				if(gr->ist_bruecke()) {
-					//  first remove bridge
-					brueckenbauer_t::remove(welt,sp,verbindung.position_bei(i),wt);
-					// renew ground
-					gr=welt->lookup(verbindung.position_bei(i));
-				}
-
-				// may be invalid after removing tunnel or bridge
-				if(!gr) {
-					continue;
+					if(gr->find<bruecke_t>()->gib_besch()->gib_waytype()==wt) {
+						if(gr->ist_karten_boden()) {
+							const char *err = NULL;
+							err = brueckenbauer_t::remove(welt,sp,verbindung.position_bei(i),wt);
+							if(err) {
+								return err;
+							}
+						}
+						// do not remove asphalt from a bridge ...
+						continue;
+					}
 				}
 
 				// now the tricky part: delete just part of a way (or everything, if possible)

@@ -1133,13 +1133,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 				}
 			}
 			// citycar or pedestrians: just delete
-			else if (wt == road_wt && (d->gib_typ()==ding_t::verkehr || d->gib_typ()==ding_t::fussgaenger)) {
-				delete d;
-			}
-			// remove bridge
-			else if(d->gib_typ()==ding_t::bruecke) {
-				// last way was belonging to this bridge
-				d->entferne(sp);
+			else if (wt==road_wt  &&  (d->gib_typ()==ding_t::verkehr || d->gib_typ()==ding_t::fussgaenger)) {
 				delete d;
 			}
 			// remove tunnel portal, if not the last tile ...
