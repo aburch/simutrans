@@ -22,7 +22,7 @@
 	FIX: fields next to a new station leads to crashes during name determination
 	FIX: correct color for stops over townhalls for labels
 	FIX: long block signals searched always on first leg too much and stucke trains which stop directly after them
-	FIX: wayremover removed bridges even without permission
+	FIX: wayremover removed (partly) bridges even without permission
 
 
 Release of 100.0 (r1867, stable)
