@@ -567,7 +567,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 
 		// Nachbarn raussuchen
 		for(int r = 0; r < 4; r++) {
-			if((zv == koord::invalid || zv == koord::nsow[r]) && from->get_neighbour(to, delete_wegtyp, koord::nsow[r]) &&  !marker.ist_markiert(to) &&  to->ist_bruecke()) {
+			if(  (zv == koord::invalid  ||  zv == koord::nsow[r])  &&  from->get_neighbour(to, delete_wegtyp, koord::nsow[r])  &&  !marker.ist_markiert(to)  &&  to->ist_bruecke()  ) {
 				tmp_list.insert(to->gib_pos());
 				marker.markiere(to);
 			}
@@ -579,21 +579,17 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		pos = part_list.remove_first();
 
 		grund_t *gr = welt->lookup(pos);
-		if(wegtyp==powerline_wt) {
-			leitung_t *lt = gr->gib_leitung();
-			if(lt) {
-				delete lt;
-			}
-			ding_t *br;
-			while ((br = gr->find<bruecke_t>()) != 0) {
-				br->entferne(sp);
-				delete br;
-			}
-		} else {
-			gr->remove_everything_from_way(sp,wegtyp,ribi_t::keine);	// removes stop and signals correctly
-			// we may have a second way here ...
-			gr->obj_loesche_alle(sp);
-		}
+
+		// first: remove bridge
+		bruecke_t *br = gr->find<bruecke_t>();
+		br->entferne(sp);
+		delete br;
+
+		gr->remove_everything_from_way(sp,wegtyp,ribi_t::keine);	// removes stop and signals correctly
+
+		// we may have a second way/powerline here ...
+		gr->obj_loesche_alle(sp);
+
 		welt->access(pos.gib_2d())->boden_entfernen(gr);
 		delete gr;
 
@@ -626,6 +622,10 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 			else {
 				ribi &= ~ribi_typ(gr->gib_weg_hang());
 			}
+
+			bruecke_t *br = gr->find<bruecke_t>();
+			br->entferne(sp);
+			delete br;
 
 			// removes single signals, bridge head, pedestrians, stops, changes catenary etc
 			gr->remove_everything_from_way(sp,wegtyp,ribi);	// removes stop and signals correctly
