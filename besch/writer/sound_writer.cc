@@ -7,7 +7,7 @@
 
 void sound_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t	node(this, 4, &parent, true);
+	obj_node_t	node(this, 4, &parent);
 
 	write_head(fp, node, obj);
 

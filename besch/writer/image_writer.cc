@@ -324,7 +324,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 
 #ifdef IMG_VERSION0
 	// ok, need to be changed to hand mode ...
-	obj_node_t node(this, 12 + (bild.len * sizeof(uint16)), &parent, false);
+	obj_node_t node(this, 12 + (bild.len * sizeof(uint16)), &parent);
 
 	// to avoid any problems due to structure changes, we write manually the data
 	node.write_uint8 (outfp, bild.x,         0);
@@ -343,7 +343,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 	}
 #else
 	// ok, need to be changed to hand mode ...
-	obj_node_t node(this, 10 + (bild.len * sizeof(uint16)), &parent, false);
+	obj_node_t node(this, 10 + (bild.len * sizeof(uint16)), &parent);
 
 	// to avoid any problems due to structure changes, we write manually the data
 	node.write_uint16(outfp, bild.x,        0);

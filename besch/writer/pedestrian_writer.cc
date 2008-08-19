@@ -12,7 +12,7 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 	fussgaenger_besch_t besch;
 	int i;
 
-	obj_node_t node(this, sizeof(besch), &parent, true);
+	obj_node_t node(this, 4, &parent);
 
 	write_head(fp, node, obj);
 
@@ -33,6 +33,8 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 	}
 	imagelist_writer_t::instance()->write_obj(fp, node, keys);
 
-	node.write_data(fp, &besch);
+	node.write_uint16(fp, besch.gewichtung, 0);
+	node.write_uint16(fp, 0,                2); //dummy, unused (and uninitialized in past versions)
+
 	node.write(fp);
 }

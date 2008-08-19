@@ -38,7 +38,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 
 	// ok, node can be allocated now
-	obj_node_t	node(this, total_len, &parent, false);
+	obj_node_t	node(this, total_len, &parent);
 	write_head(fp, node, obj);
 
 	// Hajo: version number

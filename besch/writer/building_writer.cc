@@ -18,7 +18,7 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 {
 	haus_tile_besch_t besch;
 
-	obj_node_t node(this, 7, &parent, false);
+	obj_node_t node(this, 7, &parent);
 
 	besch.phasen = 0;
 	for (int i = 0; i < seasons; i++) {
@@ -68,7 +68,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	haus_besch_t besch;
 
 	// Hajo: take care, hardocded size of node on disc here!
-	obj_node_t node(this, 26, &parent, false);
+	obj_node_t node(this, 26, &parent);
 
 	write_head(fp, node, obj);
 

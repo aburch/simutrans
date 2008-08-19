@@ -12,7 +12,7 @@ void factory_field_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileo
 {
 	field_besch_t besch;
 	memset(&besch, 0, sizeof(besch));
-	obj_node_t node(this, 11, &parent, false);
+	obj_node_t node(this, 11, &parent);
 
 	xref_writer_t::instance()->write_obj(outfp, node, obj_field, s, true);
 
@@ -38,21 +38,26 @@ void factory_smoke_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileo
 {
 	rauch_besch_t besch;
 	memset(&besch, 0, sizeof(besch));
-	obj_node_t node(this, sizeof(besch), &parent, true);
+	obj_node_t node(this, 10, &parent);
 
 	xref_writer_t::instance()->write_obj(outfp, node, obj_smoke, obj.get("smoke"), true);
 	besch.pos_off   = obj.get_koord("smoketile",   koord(0, 0));
 	besch.xy_off    = obj.get_koord("smokeoffset", koord(0, 0));
 	besch.zeitmaske = obj.get_int(  "smokespeed",  0);
 
-	node.write_data(outfp, &besch);
+	node.write_sint16(outfp, besch.pos_off.x, 0);
+	node.write_sint16(outfp, besch.pos_off.y, 2);
+	node.write_sint16(outfp, besch.xy_off.x,  4);
+	node.write_sint16(outfp, besch.xy_off.x,  6);
+	node.write_sint16(outfp, besch.zeitmaske, 8);
+
 	node.write(outfp);
 }
 
 
 void factory_product_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int capacity, int factor, const char* warename)
 {
-	obj_node_t node(this, sizeof(uint16) * 3, &parent, false);
+	obj_node_t node(this, sizeof(uint16) * 3, &parent);
 
 	xref_writer_t::instance()->write_obj(outfp, node, obj_good, warename, true);
 
@@ -72,7 +77,7 @@ void factory_supplier_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int c
 {
 	fabrik_lieferant_besch_t besch;
 
-	obj_node_t node(this, sizeof(besch), &parent, true);
+	obj_node_t node(this, 8, &parent);
 
 	besch.anzahl = count;
 	besch.kapazitaet = capacity;
@@ -80,7 +85,11 @@ void factory_supplier_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int c
 
 	xref_writer_t::instance()->write_obj(outfp, node, obj_good, warename, true);
 
-	node.write_data(outfp, &besch);
+	node.write_uint16(outfp, besch.kapazitaet, 0);
+	node.write_uint16(outfp, besch.anzahl,     2);
+	node.write_uint16(outfp, besch.verbrauch,  4);
+	node.write_uint16(outfp, 0,                6); //dummy, unused (and uninitialized in past versions)
+
 	node.write(outfp);
 }
 
@@ -108,7 +117,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 	besch.pax_level      = obj.get_int("pax_level", 12);
 
-	obj_node_t node(this, 18, &parent, false);
+	obj_node_t node(this, 18, &parent);
 
 	obj.put("type", "fac");
 

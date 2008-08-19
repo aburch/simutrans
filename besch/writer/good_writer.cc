@@ -9,7 +9,7 @@
 
 void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t	node(this, 10, &parent, false);
+	obj_node_t	node(this, 10, &parent);
 
 	write_head(fp, node, obj);
 	text_writer_t::instance()->write_obj(fp, node, obj.get("metric"));

@@ -11,7 +11,7 @@ void text_writer_t::write_obj(FILE* outfp, obj_node_t& parent, const char* text)
 	}
 	int len = strlen(text);
 
-	obj_node_t node(this, len + 1, &parent, false);
+	obj_node_t node(this, len + 1, &parent);
 
 	node.write_data(outfp, text);
 	node.write(outfp);

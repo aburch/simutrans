@@ -11,7 +11,7 @@
 
 void tree_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 6, &parent, false);	/* false, because we write this ourselves */
+	obj_node_t node(this, 6, &parent);
 	write_head(fp, node, obj);
 
 	// Hajodoc: Preferred height of this tree type

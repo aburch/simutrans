@@ -48,7 +48,7 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 		printf("writing file %s\n", filename);
 		write_header(outfp);
 
-		node = new obj_node_t(this, 0, NULL, false);
+		node = new obj_node_t(this, 0, NULL);
 	}
 
 	for(  int i=0;  i==0  ||  i<argc;  i++  ) {
@@ -86,7 +86,7 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 						printf("   writing file %s\n", (const char*)name);
 						write_header(outfp);
 
-						node = new obj_node_t(this, 0, NULL, false);
+						node = new obj_node_t(this, 0, NULL);
 					}
 					obj_writer_t::write(outfp, *node, obj);
 

@@ -14,7 +14,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	int pos, i;
 
-	obj_node_t node(this, 20, &parent, false);
+	obj_node_t node(this, 20, &parent);
 
 	uint32 topspeed    = obj.get_int("topspeed",     999);
 	uint32 preis       = obj.get_int("cost",           0);

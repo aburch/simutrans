@@ -12,7 +12,7 @@ void citycar_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	stadtauto_besch_t besch;
 	int i;
 
-	obj_node_t node(this, 10, &parent, false);
+	obj_node_t node(this, 10, &parent);
 
 	besch.gewichtung = obj.get_int("distributionweight", 1);
 

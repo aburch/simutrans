@@ -11,7 +11,7 @@
 
 void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 14, &parent, false); /* false, because we write this ourselves */
+	obj_node_t node(this, 14, &parent);
 
 	// Hajodoc: Preferred height of this tree type
 	// Hajoval: int (useful range: 0-14)

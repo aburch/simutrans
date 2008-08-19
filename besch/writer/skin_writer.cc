@@ -31,12 +31,11 @@ void skin_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj, c
 
 	skin_besch_t besch;
 
-	obj_node_t node(this, sizeof(besch), &parent, true);
+	obj_node_t node(this, 0, &parent);
 
 	write_head(fp, node, obj);
 
 	imagelist_writer_t::instance()->write_obj(fp, node, imagekeys);
 
-	node.write_data(fp, &besch);
 	node.write(fp);
 }

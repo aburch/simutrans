@@ -48,11 +48,15 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	png_read_info(png_ptr, info_ptr);
 
 
+	//png_uint_32 is 64 bit on some architectures!
+	png_uint_32 widthpu32,heightpu32;
 	png_get_IHDR(
 		png_ptr, info_ptr,
-		width, height, &bit_depth, &color_type,
+		&widthpu32, &heightpu32, &bit_depth, &color_type,
 		&interlace_type, NULL, NULL
 	);
+	*width = widthpu32;
+	*height = heightpu32;
 
 	if (*height % base_img_size != 0 || *width % base_img_size != 0) {
 		printf("read_png: Invalid image size.\n");

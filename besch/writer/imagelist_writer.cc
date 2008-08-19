@@ -11,7 +11,7 @@ void imagelist_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_tpl
 {
 	bildliste_besch_t besch;
 
-	obj_node_t node(this, 4, &parent, false);
+	obj_node_t node(this, 4, &parent);
 
 	slist_iterator_tpl<cstring_t> iter(keys);
 

@@ -8,14 +8,13 @@
 uint32 obj_node_t::free_offset;	    // next free offset in file
 
 
-obj_node_t::obj_node_t(obj_writer_t* writer, int size, obj_node_t* parent, bool adjust)
+obj_node_t::obj_node_t(obj_writer_t* writer, int size, obj_node_t* parent)
 {
 	this->parent = parent;
-	this->adjust = adjust;
 
 	desc.type = writer->get_type();
 	desc.children = 0;
-	desc.size = adjust ? (size - sizeof(obj_besch_t)) : size;
+	desc.size = size;
 	write_offset = free_offset + sizeof(desc);
 	free_offset = write_offset + desc.size;
 }
@@ -39,21 +38,12 @@ void obj_node_t::write(FILE* fp)
 
 void obj_node_t::write_data(FILE* fp, const void* data)
 {
-	write_data_at(fp, data, 0, adjust ? desc.size + 4 : desc.size);
+	write_data_at(fp, data, 0, desc.size);
 }
 
 
 void obj_node_t::write_data_at(FILE* fp, const void* data, int offset, int size)
 {
-	if (adjust) {
-		if (offset < sizeof(obj_besch_t)) {
-			data = static_cast<const char*>(data) + sizeof(obj_besch_t) - offset;
-			size -= sizeof(obj_besch_t) - offset;
-			offset = 0;
-		} else {
-			offset -= sizeof(obj_besch_t);
-		}
-	}
 	if (offset < 0 || size < 0 || offset + size > desc.size) {
 		char reason[1024];
 		sprintf(reason, "invalid parameters (offset=%d, size=%d, obj_size=%d)", offset, size, desc.size);

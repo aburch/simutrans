@@ -16,7 +16,6 @@ class obj_node_t {
 
 		uint32 write_offset; // Start of node data in file (after node.desc)
 		obj_node_t* parent;
-		bool adjust; // a normal besch structure start with 4 extra bytes
 
 	public:
 		// set_start_offset() - set offset of first node in file
@@ -27,7 +26,7 @@ class obj_node_t {
 		//	    writer  object, that writes the node to the file
 		//	    size    space needed for node data
 		//	    parent  parent node
-		obj_node_t(obj_writer_t* writer, int size, obj_node_t* parent, bool adjust);
+		obj_node_t(obj_writer_t* writer, int size, obj_node_t* parent);
 
 		// Write the complete node data to the file
 		void write_data(FILE* fp, const void* data);
