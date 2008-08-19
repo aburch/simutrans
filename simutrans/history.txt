@@ -23,6 +23,7 @@
 	FIX: correct color for stops over townhalls for labels
 	FIX: long block signals searched always on first leg too much and stucke trains which stop directly after them
 	FIX: wayremover removed (partly) bridges even without permission
+	FIX: bridges during removal removed too much maintenance
 
 
 Release of 100.0 (r1867, stable)

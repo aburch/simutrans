@@ -664,6 +664,7 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 	}
 	else if(!close) {
 		create_win( wzw, w_info|w_do_not_delete|w_no_overlap, (long)this );
+		DBG_MESSAGE("toolbar_t::init()", "ID=%id", id);
 	}
 	return false;
 }

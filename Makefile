@@ -42,6 +42,7 @@ ifeq ($(OSTYPE),linux)
   STD_LIBS ?= -lz
 endif
 
+
 ifeq ($(OSTYPE),cygwin)
   OS_INC   ?= -I/usr/include/mingw
   OS_OPT   ?= -mwin32
@@ -51,7 +52,11 @@ endif
 ifeq ($(OSTYPE),mingw)
   SOURCES += simsys_w32_png.cc
   OS_OPT   ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
-  STD_LIBS ?= -lz -lmingw32 -lgdi32 -lwinmm
+  STD_LIBS ?= -lz
+  ifeq ($(BACKEND),gdi)
+    STD_LIBS +=  -lunicows
+  endif
+  STD_LIBS += -lmingw32 -lgdi32 -lwinmm
 endif
 
 ALLEGRO_CONFIG ?= allegro-config
@@ -326,7 +331,6 @@ ifeq ($(BACKEND),gdi)
   SOURCES += simsys_w$(COLOUR_DEPTH).cc
   SOURCES += music/w32_midi.cc
   SOURCES += sound/win32_sound.cc
-  STD_LIBS ?=  -lunicows
 endif
 
 
@@ -338,7 +342,7 @@ ifeq ($(BACKEND),sdl)
   ifeq ($(findstring $(OSTYPE), cygwin mingw),)
     SOURCES += music/no_midi.cc
   else
-    SOURCES += music/w32_midi.c
+    SOURCES += music/w32_midi.cc
   endif
   ifeq ($(SDL_CONFIG),)
     ifeq ($(OSTYPE),mac)
@@ -346,7 +350,7 @@ ifeq ($(BACKEND),sdl)
       SDL_LDFLAGS := -framework SDL -framework Cocoa -I/System/Libraries/Frameworks/SDL/Headers SDLMain.m
     else
       SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
-      SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL -mwindows
+      SDL_LDFLAGS := -lSDLmain -lSDL -mwindows
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)

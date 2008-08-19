@@ -129,7 +129,7 @@ void bruecke_t::entferne( spieler_t *sp2 )
 {
 	spieler_t *sp = gib_besitzer();
 	if(sp) {
-		// on bridge => do nothing but change maitainance
+		// on bridge => do nothing but change maintainance
 		const grund_t *gr = welt->lookup(gib_pos());
 		if(gr) {
 			weg_t *weg = gr->gib_weg( besch->gib_waytype() );
@@ -137,8 +137,8 @@ void bruecke_t::entferne( spieler_t *sp2 )
 				weg->setze_max_speed( weg->gib_besch()->gib_topspeed() );
 				spieler_t::add_maintenance( sp,  weg->gib_besch()->gib_wartung());
 			}
-			spieler_t::add_maintenance( sp,  -besch->gib_wartung() );
 		}
+		spieler_t::add_maintenance( sp,  -besch->gib_wartung() );
 	}
 	spieler_t::accounting( sp2, -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION );
 }
