@@ -29,6 +29,8 @@ protected:
 	virtual bool check_file( const char *filename, const char *suffix );
 
 public:
+	bool has_pak() const { return !entries.empty(); }
+
 	const char * gib_hilfe_datei() const { return ""; }
 
 	// since we only want to see the frames ...

@@ -29,7 +29,6 @@ public:
 	static const char *user_dir;
 
 	static cstring_t objfilename;
-	static uint16	number_of_paks;
 
 	// maximum number of handles
 	static uint16 max_convoihandles;

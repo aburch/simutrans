@@ -340,7 +340,7 @@ void savegame_frame_t::setze_fenstergroesse(koord groesse)
 
 void savegame_frame_t::infowin_event(const event_t *ev)
 {
-	if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN) {
+	if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN  &&  entries.empty()) {
 		// before no virtual functions can be used ...
 		fill_list();
 	}

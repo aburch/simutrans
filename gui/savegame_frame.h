@@ -59,8 +59,6 @@ protected:
 		gui_label_t* label;
 	};
 
-	void fill_list();
-
 	void add_file(const char *filename, const char *pak, const bool no_cutting_suffix );
 
 	slist_tpl<entry> entries;
@@ -87,6 +85,8 @@ protected:
 	void set_filename( const char *fn );
 
 public:
+	void fill_list();	// do the search ...
+
 	/**
 	 * @param suffix Filename suffix, i.e. ".sve", must be four characters
 	 * @author Hj. Malthaner
