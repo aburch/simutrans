@@ -966,7 +966,6 @@ void win_display_flush(double konto)
 	const sint16 menu_height = werkzeug_t::toolbar_tool[0]->iconsize.y;
 
 	werkzeug_waehler_t *main_menu = werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler();
-	assert(main_menu);
 	display_setze_clip_wh( 0, 0, disp_width, menu_height+1 );
 	display_fillbox_wh(0, 0, disp_width, menu_height, MN_GREY2, false);
 	main_menu->zeichnen(koord(0,-16), koord(disp_width,menu_height) );

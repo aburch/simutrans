@@ -212,6 +212,12 @@ static void ask_objfilename()
 	// more than one => show selector box (ugly and without translations ...)
 	set_pointer(0);
 	pakselector_t* sel = new pakselector_t();
+	if(umgebung_t::number_of_paks==0) {
+		// nothing there ...
+		set_pointer(1);
+		delete sel;
+		return;
+	}
 	koord xy( display_get_width()/2 - 180, display_get_height()/2 - sel->gib_fenstergroesse().y/2 );
 	event_t ev;
 
@@ -629,14 +635,14 @@ int simu_main(int argc, char** argv)
 	if(  umgebung_t::objfilename.empty()  ) {
 		show_pointer(1);
 		ask_objfilename();
-		show_pointer(0);
 		if(  umgebung_t::objfilename.empty()  ) {
 			// nothing to be loaded => exit
-			fprintf(stderr, "*** No simuconf.tab found ***\n\nMost likely, you have not pak set installed.\nPlease install a complete system.\n");
-			dr_fatal_notify( "*** No simuconf.tab found ***\n\nMost likely, you have not pak set installed.\nPlease install a complete system.\n", 0 );
+			fprintf(stderr, "*** No pak set found ***\n\nMost likely, you have no pak set installed.\nPlease download and install also graphics (pak).\n");
+			dr_fatal_notify( "*** pak set found ***\n\nMost likely, you have no pak set installed.\nPlease download and install also graphcis (pak).\n", 0 );
 			simgraph_exit();
 			return 0;
 		}
+		show_pointer(0);
 	}
 
 	// now find the pak specific tab file ...
