@@ -358,6 +358,11 @@ public:
 
 	// new game start without tree
 	static bool no_tree;
+
+	// customize your tooltips
+	static bool show_tooltips;
+	static uint8 tooltip_color;
+	static uint8 tooltip_textcolor;
 };
 
 #endif

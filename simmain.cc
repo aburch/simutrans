@@ -271,6 +271,10 @@ parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &ful
 	umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", umgebung_t::window_buttons_right);
 	umgebung_t::window_frame_active = contents.get_int("window_frame_active", umgebung_t::window_frame_active);
 
+	umgebung_t::show_tooltips = contents.get_int("show_tooltips", umgebung_t::show_tooltips);
+	umgebung_t::tooltip_color = contents.get_int("tooltip_background_color", umgebung_t::tooltip_color);
+	umgebung_t::tooltip_textcolor = contents.get_int("tooltip_text_color", umgebung_t::tooltip_textcolor);
+
 	umgebung_t::starting_money = contents.get_int("starting_money", umgebung_t::starting_money );
 	umgebung_t::maint_building = contents.get_int("maintenance_building", 5000);
 

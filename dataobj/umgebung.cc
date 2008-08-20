@@ -1,6 +1,7 @@
 #include "umgebung.h"
 #include "../simconst.h"
 #include "../simtypes.h"
+#include "../simcolor.h"
 #include "../utils/cstring_t.h"
 
 
@@ -203,3 +204,7 @@ bool umgebung_t::quit_simutrans = false;
 sint32 	umgebung_t::default_electric_promille = 330;
 
 bool umgebung_t::no_tree=false;
+
+bool umgebung_t::show_tooltips = true;
+uint8 umgebung_t::tooltip_color = 4;
+uint8 umgebung_t::tooltip_textcolor = COL_BLACK;

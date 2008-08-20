@@ -316,3 +316,11 @@ window_buttons_right = 0
 # draw a frame with titlebar color around active window
 window_frame_active = 0
 
+# show tooltips (default 1=show)
+show_tooltips = 1
+
+# background color (+-1 arounf this index is used), taken from playercolor table
+tooltip_background_color = 4
+
+# tooltip text color (240=black, 215=white)
+tooltip_text_color = 240

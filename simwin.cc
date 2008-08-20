@@ -997,16 +997,18 @@ void win_display_flush(double konto)
 		display_all_win();
 		remove_old_win();
 
-		// Hajo: check if there is a tooltip to display
-		if(tooltip_text!=NULL  &&  *tooltip_text) {
-			const sint16 width = proportional_string_width(tooltip_text)+7;
-			display_ddd_proportional(min(tooltip_xpos,disp_width-width), max(menu_height+7,tooltip_ypos), width, 0, 4, COL_BLACK, tooltip_text, true);
-			// Hajo: clear tooltip to avoid sticky tooltips
-			tooltip_text = 0;
-		}
-		else if(static_tooltip_text!=NULL  &&  *static_tooltip_text) {
-			const sint16 width = proportional_string_width(static_tooltip_text)+7;
-			display_ddd_proportional(min(gib_maus_x()+16,disp_width-width), max(menu_height+7,gib_maus_y()-16), width, 0, 4, COL_BLACK, static_tooltip_text, true);
+		if(umgebung_t::show_tooltips) {
+			// Hajo: check if there is a tooltip to display
+			if(tooltip_text!=NULL  &&  *tooltip_text) {
+				const sint16 width = proportional_string_width(tooltip_text)+7;
+				display_ddd_proportional(min(tooltip_xpos,disp_width-width), max(menu_height+7,tooltip_ypos), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, tooltip_text, true);
+				// Hajo: clear tooltip to avoid sticky tooltips
+				tooltip_text = 0;
+			}
+			else if(static_tooltip_text!=NULL  &&  *static_tooltip_text) {
+				const sint16 width = proportional_string_width(static_tooltip_text)+7;
+				display_ddd_proportional(min(gib_maus_x()+16,disp_width-width), max(menu_height+7,gib_maus_y()-16), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, static_tooltip_text, true);
+			}
 		}
 
 		display_set_height( oldh );
