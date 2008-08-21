@@ -1729,7 +1729,7 @@ wegbauer_t::calc_costs()
 							costs -= umgebung_t::cst_remove_tree;
 							break;
 						case ding_t::groundobj:
-							costs -= ((groundobj_t *)dt)->gib_besch()->gib_preis();
+							costs += ((groundobj_t *)dt)->gib_besch()->gib_preis();
 							break;
 
 						default: break;

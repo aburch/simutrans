@@ -883,7 +883,7 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 				if(d==NULL) {
 					break;
 				}
-				cost -= d->gib_besch()->gib_preis();
+				cost += d->gib_besch()->gib_preis();
 				delete d;
 			}
 
