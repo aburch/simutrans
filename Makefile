@@ -33,7 +33,7 @@ ifeq ($(OSTYPE),freebsd)
 endif
 
 ifeq ($(OSTYPE),mac)
-  CFLAGS   += -DUSE_HW -DUSE_C
+  CFLAGS   += -DUSE_HW -DUSE_C  -Os -fast
   CXXFLAGS   += -DUSE_HW -DUSE_C
   STD_LIBS ?= -lz
 endif
@@ -338,11 +338,17 @@ ifeq ($(BACKEND),sdl)
   SOURCES  += simsys_s.cc
   CFLAGS   += -DUSE_16BIT_DIB
   CXXFLAGS += -DUSE_16BIT_DIB
-  SOURCES  += sound/sdl_sound.cc
-  ifeq ($(findstring $(OSTYPE), cygwin mingw),)
-    SOURCES += music/no_midi.cc
+  ifeq ($(OSTYPE),mac)
+    # Core Audio (Quicktime) base sound system routines
+    SOURCES += sound/core-audio_sound.mm
+    SOURCES += music/core-audio_midi.mm
   else
-    SOURCES += music/w32_midi.cc
+    SOURCES  += sound/sdl_sound.cc
+    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+	    SOURCES += music/no_midi.cc
+    else
+      SOURCES += music/w32_midi.cc
+    endif
   endif
   ifeq ($(SDL_CONFIG),)
     ifeq ($(OSTYPE),mac)
