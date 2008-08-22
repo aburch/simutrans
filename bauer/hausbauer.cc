@@ -436,8 +436,6 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 gebaeude_t *
 hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built_layout, const haus_besch_t *besch, void *param)
 {
-	gebaeude_t *gb;
-
 	uint8 corner_layout = 6;	// assume single building (for more than 4 layouts)
 
 	// adjust layout of neighbouring building
@@ -501,6 +499,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 	}
 
 	const haus_tile_besch_t *tile = besch->gib_tile(built_layout, 0, 0);
+	gebaeude_t *gb;
 	if(  besch->gib_utyp() == haus_besch_t::depot  ) {
 		switch(  besch->gib_extra()  ) {
 			case track_wt:
@@ -526,6 +525,9 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 			case air_wt:
 				gb = new airdepot_t(welt, pos, sp, tile);
 				break;
+			default:
+				dbg->fatal("hausbauer_t::neues_gebaeude()","waytpe %i has no depots!", besch->gib_extra() );
+				break;
 		}
 	}
 	else {
@@ -536,7 +538,9 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 	// remove pointer
 	grund_t *gr = welt->lookup(pos);
 	zeiger_t* zeiger = gr->find<zeiger_t>();
-	if (zeiger) gr->obj_remove(zeiger);
+	if (zeiger) {
+		gr->obj_remove(zeiger);
+	}
 
 	gr->obj_add(gb);
 

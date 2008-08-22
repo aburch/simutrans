@@ -84,7 +84,7 @@ void scenario_t::init( const char *filename, karte_t *w )
 
 void scenario_t::rdwr(loadsave_t *file)
 {
-	sint32 city_nr = 0x7FFFFFFFu;
+	uint32 city_nr = 0xFFFFFFFFu;
 	koord fabpos = koord::invalid;
 
 	if(  file->is_saving()  ) {
@@ -119,7 +119,7 @@ void scenario_t::get_factory_producing( fabrik_t *fab, int &producing, int &exis
 	int own_producing=0, own_existing=0;
 
 	// now check for all input
-	for(  int ware_nr=0;  ware_nr<fab->gib_eingang().get_count();  ware_nr++  ) {
+	for(  uint ware_nr=0;  ware_nr<fab->gib_eingang().get_count();  ware_nr++  ) {
 		if(fab->gib_eingang()[ware_nr].menge > 512) {
 			producing ++;
 			own_producing ++;
@@ -130,7 +130,7 @@ void scenario_t::get_factory_producing( fabrik_t *fab, int &producing, int &exis
 
 	if(fab->gib_eingang().get_count()>0) {
 		// now check for all output (of not source ... )
-		for(  int ware_nr=0;  ware_nr<fab->gib_ausgang().get_count();  ware_nr++  ) {
+		for(  uint ware_nr=0;  ware_nr<fab->gib_ausgang().get_count();  ware_nr++  ) {
 			if(fab->gib_ausgang()[ware_nr].menge > 512) {
 				producing ++;
 				own_producing ++;

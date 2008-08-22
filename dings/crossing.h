@@ -58,7 +58,7 @@ public:
 	// removes the vehicle from the crossing
 	void release_crossing( const vehikel_basis_t *v ) { return logic->release_crossing( v ); }
 
-	uint8 get_state() { return logic->get_state(); }
+	crossing_logic_t::crossing_state_t get_state() { return logic->get_state(); }
 
 	// called from the logic directly
 	void state_changed();

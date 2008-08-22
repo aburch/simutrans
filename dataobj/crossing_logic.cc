@@ -156,7 +156,7 @@ crossing_logic_t::release_crossing( const vehikel_basis_t *v )
 
 // change state; mark dirty and plays sound
 void
-crossing_logic_t::set_state( uint8 new_state )
+crossing_logic_t::set_state( crossing_state_t new_state )
 {
 	if(new_state!=zustand) {
 		// play sound (if there and closing)
@@ -209,7 +209,7 @@ DBG_DEBUG( "crossing_logic_t::register_besch()","%s", besch->gib_name() );
 
 // returns a new or an existing crossing_logic_t object
 // new, of no matching crossings are next to it
-void crossing_logic_t::add( karte_t *w, crossing_t *start_cr, uint8 zustand )
+void crossing_logic_t::add( karte_t *w, crossing_t *start_cr, crossing_state_t zustand )
 {
 	koord3d pos = start_cr->gib_pos();
 	const koord zv = start_cr->get_dir() ? koord::west : koord::nord;

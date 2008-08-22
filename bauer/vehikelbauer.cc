@@ -103,7 +103,7 @@ sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 
 	// ok, now lets see if we have data for this
 	if(speedbonus[typ].get_count()) {
-		int i=0;
+		uint i=0;
 		while(  i<speedbonus[typ].get_count()  &&  monthyear>=speedbonus[typ][i].year  ) {
 			i++;
 		}

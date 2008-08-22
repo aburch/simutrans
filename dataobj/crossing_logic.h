@@ -24,14 +24,16 @@ class crossing_t;
  */
 class crossing_logic_t
 {
+public:
+	enum crossing_state_t { CROSSING_INVALID=0, CROSSING_OPEN, CROSSING_REQUEST_CLOSE, CROSSING_CLOSED };
 protected:
 	static karte_t *welt;
 
-	uint8 zustand;
+	crossing_state_t zustand;
 	const kreuzung_besch_t *besch;
 	minivec_tpl<crossing_t *>crossings;
 
-	void set_state( uint8 new_state );
+	void set_state( crossing_state_t new_state );
 
 public:
 	minivec_tpl<const vehikel_basis_t *>on_way1;
@@ -62,8 +64,7 @@ public:
 	/* states of the crossing;
 	 * since way2 has priority over way1 there is a third state, during a closing request
 	 */
-	enum crossing_state_t { CROSSING_INVALID=0, CROSSING_OPEN, CROSSING_REQUEST_CLOSE, CROSSING_CLOSED };
-	uint8 get_state() { return zustand; }
+	crossing_state_t get_state() { return zustand; }
 
 	void append_crossing( crossing_t *cr ) { crossings.append_unique(cr,14); }
 
@@ -83,7 +84,7 @@ public:
 
 	// returns a new or an existing crossing_logic_t object
 	// new, of no matching crossings are next to it
-	static void add( karte_t *welt, crossing_t *cr, uint8 zustand );
+	static void add( karte_t *welt, crossing_t *cr, crossing_logic_t::crossing_state_t zustand );
 
 	// remove logic from crossing(s)
 	void remove( crossing_t *cr );

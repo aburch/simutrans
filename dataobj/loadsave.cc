@@ -264,16 +264,16 @@ void loadsave_t::rdwr_long(sint32 &l, const char *delim)
 #endif
 	} else {
 		if(saving) {
- 			if (sizeof(sint32) == sizeof(int)) {
- 				fprintf(fp, "%d", l);
+ 			if (sizeof(sint32) == sizeof(long)) {
+ 				fprintf(fp, "%ld", (long)l);
  			} else {
- 				fprintf(fp, "%ld", l);
+ 				fprintf(fp, "%d", l);
  			}
 		} else {
- 			if (sizeof(sint32) == sizeof(int)) {
- 				fscanf(fp, "%d", &l);
+ 			if (sizeof(sint32) == sizeof(long)) {
+ 				fscanf(fp, "%ld", (long*)&l);
  			} else {
- 				fscanf(fp, "%ld", &l);
+ 				fscanf(fp, "%d", &l);
  			}
 		}
 	}
