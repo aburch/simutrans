@@ -84,12 +84,6 @@ void message_t::set_flags( int t, int w, int a, int i)
 }
 
 
-message_t::node* message_t::get_node(unsigned i)
-{
-	return i < list.count() ? &list.at(i) : NULL;
-}
-
-
 /**
  * Add a message to the message list
  * @param pos    position of the event
@@ -122,8 +116,8 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	// we will not add messages two times to the list if it was within the last 20 messages or within last three months
 	sint32 now = welt->get_current_month()-2;
 	size_t k = 0;
-	for (slist_iterator_tpl<node> i(list); k++ < 20 && i.next();) {
-		const node& n = i.get_current();
+	for (uint i=max(20,list.get_count())-20; i<list.get_count();  i++  ) {
+		const node& n = list[i];
 		if (n.time >= now &&
 				strcmp(n.msg, text) == 0 &&
 				(n.pos.x & 0xFFF0) == (pos.x & 0xFFF0) && // positions need not 100% match ...
@@ -143,8 +137,8 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	n.bild = bild;
 
 	// insert at the top
-	list.insert(n);
-	char* p = list.front().msg;
+	list.insert_at(0,n);
+	char* p = list[0].msg;
 	// should we open an autoclose windows?
 	if(art & auto_win_flags) {
 		news_window* news;

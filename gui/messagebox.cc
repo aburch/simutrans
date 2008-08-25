@@ -13,9 +13,10 @@
 
 
 
-news_window::news_window(const char* text, PLAYER_COLOR_VAL title_color) :
+news_window::news_window(const char* t, PLAYER_COLOR_VAL title_color) :
 	gui_frame_t("Meldung"),
-	meldung(translator::translate(text)),
+	text(strdup(translator::translate(t))),
+	meldung(text),
 	color(title_color)
 {
 	sint16 height = max( meldung.gib_groesse().y+16+10+4, get_tile_raster_width()+30 );
@@ -25,6 +26,13 @@ news_window::news_window(const char* text, PLAYER_COLOR_VAL title_color) :
 	meldung.setze_pos( koord(10, 10) );
 	add_komponente( &meldung );
 }
+
+
+news_window::~news_window()
+{
+	delete text;
+}
+
 
 
 news_img::news_img(const char* text, image_id id, PLAYER_COLOR_VAL color) :
@@ -45,4 +53,14 @@ news_loc::news_loc(karte_t* welt, const char* text, koord k, PLAYER_COLOR_VAL co
 	view.setze_pos(koord(230 - get_tile_raster_width() - 5, 10));
 	view.setze_groesse(koord(get_tile_raster_width(), get_tile_raster_width() * 5 / 6));
 	add_komponente(&view);
+}
+
+
+
+
+void news_loc::map_rotate90( sint16 new_ysize )
+{
+	koord3d l = view.get_location();
+	l.rotate90( new_ysize );
+	view.set_location( l );
 }

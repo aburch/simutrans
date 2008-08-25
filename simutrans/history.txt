@@ -26,6 +26,7 @@
 	FIX: bridges during removal removed too much maintenance
 	ADD: make tooltips configurable (show_tooltips, tooltip_background_color, tooltip_text_color) in simuconf.tab
 	ADD: (leopard) Native sound/midi support for MAC
+	FIX: rotate also coordinates of messages
 
 
 Release of 100.0 (r1867, stable)

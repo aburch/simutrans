@@ -1520,6 +1520,16 @@ karte_t::rotate90()
 	// rotate view
 	ij_off.rotate90( cached_groesse_karte_x );
 
+	// rotate messages
+	message_t *msg = message_t::get_instance();
+	uint max_message = msg->gib_count();
+	for( uint i=0;  i<max_message;  i++  ) {
+		msg->get_node(i)->pos.rotate90( cached_groesse_karte_x );
+	}
+
+	// rotate view in dialoge windows
+	win_rotate90( cached_groesse_karte_x );
+
 	if(cached_groesse_gitter_x != cached_groesse_gitter_y) {
 		// the marking array and the map must be reinit
 		marker.init( cached_groesse_gitter_x, cached_groesse_gitter_y );

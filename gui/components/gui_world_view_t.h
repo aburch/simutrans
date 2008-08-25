@@ -62,6 +62,12 @@ public:
      * Sets the location to be displayed.
      * @author Hj. Malthaner
      */
+	koord3d get_location() { return ding==NULL ? location : koord3d::invalid; }
+
+    /**
+     * Sets the location to be displayed.
+     * @author Hj. Malthaner
+     */
     void set_location(ding_t *dt) {location==koord3d::invalid; ding = dt;}
 
     /**

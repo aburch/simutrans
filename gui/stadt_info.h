@@ -43,22 +43,21 @@ private:
 	bool bFilterIsActive[MAX_CITY_HISTORY];
 
 public:
+	stadt_info_t(stadt_t *stadt);
 
-  stadt_info_t(stadt_t *stadt);
+	/**
+	 * Manche Fenster haben einen Hilfetext assoziiert.
+	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * @author Hj. Malthaner
+	 */
+	const char * gib_hilfe_datei() const {return "citywindow.txt";}
 
-    /**
-     * Manche Fenster haben einen Hilfetext assoziiert.
-     * @return den Dateinamen für die Hilfe, oder NULL
-     * @author Hj. Malthaner
-     */
-    const char * gib_hilfe_datei() const {return "citywindow.txt";}
-
-  /**
-   * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-   * das Fenster, d.h. es sind die Bildschirmkoordinaten des Fensters
-   * in dem die Komponente dargestellt wird.
-   */
-  void zeichnen(koord pos, koord gr);
+	/**
+	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
+	* das Fenster, d.h. es sind die Bildschirmkoordinaten des Fensters
+	* in dem die Komponente dargestellt wird.
+	*/
+	void zeichnen(koord pos, koord gr);
 
     /**
      * This method is called if an action is triggered

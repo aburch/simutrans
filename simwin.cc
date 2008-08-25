@@ -671,6 +671,16 @@ display_all_win()
 }
 
 
+
+void win_rotate90( sint16 new_ysize )
+{
+	for(int i=0; i<ins_win; i++) {
+		wins[i].gui->map_rotate90( new_ysize );
+	}
+}
+
+
+
 static void remove_old_win()
 {
 	// alte fenster entfernen, falls dauer abgelaufen

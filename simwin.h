@@ -140,6 +140,7 @@ bool top_win(const gui_fenster_t *ig);
 int top_win(int win);
 void display_win(int win);
 void display_all_win();
+void win_rotate90( sint16 new_size );
 void move_win(int win);
 
 void win_display_flush(double konto); // draw the frame and all windows

@@ -96,7 +96,9 @@ stadt_info_t::zeichnen(koord pos, koord gr)
 {
 	stadt_t* const c = stadt;
 
-	if (strcmp(name, c->gib_name())) c->setze_name(name);
+	if (strcmp(name, c->gib_name())) {
+		c->setze_name(name);
+	}
 
 	// Hajo: update chart seed
 	chart.set_seed(c->get_welt()->get_last_year());

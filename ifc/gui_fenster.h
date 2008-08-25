@@ -112,6 +112,10 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	virtual void zeichnen(koord pos, koord gr) = 0;
+
+
+	// called, when the map is rotated
+	virtual void map_rotate90( sint16 /*new_ysize*/ ) { }
 };
 
 #endif

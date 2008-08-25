@@ -30,10 +30,6 @@ public:
 
 	static message_t * get_instance();
 
-	int gib_count() const { return list.count(); }
-
-	void clear() { list.clear(); }
-
 	/* determines, which message is displayed where */
 	void get_flags( int *t, int *w, int *a, int  *i);
 	void set_flags( int, int, int, int );
@@ -50,12 +46,16 @@ private:
 	int auto_win_flags;
 	int ignore_flags;
 
-	slist_tpl<node> list;
+	vector_tpl<node> list;
 
 	static message_t * single_instance;
 
 public:
-	node*	get_node(unsigned i);
+	int gib_count() const { return list.get_count(); }
+
+	void clear() { list.clear(); }
+
+	node*	get_node(unsigned i) { return &(list[i]); }
 };
 
 #endif
