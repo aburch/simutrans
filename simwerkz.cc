@@ -581,7 +581,7 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	bool ok = false;
 	koord pos = k.gib_2d();
 
-	if(welt->ist_in_gittergrenzen(pos)) {
+	if(welt->ist_in_gittergrenzen(pos)  &&  pos.x>0  &&  pos.y>0) {
 		const int hgt = welt->lookup_hgt(pos);
 
 		if(hgt < 14*Z_TILE_STEP) {
@@ -625,12 +625,14 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 					}
 				}
 			}
-			if(!ok) {
-				return "Tile not empty.";
-			}
+			return !ok ? "Tile not empty." : NULL;
+		}
+		else {
+			// no mountains heigher than 14 ...
+			return "Maximum tile height difference reached.";
 		}
 	}
-	return ok ? NULL : "";
+	return "Zu nah am Kartenrand";
 }
 
 
@@ -660,7 +662,7 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	bool ok = false;
 	koord pos = k.gib_2d();
 
-	if(welt->ist_in_gittergrenzen(pos)) {
+	if(welt->ist_in_gittergrenzen(pos)  &&  pos.x>0  &&  pos.y>0) {
 
 		const int hgt = welt->lookup_hgt(pos);
 
@@ -704,13 +706,14 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 					}
 				}
 			}
-			if(!ok) {
-				return "Tile not empty.";
-			}
+			return !ok ? "Tile not empty." : NULL;
+		}
+		else {
+			// below water level
+			return "";
 		}
 	}
-
-	return ok ? NULL : "";
+	return "Zu nah am Kartenrand";
 }
 
 
@@ -727,13 +730,17 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 	grund_t * gr1 = welt->lookup_kartenboden(pos);
 	if(gr1) {
 		// at least a pixel away from the border?
-		if(welt->min_hgt(pos)<welt->gib_grundwasser()  ||  !welt->ist_in_kartengrenzen(pos+koord(1,1))  ||  !welt->ist_in_kartengrenzen(pos+koord(-1,-1))) {
+		if(welt->min_hgt(pos)<welt->gib_grundwasser()  ) {
 			return "Maximum tile height difference reached.";
 		}
 
 		// finally: empty
 		if (gr1->find<gebaeude_t>() || gr1->hat_wege() || gr1->kann_alle_obj_entfernen(sp)) {
 			return "Tile not empty.";
+		}
+
+		if(  !welt->ist_in_kartengrenzen(pos+koord(1,1))  ||  !welt->ist_in_kartengrenzen(pos+koord(-1,-1))) {
+			return "Zu nah am Kartenrand";
 		}
 
 		// slopes may affect the position and the total height!

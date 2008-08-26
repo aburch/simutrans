@@ -1050,10 +1050,9 @@ bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 
 bool karte_t::can_raise_to(sint16 x, sint16 y, sint16 h) const
 {
-    const planquadrat_t *plan = lookup(koord(x,y));
     bool ok = true;		// annahme, es geht, pruefung ob nicht
 
-    if(plan) {
+    if(ist_in_gittergrenzen(x,y)) {
 	if(lookup_hgt(koord(x, y)) < h) {
 	    ok =
 		// Nachbar-Planquadrate testen
@@ -1172,10 +1171,9 @@ int karte_t::raise(koord pos)
 
 bool karte_t::can_lower_to(sint16 x, sint16 y, sint16 h) const
 {
-    const planquadrat_t *plan = lookup(koord(x,y));
     bool ok = true;		// annahme, es geht, pruefung ob nicht
 
-    if(plan) {
+    if(ist_in_gittergrenzen(x,y)) {
 	if(lookup_hgt(koord(x, y)) > h) {
 	    ok =
 		// Nachbar-Planquadrate testen
