@@ -196,7 +196,7 @@ button_t::button_t()
 
 void button_t::init(enum type typ, const char *text, koord pos, koord size)
 {
-	b_no_translate = false;
+	b_no_translate = typ==posbutton;
 	setze_typ(typ);
 	setze_text(text);
 	setze_pos(pos);
@@ -219,6 +219,7 @@ void button_t::setze_typ(enum type t)
 		case repeatarrowright:
 		case arrowup:
 		case arrowdown:
+		case posbutton:
 			groesse.x = 10;
 			groesse.y = 10;
 			break;
@@ -301,7 +302,14 @@ void button_t::infowin_event(const event_t *ev)
 	}
 
 	if(IS_LEFTRELEASE(ev)) {
-		call_listeners( (long)0 );
+		if(  type==posbutton  ) {
+			// is in reality a point to koord
+			koord k(targetpos.x,targetpos.y);
+			call_listeners( &k );
+		}
+		else {
+			call_listeners( (long)0 );
+		}
 	}
 	else if(IS_LEFTREPEAT(ev)) {
 		if((type&STATE_MASK)>=repeatarrowleft) {
@@ -353,6 +361,7 @@ void button_t::zeichnen(koord offset)
 			display_button_image(bx, by, ARROW_LEFT, pressed);
 			break;
 
+		case posbutton:
 		case arrowright:
 		case repeatarrowright:
 			display_button_image(bx, by, ARROW_RIGHT, pressed);

@@ -27,18 +27,23 @@ class karte_t;
  * @author Hj. Malthaner
  */
 
-class halt_detail_t : public gui_frame_t
+class halt_detail_t : public gui_frame_t, action_listener_t
 {
 private:
 	halthandle_t halt;
 
+	gui_container_t cont;
 	gui_scrollpane_t scrolly;
 	gui_textarea_t txt_info;
 
 	cbuffer_t cb_info_buffer;
 
+	slist_tpl<button_t *>posbuttons;
+
 public:
 	halt_detail_t(halthandle_t halt);
+
+	~halt_detail_t();
 
 	void halt_detail_info(cbuffer_t & buf);
 
@@ -49,12 +54,8 @@ public:
 	 */
 	const char * gib_hilfe_datei() const { return "station_details.txt"; }
 
-	/**
-	 * Komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	 * in dem die Komponente dargestellt wird.
-	 * @author Hj. Malthaner
-	 */
-	void zeichnen(koord pos, koord gr);};
+	// callback for posbuttons
+	virtual bool action_triggered(gui_komponente_t *komp, value_t extra);
+};
 
 #endif

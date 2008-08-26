@@ -45,7 +45,8 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 #endif
 	for(unsigned i=0; i<lieferziele.get_count(); i++) {
 		lieferbuttons[i].setze_pos(koord(16, 46+i*LINESPACE));
-		lieferbuttons[i].setze_typ(button_t::arrowright);
+		lieferbuttons[i].setze_typ(button_t::posbutton);
+		lieferbuttons[i].setze_targetpos(lieferziele[i]);
 		lieferbuttons[i].add_listener(this);
 		cont.add_komponente(&lieferbuttons[i]);
 	}
@@ -60,7 +61,8 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 #endif
 	for(unsigned i=0; i<suppliers.get_count(); i++) {
 		supplierbuttons[i].setze_pos(koord(16, 79+y_off+i*LINESPACE));
-		supplierbuttons[i].setze_typ(button_t::arrowright);
+		supplierbuttons[i].setze_typ(button_t::posbutton);
+		supplierbuttons[i].setze_targetpos(suppliers[i]);
 		supplierbuttons[i].add_listener(this);
 		cont.add_komponente(&supplierbuttons[i]);
 	}
@@ -76,7 +78,8 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 #endif
 	for(unsigned i=0; i<arbeiterziele.count(); i++) {
 		stadtbuttons[i].setze_pos(koord(16, 112+y_off+i*LINESPACE));
-		stadtbuttons[i].setze_typ(button_t::arrowright);
+		stadtbuttons[i].setze_typ(button_t::posbutton);
+		stadtbuttons[i].setze_targetpos(arbeiterziele.at(i)->gib_pos());
 		stadtbuttons[i].add_listener(this);
 		cont.add_komponente(&stadtbuttons[i]);
 	}
@@ -156,29 +159,9 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
  * components should be triggered.
  * V.Meyer
    */
-bool fabrik_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+bool fabrik_info_t::action_triggered(gui_komponente_t *komp, value_t v)
 {
 	karte_t* welt = ding->get_welt();
-	unsigned int i;
-
-	for(i=0; i<fab->gib_lieferziele().get_count(); i++) {
-		if(komp == &lieferbuttons[i]) {
-			welt->change_world_position(koord3d(fab->gib_lieferziele()[i], welt->max_hgt(fab->gib_lieferziele()[i])));
-		}
-	}
-
-	for(i=0; i<fab->get_suppliers().get_count(); i++) {
-		if(komp == &supplierbuttons[i]) {
-			welt->change_world_position(koord3d(fab->get_suppliers()[i],welt->max_hgt(fab->get_suppliers()[i])));
-		}
-	}
-
-	for(i=0; i<fab->gib_arbeiterziele().count(); i++) {
-		if(komp == &stadtbuttons[i]) {
-			const koord& k = fab->gib_arbeiterziele().at(i)->gib_pos();
-			welt->change_world_position(koord3d(k, welt->min_hgt(k)));
-		}
-	}
 
 	if(komp == about) {
 		help_frame_t * frame = new help_frame_t();
@@ -186,6 +169,10 @@ bool fabrik_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		sprintf(key, "factory_%s_details", fab->gib_besch()->gib_name());
 		frame->setze_text(translator::translate(key));
 		create_win(frame, w_info, (long)this);
+	}
+	else if(v.i>1) {
+		koord k = *(koord *)v.p;
+		welt->change_world_position( koord3d(k,welt->max_hgt(k)) );
 	}
 
 	return true;

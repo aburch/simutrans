@@ -38,7 +38,7 @@ public:
 	 * repeat arrows: calls the caller until the mouse is released
 	 * scrollbar: well you guess it. Not used by gui_frame_t things ...
 	 */
-	enum type { square=1, box, roundbox, arrowleft, arrowright, arrowup, arrowdown, scrollbar, repeatarrowleft, repeatarrowright,
+	enum type { square=1, box, roundbox, arrowleft, arrowright, arrowup, arrowdown, scrollbar, repeatarrowleft, repeatarrowright, posbutton,
 					   square_state=129, box_state, roundbox_state, arrowleft_state, arrowright_state, arrowup_state, arrowdown_state, scrollbar_state, repeatarrowleft_state, repeatarrowright_state };
 
 private:
@@ -62,7 +62,11 @@ private:
 	 * direct acces provided to avoid translations
 	 * @author Hj. Malthaner
 	 */
-	const char * text, *translated_text;
+	union {
+		const char * text;
+		struct { sint16 x,y; } targetpos;
+	};
+	const char *translated_text;
 
 public:
 	PLAYER_COLOR_VAL background; //@author hsiegeln
@@ -83,6 +87,12 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void setze_text(const char * text);
+
+	/**
+	 * Set text to position
+	 * @author prissi
+	 */
+	void setze_targetpos(const koord k ) { this->targetpos.x = k.x; this->targetpos.y = k.y; }
 
 	/**
 	 * Setzt den im Button angezeigten Text
