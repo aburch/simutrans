@@ -3903,10 +3903,11 @@ karte_t::interactive()
 			}
 		}
 
+		if (!swallowed) {
+			interactive_event(ev);
+		}
+
 	} while(ev.button_state != 0);
 
-	if (!swallowed) {
-		interactive_event(ev);
-	}
 	return finish_loop;
 }
