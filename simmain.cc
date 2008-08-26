@@ -235,6 +235,12 @@ static void ask_objfilename()
 		check_pos_win(&ev);
 		dr_flush();
 		dr_sleep(50);
+		// main window resized
+		if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_RESIZE) {
+			// main window resized
+			simgraph_resize( ev.mx, ev.my );
+			display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
+		}
 	}
 	set_pointer(1);
 }
