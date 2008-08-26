@@ -97,6 +97,7 @@ void werkzeug_waehler_t::infowin_event(const event_t *ev)
 			if (wz_idx < (int)tools.get_count()) {
 				welt->set_werkzeug( tools[wz_idx] );
 			}
+			dirty = true;
 		}
 	}
 	/* this resets to query-tool, when closing toolsbar ... */

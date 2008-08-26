@@ -35,9 +35,11 @@ void message_stats_t::infowin_event(const event_t * ev)
 {
 	if(IS_LEFTRELEASE(ev)) {
 		const unsigned int line = (ev->cy - 15) / 14;
-		message_t::node *n=msg->get_node(line);
-		if(ev->cy>14  &&  n!=NULL  &&  welt->ist_in_kartengrenzen(n->pos)) {
-			welt->change_world_position(koord3d(n->pos,welt->min_hgt(n->pos)));
+		if(line<msg->gib_count()) {
+			message_t::node *n=msg->get_node(line);
+			if(ev->cy>14  &&  n!=NULL  &&  welt->ist_in_kartengrenzen(n->pos)) {
+				welt->change_world_position(koord3d(n->pos,welt->min_hgt(n->pos)));
+			}
 		}
 	}
 	unsigned count = msg->gib_count();
