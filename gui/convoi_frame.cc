@@ -84,6 +84,22 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 				if(!gib_filter(aircraft_filter)) {
 					return false;
 				}
+				break;
+			case ding_t::monorailwaggon:
+				if(!gib_filter(monorail_filter)) {
+					return false;
+				}
+				break;
+			case ding_t::maglevwaggon:
+				if(!gib_filter(maglev_filter)) {
+					return false;
+				}
+				break;
+			case ding_t::narrowgaugewaggon:
+				if(!gib_filter(narrowgauge_filter)) {
+					return false;
+				}
+				break;
 			default:
 				break;
 		}

@@ -1443,6 +1443,8 @@ convoi_t::rdwr(loadsave_t *file)
 					case ding_t::aircraft:    v = new aircraft_t(welt, file);     break;
 					case ding_t::old_monorailwaggon:
 					case ding_t::monorailwaggon:    v = new monorail_waggon_t(welt, file);     break;
+					case ding_t::maglevwaggon:         v = new maglev_waggon_t(welt, file);     break;
+					case ding_t::narrowgaugewaggon:    v = new narrowgauge_waggon_t(welt, file);     break;
 					default:
 						dbg->fatal("convoi_t::convoi_t()","Can't load vehicle type %d", typ);
 				}
@@ -1506,7 +1508,7 @@ convoi_t::rdwr(loadsave_t *file)
 					state = INITIAL;
 				}
 				// add to blockstrecke
-				if(gr  &&  v->gib_waytype()==track_wt  ||  v->gib_waytype()==monorail_wt) {
+				if(gr  &&  v->gib_waytype()==track_wt  ||  v->gib_waytype()==monorail_wt  ||  v->gib_waytype()==maglev_wt  ||  v->gib_waytype()==narrowgauge_wt) {
 					schiene_t* sch = (schiene_t*)gr->gib_weg(v->gib_waytype());
 					if(sch) {
 						sch->reserve(self);

@@ -2002,6 +2002,7 @@ INT_CHECK("simbau 1072");
 		case schiene_tram: // Dario: Tramway
 		case monorail:
 		case maglev:
+		case narrowgauge:
 		case luft:
 			DBG_MESSAGE("wegbauer_t::baue", "schiene");
 			baue_schiene();

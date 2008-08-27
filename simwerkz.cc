@@ -2562,7 +2562,9 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 		case air_wt:
 			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, air_wt, umgebung_t::cst_depot_air );
 		case maglev_wt:
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, maglev_wt, umgebung_t::cst_depot_rail );
 		case narrowgauge_wt:
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, narrowgauge_wt, umgebung_t::cst_depot_rail );
 		default:
 			dbg->fatal("wkz_depot()","called with unknown besch %s",besch->gib_name() );
 			return "";

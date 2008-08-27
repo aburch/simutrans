@@ -759,6 +759,12 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::airdepot:
 					d = new airdepot_t (welt, file);
 					break;
+				case ding_t::maglevdepot:
+					d = new maglevdepot_t (welt, file);
+					break;
+				case ding_t::narrowgaugedepot:
+					d = new narrowgaugedepot_t (welt, file);
+					break;
 
 				case ding_t::bahndepot:
 				{

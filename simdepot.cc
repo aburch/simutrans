@@ -383,6 +383,8 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 				case aircraft: v = new aircraft_t(welt,file);  break;
 				case old_monorailwaggon:
 				case monorailwaggon: v = new monorail_waggon_t(welt,file);  break;
+				case maglevwaggon:   v = new maglev_waggon_t(welt,file);  break;
+				case narrowgaugewaggon: v = new narrowgauge_waggon_t(welt,file);  break;
 				default:
 					dbg->fatal("depot_t::vehikel_laden()","invalid vehicle type $%X", typ);
 			}

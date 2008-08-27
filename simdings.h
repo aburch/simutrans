@@ -147,7 +147,8 @@ public:
 		automobil=66,
 		waggon=67,
 		monorailwaggon=68,
-		maglevwaggon=69, // currently unused
+		maglevwaggon=69,
+		narrowgaugewaggon=70,
 		schiff=80,
 		aircraft=81,
 		movingobj=82,

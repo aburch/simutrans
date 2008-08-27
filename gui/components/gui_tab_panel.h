@@ -25,7 +25,7 @@ public:
      * @param name der Name der Registerkarte für die Komponente
      * @author Hj. Malthaner
      */
-    void add_tab(gui_komponente_t *c, const char *name, const bild_besch_t *b=NULL, const char *tooltip=NULL );
+    void add_tab(gui_komponente_t *c, const char *name, const skin_besch_t *b=NULL, const char *tooltip=NULL );
 
     /**
      * Gibt die aktuell angezeigte Komponente zurück.

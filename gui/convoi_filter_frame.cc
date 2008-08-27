@@ -25,14 +25,17 @@ koord convoi_filter_frame_t::filter_buttons_pos[FILTER_BUTTONS] = {
     koord(21, 74),
     koord(21, 90),
     koord(21, 106),
-    koord(5,  127),
-    koord(21, 143),
-    koord(21, 159),
-    koord(21, 175),
+    koord(5,  175.),
     koord(21, 191),
     koord(21, 207),
     koord(21, 223),
-    koord(125, 4)
+    koord(21, 239),
+    koord(21, 255),
+    koord(21, 271),
+    koord(125, 4),
+    koord(21, 122),
+    koord(21, 138),
+    koord(21, 154)
 };
 
 const char *convoi_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {
@@ -49,7 +52,10 @@ const char *convoi_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {
 	"clf_chk_indepot",
 	"clf_chk_noschedule",
 	"clf_chk_noline",
-	"clf_chk_waren"
+	"clf_chk_waren",
+	"clf_chk_monorail",
+	"clf_chk_maglev",
+	"clf_chk_narrowgauge"
 };
 
 convoi_frame_t::filter_flag_t convoi_filter_frame_t::filter_buttons_types[FILTER_BUTTONS] = {
@@ -66,7 +72,10 @@ convoi_frame_t::filter_flag_t convoi_filter_frame_t::filter_buttons_types[FILTER
     convoi_frame_t::indepot_filter,
     convoi_frame_t::nofpl_filter,
     convoi_frame_t::noline_filter,
-    convoi_frame_t::ware_filter
+    convoi_frame_t::ware_filter,
+    convoi_frame_t::monorail_filter,
+    convoi_frame_t::maglev_filter,
+    convoi_frame_t::narrowgauge_filter
 };
 
 
@@ -127,9 +136,9 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main
 		}
 	}
 	ware_cont.setze_groesse(koord(100, 16*n + 4));
-	ware_scrolly.setze_groesse(koord(125, 189));
+	ware_scrolly.setze_groesse(koord(125, 253));
 
-	setze_fenstergroesse(koord(255, 259));
+	setze_fenstergroesse(koord(255, 307));
 }
 
 

@@ -50,7 +50,7 @@ bool halt_list_frame_t::sortreverse = false;
 /**
  * Default filter: keine Ölbohrinseln!
  */
-int halt_list_frame_t::filter_flags = any_filter|typ_filter|frachthof_filter|bushalt_filter|bahnhof_filter;
+int halt_list_frame_t::filter_flags = any_filter|typ_filter|frachthof_filter|bushalt_filter|bahnhof_filter|tramstop_filter;
 
 char halt_list_frame_t::name_filter_value[64] = "";
 
@@ -128,7 +128,11 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 		   !(gib_filter(bahnhof_filter) && (t & haltestelle_t::railstation)) &&
 		   !(gib_filter(bushalt_filter) && (t & haltestelle_t::busstop)) &&
 		   !(gib_filter(airport_filter) && (t & haltestelle_t::airstop)) &&
-		   !(gib_filter(dock_filter) && (t & haltestelle_t::dock)))
+		   !(gib_filter(dock_filter) && (t & haltestelle_t::dock)) &&
+		   !(gib_filter(monorailstop_filter) && (t & haltestelle_t::monorailstop)) &&
+		   !(gib_filter(maglevstop_filter) && (t & haltestelle_t::maglevstop)) &&
+		   !(gib_filter(narrowgaugestop_filter) && (t & haltestelle_t::narrowgaugestop)) &&
+		   !(gib_filter(tramstop_filter) && (t & haltestelle_t::tramstop)))
 		{
 			return false;
 		}

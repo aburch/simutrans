@@ -50,7 +50,9 @@
 #include "../utils/cbuffer_t.h"
 
 #include "wege/kanal.h"
+#include "wege/maglev.h"
 #include "wege/monorail.h"
+#include "wege/narrowgauge.h"
 #include "wege/runway.h"
 #include "wege/schiene.h"
 #include "wege/strasse.h"
@@ -208,6 +210,14 @@ void grund_t::rdwr(loadsave_t *file)
 
 					case monorail_wt:
 						weg = new monorail_t (welt, file);
+						break;
+
+					case maglev_wt:
+						weg = new maglev_t (welt, file);
+						break;
+
+					case narrowgauge_wt:
+						weg = new narrowgauge_t (welt, file);
 						break;
 
 					case track_wt: {

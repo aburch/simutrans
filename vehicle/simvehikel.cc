@@ -2551,6 +2551,18 @@ fahrplan_t * monorail_waggon_t::erzeuge_neuen_fahrplan() const
 }
 
 
+fahrplan_t * maglev_waggon_t::erzeuge_neuen_fahrplan() const
+{
+	return new maglevfahrplan_t();
+}
+
+
+fahrplan_t * narrowgauge_waggon_t::erzeuge_neuen_fahrplan() const
+{
+	return new narrowgaugefahrplan_t();
+}
+
+
 schiff_t::schiff_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
 	vehikel_t(pos, besch, sp)
 {

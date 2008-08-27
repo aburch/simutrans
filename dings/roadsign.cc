@@ -90,7 +90,7 @@ void roadsign_t::set_dir(ribi_t::ribi dir)
 {
 	this->dir = dir;
 	weg_t *weg = welt->lookup(gib_pos())->gib_weg((waytype_t)besch->gib_wtyp());
-	if(besch->gib_wtyp()!=track_wt  &&   besch->gib_wtyp()!=monorail_wt) {
+	if(besch->gib_wtyp()!=track_wt  &&   besch->gib_wtyp()!=monorail_wt&&   besch->gib_wtyp()!=maglev_wt&&   besch->gib_wtyp()!=narrowgauge_wt) {
 		weg->count_sign();
 	}
 	if(besch->is_single_way()  ||  besch->is_signal()  ||  besch->is_pre_signal()  ||  besch->is_longblock_signal()) {

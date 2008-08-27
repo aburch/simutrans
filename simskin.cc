@@ -26,6 +26,8 @@ const skin_besch_t* skinverwaltung_t::autohaltsymbol     = NULL;
 const skin_besch_t* skinverwaltung_t::schiffshaltsymbol  = NULL;
 const skin_besch_t* skinverwaltung_t::airhaltsymbol      = NULL;
 const skin_besch_t* skinverwaltung_t::monorailhaltsymbol = NULL;
+const skin_besch_t* skinverwaltung_t::maglevhaltsymbol   = NULL;
+const skin_besch_t* skinverwaltung_t::narrowgaugehaltsymbol = NULL;
 const skin_besch_t* skinverwaltung_t::bushaltsymbol      = NULL;
 const skin_besch_t* skinverwaltung_t::tramhaltsymbol     = NULL;
 const skin_besch_t* skinverwaltung_t::electricity        = NULL;
@@ -70,7 +72,6 @@ static spezial_obj_tpl<skin_besch_t> menu_objekte[] = {
 };
 
 static spezial_obj_tpl<skin_besch_t> symbol_objekte[] = {
-	{ &skinverwaltung_t::biglogosymbol,      "BigLogo"        },
 	{ &skinverwaltung_t::seasons_icons,      "Seasons"        },
 	{ &skinverwaltung_t::message_options,    "MessageOptions" },
 	{ &skinverwaltung_t::color_options,      "ColorOptions"   },
@@ -79,13 +80,6 @@ static spezial_obj_tpl<skin_besch_t> symbol_objekte[] = {
 	{ &skinverwaltung_t::neueweltsymbol,     "NewWorld"       },
 	{ &skinverwaltung_t::flaggensymbol,      "Flags"          },
 	{ &skinverwaltung_t::meldungsymbol,      "Message"        },
-	{ &skinverwaltung_t::zughaltsymbol,      "TrainStop"      },
-	{ &skinverwaltung_t::autohaltsymbol,     "CarStop"        },
-	{ &skinverwaltung_t::schiffshaltsymbol,  "ShipStop"       },
-	{ &skinverwaltung_t::bushaltsymbol,      "BusStop"        },
-	{ &skinverwaltung_t::airhaltsymbol,      "AirStop"        },
-	{ &skinverwaltung_t::monorailhaltsymbol, "MonorailStop"   },
-	{ &skinverwaltung_t::tramhaltsymbol,     "TramStop"       },
 	{ &skinverwaltung_t::electricity,        "Electricity"    },
 	{ &skinverwaltung_t::intown,             "InTown"         },
 	{ &skinverwaltung_t::passagiere,         "Passagiere"     },
@@ -94,9 +88,24 @@ static spezial_obj_tpl<skin_besch_t> symbol_objekte[] = {
 	{ NULL, NULL }
 };
 
+// simutrans will work without those
+static spezial_obj_tpl<skin_besch_t> fakultative_objekte[] = {
+	{ &skinverwaltung_t::biglogosymbol,      "BigLogo"        },
+	{ &skinverwaltung_t::mouse_cursor,       "Mouse"          },
+	{ &skinverwaltung_t::zughaltsymbol,      "TrainStop"      },
+	{ &skinverwaltung_t::autohaltsymbol,     "CarStop"        },
+	{ &skinverwaltung_t::schiffshaltsymbol,  "ShipStop"       },
+	{ &skinverwaltung_t::bushaltsymbol,      "BusStop"        },
+	{ &skinverwaltung_t::airhaltsymbol,      "AirStop"        },
+	{ &skinverwaltung_t::monorailhaltsymbol, "MonorailStop"   },
+	{ &skinverwaltung_t::maglevhaltsymbol,   "MaglevStop"     },
+	{ &skinverwaltung_t::narrowgaugehaltsymbol,"NarrowgaugeStop"},
+	{ &skinverwaltung_t::tramhaltsymbol,     "TramStop"       },
+	{ NULL, NULL }
+};
+
 static spezial_obj_tpl<skin_besch_t> cursor_objekte[] = {
 	// old cursors
-	{ &skinverwaltung_t::mouse_cursor,   "Mouse"        },
 	{ &skinverwaltung_t::bauigelsymbol,  "Builder"      },
 	{ &skinverwaltung_t::cursor_general, "GeneralTools" },
 	{ &skinverwaltung_t::belegtzeiger,   "Marked"       },
@@ -109,8 +118,8 @@ bool skinverwaltung_t::alles_geladen(skintyp_t type)
 	spezial_obj_tpl<skin_besch_t>* sb;
 	switch (type) {
 		case menu:    sb = menu_objekte;       break;
-		case cursor:  sb = cursor_objekte + 1; break; // forget about MousePointer
-		case symbol:  sb = symbol_objekte + 1; break; // forget about BigLogo
+		case cursor:  sb = cursor_objekte;     break;
+		case symbol:  sb = symbol_objekte;     break;
 		case misc:    sb = misc_objekte;	   break;
 		case nothing: return true;
 		default:      return false;
@@ -130,5 +139,8 @@ bool skinverwaltung_t::register_besch(skintyp_t type, const skin_besch_t* besch)
 		case nothing: return true;
 		default:      return false;
 	}
-	return ::register_besch(sb, besch);
+	if(  !::register_besch(sb, besch)  ) {
+		return ::register_besch( fakultative_objekte,  besch );
+	}
+	return true;
 }

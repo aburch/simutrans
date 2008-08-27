@@ -158,6 +158,8 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 		case tram_wt:     v = new waggon_t(         k, vb, sp, cnv); break;
 		case water_wt:    v = new schiff_t(         k, vb, sp, cnv); break;
 		case air_wt:      v = new aircraft_t(       k, vb, sp, cnv); break;
+		case maglev_wt:   v = new maglev_waggon_t(  k, vb, sp, cnv); break;
+		case narrowgauge_wt:v = new narrowgauge_waggon_t(k, vb, sp, cnv); break;
 
 		default:
 			dbg->fatal("vehikelbauer_t::baue()", "cannot built a vehicle with waytype %i", vb->get_waytype());

@@ -62,6 +62,7 @@ public:
 		maglev=maglev_wt,
 		wasser=water_wt,
 		luft=air_wt,
+		narrowgauge=narrowgauge_wt,
 		leitung=powerline_wt,
 		bautyp_mask=255,
 		bot_flag=0x100,					// do not connect to other ways

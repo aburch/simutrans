@@ -24,13 +24,17 @@ koord halt_list_filter_frame_t::filter_buttons_pos[FILTER_BUTTONS] = {
     koord(21, 58),
     koord(21, 74),
     koord(21, 90),
-    koord(21, 106),
     koord(21, 122),
-    koord(5, 143),
-    koord(21, 159),
-    koord(21, 175),
+    koord(21, 138),
+    koord(5, 207),
+    koord(21, 223),
+    koord(21, 239),
     koord(125, 4),
-    koord(265, 4)
+    koord(265, 4),
+    koord(21, 154),
+    koord(21, 170),
+    koord(21, 186),
+    koord(21, 106)
 };
 
 const char *halt_list_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {
@@ -45,7 +49,11 @@ const char *halt_list_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {
     "hlf_chk_overflow",
     "hlf_chk_keine_verb",
     "hlf_chk_waren_annahme",
-    "hlf_chk_waren_abgabe"
+    "hlf_chk_waren_abgabe",
+    "hlf_chk_monorailstop",
+    "hlf_chk_maglevstop",
+    "hlf_chk_narrowgaugestop",
+    "hlf_chk_tramstop"
 };
 
 halt_list_frame_t::filter_flag_t halt_list_filter_frame_t::filter_buttons_types[FILTER_BUTTONS] = {
@@ -60,7 +68,11 @@ halt_list_frame_t::filter_flag_t halt_list_filter_frame_t::filter_buttons_types[
     halt_list_frame_t::ueberfuellt_filter,
     halt_list_frame_t::ohneverb_filter,
     halt_list_frame_t::ware_an_filter,
-    halt_list_frame_t::ware_ab_filter
+    halt_list_frame_t::ware_ab_filter,
+    halt_list_frame_t::monorailstop_filter,
+    halt_list_frame_t::maglevstop_filter,
+    halt_list_frame_t::narrowgaugestop_filter,
+    halt_list_frame_t::tramstop_filter
 };
 
 
@@ -110,7 +122,7 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_fram
 		}
 	}
 	ware_cont_an.setze_groesse(koord(100, 16*n + 4));
-	ware_scrolly_an.setze_groesse(koord(125, 173));
+	ware_scrolly_an.setze_groesse(koord(125, 221));
 
 	ware_alle_ab.init(button_t::roundbox, "hlf_btn_alle", koord(265, 17), koord(41, 14));
 	ware_alle_ab.add_listener(this);
@@ -134,9 +146,9 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_fram
 		}
 	}
 	ware_cont_ab.setze_groesse(koord(100, 16*n + 4));
-	ware_scrolly_ab.setze_groesse(koord(125, 173));
+	ware_scrolly_ab.setze_groesse(koord(125, 221));
 
-	setze_fenstergroesse(koord(395, 227));
+	setze_fenstergroesse(koord(395, 275));
 }
 
 

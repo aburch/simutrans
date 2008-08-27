@@ -210,7 +210,9 @@ private:
 	};
 
 	speed_record_t max_rail_speed;
+	speed_record_t max_monorail_speed;
 	speed_record_t max_maglev_speed;
+	speed_record_t max_narrowgauge_speed;
 	speed_record_t max_road_speed;
 	speed_record_t max_ship_speed;
 	speed_record_t max_air_speed;

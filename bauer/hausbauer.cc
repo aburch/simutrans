@@ -513,6 +513,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 				break;
 			case maglev_wt:
 				gb = new maglevdepot_t(welt, pos, sp, tile);
+				break;
 			case narrowgauge_wt:
 				gb = new narrowgaugedepot_t(welt, pos, sp, tile);
 				break;

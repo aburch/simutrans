@@ -532,6 +532,48 @@ public:
 
 
 /**
+ * very similar to normal railroad, so wie can implement it here completely ...
+ * @author prissi
+ * @see vehikel_t
+ */
+class maglev_waggon_t : public waggon_t
+{
+public:
+	virtual waytype_t gib_waytype() const { return maglev_wt; }
+
+	// all handled by waggon_t
+	maglev_waggon_t(karte_t *welt, loadsave_t *file) : waggon_t(welt, file) {}
+	maglev_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
+
+	enum ding_t::typ gib_typ() const { return maglevwaggon; }
+
+	fahrplan_t * erzeuge_neuen_fahrplan() const;
+};
+
+
+
+/**
+ * very similar to normal railroad, so wie can implement it here completely ...
+ * @author prissi
+ * @see vehikel_t
+ */
+class narrowgauge_waggon_t : public waggon_t
+{
+public:
+	virtual waytype_t gib_waytype() const { return narrowgauge_wt; }
+
+	// all handled by waggon_t
+	narrowgauge_waggon_t(karte_t *welt, loadsave_t *file) : waggon_t(welt, file) {}
+	narrowgauge_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
+
+	enum ding_t::typ gib_typ() const { return narrowgaugewaggon; }
+
+	fahrplan_t * erzeuge_neuen_fahrplan() const;
+};
+
+
+
+/**
  * Eine Klasse für Wasserfahrzeuge. Verwaltet das Aussehen der
  * Fahrzeuge und die Befahrbarkeit des Untergrundes.
  *

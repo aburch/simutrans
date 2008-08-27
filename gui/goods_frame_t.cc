@@ -68,7 +68,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	speed_up.add_listener(this);
 	add_komponente(&speed_up);
 
-	y=4+3*LINESPACE+4;
+	y=4+5*LINESPACE+4;
 
 	sort_label.setze_pos(koord(BUTTON1_X, y));
 	add_komponente(&sort_label);
@@ -90,12 +90,12 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	scrolly.setze_groesse(koord(TOTAL_WIDTH-16, 191+16+16-y));
 	add_komponente(&scrolly);
 
-	int h = (warenbauer_t::gib_waren_anzahl()-1)*LINESPACE+y;
+	int h = (warenbauer_t::gib_waren_anzahl()+3)*LINESPACE+y;
 	if(h>450) {
 		h = y+10*LINESPACE+2;
 	}
 	setze_fenstergroesse(koord(TOTAL_WIDTH, h));
-	set_min_windowsize(koord(TOTAL_WIDTH,y+4*LINESPACE+2));
+	set_min_windowsize(koord(TOTAL_WIDTH,y+6*LINESPACE+2));
 	set_resizemode(vertical_resize);
 
 	sort_list();
@@ -174,7 +174,7 @@ void goods_frame_t::sort_list()
 void goods_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = gib_fenstergroesse()-koord(0,4+4*LINESPACE+4+BUTTON_HEIGHT+2+16);
+	koord groesse = gib_fenstergroesse()-koord(0,4+6*LINESPACE+4+BUTTON_HEIGHT+2+16);
 	scrolly.setze_groesse(groesse);
 }
 
@@ -229,4 +229,13 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 		(welt->get_average_speed(air_wt)*relative_speed_change)/100
 	);
 	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4, speed_message, COL_WHITE);
+
+	sprintf(speed_message,translator::translate("tram %i km/h, monorail %i km/h\nmaglev %i km/h, narrowgauge %i km/h."),
+		(welt->get_average_speed(tram_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(monorail_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(maglev_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(narrowgauge_wt)*relative_speed_change)/100
+	);
+	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+32, speed_message, COL_WHITE);
+
 }

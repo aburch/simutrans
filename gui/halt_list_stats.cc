@@ -91,6 +91,12 @@ void halt_list_stats_t::zeichnen(koord offset)
 		if (halttype & haltestelle_t::monorailstop) {
 			display_color_img(skinverwaltung_t::monorailhaltsymbol->gib_bild_nr(0), pos.x+left, pos_y, 0, false, true);
 		}
+		if (halttype & haltestelle_t::maglevstop) {
+			display_color_img(skinverwaltung_t::maglevhaltsymbol->gib_bild_nr(0), pos.x+left, pos_y, 0, false, true);
+		}
+		if (halttype & haltestelle_t::narrowgaugestop) {
+			display_color_img(skinverwaltung_t::narrowgaugehaltsymbol->gib_bild_nr(0), pos.x+left, pos_y, 0, false, true);
+		}
 
 		// now what do we accept here?
 		pos_y = pos.y+offset.y+14;

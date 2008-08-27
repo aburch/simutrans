@@ -130,6 +130,8 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 					case simline_t::airline:      line = new airline_t(     welt, file); break;
 					case simline_t::monorailline: line = new monorailline_t(welt, file); break;
 					case simline_t::tramline:     line = new tramline_t(    welt, file); break;
+					case simline_t::maglevline:   line = new maglevline_t(  welt, file); break;
+					case simline_t::narrowgaugeline:line = new narrowgaugeline_t(welt, file); break;
 					default:                      line = new simline_t(     welt, file); break;
 				}
 				add_line(line->self);
@@ -241,6 +243,14 @@ simlinemgmt_t::create_line(int ltype, fahrplan_t * fpl)
 		case simline_t::tramline:
 			line = new tramline_t(this, new tramfahrplan_t(fpl));
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "tramline created");
+			break;
+		case simline_t::maglevline:
+			line = new maglevline_t(this, new maglevfahrplan_t(fpl));
+			DBG_MESSAGE("simlinemgmt_t::create_line()", "maglevline created");
+			break;
+		case simline_t::narrowgaugeline:
+			line = new narrowgaugeline_t(this, new narrowgaugefahrplan_t(fpl));
+			DBG_MESSAGE("simlinemgmt_t::create_line()", "narrowgaugeline created");
 			break;
 		default:
 		    line = new simline_t(this, new fahrplan_t(fpl));

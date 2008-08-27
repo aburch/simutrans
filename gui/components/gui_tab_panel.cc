@@ -12,9 +12,10 @@
 #include "../../simgraph.h"
 #include "../../simcolor.h"
 
+#include "../../besch/skin_besch.h"
 #include "../../besch/bild_besch.h"
 
-
+#define IMG_WIDTH 20
 
 gui_tab_panel_t::gui_tab_panel_t()
 {
@@ -23,9 +24,9 @@ gui_tab_panel_t::gui_tab_panel_t()
 
 
 
-void gui_tab_panel_t::add_tab(gui_komponente_t *c, const char *name, const bild_besch_t *besch, const char *tooltip )
+void gui_tab_panel_t::add_tab(gui_komponente_t *c, const char *name, const skin_besch_t *besch, const char *tooltip )
 {
-	tabs.append(tab(c, name, besch, tooltip));
+	tabs.append(tab(c, besch?NULL:name, besch?besch->gib_bild(0):NULL, tooltip));
 	c->setze_groesse(gib_groesse()-koord(0,HEADER_VSIZE));
 }
 
@@ -60,7 +61,7 @@ void gui_tab_panel_t::infowin_event(const event_t *ev)
 				int k = 0;
 				for (slist_tpl<tab>::const_iterator i = tabs.begin(), end = tabs.end(); i != end; ++i, ++k) {
 					const char* text = i->title;
-					const int width = text ? proportional_string_width( text ) : 32;
+					const int width = text ? proportional_string_width( text ) : IMG_WIDTH;
 
 					if(text_x < ev->mx && text_x+width+8 > ev->mx) {
 						// either tooltip or change
@@ -91,7 +92,7 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 	int k = 0;
 	for (slist_tpl<tab>::const_iterator i = tabs.begin(), end = tabs.end(); i != end; ++i, ++k) {
 		const char* text = i->title;
-		const int width = text ? proportional_string_width( text ) : 32;
+		const int width = text ? proportional_string_width( text ) : IMG_WIDTH;
 
 		if (k != active_tab) {
 			display_fillbox_wh_clip(text_x-4, ypos+HEADER_VSIZE-1, width+8, 1, MN_GREY4, true);
@@ -104,7 +105,7 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 				display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, COL_WHITE, true);
 			}
 			else {
-				display_color_img( i->img->gib_nummer(), text_x - i->img->get_pic()->x + 16 - (i->img->get_pic()->w/2), ypos - i->img->get_pic()->y + 10 - (i->img->get_pic()->h/2), 0, false, true);
+				display_color_img( i->img->gib_nummer(), text_x - i->img->get_pic()->x + (IMG_WIDTH/2) - (i->img->get_pic()->w/2), ypos - i->img->get_pic()->y + 10 - (i->img->get_pic()->h/2), 0, false, true);
 			}
 		} else {
 			display_fillbox_wh_clip(text_x-3, ypos+3, width+5, 1, MN_GREY4, true);
@@ -116,7 +117,7 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 				display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, COL_BLACK, true);
 			}
 			else {
-				display_color_img( i->img->gib_nummer(), text_x - i->img->get_pic()->x + 16 - (i->img->get_pic()->w/2), ypos - i->img->get_pic()->y + 10 - (i->img->get_pic()->h/2), 0, false, true);
+				display_color_img( i->img->gib_nummer(), text_x - i->img->get_pic()->x + (IMG_WIDTH/2) - (i->img->get_pic()->w/2), ypos - i->img->get_pic()->y + 10 - (i->img->get_pic()->h/2), 0, false, true);
 			}
 			i->component->zeichnen(koord(xpos + 0, ypos + HEADER_VSIZE));
 		}
@@ -133,7 +134,7 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 		int k = 0;
 		for (slist_tpl<tab>::const_iterator i = tabs.begin(), end = tabs.end(); i != end; ++i, ++k) {
 			const char* text = i->title;
-			const int width = text ? proportional_string_width( text ) : 32;
+			const int width = text ? proportional_string_width( text ) : IMG_WIDTH;
 
 			if(text_x < mx && text_x+width+8 > mx) {
 				// tooltip or change

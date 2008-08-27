@@ -40,7 +40,11 @@ public:
 		dock_filter=512,
 		airport_filter=1024,
 		ueberfuellt_filter=2048,
-		ohneverb_filter=4096
+		ohneverb_filter=4096,
+		monorailstop_filter=8192,
+		maglevstop_filter=16384,
+		narrowgaugestop_filter=32768,
+		tramstop_filter=65536
     };
 
 private:

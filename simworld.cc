@@ -543,7 +543,9 @@ karte_t::init_felder()
 	// clear world records
 	max_road_speed.speed = 0;
 	max_rail_speed.speed = 0;
+	max_monorail_speed.speed = 0;
 	max_maglev_speed.speed = 0;
+	max_narrowgauge_speed.speed = 0;
 	max_ship_speed.speed = 0;
 	max_air_speed.speed = 0;
 
@@ -646,7 +648,7 @@ DBG_DEBUG("karte_t::init()","kartenboden_setzen");
 		}
 	}
 
-	max_rail_speed.speed = max_maglev_speed.speed = max_road_speed.speed = max_ship_speed.speed = max_air_speed.speed = 0;
+	max_rail_speed.speed = max_monorail_speed.speed = max_maglev_speed.speed = max_narrowgauge_speed.speed = max_road_speed.speed = max_ship_speed.speed = max_air_speed.speed = 0;
 
 	print("Creating landscape shape...\n");
 	// calc_hoehe(0, 0, gib_groesse()-1, gib_groesse()-1);
@@ -2025,6 +2027,12 @@ void karte_t::recalc_average_speed()
 					case air_wt:
 						vehicle_type = "airplane";
 						break;
+					case maglev_wt:
+						vehicle_type = "maglev vehicle";
+						break;
+					case narrowgauge_wt:
+						vehicle_type = "narrowgauge vehicle";
+						break;
 				}
 				vehicle_type = translator::translate( vehicle_type );
 
@@ -2081,7 +2089,9 @@ sint32 karte_t::get_record_speed( waytype_t w ) const
 		case road_wt: return max_road_speed.speed;
 		case track_wt:
 		case tram_wt: return max_rail_speed.speed;
-		case monorail_wt: return max_maglev_speed.speed;
+		case monorail_wt: return max_monorail_speed.speed;
+		case maglev_wt: return max_maglev_speed.speed;
+		case narrowgauge_wt: return max_narrowgauge_speed.speed;
 		case water_wt: return max_ship_speed.speed;
 		case air_wt: return max_air_speed.speed;
 		default: return 0;
@@ -2098,7 +2108,9 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 		case road_wt: sr = &max_road_speed; break;
 		case track_wt:
 		case tram_wt: sr = &max_rail_speed; break;
-		case monorail_wt: sr = &max_maglev_speed; break;
+		case monorail_wt: sr = &max_monorail_speed; break;
+		case maglev_wt: sr = &max_maglev_speed; break;
+		case narrowgauge_wt: sr = &max_narrowgauge_speed; break;
 		case water_wt: sr = &max_ship_speed; break;
 		case air_wt: sr = &max_air_speed; break;
 		default: assert(0);
@@ -2135,6 +2147,8 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 				case track_wt:
 				case tram_wt:     msg = "New world record for railways: %.1f km/h by %s.";  break;
 				case monorail_wt: msg = "New world record for monorails: %.1f km/h by %s."; break;
+				case maglev_wt: msg = "New world record for maglevs: %.1f km/h by %s."; break;
+				case narrowgauge_wt: msg = "New world record for narrowgauges: %.1f km/h by %s."; break;
 				case water_wt:    msg = "New world record for ship: %.1f km/h by %s.";      break;
 				case air_wt:      msg = "New world record for planes: %.1f km/h by %s.";    break;
 			}

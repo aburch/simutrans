@@ -556,7 +556,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 		if(halt.is_bound()) {
 
 			// does only make sence for trains
-			if(fahr->gib_waytype()==track_wt  ||  fahr->gib_waytype()==monorail_wt  ||  fahr->gib_waytype()==tram_wt) {
+			if(fahr->gib_waytype()==track_wt  ||  fahr->gib_waytype()==monorail_wt  ||  fahr->gib_waytype()==tram_wt  ||  fahr->gib_waytype()==maglev_wt  ||  fahr->gib_waytype()==narrowgauge_wt) {
 
 				int max_n = route.get_count()-1;
 
