@@ -1368,6 +1368,13 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 		if(bautyp&tunnel_flag) {
 			grund_t *bd_von = welt->lookup(koord3d(pos,start.z));
 			ok = (bd_von==NULL)  ||  bd_von->gib_typ()==grund_t::tunnelboden;
+			// check for halt crossing ...
+			if(ok  &&  bd_von  &&  bd_von->is_halt()) {
+				ribi_t::ribi haltribi = bd_von->gib_weg_ribi_unmasked( (waytype_t)(bautyp&(~wegbauer_t::tunnel_flag)) );
+				haltribi = ribi_t::doppelt(haltribi);
+				ribi_t::ribi diffribi = ribi_t::doppelt( ribi_typ(diff) );
+				ok = (haltribi==diffribi);
+			}
 		}
 		else {
 			grund_t *bd_nach = NULL;
