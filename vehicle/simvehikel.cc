@@ -299,6 +299,9 @@ void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff ) const
 	if(dx*dy) {
 		display_steps &= 0xFFFFFC00;
 	}
+	else {
+		display_steps = (display_steps*2)/3;
+	}
 	xoff += (display_steps*dx) >> 10;
 	yoff += ((display_steps*dy) >> 10) + (hoff*(sint16)get_tile_raster_width())/(4*16);
 }
@@ -311,6 +314,9 @@ sint8 vehikel_basis_t::get_vehicle_xoff() const
 	sint16 display_steps = (uint16)steps*TILE_STEPS;
 	if(dx*dy) {
 		display_steps &= 0xFFFFFFFE;
+	}
+	else {
+		display_steps = (display_steps*2)/3;
 	}
 	return gib_xoff() +  ( (dx*display_steps) >> 8 );
 }
@@ -362,22 +368,22 @@ vehikel_basis_t::calc_set_richtung(koord start, koord ende)
 		richtung = ribi_t::suedost;
 		dx = 0;
 		dy = 2;
-		steps_next = 127;
+		steps_next = 191;
 	} else if(di < 0 && dj < 0) {
 		richtung = ribi_t::nordwest;
 		dx = 0;
 		dy = -2;
-		steps_next = 127;
+		steps_next = 191;
 	} else if(di > 0 && dj < 0) {
 		richtung = ribi_t::nordost;
 		dx = 4;
 		dy = 0;
-		steps_next = 127;
+		steps_next = 191;
 	} else {
 		richtung = ribi_t::suedwest;
 		dx = -4;
 		dy = 0;
-		steps_next = 127;
+		steps_next = 191;
 	}
 	// we could artificially make diagonals shorter: but this would break existing game behaviour
 	return richtung;
@@ -753,7 +759,7 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 
 		calc_bild();
 	}
-	steps_next = ribi_t::ist_einfach(fahrtrichtung) ? 255 : 127;
+	steps_next = ribi_t::ist_einfach(fahrtrichtung) ? 255 : 191;
 }
 
 
@@ -1272,6 +1278,11 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 		else {
 			file->rdwr_byte(steps, " ");
 			file->rdwr_byte(steps_next, "\n");
+			// beware: diagonals were shorter in 99018
+			if(steps_next==127) {
+				steps_next = 191;
+				steps = (steps*3)/2;
+			}
 		}
 		sint16 dummy16 = ((16*(sint16)hoff)/TILE_HEIGHT_STEP);
 		file->rdwr_short(dummy16, "\n");
@@ -1306,8 +1317,8 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 				steps_next = 255;
 			}
 			else {
-				steps = min( 127, 128-(i*16) );
-				steps_next = 127;
+				steps = min( 191, 192-(i*24) );
+				steps_next = 191;
 			}
 		}
 	}

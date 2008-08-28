@@ -205,18 +205,6 @@ ding_t::rdwr(loadsave_t *file)
 }
 
 
-/* get dx, dy and divider and startpos for position from dir (just to remind you) */
-static sint16 vehicle_offsets[ 8*5 ] = {
-	-2,  1, -2,  1, 4,	// s
-	-2, -1, -2, -1, 4,	// w
-	-4,  0, -2,  1, 1,	// sw
-	 0,  2,  2,  1, 1,	// se
-	 2, -1,  2, -1, 4,	// n
-	 2,  1,  2,  1, 4,	// e
-	 4,  0,  2,  1, 1,	// ne
-	 0, -2,  2, -1, 1,	// nw
-};
-
 
 /**
  * Ding zeichnen

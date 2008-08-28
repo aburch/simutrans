@@ -30,6 +30,7 @@
 	ADD: target destinations in halt details now clickable
 	FIX: raise and lower now also ok new border, better error messages
 	FIX: (z9999) maglev and narrowgauge for everything, addional line symbols (MaglevStop, NarrowgaugeStop, ... ) for linemanager optional
+	CHANGE: speed on diagonals only 20% faster => less gain, more realistic vehicle length
 
 
 Release of 100.0 (r1867, stable)
