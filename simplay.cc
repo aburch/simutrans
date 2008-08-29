@@ -366,7 +366,7 @@ void spieler_t::neuer_monat()
 					// tell the player
 					sprintf(buf, translator::translate("On loan since %i month(s)"), konto_ueberzogen );
 //					sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"), MAX_KONTO_VERZUG-konto_ueberzogen+1 );
-					message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
+					welt->get_message()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				}
 			}
 			else if(automat  &&  this!=welt->gib_spieler(1)) {
@@ -878,7 +878,7 @@ void spieler_t::bescheid_station_voll(halthandle_t halt)
 		char buf[256];
 
 		sprintf(buf, translator::translate("!0_STATION_CROWDED"), halt->gib_name());
-		message_t::get_instance()->add_message(buf, halt->gib_basis_pos(),message_t::full, player_nr,IMG_LEER);
+		welt->get_message()->add_message(buf, halt->gib_basis_pos(),message_t::full, player_nr,IMG_LEER);
 	}
 }
 
@@ -898,7 +898,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route
 			if(this==welt->get_active_player()) {
 				char buf[256];
 				sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->gib_name());
-				message_t::get_instance()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,player_nr,cnv->gib_vehikel(0)->gib_basis_bild());
+				welt->get_message()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,player_nr,cnv->gib_vehikel(0)->gib_basis_bild());
 			}
 			else if(this != welt->gib_spieler(0)) {
 				cnv->self_destruct();
@@ -911,7 +911,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->gi
 			if(this==welt->get_active_player()) {
 				char buf[256];
 				sprintf(buf,translator::translate("Vehicle %s is stucked!"), cnv->gib_name());
-				message_t::get_instance()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,player_nr,cnv->gib_vehikel(0)->gib_basis_bild());
+				welt->get_message()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,player_nr,cnv->gib_vehikel(0)->gib_basis_bild());
 			}
 			break;
 
@@ -1115,7 +1115,7 @@ void spieler_t::ai_bankrupt()
 	automat = false;
 	char buf[256];
 	sprintf(buf, translator::translate("%s\nwas liquidated."), gib_name() );
-	message_t::get_instance()->add_message( buf, koord::invalid, message_t::ai, player_nr );
+	welt->get_message()->add_message( buf, koord::invalid, message_t::ai, player_nr );
 }
 
 
@@ -1702,7 +1702,7 @@ bool spieler_t::built_update_headquarter()
 				// tell the player
 				char buf[256];
 				sprintf(buf, translator::translate("%s's\nheadquarter now\nat (%i,%i)."), gib_name(), place.x, place.y );
-				message_t::get_instance()->add_message(buf, place, message_t::ai,player_nr, welt->lookup_kartenboden(place)->find<gebaeude_t>()->gib_tile()->gib_hintergrund(0,0,0) );
+				welt->get_message()->add_message(buf, place, message_t::ai,player_nr, welt->lookup_kartenboden(place)->find<gebaeude_t>()->gib_tile()->gib_hintergrund(0,0,0) );
 			}
 			return place != koord::invalid;
 		}
@@ -2532,7 +2532,7 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 			const koord3d& spos = start->gib_pos();
 			const koord3d& zpos = ziel->gib_pos();
 			sprintf(buf, translator::translate("%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i)."), gib_name(), translator::translate(start->gib_name()), spos.x, spos.y, translator::translate(ziel->gib_name()), zpos.x, zpos.y);
-			message_t::get_instance()->add_message(buf, spos.gib_2d(), message_t::ai,player_nr,rail_engine->gib_basis_bild());
+			welt->get_message()->add_message(buf, spos.gib_2d(), message_t::ai,player_nr,rail_engine->gib_basis_bild());
 
 			state = CHECK_CONVOI;
 		}
@@ -2546,7 +2546,7 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 			const koord3d& spos = start->gib_pos();
 			const koord3d& zpos = ziel->gib_pos();
 			sprintf(buf, translator::translate("%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i)."), gib_name(), count_road, translator::translate(start->gib_name()), spos.x, spos.y, translator::translate(ziel->gib_name()), zpos.x, zpos.y);
-			message_t::get_instance()->add_message(buf, spos.gib_2d(), message_t::ai, player_nr, road_vehicle->gib_basis_bild());
+			welt->get_message()->add_message(buf, spos.gib_2d(), message_t::ai, player_nr, road_vehicle->gib_basis_bild());
 			state = CHECK_CONVOI;
 		}
 		break;
@@ -3767,7 +3767,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 						cover_city_with_bus_route(platz1, 6);
 						cover_city_with_bus_route(platz2, 6);
 					}
-					message_t::get_instance()->add_message((const char *)buf,platz1,message_t::ai,player_nr,road_vehicle->gib_basis_bild());
+					welt->get_message()->add_message((const char *)buf,platz1,message_t::ai,player_nr,road_vehicle->gib_basis_bild());
 				}
 			}
 		}
@@ -3787,7 +3787,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 				}
 				cbuffer_t buf(1024);
 				buf.printf( translator::translate("Ferry service by\n%s\nnow between\n%s \nand %s.\n"), gib_name(), start_stadt->gib_name(), end_stadt->gib_name() );
-				message_t::get_instance()->add_message((const char *)buf,end_stadt->gib_pos(),message_t::ai,player_nr,road_vehicle->gib_basis_bild());
+				welt->get_message()->add_message((const char *)buf,end_stadt->gib_pos(),message_t::ai,player_nr,road_vehicle->gib_basis_bild());
 				state = NR_ROAD_SUCCESS;
 			}
 			else {
@@ -3812,7 +3812,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 				cover_city_with_bus_route( get_our_hub(end_stadt)->gib_basis_pos(), 6);
 				cbuffer_t buf(1024);
 				buf.printf( translator::translate("Airline service by\n%s\nnow between\n%s \nand %s.\n"), gib_name(), start_stadt->gib_name(), end_stadt->gib_name() );
-				message_t::get_instance()->add_message((const char *)buf,end_stadt->gib_pos(),message_t::ai,player_nr,road_vehicle->gib_basis_bild());
+				welt->get_message()->add_message((const char *)buf,end_stadt->gib_pos(),message_t::ai,player_nr,road_vehicle->gib_basis_bild());
 				state = NR_ROAD_SUCCESS;
 			}
 		break;

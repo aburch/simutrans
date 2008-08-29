@@ -31,8 +31,8 @@ public:
 	static message_t * get_instance();
 
 	/* determines, which message is displayed where */
-	void get_flags( int *t, int *w, int *a, int  *i);
-	void set_flags( int, int, int, int );
+	void get_message_flags( int *t, int *w, int *a, int  *i);
+	void set_message_flags( int, int, int, int );
 
 	message_t(karte_t *welt);
 	~message_t();
@@ -47,8 +47,6 @@ private:
 	int ignore_flags;
 
 	vector_tpl<node> list;
-
-	static message_t * single_instance;
 
 public:
 	int gib_count() const { return list.get_count(); }

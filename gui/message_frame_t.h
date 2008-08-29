@@ -17,6 +17,8 @@
 #include "../simmesg.h"
 #include "components/action_listener.h"
 
+class karte_t;
+
 
 /**
  * All messages since the start of the program
@@ -28,22 +30,23 @@ private:
 	message_stats_t	stats;
 	gui_scrollpane_t scrolly;
 	button_t option_bt;
+	static karte_t *welt;
 
 public:
-  message_frame_t(karte_t * welt);
+	message_frame_t(karte_t * welt);
 
-  /**
-     * Manche Fenster haben einen Hilfetext assoziiert.
-     * @return den Dateinamen für die Hilfe, oder NULL
-     * @author Hj. Malthaner
-     */
-    const char * gib_hilfe_datei() const {return "mailbox.txt";}
+	/**
+	 * Manche Fenster haben einen Hilfetext assoziiert.
+	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * @author Hj. Malthaner
+	 */
+	const char * gib_hilfe_datei() const {return "mailbox.txt";}
 
-  /**
-   * resize window in response to a resize event
-   * @author Hj. Malthaner
-   */
-  void resize(const koord delta);
+	/**
+	* resize window in response to a resize event
+	* @author Hj. Malthaner
+	*/
+	void resize(const koord delta);
 
     /**
      * This method is called if an action is triggered

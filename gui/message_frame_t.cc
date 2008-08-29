@@ -17,10 +17,16 @@
 #include "components/list_button.h"
 #include "components/action_listener.h"
 
+
+karte_t *message_frame_t::welt = NULL;
+
+
 message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t("Mailbox"),
 	stats(welt),
 	scrolly(&stats)
 {
+	this->welt = welt;
+
 	add_komponente(&scrolly);
 
 	option_bt.init(button_t::box, translator::translate("Optionen"), koord(BUTTON1_X,0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
@@ -56,6 +62,6 @@ void message_frame_t::resize(const koord delta)
 bool
 message_frame_t::action_triggered(gui_komponente_t *,value_t)
 {
-	create_win(320, 200, new message_option_t(), w_info, magic_none );
+	create_win(320, 200, new message_option_t(welt), w_info, magic_none );
 	return true;
 }

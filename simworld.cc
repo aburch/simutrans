@@ -443,6 +443,8 @@ assert( depot_t::get_depot_list().empty() );
 
 DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 	printf("World destroyed.\n");
+
+	msg->clear();
 }
 
 
@@ -969,6 +971,8 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	// no distance to show at first ...
 	show_distance = koord3d::invalid;
 	scenario = NULL;
+
+	msg = new message_t(this);
 }
 
 
@@ -980,6 +984,8 @@ karte_t::~karte_t()
         delete einstellungen;
         einstellungen = NULL;
     }
+
+	delete msg;
 }
 
 
@@ -1521,7 +1527,6 @@ karte_t::rotate90()
 	ij_off.rotate90( cached_groesse_karte_x );
 
 	// rotate messages
-	message_t *msg = message_t::get_instance();
 	uint max_message = msg->gib_count();
 	for( uint i=0;  i<max_message;  i++  ) {
 		msg->get_node(i)->pos.rotate90( cached_groesse_karte_x );
@@ -1974,7 +1979,7 @@ DBG_MESSAGE("karte_t::neues_jahr()","speedbonus for %d %i, %i, %i, %i, %i, %i, %
 
 	char buf[256];
 	sprintf(buf,translator::translate("Year %i has started."),letztes_jahr);
-	message_t::get_instance()->add_message(buf,koord::invalid,message_t::general,COL_BLACK,skinverwaltung_t::neujahrsymbol->gib_bild_nr(0));
+	msg->add_message(buf,koord::invalid,message_t::general,COL_BLACK,skinverwaltung_t::neujahrsymbol->gib_bild_nr(0));
 
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
 		convoihandle_t cnv = convoi_array[i];
@@ -2045,7 +2050,7 @@ void karte_t::recalc_average_speed()
 							translator::translate("New %s now available:\n%s\n"),
 							vehicle_type,
 							translator::translate(info->gib_name()));
-							message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->gib_basis_bild());
+							msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->gib_basis_bild());
 					}
 
 					const uint16 retire_month = info->get_retire_year_month();
@@ -2054,7 +2059,7 @@ void karte_t::recalc_average_speed()
 							translator::translate("Production of %s has been stopped:\n%s\n"),
 							vehicle_type,
 							translator::translate(info->gib_name()));
-							message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->gib_basis_bild());
+							msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->gib_basis_bild());
 					}
 				}
 			}
@@ -2154,7 +2159,7 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 			}
 			char text[1024];
 			sprintf( text, translator::translate(msg), (float)speed_to_kmh(10*sr->speed)/10.0, sr->cnv->gib_name() );
-			message_t::get_instance()->add_message(text, sr->pos, message_t::new_vehicle, sr->besitzer->get_player_color1() );
+			get_message()->add_message(text, sr->pos, message_t::new_vehicle, sr->besitzer->get_player_color1() );
 		}
 	}
 }
@@ -3664,7 +3669,7 @@ void karte_t::switch_active_player(uint8 new_player)
 		active_player_nr = 0;
 		active_player = spieler[0];
 		if(new_player!=0) {
-			message_t::get_instance()->add_message(translator::translate("On this map, you are not\nallowed to change player!\n"), koord::invalid, message_t::problems, get_active_player()->get_player_nr(), IMG_LEER);
+			msg->add_message(translator::translate("On this map, you are not\nallowed to change player!\n"), koord::invalid, message_t::problems, get_active_player()->get_player_nr(), IMG_LEER);
 		}
 	}
 	else {
@@ -3673,7 +3678,7 @@ void karte_t::switch_active_player(uint8 new_player)
 		active_player = spieler[new_player];
 		char buf[512];
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->gib_name() );
-		message_t::get_instance()->add_message(buf, koord::invalid, message_t::warnings, get_active_player()->get_player_nr(), IMG_LEER);
+		msg->add_message(buf, koord::invalid, message_t::warnings, get_active_player()->get_player_nr(), IMG_LEER);
 	}
 
 	// update menue entries (we do not want player1 to run anything)

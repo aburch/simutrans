@@ -171,7 +171,7 @@ void wegbauer_t::neuer_monat(karte_t *welt)
 				sprintf(buf,
 					translator::translate("way %s now available:\n"),
 					translator::translate(besch->gib_name()));
-					message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,besch->gib_bild_nr(5,0));
+					welt->get_message()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,besch->gib_bild_nr(5,0));
 			}
 
 			const uint16 retire_month = besch->get_retire_year_month();
@@ -179,7 +179,7 @@ void wegbauer_t::neuer_monat(karte_t *welt)
 				sprintf(buf,
 					translator::translate("way %s cannot longer used:\n"),
 					translator::translate(besch->gib_name()));
-					message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,besch->gib_bild_nr(5,0));
+					welt->get_message()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,besch->gib_bild_nr(5,0));
 			}
 		}
 

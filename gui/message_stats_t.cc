@@ -20,7 +20,7 @@
 message_stats_t::message_stats_t(karte_t *w)
 {
 	welt = w;
-	msg = message_t::get_instance();
+	msg = welt->get_message();
 	last_count = 0;
 	setze_groesse(koord(600,msg->gib_count()*14 + 30));
 }

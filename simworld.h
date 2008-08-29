@@ -32,7 +32,7 @@
 #include "simintr.h"
 
 #include "simdebug.h"
-//#include "simwerkz.h"
+
 
 struct event_t;
 struct sound_info;
@@ -48,6 +48,7 @@ class sync_steppable;
 class cstring_t;
 class werkzeug_t;
 class scenario_t;
+class message_t;
 
 
 /**
@@ -337,6 +338,8 @@ private:
 	// what game objectives
 	scenario_t *scenario;
 
+	message_t *msg;
+
 	int average_speed[8];
 
 	// recalculated speed boni for different vehicles
@@ -361,6 +364,8 @@ private:
 	void restore_history();
 
 public:
+	message_t *get_message() { return msg; }
+
 	// set to something useful, if there is a total distance != 0 to show in the bar below
 	koord3d show_distance;
 

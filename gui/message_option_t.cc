@@ -17,18 +17,22 @@
 #include "message_option_t.h"
 
 
-message_option_t::message_option_t() :
+karte_t *message_option_t::welt = NULL;
+
+
+message_option_t::message_option_t(karte_t *welt) :
 	gui_frame_t("Mailbox Options"),
 	text_label(translator::translate("MessageOptionsText")),
 	legend( skinverwaltung_t::message_options->gib_bild_nr(0) )
 {
+	this->welt = welt;
 	text_label.setze_pos( koord(10,-2) );
 	add_komponente( &text_label );
 
 	legend.setze_pos( koord(110,0) );
 	add_komponente( &legend );
 
-	message_t::get_instance()->get_flags( &ticker_msg, &window_msg, &auto_msg, &ignore_msg );
+	welt->get_message()->get_message_flags( &ticker_msg, &window_msg, &auto_msg, &ignore_msg );
 
 	for(int i=0; i<MAX_MESSAGE_TYP; i++) {
 		buttons[i*3].pos = koord(120,18+i*2*LINESPACE);
@@ -69,6 +73,6 @@ message_option_t::action_triggered(gui_komponente_t *komp, value_t )
 			window_msg ^= (1<<i);
 		}
 	}
-	message_t::get_instance()->set_flags( ticker_msg, window_msg, auto_msg, ignore_msg );
+	welt->get_message()->set_message_flags( ticker_msg, window_msg, auto_msg, ignore_msg );
 	return true;
 }

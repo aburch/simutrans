@@ -161,12 +161,12 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 			}
 			if(os2==NULL) {
 				dbg->error("old_blockmanager_t::laden_abschliessen()","old signal near (%i,%i) is unpaired!",gr->gib_pos().x,gr->gib_pos().y);
-				message_t::get_instance()->add_message(translator::translate("Orphan signal during loading!"),os1->gib_pos().gib_2d(),message_t::problems);
+				welt->get_message()->add_message(translator::translate("Orphan signal during loading!"),os1->gib_pos().gib_2d(),message_t::problems);
 			}
 		}
 		else {
 			dbg->error("old_blockmanager_t::laden_abschliessen()","old signal near (%i,%i) is unpaired!",gr->gib_pos().x,gr->gib_pos().y);
-			message_t::get_instance()->add_message(translator::translate("Orphan signal during loading!"),os1->gib_pos().gib_2d(),message_t::problems);
+			welt->get_message()->add_message(translator::translate("Orphan signal during loading!"),os1->gib_pos().gib_2d(),message_t::problems);
 		}
 
 		// remove second signal from list
@@ -232,14 +232,14 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 			else {
 				dbg->error("old_blockmanager_t::laden_abschliessen()","no roadsign for way %x with type %d found!",type,wt);
 				sprintf(buf,err_text,os1->gib_pos().x,os1->gib_pos().y);
-				message_t::get_instance()->add_message(buf,os1->gib_pos().gib_2d(),message_t::problems);
+				welt->get_message()->add_message(buf,os1->gib_pos().gib_2d(),message_t::problems);
 				failure++;
 			}
 		}
 		else {
 			dbg->warning("old_blockmanager_t::laden_abschliessen()","could not restore old signal near (%i,%i), dir=%i",gr->gib_pos().x,gr->gib_pos().y,dir);
 			sprintf(buf,err_text,os1->gib_pos().x,os1->gib_pos().y);
-			message_t::get_instance()->add_message(buf,os1->gib_pos().gib_2d(),message_t::problems);
+			welt->get_message()->add_message(buf,os1->gib_pos().gib_2d(),message_t::problems);
 			failure ++;
 		}
 

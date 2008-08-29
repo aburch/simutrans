@@ -1614,7 +1614,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 				if (!new_town) {
 					char buf[256];
 					sprintf(buf, translator::translate("To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers."), gib_name(), make_single_line_string(translator::translate(besch->gib_name()), 2), bev);
-					message_t::get_instance()->add_message(buf, best_pos, message_t::tourist, CITY_KI, besch->gib_tile(0)->gib_hintergrund(0, 0, 0));
+					welt->get_message()->add_message(buf, best_pos, message_t::tourist, CITY_KI, besch->gib_tile(0)->gib_hintergrund(0, 0, 0));
 				}
 			}
 		}
@@ -1674,7 +1674,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 					if (!new_town) {
 						char buf[256];
 						sprintf(buf, translator::translate("With a big festival\n%s built\na new monument.\n%i citicens rejoiced."), gib_name(), bev);
-						message_t::get_instance()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->gib_tile(0)->gib_hintergrund(0, 0, 0));
+						welt->get_message()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->gib_tile(0)->gib_hintergrund(0, 0, 0));
 					}
 				}
 			}
@@ -1758,7 +1758,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			// tell the player
 			char buf[256];
 			sprintf( buf, translator::translate("%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants."), name, gib_einwohner() );
-			message_t::get_instance()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->gib_tile(layout, 0, 0)->gib_hintergrund(0, 0, 0));
+			welt->get_message()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->gib_tile(layout, 0, 0)->gib_hintergrund(0, 0, 0));
 		}
 
 		// Strasse davor verlegen

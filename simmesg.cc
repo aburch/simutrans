@@ -20,32 +20,10 @@
 
 
 
-message_t * message_t::single_instance= NULL;
-
-
-
-message_t * message_t::get_instance()
-{
-	if(single_instance==NULL) {
-dbg->fatal("message_t::message_t()","Init without world!");
-		single_instance = new message_t(NULL);
-	}
-	return single_instance;
-}
-
-
-
 message_t::message_t(karte_t *w)
 {
-	// only a singe instance of this messenger
-	if(single_instance!=NULL) {
-DBG_MESSAGE("message_t::message_t()","previous instance %p");
-		return;
-	}
-	single_instance = this;
 	welt = w;
-
-	ticker_flags = 0xFF7F;	// everything on the ticker
+	ticker_flags = 0xFF7F;	// everything on the ticker only
 	win_flags = 0;
 	auto_win_flags = 0;
 	ignore_flags = 0;
@@ -58,13 +36,12 @@ DBG_MESSAGE("message_t::message_t()","previous instance %p");
 
 message_t::~message_t()
 {
-DBG_MESSAGE("message_t::~message_t()","previous instance %p");
-	single_instance = NULL;
+	list.clear();
 }
 
 
 /* get flags for message routing */
-void message_t::get_flags( int *t, int *w, int *a, int  *i)
+void message_t::get_message_flags( int *t, int *w, int *a, int  *i)
 {
 	*t = ticker_flags;
 	*w = win_flags;
@@ -75,7 +52,7 @@ void message_t::get_flags( int *t, int *w, int *a, int  *i)
 
 
 /* set flags for message routing */
-void message_t::set_flags( int t, int w, int a, int i)
+void message_t::set_message_flags( int t, int w, int a, int i)
 {
 	ticker_flags = t;
 	win_flags = w;

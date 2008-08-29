@@ -819,9 +819,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	welt->setze_ansicht( view );
 
 	// some messages about old vehicle may appear ...
-	message_t *msg = new message_t(welt);
-	// to hide all messages
-	message_t::get_instance()->set_flags(0, 0, 0, 0);
+	welt->get_message()->set_message_flags(0, 0, 0, 0);
 
 	if (!gimme_arg(argc, argv, "-nomidi", 0)) {
 		print("Reading midi data ...\n");
@@ -887,7 +885,7 @@ DBG_MESSAGE("init","map");
 
 	translator::set_language("en");
 
-	message_t::get_instance()->clear();
+	welt->get_message()->clear();
 	ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 
 	zeige_banner(welt);
@@ -929,15 +927,13 @@ DBG_MESSAGE("init","map");
 		sets->setze_just_in_time(umgebung_t::just_in_time);
 		sets->setze_electric_promille( umgebung_t::default_electric_promille );
 	}
-	delete msg;
 
 	do {
 		// play next tune?
 		check_midi();
 
 		// to purge all previous old messages
-		message_t *msg = new message_t(welt);
-		msg->set_flags(umgebung_t::message_flags[0], umgebung_t::message_flags[1], umgebung_t::message_flags[2], umgebung_t::message_flags[3]);
+		welt->get_message()->set_message_flags(umgebung_t::message_flags[0], umgebung_t::message_flags[1], umgebung_t::message_flags[2], umgebung_t::message_flags[3]);
 
 		if (!umgebung_t::testlauf && new_world) {
 			welt_gui_t *wg = new welt_gui_t(welt, sets);
@@ -1041,9 +1037,8 @@ DBG_MESSAGE("init","map");
 			;
 
 		new_world = true;
-		msg->get_flags(&umgebung_t::message_flags[0], &umgebung_t::message_flags[1], &umgebung_t::message_flags[2], &umgebung_t::message_flags[3]);
+		welt->get_message()->get_message_flags(&umgebung_t::message_flags[0], &umgebung_t::message_flags[1], &umgebung_t::message_flags[2], &umgebung_t::message_flags[3]);
 		welt->set_fast_forward(false);
-		delete msg;
 
 	} while (!umgebung_t::testlauf && !umgebung_t::quit_simutrans);
 
