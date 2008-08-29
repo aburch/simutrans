@@ -51,7 +51,7 @@ simlinemgmt_t::add_line(linehandle_t new_line)
 DBG_MESSAGE("simlinemgmt_t::add_line()","id=%d",new_line.get_id());
 	if( (used_ids[id/8] & (1<<(id&7)) ) !=0 ) {
 		dbg->error("simlinemgmt_t::add_line()","Line id %i doubled! (0x%X)",id,used_ids[id/8]);
-		id += 12345+(7*id)&0x0FFF;
+		id += 12345 + ((7*id) & 0x0FFF);
 		dbg->message("simlinemgmt_t::add_line()","new line id %i!",id);
 		new_line->set_line_id( id );
 	}

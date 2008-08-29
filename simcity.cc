@@ -2037,7 +2037,7 @@ void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 		}
 	}
 	// check for industry, also if we wanted com, but there was no com good enough ...
-	if (sum_industrie > sum_industrie && sum_industrie > sum_wohnung || (sum_gewerbe > sum_wohnung && will_haben == gebaeude_t::unbekannt)) {
+	if ((sum_industrie > sum_industrie && sum_industrie > sum_wohnung) || (sum_gewerbe > sum_wohnung && will_haben == gebaeude_t::unbekannt)) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::industrie ? level + 1 : level);
 		h = hausbauer_t::gib_industrie(try_level , current_month, cl);

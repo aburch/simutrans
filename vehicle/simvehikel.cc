@@ -1903,8 +1903,9 @@ waggon_t::setze_convoi(convoi_t *c)
 				}
 			}
 			else {
+				assert(c!=NULL);
 				// eventually reserve new route
-				if(c  &&  c->get_state()==convoi_t::DRIVING  || c->get_state()==convoi_t::LEAVING_DEPOT  ) {
+				if(  c->get_state()==convoi_t::DRIVING  || c->get_state()==convoi_t::LEAVING_DEPOT  ) {
 					if(route_index>c->get_route()->gib_max_n()) {
 						c->suche_neue_route();
 						dbg->warning("waggon_t::setze_convoi()", "convoi %i had a too high route index! (%i of max %i)", c->self.get_id(), route_index, c->get_route()->gib_max_n()-1 );

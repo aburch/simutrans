@@ -1103,7 +1103,7 @@ convoi_t::can_go_alte_richtung()
 
 		convoi_length += v->gib_besch()->get_length();
 
-		if(gr==NULL  ||  pred!=NULL  &&  (abs(v->gib_pos().x-pred->gib_pos().x)>=2  ||  abs(v->gib_pos().y-pred->gib_pos().y)>=2)) {
+		if(gr==NULL  ||  (pred!=NULL  &&  (abs(v->gib_pos().x-pred->gib_pos().x)>=2  ||  abs(v->gib_pos().y-pred->gib_pos().y)>=2))) {
 			// ending here is an error!
 			// this is an already broken train => restart
 			dbg->warning("convoi_t::go_alte_richtung()","broken convoy (id %i) found => fixing!",self.get_id());
@@ -1508,7 +1508,7 @@ convoi_t::rdwr(loadsave_t *file)
 					state = INITIAL;
 				}
 				// add to blockstrecke
-				if(gr  &&  v->gib_waytype()==track_wt  ||  v->gib_waytype()==monorail_wt  ||  v->gib_waytype()==maglev_wt  ||  v->gib_waytype()==narrowgauge_wt) {
+				if(v->gib_waytype()==track_wt  ||  v->gib_waytype()==monorail_wt  ||  v->gib_waytype()==maglev_wt  ||  v->gib_waytype()==narrowgauge_wt) {
 					schiene_t* sch = (schiene_t*)gr->gib_weg(v->gib_waytype());
 					if(sch) {
 						sch->reserve(self);

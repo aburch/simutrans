@@ -112,7 +112,7 @@ gebaeude_t::~gebaeude_t()
 		ptr.stadt->remove_gebaeude_from_stadt(this);
 	}
 
-	if(tile  &&  tile->gib_phasen()>1  ||  zeige_baugrube) {
+	if((tile  &&  tile->gib_phasen()>1)  ||  zeige_baugrube) {
 		sync = false;
 		welt->sync_remove(this);
 	}

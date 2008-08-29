@@ -298,7 +298,7 @@ void map_frame_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	if(IS_WHEELUP(ev) || IS_WHEELDOWN(ev)  &&  reliefkarte_t::gib_karte()->getroffen(ev->mx,ev->my)) {
+	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  &&  reliefkarte_t::gib_karte()->getroffen(ev->mx,ev->my)) {
 		// otherwise these would go to the vertical scroll bar
 		reliefkarte_t::gib_karte()->infowin_event(ev);
 		return;

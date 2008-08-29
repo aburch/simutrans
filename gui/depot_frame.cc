@@ -105,7 +105,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	/*
 	* [SELECT ROUTE]:
 	*/
-	line_selector.set_highlight_color(PLAYER_FLAG|depot->gib_besitzer()->get_player_color1()+1);
+	line_selector.set_highlight_color(PLAYER_FLAG | (depot->gib_besitzer()->get_player_color1()+1));
 	line_selector.add_listener(this);
 	add_komponente(&line_selector);
 	depot->gib_besitzer()->simlinemgmt.sort_lines();
@@ -626,13 +626,13 @@ void depot_frame_t::build_vehicle_lists()
 
 			// current vehicle
 			if( is_contained(info)  ||
-				(schiene_electric  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
-					 ((!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )  ) ) {
+				((schiene_electric  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
+					 ((!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )  ) )) {
 				// check, if allowed
 				bool append = true;
 				if(!show_all) {
 					if(veh_action == va_insert) {
-						append = !(!convoi_t::pruefe_nachfolger(info, veh) ||  veh && !convoi_t::pruefe_vorgaenger(info, veh));
+						append = !(!convoi_t::pruefe_nachfolger(info, veh) || (veh && !convoi_t::pruefe_vorgaenger(info, veh)));
 					} else if(veh_action == va_append) {
 						append = convoi_t::pruefe_vorgaenger(veh, info);
 					}
@@ -755,14 +755,14 @@ void depot_frame_t::update_data()
 		*/
 
 		if(veh_action == va_insert) {
-			if (!convoi_t::pruefe_nachfolger(info, veh) ||  veh && !convoi_t::pruefe_vorgaenger(info, veh)) {
+			if (!convoi_t::pruefe_nachfolger(info, veh) || (veh && !convoi_t::pruefe_vorgaenger(info, veh))) {
 				iter1.get_current_value()->lcolor = COL_RED;
 				iter1.get_current_value()->rcolor = COL_RED;
 			} else if(!convoi_t::pruefe_vorgaenger(NULL, info)) {
 				iter1.get_current_value()->lcolor = COL_YELLOW;
 			}
 		} else if(veh_action == va_append) {
-			if(!convoi_t::pruefe_vorgaenger(veh, info) ||  veh && !convoi_t::pruefe_nachfolger(veh, info)) {
+			if(!convoi_t::pruefe_vorgaenger(veh, info) || (veh && !convoi_t::pruefe_nachfolger(veh, info))) {
 				iter1.get_current_value()->lcolor = COL_RED;
 				iter1.get_current_value()->rcolor = COL_RED;
 			} else if(!convoi_t::pruefe_nachfolger(info, NULL)) {

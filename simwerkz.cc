@@ -1937,7 +1937,7 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 					if(msg) {
 						return msg;
 					}
-					else if(i==0  &&  (gr->ist_wasser()  ||  gr->hat_wege()  ||  gr->gib_typ()!=grund_t::boden)  ||  gr->kann_alle_obj_entfernen(sp)!=NULL  ||  gr->is_halt()) {
+					else if((i==0  &&  (gr->ist_wasser()  ||  gr->hat_wege()  ||  gr->gib_typ()!=grund_t::boden )) ||  gr->kann_alle_obj_entfernen(sp)!=NULL  ||  gr->is_halt()) {
 						return "Tile not empty.";
 					}
 					else if (i!=0  &&  (!gr->ist_wasser() || gr->find<gebaeude_t>() || gr->gib_depot() || gr->is_halt())) {
@@ -2657,7 +2657,7 @@ bool wkz_build_industries_land_t::init( karte_t *welt, spieler_t * )
 {
 	if(default_param) {
 		const char *c = default_param+2;
-		while(*c  &&  *c++!=',');
+		while(*c  &&  *c++!=',') { /* do nothing */ }
 		const fabrik_besch_t *fab = fabrikbauer_t::gib_fabesch(c);
 		if(fab==NULL) {
 			// wrong tool!
@@ -2687,7 +2687,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 	const fabrik_besch_t *fab = NULL;
 	if(default_param) {
 		const char *c = default_param+2;
-		while(*c  &&  *c++!=',');
+		while(*c  &&  *c++!=',') { /* do nothing */ }
 		fab = fabrikbauer_t::gib_fabesch(c);
 	}
 	else {
@@ -2759,7 +2759,7 @@ bool wkz_build_industries_city_t::init( karte_t *welt, spieler_t * )
 {
 	if(default_param) {
 		const char *c = default_param+2;
-		while(*c  &&  *c++!=',');
+		while(*c  &&  *c++!=',') { /* do nothing */ }
 		const fabrik_besch_t *fab = fabrikbauer_t::gib_fabesch(c);
 		if(fab==NULL) {
 			// wrong tool!
@@ -2784,7 +2784,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 	const fabrik_besch_t *fab = NULL;
 	if(default_param) {
 		const char *c = default_param+2;
-		while(*c  &&  *c++!=',');
+		while(*c  &&  *c++!=',') { /* do nothing */ }
 		fab = fabrikbauer_t::gib_fabesch(c);
 	}
 	else {
@@ -2833,7 +2833,7 @@ bool wkz_build_factory_t::init( karte_t *welt, spieler_t * )
 {
 	if(default_param) {
 		const char *c = default_param+2;
-		while(*c  &&  *c++!=',');
+		while(*c  &&  *c++!=',') { /* do nothing */ }
 		const fabrik_besch_t *fab = fabrikbauer_t::gib_fabesch(c);
 		if(fab==NULL) {
 			// wrong tool!
@@ -2857,7 +2857,7 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	const fabrik_besch_t *fab = NULL;
 	if(default_param) {
 		const char *c = default_param+2;
-		while(*c  &&  *c++!=',');
+		while(*c  &&  *c++!=',') { /* do nothing */ }
 		fab = fabrikbauer_t::gib_fabesch(c);
 	}
 	else {

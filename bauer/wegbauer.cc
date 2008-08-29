@@ -123,8 +123,8 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 spe
 	const weg_besch_t* best = NULL;
 	for(  stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen); iter.next();  ) {
 		const weg_besch_t* const test = iter.get_current_value();
-		if(  (test->gib_wtyp()==wtyp  &&
-			     (test->gib_styp()==system_type  ||  system_type==weg_t::type_all)  ||  (test->gib_wtyp()==track_wt  &&  test->gib_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
+		if(  ((test->gib_wtyp()==wtyp  &&
+			     (test->gib_styp()==system_type  ||  system_type==weg_t::type_all))  ||  (test->gib_wtyp()==track_wt  &&  test->gib_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
 			     &&  test->gib_cursor()->gib_bild_nr(1)!=IMG_LEER  ) {
 			if(  best==NULL  ||  time==0  ||  (test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month())) {
 				if(  best==NULL  ||
