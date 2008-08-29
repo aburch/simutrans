@@ -1525,7 +1525,7 @@ convoi_t::rdwr(loadsave_t *file)
 			fahr[i] = v;
 
 			// wrong alingmant here => must relocate
-			if(file->get_version()==99018) {
+			if(file->get_version()<=99018) {
 				if(v->gib_fahrtrichtung()&0x0A) {
 					// diagonal => convoi must restart
 					state = ROUTING_1;

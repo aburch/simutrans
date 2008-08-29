@@ -99,10 +99,6 @@ public:
 	// to make smaller steps than the tile granularity, we have to calculate our offsets ourselves!
 	void get_screen_offset( int &xoff, int &yoff ) const;
 
-	// offset in internal game coordinates
-	sint8 get_vehicle_xoff() const;
-	sint8 get_vehicle_yoff();
-
 	virtual void rotate90();
 
 	ribi_t::ribi calc_richtung(koord start, koord ende) const;

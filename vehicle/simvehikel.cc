@@ -69,7 +69,7 @@
 /* get dx and dy from dir (just to remind you)
  * any vehikel (including city cars and pedestrians)
  * will go this distance per sync step.
- * (however, the real dirs are only calculated during display)
+ * (however, the real dirs are only calculated during display, these are the old ones)
  */
 sint8 vehikel_basis_t::dxdy[ 8*2 ] = {
 	-2, 1,	// s
@@ -300,37 +300,10 @@ void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff ) const
 		display_steps &= 0xFFFFFC00;
 	}
 	else {
-		display_steps = (display_steps*2)/3;
+		display_steps = (display_steps*724)>>10;
 	}
 	xoff += (display_steps*dx) >> 10;
 	yoff += ((display_steps*dy) >> 10) + (hoff*(sint16)get_tile_raster_width())/(4*16);
-}
-
-
-
-// get the game offset in y-direction
-sint8 vehikel_basis_t::get_vehicle_xoff() const
-{
-	sint16 display_steps = (uint16)steps*TILE_STEPS;
-	if(dx*dy) {
-		display_steps &= 0xFFFFFFFE;
-	}
-	else {
-		display_steps = (display_steps*2)/3;
-	}
-	return gib_xoff() +  ( (dx*display_steps) >> 8 );
-}
-
-
-
-// get the game offset in y-direction
-sint8 vehikel_basis_t::get_vehicle_yoff()
-{
-	sint16 display_steps = (uint16)steps*TILE_STEPS;
-	if(dx*dy) {
-		display_steps &= 0xFFFFFFFE;
-	}
-	return gib_yoff() +  hoff + ( (dy*display_steps) >> 8 );
 }
 
 
@@ -368,22 +341,22 @@ vehikel_basis_t::calc_set_richtung(koord start, koord ende)
 		richtung = ribi_t::suedost;
 		dx = 0;
 		dy = 2;
-		steps_next = 191;
+		steps_next = 180;
 	} else if(di < 0 && dj < 0) {
 		richtung = ribi_t::nordwest;
 		dx = 0;
 		dy = -2;
-		steps_next = 191;
+		steps_next = 180;
 	} else if(di > 0 && dj < 0) {
 		richtung = ribi_t::nordost;
 		dx = 4;
 		dy = 0;
-		steps_next = 191;
+		steps_next = 180;
 	} else {
 		richtung = ribi_t::suedwest;
 		dx = -4;
 		dy = 0;
-		steps_next = 191;
+		steps_next = 180;
 	}
 	// we could artificially make diagonals shorter: but this would break existing game behaviour
 	return richtung;
@@ -759,7 +732,7 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 
 		calc_bild();
 	}
-	steps_next = ribi_t::ist_einfach(fahrtrichtung) ? 255 : 191;
+	steps_next = ribi_t::ist_einfach(fahrtrichtung) ? 255 : 180;
 }
 
 
@@ -1237,15 +1210,6 @@ vehikel_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	// correct old offsets ... REMOVE after savegame increase ...
-	if(file->get_version()<99018  &&  file->is_saving()) {
-		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2 ];
-		dy = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2+1 ];
-		sint8 i = steps/16;
-		setze_xoff( gib_xoff() + i*dx );
-		setze_yoff( gib_yoff() + i*dy + hoff );
-	}
-
 	ding_t::rdwr(file);
 
 	if(file->get_version()<86006) {
@@ -1280,8 +1244,8 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 			file->rdwr_byte(steps_next, "\n");
 			// beware: diagonals were shorter in 99018
 			if(steps_next==127) {
-				steps_next = 191;
-				steps = (steps*3)/2;
+				steps_next = 180;
+				steps = (uint8)(((uint16)steps*1024u)/724u);
 			}
 		}
 		sint16 dummy16 = ((16*(sint16)hoff)/TILE_HEIGHT_STEP);
@@ -1317,8 +1281,9 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 				steps_next = 255;
 			}
 			else {
-				steps = min( 191, 192-(i*24) );
-				steps_next = 191;
+				// will be corrected anyway, if in a convoi
+				steps = min( 180, 180-(i*22) );
+				steps_next = 180;
 			}
 		}
 	}
