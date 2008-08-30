@@ -1,5 +1,5 @@
 DEPS    = $(filter %.d, $(SOURCES:%.cc=%.d) $(SOURCES:%.c=%.d) $(SOURCES:%.m=%.d) $(SOURCES:%.mm=%.d))
-OBJECTS = $(filter %.o, $(SOURCES:%.cc=%.o) $(SOURCES:%.c=%.o) $(SOURCES:%.rc=%.o) $(SOURCES:%.m=%.o) $(SOURCES:%.mm=%.o))
+OBJECTS = $(filter %.o, $(SOURCES:%.cc=%.o) $(SOURCES:%.c=%.o) $(SOURCES:%.m=%.o) $(SOURCES:%.mm=%.o) $(SOURCES:%.rc=%.o))
 
 .PHONY: clean depend
 
