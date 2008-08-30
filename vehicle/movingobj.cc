@@ -154,7 +154,6 @@ movingobj_t::movingobj_t(karte_t *welt, loadsave_t *file) : vehikel_basis_t(welt
 
 movingobj_t::movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b ) : vehikel_basis_t(welt, pos)
 {
-	static koord startdir[4] = { koord::sued, koord::ost, koord(1,1), koord(1,-1) };
 	groundobjtype = movingobj_typen.index_of(b);
 	season = 0xFF;	// mark dirty
 	weg_next = 0;
