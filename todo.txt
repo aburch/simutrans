@@ -1,30 +1,21 @@
 To be done:
-- names!!!
 - connection weighted by their intermediate stops => A* for goods routing
 - when import translation: ignore entries which are identical (saving runtime)
 - limit construction costs
 - A* for goods
 - scripting for AI
-- Landfabrik alle x Jahre/Fakriken
 - merge identical images in makeobj
 - busy platforms
-- custom tool bars
 - Signals switching nearly like before (should be easy)
 - Odometer/Lifetime
 - renaming factories/player
 - longer financial history
-- maintenance cost at start of month
+- detail on vehicles (like factory_details)
 
 CHECK:
-- integrate the edit modus
-- timeline bonus speeds from a file
-- bankrupt only when the net company value (i.e. after selling everything) is below zero (like for AI)
 resize greater than 2400*1536 crashes simutrans
 Toolwindow with 10 last used tools (in fixed order)
-Main meinu configurable in size and order
 bahnhofsdetaildialog??
-A* for goods
-factory density instead of fixed population linked growth
 
 
 Stichpunkte
@@ -79,6 +70,15 @@ passengers from/to headquarters: done
 - more statistics for world and all convois: nearly all finished
 - waiting only a certain intervall (when waiting for a load percentage): need savegame bump
 - waybuilder preview: done (drag building)
+- more names: done
+- Landfabrik alle x Jahre/Fakriken: done
+- custom tool bars: done
+Main meinu configurable in size and order: done
+- maintenance cost at start of month: done
+- integrate the edit modus: done
+- timeline bonus speeds from a file: done
+- bankrupt only when the net company value (i.e. after selling everything) is below zero (like for AI): done
+- factory density instead of fixed population linked growth: somewhat done, different system
 
 Impossible:
 - vehicle N/E longer than 8 px must be aligned by top, not end; need change of moving code: impossible

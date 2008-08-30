@@ -37,7 +37,6 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	cont.add_komponente(&txt_info);
 
 	// fill buffer with halt detail
-	cb_info_buffer.clear();
 	halt_detail_info(cb_info_buffer);
 	txt_info.setze_text(cb_info_buffer);
 	txt_info.setze_pos(koord(10,10));
@@ -81,6 +80,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 		cont.remove_komponente( b );
 		delete b;
 	}
+	buf.clear();
 
 	const slist_tpl<fabrik_t *> & fab_list = halt->gib_fab_list();
 	slist_tpl<const ware_besch_t *> nimmt_an;
@@ -103,6 +103,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 			pb->init( button_t::posbutton, NULL, koord(10, offset_y) );
 			pb->setze_targetpos( pos );
 			pb->add_listener( this );
+			posbuttons.append( pb );
 			cont.add_komponente( pb );
 
 			buf.append("   ");
@@ -207,6 +208,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 				pb->init( button_t::posbutton, NULL, koord(10, offset_y) );
 				pb->setze_targetpos( a_halt->gib_basis_pos() );
 				pb->add_listener( this );
+				posbuttons.append( pb );
 				cont.add_komponente( pb );
 
 				buf.append("\n");
@@ -241,6 +243,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 				pb->init( button_t::posbutton, NULL, koord(10, offset_y) );
 				pb->setze_targetpos( a_halt->gib_basis_pos() );
 				pb->add_listener( this );
+				posbuttons.append( pb );
 				cont.add_komponente( pb );
 
 				buf.append("\n");
@@ -273,6 +276,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 					pb->init( button_t::posbutton, NULL, koord(10, offset_y) );
 					pb->setze_targetpos( a_halt->gib_basis_pos() );
 					pb->add_listener( this );
+					posbuttons.append( pb );
 					cont.add_komponente( pb );
 
 					buf.append("\n");
@@ -323,4 +327,18 @@ bool halt_detail_t::action_triggered(gui_komponente_t *komp, value_t extra)
 		halt->get_welt()->change_world_position( koord3d(k,halt->get_welt()->max_hgt(k)) );
 	}
 	return true;
+}
+
+
+
+void halt_detail_t::zeichnen(koord pos, koord gr)
+{
+	if(halt.is_bound()) {
+		if(halt->is_rerouting()) {
+			// fill buffer with halt detail
+			halt_detail_info(cb_info_buffer);
+			txt_info.setze_text(cb_info_buffer);
+		}
+	}
+	gui_frame_t::zeichnen( pos, gr );
 }

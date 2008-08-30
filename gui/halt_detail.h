@@ -55,7 +55,10 @@ public:
 	const char * gib_hilfe_datei() const { return "station_details.txt"; }
 
 	// callback for posbuttons
-	virtual bool action_triggered(gui_komponente_t *komp, value_t extra);
+	bool action_triggered(gui_komponente_t *komp, value_t extra);
+
+	// only defined to update schedule, if changed
+	void zeichnen( koord pos, koord gr );
 };
 
 #endif
