@@ -208,3 +208,9 @@ bool umgebung_t::no_tree=false;
 bool umgebung_t::show_tooltips = true;
 uint8 umgebung_t::tooltip_color = 4;
 uint8 umgebung_t::tooltip_textcolor = COL_BLACK;
+
+/* multiplier (to be divided by 1024) for steps on diagonal:
+ * 512: TT-like, faktor 2, vehicle will be too long and too fast
+ * 724: correct one, faktor sqrt(2)
+ */
+uint16 umgebung_t::pak_diagonal_multiplier = 724;

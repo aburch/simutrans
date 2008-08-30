@@ -128,7 +128,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 					dbg->warning("wayobj_t::rwdr", "description %s for wayobj_t at %d,%d not found, will be removed!", bname, gib_pos().x, gib_pos().y );
 				}
 				else {
-					dbg->warning("wayobj_t::rwdr", "wayobj %s at %d,%d rpleaced by %s", bname, gib_pos().x, gib_pos().y, besch->gib_name() );
+					dbg->warning("wayobj_t::rwdr", "wayobj %s at %d,%d replaced by %s", bname, gib_pos().x, gib_pos().y, besch->gib_name() );
 				}
 			}
 		}

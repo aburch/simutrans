@@ -11,6 +11,7 @@
 #include "../simconst.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
+#include "../vehicle/simvehikel.h"
 #include "loadsave.h"
 
 einstellungen_t::einstellungen_t() :
@@ -206,6 +207,16 @@ einstellungen_t::rdwr(loadsave_t *file)
 				climate_borders[i] = umgebung_t::climate_borders[i];
 			}
 			winter_snowline = umgebung_t::winter_snowline;
+		}
+
+		// since vehicle will need realignment afterwards!
+		if(file->get_version()<=99018) {
+			vehikel_basis_t::set_diagonal_multiplier( umgebung_t::pak_diagonal_multiplier, 512 );
+		}
+		else {
+			uint16 old_multiplier = umgebung_t::pak_diagonal_multiplier;
+			file->rdwr_short( old_multiplier, "m" );
+			vehikel_basis_t::set_diagonal_multiplier( umgebung_t::pak_diagonal_multiplier, old_multiplier );
 		}
 	}
 }

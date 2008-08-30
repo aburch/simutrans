@@ -135,6 +135,10 @@ first_beginner = 0
 
 ##################################display stuff#################################
 
+# how long is a diagonal (512: faktor 2=1024/512, old way, 724: sqrt(2)=1024/724
+# THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
+#diagonal_multiplier = 724
+
 # Do you want to have random pedestrians in town? Look nice but needs some
 # CPU time to process them. (1=on, 0=off)
 # Impact on frame time: ~10% (16 cities on a new standard map)

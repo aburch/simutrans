@@ -363,6 +363,10 @@ public:
 	static bool show_tooltips;
 	static uint8 tooltip_color;
 	static uint8 tooltip_textcolor;
+
+	// multiplier to get the number of steps on diagonals
+	static uint16 pak_diagonal_multiplier;
+
 };
 
 #endif

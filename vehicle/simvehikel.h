@@ -44,6 +44,11 @@ protected:
 	// offsets for different directions
 	static sint8 dxdy[16];
 
+	// to make the length on diagonals configurable
+	static uint8 old_diagonal_length;
+	static uint8 diagonal_length;
+	static uint16 diagonal_multiplier;
+
 	/**
 	 * Aktuelle Fahrtrichtung in Bildschirm-Koordinaten
 	 * @author Hj. Malthaner
@@ -56,7 +61,8 @@ protected:
 	// true, if hop_check failed
 	uint8 hop_check_failed:1;
 
-sint8 dx, dy;
+	sint8 dx, dy;
+
 	// number of steps in this tile (255 per tile)
 	uint8 steps, steps_next;
 
@@ -89,6 +95,11 @@ sint8 dx, dy;
 	bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const;
 
 public:
+	static void set_diagonal_multiplier( uint32 multiplier, uint32 old_multiplier );
+
+	// if true, this convoi needs to restart for correct alignment
+	bool need_realignment();
+
 	uint32 fahre_basis(uint32 dist);	// basis movement code
 
 	inline void setze_bild( image_id b ) { bild = b; }

@@ -318,6 +318,7 @@ parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &ful
 		delete test;
 	}
 
+	umgebung_t::pak_diagonal_multiplier = contents.get_int("diagonal_multiplier", umgebung_t::pak_diagonal_multiplier);
 	umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave));
 
 	umgebung_t::factory_spacing = contents.get_int("factory_spacing", umgebung_t::factory_spacing);
@@ -496,6 +497,9 @@ int simu_main(int argc, char** argv)
 		chdir( umgebung_t::program_dir );
 	}
 
+	// only the pak specifiy conf should overide this!
+	uint16 pak_diagonal_multiplier = umgebung_t::pak_diagonal_multiplier;
+
 	// unmgebung init
 	umgebung_t::testlauf      = (gimme_arg(argc, argv, "-test",     0) != NULL);
 	umgebung_t::freeplay      = (gimme_arg(argc, argv, "-freeplay", 0) != NULL);
@@ -541,19 +545,6 @@ int simu_main(int argc, char** argv)
 	if (gimme_arg(argc, argv, "-objects", 1)) {
 		umgebung_t::objfilename = gimme_arg(argc, argv, "-objects", 1);
 	}
-
-#if 0
-	// now parse the user settings
-	if(umgebung_t::user_dir!=umgebung_t::program_dir) {
-		cstring_t obj_conf = umgebung_t::user_dir;
-		if(simuconf.open(obj_conf + "simuconf.tab")) {
-			printf("parse_simuconf() at %ssimuconf.tab", (const char *)obj_conf);
-			cstring_t dummy;
-			parse_simuconf( simuconf, disp_width, disp_height, fullscreen, dummy, multiuser );
-			found_simuconf = true;
-		}
-	}
-#endif
 
 	chdir( umgebung_t::user_dir );
 	if (gimme_arg(argc, argv, "-log", 0)) {
@@ -663,6 +654,7 @@ int simu_main(int argc, char** argv)
 		int idummy;
 		printf("parse_simuconf() at %sconfig/simuconf.tab", (const char *)obj_conf);
 		parse_simuconf( simuconf, idummy, idummy, idummy, dummy, multiuser );
+		pak_diagonal_multiplier = umgebung_t::pak_diagonal_multiplier;
 		simuconf.close();
 	}
 	// and parse again parse the user settings
@@ -675,6 +667,10 @@ int simu_main(int argc, char** argv)
 			simuconf.close();
 		}
 	}
+
+	// now (re)set the correct length from the pak
+	umgebung_t::pak_diagonal_multiplier = pak_diagonal_multiplier;
+	vehikel_basis_t::set_diagonal_multiplier( pak_diagonal_multiplier, pak_diagonal_multiplier );
 
 	convoihandle_t::init( umgebung_t::max_convoihandles );
 	linehandle_t::init( umgebung_t::max_linehandles );

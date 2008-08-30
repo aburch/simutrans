@@ -84,6 +84,30 @@ sint8 vehikel_basis_t::dxdy[ 8*2 ] = {
 
 
 
+uint8 vehikel_basis_t::old_diagonal_length = 127;
+uint8 vehikel_basis_t::diagonal_length = 180;
+uint16 vehikel_basis_t::diagonal_multiplier = 724;
+
+
+// set only once, before loading!
+void vehikel_basis_t::set_diagonal_multiplier( uint32 multiplier, uint32 old_multiplier )
+{
+	diagonal_multiplier = (uint16)multiplier;
+	diagonal_length = (uint8)((multiplier*255u)/1024u);
+	old_diagonal_length = (uint8)((old_multiplier*255u)/1024u);
+}
+
+
+
+// if true, convoi, must restart!
+bool vehikel_basis_t::need_realignment()
+{
+	return old_diagonal_length!=diagonal_length  &&  (fahrtrichtung&0x0A)!=0;
+}
+
+
+
+
 /**
  * Checks if this vehicle must change the square upon next move
  * @author Hj. Malthaner
@@ -300,7 +324,7 @@ void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff ) const
 		display_steps &= 0xFFFFFC00;
 	}
 	else {
-		display_steps = (display_steps*724)>>10;
+		display_steps = (display_steps*diagonal_multiplier)>>10;
 	}
 	xoff += (display_steps*dx) >> 10;
 	yoff += ((display_steps*dy) >> 10) + (hoff*(sint16)get_tile_raster_width())/(4*16);
@@ -341,22 +365,22 @@ vehikel_basis_t::calc_set_richtung(koord start, koord ende)
 		richtung = ribi_t::suedost;
 		dx = 0;
 		dy = 2;
-		steps_next = 180;
+		steps_next = diagonal_length;
 	} else if(di < 0 && dj < 0) {
 		richtung = ribi_t::nordwest;
 		dx = 0;
 		dy = -2;
-		steps_next = 180;
+		steps_next = diagonal_length;
 	} else if(di > 0 && dj < 0) {
 		richtung = ribi_t::nordost;
 		dx = 4;
 		dy = 0;
-		steps_next = 180;
+		steps_next = diagonal_length;
 	} else {
 		richtung = ribi_t::suedwest;
 		dx = -4;
 		dy = 0;
-		steps_next = 180;
+		steps_next = diagonal_length;
 	}
 	// we could artificially make diagonals shorter: but this would break existing game behaviour
 	return richtung;
@@ -732,7 +756,7 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 
 		calc_bild();
 	}
-	steps_next = ribi_t::ist_einfach(fahrtrichtung) ? 255 : 180;
+	steps_next = ribi_t::ist_einfach(fahrtrichtung) ? 255 : diagonal_length;
 }
 
 
@@ -1242,9 +1266,9 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 		else {
 			file->rdwr_byte(steps, " ");
 			file->rdwr_byte(steps_next, "\n");
-			// beware: diagonals were shorter in 99018
-			if(steps_next==127) {
-				steps_next = 180;
+			if(steps_next!=255) {
+				// reset diagonal length (convoi will be resetted anyway, if game diagonal is different)
+				steps_next = diagonal_length;
 				steps = (uint8)(((uint16)steps*1024u)/724u);
 			}
 		}
@@ -1282,8 +1306,8 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 			}
 			else {
 				// will be corrected anyway, if in a convoi
-				steps = min( 180, 180-(i*22) );
-				steps_next = 180;
+				steps = min( diagonal_length, diagonal_length-(uint8)(((uint16)i*(uint16)diagonal_length)/8) );
+				steps_next = diagonal_length;
 			}
 		}
 	}
