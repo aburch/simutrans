@@ -332,26 +332,33 @@ void
 wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch)
 {
 	grund_t *gr=welt->lookup(pos);
+	waytype_t wt1 = besch->gib_wtyp()==tram_wt ? track_wt : besch->gib_wtyp();
 	if(gr) {
 		if (gr->find<wayobj_t>()) {
 			// since there might be more than one, we have to iterate through all of them
 			for( uint8 i=0;  i<gr->gib_top();  i++  ) {
 				ding_t *d=gr->obj_bei(i);
-				if(d  &&  d->gib_typ()==ding_t::wayobj  &&  ((wayobj_t *)d)->gib_besch()->gib_wtyp()==besch->gib_wtyp()) {
-					if(((wayobj_t *)d)->gib_besch()->gib_topspeed()<besch->gib_topspeed()  &&  spieler_t::check_owner(besitzer, d->gib_besitzer())) {
-						// replace slower by faster
-						gr->obj_remove(d);
-						gr->set_flag(grund_t::dirty);
-						delete d;
-						break;
+				if(d  &&  d->gib_typ()==ding_t::wayobj ) {
+					waytype_t wt2 = ((wayobj_t *)d)->gib_besch()->gib_wtyp();
+					if(wt2==tram_wt) {
+						wt2 = track_wt;
 					}
-					else {
-						// extend this one instead
-						((wayobj_t *)d)->set_dir(dir|((wayobj_t *)d)->get_dir());
-						d->calc_bild();
-						d->mark_image_dirty( d->gib_after_bild(), 0 );
-						d->set_flag(ding_t::dirty);
-						return;
+					if(  wt1==wt2  ) {
+						if(((wayobj_t *)d)->gib_besch()->gib_topspeed()<besch->gib_topspeed()  &&  spieler_t::check_owner(besitzer, d->gib_besitzer())) {
+							// replace slower by faster
+							gr->obj_remove(d);
+							gr->set_flag(grund_t::dirty);
+							delete d;
+							break;
+						}
+						else {
+							// extend this one instead
+							((wayobj_t *)d)->set_dir(dir|((wayobj_t *)d)->get_dir());
+							d->calc_bild();
+							d->mark_image_dirty( d->gib_after_bild(), 0 );
+							d->set_flag(ding_t::dirty);
+							return;
+						}
 					}
 				}
 			}
