@@ -119,12 +119,14 @@ void wayobj_t::rdwr(loadsave_t *file)
 			file->rd_str_into(bname, "N");
 
 			besch = wayobj_t::table.get(bname);
-			if(!besch) {
+			if(besch==NULL) {
 				besch = wayobj_t::table.get(translator::compatibility_name(bname));
-				if(strstr(bname,"atenary")  ||  strstr(bname,"electri")) {
-					besch = default_oberleitung;
+				if(besch==NULL) {
+					if(strstr(bname,"atenary")  ||  strstr(bname,"electri")) {
+						besch = default_oberleitung;
+					}
 				}
-				if(!besch) {
+				if(besch==NULL) {
 					dbg->warning("wayobj_t::rwdr", "description %s for wayobj_t at %d,%d not found, will be removed!", bname, gib_pos().x, gib_pos().y );
 				}
 				else {

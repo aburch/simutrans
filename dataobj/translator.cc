@@ -470,8 +470,12 @@ const char* translator::get_month_name(uint16 month)
 /* get a name for a non-matching object */
 const char* translator::compatibility_name(const char* str)
 {
-	if (str    == NULL) return "(null)";
-	if (str[0] == '\0') return str;
+	if(  str==NULL  ) {
+		return "(null)";
+	}
+	if(  str[0]=='\0'  ) {
+		return str;
+	}
 	const char* trans = compatibility.get(str);
 	return trans != NULL ? trans : str;
 }
