@@ -205,6 +205,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 void
 convoi_t::laden_abschliessen()
 {
+	bool realing_position = false;
 	if(anz_vehikel>0) {
 DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state] );
 		for( unsigned i=0;  i<anz_vehikel;  i++ ) {
@@ -213,6 +214,12 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 			v->setze_letztes(i == anz_vehikel - 1U);
 			// this sets the convoi and will renew the block reservation, if needed!
 			v->setze_convoi(this);
+
+			// wrong alingmant here => must relocate
+			if(v->need_realignment()) {
+				// diagonal => convoi must restart
+				realing_position |= (v->gib_fahrtrichtung()&0x0A)!=0  &&  (state==DRIVING  ||  is_waiting());
+			}
 		}
 DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_index );
 		// lines are still unknown during loading!
@@ -224,6 +231,12 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 	else {
 		// no vehicles in this convoi?!?
 		destroy();
+	}
+	// put convoi agian right on track?
+	if(realing_position) {
+		// display just a warning
+		dbg->warning("convoi_t::laden_abschliessen()","cnv %i is currently too long.",self.get_id());
+//		state = ROUTING_1;
 	}
 }
 
@@ -1523,14 +1536,6 @@ convoi_t::rdwr(loadsave_t *file)
 
 			// add to convoi
 			fahr[i] = v;
-
-			// wrong alingmant here => must relocate
-			if(v->need_realignment()) {
-				if(v->gib_fahrtrichtung()&0x0A) {
-					// diagonal => convoi must restart
-					state = ROUTING_1;
-				}
-			}
 		}
 		sum_gesamtgewicht = sum_gewicht;
 	}
