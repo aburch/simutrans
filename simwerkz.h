@@ -390,6 +390,7 @@ class wkz_pause_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Pause"); }
 	bool is_selected(karte_t *welt) { return welt->is_paused(); }
 	bool init( karte_t *welt, spieler_t * ) {
+		welt->set_fast_forward(0);
 		welt->set_pause( welt->is_paused()^1 );
 		return false;
 	}
@@ -399,6 +400,7 @@ class wkz_fastforward_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Fast forward"); }
 	bool is_selected(karte_t *welt) { return welt->is_fast_forward(); }
 	bool init( karte_t *welt, spieler_t * ) {
+		welt->set_pause(0);
 		welt->set_fast_forward( welt->is_fast_forward()^1 );
 		return false;
 	}
