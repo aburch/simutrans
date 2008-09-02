@@ -233,10 +233,60 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		destroy();
 	}
 	// put convoi agian right on track?
-	if(realing_position) {
+	if(realing_position  &&  anz_vehikel>0) {
 		// display just a warning
 		dbg->warning("convoi_t::laden_abschliessen()","cnv %i is currently too long.",self.get_id());
-//		state = ROUTING_1;
+
+		// since start may have been changed
+		uint16 start_index = fahr[anz_vehikel-1]->gib_route_index()-1;
+		koord3d k0 = fahr[anz_vehikel-1]->gib_pos();
+		uint32 train_length = 1;	// length in 1/16 of tile
+
+		for(unsigned i=0; i<anz_vehikel; i++) {
+
+			vehikel_t *v = fahr[i];
+			steps_driven = -1;
+			grund_t* gr = welt->lookup(v->gib_pos());
+			if(gr) {
+				v->mark_image_dirty( v->gib_bild(), v->gib_hoff() );
+				v->verlasse_feld();
+				// eventually unreserve this
+				schiene_t * sch0 = dynamic_cast<schiene_t *>( gr->gib_weg(fahr[i]->gib_waytype()) );
+				if(sch0) {
+					sch0->unreserve(v);
+				}
+			}
+
+			// steps to advance afterwards ...
+			if(i<anz_vehikel-1  ) {
+				train_length += fahr[i]->gib_besch()->get_length();
+			}
+
+			/* we will set by this method the pos_prev to the starting point;
+			 * otherwise it may be elsewhere, especially on curves and with already
+			 * broken convois.
+			 */
+			v->setze_pos(k0);
+			v->neue_fahrt(start_index, true);
+			gr=welt->lookup(v->gib_pos());
+			if(gr) {
+				v->setze_pos(k0);
+				v->betrete_feld();
+			}
+		}
+		train_length = max(1,train_length);
+
+		// now advance all convoi until it is completely on the track
+		fahr[0]->setze_erstes(false); // switches off signal checks ...
+		for(unsigned i=0; i<anz_vehikel; i++) {
+			vehikel_t* v = fahr[i];
+
+			v->darf_rauchen(false);
+			fahr[i]->fahre_basis( ((TILE_STEPS)*train_length)<<12 );
+			train_length -= v->gib_besch()->get_length();
+			v->darf_rauchen(true);
+		}
+		fahr[0]->setze_erstes(true);
 	}
 }
 
