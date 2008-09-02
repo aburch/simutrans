@@ -1353,6 +1353,7 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 	}
 
 	koord pos=start.gib_2d();
+
 	while(pos!=ziel.gib_2d()  &&  ok) {
 
 		// shortest way
@@ -1375,6 +1376,19 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 				haltribi = ribi_t::doppelt(haltribi);
 				ribi_t::ribi diffribi = ribi_t::doppelt( ribi_typ(diff) );
 				ok = (haltribi==diffribi);
+			}
+			// and the same for the last tile
+			if(  pos+diff==ziel.gib_2d()  ) {
+				grund_t *bd_von = welt->lookup(koord3d(ziel.gib_2d(),start.z));
+				ok = (bd_von==NULL)  ||  bd_von->gib_typ()==grund_t::tunnelboden;
+				// check for halt or crossing ...
+				if(ok  &&  bd_von  &&  (bd_von->is_halt()  ||  bd_von->has_two_ways())) {
+					// then only single dir is ok ...
+					ribi_t::ribi haltribi = bd_von->gib_weg_ribi_unmasked( (waytype_t)(bautyp&(~wegbauer_t::tunnel_flag)) );
+					haltribi = ribi_t::doppelt(haltribi);
+					ribi_t::ribi diffribi = ribi_t::doppelt( ribi_typ(diff) );
+					ok = (haltribi==diffribi);
+				}
 			}
 		}
 		else {
