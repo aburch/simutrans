@@ -33,6 +33,7 @@
 	CHANGE: speed on diagonals only 20% faster => less gain, more realistic vehicle length
 	FIX: no crossings on underground station tiles
 	FIX: wayobj ignored replacement by compat.tab for catenaries
+	CHANGE: now 16 syllables for town names %/&(0...9A...F)_CITY_SYLL
 
 
 Release of 100.0 (r1867, stable)

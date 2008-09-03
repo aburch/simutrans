@@ -252,7 +252,7 @@ static void init_city_names(bool is_utf_language)
 			const size_t l1 = strlen(s1);
 			for(  uint j = 0;  j < 16;  j++  ) {
 
-				sprintf( name, "&%X_CITY_SYLL", i );
+				sprintf( name, "&%X_CITY_SYLL", j );
 				const char* s2 = translator::translate(name);
 				if(s2==name) {
 					// name not available ...
