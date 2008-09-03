@@ -285,6 +285,13 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			fahr[i]->fahre_basis( ((TILE_STEPS)*train_length)<<12 );
 			train_length -= v->gib_besch()->get_length();
 			v->darf_rauchen(true);
+
+			// eventually reserve this again
+			grund_t *gr=welt->lookup(v->gib_pos());
+			schiene_t * sch0 = dynamic_cast<schiene_t *>( gr->gib_weg(fahr[i]->gib_waytype()) );
+			if(sch0) {
+				sch0->reserve(self);
+			}
 		}
 		fahr[0]->setze_erstes(true);
 	}

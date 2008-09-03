@@ -1266,7 +1266,7 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 		else {
 			file->rdwr_byte(steps, " ");
 			file->rdwr_byte(steps_next, "\n");
-			if(steps_next!=255) {
+			if(steps_next!=255   &&  file->is_loading()) {
 				// reset diagonal length (convoi will be resetted anyway, if game diagonal is different)
 				steps_next = diagonal_length;
 				steps = (uint8)(((uint16)steps*1024u)/724u);
