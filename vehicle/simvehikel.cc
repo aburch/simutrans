@@ -90,11 +90,11 @@ uint16 vehikel_basis_t::diagonal_multiplier = 724;
 
 
 // set only once, before loading!
-void vehikel_basis_t::set_diagonal_multiplier( uint32 multiplier, uint32 old_multiplier )
+void vehikel_basis_t::set_diagonal_multiplier( uint32 multiplier, uint32 old_diagonal_multiplier )
 {
 	diagonal_multiplier = (uint16)multiplier;
-	diagonal_length = (uint8)((multiplier-1)/4u);
-	old_diagonal_length = (uint8)((old_multiplier-1)/4u);
+	diagonal_length = (uint8)(130560u/diagonal_multiplier);
+	old_diagonal_length = (uint8)(130560u/old_diagonal_multiplier);
 }
 
 

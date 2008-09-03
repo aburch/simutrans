@@ -174,7 +174,9 @@ int translator::get_count_city_name(void)
 const char* translator::get_city_name(uint nr)
 {
 	// fallback for empty list (should never happen)
-	if (namen_liste.empty()) return "Simcity";
+	if (namen_liste.empty()) {
+		return "Simcity";
+	}
 	return namen_liste[nr % namen_liste.get_count()];
 }
 
@@ -238,14 +240,25 @@ static void init_city_names(bool is_utf_language)
 	if (namen_liste.empty()) {
 		DBG_MESSAGE("translator::init_city_names", "reading failed, creating random names.");
 		// Hajo: try to read list failed, create random names
-		for (uint i = 0; i < lengthof(name_t1); i++) {
-			const char* s1 = translator::translate(name_t1[i]);
+		for(  uint i = 0;  i < 16;  i++  ) {
+			char name[32];
+			sprintf( name, "%%%X_CITY_SYLL", i );
+			const char* s1 = translator::translate(name);
+			if(s1==name) {
+				// name not available ...
+				continue;
+			}
+			// now add all second name extensions ...
 			const size_t l1 = strlen(s1);
+			for(  uint j = 0;  j < 16;  j++  ) {
 
-			for (uint j = 0; j < lengthof(name_t2); j++) {
-				const char* s2 = translator::translate(name_t2[j]);
+				sprintf( name, "&%X_CITY_SYLL", i );
+				const char* s2 = translator::translate(name);
+				if(s2==name) {
+					// name not available ...
+					continue;
+				}
 				const size_t l2 = strlen(s2);
-
 				char* const c = MALLOCN(char, l1 + l2 + 1);
 				sprintf(c, "%s%s", s1, s2);
 				namen_liste.push_back(c);

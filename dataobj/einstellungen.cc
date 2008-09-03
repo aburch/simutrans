@@ -211,7 +211,7 @@ einstellungen_t::rdwr(loadsave_t *file)
 
 		// since vehicle will need realignment afterwards!
 		if(file->get_version()<=99018) {
-			vehikel_basis_t::set_diagonal_multiplier( umgebung_t::pak_diagonal_multiplier, 512 );
+			vehikel_basis_t::set_diagonal_multiplier( umgebung_t::pak_diagonal_multiplier, 1024 );
 		}
 		else {
 			uint16 old_multiplier = umgebung_t::pak_diagonal_multiplier;
