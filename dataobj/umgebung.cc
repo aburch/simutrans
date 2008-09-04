@@ -63,7 +63,7 @@ uint8 umgebung_t::verbose_debug = 0;
 
 sint64 umgebung_t::starting_money = 20000000;
 
-sint32 umgebung_t::maint_building = 500;
+sint32 umgebung_t::maint_building = 5000;
 
 uint8 umgebung_t::default_sortmode = 1;	// sort by amount
 sint8 umgebung_t::default_mapmode = 0;	// show cities
