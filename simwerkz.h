@@ -621,9 +621,12 @@ class wkz_minimap_t : public werkzeug_t {
 // open line management
 class wkz_lines_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Line Management"); }
+	virtual image_id get_icon(spieler_t *sp) { return sp->get_player_nr()==1 ? IMG_LEER : icon; }
 	bool is_selected(karte_t *welt) { return win_get_magic((long)(&(welt->get_active_player()->simlinemgmt))); }
 	bool init( karte_t *, spieler_t *sp ) {
-		sp->simlinemgmt.zeige_info( sp );
+		if(sp->get_player_nr()!=1) {
+			sp->simlinemgmt.zeige_info( sp );
+		}
 		return false;
 	}
 };
