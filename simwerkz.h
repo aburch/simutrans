@@ -260,7 +260,7 @@ private:
 	static char toolstring[256];
 	const char *wkz_depot_aux(karte_t *welt, spieler_t *sp, koord pos, const haus_besch_t *besch, waytype_t wegtype, sint64 cost);
 public:
-	virtual image_id get_icon(spieler_t *sp) { return sp->get_welt()->gib_spieler(1)==sp ? IMG_LEER : icon; }
+	virtual image_id get_icon(spieler_t *sp) { return sp->get_player_nr()==1 ? IMG_LEER : icon; }
 	const char *get_tooltip(spieler_t *);
 	bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
