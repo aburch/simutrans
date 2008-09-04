@@ -146,29 +146,13 @@ static char szenario_path[256];
  */
 static vector_tpl<const char*> namen_liste;
 
-/* since the city names are language dependent, they are now kept here!
- * @date 2.1.2005
- * @author prissi
- */
-static const char* const name_t1[] =
-{
-	"%1_CITY_SYLL", "%2_CITY_SYLL", "%3_CITY_SYLL", "%4_CITY_SYLL",
-	"%5_CITY_SYLL", "%6_CITY_SYLL", "%7_CITY_SYLL", "%8_CITY_SYLL",
-	"%9_CITY_SYLL", "%A_CITY_SYLL", "%B_CITY_SYLL"
-};
-
-static const char* const name_t2[] =
-{
-	"&1_CITY_SYLL", "&2_CITY_SYLL", "&3_CITY_SYLL", "&4_CITY_SYLL",
-	"&5_CITY_SYLL", "&6_CITY_SYLL", "&7_CITY_SYLL", "&8_CITY_SYLL",
-	"&9_CITY_SYLL", "&A_CITY_SYLL",
-};
 
 
 int translator::get_count_city_name(void)
 {
   return namen_liste.get_count();
 }
+
 
 
 const char* translator::get_city_name(uint nr)
@@ -179,6 +163,7 @@ const char* translator::get_city_name(uint nr)
 	}
 	return namen_liste[nr % namen_liste.get_count()];
 }
+
 
 
 /* the city list is now reloaded after the language is changed

@@ -512,8 +512,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 
 
 
-bool
-stadtauto_t::ist_weg_frei(grund_t *gr)
+bool stadtauto_t::ist_weg_frei(grund_t *gr)
 {
 	if(gr->gib_top()>200) {
 		// already too many things here
