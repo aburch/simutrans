@@ -520,6 +520,8 @@ welt_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	}
 	else if(komp==&random_map) {
 		knr = simrand(9999);
+		sets->heightfield = "";
+		loaded_heightfield = false;
 	}
 	else if(komp==&load_map) {
 		// load relief
