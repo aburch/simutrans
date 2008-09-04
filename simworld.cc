@@ -1815,12 +1815,12 @@ karte_t::update_frame_sleep_time(long delta_t)
 		}
 		else {
 			// change frame spacing ... (pause will be changed by step() directly)
-			if(realFPS>(uint16)(umgebung_t::fps*17)/16) {
+			if(realFPS>(umgebung_t::fps*17/16)) {
 				increase_frame_time();
 			}
-			else if(realFPS<(uint16)umgebung_t::fps) {
-				if(  1000/get_frame_time() < 2*realFPS  ) {
-					if(  realFPS < (uint16)(umgebung_t::fps/2)  ) {
+			else if(realFPS<umgebung_t::fps) {
+				if(  1000u/get_frame_time() < 2*realFPS  ) {
+					if(  realFPS < (umgebung_t::fps/2)  ) {
 						set_frame_time( get_frame_time()-1 );
 						next_wait_time = 0;
 					}
@@ -1838,7 +1838,7 @@ karte_t::update_frame_sleep_time(long delta_t)
 	}
 	else {
 		// try to get 10 fps or lower rate (if set)
-		int frame_intervall = max( 100, 1000/umgebung_t::fps );
+		uint32 frame_intervall = max( 100, 1000/umgebung_t::fps );
 		if(get_frame_time()>frame_intervall) {
 			reduce_frame_time();
 		}
@@ -2234,7 +2234,7 @@ karte_t::step()
 				next_wait_time --;
 			}
 		}
-		else if(simloops>8*umgebung_t::max_acceleration) {
+		else if(simloops>8u*umgebung_t::max_acceleration) {
 			if(next_wait_time<get_frame_time()-10) {
 				next_wait_time ++;
 			}

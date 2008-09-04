@@ -3864,7 +3864,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 						// do not update unimportant lines with single vehicles
 						slist_tpl <convoihandle_t> obsolete;
 						uint32 capacity = 0;
-						for(  int i=0;  i<line->count_convoys();  i++  ) {
+						for(  uint i=0;  i<line->count_convoys();  i++  ) {
 							convoihandle_t cnv = line->get_convoy(i);
 							if(cnv->has_obsolete_vehicles()) {
 								obsolete.append(cnv);

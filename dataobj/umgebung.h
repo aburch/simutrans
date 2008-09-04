@@ -345,7 +345,7 @@ public:
 	static sint16 winter_snowline;	// summer snowline is obviously just the artic climate ...
 
 	// set the frame rate for the display
-	static sint16 fps;
+	static uint32 fps;
 
 	// maximum acceleration with fast forward
 	static sint16 max_acceleration;

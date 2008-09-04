@@ -194,7 +194,7 @@ sint16 umgebung_t::climate_borders[MAX_CLIMATES] = { 0, 0, 0, 3, 6, 8, 10, 10 };
 sint16 umgebung_t::winter_snowline = 7;	// not mediterran
 
 // default: make 25 frames per second (if possible)
-sint16 umgebung_t::fps=25;
+uint32 umgebung_t::fps=25;
 
 // maximum speedup set to 1000 (effectively no limit)
 sint16 umgebung_t::max_acceleration=1000;

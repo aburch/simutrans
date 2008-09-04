@@ -30,7 +30,7 @@ static bool enabled = false;
 #define FRAME_TIME_MULTI (16)
 
 // pause between two frames
-static long frame_time = 36*FRAME_TIME_MULTI;
+static unsigned long frame_time = 36*FRAME_TIME_MULTI;
 
 
 bool reduce_frame_time()
@@ -54,12 +54,12 @@ bool increase_frame_time()
 	}
 }
 
-long get_frame_time()
+unsigned long get_frame_time()
 {
 	return frame_time/FRAME_TIME_MULTI;
 }
 
-void set_frame_time(long time)
+void set_frame_time(unsigned long time)
 {
 	frame_time = clamp( time, 10, 250 )*FRAME_TIME_MULTI;
 }
@@ -88,7 +88,7 @@ void interrupt_check(const char* caller_info)
 {
 	static const char * last_caller = "program start";
 	const long now = dr_time();
-	if((now-last_time)*FRAME_TIME_MULTI < frame_time) {
+	if((now-last_time)*FRAME_TIME_MULTI < (long)frame_time) {
 		return;
 	}
 	if(enabled) {
