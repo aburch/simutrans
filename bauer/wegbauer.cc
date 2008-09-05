@@ -1967,6 +1967,9 @@ wegbauer_t::baue_leitung()
 	for(i=0; i<=max_n; i++) {
 		grund_t* gr = welt->lookup(route[i]);
 
+		// no undo
+		sp->init_undo(road_wt,0);
+
 		leitung_t* lt = gr->gib_leitung();
 		// ok, really no lt here ...
 		if(lt==NULL) {
