@@ -69,12 +69,12 @@ public:
      */
     virtual koord3d gib_pos() const { return ding->gib_pos(); }
 
-  /**
-   * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-   * das Fenster, d.h. es sind die Bildschirmkoordinaten des Fensters
-   * in dem die Komponente dargestellt wird.
-   */
-  virtual void zeichnen(koord pos, koord gr);
+	/**
+	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
+	* das Fenster, d.h. es sind die Bildschirmkoordinaten des Fensters
+	* in dem die Komponente dargestellt wird.
+	*/
+	virtual void zeichnen(koord pos, koord gr);
 };
 
 

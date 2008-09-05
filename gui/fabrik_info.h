@@ -30,20 +30,23 @@ class fabrik_info_t : public ding_infowin_t, public action_listener_t
  private:
 	const fabrik_t* fab;
 
-	button_t * lieferbuttons;
-	button_t * supplierbuttons;
-	button_t * stadtbuttons;
+	button_t *lieferbuttons;
+	button_t *supplierbuttons;
+	button_t *stadtbuttons;
 
-	button_t * about;
+	button_t *about;
 
 	gui_scrollpane_t scrolly;
 	gui_container_t cont;
 	gui_textarea_t txt;
 	static cbuffer_t info_buf;
 
+	// refreshes all text and location pointers
+	void update_info();
+
  public:
 	fabrik_info_t(const fabrik_t* fab, const gebaeude_t* gb);
-	~fabrik_info_t();
+	virtual ~fabrik_info_t();
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.
@@ -67,7 +70,7 @@ class fabrik_info_t : public ding_infowin_t, public action_listener_t
 	*
 	* @author Hj. Malthaner
 	*/
-	void zeichnen(koord pos, koord gr);
+	virtual void zeichnen(koord pos, koord gr);
 
 	/**
 	 * This method is called if an action is triggered
@@ -78,6 +81,9 @@ class fabrik_info_t : public ding_infowin_t, public action_listener_t
 	 * V.Meyer
 	 */
 	bool action_triggered(gui_komponente_t *komp, value_t extra);
+
+	// rotated map need new info ...
+	void map_rotate90( sint16 ) { update_info(); }
 };
 
 #endif
