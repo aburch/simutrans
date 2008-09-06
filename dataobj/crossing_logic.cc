@@ -180,16 +180,17 @@ crossing_logic_t::set_state( crossing_state_t new_state )
 
 
 // nothing can cross airways, so waytype 0..7 is enough
-kreuzung_besch_t* crossing_logic_t::can_cross_array[8][8] =
+kreuzung_besch_t* crossing_logic_t::can_cross_array[9][9] =
 {
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 };
 
 
@@ -197,7 +198,7 @@ kreuzung_besch_t* crossing_logic_t::can_cross_array[8][8] =
 bool crossing_logic_t::register_besch(kreuzung_besch_t *besch)
 {
 	// mark if crossing possible
-	if(besch->get_waytype(0)<8  &&  besch->get_waytype(1)<8) {
+	if(besch->get_waytype(0)<8  &&  besch->get_waytype(1)<9) {
 		can_cross_array[besch->get_waytype(0)][besch->get_waytype(1)] = besch;
 		can_cross_array[besch->get_waytype(1)][besch->get_waytype(0)] = besch;
 	}
