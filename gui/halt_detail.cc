@@ -322,7 +322,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 
 bool halt_detail_t::action_triggered(gui_komponente_t *komp, value_t extra)
 {
-	if((unsigned)(extra.i)>1) {
+	if(extra.i&~1) {
 		koord k = *(koord *)extra.p;
 		halt->get_welt()->change_world_position( koord3d(k,halt->get_welt()->max_hgt(k)) );
 	}
