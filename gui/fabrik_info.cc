@@ -129,7 +129,7 @@ bool fabrik_info_t::action_triggered(gui_komponente_t *komp, value_t v)
 		frame->setze_text(translator::translate(key));
 		create_win(frame, w_info, (long)this);
 	}
-	else if(v.i>1) {
+	else if(v.i&~1) {
 		koord k = *(koord *)v.p;
 		welt->change_world_position( koord3d(k,welt->max_hgt(k)) );
 	}
