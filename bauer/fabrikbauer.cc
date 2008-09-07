@@ -64,7 +64,7 @@ void init_fab_map( karte_t *welt )
 	fab_map_w = ((welt->gib_groesse_x()+7)/8);
 	fab_map.resize( fab_map_w*welt->gib_groesse_y() );
 	for( int i=0;  i<fab_map_w*welt->gib_groesse_y();  i++ ) {
-		fab_map[0] = 0;
+		fab_map[i] = 0;
 	}
 	slist_iterator_tpl <fabrik_t *> iter(welt->gib_fab_list());
 	while(iter.next()) {
