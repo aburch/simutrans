@@ -31,6 +31,7 @@ class halt_detail_t : public gui_frame_t, action_listener_t
 {
 private:
 	halthandle_t halt;
+	uint8 destination_counter;	// last destination counter of the halt; if mismatch to current, then redraw destinations
 
 	gui_container_t cont;
 	gui_scrollpane_t scrolly;

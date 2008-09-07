@@ -324,7 +324,7 @@ public:
 	 */
 	void rebuild_destinations();
 
-	bool is_rerouting() const  { return rebuilt_destination_counter!=reroute_counter; }
+	uint8 get_rebuild_destination_counter() const  { return rebuilt_destination_counter; }
 
 	void rotate90( const sint16 y_size );
 

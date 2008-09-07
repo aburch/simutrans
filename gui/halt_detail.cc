@@ -316,6 +316,9 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	txt_info.setze_text(buf);
 	txt_info.recalc_size();
 	cont.setze_groesse( txt_info.gib_groesse() );
+
+	// ok, we have now this counter for pending updates
+	destination_counter = halt->get_rebuild_destination_counter();
 }
 
 
@@ -334,7 +337,7 @@ bool halt_detail_t::action_triggered(gui_komponente_t *komp, value_t extra)
 void halt_detail_t::zeichnen(koord pos, koord gr)
 {
 	if(halt.is_bound()) {
-		if(halt->is_rerouting()) {
+		if(halt->get_rebuild_destination_counter()!=destination_counter) {
 			// fill buffer with halt detail
 			halt_detail_info(cb_info_buffer);
 			txt_info.setze_text(cb_info_buffer);
