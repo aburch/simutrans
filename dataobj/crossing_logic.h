@@ -71,7 +71,7 @@ public:
 	// static routines from here
 private:
 	static slist_tpl<const kreuzung_besch_t *> liste;
-	static kreuzung_besch_t *can_cross_array[8][8];
+	static kreuzung_besch_t *can_cross_array[9][9];
 
 public:
 	static bool register_besch(kreuzung_besch_t *besch);
