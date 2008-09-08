@@ -78,7 +78,7 @@ public:
 	static bool alles_geladen() {return true; }
 
 	static const kreuzung_besch_t *get_crossing(const waytype_t ns, const waytype_t ow) {
-		if(ns>7  ||  ow>7) return NULL;
+		if(ns>8  ||  ow>8) return NULL;
 		return can_cross_array[(int)ns][(int)ow];
 	}
 
