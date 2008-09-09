@@ -353,13 +353,13 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 					continue;
 				}
 				koord3d pos = depot->gib_pos();
-				if(shortest_route->gib_max_n()>=0  &&  (sint32)abs_distance(pos.gib_2d(),cnv->gib_pos().gib_2d())>=shortest_route->gib_max_n()) {
+				if(!shortest_route->empty()  &&  abs_distance(pos.gib_2d(),cnv->gib_pos().gib_2d())>=shortest_route->gib_max_n()) {
 					// the current route is already shorter, no need to search further
 					continue;
 				}
 				bool found = cnv->gib_vehikel(0)->calc_route(cnv->gib_pos(), pos,  50, route); // do not care about speed
 				if (found) {
-					if (route->gib_max_n() < shortest_route->gib_max_n() || shortest_route->gib_max_n() == -1) {
+					if(  route->gib_max_n() < shortest_route->gib_max_n()  ||  shortest_route->empty()  ) {
 						shortest_route->kopiere(route);
 						home = pos;
 					}
@@ -370,7 +370,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 
 			// if route to a depot has been found, update the convoi's schedule
 			bool b_depot_found = false;
-			if (shortest_route->gib_max_n() > -1) {
+			if(!shortest_route->empty()) {
 				fahrplan_t *fpl = cnv->gib_fahrplan();
 				fpl->insert(cnv->get_welt()->lookup(home));
 				fpl->aktuell = (fpl->aktuell+fpl->maxi()-1)%fpl->maxi();

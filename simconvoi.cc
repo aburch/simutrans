@@ -90,10 +90,10 @@ static const char * state_names[convoi_t::MAX_STATES] =
  * Calculates speed of slowest vehicle in the given array
  * @author Hj. Matthaner
  */
-static int calc_min_top_speed(const array_tpl<vehikel_t*>& fahr, int anz_vehikel)
+static int calc_min_top_speed(const array_tpl<vehikel_t*>& fahr, uint8 anz_vehikel)
 {
 	int min_top_speed = 9999999;
-	for(int i=0; i<anz_vehikel; i++) {
+	for(uint8 i=0; i<anz_vehikel; i++) {
 		min_top_speed = min(min_top_speed, kmh_to_speed( fahr[i]->gib_besch()->gib_geschw() ) );
 	}
 	return min_top_speed;
@@ -208,10 +208,10 @@ convoi_t::laden_abschliessen()
 	bool realing_position = false;
 	if(anz_vehikel>0) {
 DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state] );
-		for( unsigned i=0;  i<anz_vehikel;  i++ ) {
+		for( uint8 i=0;  i<anz_vehikel;  i++ ) {
 			vehikel_t* v = fahr[i];
-			v->setze_erstes(i == 0);
-			v->setze_letztes(i == anz_vehikel - 1U);
+			v->setze_erstes(i == 0u);
+			v->setze_letztes(i == (anz_vehikel - 1u));
 			// this sets the convoi and will renew the block reservation, if needed!
 			v->setze_convoi(this);
 
@@ -258,7 +258,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			}
 
 			// steps to advance afterwards ...
-			if(i<anz_vehikel-1  ) {
+			if(  i < (anz_vehikel-1u)  ) {
 				train_length += fahr[i]->gib_besch()->get_length();
 			}
 
@@ -304,7 +304,7 @@ void convoi_t::rotate90( const sint16 y_size )
 	last_stop_pos.rotate90( y_size );
 	record_pos.rotate90( y_size );
 	home_depot.rotate90( y_size );
-	for(  int i=0;  i<=route.gib_max_n();  i++  ) {
+	for(  uint32 i=0;  i<=route.gib_max_n();  i++  ) {
 		route.access_position_bei(i).rotate90( y_size );
 	}
 	if(fpl) {

@@ -72,7 +72,7 @@ public:
 
 	bool is_contained(const koord3d k) const { return route.is_contained(k); }
 
-	sint32 index_of(const koord3d k) const { return (sint32)(route.index_of(k)); }
+	uint32 index_of(const koord3d k) const { return (uint32)(route.index_of(k)); }
 
 
 	/**
@@ -91,7 +91,9 @@ public:
 	 * @return letzer index in der Koordinatenliste
 	 * @author Hj. Malthaner
 	 */
-	sint32 gib_max_n() const { return (int)route.get_count() - 1; }
+	uint32 gib_max_n() const { return route.get_count() - 1u; }
+
+	bool empty() const { return route.empty(); }
 
 	/**
 	 * kopiert positionen und hoehen von einer anderen route
@@ -127,7 +129,7 @@ public:
 	 * removes all tiles behind this position
 	 * @author prissi
 	 */
-	void remove_koord_from(int);
+	void remove_koord_from(uint32);
 
 	/**
 	 * Appends a straig line from the last koord3d in route to the desired target.

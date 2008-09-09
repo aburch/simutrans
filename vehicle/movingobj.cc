@@ -165,7 +165,7 @@ movingobj_t::movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b 
 
 
 
-bool movingobj_t::check_season(long month)
+bool movingobj_t::check_season(long /*month*/)
 {
 	if(season>1) {
 		const uint8 old_season = season;

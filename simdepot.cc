@@ -458,8 +458,8 @@ vehikel_t* depot_t::get_oldest_vehicle(const vehikel_besch_t* besch)
 bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 {
 	waytype_t wt=cnv->gib_vehikel(0)->gib_waytype();
-	int tiles=0;
-	for(unsigned i=0;  i<cnv->gib_vehikel_anzahl();  i++) {
+	uint32 tiles=0;
+	for(uint8 i=0;  i<cnv->gib_vehikel_anzahl();  i++) {
 		tiles += cnv->gib_vehikel(i)->gib_besch()->get_length();
 	}
 	tiles = (tiles+TILE_STEPS-1)/TILE_STEPS;
@@ -478,8 +478,8 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 	// reserve the next segments of the train
 	route_t *route=cnv->get_route();
 	bool success = true;
-	int i;
-	for (i=0; success  &&  i<tiles  &&  i<=route->gib_max_n(); i++) {
+	uint32 i;
+	for(  i=0;  success  &&  i<tiles  &&  i<=route->gib_max_n();  i++  ) {
 		schiene_t * sch1 = (schiene_t *) welt->lookup( route->position_bei(i))->gib_weg(wt);
 		if(sch1==NULL) {
 			dbg->warning("waggon_t::is_next_block_free()","invalid route");
@@ -492,10 +492,11 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 		}
 	}
 
-	if(!success) {
+	if(!success  &&  i>0) {
 		// free reservation, since we were not sucessfull
+		i--;
 		sch0->unreserve(cnv);
-		for(int j=0; j<i-1; j++) {
+		for(uint32 j=0; j<i; j++) {
 			schiene_t *sch1 = (schiene_t *)(welt->lookup(route->position_bei(j))->gib_weg(wt));
 			sch1->unreserve(cnv);
 		}

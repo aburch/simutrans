@@ -25,7 +25,7 @@ koord convoi_filter_frame_t::filter_buttons_pos[FILTER_BUTTONS] = {
     koord(21, 74),
     koord(21, 90),
     koord(21, 106),
-    koord(5,  175.),
+    koord(5,  175),
     koord(21, 191),
     koord(21, 207),
     koord(21, 223),

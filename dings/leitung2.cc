@@ -454,7 +454,7 @@ pumpe_t::~pumpe_t()
 
 
 bool
-pumpe_t::sync_step(long delta_t)
+pumpe_t::sync_step(long /*delta_t*/)
 {
 	if(fab==NULL) {
 		return false;

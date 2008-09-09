@@ -1621,9 +1621,8 @@ DBG_MESSAGE("wkz_wayremover()", "Setting end to %d,%d,%d",gr->gib_pos().x, gr->g
 
 DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.gib_max_n());
 
-
 		// found a route => check if I can delete anything on it
-		for( int i=0;  can_delete  &&  i<=verbindung.gib_max_n();  i++  ) {
+		for(  uint32 i=0;  can_delete  &&  i<=verbindung.gib_max_n();  i++  ) {
 			grund_t *gr=welt->lookup(verbindung.position_bei(i));
 			if(gr) {
 				if(gr->gib_weg(wt)==NULL  ||  !spieler_t::check_owner( sp, gr->gib_weg(wt)->gib_besitzer())) {
@@ -1649,7 +1648,7 @@ DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.gib_max_n()
 		}
 
 		// if successful => delete everything
-		for( int i=0;  can_delete  &&  i<=verbindung.gib_max_n();  i++  ) {
+		for( uint32 i=0;  can_delete  &&  i<=verbindung.gib_max_n();  i++  ) {
 
 			grund_t *gr=welt->lookup(verbindung.position_bei(i));
 
@@ -1801,7 +1800,7 @@ const char *wkz_wayobj_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		// built wayobj ...
 		koord3d last_pos, pos=verbindung.position_bei(0);
 		uint8 dir = ribi_t::alle;
-		for(int i=1;  i<=verbindung.gib_max_n();  i++  ) {
+		for(uint32 i=1;  i<=verbindung.gib_max_n();  i++  ) {
 			last_pos = pos;
 			pos = verbindung.position_bei(i);
 			uint8 last_dir = ribi_t::rueckwaerts(dir);

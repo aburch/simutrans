@@ -1031,7 +1031,7 @@ vehikel_t::rauche()
 				akt_speed = speed_limit;
 			}
 
-			smoke = (cnv->gib_akt_speed() < (akt_speed*7)>>3);
+			smoke = (cnv->gib_akt_speed() < (sint32)((akt_speed*7u)>>3));
 		}
 
 		if(smoke) {
@@ -1586,10 +1586,10 @@ automobil_t::gib_kosten(const grund_t *gr,const uint32 max_speed) const
 
 
 // this routine is called by find_route, to determined if we reached a destination
-bool automobil_t::ist_ziel(const grund_t *gr,const grund_t *) const
+bool automobil_t::ist_ziel(const grund_t *gr, const grund_t *) const
 {
 	//  just check, if we reached a free stop position of this halt
-	if(gr->is_halt()  &&  gr->gib_halt()==target_halt  &&  target_halt->is_reservable((grund_t *)gr,cnv->self)) {
+	if(gr->is_halt()  &&  gr->gib_halt()==target_halt  &&  target_halt->is_reservable(gr,cnv->self)) {
 //DBG_MESSAGE("is_target()","success at %i,%i",gr->gib_pos().x,gr->gib_pos().y);
 		return true;
 	}
@@ -1724,9 +1724,9 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 		vehikel_basis_t *dt = no_cars_blocking( gr, cnv, gib_fahrtrichtung(), next_fahrtrichtung, next_90fahrtrichtung );
 
 		// do not block intersections
-		if(dt==NULL  &&  ribi_t::is_threeway(str->gib_ribi_unmasked())  &&  route_index+1<cnv->get_route()->gib_max_n()) {
+		if(dt==NULL  &&  ribi_t::is_threeway(str->gib_ribi_unmasked())  &&  route_index+1u<cnv->get_route()->gib_max_n()) {
 			// we have to test also next field
-			const grund_t *gr = welt->lookup( cnv->get_route()->position_bei(route_index+1) );
+			const grund_t *gr = welt->lookup( cnv->get_route()->position_bei(route_index+1u) );
 			if(gr) {
 				const uint8 nextnext_fahrtrichtung = this->calc_richtung(cnv->get_route()->position_bei(route_index).gib_2d(), cnv->get_route()->position_bei(route_index+2).gib_2d());
 				const uint8 nextnext_90fahrtrichtung = this->calc_richtung(cnv->get_route()->position_bei(route_index+1).gib_2d(), cnv->get_route()->position_bei(route_index+2).gib_2d());
@@ -1748,8 +1748,8 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 				return true;
 			}
 			// can cross, but can we leave?
-			uint test_index = route_index+1;
-			while(test_index+1<cnv->get_route()->gib_max_n()) {
+			uint32 test_index = route_index+1u;
+			while(test_index+1u<cnv->get_route()->gib_max_n()) {
 				const grund_t *test = welt->lookup(cnv->get_route()->position_bei(test_index));
 				if(!test) {
 					break;
@@ -2149,7 +2149,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 				route_t target_rt;
 				koord3d cur_pos = rt->position_bei(next_block+1);
 				// next tile is end of schedule => must start with next leg of schedule
-				if(count==0  &&  next_block+1>=rt->gib_max_n()) {
+				if(count==0  &&  next_block+1u>=rt->gib_max_n()) {
 					fahrplan_index ++;
 					if(fahrplan_index >= cnv->gib_fahrplan()->maxi()) {
 						fahrplan_index = 0;
@@ -2164,12 +2164,12 @@ waggon_t::ist_weg_frei(int & restart_speed)
 					}
 					else {
 						// check tiles of route until we find signal or reserved track
-						for (int i = count==0 ? next_block+1 : 0; i<=target_rt.gib_max_n(); i++) {
+						for (uint i = count==0 ? next_block+1u : 0u; i<=target_rt.gib_max_n(); i++) {
 							koord3d pos = target_rt.position_bei(i);
 							grund_t *gr = welt->lookup(pos);
 							schiene_t * sch1 = gr ? (schiene_t *)gr->gib_weg(gib_waytype()) : NULL;
-							if(sch1 && sch1->has_signal()) {
-								next_stop = block_reserver(cnv->get_route(),next_block+1,0,true);
+							if(  sch1  &&  sch1->has_signal()  ) {
+								next_stop = block_reserver(cnv->get_route(),next_block+1u,0,true);
 								if(next_stop > 0) {
 									// we should be able to always get reservation to next station - since we've already checked
 									// that tiles are clear. No harm in sanity check though...
@@ -2268,7 +2268,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 		}
 		else {
 			// end of route?
-			if(next_block+1>=cnv->get_route()->gib_max_n()  &&  route_index==next_block+1) {
+			if(  next_block+1u >= cnv->get_route()->gib_max_n()  &&  route_index == next_block+1u  ) {
 				// we can always continue, if there would be a route ...
 				return true;
 			}
@@ -2700,7 +2700,7 @@ bool aircraft_t::ist_ziel(const grund_t *gr,const grund_t *) const
 	}
 	else {
 		// otherwise we just check, if we reached a free stop position of this halt
-		if(gr->gib_halt()==target_halt  &&  target_halt->is_reservable((grund_t *)gr,cnv->self)) {
+		if(gr->gib_halt()==target_halt  &&  target_halt->is_reservable(gr,cnv->self)) {
 			return true;
 		}
 	}
@@ -2895,7 +2895,7 @@ bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve )
 	uint32 i;
 
 	route_t *route = cnv->get_route();
-	for(  uint32 i=start; success  &&  i<end  &&  (sint32)i<=route->gib_max_n(); i++) {
+	for(  uint32 i=start;  success  &&  i<end  &&  i<=route->gib_max_n();  i++) {
 
 		grund_t *gr = welt->lookup(route->position_bei(i));
 		runway_t * sch1 = gr ? (runway_t *)gr->gib_weg(air_wt) : NULL;

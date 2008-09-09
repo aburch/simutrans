@@ -2472,25 +2472,23 @@ DBG_MESSAGE("haltestelle_t::unreserve_position()","failed for gr=%p",gr);
 /* can a convoi reserve this position?
  * @author prissi
  */
-bool haltestelle_t::is_reservable(grund_t *gr,convoihandle_t cnv)
+bool haltestelle_t::is_reservable(const grund_t *gr, convoihandle_t cnv) const
 {
-	slist_tpl<tile_t>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
-	if (i != tiles.end()) {
-		if (i->reservation == cnv) {
+	for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+		if(gr==i->grund) {
+			if (i->reservation == cnv) {
 DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
-			return true;
-		}
-		// not reseved
-		if (!i->reservation.is_bound()) {
-			grund_t *gr = i->grund;
-			if(gr) {
+				return true;
+			}
+			// not reseved
+			if (!i->reservation.is_bound()) {
 				// found a stop for this waytype but without object d ...
 				if(gr->hat_weg(cnv->gib_vehikel(0)->gib_waytype())  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
 					// not occipied
-DBG_MESSAGE("haltestelle_t::is_reservable()","sucess for gr=%i,%i cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
 					return true;
 				}
 			}
+			return false;
 		}
 	}
 DBG_MESSAGE("haltestelle_t::reserve_position()","failed for gr=%i,%i, cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());

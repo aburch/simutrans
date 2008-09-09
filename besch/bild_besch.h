@@ -36,7 +36,7 @@ class bild_besch_t : public obj_besch_t {
 	public:
 		const bild_t* get_pic() const { return &pic; }
 		const void* gib_daten() const { return pic.data; }
-		int gib_nummer() const { return pic.bild_nr; }
+		image_id gib_nummer() const { return pic.bild_nr; }
 
 		/* rotate_image_data - produces a (rotated) bild_besch
 		 * only rotates by 90 degrees or multiples thereof, and assumes a square image

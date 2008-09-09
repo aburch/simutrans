@@ -16,7 +16,7 @@
  *  Beschreibung:
  *      Rechnet aus dem Index das Layout aus, zu dem diese Tile gehört.
  */
-int haus_tile_besch_t::gib_layout() const
+uint8 haus_tile_besch_t::gib_layout() const
 {
     koord groesse = gib_besch()->gib_groesse();
 

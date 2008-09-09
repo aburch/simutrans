@@ -49,21 +49,13 @@ route_t::kopiere(const route_t *r)
 	}
 }
 
-void
-route_t::append(const route_t *r)
+void route_t::append(const route_t *r)
 {
 	assert(r != NULL);
-	const unsigned int hops = r->gib_max_n();
+	const uint32 hops = r->gib_max_n();
 	route.resize(hops+1+route.get_count());
 
-DBG_MESSAGE("route_t::append()","last=%i,%i,%i   first=%i,%i,%i",
-	route[gib_max_n()].x, route[gib_max_n()].y, route[gib_max_n()].z,
-	r->position_bei(0).x, r->position_bei(0).y, r->position_bei(0).z );
-
-	// must be identical
-//	assert(gib_max_n() <= 0 || r->position_bei(0) == route[gib_max_n()]);
-
-	while (gib_max_n() >= 0 && route[gib_max_n()] == r->position_bei(0)) {
+	while(gib_max_n()>0  &&  route[gib_max_n()] == r->position_bei(0)) {
 		// skip identical end tiles
 		route.remove_at(gib_max_n());
 	}
@@ -73,29 +65,27 @@ DBG_MESSAGE("route_t::append()","last=%i,%i,%i   first=%i,%i,%i",
 	}
 }
 
-void
-route_t::insert(koord3d k)
+
+void route_t::insert(koord3d k)
 {
-//DBG_MESSAGE("route_t::insert()","insert %d,%d",k.x, k.y);
 	route.insert_at(0,k);
 }
 
-void
-route_t::append(koord3d k)
+
+void route_t::append(koord3d k)
 {
-	while (route.get_count() > 1 && route[route.get_count() - 1] == route[route.get_count() - 2]) {
+	while(  route.get_count()>1  &&  route[route.get_count()-1] == route[route.get_count()-2]  ) {
 		route.remove_at(route.get_count()-1);
 	}
-	if (route.empty() || k != route.back()) {
+	if(  route.empty()  ||  k != route.back()  ) {
 		route.push_back(k);
 	}
 	route.push_back(k);	// the last is always double
 }
 
 
-void
-route_t::remove_koord_from(int i) {
-	while(i<gib_max_n()) {
+void route_t::remove_koord_from(uint32 i) {
+	while(  i<gib_max_n()  ) {
 		route.remove_at(gib_max_n());
 	}
 	route.push_back(route[gib_max_n()]); // the last is always double
@@ -108,14 +98,13 @@ route_t::remove_koord_from(int i) {
  * Will return false if failed
  * @author prissi
  */
-bool
-route_t::append_straight_route(karte_t *welt, koord3d dest )
+bool route_t::append_straight_route(karte_t *welt, koord3d dest )
 {
-	if(route.get_count()<=1  ||  !welt->ist_in_kartengrenzen(dest.gib_2d())) {
+	if(route.get_count()<=1u  ||  !welt->ist_in_kartengrenzen(dest.gib_2d())) {
 		return false;
 	}
 
-	while (route.get_count() > 1 && route[route.get_count() - 2] == route[route.get_count() - 1]) {
+	while(  route.get_count() > 1u  &&  route[route.get_count()-2] == route[route.get_count()-1]  ) {
 		route.remove_at(route.get_count()-1);
 	}
 

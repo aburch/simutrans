@@ -87,8 +87,8 @@ interrupt_check()
 void interrupt_check(const char* caller_info)
 {
 	static const char * last_caller = "program start";
-	const long now = dr_time();
-	if((now-last_time)*FRAME_TIME_MULTI < (long)frame_time) {
+	const unsigned long now = dr_time();
+	if((now-last_time)*FRAME_TIME_MULTI < frame_time) {
 		return;
 	}
 	if(enabled) {

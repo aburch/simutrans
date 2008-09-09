@@ -878,11 +878,11 @@ void gebaeude_t::entferne(spieler_t *sp)
 			}
 			if(gr) {
 				gebaeude_t* gb = gr->find<gebaeude_t>();
-				if(gb  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
+				if(gb  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>4u) {
 					koord xy = gb->gib_tile()->gib_offset();
 					uint8 layoutbase = gb->gib_tile()->gib_layout();
-					if((layoutbase & 1) == (layout & 1)) {
-						layoutbase |= 4; // set far bit on neighbour
+					if((layoutbase & 1u) == (layout & 1u)) {
+						layoutbase |= 4u; // set far bit on neighbour
 						gb->setze_tile(gb->gib_tile()->gib_besch()->gib_tile(layoutbase, xy.x, xy.y));
 					}
 				}
@@ -902,8 +902,8 @@ void gebaeude_t::entferne(spieler_t *sp)
 				if(gb  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {
 					koord xy = gb->gib_tile()->gib_offset();
 					uint8 layoutbase = gb->gib_tile()->gib_layout();
-					if((layoutbase & 1) == (layout & 1)) {
-						layoutbase |= 2; // set near bit on neighbour
+					if((layoutbase & 1u) == (layout & 1u)) {
+						layoutbase |= 2u; // set near bit on neighbour
 						gb->setze_tile(gb->gib_tile()->gib_besch()->gib_tile(layoutbase, xy.x, xy.y));
 					}
 				}

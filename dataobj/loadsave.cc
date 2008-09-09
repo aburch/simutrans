@@ -535,7 +535,8 @@ uint32 loadsave_t::int_version(const char *version_text, mode_t *mode, char *pak
 	while(*version_text && *version_text++ != '.')
 		;
 	if(!*version_text) {
-		return -1;
+		dbg->fatal( "loadsave_t::int_version()","Really broken version string!" );
+		return 0;
 	}
 
 	// middle number (.99.)
@@ -543,7 +544,8 @@ uint32 loadsave_t::int_version(const char *version_text, mode_t *mode, char *pak
 	while(*version_text && *version_text++ != '.')
 		;
 	if(!*version_text) {
-		return -1;
+		dbg->fatal( "loadsave_t::int_version()","Really broken version string!" );
+		return 0;
 	}
 
 	// minor number (..08)

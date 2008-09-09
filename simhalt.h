@@ -511,7 +511,7 @@ public:
 	/* true, if this can be reserved
 	* @author prissi
 	*/
-	bool is_reservable(grund_t *gr, convoihandle_t cnv);
+	bool is_reservable(const grund_t *gr, convoihandle_t cnv) const;
 
 	void info(cbuffer_t & buf) const;
 

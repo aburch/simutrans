@@ -285,7 +285,7 @@ void roadsign_t::calc_bild()
 
 // only used for traffic light: change the current state
 bool
-roadsign_t::sync_step(long delta_t)
+roadsign_t::sync_step(long /*delta_t*/)
 {
 	// change every ~16s hours in normal speed
 	uint8 new_zustand = ( (welt->gib_zeit_ms()>>14) + welt->gib_einstellungen()->get_rotation() )&1;

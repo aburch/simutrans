@@ -86,7 +86,7 @@ public:
 
 	koord gib_offset() const;
 
-	int gib_layout() const;
+	uint8 gib_layout() const;
 };
 
 /*
@@ -191,7 +191,7 @@ public:
 		return (layout & 1) ? groesse.y : groesse.x;
 	}
 
-	int gib_all_layouts() const { return layouts; }
+	uint8 gib_all_layouts() const { return layouts; }
 
 	uint16 gib_extra() const { return extra_data; }
 

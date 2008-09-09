@@ -22,7 +22,7 @@ void pakselector_t::del_action(const char *filename)
 	umgebung_t::objfilename = (cstring_t)filename + "/";
 }
 
-const char *pakselector_t::get_info(const char *fname)
+const char *pakselector_t::get_info(const char *)
 {
 	return "";
 }

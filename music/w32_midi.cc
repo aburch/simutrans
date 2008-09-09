@@ -270,15 +270,15 @@ void dr_init_midi(void)
 }
 
 // CURRENTLY UNSUPPORTED
-void set_midi_pos(int pos)
+void set_midi_pos(int /*pos*/)
 {
 //   midi_pos = pos;
 }
 
+#ifdef MIXER_VOLUME
 // Sets the MIDI volume - internal routine
 void __win32_set_midi_volume(int type, int left, int right)
 {
-#ifdef MIXER_VOLUME
    UINT nMIDIDevices;
    MIXERLINECONTROLS mlc;
    MIXERCONTROL MixControl;
@@ -341,7 +341,11 @@ void __win32_set_midi_volume(int type, int left, int right)
    mixerSetControlDetails(0, &MixControlDetails, MIXER_OBJECTF_MIDIOUT | MIXER_SETCONTROLDETAILSF_VALUE);
 
    // Phew, I'm glad that's over! What a horrible API...
+}
 #else
+// Sets the MIDI volume - internal routine
+void __win32_set_midi_volume(int , int left, int right)
+{
 	// prissis short version
 	long vol = (left<<24)|(right<<8);
 
@@ -349,5 +353,5 @@ void __win32_set_midi_volume(int type, int left, int right)
 		return;
 	}
 	midiOutSetVolume( 0, vol );
-#endif
 }
+#endif

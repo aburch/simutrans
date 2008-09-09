@@ -92,7 +92,6 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 
 	// we will not add messages two times to the list if it was within the last 20 messages or within last three months
 	sint32 now = welt->get_current_month()-2;
-	size_t k = 0;
 	for (uint i=max(20,list.get_count())-20; i<list.get_count();  i++  ) {
 		const node& n = list[i];
 		if (n.time >= now &&

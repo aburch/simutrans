@@ -448,7 +448,7 @@ DBG_DEBUG("create_win()","magic=%d already there, bring to front", magic);
 
 		// take care of time delete windows ...
 		wins[ins_win].gui = gui;
-		wins[ins_win].wt = (wt&w_time_delete) ? w_info : wt;
+		wins[ins_win].wt = (wt&w_time_delete) ? (uint8)w_info : wt;
 		wins[ins_win].dauer = (wt&w_time_delete) ? MESG_WAIT : -1;
 		wins[ins_win].magic_number = magic;
 		wins[ins_win].closing = false;

@@ -130,7 +130,7 @@ bool fabrik_info_t::action_triggered(gui_komponente_t *komp, value_t v)
 		create_win(frame, w_info, (long)this);
 	}
 	else if(v.i&~1) {
-		koord k = *(koord *)v.p;
+		koord k = *(const koord *)v.p;
 		welt->change_world_position( koord3d(k,welt->max_hgt(k)) );
 	}
 

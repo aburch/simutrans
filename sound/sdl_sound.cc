@@ -63,7 +63,7 @@ static channel channels[CHANNELS];
 static SDL_AudioSpec output_audio_format;
 
 
-void sdl_sound_callback(void *ptr, Uint8 * stream, int len)
+void sdl_sound_callback(void *, Uint8 * stream, int len)
 {
   int c;
 

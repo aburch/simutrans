@@ -1249,18 +1249,18 @@ void register_image(struct bild_t* bild)
 	struct imd* image;
 
 	/* valid image? */
-	if (bild->len == 0 || bild->h == 0) {
+	if(  bild->len == 0  ||  bild->h == 0  ) {
 		fprintf(stderr, "Warning: ignoring image %d because of missing data\n", anz_images);
-		bild->bild_nr = -1;
+		bild->bild_nr = IMG_LEER;
 		return;
 	}
 
-	if (anz_images >= 65535) {
+	if(  anz_images >= 65535  ) {
 		fprintf(stderr, "FATAL:\n*** Out of images (more than 65534!) ***\n");
 		abort();
 	}
 
-	if (anz_images == alloc_images) {
+	if(  anz_images == alloc_images  ) {
 		alloc_images += 128;
 		images = REALLOC(images, imd, alloc_images);
 	}
@@ -1296,7 +1296,7 @@ void register_image(struct bild_t* bild)
 	image->base_data = (PIXVAL*)(bild + 1);
 
 	// does this image have color?
-	if (bild->h > 0) {
+	if(  bild->h > 0  ) {
 		int h = bild->h;
 		const PIXVAL *src = image->base_data;
 
@@ -1314,8 +1314,8 @@ void register_image(struct bild_t* bild)
 					}
 				}
 				// next clear run or zero = end
-			} while (*src++ != 0);
-		} while (--h != 0);
+			} while(  *src++ != 0  );
+		} while(  --h != 0  );
 	}
 }
 
@@ -2026,7 +2026,7 @@ typedef void (*blend_proc)(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour,
 #define ONE_OUT_15 (0x3DEF)
 #define TWO_OUT_15 (0x1CE7)
 
-static void pix_blend75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_blend75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
@@ -2035,7 +2035,7 @@ static void pix_blend75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour,
 		src++;
 	}
 }
-static void pix_blend75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_blend75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
@@ -2045,7 +2045,7 @@ static void pix_blend75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour,
 	}
 }
 
-static void pix_blend50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_blend50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
@@ -2054,7 +2054,7 @@ static void pix_blend50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour,
 		src++;
 	}
 }
-static void pix_blend50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_blend50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
@@ -2064,7 +2064,7 @@ static void pix_blend50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour,
 	}
 }
 
-static void pix_blend25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_blend25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
@@ -2073,7 +2073,7 @@ static void pix_blend25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour,
 		src++;
 	}
 }
-static void pix_blend25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_blend25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
@@ -2083,7 +2083,7 @@ static void pix_blend25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour,
 	}
 }
 
-static void pix_outline75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_outline75_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
@@ -2091,7 +2091,7 @@ static void pix_outline75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colou
 		dest++;
 	}
 }
-static void pix_outline75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_outline75_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
@@ -2100,7 +2100,7 @@ static void pix_outline75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL colou
 	}
 }
 
-static void pix_outline50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_outline50_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
@@ -2108,7 +2108,7 @@ static void pix_outline50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colou
 		dest++;
 	}
 }
-static void pix_outline50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_outline50_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
@@ -2117,7 +2117,7 @@ static void pix_outline50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL colou
 	}
 }
 
-static void pix_outline25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_outline25_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
@@ -2125,7 +2125,7 @@ static void pix_outline25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL colou
 		dest++;
 	}
 }
-static void pix_outline25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+static void pix_outline25_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
@@ -2177,7 +2177,7 @@ static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
  * draws the transparent outline of an image
  * @author kierongreen
  */
-void display_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty)
+void display_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty)
 {
 	if (n < anz_images) {
 		// need to go to nightmode and or rezoomed?

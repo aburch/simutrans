@@ -1781,8 +1781,7 @@ karte_t::sync_step(long delta_t, bool sync, bool display )
 
 
 // does all the magic about frame timing
-void
-karte_t::update_frame_sleep_time(long delta_t)
+void karte_t::update_frame_sleep_time(long /*delta*/)
 {
 	// get average frame time
 	uint32 last_ms = dr_time();

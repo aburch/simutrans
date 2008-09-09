@@ -567,7 +567,7 @@ image_id toolbar_t::get_icon(spieler_t *sp)
 
 
 // simply true, if visible
-bool toolbar_t::is_selected(karte_t *welt)
+bool toolbar_t::is_selected(karte_t *)
 {
 	return win_get_magic((long)this);
 }
