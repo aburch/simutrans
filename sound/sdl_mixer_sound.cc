@@ -40,7 +40,7 @@ void dr_init_sound()
 
 		// open an audio channel
 
-		int freq = 22500;
+		int freq = 22050;
 		int channels = 1;
 		unsigned short int format = AUDIO_S16SYS;
 		int samples = 1024;

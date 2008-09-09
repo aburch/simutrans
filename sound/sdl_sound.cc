@@ -111,7 +111,7 @@ void dr_init_sound()
 		// open an audio channel
 		SDL_AudioSpec desired;
 
-		desired.freq = 22500;
+		desired.freq = 22050;
 		desired.channels = 1;
 		desired.format = AUDIO_S16SYS;
 		desired.samples = 1024;
