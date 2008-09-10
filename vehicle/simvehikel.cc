@@ -508,14 +508,14 @@ vehikel_t::setze_convoi(convoi_t *c)
 	if(cnv) {
 		// we need to reestablish the finish flag after loading
 		if(ist_erstes) {
-			check_for_finish = (route_index>cnv->get_route()->gib_max_n())  ||  (gib_pos()==cnv->get_route()->position_bei(route_index));
+			check_for_finish = cnv->get_route()->empty()  ||  (route_index>cnv->get_route()->gib_max_n())  ||  (gib_pos()==cnv->get_route()->position_bei(route_index));
 		}
 		// some convois were saved with broken coordinates
 		if(!welt->lookup(pos_prev)) {
 			pos_prev = welt->lookup_kartenboden(pos_prev.gib_2d())->gib_pos();
 		}
 		if(pos_next!=koord3d::invalid  &&  route_index<cnv->get_route()->gib_max_n()  &&  (welt->lookup(pos_next)==NULL  ||  welt->lookup(pos_next)->gib_weg(gib_waytype())==NULL)) {
-			pos_next = cnv->get_route()->position_bei(route_index+1);
+			pos_next = cnv->get_route()->position_bei(route_index+1u);
 		}
 		// just correct freight deistinations
 		slist_iterator_tpl <ware_t> iter (fracht);

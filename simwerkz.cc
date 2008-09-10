@@ -3317,7 +3317,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					if(!cnv->get_line().is_bound()  &&  cnv->gib_besitzer()==sp) {
 						fahrplan_t *fpl = cnv->gib_fahrplan();
 						// check waytype
-						if(fpl->ist_halt_erlaubt(bd)) {
+						if(fpl  &&  fpl->ist_halt_erlaubt(bd)) {
 							bool updated = false;
 							for(  int k=0;  k<fpl->maxi();  k++  ) {
 								if(  (catch_all_halt  &&  haltestelle_t::gib_halt(welt,fpl->eintrag[k].pos)==last_halt)  ||  old_platform.contains(fpl->eintrag[k].pos)  ) {

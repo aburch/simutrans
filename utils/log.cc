@@ -240,7 +240,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 	}
 #endif
 #endif
-	exit(0);
+	abort();
 }
 
 
