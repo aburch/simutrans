@@ -1177,7 +1177,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 		else {
 DBG_MESSAGE("wkz_wayremover()","change remaining way to ribi %d",add);
 			// something will remain, we just change ribis
-			weg_erweitern(wt, add);
+			weg->setze_ribi(add);
 			calc_bild();
 		}
 		// we have to pay?

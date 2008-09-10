@@ -1677,10 +1677,7 @@ DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.gib_max_n()
 				ribi_t::ribi rem2 = (i<verbindung.gib_max_n()) ? ribi_typ(verbindung.position_bei(i).gib_2d(),verbindung.position_bei(i+1).gib_2d()) : 0;
 				rem = ~(rem|rem2);
 
-				if( 0&& (i==0  ||  i==verbindung.gib_max_n()) &&  gr->get_flag(grund_t::is_kartenboden)  &&  gr->gib_typ()==grund_t::tunnelboden)  {
-					gr->weg_entfernen( wt, rem );
-				}
-				else if(!gr->get_flag(grund_t::is_kartenboden)  &&  (gr->gib_typ()==grund_t::tunnelboden  ||  gr->gib_typ()==grund_t::monorailboden)  &&  gr->gib_weg_nr(0)->gib_waytype()==wt) {
+				if(!gr->get_flag(grund_t::is_kartenboden)  &&  (gr->gib_typ()==grund_t::tunnelboden  ||  gr->gib_typ()==grund_t::monorailboden)  &&  gr->gib_weg_nr(0)->gib_waytype()==wt) {
 					can_delete &= gr->remove_everything_from_way(sp,wt,rem);
 					if(can_delete  &&  gr->gib_weg(wt)==NULL) {
 						if(gr->gib_weg_nr(0)!=0) {
@@ -3199,24 +3196,6 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 				bd = 0;
 				continue;
 			}
-#if 0
-			// not halt
-			if((!bd->is_halt() && !bd->ist_wasser()) || pl->get_haltlist_count()==0) {
-				bd = 0;
-				continue;
-			}
-			// and check harbor ownership
-			if(bd->ist_wasser()) {
-				if(pl->get_haltlist_count()>0) {
-					if(spieler_t::check_owner( sp, pl->get_haltlist()[0]->gib_besitzer())) {
-						waytype1 = water_wt;
-						break;
-					}
-				}
-				bd = 0;
-				continue;
-			}
-#endif
 			// must be on a way or in the sea?
 			if(!bd->ist_wasser()) {
 				weg_t *w1 = bd->gib_weg_nr(0);
