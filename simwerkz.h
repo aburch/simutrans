@@ -181,7 +181,7 @@ private:
 	zeiger_t *wkz_wegebau_bauer;
 	slist_tpl <zeiger_t *>marked;
 	const weg_besch_t *besch;
-	const weg_besch_t *get_besch();
+	const weg_besch_t *get_besch(bool);
 public:
 	wkz_wegebau_t() : werkzeug_t() { wkz_wegebau_bauer=NULL; }
 	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }

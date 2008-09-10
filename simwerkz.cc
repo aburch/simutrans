@@ -1153,7 +1153,7 @@ const char *wkz_fahrplan_ins_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 /* way construction */
 const weg_besch_t *wkz_wegebau_t::defaults[17] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-const weg_besch_t * wkz_wegebau_t::get_besch()
+const weg_besch_t * wkz_wegebau_t::get_besch(bool remember)
 {
 	const weg_besch_t *besch = wegbauer_t::gib_besch(default_param,0);
 	if(besch==NULL) {
@@ -1171,13 +1171,15 @@ const weg_besch_t * wkz_wegebau_t::get_besch()
 		}
 	}
 	assert(besch);
-	defaults[besch->gib_wtyp()&63] = besch;
+	if(remember) {
+		defaults[besch->gib_wtyp()&63] = besch;
+	}
 	return besch;
 }
 
 const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 {
-	const weg_besch_t *besch = get_besch();
+	const weg_besch_t *besch = get_besch(false);
 	sprintf(toolstr, "%s, %ld$ (%ld$), %dkm/h",
 		translator::translate(besch->gib_name()),
 		besch->gib_preis()/100l,
@@ -1201,7 +1203,7 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t * )
 		delete z;
 	}
 	// now get current besch
-	besch = get_besch();
+	besch = get_besch(true);
 	if(besch  &&  besch->gib_cursor()->gib_bild_nr(0) != IMG_LEER) {
 		cursor = besch->gib_cursor()->gib_bild_nr(0);
 	}
