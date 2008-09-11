@@ -869,12 +869,12 @@ void convoi_t::start()
 	if(state == INITIAL || state == ROUTING_1) {
 
 		// set home depot to location of depot convoi is leaving
-		if(route.gib_max_n()>0) {
-			home_depot = route.position_bei(0);
-			fahr[0]->setze_pos( home_depot );
+		if(route.empty()) {
+			home_depot = fahr[0]->gib_pos();
 		}
 		else {
-			home_depot = fahr[0]->gib_pos();
+			home_depot = route.position_bei(0);
+			fahr[0]->setze_pos( home_depot );
 		}
 
 		alte_richtung = ribi_t::keine;
