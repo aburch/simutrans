@@ -1920,7 +1920,7 @@ waggon_t::setze_convoi(convoi_t *c)
 		if(ist_erstes) {
 			if(cnv!=NULL  &&  cnv!=(convoi_t *)1) {
 				// free route from old convoi
-				if(route_index<cnv->get_route()->gib_max_n()-1) {
+				if(!cnv->get_route()->empty()  &&  route_index+1u<cnv->get_route()->gib_max_n()) {
 					block_reserver( cnv->get_route(), cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->gib_route_index(), 100000, false );
 					target_halt = halthandle_t();
 				}
@@ -1931,7 +1931,7 @@ waggon_t::setze_convoi(convoi_t *c)
 				if(  c->get_state()==convoi_t::DRIVING  || c->get_state()==convoi_t::LEAVING_DEPOT  ) {
 					if(route_index>c->get_route()->gib_max_n()) {
 						c->suche_neue_route();
-						dbg->warning("waggon_t::setze_convoi()", "convoi %i had a too high route index! (%i of max %i)", c->self.get_id(), route_index, c->get_route()->gib_max_n()-1 );
+						dbg->warning("waggon_t::setze_convoi()", "convoi %i had a too high route index! (%i of max %i)", c->self.get_id(), route_index, c->get_route()->gib_max_n() );
 					}
 					else {
 						long num_index = cnv==(convoi_t *)1 ? 1001 : 0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
@@ -1952,7 +1952,7 @@ waggon_t::setze_convoi(convoi_t *c)
 					uint16 next_signal_index=65535;
 					route_t *route=c->get_route();
 
-					if(gib_pos()==route->position_bei(route->gib_max_n())) {
+					if(route->empty()  ||  gib_pos()==route->position_bei(route->gib_max_n())) {
 						// we are there, were we should go? Usually this is an error during autosave
 						c->suche_neue_route();
 					}
