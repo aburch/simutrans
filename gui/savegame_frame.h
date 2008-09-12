@@ -37,6 +37,9 @@ private:
 	// true, if there is additional information, i.e. loading a game
 	bool use_pak_extension;
 
+	// to avoid double mouse action
+	bool in_action;
+
 protected:
 	gui_textinput_t input;
 	gui_divider_t divider1;                               // 30-Oct-2001  Markus Weber    Added

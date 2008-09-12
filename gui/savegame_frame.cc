@@ -41,6 +41,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, const char *path ) :
 	this->suffix = suffix;
 	this->fullpath = path;
 	use_pak_extension = suffix==NULL  ||  strcmp( suffix, ".sve" )==0;
+	in_action = false;
 
 	// both NULL is not acceptable
 	assert(suffix!=path);
@@ -289,8 +290,10 @@ bool savegame_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	else {
 		// File in list selected
 		//--------------------------
-		for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
+		for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end  &&  !in_action; ++i) {
 			if (komp == i->button || komp == i->del) {
+				in_action = true;
+				const bool action_btn = komp == i->button;
 				buf[0] = 0;
 				if(fullpath) {
 					tstrncpy(buf, fullpath, lengthof(buf));
@@ -300,9 +303,10 @@ bool savegame_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 					strcat(buf, suffix);
 				}
 
-				if (komp == i->button) {
+				if(action_btn) {
 					action(buf);
-				} else {
+				}
+				else {
 					del_action(buf);
 				}
 				destroy_win(this);
