@@ -20,35 +20,25 @@
  */
 void load_relief_frame_t::action(const char *filename)
 {
-	sets->heightfield = filename;
+	cstring_t p("maps/");
+	sets->heightfield = p+filename;
 }
 
 
 void load_relief_frame_t::del_action(const char *filename)
 {
-	remove(filename);
+	cstring_t p("maps/");
+	remove(p+filename);
 }
 
 
-load_relief_frame_t::load_relief_frame_t(einstellungen_t* sets) : savegame_frame_t(".ppm",NULL)
+load_relief_frame_t::load_relief_frame_t(einstellungen_t* sets) : savegame_frame_t("*.*","maps/")
 {
     setze_name("Laden");
 
     this->sets = sets;
     sets->heightfield = "";
 }
-
-
-/**
- * Manche Fenster haben einen Hilfetext assoziiert.
- * @return den Dateinamen für die Hilfe, oder NULL
- * @author Hj. Malthaner
- */
-const char * load_relief_frame_t::gib_hilfe_datei() const
-{
-    return "load_relief.txt";
-}
-
 
 
 const char *load_relief_frame_t::get_info(const char *filename)
@@ -83,7 +73,7 @@ const char *load_relief_frame_t::get_info(const char *filename)
 bool load_relief_frame_t::check_file( const char *filename, const char * )
 {
 	char path[1024];
-	sprintf( path, "save/%s", filename );
+	sprintf( path, "maps/%s", filename );
 	FILE *file = fopen(path, "rb");
 	if(file) {
 		char buf [256];
@@ -91,7 +81,7 @@ bool load_relief_frame_t::check_file( const char *filename, const char * )
 		read_line(buf, 255, file);
 		fclose(file);
 
-		return strncmp(buf, "P6", 2)==0;
+		return strncmp(buf, "P6", 2)==0  ||  strncmp(buf, "BM", 2)==0 ;
 	}
 	return false;
 }

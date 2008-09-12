@@ -138,86 +138,202 @@ karte_t::setze_scroll_multi(int n)
 
 
 
-/**
- * Read a heightfield from file
- * @param filename name of heightfield file
- * @author Hj. Malthaner
- */
-void
-karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
+// read height data from bmp or ppm files
+sint8 *karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser, sint16 &ww, sint16 &hh )
 {
-	display_set_progress_text(translator::translate("Init map ..."));
 	FILE *file = fopen(filename, "rb");
 	if(file) {
-		const int display_total = 16 + gib_einstellungen()->gib_anzahl_staedte()*4 + gib_einstellungen()->gib_land_industry_chains();
-		char buf [256];
-		int param[3], index=0;
-		char *c=buf+2;
-
+		char id[3];
 		// parsing the header of this mixed file format is nottrivial ...
-		fread(buf, 1, 3, file);
-		buf[2] = 0;
-		if(strncmp(buf, "P6", 2)) {
-			dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong image type %s instead P6", buf);
-		}
-
-		while(index<3) {
-			// the format is "P6[whitespace]width[whitespace]height[[whitespace bitdepth]]newline]
-			// however, Photoshop is the first program, that uses space for the first whitespace ...
-			// so we cater for Photoshop too
-			while(*c  &&  *c<=32) {
-				c++;
+		id[0] = fgetc(file);
+		id[1] = fgetc(file);
+		id[2] = 0;
+		if(strcmp(id, "P6")) {
+			if(strcmp(id, "BM")) {
+				fclose(file);
+				dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong image type %s instead P6/BM", id);
+				return NULL;
 			}
-			// usually, after P6 there comes a comment with the maker
-			// but comments can be anywhere
-			if(*c==0) {
-				read_line(buf, 255, file);
-				c = buf;
-				continue;
-			}
-			param[index++] = atoi(c);
-			while(*c>='0'  &&  *c<='9') {
-				c++;
-			}
-		}
-
-		if(param[0] != gib_groesse_x()  || param[1] != gib_groesse_y()) {
-			dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong size (%d,%d)", param[0], param[1] );
-		}
-
-		if(param[2]!=255) {
-			dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong color depth %d", param[2] );
-		}
-
-		// after the header only binary data will follow
-
-		int y;
-		for(y=0; y<=gib_groesse_y(); y++) {
-			for(int x=0; x<=gib_groesse_x(); x++) {
-				setze_grid_hgt(koord(x,y), grundwasser);
-			}
-		}
-
-		for(y=0; y<gib_groesse_y(); y++) {
-			for(int x=0; x<gib_groesse_x(); x++) {
-				int R = fgetc(file);
-				int G = fgetc(file);
-				int B = fgetc(file);
-
-				setze_grid_hgt( koord(x,y), ((((R*2+G*3+B)/4 - 224) & 0xFFF0)/16)*Z_TILE_STEP );
+			// bitmap format
+			fseek( file, 10, SEEK_SET );
+			sint32 data_offset, w, h, format, table;
+			sint16 bit_depth;
+#ifdef BIG_ENDIAN
+			sint32 l;
+			sint16 s;
+			fread( &l, 4, 1, file );
+			data_offset = (sint32)endian_uint32(&l);
+			fseek( file, 18, SEEK_SET );
+			fread( &l, 4, 1, file );
+			w = (sint32)endian_uint32(&l);
+			fread( &l, 4, 1, file );
+			h = (sint32)endian_uint32(&l);
+			fseek( file, 28, SEEK_SET );
+			fread( &s, 2, 1, file );
+			bit_depth = (sint16)endian_uint16(&s);
+			fread( &l, 4, 1, file );
+			format = (sint32)endian_uint32(&l);
+			fseek( file, 46, SEEK_SET );
+			fread( &l, 4, 1, file );
+			table = (sint32)endian_uint32(&l);
+#else
+			fread( &data_offset, 4, 1, file );
+			fseek( file, 18, SEEK_SET );
+			fread( &w, 4, 1, file );
+			fread( &h, 4, 1, file );
+			fseek( file, 28, SEEK_SET );
+			fread( &bit_depth, 2, 1, file );
+			fread( &format, 4, 1, file );
+			fseek( file, 46, SEEK_SET );
+			fread( &table, 4, 1, file );
+#endif
+			if((bit_depth!=8  &&  bit_depth!=24)  ||  format>1) {
+				dbg->fatal("karte_t::get_height_data_from_file()","Can only use 8Bit (RLE or normal) or 24 bit bitmaps!");
+				return NULL;
 			}
 
-			if(is_display_init()) {
-				display_progress((y*16)/gib_groesse_y(), display_total);
-			}
-		}
+			// now read the data and convert them on the fly
+			sint8 *hfield = new sint8[w*h];
+			memset( hfield, grundwasser, w*h );
+			if(bit_depth==8) {
+				// convert color tables to height levels
+				if(table==0) {
+					table == 256;
+				}
+				sint8 h_table[256];
+				fseek( file, 54, SEEK_SET );
+				for( int i=0;  i<table;  i++  ) {
+					int B = fgetc(file);
+					int G = fgetc(file);
+					int R = fgetc(file);
+					fgetc(file);	// dummy
+					h_table[i] = ((((R*2+G*3+B)/4 - 224) & 0xFFF0)/16)*Z_TILE_STEP;
+				}
+				// now read the data
+				fseek( file, data_offset, SEEK_SET );
+				if(format==0) {
+					// uncompressed
+					for(  sint32 y=0;  y<h;  y++  ) {
+						for(  sint32 x=0;  x<w;  x++  ) {
+							hfield[x+y*w] = h_table[fgetc(file)];
+						}
+						fseek( file, w&3, SEEK_CUR );	// skip superfluos bytes at the end of each scanline
+					}
+				}
+				else {
+					// compressed RLE
+					sint32 x=0, y=0;
+					while (!feof(file)) {
+						uint8 Count= fgetc(file);
+						uint8 ColorIndex = fgetc(file);
 
-		fclose(file);
+						if (Count > 0) {
+							for( sint32 k = 0;  k < Count;  k++, x++  ) {
+								hfield[x+y*w] = h_table[ColorIndex];
+							}
+						} else if (Count == 0) {
+							sint32 Flag = ColorIndex;
+							if (Flag == 0) {
+								// goto next line
+								x = 0;
+								y++;
+							}
+							else if (Flag == 1) {
+								// end of bitmap
+								break;
+							}
+							else if (Flag == 2) {
+								// skip with cursor
+								x += (uint8)fgetc(file);
+								y += (uint8)fgetc(file);
+							}
+							else {
+								// uncompressed run
+								Count = Flag;
+								for( sint32 k = 0;  k < Count;  k++, x++  ) {
+									hfield[x+y*w] = h_table[(uint8)fgetc(file)];
+								}
+								if (ftell(file) & 1) {	// alway even offset in file
+									fseek(file, 1, SEEK_CUR);
+								}
+							}
+						}
+					}
+				}
+			}
+			else {
+				// uncompressed 24 bits
+				for(  sint32 y=0;  y<h;  y++  ) {
+					for(  sint32 x=0;  x<w;  x++  ) {
+						int B = fgetc(file);
+						int G = fgetc(file);
+						int R = fgetc(file);
+						hfield[x+y*w] = ((((R*2+G*3+B)/4 - 224) & 0xFFF0)/16)*Z_TILE_STEP;
+					}
+					fseek( file, (w*3)&3, SEEK_CUR );	// skip superfluos bytes at the end of each scanline
+				}
+			}
+			// success ...
+			fclose(file);
+			ww = w;
+			hh = h;
+			return hfield;
+		}
+		else {
+			// ppm format
+			char buf[255];
+			char *c = id+2;
+			sint32 param[3]={0,0,0};
+			for(int index=0;  index<3;  ) {
+				// the format is "P6[whitespace]width[whitespace]height[[whitespace bitdepth]]newline]
+				// however, Photoshop is the first program, that uses space for the first whitespace ...
+				// so we cater for Photoshop too
+				while(*c  &&  *c<=32) {
+					c++;
+				}
+				// usually, after P6 there comes a comment with the maker
+				// but comments can be anywhere
+				if(*c==0) {
+					read_line(buf, 255, file);
+					c = buf;
+					continue;
+				}
+				param[index++] = atoi(c);
+				while(*c>='0'  &&  *c<='9') {
+					c++;
+				}
+			}
+			// now the data
+			sint32 w = param[0];
+			sint32 h = param[1];
+			if(param[2]!=255) {
+				fclose(file);
+				dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong color depth %d", param[2] );
+				return NULL;
+			}
+			// ok, now read them in
+			sint8 *hfield = new sint8[w*h];
+			memset( hfield, grundwasser, w*h );
+
+			for(sint16 y=0; y<h; y++) {
+				for(sint16 x=0; x<w; x++) {
+					int R = fgetc(file);
+					int G = fgetc(file);
+					int B = fgetc(file);
+					hfield[x+y*w] =  ((((R*2+G*3+B)/4 - 224) & 0xFFF0)/16)*Z_TILE_STEP;
+				}
+			}
+
+			// success ...
+			fclose(file);
+			ww = w;
+			hh = h;
+			return hfield;
+		}
 	}
-	else {
-		dbg->fatal("karte_t::load_heightfield()","cannot open %s", (const char *)filename );
-	}
+	return NULL;
 }
+
 
 
 
@@ -578,7 +694,7 @@ karte_t::init_felder()
 }
 
 
-void karte_t::init(einstellungen_t* sets)
+void karte_t::init(einstellungen_t* sets,sint8 *h_field)
 {
 	mute_sound(true);
 
@@ -658,9 +774,23 @@ DBG_DEBUG("karte_t::init()","kartenboden_setzen");
 DBG_DEBUG("karte_t::init()","calc_hoehe_mit_heightfield");
 	setsimrand( 0xFFFFFFFF, einstellungen->gib_karte_nummer() );
 	if(einstellungen->heightfield.len() > 0) {
-		calc_hoehe_mit_heightfield(einstellungen->heightfield);
+		// init from file
+		display_set_progress_text(translator::translate("Init map ..."));
+		const int display_total = 16 + gib_einstellungen()->gib_anzahl_staedte()*4 + gib_einstellungen()->gib_land_industry_chains();
+
+		for(int y=0; y<cached_groesse_gitter_y; y++) {
+			for(int x=0; x<cached_groesse_gitter_x; x++) {
+				setze_grid_hgt( koord(x,y), h_field[x+y*cached_groesse_gitter_x] );
+			}
+
+			if(is_display_init()) {
+				display_progress((y*16)/gib_groesse_y(), display_total);
+			}
+		}
 	}
 	else {
+		// calculate from perlin noise
+		einstellungen->heightfield = 0;
 		calc_hoehe_mit_perlin();
 	}
 
@@ -3358,38 +3488,18 @@ karte_t::sp2num(spieler_t *sp)
  */
 void karte_t::load_heightfield(einstellungen_t *sets)
 {
-  FILE *file = fopen(sets->heightfield, "rb");
-  if(file) {
-    char buf [256];
-    int w, h;
-
-    read_line(buf, 255, file);
-
-    if(strncmp(buf, "P6", 2)) {
-      dbg->error("karte_t::load_heightfield()","Heightfield has wrong image type %s", buf);
-      create_win( new news_img("\nHeightfield has wrong image type.\n"), w_info, magic_none );
-      return;
-    }
-
-    read_line(buf, 255, file);
-    sscanf(buf, "%d %d", &w, &h);
-    read_line(buf, 255, file);
-
-    if(strncmp(buf, "255", 2)) {
-      dbg->error("karte_t::load_heightfield()","Heightfield has wrong color depth %s", buf);
-      create_win( new news_img("\nHeightfield has wrong image type.\n"), w_info, magic_none );
-    }
-		else {
-			sets->setze_groesse(w,h);
-			// create map
-			init(sets);
-			fclose(file);
-		}
-  }
-  else {
-    dbg->error("karte_t::load_heightfield()","Cant open file '%s'", (const char*)sets->heightfield);
-    create_win( new news_img("\nCan't open heightfield file.\n"), w_info, magic_none );
-  }
+	sint16 w, h;
+	sint8 *h_field = karte_t::get_height_data_from_file(sets->heightfield, sets->gib_grundwasser(), w, h );
+	if(h_field) {
+		sets->setze_groesse(w,h);
+		// create map
+		init(sets,h_field);
+		delete [] h_field;
+	}
+	else {
+		dbg->error("karte_t::load_heightfield()","Cant open file '%s'", (const char*)sets->heightfield);
+		create_win( new news_img("\nCan't open heightfield file.\n"), w_info, magic_none );
+	}
 }
 
 

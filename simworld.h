@@ -227,13 +227,6 @@ private:
 	void calc_hoehe(int x1, int y1, int x2, int y2);
 
 	/**
-	 * Read a heightfield from file
-	 * @param filename name of heightfield file
-	 * @author Hj. Malthaner
-	 */
-	void calc_hoehe_mit_heightfield(const cstring_t & filename);
-
-	/**
 	 * Landschafterzeugung mit "perlin noise"
 	 * @author Hj. Malthaner
 	 */
@@ -364,6 +357,11 @@ private:
 	void restore_history();
 
 public:
+	/* reads height data from 8 or 25 bit bmp or ppm files
+	 * @return either pointer to heightfield (use delete [] for it) or NULL
+	 */
+	static sint8 *get_height_data_from_file( const char *filename, sint8 grundwasser, sint16 &ww, sint16 &hh );
+
 	message_t *get_message() { return msg; }
 
 	// set to something useful, if there is a total distance != 0 to show in the bar below
@@ -703,7 +701,7 @@ public:
 	 * @param preselected_players defines which players the user has selected before he started the game
 	 * @author Hj. Malthaner
 	 */
-	void init(einstellungen_t *sets);
+	void init(einstellungen_t *sets,sint8 *heights);
 
 	void init_felder();
 

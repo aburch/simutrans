@@ -265,45 +265,10 @@ bool
 welt_gui_t::update_from_heightfield(const char *filename)
 {
 	DBG_MESSAGE("welt_gui_t::update_from_heightfield()",filename);
-	FILE *file = fopen(filename, "rb");
-	if(file) {
-		char buf [256];
-		int param[3], index=0;
-		char *c=buf+2;
 
-		// parsing the header of this mixed file format is nottrivial ...
-		fread(buf, 1, 3, file);
-		buf[2] = 0;
-		if(strncmp(buf, "P6", 2)) {
-			dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong image type %s instead P6", buf);
-		}
-
-		while(index<3) {
-			// the format is "P6[whitespace]width[whitespace]height[[whitespace bitdepth]]newline]
-			// however, Photoshop is the first program, that uses space for the first whitespace ...
-			// so we cater for Photoshop too
-			while(*c  &&  *c<=32) {
-				c++;
-			}
-			// usually, after P6 there comes a comment with the maker
-			// but comments can be anywhere
-			if(*c==0) {
-				read_line(buf, 255, file);
-				c = buf;
-				continue;
-			}
-			param[index++] = atoi(c);
-			while(*c>='0'  &&  *c<='9') {
-				c++;
-			}
-		}
-
-		if(param[2]!=255) {
-			dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong color depth %d", param[2] );
-		}
-
-		// after the header only binary data will follow
-		int w=param[0], h=param[1];
+	sint16 w, h;
+	sint8 *h_field = karte_t::get_height_data_from_file(filename, sets->gib_grundwasser(), w, h );
+	if(h_field) {
 		sets->setze_groesse_x(w);
 		sets->setze_groesse_y(h);
 
@@ -317,21 +282,13 @@ welt_gui_t::update_from_heightfield(const char *filename)
 				float rest_x=0.0;
 
 				for(int x=0; x<w; x++) {
-					uint16 R = (uint8)fgetc(file);
-					uint16 G = (uint8)fgetc(file);
-					uint16 B = (uint8)fgetc(file);
-
 					while(karte_x<=rest_x  &&  karte_x<preview_size) {
-						karte[(karte_y*preview_size)+karte_x] = reliefkarte_t::calc_hoehe_farbe( (((R*2+G*3+B)/4 - 224+16)>>4)*Z_TILE_STEP, sets->gib_grundwasser() );
+						karte[(karte_y*preview_size)+karte_x] = reliefkarte_t::calc_hoehe_farbe( h_field[x+y*w], sets->gib_grundwasser() );
 						karte_x ++;
 					}
 					rest_x += skip_x;
 				}
 				karte_y++;
-			}
-			else {
-				// just skip it
-				fseek(file,3*w, SEEK_CUR);
 			}
 		}
 
@@ -345,9 +302,6 @@ welt_gui_t::update_from_heightfield(const char *filename)
 				}
 			}
 		}
-
-DBG_MESSAGE("welt_gui_t::update_from_heightfield()","success (%5f,%5f)",skip_x,skip_y);
-		fclose(file);
 
 		x_size[0].disable();
 		x_size[1].disable();

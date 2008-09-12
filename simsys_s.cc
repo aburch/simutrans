@@ -259,7 +259,7 @@ char *dr_query_homedir(void)
 #ifdef _WIN32
 	DWORD len=PATH_MAX-24;
 	HKEY hHomeDir;
-	if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ,	&hHomeDir)==ERROR_SUCCESS) {
+	if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ, &hHomeDir)==ERROR_SUCCESS) {
 		RegQueryValueExA(hHomeDir,"Personal",NULL,NULL,(BYTE *)buffer,&len);
 		strcat(buffer,"\\Simutrans");
 		CreateDirectoryA( buffer, NULL );
@@ -269,6 +269,8 @@ char *dr_query_homedir(void)
 		sprintf(b2, "%ssave", buffer );
 		CreateDirectoryA( b2, NULL );
 		sprintf(b2, "%sscreenshot", buffer );
+		CreateDirectoryA( b2, NULL );
+		sprintf(b2, "%smaps", buffer );
 		CreateDirectoryA( b2, NULL );
 
 		return buffer;
@@ -286,6 +288,8 @@ char *dr_query_homedir(void)
 		// we assume success anyway
 	}
 	strcat( buffer, "/" );
+	sprintf( b2, "%smaps", buffer );
+	mkdir( b2, 0700 );
 	sprintf( b2, "%sscreenshot", buffer );
 	mkdir( b2, 0700 );
 	sprintf( b2, "%ssave", buffer );

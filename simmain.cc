@@ -837,7 +837,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	if(loadgame==""  ||  !welt->laden(loadgame)) {
 		// create a default map
 DBG_MESSAGE("init","map");
-		welt->init(welt->gib_einstellungen());
+		welt->init(welt->gib_einstellungen(),0);
 	}
 
 #ifdef DEBUG
@@ -993,7 +993,7 @@ DBG_MESSAGE("init","map");
 				intr_refresh_display(true);
 
 				sets->heightfield = "";
-				welt->init(sets);
+				welt->init(sets,0);
 
 				// save setting ...
 				loadsave_t file;

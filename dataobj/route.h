@@ -93,7 +93,7 @@ public:
 	 */
 	uint32 gib_max_n() const { return route.get_count() - 1u; }
 
-	bool empty() const { return route.empty(); }
+	bool empty() const { return route.get_count()<2; }
 
 	/**
 	 * kopiert positionen und hoehen von einer anderen route

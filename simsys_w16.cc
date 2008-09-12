@@ -117,6 +117,8 @@ char *dr_query_homedir()
 		CreateDirectoryA( b2, NULL );
 		sprintf(b2, "%sscreenshot", buffer );
 		CreateDirectoryA( b2, NULL );
+		sprintf(b2, "%smaps", buffer );
+		CreateDirectoryA( b2, NULL );
 
 		return buffer;
 	}

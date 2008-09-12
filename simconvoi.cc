@@ -304,7 +304,7 @@ void convoi_t::rotate90( const sint16 y_size )
 	last_stop_pos.rotate90( y_size );
 	record_pos.rotate90( y_size );
 	home_depot.rotate90( y_size );
-	for(  uint32 i=0;  i<=route.gib_max_n();  i++  ) {
+	for(  uint32 i=0;  i<route.gib_max_n()+1u;  i++  ) {
 		route.access_position_bei(i).rotate90( y_size );
 	}
 	if(fpl) {
@@ -680,7 +680,7 @@ void convoi_t::step()
 					}
 					// Hajo: now calculate a new route
 					drive_to(v->gib_pos(), fpl->eintrag[fpl->get_aktuell()].pos);
-					if(route.gib_max_n() > 0) {
+					if(!route.empty()) {
 						vorfahren();
 					}
 					else {
@@ -708,7 +708,7 @@ void convoi_t::step()
 				else {
 					// Hajo: now calculate a new route
 					drive_to(v->gib_pos(), fpl->eintrag[fpl->get_aktuell()].pos);
-					if(route.gib_max_n() > 0) {
+					if(!route.empty()) {
 						vorfahren();
 					}
 				}
@@ -1150,8 +1150,8 @@ fahrplan_t *convoi_t::erzeuge_fahrplan()
 bool
 convoi_t::can_go_alte_richtung()
 {
-	// invalid route?
-	if(route.gib_max_n()<1) {
+	// invalid route? nothing to test, must start new
+	if(route.empty()) {
 		return false;
 	}
 
@@ -1676,7 +1676,7 @@ convoi_t::rdwr(loadsave_t *file)
 		last_stop_pos.rdwr(file);
 	}
 	else {
-		last_stop_pos = route.gib_max_n() > 1 ? route.position_bei(0) : (anz_vehikel > 0 ? fahr[0]->gib_pos() : koord3d(0, 0, 0));
+		last_stop_pos = !route.empty() ? route.position_bei(0) : (anz_vehikel > 0 ? fahr[0]->gib_pos() : koord3d(0, 0, 0));
 	}
 
 	// for leaving the depot routine

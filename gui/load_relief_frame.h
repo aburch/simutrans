@@ -44,7 +44,7 @@ public:
 	 * @return den Dateinamen für die Hilfe, oder NULL
 	 * @author Hj. Malthaner
 	 */
-	virtual const char * gib_hilfe_datei() const;
+	const char *gib_hilfe_datei() const { return "load_relief.txt"; }
 
 	load_relief_frame_t(einstellungen_t* sets);
 };
