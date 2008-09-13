@@ -23,6 +23,7 @@
 
 #include "simwin.h"
 #include "simworld.h"
+#include "simmenu.h"
 #include "simplay.h"
 #include "simcolor.h"
 #include "simgraph.h"

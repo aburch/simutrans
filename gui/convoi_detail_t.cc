@@ -16,6 +16,8 @@
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simworld.h"
+#include "../simwin.h"
+
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
 #include "fahrplan_gui.h"

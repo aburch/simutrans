@@ -15,6 +15,7 @@
 #include "../simcolor.h"
 #include "../simintr.h"
 #include "../simgraph.h"
+#include "../simwin.h"
 
 #include "../besch/reader/obj_reader.h"
 #include "../simskin.h"

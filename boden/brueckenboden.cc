@@ -2,6 +2,7 @@
 
 #include "../simimg.h"
 #include "../simworld.h"
+#include "../simwin.h"
 #include "../simhalt.h"
 
 #include "../besch/grund_besch.h"

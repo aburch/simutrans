@@ -9,6 +9,7 @@
 
 #include "../simmem.h"
 #include "../simwin.h"
+#include "../simmenu.h"
 #include "../simworld.h"
 
 #include "../utils/cbuffer_t.h"

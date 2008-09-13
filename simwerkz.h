@@ -13,6 +13,7 @@
 #include "simsound.h"
 #include "simworld.h"
 #include "simmenu.h"
+#include "simwin.h"
 
 #include "besch/way_obj_besch.h"
 

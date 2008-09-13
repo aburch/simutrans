@@ -79,19 +79,19 @@ public:
 	 * @return Koordinate an index n
 	 * @author Hj. Malthaner
 	 */
-	const koord3d& position_bei(const unsigned int n) const { return route[n]; }
+	const koord3d& position_bei(const uint16 n) const { return route[n]; }
 
 	/**
 	 * @return Koordinate an index n
 	 * @author Hj. Malthaner
 	 */
-	koord3d& access_position_bei(const unsigned int n) { return route[n]; }
+	koord3d& access_position_bei(const uint16 n) { return route[n]; }
 
 	/**
 	 * @return letzer index in der Koordinatenliste
 	 * @author Hj. Malthaner
 	 */
-	uint32 gib_max_n() const { return route.get_count() - 1u; }
+	uint32 gib_max_n() const { return route.get_count() - 1; }
 
 	bool empty() const { return route.get_count()<2; }
 

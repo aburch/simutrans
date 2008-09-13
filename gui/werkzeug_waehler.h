@@ -11,7 +11,7 @@
 
 #include "../ifc/gui_fenster.h"
 #include "../tpl/vector_tpl.h"
-#include "../simmenu.h"
+//#include "../simmenu.h"
 
 class spieler_t;
 class karte_t;

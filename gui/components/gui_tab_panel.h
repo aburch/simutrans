@@ -1,8 +1,12 @@
 #ifndef gui_tab_panel_h
 #define gui_tab_panel_h
 
-#include "../../ifc/gui_action_creator.h"
 #include "../../simimg.h"
+
+#include "../../besch/skin_besch.h"
+
+#include "../../ifc/gui_action_creator.h"
+#include "../../ifc/gui_komponente.h"
 
 class bild_besch_t;
 

@@ -10,6 +10,7 @@
 
 #include "../simio.h"
 #include "../simdebug.h"
+#include "../simworld.h"
 #include "load_relief_frame.h"
 #include "../dataobj/einstellungen.h"
 

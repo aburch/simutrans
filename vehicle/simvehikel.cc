@@ -832,8 +832,8 @@ bool vehikel_t::hop_check()
 
 		// now check, if we can go here
 		const grund_t *bd = welt->lookup(pos_next);
-		if(bd==NULL  ||  !ist_befahrbar(bd)) {
-			// weg not existent (likely destroyed)
+		if(bd==NULL  ||  !ist_befahrbar(bd)  ||  cnv->get_route()->empty()) {
+			// weg not existent (likely destroyed) or no route ...
 			cnv->suche_neue_route();
 			return false;
 		}
@@ -1859,7 +1859,7 @@ automobil_t::setze_convoi(convoi_t *c)
 	if(c!=NULL) {
 		bool target=(bool)cnv;	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
 		vehikel_t::setze_convoi(c);
-		if(target  &&  ist_erstes) {
+		if(target  &&  ist_erstes  &&  c->get_route()->empty()) {
 			// reintitialize the target halt
 			route_t *rt=cnv->get_route();
 			grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
@@ -1897,7 +1897,7 @@ waggon_t::waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, con
 
 waggon_t::~waggon_t()
 {
-	if(cnv  &&  ist_erstes  &&  route_index<cnv->get_route()->gib_max_n()+1) {
+	if(cnv  &&  ist_erstes  &&  !cnv->get_route()->empty()  &&  route_index<=cnv->get_route()->gib_max_n()) {
 		// free all reserved blocks
 		block_reserver( cnv->get_route(), cnv->gib_vehikel(cnv->gib_vehikel_anzahl()-1)->gib_route_index(), target_halt.is_bound()?100000:1, false );
 	}
@@ -2895,6 +2895,10 @@ bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve )
 	uint32 i;
 
 	route_t *route = cnv->get_route();
+	if(route->empty()) {
+		return false;
+	}
+
 	for(  uint32 i=start;  success  &&  i<end  &&  i<=route->gib_max_n();  i++) {
 
 		grund_t *gr = welt->lookup(route->position_bei(i));
@@ -3093,12 +3097,6 @@ aircraft_t::betrete_feld()
 
 
 
-void aircraft_t::verlasse_feld()
-{
-	vehikel_t::verlasse_feld();
-}
-
-
 aircraft_t::aircraft_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
 {
 	rdwr(file, true);
@@ -3137,12 +3135,14 @@ aircraft_t::setze_convoi(convoi_t *c)
 			target_halt->unreserve_position(welt->lookup(cnv->get_route()->position_bei(cnv->get_route()->gib_max_n())),cnv->self);
 			target_halt = halthandle_t();
 		}
-		// free runway reservation
-		if(route_index>=takeoff  &&  route_index<touchdown-4  &&  state!=flying) {
-			block_reserver( takeoff, takeoff+100, false );
-		}
-		else if(route_index>=touchdown-1  &&  state!=taxiing) {
-			block_reserver( touchdown-1, suchen, false );
+		if(!cnv->get_route()->empty()) {
+			// free runway reservation
+			if(route_index>=takeoff  &&  route_index<touchdown-4  &&  state!=flying) {
+				block_reserver( takeoff, takeoff+100, false );
+			}
+			else if(route_index>=touchdown-1  &&  state!=taxiing) {
+				block_reserver( touchdown-1, suchen, false );
+			}
 		}
 	}
 	// maybe need to restore state?

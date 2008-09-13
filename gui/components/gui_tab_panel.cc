@@ -11,6 +11,7 @@
 #include "../../simevent.h"
 #include "../../simgraph.h"
 #include "../../simcolor.h"
+#include "../../simwin.h"
 
 #include "../../besch/skin_besch.h"
 #include "../../besch/bild_besch.h"

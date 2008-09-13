@@ -13,6 +13,7 @@
 #include "../simplay.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
+#include "../simwin.h"
 #include "../simskin.h"
 #include "../utils/simstring.h"
 #include "../freight_list_sorter.h"

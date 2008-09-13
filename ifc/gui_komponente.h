@@ -9,7 +9,7 @@
 #define ifc_gui_komponente_h
 
 #include "../dataobj/koord.h"
-#include "../simwin.h"
+#include "../simevent.h"
 
 struct event_t;
 
