@@ -267,8 +267,8 @@ welt_gui_t::update_from_heightfield(const char *filename)
 	DBG_MESSAGE("welt_gui_t::update_from_heightfield()",filename);
 
 	sint16 w, h;
-	sint8 *h_field = karte_t::get_height_data_from_file(filename, sets->gib_grundwasser(), w, h );
-	if(h_field) {
+	sint8 *h_field=NULL;
+	if(karte_t::get_height_data_from_file(filename, sets->gib_grundwasser(), h_field, w, h, false )) {
 		sets->setze_groesse_x(w);
 		sets->setze_groesse_y(h);
 
@@ -294,9 +294,9 @@ welt_gui_t::update_from_heightfield(const char *filename)
 
 		// blow up y direction
 		if(h<preview_size) {
-			const long repeat_y = preview_size/h;
-			for(int oy=h-1, y=preview_size-1;  oy>0;  oy--  ) {
-				for( int i=0;  i<=repeat_y  &&  y>0;  i++  ) {
+			const sint16 repeat_y = ((sint16)preview_size)/h;
+			for(sint16 oy=h-1, y=preview_size-1;  oy>0;  oy--  ) {
+				for( sint16 i=0;  i<=repeat_y  &&  y>0;  i++  ) {
 					memcpy( karte+y, karte+oy, 3*preview_size );
 					y --;
 				}

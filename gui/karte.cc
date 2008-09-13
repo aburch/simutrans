@@ -166,15 +166,16 @@ reliefkarte_t::setze_relief_farbe_area(koord k, int areasize, uint8 color)
 
 
 /**
- * Berechnet Farbe fÅE Hˆhenstufe hdiff (hoehe - grundwasser).
+ * calculates ground color for position (hoehe - grundwasser).
  * @author Hj. Malthaner
  */
-uint8
-reliefkarte_t::calc_hoehe_farbe(const sint16 hoehe, const sint16 grundwasser)
+uint8 reliefkarte_t::calc_hoehe_farbe(const sint16 hoehe, const sint16 grundwasser)
 {
-	sint8 index = (hoehe-grundwasser)+MAX_MAP_TYPE_WATER-1;
+	sint8 index = (hoehe-grundwasser)+MAX_MAP_TYPE_WATER;
 	if(index<0) index = 0;
-	if(index>=MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND) index = MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND-1;
+	if(index>=MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND) {
+		index = MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND;
+	}
 	return map_type_color[index];
 }
 

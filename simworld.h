@@ -360,7 +360,7 @@ public:
 	/* reads height data from 8 or 25 bit bmp or ppm files
 	 * @return either pointer to heightfield (use delete [] for it) or NULL
 	 */
-	static sint8 *get_height_data_from_file( const char *filename, sint8 grundwasser, sint16 &ww, sint16 &hh );
+	static bool get_height_data_from_file( const char *filename, sint8 grundwasser, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values );
 
 	message_t *get_message() { return msg; }
 

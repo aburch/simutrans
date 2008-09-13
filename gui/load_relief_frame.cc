@@ -45,24 +45,12 @@ const char *load_relief_frame_t::get_info(const char *filename)
 {
 	static char size[64];
 	char path[1024];
-	sprintf( path, "save/%s", filename );
-	FILE *file = fopen(path, "rb");
-	if(file) {
-		char buf [256];
-		int w, h;
+	sprintf( path, "maps/%s", filename );
 
-		read_line(buf, 255, file);
-
-		if(strncmp(buf, "P6", 2)) {
-			fclose(file);
-			return "";
-		}
-
-		read_line(buf, 255, file);
-		sscanf(buf, "%d %d", &w, &h);
+	sint16 w, h;
+	sint8 *h_field ;
+	if(karte_t::get_height_data_from_file(path, sets->gib_grundwasser(), h_field, w, h, true )) {
 		sprintf( size, "%i x %i", w, h );
-
-		fclose(file);
 		return size;
 	}
 	return "";
@@ -74,14 +62,11 @@ bool load_relief_frame_t::check_file( const char *filename, const char * )
 {
 	char path[1024];
 	sprintf( path, "maps/%s", filename );
-	FILE *file = fopen(path, "rb");
-	if(file) {
-		char buf [256];
+	sint16 w, h;
+	sint8 *h_field ;
 
-		read_line(buf, 255, file);
-		fclose(file);
-
-		return strncmp(buf, "P6", 2)==0  ||  strncmp(buf, "BM", 2)==0 ;
+	if(karte_t::get_height_data_from_file(path, sets->gib_grundwasser(), h_field, w, h, true )) {
+		return w>0  &&  h>0;
 	}
 	return false;
 }

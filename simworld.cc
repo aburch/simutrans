@@ -139,7 +139,7 @@ karte_t::setze_scroll_multi(int n)
 
 
 // read height data from bmp or ppm files
-sint8 *karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser, sint16 &ww, sint16 &hh )
+bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values )
 {
 	FILE *file = fopen(filename, "rb");
 	if(file) {
@@ -156,13 +156,14 @@ sint8 *karte_t::get_height_data_from_file( const char *filename, sint8 grundwass
 			}
 			// bitmap format
 			fseek( file, 10, SEEK_SET );
-			sint32 data_offset, w, h, format, table;
+			uint32 data_offset;
+			sint32 w, h, format, table;
 			sint16 bit_depth;
 #ifdef BIG_ENDIAN
-			sint32 l;
-			sint16 s;
+			uint32 l;
+			uint16 s;
 			fread( &l, 4, 1, file );
-			data_offset = (sint32)endian_uint32(&l);
+			data_offset = endian_sint32(&l);
 			fseek( file, 18, SEEK_SET );
 			fread( &l, 4, 1, file );
 			w = (sint32)endian_uint32(&l);
@@ -188,17 +189,28 @@ sint8 *karte_t::get_height_data_from_file( const char *filename, sint8 grundwass
 			fread( &table, 4, 1, file );
 #endif
 			if((bit_depth!=8  &&  bit_depth!=24)  ||  format>1) {
-				dbg->fatal("karte_t::get_height_data_from_file()","Can only use 8Bit (RLE or normal) or 24 bit bitmaps!");
-				return NULL;
+				if(!update_only_values) {
+					dbg->fatal("karte_t::get_height_data_from_file()","Can only use 8Bit (RLE or normal) or 24 bit bitmaps!");
+				}
+				fclose( file );
+				return false;
+			}
+
+			// skip parsing body
+			if(update_only_values) {
+				ww = w;
+				hh = h;
+				hfield = NULL;
+				return true;
 			}
 
 			// now read the data and convert them on the fly
-			sint8 *hfield = new sint8[w*h];
+			hfield = new sint8[w*h];
 			memset( hfield, grundwasser, w*h );
 			if(bit_depth==8) {
 				// convert color tables to height levels
 				if(table==0) {
-					table == 256;
+					table = 256;
 				}
 				sint8 h_table[256];
 				fseek( file, 54, SEEK_SET );
@@ -215,7 +227,7 @@ sint8 *karte_t::get_height_data_from_file( const char *filename, sint8 grundwass
 					// uncompressed
 					for(  sint32 y=0;  y<h;  y++  ) {
 						for(  sint32 x=0;  x<w;  x++  ) {
-							hfield[x+y*w] = h_table[fgetc(file)];
+							hfield[x+(y*w)] = h_table[fgetc(file)];
 						}
 						fseek( file, w&3, SEEK_CUR );	// skip superfluos bytes at the end of each scanline
 					}
@@ -229,7 +241,7 @@ sint8 *karte_t::get_height_data_from_file( const char *filename, sint8 grundwass
 
 						if (Count > 0) {
 							for( sint32 k = 0;  k < Count;  k++, x++  ) {
-								hfield[x+y*w] = h_table[ColorIndex];
+								hfield[x+(y*w)] = h_table[ColorIndex];
 							}
 						} else if (Count == 0) {
 							sint32 Flag = ColorIndex;
@@ -268,7 +280,7 @@ sint8 *karte_t::get_height_data_from_file( const char *filename, sint8 grundwass
 						int B = fgetc(file);
 						int G = fgetc(file);
 						int R = fgetc(file);
-						hfield[x+y*w] = ((((R*2+G*3+B)/4 - 224) & 0xFFF0)/16)*Z_TILE_STEP;
+						hfield[x+(y*w)] = ((((R*2+G*3+B)/4 - 224) & 0xFFF0)/16)*Z_TILE_STEP;
 					}
 					fseek( file, (w*3)&3, SEEK_CUR );	// skip superfluos bytes at the end of each scanline
 				}
@@ -277,7 +289,7 @@ sint8 *karte_t::get_height_data_from_file( const char *filename, sint8 grundwass
 			fclose(file);
 			ww = w;
 			hh = h;
-			return hfield;
+			return true;
 		}
 		else {
 			// ppm format
@@ -308,11 +320,14 @@ sint8 *karte_t::get_height_data_from_file( const char *filename, sint8 grundwass
 			sint32 h = param[1];
 			if(param[2]!=255) {
 				fclose(file);
-				dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong color depth %d", param[2] );
+				if(!update_only_values) {
+					dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong color depth %d", param[2] );
+				}
 				return NULL;
 			}
+
 			// ok, now read them in
-			sint8 *hfield = new sint8[w*h];
+			hfield = new sint8[w*h];
 			memset( hfield, grundwasser, w*h );
 
 			for(sint16 y=0; y<h; y++) {
@@ -320,7 +335,7 @@ sint8 *karte_t::get_height_data_from_file( const char *filename, sint8 grundwass
 					int R = fgetc(file);
 					int G = fgetc(file);
 					int B = fgetc(file);
-					hfield[x+y*w] =  ((((R*2+G*3+B)/4 - 224) & 0xFFF0)/16)*Z_TILE_STEP;
+					hfield[x+(y*w)] =  ((((R*2+G*3+B)/4 - 224) & 0xFFF0)/16)*Z_TILE_STEP;
 				}
 			}
 
@@ -328,10 +343,10 @@ sint8 *karte_t::get_height_data_from_file( const char *filename, sint8 grundwass
 			fclose(file);
 			ww = w;
 			hh = h;
-			return hfield;
+			return true;
 		}
 	}
-	return NULL;
+	return false;
 }
 
 
@@ -389,36 +404,36 @@ karte_t::calc_hoehe_mit_perlin()
 
 void karte_t::raise_clean(sint16 x, sint16 y, sint16 h)
 {
-  if(ist_in_gittergrenzen(x, y)) {
-    const koord k (x,y);
+	if(ist_in_gittergrenzen(x, y)) {
+		const sint32 offset = x + y*(cached_groesse_gitter_x+1);
 
-    if(lookup_hgt(k) < h) {
-      setze_grid_hgt(k, h);
+		if(  grid_hgts[offset]*Z_TILE_STEP < h  ) {
+			grid_hgts[offset] = h/Z_TILE_STEP;
+			const koord k (x,y);
 
 #ifndef DOUBLE_GROUNDS
-      raise_clean(x-1, y-1, h-Z_TILE_STEP);
-      raise_clean(x  , y-1, h-Z_TILE_STEP);
-      raise_clean(x+1, y-1, h-Z_TILE_STEP);
-      raise_clean(x-1, y  , h-Z_TILE_STEP);
-      // Punkt selbst hat schon die neue Hoehe
-      raise_clean(x+1, y  , h-Z_TILE_STEP);
-      raise_clean(x-1, y+1, h-Z_TILE_STEP);
-      raise_clean(x  , y+1, h-Z_TILE_STEP);
-      raise_clean(x+1, y+1, h-Z_TILE_STEP);
+			raise_clean(x-1, y-1, h-Z_TILE_STEP);
+			raise_clean(x  , y-1, h-Z_TILE_STEP);
+			raise_clean(x+1, y-1, h-Z_TILE_STEP);
+			raise_clean(x-1, y  , h-Z_TILE_STEP);
+			// Punkt selbst hat schon die neue Hoehe
+			raise_clean(x+1, y  , h-Z_TILE_STEP);
+			raise_clean(x-1, y+1, h-Z_TILE_STEP);
+			raise_clean(x  , y+1, h-Z_TILE_STEP);
+			raise_clean(x+1, y+1, h-Z_TILE_STEP);
 #else
-      raise_clean(x-1, y-1, h-Z_TILE_STEP*2);
-      raise_clean(x  , y-1, h-Z_TILE_STEP*2);
-      raise_clean(x+1, y-1, h-Z_TILE_STEP*2);
-      raise_clean(x-1, y  , h-Z_TILE_STEP*2);
-      // Punkt selbst hat schon die neue Hoehe
-      raise_clean(x+1, y  , h-Z_TILE_STEP*2);
-      raise_clean(x-1, y+1, h-Z_TILE_STEP*2);
-      raise_clean(x  , y+1, h-Z_TILE_STEP*2);
-      raise_clean(x+1, y+1, h-Z_TILE_STEP*2);
+			raise_clean(x-1, y-1, h-Z_TILE_STEP*2);
+			raise_clean(x  , y-1, h-Z_TILE_STEP*2);
+			raise_clean(x+1, y-1, h-Z_TILE_STEP*2);
+			raise_clean(x-1, y  , h-Z_TILE_STEP*2);
+			// Punkt selbst hat schon die neue Hoehe
+			raise_clean(x+1, y  , h-Z_TILE_STEP*2);
+			raise_clean(x-1, y+1, h-Z_TILE_STEP*2);
+			raise_clean(x  , y+1, h-Z_TILE_STEP*2);
+			raise_clean(x+1, y+1, h-Z_TILE_STEP*2);
 #endif
-
-    }
-  }
+		}
+	}
 }
 
 
@@ -428,10 +443,10 @@ void karte_t::cleanup_karte()
 	sint8 *grid_hgts_cpy = new sint8[(gib_groesse_x()+1)*(gib_groesse_y()+1)];
 	memcpy(grid_hgts_cpy,grid_hgts,(gib_groesse_x()+1)*(gib_groesse_y()+1));
 	// now connect the heights
-	sint16 i,j;
+	sint32 i,j;
 	for(j=0; j<=gib_groesse_y(); j++) {
 		for(i=0; i<=gib_groesse_x(); i++) {
-			raise_clean(i,j, grid_hgts_cpy[j*(gib_groesse_x()+1)+i]*Z_TILE_STEP+Z_TILE_STEP );
+			raise_clean(i,j, (grid_hgts_cpy[i+j*(gib_groesse_x()+1)]*Z_TILE_STEP)+Z_TILE_STEP );
 		}
 	}
 	delete [] grid_hgts_cpy;
@@ -694,7 +709,7 @@ karte_t::init_felder()
 }
 
 
-void karte_t::init(einstellungen_t* sets,sint8 *h_field)
+void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 {
 	mute_sound(true);
 
@@ -753,11 +768,7 @@ DBG_DEBUG("karte_t::init()","init_felder");
 	init_felder();
 
 DBG_DEBUG("karte_t::init()","setze_grid_hgt");
-	for (int j = 0; j <= gib_groesse_y(); j++) {
-		for(int i = 0; i <= gib_groesse_x(); i++) {
-			setze_grid_hgt(koord(i, j), 0);
-		}
-	}
+	memset( grid_hgts, 0, sizeof(*grid_hgts)*(cached_groesse_gitter_y+1)*(cached_groesse_gitter_y+1) );
 
 DBG_DEBUG("karte_t::init()","kartenboden_setzen");
 	for(sint16 y=0; y<gib_groesse_y(); y++) {
@@ -780,12 +791,14 @@ DBG_DEBUG("karte_t::init()","calc_hoehe_mit_heightfield");
 
 		for(int y=0; y<cached_groesse_gitter_y; y++) {
 			for(int x=0; x<cached_groesse_gitter_x; x++) {
-				setze_grid_hgt( koord(x,y), h_field[x+y*cached_groesse_gitter_x] );
+				grid_hgts[x + y*(cached_groesse_gitter_x+1)] = (h_field[x+(y*(sint32)cached_groesse_gitter_x)]/Z_TILE_STEP);
 			}
-
-			if(is_display_init()) {
-				display_progress((y*16)/gib_groesse_y(), display_total);
-			}
+			grid_hgts[cached_groesse_gitter_x + y*(cached_groesse_gitter_x+1)] = grid_hgts[cached_groesse_gitter_x-1 + y*(cached_groesse_gitter_x+1)];
+		}
+		// lower border
+		memcpy( grid_hgts+(cached_groesse_gitter_x+1)*(sint32)cached_groesse_gitter_y, grid_hgts+(cached_groesse_gitter_x+1)*(sint32)(cached_groesse_gitter_y-1), cached_groesse_gitter_x+1 );
+		if(is_display_init()) {
+			display_progress((cached_groesse_gitter_y*16)/gib_groesse_y(), display_total);
 		}
 	}
 	else {
@@ -1188,42 +1201,41 @@ bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 
 bool karte_t::can_raise_to(sint16 x, sint16 y, sint16 h) const
 {
-    bool ok = true;		// annahme, es geht, pruefung ob nicht
-
-    if(ist_in_gittergrenzen(x,y)) {
-	if(lookup_hgt(koord(x, y)) < h) {
-	    ok =
-		// Nachbar-Planquadrate testen
-		can_raise_plan_to(x-1,y-1, h) &&
-		can_raise_plan_to(x,y-1, h)   &&
-		can_raise_plan_to(x-1,y, h)   &&
-		can_raise_plan_to(x,y, h)     &&
+	bool ok = false;		// annahme, es geht, pruefung ob nicht
+	if(ist_in_gittergrenzen(x,y)) {
+		const sint32 offset = x + y*(cached_groesse_gitter_x+1);
+		ok = true;
+		if(  grid_hgts[offset]*Z_TILE_STEP < h  ) {
+			ok =
+				// Nachbar-Planquadrate testen
+				can_raise_plan_to(x-1,y-1, h) &&
+				can_raise_plan_to(x,y-1, h)   &&
+				can_raise_plan_to(x-1,y, h)   &&
+				can_raise_plan_to(x,y, h)     &&
 #ifndef DOUBLE_GROUNDS
-		// Nachbar-Gridpunkte testen
-		can_raise_to(x-1, y-1, h-Z_TILE_STEP) &&
-		can_raise_to(x  , y-1, h-Z_TILE_STEP) &&
-		can_raise_to(x+1, y-1, h-Z_TILE_STEP) &&
-		can_raise_to(x-1, y  , h-Z_TILE_STEP) &&
-		can_raise_to(x+1, y  , h-Z_TILE_STEP) &&
-		can_raise_to(x-1, y+1, h-Z_TILE_STEP) &&
-		can_raise_to(x  , y+1, h-Z_TILE_STEP) &&
-		can_raise_to(x+1, y+1, h-Z_TILE_STEP);
+				// Nachbar-Gridpunkte testen
+				can_raise_to(x-1, y-1, h-Z_TILE_STEP) &&
+				can_raise_to(x  , y-1, h-Z_TILE_STEP) &&
+				can_raise_to(x+1, y-1, h-Z_TILE_STEP) &&
+				can_raise_to(x-1, y  , h-Z_TILE_STEP) &&
+				can_raise_to(x+1, y  , h-Z_TILE_STEP) &&
+				can_raise_to(x-1, y+1, h-Z_TILE_STEP) &&
+				can_raise_to(x  , y+1, h-Z_TILE_STEP) &&
+				can_raise_to(x+1, y+1, h-Z_TILE_STEP);
 #else
-		// Nachbar-Gridpunkte testen
-		can_raise_to(x-1, y-1, h-Z_TILE_STEP*2) &&
-		can_raise_to(x  , y-1, h-Z_TILE_STEP*2) &&
-		can_raise_to(x+1, y-1, h-Z_TILE_STEP*2) &&
-		can_raise_to(x-1, y  , h-Z_TILE_STEP*2) &&
-		can_raise_to(x+1, y  , h-Z_TILE_STEP*2) &&
-		can_raise_to(x-1, y+1, h-Z_TILE_STEP*2) &&
-		can_raise_to(x  , y+1, h-Z_TILE_STEP*2) &&
-		can_raise_to(x+1, y+1, h-Z_TILE_STEP*2);
+				// Nachbar-Gridpunkte testen
+				can_raise_to(x-1, y-1, h-Z_TILE_STEP*2) &&
+				can_raise_to(x  , y-1, h-Z_TILE_STEP*2) &&
+				can_raise_to(x+1, y-1, h-Z_TILE_STEP*2) &&
+				can_raise_to(x-1, y  , h-Z_TILE_STEP*2) &&
+				can_raise_to(x+1, y  , h-Z_TILE_STEP*2) &&
+				can_raise_to(x-1, y+1, h-Z_TILE_STEP*2) &&
+				can_raise_to(x  , y+1, h-Z_TILE_STEP*2) &&
+				can_raise_to(x+1, y+1, h-Z_TILE_STEP*2);
 #endif
+		}
 	}
-    } else {
-	ok = false;
-    }
-    return ok;
+	return ok;
 }
 
 bool karte_t::can_raise(sint16 x, sint16 y) const
@@ -1235,15 +1247,14 @@ bool karte_t::can_raise(sint16 x, sint16 y) const
 	}
 }
 
-int karte_t::raise_to(sint16 x, sint16 y, sint16 h,bool set_slopes)
+int karte_t::raise_to(sint16 x, sint16 y, sint16 h, bool set_slopes)
 {
-	const koord pos (x,y);
 	int n = 0;
-
 	if(ist_in_gittergrenzen(x,y)) {
-		if(lookup_hgt(pos) < h) {
-			setze_grid_hgt(pos, h);
+		const sint32 offset = x + y*(cached_groesse_gitter_x+1);
 
+		if(  grid_hgts[offset]*Z_TILE_STEP < h  ) {
+			grid_hgts[offset] = h/Z_TILE_STEP;
 			n = 1;
 
 #ifndef DOUBLE_GROUNDS
@@ -1307,43 +1318,43 @@ int karte_t::raise(koord pos)
 	return n;
 }
 
+
 bool karte_t::can_lower_to(sint16 x, sint16 y, sint16 h) const
 {
-    bool ok = true;		// annahme, es geht, pruefung ob nicht
-
-    if(ist_in_gittergrenzen(x,y)) {
-	if(lookup_hgt(koord(x, y)) > h) {
-	    ok =
-		// Nachbar-Planquadrate testen
-		can_lower_plan_to(x-1,y-1, h) &&
-		can_lower_plan_to(x,y-1, h)   &&
-		can_lower_plan_to(x-1,y, h)   &&
-		can_lower_plan_to(x,y, h)     &&
+	bool ok = false;		// annahme, es geht, pruefung ob nicht
+	if(ist_in_gittergrenzen(x,y)) {
+		const sint32 offset = x + y*(cached_groesse_gitter_x+1);
+		ok = true;
+		if(  grid_hgts[offset]*Z_TILE_STEP > h  ) {
+			ok =
+				// Nachbar-Planquadrate testen
+				can_lower_plan_to(x-1,y-1, h) &&
+				can_lower_plan_to(x,y-1, h)   &&
+				can_lower_plan_to(x-1,y, h)   &&
+				can_lower_plan_to(x,y, h)     &&
 #ifndef DOUBLE_GROUNDS
-		// Nachbar-Gridpunkte testen
-		can_lower_to(x-1, y-1, h+Z_TILE_STEP) &&
-		can_lower_to(x  , y-1, h+Z_TILE_STEP) &&
-		can_lower_to(x+1, y-1, h+Z_TILE_STEP) &&
-		can_lower_to(x-1, y  , h+Z_TILE_STEP) &&
-		can_lower_to(x+1, y  , h+Z_TILE_STEP) &&
-		can_lower_to(x-1, y+1, h+Z_TILE_STEP) &&
-		can_lower_to(x  , y+1, h+Z_TILE_STEP) &&
-		can_lower_to(x+1, y+1, h+Z_TILE_STEP);
+				// Nachbar-Gridpunkte testen
+				can_lower_to(x-1, y-1, h+Z_TILE_STEP) &&
+				can_lower_to(x  , y-1, h+Z_TILE_STEP) &&
+				can_lower_to(x+1, y-1, h+Z_TILE_STEP) &&
+				can_lower_to(x-1, y  , h+Z_TILE_STEP) &&
+				can_lower_to(x+1, y  , h+Z_TILE_STEP) &&
+				can_lower_to(x-1, y+1, h+Z_TILE_STEP) &&
+				can_lower_to(x  , y+1, h+Z_TILE_STEP) &&
+				can_lower_to(x+1, y+1, h+Z_TILE_STEP);
 #else
-		// Nachbar-Gridpunkte testen
-		can_lower_to(x-1, y-1, h+Z_TILE_STEP*2) &&
-		can_lower_to(x  , y-1, h+Z_TILE_STEP*2) &&
-		can_lower_to(x+1, y-1, h+Z_TILE_STEP*2) &&
-		can_lower_to(x-1, y  , h+Z_TILE_STEP*2) &&
-		can_lower_to(x+1, y  , h+Z_TILE_STEP*2) &&
-		can_lower_to(x-1, y+1, h+Z_TILE_STEP*2) &&
-		can_lower_to(x  , y+1, h+Z_TILE_STEP*2) &&
-		can_lower_to(x+1, y+1, h+Z_TILE_STEP*2);
+				// Nachbar-Gridpunkte testen
+				can_lower_to(x-1, y-1, h+Z_TILE_STEP*2) &&
+				can_lower_to(x  , y-1, h+Z_TILE_STEP*2) &&
+				can_lower_to(x+1, y-1, h+Z_TILE_STEP*2) &&
+				can_lower_to(x-1, y  , h+Z_TILE_STEP*2) &&
+				can_lower_to(x+1, y  , h+Z_TILE_STEP*2) &&
+				can_lower_to(x-1, y+1, h+Z_TILE_STEP*2) &&
+				can_lower_to(x  , y+1, h+Z_TILE_STEP*2) &&
+				can_lower_to(x+1, y+1, h+Z_TILE_STEP*2);
 #endif
+		}
 	}
-    } else {
-	ok = false;
-    }
     return ok;
 }
 
@@ -1364,11 +1375,10 @@ int karte_t::lower_to(sint16 x, sint16 y, sint16 h, bool set_slopes)
 {
 	int n = 0;
 	if(ist_in_gittergrenzen(x,y)) {
-		const koord pos (x, y);
+		const sint32 offset = x + y*(cached_groesse_gitter_x+1);
 
-		if(lookup_hgt(pos) > h) {
-			setze_grid_hgt(pos, h);
-
+		if(  grid_hgts[offset]*Z_TILE_STEP > h  ) {
+			grid_hgts[offset] = h/Z_TILE_STEP;
 			n = 1;
 
 #ifndef DOUBLE_GROUNDS
@@ -1546,7 +1556,7 @@ void karte_t::set_werkzeug( werkzeug_t *w )
 void karte_t::setze_grid_hgt(koord k, sint16 hgt)
 {
 	if(ist_in_gittergrenzen(k.x, k.y)) {
-		grid_hgts[k.x + k.y*(gib_groesse_x()+1)] = (hgt/Z_TILE_STEP);
+		grid_hgts[k.x + k.y*(uint32)(gib_groesse_x()+1)] = (hgt/Z_TILE_STEP);
 	}
 }
 
@@ -3489,8 +3499,8 @@ karte_t::sp2num(spieler_t *sp)
 void karte_t::load_heightfield(einstellungen_t *sets)
 {
 	sint16 w, h;
-	sint8 *h_field = karte_t::get_height_data_from_file(sets->heightfield, sets->gib_grundwasser(), w, h );
-	if(h_field) {
+	sint8 *h_field;
+	if(karte_t::get_height_data_from_file(sets->heightfield, sets->gib_grundwasser(), h_field, w, h, false )) {
 		sets->setze_groesse(w,h);
 		// create map
 		init(sets,h_field);
