@@ -152,7 +152,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 			if(strcmp(id, "BM")) {
 				fclose(file);
 				dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong image type %s instead P6/BM", id);
-				return NULL;
+				return false;
 			}
 			// bitmap format
 			fseek( file, 10, SEEK_SET );
@@ -163,7 +163,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 			uint32 l;
 			uint16 s;
 			fread( &l, 4, 1, file );
-			data_offset = endian_sint32(&l);
+			data_offset = endian_uint32(&l);
 			fseek( file, 18, SEEK_SET );
 			fread( &l, 4, 1, file );
 			w = (sint32)endian_uint32(&l);
@@ -199,8 +199,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 			// skip parsing body
 			if(update_only_values) {
 				ww = w;
-				hh = h;
-				hfield = NULL;
+				hh = abs(h);
 				return true;
 			}
 
@@ -332,7 +331,14 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 				if(!update_only_values) {
 					dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong color depth %d", param[2] );
 				}
-				return NULL;
+				return false;
+			}
+
+			// report only values
+			if(update_only_values) {
+				ww = w;
+				hh = h;
+				return true;
 			}
 
 			// ok, now read them in
