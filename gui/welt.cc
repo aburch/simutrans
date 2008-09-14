@@ -283,7 +283,7 @@ welt_gui_t::update_from_heightfield(const char *filename)
 
 				for(int x=0; x<w; x++) {
 					while(karte_x<=rest_x  &&  karte_x<preview_size) {
-						karte[(karte_y*preview_size)+karte_x] = reliefkarte_t::calc_hoehe_farbe( h_field[x+y*w], sets->gib_grundwasser() );
+						karte[(karte_y*preview_size)+karte_x] = reliefkarte_t::calc_hoehe_farbe( h_field[x+y*w], sets->gib_grundwasser()-1 );
 						karte_x ++;
 					}
 					rest_x += skip_x;

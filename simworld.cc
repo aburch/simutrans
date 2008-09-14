@@ -224,17 +224,23 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 				// now read the data
 				fseek( file, data_offset, SEEK_SET );
 				if(format==0) {
-					// uncompressed
+					// uncompressed (usually mirrored, if h>0)
+					bool mirror = (h<0);
+					h = abs(h);
 					for(  sint32 y=0;  y<h;  y++  ) {
+						sint32 offset = mirror ? y*w : (h-y-1)*w;
 						for(  sint32 x=0;  x<w;  x++  ) {
-							hfield[x+(y*w)] = h_table[fgetc(file)];
+							hfield[x+offset] = h_table[fgetc(file)];
 						}
-						fseek( file, w&3, SEEK_CUR );	// skip superfluos bytes at the end of each scanline
+						// skip line offset
+						if(w&1) {
+							fgetc(file);
+						}
 					}
 				}
 				else {
-					// compressed RLE
-					sint32 x=0, y=0;
+					// compressed RLE (reverse y, since mirrored)
+					sint32 x=0, y=h-1;
 					while (!feof(file)) {
 						uint8 Count= fgetc(file);
 						uint8 ColorIndex = fgetc(file);
@@ -248,7 +254,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 							if (Flag == 0) {
 								// goto next line
 								x = 0;
-								y++;
+								y--;
 							}
 							else if (Flag == 1) {
 								// end of bitmap
@@ -257,7 +263,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 							else if (Flag == 2) {
 								// skip with cursor
 								x += (uint8)fgetc(file);
-								y += (uint8)fgetc(file);
+								y -= (uint8)fgetc(file);
 							}
 							else {
 								// uncompressed run
@@ -275,14 +281,17 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 			}
 			else {
 				// uncompressed 24 bits
+				bool mirror = (h<0);
+				h = abs(h);
 				for(  sint32 y=0;  y<h;  y++  ) {
+					sint32 offset = mirror ? y*w : (h-y-1)*w;
 					for(  sint32 x=0;  x<w;  x++  ) {
 						int B = fgetc(file);
 						int G = fgetc(file);
 						int R = fgetc(file);
-						hfield[x+(y*w)] = ((((R*2+G*3+B)/4 - 224) & 0xFFF0)/16)*Z_TILE_STEP;
+						hfield[x+offset] = ((((R*2+G*3+B)/4 - 224) & 0xFFF0)/16)*Z_TILE_STEP;
 					}
-					fseek( file, (w*3)&3, SEEK_CUR );	// skip superfluos bytes at the end of each scanline
+					fseek( file, (4-((w*3)&3))&3, SEEK_CUR );	// skip superfluos bytes at the end of each scanline
 				}
 			}
 			// success ...

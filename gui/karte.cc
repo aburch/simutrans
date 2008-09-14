@@ -171,12 +171,7 @@ reliefkarte_t::setze_relief_farbe_area(koord k, int areasize, uint8 color)
  */
 uint8 reliefkarte_t::calc_hoehe_farbe(const sint16 hoehe, const sint16 grundwasser)
 {
-	sint8 index = (hoehe-grundwasser)+MAX_MAP_TYPE_WATER;
-	if(index<0) index = 0;
-	if(index>=MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND) {
-		index = MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND;
-	}
-	return map_type_color[index];
+	return map_type_color[clamp( (hoehe-grundwasser)+MAX_MAP_TYPE_WATER-1, 0, MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND )];
 }
 
 
