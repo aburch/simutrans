@@ -238,7 +238,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		dbg->warning("convoi_t::laden_abschliessen()","cnv %i is currently too long.",self.get_id());
 
 		// since start may have been changed
-		uint16 start_index = fahr[anz_vehikel-1]->gib_route_index()-1;
+		uint16 start_index = max(2,fahr[anz_vehikel-1]->gib_route_index())-2;
 		koord3d k0 = fahr[anz_vehikel-1]->gib_pos();
 		uint32 train_length = 1;	// length in 1/16 of tile
 
