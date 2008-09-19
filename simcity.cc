@@ -511,7 +511,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb)
 	if (gb != NULL) {
 		const haus_tile_besch_t* tile  = gb->gib_tile();
 		koord size = tile->gib_besch()->gib_groesse(tile->gib_layout());
-		koord pos = gb->gib_pos().gib_2d() - tile->gib_offset();
+		const koord pos = gb->gib_pos().gib_2d() - tile->gib_offset();
 		koord k;
 
 		// add all tiles
@@ -580,27 +580,56 @@ void stadt_t::recount_houses()
 
 
 
-// recalculate the spreading of a city
-// will be updated also after house deletion
-void stadt_t::recalc_city_size()
+void stadt_t::pruefe_grenzen(koord k)
 {
-	lo = koord(welt->gib_groesse_x(), welt->gib_groesse_y());
-	ur = koord(0, 0);
-	for(  uint32 i=0;  i<buildings.get_count();  i++  ) {
-		if(buildings[i]->gib_tile()->gib_besch()->gib_utyp()!=haus_besch_t::firmensitz) {
-			const koord pos = buildings[i]->gib_pos().gib_2d();
-			if (lo.x > pos.x) lo.x = pos.x;
-			if (lo.y > pos.y) lo.y = pos.y;
-			if (ur.x < pos.x) ur.x = pos.x;
-			if (ur.y < pos.y) ur.y = pos.y;
+	if(  has_low_density  ) {
+		// has extra wide borders => change density calculation
+		has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/(abs(ur.x-lo.x-4)*abs(ur.y-lo.y-4)+1) > min_building_desity);
+		if(!has_low_density)  {
+			// full recalc needed due to map borders ...
+			recalc_city_size();
+			return;
 		}
 	}
+	else {
+		has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_desity);
+		if(has_low_density)  {
+			// wide borders again ..
+			lo -= koord(2,2);
+			ur += koord(2,2);
+		}
+	}
+	// now just add single coordinates
+	if(  has_low_density  ) {
+		if (k.x < lo.x+2) {
+			lo.x = k.x - 2;
+		}
+		if (k.y < lo.y+2) {
+			lo.y = k.y - 2;
+		}
 
-	if(buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_desity  ) {
-		lo.x -= 1;
-		lo.y -= 1;
-		ur.x += 1;
-		ur.y += 1;
+		if (k.x > ur.x-2) {
+			ur.x = k.x + 2;
+		}
+		if (k.y > ur.y-2) {
+			ur.y = k.y + 2;
+		}
+	}
+	else {
+		// first grow within ...
+		if (k.x < lo.x) {
+			lo.x = k.x;
+		}
+		if (k.y < lo.y) {
+			lo.y = k.y;
+		}
+
+		if (k.x > ur.x) {
+			ur.x = k.x;
+		}
+		if (k.y > ur.y) {
+			ur.y = k.y;
+		}
 	}
 
 	if (lo.x < 0) {
@@ -610,10 +639,59 @@ void stadt_t::recalc_city_size()
 		lo.y = 0;
 	}
 	if (ur.x >= welt->gib_groesse_x()) {
-		ur.x = welt->gib_groesse_x();
+		ur.x = welt->gib_groesse_x()-1;
 	}
 	if (ur.y >= welt->gib_groesse_y()) {
-		ur.y = welt->gib_groesse_y();
+		ur.y = welt->gib_groesse_y()-1;
+	}
+}
+
+
+
+// recalculate the spreading of a city
+// will be updated also after house deletion
+void stadt_t::recalc_city_size()
+{
+	lo = koord(welt->gib_groesse_x(), welt->gib_groesse_y());
+	ur = koord(0, 0);
+	for(  uint32 i=0;  i<buildings.get_count();  i++  ) {
+		if(buildings[i]->gib_tile()->gib_besch()->gib_utyp()!=haus_besch_t::firmensitz) {
+			const koord pos = buildings[i]->gib_pos().gib_2d();
+			if (lo.x > pos.x) {
+				lo.x = pos.x;
+			}
+			if (lo.y > pos.y) {
+				lo.y = pos.y;
+			}
+			if (ur.x < pos.x) {
+				ur.x = pos.x;
+			}
+			if (ur.y < pos.y) {
+				ur.y = pos.y;
+			}
+		}
+	}
+
+	has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_desity);
+	if(  has_low_density  ) {
+		// wider borders for faster growth of sparse small towns
+		lo.x -= 2;
+		lo.y -= 2;
+		ur.x += 2;
+		ur.y += 2;
+	}
+
+	if (lo.x < 0) {
+		lo.x = 0;
+	}
+	if (lo.y < 0) {
+		lo.y = 0;
+	}
+	if (ur.x >= welt->gib_groesse_x()) {
+		ur.x = welt->gib_groesse_x()-1;
+	}
+	if (ur.y >= welt->gib_groesse_y()) {
+		ur.y = welt->gib_groesse_y()-1;
 	}
 }
 
@@ -1773,13 +1851,12 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			}
 		}
 
-		if (umziehen && alte_str != koord::invalid) {
+		if (umziehen  &&  alte_str != koord::invalid) {
 			// Strasse vom ehemaligen Rathaus zum neuen verlegen.
 			wegbauer_t bauer(welt, NULL);
 			bauer.route_fuer(wegbauer_t::strasse, welt->get_city_road());
 			bauer.calc_route(welt->lookup(alte_str)->gib_kartenboden()->gib_pos(), welt->lookup(best_pos + koord(0, besch->gib_h(layout)))->gib_kartenboden()->gib_pos());
 			bauer.baue();
-			pruefe_grenzen(best_pos);
 		} else if (neugruendung) {
 			lo = best_pos - koord(2, 2);
 			ur = best_pos + koord(besch->gib_b(layout), besch->gib_h(layout)) + koord(2, 2);
@@ -1789,14 +1866,6 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		pos = best_pos;
 		welt->lookup_kartenboden(pos)->setze_text( name );
 	}
-
-	// Hajo: paranoia - ensure correct bounds in all cases
-	//       I don't know if best_pos is always valid
-	if (lo.x < 0) lo.x = 0;
-	if (ur.x >= welt->gib_groesse_x() - 1) ur.x = welt->gib_groesse_x() - 1;
-
-	if (lo.y < 0) lo.y = 0;
-	if (ur.y >= welt->gib_groesse_y() - 1) ur.y = welt->gib_groesse_y() - 1;
 }
 
 
@@ -2328,42 +2397,6 @@ void stadt_t::baue()
 	if (!buildings.empty()  &&  simrand(100) <= renovation_percentage) {
 		renoviere_gebaeude(buildings[simrand(buildings.get_count())]);
 		INT_CHECK("simcity 876");
-	}
-}
-
-
-void stadt_t::pruefe_grenzen(koord k)
-{
-	if(buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)) > min_building_desity  ) {
-		if (k.x < lo.x+2 && k.x > 1) {
-			lo.x = k.x - 2;
-		}
-		if (k.y < lo.y+2 && k.y > 1) {
-			lo.y = k.y - 2;
-		}
-
-		if (k.x > ur.x-2 && k.x < welt->gib_groesse_x() - 3) {
-			ur.x = k.x + 2;
-		}
-		if (k.y > ur.y-2 && k.y < welt->gib_groesse_y() - 3) {
-			ur.y = k.y + 2;
-		}
-	}
-	else {
-		// first grow within ...
-		if (k.x < lo.x && k.x > 1) {
-			lo.x = k.x;
-		}
-		if (k.y < lo.y && k.y > 1) {
-			lo.y = k.y;
-		}
-
-		if (k.x > ur.x && k.x < welt->gib_groesse_x() - 1) {
-			ur.x = k.x;
-		}
-		if (k.y > ur.y && k.y < welt->gib_groesse_y() - 1) {
-			ur.y = k.y;
-		}
 	}
 }
 

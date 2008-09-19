@@ -94,7 +94,8 @@ private:
 	array2d_tpl<uint8> pax_ziele_neu;
 
 	koord pos;			// Gruendungsplanquadrat der Stadt
-	koord lo, ur;	// max size of housing area
+	koord lo, ur;		// max size of housing area
+	bool  has_low_density;	// in this case extend borders by two
 
 	// this counter indicate which building will be processed next
 	uint32 step_count;
