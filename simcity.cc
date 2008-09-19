@@ -652,22 +652,22 @@ void stadt_t::pruefe_grenzen(koord k)
 // will be updated also after house deletion
 void stadt_t::recalc_city_size()
 {
-	lo = koord(welt->gib_groesse_x(), welt->gib_groesse_y());
-	ur = koord(0, 0);
+	lo = pos;
+	ur = pos;
 	for(  uint32 i=0;  i<buildings.get_count();  i++  ) {
 		if(buildings[i]->gib_tile()->gib_besch()->gib_utyp()!=haus_besch_t::firmensitz) {
-			const koord pos = buildings[i]->gib_pos().gib_2d();
-			if (lo.x > pos.x) {
-				lo.x = pos.x;
+			const koord gb_pos = buildings[i]->gib_pos().gib_2d();
+			if (lo.x > gb_pos.x) {
+				lo.x = gb_pos.x;
 			}
-			if (lo.y > pos.y) {
-				lo.y = pos.y;
+			if (lo.y > gb_pos.y) {
+				lo.y = gb_pos.y;
 			}
-			if (ur.x < pos.x) {
-				ur.x = pos.x;
+			if (ur.x < gb_pos.x) {
+				ur.x = gb_pos.x;
 			}
-			if (ur.y < pos.y) {
-				ur.y = pos.y;
+			if (ur.y < gb_pos.y) {
+				ur.y = gb_pos.y;
 			}
 		}
 	}
@@ -959,26 +959,18 @@ void stadt_t::rdwr(loadsave_t* file)
 		file->rdwr_long(dummy, "\n");
 	}
 
-	// 08-Jan-03: Due to some bugs in the special buildings/town hall
-	// placement code, li,re,ob,un could've gotten irregular values
-	// If a game is loaded, the game might suffer from such an mistake
-	// and we need to correct it here.
-	DBG_MESSAGE("stadt_t::rdwr()", "borders (%i,%i) -> (%i,%i)", lo.x, lo.y, ur.x, ur.y);
 
-	if(lo==koord(0,0)) {
-		lo = pos - koord(33,33);
+	if(file->is_loading()) {
+		// 08-Jan-03: Due to some bugs in the special buildings/town hall
+		// placement code, li,re,ob,un could've gotten irregular values
+		// If a game is loaded, the game might suffer from such an mistake
+		// and we need to correct it here.
+		DBG_MESSAGE("stadt_t::rdwr()", "borders (%i,%i) -> (%i,%i)", lo.x, lo.y, ur.x, ur.y);
+
+		// borders will be corrected later one anyways for newer versions
+		pruefe_grenzen( pos-koord(33,33) );
+		pruefe_grenzen( pos+koord(33,33) );
 	}
-	if(ur==koord(0,0)) {
-		ur = pos + koord(33,33);
-	}
-
-	if (lo.x < 0) lo.x = max(0, pos.x - 33);
-	if (ur.x >= welt->gib_groesse_x() - 1) ur.x = min(welt->gib_groesse_x() - 2, pos.x + 33);
-
-	if (lo.y < 0) lo.y = max(0, pos.y - 33);
-	if (ur.y >= welt->gib_groesse_y() - 1) ur.y = min(welt->gib_groesse_y() - 2, pos.y + 33);
-
-	// will be corrected later one anyways for newer versions
 }
 
 
