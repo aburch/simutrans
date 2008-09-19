@@ -783,7 +783,7 @@ DBG_DEBUG("karte_t::init()","init_felder");
 	init_felder();
 
 DBG_DEBUG("karte_t::init()","setze_grid_hgt");
-	memset( grid_hgts, 0, sizeof(*grid_hgts)*(cached_groesse_gitter_y+1)*(cached_groesse_gitter_y+1) );
+	memset( grid_hgts, 0, sizeof(*grid_hgts)*(cached_groesse_gitter_x+1)*(cached_groesse_gitter_y+1) );
 
 DBG_DEBUG("karte_t::init()","kartenboden_setzen");
 	for(sint16 y=0; y<gib_groesse_y(); y++) {
