@@ -3136,7 +3136,9 @@ DBG_DEBUG("karte_t::laden", "init felder ok");
 	if(file->get_version()<86006) {
 		letztes_jahr += umgebung_t::starting_year;
 	}
-	// set the current month count
+	// old game might have wrong month
+	letzter_monat %= 12;
+ 	// set the current month count
 	setze_ticks_bits_per_tag(einstellungen->gib_bits_per_month());
 	current_month = letzter_monat + (letztes_jahr*12);
 	season = (2+letzter_monat/3)&3; // summer always zero
