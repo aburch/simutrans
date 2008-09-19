@@ -102,7 +102,10 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	tabs.setze_pos(koord(11,5));
 	tabs.setze_groesse(koord(LINE_NAME_COLUMN_WIDTH-22, SCL_HEIGHT));
 	tabs.add_tab(&scl, translator::translate("All"));
+	max_idx = 0;
 	tabs_to_lineindex[max_idx++] = simline_t::line;
+
+	// now add all specific tabs
 	if(maglev_t::default_maglev) {
 		tabs.add_tab(&scl, translator::translate("Maglev"), skinverwaltung_t::maglevhaltsymbol, translator::translate("Maglev"));
 		tabs_to_lineindex[max_idx++] = simline_t::maglevline;
