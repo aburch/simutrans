@@ -243,7 +243,7 @@ fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_, convoihandle_t 
 	bt_wait_prev.add_listener(this);
 	add_komponente(&bt_wait_prev);
 
-	if(fpl->aktuell>=fpl->maxi()  ||  fpl->eintrag[fpl->aktuell].waiting_time_shift==0) {
+	if(fpl->maxi()==0  ||  fpl->aktuell>=fpl->maxi()  ||  fpl->eintrag[fpl->aktuell].waiting_time_shift==0) {
 		strcpy( str_parts_month, translator::translate("off") );
 	}
 	else {
