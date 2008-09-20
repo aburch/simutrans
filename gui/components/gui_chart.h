@@ -21,7 +21,7 @@
 class gui_chart_t : public gui_komponente_t
 {
 public:
-    /**
+	/**
 	 * Set background color. -1 means no background
 	 * @author Hj. Malthaner
 	 */
@@ -33,30 +33,24 @@ public:
 	 * paint chart
 	 * @author hsiegeln
 	 */
-        void zeichnen(koord offset);
+		void zeichnen(koord offset);
 
-    /**
-     * Events werden hiermit an die GUI-Komponenten
-     * gemeldet
-     * @author Hj. Malthaner
-     */
-    void infowin_event(const event_t *);
+	/**
+	 * Events werden hiermit an die GUI-Komponenten
+	 * gemeldet
+	 * @author Hj. Malthaner
+	 */
+	void infowin_event(const event_t *);
 
 	/*
 	 * set dimension
 	 * @author hsiegeln
 	 */
-		void set_dimension(int x, int y)
-		{
-			x_elements = x;
-			y_elements = y;
-		}
-
-	/*
-	 * get dimension
-	 * @author hsiegeln
-	 */
-        //koord get_dimension() { return dimension; }
+	void set_dimension(int x, int y)
+	{
+		x_elements = x;
+		y_elements = y;
+	}
 
 	/*
 	 * adds a curve to the graph
@@ -69,20 +63,20 @@ public:
 	 * returns curve's id
 	 * @author hsiegeln
 	 */
-        int add_curve(int color, sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value);
+	int add_curve(int color, sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value);
 
-        void remove_curves() { curves.clear(); }
+	void remove_curves() { curves.clear(); }
 
 	/**
 	 * Hide a curve of the set
 	 */
-        void hide_curve(unsigned int id);
+	void hide_curve(unsigned int id);
 
 
 	/**
 	 * Show a curve of the set
 	 */
-        void show_curve(unsigned int id);
+	void show_curve(unsigned int id);
 
 	/*
 	 * set starting value for x-axis of chart
@@ -99,7 +93,7 @@ public:
 
 private:
 
-        void calc_gui_chart_values(sint64 *baseline, float *scale, char *, char *) const;
+	void calc_gui_chart_values(sint64 *baseline, float *scale, char *, char *) const;
 
 	/*
 	 * curve struct

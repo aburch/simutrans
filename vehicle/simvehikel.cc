@@ -1063,7 +1063,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 {
 	const long dist = abs(end.x - start.x) + abs(end.y - start.y);
 
-	const sint32 ref_speed = welt->get_average_speed( gib_waytype() );
+	const sint32 ref_speed = welt->get_average_speed( gib_besch()->get_waytype() );
 	const sint32 speed_base = (100*speed_to_kmh(cnv->gib_min_top_speed()))/ref_speed-100;
 
 	sint64 value = 0;
