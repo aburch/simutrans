@@ -214,3 +214,5 @@ uint8 umgebung_t::tooltip_textcolor = COL_BLACK;
  * 724: correct one, faktor sqrt(2)
  */
 uint16 umgebung_t::pak_diagonal_multiplier = 724;
+
+sint8 umgebung_t::daynight_level = 0;

@@ -173,11 +173,11 @@ color_gui_t::action_triggered(gui_komponente_t *komp, value_t)
 	einstellungen_t * sets = welt->gib_einstellungen();
 
 	if((buttons+0)==komp) {
-	    display_set_light(display_get_light()-1);
+		if(  umgebung_t::daynight_level>0  ) {
+			umgebung_t::daynight_level--;
+		}
 	} else if((buttons+1)==komp) {
-	  if(display_get_light() < 0) {
-	    display_set_light(display_get_light()+1);
-	  }
+		umgebung_t::daynight_level++;
 	} else if((buttons+4)==komp) {
 		if(sets->gib_verkehr_level() > 0 ) {
 			sets->setze_verkehr_level( sets->gib_verkehr_level() - 1 );

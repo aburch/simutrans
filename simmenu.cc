@@ -118,6 +118,7 @@ werkzeug_t *create_simple_tool(int toolnr)
 		case WKZ_ROTATE90:          return new wkz_rotate90_t();
 		case WKZ_QUIT:              return new wkz_quit_t();
 		case WKZ_FILL_TREES:        return new wkz_fill_trees_t();
+		case WKZ_DAYNIGHT_LEVEL:    return new wkz_daynight_level_t();
 	}
 	dbg->fatal("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 	return NULL;

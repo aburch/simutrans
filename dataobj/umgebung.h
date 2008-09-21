@@ -367,6 +367,9 @@ public:
 	// multiplier to get the number of steps on diagonals
 	static uint16 pak_diagonal_multiplier;
 
+	// fixed day/night view level
+	static sint8 daynight_level;
+
 };
 
 #endif

@@ -1122,7 +1122,8 @@ int display_get_light(void)
 /* Tomas variant */
 static void calc_base_pal_from_night_shift(const int night)
 {
-	const int day = 4 - night;
+	const int night2 = min(night, 4);
+	const int day = 4 - night2;
 	unsigned int i;
 
 	// constant multiplier 0,66 - dark night  255 will drop to 49, 55 to 10
@@ -1183,9 +1184,9 @@ static void calc_base_pal_from_night_shift(const int night)
 		const int night_G = night_lights[i*3+1];
 		const int night_B = night_lights[i*3+2];
 
-		const int R = (day_R * day + night_R * night) >> 2;
-		const int G = (day_G * day + night_G * night) >> 2;
-		const int B = (day_B * day + night_B * night) >> 2;
+		const int R = (day_R * day + night_R * night2) >> 2;
+		const int G = (day_G * day + night_G * night2) >> 2;
+		const int B = (day_B * day + night_B * night2) >> 2;
 
 		rgbmap_day_night[0x8010 + i] =
 			get_system_color(R > 0 ? R : 0, G > 0 ? G : 0, B > 0 ? B : 0);

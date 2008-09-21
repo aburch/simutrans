@@ -73,8 +73,11 @@ karte_ansicht_t::display(bool force_dirty)
 
 	// change to night mode?
 	// images will be recalculated only, when there has been a change, so we set always
-	if(grund_t::underground_mode  ||  !umgebung_t::night_shift) {
+	if(grund_t::underground_mode) {
 		display_day_night_shift(0);
+	}
+	else if(!umgebung_t::night_shift) {
+		display_day_night_shift(umgebung_t::daynight_level);
 	}
 	else {
 		// calculate also days if desired
@@ -89,7 +92,7 @@ karte_ansicht_t::display(bool force_dirty)
 		else {
 			stunden2 = ( (ticks_this_month * 3) >> (welt->ticks_bits_per_tag-4) )%48;
 		}
-		display_day_night_shift(hours2night[stunden2]);
+		display_day_night_shift(hours2night[stunden2]+umgebung_t::daynight_level);
 	}
 
 	// not very elegant, but works:

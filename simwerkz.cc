@@ -3349,3 +3349,43 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 }
 
+
+
+const char *wkz_daynight_level_t::get_tooltip(spieler_t *) {
+	if(default_param) {
+		if(default_param[0]=='+'  ||  default_param[0]=='-') {
+			sprintf(toolstr, "%s %s",
+			translator::translate("1LIGHT_CHOOSE"),
+			&default_param[0]);
+			return toolstr;
+		}
+		else {
+			return translator::translate("Toggle day/night view");
+		}
+	}
+	else {
+		return "";
+	}
+}
+
+bool wkz_daynight_level_t::init( karte_t *, spieler_t * ) {
+	if(grund_t::underground_mode  ||  umgebung_t::night_shift) {
+		return false;
+	}
+	if(default_param) {
+		if(default_param[0]=='+'  &&  umgebung_t::daynight_level > 0) {
+			// '+': fade in one level
+			umgebung_t::daynight_level = umgebung_t::daynight_level-1;
+		}
+		else if (default_param[0]=='-') {
+			// '-': fade out one level
+			umgebung_t::daynight_level = umgebung_t::daynight_level+1;
+		}
+		else {
+			// number: toggle number/0. 4 or 5 is good for night
+			const sint8 level = atoi(default_param);
+			umgebung_t::daynight_level = (umgebung_t::daynight_level==0) ? level : 0;
+		}
+	}
+	return false;
+}

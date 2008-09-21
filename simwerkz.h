@@ -587,6 +587,12 @@ class wkz_fill_trees_t : public werkzeug_t {
 	}
 };
 
+/* change day/night view manually */
+class wkz_daynight_level_t : public werkzeug_t {
+	const char *get_tooltip(spieler_t *);
+	bool init( karte_t *, spieler_t * );
+};
+
 /********************** dialoge tools *****************************/
 
 // general help

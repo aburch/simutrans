@@ -1004,7 +1004,8 @@ static void display_set_color(int new_color_level)
 /* Tomas variant */
 static void calc_base_pal_from_night_shift(const int night)
 {
-	const int day = 4 - night;
+	const int night2 = min(night, 4);
+	const int day = 4 - night2;
 	unsigned int i;
 
 	// constant multiplier 0,66 - dark night  255 will drop to 49, 55 to 10
@@ -1046,9 +1047,9 @@ static void calc_base_pal_from_night_shift(const int night)
 		const int night_G = (night_lights[i] >> 8) & 0xFF;
 		const int night_B =  night_lights[i] & 0xFF;
 
-		const int R = (day_R * day + night_R * night) >> 2;
-		const int G = (day_G * day + night_G * night) >> 2;
-		const int B = (day_B * day + night_B * night) >> 2;
+		const int R = (day_R * day + night_R * night2) >> 2;
+		const int G = (day_G * day + night_G * night2) >> 2;
+		const int B = (day_B * day + night_B * night2) >> 2;
 
 		textur_palette[i * 3 + 32 * 3 + 0] = R>0 ? R : 0;
 		textur_palette[i * 3 + 32 * 3 + 1] = G>0 ? R : 0;
