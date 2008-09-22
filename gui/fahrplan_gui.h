@@ -117,6 +117,9 @@ private:
 	// set the correct tool now ...
 	void update_werkzeug(bool set);
 
+	// changes the waiting/loading levels if allowed
+	void update_selection();
+
 public:
     fahrplan_gui_t(fahrplan_t* fpl, spieler_t* sp, convoihandle_t cnv);
 

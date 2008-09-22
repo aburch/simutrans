@@ -353,6 +353,35 @@ void fahrplan_gui_t::update_werkzeug(bool set)
 
 
 
+void fahrplan_gui_t::update_selection()
+{
+	// update load
+	lb_load.set_color( COL_GREY3 );
+	lb_wait.set_color( COL_GREY3 );
+	if(fpl->maxi()>0) {
+		fpl->aktuell = min(fpl->maxi()-1,fpl->aktuell);
+		if(haltestelle_t::gib_halt(sp->get_welt(), fpl->eintrag[fpl->aktuell].pos).is_bound()) {
+			lb_load.set_color( COL_BLACK );
+			sprintf( str_ladegrad, "%d%%", fpl->eintrag[fpl->aktuell].ladegrad );
+			if(  fpl->eintrag[fpl->aktuell].ladegrad>0  ) {
+				lb_wait.set_color( COL_BLACK );
+			}
+			if(  fpl->eintrag[fpl->aktuell].ladegrad>0  &&  fpl->eintrag[fpl->aktuell].waiting_time_shift>0) {
+				sprintf( str_parts_month, "1/%d",  1<<(16-fpl->eintrag[fpl->aktuell].waiting_time_shift) );
+			}
+			else {
+				strcpy( str_parts_month, translator::translate("off") );
+			}
+		}
+		else {
+			strcpy( str_ladegrad, "0%" );
+			strcpy( str_parts_month, translator::translate("off") );
+		}
+	}
+}
+
+
+
 /**
  * Mausklicks werden hiermit an die GUI-Komponenten
  * gemeldet
@@ -380,16 +409,7 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 						fpl->remove();
 						action_triggered( &bt_add, value_t() );
 					}
-					// update load
-					if(fpl->maxi()>0) {
-						sprintf( str_ladegrad, "%d%%", fpl->eintrag[fpl->aktuell].ladegrad );
-						if(fpl->eintrag[fpl->aktuell].waiting_time_shift) {
-							sprintf( str_parts_month, "1/%d",  1<<(16-fpl->eintrag[fpl->aktuell].waiting_time_shift) );
-						}
-						else {
-							strcpy( str_parts_month, translator::translate("off") );
-						}
-					}
+					update_selection();
 				}
 			}
 		}
@@ -458,7 +478,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 				index ++;
 			}
 			load = ladegrade[(index+MAX_LADEGRADE-1)%MAX_LADEGRADE];
-			sprintf( str_ladegrad, "%d%%", load );
+			update_selection();
 		}
 	} else if(komp == &bt_next) {
 		if(fpl->maxi() > 0) {
@@ -468,19 +488,18 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 				index ++;
 			}
 			load = ladegrade[(index+1)%MAX_LADEGRADE];
-			sprintf( str_ladegrad, "%d%%", load );
+			update_selection();
 		}
 	} else if(komp == &bt_wait_prev) {
 		if(fpl->maxi() > 0) {
 			sint8& wait = fpl->eintrag[fpl->aktuell].waiting_time_shift;
 			if(wait>7) {
 				wait --;
-				sprintf( str_parts_month, "1/%d",  1<<(16-wait) );
 			}
 			else {
 				wait = 0;
-				strcpy( str_parts_month, translator::translate("off") );
 			}
+			update_selection();
 		}
 	} else if(komp == &bt_wait_next) {
 		if(fpl->maxi() > 0) {
@@ -491,7 +510,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			else if(wait<16) {
 				wait ++;
 			}
-			sprintf( str_parts_month, "1/%d",  1<<(16-wait) );
+			update_selection();
 		}
 	} else if (komp == &bt_return) {
 		fpl->add_return_way();
