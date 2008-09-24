@@ -708,7 +708,7 @@ gebaeude_t::rdwr(loadsave_t *file)
 					DBG_MESSAGE("gebaeude_t::rdwr()","neither %s nor %s, tile %i not found, try other replacement",translator::compatibility_name(buf),buf,idx);
 				}
 				else {
-					DBG_MESSAGE("gebaeude_t::rdwr()","%s replaced by %s, tile %i",translator::compatibility_name(buf),buf,idx);
+					DBG_MESSAGE("gebaeude_t::rdwr()","%s replaced by %s, tile %i",buf,translator::compatibility_name(buf),idx);
 				}
 			}
 			if(tile==NULL) {
@@ -726,62 +726,81 @@ gebaeude_t::rdwr(loadsave_t *file)
 				}
 				else {
 					// try to find a fitting building
-					char typ_str[16];
 					int i, level=atoi(buf);
+					gebaeude_t::typ type = gebaeude_t::unbekannt;
 
 					if(level>0) {
 						// May be an old 64er, so we can try some
 						if(strncmp(buf+3,"WOHN",4)==0) {
-							strcpy(typ_str,"RES");
+							type = gebaeude_t::wohnung;
 						} else if(strncmp(buf+3,"FAB",3)==0) {
-							strcpy(typ_str,"IND");
+							type = gebaeude_t::industrie;
 						} else {
-							strcpy(typ_str,"COM");
+							type = gebaeude_t::gewerbe;
 						}
+						level --;
 					}
-					else {
-						sscanf(buf,"%3s_%i_%i",typ_str,&i,&level);
-						typ_str[0] = toupper(typ_str[0]);
-						typ_str[1] = toupper(typ_str[1]);
-						typ_str[2] = toupper(typ_str[2]);
+					else if(buf[3]=='_') {
+						/* should have the form of RES/IND/COM_xx_level
+						 * xx is usually a number by can be anything without underscores
+						 */
+						level = atoi(strrchr( buf, '_' )+1);
+						if(level>0) {
+							switch(toupper(buf[0])) {
+								case 'R': type = gebaeude_t::wohnung; break;
+								case 'I': type = gebaeude_t::industrie; break;
+								case 'C': type = gebaeude_t::gewerbe; break;
+							}
+						}
+						level --;
 					}
 					// we try to replace citybuildings with their mathing counterparts
 					// if none are matching, we try again without climates and timeline!
-					if(strcmp(typ_str,"RES")==0) {
-DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with residence level %i",buf,level);
-						const haus_besch_t *hb = hausbauer_t::gib_wohnhaus(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z));
-						if(hb==NULL) {
-							hb = hausbauer_t::gib_wohnhaus(level,0, MAX_CLIMATES );
-						}
-						tile = hb->gib_tile(0);
-					} else if(strcmp(typ_str,"COM")==0) {
-DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i",buf,level);
-						const haus_besch_t *hb = hausbauer_t::gib_gewerbe(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z));
-						if(hb==NULL) {
-							hb = hausbauer_t::gib_gewerbe(level,0, MAX_CLIMATES );
-						}
-						tile = hb->gib_tile(0);
-					} else if(strcmp(typ_str,"IND")==0) {
-DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with industrie level %i",buf,level);
-						const haus_besch_t *hb = hausbauer_t::gib_industrie(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z));
-						if(hb==NULL) {
-							hb = hausbauer_t::gib_industrie(level,0, MAX_CLIMATES );
-						}
-						tile = hb->gib_tile(0);
-					} else {
-DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, gib_pos().x, gib_pos().y);
+					switch(type) {
+						case gebaeude_t::wohnung:
+							{
+								const haus_besch_t *hb = hausbauer_t::gib_wohnhaus(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z));
+								if(hb==NULL) {
+									hb = hausbauer_t::gib_wohnhaus(level,0, MAX_CLIMATES );
+								}
+								dbg->message("gebaeude_t::rwdr", "replace unknown building %s with residence level %i by %s",buf,level,hb->gib_name());
+								tile = hb->gib_tile(0);
+							}
+							break;
+
+						case gebaeude_t::gewerbe:
+							{
+								const haus_besch_t *hb = hausbauer_t::gib_gewerbe(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z));
+								if(hb==NULL) {
+									hb = hausbauer_t::gib_gewerbe(level,0, MAX_CLIMATES );
+								}
+								dbg->message("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i by %s",buf,level,hb->gib_name());
+								tile = hb->gib_tile(0);
+							}
+							break;
+
+						case gebaeude_t::industrie:
+							{
+								const haus_besch_t *hb = hausbauer_t::gib_industrie(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z));
+								if(hb==NULL) {
+									hb = hausbauer_t::gib_industrie(level,0, MAX_CLIMATES );
+								}
+								dbg->message("gebaeude_t::rwdr", "replace unknown building %s with industrie level %i by %s",buf,level,hb->gib_name());
+								tile = hb->gib_tile(0);
+							}
+							break;
+
+						default:
+							dbg->warning("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, gib_pos().x, gib_pos().y);
 					}
 				}
 			}	// here we should have a valid tile pointer or nothing ...
 
 
-			// Denkmäler sollen nicht doppelt gebaut werden, daher
-			// checken wir hier über den Gebäudenamen, ob wir ein Denkmal sind.
-			// Sollte später mal hübscher gehen: entweder speichern
-			// der gebauten denkmäler
-			// oder aber eine feste Zuordnung von gebaeude_alt_t
-			// und Beschreibung.
-			if (tile && tile->gib_besch()->gib_utyp() == haus_besch_t::denkmal) {
+			/* avoid double contruction of monuments:
+			 * remove them from selection lists
+			 */
+			if (tile  &&  tile->gib_besch()->gib_utyp() == haus_besch_t::denkmal) {
 				hausbauer_t::denkmal_gebaut(tile->gib_besch());
 			}
 		}
