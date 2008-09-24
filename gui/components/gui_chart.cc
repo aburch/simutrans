@@ -218,7 +218,7 @@ void gui_chart_t::infowin_event(const event_t *ev)
 {
 	if(IS_LEFTREPEAT(ev)  ||  IS_LEFTCLICK(ev)) {
 		// tooptip to show?
-		tooltipkoord = koord(ev->mx,ev->my);
+		tooltipkoord = koord(ev->mx,ev->my)-pos;
 	}
 	else {
 		tooltipkoord = koord::invalid;
