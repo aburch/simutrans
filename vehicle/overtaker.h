@@ -8,7 +8,7 @@
  * Oct 2008
  */
 
-#include "simtypes.h"
+#include "../simtypes.h"
 
   /**
  * Class dealing with overtaking
