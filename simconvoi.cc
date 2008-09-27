@@ -11,7 +11,6 @@
 #include "simware.h"
 #include "simplay.h"
 #include "simconvoi.h"
-#include "vehicle/simvehikel.h"
 #include "simhalt.h"
 #include "simdepot.h"
 #include "simwin.h"
@@ -30,6 +29,7 @@
 #include "boden/wege/schiene.h"	// for railblocks
 
 #include "besch/vehikel_besch.h"
+#include "besch/roadsign_besch.h"
 
 #include "dataobj/fahrplan.h"
 #include "dataobj/route.h"
@@ -38,6 +38,10 @@
 #include "dataobj/umgebung.h"
 
 #include "dings/crossing.h"
+#include "dings/roadsign.h"
+
+#include "vehicle/simvehikel.h"
+#include "vehicle/overtaker.h"
 
 #include "utils/simstring.h"
 #include "utils/cbuffer_t.h"
@@ -346,6 +350,18 @@ convoi_t::setze_name(const char *name)
 	name_offset = sprintf(buf,"(%i) ",self.get_id() );
 	tstrncpy(buf+name_offset, translator::translate(name), 116);
 	tstrncpy(name_and_id, buf, lengthof(name_and_id));
+}
+
+
+
+// length of convoi (16 is one tile)
+uint32 convoi_t::get_length() const
+{
+	uint32 len = 0;
+	for( uint8 i=0; i<anz_vehikel; i++ ) {
+		len += fahr[i]->gib_besch()->get_length();
+	}
+	return len;
 }
 
 
@@ -736,6 +752,7 @@ void convoi_t::step()
 				// wait a little before next try
 				if(state==CAN_START  ||  state==CAN_START_ONE_MONTH) {
 					wait_lock = 1000;
+					set_tiles_overtaking( 0 );
 				}
 				else if(state==CAN_START_TWO_MONTHS) {
 					wait_lock = 2500;
@@ -753,6 +770,9 @@ void convoi_t::step()
 				}
 				if(restart_speed>=0) {
 					akt_speed = restart_speed;
+				}
+				if(state!=DRIVING) {
+					set_tiles_overtaking( 0 );
 				}
 				// wait a little before next try
 				if(state==WAITING_FOR_CLEARANCE_ONE_MONTH  ||  state==WAITING_FOR_CLEARANCE_TWO_MONTHS) {
@@ -1277,6 +1297,7 @@ convoi_t::vorfahren()
 {
 	// Hajo: init speed settings
 	sp_soll = 0;
+	set_tiles_overtaking( 0 );
 
 	setze_akt_speed_soll( vehikel_t::SPEED_UNLIMITED );
 
@@ -2399,4 +2420,158 @@ uint8 convoi_t::get_status_color() const
 	}
 	// normal state
 	return COL_BLACK;
+}
+
+
+
+/**
+ * conditions for a city car to overtake another overtaker.
+ * The city car is not overtaking/being overtaken.
+ * @author isidoro
+ */
+bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length)
+{
+	if(fahr[0]->gib_waytype()!=road_wt) {
+		return false;
+	}
+
+	if (!other_overtaker->can_be_overtaken()) {
+		return false;
+	}
+
+	assert( anz_vehikel>0 );
+
+	int diff_speed = akt_speed - other_speed;
+	if(  diff_speed < kmh_to_speed(5)  ) {
+		return false;
+	}
+
+	// Number of tiles overtaking will take
+	int n_tiles = 0;
+
+	// Distance it takes overtaking (unit:256*tile) = my_speed * time_overtaking
+	// time_overtaking = tiles_to_overtake/diff_speed
+	// tiles_to_overtake = convoi_length + pos_other_convoi
+	int distance = 256 + akt_speed*((get_length()*16)+steps_other)/diff_speed;
+	int time_overtaking = 0;
+
+	// Conditions for overtaking:
+	// Flat tiles, with no stops, no crossings, no signs, no change of road speed limit
+	// First phase: no traffic except me and my overtaken car in the dangerous zone
+	unsigned int route_index = fahr[0]->gib_route_index()+1;
+	koord pos_prev = fahr[0]->gib_pos_prev().gib_2d();
+	koord3d pos = fahr[0]->gib_pos();
+	koord3d pos_next;
+
+	while( distance > 0 ) {
+
+		if(  route_index >= route.gib_max_n()  ) {
+			return false;
+		}
+
+		pos_next = route.position_bei(route_index++);
+		grund_t *gr = welt->lookup(pos);
+		// no ground, or slope => about
+		if(  gr==NULL  ||  gr->gib_weg_hang()!=hang_t::flach  ) {
+			return false;
+		}
+
+		weg_t *str = gr->gib_weg(road_wt);
+		if(  str==NULL  ) {
+			return false;
+		}
+		// the only roadsign we must account for are choose points and traffic lights
+		if(  str->has_sign()  ) {
+			const roadsign_t *rs = gr->find<roadsign_t>(1);
+			if(rs) {
+				const roadsign_besch_t *rb = rs->gib_besch();
+				if(rb->is_free_route()  ||  rb->is_traffic_light()  ) {
+					// because we need to stop here ...
+					return false;
+				}
+			}
+		}
+		// not overtaking on railroad crossings or on normal crossings ...
+		if(  str->is_crossing()  ||  ribi_t::is_threeway(str->gib_ribi())  ) {
+			return false;
+		}
+		// street gets too slow (TODO: should be able to be correctly accounted for)
+		if(  akt_speed > kmh_to_speed(str->gib_max_speed())  ) {
+			return false;
+		}
+
+		int d = ribi_t::ist_gerade(str->gib_ribi()) ? 256 : diagonal_length;
+		distance -= d;
+		time_overtaking += d;
+
+		// Check for other vehicles
+		const uint8 top = gr->gib_top();
+		for(  uint8 j=1;  j<top;  j++ ) {
+			vehikel_basis_t *v = (vehikel_basis_t *)gr->obj_bei(j);
+			if(v->is_moving()) {
+				// check for other traffic on the road
+				const overtaker_t *ov = v->get_overtaker();
+				if(ov) {
+					if(this!=ov  &&  other_overtaker!=ov) {
+						return false;
+					}
+				}
+				else if(  v->gib_waytype()==road_wt  &&  v->gib_typ()!=ding_t::fussgaenger  ) {
+					// sheeps etc.
+					return false;
+				}
+			}
+		}
+		n_tiles++;
+		pos_prev = pos.gib_2d();
+		pos = pos_next;
+	}
+
+	// Second phase: only facing traffic is forbidden
+	//   Since street speed can change, we do the calculation with time.
+	//   Each empty tile will substract tile_dimension/max_street_speed.
+	//   If time is exhausted, we are guaranteed that no facing traffic will
+	//   invade the dangerous zone.
+	// Conditions for the street are milder: e.g. if no street, no facing traffic
+	time_overtaking = (time_overtaking << 16)/akt_speed;
+	while ( time_overtaking > 0 ) {
+
+		if ( route_index >= route.gib_max_n() ) {
+			return false;
+		}
+
+		pos_next = route.position_bei(route_index++);
+		grund_t *gr= welt->lookup(pos);
+		if(  gr==NULL  ) {
+			// will cause a route search, but is ok
+			break;
+		}
+
+		weg_t *str = gr->gib_weg(road_wt);
+		if(  str==NULL  ) {
+			break;
+		}
+		// cannot check for oncoming traffic over crossings
+		if(  ribi_t::is_threeway(str->gib_ribi()) ) {
+			return false;
+		}
+
+		time_overtaking -= (ribi_t::ist_gerade(str->gib_ribi()) ? 256<<16 : diagonal_length<<16)/kmh_to_speed(str->gib_max_speed());
+
+		// Check for other vehicles in facing direction
+		ribi_t::ribi their_direction = ribi_t::rueckwaerts( fahr[0]->calc_richtung(pos_prev, pos_next.gib_2d()) );
+		const uint8 top = gr->gib_top();
+		for(  uint8 j=1;  j<top;  j++ ) {
+			vehikel_basis_t *v = (vehikel_basis_t *)gr->obj_bei(j);
+			if(v->is_moving()  &&  v->gib_fahrtrichtung()==their_direction  &&  v->get_overtaker()) {
+				return false;
+			}
+		}
+		pos_prev = pos.gib_2d();
+		pos = pos_next;
+	}
+
+	set_tiles_overtaking( 1+n_tiles );
+	other_overtaker->set_tiles_overtaking( -1-(n_tiles/2) );
+	return true;
 }

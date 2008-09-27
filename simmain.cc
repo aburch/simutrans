@@ -708,6 +708,9 @@ int simu_main(int argc, char** argv)
 	}
 	obj_reader_t::has_been_init = true;
 
+	// set overtaking offsets
+	vehikel_basis_t::set_overtaking_offsets( umgebung_t::drive_on_left );
+
 	print("Reading menu configuration ...\n");
 	werkzeug_t::init_menu(umgebung_t::objfilename);
 

@@ -12,6 +12,7 @@
 #include "ifc/sync_steppable.h"
 
 #include "dataobj/route.h"
+#include "vehicle/overtaker.h"
 #include "tpl/array_tpl.h"
 
 #include "convoihandle_t.h"
@@ -42,7 +43,7 @@ class cbuffer_t;
  *
  * @author Hj. Malthaner
  */
-class convoi_t : public sync_steppable
+class convoi_t : public sync_steppable, public overtaker_t
 {
 public:
 	/* Konstanten
@@ -511,6 +512,8 @@ public:
 	const sint32 & gib_sum_gewicht() const {return sum_gewicht;}
 	const sint32 & gib_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
 
+	uint32 get_length() const;
+
 	/**
 	 * Vehicles of the convoi add their running cost by using this
 	 * method
@@ -780,6 +783,9 @@ public:
 	bool get_no_load() const { return no_load; }
 
 	void set_no_load(bool new_no_load) { no_load = new_no_load; }
+
+	// Overtaking for convois
+	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length);
 };
 
 #endif

@@ -13,6 +13,7 @@
  */
 
 #include "simvehikel.h"
+#include "overtaker.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../ifc/sync_steppable.h"
@@ -68,7 +69,8 @@ public:
 };
 
 
-class stadtauto_t : public verkehrsteilnehmer_t {
+class stadtauto_t : public verkehrsteilnehmer_t, public overtaker_t
+{
 private:
 	static stringhashtable_tpl<const stadtauto_besch_t *> table;
 
@@ -135,6 +137,14 @@ public:
 
 	static bool register_besch(const stadtauto_besch_t *besch);
 	static bool laden_erfolgreich();
+
+	// since we must consider overtaking, we use this for offset calculation
+	virtual void get_screen_offset( int &xoff, int &yoff ) const;
+
+	virtual overtaker_t *get_overtaker() { return this; }
+
+	// Overtaking for city cars
+	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length);
 };
 
 #endif

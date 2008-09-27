@@ -553,7 +553,42 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 		}
 		else {
 			// not a crossing => skip 90° check!
-			frei = (NULL == no_cars_blocking( gr, NULL, this_fahrtrichtung, next_fahrtrichtung, next_fahrtrichtung ));
+			frei = true;
+			// Overtaking vehicles shouldn't have anything blocking them
+			if(  !is_overtaking()  ) {
+				// not a crossing => skip 90° check!
+				vehikel_basis_t *dt = no_cars_blocking( gr, NULL, this_fahrtrichtung, next_fahrtrichtung, next_fahrtrichtung );
+				if(  dt  ) {
+					if(dt->is_stuck()) {
+						// previous vehicle is stucked => end of traffic jam ...
+						frei = false;
+					}
+					else {
+						overtaker_t *over = dt->get_overtaker();
+						if(over) {
+							if(!over->is_overtaking()) {
+								// otherwise the overtaken car would stop for us ...
+								if(  dt->gib_typ()==ding_t::automobil  ) {
+									convoi_t *cnv=static_cast<automobil_t *>(dt)->get_convoi();
+									if(  cnv==NULL  ||  !can_overtake( cnv, cnv->gib_min_top_speed(), cnv->get_length()*16, diagonal_length)  ) {
+										frei = false;
+									}
+								}
+								else if(  dt->gib_typ()==ding_t::verkehr  ) {
+									stadtauto_t *caut = static_cast<stadtauto_t *>(dt);
+									if ( !can_overtake(caut, caut->gib_besch()->gib_geschw(), 256, diagonal_length) ) {
+										frei = false;
+									}
+								}
+							}
+						}
+						else {
+							// movingobj ... block road totally
+							frei = false;
+						}
+					}
+				}
+			}
 		}
 
 		// do not block railroad crossing
@@ -598,6 +633,11 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 		current_speed = 48;
 	}
 
+	if(!frei) {
+		// not free => stop overtaking
+		this->set_tiles_overtaking(0);
+	}
+
 	return frei;
 }
 
@@ -633,6 +673,7 @@ stadtauto_t::hop_check()
 
 	// traffic light phase check (since this is on next tile, it will always be neccessary!)
 	const ribi_t::ribi fahrtrichtung90 = ribi_typ(gib_pos().gib_2d(),pos_next.gib_2d());
+
 	if(weg->has_sign()) {
 		const roadsign_t* rs = from->find<roadsign_t>();
 		const roadsign_besch_t* rs_besch = rs->gib_besch();
@@ -649,8 +690,6 @@ stadtauto_t::hop_check()
 	// next tile unknow => find next tile
 	if(pos_next_next==koord3d::invalid) {
 
-		grund_t *to;
-
 		// ok, nobody did delete the road in front of us
 		// so we can check for valid directions
 		ribi_t::ribi ribi = weg->gib_ribi() & (~ribi_t::rueckwaerts(fahrtrichtung90));
@@ -665,6 +704,7 @@ stadtauto_t::hop_check()
 		for(uint8 i = 0; i < 4; i++) {
 			const uint8 r = (i+offset)&3;
 			if(  (ribi&ribi_t::nsow[r])!=0  ) {
+				grund_t *to;
 				if(from->get_neighbour(to, road_wt, koord::nsow[r])) {
 					// check, if this is just a single tile deep after a crossing
 					weg_t *w=to->gib_weg(road_wt);
@@ -720,6 +760,7 @@ stadtauto_t::hop_check()
 	// no free tiles => assume traffic jam ...
 	pos_next_next = koord3d::invalid;
 	current_speed = 0;
+	set_tiles_overtaking( 0 );
 	return false;
 }
 
@@ -748,6 +789,7 @@ stadtauto_t::hop()
 	setze_pos(pos_next);
 	calc_bild();
 	betrete_feld();
+	update_tiles_overtaking();
 	if(to->ist_uebergang()) {
 		to->find<crossing_t>(2)->add_to_crossing(this);
 	}
@@ -793,3 +835,233 @@ stadtauto_t::info(cbuffer_t & buf) const
 	sprintf(str, translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(besch->gib_name()), current_speed, besch->gib_geschw(), dx, dy );
 	buf.append(str);
 }
+
+
+
+// to make smaller steps than the tile granularity, we have to use this trick
+void stadtauto_t::get_screen_offset( int &xoff, int &yoff ) const
+{
+	vehikel_basis_t::get_screen_offset( xoff, yoff );
+
+	// eventually shift position to take care of overtaking
+	const int raster_width = get_tile_raster_width();
+	if(  is_overtaking()  ) {
+		xoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::gib_dir(gib_fahrtrichtung())][0], raster_width);
+		yoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::gib_dir(gib_fahrtrichtung())][1], raster_width);
+	}
+	else if(  is_overtaken()  ) {
+		xoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::gib_dir(gib_fahrtrichtung())][0], raster_width)/5;
+		yoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::gib_dir(gib_fahrtrichtung())][1], raster_width)/5;
+	}
+}
+
+
+
+/**
+ * conditions for a city car to overtake another overtaker.
+ * The city car is not overtaking/being overtaken.
+ * @author isidoro
+ */
+bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length)
+{
+	if(!other_overtaker->can_be_overtaken()) {
+		return false;
+	}
+
+	sint32 diff_speed = (sint32)current_speed - other_speed;
+	if(  diff_speed < kmh_to_speed(5)  ) {
+		return false;
+	}
+
+	// Number of tiles overtaking will take
+	int n_tiles = 0;
+
+	/* Distance it takes overtaking (unit:256*tile) = my_speed * time_overtaking
+	 * time_overtaking = tiles_to_overtake/diff_speed
+	 * tiles_to_overtake = convoi_length + pos_other_convoi
+	 * convoi_length for city cars? ==> a bit over half a tile (10)
+	 */
+	sint32 distance = current_speed*((10<<4)+steps_other)/(besch->gib_geschw()-other_speed);
+	sint32 time_overtaking = 0;
+
+	// Conditions for overtaking:
+	// Flat tiles, with no stops, no crossings, no signs, no change of road speed limit
+	koord3d check_pos = gib_pos();
+	koord pos_prev = check_pos.gib_2d();
+
+	grund_t *gr = welt->lookup(check_pos);
+	grund_t *gr_last = NULL;
+	if ( gr==NULL ) {
+		return false;
+	}
+
+
+	weg_t *str = gr->gib_weg(road_wt);
+	if(str==0) {
+		return false;
+	}
+	// we need 90 degree ribi
+	ribi_t::ribi direction = gib_fahrtrichtung();
+	direction = str->gib_ribi() & direction;
+
+	while(  distance > 0  ) {
+
+		// we allow stops and slopes, since emtpy stops and slopes cannot affect us
+		// (citycars do not slow down on slopes!)
+
+		// start of bridge is one level deeper
+		if(gr->gib_weg_yoff()>0)  {
+			check_pos.z += Z_TILE_STEP;
+		}
+
+		// special signs
+		if(  str->has_sign()  &&  str->gib_ribi()==str->gib_ribi_unmasked()  ) {
+			const roadsign_t *rs = gr->find<roadsign_t>(1);
+			if(rs) {
+				const roadsign_besch_t *rb = rs->gib_besch();
+				if(rb->gib_min_speed()>besch->gib_geschw()  ||  rb->is_private_way()  ||  rb->is_traffic_light()  ) {
+					// do not overtake when road is closed for cars, there is a traffic light or a too high min speed limit
+					return false;
+				}
+			}
+		}
+
+		// not overtaking on railroad crossings ...
+		if(  str->is_crossing() ) {
+			return false;
+		}
+
+		// street gets too slow (TODO: should be able to be correctly accounted for)
+		if(  besch->gib_geschw() > kmh_to_speed(str->gib_max_speed())  ) {
+			return false;
+		}
+
+		int d = ribi_t::ist_gerade(str->gib_ribi()) ? 256 : diagonal_length;
+		distance -= d;
+		time_overtaking += d;
+
+		n_tiles++;
+
+		/* Now we must check for next position:
+		 * crossings are ok, as long as we cannot exit there due to one way signs
+		 * much cheeper calculation: only go on in the direction of before (since no slopes allowed anyway ... )
+		 */
+		grund_t *to = welt->lookup( check_pos + koord((ribi_t::ribi)(str->gib_ribi()&direction)) );
+		if(  ribi_t::is_threeway(str->gib_ribi())  ||  to==NULL) {
+			// check for entries/exits/bridges, if neccessary
+			ribi_t::ribi rib = str->gib_ribi();
+			bool found_one = false;
+			for(  int r=0;  r<4;  r++  ) {
+				if(  (rib&ribi_t::nsow[r])==0  ||  check_pos.gib_2d()+koord::nsow[r]==pos_prev) {
+					continue;
+				}
+				if(gr->get_neighbour(to, road_wt, koord::nsow[r])) {
+					if(found_one) {
+						// two directions to go: unexpected cars may occurs => abort
+						return false;
+					}
+					found_one = true;
+				}
+			}
+		}
+		pos_prev = check_pos.gib_2d();
+
+		// nowhere to go => nobody can come against us ...
+		if(to==NULL  ||  (str=to->gib_weg(road_wt))==NULL) {
+			return false;
+		}
+
+		// Check for other vehicles on the next tile
+		const uint8 top = gr->gib_top();
+		for(  uint8 j=1;  j<top;  j++ ) {
+			vehikel_basis_t *v = (vehikel_basis_t *)gr->obj_bei(j);
+			if(v->is_moving()) {
+				// check for other traffic on the road
+				const overtaker_t *ov = v->get_overtaker();
+				if(ov) {
+					if(this!=ov  &&  other_overtaker!=ov) {
+						return false;
+					}
+				}
+				else if(  v->gib_waytype()==road_wt  &&  v->gib_typ()!=ding_t::fussgaenger  ) {
+					return false;
+				}
+			}
+		}
+
+		gr = to;
+		check_pos = to->gib_pos();
+
+		direction = ~ribi_typ( check_pos.gib_2d(),pos_prev ) & str->gib_ribi();
+	}
+
+	// Second phase: only facing traffic is forbidden
+	//   Since street speed can change, we do the calculation with time.
+	//   Each empty tile will substract tile_dimension/max_street_speed.
+	//   If time is exhausted, we are guaranteed that no facing traffic will
+	//   invade the dangerous zone.
+	time_overtaking = (time_overtaking << 16)/(sint32)current_speed;
+	do {
+		// we can allow crossings or traffic lights here, since they will stop also oncoming traffic
+
+		time_overtaking -= (ribi_t::ist_gerade(str->gib_ribi()) ? 256<<16 : diagonal_length<<16)/kmh_to_speed(str->gib_max_speed());
+
+		// start of bridge is one level deeper
+		if(gr->gib_weg_yoff()>0)  {
+			check_pos.z += Z_TILE_STEP;
+		}
+
+		// much cheeper calculation: only go on in the direction of before ...
+		grund_t *to = welt->lookup( check_pos + koord((ribi_t::ribi)(str->gib_ribi()&direction)) );
+		if(  ribi_t::is_threeway(str->gib_ribi())  ||  to==NULL  ) {
+			// check for crossings/bridges, if neccessary
+			bool found_one = false;
+			for(  int r=0;  r<4;  r++  ) {
+				if(check_pos.gib_2d()+koord::nsow[r]==pos_prev) {
+					continue;
+				}
+				if(gr->get_neighbour(to, road_wt, koord::nsow[r])) {
+					if(found_one) {
+						return false;
+					}
+					found_one = true;
+				}
+			}
+		}
+
+		koord pos_prev_prev = pos_prev;
+		pos_prev = check_pos.gib_2d();
+
+		// nowhere to go => nobody can come against us ...
+		if(to==NULL  ||  (str=to->gib_weg(road_wt))==NULL) {
+			break;
+		}
+
+		// Check for other vehicles in facing directiona
+		// now only I know direction on this tile ...
+		ribi_t::ribi their_direction = ribi_t::rueckwaerts(calc_richtung( pos_prev_prev, to->gib_pos().gib_2d() ));
+		const uint8 top = gr->gib_top();
+		for(  uint8 j=1;  j<top;  j++ ) {
+			vehikel_basis_t *v = (vehikel_basis_t *)gr->obj_bei(j);
+			if(v->is_moving()  &&  v->gib_fahrtrichtung()==their_direction) {
+				// check for car
+				if(v->get_overtaker()) {
+					return false;
+				}
+			}
+		}
+
+		gr = to;
+		check_pos = to->gib_pos();
+
+		direction = ~ribi_typ( check_pos.gib_2d(),pos_prev ) & str->gib_ribi();
+	} while( time_overtaking > 0 );
+
+	set_tiles_overtaking( 1+n_tiles );
+	other_overtaker->set_tiles_overtaking( -1-(n_tiles/2) );
+
+	return true;
+}
+
+
+

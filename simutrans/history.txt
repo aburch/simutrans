@@ -37,6 +37,7 @@
 	CHANGE: maps got an own subdirectory, and format RLE compressed (usually less than 10% of ppm)/uncompressed 8-Bit and 24-Bit BMP allowed too
 	FIX: trams were not using the max speed according to the trams speed table
 	ADD: (z9999) daylight level now adjustable
+	ADD: (isidoro/prissi) overtaking for road vehicles/citycars
 
 
 Release of 100.0 (r1867, stable)

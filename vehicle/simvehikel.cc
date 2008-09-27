@@ -49,6 +49,7 @@
 
 #include "../gui/karte.h"
 
+#include "../besch/stadtauto_besch.h"
 #include "../besch/ware_besch.h"
 #include "../besch/skin_besch.h"
 #include "../besch/roadsign_besch.h"
@@ -65,6 +66,7 @@
 #include "../bauer/vehikelbauer.h"
 
 #include "simvehikel.h"
+#include "simverkehr.h"
 
 /* get dx and dy from dir (just to remind you)
  * any vehikel (including city cars and pedestrians)
@@ -105,6 +107,36 @@ bool vehikel_basis_t::need_realignment()
 	return old_diagonal_length!=diagonal_length  &&  (fahrtrichtung&0x0A)!=0;
 }
 
+
+// [0]=xoff [1]=yoff
+sint8 vehikel_basis_t::overtaking_base_offsets[8][2];
+
+// recalc offsets for overtaking
+void vehikel_basis_t::set_overtaking_offsets( bool driving_on_the_left )
+{
+	sint8 sign = driving_on_the_left ? -1 : 1;
+	// a tile has the internal size of
+	const sint8 XOFF=12;
+	const sint8 YOFF=6;
+
+	overtaking_base_offsets[0][0] = sign * XOFF;
+	overtaking_base_offsets[1][0] = -sign * XOFF;
+	overtaking_base_offsets[2][0] = 0;
+	overtaking_base_offsets[3][0] = sign * XOFF;
+	overtaking_base_offsets[4][0] = -sign * XOFF;
+	overtaking_base_offsets[5][0] = sign * XOFF;
+	overtaking_base_offsets[6][0] = 0;
+	overtaking_base_offsets[7][0] = sign * (-XOFF-YOFF);
+
+	overtaking_base_offsets[0][1] = sign * YOFF;
+	overtaking_base_offsets[1][1] = sign * YOFF;
+	overtaking_base_offsets[2][1] = sign * YOFF;
+	overtaking_base_offsets[3][1] = 0;
+	overtaking_base_offsets[4][1] = -sign * YOFF;
+	overtaking_base_offsets[5][1] = -sign * YOFF;
+	overtaking_base_offsets[6][1] = -sign * YOFF;
+	overtaking_base_offsets[7][1] = 0;
+}
 
 
 
@@ -391,12 +423,23 @@ vehikel_basis_t::calc_set_richtung(koord start, koord ende)
 
 ribi_t::ribi
 vehikel_basis_t::calc_richtung(koord start, koord ende) const
-{
-	ribi_t::ribi richtung = ribi_t::keine;
+{/*
+	static ribi_t::ribi didj_richtung[9] =
+	{
+		ribi_t::nordwest, ribi_t::nord, ribi_t::nordost,	// dy<0
+		ribi_t::west, ribi_t::keine, ribi_t::ost,	// dy==0
+		ribi_t::suedwest, ribi_t::sued, ribi_t::suedost	// dy>0
+	};
 
-	const sint8 di = ende.x - start.x;
-	const sint8 dj = ende.y - start.y;
-
+	uint8 di = 0x80 & (ende.x - start.x);
+	uint8 dj = 0x80 & (ende.y - start.y);
+	di ++ ;	// 0=(di<0), 1=(di==0), 2=(di>0)
+	dj ++ ;
+	return richtung[di+(3*dj)];
+*/
+	ribi_t::ribi richtung;
+	const sint8 di = (ende.x - start.x);
+	const sint8 dj = (ende.y - start.y);
 	if(dj < 0 && di == 0) {
 		richtung = ribi_t::nord;
 	} else if(dj > 0 && di == 0) {
@@ -415,6 +458,7 @@ vehikel_basis_t::calc_richtung(koord start, koord ende) const
 		richtung = ribi_t::suedwest;
 	}
 	return richtung;
+
 }
 
 
@@ -469,6 +513,55 @@ sint16 vehikel_basis_t::calc_height()
 	}
 	return hoff;
 }
+
+
+
+/* true, if one could pass through this field
+ * also used for citycars, thus defined here
+ */
+vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_fahrtrichtung, const uint8 next_fahrtrichtung, const uint8 next_90fahrtrichtung )
+{
+	// suche vehikel
+	const uint8 top = gr->gib_top();
+	for(  uint8 pos=1;  pos<top;  pos++ ) {
+		vehikel_basis_t *v = (vehikel_basis_t *)gr->obj_bei(pos);
+		if(v->is_moving()) {
+			uint8 other_fahrtrichtung=255;
+
+			// check for car
+			if(v->gib_typ()==ding_t::automobil) {
+				automobil_t *at = (automobil_t *)v;
+				// ignore ourself
+				if(cnv==at->get_convoi()) {
+					continue;
+				}
+				other_fahrtrichtung = at->gib_fahrtrichtung();
+			}
+			// check for city car
+			else if(v->gib_waytype()==road_wt  &&  v->gib_typ()!=ding_t::fussgaenger) {
+				other_fahrtrichtung = v->gib_fahrtrichtung();
+			}
+
+			// ok, there is another car ...
+			if(other_fahrtrichtung!=255) {
+
+				if(other_fahrtrichtung==next_fahrtrichtung  ||  other_fahrtrichtung==next_90fahrtrichtung  ||  other_fahrtrichtung==current_fahrtrichtung ) {
+					// this goes into the same direction as we, so stopp and save a restart speed
+					return v;
+
+				} else if(ribi_t::ist_orthogonal(other_fahrtrichtung,current_fahrtrichtung)) {
+
+					// there is a car orthogonal to us
+					return v;
+				}
+			}
+		}
+	}
+
+	// way is free
+	return NULL;
+}
+
 
 
 
@@ -1598,50 +1691,24 @@ bool automobil_t::ist_ziel(const grund_t *gr, const grund_t *) const
 
 
 
-// true, if one could pass through this field
-vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_fahrtrichtung, const uint8 next_fahrtrichtung, const uint8 next_90fahrtrichtung )
+// to make smaller steps than the tile granularity, we have to use this trick
+void automobil_t::get_screen_offset( int &xoff, int &yoff ) const
 {
-	// suche vehikel
-	const uint8 top = gr->gib_top();
-	for(  uint8 pos=1;  pos<top;  pos++ ) {
-		vehikel_basis_t *v = (vehikel_basis_t *)gr->obj_bei(pos);
-		if(v->is_moving()) {
-			uint8 other_fahrtrichtung=255;
+	vehikel_basis_t::get_screen_offset( xoff, yoff );
 
-			// check for car
-			if(v->gib_typ()==ding_t::automobil) {
-				automobil_t *at = (automobil_t *)v;
-				// ignore ourself
-				if(cnv==at->get_convoi()) {
-					continue;
-				}
-				other_fahrtrichtung = at->gib_fahrtrichtung();
-			}
-			// check for city car
-			else if(v->gib_waytype()==road_wt  &&  v->gib_typ()!=ding_t::fussgaenger) {
-				other_fahrtrichtung = v->gib_fahrtrichtung();
-			}
-
-			// ok, there is another car ...
-			if(other_fahrtrichtung!=255) {
-
-				if(other_fahrtrichtung==next_fahrtrichtung  ||  other_fahrtrichtung==next_90fahrtrichtung  ||  other_fahrtrichtung==current_fahrtrichtung ) {
-					// this goes into the same direction as we, so stopp and save a restart speed
-					return v;
-
-				} else if(ribi_t::ist_orthogonal(other_fahrtrichtung,current_fahrtrichtung)) {
-
-					// there is a car orthogonal to us
-					return v;
-				}
-			}
+	// eventually shift position to take care of overtaking
+	if(cnv) {
+		const int raster_width = get_tile_raster_width();
+		if(  cnv->is_overtaking()  ) {
+			xoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::gib_dir(gib_fahrtrichtung())][0], raster_width);
+			yoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::gib_dir(gib_fahrtrichtung())][1], raster_width);
+		}
+		else if(  cnv->is_overtaken()  ) {
+			xoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::gib_dir(gib_fahrtrichtung())][0], raster_width)/5;
+			yoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::gib_dir(gib_fahrtrichtung())][1], raster_width)/5;
 		}
 	}
-
-	// way is free
-	return NULL;
 }
-
 
 
 
@@ -1718,19 +1785,25 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 			}
 		}
 
+		vehikel_basis_t *dt = NULL;
+
 		// calculate new direction
 		const uint8 next_fahrtrichtung = route_index<cnv->get_route()->gib_max_n() ? this->calc_richtung(gib_pos().gib_2d(), cnv->get_route()->position_bei(route_index+1).gib_2d()) : calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d());
-		const uint8 next_90fahrtrichtung = route_index<cnv->get_route()->gib_max_n() ? this->calc_richtung(gib_pos().gib_2d(), cnv->get_route()->position_bei(route_index+1).gib_2d()) : calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d());
-		vehikel_basis_t *dt = no_cars_blocking( gr, cnv, gib_fahrtrichtung(), next_fahrtrichtung, next_90fahrtrichtung );
 
-		// do not block intersections
-		if(dt==NULL  &&  ribi_t::is_threeway(str->gib_ribi_unmasked())  &&  route_index+1u<cnv->get_route()->gib_max_n()) {
-			// we have to test also next field
-			const grund_t *gr = welt->lookup( cnv->get_route()->position_bei(route_index+1u) );
-			if(gr) {
-				const uint8 nextnext_fahrtrichtung = this->calc_richtung(cnv->get_route()->position_bei(route_index).gib_2d(), cnv->get_route()->position_bei(route_index+2).gib_2d());
-				const uint8 nextnext_90fahrtrichtung = this->calc_richtung(cnv->get_route()->position_bei(route_index+1).gib_2d(), cnv->get_route()->position_bei(route_index+2).gib_2d());
-				dt = no_cars_blocking( gr, cnv, next_fahrtrichtung, nextnext_fahrtrichtung, nextnext_90fahrtrichtung );
+		// way should be clear for overtaking: we checked previously
+		if(  !cnv->is_overtaking()  ) {
+			const uint8 next_90fahrtrichtung = route_index<cnv->get_route()->gib_max_n() ? this->calc_richtung(gib_pos().gib_2d(), cnv->get_route()->position_bei(route_index+1).gib_2d()) : calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d());
+			dt = no_cars_blocking( gr, cnv, gib_fahrtrichtung(), next_fahrtrichtung, next_90fahrtrichtung );
+
+			// do not block intersections
+			if(dt==NULL  &&  ribi_t::is_threeway(str->gib_ribi_unmasked())  &&  route_index+1u<cnv->get_route()->gib_max_n()) {
+				// we have to test also next field
+				const grund_t *gr = welt->lookup( cnv->get_route()->position_bei(route_index+1u) );
+				if(gr) {
+					const uint8 nextnext_fahrtrichtung = this->calc_richtung(cnv->get_route()->position_bei(route_index).gib_2d(), cnv->get_route()->position_bei(route_index+2).gib_2d());
+					const uint8 nextnext_90fahrtrichtung = this->calc_richtung(cnv->get_route()->position_bei(route_index+1).gib_2d(), cnv->get_route()->position_bei(route_index+2).gib_2d());
+					dt = no_cars_blocking( gr, cnv, next_fahrtrichtung, nextnext_fahrtrichtung, nextnext_90fahrtrichtung );
+				}
 			}
 		}
 
@@ -1772,12 +1845,37 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 
 		// stuck message ...
 		if(dt) {
-			restart_speed = 0;
-			if(dt->gib_typ()==ding_t::automobil  &&  cnv  &&  cnv->is_waiting()) {
-				// no stuck message, if previous vehikel is stuck too
-				if( dt->is_stuck() ) {
-					cnv->reset_waiting();
+			if(  dt->is_stuck()  ) {
+				// end of traffic jam, but no stuck message, because previous vehikel is stuck too
+				restart_speed = 0;
+				cnv->set_tiles_overtaking(0);
+				cnv->reset_waiting();
+			}
+			else {
+				// we might be able to overtake this one ...
+				overtaker_t *over = dt->get_overtaker();
+				if(over  &&  !over->is_overtaken()) {
+					if(  over->is_overtaking()  ) {
+						// otherwise we would stop every time being overtaken
+						return true;
+					}
+					// not overtaking/being overtake: we need to make a more thourough test!
+					if(  dt->gib_typ()==ding_t::automobil  ) {
+						convoi_t *ocnv = static_cast<automobil_t *>(dt)->get_convoi();
+						if(  cnv->can_overtake( ocnv, ocnv->gib_min_top_speed(), ocnv->get_length()*16, diagonal_length)  ) {
+							return true;
+						}
+					}
+					else if(  dt->gib_typ()==ding_t::verkehr  ) {
+						stadtauto_t *caut = static_cast<stadtauto_t *>(dt);
+						if(  cnv->can_overtake(caut, caut->gib_besch()->gib_geschw(), 256, diagonal_length)  ) {
+							return true;
+						}
+					}
 				}
+				// we have to wait ...
+				restart_speed = 0;
+				cnv->set_tiles_overtaking(0);
 			}
 		}
 
@@ -1799,6 +1897,7 @@ automobil_t::betrete_feld()
 	str->book(cargo, WAY_STAT_GOODS);
 	if (ist_erstes)  {
 		str->book(1, WAY_STAT_CONVOIS);
+		cnv->update_tiles_overtaking();
 	}
 }
 

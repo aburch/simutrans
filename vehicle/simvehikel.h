@@ -23,6 +23,7 @@
 #include "../boden/grund.h"
 #include "../boden/wege/weg.h"
 #include "../besch/vehikel_besch.h"
+#include "../vehicle/overtaker.h"
 #include "../tpl/slist_tpl.h"
 
 class convoi_t;
@@ -48,6 +49,9 @@ protected:
 	static uint8 old_diagonal_length;
 	static uint8 diagonal_length;
 	static uint16 diagonal_multiplier;
+
+	// [0]=xoff [1]=yoff
+	static sint8 overtaking_base_offsets[8][2];
 
 	/**
 	 * Aktuelle Fahrtrichtung in Bildschirm-Koordinaten
@@ -95,7 +99,9 @@ protected:
 	bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const;
 
 public:
+	// only called during load time: set some offsets
 	static void set_diagonal_multiplier( uint32 multiplier, uint32 old_multiplier );
+	static void set_overtaking_offsets( bool driving_on_the_left );
 
 	// if true, this convoi needs to restart for correct alignment
 	bool need_realignment();
@@ -108,7 +114,7 @@ public:
 	sint16 gib_hoff() const {return hoff;}
 
 	// to make smaller steps than the tile granularity, we have to calculate our offsets ourselves!
-	void get_screen_offset( int &xoff, int &yoff ) const;
+	virtual void get_screen_offset( int &xoff, int &yoff ) const;
 
 	virtual void rotate90();
 
@@ -125,6 +131,8 @@ public:
 	virtual void betrete_feld();
 
 	virtual void verlasse_feld();
+
+	virtual overtaker_t *get_overtaker() { return NULL; }
 
 	vehikel_basis_t(karte_t *welt);
 
@@ -453,12 +461,17 @@ public:
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
 
+	// since we must consider overtaking, we use this for offset calculation
+	virtual void get_screen_offset( int &xoff, int &yoff ) const;
+
 	ding_t::typ gib_typ() const { return automobil; }
 
 	fahrplan_t * erzeuge_neuen_fahrplan() const;
 
 	void rdwr(loadsave_t *file);
 	void rdwr(loadsave_t *file, bool force);
+
+	virtual overtaker_t *get_overtaker() { return cnv ? static_cast<overtaker_t *>(cnv) : NULL; }
 };
 
 
