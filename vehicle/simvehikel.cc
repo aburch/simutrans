@@ -2263,7 +2263,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 					}
 					else {
 						// check tiles of route until we find signal or reserved track
-						for (uint i = count==0 ? next_block+1u : 0u; i<=target_rt.gib_max_n(); i++) {
+						for(  uint i = count==0 ? next_block+1u : 0u; i<=target_rt.gib_max_n(); i++) {
 							koord3d pos = target_rt.position_bei(i);
 							grund_t *gr = welt->lookup(pos);
 							schiene_t * sch1 = gr ? (schiene_t *)gr->gib_weg(gib_waytype()) : NULL;
@@ -2278,19 +2278,25 @@ waggon_t::ist_weg_frei(int & restart_speed)
 									return true;
 								}
 								exit_loop = true;
+								break;
 							} else if(sch1  &&  !sch1->can_reserve(cnv->self)) {
 								exit_loop = true;
+								break;
 							}
 						}
 					}
-					target_rt.clear();
-					cur_pos = cnv->gib_fahrplan()->eintrag[fahrplan_index].pos;
-					fahrplan_index ++;
-					if(fahrplan_index >= cnv->gib_fahrplan()->maxi()) {
-						fahrplan_index = 0;
+
+					if(!exit_loop) {
+						target_rt.clear();
+						cur_pos = cnv->gib_fahrplan()->eintrag[fahrplan_index].pos;
+						fahrplan_index ++;
+						if(fahrplan_index >= cnv->gib_fahrplan()->maxi()) {
+							fahrplan_index = 0;
+						}
+						count++;
 					}
-					count++;
-				} while(count < cnv->gib_fahrplan()->maxi() && exit_loop == false); // stop after we've looped round schedule...
+
+				} while(count < cnv->gib_fahrplan()->maxi()  &&  exit_loop == false); // stop after we've looped round schedule...
 				// we can't go
 				sig->setze_zustand(roadsign_t::rot);
 				if(route_index==next_block+1) {
