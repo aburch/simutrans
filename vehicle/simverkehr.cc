@@ -506,6 +506,15 @@ void stadtauto_t::rdwr(loadsave_t *file)
 		pos_next_next.rdwr(file);
 	}
 
+	// overtaking status
+	if(file->get_version()<100001) {
+		set_tiles_overtaking( 0 );
+	}
+	else {
+		file->rdwr_byte( tiles_overtaking, "o" );
+		set_tiles_overtaking( tiles_overtaking );
+	}
+
 	// do not start with zero speed!
 	current_speed ++;
 }

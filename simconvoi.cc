@@ -1734,6 +1734,15 @@ convoi_t::rdwr(loadsave_t *file)
 			fahr[i]->last_stop_pos = last_stop_pos.gib_2d();
 		}
 	}
+
+	// overtaking status
+	if(file->get_version()<100001) {
+		set_tiles_overtaking( 0 );
+	}
+	else {
+		file->rdwr_byte( tiles_overtaking, "o" );
+		set_tiles_overtaking( tiles_overtaking );
+	}
 }
 
 
