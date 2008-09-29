@@ -28,6 +28,7 @@ protected:
 
 public:
 	overtaker_t():tiles_overtaking(0), diff(0) {}
+	virtual ~overtaker() {}
 
 	bool is_overtaking() const { return diff < 0; }
 
