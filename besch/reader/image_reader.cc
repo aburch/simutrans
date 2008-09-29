@@ -8,6 +8,9 @@
 #include "../obj_node_info.h"
 
 
+#include <zlib.h>
+#include "../../tpl/inthashtable_tpl.h"
+
 
 obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
@@ -111,7 +114,24 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	if (besch->pic.len != 0) {
-		register_image( &(besch->pic) );
+		// get the adler hash (since we have zlib on board anyway ... )
+		bool do_register_image = true;
+		uint32 adler = adler32(0L, (const Bytef *)(besch->pic.data), besch->pic.len);
+		static inthashtable_tpl<uint32, bild_besch_t *> images_adlers;
+		bild_besch_t *same = images_adlers.get(adler);
+		if(  same  ) {
+			// same checksum => if same then skip!
+			besch->pic.bild_nr = same->pic.bild_nr;
+			do_register_image = memcmp( besch->get_pic(), same->get_pic(), sizeof(bild_t) )!=0;
+		}
+		if(  do_register_image  ) {
+			images_adlers.put(adler,besch);	// still with bild_nr == IMG_LEER!
+			register_image( &(besch->pic) );
+		}
+		else {
+			delete besch;
+			besch = same;
+		}
     }
 
 	return besch;

@@ -1242,6 +1242,7 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 }
 
 
+
 /**
  * Fügt ein Image aus anderer Quelle hinzu
  */
@@ -1319,6 +1320,7 @@ void register_image(struct bild_t* bild)
 		} while(  --h != 0  );
 	}
 }
+
 
 
 // prissi: query offsets
