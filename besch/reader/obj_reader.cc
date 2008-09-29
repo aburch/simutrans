@@ -202,7 +202,7 @@ void obj_reader_t::read_file(const char *name)
 
 		if(version <= COMPILER_VERSION_CODE) {
 			obj_besch_t *data = NULL;
-			read_nodes(fp, data);
+			read_nodes(fp, data, 0 );
 		}
 		else {
 			DBG_DEBUG("obj_reader_t::read_file()","version of '%s' is too old, %d instead of %d", version, COMPILER_VERSION_CODE, name);
@@ -216,7 +216,7 @@ void obj_reader_t::read_file(const char *name)
 }
 
 
-void obj_reader_t::read_nodes(FILE* fp, obj_besch_t*& data)
+void obj_reader_t::read_nodes(FILE* fp, obj_besch_t*& data, int register_nodes)
 {
 	obj_node_info_t node;
 	char load_dummy[8], *p;
@@ -233,11 +233,14 @@ void obj_reader_t::read_nodes(FILE* fp, obj_besch_t*& data)
 //DBG_DEBUG("obj_reader_t::read_nodes()","Reading %.4s-node of length %d with '%s'",	reinterpret_cast<const char *>(&node.type),	node.size,	reader->get_type_name());
 		data = reader->read_node(fp, node);
 		for(int i = 0; i < node.children; i++) {
-			read_nodes(fp, data->node_info[i]);
+			read_nodes(fp, data->node_info[i], register_nodes+1);
 		}
 
 //DBG_DEBUG("obj_reader_t","registering with '%s'", reader->get_type_name());
-		reader->register_obj(data);
+		if(register_nodes<2  ||  node.type!=obj_cursor) {
+			// since many buildings are with cursors that do not need registration
+			reader->register_obj(data);
+		}
 	}
 	else {
 		// no reader found ...

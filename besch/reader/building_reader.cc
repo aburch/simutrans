@@ -290,39 +290,39 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->level = 4;
 	}
 
-  DBG_DEBUG("building_reader_t::read_node()",
-	     "version=%d"
-	     " gtyp=%d"
-	     " utyp=%d"
-	     " level=%d"
-	     " extra_data=%d"
-	     " groesse.x=%d"
-	     " groesse.y=%d"
-	     " layouts=%d"
-	     " enables=%x"
-	     " flags=%d"
-	     " chance=%d"
-	     " climates=%X"
-	     " anim=%d"
-			 " intro=%d"
-			 " retire=%d",
- 			 version,
-			 besch->gtyp,
-			 besch->utype,
-			 besch->level,
-			 besch->extra_data,
-			 besch->groesse.x,
-			 besch->groesse.y,
-			 besch->layouts,
-			 besch->enables,
-			 besch->flags,
-			 besch->chance,
-			 besch->allowed_climates,
-			 besch->animation_time,
-			 besch->intro_date,
-			 besch->obsolete_date
+	DBG_DEBUG("building_reader_t::read_node()",
+		"version=%d"
+		" gtyp=%d"
+		" utyp=%d"
+		" level=%d"
+		" extra_data=%d"
+		" groesse.x=%d"
+		" groesse.y=%d"
+		" layouts=%d"
+		" enables=%x"
+		" flags=%d"
+		" chance=%d"
+		" climates=%X"
+		" anim=%d"
+		" intro=%d"
+		" retire=%d",
+		version,
+		besch->gtyp,
+		besch->utype,
+		besch->level,
+		besch->extra_data,
+		besch->groesse.x,
+		besch->groesse.y,
+		besch->layouts,
+		besch->enables,
+		besch->flags,
+		besch->chance,
+		besch->allowed_climates,
+		besch->animation_time,
+		besch->intro_date,
+		besch->obsolete_date
 	     );
 
-  return besch;
+	return besch;
 
 }

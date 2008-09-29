@@ -24,9 +24,9 @@ void obj_node_t::write(FILE* fp)
 {
 	fseek(fp, write_offset - sizeof(desc), SEEK_SET);
 
-        uint32 type = endian_uint32(&desc.type);
-        uint16 children = endian_uint16(&desc.children);
-        uint16 size = endian_uint16(&desc.size);
+	uint32 type = endian_uint32(&desc.type);
+	uint16 children = endian_uint16(&desc.children);
+	uint16 size = endian_uint16(&desc.size);
 	fwrite(&type, 4, 1, fp);
 	fwrite(&children, 2, 1, fp);
 	fwrite(&size, 2, 1, fp);

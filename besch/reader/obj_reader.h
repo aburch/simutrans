@@ -75,7 +75,7 @@ class obj_reader_t
 	static ptrhashtable_tpl<obj_besch_t **, int>  fatals;
 
 	static void read_file(const char *name);
-	static void read_nodes(FILE* fp, obj_besch_t*& data);
+	static void read_nodes(FILE* fp, obj_besch_t*& data, int register_nodes);
 	static void skip_nodes(FILE *fp);
 
 protected:

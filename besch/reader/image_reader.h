@@ -9,9 +9,10 @@ class image_reader_t : public obj_reader_t {
 
     image_reader_t() { register_reader(); }
 protected:
-    virtual void register_obj(obj_besch_t *&data);
+	// would be useful, if images are allowed to be merged ...
+//	virtual void register_obj(obj_besch_t *&data);
 public:
-    static image_reader_t*instance() { return &the_instance; }
+    static image_reader_t* instance() { return &the_instance; }
 
     virtual obj_type get_type() const { return obj_image; }
     virtual const char *get_type_name() const { return "image"; }

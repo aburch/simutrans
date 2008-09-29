@@ -8,29 +8,6 @@
 #include "../obj_node_info.h"
 
 
-void image_reader_t::register_obj(obj_besch_t *&data)
-{
-    bild_besch_t *besch = static_cast<bild_besch_t *>(data);
-
-    /*
-    printf("image_reader_t::register_obj():\t"
-	   "x=%02d y=%02d w=%02d h=%02d len=%d\n",
-	   besch->x,
-	   besch->y,
-	   besch->w,
-	   besch->h,
-	   besch->len);
-    */
-
-	if (besch->pic.len == 0) {
-	delete_node(data);
-	data = NULL;
-    }
-    else {
-		register_image(&besch->pic);
-    }
-}
-
 
 obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
@@ -132,6 +109,10 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			dest++;	// skip trailing zero
 		}
 	}
+
+	if (besch->pic.len != 0) {
+		register_image( &(besch->pic) );
+    }
 
 	return besch;
 }
