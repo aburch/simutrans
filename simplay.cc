@@ -1069,42 +1069,50 @@ void spieler_t::ai_bankrupt()
 			planquadrat_t *plan = welt->access(x,y);
 			for(  uint b=0;  b<plan->gib_boden_count();  b++  ) {
 				grund_t *gr = plan->gib_boden_bei(b);
-				for(  int i=gr->gib_top()-1;  i>=0;  i--  ) {
-					ding_t *dt = gr->obj_bei(i);
-					if(dt->gib_besitzer()==this) {
-						switch(dt->gib_typ()) {
-							case ding_t::airdepot:
-							case ding_t::bahndepot:
-							case ding_t::monoraildepot:
-							case ding_t::tramdepot:
-							case ding_t::strassendepot:
-							case ding_t::schiffdepot:
-							case ding_t::leitung:
-							case ding_t::senke:
-							case ding_t::pumpe:
-							case ding_t::signal:
-							case ding_t::wayobj:
-							case ding_t::roadsign:
-								dt->entferne(this);
-								delete dt;
-								break;
-							case ding_t::gebaeude:
-								hausbauer_t::remove( welt, this, (gebaeude_t *)dt );
-								break;
-							case ding_t::way:
-							{
-								weg_t *w=(weg_t *)dt;
-								if(w->gib_waytype()==road_wt  ||  w->gib_waytype()==water_wt) {
-									add_maintenance( -w->gib_besch()->gib_wartung() );
-									w->setze_besitzer( NULL );
+				if(  gr->gib_typ()==grund_t::brueckenboden  &&  gr->obj_bei(0)->gib_besitzer()==this  ) {
+					brueckenbauer_t::remove( welt, this, gr->gib_pos(), (waytype_t)gr->gib_weg_nr(0)->gib_waytype() );
+				}
+				else if(  gr->gib_typ()==grund_t::tunnelboden  &&  gr->obj_bei(0)->gib_besitzer()==this  ) {
+					tunnelbauer_t::remove( welt, this, gr->gib_pos(), gr->gib_weg_nr(0)->gib_waytype() );
+				}
+				else {
+					for(  int i=gr->gib_top()-1;  i>=0;  i--  ) {
+						ding_t *dt = gr->obj_bei(i);
+						if(dt->gib_besitzer()==this) {
+							switch(dt->gib_typ()) {
+								case ding_t::airdepot:
+								case ding_t::bahndepot:
+								case ding_t::monoraildepot:
+								case ding_t::tramdepot:
+								case ding_t::strassendepot:
+								case ding_t::schiffdepot:
+								case ding_t::leitung:
+								case ding_t::senke:
+								case ding_t::pumpe:
+								case ding_t::signal:
+								case ding_t::wayobj:
+								case ding_t::roadsign:
+									dt->entferne(this);
+									delete dt;
+									break;
+								case ding_t::gebaeude:
+									hausbauer_t::remove( welt, this, (gebaeude_t *)dt );
+									break;
+								case ding_t::way:
+								{
+									weg_t *w=(weg_t *)dt;
+									if(!gr->ist_karten_boden()  ||  w->gib_waytype()==road_wt  ||  w->gib_waytype()==water_wt) {
+										add_maintenance( -w->gib_besch()->gib_wartung() );
+										w->setze_besitzer( NULL );
+									}
+									else {
+										gr->weg_entfernen( w->gib_waytype(), true );
+									}
+									break;
 								}
-								else {
-									gr->weg_entfernen( w->gib_waytype(), true );
-								}
-								break;
+								default:
+									gr->obj_bei(i)->setze_besitzer( welt->gib_spieler(1) );
 							}
-							default:
-								gr->obj_bei(i)->setze_besitzer( welt->gib_spieler(1) );
 						}
 					}
 				}

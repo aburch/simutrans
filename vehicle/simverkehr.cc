@@ -899,16 +899,15 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 	koord pos_prev = check_pos.gib_2d();
 
 	grund_t *gr = welt->lookup(check_pos);
-	grund_t *gr_last = NULL;
-	if ( gr==NULL ) {
+	if(  gr==NULL  ) {
 		return false;
 	}
-
 
 	weg_t *str = gr->gib_weg(road_wt);
-	if(str==0) {
+	if(  str==0  ) {
 		return false;
 	}
+
 	// we need 90 degree ribi
 	ribi_t::ribi direction = gib_fahrtrichtung();
 	direction = str->gib_ribi() & direction;
