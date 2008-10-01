@@ -84,8 +84,13 @@ DBG_MESSAGE("event","HOWDY!");
 			return;
 		}
 	}
+	else if(  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)  ) {
+		// scroll the list
+		droplist.infowin_event(ev);
+		return;
+	}
 
-	if(IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev) || IS_LEFTRELEASE(ev)) {
+	if(IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev) || IS_LEFTRELEASE(ev)  ) {
 
 		if(first_call) {
 			// prepare for selection
@@ -107,7 +112,7 @@ DBG_MESSAGE("event","HOWDY!");
 				event_t ev2 = *ev;
 				translate_event(&ev2, 0, -16);
 
-				if (droplist.getroffen(ev->cx + pos.x, ev->cy + pos.y)) {
+				if(droplist.getroffen(ev->cx + pos.x, ev->cy + pos.y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
 					droplist.infowin_event(&ev2);
 					// we selected something?
 					if(finish  && IS_LEFTRELEASE(ev)) {
