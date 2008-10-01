@@ -1067,7 +1067,7 @@ void spieler_t::ai_bankrupt()
 	for( int y=0;  y<welt->gib_groesse_y();  y++  ) {
 		for( int x=0;  x<welt->gib_groesse_x();  x++  ) {
 			planquadrat_t *plan = welt->access(x,y);
-			for(  uint b=0;  b<plan->gib_boden_count();  b++  ) {
+			for(  int b=plan->gib_boden_count()-1;  b>=0;  b--  ) {
 				grund_t *gr = plan->gib_boden_bei(b);
 				if(  gr->gib_typ()==grund_t::brueckenboden  &&  gr->obj_bei(0)->gib_besitzer()==this  ) {
 					brueckenbauer_t::remove( welt, this, gr->gib_pos(), (waytype_t)gr->gib_weg_nr(0)->gib_waytype() );
@@ -3540,8 +3540,11 @@ void spieler_t::do_passenger_ki()
 			// assume fail
 			state = CHECK_CONVOI;
 
-			// if we have this little money, we do nothing
-			if(konto<2000000) {
+			/* if we have this little money, we do nothing
+			 * The second condition may happen due to extensive replacement operations;
+			 * in such a case it is save enough to expand anyway.
+			 */
+			if(!(konto>0  ||  finance_history_month[0][COST_NETWEALTH]>umgebung_t::starting_money)  ) {
 				return;
 			}
 
