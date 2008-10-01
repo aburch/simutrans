@@ -141,8 +141,12 @@ bool skinverwaltung_t::register_besch(skintyp_t type, const skin_besch_t* besch)
 	}
 	if(  !::register_besch(sb, besch)  ) {
 		// currently no misc objects allowed ...
-		assert(  type==cursor  ||  type==symbol  );
-		return ::register_besch( fakultative_objekte,  besch );
+		if(  !(type==cursor  ||  type==symbol)  ) {
+			dbg->warning("skinverwaltung_t::register_besch()","Spurious object '%s' loaded (will not be referenced anyway)!", besch->gib_name() );
+		}
+		else {
+			return ::register_besch( fakultative_objekte,  besch );
+		}
 	}
 	return true;
 }
