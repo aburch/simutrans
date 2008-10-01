@@ -153,7 +153,7 @@ gui_scrolled_list_t::infowin_event(const event_t *ev)
 		}
 	}
 
-    if (sb.getroffen(x, y)) {
+    if(sb.getroffen(x, y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -sb.gib_pos().x, -sb.gib_pos().y);
 		sb.infowin_event(&ev2);

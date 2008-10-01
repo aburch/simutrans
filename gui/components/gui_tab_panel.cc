@@ -51,7 +51,7 @@ void gui_tab_panel_t::infowin_event(const event_t *ev)
 	if(ev->my >= HEADER_VSIZE || ev->cy >= HEADER_VSIZE) {
 		// Komponente getroffen
 		event_t ev2 = *ev;
-		translate_event(&ev2, 0, -HEADER_VSIZE);
+		translate_event(&ev2, -gib_aktives_tab()->gib_pos().x, -gib_aktives_tab()->gib_pos().y-HEADER_VSIZE);
 		gib_aktives_tab()->infowin_event(&ev2);
 	}
 	else {

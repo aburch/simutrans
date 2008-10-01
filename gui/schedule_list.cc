@@ -197,9 +197,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	chart.setze_pos( koord(LINE_NAME_COLUMN_WIDTH+50,11) );
 	chart.set_seed(0);
 	chart.set_background(MN_GREY1);
-
 	add_komponente(&chart);
-	//CHART END
 
 	// add filter buttons
 	for (int i=0; i<MAX_LINE_COST; i++) {
