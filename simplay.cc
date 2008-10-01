@@ -2797,7 +2797,7 @@ static koord find_harbour_pos(karte_t* welt, const stadt_t *s )
 bool spieler_t::create_water_transport_vehikel(const stadt_t* start_stadt, const koord target_pos)
 {
 	const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search(water_wt, welt->get_timeline_year_month(), 10, 40, warenbauer_t::passagiere, false, true );
-	if(v_besch==NULL) {
+	if(v_besch==NULL  ||  v_besch->gib_preis()>konto) {
 		// no ship there
 		return false;
 	}
