@@ -784,6 +784,7 @@ void convoi_t::step()
 		// must be here; may otherwise confuse window management
 		case SELF_DESTRUCT:
 			besitzer_p->buche( calc_restwert(), gib_pos().gib_2d(), COST_NEW_VEHICLE );
+			besitzer_p->buche( -calc_restwert(), gib_pos().gib_2d(), COST_ASSETS );
 			welt->setze_dirty();
 			destroy();
 			break;
@@ -2026,6 +2027,8 @@ void convoi_t::laden()
 		if(withdraw  &&  loading_level==0) {
 			// destroy when empty
 			besitzer_p->buche( calc_restwert(), COST_NEW_VEHICLE );
+			besitzer_p->buche( -calc_restwert(), COST_ASSETS );
+			welt->setze_dirty();
 			destroy();
 			return;
 		}
@@ -2132,11 +2135,11 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 }
 
 
-uint32 convoi_t::calc_restwert() const
+sint64 convoi_t::calc_restwert() const
 {
-	int result = 0;
+	sint64 result = 0;
 
-	for(unsigned i=0; i<anz_vehikel; i++) {
+	for(uint i=0; i<anz_vehikel; i++) {
 		result += fahr[i]->calc_restwert();
 	}
 	return result;
@@ -2344,19 +2347,14 @@ void convoi_t::prepare_for_new_schedule(fahrplan_t *f)
 
 void convoi_t::book(sint64 amount, int cost_type)
 {
-	if (cost_type>MAX_CONVOI_COST) {
-		// THIS SHOULD NEVER HAPPEN!
-		// CHECK CODE
-		DBG_MESSAGE("convoi_t::book()", "function was called with cost_type: %i, which is not valid (MAX_CONVOI_COST=%i)", cost_type, MAX_CONVOI_COST);
-		return;
-	}
+	assert(  cost_type<MAX_CONVOI_COST);
 
 	financial_history[0][cost_type] += amount;
 	if (line.is_bound()) {
 		line->book(amount, simline_t::convoi_to_line_catgory[cost_type] );
 	}
 
-	if (cost_type == CONVOI_TRANSPORTED_GOODS) {
+	if(cost_type == CONVOI_TRANSPORTED_GOODS) {
 		besitzer_p->buche(amount, COST_ALL_TRANSPORTED);
 	}
 }

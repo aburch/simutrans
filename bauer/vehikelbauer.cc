@@ -148,7 +148,7 @@ sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 
 
 
-vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb)
+vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb )
 {
 	vehikel_t* v;
 	switch (vb->get_waytype()) {
@@ -165,10 +165,12 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 			dbg->fatal("vehikelbauer_t::baue()", "cannot built a vehicle with waytype %i", vb->get_waytype());
 	}
 
-	sp->buche(-(sint32)vb->gib_preis(), k.gib_2d(), COST_NEW_VEHICLE);
+	sp->buche(-(sint32)vb->gib_preis(), k.gib_2d(), COST_NEW_VEHICLE );
+	sp->buche( (sint32)vb->gib_preis(), COST_ASSETS );
 
 	return v;
 }
+
 
 
 bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
@@ -313,8 +315,7 @@ bool vehikelbauer_t::alles_geladen()
  * @param min_power minimalleistung des gesuchten Fahrzeuges (inclusiv)
  * @author Hansjörg Malthaner
  */
-const vehikel_besch_t *
-vehikelbauer_t::gib_info(const ware_besch_t *wtyp, waytype_t vtyp,uint32 min_power)
+const vehikel_besch_t *vehikelbauer_t::gib_info(const ware_besch_t *wtyp, waytype_t vtyp,uint32 min_power)
 {
 	min_power *= 64;
 
@@ -332,15 +333,13 @@ vehikelbauer_t::gib_info(const ware_besch_t *wtyp, waytype_t vtyp,uint32 min_pow
 }
 
 
-const vehikel_besch_t *
-vehikelbauer_t::gib_info(const char *name)
+const vehikel_besch_t *vehikelbauer_t::gib_info(const char *name)
 {
 	return name_fahrzeuge.get(name);
 }
 
 
-const vehikel_besch_t *
-vehikelbauer_t::gib_info(image_id base_img)
+const vehikel_besch_t *vehikelbauer_t::gib_info(image_id base_img)
 {
   const vehikel_besch_t * besch = _fahrzeuge.get(base_img);
 

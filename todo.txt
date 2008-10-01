@@ -4,7 +4,6 @@ To be done:
 - limit construction costs
 - A* for goods
 - scripting for AI
-- merge identical images in makeobj
 - busy platforms
 - Signals switching nearly like before (should be easy)
 - Odometer/Lifetime
@@ -79,6 +78,7 @@ Main meinu configurable in size and order: done
 - timeline bonus speeds from a file: done
 - bankrupt only when the net company value (i.e. after selling everything) is below zero (like for AI): done
 - factory density instead of fixed population linked growth: somewhat done, different system
+- merge identical images in makeobj: done, merged them on loadtime
 
 Impossible:
 - vehicle N/E longer than 8 px must be aligned by top, not end; need change of moving code: impossible

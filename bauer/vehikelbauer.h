@@ -38,7 +38,7 @@ public:
 	static bool register_besch(const vehikel_besch_t *besch);
 	static bool alles_geladen();
 
-	static vehikel_t* baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb);
+	static vehikel_t* baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb );
 
 	/**
 	* ermittelt ein basis bild fuer ein Fahrzeug das den angegebenen

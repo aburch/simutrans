@@ -328,13 +328,27 @@ void spieler_t::neuer_monat()
 	// since the messages must remain on the screen longer ...
 	static char buf[256];
 
+
 	// Wartungskosten abziehen
 	calc_finance_history();
 	roll_finance_history_month();
+
 	if(welt->get_last_month()==0) {
-		calc_finance_history();
 		roll_finance_history_year();
 	}
+
+	// new month has started => recalculate vehicle value
+	sint64 assets = 0;
+	for(  vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end();  i != end;  ++i  ) {
+		convoihandle_t cnv = *i;
+		if(cnv->gib_besitzer()==this) {
+			assets += cnv->calc_restwert();
+		}
+	}
+	finance_history_year[0][COST_ASSETS] = finance_history_month[0][COST_ASSETS] = assets;
+	finance_history_year[0][COST_NETWEALTH] = finance_history_month[0][COST_NETWEALTH] = assets+konto;
+
+	calc_finance_history();
 
 	simlinemgmt.new_month();
 
@@ -433,7 +447,6 @@ void spieler_t::roll_finance_history_year()
 	for (int i=0;  i<MAX_PLAYER_COST;  i++) {
 		finance_history_year[0][i] = 0;
 	}
-	finance_history_month[0][COST_ASSETS] = 0;
 }
 
 
@@ -445,24 +458,13 @@ void spieler_t::calc_finance_history()
 	* @author hsiegeln
 	*/
 	sint64 profit, assets, mprofit;
-	profit = assets = mprofit = 0;
+	profit = mprofit = 0;
 	for (int i=0; i<MAX_PLAYER_COST; i++) {
 		// all costs < COST_ASSETS influence profit, so we must sum them up
 		if(i<COST_ASSETS) {
 			profit += finance_history_year[0][i];
 			mprofit += finance_history_month[0][i];
 		}
-	}
-
-	if(finance_history_month[0][COST_ASSETS]==0) {
-		// new month has started
-		for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
-			convoihandle_t cnv = *i;
-			if(cnv->gib_besitzer()==this) {
-				assets += cnv->calc_restwert();
-			}
-		}
-		finance_history_year[0][COST_ASSETS] = finance_history_month[0][COST_ASSETS] = assets;
 	}
 
 	finance_history_year[0][COST_PROFIT] = profit;
@@ -472,16 +474,19 @@ void spieler_t::calc_finance_history()
 	finance_history_year[0][COST_CASH] = konto;
 	finance_history_year[0][COST_OPERATING_PROFIT] = finance_history_year[0][COST_INCOME] + finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE];
 	sint64 margin_div = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]);
-	if(margin_div<0) { margin_div = -margin_div; }
+	if(margin_div<0) {
+		margin_div = -margin_div;
+	}
 	finance_history_year[0][COST_MARGIN] = margin_div!= 0 ? (100*finance_history_year[0][COST_OPERATING_PROFIT]) / margin_div : 0;
 
 	finance_history_month[0][COST_NETWEALTH] = finance_history_month[0][COST_ASSETS] + konto;
 	finance_history_month[0][COST_CASH] = konto;
 	finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE];
 	margin_div = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]);
-	if(margin_div<0) { margin_div = -margin_div; }
+	if(margin_div<0) {
+		margin_div = -margin_div;
+	}
 	finance_history_month[0][COST_MARGIN] = margin_div!=0 ? (100*finance_history_month[0][COST_OPERATING_PROFIT]) / margin_div : 0;
-
 	finance_history_month[0][COST_SCENARIO_COMPLETED] = finance_history_year[0][COST_SCENARIO_COMPLETED] = welt->get_scenario()->completed(player_nr);
 }
 
@@ -512,15 +517,18 @@ void spieler_t::buche(const sint64 betrag, const koord pos, enum player_cost typ
 // add an amout to a subcategory
 void spieler_t::buche(const sint64 betrag, enum player_cost type)
 {
-	konto += betrag;
+	assert(type < MAX_PLAYER_COST);
 
-	if(type < MAX_PLAYER_COST) {
+	finance_history_year[0][type] += betrag;
+	finance_history_month[0][type] += betrag;
+
+	if(type < COST_ASSETS) {
+		konto += betrag;
+
 		// fill year history
-		finance_history_year[0][type] += betrag;
 		finance_history_year[0][COST_PROFIT] += betrag;
 		finance_history_year[0][COST_CASH] = konto;
 		// fill month history
-		finance_history_month[0][type] += betrag;
 		finance_history_month[0][COST_PROFIT] += betrag;
 		finance_history_month[0][COST_CASH] = konto;
 		// the other will be updated only monthly or when a finance window is shown
@@ -2797,7 +2805,7 @@ static koord find_harbour_pos(karte_t* welt, const stadt_t *s )
 bool spieler_t::create_water_transport_vehikel(const stadt_t* start_stadt, const koord target_pos)
 {
 	const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search(water_wt, welt->get_timeline_year_month(), 10, 40, warenbauer_t::passagiere, false, true );
-	if(v_besch==NULL  ||  v_besch->gib_preis()>konto) {
+	if(v_besch==NULL  ) {
 		// no ship there
 		return false;
 	}
@@ -2833,7 +2841,7 @@ bool spieler_t::create_water_transport_vehikel(const stadt_t* start_stadt, const
 			start_harbour = start_hub->gib_basis_pos();
 		}
 	}
-	// find an airport place
+	// find an dock place
 	if(!start_hub.is_bound()) {
 		start_harbour = find_harbour_pos( welt, start_stadt );
 	}
@@ -2849,7 +2857,7 @@ bool spieler_t::create_water_transport_vehikel(const stadt_t* start_stadt, const
 		if(  (end_hub->get_station_type()&haltestelle_t::dock)==0  ) {
 			end_connect_hub = end_hub;
 			end_hub = halthandle_t();
-			// is there already one airport next to this town?
+			// is there already one dock next to this town?
 			slist_iterator_tpl<warenziel_t>iter(end_connect_hub->gib_warenziele_passenger());
 			while(iter.next()) {
 				if(iter.get_current().gib_zielhalt()->get_station_type()&haltestelle_t::dock) {
@@ -2863,7 +2871,7 @@ bool spieler_t::create_water_transport_vehikel(const stadt_t* start_stadt, const
 		}
 	}
 	if(!end_hub.is_bound()  &&  end_stadt) {
-		// find an airport place
+		// find an dock place
 		end_harbour = find_harbour_pos( welt, end_stadt );
 	}
 	if(end_harbour==koord::invalid) {
@@ -2876,7 +2884,9 @@ bool spieler_t::create_water_transport_vehikel(const stadt_t* start_stadt, const
 
 	// now we must check, if these two seas are connected
 	{
-		vehikel_t* test_driver = vehikelbauer_t::baue( koord3d(start_harbour-start_dx,welt->gib_grundwasser()), this, NULL, v_besch );
+		// we use the free own vehikel_besch_t
+		vehikel_besch_t remover_besch( water_wt, 500, vehikel_besch_t::diesel );
+		vehikel_t* test_driver = vehikelbauer_t::baue( koord3d(start_harbour-start_dx,welt->gib_grundwasser()), this, NULL, &remover_besch );
 		route_t verbindung;
 		bool connected = verbindung.calc_route(welt, koord3d(start_harbour-start_dx,welt->gib_grundwasser()), koord3d(end_harbour-end_dx,welt->gib_grundwasser()), test_driver, 0);
 		delete test_driver;
@@ -3544,7 +3554,7 @@ void spieler_t::do_passenger_ki()
 			 * The second condition may happen due to extensive replacement operations;
 			 * in such a case it is save enough to expand anyway.
 			 */
-			if(!(konto>0  ||  finance_history_month[0][COST_NETWEALTH]>umgebung_t::starting_money)  ) {
+			if(!(konto>0  ||  finance_history_month[0][COST_ASSETS]+konto>umgebung_t::starting_money)  ) {
 				return;
 			}
 
