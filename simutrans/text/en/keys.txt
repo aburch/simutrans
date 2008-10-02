@@ -86,10 +86,8 @@ Keys with assigned functions include:
 <p>
 [<em>Shift</em>] + <a href="mouse.txt">mouse</a>: used on <a href="map.txt">Map</a> to see links in <a href="industry_info.txt">Industry Supply Chain</a>.<br>
 [<em>CTRL</em>] + tool: construct (signals & <a href="station.txt">Stops</a>) on upper level; or build slower roads and tracks over faster ones; or build straighter (more direct) roads and tracks.<br>
-[<em>CTRL</em>] + ([<em>F2</em>] to [<em>F12</em>]): sets select current tool to keypresses [<em>F2</em>] to [<em>F12</em>].
 </p>
 <p>
 [<em>F1</em>]: open <a href="general.txt">Simutrans Help</a>.<br>
 [<em>F10</em>]: pause/unpause game.<br>
-[<em>F2</em>] to [<em>F12</em>]: selects pre-set tool
 </p>

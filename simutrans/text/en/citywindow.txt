@@ -33,7 +33,7 @@ Counters increase with growth of urban area and decrease with construction of ne
 Destinations are shown by coloured dots for the current game-calendar-month (right mini-map) and last game-calendar-month (left mini-map). Colour of destination dots indicate details about passengers and mail:<br>
 - yellow: found a route and an uncrowded <a href="station.txt">Stop</a> to start journey (happy face shown in Stop Information).<br>
 - orange: did not find a route to this destination.<br>
-- red: found a route but Stop at start of hourney was overcrowded (sad ?unhappy face in Stop Information).
+- red: found a route but Stop at start of journey was overcrowded (sad/unhappy face in Stop Information).
 </p>
 <p>
 <em>Graph</em> shows statistics for the urban area. <br>

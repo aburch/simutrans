@@ -6,7 +6,7 @@
 <strong>Load Height Map</strong> is used to open a file of a custom-made terrain (to use for a new game) & can be used to delete these files.<br>
 <p>
 <strong>Load Height Map</strong> opens from <a href="new_world.txt">Create a New Game</a>; & list names, date & time (of save) of available custom-terrains.<br>
-If all files are not visible: use <a href="mouse.txt">slider-bar</a> on right-side of list, to scroll names.
+If all files are not visible: use <a href="mouse.txt">slider-bar</a> on the right side of list, to scroll through the names.
 </p>
 <p>
 Click on name in list to use a custom-terrain; or enter name into box at top of window: click on box, type name, & press <a href="keys.txt">[Enter]</a> or [Return] or click on<em>OK</em>(an incorrect name will have no effect, try again).
@@ -15,8 +15,8 @@ Click on name in list to use a custom-terrain; or enter name into box at top of 
 WARNING: Click x-button by left of name to DELETE file immediately & permanently, the filename is removed from list and <strong>Load Height Map</strong> closes. Use this function carefully.
 </p>
 <p>
-Some custom-made terrains are available online at http://addons.simutrans.com.<br>
-The new file must be in .ppm format & placed in the directory (or folder) named...simutrans/save/
+Some custom-made terrains are available online at http://maps.simutrans.com.<br>
+The new file must be in .ppm or .bmp format and placed in the personal directory (or folder) named simutrans/maps/
 </p>
 <p>
 Information on how to create custom terrains is available online at http://wiki.simutrans.com

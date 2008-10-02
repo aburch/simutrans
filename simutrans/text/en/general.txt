@@ -99,7 +99,7 @@ Game Options</a><br>
 
 <p>
 If no help is found here, try<br>
-<em>http://guide.simutrans.com</em>, or<br>
+<em>http://docs.simutrans.com</em>, or<br>
 <em>http://wiki.simutrans.com</em>, or<br>
 <em>http://simutrans-tips.com</em>, or<br>
 <em>http://forum.simutrans.com</em>.
