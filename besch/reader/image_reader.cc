@@ -123,13 +123,13 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		if(  same  &&  same->pic.len==besch->pic.len  ) {
 			// same checksum => if same then skip!
 			besch->pic.bild_nr = same->pic.bild_nr;
-			do_register_image = memcmp( besch->get_pic(), same->get_pic(), sizeof(bild_t)+besch->pic.len*2 )!=0;
+			do_register_image = memcmp( besch->get_pic(), same->get_pic(), sizeof(bild_t)+(besch->pic.len*2) )!=0;
 		}
 		if(  do_register_image  ) {
-			images_adlers.put(adler,besch);	// still with bild_nr == IMG_LEER!
 			if(!same) {
-				register_image( &(besch->pic) );
+				images_adlers.put(adler,besch);	// still with bild_nr == IMG_LEER!
 			}
+			register_image( &(besch->pic) );
 		}
 		else {
 			delete besch;

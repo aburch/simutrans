@@ -817,24 +817,36 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 
 		for(int i=0;  i<max_lenght;  i++ ) {
 			// not on map or already something there => fail
-			if (!welt->ist_in_kartengrenzen(to_pos + zv * (i + 1))) return;
+			if (!welt->ist_in_kartengrenzen(to_pos + zv * (i + 1))) {
+				return;
+			}
 			gr = welt->lookup(to_pos+zv*i)->gib_kartenboden();
 			gr2 = welt->lookup(to_pos+zv*(i+1))->gib_kartenboden();
-			if (gr2->gib_pos() == ziel) return;
-			// something in the way?
-			if (welt->lookup(from->gib_pos() + zv * i + koord3d(0, 0, Z_TILE_STEP))) return;
-			// powerline in the way?
-			if (gr->gib_pos().z == from->gib_pos().z && gr->find<leitung_t>()) return;
-			// some artificial tiles here?!?
-			if (gr->gib_pos().z > from->gib_pos().z) return;
-			// check for runways ...
-			if (gr->hat_weg(air_wt)) return;
+			if (gr2->gib_pos() == ziel) {
+				return;
+			}
+			if (welt->lookup(from->gib_pos() + zv * i + koord3d(0, 0, Z_TILE_STEP))) {
+				// something in the way
+				return;
+			}
+			if (gr->gib_pos().z == from->gib_pos().z && gr->find<leitung_t>()) {
+				// powerline in the way
+				return;
+			}
+			if (gr->gib_pos().z > from->gib_pos().z) {
+				// some artificial tiles here?!?
+				return;
+			}
+			if (gr->hat_weg(air_wt)) {
+				// not above runways ...
+				return;
+			}
 			// check, if we need really a bridge
 			if(i<=2  &&  !has_reason_for_bridge) {
 				long dummy;
 				has_reason_for_bridge = !is_allowed_step(gr, gr2, &dummy );
 			}
-			// non-manable slope?
+			// non-mangable slope?
 			if(gr->gib_pos().z==from->gib_pos().z  &&  gr->gib_grund_hang()!=0) {
 #ifndef DOUBLE_GROUNDS
 				if (!hang_t::ist_wegbar(gr->gib_grund_hang()) || ribi_typ(zv) != ribi_typ(gr->gib_grund_hang())) return;
