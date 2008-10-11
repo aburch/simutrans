@@ -823,10 +823,17 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 		if(ok) {
 
+			if(  gr1->kann_alle_obj_entfernen(sp)  ) {
+				// not empty ...
+				return "Tile not empty.";
+			}
+
 			// already some ground here (tunnel, bridge, monorail?)
 			if(new_pos!=gr1->gib_pos()  &&  welt->lookup(new_pos)!=NULL) {
 				return "Tile not empty.";
 			}
+
+			gr1->obj_loesche_alle(sp);
 
 			// ok, was sucess
 			if(!gr1->ist_wasser()  &&  slope_this==0  &&  new_pos.z==welt->gib_grundwasser()) {
