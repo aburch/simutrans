@@ -2398,6 +2398,9 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 			}
 			// no success at all?
 			if(state==NR_BAUE_ROUTE1) {
+				// maybe this route is not builtable ... add to forbidden connections
+				forbidden_conections.append( fabconnection_t( start->gib_pos().gib_2d(), ziel->gib_pos().gib_2d(), freight ) );
+				ziel = NULL;	// otherwise it may always try to built the same route!
 				state = CHECK_CONVOI;
 			}
 		}
