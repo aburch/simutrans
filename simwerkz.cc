@@ -2642,7 +2642,7 @@ const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		gebaeude_t *gb = hausbauer_t::baue(welt, gb_sp, gr->gib_pos(), rotation, besch);
 		if(gb) {
 			// building successfull
-			if(  besch->gib_utyp()!=haus_besch_t::attraction_land  ) {
+			if(  besch->gib_utyp()!=haus_besch_t::attraction_land  &&  besch->gib_utyp()!=haus_besch_t::attraction_city  ) {
 				stadt_t *city = welt->suche_naechste_stadt( pos.gib_2d() );
 				if(city) {
 					city->add_gebaeude_to_stadt(gb);
