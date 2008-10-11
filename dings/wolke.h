@@ -1,12 +1,14 @@
 #ifndef dings_wolke_t
 #define dings_wolke_t
 
+#include "../besch/skin_besch.h"
 #include "../ifc/sync_steppable.h"
+#include "../tpl/vector_tpl.h"
+#include "../simimg.h"
 #include "../simimg.h"
 
 class karte_t;
 class rauch_besch_t;
-
 
 /**
  * smoke clouds (formerly sync_wolke_t)
@@ -15,16 +17,21 @@ class rauch_besch_t;
 class wolke_t : public ding_t, public sync_steppable
 {
 private:
-	sint32 insta_zeit;	// Wolken verschwinden, wenn alter max. erreicht
-	uint8 increment:1;
-	sint16 base_y_off;
-	image_id base_image;
+	// maximum 16 types of clouds for now ...
+	static vector_tpl<const skin_besch_t *>all_clouds;
+
+	uint16 insta_zeit;	// clouds vanish when insta_zeit>2500 => maximum 5 images ...
+	uint16 divisor;
+	sint8 base_y_off;
+	sint8 cloud_nr;
 
 public:
+    static bool register_besch(const skin_besch_t *besch);
+
 	inline sint32 gib_insta_zeit() const { return insta_zeit; }
 
 	wolke_t(karte_t *welt, loadsave_t *file);
-	wolke_t(karte_t *welt, koord3d pos, sint8 xoff, sint8 yoff, image_id bild, bool increment);
+	wolke_t(karte_t *welt, koord3d pos, sint8 xoff, sint8 yoff, const skin_besch_t *cloud );
 	~wolke_t();
 
 	bool sync_step(long delta_t);
@@ -34,7 +41,7 @@ public:
 
 	void zeige_info() {} // show no info
 
-	image_id gib_bild() const { return base_image + increment*(insta_zeit >> 9); }
+	image_id gib_bild() const { return all_clouds[cloud_nr]->gib_bild_nr(insta_zeit/divisor); }
 
 	void rdwr(loadsave_t *file);
 

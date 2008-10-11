@@ -1131,7 +1131,7 @@ vehikel_t::rauche()
 			grund_t * gr = welt->lookup( gib_pos() );
 			// nicht im tunnel ?
 			if(gr && !gr->ist_im_tunnel() ) {
-				wolke_t *abgas =  new wolke_t(welt, gib_pos(), gib_xoff()+((dx*(sint16)((uint16)steps*TILE_STEPS))>>8), gib_yoff()+((dy*(sint16)((uint16)steps*TILE_STEPS))>>8)+hoff, besch->gib_rauch()->gib_bild_nr(0), true );
+				wolke_t *abgas =  new wolke_t(welt, gib_pos(), gib_xoff()+((dx*(sint16)((uint16)steps*TILE_STEPS))>>8), gib_yoff()+((dy*(sint16)((uint16)steps*TILE_STEPS))>>8)+hoff, besch->gib_rauch() );
 
 				if( !gr->obj_add(abgas) ) {
 					delete abgas;

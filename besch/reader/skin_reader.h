@@ -80,9 +80,8 @@ class smoke_reader_t : public skin_reader_t {
 
     smoke_reader_t() { register_reader(); }
 protected:
-    virtual skinverwaltung_t::skintyp_t get_skintype() const {
-	return skinverwaltung_t::nothing;
-    }
+	virtual skinverwaltung_t::skintyp_t get_skintype() const {return skinverwaltung_t::nothing; }
+
 public:
     static smoke_reader_t*instance() { return &the_instance; }
 

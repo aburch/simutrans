@@ -738,7 +738,7 @@ void fabrik_t::step(long delta_t)
 			const rauch_besch_t *rada = besch->gib_rauch();
 			if(rada) {
 				grund_t *gr=welt->lookup_kartenboden(pos.gib_2d()+rada->gib_pos_off());
-				wolke_t *smoke =  new wolke_t(welt, pos+rada->gib_pos_off(), ((rada->gib_xy_off().x+simrand(7)-3)*TILE_STEPS)/16, ((rada->gib_xy_off().y+simrand(7)-3)*TILE_STEPS)/16, rada->gib_bilder()->gib_bild_nr(0), false );
+				wolke_t *smoke =  new wolke_t(welt, pos+rada->gib_pos_off(), ((rada->gib_xy_off().x+simrand(7)-3)*TILE_STEPS)/16, ((rada->gib_xy_off().y+simrand(7)-3)*TILE_STEPS)/16, rada->gib_bilder() );
 				gr->obj_add(smoke);
 				welt->sync_add( smoke );
 			}
@@ -875,7 +875,7 @@ void fabrik_t::step(long delta_t)
 			const rauch_besch_t *rada = besch->gib_rauch();
 			if(rada) {
 				grund_t *gr=welt->lookup_kartenboden(pos.gib_2d()+rada->gib_pos_off());
-				wolke_t *smoke =  new wolke_t(welt, pos+rada->gib_pos_off(), ((rada->gib_xy_off().x+simrand(7)-3)*TILE_STEPS)/16, ((rada->gib_xy_off().y+simrand(7)-3)*TILE_STEPS)/16, rada->gib_bilder()->gib_bild_nr(0), false );
+				wolke_t *smoke =  new wolke_t(welt, pos+rada->gib_pos_off(), ((rada->gib_xy_off().x+simrand(7)-3)*TILE_STEPS)/16, ((rada->gib_xy_off().y+simrand(7)-3)*TILE_STEPS)/16, rada->gib_bilder() );
 				gr->obj_add(smoke);
 				welt->sync_add( smoke );
 			}
