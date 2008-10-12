@@ -165,6 +165,7 @@ struct imd {
 #define FLAG_PLAYERCOLOR (2)
 #define FLAG_REZOOM (4)
 #define FLAG_NORMAL_RECODE (8)
+#define FLAG_POSITION_CHANGED (16)
 
 #define NEED_PLAYER_RECODE (128)
 
@@ -1355,6 +1356,13 @@ void display_set_base_image_offset(unsigned bild, KOORD_VAL xoff, KOORD_VAL yoff
 		fprintf(stderr, "Warning: display_set_base_image_offset(): illegal image=%d\n", bild);
 		return;
 	}
+
+	// only move images once
+	if(  images[bild].recode_flags & FLAG_POSITION_CHANGED  ) {
+		fprintf(stderr, "Warning: display_set_base_image_offset(): image=%d was already moved!\n", bild);
+		return;
+	}
+	images[bild].recode_flags |= FLAG_POSITION_CHANGED;
 
 	assert(images[bild].base_h > 0);
 	assert(images[bild].base_w > 0);
