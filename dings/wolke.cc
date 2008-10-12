@@ -81,7 +81,7 @@ bool wolke_t::sync_step(long delta_t)
 	insta_zeit += (uint16)delta_t;
 	if(insta_zeit>2500) {
 		// delete wolke ...
-		insta_zeit = 2500;
+		insta_zeit = 2499;
 		return false;
 	}
 	// move cloud up
