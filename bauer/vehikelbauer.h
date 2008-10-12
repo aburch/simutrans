@@ -40,17 +40,6 @@ public:
 
 	static vehikel_t* baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb );
 
-	/**
-	* ermittelt ein basis bild fuer ein Fahrzeug das den angegebenen
-	* Bedingungen entspricht.
-	*
-	* @param vtyp strasse, schiene oder wasser
-	* @param min_power minimalleistung des gesuchten Fahrzeuges (inclusiv)
-	* @author Hansjörg Malthaner
-	*/
-	static const vehikel_besch_t * gib_info(const ware_besch_t *wtyp,waytype_t vtyp,uint32 min_power);
-
-	static const vehikel_besch_t * gib_info(image_id base_img);
 	static const vehikel_besch_t * gib_info(const char *name);
 	static slist_tpl<const vehikel_besch_t*>* gib_info(waytype_t typ);
 
@@ -58,8 +47,6 @@ public:
 	* @author prissi
 	*/
 	static const vehikel_besch_t *vehikel_search(waytype_t typ,const uint16 month_now,const uint32 target_power,const uint32 target_speed,const ware_besch_t * target_freight, bool include_electric, bool not_obsolete );
-
-	static const vehikel_besch_t *vehikel_fuer_leistung(uint32 leistung, waytype_t typ,const unsigned month_now);
 };
 
 #endif

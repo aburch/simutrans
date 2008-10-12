@@ -4,6 +4,7 @@
 #include "../../ifc/gui_action_creator.h"
 #include "../../tpl/vector_tpl.h"
 #include "../../simimg.h"
+#include "../../simcolor.h"
 
 #define EMPTY_IMAGE_BAR (255)
 
@@ -25,10 +26,11 @@ class gui_image_list_t : public gui_komponente_action_creator_t
 {
 public:
 	struct image_data_t {
-		image_id		image;
-		sint16		count;
-		uint8		lcolor;	//0=none, 1=green, 2=red, 3 =yellow
-		uint8		rcolor;
+		const char *text;
+		image_id   image;
+		sint16     count;
+		COLOR_VAL  lcolor;	//0=none, 1=green, 2=red, 3 =yellow
+		COLOR_VAL  rcolor;
 	};
 
 	/**

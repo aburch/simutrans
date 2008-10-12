@@ -544,7 +544,8 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 
 	img_data.image = info->gib_basis_bild();
 	img_data.count = 0;
-	img_data.lcolor = img_data.rcolor= EMPTY_IMAGE_BAR;
+	img_data.lcolor = img_data.rcolor = EMPTY_IMAGE_BAR;
+	img_data.text = info->gib_name();
 
 	// since they come "pre-sorted" for the vehikelbauer, we have to do nothing to keep them sorted
 	if(info->gib_ware()==warenbauer_t::passagiere  ||  info->gib_ware()==warenbauer_t::post) {
@@ -707,6 +708,7 @@ void depot_frame_t::update_data()
 			img_data.image = cnv->gib_vehikel(i)->gib_besch()->gib_basis_bild();
 			img_data.count = 0;
 			img_data.lcolor = img_data.rcolor= EMPTY_IMAGE_BAR;
+			img_data.text = cnv->gib_vehikel(i)->gib_besch()->gib_name();
 			convoi_pics.push_back(img_data);
 		}
 
@@ -847,7 +849,7 @@ void depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild
 	if(bild_data->lcolor != COL_RED && bild_data->rcolor != COL_RED) {
 		// we buy/sell all vehicles together!
 		slist_tpl<const vehikel_besch_t *>new_vehicle_info;
-		const vehikel_besch_t *info = vehikelbauer_t::gib_info(bild_data->image);
+		const vehikel_besch_t *info = vehikelbauer_t::gib_info(bild_data->text);
 		const vehikel_besch_t *start_info = info;
 
 		if(veh_action==va_insert  ||  veh_action==va_sell) {
@@ -1269,7 +1271,7 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 
 	if ((sel_index != -1) && (tabs.getroffen(x-pos.x,y-pos.y))) {
 		const vector_tpl<gui_image_list_t::image_data_t>& vec = (lst == &pas ? pas_vec : (lst == &loks ? loks_vec : waggons_vec));
-		veh_type = vehikelbauer_t::gib_info(vec[sel_index].image);
+		veh_type = vehikelbauer_t::gib_info(vec[sel_index].text);
 		if (vec[sel_index].count > 0) {
 			value = calc_restwert(veh_type) / 100;
 		}
