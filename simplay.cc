@@ -2731,10 +2731,10 @@ koord spieler_t::find_area_for_hub( const koord lo, const koord ru, const koord 
 					const ding_t* thing = gr->obj_bei(0);
 					int test_dist = abs_distance( trypos, basis );
 					if (thing == NULL || thing->gib_besitzer() == NULL || thing->gib_besitzer() == this) {
-						if(gr->is_halt()  &&  gr->gib_halt()->gib_besitzer()==this  &&  gr->hat_weg(road_wt)) {
-							// ok, one halt belongs already to us ... (should not really happen!)
+						if(gr->is_halt()  &&  check_owner( this, gr->gib_halt()->gib_besitzer())  &&  gr->hat_weg(road_wt)) {
+							// ok, one halt belongs already to us ... (should not really happen!) but might be a public stop
 							return trypos;
-						} else if(test_dist<dist  &&  gr->hat_weg(road_wt)  ) {
+						} else if(test_dist<dist  &&  gr->hat_weg(road_wt)  &&  !gr->is_halt()  ) {
 							ribi_t::ribi  ribi = gr->gib_weg_ribi_unmasked(road_wt);
 							if(  ribi_t::ist_gerade(ribi)  ||  ribi_t::ist_einfach(ribi)  ) {
 								best_pos = trypos;
