@@ -204,7 +204,7 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		if(cnv->gib_besitzer()==cnv->get_welt()->get_active_player()) {
 			button.enable();
 			go_home_button.pressed = route_search_in_progress;
-			if (cnv->gib_fahrplan()->maxi() > 0) {
+			if(  cnv->gib_fahrplan()->maxi() > 0  ) {
 				const grund_t* g = cnv->get_welt()->lookup(cnv->gib_fahrplan()->eintrag[cnv->gib_fahrplan()->aktuell].pos);
 				if (g != NULL && g->gib_depot()) {
 					go_home_button.disable();

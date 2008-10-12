@@ -209,6 +209,27 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 void
 convoi_t::laden_abschliessen()
 {
+	if(fpl==NULL) {
+		if(  state!=INITIAL  ) {
+			grund_t *gr = welt->lookup(home_depot);
+			if(gr  &&  gr->gib_depot()) {
+				dbg->warning( "convoi_t::laden_abschliessen()","No schedule during loading convoi %i: State will be initial!", self.get_id() );
+				for( uint8 i=0;  i<anz_vehikel;  i++ ) {
+					fahr[i]->gib_pos() = home_depot;
+				}
+				state = INITIAL;
+			}
+			else {
+				dbg->error( "convoi_t::laden_abschliessen()","No schedule during loading convoi %i: Convoi will be destroyed!", self.get_id() );
+				for( uint8 i=0;  i<anz_vehikel;  i++ ) {
+					fahr[i]->gib_pos() = koord3d::invalid;
+				}
+				destroy();
+			}
+		}
+		return;
+	}
+
 	bool realing_position = false;
 	if(anz_vehikel>0) {
 DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state] );
