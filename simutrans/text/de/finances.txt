@@ -1,39 +1,49 @@
 <title>Finanzen Hilfe</title>
 
-<h1>Finanzen</h1>
+<h1><strong>Finanzen</strong></h1>
 
 <p>
-Die Finanzen können im Finanzfenster betrachtet werden. Dieses kann durch Drücken von <em>f</em> oder über die <a href="mainmenu2.txt">Hauptmenüleiste</a> geöffnet werden.<br>
+Die Finanzen können im Finanzfenster betrachtet werden. Dieses kann durch Drücken von <em>f</em> oder über die <a href="mainmenu.txt">Hauptmenüleiste</a> geöffnet werden.<br>
 Dort sind die Informationen über die Finanzen zusammengefaßt.
 </p>
 <p>
 Im unteren Teil des Fensters ist ein Grafenfenster untergebracht. Wenn Du auf eine der farbigen Schaltflächen klickst, wird dort der Verlauf der Position, in der entsprechenden Farbe, angezeigt. Du kannst die Ansicht zwischen Jahren und Monaten umschalten. Die neuesten Werte stehen links.
 </p>
 <p>
+Mit der Schaltfläche <em>Firmensitzbau</em> kann ein Firmensitzgebäude gebaut werden.<br>
+Nach dem Bau eines Firmensitzes, heist die Schaltfläche <em>Firmensitzumbau</em>. Unterhalb der Schaltfläche wird ein Kartenausschnitt mit dem Standort des Firmensitzes angezeigt.<br>
+Der Firmensitzbau/-umbau steht nur zur Verfügung, wenn das verwendete Pakset Firmensitzgebäude enthält.
+</p>
+<p>
 Die Positionen und Schaltflächen der linken Hälfte sind wie folgt:
 </p>
 <p>
-<em>Einnahmen</em> - Die gesamten Einnahmen aus dem Transport von Passagieren, Gütern und der Stromübertragung.<br>
+<em>Umsatz</em> - Die gesamten Einnahmen aus dem Transport von Passagieren, Gütern und der Stromübertragung.<br>
 <em>Betriebskosten</em> - Die Kosten für den Betrieb aller Fahrzeue. Die Betriebskosten pro gefahrenem Kilometer je Fahrzeugtyp können im <a href="depot.txt">Depot</a> eingesehen werden, für Fahrzeugverbände im <a href="convoiinfo.txt">Fahrzeugfenster</a>.<br>
-<em>Instandhaltung</em> - Die angefallenen Kosten für die Instandhaltung der Infrastruktur. Die Kosten der <em>Instandhaltung pro Monat</em> werden rechts angezeigt und jeweils am ersten des Monats fällig.<br>
+<em>Instandhaltung</em> - Die angefallenen Kosten für die Instandhaltung der Infrastruktur. Die Kosten der <em>Instandhaltung pro Monat</em> werden rechts angezeigt und jeweils am letzten des Monats fällig, also dann immer soviel auf dem Konto vorrätig haben!<br>
 <em>Betriebsgewinn</em> - Der operative Gewinn (exkl. Abschreibungen auf Fahrzeuge), also was mit der Transporttätigkeit an sich verdient wird. Summe der obigen 3 Positionen.
 </p>
 <p>
 <em>Neue Fahrzeuge</em> - Alle Ausgaben (Einnahmen) für den Kauf (Verkauf) von Fahrzeugen.<br>
 <em>Ausgaben Bau</em> - Hier steht der Betrag, der für den Bau von Schienen, Strassen, Signalen usw. ausgegeben wurde. Auch Abrisskosten zählen zu den Baukosten.<br>
 <em>Jahresgewinn</em> - Die Summe aller Einnahmen (Geldzuflüsse) und Ausgaben (Geldabflüsse), der sogenannte Cash-Flow.
-<em>Freileitungen</em> - Die erzeugte Strommenge in kW. (Der Gewinn ist 100tel davon.)<br>
-<em>Beförderungen</em> - Die Menge an Personen/Post/Waren, die zwischen einzelnen Halten bewegt wurde.<br>
+<br><br>
+<em>Freileitungen</em> - Die Menge der transportierten Stromeinheiten.<br>
+<em>Transportmenge</em> - Die Summe aller Einheiten, die transportiert worden sind.
 </p>
 <p>
 Die Positionen und Schaltflächen der rechten Hälfte sind wie folgt:
 </p>
 <p>
-<em>Kontostand</em> - Der aktuelle Kontostand. Dieses Geld steht zur Verfügung, um zu bauen oder Fahrzeuge und Züge zu kaufen. Der Kontostand steht auch in der Statusleiste unten in der Mitte.<br>
+<em>Kontostand</em> - Der aktuelle Kontostand. Dieses Geld steht zur Verfügung, um zu bauen oder Fahrzeuge und Züge zu kaufen. Der Kontostand steht auch in der Statusleiste unten in der Mitte. Ist er an drei aufeinanderfolgenden Monatsenden im Minus, bist Du <strong>bankrott</strong> und hast das Spiel verloren.<br>
 <em>Fahrzeugwert</em> - Der Wert Deiner Fahrzeugflotte per Ende des letzten Monats.<br>
-<em>Marge</em> - Die erzielte Nettomarge (Betriebsgewinn/Kosten). Je höher diese ist, desto mehr wird aus den angefallenen Kosten herausgeholt. Die Werte werden laufend aktualisiert, sind aber unter dem Monat wegen fehlender Unterhaltskosten zu hoch. Aussagekräftiger sind Zahlen des Vormonats oder Vorjahres. Achtung: Im Netzwerk kann die Aufgabe von Linien mit geringer Marge insgesamt einen ungünstigen Effekt auf die Marge selbst wie auch auf andere Grössen haben, z.B. auf das Stadtwachstum.<br>
-<em>Gesamtvermögen</em> -Die Summe obiger beider Werte per Ende des letzten Monats. Sinkt dein Gesamtvermögen unter Null, wird die Firma liquidiert.<br>
+<em>Gesamtvermögen</em> -Die Summe obiger beider Werte per Ende des letzten Monats.
 </p>
 <p>
-<em>Spielziel</em> oder <strong>Warnung</strong> vor überzogenem Kontostand - Wird mit <a herf="scenario.txt">Spielziel</a> gespielt, dann steht in der oberen linken Ecke das Ziel und hier, zu wieviel % das Spielziel erreicht ist. Falls das Konto überzogen wurde, steht hier die Warnung mit der Angabe, seit wieviel Monaten es überzogen wurde.
+<em>Marge</em> - Die erzielte Nettomarge (Betriebsgewinn/Kosten). Je höher diese ist, desto mehr wird aus den angefallenen Kosten herausgeholt. Die Werte werden laufend aktualisiert, sind aber unter dem Monat wegen fehlender Unterhaltskosten zu hoch. Aussagekräftiger sind Zahlen des Vormonats oder Vorjahres. Achtung: Im Netzwerk kann die Aufgabe von Linien mit geringer Marge insgesamt einen ungünstigen Effekt auf die Marge selbst wie auch auf andere Grössen haben, z.B. auf das Stadtwachstum.
+</p>
+<br>
+<h1><strong>Szenario-Spiele</strong></h1>
+<p>
+Bei Szenario-Spielen wird zusätzlich der Szenario-Auftrag und der erreichte Szenario-Status (in %) angezeigt.
 </p>

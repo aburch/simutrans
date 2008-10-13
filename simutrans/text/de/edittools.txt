@@ -22,19 +22,19 @@ Eine zu leicht spielbar organisierte Welt wird Dir bereits mit wenig Spielerfahr
 · <em>Industriedichte erhöhen:</em> Es wird eine zufällige Industriekette gebaut.
 </p>
 <p>
-· <em>Industrieanlagen bauen:</em> Öffnet den Dialog <a haref="factory_build.txt">Industrieanlagen bauen</a>.
+· <em>Industrieanlagen bauen:</em> Öffnet den Dialog <a href="factory_build.txt">Industrieanlagen bauen</a>.
 </p>
 <p>
 · <em>Industrieanlagen verbinden:</em> Mit diesem Werkzeug können Industrien verbunden werden. Dies funktioniert nur dann, wenn eine Warenverbindung möglich ist.
 </p>
 <p>
-· <em>Sehenswürdigkeiten bauen:</em> Öffnet den Dialog <a haref="curiosity_build.txt">Sehenswürdigkeiten bauen</a>.
+· <em>Sehenswürdigkeiten bauen:</em> Öffnet den Dialog <a href="curiosity_build.txt">Sehenswürdigkeiten bauen</a>.
 </p>
 <p>
-· <em>Stadtgebäude bauen:</em> Öffnet den Dialog <a haref="citybuilding_build.txt">Stadtgebäude bauen</a>.
+· <em>Stadtgebäude bauen:</em> Öffnet den Dialog <a href="citybuilding_build.txt">Stadtgebäude bauen</a>.
 </p>
 <p>
-· <em>Pflanze Baum:</em> Öffnet den Dialog <a haref="baum_build.txt">Pflanze Baum</a>.
+· <em>Pflanze Baum:</em> Öffnet den Dialog <a href="baum_build.txt">Pflanze Baum</a>.
 </p>
 <p>
 · <em>Wald aufforsten:</em> Markiere eine Fläche, auf die kreisförmig ein Wald aufgeforstet wird.

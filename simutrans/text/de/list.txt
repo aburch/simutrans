@@ -3,7 +3,7 @@
 <h1><strong>Listenverwaltung</strong></h1>
 
 <p>
-Die Listenverwaltung wird über die <a href="mainmenu2.txt">Hauptmenüleiste</a> aufgerufen.<br/>
+Die Listenverwaltung wird über die <a href="mainmenu.txt">Hauptmenüleiste</a> aufgerufen.<br/>
 Im Listenverwaltungsmenü gibt es sechs Einträge. <br/>
 Von links nach rechts:
 </p>
