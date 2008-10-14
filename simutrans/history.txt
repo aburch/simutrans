@@ -38,6 +38,7 @@
 	FIX: trams were not using the max speed according to the trams speed table
 	ADD: (z9999) daylight level now adjustable
 	ADD: (isidoro/prissi) overtaking for road vehicles/citycars
+	ADD: (z9999) right mouse button to minimize windows to title bar and restore
 
 
 Release of 100.0 (r1867, stable)

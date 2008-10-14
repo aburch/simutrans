@@ -76,6 +76,7 @@ public:
 	long magic_number;	// either magic number or this pointer (which is unique too)
 	gui_fenster_t *gui;
 	bool closing;
+	bool rollup;
 
 	simwin_gadget_flags flags; // (Mathew Hounsell) See Above.
 
@@ -453,6 +454,7 @@ DBG_DEBUG("create_win()","magic=%d already there, bring to front", magic);
 		wins[ins_win].dauer = (wt&w_time_delete) ? MESG_WAIT : -1;
 		wins[ins_win].magic_number = magic;
 		wins[ins_win].closing = false;
+		wins[ins_win].rollup = false;
 
 		koord gr;
 
@@ -647,13 +649,20 @@ void display_win(int win)
 			( & wins[win].flags ) );
 	// mark top window, if requested
 	if(umgebung_t::window_frame_active  &&  win==ins_win-1) {
-		display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1, gr.x+2, gr.y+2 , titel_farbe, titel_farbe+1 );
+		if(!wins[win].rollup) {
+			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1, gr.x+2, gr.y+2 , titel_farbe, titel_farbe+1 );
+		}
+		else {
+			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1, gr.x+2, 18, titel_farbe, titel_farbe+1 );
+		}
 	}
-	komp->zeichnen(wins[win].pos, gr);
+	if(!wins[win].rollup) {
+		komp->zeichnen(wins[win].pos, gr);
 
-	// dragger zeichnen
-	if(need_dragger) {
-		win_draw_window_dragger( pos, gr);
+		// dragger zeichnen
+		if(need_dragger) {
+			win_draw_window_dragger( pos, gr);
+		}
 	}
 }
 
@@ -832,7 +841,7 @@ bool check_pos_win(event_t *ev)
 			swallowed = true;
 
 			// Top window first
-			if(ins_win-1>i  &&  IS_LEFTCLICK(ev)) {
+			if(ins_win-1>i  &&  IS_LEFTCLICK(ev)  &&  (!wins[i].rollup  ||  ( ev->cy < wins[i].pos.y+16 ))) {
 				i = top_win(i);
 			}
 
@@ -889,6 +898,12 @@ bool check_pos_win(event_t *ev)
 							i = top_win(i);
 							move_win(i, ev);
 						}
+						if(IS_RIGHTCLICK(ev)) {
+							wins[i].rollup ^= 1;
+							gui_fenster_t *gui = wins[i].gui;
+							koord gr = gui->gib_fenstergroesse();
+							mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+gr.x, wins[i].pos.y+gr.y );
+						}
 
 				}
 
@@ -897,35 +912,40 @@ bool check_pos_win(event_t *ev)
 
 			}
 			else {
-				// click in Window / Resize?
-				//11-May-02   markus weber added
+				if(!wins[i].rollup) {
+					// click in Window / Resize?
+					//11-May-02   markus weber added
 
-				gui_fenster_t *gui = wins[i].gui;
-				koord gr = gui->gib_fenstergroesse();
+					gui_fenster_t *gui = wins[i].gui;
+					koord gr = gui->gib_fenstergroesse();
 
-				// resizer hit ?
-				const bool canresize = is_resizing ||
-													(ev->mx > wins[i].pos.x + gr.x - dragger_size &&
-													ev->my > wins[i].pos.y + gr.y - dragger_size);
+					// resizer hit ?
+					const bool canresize = is_resizing ||
+														(ev->mx > wins[i].pos.x + gr.x - dragger_size &&
+														ev->my > wins[i].pos.y + gr.y - dragger_size);
 
-				if((IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev)) && canresize && gui->get_resizemode() != gui_fenster_t::no_resize) {
-					// Hajo: go into resize mode
-					is_resizing = true;
+					if((IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev)) && canresize && gui->get_resizemode() != gui_fenster_t::no_resize) {
+						// Hajo: go into resize mode
+						is_resizing = true;
 
-					// printf("Enter resizing mode\n");
-					ev->ev_class = WINDOW_RESIZE;
-					ev->ev_code = 0;
-					event_t wev = *ev;
-					// since we may be smaller afterwards
-					mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+gr.x, wins[i].pos.y+gr.y );
-					translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
-					gui->infowin_event( &wev );
+						// printf("Enter resizing mode\n");
+						ev->ev_class = WINDOW_RESIZE;
+						ev->ev_code = 0;
+						event_t wev = *ev;
+						// since we may be smaller afterwards
+						mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+gr.x, wins[i].pos.y+gr.y );
+						translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
+						gui->infowin_event( &wev );
+					}
+					else {
+						// click in Window
+						event_t wev = *ev;
+						translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
+						wins[i].gui->infowin_event( &wev );
+					}
 				}
 				else {
-					// click in Window
-					event_t wev = *ev;
-					translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
-					wins[i].gui->infowin_event( &wev );
+					swallowed = false;
 				}
 			}
 		}
