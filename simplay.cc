@@ -431,7 +431,6 @@ void spieler_t::roll_finance_history_month()
 	for (int i=0;  i<MAX_PLAYER_COST;  i++) {
 		finance_history_month[0][i] = 0;
 	}
-	finance_history_year[0][COST_ASSETS] = 0;
 }
 
 
@@ -1717,7 +1716,7 @@ bool spieler_t::built_update_headquarter()
 			if(place!=koord::invalid  &&  werkzeug_t::general_tool[WKZ_HEADQUARTER]->work( welt, this, welt->lookup_kartenboden(place)->gib_pos() )) {
 				// tell the player
 				char buf[256];
-				sprintf(buf, translator::translate("%s's\nheadquarter now\nat (%i,%i)."), gib_name(), place.x, place.y );
+				sprintf(buf, translator::translate("%s s\nheadquarter now\nat (%i,%i)."), gib_name(), place.x, place.y );
 				welt->get_message()->add_message(buf, place, message_t::ai,player_nr, welt->lookup_kartenboden(place)->find<gebaeude_t>()->gib_tile()->gib_hintergrund(0,0,0) );
 			}
 			return place != koord::invalid;
