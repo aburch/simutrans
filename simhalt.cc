@@ -580,87 +580,88 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 		if(inside) {
 			strcpy( numbername, "0center" );
 		} else if (li_gr - 6 < k.x  &&  re_gr + 6 > k.x  &&  ob_gr - 6 < k.y  &&  un_gr + 6 > k.y) {
-			// close to the city we use a different scheme
-			const char *dirname = NULL;
-			if (k.y < ob_gr) {
-				if (k.x < li_gr) {
-					dirname = "nordwest";
-				} else if (k.x > re_gr) {
-					dirname = "nordost";
-				} else {
-					dirname = "nord";
-				}
-			} else if (k.y > un_gr) {
-				if (k.x < li_gr) {
-					dirname = "suedwest";
-				} else if (k.x > re_gr) {
-					dirname = "suedost";
-				} else {
-					dirname = "sued";
-				}
-			} else {
-				if (k.x <= li_gr) {
-					dirname = "west";
-				} else if (k.x >= re_gr) {
-					dirname = "ost";
-				} else {
-					strcpy( numbername, "0center" );
-				}
-			}
-			// we have a translation?
-			if(dirname) {
-				// suburbs from 1...9
-				dirname = translator::translate(dirname);
-				strcpy( numbername, "0suburb" );
-				for(  int i=1;  i<10;  i++  ) {
-					numbername[0] = '0'+i;
-					const char *base_name = translator::translate(numbername);
-					if(base_name==numbername) {
-						// not translated ... try next
-						continue;
-					}
-					// ok, try this name, if free ...
-					sprintf(buf, base_name, city_name, dirname, stop );
-					if(  !all_names.get(buf).is_bound()  ) {
-						return strdup(buf);
-					}
-				}
-				// ok, no suitable suburb names, try the external ones ...
-				strcpy( numbername, "0extern" );
-			}
+			// close to the city we use a different scheme, with suburbs
+			strcpy( numbername, "0suburb" );
 		}
 		else {
 			strcpy( numbername, "0extern" );
 		}
-		// well now try them all from "1..." over "9..." ...
-		for(  int i=1;  i<10;  i++  ) {
-			numbername[0] = '0'+i;
-			const char *base_name = translator::translate(numbername);
-			if(base_name==numbername) {
-				// not translated ... try next
-				continue;
+
+		const char *dirname = NULL;
+		if (k.y < ob_gr  ||  (inside  &&  k.y*3 < (un_gr+ob_gr+ob_gr))  ) {
+			if (k.x < li_gr) {
+				dirname = "nordwest";
 			}
-			// ok, try this name, if free ...
-			sprintf(buf, base_name, city_name, stop );
-			if(  !all_names.get(buf).is_bound()  ) {
-				return strdup(buf);
+			else if (k.x > re_gr) {
+				dirname = "nordost";
+			}
+			else {
+				dirname = "nord";
+			}
+		} else if (k.y > un_gr  ||  (inside  &&  k.y*3 > (un_gr+un_gr+ob_gr))  ) {
+			if (k.x < li_gr) {
+				dirname = "suedwest";
+			}
+			else if (k.x > re_gr) {
+				dirname = "suedost";
+			}
+			else {
+				dirname = "sued";
+			}
+		} else {
+			if (k.x <= stadt->gib_pos().x) {
+				dirname = "west";
+			}
+			else {
+				dirname = "ost";
 			}
 		}
-		// ... to "A..." until "Z..." if there ...
-		for(  int i=0;  i<26;  i++  ) {
-			numbername[0] = 'A'+i;
-			const char *base_name = translator::translate(numbername);
-			if(base_name==numbername) {
-				// not translated ... try next
-				continue;
+		dirname = translator::translate(dirname);
+
+		// Try everything to get a unique name
+		while(true) {
+			// well now try them all from "0..." over "9..." to "A..." to "Z..."
+			for(  int i=0;  i<10+26;  i++  ) {
+				numbername[0] = i<10 ? '0'+i : 'A'+i-10;
+				const char *base_name = translator::translate(numbername);
+				if(base_name==numbername) {
+					// not translated ... try next
+					continue;
+				}
+				// allow for names without direction
+				uint8 count_s = 0;
+				for(  uint i=0;  base_name[i]!=0;  i++  ) {
+					if(  base_name[i]=='%'  && base_name[i+1]=='s'  ) {
+						i++;
+						count_s++;
+					}
+				}
+				if(count_s==3) {
+					// ok, try this name, if free ...
+					sprintf(buf, base_name, city_name, dirname, stop );
+				}
+				else {
+					// ok, try this name, if free ...
+					sprintf(buf, base_name, city_name, stop );
+				}
+				if(  !all_names.get(buf).is_bound()  ) {
+					return strdup(buf);
+				}
 			}
-			// ok, try this name, if free ...
-			sprintf(buf, base_name, city_name, stop );
-			if(  !all_names.get(buf).is_bound()  ) {
-				return strdup(buf);
+			// here we did not find a suitable name ...
+			// ok, no suitable city names, try the suburb ones ...
+			if(  strcmp(numbername+1,"center")==0  ) {
+				strcpy( numbername, "0suburb" );
+			}
+			// ok, no suitable suburb names, try the external ones (if not inside city) ...
+			else if(  strcmp(numbername+1,"suburb")==0  &&  !inside  ) {
+				strcpy( numbername, "0extern" );
+			}
+			else {
+				// no suitable unique name found at all ...
+				break;
 			}
 		}
-		// here we did not find a suitable name ...
 	}
 
 	/* so far we did not found a matching station name
@@ -679,6 +680,8 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 		}
 	}
 
+	// emergency measure: But before we should run out of handles anyway ...
+	assert(0);
 	return strdup("Unnamed");
 }
 
