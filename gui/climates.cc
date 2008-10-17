@@ -137,7 +137,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 
 	setze_fenstergroesse( koord(RIGHT_ARROW+16, intTopOfButton+14+8+16) );
 
-	no_tree.init(button_t::square, translator::translate("no tree"), koord(14,intTopOfButton+7), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
+	no_tree.init( button_t::square, "no tree", koord(14,intTopOfButton+7), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
 	no_tree.pressed=umgebung_t::no_tree;
 	no_tree.add_listener( this );
 	add_komponente( &no_tree );
@@ -286,6 +286,8 @@ void climate_gui_t::zeichnen(koord pos, koord gr)
 {
 	no_tree.pressed=umgebung_t::no_tree;
 
+	no_tree.setze_text( "no tree" );
+
 	gui_frame_t::zeichnen(pos, gr);
 
 	const int x = pos.x+10;
@@ -294,7 +296,7 @@ void climate_gui_t::zeichnen(koord pos, koord gr)
 	const sint16 water_level = sets->gib_grundwasser()/(Z_TILE_STEP*2)+5;
 	const sint16 *climate_borders = sets->gib_climate_borders();
 
-      // water level       18-Nov-01       Markus W. Added
+	// water level       18-Nov-01       Markus W. Added
 	display_proportional_clip(x, y, translator::translate("Water level"), ALIGN_LEFT, COL_BLACK, true);
 	display_proportional_clip(x+TEXT_RIGHT, y, ntos(water_level,0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
@@ -305,7 +307,7 @@ void climate_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x+TEXT_RIGHT, y, ntos((int)(sets->gib_map_roughness()*20.0 + 0.5)-8 , 0) , ALIGN_RIGHT, COL_WHITE, true);     // x = round(roughness * 10)-4  // 0.6 * 10 - 4 = 2    //29-Nov-01     Markus W. Added
 	y += 12+5;
 
-	// seaon stuff
+	// season stuff
 	display_proportional_clip(x, y, translator::translate("Summer snowline"), ALIGN_LEFT, COL_BLACK, true);
 	display_proportional_clip(x+TEXT_RIGHT, y, ntos(climate_borders[arctic_climate], 0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
