@@ -1154,8 +1154,12 @@ vehikel_t::rauche()
  */
 sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 {
-	const long dist = abs(end.x - start.x) + abs(end.y - start.y);
+	// may happen when waiting in station
+	if(start==end) {
+		return 0;
+	}
 
+	//const long dist = abs(end.x - start.x) + abs(end.y - start.y);
 	const sint32 ref_speed = welt->get_average_speed( gib_besch()->get_waytype() );
 	const sint32 speed_base = (100*speed_to_kmh(cnv->gib_min_top_speed()))/ref_speed-100;
 
@@ -1163,9 +1167,16 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 	slist_iterator_tpl <ware_t> iter (fracht);
 
 	while( iter.next() ) {
+
 		const ware_t & ware = iter.get_current();
 
-		const sint32 grundwert128 = ware.gib_besch()->gib_preis()<<7;
+		assert(ware.menge>0  &&  ware.gib_zwischenziel().is_bound());
+
+		// now only use the real gain in difference for the revenue (may as well be negative!)
+		const koord zwpos = ware.gib_zwischenziel()->gib_basis_pos();
+		const long dist = abs(zwpos.x - start.x) + abs(zwpos.y - start.y) - (abs(end.x - zwpos.x) + abs(end.y - zwpos.y));
+
+		const sint32 grundwert128 = ware.gib_besch()->gib_preis()<<7;	// bonus price will be always at least 0.128 of the real price
 		const sint32 grundwert_bonus = (ware.gib_besch()->gib_preis()*(1000+speed_base*ware.gib_besch()->gib_speed_bonus()));
 		const sint64 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus) * (sint64)dist * (sint64)ware.menge;
 
