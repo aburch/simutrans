@@ -298,6 +298,8 @@ public:
 	sint32 get_base_production() const { return prodbase; }
 	void set_base_production( sint32 p ) {prodbase = p; }
 
+	sint32 get_current_production() const { return (prodbase * prodfaktor * 16l)>>(26l-(long)welt->ticks_bits_per_tag); }
+
 	/* prissi: returns the status of the current factory, as well as output */
 	enum { bad, medium, good, inactive, nothing };
 	static unsigned status_to_color[5];

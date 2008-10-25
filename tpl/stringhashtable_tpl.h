@@ -19,7 +19,7 @@ public:
 	{
 		// a little longer but much better in balancing (since many words start with same two letters)
 		uint32 hash = 0;
-		for(  int i=16;  (((char)i)*key[0])!=0;  i--  ) {
+		for(  sint8 i=16;  i*key[0]!=0;  i--  ) {
 			hash += (uint8)(*key++);
 		}
 		return hash;

@@ -122,7 +122,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			}
 			buf.append(", ");
 
-			buf.append(fab->get_base_production());
+			buf.append(fab->get_current_production());
 			buf.append(") ");
 
 
@@ -186,7 +186,7 @@ class compare_factories
 				}
 
 				case factorylist::by_maxprod:
-					cmp = a->get_base_production() - b->get_base_production();
+					cmp = a->get_base_production()*a->get_prodfaktor() - b->get_base_production()*b->get_prodfaktor();
 					break;
 
 				case factorylist::by_status:

@@ -1254,7 +1254,7 @@ void
 fabrik_t::info(cbuffer_t& buf) const
 {
 	buf.clear();
-	buf.printf("%s %li %s\n", translator::translate("Durchsatz"), (prodbase * prodfaktor * 16l)>>(26l-(long)welt->ticks_bits_per_tag), translator::translate("units/day"));
+	buf.printf("%s %li %s\n", translator::translate("Durchsatz"), get_current_production(), translator::translate("units/day"));
 
 	if (!lieferziele.empty()) {
 		buf.append("\n");
