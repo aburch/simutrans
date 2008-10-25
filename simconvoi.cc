@@ -255,6 +255,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 	}
 	else {
 		// no vehicles in this convoi?!?
+		dbg->error( "convoi_t::laden_abschliessen()","No vehicles in Convoi %i: will be destroyed!", self.get_id() );
 		destroy();
 	}
 	// put convoi agian right on track?

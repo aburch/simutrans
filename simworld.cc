@@ -3374,10 +3374,14 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 		display_progress(gib_groesse_y()+48+stadt.get_count()+(y*128)/gib_groesse_y(), gib_groesse_y()+256+stadt.get_count());
 	}
 
-	// assing lines and other stuff for convois
+	// adding lines and other stuff for convois
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
 		convoihandle_t cnv = convoi_array[i];
 		cnv->laden_abschliessen();
+		// was deleted during loading => use same position again
+		if(!cnv.is_bound()) {
+			i--;
+		}
 	}
 
 	// finish the loading of stops (i.e. assign the right good for these stops)

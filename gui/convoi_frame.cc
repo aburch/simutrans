@@ -135,7 +135,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 
 int convoi_frame_t::compare_convois(const void *a, const void *b)
 {
-	long result;
+	long result=0;
 
 	convoihandle_t cnv1 = *(const convoihandle_t *)a;
 	convoihandle_t cnv2 = *(const convoihandle_t *)b;
@@ -149,7 +149,7 @@ int convoi_frame_t::compare_convois(const void *a, const void *b)
 			result = sgn(cnv1->gib_jahresgewinn() - cnv2->gib_jahresgewinn());
 			break;
 		case nach_typ:
-			{
+			if(cnv1->gib_vehikel_anzahl()*cnv2->gib_vehikel_anzahl()>0) {
 				vehikel_t *fahr1 = cnv1->gib_vehikel(0);
 				vehikel_t *fahr2 = cnv2->gib_vehikel(0);
 
