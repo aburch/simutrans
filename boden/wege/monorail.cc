@@ -8,10 +8,6 @@
 
 const weg_besch_t *monorail_t::default_monorail=NULL;
 
-void monorail_t::info(cbuffer_t & buf) const
-{
-	weg_t::info(buf);
-}
 
 
 monorail_t::monorail_t(karte_t *welt, loadsave_t *file) : schiene_t(welt)

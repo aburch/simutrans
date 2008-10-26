@@ -23,7 +23,7 @@ const weg_besch_t *kanal_t::default_kanal=NULL;
 
 kanal_t::kanal_t(karte_t *welt, loadsave_t *file) :  weg_t(welt)
 {
-    rdwr(file);
+	rdwr(file);
 }
 
 
@@ -67,18 +67,4 @@ kanal_t::rdwr(loadsave_t *file)
 			setze_max_speed(old_max_speed);
 		}
 	}
-}
-
-
-
-void kanal_t::info(cbuffer_t & buf) const
-{
-  weg_t::info(buf);
-
-  buf.append("\nRibi (unmasked) ");
-  buf.append(gib_ribi_unmasked());
-
-  buf.append("\nRibi (masked) ");
-  buf.append(gib_ribi());
-  buf.append("\n");
 }

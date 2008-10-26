@@ -16,12 +16,6 @@ public:
 	strasse_t(karte_t *welt, loadsave_t *file);
 	strasse_t(karte_t *welt);
 
-	/**
-	 * @return Infotext zur Schiene
-	 * @author Hj. Malthaner
-	 */
-	void info(cbuffer_t & buf) const;
-
 	inline waytype_t gib_waytype() const {return road_wt;}
 
 	void setze_gehweg(bool janein);

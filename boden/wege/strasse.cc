@@ -47,15 +47,7 @@ strasse_t::strasse_t(karte_t *welt) : weg_t (welt)
 
 
 
-void strasse_t::info(cbuffer_t & buf) const
-{
-	weg_t::info(buf);
-}
-
-
-
-void
-strasse_t::rdwr(loadsave_t *file)
+void strasse_t::rdwr(loadsave_t *file)
 {
 	weg_t::rdwr(file);
 

@@ -27,12 +27,6 @@ public:
 
 	virtual waytype_t gib_waytype() const {return narrowgauge_wt;}
 
-	/**
-	 * @return Infotext zur Schiene
-	 * @author Hj. Malthaner
-	 */
-	void info(cbuffer_t & buf) const;
-
 	void rdwr(loadsave_t *file);
 };
 

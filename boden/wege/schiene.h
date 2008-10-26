@@ -53,8 +53,8 @@ public:
 	void calc_bild(koord3d) { weg_t::calc_bild(); }
 
 	/**
-	* @return Infotext zur Schiene
-	* @author Hj. Malthaner
+	* @return additional info is reservation!
+	* @author prissi
 	*/
 	void info(cbuffer_t & buf) const;
 

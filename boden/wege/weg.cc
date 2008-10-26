@@ -255,7 +255,7 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append(translator::translate("\nRibi (unmasked)"));
 	buf.append(gib_ribi_unmasked());
 
-	buf.append(translator::translate("\n\nRibi (masked)"));
+	buf.append(translator::translate("\nRibi (masked)"));
 	buf.append(gib_ribi());
 	buf.append("\n");
 
@@ -274,18 +274,18 @@ void weg_t::info(cbuffer_t & buf) const
 	char buffer[256];
 	sprintf(buffer,translator::translate("convoi passed last\nmonth %i\n"), statistics[1][1]);
 	buf.append(buffer);
-  // Debug - output stats
 #else
-  buf.append("\n");
-  for (int type=0; type<MAX_WAY_STATISTICS; type++) {
-    for (int month=0; month<MAX_WAY_STAT_MONTHS; month++) {
-      buf.append(statistics[month][type]);
-      buf.append(" ");
-    }
-    buf.append("\n");
-  }
+	// Debug - output stats
+	buf.append("\n");
+	for (int type=0; type<MAX_WAY_STATISTICS; type++) {
+		for (int month=0; month<MAX_WAY_STAT_MONTHS; month++) {
+			buf.append(statistics[month][type]);
+			buf.append(" ");
+		}
+	buf.append("\n");
+	}
 #endif
-  buf.append("\n");
+	buf.append("\n");
 }
 
 

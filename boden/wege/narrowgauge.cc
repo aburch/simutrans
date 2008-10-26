@@ -9,12 +9,6 @@
 const weg_besch_t *narrowgauge_t::default_narrowgauge=NULL;
 
 
-void narrowgauge_t::info(cbuffer_t & buf) const
-{
-	weg_t::info(buf);
-}
-
-
 
 narrowgauge_t::narrowgauge_t(karte_t *welt, loadsave_t *file) : schiene_t(welt)
 {

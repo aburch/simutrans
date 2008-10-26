@@ -8,11 +8,6 @@
 
 const weg_besch_t *maglev_t::default_maglev=NULL;
 
-void maglev_t::info(cbuffer_t & buf) const
-{
-	weg_t::info(buf);
-}
-
 
 
 /**

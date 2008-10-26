@@ -17,13 +17,12 @@ class kanal_t : public weg_t
 public:
 	static const weg_besch_t *default_kanal;
 
-    kanal_t(karte_t *welt, loadsave_t *file);
-    kanal_t(karte_t *welt);
+	kanal_t(karte_t *welt, loadsave_t *file);
+	kanal_t(karte_t *welt);
 
-    virtual void calc_bild(koord3d) { weg_t::calc_bild(); }
-    waytype_t gib_waytype() const {return water_wt;}
-    virtual void rdwr(loadsave_t *file);
-    void info(cbuffer_t & buf) const;
+	virtual void calc_bild(koord3d) { weg_t::calc_bild(); }
+	waytype_t gib_waytype() const {return water_wt;}
+	virtual void rdwr(loadsave_t *file);
 };
 
 #endif

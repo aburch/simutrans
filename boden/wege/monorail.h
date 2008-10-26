@@ -34,12 +34,6 @@ public:
 
 	virtual waytype_t gib_waytype() const {return monorail_wt;}
 
-	/**
-	 * @return Infotext zur Schiene
-	 * @author Hj. Malthaner
-	 */
-	void info(cbuffer_t & buf) const;
-
 	void rdwr(loadsave_t *file);
 };
 
