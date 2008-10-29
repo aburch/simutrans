@@ -36,28 +36,28 @@ static int make_this_a_division_by_zero = 0;
  */
 void log_t::debug(const char *who, const char *format, ...)
 {
-  if(log_debug  &&  debuglevel>3) {
-    va_list argptr;
-    va_start(argptr, format);
+	if(log_debug  &&  debuglevel>3) {
+		va_list argptr;
+		va_start(argptr, format);
 
-    if( log ) {                         /* nur loggen wenn schon ein log */
-		fprintf(log ,"Debug: %s:\t",who);      /* geoeffnet worden ist */
-		vfprintf(log, format, argptr);
-		fprintf(log,"\n");
+		if( log ) {                         /* nur loggen wenn schon ein log */
+			fprintf(log ,"Debug: %s:\t",who);      /* geoeffnet worden ist */
+			vfprintf(log, format, argptr);
+			fprintf(log,"\n");
 
-        if( force_flush ) {
-            fflush(log);
-        }
-    }
+			if( force_flush ) {
+				fflush(log);
+			}
+		}
 
-    if( tee ) {                         /* nur loggen wenn schon ein log */
-		fprintf(tee, "Debug: %s:\t",who);      /* geoeffnet worden ist */
-        vfprintf(tee, format, argptr);
-        fprintf(tee,"\n");
-    }
+		if( tee ) {                         /* nur loggen wenn schon ein log */
+			fprintf(tee, "Debug: %s:\t",who);      /* geoeffnet worden ist */
+			vfprintf(tee, format, argptr);
+			fprintf(tee,"\n");
+		}
 
-    va_end(argptr);
-  }
+		va_end(argptr);
+	}
 }
 
 
@@ -176,12 +176,12 @@ void log_t::fatal(const char *who, const char *format, ...)
 		fputs( "Aborting program execution ...\n\n", log );
 		fputs( "Please report all fatal errors to\n", log );
 		fputs( "team@64.simutrans.com\n", log );
-        if( force_flush ) {
-            fflush(log);
-        }
-    }
+		if( force_flush ) {
+			fflush(log);
+		}
+	}
 
-    if( tee ) {
+	if( tee ) {
 		fputs( buffer, tee );
 		fputs( "Aborting program execution ...\n\n", tee );
 		fputs( "Please report all fatal errors to\n", tee );

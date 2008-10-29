@@ -252,7 +252,7 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append(max_speed);
 	buf.append(translator::translate("km/h\n"));
 
-	buf.append(translator::translate("\nRibi (unmasked)"));
+	buf.append(translator::translate("\n\nRibi (unmasked)"));
 	buf.append(gib_ribi_unmasked());
 
 	buf.append(translator::translate("\nRibi (masked)"));
