@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+
 #include "../../simgraph.h"
 #include "../../simdebug.h"
 #include "../../simimg.h"

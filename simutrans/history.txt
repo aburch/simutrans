@@ -39,6 +39,7 @@
 	ADD: (z9999) daylight level now adjustable
 	ADD: (isidoro/prissi) overtaking for road vehicles/citycars
 	ADD: (z9999) right mouse button to minimize windows to title bar and restore
+	CHANGE: payment is now only for the decrease in distance to the next transfer stop
 
 
 Release of 100.0 (r1867, stable)
