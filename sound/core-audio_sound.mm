@@ -14,7 +14,7 @@
 #import <stdio.h>
 #import <QTKit/QTMovie.h>
 #import <QTKit/QTKit.h>
-#import <cocoa/cocoa.h>
+#import <Cocoa/Cocoa.h>
 
 #import <string.h>
 

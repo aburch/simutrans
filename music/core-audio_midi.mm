@@ -15,7 +15,7 @@
 #import <stdio.h>
 #import <QTKit/QTMovie.h>
 #import <QTKit/QTKit.h>
-#import <cocoa/cocoa.h>
+#import <Cocoa/Cocoa.h>
 
 
 float defaultVolume = 0.5;	// a nice default volume
