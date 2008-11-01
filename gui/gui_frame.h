@@ -168,6 +168,9 @@ public:
 	 * @date   25-May-2002
 	 */
 	enum resize_modes get_resizemode(void) {return resize_mode;}
+
+
+	void set_focus( gui_komponente_t *k ) { container.set_focus(k); }
 };
 
 #endif

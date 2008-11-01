@@ -27,7 +27,7 @@ private:
 	slist_tpl <gui_komponente_t *> komponenten;
 
 	// holds the GUI Komponent that has the focus in this window
-	gui_komponente_t * komp_focus;
+	gui_komponente_t *komp_focus;
 
 	bool list_dirty;
 
@@ -67,6 +67,9 @@ public:
 	* @author Markus Weber
 	*/
 	void remove_all();
+
+	// activates this element
+	void set_focus( gui_komponente_t *komp_focus );
 };
 
 #endif

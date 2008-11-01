@@ -132,25 +132,25 @@
  * @author Hj. Malthaner, Niels Roest
  */
 struct event_t {
-    unsigned int ev_class;
-    unsigned int ev_code;
-    int mx, my;
+	unsigned int ev_class;
+	unsigned int ev_code;
+	int mx, my;
 
-    /**
-     * position of last mouse click
-     */
-    int cx, cy;
+	/**
+	 * position of last mouse click
+	 */
+	int cx, cy;
 
-    /**
-     * current mouse button state
-     */
-    int button_state;
+	/**
+	 * current mouse button state
+	 */
+	int button_state;
 
-    /**
-     * mod key (SHIFT; ALT; STRG; etc) pressed while event as triggered
-     * @author hsiegeln
-     */
-    unsigned int ev_key_mod;
+	/**
+	 * mod key (SHIFT; ALT; STRG; etc) pressed while event as triggered
+	 * @author hsiegeln
+	 */
+	unsigned int ev_key_mod;
 };
 
 #ifdef __cplusplus
@@ -160,10 +160,10 @@ struct event_t {
  */
 static inline void translate_event(struct event_t *ev, int x, int y)
 {
-    ev->mx += x;
-    ev->cx += x;
-    ev->my += y;
-    ev->cy += y;
+	ev->mx += x;
+	ev->cx += x;
+	ev->my += y;
+	ev->cy += y;
 }
 #endif
 

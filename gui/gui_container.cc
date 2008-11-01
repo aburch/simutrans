@@ -10,6 +10,7 @@
  */
 
 #include "gui_container.h"
+#include "../simwin.h"
 
 gui_container_t::gui_container_t() : gui_komponente_t(), komp_focus(NULL)
 {
@@ -60,8 +61,8 @@ void gui_container_t::infowin_event(const event_t *ev)
 {
 	slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
 	// try to deliver event to gui komponente which has focus
-	if (komp_focus != NULL) {
-		if(komp_focus->getroffen(ev->mx, ev->my) || komp_focus->getroffen(ev->cx, ev->cy)) {
+	if(komp_focus != NULL) {
+		if(ev->ev_class==EVENT_KEYBOARD  ||  (komp_focus->getroffen(ev->mx, ev->my) || komp_focus->getroffen(ev->cx, ev->cy))  ) {
 			event_t ev2 = *ev;
 			translate_event(&ev2, -komp_focus->gib_pos().x, -komp_focus->gib_pos().y);
 			komp_focus->infowin_event(&ev2);
@@ -117,6 +118,18 @@ void gui_container_t::zeichnen(koord offset)
 		if (iter.get_current()->is_visible()) {
 			// @author hsiegeln; check if component is hidden or displayed
 			iter.get_current()->zeichnen(screen_pos);
+		}
+	}
+}
+
+
+
+void gui_container_t::set_focus( gui_komponente_t *k )
+{
+	if(  komponenten.contains(k)  ||  k==NULL  ) {
+		komp_focus = k;
+		if(  k!=NULL  ) {
+			request_focus( k );
 		}
 	}
 }

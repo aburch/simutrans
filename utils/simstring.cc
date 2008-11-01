@@ -66,42 +66,42 @@ char get_fraction_sep(void)
  */
 void money_to_string(char * p, double f)
 {
-  char   tmp[128];
-  char   *tp = tmp;
-  int    i,l;
+	char   tmp[128];
+	char   *tp = tmp;
+	int    i,l;
 
-  sprintf(tp,"%.2f",f);
+	sprintf(tp,"%.2f",f);
 
-  // Hajo: skip sign
-  if(*tp == '-') {
-    *p ++ = *tp++;
-  }
+	// Hajo: skip sign
+	if(*tp == '-') {
+		*p ++ = *tp++;
+	}
 
-  // Hajo: format string
-  l = strchr(tp,'.') - tp;
+	// Hajo: format string
+	l = strchr(tp,'.') - tp;
 
-  i = l % 3;
+	i = l % 3;
 
-  if(i != 0) {
-    memcpy(p, tp, i);
-    p += i;
-    *p++ = thousand_sep;
-  }
+	if(i != 0) {
+		memcpy(p, tp, i);
+		p += i;
+		*p++ = thousand_sep;
+	}
 
-  while(i < l) {
-    *p++ = tp[i++];
-    *p++ = tp[i++];
-    *p++ = tp[i++];
-    *p++ = thousand_sep;
-  }
-  --p;
-  i = l+1;
+	while(i < l) {
+		*p++ = tp[i++];
+		*p++ = tp[i++];
+		*p++ = tp[i++];
+		*p++ = thousand_sep;
+	}
+	--p;
+	i = l+1;
 
-  *p++ = fraction_sep;
-  *p++ = tp[i++];
-  *p++ = tp[i++];
-  *p++ = '$';
-  *p = 0;
+	*p++ = fraction_sep;
+	*p++ = tp[i++];
+	*p++ = tp[i++];
+	*p++ = '$';
+	*p = 0;
 }
 
 

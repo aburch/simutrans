@@ -51,7 +51,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, const char *path ) :
 
 	// Input box for game name
 	tstrncpy(ibuf, "", lengthof(ibuf));
-	input.setze_text(ibuf, 58);
+	input.setze_text(ibuf, 128);
 	input.add_listener(this);
 	input.setze_pos(koord(75,8));
 	input.setze_groesse(koord(DIALOG_WIDTH-75-10-10, 14));
@@ -209,17 +209,17 @@ savegame_frame_t::~savegame_frame_t()
 
 
 // sets the current filename in the input box
-void
-savegame_frame_t::set_filename(const char *fn)
+void savegame_frame_t::set_filename(const char *fn)
 {
-	long len=strlen(fn);
-	if(len>=4  &&  len-SAVE_PATH_X_LEN-3<58) {
+	long len = strlen(fn);
+	if(len>=4  &&  len-SAVE_PATH_X_LEN-3<128) {
 		if(strncmp(fn,SAVE_PATH_X,SAVE_PATH_X_LEN)==0) {
-			tstrncpy(input.gib_text(), fn+SAVE_PATH_X_LEN, len-SAVE_PATH_X_LEN-3 );
+			tstrncpy(ibuf, fn+SAVE_PATH_X_LEN, len-SAVE_PATH_X_LEN-3 );
 		}
 		else {
-			tstrncpy(input.gib_text(), fn, len-3 );
+			tstrncpy(ibuf, fn, len-3 );
 		}
+		input.setze_text( ibuf, 128 );
 	}
 }
 
@@ -347,6 +347,7 @@ void savegame_frame_t::infowin_event(const event_t *ev)
 	if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN  &&  entries.empty()) {
 		// before no virtual functions can be used ...
 		fill_list();
+		set_focus( &input );
 	}
 	gui_frame_t::infowin_event(ev);
 }

@@ -23,56 +23,56 @@ class gui_textinput_t : public gui_komponente_action_creator_t
 {
 protected:
 
-    /**
-     * Der Stringbuffer.
-     * @author Hj. Malthaner
-     */
-    char * text;
+	/**
+	 * Der Stringbuffer.
+	 * @author Hj. Malthaner
+	 */
+	char * text;
 
 
-    /**
-     * Maximallänge des Stringbuffers
-     * @author Hj. Malthaner
-     */
-    long max;
+	/**
+	 * Maximallänge des Stringbuffers
+	 * @author Hj. Malthaner
+	 */
+	long max;
 
-    /**
-     * position of text cursor
-     * @author hsiegeln
-     */
-     long cursor_pos;
+	/**
+	 * position of text cursor
+	 * @author hsiegeln
+	 */
+	 long cursor_pos;
 
 public:
-    gui_textinput_t();
+	gui_textinput_t();
 
-    ~gui_textinput_t();
+	~gui_textinput_t();
 
-    /**
-     * Setzt den Textpuffer
-     *
-     * @author Hj. Malthaner
-     */
-    void setze_text(char *text, int max);
+	/**
+	 * Setzt den Textpuffer
+	 *
+	 * @author Hj. Malthaner
+	 */
+	void setze_text(char *text, int max);
 
-    /**
-     * Holt den Textpuffer
-     *
-     * @author Hj. Malthaner
-     */
-    char *gib_text() const {return text;}
+	/**
+	 * Holt den Textpuffer
+	 *
+	 * @author Hj. Malthaner
+	 */
+	char *gib_text() const {return text;}
 
-    /**
-     * Events werden hiermit an die GUI-Komponenten
-     * gemeldet
-     * @author Hj. Malthaner
-     */
-    void infowin_event(const event_t *);
+	/**
+	 * Events werden hiermit an die GUI-Komponenten
+	 * gemeldet
+	 * @author Hj. Malthaner
+	 */
+	void infowin_event(const event_t *);
 
-    /**
-     * Zeichnet die Komponente
-     * @author Hj. Malthaner
-     */
-    void zeichnen(koord offset);
+	/**
+	 * Zeichnet die Komponente
+	 * @author Hj. Malthaner
+	 */
+	void zeichnen(koord offset);
 };
 
 #endif
