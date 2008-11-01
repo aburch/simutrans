@@ -59,6 +59,8 @@ einstellungen_t::einstellungen_t() :
 	beginner_mode = false;
 
 	rotation = 0;
+
+	origin_x = origin_y = 0;
 }
 
 
@@ -106,7 +108,6 @@ einstellungen_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// newer versions
-
 		file->rdwr_long(groesse_x, " ");
 		file->rdwr_long(nummer, "\n");
 
@@ -217,6 +218,15 @@ einstellungen_t::rdwr(loadsave_t *file)
 			uint16 old_multiplier = umgebung_t::pak_diagonal_multiplier;
 			file->rdwr_short( old_multiplier, "m" );
 			vehikel_basis_t::set_diagonal_multiplier( umgebung_t::pak_diagonal_multiplier, old_multiplier );
+		}
+
+		// since vehicle will need realignment afterwards!
+		if(file->get_version()<100002) {
+			origin_x = origin_y = 0;
+		}
+		else {
+			file->rdwr_short( origin_x, "ox" );
+			file->rdwr_short( origin_y, "oy" );
 		}
 	}
 }

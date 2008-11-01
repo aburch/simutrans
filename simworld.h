@@ -67,7 +67,7 @@ public:
 	* @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
 	* @author Hj. Malthaner
 	*/
-	static int perlin_hoehe(const int x, const int y, const double frequency, const double amplitude);
+	static sint32 perlin_hoehe( einstellungen_t *, koord pos, koord size );
 
 	enum player_cost {
 		WORLD_CITICENS=0,// total people
@@ -355,6 +355,14 @@ private:
 
 	// restores history for older savegames
 	void restore_history();
+
+	/**
+	 * Distribute groundobjs and cities on the map but not
+	 * in the rectangle from (0,0) till (old_x, old_y).
+	 * It's now an extra function so we don't need the code twice.
+	 * @auther Gerd Wachsmuth
+	 */
+	void distribute_groundobjs_cities(int new_cities, sint16 old_x, sint16 old_y);
 
 public:
 	/* reads height data from 8 or 25 bit bmp or ppm files
@@ -705,6 +713,8 @@ public:
 
 	void init_felder();
 
+	void enlarge_map(einstellungen_t *sets);
+
 	karte_t();
 
 	~karte_t();
@@ -890,7 +900,7 @@ public:
 	 * only used for town creation at the moment
 	 * @author Hj. Malthaner
 	 */
-	slist_tpl<koord> * finde_plaetze(sint16 w, sint16 h, climate_bits cl) const;
+	slist_tpl<koord> * finde_plaetze(sint16 w, sint16 h, climate_bits cl, sint16 old_x, sint16 old_y) const;
 
 	/**
 	 * Spielt den Sound, wenn die Position im sichtbaren Bereich liegt.

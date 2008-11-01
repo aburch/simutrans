@@ -41,6 +41,7 @@
 	ADD: (z9999) right mouse button to minimize windows to title bar and restore
 	CHANGE: payment is now only for the decrease in distance to the next transfer stop
 	ADD: instead a numger also a name of a  menu object (with image zero) can be given for an icon in menuconf.tab
+	ADD: (Gerd Wachsmuth) map enlargement during the game
 
 
 Release of 100.0 (r1867, stable)

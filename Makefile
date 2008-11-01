@@ -222,6 +222,7 @@ SOURCES += gui/curiosity_edit.cc
 SOURCES += gui/curiositylist_frame_t.cc
 SOURCES += gui/curiositylist_stats_t.cc
 SOURCES += gui/depot_frame.cc
+SOURCES += gui/enlarge_map_frame_t.cc
 SOURCES += gui/extend_edit.cc
 SOURCES += gui/fabrik_info.cc
 SOURCES += gui/factory_edit.cc

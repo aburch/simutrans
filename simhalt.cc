@@ -198,8 +198,8 @@ DBG_DEBUG("haltestelle_t::remove()","not last");
  */
 halthandle_t haltestelle_t::create(karte_t *welt, loadsave_t *file)
 {
-    haltestelle_t *p = new haltestelle_t(welt, file);
-    return p->self;
+	haltestelle_t *p = new haltestelle_t(welt, file);
+	return p->self;
 }
 
 
@@ -1016,8 +1016,7 @@ struct HNode {
  *
  * @author Hj. Malthaner
  */
-void
-haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
+void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 {
 	const ware_besch_t * warentyp = ware.gib_besch();
 	const uint8 ware_catg_index = warentyp->gib_catg_index();

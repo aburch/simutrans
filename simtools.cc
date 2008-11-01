@@ -150,8 +150,13 @@ linear_interpolate(const double a, const double b, const double x)
 static double
 interpolated_noise(const double x, const double y)
 {
-    const int    integer_X    = (int)x;
-    const int    integer_Y    = (int)y;
+// The function floor is needed because (int) rounds always towards zero,
+// but we need integer_x be the biggest integer not bigger than x.
+// So  (int)      -1.5  = -1.0
+// But (int)floor(-1.5) = -2.0
+// Modified 2008/10/17 by Gerd Wachsmuth
+    const int    integer_X    = (int)floor(x);
+    const int    integer_Y    = (int)floor(y);
 
     const double fractional_X = x - (double)integer_X;
     const double fractional_Y = y - (double)integer_Y;

@@ -375,12 +375,17 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
  * @author Hj. Malthaner
  */
 int
-karte_t::perlin_hoehe(const int x, const int y,
-                      const double frequency, const double amplitude)
+karte_t::perlin_hoehe( einstellungen_t *sets, koord k, koord size )
 {
+	switch( sets->get_rotation() ) {
+		// 0: do nothing
+		case 1: k = koord(k.y,size.x-k.x); break;
+		case 2: k = koord(size.x-k.x,size.y-k.y); break;
+		case 3: k = koord(size.y-k.y,k.x); break;
+	}
 //    double perlin_noise_2D(double x, double y, double persistence);
 //    return ((int)(perlin_noise_2D(x, y, 0.6)*160.0)) & 0xFFFFFFF0;
-    return ((int)(perlin_noise_2D(x, y, frequency)*amplitude)) & 0xFFFFFFF0;
+    return ((int)(perlin_noise_2D(k.x, k.y, sets->gib_map_roughness())*(double)sets->gib_max_mountain_height())) & 0xFFFFFFF0;
 }
 
 
@@ -401,8 +406,9 @@ karte_t::calc_hoehe_mit_perlin()
 			// break the AI's pathfinding. Frequency values of 0.5 .. 0.7
 			// seem to be ok, less is boring flat, more is too crumbled
 			// the old defaults are given here: f=0.6, a=160.0
-			const int h=perlin_hoehe(x,y,einstellungen->gib_map_roughness(),einstellungen->gib_max_mountain_height() );
-			setze_grid_hgt(koord(x,y), (h/16)*Z_TILE_STEP );
+			koord pos(x,y);
+			const int h = perlin_hoehe( einstellungen, pos, koord::invalid );
+			setze_grid_hgt( pos, (h/16)*Z_TILE_STEP );
 			//	  DBG_MESSAGE("karte_t::calc_hoehe_mit_perlin()","%i",h);
 		}
 
@@ -724,6 +730,151 @@ karte_t::init_felder()
 }
 
 
+
+void karte_t::distribute_groundobjs_cities(int new_anzahl_staedte, sint16 old_x, sint16 old_y)
+{
+DBG_DEBUG("karte_t::init()","distributing groundobjs");
+	if(  umgebung_t::ground_object_probability > 0  ) {
+		// add eyecandy like rocky, moles, flowers, ...
+		koord k;
+		sint32 queried = simrand(umgebung_t::ground_object_probability*2);
+		for(k.y=0; k.y<gib_groesse_y(); k.y++) {
+			for(k.x=(k.y<old_y)?old_x:0; k.x<gib_groesse_x(); k.x++) {
+				grund_t *gr = lookup_kartenboden(k);
+				if(gr->gib_typ()==grund_t::boden) {
+					queried --;
+					if(  queried<0  ) {
+						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(gr->gib_hoehe()), gr->gib_grund_hang() );
+						if(besch) {
+							queried = simrand(umgebung_t::ground_object_probability*2);
+							gr->obj_add( new groundobj_t( this, gr->gib_pos(), besch ) );
+						}
+					}
+				}
+			}
+		}
+	}
+
+print("Creating cities ...\n");
+DBG_DEBUG("karte_t::init()","prepare cities");
+	vector_tpl<koord> *pos = stadt_t::random_place(this, new_anzahl_staedte, old_x, old_y);
+
+	if(  !pos->empty()  ) {
+		const uint32 old_anzahl_staedte = stadt.get_count();
+		new_anzahl_staedte = pos->get_count();
+
+		// prissi if we could not generate enough positions ...
+		einstellungen->setze_anzahl_staedte( old_anzahl_staedte + new_anzahl_staedte );	// new number of towns (if we did not found enough positions) ...
+		int x = 16;
+		const int max_display_progress=16+3*einstellungen->gib_anzahl_staedte()+new_anzahl_staedte+einstellungen->gib_land_industry_chains();
+
+		// Ansicht auf erste Stadt zentrieren
+		if (old_x+old_y == 0)
+			change_world_position( koord3d((*pos)[0], min_hgt((*pos)[0])) );
+
+		// Loop only new cities:
+		for(  int i=0;  i<new_anzahl_staedte;  i++  ) {
+//			int citizens=(int)(einstellungen->gib_mittlere_einwohnerzahl()*0.9);
+//			citizens = citizens/10+simrand(2*citizens+1);
+			int current_citicens = (2500l * einstellungen->gib_mittlere_einwohnerzahl()) /(simrand(20000)+100);
+			stadt_t* s = new stadt_t(spieler[1], (*pos)[i], current_citicens);
+DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
+			stadt.append(s, current_citicens, 64);
+			if(is_display_init()) {
+				x ++;
+				display_progress(x, max_display_progress);
+			}
+			else {
+				printf("*");fflush(NULL);
+			}
+		}
+		for(  uint32 i=old_anzahl_staedte;  i<stadt.get_count();  i++  ) {
+			// Hajo: do final init after world was loaded/created
+			stadt[i]->laden_abschliessen();
+			last_maximum_bev += stadt[i]->gib_einwohner();
+			// the growth is slow, so update here the progress bar
+			if(is_display_init()) {
+				x ++;
+				display_progress(x, max_display_progress);
+			}
+			else {
+				printf("*");fflush(NULL);
+			}
+		}
+		finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
+		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev = last_maximum_bev;
+
+		// Hajo: connect some cities with roads
+		const weg_besch_t* besch = wegbauer_t::gib_besch(*umgebung_t::intercity_road_type);
+		if(besch == 0) {
+			dbg->warning("karte_t::init()", "road type '%s' not found", (const char*)*umgebung_t::intercity_road_type);
+			// Hajo: try some default (might happen with timeline ... )
+			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
+		}
+
+		// Hajo: No owner so that roads can be removed!
+		wegbauer_t bauigel (this, 0);
+		bauigel.route_fuer(wegbauer_t::strasse, besch);
+		bauigel.set_keep_existing_ways(true);
+		bauigel.set_maximum(umgebung_t::intercity_road_length);
+
+		// Hajo: search for road offset
+		koord roff (0,1);
+		if (!lookup((*pos)[0] + roff)->gib_kartenboden()->hat_weg(road_wt)) {
+			roff = koord(0,2);
+		}
+
+		int old_progress_count = 16+einstellungen->gib_anzahl_staedte() + new_anzahl_staedte;
+		int count = 0;
+		const int max_count=(einstellungen->gib_anzahl_staedte()*(einstellungen->gib_anzahl_staedte()-1))/2;
+
+		for(int i = 0; i < einstellungen->gib_anzahl_staedte(); i++) {
+		// Only new cities must be connected:
+			for (int j = max(i + 1, old_anzahl_staedte); j < einstellungen->gib_anzahl_staedte(); j++) {
+				const koord k1 = stadt[i]->gib_pos() + roff;//(*pos)[i] + roff;
+				const koord k2 = stadt[j]->gib_pos() + roff;//(*pos)[j] + roff;
+				const koord diff = k1-k2;
+				const int d = diff.x*diff.x + diff.y*diff.y;
+
+				if(d < umgebung_t::intercity_road_length) {
+//DBG_DEBUG("karte_t::init()","built route fom city %d to %d", i, j);
+					bauigel.calc_route(lookup(k1)->gib_kartenboden()->gib_pos(), lookup(k2)->gib_kartenboden()->gib_pos());
+					if(bauigel.max_n >= 1) {
+						bauigel.baue();
+					}
+					else {
+//DBG_DEBUG("karte_t::init()","no route found fom city %d to %d", i, j);
+					}
+				}
+				else {
+//DBG_DEBUG("karte_t::init()","cites %d and %d are too far away", i, j);
+				}
+				count ++;
+				// how much we continued?
+				if(is_display_init()) {
+					int progress_count = 16+einstellungen->gib_anzahl_staedte()+ new_anzahl_staedte+ (count*einstellungen->gib_anzahl_staedte()*2)/max_count;
+					if(old_progress_count!=progress_count) {
+						display_progress(progress_count, max_display_progress );
+						old_progress_count = progress_count;
+					}
+				}
+			}
+		}
+
+		delete pos;
+	}
+	else {
+		// could not generate any town
+		if(pos) {
+			delete pos;
+		}
+		einstellungen->setze_anzahl_staedte( stadt.get_count() );	// new number of towns (if we did not found enough positions) ...
+	}
+
+}
+
+
+
 void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 {
 	mute_sound(true);
@@ -841,28 +992,12 @@ DBG_DEBUG("karte_t::init()","set ground");
 		}
 	}
 
-DBG_DEBUG("karte_t::init()","distributing groundobjs");
-	if(  umgebung_t::ground_object_probability > 0  ) {
-		// add eyecandy like rocky, moles, flowers, ...
-		koord k;
-		sint32 queried = simrand(umgebung_t::ground_object_probability*2);
-		for(k.y=0; k.y<gib_groesse_y(); k.y++) {
-			for(k.x=0; k.x<gib_groesse_x(); k.x++) {
-				grund_t *gr = lookup_kartenboden(k);
-				if(gr->gib_typ()==grund_t::boden) {
-					queried --;
-					if(  queried<0  ) {
-						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(gr->gib_hoehe()), gr->gib_grund_hang() );
-						if(besch) {
-							queried = simrand(umgebung_t::ground_object_probability*2);
-							gr->obj_add( new groundobj_t( this, gr->gib_pos(), besch ) );
-						}
-					}
-				}
-			}
-		}
-	}
+DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
+	hausbauer_t::neue_karte();
+	fabrikbauer_t::neue_karte(this);
+	stadt.clear();
 
+	distribute_groundobjs_cities(einstellungen->gib_anzahl_staedte(),0,0);
 DBG_DEBUG("karte_t::init()","distributing trees");
 	if(!umgebung_t::no_tree) {
 		baum_t::distribute_trees(this,3);
@@ -874,122 +1009,6 @@ DBG_DEBUG("karte_t::init()","distributing trees");
 DBG_DEBUG("karte_t::init()","built timeline");
 	stadtauto_t::built_timeline_liste(this);
 
-print("Creating cities ...\n");
-DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
-	hausbauer_t::neue_karte();
-	fabrikbauer_t::neue_karte(this);
-
-DBG_DEBUG("karte_t::init()","prepare cities");
-	stadt.clear();
-	vector_tpl<koord> *pos = stadt_t::random_place(this, einstellungen->gib_anzahl_staedte());
-
-	if (pos != NULL && !pos->empty()) {
-		// prissi if we could not generate enough positions ...
-		einstellungen->setze_anzahl_staedte( pos->get_count() );	// new number of towns (if we did not found enough positions) ...
-		int x = 16;
-		const int max_display_progress=16+einstellungen->gib_anzahl_staedte()*4+einstellungen->gib_land_industry_chains();
-
-		// Ansicht auf erste Stadt zentrieren
-		change_world_position( koord3d((*pos)[0], min_hgt((*pos)[0])) );
-
-		for (int i = 0; i < einstellungen->gib_anzahl_staedte(); i++) {
-//			int citizens=(int)(einstellungen->gib_mittlere_einwohnerzahl()*0.9);
-//			citizens = citizens/10+simrand(2*citizens+1);
-			int current_citicens = (2500l * einstellungen->gib_mittlere_einwohnerzahl()) /(simrand(20000)+100);
-
-			stadt_t* s = new stadt_t(spieler[1], (*pos)[i], current_citicens);
-DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
-			stadt.append(s, current_citicens, 64);
-			if(is_display_init()) {
-				x ++;
-				display_progress(x, max_display_progress);
-			}
-			else {
-				printf("*");fflush(NULL);
-			}
-		}
-
-		for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
-			// Hajo: do final init after world was loaded/created
-			(*i)->laden_abschliessen();
-			last_maximum_bev += (*i)->gib_einwohner();
-			// the growth is slow, so update here the progress bar
-			if(is_display_init()) {
-				x ++;
-				display_progress(x, max_display_progress);
-			}
-			else {
-				printf("*");fflush(NULL);
-			}
-		}
-		finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
-		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev = last_maximum_bev;
-
-		// Hajo: connect some cities with roads
-		const weg_besch_t* besch = wegbauer_t::gib_besch(*umgebung_t::intercity_road_type);
-		if(besch == 0) {
-			dbg->warning("karte_t::init()", "road type '%s' not found", (const char*)*umgebung_t::intercity_road_type);
-			// Hajo: try some default (might happen with timeline ... )
-			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
-		}
-
-		// Hajo: No owner so that roads can be removed!
-		wegbauer_t bauigel (this, 0);
-		bauigel.route_fuer(wegbauer_t::strasse, besch);
-		bauigel.set_keep_existing_ways(true);
-		bauigel.set_maximum(umgebung_t::intercity_road_length);
-
-		// Hajo: search for road offset
-		koord roff (0,1);
-		if (!lookup((*pos)[0] + roff)->gib_kartenboden()->hat_weg(road_wt)) {
-			roff = koord(0,2);
-		}
-
-		int old_progress_count = 16+2*einstellungen->gib_anzahl_staedte();
-		int count = 0;
-		const int max_count=(einstellungen->gib_anzahl_staedte()*(einstellungen->gib_anzahl_staedte()-1))/2;
-
-		for(int i = 0; i < einstellungen->gib_anzahl_staedte(); i++) {
-			for (int j = i + 1; j < einstellungen->gib_anzahl_staedte(); j++) {
-				const koord k1 = (*pos)[i] + roff;
-				const koord k2 = (*pos)[j] + roff;
-				const koord diff = k1-k2;
-				const int d = diff.x*diff.x + diff.y*diff.y;
-
-				if(d < umgebung_t::intercity_road_length) {
-//DBG_DEBUG("karte_t::init()","built route fom city %d to %d", i, j);
-					bauigel.calc_route(lookup(k1)->gib_kartenboden()->gib_pos(), lookup(k2)->gib_kartenboden()->gib_pos());
-					if(bauigel.max_n >= 1) {
-						bauigel.baue();
-					}
-					else {
-//DBG_DEBUG("karte_t::init()","no route found fom city %d to %d", i, j);
-					}
-				}
-				else {
-//DBG_DEBUG("karte_t::init()","cites %d and %d are too far away", i, j);
-				}
-				count ++;
-				// how much we continued?
-				if(is_display_init()) {
-					int progress_count = 16+einstellungen->gib_anzahl_staedte()*2+ (count*einstellungen->gib_anzahl_staedte()*2)/max_count;
-					if(old_progress_count!=progress_count) {
-						display_progress(progress_count, max_display_progress );
-						old_progress_count = progress_count;
-					}
-				}
-			}
-		}
-
-		delete pos;
-	}
-	else {
-		// could not generate any town
-		if(pos) {
-			delete pos;
-		}
-		einstellungen->setze_anzahl_staedte( 0 );	// new number of towns (if we did not found enough positions) ...
-	}
 
 DBG_DEBUG("karte_t::init()","distributing movingobjs");
 	if(  umgebung_t::moving_object_probability > 0  ) {
@@ -1061,6 +1080,219 @@ DBG_DEBUG("karte_t::init()","distributing movingobjs");
 	}
 	mute_sound(false);
 }
+
+
+
+void karte_t::enlarge_map(einstellungen_t* sets)
+{
+	mute_sound(true);
+	intr_disable();
+
+	if(is_display_init()) {
+		display_show_pointer(false);
+	}
+
+	sint16 new_groesse_x = sets->gib_groesse_x();
+	sint16 new_groesse_y = sets->gib_groesse_y();
+	planquadrat_t *new_plan = new planquadrat_t[new_groesse_x*new_groesse_y];
+	sint8 *new_grid_hgts = new sint8[(new_groesse_x+1)*(new_groesse_y+1)];
+
+	memset(new_grid_hgts, grundwasser, sizeof(sint8)*(new_groesse_x+1)*(new_groesse_y+1));
+
+	sint16 old_x = cached_groesse_gitter_x;
+	sint16 old_y = cached_groesse_gitter_y;
+
+	einstellungen->setze_groesse_x(new_groesse_x);
+	einstellungen->setze_groesse_y(new_groesse_y);
+	cached_groesse_gitter_x = new_groesse_x;
+	cached_groesse_gitter_y = new_groesse_y;
+	cached_groesse_max = max(cached_groesse_gitter_x,cached_groesse_gitter_y);
+	cached_groesse_karte_x = cached_groesse_gitter_x-1;
+	cached_groesse_karte_y = cached_groesse_gitter_y-1;
+
+// Copy old values:
+	for (sint16 ix = 0; ix<old_x; ix++) {
+		for (sint16 iy = 0; iy<old_y; iy++) {
+			uint32 nr = ix+(iy*old_x);
+			uint32 nnr = ix+(iy*new_groesse_x);
+			new_plan[nnr] = plan[nr];
+			plan[nr] = planquadrat_t();
+		}
+	}
+	for (sint16 ix = 0; ix<=old_x; ix++) {
+		for (sint16 iy = 0; iy<=old_y; iy++) {
+			uint32 nr = ix+(iy*(old_x+1));
+			uint32 nnr = ix+(iy*(new_groesse_x+1));
+			new_grid_hgts[nnr] = grid_hgts[nr];
+		}
+	}
+
+	delete [] plan;
+	plan = new_plan;
+	delete [] grid_hgts;
+	grid_hgts = new_grid_hgts;
+
+
+	bool reliefkarte = reliefkarte_t::is_visible;
+	reliefkarte_t::is_visible = false;
+
+	display_set_progress_text(translator::translate("enlarge map"));
+	int progress_length = new_groesse_x+1 + new_groesse_x + new_groesse_x;
+	display_progress(0,progress_length);
+
+	// loop only new tiles:
+	setsimrand( 0xFFFFFFFF, einstellungen->gib_karte_nummer() );
+	for (sint16 x = 0; x<=new_groesse_x; x++) {
+		for (sint16 y = (x>=old_x)?0:old_y; y<=new_groesse_y; y++) {
+			koord pos(x,y);
+			const sint16 h = perlin_hoehe( einstellungen, pos, koord(old_x,old_y) );
+			setze_grid_hgt( pos, (h/16+1)*Z_TILE_STEP);
+		}
+		display_progress(x+1,progress_length);
+	}
+	int old_progress = new_groesse_x+1;
+	// now lower the corners and edge between new/old part to ground level
+	sint16 i;
+	for(i=0; i<=gib_groesse_x(); i++) {
+		lower_to(i, i<old_x?old_y:0,grundwasser,false);
+		lower_to(i, gib_groesse_y(), grundwasser,false);
+	}
+	for(i=0; i<=gib_groesse_y(); i++) {
+		lower_to(i<old_y?old_x:0, i,grundwasser,false);
+		lower_to(gib_groesse_x(), i, grundwasser,false);
+	}
+	for(i=0; i<=gib_groesse_x(); i++) {
+		raise_to(i, i<old_x?old_y:0,grundwasser,false);
+		raise_to(i, gib_groesse_y(), grundwasser,false);
+	}
+	for(i=0; i<=gib_groesse_y(); i++) {
+		raise_to(i<old_y?old_x:0, i,grundwasser,false);
+		raise_to(gib_groesse_x(), i, grundwasser,false);
+	}
+	raise_to(old_x, old_y, grundwasser,false);
+	lower_to(old_x, old_y, grundwasser,false);
+
+	for (sint16 ix = 0; ix<new_groesse_x; ix++) {
+		for (sint16 iy = (ix>=old_x)?0:old_y; iy<new_groesse_y; iy++) {
+			koord k = koord(ix,iy);
+			access(k)->kartenboden_setzen(new boden_t(this, koord3d(ix,iy,0),0));
+			access(k)->abgesenkt(this);
+			grund_t *gr = lookup_kartenboden(k);
+			gr->setze_grund_hang(calc_natural_slope(k));
+			gr->calc_bild();
+		}
+		display_progress(old_progress + ix+1,progress_length);
+	}
+	old_progress += new_groesse_x;
+
+	// smoothing the seam (of possible)
+	for (sint16 x=1; x<old_x; x++) {
+		koord k(x,old_y);
+		const sint16 height = ((perlin_hoehe( einstellungen, k, koord(old_x,old_y) )/16)+1)*Z_TILE_STEP;
+		// need to raise/lower more
+		for(  sint16 dy=-abs(grundwasser-height);  dy<abs(grundwasser-height);  dy++  ) {
+			koord pos(x,old_y+dy);
+			const sint16 height = ((perlin_hoehe( einstellungen, pos, koord(old_x,old_y) )/16)+1)*Z_TILE_STEP;
+			while(lookup_hgt(pos)<height  &&  raise(pos)) ;
+			while(lookup_hgt(pos)>height  &&  lower(pos)) ;
+		}
+	}
+	for (sint16 y=1; y<old_y; y++) {
+		koord k(old_x,y);
+		const sint16 height = ((perlin_hoehe( einstellungen, k, koord(old_x,old_y) )/16)+1)*Z_TILE_STEP;
+		// need to raise/lower more
+		for(  sint16 dx=-abs(grundwasser-height);  dx<abs(grundwasser-height);  dx++  ) {
+			koord pos(old_x+dx,y);
+			const sint16 height = ((perlin_hoehe( einstellungen, pos, koord(old_x,old_y) )/16)+1)*Z_TILE_STEP;
+			while(lookup_hgt(pos)<height  &&  raise(pos)) ;
+			while(lookup_hgt(pos)>height  &&  lower(pos)) ;
+		}
+	}
+
+	// Recalc all images (some to many, but we do not care here)
+	for (sint16 ix = 0; ix<new_groesse_x; ix++) {
+		for (sint16 iy = 0; iy<new_groesse_y; iy++) {
+			koord k = koord(ix,iy);
+			grund_t *gr = lookup_kartenboden(k);
+			gr->calc_bild();
+		}
+		display_progress(old_progress + ix+1,progress_length);
+	}
+
+	// eventuall update origin
+	switch( einstellungen->get_rotation() ) {
+		case 1:
+			einstellungen->setze_origin_y( einstellungen->get_origin_y()-new_groesse_y+old_y );
+			break;
+		case 2:
+			einstellungen->setze_origin_x( einstellungen->get_origin_x()-new_groesse_x+old_x );
+			einstellungen->setze_origin_y( einstellungen->get_origin_y()-new_groesse_y+old_y );
+			break;
+		case 3:
+			einstellungen->setze_origin_x( einstellungen->get_origin_x()-new_groesse_y+old_y );
+			break;
+	}
+
+	// Resize marker_t:
+	marker.init(new_groesse_x, new_groesse_y);
+
+	display_set_progress_text(translator::translate("New cities..."));
+	distribute_groundobjs_cities(sets->gib_anzahl_staedte(),old_x, old_y);
+
+	fabrikbauer_t::neue_karte( this );
+	set_schedule_counter();
+
+	// Refresh the haltlist for the affected tiles / stations.
+	// It is enough to check the tile just at the border ...
+	const sint8 cov = gib_einstellungen()->gib_station_coverage();
+	for(  sint16 x=0;  x<old_x;  x++  ) {
+		for(  sint16 y=old_y-cov;  y<old_y;  y++  ) {
+			halthandle_t h = plan[x+y*new_groesse_x].gib_halt();
+			if(  h.is_bound()  ) {
+				for(  sint16 xp=max(0,x-cov);  xp<x+cov+1;  xp++  ) {
+					for(  sint16 yp=y;  yp<y+cov+1;  yp++  ) {
+						plan[xp+yp*new_groesse_x].add_to_haltlist(h);
+					}
+				}
+			}
+		}
+	}
+	for(  sint16 x=old_x-cov;  x<old_x;  x++  ) {
+		for(  sint16 y=0;  y<old_y;  y++  ) {
+			halthandle_t h = plan[x+y*new_groesse_x].gib_halt();
+			if(  h.is_bound()  ) {
+				for(  sint16 xp=x;  xp<x+cov+1;  xp++  ) {
+					for(  sint16 yp=max(0,y-cov);  yp<y+cov+1;  yp++  ) {
+						plan[xp+yp*new_groesse_x].add_to_haltlist(h);
+					}
+				}
+			}
+		}
+	}
+
+	reliefkarte_t::is_visible = reliefkarte;
+	reliefkarte_t::gib_karte()->setze_welt( this );
+	reliefkarte_t::gib_karte()->calc_map();
+
+	reliefkarte_t::gib_karte()->set_mode( reliefkarte_t::gib_karte()->get_mode() );
+
+	setze_dirty();
+	simloops = 60;
+	reset_timer();
+
+	// make timer loop invalid
+	for( int i=0;  i<32;  i++ ) {
+		last_frame_ms[i] = 0x7FFFFFFFu;
+		last_step_nr[i] = 0xFFFFFFFFu;
+	}
+	last_frame_idx = 0;
+
+	if(is_display_init()) {
+		display_show_pointer(true);
+	}
+	mute_sound(false);
+}
+
 
 
 karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
@@ -2804,10 +3036,7 @@ karte_t::ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate_bits
 	return true;
 }
 
-
-
-slist_tpl<koord> *
-karte_t::finde_plaetze(sint16 w, sint16 h, climate_bits cl) const
+slist_tpl<koord> *karte_t::finde_plaetze(sint16 w, sint16 h, climate_bits cl, sint16 old_x, sint16 old_y) const
 {
 	slist_tpl<koord> * list = new slist_tpl<koord>();
 	koord start;
@@ -2815,7 +3044,7 @@ karte_t::finde_plaetze(sint16 w, sint16 h, climate_bits cl) const
 
 DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,gib_groesse_x(),gib_groesse_y() );
 	for(start.x=0; start.x<gib_groesse_x()-w; start.x++) {
-		for(start.y=0; start.y<gib_groesse_y()-h; start.y++) {
+		for(start.y=start.x<old_x?old_y:0; start.y<gib_groesse_y()-h; start.y++) {
 			if(ist_platz_frei(start, w, h, &last_y, cl)) {
 				list->insert(start);
 			}
@@ -2829,7 +3058,6 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,gib_g
 	}
 	return list;
 }
-
 
 /**
  * Play a sound, but only if near enoungh.

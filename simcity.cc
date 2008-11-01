@@ -2394,7 +2394,8 @@ void stadt_t::baue()
 
 
 // geeigneten platz zur Stadtgruendung durch Zufall ermitteln
-vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl)
+vector_tpl<koord>* stadt_t::random_place(
+	const karte_t* wl, const sint32 anzahl, sint16 old_x, sint16 old_y)
 {
 	int cl = 0;
 	for (int i = 0; i < MAX_CLIMATES; i++) {
@@ -2403,7 +2404,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl)
 		}
 	}
 	DBG_DEBUG("karte_t::init()", "get random places in climates %x", cl);
-	slist_tpl<koord>* list = wl->finde_plaetze(2, 3, (climate_bits)cl);
+	slist_tpl<koord>* list = wl->finde_plaetze(2, 3, (climate_bits)cl, old_x, old_y);
 	DBG_DEBUG("karte_t::init()", "found %i places", list->count());
 	vector_tpl<koord>* result = new vector_tpl<koord>(anzahl);
 
@@ -2411,19 +2412,20 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl)
 		int len = list->count();
 		// check distances of all cities to their respective neightbours
 		while (len > 0) {
-			const int index = simrand(len);
 			int minimum_dist = 0x7FFFFFFF;  // init with maximum
-			koord k = list->at(index);
+			koord k;
+			const int index = simrand(len);
+			k = list->at(index);
+			list->remove(k);
+			len--;
 
 			// check minimum distance
-			for (int j = 0; j < i; j++) {
+			for (int j = 0; (j < i) && minimum_dist > minimum_city_distance; j++) {
 				int dist = abs(k.x - (*result)[j].x) + abs(k.y - (*result)[j].y);
 				if (minimum_dist > dist) {
 					minimum_dist = dist;
 				}
 			}
-			list->remove(k);
-			len--;
 			if (minimum_dist > minimum_city_distance) {
 				// all citys are far enough => ok, find next place
 				result->push_back(k);

@@ -321,6 +321,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\enlarge_map_frame_t.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\extend_edit.cc"
 				>
 			</File>

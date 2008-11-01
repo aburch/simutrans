@@ -69,6 +69,8 @@ private:
 	// default 0, will be incremented after each 90 degree rotation until 4
 	uint8 rotation;
 
+	sint16 origin_x, origin_y;
+
 public:
 
 	/**
@@ -156,6 +158,11 @@ public:
 
 	void rotate90() { rotation = (rotation+1)&3; }
 	uint8 get_rotation() const { return rotation; }
+
+	void setze_origin_x(sint16 x) { origin_x = x; }
+	void setze_origin_y(sint16 y) { origin_y = y; }
+	sint16 get_origin_x() const { return origin_x; }
+	sint16 get_origin_y() const { return origin_y; }
 };
 
 #endif

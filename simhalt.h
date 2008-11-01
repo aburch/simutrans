@@ -174,6 +174,7 @@ private:
 	 */
 	halthandle_t self;
 
+public:
 	/**
 	 * Liste aller felder (Grund-Objekte) die zu dieser Haltestelle gehören
 	 * @author Hj. Malthaner
@@ -188,6 +189,8 @@ private:
 		grund_t*       grund;
 		convoihandle_t reservation;
 	};
+
+private:
 	slist_tpl<tile_t> tiles;
 
 	koord init_pos;	// for halt without grounds, created during game initialisation

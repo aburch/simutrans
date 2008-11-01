@@ -28,62 +28,62 @@ class gui_label_t : public gui_komponente_t
 {
 public:
     enum align_t {
-	left,
-	centered,
-	right,
-	money
+		left,
+		centered,
+		right,
+		money
     };
 private:
-    align_t align:4;
+	align_t align:4;
 
-    /**
-     * Farbe des Labels
-     * @author Hansjörg Malthaner
-     */
-    uint8 color;
+	/**
+	 * Farbe des Labels
+	 * @author Hansjörg Malthaner
+	 */
+	uint8 color;
 
-    const char * text;	// only for direct acess of non-translateable things. Do not use!
+	const char * text;	// only for direct acess of non-translateable things. Do not use!
 
 public:
-    gui_label_t(const char* text, int color = COL_BLACK, align_t align = left);
+	gui_label_t(const char* text, int color = COL_BLACK, align_t align = left);
 
-    /**
-     * setzt den Text des Labels
-     * @author Hansjörg Malthaner
-     */
-    void setze_text(const char *text);
+	/**
+	 * setzt den Text des Labels
+	 * @author Hansjörg Malthaner
+	 */
+	void setze_text(const char *text);
 
-    /**
-     * set the text without translation
-     * @author Hansjörg Malthaner
-     */
-    void set_text_pointer(const char *text) { this->text = text; }
+	/**
+	 * set the text without translation
+	 * @author Hansjörg Malthaner
+	 */
+	void set_text_pointer(const char *text) { this->text = text; }
 
-    /**
-     * returns the pointer (i.e. for freeing untranslater contents)
-     * @author Hansjörg Malthaner
-     */
-    const char * get_text_pointer() { return text; }
+	/**
+	 * returns the pointer (i.e. for freeing untranslater contents)
+	 * @author Hansjörg Malthaner
+	 */
+	const char * get_text_pointer() { return text; }
 
-    /**
-     * Zeichnet die Komponente
-     * @author Hj. Malthaner
-     */
-    void zeichnen(koord offset);
+	/**
+	 * Zeichnet die Komponente
+	 * @author Hj. Malthaner
+	 */
+	void zeichnen(koord offset);
 
-    /**
-     * Sets the colour of the label
-     * @author Owen Rudge
-     */
+	/**
+	 * Sets the colour of the label
+	 * @author Owen Rudge
+	 */
 
-    void set_color(int colour) { this->color = colour; }
+	void set_color(int colour) { this->color = colour; }
 
-    /**
-     * Sets the alignment of the label
-     * @author Volker Meyer
-     */
+	/**
+	 * Sets the alignment of the label
+	 * @author Volker Meyer
+	 */
 
-    void set_align(align_t align) { this->align = align; }
+	void set_align(align_t align) { this->align = align; }
 };
 
 #endif
