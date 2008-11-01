@@ -235,12 +235,26 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 		 */
 		werkzeug_t *w = create_general_tool( i );
 		if(*str  &&  *str!=',') {
-			// ok, first come icon
-			uint16 icon = (uint16)atoi(str);
-			if(  icon>=skinverwaltung_t::werkzeuge_general->gib_bild_anzahl()  ) {
-				dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for general_tool[%i]", icon, i );
+			// ok, first comes icon
+			while(*str==' ') {
+				str++;
 			}
-			w->icon = skinverwaltung_t::werkzeuge_general->gib_bild_nr(icon);
+			uint16 icon = (uint16)atoi(str);
+			if(  icon==0  &&  *str!='0'  ) {
+				// check, if file name ...
+				int i=0;
+				while(  str[i]!=0  &&  str[i]!=','  ) {
+					i++;
+				}
+				const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
+				w->icon = s ? s->gib_bild_nr(0) : IMG_LEER;
+			}
+			else {
+				if(  icon>=skinverwaltung_t::werkzeuge_general->gib_bild_anzahl()  ) {
+					dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for general_tool[%i]", icon, i );
+				}
+				w->icon = skinverwaltung_t::werkzeuge_general->gib_bild_nr(icon);
+			}
 			do {
 				*str++;
 			} while(*str  &&  *str!=',');
@@ -302,11 +316,25 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 		 */
 		if(*str  &&  *str!=',') {
 			// ok, first come icon
-			uint16 icon = (uint16)atoi(str);
-			if(  icon>=skinverwaltung_t::werkzeuge_simple->gib_bild_anzahl()  ) {
-				dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for dialog_tool[%i]", icon, i );
+			while(*str==' ') {
+				str++;
 			}
-			w->icon = skinverwaltung_t::werkzeuge_simple->gib_bild_nr(icon);
+			uint16 icon = (uint16)atoi(str);
+			if(  icon==0  &&  *str!='0'  ) {
+				// check, if file name ...
+				int i=0;
+				while(  str[i]!=0  &&  str[i]!=','  ) {
+					i++;
+				}
+				const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
+				w->icon = s ? s->gib_bild_nr(0) : IMG_LEER;
+			}
+			else {
+				if(  icon>=skinverwaltung_t::werkzeuge_simple->gib_bild_anzahl()  ) {
+					dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for simple_tool[%i]", icon, i );
+				}
+				w->icon = skinverwaltung_t::werkzeuge_simple->gib_bild_nr(icon);
+			}
 			do {
 				*str++;
 			} while(*str  &&  *str!=',');
@@ -341,11 +369,25 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 		 */
 		if(*str  &&  *str!=',') {
 			// ok, first come icon
-			uint16 icon = (uint16)atoi(str);
-			if(  icon>=skinverwaltung_t::werkzeuge_dialoge->gib_bild_anzahl()  ) {
-				dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for simple_tool[%i]", icon, i );
+			while(*str==' ') {
+				str++;
 			}
-			w->icon = skinverwaltung_t::werkzeuge_dialoge->gib_bild_nr(icon);
+			uint16 icon = (uint16)atoi(str);
+			if(  icon==0  &&  *str!='0'  ) {
+				// check, if file name ...
+				int i=0;
+				while(  str[i]!=0  &&  str[i]!=','  ) {
+					i++;
+				}
+				const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
+				w->icon = s ? s->gib_bild_nr(0) : IMG_LEER;
+			}
+			else {
+				if(  icon>=skinverwaltung_t::werkzeuge_dialoge->gib_bild_anzahl()  ) {
+					dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for dialoge_tool[%i]", icon, i );
+				}
+				w->icon = skinverwaltung_t::werkzeuge_dialoge->gib_bild_nr(icon);
+			}
 			do {
 				*str++;
 			} while(*str  &&  *str!=',');
@@ -413,13 +455,28 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 			if(*str==',') {
 				str++;
 				if(*str!=',') {
-					icon = (uint16)atoi(str);
-					if(  icon>=skinverwaltung_t::werkzeuge_toolbars->gib_bild_anzahl()  ) {
-						dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for toolbar_tool[%i][%i]", icon, i, j );
+					// ok, first come icon
+					while(*str==' ') {
+						str++;
 					}
-					icon = skinverwaltung_t::werkzeuge_toolbars->gib_bild_nr(icon);
-					while(*str!=','  &&  *str) {
-						str ++;
+					icon = (uint16)atoi(str);
+					if(  icon==0  &&  *str!='0'  ) {
+						// check, if file name ...
+						int i=0;
+						while(  str[i]!=0  &&  str[i]!=','  ) {
+							i++;
+						}
+						const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
+						icon = s ? s->gib_bild_nr(0) : IMG_LEER;
+					}
+					else {
+						if(  icon>=skinverwaltung_t::werkzeuge_toolbars->gib_bild_anzahl()  ) {
+							dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for toolbar_tool[%i][%i]", icon, i, j );
+						}
+						icon = skinverwaltung_t::werkzeuge_toolbars->gib_bild_nr(icon);
+					}
+					while(*str  &&  *str!=',') {
+						*str++;
 					}
 				}
 			}

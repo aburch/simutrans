@@ -2,6 +2,7 @@
 #include "besch/spezial_obj_tpl.h"
 #include "simskin.h"
 
+#include "tpl/slist_tpl.h"
 /*
  * Alle Skin-Bestandteile, die wir brauchen
  */
@@ -51,6 +52,7 @@ const skin_besch_t* skinverwaltung_t::fussweg            = NULL;
 const skin_besch_t* skinverwaltung_t::pumpe              = NULL;
 const skin_besch_t* skinverwaltung_t::senke              = NULL;
 
+slist_tpl<const skin_besch_t *>skinverwaltung_t::extra_obj;
 
 
 static spezial_obj_tpl<skin_besch_t> misc_objekte[] = {
@@ -142,11 +144,31 @@ bool skinverwaltung_t::register_besch(skintyp_t type, const skin_besch_t* besch)
 	if(  !::register_besch(sb, besch)  ) {
 		// currently no misc objects allowed ...
 		if(  !(type==cursor  ||  type==symbol)  ) {
-			dbg->warning("skinverwaltung_t::register_besch()","Spurious object '%s' loaded (will not be referenced anyway)!", besch->gib_name() );
+			if(  type==menu  ) {
+				extra_obj.insert( besch );
+				dbg->message( "skinverwaltung_t::register_besch()","Extra object %s added.", besch->gib_name() );
+			}
+			else {
+				dbg->warning("skinverwaltung_t::register_besch()","Spurious object '%s' loaded (will not be referenced anyway)!", besch->gib_name() );
+			}
 		}
 		else {
 			return ::register_besch( fakultative_objekte,  besch );
 		}
 	}
 	return true;
+}
+
+
+
+// return the extra_obj with this name
+const skin_besch_t *skinverwaltung_t::get_extra( const char *str, int len )
+{
+	slist_iterator_tpl<const skin_besch_t *> iter(skinverwaltung_t::extra_obj);
+	while(  iter.next()  ) {
+		if(  strncmp(str,iter.get_current()->gib_name(),len)==0  ) {
+			return iter.get_current();
+		}
+	}
+	return NULL;
 }

@@ -25,7 +25,7 @@
  *	2   Bildliste
  */
 class skin_besch_t : public obj_besch_std_name_t {
-    friend class skin_writer_t;
+	friend class skin_writer_t;
 
 public:
 	const bild_besch_t *gib_bild(int i) const  { return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild(i); }
