@@ -241,7 +241,7 @@ const char *scenario_t::get_description()
 			break;
 
 		case BUILT_HEADQUARTER_AND_10_TRAINS:
-			sprintf( description, translator::translate("Headquartern and %li trains"), factor );
+			sprintf( description, translator::translate("Headquarter and %li trains"), factor );
 			break;
 
 		case TRANSPORT_1000_PAX:
