@@ -193,7 +193,7 @@ int scenario_t::completed(int player_nr)
 			int pts = 0;
 			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
 				convoihandle_t cnv = *i;
-				if(  cnv->gib_besitzer() == sp  &&  cnv->gib_jahresgewinn()>0  &&  cnv->gib_vehikel_anzahl()>0  &&  cnv->gib_vehikel(0)->gib_waytype()==track_wt) {
+				if(  cnv->gib_besitzer() == sp  &&  cnv->gib_jahresgewinn()>0  &&  cnv->get_state()!=convoi_t::INITIAL  &&  cnv->gib_vehikel_anzahl()>0  &&  cnv->gib_vehikel(0)->gib_waytype()==track_wt) {
 					pts ++;
 				}
 			}
