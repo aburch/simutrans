@@ -1245,25 +1245,29 @@ void karte_t::enlarge_map(einstellungen_t* sets)
 	// Refresh the haltlist for the affected tiles / stations.
 	// It is enough to check the tile just at the border ...
 	const sint8 cov = gib_einstellungen()->gib_station_coverage();
-	for(  sint16 x=0;  x<old_x;  x++  ) {
-		for(  sint16 y=old_y-cov;  y<old_y;  y++  ) {
-			halthandle_t h = plan[x+y*new_groesse_x].gib_halt();
-			if(  h.is_bound()  ) {
-				for(  sint16 xp=max(0,x-cov);  xp<x+cov+1;  xp++  ) {
-					for(  sint16 yp=y;  yp<y+cov+1;  yp++  ) {
-						plan[xp+yp*new_groesse_x].add_to_haltlist(h);
+	if(  old_y < new_groesse_y  ) {
+		for(  sint16 x=0;  x<old_x;  x++  ) {
+			for(  sint16 y=old_y-cov;  y<old_y;  y++  ) {
+				halthandle_t h = plan[x+y*new_groesse_x].gib_halt();
+				if(  h.is_bound()  ) {
+					for(  sint16 xp=max(0,x-cov);  xp<x+cov+1;  xp++  ) {
+						for(  sint16 yp=y;  yp<y+cov+1;  yp++  ) {
+							plan[xp+yp*new_groesse_x].add_to_haltlist(h);
+						}
 					}
 				}
 			}
 		}
 	}
-	for(  sint16 x=old_x-cov;  x<old_x;  x++  ) {
-		for(  sint16 y=0;  y<old_y;  y++  ) {
-			halthandle_t h = plan[x+y*new_groesse_x].gib_halt();
-			if(  h.is_bound()  ) {
-				for(  sint16 xp=x;  xp<x+cov+1;  xp++  ) {
-					for(  sint16 yp=max(0,y-cov);  yp<y+cov+1;  yp++  ) {
-						plan[xp+yp*new_groesse_x].add_to_haltlist(h);
+	if(  old_x < new_groesse_x  ) {
+		for(  sint16 x=old_x-cov;  x<old_x;  x++  ) {
+			for(  sint16 y=0;  y<old_y;  y++  ) {
+				halthandle_t h = plan[x+y*new_groesse_x].gib_halt();
+				if(  h.is_bound()  ) {
+					for(  sint16 xp=x;  xp<x+cov+1;  xp++  ) {
+						for(  sint16 yp=max(0,y-cov);  yp<y+cov+1;  yp++  ) {
+							plan[xp+yp*new_groesse_x].add_to_haltlist(h);
+						}
 					}
 				}
 			}
