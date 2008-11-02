@@ -146,17 +146,17 @@ void vehikel_basis_t::set_overtaking_offsets( bool driving_on_the_left )
  */
 bool vehikel_basis_t::is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const
 {
-    const sint8 y_off_2 = 2*neu_yoff;
-    const sint8 c_plus  = y_off_2 + neu_xoff;
-    const sint8 c_minus = y_off_2 - neu_xoff;
+	const sint8 y_off_2 = 2*neu_yoff;
+	const sint8 c_plus  = y_off_2 + neu_xoff;
+	const sint8 c_minus = y_off_2 - neu_xoff;
 
-    return ! (c_plus < TILE_STEPS*2  &&  c_minus < TILE_STEPS*2  &&  c_plus > -TILE_STEPS*2  &&  c_minus > -TILE_STEPS*2);
+	return ! (c_plus < TILE_STEPS*2  &&  c_minus < TILE_STEPS*2  &&  c_plus > -TILE_STEPS*2  &&  c_minus > -TILE_STEPS*2);
 }
 
 
 
 vehikel_basis_t::vehikel_basis_t(karte_t *welt):
-    ding_t(welt)
+	ding_t(welt)
 {
 	bild = IMG_LEER;
 	set_flag( ding_t::is_vehicle );
@@ -165,7 +165,7 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt):
 
 
 vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
-    ding_t(welt, pos)
+	ding_t(welt, pos)
 {
 	bild = IMG_LEER;
 	set_flag( ding_t::is_vehicle );
@@ -882,7 +882,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 
 
 vehikel_t::vehikel_t(karte_t *welt) :
-    vehikel_basis_t(welt)
+	vehikel_basis_t(welt)
 {
 	rauchen = true;
 
@@ -1164,13 +1164,16 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 	const sint32 speed_base = (100*speed_to_kmh(cnv->gib_min_top_speed()))/ref_speed-100;
 
 	sint64 value = 0;
+	slist_tpl<ware_t> kill_queue;
 	slist_iterator_tpl <ware_t> iter (fracht);
 
 	while( iter.next() ) {
 
 		const ware_t & ware = iter.get_current();
 
-		assert(ware.menge>0  &&  ware.gib_zwischenziel().is_bound());
+		if(ware.menge==0  ||  !ware.gib_zwischenziel().is_bound()) {
+			continue;
+		}
 
 		// now only use the real gain in difference for the revenue (may as well be negative!)
 		const koord zwpos = ware.gib_zwischenziel()->gib_basis_pos();
@@ -1184,15 +1187,15 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 		value += price;
 	}
 
-  // Hajo: Rounded value, in cents
-  // prissi: Why on earth 1/3???
-  return (value+1500ll)/3000ll;
+	// Hajo: Rounded value, in cents
+	// prissi: Why on earth 1/3???
+	return (value+1500ll)/3000ll;
 }
 
 
 const char *vehikel_t::gib_fracht_mass() const
 {
-    return gib_fracht_typ()->gib_mass();
+	return gib_fracht_typ()->gib_mass();
 }
 
 
@@ -1214,9 +1217,9 @@ uint32 vehikel_t::gib_fracht_gewicht() const
 }
 
 
-const char * vehikel_t::gib_fracht_name() const
+const char *vehikel_t::gib_fracht_name() const
 {
-    return gib_fracht_typ()->gib_name();
+	return gib_fracht_typ()->gib_name();
 }
 
 
@@ -1295,16 +1298,11 @@ bool vehikel_t::entladen(koord, halthandle_t halt)
  * Ermittelt fahrtrichtung
  * @author Hj. Malthaner
  */
-ribi_t::ribi
-vehikel_t::richtung()
+ribi_t::ribi vehikel_t::richtung()
 {
-  ribi_t::ribi neu = calc_richtung(pos_prev.gib_2d(), pos_next.gib_2d());
-  if(neu == ribi_t::keine) {
-    // sonst ausrichtung des Vehikels beibehalten
-    return fahrtrichtung;
-  } else {
-    return neu;
-  }
+	ribi_t::ribi neu = calc_richtung(pos_prev.gib_2d(), pos_next.gib_2d());
+	// nothing => use old direct further on
+	return (neu == ribi_t::keine) ? fahrtrichtung : neu;
 }
 
 
@@ -1314,7 +1312,8 @@ vehikel_t::calc_bild()
 	image_id old_bild=gib_bild();
 	if (fracht.empty()) {
 		setze_bild(besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),NULL));
-	} else {
+	}
+	else {
 		setze_bild(besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()), fracht.front().gib_besch()));
 	}
 	if(old_bild!=gib_bild()) {
@@ -1327,7 +1326,6 @@ void
 vehikel_t::rdwr(loadsave_t *file)
 {
 	sint32 fracht_count = 0;
-//	sint8 dx, dy;
 
 	if(file->is_saving()) {
 		fracht_count = fracht.count();
@@ -1515,7 +1513,7 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 uint32 vehikel_t::calc_restwert() const
 {
 	// after 20 year, it has only half value
-    return (uint32)((double)besch->gib_preis() * pow(0.997, (int)(welt->get_current_month() - gib_insta_zeit())));
+	return (uint32)((double)besch->gib_preis() * pow(0.997, (int)(welt->get_current_month() - gib_insta_zeit())));
 }
 
 
@@ -1534,9 +1532,9 @@ vehikel_t::zeige_info()
 
 void vehikel_t::info(cbuffer_t & buf) const
 {
-  if(cnv) {
-    cnv->info(buf);
-  }
+	if(cnv) {
+		cnv->info(buf);
+	}
 }
 
 
@@ -1994,7 +1992,7 @@ automobil_t::setze_convoi(convoi_t *c)
 
 waggon_t::waggon_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
 {
-    rdwr(file, true);
+	rdwr(file, true);
 }
 
 
