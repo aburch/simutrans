@@ -103,13 +103,14 @@ char *tooltip_with_price(const char * tip, sint64 price)
  * Creates a tooltip from tip text and money value
  * @author Hj. Malthaner
  */
-char *tooltip_with_price_maintenance(const char * tip, sint64 price, sint64 maitenance)
+char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 price, sint64 maitenance)
 {
 	int n = sprintf(werkzeug_t::toolstr, "%s, ", translator::translate(tip) );
 	money_to_string(werkzeug_t::toolstr+n, (double)price/-100.0);
 	strcat( werkzeug_t::toolstr, " (" );
 	n = strlen(werkzeug_t::toolstr);
-	money_to_string(werkzeug_t::toolstr+n, (double)maitenance/100.0);
+
+	money_to_string(werkzeug_t::toolstr+n, (double)(maitenance<<(welt->ticks_bits_per_tag-18))/100.0 );
 	strcat( werkzeug_t::toolstr, ")" );
 	return werkzeug_t::toolstr;
 }
@@ -2267,7 +2268,7 @@ image_id wkz_station_t::get_icon( spieler_t * )
 
 
 
-const char *wkz_station_t::get_tooltip(spieler_t *)
+const char *wkz_station_t::get_tooltip(spieler_t *sp)
 {
 	const haus_besch_t *besch=hausbauer_t::find_tile(default_param,0)->gib_besch();
 	if(  besch->gib_utyp()==haus_besch_t::generic_stop  ||  besch->gib_utyp()==haus_besch_t::generic_extension  ) {
@@ -2277,19 +2278,19 @@ const char *wkz_station_t::get_tooltip(spieler_t *)
 			case maglev_wt:
 			case tram_wt:
 			case narrowgauge_wt:
-				return tooltip_with_price_maintenance( besch->gib_name(), umgebung_t::cst_multiply_station*besch->gib_level(), umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_station*besch->gib_level(), umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 			case road_wt:
-				return tooltip_with_price_maintenance( besch->gib_name(), umgebung_t::cst_multiply_roadstop*besch->gib_level(), umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_roadstop*besch->gib_level(), umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 			case water_wt:
-				return tooltip_with_price_maintenance( besch->gib_name(), umgebung_t::cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 			case air_wt:
-				return tooltip_with_price_maintenance( besch->gib_name(), umgebung_t::cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 			case 0:
-				return tooltip_with_price_maintenance( besch->gib_name(), umgebung_t::cst_multiply_post*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_post*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 		}
 	}
 	else if(  besch->gib_utyp()==haus_besch_t::hafen  ) {
-		return tooltip_with_price_maintenance( besch->gib_name(), umgebung_t::cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+		return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 	}
 	return "Illegal description";
 }
@@ -2536,18 +2537,18 @@ bool wkz_depot_t::init( karte_t *welt, spieler_t *sp )
 	return false;
 }
 
-const char *wkz_depot_t::get_tooltip(spieler_t *)
+const char *wkz_depot_t::get_tooltip(spieler_t *sp)
 {
 	const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->gib_besch();
 	switch(besch->gib_extra()) {
-		case road_wt: return tooltip_with_price_maintenance( "Build road depot", umgebung_t::cst_depot_road, umgebung_t::maint_building*besch->gib_level() );
-		case track_wt: return tooltip_with_price_maintenance( "Build train depot", umgebung_t::cst_depot_rail, umgebung_t::maint_building*besch->gib_level() );
-		case monorail_wt: return tooltip_with_price_maintenance( "Build monorail depot", umgebung_t::cst_depot_rail, umgebung_t::maint_building*besch->gib_level() );
-		case maglev_wt: return tooltip_with_price_maintenance( "Build maglev depot", umgebung_t::cst_depot_rail, umgebung_t::maint_building*besch->gib_level() );
-		case narrowgauge_wt: return tooltip_with_price_maintenance( "Build narrowgauge depot", umgebung_t::cst_depot_rail, umgebung_t::maint_building*besch->gib_level() );
-		case tram_wt: return tooltip_with_price_maintenance( "Build tram depot", umgebung_t::cst_depot_rail, umgebung_t::maint_building*besch->gib_level() );
-		case water_wt: return tooltip_with_price_maintenance( "Build ship depot", umgebung_t::cst_depot_ship, umgebung_t::maint_building*besch->gib_level() );
-		case air_wt: return tooltip_with_price_maintenance( "Build air depot", umgebung_t::cst_depot_air, umgebung_t::maint_building*besch->gib_level() );
+		case road_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build road depot", umgebung_t::cst_depot_road, umgebung_t::maint_building*besch->gib_level() );
+		case track_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build train depot", umgebung_t::cst_depot_rail, umgebung_t::maint_building*besch->gib_level() );
+		case monorail_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build monorail depot", umgebung_t::cst_depot_rail, umgebung_t::maint_building*besch->gib_level() );
+		case maglev_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build maglev depot", umgebung_t::cst_depot_rail, umgebung_t::maint_building*besch->gib_level() );
+		case narrowgauge_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build narrowgauge depot", umgebung_t::cst_depot_rail, umgebung_t::maint_building*besch->gib_level() );
+		case tram_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build tram depot", umgebung_t::cst_depot_rail, umgebung_t::maint_building*besch->gib_level() );
+		case water_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build ship depot", umgebung_t::cst_depot_ship, umgebung_t::maint_building*besch->gib_level() );
+		case air_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build air depot", umgebung_t::cst_depot_air, umgebung_t::maint_building*besch->gib_level() );
 	}
 	return NULL;
 }
@@ -3006,7 +3007,7 @@ const char *wkz_headquarter_t::get_tooltip( spieler_t *sp )
 {
 	const haus_besch_t* besch = next_level(sp);
 	if(besch) {
-		return tooltip_with_price_maintenance( sp->get_headquarter_level()==0 ? "build HQ" : "upgrade HQ", umgebung_t::cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h(), umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+		return tooltip_with_price_maintenance( sp->get_welt(), sp->get_headquarter_level()==0 ? "build HQ" : "upgrade HQ", umgebung_t::cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h(), umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 	}
 	return NULL;
 }

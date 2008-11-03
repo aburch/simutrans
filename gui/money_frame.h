@@ -92,7 +92,7 @@ private:
 	gui_tab_panel_t year_month_tabs;
 
 	button_t headquarter, goto_headquarter;
-	char headquarter_tooltip[128];
+	char headquarter_tooltip[1024];
 	world_view_t headquarter_view;
 	sint16 old_level;
 

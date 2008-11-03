@@ -253,8 +253,12 @@ money_frame_t::money_frame_t(spieler_t *sp)
 			const haus_besch_t* besch = (*iter);
 			if (besch->gib_extra() <= sp->get_headquarter_level() ) {
 				double cost = umgebung_t::cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h()/-100.0;
-				tstrncpy( headquarter_tooltip, translator::translate(besch->gib_name()), 100 );
-				money_to_string( headquarter_tooltip+strlen(headquarter_tooltip), cost );
+				tstrncpy( headquarter_tooltip, translator::translate(besch->gib_name()), 900 );
+				money_to_string(headquarter_tooltip+strlen(headquarter_tooltip), cost);
+				strcat( headquarter_tooltip, " (" );
+				cost = ((umgebung_t::maint_building*besch->gib_level()*besch->gib_b()*besch->gib_h())<<(sp->get_welt()->ticks_bits_per_tag-18))/100.0;
+				money_to_string(headquarter_tooltip+strlen(headquarter_tooltip), cost );
+				strcat( werkzeug_t::toolstr, ")" );
 			}
 			else {
 				headquarter.enable();
