@@ -42,6 +42,7 @@
 	CHANGE: payment is now only for the decrease in distance to the next transfer stop
 	ADD: instead a numger also a name of a  menu object (with image zero) can be given for an icon in menuconf.tab
 	ADD: (Gerd Wachsmuth) map enlargement during the game
+	ADD: (VS) electric EMU/trolley bus tab added to depot
 
 
 Release of 100.0 (r1867, stable)

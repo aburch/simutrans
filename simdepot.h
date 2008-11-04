@@ -67,23 +67,11 @@ public:
 
 	virtual linehandle_t create_line();
 
-	/**
-	 * Text of the passenger tab (for gui)
-	 * @author Hj. Malthaner
-	 */
-	virtual const char * gib_passenger_name() = 0;
-
-	/**
-	 * Text of the engine tab (for gui)
-	 * @author Hj. Malthaner
-	 */
-	virtual const char * gib_zieher_name() = 0;
-
-	/**
-	 * Text of the car/trailer tab (for gui)
-	 * @author Hj. Malthaner
-	 */
-	virtual const char * gib_haenger_name() = 0;
+	// text for the tabs is defaulted to the train names
+	virtual const char * gib_electrics_name() { return "Electrics_tab"; };
+	virtual const char * gib_passenger_name() { return "Pas_tab"; }
+	virtual const char * gib_zieher_name() { return "Lokomotive_tab"; }
+	virtual const char * gib_haenger_name() { return "Waggon_tab"; }
 
 	/**
 	 * Access to convoi list.
@@ -219,10 +207,6 @@ public:
 class bahndepot_t : public depot_t
 {
 protected:
-	virtual const char * gib_zieher_name() { return "Lokomotive_tab"; }
-	virtual const char * gib_haenger_name() { return "Waggon_tab"; }
-	virtual const char * gib_passenger_name() { return "Pas_tab"; }
-
 	bool can_convoi_start(convoihandle_t cnv) const;
 
 public:
@@ -312,6 +296,7 @@ class strassendepot_t : public depot_t
 {
 protected:
 	virtual const char * gib_passenger_name() { return "Bus_tab"; }
+	virtual const char * gib_electrics_name() { return "TrolleyBus_tab"; }
 	virtual const char * gib_zieher_name() { return "LKW_tab"; }
 	virtual const char * gib_haenger_name() { return "Anhaenger_tab"; }
 
@@ -377,7 +362,6 @@ class airdepot_t : public depot_t
 {
 protected:
 	virtual const char * gib_zieher_name() { return "aircraft_tab"; }
-	virtual const char * gib_haenger_name() { return "Waggon_tab"; }
 	virtual const char * gib_passenger_name() { return "Flug_tab"; }
 
 public:

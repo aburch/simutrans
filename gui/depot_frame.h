@@ -99,16 +99,20 @@ private:
 	gui_image_list_t convoi;
 
 	vector_tpl<gui_image_list_t::image_data_t> pas_vec;
+	vector_tpl<gui_image_list_t::image_data_t> electrics_vec;
 	vector_tpl<gui_image_list_t::image_data_t> loks_vec;
 	vector_tpl<gui_image_list_t::image_data_t> waggons_vec;
 
-	gui_image_list_t    pas;
-	gui_image_list_t    loks;
-	gui_image_list_t    waggons;
+	gui_image_list_t pas;
+	gui_image_list_t electrics;
+	gui_image_list_t loks;
+	gui_image_list_t waggons;
 	gui_scrollpane_t scrolly_pas;
+	gui_scrollpane_t scrolly_electrics;
 	gui_scrollpane_t scrolly_loks;
 	gui_scrollpane_t scrolly_waggons;
 	gui_container_t cont_pas;
+	gui_container_t cont_electrics;
 	gui_container_t cont_loks;
 	gui_container_t cont_waggons;
 

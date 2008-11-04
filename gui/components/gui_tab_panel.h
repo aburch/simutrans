@@ -19,45 +19,45 @@ class bild_besch_t;
 class gui_tab_panel_t : public gui_komponente_action_creator_t
 {
 public:
-    enum { HEADER_VSIZE = 18};
+	enum { HEADER_VSIZE = 18};
 
-    gui_tab_panel_t();
+	gui_tab_panel_t();
 
-    /**
-     * Fügt eine neue Registerkarte hinzu.
-     * @param c die Komponente für die Rgisterkarte
-     * @param name der Name der Registerkarte für die Komponente
-     * @author Hj. Malthaner
-     */
-    void add_tab(gui_komponente_t *c, const char *name, const skin_besch_t *b=NULL, const char *tooltip=NULL );
+	/**
+	 * Fügt eine neue Registerkarte hinzu.
+	 * @param c die Komponente für die Rgisterkarte
+	 * @param name der Name der Registerkarte für die Komponente
+	 * @author Hj. Malthaner
+	 */
+	void add_tab(gui_komponente_t *c, const char *name, const skin_besch_t *b=NULL, const char *tooltip=NULL );
 
-    /**
-     * Gibt die aktuell angezeigte Komponente zurück.
-     * @author Hj. Malthaner
-     */
-    gui_komponente_t* gib_aktives_tab() const { return tabs.at(active_tab).component; }
+	/**
+	 * Gibt die aktuell angezeigte Komponente zurück.
+	 * @author Hj. Malthaner
+	 */
+	gui_komponente_t* gib_aktives_tab() const { return tabs.at(active_tab).component; }
 
-    int get_active_tab_index() { return active_tab; }
+	int get_active_tab_index() { return active_tab; }
 
-    /**
-     * Events werden hiermit an die GUI-Komponenten
-     * gemeldet
-     * @author Hj. Malthaner
-     */
-    void infowin_event(const event_t *ev);
+	/**
+	 * Events werden hiermit an die GUI-Komponenten
+	 * gemeldet
+	 * @author Hj. Malthaner
+	 */
+	void infowin_event(const event_t *ev);
 
-    /**
-     * Zeichnet die Registerkarten
-     * @author Hj. Malthaner
-     */
-    void zeichnen(koord offset);
+	/**
+	 * Zeichnet die Registerkarten
+	 * @author Hj. Malthaner
+	 */
+	void zeichnen(koord offset);
 
-    /**
-     * Resizing must be propagated!
-     * @author Volker Meyer
-     * @date  18.06.2003
-     */
-    void setze_groesse(koord groesse);
+	/**
+	 * Resizing must be propagated!
+	 * @author Volker Meyer
+	 * @date  18.06.2003
+	 */
+	void setze_groesse(koord groesse);
 
 	private:
 		struct tab
