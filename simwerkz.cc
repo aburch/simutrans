@@ -2284,7 +2284,7 @@ const char *wkz_station_t::get_tooltip(spieler_t *sp)
 			case water_wt:
 				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 			case air_wt:
-				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_airterminal*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 			case 0:
 				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_post*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 		}
