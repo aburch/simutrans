@@ -85,6 +85,7 @@
 #include "besch/grund_besch.h"
 #include "besch/sound_besch.h"
 
+#include "player/ai_passenger.h"
 
 
 //#define DEMO
@@ -683,7 +684,7 @@ karte_t::init_felder()
 	reliefkarte_t::gib_karte()->setze_welt(this);
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
-		spieler[i] = new spieler_t(this, i);
+		spieler[i] = i<2 ? new spieler_t(this, i) : new ai_passenger_t(this,i);
 	}
 	active_player = spieler[0];
 	active_player_nr = 0;
@@ -2057,8 +2058,8 @@ karte_t::gib_random_ausflugsziel() const
 
 stadt_t *karte_t::suche_naechste_stadt(const koord pos) const
 {
-    long min_dist = 99999999;
-    stadt_t *best = NULL;
+	long min_dist = 99999999;
+	stadt_t *best = NULL;
 
 	if(ist_in_kartengrenzen(pos)) {
 		for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
@@ -2071,7 +2072,7 @@ stadt_t *karte_t::suche_naechste_stadt(const koord pos) const
 			}
 		}
 	}
-    return best;
+	return best;
 }
 
 
@@ -3208,9 +3209,14 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved stops");
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_array.get_count());
 
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		spieler[i]->rdwr(file);
-		if(silent) {
-			INT_CHECK("saving");
+		if(file->get_version()<101000) {
+			spieler[i]->rdwr(file);
+		}
+		else {
+			// since we can have now different AI, we must identify them
+			uint8 id = spieler[i]->get_ai_id();
+			file->rdwr_byte( id, "" );
+			spieler[i]->rdwr(file);
 		}
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
@@ -3558,11 +3564,25 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 	display_progress(gib_groesse_y()+24+stadt.get_count(), gib_groesse_y()+256+stadt.get_count());
 DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_count());
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		spieler[i]->rdwr(file);
+		if(  file->get_version()>=101000  ) {
+			// since we have different kind of AIs
+			delete spieler[i];
+			uint8 id;
+			file->rdwr_byte( id, "" );
+			switch( id ) {
+				case spieler_t::EMPTY: spieler[i] = NULL; break;
+				case spieler_t::HUMAN: spieler[i] = new spieler_t(this, i); break;
+				case spieler_t::AI_PASSENGER: spieler[i] = new ai_passenger_t(this, i); break;
+				default: dbg->fatal( "karte_t::laden()", "DO not know how to handle AI type %i", id );
+			}
+		}
+		if(  spieler[i]  ) {
+			spieler[i]->rdwr(file);
+		}
 		display_progress(gib_groesse_y()+24+stadt.get_count()+(i*3), gib_groesse_y()+256+stadt.get_count());
 	}
 	for(int i=0; i<MAX_PLAYER_COUNT-2; i++) {
-		umgebung_t::automaten[i] = spieler[i+2]->is_active();
+		umgebung_t::automaten[i] = spieler[i]->is_active();
 	}
 DBG_MESSAGE("karte_t::laden()", "players loaded");
 

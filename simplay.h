@@ -64,7 +64,9 @@ class spieler_t
 public:
 	enum { MAX_KONTO_VERZUG = 3 };
 
-private:
+	enum { EMPTY=0, HUMAN=1, AI_PASSENGER=2, AI_GOODS=3 };
+
+protected:
 	char spieler_name_buf[256];
 
 	/*
@@ -136,12 +138,12 @@ private:
 	 */
 	uint8 player_nr;
 
-    /**
-     * Adds somme amount to the maintenance costs
-     * @param change the change
-     * @return the new maintenance costs
-     * @author Hj. Malthaner
-     */
+	/**
+	 * Adds somme amount to the maintenance costs
+	 * @param change the change
+	 * @return the new maintenance costs
+	 * @author Hj. Malthaner
+	 */
 	sint32 add_maintenance(sint32 change)
 	{
 		maintenance += change;
@@ -158,6 +160,9 @@ public:
 	virtual bool set_active( bool b ) { return automat = b; }
 
 	bool is_active() const { return automat; }
+
+	// this type of AIs identifier
+	virtual uint8 get_ai_id() { return HUMAN; }
 
 	// @author hsiegeln
 	simlinemgmt_t simlinemgmt;
@@ -195,7 +200,7 @@ public:
 	 */
 	spieler_t(karte_t *welt, uint8 player_nr );
 
-	~spieler_t();
+	virtual ~spieler_t();
 
 	static sint32 add_maintenance(spieler_t *sp, sint32 change) {
 		if(sp) {

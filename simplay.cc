@@ -8,14 +8,6 @@
  * @author prissi
  */
 
-// this make KI2 try passenger transport
-#define TRY_PASSENGER
-
-// Costs for AI estimate calculations only (not booked in the game)
-#define CST_STRASSE -10000
-#define CST_MEDIUM_VEHIKEL -250000
-#define CST_FRACHTHOF -150000
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

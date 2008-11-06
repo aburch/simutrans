@@ -1,0 +1,163 @@
+#include "ai.h"
+
+
+class goods_ai_t, public ai_t
+{
+	goods_ai_t();
+
+private:
+	enum zustand {
+		NR_INIT,
+		NR_SAMMLE_ROUTEN,
+		NR_BAUE_ROUTE1,
+		NR_BAUE_SIMPLE_SCHIENEN_ROUTE,
+		NR_BAUE_STRASSEN_ROUTE,
+		NR_BAUE_WATER_ROUTE,
+		NR_BAUE_CLEAN_UP,
+		NR_RAIL_SUCCESS,
+		NR_ROAD_SUCCESS,
+		NR_WATER_SUCCESS,
+		CHECK_CONVOI
+	};
+
+	// vars für die KI
+	enum zustand state;
+
+	/*
+	 * if this is false, this AI won't use roads
+	 * @author prissi
+	 */
+	bool road_transport;
+
+	/*
+	 * if this is false, this AI won't use rails
+	 * @author prissi
+	 */
+	bool rail_transport;
+
+	/*
+	 * if this is false, this AI won't use ships
+	 * @author prissi
+	 */
+	bool ship_transport;
+
+	/* test more than one supplier and more than one good *
+	 * save last factory for building next supplier/consumer *
+	 * @author prissi
+	 */
+	fabrik_t *root;
+
+	// actual route to be built between those
+	fabrik_t *start;
+	fabrik_t *ziel;
+	const ware_besch_t *freight;
+
+	// we will use this vehicle!
+	const vehikel_besch_t *rail_vehicle;
+	const vehikel_besch_t *rail_engine;
+	const vehikel_besch_t *road_vehicle;
+	const vehikel_besch_t *ship_vehicle;
+
+	// and the convoi will run on this track:
+	const weg_besch_t *rail_weg ;
+	const weg_besch_t *road_weg ;
+
+	sint32 count_rail;
+	sint32 count_road;
+
+	// multi-purpose counter
+	sint32 count;
+
+	// time to wait before next contruction
+	sint32 next_contruction_steps;
+
+	/* start and end stop position (and their size) */
+	koord platz1, size1, platz2, size2;
+
+	// KI helper class
+	class fabconnection_t{
+		koord fab1;
+		koord fab2;	// koord1 must be always "smaller" than koord2
+		const ware_besch_t *ware;
+
+	public:
+		fabconnection_t( koord k1, koord k2, const ware_besch_t *w ) : fab1(k1), fab2(k2), ware(w) {}
+
+		bool operator != (const fabconnection_t & k) { return fab1 != k.fab1 || fab2 != k.fab2 || ware != k.ware; }
+		bool operator == (const fabconnection_t & k) { return fab1 == k.fab1 && fab2 == k.fab2 && ware == k.ware; }
+//		const bool operator < (const fabconnection_t & k) { return (abs(fab1.x)+abs(fab1.y)) - (abs(k.fab1.x)+abs(k.fab1.y)) < 0; }
+	};
+
+	slist_tpl<fabconnection_t> forbidden_conections;
+
+	// return true, if this a route to avoid (i.e. we did a consturction without sucess here ...)
+	bool is_forbidden(const koord start_pos, const koord end_pos, const ware_besch_t *w ) const;
+
+	/* recursive lookup of a factory tree:
+	 * sets start and ziel to the next needed supplier
+	 * start always with the first branch, if there are more goods
+	 */
+	bool get_factory_tree_lowest_missing( fabrik_t *fab );
+
+	/* recursive lookup of a tree and how many factories must be at least connected
+	 * returns -1, if this tree is incomplete
+	 */
+	int get_factory_tree_missing_count( fabrik_t *fab );
+
+	bool suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length);
+
+	int baue_bahnhof(const koord* p, int anz_vehikel);
+
+	bool create_simple_rail_transport();
+	bool create_simple_road_transport();    // neue Transportroute anlegen
+
+	// AI headquarter
+	bool built_update_headquarter();
+
+	// create way and stops for these routes
+	bool create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
+	void create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
+	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int ladegrad);
+
+	// man routine for AI
+	void do_ki();
+
+	// all for passenger transport
+	const stadt_t *start_stadt;
+	const stadt_t *end_stadt;	// target is town
+	const gebaeude_t *end_ausflugsziel;
+
+	halthandle_t  get_our_hub( const stadt_t *s ) const;
+
+	koord find_area_for_hub( const koord lo, const koord ru, const koord basis ) const;
+	koord find_place_for_hub( const stadt_t *s ) const;
+
+	/* builds harbours and ferrys
+	 * @author prissi
+	 */
+	bool create_water_transport_vehikel(const stadt_t* start_stadt, const koord target_pos);
+
+	// builds a simple 3x3 three stop airport with town connection road
+	halthandle_t build_airport(const stadt_t* city, koord pos, int rotate);
+
+	/* builts airports and planes
+	 * @author prissi
+	 */
+	bool create_air_transport_vehikel(const stadt_t *start_stadt, const stadt_t *end_stadt);
+
+	// helper function for bus stops intown
+	void walk_city( linehandle_t &line, grund_t *&start, const int limit );
+
+	// tries to cover a city with bus stops that does not overlap much and cover as much as possible
+	void cover_city_with_bus_route(koord start_pos, int number_of_stops);
+
+	void create_bus_transport_vehikel(koord startpos,int anz_vehikel,koord *stops,int anzahl,bool do_wait);
+
+	void do_passenger_ki();
+
+public:
+	void step();
+
+	void neues_jahr();
+};
+
