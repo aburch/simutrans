@@ -713,8 +713,10 @@ haltestelle_t::step()
  */
 void haltestelle_t::neuer_monat()
 {
-	if(enables&CROWDED) {
-		besitzer_p->bescheid_station_voll(self);
+	if(enables&CROWDED  &&  welt->get_active_player()==besitzer_p) {
+		char buf[256];
+		sprintf(buf, translator::translate("!0_STATION_CROWDED"), gib_name());
+		welt->get_message()->add_message(buf, gib_basis_pos(),message_t::full, welt->get_active_player_nr(), IMG_LEER );
 		enables &= (PAX|POST|WARE);
 	}
 

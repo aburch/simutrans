@@ -20,6 +20,7 @@
 #include "../dataobj/umgebung.h"
 
 #include "../simplay.h"
+#include "../simwin.h"
 #include "../utils/simstring.h"
 
 #include "money_frame.h" // for the finances
@@ -82,7 +83,7 @@ ki_kontroll_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		if(komp==(player_get_finances+i)) {
 			// get finances
 			player_get_finances[i].pressed = false;
-			welt->gib_spieler(i)->zeige_info();
+			create_win( new money_frame_t(welt->gib_spieler(i)), w_info, (long)welt->gib_spieler(i) );
 			break;
 		}
 		if(komp==(player_change_to+i)) {

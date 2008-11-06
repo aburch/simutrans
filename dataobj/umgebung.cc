@@ -38,7 +38,7 @@ uint32 umgebung_t::passenger_factor=16;
 
 int  umgebung_t::show_names = 3;
 
-bool umgebung_t::automaten[6] = {0,0,0,0,1,0};
+bool umgebung_t::automaten[MAX_PLAYER_COUNT] = {0,0,0,0,0,0,1,0};
 
 int umgebung_t::message_flags[4] =  { 0x017F, 0x0108, 0x0080, 0 };
 

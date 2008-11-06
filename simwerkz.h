@@ -654,7 +654,7 @@ class wkz_finances_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Finanzen"); }
 	bool is_selected(karte_t *welt) { return win_get_magic((long)welt->get_active_player()); }
 	bool init( karte_t *, spieler_t *sp ) {
-		sp->zeige_info();
+		create_win( new money_frame_t(sp), w_info, (long)sp );
 		return false;
 	}
 };

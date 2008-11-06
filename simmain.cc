@@ -768,7 +768,9 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 		int b[6];
 		fscanf(config, "AIs=%i,%i,%i,%i,%i,%i\n", &b[0], &b[1], &b[2], &b[3], &b[4], &b[5]);
-		for (int i = 0; i < 6; i++) umgebung_t::automaten[i] = b[i];
+		for (int i = 0; i < 6; i++) {
+			umgebung_t::automaten[i+2] = b[i];
+		}
 
 		fscanf(
 			config, "Messages=%d,%d,%d,%d\n",
@@ -1061,12 +1063,19 @@ DBG_MESSAGE("init","map");
 		fprintf(config, "DayNight=%d\n", umgebung_t::night_shift);
 		fprintf(
 			config, "AIs=%d,%d,%d,%d,%d,%d\n",
-			umgebung_t::automaten[0],
-			umgebung_t::automaten[1],
 			umgebung_t::automaten[2],
 			umgebung_t::automaten[3],
 			umgebung_t::automaten[4],
-			umgebung_t::automaten[5]
+			umgebung_t::automaten[5],
+			umgebung_t::automaten[6],
+			umgebung_t::automaten[7]/*,
+			umgebung_t::automaten[8],
+			umgebung_t::automaten[9],
+			umgebung_t::automaten[10],
+			umgebung_t::automaten[11],
+			umgebung_t::automaten[12],
+			umgebung_t::automaten[13],
+			umgebung_t::automaten[14]*/
 		);
 		fprintf(
 			config, "Messages=%d,%d,%d,%d\n",

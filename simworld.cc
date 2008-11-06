@@ -1060,8 +1060,8 @@ DBG_DEBUG("karte_t::init()","distributing movingobjs");
 	recalc_average_speed();
 
 #ifndef DEMO
-	for (int i = 0; i < 6; i++) {
-		spieler[i + 2]->set_active( umgebung_t::automaten[i] );
+	for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
+		spieler[i]->set_active( umgebung_t::automaten[i] );
 	}
 #endif
 
@@ -1179,7 +1179,6 @@ void karte_t::enlarge_map(einstellungen_t* sets)
 			access(k)->abgesenkt(this);
 			grund_t *gr = lookup_kartenboden(k);
 			gr->setze_grund_hang(calc_natural_slope(k));
-			gr->calc_bild();
 		}
 		display_progress(old_progress + ix+1,progress_length);
 	}
@@ -2692,8 +2691,10 @@ karte_t::step()
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.count();
 
 	// then step all players
-	INT_CHECK("simworld 1975");
-	spieler[steps % MAX_PLAYER_COUNT]->step();
+	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+		spieler[i]->step();
+		INT_CHECK("simworld 1975");
+	}
 
 	// ok, next step
 	INT_CHECK("simworld 1975");

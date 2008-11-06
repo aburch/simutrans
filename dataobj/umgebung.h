@@ -9,6 +9,7 @@
 #define dataobj_umgebung_h
 
 #include "../simtypes.h"
+#include "../simconst.h"
 
 class cstring_t;
 
@@ -95,7 +96,7 @@ public:
 	*
 	* @author V. Meyer
 	*/
-	static bool automaten[6];
+	static bool automaten[MAX_PLAYER_COUNT];
 
 	/**
 	* which messages to display where?

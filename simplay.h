@@ -57,11 +57,7 @@ class koord3d;
 class ware_production_t;
 
 /**
- * Spieler in Simutrans. Diese Klasse enthält Routinen für die KI
- * als auch Informatuionen über den Spieler selbst zB die Kennfarbe
- * und den Kontostand.
- *
- * @author Hj. Malthaner
+ * play info for simutrans human and AI are derived from this class
  */
 class spieler_t
 {
@@ -126,8 +122,6 @@ private:
 
 	int last_message_index;
 
-	void init_texte();
-
 	void add_message(koord k, int summe);
 
 	/**
@@ -154,12 +148,16 @@ private:
 		return maintenance;
 	}
 
-public:
 	/**
 	 * Ist dieser Spieler ein automatischer Spieler?
 	 * @author Hj. Malthaner
 	 */
 	bool automat;
+
+public:
+	virtual bool set_active( bool b ) { return automat = b; }
+
+	bool is_active() const { return automat; }
 
 	// @author hsiegeln
 	simlinemgmt_t simlinemgmt;
@@ -199,12 +197,6 @@ public:
 
 	~spieler_t();
 
-	/**
-	 * Methode fuer jaehrliche Aktionen
-	 * @author Hj. Malthaner
-	 */
-	void neues_jahr();
-
 	static sint32 add_maintenance(spieler_t *sp, sint32 change) {
 		if(sp) {
 			sp->maintenance += change;
@@ -219,7 +211,7 @@ public:
 	// do the internal accounting (currently only used externally for running costs of convois)
 	void buche(sint64 betrag, enum player_cost type);
 
-	// this is also save to be called with sp==NULL, we may happen for unowned objects like bridges, ways, trees, ...
+	// this is also save to be called with sp==NULL, which may happen for unowned objects like bridges, ways, trees, ...
 	static void accounting( spieler_t *sp, const sint64 betrag, koord k, enum player_cost pc );
 
 	/**
@@ -244,13 +236,19 @@ public:
 	 * Wird von welt in kurzen abständen aufgerufen
 	 * @author Hj. Malthaner
 	 */
-	void step();
+	virtual void step();
 
 	/**
 	 * Wird von welt nach jedem monat aufgerufen
 	 * @author Hj. Malthaner
 	 */
-	void neuer_monat();
+	virtual void neuer_monat();
+
+	/**
+	 * Methode fuer jaehrliche Aktionen
+	 * @author Hj. Malthaner
+	 */
+	virtual void neues_jahr() {}
 
 	/**
 	 * Erzeugt eine neue Haltestelle des Spielers an Position pos
@@ -269,11 +267,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void halt_remove(halthandle_t halt);
-
-	/* returns true for a halt of the player at that position
-	 * @author prissi
-	 */
-	bool is_my_halt(koord pos) const;
 
 	/**
 	 * Gets haltcount, for naming purposes
@@ -328,25 +321,12 @@ public:
 	void roll_finance_history_year();
 	void roll_finance_history_month();
 
-	/*
-	 * returns pointer to our money frame
-	 * @author prissi
-	 */
-	void zeige_info();
-
-	/**
-	 * Rückruf, um uns zu informieren, dass eine Station voll ist
-	 * @author Hansjörg Malthaner
-	 * @date 25-Nov-2001
-	 */
-	void bescheid_station_voll(halthandle_t halt);
-
 	/**
 	 * Rückruf, um uns zu informieren, dass ein Vehikel ein Problem hat
 	 * @author Hansjörg Malthaner
 	 * @date 26-Nov-2001
 	 */
-	void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
+	virtual void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
 
 private:
 	/* undo informations *
@@ -374,199 +354,10 @@ public:
 	koord get_headquarter_pos(void) const { return headquarter_pos; }
 	short get_headquarter_level(void) const { return headquarter_level; }
 
-	// true if this can do passenger transport ...
-	bool has_passenger() const;
-
-/**************************************** AI-sutff from here ******************************************/
-private:
-	enum zustand {
-		NR_INIT,
-		NR_SAMMLE_ROUTEN,
-		NR_BAUE_ROUTE1,
-		NR_BAUE_SIMPLE_SCHIENEN_ROUTE,
-		NR_BAUE_STRASSEN_ROUTE,
-		NR_BAUE_WATER_ROUTE,
-		NR_BAUE_CLEAN_UP,
-		NR_RAIL_SUCCESS,
-		NR_ROAD_SUCCESS,
-		NR_WATER_SUCCESS,
-		CHECK_CONVOI
-	};
-
-	// vars für die KI
-	enum zustand state;
-
-	/*
-	 * if this is true, this AI will try passenger transport only
-	 * @author prissi
-	 */
-	bool passenger_transport;
-
-	/*
-	 * if this is false, this AI won't use roads
-	 * @author prissi
-	 */
-	bool road_transport;
-
-	/*
-	 * if this is false, this AI won't use rails
-	 * @author prissi
-	 */
-	bool rail_transport;
-
-	/*
-	 * if this is false, this AI won't use ships
-	 * @author prissi
-	 */
-	bool ship_transport;
-
-	/* test more than one supplier and more than one good *
-	 * save last factory for building next supplier/consumer *
-	 * @author prissi
-	 */
-	fabrik_t *root;
-
-	// actual route to be built between those
-	fabrik_t *start;
-	fabrik_t *ziel;
-	const ware_besch_t *freight;
-
-	// we will use this vehicle!
-	const vehikel_besch_t *rail_vehicle;
-	const vehikel_besch_t *rail_engine;
-	const vehikel_besch_t *road_vehicle;
-	const vehikel_besch_t *ship_vehicle;
-
-	// and the convoi will run on this track:
-	const weg_besch_t *rail_weg ;
-	const weg_besch_t *road_weg ;
-
-	sint32 count_rail;
-	sint32 count_road;
-
-	// multi-purpose counter
-	sint32 count;
-
-	// time to wait before next contruction
-	sint32 next_contruction_steps;
-
-	/* start and end stop position (and their size) */
-	koord platz1, size1, platz2, size2;
-
-	// KI helper class
-	class fabconnection_t{
-		koord fab1;
-		koord fab2;	// koord1 must be always "smaller" than koord2
-		const ware_besch_t *ware;
-
-	public:
-		fabconnection_t( koord k1, koord k2, const ware_besch_t *w ) : fab1(k1), fab2(k2), ware(w) {}
-
-		bool operator != (const fabconnection_t & k) { return fab1 != k.fab1 || fab2 != k.fab2 || ware != k.ware; }
-		bool operator == (const fabconnection_t & k) { return fab1 == k.fab1 && fab2 == k.fab2 && ware == k.ware; }
-//		const bool operator < (const fabconnection_t & k) { return (abs(fab1.x)+abs(fab1.y)) - (abs(k.fab1.x)+abs(k.fab1.y)) < 0; }
-	};
-
-	slist_tpl<fabconnection_t> forbidden_conections;
-
-	// return true, if this a route to avoid (i.e. we did a consturction without sucess here ...)
-	bool is_forbidden(const koord start_pos, const koord end_pos, const ware_besch_t *w ) const;
-
-	// return true, if there is already a connection
-	bool is_connected(const koord star_pos, const koord end_pos, const ware_besch_t *wtyp) const;
-
-	/* recursive lookup of a factory tree:
-	 * sets start and ziel to the next needed supplier
-	 * start always with the first branch, if there are more goods
-	 */
-	bool get_factory_tree_lowest_missing( fabrik_t *fab );
-
-	/* recursive lookup of a tree and how many factories must be at least connected
-	 * returns -1, if this tree is incomplete
-	 */
-	int get_factory_tree_missing_count( fabrik_t *fab );
-
-	// prepares a general tool just like a human player work do
-	bool init_general_tool( int tool, const char *param );
-
-	// calls a general tool just like a human player work do
-	bool call_general_tool( int tool, koord k, const char *param );
-
-	/**
-	 * Find the first water tile using line algorithm von Hajo
-	 * start MUST be on land!
-	 **/
-	koord find_shore(koord start, koord end) const;
-	bool find_harbour(koord &start, koord &size, koord target);
-
-	// find space for stations
-	bool suche_platz(koord pos, koord &size, koord *dirs) const;
-	bool suche_platz(koord &start, koord &size, koord target, koord off);
-	bool suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length);
-
-	// removes building markers
-	void clean_marker( koord place, koord size );
-	void set_marker( koord place, koord size );
-
-	int baue_bahnhof(const koord* p, int anz_vehikel);
-
-	// AI headquarter
-	bool built_update_headquarter();
-
-	// create way and stops for these routes
-	bool create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
-	void create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
-	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int ladegrad);
-
-	bool create_simple_road_transport();    // neue Transportroute anlegen
-	bool create_simple_rail_transport();
-
-	// sells all stuff, destorys all stations, transfers ways to public ownership
 	void ai_bankrupt();
-
-	// man routine for AI
-	void do_ki();
-
-	// all for passenger transport
-	const stadt_t *start_stadt;
-	const stadt_t *end_stadt;	// target is town
-	const gebaeude_t *end_ausflugsziel;
-
-	halthandle_t  get_our_hub( const stadt_t *s ) const;
-
-	koord find_area_for_hub( const koord lo, const koord ru, const koord basis ) const;
-	koord find_place_for_hub( const stadt_t *s ) const;
-
-	/* builds harbours and ferrys
-	 * @author prissi
-	 */
-	bool create_water_transport_vehikel(const stadt_t* start_stadt, const koord target_pos);
-
-	// builds a simple 3x3 three stop airport with town connection road
-	halthandle_t build_airport(const stadt_t* city, koord pos, int rotate);
-
-	/* builts airports and planes
-	 * @author prissi
-	 */
-	bool create_air_transport_vehikel(const stadt_t *start_stadt, const stadt_t *end_stadt);
-
-	// helper function for bus stops intown
-	void walk_city( linehandle_t &line, grund_t *&start, const int limit );
-
-	// tries to cover a city with bus stops that does not overlap much and cover as much as possible
-	void cover_city_with_bus_route(koord start_pos, int number_of_stops);
-
-	void create_bus_transport_vehikel(koord startpos,int anz_vehikel,koord *stops,int anzahl,bool do_wait);
-
-	void do_passenger_ki();
-
-public:
-	/**
-	 * activates and queries player status
-	 * @author player
-	 */
-	bool is_active() { return automat; }
-	bool set_active(bool new_state);
 };
 
+
+
+/**************************************** AI-sutff from here ******************************************/
 #endif
