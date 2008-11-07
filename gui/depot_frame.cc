@@ -39,7 +39,7 @@
 #include "../bauer/warenbauer.h"
 
 #include "../boden/wege/weg.h"
-#include "../boden/wege/schiene.h"
+
 
 char depot_frame_t::no_line_text[128];	// contains the current translation of "<no line>"
 
@@ -631,8 +631,8 @@ void depot_frame_t::build_vehicle_lists()
 	vehicle_map.clear();
 
 	// we do not allow to built electric vehicle in a depot without electrification
-	const schiene_t* sch = dynamic_cast<const schiene_t*>(get_welt()->lookup(depot->gib_pos())->gib_weg(track_wt));
-	const bool schiene_electric = (sch==NULL)  ||  sch->is_electrified();
+	const waytype_t wt = depot->get_wegtyp();
+	const bool weg_electrified = get_welt()->lookup(depot->gib_pos())->gib_weg(wt!=tram_wt ? wt : track_wt)->is_electrified();
 
 	// use this to show only sellable vehicles
 	if(!show_all  &&  veh_action==va_sell) {
@@ -658,7 +658,7 @@ void depot_frame_t::build_vehicle_lists()
 
 			// current vehicle
 			if( is_contained(info)  ||
-				((schiene_electric  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
+				((weg_electrified  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
 					 ((!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )  ) )) {
 				// check, if allowed
 				bool append = true;
