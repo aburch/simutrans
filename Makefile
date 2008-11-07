@@ -267,6 +267,7 @@ SOURCES += gui/thing_info.cc
 SOURCES += gui/welt.cc
 SOURCES += gui/werkzeug_waehler.cc
 SOURCES += player/ai.cc
+SOURCES += player/ai_goods.cc
 SOURCES += player/ai_passenger.cc
 SOURCES += player/simplay.cc
 SOURCES += old_blockmanager.cc
