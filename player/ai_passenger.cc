@@ -1395,11 +1395,11 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 		// since steps in loaded game == 0
 		file->rdwr_long(next_contruction_steps, " ");
 		// reinit current pointers
-		koord3d k;
+		koord k;
 		k.rdwr(file);
-		start_stadt = welt->suche_naechste_stadt(k.gib_2d());
+		start_stadt = welt->suche_naechste_stadt(k);
 		k.rdwr(file);
-		end_stadt = welt->suche_naechste_stadt(k.gib_2d());
+		end_stadt = welt->suche_naechste_stadt(k);
 		koord3d k3d;
 		k3d.rdwr(file);
 		end_ausflugsziel = welt->lookup(k3d) ? welt->lookup(k3d)->find<gebaeude_t>() : NULL;
@@ -1407,6 +1407,3 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 		ziel = fabrik_t::gib_fab( welt, k3d.gib_2d() );
 	}
 }
-
-
-

@@ -111,12 +111,6 @@ protected:
 	 */
 	sint32 konto_ueberzogen;
 
-	/**
-	 * Zählt die steps
-	 * @author Hj. Malthaner
-	 */
-	sint32 steps;
-
 	slist_tpl<halthandle_t> halt_list; ///< Liste der Haltestellen
 
 	char  texte[50][32];

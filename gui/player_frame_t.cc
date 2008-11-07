@@ -32,14 +32,13 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 
-	    player_change_to[i].init(button_t::arrowright, " ", koord(16+4,6+i*2*LINESPACE), koord(10,BUTTON_HEIGHT));
-	    player_change_to[i].add_listener(this);
-	    add_komponente(player_change_to+i);
+		player_change_to[i].init(button_t::arrowright_state, " ", koord(16+4,6+i*2*LINESPACE), koord(10,BUTTON_HEIGHT));
+		player_change_to[i].add_listener(this);
+		add_komponente(player_change_to+i);
 
 		if(i>=2) {
-			player_active[i-2].init(button_t::square, " ", koord(4,6+i*2*LINESPACE), koord(10,BUTTON_HEIGHT));
+			player_active[i-2].init(button_t::square_state, " ", koord(4,6+i*2*LINESPACE), koord(10,BUTTON_HEIGHT));
 			player_active[i-2].add_listener(this);
-			player_active[i-2].pressed = umgebung_t::automaten[i-2];
 			add_komponente( player_active+i-2 );
 		}
 
@@ -76,7 +75,7 @@ ki_kontroll_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(i>=2  &&  komp==(player_active+i-2)) {
 			// switch AI on/off
-			umgebung_t::automaten[i-2] = welt->gib_spieler(i)->set_active( !welt->gib_spieler(i)->is_active() );
+			umgebung_t::automaten[i] = welt->gib_spieler(i)->set_active( !welt->gib_spieler(i)->is_active() );
 			break;
 		}
 		if(komp==(player_get_finances+i)) {
@@ -107,8 +106,8 @@ ki_kontroll_t::zeichnen(koord pos, koord gr)
 
 		player_change_to[i].pressed = false;
 
-		if(i<MAX_PLAYER_COUNT-2) {
-			player_active[i].pressed = umgebung_t::automaten[i];
+		if(i>=2) {
+			player_active[i-2].pressed = umgebung_t::automaten[i];
 		}
 
 		double account=welt->gib_spieler(i)->gib_konto_als_double();

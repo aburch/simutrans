@@ -1,10 +1,18 @@
+/*
+ * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ *
+ * This file is part of the Simutrans project under the artistic licence.
+ * (see licence.txt)
+ *
+ * Simple goods transport AI
+ */
+
+
 #include "ai.h"
 
 
-class goods_ai_t, public ai_t
+class ai_goods_t : public ai_t
 {
-	goods_ai_t();
-
 private:
 	enum zustand {
 		NR_INIT,
@@ -59,8 +67,8 @@ private:
 	const vehikel_besch_t *ship_vehicle;
 
 	// and the convoi will run on this track:
-	const weg_besch_t *rail_weg ;
-	const weg_besch_t *road_weg ;
+	const weg_besch_t *rail_weg;
+	const weg_besch_t *road_weg;
 
 	sint32 count_rail;
 	sint32 count_road;
@@ -117,6 +125,18 @@ private:
 	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int ladegrad);
 
 public:
+public:
+	ai_goods_t(karte_t *wl, uint8 nr);
+
+	virtual ~ai_goods_t() {}
+
+	// this type of AIs identifier
+	virtual uint8 get_ai_id() { return AI_GOODS; }
+
+	void rdwr(loadsave_t *file);
+
+	bool set_active( bool b );
+
 	void step();
 
 	void neues_jahr();

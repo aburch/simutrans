@@ -1,3 +1,14 @@
+/*
+ * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ *
+ * This file is part of the Simutrans project under the artistic licence.
+ * (see licence.txt)
+ *
+ * Helper for all AIs
+ */
+
+#ifndef _AI_H
+#define _AI_H
 
 #include "simplay.h"
 #include "../simworld.h"
@@ -60,3 +71,4 @@ public:
 	bool create_simple_road_transport(koord platz1, koord size1, koord platz2, koord size2, const weg_besch_t *road );
 };
 
+#endif

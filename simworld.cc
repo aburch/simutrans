@@ -31,7 +31,6 @@
 #include "simlinemgmt.h"
 #include "simmenu.h"
 #include "simmesg.h"
-#include "player/simplay.h"
 #include "simskin.h"
 #include "simsound.h"
 #include "simsys.h"
@@ -85,7 +84,9 @@
 #include "besch/grund_besch.h"
 #include "besch/sound_besch.h"
 
+#include "player/simplay.h"
 #include "player/ai_passenger.h"
+#include "player/ai_goods.h"
 
 
 //#define DEMO
@@ -134,7 +135,7 @@ karte_t::recalc_snowline()
 void
 karte_t::setze_scroll_multi(int n)
 {
-    einstellungen->setze_scroll_multi(n);
+	einstellungen->setze_scroll_multi(n);
 }
 
 
@@ -684,7 +685,18 @@ karte_t::init_felder()
 	reliefkarte_t::gib_karte()->setze_welt(this);
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
-		spieler[i] = i<2 ? new spieler_t(this, i) : new ai_passenger_t(this,i);
+		// old default: AI 3 passenger, other goods
+		switch(i) {
+			case 0:
+			case 1:
+				spieler[i] = new spieler_t(this,i);
+				break;
+			case 3:
+				spieler[i] = new ai_passenger_t(this,i);
+				break;
+			default:
+				spieler[i] = new ai_goods_t(this,i);
+		}
 	}
 	active_player = spieler[0];
 	active_player_nr = 0;
@@ -1372,12 +1384,12 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 karte_t::~karte_t()
 {
-    destroy();
+	destroy();
 
-    if(einstellungen) {
-        delete einstellungen;
-        einstellungen = NULL;
-    }
+	if(einstellungen) {
+		delete einstellungen;
+		einstellungen = NULL;
+	}
 
 	delete msg;
 }
@@ -3573,6 +3585,7 @@ DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_cou
 				case spieler_t::EMPTY: spieler[i] = NULL; break;
 				case spieler_t::HUMAN: spieler[i] = new spieler_t(this, i); break;
 				case spieler_t::AI_PASSENGER: spieler[i] = new ai_passenger_t(this, i); break;
+				case spieler_t::AI_GOODS: spieler[i] = new ai_goods_t(this, i); break;
 				default: dbg->fatal( "karte_t::laden()", "DO not know how to handle AI type %i", id );
 			}
 		}
@@ -3581,7 +3594,7 @@ DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_cou
 		}
 		display_progress(gib_groesse_y()+24+stadt.get_count()+(i*3), gib_groesse_y()+256+stadt.get_count());
 	}
-	for(int i=0; i<MAX_PLAYER_COUNT-2; i++) {
+	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		umgebung_t::automaten[i] = spieler[i]->is_active();
 	}
 DBG_MESSAGE("karte_t::laden()", "players loaded");
