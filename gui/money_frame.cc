@@ -12,7 +12,6 @@
 #include "../simworld.h"
 #include "../simdebug.h"
 #include "../simintr.h"
-#include "../simplay.h"
 #include "../simgraph.h"
 #include "../simcolor.h"
 #include "../utils/simstring.h"

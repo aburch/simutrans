@@ -13,7 +13,6 @@
 #include "../simfab.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
-#include "../simplay.h"
 #include "../simcity.h"
 #include "../simwin.h"
 #include "../simworld.h"

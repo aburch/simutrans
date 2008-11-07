@@ -1,5 +1,5 @@
 
-#include "../simplay.h"
+#include "simplay.h"
 #include "../simworld.h"
 
 #include "../sucher/bauplatz_sucher.h"

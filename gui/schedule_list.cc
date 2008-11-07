@@ -20,7 +20,6 @@
 #include "../simevent.h"
 #include "../simgraph.h"
 #include "../simskin.h"
-#include "../simplay.h"
 #include "../simconvoi.h"
 #include "../vehicle/simvehikel.h"
 #include "../simwin.h"

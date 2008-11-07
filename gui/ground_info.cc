@@ -8,7 +8,6 @@
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simworld.h"
-#include "../simplay.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 #include "ground_info.h"

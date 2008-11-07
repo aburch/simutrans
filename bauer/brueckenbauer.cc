@@ -17,7 +17,7 @@
 #include "../simwin.h"
 #include "../simhalt.h"
 #include "../besch/sound_besch.h"
-#include "../simplay.h"
+#include "../player/simplay.h"
 #include "../simskin.h"
 #include "../simtypes.h"
 

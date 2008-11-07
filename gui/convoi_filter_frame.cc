@@ -11,7 +11,6 @@
 #include "convoi_frame.h"
 #include "convoi_filter_frame.h"
 #include "../simconvoi.h"
-#include "../simplay.h"
 #include "../simcolor.h"
 
 #include "../besch/ware_besch.h"

@@ -32,7 +32,7 @@
 #include "../../simimg.h"
 #include "../../simhalt.h"
 #include "../../simdings.h"
-#include "../../simplay.h"
+#include "../../player/simplay.h"
 #include "../../dings/roadsign.h"
 #include "../../dings/signal.h"
 #include "../../dings/crossing.h"

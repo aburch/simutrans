@@ -9,7 +9,6 @@
 
 #include "convoi_info_t.h"
 
-#include "../simplay.h"
 #include "../simconvoi.h"
 #include "../simdepot.h"
 #include "../vehicle/simvehikel.h"

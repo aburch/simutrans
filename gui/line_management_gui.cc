@@ -6,7 +6,6 @@
 
 #include "line_management_gui.h"
 #include "../dataobj/translator.h"
-#include "../simplay.h"
 #include "../simline.h"
 #include "../simwin.h"
 #include "../simlinemgmt.h"

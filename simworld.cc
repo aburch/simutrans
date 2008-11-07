@@ -31,7 +31,7 @@
 #include "simlinemgmt.h"
 #include "simmenu.h"
 #include "simmesg.h"
-#include "simplay.h"
+#include "player/simplay.h"
 #include "simskin.h"
 #include "simsound.h"
 #include "simsys.h"

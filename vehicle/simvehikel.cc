@@ -27,7 +27,7 @@
 #include "../simworld.h"
 #include "../simdebug.h"
 
-#include "../simplay.h"
+#include "../player/simplay.h"
 #include "../simware.h"
 #include "../simhalt.h"
 #include "../simsound.h"

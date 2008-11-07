@@ -18,7 +18,7 @@
 #include "../simcity.h"
 #include "../simskin.h"
 #include "../simhalt.h"
-#include "../simplay.h"
+#include "../player/simplay.h"
 
 #include "../boden/grund.h"
 

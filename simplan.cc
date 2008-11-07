@@ -11,7 +11,7 @@
 #include "simplan.h"
 #include "simworld.h"
 #include "simhalt.h"
-#include "simplay.h"
+#include "player/simplay.h"
 #include "simdebug.h"
 #include "simconst.h"
 #include "besch/grund_besch.h"

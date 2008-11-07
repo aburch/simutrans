@@ -1,5 +1,4 @@
 #include "../simevent.h"
-#include "../simplay.h"
 #include "../simcolor.h"
 #include "../simworld.h"
 #include "../vehicle/simvehikel.h"

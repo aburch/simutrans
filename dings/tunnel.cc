@@ -9,7 +9,7 @@
 
 #include "../simworld.h"
 #include "../simdings.h"
-#include "../simplay.h"
+#include "../player/simplay.h"
 #include "../simwerkz.h"
 #include "../boden/grund.h"
 #include "../boden/tunnelboden.h"

@@ -9,7 +9,6 @@
 #include "../simevent.h"
 #include "../simimg.h"
 #include "../simworld.h"
-#include "../simplay.h"
 #include "../besch/skin_besch.h"
 #include "../simskin.h"
 #include "../dataobj/translator.h"

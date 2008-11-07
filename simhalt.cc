@@ -24,7 +24,7 @@
 #include "simintr.h"
 #include "simmem.h"
 #include "simplan.h"
-#include "simplay.h"
+#include "player/simplay.h"
 #include "simwin.h"
 #include "simworld.h"
 

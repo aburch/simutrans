@@ -15,7 +15,6 @@
 #include "../simworld.h"
 #include "../simimg.h"
 #include "../simwin.h"
-#include "../simplay.h"
 #include "../simgraph.h"
 #include "optionen.h"
 #include "colors.h"

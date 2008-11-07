@@ -17,7 +17,6 @@
 #include "../simdebug.h"
 #include "../simgraph.h"
 #include "../simline.h"
-#include "../simplay.h"
 #include "../simlinemgmt.h"
 
 #include "../tpl/slist_tpl.h"

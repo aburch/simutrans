@@ -16,7 +16,6 @@
 #include "../simworld.h"
 #include "../simwin.h"
 #include "../simimg.h"
-#include "../simplay.h"
 #include "../simtools.h"
 
 #include "../dataobj/einstellungen.h"

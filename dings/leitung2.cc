@@ -11,7 +11,7 @@
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "../simdings.h"
-#include "../simplay.h"
+#include "../player/simplay.h"
 #include "../simimg.h"
 #include "../simfab.h"
 #include "../simskin.h"

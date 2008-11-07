@@ -20,7 +20,7 @@
 #include "simcolor.h"
 #include "simgraph.h"
 #include "simwin.h"
-#include "simplay.h"
+#include "player/simplay.h"
 #include "simdings.h"
 #include "simworld.h"
 #include "dings/baum.h"

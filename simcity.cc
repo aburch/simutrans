@@ -18,7 +18,7 @@
 #include "boden/boden.h"
 #include "simworld.h"
 #include "simware.h"
-#include "simplay.h"
+#include "player/simplay.h"
 #include "simplan.h"
 #include "simimg.h"
 #include "vehicle/simverkehr.h"

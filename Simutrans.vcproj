@@ -835,7 +835,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\simplay.cc"
+				RelativePath=".\player\simplay.cc"
 				>
 			</File>
 			<File

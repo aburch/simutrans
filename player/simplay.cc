@@ -12,64 +12,64 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "simcity.h"
-#include "simcolor.h"
-#include "simconvoi.h"
-#include "simdebug.h"
-#include "simfab.h"
-#include "simgraph.h"
-#include "simhalt.h"
-#include "simimg.h"
-#include "simintr.h"
-#include "simmesg.h"
+#include "../simcity.h"
+#include "../simcolor.h"
+#include "../simconvoi.h"
+#include "../simdebug.h"
+#include "../simfab.h"
+#include "../simgraph.h"
+#include "../simhalt.h"
+#include "../simimg.h"
+#include "../simintr.h"
+#include "../simmesg.h"
+#include "../simskin.h"
+#include "../simsound.h"
+#include "../simtools.h"
+#include "../simware.h"
+#include "../simwerkz.h"
+#include "../simwin.h"
+#include "../simworld.h"
+
+#include "../bauer/brueckenbauer.h"
+#include "../bauer/hausbauer.h"
+#include "../bauer/tunnelbauer.h"
+#include "../bauer/vehikelbauer.h"
+#include "../bauer/warenbauer.h"
+#include "../bauer/wegbauer.h"
+
+#include "../besch/grund_besch.h"
+#include "../besch/skin_besch.h"
+#include "../besch/sound_besch.h"
+#include "../besch/weg_besch.h"
+
+#include "../boden/boden.h"
+#include "../boden/grund.h"
+#include "../boden/wege/schiene.h"
+#include "../boden/wege/strasse.h"
+#include "../boden/wege/weg.h"
+
+#include "../dataobj/einstellungen.h"
+#include "../dataobj/scenario.h"
+#include "../dataobj/fahrplan.h"
+#include "../dataobj/loadsave.h"
+#include "../dataobj/translator.h"
+#include "../dataobj/umgebung.h"
+
+#include "../dings/gebaeude.h"
+#include "../dings/wayobj.h"
+#include "../dings/zeiger.h"
+
+#include "../gui/messagebox.h"
+#include "../gui/money_frame.h"
+#include "../gui/schedule_list.h"
+
+#include "../sucher/bauplatz_sucher.h"
+
+#include "../utils/simstring.h"
+
+#include "../vehicle/simvehikel.h"
+
 #include "simplay.h"
-#include "simskin.h"
-#include "simsound.h"
-#include "simtools.h"
-#include "simware.h"
-#include "simwerkz.h"
-#include "simwin.h"
-#include "simworld.h"
-
-#include "bauer/brueckenbauer.h"
-#include "bauer/hausbauer.h"
-#include "bauer/tunnelbauer.h"
-#include "bauer/vehikelbauer.h"
-#include "bauer/warenbauer.h"
-#include "bauer/wegbauer.h"
-
-#include "besch/grund_besch.h"
-#include "besch/skin_besch.h"
-#include "besch/sound_besch.h"
-#include "besch/weg_besch.h"
-
-#include "boden/boden.h"
-#include "boden/grund.h"
-#include "boden/wege/schiene.h"
-#include "boden/wege/strasse.h"
-#include "boden/wege/weg.h"
-
-#include "dataobj/einstellungen.h"
-#include "dataobj/scenario.h"
-#include "dataobj/fahrplan.h"
-#include "dataobj/loadsave.h"
-#include "dataobj/translator.h"
-#include "dataobj/umgebung.h"
-
-#include "dings/gebaeude.h"
-#include "dings/wayobj.h"
-#include "dings/zeiger.h"
-
-#include "gui/messagebox.h"
-#include "gui/money_frame.h"
-#include "gui/schedule_list.h"
-
-#include "sucher/bauplatz_sucher.h"
-
-#include "utils/simstring.h"
-
-#include "vehicle/simvehikel.h"
-
 
 karte_t *spieler_t::welt = NULL;
 

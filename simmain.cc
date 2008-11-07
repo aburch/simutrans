@@ -26,7 +26,7 @@
 #include "boden/wasser.h"
 #include "simcity.h"
 #include "simfab.h"
-#include "simplay.h"
+#include "player/simplay.h"
 #include "simsound.h"
 #include "simintr.h"
 #include "simticker.h"

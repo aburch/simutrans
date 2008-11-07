@@ -18,7 +18,6 @@
 #include "../simfab.h"
 #include "../simwin.h"
 #include "../simcolor.h"
-#include "../simplay.h"
 #include "../besch/skin_besch.h"
 
 #include "../bauer/warenbauer.h"

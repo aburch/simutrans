@@ -14,7 +14,7 @@
 
 #include "../ifc/gui_fenster.h"
 #include "gui_container.h"
-#include "../simplay.h"
+#include "../player/simplay.h"
 #include "../simcolor.h"
 
 

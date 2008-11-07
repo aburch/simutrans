@@ -13,7 +13,7 @@
 #include "simevent.h"
 #include "simworld.h"
 #include "simwin.h"
-#include "simplay.h"
+#include "player/simplay.h"
 #include "simmenu.h"
 #include "simwerkz.h"
 #include "simskin.h"

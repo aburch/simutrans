@@ -17,7 +17,6 @@
 #include "convoi_filter_frame.h"
 
 #include "../simconvoi.h"
-#include "../simplay.h"
 #include "../simwin.h"
 #include "../simworld.h"
 #include "../simdepot.h"

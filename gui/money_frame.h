@@ -8,7 +8,7 @@
 #ifndef money_frame_h
 #define money_frame_h
 
-#include "../simplay.h"
+#include "../player/simplay.h"
 
 #include "gui_frame.h"
 #include "components/action_listener.h"

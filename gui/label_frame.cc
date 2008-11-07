@@ -16,7 +16,6 @@
 #include "../simintr.h"
 
 #include "../simworld.h"
-#include "../simplay.h"
 
 #include "../boden/grund.h"
 #include "../dings/label.h"

@@ -2,7 +2,7 @@
 #include "simtypes.h"
 #include "simline.h"
 #include "simhalt.h"
-#include "simplay.h"
+#include "player/simplay.h"
 #include "vehicle/simvehikel.h"
 #include "simconvoi.h"
 #include "convoihandle_t.h"

@@ -13,7 +13,7 @@
 #include "../boden/wege/strasse.h"
 #include "../boden/wege/schiene.h"
 #include "../boden/grund.h"
-#include "../simplay.h"
+#include "../player/simplay.h"
 #include "../simimg.h"
 #include "../simmem.h"
 #include "../bauer/brueckenbauer.h"

@@ -19,7 +19,6 @@
 #include "../simworld.h"
 #include "../dataobj/umgebung.h"
 
-#include "../simplay.h"
 #include "../simwin.h"
 #include "../utils/simstring.h"
 

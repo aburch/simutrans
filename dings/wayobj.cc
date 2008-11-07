@@ -15,7 +15,7 @@
 #include "../simworld.h"
 #include "../simimg.h"
 #include "../simdings.h"
-#include "../simplay.h"
+#include "../player/simplay.h"
 
 #include "../dataobj/ribi.h"
 #include "../dataobj/translator.h"

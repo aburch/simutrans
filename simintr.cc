@@ -13,7 +13,7 @@
 #include "simsys.h"
 #include "simintr.h"
 #include "simwin.h"
-#include "simplay.h"
+#include "player/simplay.h"
 
 #include "simworld.h"
 #include "simview.h"

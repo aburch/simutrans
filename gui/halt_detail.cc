@@ -6,7 +6,6 @@
  */
 
 #include "../simworld.h"
-#include "../simplay.h"
 #include "../simwin.h"
 #include "../simimg.h"
 #include "../simware.h"

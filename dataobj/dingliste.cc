@@ -31,7 +31,8 @@
 #include "../simtypes.h"
 #include "../simdepot.h"
 #include "../simmem.h"
-#include "../simplay.h"
+
+#include "../player/simplay.h"
 
 #include "../vehicle/simvehikel.h"
 #include "../vehicle/simverkehr.h"

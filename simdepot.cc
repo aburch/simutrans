@@ -16,7 +16,7 @@
 #include "simwin.h"
 #include "simware.h"
 #include "simhalt.h"
-#include "simplay.h"
+#include "player/simplay.h"
 #include "simworld.h"
 #include "simio.h"
 #include "simdepot.h"

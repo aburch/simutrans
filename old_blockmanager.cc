@@ -9,7 +9,7 @@
 
 #include "simdebug.h"
 #include "simworld.h"
-#include "simplay.h"
+#include "player/simplay.h"
 #include "simmesg.h"
 #include "simimg.h"
 #include "dings/signal.h"

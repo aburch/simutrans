@@ -4,7 +4,7 @@
 
 #include "../simimg.h"
 #include "../simworld.h"
-#include "../simplay.h"
+#include "../player/simplay.h"
 #include "../simskin.h"
 
 #include "../bauer/tunnelbauer.h"

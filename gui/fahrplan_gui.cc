@@ -12,7 +12,6 @@
 #include "../simcolor.h"
 #include "../simwin.h"
 #include "../simhalt.h"
-#include "../simplay.h"
 #include "../simskin.h"
 #include "../simworld.h"
 #include "../simwerkz.h"

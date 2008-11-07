@@ -16,7 +16,7 @@
 #include "simconst.h"
 #include "simplan.h"
 #include "simmenu.h"
-#include "simplay.h"
+#include "player/simplay.h"
 #include "besch/grund_besch.h"
 #include "boden/wasser.h"
 #include "dataobj/umgebung.h"
