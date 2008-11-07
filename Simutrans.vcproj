@@ -193,6 +193,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\player\ai_goods.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\player\ai_passenger.cc"
 				>
 			</File>

@@ -13,7 +13,7 @@
 #include "../simdings.h"
 #include "../simimg.h"
 #include "../simskin.h"
-#include "../simplay.h"
+#include "../player/simplay.h"
 
 #include "../besch/grund_besch.h"
 

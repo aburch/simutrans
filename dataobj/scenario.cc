@@ -3,7 +3,7 @@
 #include "../simtypes.h"
 #include "../simdebug.h"
 
-#include "../simplay.h"
+#include "../player/simplay.h"
 #include "../simfab.h"
 #include "../simcity.h"
 #include "../simworld.h"

@@ -12,7 +12,7 @@
 #include "../simworld.h"
 #include "../simdings.h"
 #include "../simimg.h"
-#include "../simplay.h"
+#include "../player/simplay.h"
 #include "../simtools.h"
 #include "../simtypes.h"
 

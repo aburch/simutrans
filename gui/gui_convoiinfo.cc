@@ -13,7 +13,7 @@
 #include "../simconvoi.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
-#include "../simplay.h"
+#include "../player/simplay.h"
 #include "../simevent.h"
 #include "../simlinemgmt.h"
 #include "../simline.h"

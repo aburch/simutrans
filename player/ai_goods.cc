@@ -19,15 +19,11 @@ ai_goods_t::ai_goods_t() : ai_t()
 	ship_vehicle = NULL;
 	road_weg = NULL;
 
-	steps = simrand(16);
-	next_contruction_steps = steps;
+	next_contruction_steps = welt->gib_steps()+simrand(400);
 
 	road_transport = true;
 	rail_transport = true;
 	ship_transport = false;
-	passenger_transport = true;
-	start_stadt = end_stadt = NULL;
-	end_ausflugsziel = NULL;
 }
 
 
@@ -56,7 +52,7 @@ void ai_goods_t::neues_jahr()
 /* Activates/deactivates a player
  * @author prissi
  */
-bool spieler_t::set_active(bool new_state)
+bool ai_goods_tset_active(bool new_state)
 {
 	// something to change?
 	if(automat!=new_state) {
@@ -64,8 +60,7 @@ bool spieler_t::set_active(bool new_state)
 		if(!new_state) {
 			// deactivate AI
 			automat = false;
-		    state = NR_INIT;
-			start_stadt = end_stadt = NULL;
+			state = NR_INIT;
 			start = ziel = NULL;
 		}
 		else {
@@ -82,7 +77,7 @@ bool spieler_t::set_active(bool new_state)
  * if there is already a connection
  * @author prissi
  */
-bool spieler_t::is_forbidden( const koord start_pos, const koord dest_pos, const ware_besch_t *wtyp ) const
+bool ai_goods_tis_forbidden( const koord start_pos, const koord dest_pos, const ware_besch_t *wtyp ) const
 {
 	fabconnection_t f( start_pos, dest_pos, wtyp );
 	return forbidden_conections.contains( f );
@@ -94,7 +89,7 @@ bool spieler_t::is_forbidden( const koord start_pos, const koord dest_pos, const
  * sets start and ziel to the next needed supplier
  * start always with the first branch, if there are more goods
  */
-bool spieler_t::get_factory_tree_lowest_missing( fabrik_t *fab )
+bool ai_goods_tget_factory_tree_lowest_missing( fabrik_t *fab )
 {
 	// now check for all products (should be changed later for the root)
 	for( int i=0;  i<fab->gib_besch()->gib_lieferanten();  i++  ) {
@@ -148,7 +143,7 @@ bool spieler_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 /* recursive lookup of a tree and how many factories must be at least connected
  * returns -1, if this tree is incomplete
  */
-int spieler_t::get_factory_tree_missing_count( fabrik_t *fab )
+int ai_goods_tget_factory_tree_missing_count( fabrik_t *fab )
 {
 	int numbers=0;	// how many missing?
 
@@ -245,7 +240,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 /* builts dock and ships
  * @author prissi
  */
-bool spieler_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
+bool ai_goods_tcreate_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 {
 	// pak64 has barges ...
 	const vehikel_besch_t *v_second = NULL;
@@ -262,7 +257,7 @@ bool spieler_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 			ship_vehicle = v_second->gib_vorgaenger(0);
 		}
 	}
-	DBG_MESSAGE( "spieler_t::create_ship_transport_vehikel()", "for %i ships", anz_vehikel );
+	DBG_MESSAGE( "ai_goods_tcreate_ship_transport_vehikel()", "for %i ships", anz_vehikel );
 
 	// must remove marker
 	grund_t* gr = welt->lookup_kartenboden(platz1);
@@ -334,7 +329,7 @@ bool spieler_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 /* changed to use vehicles searched before
  * @author prissi
  */
-void spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
+void ai_goods_tcreate_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 {
 	const haus_besch_t* fh = hausbauer_t::gib_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	// succeed in frachthof creation
@@ -384,7 +379,7 @@ void spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 /* now obeys timeline and use "more clever" scheme for vehicle selection *
  * @author prissi
  */
-void spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2, int anz_vehikel, int ladegrad)
+void ai_goods_tcreate_rail_transport_vehikel(const koord platz1, const koord platz2, int anz_vehikel, int ladegrad)
 {
 	fahrplan_t *fpl;
 	convoi_t* cnv = new convoi_t(this);
@@ -408,7 +403,7 @@ void spieler_t::create_rail_transport_vehikel(const koord platz1, const koord pl
 	cnv->setze_name(rail_engine->gib_name());
 	cnv->add_vehikel( v );
 
-	DBG_MESSAGE( "spieler_t::create_rail_transport_vehikel","for %i cars",anz_vehikel);
+	DBG_MESSAGE( "ai_goods_tcreate_rail_transport_vehikel","for %i cars",anz_vehikel);
 
 	/* now we add cars:
 	 * check here also for introduction years
@@ -432,7 +427,7 @@ void spieler_t::create_rail_transport_vehikel(const koord platz1, const koord pl
 
 
 
-bool spieler_t::create_simple_road_transport()
+bool ai_goods_tcreate_simple_road_transport()
 {
 	// remove pointer
 	clean_marker(platz1,size1);
@@ -451,7 +446,7 @@ bool spieler_t::create_simple_road_transport()
 		route_t verbindung;
 		if (verbindung.calc_route(welt, welt->lookup(platz1)->gib_kartenboden()->gib_pos(), welt->lookup(platz2)->gib_kartenboden()->gib_pos(), test_driver, 0) &&
 			verbindung.gib_max_n()<2u*abs_distance(platz1,platz2))  {
-DBG_MESSAGE("spieler_t::create_simple_road_transport()","Already connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.gib_max_n() );
+DBG_MESSAGE("ai_goods_tcreate_simple_road_transport()","Already connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.gib_max_n() );
 			// found something with the nearly same lenght
 			delete test_driver;
 			return true;
@@ -475,12 +470,12 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","Already connection betw
 
 	bauigel.calc_route(welt->lookup(platz1)->gib_kartenboden()->gib_pos(),welt->lookup(platz2)->gib_kartenboden()->gib_pos());
 	if(bauigel.max_n > 1) {
-DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
+DBG_MESSAGE("ai_goods_tcreate_simple_road_transport()","building simple road from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		bauigel.baue();
 		return true;
 	}
 	// beware: The stop position might have changes!
-DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d failed",platz1.x, platz1.y, platz2.x, platz2.y);
+DBG_MESSAGE("ai_goods_tcreate_simple_road_transport()","building simple road from %d,%d to %d,%d failed",platz1.x, platz1.y, platz2.x, platz2.y);
 	return false;
 }
 
@@ -490,7 +485,7 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road fr
  * Can fail even though check has been done before
  * @author prissi
  */
-int spieler_t::baue_bahnhof(const koord* p, int anz_vehikel)
+int ai_goods_tbaue_bahnhof(const koord* p, int anz_vehikel)
 {
 	int laenge = max(((rail_vehicle->get_length()*anz_vehikel)+rail_engine->get_length()+TILE_STEPS-1)/TILE_STEPS,1);
 
@@ -541,7 +536,7 @@ int spieler_t::baue_bahnhof(const koord* p, int anz_vehikel)
 	}
 
 	laenge = min( anz_vehikel, (baulaenge*TILE_STEPS - rail_engine->get_length())/rail_vehicle->get_length() );
-//DBG_MESSAGE("spieler_t::baue_bahnhof","Final station at (%i,%i) with %i tiles for %i cars",p->x,p->y,baulaenge,laenge);
+//DBG_MESSAGE("ai_goods_tbaue_bahnhof","Final station at (%i,%i) with %i tiles for %i cars",p->x,p->y,baulaenge,laenge);
 	return laenge;
 }
 
@@ -551,7 +546,7 @@ int spieler_t::baue_bahnhof(const koord* p, int anz_vehikel)
  * usually good enough, since it can use road crossings
  * @author prissi
  */
-bool spieler_t::create_simple_rail_transport()
+bool ai_goods_tcreate_simple_rail_transport()
 {
 	clean_marker(platz1,size1);
 	clean_marker(platz2,size2);
@@ -631,7 +626,7 @@ bool spieler_t::create_simple_rail_transport()
 		}
 #endif
 
-DBG_MESSAGE("spieler_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
+DBG_MESSAGE("ai_goods_tcreate_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		bauigel.baue();
 		// connect to track
 		ribi1 = ribi_typ(diff1);
@@ -665,7 +660,7 @@ DBG_MESSAGE("spieler_t::create_simple_rail_transport()","building simple track f
 
 
 // the normal length procedure for freigth AI
-void spieler_t::do_ki()
+void ai_goods_tdo_ki()
 {
 	if(passenger_transport) {
 		if (!welt->gib_staedte().empty()) {
@@ -722,7 +717,7 @@ void spieler_t::do_ki()
 		case NR_SAMMLE_ROUTEN:
 			if(get_factory_tree_lowest_missing(root)) {
 				if(  start->gib_besch()->gib_platzierung()!=fabrik_besch_t::Wasser  ||  vehikelbauer_t::vehikel_search( water_wt, welt->get_timeline_year_month(), 0, 10, freight, false, false )!=NULL  ) {
-					DBG_MESSAGE("spieler_t::do_ki", "Consider route from %s (%i,%i) to %s (%i,%i)", start->gib_name(), start->gib_pos().x, start->gib_pos().y, ziel->gib_name(), ziel->gib_pos().x, ziel->gib_pos().y );
+					DBG_MESSAGE("ai_goods_tdo_ki", "Consider route from %s (%i,%i) to %s (%i,%i)", start->gib_name(), start->gib_pos().x, start->gib_pos().y, ziel->gib_name(), ziel->gib_pos().x, ziel->gib_pos().y );
 					state = NR_BAUE_ROUTE1;
 				}
 				else {
@@ -827,12 +822,12 @@ DBG_MESSAGE("do_ki()","check railway");
 					  	count_rail = rail_engine->gib_leistung()*rail_engine->get_gear()/(80*64);
 					  }
 					count_rail = ((count_rail+1)&0x0FE)+1;
-DBG_MESSAGE("spieler_t::do_ki()","Engine %s guess to need %d rail cars %s for route (%s)", rail_engine->gib_name(), count_rail, rail_vehicle->gib_name(), rail_weg->gib_name() );
+DBG_MESSAGE("ai_goods_tdo_ki()","Engine %s guess to need %d rail cars %s for route (%s)", rail_engine->gib_name(), count_rail, rail_vehicle->gib_name(), rail_weg->gib_name() );
 					}
 				}
 				if(  rail_engine==NULL  ||  rail_weg==NULL  ) {
 					// no rail transport possible
-DBG_MESSAGE("spieler_t::do_ki()","No railway possible.");
+DBG_MESSAGE("ai_goods_tdo_ki()","No railway possible.");
 					rail_vehicle = NULL;
 					count_rail = 255;
 				}
@@ -853,11 +848,11 @@ DBG_MESSAGE("do_ki()","check railway");
 					}
 					// minimum vehicle is 1, maximum vehicle is 48, more just result in congestion
 					count_road = min( 254, (prod*dist) / (road_vehicle->gib_zuladung()*best_road_speed*2)+2 );
-DBG_MESSAGE("spieler_t::do_ki()","guess to need %d road cars %s for route %s", count_road, road_vehicle->gib_name(), road_weg->gib_name() );
+DBG_MESSAGE("ai_goods_tdo_ki()","guess to need %d road cars %s for route %s", count_road, road_vehicle->gib_name(), road_weg->gib_name() );
 				}
 				else {
 					// no roads there !?!
-DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
+DBG_MESSAGE("ai_goods_tdo_ki()","No roadway possible.");
 				}
 			}
 
@@ -874,7 +869,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 				count_rail = max( 3, count_rail );
 				income_rail = (freight_price*best_rail_speed)/(2*dist+count_rail);
 				cost_rail = rail_weg->gib_wartung() + (((count_rail+1)/2)*300)/dist + ((count_rail*rail_vehicle->gib_betriebskosten()+rail_engine->gib_betriebskosten())*best_rail_speed)/(2*dist+count_rail);
-				DBG_MESSAGE("spieler_t::do_ki()","Netto credits per day for rail transport %.2f (income %.2f)",cost_rail/100.0, income_rail/100.0 );
+				DBG_MESSAGE("ai_goods_tdo_ki()","Netto credits per day for rail transport %.2f (income %.2f)",cost_rail/100.0, income_rail/100.0 );
 				cost_rail -= income_rail;
 			}
 
@@ -886,7 +881,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 				int freight_price = (freight->gib_preis()*road_vehicle->gib_zuladung()*count_road)/24*((8000+(best_road_speed-80)*freight->gib_speed_bonus())/1000);
 				cost_road = road_weg->gib_wartung() + 300/dist + (count_road*road_vehicle->gib_betriebskosten()*best_road_speed)/(2*dist+5);
 				income_road = (freight_price*best_road_speed)/(2*dist+5);
-				DBG_MESSAGE("spieler_t::do_ki()","Netto credits per day and km for road transport %.2f (income %.2f)",cost_road/100.0, income_road/100.0 );
+				DBG_MESSAGE("ai_goods_tdo_ki()","Netto credits per day and km for road transport %.2f (income %.2f)",cost_road/100.0, income_road/100.0 );
 				cost_road -= income_road;
 			}
 
@@ -986,7 +981,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 					state = NR_RAIL_SUCCESS;
 				}
 				else {
-DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i and %i,%i and try road",platz1.x,platz1.y,platz2.x,platz2.y);
+DBG_MESSAGE("ai_goods_tstep()","remove already constructed rail between %i,%i and %i,%i and try road",platz1.x,platz1.y,platz2.x,platz2.y);
 					// no sucess: clean route
 					char param[16];
 					sprintf( param, "%i", track_wt );
@@ -1121,7 +1116,7 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 				if(delete_this) {
 					waytype_t wt = cnv->gib_vehikel(0)->gib_besch()->get_waytype();
 					linehandle_t line = cnv->get_line();
-					DBG_MESSAGE("spieler_t::do_ki()","%s retires convoi %s!", gib_name(), cnv->gib_name());
+					DBG_MESSAGE("ai_goods_tdo_ki()","%s retires convoi %s!", gib_name(), cnv->gib_name());
 
 					koord3d start_pos, end_pos;
 					fahrplan_t *fpl = cnv->gib_fahrplan();
@@ -1199,7 +1194,7 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 		break;
 
 		default:
-			DBG_MESSAGE("spieler_t::do_ki()",	"Illegal state!", state );
+			DBG_MESSAGE("ai_goods_tdo_ki()",	"Illegal state!", state );
 			state = NR_INIT;
 	}
 }
@@ -1212,13 +1207,13 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 /* return the hub of a city (always the very first stop) or zero
  * @author prissi
  */
-halthandle_t spieler_t::get_our_hub( const stadt_t *s ) const
+halthandle_t ai_goods_tget_our_hub( const stadt_t *s ) const
 {
 	slist_iterator_tpl <halthandle_t> iter( halt_list );
 	while(iter.next()) {
 		koord h=iter.get_current()->gib_basis_pos();
 		if(h.x>=s->get_linksoben().x  &&  h.y>=s->get_linksoben().y  &&  h.x<=s->get_rechtsunten().x  &&  h.y<=s->get_rechtsunten().y) {
-DBG_MESSAGE("spieler_t::get_our_hub()","found %s at (%i,%i)",s->gib_name(),h.x,h.y);
+DBG_MESSAGE("ai_goods_tget_our_hub()","found %s at (%i,%i)",s->gib_name(),h.x,h.y);
 			return iter.get_current();
 		}
 	}
@@ -1227,7 +1222,7 @@ DBG_MESSAGE("spieler_t::get_our_hub()","found %s at (%i,%i)",s->gib_name(),h.x,h
 
 
 
-koord spieler_t::find_area_for_hub( const koord lo, const koord ru, const koord basis ) const
+koord ai_goods_tfind_area_for_hub( const koord lo, const koord ru, const koord basis ) const
 {
 	// no found found
 	koord best_pos = koord::invalid;
@@ -1264,7 +1259,7 @@ koord spieler_t::find_area_for_hub( const koord lo, const koord ru, const koord 
 			}
 		}
 	}
-DBG_MESSAGE("spieler_t::find_area_for_hub()","suggest hub at (%i,%i)",best_pos.x,best_pos.y);
+DBG_MESSAGE("ai_goods_tfind_area_for_hub()","suggest hub at (%i,%i)",best_pos.x,best_pos.y);
 	return best_pos;
 }
 
@@ -1272,7 +1267,7 @@ DBG_MESSAGE("spieler_t::find_area_for_hub()","suggest hub at (%i,%i)",best_pos.x
 /* tries to built a hub near the koordinate
  * @author prissi
  */
-koord spieler_t::find_place_for_hub( const stadt_t *s ) const
+koord ai_goods_tfind_place_for_hub( const stadt_t *s ) const
 {
 	halthandle_t h = get_our_hub( s );
 	if(h.is_bound()) {
@@ -1318,7 +1313,7 @@ static koord find_harbour_pos(karte_t* welt, const stadt_t *s )
 
 
 
-bool spieler_t::create_water_transport_vehikel(const stadt_t* start_stadt, const koord target_pos)
+bool ai_goods_tcreate_water_transport_vehikel(const stadt_t* start_stadt, const koord target_pos)
 {
 	const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search(water_wt, welt->get_timeline_year_month(), 10, 40, warenbauer_t::passagiere, false, true );
 	if(v_besch==NULL  ) {
@@ -1577,7 +1572,7 @@ bool spieler_t::create_water_transport_vehikel(const stadt_t* start_stadt, const
 
 
 
-halthandle_t spieler_t::build_airport(const stadt_t* city, koord pos, int rotation)
+halthandle_t ai_goods_tbuild_airport(const stadt_t* city, koord pos, int rotation)
 {
 	// not too close to border?
 	if(pos.x<6  ||  pos.y<6  ||  pos.x+3+6>=welt->gib_groesse_x()  ||  pos.y+3+6>=welt->gib_groesse_y()  ) {
@@ -1753,7 +1748,7 @@ static koord find_airport_pos(karte_t* welt, const stadt_t *s )
 /* builts airports and planes
  * @author prissi
  */
-bool spieler_t::create_air_transport_vehikel(const stadt_t *start_stadt, const stadt_t *end_stadt)
+bool ai_goods_tcreate_air_transport_vehikel(const stadt_t *start_stadt, const stadt_t *end_stadt)
 {
 	const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search(air_wt, welt->get_timeline_year_month(), 10, 900, warenbauer_t::passagiere, false, true );
 	if(v_besch==NULL) {
@@ -1904,9 +1899,9 @@ bool spieler_t::create_air_transport_vehikel(const stadt_t *start_stadt, const s
 /* creates a more general road transport
  * @author prissi
  */
-void spieler_t::create_bus_transport_vehikel(koord startpos2d,int anz_vehikel,koord *stops,int anzahl,bool do_wait)
+void ai_goods_tcreate_bus_transport_vehikel(koord startpos2d,int anz_vehikel,koord *stops,int anzahl,bool do_wait)
 {
-DBG_MESSAGE("spieler_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpos2d.x,startpos2d.y);
+DBG_MESSAGE("ai_goods_tcreate_bus_transport_vehikel()","bus at (%i,%i)",startpos2d.x,startpos2d.y);
 	// now start all vehicle one field before, so they load immediately
 	koord3d startpos = welt->lookup(startpos2d)->gib_kartenboden()->gib_pos();
 
@@ -1938,7 +1933,7 @@ DBG_MESSAGE("spieler_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpo
 // now we follow all adjacent streets recursively and mark them
 // if they below to this stop, then we continue
 void
-spieler_t::walk_city( linehandle_t &line, grund_t *&start, const int limit )
+ai_goods_twalk_city( linehandle_t &line, grund_t *&start, const int limit )
 {
 	//maximum number of stops reached?
 	if(line->get_fahrplan()->maxi()>=limit)  {
@@ -2015,7 +2010,7 @@ spieler_t::walk_city( linehandle_t &line, grund_t *&start, const int limit )
 /* tries to cover a city with bus stops that does not overlap much and cover as much as possible
  * returns the line created, if sucessful
  */
-void spieler_t::cover_city_with_bus_route(koord start_pos, int number_of_stops)
+void ai_goods_tcover_city_with_bus_route(koord start_pos, int number_of_stops)
 {
 	// nothing in lists
 	welt->unmarkiere_alle();
@@ -2048,7 +2043,7 @@ void spieler_t::cover_city_with_bus_route(koord start_pos, int number_of_stops)
 
 
 // BUS AI
-void spieler_t::do_passenger_ki()
+void ai_goods_tdo_passenger_ki()
 {
 	// one route per month ...
 	if(  steps < next_contruction_steps  ) {
@@ -2088,21 +2083,21 @@ void spieler_t::do_passenger_ki()
 				start_stadt = staedte.at_weight( simrand(staedte.get_sum_weight()) );
 				offset = staedte.index_of(start_stadt);
 			}
-DBG_MESSAGE("spieler_t::do_passenger_ki()","using city %s for start",start_stadt->gib_name());
+DBG_MESSAGE("ai_goods_tdo_passenger_ki()","using city %s for start",start_stadt->gib_name());
 			const halthandle_t start_halt = get_our_hub(start_stadt);
 			// find starting place
 
 if(!start_halt.is_bound()) {
-	DBG_MESSAGE("spieler_t::do_passenger_ki()","new_hub");
+	DBG_MESSAGE("ai_goods_tdo_passenger_ki()","new_hub");
 }
 			platz1 = start_halt.is_bound() ? start_halt->gib_basis_pos() : find_place_for_hub( start_stadt );
 			if(platz1==koord::invalid) {
 				return;
 			}
-DBG_MESSAGE("spieler_t::do_passenger_ki()","using place (%i,%i) for start",platz1.x,platz1.y);
+DBG_MESSAGE("ai_goods_tdo_passenger_ki()","using place (%i,%i) for start",platz1.x,platz1.y);
 
 			if(anzahl==1  ||  simrand(3)==0) {
-DBG_MESSAGE("spieler_t::do_passenger_ki()","searching attraction");
+DBG_MESSAGE("ai_goods_tdo_passenger_ki()","searching attraction");
 				// 25 % of all connections are tourist attractions
 				const weighted_vector_tpl<gebaeude_t*> &ausflugsziele = welt->gib_ausflugsziele();
 				// this way, we are sure, our factory is connected to this town ...
@@ -2162,11 +2157,11 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","searching attraction");
 				if(platz2!=koord::invalid) {
 					// found something
 					state = NR_SAMMLE_ROUTEN;
-DBG_MESSAGE("spieler_t::do_passenger_ki()","decision: %s wants to built network between %s and %s",gib_name(),start_stadt->gib_name(),ausflug?end_ausflugsziel->gib_tile()->gib_besch()->gib_name():ziel->gib_name());
+DBG_MESSAGE("ai_goods_tdo_passenger_ki()","decision: %s wants to built network between %s and %s",gib_name(),start_stadt->gib_name(),ausflug?end_ausflugsziel->gib_tile()->gib_besch()->gib_name():ziel->gib_name());
 				}
 			}
 			else {
-DBG_MESSAGE("spieler_t::do_passenger_ki()","searching town");
+DBG_MESSAGE("ai_goods_tdo_passenger_ki()","searching town");
 				count = 1;
 				int last_dist = 9999999;
 				// find a good route
@@ -2190,7 +2185,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","searching town");
 				// ok, found two cities
 				if(start_stadt!=NULL  &&  end_stadt!=NULL) {
 					state = NR_SAMMLE_ROUTEN;
-DBG_MESSAGE("spieler_t::do_passenger_ki()","%s wants to built network between %s and %s",gib_name(),start_stadt->gib_name(),end_stadt->gib_name());
+DBG_MESSAGE("ai_goods_tdo_passenger_ki()","%s wants to built network between %s and %s",gib_name(),start_stadt->gib_name(),end_stadt->gib_name());
 				}
 			}
 		}
@@ -2201,10 +2196,10 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","%s wants to built network between %s
 		{
 			//
 			koord end_hub_pos = koord::invalid;
-DBG_MESSAGE("spieler_t::do_passenger_ki()","Find hub");
+DBG_MESSAGE("ai_goods_tdo_passenger_ki()","Find hub");
 			// also for target (if not tourist attraction!)
 			if(end_stadt!=NULL) {
-DBG_MESSAGE("spieler_t::do_passenger_ki()","try to built connect to city %p", end_stadt );
+DBG_MESSAGE("ai_goods_tdo_passenger_ki()","try to built connect to city %p", end_stadt );
 				// target is town
 				halthandle_t h = get_our_hub(end_stadt);
 				if(h.is_bound()) {
@@ -2222,12 +2217,12 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","try to built connect to city %p", en
 			if(end_hub_pos!=koord::invalid) {
 				// ok, now we check the vehicle
 				platz2 = end_hub_pos;
-DBG_MESSAGE("spieler_t::do_passenger_ki()","hub found -> NR_BAUE_ROUTE1");
+DBG_MESSAGE("ai_goods_tdo_passenger_ki()","hub found -> NR_BAUE_ROUTE1");
 				state = NR_BAUE_ROUTE1;
 			}
 			else {
 				// no success
-DBG_MESSAGE("spieler_t::do_passenger_ki()","no suitable hub found");
+DBG_MESSAGE("ai_goods_tdo_passenger_ki()","no suitable hub found");
 				end_stadt = NULL;
 				state = CHECK_CONVOI;
 			}
@@ -2246,7 +2241,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","no suitable hub found");
 				// find the really cheapest road
 				road_weg = wegbauer_t::weg_search( road_wt, 10, welt->get_timeline_year_month(), weg_t::type_flat );
 				state = NR_BAUE_STRASSEN_ROUTE;
-DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_name(),road_weg->gib_name());
+DBG_MESSAGE("ai_goods_tdo_passenger_ki()","using %s on %s",road_vehicle->gib_name(),road_weg->gib_name());
 			}
 			else {
 				// no success
@@ -2469,7 +2464,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 		break;
 
 		default:
-			DBG_MESSAGE("spieler_t::do_passenger_ki()",	"Illegal state %d!", state );
+			DBG_MESSAGE("ai_goods_tdo_passenger_ki()",	"Illegal state %d!", state );
 			end_stadt = NULL;
 			state = NR_INIT;
 	}

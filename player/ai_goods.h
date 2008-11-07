@@ -111,49 +111,10 @@ private:
 	bool create_simple_rail_transport();
 	bool create_simple_road_transport();    // neue Transportroute anlegen
 
-	// AI headquarter
-	bool built_update_headquarter();
-
 	// create way and stops for these routes
 	bool create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
 	void create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
 	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int ladegrad);
-
-	// man routine for AI
-	void do_ki();
-
-	// all for passenger transport
-	const stadt_t *start_stadt;
-	const stadt_t *end_stadt;	// target is town
-	const gebaeude_t *end_ausflugsziel;
-
-	halthandle_t  get_our_hub( const stadt_t *s ) const;
-
-	koord find_area_for_hub( const koord lo, const koord ru, const koord basis ) const;
-	koord find_place_for_hub( const stadt_t *s ) const;
-
-	/* builds harbours and ferrys
-	 * @author prissi
-	 */
-	bool create_water_transport_vehikel(const stadt_t* start_stadt, const koord target_pos);
-
-	// builds a simple 3x3 three stop airport with town connection road
-	halthandle_t build_airport(const stadt_t* city, koord pos, int rotate);
-
-	/* builts airports and planes
-	 * @author prissi
-	 */
-	bool create_air_transport_vehikel(const stadt_t *start_stadt, const stadt_t *end_stadt);
-
-	// helper function for bus stops intown
-	void walk_city( linehandle_t &line, grund_t *&start, const int limit );
-
-	// tries to cover a city with bus stops that does not overlap much and cover as much as possible
-	void cover_city_with_bus_route(koord start_pos, int number_of_stops);
-
-	void create_bus_transport_vehikel(koord startpos,int anz_vehikel,koord *stops,int anzahl,bool do_wait);
-
-	void do_passenger_ki();
 
 public:
 	void step();

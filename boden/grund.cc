@@ -1002,7 +1002,7 @@ DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
 bool grund_t::get_neighbour(grund_t *&to, waytype_t type, koord dir) const
 {
 	// must be a single direction
-	if(  abs(dir.x)^abs(dir.y)!=1  ) {
+	if(  (abs(dir.x)^abs(dir.y))!=1  ) {
 		// shorter for:
 		// if(dir != koord::nord  &&  dir != koord::sued  &&  dir != koord::ost  &&  dir != koord::west) {
 		return false;

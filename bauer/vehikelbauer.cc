@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "../simgraph.h"
 #include "../vehicle/simvehikel.h"
-#include "../simplay.h"
+#include "../player/simplay.h"
 #include "../simworld.h"  // for year/month
 #include "../simdebug.h"
 #include "../simtools.h"  // for simrand
