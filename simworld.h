@@ -250,7 +250,7 @@ private:
 	 * cleanup_karte() beseitigt etwaige Fehler.
 	 * @author Hj. Malthaner
 	 */
-	void cleanup_karte();
+	void cleanup_karte( int xoff, int yoff );
 
 	/**
 	 * entfernt alle objecte, loescht alle datenstrukturen
@@ -869,7 +869,7 @@ public:
 	 * Never set grid_hgts manually, always use this method!
 	 * @author Hj. Malthaner
 	 */
-	void setze_grid_hgt(koord k, sint16 hgt);
+	void setze_grid_hgt(koord k, sint16 hgt) { grid_hgts[k.x + k.y*(uint32)(cached_groesse_gitter_x+1)] = (hgt/Z_TILE_STEP); }
 
 	/**
 	 * @return Minimale Hoehe des Planquadrates i,j

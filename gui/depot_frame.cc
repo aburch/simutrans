@@ -631,7 +631,8 @@ void depot_frame_t::build_vehicle_lists()
 
 	// we do not allow to built electric vehicle in a depot without electrification
 	const waytype_t wt = depot->get_wegtyp();
-	const bool weg_electrified = get_welt()->lookup(depot->gib_pos())->gib_weg(wt!=tram_wt ? wt : track_wt)->is_electrified();
+	const weg_t *w = get_welt()->lookup(depot->gib_pos())->gib_weg(wt!=tram_wt ? wt : track_wt);
+	const bool weg_electrified = w ? w->is_electrified() : false;
 
 	// use this to show only sellable vehicles
 	if(!show_all  &&  veh_action==va_sell) {

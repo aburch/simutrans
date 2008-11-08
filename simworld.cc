@@ -376,8 +376,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
  * @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
  * @author Hj. Malthaner
  */
-int
-karte_t::perlin_hoehe( einstellungen_t *sets, koord k, koord size )
+int karte_t::perlin_hoehe( einstellungen_t *sets, koord k, koord size )
 {
 	switch( sets->get_rotation() ) {
 		// 0: do nothing
@@ -387,7 +386,7 @@ karte_t::perlin_hoehe( einstellungen_t *sets, koord k, koord size )
 	}
 //    double perlin_noise_2D(double x, double y, double persistence);
 //    return ((int)(perlin_noise_2D(x, y, 0.6)*160.0)) & 0xFFFFFFF0;
-    return ((int)(perlin_noise_2D(k.x, k.y, sets->gib_map_roughness())*(double)sets->gib_max_mountain_height())) & 0xFFFFFFF0;
+	return ((int)(perlin_noise_2D(k.x, k.y, sets->gib_map_roughness())*(double)sets->gib_max_mountain_height())) / 16;
 }
 
 
@@ -410,7 +409,7 @@ karte_t::calc_hoehe_mit_perlin()
 			// the old defaults are given here: f=0.6, a=160.0
 			koord pos(x,y);
 			const int h = perlin_hoehe( einstellungen, pos, koord::invalid );
-			setze_grid_hgt( pos, (h/16)*Z_TILE_STEP );
+			setze_grid_hgt( pos, h*Z_TILE_STEP );
 			//	  DBG_MESSAGE("karte_t::calc_hoehe_mit_perlin()","%i",h);
 		}
 
@@ -432,7 +431,7 @@ void karte_t::raise_clean(sint16 x, sint16 y, sint16 h)
 
 		if(  grid_hgts[offset]*Z_TILE_STEP < h  ) {
 			grid_hgts[offset] = h/Z_TILE_STEP;
-			const koord k (x,y);
+			const koord k(x,y);
 
 #ifndef DOUBLE_GROUNDS
 			raise_clean(x-1, y-1, h-Z_TILE_STEP);
@@ -460,19 +459,49 @@ void karte_t::raise_clean(sint16 x, sint16 y, sint16 h)
 }
 
 
-void karte_t::cleanup_karte()
+void karte_t::cleanup_karte( int xoff, int yoff )
 {
 	// we need a copy to smoothen the map to a realistic level
-	sint8 *grid_hgts_cpy = new sint8[(gib_groesse_x()+1)*(gib_groesse_y()+1)];
-	memcpy(grid_hgts_cpy,grid_hgts,(gib_groesse_x()+1)*(gib_groesse_y()+1));
-	// now connect the heights
+	const sint32 grid_size = (gib_groesse_x()+1)*(gib_groesse_y()+1);
+	sint8 *grid_hgts_cpy = new sint8[grid_size];
+	memcpy( grid_hgts_cpy, grid_hgts, grid_size );
+
+	// the trick for smoothing is to raise each tile by one
 	sint32 i,j;
 	for(j=0; j<=gib_groesse_y(); j++) {
-		for(i=0; i<=gib_groesse_x(); i++) {
+		for(i=j>=yoff?0:xoff; i<=gib_groesse_x(); i++) {
 			raise_clean(i,j, (grid_hgts_cpy[i+j*(gib_groesse_x()+1)]*Z_TILE_STEP)+Z_TILE_STEP );
 		}
 	}
 	delete [] grid_hgts_cpy;
+
+	// but to leave the map unchanged, we lower the height again
+	for(  i=0;  i<grid_size;  i++  ) {
+		grid_hgts[i] -= Z_TILE_STEP;
+	}
+
+	// recalculate slopes and water tiles
+	for(j=0; j<gib_groesse_y(); j++) {
+		for(i=j>=yoff?0:xoff; i<gib_groesse_x(); i++) {
+			planquadrat_t *pl = access(i,j);
+			grund_t *gr = pl->gib_kartenboden();
+			koord k(i,j);
+			uint8 slope = calc_natural_slope(k);
+			gr->setze_pos(koord3d(k,min_hgt(k)));
+			if(  gr->gib_typ()!=grund_t::wasser  &  max_hgt(k) <= gib_grundwasser()  ) {
+				// below water but ground => convert
+				pl->kartenboden_setzen(new wasser_t(this, gr->gib_pos()) );
+			}
+			else if(  gr->gib_typ()==grund_t::wasser  &&  max_hgt(k) > gib_grundwasser()  ) {
+				// water above ground => to ground
+				pl->kartenboden_setzen(new boden_t(this, gr->gib_pos(), slope ) );
+			}
+			else {
+				gr->setze_grund_hang( slope );
+			}
+			pl->gib_kartenboden()->calc_bild();
+		}
+	}
 
 	// now lower the corners to ground level
 	for(i=0; i<gib_groesse_x(); i++) {
@@ -667,8 +696,7 @@ bool karte_t::rem_stadt(stadt_t *s)
 
 
 // just allocates space;
-void
-karte_t::init_felder()
+void karte_t::init_felder()
 {
 	assert(plan==0);
 
@@ -986,24 +1014,12 @@ DBG_DEBUG("karte_t::init()","calc_hoehe_mit_heightfield");
 		calc_hoehe_mit_perlin();
 	}
 
-DBG_DEBUG("karte_t::init()","cleanup karte");
-	cleanup_karte();
-	nosave = false;
-
 	// right season for recalculations
 	recalc_snowline();
 
-DBG_DEBUG("karte_t::init()","set ground");
-	// Hajo: init slopes
-	koord k;
-	for(k.y=0; k.y<gib_groesse_y(); k.y++) {
-		for(k.x=0; k.x<gib_groesse_x(); k.x++) {
-			access(k)->abgesenkt(this);
-			grund_t *gr = lookup_kartenboden(k);
-			gr->setze_grund_hang( calc_natural_slope(k) );
-			gr->calc_bild();
-		}
-	}
+DBG_DEBUG("karte_t::init()","cleanup karte");
+	cleanup_karte(0,0);
+	nosave = false;
 
 DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
 	hausbauer_t::neue_karte();
@@ -1159,7 +1175,7 @@ void karte_t::enlarge_map(einstellungen_t* sets)
 		for (sint16 y = (x>=old_x)?0:old_y; y<=new_groesse_y; y++) {
 			koord pos(x,y);
 			const sint16 h = perlin_hoehe( einstellungen, pos, koord(old_x,old_y) );
-			setze_grid_hgt( pos, (h/16+1)*Z_TILE_STEP);
+			setze_grid_hgt( pos, h*Z_TILE_STEP);
 		}
 		display_progress(x+1,progress_length);
 	}
@@ -1197,39 +1213,44 @@ void karte_t::enlarge_map(einstellungen_t* sets)
 	}
 	old_progress += new_groesse_x;
 
-	// smoothing the seam (of possible)
+	// smoothing the seam (if possible)
 	for (sint16 x=1; x<old_x; x++) {
 		koord k(x,old_y);
-		const sint16 height = ((perlin_hoehe( einstellungen, k, koord(old_x,old_y) )/16)+1)*Z_TILE_STEP;
+		const sint16 height = perlin_hoehe( einstellungen, k, koord(old_x,old_y) )*Z_TILE_STEP;
 		// need to raise/lower more
 		for(  sint16 dy=-abs(grundwasser-height);  dy<abs(grundwasser-height);  dy++  ) {
 			koord pos(x,old_y+dy);
-			const sint16 height = ((perlin_hoehe( einstellungen, pos, koord(old_x,old_y) )/16)+1)*Z_TILE_STEP;
+			const sint16 height = perlin_hoehe( einstellungen, pos, koord(old_x,old_y) )*Z_TILE_STEP;
 			while(lookup_hgt(pos)<height  &&  raise(pos)) ;
 			while(lookup_hgt(pos)>height  &&  lower(pos)) ;
 		}
 	}
 	for (sint16 y=1; y<old_y; y++) {
 		koord k(old_x,y);
-		const sint16 height = ((perlin_hoehe( einstellungen, k, koord(old_x,old_y) )/16)+1)*Z_TILE_STEP;
+		const sint16 height = perlin_hoehe( einstellungen, k, koord(old_x,old_y) )*Z_TILE_STEP;
 		// need to raise/lower more
 		for(  sint16 dx=-abs(grundwasser-height);  dx<abs(grundwasser-height);  dx++  ) {
 			koord pos(old_x+dx,y);
-			const sint16 height = ((perlin_hoehe( einstellungen, pos, koord(old_x,old_y) )/16)+1)*Z_TILE_STEP;
+			const sint16 height = perlin_hoehe( einstellungen, pos, koord(old_x,old_y) )*Z_TILE_STEP;
 			while(lookup_hgt(pos)<height  &&  raise(pos)) ;
 			while(lookup_hgt(pos)>height  &&  lower(pos)) ;
 		}
 	}
 
-	// Recalc all images (some to many, but we do not care here)
-	for (sint16 ix = 0; ix<new_groesse_x; ix++) {
-		for (sint16 iy = 0; iy<new_groesse_y; iy++) {
-			koord k = koord(ix,iy);
-			grund_t *gr = lookup_kartenboden(k);
-			gr->calc_bild();
+	// new recalc the images of the old map near the seam ...
+	for (sint16 x=0; x<old_x-20; x++) {
+		for (sint16 y=old_y-20; y<old_y; y++) {
+			plan[x+y*cached_groesse_gitter_x].gib_kartenboden()->calc_bild();
 		}
-		display_progress(old_progress + ix+1,progress_length);
 	}
+	for (sint16 x=old_x-20; x<old_x; x++) {
+		for (sint16 y=0; y<old_y; y++) {
+			plan[x+y*cached_groesse_gitter_x].gib_kartenboden()->calc_bild();
+		}
+	}
+
+
+	cleanup_karte( old_x, old_y );
 
 	// eventuall update origin
 	switch( einstellungen->get_rotation() ) {
@@ -1808,20 +1829,6 @@ void karte_t::set_werkzeug( werkzeug_t *w )
 	}
 }
 
-
-
-/**
- * Sets grid height.
- * Never set grid_hgts manually, always
- * use this method.
- * @author Hj. Malthaner
- */
-void karte_t::setze_grid_hgt(koord k, sint16 hgt)
-{
-	if(ist_in_gittergrenzen(k.x, k.y)) {
-		grid_hgts[k.x + k.y*(uint32)(gib_groesse_x()+1)] = (hgt/Z_TILE_STEP);
-	}
-}
 
 
 sint16 karte_t::min_hgt(const koord pos) const

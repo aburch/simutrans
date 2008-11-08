@@ -356,7 +356,7 @@ bool ai_t::built_update_headquarter()
 				grund_t *gr = welt->lookup_kartenboden(place);
 				gebaeude_t *prev_hq = gr->find<gebaeude_t>();
 				// other size?
-				if(  besch->gib_groesse(0)!=prev_hq->gib_tile()->gib_groesse()  ) {
+				if(  besch->gib_groesse()!=prev_hq->gib_tile()->gib_besch()->gib_groesse()  ) {
 //					hausbauer_t::remove( welt, this, prev_hq );
 					// needs new place
 					place = koord::invalid;
