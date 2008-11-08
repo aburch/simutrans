@@ -286,7 +286,7 @@ public:
 	 */
 	void laden_abschliessen();
 
-	void rotate90( const sint16 y_size );
+	virtual void rotate90( const sint16 y_size );
 
 	/**
 	* Returns the finance history for player

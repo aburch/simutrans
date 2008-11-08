@@ -355,9 +355,12 @@ bool ai_t::built_update_headquarter()
 				// remove old hq
 				grund_t *gr = welt->lookup_kartenboden(place);
 				gebaeude_t *prev_hq = gr->find<gebaeude_t>();
-				hausbauer_t::remove( welt, this, prev_hq );
-				// may needs new place?
-				place = koord::invalid;
+				// other size?
+				if(  besch->gib_groesse(0)!=prev_hq->gib_tile()->gib_groesse()  ) {
+//					hausbauer_t::remove( welt, this, prev_hq );
+					// needs new place
+					place = koord::invalid;
+				}
 			}
 			// needs new place?
 			if(place==koord::invalid  &&  !halt_list.empty()) {
@@ -367,14 +370,18 @@ bool ai_t::built_update_headquarter()
 					place = ai_bauplatz_mit_strasse_sucher_t(welt).suche_platz(st->gib_pos(), besch->gib_b(), besch->gib_h(), besch->get_allowed_climate_bits(), &is_rotate);
 				}
 			}
-			if(place!=koord::invalid  &&  werkzeug_t::general_tool[WKZ_HEADQUARTER]->work( welt, this, welt->lookup_kartenboden(place)->gib_pos() )) {
+			const char *err;
+			if(place!=koord::invalid  &&  err==werkzeug_t::general_tool[WKZ_HEADQUARTER]->work( welt, this, welt->lookup_kartenboden(place)->gib_pos() )) {
 				// tell the player
 				char buf[256];
 				sprintf(buf, translator::translate("%s s\nheadquarter now\nat (%i,%i)."), gib_name(), place.x, place.y );
 				welt->get_message()->add_message(buf, place, message_t::ai,player_nr, welt->lookup_kartenboden(place)->find<gebaeude_t>()->gib_tile()->gib_hintergrund(0,0,0) );
 			}
 			else {
-				add_headquarter( 0, koord::invalid );
+				if(  place==koord::invalid  ) {
+					add_headquarter( 0, koord::invalid );
+				}
+				dbg->warning( "ai_t::built_update_headquarter()", "HQ failed with : %s", translator::translate(err) );
 			}
 			return place != koord::invalid;
 		}

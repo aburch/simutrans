@@ -45,7 +45,10 @@ public:
 
 	void rotate90( sint16 y_size )
 	{
-		if(x<0  ||  y<0) return;
+		if(  (x&y)<0  ) {
+			// do not rotate illegal coordinates
+			return;
+		}
 		sint16 new_x = y_size-y;
 		y = x;
 		x = new_x;

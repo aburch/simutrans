@@ -84,12 +84,13 @@ private:
 
 	// KI helper class
 	class fabconnection_t{
-		koord fab1;
-		koord fab2;	// koord1 must be always "smaller" than koord2
+		fabrik_t *fab1;
+		fabrik_t *fab2;	// koord1 must be always "smaller" than koord2
 		const ware_besch_t *ware;
 
 	public:
-		fabconnection_t( koord k1, koord k2, const ware_besch_t *w ) : fab1(k1), fab2(k2), ware(w) {}
+		fabconnection_t( fabrik_t *k1=0, fabrik_t *k2=0, const ware_besch_t *w=0 ) : fab1(k1), fab2(k2), ware(w) {}
+		void rdwr( loadsave_t *file );
 
 		bool operator != (const fabconnection_t & k) { return fab1 != k.fab1 || fab2 != k.fab2 || ware != k.ware; }
 		bool operator == (const fabconnection_t & k) { return fab1 == k.fab1 && fab2 == k.fab2 && ware == k.ware; }
@@ -98,8 +99,10 @@ private:
 
 	slist_tpl<fabconnection_t> forbidden_conections;
 
-	// return true, if this a route to avoid (i.e. we did a consturction without sucess here ...)
-	bool is_forbidden(const koord start_pos, const koord end_pos, const ware_besch_t *w ) const;
+	// return true, if this a route to avoid (i.e. we did a construction without sucess here ...)
+	bool is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const ware_besch_t *w ) const {
+		return forbidden_conections.contains( fabconnection_t( fab1, fab2, w ) );
+	}
 
 	/* recursive lookup of a factory tree:
 	 * sets start and ziel to the next needed supplier
@@ -117,7 +120,6 @@ private:
 	int baue_bahnhof(const koord* p, int anz_vehikel);
 
 	bool create_simple_rail_transport();
-	bool create_simple_road_transport();    // neue Transportroute anlegen
 
 	// create way and stops for these routes
 	bool create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
@@ -140,5 +142,6 @@ public:
 	void step();
 
 	void neues_jahr();
-};
 
+	virtual void rotate90( const sint16 y_size );
+};

@@ -59,18 +59,28 @@ ai_goods_t::ai_goods_t(karte_t *wl, uint8 nr) : ai_t(wl,nr)
  */
 void ai_goods_t::neues_jahr()
 {
+	spieler_t::neues_jahr();
+
 	// AI will reconsider the oldes unbuiltable lines again
-	if(automat) {
-		uint remove = (uint)max(0,(int)forbidden_conections.count()-3);
-		while(  remove < forbidden_conections.count()  ) {
-			forbidden_conections.remove_first();
-		}
+	uint remove = (uint)max(0,(int)forbidden_conections.count()-3);
+	while(  remove < forbidden_conections.count()  ) {
+		forbidden_conections.remove_first();
 	}
 }
 
 
 
-/******************************* from here on freight AI **************************************/
+void ai_goods_t::rotate90( const sint16 y_size )
+{
+	spieler_t::rotate90( y_size );
+
+	// rotate places
+	platz1.rotate90( y_size );
+	platz2.rotate90( y_size );
+	size1.rotate90( 0 );
+	size2.rotate90( 0 );
+}
+
 
 
 /* Activates/deactivates a player
@@ -93,18 +103,6 @@ bool ai_goods_t::set_active(bool new_state)
 		}
 	}
 	return automat;
-}
-
-
-
-/* returns true,
- * if there is already a connection
- * @author prissi
- */
-bool ai_goods_t::is_forbidden( const koord start_pos, const koord dest_pos, const ware_besch_t *wtyp ) const
-{
-	fabconnection_t f( start_pos, dest_pos, wtyp );
-	return forbidden_conections.contains( f );
 }
 
 
@@ -134,8 +132,8 @@ bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 			const fabrik_besch_t* const fb = qfab->gib_besch();
 			for (uint qq = 0; qq < fb->gib_produkte(); qq++) {
 				if (fb->gib_produkt(qq)->gib_ware() == ware
-						&&  !is_forbidden( sources[q], fab->gib_pos().gib_2d(), ware )
-						&&  !is_connected( sources[q], fab->gib_pos().gib_2d(), ware )  ) {
+					  &&  !is_forbidden( fabrik_t::gib_fab(welt,sources[q]), fab, ware )
+					  &&  !is_connected( sources[q], fab->gib_pos().gib_2d(), ware )  ) {
 					// find out how much is there
 					const vector_tpl<ware_production_t>& ausgang = qfab->gib_ausgang();
 					uint ware_nr;
@@ -190,7 +188,7 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 			}
 			const fabrik_besch_t* const fb = qfab->gib_besch();
 			for (uint qq = 0; qq < fb->gib_produkte(); qq++) {
-				if (fb->gib_produkt(qq)->gib_ware() == ware && !is_forbidden(sources[q], fab->gib_pos().gib_2d(), ware)) {
+				if (fb->gib_produkt(qq)->gib_ware() == ware && !is_forbidden( fabrik_t::gib_fab(welt,sources[q]), fab, ware)) {
 					int n = get_factory_tree_missing_count( qfab );
 					if(n>=0) {
 						complete = true;
@@ -451,60 +449,6 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 
 
 
-bool ai_goods_t::create_simple_road_transport()
-{
-	// remove pointer
-	clean_marker(platz1,size1);
-	clean_marker(platz2,size2);
-
-	if(!(welt->ebne_planquadrat( this, platz1, welt->lookup_kartenboden(platz1)->gib_hoehe() )  &&  welt->ebne_planquadrat( this, platz2, welt->lookup_kartenboden(platz2)->gib_hoehe() ))  ) {
-		// no flat land here?!?
-		return false;
-	}
-
-	INT_CHECK( "simplay 1742" );
-
-	// is there already a connection?
-	if(road_vehicle) {
-		vehikel_t* test_driver = new automobil_t(koord3d(platz1, 0), road_vehicle, this, NULL);
-		route_t verbindung;
-		if (verbindung.calc_route(welt, welt->lookup(platz1)->gib_kartenboden()->gib_pos(), welt->lookup(platz2)->gib_kartenboden()->gib_pos(), test_driver, 0) &&
-			verbindung.gib_max_n()<2u*abs_distance(platz1,platz2))  {
-DBG_MESSAGE("ai_goods_t::create_simple_road_transport()","Already connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.gib_max_n() );
-			// found something with the nearly same lenght
-			delete test_driver;
-			return true;
-		}
-		delete test_driver;
-	}
-	else {
-		return false;
-	}
-
-	// no connection => built one!
-	wegbauer_t bauigel(welt, this);
-	bauigel.route_fuer( wegbauer_t::strasse, road_weg, tunnelbauer_t::find_tunnel(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()) );
-
-	// we won't destroy cities (and save the money)
-	bauigel.set_keep_existing_faster_ways(true);
-	bauigel.set_keep_city_roads(true);
-	bauigel.set_maximum(10000);
-
-	INT_CHECK("simplay 846");
-
-	bauigel.calc_route(welt->lookup(platz1)->gib_kartenboden()->gib_pos(),welt->lookup(platz2)->gib_kartenboden()->gib_pos());
-	if(bauigel.max_n > 1) {
-DBG_MESSAGE("ai_goods_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
-		bauigel.baue();
-		return true;
-	}
-	// beware: The stop position might have changes!
-DBG_MESSAGE("ai_goods_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d failed",platz1.x, platz1.y, platz2.x, platz2.y);
-	return false;
-}
-
-
-
 /* built a station
  * Can fail even though check has been done before
  * @author prissi
@@ -745,7 +689,7 @@ void ai_goods_t::step()
 				}
 				else {
 					// add to impossible connections
-					forbidden_conections.append( fabconnection_t( start->gib_pos().gib_2d(), ziel->gib_pos().gib_2d(), freight ) );
+					forbidden_conections.append( fabconnection_t( start, ziel, freight ) );
 					state = CHECK_CONVOI;
 				}
 			}
@@ -930,7 +874,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 			// no success at all?
 			if(state==NR_BAUE_ROUTE1) {
 				// maybe this route is not builtable ... add to forbidden connections
-				forbidden_conections.append( fabconnection_t( start->gib_pos().gib_2d(), ziel->gib_pos().gib_2d(), freight ) );
+				forbidden_conections.append( fabconnection_t( start, ziel, freight ) );
 				ziel = NULL;	// otherwise it may always try to built the same route!
 				state = CHECK_CONVOI;
 			}
@@ -953,7 +897,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				const int prod = min( ziel->get_base_production(), (start->get_base_production() * start->gib_besch()->gib_produkt(start_ware)->gib_faktor()) - start->gib_abgabe_letzt(start_ware) );
 				if(prod<0) {
 					// too much supplied last time?!? => retry
-					state = NR_INIT;
+					state = CHECK_CONVOI;
 					break;
 				}
 				int ships_needed = 1 + (prod*abs_distance(harbour,start->gib_pos().gib_2d())) / (ship_vehicle->gib_zuladung()*max(20,ship_vehicle->gib_geschw()));
@@ -1026,7 +970,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 			if(is_connected(start->gib_pos().gib_2d(), ziel->gib_pos().gib_2d(), freight)) {
 				state = ship_vehicle ? NR_BAUE_CLEAN_UP : CHECK_CONVOI;
 			}
-			else if(create_simple_road_transport()) {
+			else if(create_simple_road_transport(platz1,size1,platz2,size2,road_weg)) {
 				create_road_transport_vehikel(start, count_road );
 				state = NR_ROAD_SUCCESS;
 			}
@@ -1038,7 +982,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 		// remove marker etc.
 		case NR_BAUE_CLEAN_UP:
 		{
-			forbidden_conections.append( fabconnection_t( start->gib_pos().gib_2d(), ziel->gib_pos().gib_2d(), freight ) );
+			forbidden_conections.append( fabconnection_t( start, ziel, freight ) );
 			if(ship_vehicle) {
 				// only here, if we could built ships but no connection
 				halthandle_t start_halt;
@@ -1104,7 +1048,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 		// remove stucked vehicles (only from roads!)
 		case CHECK_CONVOI:
 		{
-			next_contruction_steps += simrand( 8000 )+1000;
+			next_contruction_steps = welt->gib_steps() + simrand( 8000 )+1000;
 
 			for( int i = welt->get_convoi_count()-1;  i>=0;  i--  ) {
 				const convoihandle_t cnv = welt->get_convoi(i);
@@ -1321,5 +1265,49 @@ void ai_goods_t::rdwr(loadsave_t *file)
 		rail_weg = temp ? wegbauer_t::gib_besch(temp,0) : NULL;
 		file->rdwr_str( temp, "" );
 		road_weg = temp ? wegbauer_t::gib_besch(temp,0) : NULL;
+	}
+
+	// finally: forbidden connection list
+	sint32 cnt = forbidden_conections.count();
+	file->rdwr_long(cnt,"Fc");
+	if(file->is_saving()) {
+		slist_iterator_tpl<fabconnection_t> iter(forbidden_conections);
+		while(  iter.next()  ) {
+			fabconnection_t fc = iter.get_current();
+			fc.rdwr(file);
+		}
+	}
+	else {
+		forbidden_conections.clear();
+		while(  cnt-->0  ) {
+			fabconnection_t fc(0,0,0);
+			fc.rdwr(file);
+			forbidden_conections.append(fc);
+		}
+	}
+}
+
+
+
+
+void ai_goods_t::fabconnection_t::rdwr(loadsave_t *file)
+{
+	koord3d k3d;
+	if(file->is_saving()) {
+		k3d = fab1->gib_pos();
+		k3d.rdwr(file);
+		k3d = fab2->gib_pos();
+		k3d.rdwr(file);
+		const char *s = ware->gib_name();
+		file->rdwr_str( s, "" );
+	}
+	else {
+		k3d.rdwr(file);
+		fab1 = fabrik_t::gib_fab( welt, k3d.gib_2d() );
+		k3d.rdwr(file);
+		fab2 = fabrik_t::gib_fab( welt, k3d.gib_2d() );
+		const char *temp=NULL;
+		file->rdwr_str( temp, "" );
+		ware = warenbauer_t::gib_info(temp);
 	}
 }
