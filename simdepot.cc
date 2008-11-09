@@ -455,6 +455,19 @@ vehikel_t* depot_t::get_oldest_vehicle(const vehikel_besch_t* besch)
 }
 
 
+	/**
+	 * sets/gets the line that was selected the last time in the depot-dialog
+	 */
+void depot_t::set_selected_line(const linehandle_t sel_line)
+{
+	selected_line = sel_line;
+}
+
+linehandle_t depot_t::get_selected_line()
+{
+	return selected_line;
+}
+
 bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 {
 	waytype_t wt=cnv->gib_vehikel(0)->gib_waytype();

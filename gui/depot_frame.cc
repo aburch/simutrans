@@ -83,7 +83,7 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	scrolly_waggons(&cont_waggons)
 {
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
-	selected_line = linehandle_t();
+	selected_line = depot->get_selected_line(); //linehandle_t();
 	strcpy(no_line_text, translator::translate("<no line>"));
 
 	sprintf(txt_title, "(%d,%d) %s", depot->gib_pos().x, depot->gib_pos().y, translator::translate(depot->gib_name()));
@@ -1062,6 +1062,8 @@ bool depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 				vector_tpl<linehandle_t> lines;
 				get_line_list(depot, &lines);
 				selected_line = lines[sel - 1];
+
+				depot->set_selected_line(selected_line);
 			}
 			else {
 				selected_line = linehandle_t();

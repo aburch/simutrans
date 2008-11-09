@@ -195,6 +195,15 @@ public:
 	 * @author hsiegeln (stolen from Hajo)
 	 */
 	vehikel_t* get_oldest_vehicle(const vehikel_besch_t* besch);
+
+	/*
+	 * sets/gets the line that was selected the last time in the depot-dialog
+	 */
+	void set_selected_line(const linehandle_t sel_line);
+	linehandle_t get_selected_line();
+
+private:
+	linehandle_t selected_line;
 };
 
 
