@@ -469,6 +469,12 @@ bool ai_t::find_harbour(koord &start, koord &size, koord target)
 
 bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2, koord size2, const weg_besch_t *road_weg )
 {
+	// sanity check here
+	if(road_weg==NULL) {
+		DBG_MESSAGE("ai_t::create_simple_road_transport()","called without valid way.");
+		return false;
+	}
+
 	// remove pointer
 	clean_marker(platz1,size1);
 	clean_marker(platz2,size2);
