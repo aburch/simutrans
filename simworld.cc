@@ -476,8 +476,28 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 	delete [] grid_hgts_cpy;
 
 	// but to leave the map unchanged, we lower the height again
-	for(  i=0;  i<grid_size;  i++  ) {
-		grid_hgts[i] -= Z_TILE_STEP;
+	for(j=0; j<=gib_groesse_y(); j++) {
+		for(i=j>=yoff?0:xoff; i<=gib_groesse_x(); i++) {
+			grid_hgts[i+j*(gib_groesse_x()+1)] -= Z_TILE_STEP;
+		}
+	}
+
+	// now lower the corners to ground level
+	for(i=0; i<gib_groesse_x(); i++) {
+		lower_to(i, 0, grundwasser,false);
+		lower_to(i, gib_groesse_y(), grundwasser,false);
+	}
+	for(i=0; i<=gib_groesse_y(); i++) {
+		lower_to(0, i, grundwasser,false);
+		lower_to(gib_groesse_x(), i, grundwasser,false);
+	}
+	for(i=0; i<=gib_groesse_x(); i++) {
+		raise_to(i, 0, grundwasser,false);
+		raise_to(i, gib_groesse_y(), grundwasser,false);
+	}
+	for(i=0; i<=gib_groesse_y(); i++) {
+		raise_to(0, i, grundwasser,false);
+		raise_to(gib_groesse_x(), i, grundwasser,false);
 	}
 
 	// recalculate slopes and water tiles
@@ -501,24 +521,6 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 			}
 			pl->gib_kartenboden()->calc_bild();
 		}
-	}
-
-	// now lower the corners to ground level
-	for(i=0; i<gib_groesse_x(); i++) {
-		lower_to(i, 0, grundwasser,false);
-		lower_to(i, gib_groesse_y(), grundwasser,false);
-	}
-	for(i=0; i<=gib_groesse_y(); i++) {
-		lower_to(0, i, grundwasser,false);
-		lower_to(gib_groesse_x(), i, grundwasser,false);
-	}
-	for(i=0; i<=gib_groesse_x(); i++) {
-		raise_to(i, 0, grundwasser,false);
-		raise_to(i, gib_groesse_y(), grundwasser,false);
-	}
-	for(i=0; i<=gib_groesse_y(); i++) {
-		raise_to(0, i, grundwasser,false);
-		raise_to(gib_groesse_x(), i, grundwasser,false);
 	}
 }
 

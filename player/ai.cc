@@ -370,8 +370,8 @@ bool ai_t::built_update_headquarter()
 					place = ai_bauplatz_mit_strasse_sucher_t(welt).suche_platz(st->gib_pos(), besch->gib_b(), besch->gib_h(), besch->get_allowed_climate_bits(), &is_rotate);
 				}
 			}
-			const char *err;
-			if(place!=koord::invalid  &&  err==werkzeug_t::general_tool[WKZ_HEADQUARTER]->work( welt, this, welt->lookup_kartenboden(place)->gib_pos() )) {
+			const char *err=NULL;
+			if(  place!=koord::invalid  &&  (err=werkzeug_t::general_tool[WKZ_HEADQUARTER]->work( welt, this, welt->lookup_kartenboden(place)->gib_pos() ))!=NULL  ) {
 				// tell the player
 				char buf[256];
 				sprintf(buf, translator::translate("%s s\nheadquarter now\nat (%i,%i)."), gib_name(), place.x, place.y );
