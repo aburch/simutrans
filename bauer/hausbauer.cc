@@ -445,7 +445,8 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 
 		// detect if we are connected at far (north/west) end
 		sint8 offset = welt->lookup( pos )->gib_weg_yoff()/TILE_HEIGHT_STEP;
-		grund_t * gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::ost : koord::sued), offset) );
+		koord3d checkpos = pos+koord3d( (layout & 1 ? koord::ost : koord::sued), offset);
+		grund_t * gr = welt->lookup( checkpos );
 		if(!gr) {
 			// check whether bridge end tile
 			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::ost : koord::sued),offset - 1) );
@@ -455,6 +456,17 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 		}
 		if(gr) {
 			gebaeude_t* gb = gr->find<gebaeude_t>();
+			if(gb==NULL  &&  welt->lookup(checkpos.gib_2d())->gib_halt().is_bound()) {
+				// no building on same level, but halt nearby => we will this this
+				const planquadrat_t *pl = welt->lookup(checkpos.gib_2d());
+				for(  uint8 i=0;  i<pl->gib_boden_count();  i++  ) {
+					gr = pl->gib_boden_bei(i);
+					if(gr->is_halt()) {
+						break;
+					}
+				}
+				gebaeude_t* gb = gr->find<gebaeude_t>();
+			}
 			if(gb  &&  gb->gib_tile()->gib_besch()->gib_utyp()>=8) {
 				corner_layout &= ~2; // clear near bit
 				if(gb->gib_tile()->gib_besch()->gib_all_layouts()>4) {

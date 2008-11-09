@@ -143,7 +143,7 @@ gebaeude_t::rotate90()
 		koord new_offset = tile->gib_offset();
 
 		if(haus_besch->gib_all_layouts()<=4) {
-			layout = (layout+3) % haus_besch->gib_all_layouts();
+			layout = (layout+1) % haus_besch->gib_all_layouts();
 		}
 		else {
 
@@ -503,7 +503,7 @@ const char *gebaeude_t::gib_name() const
 
 bool gebaeude_t::ist_rathaus() const
 {
-    return tile->gib_besch()->ist_rathaus();
+	return tile->gib_besch()->ist_rathaus();
 }
 
 bool gebaeude_t::is_monument() const
@@ -513,12 +513,12 @@ bool gebaeude_t::is_monument() const
 
 bool gebaeude_t::ist_firmensitz() const
 {
-    return tile->gib_besch()->ist_firmensitz();
+	return tile->gib_besch()->ist_firmensitz();
 }
 
 gebaeude_t::typ gebaeude_t::gib_haustyp() const
 {
-    return tile->gib_besch()->gib_typ();
+	return tile->gib_besch()->gib_typ();
 }
 
 

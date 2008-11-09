@@ -1848,11 +1848,49 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	static koord rotate_koords[4]={koord(0,-1),koord(1,0),koord(0,1),koord(-1,0)};
 
 	koord size = besch->gib_groesse();
-	int rotate=-1, built_rotate=-1;
+	int rotate = 0;
 	halthandle_t halt;
 
 	// get initial rotation
-	if(besch->gib_all_layouts()>1) {
+	// we search in all level and for all types of stops here
+	uint8 best_distance = 100;
+	uint8 type_matches = false;
+	sint8 best_dir = -1;
+
+	// convert best_dir to layout
+	static uint neightbour_to_dir[] = { 1, 8, 4, 4, 4, 2, 1, 1 };
+
+	for(  uint8 i=0;  i<8;  i++  ) {
+		const planquadrat_t *plan = welt->lookup(pos+koord::neighbours[i]);
+		if(plan==NULL) {
+			continue;
+		}
+		for(  uint8 level=0;  level<plan->gib_boden_count();  level++  ) {
+			grund_t *gr = plan->gib_boden_bei(level);
+			if(gr->is_halt()) {
+				gebaeude_t* gb = gr->find<gebaeude_t>();
+				uint8 cur_dist = abs_distance(koord(0,0),koord::neighbours[i])+abs(k.z-gr->gib_hoehe());
+				if(gb  &&  gb->gib_tile()->gib_besch()->gib_extra()==besch->gib_extra()) {
+					if(  !type_matches  ||  cur_dist<=best_distance  ) {
+						if(!type_matches  ||  cur_dist<best_distance) {
+							best_dir = 0;
+						}
+						type_matches = true;
+						best_distance = cur_dist;
+						best_dir |= neightbour_to_dir[i];
+					}
+				}
+				else if(  !type_matches  &&  cur_dist<=best_distance  ) {
+					if(cur_dist<best_distance) {
+						best_dir = 0;
+					}
+					best_distance = cur_dist;
+					best_dir |= neightbour_to_dir[i];
+				}
+			}
+		}
+	}
+#if 0
 //DBG_MESSAGE("wkz_station_building_aux()","building %s; layouts %i",besch->gib_name(),besch->gib_all_layouts());
 		uint8 best=0;
 		for( int i=0;  i<4;  i++  ) {
@@ -1884,30 +1922,20 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 				}
 			}
 		}
-	}
+#endif
 
-	// if a station building is found and nothing else, then mimic the station building alingment
-	if(rotate!=-1) {
-		built_rotate = rotate;
-	}
-	else if(built_rotate==-1) {
-		// nothing found ...
-		built_rotate = 0;
-	}
-
-	// now try to built it (best layout first)
+	// now try to find halt in wider vicinity
 	for( int i=0;  i<besch->gib_all_layouts()  &&  !halt.is_bound();  i++  ) {
-		if(((i+built_rotate)&1)!=0) {
-			if(welt->ist_platz_frei(pos, size.y, size.x, NULL, besch->get_allowed_climate_bits())) {
-				halt = suche_nahe_haltestelle(sp, welt, k, size.y, size.x);
-			}
+		if((best_dir&(1<<i))==0) {
+			continue;
 		}
-		else {
-			if(welt->ist_platz_frei(pos, size.x, size.y, NULL, besch->get_allowed_climate_bits())) {
-				halt = suche_nahe_haltestelle(sp, welt, k, size.y, size.x);
-			}
+		if(welt->ist_platz_frei(pos, size.y, size.x, NULL, besch->get_allowed_climate_bits())) {
+			halt = suche_nahe_haltestelle(sp, welt, k, size.y, size.x);
 		}
-		rotate = (built_rotate+i)%besch->gib_all_layouts();
+		else if(welt->ist_platz_frei(pos, size.x, size.y, NULL, besch->get_allowed_climate_bits())) {
+			halt = suche_nahe_haltestelle(sp, welt, k, size.y, size.x);
+		}
+		rotate = i%besch->gib_all_layouts();
 	}
 
 	// is there already a halt to connect?
@@ -1918,7 +1946,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		}
 */
 		hausbauer_t::baue(welt, halt->gib_besitzer(), k, rotate, besch, &halt);
-		sp->buche(umgebung_t::cst_multiply_post*besch->gib_level()*besch->gib_b()*besch->gib_h(), pos, COST_CONSTRUCTION);
+		sp->buche(umgebung_t::cst_multiply_post*besch->gib_level()*besch->gib_b()*besch->gib_h(), k.gib_2d(), COST_CONSTRUCTION);
 		halt->recalc_station_type();
 	}
 	else {

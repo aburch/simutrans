@@ -282,9 +282,9 @@ void spieler_t::neuer_monat()
 	}
 
 	// Bankrott ?
-	if(!umgebung_t::freeplay) {
-		if(konto < 0) {
-			konto_ueberzogen++;
+	if(konto < 0) {
+		konto_ueberzogen++;
+		if(!umgebung_t::freeplay) {
 			if(this == welt->gib_spieler(0)) {
 				if(finance_history_year[0][COST_NETWEALTH]<0) {
 					destroy_all_win();
@@ -305,9 +305,9 @@ void spieler_t::neuer_monat()
 				}
 			}
 		}
-		else {
-			konto_ueberzogen = 0;
-		}
+	}
+	else {
+		konto_ueberzogen = 0;
 	}
 }
 
