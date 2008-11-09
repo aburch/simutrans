@@ -143,7 +143,7 @@ gebaeude_t::rotate90()
 		koord new_offset = tile->gib_offset();
 
 		if(haus_besch->gib_all_layouts()<=4) {
-			layout = (layout+1) % haus_besch->gib_all_layouts();
+			layout = (layout+3) % haus_besch->gib_all_layouts();
 		}
 		else {
 

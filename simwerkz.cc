@@ -1858,7 +1858,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	sint8 best_dir = -1;
 
 	// convert best_dir to layout
-	static uint neightbour_to_dir[] = { 1, 8, 4, 4, 4, 2, 1, 1 };
+	static uint neightbour_to_dir[] = { 1, 2, 4, 4, 4, 8, 1, 1 };
 
 	for(  uint8 i=0;  i<8;  i++  ) {
 		const planquadrat_t *plan = welt->lookup(pos+koord::neighbours[i]);
