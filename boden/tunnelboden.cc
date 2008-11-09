@@ -51,6 +51,12 @@ tunnelboden_t::calc_bild_internal()
 		// calculate the slope of ground
 		boden_t::calc_bild_internal();
 		set_flag(draw_as_ding);
+		koord pos = gib_pos().gib_2d()+koord(gib_grund_hang());
+		grund_t *gr = welt->lookup_kartenboden(pos);
+		if(gr) {
+			gr->calc_bild();
+		}
+
 	}
 	else {
 		clear_back_bild();

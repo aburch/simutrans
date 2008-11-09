@@ -46,6 +46,7 @@
 	CHANGE: AI now seperate files, which would allow for a greater varienty of AIs
 	ADD: (Dwachs) depots remember last line
 	FIX: construction of four layout stations and rotation of four layout buildings were completely broken
+	FIX: graphic error with slopes next to bridges and tunnels
 
 
 Release of 100.0 (r1867, stable)

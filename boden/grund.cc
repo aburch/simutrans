@@ -440,8 +440,8 @@ grund_t::info(cbuffer_t& buf) const
 		}
 	}
 
-#if 0
-	if(buf.len() == 0) {
+#if 1
+	if(buf.len() >= 0) {
 		uint8 hang= gib_grund_hang();
 		buf.append(gib_hoehe());
 		buf.append("\nslope: ");
@@ -466,6 +466,8 @@ grund_t::info(cbuffer_t& buf) const
 		buf.append("\nwater ribi: ");
 		buf.append(gib_weg_ribi_unmasked(water_wt));
 	}
+	buf.append("\ndraw_as_ding=");
+	buf.append((flags&draw_as_ding)!=0);
 #endif
 }
 
@@ -564,7 +566,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 	if(((flags&has_way1)  &&  ((weg_t *)obj_bei(0))->gib_besch()->is_draw_as_ding())  ||  ((flags&has_way2)  &&  ((weg_t *)obj_bei(1))->gib_besch()->is_draw_as_ding())) {
 		set_flag(grund_t::draw_as_ding);
 	}
-	bool	left_back_is_building = false;
+	bool left_back_is_building = false;
 
 	// check for foundation
 	if(k.x>0  &&  k.y>0) {
@@ -604,7 +606,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 				back_bild_nr = get_backbild_from_diff( diff_from_ground_1, diff_from_ground_2 );
 			}
 			// avoid covering of slope by building ...
-			if(left_back_is_building  &&  (back_bild_nr>0  ||  gr->gib_back_bild(1)!=IMG_LEER)) {
+			if(  (left_back_is_building  ||  gr->get_flag(draw_as_ding))  &&  (back_bild_nr>0  ||  gr->gib_back_bild(1)!=IMG_LEER)) {
 				set_flag(grund_t::draw_as_ding);
 			}
 			is_building = gr->gib_typ()==grund_t::fundament;
@@ -633,7 +635,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 			}
 			is_building |= gr->gib_typ()==grund_t::fundament;
 			// avoid covering of slope by building ...
-			if(left_back_is_building  &&  (back_bild_nr>11  ||  gr->gib_back_bild(0)!=IMG_LEER)) {
+			if(  (left_back_is_building  ||  gr->get_flag(draw_as_ding))  &&  (back_bild_nr>11  ||  gr->gib_back_bild(0)!=IMG_LEER)) {
 				set_flag(grund_t::draw_as_ding);
 			}
 		}

@@ -188,12 +188,12 @@ public:
 
 
 protected:
-  /**
-   * Pointer to the world of this ground. Static to conserve space.
-   * Change to instance variable once more than one world is available.
-   * @author Hj. Malthaner
-   */
-  static karte_t *welt;
+	/**
+	* Pointer to the world of this ground. Static to conserve space.
+	* Change to instance variable once more than one world is available.
+	* @author Hj. Malthaner
+	*/
+	static karte_t *welt;
 
 	// calculates the slope image and sets the draw_as_ding flag correctly
 	void calc_back_bild(const sint8 hgt,const sint8 slope_this);
