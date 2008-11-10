@@ -37,10 +37,11 @@ void brueckenboden_t::calc_bild_internal()
 			setze_bild( grund_besch_t::gib_ground_tile(slope,gib_pos().z) );
 			grund_t::calc_back_bild(gib_pos().z/Z_TILE_STEP,slope);
 			set_flag(draw_as_ding);
-			koord pos = gib_pos().gib_2d()+koord(gib_grund_hang());
-			grund_t *gr = welt->lookup_kartenboden(pos);
-			if(gr) {
-				gr->calc_bild();
+			if(  (gib_grund_hang()==hang_t::west  &&  abs(back_bild_nr)>11)  ||  (gib_grund_hang()==hang_t::nord  &&  gib_back_bild(0)!=IMG_LEER)  ) {
+				// must draw as ding, since there is a slop here nearby
+				koord pos = gib_pos().gib_2d()+koord(gib_grund_hang());
+				grund_t *gr = welt->lookup_kartenboden(pos);
+				gr->set_flag(grund_t::draw_as_ding);
 			}
 		}
 		else {
