@@ -90,6 +90,7 @@ werkzeug_t *create_general_tool(int toolnr)
 		case WKZ_ADD_CITYCAR:      return new wkz_add_citycar_t();
 		case WKZ_FOREST:           return new wkz_forest_t();
 		case WKZ_STOP_MOVER:       return new wkz_stop_moving_t();
+		case WKZ_MAKE_STOP_PUBLIC: return new wkz_make_stop_public_t();
 
 	}
 	dbg->fatal("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);

@@ -129,8 +129,8 @@ koord3d haltestelle_t::gib_basis_pos3d() const
  */
 halthandle_t haltestelle_t::create(karte_t *welt, koord pos, spieler_t *sp)
 {
-    haltestelle_t * p = new haltestelle_t(welt, pos, sp);
-    return p->self;
+	haltestelle_t * p = new haltestelle_t(welt, pos, sp);
+	return p->self;
 }
 
 
@@ -1754,32 +1754,75 @@ void haltestelle_t::zeige_info()
 
 
 // changes this to a publix transfer exchange stop
-void haltestelle_t::transfer_to_public_owner()
+sint64 haltestelle_t::calc_maintenance()
+{
+	sint64 maintenance = 0;
+	for(slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+		grund_t* gr = i->grund;
+		gebaeude_t* gb = gr->find<gebaeude_t>();
+		if(gb) {
+			maintenance += umgebung_t::maint_building*gb->gib_tile()->gib_besch()->gib_level();
+		}
+	}
+	return maintenance;
+}
+
+
+
+// changes this to a publix transfer exchange stop
+void haltestelle_t::make_public_and_join(halthandle_t halt)
 {
 	spieler_t *public_owner=welt->gib_spieler(1);
-	if(besitzer_p==public_owner) {
-		// already a public stop
-		return;
+
+	if(besitzer_p!=public_owner) {
+		// now recalculate maintenance
+		for(slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
+			grund_t* gr = i->grund;
+			gebaeude_t* gb = gr->find<gebaeude_t>();
+			if(gb) {
+				spieler_t *gb_sp=gb->gib_besitzer();
+				sint64 costs = umgebung_t::maint_building*gb->gib_tile()->gib_besch()->gib_level();
+				spieler_t::add_maintenance( gb_sp, -costs );
+				spieler_t::accounting(gb_sp, -((costs*60)<<(welt->ticks_bits_per_tag-18)), gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
+				gb->setze_besitzer(public_owner);
+				spieler_t::add_maintenance(public_owner, costs );
+			}
+		}
 	}
 
-	// iterate over all tiles
-	for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
-		grund_t* gr = i->grund;
+	// transfer ownership
+	besitzer_p->halt_remove(self);
+	besitzer_p = public_owner;
+	public_owner->halt_add(self);
+
+	// now with the second stop
+	while(halt.is_bound()  &&  halt!=self) {
+		// we always take the first remaining tile and transfer it => more safe
+		koord3d t = halt->gib_basis_pos3d();
+		grund_t *gr = welt->lookup(t);
 		gebaeude_t* gb = gr->find<gebaeude_t>();
 		if(gb) {
 			// there are also water tiles, which may not have a buidling
 			spieler_t *gb_sp=gb->gib_besitzer();
 			if(public_owner!=gb_sp) {
-				spieler_t::add_maintenance( gb_sp, -umgebung_t::maint_building);
-				spieler_t::accounting(gb_sp, umgebung_t::maint_building*36*(gb->gib_tile()->gib_besch()->gib_level()+1), gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
+				spieler_t *gb_sp=gb->gib_besitzer();
+				sint64 costs = umgebung_t::maint_building*gb->gib_tile()->gib_besch()->gib_level();
+				spieler_t::add_maintenance( gb_sp, -costs );
+				spieler_t::accounting(gb_sp, -((costs*60)<<(welt->ticks_bits_per_tag-18)), gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
 				gb->setze_besitzer(public_owner);
-				spieler_t::add_maintenance(public_owner, umgebung_t::maint_building);
+				spieler_t::add_maintenance(public_owner, costs );
 			}
 		}
+		// transfer tiles to us
+		halt->rem_grund(gr);
+		add_grund(gr);
+		// and check for existence
+		if(!halt->existiert_in_welt()) {
+			destroy(halt);
+		}
 	}
-	besitzer_p->halt_remove(self);
-	besitzer_p = public_owner;
-	public_owner->halt_add(self);
+
+	recalc_station_type();
 }
 
 

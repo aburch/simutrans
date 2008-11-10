@@ -131,10 +131,6 @@ public:
 	// but since we allow only for a single stop per planquadrat, this is as good as the above
 	static halthandle_t gib_halt(karte_t *welt, const koord3d pos);
 
-	// return halt by name
-	static halthandle_t haltestelle_tgib_halt(const char *name) { return all_names.get(name); }
-
-
 	static const slist_tpl<halthandle_t>& gib_alle_haltestellen() { return alle_haltestellen; }
 
 	/**
@@ -332,7 +328,11 @@ public:
 	void rotate90( const sint16 y_size );
 
 	spieler_t *gib_besitzer() const {return besitzer_p;}
-	void transfer_to_public_owner();
+
+	// just for info so far
+	sint64 calc_maintenance();
+
+	void make_public_and_join(halthandle_t halt);
 
 	const slist_tpl<warenziel_t> * gib_warenziele_passenger() const {return &warenziele_passenger;}
 	const slist_tpl<warenziel_t> * gib_warenziele_mail() const {return &warenziele_mail;}

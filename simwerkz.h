@@ -386,6 +386,21 @@ public:
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 };
 
+/* make all tiles of this player a public stop
+ * if this player is public, make all connected tiles a public stop */
+class wkz_make_stop_public_t : public werkzeug_t {
+private:
+	slist_tpl<halthandle_t> stops_to_connect;
+	void find_stops(karte_t *w, spieler_t *s, koord3d pos );
+public:
+	wkz_make_stop_public_t() : werkzeug_t() {}
+	bool init( karte_t *, spieler_t * );
+	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
+	const char *get_tooltip(spieler_t *);
+	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d );
+	virtual const char *work( karte_t *, spieler_t *, koord3d );
+};
+
 /********************* one click tools ****************************/
 
 class wkz_pause_t : public werkzeug_t {

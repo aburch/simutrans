@@ -163,7 +163,8 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 		const planquadrat_t *plan = welt->lookup(pos.gib_2d()+next_try_dir[i]);
 		if(plan) {
 			halthandle_t halt = plan->gib_halt();
-			if(halt.is_bound()  &&  (spieler_t::check_owner( sp, halt->gib_besitzer())  ||  welt->gib_spieler(1)==sp)) {
+//			if(halt.is_bound()  &&  (spieler_t::check_owner( sp, halt->gib_besitzer())  ||  welt->gib_spieler(1)==sp)) {
+			if(halt.is_bound()  &&  sp==halt->gib_besitzer()) {
 				return halt;
 			}
 		}
@@ -176,7 +177,8 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 			const planquadrat_t *plan = welt->lookup(k);
 			if(plan) {
 				halthandle_t halt = plan->gib_halt();
-				if(halt.is_bound()  &&  (spieler_t::check_owner( sp, halt->gib_besitzer())  ||  welt->gib_spieler(1)==sp)) {
+//				if(halt.is_bound()  &&  (spieler_t::check_owner( sp, halt->gib_besitzer())  ||  welt->gib_spieler(1)==sp)) {
+				if(halt.is_bound()  &&  sp==halt->gib_besitzer()) {
 					return halt;
 				}
 			}
@@ -2253,11 +2255,6 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	if(neu) {
 		halt = sp->halt_add(pos);
 	}
-	else {
-		if(sp==welt->gib_spieler(1)) {
-			halt->transfer_to_public_owner();
-		}
-	}
 	hausbauer_t::neues_gebaeude( welt, halt->gib_besitzer(), bd->gib_pos(), layout, besch, &halt);
 	halt->recalc_station_type();
 
@@ -3442,3 +3439,82 @@ bool wkz_daynight_level_t::init( karte_t *, spieler_t * ) {
 	}
 	return false;
 }
+
+
+
+/* make all tiles of this player a public stop
+ * if this player is public, make all connected tiles a public stop */
+bool wkz_make_stop_public_t::init( karte_t *, spieler_t * )
+{
+	win_set_static_tooltip( NULL );
+	stops_to_connect.clear();
+	return true;
+}
+
+void wkz_make_stop_public_t::find_stops(karte_t *welt, spieler_t *sp, koord3d pos)
+{
+	stops_to_connect.clear();
+	const planquadrat_t *pl = welt->lookup(pos.gib_2d());
+	if(  pl  &&  pl->gib_halt().is_bound()) {
+		halthandle_t halt = pl->gib_halt();
+		if(halt.is_bound()  &&  spieler_t::check_owner(halt->gib_besitzer(),sp)) {
+			stops_to_connect.insert( halt );	// first is begiining
+			// ok, valid start, now we can join them
+			for( uint8 i=0;  i<8;  i++  ) {
+				const planquadrat_t *pl2 = welt->lookup(pos.gib_2d()+koord::neighbours[i]);
+				if(  pl2  ) {
+					halthandle_t halt = pl2->gib_halt();
+					if(  halt.is_bound()
+					     &&  (spieler_t::check_owner(halt->gib_besitzer(),sp)  ||  halt->gib_besitzer()==welt->gib_spieler(1))
+					     &&  !stops_to_connect.contains(halt)  ) {
+						// append to list of tile to join
+						stops_to_connect.append(halt);
+					}
+				}
+			}
+		}
+	}
+}
+
+const char *wkz_make_stop_public_t::get_tooltip(spieler_t *) {
+	sprintf(toolstr, translator::translate("make stop public (or join with public stop next) costs %i per tile and level"), umgebung_t::maint_building*60 );
+	return toolstr;
+}
+
+const char *wkz_make_stop_public_t::move( karte_t *w, spieler_t *s, uint16 /* buttonstate */, koord3d p ) {
+	find_stops( w, s, p );
+	slist_iterator_tpl<halthandle_t> iter(stops_to_connect);
+	sint64 costs = 0;
+	while(iter.next()) {
+		halthandle_t halt = iter.get_current();
+		if(halt->gib_besitzer()==s) {
+			costs += halt->calc_maintenance();
+		}
+	}
+	// set only tooltip if it costs (us)
+	if(costs>0) {
+		win_set_static_tooltip( tooltip_with_price("Building costs estimates", -((costs*60)<<(w->ticks_bits_per_tag-18)) ) );
+	}
+	else {
+		win_set_static_tooltip( NULL );
+	}
+	return NULL;
+}
+
+const char *wkz_make_stop_public_t::work( karte_t *w, spieler_t *s, koord3d p ) {
+	find_stops( w, s, p );
+	if(stops_to_connect.count()==0) {
+		return "No stop here!";
+	}
+	halthandle_t halt = stops_to_connect.remove_first();
+	if(!stops_to_connect.empty()) {
+		while(!stops_to_connect.empty()) {
+			halt->make_public_and_join(stops_to_connect.remove_first());
+		}
+	}
+	else {
+		halt->make_public_and_join(halthandle_t());
+	}
+	return NULL;
+}
+
