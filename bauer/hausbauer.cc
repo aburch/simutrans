@@ -233,6 +233,10 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 	koord size = tile->gib_besch()->gib_groesse( tile->gib_layout() );
 	koord k;
 
+	if(tile->gib_besch()->gib_utyp()==haus_besch_t::firmensitz) {
+		gb->gib_besitzer()->add_headquarter( tile->gib_besch()->gib_extra(), koord::invalid );
+	}
+
 	// then remove factory
 	fabrik_t *fab = gb->get_fabrik();
 	if(fab) {

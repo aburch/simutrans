@@ -240,25 +240,24 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	add_komponente(&warn);
 
 	// easier headquarter access
+	old_level = sp->get_headquarter_level();
+	old_pos = sp->get_headquarter_pos();
 	if (!hausbauer_t::headquarter.empty()) {
-		headquarter.init(button_t::box, "build HQ", koord(582-12-120, 0), koord(120, BUTTONSPACE));
+
+		headquarter.init(button_t::box, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", koord(582-12-120, 0), koord(120, BUTTONSPACE));
 		headquarter.add_listener(this);
 		add_komponente(&headquarter);
 		headquarter.set_tooltip( NULL );
 		headquarter.disable();
 
-		// get new costs
-		for(  vector_tpl<const haus_besch_t *>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end();  iter != end;  ++iter  ) {
-			const haus_besch_t* besch = (*iter);
-			if (besch->gib_extra() <= sp->get_headquarter_level() ) {
-				tstrncpy( headquarter_tooltip, werkzeug_t::general_tool[WKZ_HEADQUARTER]->get_tooltip(sp), 900 );
-			}
-			else {
-				headquarter.enable();
-				headquarter.set_tooltip( headquarter_tooltip );
-			}
+		// reuse tooltip from wkz_headquarter_t
+		const char * c = werkzeug_t::general_tool[WKZ_HEADQUARTER]->get_tooltip(sp);
+		if(c) {
+			// only true, if the headquarter can be built/updated
+			tstrncpy( headquarter_tooltip, c, 900 );
+			headquarter.set_tooltip( headquarter_tooltip );
+			headquarter.enable();
 		}
-
 
 		if(sp->get_headquarter_pos()!=koord::invalid) {
 			headquarter_view.set_location( sp->get_welt()->lookup_kartenboden( sp->get_headquarter_pos() )->gib_pos() );
@@ -267,7 +266,6 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		headquarter_view.setze_groesse( koord(120, 64) );
 		add_komponente(&headquarter_view);
 	}
-	old_level = sp->get_headquarter_level();
 
 	// add filter buttons
 	for(int i=0;  i<9;  i++) {
@@ -399,38 +397,41 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	}
 	warn.setze_text(str_buf[15]);
 
+	headquarter.disable();
 	if(sp!=sp->get_welt()->get_active_player()) {
-		headquarter.disable();
 		headquarter.set_tooltip( NULL );
 	}
 	else {
-		headquarter.enable();
+		// I am on my own => allow upgrading
 		if(old_level!=sp->get_headquarter_level()) {
 
-			if(sp->get_headquarter_level()==(uint16)hausbauer_t::headquarter.get_count()) {
-				headquarter.disable();
-				headquarter.set_tooltip( NULL );
+			// reuse tooltip from wkz_headquarter_t
+			const char * c = werkzeug_t::general_tool[WKZ_HEADQUARTER]->get_tooltip(sp);
+			if(c) {
+				// only true, if the headquarter can be built/updated
+				tstrncpy( headquarter_tooltip, c, 900 );
+				headquarter.set_tooltip( headquarter_tooltip );
 			}
 			else {
-				// get new costs
-				for(  vector_tpl<const haus_besch_t *>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end();  iter != end;  ++iter  ) {
-					const haus_besch_t* besch = (*iter);
-					if (besch->gib_extra() == sp->get_headquarter_level()) {
-						tstrncpy( headquarter_tooltip, werkzeug_t::general_tool[WKZ_HEADQUARTER]->get_tooltip(sp), 900 );
-						break;
-					}
-				}
+				headquarter_tooltip[0] = 0;
+				headquarter.set_tooltip( NULL );
 			}
+		}
+		// HQ construction still possible ...
+		if(  headquarter_tooltip[0]  ) {
+			headquarter.enable();
 		}
 	}
 
-	if(old_level!=sp->get_headquarter_level()  &&  sp->get_headquarter_pos()!=koord::invalid) {
-
-		old_level = sp->get_headquarter_level();
+	if(old_level!=sp->get_headquarter_level()  ||  old_pos!=sp->get_headquarter_pos()) {
+		headquarter.setze_text( sp->get_headquarter_pos()!=koord::invalid ? "upgrade HQ" : "Built HQ" );
 		remove_komponente(&headquarter_view);
-		headquarter_view.set_location( sp->get_welt()->lookup_kartenboden(sp->get_headquarter_pos())->gib_pos() );
-		headquarter.setze_text( "upgrade HQ" );
-		add_komponente(&headquarter_view);
+		old_level = sp->get_headquarter_level();
+		old_pos = sp->get_headquarter_pos();
+		if(  old_pos!=koord::invalid  ) {
+			headquarter_view.set_location( sp->get_welt()->lookup_kartenboden(old_pos)->gib_pos() );
+			add_komponente(&headquarter_view);
+		}
 	}
 
 	// Hajo: Money is counted in credit cents (100 cents = 1 Cr)

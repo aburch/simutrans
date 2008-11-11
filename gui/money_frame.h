@@ -94,7 +94,10 @@ private:
 	button_t headquarter, goto_headquarter;
 	char headquarter_tooltip[1024];
 	world_view_t headquarter_view;
+
+	// last remembered HQ pos
 	sint16 old_level;
+	koord old_pos;
 
 public:
 	/**
