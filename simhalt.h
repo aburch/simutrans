@@ -332,7 +332,7 @@ public:
 	// just for info so far
 	sint64 calc_maintenance();
 
-	void make_public_and_join(halthandle_t halt);
+	void make_public_and_join( spieler_t *sp );
 
 	const slist_tpl<warenziel_t> * gib_warenziele_passenger() const {return &warenziele_passenger;}
 	const slist_tpl<warenziel_t> * gib_warenziele_mail() const {return &warenziele_mail;}

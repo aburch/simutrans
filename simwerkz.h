@@ -389,9 +389,6 @@ public:
 /* make all tiles of this player a public stop
  * if this player is public, make all connected tiles a public stop */
 class wkz_make_stop_public_t : public werkzeug_t {
-private:
-	slist_tpl<halthandle_t> stops_to_connect;
-	void find_stops(karte_t *w, spieler_t *s, koord3d pos );
 public:
 	wkz_make_stop_public_t() : werkzeug_t() {}
 	bool init( karte_t *, spieler_t * );
