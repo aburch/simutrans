@@ -501,14 +501,14 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 	}
 
 	// recalculate slopes and water tiles
-	for(j=0; j<gib_groesse_y(); j++) {
-		for(i=j>=yoff?0:xoff; i<gib_groesse_x(); i++) {
+	for(  j=0;  j<gib_groesse_y();  j++  ) {
+		for(  i=(j>=yoff)?0:xoff;  i<gib_groesse_x();  i++  ) {
 			planquadrat_t *pl = access(i,j);
 			grund_t *gr = pl->gib_kartenboden();
 			koord k(i,j);
 			uint8 slope = calc_natural_slope(k);
 			gr->setze_pos(koord3d(k,min_hgt(k)));
-			if(  gr->gib_typ()!=grund_t::wasser  &  max_hgt(k) <= gib_grundwasser()  ) {
+			if(  gr->gib_typ()!=grund_t::wasser  &&  max_hgt(k) <= gib_grundwasser()  ) {
 				// below water but ground => convert
 				pl->kartenboden_setzen(new wasser_t(this, gr->gib_pos()) );
 			}
@@ -776,13 +776,13 @@ void karte_t::init_felder()
 
 void karte_t::distribute_groundobjs_cities(int new_anzahl_staedte, sint16 old_x, sint16 old_y)
 {
-DBG_DEBUG("karte_t::init()","distributing groundobjs");
+DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 	if(  umgebung_t::ground_object_probability > 0  ) {
 		// add eyecandy like rocky, moles, flowers, ...
 		koord k;
 		sint32 queried = simrand(umgebung_t::ground_object_probability*2);
-		for(k.y=0; k.y<gib_groesse_y(); k.y++) {
-			for(k.x=(k.y<old_y)?old_x:0; k.x<gib_groesse_x(); k.x++) {
+		for(  k.y=0;  k.y<gib_groesse_y();  k.y++  ) {
+			for(  k.x=(k.y<old_y)?old_x:0;  k.x<gib_groesse_x();  k.x++  ) {
 				grund_t *gr = lookup_kartenboden(k);
 				if(gr->gib_typ()==grund_t::boden) {
 					queried --;
@@ -799,7 +799,7 @@ DBG_DEBUG("karte_t::init()","distributing groundobjs");
 	}
 
 print("Creating cities ...\n");
-DBG_DEBUG("karte_t::init()","prepare cities");
+DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 	vector_tpl<koord> *pos = stadt_t::random_place(this, new_anzahl_staedte, old_x, old_y);
 
 	if(  !pos->empty()  ) {
@@ -808,8 +808,9 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 
 		// prissi if we could not generate enough positions ...
 		einstellungen->setze_anzahl_staedte( old_anzahl_staedte + new_anzahl_staedte );	// new number of towns (if we did not found enough positions) ...
-		int x = 16;
-		const int max_display_progress=16+3*einstellungen->gib_anzahl_staedte()+new_anzahl_staedte+einstellungen->gib_land_industry_chains();
+		int old_progress = 16;
+		const int max_display_progress=16+2*einstellungen->gib_anzahl_staedte()
+					+2*new_anzahl_staedte+((old_x==0)?einstellungen->gib_land_industry_chains():0);
 
 		// Ansicht auf erste Stadt zentrieren
 		if (old_x+old_y == 0)
@@ -821,11 +822,11 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 //			citizens = citizens/10+simrand(2*citizens+1);
 			int current_citicens = (2500l * einstellungen->gib_mittlere_einwohnerzahl()) /(simrand(20000)+100);
 			stadt_t* s = new stadt_t(spieler[1], (*pos)[i], current_citicens);
-DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
+DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
 			stadt.append(s, current_citicens, 64);
 			if(is_display_init()) {
-				x ++;
-				display_progress(x, max_display_progress);
+				old_progress ++;
+				display_progress(old_progress, max_display_progress);
 			}
 			else {
 				printf("*");fflush(NULL);
@@ -837,8 +838,8 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 			last_maximum_bev += stadt[i]->gib_einwohner();
 			// the growth is slow, so update here the progress bar
 			if(is_display_init()) {
-				x ++;
-				display_progress(x, max_display_progress);
+				old_progress ++;
+				display_progress(old_progress, max_display_progress);
 			}
 			else {
 				printf("*");fflush(NULL);
@@ -867,9 +868,10 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 			roff = koord(0,2);
 		}
 
-		int old_progress_count = 16+einstellungen->gib_anzahl_staedte() + new_anzahl_staedte;
+		int old_progress_count = 16+2*new_anzahl_staedte;
 		int count = 0;
-		const int max_count=(einstellungen->gib_anzahl_staedte()*(einstellungen->gib_anzahl_staedte()-1))/2;
+		const int max_count=(einstellungen->gib_anzahl_staedte()*(einstellungen->gib_anzahl_staedte()-1))/2
+					- (old_anzahl_staedte*(old_anzahl_staedte-1))/2;
 
 		for(int i = 0; i < einstellungen->gib_anzahl_staedte(); i++) {
 		// Only new cities must be connected:
@@ -880,22 +882,22 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 				const int d = diff.x*diff.x + diff.y*diff.y;
 
 				if(d < umgebung_t::intercity_road_length) {
-//DBG_DEBUG("karte_t::init()","built route fom city %d to %d", i, j);
+//DBG_DEBUG("karte_t::distribute_groundobjs_cities()","built route fom city %d to %d", i, j);
 					bauigel.calc_route(lookup(k1)->gib_kartenboden()->gib_pos(), lookup(k2)->gib_kartenboden()->gib_pos());
 					if(bauigel.max_n >= 1) {
 						bauigel.baue();
 					}
 					else {
-//DBG_DEBUG("karte_t::init()","no route found fom city %d to %d", i, j);
+//DBG_DEBUG("karte_t::distribute_groundobjs_cities()","no route found fom city %d to %d", i, j);
 					}
 				}
 				else {
-//DBG_DEBUG("karte_t::init()","cites %d and %d are too far away", i, j);
+//DBG_DEBUG("karte_t::distribute_groundobjs_cities()","cites %d and %d are too far away", i, j);
 				}
 				count ++;
 				// how much we continued?
 				if(is_display_init()) {
-					int progress_count = 16+einstellungen->gib_anzahl_staedte()+ new_anzahl_staedte+ (count*einstellungen->gib_anzahl_staedte()*2)/max_count;
+					int progress_count = 16+ 2*new_anzahl_staedte+ (count*einstellungen->gib_anzahl_staedte()*2)/max_count;
 					if(old_progress_count!=progress_count) {
 						display_progress(progress_count, max_display_progress );
 						old_progress_count = progress_count;
@@ -914,6 +916,30 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 		einstellungen->setze_anzahl_staedte( stadt.get_count() );	// new number of towns (if we did not found enough positions) ...
 	}
 
+DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
+	if(  umgebung_t::moving_object_probability > 0  ) {
+		// add animals and so on (must be done after growing and all other objects, that could change ground coordinates)
+		koord k;
+		sint32 queried = simrand(umgebung_t::moving_object_probability*2);
+		// no need to test the borders, since they are mostly slopes anyway
+		for(k.y=1; k.y<gib_groesse_y()-1; k.y++) {
+			for(k.x=(k.y<old_y)?old_x:1; k.x<gib_groesse_x()-1; k.x++) {
+				grund_t *gr = lookup_kartenboden(k);
+				if(gr->gib_top()==0  &&  gr->gib_typ()==grund_t::boden  &&  gr->gib_grund_hang()==hang_t::flach) {
+					queried --;
+					if(  queried<0  ) {
+						const groundobj_besch_t *besch = movingobj_t::random_movingobj_for_climate( get_climate(gr->gib_hoehe()) );
+						if(besch  &&  (besch->get_speed()==0  ||  (besch->get_waytype()!=water_wt  ||  gr->hat_weg(water_wt)  ||  gr->gib_hoehe()<=gib_grundwasser()) ) ) {
+							if(besch->get_speed()!=0) {
+								queried = simrand(umgebung_t::moving_object_probability*2);
+								gr->obj_add( new movingobj_t( this, gr->gib_pos(), besch ) );
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 
@@ -964,71 +990,21 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 	else {
 		warenbauer_t::set_multiplier( 1000 );
 	}
+	max_rail_speed.speed = max_monorail_speed.speed = max_maglev_speed.speed = max_narrowgauge_speed.speed = max_road_speed.speed = max_ship_speed.speed = max_air_speed.speed = 0;
 
-	// wird gecached, um den Pointerzugriff zu sparen, da
-	// die groesse _sehr_ oft referenziert wird
-	cached_groesse_gitter_x = einstellungen->gib_groesse_x();
-	cached_groesse_gitter_y = einstellungen->gib_groesse_y();
-	cached_groesse_max = max(cached_groesse_gitter_x,cached_groesse_gitter_y);
-	cached_groesse_karte_x = cached_groesse_gitter_x-1;
-	cached_groesse_karte_y = cached_groesse_gitter_y-1;
+	recalc_snowline();
+
+	stadt.clear();
+
+	cached_groesse_gitter_x = 0;
+	cached_groesse_gitter_y = 0;
 
 DBG_DEBUG("karte_t::init()","init_felder");
 	init_felder();
 
-DBG_DEBUG("karte_t::init()","setze_grid_hgt");
-	memset( grid_hgts, 0, sizeof(*grid_hgts)*(cached_groesse_gitter_x+1)*(cached_groesse_gitter_y+1) );
+	display_set_progress_text(translator::translate("Init map ..."));
+	enlarge_map(this->einstellungen, h_field);
 
-DBG_DEBUG("karte_t::init()","kartenboden_setzen");
-	for(sint16 y=0; y<gib_groesse_y(); y++) {
-		for(sint16 x=0; x<gib_groesse_x(); x++) {
-			access(x,y)->kartenboden_setzen( new boden_t(this, koord3d(x,y, 0), 0 ) );
-		}
-	}
-
-	max_rail_speed.speed = max_monorail_speed.speed = max_maglev_speed.speed = max_narrowgauge_speed.speed = max_road_speed.speed = max_ship_speed.speed = max_air_speed.speed = 0;
-
-	print("Creating landscape shape...\n");
-	// calc_hoehe(0, 0, gib_groesse()-1, gib_groesse()-1);
-
-DBG_DEBUG("karte_t::init()","calc_hoehe_mit_heightfield");
-	setsimrand( 0xFFFFFFFF, einstellungen->gib_karte_nummer() );
-	if(einstellungen->heightfield.len() > 0) {
-		// init from file
-		display_set_progress_text(translator::translate("Init map ..."));
-		const int display_total = 16 + gib_einstellungen()->gib_anzahl_staedte()*4 + gib_einstellungen()->gib_land_industry_chains();
-
-		for(int y=0; y<cached_groesse_gitter_y; y++) {
-			for(int x=0; x<cached_groesse_gitter_x; x++) {
-				grid_hgts[x + y*(cached_groesse_gitter_x+1)] = (h_field[x+(y*(sint32)cached_groesse_gitter_x)]/Z_TILE_STEP);
-			}
-			grid_hgts[cached_groesse_gitter_x + y*(cached_groesse_gitter_x+1)] = grid_hgts[cached_groesse_gitter_x-1 + y*(cached_groesse_gitter_x+1)];
-		}
-		// lower border
-		memcpy( grid_hgts+(cached_groesse_gitter_x+1)*(sint32)cached_groesse_gitter_y, grid_hgts+(cached_groesse_gitter_x+1)*(sint32)(cached_groesse_gitter_y-1), cached_groesse_gitter_x+1 );
-		if(is_display_init()) {
-			display_progress((cached_groesse_gitter_y*16)/gib_groesse_y(), display_total);
-		}
-	}
-	else {
-		// calculate from perlin noise
-		einstellungen->heightfield = 0;
-		calc_hoehe_mit_perlin();
-	}
-
-	// right season for recalculations
-	recalc_snowline();
-
-DBG_DEBUG("karte_t::init()","cleanup karte");
-	cleanup_karte(0,0);
-	nosave = false;
-
-DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
-	hausbauer_t::neue_karte();
-	fabrikbauer_t::neue_karte(this);
-	stadt.clear();
-
-	distribute_groundobjs_cities(einstellungen->gib_anzahl_staedte(),0,0);
 DBG_DEBUG("karte_t::init()","distributing trees");
 	if(!umgebung_t::no_tree) {
 		baum_t::distribute_trees(this,3);
@@ -1040,32 +1016,11 @@ DBG_DEBUG("karte_t::init()","distributing trees");
 DBG_DEBUG("karte_t::init()","built timeline");
 	stadtauto_t::built_timeline_liste(this);
 
+	nosave = false;
 
-DBG_DEBUG("karte_t::init()","distributing movingobjs");
-	if(  umgebung_t::moving_object_probability > 0  ) {
-		// add animals and so on (must be done after growing and all other objects, that could change ground coordinates)
-		koord k;
-		sint32 queried = simrand(umgebung_t::moving_object_probability*2);
-		// no need to test the borders, since they are mostly slopes anyway
-		for(k.y=1; k.y<gib_groesse_y()-1; k.y++) {
-			for(k.x=1; k.x<gib_groesse_x()-1; k.x++) {
-				grund_t *gr = lookup_kartenboden(k);
-				if(gr->gib_top()==0  &&  gr->gib_typ()==grund_t::boden  &&  gr->gib_grund_hang()==hang_t::flach) {
-					queried --;
-					if(  queried<0  ) {
-						const groundobj_besch_t *besch = movingobj_t::random_movingobj_for_climate( get_climate(gr->gib_hoehe()) );
-						if(besch  &&  (besch->get_speed()==0  ||  (besch->get_waytype()!=water_wt  ||  gr->hat_weg(water_wt)  ||  gr->gib_hoehe()<=gib_grundwasser()) ) ) {
-							if(besch->get_speed()!=0) {
-								queried = simrand(umgebung_t::moving_object_probability*2);
-								gr->obj_add( new movingobj_t( this, gr->gib_pos(), besch ) );
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
+DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
+	hausbauer_t::neue_karte();
+	fabrikbauer_t::neue_karte(this);
 	// new system ...
 	const int max_display_progress=16+einstellungen->gib_anzahl_staedte()*4+einstellungen->gib_land_industry_chains();
 	for(  sint32 i=0;  i<einstellungen->gib_land_industry_chains();  i++  ) {
@@ -1114,15 +1069,8 @@ DBG_DEBUG("karte_t::init()","distributing movingobjs");
 
 
 
-void karte_t::enlarge_map(einstellungen_t* sets)
+void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 {
-	mute_sound(true);
-	intr_disable();
-
-	if(is_display_init()) {
-		display_show_pointer(false);
-	}
-
 	sint16 new_groesse_x = sets->gib_groesse_x();
 	sint16 new_groesse_y = sets->gib_groesse_y();
 	planquadrat_t *new_plan = new planquadrat_t[new_groesse_x*new_groesse_y];
@@ -1141,67 +1089,105 @@ void karte_t::enlarge_map(einstellungen_t* sets)
 	cached_groesse_karte_x = cached_groesse_gitter_x-1;
 	cached_groesse_karte_y = cached_groesse_gitter_y-1;
 
-// Copy old values:
-	for (sint16 ix = 0; ix<old_x; ix++) {
-		for (sint16 iy = 0; iy<old_y; iy++) {
-			uint32 nr = ix+(iy*old_x);
-			uint32 nnr = ix+(iy*new_groesse_x);
-			new_plan[nnr] = plan[nr];
-			plan[nr] = planquadrat_t();
-		}
-	}
-	for (sint16 ix = 0; ix<=old_x; ix++) {
-		for (sint16 iy = 0; iy<=old_y; iy++) {
-			uint32 nr = ix+(iy*(old_x+1));
-			uint32 nnr = ix+(iy*(new_groesse_x+1));
-			new_grid_hgts[nnr] = grid_hgts[nr];
-		}
-	}
-
-	delete [] plan;
-	plan = new_plan;
-	delete [] grid_hgts;
-	grid_hgts = new_grid_hgts;
-
+	intr_disable();
 
 	bool reliefkarte = reliefkarte_t::is_visible;
-	reliefkarte_t::is_visible = false;
 
-	display_set_progress_text(translator::translate("enlarge map"));
-	int progress_length = new_groesse_x+1 + new_groesse_x + new_groesse_x;
-	display_progress(0,progress_length);
+	int max_display_progress;
 
-	// loop only new tiles:
-	setsimrand( 0xFFFFFFFF, einstellungen->gib_karte_nummer() );
-	for (sint16 x = 0; x<=new_groesse_x; x++) {
-		for (sint16 y = (x>=old_x)?0:old_y; y<=new_groesse_y; y++) {
-			koord pos(x,y);
-			const sint16 h = perlin_hoehe( einstellungen, pos, koord(old_x,old_y) );
-			setze_grid_hgt( pos, h*Z_TILE_STEP);
+	// If this is not called by karte_t::init
+	if ( old_x != 0 ) {
+		mute_sound(true);
+		reliefkarte_t::is_visible = false;
+
+		if(is_display_init()) {
+			display_show_pointer(false);
 		}
-		display_progress(x+1,progress_length);
+
+// Copy old values:
+		for (sint16 ix = 0; ix<old_x; ix++) {
+			for (sint16 iy = 0; iy<old_y; iy++) {
+				uint32 nr = ix+(iy*old_x);
+				uint32 nnr = ix+(iy*new_groesse_x);
+				new_plan[nnr] = plan[nr];
+				plan[nr] = planquadrat_t();
+			}
+		}
+		for (sint16 ix = 0; ix<=old_x; ix++) {
+			for (sint16 iy = 0; iy<=old_y; iy++) {
+				uint32 nr = ix+(iy*(old_x+1));
+				uint32 nnr = ix+(iy*(new_groesse_x+1));
+				new_grid_hgts[nnr] = grid_hgts[nr];
+			}
+		}
+		delete [] plan;
+		delete [] grid_hgts;
+
+		display_set_progress_text(translator::translate("enlarge map"));
+		max_display_progress = 16 + sets->gib_anzahl_staedte()*2 + stadt.get_count()*4;
 	}
-	int old_progress = new_groesse_x+1;
-	// now lower the corners and edge between new/old part to ground level
-	sint16 i;
-	for(i=0; i<=gib_groesse_x(); i++) {
-		lower_to(i, i<old_x?old_y:0,grundwasser,false);
-		lower_to(i, gib_groesse_y(), grundwasser,false);
+	else {
+		max_display_progress = 16 + sets->gib_anzahl_staedte()*4 + einstellungen->gib_land_industry_chains();
 	}
-	for(i=0; i<=gib_groesse_y(); i++) {
-		lower_to(i<old_y?old_x:0, i,grundwasser,false);
-		lower_to(gib_groesse_x(), i, grundwasser,false);
+
+	plan = new_plan;
+	grid_hgts = new_grid_hgts;
+
+	display_progress(0,max_display_progress);
+	setsimrand( 0xFFFFFFFF, einstellungen->gib_karte_nummer() );
+	if(  old_x == 0  &&  einstellungen->heightfield.len() > 0  ){
+		// init from file
+		const int display_total = 16 + gib_einstellungen()->gib_anzahl_staedte()*4 + gib_einstellungen()->gib_land_industry_chains();
+
+		for(int y=0; y<cached_groesse_gitter_y; y++) {
+			for(int x=0; x<cached_groesse_gitter_x; x++) {
+				grid_hgts[x + y*(cached_groesse_gitter_x+1)] = (h_field[x+(y*(sint32)cached_groesse_gitter_x)]/Z_TILE_STEP);
+			}
+			grid_hgts[cached_groesse_gitter_x + y*(cached_groesse_gitter_x+1)] = grid_hgts[cached_groesse_gitter_x-1 + y*(cached_groesse_gitter_x+1)];
+		}
+		// lower border
+		memcpy( grid_hgts+(cached_groesse_gitter_x+1)*(sint32)cached_groesse_gitter_y, grid_hgts+(cached_groesse_gitter_x+1)*(sint32)(cached_groesse_gitter_y-1), cached_groesse_gitter_x+1 );
+		display_progress(16, display_total);
 	}
-	for(i=0; i<=gib_groesse_x(); i++) {
-		raise_to(i, i<old_x?old_y:0,grundwasser,false);
-		raise_to(i, gib_groesse_y(), grundwasser,false);
+	else {
+		int next_progress, old_progress = 0;
+		// loop only new tiles:
+		for(  sint16 x = 0;  x<=new_groesse_x;  x++  ) {
+			for(  sint16 y = (x>=old_x)?0:old_y;  y<=new_groesse_y;  y++  ) {
+				koord pos(x,y);
+				const sint16 h = perlin_hoehe( einstellungen, pos, koord(old_x,old_y) );
+				setze_grid_hgt( pos, h*Z_TILE_STEP);
+			}
+			next_progress = (x*16)/new_groesse_x;
+			if ( next_progress > old_progress ){
+				old_progress = next_progress;
+				display_progress(old_progress, max_display_progress);
+			}
+		}
+
+		// now lower the corners and edge between new/old part to ground level
+		sint16 i;
+		for(  i=0;  i<=gib_groesse_x();  i++  ) {
+			lower_to(i, i<old_x?old_y:0,grundwasser,false);
+			lower_to(i, gib_groesse_y(), grundwasser,false);
+		}
+		for(  i=0;  i<=gib_groesse_y();  i++  ) {
+			lower_to(i<old_y?old_x:0, i,grundwasser,false);
+			lower_to(gib_groesse_x(), i, grundwasser,false);
+		}
+		for(i=0; i<=gib_groesse_x(); i++) {
+			raise_to(i, i<old_x?old_y:0,grundwasser,false);
+			raise_to(i, gib_groesse_y(), grundwasser,false);
+		}
+		for(i=0; i<=gib_groesse_y(); i++) {
+			raise_to(i<old_y?old_x:0, i,grundwasser,false);
+			raise_to(gib_groesse_x(), i, grundwasser,false);
+		}
+		raise_to(old_x, old_y, grundwasser,false);
+		lower_to(old_x, old_y, grundwasser,false);
 	}
-	for(i=0; i<=gib_groesse_y(); i++) {
-		raise_to(i<old_y?old_x:0, i,grundwasser,false);
-		raise_to(gib_groesse_x(), i, grundwasser,false);
-	}
-	raise_to(old_x, old_y, grundwasser,false);
-	lower_to(old_x, old_y, grundwasser,false);
+
+//	int old_progress = 16;
 
 	for (sint16 ix = 0; ix<new_groesse_x; ix++) {
 		for (sint16 iy = (ix>=old_x)?0:old_y; iy<new_groesse_y; iy++) {
@@ -1211,9 +1197,7 @@ void karte_t::enlarge_map(einstellungen_t* sets)
 			grund_t *gr = lookup_kartenboden(k);
 			gr->setze_grund_hang(calc_natural_slope(k));
 		}
-		display_progress(old_progress + ix+1,progress_length);
 	}
-	old_progress += new_groesse_x;
 
 	// smoothing the seam (if possible)
 	for (sint16 x=1; x<old_x; x++) {
@@ -1251,7 +1235,6 @@ void karte_t::enlarge_map(einstellungen_t* sets)
 		}
 	}
 
-
 	cleanup_karte( old_x, old_y );
 
 	// eventuall update origin
@@ -1271,9 +1254,9 @@ void karte_t::enlarge_map(einstellungen_t* sets)
 	// Resize marker_t:
 	marker.init(new_groesse_x, new_groesse_y);
 
-	display_set_progress_text(translator::translate("New cities..."));
 	distribute_groundobjs_cities(sets->gib_anzahl_staedte(),old_x, old_y);
 
+	hausbauer_t::neue_karte();
 	fabrikbauer_t::neue_karte( this );
 	set_schedule_counter();
 
@@ -1309,27 +1292,28 @@ void karte_t::enlarge_map(einstellungen_t* sets)
 		}
 	}
 
-	reliefkarte_t::is_visible = reliefkarte;
-	reliefkarte_t::gib_karte()->setze_welt( this );
-	reliefkarte_t::gib_karte()->calc_map();
+	if ( old_x != 0 ) {
+		if(is_display_init()) {
+			display_show_pointer(true);
+		}
+		mute_sound(false);
 
-	reliefkarte_t::gib_karte()->set_mode( reliefkarte_t::gib_karte()->get_mode() );
+		reliefkarte_t::is_visible = reliefkarte;
+		reliefkarte_t::gib_karte()->setze_welt( this );
+		reliefkarte_t::gib_karte()->calc_map();
+		reliefkarte_t::gib_karte()->set_mode( reliefkarte_t::gib_karte()->get_mode() );
 
-	setze_dirty();
-	simloops = 60;
-	reset_timer();
+		setze_dirty();
+		simloops = 60;
+		reset_timer();
 
-	// make timer loop invalid
-	for( int i=0;  i<32;  i++ ) {
-		last_frame_ms[i] = 0x7FFFFFFFu;
-		last_step_nr[i] = 0xFFFFFFFFu;
+		// make timer loop invalid
+		for( int i=0;  i<32;  i++ ) {
+			last_frame_ms[i] = 0x7FFFFFFFu;
+			last_step_nr[i] = 0xFFFFFFFFu;
+		}
+		last_frame_idx = 0;
 	}
-	last_frame_idx = 0;
-
-	if(is_display_init()) {
-		display_show_pointer(true);
-	}
-	mute_sound(false);
 }
 
 

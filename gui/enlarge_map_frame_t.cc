@@ -203,7 +203,7 @@ bool enlarge_map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			news_img* info_win = new news_img("Vergroessere die Karte\n", skinverwaltung_t::neueweltsymbol->gib_bild_nr(0));
 			create_win(200, 100, info_win, w_info, magic_none);
 			intr_refresh_display(true);
-			welt->enlarge_map(sets);
+			welt->enlarge_map(sets, NULL);
 			destroy_win( info_win );
 	}
 	else {

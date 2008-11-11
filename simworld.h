@@ -713,7 +713,7 @@ public:
 
 	void init_felder();
 
-	void enlarge_map(einstellungen_t *sets);
+	void enlarge_map(einstellungen_t *sets, sint8 *h_field);
 
 	karte_t();
 
