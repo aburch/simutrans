@@ -284,7 +284,7 @@ public:
 	/*
 	 * called after game is fully loaded;
 	 */
-	void laden_abschliessen();
+	virtual void laden_abschliessen();
 
 	virtual void rotate90( const sint16 y_size );
 

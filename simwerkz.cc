@@ -1927,17 +1927,35 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 #endif
 
 	// now try to find halt in wider vicinity
-	for( int i=0;  i<besch->gib_all_layouts()  &&  !halt.is_bound();  i++  ) {
-		if((best_dir&(1<<i))==0) {
-			continue;
+	pos = k.gib_2d();
+	if(size.x*size.y>1) {
+		if(  besch->gib_all_layouts()<=2  ) {
+			best_dir = (best_dir&3)|(best_dir>>2);
 		}
-		if(welt->ist_platz_frei(pos, size.y, size.x, NULL, besch->get_allowed_climate_bits())) {
-			halt = suche_nahe_haltestelle(sp, welt, k, size.y, size.x);
+		for( int i=0;  i<besch->gib_all_layouts();  i++  ) {
+			if((best_dir&(1<<i))==0) {
+				// no valid rotation
+				continue;
+			}
+			koord testsize = (i&1)==0 ? size : koord(size.y,size.x);
+			for(  sint8 j=0;  j<4;  j++ ) {
+				koord offset(((j&1)^1)*(testsize.x-1),(j&1)*(testsize.y-1));
+				if(welt->ist_platz_frei(pos-offset, testsize.x, testsize.y, NULL, besch->get_allowed_climate_bits())) {
+					halt = suche_nahe_haltestelle(sp, welt, k-offset, testsize.x, testsize.y);
+					if(halt.is_bound()) {
+						pos -= offset;
+						break;
+					}
+				}
+			}
+			if(  halt.is_bound()  ) {
+				rotate = i%besch->gib_all_layouts();
+				break;
+			}
 		}
-		else if(welt->ist_platz_frei(pos, size.x, size.y, NULL, besch->get_allowed_climate_bits())) {
-			halt = suche_nahe_haltestelle(sp, welt, k, size.y, size.x);
-		}
-		rotate = i%besch->gib_all_layouts();
+	}
+	else {
+		halt = suche_nahe_haltestelle(sp, welt, k, size.x, size.y);
 	}
 
 	// is there already a halt to connect?
@@ -1947,8 +1965,8 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 			create_win( new news_img("Station already\nhas a post office!\n"), w_time_delete, magic_none);
 		}
 */
-		hausbauer_t::baue(welt, halt->gib_besitzer(), k, rotate, besch, &halt);
-		sp->buche(umgebung_t::cst_multiply_post*besch->gib_level()*besch->gib_b()*besch->gib_h(), k.gib_2d(), COST_CONSTRUCTION);
+		hausbauer_t::baue(welt, halt->gib_besitzer(), k+pos-k.gib_2d(), rotate, besch, &halt);
+		sp->buche(umgebung_t::cst_multiply_post*besch->gib_level()*besch->gib_b()*besch->gib_h(), pos, COST_CONSTRUCTION);
 		halt->recalc_station_type();
 	}
 	else {
