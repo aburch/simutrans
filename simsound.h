@@ -17,36 +17,31 @@
  */
 struct sound_info
 {
-    /**
-     * Index des beschriebenen sounds
-     * @author Hj. Malthaner
-     */
-    uint16 index;
+	/**
+	 * Index des beschriebenen sounds
+	 * @author Hj. Malthaner
+	 */
+	uint16 index;
 
-    /**
-     * Lautstaerke des soundeffekts 0=stille, 255=maximum
-     * @author Hj. Malthaner
-     */
-    uint8 volume;
+	/**
+	 * Lautstaerke des soundeffekts 0=stille, 255=maximum
+	 * @author Hj. Malthaner
+	 */
+	uint8 volume;
 
-    /**
-     * Prioritaet des sounds. Falls die Anzahl der abspielbaren Sounds
-     * vom System begrenzt wird, werden nur die Sounds hoher Priorität
-     * abgespielt
-     * @author Hj. Malthaner
-     */
-    uint8 pri;
+	/**
+	 * Prioritaet des sounds. Falls die Anzahl der abspielbaren Sounds
+	 * vom System begrenzt wird, werden nur die Sounds hoher Priorität
+	 * abgespielt
+	 * @author Hj. Malthaner
+	 */
+	uint8 pri;
 };
 
 
-/**
- * laedt soundfiles gemaess soundconfiguration.
- * koennen soundfiles nicht geladen werden, dann wird
- * spaeter kein sound abgespielt.
- * @author Hj. Malthaner
- */
-void sound_init();
-
+// when muted, sound is not played (and also volume is not touched)
+void sound_set_mute(bool on);
+bool sound_get_mute();
 
 /**
  * setzt Lautstärke für alle effekte
@@ -102,7 +97,9 @@ const char * sound_get_midi_title(int index);
  */
 int get_current_midi();
 
-
+// when muted, midi is not used
+void midi_set_mute(bool on);
+bool midi_get_mute();
 
 /* OWEN: MIDI routines */
 extern int midi_init(const char *path);
@@ -119,13 +116,5 @@ extern void close_midi();
 extern void midi_next_track();
 extern void midi_last_track();
 extern void midi_stop();
-
-
-/**
- * Sets the MIDI volume variable - for internal use only
- * @param volume Volume in range 0-255
- * @author Owen Rudge
- */
-void sound_set_midi_volume_var(int volume);
 
 #endif

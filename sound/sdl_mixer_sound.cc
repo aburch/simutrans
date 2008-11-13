@@ -27,11 +27,11 @@ static int samplenumber = 0;
 /**
  * Sound initialisation routine
  */
-void dr_init_sound()
+bool dr_init_sound()
 {
 	int sound_ok = 0;
 	if(use_sound!=0) {
-		return;	// avoid init twice
+		return true;	// avoid init twice
 	}
 	use_sound = 1;
 
@@ -58,23 +58,28 @@ void dr_init_sound()
 				// start playing sounds
 				Mix_ResumeMusic();
 
-			} else {
+			}
+			else {
 				printf("Open audio channel doesn't meet requirements. Muting\n");
 				Mix_CloseAudio();
 				SDL_QuitSubSystem(SDL_INIT_AUDIO);
 			}
 
 
-		} else {
+		}
+		else {
 			printf("Could not open required audio channel. Muting\n");
 			SDL_QuitSubSystem(SDL_INIT_AUDIO);
 		}
-	} else {
+	}
+	else {
 		printf("Could not initialize sound system. Muting\n");
 	}
 
 	use_sound = sound_ok ? 1: -1;
+	return sound_ok;
 }
+
 
 
 /**

@@ -44,7 +44,13 @@ static stringhashtable_tpl<sound_ids *> name_sound;
 static bool sound_on=false;
 static cstring_t sound_path;
 
-sint16 sound_besch_t::compatible_sound_id[MAX_OLD_SOUNDS];
+sint16 sound_besch_t::compatible_sound_id[MAX_OLD_SOUNDS]=
+{
+	NO_SOUND, NO_SOUND, NO_SOUND, NO_SOUND,
+	NO_SOUND, NO_SOUND, NO_SOUND, NO_SOUND,
+	NO_SOUND, NO_SOUND, NO_SOUND, NO_SOUND,
+	NO_SOUND, NO_SOUND, NO_SOUND, NO_SOUND
+};
 
 /* init sounds */
 /* standard sounds and old sounds are found in the file pak/sound/sound.tab */
@@ -52,11 +58,7 @@ void
 sound_besch_t::init()
 {
 	// ok, now init
-	dr_init_sound();
 	sound_on = true;
-	for( unsigned i=0;  i<MAX_OLD_SOUNDS;  i++ ) {
-		compatible_sound_id[i] = NO_SOUND;
-	}
 	sound_path = umgebung_t::program_dir;
 	sound_path= sound_path + umgebung_t::objfilename + "sound/";
 	// process sound.tab

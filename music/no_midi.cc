@@ -78,6 +78,8 @@ void set_midi_pos(int pos)
  * MIDI initialisation routines
  * @author Owen Rudge
  */
-void dr_init_midi(void)
+
+bool dr_init_midi(void)
 {
+	return false;
 }

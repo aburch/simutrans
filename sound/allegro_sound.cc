@@ -24,10 +24,10 @@ static int vc;
  * initializes sound device
  * @author Hj. Malthaner
  */
-void dr_init_sound()
+bool dr_init_sound()
 {
 	if(sound_ok) {
-		return; // already initialized
+		return sound_ok; // already initialized
 	}
 	int voices = detect_digi_driver(DIGI_AUTODETECT);
 
@@ -59,7 +59,9 @@ void dr_init_sound()
 		fprintf(stderr, "Warning: No sound available!\n");
 		sound_ok = 0;
 	}
+	return sound_ok;
 }
+
 
 
 /*
@@ -69,12 +71,11 @@ void dr_init_sound()
  */
 int dr_load_sample(const char *filename)
 {
-        if(sound_ok) {
-                sound_samples[sample_number] = load_sample(filename);
-
-                lock_sample(sound_samples[sample_number]);
-        }
-        return sample_number++;
+	if(sound_ok) {
+		sound_samples[sample_number] = load_sample(filename);
+		lock_sample(sound_samples[sample_number]);
+	}
+	return sample_number++;
 }
 
 
@@ -85,26 +86,13 @@ int dr_load_sample(const char *filename)
  */
 void dr_play_sample(int key, int volume)
 {
-//        fprintf(stderr, "playing sound %d\n", key);
-
-
-
-        if(sound_ok && key < 1024 && sound_samples[key] != NULL) {
-/*
-                play_sample(sound_samples[key],
-                            volume,
-                            128,
-                            1000,
-                            0);
-*/
-
+	if(sound_ok && key < 1024 && sound_samples[key] != NULL) {
 		int v = voice[vc & 3];
-
 		if(v == -1) {
 			// noch nie benutzt
-
 			voice[vc & 3] = v = allocate_voice(sound_samples[key]);
-		} else {
+		}
+		else {
 			voice_stop( v );
 		}
 

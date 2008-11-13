@@ -67,6 +67,9 @@
 #include "besch/reader/obj_reader.h"
 #include "besch/sound_besch.h"
 
+#include "music/music.h"
+#include "sound/sound.h"
+
 #include "bauer/vehikelbauer.h"
 #include "vehicle/simvehikel.h"
 #include "vehicle/simverkehr.h"
@@ -679,10 +682,14 @@ int simu_main(int argc, char** argv)
 	haltestelle_t::set_max_hops( umgebung_t::set_max_hops );
 
 	// just check before loading objects
-	if (!gimme_arg(argc, argv, "-nosound", 0)) {
+	if (!gimme_arg(argc, argv, "-nosound", 0)  &&  dr_init_sound()) {
 		print("Reading compatibility sound data ...\n");
 		sound_besch_t::init();
 	}
+	else {
+		sound_set_mute(true);
+	}
+
 
 	// Adam - Moved away loading from simmain and placed into translator for better modularisation
 	if (!translator::load(umgebung_t::objfilename)) {
@@ -754,6 +761,21 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	// now always writing in user dir (which points the the program dir in multiuser mode)
 	chdir( umgebung_t::user_dir );
 
+	// init midi before loading sounds
+	if(!gimme_arg(argc, argv, "-nomidi", 0)  ||  !dr_init_midi()) {
+		print("Reading midi data ...\n");
+		if(!midi_init(umgebung_t::user_dir)) {
+			if(!midi_init(umgebung_t::program_dir)) {
+				midi_set_mute(true);
+				print("Midi disabled ...\n");
+			}
+		}
+	}
+	else {
+		print("Midi disabled ...\n");
+		midi_set_mute(true);
+	}
+
 	/* Jetzt, nachdem die Kommandozeile ausgewertet ist, koennen wir die
 	 * Konfigurationsdatei lesen, und ggf. einige Einstellungen setzen
 	 */
@@ -812,6 +834,15 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		fscanf(config, "WareSortMode=%d\n", &sort_mode );
 		umgebung_t::default_sortmode = sort_mode;
 
+		if(fscanf(config, "MuteSoundMidi=%d,%d\n", &sound_volume, &midi_volume )==2) {
+			sound_set_mute( sound_volume );
+			midi_set_mute( midi_volume );
+		}
+		else {
+			sound_set_mute( sound_volume==0 );
+			midi_set_mute( midi_volume==0 );
+		}
+
 		fclose(config);
 	}
 
@@ -821,15 +852,6 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	// some messages about old vehicle may appear ...
 	welt->get_message()->set_message_flags(0, 0, 0, 0);
-
-	if (!gimme_arg(argc, argv, "-nomidi", 0)) {
-		print("Reading midi data ...\n");
-		if(midi_init(umgebung_t::user_dir)) {
-			midi_play(0);
-		} else if(midi_init(umgebung_t::program_dir)) {
-			midi_play(0);
-		}
-	}
 
 	// set the frame per second
 	const char *ref_str = gimme_arg(argc, argv, "-fps", 1);
@@ -1097,6 +1119,7 @@ DBG_MESSAGE("init","map");
 		fprintf(config, "SoundShuffle=%d,%d\n", sound_get_shuffle_midi(), 0 );
 		fprintf(config, "MapMode=%d\n", umgebung_t::default_mapmode );
 		fprintf(config, "WareSortMode=%d\n", umgebung_t::default_sortmode );
+		fprintf(config, "MuteSoundMidi=%d,%d\n", sound_get_mute(), midi_get_mute() );
 		fclose(config);
 	}
 

@@ -50,9 +50,7 @@ void __win32_set_midi_volume(int type, int left, int right);
  */
 void dr_set_midi_volume(int vol)
 {
-	if(use_midi) {
-		__win32_set_midi_volume(__MIDI_VOL_SIMU, vol, vol);
-	}
+	__win32_set_midi_volume(__MIDI_VOL_SIMU, vol, vol);
 }
 
 
@@ -63,35 +61,30 @@ void dr_set_midi_volume(int vol)
 
 int dr_load_midi(const char *filename)
 {
-  if(use_midi) {
+	unsigned j;
 
-    unsigned j;
+		//   printf("dr_load_midi(%s)\n", filename);
+	if(midi_number < MAX_MIDI-1) {
+		const int i = midi_number + 1;
 
-    //   printf("dr_load_midi(%s)\n", filename);
-    if(midi_number < MAX_MIDI-1) {
-      const int i = midi_number + 1;
+		if (i >= 0 && i < MAX_MIDI) {
 
-      if (i >= 0 && i < MAX_MIDI) {
+			// MCI doesn't like relative paths
+			// but we get absolute ones anyway
+			// already absolute path
+			midi_filenames[i] = strdup(filename);
 
-				// MCI doesn't like relative paths
-				// but we get absolute ones anyway
-				// already absolute path
-				midi_filenames[i] = strdup(filename);
-
-				// need to make dos path seperators
-				for (j = 0; j < strlen(midi_filenames[i]); j++)	{
-					if (midi_filenames[i][j] == '/') {
-						midi_filenames[i][j] = '\\';
-					}
+			// need to make dos path seperators
+			for (j = 0; j < strlen(midi_filenames[i]); j++)	{
+				if (midi_filenames[i][j] == '/') {
+					midi_filenames[i][j] = '\\';
 				}
+			}
 
-				midi_number = i;
-      }
-    }
-    return midi_number;
-  } else {
-    return -1;
-  }
+			midi_number = i;
+		}
+	}
+	return midi_number;
 }
 
 
@@ -102,29 +95,28 @@ int dr_load_midi(const char *filename)
  */
 void dr_play_midi(int key)
 {
-	if(use_midi) {
-		char str[200], retstr[200];
+	char str[200], retstr[200];
 
-		if (midi_number > 0) {
+	if (midi_number > 0) {
 
-			if (key >= 0 && key <= midi_number) {
-				sprintf(str, "open \"%s\" type sequencer alias SimuMIDI", midi_filenames[key]);
-				printf("MCI string: %s\n", str);
+		if (key >= 0 && key <= midi_number) {
+			sprintf(str, "open \"%s\" type sequencer alias SimuMIDI", midi_filenames[key]);
+			printf("MCI string: %s\n", str);
 
-				if (mciSendStringA(str, NULL, 0, NULL) != 0) {
-					printf("\nMessage: MIDI: Unable to load MIDI %d\n", key);
-				}
-				else {
-					if (mciSendStringA("play SimuMIDI", NULL, 0, NULL) != 0)
-						printf("\nMessage: MIDI: Unable to play MIDI %d - %s\n", key, retstr);
-					}
-				}
-			else {
-					printf("\nMessage: MIDI: Unable to play MIDI %d\n", key);
+			if (mciSendStringA(str, NULL, 0, NULL) != 0) {
+				printf("\nMessage: MIDI: Unable to load MIDI %d\n", key);
 			}
+			else {
+				if (mciSendStringA("play SimuMIDI", NULL, 0, NULL) != 0)
+					printf("\nMessage: MIDI: Unable to play MIDI %d - %s\n", key, retstr);
+				}
+			}
+		else {
+				printf("\nMessage: MIDI: Unable to play MIDI %d\n", key);
 		}
 	}
 }
+
 
 
 /**
@@ -133,13 +125,11 @@ void dr_play_midi(int key)
  */
 void dr_stop_midi(void)
 {
-	if(use_midi) {
-		//   stop_midi();
-		char retstr[200];
+	//   stop_midi();
+	char retstr[200];
 
-		mciSendStringA("stop SimuMIDI", retstr, 200, NULL);
-		mciSendStringA("close SimuMIDI", retstr, 200, NULL);
-	}
+	mciSendStringA("stop SimuMIDI", retstr, 200, NULL);
+	mciSendStringA("close SimuMIDI", retstr, 200, NULL);
 }
 
 
@@ -149,27 +139,24 @@ void dr_stop_midi(void)
  */
 long dr_midi_pos(void)
 {
-	if(use_midi) {
-		char retstr[200];
-		static long lastpos;
-		long length;
+	char retstr[200];
+	static long lastpos;
+	long length;
 
-		mciSendStringA("set SimuMIDI time format milliseconds", retstr, 200, NULL);
-		mciSendStringA("status SimuMIDI length", retstr, 200, NULL);
-		length = atol(retstr);
+	mciSendStringA("set SimuMIDI time format milliseconds", retstr, 200, NULL);
+	mciSendStringA("status SimuMIDI length", retstr, 200, NULL);
+	length = atol(retstr);
 
-		if (mciSendStringA("status SimuMIDI position", retstr, 200, NULL) == 0) {
-		//         printf("Position: %ld (%ld)\n", atol(retstr), lastpos);
-			const long pos = atol(retstr);
-			if (pos == length) {
-				mciSendStringA("stop SimuMIDI", retstr, 200, NULL);  // We must stop ourselves
-				mciSendStringA("close SimuMIDI", retstr, 200, NULL);
-				return (-1);
-			}
-			else {
-				lastpos = pos;
-				return pos;
-			}
+	if (mciSendStringA("status SimuMIDI position", retstr, 200, NULL) == 0) {
+		const long pos = atol(retstr);
+		if (pos == length) {
+			mciSendStringA("stop SimuMIDI", retstr, 200, NULL);  // We must stop ourselves
+			mciSendStringA("close SimuMIDI", retstr, 200, NULL);
+			return (-1);
+		}
+		else {
+			lastpos = pos;
+			return pos;
 		}
 	}
 	return 0;
@@ -182,12 +169,8 @@ long dr_midi_pos(void)
  */
 void dr_destroy_midi(void)
 {
-	if(use_midi) {
-		__win32_set_midi_volume(__MIDI_VOL_WIN32, OldMIDIVol[0], OldMIDIVol[1]);
-		midi_number = -1;
-
-		use_midi = 0;
-	}
+	__win32_set_midi_volume(__MIDI_VOL_WIN32, OldMIDIVol[0], OldMIDIVol[1]);
+	midi_number = -1;
 }
 
 
@@ -195,79 +178,80 @@ void dr_destroy_midi(void)
  * MIDI initialisation routines
  * @author Owen Rudge
  */
-void dr_init_midi(void)
+bool dr_init_midi(void)
 {
  #ifdef MIXER_VOLUME
-   UINT nMIDIDevices;
-   MIXERLINECONTROLS mlc;
-   MIXERCONTROL MixControl;
-   MIXERCONTROLDETAILS MixControlDetails;
-   MIXERCONTROLDETAILS_UNSIGNED MixControlDetailsUnsigned[2];
-   MIXERLINE MixerLine;
-   HMIXER hMixer;
-   MIXERCAPS DevCaps;
+	UINT nMIDIDevices;
+	MIXERLINECONTROLS mlc;
+	MIXERCONTROL MixControl;
+	MIXERCONTROLDETAILS MixControlDetails;
+	MIXERCONTROLDETAILS_UNSIGNED MixControlDetailsUnsigned[2];
+	MIXERLINE MixerLine;
+	HMIXER hMixer;
+	MIXERCAPS DevCaps;
 
-   // Reset MIDI volume
+	// Reset MIDI volume
 
-   nMIDIDevices = midiOutGetNumDevs();
+	nMIDIDevices = midiOutGetNumDevs();
 
-   if (nMIDIDevices == 0)
-      return;
+	if (nMIDIDevices == 0)
+		return;
 
-   mixerOpen(&hMixer, 0, 0, 0, MIXER_OBJECTF_MIDIOUT);
-   mixerGetDevCaps((UINT) hMixer, &DevCaps, sizeof(DevCaps));
-   mixerClose(hMixer);
+	mixerOpen(&hMixer, 0, 0, 0, MIXER_OBJECTF_MIDIOUT);
+	mixerGetDevCaps((UINT) hMixer, &DevCaps, sizeof(DevCaps));
+	mixerClose(hMixer);
 
-   MixerLine.cbStruct = sizeof(MixerLine);
-   MixerLine.Target.dwType = MIXERLINE_TARGETTYPE_MIDIOUT;
-   MixerLine.Target.wMid = DevCaps.wMid;
-   MixerLine.Target.wPid = DevCaps.wPid;
-   MixerLine.Target.vDriverVersion = DevCaps.vDriverVersion;
-   strcpy(MixerLine.Target.szPname, DevCaps.szPname);
+	MixerLine.cbStruct = sizeof(MixerLine);
+	MixerLine.Target.dwType = MIXERLINE_TARGETTYPE_MIDIOUT;
+	MixerLine.Target.wMid = DevCaps.wMid;
+	MixerLine.Target.wPid = DevCaps.wPid;
+	MixerLine.Target.vDriverVersion = DevCaps.vDriverVersion;
+	strcpy(MixerLine.Target.szPname, DevCaps.szPname);
 
-   mixerGetLineInfo(0, &MixerLine, MIXER_GETLINEINFOF_TARGETTYPE | MIXER_OBJECTF_MIDIOUT);
+	mixerGetLineInfo(0, &MixerLine, MIXER_GETLINEINFOF_TARGETTYPE | MIXER_OBJECTF_MIDIOUT);
 
-   mlc.cbStruct = sizeof(mlc);
-   mlc.dwLineID = MixerLine.dwLineID;
-   mlc.dwControlType = MIXERCONTROL_CONTROLTYPE_VOLUME;
-   mlc.cControls = 1;
-   mlc.cbmxctrl = sizeof(MixControl);
-   mlc.pamxctrl = &MixControl;
+	mlc.cbStruct = sizeof(mlc);
+	mlc.dwLineID = MixerLine.dwLineID;
+	mlc.dwControlType = MIXERCONTROL_CONTROLTYPE_VOLUME;
+	mlc.cControls = 1;
+	mlc.cbmxctrl = sizeof(MixControl);
+	mlc.pamxctrl = &MixControl;
 
-   MixControl.cbStruct = sizeof(MixControl);
-   MixControl.dwControlType = MIXERCONTROL_CONTROLTYPE_VOLUME;
+	MixControl.cbStruct = sizeof(MixControl);
+	MixControl.dwControlType = MIXERCONTROL_CONTROLTYPE_VOLUME;
 
-   mixerGetLineControls(0, &mlc, MIXER_OBJECTF_MIDIOUT | MIXER_GETLINECONTROLSF_ONEBYTYPE);
+	mixerGetLineControls(0, &mlc, MIXER_OBJECTF_MIDIOUT | MIXER_GETLINECONTROLSF_ONEBYTYPE);
 
-   MixControlDetails.cbStruct = sizeof(MixControlDetails);
-   MixControlDetails.dwControlID = MixControl.dwControlID;
-   MixControlDetails.cChannels = MixerLine.cChannels;
-   MixControlDetails.hwndOwner = NULL;
-   MixControlDetails.cMultipleItems = 0;
-   MixControlDetails.cbDetails = sizeof(MixControlDetailsUnsigned[0])*2;
-   MixControlDetails.paDetails = &MixControlDetailsUnsigned[0];
+	MixControlDetails.cbStruct = sizeof(MixControlDetails);
+	MixControlDetails.dwControlID = MixControl.dwControlID;
+	MixControlDetails.cChannels = MixerLine.cChannels;
+	MixControlDetails.hwndOwner = NULL;
+	MixControlDetails.cMultipleItems = 0;
+	MixControlDetails.cbDetails = sizeof(MixControlDetailsUnsigned[0])*2;
+	MixControlDetails.paDetails = &MixControlDetailsUnsigned[0];
 
-   mixerGetControlDetails(0, &MixControlDetails, MIXER_OBJECTF_MIDIOUT | MIXER_GETCONTROLDETAILSF_VALUE);
+	mixerGetControlDetails(0, &MixControlDetails, MIXER_OBJECTF_MIDIOUT | MIXER_GETCONTROLDETAILSF_VALUE);
 
-   OldMIDIVol[0] = MixControlDetailsUnsigned[0].dwValue;  // Save the old volume
-   OldMIDIVol[1] = MixControlDetailsUnsigned[0].dwValue;
+	OldMIDIVol[0] = MixControlDetailsUnsigned[0].dwValue;  // Save the old volume
+	OldMIDIVol[1] = MixControlDetailsUnsigned[0].dwValue;
 
-   sound_set_midi_volume_var(OldMIDIVol[0] >> 8); // Set the MIDI volume
+	sound_set_midi_volume_var(OldMIDIVol[0] >> 8); // Set the MIDI volume
 
-   mixerSetControlDetails(0, &MixControlDetails, MIXER_OBJECTF_MIDIOUT | MIXER_SETCONTROLDETAILSF_VALUE);
+	mixerSetControlDetails(0, &MixControlDetails, MIXER_OBJECTF_MIDIOUT | MIXER_SETCONTROLDETAILSF_VALUE);
 #else
 	if( midiOutGetNumDevs()== 0 ) {
-		return;
+		return false;
 	}
 	DWORD old_volume;
 	midiOutGetVolume( 0, &old_volume );
 	OldMIDIVol[0] = old_volume>>24;
 	OldMIDIVol[1] = (old_volume&0x0000FF00)>>8;
 #endif
-
-  // Hajo: assuming if we got here, all is set up to work properly
-  use_midi = 1;
+	// Hajo: assuming if we got here, all is set up to work properly
+	return true;
 }
+
+
 
 // CURRENTLY UNSUPPORTED
 void set_midi_pos(int /*pos*/)
@@ -275,72 +259,75 @@ void set_midi_pos(int /*pos*/)
 //   midi_pos = pos;
 }
 
+
+
 #ifdef MIXER_VOLUME
 // Sets the MIDI volume - internal routine
 void __win32_set_midi_volume(int type, int left, int right)
 {
-   UINT nMIDIDevices;
-   MIXERLINECONTROLS mlc;
-   MIXERCONTROL MixControl;
-   MIXERCONTROLDETAILS MixControlDetails;
-   MIXERCONTROLDETAILS_UNSIGNED MixControlDetailsUnsigned[2];
-   MIXERLINE MixerLine;
-   HMIXER hMixer;
-   MIXERCAPS DevCaps;
+	UINT nMIDIDevices;
+	MIXERLINECONTROLS mlc;
+	MIXERCONTROL MixControl;
+	MIXERCONTROLDETAILS MixControlDetails;
+	MIXERCONTROLDETAILS_UNSIGNED MixControlDetailsUnsigned[2];
+	MIXERLINE MixerLine;
+	HMIXER hMixer;
+	MIXERCAPS DevCaps;
 
-   nMIDIDevices = midiOutGetNumDevs();
-   if (nMIDIDevices == 0)
-      return;
+	nMIDIDevices = midiOutGetNumDevs();
+	if (nMIDIDevices == 0) {
+		return;
+	}
 
-   mixerOpen(&hMixer, 0, 0, 0, MIXER_OBJECTF_MIDIOUT);
-   mixerGetDevCaps((UINT) hMixer, &DevCaps, sizeof(DevCaps));
-   mixerClose(hMixer);
+	mixerOpen(&hMixer, 0, 0, 0, MIXER_OBJECTF_MIDIOUT);
+	mixerGetDevCaps((UINT) hMixer, &DevCaps, sizeof(DevCaps));
+	mixerClose(hMixer);
 
-   MixerLine.cbStruct = sizeof(MixerLine);
-   MixerLine.Target.dwType = MIXERLINE_TARGETTYPE_MIDIOUT;
-   MixerLine.Target.wMid = DevCaps.wMid;
-   MixerLine.Target.wPid = DevCaps.wPid;
-   MixerLine.Target.vDriverVersion = DevCaps.vDriverVersion;
-   strcpy(MixerLine.Target.szPname, DevCaps.szPname);
+	MixerLine.cbStruct = sizeof(MixerLine);
+	MixerLine.Target.dwType = MIXERLINE_TARGETTYPE_MIDIOUT;
+	MixerLine.Target.wMid = DevCaps.wMid;
+	MixerLine.Target.wPid = DevCaps.wPid;
+	MixerLine.Target.vDriverVersion = DevCaps.vDriverVersion;
+	strcpy(MixerLine.Target.szPname, DevCaps.szPname);
 
-   mixerGetLineInfo(0, &MixerLine, MIXER_GETLINEINFOF_TARGETTYPE | MIXER_OBJECTF_MIDIOUT);
+	mixerGetLineInfo(0, &MixerLine, MIXER_GETLINEINFOF_TARGETTYPE | MIXER_OBJECTF_MIDIOUT);
 
-   mlc.cbStruct = sizeof(mlc);
-   mlc.dwLineID = MixerLine.dwLineID;
-   mlc.dwControlType = MIXERCONTROL_CONTROLTYPE_VOLUME;
-   mlc.cControls = 1;
-   mlc.cbmxctrl = sizeof(MixControl);
-   mlc.pamxctrl = &MixControl;
+	mlc.cbStruct = sizeof(mlc);
+	mlc.dwLineID = MixerLine.dwLineID;
+	mlc.dwControlType = MIXERCONTROL_CONTROLTYPE_VOLUME;
+	mlc.cControls = 1;
+	mlc.cbmxctrl = sizeof(MixControl);
+	mlc.pamxctrl = &MixControl;
 
-   MixControl.cbStruct = sizeof(MixControl);
-   MixControl.dwControlType = MIXERCONTROL_CONTROLTYPE_VOLUME;
+	MixControl.cbStruct = sizeof(MixControl);
+	MixControl.dwControlType = MIXERCONTROL_CONTROLTYPE_VOLUME;
 
-   mixerGetLineControls(0, &mlc, MIXER_OBJECTF_MIDIOUT | MIXER_GETLINECONTROLSF_ONEBYTYPE);
+	mixerGetLineControls(0, &mlc, MIXER_OBJECTF_MIDIOUT | MIXER_GETLINECONTROLSF_ONEBYTYPE);
 
-   MixControlDetails.cbStruct = sizeof(MixControlDetails);
-   MixControlDetails.dwControlID = MixControl.dwControlID;
-   MixControlDetails.cChannels = MixerLine.cChannels;
-   MixControlDetails.hwndOwner = NULL;
-   MixControlDetails.cMultipleItems = 0;
-   MixControlDetails.cbDetails = sizeof(MixControlDetailsUnsigned[0])*2;
-   MixControlDetails.paDetails = &MixControlDetailsUnsigned[0];
+	MixControlDetails.cbStruct = sizeof(MixControlDetails);
+	MixControlDetails.dwControlID = MixControl.dwControlID;
+	MixControlDetails.cChannels = MixerLine.cChannels;
+	MixControlDetails.hwndOwner = NULL;
+	MixControlDetails.cMultipleItems = 0;
+	MixControlDetails.cbDetails = sizeof(MixControlDetailsUnsigned[0])*2;
+	MixControlDetails.paDetails = &MixControlDetailsUnsigned[0];
 
-   mixerGetControlDetails(0, &MixControlDetails, MIXER_OBJECTF_MIDIOUT | MIXER_GETCONTROLDETAILSF_VALUE);
+	mixerGetControlDetails(0, &MixControlDetails, MIXER_OBJECTF_MIDIOUT | MIXER_GETCONTROLDETAILSF_VALUE);
 
-   if (type == __MIDI_VOL_SIMU)
-   {
-      MixControlDetailsUnsigned[0].dwValue = (left << 8);
-      MixControlDetailsUnsigned[1].dwValue = (right << 8);
-   }
-   else
-   {
-      MixControlDetailsUnsigned[0].dwValue = left;
-      MixControlDetailsUnsigned[1].dwValue = right;
-   }
+	if (type == __MIDI_VOL_SIMU)
+	{
+		MixControlDetailsUnsigned[0].dwValue = (left << 8);
+		MixControlDetailsUnsigned[1].dwValue = (right << 8);
+	}
+	else
+	{
+		MixControlDetailsUnsigned[0].dwValue = left;
+		MixControlDetailsUnsigned[1].dwValue = right;
+	}
 
-   mixerSetControlDetails(0, &MixControlDetails, MIXER_OBJECTF_MIDIOUT | MIXER_SETCONTROLDETAILSF_VALUE);
+	mixerSetControlDetails(0, &MixControlDetails, MIXER_OBJECTF_MIDIOUT | MIXER_SETCONTROLDETAILSF_VALUE);
 
-   // Phew, I'm glad that's over! What a horrible API...
+	// Phew, I'm glad that's over! What a horrible API...
 }
 #else
 // Sets the MIDI volume - internal routine

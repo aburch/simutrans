@@ -16,8 +16,9 @@ MIDI *midi_samples[MAX_MIDI];
 /**
  * nothing to do here
  */
-void dr_init_midi(void)
+bool dr_init_midi(void)
 {
+	return true;
 }
 
 
@@ -86,7 +87,7 @@ void dr_stop_midi(void)
  */
 long dr_midi_pos(void)
 {
-  return midi_pos;
+	return midi_pos;
 }
 
 
@@ -96,18 +97,18 @@ long dr_midi_pos(void)
  */
 void dr_destroy_midi(void)
 {
-   int i;
+	int i;
 
-   for (i = 0; i <= midi_number; i++) {
-      if (midi_samples[i] != NULL) {
-	destroy_midi(midi_samples[i]);
-      }
-   }
-   midi_number = -1;
+	for (i = 0; i <= midi_number; i++) {
+		if (midi_samples[i] != NULL) {
+			destroy_midi(midi_samples[i]);
+		}
+	}
+	midi_number = -1;
 }
 
 
 void set_midi_pos(int pos)
 {
-   midi_pos = pos;
+	midi_pos = pos;
 }

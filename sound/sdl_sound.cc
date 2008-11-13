@@ -65,43 +65,45 @@ static SDL_AudioSpec output_audio_format;
 
 void sdl_sound_callback(void *, Uint8 * stream, int len)
 {
-  int c;
+	int c;
 
-  /*
-   * add all the sample that need to be played
-   */
-  for (c = 0; c < CHANNELS; c++) {
+	/*
+	* add all the sample that need to be played
+	*/
+	for (c = 0; c < CHANNELS; c++) {
 
-    /*
-     * only do something, if the channel is used
-     */
-    if (channels[c].sample != 255) {
+		/*
+		* only do something, if the channel is used
+		*/
+		if (channels[c].sample != 255) {
 
-      sample * smp = &samples[channels[c].sample];
+			sample * smp = &samples[channels[c].sample];
 
-      /*
-       * add sample
-       */
-      if (len + channels[c].sample_pos >= smp->audio_len ) {
-	// SDL_MixAudio(stream, smp->audio_data + channels[c].sample_pos, smp->audio_len - channels[c].sample_pos, channels[c].volume);
-	channels[c].sample = 255;
-      } else {
-	SDL_MixAudio(stream, smp->audio_data + channels[c].sample_pos, len, channels[c].volume);
-	channels[c].sample_pos += len;
-      }
-    }
-  }
+			/*
+			* add sample
+			*/
+			if (len + channels[c].sample_pos >= smp->audio_len ) {
+				// SDL_MixAudio(stream, smp->audio_data + channels[c].sample_pos, smp->audio_len - channels[c].sample_pos, channels[c].volume);
+				channels[c].sample = 255;
+			}
+			else {
+				SDL_MixAudio(stream, smp->audio_data + channels[c].sample_pos, len, channels[c].volume);
+				channels[c].sample_pos += len;
+			}
+		}
+	}
 }
+
 
 
 /**
  * Sound initialisation routine
  */
-void dr_init_sound()
+bool dr_init_sound()
 {
 	int sound_ok = 0;
 	if(use_sound!=0) {
-		return;	// avoid init twice
+		return use_sound;	// avoid init twice
 	}
 	use_sound = 1;
 
@@ -146,11 +148,13 @@ void dr_init_sound()
 			printf("Could not open required audio channel. Muting\n");
 			SDL_QuitSubSystem(SDL_INIT_AUDIO);
 		}
-	} else {
+	}
+	else {
 		printf("Could not initialize sound system. Muting\n");
 	}
 
 	use_sound = sound_ok ? 1: -1;
+	return sound_ok;
 }
 
 
@@ -161,51 +165,51 @@ void dr_init_sound()
  */
 int dr_load_sample(const char *filename)
 {
-    if(use_sound>0  &&  samplenumber<64) {
+	if(use_sound>0  &&  samplenumber<64) {
 
-      SDL_AudioSpec wav_spec;
-      SDL_AudioCVT  wav_cvt;
-      Uint8 *wav_data;
-      Uint32 wav_length;
-      sample smp;
+		SDL_AudioSpec wav_spec;
+		SDL_AudioCVT  wav_cvt;
+		Uint8 *wav_data;
+		Uint32 wav_length;
+		sample smp;
 
-      /* load the sample */
-      if (SDL_LoadWAV(filename, &wav_spec, &wav_data, &wav_length) == NULL) {
-	printf("could not load wav (%s)\n", SDL_GetError());
-	return -1;
-      }
+		/* load the sample */
+		if (SDL_LoadWAV(filename, &wav_spec, &wav_data, &wav_length) == NULL) {
+			printf("could not load wav (%s)\n", SDL_GetError());
+			return -1;
+		}
 
-      /* convert the loaded wav to the internally used sound format */
-      if (SDL_BuildAudioCVT(&wav_cvt,
+		/* convert the loaded wav to the internally used sound format */
+		if (SDL_BuildAudioCVT(&wav_cvt,
 			    wav_spec.format, wav_spec.channels, wav_spec.freq,
 			    output_audio_format.format,
 			    output_audio_format.channels,
 			    output_audio_format.freq) < 0) {
-	printf("could not create conversion structure\n");
-	SDL_FreeWAV(wav_data);
+			printf("could not create conversion structure\n");
+			SDL_FreeWAV(wav_data);
+			return -1;
+		}
+
+		wav_cvt.buf = MALLOCN(Uint8, wav_length * wav_cvt.len_mult);
+		wav_cvt.len = wav_length;
+		memcpy(wav_cvt.buf, wav_data, wav_length);
+
+		SDL_FreeWAV(wav_data);
+
+		if (SDL_ConvertAudio(&wav_cvt) < 0) {
+			printf("could not convert wav to output format\n");
+			return -1;
+		}
+
+		/* save the data */
+		smp.audio_data = wav_cvt.buf;
+		smp.audio_len = wav_cvt.len_cvt;
+		samples[samplenumber] = smp;
+		printf("Loaded %s to sample %i.\n",filename,samplenumber);
+
+		return samplenumber++;
+	}
 	return -1;
-      }
-
-      wav_cvt.buf = MALLOCN(Uint8, wav_length * wav_cvt.len_mult);
-      wav_cvt.len = wav_length;
-      memcpy(wav_cvt.buf, wav_data, wav_length);
-
-      SDL_FreeWAV(wav_data);
-
-      if (SDL_ConvertAudio(&wav_cvt) < 0) {
-	printf("could not convert wav to output format\n");
-	return -1;
-      }
-
-      /* save the data */
-      smp.audio_data = wav_cvt.buf;
-      smp.audio_len = wav_cvt.len_cvt;
-      samples[samplenumber] = smp;
-	printf("Loaded %s to sample %i.\n",filename,samplenumber);
-
-      return samplenumber++;
-    }
-  return -1;
 }
 
 
@@ -216,22 +220,22 @@ int dr_load_sample(const char *filename)
  */
 void dr_play_sample(int sample_number, int volume)
 {
-  if(use_sound>0) {
+	if(use_sound>0) {
 
-    int c;
+		int c;
 
-    if (sample_number == -1) {
-      return;
-    }
+		if (sample_number == -1) {
+			return;
+		}
 
-    /* find an empty channel, and play */
-    for (c = 0; c < CHANNELS; c++) {
-      if (channels[c].sample == 255) {
-	channels[c].sample = sample_number;
-	channels[c].sample_pos = 0;
-	channels[c].volume = volume * SDL_MIX_MAXVOLUME >> 8;
-	break;
-      }
-    }
-  }
+		/* find an empty channel, and play */
+		for (c = 0; c < CHANNELS; c++) {
+			if (channels[c].sample == 255) {
+				channels[c].sample = sample_number;
+				channels[c].sample_pos = 0;
+				channels[c].volume = volume * SDL_MIX_MAXVOLUME >> 8;
+				break;
+			}
+		}
+	}
 }

@@ -133,13 +133,14 @@ void set_midi_pos(int pos)
  * MIDI initialisation routines
  * @author Owen Rudge
  */
-void dr_init_midi(void)
+bool dr_init_midi(void)
 {
 	// startup midi routines
 
 	// configure arrays
 	files = [[NSMutableArray alloc] initWithCapacity: MAX_MIDI];
 	movies = [[NSMutableArray alloc] initWithCapacity: MAX_MIDI];
+	return true;
 }
 
 

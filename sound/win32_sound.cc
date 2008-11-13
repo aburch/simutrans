@@ -29,9 +29,10 @@ static int sample_number = 0;
 /**
  * Sound initialisation routine
  */
-void dr_init_sound()
+bool dr_init_sound()
 {
 	use_sound = 1;
+	return true;
 }
 
 

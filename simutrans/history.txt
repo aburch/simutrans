@@ -48,6 +48,7 @@
 	FIX: construction of four layout stations and rotation of four layout buildings were completely broken
 	FIX: graphic error with slopes next to bridges and tunnels
 	ADD: new tool to make a stop a public one (to make public stops on map without player change)
+	FIX: disabling sound and midi will be now saved and will disable them completely to avoid the SDL_mixer troubles
 
 
 Release of 100.0 (r1867, stable)

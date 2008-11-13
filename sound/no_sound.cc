@@ -8,8 +8,9 @@
 #include "sound.h"
 
 
-void dr_init_sound(void)
+bool dr_init_sound(void)
 {
+	return false;
 }
 
 
@@ -20,7 +21,7 @@ void dr_init_sound(void)
  */
 int dr_load_sample(const char *filename)
 {
-    return -1;
+	return -1;
 }
 
 

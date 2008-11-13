@@ -116,11 +116,12 @@ void set_midi_pos(int pos)
  * MIDI initialisation routines
  * @author Kieron Green
  */
-void dr_init_midi(void)
+bool dr_init_midi(void)
 {
 	if(!SDL_WasInit(SDL_INIT_AUDIO)) {
 		if(SDL_InitSubSystem(SDL_INIT_AUDIO) != -1) {
-			Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 1024);
+			return Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 1024)==0;
 		}
 	}
+	return false;
 }

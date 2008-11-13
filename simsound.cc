@@ -41,6 +41,12 @@ static char *midi_title[MAX_MIDI];
 static int global_volume = 127;
 
 
+static bool mute_sound = false;
+
+static bool has_midi = true;
+static bool mute_midi = false;
+
+
 /**
  * MIDI Lautstärke
  * @author hj. Malthaner
@@ -55,14 +61,14 @@ static int current_midi = -1;  // Hajo: init with error condition,
                                // reset during loading
 
 
+
 /**
- * setzt lautstaärke für alle effekte
+ * setzt lautstärke für alle effekte
  * @author Hj. Malthaner
  */
 void sound_set_global_volume(int volume)
 {
-  // printf("Message: setting global volume to %d.\n", volume);
-  global_volume = volume;
+	global_volume = volume;
 }
 
 
@@ -72,18 +78,17 @@ void sound_set_global_volume(int volume)
  */
 int sound_get_global_volume()
 {
-  return global_volume;
+	return global_volume;
 }
 
 
-
-bool sound_get_shuffle_midi()
+void sound_set_mute(bool on)
 {
-	return shuffle_midi;
+	mute_sound = on;
 }
-void sound_set_shuffle_midi( bool shuffle )
-{
-	shuffle_midi = shuffle;
+
+bool sound_get_mute() {
+	return mute_sound  ||  SFX_CASH==NO_SOUND;
 }
 
 
@@ -95,11 +100,24 @@ void sound_set_shuffle_midi( bool shuffle )
 void
 sound_play(const struct sound_info info)
 {
-	if(info.index!=(uint16)NO_SOUND) {
+	if(info.index!=(uint16)NO_SOUND  &&  !mute_sound) {
 //DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "play sound %i",info.index);
 		dr_play_sample(info.index, (info.volume*global_volume)>>8);
 	}
 }
+
+
+
+bool sound_get_shuffle_midi()
+{
+	return shuffle_midi;
+}
+
+void sound_set_shuffle_midi( bool shuffle )
+{
+	shuffle_midi = shuffle;
+}
+
 
 
 /**
@@ -109,15 +127,12 @@ sound_play(const struct sound_info info)
  */
 void sound_set_midi_volume(int volume)
 {
-  dr_set_midi_volume(volume);
-  midi_volume = volume;
-}
-
-
-void sound_set_midi_volume_var(int volume)
-{
+	if(!mute_midi  &&  has_midi) {
+		dr_set_midi_volume(volume);
+	}
 	midi_volume = volume;
 }
+
 
 
 /**
@@ -131,11 +146,12 @@ int sound_get_midi_volume()
 }
 
 
+
 /**
  * gets midi title
  * @author Hj. Malthaner
  */
-const char * sound_get_midi_title(int index)
+const char *sound_get_midi_title(int index)
 {
 	if (index >= 0 && index <= max_midi) {
 		return midi_title[index];
@@ -156,57 +172,59 @@ int get_current_midi()
 }
 
 
+
 /**
  * Load MIDI files
  * By Owen Rudge
  */
-int
-midi_init(const char *directory)
+int midi_init(const char *directory)
 {
 	// read a list of soundfiles
 	char full_path[1024];
 	sprintf( full_path, "%smusic/music.tab", directory );
 	FILE * file = fopen( full_path, "rb");
 	if(file) {
-		dr_init_midi();
+		if(has_midi) {
+			while(!feof(file)) {
+				char buf[256];
+				char title[256];
+				long len;
 
-		while(!feof(file)) {
-			char buf[256];
-			char title[256];
-			long len;
+				read_line(buf, 256, file);
+				read_line(title, 256, file);
+				if(!feof(file)) {
+					len = strlen(buf);
+					while(len>0  &&  buf[--len] <= 32) {
+						buf[len] = 0;
+					}
 
-			read_line(buf, 256, file);
-			read_line(title, 256, file);
-			if(!feof(file)) {
-				len = strlen(buf);
-				while(len>0  &&  buf[--len] <= 32) {
-					buf[len] = 0;
-				}
+					if(len > 1) {
+						sprintf( full_path, "%s%s", directory, buf );
+						print("  Reading MIDI file '%s' - %s", full_path, title);
+						max_midi = dr_load_midi(full_path);
 
-				if(len > 1) {
-					sprintf( full_path, "%s%s", directory, buf );
-					print("  Reading MIDI file '%s' - %s", full_path, title);
-					max_midi = dr_load_midi(full_path);
-
-					if(max_midi >= 0) {
-						len = strlen(title);
-						while(len>0  &&  title[--len] <= 32) {
-							title[len] = 0;
+						if(max_midi >= 0) {
+							len = strlen(title);
+							while(len>0  &&  title[--len] <= 32) {
+								title[len] = 0;
+							}
+							midi_title[max_midi] = strdup(title);
 						}
-						midi_title[max_midi] = strdup(title);
 					}
 				}
 			}
-		}
 
-		fclose(file);
-		dr_set_midi_volume(midi_volume);
+			fclose(file);
+		}
 	} else {
 		dbg->warning("midi_init()","can't open file 'music.tab' for reading, turning music off.");
 	}
 
 	if(max_midi >= 0) {
 		current_midi = 0;
+	}
+	else {
+		mute_midi = true;
 	}
 	// success?
 	return max_midi>=0;
@@ -217,7 +235,7 @@ void midi_play(const int no)
 {
 	if (no > max_midi) {
 		dbg->warning("midi_play()", "MIDI index %d too high (total loaded: %d)", no, max_midi);
-	} else {
+	} else 	if(!midi_get_mute()) {
 		dr_play_midi(no);
 	}
 }
@@ -225,8 +243,33 @@ void midi_play(const int no)
 
 void midi_stop()
 {
-  dr_stop_midi();
+	if(!midi_get_mute()) {
+		dr_stop_midi();
+	}
 }
+
+
+
+void midi_set_mute(bool on)
+{
+	if(on) {
+		if(!mute_midi  &&  has_midi) {
+			dr_stop_midi();
+		}
+		mute_midi = true;
+	}
+	else if(has_midi) {
+		mute_midi = false;
+		midi_play(current_midi);
+	}
+}
+
+
+
+bool midi_get_mute() {
+	return  (mute_midi || max_midi==-1);
+}
+
 
 
 /*
@@ -234,7 +277,11 @@ void midi_stop()
  */
 void check_midi()
 {
-  if((dr_midi_pos() < 0 || new_midi == 1) && max_midi > -1) {
+	if(midi_get_mute()) {
+		return;
+	}
+	// ok, we are in playing mode => check for next sound
+	if(dr_midi_pos() < 0  ||  new_midi == 1) {
 		if(shuffle_midi  &&  max_midi>1) {
 			// shuffle songs
 			int new_midi = simrand(max_midi-1);
@@ -244,16 +291,16 @@ void check_midi()
 			current_midi = new_midi;
 		}
 		else {
-	    current_midi++;
+			current_midi++;
 			if (current_midi > max_midi) {
-		    current_midi = 0;
+				current_midi = 0;
 			}
 		}
 
-    midi_play(current_midi);
-    DBG_MESSAGE("check_midi()", "Playing MIDI %d", current_midi);
-    new_midi = 0;
-  }
+		midi_play(current_midi);
+		DBG_MESSAGE("check_midi()", "Playing MIDI %d", current_midi);
+		new_midi = 0;
+	}
 }
 
 
@@ -263,23 +310,25 @@ void check_midi()
  */
 void close_midi()
 {
-  dr_destroy_midi();
+	if(max_midi>-1) {
+		dr_destroy_midi();
+	}
 }
 
 
 void midi_next_track()
 {
-  new_midi = 1;
+	new_midi = 1;
 }
 
 
 void midi_last_track()
 {
 	if (current_midi == 0) {
-    current_midi = max_midi - 1;
+		current_midi = max_midi - 1;
 	}
 	else {
-    current_midi = current_midi - 2;
+		current_midi = current_midi - 2;
 	}
-  new_midi = 1;
+	new_midi = 1;
 }

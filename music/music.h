@@ -6,8 +6,9 @@
 
 /**
  * MIDI initialisation routine
+ * false: leave midi alone
  */
-void dr_init_midi(void);
+bool dr_init_midi(void);
 
 
 /**
