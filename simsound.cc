@@ -43,7 +43,6 @@ static int global_volume = 127;
 
 static bool mute_sound = false;
 
-static bool has_midi = true;
 static bool mute_midi = false;
 
 
@@ -127,7 +126,7 @@ void sound_set_shuffle_midi( bool shuffle )
  */
 void sound_set_midi_volume(int volume)
 {
-	if(!mute_midi  &&  has_midi) {
+	if(!mute_midi  &&  max_midi>-1) {
 		dr_set_midi_volume(volume);
 	}
 	midi_volume = volume;
@@ -184,47 +183,43 @@ int midi_init(const char *directory)
 	sprintf( full_path, "%smusic/music.tab", directory );
 	FILE * file = fopen( full_path, "rb");
 	if(file) {
-		if(has_midi) {
-			while(!feof(file)) {
-				char buf[256];
-				char title[256];
-				long len;
+		while(!feof(file)) {
+			char buf[256];
+			char title[256];
+			long len;
 
-				read_line(buf, 256, file);
-				read_line(title, 256, file);
-				if(!feof(file)) {
-					len = strlen(buf);
-					while(len>0  &&  buf[--len] <= 32) {
-						buf[len] = 0;
-					}
+			read_line(buf, 256, file);
+			read_line(title, 256, file);
+			if(!feof(file)) {
+				len = strlen(buf);
+				while(len>0  &&  buf[--len] <= 32) {
+					buf[len] = 0;
+				}
 
-					if(len > 1) {
-						sprintf( full_path, "%s%s", directory, buf );
-						print("  Reading MIDI file '%s' - %s", full_path, title);
-						max_midi = dr_load_midi(full_path);
+				if(len > 1) {
+					sprintf( full_path, "%s%s", directory, buf );
+					print("  Reading MIDI file '%s' - %s", full_path, title);
+					max_midi = dr_load_midi(full_path);
 
-						if(max_midi >= 0) {
-							len = strlen(title);
-							while(len>0  &&  title[--len] <= 32) {
-								title[len] = 0;
-							}
-							midi_title[max_midi] = strdup(title);
+					if(max_midi >= 0) {
+						len = strlen(title);
+						while(len>0  &&  title[--len] <= 32) {
+							title[len] = 0;
 						}
+						midi_title[max_midi] = strdup(title);
 					}
 				}
 			}
-
-			fclose(file);
 		}
-	} else {
+
+		fclose(file);
+	}
+	else {
 		dbg->warning("midi_init()","can't open file 'music.tab' for reading, turning music off.");
 	}
 
 	if(max_midi >= 0) {
 		current_midi = 0;
-	}
-	else {
-		mute_midi = true;
 	}
 	// success?
 	return max_midi>=0;
@@ -252,15 +247,19 @@ void midi_stop()
 
 void midi_set_mute(bool on)
 {
+	on |= (max_midi==-1);
 	if(on) {
-		if(!mute_midi  &&  has_midi) {
+		if(!mute_midi) {
 			dr_stop_midi();
 		}
 		mute_midi = true;
 	}
-	else if(has_midi) {
-		mute_midi = false;
-		midi_play(current_midi);
+	else {
+		if(mute_midi) {
+			mute_midi = false;
+			midi_play(current_midi);
+		}
+		dr_set_midi_volume(midi_volume);
 	}
 }
 

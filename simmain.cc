@@ -424,7 +424,9 @@ void sim_new_handler()
 static const char *gimme_arg(int argc, char *argv[], const char *arg, int off)
 {
 	for (int i = 1; i < argc; i++) {
-		if (strcmp(argv[i], arg) == 0 && i < argc - off) return argv[i + off];
+		if (strcmp(argv[i], arg) == 0 && i < argc - off) {
+			return argv[i + off];
+		}
 	}
 	return NULL;
 }
@@ -762,13 +764,15 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	chdir( umgebung_t::user_dir );
 
 	// init midi before loading sounds
-	if(!gimme_arg(argc, argv, "-nomidi", 0)  ||  !dr_init_midi()) {
+	if(dr_init_midi()) {
 		print("Reading midi data ...\n");
 		if(!midi_init(umgebung_t::user_dir)) {
 			if(!midi_init(umgebung_t::program_dir)) {
-				midi_set_mute(true);
 				print("Midi disabled ...\n");
 			}
+		}
+		if(gimme_arg(argc, argv, "-nomidi", 0)) {
+			midi_set_mute(true);
 		}
 	}
 	else {
@@ -819,8 +823,6 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 		int midi_volume=128, sound_volume=128;
 		fscanf(config, "SoundMidiVolume=%d,%d\n", &sound_volume, &midi_volume );
-		sound_set_global_volume(sound_volume);
-		sound_set_midi_volume(midi_volume);
 
 		int i_shuffle_music=false;
 		fscanf(config, "SoundShuffle=%d,%*d\n", &i_shuffle_music );
@@ -834,13 +836,20 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		fscanf(config, "WareSortMode=%d\n", &sort_mode );
 		umgebung_t::default_sortmode = sort_mode;
 
-		if(fscanf(config, "MuteSoundMidi=%d,%d\n", &sound_volume, &midi_volume )==2) {
-			sound_set_mute( sound_volume );
-			midi_set_mute( midi_volume );
+		int sound_mute=0, midi_mute=0;
+		if(fscanf(config, "MuteSoundMidi=%d,%d\n", &sound_mute, &midi_mute )==2) {
+			sound_set_mute( sound_mute  ||  sound_get_mute() );
+			midi_set_mute( midi_mute  ||  midi_get_mute() );
 		}
 		else {
 			sound_set_mute( sound_volume==0 );
-			midi_set_mute( midi_volume==0 );
+			midi_set_mute( midi_volume==0  ||  midi_get_mute() );
+		}
+		sound_set_global_volume(sound_volume);
+		sound_set_midi_volume(midi_volume);
+		// not muted => play first song
+		if(!midi_get_mute()) {
+			midi_play(0);
 		}
 
 		fclose(config);
@@ -1119,7 +1128,7 @@ DBG_MESSAGE("init","map");
 		fprintf(config, "SoundShuffle=%d,%d\n", sound_get_shuffle_midi(), 0 );
 		fprintf(config, "MapMode=%d\n", umgebung_t::default_mapmode );
 		fprintf(config, "WareSortMode=%d\n", umgebung_t::default_sortmode );
-		fprintf(config, "MuteSoundMidi=%d,%d\n", sound_get_mute(), midi_get_mute() );
+		fprintf(config, "MuteSoundMidi=%d,%d\n", (int)sound_get_mute(), (int)midi_get_mute() );
 		fclose(config);
 	}
 
