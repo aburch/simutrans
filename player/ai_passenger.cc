@@ -34,11 +34,12 @@ ai_passenger_t::ai_passenger_t(karte_t *wl, uint8 nr) : ai_t( wl, nr )
 	road_vehicle = NULL;
 	road_weg = NULL;
 
-	next_contruction_steps = welt->gib_steps()+simrand(400);
+	construction_speed = 8000;
+	next_contruction_steps = welt->gib_steps()+simrand(construction_speed);
 
-	road_transport = true;
 	air_transport = true;
 	ship_transport = false;
+
 	start_stadt = end_stadt = NULL;
 	ziel = NULL;
 	end_ausflugsziel = NULL;
@@ -52,22 +53,11 @@ ai_passenger_t::ai_passenger_t(karte_t *wl, uint8 nr) : ai_t( wl, nr )
  */
 bool ai_passenger_t::set_active(bool new_state)
 {
-	// something to change?
-	if(automat!=new_state) {
-
-		if(!new_state) {
-			// deactivate AI
-			automat = false;
-			state = NR_INIT;
-			start_stadt = end_stadt = NULL;
-		}
-		else {
-			// aktivate AI
-			automat = true;
-		}
+	// only activate, when there are buses available!
+	if(  new_state  ) {
+		new_state = NULL!=vehikelbauer_t::vehikel_search( road_wt, welt->get_timeline_year_month(), 50, 80, warenbauer_t::passagiere, false, false );
 	}
-	spieler_t::set_active( new_state );
-	return automat;
+	return spieler_t::set_active( new_state );
 }
 
 
@@ -81,10 +71,13 @@ halthandle_t ai_passenger_t::get_our_hub( const stadt_t *s ) const
 {
 	slist_iterator_tpl <halthandle_t> iter( halt_list );
 	while(iter.next()) {
-		koord h=iter.get_current()->gib_basis_pos();
-		if(h.x>=s->get_linksoben().x  &&  h.y>=s->get_linksoben().y  &&  h.x<=s->get_rechtsunten().x  &&  h.y<=s->get_rechtsunten().y) {
+		halthandle_t halt = iter.get_current();
+		if(  halt->get_pax_enabled()  &&  (halt->get_station_type()&haltestelle_t::busstop)!=0  ) {
+			koord h=halt->gib_basis_pos();
+			if(h.x>=s->get_linksoben().x  &&  h.y>=s->get_linksoben().y  &&  h.x<=s->get_rechtsunten().x  &&  h.y<=s->get_rechtsunten().y  ) {
 DBG_MESSAGE("ai_passenger_t::get_our_hub()","found %s at (%i,%i)",s->gib_name(),h.x,h.y);
-			return iter.get_current();
+				return iter.get_current();
+			}
 		}
 	}
 	return halthandle_t();
@@ -1153,7 +1146,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 					koord list[2]={ platz1, platz2 };
 					// wait only, if target is not a hub but an attraction/factory
 					create_bus_transport_vehikel(platz1,1,list,2,end_stadt==NULL);
-					state = NR_ROAD_SUCCESS;
+					state = NR_SUCCESS;
 					// tell the player
 					cbuffer_t buf(1024);
 					if(end_ausflugsziel!=NULL) {
@@ -1179,7 +1172,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		break;
 
 		case NR_BAUE_WATER_ROUTE:
-			if(  end_ausflugsziel == NULL  &&
+			if(  end_ausflugsziel == NULL  &&  ship_transport  &&
 					create_water_transport_vehikel(start_stadt, end_stadt ? end_stadt->gib_pos() : ziel->gib_pos().gib_2d())) {
 				// add two intown routes
 				cover_city_with_bus_route( get_our_hub(start_stadt)->gib_basis_pos(), 6);
@@ -1193,11 +1186,11 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				cbuffer_t buf(1024);
 				buf.printf( translator::translate("Ferry service by\n%s\nnow between\n%s \nand %s.\n"), gib_name(), start_stadt->gib_name(), end_stadt->gib_name() );
 				welt->get_message()->add_message((const char *)buf,end_stadt->gib_pos(),message_t::ai,player_nr,road_vehicle->gib_basis_bild());
-				state = NR_ROAD_SUCCESS;
+				state = NR_SUCCESS;
 			}
 			else {
 				if(  end_ausflugsziel==NULL  &&  ziel==NULL  ) {
-					state = NR_BAUE_SIMPLE_SCHIENEN_ROUTE;
+					state = NR_BAUE_AIRPORT_ROUTE;
 				}
 				else {
 					state = NR_BAUE_CLEAN_UP;
@@ -1206,9 +1199,9 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		break;
 
 		// despite its name: try airplane
-		case NR_BAUE_SIMPLE_SCHIENEN_ROUTE:
+		case NR_BAUE_AIRPORT_ROUTE:
 			// try airline (if we are wealthy enough) ...
-			if(finance_history_month[1][COST_CASH]<umgebung_t::starting_money  ||  !create_air_transport_vehikel( start_stadt, end_stadt )) {
+			if(  !air_transport  ||  finance_history_month[1][COST_CASH]<umgebung_t::starting_money  ||  !create_air_transport_vehikel( start_stadt, end_stadt )) {
 				state = NR_BAUE_CLEAN_UP;
 			}
 			else {
@@ -1218,7 +1211,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				cbuffer_t buf(1024);
 				buf.printf( translator::translate("Airline service by\n%s\nnow between\n%s \nand %s.\n"), gib_name(), start_stadt->gib_name(), end_stadt->gib_name() );
 				welt->get_message()->add_message((const char *)buf,end_stadt->gib_pos(),message_t::ai,player_nr,road_vehicle->gib_basis_bild());
-				state = NR_ROAD_SUCCESS;
+				state = NR_SUCCESS;
 			}
 		break;
 
@@ -1229,10 +1222,10 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		break;
 
 		// successful construction
-		case NR_ROAD_SUCCESS:
+		case NR_SUCCESS:
 		{
 			state = CHECK_CONVOI;
-			next_contruction_steps = welt->gib_steps() + simrand( 500 );
+			next_contruction_steps = welt->gib_steps() + simrand( construction_speed/16 );
 		}
 		break;
 
@@ -1242,7 +1235,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		{
 			// next time: do something different
 			state = NR_INIT;
-			next_contruction_steps = welt->gib_steps() + simrand( 8000 ) + 25;
+			next_contruction_steps = welt->gib_steps() + simrand( construction_speed ) + 25;
 
 			vector_tpl<linehandle_t> lines(0);
 			simlinemgmt.get_lines( simline_t::line, &lines);
@@ -1356,25 +1349,16 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 	if(file->get_version()<101000) {
 		// ignore saving, reinit on loading
 		if(  file->is_loading()  ) {
-			state = NR_INIT;
-
-			road_vehicle = NULL;
-			road_weg = NULL;
-
-			next_contruction_steps = welt->gib_steps()+simrand(400);
-
-			road_transport = true;
-			air_transport = true;
-			ship_transport = false;
-			start_stadt = end_stadt = NULL;
-			ziel = NULL;
-			end_ausflugsziel = NULL;
+			next_contruction_steps = welt->gib_steps()+simrand(construction_speed);
 		}
 		return;
 	}
 
 	// now save current state ...
-	file->rdwr_enum(state, " ");
+	file->rdwr_enum(state, "");
+	file->rdwr_long( construction_speed, "" );
+	file->rdwr_bool( air_transport, "" );
+	file->rdwr_bool( ship_transport, "" );
 	platz1.rdwr( file );
 	platz2.rdwr( file );
 
@@ -1394,6 +1378,7 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 	else {
 		// since steps in loaded game == 0
 		file->rdwr_long(next_contruction_steps, " ");
+		next_contruction_steps += welt->gib_steps();
 		// reinit current pointers
 		koord k;
 		k.rdwr(file);

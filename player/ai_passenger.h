@@ -17,24 +17,17 @@ private:
 		NR_INIT,
 		NR_SAMMLE_ROUTEN,
 		NR_BAUE_ROUTE1,
-		NR_BAUE_SIMPLE_SCHIENEN_ROUTE,
+		NR_BAUE_AIRPORT_ROUTE,
 		NR_BAUE_STRASSEN_ROUTE,
 		NR_BAUE_WATER_ROUTE,
 		NR_BAUE_CLEAN_UP,
-		NR_RAIL_SUCCESS,
-		NR_ROAD_SUCCESS,
+		NR_SUCCESS,
 		NR_WATER_SUCCESS,
 		CHECK_CONVOI
 	};
 
 	// vars für die KI
 	enum zustand state;
-
-	/*
-	 * if this is false, this AI won't use roads
-	 * @author prissi
-	 */
-	bool road_transport;
 
 	/*
 	 * if this is false, this AI won't use rails
@@ -56,6 +49,9 @@ private:
 
 	// time to wait before next contruction
 	sint32 next_contruction_steps;
+
+	// the shorter the faster construction will occur
+	sint32 construction_speed;
 
 	/* start and end stop position (and their size) */
 	koord platz1, platz2;

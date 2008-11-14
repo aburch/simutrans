@@ -1256,7 +1256,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 
 	distribute_groundobjs_cities(sets->gib_anzahl_staedte(),old_x, old_y);
 
-	hausbauer_t::neue_karte();
+	// hausbauer_t::neue_karte(); <- this would reinit monuments! do not do this!
 	fabrikbauer_t::neue_karte( this );
 	set_schedule_counter();
 

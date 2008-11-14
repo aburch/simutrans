@@ -429,7 +429,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 			reliefkarte_t::gib_karte()->calc_map_pixel(gr->gib_pos().gib_2d());
 		}
 		if(besch->gib_utyp()==haus_besch_t::denkmal) {
-			ungebaute_denkmaeler.remove( besch );
+			assert(ungebaute_denkmaeler.remove( besch ));
 		}
 	}
 	return first_building;
