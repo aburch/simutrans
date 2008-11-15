@@ -2155,7 +2155,7 @@ karte_t::sync_step(long delta_t, bool sync, bool display )
 		}
 
 		// change view due to following a convoi?
-		if(follow_convoi.is_bound()) {
+		if(follow_convoi.is_bound()  &&  follow_convoi->gib_vehikel_anzahl()>0) {
 			const koord3d new_pos=follow_convoi->gib_vehikel(0)->gib_pos();
 			if(new_pos!=koord3d::invalid) {
 				const sint16 rw = get_tile_raster_width();
