@@ -63,6 +63,10 @@ void wolke_t::rdwr(loadsave_t *file)
 
 	ding_t::rdwr( file );
 
+	cloud_nr = 0;
+	insta_zeit = 0;
+	divisor = 10000;
+
 	uint32 ldummy = 0;
 	file->rdwr_long(ldummy, "\n");
 
