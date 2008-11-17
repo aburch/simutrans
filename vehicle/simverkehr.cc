@@ -890,7 +890,7 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 	 * tiles_to_overtake = convoi_length + pos_other_convoi
 	 * convoi_length for city cars? ==> a bit over half a tile (10)
 	 */
-	sint32 distance = current_speed*((10<<4)+steps_other)/(besch->gib_geschw()-other_speed);
+	sint32 distance = current_speed*((10<<4)+steps_other)/max(besch->gib_geschw()-other_speed,diff_speed);
 	sint32 time_overtaking = 0;
 
 	// Conditions for overtaking:
