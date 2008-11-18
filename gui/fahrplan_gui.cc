@@ -304,17 +304,18 @@ fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_, convoihandle_t 
 	add_komponente(&bt_remove);
 
 	ypos += BUTTON_HEIGHT;
-
 	scrolly.setze_pos( koord( 0, ypos ) );
-	scrolly.setze_groesse( koord(BUTTON_WIDTH*3, 280-ypos-16) );
 	// scrolly.set_show_scroll_x(false);
 	add_komponente(&scrolly);
 
 	mode = adding;
-	setze_fenstergroesse( koord(BUTTON_WIDTH*3, 280) );
+	set_min_windowsize( koord(BUTTON_WIDTH*3, ypos+BUTTON_HEIGHT+3*(LINESPACE + 1)+16) );
+	resize( koord(0,0) );
+	resize( koord(0,(LINESPACE + 1)*min(15,fpl->maxi())) );
 
 	// set this schedule as current to show on minimap if possible
 	reliefkarte_t::gib_karte()->set_current_fpl(fpl, sp->get_player_nr()); // (*fpl,player_nr)
+	set_resizemode(diagonal_resize);
 }
 
 
@@ -576,4 +577,19 @@ void fahrplan_gui_t::zeichnen(koord pos, koord gr)
 		line_selector.set_selection(0);
 	}
 	gui_frame_t::zeichnen(pos,gr);
+}
+
+
+
+/**
+ * resize window in response to a resize event
+ * @author Hj. Malthaner
+ * @date   16-Oct-2003
+ */
+void fahrplan_gui_t::resize(const koord delta)
+{
+	gui_frame_t::resize(delta);
+
+	const koord groesse = gib_fenstergroesse();
+	scrolly.setze_groesse( koord(groesse.x, groesse.y-scrolly.gib_pos().y-16) );
 }

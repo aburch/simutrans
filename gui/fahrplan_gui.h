@@ -140,6 +140,12 @@ public:
 	void zeichnen(koord pos, koord gr);
 
 	/**
+	 * resize window in response to a resize event
+	 * @author Hj. Malthaner
+	 */
+	void resize(const koord delta);
+
+	/**
 	 * show or hide the line selector combobox and its associated label
 	 * @author hsiegeln
 	 */
