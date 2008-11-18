@@ -166,7 +166,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 					offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
 			}
 		}
-		setze_groesse( koord(width, fpl->maxi() * (LINESPACE + 1) ) );
+		setze_groesse( koord(width+11, fpl->maxi() * (LINESPACE + 1) ) );
 	}
 }
 
@@ -420,20 +420,16 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 		fpl->eingabe_abschliessen();
 		if (cnv.is_bound()) {
 			// if a line is selected
-			if (new_line.is_bound()) {
+			if (new_line.is_bound()  &&  new_line->get_fahrplan()->matches( sp->get_welt(), fpl )) {
 				// if the selected line is different to the convoi's line, apply it
 				if(new_line!=cnv->get_line()) {
 					int akt=fpl->aktuell;
 					cnv->set_line(new_line);
 					cnv->gib_fahrplan()->aktuell = max( 0, min( akt, cnv->gib_fahrplan()->maxi()-1 ) );
 				}
-				// just recheck if schedules match
-				else if(  cnv->get_line().is_bound()  &&  !cnv->get_line()->get_fahrplan()->matches( sp->get_welt(), fpl )  ) {
-					cnv->unset_line();
-				}
 			}
 			else {
-				// no line is selected, so unset the line
+				// no line is selected or line does not match => unset the line
 				cnv->unset_line();
 			}
 		}
@@ -570,4 +566,14 @@ DBG_MESSAGE("fahrplan_gui_t::init_line_selector()","selection %i",selection);
 	else {
 		line_selector.setze_text(no_line, 128);
 	}
+}
+
+
+
+void fahrplan_gui_t::zeichnen(koord pos, koord gr)
+{
+	if(  new_line.is_bound()  &&  !new_line->get_fahrplan()->matches(sp->get_welt(),fpl)  ) {
+		line_selector.set_selection(0);
+	}
+	gui_frame_t::zeichnen(pos,gr);
 }

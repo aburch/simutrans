@@ -54,12 +54,12 @@ class fahrplan_gui_t :	public gui_frame_t,
 {
  public:
 
-  /**
-   * Fuellt buf mit Beschreibung des i-ten Eintrages des Fahrplanes
-   *
-   * @author Hj. Malthaner
-   */
-  static void gimme_stop_name(cbuffer_t & buf,
+	/**
+	 * Fuellt buf mit Beschreibung des i-ten Eintrages des Fahrplanes
+	 *
+	 * @author Hj. Malthaner
+	 */
+	static void gimme_stop_name(cbuffer_t & buf,
 			      karte_t *welt,
 			      const fahrplan_t *fpl,
 			      int i,
@@ -125,38 +125,38 @@ public:
 
 	~fahrplan_gui_t();
 
-    /**
-     * Mausklicks werden hiermit an die GUI-Komponenten
-     * gemeldet
-     */
-    void infowin_event(const event_t *ev);
+	/**
+	 * Mausklicks werden hiermit an die GUI-Komponenten
+	 * gemeldet
+	 */
+	void infowin_event(const event_t *ev);
 
-    const char *gib_hilfe_datei() const {return "schedule.txt";}
+	const char *gib_hilfe_datei() const {return "schedule.txt";}
 
-    /**
-     * Zeichnet das Frame
-     * @author Hansjörg Malthaner
-     */
-//    void zeichnen(koord pos, koord gr);
+	/**
+	 * Zeichnet das Frame
+	 * @author Hansjörg Malthaner
+	 */
+	void zeichnen(koord pos, koord gr);
 
-    /**
-     * show or hide the line selector combobox and its associated label
-     * @author hsiegeln
-     */
-    void show_line_selector(bool yesno) {
-    	line_selector.set_visible(yesno);
-    	lb_line.set_visible(yesno);
-    }
+	/**
+	 * show or hide the line selector combobox and its associated label
+	 * @author hsiegeln
+	 */
+	void show_line_selector(bool yesno) {
+		line_selector.set_visible(yesno);
+		lb_line.set_visible(yesno);
+	}
 
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     *
-     * Returns true, if action is done and no more
-     * components should be triggered.
-     * V.Meyer
-     */
-    bool action_triggered(gui_komponente_t *komp, value_t extra);
+	/**
+	 * This method is called if an action is triggered
+	 * @author Hj. Malthaner
+	 *
+	 * Returns true, if action is done and no more
+	 * components should be triggered.
+	 * V.Meyer
+	 */
+	bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
 #endif

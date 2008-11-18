@@ -2307,8 +2307,6 @@ void convoi_t::set_line(linehandle_t org_line)
 	fahrplan_t * new_fpl= new fahrplan_t( org_line->get_fahrplan() );
 	setze_fahrplan(new_fpl);
 	line->add_convoy(self);
-	// force asynchronous recalculation
-	welt->set_schedule_counter();
 }
 
 /**

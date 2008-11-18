@@ -304,28 +304,34 @@ fahrplan_t::matches(karte_t *welt, const fahrplan_t *fpl)
 	}
 	// unequal count => not equal
 	const uint8 min_count = min( fpl->eintrag.get_count(), eintrag.get_count() );
-  	if(min_count==0  &&  fpl->eintrag.get_count()!=eintrag.get_count()) {
-  		return false;
-  	}
-  	// now we have to check all entries ...
+	if(min_count==0  &&  fpl->eintrag.get_count()!=eintrag.get_count()) {
+		return false;
+	}
+	// now we have to check all entries ...
+	// we need to do this that complicated, because they last stop may make the difference
 	unsigned f1=0, f2=0;
-	while(  f1<eintrag.get_count()  &&  f2<fpl->eintrag.get_count()  ) {
-		if (fpl->eintrag[f2].pos == eintrag[f1].pos) { // ladegrad ignored!
+	while(  f1+f2<eintrag.get_count()+fpl->eintrag.get_count()  ) {
+		if(f1<eintrag.get_count()  &&  f2<fpl->eintrag.get_count()  &&  fpl->eintrag[f2].pos == eintrag[f1].pos) {
+			// ladegrad/waiting ignored: identical
 			f1++;
 			f2++;
 		}
 		else {
 			bool ok = false;
-			grund_t *gr1 = welt->lookup(eintrag[f1].pos);
-			if(  gr1->gib_depot()  ) {
-				// skip depot
-				f1++;
-				ok = true;
+			if(  f1<eintrag.get_count()  ) {
+				grund_t *gr1 = welt->lookup(eintrag[f1].pos);
+				if(  gr1->gib_depot()  ) {
+					// skip depot
+					f1++;
+					ok = true;
+				}
 			}
-			grund_t *gr2 = welt->lookup(fpl->eintrag[f2].pos);
-			if(  gr2->gib_depot()  ) {
-				ok = true;
-				f2++;
+			if(  f2<fpl->eintrag.get_count()  ) {
+				grund_t *gr2 = welt->lookup(fpl->eintrag[f2].pos);
+				if(  gr2->gib_depot()  ) {
+					ok = true;
+					f2++;
+				}
 			}
 			// no depot but different => do not match!
 			if(  !ok  ) {

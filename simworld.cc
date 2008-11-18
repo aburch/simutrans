@@ -3214,14 +3214,24 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved stops");
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_array.get_count());
 
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
+// **** REMOVE IF SOON! *********
 		if(file->get_version()<101000) {
-			spieler[i]->rdwr(file);
+			if(  i<8  ) {
+				if(  spieler[i]  ) {
+					spieler[i]->rdwr(file);
+				}
+				else {
+					// simulate old ones ...
+					spieler_t *sp = new spieler_t( this, i );
+					sp->rdwr(file);
+					delete sp;
+				}
+			}
 		}
 		else {
-			// since we can have now different AI, we must identify them
-			uint8 id = spieler[i]->get_ai_id();
-			file->rdwr_byte( id, "" );
+		if(  spieler[i]  ) {
 			spieler[i]->rdwr(file);
+		}
 		}
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
