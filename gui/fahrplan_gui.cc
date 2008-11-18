@@ -427,6 +427,10 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 					cnv->set_line(new_line);
 					cnv->gib_fahrplan()->aktuell = max( 0, min( akt, cnv->gib_fahrplan()->maxi()-1 ) );
 				}
+				// just recheck if schedules match
+				else if(  cnv->get_line().is_bound()  &&  !cnv->get_line()->get_fahrplan()->matches( sp->get_welt(), fpl )  ) {
+					cnv->unset_line();
+				}
 			}
 			else {
 				// no line is selected, so unset the line
@@ -534,7 +538,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 	// recheck lines
 	if (cnv.is_bound()) {
 		// unequal to line => remove from line ...
-		if(new_line.is_bound()  &&   !fpl->matches(new_line->get_fahrplan())) {
+		if(new_line.is_bound()  &&   !fpl->matches(sp->get_welt(),new_line->get_fahrplan())) {
 			new_line = linehandle_t();
 			line_selector.setze_text(no_line, 128);
 		}

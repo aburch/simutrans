@@ -7,6 +7,7 @@
 
 
 class grund_t;
+class karte_t;
 
 
 /**
@@ -115,7 +116,7 @@ public:
 	 * if the passed in fahrplan matches "this", then return true
 	 * @author hsiegeln
 	 */
-	bool matches(const fahrplan_t *fpl);
+	bool matches(karte_t *welt, const fahrplan_t *fpl);
 
 	/**
 	 * calculates a return way for this schedule

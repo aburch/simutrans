@@ -293,7 +293,7 @@ void fahrplan_t::rotate90( sint16 y_size )
  * @author hsiegeln
  */
 bool
-fahrplan_t::matches(const fahrplan_t *fpl)
+fahrplan_t::matches(karte_t *welt, const fahrplan_t *fpl)
 {
 	if(fpl == NULL) {
 		return false;
@@ -303,17 +303,42 @@ fahrplan_t::matches(const fahrplan_t *fpl)
 		return true;
 	}
 	// unequal count => not equal
-  	if(fpl->eintrag.get_count()!=eintrag.get_count()) {
+	const uint8 min_count = min( fpl->eintrag.get_count(), eintrag.get_count() );
+  	if(min_count==0  &&  fpl->eintrag.get_count()!=eintrag.get_count()) {
   		return false;
   	}
   	// now we have to check all entries ...
-	for(unsigned i = 0; i<eintrag.get_count(); i++) {
-		if (fpl->eintrag[i].pos != eintrag[i].pos) { // ladegrad ignored!
-			return false;
+	unsigned f1=0, f2=0;
+	while(  f1<eintrag.get_count()  &&  f2<fpl->eintrag.get_count()  ) {
+		if (fpl->eintrag[f2].pos == eintrag[f1].pos) { // ladegrad ignored!
+			f1++;
+			f2++;
+		}
+		else {
+			bool ok = false;
+			grund_t *gr1 = welt->lookup(eintrag[f1].pos);
+			if(  gr1->gib_depot()  ) {
+				// skip depot
+				f1++;
+				ok = true;
+			}
+			grund_t *gr2 = welt->lookup(fpl->eintrag[f2].pos);
+			if(  gr2->gib_depot()  ) {
+				ok = true;
+				f2++;
+			}
+			// no depot but different => do not match!
+			if(  !ok  ) {
+				/* in principle we could also check for same halt; but this is dangerous,
+				 * since a rebuilding of a single square might change that
+				 */
+				return false;
+			}
 		}
 	}
-	return true;
+	return f1==eintrag.get_count()  &&  f2==fpl->eintrag.get_count();
 }
+
 
 
 void fahrplan_t::add_return_way()

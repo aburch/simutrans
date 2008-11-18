@@ -1253,7 +1253,7 @@ void depot_frame_t::change_line()
 void depot_frame_t::fahrplaneingabe()
 {
 	convoihandle_t cnv = depot->get_convoi(icnv);
-	if(cnv.is_bound() && cnv->gib_vehikel_anzahl() > 0) {
+	if(cnv.is_bound()  &&  cnv->gib_vehikel_anzahl() > 0) {
 
 		fahrplan_t *fpl = cnv->erzeuge_fahrplan();
 		if(fpl!=NULL) {

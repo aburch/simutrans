@@ -289,6 +289,10 @@ bool depot_t::start_convoi(convoihandle_t cnv)
 			destroy_win((long)cnv->gib_fahrplan());
 			cnv->gib_fahrplan()->cleanup();
 			cnv->gib_fahrplan()->eingabe_abschliessen();
+			// just recheck if schedules match
+			if(  cnv->get_line().is_bound()  &&  !cnv->get_line()->get_fahrplan()->matches( welt, cnv->gib_fahrplan() )  ) {
+				cnv->unset_line();
+			}
 		}
 	}
 
