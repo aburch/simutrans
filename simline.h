@@ -151,8 +151,11 @@ public:
 
 	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 
+	// recalculates the good transported by this line and (in case of changes) will start schedule recalculation
+	void recalc_catg_index();
+
 protected:
-	fahrplan_t * fpl,  * old_fpl;
+	fahrplan_t * fpl,  *old_fpl;
 	linetype type;
 
 private:
@@ -192,8 +195,6 @@ private:
 	void init_financial_history();
 
 	void recalc_status();
-
-	void recalc_catg_index();
 };
 
 class truckline_t : public simline_t

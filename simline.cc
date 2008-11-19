@@ -99,16 +99,21 @@ void simline_t::add_convoy(convoihandle_t cnv)
 	line_managed_convoys.push_back_unique(cnv);
 
 	// what goods can this line transport?
-	for(uint i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {
-		// Only consider vehicles that really transport something
-		// this helps against routing errors through passenger
-		// trains pulling only freight wagons
-		if (cnv->gib_vehikel(i)->gib_fracht_max() == 0) {
-			continue;
-		}
-		const ware_besch_t *ware=cnv->gib_vehikel(i)->gib_fracht_typ();
-		if(ware!=warenbauer_t::nichts) {
-			goods_catg_index.append_unique( ware->gib_catg_index(), 1 );
+	bool update_schedules = false;
+	if(  cnv->get_state()!=convoi_t::INITIAL  ) {
+		// already on the road => need to add them
+		for(uint i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {
+			// Only consider vehicles that really transport something
+			// this helps against routing errors through passenger
+			// trains pulling only freight wagons
+			if (cnv->gib_vehikel(i)->gib_fracht_max() == 0) {
+				continue;
+			}
+			const ware_besch_t *ware=cnv->gib_vehikel(i)->gib_fracht_typ();
+			if(ware!=warenbauer_t::nichts  &&  !goods_catg_index.is_contained(ware->gib_catg_index())) {
+				goods_catg_index.append( ware->gib_catg_index(), 1 );
+				update_schedules = true;
+			}
 		}
 	}
 
@@ -116,6 +121,11 @@ void simline_t::add_convoy(convoihandle_t cnv)
 	financial_history[0][LINE_CONVOIS] = count_convoys();
 	if(state_color==COL_BLACK  &&  cnv->has_obsolete_vehicles()) {
 		state_color = COL_DARK_BLUE;
+	}
+
+	// do we need to tell the world about our new schedule?
+	if(  update_schedules  ) {
+		welt->set_schedule_counter();
 	}
 }
 
@@ -129,7 +139,7 @@ void simline_t::remove_convoy(convoihandle_t cnv)
 		financial_history[0][LINE_CONVOIS] = count_convoys();
 		recalc_status();
 	}
-	if (line_managed_convoys.empty()) {
+	if(line_managed_convoys.empty()) {
 		unregister_stops();
 	}
 }
@@ -205,7 +215,7 @@ void simline_t::unregister_stops(fahrplan_t * fpl)
 {
 	for (int i = 0; i<fpl->maxi(); i++) {
 		halthandle_t halt = haltestelle_t::gib_halt( welt, fpl->eintrag[i].pos );
-		if (halt.is_bound()) {
+		if(halt.is_bound()) {
 			halt->remove_line(self);
 		}
 	}
@@ -292,14 +302,41 @@ void simline_t::recalc_status()
 // recalc what good this line is moving
 void simline_t::recalc_catg_index()
 {
+	// first copy old
+	minivec_tpl<uint8> old_goods_catg_index(goods_catg_index.get_count());
+	for(  uint i=0;  i<goods_catg_index.get_count();  i++  ) {
+		old_goods_catg_index.append( goods_catg_index[i] );
+	}
 	goods_catg_index.clear();
+	// then recreate current
 	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
 		// what goods can this line transport?
 		const convoihandle_t cnv = line_managed_convoys[i];
 		for(uint i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {
+			// Only consider vehicles that really transport something
+			// this helps against routing errors through passenger
+			// trains pulling only freight wagons
+			if (cnv->gib_vehikel(i)->gib_fracht_max() == 0) {
+				continue;
+			}
 			const ware_besch_t *ware=cnv->gib_vehikel(i)->gib_fracht_typ();
-			if(ware!=warenbauer_t::nichts) {
+			if(ware!=warenbauer_t::nichts  ) {
 				goods_catg_index.append_unique( ware->gib_catg_index(), 1 );
+			}
+		}
+	}
+	// if different => schedule need recalculation
+	if(  goods_catg_index.get_count()!=old_goods_catg_index.get_count()  ) {
+		// surely changed
+		welt->set_schedule_counter();
+	}
+	else {
+		// maybe changed => must test all entries
+		for(  uint i=0;  i<goods_catg_index.get_count();  i++  ) {
+			if(  old_goods_catg_index[i] != goods_catg_index[i]  ) {
+				// different => recalc
+				welt->set_schedule_counter();
+				break;
 			}
 		}
 	}

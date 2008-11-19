@@ -313,7 +313,6 @@ bool depot_t::start_convoi(convoihandle_t cnv)
 			create_win( new news_img(buf), w_time_delete, magic_none);
 		} else if (can_convoi_start(cnv)) {
 			// der Convoi kann losdüsen
-			cnv->setze_fahrplan( cnv->gib_fahrplan() );     // do not delete: this inform all stops!
 			welt->sync_add( cnv.get_rep() );
 			cnv->start();
 

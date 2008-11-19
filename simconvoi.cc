@@ -187,19 +187,19 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	welt->sync_remove( this );
 	welt->rem_convoi( self );
 
-	// @author hsiegeln - deregister from line
-	unset_line();
-
-	self.detach();
-
 	// force asynchronous recalculation
 	if(fpl) {
 		destroy_win((long)fpl);
-		if(fpl->maxi()>0) {
+		if(fpl->maxi()>0  &&  !line.is_bound()  ) {
 			welt->set_schedule_counter();
 		}
 		delete fpl;
 	}
+
+	// @author hsiegeln - deregister from line
+	unset_line();
+
+	self.detach();
 
 	destroy_win((long)this);
 }
@@ -512,7 +512,6 @@ bool convoi_t::sync_step(long delta_t)
 			if(fpl!=NULL  &&  fpl->ist_abgeschlossen()) {
 
 				setze_fahrplan(fpl);
-				welt->set_schedule_counter();
 
 				if(fpl->maxi()==0) {
 					// no entry => no route ...
@@ -925,6 +924,7 @@ void convoi_t::start()
 		no_load = false;
 
 		state = ROUTING_1;
+
 		// recalc weight and image
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			fahr[i]->beladen( home_depot.gib_2d(), halthandle_t() );
@@ -932,6 +932,13 @@ void convoi_t::start()
 		// calc state for convoi
 		calc_loading();
 
+		if(line.is_bound()) {
+			// might have changed the vehicles in this car ...
+			line->recalc_catg_index();
+		}
+		else {
+			welt->set_schedule_counter();
+		}
 
 		DBG_MESSAGE("convoi_t::start()","Convoi %s wechselt von INITIAL nach ROUTING_1", name_and_id);
 	} else {
@@ -1153,9 +1160,6 @@ bool convoi_t::setze_fahrplan(fahrplan_t * f)
 	// rebuild destination for the new schedule
 	fpl = f;
 
-	// asynchronous recalculation of routes
-	welt->set_schedule_counter();
-
 	// remove wrong freight
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		fahr[i]->remove_stale_freight();
@@ -1164,6 +1168,10 @@ bool convoi_t::setze_fahrplan(fahrplan_t * f)
 	// ok, now we have a schedule
 	if(old_state!=INITIAL) {
 		state = FAHRPLANEINGABE;
+		if(  !line.is_bound()  ) {
+			// asynchronous recalculation of routes
+			welt->set_schedule_counter();
+		}
 	}
 	return true;
 }
