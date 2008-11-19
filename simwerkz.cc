@@ -1879,13 +1879,21 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 						}
 						type_matches = true;
 						best_distance = cur_dist;
-						best_dir |= neightbour_to_dir[i];
+						if(cur_dist>1  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>1) {
+							// special handling of diagonal field
+							int l = gb->gib_tile()->gib_layout()%2;
+							best_dir |= 1<<(i>=5 ? 3+l : l );
+						}
+						else {
+							best_dir |= neightbour_to_dir[i];
+						}
 					}
 				}
-				else if(  !type_matches  &&  cur_dist<=best_distance  ) {
+				else if(  cur_dist<best_distance  ||  (!type_matches  &&  cur_dist<=best_distance)  ) {
 					if(cur_dist<best_distance) {
 						best_dir = 0;
 					}
+					type_matches = false;
 					best_distance = cur_dist;
 					best_dir |= neightbour_to_dir[i];
 				}
@@ -1956,6 +1964,12 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	}
 	else {
 		halt = suche_nahe_haltestelle(sp, welt, k, size.x, size.y);
+		rotate = 0;
+		for(  sint8 j=0;  j<4;  j++ ) {
+			if(best_dir&(1<<j)) {
+				rotate = j%besch->gib_all_layouts();
+			}
+		}
 	}
 
 	// is there already a halt to connect?
