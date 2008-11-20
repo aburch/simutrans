@@ -374,32 +374,38 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
 
 			vehikel_t *v = NULL;
+			const bool first = false;
+			const bool last = false;
 
 			switch( typ ) {
 				case old_automobil:
-				case automobil: v = new automobil_t(welt, file);    break;
+				case automobil: v = new automobil_t(welt, file, first, last);    break;
 				case old_waggon:
-				case waggon:    v = new waggon_t(welt, file);       break;
+				case waggon:    v = new waggon_t(welt, file, first, last);       break;
 				case old_schiff:
-				case schiff:    v = new schiff_t(welt, file);       break;
+				case schiff:    v = new schiff_t(welt, file, first, last);       break;
 				case old_aircraft:
-				case aircraft: v = new aircraft_t(welt,file);  break;
+				case aircraft: v = new aircraft_t(welt,file, first, last);  break;
 				case old_monorailwaggon:
-				case monorailwaggon: v = new monorail_waggon_t(welt,file);  break;
-				case maglevwaggon:   v = new maglev_waggon_t(welt,file);  break;
-				case narrowgaugewaggon: v = new narrowgauge_waggon_t(welt,file);  break;
+				case monorailwaggon: v = new monorail_waggon_t(welt,file, first, last);  break;
+				case maglevwaggon:   v = new maglev_waggon_t(welt,file, first, last);  break;
+				case narrowgaugewaggon: v = new narrowgauge_waggon_t(welt,file, first, last);  break;
 				default:
 					dbg->fatal("depot_t::vehikel_laden()","invalid vehicle type $%X", typ);
 			}
-
-			DBG_MESSAGE("depot_t::vehikel_laden()","loaded %s", v->gib_besch()->gib_name());
-			list.insert( v );
+			if(v->gib_besch()) {
+				DBG_MESSAGE("depot_t::vehikel_laden()","loaded %s", v->gib_besch()->gib_name());
+				list.insert( v );
+			}
+			else {
+				dbg->error("depot_t::vehikel_laden()","vehicle has no besch => ignored");
+			}
 		}
 	}
 	else {
 		slist_iterator_tpl<vehikel_t *> l_iter ( list);
 		while(l_iter.next()) {
-			l_iter.get_current()->rdwr( file );
+			l_iter.get_current()->rdwr_from_convoi( file );
 		}
 	}
 }

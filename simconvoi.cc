@@ -1540,7 +1540,7 @@ convoi_t::rdwr(loadsave_t *file)
 	koord3d dummy_pos;
 	if(file->is_saving()) {
 		for(unsigned i=0; i<anz_vehikel; i++) {
-			fahr[i]->rdwr(file, true);
+			fahr[i]->rdwr_from_convoi(file);
 		}
 	}
 	else {
@@ -1550,24 +1550,26 @@ convoi_t::rdwr(loadsave_t *file)
 			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
 			vehikel_t *v = 0;
 
+			const bool first = (i==0);
+			const bool last = (i==anz_vehikel-1);
 			if(override_monorail) {
 				// ignore type for ancient monorails
-				v = new monorail_waggon_t(welt, file);
+				v = new monorail_waggon_t(welt, file, first, last);
 			}
 			else {
 				switch(typ) {
 					case ding_t::old_automobil:
-					case ding_t::automobil: v = new automobil_t(welt, file);  break;
+					case ding_t::automobil: v = new automobil_t(welt, file, first, last);  break;
 					case ding_t::old_waggon:
-					case ding_t::waggon:    v = new waggon_t(welt, file);     break;
+					case ding_t::waggon:    v = new waggon_t(welt, file, first, last);     break;
 					case ding_t::old_schiff:
-					case ding_t::schiff:    v = new schiff_t(welt, file);     break;
+					case ding_t::schiff:    v = new schiff_t(welt, file, first, last);     break;
 					case ding_t::old_aircraft:
-					case ding_t::aircraft:    v = new aircraft_t(welt, file);     break;
+					case ding_t::aircraft:    v = new aircraft_t(welt, file, first, last);     break;
 					case ding_t::old_monorailwaggon:
-					case ding_t::monorailwaggon:    v = new monorail_waggon_t(welt, file);     break;
-					case ding_t::maglevwaggon:         v = new maglev_waggon_t(welt, file);     break;
-					case ding_t::narrowgaugewaggon:    v = new narrowgauge_waggon_t(welt, file);     break;
+					case ding_t::monorailwaggon:    v = new monorail_waggon_t(welt, file, first, last);     break;
+					case ding_t::maglevwaggon:         v = new maglev_waggon_t(welt, file, first, last);     break;
+					case ding_t::narrowgaugewaggon:    v = new narrowgauge_waggon_t(welt, file, first, last);     break;
 					default:
 						dbg->fatal("convoi_t::convoi_t()","Can't load vehicle type %d", typ);
 				}
@@ -1578,6 +1580,7 @@ convoi_t::rdwr(loadsave_t *file)
 				// will create orphan object, but better than crashing at deletion ...
 				dbg->error("convoi_t::convoi_t()","Can't load vehicle and no replacement found!");
 				i --;
+				anz_vehikel --;
 				continue;
 			}
 

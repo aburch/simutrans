@@ -1327,8 +1327,17 @@ vehikel_t::calc_bild()
 }
 
 
-void
-vehikel_t::rdwr(loadsave_t *file)
+
+void vehikel_t::rdwr(loadsave_t *file)
+{
+	// this is only called from dingliste => we save nothing ...
+	assert(  file->is_saving()  );
+	file->wr_obj_id(-1);
+}
+
+
+
+void vehikel_t::rdwr_from_convoi(loadsave_t *file)
 {
 	sint32 fracht_count = 0;
 
@@ -1361,7 +1370,7 @@ vehikel_t::rdwr(loadsave_t *file)
 		file->rdwr_long(l, "\n");
 		route_index = (uint16)l;
 		insta_zeit = (insta_zeit >> welt->ticks_bits_per_tag) + umgebung_t::starting_year;
-DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/12);
+DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/12);
 	}
 	else {
 		// prissi: changed several data types to save runtime memory
@@ -1454,7 +1463,7 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 			besch = vehikelbauer_t::gib_info(translator::compatibility_name(s));
 		}
 		if(besch==NULL) {
-			dbg->warning("vehikel_t::rdwr()","no vehicle pak for '%s' search for something similar", s);
+			dbg->warning("vehikel_t::rdwr_from_convoi()","no vehicle pak for '%s' search for something similar", s);
 		}
 		guarded_free(const_cast<char *>(s));
 	}
@@ -1609,10 +1618,37 @@ automobil_t::automobil_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* s
 
 
 
-automobil_t::automobil_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
+automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : vehikel_t(welt)
 {
-	rdwr(file, true);
+	rdwr_from_convoi(file);
+
+	if(  file->is_loading()  ) {
+		static const vehikel_besch_t *last_besch = NULL;
+
+		if(is_first) {
+			last_besch = NULL;
+		}
+		// try to find a matching vehivle
+		if(besch==NULL) {
+			const ware_besch_t* w = (!fracht.empty() ? fracht.front().gib_besch() : warenbauer_t::passagiere);
+			dbg->warning("automobil_t::automobil_t()","try to find a fitting vehicle for %s.",  w->gib_name() );
+			besch = vehikelbauer_t::get_best_matching(road_wt, 0, (fracht.empty() ? 0 : 50), is_first?50:0, speed_to_kmh(speed_limit), w, false, true, last_besch, is_last );
+			if(besch) {
+				DBG_MESSAGE("automobil_t::automobil_t()","replaced by %s",besch->gib_name());
+				// still wrong load ...
+				calc_bild();
+			}
+			if(!fracht.empty()  &&  fracht.front().menge == 0) {
+				// this was only there to find a matching vehicle
+				fracht.remove_first();
+			}
+		}
+		if(  besch  ) {
+			last_besch = besch;
+		}
+	}
 }
+
 
 
 // ned to reset halt reservation (if there was one)
@@ -1633,8 +1669,7 @@ bool automobil_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, rout
 
 
 
-bool
-automobil_t::ist_befahrbar(const grund_t *bd) const
+bool automobil_t::ist_befahrbar(const grund_t *bd) const
 {
 	strasse_t *str=(strasse_t *)bd->gib_weg(road_wt);
 	if(str==NULL) {
@@ -1901,8 +1936,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 
 
 
-void
-automobil_t::betrete_feld()
+void automobil_t::betrete_feld()
 {
 	vehikel_t::betrete_feld();
 
@@ -1924,49 +1958,8 @@ fahrplan_t * automobil_t::erzeuge_neuen_fahrplan() const
 }
 
 
-void
-automobil_t::rdwr(loadsave_t *file)
-{
-	if(file->is_saving() && cnv != NULL) {
-		file->wr_obj_id(-1);
-	}
-	else {
-		rdwr(file, true);
-	}
-}
 
-void
-automobil_t::rdwr(loadsave_t *file, bool force)
-{
-	assert(force);
-
-	if(file->is_saving() && cnv != NULL && !force) {
-		file->wr_obj_id(-1);
-	}
-	else {
-		vehikel_t::rdwr(file);
-
-		// try to find a matching vehivle
-		if(file->is_loading()  &&  besch==NULL) {
-			const ware_besch_t* w = (!fracht.empty() ? fracht.front().gib_besch() : warenbauer_t::passagiere);
-			DBG_MESSAGE("automobil_t::rdwr()","try to find a fitting vehicle for %s.",  w->gib_name() );
-			besch = vehikelbauer_t::vehikel_search(road_wt, 0, ist_erstes?50:0, speed_to_kmh(speed_limit), w, false, true );
-			if(besch) {
-				DBG_MESSAGE("automobil_t::rdwr()","replaced by %s",besch->gib_name());
-				// still wrong load ...
-				calc_bild();
-			}
-			if (!fracht.empty() && fracht.front().menge == 0) {
-				// this was only there to find a matching vehicle
-				fracht.remove_first();
-			}
-		}
-	}
-}
-
-
-void
-automobil_t::setze_convoi(convoi_t *c)
+void automobil_t::setze_convoi(convoi_t *c)
 {
 	DBG_MESSAGE("automobil_t::setze_convoi()","%p",c);
 	if(c!=NULL) {
@@ -1995,9 +1988,47 @@ automobil_t::setze_convoi(convoi_t *c)
 
 /* from now on rail vehicles (and other vehicles using blocks) */
 
-waggon_t::waggon_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
+waggon_t::waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : vehikel_t(welt)
 {
-	rdwr(file, true);
+
+	vehikel_t::rdwr_from_convoi(file);
+
+	if(  file->is_loading()  ) {
+		static const vehikel_besch_t *last_besch = NULL;
+
+		if(is_first) {
+			last_besch = NULL;
+		}
+		// try to find a matching vehivle
+		if(besch==NULL) {
+			int power = (is_first || fracht.empty() || fracht.front() == warenbauer_t::nichts) ? 500 : 0;
+			const ware_besch_t* w = fracht.empty() ? warenbauer_t::nichts : fracht.front().gib_besch();
+			dbg->warning("waggon_t::waggon_t()","try to find a fitting vehicle for %s.", power>0 ? "engine": w->gib_name() );
+			if(last_besch!=NULL  &&  last_besch->can_follow(last_besch)  &&  last_besch->gib_ware()==w  &&  (!is_last  ||  last_besch->gib_nachfolger(0)==NULL)) {
+				// same as previously ...
+				besch = last_besch;
+			}
+			else {
+				// we have to search
+				besch = vehikelbauer_t::get_best_matching(gib_waytype(), 0, w!=warenbauer_t::nichts?5000:0, power, speed_to_kmh(speed_limit), w, false, false, last_besch, is_last );
+			}
+			if(besch) {
+DBG_MESSAGE("waggon_t::waggon_t()","replaced by %s",besch->gib_name());
+				calc_bild();
+			}
+			else {
+				dbg->error("waggon_t::waggon_t()","no matching besch found for %s!",w->gib_name());
+			}
+			if (!fracht.empty() && fracht.front().menge == 0) {
+				// this was only there to find a matchin vehicle
+				fracht.remove_first();
+			}
+		}
+		// update last besch
+		if(  besch  ) {
+			last_besch = besch;
+		}
+	}
 }
 
 
@@ -2605,65 +2636,6 @@ fahrplan_t * waggon_t::erzeuge_neuen_fahrplan() const
 }
 
 
-void
-waggon_t::rdwr(loadsave_t *file)
-{
-	if(file->is_saving() && cnv != NULL) {
-		file->wr_obj_id(-1);
-	}
-	else {
-		rdwr(file, true);
-	}
-}
-
-void
-waggon_t::rdwr(loadsave_t *file, bool force)
-{
-	static const vehikel_besch_t *last_besch;
-	assert(force);
-
-	if(file->is_saving()  &&  cnv!=NULL  &&  !force) {
-		file->wr_obj_id(-1);
-		last_besch = NULL;
-	}
-	else {
-		vehikel_t::rdwr(file);
-
-		// try to find a matching vehivle
-		if(file->is_loading()  &&  besch==NULL) {
-			int power = (ist_erstes || fracht.empty() || fracht.front() == warenbauer_t::nichts) ? 500 : 0;
-			const ware_besch_t* w = power ? warenbauer_t::nichts : fracht.front().gib_besch();
-			DBG_MESSAGE("waggon_t::rdwr()","try to find a fitting vehicle for %s.", power>0 ? "engine": w->gib_name() );
-			if(!ist_erstes  &&  last_besch!=NULL  &&  last_besch->gib_ware()==w  &&
-				(
-					(power>0  &&  last_besch->gib_leistung()>0)
-//					||  (power==0  &&  last_besch->gib_leistung()>=0)
-				)
-			) {
-				// same as previously ...
-				besch = last_besch;
-			}
-			else {
-				// we have to search
-				last_besch = besch = vehikelbauer_t::vehikel_search(gib_waytype(), 0, ist_erstes ? 500 : power, speed_to_kmh(speed_limit), power>0 ? NULL : w, false, false );
-			}
-			if(besch) {
-DBG_MESSAGE("waggon_t::rdwr()","replaced by %s",besch->gib_name());
-				calc_bild();
-			}
-			else {
-dbg->error("waggon_t::rdwr()","no matching besch found for %s!",w->gib_name());
-			}
-			if (!fracht.empty() && fracht.front().menge == 0) {
-				// this was only there to find a matchin vehicle
-				fracht.remove_first();
-			}
-		}
-	}
-}
-
-
-
 fahrplan_t * monorail_waggon_t::erzeuge_neuen_fahrplan() const
 {
 	return new monorailfahrplan_t();
@@ -2688,9 +2660,29 @@ schiff_t::schiff_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, con
     cnv = cn;
 }
 
-schiff_t::schiff_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
+schiff_t::schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : vehikel_t(welt)
 {
-	rdwr(file, true);
+	vehikel_t::rdwr_from_convoi(file);
+
+	if(  file->is_loading()  ) {
+		static const vehikel_besch_t *last_besch = NULL;
+
+		if(is_first) {
+			last_besch = NULL;
+		}
+		// try to find a matching vehivle
+		if(besch==NULL) {
+			dbg->warning("schiff_t::schiff_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().gib_name() : "passagiere");
+			besch = vehikelbauer_t::get_best_matching(water_wt, 0, fracht.empty() ? 0 : 30, 100, 40, !fracht.empty() ? fracht.front().gib_besch() : warenbauer_t::passagiere, false, true, last_besch, is_last );
+			if(besch) {
+				calc_bild();
+			}
+		}
+		// update last besch
+		if(  besch  ) {
+			last_besch = besch;
+		}
+	}
 }
 
 
@@ -2760,37 +2752,6 @@ fahrplan_t * schiff_t::erzeuge_neuen_fahrplan() const
   return new schifffahrplan_t();
 }
 
-
-
-void
-schiff_t::rdwr(loadsave_t *file)
-{
-	if(file->is_saving() && cnv != NULL) {
-		file->wr_obj_id(-1);
-	}
-	else {
-		rdwr(file, true);
-	}
-}
-
-void
-schiff_t::rdwr(loadsave_t *file, bool force)
-{
-	assert(force);
-	if(file->is_saving() && cnv != NULL && !force) {
-		file->wr_obj_id(-1);
-	} else {
-		vehikel_t::rdwr(file);
-		// try to find a matching vehivle
-		if(file->is_loading()  &&  besch==NULL) {
-			DBG_MESSAGE("schiff_t::rdwr()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().gib_name() : "passagiere");
-			besch = vehikelbauer_t::vehikel_search(water_wt, 0, 100, 40, !fracht.empty() ? fracht.front().gib_besch() : warenbauer_t::passagiere, false, true );
-			if(besch) {
-				calc_bild();
-			}
-		}
-	}
-}
 
 
 /**** from here on planes ***/
@@ -3216,11 +3177,31 @@ aircraft_t::betrete_feld()
 
 
 
-aircraft_t::aircraft_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
+aircraft_t::aircraft_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : vehikel_t(welt)
 {
-	rdwr(file, true);
+	rdwr_from_convoi(file);
 	old_x = old_y = -1;
 	old_bild = IMG_LEER;
+
+	if(  file->is_loading()  ) {
+		static const vehikel_besch_t *last_besch = NULL;
+
+		if(is_first) {
+			last_besch = NULL;
+		}
+		// try to find a matching vehivle
+		if(besch==NULL) {
+			dbg->warning("aircraft_t::aircraft_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().gib_name() : "passagiere");
+			besch = vehikelbauer_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht.front().gib_besch() : warenbauer_t::passagiere, false, true, last_besch, is_last );
+			if(besch) {
+				calc_bild();
+			}
+		}
+		// update last besch
+		if(  besch  ) {
+			last_besch = besch;
+		}
+	}
 }
 
 
@@ -3302,35 +3283,17 @@ fahrplan_t * aircraft_t::erzeuge_neuen_fahrplan() const
 
 
 
-void
-aircraft_t::rdwr(loadsave_t *file)
+void aircraft_t::rdwr_from_convoi(loadsave_t *file)
 {
-	if(file->is_saving() && cnv != NULL) {
-		file->wr_obj_id(-1);
-	} else {
-		rdwr(file, true);
-	}
-}
+	vehikel_t::rdwr_from_convoi(file);
 
-void
-aircraft_t::rdwr(loadsave_t *file, bool force)
-{
-	// make sure, we are not called by loading via dingliste directly from a tile!
-	assert(force);
-
-	if(file->is_saving() && cnv != NULL && !force) {
-		file->wr_obj_id(-1);
-	}
-	else {
-		vehikel_t::rdwr(file);
-		file->rdwr_enum(state, " ");
-		file->rdwr_short(flughoehe, " ");
-		flughoehe &= ~(TILE_HEIGHT_STEP-1);
-		file->rdwr_short(target_height, "\n");
-		file->rdwr_long(suchen," ");
-		file->rdwr_long(touchdown," ");
-		file->rdwr_long(takeoff,"\n");
-	}
+	file->rdwr_enum(state, " ");
+	file->rdwr_short(flughoehe, " ");
+	flughoehe &= ~(TILE_HEIGHT_STEP-1);
+	file->rdwr_short(target_height, "\n");
+	file->rdwr_long(suchen," ");
+	file->rdwr_long(touchdown," ");
+	file->rdwr_long(takeoff,"\n");
 }
 
 

@@ -417,7 +417,7 @@ public:
 	const char * ist_entfernbar(const spieler_t *sp);
 
 	void rdwr(loadsave_t *file);
-	virtual void rdwr(loadsave_t *file, bool force) = 0;
+	virtual void rdwr_from_convoi(loadsave_t *file);
 
 	uint32 calc_restwert() const;
 
@@ -446,7 +446,7 @@ public:
 
 	virtual waytype_t gib_waytype() const { return road_wt; }
 
-	automobil_t(karte_t *welt, loadsave_t *file);
+	automobil_t(karte_t *welt, loadsave_t *file, bool first, bool last);
 	automobil_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
 
 	virtual void setze_convoi(convoi_t *c);
@@ -467,9 +467,6 @@ public:
 	ding_t::typ gib_typ() const { return automobil; }
 
 	fahrplan_t * erzeuge_neuen_fahrplan() const;
-
-	void rdwr(loadsave_t *file);
-	void rdwr(loadsave_t *file, bool force);
 
 	virtual overtaker_t *get_overtaker() { return cnv ? static_cast<overtaker_t *>(cnv) : NULL; }
 };
@@ -516,16 +513,13 @@ public:
 
 	enum ding_t::typ gib_typ() const { return waggon; }
 
-	waggon_t(karte_t *welt, loadsave_t *file);
+	waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last);
 	waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t *cnv); // start und fahrplan
 	~waggon_t();
 
 	virtual void setze_convoi(convoi_t *c);
 
 	virtual fahrplan_t * erzeuge_neuen_fahrplan() const;
-
-	void rdwr(loadsave_t *file);
-	void rdwr(loadsave_t *file, bool force);
 };
 
 
@@ -541,7 +535,7 @@ public:
 	virtual waytype_t gib_waytype() const { return monorail_wt; }
 
 	// all handled by waggon_t
-	monorail_waggon_t(karte_t *welt, loadsave_t *file) : waggon_t(welt, file) {}
+	monorail_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, file,is_first, is_last) {}
 	monorail_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
 
 	enum ding_t::typ gib_typ() const { return monorailwaggon; }
@@ -562,7 +556,7 @@ public:
 	virtual waytype_t gib_waytype() const { return maglev_wt; }
 
 	// all handled by waggon_t
-	maglev_waggon_t(karte_t *welt, loadsave_t *file) : waggon_t(welt, file) {}
+	maglev_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, file, is_first, is_last) {}
 	maglev_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
 
 	enum ding_t::typ gib_typ() const { return maglevwaggon; }
@@ -583,7 +577,7 @@ public:
 	virtual waytype_t gib_waytype() const { return narrowgauge_wt; }
 
 	// all handled by waggon_t
-	narrowgauge_waggon_t(karte_t *welt, loadsave_t *file) : waggon_t(welt, file) {}
+	narrowgauge_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, file, is_first, is_last) {}
 	narrowgauge_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
 
 	enum ding_t::typ gib_typ() const { return narrowgaugewaggon; }
@@ -618,15 +612,12 @@ public:
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const {return 0;}
 
-	schiff_t(karte_t *welt, loadsave_t *file);
+	schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last);
 	schiff_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
 
 	ding_t::typ gib_typ() const { return schiff; }
 
 	fahrplan_t * erzeuge_neuen_fahrplan() const;
-
-	void rdwr(loadsave_t *file);
-	void rdwr(loadsave_t *file, bool force);
 };
 
 
@@ -675,7 +666,7 @@ protected:
 	bool find_route_to_stop_position();
 
 public:
-	aircraft_t(karte_t *welt, loadsave_t *file);
+	aircraft_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last);
 	aircraft_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
 
 	// since we are drawing ourselves, we must mark ourselves dirty during deletion
@@ -702,8 +693,7 @@ public:
 
 	fahrplan_t * erzeuge_neuen_fahrplan() const;
 
-	void rdwr(loadsave_t *file);
-	void rdwr(loadsave_t *file, bool force);
+	void rdwr_from_convoi(loadsave_t *file);
 
 	int gib_flyingheight() const {return flughoehe-hoff-2;}
 

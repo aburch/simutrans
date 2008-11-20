@@ -428,3 +428,120 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 	}
 	return besch;
 }
+
+
+
+/* extended search for vehicles for replacement on load time
+ * tries to get best match (no random action)
+ * if prev_besch==NULL, then the convoi must be able to lead a convoi
+ * @author prissi
+ */
+const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const uint32 target_speed, const ware_besch_t * target_freight, bool include_electric, bool not_obsolete, const vehikel_besch_t *prev_veh, bool is_last )
+{
+	const vehikel_besch_t *besch = NULL;
+	long besch_index=-100000;
+
+	if(typ_fahrzeuge.access(wt)) {
+		slist_iterator_tpl<const vehikel_besch_t*> vehinfo(typ_fahrzeuge.access(wt));
+		while (vehinfo.next()) {
+			const vehikel_besch_t* test_besch = vehinfo.get_current();
+
+			if(target_power>0  &&  test_besch->gib_leistung()==0) {
+				continue;
+			}
+
+			// will test for first (prev_veh==NULL) or matching following vehicle
+			if(!test_besch->can_follow(prev_veh)) {
+				continue;
+			}
+
+			// not allowed as last vehicle
+			if(is_last  &&  test_besch->gib_nachfolger_count()>0  &&  test_besch->gib_nachfolger(0)!=NULL  ) {
+				continue;
+			}
+
+			// not allowed as non-last vehicle
+			if(!is_last  &&  test_besch->gib_nachfolger_count()==1  &&  test_besch->gib_nachfolger(0)==NULL  ) {
+				continue;
+			}
+
+			// check for wegetype/too new
+			if(test_besch->get_waytype()!=wt  ||  test_besch->is_future(month_now)  ) {
+				continue;
+			}
+
+			// likely tender => replace with some engine ...
+			if(target_freight==0  &&  target_weight==0) {
+				if(  test_besch->gib_zuladung()!=0  ) {
+					continue;
+				}
+			}
+
+			if(  not_obsolete  &&  test_besch->is_retired(month_now)  ) {
+				// not using vintage cars here!
+				continue;
+			}
+
+			uint32 power = (test_besch->gib_leistung()*test_besch->get_gear())/64;
+			if(target_freight) {
+				// this is either a railcar/trailer or a truck/boat/plane
+				if(  test_besch->gib_zuladung()==0  ||  !test_besch->gib_ware()->is_interchangeable(target_freight)  ) {
+					continue;
+				}
+
+				sint32 difference=0;	// smaller is better
+				// assign this vehicle, if we have none found one yet, or we found only a too week one
+				if(  besch!=NULL  ) {
+					// it is cheaper to run? (this is most important)
+					difference += (besch->gib_zuladung()*1000)/besch->gib_betriebskosten() < (test_besch->gib_zuladung()*1000)/test_besch->gib_betriebskosten() ? -20 : 20;
+					if(  target_weight>0  ) {
+						// it is strongerer?
+						difference += (besch->gib_leistung()*besch->get_gear())/64 < power ? -10 : 10;
+					}
+					// it is faster? (although we support only up to 120km/h for goods)
+					difference += (besch->gib_geschw() < test_besch->gib_geschw())? -10 : 10;
+					// it is cheaper? (not so important)
+					difference += (besch->gib_preis() > test_besch->gib_preis())? -5 : 5;
+					// add some malus for obsolete vehicles
+					if(test_besch->is_retired(month_now)) {
+						difference += 5;
+					}
+				}
+				// ok, final check
+				if(  besch==NULL  ||  difference<12    ) {
+					// then we want this vehicle!
+					besch = test_besch;
+					DBG_MESSAGE( "vehikelbauer_t::get_best_matching","Found car %s",besch->gib_name());
+				}
+			}
+			else {
+				// finally, we might be able to use this vehicle
+				uint32 speed = test_besch->gib_geschw();
+				uint32 max_weight = power/( (speed*speed)/2500 + 1 );
+
+				// we found a useful engine
+				long current_index = (power*100)/test_besch->gib_betriebskosten() + test_besch->gib_geschw() - (sint16)test_besch->gib_gewicht() - (sint32)(test_besch->gib_preis()/25000);
+				// too slow?
+				if(speed < target_speed) {
+					current_index -= 250;
+				}
+				// too weak to to reach full speed?
+				if(  max_weight < target_weight+test_besch->gib_gewicht()  ) {
+					current_index += max_weight - (sint32)(target_weight+test_besch->gib_gewicht());
+				}
+				current_index += 50;
+				if(  current_index > besch_index  ) {
+					// then we want this vehicle!
+					besch = test_besch;
+					besch_index = current_index;
+					DBG_MESSAGE( "vehikelbauer_t::get_best_matching","Found engine %s",besch->gib_name());
+				}
+			}
+		}
+	}
+	// no vehicle found!
+	if(  besch==NULL  ) {
+		DBG_MESSAGE( "vehikelbauer_t::get_best_matching()","could not find a suitable vehicle! (speed %i, weight %i)",target_speed,target_weight);
+	}
+	return besch;
+}

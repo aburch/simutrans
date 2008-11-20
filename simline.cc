@@ -311,7 +311,8 @@ void simline_t::recalc_catg_index()
 	// then recreate current
 	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
 		// what goods can this line transport?
-		const convoihandle_t cnv = line_managed_convoys[i];
+//		const convoihandle_t cnv = line_managed_convoys[i];
+		const convoi_t *cnv = line_managed_convoys[i].get_rep();
 		for(uint i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {
 			// Only consider vehicles that really transport something
 			// this helps against routing errors through passenger
@@ -333,7 +334,7 @@ void simline_t::recalc_catg_index()
 	else {
 		// maybe changed => must test all entries
 		for(  uint i=0;  i<goods_catg_index.get_count();  i++  ) {
-			if(  old_goods_catg_index[i] != goods_catg_index[i]  ) {
+			if(  !old_goods_catg_index.is_contained(goods_catg_index[i])  ) {
 				// different => recalc
 				welt->set_schedule_counter();
 				break;

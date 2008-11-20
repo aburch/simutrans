@@ -183,6 +183,22 @@ public:
 		return static_cast<const vehikel_besch_t *>(gib_kind(6 + i));
 	}
 
+	/* returns true, if this veh can be after the prev_veh */
+	bool can_follow(const vehikel_besch_t *prev_veh) const
+	{
+		if(  vorgaenger==0  ) {
+			return prev_veh = 0;
+		}
+		for( int i=0;  i<vorgaenger;  i++  ) {
+			const vehikel_besch_t *veh = (vehikel_besch_t *)gib_kind(6 + i);
+			if(veh==prev_veh) {
+				return true;
+			}
+		}
+		// only here if not allowed
+		return false;
+	}
+
 	int gib_vorgaenger_count() const { return vorgaenger; }
 
 	// Liefert die erlaubten Nachfolger.
