@@ -12,12 +12,15 @@
 #include "../../simworld.h"
 #include "../../simgraph.h"
 #include "../../simcolor.h"
+#include "../../utils/simstring.h"
+
 
 
 int gui_scrolled_list_t::total_vertical_size() const
 {
-  return item_list.count() * LINESPACE + 2;
+	return item_list.count() * LINESPACE + 2;
 }
+
 
 
 gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
@@ -42,8 +45,7 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
 
 
 
-bool
-gui_scrolled_list_t::action_triggered(gui_komponente_t * /* comp */, value_t extra)
+bool gui_scrolled_list_t::action_triggered(gui_komponente_t * /* comp */, value_t extra)
 {
     // search/replace all offsets with sb.gib_offset() is also an option
     offset = extra.i;
@@ -53,8 +55,7 @@ gui_scrolled_list_t::action_triggered(gui_komponente_t * /* comp */, value_t ext
 
 
 // set the scrollbar offset, so that the selected itm is visible
-void
-gui_scrolled_list_t::show_selection(int s)
+void gui_scrolled_list_t::show_selection(int s)
 {
 	if((unsigned)s<item_list.count()) {
 		selection = s;
@@ -75,15 +76,16 @@ DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, groesse.
 
 void gui_scrolled_list_t::clear_elements()
 {
-    item_list.clear();
+	while(  !item_list.empty()  ) {
+		delete item_list.remove_first();
+	}
     sb.setze_knob(groesse.y-border, total_vertical_size());
 }
 
 
-void gui_scrolled_list_t::append_element(const char *string,const uint8 color)
+void gui_scrolled_list_t::append_element( scrollitem_t *item )
 {
-	item it={ string, color };
-	item_list.append(it);
+	item_list.append( item );
 	sb.setze_knob(groesse.y-border, total_vertical_size());
 }
 
@@ -139,15 +141,16 @@ gui_scrolled_list_t::infowin_event(const event_t *ev)
 				break;
 			case select:
 				if(  IS_LEFTCLICK(ev)  &&  x>=(border/2) && x<(w-border/2) &&  y>=(border/2) && y<(h-border/2)) {
-					selection = (y-(border/2)-2+offset);
-					if(selection>=0) {
-						selection/=LINESPACE;
-						if((unsigned)selection>=item_list.count()) {
-							selection = -1;
+					int new_selection = (y-(border/2)-2+offset);
+					if(new_selection>=0) {
+						new_selection/=LINESPACE;
+						if((unsigned)new_selection>=item_list.count()) {
+							new_selection = -1;
 						}
 						DBG_MESSAGE("gui_scrolled_list_t::infowin_event()","selected %i",selection);
 					}
-					call_listeners((long)selection);
+					selection = new_selection;
+					call_listeners((long)new_selection);
 				}
 				break;
 		}
@@ -159,6 +162,8 @@ gui_scrolled_list_t::infowin_event(const event_t *ev)
 		sb.infowin_event(&ev2);
     }
 }
+
+
 
 void gui_scrolled_list_t::zeichnen(koord pos)
 {
@@ -189,17 +194,34 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 	PUSH_CLIP(x+1,y+1,w-2,h-2);
 	int ycum = y+4-offset; // y cumulative
 	int i=0;
-	slist_iterator_tpl<item>iter( item_list );
-	while( iter.next() ) {
-		if (iter.get_current().text) {
-			if (i == selection) {
+	slist_iterator_tpl<gui_scrolled_list_t::scrollitem_t *>iter( item_list );
+	bool ok = iter.next();
+	while(ok) {
+		gui_scrolled_list_t::scrollitem_t *item = iter.get_current();
+
+		// Hajo: advance iterator, so that we can remove the current object
+		// safely
+		ok = iter.next();
+
+		if(  !item->is_valid()  ) {
+			item_list.remove(item);
+			delete item;
+			if(i == selection) {
+				selection = -1;
+			}
+			else if(  i<selection  ) {
+				selection --;
+			}
+		}
+		else {
+			if(i == selection) {
 				// the selection is grey on color
 				display_fillbox_wh_clip(x+3, ycum-1, w-5, 11, highlight_color, true);
-				display_proportional_clip(x+7, ycum, iter.get_current().text, ALIGN_LEFT, MN_GREY3, true);
+				display_proportional_clip(x+7, ycum, item->get_text(), ALIGN_LEFT, MN_GREY3, true);
 			}
 			else {
 				// normal text
-				display_proportional_clip(x+7, ycum, iter.get_current().text, ALIGN_LEFT, iter.get_current().color, true);
+				display_proportional_clip(x+7, ycum, item->get_text(), ALIGN_LEFT, item->gib_color(), true);
 			}
 			ycum += 11;
 			i++;

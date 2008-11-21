@@ -13,6 +13,7 @@
 #include "schedule_list.h"
 #include "line_management_gui.h"
 #include "gui_convoiinfo.h"
+#include "line_item.h"
 
 #include "../simcolor.h"
 #include "../simhalt.h"
@@ -406,7 +407,7 @@ void schedule_list_gui_t::build_line_list(int filter)
 	sp->simlinemgmt.get_lines(tabs_to_lineindex[filter], &lines);
 	for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; i++) {
 		linehandle_t l = *i;
-		scl.append_element(l->get_name(), l->get_state_color());
+		scl.append_element( new line_scrollitem_t(l) );
 		if (line == l) {
 			scl.setze_selection(scl.get_count() - 1);
 		}

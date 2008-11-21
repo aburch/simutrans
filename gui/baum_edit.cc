@@ -90,15 +90,10 @@ void baum_edit_frame_t::fill_list( bool translate )
 	scl.clear_elements();
 	scl.setze_selection(-1);
 	for (vector_tpl<const baum_besch_t *>::const_iterator i = baumlist.begin(), end = baumlist.end(); i != end; ++i) {
-		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
-		uint8 color=COL_BLACK;
-		// translate or not?
-		if(  translate  ) {
-			scl.append_element( translator::translate( (*i)->gib_name() ), color );
-		}
-		else {
-			scl.append_element( (*i)->gib_name(), color );
-		}
+		scl.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(
+			translate ? translator::translate( (*i)->gib_name() ):(*i)->gib_name(),
+			COL_BLACK )
+		);
 		if(  (*i) == besch  ) {
 			scl.setze_selection(scl.get_count()-1);
 		}

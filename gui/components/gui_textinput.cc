@@ -230,8 +230,8 @@ void gui_textinput_t::zeichnen(koord offset)
 }
 
 
-void
-gui_textinput_t::setze_text(char *text, int max)
+
+void gui_textinput_t::setze_text(char *text, int max)
 {
 	this->text = text;
 	this->max = max;

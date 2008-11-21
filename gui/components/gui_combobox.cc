@@ -13,11 +13,14 @@
 #include "../../simgraph.h"
 #include "../../simcolor.h"
 #include "../../simwin.h"
+#include "../../utils/simstring.h"
 
 
 gui_combobox_t::gui_combobox_t() :
 	droplist(gui_scrolled_list_t::select)
 {
+//	textinp.add_listener(this);
+
 	bt_prev.setze_typ(button_t::arrowleft);
 	bt_prev.setze_pos( koord(0,2) );
 	bt_prev.setze_groesse( koord(10,10) );
@@ -25,7 +28,7 @@ gui_combobox_t::gui_combobox_t() :
 	bt_next.setze_typ(button_t::arrowright);
 	bt_next.setze_groesse( koord(10,10) );
 
-//	textinp.add_listener(this);
+	editstr[0] = 0;
 
 	first_call = true;
 	finish = false;
@@ -147,12 +150,17 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 
 
 /* selction now handled via callback */
-bool gui_combobox_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+bool gui_combobox_t::action_triggered(gui_komponente_t *komp,value_t p)
 {
 	if (komp == &droplist) {
-DBG_MESSAGE("gui_combobox_t::infowin_event()","scroll selected %i",get_selection());
+DBG_MESSAGE("gui_combobox_t::infowin_event()","scroll selected %i",p.i);
 		finish = true;
-		textinp.setze_text((char*)droplist.get_element(droplist.gib_selection()), 128);
+		// check string of old item
+		gui_scrolled_list_t::scrollitem_t *item = droplist.get_element(p.i);
+		if(  item  &&  item->is_valid()  ) {
+			tstrncpy( editstr, item->get_text(), 128 );
+			textinp.setze_text( editstr, 128);
+		}
 	}
 	return false;
 }
@@ -175,6 +183,12 @@ void gui_combobox_t::zeichnen(koord offset)
 		bt_prev.zeichnen(offset);
 		bt_next.zeichnen(offset);
 	}
+	// text changed? Then update it
+	gui_scrolled_list_t::scrollitem_t *item = droplist.get_element( droplist.gib_selection() );
+	if(  item  &&  item->is_valid()  &&  strncmp(item->get_text(),editstr,127)!=0  ) {
+		item->set_text( editstr );
+		tstrncpy( editstr, item->get_text(), 128 );
+	}
 }
 
 
@@ -194,7 +208,12 @@ gui_combobox_t::set_selection(int s)
 		// just set it
 		droplist.setze_selection(s);
 	}
-	textinp.setze_text((char*)droplist.get_element(s), 128);
+	// edit the text
+	gui_scrolled_list_t::scrollitem_t *item = droplist.get_element(s);
+	if(  item  &&  item->is_valid()  &&  strncmp(editstr,item->get_text(),127)!=0  ) {
+		tstrncpy( editstr, item->get_text(), 128 );
+		textinp.setze_text( editstr, 128);
+	}
 }
 
 

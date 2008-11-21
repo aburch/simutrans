@@ -27,7 +27,7 @@ protected:
 	 * Der Stringbuffer.
 	 * @author Hj. Malthaner
 	 */
-	char * text;
+	char *text;
 
 
 	/**

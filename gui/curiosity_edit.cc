@@ -156,20 +156,17 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 	scl.setze_selection(-1);
 	for (vector_tpl<const haus_besch_t *>::const_iterator i = hauslist.begin(), end = hauslist.end(); i != end; ++i) {
 		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
-		uint8 color=COL_BLACK;
+		COLOR_VAL color=COL_BLACK;
 		if(  (*i)->gib_utyp()==haus_besch_t::attraction_city  ) {
 			color = COL_BLUE;
 		}
 		else if(  (*i)->gib_utyp()==haus_besch_t::attraction_land  ) {
 			color = COL_DARK_GREEN;
 		}
-		// translate or not?
-		if(  translate  ) {
-			scl.append_element( translator::translate( (*i)->gib_name() ), color );
-		}
-		else {
-			scl.append_element( (*i)->gib_name(), color );
-		}
+		scl.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(
+			translate ? translator::translate( (*i)->gib_name() ):(*i)->gib_name(),
+			color )
+		);
 		if(  (*i) == besch  ) {
 			scl.setze_selection(scl.get_count()-1);
 		}

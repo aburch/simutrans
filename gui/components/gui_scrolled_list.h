@@ -6,7 +6,6 @@
 #include "../../ifc/gui_action_creator.h"
 #include "../../simcolor.h"
 
-
 /**
  * Scrollable list.
  * Displays list, scrollbuttons up/down, dragbar.
@@ -22,29 +21,68 @@ class gui_scrolled_list_t  : public gui_komponente_action_creator_t, action_list
 public:
 	enum type { list, select };
 
+	/**
+	 * Container for list entries - consisting of text and color
+	 */
+	class scrollitem_t {
+	private:
+		COLOR_VAL color;
+	public:
+		scrollitem_t( COLOR_VAL col ) { color = col; }
+		virtual uint8 gib_color() { return color; }
+		virtual void set_color(uint8 col) { color = col; }
+		virtual const char *get_text() = 0;
+		virtual void set_text(char *) = 0;
+		virtual bool is_valid() { return true; }	//  can be used to indicate invalid entries
+	};
+
+	// editable text
+	class var_text_scrollitem_t : public scrollitem_t {
+	private:
+		const char *text;
+	public:
+		var_text_scrollitem_t( const char *t, uint8 col ) : scrollitem_t(col) {
+			text = strdup( t );
+		}
+		~var_text_scrollitem_t() { delete text; }
+		const char *get_text() { return text; }
+		virtual void set_text(char *t) {
+			delete text;
+			text = strdup(t);
+		}
+	};
+
+	// only uses pointer, non-editable
+	class const_text_scrollitem_t : public scrollitem_t {
+	private:
+		const char *text;
+	public:
+		const_text_scrollitem_t( const char *t, uint8 col ) : scrollitem_t(col) { text = t; }
+		const char *get_text() { return text; }
+		virtual void set_text(char *) {}
+	};
+
+private:
 	enum type type;
 	int selection; // only used when type is 'select'.
 	int border; // must be substracted from groesse.y to get netto size
 	int offset; // vertical offset of top left position.
 
 	/**
-	* color of selected entry
-	* @author Hj. Malthaner
-	*/
+	 * color of selected entry
+	 * @author Hj. Malthaner
+	 */
 	int highlight_color;
 
 	scrollbar_t sb;
 
-	struct item {
-		const char *text;
-		uint8 color;
-	};
-
-	slist_tpl<item> item_list;
+	slist_tpl<gui_scrolled_list_t::scrollitem_t *> item_list;
 	int total_vertical_size() const;
 
 public:
 	gui_scrolled_list_t(enum type);
+
+	~gui_scrolled_list_t() { clear_elements(); }
 
 	/**
 	* Sets the color of selected entry
@@ -59,16 +97,15 @@ public:
 	int get_count() { return item_list.count(); }
 
 	/*  when rebuilding a list, be sure to call recalculate the slider
-	*  with recalculate_slider() to update the scrollbar properly. */
-	// clear list of elements
+	 *  with recalculate_slider() to update the scrollbar properly. */
 	void clear_elements();
-	void append_element(const char *string, const uint8 color=COL_BLACK);
-	const char *get_element(int i) const { return ((unsigned)i<item_list.count()) ? item_list.at(i).text : ""; }
+	void append_element( scrollitem_t *item );
+	scrollitem_t *get_element(int i) const { return ((unsigned)i<item_list.count()) ? item_list.at(i) : NULL; }
 
 	/**
-	* request other pane-size. returns realized size.
-	* @return value can be in between current and wanted.
-	*/
+	 * request other pane-size. returns realized size.
+	 * @return value can be in between current and wanted.
+	 */
 	koord request_groesse(koord request);
 
 	void infowin_event(const event_t *ev);

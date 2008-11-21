@@ -26,6 +26,7 @@
 #include "../dataobj/translator.h"
 
 #include "fahrplan_gui.h"
+#include "line_item.h"
 #include "components/list_button.h"
 #include "components/gui_button.h"
 #include "karte.h"
@@ -445,7 +446,7 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 
 
 bool
-fahrplan_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+fahrplan_gui_t::action_triggered(gui_komponente_t *komp, value_t p)
 {
 DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_selector);
 
@@ -515,17 +516,15 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 	} else if (komp == &bt_return) {
 		fpl->add_return_way();
 	} else if (komp == &line_selector) {
-		int selection = line_selector.get_selection();
+		int selection = p.i;
 DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 		if (selection>0) {
 			new_line = lines[selection - 1];
-			line_selector.setze_text(new_line->get_name(), 128);
 			fpl->copy_from( new_line->get_fahrplan() );
 			fpl->eingabe_beginnen();
 		}
 		else {
-			// remove line from convoy
-			line_selector.setze_text(no_line, 128);
+			// remove line
 			new_line = linehandle_t();
 		}
 	} else if (komp == &bt_promote_to_line) {
@@ -537,7 +536,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 		// unequal to line => remove from line ...
 		if(new_line.is_bound()  &&   !fpl->matches(sp->get_welt(),new_line->get_fahrplan())) {
 			new_line = linehandle_t();
-			line_selector.setze_text(no_line, 128);
+			line_selector.set_selection(0);
 		}
 	}
 	scrolly.setze_groesse( scrolly.gib_groesse() );
@@ -548,25 +547,17 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 void fahrplan_gui_t::init_line_selector()
 {
 	line_selector.clear_elements();
-	line_selector.append_element(no_line);
+	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_line, COL_BLACK ) );
 	int selection = -1;
 	sp->simlinemgmt.get_lines(fpl->get_type(), &lines);
 	for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; i++) {
 		linehandle_t line = *i;
-		line_selector.append_element(line->get_name(), line->get_state_color());
+		line_selector.append_element( new line_scrollitem_t(line) );
 		if (new_line == line) {
 			selection = line_selector.count_elements() - 1;
 		}
 	}
-
 	line_selector.set_selection( selection );
-	if(new_line.is_bound()) {
-		line_selector.setze_text(new_line->get_name(), 128);
-DBG_MESSAGE("fahrplan_gui_t::init_line_selector()","selection %i",selection);
-	}
-	else {
-		line_selector.setze_text(no_line, 128);
-	}
 }
 
 

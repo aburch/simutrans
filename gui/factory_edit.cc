@@ -159,20 +159,17 @@ void factory_edit_frame_t::fill_list( bool translate )
 	scl.setze_selection(-1);
 	for(  uint i=0;  i<fablist.get_count();  i++  ) {
 		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
-		uint8 color=COL_BLACK;
+		COLOR_VAL color=COL_BLACK;
 		if(fablist[i]->gib_produkt(0)==NULL) {
 			color = COL_BLUE;
 		}
 		else if(fablist[i]->gib_lieferant(0)==NULL) {
 			color = COL_DARK_GREEN;
 		}
-		// translate or not?
-		if(  translate  ) {
-			scl.append_element( translator::translate(fablist[i]->gib_name()), color );
-		}
-		else {
-			scl.append_element( fablist[i]->gib_name(), color );
-		}
+		scl.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(
+			translate ? translator::translate( fablist[i]->gib_name() ):fablist[i]->gib_name(),
+			color )
+		);
 		if(fablist[i]==fab_besch) {
 			scl.setze_selection(scl.get_count()-1);
 		}

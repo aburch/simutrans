@@ -22,6 +22,8 @@ class gui_combobox_t :
 	public action_listener_t
 {
 private:
+	char editstr[128];
+
 	// buttons for setting selection manually
 	gui_textinput_t textinp;
 	button_t bt_prev;
@@ -77,7 +79,7 @@ public:
 	 * add element to droplist
 	 * @author hsiegeln
 	 */
-	void append_element(char* text, uint8 color = COL_BLACK) { droplist.append_element(text, color); }
+	void append_element( gui_scrolled_list_t::scrollitem_t *item ) { droplist.append_element( item ); }
 
 	/**
 	 * remove all elements from droplist
@@ -114,18 +116,6 @@ public:
 	 * @author hsiegeln
 	 */
 	void set_selection(int s);
-
-	/**
-	 * Setzt den Textpuffer
-	 * @author Hj. Malthaner
-	 */
-	void setze_text(char *text, int max) {textinp.setze_text(text,max);}
-
-	/**
-	 * Holt den Textpuffer
-	 * @author Hj. Malthaner
-	 */
-	char *gib_text() const {return textinp.gib_text();}
 
 	/**
 	 * Vorzugsweise sollte diese Methode zum Setzen der Größe benutzt werden,

@@ -23,6 +23,7 @@
 
 #include "fahrplan_gui.h"
 #include "line_management_gui.h"
+#include "line_item.h"
 #include "components/gui_image_list.h"
 #include "messagebox.h"
 #include "depot_frame.h"
@@ -821,9 +822,8 @@ void depot_frame_t::update_data()
 
 	// update the line selector
 	line_selector.clear_elements();
-	line_selector.append_element(no_line_text);
+	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_line_text, COL_BLACK ) );
 	if(!selected_line.is_bound()) {
-		line_selector.setze_text(no_line_text, 128);
 		line_selector.set_selection( 0 );
 	}
 
@@ -832,9 +832,8 @@ void depot_frame_t::update_data()
 	get_line_list(depot, &lines);
 	for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; i++) {
 		linehandle_t line = *i;
-		line_selector.append_element( line->get_name(), line->get_state_color() );
+		line_selector.append_element( new line_scrollitem_t(line) );
 		if(line==selected_line) {
-			line_selector.setze_text( line->get_name(), 128);
 			line_selector.set_selection( line_selector.count_elements()-1 );
 		}
 	}
