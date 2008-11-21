@@ -1856,7 +1856,8 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	// get initial rotation
 	// we search in all level and for all types of stops here
 	uint8 best_distance = 100;
-	uint8 type_matches = false;
+	bool type_matches = false;
+	bool way_matches = false;
 	sint8 best_dir = -1;
 
 	// convert best_dir to layout
@@ -1870,32 +1871,45 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		for(  uint8 level=0;  level<plan->gib_boden_count();  level++  ) {
 			grund_t *gr = plan->gib_boden_bei(level);
 			if(gr->is_halt()) {
-				gebaeude_t* gb = gr->find<gebaeude_t>();
 				uint8 cur_dist = abs_distance(koord(0,0),koord::neighbours[i])+abs(k.z-gr->gib_hoehe());
-				if(gb  &&  gb->gib_tile()->gib_besch()->gib_extra()==besch->gib_extra()) {
-					if(  !type_matches  ||  cur_dist<=best_distance  ) {
-						if(!type_matches  ||  cur_dist<best_distance) {
-							best_dir = 0;
-						}
-						type_matches = true;
-						best_distance = cur_dist;
-						if(cur_dist>1  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>1) {
-							// special handling of diagonal field
-							int l = gb->gib_tile()->gib_layout()%2;
-							best_dir |= 1<<(i>=5 ? 3+l : l );
-						}
-						else {
-							best_dir |= neightbour_to_dir[i];
-						}
+				ribi_t::ribi r = gr->gib_weg_ribi((waytype_t)besch->gib_extra());
+				if(r  &&  (!way_matches  ||  cur_dist<best_distance)) {
+					way_matches = true;
+					// now find orientation
+					if(  ribi_t::ist_gerade_ns(r)  ) {
+						best_dir = koord::neighbours[i].x > 0 ? 8 : 2;
+					}
+					else {
+						best_dir = koord::neighbours[i].y > 0 ? 4 : 1;
 					}
 				}
-				else if(  cur_dist<best_distance  ||  (!type_matches  &&  cur_dist<=best_distance)  ) {
-					if(cur_dist<best_distance) {
-						best_dir = 0;
+				else if(!way_matches) {
+					gebaeude_t* gb = gr->find<gebaeude_t>();
+					if(gb  &&  gb->gib_tile()->gib_besch()->gib_extra()==besch->gib_extra()) {
+						if(  !type_matches  ||  cur_dist<=best_distance  ) {
+							if(!type_matches  ||  cur_dist<best_distance) {
+								best_dir = 0;
+							}
+							type_matches = true;
+							best_distance = cur_dist;
+							if(cur_dist>1  &&  gb->gib_tile()->gib_besch()->gib_all_layouts()>1) {
+								// special handling of diagonal field
+								int l = gb->gib_tile()->gib_layout()%2;
+								best_dir |= 1<<(i>=5 ? 3+l : l );
+							}
+							else {
+								best_dir |= neightbour_to_dir[i];
+							}
+						}
 					}
-					type_matches = false;
-					best_distance = cur_dist;
-					best_dir |= neightbour_to_dir[i];
+					else if(  cur_dist<best_distance  ||  (!type_matches  &&  cur_dist<=best_distance)  ) {
+						if(cur_dist<best_distance) {
+							best_dir = 0;
+						}
+						type_matches = false;
+						best_distance = cur_dist;
+						best_dir |= neightbour_to_dir[i];
+					}
 				}
 			}
 		}

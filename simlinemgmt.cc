@@ -9,6 +9,7 @@
 #include "simline.h"
 #include "simhalt.h"
 #include "simwin.h"
+#include "simworld.h"
 #include "simtypes.h"
 #include "simintr.h"
 
