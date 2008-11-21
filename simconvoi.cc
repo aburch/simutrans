@@ -148,7 +148,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	next_stop_index = 65535;
 
-	line_update_pending = INVALID_LINE_ID;
+	line_update_pending = linehandle_t();
 
 	home_depot = koord3d::invalid;
 	last_stop_pos = koord3d::invalid;
@@ -189,7 +189,9 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 
 	// force asynchronous recalculation
 	if(fpl) {
-		destroy_win((long)fpl);
+		if(!fpl->ist_abgeschlossen()) {
+			destroy_win((long)fpl);
+		}
 		if(fpl->maxi()>0  &&  !line.is_bound()  ) {
 			welt->set_schedule_counter();
 		}
@@ -688,7 +690,7 @@ void convoi_t::step()
 {
 	// moved check to here, as this will apply the same update
 	// logic/constraints convois have for manual schedule manipulation
-	if (line_update_pending != INVALID_LINE_ID) {
+	if (line_update_pending.is_bound()) {
 		check_pending_updates();
 	}
 
@@ -1150,15 +1152,13 @@ bool convoi_t::setze_fahrplan(fahrplan_t * f)
 
 	// happens to be identical?
 	if(fpl!=f) {
-		// delete, if not equal
-		if(fpl) {
+		// destroy a possibly open schedule window
+		if(fpl &&  !fpl->ist_abgeschlossen()) {
+			destroy_win((long)fpl);
 			delete fpl;
 		}
+		fpl = f;
 	}
-	fpl = NULL;
-
-	// rebuild destination for the new schedule
-	fpl = f;
 
 	// remove wrong freight
 	for(unsigned i=0; i<anz_vehikel; i++) {
@@ -1721,7 +1721,7 @@ convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_long(dummy, "\n");	// ignore
 	}
 	if(file->is_loading()) {
-		line_update_pending = INVALID_LINE_ID;
+		line_update_pending = linehandle_t();
 	}
 
 	if(file->get_version() > 84009) {
@@ -1922,7 +1922,7 @@ void convoi_t::open_schedule_window()
 	// manipulation of schedule not allowd while:
 	// - just starting
 	// - a line update is pending
-	if(  state==FAHRPLANEINGABE  ||  line_update_pending!=INVALID_LINE_ID  ) {
+	if(  state==FAHRPLANEINGABE  ||  line_update_pending.is_bound()  ) {
 		create_win( new news_img("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_time_delete, magic_none );
 		return;
 	}
@@ -2315,7 +2315,7 @@ void convoi_t::set_line(linehandle_t org_line)
 	}
 	line = org_line;
 	line_id = org_line->get_line_id();
-	fahrplan_t * new_fpl= new fahrplan_t( org_line->get_fahrplan() );
+	fahrplan_t *new_fpl= new fahrplan_t( org_line->get_fahrplan() );
 	setze_fahrplan(new_fpl);
 	line->add_convoy(self);
 }
@@ -2414,19 +2414,20 @@ convoi_t::get_running_cost() const
 
 void convoi_t::check_pending_updates()
 {
-	if (line_update_pending != INVALID_LINE_ID) {
-		linehandle_t line = besitzer_p->simlinemgmt.get_line_by_id(line_update_pending);
-		// the line could have been deleted in the meantime
-		// if line was deleted ignore line update; convoi will continue with existing schedule
-		if(line.is_bound()) {
-			int aktuell = fpl->get_aktuell(); // save current position of schedule
-			fpl = new fahrplan_t(line->get_fahrplan());
-			fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
-			if(state!=INITIAL) {
-				state = FAHRPLANEINGABE;
-			}
+	if (line_update_pending.is_bound()  &&  line.is_bound()) {
+		destroy_win((long)fpl);	// close the schedule window, if open
+		int aktuell = fpl->get_aktuell(); // save current position of schedule
+		// destroy old schedule and all related windows
+		if(fpl &&  !fpl->ist_abgeschlossen()) {
+			destroy_win((long)fpl);
 		}
-		line_update_pending = INVALID_LINE_ID;
+		delete fpl;
+		fpl = new fahrplan_t(line->get_fahrplan());
+		fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
+		if(state!=INITIAL) {
+			state = FAHRPLANEINGABE;
+		}
+		line_update_pending = linehandle_t();
 	}
 }
 

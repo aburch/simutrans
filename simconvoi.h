@@ -87,6 +87,13 @@ private:
 	uint16 line_id;
 
 	/**
+	* holds id of line with pendig update
+	* -1 if no pending update
+	* @author hsiegeln
+	*/
+	linehandle_t line_update_pending;
+
+	/**
 	* Name of the convoi.
 	* @see setze_name
 	* @author V. Meyer
@@ -334,13 +341,6 @@ private:
 	* @author hsiegeln
 	*/
 	void init_financial_history();
-
-	/**
-	* holds id of line with pendig update
-	* -1 if no pending update
-	* @author hsiegeln
-	*/
-	uint16 line_update_pending;
 
 	/**
 	* the koordinate of the home depot of this convoi
@@ -752,9 +752,7 @@ public:
 	 */
 	void neues_jahr();
 
-	int get_line_update_pending() { return line_update_pending; }
-
-	void set_line_update_pending(int id) { line_update_pending = id; }
+	void set_update_line(linehandle_t l) { line_update_pending = l; }
 
 	void check_pending_updates();
 

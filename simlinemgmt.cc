@@ -91,11 +91,14 @@ simlinemgmt_t::update_line(linehandle_t line)
 {
 	// when a line is updated, all managed convoys must get the new fahrplan!
 	int count = line->count_convoys();
-	for (int i = 0; i<count; i++) {
-		line->get_convoy(i)->set_line_update_pending(line->get_line_id());
+	for(int i = 0; i<count; i++) {
+		line->get_convoy(i)->set_update_line(line);
 	}
 	// finally de/register all stops
 	line->renew_stops();
+	if(  count>0  ) {
+		welt->set_schedule_counter();
+	}
 }
 
 

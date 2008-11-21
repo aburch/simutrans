@@ -1176,10 +1176,13 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 			sprintf(txt_convoi_speed,  "%s %d(%d)km/h", translator::translate("Max. speed:"), min_speed, max_speed );
 			sprintf(txt_convoi_value, "%s %d$", translator::translate("Restwert:"), cnv->calc_restwert()/100);
 			// just recheck if schedules match
-			if(  cnv->get_line().is_bound()  &&  !cnv->get_line()->get_fahrplan()->matches( get_welt(), cnv->gib_fahrplan() )  ) {
-				cnv->unset_line();
+			if(  cnv->get_line().is_bound()  &&  cnv->get_line()->get_fahrplan()->ist_abgeschlossen()  ) {
+				cnv->check_pending_updates();
+				if(  !cnv->get_line()->get_fahrplan()->matches( get_welt(), cnv->gib_fahrplan() )  ) {
+					cnv->unset_line();
+				}
 			}
-			if (cnv->get_line().is_bound()) {
+			if(  cnv->get_line().is_bound()  ) {
 				sprintf(txt_convoi_line, "%s %s", translator::translate("Serves Line:"), cnv->get_line()->get_name());
 
 			}
