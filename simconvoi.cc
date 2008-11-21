@@ -1447,14 +1447,17 @@ convoi_t::vorfahren()
 	}
 
 	// finally reserve route (if needed)
-	for(unsigned i=0; i<anz_vehikel; i++) {
-		// eventually reserve this
-		schiene_t * sch0 = dynamic_cast<schiene_t *>( welt->lookup(fahr[i]->gib_pos())->gib_weg(fahr[i]->gib_waytype()) );
-		if(sch0) {
-			sch0->reserve(this->self);
-		}
-		else {
-			break;
+	if(  fahr[0]->gib_waytype()!=air_wt  ) {
+		// do not prereserve for airplanes
+		for(unsigned i=0; i<anz_vehikel; i++) {
+			// eventually reserve this
+			schiene_t * sch0 = dynamic_cast<schiene_t *>( welt->lookup(fahr[i]->gib_pos())->gib_weg(fahr[i]->gib_waytype()) );
+			if(sch0) {
+				sch0->reserve(this->self);
+			}
+			else {
+				break;
+			}
 		}
 	}
 
