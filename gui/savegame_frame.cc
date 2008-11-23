@@ -141,7 +141,7 @@ void savegame_frame_t::fill_list()
 					}
 				}
 			}
-		}while(entry!=NULL);
+		} while(entry!=NULL);
 		closedir(dir);
 	}
 #else

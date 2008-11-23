@@ -29,6 +29,7 @@ public:
 		COLOR_VAL color;
 	public:
 		scrollitem_t( COLOR_VAL col ) { color = col; }
+		virtual ~scrollitem_t() {}
 		virtual uint8 gib_color() { return color; }
 		virtual void set_color(uint8 col) { color = col; }
 		virtual const char *get_text() = 0;
@@ -44,7 +45,7 @@ public:
 		var_text_scrollitem_t( const char *t, uint8 col ) : scrollitem_t(col) {
 			text = strdup( t );
 		}
-		~var_text_scrollitem_t() { delete text; }
+		virtual ~var_text_scrollitem_t() { delete text; }
 		const char *get_text() { return text; }
 		virtual void set_text(char *t) {
 			delete text;
@@ -58,6 +59,7 @@ public:
 		const char *text;
 	public:
 		const_text_scrollitem_t( const char *t, uint8 col ) : scrollitem_t(col) { text = t; }
+		virtual ~const_text_scrollitem_t() {}
 		const char *get_text() { return text; }
 		virtual void set_text(char *) {}
 	};
