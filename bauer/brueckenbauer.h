@@ -33,53 +33,53 @@ class grund_t;
 class brueckenbauer_t {
 private:
 
-    /*
-     * Grund bestimmen, auf dem die Brücke enden soll.
-     *
-     * @author V. Meyer
-     */
-    static koord3d finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&msg );
+	/*
+	 * Grund bestimmen, auf dem die Brücke enden soll.
+	 *
+	 * @author V. Meyer
+	 */
+	static koord3d finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&msg );
 
-    /*
-     * Brückenendpunkte bei Rampen werden auf flachem Grund gebaut und müssen daher genauer
-     * auf störende vorhandene Bauten überprüft werden.
-     *
-     * @author V. Meyer
-     */
-    static bool ist_ende_ok(spieler_t *sp, const grund_t *gr);
+	/*
+	 * Brückenendpunkte bei Rampen werden auf flachem Grund gebaut und müssen daher genauer
+	 * auf störende vorhandene Bauten überprüft werden.
+	 *
+	 * @author V. Meyer
+	 */
+	static bool ist_ende_ok(spieler_t *sp, const grund_t *gr);
 
 
-    brueckenbauer_t() {} // private -> no instance please
+	brueckenbauer_t() {} // private -> no instance please
 
 
 public:
 	// built a ramp to change level
-    static void baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
+	static void baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
 
 	// builds the bridge => checks should be done before
-    static void baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
+	static void baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
 
-    /**
-     * Registers a new bridge type
-     * @author V. Meyer, Hj. Malthaner
-     */
-    static void register_besch(const bruecke_besch_t *besch);
-
-
-    static bool laden_erfolgreich();
+	/**
+	 * Registers a new bridge type
+	 * @author V. Meyer, Hj. Malthaner
+	 */
+	static void register_besch(const bruecke_besch_t *besch);
 
 
-    static const bruecke_besch_t *gib_besch(const char *name);
+	static bool laden_erfolgreich();
+
+
+	static const bruecke_besch_t *gib_besch(const char *name);
 
 	// the main construction routine
 	static const char *baue( karte_t *welt, spieler_t *sp, koord pos, const bruecke_besch_t *besch);
 
-    /*
-     * Brückenlösch-Funktion
-     *
-     * @author V. Meyer
-     */
-    static const char *remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wegtyp);
+	/*
+	 * Brückenlösch-Funktion
+	 *
+	 * @author V. Meyer
+	 */
+	static const char *remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wegtyp);
 
 
 	/**
@@ -88,11 +88,11 @@ public:
 	 */
 	static const bruecke_besch_t *find_bridge(const waytype_t wtyp, const uint32 min_speed,const uint16 time);
 
-    /**
-     * Fill menu with icons of given waytype
-     * @author priss
-     */
-    static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const karte_t *welt);
+	/**
+	 * Fill menu with icons of given waytype
+	 * @author priss
+	 */
+	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const karte_t *welt);
 };
 
 #endif

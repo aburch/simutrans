@@ -1,13 +1,18 @@
 #include "../simdebug.h"
 
+#include "../dings/bruecke.h"
 #include "../simimg.h"
 #include "../simworld.h"
 #include "../simwin.h"
 #include "../simhalt.h"
 
+#include "../bauer/brueckenbauer.h"
+
 #include "../besch/grund_besch.h"
+#include "../besch/bruecke_besch.h"
 
 #include "../dataobj/loadsave.h"
+
 #include "../gui/ground_info.h"
 #include "../tpl/ptrhashtable_tpl.h"
 
@@ -63,6 +68,24 @@ brueckenboden_t::rdwr(loadsave_t *file)
 		slope = sl;
 	}
 	file->rdwr_byte(weg_hang, "\n");
+
+	if(!find<bruecke_t>()) {
+		dbg->error( "brueckenboden_t::rdwr()","no bridge on bridgebround at (%s); try repalcement", pos.gib_str()  );
+		weg_t *w = gib_weg_nr(0);
+		const bruecke_besch_t *br_besch = brueckenbauer_t::find_bridge( w->gib_waytype(), w->gib_max_speed(), 0 );
+		bruecke_t *br = new bruecke_t(
+			welt,
+			gib_pos(),
+			welt->gib_spieler(1),
+			br_besch,
+			ist_karten_boden() ?
+				(slope==hang_t::flach ?
+					br_besch->gib_rampe(ribi_typ(gib_weg_hang())) :
+					br_besch->gib_start(ribi_typ(gib_grund_hang()))) :
+				br_besch->gib_simple(w->gib_ribi_unmasked())
+		);
+		obj_add( br );
+	}
 }
 
 

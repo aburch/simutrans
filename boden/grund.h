@@ -176,10 +176,10 @@ protected:
 	grund_t(karte_t *wl);
 
 public:
-  /**
-   * setzt die Bildnr. des anzuzeigenden Bodens
-   * @author Hj. Malthaner
-   */
+	/**
+	 * setzt die Bildnr. des anzuzeigenden Bodens
+	 * @author Hj. Malthaner
+	 */
 	inline void setze_bild(image_id n)
 	{
 		bild_nr = n;

@@ -108,7 +108,11 @@ DBG_MESSAGE("event","HOWDY!");
 			droplist.setze_pos(koord(this->pos.x, this->pos.y + 16));
 			droplist.request_groesse(droplist.gib_groesse());
 			setze_groesse(droplist.gib_groesse() + koord(0, 16));
-			droplist.show_selection(droplist.gib_selection());
+			int sel = droplist.gib_selection();
+			if (!droplist.get_element(sel)->is_valid()) {
+				sel = 0;
+			}
+			droplist.show_selection(sel);
 		}
 		else {
 			if (droplist.is_visible()) {

@@ -2316,6 +2316,10 @@ void convoi_t::set_line(linehandle_t org_line)
 	if(line.is_bound()) {
 		unset_line();
 	}
+	else if(fpl  &&  fpl->maxi()>0) {
+		// since this schedule is no longer served
+		welt->set_schedule_counter();
+	}
 	line = org_line;
 	line_id = org_line->get_line_id();
 	fahrplan_t *new_fpl= new fahrplan_t( org_line->get_fahrplan() );

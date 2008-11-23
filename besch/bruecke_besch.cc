@@ -12,14 +12,14 @@
  */
 bruecke_besch_t::img_t bruecke_besch_t::gib_simple(ribi_t::ribi ribi)
 {
-    return (ribi & ribi_t::nordsued) ? NS_Segment : OW_Segment;
+	return (ribi & ribi_t::nordsued) ? NS_Segment : OW_Segment;
 }
 
 
 // dito for pillars
 bruecke_besch_t::img_t bruecke_besch_t::gib_pillar(ribi_t::ribi ribi)
 {
-    return (ribi & ribi_t::nordsued) ? NS_Pillar : OW_Pillar;
+	return (ribi & ribi_t::nordsued) ? NS_Pillar : OW_Pillar;
 }
 
 
@@ -32,13 +32,13 @@ bruecke_besch_t::img_t bruecke_besch_t::gib_pillar(ribi_t::ribi ribi)
  */
 bruecke_besch_t::img_t bruecke_besch_t::gib_start(ribi_t::ribi ribi)
 {
-    switch(ribi) {
-    case ribi_t::nord:	return N_Start;
-    case ribi_t::sued:	return S_Start;
-    case ribi_t::ost:	return O_Start;
-    case ribi_t::west:	return W_Start;
-    default:		return (img_t)-1;
-    }
+	switch(ribi) {
+		case ribi_t::nord:	return N_Start;
+		case ribi_t::sued:	return S_Start;
+		case ribi_t::ost:	return O_Start;
+		case ribi_t::west:	return W_Start;
+		default:		return (img_t)-1;
+	}
 }
 
 
