@@ -187,7 +187,7 @@ public:
 	bool can_follow(const vehikel_besch_t *prev_veh) const
 	{
 		if(  vorgaenger==0  ) {
-			return prev_veh = 0;
+			return prev_veh == 0;
 		}
 		for( int i=0;  i<vorgaenger;  i++  ) {
 			const vehikel_besch_t *veh = (vehikel_besch_t *)gib_kind(6 + i);
