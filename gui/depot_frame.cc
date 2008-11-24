@@ -1055,17 +1055,18 @@ bool depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 		} else if(komp == &bt_apply_line) {
 			apply_line();
 		} else if(komp == &line_selector) {
-			int sel=line_selector.get_selection();
-//DBG_MESSAGE("depot_frame_t::action_triggered()","selected %i",sel);
-			if(sel>0) {
+			int selection = p.i;
+//DBG_MESSAGE("depot_frame_t::action_triggered()","line selection=%i",selection);
+			if(  (unsigned)(selection-1)<line_selector.count_elements()  ) {
 				vector_tpl<linehandle_t> lines;
 				get_line_list(depot, &lines);
-				selected_line = lines[sel - 1];
-
+				selected_line = lines[selection - 1];
 				depot->set_selected_line(selected_line);
 			}
 			else {
+				// remove line
 				selected_line = linehandle_t();
+				line_selector.set_selection( 0 );
 			}
 		}
 		else {

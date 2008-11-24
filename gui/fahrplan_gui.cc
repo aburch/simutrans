@@ -517,8 +517,8 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		fpl->add_return_way();
 	} else if (komp == &line_selector) {
 		int selection = p.i;
-DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
-		if (selection>0) {
+//DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
+		if(  (unsigned)(selection-1)<line_selector.count_elements()  ) {
 			new_line = lines[selection - 1];
 			fpl->copy_from( new_line->get_fahrplan() );
 			fpl->eingabe_beginnen();
@@ -526,6 +526,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 		else {
 			// remove line
 			new_line = linehandle_t();
+			line_selector.set_selection( 0 );
 		}
 	} else if (komp == &bt_promote_to_line) {
 		new_line = sp->simlinemgmt.create_line(fpl->get_type(), this->fpl);

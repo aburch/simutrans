@@ -47,9 +47,9 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
 
 bool gui_scrolled_list_t::action_triggered(gui_komponente_t * /* comp */, value_t extra)
 {
-    // search/replace all offsets with sb.gib_offset() is also an option
-    offset = extra.i;
-    return true;
+	// search/replace all offsets with sb.gib_offset() is also an option
+	offset = extra.i;
+	return true;
 }
 
 
@@ -79,7 +79,7 @@ void gui_scrolled_list_t::clear_elements()
 	while(  !item_list.empty()  ) {
 		delete item_list.remove_first();
 	}
-    sb.setze_knob(groesse.y-border, total_vertical_size());
+	sb.setze_knob(groesse.y-border, total_vertical_size());
 }
 
 

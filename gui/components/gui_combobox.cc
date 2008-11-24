@@ -68,7 +68,7 @@ DBG_MESSAGE("event","HOWDY!");
 					value_t p;
 					p.i = droplist.gib_selection() - 1;
 					set_selection( p.i );
-					call_listeners(p);
+					call_listeners( p );
 				}
 			}
 			return;
@@ -109,7 +109,7 @@ DBG_MESSAGE("event","HOWDY!");
 			droplist.request_groesse(droplist.gib_groesse());
 			setze_groesse(droplist.gib_groesse() + koord(0, 16));
 			int sel = droplist.gib_selection();
-			if (!droplist.get_element(sel)->is_valid()) {
+			if((unsigned)sel>=droplist.get_count()  ||  !droplist.get_element(sel)->is_valid()) {
 				sel = 0;
 			}
 			droplist.show_selection(sel);
@@ -161,10 +161,7 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","scroll selected %i",p.i);
 		finish = true;
 		// check string of old item
 		gui_scrolled_list_t::scrollitem_t *item = droplist.get_element(p.i);
-		if(  item  &&  item->is_valid()  ) {
-			tstrncpy( editstr, item->get_text(), 128 );
-			textinp.setze_text( editstr, 128);
-		}
+		set_selection(p.i);
 	}
 	return false;
 }
@@ -177,6 +174,13 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","scroll selected %i",p.i);
  */
 void gui_combobox_t::zeichnen(koord offset)
 {
+	// text changed? Then update it
+	gui_scrolled_list_t::scrollitem_t *item = droplist.get_element( droplist.gib_selection() );
+	if(  item  &&  item->is_valid()  &&  strncmp(item->get_text(),editstr,127)!=0  ) {
+		item->set_text( editstr );
+		tstrncpy( editstr, item->get_text(), 128 );
+	}
+
 	textinp.zeichnen(offset);
 
 	if (droplist.is_visible()) {
@@ -186,12 +190,6 @@ void gui_combobox_t::zeichnen(koord offset)
 		offset += pos;
 		bt_prev.zeichnen(offset);
 		bt_next.zeichnen(offset);
-	}
-	// text changed? Then update it
-	gui_scrolled_list_t::scrollitem_t *item = droplist.get_element( droplist.gib_selection() );
-	if(  item  &&  item->is_valid()  &&  strncmp(item->get_text(),editstr,127)!=0  ) {
-		item->set_text( editstr );
-		tstrncpy( editstr, item->get_text(), 128 );
 	}
 }
 
@@ -214,9 +212,14 @@ gui_combobox_t::set_selection(int s)
 	}
 	// edit the text
 	gui_scrolled_list_t::scrollitem_t *item = droplist.get_element(s);
-	if(  item  &&  item->is_valid()  &&  strncmp(editstr,item->get_text(),127)!=0  ) {
+	if(  item==NULL  ) {
+		editstr[0] = 0;
+		textinp.setze_text( editstr, 0  );
+		droplist.setze_selection(-1);
+	}
+	else if(  item->is_valid()  &&  strncmp(editstr,item->get_text(),127)!=0  ) {
 		tstrncpy( editstr, item->get_text(), 128 );
-		textinp.setze_text( editstr, 128);
+		textinp.setze_text( editstr, 128 );
 	}
 }
 
