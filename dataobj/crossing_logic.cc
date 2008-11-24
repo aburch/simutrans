@@ -33,6 +33,7 @@ crossing_logic_t::crossing_logic_t( const kreuzung_besch_t *besch )
 {
 	zustand = CROSSING_INVALID;
 	this->besch = besch;
+	request_close = NULL;
 }
 
 
@@ -73,6 +74,7 @@ void crossing_logic_t::recalc_state()
 			}
 		}
 	}
+	request_close = NULL;
 	if(zustand==CROSSING_INVALID) {
 		// now just set the state, if needed
 		if(on_way2.empty()) {
@@ -90,7 +92,7 @@ void crossing_logic_t::recalc_state()
 bool crossing_logic_t::request_crossing( const vehikel_basis_t *v )
 {
 	if(v->gib_waytype()==besch->get_waytype(0)) {
-		if(on_way2.empty() && zustand == CROSSING_OPEN) {
+		if(on_way2.empty()  &&  zustand == CROSSING_OPEN) {
 			// way2 is empty ...
 			return true;
 		}
@@ -99,7 +101,7 @@ bool crossing_logic_t::request_crossing( const vehikel_basis_t *v )
 		// => ok only if I am already crossing
 		return on_way1.is_contained(v);
 	}
- 	else if(v->gib_waytype()==besch->get_waytype(1)) {
+	else if(v->gib_waytype()==besch->get_waytype(1)) {
 
 		// vehikel from way2 arrives
 		if(on_way1.get_count()) {
@@ -108,6 +110,7 @@ bool crossing_logic_t::request_crossing( const vehikel_basis_t *v )
 			return false;
 		}
 		else {
+			request_close = v;
 			set_state( CROSSING_CLOSED );
 			return true;
 		}
@@ -127,6 +130,9 @@ void crossing_logic_t::add_to_crossing( const vehikel_basis_t *v )
  	else if(v->gib_waytype()==besch->get_waytype(1)) {
 		// add it and close crossing
 		on_way2.append_unique(v);
+		if(  request_close==v  ) {
+			request_close = NULL;
+		}
 		set_state( CROSSING_CLOSED );
 	}
 }
@@ -140,14 +146,17 @@ crossing_logic_t::release_crossing( const vehikel_basis_t *v )
 {
 	if(v->gib_waytype()==besch->get_waytype(0)) {
 		on_way1.remove(v);
-		if (zustand == CROSSING_REQUEST_CLOSE  &&  on_way1.get_count()==1) {
+		if(zustand == CROSSING_REQUEST_CLOSE  &&  on_way1.get_count()==1) {
 			set_state( CROSSING_CLOSED );
 		}
 	}
 	else {
 		on_way2.remove(v);
+		if(  request_close==v  ) {
+			request_close = NULL;
+		}
 		if(on_way2.empty()) {
-			set_state( CROSSING_OPEN );
+			set_state( request_close ? CROSSING_REQUEST_CLOSE : CROSSING_OPEN );
 		}
 	}
 }

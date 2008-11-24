@@ -29,6 +29,9 @@ public:
 protected:
 	static karte_t *welt;
 
+	// the last vehikel, taht request a closing
+	const vehikel_basis_t *request_close;
+
 	crossing_state_t zustand;
 	const kreuzung_besch_t *besch;
 	minivec_tpl<crossing_t *>crossings;
