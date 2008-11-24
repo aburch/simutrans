@@ -1,6 +1,8 @@
 #ifndef gui_scrolled_list_h
 #define gui_scrolled_list_h
 
+#include <string.h>
+
 #include "gui_scrollbar.h"
 #include "action_listener.h"
 #include "../../ifc/gui_action_creator.h"
