@@ -48,7 +48,7 @@ void factory_smoke_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileo
 	node.write_sint16(outfp, besch.pos_off.x, 0);
 	node.write_sint16(outfp, besch.pos_off.y, 2);
 	node.write_sint16(outfp, besch.xy_off.x,  4);
-	node.write_sint16(outfp, besch.xy_off.x,  6);
+	node.write_sint16(outfp, besch.xy_off.y,  6);
 	node.write_sint16(outfp, besch.zeitmaske, 8);
 
 	node.write(outfp);
