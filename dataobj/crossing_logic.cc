@@ -155,8 +155,8 @@ crossing_logic_t::release_crossing( const vehikel_basis_t *v )
 		if(  request_close==v  ) {
 			request_close = NULL;
 		}
-		if(on_way2.empty()) {
-			set_state( request_close ? CROSSING_REQUEST_CLOSE : CROSSING_OPEN );
+		if(on_way2.empty()  &&  request_close==NULL) {
+			set_state( CROSSING_OPEN );
 		}
 	}
 }
