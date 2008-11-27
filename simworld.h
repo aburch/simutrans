@@ -190,8 +190,6 @@ private:
 
 	weighted_vector_tpl<stadt_t*> stadt;
 
-	// to avoid passing a certain number of inhabitants twice, this records the maximum number so far
-	sint64 last_maximum_bev;
 	sint64 last_month_bev;
 
 	// the recorded history so far

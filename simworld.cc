@@ -765,7 +765,6 @@ void karte_t::init_felder()
 			finance_history_month[month][cost_type] = 0;
 		}
 	}
-	last_maximum_bev = 0;
 
 	scenario = new scenario_t(this);
 
@@ -835,7 +834,6 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 		for(  uint32 i=old_anzahl_staedte;  i<stadt.get_count();  i++  ) {
 			// Hajo: do final init after world was loaded/created
 			stadt[i]->laden_abschliessen();
-			last_maximum_bev += stadt[i]->gib_einwohner();
 			// the growth is slow, so update here the progress bar
 			if(is_display_init()) {
 				old_progress ++;
@@ -846,7 +844,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 			}
 		}
 		finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
-		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev = last_maximum_bev;
+		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev;
 
 		// Hajo: connect some cities with roads
 		const weg_besch_t* besch = wegbauer_t::gib_besch(*umgebung_t::intercity_road_type);
@@ -2685,11 +2683,6 @@ karte_t::step()
 	// the inhabitants stuff
 	finance_history_month[0][WORLD_CITICENS] = bev;
 
-	// here would the new growth code for factories enter into
-	if(  last_maximum_bev < bev  ) {
-		last_maximum_bev = bev;
-	}
-
 	slist_iterator_tpl<fabrik_t *> iter(fab_list);
 	while(iter.next()) {
 		iter.get_current()->step(delta_t);
@@ -2741,9 +2734,6 @@ void karte_t::restore_history()
 		if(last_month_bev == -1) {
 			last_month_bev = bev;
 		}
-		if(  last_maximum_bev < bev  ) {
-			last_maximum_bev = bev;
-		}
 		finance_history_month[m][WORLD_GROWTH] = bev-last_month_bev;
 		finance_history_month[m][WORLD_CITICENS] = bev;
 		last_month_bev = bev;
@@ -2785,9 +2775,6 @@ void karte_t::restore_history()
 		// the inhabitants stuff
 		if(bev_last_year == -1) {
 			bev_last_year = bev;
-		}
-		if(  last_maximum_bev < bev  ) {
-			last_maximum_bev = bev;
 		}
 		finance_history_year[y][WORLD_GROWTH] = bev-bev_last_year;
 		finance_history_year[y][WORLD_CITICENS] = bev;
@@ -2864,11 +2851,6 @@ void karte_t::update_history()
 	finance_history_year[0][WORLD_MAIL_RATIO] = (10000*trans_mail_year)/total_mail_year;
 	finance_history_year[0][WORLD_MAIL_GENERATED] = total_mail_year-1;
 	finance_history_year[0][WORLD_GOODS_RATIO] = (10000*supplied_goods_year)/total_goods_year;
-
-	// here would the new growth code for factories enter into
-	if(  last_maximum_bev < bev  ) {
-		last_maximum_bev = bev;
-	}
 
 	// update total transported, including passenger and mail
 	sint64 transported = 0;
@@ -3705,6 +3687,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
 			}
 		}
+		last_month_bev = finance_history_month[0][WORLD_CITICENS];
 	}
 
 #if 0
