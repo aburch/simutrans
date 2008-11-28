@@ -286,10 +286,12 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		// get selected line
 		linehandle_t new_line = linehandle_t();
 		selection = scl.gib_selection();
-		if (0 <= selection && selection < (int)lines.get_count()) {
+		if(  (unsigned)selection < lines.get_count()  ) {
 			new_line = lines[selection];
 			bt_change_line.enable();
 			bt_delete_line.enable();
+			// brute force: just recalculate whole list on each clecik to keep it current
+			build_line_list(tabs.get_active_tab_index());
 		}
 		update_lineinfo(new_line);
 	}
