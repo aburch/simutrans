@@ -3687,7 +3687,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
 			}
 		}
-		last_month_bev = finance_history_month[0][WORLD_CITICENS];
+		last_month_bev = finance_history_month[1][WORLD_CITICENS];
 	}
 
 #if 0
