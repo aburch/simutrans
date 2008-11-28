@@ -24,6 +24,7 @@ gui_textinput_t::gui_textinput_t()
 	max = 0;
 	text = NULL;
 	cursor_pos = 0;
+	align = ALIGN_LEFT;
 	set_read_only(false);
 }
 
@@ -58,6 +59,9 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 				case SIM_KEY_RIGHT: // right arrow
 					if (cursor_pos >= 0) {
 						cursor_pos = get_next_char(text, cursor_pos);
+					}
+					if (cursor_pos > strlen(text)) {
+						cursor_pos = strlen(text);
 					}
 					break;
 				case SIM_KEY_UP: // rightarrow
@@ -144,7 +148,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 
 					int num_letter = strlen(letter);
 
-					if(cursor_pos+num_letter>=max) {
+					if(len+num_letter>=max) {
 						// too many chars ...
 						break;
 					}
@@ -166,14 +170,15 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 		} else {
 			printf("Warning: gui_textinput_t::infowin_event() called but text is NULL\n");
 		}
-
-	} else if(IS_LEFTRELEASE(ev) || IS_LEFTCLICK(ev)) {
+	} else if ( IS_LEFTCLICK(ev) ) 	{
+		// acting on release causes unwanted recalculations of cursor position for long strings and (cursor_offset>0)
+		// moreover, only (click) or (release) event happened inside textinput, the other one could lie outside
 		if(!has_focus(this)) {
 			request_focus(this);
 		}
 		cursor_pos = 0;
 		for( int i=strlen(text); i>0;  i-- ) {
-			if(ev->cx>display_calc_proportional_string_len_width(text,i)) {
+			if(ev->cx+cursor_offset > display_calc_proportional_string_len_width(text,i)) {
 				cursor_pos = i;
 				break;
 			}
@@ -195,12 +200,21 @@ void gui_textinput_t::zeichnen(koord offset)
 	display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y,groesse.x, groesse.y,MN_GREY0, MN_GREY4);
 
 	if(text) {
-		int cursor_offset = proportional_string_len_width(text, cursor_pos);
+		// align_offset = len of str for right align, otherwise 0
+		int align_offset = (align == ALIGN_RIGHT) ? proportional_string_width(text) : 0;
+
+		cursor_offset = proportional_string_len_width(text, cursor_pos);
 		if (cursor_offset > groesse.x - 2) {
 			cursor_offset -= (groesse.x - 3);
 		}
 		else {
 			cursor_offset = 0;
+			if (align == ALIGN_RIGHT){
+				cursor_offset = align_offset-(groesse.x - 3);
+				if (cursor_offset > 0) {
+					cursor_offset = 0;
+				}
+			}
 		}
 
 		// set clipping to be within textinput button
@@ -217,7 +231,7 @@ void gui_textinput_t::zeichnen(koord offset)
 
 		display_setze_clip_wh(text_clip_x, original_clipping.y, text_clip_w, original_clipping.h);
 
-		display_proportional_clip(pos.x+offset.x+2-cursor_offset, pos.y+offset.y+2, text, ALIGN_LEFT, COL_BLACK, true);
+		display_proportional_clip(pos.x+offset.x+2-cursor_offset+align_offset, pos.y+offset.y+2, text, align, COL_BLACK, true);
 
 		// cursor must been shown, if textinput has focus!
 		if(has_focus(this)) {

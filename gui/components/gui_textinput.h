@@ -42,6 +42,17 @@ protected:
 	 */
 	 long cursor_pos;
 
+	 /**
+	  * offset for drawing the cursor
+	  * Dwachs: made private to check for mouse induced cursor moves
+	  */
+	 long cursor_offset;
+
+	 /**
+	  * text alignment
+	  * @author: Dwachs
+	  */
+	 int align;
 public:
 	gui_textinput_t();
 
@@ -73,6 +84,9 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord offset);
+
+	// to allow for right-aligned text
+	void set_alignment(int _align){ align = _align;}
 };
 
 #endif
