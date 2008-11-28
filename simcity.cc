@@ -1591,8 +1591,8 @@ koord stadt_t::finde_passagier_ziel(pax_zieltyp* will_return)
 void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 {
 	const koord p = koord(
-		((k.x * 127) / welt->gib_groesse_x()) & 127,
-		((k.y * 127) / welt->gib_groesse_y()) & 127
+		((k.x * 128) / welt->gib_groesse_x()) & 127,
+		((k.y * 128) / welt->gib_groesse_y()) & 127
 	);
 	pax_ziele_neu.at(p) = color;
 }
