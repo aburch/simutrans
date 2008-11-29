@@ -279,7 +279,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		build_line_list(tabs.get_active_tab_index());
 	}
 	else if (komp == &scl) {
-		if (!line.is_bound()) {
+		if(!line.is_bound()) {
 			bt_change_line.disable();
 			bt_delete_line.disable();
 		}
@@ -290,10 +290,10 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			new_line = lines[selection];
 			bt_change_line.enable();
 			bt_delete_line.enable();
-			// brute force: just recalculate whole list on each clecik to keep it current
-			build_line_list(tabs.get_active_tab_index());
 		}
 		update_lineinfo(new_line);
+		// brute force: just recalculate whole list on each click to keep it current
+		build_line_list(tabs.get_active_tab_index());
 	}
 	else {
 		if (line.is_bound()) {
