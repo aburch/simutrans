@@ -25,6 +25,7 @@ gui_textinput_t::gui_textinput_t()
 	text = NULL;
 	cursor_pos = 0;
 	align = ALIGN_LEFT;
+	textcol = COL_BLACK;
 	set_read_only(false);
 }
 
@@ -231,7 +232,7 @@ void gui_textinput_t::zeichnen(koord offset)
 
 		display_setze_clip_wh(text_clip_x, original_clipping.y, text_clip_w, original_clipping.h);
 
-		display_proportional_clip(pos.x+offset.x+2-cursor_offset+align_offset, pos.y+offset.y+2, text, align, COL_BLACK, true);
+		display_proportional_clip(pos.x+offset.x+2-cursor_offset+align_offset, pos.y+offset.y+2, text, align, textcol, true);
 
 		// cursor must been shown, if textinput has focus!
 		if(has_focus(this)) {

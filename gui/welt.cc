@@ -47,6 +47,9 @@
 #define RIGHT_WIDE_ARROW (235)
 #define TEXT_WIDE_RIGHT (220)
 
+#define RIGHT_COLUMN (185)
+#define RIGHT_COLUMN_WIDTH (60)
+
 #include <sys/stat.h>
 #include <time.h>
 
@@ -63,44 +66,38 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	sets->heightfield = "";
 
 	// select map stuff ..
-	map_number[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
-	map_number[0].setze_typ( button_t::repeatarrowleft );
-	map_number[0].add_listener( this );
-	add_komponente( map_number+0 );
-	sprintf(map_number_s,"%d",abs(sets->gib_karte_nummer())%9999);
-	inp_map_number.setze_pos( koord(RIGHT_ARROW-36,intTopOfButton-2) );
-	inp_map_number.setze_groesse( koord(32,12) );
-	inp_map_number.setze_text(map_number_s, 5);
+	inp_map_number.setze_pos(koord(LEFT_ARROW, intTopOfButton));
+	inp_map_number.setze_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	inp_map_number.set_limits(0,0x7FFFFFFF);
+	inp_map_number.set_value(abs(sets->gib_karte_nummer())%9999);
 	inp_map_number.add_listener( this );
 	add_komponente( &inp_map_number );
-	map_number[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
-	map_number[1].setze_typ( button_t::repeatarrowright );
-	map_number[1].add_listener( this );
-	add_komponente( map_number+1 );
-	intTopOfButton += 12;
 
-	x_size[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
-	x_size[0].setze_typ( button_t::repeatarrowleft );
-	x_size[0].add_listener( this );
-	add_komponente( x_size+0 );
-	x_size[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
-	x_size[1].setze_typ( button_t::repeatarrowright );
-	x_size[1].add_listener( this );
-	add_komponente( x_size+1 );
-	intTopOfButton += 12;
-
-	y_size[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
-	y_size[0].setze_typ( button_t::repeatarrowleft );
-	y_size[0].add_listener( this );
-	add_komponente( y_size+0 );
-	y_size[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
-	y_size[1].setze_typ( button_t::repeatarrowright );
-	y_size[1].add_listener( this );
-	add_komponente( y_size+1 );
 	intTopOfButton += 12;
 	intTopOfButton += 12;
 
-	// towns etc.
+	inp_x_size.setze_pos(koord(LEFT_ARROW,intTopOfButton) );
+	inp_x_size.setze_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	inp_x_size.add_listener(this);
+	inp_x_size.set_limits(64,4096);
+	inp_x_size.set_value( sets->gib_groesse_x() );
+	inp_x_size.set_limits( 64, min(32766,4194304/sets->gib_groesse_y()) );
+	inp_x_size.set_increment_mode( sets->gib_groesse_x()>=512 ? 128 : 64 );
+	inp_x_size.wrap_mode( false );
+	add_komponente( &inp_x_size );
+	intTopOfButton += 12;
+
+	inp_y_size.setze_pos(koord(LEFT_ARROW,intTopOfButton) );
+	inp_y_size.setze_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	inp_y_size.add_listener(this);
+	inp_y_size.set_limits( 64, min(32766,4194304/sets->gib_groesse_x()) );
+	inp_y_size.set_value( sets->gib_groesse_y() );
+	inp_y_size.set_increment_mode( sets->gib_groesse_y()>=512 ? 128 : 64 );
+	inp_y_size.wrap_mode( false );
+	add_komponente( &inp_y_size );
+	intTopOfButton += 12;
+
+	// maps etc.
 	intTopOfButton += 5;
 	random_map.setze_pos( koord(11, intTopOfButton) );
 	random_map.setze_groesse( koord(104, BUTTON_HEIGHT) );
@@ -116,76 +113,64 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 
 	// city stuff
 	intTopOfButton += 5;
-	number_of_towns[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
-	number_of_towns[0].setze_typ( button_t::repeatarrowleft );
-	number_of_towns[0].add_listener( this );
-	add_komponente( number_of_towns+0 );
-	number_of_towns[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
-	number_of_towns[1].setze_typ( button_t::repeatarrowright );
-	number_of_towns[1].add_listener( this );
-	add_komponente( number_of_towns+1 );
+	inp_number_of_towns.setze_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_number_of_towns.setze_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_number_of_towns.add_listener(this);
+	inp_number_of_towns.set_limits(0,999);
+	inp_number_of_towns.set_value(abs(sets->gib_anzahl_staedte()) );
+	add_komponente( &inp_number_of_towns );
 	intTopOfButton += 12;
 
-	town_size[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
-	town_size[0].setze_typ( button_t::repeatarrowleft );
-	town_size[0].add_listener( this );
-	add_komponente( town_size+0 );
-	town_size[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
-	town_size[1].setze_typ( button_t::repeatarrowright );
-	town_size[1].add_listener( this );
-	add_komponente( town_size+1 );
+	inp_town_size.setze_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_town_size.setze_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_town_size.add_listener(this);
+	inp_town_size.set_limits(0,999999);
+	inp_town_size.set_value( sets->gib_mittlere_einwohnerzahl() );
+	add_komponente( &inp_town_size );
 	intTopOfButton += 12;
 
-	intercity_road_len[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
-	intercity_road_len[0].setze_typ( button_t::repeatarrowleft );
-	intercity_road_len[0].add_listener( this );
-	add_komponente( intercity_road_len+0 );
-	intercity_road_len[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
-	intercity_road_len[1].setze_typ( button_t::repeatarrowright );
-	intercity_road_len[1].add_listener( this );
-	add_komponente( intercity_road_len+1 );
+
+	inp_intercity_road_len.setze_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_intercity_road_len.setze_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_intercity_road_len.add_listener(this);
+	inp_intercity_road_len.set_limits(0,9999);
+	inp_intercity_road_len.set_value( umgebung_t::intercity_road_length );
+	inp_intercity_road_len.set_increment_mode( umgebung_t::intercity_road_length>=1000 ? 100 : 20 );
+	add_komponente( &inp_intercity_road_len );
 	intTopOfButton += 12;
 
-	traffic_desity[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
-	traffic_desity[0].setze_typ( button_t::repeatarrowleft );
-	traffic_desity[0].add_listener( this );
-	add_komponente( traffic_desity+0 );
-	traffic_desity[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
-	traffic_desity[1].setze_typ( button_t::repeatarrowright );
-	traffic_desity[1].add_listener( this );
-	add_komponente( traffic_desity+1 );
+	inp_traffic_density.setze_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_traffic_density.setze_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_traffic_density.add_listener(this);
+	inp_traffic_density.set_limits(0,16);
+	inp_traffic_density.set_value(abs(sets->gib_verkehr_level()) );
+	add_komponente( &inp_traffic_density );
 	intTopOfButton += 12;
 
 	// industry stuff
 	intTopOfButton += 5;
-	other_industries[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
-	other_industries[0].setze_typ( button_t::repeatarrowleft );
-	other_industries[0].add_listener( this );
-	add_komponente( other_industries+0 );
-	other_industries[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
-	other_industries[1].setze_typ( button_t::repeatarrowright );
-	other_industries[1].add_listener( this );
-	add_komponente( other_industries+1 );
+	inp_other_industries.setze_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_other_industries.setze_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_other_industries.add_listener(this);
+	inp_other_industries.set_limits(0,999);
+	inp_other_industries.set_value(abs(sets->gib_land_industry_chains()) );
+	add_komponente( &inp_other_industries );
 	intTopOfButton += 12;
 
-	electric_producer[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
-	electric_producer[0].setze_typ( button_t::repeatarrowleft );
-	electric_producer[0].add_listener( this );
-	add_komponente( electric_producer+0 );
-	electric_producer[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
-	electric_producer[1].setze_typ( button_t::repeatarrowright );
-	electric_producer[1].add_listener( this );
-	add_komponente( electric_producer+1 );
+	inp_electric_producer.setze_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_electric_producer.setze_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_electric_producer.add_listener(this);
+	inp_electric_producer.set_limits(0,100);
+	inp_electric_producer.set_value(abs(sets->gib_electric_promille()/10) );
+	add_komponente( &inp_electric_producer );
 	intTopOfButton += 12;
 
-	tourist_attractions[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
-	tourist_attractions[0].setze_typ( button_t::repeatarrowleft );
-	tourist_attractions[0].add_listener( this );
-	add_komponente( tourist_attractions+0 );
-	tourist_attractions[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
-	tourist_attractions[1].setze_typ( button_t::repeatarrowright );
-	tourist_attractions[1].add_listener( this );
-	add_komponente( tourist_attractions+1 );
+	inp_tourist_attractions.setze_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_tourist_attractions.setze_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_tourist_attractions.add_listener(this);
+	inp_tourist_attractions.set_limits(0,999);
+	inp_tourist_attractions.set_value(abs(sets->gib_tourist_attractions()) );
+	add_komponente( &inp_tourist_attractions );
 	intTopOfButton += 12;
 
 	// other settings
@@ -194,14 +179,14 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	use_intro_dates.setze_typ( button_t::square );
 	use_intro_dates.add_listener( this );
 	add_komponente( &use_intro_dates );
-	intro_date[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
-	intro_date[0].setze_typ( button_t::repeatarrowleft );
-	intro_date[0].add_listener( this );
-	add_komponente( intro_date+0 );
-	intro_date[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
-	intro_date[1].setze_typ( button_t::repeatarrowright );
-	intro_date[1].add_listener( this );
-	add_komponente( intro_date+1 );
+
+	inp_intro_date.setze_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_intro_date.setze_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_intro_date.add_listener(this);
+	inp_intro_date.set_limits(1400,2050);
+	inp_intro_date.set_increment_mode(10);
+	inp_intro_date.set_value(abs(sets->gib_starting_year()) );
+	add_komponente( &inp_intro_date );
 	intTopOfButton += 12;
 
 	intTopOfButton += 5;
@@ -302,11 +287,6 @@ welt_gui_t::update_from_heightfield(const char *filename)
 			}
 		}
 
-		x_size[0].disable();
-		x_size[1].disable();
-		y_size[0].disable();
-		y_size[1].disable();
-
 		strcpy(map_number_s,translator::translate("file"));
 
 		return true;
@@ -339,11 +319,6 @@ welt_gui_t::update_preview()
 		sets->heightfield = "";
 		loaded_heightfield = false;
 	}
-
-	x_size[0].enable();
-	x_size[1].enable();
-	y_size[0].enable();
-	y_size[1].enable();
 }
 
 
@@ -354,125 +329,51 @@ welt_gui_t::update_preview()
  * @author Hj. Malthaner
  */
 bool
-welt_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+welt_gui_t::action_triggered(gui_komponente_t *komp,value_t v)
 {
 	// check for changed map (update preview for any event)
-	int knr = atoi(map_number_s)%9999;
-	if(knr==0  &&  (map_number_s[0]<'0'  ||  map_number_s[0]>'9')) {
-		knr = -1;
-	}
+	int knr = inp_map_number.get_value(); //
 
-	if(komp==map_number+0) {
-		knr --;
+	if(komp==&inp_x_size) {
+		sets->setze_groesse_x( v.i );
+		inp_x_size.set_increment_mode( v.i>=512 ? 128 : 64 );
+		inp_y_size.set_limits( 64, min(32766,4194304/sets->gib_groesse_x()) );
+		update_preview();
 	}
-	else if(komp==map_number+1) {
-		if(knr>=0) {
-			knr ++;
-		}
+	else if(komp==&inp_y_size) {
+		sets->setze_groesse_y( v.i );
+		inp_y_size.set_increment_mode( v.i>=512 ? 128 : 64 );
+		inp_x_size.set_limits( 64, min(32766,4194304/sets->gib_groesse_y()) );
+		update_preview();
 	}
-	else if(komp==x_size+0) {
-		if(sets->gib_groesse_x() > 512 ) {
-			sets->setze_groesse_x( (sets->gib_groesse_x()-1)&0x1F80 );
-			update_preview();
-		} else if(sets->gib_groesse_x() > 64 ) {
-			sets->setze_groesse_x( (sets->gib_groesse_x()-1)&0x1FC0 );
-			update_preview();
-		}
+	else if(komp==&inp_number_of_towns) {
+		sets->setze_anzahl_staedte( v.i );
 	}
-	else if(komp==x_size+1) {
-		if(sets->gib_groesse_x() < 512 ) {
-			sets->setze_groesse_x( (sets->gib_groesse_x()+64)&0x1FC0 );
-			update_preview();
-		} else if(sets->gib_groesse_x() < 4096 ) {
-			sets->setze_groesse_x( (sets->gib_groesse_x()+128)&0x1F80 );
-			update_preview();
-		}
+	else if(komp==&inp_town_size) {
+		sets->setze_mittlere_einwohnerzahl( v.i );
 	}
-	else if(komp==y_size+0) {
-		if(sets->gib_groesse_y() > 512 ) {
-			sets->setze_groesse_y( (sets->gib_groesse_y()-1)&0x1F80 );
-			update_preview();
-		} else if(sets->gib_groesse_y() > 64 ) {
-			sets->setze_groesse_y( (sets->gib_groesse_y()-1)&0x1FC0 );
-			update_preview();
-		}
+	else if(komp==&inp_intercity_road_len) {
+		umgebung_t::intercity_road_length = v.i;
+		inp_intercity_road_len.set_increment_mode( v.i>=1000 ? 100 : 20 );
 	}
-	else if(komp==y_size+1) {
-		if(sets->gib_groesse_y() < 512 ) {
-			sets->setze_groesse_y( (sets->gib_groesse_y()+64)&0x1FC0 );
-			update_preview();
-		} else if(sets->gib_groesse_y() < 4096 ) {
-			sets->setze_groesse_y( (sets->gib_groesse_y()+128)&0x1F80 );
-			update_preview();
-		}
+	else if(komp==&inp_traffic_density) {
+		sets->setze_verkehr_level( v.i );
 	}
-	else if(komp==number_of_towns+0) {
-		if(sets->gib_anzahl_staedte()>0 ) {
-			sets->setze_anzahl_staedte( sets->gib_anzahl_staedte() - 1 );
-		}
+	else if(komp==&inp_other_industries) {
+		sets->setze_land_industry_chains( v.i );
 	}
-	else if(komp==number_of_towns+1) {
-		sets->setze_anzahl_staedte( sets->gib_anzahl_staedte() + 1 );
+	else if(komp==&inp_electric_producer) {
+		sets->setze_electric_promille( v.i );
 	}
-	else if(komp==town_size+0) {
-		if(sets->gib_mittlere_einwohnerzahl()>100 ) {
-			sets->setze_mittlere_einwohnerzahl( sets->gib_mittlere_einwohnerzahl() - 100 );
-		}
+	else if(komp==&inp_tourist_attractions) {
+		sets->setze_tourist_attractions( v.i );
 	}
-	else if(komp==town_size+1) {
-		sets->setze_mittlere_einwohnerzahl( sets->gib_mittlere_einwohnerzahl() + 100 );
-	}
-	else if(komp==intercity_road_len+0) {
-		umgebung_t::intercity_road_length -= 100;
-		if(umgebung_t::intercity_road_length<0) {
-			umgebung_t::intercity_road_length = 0;
-		}
-	}
-	else if(komp==intercity_road_len+1) {
-		umgebung_t::intercity_road_length += 100;
-	}
-	else if(komp==traffic_desity+0) {
-		if(sets->gib_verkehr_level() > 0 ) {
-			sets->setze_verkehr_level( sets->gib_verkehr_level() - 1 );
-		}
-	}
-	else if(komp==traffic_desity+1) {
-		if(sets->gib_verkehr_level() < 16 ) {
-			sets->setze_verkehr_level( sets->gib_verkehr_level() + 1 );
-		}
-	}
-	else if(komp==other_industries+0) {
-		if(sets->gib_land_industry_chains() > 0) {
-			sets->setze_land_industry_chains( sets->gib_land_industry_chains() -1 );
-		}
-	}
-	else if(komp==other_industries+1) {
-		sets->setze_land_industry_chains( sets->gib_land_industry_chains() + 1 );
-	}
-	else if(komp==electric_producer+0) {
-		if(sets->gib_electric_promille() > 0) {
-			sets->setze_electric_promille( sets->gib_electric_promille() - 1 );
-		}
-	}
-	else if(komp==electric_producer+1) {
-		sets->setze_electric_promille( sets->gib_electric_promille() + 1 );
-	}
-	else if(komp==tourist_attractions+0) {
-		if(sets->gib_tourist_attractions() > 0) {
-			sets->setze_tourist_attractions( sets->gib_tourist_attractions() - 1 );
-		}
-	}
-	else if(komp==tourist_attractions+1) {
-		sets->setze_tourist_attractions( sets->gib_tourist_attractions() + 1 );
-	}
-	else if(komp==intro_date+0) {
-		sets->setze_starting_year( sets->gib_starting_year() - 1 );
-	}
-	else if(komp==intro_date+1) {
-		sets->setze_starting_year( sets->gib_starting_year() + 1 );
+	else if(komp==&inp_intro_date) {
+		sets->setze_starting_year( v.i );
 	}
 	else if(komp==&random_map) {
 		knr = simrand(9999);
+		inp_map_number.set_value(knr);
 		sets->heightfield = "";
 		loaded_heightfield = false;
 	}
@@ -515,7 +416,6 @@ welt_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		sets->setze_karte_nummer( knr );
 		if(!loaded_heightfield) {
 			update_preview();
-			sprintf(map_number_s,"%d",knr);
 		}
 	}
 	return true;
@@ -543,7 +443,6 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 		else {
 			loaded_heightfield = false;
 			sets->heightfield = "";
-			sprintf(map_number_s,"%d",abs(sets->gib_karte_nummer())%9999);
 		}
 	}
 	use_intro_dates.pressed = sets->gib_use_timeline();
@@ -600,38 +499,26 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	) / (1024 * 1024);
 	sprintf(buf, translator::translate("3WORLD_CHOOSE"), memory);
 	display_proportional_clip(x, y, buf, ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_groesse_x(), 0), ALIGN_RIGHT, COL_WHITE, true);
-	y += 12;
-	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_groesse_y(), 0), ALIGN_RIGHT, COL_WHITE, true);
-	y += 12+5;
-
+	y += 12;	// x size
+	y += 12+5;	// y size
 	y += BUTTON_HEIGHT+12+5;	// buttons
 
 	display_proportional_clip(x, y, translator::translate("5WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_anzahl_staedte(), 0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Median Citizen per town"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_mittlere_einwohnerzahl(),0),ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Intercity road len:"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(umgebung_t::intercity_road_length,0),ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("6WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_verkehr_level(),0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12+5;
 
 	display_proportional_clip(x, y, translator::translate("Land industries"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_land_industry_chains(),0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Percent Electricity"), ALIGN_LEFT, COL_BLACK, true);
-	sprintf( buf, "%1.1lf", sets->gib_electric_promille()/10.0 );
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, buf, ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Tourist attractions"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_tourist_attractions(),0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12+5;
 
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_starting_year(), 0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12+5;
 	y += 12+5;
 	y += 12+5;

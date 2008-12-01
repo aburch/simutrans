@@ -96,13 +96,16 @@ void gui_scrollpane_t::infowin_event(const event_t *ev)
 		// translate according to scrolled position
 		event_t ev2 = *ev;
 		translate_event(&ev2, scroll_x.gib_knob_offset(), scroll_y.gib_knob_offset());
+		const koord gr = gib_groesse();
 
 		// hand event to component
 		komp->infowin_event(&ev2);
 
 		// Hajo: hack: component could have changed size
 		// this recalculates the scrollbars
-		recalc_sliders(gib_groesse());
+		if(gr!=gib_groesse()) {
+			recalc_sliders(gib_groesse());
+		}
 	}
 }
 

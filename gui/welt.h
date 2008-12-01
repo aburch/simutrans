@@ -14,6 +14,7 @@
 #include "components/gui_label.h"
 #include "components/action_listener.h"
 #include "components/gui_textinput.h"
+#include "components/gui_numberinput.h"
 
 class einstellungen_t;
 
@@ -46,24 +47,21 @@ private:
 
 	int old_lang;
 
-	// since decrease/increase buttons always pair these ...
-	button_t map_number[2];
-	gui_textinput_t inp_map_number;	// direct map number entering
-	button_t x_size[2];
-	button_t y_size[2];
+	gui_numberinput_t inp_map_number, inp_x_size, inp_y_size;
+
 	button_t random_map, load_map;
 
-	button_t number_of_towns[2];
-	button_t town_size[2];
-	button_t intercity_road_len[2];
-	button_t traffic_desity[2];
+	gui_numberinput_t inp_number_of_towns,
+		inp_town_size,
+		inp_intercity_road_len,
+		inp_traffic_density,
+		inp_other_industries,
 
-	button_t other_industries[2];
-	button_t electric_producer[2];
-	button_t tourist_attractions[2];
+		inp_electric_producer,
+		inp_tourist_attractions,
+		inp_intro_date;
 
 	button_t use_intro_dates;
-	button_t intro_date[2];
 	button_t allow_player_change;
 	button_t use_beginner_mode;
 

@@ -208,12 +208,13 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	}
 
 	update_lineinfo( linehandle_t() );
-	build_line_list(0);
 
 	// resize button
 	set_min_windowsize(koord(488, 400));
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
+
+	build_line_list(0);
 }
 
 
@@ -404,6 +405,7 @@ void schedule_list_gui_t::resize(const koord delta)
 
 void schedule_list_gui_t::build_line_list(int filter)
 {
+	const sint32 sb_offset = line.is_bound() ? scl.get_sb_offset() : 0;
 	sp->simlinemgmt.sort_lines();	// to take care of renaming ...
 	scl.clear_elements();
 	sp->simlinemgmt.get_lines(tabs_to_lineindex[filter], &lines);
@@ -414,6 +416,7 @@ void schedule_list_gui_t::build_line_list(int filter)
 			scl.setze_selection(scl.get_count() - 1);
 		}
 	}
+	scl.set_sb_offset( sb_offset );
 }
 
 

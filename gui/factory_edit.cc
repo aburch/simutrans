@@ -57,7 +57,6 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 	fablist(16),
 	lb_rotation( rot_str, COL_WHITE, gui_label_t::right ),
 	lb_rotation_info( translator::translate("Rotation"), COL_BLACK, gui_label_t::left ),
-	lb_production( prod_str, COL_WHITE, gui_label_t::right ),
 	lb_production_info( translator::translate("Produktion"), COL_BLACK, gui_label_t::left )
 {
 	rot_str[0] = 0;
@@ -94,16 +93,12 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 	lb_production_info.setze_pos( koord( NAME_COLUMN_WIDTH+11, offset_of_comp-4 ) );
 	add_komponente(&lb_production_info);
 
-	bt_down_production.init( button_t::repeatarrowleft, NULL, koord(NAME_COLUMN_WIDTH+11+NAME_COLUMN_WIDTH/2-16,	offset_of_comp-4 ) );
-	bt_down_production.add_listener(this);
-	add_komponente(&bt_down_production);
+	inp_production.setze_pos(koord(NAME_COLUMN_WIDTH+11+NAME_COLUMN_WIDTH/2-16,	offset_of_comp-4 ));
+	inp_production.setze_groesse(koord( 76, 12 ));
+	inp_production.set_limits(0,9999);
+	inp_production.add_listener( this );
+	add_komponente(&inp_production);
 
-	bt_up_production.init( button_t::repeatarrowright, NULL, koord(NAME_COLUMN_WIDTH+11+NAME_COLUMN_WIDTH/2+50, offset_of_comp-4 ) );
-	bt_up_production.add_listener(this);
-	add_komponente(&bt_up_production);
-
-	lb_production.setze_pos( koord( NAME_COLUMN_WIDTH+11+NAME_COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
-	add_komponente(&lb_production);
 	offset_of_comp += BUTTON_HEIGHT;
 
 	fill_list( is_show_trans_name );
@@ -198,11 +193,8 @@ bool factory_edit_frame_t::action_triggered(gui_komponente_t *komp,value_t e)
 		fill_list( is_show_trans_name );
 	}
 	else if(fab_besch) {
-		if(  komp==&bt_up_production  ) {
-			production += (production>=200) ? 10 : 1;
-		}
-		else if(  komp==&bt_down_production  &&  production>0) {
-			production -= (production>200) ? 10 : 1;
+		if (komp==&inp_production) {
+			production = inp_production.get_value();
 		}
 		else if(  komp==&bt_left_rotate  &&  rotation!=255) {
 			if(rotation==0) {
@@ -232,7 +224,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 
 			fab_besch = new_fab_besch;
 			production = (fab_besch->gib_produktivitaet()+simrand(fab_besch->gib_bereich()) )<<(welt->ticks_bits_per_tag-18);
-
+			inp_production.set_value( production);
 			// show produced goods
 			buf.clear();
 			if(fab_besch->gib_produkte()>0) {
@@ -323,7 +315,6 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		}
 
 		// change lable numbers
-		sprintf( prod_str, "%i", production );
 		if(rotation == 255) {
 			tstrncpy( rot_str, translator::translate("random"), 16 );
 		}

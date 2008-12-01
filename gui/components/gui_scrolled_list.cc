@@ -39,6 +39,7 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
 		border = 4;
 	}
 	sb.add_listener(this);
+	sb.setze_knob_offset(0);
 
 	clear_elements();
 }
@@ -156,11 +157,11 @@ gui_scrolled_list_t::infowin_event(const event_t *ev)
 		}
 	}
 
-    if(sb.getroffen(x, y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
+	if(sb.getroffen(x, y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -sb.gib_pos().x, -sb.gib_pos().y);
 		sb.infowin_event(&ev2);
-    }
+	}
 }
 
 

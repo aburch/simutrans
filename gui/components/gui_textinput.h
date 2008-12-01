@@ -9,6 +9,7 @@
 #define gui_components_gui_textinput_h
 
 #include "../../ifc/gui_action_creator.h"
+#include "../../simcolor.h"
 
 
 /**
@@ -40,19 +41,22 @@ protected:
 	 * position of text cursor
 	 * @author hsiegeln
 	 */
-	 long cursor_pos;
+	long cursor_pos;
 
-	 /**
+	/**
 	  * offset for drawing the cursor
 	  * Dwachs: made private to check for mouse induced cursor moves
 	  */
-	 long cursor_offset;
+	long cursor_offset;
 
-	 /**
-	  * text alignment
-	  * @author: Dwachs
-	  */
-	 int align;
+	/**
+	 * text alignment
+	 * @author: Dwachs
+	 */
+	uint8 align;
+
+	COLOR_VAL textcol;
+
 public:
 	gui_textinput_t();
 
@@ -86,7 +90,10 @@ public:
 	void zeichnen(koord offset);
 
 	// to allow for right-aligned text
-	void set_alignment(int _align){ align = _align;}
+	void set_alignment(uint8 _align){ align = _align;}
+
+	// to allow for right-aligned text
+	void set_color(COLOR_VAL col){ textcol = col;}
 };
 
 #endif

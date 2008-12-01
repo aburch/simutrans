@@ -122,12 +122,12 @@ template<typename T> static inline int sgn(T x)
 
 static inline int min(const int a, const int b)
 {
-    return a < b ? a : b;
+	return a < b ? a : b;
 }
 
 static inline int max(const int a, const int b)
 {
-    return a > b ? a : b;
+	return a > b ? a : b;
 }
 
 // endian coversion routines

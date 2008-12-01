@@ -106,6 +106,10 @@ public:
 	void append_element( scrollitem_t *item );
 	scrollitem_t *get_element(int i) const { return ((unsigned)i<item_list.count()) ? item_list.at(i) : NULL; }
 
+	// set the first element to be shown in the list
+	sint32 get_sb_offset() { return sb.gib_knob_offset(); }
+	void set_sb_offset( sint32 off ) { sb.setze_knob_offset( min(off,groesse.y) ); offset = sb.gib_knob_offset(); }
+
 	/**
 	 * request other pane-size. returns realized size.
 	 * @return value can be in between current and wanted.

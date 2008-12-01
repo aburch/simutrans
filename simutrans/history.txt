@@ -50,6 +50,7 @@
 	ADD: new tool to make a stop a public one (to make public stops on map without player change)
 	FIX: disabling sound and midi will be now saved and will disable them completely to avoid the SDL_mixer troubles
 	FIX: x instead y offset written by makeobj
+	ADD: (Dwachs) new object gui_numberinput_t for more convinient entering of numbers
 
 
 Release of 100.0 (r1867, stable)

@@ -469,6 +469,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\components\gui_numberinput.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\components\gui_scrollbar.cc"
 				>
 			</File>
