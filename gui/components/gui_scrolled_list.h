@@ -108,7 +108,7 @@ public:
 
 	// set the first element to be shown in the list
 	sint32 get_sb_offset() { return sb.gib_knob_offset(); }
-	void set_sb_offset( sint32 off ) { sb.setze_knob_offset( min(off,groesse.y) ); offset = sb.gib_knob_offset(); }
+	void set_sb_offset( sint32 off ) { sb.setze_knob_offset( off ); offset = sb.gib_knob_offset(); }
 
 	/**
 	 * request other pane-size. returns realized size.

@@ -87,7 +87,7 @@ public:
 	bool wrap_mode( bool new_mode ) {
 		bool m=wrapping;
 		wrapping=new_mode;
-		return wrapping;
+		return m;
 	}
 
 	/**
