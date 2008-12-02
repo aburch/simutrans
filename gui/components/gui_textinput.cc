@@ -168,7 +168,8 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 					cursor_pos += num_letter;
 					/* end default */
 			}
-		} else {
+		}
+		else {
 			printf("Warning: gui_textinput_t::infowin_event() called but text is NULL\n");
 		}
 	} else if ( IS_LEFTCLICK(ev) ) 	{

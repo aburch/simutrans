@@ -210,7 +210,7 @@ void gui_numberinput_t::infowin_event(const event_t *ev)
 	}
 	else if(bt_right.getroffen(ev->cx, ev->cy)) {
 		event_t ev2 = *ev;
-		translate_event(&ev2, -bt_left.gib_pos().x, -bt_left.gib_pos().y);
+		translate_event(&ev2, -bt_right.gib_pos().x, -bt_right.gib_pos().y);
 		bt_right.infowin_event(&ev2);
 	}
 	else {
@@ -234,11 +234,13 @@ void gui_numberinput_t::infowin_event(const event_t *ev)
 			}
 			// editing keys, arrows, hom/end
 			switch (ev->ev_code) {
+				case '-':
+					call_textinp = min_value <0;
+					break;
 				case 8:
 				case 13:
 				case 27:
 				case 127:
-				case '-':
 				case SIM_KEY_LEFT:
 				case SIM_KEY_RIGHT:
 				case SIM_KEY_HOME:
@@ -246,7 +248,9 @@ void gui_numberinput_t::infowin_event(const event_t *ev)
 					call_textinp = true;
 			}
 			if(  call_textinp  ) {
-				textinp.infowin_event(ev);
+				event_t ev2 = *ev;
+				translate_event(&ev2, -textinp.gib_pos().x, -textinp.gib_pos().y);
+				textinp.infowin_event(&ev2);
 				new_value = get_text_value();
 			}
 		}
