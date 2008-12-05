@@ -189,8 +189,9 @@ void savegame_frame_t::fill_list()
 
 		y += 14;
 	}
-	button_frame.setze_groesse( koord( DIALOG_WIDTH-1, y ) );
-	setze_fenstergroesse(koord(DIALOG_WIDTH, y + 90));
+	// since width was maybe increased, we only set the heigth.
+	button_frame.setze_groesse( koord( gib_fenstergroesse().x-1, y ) );
+	setze_fenstergroesse(koord(gib_fenstergroesse().x, y + 90));
 }
 
 
@@ -334,9 +335,19 @@ void savegame_frame_t::setze_fenstergroesse(koord groesse)
 	}
 	scrolly.setze_groesse( koord(groesse.x,groesse.y-30-40-8) );
 	gui_frame_t::setze_fenstergroesse(groesse);
+	input.setze_groesse(koord(groesse.x-75-10-10, 14));
+	for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
+		button_t*    button1 = i->del;
+		button_t*    button2 = i->button;
+		gui_label_t* label   = i->label;
+		button2->setze_groesse(koord( groesse.x/2-40, 14));
+		label->setze_pos(koord(groesse.x/2-40+30, label->gib_pos().y));
+	}
+
 	divider1.setze_pos(koord(10,groesse.y-44));
+	divider1.setze_groesse(koord(groesse.x-20,0));
 	savebutton.setze_pos(koord(10,groesse.y-34));
-	cancelbutton.setze_pos(koord(DIALOG_WIDTH-BUTTON_WIDTH-10,groesse.y-34));
+	cancelbutton.setze_pos(koord(groesse.x-BUTTON_WIDTH-10,groesse.y-34));
 }
 
 

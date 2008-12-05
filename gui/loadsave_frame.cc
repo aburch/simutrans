@@ -56,6 +56,11 @@ loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame
 		set_filename(welt->gib_einstellungen()->gib_filename());
 		setze_name("Speichern");
 	}
+
+	set_min_windowsize(gib_fenstergroesse());
+	set_resizemode(diagonal_resize);
+	setze_fenstergroesse(koord(360+36, gib_fenstergroesse().y));
+
 }
 
 
