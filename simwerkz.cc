@@ -2342,7 +2342,7 @@ image_id wkz_station_t::get_icon( spieler_t * )
 const char *wkz_station_t::get_tooltip(spieler_t *sp)
 {
 	const haus_besch_t *besch=hausbauer_t::find_tile(default_param,0)->gib_besch();
-	if(  besch->gib_utyp()==haus_besch_t::generic_stop  ||  besch->gib_utyp()==haus_besch_t::generic_extension  ) {
+	if(  besch->gib_utyp()==haus_besch_t::generic_stop  ) {
 		switch (besch->gib_extra()) {
 			case track_wt:
 			case monorail_wt:
@@ -2359,6 +2359,9 @@ const char *wkz_station_t::get_tooltip(spieler_t *sp)
 			case 0:
 				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_post*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 		}
+	}
+	else if(  besch->gib_utyp()==haus_besch_t::generic_extension  ) {
+		return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_post*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 	}
 	else if(  besch->gib_utyp()==haus_besch_t::hafen  ) {
 		return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
@@ -2405,7 +2408,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, water_wt, umgebung_t::cst_multiply_dock, "Dock");
 					break;
 				case air_wt:
-					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, air_wt, umgebung_t::cst_multiply_station, "Airport");
+					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, air_wt, umgebung_t::cst_multiply_airterminal, "Airport");
 					break;
 			}
 
