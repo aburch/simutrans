@@ -32,10 +32,12 @@ gui_numberinput_t::gui_numberinput_t()
 	bt_right.add_listener(this );
 
 	set_limits(0, 9999);
-	set_value(0);
+	textbuffer[0] = 0;	// start with empty buffer
+	textinp.setze_text(textbuffer, 20);
 	set_increment_mode( 1 );
 	wrap_mode( true );
 }
+
 
 
 void gui_numberinput_t::setze_groesse(koord groesse)
@@ -51,6 +53,7 @@ void gui_numberinput_t::setze_groesse(koord groesse)
 }
 
 
+
 void gui_numberinput_t::set_value(sint32 new_value)
 {	// range check
 	value = clamp( new_value, min_value, max_value );
@@ -58,8 +61,11 @@ void gui_numberinput_t::set_value(sint32 new_value)
 		// final value should be correct, but during editing wrng values are allowed
 		new_value = value;
 	}
-	sprintf(textbuffer, "%d", new_value);
-	textinp.setze_text(textbuffer, 20);
+	// To preserve coursor position if text was edited, only set new text if changed (or empty before)
+	if(  new_value != get_text_value()  ||  textbuffer[0]<=' '  ) {
+		sprintf(textbuffer, "%d", new_value);
+		textinp.setze_text(textbuffer, 20);
+	}
 	textinp.set_color( value == new_value ? COL_WHITE : COL_RED );
 	value = new_value;
 }
@@ -80,7 +86,7 @@ sint32 gui_numberinput_t::get_value()
 
 bool gui_numberinput_t::check_value(sint32 _value)
 {
-	return (_value >= min_value) && (_value <= max_value);
+	return (_value >= min_value)  &&  (_value <= max_value);
 }
 
 
@@ -158,6 +164,7 @@ sint32 gui_numberinput_t::get_next_value()
 }
 
 
+
 sint32 gui_numberinput_t::get_prev_value()
 {
 	if(  value<=min_value  ) {
@@ -203,35 +210,35 @@ sint32 gui_numberinput_t::get_prev_value()
 void gui_numberinput_t::infowin_event(const event_t *ev)
 {
 	// buttons pressed
-	if(bt_left.getroffen(ev->cx, ev->cy)  ) {
+	if(  bt_left.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -bt_left.gib_pos().x, -bt_left.gib_pos().y);
 		bt_left.infowin_event(&ev2);
+		request_focus( &textinp );
 	}
-	else if(bt_right.getroffen(ev->cx, ev->cy)) {
+	else if(  bt_right.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -bt_right.gib_pos().x, -bt_right.gib_pos().y);
 		bt_right.infowin_event(&ev2);
+		request_focus( &textinp );
 	}
 	else {
 		// since button have different callback ...
 		sint32 new_value = value;
 		// mouse wheel -> fast increase / decrease
-		if (IS_WHEELUP(ev)){
+		if(IS_WHEELUP(ev)){
 			new_value = get_next_value();
+			request_focus( &textinp );
 		}
-		else if (IS_WHEELDOWN(ev)){
+		else if(IS_WHEELDOWN(ev)){
 			new_value = get_prev_value();
+			request_focus( &textinp );
 		}
 
 		// catch non-number keys
-		if(ev->ev_class == EVENT_KEYBOARD  ||  value==new_value) {
+		if(  ev->ev_class == EVENT_KEYBOARD  ||  value==new_value  ) {
 			// assume false input
 			bool call_textinp = ev->ev_class != EVENT_KEYBOARD;
-			// numbers
-			if ( (ev->ev_code>=48) && (ev->ev_code<=57)) {
-				call_textinp = true;
-			}
 			// editing keys, arrows, hom/end
 			switch (ev->ev_code) {
 				case '-':
@@ -241,6 +248,16 @@ void gui_numberinput_t::infowin_event(const event_t *ev)
 				case 13:
 				case 27:
 				case 127:
+				case '0':
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
 				case SIM_KEY_LEFT:
 				case SIM_KEY_RIGHT:
 				case SIM_KEY_HOME:
