@@ -168,7 +168,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 
 
 bool
-color_gui_t::action_triggered(gui_komponente_t *komp, value_t)
+color_gui_t::action_triggered( gui_action_creator_t *komp, value_t)
 {
 	einstellungen_t * sets = welt->gib_einstellungen();
 

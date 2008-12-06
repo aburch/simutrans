@@ -12,7 +12,9 @@
  *
  * @author Niels Roest, additions by Hj. Malthaner
  */
-class scrollbar_t : public gui_komponente_action_creator_t
+class scrollbar_t :
+	public gui_action_creator_t,
+	public gui_komponente_t
 {
 public:
 	enum type { vertical, horizontal };
@@ -39,13 +41,13 @@ private:
 	/**
 	 * real position of knob in pixels, counting from zero
 	 */
-		int real_knob_position() {
-			if (type == vertical) {
-				return button_def[2].pos.y-12;
-			} else /* horizontal */ {
-				return button_def[2].pos.x-12;
-			}
+	int real_knob_position() {
+		if (type == vertical) {
+			return button_def[2].gib_pos().y-12;
+		} else /* horizontal */ {
+			return button_def[2].gib_pos().x-12;
 		}
+	}
 
 public:
 	// type is either scrollbar_t::horizontal or scrollbar_t::vertical

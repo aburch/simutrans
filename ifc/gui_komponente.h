@@ -41,6 +41,14 @@ private:
 	*/
 	bool read_only;
 
+protected:
+	/**
+	 * Position der Komponente. Eintraege sind relativ zu links/oben der
+	 * umgebenden Komponente.
+	 * @author Hj. Malthaner
+	 */
+	koord pos;
+
 public:
 	/**
 	* Basic contructor, initialises member variables
@@ -78,13 +86,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	bool is_visible() const {return visible;}
-
-	/**
-	* Position der Komponente. Eintraege sind relativ zu links/oben der
-	* umgebenden Komponente.
-	* @author Hj. Malthaner
-	*/
-	koord pos;
 
 	/**
 	* Vorzugsweise sollte diese Methode zum Setzen der Position benutzt werden,

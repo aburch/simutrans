@@ -9,9 +9,11 @@
 #ifndef gui_fahrplan_gui_h
 #define gui_fahrplan_gui_h
 
+#include "gui_frame.h"
+
 #include "../utils/cbuffer_t.h"
 #include "components/gui_label.h"
-#include "gui_frame.h"
+#include "components/gui_numberinput.h"
 #include "components/gui_combobox.h"
 #include "components/gui_button.h"
 #include "components/action_listener.h"
@@ -97,8 +99,8 @@ private:
 	button_t bt_wait_prev, bt_wait_next;	// waiting in parts of month
 	gui_label_t lb_wait, lb_waitlevel;
 
-	button_t bt_prev, bt_next;	// loading level
-	gui_label_t lb_load, lb_loadlevel;
+	gui_label_t lb_load;
+	gui_numberinput_t numimp_load;
 
 	char str_ladegrad[16];
 	char str_parts_month[32];
@@ -162,7 +164,7 @@ public:
 	 * components should be triggered.
 	 * V.Meyer
 	 */
-	bool action_triggered(gui_komponente_t *komp, value_t extra);
+	bool action_triggered( gui_action_creator_t *komp, value_t extra);
 };
 
 #endif

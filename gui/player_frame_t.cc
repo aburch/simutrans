@@ -70,7 +70,7 @@ ki_kontroll_t::~ki_kontroll_t()
  * @author Hj. Malthaner
  */
 bool
-ki_kontroll_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(i>=2  &&  komp==(player_active+i-2)) {

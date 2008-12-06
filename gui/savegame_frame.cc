@@ -266,7 +266,7 @@ bool savegame_frame_t::check_file( const char *filename, const char *suffix )
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool savegame_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+bool savegame_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	char buf[1024];
 

@@ -185,7 +185,7 @@ void goods_frame_t::resize(const koord delta)
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool goods_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp == &sortedby) {
 		// sort by what

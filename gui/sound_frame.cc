@@ -97,7 +97,7 @@ sound_frame_t::sound_frame_t()
 
 
 bool
-sound_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
+sound_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 {
 	if (komp == &nextbtn) {
 		midi_stop();

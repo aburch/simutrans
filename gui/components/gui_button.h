@@ -9,6 +9,7 @@
 #define gui_button_h
 
 #include "../../ifc/gui_action_creator.h"
+#include "../../ifc/gui_komponente.h"
 #include "../../simcolor.h"
 
 
@@ -25,7 +26,9 @@
  * @author Hj. Malthaner, Niels Roest
  * @date December 2000
  */
-class button_t : public gui_komponente_action_creator_t
+class button_t :
+	public gui_action_creator_t,
+	public gui_komponente_t
 {
 public:
 	/* the button with the postfix state do not automatically change their state like the normal button do
@@ -132,9 +135,9 @@ public:
 
 	bool enabled() { return b_enabled; }
 
-	private:
-		button_t(const button_t&);        // forbidden
-		void operator =(const button_t&); // forbidden
+private:
+	button_t(const button_t&);        // forbidden
+	void operator =(const button_t&); // forbidden
 };
 
 #endif

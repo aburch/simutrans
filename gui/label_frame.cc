@@ -168,7 +168,7 @@ void label_frame_t::resize(const koord delta)
  * This method is called if an action is triggered
  * @author V. Meyer
  */
-bool label_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+bool label_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp == &input || komp == &savebutton) {
 		// OK- Button or Enter-Key pressed

@@ -153,7 +153,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
  * @author Hj. Malthaner
  */
 bool
-climate_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+climate_gui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp==&no_tree) {
 		umgebung_t::no_tree ^= 1;

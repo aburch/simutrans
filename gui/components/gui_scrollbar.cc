@@ -84,14 +84,14 @@ void scrollbar_t::reposition_buttons()
 	//if (knob_area < knob_size) { offset = 0; }
 
 	if (type == vertical) {
-		button_def[1].pos.y = groesse.y-10;
-		button_def[2].setze_pos(koord(0,12+offset));
-		button_def[2].setze_groesse(koord(10,size));
+		button_def[1].setze_pos( koord(0,groesse.y-10) );
+		button_def[2].setze_pos( koord(0,12+offset) );
+		button_def[2].setze_groesse( koord(10,size) );
 	}
 	else { // horizontal
-		button_def[1].pos.x = groesse.x-10;
-		button_def[2].setze_pos(koord(12+offset,0));
-		button_def[2].setze_groesse(koord(size,10));
+		button_def[1].setze_pos( koord(groesse.x-10,0) );
+		button_def[2].setze_pos( koord(12+offset,0) );
+		button_def[2].setze_groesse( koord(size,10) );
 	}
 }
 

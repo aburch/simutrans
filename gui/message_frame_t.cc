@@ -60,7 +60,7 @@ void message_frame_t::resize(const koord delta)
 
  /* triggered, when button clicked; only single button registered, so the action is clear ... */
 bool
-message_frame_t::action_triggered(gui_komponente_t *,value_t)
+message_frame_t::action_triggered( gui_action_creator_t *,value_t)
 {
 	create_win(320, 200, new message_option_t(welt), w_info, magic_none );
 	return true;

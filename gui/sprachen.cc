@@ -120,7 +120,7 @@ sprachengui_t::sprachengui_t() :
 
 
 bool
-sprachengui_t::action_triggered(gui_komponente_t *komp, value_t)
+sprachengui_t::action_triggered( gui_action_creator_t *komp, value_t)
 {
 	for(int i=0; i<translator::get_language_count(); i++) {
 		button_t& b = buttons[i];

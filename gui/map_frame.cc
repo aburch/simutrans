@@ -193,7 +193,7 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 
 // button pressed
 bool
-map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	reliefkarte_t::gib_karte()->calc_map();
 

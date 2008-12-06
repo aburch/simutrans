@@ -242,7 +242,7 @@ halt_info_t::zeichnen(koord pos, koord gr)
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool halt_info_t::action_triggered(gui_komponente_t *comp,value_t /* */)
+bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	if (comp == &button) { 			// details button pressed
 		create_win( new halt_detail_t(halt), w_info, (long)this);
@@ -253,8 +253,8 @@ bool halt_info_t::action_triggered(gui_komponente_t *comp,value_t /* */)
 	} else  if (comp == &toggler) {
 		toggler.pressed ^= 1;
 		const koord offset = toggler.pressed ? koord(0, 165) : koord(0, -165);
-   		set_min_windowsize(koord(BUTTON4_X+BUTTON_WIDTH+2, toggler.pressed ?372:194));
-		scrolly.pos.y += offset.y;
+		set_min_windowsize(koord(BUTTON4_X+BUTTON_WIDTH+2, toggler.pressed ?372:194));
+		scrolly.setze_pos( scrolly.gib_pos() + koord(0,offset.y) );
 		// toggle visibility of components
 		chart.set_visible(toggler.pressed);
 		setze_fenstergroesse(gib_fenstergroesse() + offset);

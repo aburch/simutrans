@@ -18,7 +18,8 @@
 
 
 class gui_combobox_t :
-	public gui_komponente_action_creator_t,
+	public gui_action_creator_t,
+	public gui_komponente_t,
 	public action_listener_t
 {
 private:
@@ -67,7 +68,7 @@ public:
 	 * This method is called if an action is triggered
 	 * @author Hj. Malthaner
 	 */
-	virtual bool action_triggered(gui_komponente_t *komp,value_t /* */);
+	virtual bool action_triggered( gui_action_creator_t *komp,value_t /* */);
 
 	/**
 	 * Zeichnet die Komponente

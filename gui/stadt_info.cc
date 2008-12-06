@@ -143,7 +143,7 @@ stadt_info_t::zeichnen(koord pos, koord gr)
 
 
 
-bool stadt_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+bool stadt_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	for ( int i = 0; i<MAX_CITY_HISTORY; i++) {
 		if (komp == &filterButtons[i]) {

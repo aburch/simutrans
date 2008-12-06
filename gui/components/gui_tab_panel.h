@@ -16,8 +16,24 @@ class bild_besch_t;
  *
  * @author Hj. Malthaner
  */
-class gui_tab_panel_t : public gui_komponente_action_creator_t
+class gui_tab_panel_t :
+	public gui_action_creator_t,
+	public gui_komponente_t
 {
+private:
+	struct tab
+	{
+		tab(gui_komponente_t* c, const char *name, const bild_besch_t *b, const char *tool) : component(c), title(name), img(b), tooltip(tool) {}
+
+		gui_komponente_t* component;
+		const char *title;
+		const bild_besch_t *img;
+		const char *tooltip;
+	};
+
+	slist_tpl<tab> tabs;
+	int active_tab;
+
 public:
 	enum { HEADER_VSIZE = 18};
 
@@ -58,20 +74,6 @@ public:
 	 * @date  18.06.2003
 	 */
 	void setze_groesse(koord groesse);
-
-	private:
-		struct tab
-		{
-			tab(gui_komponente_t* c, const char *name, const bild_besch_t *b, const char *tool) : component(c), title(name), img(b), tooltip(tool) {}
-
-			gui_komponente_t* component;
-			const char *title;
-			const bild_besch_t *img;
-			const char *tooltip;
-		};
-
-		slist_tpl<tab> tabs;
-		int active_tab;
 };
 
 #endif

@@ -329,7 +329,7 @@ welt_gui_t::update_preview()
  * @author Hj. Malthaner
  */
 bool
-welt_gui_t::action_triggered(gui_komponente_t *komp,value_t v)
+welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 {
 	// check for changed map (update preview for any event)
 	int knr = inp_map_number.get_value(); //

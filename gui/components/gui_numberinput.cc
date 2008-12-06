@@ -61,8 +61,8 @@ void gui_numberinput_t::set_value(sint32 new_value)
 		// final value should be correct, but during editing wrng values are allowed
 		new_value = value;
 	}
-	// To preserve coursor position if text was edited, only set new text if changed (or empty before)
-	if(  new_value != get_text_value()  ||  textbuffer[0]<=' '  ) {
+	// To preserve cursor position if text was edited, only set new text if changed (or empty before)
+	if(  new_value != get_text_value()  ||  textbuffer[0]<=32  ) {
 		sprintf(textbuffer, "%d", new_value);
 		textinp.setze_text(textbuffer, 20);
 	}
@@ -97,7 +97,7 @@ void gui_numberinput_t::set_limits(sint32 _min, sint32 _max)
 }
 
 
-bool gui_numberinput_t::action_triggered(gui_komponente_t *komp, value_t /* */)
+bool gui_numberinput_t::action_triggered( gui_action_creator_t *komp, value_t /* */)
 {
 	if(  komp == &textinp  ) {
 		// .. if enter / esc pressed

@@ -18,7 +18,10 @@
  * -selection. is a list, but additionaly, one item can be selected.
  * @author Niels Roest, additions by Hj. Malthaner
  */
-class gui_scrolled_list_t  : public gui_komponente_action_creator_t, action_listener_t
+class gui_scrolled_list_t :
+	public gui_action_creator_t,
+	public action_listener_t,
+	public gui_komponente_t
 {
 public:
 	enum type { list, select };
@@ -127,7 +130,7 @@ public:
 	 * components should be triggered.
 	 * V.Meyer
 	 */
-	bool action_triggered(gui_komponente_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t *komp, value_t extra);
 };
 
 #endif

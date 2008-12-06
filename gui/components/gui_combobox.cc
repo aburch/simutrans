@@ -154,7 +154,7 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 
 
 /* selction now handled via callback */
-bool gui_combobox_t::action_triggered(gui_komponente_t *komp,value_t p)
+bool gui_combobox_t::action_triggered( gui_action_creator_t *komp,value_t p)
 {
 	if (komp == &droplist) {
 DBG_MESSAGE("gui_combobox_t::infowin_event()","scroll selected %i",p.i);

@@ -34,7 +34,9 @@
  */
 
 
-class extend_edit_gui_t : public gui_frame_t, public action_listener_t
+class extend_edit_gui_t :
+	public gui_frame_t,
+	public action_listener_t
 {
 protected:
 	spieler_t *sp;
@@ -74,21 +76,21 @@ public:
 	*/
 	bool has_min_sizer() const {return true;}
 
-   /**
-   * Mausklicks werden hiermit an die GUI-Komponenten
-   * gemeldet
-   */
-   void infowin_event(const event_t *ev);
+	/**
+	 * Mausklicks werden hiermit an die GUI-Komponenten
+	 * gemeldet
+	 */
+	void infowin_event(const event_t *ev);
 
 	/**
-	* This method is called if an action is triggered
-	* @author Hj. Malthaner
-	*
-	* Returns true, if action is done and no more
-	* components should be triggered.
-	* V.Meyer
-	*/
-	bool action_triggered(gui_komponente_t *komp, value_t extra);
+	 * This method is called if an action is triggered
+	 * @author Hj. Malthaner
+	 *
+	 * Returns true, if action is done and no more
+	 * components should be triggered.
+	 * V.Meyer
+	 */
+	bool action_triggered(gui_action_creator_t *komp, value_t extra);
 
 };
 

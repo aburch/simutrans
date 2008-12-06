@@ -22,7 +22,8 @@
  * @author Dwachs
  */
 class gui_numberinput_t :
-	public gui_komponente_action_creator_t,
+	public gui_action_creator_t,
+	public gui_komponente_t,
 	public action_listener_t
 {
 private:
@@ -106,7 +107,7 @@ public:
 	/**
 	 * This method is called if an action is triggered
 	 */
-	virtual bool action_triggered(gui_komponente_t *komp,value_t /* */);
+	virtual bool action_triggered(gui_action_creator_t *komp, value_t p);
 };
 
 #endif

@@ -100,10 +100,10 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 	gui_frame_t::zeichnen(pos,gr);
 
 	unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()];
-	display_ddd_box_clip(pos.x + view.pos.x, pos.y + view.pos.y + 75, 64, 8, MN_GREY0, MN_GREY4);
-	display_fillbox_wh_clip(pos.x + view.pos.x+1, pos.y + view.pos.y + 76, 62, 6, indikatorfarbe, true);
+	display_ddd_box_clip(pos.x + view.gib_pos().x, pos.y + view.gib_pos().y + 75, 64, 8, MN_GREY0, MN_GREY4);
+	display_fillbox_wh_clip(pos.x + view.gib_pos().x+1, pos.y + view.gib_pos().y + 76, 62, 6, indikatorfarbe, true);
 	if (fab->get_prodfaktor() > 16) {
-		display_color_img(skinverwaltung_t::electricity->gib_bild_nr(0), pos.x + view.pos.x+4, pos.y + view.pos.y+18, 0, false, false);
+		display_color_img(skinverwaltung_t::electricity->gib_bild_nr(0), pos.x + view.gib_pos().x+4, pos.y + view.gib_pos().y+18, 0, false, false);
 	}
 }
 
@@ -117,7 +117,7 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
  * components should be triggered.
  * V.Meyer
    */
-bool fabrik_info_t::action_triggered(gui_komponente_t *komp, value_t v)
+bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 {
 	karte_t* welt = ding->get_welt();
 

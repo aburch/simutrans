@@ -10,7 +10,7 @@
 
 #include "../../simtypes.h"
 
-class gui_komponente_t;
+class gui_action_creator_t;
 
 /**
  * This interface must be implemented by all classes which want to
@@ -30,7 +30,7 @@ public:
 	 * components should be triggered.
 	 * V.Meyer
 	 */
-	virtual bool action_triggered(gui_komponente_t *komp, value_t extra) = 0;
+	virtual bool action_triggered(gui_action_creator_t *komp, value_t extra) = 0;
 };
 
 #endif

@@ -153,7 +153,7 @@ convoi_filter_frame_t::~convoi_filter_frame_t()
  * This method is called if an action is triggered
  * @author V. Meyer
  */
-bool convoi_filter_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+bool convoi_filter_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	int i;
 

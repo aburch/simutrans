@@ -73,7 +73,7 @@ curiositylist_frame_t::curiositylist_frame_t(karte_t * welt) :
  * This method is called if an action is triggered
  * @author Markus Weber/Volker Meyer
  */
-bool curiositylist_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+bool curiositylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp == &sortedby) {
 		setze_sortierung((curiositylist::sort_mode_t)((gib_sortierung() + 1) % curiositylist::SORT_MODES));

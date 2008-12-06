@@ -241,7 +241,7 @@ schedule_list_gui_t::infowin_event(const event_t *ev)
 
 
 
-bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
+bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
 {
 	if (komp == &bt_change_line) {
 		if (line.is_bound()) {

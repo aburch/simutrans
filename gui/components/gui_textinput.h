@@ -9,6 +9,7 @@
 #define gui_components_gui_textinput_h
 
 #include "../../ifc/gui_action_creator.h"
+#include "../../ifc/gui_komponente.h"
 #include "../../simcolor.h"
 
 
@@ -20,7 +21,9 @@
  * @date 19-Apr-01
  * @author Hj. Malthaner
  */
-class gui_textinput_t : public gui_komponente_action_creator_t
+class gui_textinput_t :
+	public gui_action_creator_t,
+	public gui_komponente_t
 {
 protected:
 

@@ -142,7 +142,7 @@ enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *spieler, karte_t *welt) :
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool enlarge_map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp==x_size+0) {
 		if(sets->gib_groesse_x() > max(512,this->welt->gib_groesse_x()) ) {

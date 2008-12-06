@@ -35,19 +35,19 @@ message_option_t::message_option_t(karte_t *welt) :
 	welt->get_message()->get_message_flags( &ticker_msg, &window_msg, &auto_msg, &ignore_msg );
 
 	for(int i=0; i<MAX_MESSAGE_TYP; i++) {
-		buttons[i*3].pos = koord(120,18+i*2*LINESPACE);
+		buttons[i*3].setze_pos( koord(120,18+i*2*LINESPACE) );
 		buttons[i*3].setze_typ(button_t::square_state);
 		buttons[i*3].pressed = (ticker_msg>>i)&1;
 		buttons[i*3].add_listener(this);
 		add_komponente( buttons+i*3 );
 
-		buttons[i*3+1].pos = koord(140,18+i*2*LINESPACE);
+		buttons[i*3+1].setze_pos( koord(140,18+i*2*LINESPACE) );
 		buttons[i*3+1].setze_typ(button_t::square_state);
 		buttons[i*3+1].pressed = (auto_msg>>i)&1;
 		buttons[i*3+1].add_listener(this);
 		add_komponente( buttons+i*3+1 );
 
-		buttons[i*3+2].pos = koord(160,18+i*2*LINESPACE);
+		buttons[i*3+2].setze_pos( koord(160,18+i*2*LINESPACE) );
 		buttons[i*3+2].setze_typ(button_t::square_state);
 		buttons[i*3+2].pressed = (window_msg>>i)&1;
 		buttons[i*3+2].add_listener(this);
@@ -59,7 +59,7 @@ message_option_t::message_option_t(karte_t *welt) :
 
 
 bool
-message_option_t::action_triggered(gui_komponente_t *komp, value_t )
+message_option_t::action_triggered( gui_action_creator_t *komp, value_t )
 {
 	((button_t*)komp)->pressed ^= 1;
 	for(int i=0; i<MAX_MESSAGE_TYP; i++) {

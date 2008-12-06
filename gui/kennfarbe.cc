@@ -51,7 +51,7 @@ farbengui_t::farbengui_t(spieler_t *sp) :
  * This method is called if an action is triggered
  * @author V. Meyer
  */
-bool farbengui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	for(unsigned i=0;  i<28;  i++) {
 		// new player 1 color ?

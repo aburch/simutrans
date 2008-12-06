@@ -177,7 +177,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 
 
 
-bool curiosity_edit_frame_t::action_triggered(gui_komponente_t *komp,value_t e)
+bool curiosity_edit_frame_t::action_triggered( gui_action_creator_t *komp,value_t e)
 {
 	// only one chain can be shown
 	if(  komp==&bt_city_attraction  ) {

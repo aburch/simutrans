@@ -124,5 +124,5 @@ public:
      * components should be triggered.
      * V.Meyer
      */
-    bool action_triggered(gui_komponente_t *komp, value_t extra);
+    bool action_triggered( gui_action_creator_t *komp, value_t extra);
 };

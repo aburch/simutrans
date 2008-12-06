@@ -273,7 +273,7 @@ void convoi_frame_t::infowin_event(const event_t *ev)
  * This method is called if an action is triggered
  * @author Markus Weber
  */
-bool convoi_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
+bool convoi_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
 {
 	if(komp == &filter_on) {
 		DBG_MESSAGE("convoi_frame_t::action_triggered()","toggle %i",gib_filter(any_filter));

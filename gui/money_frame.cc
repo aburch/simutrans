@@ -452,7 +452,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 
 
 
-bool money_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+bool money_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp==&headquarter) {
 		sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_HEADQUARTER] );

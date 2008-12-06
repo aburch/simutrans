@@ -290,7 +290,7 @@ enable_home:
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool convoi_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	// follow convoi on map?
 	if(komp == &follow_button) {
@@ -395,7 +395,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 		toggler.pressed = !toggler.pressed;
 		const koord offset = toggler.pressed ? koord(0, 170) : koord(0, -170);
 		set_min_windowsize( koord(TOTAL_WIDTH, toggler.pressed ? 364: 194));
-		scrolly.pos.y += offset.y;
+		scrolly.setze_pos( scrolly.gib_pos()+koord(0,offset.y) );
 		// toggle visibility of components
 		chart.set_visible(toggler.pressed);
 		setze_fenstergroesse(gib_fenstergroesse() + offset);

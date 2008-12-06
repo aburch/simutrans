@@ -47,11 +47,7 @@ static char ladegrade[MAX_LADEGRADE]=
  *
  * @author Hj. Malthaner
  */
-void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf,
-				     karte_t *welt,
-				     const fahrplan_t *fpl,
-				     int i,
-				     int max_chars)
+void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const fahrplan_t *fpl, int i, int max_chars)
 {
 	if(i<0  ||  fpl==NULL  ||  i>=fpl->maxi()) {
 		dbg->warning("void fahrplan_gui_t::gimme_stop_name()","tried to recieved unused entry %i in schedule %p.",i,fpl);
@@ -188,7 +184,6 @@ fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_wait("month wait time"),
 	lb_waitlevel(NULL, COL_WHITE, gui_label_t::right),
 	lb_load("Full load"),
-	lb_loadlevel(NULL, COL_WHITE, gui_label_t::right),
 	stats(sp_->get_welt()),
 	scrolly(&stats)
 {
@@ -238,7 +233,7 @@ fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_wait.setze_pos( koord( 10, ypos+2 ) );
 	add_komponente(&lb_wait);
 
-	bt_wait_prev.pos = koord( BUTTON_WIDTH*2-65, ypos+3 );
+	bt_wait_prev.setze_pos( koord( BUTTON_WIDTH*2-65, ypos+3 ) );
 	bt_wait_prev.setze_typ(button_t::arrowleft);
 	bt_wait_prev.add_listener(this);
 	add_komponente(&bt_wait_prev);
@@ -250,10 +245,10 @@ fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_, convoihandle_t 
 		sprintf( str_parts_month, "1/%d",  1<<(16-fpl->eintrag[fpl->aktuell].waiting_time_shift) );
 	}
 	lb_waitlevel.set_text_pointer( str_parts_month );
-	lb_waitlevel.pos = koord( BUTTON_WIDTH*2-20, ypos+3 );
+	lb_waitlevel.setze_pos( koord( BUTTON_WIDTH*2-20, ypos+3 ) );
 	add_komponente(&lb_waitlevel);
 
-	bt_wait_next.pos = koord( BUTTON_WIDTH*2-15, ypos+2 );
+	bt_wait_next.setze_pos( koord( BUTTON_WIDTH*2-15, ypos+2 ) );
 	bt_wait_next.setze_typ(button_t::arrowright);
 	bt_wait_next.add_listener(this);
 	add_komponente(&bt_wait_next);
@@ -264,20 +259,13 @@ fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_load.setze_pos( koord( 10, ypos+2 ) );
 	add_komponente(&lb_load);
 
-	bt_prev.pos = koord( BUTTON_WIDTH*2-65, ypos+3 );
-	bt_prev.setze_typ(button_t::arrowleft);
-	bt_prev.add_listener(this);
-	add_komponente(&bt_prev);
-
-	sprintf( str_ladegrad, "%d%%", (uint)fpl->aktuell < (uint)fpl->maxi() ? fpl->eintrag[fpl->aktuell].ladegrad : 0 );
-	lb_loadlevel.set_text_pointer( str_ladegrad );
-	lb_loadlevel.pos = koord( BUTTON_WIDTH*2-20, ypos+3 );
-	add_komponente(&lb_loadlevel);
-
-	bt_next.pos = koord( BUTTON_WIDTH*2-15, ypos+2 );
-	bt_next.setze_typ(button_t::arrowright);
-	bt_next.add_listener(this);
-	add_komponente(&bt_next);
+	numimp_load.setze_pos( koord( BUTTON_WIDTH*2-65, ypos+2 ) );
+	numimp_load.setze_groesse( koord( 65, BUTTON_HEIGHT ) );
+	numimp_load.set_value( (uint)fpl->aktuell < (uint)fpl->maxi() ? fpl->eintrag[fpl->aktuell].ladegrad : 0 );
+	numimp_load.set_limits( 0, 100 );
+	numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
+	numimp_load.add_listener(this);
+	add_komponente(&numimp_load);
 
 	bt_return.init(button_t::roundbox, "return ticket", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
 	bt_return.set_tooltip("Add stops for backward travel");
@@ -363,11 +351,11 @@ void fahrplan_gui_t::update_selection()
 		fpl->aktuell = min(fpl->maxi()-1,fpl->aktuell);
 		if(haltestelle_t::gib_halt(sp->get_welt(), fpl->eintrag[fpl->aktuell].pos).is_bound()) {
 			lb_load.set_color( COL_BLACK );
-			sprintf( str_ladegrad, "%d%%", fpl->eintrag[fpl->aktuell].ladegrad );
+			numimp_load.set_value( fpl->eintrag[fpl->aktuell].ladegrad );
 			if(  fpl->eintrag[fpl->aktuell].ladegrad>0  ) {
 				lb_wait.set_color( COL_BLACK );
 			}
-			if(  fpl->eintrag[fpl->aktuell].ladegrad>0  &&  fpl->eintrag[fpl->aktuell].waiting_time_shift>0) {
+			if(  fpl->eintrag[fpl->aktuell].ladegrad>0  &&  fpl->eintrag[fpl->aktuell].waiting_time_shift>0  ) {
 				sprintf( str_parts_month, "1/%d",  1<<(16-fpl->eintrag[fpl->aktuell].waiting_time_shift) );
 			}
 			else {
@@ -395,9 +383,9 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 		// close combo box; we must do it ourselves, since the box does not recieve outside events ...
 		line_selector.close_box();
 
-		if(ev->my>=scrolly.pos.y+16) {
+		if(ev->my>=scrolly.gib_pos().y+16) {
 			// we are now in the multiline region ...
-			const int line = ( ev->my - scrolly.pos.y + scrolly.get_scroll_y() - 16)/(LINESPACE+1);
+			const int line = ( ev->my - scrolly.gib_pos().y + scrolly.get_scroll_y() - 16)/(LINESPACE+1);
 
 			if(line >= 0 && line < fpl->maxi()) {
 				if(IS_RIGHTCLICK(ev)  ||  ev->mx<16) {
@@ -446,7 +434,7 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 
 
 bool
-fahrplan_gui_t::action_triggered(gui_komponente_t *komp, value_t p)
+fahrplan_gui_t::action_triggered( gui_action_creator_t *komp, value_t p)
 {
 DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_selector);
 
@@ -471,24 +459,9 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		bt_remove.pressed = true;
 		update_werkzeug( false );
 
-	} else if(komp == &bt_prev) {
+	} else if(komp == &numimp_load) {
 		if(fpl->maxi() > 0) {
-			uint8& load = fpl->eintrag[fpl->aktuell].ladegrad;
-			uint8 index=0;
-			while(load>ladegrade[index]) {
-				index ++;
-			}
-			load = ladegrade[(index+MAX_LADEGRADE-1)%MAX_LADEGRADE];
-			update_selection();
-		}
-	} else if(komp == &bt_next) {
-		if(fpl->maxi() > 0) {
-			uint8& load = fpl->eintrag[fpl->aktuell].ladegrad;
-			uint8 index=0;
-			while(load>ladegrade[index]) {
-				index ++;
-			}
-			load = ladegrade[(index+1)%MAX_LADEGRADE];
+			fpl->eintrag[fpl->aktuell].ladegrad = p.i;
 			update_selection();
 		}
 	} else if(komp == &bt_wait_prev) {

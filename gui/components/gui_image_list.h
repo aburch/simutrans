@@ -2,6 +2,7 @@
 #define gui_image_list_h
 
 #include "../../ifc/gui_action_creator.h"
+#include "../../ifc/gui_komponente.h"
 #include "../../tpl/vector_tpl.h"
 #include "../../simimg.h"
 #include "../../simcolor.h"
@@ -22,7 +23,9 @@
  * Eine Komponenete die eine Liste von Bildern darstellt.
  * @author Hj. Malthaner
  */
-class gui_image_list_t : public gui_komponente_action_creator_t
+class gui_image_list_t :
+	public gui_action_creator_t,
+	public gui_komponente_t
 {
 public:
 	struct image_data_t {

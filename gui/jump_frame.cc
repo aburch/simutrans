@@ -46,7 +46,7 @@ jump_frame_t::jump_frame_t(karte_t *welt) :
  * This method is called if an action is triggered
  * @author V. Meyer
  */
-bool jump_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
+bool jump_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp == &input || komp == &jumpbutton) {
 		// OK- Button or Enter-Key pressed

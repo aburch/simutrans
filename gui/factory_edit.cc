@@ -175,7 +175,7 @@ void factory_edit_frame_t::fill_list( bool translate )
 
 
 
-bool factory_edit_frame_t::action_triggered(gui_komponente_t *komp,value_t e)
+bool factory_edit_frame_t::action_triggered( gui_action_creator_t *komp,value_t e)
 {
 	// only one chain can be shown
 	if(  komp==&bt_city_chain  ) {

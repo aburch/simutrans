@@ -322,7 +322,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 
 
 
-bool halt_detail_t::action_triggered(gui_komponente_t *, value_t extra)
+bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
 {
 	if(extra.i&~1) {
 		koord k = *(const koord *)extra.p;

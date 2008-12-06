@@ -989,7 +989,7 @@ void depot_frame_t::image_from_convoi_list(uint nr)
 
 
 
-bool depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
+bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 {
 	convoihandle_t cnv = depot->get_convoi(icnv);
 	if(cnv.is_bound()) {
