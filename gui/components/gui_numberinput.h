@@ -45,11 +45,11 @@ private:
 
 	sint32 value;
 
-	sint32 step_mode;
-
 	sint32 min_value, max_value;
 
 	char textbuffer[20];
+
+	sint32 step_mode;
 
 	bool wrapping;
 
@@ -82,7 +82,7 @@ public:
 	 * any other mode value: actual step size
 	 */
 
-	void set_increment_mode( uint8 m ) { step_mode = m; }
+	void set_increment_mode( sint32 m ) { step_mode = m; }
 
 	// true, if the compnent wraps around
 	bool wrap_mode( bool new_mode ) {
