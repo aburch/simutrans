@@ -260,7 +260,7 @@ fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_, convoihandle_t 
 	add_komponente(&lb_load);
 
 	numimp_load.setze_pos( koord( BUTTON_WIDTH*2-65, ypos+2 ) );
-	numimp_load.setze_groesse( koord( 65, BUTTON_HEIGHT ) );
+	numimp_load.setze_groesse( koord( 60, BUTTON_HEIGHT ) );
 	numimp_load.set_value( (uint)fpl->aktuell < (uint)fpl->maxi() ? fpl->eintrag[fpl->aktuell].ladegrad : 0 );
 	numimp_load.set_limits( 0, 100 );
 	numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
