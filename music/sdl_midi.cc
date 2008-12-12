@@ -89,7 +89,8 @@ long dr_midi_pos(void)
 {
 	if(Mix_PlayingMusic()== 0) {
 		return -1;
-	} else {
+	}
+	else {
 		return 0;
 	}
 }
@@ -120,10 +121,18 @@ void set_midi_pos(int pos)
  */
 bool dr_init_midi(void)
 {
-	if(!SDL_WasInit(SDL_INIT_AUDIO)) {
-		if(SDL_InitSubSystem(SDL_INIT_AUDIO) != -1) {
-			return Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 1024)==0;
+	if(!SDL_WasInit(SDL_INIT_AUDIO)) {				//if audio not init
+		if(SDL_InitSubSystem(SDL_INIT_AUDIO) != -1) {		//if audio subsys is ok
+			if(Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 1024)==-1) {
+				//if OpenAudio returns error, dr_init_midi is false
+				return false;
+			}
+		}
+		else {
+			//if SDL_InitSubSystem returns error, dr_init_midi is false
+			return false;
 		}
 	}
-	return false;
+	//if all is fine, return true
+	return true;
 }

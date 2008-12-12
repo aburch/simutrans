@@ -148,7 +148,9 @@ void grund_t::rdwr(loadsave_t *file)
 		pos.rdwr(file);
 	}
 	else {
-		file->rdwr_byte( pos.z, "" );
+		sint8 z = pos.z;
+		file->rdwr_byte( z, "" );
+		pos.z = z;
 	}
 
 	if(file->is_saving()) {

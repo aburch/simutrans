@@ -21,12 +21,6 @@
 
 
 /*
- * Hajo: flag if midi module should be used
- */
-static int use_midi = 0;
-
-
-/*
  * MIDI: Owen Rudge
  */
 static int midi_number = -1;

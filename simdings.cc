@@ -146,7 +146,7 @@ void ding_t::setze_besitzer(spieler_t *sp)
  * wenn das Objekt niemand gehört.
  * @author Hj. Malthaner
  */
-spieler_t * ding_t::gib_besitzer() const {
+spieler_t *ding_t::gib_besitzer() const {
 	return welt->gib_spieler(besitzer_n);
 }
 
