@@ -50,7 +50,7 @@ void ding_t::init(karte_t *wl)
 	xoff = 0;
 	yoff = 0;
 
-	besitzer_n = -1;
+	besitzer_n = PLAYER_UNOWNED;
 
 	flags = keine_flags;
 	set_flag(dirty);
@@ -133,7 +133,9 @@ ding_t::~ding_t()
  */
 void ding_t::setze_besitzer(spieler_t *sp)
 {
-	besitzer_n = welt->sp2num(sp);
+	int i = welt->sp2num(sp);
+	assert(i>=0);
+	besitzer_n = (uint8)i;
 }
 
 
@@ -145,7 +147,7 @@ void ding_t::setze_besitzer(spieler_t *sp)
  * @author Hj. Malthaner
  */
 spieler_t * ding_t::gib_besitzer() const {
-	return besitzer_n == -1 ? 0 : welt->gib_spieler(besitzer_n);
+	return welt->gib_spieler(besitzer_n);
 }
 
 
@@ -153,7 +155,7 @@ spieler_t * ding_t::gib_besitzer() const {
 void
 ding_t::info(cbuffer_t & buf) const
 {
-	if(besitzer_n==1) {
+	if(besitzer_n==1  ||  besitzer_n==PLAYER_UNOWNED) {
 		buf.append(translator::translate("Eigenbesitz\n"));
 	} else if(besitzer_n==0 || besitzer_n > 1) {
 		buf.append(translator::translate("Spieler"));
@@ -180,7 +182,8 @@ ding_t::ist_entfernbar(const spieler_t *sp)
 {
 	if(besitzer_n<0  ||  gib_besitzer() == sp) {
 		return NULL;
-	} else {
+	}
+	else {
 		return "Der Besitzer erlaubt das Entfernen nicht";
 	}
 }
@@ -191,7 +194,9 @@ void
 ding_t::rdwr(loadsave_t *file)
 {
 	file->wr_obj_id(gib_typ());
-	pos.rdwr( file );
+	if(  file->get_version()<101000) {
+		pos.rdwr( file );
+	}
 
 	sint8 byte = (sint8)(((sint16)16*(sint16)xoff)/TILE_STEPS);
 	file->rdwr_byte(byte, " ");

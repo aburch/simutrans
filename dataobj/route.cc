@@ -161,7 +161,7 @@ route_t::find_route(karte_t *welt,
 
 	// memory in static list ...
 	if(nodes==NULL) {
-		MAX_STEP = umgebung_t::max_route_steps;
+		MAX_STEP = welt->gib_einstellungen()->gib_max_route_steps();
 		nodes = new ANode[MAX_STEP];
 	}
 
@@ -338,7 +338,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 	// memory in static list ...
 	if(nodes==NULL) {
-		MAX_STEP = umgebung_t::max_route_steps;	// may need very much memory => configurable
+		MAX_STEP = welt->gib_einstellungen()->gib_max_route_steps();	// may need very much memory => configurable
 		nodes = new ANode[MAX_STEP + 4 + 2];
 	}
 

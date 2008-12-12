@@ -5,6 +5,7 @@
 
 #include "gui_frame.h"
 #include "components/gui_button.h"
+#include "components/gui_combobox.h"
 #include "components/gui_label.h"
 #include "components/action_listener.h"
 
@@ -24,36 +25,38 @@ private:
 	button_t	player_active[MAX_PLAYER_COUNT-2];
 	button_t	player_get_finances[MAX_PLAYER_COUNT];
 	button_t	player_change_to[MAX_PLAYER_COUNT];
-	karte_t *welt;
+	gui_combobox_t player_select[MAX_PLAYER_COUNT];
 
-public:
-    ki_kontroll_t(karte_t *welt);
-    ~ki_kontroll_t();
+	static karte_t *welt;
 
-    /**
-     * Manche Fenster haben einen Hilfetext assoziiert.
-     * @return den Dateinamen für die Hilfe, oder NULL
-     * @author Hj. Malthaner
-     */
-    const char * gib_hilfe_datei() const {return "players.txt";}
+	public:
+	ki_kontroll_t(karte_t *welt);
+	~ki_kontroll_t();
 
-    /**
-     * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-     * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-     * in dem die Komponente dargestellt wird.
-     * @author Hj. Malthaner
-     */
-    void zeichnen(koord pos, koord gr);
+	/**
+	 * Manche Fenster haben einen Hilfetext assoziiert.
+	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * @author Hj. Malthaner
+	 */
+	const char * gib_hilfe_datei() const {return "players.txt";}
 
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     *
-     * Returns true, if action is done and no more
-     * components should be triggered.
-     * V.Meyer
-     */
-    bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	/**
+	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
+	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
+	 * in dem die Komponente dargestellt wird.
+	 * @author Hj. Malthaner
+	 */
+	void zeichnen(koord pos, koord gr);
+
+	/**
+	 * This method is called if an action is triggered
+	 * @author Hj. Malthaner
+	 *
+	 * Returns true, if action is done and no more
+	 * components should be triggered.
+	 * V.Meyer
+	 */
+	bool action_triggered( gui_action_creator_t *komp, value_t extra);
 };
 
 #endif

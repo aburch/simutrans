@@ -1124,7 +1124,7 @@ void stadt_t::step(long delta_t)
 	next_step += delta_t;
 	next_bau_step += delta_t;
 
-	step_interval = (1 << 21u) / (buildings.get_count() * umgebung_t::passenger_factor + 1);
+	step_interval = (1 << 21u) / (buildings.get_count() * welt->gib_einstellungen()->gib_passenger_factor() + 1);
 	if (step_interval < 1) {
 		step_interval = 1;
 	}
@@ -1348,7 +1348,7 @@ void stadt_t::step_passagiere()
 			max(1,(gb->gib_tile()->gib_besch()->gib_post_level() + 5) >> 4);
 
 	// create pedestrians in the near area?
-	if (umgebung_t::fussgaenger && wtyp == warenbauer_t::passagiere) {
+	if (welt->gib_einstellungen()->gib_random_pedestrians() && wtyp == warenbauer_t::passagiere) {
 		haltestelle_t::erzeuge_fussgaenger(welt, gb->gib_pos(), num_pax);
 	}
 

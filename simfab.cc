@@ -1379,7 +1379,7 @@ fabrik_t::info(cbuffer_t& buf) const
 
 void fabrik_t::laden_abschliessen()
 {
-	if(umgebung_t::crossconnect_factories) {
+	if(welt->gib_einstellungen()->is_crossconnect_factories()) {
 		add_all_suppliers();
 	}
 	else {

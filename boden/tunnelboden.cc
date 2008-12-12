@@ -18,7 +18,7 @@
 
 
 
-tunnelboden_t::tunnelboden_t(karte_t *welt, loadsave_t *file) : boden_t(welt, koord3d(0,0,0),0)
+tunnelboden_t::tunnelboden_t(karte_t *welt, loadsave_t *file, koord pos ) : boden_t(welt, koord3d(pos,0), 0)
 {
 	rdwr(file);
 

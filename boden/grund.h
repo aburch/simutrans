@@ -173,8 +173,6 @@ protected:
 	 */
 	bool is_connected(const grund_t *gr, waytype_t wegtyp, koord dv) const;
 
-	grund_t(karte_t *wl);
-
 public:
 	/**
 	 * setzt die Bildnr. des anzuzeigenden Bodens

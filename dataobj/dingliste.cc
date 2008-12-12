@@ -787,7 +787,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						d = bd;
 					}
 					d->setze_besitzer( gb->gib_besitzer() );
-					spieler_t::add_maintenance( gb->gib_besitzer(), umgebung_t::maint_building);
+					spieler_t::add_maintenance( gb->gib_besitzer(), welt->gib_einstellungen()->maint_building );
 					typ = d->gib_typ();
 
 					// do not remove from this position, since there will be nothing
@@ -904,6 +904,10 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			if(d  &&  d->gib_typ()!=typ) {
 				dbg->warning( "dingliste_t::rdwr()","typ error : %i instead %i on %i,%i, object ignored!", d->gib_typ(), typ, d->gib_pos().x, d->gib_pos().y );
 				d = NULL;
+			}
+
+			if(d  &&  d->gib_pos()==koord3d::invalid) {
+				d->setze_pos( current_pos );
 			}
 
 			if(d  &&  d->gib_pos()!=current_pos) {

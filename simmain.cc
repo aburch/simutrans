@@ -250,160 +250,6 @@ static void ask_objfilename()
 
 
 
-// read the settings from this file
-void
-parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &fullscreen, cstring_t &objfilename, bool &multiuser )
-{
-	tabfileobj_t contents;
-
-	simuconf.read(contents);
-
-	umgebung_t::max_convoihandles = contents.get_int("convoys", umgebung_t::max_convoihandles );
-	umgebung_t::max_linehandles = contents.get_int("lines", umgebung_t::max_linehandles );
-	umgebung_t::max_halthandles = contents.get_int("stations", umgebung_t::max_halthandles );
-
-	umgebung_t::max_route_steps = contents.get_int("max_route_steps", umgebung_t::max_route_steps);
-
-	umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
-	umgebung_t::fussgaenger = contents.get_int("random_pedestrians", umgebung_t::fussgaenger) != 0;
-	umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
-	umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability);
-	umgebung_t::stadtauto_duration = contents.get_int("default_citycar_life", umgebung_t::stadtauto_duration);	// ten normal years
-	umgebung_t::drive_on_left = contents.get_int("drive_left", umgebung_t::drive_on_left );
-
-	umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::verkehrsteilnehmer_info) != 0;
-	umgebung_t::tree_info = contents.get_int("tree_info", umgebung_t::tree_info) != 0;
-	umgebung_t::ground_info = contents.get_int("ground_info", umgebung_t::ground_info) != 0;
-	umgebung_t::townhall_info = contents.get_int("townhall_info", umgebung_t::townhall_info) != 0;
-	umgebung_t::single_info = contents.get_int("only_single_info", umgebung_t::single_info);
-
-	umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", umgebung_t::window_buttons_right);
-	umgebung_t::window_frame_active = contents.get_int("window_frame_active", umgebung_t::window_frame_active);
-
-	umgebung_t::show_tooltips = contents.get_int("show_tooltips", umgebung_t::show_tooltips);
-	umgebung_t::tooltip_color = contents.get_int("tooltip_background_color", umgebung_t::tooltip_color);
-	umgebung_t::tooltip_textcolor = contents.get_int("tooltip_text_color", umgebung_t::tooltip_textcolor);
-
-	umgebung_t::starting_money = contents.get_int("starting_money", umgebung_t::starting_money );
-	umgebung_t::maint_building = contents.get_int("maintenance_building", umgebung_t::maint_building);
-
-	umgebung_t::show_names = contents.get_int("show_names", umgebung_t::show_names);
-	umgebung_t::numbered_stations = contents.get_int("numbered_stations", umgebung_t::numbered_stations) != 0;
-	umgebung_t::station_coverage_size = contents.get_int("station_coverage", umgebung_t::station_coverage_size);
-	// Max number of steps in goods pathfinding
-	umgebung_t::set_max_hops = contents.get_int("max_hops", umgebung_t::set_max_hops );
-	// Max number of transfers in goods pathfinding
-	umgebung_t::max_transfers = contents.get_int("max_transfers", 7);
-	umgebung_t::passenger_factor = contents.get_int("passenger_factor", umgebung_t::passenger_factor); /* this can manipulate the passenger generation */
-
-	// time stuff
-	umgebung_t::show_month = contents.get_int("show_month", umgebung_t::show_month);
-	umgebung_t::bits_per_month = contents.get_int("bits_per_month", umgebung_t::bits_per_month);
-	umgebung_t::use_timeline = contents.get_int("use_timeline", umgebung_t::use_timeline);
-	umgebung_t::starting_year = contents.get_int("starting_year", umgebung_t::starting_year);
-	umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration);
-
-	umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", umgebung_t::intercity_road_length);
-	cstring_t *test = new cstring_t(ltrim(contents.get("intercity_road_type")));
-	if(test->len()>0) {
-		delete umgebung_t::intercity_road_type;
-		umgebung_t::intercity_road_type = test;
-	}
-	else {
-		delete test;
-	}
-	test = new cstring_t(ltrim(contents.get("city_road_type")));
-	if(test->len()>0) {
-		delete umgebung_t::city_road_type;
-		umgebung_t::city_road_type = test;
-	}
-	else {
-		delete test;
-	}
-
-	umgebung_t::pak_diagonal_multiplier = contents.get_int("diagonal_multiplier", umgebung_t::pak_diagonal_multiplier);
-	umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave));
-
-	umgebung_t::factory_spacing = contents.get_int("factory_spacing", umgebung_t::factory_spacing);
-	umgebung_t::crossconnect_factories = contents.get_int("crossconnect_factories", umgebung_t::crossconnect_factories) != 0;
-	umgebung_t::crossconnect_factor = contents.get_int("crossconnect_factories_percentage", umgebung_t::crossconnect_factor);
-	umgebung_t::default_electric_promille = contents.get_int("electric_promille", umgebung_t::default_electric_promille);
-	umgebung_t::just_in_time = contents.get_int("just_in_time", umgebung_t::just_in_time) != 0;
-	umgebung_t::beginner_price_factor = contents.get_int("beginner_price_factor", umgebung_t::beginner_price_factor); /* this manipulates the good prices in beginner mode */
-	umgebung_t::beginner_mode_first = contents.get_int("first_beginner", umgebung_t::beginner_mode_first); /* start in beginner mode */
-
-	/* now the cost section */
-	umgebung_t::cst_multiply_dock = contents.get_int("cost_multiply_dock", umgebung_t::cst_multiply_dock/(-100) ) * -100;
-	umgebung_t::cst_multiply_station = contents.get_int("cost_multiply_station", umgebung_t::cst_multiply_station/(-100) ) * -100;
-	umgebung_t::cst_multiply_roadstop = contents.get_int("cost_multiply_roadstop", umgebung_t::cst_multiply_roadstop/(-100) ) * -100;
-	umgebung_t::cst_multiply_airterminal = contents.get_int("cost_multiply_airterminal", umgebung_t::cst_multiply_airterminal/(-100) ) * -100;
-	umgebung_t::cst_multiply_post = contents.get_int("cost_multiply_post", umgebung_t::cst_multiply_post/(-100) ) * -100;
-	umgebung_t::cst_multiply_headquarter = contents.get_int("cost_multiply_headquarter", umgebung_t::cst_multiply_headquarter/(-100) ) * -100;
-	umgebung_t::cst_depot_air = contents.get_int("cost_depot_air", umgebung_t::cst_depot_air/(-100) ) * -100;
-	umgebung_t::cst_depot_rail = contents.get_int("cost_depot_rail", umgebung_t::cst_depot_rail/(-100) ) * -100;
-	umgebung_t::cst_depot_road = contents.get_int("cost_depot_road", umgebung_t::cst_depot_road/(-100) ) * -100;
-	umgebung_t::cst_depot_ship = contents.get_int("cost_depot_ship", umgebung_t::cst_depot_ship/(-100) ) * -100;
-	umgebung_t::cst_signal = contents.get_int("cost_signal", umgebung_t::cst_signal/(-100) ) * -100;
-	umgebung_t::cst_tunnel = contents.get_int("cost_tunnel", umgebung_t::cst_tunnel/(-100) ) * -100;
-	umgebung_t::cst_third_rail = contents.get_int("cost_third_rail", umgebung_t::cst_third_rail/(-100) ) * -100;
-
-	// alter landscape
-	umgebung_t::cst_buy_land = contents.get_int("cost_buy_land", umgebung_t::cst_buy_land/(-100) ) * -100;
-	umgebung_t::cst_alter_land = contents.get_int("cost_alter_land", umgebung_t::cst_alter_land/(-100) ) * -100;
-	umgebung_t::cst_set_slope = contents.get_int("cost_set_slope", umgebung_t::cst_set_slope/(-100) ) * -100;
-	umgebung_t::cst_found_city = contents.get_int("cost_found_city", umgebung_t::cst_found_city/(-100) ) * -100;
-	umgebung_t::cst_multiply_found_industry = contents.get_int("cost_multiply_found_industry", umgebung_t::cst_multiply_found_industry/(-100) ) * -100;
-	umgebung_t::cst_remove_tree = contents.get_int("cost_remove_tree", umgebung_t::cst_remove_tree/(-100) ) * -100;
-	umgebung_t::cst_multiply_remove_haus = contents.get_int("cost_multiply_remove_haus", umgebung_t::cst_multiply_remove_haus/(-100) ) * -100;
-	umgebung_t::cst_multiply_remove_field = contents.get_int("cost_multiply_remove_field", umgebung_t::cst_multiply_remove_field/(-100) ) * -100;
-	// powerlines
-	umgebung_t::cst_transformer = contents.get_int("cost_transformer", umgebung_t::cst_transformer/(-100) ) * -100;
-	umgebung_t::cst_maintain_transformer = contents.get_int("cost_maintain_transformer", umgebung_t::cst_maintain_transformer/(-100) ) * -100;
-
-	/* now the way builder */
-	umgebung_t::way_count_straight = contents.get_int("way_straight", umgebung_t::way_count_straight);
-	umgebung_t::way_count_curve = contents.get_int("way_curve", umgebung_t::way_count_curve);
-	umgebung_t::way_count_double_curve = contents.get_int("way_double_curve", umgebung_t::way_count_double_curve);
-	umgebung_t::way_count_90_curve = contents.get_int("way_90_curve", umgebung_t::way_count_90_curve);
-	umgebung_t::way_count_slope = contents.get_int("way_slope", umgebung_t::way_count_slope);
-	umgebung_t::way_count_tunnel = contents.get_int("way_tunnel", umgebung_t::way_count_tunnel);
-	umgebung_t::way_max_bridge_len = contents.get_int("way_max_bridge_len", umgebung_t::way_max_bridge_len);
-	umgebung_t::way_count_leaving_road = contents.get_int("way_leaving_road", umgebung_t::way_count_leaving_road);
-
-	/*
-	* Selection of savegame format through inifile
-	*/
-	const char *str = contents.get("saveformat");
-	while (*str == ' ') str++;
-	if (strcmp(str, "binary") == 0) {
-		loadsave_t::set_savemode(loadsave_t::binary);
-	} else if(strcmp(str, "zipped") == 0) {
-		loadsave_t::set_savemode(loadsave_t::zipped);
-	} else if(strcmp(str, "text") == 0) {
-		loadsave_t::set_savemode(loadsave_t::text);
-	}
-
-	/*
-	 * Default resolution
-	 */
-	disp_width = contents.get_int("display_width", disp_width);
-	disp_height = contents.get_int("display_height", disp_height);
-	fullscreen = contents.get_int("fullscreen", fullscreen);
-	umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps);
-
-	// Default pak file path
-	objfilename = ltrim(contents.get_string("pak_file_path", "" ));
-
-	// use different save directories
-	multiuser &= contents.get_int("singleuser_install", 1)==1;
-
-	print("Reading simuconf.tab successful!\n");
-
-	simuconf.close();
-}
-
-
-
 /**
  * Dies wird in main mittels set_new_handler gesetzt und von der
  * Laufzeitumgebung im Falle des Speichermangels bei new() aufgerufen
@@ -434,7 +280,7 @@ static const char *gimme_arg(int argc, char *argv[], const char *arg, int off)
 
 int simu_main(int argc, char** argv)
 {
-	static const int resolutions[][2] = {
+	static const sint16 resolutions[][2] = {
 		{  640,  480 },
 		{  800,  600 },
 		{ 1024,  768 },
@@ -444,9 +290,9 @@ int simu_main(int argc, char** argv)
 
 	FILE * config = NULL; // die konfigurationsdatei
 
-	int disp_width = 0;
-	int disp_height = 0;
-	int fullscreen = false;
+	sint16 disp_width = 0;
+	sint16 disp_height = 0;
+	sint16 fullscreen = false;
 
 #ifdef _MSC_VER
 	_set_new_handler(sim_new_handler);
@@ -503,11 +349,12 @@ int simu_main(int argc, char** argv)
 	}
 
 	// only the pak specifiy conf should overide this!
-	uint16 pak_diagonal_multiplier = umgebung_t::pak_diagonal_multiplier;
+	uint16 pak_diagonal_multiplier = umgebung_t::default_einstellungen.gib_pak_diagonal_multiplier();
 
 	// unmgebung init
-	umgebung_t::testlauf      = (gimme_arg(argc, argv, "-test",     0) != NULL);
-	umgebung_t::freeplay      = (gimme_arg(argc, argv, "-freeplay", 0) != NULL);
+	if(  (gimme_arg(argc, argv, "-freeplay", 0) != NULL)  ) {
+		umgebung_t::default_einstellungen.setze_freeplay( true );
+	}
 	if(  gimme_arg(argc, argv, "-debug", 0) != NULL  ) {
 		const char *s = gimme_arg(argc, argv, "-debug", 1);
 		int level = 4;
@@ -525,8 +372,29 @@ int simu_main(int argc, char** argv)
 	tabfile_t simuconf;
 	if(simuconf.open("config/simuconf.tab")) {
 		printf("parse_simuconf() at config/simuconf.tab");
- 		parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename, multiuser );
+		tabfileobj_t contents;
+		simuconf.read(contents);
+		// use different save directories
+		multiuser = contents.get_int("singleuser_install", 1)==1;
 		found_simuconf = true;
+	}
+
+	// now read last setting (might be overwritten by the tab-files)
+	loadsave_t file;
+	if(file.rd_open("default.sve")) {
+		// first: load default world setting
+		umgebung_t::default_einstellungen.rdwr(&file);
+		file.close();
+	}
+	if(file.rd_open("display.sve")) {
+		// then: load default environment setting (not game critical)
+		umgebung_t::rdwr(&file);
+		file.close();
+	}
+
+	// continue parsing ...
+	if(  found_simuconf  ) {
+		umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 		simuconf.close();
 	}
 
@@ -538,7 +406,7 @@ int simu_main(int argc, char** argv)
 		cstring_t obj_conf = umgebung_t::user_dir;
 		if(simuconf.open(obj_conf + "simuconf.tab")) {
 			printf("parse_simuconf() at %ssimuconf.tab", (const char *)obj_conf);
-			parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename, multiuser );
+			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 		}
 	}
 	else {
@@ -656,32 +524,30 @@ int simu_main(int argc, char** argv)
 	cstring_t obj_conf = umgebung_t::objfilename + "config/simuconf.tab";
 	cstring_t dummy("");
 	if(simuconf.open((const char *)obj_conf)) {
-		int idummy;
+		sint16 idummy;
 		printf("parse_simuconf() at %sconfig/simuconf.tab", (const char *)obj_conf);
-		parse_simuconf( simuconf, idummy, idummy, idummy, dummy, multiuser );
-		pak_diagonal_multiplier = umgebung_t::pak_diagonal_multiplier;
+		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
+		pak_diagonal_multiplier = umgebung_t::default_einstellungen.gib_pak_diagonal_multiplier();
 		simuconf.close();
 	}
 	// and parse again parse the user settings
 	if(umgebung_t::user_dir!=umgebung_t::program_dir) {
 		cstring_t obj_conf = umgebung_t::user_dir;
 		if(simuconf.open(obj_conf + "simuconf.tab")) {
-			int idummy;
+			sint16 idummy;
 			printf("parse_simuconf() at %ssimuconf.tab", (const char *)obj_conf);
-			parse_simuconf( simuconf, idummy, idummy, idummy, dummy, multiuser );
+			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
 		}
 	}
 
 	// now (re)set the correct length from the pak
-	umgebung_t::pak_diagonal_multiplier = pak_diagonal_multiplier;
+	umgebung_t::default_einstellungen.setze_pak_diagonal_multiplier( pak_diagonal_multiplier );
 	vehikel_basis_t::set_diagonal_multiplier( pak_diagonal_multiplier, pak_diagonal_multiplier );
 
 	convoihandle_t::init( umgebung_t::max_convoihandles );
 	linehandle_t::init( umgebung_t::max_linehandles );
 	halthandle_t::init( umgebung_t::max_halthandles );
-	// Max number of steps in goods pathfinding
-	haltestelle_t::set_max_hops( umgebung_t::set_max_hops );
 
 	// just check before loading objects
 	if (!gimme_arg(argc, argv, "-nosound", 0)  &&  dr_init_sound()) {
@@ -692,13 +558,14 @@ int simu_main(int argc, char** argv)
 		sound_set_mute(true);
 	}
 
-
 	// Adam - Moved away loading from simmain and placed into translator for better modularisation
 	if (!translator::load(umgebung_t::objfilename)) {
 		// installation error: likely only program started
 		dbg->fatal("simmain::main()", "Unable to load any language files\n*** PLEASE INSTALL PROPER BASE FILES ***\n");
 		exit(11);
 	}
+	// restore old language
+	translator::set_language( umgebung_t::language_iso );
 
 	print("Reading city configuration ...\n");
 	stadt_t::cityrules_init(umgebung_t::objfilename);
@@ -752,12 +619,16 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	if (gimme_arg(argc, argv, "-timeline", 0) != NULL) {
 		const char* ref_str = gimme_arg(argc, argv, "-timeline", 1);
-		if (ref_str != NULL) umgebung_t::use_timeline = atoi(ref_str);
+		if (ref_str != NULL) {
+			umgebung_t::default_einstellungen.setze_use_timeline( atoi(ref_str) );
+		}
 	}
 
 	if (gimme_arg(argc, argv, "-startyear", 0) != NULL) {
 		const char * ref_str = gimme_arg(argc, argv, "-startyear", 1); //1930
-		if (ref_str != NULL) umgebung_t::starting_year = atoi(ref_str);
+		if (ref_str != NULL) {
+			umgebung_t::default_einstellungen.setze_starting_year( clamp(atoi(ref_str),1,2999) );
+		}
 	}
 
 	// now always writing in user dir (which points the the program dir in multiuser mode)
@@ -780,79 +651,15 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		midi_set_mute(true);
 	}
 
-	/* Jetzt, nachdem die Kommandozeile ausgewertet ist, koennen wir die
-	 * Konfigurationsdatei lesen, und ggf. einige Einstellungen setzen
-	 */
-	config = fopen("simworld.cfg", "rb");
-	char lang_iso[3] = "";
-	if (config) {
-		fscanf(config, "Lang=%2s\n", lang_iso);
-
-		int dn = 0;
-		fscanf(config, "DayNight=%d\n", &dn);
-		umgebung_t::night_shift = (dn != 0);
-
-		int b[6];
-		fscanf(config, "AIs=%i,%i,%i,%i,%i,%i\n", &b[0], &b[1], &b[2], &b[3], &b[4], &b[5]);
-		for (int i = 0; i < 6; i++) {
-			umgebung_t::automaten[i+2] = b[i];
-		}
-
-		fscanf(
-			config, "Messages=%d,%d,%d,%d\n",
-			&umgebung_t::message_flags[0],
-			&umgebung_t::message_flags[1],
-			&umgebung_t::message_flags[2],
-			&umgebung_t::message_flags[3]
-		);
-
-		// set visual defaults
-		b[0] = umgebung_t::hide_with_transparency;
-		b[1] = umgebung_t::hide_trees;
-		b[2] = umgebung_t::hide_buildings;
-		b[3] = umgebung_t::use_transparency_station_coverage;
-		b[4] = umgebung_t::station_coverage_show;
-		b[5] = umgebung_t::show_names;
-		fscanf(config, "Visual=%d,%d,%d,%d,%d,%d\n", &b[0], &b[1], &b[2], &b[3], &b[4], &b[5] );
-		umgebung_t::hide_with_transparency = b[0]!=0;
-		umgebung_t::hide_trees = b[1]!=0;
-		umgebung_t::hide_buildings = b[2];
-		umgebung_t::use_transparency_station_coverage = b[3]!=0;
-		umgebung_t::station_coverage_show = b[4]!=0;
-		umgebung_t::show_names = b[5];
-
-		int midi_volume=128, sound_volume=128;
-		fscanf(config, "SoundMidiVolume=%d,%d\n", &sound_volume, &midi_volume );
-
-		int i_shuffle_music=false;
-		fscanf(config, "SoundShuffle=%d,%*d\n", &i_shuffle_music );
-		sound_set_shuffle_midi( i_shuffle_music!=0 );
-
-		int map_mode=0;
-		fscanf(config, "MapMode=%d\n", &map_mode );
-		umgebung_t::default_mapmode = map_mode;
-
-		int sort_mode=0;
-		fscanf(config, "WareSortMode=%d\n", &sort_mode );
-		umgebung_t::default_sortmode = sort_mode;
-
-		int sound_mute=0, midi_mute=0;
-		if(fscanf(config, "MuteSoundMidi=%d,%d\n", &sound_mute, &midi_mute )==2) {
-			sound_set_mute( sound_mute  ||  sound_get_mute() );
-			midi_set_mute( midi_mute  ||  midi_get_mute() );
-		}
-		else {
-			sound_set_mute( sound_volume==0 );
-			midi_set_mute( midi_volume==0  ||  midi_get_mute() );
-		}
-		sound_set_global_volume(sound_volume);
-		sound_set_midi_volume(midi_volume);
+	// restore previous sound settings ...
+	sound_set_shuffle_midi( umgebung_t::shuffle_midi!=0 );
+	sound_set_mute(  umgebung_t::mute_sound  ||  sound_get_mute() );
+	midi_set_mute(  umgebung_t::mute_midi  ||  midi_get_mute() );
+	sound_set_global_volume( umgebung_t::global_volume );
+	sound_set_midi_volume( umgebung_t::midi_volume );
+	if(!midi_get_mute()) {
 		// not muted => play first song
-		if(!midi_get_mute()) {
-			midi_play(0);
-		}
-
-		fclose(config);
+		midi_play(0);
 	}
 
 	karte_t *welt = new karte_t();
@@ -873,7 +680,15 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	if(loadgame==""  ||  !welt->laden(loadgame)) {
 		// create a default map
 DBG_MESSAGE("init","map");
-		welt->init(welt->gib_einstellungen(),0);
+		einstellungen_t sets = umgebung_t::default_einstellungen;
+		sets.setze_groesse(64,64);
+		sets.setze_anzahl_staedte(1);
+		sets.setze_land_industry_chains(1);
+		sets.setze_electric_promille(0);
+		sets.setze_tourist_attractions(1);
+		sets.setze_verkehr_level(7);
+		sets.setze_karte_nummer( 33 );
+		welt->init(&sets,0);
 	}
 
 #ifdef DEBUG
@@ -915,7 +730,10 @@ DBG_MESSAGE("init","map");
 
 	welt->setze_dirty();
 
+	// Hajo: simgraph init loads default fonts, now we need to load
+	// the real fonts for the current language
 	translator::set_language("en");
+	sprachengui_t::init_font_from_lang();
 
 	welt->get_message()->clear();
 	ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
@@ -924,42 +742,6 @@ DBG_MESSAGE("init","map");
 
 	intr_set(welt, view);
 
-	// Hajo: simgraph init loads default fonts, now we need to load
-	// the real fonts for the current language
-	translator::set_language(lang_iso);
-	sprachengui_t::init_font_from_lang();
-
-	einstellungen_t *sets = new einstellungen_t(*welt->gib_einstellungen());
-	if(new_world) {
-		// load the default settings for new maps
-		loadsave_t  file;
-		if(file.rd_open("default.sve")  &&
-			// correct version number?
-			(  (sint32)file.get_version()!=-1  ||  file.get_version()<=loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL )  )
-		) {
-			sets->rdwr(&file);
-			file.close();
-		}
-		else {
-			// default without a matching file ...
-			sets->setze_groesse(256, 256);
-			sets->setze_anzahl_staedte(16);
-			sets->setze_land_industry_chains(6);
-			sets->setze_electric_promille(33);
-			sets->setze_tourist_attractions(12);
-			sets->setze_karte_nummer(simrand(999));
-			sets->setze_allow_player_change(true);
-			sets->setze_station_coverage(umgebung_t::station_coverage_size);
-			sets->setze_use_timeline(umgebung_t::use_timeline == 1);
-			sets->setze_starting_year(umgebung_t::starting_year);
-		}
-		sets->setze_station_coverage(umgebung_t::station_coverage_size);
-		sets->setze_bits_per_month(umgebung_t::bits_per_month);
-		sets->setze_beginner_mode(umgebung_t::beginner_mode_first);
-		sets->setze_just_in_time(umgebung_t::just_in_time);
-		sets->setze_electric_promille( umgebung_t::default_electric_promille );
-	}
-
 	do {
 		// play next tune?
 		check_midi();
@@ -967,10 +749,10 @@ DBG_MESSAGE("init","map");
 		// to purge all previous old messages
 		welt->get_message()->set_message_flags(umgebung_t::message_flags[0], umgebung_t::message_flags[1], umgebung_t::message_flags[2], umgebung_t::message_flags[3]);
 
-		if (!umgebung_t::testlauf && new_world) {
-			welt_gui_t *wg = new welt_gui_t(welt, sets);
+		if (new_world) {
+			welt_gui_t *wg = new welt_gui_t(welt, &umgebung_t::default_einstellungen);
 			sprachengui_t* sg = new sprachengui_t();
-			climate_gui_t* cg = new climate_gui_t(wg, sets);
+			climate_gui_t* cg = new climate_gui_t(wg, &umgebung_t::default_einstellungen);
 			event_t ev;
 
 			view->display(true);
@@ -1028,14 +810,14 @@ DBG_MESSAGE("init","map");
 				create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->gib_bild_nr(0)), w_info, magic_none);
 				intr_refresh_display(true);
 
-				sets->heightfield = "";
-				welt->init(sets,0);
+				umgebung_t::default_einstellungen.heightfield = "";
+				welt->init(&umgebung_t::default_einstellungen,0);
 
 				// save setting ...
 				loadsave_t file;
 				if(file.wr_open("default.sve",loadsave_t::binary,"settings only")) {
 					// save default setting
-					sets->rdwr(&file);
+					umgebung_t::default_einstellungen.rdwr(&file);
 					file.close();
 				}
 				destroy_all_win();
@@ -1049,8 +831,7 @@ DBG_MESSAGE("init","map");
 				destroy_win( magic_climate );
 				destroy_win( magic_sprachengui_t );
 				destroy_win( magic_welt_gui_t );
-				einstellungen_t *sets = wg->gib_sets();
-				welt->load_heightfield(sets);
+				welt->load_heightfield(&umgebung_t::default_einstellungen);
 				delete wg;
 			} else {
 				destroy_win( magic_climate );
@@ -1072,9 +853,22 @@ DBG_MESSAGE("init","map");
 		welt->get_message()->get_message_flags(&umgebung_t::message_flags[0], &umgebung_t::message_flags[1], &umgebung_t::message_flags[2], &umgebung_t::message_flags[3]);
 		welt->set_fast_forward(false);
 
-	} while (!umgebung_t::testlauf && !umgebung_t::quit_simutrans);
+	} while (!umgebung_t::quit_simutrans);
 
 	intr_disable();
+
+	// save setting ...
+	if(file.wr_open("default.sve",loadsave_t::binary,"settings only")) {
+		// save default setting
+		umgebung_t::default_einstellungen.rdwr(&file);
+		file.close();
+	}
+
+	if(file.wr_open("display.sve",loadsave_t::binary,"environment only")) {
+		// save default setting
+		umgebung_t::rdwr(&file);
+		file.close();
+	}
 
 	delete welt;
 	welt = NULL;
@@ -1082,55 +876,7 @@ DBG_MESSAGE("init","map");
 	delete view;
 	view = 0;
 
-
 	simgraph_exit();
-
-	/* Zu guter Letzt schreiben wir noch die akuellen Einstellungen in eine
-	 * Konfigurationsdatei
-	 */
-	config = fopen("simworld.cfg", "wb");
-	if (config != NULL) {
-		fprintf(config, "Lang=%s\n", translator::get_lang()->iso_base);
-		fprintf(config, "DayNight=%d\n", umgebung_t::night_shift);
-		fprintf(
-			config, "AIs=%d,%d,%d,%d,%d,%d\n",
-			umgebung_t::automaten[2],
-			umgebung_t::automaten[3],
-			umgebung_t::automaten[4],
-			umgebung_t::automaten[5],
-			umgebung_t::automaten[6],
-			umgebung_t::automaten[7]/*,
-			umgebung_t::automaten[8],
-			umgebung_t::automaten[9],
-			umgebung_t::automaten[10],
-			umgebung_t::automaten[11],
-			umgebung_t::automaten[12],
-			umgebung_t::automaten[13],
-			umgebung_t::automaten[14]*/
-		);
-		fprintf(
-			config, "Messages=%d,%d,%d,%d\n",
-			umgebung_t::message_flags[0],
-			umgebung_t::message_flags[1],
-			umgebung_t::message_flags[2],
-			umgebung_t::message_flags[3]
-		);
-		fprintf(
-			config, "Visual=%d,%d,%d,%d,%d,%d\n",
-			umgebung_t::hide_with_transparency,
-			umgebung_t::hide_trees,
-			umgebung_t::hide_buildings,
-			umgebung_t::use_transparency_station_coverage,
-			umgebung_t::station_coverage_show,
-			umgebung_t::show_names
-		);
-		fprintf(config, "SoundMidiVolume=%d,%d\n", sound_get_global_volume(), sound_get_midi_volume() );
-		fprintf(config, "SoundShuffle=%d,%d\n", sound_get_shuffle_midi(), 0 );
-		fprintf(config, "MapMode=%d\n", umgebung_t::default_mapmode );
-		fprintf(config, "WareSortMode=%d\n", umgebung_t::default_sortmode );
-		fprintf(config, "MuteSoundMidi=%d,%d\n", (int)sound_get_mute(), (int)midi_get_mute() );
-		fclose(config);
-	}
 
 	close_midi();
 

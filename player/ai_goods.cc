@@ -294,8 +294,8 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	halthandle_t halt = haltestelle_t::gib_halt(welt,platz1);
 	koord pos1 = platz1 - koord(gr->gib_grund_hang())*h->gib_groesse().y;
 	koord best_pos = pos1;
-	for(  int y = pos1.y-umgebung_t::station_coverage_size;  y<=pos1.y+umgebung_t::station_coverage_size;  y++  ) {
-		for(  int x = pos1.x-umgebung_t::station_coverage_size;  x<=pos1.x+umgebung_t::station_coverage_size;  x++  ) {
+	for(  int y = pos1.y-welt->gib_einstellungen()->gib_station_coverage();  y<=pos1.y+welt->gib_einstellungen()->gib_station_coverage();  y++  ) {
+		for(  int x = pos1.x-welt->gib_einstellungen()->gib_station_coverage();  x<=pos1.x+welt->gib_einstellungen()->gib_station_coverage();  x++  ) {
 			koord p(x,y);
 			const planquadrat_t *plan = welt->lookup(p);
 			if(plan) {

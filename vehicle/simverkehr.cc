@@ -396,7 +396,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
 		besch = liste.at_weight(simrand(liste.get_sum_weight()));
 	}
 	pos_next_next = koord3d::invalid;
-	time_to_life = umgebung_t::stadtauto_duration << welt->ticks_bits_per_tag;
+	time_to_life = welt->gib_einstellungen()->gib_stadtauto_duration() << welt->ticks_bits_per_tag;
 	current_speed = 48;
 	ms_traffic_jam = 0;
 #ifdef DESTINATION_CITYCARS

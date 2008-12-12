@@ -1369,7 +1369,7 @@ void vehikel_t::rdwr_from_convoi(loadsave_t *file)
 		file->rdwr_long(fracht_count, " ");
 		file->rdwr_long(l, "\n");
 		route_index = (uint16)l;
-		insta_zeit = (insta_zeit >> welt->ticks_bits_per_tag) + umgebung_t::starting_year;
+		insta_zeit = (insta_zeit >> welt->ticks_bits_per_tag) + welt->gib_einstellungen()->gib_starting_year();
 DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/12);
 	}
 	else {

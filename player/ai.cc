@@ -347,8 +347,8 @@ bool ai_t::built_update_headquarter()
 	// is the a suitable one?
 	if(besch!=NULL) {
 		// cost is negative!
-		sint64 cost = umgebung_t::cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h();
-		if(  konto+cost > umgebung_t::starting_money  ) {
+		sint64 cost = welt->gib_einstellungen()->cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h();
+		if(  konto+cost > welt->gib_einstellungen()->gib_starting_money()  ) {
 			// and enough money left ...
 			koord place = get_headquarter_pos();
 			if(place!=koord::invalid) {

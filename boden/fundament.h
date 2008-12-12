@@ -19,7 +19,7 @@ protected:
 	void calc_bild_internal();
 
 public:
-	fundament_t(karte_t *welt, loadsave_t *file);
+	fundament_t(karte_t *welt, loadsave_t *file, koord pos );
 	fundament_t(karte_t *welt, koord3d pos,hang_t::typ hang);
 
 	/**

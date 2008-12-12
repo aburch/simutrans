@@ -417,6 +417,8 @@ void translator::set_language(int lang)
 {
 	if (0 <= lang && lang < single_instance.lang_count) {
 		single_instance.current_lang = lang;
+		umgebung_t::language_iso = langs[lang].iso;
+		umgebung_t::default_einstellungen.setze_name_language_iso( langs[lang].iso );
 		display_set_unicode(langs[lang].utf_encoded);
 		init_city_names(langs[lang].utf_encoded);
 		DBG_MESSAGE("translator::set_language()", "%s, unicode %d", langs[lang].name, langs[lang].utf_encoded);
@@ -428,9 +430,9 @@ void translator::set_language(int lang)
 
 void translator::set_language(const char* iso)
 {
-	for (int i = 0; i < single_instance.lang_count; i++) {
+	for(  int i = 0;  i < single_instance.lang_count;  i++  ) {
 		const char* iso_base = langs[i].iso_base;
-		if (iso_base[0] == iso[0] && iso_base[1] == iso[1]) {
+		if(  iso_base[0] == iso[0]  &&  iso_base[1] == iso[1]  ) {
 			set_language(i);
 			return;
 		}

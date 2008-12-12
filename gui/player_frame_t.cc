@@ -18,12 +18,17 @@
 #include "../simcolor.h"
 #include "../simworld.h"
 #include "../dataobj/umgebung.h"
+#include "../dataobj/translator.h"
 
 #include "../simwin.h"
 #include "../utils/simstring.h"
 
 #include "money_frame.h" // for the finances
 #include "player_frame_t.h"
+
+
+karte_t *ki_kontroll_t::welt = NULL;
+
 
 ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 	gui_frame_t("Spielerliste")
@@ -34,21 +39,43 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 
 		player_change_to[i].init(button_t::arrowright_state, " ", koord(16+4,6+i*2*LINESPACE), koord(10,BUTTON_HEIGHT));
 		player_change_to[i].add_listener(this);
-		add_komponente(player_change_to+i);
+
+		ai_income[i] = new gui_label_t(account_str[i], MONEY_PLUS, gui_label_t::money);
+		ai_income[i]->setze_pos( koord( 225, 8+i*2*LINESPACE ) );
 
 		if(i>=2) {
 			player_active[i-2].init(button_t::square_state, " ", koord(4,6+i*2*LINESPACE), koord(10,BUTTON_HEIGHT));
 			player_active[i-2].add_listener(this);
-			add_komponente( player_active+i-2 );
+			if(  welt->gib_spieler(i)  ) {
+				add_komponente( player_active+i-2 );
+			}
 		}
 
-		player_get_finances[i].init(button_t::box, welt->gib_spieler(i)->gib_name(), koord(34,4+i*2*LINESPACE), koord(120,BUTTON_HEIGHT));
-		player_get_finances[i].background =PLAYER_FLAG|(welt->gib_spieler(i)->get_player_color1()+4 );
-		player_get_finances[i].add_listener(this);
-		add_komponente( player_get_finances+i );
+		if(welt->gib_spieler(i)!=NULL  &&  welt->gib_einstellungen()->gib_allow_player_change()) {
+			// allow change to human and public
+			add_komponente(player_change_to+i);
+		}
 
-		ai_income[i] = new gui_label_t(account_str[i], MONEY_PLUS, gui_label_t::money);
-		ai_income[i]->setze_pos( koord( 225, 8+i*2*LINESPACE ) );
+		player_get_finances[i].init(button_t::box, "", koord(34,4+i*2*LINESPACE), koord(120,BUTTON_HEIGHT));
+		player_get_finances[i].background =PLAYER_FLAG|((wl->gib_spieler(i)?welt->gib_spieler(i)->get_player_color1():i*8)+4);
+		player_get_finances[i].add_listener(this);
+		player_select[i].setze_pos( koord(34,4+i*2*LINESPACE) );
+		player_select[i].setze_groesse( koord(120,BUTTON_HEIGHT) );
+		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("slot empty"), COL_BLACK ) );
+		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Manual (Human)"), COL_BLACK ) );
+		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Goods AI"), COL_BLACK ) );
+		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passenger AI"), COL_BLACK ) );
+		player_select[i].set_selection(0);
+		player_select[i].add_listener(this);
+		if(  welt->gib_spieler(i)!=NULL  ) {
+			player_get_finances[i].setze_text( welt->gib_spieler(i)->gib_name() );
+			add_komponente( player_get_finances+i );
+		}
+		else {
+			// init player selection dialoge
+			add_komponente( player_select+i );
+		}
+
 		add_komponente( ai_income[i] );
 	}
 	setze_fenstergroesse(koord(260, MAX_PLAYER_COUNT*LINESPACE*2+16));
@@ -75,7 +102,19 @@ ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(i>=2  &&  komp==(player_active+i-2)) {
 			// switch AI on/off
-			umgebung_t::automaten[i] = welt->gib_spieler(i)->set_active( !welt->gib_spieler(i)->is_active() );
+			if(  welt->gib_spieler(i)==NULL  ) {
+				welt->new_spieler( i, player_select[i].get_selection() );
+				welt->gib_einstellungen()->set_player_type( i, welt->gib_spieler(i)->get_ai_id() );
+				remove_komponente( player_select+i );
+				add_komponente( player_change_to+i );
+				player_get_finances[i].setze_text( welt->gib_spieler(i)->gib_name() );
+				add_komponente( player_get_finances+i );
+				welt->gib_spieler(i)->set_active( true );
+			}
+			else {
+				welt->gib_spieler(i)->set_active( !welt->gib_spieler(i)->is_active() );
+			}
+			welt->gib_einstellungen()->set_player_active( i, welt->gib_spieler(i)->is_active() );
 			break;
 		}
 		if(komp==(player_get_finances+i)) {
@@ -87,6 +126,17 @@ ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		if(komp==(player_change_to+i)) {
 			// make active player
 			welt->switch_active_player(i);
+			break;
+		}
+		if(komp==(player_select+i)) {
+			// make active player
+			remove_komponente( player_active+i-2 );
+			if(  player_select[i].get_selection()>0  ) {
+				add_komponente( player_active+i-2 );
+			}
+			else {
+				player_select[i].set_selection(0);
+			}
 			break;
 		}
 	}
@@ -107,12 +157,24 @@ ki_kontroll_t::zeichnen(koord pos, koord gr)
 		player_change_to[i].pressed = false;
 
 		if(i>=2) {
-			player_active[i-2].pressed = umgebung_t::automaten[i];
+			player_active[i-2].pressed = welt->gib_spieler(i)!=NULL  &&  welt->gib_spieler(i)->is_active();
 		}
 
-		double account=welt->gib_spieler(i)->gib_konto_als_double();
-		money_to_string(account_str[i], account );
-		ai_income[i]->set_color( account>=0.0 ? MONEY_PLUS : MONEY_MINUS );
+		spieler_t *sp = welt->gib_spieler(i);
+		if(  sp!=NULL  ) {
+			if(sp->get_finance_history_year(0, COST_NETWEALTH)<0) {
+				ai_income[i]->set_color( MONEY_MINUS );
+				tstrncpy(account_str[i], translator::translate("Company bankrupt"), 31 );
+			}
+			else {
+				double account=sp->gib_konto_als_double();
+				money_to_string(account_str[i], account );
+				ai_income[i]->set_color( account>=0.0 ? MONEY_PLUS : MONEY_MINUS );
+			}
+		}
+		else {
+			account_str[i][0] = 0;
+		}
 	}
 
 	player_change_to[welt->get_active_player_nr()].pressed = true;

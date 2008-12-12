@@ -344,10 +344,10 @@ haltestelle_t::~haltestelle_t()
 	}
 
 	// remove from all haltlists
-	ul.x = max( 0, ul.x-umgebung_t::station_coverage_size );
-	ul.y = max( 0, ul.y-umgebung_t::station_coverage_size );
-	lr.x = min( welt->gib_groesse_x(), lr.x+1+umgebung_t::station_coverage_size );
-	lr.y = min( welt->gib_groesse_y(), lr.y+1+umgebung_t::station_coverage_size );
+	ul.x = max( 0, ul.x-welt->gib_einstellungen()->gib_station_coverage() );
+	ul.y = max( 0, ul.y-welt->gib_einstellungen()->gib_station_coverage() );
+	lr.x = min( welt->gib_groesse_x(), lr.x+1+welt->gib_einstellungen()->gib_station_coverage() );
+	lr.y = min( welt->gib_groesse_y(), lr.y+1+welt->gib_einstellungen()->gib_station_coverage() );
 	for(  int y=ul.y;  y<lr.y;  y++  ) {
 		for(  int x=ul.x;  x<lr.x;  x++  ) {
 			planquadrat_t *plan = welt->access(x,y);
@@ -472,7 +472,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 	// strings for intown / outside of town
 	const bool inside = (li_gr < k.x  &&  re_gr > k.x  &&  ob_gr < k.y  &&  un_gr > k.y);
 
-	if(!umgebung_t::numbered_stations) {
+	if(!welt->gib_einstellungen()->gib_numbered_stations()) {
 
 		static const koord next_building[24] = {
 			koord( 0, -1), // nord
@@ -985,12 +985,6 @@ void haltestelle_t::rebuild_destinations()
 
 
 
-/**
- * Max number of hops in route calculation
- * @author Hj. Malthaner
- */
-int haltestelle_t::max_hops = 300;
-
 /* HNode is used for route search */
 struct HNode {
 	halthandle_t halt;
@@ -1077,14 +1071,14 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 	// die Berechnung erfolgt durch eine Breitensuche fuer Graphen
 	// Warteschlange fuer Breitensuche
-	const uint16 max_transfers = umgebung_t::max_transfers;
+	const uint16 max_transfers = welt->gib_einstellungen()->gib_max_transfers();
 #ifdef USE_ROUTE_SLIST_TPL
 	slist_tpl<HNode *> queue;
 #else
 	// manual list
 	HNode *route_start, *route_tail;
 #endif
-	int step = 1;
+	sint32 step = 1;
 	HNode *tmp;
 
 	nodes[0].halt = self;
@@ -1125,7 +1119,7 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 				 * => we can skip many checks
 				 */
 				slist_iterator_tpl<warenziel_t> iter(halt->gib_warenziele(ware_catg_index));
-				while(iter.next() && step<max_hops) {
+				while(iter.next() && step<welt->gib_einstellungen()->gib_max_hops()) {
 
 					// since these are precalculated, they should be always pointing to a valid ground
 					// (if not, we were just under construction, and will be fine after 16 steps)
@@ -1158,7 +1152,7 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 				// for freight, we need more detailed check
 				slist_iterator_tpl<warenziel_t> iter(halt->gib_warenziele(ware_catg_index));
 
-				while(iter.next() && step<max_hops) {
+				while(iter.next() && step<welt->gib_einstellungen()->gib_max_hops()) {
 
 					// check if destination if for the goods type
 					const warenziel_t &wz = iter.get_current();
@@ -1198,9 +1192,9 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 		} // max transfers
 
 #ifdef USE_ROUTE_SLIST_TPL
-	} while (!queue.empty() && step < max_hops);
+	} while (!queue.empty() && step < welt->gib_einstellungen()->gib_max_hops());
 #else
-	} while(route_start!=NULL  &&  step<max_hops);
+	} while(route_start!=NULL  &&  step<welt->gib_einstellungen()->gib_max_hops());
 #endif
 
 	// if the loop ends, nothing was found
@@ -1761,7 +1755,7 @@ sint64 haltestelle_t::calc_maintenance()
 		grund_t* gr = i->grund;
 		gebaeude_t* gb = gr->find<gebaeude_t>();
 		if(gb) {
-			maintenance += umgebung_t::maint_building*gb->gib_tile()->gib_besch()->gib_level();
+			maintenance += welt->gib_einstellungen()->maint_building*gb->gib_tile()->gib_besch()->gib_level();
 		}
 	}
 	return maintenance;
@@ -1784,7 +1778,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb) {
 				spieler_t *gb_sp=gb->gib_besitzer();
-				sint64 costs = umgebung_t::maint_building*gb->gib_tile()->gib_besch()->gib_level();
+				sint64 costs = welt->gib_einstellungen()->maint_building*gb->gib_tile()->gib_besch()->gib_level();
 				total_costs += costs;
 				spieler_t::add_maintenance( gb_sp, -costs );
 				gb->setze_besitzer(public_owner);
@@ -1823,7 +1817,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 				spieler_t *gb_sp=gb->gib_besitzer();
 				if(public_owner!=gb_sp) {
 					spieler_t *gb_sp=gb->gib_besitzer();
-					sint64 costs = umgebung_t::maint_building*gb->gib_tile()->gib_besch()->gib_level();
+					sint64 costs = welt->gib_einstellungen()->maint_building*gb->gib_tile()->gib_besch()->gib_level();
 					spieler_t::add_maintenance( gb_sp, -costs );
 					spieler_t::accounting(gb_sp, -((costs*60)<<(welt->ticks_bits_per_tag-18)), gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
 					gb->setze_besitzer(public_owner);
@@ -2277,15 +2271,17 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	if(gib_besitzer()==welt->gib_spieler(1)) {
 		// must iterate over all players lines ...
 		for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-			welt->gib_spieler(i)->simlinemgmt.get_lines(simline_t::line, &check_line);
-			for(  uint j=0;  j<check_line.get_count();  j++  ) {
-				// only add unknow lines
-				if(  !registered_lines.is_contained(check_line[j])  ) {
-					const fahrplan_t *fpl = check_line[j]->get_fahrplan();
-					for(  int k=0;  k<fpl->maxi();  k++  ) {
-						if(gib_halt(welt,fpl->eintrag[k].pos)==self) {
-							registered_lines.push_back(check_line[j]);
-							break;
+			if(welt->gib_spieler(i)) {
+				welt->gib_spieler(i)->simlinemgmt.get_lines(simline_t::line, &check_line);
+				for(  uint j=0;  j<check_line.get_count();  j++  ) {
+					// only add unknow lines
+					if(  !registered_lines.is_contained(check_line[j])  ) {
+						const fahrplan_t *fpl = check_line[j]->get_fahrplan();
+						for(  int k=0;  k<fpl->maxi();  k++  ) {
+							if(gib_halt(welt,fpl->eintrag[k].pos)==self) {
+								registered_lines.push_back(check_line[j]);
+								break;
+							}
 						}
 					}
 				}

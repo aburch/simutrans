@@ -44,10 +44,10 @@ static sint32 fab_map_w=0;
 // marks factories with exclusion region in the position map
 void add_factory_to_fab_map( karte_t *welt, const fabrik_t *fab )
 {
-	sint16 start_y = max( 0, fab->gib_pos().y-umgebung_t::factory_spacing );
-	const sint16 end_y = min( welt->gib_groesse_y()-1, fab->gib_pos().y+fab->gib_besch()->gib_haus()->gib_h(fab->get_rotate())+umgebung_t::factory_spacing );
-	const sint16 start_x = max( 0, fab->gib_pos().x-umgebung_t::factory_spacing );
-	const sint16 end_x = min( welt->gib_groesse_x()-1, fab->gib_pos().x+fab->gib_besch()->gib_haus()->gib_b(fab->get_rotate())+umgebung_t::factory_spacing );
+	sint16 start_y = max( 0, fab->gib_pos().y-welt->gib_einstellungen()->gib_factory_spacing() );
+	const sint16 end_y = min( welt->gib_groesse_y()-1, fab->gib_pos().y+fab->gib_besch()->gib_haus()->gib_h(fab->get_rotate())+welt->gib_einstellungen()->gib_factory_spacing() );
+	const sint16 start_x = max( 0, fab->gib_pos().x-welt->gib_einstellungen()->gib_factory_spacing() );
+	const sint16 end_x = min( welt->gib_groesse_x()-1, fab->gib_pos().x+fab->gib_besch()->gib_haus()->gib_b(fab->get_rotate())+welt->gib_einstellungen()->gib_factory_spacing() );
 	while(start_y<end_y) {
 		for(  sint16 x=start_x;  x<end_x;  x++  ) {
 			fab_map[fab_map_w*start_y+(x/8)] |= 1<<(x%8);
@@ -651,7 +651,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 							}
 						}
 						// here is actually capacity left (or sometimes just connect anyway)!
-						if(production_left>0  ||  simrand(100)<(uint32)umgebung_t::crossconnect_factor) {
+						if(production_left>0  ||  simrand(100)<(uint32)welt->gib_einstellungen()->gib_crossconnect_factor()) {
 							found = true;
 							if(production_left>0) {
 								verbrauch -= production_left;

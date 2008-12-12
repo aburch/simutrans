@@ -3,6 +3,8 @@
 
 #include "../utils/cstring_t.h"
 #include "../simtypes.h"
+#include "../simconst.h"
+#include "tabfile.h"
 
 /**
  * Spieleinstellungen
@@ -64,6 +66,8 @@ private:
 	cstring_t filename;
 
 	bool beginner_mode;
+	sint32 beginner_price_factor;
+
 	bool just_in_time;
 
 	// default 0, will be incremented after each 90 degree rotation until 4
@@ -71,8 +75,113 @@ private:
 
 	sint16 origin_x, origin_y;
 
-public:
+	bool no_trees;
 
+	sint32 passenger_factor;
+
+	sint32 default_electric_promille;
+
+	sint16 factory_spacing;
+
+	/* prissi: crossconnect all factories (like OTTD and similar games) */
+	bool crossconnect_factories;
+
+	/* prissi: crossconnect all factories (like OTTD and similar games) */
+	sint16 crossconnect_factor;
+
+	/**
+	* Zufällig Fussgänger in den Städten erzeugen?
+	*
+	* @author Hj. Malthaner
+	*/
+	bool fussgaenger;
+
+	sint32 stadtauto_duration;
+
+	bool freeplay;
+
+	sint64 starting_money;
+
+	/**
+	 * Use numbering for stations?
+	 *
+	 * @author Hj. Malthaner
+	 */
+	bool numbered_stations;
+
+	/**
+	 * Typ (Name) initiale Stadtstrassen
+	 *
+	 * @author Hj. Malthaner
+	 */
+	const char *city_road_type;
+
+	/* prissi: maximum number of steps for breath search */
+	sint32 max_route_steps;
+
+	// max steps for good routing
+	sint32 max_hops;
+
+	/* prissi: maximum number of steps for breath search */
+	sint32 max_transfers;
+
+	/* multiplier for steps on diagonal:
+	 * 1024: TT-like, faktor 2, vehicle will be too long and too fast
+	 * 724: correct one, faktor sqrt(2)
+	 */
+	uint16 pak_diagonal_multiplier;
+
+	// names of the stations ...
+	const char *language_code_names;
+
+public:
+	/* the big cost section */
+	sint32 maint_building;	// normal building
+
+	sint64 cst_multiply_dock;
+	sint64 cst_multiply_station;
+	sint64 cst_multiply_roadstop;
+	sint64 cst_multiply_airterminal;
+	sint64 cst_multiply_post;
+	sint64 cst_multiply_headquarter;
+	sint64 cst_depot_rail;
+	sint64 cst_depot_road;
+	sint64 cst_depot_ship;
+	sint64 cst_depot_air;
+	sint64 cst_signal;
+	sint64 cst_tunnel;
+	sint64 cst_third_rail;
+
+	// alter landscape
+	sint64 cst_buy_land;
+	sint64 cst_alter_land;
+	sint64 cst_set_slope;
+	sint64 cst_found_city;
+	sint64 cst_multiply_found_industry;
+	sint64 cst_remove_tree;
+	sint64 cst_multiply_remove_haus;
+	sint64 cst_multiply_remove_field;
+	sint64 cst_transformer;
+	sint64 cst_maintain_transformer;
+
+	// costs for the way searcher
+	sint32 way_count_straight;
+	sint32 way_count_curve;
+	sint32 way_count_double_curve;
+	sint32 way_count_90_curve;
+	sint32 way_count_slope;
+	sint32 way_count_tunnel;
+	uint32 way_max_bridge_len;
+	sint32 way_count_leaving_road;
+
+	// true if active
+	bool automaten[MAX_PLAYER_COUNT];
+	// 0 = emtpy, otherwise some vaule from simplay
+	uint8 spieler_type[MAX_PLAYER_COUNT];
+	// NULL if not password
+	const char *password[MAX_PLAYER_COUNT];
+
+public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
 	 * Set to empty string in order to avoid loading.
@@ -81,6 +190,11 @@ public:
 	cstring_t heightfield;
 
 	einstellungen_t();
+
+	void rdwr(loadsave_t *file);
+
+	// init form this file ...
+	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename );
 
 	void setze_groesse_x(sint32 g) {groesse_x=g;}
 	void setze_groesse_y(sint32 g) {groesse_y=g;}
@@ -106,16 +220,11 @@ public:
 	void setze_mittlere_einwohnerzahl(sint32 n) {mittlere_einwohnerzahl=n;}
 	sint32 gib_mittlere_einwohnerzahl() const {return mittlere_einwohnerzahl;}
 
-	void setze_scroll_multi(sint32 n) {scroll_multi=n;}
-	sint32 gib_scroll_multi() const {return scroll_multi;}
-
 	void setze_verkehr_level(sint32 l) {verkehr_level=l;}
 	sint32 gib_verkehr_level() const {return verkehr_level;}
 
 	void setze_show_pax(bool yesno) {show_pax=yesno;}
 	bool gib_show_pax() const {return show_pax != 0;}
-
-	void rdwr(loadsave_t *file);
 
 	void setze_grundwasser(sint32 n) {grundwasser=n;}
 	sint32 gib_grundwasser() const {return grundwasser;}
@@ -163,6 +272,42 @@ public:
 	void setze_origin_y(sint16 y) { origin_y = y; }
 	sint16 get_origin_x() const { return origin_x; }
 	sint16 get_origin_y() const { return origin_y; }
+
+	bool is_freeplay() const { return freeplay; }
+	void setze_freeplay( bool f ) { freeplay = f; }
+
+	sint32 gib_max_route_steps() const { return max_route_steps; }
+	sint32 gib_max_hops() const { return max_hops; }
+	sint32 gib_max_transfers() const { return max_transfers; }
+
+	sint64 gib_starting_money() const { return starting_money; }
+
+	bool gib_random_pedestrians() const { return fussgaenger; }
+	void setze_random_pedestrians( bool f ) { fussgaenger = f; }	// NETWORK!
+
+	sint16 gib_factory_spacing() const { return factory_spacing; }
+	sint16 gib_crossconnect_factor() const { return crossconnect_factor; }
+	bool is_crossconnect_factories() const { return crossconnect_factories; }
+
+	sint32 gib_passenger_factor() const { return passenger_factor; }
+
+	sint32 gib_numbered_stations() const { return numbered_stations; }
+
+	sint32 gib_stadtauto_duration() const { return stadtauto_duration; }
+
+	sint32 gib_beginner_price_factor() const { return beginner_price_factor; }
+
+	const char *gib_city_road_type() const { return city_road_type; }
+
+	uint16 gib_pak_diagonal_multiplier() const { return pak_diagonal_multiplier; }
+	void setze_pak_diagonal_multiplier( uint16 pdm ) { pak_diagonal_multiplier = pdm; }
+
+	const char *gib_name_language_iso() const { return language_code_names; }
+	// will fail horribly with NULL pointer for iso ...
+	void setze_name_language_iso( const char *iso ) { delete language_code_names; language_code_names = strdup(iso); }
+
+	void set_player_active(uint8 i, bool b) { automaten[i] = b; }
+	void set_player_type(uint8 i, uint8 t) { spieler_type[i] = t; }
 };
 
 #endif

@@ -600,7 +600,7 @@ void baum_t::info(cbuffer_t & buf) const
 void
 baum_t::entferne(spieler_t *sp)
 {
-	spieler_t::accounting(sp, umgebung_t::cst_remove_tree, gib_pos().gib_2d(), COST_CONSTRUCTION);
+	spieler_t::accounting(sp, welt->gib_einstellungen()->cst_remove_tree, gib_pos().gib_2d(), COST_CONSTRUCTION);
 	mark_image_dirty( gib_bild(), 0 );
 }
 

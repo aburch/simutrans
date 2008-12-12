@@ -12,12 +12,6 @@
 #include "monorailboden.h"
 
 
-monorailboden_t::monorailboden_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
-{
-	rdwr(file);
-}
-
-
 monorailboden_t::monorailboden_t(karte_t *welt, koord3d pos,hang_t::typ slope) : grund_t(welt, pos)
 {
 	this->slope = slope;

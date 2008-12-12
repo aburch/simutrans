@@ -43,7 +43,7 @@ label_t::label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text) :
 		if (text) {
 			gr->setze_text(text);
 		}
-		spieler_t::accounting(sp, umgebung_t::cst_buy_land, pos.gib_2d(), COST_CONSTRUCTION);
+		spieler_t::accounting(sp, welt->gib_einstellungen()->cst_buy_land, pos.gib_2d(), COST_CONSTRUCTION);
 	}
 }
 

@@ -15,7 +15,7 @@ protected:
 	void calc_bild_internal();
 
 public:
-	wasser_t(karte_t *welt, loadsave_t *file) : grund_t (welt) { rdwr(file); }
+	wasser_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t( welt, koord3d(pos,0) ) { rdwr(file); }
 	wasser_t(karte_t *welt, koord3d pos) : grund_t(welt, pos) {}
 
 	inline bool ist_wasser() const { return true; }

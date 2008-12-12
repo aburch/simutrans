@@ -233,7 +233,7 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 
 
 void
-planquadrat_t::rdwr(karte_t *welt, loadsave_t *file)
+planquadrat_t::rdwr(karte_t *welt, loadsave_t *file, koord pos )
 {
 	if(file->is_saving()) {
 		if(ground_size==1) {
@@ -253,13 +253,13 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file)
 			grund_t::typ gtyp = (grund_t::typ)file->rd_obj_id();
 
 			switch(gtyp) {
-				case -1:			    gr = NULL;				    break;
-				case grund_t::boden:	    gr = new boden_t(welt, file);	    break;
-				case grund_t::wasser:	    gr = new wasser_t(welt, file);	    break;
-				case grund_t::fundament:	    gr = new fundament_t(welt, file);	    break;
-				case grund_t::tunnelboden:	    gr = new tunnelboden_t(welt, file);	    break;
-				case grund_t::brueckenboden:    gr = new brueckenboden_t(welt, file);   break;
-				case grund_t::monorailboden:	    gr = new monorailboden_t(welt, file);	    break;
+				case -1: gr = NULL; break;
+				case grund_t::boden:	    gr = new boden_t(welt, file, pos);                 break;
+				case grund_t::wasser:	    gr = new wasser_t(welt, file, pos);                break;
+				case grund_t::fundament:	    gr = new fundament_t(welt, file, pos);	       break;
+				case grund_t::tunnelboden:	    gr = new tunnelboden_t(welt, file, pos);       break;
+				case grund_t::brueckenboden:    gr = new brueckenboden_t(welt, file, pos);     break;
+				case grund_t::monorailboden:	    gr = new monorailboden_t(welt, file, pos); break;
 				default:
 					gr = 0; // Hajo: keep compiler happy, fatal() never returns
 					dbg->fatal("planquadrat_t::rdwr()","Error while loading game: Unknown ground type '%d'",gtyp);

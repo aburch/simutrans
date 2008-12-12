@@ -17,9 +17,8 @@
 #include "fundament.h"
 
 
-fundament_t::fundament_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
+fundament_t::fundament_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t(welt, koord3d(pos,0) )
 {
-	setze_bild( IMG_LEER );
 	rdwr(file);
 	slope = (uint8)hang_t::flach;
 }

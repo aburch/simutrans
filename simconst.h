@@ -6,7 +6,8 @@
 #define simconst_h
 
 // number of player
-#define MAX_PLAYER_COUNT (8)
+#define MAX_PLAYER_COUNT (16)
+#define PLAYER_UNOWNED (15)
 
 /* Flag for Intel byte order
  * SET THIS IN YOUR COMPILER COMMAND LINE!

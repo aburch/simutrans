@@ -70,12 +70,6 @@ public:
 
 private:
 	/**
-	 * Max number of hops in route calculation
-	 * @author Hj. Malthaner
-	 */
-	static int max_hops;
-
-	/**
 	 * Manche Methoden müssen auf alle Haltestellen angewandt werden
 	 * deshalb verwaltet die Klasse eine Liste aller Haltestellen
 	 * @author Hj. Malthaner
@@ -105,12 +99,6 @@ private:
 	void recalc_status();
 
 public:
-	/**
-	 * Sets max number of hops in route calculation
-	 * @author Hj. Malthaner
-	 */
-	static void set_max_hops(int hops) { max_hops = hops; }
-
 	/**
 	 * Tries to generate some pedestrians on the sqaure and the
 	 * adjacent sqaures. Return actual number of generated
@@ -205,7 +193,7 @@ private:
 	 */
 	slist_tpl<fabrik_t *> fab_list;
 
-	spieler_t   *besitzer_p;
+	spieler_t *besitzer_p;
 	static karte_t *welt;
 
 	/**

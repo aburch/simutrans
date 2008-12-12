@@ -174,7 +174,7 @@ public:
 	const halthandle_t *get_haltlist() const { return halt_list; }
 	uint8 get_haltlist_count() const { return halt_list_count; }
 
-	void rdwr(karte_t *welt, loadsave_t *file);
+	void rdwr(karte_t *welt, loadsave_t *file, koord pos );
 
 	// will toggle the seasons ...
 	void check_season(const long month);

@@ -633,7 +633,7 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				ok = (n!=0);
 			}
 			if(n>0) {
-				spieler_t::accounting(sp, umgebung_t::cst_alter_land*n, pos, COST_CONSTRUCTION);
+				spieler_t::accounting(sp, welt->gib_einstellungen()->cst_alter_land*n, pos, COST_CONSTRUCTION);
 				// update image
 				for(int j=-n; j<=n; j++) {
 					for(int i=-n; i<=n; i++) {
@@ -714,7 +714,7 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				ok = (n!=0);
 			}
 			if(n>0) {
-				spieler_t::accounting(sp, umgebung_t::cst_alter_land*n, pos, COST_CONSTRUCTION);
+				spieler_t::accounting(sp, welt->gib_einstellungen()->cst_alter_land*n, pos, COST_CONSTRUCTION);
 				// update image
 				for(int j=-n; j<=n; j++) {
 					for(int i=-n; i<=n; i++) {
@@ -877,7 +877,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 					gr->calc_bild();
 				}
 			}
-			spieler_t::accounting(sp, new_slope==RESTORE_SLOPE?umgebung_t::cst_alter_land:umgebung_t::cst_set_slope, pos, COST_CONSTRUCTION);
+			spieler_t::accounting(sp, new_slope==RESTORE_SLOPE?welt->gib_einstellungen()->cst_alter_land:welt->gib_einstellungen()->cst_set_slope, pos, COST_CONSTRUCTION);
 		}
 
 	}
@@ -961,7 +961,7 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d k
 // transformer for electricity supply
 const char *wkz_transformer_t::get_tooltip( spieler_t *sp )
 {
-	sprintf(toolstr, "%s, %ld$ (%ld$)", translator::translate("Build drain"), (long)(umgebung_t::cst_transformer/-100l), (long)(umgebung_t::cst_maintain_transformer<<(sp->get_welt()->ticks_bits_per_tag-18))/-100l );
+	sprintf(toolstr, "%s, %ld$ (%ld$)", translator::translate("Build drain"), (long)(sp->get_welt()->gib_einstellungen()->cst_transformer/-100l), (long)(sp->get_welt()->gib_einstellungen()->cst_maintain_transformer<<(sp->get_welt()->ticks_bits_per_tag-18))/-100l );
 	return toolstr;
 }
 
@@ -1035,7 +1035,7 @@ const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 				stadt->laden_abschliessen();
 				stadt->verbinde_fabriken();
 
-				spieler_t::accounting(sp, umgebung_t::cst_found_city, pos.gib_2d(), COST_CONSTRUCTION);
+				spieler_t::accounting(sp, welt->gib_einstellungen()->cst_found_city, pos.gib_2d(), COST_CONSTRUCTION);
 				reliefkarte_t::gib_karte()->calc_map();
 				return NULL;
 			}
@@ -1086,7 +1086,7 @@ const char *wkz_plant_tree_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			besch = baum_t::find_tree(default_param+3);
 		}
 		if(besch  &&  baum_t::plant_tree_on_coordinate( welt, pos.gib_2d(), besch, check_climates, random_age )  ) {
-			spieler_t::accounting( sp, umgebung_t::cst_remove_tree, pos.gib_2d(), COST_CONSTRUCTION );
+			spieler_t::accounting( sp, welt->gib_einstellungen()->cst_remove_tree, pos.gib_2d(), COST_CONSTRUCTION );
 			return NULL;
 		}
 		return "";
@@ -1994,7 +1994,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		}
 */
 		hausbauer_t::baue(welt, halt->gib_besitzer(), k+pos-k.gib_2d(), rotate, besch, &halt);
-		sp->buche(umgebung_t::cst_multiply_post*besch->gib_level()*besch->gib_b()*besch->gib_h(), pos, COST_CONSTRUCTION);
+		sp->buche(welt->gib_einstellungen()->cst_multiply_post*besch->gib_level()*besch->gib_b()*besch->gib_h(), pos, COST_CONSTRUCTION);
 		halt->recalc_station_type();
 	}
 	else {
@@ -2132,7 +2132,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	hausbauer_t::baue(welt, halt->gib_besitzer(), bau_pos, layout, besch, &halt);
 	for(int i=0;  i<=len;  i++ ) {
 		koord p=pos-dx*i;
-		sp->buche(umgebung_t::cst_multiply_dock*besch->gib_level(), p, COST_CONSTRUCTION);
+		sp->buche(welt->gib_einstellungen()->cst_multiply_dock*besch->gib_level(), p, COST_CONSTRUCTION);
 	}
 
 	halt->recalc_station_type();
@@ -2349,22 +2349,22 @@ const char *wkz_station_t::get_tooltip(spieler_t *sp)
 			case maglev_wt:
 			case tram_wt:
 			case narrowgauge_wt:
-				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_station*besch->gib_level(), umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), sp->get_welt()->gib_einstellungen()->cst_multiply_station*besch->gib_level(), sp->get_welt()->gib_einstellungen()->maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 			case road_wt:
-				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_roadstop*besch->gib_level(), umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), sp->get_welt()->gib_einstellungen()->cst_multiply_roadstop*besch->gib_level(), sp->get_welt()->gib_einstellungen()->maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 			case water_wt:
-				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), sp->get_welt()->gib_einstellungen()->cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, sp->get_welt()->gib_einstellungen()->maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 			case air_wt:
-				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_airterminal*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), sp->get_welt()->gib_einstellungen()->cst_multiply_airterminal*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, sp->get_welt()->gib_einstellungen()->maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 			case 0:
-				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_post*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+				return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), sp->get_welt()->gib_einstellungen()->cst_multiply_post*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, sp->get_welt()->gib_einstellungen()->maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 		}
 	}
 	else if(  besch->gib_utyp()==haus_besch_t::generic_extension  ) {
-		return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_post*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+		return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), sp->get_welt()->gib_einstellungen()->cst_multiply_post*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, sp->get_welt()->gib_einstellungen()->maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 	}
 	else if(  besch->gib_utyp()==haus_besch_t::hafen  ) {
-		return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), umgebung_t::cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+		return tooltip_with_price_maintenance( sp->get_welt(), besch->gib_name(), sp->get_welt()->gib_einstellungen()->cst_multiply_dock*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y, sp->get_welt()->gib_einstellungen()->maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 	}
 	return "Illegal description";
 }
@@ -2395,20 +2395,20 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		case haus_besch_t::generic_stop:
 			switch(besch->gib_extra()) {
 				case road_wt:
-					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, road_wt, umgebung_t::cst_multiply_roadstop, "H");
+					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, road_wt, welt->gib_einstellungen()->cst_multiply_roadstop, "H");
 					break;
 				case track_wt:
 				case monorail_wt:
 				case maglev_wt:
 				case narrowgauge_wt:
 				case tram_wt:
-					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, (waytype_t)besch->gib_extra(), umgebung_t::cst_multiply_station, "BF");
+					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, (waytype_t)besch->gib_extra(), welt->gib_einstellungen()->cst_multiply_station, "BF");
 					break;
 				case water_wt:
-					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, water_wt, umgebung_t::cst_multiply_dock, "Dock");
+					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, water_wt, welt->gib_einstellungen()->cst_multiply_dock, "Dock");
 					break;
 				case air_wt:
-					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, air_wt, umgebung_t::cst_multiply_airterminal, "Airport");
+					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, air_wt, welt->gib_einstellungen()->cst_multiply_airterminal, "Airport");
 					break;
 			}
 
@@ -2615,14 +2615,14 @@ const char *wkz_depot_t::get_tooltip(spieler_t *sp)
 {
 	const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->gib_besch();
 	switch(besch->gib_extra()) {
-		case road_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build road depot", umgebung_t::cst_depot_road, umgebung_t::maint_building*besch->gib_level() );
-		case track_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build train depot", umgebung_t::cst_depot_rail, umgebung_t::maint_building*besch->gib_level() );
-		case monorail_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build monorail depot", umgebung_t::cst_depot_rail, umgebung_t::maint_building*besch->gib_level() );
-		case maglev_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build maglev depot", umgebung_t::cst_depot_rail, umgebung_t::maint_building*besch->gib_level() );
-		case narrowgauge_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build narrowgauge depot", umgebung_t::cst_depot_rail, umgebung_t::maint_building*besch->gib_level() );
-		case tram_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build tram depot", umgebung_t::cst_depot_rail, umgebung_t::maint_building*besch->gib_level() );
-		case water_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build ship depot", umgebung_t::cst_depot_ship, umgebung_t::maint_building*besch->gib_level() );
-		case air_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build air depot", umgebung_t::cst_depot_air, umgebung_t::maint_building*besch->gib_level() );
+		case road_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build road depot", sp->get_welt()->gib_einstellungen()->cst_depot_road, sp->get_welt()->gib_einstellungen()->maint_building*besch->gib_level() );
+		case track_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build train depot", sp->get_welt()->gib_einstellungen()->cst_depot_rail, sp->get_welt()->gib_einstellungen()->maint_building*besch->gib_level() );
+		case monorail_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build monorail depot", sp->get_welt()->gib_einstellungen()->cst_depot_rail, sp->get_welt()->gib_einstellungen()->maint_building*besch->gib_level() );
+		case maglev_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build maglev depot", sp->get_welt()->gib_einstellungen()->cst_depot_rail, sp->get_welt()->gib_einstellungen()->maint_building*besch->gib_level() );
+		case narrowgauge_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build narrowgauge depot", sp->get_welt()->gib_einstellungen()->cst_depot_rail, sp->get_welt()->gib_einstellungen()->maint_building*besch->gib_level() );
+		case tram_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build tram depot", sp->get_welt()->gib_einstellungen()->cst_depot_rail, sp->get_welt()->gib_einstellungen()->maint_building*besch->gib_level() );
+		case water_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build ship depot", sp->get_welt()->gib_einstellungen()->cst_depot_ship, sp->get_welt()->gib_einstellungen()->maint_building*besch->gib_level() );
+		case air_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build air depot", sp->get_welt()->gib_einstellungen()->cst_depot_air, sp->get_welt()->gib_einstellungen()->maint_building*besch->gib_level() );
 	}
 	return NULL;
 }
@@ -2637,13 +2637,13 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->gib_besch();
 	switch(besch->gib_extra()) {
 		case road_wt:
-			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, road_wt, umgebung_t::cst_depot_road );
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, road_wt, welt->gib_einstellungen()->cst_depot_road );
 		case track_wt:
-			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, track_wt, umgebung_t::cst_depot_rail );
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, track_wt, welt->gib_einstellungen()->cst_depot_rail );
 		case monorail_wt:
 			{
 				// since it need also a foundations, this is slightly more complex ...
-				const char *err = wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, monorail_wt, umgebung_t::cst_depot_rail );
+				const char *err = wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, monorail_wt, welt->gib_einstellungen()->cst_depot_rail );
 				if(err==NULL) {
 					grund_t *bd = welt->lookup_kartenboden(k.gib_2d());
 					if(bd->ist_natur()) {
@@ -2653,15 +2653,15 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				return err;
 			}
 		case tram_wt:
-			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, track_wt, umgebung_t::cst_depot_rail );
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, track_wt, welt->gib_einstellungen()->cst_depot_rail );
 		case water_wt:
-			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, water_wt, umgebung_t::cst_depot_ship );
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, water_wt, welt->gib_einstellungen()->cst_depot_ship );
 		case air_wt:
-			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, air_wt, umgebung_t::cst_depot_air );
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, air_wt, welt->gib_einstellungen()->cst_depot_air );
 		case maglev_wt:
-			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, maglev_wt, umgebung_t::cst_depot_rail );
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, maglev_wt, welt->gib_einstellungen()->cst_depot_rail );
 		case narrowgauge_wt:
-			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, narrowgauge_wt, umgebung_t::cst_depot_rail );
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k.gib_2d(), besch, narrowgauge_wt, welt->gib_einstellungen()->cst_depot_rail );
 		default:
 			dbg->fatal("wkz_depot()","called with unknown besch %s",besch->gib_name() );
 			return "";
@@ -2740,7 +2740,7 @@ const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					city->add_gebaeude_to_stadt(gb);
 				}
 			}
-			spieler_t::accounting(sp, umgebung_t::cst_multiply_remove_haus * besch->gib_level() * size.x * size.y, pos.gib_2d(), COST_CONSTRUCTION);
+			spieler_t::accounting(sp, welt->gib_einstellungen()->cst_multiply_remove_haus * besch->gib_level() * size.x * size.y, pos.gib_2d(), COST_CONSTRUCTION);
 			return NULL;
 		}
 	}
@@ -2829,7 +2829,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 		if(anzahl>0) {
 			// least one factory has been built
 			welt->change_world_position( k.gib_2d(), 0, 0 );
-			spieler_t::accounting(sp, anzahl*umgebung_t::cst_multiply_found_industry, k.gib_2d(), COST_CONSTRUCTION );
+			spieler_t::accounting(sp, anzahl*welt->gib_einstellungen()->cst_multiply_found_industry, k.gib_2d(), COST_CONSTRUCTION );
 
 			// eventually adjust production
 			if(default_param) {
@@ -2837,7 +2837,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 			}
 
 			// crossconnect all?
-			if(umgebung_t::crossconnect_factories) {
+			if(welt->gib_einstellungen()->is_crossconnect_factories()) {
 				const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
 				slist_iterator_tpl <fabrik_t *> iter (list);
 				while( iter.next() ) {
@@ -2909,7 +2909,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 		}
 
 		// crossconnect all?
-		if(umgebung_t::crossconnect_factories) {
+		if(welt->gib_einstellungen()->is_crossconnect_factories()) {
 			const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
 			slist_iterator_tpl <fabrik_t *> iter (list);
 			while( iter.next() ) {
@@ -2917,7 +2917,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 			}
 		}
 		// ain't going to be cheap
-		spieler_t::accounting(sp, anzahl*umgebung_t::cst_multiply_found_industry, k.gib_2d(), COST_CONSTRUCTION );
+		spieler_t::accounting(sp, anzahl*welt->gib_einstellungen()->cst_multiply_found_industry, k.gib_2d(), COST_CONSTRUCTION );
 		return NULL;
 	}
 	return "No suitable ground!";
@@ -2997,7 +2997,7 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 		if(f) {
 			// least one factory has been built
 			welt->change_world_position( k.gib_2d(), 0, 0 );
-			spieler_t::accounting(sp, umgebung_t::cst_multiply_found_industry, k.gib_2d(), COST_CONSTRUCTION );
+			spieler_t::accounting(sp, welt->gib_einstellungen()->cst_multiply_found_industry, k.gib_2d(), COST_CONSTRUCTION );
 
 			// eventually adjust production
 			if(default_param) {
@@ -3005,7 +3005,7 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			}
 
 			// crossconnect all?
-			if(umgebung_t::crossconnect_factories) {
+			if(welt->gib_einstellungen()->is_crossconnect_factories()) {
 				const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
 				slist_iterator_tpl <fabrik_t *> iter (list);
 				while( iter.next() ) {
@@ -3081,7 +3081,7 @@ const char *wkz_headquarter_t::get_tooltip( spieler_t *sp )
 {
 	const haus_besch_t* besch = next_level(sp);
 	if(besch) {
-		return tooltip_with_price_maintenance( sp->get_welt(), sp->get_headquarter_level()==0 ? "build HQ" : "upgrade HQ", umgebung_t::cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h(), umgebung_t::maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
+		return tooltip_with_price_maintenance( sp->get_welt(), sp->get_headquarter_level()==0 ? "build HQ" : "upgrade HQ", sp->get_welt()->gib_einstellungen()->cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h(), sp->get_welt()->gib_einstellungen()->maint_building*besch->gib_level()*besch->gib_groesse().x*besch->gib_groesse().y );
 	}
 	return NULL;
 }
@@ -3135,7 +3135,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 				city->add_gebaeude_to_stadt( hq );
 			}
 			sp->add_headquarter( besch->gib_extra()+1, pos.gib_2d() );
-			sp->buche(umgebung_t::cst_multiply_headquarter * besch->gib_level() * size.x * size.y, pos.gib_2d(), COST_CONSTRUCTION);
+			sp->buche(welt->gib_einstellungen()->cst_multiply_headquarter * besch->gib_level() * size.x * size.y, pos.gib_2d(), COST_CONSTRUCTION);
 			if(sp == welt->get_active_player()) {
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
 			}
@@ -3499,8 +3499,8 @@ bool wkz_make_stop_public_t::init( karte_t *, spieler_t * )
 	return true;
 }
 
-const char *wkz_make_stop_public_t::get_tooltip(spieler_t *) {
-	sprintf(toolstr, translator::translate("make stop public (or join with public stop next) costs %i per tile and level"), umgebung_t::maint_building*60 );
+const char *wkz_make_stop_public_t::get_tooltip(spieler_t *sp) {
+	sprintf(toolstr, translator::translate("make stop public (or join with public stop next) costs %i per tile and level"), sp->get_welt()->gib_einstellungen()->maint_building*60 );
 	return toolstr;
 }
 

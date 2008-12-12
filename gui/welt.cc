@@ -59,7 +59,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	this->welt = welt;
 	this->sets = sets;
 	this->old_lang = -1;
-	this->sets->setze_beginner_mode(umgebung_t::beginner_mode_first);
+	this->sets->setze_beginner_mode(umgebung_t::default_einstellungen.gib_beginner_mode());
 	loaded_heightfield = load_heightfield = false;
 	load = start = close = scenario = quit = false;
 	int intTopOfButton=START_HEIGHT;

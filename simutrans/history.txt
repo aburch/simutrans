@@ -52,6 +52,8 @@
 	FIX: x instead y offset written by makeobj
 	ADD: (Dwachs) new object gui_numberinput_t for more convinient entering of numbers
 	ADD: (gerw) sizeable loadsave frame
+	CHANGE: savegame bump, no AI save state correctly, same for map extension, no koord saved anymore (up to 60% smaller savegames)
+	CHANGE: settings are now saved for game relevant/user relevant to prepare for multiplayer (and do proper versioning)
 
 
 

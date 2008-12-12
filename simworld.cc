@@ -132,14 +132,6 @@ karte_t::recalc_snowline()
 
 
 
-void
-karte_t::setze_scroll_multi(int n)
-{
-	einstellungen->setze_scroll_multi(n);
-}
-
-
-
 // read height data from bmp or ppm files
 bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values )
 {
@@ -716,17 +708,7 @@ void karte_t::init_felder()
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		// old default: AI 3 passenger, other goods
-		switch(i) {
-			case 0:
-			case 1:
-				spieler[i] = new spieler_t(this,i);
-				break;
-			case 3:
-				spieler[i] = new ai_passenger_t(this,i);
-				break;
-			default:
-				spieler[i] = new ai_goods_t(this,i);
-		}
+		spieler[i] = (i<2) ? new spieler_t(this,i) : NULL;
 	}
 	active_player = spieler[0];
 	active_player_nr = 0;
@@ -957,7 +939,9 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 	}
 	change_world_position( koord(0,0), 0, 0 );
 
-	einstellungen = sets;
+	*einstellungen = *sets;
+	// names during creation time
+	einstellungen->setze_name_language_iso( umgebung_t::language_iso );
 
 	x_off = y_off = 0;
 
@@ -982,7 +966,7 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 	snowline = sets->gib_winter_snowline()*Z_TILE_STEP;
 
 	if(sets->gib_beginner_mode()) {
-		warenbauer_t::set_multiplier( umgebung_t::beginner_price_factor );
+		warenbauer_t::set_multiplier( gib_einstellungen()->gib_starting_year() );
 		sets->setze_just_in_time( 0 );
 	}
 	else {
@@ -1045,7 +1029,9 @@ DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
 
 #ifndef DEMO
 	for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
-		spieler[i]->set_active( umgebung_t::automaten[i] );
+		if(  spieler[i]  ) {
+			spieler[i]->set_active( einstellungen->automaten[i] );
+		}
 	}
 #endif
 
@@ -1334,33 +1320,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	setze_dirty();
 	set_scroll_lock(false);
 
-	einstellungen_t * sets = new einstellungen_t();
-
-	if(umgebung_t::testlauf) {
-		sets->setze_groesse(256,384);
-		sets->setze_anzahl_staedte(16);
-		sets->setze_land_industry_chains(8);
-		sets->setze_electric_promille(4);
-		sets->setze_tourist_attractions(8);
-		sets->setze_verkehr_level(7);
-		sets->setze_karte_nummer( 33 );
-		sets->setze_station_coverage( umgebung_t::station_coverage_size );
-	}
-	else {
-		sets->setze_groesse(64,64);
-		sets->setze_anzahl_staedte(1);
-		sets->setze_land_industry_chains(1);
-		sets->setze_electric_promille(0);
-		sets->setze_tourist_attractions(1);
-		sets->setze_verkehr_level(7);
-		sets->setze_karte_nummer( 33 );
-		sets->setze_station_coverage( umgebung_t::station_coverage_size );
-	}
-
-	sets->setze_starting_year( umgebung_t::starting_year );
-	sets->setze_use_timeline( umgebung_t::use_timeline==1 );
-	sets->setze_bits_per_month( umgebung_t::bits_per_month );
-	sets->setze_just_in_time( umgebung_t::just_in_time );
+	einstellungen_t *sets = new einstellungen_t(umgebung_t::default_einstellungen);
 
 	// standard prices
 	warenbauer_t::set_multiplier( 1000 );
@@ -1376,7 +1336,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	nosave = false;
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
-		spieler[i] = 0;
+		spieler[i] = NULL;
 	}
 
 	// no distance to show at first ...
@@ -1772,7 +1732,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint16 hgt)
 				if(gr) gr->calc_bild();
 			}
 		}
-		spieler_t::accounting(sp, n*umgebung_t::cst_alter_land, pos, COST_CONSTRUCTION );
+		spieler_t::accounting(sp, n*gib_einstellungen()->cst_alter_land, pos, COST_CONSTRUCTION );
 	}
 	return ok;
 }
@@ -1908,7 +1868,9 @@ karte_t::rotate90()
 	}
 
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		spieler[i]->rotate90( cached_groesse_karte_x );
+		if(  spieler[i]  ) {
+			spieler[i]->rotate90( cached_groesse_karte_x );
+		}
 	}
 
 	// rotate label texts
@@ -2148,8 +2110,10 @@ karte_t::sync_step(long delta_t, bool sync, bool display )
 	if(display) {
 		// only omitted in fast forward mode for the magic steps
 
-		for(int x=0; x<8; x++) {
-			gib_spieler(x)->age_messages(delta_t);
+		for(int x=0; x<MAX_PLAYER_COUNT-1; x++) {
+			if(spieler[x]) {
+				spieler[x]->age_messages(delta_t);
+			}
 		}
 
 		// change view due to following a convoi?
@@ -2321,7 +2285,7 @@ void karte_t::neuer_monat()
 //	DBG_MESSAGE("karte_t::neuer_monat()","players");
 	// spieler
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		if(spieler[i] != NULL) {
+		if(  spieler[i] != NULL  ) {
 			spieler[i]->neuer_monat();
 		}
 	}
@@ -2380,7 +2344,9 @@ DBG_MESSAGE("karte_t::neues_jahr()","speedbonus for %d %i, %i, %i, %i, %i, %i, %
 	}
 
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		gib_spieler(i)->neues_jahr();
+		if(  spieler[i] != NULL  ) {
+			spieler[i]->neues_jahr();
+		}
 	}
 }
 
@@ -2459,7 +2425,7 @@ void karte_t::recalc_average_speed()
 		}
 
 		// city road check
-		const weg_besch_t* city_road_test = wegbauer_t::gib_besch(*umgebung_t::city_road_type, get_timeline_year_month());
+		const weg_besch_t* city_road_test = wegbauer_t::gib_besch(gib_einstellungen()->gib_city_road_type(), get_timeline_year_month());
 		if(city_road_test) {
 			city_road = city_road_test;
 		}
@@ -2471,7 +2437,7 @@ void karte_t::recalc_average_speed()
 	}
 	else {
 		// defaults
-		city_road = wegbauer_t::gib_besch(*umgebung_t::city_road_type, 0);
+		city_road = wegbauer_t::gib_besch(gib_einstellungen()->gib_city_road_type(), 0);
 		if(city_road==NULL) {
 			city_road = wegbauer_t::weg_search(road_wt,50,0,weg_t::type_flat);
 		}
@@ -2691,8 +2657,10 @@ karte_t::step()
 
 	// then step all players
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		spieler[i]->step();
-		INT_CHECK("simworld 1975");
+		if(  spieler[i] != NULL  ) {
+			spieler[i]->step();
+			INT_CHECK("simworld 1975");
+		}
 	}
 
 	// ok, next step
@@ -2750,7 +2718,9 @@ void karte_t::restore_history()
 	for(  int m=min(MAX_WORLD_HISTORY_MONTHS,MAX_PLAYER_HISTORY_MONTHS)-1;  m>0;  m--  ) {
 		sint64 transported = 0;
 		for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
-			transported += spieler[i]->get_finance_history_month( m, COST_ALL_TRANSPORTED );
+			if(  spieler[i]!=NULL  ) {
+				transported += spieler[i]->get_finance_history_month( m, COST_ALL_TRANSPORTED );
+			}
 		}
 		finance_history_month[m][WORLD_TRANSPORTED_GOODS] = transported;
 	}
@@ -2791,7 +2761,9 @@ void karte_t::restore_history()
 	for(  int y=min(MAX_WORLD_HISTORY_YEARS,MAX_CITY_HISTORY_YEARS)-1;  y>0;  y--  ) {
 		sint64 transported_year = 0;
 		for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
-			transported_year += spieler[i]->get_finance_history_year( y, COST_ALL_TRANSPORTED );
+			if(  spieler[i]  ) {
+				transported_year += spieler[i]->get_finance_history_year( y, COST_ALL_TRANSPORTED );
+			}
 		}
 		finance_history_year[y][WORLD_TRANSPORTED_GOODS] = transported_year;
 	}
@@ -2856,8 +2828,10 @@ void karte_t::update_history()
 	sint64 transported = 0;
 	sint64 transported_year = 0;
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
-		transported += spieler[i]->get_finance_history_month( 0, COST_ALL_TRANSPORTED );
-		transported_year += spieler[i]->get_finance_history_year( 0, COST_ALL_TRANSPORTED );
+		if(  spieler[i]!=NULL  ) {
+			transported += spieler[i]->get_finance_history_month( 0, COST_ALL_TRANSPORTED );
+			transported_year += spieler[i]->get_finance_history_year( 0, COST_ALL_TRANSPORTED );
+		}
 	}
 	finance_history_month[0][WORLD_TRANSPORTED_GOODS] = transported;
 	finance_history_year[0][WORLD_TRANSPORTED_GOODS] = transported_year;
@@ -2911,13 +2885,13 @@ void karte_t::blick_aendern(event_t *ev)
 		const int raster = get_tile_raster_width();
 		koord new_ij = ij_off;
 
-		sint16 new_xoff = x_off - (ev->mx - ev->cx) * einstellungen->gib_scroll_multi();
+		sint16 new_xoff = x_off - (ev->mx - ev->cx) * umgebung_t::scroll_multi;
 		new_ij.x -= new_xoff/raster;
 		new_ij.y += new_xoff/raster;
 		new_xoff %= raster;
 
 		int lines = 0;
-		sint16 new_yoff = y_off - (ev->my-ev->cy) * einstellungen->gib_scroll_multi();
+		sint16 new_yoff = y_off - (ev->my-ev->cy) * umgebung_t::scroll_multi;
 		if(y_off>0) {
 			lines = (new_yoff + (raster/4))/(raster/2);
 		}
@@ -2995,6 +2969,8 @@ karte_t::ist_wasser(koord pos, koord dim) const
 	return true;
 }
 
+
+
 bool
 karte_t::ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate_bits cl) const
 {
@@ -3051,6 +3027,8 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,gib_g
 	}
 	return list;
 }
+
+
 
 /**
  * Play a sound, but only if near enoungh.
@@ -3139,6 +3117,16 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	file->rdwr_long(letzter_monat, " ");
 	file->rdwr_long(letztes_jahr, "\n");
 
+	// save palyer types (since we must create all players before all other objects in the game)
+	if(file->get_version()>=101000) {
+		for(int i=0; i<MAX_PLAYER_COUNT; i++) {
+			// since we can have now different AI, we must identify them
+			uint8 id = spieler[i] ? spieler[i]->get_ai_id() : spieler_t::EMPTY;
+			file->rdwr_byte( id, "" );
+		}
+	}
+DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved player ids");
+
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		(*i)->rdwr(file);
 		if(silent) {
@@ -3149,7 +3137,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities ok");
 
 	for(int j=0; j<gib_groesse_y(); j++) {
 		for(int i=0; i<gib_groesse_x(); i++) {
-			access(i, j)->rdwr(this, file);
+			access(i, j)->rdwr(this, file, koord(i,j) );
 		}
 		if(silent) {
 			INT_CHECK("saving");
@@ -3211,9 +3199,9 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_ar
 			}
 		}
 		else {
-		if(  spieler[i]  ) {
-			spieler[i]->rdwr(file);
-		}
+			if(  spieler[i]  ) {
+				spieler[i]->rdwr(file);
+			}
 		}
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
@@ -3317,13 +3305,13 @@ void karte_t::laden(loadsave_t *file)
 	// jetzt geht das laden los
 	DBG_MESSAGE("karte_t::laden", "Fileversion: %d, %p", file->get_version(), einstellungen);
 	einstellungen->rdwr(file);
-	if(einstellungen->gib_allow_player_change()  &&  umgebung_t::use_timeline!=2) {
+	if(einstellungen->gib_allow_player_change()  &&  umgebung_t::default_einstellungen.gib_use_timeline()!=2) {
 		// not locked => eventually switch off timeline settings, if explicitly stated
-		einstellungen->setze_use_timeline( umgebung_t::use_timeline );
-		DBG_DEBUG("karte_t::laden", "timeline: reset to %i", umgebung_t::use_timeline );
+		einstellungen->setze_use_timeline( umgebung_t::default_einstellungen.gib_use_timeline() );
+		DBG_DEBUG("karte_t::laden", "timeline: reset to %i", umgebung_t::default_einstellungen.gib_use_timeline() );
 	}
 	if(einstellungen->gib_beginner_mode()) {
-		warenbauer_t::set_multiplier( umgebung_t::beginner_price_factor );
+		warenbauer_t::set_multiplier( gib_einstellungen()->gib_starting_year() );
 	}
 	else {
 		warenbauer_t::set_multiplier( 1000 );
@@ -3333,7 +3321,7 @@ void karte_t::laden(loadsave_t *file)
 	season = (2+letzter_monat/3)&3; // summer always zero
 	snowline = einstellungen->gib_winter_snowline()*Z_TILE_STEP + grundwasser;
 
-DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i beginner=%i",einstellungen->gib_groesse_x(),einstellungen->gib_groesse_y(),umgebung_t::use_timeline,einstellungen->gib_beginner_mode());
+DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i beginner=%i",einstellungen->gib_groesse_x(),einstellungen->gib_groesse_y(),einstellungen->gib_use_timeline(),einstellungen->gib_beginner_mode());
 
 	// wird gecached, um den Pointerzugriff zu sparen, da
 	// die groesse _sehr_ oft referenziert wird
@@ -3367,7 +3355,7 @@ DBG_DEBUG("karte_t::laden", "init felder ok");
 	file->rdwr_long(letzter_monat, " ");
 	file->rdwr_long(letztes_jahr, "\n");
 	if(file->get_version()<86006) {
-		letztes_jahr += umgebung_t::starting_year;
+		letztes_jahr += umgebung_t::default_einstellungen.gib_starting_year();
 	}
 	// old game might have wrong month
 	letzter_monat %= 12;
@@ -3380,6 +3368,23 @@ DBG_DEBUG("karte_t::laden", "init felder ok");
 
 DBG_MESSAGE("karte_t::laden()","savegame loading at tick count %i",ticks);
 	recalc_average_speed();	// resets timeline
+
+DBG_MESSAGE("karte_t::laden()", "init player");
+	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
+		if(  file->get_version()>=101000  ) {
+			// since we have different kind of AIs
+			delete spieler[i];
+			spieler[i] = NULL;
+			new_spieler( i, einstellungen->spieler_type[i] );
+		}
+		else if(i<8) {
+			// get the old player ...
+			if(  spieler[i]==NULL  ) {
+				spieler[i] = (i==3) ? (spieler_t*)(new ai_passenger_t(this, i)) : (spieler_t*)(new ai_goods_t(this, i));
+			}
+			einstellungen->spieler_type[i] = spieler[i]->get_ai_id();
+		}
+	}
 
 DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte());
 	stadt.clear();
@@ -3398,7 +3403,7 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte()
 			if(file->is_eof()) {
 				dbg->fatal("karte_t::laden()","Savegame file mangled (too short)!");
 			}
-			access(x, y)->rdwr(this, file);
+			access(x, y)->rdwr(this, file, koord(x,y) );
 		}
 		display_progress(y, gib_groesse_y()+stadt.get_count()+256);
 	}
@@ -3556,31 +3561,21 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 			}
 		}
 	}
+DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_count());
 
 	// jetzt können die spieler geladen werden
 	display_progress(gib_groesse_y()+24+stadt.get_count(), gib_groesse_y()+256+stadt.get_count());
-DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_count());
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		if(  file->get_version()>=101000  ) {
-			// since we have different kind of AIs
-			delete spieler[i];
-			uint8 id;
-			file->rdwr_byte( id, "" );
-			switch( id ) {
-				case spieler_t::EMPTY: spieler[i] = NULL; break;
-				case spieler_t::HUMAN: spieler[i] = new spieler_t(this, i); break;
-				case spieler_t::AI_PASSENGER: spieler[i] = new ai_passenger_t(this, i); break;
-				case spieler_t::AI_GOODS: spieler[i] = new ai_goods_t(this, i); break;
-				default: dbg->fatal( "karte_t::laden()", "DO not know how to handle AI type %i", id );
-			}
-		}
 		if(  spieler[i]  ) {
 			spieler[i]->rdwr(file);
+			einstellungen->automaten[i] = spieler[i]->is_active();
+		}
+		else {
+			einstellungen->automaten[i] = false;
+			delete einstellungen->password[i];
+			einstellungen->password[i] = NULL;
 		}
 		display_progress(gib_groesse_y()+24+stadt.get_count()+(i*3), gib_groesse_y()+256+stadt.get_count());
-	}
-	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		umgebung_t::automaten[i] = spieler[i]->is_active();
 	}
 DBG_MESSAGE("karte_t::laden()", "players loaded");
 
@@ -3648,7 +3643,9 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 
 	// register all line stops and change line types, if needed
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
-		spieler[i]->laden_abschliessen();
+		if(  spieler[i]  ) {
+			spieler[i]->laden_abschliessen();
+		}
 	}
 
 	// recalculate halt connections
@@ -4043,14 +4040,33 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 
 
+/* creates a new player with this type */
+void karte_t::new_spieler(uint8 new_player, uint8 type)
+{
+	assert(  spieler[new_player]==NULL  );
+	switch( type ) {
+		case spieler_t::EMPTY: break;
+		case spieler_t::HUMAN: spieler[new_player] = new spieler_t(this,new_player); break;
+		case spieler_t::AI_GOODS: spieler[new_player] = new ai_goods_t(this,new_player); break;
+		case spieler_t::AI_PASSENGER: spieler[new_player] = new ai_passenger_t(this,new_player); break;
+		default: dbg->fatal( "karte_t::new_spieler()","Unknow AI type %i!",type );
+	}
+}
+
+
+
+
 /* goes to next active player */
 void karte_t::switch_active_player(uint8 new_player)
 {
 	// cheat: play as AI
 	bool renew_menu=false;
 
-	if(new_player>=MAX_PLAYER_COUNT) {
-		new_player = 0;
+	for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+		if(  spieler[(i+new_player)%MAX_PLAYER_COUNT] != NULL  ) {
+			new_player = (i+new_player)%MAX_PLAYER_COUNT;
+			break;
+		}
 	}
 
 	// no cheating allowed?
@@ -4200,8 +4216,8 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 		werkzeug_last_pos = koord::invalid;
 	}
 
-    // mouse wheel scrolled -> rezoom
-    if (ev.ev_class == EVENT_CLICK) {
+	// mouse wheel scrolled -> rezoom
+	if (ev.ev_class == EVENT_CLICK) {
 		if(ev.ev_code==MOUSE_WHEELUP) {
 			if(win_change_zoom_factor(true)) {
 				setze_dirty();
@@ -4212,8 +4228,8 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 				setze_dirty();
 			}
 		}
-  	}
-    INT_CHECK("simworld 2117");
+	}
+	INT_CHECK("simworld 2117");
 }
 
 

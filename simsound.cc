@@ -38,21 +38,6 @@ static char *midi_title[MAX_MIDI];
  * Gesamtlautstärke
  * @author hj. Malthaner
  */
-static int global_volume = 127;
-
-
-static bool mute_sound = false;
-
-static bool mute_midi = false;
-
-
-/**
- * MIDI Lautstärke
- * @author hj. Malthaner
- */
-static int midi_volume = 127;
-
-static bool shuffle_midi = false;
 
 static int max_midi = -1; // number of MIDI files
 
@@ -67,7 +52,7 @@ static int current_midi = -1;  // Hajo: init with error condition,
  */
 void sound_set_global_volume(int volume)
 {
-	global_volume = volume;
+	umgebung_t::global_volume = volume;
 }
 
 
@@ -77,17 +62,17 @@ void sound_set_global_volume(int volume)
  */
 int sound_get_global_volume()
 {
-	return global_volume;
+	return umgebung_t::global_volume;
 }
 
 
 void sound_set_mute(bool on)
 {
-	mute_sound = on;
+	umgebung_t::mute_sound = on;
 }
 
 bool sound_get_mute() {
-	return mute_sound  ||  SFX_CASH==NO_SOUND;
+	return umgebung_t::mute_sound  ||  SFX_CASH==NO_SOUND;
 }
 
 
@@ -99,9 +84,9 @@ bool sound_get_mute() {
 void
 sound_play(const struct sound_info info)
 {
-	if(info.index!=(uint16)NO_SOUND  &&  !mute_sound) {
+	if(info.index!=(uint16)NO_SOUND  &&  !umgebung_t::mute_sound) {
 //DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "play sound %i",info.index);
-		dr_play_sample(info.index, (info.volume*global_volume)>>8);
+		dr_play_sample(info.index, (info.volume*umgebung_t::global_volume)>>8);
 	}
 }
 
@@ -109,12 +94,12 @@ sound_play(const struct sound_info info)
 
 bool sound_get_shuffle_midi()
 {
-	return shuffle_midi;
+	return umgebung_t::shuffle_midi;
 }
 
 void sound_set_shuffle_midi( bool shuffle )
 {
-	shuffle_midi = shuffle;
+	umgebung_t::shuffle_midi = shuffle;
 }
 
 
@@ -126,10 +111,10 @@ void sound_set_shuffle_midi( bool shuffle )
  */
 void sound_set_midi_volume(int volume)
 {
-	if(!mute_midi  &&  max_midi>-1) {
+	if(!umgebung_t::mute_midi  &&  max_midi>-1) {
 		dr_set_midi_volume(volume);
 	}
-	midi_volume = volume;
+	umgebung_t::midi_volume = volume;
 }
 
 
@@ -141,7 +126,7 @@ void sound_set_midi_volume(int volume)
  */
 int sound_get_midi_volume()
 {
-	return midi_volume;
+	return umgebung_t::midi_volume;
 }
 
 
@@ -249,24 +234,24 @@ void midi_set_mute(bool on)
 {
 	on |= (max_midi==-1);
 	if(on) {
-		if(!mute_midi) {
+		if(!umgebung_t::mute_midi) {
 			dr_stop_midi();
 		}
-		mute_midi = true;
+		umgebung_t::mute_midi = true;
 	}
 	else {
-		if(mute_midi) {
-			mute_midi = false;
+		if(umgebung_t::mute_midi) {
+			umgebung_t::mute_midi = false;
 			midi_play(current_midi);
 		}
-		dr_set_midi_volume(midi_volume);
+		dr_set_midi_volume(umgebung_t::midi_volume);
 	}
 }
 
 
 
 bool midi_get_mute() {
-	return  (mute_midi || max_midi==-1);
+	return  (umgebung_t::mute_midi || max_midi==-1);
 }
 
 
@@ -281,7 +266,7 @@ void check_midi()
 	}
 	// ok, we are in playing mode => check for next sound
 	if(dr_midi_pos() < 0  ||  new_midi == 1) {
-		if(shuffle_midi  &&  max_midi>1) {
+		if(umgebung_t::shuffle_midi  &&  max_midi>1) {
 			// shuffle songs
 			int new_midi = simrand(max_midi-1);
 			if(new_midi>=current_midi) {

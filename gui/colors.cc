@@ -96,7 +96,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[6].setze_pos( koord(10,SCROLL_INVERS) );
 	buttons[6].setze_typ(button_t::square_state);
 	buttons[6].setze_text("4LIGHT_CHOOSE");
-	buttons[6].pressed = welt->gib_einstellungen()->gib_scroll_multi() < 0;
+	buttons[6].pressed = umgebung_t::scroll_multi < 0;
 
 	buttons[7].setze_pos( koord(10,STOP_WALKER) );
 	buttons[7].setze_typ(button_t::square_state);
@@ -106,7 +106,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[8].setze_pos( koord(10,CITY_WALKER) );
 	buttons[8].setze_typ(button_t::square_state);
 	buttons[8].setze_text("6LIGHT_CHOOSE");
-	buttons[8].pressed = umgebung_t::fussgaenger;
+	buttons[8].pressed = welt->gib_einstellungen()->gib_random_pedestrians();
 
 	buttons[9].setze_pos( koord(10,DAY_NIGHT) );
 	buttons[9].setze_typ(button_t::square_state);
@@ -187,27 +187,27 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t)
 			sets->setze_verkehr_level( sets->gib_verkehr_level() + 1 );
 		}
 	} else if((buttons+2)==komp) {
-		if(sets->gib_scroll_multi() > 1) {
-			welt->setze_scroll_multi(sets->gib_scroll_multi()-1);
+		if(umgebung_t::scroll_multi > 1) {
+			umgebung_t::scroll_multi --;
 		}
-		if(sets->gib_scroll_multi() < -1) {
-			welt->setze_scroll_multi(sets->gib_scroll_multi()+1);
+		if(umgebung_t::scroll_multi < -1) {
+			umgebung_t::scroll_multi ++;
 		}
 	} else if((buttons+3)==komp) {
-		if(sets->gib_scroll_multi() >= 1) {
-			welt->setze_scroll_multi(sets->gib_scroll_multi()+1);
+		if(umgebung_t::scroll_multi >= 1) {
+			umgebung_t::scroll_multi ++;
 		}
-		if(sets->gib_scroll_multi() <= -1) {
-			welt->setze_scroll_multi(sets->gib_scroll_multi()-1);
+		if(umgebung_t::scroll_multi <= -1) {
+			umgebung_t::scroll_multi --;
 		}
 	} else if((buttons+6)==komp) {
-		welt->setze_scroll_multi(- sets->gib_scroll_multi());
+		umgebung_t::scroll_multi = -umgebung_t::scroll_multi;
 		buttons[6].pressed ^= 1;
 	} else if((buttons+7)==komp) {
 		welt->gib_einstellungen()->setze_show_pax( !welt->gib_einstellungen()->gib_show_pax() );
 		buttons[7].pressed ^= 1;
 	} else if((buttons+8)==komp) {
-		umgebung_t::fussgaenger = !umgebung_t::fussgaenger;
+		welt->gib_einstellungen()->setze_random_pedestrians( !welt->gib_einstellungen()->gib_random_pedestrians() );
 		buttons[8].pressed ^= 1;
 	} else if((buttons+9)==komp) {
 		umgebung_t::night_shift = !umgebung_t::night_shift;
@@ -281,7 +281,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x+NUMBER, y+BRIGHTNESS, ntos(display_get_light(), 0), ALIGN_RIGHT, COL_WHITE, true);
 
 	display_proportional_clip(x+10, y+SCROLL_SPEED, translator::translate("3LIGHT_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+NUMBER, y+SCROLL_SPEED, ntos(abs(sets->gib_scroll_multi()), 0), ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x+NUMBER, y+SCROLL_SPEED, ntos(abs(umgebung_t::scroll_multi), 0), ALIGN_RIGHT, COL_WHITE, true);
 
 	display_proportional_clip(x+10, y+DENS_TRAFFIC, translator::translate("6WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 	display_proportional_clip(x+NUMBER, y+DENS_TRAFFIC, ntos(sets->gib_verkehr_level(),0), ALIGN_RIGHT, COL_WHITE, true);

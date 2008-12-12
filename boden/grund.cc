@@ -131,15 +131,6 @@ const char* grund_t::gib_text() const
 }
 
 
-grund_t::grund_t(karte_t *wl)
-{
-	welt = wl;
-	flags = 0;
-	bild_nr = IMG_LEER;
-	back_bild_nr = 0;
-}
-
-
 grund_t::grund_t(karte_t *wl, loadsave_t *file)
 {
 	// only used for saving?
@@ -153,7 +144,12 @@ grund_t::grund_t(karte_t *wl, loadsave_t *file)
 void grund_t::rdwr(loadsave_t *file)
 {
 	file->wr_obj_id(gib_typ());
-	pos.rdwr(file);
+	if(file->get_version()<101000) {
+		pos.rdwr(file);
+	}
+	else {
+		file->rdwr_byte( pos.z, "" );
+	}
 
 	if(file->is_saving()) {
 		const char *text = gib_text();
@@ -887,7 +883,7 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 					break;
 				}
 				delete d;
-				cost -= umgebung_t::cst_remove_tree;
+				cost -= welt->gib_einstellungen()->cst_remove_tree;
 			}
 			// remove all groundobjs ...
 			while(1) {

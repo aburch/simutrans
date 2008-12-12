@@ -81,7 +81,7 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	player_nr = nr;
 	set_player_color( nr*8, nr*8+24 );
 
-	konto = umgebung_t::starting_money;
+	konto = welt->gib_einstellungen()->gib_starting_money();
 
 	konto_ueberzogen = 0;
 	automat = false;		// Start nicht als automatischer Spieler
@@ -98,7 +98,7 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 		for (int cost_type=0; cost_type<MAX_PLAYER_COST; cost_type++) {
 			finance_history_year[year][cost_type] = 0;
 			if ((cost_type == COST_CASH) || (cost_type == COST_NETWEALTH)) {
-				finance_history_year[year][cost_type] = umgebung_t::starting_money;
+				finance_history_year[year][cost_type] = welt->gib_einstellungen()->gib_starting_money();
 			}
 		}
 	}
@@ -107,7 +107,7 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 		for (int cost_type=0; cost_type<MAX_PLAYER_COST; cost_type++) {
 			finance_history_month[month][cost_type] = 0;
 			if ((cost_type == COST_CASH) || (cost_type == COST_NETWEALTH)) {
-				finance_history_month[month][cost_type] = umgebung_t::starting_money;
+				finance_history_month[month][cost_type] = welt->gib_einstellungen()->gib_starting_money();
 			}
 		}
 	}
@@ -284,7 +284,7 @@ void spieler_t::neuer_monat()
 	// Bankrott ?
 	if(konto < 0) {
 		konto_ueberzogen++;
-		if(!umgebung_t::freeplay) {
+		if(!welt->gib_einstellungen()->is_freeplay()) {
 			if(this == welt->gib_spieler(0)) {
 				if(finance_history_year[0][COST_NETWEALTH]<0) {
 					destroy_all_win();

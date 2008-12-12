@@ -603,12 +603,12 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 					return false;
 				}
 				// calculate costs
-				*costs = str ? 0 : umgebung_t::way_count_straight;
+				*costs = str ? 0 : welt->gib_einstellungen()->way_count_straight;
 				if((str==NULL  &&  to->hat_wege())  ||  (str  &&  to->has_two_ways())) {
 					*costs += 4;	// avoid crossings
 				}
 				if(to->gib_weg_hang()!=0) {
-					*costs += umgebung_t::way_count_slope;
+					*costs += welt->gib_einstellungen()->way_count_slope;
 				}
 			}
 		}
@@ -637,12 +637,12 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 					return false;
 				}
 				// calculate costs
-				*costs = sch ? umgebung_t::way_count_straight : umgebung_t::way_count_straight+1;	// only prefer existing rails a little
+				*costs = sch ? welt->gib_einstellungen()->way_count_straight : welt->gib_einstellungen()->way_count_straight+1;	// only prefer existing rails a little
 				if((sch  &&  to->has_two_ways())  ||  (sch==NULL  &&  to->hat_wege())) {
 					*costs += 4;	// avoid crossings
 				}
 				if(to->gib_weg_hang()!=0) {
-					*costs += umgebung_t::way_count_slope;
+					*costs += welt->gib_einstellungen()->way_count_slope;
 				}
 			}
 		}
@@ -674,12 +674,12 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			}
 			// calculate costs
 			if(ok) {
-				*costs = umgebung_t::way_count_straight;
+				*costs = welt->gib_einstellungen()->way_count_straight;
 				if(!to->hat_wege()) {
-					*costs += umgebung_t::way_count_straight;
+					*costs += welt->gib_einstellungen()->way_count_straight;
 				}
 				if(to->gib_weg_hang()!=0) {
-					*costs += umgebung_t::way_count_slope;
+					*costs += welt->gib_einstellungen()->way_count_slope;
 				}
 			}
 		}
@@ -697,13 +697,13 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 					return false;
 				}
 				// calculate costs
-				*costs = to->hat_weg(track_wt) ? umgebung_t::way_count_straight : umgebung_t::way_count_straight+1;	// only prefer existing rails a little
+				*costs = to->hat_weg(track_wt) ? welt->gib_einstellungen()->way_count_straight : welt->gib_einstellungen()->way_count_straight+1;	// only prefer existing rails a little
 				// perfer own track
 				if(to->hat_weg(road_wt)) {
-					*costs += umgebung_t::way_count_straight;
+					*costs += welt->gib_einstellungen()->way_count_straight;
 				}
 				if(to->gib_weg_hang()!=0) {
-					*costs += umgebung_t::way_count_slope;
+					*costs += welt->gib_einstellungen()->way_count_slope;
 				}
 			}
 		}
@@ -734,7 +734,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			ok &= (welt->lookup(to_pos)->gib_boden_in_hoehe(to->gib_pos().z+Z_TILE_STEP)==NULL);
 			// calculate costs
 			if(ok) {
-				*costs = umgebung_t::way_count_straight+to->hat_wege() ? 8 : 0;
+				*costs = welt->gib_einstellungen()->way_count_straight+to->hat_wege() ? 8 : 0;
 			}
 		break;
 
@@ -746,9 +746,9 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				if(  !check_building( from, zv )  ||  !check_building( to, -zv )  ) {
 					return false;
 				}
-				*costs = to->ist_wasser()  ||  to->hat_weg(water_wt) ? umgebung_t::way_count_straight : umgebung_t::way_count_leaving_road;	// prefer water very much ...
+				*costs = to->ist_wasser()  ||  to->hat_weg(water_wt) ? welt->gib_einstellungen()->way_count_straight : welt->gib_einstellungen()->way_count_leaving_road;	// prefer water very much ...
 				if(to->gib_weg_hang()!=0) {
-					*costs += umgebung_t::way_count_slope*2;
+					*costs += welt->gib_einstellungen()->way_count_slope*2;
 				}
 			}
 			break;
@@ -756,7 +756,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 	case luft: // hsiegeln: runway
 		ok = !to->ist_wasser() && (to->hat_weg(air_wt) || !to->hat_wege())  &&  to->find<leitung_t>()==NULL  &&  !fundament  &&  check_building( from, zv )  &&  check_building( to, -zv );
 		// calculate costs
-		*costs = umgebung_t::way_count_straight;
+		*costs = welt->gib_einstellungen()->way_count_straight;
 		break;
 	}
 	return ok;
@@ -812,8 +812,8 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 
 	if(from->gib_grund_hang()==0) {
 		// try bridge on even ground
-		int max_lenght=bruecke_besch->gib_max_length()>0 ? bruecke_besch->gib_max_length()-2 : umgebung_t::way_max_bridge_len;
-		max_lenght = min( max_lenght, umgebung_t::way_max_bridge_len );
+		int max_lenght=bruecke_besch->gib_max_length()>0 ? bruecke_besch->gib_max_length()-2 : welt->gib_einstellungen()->way_max_bridge_len;
+		max_lenght = min( max_lenght, welt->gib_einstellungen()->way_max_bridge_len );
 
 		for(int i=0;  i<max_lenght;  i++ ) {
 			// not on map or already something there => fail
@@ -865,7 +865,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 					// ok, here we may end
 					// we return the koord3d AFTER we came down!
 					if(has_reason_for_bridge) {
-						next_gr.push_back(next_gr_t(gr, i * cost_difference + umgebung_t::way_count_slope));
+						next_gr.push_back(next_gr_t(gr, i * cost_difference + welt->gib_einstellungen()->way_count_slope));
 					}
 					return;
 				}
@@ -877,7 +877,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 					// ok, here we may end
 					// we return the koord3d AFTER we came down!
 					if(has_reason_for_bridge) {
-						next_gr.push_back(next_gr_t(gr, i * cost_difference + umgebung_t::way_count_slope * 2));
+						next_gr.push_back(next_gr_t(gr, i * cost_difference + welt->gib_einstellungen()->way_count_slope * 2));
 						return;
 					}
 				}
@@ -890,8 +890,8 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 	if(ribi_typ(from->gib_grund_hang())==ribi_t::rueckwaerts(ribi_typ(zv))) {
 		// try bridge
 
-		int max_lenght=bruecke_besch->gib_max_length()>0 ? bruecke_besch->gib_max_length()-2 : umgebung_t::way_max_bridge_len;
-		max_lenght = min( max_lenght, umgebung_t::way_max_bridge_len );
+		int max_lenght=bruecke_besch->gib_max_length()>0 ? bruecke_besch->gib_max_length()-2 : welt->gib_einstellungen()->way_max_bridge_len;
+		max_lenght = min( max_lenght, welt->gib_einstellungen()->way_max_bridge_len );
 
 		for(int i=1;  i<max_lenght;  i++ ) {
 			// not on map or already something there => fail
@@ -942,7 +942,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 				if(!gr->hat_wege()  &&  gr->ist_natur()  &&  !gr->ist_wasser()  &&  !gr2->hat_wege()  &&  is_allowed_step(gr, gr2, &internal_cost )) {
 					// ok, here we may end
 					if(has_reason_for_bridge) {
-						next_gr.push_back(next_gr_t(gr, i * cost_difference + umgebung_t::way_count_slope));
+						next_gr.push_back(next_gr_t(gr, i * cost_difference + welt->gib_einstellungen()->way_count_slope));
 					}
 				}
 			}
@@ -953,7 +953,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 	// uphill hang ... may be tunnel?
 	if(ribi_typ(from->gib_grund_hang())==ribi_typ(zv)) {
 
-		for(unsigned i=0;  i<(unsigned)umgebung_t::way_max_bridge_len;  i++ ) {
+		for(unsigned i=0;  i<(unsigned)welt->gib_einstellungen()->way_max_bridge_len;  i++ ) {
 			// not on map or already something there => fail
 			if (!welt->ist_in_kartengrenzen(to_pos + zv * (i + 1))) return;
 			gr = welt->lookup(to_pos+zv*i)->gib_kartenboden();
@@ -968,7 +968,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 				if(!gr->hat_wege()  &&  gr->ist_natur()  &&  !gr->ist_wasser()  &&  is_allowed_step(gr, gr2, &internal_cost )) {
 					// ok, here we may end
 					// we return the koord3d AFTER we came down!
-					next_gr.push_back(next_gr_t(gr, i * umgebung_t::way_count_tunnel));
+					next_gr.push_back(next_gr_t(gr, i * welt->gib_einstellungen()->way_count_tunnel));
 					return;
 				}
 			}
@@ -1095,7 +1095,7 @@ wegbauer_t::intern_calc_route(const koord3d start3d, const koord3d ziel3d)
 
 	// memory in static list ...
 	if(route_t::nodes==NULL) {
-		route_t::MAX_STEP = umgebung_t::max_route_steps;	// may need very much memory => configurable
+		route_t::MAX_STEP = welt->gib_einstellungen()->gib_max_route_steps();	// may need very much memory => configurable
 		route_t::nodes = new route_t::ANode[route_t::MAX_STEP+4+1];
 	}
 
@@ -1236,18 +1236,18 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->gib_pos().x,gr->gib_pos().y,g
 			if(tmp->parent!=NULL) {
 				current_dir = ribi_typ( tmp->parent->gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
 				if(tmp->dir!=current_dir) {
-					new_g += umgebung_t::way_count_curve;
+					new_g += welt->gib_einstellungen()->way_count_curve;
 					if(tmp->parent->dir!=tmp->dir) {
 						// discourage double turns
-						new_g += umgebung_t::way_count_double_curve;
+						new_g += welt->gib_einstellungen()->way_count_double_curve;
 					}
 					else if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir)) {
 						// discourage v turns heavily
-						new_g += umgebung_t::way_count_90_curve;
+						new_g += welt->gib_einstellungen()->way_count_90_curve;
 					}
 				}
 				else if(bautyp==leitung  &&  ribi_t::ist_kurve(current_dir)) {
-					new_g += umgebung_t::way_count_curve;
+					new_g += welt->gib_einstellungen()->way_count_curve;
 				}
 				// extra malus leave an existing road after only one tile
 				if(tmp->parent->gr->hat_weg((waytype_t)besch->gib_wtyp())  &&
@@ -1255,7 +1255,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->gib_pos().x,gr->gib_pos().y,g
 					to->hat_weg((waytype_t)besch->gib_wtyp()) ) {
 					// but only if not straight track
 					if(!ribi_t::ist_gerade(tmp->dir)) {
-						new_g += umgebung_t::way_count_leaving_road;
+						new_g += welt->gib_einstellungen()->way_count_leaving_road;
 					}
 				}
 			}
@@ -1263,12 +1263,12 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->gib_pos().x,gr->gib_pos().y,g
 				 current_dir = ribi_typ( gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
 			}
 
-			const uint32 new_dist = abs_distance( to->gib_pos().gib_2d(), ziel3d.gib_2d() )*umgebung_t::way_count_straight + abs(to->gib_hoehe()-ziel3d.z)*umgebung_t::way_count_slope;
+			const uint32 new_dist = abs_distance( to->gib_pos().gib_2d(), ziel3d.gib_2d() )*welt->gib_einstellungen()->way_count_straight + abs(to->gib_hoehe()-ziel3d.z)*welt->gib_einstellungen()->way_count_slope;
 
 			// special check for kinks at the end
 			if(new_dist==0  &&  current_dir!=tmp->dir) {
 				// discourage turn on last tile
-				new_g += umgebung_t::way_count_double_curve;
+				new_g += welt->gib_einstellungen()->way_count_double_curve;
 			}
 
 			if(new_dist<min_dist) {
@@ -1738,7 +1738,7 @@ wegbauer_t::calc_costs()
 					koord pos = route[i].gib_2d();
 					while (route[i + 1].gib_2d() != pos) {
 						pos += zv;
-						costs -= umgebung_t::cst_tunnel;
+						costs -= welt->gib_einstellungen()->cst_tunnel;
 					}
 					continue;
 				}
@@ -1760,7 +1760,7 @@ wegbauer_t::calc_costs()
 					ding_t *dt = gr->obj_bei(i);
 					switch(dt->gib_typ()) {
 						case ding_t::baum:
-							costs -= umgebung_t::cst_remove_tree;
+							costs -= welt->gib_einstellungen()->cst_remove_tree;
 							break;
 						case ding_t::groundobj:
 							costs += ((groundobj_t *)dt)->gib_besch()->gib_preis();

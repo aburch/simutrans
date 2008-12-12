@@ -96,7 +96,7 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 		setze_yoff(-TILE_HEIGHT_STEP);
 	}
 
-	spieler_t::add_maintenance(gib_besitzer(), umgebung_t::maint_building*tile->gib_besch()->gib_level() );
+	spieler_t::add_maintenance(gib_besitzer(), welt->gib_einstellungen()->maint_building*tile->gib_besch()->gib_level() );
 }
 
 
@@ -125,7 +125,7 @@ gebaeude_t::~gebaeude_t()
 	count = 0;
 	anim_time = 0;
 	if(tile) {
-		spieler_t::add_maintenance(gib_besitzer(), -umgebung_t::maint_building*tile->gib_besch()->gib_level() );
+		spieler_t::add_maintenance(gib_besitzer(), -welt->gib_einstellungen()->maint_building*tile->gib_besch()->gib_level() );
 	}
 }
 
@@ -455,7 +455,7 @@ int gebaeude_t::gib_passagier_level() const
 	long pax = tile->gib_besch()->gib_level();
 	if (!is_factory && ptr.stadt != NULL) {
 		// belongs to a city ...
-		return (((pax+6)>>2)*umgebung_t::passenger_factor)/16;
+		return (((pax+6)>>2)*welt->gib_einstellungen()->gib_passenger_factor())/16;
 	}
 	return pax*dim.x*dim.y;
 }
@@ -465,7 +465,7 @@ int gebaeude_t::gib_post_level() const
 	koord dim = tile->gib_besch()->gib_groesse();
 	long post = tile->gib_besch()->gib_post_level();
 	if (!is_factory && ptr.stadt != NULL) {
-		return (((post+5)>>2)*umgebung_t::passenger_factor)/16;
+		return (((post+5)>>2)*welt->gib_einstellungen()->gib_passenger_factor())/16;
 	}
 	return post*dim.x*dim.y;
 }
@@ -663,7 +663,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 			buf.append("\n");
 			buf.append(translator::translate("Wert"));
 			buf.append(": ");
-			buf.append(-umgebung_t::cst_multiply_remove_haus*(tile->gib_besch()->gib_level()+1)/100);
+			buf.append(-welt->gib_einstellungen()->cst_multiply_remove_haus*(tile->gib_besch()->gib_level()+1)/100);
 			buf.append("$\n");
 		}
 
@@ -852,7 +852,7 @@ gebaeude_t::laden_abschliessen()
 {
 	calc_bild();
 
-	spieler_t::add_maintenance(gib_besitzer(), umgebung_t::maint_building*tile->gib_besch()->gib_level() );
+	spieler_t::add_maintenance(gib_besitzer(), welt->gib_einstellungen()->maint_building*tile->gib_besch()->gib_level() );
 
 	// citybuilding, but no town?
 	if(tile->gib_offset()==koord(0,0)  &&  tile->gib_besch()->is_connected_with_town()) {
@@ -870,11 +870,11 @@ void gebaeude_t::entferne(spieler_t *sp)
 //	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
 	// remove costs
 	if(tile->gib_besch()->gib_utyp()<haus_besch_t::bahnhof) {
-		spieler_t::accounting(sp, umgebung_t::cst_multiply_remove_haus*(tile->gib_besch()->gib_level()+1), gib_pos().gib_2d(), COST_CONSTRUCTION);
+		spieler_t::accounting(sp, welt->gib_einstellungen()->cst_multiply_remove_haus*(tile->gib_besch()->gib_level()+1), gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
 	else {
 		// tearing down halts is always single costs only
-		spieler_t::accounting(sp, umgebung_t::cst_multiply_remove_haus, gib_pos().gib_2d(), COST_CONSTRUCTION);
+		spieler_t::accounting(sp, welt->gib_einstellungen()->cst_multiply_remove_haus, gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
 
 	// may need to update next buildings, in the case of start, middle, end buildings

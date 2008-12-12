@@ -370,8 +370,8 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	// now we have harbour => find start position for ships
 	koord pos1 = start_harbour-start_dx;
 	koord start_pos = pos1;
-	for(  int y = pos1.y-umgebung_t::station_coverage_size;  y<=pos1.y+umgebung_t::station_coverage_size;  y++  ) {
-		for(  int x = pos1.x-umgebung_t::station_coverage_size;  x<=pos1.x+umgebung_t::station_coverage_size;  x++  ) {
+	for(  int y = pos1.y-welt->gib_einstellungen()->gib_station_coverage();  y<=pos1.y+welt->gib_einstellungen()->gib_station_coverage();  y++  ) {
+		for(  int x = pos1.x-welt->gib_einstellungen()->gib_station_coverage();  x<=pos1.x+welt->gib_einstellungen()->gib_station_coverage();  x++  ) {
 			koord p(x,y);
 			const planquadrat_t *plan = welt->lookup(p);
 			if(plan) {
@@ -387,8 +387,8 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	// now we have harbour => find start position for ships
 	pos1 = end_harbour-end_dx;
 	koord end_pos = pos1;
-	for(  int y = pos1.y-umgebung_t::station_coverage_size;  y<=pos1.y+umgebung_t::station_coverage_size;  y++  ) {
-		for(  int x = pos1.x-umgebung_t::station_coverage_size;  x<=pos1.x+umgebung_t::station_coverage_size;  x++  ) {
+	for(  int y = pos1.y-welt->gib_einstellungen()->gib_station_coverage();  y<=pos1.y+welt->gib_einstellungen()->gib_station_coverage();  y++  ) {
+		for(  int x = pos1.x-welt->gib_einstellungen()->gib_station_coverage();  x<=pos1.x+welt->gib_einstellungen()->gib_station_coverage();  x++  ) {
 			koord p(x,y);
 			const planquadrat_t *plan = welt->lookup(p);
 			if(plan) {
@@ -826,8 +826,8 @@ ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int limit 
 				// find out how many tiles we have covered already
 				int covered_tiles=0;
 				int house_tiles=0;
-				for(  sint16 y=to->gib_pos().y-umgebung_t::station_coverage_size;  y<=to->gib_pos().y+umgebung_t::station_coverage_size+1;  y++  ) {
-					for(  sint16 x=to->gib_pos().x-umgebung_t::station_coverage_size;  x<=to->gib_pos().x+umgebung_t::station_coverage_size+1;  x++  ) {
+				for(  sint16 y=to->gib_pos().y-welt->gib_einstellungen()->gib_station_coverage();  y<=to->gib_pos().y+welt->gib_einstellungen()->gib_station_coverage()+1;  y++  ) {
+					for(  sint16 x=to->gib_pos().x-welt->gib_einstellungen()->gib_station_coverage();  x<=to->gib_pos().x+welt->gib_einstellungen()->gib_station_coverage()+1;  x++  ) {
 						const planquadrat_t *pl = welt->lookup(koord(x,y));
 						// check, if we have a passenger stop already here
 						if(pl  &&  pl->get_haltlist_count()>0) {
@@ -849,7 +849,7 @@ ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int limit 
 				}
 				// now decide, if we build here
 				// just using the ration of covered tiles versus house tiles
-				const int max_tiles = (umgebung_t::station_coverage_size*2+1);
+				const int max_tiles = (welt->gib_einstellungen()->gib_station_coverage()*2+1);
 				if(  covered_tiles<(max_tiles*max_tiles)/3  &&  house_tiles>=3  ) {
 					// ok, lets do it
 					const haus_besch_t* bs = hausbauer_t::gib_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX);
@@ -935,7 +935,7 @@ void ai_passenger_t::step()
 			 * The second condition may happen due to extensive replacement operations;
 			 * in such a case it is save enough to expand anyway.
 			 */
-			if(!(konto>0  ||  finance_history_month[0][COST_ASSETS]+konto>umgebung_t::starting_money)  ) {
+			if(!(konto>0  ||  finance_history_month[0][COST_ASSETS]+konto>welt->gib_einstellungen()->gib_starting_money())  ) {
 				return;
 			}
 
@@ -1003,7 +1003,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 						// this is either a town already served (so we do not create a new hub)
 						// or a lonely point somewhere
 						// in any case we do not want to serve this location already
-						const koord cov = koord(umgebung_t::station_coverage_size,umgebung_t::station_coverage_size);
+						const koord cov = koord(welt->gib_einstellungen()->gib_station_coverage(),welt->gib_einstellungen()->gib_station_coverage());
 						koord test_platz=find_area_for_hub(pos-cov,pos+size+cov,pos);
 						if(!is_my_halt(test_platz)) {
 							// not served
@@ -1201,7 +1201,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		// despite its name: try airplane
 		case NR_BAUE_AIRPORT_ROUTE:
 			// try airline (if we are wealthy enough) ...
-			if(  !air_transport  ||  finance_history_month[1][COST_CASH]<umgebung_t::starting_money  ||  !create_air_transport_vehikel( start_stadt, end_stadt )) {
+			if(  !air_transport  ||  finance_history_month[1][COST_CASH]<welt->gib_einstellungen()->gib_starting_money()  ||  !create_air_transport_vehikel( start_stadt, end_stadt )) {
 				state = NR_BAUE_CLEAN_UP;
 			}
 			else {

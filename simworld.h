@@ -481,10 +481,11 @@ public:
 	 */
 	void mark_area( const koord3d center, const koord radius, const bool mark );
 
-	spieler_t * gib_spieler(int n) const {assert(((uint8)n)<MAX_PLAYER_COUNT); return spieler[n]; }
+	spieler_t * gib_spieler(int n) const { return spieler[n&15]; }
 	spieler_t* get_active_player() const { return active_player; }
 	uint8 get_active_player_nr() const { return active_player_nr; }
 	void switch_active_player(uint8 nr);
+	void new_spieler( uint8 nr, uint8 type );
 
 	// if a schedule is changed, it will increment the schedule counter
 	// every step the haltstelle will check and reroute the goods if needed
@@ -594,8 +595,6 @@ public:
 
 	void set_werkzeug( werkzeug_t *w );
 	werkzeug_t *get_werkzeug() const { return werkzeug; }
-
-	void setze_scroll_multi(int n);
 
 	// all stuf concerning map size
 	inline int gib_groesse_x() const { return cached_groesse_gitter_x; }

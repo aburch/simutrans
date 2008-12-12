@@ -436,7 +436,7 @@ pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
 {
 	fab = NULL;
-	sp->buche( umgebung_t::cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
+	sp->buche( welt->gib_einstellungen()->cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
 }
 
 
@@ -448,7 +448,7 @@ pumpe_t::~pumpe_t()
 		welt->sync_remove(this);
 		fab = NULL;
 	}
-	spieler_t::add_maintenance(gib_besitzer(), umgebung_t::cst_maintain_transformer);
+	spieler_t::add_maintenance(gib_besitzer(), welt->gib_einstellungen()->cst_maintain_transformer);
 }
 
 
@@ -480,7 +480,7 @@ void
 pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(gib_besitzer(), -umgebung_t::cst_maintain_transformer);
+	spieler_t::add_maintenance(gib_besitzer(), -welt->gib_einstellungen()->cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
@@ -505,7 +505,7 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 	fab = NULL;
 	einkommen = 1;
 	max_einkommen = 1;
-	sp->buche( umgebung_t::cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
+	sp->buche( welt->gib_einstellungen()->cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
 }
 
 
@@ -517,7 +517,7 @@ senke_t::~senke_t()
 		welt->sync_remove(this);
 		fab = NULL;
 	}
-	spieler_t::add_maintenance(gib_besitzer(), umgebung_t::cst_maintain_transformer);
+	spieler_t::add_maintenance(gib_besitzer(), welt->gib_einstellungen()->cst_maintain_transformer);
 }
 
 
@@ -564,7 +564,7 @@ void
 senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(gib_besitzer(), -umgebung_t::cst_maintain_transformer);
+	spieler_t::add_maintenance(gib_besitzer(), -welt->gib_einstellungen()->cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());

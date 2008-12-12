@@ -151,8 +151,8 @@ sint32 gui_numberinput_t::get_next_value()
 		{
 			sint64 diff = max_value-min_value;
 			for( int i=0;  i<7;  i++  ) {
-				if(  value<((diff*(sint64)percent[i])/100l)  ) {
-					return clamp( (sint32)((diff*percent[i])/100l), min_value, max_value );
+				if(  value-min_value < ((diff*(sint64)percent[i])/100l)  ) {
+					return min_value+(sint32)((diff*percent[i])/100l);
 				}
 			}
 			return max_value;
@@ -192,8 +192,8 @@ sint32 gui_numberinput_t::get_prev_value()
 		{
 			sint64 diff = max_value-min_value;
 			for( int i=6;  i>=0;  i--  ) {
-				if(  value>((diff*percent[i])/100l)  ) {
-					return clamp( (sint32)((diff*percent[i])/100l), min_value, max_value );
+				if(  value-min_value > ((diff*percent[i])/100l)  ) {
+					return min_value+(sint32)((diff*percent[i])/100l);
 				}
 			}
 			return min_value;

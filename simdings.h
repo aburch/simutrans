@@ -58,7 +58,7 @@ private:
 	* Dies ist der Zeiger auf den Besitzer des Objekts.
 	* @author Hj. Malthaner
 	*/
-	sint8 besitzer_n:4;
+	uint8 besitzer_n:4;
 
 	/**
 	* flags fuer Zustaende, etc
@@ -78,7 +78,7 @@ protected:
 	ding_t(karte_t *welt);
 
 	// since we need often access during loading
-	void set_player_nr(sint8 s) { besitzer_n = s; }
+	void set_player_nr(uint8 s) { besitzer_n = s; }
 
 	/**
 	* Pointer to the world of this thing. Static to conserve space.
