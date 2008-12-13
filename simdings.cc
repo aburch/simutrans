@@ -180,7 +180,7 @@ ding_t::zeige_info()
 // returns NULL, if removal is allowed
 const char *ding_t::ist_entfernbar(const spieler_t *sp)
 {
-	if(besitzer_n==PLAYER_UNOWNED  ||  besitzer_n == sp->get_player_nr()) {
+	if(besitzer_n==PLAYER_UNOWNED  ||  welt->gib_spieler(besitzer_n) == sp) {
 		return NULL;
 	}
 	else {

@@ -563,7 +563,12 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 	}
 
 	if(file->is_loading()  &&  besch) {
-		baue(rotate);
+		if(  !welt->ist_in_kartengrenzen(pos.gib_2d())  ) {
+			dbg->error( "fabrik_t::baue()", "%s is not a valid position! (Will not be built!)", pos.gib_str() );
+		}
+		else {
+			baue(rotate);
+		}
 	}
 
 	// restore city pointer here

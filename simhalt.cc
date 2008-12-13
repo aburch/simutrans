@@ -1963,8 +1963,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		while(k!=koord3d::invalid) {
 			grund_t *gr = welt->lookup(k);
 			if(!gr) {
+				dbg->error("haltestelle_t::rdwr()", "invalid position %s", k.gib_str() );
 				gr = welt->lookup(k.gib_2d())->gib_kartenboden();
-				dbg->error("haltestelle_t::rdwr()", "invalid position %s (setting to ground %s)\n", k.gib_str(), gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z );
+				dbg->error("haltestelle_t::rdwr()", "setting to %s", gr->gib_pos().gib_str() );
 			}
 			// during loading and saving halts will be referred by their base postion
 			// so we may alrady be defined ...
