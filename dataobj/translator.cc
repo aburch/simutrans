@@ -394,7 +394,7 @@ bool translator::load(const cstring_t& scenario_path)
 	}
 
 	// use english if available
-	set_language("en");
+	set_language( umgebung_t::language_iso );
 
 	// it's all ok
 	return true;
@@ -419,13 +419,6 @@ void translator::set_language(int lang)
 		single_instance.current_lang = lang;
 		umgebung_t::language_iso = langs[lang].iso;
 		umgebung_t::default_einstellungen.setze_name_language_iso( langs[lang].iso );
-
-
-
-
-
-
-
 		display_set_unicode(langs[lang].utf_encoded);
 		init_city_names(langs[lang].utf_encoded);
 		DBG_MESSAGE("translator::set_language()", "%s, unicode %d", langs[lang].name, langs[lang].utf_encoded);

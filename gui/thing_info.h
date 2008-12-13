@@ -23,51 +23,51 @@
 class ding_infowin_t : public gui_frame_t
 {
 protected:
-    world_view_t view;
+	world_view_t view;
 
-    static cbuffer_t buf;
+	static cbuffer_t buf;
 
-    /**
-     * The thing we observe. The thing will delete this object
-     * if self deleted.
-     * @author Hj. Malthaner
-     */
-    const ding_t* ding;
+	/**
+	 * The thing we observe. The thing will delete this object
+	 * if self deleted.
+	 * @author Hj. Malthaner
+	 */
+	const ding_t* ding;
 
 		KOORD_VAL calc_draw_info( koord, bool ) const;
 
-public:
-    ding_infowin_t(const ding_t* ding);
+	public:
+	ding_infowin_t(const ding_t* ding);
 
-    /**
-     * @return window title
-     *
-     * @author Hj. Malthaner
-     * @see simwin
-     */
-    virtual const char * gib_name() const { return ding->gib_name(); }
+	/**
+	 * @return window title
+	 *
+	 * @author Hj. Malthaner
+	 * @see simwin
+	 */
+	virtual const char *gib_name() const { return ding->gib_name(); }
 
-    /**
-     * @return the text to display in the info window
-     *
-     * @author Hj. Malthaner
-     * @see simwin
-     */
-    virtual void info(cbuffer_t & buf) const { ding->info(buf); }
+	/**
+	 * @return the text to display in the info window
+	 *
+	 * @author Hj. Malthaner
+	 * @see simwin
+	 */
+	virtual void info(cbuffer_t & buf) const { ding->info(buf); }
 
-    /**
-     * @return a pointer to the player who owns this thing
-     *
-     * @author Hj. Malthaner
-     */
-    virtual spieler_t* gib_besitzer() const { return ding->gib_besitzer(); }
+	/**
+	 * @return a pointer to the player who owns this thing
+	 *
+	 * @author Hj. Malthaner
+	 */
+	virtual spieler_t* gib_besitzer() const { return ding->gib_besitzer(); }
 
-    /**
-     * @return the current map position
-     *
-     * @author Hj. Malthaner
-     */
-    virtual koord3d gib_pos() const { return ding->gib_pos(); }
+	/**
+	 * @return the current map position
+	 *
+	 * @author Hj. Malthaner
+	 */
+	virtual koord3d gib_pos() const { return ding->gib_pos(); }
 
 	/**
 	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf

@@ -3393,7 +3393,7 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte()
 			if(file->is_eof()) {
 				dbg->fatal("karte_t::laden()","Savegame file mangled (too short)!");
 			}
-			access(x, y)->rdwr(this, file, koord(x,y) );
+			plan[x+y*cached_groesse_gitter_x].rdwr(this, file, koord(x,y) );
 		}
 		display_progress(y, gib_groesse_y()+stadt.get_count()+256);
 	}
@@ -3734,15 +3734,17 @@ karte_t::get_halt_koord_index(koord k)
 
 
 
-int
-karte_t::sp2num(spieler_t *sp)
+uint8 karte_t::sp2num(spieler_t *sp)
 {
+	if(  sp==NULL  ) {
+		return PLAYER_UNOWNED;
+	}
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(spieler[i] == sp) {
 			return i;
 		}
 	}
-	return -1;
+	dbg->fatal( "karte_t::sp2num()", "called with an invalid player!" );
 }
 
 

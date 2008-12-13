@@ -481,7 +481,11 @@ public:
 	 */
 	void mark_area( const koord3d center, const koord radius, const bool mark );
 
-	spieler_t * gib_spieler(int n) const { return spieler[n&15]; }
+	/**
+	 * Player management here
+	 */
+	uint8 sp2num(spieler_t *sp);
+	spieler_t * gib_spieler(uint8 n) const { return spieler[n&15]; }
 	spieler_t* get_active_player() const { return active_player; }
 	uint8 get_active_player_nr() const { return active_player_nr; }
 	void switch_active_player(uint8 nr);
@@ -931,14 +935,6 @@ public:
 	 * @author Hansjörg Malthaner
 	 */
 	void load_heightfield(einstellungen_t *sets);
-
-	/**
-	 * Converts player point to an index of the player array
-	 *
-	 * @return player index (number)
-	 * @author Hansjörg Malthaner
-	 */
-	int sp2num(spieler_t *sp);
 
 	void beenden(bool b);
 

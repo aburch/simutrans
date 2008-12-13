@@ -152,12 +152,12 @@ spieler_t *ding_t::gib_besitzer() const {
 
 
 
-void
-ding_t::info(cbuffer_t & buf) const
+void ding_t::info(cbuffer_t & buf) const
 {
 	if(besitzer_n==1  ||  besitzer_n==PLAYER_UNOWNED) {
 		buf.append(translator::translate("Eigenbesitz\n"));
-	} else if(besitzer_n==0 || besitzer_n > 1) {
+	}
+	else {
 		buf.append(translator::translate("Spieler"));
 		buf.append(" ");
 		buf.append(besitzer_n);
@@ -177,10 +177,10 @@ ding_t::zeige_info()
 
 
 
-const char *
-ding_t::ist_entfernbar(const spieler_t *sp)
+// returns NULL, if removal is allowed
+const char *ding_t::ist_entfernbar(const spieler_t *sp)
 {
-	if(besitzer_n<0  ||  gib_besitzer() == sp) {
+	if(besitzer_n==PLAYER_UNOWNED  ||  besitzer_n == sp->get_player_nr()) {
 		return NULL;
 	}
 	else {

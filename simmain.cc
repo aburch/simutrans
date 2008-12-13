@@ -379,6 +379,16 @@ int simu_main(int argc, char** argv)
 		found_simuconf = true;
 	}
 
+	// init dirs now
+	if(multiuser) {
+		umgebung_t::user_dir = dr_query_homedir();
+	}
+	else {
+		// save in program directory
+		umgebung_t::user_dir = umgebung_t::program_dir;
+	}
+	chdir( umgebung_t::user_dir );
+
 	// now read last setting (might be overwritten by the tab-files)
 	loadsave_t file;
 	if(file.rd_open("default.sve")) {
@@ -401,17 +411,11 @@ int simu_main(int argc, char** argv)
 	// if set for multiuser, then parses the users config (if there)
 	// retrieve everything (but we must do this again once more ... )
 	if(multiuser) {
-		umgebung_t::user_dir = dr_query_homedir();
-
 		cstring_t obj_conf = umgebung_t::user_dir;
 		if(simuconf.open(obj_conf + "simuconf.tab")) {
 			printf("parse_simuconf() at %ssimuconf.tab", (const char *)obj_conf);
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 		}
-	}
-	else {
-		// save in program directory
-		umgebung_t::user_dir = umgebung_t::program_dir;
 	}
 
 	// now set the desired objectfilename (overide all previous settings)
@@ -419,7 +423,6 @@ int simu_main(int argc, char** argv)
 		umgebung_t::objfilename = gimme_arg(argc, argv, "-objects", 1);
 	}
 
-	chdir( umgebung_t::user_dir );
 	if (gimme_arg(argc, argv, "-log", 0)) {
 		init_logging("simu.log", true, gimme_arg(argc, argv, "-log", 0) != NULL);
 	} else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
@@ -564,8 +567,6 @@ int simu_main(int argc, char** argv)
 		dbg->fatal("simmain::main()", "Unable to load any language files\n*** PLEASE INSTALL PROPER BASE FILES ***\n");
 		exit(11);
 	}
-	// restore old language
-	translator::set_language( umgebung_t::language_iso );
 
 	print("Reading city configuration ...\n");
 	stadt_t::cityrules_init(umgebung_t::objfilename);
@@ -732,7 +733,6 @@ DBG_MESSAGE("init","map");
 
 	// Hajo: simgraph init loads default fonts, now we need to load
 	// the real fonts for the current language
-	translator::set_language("en");
 	sprachengui_t::init_font_from_lang();
 
 	welt->get_message()->clear();
