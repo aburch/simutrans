@@ -3117,16 +3117,6 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	file->rdwr_long(letzter_monat, " ");
 	file->rdwr_long(letztes_jahr, "\n");
 
-	// save palyer types (since we must create all players before all other objects in the game)
-	if(file->get_version()>=101000) {
-		for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-			// since we can have now different AI, we must identify them
-			uint8 id = spieler[i] ? spieler[i]->get_ai_id() : spieler_t::EMPTY;
-			file->rdwr_byte( id, "" );
-		}
-	}
-DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved player ids");
-
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		(*i)->rdwr(file);
 		if(silent) {
@@ -3137,7 +3127,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities ok");
 
 	for(int j=0; j<gib_groesse_y(); j++) {
 		for(int i=0; i<gib_groesse_x(); i++) {
-			access(i, j)->rdwr(this, file, koord(i,j) );
+			plan[i+j*cached_groesse_gitter_x].rdwr(this, file, koord(i,j) );
 		}
 		if(silent) {
 			INT_CHECK("saving");

@@ -34,8 +34,6 @@ einstellungen_t::einstellungen_t() :
 	anzahl_staedte = 16;
 	mittlere_einwohnerzahl = 1600;
 
-	scroll_multi = 1;
-
 	verkehr_level = 7;
 
 	show_pax = true;
@@ -51,6 +49,9 @@ einstellungen_t::einstellungen_t() :
 
 	// some settigns more
 	allow_player_change = true;
+	use_timeline = true;
+	starting_year = 1930;
+	bits_per_month = 18;
 
 	beginner_mode = false;
 	beginner_price_factor = 1500;
@@ -98,8 +99,7 @@ einstellungen_t::einstellungen_t() :
 	 */
 	pak_diagonal_multiplier = 724;
 
-	setze_name_language_iso( "en" );
-
+	language_code_names = "en";
 
 	// default AIs active
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
@@ -344,6 +344,9 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_long( beginner_price_factor , "" );
 
 			// name of stops
+			if(  file->is_loading()  ) {
+				language_code_names = NULL;
+			}
 			file->rdwr_str( language_code_names, "en" );
 
 			// restore AI state

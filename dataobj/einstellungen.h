@@ -33,8 +33,6 @@ private:
 	sint32 anzahl_staedte;
 	sint32 mittlere_einwohnerzahl;
 
-	sint32 scroll_multi;
-
 	uint16 station_coverage_size;
 
 	/**
@@ -74,8 +72,6 @@ private:
 	uint8 rotation;
 
 	sint16 origin_x, origin_y;
-
-	bool no_trees;
 
 	sint32 passenger_factor;
 
@@ -303,10 +299,11 @@ public:
 	void setze_pak_diagonal_multiplier( uint16 pdm ) { pak_diagonal_multiplier = pdm; }
 
 	const char *gib_name_language_iso() const { return language_code_names; }
-	// will fail horribly with NULL pointer for iso ...
-	void setze_name_language_iso( const char *iso ) { delete language_code_names; language_code_names = strdup(iso); }
+	void setze_name_language_iso( const char *iso ) { language_code_names = iso; }
 
 	void set_player_active(uint8 i, bool b) { automaten[i] = b; }
+
+	uint8 get_player_type(uint8 i) const { return spieler_type[i]; }
 	void set_player_type(uint8 i, uint8 t) { spieler_type[i] = t; }
 };
 

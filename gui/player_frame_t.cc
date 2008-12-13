@@ -65,7 +65,9 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Manual (Human)"), COL_BLACK ) );
 		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Goods AI"), COL_BLACK ) );
 		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passenger AI"), COL_BLACK ) );
-		player_select[i].set_selection(0);
+		assert(  spieler_t::MAX_AI==4  );
+		// when adding new players, add a name here ...
+		player_select[i].set_selection(welt->gib_einstellungen()->get_player_type(i) );
 		player_select[i].add_listener(this);
 		if(  welt->gib_spieler(i)!=NULL  ) {
 			player_get_finances[i].setze_text( welt->gib_spieler(i)->gib_name() );
@@ -96,8 +98,7 @@ ki_kontroll_t::~ki_kontroll_t()
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool
-ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 {
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(i>=2  &&  komp==(player_active+i-2)) {
@@ -131,11 +132,13 @@ ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		if(komp==(player_select+i)) {
 			// make active player
 			remove_komponente( player_active+i-2 );
-			if(  player_select[i].get_selection()>0  ) {
+			if(  p.i<spieler_t::MAX_AI  &&  p.i>0  ) {
 				add_komponente( player_active+i-2 );
+				welt->gib_einstellungen()->set_player_type( i, p.i );
 			}
 			else {
 				player_select[i].set_selection(0);
+				welt->gib_einstellungen()->set_player_type( i, 0 );
 			}
 			break;
 		}
