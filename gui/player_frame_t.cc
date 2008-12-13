@@ -35,7 +35,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 {
 	this->welt = wl;
 
-	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
+	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
 
 		player_change_to[i].init(button_t::arrowright_state, " ", koord(16+4,6+i*2*LINESPACE), koord(10,BUTTON_HEIGHT));
 		player_change_to[i].add_listener(this);
@@ -46,7 +46,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		if(i>=2) {
 			player_active[i-2].init(button_t::square_state, " ", koord(4,6+i*2*LINESPACE), koord(10,BUTTON_HEIGHT));
 			player_active[i-2].add_listener(this);
-			if(  welt->gib_spieler(i)  ) {
+			if(  welt->gib_einstellungen()->get_player_type(i)!=spieler_t::EMPTY  ) {
 				add_komponente( player_active+i-2 );
 			}
 		}
@@ -80,14 +80,26 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 
 		add_komponente( ai_income[i] );
 	}
-	setze_fenstergroesse(koord(260, MAX_PLAYER_COUNT*LINESPACE*2+16));
+
+	// freeplay mode
+	freeplay.init( button_t::square_state, "freeplay mode", koord(4,2+(MAX_PLAYER_COUNT-1)*LINESPACE*2) );
+	if(  !welt->gib_einstellungen()->gib_allow_player_change()  ) {
+		freeplay.disable();
+	}
+	else {
+		freeplay.add_listener(this);
+	}
+	freeplay.pressed = welt->gib_einstellungen()->is_freeplay();
+	add_komponente( &freeplay );
+
+	setze_fenstergroesse(koord(260, (MAX_PLAYER_COUNT-1)*LINESPACE*2+16+14+4));
 }
 
 
 
 ki_kontroll_t::~ki_kontroll_t()
 {
-	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
+	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
 		delete ai_income[i];
 	}
 }
@@ -100,7 +112,13 @@ ki_kontroll_t::~ki_kontroll_t()
  */
 bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 {
-	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
+	if(  komp==&freeplay  ) {
+		welt->gib_einstellungen()->setze_freeplay( !welt->gib_einstellungen()->is_freeplay() );
+		freeplay.pressed = welt->gib_einstellungen()->is_freeplay();
+		return true;
+	}
+
+	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
 		if(i>=2  &&  komp==(player_active+i-2)) {
 			// switch AI on/off
 			if(  welt->gib_spieler(i)==NULL  ) {
@@ -155,7 +173,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 void
 ki_kontroll_t::zeichnen(koord pos, koord gr)
 {
-	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
+	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
 
 		player_change_to[i].pressed = false;
 
@@ -165,7 +183,7 @@ ki_kontroll_t::zeichnen(koord pos, koord gr)
 
 		spieler_t *sp = welt->gib_spieler(i);
 		if(  sp!=NULL  ) {
-			if(sp->get_finance_history_year(0, COST_NETWEALTH)<0) {
+			if(i!=1  &&  sp->get_finance_history_year(0, COST_NETWEALTH)<0) {
 				ai_income[i]->set_color( MONEY_MINUS );
 				tstrncpy(account_str[i], translator::translate("Company bankrupt"), 31 );
 			}

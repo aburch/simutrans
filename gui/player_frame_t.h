@@ -19,17 +19,19 @@ class karte_t;
 class ki_kontroll_t : public gui_frame_t, private action_listener_t
 {
 private:
-	gui_label_t *ai_income[MAX_PLAYER_COUNT];
-	char account_str[MAX_PLAYER_COUNT][32];
+	gui_label_t *ai_income[MAX_PLAYER_COUNT-1];
+	char account_str[MAX_PLAYER_COUNT-1][32];
 
-	button_t	player_active[MAX_PLAYER_COUNT-2];
-	button_t	player_get_finances[MAX_PLAYER_COUNT];
-	button_t	player_change_to[MAX_PLAYER_COUNT];
-	gui_combobox_t player_select[MAX_PLAYER_COUNT];
+	button_t	player_active[MAX_PLAYER_COUNT-2-1];
+	button_t	player_get_finances[MAX_PLAYER_COUNT-1];
+	button_t	player_change_to[MAX_PLAYER_COUNT-1];
+	gui_combobox_t player_select[MAX_PLAYER_COUNT-1];
+
+	button_t	freeplay;
 
 	static karte_t *welt;
 
-	public:
+public:
 	ki_kontroll_t(karte_t *welt);
 	~ki_kontroll_t();
 
