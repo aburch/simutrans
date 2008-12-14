@@ -84,7 +84,7 @@ static font_type large_font = { 0, 0, 0, NULL, NULL };
 int large_font_height = 10;
 
 #define LIGHT_COUNT (15)
-#define MAX_PLAYER (8)
+#define MAX_PLAYER (16)
 
 #define RGBMAPSIZE (0x8000+LIGHT_COUNT+16)
 

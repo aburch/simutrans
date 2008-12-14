@@ -126,6 +126,9 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 				welt->gib_einstellungen()->set_player_type( i, welt->gib_spieler(i)->get_ai_id() );
 				remove_komponente( player_select+i );
 				add_komponente( player_change_to+i );
+				if(  welt->gib_spieler(i)->get_ai_id()==spieler_t::HUMAN  ) {
+					remove_komponente( player_active+i-2 );
+				}
 				player_get_finances[i].setze_text( welt->gib_spieler(i)->gib_name() );
 				add_komponente( player_get_finances+i );
 				welt->gib_spieler(i)->set_active( true );
