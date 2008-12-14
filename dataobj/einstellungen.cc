@@ -34,6 +34,8 @@ einstellungen_t::einstellungen_t() :
 	anzahl_staedte = 16;
 	mittlere_einwohnerzahl = 1600;
 
+	station_coverage = 3;
+
 	verkehr_level = 7;
 
 	show_pax = true;

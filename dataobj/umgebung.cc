@@ -112,23 +112,52 @@ void umgebung_t::rdwr(loadsave_t *file)
 {
 	file->rdwr_short( scroll_multi, "" );
 	file->rdwr_bool( night_shift, "" );
+	file->rdwr_byte( daynight_level, "" );
+	file->rdwr_long( water_animation, "" );
+	file->rdwr_bool( drive_on_left, "" );
+
+	file->rdwr_byte( show_month, "" );
+
 	file->rdwr_bool( use_transparency_station_coverage, "" );
 	file->rdwr_byte( station_coverage_show, "" );
+	file->rdwr_long( show_names, "" );
+
 	file->rdwr_bool( hide_with_transparency, "" );
 	file->rdwr_byte( hide_buildings, "" );
 	file->rdwr_bool( hide_trees, "" );
-	file->rdwr_long( show_names, "" );
-	file->rdwr_long( message_flags[4], "" );
-	file->rdwr_long( water_animation, "" );
-	file->rdwr_byte( default_sortmode, "" );
-	file->rdwr_byte( default_mapmode, "" );
-	file->rdwr_long( intercity_road_length, "" );
-	file->rdwr_long( autosave, "" );
-	file->rdwr_bool( no_tree, "" );
+
+	file->rdwr_long( message_flags[0], "" );
+	file->rdwr_long( message_flags[1], "" );
+	file->rdwr_long( message_flags[2], "" );
+	file->rdwr_long( message_flags[3], "" );
+
 	file->rdwr_bool( show_tooltips, "" );
 	file->rdwr_byte( tooltip_color, "" );
 	file->rdwr_byte( tooltip_textcolor, "" );
-	file->rdwr_byte( daynight_level, "" );
+
+	file->rdwr_long( autosave, "" );
+	file->rdwr_long( fps, "" );
+	file->rdwr_short( max_acceleration, "" );
+
+	file->rdwr_bool( verkehrsteilnehmer_info , "" );
+	file->rdwr_bool( tree_info. "";
+	file->rdwr_bool( ground_info , "" );
+	file->rdwr_bool( townhall_info , "" );
+	file->rdwr_bool( single_info , "" );
+
+	file->rdwr_byte( default_sortmode, "" );
+	file->rdwr_byte( default_mapmode, "" );
+
+	file->rdwr_bool( window_buttons_right , "" );
+	file->rdwr_bool( window_frame_active , "" );
+
+	file->rdwr_byte( verbose_debug, "" );
+
+	file->rdwr_long( intercity_road_length, "" );
+	file->rdwr_bool( no_tree, "" );
+	file->rdwr_long( ground_object_probability, "" );
+	file->rdwr_long( moving_object_probability, "" );
+
 	if(  file->is_loading()  ) {
 		// these three bytes will be lost ...
 		const char *c = NULL;
@@ -138,6 +167,7 @@ void umgebung_t::rdwr(loadsave_t *file)
 	else {
 		file->rdwr_str( language_iso, "" );
 	}
+
 	file->rdwr_short( global_volume, "" );
 	file->rdwr_short( midi_volume, "" );
 	file->rdwr_bool( mute_sound, "" );
