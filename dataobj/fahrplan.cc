@@ -227,6 +227,8 @@ fahrplan_t::remove()
 void
 fahrplan_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t f( file, "fahrplan_t" );
+
 	uint32 dummy=aktuell;
 	file->rdwr_long(dummy, " ");
 	aktuell = (sint16)dummy;

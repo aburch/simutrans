@@ -206,6 +206,8 @@ verkehrsteilnehmer_t::hop()
 
 void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t t( file, "verkehrsteilnehmer_t" );
+
 	// correct old offsets ... REMOVE after savegame increase ...
 	if(file->get_version()<99018  &&  file->is_saving()) {
 		dx = dxdy[ ribi_t::gib_dir(fahrtrichtung)*2 ];
@@ -450,15 +452,17 @@ stadtauto_t::sync_step(long delta_t)
 
 void stadtauto_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t s( file, "stadtauto_t" );
+
 	verkehrsteilnehmer_t::rdwr(file);
 
-	const char *s = NULL;
 	if(file->is_saving()) {
-		s = besch->gib_name();
+		const char *s = besch->gib_name();
+		file->rdwr_str(s);
 	}
-
-	file->rdwr_str(s, "N");
-	if(file->is_loading()) {
+	else {
+		char s[256];
+		file->rdwr_str(s, 256);
 		besch = table.get(s);
 
 		if (besch == 0 && !liste_timeline.empty()) {
@@ -469,7 +473,6 @@ void stadtauto_t::rdwr(loadsave_t *file)
 			dbg->warning("stadtauto_t::rdwr()", "Object '%s' not found in table, trying random stadtauto object type",s);
 			besch = liste.at_weight(simrand(liste.get_sum_weight()));
 		}
-		guarded_free(const_cast<char *>(s));
 
 		if(besch == 0) {
 			dbg->warning("stadtauto_t::rdwr()", "loading game with private cars, but no private car objects found in PAK files.");

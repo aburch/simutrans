@@ -106,17 +106,17 @@ wayobj_t::~wayobj_t()
 
 void wayobj_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t t( file, "wayobj_t" );
 	ding_t::rdwr(file);
 	if(file->get_version()>=89000) {
 		file->rdwr_byte(dir, "\n");
 		if(file->is_saving()) {
 			const char *s = besch->gib_name();
-			file->rdwr_str(s, "N");
+			file->rdwr_str(s);
 		}
-
-		if(file->is_loading()) {
+		else {
 			char bname[128];
-			file->rd_str_into(bname, "N");
+			file->rdwr_str(bname, 128);
 
 			besch = wayobj_t::table.get(bname);
 			if(besch==NULL) {

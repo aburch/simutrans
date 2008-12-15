@@ -3197,7 +3197,6 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_ar
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 
 	// centered on what?
-	file->rdwr_delim("View ");
 	sint32 dummy = ij_off.x;
 	file->rdwr_long(dummy, " ");
 	dummy = ij_off.y;
@@ -3574,7 +3573,6 @@ DBG_MESSAGE("karte_t::laden()", "players loaded");
 	old_blockmanager_t::laden_abschliessen(this);
 	DBG_MESSAGE("karte_t::laden()", "blocks loaded");
 
-	file->rdwr_delim("View ");
 	file->rdwr_long(mi, " ");
 	file->rdwr_long(mj, "\n");
 	DBG_MESSAGE("karte_t::laden()", "Setting view to %d,%d", mi,mj);

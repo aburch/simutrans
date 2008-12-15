@@ -65,19 +65,20 @@ ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		file->rdwr_long(max, " ");
 	}
 
-	const char *typ = NULL;
 	uint8 catg=0;
-
-	if(file->is_saving()) {
-		typ = gib_besch()->gib_name();
-	}
 	if(file->get_version()>=88005) {
 		file->rdwr_byte(catg,"c");
 	}
-	file->rdwr_str(typ, " ");
-	if(file->is_loading()) {
+
+	if(file->is_saving()) {
+		const char *typ = NULL;
+		typ = gib_besch()->gib_name();
+		file->rdwr_str(typ);
+	}
+	else {
+		char typ[256];
+		file->rdwr_str(typ,256);
 		const ware_besch_t *type = warenbauer_t::gib_info(typ);
-		guarded_free(const_cast<char *>(typ));
 		if(type==NULL) {
 			dbg->warning("ware_t::rdwr()","unknown ware of catg %d!",catg);
 			index = warenbauer_t::gib_info_catg(catg)->gib_index();

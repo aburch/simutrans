@@ -63,6 +63,7 @@ tunnel_t::calc_bild()
 
 void tunnel_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t t( file, "tunnel_t" );
 	ding_t::rdwr(file);
 	if(file->get_version()>=99001) {
 		char  buf[256];

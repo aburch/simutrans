@@ -1937,6 +1937,8 @@ int haltestelle_t::erzeuge_fussgaenger(karte_t *welt, koord3d pos, int anzahl)
 
 void haltestelle_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t h( file, "haltestelle_t" );
+
 	sint32 spieler_n;
 	koord3d k;
 
@@ -2000,7 +2002,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			vector_tpl<ware_t> *warray = waren[i];
 			if(warray) {
 				s = "y";	// needs to be non-empty
-				file->rdwr_str(s, "N");
+				file->rdwr_str(s);
 				count = warray->get_count();
 				file->rdwr_short(count, " ");
 				for(unsigned i=0;  i<warray->get_count();  i++ ) {
@@ -2010,12 +2012,13 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			}
 		}
 		s = "";
-		file->rdwr_str(s, "N");
+		file->rdwr_str(s);
 
-	} else {
+	}
+	else {
 		// restoring all goods in the station
-		s = NULL;
-		file->rdwr_str(s, "N");
+		char s[256];
+		file->rdwr_str(s,256);
 		while(s && *s) {
 			file->rdwr_short(count, " ");
 			if(count>0) {
@@ -2025,9 +2028,8 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					add_ware_to_halt(ware);
 				}
 			}
-			file->rdwr_str(s, "N");
+			file->rdwr_str(s,256);
 		}
-		guarded_free(const_cast<char *>(s));
 
 		// old games save the list with stations
 		// however, we have to rebuilt them anyway for the new format

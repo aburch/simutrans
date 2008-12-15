@@ -16,7 +16,7 @@
 
 #include <zlib.h>
 
-loadsave_t::mode_t loadsave_t::save_mode = binary;	// default to use for saving
+loadsave_t::mode_t loadsave_t::save_mode = zipped;	// default to use for saving
 
 loadsave_t::loadsave_t() : filename()
 {
@@ -44,15 +44,65 @@ bool loadsave_t::rd_open(const char *filename)
 	mode = zipped;
 
 	if(strncmp(buf, SAVEGAME_PREFIX, sizeof(SAVEGAME_PREFIX) - 1)) {
+		if(strncmp(buf, XML_SAVEGAME_PREFIX, sizeof(XML_SAVEGAME_PREFIX)-1)!=0) {
+			close();
+			return false;
+		}
+		else {
+			mode = xml|zipped;
+			while(  lsgetc()!='<'  );
+			read( buf, sizeof(SAVEGAME_PREFIX) - 1 );
+			if(  strncmp(buf, SAVEGAME_PREFIX, sizeof(SAVEGAME_PREFIX) - 1)  ) {
+				close();
+				// not a simutrans XML file ...
+				return false;
+			}
+
+			read( buf, sizeof("version=\"")-1 );
+			char str[256];
+			char *s = str;
+			for(  int i=0;  i<255;  i++ ) {
+				char c = lsgetc();
+				if(c=='\"') {
+					break;
+				}
+				*s++ = c;
+			}
+			*s = 0;
+			int dummy;
+			char s_dummy[64];
+			version = int_version(str, &dummy, pak_extension);
+
+			read( buf, sizeof(" pak=\"")-1 );
+			s = pak_extension;
+			for(  int i=0;  i<63;  i++ ) {
+				char c = lsgetc();
+				if(c=='\"') {
+					break;
+				}
+				*s++ = c;
+			}
+			*s = 0;
+			while(  lsgetc()!='>'  );
+		}
+	}
+	else {
+		version = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode, pak_extension);
+	}
+	if(mode==text) {
 		close();
+		dbg->error("loadsave_t::rd_open()","text mode no longer supported." );
 		return false;
 	}
-	version = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode, pak_extension);
+	mode |= zipped;
+
+	/*
 	if(mode != zipped) {
 		gzclose(fp);
 		fp = fopen(filename, "rb");
 		fgets(buf, 80, fp);
 	}
+	*/
 	if(*pak_extension==0) {
 		strcpy( pak_extension, "(unknown)" );
 	}
@@ -65,11 +115,14 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	mode = m;
 	close();
 
-	if(mode == zipped) {
+	if(mode & zipped) {
 		fp = (FILE *)gzopen(filename, "wb");
 	}
-	else {
+	else if(  mode & binary ) {
 		fp = fopen(filename, "wb");
+	}
+	else {
+		fp = fopen(filename, "w");
 	}
 
 	if(!fp) {
@@ -93,11 +146,19 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	// delete trailing path seperator
 	this->pak_extension[strlen(this->pak_extension)-1] = 0;
 
-	if(is_zipped()) {
-		gzprintf(fp, "%s%s%s\n", SAVEGAME_VERSION, "zip", this->pak_extension);
+	if(  !is_xml()  ) {
+		if(is_zipped()) {
+			gzprintf(fp, "%s%s%s\n", SAVEGAME_VERSION, "zip", this->pak_extension);
+		}
+		else {
+			fprintf(fp, "%s%s%s\n", SAVEGAME_VERSION, mode == binary ? "bin" : "", this->pak_extension);
+		}
 	}
 	else {
-		fprintf(fp, "%s%s%s\n", SAVEGAME_VERSION, mode == binary ? "bin" : "", pak_extension);
+		char str[4096];
+		int n = sprintf( str, "<?xml version=\"1.0\"?>\n<Simutrans version=\"%s\" pak=\"%s\">\n", SAVEGAME_VER_NR, this->pak_extension );
+		write( str, n );
+		ident = 1;
 	}
 
 	version = int_version(SAVEGAME_VER_NR, NULL, NULL );
@@ -112,6 +173,10 @@ const char *loadsave_t::close()
 {
 	const char *success = NULL;
 	if(fp != NULL) {
+		if(  is_xml()  ) {
+			const char *end = "\n</Simutrans>\n";
+			write( end, strlen(end) );
+		}
 		if(is_zipped()) {
 			int err_no;
 			const char *err_str = gzerror( fp, &err_no );
@@ -188,12 +253,19 @@ long loadsave_t::read(void *buf, unsigned long len)
 /* read data types (should check also for Intel/Motorola) etc */
 void loadsave_t::rdwr_byte(sint8 &c, const char *delim)
 {
-	if(saving) {
-		lsputc(c);
-	} else {
-		c = (sint8)lsgetc();
+	if(!is_xml()) {
+		if(saving) {
+			lsputc(c);
+		}
+		else {
+			c = (sint8)lsgetc();
+		}
 	}
-	rdwr_delim(delim);
+	else {
+		sint64 ll = c;
+		rdwr_xml_number( ll, "i8" );
+		c = ll;
+	}
 }
 
 void loadsave_t::rdwr_byte(uint8 &c, const char *delim)
@@ -207,7 +279,7 @@ void loadsave_t::rdwr_byte(uint8 &c, const char *delim)
 /* shorts */
 void loadsave_t::rdwr_short(sint16 &i, const char *delim)
 {
-	if(!is_text()) {
+	if(!is_xml()) {
 #ifdef BIG_ENDIAN
 		if(saving) {
 			sint16 ii = (sint16)endian_uint16((uint16 *)&i);
@@ -224,14 +296,12 @@ void loadsave_t::rdwr_short(sint16 &i, const char *delim)
 			read(&i, sizeof(sint16));
 		}
 #endif
-	} else {
-		if(saving) {
-			fprintf(fp, "%d", i);
-		} else {
-			fscanf(fp, "%hd", &i);
-		}
 	}
-	rdwr_delim(delim);
+	else {
+		sint64 ll = i;
+		rdwr_xml_number( ll, "i16" );
+		i = ll;
+	}
 }
 
 void loadsave_t::rdwr_short(uint16 &i, const char *delim)
@@ -245,7 +315,7 @@ void loadsave_t::rdwr_short(uint16 &i, const char *delim)
 /* long words*/
 void loadsave_t::rdwr_long(sint32 &l, const char *delim)
 {
-	if(!is_text()) {
+	if(!is_xml()) {
 #ifdef BIG_ENDIAN
 		if(saving) {
 			uint32 ii = (sint32)endian_uint32((uint32 *)&l);
@@ -262,22 +332,12 @@ void loadsave_t::rdwr_long(sint32 &l, const char *delim)
 			read(&l, sizeof(sint32));
 		}
 #endif
-	} else {
-		if(saving) {
- 			if (sizeof(sint32) == sizeof(long)) {
- 				fprintf(fp, "%ld", (long)l);
- 			} else {
- 				fprintf(fp, "%d", l);
- 			}
-		} else {
- 			if (sizeof(sint32) == sizeof(long)) {
- 				fscanf(fp, "%ld", (long*)&l);
- 			} else {
- 				fscanf(fp, "%d", &l);
- 			}
-		}
 	}
-	rdwr_delim(delim);
+	else {
+		sint64 ll = l;
+		rdwr_xml_number( ll, "i32" );
+		l = ll;
+	}
 }
 
 void loadsave_t::rdwr_long(uint32 &l, const char *delim)
@@ -290,7 +350,7 @@ void loadsave_t::rdwr_long(uint32 &l, const char *delim)
 /* long long (64 Bit) */
 void loadsave_t::rdwr_longlong(sint64 &ll, const char *delim)
 {
-	if(!is_text()) {
+	if(!is_xml()) {
 #ifdef BIG_ENDIAN
 		if(saving) {
 			sint64 ii = (sint64)endian_uint64((uint64 *)&ll);
@@ -307,34 +367,150 @@ void loadsave_t::rdwr_longlong(sint64 &ll, const char *delim)
 			read(&ll, sizeof(sint64));
 		}
 #endif
-	} else {
+	}
+	else {
+		rdwr_xml_number( ll, "i64" );
+	}
+}
+
+
+
+void loadsave_t::rdwr_double(double &dbl)
+{
+	if(!is_xml()) {
 		if(saving) {
-			fprintf(fp, "%f", (double)ll);
+			write(&dbl, sizeof(double));
 		} else {
-			double dbl;
-			fscanf(fp, "%lf", &dbl);
-			ll = (sint64)dbl;
+			read(&dbl, sizeof(double));
 		}
 	}
-	rdwr_delim(delim);
+	else {
+		// so far only with 3 digit precision, but this is ok for only two locations used
+		sint64 ll= (sint64)(dbl*1000.0);
+		rdwr_xml_number( ll, "d1000" );
+		dbl = ll/1000.0;
+	}
 }
 
 
 
 void loadsave_t::rdwr_bool(bool &i, const char *delim)
 {
-	if(saving) {
-		lsputc(i ? '1' : '0');
-	} else {
-		i = lsgetc() == '1';
+	if(  !is_xml()  ) {
+		if(saving) {
+			lsputc(i ? '1' : '0');
+		}
+		else {
+			i = lsgetc()=='1';
+		}
 	}
-	rdwr_delim(delim);
+	else {
+		// boll xml
+		if(saving) {
+			if(is_zipped()) {
+				gzprintf(fp, "%*s<bool>%s</bool>\n", ident, "", i ? "true" : "false" );
+			} else {
+				fprintf(fp, "%*s<bool>%s</bool>\n", ident, "", i ? "true" : "false" );
+			}
+		}
+		else {
+			// find start of tag
+			while(  lsgetc()!='<'  );
+			// check for correct tag
+			char buffer[7];
+			read( buffer, 5 );
+			buffer[5] = 0;
+			if(  strcmp("bool>",buffer)!=0  ) {
+				dbg->fatal( "loadsave_t::rdwr_str()","expected \"<bool>\", got \"<%s\"", buffer );
+			}
+			read( buffer, 4 );
+			buffer[4] = 0;
+			i = strcmp("true",buffer)==0;
+			while(  lsgetc()!='<'  );
+			read( buffer, 6 );
+			buffer[6] = 0;
+			if(  strcmp("/bool>",buffer)!=0  ) {
+				dbg->fatal( "loadsave_t::rdwr_str()","expected \"</bool>\", got \"<%s\"", buffer );
+			}
+		}
+	}
 }
 
 
-void loadsave_t::rdwr_str(const char *&s, const char *null_s)
+
+void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 {
-	if(!is_text()) {
+	if(saving) {
+		static char nr[256];
+		sprintf( nr, "%*s<%s>%.0lf</%s>\n", ident, "", typ, (double)s, typ );
+		this->write( nr, strlen(nr) );
+	}
+	else {
+		const int len = (int)strlen(typ);
+		assert(len<256);
+		// find start of tag
+		while(  lsgetc()!='<'  );
+		// check for correct tag
+		char buffer[256];
+		read( buffer, len );
+		buffer[len] = 0;
+		if(  strcmp(typ,buffer)!=0  ) {
+			dbg->fatal( "loadsave_t::rdwr_str()","expected \"<%s>\", got \"<%s>\"", typ, buffer );
+		}
+		while(  lsgetc()!='>'  );
+		// read number;
+		s = 0;
+		bool minus = false;
+		while(!is_eof()) {
+			char c = lsgetc();
+			if(c>='0'  &&  c<='9'  ) {
+				s = (s*10)+(c-'0');
+			}
+			else {
+				if(s==0) {
+					if(  c=='-') {
+						minus = true;
+						continue;
+					}
+					else if(c=='+') {
+						minus = false;
+						continue;
+					}
+				}
+				if(c==' ') {
+					while(  lsgetc()!='<'  );
+					break;
+				}
+				else if(c=='<') {
+					break;
+				}
+				else {
+					dbg->fatal( "loadsave_t::rdwr_xml_number()", "type %s, found %c in number!", typ, c );
+				}
+			}
+		}
+		if(minus) {
+			s = -s;
+		}
+		if(  lsgetc()!='/'  ) {
+			dbg->fatal( "loadsave_t::rdwr_xml_number()", "missing '/' (not closing tag)" );
+		}
+		read( buffer, len );
+		buffer[6] = 0;
+		if(  strcmp(typ,buffer)!=0  ) {
+			dbg->fatal( "loadsave_t::rdwr_str()","expected \"</%s>\", got \"</%s>\"", typ, buffer );
+		}
+		while(  lsgetc()!='>'  );
+	}
+}
+
+
+
+
+// s is a malloc-ed string (will be freed and newly allocated on load time!)
+void loadsave_t::rdwr_str(const char *&s)
+{
+	if(!is_xml()) {
 		sint16 size;
 		if(saving) {
 			size = s ? strlen(s) : 0;
@@ -371,32 +547,34 @@ void loadsave_t::rdwr_str(const char *&s, const char *null_s)
 			}
 			s = sneu;
 		}
-	} else {
+	}
+	else {
+		// use CDATA tag: <![CDATA[%s]]>
 		if(saving) {
-			fprintf(fp, "%s\n", s ? s : null_s);
+			const char *str = s ? s: "";
+			if(is_zipped()) {
+				gzprintf(fp, "%*s<![CDATA[%s]]>\n", ident, "", str );
+			} else {
+				fprintf(fp, "%*s<![CDATA[%s]]>\n", ident, "", str );
+			}
 		}
 		else {
-			char buffer[256];
-
-			fgets(buffer, 255, fp);
-			buffer[strlen(buffer)-1] = 0;
-
+			char buffer[4096];
+			rdwr_str( buffer, 4096 );
 			if(s) {
 				free(const_cast<char *>(s));
 			}
-			if(buffer[0] != 0 && strcmp(buffer, null_s)) {
-				s = strdup(buffer);
-			}
-			else {
-				s = NULL;
-			}
+			s = strdup(buffer);
 		}
 	}
 }
 
-void loadsave_t::rdwr_str(char *s, int /*size*/)
+
+
+// read a string into a preallocated buffer
+void loadsave_t::rdwr_str(char *s, int size)
 {
-	if(!is_text()) {
+	if(!is_xml()) {
 		sint16 len;
 		if(saving) {
 			len = strlen(s);
@@ -415,54 +593,73 @@ void loadsave_t::rdwr_str(char *s, int /*size*/)
 #ifdef BIG_ENDIAN
 			len = (sint16)endian_uint16((uint16 *)&len);
 #endif
-			//assert(len < size);
+			if(len>size) {
+				dbg->fatal( "loadsave_t::rdwr_str()","string longer (%i) than allowed size (%i)", len, size );
+			}
 			read(s, len);
 			s[len] = '\0';
 		}
 	}
 	else {
+		// use CDATA tag: <![CDATA[%s]]>
 		if(saving) {
-			fprintf(fp, "%s\n", s);
+			const char *str = s ? s: "";
+			if(is_zipped()) {
+				gzprintf(fp, "%*s<![CDATA[%s]]>\n", ident, "", str );
+			} else {
+				fprintf(fp, "%*s<![CDATA[%s]]>\n", ident, "", str );
+			}
 		}
 		else {
-			char buffer[256];
-
-			fgets(buffer, 255, fp);
-			buffer[strlen(buffer)-1] = 0;
-			//assert(strlen(buffer) < size);
-			strcpy(s, buffer);
+			// find start of tag
+			while(  lsgetc()!='<'  );
+			// check for correct tag
+			char buffer[10];
+			read( buffer, 8 );
+			buffer[8] = 0;
+			if(  strcmp("![CDATA[",buffer)!=0  ) {
+				dbg->fatal( "loadsave_t::rdwr_str()","expected str \"<![CDATA[\", got \"%s\"", buffer );
+			}
+			// now parse input
+			char last_three_chars[4];
+			char len = 0;
+			for(  int i=0;  i<size;  i++  ) {
+				char c = lsgetc();
+				if(  c==']'  &&  (  len==0  ||  (len==1  &&  last_three_chars[0] == ']') )  ) {
+					last_three_chars[len++] = c;
+				}
+				else if(  c=='>'  &&  len==2  ) {
+					len ++;
+					break;
+				}
+				else {
+					// evt. add closing brackets
+					while(  len-->0  ) {
+						*s++ = ']';
+					}
+					len = 0;
+					*s++ = c;
+				}
+			}
+			*s = 0;
+			if(  len!=3  ) {
+				dbg->fatal( "loadsave_t::rdwr_str()","string too long (exceeded %i characters)", size );
+			}
 		}
 	}
-}
-
-
-void loadsave_t::rdwr_double(double &dbl, const char *delim)                //01-Dec-01     Markus Weber    Added
-{
-	if(!is_text()) {
-		if(saving) {
-			write(&dbl, sizeof(double));
-		} else {
-			read(&dbl, sizeof(double));
-		}
-	} else {
-		if(saving) {
-			fprintf(fp, "%f", dbl);
-		} else {
-			fscanf(fp, "%lf", &dbl);
-		}
-	}
-	rdwr_delim(delim);
 }
 
 
 void loadsave_t::wr_obj_id(sint16 id)
 {
 	if(saving) {
-		if(!is_text()) {
+		if(!is_xml()) {
 			uint8 idc = (uint8)id;
 			write(&idc, sizeof(uint8));
-		} else {
-			fprintf(fp, "%d\n", id);
+		}
+		else {
+			sint64 ll=id;
+			rdwr_xml_number( ll, "id" );
 		}
 	}
 }
@@ -470,21 +667,17 @@ void loadsave_t::wr_obj_id(sint16 id)
 
 sint16 loadsave_t::rd_obj_id()
 {
-	sint16   id;
+	sint16 id;
 	if(!saving) {
-		if(!is_text()) {
+		if(!is_xml()) {
 			sint8 idc;
 			read(&idc, sizeof(sint8));
 			id = (sint8)idc;
-		} else {
-			if(fgetc(fp) == 'N') {
-				fgetc(fp); // '\n' lesen
-				id = -1;
-			}
-			else {
-				fseek(fp, -1, SEEK_CUR);
-				fscanf(fp, "%hd\n", &id);
-			}
+		}
+		else {
+			sint64 ll;
+			rdwr_xml_number( ll, "id" );
+			return (sint16)ll;
 		}
 	}
 	return id;
@@ -494,10 +687,19 @@ sint16 loadsave_t::rd_obj_id()
 void loadsave_t::wr_obj_id(const char *id_text)
 {
 	if(saving) {
-		if(is_zipped()) {
-			gzprintf(fp, "%s\n", id_text);
-		} else {
-			fprintf(fp, "%s\n", id_text);
+		if(  !is_xml()  ) {
+			if(is_zipped()) {
+				gzprintf(fp, "%s\n", id_text);
+			} else {
+				fprintf(fp, "%s\n", id_text);
+			}
+		}
+		else {
+			if(is_zipped()) {
+				gzprintf(fp, "<id=\"%s\"/>\n", id_text);
+			} else {
+				fprintf(fp, "<id=\"%s\"/>\n", id_text);
+			}
 		}
 	}
 }
@@ -506,29 +708,45 @@ void loadsave_t::wr_obj_id(const char *id_text)
 void loadsave_t::rd_obj_id(char *id_buf, int size)
 {
 	if(!saving) {
-		if(is_zipped()) {
-			gzgets(fp, id_buf, size);
-		} else {
-			fgets(id_buf, size, fp);
+		if(  !is_xml()  ) {
+			if(is_zipped()) {
+				gzgets(fp, id_buf, size);
+			}
+			else {
+				fgets(id_buf, size, fp);
+			}
+			id_buf[strlen(id_buf) - 1] = '\0';
 		}
-		id_buf[strlen(id_buf) - 1] = '\0';
+		else {
+			char buf[6];
+			// find start of tag
+			while(  lsgetc()!='<'  );
+			read( buf, 6 );
+			buf[5] = 0;
+			if(  strncmp(buf,"<id=\"",5)!=0  ) {
+				dbg->fatal( "loadsave_t::rd_obj_id()","expected id str \"<id=\"\", got \"%s\"", buf );
+			}
+			// now parse input
+			for(  int i=0;  i<size;  i++  ) {
+				char c = lsgetc();
+				if(  c=='\"'  ) {
+					break;
+				}
+				else {
+					*id_buf++ = c;
+				}
+			}
+			*id_buf = 0;
+			read( buf, 2 );
+			if(  strncmp(buf,"<id=\"",5)!=0  ) {
+				dbg->fatal( "loadsave_t::rd_obj_id()","id tag not properly closed!" );
+			}
+		}
 	}
 }
 
 
-void loadsave_t::rdwr_delim(const char *delim)
-{
-	if(is_text()) {
-		if(saving) {
-			fprintf(fp, "%s", delim);
-		} else {
-			fscanf(fp, delim);
-		}
-	}
-}
-
-
-uint32 loadsave_t::int_version(const char *version_text, mode_t *mode, char *pak_extension)
+uint32 loadsave_t::int_version(const char *version_text, int *mode, char *pak_extension)
 {
 	// major number (0..)
 	uint32 v0 = atoi(version_text);
@@ -580,22 +798,52 @@ uint32 loadsave_t::int_version(const char *version_text, mode_t *mode, char *pak
 }
 
 
-/**
- * Read string into preallocated buffer.
- * @author Hj. Malthaner
- */
-void loadsave_t::rd_str_into(char *s, const char * /*null_s*/)
+
+void loadsave_t::start_tag(const char *tag)
 {
-	sint16 size;
-	read(&size, sizeof(sint16));
-#ifdef BIG_ENDIAN
-	size = (sint16)endian_uint16((uint16 *)&size);
-#endif
-	if(size > 0) {
-		read(s, size);
-		s[size] = '\0';
-	}
-	else {
-		s[0] = '\0';
+	if(  is_xml()  ) {
+		if(saving) {
+			if(is_zipped()) {
+				gzprintf(fp, "%*s<%s>\n", ident, "", tag);
+			} else {
+				fprintf(fp, "%*s<%s>\n", ident, "", tag);
+			}
+			ident ++;
+		}
+		else {
+			char buf[256];
+			const int len = strlen(tag);
+			// find start of tag
+			while(  lsgetc()!='<'  );
+			read( buf, len );
+			if(  strncmp(buf,tag,len)!=0  ) {
+				dbg->fatal( "loadsave_t::start_tag()","expected \"%s\", got \"%s\"", tag, buf );
+			}
+			while(  lsgetc()!='>'  );
+		}
 	}
 }
+
+
+void loadsave_t::end_tag(const char *tag)
+{
+	if(  is_xml()  ) {
+		if(saving) {
+			ident --;
+			if(is_zipped()) {
+				gzprintf(fp, "%*s</%s>\n", ident, "", tag);
+			} else {
+				fprintf(fp, "%*s</%s>\n", ident, "", tag);
+			}
+		}
+		else {
+			// just use start tag with the end character ...
+			char buf[256];
+			tstrncpy( buf+1, tag, 254 );
+			buf[0] = '/';
+			start_tag(buf);
+		}
+	}
+}
+
+

@@ -1339,6 +1339,8 @@ void vehikel_t::rdwr(loadsave_t *file)
 
 void vehikel_t::rdwr_from_convoi(loadsave_t *file)
 {
+	xml_tag_t r( file, "vehikel_t" );
+
 	sint32 fracht_count = 0;
 
 	if(file->is_saving()) {
@@ -1351,6 +1353,13 @@ void vehikel_t::rdwr_from_convoi(loadsave_t *file)
 	}
 
 	ding_t::rdwr(file);
+
+	// since ding_t does no longer save positions
+	if(  file->get_version()>=101000  ) {
+		koord3d pos = gib_pos();
+		pos.rdwr(file);
+		setze_pos(pos);
+	}
 
 	if(file->get_version()<86006) {
 		// parameter werden in der deklarierten reihenfolge gespeichert
@@ -1365,7 +1374,6 @@ void vehikel_t::rdwr_from_convoi(loadsave_t *file)
 		file->rdwr_long(speed_limit, "\n");
 		file->rdwr_enum(fahrtrichtung, " ");
 		file->rdwr_enum(alte_fahrtrichtung, "\n");
-		file->rdwr_delim("Wre: ");
 		file->rdwr_long(fracht_count, " ");
 		file->rdwr_long(l, "\n");
 		route_index = (uint16)l;
@@ -1393,7 +1401,6 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		file->rdwr_long(speed_limit, "\n");
 		file->rdwr_enum(fahrtrichtung, " ");
 		file->rdwr_enum(alte_fahrtrichtung, "\n");
-		file->rdwr_delim("Wre: ");
 		file->rdwr_long(fracht_count, " ");
 		file->rdwr_short(route_index, "\n");
 		// restore dxdy information
@@ -1452,12 +1459,13 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 	}
 	pos_next.rdwr(file);
 
-	const char *s = NULL;
 	if(file->is_saving()) {
-		s = besch->gib_name();
+		const char *s = besch->gib_name();
+		file->rdwr_str(s);
 	}
-	file->rdwr_str(s, " ");
-	if(file->is_loading()) {
+	else {
+		char s[256];
+		file->rdwr_str(s,256);
 		besch = vehikelbauer_t::gib_info(s);
 		if(besch==NULL) {
 			besch = vehikelbauer_t::gib_info(translator::compatibility_name(s));
@@ -1465,7 +1473,6 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		if(besch==NULL) {
 			dbg->warning("vehikel_t::rdwr_from_convoi()","no vehicle pak for '%s' search for something similar", s);
 		}
-		guarded_free(const_cast<char *>(s));
 	}
 
 	if(file->is_saving()) {
@@ -1990,7 +1997,6 @@ void automobil_t::setze_convoi(convoi_t *c)
 
 waggon_t::waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : vehikel_t(welt)
 {
-
 	vehikel_t::rdwr_from_convoi(file);
 
 	if(  file->is_loading()  ) {
@@ -2657,7 +2663,7 @@ fahrplan_t * narrowgauge_waggon_t::erzeuge_neuen_fahrplan() const
 schiff_t::schiff_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
 	vehikel_t(pos, besch, sp)
 {
-    cnv = cn;
+	cnv = cn;
 }
 
 schiff_t::schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : vehikel_t(welt)
@@ -3285,6 +3291,8 @@ fahrplan_t * aircraft_t::erzeuge_neuen_fahrplan() const
 
 void aircraft_t::rdwr_from_convoi(loadsave_t *file)
 {
+	xml_tag_t t( file, "aircraft_t" );
+
 	vehikel_t::rdwr_from_convoi(file);
 
 	file->rdwr_enum(state, " ");

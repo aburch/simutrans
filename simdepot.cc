@@ -345,6 +345,8 @@ bool depot_t::start_convoi(convoihandle_t cnv)
 void
 depot_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t t( file, "depot_t" );
+
 	gebaeude_t::rdwr(file);
 
 	rdwr_vehikel(vehicles, file);

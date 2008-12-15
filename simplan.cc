@@ -235,6 +235,8 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 void
 planquadrat_t::rdwr(karte_t *welt, loadsave_t *file, koord pos )
 {
+	xml_tag_t p( file, "planquadrat_t" );
+
 	if(file->is_saving()) {
 		if(ground_size==1) {
 			data.one->rdwr(file);

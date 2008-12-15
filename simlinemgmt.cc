@@ -107,6 +107,8 @@ simlinemgmt_t::update_line(linehandle_t line)
 void
 simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file)
 {
+	xml_tag_t l( file, "simlinemgmt_t" );
+
 	if(file->is_saving()) {
 		file->wr_obj_id("Linemanagement");
 		uint32 count = all_managed_lines.get_count();

@@ -144,6 +144,7 @@ grund_t::grund_t(karte_t *wl, loadsave_t *file)
 void grund_t::rdwr(loadsave_t *file)
 {
 	file->wr_obj_id(gib_typ());
+	xml_tag_t g( file, "grund_t" );
 	if(file->get_version()<101000) {
 		pos.rdwr(file);
 	}
@@ -155,11 +156,11 @@ void grund_t::rdwr(loadsave_t *file)
 
 	if(file->is_saving()) {
 		const char *text = gib_text();
-		file->rdwr_str(text, "+");
+		file->rdwr_str(text);
 	}
 	else {
 		const char *text = 0;
-		file->rdwr_str(text, "+");
+		file->rdwr_str(text);
 		if(text) {
 			setze_text(text);
 			guarded_free((void *)text);

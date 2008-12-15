@@ -69,6 +69,8 @@ tunnelboden_t::calc_bild_internal()
 void
 tunnelboden_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t t( file, "tunnelboden_t" );
+
 	grund_t::rdwr(file);
 
 	if(file->get_version()<88009) {

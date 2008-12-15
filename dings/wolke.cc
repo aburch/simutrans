@@ -123,7 +123,8 @@ raucher_t::raucher_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 	assert(file->is_loading());
 	ding_t::rdwr( file );
 	const char *s = NULL;
-	file->rdwr_str(s, "N");
+	file->rdwr_str(s);
+	free(const_cast<char *>(s));
 
 	// do not remove from this position, since there will be nothing
 	ding_t::set_flag(ding_t::not_on_map);

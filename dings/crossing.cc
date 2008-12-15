@@ -104,6 +104,8 @@ crossing_t::calc_bild()
 void
 crossing_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t d( file, "crossing_t" );
+
 	uint8 zustand = logic==NULL ? crossing_logic_t::CROSSING_INVALID : logic->get_state();
 	ding_t::rdwr(file);
 

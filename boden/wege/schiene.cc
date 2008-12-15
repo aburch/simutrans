@@ -141,6 +141,8 @@ schiene_t::unreserve(vehikel_t *)
 void
 schiene_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t t( file, "schiene_t" );
+
 	weg_t::rdwr(file);
 
 	if(file->get_version()<99008) {
@@ -156,11 +158,11 @@ schiene_t::rdwr(loadsave_t *file)
 
 	if(file->is_saving()) {
 		const char *s = gib_besch()->gib_name();
-		file->rdwr_str(s, "\n");
+		file->rdwr_str(s);
 	}
 	else {
 		char bname[128];
-		file->rd_str_into(bname, "\n");
+		file->rdwr_str(bname, 128 );
 
 		int old_max_speed=gib_max_speed();
 		const weg_besch_t *besch = wegbauer_t::gib_besch(bname);

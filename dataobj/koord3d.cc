@@ -25,6 +25,7 @@ koord3d::rotate90( sint16 y_diff )
 void
 koord3d::rdwr(loadsave_t *file)
 {
+	xml_tag_t k( file, "koord3d" );
 	sint16 v16;
 
 	v16 = x;

@@ -34,7 +34,7 @@ einstellungen_t::einstellungen_t() :
 	anzahl_staedte = 16;
 	mittlere_einwohnerzahl = 1600;
 
-	station_coverage = 3;
+	station_coverage_size = 3;
 
 	verkehr_level = 7;
 
@@ -171,6 +171,8 @@ einstellungen_t::einstellungen_t() :
 
 void einstellungen_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t e( file, "einstellungen_t" );
+
 	if(file->get_version() < 86000) {
 		uint32 dummy;
 
@@ -203,8 +205,8 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		dummy = grundwasser;
 		file->rdwr_long(dummy, "\n");
 		grundwasser = (sint16)(dummy/16)*Z_TILE_STEP;
-		file->rdwr_double(max_mountain_height, "\n");
-		file->rdwr_double(map_roughness, "\n");
+		file->rdwr_double(max_mountain_height);
+		file->rdwr_double(map_roughness);
 
 		station_coverage_size = 3;
 		beginner_mode = false;
@@ -245,8 +247,8 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		else {
 			grundwasser = (sint16)dummy*Z_TILE_STEP;
 		}
-		file->rdwr_double(max_mountain_height, "\n");
-		file->rdwr_double(map_roughness, "\n");
+		file->rdwr_double(max_mountain_height);
+		file->rdwr_double(map_roughness);
 
 		if(file->get_version() >= 86003) {
 			dummy = station_coverage_size;
@@ -338,7 +340,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_long( stadtauto_duration , "" );
 
 			file->rdwr_bool( numbered_stations, "" );
-			file->rdwr_str( city_road_type, "" );
+			file->rdwr_str( city_road_type );
 			file->rdwr_long( max_route_steps , "" );
 			file->rdwr_long( max_transfers , "" );
 			file->rdwr_long( max_hops , "" );
@@ -349,13 +351,13 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			if(  file->is_loading()  ) {
 				language_code_names = NULL;
 			}
-			file->rdwr_str( language_code_names, "en" );
+			file->rdwr_str( language_code_names );
 
 			// restore AI state
 			for(  int i=0;  i<15;  i++  ) {
 				file->rdwr_bool( automaten[i], "" );
 				file->rdwr_byte( spieler_type[i], "" );
-				file->rdwr_str( password[i], "" );
+				file->rdwr_str( password[i] );
 			}
 
 			// cost section ...
@@ -556,8 +558,10 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 		loadsave_t::set_savemode(loadsave_t::binary);
 	} else if(strcmp(str, "zipped") == 0) {
 		loadsave_t::set_savemode(loadsave_t::zipped);
-	} else if(strcmp(str, "text") == 0) {
-		loadsave_t::set_savemode(loadsave_t::text);
+	} else if(strcmp(str, "xml") == 0) {
+		loadsave_t::set_savemode(loadsave_t::xml);
+	} else if(strcmp(str, "xml_zipped") == 0) {
+		loadsave_t::set_savemode(loadsave_t::xml_zipped);
 	}
 
 	/*

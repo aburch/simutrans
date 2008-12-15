@@ -861,23 +861,20 @@ void stadt_t::rdwr(loadsave_t* file)
 	if (file->is_saving()) {
 		besitzer_n = welt->sp2num(besitzer_p);
 	}
-	file->rdwr_str(name, "simcity" );
+	file->rdwr_str(name);
 	pos.rdwr(file);
-	file->rdwr_delim("Plo: ");
 	uint32 lli = lo.x;
 	uint32 lob = lo.y;
 	uint32 lre = ur.x;
 	uint32 lun = ur.y;
 	file->rdwr_long(lli, " ");
 	file->rdwr_long(lob, "\n");
-	file->rdwr_delim("Pru: ");
 	file->rdwr_long(lre, " ");
 	file->rdwr_long(lun, "\n");
 	lo.x = lli;
 	lo.y = lob;
 	ur.x = lre;
 	ur.y = lun;
-	file->rdwr_delim("Bes: ");
 	file->rdwr_long(besitzer_n, "\n");
 	file->rdwr_long(bev, " ");
 	file->rdwr_long(arb, " ");

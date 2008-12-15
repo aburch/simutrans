@@ -28,14 +28,16 @@
  * @author V. Meyer, Hj. Malthaner
  */
 
+
 class loadsave_t {
 public:
-	enum mode_t { text, binary, zipped };
+	enum mode_t { text=8, xml=1, binary=0, zipped=2, xml_zipped=3 };
 
 private:
-	mode_t mode;
+	int mode;
 	bool saving;
 	int version;
+	int ident;		// only for XML formatting
 	char pak_extension[64];	// name of the pak folder during savetime
 
 	cstring_t filename;	// the current name ...
@@ -50,9 +52,11 @@ private:
 	long write(const void * buf, unsigned long len);
 	long read (void *buf, unsigned long len);
 
+	void rdwr_xml_number(sint64 &s, const char *typ);
+
 public:
-	static uint32 int_version(const char *version_text, mode_t *mode, char *pak);
 	static mode_t save_mode;	// default to use for saving
+	static uint32 int_version(const char *version_text, int *mode, char *pak);
 
 	loadsave_t();
 	~loadsave_t();
@@ -71,9 +75,8 @@ public:
 	void* gib_file() { return fp; }
 	bool is_loading() const { return !saving; }
 	bool is_saving() const { return saving; }
-	bool is_zipped() const { return mode == zipped; }
-	bool is_binary() const { return mode == binary; }
-	bool is_text() const { return mode == text; }
+	bool is_zipped() const { return mode&zipped; }
+	bool is_xml() const { return mode&xml; }
 	uint32 get_version() const { return version; }
 	const char *get_pak_extension() const { return pak_extension; }
 
@@ -85,18 +88,22 @@ public:
 	void rdwr_long(uint32 &i, const char *delim);
 	void rdwr_longlong(sint64 &i, const char *delim);
 	void rdwr_bool(bool &i, const char *delim);
-	void rdwr_double(double &dbl, const char *delim);             //01-Dec-01     Markus Weber    Added
+	void rdwr_double(double &dbl);
 
 	void wr_obj_id(short id);
 	short rd_obj_id();
 	void wr_obj_id(const char *id_text);
 	void rd_obj_id(char *id_buf, int size);
 
-	// s is a malloc-ed string
-	void rdwr_str(const char *&s, const char *null_s);
+	// s is a malloc-ed string (will be freed and newly allocated on load time!)
+	void rdwr_str(const char *&s);
+
 	// s is a buf of size given
 	void rdwr_str(char *s, int size);
-	void rdwr_delim(const char *delim);
+
+	// only meaningful for XML
+	void start_tag( const char *tag );
+	void end_tag( const char *tag );
 
 	// use this for enum types
 	template <class X>
@@ -112,12 +119,20 @@ public:
 			x = (X)int_x;
 		}
 	}
-
-	/**
-	 * Read string into preallocated buffer.
-	 * @author Hj. Malthaner
-	 */
-	void rd_str_into(char *s, const char *null_s);
 };
+
+
+
+// this produced semicautomatic hierachies
+class xml_tag_t {
+private:
+	loadsave_t *file;
+	const char *tag;
+public:
+	xml_tag_t( loadsave_t *f, const char *t ) : file(f), tag(t) { file->start_tag(tag); }
+	~xml_tag_t() { file->end_tag(tag); }
+};
+
+
 
 #endif

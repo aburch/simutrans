@@ -593,9 +593,9 @@ void spieler_t::ai_bankrupt()
  */
 void spieler_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t sss( file, "spieler_t" );
 	sint32 halt_count=0;
 
-	file->rdwr_delim("Sp ");
 	file->rdwr_longlong(konto, " ");
 	file->rdwr_long(konto_ueberzogen, " ");
 

@@ -376,21 +376,23 @@ fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 void
 fabrik_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t f( file, "fabrik_t" );
 	sint32 i;
 	sint32 spieler_n;
 	sint32 eingang_count;
 	sint32 ausgang_count;
 	sint32 anz_lieferziele;
-	const char *s = NULL;
 
 	if(file->is_saving()) {
 		eingang_count = eingang.get_count();
 		ausgang_count = ausgang.get_count();
 		anz_lieferziele = lieferziele.get_count();
-		s = besch->gib_name();
+		const char *s = besch->gib_name();
+		file->rdwr_str(s);
 	}
-	file->rdwr_str(s, "-");
-	if(file->is_loading()) {
+	else {
+		char s[256];
+		file->rdwr_str(s,256);
 DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		besch = fabrikbauer_t::gib_fabesch(s);
 		if(besch==NULL) {
@@ -399,7 +401,6 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		if(besch==NULL) {
 			dbg->fatal( "fabrik_t::rdwr()","no besch for %s", s );
 		}
-		guarded_free(const_cast<char *>(s));
 		// set ware arrays ...
 		if(besch) {
 			eingang.clear();
@@ -417,7 +418,6 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 	pos.rdwr(file);
 
-	file->rdwr_delim("Bau: ");
 	file->rdwr_byte(rotate, "\n");
 
 	// now rebuilt information for recieved goods
@@ -432,8 +432,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			dummy.max   = eingang[i].max   << (old_precision_bits - precision_bits);
 		}
 
-		file->rdwr_delim("Ein: ");
-		file->rdwr_str(typ, " ");
+		file->rdwr_str(typ);
 		file->rdwr_long(dummy.menge, " ");
 		file->rdwr_long(dummy.max, "\n");
 		if(file->is_loading()) {
@@ -466,8 +465,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			dummy.abgabe_sum   = ausgang[i].abgabe_sum;
 			dummy.abgabe_letzt = ausgang[i].abgabe_letzt;
 		}
-		file->rdwr_delim("Aus: ");
-		file->rdwr_str(typ, " ");
+		file->rdwr_str(typ);
 		file->rdwr_long(dummy.menge, " ");
 		file->rdwr_long(dummy.max, "\n");
 		file->rdwr_long(dummy.abgabe_sum, " ");
@@ -483,11 +481,8 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 	// restore other information
 	spieler_n = welt->sp2num(besitzer_p);
-	file->rdwr_delim("Bes: ");
 	file->rdwr_long(spieler_n, "\n");
-	file->rdwr_delim("Prf: ");
 	file->rdwr_long(prodbase, "\n");
-	file->rdwr_delim("Prb: ");
 	file->rdwr_long(prodfaktor, "\n");
 
 	// information on fields ...

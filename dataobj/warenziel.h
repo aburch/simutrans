@@ -25,30 +25,30 @@ class warenziel_t
 {
 private:
 	halthandle_t halt;
-    uint8 catg_index;
+	uint8 catg_index;
 
 public:
-    // don't use them, or fix them: Actually, these should check for stops
-    // but they are needed for list search ...
-    int operator==(const warenziel_t &wz) {
-        return (halt == wz.gib_zielhalt()  &&  catg_index==wz.gib_catg_index());
-    }
-    int operator!=(const warenziel_t &wz) {
-        return halt!=wz.gib_zielhalt()  ||  catg_index!=wz.gib_catg_index();
-    }
+	// don't use them, or fix them: Actually, these should check for stops
+	// but they are needed for list search ...
+	int operator==(const warenziel_t &wz) {
+		return (halt == wz.gib_zielhalt()  &&  catg_index==wz.gib_catg_index());
+	}
+	int operator!=(const warenziel_t &wz) {
+		return halt!=wz.gib_zielhalt()  ||  catg_index!=wz.gib_catg_index();
+	}
 
 	warenziel_t() { catg_index = 255; halt = halthandle_t();}
 
 	warenziel_t(halthandle_t &h, const ware_besch_t *b) { halt = h; catg_index = b->gib_catg_index(); }
 
-    warenziel_t(loadsave_t *file);
+	warenziel_t(loadsave_t *file);
 
-    void setze_zielhalt(halthandle_t &h) { halt = h; }
-    const halthandle_t gib_zielhalt() const { return halt; }
+	void setze_zielhalt(halthandle_t &h) { halt = h; }
+	const halthandle_t gib_zielhalt() const { return halt; }
 
-    uint8 gib_catg_index() const { return catg_index; }
+	uint8 gib_catg_index() const { return catg_index; }
 
-    void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file);
 };
 
 #endif

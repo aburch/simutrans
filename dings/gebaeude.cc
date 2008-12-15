@@ -681,21 +681,22 @@ void
 gebaeude_t::rdwr(loadsave_t *file)
 {
 	if(!is_factory) {
+		xml_tag_t d( file, "gebaeude_t" );
+
 		// do not save factory buildings => factory will reconstruct them
 		ding_t::rdwr(file);
 
-		char  buf[256];
+		char buf[128];
 		short idx;
 
 		if(file->is_saving()) {
 			const char *s = tile->gib_besch()->gib_name();
+			file->rdwr_str(s);
 			idx = tile->gib_index();
-			file->rdwr_str(s, "N");
 		}
 		else {
-			file->rd_str_into(buf, "N");
+			file->rdwr_str(buf, 128 );
 		}
-
 		file->rdwr_short(idx, "\n");
 		file->rdwr_long(insta_zeit, " ");
 
@@ -795,7 +796,6 @@ gebaeude_t::rdwr(loadsave_t *file)
 					}
 				}
 			}	// here we should have a valid tile pointer or nothing ...
-
 
 			/* avoid double contruction of monuments:
 			 * remove them from selection lists

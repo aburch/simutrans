@@ -81,21 +81,22 @@ fussgaenger_t::calc_bild()
 
 void fussgaenger_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t f( file, "fussgaenger_t" );
+
 	verkehrsteilnehmer_t::rdwr(file);
 
-	const char *s = NULL;
 	if(!file->is_loading()) {
-		s = besch->gib_name();
+		const char *s = besch->gib_name();
+		file->rdwr_str(s);
 	}
-	file->rdwr_str(s, "N");
-
-	if(file->is_loading()) {
+	else {
+		char s[256];
+		file->rdwr_str(s,256);
 		besch = table.get(s);
 		// unknow pedestrian => create random new one
 		if(besch == NULL) {
-		    besch = liste.at_weight(simrand(liste.get_sum_weight()));
+			besch = liste.at_weight(simrand(liste.get_sum_weight()));
 		}
-		guarded_free(const_cast<char *>(s));
 	}
 
 	if(file->get_version()<89004) {
@@ -106,8 +107,7 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 
 
 // create anzahl pedestrains (if possible)
-void
-fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &anzahl)
+void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &anzahl)
 {
 	if (liste.empty()) return;
 

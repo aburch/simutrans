@@ -76,7 +76,7 @@ void pillar_t::zeige_info()
 		if(bd->ist_bruecke()) {
 			bruecke_t* br = bd->find<bruecke_t>();
 			if(br  &&  br->gib_besch()==besch) {
-   				br->zeige_info();
+				br->zeige_info();
 			}
 		}
 	}
@@ -86,17 +86,20 @@ void pillar_t::zeige_info()
 
 void pillar_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t p( file, "pillar_t" );
+
 	ding_t::rdwr(file);
 
-	const char *s = NULL;
-
 	if(file->is_saving()) {
-		s = besch->gib_name();
+		const char *s = besch->gib_name();
+		file->rdwr_str(s);
+		file->rdwr_byte(dir,"\n");
 	}
-	file->rdwr_str(s, "");
-	file->rdwr_byte(dir,"\n");
+	else {
+		char s[256];
+		file->rdwr_str(s,256);
+		file->rdwr_byte(dir,"\n");
 
-	if(file->is_loading()) {
 		besch = brueckenbauer_t::gib_besch(s);
 		if(besch==0) {
 			if(strstr(s,"ail")) {
@@ -108,7 +111,6 @@ void pillar_t::rdwr(loadsave_t *file)
 				dbg->warning("pillar_t::rdwr()","Unknown bridge %s replaced by ClassicRoad",s);
 			}
 		}
-		guarded_free(const_cast<char *>(s));
 	}
 }
 

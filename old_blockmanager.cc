@@ -88,7 +88,6 @@ old_blockmanager_t::rdwr_block(karte_t *welt,loadsave_t *file)
 	short int typ = ding_t::signal;
 
 	// signale laden
-	file->rdwr_delim("S ");
 	file->rdwr_long(count, "\n");
 
 	for(int i=0; i<count; i++) {

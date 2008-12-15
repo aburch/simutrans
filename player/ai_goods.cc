@@ -1172,6 +1172,8 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 void ai_goods_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t t( file, "ai_goods_t" );
+
 	// first: do all the administration
 	spieler_t::rdwr(file);
 
@@ -1220,21 +1222,21 @@ void ai_goods_t::rdwr(loadsave_t *file)
 		k3d.rdwr(file);
 		// what freight?
 		const char *s = freight ? freight->gib_name() : NULL;
-		file->rdwr_str( s, "" );
+		file->rdwr_str( s );
 		// vehicles besch
 		s = rail_engine ? rail_engine->gib_name() : NULL;
-		file->rdwr_str( s, "" );
+		file->rdwr_str( s );
 		s = rail_vehicle ? rail_vehicle->gib_name() : NULL;
-		file->rdwr_str( s, "" );
+		file->rdwr_str( s );
 		s = road_vehicle ? road_vehicle->gib_name() : NULL;
-		file->rdwr_str( s, "" );
+		file->rdwr_str( s );
 		s = ship_vehicle ? ship_vehicle->gib_name() : NULL;
-		file->rdwr_str( s, "" );
+		file->rdwr_str( s );
 		// ways
 		s = rail_weg ? rail_weg->gib_name() : NULL;
-		file->rdwr_str( s, "" );
+		file->rdwr_str( s );
 		s = road_weg ? road_weg->gib_name() : NULL;
-		file->rdwr_str( s, "" );
+		file->rdwr_str( s );
 	}
 	else {
 		// since steps in loaded game == 0
@@ -1249,21 +1251,21 @@ void ai_goods_t::rdwr(loadsave_t *file)
 		ziel = fabrik_t::gib_fab( welt, k3d.gib_2d() );
 		// freight?
 		const char *temp=NULL;
-		file->rdwr_str( temp, "" );
+		file->rdwr_str( temp );
 		freight = temp ? warenbauer_t::gib_info(temp) : NULL;
 		// vehicles
-		file->rdwr_str( temp, "" );
+		file->rdwr_str( temp );
 		rail_engine = temp ? vehikelbauer_t::gib_info(temp) : NULL;
-		file->rdwr_str( temp, "" );
+		file->rdwr_str( temp );
 		rail_vehicle = temp ? vehikelbauer_t::gib_info(temp) : NULL;
-		file->rdwr_str( temp, "" );
+		file->rdwr_str( temp );
 		road_vehicle = temp ? vehikelbauer_t::gib_info(temp) : NULL;
-		file->rdwr_str( temp, "" );
+		file->rdwr_str( temp );
 		ship_vehicle = temp ? vehikelbauer_t::gib_info(temp) : NULL;
 		// ways
-		file->rdwr_str( temp, "" );
+		file->rdwr_str( temp );
 		rail_weg = temp ? wegbauer_t::gib_besch(temp,0) : NULL;
-		file->rdwr_str( temp, "" );
+		file->rdwr_str( temp );
 		road_weg = temp ? wegbauer_t::gib_besch(temp,0) : NULL;
 	}
 
@@ -1299,7 +1301,7 @@ void ai_goods_t::fabconnection_t::rdwr(loadsave_t *file)
 		k3d = fab2->gib_pos();
 		k3d.rdwr(file);
 		const char *s = ware->gib_name();
-		file->rdwr_str( s, "" );
+		file->rdwr_str( s );
 	}
 	else {
 		k3d.rdwr(file);
@@ -1307,7 +1309,7 @@ void ai_goods_t::fabconnection_t::rdwr(loadsave_t *file)
 		k3d.rdwr(file);
 		fab2 = fabrik_t::gib_fab( welt, k3d.gib_2d() );
 		const char *temp=NULL;
-		file->rdwr_str( temp, "" );
+		file->rdwr_str( temp );
 		ware = warenbauer_t::gib_info(temp);
 	}
 }

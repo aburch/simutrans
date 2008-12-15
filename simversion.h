@@ -9,6 +9,7 @@
 #define VERSION_DATE __DATE__
 
 #define SAVEGAME_PREFIX  "Simutrans "
+#define XML_SAVEGAME_PREFIX  "<?xml version=\"1.0\"?>"
 
 #define SAVEGAME_VER_NR  "0.101.0"
 #define SAVEGAME_VERSION (SAVEGAME_PREFIX SAVEGAME_VER_NR)

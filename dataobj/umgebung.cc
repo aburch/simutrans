@@ -110,6 +110,8 @@ einstellungen_t umgebung_t::default_einstellungen;
 // save/restore environment
 void umgebung_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t u( file, "umgebung_t" );
+
 	file->rdwr_short( scroll_multi, "" );
 	file->rdwr_bool( night_shift, "" );
 	file->rdwr_byte( daynight_level, "" );
@@ -140,7 +142,7 @@ void umgebung_t::rdwr(loadsave_t *file)
 	file->rdwr_short( max_acceleration, "" );
 
 	file->rdwr_bool( verkehrsteilnehmer_info , "" );
-	file->rdwr_bool( tree_info. "";
+	file->rdwr_bool( tree_info, "" );
 	file->rdwr_bool( ground_info , "" );
 	file->rdwr_bool( townhall_info , "" );
 	file->rdwr_bool( single_info , "" );
@@ -161,11 +163,11 @@ void umgebung_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  ) {
 		// these three bytes will be lost ...
 		const char *c = NULL;
-		file->rdwr_str( c, "" );
+		file->rdwr_str( c );
 		language_iso = c;
 	}
 	else {
-		file->rdwr_str( language_iso, "" );
+		file->rdwr_str( language_iso );
 	}
 
 	file->rdwr_short( global_volume, "" );

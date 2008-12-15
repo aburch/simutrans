@@ -1468,6 +1468,8 @@ convoi_t::vorfahren()
 void
 convoi_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t t( file, "convoi_t" );
+
 	sint32 dummy;
 	sint32 besitzer_n = welt->sp2num(besitzer_p);
 

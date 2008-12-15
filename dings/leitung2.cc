@@ -409,6 +409,8 @@ void leitung_t::laden_abschliessen()
  */
 void leitung_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t d( file, "leitung_t" );
+
 	uint32 value;
 
 	ding_t::rdwr(file);

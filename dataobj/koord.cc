@@ -86,6 +86,7 @@ const koord koord::from_hang[] = {
 
 void koord::rdwr(loadsave_t *file)
 {
+	xml_tag_t k( file, "koord" );
 	file->rdwr_short(x, " ");
 	file->rdwr_short(y, "\n");
 }

@@ -148,6 +148,8 @@ void simline_t::remove_convoy(convoihandle_t cnv)
 
 void simline_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t s( file, "simline_t" );
+
 	// only create a new fahrplan if we are loading a savegame!
 	if (file->is_loading()) {
 		fpl = new fahrplan_t();

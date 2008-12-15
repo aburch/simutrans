@@ -55,6 +55,8 @@ void brueckenboden_t::calc_bild_internal()
 void
 brueckenboden_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t t( file, "brueckenboden_t" );
+
 	grund_t::rdwr(file);
 
 	if(file->get_version()<88009) {

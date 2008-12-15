@@ -539,6 +539,8 @@ baum_t::check_season(long month)
 void
 baum_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t d( file, "baum_t" );
+
 	ding_t::rdwr(file);
 
 	sint32 alter = (welt->get_current_month() - geburt)<<18;
@@ -547,19 +549,18 @@ baum_t::rdwr(loadsave_t *file)
 	// after loading, calculate new
 	geburt = welt->get_current_month() - (alter>>18);
 
-	if(file->is_saving()) {
-		const char *s = gib_besch()->gib_name();
-		file->rdwr_str(s, "N");
-	}
-
 	if(file->is_loading()) {
-		char bname[128];
-		file->rd_str_into(bname, "N");
-		baumtype = besch_names.get(bname);
+		char buf[128];
+		file->rdwr_str(buf, 128);
+		baumtype = besch_names.get(buf);
 		if(baumtype==0) {
 			// replace with random tree
 			baumtype = simrand(baum_typen.get_count()-1)+1;
 		}
+	}
+	else {
+		const char *c = gib_besch()->gib_name();
+		file->rdwr_str(c);
 	}
 }
 

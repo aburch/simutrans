@@ -181,6 +181,8 @@ bool movingobj_t::check_season(long /*month*/)
 
 void movingobj_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t d( file, "movingobj_t" );
+
 	vehikel_basis_t::rdwr(file);
 
 	file->rdwr_enum(fahrtrichtung, " ");
@@ -193,12 +195,11 @@ void movingobj_t::rdwr(loadsave_t *file)
 
 	if(file->is_saving()) {
 		const char *s = gib_besch()->gib_name();
-		file->rdwr_str(s, "N");
+		file->rdwr_str(s);
 	}
-
-	if(file->is_loading()) {
+	else {
 		char bname[128];
-		file->rd_str_into(bname, "N");
+		file->rdwr_str(bname, 128);
 		groundobjtype = besch_names.get(bname);
 		// if not there, besch will be zero
 		use_calc_height = true;

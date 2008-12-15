@@ -26,12 +26,12 @@ stringhashtable_tpl<const field_besch_t *> field_t::besch_table;
 
 void field_t::register_besch(field_besch_t *besch, const char*name)
 {
-    besch_table.put(name, besch);
+	besch_table.put(name, besch);
 }
 
 const field_besch_t *field_t::gib_besch(const char *name)
 {
-    return besch_table.get(name);
+	return besch_table.get(name);
 }
 
 

@@ -858,13 +858,13 @@ DBG_MESSAGE("init","map");
 	intr_disable();
 
 	// save setting ...
-	if(file.wr_open("default.sve",loadsave_t::binary,"settings only")) {
+	if(file.wr_open("default.sve",loadsave_t::xml,"settings only/")) {
 		// save default setting
 		umgebung_t::default_einstellungen.rdwr(&file);
 		file.close();
 	}
 
-	if(file.wr_open("display.sve",loadsave_t::binary,"environment only")) {
+	if(file.wr_open("display.sve",loadsave_t::xml,"environment only/")) {
 		// save default setting
 		umgebung_t::rdwr(&file);
 		file.close();

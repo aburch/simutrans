@@ -180,16 +180,17 @@ bool groundobj_t::check_season(long )
 
 void groundobj_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t d( file, "groundobj_t" );
+
 	ding_t::rdwr(file);
 
 	if(file->is_saving()) {
 		const char *s = gib_besch()->gib_name();
-		file->rdwr_str(s, "N");
+		file->rdwr_str(s);
 	}
-
-	if(file->is_loading()) {
+	else {
 		char bname[128];
-		file->rd_str_into(bname, "N");
+		file->rdwr_str(bname,128);
 		groundobjtype = besch_names.get(bname);
 		// if not there, besch will be zero
 	}

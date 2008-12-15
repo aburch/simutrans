@@ -66,6 +66,8 @@ void bruecke_t::calc_bild()
 
 void bruecke_t::rdwr(loadsave_t *file)
 {
+	xml_tag_t d( file, "bruecke_t" );
+
 	ding_t::rdwr(file);
 
 	const char *s = NULL;
@@ -73,7 +75,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 	if(file->is_saving()) {
 		s = besch->gib_name();
 	}
-	file->rdwr_str(s, "");
+	file->rdwr_str(s);
 	file->rdwr_enum(img, "");
 
 	if(file->is_loading()) {
