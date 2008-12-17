@@ -3111,7 +3111,18 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 		return;
 	}
 
+	// do not set value for empyt player
+	uint8 old_sp[MAX_PLAYER_COUNT];
+	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+		old_sp[i] = einstellungen->get_player_type(i);
+		if(  spieler[i]==NULL  ) {
+			einstellungen->set_player_type( i, spieler_t::EMPTY);
+		}
+	}
 	einstellungen->rdwr(file);
+	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+		einstellungen->set_player_type( i, old_sp[i] );
+	}
 
 	file->rdwr_long(ticks, " ");
 	file->rdwr_long(letzter_monat, " ");
