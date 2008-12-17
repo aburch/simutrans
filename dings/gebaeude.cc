@@ -680,162 +680,158 @@ void gebaeude_t::info(cbuffer_t & buf) const
 void
 gebaeude_t::rdwr(loadsave_t *file)
 {
-	if(!is_factory) {
-		xml_tag_t d( file, "gebaeude_t" );
+	// do not save factory buildings => factory will reconstruct them
+	assert(!is_factory);
+	xml_tag_t d( file, "gebaeude_t" );
 
-		// do not save factory buildings => factory will reconstruct them
-		ding_t::rdwr(file);
+	ding_t::rdwr(file);
 
-		char buf[128];
-		short idx;
+	char buf[128];
+	short idx;
 
-		if(file->is_saving()) {
-			const char *s = tile->gib_besch()->gib_name();
-			file->rdwr_str(s);
-			idx = tile->gib_index();
-		}
-		else {
-			file->rdwr_str(buf, 128 );
-		}
-		file->rdwr_short(idx, "\n");
-		file->rdwr_long(insta_zeit, " ");
-
-		if(file->is_loading()) {
-			tile = hausbauer_t::find_tile(buf, idx);
-			if(tile==NULL) {
-				// try with compatibility list first
-				tile = hausbauer_t::find_tile(translator::compatibility_name(buf), idx);
-				if(tile==NULL) {
-					DBG_MESSAGE("gebaeude_t::rdwr()","neither %s nor %s, tile %i not found, try other replacement",translator::compatibility_name(buf),buf,idx);
-				}
-				else {
-					DBG_MESSAGE("gebaeude_t::rdwr()","%s replaced by %s, tile %i",buf,translator::compatibility_name(buf),idx);
-				}
-			}
-			if(tile==NULL) {
-				// first check for special buildings
-				if(strstr(buf,"TrainStop")!=NULL) {
-					tile = hausbauer_t::find_tile("TrainStop", idx);
-				} else if(strstr(buf,"BusStop")!=NULL) {
-					tile = hausbauer_t::find_tile("BusStop", idx);
-				} else if(strstr(buf,"ShipStop")!=NULL) {
-					tile = hausbauer_t::find_tile("ShipStop", idx);
-				} else if(strstr(buf,"PostOffice")!=NULL) {
-					tile = hausbauer_t::find_tile("PostOffice", idx);
-				} else if(strstr(buf,"StationBlg")!=NULL) {
-					tile = hausbauer_t::find_tile("StationBlg", idx);
-				}
-				else {
-					// try to find a fitting building
-					int level=atoi(buf);
-					gebaeude_t::typ type = gebaeude_t::unbekannt;
-
-					if(level>0) {
-						// May be an old 64er, so we can try some
-						if(strncmp(buf+3,"WOHN",4)==0) {
-							type = gebaeude_t::wohnung;
-						} else if(strncmp(buf+3,"FAB",3)==0) {
-							type = gebaeude_t::industrie;
-						} else {
-							type = gebaeude_t::gewerbe;
-						}
-						level --;
-					}
-					else if(buf[3]=='_') {
-						/* should have the form of RES/IND/COM_xx_level
-						 * xx is usually a number by can be anything without underscores
-						 */
-						level = atoi(strrchr( buf, '_' )+1);
-						if(level>0) {
-							switch(toupper(buf[0])) {
-								case 'R': type = gebaeude_t::wohnung; break;
-								case 'I': type = gebaeude_t::industrie; break;
-								case 'C': type = gebaeude_t::gewerbe; break;
-							}
-						}
-						level --;
-					}
-					// we try to replace citybuildings with their mathing counterparts
-					// if none are matching, we try again without climates and timeline!
-					switch(type) {
-						case gebaeude_t::wohnung:
-							{
-								const haus_besch_t *hb = hausbauer_t::gib_wohnhaus(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z));
-								if(hb==NULL) {
-									hb = hausbauer_t::gib_wohnhaus(level,0, MAX_CLIMATES );
-								}
-								dbg->message("gebaeude_t::rwdr", "replace unknown building %s with residence level %i by %s",buf,level,hb->gib_name());
-								tile = hb->gib_tile(0);
-							}
-							break;
-
-						case gebaeude_t::gewerbe:
-							{
-								const haus_besch_t *hb = hausbauer_t::gib_gewerbe(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z));
-								if(hb==NULL) {
-									hb = hausbauer_t::gib_gewerbe(level,0, MAX_CLIMATES );
-								}
-								dbg->message("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i by %s",buf,level,hb->gib_name());
-								tile = hb->gib_tile(0);
-							}
-							break;
-
-						case gebaeude_t::industrie:
-							{
-								const haus_besch_t *hb = hausbauer_t::gib_industrie(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z));
-								if(hb==NULL) {
-									hb = hausbauer_t::gib_industrie(level,0, MAX_CLIMATES );
-								}
-								dbg->message("gebaeude_t::rwdr", "replace unknown building %s with industrie level %i by %s",buf,level,hb->gib_name());
-								tile = hb->gib_tile(0);
-							}
-							break;
-
-						default:
-							dbg->warning("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, gib_pos().x, gib_pos().y);
-					}
-				}
-			}	// here we should have a valid tile pointer or nothing ...
-
-			/* avoid double contruction of monuments:
-			 * remove them from selection lists
-			 */
-			if (tile  &&  tile->gib_besch()->gib_utyp() == haus_besch_t::denkmal) {
-				hausbauer_t::denkmal_gebaut(tile->gib_besch());
-			}
-		}
-
-		if(file->get_version()<99006) {
-			// ignore the sync flag
-			uint8 dummy=sync;
-			file->rdwr_byte(dummy, "\n");
-		}
-
-		// restore city pointer here
-		if(  file->get_version()>=99014  ) {
-			sint32 city_index = -1;
-			if(  file->is_saving()  &&  ptr.stadt!=NULL  ) {
-				city_index = welt->gib_staedte().index_of( ptr.stadt );
-			}
-			file->rdwr_long( city_index, "c" );
-			if(  file->is_loading()  &&  city_index!=-1  ) {
-				ptr.stadt = welt->gib_staedte()[city_index];
-			}
-		}
-
-		if(file->is_loading()) {
-			count = 0;
-			anim_time = 0;
-			sync = false;
-
-			// Hajo: rebuild tourist attraction list
-			if(tile && tile->gib_besch()->ist_ausflugsziel()) {
-				welt->add_ausflugsziel( this );
-			}
-		}
+	if(file->is_saving()) {
+		const char *s = tile->gib_besch()->gib_name();
+		file->rdwr_str(s);
+		idx = tile->gib_index();
 	}
 	else {
-		file->wr_obj_id(-1);
+		file->rdwr_str(buf, 128 );
+	}
+	file->rdwr_short(idx, "\n");
+	file->rdwr_long(insta_zeit, " ");
+
+	if(file->is_loading()) {
+		tile = hausbauer_t::find_tile(buf, idx);
+		if(tile==NULL) {
+			// try with compatibility list first
+			tile = hausbauer_t::find_tile(translator::compatibility_name(buf), idx);
+			if(tile==NULL) {
+				DBG_MESSAGE("gebaeude_t::rdwr()","neither %s nor %s, tile %i not found, try other replacement",translator::compatibility_name(buf),buf,idx);
+			}
+			else {
+				DBG_MESSAGE("gebaeude_t::rdwr()","%s replaced by %s, tile %i",buf,translator::compatibility_name(buf),idx);
+			}
+		}
+		if(tile==NULL) {
+			// first check for special buildings
+			if(strstr(buf,"TrainStop")!=NULL) {
+				tile = hausbauer_t::find_tile("TrainStop", idx);
+			} else if(strstr(buf,"BusStop")!=NULL) {
+				tile = hausbauer_t::find_tile("BusStop", idx);
+			} else if(strstr(buf,"ShipStop")!=NULL) {
+				tile = hausbauer_t::find_tile("ShipStop", idx);
+			} else if(strstr(buf,"PostOffice")!=NULL) {
+				tile = hausbauer_t::find_tile("PostOffice", idx);
+			} else if(strstr(buf,"StationBlg")!=NULL) {
+				tile = hausbauer_t::find_tile("StationBlg", idx);
+			}
+			else {
+				// try to find a fitting building
+				int level=atoi(buf);
+				gebaeude_t::typ type = gebaeude_t::unbekannt;
+
+				if(level>0) {
+					// May be an old 64er, so we can try some
+					if(strncmp(buf+3,"WOHN",4)==0) {
+						type = gebaeude_t::wohnung;
+					} else if(strncmp(buf+3,"FAB",3)==0) {
+						type = gebaeude_t::industrie;
+					} else {
+						type = gebaeude_t::gewerbe;
+					}
+					level --;
+				}
+				else if(buf[3]=='_') {
+					/* should have the form of RES/IND/COM_xx_level
+					 * xx is usually a number by can be anything without underscores
+					 */
+					level = atoi(strrchr( buf, '_' )+1);
+					if(level>0) {
+						switch(toupper(buf[0])) {
+							case 'R': type = gebaeude_t::wohnung; break;
+							case 'I': type = gebaeude_t::industrie; break;
+							case 'C': type = gebaeude_t::gewerbe; break;
+						}
+					}
+					level --;
+				}
+				// we try to replace citybuildings with their mathing counterparts
+				// if none are matching, we try again without climates and timeline!
+				switch(type) {
+					case gebaeude_t::wohnung:
+						{
+							const haus_besch_t *hb = hausbauer_t::gib_wohnhaus(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z));
+							if(hb==NULL) {
+								hb = hausbauer_t::gib_wohnhaus(level,0, MAX_CLIMATES );
+							}
+							dbg->message("gebaeude_t::rwdr", "replace unknown building %s with residence level %i by %s",buf,level,hb->gib_name());
+							tile = hb->gib_tile(0);
+						}
+						break;
+
+					case gebaeude_t::gewerbe:
+						{
+							const haus_besch_t *hb = hausbauer_t::gib_gewerbe(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z));
+							if(hb==NULL) {
+								hb = hausbauer_t::gib_gewerbe(level,0, MAX_CLIMATES );
+							}
+							dbg->message("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i by %s",buf,level,hb->gib_name());
+							tile = hb->gib_tile(0);
+						}
+						break;
+
+					case gebaeude_t::industrie:
+						{
+							const haus_besch_t *hb = hausbauer_t::gib_industrie(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z));
+							if(hb==NULL) {
+								hb = hausbauer_t::gib_industrie(level,0, MAX_CLIMATES );
+							}
+							dbg->message("gebaeude_t::rwdr", "replace unknown building %s with industrie level %i by %s",buf,level,hb->gib_name());
+							tile = hb->gib_tile(0);
+						}
+						break;
+
+					default:
+						dbg->warning("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, gib_pos().x, gib_pos().y);
+				}
+			}
+		}	// here we should have a valid tile pointer or nothing ...
+
+		/* avoid double contruction of monuments:
+		 * remove them from selection lists
+		 */
+		if (tile  &&  tile->gib_besch()->gib_utyp() == haus_besch_t::denkmal) {
+			hausbauer_t::denkmal_gebaut(tile->gib_besch());
+		}
+	}
+
+	if(file->get_version()<99006) {
+		// ignore the sync flag
+		uint8 dummy=sync;
+		file->rdwr_byte(dummy, "\n");
+	}
+
+	// restore city pointer here
+	if(  file->get_version()>=99014  ) {
+		sint32 city_index = -1;
+		if(  file->is_saving()  &&  ptr.stadt!=NULL  ) {
+			city_index = welt->gib_staedte().index_of( ptr.stadt );
+		}
+		file->rdwr_long( city_index, "c" );
+		if(  file->is_loading()  &&  city_index!=-1  ) {
+			ptr.stadt = welt->gib_staedte()[city_index];
+		}
+	}
+
+	if(file->is_loading()) {
+		count = 0;
+		anim_time = 0;
+		sync = false;
+
+		// Hajo: rebuild tourist attraction list
+		if(tile && tile->gib_besch()->ist_ausflugsziel()) {
+			welt->add_ausflugsziel( this );
+		}
 	}
 }
 

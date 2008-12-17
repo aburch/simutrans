@@ -31,7 +31,7 @@
 
 class loadsave_t {
 public:
-	enum mode_t { text=8, xml=1, binary=0, zipped=2, xml_zipped=3 };
+	enum mode_t { text=8, xml=2, binary=1, zipped=4, xml_zipped=6 };
 
 private:
 	int mode;

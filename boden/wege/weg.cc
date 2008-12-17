@@ -198,11 +198,6 @@ void weg_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "weg_t" );
 
-	if(file->is_saving()) {
-		// reading has been done by grund_t!
-		file->wr_obj_id( gib_waytype() );
-	}
-
 	// save owner
 	if(file->get_version()>=99006) {
 		sint8 spnum=get_player_nr();

@@ -1332,7 +1332,6 @@ void vehikel_t::rdwr(loadsave_t *file)
 {
 	// this is only called from dingliste => we save nothing ...
 	assert(  file->is_saving()  );
-	file->wr_obj_id(-1);
 }
 
 

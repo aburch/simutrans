@@ -24,6 +24,7 @@ class crossing_t : public ding_t
 protected:
 	image_id after_bild, bild;
 	uint8 ns;				// direction
+	uint8 zustand;	// only needed for loading ...
 	crossing_logic_t *logic;
 	const kreuzung_besch_t *besch;
 

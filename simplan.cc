@@ -239,10 +239,12 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file, koord pos )
 
 	if(file->is_saving()) {
 		if(ground_size==1) {
+			file->wr_obj_id(data.one->gib_typ());
 			data.one->rdwr(file);
 		}
 		else {
 			for(int i=0; i<ground_size; i++) {
+				file->wr_obj_id(data.some[i]->gib_typ());
 				data.some[i]->rdwr(file);
 			}
 		}

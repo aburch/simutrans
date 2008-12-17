@@ -922,18 +922,31 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 		else {
 			// here is the saving part ...
 			ding_t *d=bei(i);
-			assert(d);
-			if(d->is_way()  ||  d->gib_typ()==ding_t::raucher  ||  d->gib_typ()==ding_t::sync_wolke  ||  d->gib_typ()==ding_t::async_wolke  ||  d->gib_typ()==ding_t::field) {
+			if(d->is_way()
+				// do not save smoke
+				||  d->gib_typ()==ding_t::raucher
+				||  d->gib_typ()==ding_t::sync_wolke
+				||  d->gib_typ()==ding_t::async_wolke
+				// fields will be built by factory
+				||  d->gib_typ()==ding_t::field
+				// do not save factory buildings => factory will reconstruct them
+				||  (d->gib_typ()==ding_t::gebaeude  &&  ((gebaeude_t *)d)->get_fabrik())
+				// things with convoi will not be saved
+				||  (d->gib_typ()>=66  &&  d->gib_typ()<82)
+			) {
 				// these objects are simply not saved
 				file->wr_obj_id(-1);
 			}
 			else {
+				// on old versions
 				if(d->gib_pos()==current_pos) {
+					file->wr_obj_id(d->gib_typ());
 					bei(i)->rdwr(file);
 				}
 				else if(bei(i)->gib_pos().gib_2d()==current_pos.gib_2d()) {
 					// ok, just error in z direction => we will correct it
 					dbg->warning( "dingliste_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i",bei(i)->gib_pos().x,bei(i)->gib_pos().y,bei(i)->gib_pos().z,current_pos.z);
+					file->wr_obj_id(d->gib_typ());
 					bei(i)->setze_pos( current_pos );
 					bei(i)->rdwr(file);
 				}

@@ -110,38 +110,47 @@ simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file)
 	xml_tag_t l( file, "simlinemgmt_t" );
 
 	if(file->is_saving()) {
-		file->wr_obj_id("Linemanagement");
+		// on old versions
+		if(  file->get_version()<101000  ) {
+			file->wr_obj_id("Linemanagement");
+		}
 		uint32 count = all_managed_lines.get_count();
 		file->rdwr_long(count, " ");
 		for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
+			simline_t::linetype lt = (*i)->get_linetype();
+			file->rdwr_enum(lt, "\n");
 			(*i)->rdwr(file);
 		}
 	}
 	else {
-		char buf[80];
-		file->rd_obj_id(buf, 79);
-		all_managed_lines.clear();
-		if(strcmp(buf, "Linemanagement")==0) {
-			sint32 totalLines = 0;
-			file->rdwr_long(totalLines, " ");
-DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
-			for (int i = 0; i<totalLines; i++) {
-				simline_t::linetype lt=simline_t::line;
-				file->rdwr_enum(lt, "\n");
-				simline_t * line;
-				switch(lt) {
-					case simline_t::truckline:    line = new truckline_t(   welt, file); break;
-					case simline_t::trainline:    line = new trainline_t(   welt, file); break;
-					case simline_t::shipline:     line = new shipline_t(    welt, file); break;
-					case simline_t::airline:      line = new airline_t(     welt, file); break;
-					case simline_t::monorailline: line = new monorailline_t(welt, file); break;
-					case simline_t::tramline:     line = new tramline_t(    welt, file); break;
-					case simline_t::maglevline:   line = new maglevline_t(  welt, file); break;
-					case simline_t::narrowgaugeline:line = new narrowgaugeline_t(welt, file); break;
-					default:                      line = new simline_t(     welt, file); break;
-				}
-				add_line(line->self);
+		// on old versions
+		if(  file->get_version()<101000  ) {
+			char buf[80];
+			file->rd_obj_id(buf, 79);
+			all_managed_lines.clear();
+			if(strcmp(buf, "Linemanagement")!=0) {
+				dbg->fatal( "simlinemgmt_t::rdwr", "Broken Savegame" );
 			}
+		}
+		sint32 totalLines = 0;
+		file->rdwr_long(totalLines, " ");
+DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
+		for (int i = 0; i<totalLines; i++) {
+			simline_t::linetype lt=simline_t::line;
+			file->rdwr_enum(lt, "\n");
+			simline_t * line;
+			switch(lt) {
+				case simline_t::truckline:    line = new truckline_t(   welt, file); break;
+				case simline_t::trainline:    line = new trainline_t(   welt, file); break;
+				case simline_t::shipline:     line = new shipline_t(    welt, file); break;
+				case simline_t::airline:      line = new airline_t(     welt, file); break;
+				case simline_t::monorailline: line = new monorailline_t(welt, file); break;
+				case simline_t::tramline:     line = new tramline_t(    welt, file); break;
+				case simline_t::maglevline:   line = new maglevline_t(  welt, file); break;
+				case simline_t::narrowgaugeline:line = new narrowgaugeline_t(welt, file); break;
+				default:                      line = new simline_t(     welt, file); break;
+			}
+			add_line(line->self);
 		}
 	}
 }

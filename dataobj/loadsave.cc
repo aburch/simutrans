@@ -110,12 +110,14 @@ bool loadsave_t::rd_open(const char *filename)
 	return true;
 }
 
+
+
 bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extension)
 {
 	mode = m;
 	close();
 
-	if(mode & zipped) {
+	if(  mode & zipped  ) {
 		fp = (FILE *)gzopen(filename, "wb");
 	}
 	else if(  mode & binary ) {
@@ -564,7 +566,7 @@ void loadsave_t::rdwr_str(const char *&s)
 			if(s) {
 				free(const_cast<char *>(s));
 			}
-			s = strdup(buffer);
+			s = buffer[0]!=0 ? strdup(buffer) : NULL;
 		}
 	}
 }
@@ -738,7 +740,7 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 			}
 			*id_buf = 0;
 			read( buf, 2 );
-			if(  strncmp(buf,"<id=\"",5)!=0  ) {
+			if(  strncmp(buf,"/>",2)!=0  ) {
 				dbg->fatal( "loadsave_t::rd_obj_id()","id tag not properly closed!" );
 			}
 		}

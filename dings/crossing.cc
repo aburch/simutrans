@@ -33,7 +33,6 @@ crossing_t::crossing_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 	bild = after_bild = IMG_LEER;
 	logic = NULL;
 	rdwr(file);
-	assert(logic);
 }
 
 
@@ -43,6 +42,7 @@ crossing_t::crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, const kreuzung
 	this->ns = ns;
 	this->besch = besch;
 	logic = NULL;
+	zustand = crossing_logic_t::CROSSING_INVALID;
 	bild = after_bild = IMG_LEER;
 	setze_besitzer( sp );
 }
@@ -106,10 +106,10 @@ crossing_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t d( file, "crossing_t" );
 
-	uint8 zustand = logic==NULL ? crossing_logic_t::CROSSING_INVALID : logic->get_state();
 	ding_t::rdwr(file);
 
 	// variables ... attention, logic now in crossing_logic_t
+	uint8 zustand = logic==NULL ? crossing_logic_t::CROSSING_INVALID : logic->get_state();
 	file->rdwr_byte(zustand, " ");
 	file->rdwr_byte(ns, " ");
 	if(file->get_version()<99016) {
@@ -159,11 +159,7 @@ void crossing_t::laden_abschliessen()
 		weg_t *w2=gr->gib_weg(besch->get_waytype(1));
 		w2->count_sign();
 		ns = ribi_t::ist_gerade_ns(w2->gib_ribi_unmasked());
-		if(logic==NULL) {
-			crossing_logic_t::add( welt, this, crossing_logic_t::CROSSING_INVALID );
-		}
-		else {
-			logic->recalc_state();
-		}
+			crossing_logic_t::add( welt, this, static_cast<crossing_logic_t::crossing_state_t>(zustand) );
+		logic->recalc_state();
 	}
 }

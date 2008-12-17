@@ -193,7 +193,6 @@ const char *ding_t::ist_entfernbar(const spieler_t *sp)
 void
 ding_t::rdwr(loadsave_t *file)
 {
-	file->wr_obj_id(gib_typ());
 	xml_tag_t d( file, "ding_t" );
 	if(  file->get_version()<101000) {
 		pos.rdwr( file );

@@ -154,9 +154,6 @@ void simline_t::rdwr(loadsave_t *file)
 	if (file->is_loading()) {
 		fpl = new fahrplan_t();
 	}
-	else {
-		file->rdwr_enum(type, "\n");
-	}
 
 	file->rdwr_str(name, sizeof(name));
 	if(file->get_version()<88003) {

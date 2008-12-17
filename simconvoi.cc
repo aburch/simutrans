@@ -1474,10 +1474,10 @@ convoi_t::rdwr(loadsave_t *file)
 	sint32 besitzer_n = welt->sp2num(besitzer_p);
 
 	if(file->is_saving()) {
-		file->wr_obj_id("Convoi");
-		if(file->is_saving()) {
-			line_id = line.is_bound() ? line->get_line_id() : INVALID_LINE_ID;
+		if(  file->get_version()<101000  ) {
+			file->wr_obj_id("Convoi");
 		}
+		line_id = line.is_bound() ? line->get_line_id() : INVALID_LINE_ID;
 	}
 
 	// for new line management we need to load/save the assigned line id
@@ -1545,6 +1545,7 @@ convoi_t::rdwr(loadsave_t *file)
 	koord3d dummy_pos;
 	if(file->is_saving()) {
 		for(unsigned i=0; i<anz_vehikel; i++) {
+			file->wr_obj_id( fahr[i]->gib_typ() );
 			fahr[i]->rdwr_from_convoi(file);
 		}
 	}

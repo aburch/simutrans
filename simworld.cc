@@ -3162,15 +3162,22 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved stops");
 
+	// svae number of convois
+	if(  file->get_version()>=101000  ) {
+		uint16 i=convoi_array.get_count();
+		file->rdwr_short( i, "" );
+	}
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
 		// one MUST NOT call INT_CHECK here or else the convoi will be broken during reloading!
 		convoihandle_t cnv = convoi_array[i];
 		cnv->rdwr(file);
 	}
+	if(  file->get_version()<101000  ) {
+		file->wr_obj_id("Ende Convois");
+	}
 	if(silent) {
 		INT_CHECK("saving");
 	}
-	file->wr_obj_id("Ende Convois");
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_array.get_count());
 
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
@@ -3522,32 +3529,34 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 	}
 
 	DBG_MESSAGE("karte_t::laden()", "load convois");
-	while( true ) {
-		file->rd_obj_id(buf, 79);
+	uint16 convoi_nr = 65535;
+	if(  file->get_version()>=101000  ) {
+		file->rdwr_short( convoi_nr, "" );
+	}
+	while(  convoi_nr-->0  ) {
 
-		// printf("'%s'\n", buf);
-
-		if (strcmp(buf, "Ende Convois") == 0) {
-			break;
+		if(  file->get_version()<101000  ) {
+			file->rd_obj_id(buf, 79);
+			if (strcmp(buf, "Ende Convois") == 0) {
+				break;
+			}
 		}
-		else {
-			convoi_t *cnv = new convoi_t(this, file);
-			convoi_array.push_back(cnv->self);
+		convoi_t *cnv = new convoi_t(this, file);
+		convoi_array.push_back(cnv->self);
 
-			if(cnv->in_depot()) {
-				grund_t * gr = lookup(cnv->gib_pos());
-				depot_t *dep = gr ? gr->gib_depot() : 0;
-				if(dep) {
-					cnv->betrete_depot(dep);
-				}
-				else {
-					dbg->error("karte_t::laden()", "no depot for convoi, blocks may now be wrongly reserved!");
-					cnv->destroy();
-				}
+		if(cnv->in_depot()) {
+			grund_t * gr = lookup(cnv->gib_pos());
+			depot_t *dep = gr ? gr->gib_depot() : 0;
+			if(dep) {
+				cnv->betrete_depot(dep);
 			}
 			else {
-				sync_add( cnv );
+				dbg->error("karte_t::laden()", "no depot for convoi, blocks may now be wrongly reserved!");
+				cnv->destroy();
 			}
+		}
+		else {
+			sync_add( cnv );
 		}
 	}
 DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_count());

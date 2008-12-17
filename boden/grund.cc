@@ -143,7 +143,6 @@ grund_t::grund_t(karte_t *wl, loadsave_t *file)
 
 void grund_t::rdwr(loadsave_t *file)
 {
-	file->wr_obj_id(gib_typ());
 	xml_tag_t g( file, "grund_t" );
 	if(file->get_version()<101000) {
 		pos.rdwr(file);
@@ -295,9 +294,11 @@ void grund_t::rdwr(loadsave_t *file)
 	else {
 		// saving all ways ...
 		if(flags&has_way1) {
+			file->wr_obj_id( ((weg_t *)obj_bei(0))->gib_waytype() );
 			obj_bei(0)->rdwr(file);
 		}
 		if(flags&has_way2) {
+			file->wr_obj_id( ((weg_t *)obj_bei(1))->gib_waytype() );
 			obj_bei(1)->rdwr(file);
 		}
 		file->wr_obj_id(-1);   // Ende der Wege
