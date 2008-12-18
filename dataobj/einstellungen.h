@@ -75,8 +75,6 @@ private:
 
 	sint32 passenger_factor;
 
-	sint32 default_electric_promille;
-
 	sint16 factory_spacing;
 
 	/* prissi: crossconnect all factories (like OTTD and similar games) */
@@ -204,7 +202,7 @@ public:
 	void setze_land_industry_chains(sint32 d) {land_industry_chains=d;}
 	sint32 gib_land_industry_chains() const {return land_industry_chains;}
 
-	void setze_electric_promille(sint32 d) {electric_promille=d;}
+	void setze_electric_promille(sint32 d) { electric_promille=d;}
 	sint32 gib_electric_promille() const {return electric_promille;}
 
 	void setze_tourist_attractions(sint32 d) {tourist_attractions=d;}

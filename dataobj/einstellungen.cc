@@ -65,7 +65,7 @@ einstellungen_t::einstellungen_t() :
 	// passenger manipulation factor (=16 about old value)
 	passenger_factor = 16;
 
-	default_electric_promille = 330;
+	electric_promille = 330;
 
 #ifdef OTTD_LIKE
 	/* prissi: crossconnect all factories (like OTTD and similar games) */
@@ -185,7 +185,6 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		dummy = 0;
 		file->rdwr_long(dummy, " ");	//dummy!
 		land_industry_chains = 6;
-		electric_promille = 330;
 		tourist_attractions = 12;
 
 		// now towns
@@ -224,7 +223,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_long(dummy, " ");
 		}
 		else {
-			file->rdwr_long(electric_promille, " ");
+			file->rdwr_long( electric_promille, "" );
 		}
 		file->rdwr_long(tourist_attractions, "\n");
 
@@ -330,7 +329,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_short( origin_y, "oy" );
 
 			file->rdwr_long( passenger_factor, "" );
-			file->rdwr_long( default_electric_promille, "" );
+			file->rdwr_long( electric_promille, "" );
 
 			file->rdwr_short( factory_spacing, "" );
 			file->rdwr_bool( crossconnect_factories, "" );
@@ -505,7 +504,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	factory_spacing = contents.get_int("factory_spacing", factory_spacing );
 	crossconnect_factories = contents.get_int("crossconnect_factories", crossconnect_factories ) != 0;
 	crossconnect_factor = contents.get_int("crossconnect_factories_percentage", crossconnect_factor );
-	default_electric_promille = contents.get_int("electric_promille", default_electric_promille);
+	electric_promille = contents.get_int("electric_promille", electric_promille);
 
 	just_in_time = contents.get_int("just_in_time", just_in_time) != 0;
 	beginner_price_factor = contents.get_int("beginner_price_factor", beginner_price_factor ); /* this manipulates the good prices in beginner mode */

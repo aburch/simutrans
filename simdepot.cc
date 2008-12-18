@@ -405,6 +405,7 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 	else {
 		slist_iterator_tpl<vehikel_t *> l_iter ( list);
 		while(l_iter.next()) {
+			file->wr_obj_id( l_iter.get_current()->gib_typ() );
 			l_iter.get_current()->rdwr_from_convoi( file );
 		}
 	}

@@ -70,7 +70,6 @@ bool loadsave_t::rd_open(const char *filename)
 			}
 			*s = 0;
 			int dummy;
-			char s_dummy[64];
 			version = int_version(str, &dummy, pak_extension);
 
 			read( buf, sizeof(" pak=\"")-1 );
@@ -253,7 +252,7 @@ long loadsave_t::read(void *buf, unsigned long len)
 
 
 /* read data types (should check also for Intel/Motorola) etc */
-void loadsave_t::rdwr_byte(sint8 &c, const char *delim)
+void loadsave_t::rdwr_byte(sint8 &c, const char *)
 {
 	if(!is_xml()) {
 		if(saving) {
@@ -270,16 +269,16 @@ void loadsave_t::rdwr_byte(sint8 &c, const char *delim)
 	}
 }
 
-void loadsave_t::rdwr_byte(uint8 &c, const char *delim)
+void loadsave_t::rdwr_byte(uint8 &c, const char *)
 {
 	sint8 cc=c;
-	rdwr_byte(cc,delim);
+	rdwr_byte(cc,NULL);
 	c = (uint8)cc;
 }
 
 
 /* shorts */
-void loadsave_t::rdwr_short(sint16 &i, const char *delim)
+void loadsave_t::rdwr_short(sint16 &i, const char *)
 {
 	if(!is_xml()) {
 #ifdef BIG_ENDIAN
@@ -306,16 +305,16 @@ void loadsave_t::rdwr_short(sint16 &i, const char *delim)
 	}
 }
 
-void loadsave_t::rdwr_short(uint16 &i, const char *delim)
+void loadsave_t::rdwr_short(uint16 &i, const char *)
 {
 	sint16 ii=i;
-	rdwr_short(ii,delim);
+	rdwr_short(ii,NULL);
 	i = (uint16)ii;
 }
 
 
 /* long words*/
-void loadsave_t::rdwr_long(sint32 &l, const char *delim)
+void loadsave_t::rdwr_long(sint32 &l, const char *)
 {
 	if(!is_xml()) {
 #ifdef BIG_ENDIAN
@@ -342,15 +341,15 @@ void loadsave_t::rdwr_long(sint32 &l, const char *delim)
 	}
 }
 
-void loadsave_t::rdwr_long(uint32 &l, const char *delim)
+void loadsave_t::rdwr_long(uint32 &l, const char *)
 {
 	sint32 ll=l;
-	rdwr_long(ll,delim);
+	rdwr_long(ll,NULL);
 	l = (uint32)ll;
 }
 
 /* long long (64 Bit) */
-void loadsave_t::rdwr_longlong(sint64 &ll, const char *delim)
+void loadsave_t::rdwr_longlong(sint64 &ll, const char *)
 {
 	if(!is_xml()) {
 #ifdef BIG_ENDIAN
@@ -388,15 +387,15 @@ void loadsave_t::rdwr_double(double &dbl)
 	}
 	else {
 		// so far only with 3 digit precision, but this is ok for only two locations used
-		sint64 ll= (sint64)(dbl*1000.0);
+		sint64 ll= (sint64)((dbl*1000.0)+0.5);
 		rdwr_xml_number( ll, "d1000" );
-		dbl = ll/1000.0;
+		dbl = ((double)ll)/1000.0;
 	}
 }
 
 
 
-void loadsave_t::rdwr_bool(bool &i, const char *delim)
+void loadsave_t::rdwr_bool(bool &i, const char *)
 {
 	if(  !is_xml()  ) {
 		if(saving) {
@@ -617,35 +616,63 @@ void loadsave_t::rdwr_str(char *s, int size)
 			while(  lsgetc()!='<'  );
 			// check for correct tag
 			char buffer[10];
-			read( buffer, 8 );
-			buffer[8] = 0;
-			if(  strcmp("![CDATA[",buffer)!=0  ) {
-				dbg->fatal( "loadsave_t::rdwr_str()","expected str \"<![CDATA[\", got \"%s\"", buffer );
+			read( buffer, 7 );
+			bool string = true;
+			if(  strncmp("string>",buffer,7)!=0  ) {
+				if(  strncmp("![CDATA",buffer,7)!=0  ||  lsgetc()!='['  ) {
+					buffer[7] = 0;
+					dbg->fatal( "loadsave_t::rdwr_str()","expected str \"<![CDATA[\", got \"%s\"", buffer );
+				}
+				string = false;
 			}
 			// now parse input
-			char last_three_chars[4];
-			char len = 0;
-			for(  int i=0;  i<size;  i++  ) {
-				char c = lsgetc();
-				if(  c==']'  &&  (  len==0  ||  (len==1  &&  last_three_chars[0] == ']') )  ) {
-					last_three_chars[len++] = c;
-				}
-				else if(  c=='>'  &&  len==2  ) {
-					len ++;
-					break;
-				}
-				else {
-					// evt. add closing brackets
-					while(  len-->0  ) {
-						*s++ = ']';
+			if(string) {
+				const char *ptr = NULL;
+				for(  int i=0;  i<size;  i++  ) {
+					char c = lsgetc();
+					if(  c=='<'  ) {
+						ptr = s;
 					}
-					len = 0;
+					if(  c=='>'  ) {
+						if(  i>=8  &&  strncmp( s-8, "</string>", 8 )==0  ) {
+							s[-8] = 0;
+							ptr = s-8;
+							break;
+						}
+					}
 					*s++ = c;
 				}
+				*s = 0;
+				// go until closing
+				if(  ptr==0  ||  *ptr!=0  ) {
+					while(  lsgetc()!='>'  );
+				}
 			}
-			*s = 0;
-			if(  len!=3  ) {
-				dbg->fatal( "loadsave_t::rdwr_str()","string too long (exceeded %i characters)", size );
+			else {
+				char last_three_chars[4];
+				char len = 0;
+				for(  int i=0;  i<size;  i++  ) {
+					char c = lsgetc();
+					if(  c==']'  &&  (  len==0  ||  (len==1  &&  last_three_chars[0] == ']') )  ) {
+						last_three_chars[len++] = c;
+					}
+					else if(  c=='>'  &&  len==2  ) {
+						len ++;
+						break;
+					}
+					else {
+						// evt. add closing brackets
+						while(  len-->0  ) {
+							*s++ = ']';
+						}
+						len = 0;
+						*s++ = c;
+					}
+				}
+				*s = 0;
+				if(  len!=3  ) {
+					dbg->fatal( "loadsave_t::rdwr_str()","string too long (exceeded %i characters)", size );
+				}
 			}
 		}
 	}

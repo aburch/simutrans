@@ -375,7 +375,7 @@ int simu_main(int argc, char** argv)
 		tabfileobj_t contents;
 		simuconf.read(contents);
 		// use different save directories
-		multiuser = contents.get_int("singleuser_install", 1)==1;
+		multiuser = !(contents.get_int("singleuser_install", !multiuser)==1  ||  !multiuser);
 		found_simuconf = true;
 	}
 
@@ -391,14 +391,9 @@ int simu_main(int argc, char** argv)
 
 	// now read last setting (might be overwritten by the tab-files)
 	loadsave_t file;
-	if(file.rd_open("default.sve")) {
-		// first: load default world setting
-		umgebung_t::default_einstellungen.rdwr(&file);
-		file.close();
-	}
-	if(file.rd_open("display.sve")) {
-		// then: load default environment setting (not game critical)
+	if(file.rd_open("settings.xml")) {
 		umgebung_t::rdwr(&file);
+		umgebung_t::default_einstellungen.rdwr(&file);
 		file.close();
 	}
 
@@ -858,15 +853,9 @@ DBG_MESSAGE("init","map");
 	intr_disable();
 
 	// save setting ...
-	if(file.wr_open("default.sve",loadsave_t::xml,"settings only/")) {
-		// save default setting
-		umgebung_t::default_einstellungen.rdwr(&file);
-		file.close();
-	}
-
-	if(file.wr_open("display.sve",loadsave_t::xml,"environment only/")) {
-		// save default setting
+	if(file.wr_open("settings.xml",loadsave_t::xml,"settings only/")) {
 		umgebung_t::rdwr(&file);
+		umgebung_t::default_einstellungen.rdwr(&file);
 		file.close();
 	}
 
