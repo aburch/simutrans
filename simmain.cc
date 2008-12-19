@@ -351,19 +351,6 @@ int simu_main(int argc, char** argv)
 	// only the pak specifiy conf should overide this!
 	uint16 pak_diagonal_multiplier = umgebung_t::default_einstellungen.gib_pak_diagonal_multiplier();
 
-	// unmgebung init
-	if(  (gimme_arg(argc, argv, "-freeplay", 0) != NULL)  ) {
-		umgebung_t::default_einstellungen.setze_freeplay( true );
-	}
-	if(  gimme_arg(argc, argv, "-debug", 0) != NULL  ) {
-		const char *s = gimme_arg(argc, argv, "-debug", 1);
-		int level = 4;
-		if(s!=NULL  &&  s[0]>='0'  &&  s[0]<='9'  ) {
-			level = atoi(s);
-		}
-		umgebung_t::verbose_debug = level;
-	}
-
 	// parsing config/simuconf.tab
 	print("Reading low level config data ...\n");
 	bool found_simuconf=false;
@@ -371,12 +358,12 @@ int simu_main(int argc, char** argv)
 
 	tabfile_t simuconf;
 	if(simuconf.open("config/simuconf.tab")) {
-		printf("parse_simuconf() at config/simuconf.tab");
 		tabfileobj_t contents;
 		simuconf.read(contents);
 		// use different save directories
 		multiuser = !(contents.get_int("singleuser_install", !multiuser)==1  ||  !multiuser);
 		found_simuconf = true;
+		simuconf.close();
 	}
 
 	// init dirs now
@@ -395,12 +382,18 @@ int simu_main(int argc, char** argv)
 		umgebung_t::rdwr(&file);
 		umgebung_t::default_einstellungen.rdwr(&file);
 		file.close();
+		// reset to false (otherwise freeplay will persist)
+		umgebung_t::default_einstellungen.setze_freeplay( false );
 	}
 
 	// continue parsing ...
 	if(  found_simuconf  ) {
-		umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
-		simuconf.close();
+		cstring_t obj_conf = umgebung_t::program_dir;
+		if(simuconf.open(obj_conf + "config/simuconf.tab")) {
+			printf("parse_simuconf() at config/simuconf.tab");
+			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
+			simuconf.close();
+		}
 	}
 
 	// if set for multiuser, then parses the users config (if there)
@@ -411,6 +404,19 @@ int simu_main(int argc, char** argv)
 			printf("parse_simuconf() at %ssimuconf.tab", (const char *)obj_conf);
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 		}
+	}
+
+	// unmgebung: overide previous settings
+	if(  (gimme_arg(argc, argv, "-freeplay", 0) != NULL)  ) {
+		umgebung_t::default_einstellungen.setze_freeplay( true );
+	}
+	if(  gimme_arg(argc, argv, "-debug", 0) != NULL  ) {
+		const char *s = gimme_arg(argc, argv, "-debug", 1);
+		int level = 4;
+		if(s!=NULL  &&  s[0]>='0'  &&  s[0]<='9'  ) {
+			level = atoi(s);
+		}
+		umgebung_t::verbose_debug = level;
 	}
 
 	// now set the desired objectfilename (overide all previous settings)

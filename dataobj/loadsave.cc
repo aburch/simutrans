@@ -389,7 +389,7 @@ void loadsave_t::rdwr_double(double &dbl)
 		// so far only with 3 digit precision, but this is ok for only two locations used
 		sint64 ll= (sint64)((dbl*1000.0)+0.5);
 		rdwr_xml_number( ll, "d1000" );
-		dbl = ((double)ll)/1000.0;
+		dbl = (((double)ll)+0.000001)/1000.0;
 	}
 }
 

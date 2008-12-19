@@ -16,27 +16,27 @@
 
 bool tabfile_t::open(const char *filename)
 {
-    close();
-    file = fopen(filename, "rt");
-    return file != NULL;
+	close();
+	file = fopen(filename, "rt");
+	return file != NULL;
 }
 
 
 
 void tabfile_t::close()
 {
-    if(file) {
-        fclose(file);
-        file  = NULL;
-    }
+	if(file) {
+		fclose(file);
+		file  = NULL;
+	}
 }
 
 
 const char *tabfileobj_t::get(const char *key)
 {
-    const char *result = objinfo.get(key);
+	const char *result = objinfo.get(key);
 
-    return result ? result : "";
+	return result ? result : "";
 }
 
 
@@ -47,20 +47,20 @@ const char *tabfileobj_t::get(const char *key)
  */
 const char *tabfileobj_t::get_string(const char *key, const char * def)
 {
-  const char *result = objinfo.get(key);
+	const char *result = objinfo.get(key);
 
-  return result ? result : def;
+	return result ? result : def;
 }
 
 
 
 bool tabfileobj_t::put(const char *key, const char *value)
 {
-    if(objinfo.get(key)) {
-        return false;
-    }
-    objinfo.put(strdup(key), strdup(value));
-    return true;
+	if(objinfo.get(key)) {
+		return false;
+	}
+	objinfo.put(strdup(key), strdup(value));
+	return true;
 }
 
 
@@ -111,43 +111,43 @@ int tabfileobj_t::get_int(const char *key, int def)
 
 int *tabfileobj_t::get_ints(const char *key)
 {
-    const char *value = get(key);
-    const char *tmp;
-    int         count = 1;
-    int         *result;
+	const char *value = get(key);
+	const char *tmp;
+	int         count = 1;
+	int         *result;
 
-    if(!value || !*value) {
-        result = new int[1];
-        result[0] = 0;
-        return result;
-    }
-    // Anzahl bestimmen
-    for(tmp = value; *tmp; tmp++) {
+	if(!value || !*value) {
+		result = new int[1];
+		result[0] = 0;
+		return result;
+	}
+	// Anzahl bestimmen
+	for(tmp = value; *tmp; tmp++) {
 		if(*tmp == ',') {
-            count++;
+			count++;
 		}
-    }
-    // Ergebnisvektor erstellen und füllen
-    result = new int[count + 1];
+	}
+	// Ergebnisvektor erstellen und füllen
+	result = new int[count + 1];
 
-    result[0] = count;
-    count = 1;
-    result[count++] = atoi(value);
-    for(tmp = value; *tmp; tmp++) {
+	result[0] = count;
+	count = 1;
+	result[count++] = atoi(value);
+	for(tmp = value; *tmp; tmp++) {
 		if(*tmp == ',') {
-            result[count++] = atoi(tmp + 1);
+			result[count++] = atoi(tmp + 1);
 		}
-    }
-    return result;
+	}
+	return result;
 }
 
 
 
 bool tabfile_t::read(tabfileobj_t &objinfo)
 {
-    bool lines = false;
-    char line[4096];
-    objinfo.clear();
+	bool lines = false;
+	char line[4096];
+	objinfo.clear();
 
 	do {
 		while(read_line(line, sizeof(line)) && *line != '-') {
@@ -162,7 +162,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 		}
 	} while(!lines && !feof(file)); // skip empty objects
 
-    return lines;
+	return lines;
 }
 
 

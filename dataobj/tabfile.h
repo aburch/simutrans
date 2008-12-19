@@ -92,70 +92,70 @@ public:
  * @author V. Meyer
  */
 class tabfileobj_t {
-    stringhashtable_tpl<const char *> objinfo;
+	stringhashtable_tpl<const char *> objinfo;
 
 public:
-    tabfileobj_t() { ; }
-    ~tabfileobj_t() { clear(); }
+	tabfileobj_t() { ; }
+	~tabfileobj_t() { clear(); }
 
 	/*
-     * add an key/value pair - should only be used be tabfile_t::read
-     *
-     * @author V. Meyer
-     */
-    bool put(const char *key, const char *value);
+	 * add an key/value pair - should only be used be tabfile_t::read
+	 *
+	 * @author V. Meyer
+	 */
+	bool put(const char *key, const char *value);
 
 	/*
-     * reinitializes this object
-     *
-     * @author V. Meyer
-     */
-    void clear();
-
-    /**
-     * Get the value for a key - key must be lowercase
-     *
-     * @return const char *	returns at least an empty string, never NULL.
-     *
-     * @author V. Meyer
-     */
-    const char *get(const char *key);
-
-    /**
-     * Get the string value for a key - key must be lowercase
-     * @return def if key isn't found, value otherwise
-     * @author Hj. Malthaner
-     */
-    const char *get_string(const char *key, const char * def);
-
-    /**
-     * Get the value for a koord key - key must be lowercase
-     *
-     * @return koord	returns def, if key is not found
-     *
-     * @author V. Meyer
-     */
-    const koord &get_koord(const char *key, koord def);
+	 * reinitializes this object
+	 *
+	 * @author V. Meyer
+	 */
+	void clear();
 
 	/**
-     * Get the value for a koord key - key must be lowercase
-     *
-     * @return koord	returns def, if key is not found
-     *
-     * @author V. Meyer
-     */
-    int get_int(const char *key, int def);
+	 * Get the value for a key - key must be lowercase
+	 *
+	 * @return const char *	returns at least an empty string, never NULL.
+	 *
+	 * @author V. Meyer
+	 */
+	const char *get(const char *key);
 
 	/**
-     * Parses a value with the format "<num 1>,<num 2>,..,<num N>"
-     * and returns an allocated int[N + 1] with
-     * N at pos. 0, <num 1> at pos 1, etc.
-     * Do not forget to "delete []" the returned value.
-     * @return const char *	returns at least an int[1], never NULL.
-     *
-     * @author V. Meyer
-     */
-    int *get_ints(const char *key);
+	 * Get the string value for a key - key must be lowercase
+	 * @return def if key isn't found, value otherwise
+	 * @author Hj. Malthaner
+	 */
+	const char *get_string(const char *key, const char * def);
+
+	/**
+	 * Get the value for a koord key - key must be lowercase
+	 *
+	 * @return koord	returns def, if key is not found
+	 *
+	 * @author V. Meyer
+	 */
+	const koord &get_koord(const char *key, koord def);
+
+	/**
+	 * Get the value for a koord key - key must be lowercase
+	 *
+	 * @return koord	returns def, if key is not found
+	 *
+	 * @author V. Meyer
+	 */
+	int get_int(const char *key, int def);
+
+	/**
+	 * Parses a value with the format "<num 1>,<num 2>,..,<num N>"
+	 * and returns an allocated int[N + 1] with
+	 * N at pos. 0, <num 1> at pos 1, etc.
+	 * Do not forget to "delete []" the returned value.
+	 * @return const char *	returns at least an int[1], never NULL.
+	 *
+	 * @author V. Meyer
+	 */
+	int *get_ints(const char *key);
 };
 
 #endif
