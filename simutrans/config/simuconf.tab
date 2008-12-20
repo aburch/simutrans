@@ -104,7 +104,7 @@ way_90_curve=15
 way_slope=10
 way_tunnel=8
 way_max_bridge_len=15
-way_leave_road=25
+way_leaving_road=25
 
 ##################################industry stuff#################################
 # also pak dependent

@@ -392,7 +392,6 @@ int simu_main(int argc, char** argv)
 		if(simuconf.open(obj_conf + "config/simuconf.tab")) {
 			printf("parse_simuconf() at config/simuconf.tab");
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
-			simuconf.close();
 		}
 	}
 

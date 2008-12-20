@@ -1849,6 +1849,11 @@ const char *wkz_station_t::wkz_station_building_aux(karte_t *welt, spieler_t *sp
 DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building on square %d,%d", pos.x, pos.y);
 	static koord rotate_koords[4]={koord(0,-1),koord(1,0),koord(0,1),koord(-1,0)};
 
+	grund_t *gr = welt->lookup(k);
+	if(gr==NULL  ||  gr->is_halt()) {
+		return "Tile not empty!";
+	}
+
 	koord size = besch->gib_groesse();
 	int rotate = 0;
 	halthandle_t halt;
