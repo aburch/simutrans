@@ -389,9 +389,10 @@ int simu_main(int argc, char** argv)
 	}
 
 	// continue parsing ...
+	chdir( umgebung_t::program_dir );
 	if(  found_simuconf  ) {
 		cstring_t obj_conf = umgebung_t::program_dir;
-		if(simuconf.open(obj_conf + "config/simuconf.tab")) {
+		if(simuconf.open("config/simuconf.tab")) {
 			printf("parse_simuconf() at config/simuconf.tab");
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 		}
