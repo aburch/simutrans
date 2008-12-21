@@ -145,7 +145,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 		if(strcmp(id, "P6")) {
 			if(strcmp(id, "BM")) {
 				fclose(file);
-				dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong image type %s instead P6/BM", id);
+				dbg->error("karte_t::load_heightfield()","Heightfield has wrong image type %s instead P6/BM", id);
 				return false;
 			}
 			// bitmap format
@@ -1125,7 +1125,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 
 		for(int y=0; y<cached_groesse_gitter_y; y++) {
 			for(int x=0; x<cached_groesse_gitter_x; x++) {
-				grid_hgts[x + y*(cached_groesse_gitter_x+1)] = (h_field[x+(y*(sint32)cached_groesse_gitter_x)]/Z_TILE_STEP);
+				grid_hgts[x + y*(cached_groesse_gitter_x+1)] = ((h_field[x+(y*(sint32)cached_groesse_gitter_x)]+1)/Z_TILE_STEP);
 			}
 			grid_hgts[cached_groesse_gitter_x + y*(cached_groesse_gitter_x+1)] = grid_hgts[cached_groesse_gitter_x-1 + y*(cached_groesse_gitter_x+1)];
 		}

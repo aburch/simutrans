@@ -358,11 +358,13 @@ int simu_main(int argc, char** argv)
 
 	tabfile_t simuconf;
 	if(simuconf.open("config/simuconf.tab")) {
-		tabfileobj_t contents;
-		simuconf.read(contents);
-		// use different save directories
-		multiuser = !(contents.get_int("singleuser_install", !multiuser)==1  ||  !multiuser);
-		found_simuconf = true;
+		{
+			tabfileobj_t contents;
+			simuconf.read(contents);
+			// use different save directories
+			multiuser = !(contents.get_int("singleuser_install", !multiuser)==1  ||  !multiuser);
+			found_simuconf = true;
+		}
 		simuconf.close();
 	}
 
