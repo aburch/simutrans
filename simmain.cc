@@ -288,8 +288,6 @@ int simu_main(int argc, char** argv)
 		{  704,  560 } // try to force window mode with allegro
 	};
 
-	FILE * config = NULL; // die konfigurationsdatei
-
 	sint16 disp_width = 0;
 	sint16 disp_height = 0;
 	sint16 fullscreen = false;
@@ -391,7 +389,6 @@ int simu_main(int argc, char** argv)
 	// continue parsing ...
 	chdir( umgebung_t::program_dir );
 	if(  found_simuconf  ) {
-		cstring_t obj_conf = umgebung_t::program_dir;
 		if(simuconf.open("config/simuconf.tab")) {
 			printf("parse_simuconf() at config/simuconf.tab");
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );

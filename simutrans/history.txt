@@ -54,6 +54,7 @@
 	ADD: (gerw) sizeable loadsave frame
 	CHANGE: savegame bump, no AI save state correctly, same for map extension, no koord saved anymore (up to 60% smaller savegames)
 	CHANGE: settings are now saved for game relevant/user relevant to prepare for multiplayer (and do proper versioning)
+	CHANGE: sea level now in single steps (before only double steps, but single steps in display)
 
 
 

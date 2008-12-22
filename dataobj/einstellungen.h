@@ -108,7 +108,7 @@ private:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	const char *city_road_type;
+	char city_road_type[256];
 
 	/* prissi: maximum number of steps for breath search */
 	sint32 max_route_steps;
@@ -126,7 +126,7 @@ private:
 	uint16 pak_diagonal_multiplier;
 
 	// names of the stations ...
-	const char *language_code_names;
+	char language_code_names[4];
 
 public:
 	/* the big cost section */
@@ -173,7 +173,7 @@ public:
 	// 0 = emtpy, otherwise some vaule from simplay
 	uint8 spieler_type[MAX_PLAYER_COUNT];
 	// NULL if not password
-	const char *password[MAX_PLAYER_COUNT];
+	char password[MAX_PLAYER_COUNT][16];
 
 public:
 	/**
@@ -297,7 +297,11 @@ public:
 	void setze_pak_diagonal_multiplier( uint16 pdm ) { pak_diagonal_multiplier = pdm; }
 
 	const char *gib_name_language_iso() const { return language_code_names; }
-	void setze_name_language_iso( const char *iso ) { language_code_names = iso; }
+	void setze_name_language_iso( const char *iso ) {
+		language_code_names[0] = iso[0];
+		language_code_names[1] = iso[1];
+		language_code_names[2] = 0;
+	}
 
 	void set_player_active(uint8 i, bool b) { automaten[i] = b; }
 

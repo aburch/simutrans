@@ -89,7 +89,7 @@ einstellungen_t::einstellungen_t() :
 	// to keep names consistent
 	numbered_stations = false;
 
-	city_road_type = strdup( "city_road" );
+	strcpy( city_road_type, "city_road" );
 
 	max_route_steps = 1000000;
 	max_transfers = 7;
@@ -101,7 +101,7 @@ einstellungen_t::einstellungen_t() :
 	 */
 	pak_diagonal_multiplier = 724;
 
-	language_code_names = "en";
+	strcpy( language_code_names, "en" );
 
 	// default AIs active
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
@@ -121,7 +121,7 @@ einstellungen_t::einstellungen_t() :
 			automaten[i] = false;
 			spieler_type[i] = spieler_t::EMPTY;
 		}
-		password[i] = NULL;
+		password[i][0] = 0;
 	}
 
 	/* the big cost section */
@@ -339,7 +339,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_long( stadtauto_duration , "" );
 
 			file->rdwr_bool( numbered_stations, "" );
-			file->rdwr_str( city_road_type );
+			file->rdwr_str( city_road_type, 256 );
 			file->rdwr_long( max_route_steps , "" );
 			file->rdwr_long( max_transfers , "" );
 			file->rdwr_long( max_hops , "" );
@@ -347,16 +347,13 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_long( beginner_price_factor , "" );
 
 			// name of stops
-			if(  file->is_loading()  ) {
-				language_code_names = NULL;
-			}
-			file->rdwr_str( language_code_names );
+			file->rdwr_str( language_code_names, 4 );
 
 			// restore AI state
 			for(  int i=0;  i<15;  i++  ) {
 				file->rdwr_bool( automaten[i], "" );
 				file->rdwr_byte( spieler_type[i], "" );
-				file->rdwr_str( password[i] );
+				file->rdwr_str( password[i], 16 );
 			}
 
 			// cost section ...
@@ -418,7 +415,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 					spieler_type[i] = spieler_t::EMPTY;
 				}
 				automaten[i] = false;
-				password[i] = NULL;
+				password[i][0] = 0;
 			}
 		}
 	}
@@ -493,8 +490,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	}
 	const char *str = ltrim(contents.get("city_road_type"));
 	if(str[0]>0) {
-		free( (void *)city_road_type );
-		city_road_type = strdup( str );
+		strncpy( city_road_type, str, 256 );
+		city_road_type[255] = 0;
 	}
 
 	pak_diagonal_multiplier = contents.get_int("diagonal_multiplier", pak_diagonal_multiplier);

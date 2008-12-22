@@ -34,52 +34,51 @@ class koord;
  * @author V. Meyer
  */
 class tabfile_t {
-    FILE *file;
-
-    /**
-     * Read one non-comment line from input.
-     * Lines starting with ' ' are comment lines here. This differs from the
-     * global read_line() function.
-     *
-     * @return bool	false in case of eof
-     * @param s		line buffer
-     * @param size	size of line buffer
-     *
-     * @author V. Meyer
-     */
-    bool read_line(char *s, int size);
+	FILE *file;
 
 	/**
-     * Format the key string (trimright and lowercase)
-     *
-     * @author V. Meyer
-     */
+	 * Read one non-comment line from input.
+	 * Lines starting with ' ' are comment lines here. This differs from the
+	 * global read_line() function.
+	 *
+	 * @return bool	false in case of eof
+	 * @param s		line buffer
+	 * @param size	size of line buffer
+	 *
+	 * @author V. Meyer
+	 */
+	bool read_line(char *s, int size);
 
+	/**
+	 * Format the key string (trimright and lowercase)
+	 *
+	 * @author V. Meyer
+	 */
 	void format_key(char *key);
-     /**
-     * Format the value string (trimleft and trimright)
-     *
-     * @author V. Meyer
-     */
 
+	/**
+	 * Format the value string (trimleft and trimright)
+	 *
+	 * @author V. Meyer
+	 */
 	void format_value(char *value);
 
 public:
-    tabfile_t() : file(NULL) {}
-    ~tabfile_t() { close(); }
+	tabfile_t() : file(NULL) {}
+	~tabfile_t() { close(); }
 
-    bool open(const char *filename);
+	bool open(const char *filename);
 
 	void close();
 
-    /**
-     * Read an entire object from the open file.
-     *
-     * @return bool	false, if empty object or eof
-     * @param &objinfo  will receive the object info
-     *
-     * @author V. Meyer
-     */
+	/**
+	 * Read an entire object from the open file.
+	 *
+	 * @return bool	false, if empty object or eof
+	 * @param &objinfo  will receive the object info
+	 *
+	 * @author V. Meyer
+	 */
 	bool read(tabfileobj_t &objinfo);
 };
 

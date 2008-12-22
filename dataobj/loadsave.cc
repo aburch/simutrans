@@ -651,7 +651,7 @@ void loadsave_t::rdwr_str(char *s, int size)
 			else {
 				char last_three_chars[4];
 				char len = 0;
-				for(  int i=0;  i<size;  i++  ) {
+				for(  int i=0;  i<size;  ) {
 					char c = lsgetc();
 					if(  c==']'  &&  (  len==0  ||  (len==1  &&  last_three_chars[0] == ']') )  ) {
 						last_three_chars[len++] = c;
@@ -664,9 +664,11 @@ void loadsave_t::rdwr_str(char *s, int size)
 						// evt. add closing brackets
 						while(  len-->0  ) {
 							*s++ = ']';
+							i ++;
 						}
 						len = 0;
 						*s++ = c;
+						i++;
 					}
 				}
 				*s = 0;
