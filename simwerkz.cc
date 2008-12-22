@@ -1936,31 +1936,31 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 				}
 				// now find out, if this offset/rotation is better ... (i.e. matches more fitting buildings)
 				if(  r==0  ) {
-					// r=0 is either south or north
-					if(  best_halt_s>best_halt  ||  (best_halt==0  &&  neighbour_halt_s>any_halt)  ) {
-						best_halt = best_halt_s;
-						any_halt = neighbour_halt_s;
-						rotation = 0;
-						offsets = offset;
-					}
+					// r=0 is either facing south or north
 					if(  best_halt_n>best_halt  ||  (best_halt==0  &&  neighbour_halt_n>any_halt)  ) {
 						best_halt = best_halt_n;
 						any_halt = neighbour_halt_n;
+						rotation = 0;
+						offsets = offset;
+					}
+					if(  best_halt_s>best_halt  ||  (best_halt==0  &&  neighbour_halt_s>any_halt)  ) {
+						best_halt = best_halt_s;
+						any_halt = neighbour_halt_s;
 						rotation = 2;
 						offsets = offset;
 					}
 				}
 				else {
-					// r=1 is either east or west
-					if(  best_halt_e>best_halt  ||  (best_halt==0  &&  neighbour_halt_e>any_halt)  ) {
-						best_halt = best_halt_e;
-						any_halt = neighbour_halt_e;
-						rotation = 1;
-						offsets = offset;
-					}
+					// r=1 is either facing east or west
 					if(  best_halt_w>best_halt  ||  (best_halt==0  &&  neighbour_halt_w>any_halt)  ) {
 						best_halt = best_halt_w;
 						any_halt = neighbour_halt_w;
+						rotation = 1;
+						offsets = offset;
+					}
+					if(  best_halt_e>best_halt  ||  (best_halt==0  &&  neighbour_halt_e>any_halt)  ) {
+						best_halt = best_halt_e;
+						any_halt = neighbour_halt_e;
 						rotation = 3;
 						offsets = offset;
 					}
