@@ -1850,34 +1850,123 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	static koord rotate_koords[4]={koord(0,-1),koord(1,0),koord(0,1),koord(-1,0)};
 
 	koord size = besch->gib_groesse();
-	koord offsets[4];
+	koord offsets;
 	halthandle_t halt;
+	int rotation = 0;
 
-	// find valid rotations
+	int best_halt = 0;
+	int any_halt = 0;
+
+	// find valid rotations (since halt extensions are symmetric, we need to check only two)
 	bool any_ok = false;
-	if(size.x*size.y>1) {
-		for( uint8 i=0;  i<4;  i++  ) {
-			offsets[i] = koord::invalid;
-		}
-		for( int i=0;  i<4;  i++  ) {
-			koord testsize = (i&1)==0 ? size : koord(size.y,size.x);
-			for(  sint8 j=0;  j<4;  j++ ) {
-				koord offset(((j&1)^1)*(testsize.x-1),(j&1)*(testsize.y-1));
-				if(welt->ist_platz_frei(pos-offset, testsize.x, testsize.y, NULL, besch->get_allowed_climate_bits())) {
-					any_ok = true;
-					halt = suche_nahe_haltestelle(sp, welt, k-offset, testsize.x, testsize.y);
-					if(halt.is_bound()) {
-						offsets[i] = offset;
-						break;
+	for( int r=0;  r<2;  r++  ) {
+		koord testsize = (r&1)==0 ? size : koord(size.y,size.x);
+		for(  sint8 j=3;  j>=0;  j-- ) {
+			koord offset(((j&1)^1)*(testsize.x-1),(j&1)*(testsize.y-1));
+			if(welt->ist_platz_frei(pos-offset, testsize.x, testsize.y, NULL, besch->get_allowed_climate_bits())) {
+				// well, at least this is theoretical possible here
+				any_ok = true;
+				koord test_start = pos-offset;
+				// find all surrounding tiles with a stop
+				int neighbour_halt_n = 0, neighbour_halt_s = 0, neighbour_halt_e = 0, neighbour_halt_w = 0;
+				int best_halt_n = 0, best_halt_s = 0, best_halt_e = 0, best_halt_w = 0;
+				// test also diagonal corners (that is why from -1 to size!)
+				for(  sint16 y=-1;  y<=testsize.y;  y++  ) {
+					// left ( for all tiles, even bridges)
+					const planquadrat_t *pl = welt->lookup( test_start+koord(-1,y) );
+					if(  pl  &&  pl->gib_halt().is_bound()  &&  sp==pl->gib_halt()->gib_besitzer()  ) {
+						halt = pl->gib_halt();
+						for(  uint b=0;  b<pl->gib_boden_count();  b++  ) {
+							grund_t *gr = pl->gib_boden_bei(b);
+							if(  gr->is_halt()  &&  gr->hat_wege()  ) {
+								neighbour_halt_w ++;
+								gebaeude_t *gb = gr->find<gebaeude_t>();
+								if(  gb  &&  gb->gib_tile()->gib_besch()->gib_extra()==besch->gib_extra()  ) {
+									best_halt_w ++;
+								}
+							}
+						}
+					}
+					pl = welt->lookup( test_start+koord(testsize.x,y) );
+					if(  pl  &&  pl->gib_halt().is_bound()  &&  sp==pl->gib_halt()->gib_besitzer()  ) {
+						halt = pl->gib_halt();
+						for(  uint b=0;  b<pl->gib_boden_count();  b++  ) {
+							grund_t *gr = pl->gib_boden_bei(b);
+							if(  gr->is_halt()  &&  gr->hat_wege()  ) {
+								neighbour_halt_e ++;
+								gebaeude_t *gb = gr->find<gebaeude_t>();
+								if(  gb  &&  gb->gib_tile()->gib_besch()->gib_extra()==besch->gib_extra()  ) {
+									best_halt_e ++;
+								}
+							}
+						}
+					}
+				}
+				// corners were already checked, but to get correct numbers, we must check them again here
+				for(  sint16 x=-1;  x<=testsize.x;  x++  ) {
+					// upper and lower
+					const planquadrat_t *pl = welt->lookup( test_start+koord(x,-1) );
+					if(  pl  &&  pl->gib_halt().is_bound()  &&  sp==pl->gib_halt()->gib_besitzer()  ) {
+						halt = pl->gib_halt();
+						for(  uint b=0;  b<pl->gib_boden_count();  b++  ) {
+							grund_t *gr = pl->gib_boden_bei(b);
+							if(  gr->is_halt()  &&  gr->hat_wege()  ) {
+								neighbour_halt_n ++;
+								gebaeude_t *gb = gr->find<gebaeude_t>();
+								if(  gb  &&  gb->gib_tile()->gib_besch()->gib_extra()==besch->gib_extra()  ) {
+									best_halt_n ++;
+								}
+							}
+						}
+					}
+					pl = welt->lookup( test_start+koord(x,testsize.y) );
+					if(  pl  &&  pl->gib_halt().is_bound()  &&  sp==pl->gib_halt()->gib_besitzer()  ) {
+						halt = pl->gib_halt();
+						for(  uint b=0;  b<pl->gib_boden_count();  b++  ) {
+							grund_t *gr = pl->gib_boden_bei(b);
+							if(  gr->is_halt()  &&  gr->hat_wege()  ) {
+								neighbour_halt_s ++;
+								gebaeude_t *gb = gr->find<gebaeude_t>();
+								if(  gb  &&  gb->gib_tile()->gib_besch()->gib_extra()==besch->gib_extra()  ) {
+									best_halt_s ++;
+								}
+							}
+						}
+					}
+				}
+				// now find out, if this offset/rotation is better ... (i.e. matches more fitting buildings)
+				if(  r==0  ) {
+					// r=0 is either south or north
+					if(  best_halt_s>best_halt  ||  (best_halt==0  &&  neighbour_halt_s>any_halt)  ) {
+						best_halt = best_halt_s;
+						any_halt = neighbour_halt_s;
+						rotation = 0;
+						offsets = offset;
+					}
+					if(  best_halt_n>best_halt  ||  (best_halt==0  &&  neighbour_halt_n>any_halt)  ) {
+						best_halt = best_halt_n;
+						any_halt = neighbour_halt_n;
+						rotation = 2;
+						offsets = offset;
+					}
+				}
+				else {
+					// r=1 is either east or west
+					if(  best_halt_e>best_halt  ||  (best_halt==0  &&  neighbour_halt_e>any_halt)  ) {
+						best_halt = best_halt_e;
+						any_halt = neighbour_halt_e;
+						rotation = 1;
+						offsets = offset;
+					}
+					if(  best_halt_w>best_halt  ||  (best_halt==0  &&  neighbour_halt_w>any_halt)  ) {
+						best_halt = best_halt_w;
+						any_halt = neighbour_halt_w;
+						rotation = 3;
+						offsets = offset;
 					}
 				}
 			}
 		}
-	}
-	else {
-		grund_t *gr = welt->lookup(k);
-		any_ok = (gr  &&  !gr->is_halt());
-		halt = suche_nahe_haltestelle(sp, welt, k, size.x, size.y);
 	}
 
 	// no suitable ground here ...
@@ -1889,59 +1978,12 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		return "Post muss neben\nHaltestelle\nliegen!\n";
 	}
 
-	int rotate = 0;
-	uint8 best_halts[4];
-	uint8 any_halts[4];
-	for( uint8 r=0;  r<4;  r++  ) {
-		// nothing found yet
-		best_halts[r] = 0;
-		any_halts[r] = 0;
-		//  the order is S E N W
-		static koord testdir[4]= { koord::sued, koord::ost, koord::nord, koord::west };
-		// ok, all valid rotations should have offset != koord::invalid
-		if(  offsets[r] != koord::invalid  ) {
-			koord index_dir = koord( abs(testdir[r].y), abs(testdir[r].x) );
-			// now check all tiles at the border (plus one more to the left/right)
-			for(  sint16 i=-1;  i<=((r&1)?size.y:size.x);  i++  ) {
-				grund_t *gr = welt->lookup(k-offsets[r]+testdir[r]+(index_dir*i));
-				if(  gr==NULL  ) {
-					// retry on ground
-					gr = welt->lookup_kartenboden(k.gib_2d()-offsets[r]+testdir[r]+(index_dir*i));
-					if(  gr==NULL  ) {
-						continue;
-					}
-				}
-				if(  gr->is_halt()  &&  gr->hat_wege()  ) {
-					any_halts[r] ++;
-					gebaeude_t *gb = gr->find<gebaeude_t>();
-					if(  gb  &&  gb->gib_tile()->gib_besch()->gib_extra()==besch->gib_extra()  ) {
-						best_halts[r] ++;
-					}
-				}
-			}
-		}
+	if(  rotation>besch->gib_all_layouts()  ) {
+		rotation %= besch->gib_all_layouts();
+		offsets = offsets - besch->gib_groesse(rotation) + koord(1,1);
 	}
 
-	/* we take the first rotation, that has the highest number of best matches
-	 * if there are no best matches, we take the one with the highes nubmer of matches
-	 */
-	int rotation = -1;
-	uint8 best=0, any=0;
-	for( uint8 r=0;  r<4;  r++  ) {
-		if(  best<best_halts[r]  ) {
-			rotation = r;
-			best = best_halts[r];
-		}
-		else if(  best==0  &&  any<any_halts[r]  ) {
-			rotation = r;
-			any = any_halts[r];
-		}
-	}
-
-	// since we tested it before, there should be a vilid rotation now
-	assert(rotation!=-1);
-
-	hausbauer_t::baue(welt, halt->gib_besitzer(), k-offsets[rotation], rotation, besch, &halt);
+	hausbauer_t::baue(welt, halt->gib_besitzer(), k-offsets, rotation, besch, &halt);
 	sp->buche(welt->gib_einstellungen()->cst_multiply_post*besch->gib_level()*besch->gib_b()*besch->gib_h(), pos, COST_CONSTRUCTION);
 	halt->recalc_station_type();
 

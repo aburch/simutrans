@@ -485,15 +485,15 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", umgebung_t::intercity_road_length);
 	cstring_t *test = new cstring_t(ltrim(contents.get("intercity_road_type")));
 	if(test->len()>0) {
-		free( umgebung_t::intercity_road_type );
+		delete umgebung_t::intercity_road_type;
 		umgebung_t::intercity_road_type = test;
 	}
 	else {
-		free( test );
+		delete test;
 	}
 	const char *str = ltrim(contents.get("city_road_type"));
 	if(str[0]>0) {
-		free( city_road_type );
+		free( (void *)city_road_type );
 		city_road_type = strdup( str );
 	}
 
