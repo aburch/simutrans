@@ -3581,7 +3581,6 @@ DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_cou
 		}
 		else {
 			einstellungen->automaten[i] = false;
-			delete einstellungen->password[i];
 			einstellungen->password[i][0] = 0;
 		}
 		display_progress(gib_groesse_y()+24+stadt.get_count()+(i*3), gib_groesse_y()+256+stadt.get_count());
