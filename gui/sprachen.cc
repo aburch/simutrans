@@ -64,9 +64,7 @@ void sprachengui_t::init_font_from_lang()
 	if(*p != 'S') {
 		c = *p;
 	}
-
 	set_fraction_sep(c);
-	chdir(umgebung_t::user_dir);
 }
 
 
