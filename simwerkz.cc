@@ -792,15 +792,15 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 		// check, if action is valid ...
 		const sint16 hgt=new_pos.z/Z_TILE_STEP;
+		// maximum difference
+		const sint8 test_hgt = hgt+(slope_this!=0);
 
 		// first left side
 		const grund_t *grleft=welt->lookup(pos+koord(-1,0))->gib_kartenboden();
 		if(grleft) {
 			const sint16 left_hgt=grleft->gib_hoehe()/Z_TILE_STEP;
-			const sint8 slope=grleft->gib_grund_hang();
-			const sint8 diff_from_ground_1 = left_hgt+corner2(slope)-hgt;
-			const sint8 diff_from_ground_2 = left_hgt+corner3(slope)-hgt;
-			if(diff_from_ground_1>2  ||  diff_from_ground_2>2) {
+			const sint8 diff_from_ground = abs(left_hgt-test_hgt);
+			if(diff_from_ground>2) {
 				return "Maximum tile height difference reached.";
 			}
 		}
@@ -809,9 +809,8 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		const grund_t *grright=welt->lookup(pos+koord(1,0))->gib_kartenboden();
 		if(grright) {
 			const sint16 right_hgt=grright->gib_hoehe()/Z_TILE_STEP;
-			const sint8 diff_from_ground_1 = hgt+corner2(slope_this)-right_hgt;
-			const sint8 diff_from_ground_2 = hgt+corner3(slope_this)-right_hgt;
-			if(diff_from_ground_1>2  ||  diff_from_ground_2>2) {
+			const sint8 diff_from_ground = abs(right_hgt-test_hgt);
+			if(diff_from_ground>2) {
 				return "Maximum tile height difference reached.";
 			}
 		}
@@ -819,10 +818,8 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		const grund_t *grback=welt->lookup(pos+koord(0,-1))->gib_kartenboden();
 		if(grback) {
 			const sint16 back_hgt=grback->gib_hoehe()/Z_TILE_STEP;
-			const sint8 slope=grback->gib_grund_hang();
-			const sint8 diff_from_ground_1 = back_hgt+corner1(slope)-hgt;
-			const sint8 diff_from_ground_2 = back_hgt+corner2(slope)-hgt;
-			if(diff_from_ground_1>2  ||  diff_from_ground_2>2) {
+			const sint8 diff_from_ground = abs(back_hgt-test_hgt);
+			if(diff_from_ground>2) {
 				return "Maximum tile height difference reached.";
 			}
 		}
@@ -830,9 +827,8 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		const grund_t *grfront=welt->lookup(pos+koord(0,1))->gib_kartenboden();
 		if(grfront) {
 			const sint16 front_hgt=grfront->gib_hoehe()/Z_TILE_STEP;
-			const sint8 diff_from_ground_1 = hgt+corner1(slope_this)-front_hgt;
-			const sint8 diff_from_ground_2 = hgt+corner2(slope_this)-front_hgt;
-			if(diff_from_ground_1>2  ||  diff_from_ground_2>2) {
+			const sint8 diff_from_ground = abs(front_hgt-test_hgt);
+			if(diff_from_ground>2) {
 				return "Maximum tile height difference reached.";
 			}
 		}
