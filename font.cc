@@ -202,8 +202,9 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 
 		// init default char for missing characters (just a box)
 		screen_widths[0] = 8;
-		data[0] = 0x7E;
-		for (h = 1; h < f_height - 2; h++) {
+		data[0] = 0;
+		data[1] = 0x7E;
+		for (h = 2; h < f_height - 2; h++) {
 			data[h] = 0x42;
 		}
 		data[h++] = 0x7E;
@@ -213,8 +214,6 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 		data[CHARACTER_LEN-2] = 1;	// y-offset
 		data[CHARACTER_LEN-1] = 7;  // real width
 
-		free(font->screen_width);
-		free(font->char_data);
 		font->screen_width = screen_widths;
 		font->char_data    = data;
 		font->height       = f_height;
@@ -257,8 +256,6 @@ bool load_font(font_type* fnt, const char* fname)
 #endif
 
 		// convert to new standard font
-		guarded_free(fnt->screen_width);
-		guarded_free(fnt->char_data);
 		fnt->screen_width = MALLOCN(uint8, 256);
 		fnt->char_data    = MALLOCN(uint8, CHARACTER_LEN * 256);
 		fnt->num_chars    = 255;
@@ -341,8 +338,6 @@ bool load_font(font_type* fnt, const char* fname)
 		}
 		fclose(f);
 		// convert to new standard font
-		free(fnt->screen_width);
-		free(fnt->char_data);
 		fnt->screen_width = MALLOCN(uint8, 256);
 		fnt->char_data    = MALLOCN(uint8, CHARACTER_LEN * 256);
 		fnt->num_chars    = 255;

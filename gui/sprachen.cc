@@ -24,6 +24,8 @@
 #include "../besch/skin_besch.h"
 #include "sprachen.h"
 
+#include "../font.h"
+
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 #include "../utils/simstring.h"
@@ -98,9 +100,20 @@ sprachengui_t::sprachengui_t() :
 		const char* fontname = lang->translate("PROP_FONT_FILE");
 		char prop_font_file_name [1024];
 		sprintf(prop_font_file_name, "%s%s", FONT_PATH_X, fontname);
-		FILE *f=fopen(prop_font_file_name,"r");
-		if(f) {
-			fclose(f);
+		bool ok = true;
+		font_type fnt;
+		if(  !load_font(&fnt,prop_font_file_name)  ) {
+			ok = false;
+		}
+		else {
+			if(  lang->utf_encoded  &&  fnt.num_chars<=255  ) {
+				dbg->warning( "sprachengui_t::sprachengui_t()", "Unicode language %s need BDF fonts with most likely more than 256 characters!", lang->name );
+			}
+			free(fnt.screen_width);
+			free(fnt.char_data);
+		}
+		// now we know this combination is working
+		if(ok) {
 			// only listener for working languages ...
 			b.add_listener(this);
 		} else {

@@ -424,6 +424,7 @@ int simu_main(int argc, char** argv)
 	}
 
 	if (gimme_arg(argc, argv, "-log", 0)) {
+		chdir( umgebung_t::user_dir );
 		init_logging("simu.log", true, gimme_arg(argc, argv, "-log", 0) != NULL);
 	} else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
 		init_logging("stderr", true, gimme_arg(argc, argv, "-debug", 0) != NULL);
@@ -862,6 +863,7 @@ DBG_MESSAGE("init","map");
 	intr_disable();
 
 	// save setting ...
+	chdir( umgebung_t::user_dir );
 	if(file.wr_open("settings.xml",loadsave_t::xml,"settings only/")) {
 		umgebung_t::rdwr(&file);
 		umgebung_t::default_einstellungen.rdwr(&file);

@@ -1843,7 +1843,6 @@ const char *wkz_station_t::wkz_station_building_aux(karte_t *welt, spieler_t *sp
 {
 	koord pos = k.gib_2d();
 DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building on square %d,%d", pos.x, pos.y);
-	static koord rotate_koords[4]={koord(0,-1),koord(1,0),koord(0,1),koord(-1,0)};
 
 	koord size = besch->gib_groesse();
 	koord offsets;

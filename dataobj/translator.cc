@@ -97,11 +97,16 @@ static bool is_unicode_file(FILE* f)
 }
 
 
+
+// the bytes in an UTF sequence have always the format 10xxxxxx
+static inline int is_cont_char(utf8 c) { return (c & 0xC0) == 0x80; }
+
+
 // recodes string to put them into the tables
 static char* recode(const char* src, bool translate_from_utf, bool translate_to_utf)
 {
 	char* base;
-	if (translate_to_utf) {
+	if (translate_to_utf!=translate_from_utf) {
 		// worst case
 		base = MALLOCN(char, strlen(src) * 2 + 2);
 	}
@@ -109,26 +114,36 @@ static char* recode(const char* src, bool translate_from_utf, bool translate_to_
 		base = MALLOCN(char, strlen(src) + 2);
 	}
 	char* dst = base;
-	char c;
+	uint8 c = 0;
 
 	do {
 		if (*src =='\\') {
 			src +=2;
 			*dst++ = c = '\n';
-		} else {
-			if (translate_from_utf == translate_from_utf) {
-				// both true or false => do noting
+		}
+		else {
+			c = *src;
+			if(c>127) {
+				if(translate_from_utf == translate_to_utf) {
+					// but copy full letters! (or, if ASCII, copy more than one letter, does not matter
+					do {
+						*dst++ = *src++;
+					} while (is_cont_char(*src));
+					c = *src;
+				} else if (translate_to_utf) {
+					// make UTF8 from latin
+					dst += c = utf16_to_utf8((unsigned char)*src++, (utf8*)dst);
+				} else if (translate_from_utf) {
+					// make latin from UTF8 (ignore overflows!)
+					int len = 0;
+					*dst++ = c = (uint8)utf8_to_utf16((const utf8*)src, &len);
+					src += len;
+				}
+			}
+			else {
 				// just copy
-				c = *src++;
+				src ++;
 				*dst++ = c;
-			} else if (translate_to_utf) {
-				// make UTF8 from latin
-				dst += utf16_to_utf8((unsigned char)*src++, (utf8*)dst);
-			} else if (translate_from_utf) {
-				// make latin from UTF8 (ignore overflows!)
-				int len = 0;
-				*dst++ = c = (uint8)utf8_to_utf16((const utf8*)src, &len);
-				src += len;
 			}
 		}
 	} while (c != '\0');
@@ -150,7 +165,7 @@ static vector_tpl<const char*> namen_liste;
 
 int translator::get_count_city_name(void)
 {
-  return namen_liste.get_count();
+	return namen_liste.get_count();
 }
 
 

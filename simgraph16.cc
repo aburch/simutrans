@@ -1079,10 +1079,15 @@ int	display_set_unicode(int use_unicode)
 
 bool display_load_font(const char* fname)
 {
-	if (load_font(&large_font, fname)) {
+	font_type fnt;
+	if (load_font(&fnt, fname)) {
+		free(large_font.screen_width);
+		free(large_font.char_data);
+		large_font = fnt;
 		large_font_height = large_font.height;
 		return true;
-	} else {
+	}
+	else {
 		return false;
 	}
 }
@@ -2473,9 +2478,10 @@ int display_calc_proportional_string_len_width(const char* text, int len)
 		// decode char; Unicode is always 8 pixel (so far)
 		while (iLen < len) {
 			iUnicode = utf8_to_utf16((utf8 const*)text + iLen, &iLen);
-			if (iUnicode == 0) return width;
-			w = fnt->screen_width[iUnicode];
-			if (w == 0) {
+			if (iUnicode == 0) {
+				return width;
+			}
+			else if(iUnicode>=fnt->num_chars  ||  (w = fnt->screen_width[iUnicode])==0  ) {
 				// default width for missing characters
 				w = fnt->screen_width[0];
 			}
@@ -2622,7 +2628,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		}
 #endif
 		// print unknown character?
-		if (c > fnt->num_chars || fnt->screen_width[c] == 0) {
+		if(c > fnt->num_chars || fnt->screen_width[c] == 0) {
 			c = 0;
 		}
 
