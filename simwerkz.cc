@@ -1013,7 +1013,7 @@ const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 			if(gb && gb->ist_rathaus()) {
 				dbg->warning("wkz_add_city()", "Already a city here");
-				return "Tile not empty!";
+				return "Tile not empty.";
 			}
 			else {
 
@@ -1966,7 +1966,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 
 	// no suitable ground here ...
 	if(  !any_ok  ) {
-		return "Tile not empty!";
+		return "Tile not empty.";
 	}
 	// is there no halt to connect?
 	if(!halt.is_bound()) {
