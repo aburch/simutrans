@@ -2518,7 +2518,7 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 			}
 			char text[1024];
 			sprintf( text, translator::translate(msg), (float)speed_to_kmh(10*sr->speed)/10.0, sr->cnv->gib_name() );
-			get_message()->add_message(text, sr->pos, message_t::new_vehicle, sr->besitzer->get_player_color1() );
+			get_message()->add_message(text, sr->pos, message_t::new_vehicle, PLAYER_FLAG|sr->besitzer->get_player_nr() );
 		}
 	}
 }
@@ -4083,7 +4083,7 @@ void karte_t::switch_active_player(uint8 new_player)
 		active_player_nr = 0;
 		active_player = spieler[0];
 		if(new_player!=0) {
-			msg->add_message(translator::translate("On this map, you are not\nallowed to change player!\n"), koord::invalid, message_t::problems, get_active_player()->get_player_nr(), IMG_LEER);
+			msg->add_message(translator::translate("On this map, you are not\nallowed to change player!\n"), koord::invalid, message_t::problems, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
 		}
 	}
 	else {
@@ -4092,7 +4092,7 @@ void karte_t::switch_active_player(uint8 new_player)
 		active_player = spieler[new_player];
 		char buf[512];
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->gib_name() );
-		msg->add_message(buf, koord::invalid, message_t::warnings, get_active_player()->get_player_nr(), IMG_LEER);
+		msg->add_message(buf, koord::invalid, message_t::warnings, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
 	}
 
 	// update menue entries (we do not want player1 to run anything)

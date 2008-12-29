@@ -1026,7 +1026,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 			const koord3d& spos = start->gib_pos();
 			const koord3d& zpos = ziel->gib_pos();
 			sprintf(buf, translator::translate("%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i)."), gib_name(), translator::translate(start->gib_name()), spos.x, spos.y, translator::translate(ziel->gib_name()), zpos.x, zpos.y);
-			welt->get_message()->add_message(buf, spos.gib_2d(), message_t::ai,player_nr,rail_engine->gib_basis_bild());
+			welt->get_message()->add_message(buf, spos.gib_2d(), message_t::ai, PLAYER_FLAG|player_nr, rail_engine->gib_basis_bild());
 
 			state = CHECK_CONVOI;
 		}
@@ -1040,7 +1040,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 			const koord3d& spos = start->gib_pos();
 			const koord3d& zpos = ziel->gib_pos();
 			sprintf(buf, translator::translate("%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i)."), gib_name(), count_road, translator::translate(start->gib_name()), spos.x, spos.y, translator::translate(ziel->gib_name()), zpos.x, zpos.y);
-			welt->get_message()->add_message(buf, spos.gib_2d(), message_t::ai, player_nr, road_vehicle->gib_basis_bild());
+			welt->get_message()->add_message(buf, spos.gib_2d(), message_t::ai, PLAYER_FLAG|player_nr, road_vehicle->gib_basis_bild());
 			state = CHECK_CONVOI;
 		}
 		break;

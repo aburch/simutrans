@@ -69,7 +69,7 @@ void message_t::set_message_flags( int t, int w, int a, int i)
  * @param bild images assosiated with message
  * @author prissi
  */
-void message_t::add_message(const char *text, koord pos, msg_typ what, uint8 color, image_id bild )
+void message_t::add_message(const char *text, koord pos, msg_typ what, PLAYER_COLOR_VAL color, image_id bild )
 {
 DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 
@@ -81,8 +81,8 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 
 	// correct for player color
 	PLAYER_COLOR_VAL colorval=color;
-	if(color<MAX_PLAYER_COUNT) {
-		colorval = PLAYER_FLAG|(welt->gib_spieler(color)->get_player_color1()+1);
+	if(color&PLAYER_FLAG) {
+		colorval = PLAYER_FLAG|(welt->gib_spieler(color&~PLAYER_FLAG)->get_player_color1()+1);
 	}
 
 	// should we send this message to a ticker? (always done)

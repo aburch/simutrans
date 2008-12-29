@@ -971,7 +971,7 @@ void convoi_t::ziel_erreicht()
 
 		akt_speed = 0;
 		sprintf(buf, translator::translate("!1_DEPOT_REACHED"), gib_name());
-		welt->get_message()->add_message(buf, v->gib_pos().gib_2d(),message_t::convoi, gib_besitzer()->get_player_nr(), IMG_LEER);
+		welt->get_message()->add_message(buf, v->gib_pos().gib_2d(),message_t::convoi, PLAYER_FLAG|gib_besitzer()->get_player_nr(), IMG_LEER);
 
 		betrete_depot(dp);
 	}

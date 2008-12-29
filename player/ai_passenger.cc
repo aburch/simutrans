@@ -1165,7 +1165,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 						cover_city_with_bus_route(platz1, 6);
 						cover_city_with_bus_route(platz2, 6);
 					}
-					welt->get_message()->add_message((const char *)buf,platz1,message_t::ai,player_nr,road_vehicle->gib_basis_bild());
+					welt->get_message()->add_message((const char *)buf,platz1,message_t::ai,PLAYER_FLAG|player_nr,road_vehicle->gib_basis_bild());
 				}
 			}
 		}
@@ -1185,7 +1185,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				}
 				cbuffer_t buf(1024);
 				buf.printf( translator::translate("Ferry service by\n%s\nnow between\n%s \nand %s.\n"), gib_name(), start_stadt->gib_name(), end_stadt->gib_name() );
-				welt->get_message()->add_message((const char *)buf,end_stadt->gib_pos(),message_t::ai,player_nr,road_vehicle->gib_basis_bild());
+				welt->get_message()->add_message((const char *)buf,end_stadt->gib_pos(),message_t::ai,PLAYER_FLAG|player_nr,road_vehicle->gib_basis_bild());
 				state = NR_SUCCESS;
 			}
 			else {
@@ -1210,7 +1210,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				cover_city_with_bus_route( get_our_hub(end_stadt)->gib_basis_pos(), 6);
 				cbuffer_t buf(1024);
 				buf.printf( translator::translate("Airline service by\n%s\nnow between\n%s \nand %s.\n"), gib_name(), start_stadt->gib_name(), end_stadt->gib_name() );
-				welt->get_message()->add_message((const char *)buf,end_stadt->gib_pos(),message_t::ai,player_nr,road_vehicle->gib_basis_bild());
+				welt->get_message()->add_message((const char *)buf,end_stadt->gib_pos(),message_t::ai,PLAYER_FLAG|player_nr,road_vehicle->gib_basis_bild());
 				state = NR_SUCCESS;
 			}
 		break;
