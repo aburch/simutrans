@@ -1093,6 +1093,7 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 #endif
 	self->marke = current_mark;
 
+	const sint32 max_hops = welt->gib_einstellungen()->gib_max_hops();
 	do {
 #ifdef USE_ROUTE_SLIST_TPL
 		tmp = queue.remove_first();
@@ -1119,11 +1120,11 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 				 * => we can skip many checks
 				 */
 				slist_iterator_tpl<warenziel_t> iter(halt->gib_warenziele(ware_catg_index));
-				while(iter.next() && step<welt->gib_einstellungen()->gib_max_hops()) {
+				while(  iter.next()  &&  step<max_hops  ) {
 
 					// since these are precalculated, they should be always pointing to a valid ground
 					// (if not, we were just under construction, and will be fine after 16 steps)
-					const halthandle_t tmp_halt = iter.get_current().gib_zielhalt();
+					const halthandle_t &tmp_halt = iter.get_current().gib_zielhalt();
 					if(tmp_halt.is_bound() &&  tmp_halt->marke!=current_mark) {
 
 						HNode *node = &nodes[step++];
@@ -1152,7 +1153,7 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 				// for freight, we need more detailed check
 				slist_iterator_tpl<warenziel_t> iter(halt->gib_warenziele(ware_catg_index));
 
-				while(iter.next() && step<welt->gib_einstellungen()->gib_max_hops()) {
+				while(  iter.next()  &&  step<max_hops  ) {
 
 					// check if destination if for the goods type
 					const warenziel_t &wz = iter.get_current();
@@ -1161,8 +1162,8 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 						// since these are precalculated, they should be always pointing to a valid ground
 						// (if not, we were just under construction, and will be fine after 16 steps)
-						const halthandle_t tmp_halt = wz.gib_zielhalt();
-						if(tmp_halt.is_bound() && tmp_halt->marke != current_mark &&  tmp_halt->is_enabled(warentyp)) {
+						const halthandle_t &tmp_halt = wz.gib_zielhalt();
+						if(tmp_halt.is_bound()  &&  tmp_halt->marke != current_mark  &&  tmp_halt->is_enabled(warentyp)) {
 
 							HNode *node = &nodes[step++];
 
@@ -1194,7 +1195,7 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 #ifdef USE_ROUTE_SLIST_TPL
 	} while (!queue.empty() && step < welt->gib_einstellungen()->gib_max_hops());
 #else
-	} while(route_start!=NULL  &&  step<welt->gib_einstellungen()->gib_max_hops());
+	} while(  route_start!=NULL  &&  step<max_hops  );
 #endif
 
 	// if the loop ends, nothing was found

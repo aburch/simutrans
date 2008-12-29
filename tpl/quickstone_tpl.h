@@ -112,6 +112,7 @@ public:
 	{
 	}
 
+#if 0	// shoudl be unneccessary, since compiler handles this much faster
 	/**
 	 * Assignment operator. Adjusts counters if one handle is
 	 * assigned ot another one.
@@ -123,6 +124,7 @@ public:
 		entry = other.entry;
 		return *this;
 	}
+#endif
 
 	inline bool is_bound() const
 	{
