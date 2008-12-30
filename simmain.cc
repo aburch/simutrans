@@ -695,6 +695,12 @@ DBG_MESSAGE("init","map");
 		sets.setze_verkehr_level(7);
 		sets.setze_karte_nummer( 33 );
 		welt->init(&sets,0);
+		//  start in June ...
+		welt->set_fast_forward(true);
+		welt->sync_step(5000,true,false);
+		welt->step_month(5);
+		welt->step();
+		welt->step();
 	}
 
 #ifdef DEBUG
@@ -705,22 +711,10 @@ DBG_MESSAGE("init","map");
 #endif
 
 	intr_set(welt, view);
-
 	win_setze_welt(welt);
 	werkzeug_t::toolbar_tool[0]->init(welt,welt->get_active_player());
-	view->display(true);
-	welt->set_fast_forward(true);
-
-	// Bringe welt in ansehnlichen Zustand
-	// bevor sie als Hintergrund für das intro dient
-	if (loadgame=="") {
-		welt->sync_step(welt->gib_zeit_ms() + welt->ticks_per_tag / 2, true, false );
-		welt->step();
-		welt->step();
-		welt->step();
-		welt->step();
-	}
 	welt->set_fast_forward(false);
+	view->display(true);
 	intr_refresh_display(true);
 
 #ifdef USE_SOFTPOINTER

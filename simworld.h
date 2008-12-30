@@ -502,6 +502,10 @@ public:
 	void reset_timer();
 	void step_year();
 
+	// jump one or more months ahead
+	// (updating history!)
+	void step_month( sint16 months=1 );
+
 	// returns either 0 or the current year*16 + month
 	uint16 get_timeline_year_month() const { return einstellungen->gib_use_timeline() ? current_month : 0; }
 

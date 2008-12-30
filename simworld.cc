@@ -3860,6 +3860,18 @@ void karte_t::step_year()
 
 
 
+// jump one or more months ahead
+// (updating history!)
+void karte_t::step_month( sint16 months )
+{
+	while(  months-->0  ) {
+		neuer_monat();
+	}
+	reset_timer();
+}
+
+
+
 void karte_t::change_time_multiplier(sint32 delta)
 {
 	time_multiplier += delta;
