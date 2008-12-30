@@ -228,13 +228,18 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 bool load_font(font_type* fnt, const char* fname)
 {
 	FILE* f = fopen(fname, "rb");
-	uint8 c;
+	int c;
 
 	if (f == NULL) {
 		fprintf(stderr, "Error: Cannot open '%s'\n", fname);
 		return false;
 	}
 	c = getc(f);
+
+	if(c<0) {
+		fprintf(stderr, "Error: Cannot parse font '%s'\n", fname);
+		return false;
+	}
 
 	// binary => the assume dumpe prop file
 	if (c < 32) {
