@@ -1394,3 +1394,43 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 		ziel = fabrik_t::gib_fab( welt, k3d.gib_2d() );
 	}
 }
+
+
+
+/**
+ * Dealing with stucked  or lost vehicles:
+ * - delete lost ones
+ * - ignore stucked ones
+ * @author prissi
+ * @date 30-Dec-2008
+ */
+void ai_passenger_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
+{
+	switch(cnv->get_state()) {
+
+		case convoi_t::NO_ROUTE:
+DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->gib_name(),ziel.x,ziel.y);
+			if(this==welt->get_active_player()) {
+				char buf[256];
+				sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->gib_name());
+				welt->get_message()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->gib_vehikel(0)->gib_basis_bild());
+			}
+			else {
+				cnv->self_destruct();
+			}
+			break;
+
+		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
+		case convoi_t::CAN_START_ONE_MONTH:
+DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->gib_name(),ziel.x,ziel.y);
+			if(this==welt->get_active_player()) {
+				char buf[256];
+				sprintf(buf,translator::translate("Vehicle %s is stucked!"), cnv->gib_name());
+				welt->get_message()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->gib_vehikel(0)->gib_basis_bild());
+			}
+			break;
+
+		default:
+DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s, state %i!", cnv->gib_name(), cnv->get_state());
+	}
+}

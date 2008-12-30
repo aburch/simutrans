@@ -137,6 +137,8 @@ public:
 
 	void rdwr(loadsave_t *file);
 
+	virtual void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
+
 	bool set_active( bool b );
 
 	void step();

@@ -96,6 +96,8 @@ public:
 	// this type of AIs identifier
 	virtual uint8 get_ai_id() { return AI_PASSENGER; }
 
+	virtual void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
+
 	void rdwr(loadsave_t *file);
 
 	bool set_active( bool b );

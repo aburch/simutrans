@@ -827,10 +827,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route
 			if(this==welt->get_active_player()) {
 				char buf[256];
 				sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->gib_name());
-				welt->get_message()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,player_nr,cnv->gib_vehikel(0)->gib_basis_bild());
-			}
-			else if(this != welt->gib_spieler(0)) {
-				cnv->self_destruct();
+				welt->get_message()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->gib_vehikel(0)->gib_basis_bild());
 			}
 			break;
 
@@ -840,7 +837,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->gi
 			if(this==welt->get_active_player()) {
 				char buf[256];
 				sprintf(buf,translator::translate("Vehicle %s is stucked!"), cnv->gib_name());
-				welt->get_message()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,player_nr,cnv->gib_vehikel(0)->gib_basis_bild());
+				welt->get_message()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->gib_vehikel(0)->gib_basis_bild());
 			}
 			break;
 
