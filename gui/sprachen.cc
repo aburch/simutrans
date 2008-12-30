@@ -102,7 +102,9 @@ sprachengui_t::sprachengui_t() :
 		sprintf(prop_font_file_name, "%s%s", FONT_PATH_X, fontname);
 		bool ok = true;
 		font_type fnt;
-		if(  !load_font(&fnt,prop_font_file_name)  ) {
+		fnt.screen_width = NULL;
+		fnt.char_data = NULL;
+		if(  *fontname==0  ||  !load_font(&fnt,prop_font_file_name)  ) {
 			ok = false;
 		}
 		else {
