@@ -685,12 +685,11 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	chdir(umgebung_t::user_dir);
 	if(loadgame==""  ||  !welt->laden(loadgame)) {
 		// create a default map
-DBG_MESSAGE("init","map");
-		einstellungen_t sets = umgebung_t::default_einstellungen;
+		DBG_MESSAGE("init with default map","(failing will be a pak error!)");
+		einstellungen_t sets;
 		sets.setze_groesse(64,64);
 		sets.setze_anzahl_staedte(1);
 		sets.setze_land_industry_chains(1);
-		sets.setze_electric_promille(0);
 		sets.setze_tourist_attractions(1);
 		sets.setze_verkehr_level(7);
 		sets.setze_karte_nummer( 33 );
