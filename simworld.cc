@@ -3392,6 +3392,9 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 			einstellungen->spieler_type[i] = spieler[i]->get_ai_id();
 		}
 	}
+	// so far, player 1 will be active (may change in future)
+	active_player = spieler[0];
+	active_player_nr = 0;
 
 DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte());
 	stadt.clear();
