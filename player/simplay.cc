@@ -798,6 +798,16 @@ void spieler_t::laden_abschliessen()
 {
 	simlinemgmt.laden_abschliessen();
 	display_set_player_color_scheme( player_nr, kennfarbe1, kennfarbe2 );
+	// recalculate vehicle value
+	sint64 assets = 0;
+	for(  vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end();  i != end;  ++i  ) {
+		convoihandle_t cnv = *i;
+		if(cnv->gib_besitzer()==this) {
+			assets += cnv->calc_restwert();
+		}
+	}
+	finance_history_year[0][COST_ASSETS] = finance_history_month[0][COST_ASSETS] = assets;
+	finance_history_year[0][COST_NETWEALTH] = finance_history_month[0][COST_NETWEALTH] = assets+konto;
 }
 
 
