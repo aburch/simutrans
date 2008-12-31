@@ -253,7 +253,7 @@ public:
 	void setze_just_in_time(bool yesno) {just_in_time=yesno;}	// prissi, Aug-06
 	bool gib_just_in_time() const {return just_in_time;}
 
-	void setze_climate_border(sint16 *);	// prissi, Aug-06
+	void setze_default_climates();
 	const sint16 *gib_climate_borders() const {return climate_borders;}
 
 	void setze_winter_snowline(sint16 sl) { winter_snowline = sl; }

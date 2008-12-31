@@ -41,8 +41,7 @@ einstellungen_t::einstellungen_t() :
 	show_pax = true;
 
 	// default climate zones
-	static sint16 borders[MAX_CLIMATES] = { 0, 0, 0, 3, 6, 8, 10, 10 };
-	memcpy( climate_borders, borders, sizeof(sint16)*MAX_CLIMATES );
+	setze_default_climates();
 	winter_snowline = 7;	// not mediterran
 	grundwasser = -2*Z_TILE_STEP;            //25-Nov-01        Markus Weber    Added
 
@@ -165,6 +164,14 @@ einstellungen_t::einstellungen_t() :
 	way_count_tunnel=8;
 	way_max_bridge_len=15;
 	way_count_leaving_road=25;
+}
+
+
+
+void einstellungen_t::setze_default_climates()
+{
+	static sint16 borders[MAX_CLIMATES] = { 0, 0, 0, 3, 6, 8, 10, 10 };
+	memcpy( climate_borders, borders, sizeof(sint16)*MAX_CLIMATES );
 }
 
 

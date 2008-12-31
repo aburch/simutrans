@@ -1,3 +1,6 @@
+Release of 101.0 (r1867, stable)
+
+28-June-2008:
 	FIX: weg search stooped to early => not properly upgrading city road types in pak128 (z9999)
 	FIX: crash of passenger AI before busses were available
 	FIX: stop moving tool also deals with empty lines now

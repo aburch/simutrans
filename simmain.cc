@@ -686,7 +686,12 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	if(loadgame==""  ||  !welt->laden(loadgame)) {
 		// create a default map
 		DBG_MESSAGE("init with default map","(failing will be a pak error!)");
-		einstellungen_t sets;
+		einstellungen_t sets = umgebung_t::default_einstellungen;
+		sets.setze_default_climates();
+		sets.setze_use_timeline( 1 );
+		sets.setze_grundwasser( -2*Z_TILE_STEP );
+		sets.setze_max_mountain_height( 160 );
+		sets.setze_map_roughness( 0.6 );
 		sets.setze_groesse(64,64);
 		sets.setze_anzahl_staedte(1);
 		sets.setze_land_industry_chains(1);
