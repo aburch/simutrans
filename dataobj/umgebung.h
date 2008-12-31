@@ -79,14 +79,14 @@ public:
 	*
 	* @author Hj. Malthaner
 	*/
-	static int show_names;
+	static sint32 show_names;
 
 	/**
 	* which messages to display where?
 	*
 	* @author prissi
 	*/
-	static int message_flags[4];
+	static sint32 message_flags[4];
 
 	/* time per water animation fram (0=off)
 	 * @author prissi
@@ -163,7 +163,7 @@ public:
 	*
 	* @author Hj. Malthaner
 	*/
-	static int intercity_road_length;
+	static sint32 intercity_road_length;
 
 	/**
 	* Typ (Name) initiale Stadtverbindungen
@@ -180,7 +180,7 @@ public:
 	static uint8 show_month;
 
 	/* prissi: do autosave every month? */
-	static int autosave;
+	static sint32 autosave;
 
 	/* prissi: drive on the left side of the road */
 	static bool drive_on_left;

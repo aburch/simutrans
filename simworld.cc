@@ -368,7 +368,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
  * @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
  * @author Hj. Malthaner
  */
-int karte_t::perlin_hoehe( einstellungen_t *sets, koord k, koord size )
+sint32 karte_t::perlin_hoehe( einstellungen_t *sets, koord k, koord size )
 {
 	switch( sets->get_rotation() ) {
 		// 0: do nothing

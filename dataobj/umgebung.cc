@@ -27,10 +27,10 @@ uint8 umgebung_t::hide_buildings = umgebung_t::NOT_HIDE;
 bool umgebung_t::use_transparency_station_coverage = true;
 uint8 umgebung_t::station_coverage_show = NOT_SHOWN_COVERAGE;
 
-int  umgebung_t::show_names = 3;
+sint32  umgebung_t::show_names = 3;
 sint16 umgebung_t::scroll_multi = 1;
 
-int umgebung_t::message_flags[4] =  { 0x017F, 0x0108, 0x0080, 0 };
+sint32 umgebung_t::message_flags[4] =  { 0x017F, 0x0108, 0x0080, 0 };
 
 bool umgebung_t::no_tree = false;
 uint32 umgebung_t::water_animation = 250; // 250ms per wave stage
@@ -64,7 +64,7 @@ uint8 umgebung_t::show_month = 0;
  *
  * @author Hj. Malthaner
  */
-int umgebung_t::intercity_road_length = 8000;
+sint32 umgebung_t::intercity_road_length = 8000;
 
 /**
  * Typ (Name) initiale Stadtverbindungen
@@ -74,7 +74,7 @@ int umgebung_t::intercity_road_length = 8000;
 cstring_t *umgebung_t::intercity_road_type = new cstring_t( "cobblestone_road" );
 
 /* prissi: autosave every x months (0=off) */
-int umgebung_t::autosave = 0;
+sint32 umgebung_t::autosave = 0;
 
 /* prissi: drive on the left side of the road */
 bool umgebung_t::drive_on_left=false;

@@ -17,7 +17,7 @@ private:
     gui_textarea_t text_label;
     button_t buttons[3*MAX_MESSAGE_TYP];
     gui_image_t legend;
-    int ticker_msg, window_msg, auto_msg, ignore_msg;
+    sint32 ticker_msg, window_msg, auto_msg, ignore_msg;
 	static karte_t *welt;
 
 public:

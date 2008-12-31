@@ -31,8 +31,8 @@ public:
 	static message_t * get_instance();
 
 	/* determines, which message is displayed where */
-	void get_message_flags( int *t, int *w, int *a, int  *i);
-	void set_message_flags( int, int, int, int );
+	void get_message_flags( sint32 *t, sint32 *w, sint32 *a, sint32  *i);
+	void set_message_flags( sint32, sint32, sint32, sint32 );
 
 	message_t(karte_t *welt);
 	~message_t();
