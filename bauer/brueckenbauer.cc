@@ -199,12 +199,12 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 		}
 
 		gr1 = welt->lookup(pos + koord3d(0, 0, Z_TILE_STEP));
-		if(gr1 && gr1->gib_weg_hang()==hang_t::flach  &&  gr1->gib_typ()==grund_t::boden) {
+		if(gr1 && gr1->gib_weg_hang()==hang_t::flach  &&  (gr1->gib_typ()==grund_t::boden  ||  gr1->gib_typ()==grund_t::monorailboden)) {
 			// on slope ok, but not on other bridges
 			return gr1->gib_pos();
 		}
 		gr2 = welt->lookup(pos);
-		if(gr2  &&  gr2->gib_typ()==grund_t::boden) {
+		if(gr2  &&  (gr2->gib_typ()==grund_t::boden  ||  gr2->gib_typ()==grund_t::monorailboden)) {
 			ribi_t::ribi ribi = ribi_t::keine;
 			if(wegtyp != powerline_wt) {
 				ribi = gr2->gib_weg_ribi_unmasked(wegtyp);
