@@ -229,6 +229,11 @@ convoi_t::laden_abschliessen()
 				destroy();
 			}
 		}
+		// anyway reassign convoi pointer ...
+		for( uint8 i=0;  i<anz_vehikel;  i++ ) {
+			vehikel_t* v = fahr[i];
+			v->setze_convoi(this);
+		}
 		return;
 	}
 
