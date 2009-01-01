@@ -337,13 +337,13 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	if(komp==&inp_x_size) {
 		sets->setze_groesse_x( v.i );
 		inp_x_size.set_increment_mode( v.i>=512 ? 128 : 64 );
-		inp_y_size.set_limits( 64, min(32766,4194304/sets->gib_groesse_x()) );
+		inp_y_size.set_limits( 64, min(32766,16777216/sets->gib_groesse_x()) );
 		update_preview();
 	}
 	else if(komp==&inp_y_size) {
 		sets->setze_groesse_y( v.i );
 		inp_y_size.set_increment_mode( v.i>=512 ? 128 : 64 );
-		inp_x_size.set_limits( 64, min(32766,4194304/sets->gib_groesse_y()) );
+		inp_x_size.set_limits( 64, min(32766,16777216/sets->gib_groesse_y()) );
 		update_preview();
 	}
 	else if(komp==&inp_number_of_towns) {
