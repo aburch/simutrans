@@ -1381,6 +1381,10 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 		if(bautyp&tunnel_flag) {
 			grund_t *bd_von = welt->lookup(koord3d(pos,start.z));
 			ok = (bd_von==NULL)  ||  bd_von->gib_typ()==grund_t::tunnelboden;
+#ifdef ONLY_TUNNELS_BELOW_GROUND
+			// ground must be above tunnel
+			ok &= (bd_von->gib_hoehe() > start.z);
+#endif
 			// check for halt or crossing ...
 			if(ok  &&  bd_von  &&  (bd_von->is_halt()  ||  bd_von->has_two_ways())) {
 				// then only single dir is ok ...
@@ -1390,7 +1394,7 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 				ok = (haltribi==diffribi);
 			}
 			// and the same for the last tile
-			if(  pos+diff==ziel.gib_2d()  ) {
+			if(  ok  &&  pos+diff==ziel.gib_2d()  ) {
 				grund_t *bd_von = welt->lookup(koord3d(ziel.gib_2d(),start.z));
 				ok = (bd_von==NULL)  ||  bd_von->gib_typ()==grund_t::tunnelboden;
 				// check for halt or crossing ...

@@ -53,15 +53,15 @@ static stringhashtable_tpl<const bruecke_besch_t *> bruecken_by_name;
  */
 void brueckenbauer_t::register_besch(const bruecke_besch_t *besch)
 {
-  bruecken_by_name.put(besch->gib_name(), besch);
-  bruecken.push_back(besch);
+	bruecken_by_name.put(besch->gib_name(), besch);
+	bruecken.push_back(besch);
 }
 
 
 
 const bruecke_besch_t *brueckenbauer_t::gib_besch(const char *name)
 {
-  return bruecken_by_name.get(name);
+	return bruecken_by_name.get(name);
 }
 
 
@@ -199,12 +199,12 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 		}
 
 		gr1 = welt->lookup(pos + koord3d(0, 0, Z_TILE_STEP));
-		if(gr1 && gr1->gib_weg_hang()==hang_t::flach  &&  gr1->gib_typ()!=grund_t::brueckenboden) {
+		if(gr1 && gr1->gib_weg_hang()==hang_t::flach  &&  gr1->gib_typ()==grund_t::boden) {
 			// on slope ok, but not on other bridges
 			return gr1->gib_pos();
 		}
 		gr2 = welt->lookup(pos);
-		if(gr2) {
+		if(gr2  &&  gr2->gib_typ()==grund_t::boden) {
 			ribi_t::ribi ribi = ribi_t::keine;
 			if(wegtyp != powerline_wt) {
 				ribi = gr2->gib_weg_ribi_unmasked(wegtyp);

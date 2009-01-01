@@ -94,7 +94,7 @@ tunnelbauer_t::laden_erfolgreich()
 const tunnel_besch_t *
 tunnelbauer_t::gib_besch(const char *name)
 {
-  return tunnel_by_name.get(name);
+	return tunnel_by_name.get(name);
 }
 
 
@@ -192,8 +192,17 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
 		}
 		gr = welt->lookup(pos);
 
+#ifdef ONLY_TUNNELS_BELOW_GROUND
+		// check if ground is below tunnel level
+		gr = welt->lookup(pos.gib_2d())->gib_kartenboden();
+		if (gr->gib_hoehe() < pos.z ){
+				return koord3d::invalid;
+		}
+#endif
+
 		if(gr) {
-			if(gr->ist_tunnel()) {  // Anderer Tunnel läuft quer
+			if(gr->gib_typ()!=grund_t::boden) {
+				// must end on boden_t and nowhere else ...
 				return koord3d::invalid;
 			}
 			ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(wegtyp);
