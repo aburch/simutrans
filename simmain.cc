@@ -683,9 +683,13 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	}
 
 	chdir(umgebung_t::user_dir);
+
 	if(loadgame==""  ||  !welt->laden(loadgame)) {
 		// create a default map
 		DBG_MESSAGE("init with default map","(failing will be a pak error!)");
+		// no autosave on initial map during the first six month ...
+		sint32 old_autosave = umgebung_t::autosave;
+		umgebung_t::autosave = false;
 		einstellungen_t sets = umgebung_t::default_einstellungen;
 		sets.setze_default_climates();
 		sets.setze_use_timeline( 1 );
@@ -705,6 +709,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		welt->step_month(5);
 		welt->step();
 		welt->step();
+		umgebung_t::autosave = old_autosave;
 	}
 
 #ifdef DEBUG

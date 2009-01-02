@@ -713,7 +713,7 @@ haltestelle_t::step()
  */
 void haltestelle_t::neuer_monat()
 {
-	if(enables&CROWDED  &&  welt->get_active_player()==besitzer_p) {
+	if(  welt->get_active_player()==besitzer_p  &&  status_color == COL_RED  ) {
 		char buf[256];
 		sprintf(buf, translator::translate("!0_STATION_CROWDED"), gib_name());
 		welt->get_message()->add_message(buf, gib_basis_pos(),message_t::full, PLAYER_FLAG|besitzer_p->get_player_nr(), IMG_LEER );
@@ -2142,38 +2142,50 @@ void haltestelle_t::recalc_status()
 {
 	status_color = financial_history[0][HALT_CONVOIS_ARRIVED] > 0 ? COL_GREEN : COL_YELLOW;
 
-	// has passengers
-	if(get_pax_happy() > 0 || get_pax_no_route() > 0) {
-
-		if(get_pax_unhappy() > 200 ) {
-			status_color = COL_RED;
-		} else if(get_pax_unhappy() > 40) {
-			status_color = COL_ORANGE;
-		}
-	}
+	// since the status is ored ...
+	uint8 status_bits = 0;
 
 	// update total waiting plus overflow
+	const sint32 max_ware = get_capacity();
+
 	long total_sum = 0;
 	if(get_pax_enabled()) {
 		total_sum += gib_ware_summe(warenbauer_t::passagiere);
+		if(get_pax_unhappy() > 40 ) {
+			status_bits = (total_sum>max_ware+200 || get_pax_unhappy()>200) ? 2 : 1;
+		} else if(total_sum>max_ware) {
+			status_bits = total_sum>max_ware+200 ? 2 : 1;
+		}
 	}
+
 	if(get_post_enabled()) {
-		total_sum += gib_ware_summe(warenbauer_t::post);
+		sint32 post = gib_ware_summe(warenbauer_t::post);
+		total_sum += post;
+		if(post>max_ware) {
+			status_bits |= post>max_ware+200 ? 2 : 1;
+		}
 	}
 
 	// now for all goods
 	if(status_color!=COL_RED  &&  get_ware_enabled()) {
 		const int count = warenbauer_t::gib_waren_anzahl();
-		const int max_ware = get_capacity();
 
 		for( int i=2; i+1<count; i++) {
 			const ware_besch_t *wtyp = warenbauer_t::gib_info(i+1);
 			long ware_sum = gib_ware_summe(wtyp);
 			total_sum += ware_sum;
-			if(  ware_sum>max_ware  ) {
-				status_color = COL_RED;
+			if(ware_sum>max_ware) {
+				status_bits |= (ware_sum>max_ware+32  ||  CROWDED) ? 2 : 1;
 			}
 		}
+	}
+
+	// take the worst color for status
+	if(  status_bits  ) {
+		status_color = status_bits&2 ? COL_RED : COL_ORANGE;
+	}
+	else {
+		status_color = (financial_history[0][HALT_WAITING]+financial_history[0][HALT_DEPARTED] == 0) ? COL_YELLOW : COL_GREEN;
 	}
 
 	financial_history[0][HALT_WAITING] = total_sum;

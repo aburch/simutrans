@@ -1,9 +1,4 @@
-	FIX: bridges could connect to "harbour" tunnels
-	CHANGE: maximu map size now 16 mio tiles
-
-
-
-Release of 101.0 (r1867, stable)
+Release of 101.0 (r2202, stable)
 
 31-Dec-2008:
 	FIX: weg search stooped to early => not properly upgrading city road types in pak128 (z9999)
@@ -64,7 +59,9 @@ Release of 101.0 (r1867, stable)
 	CHANGE: settings are now saved for game relevant/user relevant to prepare for multiplayer (and do proper versioning)
 	CHANGE: sea level now in single steps (before only double steps, but single steps in display)
 	FIX: handling of wrongly defined fonts and unicode characters now correct again
-
+	FIX: bridges could connect to "harbour" tunnels
+	CHANGE: maximu map size now 16 mio tiles
+	FIX: overcrowded station messages again
 
 
 Release of 100.0 (r1867, stable)

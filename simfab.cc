@@ -1056,11 +1056,11 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				}
 			}
 			else {
-				// overflowed with our own ware!
-				/*
-					Station too full, notify player
-					halt->bescheid_station_voll();
-				*/
+				// overflowed with our own ware and we have still nearly full stock
+				if(  ausgang[produkt].menge>= 0.75 * ausgang[produkt].max  ) {
+					/* Station too full, notify player */
+						best_halt->bescheid_station_voll();
+				}
 				return;
 			}
 		}
