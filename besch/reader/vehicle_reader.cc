@@ -15,9 +15,9 @@
 void
 vehicle_reader_t::register_obj(obj_besch_t *&data)
 {
-    vehikel_besch_t *besch = static_cast<vehikel_besch_t *>(data);
-    vehikelbauer_t::register_besch(besch);
-    obj_for_xref(get_type(), besch->gib_name(), data);
+	vehikel_besch_t *besch = static_cast<vehikel_besch_t *>(data);
+	vehikelbauer_t::register_besch(besch);
+	obj_for_xref(get_type(), besch->gib_name(), data);
 }
 
 
@@ -25,7 +25,7 @@ vehicle_reader_t::register_obj(obj_besch_t *&data)
 bool
 vehicle_reader_t::successfully_loaded() const
 {
-    return vehikelbauer_t::alles_geladen();
+	return vehikelbauer_t::alles_geladen();
 }
 
 
@@ -166,7 +166,11 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->vorgaenger = decode_uint8(p);
 		besch->nachfolger = decode_uint8(p);
 		besch->freight_image_type = decode_uint8(p);
-	} else {
+	}
+	else {
+		if(  version!=0  ) {
+			dbg->fatal( "vehicle_reader_t::read_node()","Do not know how to handle version=%i", version );
+		}
 		// old node, version 0
 
 		besch->typ = (sint8)v;
@@ -240,27 +244,27 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","sound %s to %i",wavname,besch->s
 DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch->sound);
 	}
 
-  DBG_DEBUG("vehicle_reader_t::read_node()",
-	     "version=%d "
-	     "way=%d zuladung=%d preis=%d geschw=%d gewicht=%d leistung=%d "
-	     "betrieb=%d sound=%d vor=%d nach=%d "
-	     "date=%d/%d gear=%d engine_type=%d len=%d",
-	     version,
-	     besch->typ,
-	     besch->zuladung,
-	     besch->preis,
-	     besch->geschw,
-	     besch->gewicht,
-	     besch->leistung,
-	     besch->betriebskosten,
-	     besch->sound,
-	     besch->vorgaenger,
-	     besch->nachfolger,
-	     (besch->intro_date%12)+1,
-	     besch->intro_date/12,
-	     besch->gear,
-	     besch->engine_type,
-	     besch->len);
+	DBG_DEBUG("vehicle_reader_t::read_node()",
+		"version=%d "
+		"way=%d zuladung=%d preis=%d geschw=%d gewicht=%d leistung=%d "
+		"betrieb=%d sound=%d vor=%d nach=%d "
+		"date=%d/%d gear=%d engine_type=%d len=%d",
+		version,
+		besch->typ,
+		besch->zuladung,
+		besch->preis,
+		besch->geschw,
+		besch->gewicht,
+		besch->leistung,
+		besch->betriebskosten,
+		besch->sound,
+		besch->vorgaenger,
+		besch->nachfolger,
+		(besch->intro_date%12)+1,
+		besch->intro_date/12,
+		besch->gear,
+		besch->engine_type,
+		besch->len);
 
-  return besch;
+	return besch;
 }
