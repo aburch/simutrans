@@ -1,9 +1,9 @@
-<title>?City Information Help</title>
+<title>City Information Help</title>
 
-<h1><strong>?City Information</strong></h1>
+<h1><strong>City Information</strong></h1>
 
 <p>
-<strong>?City Information</strong> shows statistics about a selected urban area (village, town or city) and can be used to change the name of the urban area.
+<strong>City Information</strong> shows statistics about a selected urban area (village, town or city) and can be used to change the name of the urban area.
 </p>
 <p>
 Each urban area has its own Town Hall around which it grows. Transportation of passengers and mail helps growth, which involves: roads built and taken over by the <a href="players.txt">public service player</a>; new city buildings and <a href="industry_info.txt">industries</a> appear; and city limits extend.
@@ -33,7 +33,7 @@ Counters increase with growth of urban area and decrease with construction of ne
 Destinations are shown by coloured dots for the current game-calendar-month (right mini-map) and last game-calendar-month (left mini-map). Colour of destination dots indicate details about passengers and mail:<br>
 - yellow: found a route and an uncrowded <a href="station.txt">Stop</a> to start journey (happy face shown in Stop Information).<br>
 - orange: did not find a route to this destination.<br>
-- red: found a route but Stop at start of journey was overcrowded (sad/unhappy face in Stop Information).
+- red: found a route but Stop at start of journey was overcrowded (unhappy face in Stop Information).
 </p>
 <p>
 <em>Graph</em> shows statistics for the urban area. <br>

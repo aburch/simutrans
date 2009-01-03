@@ -1,13 +1,13 @@
-<title>Game Interface/Window Help</title>
+<title>Game Interface Usage Help</title>
 
-<h1><strong>Game Interface/Window</strong></h1>
+<h1><strong>Game Interface</strong></h1>
 
 <p>
-Simutrans is played through the <strong>Game Interface/Window</strong> which provides information about the current game; access to toolbars & game-controls; and a view-of the current game-world.
+Simutrans is played through the <strong>Game Interface</strong> which provides information about the current game; access to toolbars & game-controls; and a view-of the current game-world.
 </p>
 <p>
-<em>titlebar</em>: the left of the titlebar of the <strong>Game Interface/Window</strong> shows the version and release date of Simutrans that is currently running.<br>
-The right hand side of the titlebar also contains controls to minimise, maximise the <strong>Game Interface/Window</strong> and also to exit Simutrans.
+<em>titlebar</em>: the left of the titlebar of the <strong>Game Interface</strong> shows the version and release date of Simutrans that is currently running.<br>
+The right hand side of the titlebar also contains controls to minimise, maximise the <strong>Game Interface</strong> and also to exit Simutrans.
 </p>
 <p>
 <em>Icons</em>: a row of icons, used to access game-toolbars and game-controls when playing Simutrans, is directly below the <em>titlebar</em>. <em>Icons</em> (click to use) are grouped in three sets:
@@ -45,7 +45,7 @@ Game Options</a><br>
 </p>
 <p>
 - <a href="general.txt"><it>Other Options</it></a> icons include:<br>
-- <em>camera-icon</em>: captures current image of <strong>Game Interface/Window</strong> (without the <em>titlebar</em>) and saves it as a bitmap file in the directory/folder ...simutrans/screeshot/<br>
+- <em>camera-icon</em>: captures current image of <strong>Game Interface</strong> (without the <em>titlebar</em>) and saves it as a bitmap file in the directory/folder ...simutrans/screeshot/<br>
 {Tips: Image can also be captured with keypress <a href="keys.txt">[c]</a>.}
 <br>
 - <em>coffee-mug-icon</em>: pause

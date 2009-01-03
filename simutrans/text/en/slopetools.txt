@@ -1,9 +1,9 @@
-<title>?Landscape Tools - raise/lower land Help</title>
+<title>Landscaping Tools - raise/lower land Help</title>
 
-<h1><strong>?Landscape Tools</strong></h1>
+<h1><strong>Landscaping Tools</strong></h1>
 
 <p>
-<strong>Landscape Tools</strong> raise & lower terrain and may be used to provide suitable places for construction.
+<strong>Landscaping Tools</strong> raise & lower terrain and may be used to provide suitable places for construction.
 </p>
 <p>
 Click on sloping-land-icon at top of game-view to open toolbar.<br>
@@ -32,7 +32,7 @@ Cursor is a yellow-cube outline which selects square.
 Cursor is a yellow-cube outline which positions tool.
 </p>
 <p>
-{Tips: Landscape tools are easier to use with grid, press [#] & zoom-in game-view.<br>
+{Tips: Landscaping Tools are easier to use with grid, press [#] & zoom-in game-view.<br>
 Use Destroy/Remove to remove some obstructions.<br>
 Depending on map, tools can raise land into/out of water.}
 </p>

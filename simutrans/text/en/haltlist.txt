@@ -39,10 +39,10 @@ Items listed for each Stop include:
 </p>
 <p>
 <em>status-colour-bar:</em> colours indicate operation of <a href="station.txt">Stop</a> with regards to how overcrowded it is. The colour-bar is also used in Stop Information and <a href="linemanagement.txt">Line Management</a> and is the same colour displayed in the colour-bar above Stop in game-display:<br>
-- <em>yellow:</em> no transport service.<br>
+- <em>yellow:</em> no service and nothing waitung.<br>
 - <em>green:</em> no improvements necessary.<br>
-- <em>orange:</em> improvements possible.<br>
-- <em>red:</em> improvements recommended.<br>
+- <em>orange:</em> stop is slightly overcrowded (with transfer goods mostly).<br>
+- <em>red:</em> stop hold more than 1.5 of its capacity, or more than 200 unhappy passengers, or a factory must stop its production because the station is overcrowded.<br>
 {Tips: Use [!] to toggle colour-bar above Stop in game display.}
 </p>
 <p>

@@ -4,7 +4,7 @@
 <br>
 - <a href="simutrans.txt">Welcome</a>
 <br>
-- <a href="window.txt">?Game Interface/Window</a><br>
+- <a href="window.txt">Game Interface</a><br>
 - <a href="mouse.txt">Mouse Help</a> (to be written)<br>
 - <a href="keys.txt">Keyboard Help</a>
 <br>
@@ -36,8 +36,8 @@ Game Options</a><br>
 - <a href="map.txt">Map</a>
 <br>
 - <a href="inspection_tool.txt">Inspection Tool</a><br>
-- <a href="slopetools.txt">?Landscape Tools</a><br>
-- <a href="railtools.txt">?Railroad/Train Tools</a>
+- <a href="slopetools.txt">Landscaping Tools Tools</a><br>
+- <a href="railtools.txt">Railroad/Train Tools</a>
 <br>
 - <a href="monorailtools.txt">Monorail Tools</a><br>
 - <a href="tramtools.txt">Tram Tools</a>
@@ -48,7 +48,7 @@ Game Options</a><br>
 - <a href="airtools.txt">Airport Tools</a>
 <br>
 - <a href="special.txt">Special Construction Tools</a><br>
-- <a href="edittools.txt">?Game Edit Tools</a><br>
+- <a href="edittools.txt">Game Edit Tools</a><br>
 - <a href="removal_tool.txt">Destroy/Remove</a>
 </p>
 <p>
@@ -57,15 +57,15 @@ Game Options</a><br>
 <br>
 - <a href="list.txt">Lists</a>
 <br>
-- - <a href="haltlist.txt">?Stops/Station List</a><br>
-- - - <a href="haltlist_filter.txt">?Stops/Station Filter</a><br>
+- - <a href="haltlist.txt">Stops/Station List</a><br>
+- - - <a href="haltlist_filter.txt">Stops/Station List Filter</a><br>
 - - <a href="convoi.txt">Vehicle List</a><br>
-- - - <a href="convoi_filter.txt">Vehicle Filter</a>
+- - - <a href="convoi_filter.txt">Vehicle List Filter</a>
 <br>
 - - <a href="citylist_filter.txt">City List</a><br>
 - - <a href="goods_filter.txt">Goods List</a>
 <br>
-- - <a href="factorylist_filter.txt">?Industry List</a>
+- - <a href="factorylist_filter.txt">Industry List</a>
 <br>
 - - <a href="curiositylist_filter.txt">Attractions List</a>
 <br>
@@ -99,7 +99,7 @@ Game Options</a><br>
 
 <p>
 If no help is found here, try<br>
-<em>http://docs.simutrans.com</em>, or<br>
+<em>http://guide.simutrans.com</em>, or<br>
 <em>http://wiki.simutrans.com</em>, or<br>
 <em>http://simutrans-tips.com</em>, or<br>
 <em>http://forum.simutrans.com</em>.

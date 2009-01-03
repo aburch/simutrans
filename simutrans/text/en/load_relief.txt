@@ -16,7 +16,7 @@ WARNING: Click x-button by left of name to DELETE file immediately & permanently
 </p>
 <p>
 Some custom-made terrains are available online at http://maps.simutrans.com.<br>
-The new file must be in .ppm or .bmp format and placed in the personal directory (or folder) named simutrans/maps/
+The new file must be in .ppm or .bmp format (best 256 colors RLE compressed) and placed in the personal directory (or folder) named simutrans/maps/
 </p>
 <p>
 Information on how to create custom terrains is available online at http://wiki.simutrans.com

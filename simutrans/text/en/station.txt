@@ -25,10 +25,10 @@ To change name: click on name-box and type new name.<br>
 </p>
 <p>
 <em>status-colour-bar:</em> colours indicate operation of Stop with regards to how overcrowded it is. The status-colour-bar is also used in Station List and Line Management and is the same colour displayed in the colour-bar above a Stop in game-display:<br>
-- <em>yellow:</em> not in service.<br>
-- <em>green:</em> no improvemments required.<br>
-- <em>orange:</em> improvements possible.<br>
-- <em>red:</em> improvements recommended.<br>
+- <em>yellow:</em> no service and nothing waitung.<br>
+- <em>green:</em> no improvements necessary.<br>
+- <em>orange:</em> stop is slightly overcrowded (with transfer goods mostly).<br>
+- <em>red:</em> stop hold more than 1.5 of its capacity, or more than 200 unhappy passengers, or a factory must stop its production because the station is overcrowded.  These stops will be reported as overcrowded at the beginning of a months.<br>
 {Tips: Use <a href="keys.txt">[!]</a> to toggle view of status-colour-bar (that indicate how crowded Stop is) above a Stop in game-view.}
 </p>
 <p>
@@ -47,7 +47,7 @@ Click on the picture to centre game-view on Stop.
 <p>
 <em>Passengers</em> numbers indicate amount of following passengers who start their journey at the Stop:<br>
 - <em>happy face</em> indicates number of passengers, who have arrived at an uncrowded Stop as a result of its catchment area and have found a route to their destination and waited for transport.<br>
-- <em>sad ?unhappy face</em> indicates number of passengers who have arrived at Stop as a result of its catchment area but did not wait for transport as it was overcrowded.<br>
+- <em>unhappy face</em> indicates number of passengers who have arrived at Stop as a result of its catchment area but did not wait for transport as it was overcrowded.<br>
 - <em>no route</em> indicates number of passengers who have arrived at Stop as a result of its catchment area but left as they did not find a route to their destination.<br>
 {Tips: Keeping passengers happy helps growth of <a href="citywindow.txt">urban areas</a>. Change maximum number of transfers allowed for goods and passengers in simuconf.tab}.
 </p>
@@ -66,8 +66,8 @@ Option-button (changes name with selection) sorts of items within groups:<br>
 The graph shows statistics for the last 12 months (x-axis) when a graph-option is selected.<br>
 Click on graph-option-button to see information on graph (button is indented when option selected).<br>
 Colours of lines on graph correspond to colours of graph-option-buttons:<br>
-- <em>Happy</em> indicates number of passengers, who have arrived at an uncrowded Stop as a result of its catchment area and have found a route to their destination and waited for transport.<br>
-- <em>Sad ?Unhappy</em> indicates number of passengers who have arrived at Stop as a result of its catchment area but did not wait for transport as it was overcrowded.<br>
+- <em>Happy</em> indicates number of passengers/mails, who have arrived at an uncrowded Stop as a result of its catchment area and have found a route to their destination and waited for transport.<br>
+- <em>Unhappy</em> indicates number of passengers who have arrived at Stop as a result of its catchment area but did not wait for transport as it was overcrowded.<br>
 - <em>No Route</em> indicates number of passengers who have arrived at Stop as a result of its catchment area but left as they did not find a route to their destination.<br>
 - <em>waiting:</em> amount of goods and passengers at Stop that wait for transport.<br>
 - <em>Arrived:</em> amount of goods and passengers dropped-off by a Convoy at Stop as a final destination or transfer point.<br>

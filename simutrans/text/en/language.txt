@@ -16,5 +16,5 @@ New language may only appear in new or re-opened toolbars, options & texts in th
 If a translation is not available in the selected language, it may appear in English.
 </p>
 <p>
-Visit http://translator.simutrans.com to help with translating.
+Visit http://simutranslator.simutrans-germany.com to help with translating.
 </p>
