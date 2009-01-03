@@ -38,7 +38,6 @@
  */
 void sprachengui_t::init_font_from_lang()
 {
-	chdir(umgebung_t::program_dir);
 	static const char *default_name = "PROP_FONT_FILE";
 	const char * prop_font_file = translator::translate(default_name);
 
@@ -51,7 +50,9 @@ void sprachengui_t::init_font_from_lang()
 	// load large font
 	char prop_font_file_name [1024];
 	sprintf(prop_font_file_name, "%s%s", FONT_PATH_X, prop_font_file);
+	chdir(umgebung_t::program_dir);
 	display_load_font(prop_font_file_name);
+	chdir(umgebung_t::user_dir);
 
 	const char * p = translator::translate("SEP_THOUSAND");
 	char c = ',';
