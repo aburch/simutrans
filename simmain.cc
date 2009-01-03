@@ -572,6 +572,7 @@ int simu_main(int argc, char** argv)
 	// Hajo: simgraph init loads default fonts, now we need to load
 	// the real fonts for the current language
 	sprachengui_t::init_font_from_lang();
+	chdir(umgebung_t::program_dir);
 
 	print("Reading city configuration ...\n");
 	stadt_t::cityrules_init(umgebung_t::objfilename);
