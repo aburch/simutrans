@@ -1,15 +1,15 @@
-<title>Szenariomenü Hilfe</title>
+<title>Spielzieldialog Hilfe</title>
 
 <h1><strong>Spielziele</strong></h1>
 
 <p>
-Simutrans hat normalerweise kein bestimmtes Ziel. Es gibt jedoch die Möglichkeit, Spiele mit Spielziel zu definieren. Im Spielziel-Dialog werden alle vorhandenen Spielziele aufgelistet. Nach der Anwahl eines Eintrages wird eine neue Karte mit Spielziel ohne weitere Rückfrage geladen.
+Simutrans hat normalerweise kein bestimmtes Ziel. Es gibt jedoch die Möglichkeit, Spiele mit Spielziel zu definieren. Im Spielzieldialog werden Spiele mit einem Spielziel aufgelistet. Nach der Anwahl eines Eintrages wird eine neue Karte mit Spielziel ohne weitere Rückfrage geladen.
 </p>
 <p>
 <em>Achtung!</em> Das aktuelle Spiel wird verworfen und nicht automatisch gesichert!
 </p>
 <p>
-Wird das Spielziel erreicht und das Konto ist nich überzogen, erscheint eine Mitteilung. Das Spiel kann aber trotzdem normal fortgesetzt werden. Folgende Spielziele gibt es:
+Der aktuelle Stand in Prozent kann im Finanzdialog eingesehen werden. Wird das Spielziel am Ende eines Monates erreicht (also 100%) und das Konto ist nicht überzogen, erscheint eine Mitteilung. Das Spiel kann aber trotzdem normal fortgesetzt werden. Folgende Spielziele gibt es:
 </p>
 <p>
 <br/>· Beliefere eine Fabrik (und alle ihre Zulieferer).</li>

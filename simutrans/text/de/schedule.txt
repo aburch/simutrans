@@ -26,13 +26,13 @@ Die <em>Schaltfächen</em> haben folgende Bedeutung:<br/>
 · <em>Löschen:</em> Der per Mausklick angewählte Fahrplanhalt wird aus der Liste gelöscht. Nach löschen eines Fahrplanhaltes wird die Schaltfläche <em>Hinzufügen</em> wider aktiviert.
 </p>
 <p>
-· <em>Rückfahrkarte:</em> Alle Fahrplanhalte werden bis zum Maximum von 32 Gesamteinträgen in umgekehrter Reihenfolge (ohne 1. und letzten Halt) an den bestehenden Fahrplan angefügt. Bei Verwendung von Richtungsstrecken (einseitige Signale bei Eisen-, Straßen- und Einschienenbahnen) wird die Rückfahrkarte allerdings nicht einsetzbar sein, da der Haltepunkt bei der Rückfahrt nicht direkt angefahren werden kann. Wenn ein Weg gefunden wird, erfolgt dieser dann mit einem großen Umweg.
+· <em>Rückfahrkarte:</em> Alle Fahrplanhalte werden bis zum Maximum von 254 Gesamteinträgen in umgekehrter Reihenfolge (ohne 1. und letzten Halt) an den bestehenden Fahrplan angefügt. Bei Verwendung von Richtungsstrecken (einseitige Signale bei Eisen-, Straßen- und Einschienenbahnen) wird die Rückfahrkarte allerdings nicht einsetzbar sein, da der Haltepunkt bei der Rückfahrt nicht direkt angefahren werden kann. Wenn ein Weg gefunden wird, erfolgt dieser dann mit einem großen Umweg.
 </p>
 <p>
 Bei der Nutzung einer der Schaltflächen "Hinzufügen" oder "Einfügen" ändert sich der Cursor in einen Haltepunktmarker. Klickst Du mit dem Werkzeug auf ein Haltestellenfeld oder auf einen freien Wegpunkt, welcher vom Fahrzeugverband befahren werden kann (je nach Fahrzeugart zBsp. Straßen-, Wasser-, oder Gleisfeld), wird der Punkt als Fahrplanhalt in die Liste der Fahrplanhalte aufgenommen.<br>
 · Haltepunkte werden mit dem Namen der Haltestelle, der eingestellten Mindestbeladung und den Koordinaten des Feldes in die Liste eingetragen.<br>
 · Freie Wegpunkte werden mit der Bezeichnung "freier Wegpunkt" und den Koordinaten des Feldes in die Liste eingetragen. Ein Halt erfolgt nicht. Die Strecke bis zum nächsten Fahrplanhalt wird eingelesen, ein kurzes Abbremsen des Konvois ist möglich. Vermeide nach Möglichkeit die Platzierung von Wegpunkten in Kurven. Es wird zwar keine Störung verursacht, doch ordentliches Fahrverhalten kann nicht gewährleistet werden.<br/>
-· Bis zu 32 Fahrplanhalte können je Fahrplan eingerichtet werden.
+· Bis zu 254 Fahrplanhalte können je Fahrplan eingerichtet werden.
 </p>
 <p>
 · Wenn du fertig bist, dann schließe einfach das Fahrplanfenster. Der Fahrzeugverband liest den Fahrplan neu ein und setzt die Reise zum dann als nächsten Halt markierten Punkt fort. Wird eine Linie als ganzes geändert, halten alle ihr zugewiesenen Fahrzeuge an, lesen den neuen Fahrplan ein und fahren weiter. Sind Zwischenhalte eingefügt worden, kann dies dazu führen, dass einige Konvois umkehren, da an derselben Position ihres Fahrplans nach der Änderung ein anderer Fahrplanhalt steht.

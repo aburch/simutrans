@@ -14,13 +14,13 @@ Im Haltestellenfenster werden die Bestände der wartenden Passagiere und Güter so
 · <em>Name der Haltestelle:</em> Der Name der Haltestelle wird von Simutrans generiert, sobald Du das erste Haltestellensegment platzierst. Das Spiel nutzt die Namen der Städte und vervollständigt sie aus Angaben in der Datei <em>simutrans/text/de.tab</em> (für die deutsche Sprachauswahl) zu Haltestellen-Namen. Du hast die Möglichkeit, die generierten Namen im Namensfeld zu editieren. In das Namensfeld klicken, ändern und mit <em>RETURN</em> bestätigen.<br/>
 · <em>Haltestellenbalken:</em>  Über den Haltestellennamen befinden sich waagrechte Farbbalken. Sie stellen eine Statusanzeige dar.<br>
 - Grün: Bei der Haltestelle ist alles in Ordnung.<br/>
-- Gelb: Die Haltestelle ist nicht erschlossen<br>
-- Rot: Die Haltestelle ist überfüllt (oder mehr als 200 Passagiere waren unzufrieden).<br>
-- Orange (nur Passagiere/Post): Die Haltestelle ist überfüllt und mehr als 32 Personen haben wegen der überfüllten Haltestelle ihre Reise nicht mehr angetreten.<br/>
+- Gelb: Die Haltestelle ist nicht erschlossen (kein Fahrzeug kam vorbei, nichts warted).<br>
+- Orange: Die Haltestelle ist mäßig überfüllt mit Umsteigepassagieren/Waren.
+- Rot: Die Haltestelle ist völlig überfüllt (mehr als 1,5fache Kapaziät) bzw. mehr als 200 Personen/Briefe haben ihre Reise wegen Überfüllung nicht angetreten oder eine Fabrik konnte ihre Waren nicht loswerden und musste deswegen die Produktion einstellen. Für solche Haltestellen erschein eine Benachrichtigung am Monatsersten.<br>
 · <em>Farbsäulen:</em>  Die Farben der Säulen entsprechen jenen der Farbquadrate in der <a href="goods_filter.txt">Warenliste</a> und zeigen die Warenbestände an. Wird ein Balken mit einen Pfeil abgeschlossen, warten mehr Einheiten des Gutes auf den Weitertransport als die Haltestelle aufnehmen kann.
 </p>
 <p>
-· <em>Baupreis:</em> Der Baupreis wird in den Tooltips angezeigt.
+· <em>Baupreis:</em> Der Baupreis wird in den Tooltips angezeigt, dahinter in Klammern die Wartungskosten.
 </p>
 <p>
 · <em>Einzugsgebiet:</em> Haltestellen haben ein begrenztes Einzugsgebiet. Du kannst es mittels <em>v</em> oder unter <a href="display.txt">Anezigeeinstellungen</a> anzeigen lassen bzw. die Anzeige wieder ausschalten. Passagier- und Warenaufkommen erfolgen nur innerhalb des Einzugsgebietes.

@@ -22,8 +22,8 @@ Der <em>Filter</em> kann entweder "an" oder "aus" sein. Wenn Du eine Haltestelle
 · <em>Wartende Güter und Passagiere:</em> Personen und jede Güterart sind in einer Zeile gelistet.<br>
 · <em>Statusanzeige der Haltestelle:</em><br/>
 - Grün: Bei der Haltestelle ist alles in Ordnung.<br/>
-- Gelb: Die Haltestelle ist nicht erschlossen<br>
-- Rot: Die Haltestelle ist überfüllt bzw. mehr als 200 Personen/Briefe haben ihre Reise wegen Überfüllung nicht angetreten.<br>
-- Orange: (nur Passagiere/Post) Die Haltestelle ist überfüllt, aber mehr als 40 Passagiere/Briefe haben wegen der überfüllten Haltestelle ihre Reise nicht mehr angetreten. <br/>
+- Gelb: Die Haltestelle ist nicht erschlossen (kein Fahrzeug kam vorbei, nichts warted).<br>
+- Orange: Die Haltestelle ist mäßig überfüllt mit Umsteigepassagieren/Waren.
+- Rot: Die Haltestelle ist völlig überfüllt (mehr als 1,5fache Kapaziät) bzw. mehr als 200 Personen/Briefe haben ihre Reise wegen Überfüllung nicht angetreten oder eine Fabrik konnte ihre Waren nicht loswerden und musste deswegen die Produktion einstellen.<br>
 <br/>· <em>Symbol des Haltestellelentyps:</em> Die Symbole ermöglichen Dir eine schnelle Orientierung über die Fahrzeugtypen der Haltestellen. Die Symbole sind Bus, Lastwagen, Lok, Schiff, Flugzeug, Magnetbahn. Liegt eine Tram-Haltestelle auf einer Straße, ist deren Symbol ein Bus, ansonsten ist es eine Lok.
 </p>
