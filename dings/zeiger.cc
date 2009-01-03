@@ -31,6 +31,7 @@ zeiger_t::zeiger_t(karte_t *welt, koord3d pos, spieler_t *sp) :
 	changed = false;
 	setze_besitzer( sp );
 	richtung = ribi_t::alle;
+	bild = IMG_LEER;
 	area = koord(0,0);
 	center = 0;
 }

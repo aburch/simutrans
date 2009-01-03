@@ -117,6 +117,9 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	maintenance = 0;
 
 	last_message_index = 0;
+	for(int n=0; n<50; n++) {
+		text_alter[n] = -127;
+	}
 
 	// we have different AI, try to find out our type:
 	sprintf(spieler_name_buf,"player %i",player_nr-1);
@@ -151,7 +154,7 @@ void spieler_t::display_messages()
 	int last_displayed_message = -1;
 	const sint16 yoffset = welt->gib_y_off()+((display_get_width()/raster)&1)*(raster/4);
 
-	for(int n=0; n<=last_message_index; n++) {
+	for(int n=0; n<50; n++) {
 		if(text_alter[n] >= -80) {
 			const koord ij = text_pos[n]-welt->get_world_position()-welt->gib_ansicht_ij_offset();
 			const sint16 x = (ij.x-ij.y)*(raster/2) + welt->gib_x_off();
@@ -175,7 +178,7 @@ void spieler_t::display_messages()
 void
 spieler_t::age_messages(long /*delta_t*/)
 {
-	for(int n=0; n<=last_message_index; n++) {
+	for(int n=0; n<50; n++) {
 		if(text_alter[n] >= -80) {
 			text_alter[n] -= 5;//delta_t>>2;
 		}
@@ -193,11 +196,6 @@ spieler_t::add_message(koord k, int betrag)
 
 			money_to_string(texte[n], betrag/100.0);
 			text_alter[n] = 127;
-
-			if(n > last_message_index) {
-				last_message_index = n;
-			}
-
 			break;
 		}
 	}

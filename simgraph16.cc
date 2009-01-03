@@ -1821,9 +1821,13 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const int dir
 
 		// must the height be reduced?
 		reduce_h = yp + h - clip_rect.yy;
-		if (reduce_h > 0) h -= reduce_h;
+		if (reduce_h > 0) {
+			h -= reduce_h;
+		}
 		// still something to draw
-		if (h <= 0) return;
+		if (h <= 0) {
+			return;
+		}
 
 		// vertically lines to skip (only bottom is visible
 		skip_lines = clip_rect.y - (int)yp;

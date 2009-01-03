@@ -705,12 +705,21 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		sets.setze_karte_nummer( 33 );
 		welt->init(&sets,0);
 		//  start in June ...
+		intr_set(welt, view);
+		win_setze_welt(welt);
+		werkzeug_t::toolbar_tool[0]->init(welt,welt->get_active_player());
 		welt->set_fast_forward(true);
 		welt->sync_step(5000,true,false);
 		welt->step_month(5);
 		welt->step();
 		welt->step();
 		umgebung_t::autosave = old_autosave;
+	}
+	else {
+		// just init view (world was loaded from file)
+		intr_set(welt, view);
+		win_setze_welt(welt);
+		werkzeug_t::toolbar_tool[0]->init(welt,welt->get_active_player());
 	}
 
 #ifdef DEBUG
@@ -720,9 +729,6 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	}
 #endif
 
-	intr_set(welt, view);
-	win_setze_welt(welt);
-	werkzeug_t::toolbar_tool[0]->init(welt,welt->get_active_player());
 	welt->set_fast_forward(false);
 	view->display(true);
 	intr_refresh_display(true);

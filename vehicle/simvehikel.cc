@@ -160,6 +160,7 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt):
 {
 	bild = IMG_LEER;
 	set_flag( ding_t::is_vehicle );
+	steps = 0;
 }
 
 
@@ -170,6 +171,7 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
 	bild = IMG_LEER;
 	set_flag( ding_t::is_vehicle );
 	pos_next = pos;
+	steps = 0;
 }
 
 
