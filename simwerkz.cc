@@ -2118,9 +2118,14 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 		halt = sp->halt_add(pos);
 	}
 	hausbauer_t::baue(welt, halt->gib_besitzer(), bau_pos, layout, besch, &halt);
+	sint64 costs = welt->gib_einstellungen()->cst_multiply_dock*besch->gib_level();
+	if(sp!=halt->gib_besitzer()) {
+		// public stops are expensive!
+		costs -= ((welt->gib_einstellungen()->maint_building*besch->gib_level()*60)<<(welt->ticks_bits_per_tag-18));
+	}
 	for(int i=0;  i<=len;  i++ ) {
 		koord p=pos-dx*i;
-		sp->buche(welt->gib_einstellungen()->cst_multiply_dock*besch->gib_level(), p, COST_CONSTRUCTION);
+		sp->buche( costs, p, COST_CONSTRUCTION);
 	}
 
 	halt->recalc_station_type();
@@ -2297,7 +2302,12 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		halt->setze_name( name );
 		free(name);
 	}
-	sp->buche(cost*besch->gib_level()*besch->gib_b()*besch->gib_h(), pos, COST_CONSTRUCTION);
+	cost *= besch->gib_level()*besch->gib_b()*besch->gib_h();
+	if(sp!=halt->gib_besitzer()) {
+		// public stops are expensive!
+		cost += ((welt->gib_einstellungen()->maint_building*besch->gib_level()*besch->gib_b()*besch->gib_h()*60)<<(welt->ticks_bits_per_tag-18));
+	}
+	sp->buche( cost, pos, COST_CONSTRUCTION);
 	if(umgebung_t::station_coverage_show  &&  welt->gib_zeiger()->gib_pos().gib_2d()==pos) {
 		// since we are larger now ...
 		halt->mark_unmark_coverage( true );
