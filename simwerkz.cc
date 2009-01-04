@@ -163,7 +163,6 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 		const planquadrat_t *plan = welt->lookup(pos.gib_2d()+next_try_dir[i]);
 		if(plan) {
 			halthandle_t halt = plan->gib_halt();
-//			if(halt.is_bound()  &&  (spieler_t::check_owner( sp, halt->gib_besitzer())  ||  welt->gib_spieler(1)==sp)) {
 			if(halt.is_bound()  &&  sp==halt->gib_besitzer()) {
 				return halt;
 			}
@@ -171,16 +170,23 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 	}
 
 	// now just search everything
-	koord k=pos.gib_2d();
-	for(k.x=pos.x-1; k.x<=pos.x+b; k.x++) {
-		for(k.y=pos.y-1; k.y<=pos.y+h; k.y++) {
-			const planquadrat_t *plan = welt->lookup(k);
-			if(plan) {
-				halthandle_t halt = plan->gib_halt();
-//				if(halt.is_bound()  &&  (spieler_t::check_owner( sp, halt->gib_besitzer())  ||  welt->gib_spieler(1)==sp)) {
-				if(halt.is_bound()  &&  sp==halt->gib_besitzer()) {
-					return halt;
-				}
+	for(  int i=0;  i<8;  i++ ) {
+		const planquadrat_t *plan = welt->lookup(pos.gib_2d()+koord::neighbours[i]);
+		if(plan) {
+			halthandle_t halt = plan->gib_halt();
+			if(halt.is_bound()  &&  sp==halt->gib_besitzer()) {
+				return halt;
+			}
+		}
+	}
+
+	// now search everything for public stops
+	for(  int i=0;  i<8;  i++ ) {
+		const planquadrat_t *plan = welt->lookup(pos.gib_2d()+koord::neighbours[i]);
+		if(plan) {
+			halthandle_t halt = plan->gib_halt();
+			if(halt.is_bound()  &&  welt->gib_spieler(1)==halt->gib_besitzer()) {
+				return halt;
 			}
 		}
 	}

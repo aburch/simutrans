@@ -1,4 +1,7 @@
-Release of 101.0 (r2207)
+	FIX: connect stops again to public player
+
+
+Release of 101.0 (r2208)
 
 3-Jan-2009:
 	FIX: weg search stooped to early => not properly upgrading city road types in pak128 (z9999)
