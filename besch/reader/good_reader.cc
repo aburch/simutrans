@@ -13,9 +13,9 @@ void good_reader_t::register_obj(obj_besch_t *&data)
 	ware_besch_t *besch = static_cast<ware_besch_t *>(data);
 
 	warenbauer_t::register_besch(besch);
-	DBG_DEBUG("good_reader_t::register_obj()","loaded good '%s'", besch->gib_name());
+	DBG_DEBUG("good_reader_t::register_obj()","loaded good '%s'", besch->get_name());
 
-	obj_for_xref(get_type(), besch->gib_name(), data);
+	obj_for_xref(get_type(), besch->get_name(), data);
 }
 
 

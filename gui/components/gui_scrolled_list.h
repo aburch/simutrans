@@ -35,7 +35,7 @@ public:
 	public:
 		scrollitem_t( COLOR_VAL col ) { color = col; }
 		virtual ~scrollitem_t() {}
-		virtual uint8 gib_color() { return color; }
+		virtual uint8 get_color() { return color; }
 		virtual void set_color(uint8 col) { color = col; }
 		virtual const char *get_text() = 0;
 		virtual void set_text(char *) = 0;
@@ -95,12 +95,12 @@ public:
 	* Sets the color of selected entry
 	* @author Hj. Malthaner
 	*/
-	void setze_highlight_color(int c) { highlight_color = c; }
+	void set_highlight_color(int c) { highlight_color = c; }
 
 	void show_selection(int s);
 
-	void setze_selection(int s) { selection = s; }
-	int gib_selection() { return selection; }
+	void set_selection(int s) { selection = s; }
+	int get_selection() { return selection; }
 	int get_count() { return item_list.count(); }
 
 	/*  when rebuilding a list, be sure to call recalculate the slider
@@ -110,8 +110,8 @@ public:
 	scrollitem_t *get_element(int i) const { return ((unsigned)i<item_list.count()) ? item_list.at(i) : NULL; }
 
 	// set the first element to be shown in the list
-	sint32 get_sb_offset() { return sb.gib_knob_offset(); }
-	void set_sb_offset( sint32 off ) { sb.setze_knob_offset( off ); offset = sb.gib_knob_offset(); }
+	sint32 get_sb_offset() { return sb.get_knob_offset(); }
+	void set_sb_offset( sint32 off ) { sb.set_knob_offset( off ); offset = sb.get_knob_offset(); }
 
 	/**
 	 * request other pane-size. returns realized size.

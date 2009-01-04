@@ -50,16 +50,16 @@ public:
 	ribi_t::ribi get_dir() const 	{ return dir; }
 	void set_dir(ribi_t::ribi dir);
 
-	void setze_zustand(enum signalzustand z) {zustand = z; calc_bild();}
-	enum signalzustand gib_zustand() {return (enum signalzustand)zustand;}
+	void set_zustand(enum signalzustand z) {zustand = z; calc_bild();}
+	enum signalzustand get_zustand() {return (enum signalzustand)zustand;}
 
-	virtual enum ding_t::typ gib_typ() const { return roadsign; }
-	const char* gib_name() const { return "Roadsign"; }
+	virtual enum ding_t::typ get_typ() const { return roadsign; }
+	const char* get_name() const { return "Roadsign"; }
 
 	roadsign_t(karte_t *welt, loadsave_t *file);
 	roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch);
 
-	const roadsign_besch_t *gib_besch() const {return besch;}
+	const roadsign_besch_t *get_besch() const {return besch;}
 
 	/**
 	 * signale muessen bei der destruktion von der
@@ -85,14 +85,14 @@ public:
 	// changes the state of a traffic light
 	bool sync_step(long);
 
-	inline void setze_bild( image_id b ) { bild = b; }
-	image_id gib_bild() const { return bild; }
+	inline void set_bild( image_id b ) { bild = b; }
+	image_id get_bild() const { return bild; }
 
 	/**
 	* For the front image hiding vehicles
 	* @author prissi
 	*/
-	image_id gib_after_bild() const { return after_bild; }
+	image_id get_after_bild() const { return after_bild; }
 
 	/**
 	* draw the part overlapping the vehicles

@@ -34,14 +34,14 @@ boden_t::boden_t(karte_t *welt, koord3d pos,hang_t::typ sl) : grund_t(welt, pos)
 }
 
 
-const char *boden_t::gib_name() const
+const char *boden_t::get_name() const
 {
-	if(gib_halt().is_bound()) {
-		return gib_halt()->gib_name();
+	if(get_halt().is_bound()) {
+		return get_halt()->get_name();
 	} else if(ist_uebergang()) {
 		return "Kreuzung";
 	} else if(hat_wege()) {
-		return gib_weg_nr(0)->gib_name();
+		return get_weg_nr(0)->get_name();
 	} else {
 		return "Boden";
 	}
@@ -52,50 +52,50 @@ void boden_t::calc_bild_internal()
 {
 	if(ist_im_tunnel()) {
 		clear_back_bild();
-		setze_bild(IMG_LEER);
+		set_bild(IMG_LEER);
 	}
 #ifdef COVER_TILES
 	else 	if(get_flag(grund_t::is_cover_tile)) {
-		grund_t::calc_back_bild(gib_hoehe()/Z_TILE_STEP,0);
+		grund_t::calc_back_bild(get_hoehe()/Z_TILE_STEP,0);
 
 		// this covers some other ground. MUST be flat!
-		strasse_t *weg = static_cast<strasse_t *>(gib_weg(road_wt));
+		strasse_t *weg = static_cast<strasse_t *>(get_weg(road_wt));
 		if(weg && weg->hat_gehweg()) {
-			setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(0));
+			set_bild(skinverwaltung_t::fussweg->get_bild_nr(0));
 		}
 		else {
-			setze_bild( grund_besch_t::gib_ground_tile(0, gib_hoehe() ) );
+			set_bild( grund_besch_t::get_ground_tile(0, get_hoehe() ) );
 		}
-DBG_MESSAGE("boden_t::calc_bild()","at pos %i,%i,%i", gib_pos().x,gib_pos().y,gib_pos().z );
+DBG_MESSAGE("boden_t::calc_bild()","at pos %i,%i,%i", get_pos().x,get_pos().y,get_pos().z );
 		set_flag(grund_t::draw_as_ding);
 
-		if(welt->lookup(gib_pos().gib_2d())->gib_kartenboden()!=this) {
+		if(welt->lookup(get_pos().get_2d())->get_kartenboden()!=this) {
 dbg->fatal("boden_t::calc_bild()","covered tile not ground?!?");
 		}
 	}
 #endif
 	else {
-		uint8 slope_this =  gib_grund_hang();
-		weg_t *weg = gib_weg(road_wt);
+		uint8 slope_this =  get_grund_hang();
+		weg_t *weg = get_weg(road_wt);
 
 #ifndef DOUBLE_GROUNDS
 		if(weg  &&  weg->hat_gehweg()) {
-			setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(slope_this));
+			set_bild(skinverwaltung_t::fussweg->get_bild_nr(slope_this));
 		} else {
-			setze_bild( grund_besch_t::gib_ground_tile(slope_this,gib_pos().z) );
+			set_bild( grund_besch_t::get_ground_tile(slope_this,get_pos().z) );
 		}
 #else
 		if(weg && dynamic_cast<strasse_t *>(weg)->hat_gehweg()) {
-			setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(grund_besch_t::slopetable[slope_this]));
+			set_bild(skinverwaltung_t::fussweg->get_bild_nr(grund_besch_t::slopetable[slope_this]));
 		} else {
-			setze_bild( grund_besch_t::gib_ground_tile(slope_this,gib_hoehe() ) );
+			set_bild( grund_besch_t::get_ground_tile(slope_this,get_hoehe() ) );
 		}
 #endif
-		grund_t::calc_back_bild(gib_hoehe()/Z_TILE_STEP,slope_this);
+		grund_t::calc_back_bild(get_hoehe()/Z_TILE_STEP,slope_this);
 
 #ifdef COVER_TILES
-		if(welt->lookup(gib_pos().gib_2d())->gib_kartenboden()!=this) {
-DBG_MESSAGE("boden_t::calc_bild()","covered at pos %i,%i,%i", gib_pos().x,gib_pos().y,gib_pos().z );
+		if(welt->lookup(get_pos().get_2d())->get_kartenboden()!=this) {
+DBG_MESSAGE("boden_t::calc_bild()","covered at pos %i,%i,%i", get_pos().x,get_pos().y,get_pos().z );
 			clear_flag(grund_t::draw_as_ding);
 			set_flag(grund_t::is_cover_tile);
 		}

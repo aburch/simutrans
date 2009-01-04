@@ -45,7 +45,7 @@ protected:
 	 * @author Hj. Malthaner
 	 * @see simwin
 	 */
-	virtual const char *gib_name() const { return ding->gib_name(); }
+	virtual const char *get_name() const { return ding->get_name(); }
 
 	/**
 	 * @return the text to display in the info window
@@ -60,14 +60,14 @@ protected:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	virtual spieler_t* gib_besitzer() const { return ding->gib_besitzer(); }
+	virtual spieler_t* get_besitzer() const { return ding->get_besitzer(); }
 
 	/**
 	 * @return the current map position
 	 *
 	 * @author Hj. Malthaner
 	 */
-	virtual koord3d gib_pos() const { return ding->gib_pos(); }
+	virtual koord3d get_pos() const { return ding->get_pos(); }
 
 	/**
 	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf

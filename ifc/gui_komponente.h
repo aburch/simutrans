@@ -92,7 +92,7 @@ public:
 	* obwohl pos public ist.
 	* @author Hj. Malthaner
 	*/
-	void setze_pos(koord pos) {
+	void set_pos(koord pos) {
 		this->pos = pos;
 	}
 
@@ -101,7 +101,7 @@ public:
 	* obwohl pos public ist.
 	* @author Hj. Malthaner
 	*/
-	koord gib_pos() const {
+	koord get_pos() const {
 		return pos;
 	}
 
@@ -116,7 +116,7 @@ public:
 	* obwohl groesse public ist.
 	* @author Hj. Malthaner
 	*/
-	virtual void setze_groesse(koord groesse) {
+	virtual void set_groesse(koord groesse) {
 		this->groesse = groesse;
 	}
 
@@ -125,7 +125,7 @@ public:
 	* obwohl groesse public ist.
 	* @author Hj. Malthaner
 	*/
-	koord gib_groesse() const {
+	koord get_groesse() const {
 		return groesse;
 	}
 

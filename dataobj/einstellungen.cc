@@ -41,7 +41,7 @@ einstellungen_t::einstellungen_t() :
 	show_pax = true;
 
 	// default climate zones
-	setze_default_climates();
+	set_default_climates();
 	winter_snowline = 7;	// not mediterran
 	grundwasser = -2*Z_TILE_STEP;            //25-Nov-01        Markus Weber    Added
 
@@ -168,7 +168,7 @@ einstellungen_t::einstellungen_t() :
 
 
 
-void einstellungen_t::setze_default_climates()
+void einstellungen_t::set_default_climates()
 {
 	static sint16 borders[MAX_CLIMATES] = { 0, 0, 0, 3, 6, 8, 10, 10 };
 	memcpy( climate_borders, borders, sizeof(sint16)*MAX_CLIMATES );
@@ -405,7 +405,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		}
 		else {
 			// name of stops
-			setze_name_language_iso( umgebung_t::language_iso );
+			set_name_language_iso( umgebung_t::language_iso );
 
 			// default AIs active
 			for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {

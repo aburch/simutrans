@@ -53,7 +53,7 @@ public:
 	 * @return den Dateinamen für die Hilfe, oder NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * gib_hilfe_datei() const { return "station_details.txt"; }
+	const char * get_hilfe_datei() const { return "station_details.txt"; }
 
 	// callback for posbuttons
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);

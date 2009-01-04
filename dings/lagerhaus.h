@@ -26,9 +26,9 @@ public:
      * in top-level fenstern wird der Name in der Titelzeile dargestellt
      * @return den nicht uebersetzten Namen der Komponente
      */
-    virtual const char* gib_name() const { return "Lagerhaus"; }
+    virtual const char* get_name() const { return "Lagerhaus"; }
 
-    enum ding_t::typ gib_typ() const { return lagerhaus; }
+    enum ding_t::typ get_typ() const { return lagerhaus; }
 
     bool nimmt_an(int wtyp) const;
 

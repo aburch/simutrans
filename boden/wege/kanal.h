@@ -21,7 +21,7 @@ public:
 	kanal_t(karte_t *welt);
 
 	virtual void calc_bild(koord3d) { weg_t::calc_bild(); }
-	waytype_t gib_waytype() const {return water_wt;}
+	waytype_t get_waytype() const {return water_wt;}
 	virtual void rdwr(loadsave_t *file);
 };
 

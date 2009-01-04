@@ -30,7 +30,7 @@ kanal_t::kanal_t(karte_t *welt, loadsave_t *file) :  weg_t(welt)
 
 kanal_t::kanal_t(karte_t *welt) : weg_t (welt)
 {
-	setze_besch(default_kanal);
+	set_besch(default_kanal);
 }
 
 
@@ -41,30 +41,30 @@ kanal_t::rdwr(loadsave_t *file)
 	weg_t::rdwr(file);
 
 	if(file->get_version() <= 87000) {
-		setze_besch(default_kanal);
+		set_besch(default_kanal);
 		return;
 	}
 
 	if(file->is_saving()) {
-		const char *s = gib_besch()->gib_name();
+		const char *s = get_besch()->get_name();
 		file->rdwr_str(s);
 	}
 	else {
 		char bname[128];
 		file->rdwr_str(bname, 128);
 
-		const weg_besch_t *besch = wegbauer_t::gib_besch(bname);
-		int old_max_speed = gib_max_speed();
+		const weg_besch_t *besch = wegbauer_t::get_besch(bname);
+		int old_max_speed = get_max_speed();
 		if(besch==NULL) {
-			besch = wegbauer_t::gib_besch(translator::compatibility_name(bname));
+			besch = wegbauer_t::get_besch(translator::compatibility_name(bname));
 			if(besch==NULL) {
 				besch = default_kanal;
 			}
-			dbg->warning("kanal_t::rdwr()", "Unknown channel %s replaced by %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
+			dbg->warning("kanal_t::rdwr()", "Unknown channel %s replaced by %s (old_max_speed %i)", bname, besch->get_name(), old_max_speed );
 		}
-		setze_besch(besch);
+		set_besch(besch);
 		if(old_max_speed>0) {
-			setze_max_speed(old_max_speed);
+			set_max_speed(old_max_speed);
 		}
 	}
 }

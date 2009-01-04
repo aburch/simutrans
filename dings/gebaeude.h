@@ -95,12 +95,12 @@ public:
 
 	void rotate90();
 
-	typ gib_haustyp() const;
+	typ get_haustyp() const;
 
 	void add_alter(uint32 a);
 
-	void setze_fab(fabrik_t *fb);
-	void setze_stadt(stadt_t *s);
+	void set_fab(fabrik_t *fb);
+	void set_stadt(stadt_t *s);
 
 	/**
 	 * Ein Gebaeude kann zu einer Fabrik gehören.
@@ -111,17 +111,17 @@ public:
 	fabrik_t* get_fabrik() const { return is_factory ? ptr.fab : NULL; }
 	stadt_t* get_stadt() const { return is_factory ? NULL : ptr.stadt; }
 
-	enum ding_t::typ gib_typ() const {return ding_t::gebaeude;}
+	enum ding_t::typ get_typ() const {return ding_t::gebaeude;}
 
 	// snowline height may have been changed
 	bool check_season(const long /*month*/) { calc_bild(); return true; }
 
-	image_id gib_bild() const;
-	image_id gib_bild(int nr) const;
-	image_id gib_after_bild() const;
+	image_id get_bild() const;
+	image_id get_bild(int nr) const;
+	image_id get_after_bild() const;
 
-	image_id gib_outline_bild() const;
-	PLAYER_COLOR_VAL gib_outline_colour() const;
+	image_id get_outline_bild() const;
+	PLAYER_COLOR_VAL get_outline_colour() const;
 
 	// caches image at height 0
 	void calc_bild();
@@ -130,7 +130,7 @@ public:
 	 * @return eigener Name oder Name der Fabrik falls Teil einer Fabrik
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *gib_name() const;
+	virtual const char *get_name() const;
 
 	bool ist_rathaus() const;
 
@@ -158,13 +158,13 @@ public:
 	 * @return Den level (die Ausbaustufe) des Gebaudes
 	 * @author Hj. Malthaner
 	 */
-	int gib_passagier_level() const;
+	int get_passagier_level() const;
 
-	int gib_post_level() const;
+	int get_post_level() const;
 
-	void setze_tile(const haus_tile_besch_t *t);
+	void set_tile(const haus_tile_besch_t *t);
 
-	const haus_tile_besch_t *gib_tile() const { return tile; }
+	const haus_tile_besch_t *get_tile() const { return tile; }
 
 	virtual void zeige_info();
 

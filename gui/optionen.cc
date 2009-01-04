@@ -32,78 +32,78 @@ optionen_gui_t::optionen_gui_t(karte_t *welt) :
 	this->welt = welt;
 
 	// init buttons
-	bt_lang.setze_groesse( koord(90, 14) );
-	bt_lang.setze_typ(button_t::roundbox);
-	bt_lang.setze_pos( koord(11,30) );
-	bt_lang.setze_text("Sprache");
+	bt_lang.set_groesse( koord(90, 14) );
+	bt_lang.set_typ(button_t::roundbox);
+	bt_lang.set_pos( koord(11,30) );
+	bt_lang.set_text("Sprache");
 	bt_lang.add_listener(this);
 	add_komponente( &bt_lang );
 
-	bt_color.setze_groesse( koord(90, 14) );
-	bt_color.setze_typ(button_t::roundbox);
-	bt_color.setze_pos( koord(11,47) );
-	bt_color.setze_text("Farbe");
+	bt_color.set_groesse( koord(90, 14) );
+	bt_color.set_typ(button_t::roundbox);
+	bt_color.set_pos( koord(11,47) );
+	bt_color.set_text("Farbe");
 	bt_color.add_listener(this);
 	add_komponente( &bt_color );
 
-	bt_display.setze_groesse( koord(90, 14) );
-	bt_display.setze_typ(button_t::roundbox);
-	bt_display.setze_pos( koord(11,64) );
-	bt_display.setze_text("Helligk.");
+	bt_display.set_groesse( koord(90, 14) );
+	bt_display.set_typ(button_t::roundbox);
+	bt_display.set_pos( koord(11,64) );
+	bt_display.set_text("Helligk.");
 	bt_display.add_listener(this);
 	add_komponente( &bt_display );
 
-	bt_sound.setze_groesse( koord(90, 14) );
-	bt_sound.setze_typ(button_t::roundbox);
-	bt_sound.setze_pos( koord(11,81) );
-	bt_sound.setze_text("Sound");
+	bt_sound.set_groesse( koord(90, 14) );
+	bt_sound.set_typ(button_t::roundbox);
+	bt_sound.set_pos( koord(11,81) );
+	bt_sound.set_text("Sound");
 	bt_sound.add_listener(this);
 	add_komponente( &bt_sound );
 
-	bt_player.setze_groesse( koord(90, 14) );
-	bt_player.setze_typ(button_t::roundbox);
-	bt_player.setze_pos( koord(11,98) );
-	bt_player.setze_text("Spieler(mz)");
+	bt_player.set_groesse( koord(90, 14) );
+	bt_player.set_typ(button_t::roundbox);
+	bt_player.set_pos( koord(11,98) );
+	bt_player.set_text("Spieler(mz)");
 	bt_player.add_listener(this);
 	add_komponente( &bt_player );
 
-	bt_load.setze_groesse( koord(90, 14) );
-	bt_load.setze_typ(button_t::roundbox);
-	bt_load.setze_pos( koord(112,30) );
-	bt_load.setze_text("Laden");
+	bt_load.set_groesse( koord(90, 14) );
+	bt_load.set_typ(button_t::roundbox);
+	bt_load.set_pos( koord(112,30) );
+	bt_load.set_text("Laden");
 	bt_load.add_listener(this);
 	add_komponente( &bt_load );
 
-	bt_save.setze_groesse( koord(90, 14) );
-	bt_save.setze_typ(button_t::roundbox);
-	bt_save.setze_pos( koord(112,47) );
-	bt_save.setze_text("Speichern");
+	bt_save.set_groesse( koord(90, 14) );
+	bt_save.set_typ(button_t::roundbox);
+	bt_save.set_pos( koord(112,47) );
+	bt_save.set_text("Speichern");
 	bt_save.add_listener(this);
 	add_komponente( &bt_save );
 
-	bt_new.setze_groesse( koord(90, 14) );
-	bt_new.setze_typ(button_t::roundbox);
-	bt_new.setze_pos( koord(112,64) );
-	bt_new.setze_text("Neue Karte");
+	bt_new.set_groesse( koord(90, 14) );
+	bt_new.set_typ(button_t::roundbox);
+	bt_new.set_pos( koord(112,64) );
+	bt_new.set_text("Neue Karte");
 	bt_new.add_listener(this);
 	add_komponente( &bt_new );
 
 	// 01-Nov-2001      Markus Weber    Added
-	bt_quit.setze_groesse( koord(90, 14) );
-	bt_quit.setze_typ(button_t::roundbox);
-	bt_quit.setze_pos( koord(112,98) );
-	bt_quit.setze_text("Beenden");
+	bt_quit.set_groesse( koord(90, 14) );
+	bt_quit.set_typ(button_t::roundbox);
+	bt_quit.set_pos( koord(112,98) );
+	bt_quit.set_text("Beenden");
 	bt_quit.add_listener(this);
 	add_komponente( &bt_quit );
 
-	txt.setze_pos( koord(10,10) );
+	txt.set_pos( koord(10,10) );
 	add_komponente( &txt );
 
-	seperator.setze_pos( koord(112, 81+6) );
-	seperator.setze_groesse( koord(90,1) );
+	seperator.set_pos( koord(112, 81+6) );
+	seperator.set_groesse( koord(90,1) );
 	add_komponente( &seperator );
 
-	setze_fenstergroesse( koord(213, 98+7+14+16) );
+	set_fenstergroesse( koord(213, 98+7+14+16) );
 }
 
 

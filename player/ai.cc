@@ -68,9 +68,9 @@ bool ai_bauplatz_mit_strasse_sucher_t::ist_platz_ok(koord pos, sint16 b, sint16 
  */
 bool ai_t::is_my_halt(koord pos) const
 {
-	const halthandle_t halt = haltestelle_t::gib_halt(welt, pos);
+	const halthandle_t halt = haltestelle_t::get_halt(welt, pos);
 	return
-		halt.is_bound() && check_owner(this,halt->gib_besitzer());
+		halt.is_bound() && check_owner(this,halt->get_besitzer());
 }
 
 
@@ -111,11 +111,11 @@ bool ai_t::is_connected( const koord start_pos, const koord dest_pos, const ware
 	// now try to find a route
 	// ok, they are not in walking distance
 	ware_t ware(wtyp);
-	ware.setze_zielpos(dest_pos);
+	ware.set_zielpos(dest_pos);
 	ware.menge = 1;
 	for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++) {
 		start_list[hh]->suche_route(ware, NULL);
-		if (ware.gib_ziel().is_bound()) {
+		if (ware.get_ziel().is_bound()) {
 			// ok, already connected
 			return true;
 		}
@@ -143,16 +143,16 @@ bool ai_t::init_general_tool( int tool, const char *param )
 bool ai_t::call_general_tool( int tool, koord k, const char *param )
 {
 	grund_t *gr = welt->lookup_kartenboden(k);
-	koord3d pos = gr ? gr->gib_pos() : koord3d::invalid;
+	koord3d pos = gr ? gr->get_pos() : koord3d::invalid;
 	const char *old_param = werkzeug_t::general_tool[tool]->default_param;
 	werkzeug_t::general_tool[tool]->default_param = param;
 	const char * err = werkzeug_t::general_tool[tool]->work( welt, this, pos );
 	if(err) {
 		if(*err) {
-			dbg->message("ai_t::call_general_tool()","failed for tool %i at (%s) because of \"%s\"", tool, pos.gib_str(), err );
+			dbg->message("ai_t::call_general_tool()","failed for tool %i at (%s) because of \"%s\"", tool, pos.get_str(), err );
 		}
 		else {
-			dbg->message("ai_t::call_general_tool()","not succesful for tool %i at (%s)", tool, pos.gib_str() );
+			dbg->message("ai_t::call_general_tool()","not succesful for tool %i at (%s)", tool, pos.get_str() );
 		}
 	}
 	werkzeug_t::general_tool[tool]->default_param = old_param;
@@ -173,13 +173,13 @@ bool ai_t::suche_platz(koord pos, koord &size, koord *dirs) const
 		return false;
 	}
 
-	sint16 start_z = gr->gib_hoehe();
+	sint16 start_z = gr->get_hoehe();
 	int max_dir = length==0 ? 1 : 2;
 	// two rotations
 	for(  int dir=0;  dir<max_dir;  dir++  ) {
 		for( sint16 i=0;  i<=length;  i++  ) {
 			grund_t *gr = welt->lookup_kartenboden(  pos + (dirs[dir]*i)  );
-			if(gr==NULL  ||  gr->gib_halt().is_bound()  ||  !welt->can_ebne_planquadrat(pos,start_z)  ||  !gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(this)!=NULL  ||  gr->gib_hoehe()<welt->gib_grundwasser()) {
+			if(gr==NULL  ||  gr->get_halt().is_bound()  ||  !welt->can_ebne_planquadrat(pos,start_z)  ||  !gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(this)!=NULL  ||  gr->get_hoehe()<welt->get_grundwasser()) {
 				return false;
 			}
 		}
@@ -201,7 +201,7 @@ bool ai_t::suche_platz(koord &start, koord &size, koord target, koord off)
 	// distance of last found point
 	int dist=0x7FFFFFFF;
 	koord	platz;
-	int cov = welt->gib_einstellungen()->gib_station_coverage();
+	int cov = welt->get_einstellungen()->get_station_coverage();
 	int xpos = start.x;
 	int ypos = start.y;
 
@@ -216,13 +216,13 @@ bool ai_t::suche_platz(koord &start, koord &size, koord target, koord off)
 	}
 
 	DBG_MESSAGE("ai_t::suche_platz()","at (%i,%i) for size (%i,%i)",xpos,ypos,off.x,off.y);
-	int maxy = min( welt->gib_groesse_y(), ypos + off.y + cov );
-	int maxx = min( welt->gib_groesse_x(), xpos + off.x + cov );
+	int maxy = min( welt->get_groesse_y(), ypos + off.y + cov );
+	int maxx = min( welt->get_groesse_x(), xpos + off.x + cov );
 	for (int y = max(0,ypos-cov);  y < maxy;  y++) {
 		for (int x = max(0,xpos-cov);  x < maxx;  x++) {
 			platz = koord(x,y);
 			// no water tiles
-			if(  welt->lookup_kartenboden(platz)->gib_hoehe() <= welt->gib_grundwasser()  ) {
+			if(  welt->lookup_kartenboden(platz)->get_hoehe() <= welt->get_grundwasser()  ) {
 				continue;
 			}
 			// thus now check them
@@ -324,8 +324,8 @@ void ai_t::set_marker( koord place, koord size )
 	for(  pos.y=place.y;  pos.y<=place.y+size.y;  pos.y++  ) {
 		for(  pos.x=place.x;  pos.x<=place.x+size.x;  pos.x++  ) {
 			grund_t *gr = welt->lookup_kartenboden(pos);
-			zeiger_t *z = new zeiger_t(welt, gr->gib_pos(), this);
-			z->setze_bild( skinverwaltung_t::belegtzeiger->gib_bild_nr(0) );
+			zeiger_t *z = new zeiger_t(welt, gr->get_pos(), this);
+			z->set_bild( skinverwaltung_t::belegtzeiger->get_bild_nr(0) );
 			gr->obj_add( z );
 		}
 	}
@@ -339,7 +339,7 @@ bool ai_t::built_update_headquarter()
 	// find next level
 	const haus_besch_t* besch = NULL;
 	for(  vector_tpl<const haus_besch_t *>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end();  iter != end;  ++iter  ) {
-		if ((*iter)->gib_extra() == get_headquarter_level()) {
+		if ((*iter)->get_extra() == get_headquarter_level()) {
 			besch = (*iter);
 			break;
 		}
@@ -347,8 +347,8 @@ bool ai_t::built_update_headquarter()
 	// is the a suitable one?
 	if(besch!=NULL) {
 		// cost is negative!
-		sint64 cost = welt->gib_einstellungen()->cst_multiply_headquarter*besch->gib_level()*besch->gib_b()*besch->gib_h();
-		if(  konto+cost > welt->gib_einstellungen()->gib_starting_money()  ) {
+		sint64 cost = welt->get_einstellungen()->cst_multiply_headquarter*besch->get_level()*besch->get_b()*besch->get_h();
+		if(  konto+cost > welt->get_einstellungen()->get_starting_money()  ) {
 			// and enough money left ...
 			koord place = get_headquarter_pos();
 			if(place!=koord::invalid) {
@@ -356,7 +356,7 @@ bool ai_t::built_update_headquarter()
 				grund_t *gr = welt->lookup_kartenboden(place);
 				gebaeude_t *prev_hq = gr->find<gebaeude_t>();
 				// other size?
-				if(  besch->gib_groesse()!=prev_hq->gib_tile()->gib_besch()->gib_groesse()  ) {
+				if(  besch->get_groesse()!=prev_hq->get_tile()->get_besch()->get_groesse()  ) {
 //					hausbauer_t::remove( welt, this, prev_hq );
 					// needs new place
 					place = koord::invalid;
@@ -364,18 +364,18 @@ bool ai_t::built_update_headquarter()
 			}
 			// needs new place?
 			if(place==koord::invalid  &&  !halt_list.empty()) {
-				stadt_t *st = welt->suche_naechste_stadt(halt_list.front()->gib_basis_pos());
+				stadt_t *st = welt->suche_naechste_stadt(halt_list.front()->get_basis_pos());
 				if(st) {
-					bool is_rotate=besch->gib_all_layouts()>1;
-					place = ai_bauplatz_mit_strasse_sucher_t(welt).suche_platz(st->gib_pos(), besch->gib_b(), besch->gib_h(), besch->get_allowed_climate_bits(), &is_rotate);
+					bool is_rotate=besch->get_all_layouts()>1;
+					place = ai_bauplatz_mit_strasse_sucher_t(welt).suche_platz(st->get_pos(), besch->get_b(), besch->get_h(), besch->get_allowed_climate_bits(), &is_rotate);
 				}
 			}
 			const char *err=NULL;
-			if(  place!=koord::invalid  &&  (err=werkzeug_t::general_tool[WKZ_HEADQUARTER]->work( welt, this, welt->lookup_kartenboden(place)->gib_pos() ))!=NULL  ) {
+			if(  place!=koord::invalid  &&  (err=werkzeug_t::general_tool[WKZ_HEADQUARTER]->work( welt, this, welt->lookup_kartenboden(place)->get_pos() ))!=NULL  ) {
 				// tell the player
 				char buf[256];
-				sprintf(buf, translator::translate("%s s\nheadquarter now\nat (%i,%i)."), gib_name(), place.x, place.y );
-				welt->get_message()->add_message(buf, place, message_t::ai, PLAYER_FLAG|player_nr, welt->lookup_kartenboden(place)->find<gebaeude_t>()->gib_tile()->gib_hintergrund(0,0,0) );
+				sprintf(buf, translator::translate("%s s\nheadquarter now\nat (%i,%i)."), get_name(), place.x, place.y );
+				welt->get_message()->add_message(buf, place, message_t::ai, PLAYER_FLAG|player_nr, welt->lookup_kartenboden(place)->find<gebaeude_t>()->get_tile()->get_hintergrund(0,0,0) );
 			}
 			else {
 				if(  place==koord::invalid  ) {
@@ -443,12 +443,12 @@ bool ai_t::find_harbour(koord &start, koord &size, koord target)
 	int dist=0x7FFFFFFF;
 	koord k;
 	// now find a nice shore next to here
-	for(  k.y=max(1,shore.y-5);  k.y<shore.y+6  &&  k.y<welt->gib_groesse_y()-2; k.y++  ) {
-		for(  k.x=max(1,shore.x-5);  k.x<shore.x+6  &&  k.y<welt->gib_groesse_x()-2; k.x++  ) {
+	for(  k.y=max(1,shore.y-5);  k.y<shore.y+6  &&  k.y<welt->get_groesse_y()-2; k.y++  ) {
+		for(  k.x=max(1,shore.x-5);  k.x<shore.x+6  &&  k.y<welt->get_groesse_x()-2; k.x++  ) {
 			grund_t *gr = welt->lookup_kartenboden(k);
-			if(gr  &&  gr->gib_grund_hang()!=0  &&  hang_t::ist_wegbar(gr->gib_grund_hang())  &&  gr->ist_natur()  &&  gr->gib_hoehe()==welt->gib_grundwasser()  &&  !gr->is_halt()) {
-				koord zv = koord(gr->gib_grund_hang());
-				if(welt->lookup_kartenboden(k-zv)->gib_weg_ribi(water_wt)) {
+			if(gr  &&  gr->get_grund_hang()!=0  &&  hang_t::ist_wegbar(gr->get_grund_hang())  &&  gr->ist_natur()  &&  gr->get_hoehe()==welt->get_grundwasser()  &&  !gr->is_halt()) {
+				koord zv = koord(gr->get_grund_hang());
+				if(welt->lookup_kartenboden(k-zv)->get_weg_ribi(water_wt)) {
 					// next place is also water
 					koord dir[2] = { zv, koord(zv.y,zv.x) };
 					koord platz = k+zv;
@@ -479,7 +479,7 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 	clean_marker(platz1,size1);
 	clean_marker(platz2,size2);
 
-	if(!(welt->ebne_planquadrat( this, platz1, welt->lookup_kartenboden(platz1)->gib_hoehe() )  &&  welt->ebne_planquadrat( this, platz2, welt->lookup_kartenboden(platz2)->gib_hoehe() ))  ) {
+	if(!(welt->ebne_planquadrat( this, platz1, welt->lookup_kartenboden(platz1)->get_hoehe() )  &&  welt->ebne_planquadrat( this, platz2, welt->lookup_kartenboden(platz2)->get_hoehe() ))  ) {
 		// no flat land here?!?
 		return false;
 	}
@@ -489,11 +489,11 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 	// is there already a connection?
 	// get a default vehikel
 	vehikel_besch_t test_besch(road_wt, 25, vehikel_besch_t::diesel );
-	vehikel_t* test_driver = vehikelbauer_t::baue(welt->lookup_kartenboden(platz1)->gib_pos(), this, NULL, &test_besch);
+	vehikel_t* test_driver = vehikelbauer_t::baue(welt->lookup_kartenboden(platz1)->get_pos(), this, NULL, &test_besch);
 	route_t verbindung;
-	if (verbindung.calc_route(welt, welt->lookup_kartenboden(platz1)->gib_pos(), welt->lookup_kartenboden(platz2)->gib_pos(), test_driver, 0)  &&
-		verbindung.gib_max_n()<2u*abs_distance(platz1,platz2))  {
-DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.gib_max_n() );
+	if (verbindung.calc_route(welt, welt->lookup_kartenboden(platz1)->get_pos(), welt->lookup_kartenboden(platz2)->get_pos(), test_driver, 0)  &&
+		verbindung.get_max_n()<2u*abs_distance(platz1,platz2))  {
+DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.get_max_n() );
 		// found something with the nearly same lenght
 		delete test_driver;
 		return true;
@@ -502,7 +502,7 @@ DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection
 
 	// no connection => built one!
 	wegbauer_t bauigel(welt, this);
-	bauigel.route_fuer( wegbauer_t::strasse, road_weg, tunnelbauer_t::find_tunnel(road_wt,road_weg->gib_topspeed(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_weg->gib_topspeed(),welt->get_timeline_year_month()) );
+	bauigel.route_fuer( wegbauer_t::strasse, road_weg, tunnelbauer_t::find_tunnel(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
 
 	// we won't destroy cities (and save the money)
 	bauigel.set_keep_existing_faster_ways(true);
@@ -511,7 +511,7 @@ DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection
 
 	INT_CHECK("simplay 846");
 
-	bauigel.calc_route(welt->lookup_kartenboden(platz1)->gib_pos(),welt->lookup_kartenboden(platz2)->gib_pos());
+	bauigel.calc_route(welt->lookup_kartenboden(platz1)->get_pos(),welt->lookup_kartenboden(platz2)->get_pos());
 	if(bauigel.max_n > 1) {
 DBG_MESSAGE("ai_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		bauigel.baue();

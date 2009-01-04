@@ -78,16 +78,16 @@ public:
 	* @return NULL wenn Boden nicht gefunden
 	* @author Hj. Malthaner
 	*/
-	inline grund_t *gib_boden_in_hoehe(const sint16 z) const {
+	inline grund_t *get_boden_in_hoehe(const sint16 z) const {
 		if(ground_size<=1) {
-			if(data.one  &&  data.one->gib_hoehe()==z) {
+			if(data.one  &&  data.one->get_hoehe()==z) {
 				return data.one;
 			}
 			//assert(ground_size==0  &&  data.one==NULL);
 		}
 		else {
 			for(uint8 i=0;  i<ground_size;  i++) {
-				if(data.some[i]->gib_hoehe()==z) {
+				if(data.some[i]->get_hoehe()==z) {
 					return data.some[i];
 				}
 			}
@@ -100,26 +100,26 @@ public:
 	* @return NULL wenn boden nicht existiert
 	* @author Hansjörg Malthaner
 	*/
-	inline grund_t *gib_kartenboden() const { return (ground_size<=1) ? data.one : data.some[0]; }
+	inline grund_t *get_kartenboden() const { return (ground_size<=1) ? data.one : data.some[0]; }
 
 	/**
 	* Rückegabe des Bodens, der das gegebene Objekt enthält, falls vorhanden.
 	* @author V. Meyer
 	*/
-	grund_t *gib_boden_von_obj(ding_t *obj) const;
+	grund_t *get_boden_von_obj(ding_t *obj) const;
 
 	/**
 	* Rückegabe des n-ten Bodens. Inlined weil sehr häufig aufgerufen!
 	* @return NULL wenn boden nicht existiert
 	* @author Hj. Malthaner
 	*/
-	inline grund_t *gib_boden_bei(const unsigned idx) const { return (idx<ground_size) ? (ground_size<=1 ? data.one : data.some[idx]) : NULL; }
+	inline grund_t *get_boden_bei(const unsigned idx) const { return (idx<ground_size) ? (ground_size<=1 ? data.one : data.some[idx]) : NULL; }
 
 	/**
 	* @return Anzahl der Böden dieses Planquadrats
 	* @author Hj. Malthaner
 	*/
-	unsigned int gib_boden_count() const { return ground_size; }
+	unsigned int get_boden_count() const { return ground_size; }
 
 	/**
 	* konvertiert Land zu Wasser wenn unter Grundwasserniveau abgesenkt
@@ -137,14 +137,14 @@ public:
 	* since stops may be multilevel, but waren uses pos, we mirror here any halt that is on this square
 	* @author Hj. Malthaner
 	*/
-	void setze_halt(halthandle_t halt);
+	void set_halt(halthandle_t halt);
 
 	/**
 	* returns a halthandle, if some ground here has a stop
 	* @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
 	* @author Hj. Malthaner
 	*/
-	const halthandle_t gib_halt() const {return this_halt;}
+	const halthandle_t get_halt() const {return this_halt;}
 
 private:
 	// these functions are private helper functions for halt_list corrections

@@ -46,7 +46,7 @@ char factory_edit_frame_t::param_str[256];
 
 static bool compare_fabrik_besch(const fabrik_besch_t* a, const fabrik_besch_t* b)
 {
-	int diff = strcmp( translator::translate(a->gib_name()), translator::translate(b->gib_name()) );
+	int diff = strcmp( translator::translate(a->get_name()), translator::translate(b->get_name()) );
 	return diff < 0;
 }
 
@@ -75,7 +75,7 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 	add_komponente(&bt_land_chain);
 	offset_of_comp += BUTTON_HEIGHT;
 
-	lb_rotation_info.setze_pos( koord( NAME_COLUMN_WIDTH+11, offset_of_comp-4 ) );
+	lb_rotation_info.set_pos( koord( NAME_COLUMN_WIDTH+11, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation_info);
 
 	bt_left_rotate.init( button_t::repeatarrowleft, NULL, koord(NAME_COLUMN_WIDTH+11+NAME_COLUMN_WIDTH/2-16,	offset_of_comp-4 ) );
@@ -86,15 +86,15 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 	bt_right_rotate.add_listener(this);
 	add_komponente(&bt_right_rotate);
 
-	lb_rotation.setze_pos( koord( NAME_COLUMN_WIDTH+11+NAME_COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
+	lb_rotation.set_pos( koord( NAME_COLUMN_WIDTH+11+NAME_COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation);
 	offset_of_comp += BUTTON_HEIGHT;
 
-	lb_production_info.setze_pos( koord( NAME_COLUMN_WIDTH+11, offset_of_comp-4 ) );
+	lb_production_info.set_pos( koord( NAME_COLUMN_WIDTH+11, offset_of_comp-4 ) );
 	add_komponente(&lb_production_info);
 
-	inp_production.setze_pos(koord(NAME_COLUMN_WIDTH+11+NAME_COLUMN_WIDTH/2-16,	offset_of_comp-4 ));
-	inp_production.setze_groesse(koord( 76, 12 ));
+	inp_production.set_pos(koord(NAME_COLUMN_WIDTH+11+NAME_COLUMN_WIDTH/2-16,	offset_of_comp-4 ));
+	inp_production.set_groesse(koord( 76, 12 ));
 	inp_production.set_limits(0,9999);
 	inp_production.add_listener( this );
 	add_komponente(&inp_production);
@@ -120,23 +120,23 @@ void factory_edit_frame_t::fill_list( bool translate )
 	fablist.clear();
 
 	// timeline will be obeyed; however, we may show obsolete ones ...
-	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(fabrikbauer_t::gib_fabesch());
+	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(fabrikbauer_t::get_fabesch());
 	while(iter.next()) {
 
 		const fabrik_besch_t *besch = iter.get_current_value();
-		if(besch->gib_gewichtung()>0) {
+		if(besch->get_gewichtung()>0) {
 			// DistributionWeight=0 is obsoluted item, only for backward compatibility
 
-			if(!use_timeline  ||  (!besch->gib_haus()->is_future(month_now)  &&  (!besch->gib_haus()->is_retired(month_now)  ||  allow_obsolete))  ) {
+			if(!use_timeline  ||  (!besch->get_haus()->is_future(month_now)  &&  (!besch->get_haus()->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
 
 				if(city_chain) {
-					if(besch->gib_platzierung()==fabrik_besch_t::Stadt  &&  besch->gib_produkt(0)==NULL) {
+					if(besch->get_platzierung()==fabrik_besch_t::Stadt  &&  besch->get_produkt(0)==NULL) {
 						fablist.push_back(besch);
 					}
 				}
 				if(land_chain) {
-					if(besch->gib_platzierung()==fabrik_besch_t::Land  &&  besch->gib_produkt(0)==NULL) {
+					if(besch->get_platzierung()==fabrik_besch_t::Land  &&  besch->get_produkt(0)==NULL) {
 						fablist.push_back(besch);
 					}
 				}
@@ -151,26 +151,26 @@ void factory_edit_frame_t::fill_list( bool translate )
 
 	// now buil scrolled list
 	scl.clear_elements();
-	scl.setze_selection(-1);
+	scl.set_selection(-1);
 	for(  uint i=0;  i<fablist.get_count();  i++  ) {
 		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
 		COLOR_VAL color=COL_BLACK;
-		if(fablist[i]->gib_produkt(0)==NULL) {
+		if(fablist[i]->get_produkt(0)==NULL) {
 			color = COL_BLUE;
 		}
-		else if(fablist[i]->gib_lieferant(0)==NULL) {
+		else if(fablist[i]->get_lieferant(0)==NULL) {
 			color = COL_DARK_GREEN;
 		}
 		scl.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(
-			translate ? translator::translate( fablist[i]->gib_name() ):fablist[i]->gib_name(),
+			translate ? translator::translate( fablist[i]->get_name() ):fablist[i]->get_name(),
 			color )
 		);
 		if(fablist[i]==fab_besch) {
-			scl.setze_selection(scl.get_count()-1);
+			scl.set_selection(scl.get_count()-1);
 		}
 	}
 	// always update current selection (since the tool may depend on it)
-	change_item_info( scl.gib_selection() );
+	change_item_info( scl.get_selection() );
 }
 
 
@@ -204,11 +204,11 @@ bool factory_edit_frame_t::action_triggered( gui_action_creator_t *komp,value_t 
 				rotation --;
 			}
 		}
-		else if(  komp==&bt_right_rotate  &&  rotation!=fab_besch->gib_haus()->gib_all_layouts()-1) {
+		else if(  komp==&bt_right_rotate  &&  rotation!=fab_besch->get_haus()->get_all_layouts()-1) {
 			rotation ++;
 		}
 		// update info ...
-		change_item_info( scl.gib_selection() );
+		change_item_info( scl.get_selection() );
 	}
 	return extend_edit_gui_t::action_triggered(komp,e);
 }
@@ -223,30 +223,30 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		if(new_fab_besch!=fab_besch) {
 
 			fab_besch = new_fab_besch;
-			production = (fab_besch->gib_produktivitaet()+simrand(fab_besch->gib_bereich()) )<<(welt->ticks_bits_per_tag-18);
+			production = (fab_besch->get_produktivitaet()+simrand(fab_besch->get_bereich()) )<<(welt->ticks_bits_per_tag-18);
 			inp_production.set_value( production);
 			// show produced goods
 			buf.clear();
-			if(fab_besch->gib_produkte()>0) {
+			if(fab_besch->get_produkte()>0) {
 				buf.append( translator::translate("Produktion") );
 				buf.append("\n");
-				for (uint i = 0; i < fab_besch->gib_produkte(); i++) {
-					buf.append( translator::translate(fab_besch->gib_produkt(i)->gib_ware()->gib_name()) );
+				for (uint i = 0; i < fab_besch->get_produkte(); i++) {
+					buf.append( translator::translate(fab_besch->get_produkt(i)->get_ware()->get_name()) );
 					buf.append( " (" );
-					buf.append( translator::translate(fab_besch->gib_produkt(i)->gib_ware()->gib_catg_name()) );
+					buf.append( translator::translate(fab_besch->get_produkt(i)->get_ware()->get_catg_name()) );
 					buf.append( ")\n" );
 				}
 				buf.append("\n");
 			}
 
 			// show consumed goods
-			if(fab_besch->gib_lieferanten()>0) {
+			if(fab_besch->get_lieferanten()>0) {
 				buf.append( translator::translate("Verbrauch") );
 				buf.append("\n");
-				for(  int i=0;  i<fab_besch->gib_lieferanten();  i++  ) {
-					buf.append( translator::translate(fab_besch->gib_lieferant(i)->gib_ware()->gib_name()) );
+				for(  int i=0;  i<fab_besch->get_lieferanten();  i++  ) {
+					buf.append( translator::translate(fab_besch->get_lieferant(i)->get_ware()->get_name()) );
 					buf.append( " (" );
-					buf.append( translator::translate(fab_besch->gib_lieferant(i)->gib_ware()->gib_catg_name()) );
+					buf.append( translator::translate(fab_besch->get_lieferant(i)->get_ware()->get_catg_name()) );
 					buf.append( ")\n" );
 				}
 				buf.append("\n");
@@ -257,7 +257,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			}
 
 			// now the house stuff
-			const haus_besch_t *besch = fab_besch->gib_haus();
+			const haus_besch_t *besch = fab_besch->get_haus();
 
 			// climates
 			buf.append( translator::translate("allowed climates:\n") );
@@ -278,12 +278,12 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 
 			buf.append(translator::translate("Passagierrate"));
 			buf.append(": ");
-			buf.append(fablist[entry]->gib_pax_level());
+			buf.append(fablist[entry]->get_pax_level());
 			buf.append("\n");
 
 			buf.append(translator::translate("Postrate"));
 			buf.append(": ");
-			buf.append(besch->gib_post_level());
+			buf.append(besch->get_post_level());
 			buf.append("\n");
 
 			buf.append(translator::translate("\nBauzeit von"));
@@ -293,17 +293,17 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 				buf.append(besch->get_retire_year_month()/12);
 			}
 
-			const char *maker=besch->gib_copyright();
+			const char *maker=besch->get_copyright();
 			if(maker!=NULL  && maker[0]!=0) {
 				buf.append("\n");
 				buf.printf(translator::translate("Constructed by %s"), maker);
 			}
 			buf.append("\n");
 			info_text.recalc_size();
-			cont.setze_groesse( info_text.gib_groesse() );
+			cont.set_groesse( info_text.get_groesse() );
 
 			// orientation (255=random)
-			if(besch->gib_all_layouts()>1) {
+			if(besch->get_all_layouts()>1) {
 				rotation = 255; // no definition yet
 			}
 			else {
@@ -328,32 +328,32 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			img[i].set_image( IMG_LEER );
 		}
 
-		const haus_besch_t *besch = fab_besch->gib_haus();
+		const haus_besch_t *besch = fab_besch->get_haus();
 		uint8 rot = (rotation==255) ? 0 : rotation;
-		if(besch->gib_b(rot)==1) {
-			if(besch->gib_h(rot)==1) {
-				img[3].set_image( besch->gib_tile(rot,0,0)->gib_hintergrund(0,0,0) );
+		if(besch->get_b(rot)==1) {
+			if(besch->get_h(rot)==1) {
+				img[3].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
 			}
 			else {
-				img[2].set_image( besch->gib_tile(rot,0,0)->gib_hintergrund(0,0,0) );
-				img[3].set_image( besch->gib_tile(rot,0,1)->gib_hintergrund(0,0,0) );
+				img[2].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
+				img[3].set_image( besch->get_tile(rot,0,1)->get_hintergrund(0,0,0) );
 			}
 		}
 		else {
-			if(besch->gib_h(rot)==1) {
-				img[1].set_image( besch->gib_tile(rot,0,0)->gib_hintergrund(0,0,0) );
-				img[3].set_image( besch->gib_tile(rot,1,0)->gib_hintergrund(0,0,0) );
+			if(besch->get_h(rot)==1) {
+				img[1].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
+				img[3].set_image( besch->get_tile(rot,1,0)->get_hintergrund(0,0,0) );
 			}
 			else {
 				// maximum 2x2 image
 				for(int i=0;  i<4;  i++  ) {
-					img[i].set_image( besch->gib_tile(rot,i/2,i&1)->gib_hintergrund(0,0,0) );
+					img[i].set_image( besch->get_tile(rot,i/2,i&1)->get_hintergrund(0,0,0) );
 				}
 			}
 		}
 
 		// the tools will be always updated, even though the data up there might be still current
-		sprintf( param_str, "%i%c%i,%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, production, fab_besch->gib_name() );
+		sprintf( param_str, "%i%c%i,%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, production, fab_besch->get_name() );
 		if(bt_land_chain.pressed) {
 			welt->set_werkzeug( &land_chain_tool );
 		}

@@ -46,7 +46,7 @@ public:
 	 */
 	static const weg_besch_t *  weg_search(const waytype_t wtyp,const uint32 speed_limit,const uint16 time, const weg_t::system_type system_type);
 
-	static const weg_besch_t * gib_besch(const char *way_name,const uint16 time=0);
+	static const weg_besch_t * get_besch(const char *way_name,const uint16 time=0);
 
 	/**
 	 * Fill menu with icons of given waytype
@@ -165,7 +165,7 @@ private:
 	void baue_leitung();
 
 public:
-	koord3d gib_route_bei(int i) const { return route[i]; }
+	koord3d get_route_bei(int i) const { return route[i]; }
 
 	int n, max_n;
 

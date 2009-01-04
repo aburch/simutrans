@@ -60,7 +60,7 @@ koord3d::koord3d(loadsave_t *file)
 
 
 // für debugmeldungen ...
-const char *koord3d::gib_str() const
+const char *koord3d::get_str() const
 {
 	static char pos_str[32];
 	if(x==-1  &&  y==-1  &&  z==-1) {

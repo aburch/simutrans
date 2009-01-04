@@ -138,14 +138,14 @@ void werkzeug_waehler_t::zeichnen(koord pos, koord)
 	}
 
 	// tooltips?
-	const sint16 mx = gib_maus_x();
-	const sint16 my = gib_maus_y();
+	const sint16 mx = get_maus_x();
+	const sint16 my = get_maus_y();
 	const sint16 xdiff = (mx - pos.x) / icon.x;
 	const sint16 ydiff = (my - pos.y - 16) / icon.y;
 	if(xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0  &&  mx>=pos.x  &&  my>=pos.y+16) {
 		const int tipnr = xdiff+(tool_icon_width*ydiff);
 		if (tipnr < (int)tools.get_count()) {
-			win_set_tooltip(gib_maus_x() + 16, gib_maus_y() - 16, tools[tipnr]->get_tooltip(welt->get_active_player()));
+			win_set_tooltip(get_maus_x() + 16, get_maus_y() - 16, tools[tipnr]->get_tooltip(welt->get_active_player()));
 		}
 	}
 

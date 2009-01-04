@@ -30,11 +30,11 @@ class bildliste2d_besch_t : public obj_besch_t {
 public:
     bildliste2d_besch_t() : anzahl(0) {}
 
-	uint16 gib_anzahl() const { return anzahl; }
+	uint16 get_anzahl() const { return anzahl; }
 
-	const bildliste_besch_t *gib_liste(uint16 i) const { return (i < anzahl) ? static_cast<const bildliste_besch_t *>(gib_kind(i)) : 0; }
+	const bildliste_besch_t *get_liste(uint16 i) const { return (i < anzahl) ? static_cast<const bildliste_besch_t *>(get_kind(i)) : 0; }
 
-    const bild_besch_t *gib_bild(uint16 i, uint16 j) const { return (i < anzahl) ? static_cast<const bildliste_besch_t *>(gib_kind(i))->gib_bild(j) : 0; }
+    const bild_besch_t *get_bild(uint16 i, uint16 j) const { return (i < anzahl) ? static_cast<const bildliste_besch_t *>(get_kind(i))->get_bild(j) : 0; }
 };
 
 #endif

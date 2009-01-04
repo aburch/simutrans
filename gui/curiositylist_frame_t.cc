@@ -41,7 +41,7 @@ curiositylist_frame_t::curiositylist_frame_t(karte_t * welt) :
 	stats(welt,sortby,sortreverse),
 	scrolly(&stats)
 {
-	sort_label.setze_pos(koord(BUTTON1_X, 4));
+	sort_label.set_pos(koord(BUTTON1_X, 4));
 	add_komponente(&sort_label);
 
 	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
@@ -52,9 +52,9 @@ curiositylist_frame_t::curiositylist_frame_t(karte_t * welt) :
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
 
-	setze_fenstergroesse(koord(TOTAL_WIDTH, 240));
+	set_fenstergroesse(koord(TOTAL_WIDTH, 240));
 
-	scrolly.setze_pos(koord(1,14+BUTTON_HEIGHT+2));
+	scrolly.set_pos(koord(1,14+BUTTON_HEIGHT+2));
 	scrolly.set_show_scroll_x(false);
 	add_komponente(&scrolly);
 
@@ -76,11 +76,11 @@ curiositylist_frame_t::curiositylist_frame_t(karte_t * welt) :
 bool curiositylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp == &sortedby) {
-		setze_sortierung((curiositylist::sort_mode_t)((gib_sortierung() + 1) % curiositylist::SORT_MODES));
+		set_sortierung((curiositylist::sort_mode_t)((get_sortierung() + 1) % curiositylist::SORT_MODES));
 		display_list();
 	}
 	else if(komp == &sorteddir) {
-		setze_reverse(!gib_reverse());
+		set_reverse(!get_reverse());
 		display_list();
 	}
 	return true;
@@ -97,8 +97,8 @@ void curiositylist_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
 	// fensterhoehe - 16(title) -offset (header)
-	koord groesse = gib_fenstergroesse()-koord(0,14+BUTTON_HEIGHT+2+16);
-	scrolly.setze_groesse(groesse);
+	koord groesse = get_fenstergroesse()-koord(0,14+BUTTON_HEIGHT+2+16);
+	scrolly.set_groesse(groesse);
 }
 
 
@@ -109,7 +109,7 @@ void curiositylist_frame_t::resize(const koord delta)
 */
 void curiositylist_frame_t::display_list(void)
 {
-	sortedby.setze_text(sort_text[gib_sortierung()]);
-	sorteddir.setze_text(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+	sortedby.set_text(sort_text[get_sortierung()]);
+	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 	stats.get_unique_attractions(sortby,sortreverse);
 }

@@ -64,7 +64,7 @@ void gui_container_t::infowin_event(const event_t *ev)
 	if(komp_focus != NULL) {
 		if(ev->ev_class==EVENT_KEYBOARD  ||  (komp_focus->getroffen(ev->mx, ev->my) || komp_focus->getroffen(ev->cx, ev->cy))  ) {
 			event_t ev2 = *ev;
-			translate_event(&ev2, -komp_focus->gib_pos().x, -komp_focus->gib_pos().y);
+			translate_event(&ev2, -komp_focus->get_pos().x, -komp_focus->get_pos().y);
 			komp_focus->infowin_event(&ev2);
 			return;
 		}
@@ -81,7 +81,7 @@ void gui_container_t::infowin_event(const event_t *ev)
 
 				// Hajo: if componet hit, translate coordinates and deliver event
 				event_t ev2 = *ev;
-				translate_event(&ev2, -komp->gib_pos().x, -komp->gib_pos().y);
+				translate_event(&ev2, -komp->get_pos().x, -komp->get_pos().y);
 
 				// Hajo: infowon_event() can delete the component
 				// -> thus we need to ask first

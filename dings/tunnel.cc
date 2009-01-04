@@ -38,7 +38,7 @@ tunnel_t::tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch
 {
 	assert(besch);
 	this->besch = besch;
-	setze_besitzer( sp );
+	set_besitzer( sp );
 	bild = after_bild = IMG_LEER;
 }
 
@@ -47,14 +47,14 @@ tunnel_t::tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch
 void
 tunnel_t::calc_bild()
 {
-	const grund_t *gr = welt->lookup(gib_pos());
+	const grund_t *gr = welt->lookup(get_pos());
 	if(gr->ist_karten_boden()) {
-		hang_t::typ hang = gr->gib_grund_hang();
-		setze_bild( besch->gib_hintergrund_nr(hang, gib_pos().z >= welt->get_snowline()));
-		after_bild = besch->gib_vordergrund_nr(hang, gib_pos().z >= welt->get_snowline());
+		hang_t::typ hang = gr->get_grund_hang();
+		set_bild( besch->get_hintergrund_nr(hang, get_pos().z >= welt->get_snowline()));
+		after_bild = besch->get_vordergrund_nr(hang, get_pos().z >= welt->get_snowline());
 	}
 	else {
-		setze_bild( IMG_LEER );
+		set_bild( IMG_LEER );
 		after_bild = IMG_LEER;
 	}
 }
@@ -69,10 +69,10 @@ void tunnel_t::rdwr(loadsave_t *file)
 		char  buf[256];
 		if(file->is_loading()) {
 			file->rdwr_str(buf,255);
-			besch = tunnelbauer_t::gib_besch(buf);
+			besch = tunnelbauer_t::get_besch(buf);
 		}
 		else {
-			strcpy( buf, besch->gib_name() );
+			strcpy( buf, besch->get_name() );
 			file->rdwr_str(buf,0);
 		}
 	}
@@ -82,22 +82,22 @@ void tunnel_t::rdwr(loadsave_t *file)
 
 void tunnel_t::laden_abschliessen()
 {
-	const grund_t *gr = welt->lookup(gib_pos());
-	spieler_t *sp=gib_besitzer();
+	const grund_t *gr = welt->lookup(get_pos());
+	spieler_t *sp=get_besitzer();
 
 	if(besch==NULL) {
 		// find a matching besch
-		besch = tunnelbauer_t::find_tunnel( (waytype_t)gr->gib_weg_nr(0)->gib_besch()->gib_wtyp(), 450, 0);
+		besch = tunnelbauer_t::find_tunnel( (waytype_t)gr->get_weg_nr(0)->get_besch()->get_wtyp(), 450, 0);
 	}
 
 	if(sp) {
 		// change maintainance
-		weg_t *weg = gr->gib_weg(besch->gib_waytype());
+		weg_t *weg = gr->get_weg(besch->get_waytype());
 		if(weg) {
-			weg->setze_max_speed(besch->gib_topspeed());
-			spieler_t::add_maintenance( sp, -weg->gib_besch()->gib_wartung());
+			weg->set_max_speed(besch->get_topspeed());
+			spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
 		}
-		spieler_t::add_maintenance( sp,  besch->gib_wartung() );
+		spieler_t::add_maintenance( sp,  besch->get_wartung() );
 	}
 }
 
@@ -110,16 +110,16 @@ void tunnel_t::entferne( spieler_t *sp2 )
 		// only set during destroying of the map
 		return;
 	}
-	spieler_t *sp = gib_besitzer();
+	spieler_t *sp = get_besitzer();
 	if(sp) {
 		// inside tunnel => do nothing but change maitainance
-		const grund_t *gr = welt->lookup(gib_pos());
+		const grund_t *gr = welt->lookup(get_pos());
 		if(gr) {
-			weg_t *weg = gr->gib_weg( besch->gib_waytype() );
-			weg->setze_max_speed( weg->gib_besch()->gib_topspeed() );
-			spieler_t::add_maintenance( sp,  weg->gib_besch()->gib_wartung());
-			spieler_t::add_maintenance( sp,  -besch->gib_wartung() );
+			weg_t *weg = gr->get_weg( besch->get_waytype() );
+			weg->set_max_speed( weg->get_besch()->get_topspeed() );
+			spieler_t::add_maintenance( sp,  weg->get_besch()->get_wartung());
+			spieler_t::add_maintenance( sp,  -besch->get_wartung() );
 		}
 	}
-	spieler_t::accounting(sp2, -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION );
+	spieler_t::accounting(sp2, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION );
 }

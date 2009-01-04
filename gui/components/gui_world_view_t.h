@@ -82,7 +82,7 @@ public:
      * need to recalculate the list of offsets
      * @author prissi
      */
-    virtual void setze_groesse(koord groesse);
+    virtual void set_groesse(koord groesse);
 
     /**
      * Zeichnet die Komponente

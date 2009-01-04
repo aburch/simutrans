@@ -76,7 +76,7 @@ public:
 	 * @return den Dateinamen für die Hilfe, oder NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * gib_hilfe_datei() const { return "enlarge_map.txt";}
+	const char * get_hilfe_datei() const { return "enlarge_map.txt";}
 
 	/**
 	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf

@@ -25,11 +25,11 @@ fundament_t::fundament_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t(
 
 fundament_t::fundament_t(karte_t *welt, koord3d pos, hang_t::typ hang ) : grund_t(welt, pos)
 {
-	setze_bild( IMG_LEER );
+	set_bild( IMG_LEER );
 	if(hang) {
-		pos = gib_pos();
+		pos = get_pos();
 		pos.z += Z_TILE_STEP;
-		setze_pos( pos );
+		set_pos( pos );
 	}
 	slope = (uint8)hang_t::flach;
 }
@@ -41,8 +41,8 @@ fundament_t::fundament_t(karte_t *welt, koord3d pos, hang_t::typ hang ) : grund_
  */
 bool fundament_t::zeige_info()
 {
-	if(gib_halt().is_bound()) {
-		gib_halt()->zeige_info();
+	if(get_halt().is_bound()) {
+		get_halt()->zeige_info();
 		return true;
 	}
 	return false;
@@ -56,10 +56,10 @@ fundament_t::calc_bild_internal()
 	slope = 0;
 	if(ist_im_tunnel()) {
 		clear_back_bild();
-		setze_bild(IMG_LEER);
+		set_bild(IMG_LEER);
 	}
 	else {
-		setze_bild( grund_besch_t::gib_ground_tile(0,gib_pos().z) );
-		grund_t::calc_back_bild(gib_pos().z/Z_TILE_STEP,0);
+		set_bild( grund_besch_t::get_ground_tile(0,get_pos().z) );
+		grund_t::calc_back_bild(get_pos().z/Z_TILE_STEP,0);
 	}
 }

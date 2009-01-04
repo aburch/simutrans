@@ -50,14 +50,14 @@ public:
 	* @return den nicht uebersetzten Namen der Komponente
 	* @author Hj. Malthaner
 	*/
-	const char* gib_name() const { return "factorybuilder"; }
+	const char* get_name() const { return "factorybuilder"; }
 
 	/**
 	* Manche Fenster haben einen Hilfetext assoziiert.
 	* @return den Dateinamen für die Hilfe, oder NULL
 	* @author Hj. Malthaner
 	*/
-	const char* gib_hilfe_datei() const { return "factory_build.txt"; }
+	const char* get_hilfe_datei() const { return "factory_build.txt"; }
 
 	/**
 	* This method is called if an action is triggered

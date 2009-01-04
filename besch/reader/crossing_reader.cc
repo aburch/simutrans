@@ -67,7 +67,7 @@ obj_besch_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			for(uint8 i=0; i<len; i++) {
 				wavname[i] = decode_sint8(p);
 			}
-			besch->sound = (sint8)sound_besch_t::gib_sound_id(wavname);
+			besch->sound = (sint8)sound_besch_t::get_sound_id(wavname);
 DBG_MESSAGE("crossing_reader_t::register_obj()","sound %s to %i",wavname,besch->sound);
 		}
 		else if(besch->sound>=0  &&  besch->sound<=MAX_OLD_SOUNDS) {

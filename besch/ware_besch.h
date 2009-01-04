@@ -64,48 +64,48 @@ class ware_besch_t : public obj_besch_std_name_t {
 
 public:
 	// the measure for that good (crates, people, bags ... )
-	const char *gib_mass() const
+	const char *get_mass() const
 	{
-		return static_cast<const text_besch_t *>(gib_kind(2))->gib_text();
+		return static_cast<const text_besch_t *>(get_kind(2))->get_text();
 	}
 
-	uint16 gib_preis() const { return value; }
+	uint16 get_preis() const { return value; }
 
 	/**
 	* @return speed bonus value of the good
 	* @author Hj. Malthaner
 	*/
-	uint16 gib_speed_bonus() const { return speed_bonus; }
+	uint16 get_speed_bonus() const { return speed_bonus; }
 
 	/**
 	* @return Category of the good
 	* @author Hj. Malthaner
 	*/
-	uint8 gib_catg() const { return catg; }
+	uint8 get_catg() const { return catg; }
 
 	/**
 	* @return Category of the good
 	* @author Hj. Malthaner
 	*/
-	uint8 gib_catg_index() const { return catg_index; }
+	uint8 get_catg_index() const { return catg_index; }
 
 	/**
 	* @return internal index (just a number, passenger, then mail, then something ... )
 	* @author prissi
 	*/
-	uint8 gib_index() const { return ware_index; }
+	uint8 get_index() const { return ware_index; }
 
 	/**
 	* @return weight in KG per unit of the good
 	* @author Hj. Malthaner
 	*/
-	uint16 gib_weight_per_unit() const { return weight_per_unit; }
+	uint16 get_weight_per_unit() const { return weight_per_unit; }
 
 	/**
 	* @return Name of the category of the good
 	* @author Hj. Malthaner
 	*/
-	const char * gib_catg_name() const;
+	const char * get_catg_name() const;
 
 	/**
 	* Checks if this good can be interchanged with the other, in terms of
@@ -117,14 +117,14 @@ public:
 	*/
 	bool is_interchangeable(const ware_besch_t *other) const
 	{
-		return catg_index == other->gib_catg_index();
+		return catg_index == other->get_catg_index();
 	}
 
 	/**
 	* @return color for good table and waiting bars
 	* @author Hj. Malthaner
 	*/
-	COLOR_VAL gib_color() const { return color; }
+	COLOR_VAL get_color() const { return color; }
 };
 
 #endif

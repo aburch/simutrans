@@ -57,7 +57,7 @@ void factorylist_stats_t::infowin_event(const event_t * ev)
 
 	if (IS_LEFTRELEASE(ev)) {
 		if(ev->cx>0  &&  ev->cx<15) {
-			const koord3d pos = fab->gib_pos();
+			const koord3d pos = fab->get_pos();
 			welt->change_world_position(pos);
 		}
 		else {
@@ -65,7 +65,7 @@ void factorylist_stats_t::infowin_event(const event_t * ev)
 		}
 	}
 	else if (IS_RIGHTRELEASE(ev)) {
-		const koord3d pos = fab->gib_pos();
+		const koord3d pos = fab->get_pos();
 		welt->change_world_position(pos);
 	}
 } // end of function factorylist_stats_t::infowin_event(const event_t * ev)
@@ -78,8 +78,8 @@ void factorylist_stats_t::infowin_event(const event_t * ev)
  */
 void factorylist_stats_t::zeichnen(koord offset)
 {
-	image_id const arrow_right_normal = skinverwaltung_t::window_skin->gib_bild(10)->gib_nummer();
-	const struct clip_dimension cd = display_gib_clip_wh();
+	image_id const arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
+	const struct clip_dimension cd = display_get_clip_wh();
 	const int start = cd.y-LINESPACE-1;
 	const int end = cd.yy+LINESPACE+1;
 
@@ -103,10 +103,10 @@ void factorylist_stats_t::zeichnen(koord offset)
 			buf.clear();
 			//		buf.append(i+1);
 			//		buf.append(".) ");
-			buf.append(fab_list[i]->gib_name());
+			buf.append(fab_list[i]->get_name());
 			buf.append(" (");
 
-			if (!fab->gib_eingang().empty()) {
+			if (!fab->get_eingang().empty()) {
 				buf.append(fab->get_total_in());
 			}
 			else {
@@ -114,7 +114,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			}
 			buf.append(", ");
 
-			if (!fab->gib_ausgang().empty()) {
+			if (!fab->get_ausgang().empty()) {
 				buf.append(fab->get_total_out());
 			}
 			else {
@@ -130,7 +130,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			display_fillbox_wh_clip(xoff+2, yoff+2, INDICATOR_WIDTH, INDICATOR_HEIGHT, indikatorfarbe, true);
 
 			if (fab->get_prodfaktor() > 16) {
-				display_color_img(skinverwaltung_t::electricity->gib_bild_nr(0), xoff+4+INDICATOR_WIDTH, yoff, 0, false, false);
+				display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), xoff+4+INDICATOR_WIDTH, yoff, 0, false, false);
 			}
 
 			// show text
@@ -142,7 +142,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			}
 			else {
 				// select goto button
-				display_color_img(skinverwaltung_t::window_skin->gib_bild(11)->gib_nummer(),
+				display_color_img(skinverwaltung_t::window_skin->get_bild(11)->get_nummer(),
 					xoff-14, yoff, 0, false, true);
 			}
 
@@ -171,16 +171,16 @@ class compare_factories
 
 				case factorylist::by_input:
 				{
-					int a_in = (a->gib_eingang().empty() ? -1 : (int)a->get_total_in());
-					int b_in = (b->gib_eingang().empty() ? -1 : (int)b->get_total_in());
+					int a_in = (a->get_eingang().empty() ? -1 : (int)a->get_total_in());
+					int b_in = (b->get_eingang().empty() ? -1 : (int)b->get_total_in());
 					cmp = a_in - b_in;
 					break;
 				}
 
 				case factorylist::by_output:
 				{
-					int a_out = (a->gib_ausgang().empty() ? -1 : (int)a->get_total_out());
-					int b_out = (b->gib_ausgang().empty() ? -1 : (int)b->get_total_out());
+					int a_out = (a->get_ausgang().empty() ? -1 : (int)a->get_total_out());
+					int b_out = (b->get_ausgang().empty() ? -1 : (int)b->get_total_out());
 					cmp = a_out - b_out;
 					break;
 				}
@@ -197,7 +197,7 @@ class compare_factories
 					cmp = a->get_prodfaktor() - b->get_prodfaktor();
 					break;
 			}
-			if (cmp == 0) cmp = strcmp(a->gib_name(), b->gib_name());
+			if (cmp == 0) cmp = strcmp(a->get_name(), b->get_name());
 			return reverse ? cmp > 0 : cmp < 0;
 		}
 
@@ -210,10 +210,10 @@ class compare_factories
 void factorylist_stats_t::sort(factorylist::sort_mode_t sortby, bool sortreverse)
 {
 	fab_list.clear();
-	fab_list.resize(welt->gib_fab_list().count());
-	for (slist_iterator_tpl<fabrik_t*> i(welt->gib_fab_list()); i.next();) {
+	fab_list.resize(welt->get_fab_list().count());
+	for (slist_iterator_tpl<fabrik_t*> i(welt->get_fab_list()); i.next();) {
 		fab_list.push_back(i.get_current());
 	}
 	std::sort(fab_list.begin(), fab_list.end(), compare_factories(sortby, sortreverse));
-	setze_groesse(koord(210, welt->gib_fab_list().count()*(LINESPACE+1)-10));
+	set_groesse(koord(210, welt->get_fab_list().count()*(LINESPACE+1)-10));
 }

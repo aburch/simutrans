@@ -56,7 +56,7 @@ slist_tpl <weg_t *> alle_wege;
  * Get list of all ways
  * @author Hj. Malthaner
  */
-const slist_tpl <weg_t *> & weg_t::gib_alle_wege()
+const slist_tpl <weg_t *> & weg_t::get_alle_wege()
 {
 	return alle_wege;
 }
@@ -129,7 +129,7 @@ const char* weg_t::waytype_to_string(waytype_t wt)
  * Setzt die erlaubte Höchstgeschwindigkeit
  * @author Hj. Malthaner
  */
-void weg_t::setze_max_speed(unsigned int s)
+void weg_t::set_max_speed(unsigned int s)
 {
 	max_speed = s;
 }
@@ -140,14 +140,14 @@ void weg_t::setze_max_speed(unsigned int s)
  * mit wert aus Beschreibung.
  * @author Hj. Malthaner
  */
-void weg_t::setze_besch(const weg_besch_t *b)
+void weg_t::set_besch(const weg_besch_t *b)
 {
 	besch = b;
-	if (hat_gehweg() && besch->gib_wtyp() == road_wt && besch->gib_topspeed() > 50) {
+	if (hat_gehweg() && besch->get_wtyp() == road_wt && besch->get_topspeed() > 50) {
 		max_speed = 50;
 	}
 	else {
-		max_speed = besch->gib_topspeed();
+		max_speed = besch->get_topspeed();
 	}
 }
 
@@ -186,9 +186,9 @@ void weg_t::init()
 weg_t::~weg_t()
 {
 	alle_wege.remove(this);
-	spieler_t *sp=gib_besitzer();
+	spieler_t *sp=get_besitzer();
 	if(sp) {
-		spieler_t::add_maintenance( sp,  -besch->gib_wartung() );
+		spieler_t::add_maintenance( sp,  -besch->get_wartung() );
 	}
 }
 
@@ -250,10 +250,10 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append(translator::translate("km/h\n"));
 
 	buf.append(translator::translate("\nRibi (unmasked)"));
-	buf.append(gib_ribi_unmasked());
+	buf.append(get_ribi_unmasked());
 
 	buf.append(translator::translate("\nRibi (masked)"));
-	buf.append(gib_ribi());
+	buf.append(get_ribi());
 	buf.append("\n");
 
 	if(has_sign()) {
@@ -308,7 +308,7 @@ weg_t::count_sign()
 {
 	// Either only sign or signal please ...
 	flags &= ~(HAS_SIGN|HAS_SIGNAL|HAS_CROSSING);
-	const grund_t *gr=welt->lookup(gib_pos());
+	const grund_t *gr=welt->lookup(get_pos());
 	if(gr) {
 		uint8 i = 1;
 		// if there is a crossing, the start index is at least three ...
@@ -316,21 +316,21 @@ weg_t::count_sign()
 			flags |= HAS_CROSSING;
 			i = 3;
 			const crossing_t* cr = gr->find<crossing_t>();
-			uint32 top_speed = cr->gib_besch()->gib_maxspeed( cr->gib_besch()->get_waytype(0)==gib_waytype() ? 0 : 1);
+			uint32 top_speed = cr->get_besch()->get_maxspeed( cr->get_besch()->get_waytype(0)==get_waytype() ? 0 : 1);
 			if(top_speed<max_speed) {
 				max_speed = top_speed;
 			}
 		}
 		// since way 0 is at least present here ...
-		for( ;  i<gr->gib_top();  i++  ) {
+		for( ;  i<gr->get_top();  i++  ) {
 			ding_t *d=gr->obj_bei(i);
 			// sign for us?
-			if(d->gib_typ()==ding_t::roadsign  &&  ((roadsign_t*)d)->gib_besch()->gib_wtyp()==gib_besch()->gib_wtyp()) {
+			if(d->get_typ()==ding_t::roadsign  &&  ((roadsign_t*)d)->get_besch()->get_wtyp()==get_besch()->get_wtyp()) {
 				// here is a sign ...
 				flags |= HAS_SIGN;
 				return;
 			}
-			if(d->gib_typ()==ding_t::signal  &&  ((signal_t*)d)->gib_besch()->gib_wtyp()==gib_besch()->gib_wtyp()) {
+			if(d->get_typ()==ding_t::signal  &&  ((signal_t*)d)->get_besch()->get_wtyp()==get_besch()->get_wtyp()) {
 				// here is a signal ...
 				flags |= HAS_SIGNAL;
 				return;
@@ -345,12 +345,12 @@ void
 weg_t::calc_bild()
 {
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-	grund_t *from = welt->lookup(gib_pos());
+	grund_t *from = welt->lookup(get_pos());
 	grund_t *to;
 
 	if(from==NULL  ||  besch==NULL  ||  from->ist_tunnel()) {
 		// no ground, in tunnel
-		setze_bild(IMG_LEER);
+		set_bild(IMG_LEER);
 		return;
 	}
 	if(from->ist_bruecke()  &&  from->obj_bei(0)==this) {
@@ -359,15 +359,15 @@ weg_t::calc_bild()
 	}
 
 	// use snow image if above snowline and above ground
-	bool snow = (gib_pos().z >= welt->get_snowline());
+	bool snow = (get_pos().z >= welt->get_snowline());
 
-	hang_t::typ hang = from->gib_weg_hang();
+	hang_t::typ hang = from->get_weg_hang();
 	if(hang != hang_t::flach) {
-		setze_bild(besch->gib_hang_bild_nr(hang, snow));
+		set_bild(besch->get_hang_bild_nr(hang, snow));
 		return;
 	}
 
-	const ribi_t::ribi ribi = gib_ribi_unmasked();
+	const ribi_t::ribi ribi = get_ribi_unmasked();
 
 	if(ribi_t::ist_kurve(ribi)  &&  besch->has_diagonal_bild()) {
 		ribi_t::ribi r1 = ribi_t::keine, r2 = ribi_t::keine;
@@ -375,10 +375,10 @@ weg_t::calc_bild()
 		bool diagonal = false;
 		switch(ribi) {
 			case ribi_t::nordost:
-				if(from->get_neighbour(to, gib_waytype(), koord::ost))
-					r1 = to->gib_weg_ribi_unmasked(gib_waytype());
-				if(from->get_neighbour(to, gib_waytype(), koord::nord))
-					r2 = to->gib_weg_ribi_unmasked(gib_waytype());
+				if(from->get_neighbour(to, get_waytype(), koord::ost))
+					r1 = to->get_weg_ribi_unmasked(get_waytype());
+				if(from->get_neighbour(to, get_waytype(), koord::nord))
+					r2 = to->get_weg_ribi_unmasked(get_waytype());
 				diagonal =
 					(r1 == ribi_t::suedwest || r2 == ribi_t::suedwest) &&
 					r1 != ribi_t::nordwest &&
@@ -386,10 +386,10 @@ weg_t::calc_bild()
 			break;
 
 			case ribi_t::suedost:
-				if(from->get_neighbour(to, gib_waytype(), koord::ost))
-					r1 = to->gib_weg_ribi_unmasked(gib_waytype());
-				if(from->get_neighbour(to, gib_waytype(), koord::sued))
-					r2 = to->gib_weg_ribi_unmasked(gib_waytype());
+				if(from->get_neighbour(to, get_waytype(), koord::ost))
+					r1 = to->get_weg_ribi_unmasked(get_waytype());
+				if(from->get_neighbour(to, get_waytype(), koord::sued))
+					r2 = to->get_weg_ribi_unmasked(get_waytype());
 				diagonal =
 					(r1 == ribi_t::nordwest || r2 == ribi_t::nordwest) &&
 					r1 != ribi_t::suedwest &&
@@ -397,10 +397,10 @@ weg_t::calc_bild()
 			break;
 
 			case ribi_t::nordwest:
-				if(from->get_neighbour(to, gib_waytype(), koord::west))
-					r1 = to->gib_weg_ribi_unmasked(gib_waytype());
-				if(from->get_neighbour(to, gib_waytype(), koord::nord))
-					r2 = to->gib_weg_ribi_unmasked(gib_waytype());
+				if(from->get_neighbour(to, get_waytype(), koord::west))
+					r1 = to->get_weg_ribi_unmasked(get_waytype());
+				if(from->get_neighbour(to, get_waytype(), koord::nord))
+					r2 = to->get_weg_ribi_unmasked(get_waytype());
 				diagonal =
 					(r1 == ribi_t::suedost || r2 == ribi_t::suedost) &&
 					r1 != ribi_t::nordost &&
@@ -408,10 +408,10 @@ weg_t::calc_bild()
 			break;
 
 			case ribi_t::suedwest:
-				if(from->get_neighbour(to, gib_waytype(), koord::west))
-					r1 = to->gib_weg_ribi_unmasked(gib_waytype());
-				if(from->get_neighbour(to, gib_waytype(), koord::sued))
-					r2 = to->gib_weg_ribi_unmasked(gib_waytype());
+				if(from->get_neighbour(to, get_waytype(), koord::west))
+					r1 = to->get_weg_ribi_unmasked(get_waytype());
+				if(from->get_neighbour(to, get_waytype(), koord::sued))
+					r2 = to->get_weg_ribi_unmasked(get_waytype());
 				diagonal =
 					(r1 == ribi_t::nordost || r2 == ribi_t::nordost) &&
 					r1 != ribi_t::suedost &&
@@ -425,22 +425,22 @@ weg_t::calc_bild()
 			if(rekursion == 0) {
 				rekursion++;
 				for(int r = 0; r < 4; r++) {
-					if(from->get_neighbour(to, gib_waytype(), koord::nsow[r])) {
-						to->gib_weg(gib_waytype())->calc_bild();
+					if(from->get_neighbour(to, get_waytype(), koord::nsow[r])) {
+						to->get_weg(get_waytype())->calc_bild();
 					}
 				}
 				rekursion--;
 			}
 
-			image_id bild = besch->gib_diagonal_bild_nr(ribi, snow);
+			image_id bild = besch->get_diagonal_bild_nr(ribi, snow);
 			if(bild != IMG_LEER) {
-				setze_bild(bild);
+				set_bild(bild);
 				return;
 			}
 		}
 	}
 
-	setze_bild(besch->gib_bild_nr(ribi, snow));
+	set_bild(besch->get_bild_nr(ribi, snow));
 }
 
 
@@ -464,8 +464,8 @@ void weg_t::neuer_monat()
 // correct speed and maitainace
 void weg_t::laden_abschliessen()
 {
-	spieler_t *sp=gib_besitzer();
+	spieler_t *sp=get_besitzer();
 	if(sp  &&  besch) {
-		spieler_t::add_maintenance( sp,  besch->gib_wartung() );
+		spieler_t::add_maintenance( sp,  besch->get_wartung() );
 	}
 }

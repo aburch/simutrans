@@ -63,53 +63,53 @@ const int cost_type_color[MAX_HALT_COST] =
 };
 
 halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
-	: gui_frame_t(edit_name, halt->gib_besitzer()),
+	: gui_frame_t(edit_name, halt->get_besitzer()),
 		scrolly(&text),
 		text("                                                                                     "
 			" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
 			" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
 		),
 		sort_label(translator::translate("Hier warten/lagern:")),
-		view(welt, halt->gib_basis_pos3d()),
+		view(welt, halt->get_basis_pos3d()),
 		freight_info(16384)
 {
 	this->halt = halt;
 	halt->set_sortby( umgebung_t::default_sortmode );
 
-	input.setze_pos(koord(11,4));
-	tstrncpy(edit_name, halt->gib_name(), lengthof(edit_name));
-	input.setze_text(edit_name, lengthof(edit_name));
+	input.set_pos(koord(11,4));
+	tstrncpy(edit_name, halt->get_name(), lengthof(edit_name));
+	input.set_text(edit_name, lengthof(edit_name));
 
 	add_komponente(&sort_label);
 
 	// hsiegeln: added sort_button
-	sort_button.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	sort_button.setze_pos(koord(BUTTON1_X, 78));
-	sort_button.setze_text(sort_text[umgebung_t::default_sortmode]);
-	sort_button.setze_typ(button_t::roundbox);
+	sort_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	sort_button.set_pos(koord(BUTTON1_X, 78));
+	sort_button.set_text(sort_text[umgebung_t::default_sortmode]);
+	sort_button.set_typ(button_t::roundbox);
 	sort_button.set_tooltip("Sort waiting list by");
 
-	toggler.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	toggler.setze_pos(koord(BUTTON3_X, 78));
-	toggler.setze_text("Chart");
-	toggler.setze_typ(button_t::roundbox_state);
+	toggler.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	toggler.set_pos(koord(BUTTON3_X, 78));
+	toggler.set_text("Chart");
+	toggler.set_typ(button_t::roundbox_state);
 	toggler.set_tooltip("Show/hide statistics");
 	toggler.add_listener(this);
 	toggler.pressed = false;
 	add_komponente(&toggler);
 
-	button.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	button.setze_pos(koord(BUTTON4_X, 78));
-	button.setze_text("Details");
-	button.setze_typ(button_t::roundbox);
+	button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	button.set_pos(koord(BUTTON4_X, 78));
+	button.set_text("Details");
+	button.set_typ(button_t::roundbox);
 
-	scrolly.setze_pos(koord(1, 78+BUTTON_HEIGHT+4));
+	scrolly.set_pos(koord(1, 78+BUTTON_HEIGHT+4));
 
 	add_komponente(&sort_button);
 	add_komponente(&button);
 	add_komponente(&input);
 
-	setze_fenstergroesse(koord(BUTTON4_X+BUTTON_WIDTH+2, 264));
+	set_fenstergroesse(koord(BUTTON4_X+BUTTON_WIDTH+2, 264));
 	set_min_windowsize(koord(BUTTON4_X+BUTTON_WIDTH+2, 194));
 	set_resizemode(diagonal_resize);     // 31-May-02	markus weber	added
 	resize(koord(0,0));
@@ -119,8 +119,8 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	sort_button.add_listener(this);
 
 	// chart
-	chart.setze_pos(koord(46,80));
-	chart.setze_groesse(koord(BUTTON4_X+BUTTON_WIDTH-50, 100));
+	chart.set_pos(koord(46,80));
+	chart.set_groesse(koord(BUTTON4_X+BUTTON_WIDTH-50, 100));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);
@@ -154,70 +154,70 @@ void
 halt_info_t::zeichnen(koord pos, koord gr)
 {
 	if(halt.is_bound()) {
-		if(strcmp(edit_name,halt->gib_name())) {
-			halt->setze_name( edit_name );
+		if(strcmp(edit_name,halt->get_name())) {
+			halt->set_name( edit_name );
 		}
 
 		// buffer update now only when needed by halt itself => dedicated buffer for this
 		int old_len=freight_info.len();
 		halt->get_freight_info(freight_info);
-		text.setze_text(freight_info);
+		text.set_text(freight_info);
 		if(old_len!=freight_info.len()) {
 			text.recalc_size();
 		}
 
 		gui_frame_t::zeichnen(pos, gr);
 
-		unsigned indikatorfarbe = halt->gib_status_farbe();
+		unsigned indikatorfarbe = halt->get_status_farbe();
 		display_fillbox_wh_clip(pos.x+11, pos.y + 42, INDICATOR_WIDTH, INDICATOR_HEIGHT, indikatorfarbe, true);
 
 		// now what do we accept here?
 		int left = 11+INDICATOR_WIDTH+2;
 		if (halt->get_pax_enabled()) {
-			display_color_img(skinverwaltung_t::passagiere->gib_bild_nr(0), pos.x+left, pos.y+40, 0, false, false);
+			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), pos.x+left, pos.y+40, 0, false, false);
 			left += 10;
 		}
 		if (halt->get_post_enabled()) {
-			display_color_img(skinverwaltung_t::post->gib_bild_nr(0), pos.x+left, pos.y+40, 0, false, false);
+			display_color_img(skinverwaltung_t::post->get_bild_nr(0), pos.x+left, pos.y+40, 0, false, false);
 			left += 10;
 		}
 		if (halt->get_ware_enabled()) {
-			display_color_img(skinverwaltung_t::waren->gib_bild_nr(0), pos.x+left, pos.y+40, 0, false, false);
+			display_color_img(skinverwaltung_t::waren->get_bild_nr(0), pos.x+left, pos.y+40, 0, false, false);
 			left += 10;
 		}
 		// what kind of station?
 		left -= 20;
 		int halttype = halt->get_station_type();
 		if (halttype & haltestelle_t::railstation) {
-			display_color_img(skinverwaltung_t::zughaltsymbol->gib_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
+			display_color_img(skinverwaltung_t::zughaltsymbol->get_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::loadingbay) {
-			display_color_img(skinverwaltung_t::autohaltsymbol->gib_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
+			display_color_img(skinverwaltung_t::autohaltsymbol->get_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::busstop) {
-			display_color_img(skinverwaltung_t::bushaltsymbol->gib_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
+			display_color_img(skinverwaltung_t::bushaltsymbol->get_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::dock) {
-			display_color_img(skinverwaltung_t::schiffshaltsymbol->gib_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
+			display_color_img(skinverwaltung_t::schiffshaltsymbol->get_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::airstop) {
-			display_color_img(skinverwaltung_t::airhaltsymbol->gib_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
+			display_color_img(skinverwaltung_t::airhaltsymbol->get_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::monorailstop) {
-			display_color_img(skinverwaltung_t::monorailhaltsymbol->gib_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
+			display_color_img(skinverwaltung_t::monorailhaltsymbol->get_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::maglevstop) {
-			display_color_img(skinverwaltung_t::maglevhaltsymbol->gib_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
+			display_color_img(skinverwaltung_t::maglevhaltsymbol->get_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::narrowgaugestop) {
-			display_color_img(skinverwaltung_t::narrowgaugehaltsymbol->gib_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
+			display_color_img(skinverwaltung_t::narrowgaugehaltsymbol->get_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
 			left += 23;
 		}
 
@@ -227,7 +227,7 @@ halt_info_t::zeichnen(koord pos, koord gr)
 		info_buf.append(translator::translate("Storage capacity"));
 		info_buf.append(": ");
 		info_buf.append(halt->get_capacity());
-		display_proportional(pos.x+view.gib_pos().x-11, pos.y+40, info_buf, ALIGN_RIGHT, COL_BLACK, true);
+		display_proportional(pos.x+view.get_pos().x-11, pos.y+40, info_buf, ALIGN_RIGHT, COL_BLACK, true);
 
 		// Hajo: Reuse of freight_info buffer to get and display
 		// information about the convoi itself
@@ -249,15 +249,15 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	} else if (comp == &sort_button) { 	// @author hsiegeln sort button pressed
 		umgebung_t::default_sortmode = ((int)(halt->get_sortby())+1)%4;
 		halt->set_sortby((freight_list_sorter_t::sort_mode_t) umgebung_t::default_sortmode);
-		sort_button.setze_text(sort_text[umgebung_t::default_sortmode]);
+		sort_button.set_text(sort_text[umgebung_t::default_sortmode]);
 	} else  if (comp == &toggler) {
 		toggler.pressed ^= 1;
 		const koord offset = toggler.pressed ? koord(0, 165) : koord(0, -165);
 		set_min_windowsize(koord(BUTTON4_X+BUTTON_WIDTH+2, toggler.pressed ?372:194));
-		scrolly.setze_pos( scrolly.gib_pos() + koord(0,offset.y) );
+		scrolly.set_pos( scrolly.get_pos() + koord(0,offset.y) );
 		// toggle visibility of components
 		chart.set_visible(toggler.pressed);
-		setze_fenstergroesse(gib_fenstergroesse() + offset);
+		set_fenstergroesse(get_fenstergroesse() + offset);
 		resize(koord(0,0));
 		for (int i=0;i<MAX_HALT_COST;i++) {
 			filterButtons[i].set_visible(toggler.pressed);
@@ -290,11 +290,11 @@ void halt_info_t::resize(const koord delta)
 
 	const sint16 button_offset_y = toggler.pressed?245:80;
 
-	input.setze_groesse(koord(gib_fenstergroesse().x-23, 13));
-	toggler.setze_pos(koord(BUTTON3_X,button_offset_y));
-	button.setze_pos(koord(BUTTON4_X,button_offset_y));
-	sort_button.setze_pos(koord(BUTTON1_X,button_offset_y));
-	sort_label.setze_pos(koord(BUTTON1_X,button_offset_y-LINESPACE));
-	view.setze_pos(koord(gib_fenstergroesse().x - 64 - 16 , 21));
-	scrolly.setze_groesse(get_client_windowsize()-scrolly.gib_pos());
+	input.set_groesse(koord(get_fenstergroesse().x-23, 13));
+	toggler.set_pos(koord(BUTTON3_X,button_offset_y));
+	button.set_pos(koord(BUTTON4_X,button_offset_y));
+	sort_button.set_pos(koord(BUTTON1_X,button_offset_y));
+	sort_label.set_pos(koord(BUTTON1_X,button_offset_y-LINESPACE));
+	view.set_pos(koord(get_fenstergroesse().x - 64 - 16 , 21));
+	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
 }

@@ -15,7 +15,7 @@
 void tunnel_reader_t::register_obj(obj_besch_t *&data)
 {
 	tunnel_besch_t *besch = static_cast<tunnel_besch_t *>(data);
-	printf("tunnel_reader_t::register_obj(): Tunnel %s geladen\n", besch->gib_name());
+	printf("tunnel_reader_t::register_obj(): Tunnel %s geladen\n", besch->get_name());
 	tunnelbauer_t::register_besch(besch);
 }
 

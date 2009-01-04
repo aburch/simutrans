@@ -48,7 +48,7 @@ char curiosity_edit_frame_t::param_str[256];
 
 static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
 {
-	int diff = strcmp(a->gib_name(), b->gib_name());
+	int diff = strcmp(a->get_name(), b->get_name());
 	return diff < 0;
 }
 
@@ -82,7 +82,7 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 	add_komponente(&bt_monuments);
 	offset_of_comp += BUTTON_HEIGHT;
 
-	lb_rotation_info.setze_pos( koord( NAME_COLUMN_WIDTH+11, offset_of_comp-4 ) );
+	lb_rotation_info.set_pos( koord( NAME_COLUMN_WIDTH+11, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation_info);
 
 	bt_left_rotate.init( button_t::repeatarrowleft, NULL, koord(NAME_COLUMN_WIDTH+11+NAME_COLUMN_WIDTH/2-16,	offset_of_comp-4 ) );
@@ -93,7 +93,7 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 	bt_right_rotate.add_listener(this);
 	add_komponente(&bt_right_rotate);
 
-	lb_rotation.setze_pos( koord( NAME_COLUMN_WIDTH+11+NAME_COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
+	lb_rotation.set_pos( koord( NAME_COLUMN_WIDTH+11+NAME_COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation);
 	offset_of_comp += BUTTON_HEIGHT;
 
@@ -153,26 +153,26 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 
 	// now buil scrolled list
 	scl.clear_elements();
-	scl.setze_selection(-1);
+	scl.set_selection(-1);
 	for (vector_tpl<const haus_besch_t *>::const_iterator i = hauslist.begin(), end = hauslist.end(); i != end; ++i) {
 		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
 		COLOR_VAL color=COL_BLACK;
-		if(  (*i)->gib_utyp()==haus_besch_t::attraction_city  ) {
+		if(  (*i)->get_utyp()==haus_besch_t::attraction_city  ) {
 			color = COL_BLUE;
 		}
-		else if(  (*i)->gib_utyp()==haus_besch_t::attraction_land  ) {
+		else if(  (*i)->get_utyp()==haus_besch_t::attraction_land  ) {
 			color = COL_DARK_GREEN;
 		}
 		scl.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(
-			translate ? translator::translate( (*i)->gib_name() ):(*i)->gib_name(),
+			translate ? translator::translate( (*i)->get_name() ):(*i)->get_name(),
 			color )
 		);
 		if(  (*i) == besch  ) {
-			scl.setze_selection(scl.get_count()-1);
+			scl.set_selection(scl.get_count()-1);
 		}
 	}
 	// always update current selection (since the tool may depend on it)
-	change_item_info( scl.gib_selection() );
+	change_item_info( scl.get_selection() );
 }
 
 
@@ -201,11 +201,11 @@ bool curiosity_edit_frame_t::action_triggered( gui_action_creator_t *komp,value_
 				rotation --;
 			}
 		}
-		else if(  komp==&bt_right_rotate  &&  rotation!=besch->gib_all_layouts()-1) {
+		else if(  komp==&bt_right_rotate  &&  rotation!=besch->get_all_layouts()-1) {
 			rotation ++;
 		}
 		// update info ...
-		change_item_info( scl.gib_selection() );
+		change_item_info( scl.get_selection() );
 	}
 	return extend_edit_gui_t::action_triggered(komp,e);
 }
@@ -221,20 +221,20 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 
 			buf.clear();
 			besch = new_besch;
-			if(besch->gib_utyp()==haus_besch_t::attraction_city) {
-				buf.printf("%s (%s: %i)",translator::translate( "City attraction" ), translator::translate("Bauzeit"),besch->gib_extra());
+			if(besch->get_utyp()==haus_besch_t::attraction_city) {
+				buf.printf("%s (%s: %i)",translator::translate( "City attraction" ), translator::translate("Bauzeit"),besch->get_extra());
 			}
-			else if(besch->gib_utyp()==haus_besch_t::attraction_land) {
+			else if(besch->get_utyp()==haus_besch_t::attraction_land) {
 				buf.append( translator::translate( "Land attraction" ) );
 			}
-			else if(besch->gib_utyp()==haus_besch_t::denkmal) {
+			else if(besch->get_utyp()==haus_besch_t::denkmal) {
 				buf.append( translator::translate( "Monument" ) );
 			}
 			buf.append("\n\n");
-			buf.append( translator::translate( besch->gib_name() ) );
+			buf.append( translator::translate( besch->get_name() ) );
 
-			buf.printf("\n%s: %i\n",translator::translate("Passagierrate"),besch->gib_level());
-			buf.printf("%s: %i\n",translator::translate("Postrate"),besch->gib_post_level());
+			buf.printf("\n%s: %i\n",translator::translate("Passagierrate"),besch->get_level());
+			buf.printf("%s: %i\n",translator::translate("Postrate"),besch->get_post_level());
 
 			buf.append(translator::translate("\nBauzeit von"));
 			buf.append(besch->get_intro_year_month()/12);
@@ -244,7 +244,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 			}
 			buf.append("\n");
 
-			const char *maker=besch->gib_copyright();
+			const char *maker=besch->get_copyright();
 			if(maker!=NULL  && maker[0]!=0) {
 				buf.append("\n");
 				buf.printf(translator::translate("Constructed by %s"), maker);
@@ -252,10 +252,10 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 			}
 
 			info_text.recalc_size();
-			cont.setze_groesse( info_text.gib_groesse() );
+			cont.set_groesse( info_text.get_groesse() );
 
 			// orientation (255=random)
-			if(besch->gib_all_layouts()>1) {
+			if(besch->get_all_layouts()>1) {
 				rotation = 255; // no definition yet
 			}
 			else {
@@ -278,30 +278,30 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		}
 
 		uint8 rot = (rotation==255) ? 0 : rotation;
-		if(besch->gib_b(rot)==1) {
-			if(besch->gib_h(rot)==1) {
-				img[3].set_image( besch->gib_tile(rot,0,0)->gib_hintergrund(0,0,0) );
+		if(besch->get_b(rot)==1) {
+			if(besch->get_h(rot)==1) {
+				img[3].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
 			}
 			else {
-				img[2].set_image( besch->gib_tile(rot,0,0)->gib_hintergrund(0,0,0) );
-				img[3].set_image( besch->gib_tile(rot,0,1)->gib_hintergrund(0,0,0) );
+				img[2].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
+				img[3].set_image( besch->get_tile(rot,0,1)->get_hintergrund(0,0,0) );
 			}
 		}
 		else {
-			if(besch->gib_h(rot)==1) {
-				img[1].set_image( besch->gib_tile(rot,0,0)->gib_hintergrund(0,0,0) );
-				img[3].set_image( besch->gib_tile(rot,1,0)->gib_hintergrund(0,0,0) );
+			if(besch->get_h(rot)==1) {
+				img[1].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
+				img[3].set_image( besch->get_tile(rot,1,0)->get_hintergrund(0,0,0) );
 			}
 			else {
 				// maximum 2x2 image
 				for(int i=0;  i<4;  i++  ) {
-					img[i].set_image( besch->gib_tile(rot,i/2,i&1)->gib_hintergrund(0,0,0) );
+					img[i].set_image( besch->get_tile(rot,i/2,i&1)->get_hintergrund(0,0,0) );
 				}
 			}
 		}
 
 		// the tools will be always updated, even though the data up there might be still current
-		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, besch->gib_name() );
+		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, besch->get_name() );
 		haus_tool.default_param = param_str;
 		welt->set_werkzeug( &haus_tool );
 	}
@@ -311,7 +311,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		}
 		tstrncpy( rot_str, translator::translate("random"), 16 );
 		uint8 rot = (rotation==255) ? 0 : rotation;
-		img[3].set_image( besch->gib_tile(rot,0,0)->gib_hintergrund(0,0,0) );
+		img[3].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
 
 		besch = NULL;
 		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );

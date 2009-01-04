@@ -22,7 +22,7 @@ void pedestrian_reader_t::register_obj(obj_besch_t *&data)
 
 	fussgaenger_t::register_besch(besch);
 
-	obj_for_xref(get_type(), besch->gib_name(), data);
+	obj_for_xref(get_type(), besch->get_name(), data);
 }
 
 

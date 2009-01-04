@@ -30,7 +30,7 @@ template<class besch_t> struct spezial_obj_tpl {
 template<class besch_t> bool register_besch(spezial_obj_tpl<besch_t>* so, const besch_t* besch)
 {
 	for (; so->name; ++so) {
-		if (strcmp(so->name, besch->gib_name()) == 0) {
+		if (strcmp(so->name, besch->get_name()) == 0) {
 			if (*so->besch != NULL) {
 				dbg->message("register_besch()", "Notice: obj %s already defined", so->name);
 			}

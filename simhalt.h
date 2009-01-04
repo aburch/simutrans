@@ -113,13 +113,13 @@ public:
 	 * @return halthandle_t(), if nothing found
 	 * @author prissi
 	 */
-	static halthandle_t gib_halt(karte_t *welt, const koord pos);
+	static halthandle_t get_halt(karte_t *welt, const koord pos);
 
 	// Hajo: for future compatibility, migrate to this call
 	// but since we allow only for a single stop per planquadrat, this is as good as the above
-	static halthandle_t gib_halt(karte_t *welt, const koord3d pos);
+	static halthandle_t get_halt(karte_t *welt, const koord3d pos);
 
-	static const slist_tpl<halthandle_t>& gib_alle_haltestellen() { return alle_haltestellen; }
+	static const slist_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 
 	/**
 	 * Station factory method. Returns handles instead of pointers.
@@ -288,7 +288,7 @@ public:
 	 * Calculates a status color for status bars
 	 * @author Hj. Malthaner
 	 */
-	int gib_status_farbe() const { return status_color; }
+	int get_status_farbe() const { return status_color; }
 
 	/**
 	 * Draws some nice colored bars giving some status information
@@ -315,21 +315,21 @@ public:
 
 	void rotate90( const sint16 y_size );
 
-	spieler_t *gib_besitzer() const {return besitzer_p;}
+	spieler_t *get_besitzer() const {return besitzer_p;}
 
 	// just for info so far
 	sint64 calc_maintenance();
 
 	void make_public_and_join( spieler_t *sp );
 
-	const slist_tpl<warenziel_t> * gib_warenziele_passenger() const {return &warenziele_passenger;}
-	const slist_tpl<warenziel_t> * gib_warenziele_mail() const {return &warenziele_mail;}
-	const slist_tpl<warenziel_t> * gib_warenziele_freight() const {return &warenziele_freight;}
+	const slist_tpl<warenziel_t> * get_warenziele_passenger() const {return &warenziele_passenger;}
+	const slist_tpl<warenziel_t> * get_warenziele_mail() const {return &warenziele_mail;}
+	const slist_tpl<warenziel_t> * get_warenziele_freight() const {return &warenziele_freight;}
 
 	// returns the matchin warenziele
-	const slist_tpl<warenziel_t> * gib_warenziele(uint8 catg_index) const {return &(catg_index==0 ? warenziele_passenger : (catg_index==1 ? warenziele_mail : warenziele_freight));}
+	const slist_tpl<warenziel_t> * get_warenziele(uint8 catg_index) const {return &(catg_index==0 ? warenziele_passenger : (catg_index==1 ? warenziele_mail : warenziele_freight));}
 
-	const slist_tpl<fabrik_t*>& gib_fab_list() const { return fab_list; }
+	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
 	/**
 	 * Haltestellen messen regelmaessig die Fahrplaene pruefen
@@ -402,7 +402,7 @@ public:
 
 
 #ifdef LAGER_NOT_IN_USE
-	void setze_lager(lagerhaus_t* l) { lager = l; }
+	void set_lager(lagerhaus_t* l) { lager = l; }
 #endif
 
 	bool add_grund(grund_t *gb);
@@ -412,9 +412,9 @@ public:
 
 	bool existiert_in_welt();
 
-	koord gib_init_pos() const { return init_pos; }
-	koord gib_basis_pos() const;
-	koord3d gib_basis_pos3d() const;
+	koord get_init_pos() const { return init_pos; }
+	koord get_basis_pos() const;
+	koord3d get_basis_pos3d() const;
 
 	/* return the closest square that belongs to this halt
 	 * @author prissi
@@ -425,19 +425,19 @@ public:
 	 * gibt Gesamtmenge derware vom typ typ zurück
 	 * @author Hj. Malthaner
 	 */
-	uint32 gib_ware_summe(const ware_besch_t *warentyp) const;
+	uint32 get_ware_summe(const ware_besch_t *warentyp) const;
 
 	/**
 	 * returns total number for a certain position (since more than one factory might connect to a stop)
 	 * @author Hj. Malthaner
 	 */
-	uint32 gib_ware_fuer_zielpos(const ware_besch_t *warentyp, const koord zielpos) const;
+	uint32 get_ware_fuer_zielpos(const ware_besch_t *warentyp, const koord zielpos) const;
 
 	/**
 	 * gibt Gesamtmenge derw are vom typ typ fuer zwischenziel zurück
 	 * @author prissi
 	 */
-	uint32 gib_ware_fuer_zwischenziel(const ware_besch_t *warentyp, const halthandle_t zwischenziel) const;
+	uint32 get_ware_fuer_zwischenziel(const ware_besch_t *warentyp, const halthandle_t zwischenziel) const;
 
 	/**
 	 * @returns the sum of all waiting goods (100t coal + 10
@@ -447,7 +447,7 @@ public:
 	uint32 sum_all_waiting_goods() const;
 
 	// true, if we accept/deliver this kind of good
-	bool gibt_ab(const ware_besch_t *warentyp) const { return waren[warentyp->gib_catg_index()] != NULL; }
+	bool gibt_ab(const ware_besch_t *warentyp) const { return waren[warentyp->get_catg_index()] != NULL; }
 
 	/* retrieves a ware packet for any destination in the list
 	 * needed, if the factory in question wants to remove something
@@ -540,9 +540,9 @@ public:
 	 * @return der Name der Haltestelle.
 	 * @author Hj. Malthaner
 	 */
-	const char *gib_name() const;
+	const char *get_name() const;
 
-	void setze_name(const char *name);
+	void set_name(const char *name);
 
 	// create an unique name: better to be called with valid handle, althoug it will work without
 	char *create_name(const koord k, const char *typ);

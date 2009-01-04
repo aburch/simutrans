@@ -29,15 +29,15 @@ private:
 	uint16 production_per_field;
 
 public:
-	const skin_besch_t *gib_bilder() const { return static_cast<const skin_besch_t *>(gib_kind(0)); }
-	const char *gib_name() const { return gib_bilder()->gib_name(); }
-	const char *gib_copyright() const { return gib_bilder()->gib_copyright(); }
+	const skin_besch_t *get_bilder() const { return static_cast<const skin_besch_t *>(get_kind(0)); }
+	const char *get_name() const { return get_bilder()->get_name(); }
+	const char *get_copyright() const { return get_bilder()->get_copyright(); }
 
 	uint8 has_snow_bild() const { return has_winter; }
-	uint16 gib_probability() const { return probability; }
-	uint16 gib_max_fields() const { return max_fields; }
-	uint16 gib_min_fields() const { return min_fields; }
-	uint16 gib_field_production() const { return production_per_field; }
+	uint16 get_probability() const { return probability; }
+	uint16 get_max_fields() const { return max_fields; }
+	uint16 get_min_fields() const { return min_fields; }
+	uint16 get_field_production() const { return production_per_field; }
 };
 
 
@@ -63,12 +63,12 @@ private:
 	sint16 zeitmaske;
 
 public:
-	const char *gib_name() const { return gib_bilder()->gib_name(); }
-	const char *gib_copyright() const { return gib_bilder()->gib_copyright(); }
-	const skin_besch_t *gib_bilder() const { return static_cast<const skin_besch_t *>(gib_kind(0)); }
-	koord gib_pos_off() const { return pos_off; }
-	koord gib_xy_off() const { return xy_off; }
-	sint16 gib_zeitmaske() const { return zeitmaske; }
+	const char *get_name() const { return get_bilder()->get_name(); }
+	const char *get_copyright() const { return get_bilder()->get_copyright(); }
+	const skin_besch_t *get_bilder() const { return static_cast<const skin_besch_t *>(get_kind(0)); }
+	koord get_pos_off() const { return pos_off; }
+	koord get_xy_off() const { return xy_off; }
+	sint16 get_zeitmaske() const { return zeitmaske; }
 };
 
 
@@ -92,10 +92,10 @@ private:
 	uint16  verbrauch;
 
 public:
-	const ware_besch_t *gib_ware() const { return static_cast<const ware_besch_t *>(gib_kind(0)); }
-	int gib_kapazitaet() const { return kapazitaet; }
-	int gib_anzahl() const { return anzahl; }
-	int gib_verbrauch() const { return verbrauch; }
+	const ware_besch_t *get_ware() const { return static_cast<const ware_besch_t *>(get_kind(0)); }
+	int get_kapazitaet() const { return kapazitaet; }
+	int get_anzahl() const { return anzahl; }
+	int get_verbrauch() const { return verbrauch; }
 };
 
 
@@ -124,9 +124,9 @@ private:
     uint16 faktor;
 
 public:
-	const ware_besch_t *gib_ware() const { return static_cast<const ware_besch_t *>(gib_kind(0)); }
-	uint32 gib_kapazitaet() const { return kapazitaet; }
-	uint32 gib_faktor() const { return faktor; }
+	const ware_besch_t *get_ware() const { return static_cast<const ware_besch_t *>(get_kind(0)); }
+	uint32 get_kapazitaet() const { return kapazitaet; }
+	uint32 get_faktor() const { return faktor; }
 };
 
 
@@ -171,40 +171,40 @@ public:
 	/*
 	* Name und Copyright sind beim Gebäude gespeichert!
 	*/
-	const char *gib_name() const { return gib_haus()->gib_name(); }
-	const char *gib_copyright() const { return gib_haus()->gib_copyright(); }
-	const haus_besch_t *gib_haus() const { return static_cast<const haus_besch_t *>(gib_kind(0)); }
-	const rauch_besch_t *gib_rauch() const { return static_cast<const rauch_besch_t *>(gib_kind(1)); }
+	const char *get_name() const { return get_haus()->get_name(); }
+	const char *get_copyright() const { return get_haus()->get_copyright(); }
+	const haus_besch_t *get_haus() const { return static_cast<const haus_besch_t *>(get_kind(0)); }
+	const rauch_besch_t *get_rauch() const { return static_cast<const rauch_besch_t *>(get_kind(1)); }
 
 	// we must take care, for the case of no producer/consumer
-	const fabrik_lieferant_besch_t *gib_lieferant(int i) const
+	const fabrik_lieferant_besch_t *get_lieferant(int i) const
 	{
-		return (i >= 0 && i < lieferanten) ? static_cast<const fabrik_lieferant_besch_t *>(gib_kind(2 + i)) : NULL;
+		return (i >= 0 && i < lieferanten) ? static_cast<const fabrik_lieferant_besch_t *>(get_kind(2 + i)) : NULL;
 	}
-	const fabrik_produkt_besch_t *gib_produkt(int i) const
+	const fabrik_produkt_besch_t *get_produkt(int i) const
 	{
-		return (i >= 0 && i < produkte) ? static_cast<const fabrik_produkt_besch_t *>(gib_kind(2 + lieferanten + i)) : NULL;
+		return (i >= 0 && i < produkte) ? static_cast<const fabrik_produkt_besch_t *>(get_kind(2 + lieferanten + i)) : NULL;
 	}
-	const field_besch_t *gib_field() const {
+	const field_besch_t *get_field() const {
 		if(!fields) return NULL;
-		return static_cast<const field_besch_t *>(gib_kind(2 + lieferanten + produkte));
+		return static_cast<const field_besch_t *>(get_kind(2 + lieferanten + produkte));
 	}
 
-	int gib_lieferanten() const { return lieferanten; }
-	uint gib_produkte() const { return produkte; }
+	int get_lieferanten() const { return lieferanten; }
+	uint get_produkte() const { return produkte; }
 
 	/* where to built */
-	enum platzierung gib_platzierung() const { return platzierung; }
-	int gib_gewichtung() const { return gewichtung;     }
+	enum platzierung get_platzierung() const { return platzierung; }
+	int get_gewichtung() const { return gewichtung;     }
 
-	uint8 gib_kennfarbe() const { return kennfarbe; }
+	uint8 get_kennfarbe() const { return kennfarbe; }
 
-	void setze_produktivitaet(int p) { produktivitaet=p; }
-	int gib_produktivitaet() const { return produktivitaet; }
-	int gib_bereich() const { return bereich; }
+	void set_produktivitaet(int p) { produktivitaet=p; }
+	int get_produktivitaet() const { return produktivitaet; }
+	int get_bereich() const { return bereich; }
 
 	/* level for post and passenger generation */
-	int gib_pax_level() const { return pax_level; }
+	int get_pax_level() const { return pax_level; }
 
 	int is_electricity_producer() const { return electricity_producer; }
 };

@@ -66,10 +66,10 @@ public:
 	virtual bool ist_weg_frei() { return 1; }
 	virtual bool hop_check();
 	virtual void hop();
-	virtual waytype_t gib_waytype() const { return gib_besch()->get_waytype(); }
+	virtual waytype_t get_waytype() const { return get_besch()->get_waytype(); }
 
-	const char *gib_name() const {return "Movingobj";}
-	enum ding_t::typ gib_typ() const {return movingobj;}
+	const char *get_name() const {return "Movingobj";}
+	enum ding_t::typ get_typ() const {return movingobj;}
 
 	bool check_season(const long delta_t);
 
@@ -79,7 +79,7 @@ public:
 
 	void entferne(spieler_t *sp);
 
-	const groundobj_besch_t* gib_besch() const { return movingobj_typen[groundobjtype]; }
+	const groundobj_besch_t* get_besch() const { return movingobj_typen[groundobjtype]; }
 
 	void * operator new(size_t s);
 	void operator delete(void *p);

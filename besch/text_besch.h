@@ -18,7 +18,7 @@ class text_besch_t : public obj_besch_t {
     friend class text_writer_t;
 
 public:
-		const char* gib_text() const { return text; }
+		const char* get_text() const { return text; }
 
 		using obj_besch_t::operator new;
 

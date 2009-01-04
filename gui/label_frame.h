@@ -62,7 +62,7 @@ public:
 	* @return den Dateinamen für die Hilfe, oder NULL
 	* @author Hj. Malthaner
 	*/
-	const char * gib_hilfe_datei() const { return "label_frame.txt"; }
+	const char * get_hilfe_datei() const { return "label_frame.txt"; }
 
 	/**
 	 * resize window in response to a resize event

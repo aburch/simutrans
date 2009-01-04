@@ -36,14 +36,14 @@ public:
 	* @return den nicht uebersetzten Namen der Komponente
 	* @author Hj. Malthaner
 	*/
-	const char* gib_name() const { return "baum builder"; }
+	const char* get_name() const { return "baum builder"; }
 
 	/**
 	* Manche Fenster haben einen Hilfetext assoziiert.
 	* @return den Dateinamen für die Hilfe, oder NULL
 	* @author Hj. Malthaner
 	*/
-	const char* gib_hilfe_datei() const { return "baum_build.txt"; }
+	const char* get_hilfe_datei() const { return "baum_build.txt"; }
 
 	/**
 	* This method is called if an action is triggered

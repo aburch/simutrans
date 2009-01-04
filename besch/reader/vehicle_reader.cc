@@ -17,7 +17,7 @@ vehicle_reader_t::register_obj(obj_besch_t *&data)
 {
 	vehikel_besch_t *besch = static_cast<vehikel_besch_t *>(data);
 	vehikelbauer_t::register_besch(besch);
-	obj_for_xref(get_type(), besch->gib_name(), data);
+	obj_for_xref(get_type(), besch->get_name(), data);
 }
 
 
@@ -235,7 +235,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		for(uint8 i=0; i<len; i++) {
 			wavname[i] = decode_sint8(p);
 		}
-		besch->sound = (sint8)sound_besch_t::gib_sound_id(wavname);
+		besch->sound = (sint8)sound_besch_t::get_sound_id(wavname);
 DBG_MESSAGE("vehicle_reader_t::register_obj()","sound %s to %i",wavname,besch->sound);
 	}
 	else if(besch->sound>=0  &&  besch->sound<=MAX_OLD_SOUNDS) {

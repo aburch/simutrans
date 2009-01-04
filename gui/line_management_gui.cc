@@ -21,7 +21,7 @@ line_management_gui_t::line_management_gui_t(linehandle_t line, spieler_t* sp) :
 }
 
 const char *
-line_management_gui_t::gib_name() const
+line_management_gui_t::get_name() const
 {
 	return translator::translate("Line Management");
 }

@@ -47,7 +47,7 @@ public:
 	 * @return den Dateinamen für die Hilfe, oder NULL
 	 * @author Hj. Malthaner
 	 */
-	virtual const char * gib_hilfe_datei() const {return NULL;}
+	virtual const char * get_hilfe_datei() const {return NULL;}
 
 	/**
 	 * Does this window need a min size button in the title bar?
@@ -75,7 +75,7 @@ public:
 	 * @return den nicht uebersetzten Namen der Komponente
 	 * @author Hj. Malthaner
 	 */
-	virtual const char * gib_name() const = 0;
+	virtual const char * get_name() const = 0;
 
 	/**
 	 * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
@@ -88,7 +88,7 @@ public:
 	 * @return gibt wunschgroesse für das Darstellungsfenster zurueck
 	 * @author Hj. Malthaner
 	 */
-	virtual koord gib_fenstergroesse() const = 0;
+	virtual koord get_fenstergroesse() const = 0;
 
 	/**
 	 * Prüft, ob eine Position innerhalb der Komponente liegt.
@@ -96,7 +96,7 @@ public:
 	 */
 	virtual bool getroffen(int x, int y)
 	{
-		koord groesse = gib_fenstergroesse();
+		koord groesse = get_fenstergroesse();
 		return (x>=0 && y>=0 && groesse.x >= x && groesse.y >= y);
 	}
 

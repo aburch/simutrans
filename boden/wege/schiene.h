@@ -43,7 +43,7 @@ public:
 
 	schiene_t(karte_t *welt);
 
-	virtual waytype_t gib_waytype() const {return track_wt;}
+	virtual waytype_t get_waytype() const {return track_wt;}
 
 	/**
 	* Calculates the image of this pice of railroad track.
@@ -106,7 +106,7 @@ public:
 	 * then a transparent outline with the color form the lower 8 Bit is drawn
 	 * @author kierongreen
 	 */
-	virtual PLAYER_COLOR_VAL gib_outline_colour() const { return (show_reservations  &&  reserved.is_bound()) ? TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_RED : 0;}
+	virtual PLAYER_COLOR_VAL get_outline_colour() const { return (show_reservations  &&  reserved.is_bound()) ? TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_RED : 0;}
 };
 
 #endif

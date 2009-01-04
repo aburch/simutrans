@@ -74,7 +74,7 @@ DBG_MESSAGE("sound_besch_t::init()","successfully opened sound/sound.tab"  );
 			const char *fn=ltrim(contents.get(buf));
 			if(fn[0]>0) {
 DBG_MESSAGE("sound_besch_t::init()","reading sound %s", fn  );
-				compatible_sound_id[i] = gib_sound_id( fn );
+				compatible_sound_id[i] = get_sound_id( fn );
 DBG_MESSAGE("sound_besch_t::init()","assigned system sound %d to sound %s (id=%i)", i, fn, compatible_sound_id[i] );
 			}
 		}
@@ -86,7 +86,7 @@ DBG_MESSAGE("sound_besch_t::init()","assigned system sound %d to sound %s (id=%i
 
 /* return sound id from index */
 sint16
-sound_besch_t::gib_sound_id(const char *name)
+sound_besch_t::get_sound_id(const char *name)
 {
 	if(!sound_on) {
 		return NO_SOUND;
@@ -98,13 +98,13 @@ sound_besch_t::gib_sound_id(const char *name)
 		if(id!=NO_SOUND) {
 			s = new sound_ids(id,name);
 			name_sound.put(s->filename, s );
-DBG_MESSAGE("sound_besch_t::gib_sound_id()","successfully loaded sound %s internal id %i", s->filename, s->id );
+DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully loaded sound %s internal id %i", s->filename, s->id );
 			return s->id;
 		}
-		dbg->warning("sound_besch_t::gib_sound_id()","sound \"%s\" not found", name );
+		dbg->warning("sound_besch_t::get_sound_id()","sound \"%s\" not found", name );
 		return NO_SOUND;
 	}
-DBG_MESSAGE("sound_besch_t::gib_sound_id()","successfully retrieved sound %s internal id %i", s->filename, s->id );
+DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully retrieved sound %s internal id %i", s->filename, s->id );
 	return s->id;
 }
 
@@ -121,16 +121,16 @@ sound_besch_t::register_besch(sound_besch_t *besch)
 		return false;
 	}
 	// register, if not there (all done by this one here)
-	besch->sound_id = gib_sound_id( besch->gib_name() );
+	besch->sound_id = get_sound_id( besch->get_name() );
 	if(besch->sound_id!=NO_SOUND) {
 		if(besch->nr>=0  &&  besch->nr<=8) {
 			compatible_sound_id[besch->nr] = besch->sound_id;
-DBG_MESSAGE("sound_besch_t::gib_sound_id()","successfully registered sound %s internal id %i as compatible sound %i", besch->gib_name(), besch->sound_id, besch->nr );
+DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully registered sound %s internal id %i as compatible sound %i", besch->get_name(), besch->sound_id, besch->nr );
 		}
 		delete besch;
 		return true;
 	}
-	dbg->warning("sound_besch_t::gib_sound_id()","failed to register sound %s internal id %i", besch->gib_name() );
+	dbg->warning("sound_besch_t::get_sound_id()","failed to register sound %s internal id %i", besch->get_name() );
 	delete besch;
 	return false;
 }

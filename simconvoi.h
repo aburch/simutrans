@@ -95,7 +95,7 @@ private:
 
 	/**
 	* Name of the convoi.
-	* @see setze_name
+	* @see set_name
 	* @author V. Meyer
 	*/
 	uint8 name_offset;
@@ -299,7 +299,7 @@ private:
 	* Mark first and last vehicle.
 	* @author Hanjsörg Malthaner
 	*/
-	void setze_erstes_letztes();
+	void set_erstes_letztes();
 
 	// returns the index of the vehikel at position length (16=1 tile)
 	int get_vehicle_at_length(uint16);
@@ -415,7 +415,7 @@ public:
 	* Der Gewinn in diesem Jahr
 	* @author Hanjsörg Malthaner
 	*/
-	const sint64 & gib_jahresgewinn() const {return jahresgewinn;}
+	const sint64 & get_jahresgewinn() const {return jahresgewinn;}
 
 	/**
 	* returns the total running cost for all vehicles in convoi
@@ -460,7 +460,7 @@ public:
 	* @return Name des Convois
 	* @author Hj. Malthaner
 	*/
-	const char *gib_internal_name() const {return name_and_id+name_offset;}
+	const char *get_internal_name() const {return name_and_id+name_offset;}
 
 	/**
 	* Allows editing ...
@@ -474,43 +474,43 @@ public:
 	* @return Name des Convois
 	* @author Hj. Malthaner
 	*/
-	const char *gib_name() const {return name_and_id;}
+	const char *get_name() const {return name_and_id;}
 
 	/**
 	* Sets the name. Copies name into this->name and translates it.
 	* @author V. Meyer
 	*/
-	void setze_name(const char *name);
+	void set_name(const char *name);
 
 	/**
 	 * Gibt die Position des Convois zurück.
 	 * @return Position des Convois
 	 * @author Hj. Malthaner
 	 */
-	koord3d gib_pos() const;
+	koord3d get_pos() const;
 
 	/**
 	 * sets the current target speed
 	 * set from the first vehicle, and takes into account all speed limits, brakes at stations etc.
 	 * @author Hj. Malthaner
 	 */
-	void setze_akt_speed_soll(sint32 set_akt_speed) { akt_speed_soll = min( set_akt_speed, min_top_speed ); }
+	void set_akt_speed_soll(sint32 set_akt_speed) { akt_speed_soll = min( set_akt_speed, min_top_speed ); }
 
 	/**
 	 * @return current speed, this might be different from topspeed
 	 *         actual currently set speed.
 	 * @author Hj. Malthaner
 	 */
-	const sint32& gib_akt_speed() const { return akt_speed; }
+	const sint32& get_akt_speed() const { return akt_speed; }
 
 	/**
 	 * @return total power of this convoi
 	 * @author Hj. Malthaner
 	 */
-	const uint32 & gib_sum_leistung() const {return sum_leistung;}
-	const sint32 & gib_min_top_speed() const {return min_top_speed;}
-	const sint32 & gib_sum_gewicht() const {return sum_gewicht;}
-	const sint32 & gib_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
+	const uint32 & get_sum_leistung() const {return sum_leistung;}
+	const sint32 & get_min_top_speed() const {return min_top_speed;}
+	const sint32 & get_sum_gewicht() const {return sum_gewicht;}
+	const sint32 & get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
 
 	uint32 get_length() const;
 
@@ -566,12 +566,12 @@ public:
 	* @return Vehicle count
 	* @author Hj. Malthaner
 	*/
-	uint8 gib_vehikel_anzahl() const { return anz_vehikel; }
+	uint8 get_vehikel_anzahl() const { return anz_vehikel; }
 
 	/**
 	 * @return Vehicle at position i
 	 */
-	vehikel_t* gib_vehikel(uint16 i) const { return fahr[i]; }
+	vehikel_t* get_vehikel(uint16 i) const { return fahr[i]; }
 
 	/**
 	* Adds a vehicel at the start or end of the convoi.
@@ -608,7 +608,7 @@ public:
 	* @return Owner of this convoi
 	* @author Hj. Malthaner
 	*/
-	spieler_t * gib_besitzer() { return besitzer_p; }
+	spieler_t * get_besitzer() { return besitzer_p; }
 
 	/**
 	* Opens an information window

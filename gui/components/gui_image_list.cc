@@ -71,7 +71,7 @@ void gui_image_list_t::zeichnen(koord parent_pos)
 	const int columns = (groesse.x - 2 * BORDER) / grid.x;
 
 	// sel_index should come from infowin_event, but it is not sure?
-	const unsigned int sel_index = index_at(parent_pos, gib_maus_x(), gib_maus_y());
+	const unsigned int sel_index = index_at(parent_pos, get_maus_x(), get_maus_y());
 
 	// zeige verfügbare waggontypen
 	int xmin = parent_pos.x + pos.x + BORDER;
@@ -141,5 +141,5 @@ void gui_image_list_t::recalc_size()
 	if(rows== 0) {
 		rows = 1;
 	}
-	setze_groesse(koord(groesse.x, rows * grid.y + 2*BORDER));
+	set_groesse(koord(groesse.x, rows * grid.y + 2*BORDER));
 }

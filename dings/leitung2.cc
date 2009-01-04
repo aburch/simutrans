@@ -46,14 +46,14 @@ int
 leitung_t::gimme_neighbours(leitung_t **conn)
 {
 	int count = 0;
-	grund_t *gr_base = welt->lookup(gib_pos());
+	grund_t *gr_base = welt->lookup(get_pos());
 	for(int i=0; i<4; i++) {
 		// get next connected tile (if there)
 		grund_t *gr;
 		conn[i] = NULL;
 		if(  gr_base->get_neighbour( gr, invalid_wt, koord::nsow[i] ) ) {
-			leitung_t *lt = gr->gib_leitung();
-			if(  lt  &&  spieler_t::check_owner(gib_besitzer(), lt->gib_besitzer())  ) {
+			leitung_t *lt = gr->get_leitung();
+			if(  lt  &&  spieler_t::check_owner(get_besitzer(), lt->get_besitzer())  ) {
 				conn[i] = lt;
 				count++;
 			}
@@ -68,7 +68,7 @@ fabrik_t *
 leitung_t::suche_fab_4(const koord pos)
 {
 	for(int k=0; k<4; k++) {
-		fabrik_t *fab = fabrik_t::gib_fab( welt, pos+koord::nsow[k] );
+		fabrik_t *fab = fabrik_t::get_fab( welt, pos+koord::nsow[k] );
 		if(fab) {
 			return fab;
 		}
@@ -87,14 +87,14 @@ leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 leitung_t::leitung_t(karte_t *welt, koord3d pos, spieler_t *sp) : ding_t(welt, pos)
 {
 	set_net(NULL);
-	setze_besitzer( sp );
+	set_besitzer( sp );
 }
 
 
 
 leitung_t::~leitung_t()
 {
-	grund_t *gr = welt->lookup(gib_pos());
+	grund_t *gr = welt->lookup(get_pos());
 	if(gr) {
 		leitung_t *conn[4];
 		int neighbours = gimme_neighbours(conn);
@@ -133,10 +133,10 @@ leitung_t::~leitung_t()
 				delete net;
 			}
 			else {
-				dbg->warning("~leitung()","net %p already deleted at (%i,%i)!",net,gr->gib_pos().x,gr->gib_pos().y);
+				dbg->warning("~leitung()","net %p already deleted at (%i,%i)!",net,gr->get_pos().x,gr->get_pos().y);
 			}
 		}
-		spieler_t::add_maintenance(gib_besitzer(), -wegbauer_t::leitung_besch->gib_wartung());
+		spieler_t::add_maintenance(get_besitzer(), -wegbauer_t::leitung_besch->get_wartung());
 	}
 }
 
@@ -145,7 +145,7 @@ leitung_t::~leitung_t()
 void
 leitung_t::entferne(spieler_t *sp)
 {
-	spieler_t::accounting(sp, -wegbauer_t::leitung_besch->gib_preis()/2, gib_pos().gib_2d(), COST_CONSTRUCTION);
+	spieler_t::accounting(sp, -wegbauer_t::leitung_besch->get_preis()/2, get_pos().get_2d(), COST_CONSTRUCTION);
 	mark_image_dirty( bild, 0 );
 }
 
@@ -171,52 +171,52 @@ void leitung_t::rotate90()
 
 	// first: test for slope
 	if(old_ribi==ribi_t::nordsued) {
-		if(bild==wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::nord, 0)) {
-			bild = wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::ost, 0);
+		if(bild==wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::nord, 0)) {
+			bild = wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::ost, 0);
 			return;
 		}
-		else if(bild==wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::sued, 0)) {
-			bild = wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::west, 0);
+		else if(bild==wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::sued, 0)) {
+			bild = wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::west, 0);
 			return;
 		}
 	}
 	else {
-		if(bild==wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::west, 0)) {
-			bild = wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::nord, 0);
+		if(bild==wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::west, 0)) {
+			bild = wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::nord, 0);
 			return;
 		}
-		else if(bild==wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::ost, 0)) {
-			bild = wegbauer_t::leitung_besch->gib_hang_bild_nr(hang_t::sued, 0);
+		else if(bild==wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::ost, 0)) {
+			bild = wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::sued, 0);
 			return;
 		}
 	}
 
-	if(bild != wegbauer_t::leitung_besch->gib_bild_nr(old_ribi,0)) {
+	if(bild != wegbauer_t::leitung_besch->get_bild_nr(old_ribi,0)) {
 		// missing mast or crossing graphics are saved here
 		if(ribi_t::ist_gerade_ns(old_ribi)) {
-			if(bild==wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::ost,0)) {
+			if(bild==wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::ost,0)) {
 				// crossing
-				bild = wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::ost,0);
+				bild = wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::ost,0);
 			}
 			else {
 				// missing mast
-				bild = wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::west,0);
+				bild = wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::west,0);
 			}
 		}
 		else {
-			if(bild==wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::ost,0)) {
+			if(bild==wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::ost,0)) {
 				// crossing
-				bild = wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::ost,0);
+				bild = wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::ost,0);
 			}
 			else {
 				// missing mast
-				bild = wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::west,0);
+				bild = wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::west,0);
 			}
 		}
 	}
 	else {
 		// or just a normal tile ...
-		bild = wegbauer_t::leitung_besch->gib_bild_nr(ribi,0);
+		bild = wegbauer_t::leitung_besch->get_bild_nr(ribi,0);
 	}
 }
 
@@ -254,7 +254,7 @@ void leitung_t::verbinde()
 {
 	// first get my own ...
 	powernet_t *new_net = get_net();
-//DBG_MESSAGE("leitung_t::verbinde()","Searching net at (%i,%i)",gib_pos().x,gib_pos().x);
+//DBG_MESSAGE("leitung_t::verbinde()","Searching net at (%i,%i)",get_pos().x,get_pos().x);
 	leitung_t * conn[4];
 	if(gimme_neighbours(conn)>0) {
 		for( uint8 i=0;  i<4 && new_net==NULL;  i++  ) {
@@ -297,45 +297,45 @@ void leitung_t::verbinde()
 /* extended by prissi */
 void leitung_t::recalc_bild()
 {
-	const koord pos = gib_pos().gib_2d();
+	const koord pos = get_pos().get_2d();
 
-	grund_t *gr = welt->lookup(gib_pos());
+	grund_t *gr = welt->lookup(get_pos());
 	if(gr==NULL) {
 		// no valid ground; usually happens during building ...
 		return;
 	}
 	if(gr->ist_bruecke()) {
 		// don't display on a bridge)
-		setze_bild(IMG_LEER);
+		set_bild(IMG_LEER);
 		return;
 	}
 
-	hang_t::typ hang = gr->gib_weg_hang();
+	hang_t::typ hang = gr->get_weg_hang();
 	if(hang != hang_t::flach) {
-		setze_bild( wegbauer_t::leitung_besch->gib_hang_bild_nr(hang, 0));
+		set_bild( wegbauer_t::leitung_besch->get_hang_bild_nr(hang, 0));
 	}
 	else {
 		if(gr->hat_wege()) {
 			// crossing with road or rail
 			if(ribi_t::ist_gerade_ns(ribi)) {
-				setze_bild( wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::ost,0));
+				set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::ost,0));
 			}
 			else {
-				setze_bild( wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::ost,0));
+				set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::ost,0));
 			}
 		}
 		else {
 			if(ribi_t::ist_gerade(ribi)  &&  !ribi_t::ist_einfach(ribi)  &&  (pos.x+pos.y)&1) {
 				// every second skip mast
 				if(ribi_t::ist_gerade_ns(ribi)) {
-					setze_bild( wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::west,0));
+					set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::west,0));
 				}
 				else {
-					setze_bild( wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::west,0));
+					set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::west,0));
 				}
 			}
 			else {
-				setze_bild( wegbauer_t::leitung_besch->gib_bild_nr(ribi,0));
+				set_bild( wegbauer_t::leitung_besch->get_bild_nr(ribi,0));
 			}
 		}
 	}
@@ -393,9 +393,9 @@ void leitung_t::laden_abschliessen()
 {
 	verbinde();
 	calc_neighbourhood();
-	grund_t *gr = welt->lookup(gib_pos());
+	grund_t *gr = welt->lookup(get_pos());
 	assert(gr);
-	spieler_t::add_maintenance(gib_besitzer(), wegbauer_t::leitung_besch->gib_wartung());
+	spieler_t::add_maintenance(get_besitzer(), wegbauer_t::leitung_besch->get_wartung());
 }
 
 
@@ -438,7 +438,7 @@ pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
 {
 	fab = NULL;
-	sp->buche( welt->gib_einstellungen()->cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
+	sp->buche( welt->get_einstellungen()->cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
 }
 
 
@@ -450,7 +450,7 @@ pumpe_t::~pumpe_t()
 		welt->sync_remove(this);
 		fab = NULL;
 	}
-	spieler_t::add_maintenance(gib_besitzer(), welt->gib_einstellungen()->cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->cst_maintain_transformer);
 }
 
 
@@ -463,15 +463,15 @@ pumpe_t::sync_step(long /*delta_t*/)
 	}
 	image_id new_bild;
 	if (!fab->is_currently_producing()) {
-		new_bild = skinverwaltung_t::pumpe->gib_bild_nr(0);
+		new_bild = skinverwaltung_t::pumpe->get_bild_nr(0);
 	} else {
 		// no input needed or has something to consume
 		get_net()->add_power(fab->get_power());
-		new_bild = skinverwaltung_t::pumpe->gib_bild_nr(1);
+		new_bild = skinverwaltung_t::pumpe->get_bild_nr(1);
 	}
 	if(bild!=new_bild) {
 		set_flag(ding_t::dirty);
-		setze_bild( new_bild );
+		set_bild( new_bild );
 	}
 	return true;
 }
@@ -482,10 +482,10 @@ void
 pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(gib_besitzer(), -welt->gib_einstellungen()->cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), -welt->get_einstellungen()->cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
-		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
+		fab = leitung_t::suche_fab_4(get_pos().get_2d());
 	}
 	welt->sync_add(this);
 }
@@ -507,7 +507,7 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 	fab = NULL;
 	einkommen = 1;
 	max_einkommen = 1;
-	sp->buche( welt->gib_einstellungen()->cst_transformer, gib_pos().gib_2d(), COST_CONSTRUCTION);
+	sp->buche( welt->get_einstellungen()->cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
 }
 
 
@@ -519,7 +519,7 @@ senke_t::~senke_t()
 		welt->sync_remove(this);
 		fab = NULL;
 	}
-	spieler_t::add_maintenance(gib_besitzer(), welt->gib_einstellungen()->cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->cst_maintain_transformer);
 }
 
 
@@ -539,20 +539,20 @@ senke_t::sync_step(long time)
 	}
 	image_id new_bild;
 	if(get_power>want_power/2) {
-		new_bild = skinverwaltung_t::senke->gib_bild_nr(1);
+		new_bild = skinverwaltung_t::senke->get_bild_nr(1);
 	} else {
-		new_bild = skinverwaltung_t::senke->gib_bild_nr(0);
+		new_bild = skinverwaltung_t::senke->get_bild_nr(0);
 	}
 	if(bild!=new_bild) {
 		set_flag(ding_t::dirty);
-		setze_bild( new_bild );
+		set_bild( new_bild );
 	}
 	max_einkommen += want_power;
 	einkommen += get_power;
 
 	if(max_einkommen>(2000<<11)) {
-		gib_besitzer()->buche(einkommen >> 11, gib_pos().gib_2d(), COST_POWERLINES);
-		gib_besitzer()->buche(einkommen >> 11, gib_pos().gib_2d(), COST_INCOME);
+		get_besitzer()->buche(einkommen >> 11, get_pos().get_2d(), COST_POWERLINES);
+		get_besitzer()->buche(einkommen >> 11, get_pos().get_2d(), COST_INCOME);
 		einkommen = 0;
 		max_einkommen = 1;
 	}
@@ -566,10 +566,10 @@ void
 senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(gib_besitzer(), -welt->gib_einstellungen()->cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), -welt->get_einstellungen()->cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
-		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
+		fab = leitung_t::suche_fab_4(get_pos().get_2d());
 	}
 	welt->sync_add(this);
 }

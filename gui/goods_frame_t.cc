@@ -57,7 +57,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	int y=BUTTON_HEIGHT+4-16;
 
 	speed_bonus[0] = 0;
-	change_speed_label.setze_pos(koord(BUTTON4_X+5, y));
+	change_speed_label.set_pos(koord(BUTTON4_X+5, y));
 	add_komponente(&change_speed_label);
 
 	speed_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-20, y), koord(10,BUTTON_HEIGHT));
@@ -70,7 +70,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 
 	y=4+5*LINESPACE+4;
 
-	sort_label.setze_pos(koord(BUTTON1_X, y));
+	sort_label.set_pos(koord(BUTTON1_X, y));
 	add_komponente(&sort_label);
 
 	y += LINESPACE;
@@ -85,16 +85,16 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 
 	y += BUTTON_HEIGHT+2;
 
-	scrolly.setze_pos(koord(1, y));
+	scrolly.set_pos(koord(1, y));
 	scrolly.set_show_scroll_x(false);
-	scrolly.setze_groesse(koord(TOTAL_WIDTH-16, 191+16+16-y));
+	scrolly.set_groesse(koord(TOTAL_WIDTH-16, 191+16+16-y));
 	add_komponente(&scrolly);
 
-	int h = (warenbauer_t::gib_waren_anzahl()+3)*LINESPACE+y;
+	int h = (warenbauer_t::get_waren_anzahl()+3)*LINESPACE+y;
 	if(h>450) {
 		h = y+10*LINESPACE+2;
 	}
-	setze_fenstergroesse(koord(TOTAL_WIDTH, h));
+	set_fenstergroesse(koord(TOTAL_WIDTH, h));
 	set_min_windowsize(koord(TOTAL_WIDTH,y+6*LINESPACE+2));
 	set_resizemode(vertical_resize);
 
@@ -111,8 +111,8 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 */
 int goods_frame_t::compare_goods(const void *p1, const void *p2)
 {
-	const ware_besch_t * w1 = warenbauer_t::gib_info(*(const unsigned short *)p1);
-	const ware_besch_t * w2 = warenbauer_t::gib_info(*(const unsigned short *)p2);
+	const ware_besch_t * w1 = warenbauer_t::get_info(*(const unsigned short *)p1);
+	const ware_besch_t * w2 = warenbauer_t::get_info(*(const unsigned short *)p2);
 
 	int order;
 
@@ -122,20 +122,20 @@ int goods_frame_t::compare_goods(const void *p1, const void *p2)
 			break;
 		case 2: // sort by revenue
 			{
-				const sint32 grundwert1281 = w1->gib_preis()<<7;
-				const sint32 grundwert_bonus1 = w1->gib_preis()*(1000l+(relative_speed_change-100l)*w1->gib_speed_bonus());
+				const sint32 grundwert1281 = w1->get_preis()<<7;
+				const sint32 grundwert_bonus1 = w1->get_preis()*(1000l+(relative_speed_change-100l)*w1->get_speed_bonus());
 				const sint32 price1 = (grundwert1281>grundwert_bonus1 ? grundwert1281 : grundwert_bonus1);
-				const sint32 grundwert1282 = w2->gib_preis()<<7;
-				const sint32 grundwert_bonus2 = w2->gib_preis()*(1000l+(relative_speed_change-100l)*w2->gib_speed_bonus());
+				const sint32 grundwert1282 = w2->get_preis()<<7;
+				const sint32 grundwert_bonus2 = w2->get_preis()*(1000l+(relative_speed_change-100l)*w2->get_speed_bonus());
 				const sint32 price2 = (grundwert1282>grundwert_bonus2 ? grundwert1282 : grundwert_bonus2);
 				order = price2-price1;
 			}
 			break;
 		case 3: // sort by speed bonus
-			order = w2->gib_speed_bonus()-w1->gib_speed_bonus();
+			order = w2->get_speed_bonus()-w1->get_speed_bonus();
 			break;
 		default:	// sort by name
-			order = strcmp(translator::translate(w1->gib_name()), translator::translate(w2->gib_name()));
+			order = strcmp(translator::translate(w1->get_name()), translator::translate(w2->get_name()));
 			break;
 	}
 	return sortreverse ? -order : order;
@@ -146,16 +146,16 @@ int goods_frame_t::compare_goods(const void *p1, const void *p2)
 // creates the list and pass it to the child finction good_stats, which does the display stuff ...
 void goods_frame_t::sort_list()
 {
-	sortedby.setze_text(sort_text[sortby]);
-	sorteddir.setze_text(sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+	sortedby.set_text(sort_text[sortby]);
+	sorteddir.set_text(sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
 	int n=0;
-	for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-		const ware_besch_t * wtyp = warenbauer_t::gib_info(i);
+	for(unsigned int i=0; i<warenbauer_t::get_waren_anzahl(); i++) {
+		const ware_besch_t * wtyp = warenbauer_t::get_info(i);
 
 		// Hajo: we skip goods that don't generate income
 		//       this should only be true for the special good 'None'
-		if(wtyp->gib_preis()!=0) {
+		if(wtyp->get_preis()!=0) {
 			good_list[n++] = i;
 		}
 	}
@@ -174,8 +174,8 @@ void goods_frame_t::sort_list()
 void goods_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = gib_fenstergroesse()-koord(0,4+6*LINESPACE+4+BUTTON_HEIGHT+2+16);
-	scrolly.setze_groesse(groesse);
+	koord groesse = get_fenstergroesse()-koord(0,4+6*LINESPACE+4+BUTTON_HEIGHT+2+16);
+	scrolly.set_groesse(groesse);
 }
 
 

@@ -44,7 +44,7 @@ static const char * catg_names[32] = {
  * @return Name of the category of the good
  * @author Hj. Malthaner
  */
-const char * ware_besch_t::gib_catg_name() const
+const char * ware_besch_t::get_catg_name() const
 {
 	return catg_names[catg & 31];
 }

@@ -98,7 +98,7 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 {
 	this->welt = welt;
 
-	sort_label.setze_pos(koord(BUTTON1_X, 40-BUTTON_HEIGHT-LINESPACE));
+	sort_label.set_pos(koord(BUTTON1_X, 40-BUTTON_HEIGHT-LINESPACE));
 	add_komponente(&sort_label);
 
 	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 40-BUTTON_HEIGHT), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
@@ -115,20 +115,20 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 	add_komponente(&show_stats);
 
 	// name buttons
-	sortedby.setze_text(sort_text[gib_sortierung()]);
-	sorteddir.setze_text(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+	sortedby.set_text(sort_text[get_sortierung()]);
+	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
 	year_month_tabs.add_tab(&chart, translator::translate("Years"));
 	year_month_tabs.add_tab(&mchart, translator::translate("Months"));
-	year_month_tabs.setze_pos(koord(0,42));
-	year_month_tabs.setze_groesse(koord(TOTAL_WIDTH, CHART_HEIGHT-BUTTON_HEIGHT*3-16));
+	year_month_tabs.set_pos(koord(0,42));
+	year_month_tabs.set_groesse(koord(TOTAL_WIDTH, CHART_HEIGHT-BUTTON_HEIGHT*3-16));
 //	year_month_tabs.add_listener(this);
 	year_month_tabs.set_visible(false);
 	add_komponente(&year_month_tabs);
 
 	const sint16 yb = 42+CHART_HEIGHT-BUTTON_HEIGHT*3-8;
-	chart.setze_pos(koord(60,8));
-	chart.setze_groesse(koord(TOTAL_WIDTH-60-8,yb-16-42-10-gui_tab_panel_t::HEADER_VSIZE));
+	chart.set_pos(koord(60,8));
+	chart.set_groesse(koord(TOTAL_WIDTH-60-8,yb-16-42-10-gui_tab_panel_t::HEADER_VSIZE));
 	chart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_YEARS);
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);
@@ -136,8 +136,8 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 		chart.add_curve(hist_type_color[cost], welt->get_finance_history_year(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_YEARS, hist_type_type[cost], false, true);
 	}
 
-	mchart.setze_pos(koord(60,8));
-	mchart.setze_groesse(koord(TOTAL_WIDTH-60-8,yb-16-42-10-gui_tab_panel_t::HEADER_VSIZE));
+	mchart.set_pos(koord(60,8));
+	mchart.set_groesse(koord(TOTAL_WIDTH-60-8,yb-16-42-10-gui_tab_panel_t::HEADER_VSIZE));
 	mchart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_MONTHS);
 	mchart.set_visible(false);
 	mchart.set_background(MN_GREY1);
@@ -155,10 +155,10 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 	}
 
 	scrolly.set_show_scroll_x(false);
-	scrolly.setze_pos(koord(1,42));
+	scrolly.set_pos(koord(1,42));
 	add_komponente(&scrolly);
 
-	setze_fenstergroesse(koord(TOTAL_WIDTH, TOTAL_HEIGHT));
+	set_fenstergroesse(koord(TOTAL_WIDTH, TOTAL_HEIGHT));
 
 	set_min_windowsize(koord(TOTAL_WIDTH, TOTAL_HEIGHT));
 
@@ -175,14 +175,14 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 bool citylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
     if(komp == &sortedby) {
-		setze_sortierung((citylist::sort_mode_t)((gib_sortierung() + 1) % citylist::SORT_MODES));
-		sortedby.setze_text(sort_text[gib_sortierung()]);
-		stats.sort(gib_sortierung(),gib_reverse());
+		set_sortierung((citylist::sort_mode_t)((get_sortierung() + 1) % citylist::SORT_MODES));
+		sortedby.set_text(sort_text[get_sortierung()]);
+		stats.sort(get_sortierung(),get_reverse());
     }
     else if(komp == &sorteddir) {
-		setze_reverse(!gib_reverse());
-		sorteddir.setze_text(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-		stats.sort(gib_sortierung(),gib_reverse());
+		set_reverse(!get_reverse());
+		sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+		stats.sort(get_sortierung(),get_reverse());
     }
     else if(komp == &show_stats) {
 		show_stats.pressed = !show_stats.pressed;
@@ -221,13 +221,13 @@ void citylist_frame_t::resize(const koord delta)
 {
   gui_frame_t::resize(delta);
 
-  koord groesse = gib_fenstergroesse()-koord(0,58);	// fensterhoehe - 16(title) -42 (header)
+  koord groesse = get_fenstergroesse()-koord(0,58);	// fensterhoehe - 16(title) -42 (header)
   if(show_stats.pressed) {
 	  // addition space for statistics
 	  groesse += koord(0,-CHART_HEIGHT);
   }
-  scrolly.setze_pos( koord(0, 42+(show_stats.pressed*CHART_HEIGHT) ) );
-  scrolly.setze_groesse(groesse);
+  scrolly.set_pos( koord(0, 42+(show_stats.pressed*CHART_HEIGHT) ) );
+  scrolly.set_groesse(groesse);
 }
 
 

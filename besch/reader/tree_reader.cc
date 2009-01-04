@@ -14,7 +14,7 @@ void tree_reader_t::register_obj(obj_besch_t *&data)
     baum_besch_t *besch = static_cast<baum_besch_t *>(data);
 
     baum_t::register_besch(besch);
-//    printf("...Baum %s geladen\n", besch->gib_name());
+//    printf("...Baum %s geladen\n", besch->get_name());
 }
 
 

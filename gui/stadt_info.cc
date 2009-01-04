@@ -40,17 +40,17 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
   gui_frame_t("Stadtinformation"),
 	stadt(stadt_)
 {
-	tstrncpy( name, stadt->gib_name(), 256 );
-	name_input.setze_text(name, 30);
-	name_input.setze_groesse(koord(124, 14));
-	name_input.setze_pos(koord(8, 8));
+	tstrncpy( name, stadt->get_name(), 256 );
+	name_input.set_text(name, 30);
+	name_input.set_groesse(koord(124, 14));
+	name_input.set_pos(koord(8, 8));
 
 	add_komponente(&name_input);
-	setze_fenstergroesse(koord(410, 305+20+20));
+	set_fenstergroesse(koord(410, 305+20+20));
 
 	//CHART YEAR
-	chart.setze_pos(koord(1,1));
-	chart.setze_groesse(koord(360,120));
+	chart.set_pos(koord(1,1));
+	chart.set_groesse(koord(360,120));
 	chart.set_dimension(MAX_CITY_HISTORY_YEARS, 10000);
 	chart.set_seed(stadt->get_welt()->get_last_year());
 	chart.set_background(MN_GREY1);
@@ -61,8 +61,8 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	//CHART YEAR END
 
 	//CHART MONTH
-	mchart.setze_pos(koord(1,1));
-	mchart.setze_groesse(koord(360,120));
+	mchart.set_pos(koord(1,1));
+	mchart.set_groesse(koord(360,120));
 	mchart.set_dimension(MAX_CITY_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
 	mchart.set_background(MN_GREY1);
@@ -75,8 +75,8 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	// tab (month/year)
 	year_month_tabs.add_tab(&chart, translator::translate("Years"));
 	year_month_tabs.add_tab(&mchart, translator::translate("Months"));
-	year_month_tabs.setze_pos(koord(40,125));
-	year_month_tabs.setze_groesse(koord(360, 125));
+	year_month_tabs.set_pos(koord(40,125));
+	year_month_tabs.set_groesse(koord(360, 125));
 	add_komponente(&year_month_tabs);
 
 	// add filter buttons
@@ -96,8 +96,8 @@ stadt_info_t::zeichnen(koord pos, koord gr)
 {
 	stadt_t* const c = stadt;
 
-	if (strcmp(name, c->gib_name())) {
-		c->setze_name(name);
+	if (strcmp(name, c->get_name())) {
+		c->set_name(name);
 	}
 
 	// Hajo: update chart seed
@@ -109,8 +109,8 @@ stadt_info_t::zeichnen(koord pos, koord gr)
 	char* b = buf;
 	b += sprintf(b, "%s: %d (%+.1f)\n",
 		translator::translate("City size"),
-		c->gib_einwohner(),
-		c->gib_wachstum() / 10.0
+		c->get_einwohner(),
+		c->get_wachstum() / 10.0
 	);
 
 	b += sprintf(b, translator::translate("%d buildings\n"), c->get_buildings());
@@ -128,14 +128,14 @@ stadt_info_t::zeichnen(koord pos, koord gr)
 
 	display_multiline_text(pos.x+8, pos.y+48, buf, COL_BLACK);
 
-	display_array_wh(pos.x + 140,           pos.y + 24, 128, 128, c->gib_pax_ziele_alt()->to_array());
-	display_array_wh(pos.x + 140 + 128 + 4, pos.y + 24, 128, 128, c->gib_pax_ziele_neu()->to_array());
+	display_array_wh(pos.x + 140,           pos.y + 24, 128, 128, c->get_pax_ziele_alt()->to_array());
+	display_array_wh(pos.x + 140 + 128 + 4, pos.y + 24, 128, 128, c->get_pax_ziele_neu()->to_array());
 
 #if 0
     sprintf(buf, "%s: %d/%d",
             translator::translate("Passagiere"),
-            stadt->gib_pax_transport(),
-            stadt->gib_pax_erzeugt());
+            stadt->get_pax_transport(),
+            stadt->get_pax_erzeugt());
 
     display_proportional(pos.x+144, pos.y+180, buf, ALIGN_LEFT, COL_BLACK, true);
 #endif

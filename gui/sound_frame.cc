@@ -36,13 +36,13 @@ sound_frame_t::sound_frame_t()
     curlabel(make_song_name()),
     cplaying("Currently playing:")
 {
-	dlabel.setze_pos(koord(10,10));
+	dlabel.set_pos(koord(10,10));
 	add_komponente(&dlabel);
 
-	digi.setze_groesse(koord(255, 10));
-	digi.setze_pos(koord(10, 22));
-	digi.setze_knob(32, 255+32);
-	digi.setze_knob_offset(sound_get_global_volume());
+	digi.set_groesse(koord(255, 10));
+	digi.set_pos(koord(10, 22));
+	digi.set_knob(32, 255+32);
+	digi.set_knob_offset(sound_get_global_volume());
 	add_komponente(&digi);
 	digi.add_listener( this );
 
@@ -52,13 +52,13 @@ sound_frame_t::sound_frame_t()
 	digi_mute.add_listener( this );
 
 	// now midi
-	mlabel.setze_pos(koord(10,58));
+	mlabel.set_pos(koord(10,58));
 	add_komponente(&mlabel);
 
-	midi.setze_groesse(koord(255, 10));
-	midi.setze_pos(koord(10, 70));
-	midi.setze_knob(32, 255+32);
-	midi.setze_knob_offset(sound_get_midi_volume());
+	midi.set_groesse(koord(255, 10));
+	midi.set_pos(koord(10, 70));
+	midi.set_knob(32, 255+32);
+	midi.set_knob_offset(sound_get_midi_volume());
 	midi.add_listener( this );
 	add_komponente(&midi);
 
@@ -68,30 +68,30 @@ sound_frame_t::sound_frame_t()
 	add_komponente(&midi_mute);
 
 	// song selection
-	cplaying.setze_pos(koord(10,106)); // "Currently Playing:"
+	cplaying.set_pos(koord(10,106)); // "Currently Playing:"
 	add_komponente(&cplaying);
 
-	prevbtn.setze_pos(koord(10,118));
-	prevbtn.setze_typ(button_t::arrowleft);
+	prevbtn.set_pos(koord(10,118));
+	prevbtn.set_typ(button_t::arrowleft);
 	prevbtn.add_listener(this);
 	add_komponente(&prevbtn);
 
-	nextbtn.setze_pos(koord(24,118));
-	nextbtn.setze_typ(button_t::arrowright);
+	nextbtn.set_pos(koord(24,118));
+	nextbtn.set_typ(button_t::arrowright);
 	nextbtn.add_listener(this);
 	add_komponente(&nextbtn);
 
-	curlabel.setze_pos(koord(42,118)); // "Jazz"
+	curlabel.set_pos(koord(42,118)); // "Jazz"
 	add_komponente(&curlabel);
 
-	shufflebtn.setze_pos(koord(10,130));
-	shufflebtn.setze_typ(button_t::square_state);
-	shufflebtn.setze_text("shuffle midis");
+	shufflebtn.set_pos(koord(10,130));
+	shufflebtn.set_typ(button_t::square_state);
+	shufflebtn.set_text("shuffle midis");
 	shufflebtn.pressed = sound_get_shuffle_midi();
 	shufflebtn.add_listener(this);
 	add_komponente(&shufflebtn);
 
-	setze_fenstergroesse(koord(276, 164));
+	set_fenstergroesse(koord(276, 164));
 }
 
 
@@ -103,13 +103,13 @@ sound_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 		midi_stop();
 		midi_next_track();
 		check_midi();
-		curlabel.setze_text(make_song_name());
+		curlabel.set_text(make_song_name());
 	}
 	else if (komp == &prevbtn) {
 		midi_stop();
 		midi_last_track();
 		check_midi();
-		curlabel.setze_text(make_song_name());
+		curlabel.set_text(make_song_name());
 	}
 	else if (komp == &shufflebtn) {
 		sound_set_shuffle_midi( !sound_get_shuffle_midi() );
@@ -142,6 +142,6 @@ sound_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 void sound_frame_t::zeichnen(koord pos, koord gr)
 {
 	// update song name label
-	curlabel.setze_text(make_song_name());
+	curlabel.set_text(make_song_name());
 	gui_frame_t::zeichnen(pos, gr);
 }

@@ -35,7 +35,7 @@ void load_relief_frame_t::del_action(const char *filename)
 
 load_relief_frame_t::load_relief_frame_t(einstellungen_t* sets) : savegame_frame_t("*.*","maps/")
 {
-	setze_name("Laden");
+	set_name("Laden");
 	this->sets = sets;
 	sets->heightfield = "";
 }
@@ -49,7 +49,7 @@ const char *load_relief_frame_t::get_info(const char *filename)
 
 	sint16 w, h;
 	sint8 *h_field ;
-	if(karte_t::get_height_data_from_file(path, sets->gib_grundwasser(), h_field, w, h, true )) {
+	if(karte_t::get_height_data_from_file(path, sets->get_grundwasser(), h_field, w, h, true )) {
 		sprintf( size, "%i x %i", w, h );
 		return size;
 	}
@@ -65,7 +65,7 @@ bool load_relief_frame_t::check_file( const char *filename, const char * )
 	sint16 w, h;
 	sint8 *h_field ;
 
-	if(karte_t::get_height_data_from_file(path, sets->gib_grundwasser(), h_field, w, h, true )) {
+	if(karte_t::get_height_data_from_file(path, sets->get_grundwasser(), h_field, w, h, true )) {
 		return w>0  &&  h>0;
 	}
 	return false;

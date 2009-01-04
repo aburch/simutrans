@@ -48,7 +48,7 @@ factory_field_reader_t::register_obj(obj_besch_t *&data)
 {
 	field_besch_t *besch = static_cast<field_besch_t *>(data);
 	// Xref ist hier noch nicht aufgelöst!
-	const char* name = static_cast<xref_besch_t*>(besch->gib_kind(0))->get_name();
+	const char* name = static_cast<xref_besch_t*>(besch->get_kind(0))->get_name();
 	field_t::register_besch(besch, name);
 }
 
@@ -219,7 +219,7 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 void factory_reader_t::register_obj(obj_besch_t *&data)
 {
 	fabrik_besch_t* besch = static_cast<fabrik_besch_t*>(data);
-	size_t fab_name_len = strlen( besch->gib_name() );
-	besch->electricity_producer = ( fab_name_len>11   &&  (strcmp(besch->gib_name()+fab_name_len-9, "kraftwerk")==0  ||  strcmp(besch->gib_name()+fab_name_len-11, "Power Plant")==0) );
+	size_t fab_name_len = strlen( besch->get_name() );
+	besch->electricity_producer = ( fab_name_len>11   &&  (strcmp(besch->get_name()+fab_name_len-9, "kraftwerk")==0  ||  strcmp(besch->get_name()+fab_name_len-11, "Power Plant")==0) );
 	fabrikbauer_t::register_besch(besch);
 }

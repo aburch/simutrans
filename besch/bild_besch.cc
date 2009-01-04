@@ -31,8 +31,8 @@ bild_besch_t::copy_rotate(const sint16 angle) const
 	// now you should understand below arithmetics ...
 
 	const sint16 x_y = pic.w;
-	const PIXVAL *src=(const PIXVAL *)gib_daten();
-	PIXVAL *target = (PIXVAL *)target_besch->gib_daten();
+	const PIXVAL *src=(const PIXVAL *)get_daten();
+	PIXVAL *target = (PIXVAL *)target_besch->get_daten();
 
 	switch(angle) {
 		case 90:

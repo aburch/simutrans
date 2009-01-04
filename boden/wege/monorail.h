@@ -24,7 +24,7 @@ class monorail_t : public schiene_t
 public:
 	static const weg_besch_t *default_monorail;
 
-	monorail_t(karte_t *welt) : schiene_t(welt) { setze_besch(default_monorail); }
+	monorail_t(karte_t *welt) : schiene_t(welt) { set_besch(default_monorail); }
 
 	/**
 	 * File loading constructor.
@@ -32,7 +32,7 @@ public:
 	 */
 	monorail_t(karte_t *welt, loadsave_t *file);
 
-	virtual waytype_t gib_waytype() const {return monorail_wt;}
+	virtual waytype_t get_waytype() const {return monorail_wt;}
 
 	void rdwr(loadsave_t *file);
 };

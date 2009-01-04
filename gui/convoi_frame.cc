@@ -53,49 +53,49 @@ const char *convoi_frame_t::sort_text[SORT_MODES] = {
 
 bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 {
-	if(!gib_filter(any_filter)) {
+	if(!get_filter(any_filter)) {
 		return true;
 	}
 
-	if(gib_filter(name_filter) &&  !strstr(cnv->gib_name(), name_filter_value)) {
+	if(get_filter(name_filter) &&  !strstr(cnv->get_name(), name_filter_value)) {
 		return false;
 	}
 
-	vehikel_t *fahr = cnv->gib_vehikel(0);
-	if(gib_filter(typ_filter)) {
-		switch(fahr->gib_typ()) {
+	vehikel_t *fahr = cnv->get_vehikel(0);
+	if(get_filter(typ_filter)) {
+		switch(fahr->get_typ()) {
 			case ding_t::automobil:
-				if(!gib_filter(lkws_filter)) {
+				if(!get_filter(lkws_filter)) {
 					return false;
 				}
 				break;
 			case ding_t::waggon:
-				if(!gib_filter(zuege_filter)) {
+				if(!get_filter(zuege_filter)) {
 					return false;
 				}
 				break;
 			case ding_t::schiff:
-				if(!gib_filter(schiffe_filter)) {
+				if(!get_filter(schiffe_filter)) {
 					return false;
 				}
 				break;
 			case ding_t::aircraft:
-				if(!gib_filter(aircraft_filter)) {
+				if(!get_filter(aircraft_filter)) {
 					return false;
 				}
 				break;
 			case ding_t::monorailwaggon:
-				if(!gib_filter(monorail_filter)) {
+				if(!get_filter(monorail_filter)) {
 					return false;
 				}
 				break;
 			case ding_t::maglevwaggon:
-				if(!gib_filter(maglev_filter)) {
+				if(!get_filter(maglev_filter)) {
 					return false;
 				}
 				break;
 			case ding_t::narrowgaugewaggon:
-				if(!gib_filter(narrowgauge_filter)) {
+				if(!get_filter(narrowgauge_filter)) {
 					return false;
 				}
 				break;
@@ -104,26 +104,26 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 		}
 	}
 
-	if(gib_filter(spezial_filter)) {
-		if(!(gib_filter(noroute_filter) && cnv->hat_keine_route()) &&
-			!(gib_filter(stucked_filter) && (cnv->get_state()==convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS)) &&
-			!(gib_filter(indepot_filter) && cnv->in_depot()) &&
-			!(gib_filter(noline_filter) && !cnv->get_line().is_bound()) &&
-			!(gib_filter(nofpl_filter) && cnv->get_schedule() == 0) &&
-			!(gib_filter(noincome_filter) && cnv->gib_jahresgewinn()/100 <= 0))
+	if(get_filter(spezial_filter)) {
+		if(!(get_filter(noroute_filter) && cnv->hat_keine_route()) &&
+			!(get_filter(stucked_filter) && (cnv->get_state()==convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS)) &&
+			!(get_filter(indepot_filter) && cnv->in_depot()) &&
+			!(get_filter(noline_filter) && !cnv->get_line().is_bound()) &&
+			!(get_filter(nofpl_filter) && cnv->get_schedule() == 0) &&
+			!(get_filter(noincome_filter) && cnv->get_jahresgewinn()/100 <= 0))
 		{
 			return false;
 		}
 	}
 
-	if(gib_filter(ware_filter)) {
+	if(get_filter(ware_filter)) {
 		unsigned i;
-		for( i = 0; i < cnv->gib_vehikel_anzahl(); i++) {
-			if(gib_ware_filter(cnv->gib_vehikel(i)->gib_fracht_typ())) {
+		for( i = 0; i < cnv->get_vehikel_anzahl(); i++) {
+			if(get_ware_filter(cnv->get_vehikel(i)->get_fracht_typ())) {
 				break;
 			}
 		}
-		if(i == cnv->gib_vehikel_anzahl()) {
+		if(i == cnv->get_vehikel_anzahl()) {
 			return false;
 		}
 	}
@@ -142,21 +142,21 @@ int convoi_frame_t::compare_convois(const void *a, const void *b)
 	switch (sortby) {
 		default:
 		case nach_name:
-			result = strcmp(cnv1->gib_internal_name(), cnv2->gib_internal_name());
+			result = strcmp(cnv1->get_internal_name(), cnv2->get_internal_name());
 			break;
 		case nach_gewinn:
-			result = sgn(cnv1->gib_jahresgewinn() - cnv2->gib_jahresgewinn());
+			result = sgn(cnv1->get_jahresgewinn() - cnv2->get_jahresgewinn());
 			break;
 		case nach_typ:
-			if(cnv1->gib_vehikel_anzahl()*cnv2->gib_vehikel_anzahl()>0) {
-				vehikel_t *fahr1 = cnv1->gib_vehikel(0);
-				vehikel_t *fahr2 = cnv2->gib_vehikel(0);
+			if(cnv1->get_vehikel_anzahl()*cnv2->get_vehikel_anzahl()>0) {
+				vehikel_t *fahr1 = cnv1->get_vehikel(0);
+				vehikel_t *fahr2 = cnv2->get_vehikel(0);
 
-				result = fahr1->gib_typ() - fahr2->gib_typ();
+				result = fahr1->get_typ() - fahr2->get_typ();
 				if(result == 0) {
-					result = fahr1->gib_fracht_typ()->gib_catg_index() - fahr2->gib_fracht_typ()->gib_catg_index();
+					result = fahr1->get_fracht_typ()->get_catg_index() - fahr2->get_fracht_typ()->get_catg_index();
 					if(result == 0) {
-						result = fahr1->gib_basis_bild() - fahr2->gib_basis_bild();
+						result = fahr1->get_basis_bild() - fahr2->get_basis_bild();
 					}
 				}
 			}
@@ -179,14 +179,14 @@ void convoi_frame_t::sort_list()
 
 	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
 		convoihandle_t cnv = *i;
-		if(cnv->gib_besitzer()==owner  &&   passes_filter(cnv)) {
+		if(cnv->get_besitzer()==owner  &&   passes_filter(cnv)) {
 			convois.push_back(cnv);
 		}
 	}
 	qsort(convois.begin(), convois.get_count(), sizeof(convoihandle_t), compare_convois);
 
-	sortedby.setze_text(sort_text[gib_sortierung()]);
-	sorteddir.setze_text( gib_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");
+	sortedby.set_text(sort_text[get_sortierung()]);
+	sorteddir.set_text( get_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");
 
 	// only now we know how many convois we have
 	resize(koord(0,0));
@@ -203,7 +203,7 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 {
 	filter_frame = NULL;
 
-	sort_label.setze_pos(koord(BUTTON1_X, 4));
+	sort_label.set_pos(koord(BUTTON1_X, 4));
 	add_komponente(&sort_label);
 	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	sortedby.add_listener(this);
@@ -213,10 +213,10 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
 
-	filter_label.setze_pos(koord(BUTTON3_X, 4));
+	filter_label.set_pos(koord(BUTTON3_X, 4));
 	add_komponente(&filter_label);
 
-	filter_on.init(button_t::roundbox, gib_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable", koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	filter_on.init(button_t::roundbox, get_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable", koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	filter_on.add_listener(this);
 	add_komponente(&filter_on);
 
@@ -224,7 +224,7 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 	filter_details.add_listener(this);
 	add_komponente(&filter_details);
 
-	setze_fenstergroesse(koord(BUTTON4_X+BUTTON_WIDTH+2, 191+16+16));
+	set_fenstergroesse(koord(BUTTON4_X+BUTTON_WIDTH+2, 191+16+16));
 	set_min_windowsize(koord(BUTTON4_X+BUTTON_WIDTH+2, 191+16+16));
 
 	sort_list();
@@ -256,8 +256,8 @@ void convoi_frame_t::infowin_event(const event_t *ev)
 		// (and sometime even not then ... )
 		vscroll.infowin_event(ev);
 	}
-	else if((IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx+11<gib_fenstergroesse().x) {
-		int y = (ev->my-47)/40 + vscroll.gib_knob_offset();
+	else if((IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx+11<get_fenstergroesse().x) {
+		int y = (ev->my-47)/40 + vscroll.get_knob_offset();
 		if(y<(sint32)convois.get_count()) {
 			// let gui_convoiinfo_t() handle this, since then it will be automatically consistent
 			gui_convoiinfo_t ci(convois[y], 0);
@@ -276,17 +276,17 @@ void convoi_frame_t::infowin_event(const event_t *ev)
 bool convoi_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
 {
 	if(komp == &filter_on) {
-		DBG_MESSAGE("convoi_frame_t::action_triggered()","toggle %i",gib_filter(any_filter));
-		setze_filter(any_filter, !gib_filter(any_filter));
-		filter_on.setze_text(gib_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable");
+		DBG_MESSAGE("convoi_frame_t::action_triggered()","toggle %i",get_filter(any_filter));
+		set_filter(any_filter, !get_filter(any_filter));
+		filter_on.set_text(get_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable");
 		sort_list();
 	}
 	else if(komp == &sortedby) {
-		setze_sortierung((sort_mode_t)((gib_sortierung() + 1) % SORT_MODES));
+		set_sortierung((sort_mode_t)((get_sortierung() + 1) % SORT_MODES));
 		sort_list();
 	}
 	else if(komp == &sorteddir) {
-		setze_reverse(!gib_reverse());
+		set_reverse(!get_reverse());
 		sort_list();
 	}
 	else if(komp == &filter_details) {
@@ -306,17 +306,17 @@ bool convoi_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 void convoi_frame_t::resize(const koord size_change)                          // 28-Dec-01    Markus Weber    Added
 {
 	gui_frame_t::resize(size_change);
-	koord groesse = gib_fenstergroesse()-koord(0,47);
+	koord groesse = get_fenstergroesse()-koord(0,47);
 	remove_komponente(&vscroll);
 	if((sint32)convois.get_count()<=groesse.y/40) {
-		vscroll.setze_knob_offset(0);
+		vscroll.set_knob_offset(0);
 	}
 	else {
 		add_komponente(&vscroll);
-		vscroll.setze_pos(koord(groesse.x-11, 47-16));
-		vscroll.setze_groesse(groesse-koord(0,11));
-		vscroll.setze_knob( groesse.y/40, convois.get_count() );
-		vscroll.setze_scroll_amount( 1 );
+		vscroll.set_pos(koord(groesse.x-11, 47-16));
+		vscroll.set_groesse(groesse-koord(0,11));
+		vscroll.set_knob( groesse.y/40, convois.get_count() );
+		vscroll.set_scroll_amount( 1 );
 	}
 }
 
@@ -330,7 +330,7 @@ void convoi_frame_t::zeichnen(koord pos, koord gr)
 
 	PUSH_CLIP(pos.x, pos.y+47, gr.x-11, gr.y-48 );
 
-	uint32 start = vscroll.gib_knob_offset();
+	uint32 start = vscroll.get_knob_offset();
 	sint16 yoffset = 47;
 	for(  unsigned i=start;  i<convois.get_count()  &&  yoffset<gr.y+47;  i++  ) {
 		convoihandle_t cnv = convois[i];
@@ -348,10 +348,10 @@ void convoi_frame_t::zeichnen(koord pos, koord gr)
 
 
 
-void convoi_frame_t::setze_ware_filter(const ware_besch_t *ware, int mode)
+void convoi_frame_t::set_ware_filter(const ware_besch_t *ware, int mode)
 {
 	if(ware!=warenbauer_t::nichts) {
-		if(gib_ware_filter(ware)) {
+		if(get_ware_filter(ware)) {
 			if(mode != 1) {
 				waren_filter.remove(ware);
 			}
@@ -365,14 +365,14 @@ void convoi_frame_t::setze_ware_filter(const ware_besch_t *ware, int mode)
 
 
 
-void convoi_frame_t::setze_alle_ware_filter(int mode)
+void convoi_frame_t::set_alle_ware_filter(int mode)
 {
 	if(mode == 0) {
 		waren_filter.clear();
 	}
 	else {
-		for(unsigned int i = 0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-			setze_ware_filter(warenbauer_t::gib_info(i), mode);
+		for(unsigned int i = 0; i<warenbauer_t::get_waren_anzahl(); i++) {
+			set_ware_filter(warenbauer_t::get_info(i), mode);
 		}
 	}
 }

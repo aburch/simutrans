@@ -237,12 +237,12 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 {
 	// we are more than one object, thus we exclusively use obj.some here!
 	// it would be nice, if also the objects are inserted according to their priorities as
-	// vehicles types (number returned by gib_typ()). However, this would increase
+	// vehicles types (number returned by get_typ()). However, this would increase
 	// the calculation even further. :(
 
-	if(top==0  ||  obj.some[0]->gib_typ()==ding_t::baum) {
+	if(top==0  ||  obj.some[0]->get_typ()==ding_t::baum) {
 		// airplane or movingobj
-		intern_insert_at( ding, ((vehikel_basis_t*)ding)->gib_waytype()==air_wt ? top : 0 );
+		intern_insert_at( ding, ((vehikel_basis_t*)ding)->get_waytype()==air_wt ? top : 0 );
 		return true;
 	}
 
@@ -255,9 +255,9 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 
 	// if we have two ways, the way at index 0 is ALWAYS the road!
 	// however ships and planes may be where not way is below ...
-	if(start!=0  &&  obj.some[0]->is_way()  &&  ((weg_t *)obj.some[0])->gib_waytype()==road_wt) {
+	if(start!=0  &&  obj.some[0]->is_way()  &&  ((weg_t *)obj.some[0])->get_waytype()==road_wt) {
 
-		const uint8 fahrtrichtung = ((vehikel_t*)ding)->gib_fahrtrichtung();
+		const uint8 fahrtrichtung = ((vehikel_t*)ding)->get_fahrtrichtung();
 
 		// this is very complicated:
 		// we may have many objects in two lanes (actually five with tram and pedestrians)
@@ -274,7 +274,7 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 				else {
 					// we must be drawn before south or west (thus insert after)
 					for(uint8 i=start;  i<top;  i++  ) {
-						if((((const vehikel_t*)obj.some[i])->gib_fahrtrichtung()&ribi_t::suedwest)!=0) {
+						if((((const vehikel_t*)obj.some[i])->get_fahrtrichtung()&ribi_t::suedwest)!=0) {
 							intern_insert_at(ding, i);
 							return true;
 						}
@@ -291,7 +291,7 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 					// if we are going south or southeast we must be drawn as the first in east direction (after nord and nordeast)
 					for(uint8 i=start;  i<top;  i++  ) {
 						const ding_t *dt = obj.some[i];
-						if(dt  &&  dt->is_moving()  &&  (((const vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)!=0) {
+						if(dt  &&  dt->is_moving()  &&  (((const vehikel_t*)dt)->get_fahrtrichtung()&ribi_t::suedwest)!=0) {
 							intern_insert_at(ding, i);
 							return true;
 						}
@@ -310,7 +310,7 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 
 					// if we are going east we must be drawn as the first in east direction (after nord and nordeast)
 					for(uint8 i=start;  i<top;  i++  ) {
-						if( (((const vehikel_t*)obj.some[i])->gib_fahrtrichtung()&ribi_t::nordost)!=0) {
+						if( (((const vehikel_t*)obj.some[i])->get_fahrtrichtung()&ribi_t::nordost)!=0) {
 							intern_insert_at(ding, i);
 							return true;
 						}
@@ -333,7 +333,7 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 				else {
 					for(uint8 i=start;  i<top;  i++  ) {
 						// west or northwest: append after all westwards
-						if((((const vehikel_t*)obj.some[i])->gib_fahrtrichtung()&ribi_t::suedwest)==0) {
+						if((((const vehikel_t*)obj.some[i])->get_fahrtrichtung()&ribi_t::suedwest)==0) {
 							intern_insert_at(ding, i);
 							return true;
 						}
@@ -352,7 +352,7 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 		// but all vehicles are of the same typ, since this is track/channel etc. ONLY!
 
 		// => much simpler to handle
-		if((((vehikel_t*)ding)->gib_fahrtrichtung()&(~ribi_t::suedost))==0) {
+		if((((vehikel_t*)ding)->get_fahrtrichtung()&(~ribi_t::suedost))==0) {
 			// if we are going east or south, we must be drawn before (i.e. put first)
 			intern_insert_at(ding, start);
 			return true;
@@ -389,12 +389,12 @@ bool dingliste_t::add(ding_t* ding)
 	}
 
 	// now insert it a the correct place
-	uint8 pri=type_to_pri[ding->gib_typ()];
+	uint8 pri=type_to_pri[ding->get_typ()];
 
 	// roads must be first!
 	if(pri==0) {
 		// check for other ways to keep order! (maximum is two ways per tile at the moment)
-		if(top>0  &&  obj.some[0]->gib_typ()==ding_t::way  &&  ((weg_t *)ding)->gib_waytype()>((weg_t *)obj.some[0])->gib_waytype()) {
+		if(top>0  &&  obj.some[0]->get_typ()==ding_t::way  &&  ((weg_t *)ding)->get_waytype()>((weg_t *)obj.some[0])->get_waytype()) {
 			intern_insert_at(ding, 1);
 		} else {
 			intern_insert_at(ding, 0);
@@ -403,7 +403,7 @@ bool dingliste_t::add(ding_t* ding)
 	}
 
 	uint8 i;
-	for(  i=0;  i<top  &&  pri>type_to_pri[obj.some[i]->gib_typ()];  i++  )
+	for(  i=0;  i<top  &&  pri>type_to_pri[obj.some[i]->get_typ()];  i++  )
 		;
 	// now i contains the position, where we either insert of just add ...
 	if(i==top) {
@@ -415,10 +415,10 @@ bool dingliste_t::add(ding_t* ding)
 			/* trees are a little tricky, since they cast a shadow
 			 * therefore the y-order must be correct!
 			 */
-			const sint8 offset = ding->gib_yoff() + ding->gib_xoff();
+			const sint8 offset = ding->get_yoff() + ding->get_xoff();
 
 			for(  ;  i<top;  i++) {
-				if(obj.some[i]->gib_typ()!=ding_t::baum  ||  obj.some[i]->gib_yoff()+obj.some[i]->gib_xoff()>offset) {
+				if(obj.some[i]->get_typ()!=ding_t::baum  ||  obj.some[i]->get_yoff()+obj.some[i]->get_xoff()>offset) {
 					break;
 				}
 			}
@@ -509,7 +509,7 @@ dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 		while(  top>offset  ) {
 			top --;
 			ding_t *dt = obj.some[top];
-			if(dt->is_moving()  &&  !(dt->gib_typ()==ding_t::fussgaenger  ||  dt->gib_typ()==ding_t::verkehr  ||  dt->gib_typ()==ding_t::movingobj)) {
+			if(dt->is_moving()  &&  !(dt->get_typ()==ding_t::fussgaenger  ||  dt->get_typ()==ding_t::verkehr  ||  dt->get_typ()==ding_t::movingobj)) {
 				((vehikel_t *)dt)->verlasse_feld();
 				assert(0);
 			}
@@ -616,13 +616,13 @@ dingliste_t::suche(ding_t::typ typ,uint8 start) const
 		return NULL;
 	}
 	else if(capacity==1) {
-		return obj.one->gib_typ()!=typ ? NULL : obj.one;
+		return obj.one->get_typ()!=typ ? NULL : obj.one;
 	}
 	else if(start<top) {
 		// else we have to search the list
 		for(uint8 i=start; i<top; i++) {
 			ding_t * tmp = obj.some[i];
-			if(tmp->gib_typ()==typ) {
+			if(tmp->get_typ()==typ) {
 				return tmp;
 			}
 		}
@@ -639,14 +639,14 @@ dingliste_t::get_leitung() const
 		return NULL;
 	}
 	else if(capacity==1) {
-		if(obj.one->gib_typ()>=ding_t::leitung  &&  obj.one->gib_typ()<=ding_t::senke) {
+		if(obj.one->get_typ()>=ding_t::leitung  &&  obj.one->get_typ()<=ding_t::senke) {
 			return obj.one;
 		}
 	}
 	else if(top>0) {
 		// else we have to search the list
 		for(uint8 i=0; i<top; i++) {
-			uint8 typ = obj.some[i]->gib_typ();
+			uint8 typ = obj.some[i]->get_typ();
 			if(typ>=ding_t::leitung  &&  typ<=ding_t::senke) {
 				return obj.some[i];
 			}
@@ -695,7 +695,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::wayobj:
 				{
 					wayobj_t* const wo = new wayobj_t(welt, file);
-					if (wo->gib_besch() == NULL) {
+					if (wo->get_besch() == NULL) {
 						// ignore missing wayobjs
 						wo->set_flag(ding_t::not_on_map);
 						delete wo;
@@ -712,7 +712,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::fussgaenger:
 				{
 					fussgaenger_t* const pedestrian = new fussgaenger_t(welt, file);
-					if (pedestrian->gib_besch() == NULL) {
+					if (pedestrian->get_besch() == NULL) {
 						// no pedestrians ... delete this
 						pedestrian->set_flag(ding_t::not_on_map);
 						delete pedestrian;
@@ -728,7 +728,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::verkehr:
 				{
 					stadtauto_t* const car = new stadtauto_t(welt, file);
-					if (car->gib_besch() == NULL) {
+					if (car->get_besch() == NULL) {
 						// no citycars ... delete this
 						car->set_flag(ding_t::not_on_map);
 						delete car;
@@ -771,24 +771,24 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				{
 					// for compatibilty reasons we may have to convert them to tram and monorail depots
 					gebaeude_t *gb = new gebaeude_t(welt, file);
-					if(gb->gib_tile()->gib_besch()->gib_extra()==monorail_wt) {
-						monoraildepot_t *md = new monoraildepot_t(welt,gb->gib_pos(),(spieler_t *)NULL,gb->gib_tile());
+					if(gb->get_tile()->get_besch()->get_extra()==monorail_wt) {
+						monoraildepot_t *md = new monoraildepot_t(welt,gb->get_pos(),(spieler_t *)NULL,gb->get_tile());
 						md->rdwr_vehicles(file);
 						d = md;
 					}
-					else if(gb->gib_tile()->gib_besch()->gib_extra()==tram_wt) {
-						tramdepot_t *td = new tramdepot_t(welt,gb->gib_pos(),(spieler_t *)NULL,gb->gib_tile());
+					else if(gb->get_tile()->get_besch()->get_extra()==tram_wt) {
+						tramdepot_t *td = new tramdepot_t(welt,gb->get_pos(),(spieler_t *)NULL,gb->get_tile());
 						td->rdwr_vehicles(file);
 						d = td;
 					}
 					else {
-						bahndepot_t *bd = new bahndepot_t(welt,gb->gib_pos(),(spieler_t *)NULL,gb->gib_tile());
+						bahndepot_t *bd = new bahndepot_t(welt,gb->get_pos(),(spieler_t *)NULL,gb->get_tile());
 						bd->rdwr_vehicles(file);
 						d = bd;
 					}
-					d->setze_besitzer( gb->gib_besitzer() );
-					spieler_t::add_maintenance( gb->gib_besitzer(), welt->gib_einstellungen()->maint_building );
-					typ = d->gib_typ();
+					d->set_besitzer( gb->get_besitzer() );
+					spieler_t::add_maintenance( gb->get_besitzer(), welt->get_einstellungen()->maint_building );
+					typ = d->get_typ();
 
 					// do not remove from this position, since there will be nothing
 					gb->set_flag(ding_t::not_on_map);
@@ -802,7 +802,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::pillar:
 				{
 					pillar_t *p = new pillar_t(welt, file);
-					if(p->gib_besch()!=NULL  &&  p->gib_besch()->gib_pillar()!=0) {
+					if(p->get_besch()!=NULL  &&  p->get_besch()->get_pillar()!=0) {
 						d = p;
 					}
 					else {
@@ -817,7 +817,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::baum:
 				{
 					baum_t *b = new baum_t(welt, file);
-					if(!b->gib_besch()) {
+					if(!b->get_besch()) {
 						// do not remove from this position, since there will be nothing
 						b->set_flag(ding_t::not_on_map);
 						delete b;
@@ -829,7 +829,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::groundobj:
 				{
 					groundobj_t* const groundobj = new groundobj_t(welt, file);
-					if (groundobj->gib_besch() == NULL) {
+					if (groundobj->get_besch() == NULL) {
 						// do not remove from this position, since there will be nothing
 						groundobj->set_flag(ding_t::not_on_map);
 						// not use entferne, since it would try to lookup besch
@@ -844,7 +844,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::movingobj:
 				{
 					movingobj_t* const movingobj = new movingobj_t(welt, file);
-					if (movingobj->gib_besch() == NULL) {
+					if (movingobj->get_besch() == NULL) {
 						// no citycars ... delete this
 						movingobj->set_flag(ding_t::not_on_map);
 						delete movingobj;
@@ -861,7 +861,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					// lassen wir es einfach weg. Das gibt zwar Fundamente ohne
 					// Aufbau, stürzt aber nicht ab.
 					gebaeude_t *gb = new gebaeude_t (welt, file);
-					if(gb->gib_tile()==NULL) {
+					if(gb->get_tile()==NULL) {
 						// do not remove from this position, since there will be nothing
 						gb->set_flag(ding_t::not_on_map);
 						delete gb;
@@ -876,7 +876,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::roadsign:
 				{
 					roadsign_t *rs = new roadsign_t (welt, file);
-					if(rs->gib_besch()==NULL) {
+					if(rs->get_besch()==NULL) {
 						// roadsign_t without description => ignore
 						rs->set_flag(ding_t::not_on_map);
 						delete rs;
@@ -901,17 +901,17 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					dbg->fatal("dingliste_t::laden()", "During loading: Unknown object type '%d'", typ);
 			}
 
-			if(d  &&  d->gib_typ()!=typ) {
-				dbg->warning( "dingliste_t::rdwr()","typ error : %i instead %i on %i,%i, object ignored!", d->gib_typ(), typ, d->gib_pos().x, d->gib_pos().y );
+			if(d  &&  d->get_typ()!=typ) {
+				dbg->warning( "dingliste_t::rdwr()","typ error : %i instead %i on %i,%i, object ignored!", d->get_typ(), typ, d->get_pos().x, d->get_pos().y );
 				d = NULL;
 			}
 
-			if(d  &&  d->gib_pos()==koord3d::invalid) {
-				d->setze_pos( current_pos );
+			if(d  &&  d->get_pos()==koord3d::invalid) {
+				d->set_pos( current_pos );
 			}
 
-			if(d  &&  d->gib_pos()!=current_pos) {
-				dbg->warning("dingliste_t::rdwr()","position error: %i,%i,%i instead %i,%i,%i (object will be ignored)",d->gib_pos().x,d->gib_pos().y,d->gib_pos().z,current_pos.x,current_pos.y,current_pos.z);
+			if(d  &&  d->get_pos()!=current_pos) {
+				dbg->warning("dingliste_t::rdwr()","position error: %i,%i,%i instead %i,%i,%i (object will be ignored)",d->get_pos().x,d->get_pos().y,d->get_pos().z,current_pos.x,current_pos.y,current_pos.z);
 				d = NULL;
 			}
 
@@ -924,34 +924,34 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			ding_t *d=bei(i);
 			if(d->is_way()
 				// do not save smoke
-				||  d->gib_typ()==ding_t::raucher
-				||  d->gib_typ()==ding_t::sync_wolke
-				||  d->gib_typ()==ding_t::async_wolke
+				||  d->get_typ()==ding_t::raucher
+				||  d->get_typ()==ding_t::sync_wolke
+				||  d->get_typ()==ding_t::async_wolke
 				// fields will be built by factory
-				||  d->gib_typ()==ding_t::field
+				||  d->get_typ()==ding_t::field
 				// do not save factory buildings => factory will reconstruct them
-				||  (d->gib_typ()==ding_t::gebaeude  &&  ((gebaeude_t *)d)->get_fabrik())
+				||  (d->get_typ()==ding_t::gebaeude  &&  ((gebaeude_t *)d)->get_fabrik())
 				// things with convoi will not be saved
-				||  (d->gib_typ()>=66  &&  d->gib_typ()<82)
+				||  (d->get_typ()>=66  &&  d->get_typ()<82)
 			) {
 				// these objects are simply not saved
 				file->wr_obj_id(-1);
 			}
 			else {
 				// on old versions
-				if(d->gib_pos()==current_pos) {
-					file->wr_obj_id(d->gib_typ());
+				if(d->get_pos()==current_pos) {
+					file->wr_obj_id(d->get_typ());
 					bei(i)->rdwr(file);
 				}
-				else if(bei(i)->gib_pos().gib_2d()==current_pos.gib_2d()) {
+				else if(bei(i)->get_pos().get_2d()==current_pos.get_2d()) {
 					// ok, just error in z direction => we will correct it
-					dbg->warning( "dingliste_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i",bei(i)->gib_pos().x,bei(i)->gib_pos().y,bei(i)->gib_pos().z,current_pos.z);
-					file->wr_obj_id(d->gib_typ());
-					bei(i)->setze_pos( current_pos );
+					dbg->warning( "dingliste_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i",bei(i)->get_pos().x,bei(i)->get_pos().y,bei(i)->get_pos().z,current_pos.z);
+					file->wr_obj_id(d->get_typ());
+					bei(i)->set_pos( current_pos );
 					bei(i)->rdwr(file);
 				}
 				else {
-					dbg->error( "dingliste_t::rdwr()","unresolvable position error: %i,%i instead %i,%i (object type %i will be not saved!)", bei(i)->gib_pos().x, bei(i)->gib_pos().y, current_pos.x, current_pos.y, bei(i)->gib_typ() );
+					dbg->error( "dingliste_t::rdwr()","unresolvable position error: %i,%i instead %i,%i (object type %i will be not saved!)", bei(i)->get_pos().x, bei(i)->get_pos().y, current_pos.x, current_pos.y, bei(i)->get_typ() );
 					file->wr_obj_id(-1);
 				}
 			}
@@ -971,13 +971,13 @@ void dingliste_t::dump() const
 		return;
 	}
 	else if(capacity==1) {
-		DBG_MESSAGE("dingliste_t::dump()","one object \'%s\' owned by sp %p", obj.one->gib_name(), obj.one->gib_besitzer() );
+		DBG_MESSAGE("dingliste_t::dump()","one object \'%s\' owned by sp %p", obj.one->get_name(), obj.one->get_besitzer() );
 		return;
 	}
 
 	DBG_MESSAGE("dingliste_t::dump()","%i objects", top );
 	for(uint8 n=0; n<top; n++) {
-		DBG_MESSAGE( obj.some[n]->gib_name(), "at %i owned by sp %p", n, obj.some[n]->gib_besitzer() );
+		DBG_MESSAGE( obj.some[n]->get_name(), "at %i owned by sp %p", n, obj.some[n]->get_besitzer() );
 	}
 }
 

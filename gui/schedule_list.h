@@ -62,14 +62,14 @@ public:
 	* @return den nicht uebersetzten Namen der Komponente
 	* @author Hj. Malthaner
 	*/
-	const char* gib_name() const { return "Line Management"; }
+	const char* get_name() const { return "Line Management"; }
 
 	/**
 	* Manche Fenster haben einen Hilfetext assoziiert.
 	* @return den Dateinamen für die Hilfe, oder NULL
 	* @author Hj. Malthaner
 	*/
-	const char* gib_hilfe_datei() const { return "linemanagement.txt"; }
+	const char* get_hilfe_datei() const { return "linemanagement.txt"; }
 
 	/**
 	* Does this window need a min size button in the title bar?

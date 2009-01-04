@@ -49,7 +49,7 @@ private:
 	vector_tpl<node> list;
 
 public:
-	int gib_count() const { return list.get_count(); }
+	int get_count() const { return list.get_count(); }
 
 	void clear() { list.clear(); }
 

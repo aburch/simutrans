@@ -39,7 +39,7 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
 		border = 4;
 	}
 	sb.add_listener(this);
-	sb.setze_knob_offset(0);
+	sb.set_knob_offset(0);
 
 	clear_elements();
 }
@@ -48,7 +48,7 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
 
 bool gui_scrolled_list_t::action_triggered( gui_action_creator_t * /* comp */, value_t extra)
 {
-	// search/replace all offsets with sb.gib_offset() is also an option
+	// search/replace all offsets with sb.get_offset() is also an option
 	offset = extra.i;
 	return true;
 }
@@ -64,8 +64,8 @@ DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, groesse.
 		s *= LINESPACE;
 		if(s<offset  ||  (s+LINESPACE)>offset+groesse.y) {
 			// outside range => reposition
-			sb.setze_knob_offset( max(0,s-(groesse.y/2) ) );
-			offset = sb.gib_knob_offset();
+			sb.set_knob_offset( max(0,s-(groesse.y/2) ) );
+			offset = sb.get_knob_offset();
 		}
 	}
 	else {
@@ -80,14 +80,14 @@ void gui_scrolled_list_t::clear_elements()
 	while(  !item_list.empty()  ) {
 		delete item_list.remove_first();
 	}
-	sb.setze_knob(groesse.y-border, total_vertical_size());
+	sb.set_knob(groesse.y-border, total_vertical_size());
 }
 
 
 void gui_scrolled_list_t::append_element( scrollitem_t *item )
 {
 	item_list.append( item );
-	sb.setze_knob(groesse.y-border, total_vertical_size());
+	sb.set_knob(groesse.y-border, total_vertical_size());
 }
 
 
@@ -95,7 +95,7 @@ void gui_scrolled_list_t::append_element( scrollitem_t *item )
 #define YMIN ((LINESPACE*3)+2)
 koord gui_scrolled_list_t::request_groesse(koord request)
 {
-	koord groesse = gib_groesse();
+	koord groesse = get_groesse();
 
 	groesse.x = request.x;
 	int y = request.y;
@@ -116,11 +116,11 @@ koord gui_scrolled_list_t::request_groesse(koord request)
 
 	groesse.y = y + border;
 
-	setze_groesse( groesse );
+	set_groesse( groesse );
 
-	sb.setze_pos(koord(groesse.x-12,0));
-	sb.setze_groesse(koord(10, (int)groesse.y+border));
-	sb.setze_knob(groesse.y-border, total_vertical_size());
+	sb.set_pos(koord(groesse.x-12,0));
+	sb.set_groesse(koord(10, (int)groesse.y+border));
+	sb.set_knob(groesse.y-border, total_vertical_size());
 
 	return groesse;
 }
@@ -159,7 +159,7 @@ gui_scrolled_list_t::infowin_event(const event_t *ev)
 
 	if(sb.getroffen(x, y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
 		event_t ev2 = *ev;
-		translate_event(&ev2, -sb.gib_pos().x, -sb.gib_pos().y);
+		translate_event(&ev2, -sb.get_pos().x, -sb.get_pos().y);
 		sb.infowin_event(&ev2);
 	}
 }
@@ -170,7 +170,7 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 {
 	pos += this->pos;
 
-	const koord gr = gib_groesse();
+	const koord gr = get_groesse();
 
 	const int x = pos.x;
 	const int y = pos.y;
@@ -222,7 +222,7 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 			}
 			else {
 				// normal text
-				display_proportional_clip(x+7, ycum, item->get_text(), ALIGN_LEFT, item->gib_color(), true);
+				display_proportional_clip(x+7, ycum, item->get_text(), ALIGN_LEFT, item->get_color(), true);
 			}
 			ycum += 11;
 			i++;

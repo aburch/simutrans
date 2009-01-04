@@ -38,7 +38,7 @@ private:
 public:
 	fahrplan_gui_stats_t(karte_t* w) { welt = w; fpl = NULL; }
 
-	void setze_fahrplan( schedule_t* f ) { fpl = f; }
+	void set_fahrplan( schedule_t* f ) { fpl = f; }
 
 	/** Zeichnet die Komponente */
 	void zeichnen(koord offset);
@@ -133,7 +133,7 @@ public:
 	 */
 	void infowin_event(const event_t *ev);
 
-	const char *gib_hilfe_datei() const {return "schedule.txt";}
+	const char *get_hilfe_datei() const {return "schedule.txt";}
 
 	/**
 	 * Zeichnet das Frame

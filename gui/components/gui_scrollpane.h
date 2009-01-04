@@ -48,13 +48,13 @@ public:
 	 * benutzt werden.
 	 * @author Hj. Malthaner
 	 */
-	void setze_groesse(koord groesse);
+	void set_groesse(koord groesse);
 
 	/**
 	 * Setzt Positionen der Scrollbars
 	 * @author Hj. Malthaner
 	 */
-	void setze_scroll_position(int x, int y);
+	void set_scroll_position(int x, int y);
 
 	int get_scroll_x() const;
 	int get_scroll_y() const;

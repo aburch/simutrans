@@ -35,7 +35,7 @@ void loadsave_frame_t::action(const char *filename)
 		welt->laden(filename);
 	} else {
 		welt->speichern(filename,false);
-		welt->setze_dirty();
+		welt->set_dirty();
 	}
 }
 
@@ -51,15 +51,15 @@ loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame
 	this->do_load = do_load;
 
 	if(do_load) {
-		setze_name("Laden");
+		set_name("Laden");
 	} else {
-		set_filename(welt->gib_einstellungen()->gib_filename());
-		setze_name("Speichern");
+		set_filename(welt->get_einstellungen()->get_filename());
+		set_name("Speichern");
 	}
 
-	set_min_windowsize(gib_fenstergroesse());
+	set_min_windowsize(get_fenstergroesse());
 	set_resizemode(diagonal_resize);
-	setze_fenstergroesse(koord(360+36, gib_fenstergroesse().y));
+	set_fenstergroesse(koord(360+36, get_fenstergroesse().y));
 
 }
 
@@ -69,7 +69,7 @@ loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame
  * @return den Dateinamen für die Hilfe, oder NULL
  * @author Hj. Malthaner
  */
-const char * loadsave_frame_t::gib_hilfe_datei() const
+const char * loadsave_frame_t::get_hilfe_datei() const
 {
 	return do_load ? "load.txt" : "save.txt";
 }

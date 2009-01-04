@@ -44,49 +44,49 @@ class haus_tile_besch_t : public obj_besch_t {
 	uint16 index;
 
 public:
-	void setze_besch(const haus_besch_t *haus_besch) { haus = haus_besch; }
+	void set_besch(const haus_besch_t *haus_besch) { haus = haus_besch; }
 
-	const haus_besch_t *gib_besch() const { return haus; }
+	const haus_besch_t *get_besch() const { return haus; }
 
-	int gib_index() const { return index; }
+	int get_index() const { return index; }
 	int get_seasons() const { return seasons; }
-	int gib_phasen() const { return phasen; }
+	int get_phasen() const { return phasen; }
 
 	bool has_image() const {
-		return gib_hintergrund(0,0,0)!=IMG_LEER  ||  gib_vordergrund(0,0)!=IMG_LEER;
+		return get_hintergrund(0,0,0)!=IMG_LEER  ||  get_vordergrund(0,0)!=IMG_LEER;
 	}
 
-	image_id gib_hintergrund(int phase, int hoehe,int season) const
+	image_id get_hintergrund(int phase, int hoehe,int season) const
 	{
 		if(season>=seasons) {
 			season = seasons-1;
 		}
 		if(phase>0 && phase<phasen) {
-			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(0+2*season))->gib_bild(hoehe, phase);
-			if (bild != NULL) return bild->gib_nummer();
+			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_kind(0+2*season))->get_bild(hoehe, phase);
+			if (bild != NULL) return bild->get_nummer();
 		}
 		// here if this phase does not exists ...
-		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(0+2*season))->gib_bild(hoehe, 0);
-		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
+		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_kind(0+2*season))->get_bild(hoehe, 0);
+		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
-	image_id gib_vordergrund(int phase,int season) const
+	image_id get_vordergrund(int phase,int season) const
 	{
 		if(season>=seasons) {
 			season = seasons-1;
 		}
 		if(phase>0 && phase<phasen) {
-			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(1+2*season))->gib_bild(0, phase);
-			if (bild != NULL) return bild->gib_nummer();
+			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_kind(1+2*season))->get_bild(0, phase);
+			if (bild != NULL) return bild->get_nummer();
 		}
 		// here if this phase does not exists ...
-		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(1+2*season))->gib_bild(0, 0);
-		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
+		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_kind(1+2*season))->get_bild(0, 0);
+		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
-	koord gib_offset() const;
+	koord get_offset() const;
 
-	uint8 gib_layout() const;
+	uint8 get_layout() const;
 };
 
 /*
@@ -178,22 +178,22 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 
 public:
 
-	koord gib_groesse(int layout = 0) const {
+	koord get_groesse(int layout = 0) const {
 		return (layout & 1) ? koord(groesse.y, groesse.x) : groesse;
 	}
 
 	// size of the building
-	int gib_h(int layout = 0) const {
+	int get_h(int layout = 0) const {
 		return (layout & 1) ? groesse.x: groesse.y;
 	}
 
-	int gib_b(int layout = 0) const {
+	int get_b(int layout = 0) const {
 		return (layout & 1) ? groesse.y : groesse.x;
 	}
 
-	uint8 gib_all_layouts() const { return layouts; }
+	uint8 get_all_layouts() const { return layouts; }
 
-	uint16 gib_extra() const { return extra_data; }
+	uint16 get_extra() const { return extra_data; }
 
 	// ground is transparent
 	bool ist_mit_boden() const { return (flags & FLAG_NEED_GROUND) != 0; }
@@ -205,8 +205,8 @@ public:
 	bool ist_ohne_info() const { return (flags & FLAG_KEINE_INFO) != 0; }
 
 	// see gebaeude_t and hausbauer for the different types
-	gebaeude_t::typ gib_typ() const { return gtyp; }
-	utyp gib_utyp() const { return utype; }
+	gebaeude_t::typ get_typ() const { return gtyp; }
+	utyp get_utyp() const { return utype; }
 
 	bool ist_rathaus()      const { return ist_utyp(rathaus); }
 	bool ist_firmensitz()   const { return ist_utyp(firmensitz); }
@@ -219,23 +219,23 @@ public:
 	* the level is used in many places: for price, for capacity, ...
 	* @author Hj. Malthaner
 	*/
-	int gib_level() const { return level; }
+	int get_level() const { return level; }
 
 	/**
 	 * Mail generation level
 	 * @author Hj. Malthaner
 	 */
-	int gib_post_level() const;
+	int get_post_level() const;
 
 	// how often will this appear
-	int gib_chance() const { return chance; }
+	int get_chance() const { return chance; }
 
-	const haus_tile_besch_t *gib_tile(int index) const {
+	const haus_tile_besch_t *get_tile(int index) const {
 		assert(0<=index  &&  index < layouts * groesse.x * groesse.y);
-		return static_cast<const haus_tile_besch_t*>(gib_kind(index + 2));
+		return static_cast<const haus_tile_besch_t*>(get_kind(index + 2));
 	}
 
-	const haus_tile_besch_t *gib_tile(int layout, int x, int y) const;
+	const haus_tile_besch_t *get_tile(int layout, int x, int y) const;
 
 	// returns true,if building can be rotated
 	bool can_rotate() const {
@@ -246,7 +246,7 @@ public:
 		for( int x=0;  x<groesse.x;  x++  ) {
 			for( int y=0;  y<groesse.y;  y++  ) {
 				// only true, if one is missing
-				if(gib_tile( 0, x, y )->has_image()  ^  gib_tile( 1, gib_b(1)-y-1, x )->has_image()) {
+				if(get_tile( 0, x, y )->has_image()  ^  get_tile( 1, get_b(1)-y-1, x )->has_image()) {
 					return false;
 				}
 			}
@@ -260,7 +260,7 @@ public:
 	* Skin: cursor (index 0) and icon (index 1)
 	* @author Hj. Malthaner
 	*/
-	const skin_besch_t * gib_cursor() const { return (const skin_besch_t *)(gib_kind(2+groesse.x*groesse.y*layouts)); }
+	const skin_besch_t * get_cursor() const { return (const skin_besch_t *)(get_kind(2+groesse.x*groesse.y*layouts)); }
 
 	/**
 	* @return introduction month

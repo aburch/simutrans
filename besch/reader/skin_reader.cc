@@ -19,7 +19,7 @@ void skin_reader_t::register_obj(obj_besch_t *&data)
 		skinverwaltung_t::register_besch(get_skintype(), besch);
 	}
 	else {
-		obj_for_xref(get_type(), besch->gib_name(), data);
+		obj_for_xref(get_type(), besch->get_name(), data);
 		// smoke needs its own registering
 		if(  get_type()==obj_smoke  ) {
 			wolke_t::register_besch(besch);

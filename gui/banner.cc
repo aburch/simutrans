@@ -46,7 +46,7 @@ void banner_t::zeichnen(koord /*pos*/, koord)
 	display_ddd_box(xoff + 4, yoff + 4, 352, 262, COL_GREY2, COL_GREY6);
 	display_fillbox_wh(xoff + 5, yoff + 5, 350, 260, COL_GREY4, true);
 
-	display_color_img(skinverwaltung_t::logosymbol->gib_bild_nr(0), xoff + 264, yoff + 40, 0, false, true);
+	display_color_img(skinverwaltung_t::logosymbol->get_bild_nr(0), xoff + 264, yoff + 40, 0, false, true);
 
 	// first the fixed part
 	// shadow effect by drawing two times with an offset

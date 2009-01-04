@@ -17,7 +17,7 @@ void roadsign_reader_t::register_obj(obj_besch_t *&data)
     roadsign_besch_t *besch = static_cast<roadsign_besch_t *>(data);
 
     roadsign_t::register_besch(besch);
-//    printf("...Stadtauto %s geladen\n", besch->gib_name());
+//    printf("...Stadtauto %s geladen\n", besch->get_name());
 }
 
 

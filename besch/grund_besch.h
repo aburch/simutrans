@@ -59,29 +59,29 @@ public:
 #endif
 
 	// returns the pointer to an image structure
-	const bild_besch_t *gib_bild_ptr(int typ, int stage=0) const
+	const bild_besch_t *get_bild_ptr(int typ, int stage=0) const
 	{
-		const bildliste_besch_t *liste = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_liste(typ);
-		if(liste && liste->gib_anzahl() > 0) {
-			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_bild(typ,stage);
+		const bildliste_besch_t *liste = static_cast<const bildliste2d_besch_t *>(get_kind(2))->get_liste(typ);
+		if(liste && liste->get_anzahl() > 0) {
+			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_kind(2))->get_bild(typ,stage);
 			return bild;
 		}
 		return NULL;
 	}
 
 	// image for all non-climate stuff like foundations ...
-	image_id gib_bild(int typ, int stage=0) const
+	image_id get_bild(int typ, int stage=0) const
 	{
-		const bildliste_besch_t *liste = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_liste(typ);
-		if(liste && liste->gib_anzahl() > 0) {
-			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_bild(typ,stage);
-			if (bild != NULL) return bild->gib_nummer();
+		const bildliste_besch_t *liste = static_cast<const bildliste2d_besch_t *>(get_kind(2))->get_liste(typ);
+		if(liste && liste->get_anzahl() > 0) {
+			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_kind(2))->get_bild(typ,stage);
+			if (bild != NULL) return bild->get_nummer();
 		}
 		return IMG_LEER;
 	}
 
 	// image for all ground tiles
-	static image_id gib_ground_tile(hang_t::typ slope, sint16 height );
+	static image_id get_ground_tile(hang_t::typ slope, sint16 height );
 
 	static bool register_besch(const grund_besch_t *besch);
 

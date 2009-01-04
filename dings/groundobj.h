@@ -46,7 +46,7 @@ public:
 	void rdwr(loadsave_t *file);
 
 	// since the lookup of slopes is slow, image is cached
-	image_id gib_bild() const { return bild; }
+	image_id get_bild() const { return bild; }
 
 	/**
 	 * Berechnet Alter und Bild abhängig vom Alter
@@ -54,8 +54,8 @@ public:
 	 */
 	void calc_bild();
 
-	const char *gib_name() const {return "Groundobj";}
-	enum ding_t::typ gib_typ() const {return groundobj;}
+	const char *get_name() const {return "Groundobj";}
+	enum ding_t::typ get_typ() const {return groundobj;}
 
 	bool check_season(const long delta_t);
 
@@ -65,7 +65,7 @@ public:
 
 	void entferne(spieler_t *sp);
 
-	const groundobj_besch_t* gib_besch() const { return groundobj_typen[groundobjtype]; }
+	const groundobj_besch_t* get_besch() const { return groundobj_typen[groundobjtype]; }
 
 	void * operator new(size_t s);
 	void operator delete(void *p);

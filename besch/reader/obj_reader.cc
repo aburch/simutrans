@@ -110,17 +110,17 @@ bool obj_reader_t::init(const char *liste)
 			read_file(name+"symbol.BigLogo.pak");
 DBG_MESSAGE("obj_reader_t::init()","big logo %p", skinverwaltung_t::biglogosymbol);
 			if(skinverwaltung_t::biglogosymbol) {
-				const int w = skinverwaltung_t::biglogosymbol->gib_bild(0)->get_pic()->w;
-				const int h = skinverwaltung_t::biglogosymbol->gib_bild(0)->get_pic()->h;
+				const int w = skinverwaltung_t::biglogosymbol->get_bild(0)->get_pic()->w;
+				const int h = skinverwaltung_t::biglogosymbol->get_bild(0)->get_pic()->h;
 				int x = display_get_width()/2-w;
 				int y = display_get_height()/4-w;
 				if(y<0) {
 					y = 1;
 				}
-				display_color_img(skinverwaltung_t::biglogosymbol->gib_bild_nr(0), x, y, 0, false, true);
-				display_color_img(skinverwaltung_t::biglogosymbol->gib_bild_nr(1), x+w, y, 0, false, true);
-				display_color_img(skinverwaltung_t::biglogosymbol->gib_bild_nr(2), x, y+h, 0, false, true);
-				display_color_img(skinverwaltung_t::biglogosymbol->gib_bild_nr(3), x+w, y+h, 0, false, true);
+				display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(0), x, y, 0, false, true);
+				display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(1), x+w, y, 0, false, true);
+				display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(2), x, y+h, 0, false, true);
+				display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(3), x+w, y+h, 0, false, true);
 			}
 		}
 

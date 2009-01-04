@@ -82,13 +82,13 @@ void simline_t::add_convoy(convoihandle_t cnv)
 
 	// first convoi may change line type
 	if (type == trainline  &&  line_managed_convoys.empty() &&  cnv.is_bound()) {
-		if(cnv->gib_vehikel(0)) {
+		if(cnv->get_vehikel(0)) {
 			// check, if needed to convert to tram line?
-			if(cnv->gib_vehikel(0)->gib_besch()->get_waytype()==tram_wt) {
+			if(cnv->get_vehikel(0)->get_besch()->get_waytype()==tram_wt) {
 				type = simline_t::tramline;
 			}
 			// check, if needed to convert to monorail line?
-			if(cnv->gib_vehikel(0)->gib_besch()->get_waytype()==monorail_wt) {
+			if(cnv->get_vehikel(0)->get_besch()->get_waytype()==monorail_wt) {
 				type = simline_t::monorailline;
 				// elevated monorail were saved with wrong coordinates for some versions.
 				// We try to recover here
@@ -102,16 +102,16 @@ void simline_t::add_convoy(convoihandle_t cnv)
 	bool update_schedules = false;
 	if(  cnv->get_state()!=convoi_t::INITIAL  ) {
 		// already on the road => need to add them
-		for(uint i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {
+		for(uint i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
 			// Only consider vehicles that really transport something
 			// this helps against routing errors through passenger
 			// trains pulling only freight wagons
-			if (cnv->gib_vehikel(i)->gib_fracht_max() == 0) {
+			if (cnv->get_vehikel(i)->get_fracht_max() == 0) {
 				continue;
 			}
-			const ware_besch_t *ware=cnv->gib_vehikel(i)->gib_fracht_typ();
-			if(ware!=warenbauer_t::nichts  &&  !goods_catg_index.is_contained(ware->gib_catg_index())) {
-				goods_catg_index.append( ware->gib_catg_index(), 1 );
+			const ware_besch_t *ware=cnv->get_vehikel(i)->get_fracht_typ();
+			if(ware!=warenbauer_t::nichts  &&  !goods_catg_index.is_contained(ware->get_catg_index())) {
+				goods_catg_index.append( ware->get_catg_index(), 1 );
 				update_schedules = true;
 			}
 		}
@@ -190,7 +190,7 @@ void simline_t::register_stops(schedule_t * fpl)
 {
 DBG_DEBUG("simline_t::register_stops()", "%d fpl entries in schedule %p", fpl->maxi(),fpl);
 	for (int i = 0; i<fpl->maxi(); i++) {
-		const halthandle_t halt = haltestelle_t::gib_halt( welt, fpl->eintrag[i].pos );
+		const halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos );
 		if(halt.is_bound()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
 			halt->add_line(self);
@@ -213,7 +213,7 @@ void simline_t::unregister_stops()
 void simline_t::unregister_stops(schedule_t * fpl)
 {
 	for (int i = 0; i<fpl->maxi(); i++) {
-		halthandle_t halt = haltestelle_t::gib_halt( welt, fpl->eintrag[i].pos );
+		halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos );
 		if(halt.is_bound()) {
 			halt->remove_line(self);
 		}
@@ -312,16 +312,16 @@ void simline_t::recalc_catg_index()
 		// what goods can this line transport?
 //		const convoihandle_t cnv = line_managed_convoys[i];
 		const convoi_t *cnv = line_managed_convoys[i].get_rep();
-		for(uint i=0;  i<cnv->gib_vehikel_anzahl();  i++  ) {
+		for(uint i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
 			// Only consider vehicles that really transport something
 			// this helps against routing errors through passenger
 			// trains pulling only freight wagons
-			if (cnv->gib_vehikel(i)->gib_fracht_max() == 0) {
+			if (cnv->get_vehikel(i)->get_fracht_max() == 0) {
 				continue;
 			}
-			const ware_besch_t *ware=cnv->gib_vehikel(i)->gib_fracht_typ();
+			const ware_besch_t *ware=cnv->get_vehikel(i)->get_fracht_typ();
 			if(ware!=warenbauer_t::nichts  ) {
-				goods_catg_index.append_unique( ware->gib_catg_index(), 1 );
+				goods_catg_index.append_unique( ware->get_catg_index(), 1 );
 			}
 		}
 	}

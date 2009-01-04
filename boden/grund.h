@@ -178,7 +178,7 @@ public:
 	 * setzt die Bildnr. des anzuzeigenden Bodens
 	 * @author Hj. Malthaner
 	 */
-	inline void setze_bild(image_id n)
+	inline void set_bild(image_id n)
 	{
 		bild_nr = n;
 		set_flag(dirty);
@@ -248,13 +248,13 @@ public:
 	* @return Die Nummer des Bildes des Untergrundes.
 	* @author Hj. Malthaner
 	*/
-	inline image_id gib_bild() const {return bild_nr;}
+	inline image_id get_bild() const {return bild_nr;}
 
 	/**
 	* Returns the number of an eventual foundation
 	* @author prissi
 	*/
-	image_id gib_back_bild(int leftback) const;
+	image_id get_back_bild(int leftback) const;
 	virtual void clear_back_bild() {back_bild_nr=0;}
 
 	/**
@@ -262,21 +262,21 @@ public:
 	* @return Den Namen des Untergrundes.
 	* @author Hj. Malthaner
 	*/
-	virtual const char* gib_name() const = 0;
+	virtual const char* get_name() const = 0;
 
 	/**
 	* Gibt den Typ des Untergrundes zurueck.
 	* @return Der Typ des Untergrundes.
 	* @author Hj. Malthaner
 	*/
-	virtual enum grund_t::typ gib_typ() const {return grund;}
+	virtual enum grund_t::typ get_typ() const {return grund;}
 
 	/**
 	* Gibt eine Beschreibung des Untergrundes (informell) zurueck.
 	* @return Einen Beschreibungstext zum Untergrund.
 	* @author Hj. Malthaner
 	*/
-	const char* gib_text() const;
+	const char* get_text() const;
 
 	/**
 	* @return NULL
@@ -302,7 +302,7 @@ public:
 	 * Sets the label text (by copying it)
 	 * @param text the new text (NULL will remove any label text)
 	 */
-	void setze_text(const char* text);
+	void set_text(const char* text);
 
 	virtual bool ist_natur() const {return false;}
 	virtual bool ist_wasser() const {return false;}
@@ -312,21 +312,21 @@ public:
 	* cannot be virtual - subclasses must set the flags appropriately!
 	* @author Hj. Malthaner
 	*/
-	inline bool ist_bruecke() const {return gib_typ()==brueckenboden;}
+	inline bool ist_bruecke() const {return get_typ()==brueckenboden;}
 
 	/**
 	* This is called very often, it must be inlined and therefore
 	* cannot be virtual - subclasses must set the flags appropriately!
 	* @author Hj. Malthaner
 	*/
-	inline bool ist_tunnel() const {return ((gib_typ()==tunnelboden)^grund_t::underground_mode);}
+	inline bool ist_tunnel() const {return ((get_typ()==tunnelboden)^grund_t::underground_mode);}
 
 	/**
 	* This is called very often, it must be inlined and therefore
 	* cannot be virtual - subclasses must set the flags appropriately!
 	* @author Hj. Malthaner
 	*/
-	inline bool ist_im_tunnel() const {return (gib_typ()==tunnelboden  &&  ist_karten_boden()==0)^grund_t::underground_mode;}
+	inline bool ist_im_tunnel() const {return (get_typ()==tunnelboden  &&  ist_karten_boden()==0)^grund_t::underground_mode;}
 
 	/* this will be stored locally, since it is called many, many times */
 	inline uint8 ist_karten_boden() const {return (flags&is_kartenboden);}
@@ -336,7 +336,7 @@ public:
 	* returns powerline here
 	* @author Kieron Green
 	*/
-	leitung_t *gib_leitung() const { return (leitung_t *) dinge.get_leitung(); }
+	leitung_t *get_leitung() const { return (leitung_t *) dinge.get_leitung(); }
 
 	/**
 	* Laedt oder speichert die Daten des Untergrundes in eine Datei.
@@ -354,31 +354,31 @@ public:
 	* @return Die Position des Grundes in der 3d-Welt
 	* @author Hj. Malthaner
 	*/
-	inline const koord3d& gib_pos() const { return pos; }
+	inline const koord3d& get_pos() const { return pos; }
 
-	inline void setze_pos(koord3d newpos) { pos = newpos;}
+	inline void set_pos(koord3d newpos) { pos = newpos;}
 
 	// slope are now maintained locally
-	hang_t::typ gib_grund_hang() const { return (hang_t::typ)slope; }
-	void setze_grund_hang(hang_t::typ sl) { slope = sl; }
+	hang_t::typ get_grund_hang() const { return (hang_t::typ)slope; }
+	void set_grund_hang(hang_t::typ sl) { slope = sl; }
 
 	/**
 	 * Manche Böden können zu Haltestellen gehören.
 	 * @author Hj. Malthaner
 	 */
-	void setze_halt(halthandle_t halt);
+	void set_halt(halthandle_t halt);
 
 	/**
 	 * Ermittelt, ob dieser Boden zu einer Haltestelle gehört.
 	 * @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
 	 * @author Hj. Malthaner
 	 */
-	halthandle_t gib_halt() const;
+	halthandle_t get_halt() const;
 	bool is_halt() const { return flags & is_halt_flag; }
 
-	inline sint16 gib_hoehe() const {return pos.z;}
+	inline sint16 get_hoehe() const {return pos.z;}
 
-	void setze_hoehe(int h) { pos.z = h;}
+	void set_hoehe(int h) { pos.z = h;}
 
 	/**
 	* Zeichnet Bodenbild des Grundes
@@ -408,8 +408,8 @@ public:
 	bool obj_loesche_alle(spieler_t *sp) { return dinge.loesche_alle(sp,offsets[flags/has_way1]); }
 	bool obj_ist_da(const ding_t* obj) const { return dinge.ist_da(obj); }
 	ding_t * obj_bei(uint8 n) const { return dinge.bei(n); }
-	uint8  obj_count() const { return dinge.gib_top()-offsets[flags/has_way1]; }
-	uint8 gib_top() const {return dinge.gib_top();}
+	uint8  obj_count() const { return dinge.get_top()-offsets[flags/has_way1]; }
+	uint8 get_top() const {return dinge.get_top();}
 
 	// moves all object from the old to the new grund_t
 	void take_obj_from( grund_t *gr);
@@ -429,7 +429,7 @@ public:
 	* Falls es hier ein Depot gibt, dieses zurueckliefern
 	* @author Volker Meyer
 	*/
-	depot_t *gib_depot() const { return dynamic_cast<depot_t *>(first_obj()); }
+	depot_t *get_depot() const { return dynamic_cast<depot_t *>(first_obj()); }
 
 	/*
 	* Interface zur Abfrage der Wege
@@ -442,23 +442,23 @@ public:
 	* The only way to get the typ of a way on a tile
 	* @author Hj. Malthaner
 	*/
-	weg_t *gib_weg_nr(int i) const { return (flags&(has_way1<<i)) ? static_cast<weg_t *>(obj_bei(i)) : NULL; }
+	weg_t *get_weg_nr(int i) const { return (flags&(has_way1<<i)) ? static_cast<weg_t *>(obj_bei(i)) : NULL; }
 
 	/**
 	* Inline da sehr oft aufgerufen.
 	* Sucht einen Weg vom typ 'typ' auf diesem Untergrund.
 	* @author Hj. Malthaner
 	*/
-	weg_t *gib_weg(waytype_t typ) const {
+	weg_t *get_weg(waytype_t typ) const {
 		if(flags&has_way1) {
 			weg_t *w=(weg_t *)obj_bei(0);
-			if(w->gib_waytype()==typ) {
+			if(w->get_waytype()==typ) {
 				return w;
 			}
 		}
 		if(flags&has_way2) {
 			weg_t *w=(weg_t *)obj_bei(1);
-			if(w->gib_waytype()==typ) {
+			if(w->get_waytype()==typ) {
 				return w;
 			}
 		}
@@ -467,30 +467,30 @@ public:
 
 	uint8 has_two_ways() const { return flags&has_way2; }
 
-	bool hat_weg(waytype_t typ) const { return gib_weg(typ)!=NULL; }
+	bool hat_weg(waytype_t typ) const { return get_weg(typ)!=NULL; }
 
 	/**
 	* Returns the system type s_type of a way of type typ at this location
 	* Currently only needed for tramways or other different types of rails
 	*
 	* @author DarioK
-	* @see gib_weg
+	* @see get_weg
 	*/
-	uint8 gib_styp(waytype_t typ) const
+	uint8 get_styp(waytype_t typ) const
 	{
-		weg_t *weg = gib_weg(typ);
-		return (weg) ? weg->gib_besch()->gib_styp() : 0;
+		weg_t *weg = get_weg(typ);
+		return (weg) ? weg->get_besch()->get_styp() : 0;
 	}
 
 	/**
 	* Ermittelt die Richtungsbits furr den weg vom Typ 'typ'.
 	* Liefert 0 wenn kein weg des Typs vorhanden ist. Ein Weg kann ggf.
 	* auch 0 als Richtungsbits liefern, deshalb kann die Anwesenheit eines
-	* Wegs nicht hierurber, sondern mit gib_weg(), ermittelt werden.
+	* Wegs nicht hierurber, sondern mit get_weg(), ermittelt werden.
 	* Also beware of water, which always allows all directions ...thus virtual
 	* @author Hj. Malthaner
 	*/
-	virtual ribi_t::ribi gib_weg_ribi(waytype_t typ) const;
+	virtual ribi_t::ribi get_weg_ribi(waytype_t typ) const;
 
 	/**
 	* Ermittelt die Richtungsbits furr den weg vom Typ 'typ' unmaskiert.
@@ -499,7 +499,7 @@ public:
 	* @author Hj. Malthaner/V. Meyer
 	*
 	*/
-	virtual ribi_t::ribi gib_weg_ribi_unmasked(waytype_t typ) const;
+	virtual ribi_t::ribi get_weg_ribi_unmasked(waytype_t typ) const;
 
 	/**
 	* checks a ways on this ground tile and returns the highest speedlimit.
@@ -512,7 +512,7 @@ public:
 	* only used for bridges, which start at a slope
 	* @author V. Meyer
 	*/
-	virtual sint8 gib_weg_yoff() const { return 0; }
+	virtual sint8 get_weg_yoff() const { return 0; }
 
 	/**
 	* Hat der Boden mindestens ein weg_t-Objekt? Liefert false für Wasser!
@@ -525,9 +525,9 @@ public:
 	* Strassenbahnschienen duerfen nicht als Kreuzung erkannt werden!
 	* @author V. Meyer, dariok
 	*/
-	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)dinge.bei(1))->gib_besch()->gib_styp()!=7; }
+	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)dinge.bei(1))->get_besch()->get_styp()!=7; }
 
-	virtual hang_t::typ gib_weg_hang() const { return gib_grund_hang(); }
+	virtual hang_t::typ get_weg_hang() const { return get_grund_hang(); }
 
 	/**
 	* Interface zur Bauen der Wege

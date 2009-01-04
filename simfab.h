@@ -39,8 +39,8 @@ class ware_production_t
 private:
 	const ware_besch_t *type;
 public:
-	const ware_besch_t* gib_typ() const { return type; }
-	void setze_typ(const ware_besch_t *t) { type=t; }
+	const ware_besch_t* get_typ() const { return type; }
+	void set_typ(const ware_besch_t *t) { type=t; }
 	sint32 menge;	// in internal untis shifted by precision (see produktion)
 	sint32 max;
 	sint32 abgabe_sum;	// total this month (in units)
@@ -160,24 +160,24 @@ public:
 	fabrik_t(koord3d pos, spieler_t* sp, const fabrik_besch_t* fabesch);
 	~fabrik_t();
 
-	static fabrik_t * gib_fab(const karte_t *welt, const koord pos);
+	static fabrik_t * get_fab(const karte_t *welt, const koord pos);
 
 	/**
 	 * @return vehicle description object
 	 * @author Hj. Malthaner
 	 */
-	const fabrik_besch_t *gib_besch() const {return besch; }
+	const fabrik_besch_t *get_besch() const {return besch; }
 
 	void laden_abschliessen();
 
-	void setze_pos( koord3d p ) { pos = p; }
+	void set_pos( koord3d p ) { pos = p; }
 
 	void rotate90( const sint16 y_size );
 
 	void link_halt(halthandle_t halt);
 	void unlink_halt(halthandle_t halt);
 
-	const vector_tpl<koord>& gib_lieferziele() const { return lieferziele; }
+	const vector_tpl<koord>& get_lieferziele() const { return lieferziele; }
 	const vector_tpl<koord>& get_suppliers() const { return suppliers; }
 
 	/* workers origin only used for info dialog purposes and saving; otherwise useless ...
@@ -186,7 +186,7 @@ public:
 	void  add_arbeiterziel(stadt_t *s) { if(!arbeiterziele.contains(s)) arbeiterziele.insert(s); }
 	void  remove_arbeiterziel(stadt_t *s) { arbeiterziele.remove(s); }
 	void  clear_arbeiterziele() { arbeiterziele.clear(); }
-	const slist_tpl<stadt_t*>& gib_arbeiterziele() const { return arbeiterziele; }
+	const slist_tpl<stadt_t*>& get_arbeiterziele() const { return arbeiterziele; }
 
 	/**
 	 * Fügt ein neues Lieferziel hinzu
@@ -228,21 +228,21 @@ public:
 	sint32 hole_ab(const ware_besch_t *, sint32 menge );     // jemand will waren abholen
 	sint32 liefere_an(const ware_besch_t *, sint32 menge);
 
-	sint32 gib_abgabe_letzt(sint32 t) { return ausgang[t].abgabe_letzt; }
+	sint32 get_abgabe_letzt(sint32 t) { return ausgang[t].abgabe_letzt; }
 
 	void step(long delta_t);                  // fabrik muss auch arbeiten
 	void neuer_monat();
 
-	const char *gib_name() const { return besch ? translator::translate(besch->gib_name()) : "unnamed"; }
-	sint32 gib_kennfarbe() const { return besch ? besch->gib_kennfarbe() : 0; }
-	spieler_t *gib_besitzer() const { return welt->lookup(pos) ? welt->lookup(pos)->first_obj()->gib_besitzer() : NULL; }
+	const char *get_name() const { return besch ? translator::translate(besch->get_name()) : "unnamed"; }
+	sint32 get_kennfarbe() const { return besch ? besch->get_kennfarbe() : 0; }
+	spieler_t *get_besitzer() const { return welt->lookup(pos) ? welt->lookup(pos)->first_obj()->get_besitzer() : NULL; }
 
 	void zeige_info() const;
 	void info(cbuffer_t& buf) const;
 
 	void rdwr(loadsave_t *file);
 
-	inline koord3d gib_pos() const { return pos; }
+	inline koord3d get_pos() const { return pos; }
 
 	/**
 	 * gibt eine NULL-Terminierte Liste von Fabrikpointern zurück
@@ -278,14 +278,14 @@ public:
 
 	void remove_field_at(koord pos);
 
-	uint32 gib_field_count() const { return fields.get_count(); }
+	uint32 get_field_count() const { return fields.get_count(); }
 
 	/**
 	 * total and current procduction/storage values
 	 * @author Hj. Malthaner
 	 */
-	const vector_tpl<ware_production_t>& gib_eingang() const { return eingang; }
-	const vector_tpl<ware_production_t>& gib_ausgang() const { return ausgang; }
+	const vector_tpl<ware_production_t>& get_eingang() const { return eingang; }
+	const vector_tpl<ware_production_t>& get_ausgang() const { return ausgang; }
 
 	/**
 	 * Produktionsmultiplikator

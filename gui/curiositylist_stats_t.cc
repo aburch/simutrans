@@ -33,7 +33,7 @@ curiositylist_stats_t::curiositylist_stats_t(karte_t* w, curiositylist::sort_mod
 {
 	welt = w;
 	get_unique_attractions(sortby,sortreverse);
-	setze_groesse(koord(210, attractions.get_count()*(LINESPACE+1)-10));
+	set_groesse(koord(210, attractions.get_count()*(LINESPACE+1)-10));
 	line_selected = 0xFFFFFFFFu;
 }
 
@@ -53,14 +53,14 @@ class compare_curiosities
 				default: NOT_REACHED
 				case curiositylist::by_name:
 				{
-					const char* a_name = translator::translate(a->gib_tile()->gib_besch()->gib_name());
-					const char* b_name = translator::translate(b->gib_tile()->gib_besch()->gib_name());
+					const char* a_name = translator::translate(a->get_tile()->get_besch()->get_name());
+					const char* b_name = translator::translate(b->get_tile()->get_besch()->get_name());
 					cmp = STRICMP(a_name, b_name);
 					break;
 				}
 
 				case curiositylist::by_paxlevel:
-					cmp = a->gib_passagier_level() - b->gib_passagier_level();
+					cmp = a->get_passagier_level() - b->get_passagier_level();
 					break;
 			}
 			return reverse ? cmp > 0 : cmp < 0;
@@ -74,14 +74,14 @@ class compare_curiosities
 
 void curiositylist_stats_t::get_unique_attractions(curiositylist::sort_mode_t sortby, bool sortreverse)
 {
-	const weighted_vector_tpl<gebaeude_t*>& ausflugsziele = welt->gib_ausflugsziele();
+	const weighted_vector_tpl<gebaeude_t*>& ausflugsziele = welt->get_ausflugsziele();
 	attractions.clear();
-	attractions.resize(welt->gib_ausflugsziele().get_count());
+	attractions.resize(welt->get_ausflugsziele().get_count());
 	for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = ausflugsziele.begin(), end = ausflugsziele.end(); i != end; ++i) {
 		gebaeude_t* geb = *i;
 		if (geb != NULL &&
-				geb->gib_tile()->gib_offset() == koord(0, 0) &&
-				geb->gib_passagier_level() != 0) {
+				geb->get_tile()->get_offset() == koord(0, 0) &&
+				geb->get_passagier_level() != 0) {
 			attractions.push_back(geb);
 		}
 	}
@@ -115,14 +115,14 @@ void curiositylist_stats_t::infowin_event(const event_t * ev)
 
 	if (IS_LEFTRELEASE(ev)) {
 		if(  ev->cx>0  &&  ev->cx<15  ) {
-			welt->change_world_position(geb->gib_pos());
+			welt->change_world_position(geb->get_pos());
 		}
 		else {
 			geb->zeige_info();
 		}
 	}
 	else if (IS_RIGHTRELEASE(ev)) {
-		welt->change_world_position(geb->gib_pos());
+		welt->change_world_position(geb->get_pos());
 	}
 } // end of function curiositylist_stats_t::infowin_event(const event_t * ev)
 
@@ -134,8 +134,8 @@ void curiositylist_stats_t::infowin_event(const event_t * ev)
  */
 void curiositylist_stats_t::zeichnen(koord offset)
 {
-	image_id const arrow_right_normal = skinverwaltung_t::window_skin->gib_bild(10)->gib_nummer();
-	const struct clip_dimension cd = display_gib_clip_wh();
+	image_id const arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
+	const struct clip_dimension cd = display_get_clip_wh();
 	const int start = cd.y-LINESPACE+1;
 	const int end = cd.yy;
 
@@ -159,7 +159,7 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		}
 		else {
 			// select goto button
-			display_color_img(skinverwaltung_t::window_skin->gib_bild(11)->gib_nummer(),
+			display_color_img(skinverwaltung_t::window_skin->get_bild(11)->get_nummer(),
 				xoff-8, yoff, 0, false, true);
 		}
 
@@ -171,7 +171,7 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		bool pax=false;
 		bool all_crowded=true;
 		bool some_crowded=false;
-		const planquadrat_t *plan = welt->lookup(geb->gib_pos().gib_2d());
+		const planquadrat_t *plan = welt->lookup(geb->get_pos().get_2d());
 		const halthandle_t *halt_list = plan->get_haltlist();
 		for(  unsigned h=0;  (post&pax)==0  &&  h<plan->get_haltlist_count();  h++ ) {
 			halthandle_t halt = halt_list[h];
@@ -208,7 +208,7 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		display_fillbox_wh_clip(xoff+7, yoff+2, INDICATOR_WIDTH, INDICATOR_HEIGHT, indicatorfarbe, true);
 
 		// the other infos
-		const unsigned char *name = (const unsigned char *)ltrim( translator::translate(geb->gib_tile()->gib_besch()->gib_name()) );
+		const unsigned char *name = (const unsigned char *)ltrim( translator::translate(geb->get_tile()->get_besch()->get_name()) );
 		char short_name[256];
 		int i=0, cr=0;
 		for( int j=0;  j<255  &&  name[j]>='\n'  &&  cr<2;  j++  ) {
@@ -226,13 +226,13 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		// now we have a short name ...
 		buf.append(short_name);
 		buf.append(" (");
-		buf.append(geb->gib_passagier_level());
+		buf.append(geb->get_passagier_level());
 		buf.append(") ");
 
 		display_proportional_clip(xoff+INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
-		if (geb->gib_tile()->gib_besch()->gib_extra() != 0) {
-		    display_color_img(skinverwaltung_t::intown->gib_bild_nr(0), xoff+INDICATOR_WIDTH+9, yoff, 0, false, false);
+		if (geb->get_tile()->get_besch()->get_extra() != 0) {
+		    display_color_img(skinverwaltung_t::intown->get_bild_nr(0), xoff+INDICATOR_WIDTH+9, yoff, 0, false, false);
 		}
 
 		yoff +=LINESPACE+1;

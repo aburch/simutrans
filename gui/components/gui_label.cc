@@ -21,14 +21,14 @@ gui_label_t::gui_label_t(const char* text, int color_, align_t align_) :
 	align(align_),
 	color(color_)
 {
-	setze_text( text );
+	set_text( text );
 }
 
 /**
  * setzt den Text des Labels
  * @author Hansjörg Malthaner
  */
-void gui_label_t::setze_text(const char *text)
+void gui_label_t::set_text(const char *text)
 {
 	this->text = translator::translate(text);
 }

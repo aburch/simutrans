@@ -44,7 +44,7 @@ private:
 			button_t::infowin_event(ev);
 		}
 		virtual void zeichnen(koord offset) {
-			pressed = parent->gib_ware_filter(ware);
+			pressed = parent->get_ware_filter(ware);
 			button_t::zeichnen(offset);
 		}
 	};
@@ -93,7 +93,7 @@ public:
      * Propagate funktion from main_frame for ware_item_t
      * @author V. Meyer
      */
-    bool gib_ware_filter(const ware_besch_t *ware) const { return main_frame->gib_ware_filter(ware); }
+    bool get_ware_filter(const ware_besch_t *ware) const { return main_frame->get_ware_filter(ware); }
 
     /*
      * Handler for ware_item_t event.
@@ -114,7 +114,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author V. Meyer
      */
-    const char * gib_hilfe_datei() const {return "convoi_filter.txt"; }
+    const char * get_hilfe_datei() const {return "convoi_filter.txt"; }
 
     /**
      * This method is called if an action is triggered

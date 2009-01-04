@@ -15,10 +15,10 @@ public:
 
 	virtual void rdwr(loadsave_t *file);
 
-	hang_t::typ gib_weg_hang() const { return hang_t::flach; }
+	hang_t::typ get_weg_hang() const { return hang_t::flach; }
 
-	const char *gib_name() const {return "Tunnelboden";}
-	enum grund_t::typ gib_typ() const {return tunnelboden;}
+	const char *get_name() const {return "Tunnelboden";}
+	enum grund_t::typ get_typ() const {return tunnelboden;}
 };
 
 #endif

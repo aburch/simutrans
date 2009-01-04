@@ -64,7 +64,7 @@ bool groundobj_t::register_besch(groundobj_besch_t *besch)
 		groundobj_typen.push_back(NULL);
 	}
 	assert(besch->get_speed()==0);
-	besch_names.put(besch->gib_name(), groundobj_typen.get_count() );
+	besch_names.put(besch->get_name(), groundobj_typen.get_count() );
 	groundobj_typen.push_back(besch);
 	return true;
 }
@@ -80,8 +80,8 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 	int weight = 0;
 
 	for( unsigned i=1;  i<groundobj_typen.get_count();  i++  ) {
-		if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->gib_phases()==16)  ) {
-			weight += groundobj_typen[i]->gib_distribution_weight();
+		if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->get_phases()==16)  ) {
+			weight += groundobj_typen[i]->get_distribution_weight();
 		}
 	}
 
@@ -90,8 +90,8 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 		const int w=simrand(weight);
 		weight = 0;
 		for( unsigned i=1; i<groundobj_typen.get_count();  i++  ) {
-			if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->gib_phases()==16)  ) {
-				weight += groundobj_typen[i]->gib_distribution_weight();
+			if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->get_phases()==16)  ) {
+				weight += groundobj_typen[i]->get_distribution_weight();
 				if(weight>=w) {
 					return groundobj_typen[i];
 				}
@@ -111,8 +111,8 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 void groundobj_t::calc_bild()
 {
 	// alter/2048 is the age of the tree
-	const groundobj_besch_t *besch=gib_besch();
-	const sint16 seasons = besch->gib_seasons()-1;
+	const groundobj_besch_t *besch=get_besch();
+	const sint16 seasons = besch->get_seasons()-1;
 	season=0;
 
 	// two possibilities
@@ -121,28 +121,28 @@ void groundobj_t::calc_bild()
 		case 0: season = 0;
 				break;
 				// summer, snow
-		case 1: season = welt->get_snowline()<=gib_pos().z;
+		case 1: season = welt->get_snowline()<=get_pos().z;
 				break;
 				// summer, winter, snow
-		case 2: season = welt->get_snowline()<=gib_pos().z ? 2 : welt->gib_jahreszeit()==1;
+		case 2: season = welt->get_snowline()<=get_pos().z ? 2 : welt->get_jahreszeit()==1;
 				break;
-		default: if(welt->get_snowline()<=gib_pos().z) {
+		default: if(welt->get_snowline()<=get_pos().z) {
 					season = seasons;
 				}
 				else {
 					// resolution 1/8th month (0..95)
-					const uint32 yearsteps = (welt->get_current_month()%12)*8 + ((welt->gib_zeit_ms()>>(welt->ticks_bits_per_tag-3))&7) + 1;
+					const uint32 yearsteps = (welt->get_current_month()%12)*8 + ((welt->get_zeit_ms()>>(welt->ticks_bits_per_tag-3))&7) + 1;
 					season = (seasons*yearsteps-1)/96;
 				}
 				break;
 	}
 	// check for slopes?
 	uint16 phase = 0;
-	if(besch->gib_phases()==16) {
-		phase = welt->lookup(gib_pos())->gib_grund_hang();
+	if(besch->get_phases()==16) {
+		phase = welt->lookup(get_pos())->get_grund_hang();
 	}
-	const bild_besch_t *bild_ptr = gib_besch()->gib_bild( season, phase );
-	bild = bild_ptr ? bild_ptr->gib_nummer() : IMG_LEER;
+	const bild_besch_t *bild_ptr = get_besch()->get_bild( season, phase );
+	bild = bild_ptr ? bild_ptr->get_nummer() : IMG_LEER;
 }
 
 
@@ -150,7 +150,7 @@ void groundobj_t::calc_bild()
 groundobj_t::groundobj_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
 	rdwr(file);
-	if(gib_besch()) {
+	if(get_besch()) {
 		calc_bild();
 	}
 }
@@ -171,7 +171,7 @@ bool groundobj_t::check_season(long )
 	const uint8 old_season = season;
 	calc_bild();
 	if(season!=old_season) {
-		mark_image_dirty( gib_bild(), 0 );
+		mark_image_dirty( get_bild(), 0 );
 	}
 	return true;
 }
@@ -185,7 +185,7 @@ void groundobj_t::rdwr(loadsave_t *file)
 	ding_t::rdwr(file);
 
 	if(file->is_saving()) {
-		const char *s = gib_besch()->gib_name();
+		const char *s = get_besch()->get_name();
 		file->rdwr_str(s);
 	}
 	else {
@@ -221,8 +221,8 @@ void groundobj_t::info(cbuffer_t & buf) const
 	ding_t::info(buf);
 
 	buf.append("\n");
-	buf.append(translator::translate(gib_besch()->gib_name()));
-	const char *maker=gib_besch()->gib_copyright();
+	buf.append(translator::translate(get_besch()->get_name()));
+	const char *maker=get_besch()->get_copyright();
 	if(maker!=NULL  && maker[0]!=0) {
 		buf.append("\n");
 		buf.printf(translator::translate("Constructed by %s"), maker);
@@ -230,7 +230,7 @@ void groundobj_t::info(cbuffer_t & buf) const
 	buf.append("\n");
 	buf.append(translator::translate("cost for removal"));
 	char buffer[128];
-	money_to_string( buffer, gib_besch()->gib_preis()/100.0 );
+	money_to_string( buffer, get_besch()->get_preis()/100.0 );
 	buf.append( buffer );
 }
 
@@ -239,8 +239,8 @@ void groundobj_t::info(cbuffer_t & buf) const
 void
 groundobj_t::entferne(spieler_t *sp)
 {
-	spieler_t::accounting(sp, -gib_besch()->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
-	mark_image_dirty( gib_bild(), 0 );
+	spieler_t::accounting(sp, -get_besch()->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
+	mark_image_dirty( get_bild(), 0 );
 }
 
 

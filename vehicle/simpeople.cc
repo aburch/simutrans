@@ -29,8 +29,8 @@ stringhashtable_tpl<const fussgaenger_besch_t *> fussgaenger_t::table;
 
 bool fussgaenger_t::register_besch(const fussgaenger_besch_t *besch)
 {
-	liste.append(besch, besch->gib_gewichtung(), 1);
-	table.put(besch->gib_name(), besch);
+	liste.append(besch, besch->get_gewichtung(), 1);
+	table.put(besch->get_name(), besch);
 
 	return true;
 }
@@ -69,11 +69,11 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, koord3d pos)
 void
 fussgaenger_t::calc_bild()
 {
-	if(welt->lookup(gib_pos())->ist_im_tunnel()) {
-		setze_bild(IMG_LEER);
+	if(welt->lookup(get_pos())->ist_im_tunnel()) {
+		set_bild(IMG_LEER);
 	}
 	else {
-		setze_bild(besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
+		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_fahrtrichtung())));
 	}
 }
 
@@ -86,7 +86,7 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 	verkehrsteilnehmer_t::rdwr(file);
 
 	if(!file->is_loading()) {
-		const char *s = besch->gib_name();
+		const char *s = besch->get_name();
 		file->rdwr_str(s);
 	}
 	else {
@@ -113,10 +113,10 @@ void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &
 
 	const grund_t* bd = welt->lookup(k);
 	if (bd) {
-		const weg_t* weg = bd->gib_weg(road_wt);
+		const weg_t* weg = bd->get_weg(road_wt);
 
 		// we do not start on crossings (not overrunning pedestrians please
-		if (weg && ribi_t::is_twoway(weg->gib_ribi_unmasked())) {
+		if (weg && ribi_t::is_twoway(weg->get_ribi_unmasked())) {
 			for (int i = 0; i < 4 && anzahl > 0; i++) {
 				fussgaenger_t* fg = new fussgaenger_t(welt, k);
 				bool ok = welt->lookup(k)->obj_add(fg) != 0;	// 256 limit reached

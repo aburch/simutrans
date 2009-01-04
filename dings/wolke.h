@@ -28,7 +28,7 @@ private:
 public:
     static bool register_besch(const skin_besch_t *besch);
 
-	inline sint32 gib_insta_zeit() const { return insta_zeit; }
+	inline sint32 get_insta_zeit() const { return insta_zeit; }
 
 	wolke_t(karte_t *welt, loadsave_t *file);
 	wolke_t(karte_t *welt, koord3d pos, sint8 xoff, sint8 yoff, const skin_besch_t *cloud );
@@ -36,12 +36,12 @@ public:
 
 	bool sync_step(long delta_t);
 
-	const char* gib_name() const { return "Wolke"; }
-	enum ding_t::typ gib_typ() const { return sync_wolke; }
+	const char* get_name() const { return "Wolke"; }
+	enum ding_t::typ get_typ() const { return sync_wolke; }
 
 	void zeige_info() {} // show no info
 
-	image_id gib_bild() const { return all_clouds[cloud_nr]->gib_bild_nr(insta_zeit/divisor); }
+	image_id get_bild() const { return all_clouds[cloud_nr]->get_bild_nr(insta_zeit/divisor); }
 
 	void rdwr(loadsave_t *file);
 
@@ -56,16 +56,16 @@ class async_wolke_t : public ding_t
 {
 public:
 	async_wolke_t(karte_t *welt, loadsave_t *file);
-	enum ding_t::typ gib_typ() const { return async_wolke; }
-	image_id gib_bild() const { return IMG_LEER; }
+	enum ding_t::typ get_typ() const { return async_wolke; }
+	image_id get_bild() const { return IMG_LEER; }
 };
 
 class raucher_t : public ding_t
 {
 public:
 	raucher_t(karte_t *welt, loadsave_t *file);
-	enum ding_t::typ gib_typ() const { return raucher; }
-	image_id gib_bild() const { return IMG_LEER; }
+	enum ding_t::typ get_typ() const { return raucher; }
+	image_id get_bild() const { return IMG_LEER; }
 };
 
 #endif

@@ -201,8 +201,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// scan for most number of seasons
 	int seasons = 1;
 	for (int l = 0; l < besch.layouts; l++) { // each layout
-		for (int y = 0; y < besch.gib_h(l); y++) {
-			for (int x = 0; x < besch.gib_b(l); x++) { // each tile
+		for (int y = 0; y < besch.get_h(l); y++) {
+			for (int x = 0; x < besch.get_b(l); x++) { // each tile
 				for (int pos = 0; pos < 2; pos++) {
 					for (int season = seasons; season < 12; season++) {
 						char buf[40];
@@ -221,8 +221,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	int tile_index = 0;
 	for (int l = 0; l < besch.layouts; l++) { // each layout
-		for (int y = 0; y < besch.gib_h(l); y++) {
-			for (int x = 0; x < besch.gib_b(l); x++) { // each tile
+		for (int y = 0; y < besch.get_h(l); y++) {
+			for (int x = 0; x < besch.get_b(l); x++) { // each tile
 				slist_tpl<slist_tpl<slist_tpl<cstring_t> > > backkeys;
 				slist_tpl<slist_tpl<slist_tpl<cstring_t> > > frontkeys;
 

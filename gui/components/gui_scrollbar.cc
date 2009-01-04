@@ -23,24 +23,24 @@ scrollbar_t::scrollbar_t(enum type type)
 
 	if (type == vertical) {
 		groesse = koord(10,40);
-		button_def[0].setze_typ(button_t::arrowup);
-		button_def[1].setze_typ(button_t::arrowdown);
+		button_def[0].set_typ(button_t::arrowup);
+		button_def[1].set_typ(button_t::arrowdown);
 	}
 	else { // horizontal
 		groesse = koord(40,10);
-		button_def[0].setze_typ(button_t::arrowleft);
-		button_def[1].setze_typ(button_t::arrowright);
+		button_def[0].set_typ(button_t::arrowleft);
+		button_def[1].set_typ(button_t::arrowright);
 	}
 
-	button_def[0].setze_pos(koord(0,0));
-	button_def[1].setze_pos(koord(0,0));
-	button_def[2].setze_typ(button_t::scrollbar);
+	button_def[0].set_pos(koord(0,0));
+	button_def[1].set_pos(koord(0,0));
+	button_def[2].set_typ(button_t::scrollbar);
 	reposition_buttons();
 }
 
 
 
-void scrollbar_t::setze_groesse(koord groesse)
+void scrollbar_t::set_groesse(koord groesse)
 {
 	this->groesse = groesse;
 	reposition_buttons();
@@ -48,10 +48,10 @@ void scrollbar_t::setze_groesse(koord groesse)
 
 
 
-void scrollbar_t::setze_knob(sint32 size, sint32 area)
+void scrollbar_t::set_knob(sint32 size, sint32 area)
 {
 	if(size<1  ||  area<1) {
-//		dbg->warning("scrollbar_t::setze_knob()","size=%i, area=%i not in 1...x",size,area);
+//		dbg->warning("scrollbar_t::set_knob()","size=%i, area=%i not in 1...x",size,area);
 	}
 	knob_size = max(1,size);
 	knob_area = max(1,area);
@@ -84,14 +84,14 @@ void scrollbar_t::reposition_buttons()
 	//if (knob_area < knob_size) { offset = 0; }
 
 	if (type == vertical) {
-		button_def[1].setze_pos( koord(0,groesse.y-10) );
-		button_def[2].setze_pos( koord(0,12+offset) );
-		button_def[2].setze_groesse( koord(10,size) );
+		button_def[1].set_pos( koord(0,groesse.y-10) );
+		button_def[2].set_pos( koord(0,12+offset) );
+		button_def[2].set_groesse( koord(10,size) );
 	}
 	else { // horizontal
-		button_def[1].setze_pos( koord(groesse.x-10,0) );
-		button_def[2].setze_pos( koord(12+offset,0) );
-		button_def[2].setze_groesse( koord(size,10) );
+		button_def[1].set_pos( koord(groesse.x-10,0) );
+		button_def[2].set_pos( koord(12+offset,0) );
+		button_def[2].set_groesse( koord(size,10) );
 	}
 }
 

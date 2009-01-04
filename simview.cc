@@ -48,12 +48,12 @@ karte_ansicht_t::display(bool force_dirty)
 	const sint16 menu_height = werkzeug_t::toolbar_tool[0]->iconsize.y;
 
 	const sint16 disp_height = display_get_height() - 16 - (!ticker::empty() ? 16 : 0);
-	display_setze_clip_wh( 0, menu_height, disp_width, disp_height-menu_height );
+	display_set_clip_wh( 0, menu_height, disp_width, disp_height-menu_height );
 
 	// zuerst den boden zeichnen
 	// denn der Boden kann kein Objekt verdecken
 	force_dirty = force_dirty || welt->ist_dirty();
-	welt->setze_dirty_zurueck();
+	welt->set_dirty_zurueck();
 
 	const sint16 IMG_SIZE = get_tile_raster_width();
 
@@ -62,11 +62,11 @@ karte_ansicht_t::display(bool force_dirty)
 
 	const int i_off = welt->get_world_position().x - disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE;
 	const int j_off = welt->get_world_position().y + disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE;
-	const int const_x_off = welt->gib_x_off();
-	const int const_y_off = welt->gib_y_off();
+	const int const_x_off = welt->get_x_off();
+	const int const_y_off = welt->get_y_off();
 
 	// these are the values needed to go directly from a tile to the display
-	welt->setze_ansicht_ij_offset(
+	welt->set_ansicht_ij_offset(
 		koord( - disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE,
 					disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE	)
 	);
@@ -82,7 +82,7 @@ karte_ansicht_t::display(bool force_dirty)
 	else {
 		// calculate also days if desired
 		uint32 month = welt->get_last_month();
-		const uint32 ticks_this_month = welt->gib_zeit_ms() % welt->ticks_per_tag;
+		const uint32 ticks_this_month = welt->get_zeit_ms() % welt->ticks_per_tag;
 		uint32 stunden2;
 		if(umgebung_t::show_month>1) {
 			static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
@@ -115,15 +115,15 @@ karte_ansicht_t::display(bool force_dirty)
 
 			if(xpos+IMG_SIZE>0  &&  xpos<disp_width) {
 				const planquadrat_t *plan=welt->lookup(koord(i,j));
-				if(plan  &&  plan->gib_kartenboden()) {
-					sint16 yypos = ypos - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
+				if(plan  &&  plan->get_kartenboden()) {
+					sint16 yypos = ypos - tile_raster_scale_y( plan->get_kartenboden()->get_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE<disp_height  &&  yypos+IMG_SIZE>menu_height) {
 						plan->display_boden(xpos, yypos);
 					}
 				}
 				else {
 					// ouside ...
-					display_img(grund_besch_t::ausserhalb->gib_bild(hang_t::flach), xpos,ypos - tile_raster_scale_y( welt->gib_grundwasser()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE ), force_dirty);
+					display_img(grund_besch_t::ausserhalb->get_bild(hang_t::flach), xpos,ypos - tile_raster_scale_y( welt->get_grundwasser()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE ), force_dirty);
 				}
 			}
 		}
@@ -142,8 +142,8 @@ karte_ansicht_t::display(bool force_dirty)
 
 			if(xpos+IMG_SIZE>0  &&  xpos<disp_width) {
 				const planquadrat_t *plan=welt->lookup(koord(i,j));
-				if(plan  &&  plan->gib_kartenboden()) {
-					sint16 yypos = ypos - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
+				if(plan  &&  plan->get_kartenboden()) {
+					sint16 yypos = ypos - tile_raster_scale_y( plan->get_kartenboden()->get_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE*2<disp_height  &&  yypos+IMG_SIZE>menu_height) {
 						plan->display_dinge(xpos, yypos, IMG_SIZE, true);
 					}
@@ -165,8 +165,8 @@ karte_ansicht_t::display(bool force_dirty)
 
 			if(xpos+IMG_SIZE>0  &&  xpos<disp_width) {
 				const planquadrat_t *plan=welt->lookup(koord(i,j));
-				if(plan  &&  plan->gib_kartenboden()) {
-					sint16 yypos = ypos - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
+				if(plan  &&  plan->get_kartenboden()) {
+					sint16 yypos = ypos - tile_raster_scale_y( plan->get_kartenboden()->get_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE<disp_height  &&  yypos+IMG_SIZE>menu_height) {
 						plan->display_overlay(xpos, yypos);
 					}
@@ -174,22 +174,22 @@ karte_ansicht_t::display(bool force_dirty)
 			}
 		}
 	}
-	ding_t *zeiger = welt->gib_zeiger();
+	ding_t *zeiger = welt->get_zeiger();
 	if(zeiger) {
 		// better not try to twist your brain to follow the retransformation ...
 		const sint16 rasterweite=get_tile_raster_width();
-		const koord diff = zeiger->gib_pos().gib_2d()-welt->get_world_position()-welt->gib_ansicht_ij_offset();
-		const sint16 x = (diff.x-diff.y)*(rasterweite/2) + tile_raster_scale_x(zeiger->gib_xoff(), rasterweite);
-		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( zeiger->gib_yoff()-zeiger->gib_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4);
-		zeiger->display( x+welt->gib_x_off(), y+welt->gib_y_off(), true );
+		const koord diff = zeiger->get_pos().get_2d()-welt->get_world_position()-welt->get_ansicht_ij_offset();
+		const sint16 x = (diff.x-diff.y)*(rasterweite/2) + tile_raster_scale_x(zeiger->get_xoff(), rasterweite);
+		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( zeiger->get_yoff()-zeiger->get_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4);
+		zeiger->display( x+welt->get_x_off(), y+welt->get_y_off(), true );
 		zeiger->clear_flag(ding_t::dirty);
 	}
 
 	if(welt) {
 		// finally update the ticker
 		for(int x=0; x<MAX_PLAYER_COUNT; x++) {
-			if(  welt->gib_spieler(x)  ) {
-				welt->gib_spieler(x)->display_messages();
+			if(  welt->get_spieler(x)  ) {
+				welt->get_spieler(x)->display_messages();
 			}
 		}
 	}

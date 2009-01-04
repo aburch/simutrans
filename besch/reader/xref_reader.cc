@@ -18,7 +18,7 @@ obj_besch_t * xref_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	besch->fatal = (decode_uint8(p) != 0);
 	fread(besch->name, 1, node.size - 4 - 1, fp);
 
-//	DBG_DEBUG("xref_reader_t::read_node()", "%s",besch->gib_text() );
+//	DBG_DEBUG("xref_reader_t::read_node()", "%s",besch->get_text() );
 
 	return besch;
 }

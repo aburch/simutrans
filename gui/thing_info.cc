@@ -23,12 +23,12 @@ cbuffer_t ding_infowin_t::buf (8192);
 
 
 ding_infowin_t::ding_infowin_t(const ding_t* ding_) :
-	gui_frame_t("", ding_->gib_besitzer()),
+	gui_frame_t("", ding_->get_besitzer()),
 	view(ding_),
 	ding(ding_)
 {
-	view.setze_pos( koord(175,10) );
-	view.setze_groesse( koord( get_tile_raster_width(), (get_tile_raster_width()*5)/6)  );
+	view.set_pos( koord(175,10) );
+	view.set_groesse( koord( get_tile_raster_width(), (get_tile_raster_width()*5)/6)  );
 	add_komponente( &view );
 
 	buf.clear();
@@ -36,7 +36,7 @@ ding_infowin_t::ding_infowin_t(const ding_t* ding_) :
 
 	KOORD_VAL width  = 180 + get_tile_raster_width();
 	KOORD_VAL height = max( calc_draw_info( koord::invalid, false )+20+16, get_tile_raster_width() + 30);
-	setze_fenstergroesse(koord(width, height));
+	set_fenstergroesse(koord(width, height));
 }
 
 
@@ -49,7 +49,7 @@ ding_infowin_t::calc_draw_info( koord pos, bool draw ) const
 {
 	const bool unicode = translator::get_lang()->utf_encoded;
 	KOORD_VAL x=0, word_x=0, y = 10;
-	const KOORD_VAL view_height = view.gib_groesse().y+10;
+	const KOORD_VAL view_height = view.get_groesse().y+10;
 
 	const utf8 *p = (const utf8 *)(const char *)buf;
 	const utf8 *line_start = p;
@@ -60,7 +60,7 @@ ding_infowin_t::calc_draw_info( koord pos, bool draw ) const
 	while(*p!=0) {
 
 		// force at end of text or newline
-		const KOORD_VAL max_width = (y<view_height) ? 155 : 155+view.gib_groesse().x;
+		const KOORD_VAL max_width = (y<view_height) ? 155 : 155+view.get_groesse().x;
 
 		// smaller than the allowd width?
 		do {
@@ -131,7 +131,7 @@ ding_infowin_t::calc_draw_info( koord pos, bool draw ) const
 void ding_infowin_t::zeichnen(koord pos, koord gr)
 {
 	set_dirty();
-	gui_frame_t::setze_name( gib_name() );
+	gui_frame_t::set_name( get_name() );
 	gui_frame_t::zeichnen( pos, gr );
 
 	buf.clear();

@@ -29,7 +29,7 @@ void field_t::register_besch(field_besch_t *besch, const char*name)
 	besch_table.put(name, besch);
 }
 
-const field_besch_t *field_t::gib_besch(const char *name)
+const field_besch_t *field_t::get_besch(const char *name)
 {
 	return besch_table.get(name);
 }
@@ -42,16 +42,16 @@ field_t::field_t(karte_t *welt, koord3d p, spieler_t *sp, const field_besch_t *b
 {
 	this->besch = besch;
 	this->fab = fab;
-	setze_besitzer( sp );
-	p.z = welt->max_hgt(p.gib_2d());
-	setze_pos( p );
+	set_besitzer( sp );
+	p.z = welt->max_hgt(p.get_2d());
+	set_pos( p );
 }
 
 
 
 field_t::~field_t()
 {
-	fab->remove_field_at( gib_pos().gib_2d() );
+	fab->remove_field_at( get_pos().get_2d() );
 }
 
 
@@ -60,7 +60,7 @@ const char *
 field_t::ist_entfernbar(const spieler_t *)
 {
 	// we allow removal, if there is less than
-	return (fab->gib_field_count() > besch->gib_min_fields()) ? NULL : "Not enough fields would remain.";
+	return (fab->get_field_count() > besch->get_min_fields()) ? NULL : "Not enough fields would remain.";
 }
 
 
@@ -69,26 +69,26 @@ field_t::ist_entfernbar(const spieler_t *)
 void
 field_t::entferne(spieler_t *sp)
 {
-	spieler_t::accounting( sp, welt->gib_einstellungen()->cst_multiply_remove_field, gib_pos().gib_2d(), COST_CONSTRUCTION);
-	mark_image_dirty( gib_bild(), 0 );
+	spieler_t::accounting( sp, welt->get_einstellungen()->cst_multiply_remove_field, get_pos().get_2d(), COST_CONSTRUCTION);
+	mark_image_dirty( get_bild(), 0 );
 }
 
 
 
 // return the  right month graphic for factories
 image_id
-field_t::gib_bild() const
+field_t::get_bild() const
 {
-	const skin_besch_t *s=besch->gib_bilder();
-	uint16 anzahl=s->gib_bild_anzahl() - besch->has_snow_bild();
-	if(besch->has_snow_bild()  &&  gib_pos().z>=welt->get_snowline()) {
+	const skin_besch_t *s=besch->get_bilder();
+	uint16 anzahl=s->get_bild_anzahl() - besch->has_snow_bild();
+	if(besch->has_snow_bild()  &&  get_pos().z>=welt->get_snowline()) {
 		// last images will be shown above snowline
-		return s->gib_bild_nr(anzahl);
+		return s->get_bild_nr(anzahl);
 	}
 	else {
 		// resolution 1/8th month (0..95)
-		const uint32 yearsteps = (welt->get_current_month()%12)*8 + ((welt->gib_zeit_ms()>>(welt->ticks_bits_per_tag-3))&7) + 1;
-		const image_id bild = s->gib_bild_nr( (anzahl*yearsteps-1)/96 );
+		const uint32 yearsteps = (welt->get_current_month()%12)*8 + ((welt->get_zeit_ms()>>(welt->ticks_bits_per_tag-3))&7) + 1;
+		const image_id bild = s->get_bild_nr( (anzahl*yearsteps-1)/96 );
 		if((anzahl*yearsteps-1)%96<anzahl) {
 			mark_image_dirty( bild, 0 );
 		}
@@ -106,7 +106,7 @@ field_t::gib_bild() const
 void field_t::zeige_info()
 {
 	// show the info of the corresponding factory
-	grund_t *gr = welt->lookup(fab->gib_pos());
+	grund_t *gr = welt->lookup(fab->get_pos());
 	gebaeude_t* gb = gr->find<gebaeude_t>();
 	gb->zeige_info();
 }

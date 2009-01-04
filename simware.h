@@ -44,14 +44,14 @@ private:
 	koord zielpos;
 
 public:
-	halthandle_t gib_ziel() const { return ziel; }
-	void setze_ziel(halthandle_t ziel) { this->ziel = ziel; }
+	halthandle_t get_ziel() const { return ziel; }
+	void set_ziel(halthandle_t ziel) { this->ziel = ziel; }
 
-	halthandle_t gib_zwischenziel() const { return zwischenziel; }
-	void setze_zwischenziel(halthandle_t zwischenziel) { this->zwischenziel = zwischenziel; }
+	halthandle_t get_zwischenziel() const { return zwischenziel; }
+	void set_zwischenziel(halthandle_t zwischenziel) { this->zwischenziel = zwischenziel; }
 
-	koord gib_zielpos() const { return zielpos; }
-	void setze_zielpos(const koord zielpos) { this->zielpos = zielpos; }
+	koord get_zielpos() const { return zielpos; }
+	void set_zielpos(const koord zielpos) { this->zielpos = zielpos; }
 
 	ware_t();
 	ware_t(const ware_besch_t *typ);
@@ -61,14 +61,14 @@ public:
 	 * gibt den nicht-uebersetzten warennamen zurück
 	 * @author Hj. Malthaner
 	 */
-	const char *gib_name() const { return gib_besch()->gib_name(); }
-	const char *gib_mass() const { return gib_besch()->gib_mass(); }
-	uint16 gib_preis() const { return gib_besch()->gib_preis(); }
-	uint8 gib_catg() const { return gib_besch()->gib_catg(); }
-	uint8 gib_index() const { return index; }
+	const char *get_name() const { return get_besch()->get_name(); }
+	const char *get_mass() const { return get_besch()->get_mass(); }
+	uint16 get_preis() const { return get_besch()->get_preis(); }
+	uint8 get_catg() const { return get_besch()->get_catg(); }
+	uint8 get_index() const { return index; }
 
-	const ware_besch_t* gib_besch() const { return index_to_besch[index]; }
-	void setze_besch(const ware_besch_t* type);
+	const ware_besch_t* get_besch() const { return index_to_besch[index]; }
+	void set_besch(const ware_besch_t* type);
 
 	void rdwr(karte_t *welt,loadsave_t *file);
 
@@ -92,7 +92,7 @@ public:
 	// mail and passengers just care about target station
 	// freight needs to obey coordinates (since more than one factory might by connected!)
 	inline bool same_destination(const ware_t &w) const {
-		return index==w.gib_index()  &&  ziel==w.gib_ziel()  &&  (index<2  ||  zielpos==w.gib_zielpos());
+		return index==w.get_index()  &&  ziel==w.get_ziel()  &&  (index<2  ||  zielpos==w.get_zielpos());
 	}
 };
 

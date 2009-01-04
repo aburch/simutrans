@@ -68,10 +68,10 @@ public:
 	virtual linehandle_t create_line();
 
 	// text for the tabs is defaulted to the train names
-	virtual const char * gib_electrics_name() { return "Electrics_tab"; };
-	virtual const char * gib_passenger_name() { return "Pas_tab"; }
-	virtual const char * gib_zieher_name() { return "Lokomotive_tab"; }
-	virtual const char * gib_haenger_name() { return "Waggon_tab"; }
+	virtual const char * get_electrics_name() { return "Electrics_tab"; };
+	virtual const char * get_passenger_name() { return "Pas_tab"; }
+	virtual const char * get_zieher_name() { return "Lokomotive_tab"; }
+	virtual const char * get_haenger_name() { return "Waggon_tab"; }
 
 	/**
 	 * Access to convoi list.
@@ -238,8 +238,8 @@ public:
 	unsigned get_max_convoi_length() const { return convoi_t::max_rail_vehicle; }
 
 	virtual waytype_t get_wegtyp() const {return track_wt;}
-	virtual enum ding_t::typ gib_typ() const {return bahndepot;}
-	virtual const char *gib_name() const {return "Bahndepot"; }
+	virtual enum ding_t::typ get_typ() const {return bahndepot;}
+	virtual const char *get_name() const {return "Bahndepot"; }
 };
 
 
@@ -252,8 +252,8 @@ public:
 	virtual simline_t::linetype get_line_type() const { return simline_t::tramline; }
 
 	virtual waytype_t get_wegtyp() const {return tram_wt;}
-	virtual enum ding_t::typ gib_typ() const { return tramdepot; }
-	virtual const char *gib_name() const {return "Tramdepot"; }
+	virtual enum ding_t::typ get_typ() const { return tramdepot; }
+	virtual const char *get_name() const {return "Tramdepot"; }
 };
 
 class monoraildepot_t : public bahndepot_t
@@ -265,8 +265,8 @@ public:
 	virtual simline_t::linetype get_line_type() const { return simline_t::monorailline; }
 
 	virtual waytype_t get_wegtyp() const {return monorail_wt;}
-	virtual enum ding_t::typ gib_typ() const { return monoraildepot; }
-	virtual const char *gib_name() const {return "Monoraildepot"; }
+	virtual enum ding_t::typ get_typ() const { return monoraildepot; }
+	virtual const char *get_name() const {return "Monoraildepot"; }
 };
 
 class maglevdepot_t : public bahndepot_t
@@ -278,8 +278,8 @@ public:
 	virtual simline_t::linetype get_line_type() const { return simline_t::maglevline; }
 
 	virtual waytype_t get_wegtyp() const {return maglev_wt;}
-	virtual enum ding_t::typ gib_typ() const { return maglevdepot; }
-	virtual const char *gib_name() const {return "Maglevdepot"; }
+	virtual enum ding_t::typ get_typ() const { return maglevdepot; }
+	virtual const char *get_name() const {return "Maglevdepot"; }
 };
 
 class narrowgaugedepot_t : public bahndepot_t
@@ -291,8 +291,8 @@ public:
 	virtual simline_t::linetype get_line_type() const { return simline_t::narrowgaugeline; }
 
 	virtual waytype_t get_wegtyp() const {return narrowgauge_wt;}
-	virtual enum ding_t::typ gib_typ() const { return narrowgaugedepot; }
-	virtual const char *gib_name() const {return "Narrowgaugedepot"; }
+	virtual enum ding_t::typ get_typ() const { return narrowgaugedepot; }
+	virtual const char *get_name() const {return "Narrowgaugedepot"; }
 };
 
 /**
@@ -304,10 +304,10 @@ public:
 class strassendepot_t : public depot_t
 {
 protected:
-	virtual const char * gib_passenger_name() { return "Bus_tab"; }
-	virtual const char * gib_electrics_name() { return "TrolleyBus_tab"; }
-	virtual const char * gib_zieher_name() { return "LKW_tab"; }
-	virtual const char * gib_haenger_name() { return "Anhaenger_tab"; }
+	virtual const char * get_passenger_name() { return "Bus_tab"; }
+	virtual const char * get_electrics_name() { return "TrolleyBus_tab"; }
+	virtual const char * get_zieher_name() { return "LKW_tab"; }
+	virtual const char * get_haenger_name() { return "Anhaenger_tab"; }
 
 public:
 	strassendepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
@@ -327,8 +327,8 @@ public:
 	unsigned get_max_convoi_length() const { return 4; }
 
 	virtual waytype_t get_wegtyp() const {return road_wt; }
-	enum ding_t::typ gib_typ() const {return strassendepot;}
-	const char *gib_name() const {return "Strassendepot";}
+	enum ding_t::typ get_typ() const {return strassendepot;}
+	const char *get_name() const {return "Strassendepot";}
 };
 
 
@@ -341,9 +341,9 @@ public:
 class schiffdepot_t : public depot_t
 {
 protected:
-	virtual const char * gib_passenger_name() { return "Ferry_tab"; }
-	virtual const char * gib_zieher_name() { return "Schiff_tab"; }
-	virtual const char * gib_haenger_name() { return "Schleppkahn_tab"; }
+	virtual const char * get_passenger_name() { return "Ferry_tab"; }
+	virtual const char * get_zieher_name() { return "Schiff_tab"; }
+	virtual const char * get_haenger_name() { return "Schleppkahn_tab"; }
 
 public:
 	schiffdepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
@@ -363,15 +363,15 @@ public:
 
 	unsigned get_max_convoi_length() const { return 4; }
 	virtual waytype_t get_wegtyp() const {return water_wt; }
-	enum ding_t::typ gib_typ() const {return schiffdepot;}
-	const char *gib_name() const {return "Schiffdepot";}
+	enum ding_t::typ get_typ() const {return schiffdepot;}
+	const char *get_name() const {return "Schiffdepot";}
 };
 
 class airdepot_t : public depot_t
 {
 protected:
-	virtual const char * gib_zieher_name() { return "aircraft_tab"; }
-	virtual const char * gib_passenger_name() { return "Flug_tab"; }
+	virtual const char * get_zieher_name() { return "aircraft_tab"; }
+	virtual const char * get_passenger_name() { return "Flug_tab"; }
 
 public:
 	airdepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
@@ -391,8 +391,8 @@ public:
 	unsigned get_max_convoi_length() const { return 1; }
 
 	virtual waytype_t get_wegtyp() const { return air_wt; }
-	enum ding_t::typ gib_typ() const { return airdepot; }
-	const char *gib_name() const {return "Hangar";}
+	enum ding_t::typ get_typ() const { return airdepot; }
+	const char *get_name() const {return "Hangar";}
 };
 
 #endif

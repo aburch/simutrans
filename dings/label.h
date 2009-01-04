@@ -13,9 +13,9 @@ public:
 
 	void laden_abschliessen();
 
-	enum ding_t::typ gib_typ() const { return ding_t::label; }
+	enum ding_t::typ get_typ() const { return ding_t::label; }
 
-	image_id gib_bild() const;
+	image_id get_bild() const;
 };
 
 #endif

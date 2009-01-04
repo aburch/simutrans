@@ -31,14 +31,14 @@ warenziel_t::rdwr(loadsave_t *file)
 	ziel.rdwr(file);
 
 	if(file->is_saving()) {
-		const char *tn = warenbauer_t::gib_info_catg_index(catg_index)->gib_name();
+		const char *tn = warenbauer_t::get_info_catg_index(catg_index)->get_name();
 		file->rdwr_str(tn);
 	}
 	else {
 		char tn[256];
 		file->rdwr_str(tn,256);
 		halt = halthandle_t();
-		catg_index = warenbauer_t::gib_info(tn)->gib_catg_index();
+		catg_index = warenbauer_t::get_info(tn)->get_catg_index();
 		guarded_free(const_cast<char *>(tn));
 	}
 }

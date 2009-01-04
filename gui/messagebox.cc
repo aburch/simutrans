@@ -19,11 +19,11 @@ news_window::news_window(const char* t, PLAYER_COLOR_VAL title_color) :
 	meldung(text),
 	color(title_color)
 {
-	sint16 height = max( meldung.gib_groesse().y+16+10+4, get_tile_raster_width()+30 );
+	sint16 height = max( meldung.get_groesse().y+16+10+4, get_tile_raster_width()+30 );
 
-	setze_fenstergroesse( koord(230, height) );
+	set_fenstergroesse( koord(230, height) );
 
-	meldung.setze_pos( koord(10, 10) );
+	meldung.set_pos( koord(10, 10) );
 	add_komponente( &meldung );
 }
 
@@ -41,17 +41,17 @@ news_img::news_img(const char* text, image_id id, PLAYER_COLOR_VAL color) :
 {
 	KOORD_VAL xoff, yoff, xw, yw;
 	display_get_image_offset(id, &xoff, &yoff, &xw, &yw);
-	bild.setze_pos(koord(220 - xw - xoff, 10 - yoff)); // aligned to upper right corner
+	bild.set_pos(koord(220 - xw - xoff, 10 - yoff)); // aligned to upper right corner
 	add_komponente(&bild);
 }
 
 
 news_loc::news_loc(karte_t* welt, const char* text, koord k, PLAYER_COLOR_VAL color) :
 	news_window(text, color),
-	view(welt, welt->lookup_kartenboden(k)->gib_pos())
+	view(welt, welt->lookup_kartenboden(k)->get_pos())
 {
-	view.setze_pos(koord(230 - get_tile_raster_width() - 5, 10));
-	view.setze_groesse(koord(get_tile_raster_width(), get_tile_raster_width() * 5 / 6));
+	view.set_pos(koord(230 - get_tile_raster_width() - 5, 10));
+	view.set_groesse(koord(get_tile_raster_width(), get_tile_raster_width() * 5 / 6));
 	add_komponente(&view);
 }
 

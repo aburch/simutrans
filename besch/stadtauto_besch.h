@@ -41,15 +41,15 @@ class stadtauto_besch_t : public obj_besch_std_name_t {
 	uint8	length[8];	// length of pixel until leaving the field (not used)
 
 public:
-	int gib_bild_nr(ribi_t::dir dir) const
+	int get_bild_nr(ribi_t::dir dir) const
 	{
-		const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild(dir);
-		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
+		const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(get_kind(2))->get_bild(dir);
+		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
-	int gib_gewichtung() const { return gewichtung; }
+	int get_gewichtung() const { return gewichtung; }
 
-	int gib_geschw() const { return geschw; }
+	int get_geschw() const { return geschw; }
 
 	/**
 	* @return introduction year

@@ -30,14 +30,14 @@ void scenario_frame_t::action(const char *filename)
 	welt->get_scenario()->init( path, welt );
 	// finally set game name to scenario name ...
 	sprintf( path, "%s.sve", filename );
-	welt->gib_einstellungen()->setze_filename( path );
+	welt->get_einstellungen()->set_filename( path );
 }
 
 
 scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(".tab","./")
 {
 	this->welt = welt;
-	setze_name("Load scenario");
+	set_name("Load scenario");
 }
 
 

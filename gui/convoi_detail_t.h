@@ -84,7 +84,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author V. Meyer
      */
-    const char * gib_hilfe_datei() const {return "convoidetail.txt"; }
+    const char * get_hilfe_datei() const {return "convoidetail.txt"; }
 
     /**
      * resize window in response to a resize event

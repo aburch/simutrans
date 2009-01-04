@@ -47,7 +47,7 @@ extend_edit_gui_t::extend_edit_gui_t(spieler_t* sp_,karte_t* welt) :
 	add_komponente(&bt_climates);
 
 	bt_timeline.init( button_t::square_state, "Use timeline start year", koord(NAME_COLUMN_WIDTH+11, 10+BUTTON_HEIGHT ) );
-	bt_timeline.pressed = welt->gib_einstellungen()->gib_use_timeline();
+	bt_timeline.pressed = welt->get_einstellungen()->get_use_timeline();
 	bt_timeline.add_listener(this);
 	add_komponente(&bt_timeline);
 
@@ -58,24 +58,24 @@ extend_edit_gui_t::extend_edit_gui_t(spieler_t* sp_,karte_t* welt) :
 	offset_of_comp = 10+3*BUTTON_HEIGHT+4;
 
 	// init scrolled list
-	scl.setze_groesse(koord(NAME_COLUMN_WIDTH, SCL_HEIGHT-14));
-	scl.setze_pos(koord(0,1));
-	scl.setze_highlight_color(sp->get_player_color1()+1);
-	scl.request_groesse(scl.gib_groesse());
-	scl.setze_selection(-1);
+	scl.set_groesse(koord(NAME_COLUMN_WIDTH, SCL_HEIGHT-14));
+	scl.set_pos(koord(0,1));
+	scl.set_highlight_color(sp->get_player_color1()+1);
+	scl.request_groesse(scl.get_groesse());
+	scl.set_selection(-1);
 	scl.add_listener(this);
 
 	// tab panel
-	tabs.setze_pos(koord(10,10));
-	tabs.setze_groesse(koord(NAME_COLUMN_WIDTH, SCL_HEIGHT));
+	tabs.set_pos(koord(10,10));
+	tabs.set_groesse(koord(NAME_COLUMN_WIDTH, SCL_HEIGHT));
 	tabs.add_tab(&scl, translator::translate("Translation"));//land
 	tabs.add_tab(&scl, translator::translate("Object"));//city
 	tabs.add_listener(this);
 	add_komponente(&tabs);
 
 	// item list
-	info_text.setze_text(buf);
-	info_text.setze_pos(koord(0,0));
+	info_text.set_text(buf);
+	info_text.set_pos(koord(0,0));
 	cont.add_komponente(&info_text);
 
 	scrolly.set_visible(true);
@@ -128,7 +128,7 @@ bool extend_edit_gui_t::action_triggered( gui_action_creator_t *komp,value_t /* 
 	}
 	else if (komp == &scl) {
 		// select an item of scroll list ?
-		change_item_info(scl.gib_selection());
+		change_item_info(scl.get_selection());
 	}
 	else if(  komp==&bt_obsolete  ) {
 		bt_obsolete.pressed ^= 1;
@@ -157,17 +157,17 @@ void extend_edit_gui_t::resize(const koord delta)
 	gui_frame_t::resize(delta);
 
 	// test region
-	koord groesse = gib_fenstergroesse()-koord(NAME_COLUMN_WIDTH+16,offset_of_comp+16);
-	scrolly.setze_groesse(groesse);
-	scrolly.setze_pos( koord( NAME_COLUMN_WIDTH+16, offset_of_comp ) );
-	cont.setze_pos( koord( 0, 0 ) );
+	koord groesse = get_fenstergroesse()-koord(NAME_COLUMN_WIDTH+16,offset_of_comp+16);
+	scrolly.set_groesse(groesse);
+	scrolly.set_pos( koord( NAME_COLUMN_WIDTH+16, offset_of_comp ) );
+	cont.set_pos( koord( 0, 0 ) );
 
 	// image placeholders
 	sint16 rw = get_tile_raster_width()/4;
 	static const koord img_offsets[4]={ koord(2,-6), koord(0,-5), koord(4,-5), koord(2,-4) };
 	for(  sint16 i=0;  i<4;  i++  ) {
-		koord pos = koord(4,gib_fenstergroesse().y-4-16) + img_offsets[i]*rw;
-		img[i].setze_pos( pos );
+		koord pos = koord(4,get_fenstergroesse().y-4-16) + img_offsets[i]*rw;
+		img[i].set_pos( pos );
 	}
 
 }

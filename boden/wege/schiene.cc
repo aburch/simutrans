@@ -35,7 +35,7 @@ bool schiene_t::show_reservations = false;
 schiene_t::schiene_t(karte_t *welt) : weg_t(welt)
 {
 	reserved = convoihandle_t();
-	setze_besch(schiene_t::default_schiene);
+	set_besch(schiene_t::default_schiene);
 }
 
 
@@ -52,7 +52,7 @@ schiene_t::entferne(spieler_t *)
 {
 	// removes reservation
 	if(reserved.is_bound()) {
-		setze_ribi(ribi_t::keine);
+		set_ribi(ribi_t::keine);
 		reserved->suche_neue_route();
 	}
 }
@@ -64,7 +64,7 @@ void schiene_t::info(cbuffer_t & buf) const
 	weg_t::info(buf);
 	if(reserved.is_bound()) {
 		buf.append(translator::translate("\nis reserved by:"));
-		buf.append(reserved->gib_name());
+		buf.append(reserved->get_name());
 #ifdef DEBUG_PBS
 		reserved->zeige_info();
 #endif
@@ -82,7 +82,7 @@ schiene_t::reserve(convoihandle_t c) {
 	if(can_reserve(c)) {
 		reserved = c;
 		if(schiene_t::show_reservations) {
-			mark_image_dirty(gib_bild(),0);
+			mark_image_dirty(get_bild(),0);
 		}
 		return true;
 	}
@@ -104,7 +104,7 @@ schiene_t::unreserve(convoihandle_t c)
 	if(reserved.is_bound()  &&  reserved==c) {
 		reserved = convoihandle_t();
 		if(schiene_t::show_reservations) {
-			mark_image_dirty(gib_bild(),0);
+			mark_image_dirty(get_bild(),0);
 		}
 		return true;
 	}
@@ -125,10 +125,10 @@ schiene_t::unreserve(vehikel_t *)
 	if(!reserved.is_bound()) {
 		return true;
 	}
-//	if(!welt->lookup(gib_pos())->suche_obj(v->gib_typ())) {
+//	if(!welt->lookup(get_pos())->suche_obj(v->get_typ())) {
 		reserved = convoihandle_t();
 		if(schiene_t::show_reservations) {
-			mark_image_dirty(gib_bild(),0);
+			mark_image_dirty(get_bild(),0);
 		}
 		return true;
 //	}
@@ -157,27 +157,27 @@ schiene_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->is_saving()) {
-		const char *s = gib_besch()->gib_name();
+		const char *s = get_besch()->get_name();
 		file->rdwr_str(s);
 	}
 	else {
 		char bname[128];
 		file->rdwr_str(bname, 128 );
 
-		int old_max_speed=gib_max_speed();
-		const weg_besch_t *besch = wegbauer_t::gib_besch(bname);
+		int old_max_speed=get_max_speed();
+		const weg_besch_t *besch = wegbauer_t::get_besch(bname);
 		if(besch==NULL) {
-			int old_max_speed=gib_max_speed();
-			besch = wegbauer_t::gib_besch(translator::compatibility_name(bname));
+			int old_max_speed=get_max_speed();
+			besch = wegbauer_t::get_besch(translator::compatibility_name(bname));
 			if(besch==NULL) {
 				besch = default_schiene;
 			}
-			dbg->warning("schiene_t::rdwr()", "Unknown rail %s replaced by %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
+			dbg->warning("schiene_t::rdwr()", "Unknown rail %s replaced by %s (old_max_speed %i)", bname, besch->get_name(), old_max_speed );
 		}
-		setze_besch(besch);
+		set_besch(besch);
 		if(old_max_speed>0) {
-			setze_max_speed(old_max_speed);
+			set_max_speed(old_max_speed);
 		}
-		//DBG_MESSAGE("schiene_t::rdwr","track %s at (%i,%i) max_speed %i",bname,gib_pos().x,gib_pos().y,old_max_speed);
+		//DBG_MESSAGE("schiene_t::rdwr","track %s at (%i,%i) max_speed %i",bname,get_pos().x,get_pos().y,old_max_speed);
 	}
 }

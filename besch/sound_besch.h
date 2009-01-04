@@ -50,7 +50,7 @@ private:
 	sint16 nr;	// for old sounds/system sounds etc.
 
 public:
-	static sint16 gib_sound_id(const char *name);
+	static sint16 get_sound_id(const char *name);
 
 	static bool register_besch(sound_besch_t *besch);
 

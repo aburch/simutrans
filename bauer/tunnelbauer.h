@@ -39,7 +39,7 @@ public:
 	static void register_besch(tunnel_besch_t *besch);
 	static bool laden_erfolgreich();
 
-	static const tunnel_besch_t *gib_besch(const char *);
+	static const tunnel_besch_t *get_besch(const char *);
 
 	static const tunnel_besch_t *find_tunnel(const waytype_t wtyp, const uint32 min_speed,const uint16 time);
 

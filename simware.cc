@@ -37,7 +37,7 @@ ware_t::ware_t() : ziel(), zwischenziel(), zielpos(-1, -1)
 ware_t::ware_t(const ware_besch_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -1)
 {
 	menge = 0;
-	index = wtyp->gib_index();
+	index = wtyp->get_index();
 }
 
 ware_t::ware_t(karte_t *welt,loadsave_t *file)
@@ -47,9 +47,9 @@ ware_t::ware_t(karte_t *welt,loadsave_t *file)
 
 
 void
-ware_t::setze_besch(const ware_besch_t* type)
+ware_t::set_besch(const ware_besch_t* type)
 {
-	index = type->gib_index();
+	index = type->get_index();
 }
 
 
@@ -72,26 +72,26 @@ ware_t::rdwr(karte_t *welt,loadsave_t *file)
 
 	if(file->is_saving()) {
 		const char *typ = NULL;
-		typ = gib_besch()->gib_name();
+		typ = get_besch()->get_name();
 		file->rdwr_str(typ);
 	}
 	else {
 		char typ[256];
 		file->rdwr_str(typ,256);
-		const ware_besch_t *type = warenbauer_t::gib_info(typ);
+		const ware_besch_t *type = warenbauer_t::get_info(typ);
 		if(type==NULL) {
 			dbg->warning("ware_t::rdwr()","unknown ware of catg %d!",catg);
-			index = warenbauer_t::gib_info_catg(catg)->gib_index();
+			index = warenbauer_t::get_info_catg(catg)->get_index();
 			menge = 0;
 		}
 		else {
-			index = type->gib_index();
+			index = type->get_index();
 		}
 	}
 	// convert coordinate to halt indices
 	if(file->is_saving()) {
-		koord ziel_koord = ziel.is_bound() ? ziel->gib_basis_pos() : koord::invalid;
-		koord zwischenziel_koord = zwischenziel.is_bound() ? zwischenziel->gib_basis_pos() : koord::invalid;
+		koord ziel_koord = ziel.is_bound() ? ziel->get_basis_pos() : koord::invalid;
+		koord zwischenziel_koord = zwischenziel.is_bound() ? zwischenziel->get_basis_pos() : koord::invalid;
 		ziel_koord.rdwr(file);
 		zwischenziel_koord.rdwr(file);
 	}
@@ -113,9 +113,9 @@ ware_t::laden_abschliessen(karte_t *welt)
 	// since some halt was referred by with several koordinates
 	// this routine will correct it
 	if(ziel.is_bound()) {
-		ziel = welt->lookup(ziel->gib_init_pos())->gib_halt();
+		ziel = welt->lookup(ziel->get_init_pos())->get_halt();
 	}
 	if(zwischenziel.is_bound()) {
-		zwischenziel = welt->lookup(zwischenziel->gib_init_pos())->gib_halt();
+		zwischenziel = welt->lookup(zwischenziel->get_init_pos())->get_halt();
 	}
 }

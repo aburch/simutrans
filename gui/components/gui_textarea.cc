@@ -14,14 +14,14 @@
 
 gui_textarea_t::gui_textarea_t(const char *text)
 {
- 	setze_text(text);
+ 	set_text(text);
  	recalc_size();
 }
 
 
 
 void
-gui_textarea_t::setze_text(const char *text)
+gui_textarea_t::set_text(const char *text)
 {
 	if(text) {
 		this->text = text;
@@ -56,7 +56,7 @@ void gui_textarea_t::recalc_size()
 		} while (next != NULL);
 	}
 DBG_MESSAGE("gui_textarea_t::recalc_size()","reset size to %i,%i",x_size+10,new_lines);
-	setze_groesse(koord(x_size+10,new_lines));
+	set_groesse(koord(x_size+10,new_lines));
 }
 
 
@@ -71,7 +71,7 @@ void gui_textarea_t::zeichnen(koord offset)
 	// since we also want to dynamically change the size of the component
 	int new_lines=0;
 	// keep previous maximum width
-	int x_size = gib_groesse().x-10;
+	int x_size = get_groesse().x-10;
 	if (text!=NULL   &&   *text!= '\0') {
 		const char *buf=text;
 		const char *next;
@@ -91,8 +91,8 @@ void gui_textarea_t::zeichnen(koord offset)
 			new_lines += LINESPACE;
 		} while (next != NULL);
 	}
-	koord gr(max(x_size+10,gib_groesse().x),new_lines);
-	if(gr!=gib_groesse()) {
-		setze_groesse(gr);
+	koord gr(max(x_size+10,get_groesse().x),new_lines);
+	if(gr!=get_groesse()) {
+		set_groesse(gr);
 	}
 }

@@ -60,7 +60,7 @@ sint16 pos_liste_t::suche_beste_reihe()
 }
 
 
-bool pos_liste_t::gib_naechste_pos(koord &k)
+bool pos_liste_t::get_naechste_pos(koord &k)
 {
 	if(reihe != -1) {
 		if(quadrant++ == 4) {
@@ -84,13 +84,13 @@ bool pos_liste_t::gib_naechste_pos(koord &k)
 		if(quadrant % 2 == 1 && !spalten[reihe]) {
 			quadrant ++;		// skip second +/-x, 0
 		}
-		return gib_pos(k);
+		return get_pos(k);
 	}
 	return false;
 }
 
 
-bool pos_liste_t::gib_pos(koord &k)
+bool pos_liste_t::get_pos(koord &k)
 {
 	if(reihe != -1) {
 		switch(quadrant) {
@@ -128,9 +128,9 @@ void pos_liste_wh_t::neu_starten(sint16 b, sint16 h)
 }
 
 
-bool pos_liste_wh_t::gib_naechste_pos(koord &k)
+bool pos_liste_wh_t::get_naechste_pos(koord &k)
 {
-	gib_pos(k);
+	get_pos(k);
 
 	if(k.x == 0 && k.y == 0 && (dx > 0 || dy > 0)) {
 		if(dx > 0) {
@@ -156,7 +156,7 @@ bool pos_liste_wh_t::gib_naechste_pos(koord &k)
 		}
 	}
 	else {
-		if(pos_liste_t::gib_naechste_pos(k)) {
+		if(pos_liste_t::get_naechste_pos(k)) {
 			if(k.y == 0) {
 				dy = h - 1;
 			}
@@ -208,7 +208,7 @@ bool platzsucher_t::ist_feld_ok(koord /*pos*/, koord /*d*/, climate_bits /*cl*/)
 
 koord platzsucher_t::suche_platz(koord start, sint16 b, sint16 h, climate_bits cl, bool *r)
 {
-	pos_liste_wh_t psuch1(welt->gib_groesse_max(), b, h);
+	pos_liste_wh_t psuch1(welt->get_groesse_max(), b, h);
 
 	this->b = b;
 	this->h = h;
@@ -220,7 +220,7 @@ koord platzsucher_t::suche_platz(koord start, sint16 b, sint16 h, climate_bits c
 		//
 		// Hier suchen wir auch gedrehte Positionen.
 		//
-		pos_liste_wh_t psuch2(welt->gib_groesse_max(), h, b);
+		pos_liste_wh_t psuch2(welt->get_groesse_max(), h, b);
 
 		if(ist_platz_ok(start, b, h, cl)) {
 			*r = false;
@@ -230,7 +230,7 @@ koord platzsucher_t::suche_platz(koord start, sint16 b, sint16 h, climate_bits c
 			*r = true;
 			return start;
 		}
-		while(psuch1.gib_naechste_pos(rel1) && psuch2.gib_naechste_pos(rel2)) {
+		while(psuch1.get_naechste_pos(rel1) && psuch2.get_naechste_pos(rel2)) {
 			if(ist_platz_ok(start + rel1, b, h, cl)) {
 				*r = false;
 				return start + rel1;
@@ -249,7 +249,7 @@ koord platzsucher_t::suche_platz(koord start, sint16 b, sint16 h, climate_bits c
 		if(ist_platz_ok(start, b, h, cl)) {
 			return start;
 		}
-		while(psuch1.gib_naechste_pos(rel1)) {
+		while(psuch1.get_naechste_pos(rel1)) {
 			if(ist_platz_ok(start + rel1, b, h, cl)) {
 				if(r) {
 					*r = false;

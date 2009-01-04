@@ -42,7 +42,7 @@ public:
 	* @return den Dateinamen für die Hilfe, oder NULL
 	* @author Hj. Malthaner
 	*/
-	virtual const char * gib_hilfe_datei() const;
+	virtual const char * get_hilfe_datei() const;
 
 	loadsave_frame_t(karte_t *welt, bool do_load);
 };

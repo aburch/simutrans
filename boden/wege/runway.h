@@ -37,7 +37,7 @@ public:
 	 */
 	virtual void calc_bild(koord3d) { weg_t::calc_bild(); }
 
-	inline waytype_t gib_waytype() const {return air_wt;}
+	inline waytype_t get_waytype() const {return air_wt;}
 
 	void rdwr(loadsave_t *file);
 };

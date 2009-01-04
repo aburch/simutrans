@@ -58,33 +58,33 @@ private:
 public:
 	enum types {ONE_WAY=1, FREE_ROUTE=2, PRIVATE_ROAD=4, SIGN_SIGNAL=8, SIGN_PRE_SIGNAL=16, ONLY_BACKIMAGE=32, SIGN_LONGBLOCK_SIGNAL=64, END_OF_CHOOSE_AREA=128 };
 
-	int gib_bild_nr(ribi_t::dir dir) const
+	int get_bild_nr(ribi_t::dir dir) const
 	{
-		const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild(dir);
-		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
+		const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(get_kind(2))->get_bild(dir);
+		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
-	int gib_bild_anzahl() const { return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_anzahl(); }
+	int get_bild_anzahl() const { return static_cast<const bildliste_besch_t *>(get_kind(2))->get_anzahl(); }
 
-	const skin_besch_t *gib_cursor() const { return (const skin_besch_t *)gib_kind(3); }
+	const skin_besch_t *get_cursor() const { return (const skin_besch_t *)get_kind(3); }
 
 	/**
 	 * get way type
 	 * @see waytype_t
 	 * @author Hj. Malthaner
 	 */
-	waytype_t gib_wtyp() const { return (waytype_t)wtyp; }
+	waytype_t get_wtyp() const { return (waytype_t)wtyp; }
 
-	int gib_min_speed() const { return min_speed; }
+	int get_min_speed() const { return min_speed; }
 
-	sint32 gib_preis() const { return cost; }
+	sint32 get_preis() const { return cost; }
 
 	bool is_single_way() const { return (flags&ONE_WAY)!=0; }
 
 	bool is_private_way() const { return (flags&PRIVATE_ROAD)!=0; }
 
 	//  return true for a traffic light
-	bool is_traffic_light() const { return (gib_bild_anzahl()>4); }
+	bool is_traffic_light() const { return (get_bild_anzahl()>4); }
 
 	bool is_free_route() const { return flags&FREE_ROUTE; }
 

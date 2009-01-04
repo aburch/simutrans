@@ -28,7 +28,7 @@ gui_frame_t::gui_frame_t(const char* name, const spieler_t* sp) :
 	this->name = name;
 	groesse = koord(200, 100);
 	owner = sp;
-	container.setze_pos(koord(0,16));
+	container.set_pos(koord(0,16));
 	set_resizemode (no_resize); //25-may-02	markus weber	added
 	dirty = true;
 }
@@ -39,7 +39,7 @@ gui_frame_t::gui_frame_t(const char* name, const spieler_t* sp) :
  * Setzt die Fenstergroesse
  * @author Hj. Malthaner
  */
-void gui_frame_t::setze_fenstergroesse(koord groesse)
+void gui_frame_t::set_fenstergroesse(koord groesse)
 {
 	if(groesse!=this->groesse) {
 		// mark old size dirty
@@ -76,7 +76,7 @@ void gui_frame_t::infowin_event(const event_t *ev)
 		resize(delta);
 		return;	// not pass to childs!
 	} else if(IS_WINDOW_MAKE_MIN_SIZE(ev)) {
-		setze_fenstergroesse( get_min_windowsize() ) ;
+		set_fenstergroesse( get_min_windowsize() ) ;
 		resize( koord(0,0) ) ;
 		return;	// not pass to childs!
 	}
@@ -114,7 +114,7 @@ void gui_frame_t::resize(const koord delta)
 	}
 
 	// resize window
-	setze_fenstergroesse(new_size);
+	set_fenstergroesse(new_size);
 
 	// change drag start
 	change_drag_start(size_change.x, size_change.y);
@@ -140,7 +140,7 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 		if(obj_reader_t::has_been_init) {
 			// draw background
 			PUSH_CLIP(pos.x+1,pos.y+16,gr.x-2,gr.y-16);
-			const int img = skinverwaltung_t::window_skin->gib_bild(0)->gib_nummer();
+			const int img = skinverwaltung_t::window_skin->get_bild(0)->get_nummer();
 
 			for(int j=0; j<gr.y; j+=64) {
 				for(int i=0; i<gr.x; i+=64) {

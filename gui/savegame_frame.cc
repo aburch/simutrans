@@ -46,49 +46,49 @@ savegame_frame_t::savegame_frame_t(const char *suffix, const char *path ) :
 	// both NULL is not acceptable
 	assert(suffix!=path);
 
-	fnlabel.setze_pos (koord(10,12));
+	fnlabel.set_pos (koord(10,12));
 	add_komponente(&fnlabel);
 
 	// Input box for game name
 	tstrncpy(ibuf, "", lengthof(ibuf));
-	input.setze_text(ibuf, 128);
+	input.set_text(ibuf, 128);
 	input.add_listener(this);
-	input.setze_pos(koord(75,8));
-	input.setze_groesse(koord(DIALOG_WIDTH-75-10-10, 14));
+	input.set_pos(koord(75,8));
+	input.set_groesse(koord(DIALOG_WIDTH-75-10-10, 14));
 	add_komponente(&input);
 
 	// needs to be scrollable
-	scrolly.setze_pos( koord(0,30) );
+	scrolly.set_pos( koord(0,30) );
 	scrolly.set_show_scroll_x(false);
 	scrolly.set_size_corner(false);
-	scrolly.setze_groesse( koord(DIALOG_WIDTH-12,30) );
+	scrolly.set_groesse( koord(DIALOG_WIDTH-12,30) );
 
 	// The file entries
 	int y = 0;
-	button_frame.setze_groesse( koord( DIALOG_WIDTH-1, y ) );
+	button_frame.set_groesse( koord( DIALOG_WIDTH-1, y ) );
 	add_komponente(&scrolly);
 
 	y += 10+30;
-	divider1.setze_pos(koord(10,y));
-	divider1.setze_groesse(koord(DIALOG_WIDTH-20,0));
+	divider1.set_pos(koord(10,y));
+	divider1.set_groesse(koord(DIALOG_WIDTH-20,0));
 	add_komponente(&divider1);
 
 	y += 10;
-	savebutton.setze_pos(koord(10,y));
-	savebutton.setze_groesse(koord(BUTTON_WIDTH, 14));
-	savebutton.setze_text("Ok");
-	savebutton.setze_typ(button_t::roundbox);
+	savebutton.set_pos(koord(10,y));
+	savebutton.set_groesse(koord(BUTTON_WIDTH, 14));
+	savebutton.set_text("Ok");
+	savebutton.set_typ(button_t::roundbox);
 	savebutton.add_listener(this);
 	add_komponente(&savebutton);
 
-	cancelbutton.setze_pos(koord(DIALOG_WIDTH-BUTTON_WIDTH-10,y));
-	cancelbutton.setze_groesse(koord(BUTTON_WIDTH, 14));
-	cancelbutton.setze_text("Cancel");
-	cancelbutton.setze_typ(button_t::roundbox);
+	cancelbutton.set_pos(koord(DIALOG_WIDTH-BUTTON_WIDTH-10,y));
+	cancelbutton.set_groesse(koord(BUTTON_WIDTH, 14));
+	cancelbutton.set_text("Cancel");
+	cancelbutton.set_typ(button_t::roundbox);
 	cancelbutton.add_listener(this);
 	add_komponente(&cancelbutton);
 
-	setze_fenstergroesse(koord(DIALOG_WIDTH, y + 40));
+	set_fenstergroesse(koord(DIALOG_WIDTH, y + 40));
 }
 
 
@@ -170,15 +170,15 @@ void savegame_frame_t::fill_list()
 		button_t*    button2 = i->button;
 		gui_label_t* label   = i->label;
 
-		button1->setze_groesse(koord(14, 14));
-		button1->setze_text("X");
-		button1->setze_pos(koord(5, y));
+		button1->set_groesse(koord(14, 14));
+		button1->set_text("X");
+		button1->set_pos(koord(5, y));
 		button1->set_tooltip("Delete this file.");
 
-		button2->setze_pos(koord(25, y));
-		button2->setze_groesse(koord(140, 14));
+		button2->set_pos(koord(25, y));
+		button2->set_groesse(koord(140, 14));
 
-		label->setze_pos(koord(170, y+3));
+		label->set_pos(koord(170, y+3));
 
 		button1->add_listener(this);
 		button2->add_listener(this);
@@ -190,8 +190,8 @@ void savegame_frame_t::fill_list()
 		y += 14;
 	}
 	// since width was maybe increased, we only set the heigth.
-	button_frame.setze_groesse( koord( gib_fenstergroesse().x-1, y ) );
-	setze_fenstergroesse(koord(gib_fenstergroesse().x, y + 90));
+	button_frame.set_groesse( koord( get_fenstergroesse().x-1, y ) );
+	set_fenstergroesse(koord(get_fenstergroesse().x, y + 90));
 }
 
 
@@ -199,7 +199,7 @@ void savegame_frame_t::fill_list()
 savegame_frame_t::~savegame_frame_t()
 {
 	for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
-		delete [] const_cast<char*>(i->button->gib_text());
+		delete [] const_cast<char*>(i->button->get_text());
 		delete i->button;
 		delete [] const_cast<char*>(i->label->get_text_pointer());
 		delete i->label;
@@ -220,7 +220,7 @@ void savegame_frame_t::set_filename(const char *fn)
 		else {
 			tstrncpy(ibuf, fn, len-3 );
 		}
-		input.setze_text( ibuf, 128 );
+		input.set_text( ibuf, 128 );
 	}
 }
 
@@ -238,7 +238,7 @@ void savegame_frame_t::add_file(const char *filename, const char *pak, const boo
 		name[strlen(name)-4] = '\0';
 	}
 	button->set_no_translate(true);
-	button->setze_text(name);	// to avoid translation
+	button->set_text(name);	// to avoid translation
 
 	// sort by date descending:
 	slist_tpl<entry>::iterator i = entries.begin();
@@ -299,7 +299,7 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 				if(fullpath) {
 					tstrncpy(buf, fullpath, lengthof(buf));
 				}
-				strcat(buf, i->button->gib_text());
+				strcat(buf, i->button->get_text());
 				if(fullpath) {
 					strcat(buf, suffix);
 				}
@@ -326,28 +326,28 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
  * benutzt werden.
  * @author Hj. Malthaner
  */
-void savegame_frame_t::setze_fenstergroesse(koord groesse)
+void savegame_frame_t::set_fenstergroesse(koord groesse)
 {
 	if(groesse.y>display_get_height()-64) {
 		// too large ...
 		groesse.y = display_get_height()-64;
 		// position adjustment will be done automatically ... nice!
 	}
-	scrolly.setze_groesse( koord(groesse.x,groesse.y-30-40-8) );
-	gui_frame_t::setze_fenstergroesse(groesse);
-	input.setze_groesse(koord(groesse.x-75-10-10, 14));
+	scrolly.set_groesse( koord(groesse.x,groesse.y-30-40-8) );
+	gui_frame_t::set_fenstergroesse(groesse);
+	input.set_groesse(koord(groesse.x-75-10-10, 14));
 	for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
 		button_t*    button1 = i->del;
 		button_t*    button2 = i->button;
 		gui_label_t* label   = i->label;
-		button2->setze_groesse(koord( groesse.x/2-40, 14));
-		label->setze_pos(koord(groesse.x/2-40+30, label->gib_pos().y));
+		button2->set_groesse(koord( groesse.x/2-40, 14));
+		label->set_pos(koord(groesse.x/2-40+30, label->get_pos().y));
 	}
 
-	divider1.setze_pos(koord(10,groesse.y-44));
-	divider1.setze_groesse(koord(groesse.x-20,0));
-	savebutton.setze_pos(koord(10,groesse.y-34));
-	cancelbutton.setze_pos(koord(groesse.x-BUTTON_WIDTH-10,groesse.y-34));
+	divider1.set_pos(koord(10,groesse.y-44));
+	divider1.set_groesse(koord(groesse.x-20,0));
+	savebutton.set_pos(koord(10,groesse.y-34));
+	cancelbutton.set_pos(koord(groesse.x-BUTTON_WIDTH-10,groesse.y-34));
 }
 
 

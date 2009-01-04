@@ -51,7 +51,7 @@ private:
 	inline void screen_to_karte(koord &) const;
 
 	// to be prepared for more than one map => nonstatic
-	void setze_relief_farbe_area(koord k, int areasize, uint8 color);
+	void set_relief_farbe_area(koord k, int areasize, uint8 color);
 
 	const schedule_t *fpl;
 	uint8 fpl_player_nr;
@@ -104,10 +104,10 @@ public:
 
 	// public, since the convoi updates need this
 	// nonstatic, if we have someday many maps ...
-	void setze_relief_farbe(koord k, int color);
+	void set_relief_farbe(koord k, int color);
 
 	// we are single instance ...
-	static reliefkarte_t *gib_karte();
+	static reliefkarte_t *get_karte();
 
 	// update color with render mode (but few are ignored ... )
 	void calc_map_pixel(const koord k);
@@ -118,7 +118,7 @@ public:
 
 	karte_t * get_welt() const {return welt;}
 
-	void setze_welt(karte_t *welt);
+	void set_welt(karte_t *welt);
 
 	void set_mode(MAP_MODES new_mode);
 

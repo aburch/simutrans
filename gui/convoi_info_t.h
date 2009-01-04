@@ -75,7 +75,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author V. Meyer
      */
-    const char * gib_hilfe_datei() const {return "convoiinfo.txt"; }
+    const char * get_hilfe_datei() const {return "convoiinfo.txt"; }
 
     /**
      * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf

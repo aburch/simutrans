@@ -98,7 +98,7 @@ koord::koord(loadsave_t *file)
 }
 
 // für debugmeldungen ...
-const char *koord::gib_str() const
+const char *koord::get_str() const
 {
 	static char pos_str[32];
 	if(x==-1  &&  y==-1) {

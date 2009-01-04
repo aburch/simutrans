@@ -44,17 +44,17 @@ crossing_t::crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, const kreuzung
 	logic = NULL;
 	zustand = crossing_logic_t::CROSSING_INVALID;
 	bild = after_bild = IMG_LEER;
-	setze_besitzer( sp );
+	set_besitzer( sp );
 }
 
 
 
 crossing_t::~crossing_t()
 {
-	grund_t *gr = welt->lookup( gib_pos() );
+	grund_t *gr = welt->lookup( get_pos() );
 	if(gr) {
 		gr->obj_remove(this);
-		setze_pos(koord3d::invalid);
+		set_pos(koord3d::invalid);
 	}
 	if(logic) {
 		logic->remove(this);
@@ -92,10 +92,10 @@ crossing_t::calc_bild()
 	if(logic) {
 		uint8 zustand = logic->get_state();
 		// recalc bild each step ...
-		const bild_besch_t *a = besch->gib_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0 );
-		after_bild = a ? a->gib_nummer() : IMG_LEER;
-		const bild_besch_t *b = besch->gib_bild( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0 );
-		bild = b ? b->gib_nummer() : IMG_LEER;
+		const bild_besch_t *a = besch->get_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0 );
+		after_bild = a ? a->get_nummer() : IMG_LEER;
+		const bild_besch_t *b = besch->get_bild( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0 );
+		bild = b ? b->get_nummer() : IMG_LEER;
 	}
 }
 
@@ -148,17 +148,17 @@ crossing_t::rdwr(loadsave_t *file)
  */
 void crossing_t::laden_abschliessen()
 {
-	grund_t *gr=welt->lookup(gib_pos());
+	grund_t *gr=welt->lookup(get_pos());
 	if(gr==NULL  ||  !gr->hat_weg(besch->get_waytype(0))  ||  !gr->hat_weg(besch->get_waytype(1))) {
-		dbg->error("crossing_t::laden_abschliessen","way/ground missing at %i,%i => ignore", gib_pos().x, gib_pos().y );
+		dbg->error("crossing_t::laden_abschliessen","way/ground missing at %i,%i => ignore", get_pos().x, get_pos().y );
 	}
 	else {
 		// after loading restore speedlimits
-		weg_t *w1=gr->gib_weg(besch->get_waytype(0));
+		weg_t *w1=gr->get_weg(besch->get_waytype(0));
 		w1->count_sign();
-		weg_t *w2=gr->gib_weg(besch->get_waytype(1));
+		weg_t *w2=gr->get_weg(besch->get_waytype(1));
 		w2->count_sign();
-		ns = ribi_t::ist_gerade_ns(w2->gib_ribi_unmasked());
+		ns = ribi_t::ist_gerade_ns(w2->get_ribi_unmasked());
 			crossing_logic_t::add( welt, this, static_cast<crossing_logic_t::crossing_state_t>(zustand) );
 		logic->recalc_state();
 	}

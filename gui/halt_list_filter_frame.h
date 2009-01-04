@@ -45,10 +45,10 @@ private:
 		}
 		virtual void zeichnen(koord offset) {
 			if(ware_ab) {
-				pressed = parent->gib_ware_filter_ab(ware_ab);
+				pressed = parent->get_ware_filter_ab(ware_ab);
 			}
 			if(ware_an) {
-				pressed = parent->gib_ware_filter_an(ware_an);
+				pressed = parent->get_ware_filter_an(ware_an);
 			}
 			button_t::zeichnen(offset);
 		}
@@ -101,8 +101,8 @@ public:
      * Propagate funktion from main_frame for ware_item_t
      * @author V. Meyer
      */
-    bool gib_ware_filter_ab(const ware_besch_t *ware) const { return main_frame->gib_ware_filter_ab(ware); }
-    bool gib_ware_filter_an(const ware_besch_t *ware) const { return main_frame->gib_ware_filter_an(ware); }
+    bool get_ware_filter_ab(const ware_besch_t *ware) const { return main_frame->get_ware_filter_ab(ware); }
+    bool get_ware_filter_an(const ware_besch_t *ware) const { return main_frame->get_ware_filter_an(ware); }
 
     /*
      * Handler for ware_item_t event.
@@ -123,7 +123,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author V. Meyer
      */
-    const char * gib_hilfe_datei() const {return "haltlist_filter.txt"; }
+    const char * get_hilfe_datei() const {return "haltlist_filter.txt"; }
 
     /**
      * This method is called if an action is triggered

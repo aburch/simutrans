@@ -36,11 +36,11 @@ pillar_t::pillar_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_besc
 {
 	this->besch = besch;
 	this->dir = (uint8)img;
-	setze_yoff(-hoehe);
-	setze_besitzer( sp );
+	set_yoff(-hoehe);
+	set_besitzer( sp );
 	hide = false;
 	if(hoehe==0  &&  besch->has_pillar_asymmetric()) {
-		hang_t::typ h = welt->lookup(pos)->gib_grund_hang();
+		hang_t::typ h = welt->lookup(pos)->get_grund_hang();
 		if(h==hang_t::nord  ||  h==hang_t::west) {
 			hide = true;
 		}
@@ -53,8 +53,8 @@ pillar_t::pillar_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_besc
 void pillar_t::laden_abschliessen()
 {
 	hide = false;
-	if(gib_yoff()==0  &&  besch->has_pillar_asymmetric()) {
-		hang_t::typ h = welt->lookup(gib_pos())->gib_grund_hang();
+	if(get_yoff()==0  &&  besch->has_pillar_asymmetric()) {
+		hang_t::typ h = welt->lookup(get_pos())->get_grund_hang();
 		if(h==hang_t::nord  ||  h==hang_t::west) {
 			hide = true;
 		}
@@ -70,12 +70,12 @@ void pillar_t::laden_abschliessen()
  */
 void pillar_t::zeige_info()
 {
-	planquadrat_t *plan=welt->access(gib_pos().gib_2d());
-	for(unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
-		grund_t *bd=plan->gib_boden_bei(i);
+	planquadrat_t *plan=welt->access(get_pos().get_2d());
+	for(unsigned i=0;  i<plan->get_boden_count();  i++  ) {
+		grund_t *bd=plan->get_boden_bei(i);
 		if(bd->ist_bruecke()) {
 			bruecke_t* br = bd->find<bruecke_t>();
-			if(br  &&  br->gib_besch()==besch) {
+			if(br  &&  br->get_besch()==besch) {
 				br->zeige_info();
 			}
 		}
@@ -91,7 +91,7 @@ void pillar_t::rdwr(loadsave_t *file)
 	ding_t::rdwr(file);
 
 	if(file->is_saving()) {
-		const char *s = besch->gib_name();
+		const char *s = besch->get_name();
 		file->rdwr_str(s);
 		file->rdwr_byte(dir,"\n");
 	}
@@ -100,14 +100,14 @@ void pillar_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s,256);
 		file->rdwr_byte(dir,"\n");
 
-		besch = brueckenbauer_t::gib_besch(s);
+		besch = brueckenbauer_t::get_besch(s);
 		if(besch==0) {
 			if(strstr(s,"ail")) {
-				besch = brueckenbauer_t::gib_besch("ClassicRail");
+				besch = brueckenbauer_t::get_besch("ClassicRail");
 				dbg->warning("pillar_t::rdwr()","Unknown bridge %s replaced by ClassicRail",s);
 			}
 			else if(strstr(s,"oad")) {
-				besch = brueckenbauer_t::gib_besch("ClassicRoad");
+				besch = brueckenbauer_t::get_besch("ClassicRoad");
 				dbg->warning("pillar_t::rdwr()","Unknown bridge %s replaced by ClassicRoad",s);
 			}
 		}
@@ -120,7 +120,7 @@ void pillar_t::rotate90()
 {
 	ding_t::rotate90();
 	// may need to hide/show asymmetric pillars
-	if(gib_yoff()==0  &&  besch->has_pillar_asymmetric()) {
+	if(get_yoff()==0  &&  besch->has_pillar_asymmetric()) {
 		// we must hide, if prevous NS and visible
 		// we must show, if preivous NS and hidden
 		if(hide) {

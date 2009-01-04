@@ -30,23 +30,23 @@ void brueckenboden_t::calc_bild_internal()
 {
 	if(ist_tunnel()) {
 		clear_back_bild();
-		setze_bild(IMG_LEER);
+		set_bild(IMG_LEER);
 	}
 	else {
 		if(ist_karten_boden()) {
-			setze_bild( grund_besch_t::gib_ground_tile(slope,gib_pos().z) );
-			grund_t::calc_back_bild(gib_pos().z/Z_TILE_STEP,slope);
+			set_bild( grund_besch_t::get_ground_tile(slope,get_pos().z) );
+			grund_t::calc_back_bild(get_pos().z/Z_TILE_STEP,slope);
 			set_flag(draw_as_ding);
-			if(  (gib_grund_hang()==hang_t::west  &&  abs(back_bild_nr)>11)  ||  (gib_grund_hang()==hang_t::nord  &&  gib_back_bild(0)!=IMG_LEER)  ) {
+			if(  (get_grund_hang()==hang_t::west  &&  abs(back_bild_nr)>11)  ||  (get_grund_hang()==hang_t::nord  &&  get_back_bild(0)!=IMG_LEER)  ) {
 				// must draw as ding, since there is a slop here nearby
-				koord pos = gib_pos().gib_2d()+koord(gib_grund_hang());
+				koord pos = get_pos().get_2d()+koord(get_grund_hang());
 				grund_t *gr = welt->lookup_kartenboden(pos);
 				gr->set_flag(grund_t::draw_as_ding);
 			}
 		}
 		else {
 			clear_back_bild();
-			setze_bild( IMG_LEER );
+			set_bild( IMG_LEER );
 		}
 	}
 }
@@ -67,19 +67,19 @@ brueckenboden_t::rdwr(loadsave_t *file)
 	file->rdwr_byte(weg_hang, "\n");
 
 	if(!find<bruecke_t>()) {
-		dbg->error( "brueckenboden_t::rdwr()","no bridge on bridgebround at (%s); try repalcement", pos.gib_str()  );
-		weg_t *w = gib_weg_nr(0);
-		const bruecke_besch_t *br_besch = brueckenbauer_t::find_bridge( w->gib_waytype(), w->gib_max_speed(), 0 );
+		dbg->error( "brueckenboden_t::rdwr()","no bridge on bridgebround at (%s); try repalcement", pos.get_str()  );
+		weg_t *w = get_weg_nr(0);
+		const bruecke_besch_t *br_besch = brueckenbauer_t::find_bridge( w->get_waytype(), w->get_max_speed(), 0 );
 		bruecke_t *br = new bruecke_t(
 			welt,
-			gib_pos(),
-			welt->gib_spieler(1),
+			get_pos(),
+			welt->get_spieler(1),
 			br_besch,
 			ist_karten_boden() ?
 				(slope==hang_t::flach ?
-					br_besch->gib_rampe(ribi_typ(gib_weg_hang())) :
-					br_besch->gib_start(ribi_typ(gib_grund_hang()))) :
-				br_besch->gib_simple(w->gib_ribi_unmasked())
+					br_besch->get_rampe(ribi_typ(get_weg_hang())) :
+					br_besch->get_start(ribi_typ(get_grund_hang()))) :
+				br_besch->get_simple(w->get_ribi_unmasked())
 		);
 		obj_add( br );
 	}
@@ -93,7 +93,7 @@ void brueckenboden_t::rotate90()
 }
 
 
-sint8 brueckenboden_t::gib_weg_yoff() const
+sint8 brueckenboden_t::get_weg_yoff() const
 {
 	if(ist_karten_boden() && weg_hang == 0) {
 		return TILE_HEIGHT_STEP;
@@ -107,8 +107,8 @@ sint8 brueckenboden_t::gib_weg_yoff() const
 bool
 brueckenboden_t::zeige_info()
 {
-	if(gib_halt().is_bound()) {
-		gib_halt()->zeige_info();
+	if(get_halt().is_bound()) {
+		get_halt()->zeige_info();
 		return true;
 	}
 	else {

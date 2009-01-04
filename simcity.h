@@ -72,8 +72,8 @@ class stadt_t
 
 		bool found() const { return best_wert > 0; }
 
-		koord gib_pos() const { return best_pos;}
-	// sint32 gib_wert() const { return best_wert; }
+		koord get_pos() const { return best_pos;}
+	// sint32 get_wert() const { return best_wert; }
 	};
 
 public:
@@ -282,7 +282,7 @@ public:
 	/* returns all factories connected to this city ...
 	 * @author: prissi
 	 */
-	const weighted_vector_tpl<fabrik_t*>& gib_arbeiterziele() const { return arbeiterziele; }
+	const weighted_vector_tpl<fabrik_t*>& get_arbeiterziele() const { return arbeiterziele; }
 	void remove_arbeiterziel(fabrik_t *fab) { arbeiterziele.remove(fab); }
 
 	// this function removes houses from the city house list
@@ -303,13 +303,13 @@ public:
 	sint64 get_finance_history_month(int month, int type) { return city_history_month[month][type]; }
 
 	// growth number (smoothed!)
-	sint32 gib_wachstum() const {return ((sint32)city_history_month[0][HIST_GROWTH]*5) + (sint32)(city_history_month[1][HIST_GROWTH]*4) + (sint32)city_history_month[2][HIST_GROWTH]; }
+	sint32 get_wachstum() const {return ((sint32)city_history_month[0][HIST_GROWTH]*5) + (sint32)(city_history_month[1][HIST_GROWTH]*4) + (sint32)city_history_month[2][HIST_GROWTH]; }
 
 	/**
 	 * ermittelt die Einwohnerzahl der Stadt
 	 * @author Hj. Malthaner
 	 */
-	sint32 gib_einwohner() const {return (buildings.get_sum_weight()*6)+((2*bev-arb-won)>>1);}
+	sint32 get_einwohner() const {return (buildings.get_sum_weight()*6)+((2*bev-arb-won)>>1);}
 
 	uint32 get_buildings()  const { return buildings.get_count(); }
 	sint32 get_unemployed() const { return bev - arb; }
@@ -319,32 +319,32 @@ public:
 	 * Gibt den Namen der Stadt zurück.
 	 * @author Hj. Malthaner
 	 */
-	const char *gib_name() const { return name; }
+	const char *get_name() const { return name; }
 
 	/**
 	 * Ermöglicht Zugriff auf Namesnarray
 	 * @author Hj. Malthaner
 	 */
-	void setze_name( const char *name );
+	void set_name( const char *name );
 
 	/**
 	 * gibt einen zufällingen gleichverteilten Punkt innerhalb der
 	 * Stadtgrenzen zurück
 	 * @author Hj. Malthaner
 	 */
-	koord gib_zufallspunkt() const;
+	koord get_zufallspunkt() const;
 
 	/**
 	 * gibt das pax-statistik-array für letzten monat zurück
 	 * @author Hj. Malthaner
 	 */
-	const array2d_tpl<unsigned char>* gib_pax_ziele_alt() const { return &pax_ziele_alt; }
+	const array2d_tpl<unsigned char>* get_pax_ziele_alt() const { return &pax_ziele_alt; }
 
 	/**
 	 * gibt das pax-statistik-array für den aktuellen monat zurück
 	 * @author Hj. Malthaner
 	 */
-	const array2d_tpl<unsigned char>* gib_pax_ziele_neu() const { return &pax_ziele_neu; }
+	const array2d_tpl<unsigned char>* get_pax_ziele_neu() const { return &pax_ziele_neu; }
 
 	/**
 	 * Erzeugt eine neue Stadt auf Planquadrat (x,y) die dem Spieler sp
@@ -408,7 +408,7 @@ public:
 	 * @return die Koordinaten des Gruendungsplanquadrates
 	 * @author Hj. Malthaner
 	 */
-	inline koord gib_pos() const {return pos;}
+	inline koord get_pos() const {return pos;}
 
 	inline koord get_linksoben() const { return lo;}
 	inline koord get_rechtsunten() const { return ur;}

@@ -72,89 +72,89 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	this->welt = welt;
 
 	// brightness
-	buttons[0].setze_pos( koord(ARR_LEFT,BRIGHTNESS) );
-	buttons[0].setze_typ(button_t::repeatarrowleft);
+	buttons[0].set_pos( koord(ARR_LEFT,BRIGHTNESS) );
+	buttons[0].set_typ(button_t::repeatarrowleft);
 
-	buttons[1].setze_pos( koord(ARR_RIGHT,BRIGHTNESS) );
-	buttons[1].setze_typ(button_t::repeatarrowright);
+	buttons[1].set_pos( koord(ARR_RIGHT,BRIGHTNESS) );
+	buttons[1].set_typ(button_t::repeatarrowright);
 
 	// scrollspeed
-	buttons[2].setze_pos( koord(ARR_LEFT,SCROLL_SPEED) );
-	buttons[2].setze_typ(button_t::repeatarrowleft);
+	buttons[2].set_pos( koord(ARR_LEFT,SCROLL_SPEED) );
+	buttons[2].set_typ(button_t::repeatarrowleft);
 
-	buttons[3].setze_pos( koord(ARR_RIGHT,SCROLL_SPEED) );
-	buttons[3].setze_typ(button_t::repeatarrowright);
+	buttons[3].set_pos( koord(ARR_RIGHT,SCROLL_SPEED) );
+	buttons[3].set_typ(button_t::repeatarrowright);
 
 	// traffic density
-	buttons[4].setze_pos( koord(ARR_LEFT,DENS_TRAFFIC) );
-	buttons[4].setze_typ(button_t::repeatarrowleft);
+	buttons[4].set_pos( koord(ARR_LEFT,DENS_TRAFFIC) );
+	buttons[4].set_typ(button_t::repeatarrowleft);
 
-	buttons[5].setze_pos( koord(ARR_RIGHT,DENS_TRAFFIC) );
-	buttons[5].setze_typ(button_t::repeatarrowright);
+	buttons[5].set_pos( koord(ARR_RIGHT,DENS_TRAFFIC) );
+	buttons[5].set_typ(button_t::repeatarrowright);
 
 	// other settings
-	buttons[6].setze_pos( koord(10,SCROLL_INVERS) );
-	buttons[6].setze_typ(button_t::square_state);
-	buttons[6].setze_text("4LIGHT_CHOOSE");
+	buttons[6].set_pos( koord(10,SCROLL_INVERS) );
+	buttons[6].set_typ(button_t::square_state);
+	buttons[6].set_text("4LIGHT_CHOOSE");
 	buttons[6].pressed = umgebung_t::scroll_multi < 0;
 
-	buttons[7].setze_pos( koord(10,STOP_WALKER) );
-	buttons[7].setze_typ(button_t::square_state);
-	buttons[7].setze_text("5LIGHT_CHOOSE");
-	buttons[7].pressed = welt->gib_einstellungen()->gib_show_pax();
+	buttons[7].set_pos( koord(10,STOP_WALKER) );
+	buttons[7].set_typ(button_t::square_state);
+	buttons[7].set_text("5LIGHT_CHOOSE");
+	buttons[7].pressed = welt->get_einstellungen()->get_show_pax();
 
-	buttons[8].setze_pos( koord(10,CITY_WALKER) );
-	buttons[8].setze_typ(button_t::square_state);
-	buttons[8].setze_text("6LIGHT_CHOOSE");
-	buttons[8].pressed = welt->gib_einstellungen()->gib_random_pedestrians();
+	buttons[8].set_pos( koord(10,CITY_WALKER) );
+	buttons[8].set_typ(button_t::square_state);
+	buttons[8].set_text("6LIGHT_CHOOSE");
+	buttons[8].pressed = welt->get_einstellungen()->get_random_pedestrians();
 
-	buttons[9].setze_pos( koord(10,DAY_NIGHT) );
-	buttons[9].setze_typ(button_t::square_state);
-	buttons[9].setze_text("8WORLD_CHOOSE");
+	buttons[9].set_pos( koord(10,DAY_NIGHT) );
+	buttons[9].set_typ(button_t::square_state);
+	buttons[9].set_text("8WORLD_CHOOSE");
 	buttons[9].pressed = umgebung_t::night_shift;
 
-	buttons[10].setze_pos( koord(10,USE_TRANSPARENCY) );
-	buttons[10].setze_typ(button_t::square_state);
-	buttons[10].setze_text("hide transparent");
+	buttons[10].set_pos( koord(10,USE_TRANSPARENCY) );
+	buttons[10].set_typ(button_t::square_state);
+	buttons[10].set_text("hide transparent");
 	buttons[10].pressed = umgebung_t::hide_with_transparency;
 
-	buttons[11].setze_pos( koord(10,HIDE_TREES) );
-	buttons[11].setze_typ(button_t::square_state);
-	buttons[11].setze_text("hide trees");
+	buttons[11].set_pos( koord(10,HIDE_TREES) );
+	buttons[11].set_typ(button_t::square_state);
+	buttons[11].set_text("hide trees");
 
-	buttons[12].setze_pos( koord(10,HIDE_CITY_HOUSES) );
-	buttons[12].setze_typ(button_t::square_state);
-	buttons[12].setze_text("hide city building");
+	buttons[12].set_pos( koord(10,HIDE_CITY_HOUSES) );
+	buttons[12].set_typ(button_t::square_state);
+	buttons[12].set_text("hide city building");
 
-	buttons[13].setze_pos( koord(10,HIDE_ALL_HOUSES) );
-	buttons[13].setze_typ(button_t::square_state);
-	buttons[13].setze_text("hide all building");
+	buttons[13].set_pos( koord(10,HIDE_ALL_HOUSES) );
+	buttons[13].set_typ(button_t::square_state);
+	buttons[13].set_text("hide all building");
 
-	buttons[14].setze_pos( koord(10,USE_TRANSPARENCY_STATIONS) );
-	buttons[14].setze_typ(button_t::square_state);
-	buttons[14].setze_text("transparent station coverage");
+	buttons[14].set_pos( koord(10,USE_TRANSPARENCY_STATIONS) );
+	buttons[14].set_typ(button_t::square_state);
+	buttons[14].set_text("transparent station coverage");
 	buttons[14].pressed = umgebung_t::use_transparency_station_coverage;
 
-	buttons[15].setze_pos( koord(10,SHOW_STATION_COVERAGE) );
-	buttons[15].setze_typ(button_t::square_state);
-	buttons[15].setze_text("show station coverage");
+	buttons[15].set_pos( koord(10,SHOW_STATION_COVERAGE) );
+	buttons[15].set_typ(button_t::square_state);
+	buttons[15].set_text("show station coverage");
 
-	buttons[16].setze_pos( koord(10,UNDERGROUND) );
-	buttons[16].setze_typ(button_t::square_state);
-	buttons[16].setze_text("underground mode");
+	buttons[16].set_pos( koord(10,UNDERGROUND) );
+	buttons[16].set_typ(button_t::square_state);
+	buttons[16].set_text("underground mode");
 
-	buttons[17].setze_pos( koord(10,GRID_MODE) );
-	buttons[17].setze_typ(button_t::square_state);
-	buttons[17].setze_text("show grid");
+	buttons[17].set_pos( koord(10,GRID_MODE) );
+	buttons[17].set_typ(button_t::square_state);
+	buttons[17].set_text("show grid");
 
-	buttons[18].setze_pos( koord(10,SHOW_STATION_SIGNS) );
-	buttons[18].setze_typ(button_t::square_state);
-	buttons[18].setze_text("show station names");
+	buttons[18].set_pos( koord(10,SHOW_STATION_SIGNS) );
+	buttons[18].set_typ(button_t::square_state);
+	buttons[18].set_text("show station names");
 	buttons[18].pressed = umgebung_t::show_names&1;
 
-	buttons[19].setze_pos( koord(10,SHOW_STATION_GOODS) );
-	buttons[19].setze_typ(button_t::square_state);
-	buttons[19].setze_text("show waiting bars");
+	buttons[19].set_pos( koord(10,SHOW_STATION_GOODS) );
+	buttons[19].set_typ(button_t::square_state);
+	buttons[19].set_text("show waiting bars");
 	buttons[19].pressed = umgebung_t::show_names&1;
 
 	for(int i=0;  i<MAX_BUTTONS;  i++ ) {
@@ -162,7 +162,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 		add_komponente( buttons+i );
 	}
 
-	setze_fenstergroesse( koord(RIGHT_WIDTH, BOTTOM) );
+	set_fenstergroesse( koord(RIGHT_WIDTH, BOTTOM) );
 }
 
 
@@ -170,7 +170,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 bool
 color_gui_t::action_triggered( gui_action_creator_t *komp, value_t)
 {
-	einstellungen_t * sets = welt->gib_einstellungen();
+	einstellungen_t * sets = welt->get_einstellungen();
 
 	if((buttons+0)==komp) {
 		if(  umgebung_t::daynight_level>0  ) {
@@ -179,12 +179,12 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t)
 	} else if((buttons+1)==komp) {
 		umgebung_t::daynight_level++;
 	} else if((buttons+4)==komp) {
-		if(sets->gib_verkehr_level() > 0 ) {
-			sets->setze_verkehr_level( sets->gib_verkehr_level() - 1 );
+		if(sets->get_verkehr_level() > 0 ) {
+			sets->set_verkehr_level( sets->get_verkehr_level() - 1 );
 		}
 	} else if((buttons+5)==komp) {
-		if(sets->gib_verkehr_level() < 16 ) {
-			sets->setze_verkehr_level( sets->gib_verkehr_level() + 1 );
+		if(sets->get_verkehr_level() < 16 ) {
+			sets->set_verkehr_level( sets->get_verkehr_level() + 1 );
 		}
 	} else if((buttons+2)==komp) {
 		if(umgebung_t::scroll_multi > 1) {
@@ -204,10 +204,10 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t)
 		umgebung_t::scroll_multi = -umgebung_t::scroll_multi;
 		buttons[6].pressed ^= 1;
 	} else if((buttons+7)==komp) {
-		welt->gib_einstellungen()->setze_show_pax( !welt->gib_einstellungen()->gib_show_pax() );
+		welt->get_einstellungen()->set_show_pax( !welt->get_einstellungen()->get_show_pax() );
 		buttons[7].pressed ^= 1;
 	} else if((buttons+8)==komp) {
-		welt->gib_einstellungen()->setze_random_pedestrians( !welt->gib_einstellungen()->gib_random_pedestrians() );
+		welt->get_einstellungen()->set_random_pedestrians( !welt->get_einstellungen()->get_random_pedestrians() );
 		buttons[8].pressed ^= 1;
 	} else if((buttons+9)==komp) {
 		umgebung_t::night_shift = !umgebung_t::night_shift;
@@ -228,12 +228,12 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t)
 		umgebung_t::station_coverage_show = umgebung_t::station_coverage_show==0 ? 0xFF : 0;
 	} else if((buttons+16)==komp) {
 		grund_t::underground_mode = !grund_t::underground_mode;
-		for(int y=0; y<welt->gib_groesse_y(); y++) {
-			for(int x=0; x<welt->gib_groesse_x(); x++) {
+		for(int y=0; y<welt->get_groesse_y(); y++) {
+			for(int x=0; x<welt->get_groesse_x(); x++) {
 				const planquadrat_t *plan = welt->lookup(koord(x,y));
-				const int boden_count = plan->gib_boden_count();
+				const int boden_count = plan->get_boden_count();
 				for(int schicht=0; schicht<boden_count; schicht++) {
-					grund_t *gr = plan->gib_boden_bei(schicht);
+					grund_t *gr = plan->get_boden_bei(schicht);
 					gr->calc_bild();
 				}
 			}
@@ -245,7 +245,7 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t)
 	} else if((buttons+19)==komp) {
 		umgebung_t::show_names ^= 2;
 	}
-	welt->setze_dirty();
+	welt->set_dirty();
 	return true;
 }
 
@@ -256,7 +256,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 {
 	const int x = pos.x;
 	const int y = pos.y+16;	// compensate for title bar
-	const einstellungen_t * sets = welt->gib_einstellungen();
+	const einstellungen_t * sets = welt->get_einstellungen();
 	char buf[128];
 
 	// can be changed also with keys ...
@@ -284,18 +284,18 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x+NUMBER, y+SCROLL_SPEED, ntos(abs(umgebung_t::scroll_multi), 0), ALIGN_RIGHT, COL_WHITE, true);
 
 	display_proportional_clip(x+10, y+DENS_TRAFFIC, translator::translate("6WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+NUMBER, y+DENS_TRAFFIC, ntos(sets->gib_verkehr_level(),0), ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x+NUMBER, y+DENS_TRAFFIC, ntos(sets->get_verkehr_level(),0), ALIGN_RIGHT, COL_WHITE, true);
 
 	int len=15+display_proportional_clip(x+10, y+FPS_DATA, translator::translate("Frame time:"), ALIGN_LEFT, COL_BLACK, true);
 	sprintf(buf,"%ld ms", get_frame_time() );
 	display_proportional_clip(x+len, y+FPS_DATA, buf, ALIGN_LEFT, COL_WHITE, true);
 
 	len = 15+display_proportional_clip(x+10, y+IDLE_DATA, translator::translate("Idle:"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+len, y+IDLE_DATA, ntos(welt->gib_schlaf_zeit(), "%d ms"), ALIGN_LEFT, COL_WHITE, true);
+	display_proportional_clip(x+len, y+IDLE_DATA, ntos(welt->get_schlaf_zeit(), "%d ms"), ALIGN_LEFT, COL_WHITE, true);
 
 	uint8 farbe;
 	uint32 loops;
-	loops=welt->gib_realFPS();
+	loops=welt->get_realFPS();
 	farbe = COL_WHITE;
 	uint32 target_fps = welt->is_fast_forward() ? 10 : umgebung_t::fps;
 	if(loops<(target_fps*3)/4) {
@@ -305,7 +305,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	sprintf(buf,"%d fps", loops );
 	display_proportional_clip(x+len, y+FRAME_DATA, buf, ALIGN_LEFT, farbe, true);
 
-	loops=welt->gib_simloops();
+	loops=welt->get_simloops();
 	farbe = COL_WHITE;
 	if(loops<=30) {
 		farbe = (loops<=20) ? COL_RED : COL_YELLOW;

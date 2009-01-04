@@ -66,9 +66,9 @@ public:
 	// for map rotation
 	void rotate90();
 
-	enum ding_t::typ gib_typ() const {return leitung;}
+	enum ding_t::typ get_typ() const {return leitung;}
 
-	const char *gib_name() const {return "Leitung"; }
+	const char *get_name() const {return "Leitung"; }
 
 	/**
 	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
@@ -77,10 +77,10 @@ public:
 	*/
 	void info(cbuffer_t & buf) const;
 
-	ribi_t::ribi gib_ribi(void) const { return ribi; }
+	ribi_t::ribi get_ribi(void) const { return ribi; }
 
-	inline void setze_bild( image_id b ) { bild = b; }
-	image_id gib_bild() const {return bild;}
+	inline void set_bild( image_id b ) { bild = b; }
+	image_id get_bild() const {return bild;}
 
 	/**
 	* Recalculates the images of all neighbouring
@@ -121,7 +121,7 @@ public:
 	pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp);
 	~pumpe_t();
 
-	enum ding_t::typ gib_typ() const {return pumpe;}
+	enum ding_t::typ get_typ() const {return pumpe;}
 
 	bool sync_step(long delta_t);
 
@@ -146,7 +146,7 @@ public:
 	senke_t(karte_t *welt, koord3d pos, spieler_t *sp);
 	~senke_t();
 
-	enum ding_t::typ gib_typ() const {return senke;}
+	enum ding_t::typ get_typ() const {return senke;}
 
 	bool sync_step(long delta_t);
 

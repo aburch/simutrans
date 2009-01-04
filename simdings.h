@@ -97,7 +97,7 @@ public:
 	* (public wegen Rathausumbau - V.Meyer)
 	* @author Hj. Malthaner
 	*/
-	void setze_besitzer(spieler_t *sp);
+	void set_besitzer(spieler_t *sp);
 
 	/**
 	* Ein Objekt kann einen Besitzer haben.
@@ -105,7 +105,7 @@ public:
 	* wenn das Objekt niemand gehört.
 	* @author Hj. Malthaner
 	*/
-	spieler_t * gib_besitzer() const;
+	spieler_t * get_besitzer() const;
 
 	/**
 	* setzt ein flag im flag-set des dings. Siehe auch flag_values
@@ -170,8 +170,8 @@ public:
 		old_tramdepot=101,
 	};
 
-	inline sint8 gib_xoff() const {return xoff;}
-	inline sint8 gib_yoff() const {return yoff;}
+	inline sint8 get_xoff() const {return xoff;}
+	inline sint8 get_yoff() const {return yoff;}
 
 	// true for all moving objects
 	inline bool is_moving() const { return flags&is_vehicle; }
@@ -181,8 +181,8 @@ public:
 
 	// while in principle, this should trigger the dirty, it takes just too much time to do it
 	// TAKE CARE OF SET IT DIRTY YOURSELF!!!
-	inline void setze_xoff(sint8 xoff) {this->xoff = xoff; }
-	inline void setze_yoff(sint8 yoff) {this->yoff = yoff; }
+	inline void set_xoff(sint8 xoff) {this->xoff = xoff; }
+	inline void set_yoff(sint8 yoff) {this->yoff = yoff; }
 
 	/**
 	 * Mit diesem Konstruktor werden Objekte aus einer Datei geladen
@@ -224,14 +224,14 @@ public:
 	 * @return Gibt den unübersetzten(!) Namen des Objekts zurück.
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *gib_name() const {return "Ding";}
+	virtual const char *get_name() const {return "Ding";}
 
 	/**
 	 * 'Jedes Ding braucht einen Typ.'
 	 * @return Gibt den typ des Objekts zurück.
 	 * @author Hj. Malthaner
 	 */
-	virtual enum ding_t::typ gib_typ() const = 0;
+	virtual enum ding_t::typ get_typ() const = 0;
 
 	/*
 	* called whenever the snowline height changes
@@ -251,33 +251,33 @@ public:
 	 * @return Die Nummer des aktuellen Bildes für das Objekt.
 	 * @author Hj. Malthaner
 	 */
-	virtual image_id gib_bild() const = 0;
+	virtual image_id get_bild() const = 0;
 
 	/**
 	 * give image for height > 0 (max. height currently 3)
 	 * IMG_LEER is no images
 	 * @author Hj. Malthaner
 	 */
-	virtual image_id gib_bild(int /*height*/) const {return IMG_LEER;}
+	virtual image_id get_bild(int /*height*/) const {return IMG_LEER;}
 
 	/**
-	 * this image is draw after all gib_bild() on this tile
+	 * this image is draw after all get_bild() on this tile
 	 * Currently only single height is supported for this feature
 	 */
-	virtual image_id gib_after_bild() const {return IMG_LEER;}
+	virtual image_id get_after_bild() const {return IMG_LEER;}
 
 	/**
 	 * if a function return here a value with TRANSPARENT_FLAGS set
 	 * then a transparent outline with the color form the lower 8 Bit is drawn
 	 * @author kierongreen
 	 */
-	virtual PLAYER_COLOR_VAL gib_outline_colour() const {return 0;}
+	virtual PLAYER_COLOR_VAL get_outline_colour() const {return 0;}
 
 	/**
 	 * The image, that will be outlined
 	 * @author kierongreen
 	 */
-	virtual PLAYER_COLOR_VAL gib_outline_bild() const {return IMG_LEER;}
+	virtual PLAYER_COLOR_VAL get_outline_bild() const {return IMG_LEER;}
 
 	/**
 	 * Speichert den Zustand des Objekts.
@@ -302,10 +302,10 @@ public:
 	 * @author V. Meyer
 	 * @see ding_t#ding_t
 	 */
-	inline koord3d gib_pos() const {return pos;}
+	inline koord3d get_pos() const {return pos;}
 
 	// only zeiger_t overlays this function, so virtual definition is overkill
-	inline void setze_pos(koord3d k) { if(k!=pos) { set_flag(dirty); pos = k;} }
+	inline void set_pos(koord3d k) { if(k!=pos) { set_flag(dirty); pos = k;} }
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem

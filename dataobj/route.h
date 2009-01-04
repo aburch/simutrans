@@ -91,7 +91,7 @@ public:
 	 * @return letzer index in der Koordinatenliste
 	 * @author Hj. Malthaner
 	 */
-	uint32 gib_max_n() const { return route.get_count() - 1; }
+	uint32 get_max_n() const { return route.get_count() - 1; }
 
 	bool empty() const { return route.get_count()<2; }
 

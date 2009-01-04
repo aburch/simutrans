@@ -64,9 +64,9 @@ void scenario_t::init( const char *filename, karte_t *w )
 	city = NULL;
 	if(*cityname) {
 		// find a city with this name ...
-		const weighted_vector_tpl<stadt_t*> staedte = welt->gib_staedte();
+		const weighted_vector_tpl<stadt_t*> staedte = welt->get_staedte();
 		for(  int i=0;  staedte.get_count();  i++  ) {
-			if(  strcmp( staedte[i]->gib_name(), cityname )==0  ) {
+			if(  strcmp( staedte[i]->get_name(), cityname )==0  ) {
 				city = staedte[i];
 			}
 		}
@@ -75,7 +75,7 @@ void scenario_t::init( const char *filename, karte_t *w )
 	// ... or factory
 	int *pos = contents.get_ints( "factorypos" );
 	if(*pos==2  &&  welt) {
-		fabrik_t *f = fabrik_t::gib_fab( welt, koord( pos[1], pos[2] ) );
+		fabrik_t *f = fabrik_t::get_fab( welt, koord( pos[1], pos[2] ) );
 		target_factory = f;
 	}
 }
@@ -89,10 +89,10 @@ void scenario_t::rdwr(loadsave_t *file)
 
 	if(  file->is_saving()  ) {
 		if(city) {
-			city_nr = welt->gib_staedte().index_of( city );
+			city_nr = welt->get_staedte().index_of( city );
 		}
 		if(  target_factory  ) {
-			fabpos = target_factory->gib_pos().gib_2d();
+			fabpos = target_factory->get_pos().get_2d();
 		}
 	}
 
@@ -102,10 +102,10 @@ void scenario_t::rdwr(loadsave_t *file)
 	fabpos.rdwr( file );
 
 	if(  file->is_loading()  ) {
-		if(  city_nr < welt->gib_staedte().get_count()  ) {
-			city = welt->gib_staedte()[city_nr];
+		if(  city_nr < welt->get_staedte().get_count()  ) {
+			city = welt->get_staedte()[city_nr];
 		}
-		target_factory = fabrik_t::gib_fab( welt, fabpos );
+		target_factory = fabrik_t::get_fab( welt, fabpos );
 	}
 }
 
@@ -119,8 +119,8 @@ void scenario_t::get_factory_producing( fabrik_t *fab, int &producing, int &exis
 	int own_producing=0, own_existing=0;
 
 	// now check for all input
-	for(  uint ware_nr=0;  ware_nr<fab->gib_eingang().get_count();  ware_nr++  ) {
-		if(fab->gib_eingang()[ware_nr].menge > 512) {
+	for(  uint ware_nr=0;  ware_nr<fab->get_eingang().get_count();  ware_nr++  ) {
+		if(fab->get_eingang()[ware_nr].menge > 512) {
 			producing ++;
 			own_producing ++;
 		}
@@ -128,10 +128,10 @@ void scenario_t::get_factory_producing( fabrik_t *fab, int &producing, int &exis
 		own_existing ++;
 	}
 
-	if(fab->gib_eingang().get_count()>0) {
+	if(fab->get_eingang().get_count()>0) {
 		// now check for all output (of not source ... )
-		for(  uint ware_nr=0;  ware_nr<fab->gib_ausgang().get_count();  ware_nr++  ) {
-			if(fab->gib_ausgang()[ware_nr].menge > 512) {
+		for(  uint ware_nr=0;  ware_nr<fab->get_ausgang().get_count();  ware_nr++  ) {
+			if(fab->get_ausgang()[ware_nr].menge > 512) {
 				producing ++;
 				own_producing ++;
 			}
@@ -143,7 +143,7 @@ void scenario_t::get_factory_producing( fabrik_t *fab, int &producing, int &exis
 	// now all delivering factories
 	const vector_tpl <koord> & sources = fab->get_suppliers();
 	for( unsigned q=0;  q<sources.get_count();  q++  ) {
-		fabrik_t *qfab = fabrik_t::gib_fab(welt,sources[q]);
+		fabrik_t *qfab = fabrik_t::get_fab(welt,sources[q]);
 		if(  own_producing==own_existing  ) {
 			// fully supplied => counts as 100% ...
 			int i=0, cnt=0;
@@ -183,17 +183,17 @@ int scenario_t::completed(int player_nr)
 
 		case DOUBLE_INCOME:
 		{
-			int pts = (int)( welt->gib_spieler(player_nr)->get_finance_history_month(0,COST_CASH)/factor );
+			int pts = (int)( welt->get_spieler(player_nr)->get_finance_history_month(0,COST_CASH)/factor );
 			return min( 100, pts );
 		}
 
 		case BUILT_HEADQUARTER_AND_10_TRAINS:
 		{
-			spieler_t *sp = welt->gib_spieler(player_nr);
+			spieler_t *sp = welt->get_spieler(player_nr);
 			int pts = 0;
 			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
 				convoihandle_t cnv = *i;
-				if(  cnv->gib_besitzer() == sp  &&  cnv->gib_jahresgewinn()>0  &&  cnv->get_state()!=convoi_t::INITIAL  &&  cnv->gib_vehikel_anzahl()>0  &&  cnv->gib_vehikel(0)->gib_waytype()==track_wt) {
+				if(  cnv->get_besitzer() == sp  &&  cnv->get_jahresgewinn()>0  &&  cnv->get_state()!=convoi_t::INITIAL  &&  cnv->get_vehikel_anzahl()>0  &&  cnv->get_vehikel(0)->get_waytype()==track_wt) {
 					pts ++;
 				}
 			}
@@ -203,7 +203,7 @@ int scenario_t::completed(int player_nr)
 		}
 
 		case TRANSPORT_1000_PAX:
-			return min( 100, (welt->gib_spieler(player_nr)->get_finance_history_month(0,COST_TRANSPORTED_PAS)*(sint64)100)/(sint64)factor );
+			return min( 100, (welt->get_spieler(player_nr)->get_finance_history_month(0,COST_TRANSPORTED_PAS)*(sint64)100)/(sint64)factor );
 
 	}
 	return 0;
@@ -225,7 +225,7 @@ const char *scenario_t::get_description()
 
 		case CONNECT_FACTORY_GOODS:
 			if(target_factory!=NULL) {
-				sprintf( description, translator::translate("Supply %s at (%i,%i)"), target_factory->gib_name(), target_factory->gib_pos().x, target_factory->gib_pos().y );
+				sprintf( description, translator::translate("Supply %s at (%i,%i)"), target_factory->get_name(), target_factory->get_pos().x, target_factory->get_pos().y );
 			}
 			else {
 				tstrncpy( description, translator::translate("Connect factory"), 511 );

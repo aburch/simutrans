@@ -68,16 +68,16 @@ public:
 	// purges toolbar
 	void reset_tools();
 
-	const char *gib_name() const {return titel;}
+	const char *get_name() const {return titel;}
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.
 	 * @return den Dateinamen für die Hilfe, oder NULL
 	 * @author Hj. Malthaner
 	 */
-	const char *gib_hilfe_datei() const {return hilfe_datei;}
+	const char *get_hilfe_datei() const {return hilfe_datei;}
 
-	koord gib_fenstergroesse() const { return groesse; }
+	koord get_fenstergroesse() const { return groesse; }
 
 	PLAYER_COLOR_VAL get_titelcolor() const { return WIN_TITEL; }
 

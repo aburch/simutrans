@@ -20,9 +20,9 @@ public:
 	// map rotation
 	virtual void rotate90();
 
-	virtual sint8 gib_weg_yoff() const;
+	virtual sint8 get_weg_yoff() const;
 
-	hang_t::typ gib_weg_hang() const { return weg_hang; }
+	hang_t::typ get_weg_hang() const { return weg_hang; }
 
 	/**
 	* ground info, needed for stops
@@ -30,8 +30,8 @@ public:
 	*/
 	virtual bool zeige_info();
 
-	const char *gib_name() const {return "Brueckenboden";}
-	enum grund_t::typ gib_typ() const {return brueckenboden;}
+	const char *get_name() const {return "Brueckenboden";}
+	enum grund_t::typ get_typ() const {return brueckenboden;}
 };
 
 #endif

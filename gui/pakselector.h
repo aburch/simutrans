@@ -31,7 +31,7 @@ protected:
 public:
 	bool has_pak() const { return !entries.empty(); }
 
-	const char * gib_hilfe_datei() const { return ""; }
+	const char * get_hilfe_datei() const { return ""; }
 
 	// since we only want to see the frames ...
 	void zeichnen(koord pos, koord gr);

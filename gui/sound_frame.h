@@ -43,7 +43,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    const char * gib_hilfe_datei() const {return "sound.txt";}
+    const char * get_hilfe_datei() const {return "sound.txt";}
 
 
     /**

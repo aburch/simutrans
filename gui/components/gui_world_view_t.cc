@@ -29,7 +29,7 @@ world_view_t::world_view_t(karte_t* welt, koord3d location)
     this->welt = welt;
     this->raster = 0;
 
-    setze_groesse(koord(64,56));
+    set_groesse(koord(64,56));
 }
 
 
@@ -39,7 +39,7 @@ world_view_t::world_view_t(const ding_t* dt) :
 	raster(0),
 	welt(dt->get_welt())
 {
-	setze_groesse(koord(64,56));
+	set_groesse(koord(64,56));
 }
 
 
@@ -51,8 +51,8 @@ world_view_t::world_view_t(const ding_t* dt) :
 void world_view_t::infowin_event(const event_t* ev)
 {
 	if(IS_LEFTRELEASE(ev)) {
-		const koord3d& pos = (ding != NULL ? ding->gib_pos() : location);
-		if (welt->ist_in_kartengrenzen(pos.gib_2d())) {
+		const koord3d& pos = (ding != NULL ? ding->get_pos() : location);
+		if (welt->ist_in_kartengrenzen(pos.get_2d())) {
 			welt->change_world_position(pos);
 		}
 	}
@@ -69,13 +69,13 @@ world_view_t::zeichnen(koord offset)
 	const sint16 raster = get_tile_raster_width();
 
 //DBG_MESSAGE("world_view_t::zeichnen()","ding %p, location %d,%d,%d",ding,location.x,location.y,location.z );
-	koord here=ding!=NULL ? ding->gib_pos().gib_2d() : location.gib_2d();
+	koord here=ding!=NULL ? ding->get_pos().get_2d() : location.get_2d();
 	koord fine_here=koord(0,0);
 	sint16 y_offset=0;
 	// offsets?
 	if(ding) {
-		fine_here = koord( 	tile_raster_scale_x(-ding->gib_xoff(),raster), tile_raster_scale_x(-ding->gib_yoff()%(TILE_STEPS*2),raster) );
-		y_offset = (ding->gib_yoff()/(32*TILE_STEPS/16));
+		fine_here = koord( 	tile_raster_scale_x(-ding->get_xoff(),raster), tile_raster_scale_x(-ding->get_yoff()%(TILE_STEPS*2),raster) );
+		y_offset = (ding->get_yoff()/(32*TILE_STEPS/16));
 		if(ding->is_moving()) {
 			int x=0, y=0;
 			((const vehikel_basis_t*)ding)->get_screen_offset(x, y);
@@ -84,25 +84,25 @@ world_view_t::zeichnen(koord offset)
 	}
 
 	const planquadrat_t * plan = welt->lookup(here);
-	if(plan  &&  plan->gib_kartenboden()) {
-		const koord gr=gib_groesse()-koord(2,2);
+	if(plan  &&  plan->get_kartenboden()) {
+		const koord gr=get_groesse()-koord(2,2);
 		int hgt;
 		if(!ding) {
-			hgt = tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, raster );
+			hgt = tile_raster_scale_y( plan->get_kartenboden()->get_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, raster );
 		} else {
-			hgt = tile_raster_scale_y( ding->gib_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, raster );
-			if(ding->gib_typ() == ding_t::aircraft) {
+			hgt = tile_raster_scale_y( ding->get_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, raster );
+			if(ding->get_typ() == ding_t::aircraft) {
 				const aircraft_t *plane =  dynamic_cast <const aircraft_t *>(ding);
-				hgt += tile_raster_scale_y( plane->gib_flyingheight(), raster );
+				hgt += tile_raster_scale_y( plane->get_flyingheight(), raster );
 			}
 		}
-		const koord pos = gib_pos()+offset+koord(1,1);
+		const koord pos = get_pos()+offset+koord(1,1);
 
 		// do not draw outside (may happen with scroll bars)
-		const clip_dimension old_clip = display_gib_clip_wh();
+		const clip_dimension old_clip = display_get_clip_wh();
 		const int clip_x =  max(old_clip.x,pos.x);
 		const int clip_y =  max(old_clip.y,pos.y);
-		display_setze_clip_wh( clip_x, clip_y, min(old_clip.x+old_clip.w,pos.x+gr.x)-clip_x, min(old_clip.y+old_clip.h,pos.y+gr.y)-clip_y );
+		display_set_clip_wh( clip_x, clip_y, min(old_clip.x+old_clip.w,pos.x+gr.x)-clip_x, min(old_clip.y+old_clip.h,pos.y+gr.y)-clip_y );
 
 		mark_rect_dirty_wc( pos.x, pos.y, pos.x+gr.x, pos.y+gr.y );
 
@@ -124,8 +124,8 @@ world_view_t::zeichnen(koord offset)
 			}
 
 			plan = welt->lookup(k);
-			if(plan  &&  plan->gib_kartenboden()) {
-				const sint16 yypos = display_off.y + (offsets[i].y + offsets[i].x) * 16 * raster / 64 - tile_raster_scale_y(plan->gib_kartenboden()->gib_hoehe() * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
+			if(plan  &&  plan->get_kartenboden()) {
+				const sint16 yypos = display_off.y + (offsets[i].y + offsets[i].x) * 16 * raster / 64 - tile_raster_scale_y(plan->get_kartenboden()->get_hoehe() * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
 				if(yypos+(raster/4)>gr.y) {
 					// enough with grounds ...
 					break;
@@ -146,8 +146,8 @@ world_view_t::zeichnen(koord offset)
 			}
 
 			plan = welt->lookup(k);
-			if(plan  &&  plan->gib_kartenboden()) {
-				const sint16 yypos = display_off.y + (offsets[i].y + offsets[i].x) * 16 * raster / 64 - tile_raster_scale_y(plan->gib_kartenboden()->gib_hoehe() * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
+			if(plan  &&  plan->get_kartenboden()) {
+				const sint16 yypos = display_off.y + (offsets[i].y + offsets[i].x) * 16 * raster / 64 - tile_raster_scale_y(plan->get_kartenboden()->get_hoehe() * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
 				if(yypos-(raster*2)<gr.y  &&  yypos+raster>=0) {
 					plan->display_dinge(pos.x+off_x,pos.y+yypos,raster,false);
 				}
@@ -160,11 +160,11 @@ world_view_t::zeichnen(koord offset)
 
 		// this should only happen for airplanes: out of image, so we need to extra display them
 		if(y_offset!=0) {
-			const sint16 yypos = display_off.y - tile_raster_scale_y((2*y_offset)*16,raster) - tile_raster_scale_y( welt->lookup(ding->gib_pos())->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, raster);
-			welt->lookup(ding->gib_pos())->display_dinge( pos.x+display_off.x, pos.y+yypos, false);
+			const sint16 yypos = display_off.y - tile_raster_scale_y((2*y_offset)*16,raster) - tile_raster_scale_y( welt->lookup(ding->get_pos())->get_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, raster);
+			welt->lookup(ding->get_pos())->display_dinge( pos.x+display_off.x, pos.y+yypos, false);
 		}
 
-		display_setze_clip_wh(old_clip.x, old_clip.y, old_clip.w, old_clip.h);
+		display_set_clip_wh(old_clip.x, old_clip.y, old_clip.w, old_clip.h);
 		display_ddd_box_clip(pos.x-1, pos.y-1, gr.x+2, gr.y+2, MN_GREY0, MN_GREY4);
 	}
 }
@@ -177,9 +177,9 @@ world_view_t::zeichnen(koord offset)
  * recalculates also the number of tiles needed
  * @author prissi
  */
-void world_view_t::setze_groesse(koord size)
+void world_view_t::set_groesse(koord size)
 {
-	gui_komponente_t::setze_groesse(size);
+	gui_komponente_t::set_groesse(size);
 
 	raster = get_tile_raster_width();
 	const sint16 max_dx=size.x/(raster/2) + 2;
@@ -190,15 +190,15 @@ void world_view_t::setze_groesse(koord size)
 		{
 		for( sint16 dx=-2;  dx<max_dx;  dx+=2  ) {
 			offsets.push_back(koord((dy + dx)/2, (dy - dx) / 2));
-//			DBG_MESSAGE("world_view_t::setze_groesse()","offset %d,%d added",offsets.get(offsets.get_count()-1).x,offsets.get(offsets.get_count()-1).y );
+//			DBG_MESSAGE("world_view_t::set_groesse()","offset %d,%d added",offsets.get(offsets.get_count()-1).x,offsets.get(offsets.get_count()-1).y );
 		}
 		}
 		dy++;
 		for( sint16 dx=-1;  dx<max_dx;  dx+=2  ) {
 			offsets.push_back(koord((dy + dx) / 2, (dy - dx) / 2));
-//			DBG_MESSAGE("world_view_t::setze_groesse()","offset %d,%d added",offsets.get(offsets.get_count()-1).x,offsets.get(offsets.get_count()-1).y );
+//			DBG_MESSAGE("world_view_t::set_groesse()","offset %d,%d added",offsets.get(offsets.get_count()-1).x,offsets.get(offsets.get_count()-1).y );
 		}
 		dy++;
 	}
-//	DBG_MESSAGE("world_view_t::setze_groesse()","%d tiles added",offsets.get_count() );
+//	DBG_MESSAGE("world_view_t::set_groesse()","%d tiles added",offsets.get_count() );
 }

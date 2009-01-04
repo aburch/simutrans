@@ -17,7 +17,7 @@ class narrowgauge_t : public schiene_t
 public:
 	static const weg_besch_t *default_narrowgauge;
 
-	narrowgauge_t(karte_t *welt) : schiene_t(welt) { setze_besch(default_narrowgauge); }
+	narrowgauge_t(karte_t *welt) : schiene_t(welt) { set_besch(default_narrowgauge); }
 
 	/**
 	 * File loading constructor.
@@ -25,7 +25,7 @@ public:
 	 */
 	narrowgauge_t(karte_t *welt, loadsave_t *file);
 
-	virtual waytype_t gib_waytype() const {return narrowgauge_wt;}
+	virtual waytype_t get_waytype() const {return narrowgauge_wt;}
 
 	void rdwr(loadsave_t *file);
 };

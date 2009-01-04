@@ -35,12 +35,12 @@ struct clip_dimension {
 // save the current clipping and set a new one
 #define PUSH_CLIP(x,y,w,h) \
 {\
-const struct clip_dimension p_cr = display_gib_clip_wh(); \
-display_setze_clip_wh(x, y, w, h);
+const struct clip_dimension p_cr = display_get_clip_wh(); \
+display_set_clip_wh(x, y, w, h);
 
 // restore a saved clipping rect
 #define POP_CLIP() \
-display_setze_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h); \
+display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h); \
 }
 
 
@@ -96,8 +96,8 @@ void display_get_image_offset( unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, 
 void display_get_base_image_offset( unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
 void display_mark_img_dirty( unsigned bild, int x, int y );
 
-int gib_maus_x(void);
-int gib_maus_y(void);
+int get_maus_x(void);
+int get_maus_y(void);
 
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2);
 
@@ -196,8 +196,8 @@ void display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *inbuf, PLAYER_
 
 void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color);
 
-void display_setze_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h);
-struct clip_dimension display_gib_clip_wh(void);
+void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h);
+struct clip_dimension display_get_clip_wh(void);
 
 void display_snapshot(void);
 

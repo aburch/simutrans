@@ -97,16 +97,16 @@ public:
 	 * @return den Dateinamen für die Hilfe, oder NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * gib_hilfe_datei() const {return "new_world.txt";}
+	const char * get_hilfe_datei() const {return "new_world.txt";}
 
-	bool gib_load_heightfield() const {return load_heightfield;}
-	bool gib_scenario() const {return scenario;}
-	bool gib_load() const {return load;}
-	bool gib_start() const {return start;}
-	bool gib_close() const {return close;}
-	bool gib_quit() const {return quit;}
+	bool get_load_heightfield() const {return load_heightfield;}
+	bool get_scenario() const {return scenario;}
+	bool get_load() const {return load;}
+	bool get_start() const {return start;}
+	bool get_close() const {return close;}
+	bool get_quit() const {return quit;}
 
-	einstellungen_t* gib_sets() const { return sets; }
+	einstellungen_t* get_sets() const { return sets; }
 
 	/**
 	 * Events werden hiermit an die GUI-Komponenten

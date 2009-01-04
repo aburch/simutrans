@@ -97,7 +97,7 @@ static const int MAX_WIN = 64;          // 64 Fenster sollten reichen
 static simwin wins[MAX_WIN+1];
 static int ins_win = 0;		        // zeiger auf naechsten freien eintrag
 
-static karte_t* wl = NULL; // Zeiger auf aktuelle Welt, wird in win_setze_welt gesetzt
+static karte_t* wl = NULL; // Zeiger auf aktuelle Welt, wird in win_set_welt gesetzt
 
 
 
@@ -141,7 +141,7 @@ static int display_gadget_box(simwin_gadget_et const  code,
 	}
 
 	// "x", "?", "=", "«", "»"
-	const int img = skinverwaltung_t::window_skin->gib_bild(code+1)->gib_nummer();
+	const int img = skinverwaltung_t::window_skin->get_bild(code+1)->get_nummer();
 
 	// to prevent day and nightchange
 	display_color_img(img, x, y, 0, false, false);
@@ -403,7 +403,7 @@ DBG_DEBUG("create_win()","ins_win=%d", ins_win);
 		// (Mathew Hounsell) Make Sure Closes Aren't Forgotten.
 		// Must Reset as the entries and thus flags are reused
 		wins[ins_win].flags.close = true;
-		wins[ins_win].flags.help = ( gui->gib_hilfe_datei() != NULL );
+		wins[ins_win].flags.help = ( gui->get_hilfe_datei() != NULL );
 		wins[ins_win].flags.prev = gui->has_prev();
 		wins[ins_win].flags.next = gui->has_next();
 		wins[ins_win].flags.size = gui->has_min_sizer();
@@ -459,7 +459,7 @@ DBG_DEBUG("create_win()","magic=%d already there, bring to front", magic);
 		koord gr;
 
 		if(gui != NULL) {
-			gr = gui->gib_fenstergroesse();
+			gr = gui->get_fenstergroesse();
 		}
 		else {
 			gr = koord(192, 92);
@@ -472,7 +472,7 @@ DBG_DEBUG("create_win()","magic=%d already there, bring to front", magic);
 				for(int i=0; i<ins_win; i++) {
 					if(wins[i].wt & w_no_overlap) {
 						if(wins[i].pos.y>=y) {
-							sint16 lower_y = wins[i].pos.y + wins[i].gui->gib_fenstergroesse().y;
+							sint16 lower_y = wins[i].pos.y + wins[i].gui->get_fenstergroesse().y;
 							if(lower_y >= y) {
 								y = lower_y;
 							}
@@ -486,8 +486,8 @@ DBG_DEBUG("create_win()","magic=%d already there, bring to front", magic);
 				y = min( y, display_get_height()-gr.y );
 			}
 			else {
-				x = min(gib_maus_x() - gr.x/2, display_get_width()-gr.x);
-				y = min(gib_maus_y() - gr.y-32, display_get_height()-gr.y);
+				x = min(get_maus_x() - gr.x/2, display_get_width()-gr.x);
+				y = min(get_maus_y() - gr.y-32, display_get_height()-gr.y);
 			}
 		}
 		if(x<0) {
@@ -515,7 +515,7 @@ DBG_DEBUG("create_win()","new ins_win=%d", ins_win+1);
 static void destroy_framed_win(simwin *wins)
 {
 	// mark dirty
-	koord gr = wins->gui->gib_fenstergroesse();
+	koord gr = wins->gui->get_fenstergroesse();
 	mark_rect_dirty_wc( wins->pos.x, wins->pos.y, wins->pos.x+gr.x, wins->pos.y+gr.y );
 
 	if(wins->gui) {
@@ -611,7 +611,7 @@ DBG_MESSAGE("top_win()","win=%i ins_win=%i",win,ins_win);
 	wins[ins_win-1] = tmp;
 
 	// mark dirty
-	koord gr = wins[win].gui->gib_fenstergroesse();
+	koord gr = wins[win].gui->get_fenstergroesse();
 	mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+gr.y );
 
 	event_t ev;
@@ -634,17 +634,17 @@ void display_win(int win)
 {
 	// ok, now process it
 	gui_fenster_t *komp = wins[win].gui;
-	koord gr = komp->gib_fenstergroesse();
+	koord gr = komp->get_fenstergroesse();
 	koord pos = wins[win].pos;
 	int titel_farbe = komp->get_titelcolor();
 	bool need_dragger = komp->get_resizemode() != gui_fenster_t::no_resize;
 
 	// %HACK (Mathew Hounsell) So draw will know if gadget is needed.
-	wins[win].flags.help = ( komp->gib_hilfe_datei() != NULL );
+	wins[win].flags.help = ( komp->get_hilfe_datei() != NULL );
 	win_draw_window_title(wins[win].pos,
 			gr,
 			titel_farbe,
-			translator::translate(komp->gib_name()),
+			translator::translate(komp->get_name()),
 			wins[win].closing,
 			( & wins[win].flags ) );
 	// mark top window, if requested
@@ -707,7 +707,7 @@ static void remove_old_win()
 
 void move_win(int win, event_t *ev)
 {
-	koord gr = wins[win].gui->gib_fenstergroesse();
+	koord gr = wins[win].gui->get_fenstergroesse();
 
 	// need to mark all old position dirty
 	mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+gr.y );
@@ -764,7 +764,7 @@ void win_set_pos(gui_fenster_t *gui, int x, int y)
 		if(wins[i].gui == gui) {
 			wins[i].pos.x = x;
 			wins[i].pos.y = y;
-			const koord gr = wins[i].gui->gib_fenstergroesse();
+			const koord gr = wins[i].gui->get_fenstergroesse();
 			mark_rect_dirty_wc( x, y, x+gr.x, y+gr.y );
 			return;
 		}
@@ -849,17 +849,17 @@ bool check_pos_win(event_t *ev)
 			if( ev->cy < wins[i].pos.y+16 ) {
 
 				// %HACK (Mathew Hounsell) So decode will know if gadget is needed.
-				wins[i].flags.help = ( wins[i].gui->gib_hilfe_datei() != NULL );
+				wins[i].flags.help = ( wins[i].gui->get_hilfe_datei() != NULL );
 
 				// Where Was It ?
-				simwin_gadget_et code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->gib_fenstergroesse().x-20), ev->cx );
+				simwin_gadget_et code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-20), ev->cx );
 
 				switch( code ) {
 					case GADGET_CLOSE :
 						if (IS_LEFTCLICK(ev)) {
 							wins[i].closing = true;
 						} else if  (IS_LEFTRELEASE(ev)) {
-							if (y>=wins[i].pos.y  &&  y<wins[i].pos.y+16  &&  decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->gib_fenstergroesse().x-20), x )==GADGET_CLOSE) {
+							if (y>=wins[i].pos.y  &&  y<wins[i].pos.y+16  &&  decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-20), x )==GADGET_CLOSE) {
 								destroy_win(wins[i].gui);
 							} else {
 								wins[i].closing = false;
@@ -875,7 +875,7 @@ bool check_pos_win(event_t *ev)
 						break;
 					case GADGET_HELP :
 						if (IS_LEFTCLICK(ev)) {
-							create_win(new help_frame_t(wins[i].gui->gib_hilfe_datei()), w_info, (long)(wins[i].gui->gib_hilfe_datei()) );
+							create_win(new help_frame_t(wins[i].gui->get_hilfe_datei()), w_info, (long)(wins[i].gui->get_hilfe_datei()) );
 							inside_event_handling = false;
 						}
 						break;
@@ -901,7 +901,7 @@ bool check_pos_win(event_t *ev)
 						if(IS_RIGHTCLICK(ev)) {
 							wins[i].rollup ^= 1;
 							gui_fenster_t *gui = wins[i].gui;
-							koord gr = gui->gib_fenstergroesse();
+							koord gr = gui->get_fenstergroesse();
 							mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+gr.x, wins[i].pos.y+gr.y );
 						}
 
@@ -917,7 +917,7 @@ bool check_pos_win(event_t *ev)
 					//11-May-02   markus weber added
 
 					gui_fenster_t *gui = wins[i].gui;
-					koord gr = gui->gib_fenstergroesse();
+					koord gr = gui->get_fenstergroesse();
 
 					// resizer hit ?
 					const bool canresize = is_resizing ||
@@ -997,7 +997,7 @@ void win_display_flush(double konto)
 	const sint16 menu_height = werkzeug_t::toolbar_tool[0]->iconsize.y;
 
 	werkzeug_waehler_t *main_menu = werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler();
-	display_setze_clip_wh( 0, 0, disp_width, menu_height+1 );
+	display_set_clip_wh( 0, 0, disp_width, menu_height+1 );
 	display_fillbox_wh(0, 0, disp_width, menu_height, MN_GREY2, false);
 	main_menu->zeichnen(koord(0,-16), koord(disp_width,menu_height) );
 	// redraw all?
@@ -1005,14 +1005,14 @@ void win_display_flush(double konto)
 		mark_rect_dirty_wc( 0, 0, disp_width, disp_height );
 		windows_dirty = false;
 	}
-	display_setze_clip_wh( 0, menu_height, disp_width, disp_height-menu_height+1 );
+	display_set_clip_wh( 0, menu_height, disp_width, disp_height-menu_height+1 );
 
 	show_ticker = false;
 	if (!ticker::empty()) {
 		ticker::zeichnen();
 		if (ticker::empty()) {
 			// set dirty background for removing ticker
-			wl->setze_dirty();
+			wl->set_dirty();
 		}
 		else {
 			show_ticker = true;
@@ -1038,7 +1038,7 @@ void win_display_flush(double konto)
 			}
 			else if(static_tooltip_text!=NULL  &&  *static_tooltip_text) {
 				const sint16 width = proportional_string_width(static_tooltip_text)+7;
-				display_ddd_proportional(min(gib_maus_x()+16,disp_width-width), max(menu_height+7,gib_maus_y()-16), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, static_tooltip_text, true);
+				display_ddd_proportional(min(get_maus_x()+16,disp_width-width), max(menu_height+7,get_maus_y()-16), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, static_tooltip_text, true);
 			}
 		}
 
@@ -1053,11 +1053,11 @@ void win_display_flush(double konto)
 	koord3d pos;
 	uint32 ticks=1, month=0, year=0;
 
-	const ding_t *dt = wl->gib_zeiger();
-	pos = dt->gib_pos();
+	const ding_t *dt = wl->get_zeiger();
+	pos = dt->get_pos();
 	month = wl->get_last_month();
 	year = wl->get_last_year();
-	ticks = wl->gib_zeit_ms();
+	ticks = wl->get_zeit_ms();
 
 	// calculate also days if desired
 	const uint32 ticks_this_month = ticks % wl->ticks_per_tag;
@@ -1086,7 +1086,7 @@ void win_display_flush(double konto)
 	switch(umgebung_t::show_month) {
 		// german style
 		case 4:	sprintf(time, "%s, %d. %s %d %d:%02dh",
-						translator::translate(seasons[wl->gib_jahreszeit()]),
+						translator::translate(seasons[wl->get_jahreszeit()]),
 						tage,
 						translator::get_month_name(month%12),
 						year,
@@ -1096,7 +1096,7 @@ void win_display_flush(double konto)
 					break;
 		// us style
 		case 3:	sprintf(time, "%s, %s %d %d %2d:%02d%s",
-						translator::translate(seasons[wl->gib_jahreszeit()]),
+						translator::translate(seasons[wl->get_jahreszeit()]),
 						translator::get_month_name(month%12),
 						tage,
 						year,
@@ -1107,7 +1107,7 @@ void win_display_flush(double konto)
 					break;
 		// japanese style
 		case 2:	sprintf(time, "%s, %d/%s/%d %2d:%02dh",
-						translator::translate(seasons[wl->gib_jahreszeit()]),
+						translator::translate(seasons[wl->get_jahreszeit()]),
 						year,
 						translator::get_month_name(month%12),
 						tage,
@@ -1118,7 +1118,7 @@ void win_display_flush(double konto)
 		// just month
 		case 1:	sprintf(time, "%s, %s %d %2d:%02dh",
 						translator::get_month_name(month%12),
-						translator::translate(seasons[wl->gib_jahreszeit()]),
+						translator::translate(seasons[wl->get_jahreszeit()]),
 						year,
 						stunden,
 						minuten
@@ -1126,14 +1126,14 @@ void win_display_flush(double konto)
 					break;
 		// just only season
 		default:	sprintf(time, "%s %d",
-						translator::translate(seasons[wl->gib_jahreszeit()]),
+						translator::translate(seasons[wl->get_jahreszeit()]),
 						year);
 					break;
 	}
 
 	// time multiplier text
 	if(wl->is_fast_forward()) {
-		sprintf(stretch_text, ">> (T~%1.2f)", wl->gib_simloops()/50.0 );
+		sprintf(stretch_text, ">> (T~%1.2f)", wl->get_simloops()/50.0 );
 	}
 	else if(wl->is_paused()) {
 		strcpy( stretch_text, translator::translate("GAME PAUSED") );
@@ -1151,11 +1151,11 @@ void win_display_flush(double konto)
 	sprintf(info,"(%d,%d,%d)%s %s  %s", pos.x, pos.y, pos.z/Z_TILE_STEP, delta_pos, stretch_text, translator::translate(wl->use_timeline()?"timeline":"no timeline") );
 
 	// bottom text line
-	display_setze_clip_wh( 0, 0, disp_width, disp_height );
+	display_set_clip_wh( 0, 0, disp_width, disp_height );
 	display_fillbox_wh(0, disp_height-16, disp_width, 1, MN_GREY4, false);
 	display_fillbox_wh(0, disp_height-15, disp_width, 15, MN_GREY1, false);
 
-	display_color_img( skinverwaltung_t::seasons_icons->gib_bild_nr(wl->gib_jahreszeit()), 2, disp_height-15, 0, false, true );
+	display_color_img( skinverwaltung_t::seasons_icons->get_bild_nr(wl->get_jahreszeit()), 2, disp_height-15, 0, false, true );
 
 	int w_left = 20+display_proportional(20, disp_height-12, time, ALIGN_LEFT, COL_BLACK, true);
 	int w_right = 10+display_proportional(disp_width-10, disp_height-12, info, ALIGN_RIGHT, COL_BLACK, true);
@@ -1163,14 +1163,14 @@ void win_display_flush(double konto)
 
 	if(wl->get_active_player()) {
 		char buffer[256];
-		display_proportional( middle-5, disp_height-12, wl->get_active_player()->gib_name(), ALIGN_RIGHT, PLAYER_FLAG|(wl->get_active_player()->get_player_color1()+0), true);
+		display_proportional( middle-5, disp_height-12, wl->get_active_player()->get_name(), ALIGN_RIGHT, PLAYER_FLAG|(wl->get_active_player()->get_player_color1()+0), true);
 		money_to_string(buffer, konto);
 		display_proportional( middle+5, disp_height-12, buffer, ALIGN_LEFT, konto >= 0.0?MONEY_PLUS:MONEY_MINUS, true);
 	}
 }
 
 
-void win_setze_welt(karte_t *welt)
+void win_set_welt(karte_t *welt)
 {
     wl = welt;
 }

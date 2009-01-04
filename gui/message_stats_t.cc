@@ -22,7 +22,7 @@ message_stats_t::message_stats_t(karte_t *w)
 	welt = w;
 	msg = welt->get_message();
 	last_count = 0;
-	setze_groesse(koord(600,msg->gib_count()*14 + 30));
+	set_groesse(koord(600,msg->get_count()*14 + 30));
 }
 
 
@@ -35,17 +35,17 @@ void message_stats_t::infowin_event(const event_t * ev)
 {
 	if(IS_LEFTRELEASE(ev)) {
 		const int line = (ev->cy - 15) / 14;
-		if((unsigned)line<msg->gib_count()) {
+		if((unsigned)line<msg->get_count()) {
 			message_t::node *n=msg->get_node(line);
 			if(ev->cy>14  &&  n!=NULL  &&  welt->ist_in_kartengrenzen(n->pos)) {
 				welt->change_world_position(koord3d(n->pos,welt->min_hgt(n->pos)));
 			}
 		}
 	}
-	unsigned count = msg->gib_count();
+	unsigned count = msg->get_count();
 	if(last_count!=count) {
 		last_count = count;
-		setze_groesse(koord(600,last_count*14 + 30));
+		set_groesse(koord(600,last_count*14 + 30));
 	}
 }
 
@@ -57,11 +57,11 @@ void message_stats_t::infowin_event(const event_t * ev)
  */
 void message_stats_t::zeichnen(koord offset)
 {
-	struct clip_dimension cd = display_gib_clip_wh();
+	struct clip_dimension cd = display_get_clip_wh();
 	const int offsets = (cd.y-offset.y+13)/14;
 	int max_message = (cd.yy-offset.y-13)/14;
-	if(max_message>msg->gib_count()) {
-		max_message = msg->gib_count();
+	if(max_message>msg->get_count()) {
+		max_message = msg->get_count();
 	}
 	for( int i=offsets;  i<max_message;  i++  ) {
 

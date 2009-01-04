@@ -192,7 +192,7 @@ public:
 	 * Name of the player
 	 * @author player
 	 */
-	const char* gib_name() const;
+	const char* get_name() const;
 	sint8 get_player_nr() const {return player_nr; }
 
 	/**
@@ -231,13 +231,13 @@ public:
 	 * @return Kontostand als double (Gleitkomma) Wert
 	 * @author Hj. Malthaner
 	 */
-	double gib_konto_als_double() const { return konto / 100.0; }
+	double get_konto_als_double() const { return konto / 100.0; }
 
 	/**
 	 * @return true wenn Konto Überzogen ist
 	 * @author Hj. Malthaner
 	 */
-	int gib_konto_ueberzogen() const { return konto_ueberzogen; }
+	int get_konto_ueberzogen() const { return konto_ueberzogen; }
 
 	/**
 	 * Zeigt Meldungen aus der Queue des Spielers auf dem Bildschirm an

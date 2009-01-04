@@ -19,13 +19,13 @@
 farbengui_t::farbengui_t(spieler_t *sp) :
 	gui_frame_t("Meldung",sp),
 	txt(translator::translate("COLOR_CHOOSE\n")),
-	bild(skinverwaltung_t::color_options->gib_bild_nr(0),PLAYER_FLAG|sp->get_player_nr())
+	bild(skinverwaltung_t::color_options->get_bild_nr(0),PLAYER_FLAG|sp->get_player_nr())
 {
 	this->sp = sp;
-	setze_fenstergroesse( koord(180, 17+6*28) );
-	txt.setze_pos( koord(10,10) );
+	set_fenstergroesse( koord(180, 17+6*28) );
+	txt.set_pos( koord(10,10) );
 	add_komponente( &txt );
-	bild.setze_pos( koord(25, 70) );
+	bild.set_pos( koord(25, 70) );
 	add_komponente( &bild );
 	// player color 1
 	for(unsigned i=0;  i<28;  i++) {

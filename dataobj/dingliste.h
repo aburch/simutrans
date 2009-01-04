@@ -71,7 +71,7 @@ public:
 	bool loesche_alle(spieler_t *sp,uint8 offset);
 	bool ist_da(const ding_t* obj) const;
 
-	inline int gib_top() const {return top;}
+	inline int get_top() const {return top;}
 
 	/**
 	* @returns NULL wenn OK, oder Meldung, warum nicht

@@ -45,7 +45,7 @@ public:
 	static bool alles_geladen();
 	static bool register_besch(ware_besch_t *besch);
 
-	static uint8 gib_max_catg_index() { return max_catg_index; }
+	static uint8 get_max_catg_index() { return max_catg_index; }
 
 	/**
 	* Sucht information zur ware 'name' und gibt die
@@ -55,17 +55,17 @@ public:
 	* @param name der nicht-übersetzte Warenname
 	* @author Hj. Malthaner/V. Meyer
 	*/
-	static const ware_besch_t *gib_info(const char* name);
+	static const ware_besch_t *get_info(const char* name);
 
-	static const ware_besch_t *gib_info(uint16 idx) { return waren[idx]; }
+	static const ware_besch_t *get_info(uint16 idx) { return waren[idx]; }
 
-	static unsigned int gib_waren_anzahl() { return waren.get_count(); }
+	static unsigned int get_waren_anzahl() { return waren.get_count(); }
 
 	// ware by catg
-	static const ware_besch_t *gib_info_catg(const uint8 catg);
+	static const ware_besch_t *get_info_catg(const uint8 catg);
 
 	// ware by catg_index
-	static const ware_besch_t *gib_info_catg_index(const uint8 catg_index);
+	static const ware_besch_t *get_info_catg_index(const uint8 catg_index);
 
 	/*
 	 * allow to multiply all prices, 1000=1.0

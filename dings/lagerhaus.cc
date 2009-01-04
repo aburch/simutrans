@@ -25,10 +25,10 @@ lagerhaus_t::lagerhaus_t(karte_t *welt, loadsave_t *file) :
     gebaeude_t(welt)
 {
     for(int i=0; i<warenbauer_t::MAX_WAREN; i++) {
-	lager[i].setze_typ(i);
+	lager[i].set_typ(i);
     }
     rdwr(file);
-    setze_bild(0, IMG_LAGERHAUS);
+    set_bild(0, IMG_LAGERHAUS);
 }
 
 
@@ -37,18 +37,18 @@ lagerhaus_t::lagerhaus_t(karte_t *welt, koord3d pos, spieler_t *sp) :
 {
     for(int i=0; i<warenbauer_t::MAX_WAREN; i++) {
 	lager[i].menge = 0;
-	lager[i].setze_typ(i);
+	lager[i].set_typ(i);
     }
 
-    setze_bild(0, IMG_LAGERHAUS);
+    set_bild(0, IMG_LAGERHAUS);
 }
 
 lagerhaus_t::~lagerhaus_t()
 {
-    halthandle_t halt = gib_besitzer()->is_my_halt(gib_pos().gib_2d());
+    halthandle_t halt = get_besitzer()->is_my_halt(get_pos().get_2d());
 
     if(halt.is_bound()) {
-	halt->setze_lager( NULL );
+	halt->set_lager( NULL );
     } else {
 	printf("~lagerhaus: konnte lagerhaus nicht bei haltestelle abmelden!\n");
     }

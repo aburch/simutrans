@@ -60,7 +60,7 @@ public:
 	gui_numberinput_t();
 	virtual ~gui_numberinput_t() {}
 
-	virtual void setze_groesse(koord groesse);
+	virtual void set_groesse(koord groesse);
 
 	/**
 	 * sets and get the current value.

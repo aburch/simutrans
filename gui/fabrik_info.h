@@ -53,7 +53,7 @@ class fabrik_info_t : public ding_infowin_t, public action_listener_t
 	 * @return den Dateinamen für die Hilfe, oder NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * gib_hilfe_datei() const {return "industry_info.txt";}
+	const char * get_hilfe_datei() const {return "industry_info.txt";}
 
 	/**
 	 * @return the text to display in the info window

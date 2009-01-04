@@ -90,48 +90,48 @@ private:
 	sint8 number_seasons;
 
 public:
-	long gib_preis() const { return price; }
+	long get_preis() const { return price; }
 
-	long gib_wartung() const { return maintenance; }
+	long get_wartung() const { return maintenance; }
 
 	/**
 	 * Determines max speed in km/h allowed on this way
 	 * @author Hj. Malthaner
 	 */
-	uint32 gib_topspeed() const { return topspeed; }
+	uint32 get_topspeed() const { return topspeed; }
 
 	/**
 	 * get way type
 	 * @see waytype_t
 	 * @author Hj. Malthaner
 	 */
-	waytype_t gib_wtyp() const { return (waytype_t)wtyp; }
+	waytype_t get_wtyp() const { return (waytype_t)wtyp; }
 
 	/**
 	* returns the system type of this way (mostly used with rails)
 	* @see weg_t::styp
 	* @author DarioK
 	*/
-	uint8 gib_styp() const { return styp; }
+	uint8 get_styp() const { return styp; }
 
-	image_id gib_bild_nr(ribi_t::ribi ribi, uint8 season) const
+	image_id get_bild_nr(ribi_t::ribi ribi, uint8 season) const
 	{
 		if(season && number_seasons == 1) {
-			return static_cast<const bildliste_besch_t *>(gib_kind(6))->gib_bild_nr(ribi);
+			return static_cast<const bildliste_besch_t *>(get_kind(6))->get_bild_nr(ribi);
 		}
-		return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild_nr(ribi);
+		return static_cast<const bildliste_besch_t *>(get_kind(2))->get_bild_nr(ribi);
 	}
 
-	image_id gib_hang_bild_nr(hang_t::typ hang, uint8 season) const
+	image_id get_hang_bild_nr(hang_t::typ hang, uint8 season) const
 	{
 #ifndef DOUBLE_GROUNDS
 	if(!hang_t::ist_einfach(hang)) {
 		return IMG_LEER;
 	}
 	if(season && number_seasons == 1) {
-		return static_cast<const bildliste_besch_t *>(gib_kind(7))->gib_bild_nr(hang / 3 - 1);
+		return static_cast<const bildliste_besch_t *>(get_kind(7))->get_bild_nr(hang / 3 - 1);
 	}
-	return static_cast<const bildliste_besch_t *>(gib_kind(3))->gib_bild_nr(hang / 3 - 1);
+	return static_cast<const bildliste_besch_t *>(get_kind(3))->get_bild_nr(hang / 3 - 1);
 #else
 		int nr;
 		switch(hang) {
@@ -151,22 +151,22 @@ public:
 				return IMG_LEER;
 		}
 		if(season && number_seasons == 1) {
-			return static_cast<const bildliste_besch_t *>(gib_kind(7))->gib_bild_nr(nr);
+			return static_cast<const bildliste_besch_t *>(get_kind(7))->get_bild_nr(nr);
 		}
-		return static_cast<const bildliste_besch_t *>(gib_kind(3))->gib_bild_nr(nr);
+		return static_cast<const bildliste_besch_t *>(get_kind(3))->get_bild_nr(nr);
 #endif
 	}
 
-	image_id gib_diagonal_bild_nr(ribi_t::ribi ribi, uint8 season) const
+	image_id get_diagonal_bild_nr(ribi_t::ribi ribi, uint8 season) const
 	{
 		if(season && number_seasons == 1) {
-			return static_cast<const bildliste_besch_t *>(gib_kind(8))->gib_bild_nr(ribi / 3 - 1);
+			return static_cast<const bildliste_besch_t *>(get_kind(8))->get_bild_nr(ribi / 3 - 1);
 		}
-		return static_cast<const bildliste_besch_t *>(gib_kind(4))->gib_bild_nr(ribi / 3 - 1);
+		return static_cast<const bildliste_besch_t *>(get_kind(4))->get_bild_nr(ribi / 3 - 1);
 	}
 
 	bool has_diagonal_bild() const {
-		return static_cast<const bildliste_besch_t *>(gib_kind(4))->gib_bild_nr(0)!=IMG_LEER;
+		return static_cast<const bildliste_besch_t *>(get_kind(4))->get_bild_nr(0)!=IMG_LEER;
 	}
 
 	/**
@@ -188,9 +188,9 @@ public:
 	* Skin: cursor (index 0) and icon (index 1)
 	* @author Hj. Malthaner
 	*/
-	const skin_besch_t * gib_cursor() const
+	const skin_besch_t * get_cursor() const
 	{
-		return (const skin_besch_t *)(gib_kind(5));
+		return (const skin_besch_t *)(get_kind(5));
 	}
 };
 

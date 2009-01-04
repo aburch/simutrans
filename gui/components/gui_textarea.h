@@ -31,7 +31,7 @@ private:
 public:
 	gui_textarea_t(const char *text);
 
-	void setze_text(const char *text);
+	void set_text(const char *text);
 
 	/**
 	 * recalc the current size, needed for speculative size calculations

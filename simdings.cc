@@ -82,7 +82,7 @@ ding_t::~ding_t()
 {
 	destroy_win((long)this);
 
-	if(flags&not_on_map  ||  !welt->ist_in_kartengrenzen(pos.gib_2d())) {
+	if(flags&not_on_map  ||  !welt->ist_in_kartengrenzen(pos.get_2d())) {
 //		DBG_MESSAGE("ding_t::~ding_t()","deleted %p not on the map",this);
 		return;
 	}
@@ -94,26 +94,26 @@ ding_t::~ding_t()
 		dbg->warning("ding_t::~ding_t()","couldn't remove %p from %d,%d,%d",this, pos.x , pos.y, pos.z);
 
 		// first: try different height ...
-		gr = welt->access(pos.gib_2d())->gib_boden_von_obj(this);
+		gr = welt->access(pos.get_2d())->get_boden_von_obj(this);
 		if(gr  &&  gr->obj_remove(this)) {
 			dbg->warning("ding_t::~ding_t()",
 				"removed %p from %d,%d,%d, but it should have been on %d,%d,%d",
 				this,
-				gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z,
+				gr->get_pos().x, gr->get_pos().y, gr->get_pos().z,
 				pos.x, pos.y, pos.z);
 			return;
 		}
 
 		// then search entire map
 		koord k;
-		for(k.y=0; k.y<welt->gib_groesse_y(); k.y++) {
-			for(k.x=0; k.x<welt->gib_groesse_x(); k.x++) {
-				grund_t *gr = welt->access(k)->gib_boden_von_obj(this);
+		for(k.y=0; k.y<welt->get_groesse_y(); k.y++) {
+			for(k.x=0; k.x<welt->get_groesse_x(); k.x++) {
+				grund_t *gr = welt->access(k)->get_boden_von_obj(this);
 				if (gr && gr->obj_remove(this)) {
 					dbg->warning("ding_t::~ding_t()",
 						"removed %p from %d,%d,%d, but it should have been on %d,%d,%d",
 						this,
-						gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z,
+						gr->get_pos().x, gr->get_pos().y, gr->get_pos().z,
 						pos.x, pos.y, pos.z);
 					return;
 				}
@@ -131,7 +131,7 @@ ding_t::~ding_t()
  * (public wegen Rathausumbau - V.Meyer)
  * @author Hj. Malthaner
  */
-void ding_t::setze_besitzer(spieler_t *sp)
+void ding_t::set_besitzer(spieler_t *sp)
 {
 	int i = welt->sp2num(sp);
 	assert(i>=0);
@@ -146,8 +146,8 @@ void ding_t::setze_besitzer(spieler_t *sp)
  * wenn das Objekt niemand gehört.
  * @author Hj. Malthaner
  */
-spieler_t *ding_t::gib_besitzer() const {
-	return welt->gib_spieler(besitzer_n);
+spieler_t *ding_t::get_besitzer() const {
+	return welt->get_spieler(besitzer_n);
 }
 
 
@@ -180,7 +180,7 @@ ding_t::zeige_info()
 // returns NULL, if removal is allowed
 const char *ding_t::ist_entfernbar(const spieler_t *sp)
 {
-	if(besitzer_n==PLAYER_UNOWNED  ||  welt->gib_spieler(besitzer_n) == sp) {
+	if(besitzer_n==PLAYER_UNOWNED  ||  welt->get_spieler(besitzer_n) == sp) {
 		return NULL;
 	}
 	else {
@@ -226,14 +226,14 @@ ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 		const vehikel_basis_t* const v = (const vehikel_basis_t*)this;
 		v->get_screen_offset( xpos, ypos );
 	}
-	xpos += tile_raster_scale_x(gib_xoff(), raster_width);
-	ypos += tile_raster_scale_y(gib_yoff(), raster_width);
+	xpos += tile_raster_scale_x(get_xoff(), raster_width);
+	ypos += tile_raster_scale_y(get_yoff(), raster_width);
 
 	const int start_ypos = ypos;
 
 	bool dirty = get_flag(ding_t::dirty);
 	int j = 0;
-	image_id bild = gib_bild();
+	image_id bild = get_bild();
 
 	while(bild!=IMG_LEER) {
 
@@ -244,14 +244,14 @@ ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 		}
 		// this ding has another image on top (e.g. skyscraper)
 		ypos -= raster_width;
-		bild = gib_bild(++j);
+		bild = get_bild(++j);
 	}
 
 	// transparentcy?
-	const PLAYER_COLOR_VAL transparent = gib_outline_colour();
+	const PLAYER_COLOR_VAL transparent = get_outline_colour();
 	if(TRANSPARENT_FLAGS&transparent) {
 		// only transparent outline
-		display_img_blend(gib_outline_bild(), xpos, start_ypos, transparent, 0, dirty);
+		display_img_blend(get_outline_bild(), xpos, start_ypos, transparent, 0, dirty);
 	}
 }
 
@@ -261,7 +261,7 @@ ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 void ding_t::rotate90()
 {
 	// most basic: rotate coordinate
-	pos.rotate90( welt->gib_groesse_y()-1 );
+	pos.rotate90( welt->get_groesse_y()-1 );
 	if(xoff!=0) {
 		// these is no simple height
 		sint8 new_dx = -2*yoff;
@@ -275,12 +275,12 @@ void ding_t::rotate90()
 void
 ding_t::display_after(int xpos, int ypos, bool /*is_global*/ ) const
 {
-	image_id bild = gib_after_bild();
+	image_id bild = get_after_bild();
 	if(bild != IMG_LEER) {
 		const int raster_width = get_tile_raster_width();
 
-		xpos += tile_raster_scale_x(gib_xoff(), raster_width);
-		ypos += tile_raster_scale_y(gib_yoff(), raster_width);
+		xpos += tile_raster_scale_x(get_xoff(), raster_width);
+		ypos += tile_raster_scale_y(get_yoff(), raster_width);
 
 		// unfourtunately the dirty flag is already cleared, when we reach here ...
 		// thus we assume we need redraw
@@ -312,10 +312,10 @@ ding_t::mark_image_dirty(image_id bild,sint8 yoff) const
 		}
 		// better not try to twist your brain to follow the retransformation ...
 		const sint16 rasterweite=get_tile_raster_width();
-		const koord diff = gib_pos().gib_2d()-welt->get_world_position()-welt->gib_ansicht_ij_offset();
-		const sint16 x = (diff.x-diff.y)*(rasterweite/2) + tile_raster_scale_x(gib_xoff(), rasterweite) + xpos;
-		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( yoff+gib_yoff()-gib_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4) + ypos;
+		const koord diff = get_pos().get_2d()-welt->get_world_position()-welt->get_ansicht_ij_offset();
+		const sint16 x = (diff.x-diff.y)*(rasterweite/2) + tile_raster_scale_x(get_xoff(), rasterweite) + xpos;
+		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( yoff+get_yoff()-get_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4) + ypos;
 		// mark the region after the image as dirty
-		display_mark_img_dirty( bild, x+welt->gib_x_off(), y+welt->gib_y_off() );
+		display_mark_img_dirty( bild, x+welt->get_x_off(), y+welt->get_y_off() );
 	}
 }

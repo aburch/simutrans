@@ -19,8 +19,8 @@ class dummy_ding_t : public ding_t
 			ding_t::set_flag(ding_t::not_on_map);
 		}
 
-		typ      gib_typ()  const { return ding_t::undefined; }
-		image_id gib_bild() const { return IMG_LEER; }
+		typ      get_typ()  const { return ding_t::undefined; }
+		image_id get_bild() const { return IMG_LEER; }
 };
 
 #endif

@@ -37,27 +37,27 @@ class baum_besch_t : public obj_besch_std_name_t {
 	uint8		number_of_seasons;
 
 public:
-	uint16 gib_distribution_weight() const { return distribution_weight; }
+	uint16 get_distribution_weight() const { return distribution_weight; }
 
 	bool is_allowed_climate( climate cl ) const { return ((1<<cl)&allowed_climates)!=0; }
 
 	climate_bits get_allowed_climate_bits() const { return allowed_climates; }
 
-	image_id gib_bild_nr(int season, int i) const
+	image_id get_bild_nr(int season, int i) const
 	{
 		if(number_of_seasons==0) {
 			// comapility mode
 			i += season*5;
 			season = 0;
 		}
-		return static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_bild(i, season)->gib_nummer();
+		return static_cast<const bildliste2d_besch_t *>(get_kind(2))->get_bild(i, season)->get_nummer();
 	}
 
 	// old style trees and new style tree support ...
-	int gib_seasons() const
+	int get_seasons() const
 	{
 		if(number_of_seasons==0) {
-			return static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_anzahl()/5;
+			return static_cast<const bildliste2d_besch_t *>(get_kind(2))->get_anzahl()/5;
 		}
 		return number_of_seasons;
 	}

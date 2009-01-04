@@ -31,7 +31,7 @@ public:
 	* Fenstertitel
 	* @author Hj. Malthaner
 	*/
-	const char *gib_name() const {return ""; }
+	const char *get_name() const {return ""; }
 
 	/**
 	* gibt farbinformationen fuer Fenstertitel, -ränder und -körper
@@ -43,7 +43,7 @@ public:
 	/**
 	* @return gibt wunschgroesse für das beobachtungsfenster zurueck
 	*/
-	koord gib_fenstergroesse() const { return koord(display_get_width(),display_get_height()+48); }
+	koord get_fenstergroesse() const { return koord(display_get_width(),display_get_height()+48); }
 
 	/* returns true, if inside window area ...
 	* @author Hj. Malthaner

@@ -1,9 +1,7 @@
 To be done:
-- connection weighted by their intermediate stops => A* for goods routing
+- connection weighted by their intermediate stops => A* for goods routing [A* did not worked out, but intermediate stops may be considered]
 - when import translation: ignore entries which are identical (saving runtime)
 - limit construction costs
-- A* for goods
-- scripting for AI
 - busy platforms
 - Signals switching nearly like before (should be easy)
 - Odometer/Lifetime
@@ -79,6 +77,8 @@ Main meinu configurable in size and order: done
 - bankrupt only when the net company value (i.e. after selling everything) is below zero (like for AI): done
 - factory density instead of fixed population linked growth: somewhat done, different system
 - merge identical images in makeobj: done, merged them on loadtime
+- A* for goods: done but not useful!
+- scripting for AI: AIs are now seperate files and can be added
 
 Impossible:
 - vehicle N/E longer than 8 px must be aligned by top, not end; need change of moving code: impossible

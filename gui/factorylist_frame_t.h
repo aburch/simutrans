@@ -46,13 +46,13 @@ public:
 	 * @return den Dateinamen für die Hilfe, oder NULL
 	 * @author V. Meyer
 	 */
-	const char * gib_hilfe_datei() const {return "factorylist_filter.txt"; }
+	const char * get_hilfe_datei() const {return "factorylist_filter.txt"; }
 
-	static factorylist::sort_mode_t gib_sortierung() { return sortby; }
-	static void setze_sortierung(const factorylist::sort_mode_t& sm) { sortby = sm; }
+	static factorylist::sort_mode_t get_sortierung() { return sortby; }
+	static void set_sortierung(const factorylist::sort_mode_t& sm) { sortby = sm; }
 
-	static bool gib_reverse() { return sortreverse; }
-	static void setze_reverse(const bool& reverse) { sortreverse = reverse; }
+	static bool get_reverse() { return sortreverse; }
+	static void set_reverse(const bool& reverse) { sortreverse = reverse; }
 
 	/**
 	 * This method is called if an action is triggered

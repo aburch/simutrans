@@ -34,7 +34,7 @@ private:
 class news_img : public news_window
 {
 public:
-	news_img(const char* text, image_id bild = skinverwaltung_t::meldungsymbol->gib_bild_nr(0), PLAYER_COLOR_VAL color = WIN_TITEL);
+	news_img(const char* text, image_id bild = skinverwaltung_t::meldungsymbol->get_bild_nr(0), PLAYER_COLOR_VAL color = WIN_TITEL);
 
 private:
 	gui_image_t bild;

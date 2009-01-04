@@ -129,8 +129,8 @@ sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 			slist_iterator_tpl<const vehikel_besch_t*> vehinfo(typ_fahrzeuge.access(wt));
 			while (vehinfo.next()) {
 				const vehikel_besch_t* info = vehinfo.get_current();
-				if(info->gib_leistung()>0  &&  !info->is_future(monthyear)  &&  !info->is_retired(monthyear)) {
-					speed_sum += info->gib_geschw();
+				if(info->get_leistung()>0  &&  !info->is_future(monthyear)  &&  !info->is_retired(monthyear)) {
+					speed_sum += info->get_geschw();
 					num_averages ++;
 				}
 			}
@@ -164,8 +164,8 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 			dbg->fatal("vehikelbauer_t::baue()", "cannot built a vehicle with waytype %i", vb->get_waytype());
 	}
 
-	sp->buche(-(sint32)vb->gib_preis(), k.gib_2d(), COST_NEW_VEHICLE );
-	sp->buche( (sint32)vb->gib_preis(), COST_ASSETS );
+	sp->buche(-(sint32)vb->get_preis(), k.get_2d(), COST_NEW_VEHICLE );
+	sp->buche( (sint32)vb->get_preis(), COST_ASSETS );
 
 	return v;
 }
@@ -174,9 +174,9 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 
 bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 {
-	// printf("N=%s T=%d V=%d P=%d\n", besch->gib_name(), besch->gib_typ(), besch->gib_geschw(), besch->gib_leistung());
+	// printf("N=%s T=%d V=%d P=%d\n", besch->get_name(), besch->get_typ(), besch->get_geschw(), besch->get_leistung());
 
-	name_fahrzeuge.put(besch->gib_name(), besch);
+	name_fahrzeuge.put(besch->get_name(), besch);
 
 	// register waytype liste
 	waytype_t typ = besch->get_waytype();
@@ -193,39 +193,39 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 		const int YOFF=(6*get_tile_raster_width())/64;
 
 		// empty image: shift to left
-		display_set_base_image_offset( besch->gib_bild_nr(0,NULL), +XOFF, +YOFF );
-		display_set_base_image_offset( besch->gib_bild_nr(1,NULL), -XOFF, +YOFF );
-		display_set_base_image_offset( besch->gib_bild_nr(2,NULL), 0, +YOFF );
-		display_set_base_image_offset( besch->gib_bild_nr(3,NULL), +XOFF, 0 );
-		display_set_base_image_offset( besch->gib_bild_nr(4,NULL), -XOFF, -YOFF );
-		display_set_base_image_offset( besch->gib_bild_nr(5,NULL), +XOFF, -YOFF );
-		display_set_base_image_offset( besch->gib_bild_nr(6,NULL), 0, -YOFF );
-		display_set_base_image_offset( besch->gib_bild_nr(7,NULL), -XOFF-YOFF, 0 );
+		display_set_base_image_offset( besch->get_bild_nr(0,NULL), +XOFF, +YOFF );
+		display_set_base_image_offset( besch->get_bild_nr(1,NULL), -XOFF, +YOFF );
+		display_set_base_image_offset( besch->get_bild_nr(2,NULL), 0, +YOFF );
+		display_set_base_image_offset( besch->get_bild_nr(3,NULL), +XOFF, 0 );
+		display_set_base_image_offset( besch->get_bild_nr(4,NULL), -XOFF, -YOFF );
+		display_set_base_image_offset( besch->get_bild_nr(5,NULL), +XOFF, -YOFF );
+		display_set_base_image_offset( besch->get_bild_nr(6,NULL), 0, -YOFF );
+		display_set_base_image_offset( besch->get_bild_nr(7,NULL), -XOFF-YOFF, 0 );
 
 		if(besch->freight_image_type>0) {
-			const bildliste2d_besch_t *liste2d = static_cast<const bildliste2d_besch_t *>(besch->gib_kind(5));
+			const bildliste2d_besch_t *liste2d = static_cast<const bildliste2d_besch_t *>(besch->get_kind(5));
 			for(int i=0; i<besch->freight_image_type; i++) {
-				display_set_base_image_offset(liste2d->gib_bild(0, i)->gib_nummer(),        +XOFF, +YOFF);
-				display_set_base_image_offset(liste2d->gib_bild(1, i)->gib_nummer(),        -XOFF, +YOFF);
-				display_set_base_image_offset(liste2d->gib_bild(2, i)->gib_nummer(),            0, +YOFF);
-				display_set_base_image_offset(liste2d->gib_bild(3, i)->gib_nummer(),        +XOFF,     0);
-				display_set_base_image_offset(liste2d->gib_bild(4, i)->gib_nummer(),        -XOFF, -YOFF);
-				display_set_base_image_offset(liste2d->gib_bild(5, i)->gib_nummer(),        +XOFF, -YOFF);
-				display_set_base_image_offset(liste2d->gib_bild(6, i)->gib_nummer(),            0, -YOFF);
-				display_set_base_image_offset(liste2d->gib_bild(7, i)->gib_nummer(), -XOFF - YOFF,     0);
+				display_set_base_image_offset(liste2d->get_bild(0, i)->get_nummer(),        +XOFF, +YOFF);
+				display_set_base_image_offset(liste2d->get_bild(1, i)->get_nummer(),        -XOFF, +YOFF);
+				display_set_base_image_offset(liste2d->get_bild(2, i)->get_nummer(),            0, +YOFF);
+				display_set_base_image_offset(liste2d->get_bild(3, i)->get_nummer(),        +XOFF,     0);
+				display_set_base_image_offset(liste2d->get_bild(4, i)->get_nummer(),        -XOFF, -YOFF);
+				display_set_base_image_offset(liste2d->get_bild(5, i)->get_nummer(),        +XOFF, -YOFF);
+				display_set_base_image_offset(liste2d->get_bild(6, i)->get_nummer(),            0, -YOFF);
+				display_set_base_image_offset(liste2d->get_bild(7, i)->get_nummer(), -XOFF - YOFF,     0);
 			}
 		}
 		else {
-			const bildliste_besch_t *liste = static_cast<const bildliste_besch_t *>(besch->gib_kind(5));
+			const bildliste_besch_t *liste = static_cast<const bildliste_besch_t *>(besch->get_kind(5));
 			if(liste) {
-				display_set_base_image_offset(liste->gib_bild(0)->gib_nummer(),        +XOFF, +YOFF);
-				display_set_base_image_offset(liste->gib_bild(1)->gib_nummer(),        -XOFF, +YOFF);
-				display_set_base_image_offset(liste->gib_bild(2)->gib_nummer(),            0, +YOFF);
-				display_set_base_image_offset(liste->gib_bild(3)->gib_nummer(),        +XOFF,     0);
-				display_set_base_image_offset(liste->gib_bild(4)->gib_nummer(),        -XOFF, -YOFF);
-				display_set_base_image_offset(liste->gib_bild(5)->gib_nummer(),        +XOFF, -YOFF);
-				display_set_base_image_offset(liste->gib_bild(6)->gib_nummer(),            0, -YOFF);
-				display_set_base_image_offset(liste->gib_bild(7)->gib_nummer(), -XOFF - YOFF,     0);
+				display_set_base_image_offset(liste->get_bild(0)->get_nummer(),        +XOFF, +YOFF);
+				display_set_base_image_offset(liste->get_bild(1)->get_nummer(),        -XOFF, +YOFF);
+				display_set_base_image_offset(liste->get_bild(2)->get_nummer(),            0, +YOFF);
+				display_set_base_image_offset(liste->get_bild(3)->get_nummer(),        +XOFF,     0);
+				display_set_base_image_offset(liste->get_bild(4)->get_nummer(),        -XOFF, -YOFF);
+				display_set_base_image_offset(liste->get_bild(5)->get_nummer(),        +XOFF, -YOFF);
+				display_set_base_image_offset(liste->get_bild(6)->get_nummer(),            0, -YOFF);
+				display_set_base_image_offset(liste->get_bild(7)->get_nummer(), -XOFF - YOFF,     0);
 			}
 		}
 
@@ -245,29 +245,29 @@ static bool compare_vehikel_besch(const vehikel_besch_t* a, const vehikel_besch_
 	//  5. power
 	//  6. intro date
 	//  7. name
-	int cmp = a->gib_ware()->gib_catg() - b->gib_ware()->gib_catg();
+	int cmp = a->get_ware()->get_catg() - b->get_ware()->get_catg();
 	if (cmp == 0) {
-		if (a->gib_ware()->gib_catg() == 0) {
-			cmp = a->gib_ware()->gib_index() - b->gib_ware()->gib_index();
+		if (a->get_ware()->get_catg() == 0) {
+			cmp = a->get_ware()->get_index() - b->get_ware()->get_index();
 		}
 		if (cmp == 0) {
-			cmp = a->gib_zuladung() - b->gib_zuladung();
+			cmp = a->get_zuladung() - b->get_zuladung();
 			if (cmp == 0) {
 				// to handle tender correctly
-				uint8 b_engine = (a->gib_zuladung() + a->gib_leistung() == 0 ? (uint8)vehikel_besch_t::steam : a->get_engine_type());
-				uint8 a_engine = (b->gib_zuladung() + b->gib_leistung() == 0 ? (uint8)vehikel_besch_t::steam : b->get_engine_type());
+				uint8 b_engine = (a->get_zuladung() + a->get_leistung() == 0 ? (uint8)vehikel_besch_t::steam : a->get_engine_type());
+				uint8 a_engine = (b->get_zuladung() + b->get_leistung() == 0 ? (uint8)vehikel_besch_t::steam : b->get_engine_type());
 				cmp = b_engine - a_engine;
 				if (cmp == 0) {
-					cmp = a->gib_geschw() - b->gib_geschw();
+					cmp = a->get_geschw() - b->get_geschw();
 					if (cmp == 0) {
 						// put tender at the end of the list ...
-						int b_leistung = (a->gib_leistung() == 0 ? 0x7FFFFFF : a->gib_leistung());
-						int a_leistung = (b->gib_leistung() == 0 ? 0x7FFFFFF : b->gib_leistung());
+						int b_leistung = (a->get_leistung() == 0 ? 0x7FFFFFF : a->get_leistung());
+						int a_leistung = (b->get_leistung() == 0 ? 0x7FFFFFF : b->get_leistung());
 						cmp = b_leistung - a_leistung;
 						if (cmp == 0) {
 							cmp = a->get_intro_year_month() - b->get_intro_year_month();
 							if (cmp == 0) {
-								cmp = strcmp(a->gib_name(), b->gib_name());
+								cmp = strcmp(a->get_name(), b->get_name());
 							}
 						}
 					}
@@ -304,14 +304,14 @@ bool vehikelbauer_t::alles_geladen()
 
 
 
-const vehikel_besch_t *vehikelbauer_t::gib_info(const char *name)
+const vehikel_besch_t *vehikelbauer_t::get_info(const char *name)
 {
 	return name_fahrzeuge.get(name);
 }
 
 
 
-slist_tpl<const vehikel_besch_t*>* vehikelbauer_t::gib_info(waytype_t typ)
+slist_tpl<const vehikel_besch_t*>* vehikelbauer_t::get_info(waytype_t typ)
 {
 	return typ_fahrzeuge.access(typ);
 }
@@ -345,7 +345,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 
 			// engine, but not allowed to lead a convoi, or no power at all or no electrics allowed
 			if(target_weight) {
-				if(test_besch->gib_leistung()==0  ||  !test_besch->can_lead()  ||  (!include_electric  &&  test_besch->get_engine_type()==vehikel_besch_t::electric) ) {
+				if(test_besch->get_leistung()==0  ||  !test_besch->can_lead()  ||  (!include_electric  &&  test_besch->get_engine_type()==vehikel_besch_t::electric) ) {
 					continue;
 				}
 			}
@@ -360,10 +360,10 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 				continue;
 			}
 
-			uint32 power = (test_besch->gib_leistung()*test_besch->get_gear())/64;
+			uint32 power = (test_besch->get_leistung()*test_besch->get_gear())/64;
 			if(target_freight) {
 				// this is either a railcar/trailer or a truck/boat/plane
-				if(  test_besch->gib_zuladung()==0  ||  !test_besch->gib_ware()->is_interchangeable(target_freight)  ) {
+				if(  test_besch->get_zuladung()==0  ||  !test_besch->get_ware()->is_interchangeable(target_freight)  ) {
 					continue;
 				}
 
@@ -371,15 +371,15 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 				// assign this vehicle, if we have none found one yet, or we found only a too week one
 				if(  besch!=NULL  ) {
 					// it is cheaper to run? (this is most important)
-					difference += (besch->gib_zuladung()*1000)/besch->gib_betriebskosten() < (test_besch->gib_zuladung()*1000)/test_besch->gib_betriebskosten() ? -20 : 20;
+					difference += (besch->get_zuladung()*1000)/besch->get_betriebskosten() < (test_besch->get_zuladung()*1000)/test_besch->get_betriebskosten() ? -20 : 20;
 					if(  target_weight>0  ) {
 						// it is strongerer?
-						difference += (besch->gib_leistung()*besch->get_gear())/64 < power ? -10 : 10;
+						difference += (besch->get_leistung()*besch->get_gear())/64 < power ? -10 : 10;
 					}
 					// it is faster? (although we support only up to 120km/h for goods)
-					difference += (besch->gib_geschw() < test_besch->gib_geschw())? -10 : 10;
+					difference += (besch->get_geschw() < test_besch->get_geschw())? -10 : 10;
 					// it is cheaper? (not so important)
-					difference += (besch->gib_preis() > test_besch->gib_preis())? -5 : 5;
+					difference += (besch->get_preis() > test_besch->get_preis())? -5 : 5;
 					// add some malus for obsolete vehicles
 					if(test_besch->is_retired(month_now)) {
 						difference += 5;
@@ -389,35 +389,35 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 				if(  besch==NULL  ||  difference<(int)simrand(25)    ) {
 					// then we want this vehicle!
 					besch = test_besch;
-					DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found car %s",besch->gib_name());
+					DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found car %s",besch->get_name());
 				}
 			}
 
 			else {
 				// engine/tugboat/truck for trailer
-				if(  test_besch->gib_zuladung()!=0  ||  !test_besch->can_lead()  ) {
+				if(  test_besch->get_zuladung()!=0  ||  !test_besch->can_lead()  ) {
 					continue;
 				}
 				// finally, we might be able to use this vehicle
-				uint32 speed = test_besch->gib_geschw();
+				uint32 speed = test_besch->get_geschw();
 				uint32 max_weight = power/( (speed*speed)/2500 + 1 );
 
 				// we found a useful engine
-				long current_index = (power*100)/test_besch->gib_betriebskosten() + test_besch->gib_geschw() - (sint16)test_besch->gib_gewicht() - (sint32)(test_besch->gib_preis()/25000);
+				long current_index = (power*100)/test_besch->get_betriebskosten() + test_besch->get_geschw() - (sint16)test_besch->get_gewicht() - (sint32)(test_besch->get_preis()/25000);
 				// too slow?
 				if(speed < target_speed) {
 					current_index -= 250;
 				}
 				// too weak to to reach full speed?
-				if(  max_weight < target_weight+test_besch->gib_gewicht()  ) {
-					current_index += max_weight - (sint32)(target_weight+test_besch->gib_gewicht());
+				if(  max_weight < target_weight+test_besch->get_gewicht()  ) {
+					current_index += max_weight - (sint32)(target_weight+test_besch->get_gewicht());
 				}
 				current_index += simrand(100);
 				if(  current_index > besch_index  ) {
 					// then we want this vehicle!
 					besch = test_besch;
 					besch_index = current_index;
-					DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",besch->gib_name());
+					DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",besch->get_name());
 				}
 			}
 		}
@@ -446,7 +446,7 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 		while (vehinfo.next()) {
 			const vehikel_besch_t* test_besch = vehinfo.get_current();
 
-			if(target_power>0  &&  test_besch->gib_leistung()==0) {
+			if(target_power>0  &&  test_besch->get_leistung()==0) {
 				continue;
 			}
 
@@ -456,12 +456,12 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 			}
 
 			// not allowed as last vehicle
-			if(is_last  &&  test_besch->gib_nachfolger_count()>0  &&  test_besch->gib_nachfolger(0)!=NULL  ) {
+			if(is_last  &&  test_besch->get_nachfolger_count()>0  &&  test_besch->get_nachfolger(0)!=NULL  ) {
 				continue;
 			}
 
 			// not allowed as non-last vehicle
-			if(!is_last  &&  test_besch->gib_nachfolger_count()==1  &&  test_besch->gib_nachfolger(0)==NULL  ) {
+			if(!is_last  &&  test_besch->get_nachfolger_count()==1  &&  test_besch->get_nachfolger(0)==NULL  ) {
 				continue;
 			}
 
@@ -472,7 +472,7 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 
 			// likely tender => replace with some engine ...
 			if(target_freight==0  &&  target_weight==0) {
-				if(  test_besch->gib_zuladung()!=0  ) {
+				if(  test_besch->get_zuladung()!=0  ) {
 					continue;
 				}
 			}
@@ -482,10 +482,10 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 				continue;
 			}
 
-			uint32 power = (test_besch->gib_leistung()*test_besch->get_gear())/64;
+			uint32 power = (test_besch->get_leistung()*test_besch->get_gear())/64;
 			if(target_freight) {
 				// this is either a railcar/trailer or a truck/boat/plane
-				if(  test_besch->gib_zuladung()==0  ||  !test_besch->gib_ware()->is_interchangeable(target_freight)  ) {
+				if(  test_besch->get_zuladung()==0  ||  !test_besch->get_ware()->is_interchangeable(target_freight)  ) {
 					continue;
 				}
 
@@ -493,15 +493,15 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 				// assign this vehicle, if we have none found one yet, or we found only a too week one
 				if(  besch!=NULL  ) {
 					// it is cheaper to run? (this is most important)
-					difference += (besch->gib_zuladung()*1000)/besch->gib_betriebskosten() < (test_besch->gib_zuladung()*1000)/test_besch->gib_betriebskosten() ? -20 : 20;
+					difference += (besch->get_zuladung()*1000)/besch->get_betriebskosten() < (test_besch->get_zuladung()*1000)/test_besch->get_betriebskosten() ? -20 : 20;
 					if(  target_weight>0  ) {
 						// it is strongerer?
-						difference += (besch->gib_leistung()*besch->get_gear())/64 < power ? -10 : 10;
+						difference += (besch->get_leistung()*besch->get_gear())/64 < power ? -10 : 10;
 					}
 					// it is faster? (although we support only up to 120km/h for goods)
-					difference += (besch->gib_geschw() < test_besch->gib_geschw())? -10 : 10;
+					difference += (besch->get_geschw() < test_besch->get_geschw())? -10 : 10;
 					// it is cheaper? (not so important)
-					difference += (besch->gib_preis() > test_besch->gib_preis())? -5 : 5;
+					difference += (besch->get_preis() > test_besch->get_preis())? -5 : 5;
 					// add some malus for obsolete vehicles
 					if(test_besch->is_retired(month_now)) {
 						difference += 5;
@@ -511,30 +511,30 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 				if(  besch==NULL  ||  difference<12    ) {
 					// then we want this vehicle!
 					besch = test_besch;
-					DBG_MESSAGE( "vehikelbauer_t::get_best_matching","Found car %s",besch->gib_name());
+					DBG_MESSAGE( "vehikelbauer_t::get_best_matching","Found car %s",besch->get_name());
 				}
 			}
 			else {
 				// finally, we might be able to use this vehicle
-				uint32 speed = test_besch->gib_geschw();
+				uint32 speed = test_besch->get_geschw();
 				uint32 max_weight = power/( (speed*speed)/2500 + 1 );
 
 				// we found a useful engine
-				long current_index = (power*100)/test_besch->gib_betriebskosten() + test_besch->gib_geschw() - (sint16)test_besch->gib_gewicht() - (sint32)(test_besch->gib_preis()/25000);
+				long current_index = (power*100)/test_besch->get_betriebskosten() + test_besch->get_geschw() - (sint16)test_besch->get_gewicht() - (sint32)(test_besch->get_preis()/25000);
 				// too slow?
 				if(speed < target_speed) {
 					current_index -= 250;
 				}
 				// too weak to to reach full speed?
-				if(  max_weight < target_weight+test_besch->gib_gewicht()  ) {
-					current_index += max_weight - (sint32)(target_weight+test_besch->gib_gewicht());
+				if(  max_weight < target_weight+test_besch->get_gewicht()  ) {
+					current_index += max_weight - (sint32)(target_weight+test_besch->get_gewicht());
 				}
 				current_index += 50;
 				if(  current_index > besch_index  ) {
 					// then we want this vehicle!
 					besch = test_besch;
 					besch_index = current_index;
-					DBG_MESSAGE( "vehikelbauer_t::get_best_matching","Found engine %s",besch->gib_name());
+					DBG_MESSAGE( "vehikelbauer_t::get_best_matching","Found engine %s",besch->get_name());
 				}
 			}
 		}

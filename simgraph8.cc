@@ -1232,7 +1232,7 @@ void display_set_image_offset(unsigned bild, int xoff, int yoff)
  * Holt Maus X-Position
  * @author Hj. Malthaner
  */
-int gib_maus_x(void)
+int get_maus_x(void)
 {
 	return sys_event.mx;
 }
@@ -1242,7 +1242,7 @@ int gib_maus_x(void)
  * Holt Maus y-Position
  * @author Hj. Malthaner
  */
-int gib_maus_y(void)
+int get_maus_y(void)
 {
 	return sys_event.my;
 }
@@ -1302,7 +1302,7 @@ static int clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD
  * Ermittelt Clipping Rechteck
  * @author Hj. Malthaner
  */
-struct clip_dimension display_gib_clip_wh(void)
+struct clip_dimension display_get_clip_wh(void)
 {
 	return clip_rect;
 }
@@ -1312,7 +1312,7 @@ struct clip_dimension display_gib_clip_wh(void)
  * Setzt Clipping Rechteck
  * @author Hj. Malthaner
  */
-void display_setze_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h)
+void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h)
 {
 #if 0
 	clip_wh(&x, &w, 0, disp_width);
@@ -2304,7 +2304,7 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
 	memset(tile_dirty,     255, tile_buffer_length);
 	memset(tile_dirty_old, 255, tile_buffer_length);
 
-	display_setze_clip_wh(0, 0, disp_width, disp_height);
+	display_set_clip_wh(0, 0, disp_width, disp_height);
 
 	display_day_night_shift(0);
 	display_set_player_color(0);
@@ -2391,7 +2391,7 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 		memset(tile_dirty,     255, tile_buffer_length);
 		memset(tile_dirty_old, 255, tile_buffer_length);
 
-		display_setze_clip_wh(0, 0, disp_width, disp_height);
+		display_set_clip_wh(0, 0, disp_width, disp_height);
 	}
 }
 

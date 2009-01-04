@@ -33,7 +33,7 @@ message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t("Mailbox"),
 	option_bt.add_listener(this);
 	add_komponente(&option_bt);
 
-	setze_fenstergroesse(koord(320, 240));
+	set_fenstergroesse(koord(320, 240));
 	// a min-size for the window
 	set_min_windowsize(koord(320, 80));
 
@@ -51,8 +51,8 @@ message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t("Mailbox"),
 void message_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = gib_fenstergroesse()-koord(0,16);
-	scrolly.setze_groesse(groesse);
+	koord groesse = get_fenstergroesse()-koord(0,16);
+	scrolly.set_groesse(groesse);
 }
 
 

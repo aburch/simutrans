@@ -28,14 +28,14 @@ class skin_besch_t : public obj_besch_std_name_t {
 	friend class skin_writer_t;
 
 public:
-	const bild_besch_t *gib_bild(int i) const  { return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild(i); }
+	const bild_besch_t *get_bild(int i) const  { return static_cast<const bildliste_besch_t *>(get_kind(2))->get_bild(i); }
 
-	int gib_bild_anzahl() const { return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_anzahl(); }
+	int get_bild_anzahl() const { return static_cast<const bildliste_besch_t *>(get_kind(2))->get_anzahl(); }
 
-	image_id gib_bild_nr(int i) const
+	image_id get_bild_nr(int i) const
 	{
-		const bild_besch_t *bild = gib_bild(i);
-		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
+		const bild_besch_t *bild = get_bild(i);
+		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 };
 

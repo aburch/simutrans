@@ -54,7 +54,7 @@ public:
 	* Get list of all ways
 	* @author Hj. Malthaner
 	*/
-	static const slist_tpl <weg_t *> & gib_alle_wege();
+	static const slist_tpl <weg_t *> & get_alle_wege();
 
 	enum {
 		HAS_SIDEWALK   = 0x01,
@@ -138,21 +138,21 @@ public:
 	* Setzt die erlaubte Höchstgeschwindigkeit
 	* @author Hj. Malthaner
 	*/
-	void setze_max_speed(unsigned int s);
+	void set_max_speed(unsigned int s);
 
 	/**
 	* Ermittelt die erlaubte Höchstgeschwindigkeit
 	* @author Hj. Malthaner
 	*/
-	uint16 gib_max_speed() const {return max_speed;}
+	uint16 get_max_speed() const {return max_speed;}
 
 	/**
 	* Setzt neue Beschreibung. Ersetzt alte Höchstgeschwindigkeit
 	* mit wert aus Beschreibung.
 	* @author Hj. Malthaner
 	*/
-	void setze_besch(const weg_besch_t *b);
-	const weg_besch_t * gib_besch() const {return besch;}
+	void set_besch(const weg_besch_t *b);
+	const weg_besch_t * get_besch() const {return besch;}
 
 	// returns a way with the matching type
 	static weg_t* alloc(waytype_t wt);
@@ -173,20 +173,20 @@ public:
 	/**
 	* Wegtyp zurückliefern
 	*/
-	virtual waytype_t gib_waytype() const = 0;
+	virtual waytype_t get_waytype() const = 0;
 
 	/**
 	* 'Jedes Ding braucht einen Typ.'
 	* @return Gibt den typ des Objekts zurück.
 	* @author Hj. Malthaner
 	*/
-	ding_t::typ gib_typ() const { return ding_t::way; }
+	ding_t::typ get_typ() const { return ding_t::way; }
 
 	/**
 	* Die Bezeichnung des Wegs
 	* @author Hj. Malthaner
 	*/
-	const char *gib_name() const { return besch->gib_name(); }
+	const char *get_name() const { return besch->get_name(); }
 
 	/**
 	* Setzt neue Richtungsbits für einen Weg.
@@ -216,25 +216,25 @@ public:
 	* zur Reparatur muß folgen).
 	* @param ribi Richtungsbits
 	*/
-	void setze_ribi(ribi_t::ribi ribi) { this->ribi = (uint8)ribi;}
+	void set_ribi(ribi_t::ribi ribi) { this->ribi = (uint8)ribi;}
 
 	/**
 	* Ermittelt die unmaskierten Richtungsbits für den Weg.
 	*/
-	ribi_t::ribi gib_ribi_unmasked() const { return (ribi_t::ribi)ribi; }
+	ribi_t::ribi get_ribi_unmasked() const { return (ribi_t::ribi)ribi; }
 
 	/**
 	* Ermittelt die (maskierten) Richtungsbits für den Weg.
 	*/
-	ribi_t::ribi gib_ribi() const { return (ribi_t::ribi)(ribi & ~ribi_maske); }
+	ribi_t::ribi get_ribi() const { return (ribi_t::ribi)(ribi & ~ribi_maske); }
 
 	/**
 	* für Signale ist es notwendig, bestimmte Richtungsbits auszumaskieren
 	* damit Fahrzeuge nicht "von hinten" über Ampeln fahren können.
 	* @param ribi Richtungsbits
 	*/
-	void setze_ribi_maske(ribi_t::ribi ribi) { ribi_maske = (uint8)ribi; }
-	ribi_t::ribi gib_ribi_maske() const { return (ribi_t::ribi)ribi_maske; }
+	void set_ribi_maske(ribi_t::ribi ribi) { ribi_maske = (uint8)ribi; }
+	ribi_t::ribi get_ribi_maske() const { return (ribi_t::ribi)ribi_maske; }
 
 	/**
 	 * called during map rotation
@@ -262,7 +262,7 @@ public:
 	void neuer_monat();
 
 	/* flag query routines */
-	void setze_gehweg(const bool yesno) { flags = (yesno ? flags | HAS_SIDEWALK : flags & ~HAS_SIDEWALK); }
+	void set_gehweg(const bool yesno) { flags = (yesno ? flags | HAS_SIDEWALK : flags & ~HAS_SIDEWALK); }
 	inline bool hat_gehweg() const { return flags & HAS_SIDEWALK; }
 
 	void set_electrify(bool janein) {janein ? flags |= IS_ELECTRIFIED : flags &= ~IS_ELECTRIFIED;}
@@ -274,8 +274,8 @@ public:
 	inline bool has_wayobj() const {return flags&HAS_WAYOBJ; }
 	inline bool is_crossing() const {return flags&HAS_CROSSING; }
 
-	inline void setze_bild( image_id b ) { bild = b; }
-	image_id gib_bild() const {return bild;}
+	inline void set_bild( image_id b ) { bild = b; }
+	image_id get_bild() const {return bild;}
 
 	// correct maitainace
 	void laden_abschliessen();

@@ -81,19 +81,19 @@ const uint8 map_frame_t::map_type_color[MAX_BUTTON_TYPE] =
 
 map_frame_t::map_frame_t(const karte_t *welt) :
 	gui_frame_t("Reliefkarte"),
-	scrolly(reliefkarte_t::gib_karte()),
+	scrolly(reliefkarte_t::get_karte()),
 	zoom_label("map zoom")
 {
 	// zoom levels
-	zoom_buttons[0].setze_pos( koord(2,BUTTON_HEIGHT+4) );
-	zoom_buttons[0].setze_typ( button_t::repeatarrowleft );
+	zoom_buttons[0].set_pos( koord(2,BUTTON_HEIGHT+4) );
+	zoom_buttons[0].set_typ( button_t::repeatarrowleft );
 	zoom_buttons[0].add_listener( this );
 	add_komponente( zoom_buttons+0 );
-	zoom_buttons[1].setze_pos( koord(40,BUTTON_HEIGHT+4) );
-	zoom_buttons[1].setze_typ( button_t::repeatarrowright );
+	zoom_buttons[1].set_pos( koord(40,BUTTON_HEIGHT+4) );
+	zoom_buttons[1].set_typ( button_t::repeatarrowright );
 	zoom_buttons[1].add_listener( this );
 	add_komponente( zoom_buttons+1 );
-	zoom_label.setze_pos( koord(54,BUTTON_HEIGHT+4) );
+	zoom_label.set_pos( koord(54,BUTTON_HEIGHT+4) );
 	add_komponente( &zoom_label );
 
 	// rotate map 45°
@@ -126,15 +126,15 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 
 	// init factories names
 	legend.clear();
-	const stringhashtable_tpl<const fabrik_besch_t *> & fabesch = fabrikbauer_t::gib_fabesch();
+	const stringhashtable_tpl<const fabrik_besch_t *> & fabesch = fabrikbauer_t::get_fabesch();
 	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter (fabesch);
 
 	// add factory names; shorten too long names
 	while(iter.next()) {
-		if(iter.get_current_value()->gib_gewichtung()>0) {
+		if(iter.get_current_value()->get_gewichtung()>0) {
 			int i;
 
-			cstring_t label (translator::translate(iter.get_current_value()->gib_name()));
+			cstring_t label (translator::translate(iter.get_current_value()->get_name()));
 			for(  i=12;  i<label.len()  &&  display_calc_proportional_string_len_width(label,i)<100;  i++  )
 				;
 			if(  i<label.len()  ) {
@@ -143,7 +143,7 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 				label.set_at(i++, '\0');
 			}
 
-			legend.push_back(legend_entry(label, iter.get_current_value()->gib_kennfarbe()));
+			legend.push_back(legend_entry(label, iter.get_current_value()->get_kennfarbe()));
 		}
 	}
 
@@ -166,20 +166,20 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 
 	// Hajo: Hack: use static size if set by a former object
 	if(size == koord(0,0)) {
-		size = koord(min(256,welt->gib_groesse_x())+11, min(welt->gib_groesse_y(),256)+16+12);
+		size = koord(min(256,welt->get_groesse_x())+11, min(welt->get_groesse_y(),256)+16+12);
 		set_min_windowsize( size );
-		gui_frame_t::setze_fenstergroesse( size );
+		gui_frame_t::set_fenstergroesse( size );
 	}
-	setze_fenstergroesse(size);
+	set_fenstergroesse(size);
 	resize( koord(0,0) );
 
 	// Clipping geändert - max. 250 war zu knapp für grosse Karten - V.Meyer
-	reliefkarte_t *karte = reliefkarte_t::gib_karte();
-	const koord gr = karte->gib_groesse();
-	const koord s_gr=scrolly.gib_groesse();
+	reliefkarte_t *karte = reliefkarte_t::get_karte();
+	const koord gr = karte->get_groesse();
+	const koord s_gr=scrolly.get_groesse();
 	const koord ij = welt->get_world_position();
 	const koord win_size = gr-s_gr;	// this is the visible area
-	scrolly.setze_scroll_position(  max(0,min(ij.x-win_size.x/2,gr.x)), max(0, min(ij.y-win_size.y/2,gr.y)) );
+	scrolly.set_scroll_position(  max(0,min(ij.x-win_size.x/2,gr.x)), max(0, min(ij.y-win_size.y/2,gr.y)) );
 
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
@@ -195,7 +195,7 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 bool
 map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
-	reliefkarte_t::gib_karte()->calc_map();
+	reliefkarte_t::get_karte()->calc_map();
 
 	if(komp==&b_show_legend) {
 		if(!legend_visible) {
@@ -223,41 +223,41 @@ map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	}
 	else if(komp==zoom_buttons+1) {
 		// zoom out
-		if(reliefkarte_t::gib_karte()->zoom_in>1) {
-			reliefkarte_t::gib_karte()->zoom_in--;
+		if(reliefkarte_t::get_karte()->zoom_in>1) {
+			reliefkarte_t::get_karte()->zoom_in--;
 		}
-		else if(reliefkarte_t::gib_karte()->zoom_out<4) {
-			reliefkarte_t::gib_karte()->zoom_out++;
+		else if(reliefkarte_t::get_karte()->zoom_out<4) {
+			reliefkarte_t::get_karte()->zoom_out++;
 		}
-		reliefkarte_t::gib_karte()->calc_map();
+		reliefkarte_t::get_karte()->calc_map();
 		// recalc sliders
-		scrolly.setze_groesse( scrolly.gib_groesse() );
+		scrolly.set_groesse( scrolly.get_groesse() );
 	}
 	else if(komp==zoom_buttons+0) {
 		// zoom in
-		if(reliefkarte_t::gib_karte()->zoom_out>1) {
-			reliefkarte_t::gib_karte()->zoom_out--;
+		if(reliefkarte_t::get_karte()->zoom_out>1) {
+			reliefkarte_t::get_karte()->zoom_out--;
 		}
-		else if(reliefkarte_t::gib_karte()->zoom_in<4) {
-			reliefkarte_t::gib_karte()->zoom_in++;
+		else if(reliefkarte_t::get_karte()->zoom_in<4) {
+			reliefkarte_t::get_karte()->zoom_in++;
 		}
-		reliefkarte_t::gib_karte()->calc_map();
+		reliefkarte_t::get_karte()->calc_map();
 		// recalc sliders
-		scrolly.setze_groesse( scrolly.gib_groesse() );
+		scrolly.set_groesse( scrolly.get_groesse() );
 	}
 	else if(komp==&b_rotate45) {
 		// rotated/straight map
-		reliefkarte_t::gib_karte()->rotate45 ^= 1;
-		reliefkarte_t::gib_karte()->calc_map();
-		scrolly.setze_groesse( scrolly.gib_groesse() );
+		reliefkarte_t::get_karte()->rotate45 ^= 1;
+		reliefkarte_t::get_karte()->calc_map();
+		scrolly.set_groesse( scrolly.get_groesse() );
 	}
 	else if(komp==&b_show_schedule) {
 		//	show/hide schedule of convoi
-		reliefkarte_t::gib_karte()->is_show_schedule = !reliefkarte_t::gib_karte()->is_show_schedule;
+		reliefkarte_t::get_karte()->is_show_schedule = !reliefkarte_t::get_karte()->is_show_schedule;
 	}
 	else if(komp==&b_show_fab_connections) {
 		//	show/hide schedule of convoi
-		reliefkarte_t::gib_karte()->is_show_fab = !reliefkarte_t::gib_karte()->is_show_fab;
+		reliefkarte_t::get_karte()->is_show_fab = !reliefkarte_t::get_karte()->is_show_fab;
 	}
 
 	else {
@@ -271,7 +271,7 @@ map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 				}
 			}
 		}
-		reliefkarte_t::gib_karte()->set_mode((reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode);
+		reliefkarte_t::get_karte()->set_mode((reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode);
 		for (int i=0;i<MAX_BUTTON_TYPE;i++) {
 			filter_buttons[i].pressed = i==umgebung_t::default_mapmode;
 		}
@@ -290,17 +290,17 @@ void map_frame_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_class == INFOWIN) {
 		if(ev->ev_code == WIN_OPEN) {
-			reliefkarte_t::gib_karte()->is_visible = true;
-			reliefkarte_t::gib_karte()->calc_map();
+			reliefkarte_t::get_karte()->is_visible = true;
+			reliefkarte_t::get_karte()->calc_map();
 		}
 		else if(ev->ev_code == WIN_CLOSE) {
-			reliefkarte_t::gib_karte()->is_visible = false;
+			reliefkarte_t::get_karte()->is_visible = false;
 		}
 	}
 
-	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  &&  reliefkarte_t::gib_karte()->getroffen(ev->mx,ev->my)) {
+	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  &&  reliefkarte_t::get_karte()->getroffen(ev->mx,ev->my)) {
 		// otherwise these would go to the vertical scroll bar
-		reliefkarte_t::gib_karte()->infowin_event(ev);
+		reliefkarte_t::get_karte()->infowin_event(ev);
 		return;
 	}
 
@@ -312,7 +312,7 @@ void map_frame_t::infowin_event(const event_t *ev)
 	// we track this here, and adjust size.
 	if(IS_RIGHTCLICK(ev)) {
 		is_dragging = false;
-		reliefkarte_t::gib_karte()->get_welt()->set_scroll_lock(false);
+		reliefkarte_t::get_karte()->get_welt()->set_scroll_lock(false);
 	}
 
 	if(IS_RIGHTRELEASE(ev)) {
@@ -320,10 +320,10 @@ void map_frame_t::infowin_event(const event_t *ev)
 			resize( koord(0,0) );
 		}
 		is_dragging = false;
-		reliefkarte_t::gib_karte()->get_welt()->set_scroll_lock(false);
+		reliefkarte_t::get_karte()->get_welt()->set_scroll_lock(false);
 	}
 
-	if(reliefkarte_t::gib_karte()->getroffen(ev->mx,ev->my)  &&  IS_RIGHTDRAG(ev)) {
+	if(reliefkarte_t::get_karte()->getroffen(ev->mx,ev->my)  &&  IS_RIGHTDRAG(ev)) {
 		int x = scrolly.get_scroll_x();
 		int y = scrolly.get_scroll_y();
 
@@ -331,9 +331,9 @@ void map_frame_t::infowin_event(const event_t *ev)
 		y += (ev->my - ev->cy)*2;
 
 		is_dragging = true;
-		reliefkarte_t::gib_karte()->get_welt()->set_scroll_lock(true);
+		reliefkarte_t::get_karte()->get_welt()->set_scroll_lock(true);
 
-		scrolly.setze_scroll_position(  max(0, x),  max(0, y) );
+		scrolly.set_scroll_position(  max(0, x),  max(0, y) );
 
 		// Hajo: re-center mouse pointer
 		display_move_pointer(screenpos.x+ev->cx, screenpos.y+ev->cy);
@@ -347,14 +347,14 @@ void map_frame_t::infowin_event(const event_t *ev)
  * @author (Mathew Hounsell)
  * @date   11-Mar-2003
  */
-void map_frame_t::setze_fenstergroesse(koord groesse)
+void map_frame_t::set_fenstergroesse(koord groesse)
 {
-	gui_frame_t::setze_fenstergroesse( groesse );
-	groesse = gib_fenstergroesse();
+	gui_frame_t::set_fenstergroesse( groesse );
+	groesse = get_fenstergroesse();
 	// set scroll area size
-	scrolly.setze_groesse( groesse-scrolly.gib_pos()-koord(0,16) );
-	map_frame_t::size = gib_fenstergroesse();
-DBG_MESSAGE("map_frame_t::setze_fenstergroesse()","gr.x=%i, gr.y=%i",size.x,size.y );
+	scrolly.set_groesse( groesse-scrolly.get_pos()-koord(0,16) );
+	map_frame_t::size = get_fenstergroesse();
+DBG_MESSAGE("map_frame_t::set_fenstergroesse()","gr.x=%i, gr.y=%i",size.x,size.y );
 }
 
 
@@ -366,9 +366,9 @@ DBG_MESSAGE("map_frame_t::setze_fenstergroesse()","gr.x=%i, gr.y=%i",size.x,size
  */
 void map_frame_t::resize(const koord delta)
 {
-	karte_t *welt=reliefkarte_t::gib_karte()->get_welt();
+	karte_t *welt=reliefkarte_t::get_karte()->get_welt();
 
-	koord groesse = gib_fenstergroesse()+delta;
+	koord groesse = get_fenstergroesse()+delta;
 
 	// mark old size dirty
 	const koord pos = koord( win_get_posx(this), win_get_posy(this) );
@@ -387,7 +387,7 @@ void map_frame_t::resize(const koord delta)
 		// set button pos
 		for (int type=0; type<MAX_BUTTON_TYPE; type++) {
 			koord pos = koord( 2+BUTTON_WIDTH*(type%col), 4+offset_y+BUTTON_HEIGHT*((int)type/col) );
-			filter_buttons[type].setze_pos( pos );
+			filter_buttons[type].set_pos( pos );
 		}
 		offset_y += BUTTON_HEIGHT*row+8;
 	}
@@ -411,10 +411,10 @@ void map_frame_t::resize(const koord delta)
 	set_min_windowsize(  koord( BUTTON_WIDTH*3+4, offset_y+12+64) );
 
 	// offset of map
-	scrolly.setze_pos( koord(0,offset_y) );
+	scrolly.set_pos( koord(0,offset_y) );
 
 	// max size
-	offset_y += min(welt->gib_groesse_y(),256)+16+12;
+	offset_y += min(welt->get_groesse_y(),256)+16+12;
 	if(offset_y>display_get_height()-64) {
 		// avoid negative values for min size
 		offset_y = max(10,display_get_height()-64);
@@ -424,7 +424,7 @@ void map_frame_t::resize(const koord delta)
 	}
 	old_ij = koord::invalid;
 
-	setze_fenstergroesse( groesse );
+	set_fenstergroesse( groesse );
 }
 
 
@@ -441,26 +441,26 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	screenpos = pos;
 
 	// first: check if cursor within map screen size
-	karte_t *welt=reliefkarte_t::gib_karte()->get_welt();
+	karte_t *welt=reliefkarte_t::get_karte()->get_welt();
 	koord ij = welt->get_world_position();
 	if(welt->ist_in_kartengrenzen(ij)) {
-		reliefkarte_t::gib_karte()->karte_to_screen(ij);
+		reliefkarte_t::get_karte()->karte_to_screen(ij);
 		// only recenter by zoom or position change; we want still be able to scroll
 		if(old_ij!=ij) {
-			koord groesse = scrolly.gib_groesse();
+			koord groesse = scrolly.get_groesse();
 			if(
 				(scrolly.get_scroll_x()>ij.x  ||  scrolly.get_scroll_x()+groesse.x<=ij.x) ||
 				(scrolly.get_scroll_y()>ij.y  ||  scrolly.get_scroll_y()+groesse.y<=ij.y) ) {
 				// recenter cursor by scrolling
-				scrolly.setze_scroll_position( max(0,ij.x-(groesse.x/2)), max(0,ij.y-(groesse.y/2)) );
+				scrolly.set_scroll_position( max(0,ij.x-(groesse.x/2)), max(0,ij.y-(groesse.y/2)) );
 				old_ij = ij;
 			}
 		}
 	}
 
-	b_rotate45.pressed = reliefkarte_t::gib_karte()->rotate45;
-	b_show_schedule.pressed = reliefkarte_t::gib_karte()->is_show_schedule;
-	b_show_fab_connections.pressed = reliefkarte_t::gib_karte()->is_show_fab;
+	b_rotate45.pressed = reliefkarte_t::get_karte()->rotate45;
+	b_show_schedule.pressed = reliefkarte_t::get_karte()->is_show_schedule;
+	b_show_fab_connections.pressed = reliefkarte_t::get_karte()->is_show_fab;
 
 	b_show_legend.pressed = legend_visible;
 	b_show_scale.pressed = scale_visible;
@@ -469,12 +469,12 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	gui_frame_t::zeichnen(pos, gr);
 
 	char buf[16];
-	sprintf( buf, "%i:%i", reliefkarte_t::gib_karte()->zoom_in, reliefkarte_t::gib_karte()-> zoom_out );
+	sprintf( buf, "%i:%i", reliefkarte_t::get_karte()->zoom_in, reliefkarte_t::get_karte()-> zoom_out );
 	display_proportional( pos.x+20, pos.y+16+BUTTON_HEIGHT+4, buf, ALIGN_LEFT, COL_WHITE, true);
 
 	int offset_y = BUTTON_HEIGHT*3 + 2 + 16;
 	if(legend_visible) {
-		offset_y = 16+filter_buttons[MAX_BUTTON_TYPE-1].gib_pos().y+4+BUTTON_HEIGHT;
+		offset_y = 16+filter_buttons[MAX_BUTTON_TYPE-1].get_pos().y+4+BUTTON_HEIGHT;
 	}
 
 	// draw scale

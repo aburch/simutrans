@@ -41,8 +41,8 @@ public:
 	virtual ~pos_liste_t();
 
 	void neu_starten();
-	bool gib_pos(koord &k);
-	virtual bool gib_naechste_pos(koord &k);
+	bool get_pos(koord &k);
+	virtual bool get_naechste_pos(koord &k);
 };
 
 
@@ -67,7 +67,7 @@ public:
 	void neu_starten(sint16 b, sint16 h);
 	void neu_starten() { pos_liste_t::neu_starten(); }
 
-	bool gib_naechste_pos(koord &k);
+	bool get_naechste_pos(koord &k);
 };
 
 /**

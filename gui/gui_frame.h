@@ -86,19 +86,19 @@ public:
 	 * @return den nicht uebersetzten Namen der Komponente
 	 * @author Hj. Malthaner
 	 */
-	const char * gib_name() const { return name; }
+	const char * get_name() const { return name; }
 
 	/**
 	 * setzt den Namen (Fenstertitel)
 	 * @author Hj. Malthaner
 	 */
-	void setze_name(const char *name) { this->name=name; }
+	void set_name(const char *name) { this->name=name; }
 
 	/**
 	 * setzt die Transparenz
 	 * @author Hj. Malthaner
 	 */
-	void setze_opaque(bool janein) { opaque = janein; }
+	void set_opaque(bool janein) { opaque = janein; }
 
 	/**
 	 * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
@@ -111,13 +111,13 @@ public:
 	 * @return gibt wunschgroesse für das Darstellungsfenster zurueck
 	 * @author Hj. Malthaner
 	 */
-	koord gib_fenstergroesse() const { return groesse; }
+	koord get_fenstergroesse() const { return groesse; }
 
 	/**
 	 * Setzt die Fenstergroesse
 	 * @author Hj. Malthaner
 	 */
-	virtual void setze_fenstergroesse(koord groesse);
+	virtual void set_fenstergroesse(koord groesse);
 
 	/**
 	 * Set minimum size of the window

@@ -190,114 +190,114 @@ public:
 	// init form this file ...
 	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename );
 
-	void setze_groesse_x(sint32 g) {groesse_x=g;}
-	void setze_groesse_y(sint32 g) {groesse_y=g;}
-	void setze_groesse(sint32 w,sint32 h) {groesse_x=w;groesse_y=h;}
-	sint32 gib_groesse_x() const {return groesse_x;}
-	sint32 gib_groesse_y() const {return groesse_y;}
+	void set_groesse_x(sint32 g) {groesse_x=g;}
+	void set_groesse_y(sint32 g) {groesse_y=g;}
+	void set_groesse(sint32 w,sint32 h) {groesse_x=w;groesse_y=h;}
+	sint32 get_groesse_x() const {return groesse_x;}
+	sint32 get_groesse_y() const {return groesse_y;}
 
-	void setze_karte_nummer(sint32 n) {nummer=n;}
-	sint32 gib_karte_nummer() const {return nummer;}
+	void set_karte_nummer(sint32 n) {nummer=n;}
+	sint32 get_karte_nummer() const {return nummer;}
 
-	void setze_land_industry_chains(sint32 d) {land_industry_chains=d;}
-	sint32 gib_land_industry_chains() const {return land_industry_chains;}
+	void set_land_industry_chains(sint32 d) {land_industry_chains=d;}
+	sint32 get_land_industry_chains() const {return land_industry_chains;}
 
-	void setze_electric_promille(sint32 d) { electric_promille=d;}
-	sint32 gib_electric_promille() const {return electric_promille;}
+	void set_electric_promille(sint32 d) { electric_promille=d;}
+	sint32 get_electric_promille() const {return electric_promille;}
 
-	void setze_tourist_attractions(sint32 d) {tourist_attractions=d;}
-	sint32 gib_tourist_attractions() const {return tourist_attractions;}
+	void set_tourist_attractions(sint32 d) {tourist_attractions=d;}
+	sint32 get_tourist_attractions() const {return tourist_attractions;}
 
-	void setze_anzahl_staedte(sint32 n) {anzahl_staedte=n;}
-	sint32 gib_anzahl_staedte() const {return anzahl_staedte;}
+	void set_anzahl_staedte(sint32 n) {anzahl_staedte=n;}
+	sint32 get_anzahl_staedte() const {return anzahl_staedte;}
 
-	void setze_mittlere_einwohnerzahl(sint32 n) {mittlere_einwohnerzahl=n;}
-	sint32 gib_mittlere_einwohnerzahl() const {return mittlere_einwohnerzahl;}
+	void set_mittlere_einwohnerzahl(sint32 n) {mittlere_einwohnerzahl=n;}
+	sint32 get_mittlere_einwohnerzahl() const {return mittlere_einwohnerzahl;}
 
-	void setze_verkehr_level(sint32 l) {verkehr_level=l;}
-	sint32 gib_verkehr_level() const {return verkehr_level;}
+	void set_verkehr_level(sint32 l) {verkehr_level=l;}
+	sint32 get_verkehr_level() const {return verkehr_level;}
 
-	void setze_show_pax(bool yesno) {show_pax=yesno;}
-	bool gib_show_pax() const {return show_pax != 0;}
+	void set_show_pax(bool yesno) {show_pax=yesno;}
+	bool get_show_pax() const {return show_pax != 0;}
 
-	void setze_grundwasser(sint32 n) {grundwasser=n;}
-	sint32 gib_grundwasser() const {return grundwasser;}
+	void set_grundwasser(sint32 n) {grundwasser=n;}
+	sint32 get_grundwasser() const {return grundwasser;}
 
-	void setze_max_mountain_height(double n) {max_mountain_height=n;}          //01-Dec-01        Markus Weber    Added
-	double gib_max_mountain_height() const {return max_mountain_height;}
+	void set_max_mountain_height(double n) {max_mountain_height=n;}          //01-Dec-01        Markus Weber    Added
+	double get_max_mountain_height() const {return max_mountain_height;}
 
-	void setze_map_roughness(double n) {map_roughness=n;}                      //01-Dec-01        Markus Weber    Added
-	double gib_map_roughness() const {return map_roughness;}
+	void set_map_roughness(double n) {map_roughness=n;}                      //01-Dec-01        Markus Weber    Added
+	double get_map_roughness() const {return map_roughness;}
 
-	void setze_station_coverage(unsigned short n) {station_coverage_size=n;}	// prissi, May-2005
-	unsigned short gib_station_coverage() const {return station_coverage_size;}
+	void set_station_coverage(unsigned short n) {station_coverage_size=n;}	// prissi, May-2005
+	unsigned short get_station_coverage() const {return station_coverage_size;}
 
-	void setze_allow_player_change(char n) {allow_player_change=n;}	// prissi, Oct-2005
-	unsigned char gib_allow_player_change() const {return allow_player_change;}
+	void set_allow_player_change(char n) {allow_player_change=n;}	// prissi, Oct-2005
+	unsigned char get_allow_player_change() const {return allow_player_change;}
 
-	void setze_use_timeline(char n) {use_timeline=n;}	// prissi, Oct-2005
-	unsigned char gib_use_timeline() const {return use_timeline;}
+	void set_use_timeline(char n) {use_timeline=n;}	// prissi, Oct-2005
+	unsigned char get_use_timeline() const {return use_timeline;}
 
-	void setze_starting_year(short n) {starting_year=n;}	// prissi, Oct-2005
-	short gib_starting_year() const {return starting_year;}
+	void set_starting_year(short n) {starting_year=n;}	// prissi, Oct-2005
+	short get_starting_year() const {return starting_year;}
 
-	void setze_bits_per_month(short n) {bits_per_month=n;}	// prissi, Oct-2005
-	short gib_bits_per_month() const {return bits_per_month;}
+	void set_bits_per_month(short n) {bits_per_month=n;}	// prissi, Oct-2005
+	short get_bits_per_month() const {return bits_per_month;}
 
-	void setze_filename(const char *n) {filename=n;}	// prissi, Jun-06
-	const char* gib_filename() const { return filename; }
+	void set_filename(const char *n) {filename=n;}	// prissi, Jun-06
+	const char* get_filename() const { return filename; }
 
-	void setze_beginner_mode(bool yesno) {beginner_mode=yesno;}	// prissi, Aug-06
-	bool gib_beginner_mode() const {return beginner_mode;}
+	void set_beginner_mode(bool yesno) {beginner_mode=yesno;}	// prissi, Aug-06
+	bool get_beginner_mode() const {return beginner_mode;}
 
-	void setze_just_in_time(bool yesno) {just_in_time=yesno;}	// prissi, Aug-06
-	bool gib_just_in_time() const {return just_in_time;}
+	void set_just_in_time(bool yesno) {just_in_time=yesno;}	// prissi, Aug-06
+	bool get_just_in_time() const {return just_in_time;}
 
-	void setze_default_climates();
-	const sint16 *gib_climate_borders() const {return climate_borders;}
+	void set_default_climates();
+	const sint16 *get_climate_borders() const {return climate_borders;}
 
-	void setze_winter_snowline(sint16 sl) { winter_snowline = sl; }
-	sint16 gib_winter_snowline() const {return winter_snowline;}
+	void set_winter_snowline(sint16 sl) { winter_snowline = sl; }
+	sint16 get_winter_snowline() const {return winter_snowline;}
 
 	void rotate90() { rotation = (rotation+1)&3; }
 	uint8 get_rotation() const { return rotation; }
 
-	void setze_origin_x(sint16 x) { origin_x = x; }
-	void setze_origin_y(sint16 y) { origin_y = y; }
+	void set_origin_x(sint16 x) { origin_x = x; }
+	void set_origin_y(sint16 y) { origin_y = y; }
 	sint16 get_origin_x() const { return origin_x; }
 	sint16 get_origin_y() const { return origin_y; }
 
 	bool is_freeplay() const { return freeplay; }
-	void setze_freeplay( bool f ) { freeplay = f; }
+	void set_freeplay( bool f ) { freeplay = f; }
 
-	sint32 gib_max_route_steps() const { return max_route_steps; }
-	sint32 gib_max_hops() const { return max_hops; }
-	sint32 gib_max_transfers() const { return max_transfers; }
+	sint32 get_max_route_steps() const { return max_route_steps; }
+	sint32 get_max_hops() const { return max_hops; }
+	sint32 get_max_transfers() const { return max_transfers; }
 
-	sint64 gib_starting_money() const { return starting_money; }
+	sint64 get_starting_money() const { return starting_money; }
 
-	bool gib_random_pedestrians() const { return fussgaenger; }
-	void setze_random_pedestrians( bool f ) { fussgaenger = f; }	// NETWORK!
+	bool get_random_pedestrians() const { return fussgaenger; }
+	void set_random_pedestrians( bool f ) { fussgaenger = f; }	// NETWORK!
 
-	sint16 gib_factory_spacing() const { return factory_spacing; }
-	sint16 gib_crossconnect_factor() const { return crossconnect_factor; }
+	sint16 get_factory_spacing() const { return factory_spacing; }
+	sint16 get_crossconnect_factor() const { return crossconnect_factor; }
 	bool is_crossconnect_factories() const { return crossconnect_factories; }
 
-	sint32 gib_passenger_factor() const { return passenger_factor; }
+	sint32 get_passenger_factor() const { return passenger_factor; }
 
-	sint32 gib_numbered_stations() const { return numbered_stations; }
+	sint32 get_numbered_stations() const { return numbered_stations; }
 
-	sint32 gib_stadtauto_duration() const { return stadtauto_duration; }
+	sint32 get_stadtauto_duration() const { return stadtauto_duration; }
 
-	sint32 gib_beginner_price_factor() const { return beginner_price_factor; }
+	sint32 get_beginner_price_factor() const { return beginner_price_factor; }
 
-	const char *gib_city_road_type() const { return city_road_type; }
+	const char *get_city_road_type() const { return city_road_type; }
 
-	uint16 gib_pak_diagonal_multiplier() const { return pak_diagonal_multiplier; }
-	void setze_pak_diagonal_multiplier( uint16 pdm ) { pak_diagonal_multiplier = pdm; }
+	uint16 get_pak_diagonal_multiplier() const { return pak_diagonal_multiplier; }
+	void set_pak_diagonal_multiplier( uint16 pdm ) { pak_diagonal_multiplier = pdm; }
 
-	const char *gib_name_language_iso() const { return language_code_names; }
-	void setze_name_language_iso( const char *iso ) {
+	const char *get_name_language_iso() const { return language_code_names; }
+	void set_name_language_iso( const char *iso ) {
 		language_code_names[0] = iso[0];
 		language_code_names[1] = iso[1];
 		language_code_names[2] = 0;

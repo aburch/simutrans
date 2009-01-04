@@ -70,14 +70,14 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	void setze_text(char *text, int max);
+	void set_text(char *text, int max);
 
 	/**
 	 * Holt den Textpuffer
 	 *
 	 * @author Hj. Malthaner
 	 */
-	char *gib_text() const {return text;}
+	char *get_text() const {return text;}
 
 	/**
 	 * Events werden hiermit an die GUI-Komponenten

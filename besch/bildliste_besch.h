@@ -30,13 +30,13 @@ class bildliste_besch_t : public obj_besch_t {
 public:
 	bildliste_besch_t() : anzahl(0) {}
 
-	uint16 gib_anzahl() const { return anzahl; }
+	uint16 get_anzahl() const { return anzahl; }
 
-	const bild_besch_t *gib_bild(uint16 i) const { return (i < anzahl) ? static_cast<const bild_besch_t *>(gib_kind(i)) : NULL; }
+	const bild_besch_t *get_bild(uint16 i) const { return (i < anzahl) ? static_cast<const bild_besch_t *>(get_kind(i)) : NULL; }
 
-	image_id gib_bild_nr(uint16 i) const {
-		const bild_besch_t *bild = gib_bild(i);
-		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
+	image_id get_bild_nr(uint16 i) const {
+		const bild_besch_t *bild = get_bild(i);
+		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 };
 

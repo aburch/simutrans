@@ -29,8 +29,8 @@ protected:
 	const kreuzung_besch_t *besch;
 
 public:
-	enum ding_t::typ gib_typ() const { return crossing; }
-	const char* gib_name() const { return "Kreuzung"; }
+	enum ding_t::typ get_typ() const { return crossing; }
+	const char* get_name() const { return "Kreuzung"; }
 
 	crossing_t(karte_t *welt, loadsave_t *file);
 	crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, const kreuzung_besch_t *besch, uint8 ns = 0);
@@ -39,7 +39,7 @@ public:
 
 	void rotate90();
 
-	const kreuzung_besch_t *gib_besch() const { return besch; }
+	const kreuzung_besch_t *get_besch() const { return besch; }
 
 	/**
 	 * @return string (only used for debugg at the moment)
@@ -76,13 +76,13 @@ public:
 	void calc_bild();
 
 	// changes the state of a traffic light
-	image_id gib_bild() const { return bild; }
+	image_id get_bild() const { return bild; }
 
 	/**
 	* For the front image hiding vehicles
 	* @author prissi
 	*/
-	image_id gib_after_bild() const { return after_bild; }
+	image_id get_after_bild() const { return after_bild; }
 
 	void rdwr(loadsave_t *file);
 

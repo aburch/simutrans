@@ -32,18 +32,18 @@ label_t::label_t(karte_t *welt, loadsave_t *file) :
 label_t::label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text) :
 	ding_t(welt, pos)
 {
-	setze_besitzer( sp );
-	welt->add_label(pos.gib_2d());
-	grund_t *gr=welt->lookup_kartenboden(pos.gib_2d());
+	set_besitzer( sp );
+	welt->add_label(pos.get_2d());
+	grund_t *gr=welt->lookup_kartenboden(pos.get_2d());
 	if(gr) {
 		ding_t *d=gr->obj_bei(0);
-		if(d  &&  d->gib_besitzer()==NULL) {
-			d->setze_besitzer(sp);
+		if(d  &&  d->get_besitzer()==NULL) {
+			d->set_besitzer(sp);
 		}
 		if (text) {
-			gr->setze_text(text);
+			gr->set_text(text);
 		}
-		spieler_t::accounting(sp, welt->gib_einstellungen()->cst_buy_land, pos.gib_2d(), COST_CONSTRUCTION);
+		spieler_t::accounting(sp, welt->get_einstellungen()->cst_buy_land, pos.get_2d(), COST_CONSTRUCTION);
 	}
 }
 
@@ -51,11 +51,11 @@ label_t::label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text) :
 
 label_t::~label_t()
 {
-	koord k = gib_pos().gib_2d();
+	koord k = get_pos().get_2d();
 	welt->remove_label(k);
 	grund_t *gr = welt->lookup_kartenboden(k);
 	if(gr) {
-		gr->setze_text(NULL);
+		gr->set_text(NULL);
 	}
 }
 
@@ -64,13 +64,13 @@ label_t::~label_t()
 void label_t::laden_abschliessen()
 {
 	// only now coordinates are known
-	welt->add_label(gib_pos().gib_2d());
+	welt->add_label(get_pos().get_2d());
 }
 
 
 
-image_id label_t::gib_bild() const
+image_id label_t::get_bild() const
 {
-	grund_t *gr=welt->lookup(gib_pos());
-	return (gr  &&  gr->obj_bei(0)==this) ? skinverwaltung_t::belegtzeiger->gib_bild_nr(0) : IMG_LEER;
+	grund_t *gr=welt->lookup(get_pos());
+	return (gr  &&  gr->obj_bei(0)==this) ? skinverwaltung_t::belegtzeiger->get_bild_nr(0) : IMG_LEER;
 }

@@ -10,14 +10,14 @@
  *  Beschreibung:
  *      Richtigen Index für einfaches Brückenstück bestimmen
  */
-bruecke_besch_t::img_t bruecke_besch_t::gib_simple(ribi_t::ribi ribi)
+bruecke_besch_t::img_t bruecke_besch_t::get_simple(ribi_t::ribi ribi)
 {
 	return (ribi & ribi_t::nordsued) ? NS_Segment : OW_Segment;
 }
 
 
 // dito for pillars
-bruecke_besch_t::img_t bruecke_besch_t::gib_pillar(ribi_t::ribi ribi)
+bruecke_besch_t::img_t bruecke_besch_t::get_pillar(ribi_t::ribi ribi)
 {
 	return (ribi & ribi_t::nordsued) ? NS_Pillar : OW_Pillar;
 }
@@ -30,7 +30,7 @@ bruecke_besch_t::img_t bruecke_besch_t::gib_pillar(ribi_t::ribi ribi)
  *  Beschreibung:
  *      Richtigen Index für klassischen Hangstart ück bestimmen
  */
-bruecke_besch_t::img_t bruecke_besch_t::gib_start(ribi_t::ribi ribi)
+bruecke_besch_t::img_t bruecke_besch_t::get_start(ribi_t::ribi ribi)
 {
 	switch(ribi) {
 		case ribi_t::nord:	return N_Start;
@@ -49,7 +49,7 @@ bruecke_besch_t::img_t bruecke_besch_t::gib_start(ribi_t::ribi ribi)
  *  Beschreibung:
  *      Richtigen Index für Rampenstart ück bestimmen
  */
-bruecke_besch_t::img_t bruecke_besch_t::gib_rampe(ribi_t::ribi ribi)
+bruecke_besch_t::img_t bruecke_besch_t::get_rampe(ribi_t::ribi ribi)
 {
     switch(ribi) {
     case ribi_t::nord:	return N_Rampe;

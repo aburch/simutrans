@@ -39,7 +39,7 @@ public:
 	 * @return den Dateinamen für die Hilfe, oder NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * gib_hilfe_datei() const {return "options.txt";}
+	const char * get_hilfe_datei() const {return "options.txt";}
 
 	/**
 	 * This method is called if an action is triggered

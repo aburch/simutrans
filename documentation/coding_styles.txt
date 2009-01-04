@@ -25,9 +25,9 @@ yet conform 100% to this rules, but it should.
   -> Method names should be verbs because methods are dynamic elements
 
   There are some standard prefixes used throughout the program:
-   get_ gib_ return a value
-   set_ setze_ will set a value
-   is_ ist_ will test a conditions
+   get_ returns a value
+   set_ will set a value
+   is_ (ist_) will test a conditions
   For new functions, the first (english) form should be used. Function names
   should never start with uppercase letters.
 

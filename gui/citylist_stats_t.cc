@@ -25,7 +25,7 @@ char citylist_stats_t::total_bev_string[128];
 citylist_stats_t::citylist_stats_t(karte_t* w, citylist::sort_mode_t sortby, bool sortreverse) :
 	welt(w)
 {
-	setze_groesse(koord(210, welt->gib_staedte().get_count() * (LINESPACE + 1) - 10));
+	set_groesse(koord(210, welt->get_staedte().get_count() * (LINESPACE + 1) - 10));
 	total_bev_translation = translator::translate("Total inhabitants:");
 	sort(sortby, sortreverse);
 	line_select = 0xFFFFFFFFu;
@@ -45,9 +45,9 @@ class compare_cities
 			int cmp;
 			switch (sortby) {
 				default: NOT_REACHED
-				case citylist::by_name:   cmp = strcmp(a->gib_name(), b->gib_name());    break;
-				case citylist::by_size:   cmp = a->gib_einwohner() - b->gib_einwohner(); break;
-				case citylist::by_growth: cmp = a->gib_wachstum()  - b->gib_wachstum();  break;
+				case citylist::by_name:   cmp = strcmp(a->get_name(), b->get_name());    break;
+				case citylist::by_size:   cmp = a->get_einwohner() - b->get_einwohner(); break;
+				case citylist::by_growth: cmp = a->get_wachstum()  - b->get_wachstum();  break;
 			}
 			return reverse ? cmp > 0 : cmp < 0;
 		}
@@ -60,7 +60,7 @@ class compare_cities
 
 void citylist_stats_t::sort(citylist::sort_mode_t sortby, bool sortreverse)
 {
-	const weighted_vector_tpl<stadt_t*>& cities = welt->gib_staedte();
+	const weighted_vector_tpl<stadt_t*>& cities = welt->get_staedte();
 
 	city_list.clear();
 	city_list.resize(cities.get_count());
@@ -86,14 +86,14 @@ void citylist_stats_t::infowin_event(const event_t * ev)
 
 	if (IS_LEFTRELEASE(ev) && ev->cy>0) {
 		if(ev->cx>0  &&  ev->cx<15) {
-			const koord pos = stadt->gib_pos();
+			const koord pos = stadt->get_pos();
 			welt->change_world_position( koord3d(pos, welt->min_hgt(pos)) );
 		}
 		else {
 			stadt->zeige_info();
 		}
 	} else if (IS_RIGHTRELEASE(ev) && ev->cy > 0) {
-		const koord pos = stadt->gib_pos();
+		const koord pos = stadt->get_pos();
 		welt->change_world_position( koord3d(pos, welt->min_hgt(pos)) );
 	}
 }
@@ -101,17 +101,17 @@ void citylist_stats_t::infowin_event(const event_t * ev)
 
 void citylist_stats_t::zeichnen(koord offset)
 {
-	image_id const arrow_right_normal = skinverwaltung_t::window_skin->gib_bild(10)->gib_nummer();
+	image_id const arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
 	sint32 total_bev = 0;
 	sint32 total_growth = 0;
 
 	for (uint32 i = 0; i < city_list.get_count(); i++) {
 		const stadt_t* stadt = city_list[i];
-		sint32 bev = stadt->gib_einwohner();
-		sint32 growth = stadt->gib_wachstum();
+		sint32 bev = stadt->get_einwohner();
+		sint32 growth = stadt->get_wachstum();
 
 		char buf[256];
-		sprintf( buf, "%s: %i (%+.1f)", stadt->gib_name(), bev, growth/10.0 );
+		sprintf( buf, "%s: %i (%+.1f)", stadt->get_name(), bev, growth/10.0 );
 		display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, COL_BLACK, true);
 
 		if(i!=line_select) {
@@ -120,7 +120,7 @@ void citylist_stats_t::zeichnen(koord offset)
 		}
 		else {
 			// select goto button
-			display_color_img(skinverwaltung_t::window_skin->gib_bild(11)->gib_nummer(),
+			display_color_img(skinverwaltung_t::window_skin->get_bild(11)->get_nummer(),
 				offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
 		}
 

@@ -135,7 +135,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 
 	// the rocky will be alway below the snow line; no need to set this explicitely
 
-	setze_fenstergroesse( koord(RIGHT_ARROW+16, intTopOfButton+14+8+16) );
+	set_fenstergroesse( koord(RIGHT_ARROW+16, intTopOfButton+14+8+16) );
 
 	no_tree.init( button_t::square, "no tree", koord(14,intTopOfButton+7), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
 	no_tree.pressed=umgebung_t::no_tree;
@@ -161,57 +161,57 @@ climate_gui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		welt_gui->update_preview();
 		}
 	else if(komp==water_level+0) {
-		if(sets->gib_grundwasser() > -10*Z_TILE_STEP ) {
-			sets->setze_grundwasser( sets->gib_grundwasser() - Z_TILE_STEP );
+		if(sets->get_grundwasser() > -10*Z_TILE_STEP ) {
+			sets->set_grundwasser( sets->get_grundwasser() - Z_TILE_STEP );
 			welt_gui->update_preview();
 		}
 	}
 	else if(komp==water_level+1) {
-		if(sets->gib_grundwasser() < 0 ) {
-			sets->setze_grundwasser( sets->gib_grundwasser() + Z_TILE_STEP );
+		if(sets->get_grundwasser() < 0 ) {
+			sets->set_grundwasser( sets->get_grundwasser() + Z_TILE_STEP );
 			welt_gui->update_preview();
 		}
 	}
 	else if(komp==mountain_height+0) {
-		if(sets->gib_max_mountain_height() > 0.0 ) {
-			sets->setze_max_mountain_height( sets->gib_max_mountain_height() - 10 );
+		if(sets->get_max_mountain_height() > 0.0 ) {
+			sets->set_max_mountain_height( sets->get_max_mountain_height() - 10 );
 			welt_gui->update_preview();
 		}
 	}
 	else if(komp==mountain_height+1) {
-		if(sets->gib_max_mountain_height() < 320.0 ) {
-			sets->setze_max_mountain_height( sets->gib_max_mountain_height() + 10 );
+		if(sets->get_max_mountain_height() < 320.0 ) {
+			sets->set_max_mountain_height( sets->get_max_mountain_height() + 10 );
 			welt_gui->update_preview();
 		}
 	}
 	else if(komp==mountain_roughness+0) {
-		if(sets->gib_map_roughness() > 0.4 ) {
-			sets->setze_map_roughness( sets->gib_map_roughness() - 0.05 );
+		if(sets->get_map_roughness() > 0.4 ) {
+			sets->set_map_roughness( sets->get_map_roughness() - 0.05 );
 			welt_gui->update_preview();
 		}
 	}
 	else if(komp==mountain_roughness+1) {
 #ifndef DOUBLE_GROUNDS
-		if(sets->gib_map_roughness() < 0.7 ) {
+		if(sets->get_map_roughness() < 0.7 ) {
 #else
-		if(sets->gib_map_roughness() < 1.00) {
+		if(sets->get_map_roughness() < 1.00) {
 #endif
-			sets->setze_map_roughness( sets->gib_map_roughness() + 0.05 );
+			sets->set_map_roughness( sets->get_map_roughness() + 0.05 );
 			welt_gui->update_preview();
 		}
 	}
 
 	else {
 		// all climate borders from here on
-		sint16 *climate_borders = (sint16 *)sets->gib_climate_borders();
+		sint16 *climate_borders = (sint16 *)sets->get_climate_borders();
 
 		if(komp==snowline_winter+0) {
-			if(sets->gib_winter_snowline()>0) {
-				sets->setze_winter_snowline( sets->gib_winter_snowline()-1 );
+			if(sets->get_winter_snowline()>0) {
+				sets->set_winter_snowline( sets->get_winter_snowline()-1 );
 			}
 		}
 		else if(komp==snowline_winter+1) {
-			sets->setze_winter_snowline( sets->gib_winter_snowline()+1 );
+			sets->set_winter_snowline( sets->get_winter_snowline()+1 );
 		}
 		else if(komp==end_desert+0) {
 			if(climate_borders[desert_climate]>0) {
@@ -272,8 +272,8 @@ climate_gui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		climate_borders[arctic_climate] = arctic;
 
 		// correct summer snowline too
-		if(arctic<sets->gib_winter_snowline()) {
-			sets->setze_winter_snowline( arctic );
+		if(arctic<sets->get_winter_snowline()) {
+			sets->set_winter_snowline( arctic );
 		}
 	}
 	return true;
@@ -286,25 +286,25 @@ void climate_gui_t::zeichnen(koord pos, koord gr)
 {
 	no_tree.pressed=umgebung_t::no_tree;
 
-	no_tree.setze_text( "no tree" );
+	no_tree.set_text( "no tree" );
 
 	gui_frame_t::zeichnen(pos, gr);
 
 	const int x = pos.x+10;
 	int y = pos.y+16+16;
 
-	const sint16 water_level = (sets->gib_grundwasser()/Z_TILE_STEP)+6;
-	const sint16 *climate_borders = sets->gib_climate_borders();
+	const sint16 water_level = (sets->get_grundwasser()/Z_TILE_STEP)+6;
+	const sint16 *climate_borders = sets->get_climate_borders();
 
 	// water level       18-Nov-01       Markus W. Added
 	display_proportional_clip(x, y, translator::translate("Water level"), ALIGN_LEFT, COL_BLACK, true);
 	display_proportional_clip(x+TEXT_RIGHT, y, ntos(water_level,0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Mountain height"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_RIGHT, y, ntos((int)(sets->gib_max_mountain_height()), 0), ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x+TEXT_RIGHT, y, ntos((int)(sets->get_max_mountain_height()), 0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Map roughness"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_RIGHT, y, ntos((int)(sets->gib_map_roughness()*20.0 + 0.5)-8 , 0) , ALIGN_RIGHT, COL_WHITE, true);     // x = round(roughness * 10)-4  // 0.6 * 10 - 4 = 2    //29-Nov-01     Markus W. Added
+	display_proportional_clip(x+TEXT_RIGHT, y, ntos((int)(sets->get_map_roughness()*20.0 + 0.5)-8 , 0) , ALIGN_RIGHT, COL_WHITE, true);     // x = round(roughness * 10)-4  // 0.6 * 10 - 4 = 2    //29-Nov-01     Markus W. Added
 	y += 12+5;
 
 	// season stuff
@@ -312,7 +312,7 @@ void climate_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x+TEXT_RIGHT, y, ntos(climate_borders[arctic_climate], 0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Winter snowline"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_winter_snowline(),0),ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->get_winter_snowline(),0),ALIGN_RIGHT, COL_WHITE, true);
 	y += 12+5;
 
 	// climate borders

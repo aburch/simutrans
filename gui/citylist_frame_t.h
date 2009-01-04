@@ -72,13 +72,13 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author V. Meyer
      */
-    const char * gib_hilfe_datei() const {return "citylist_filter.txt"; }
+    const char * get_hilfe_datei() const {return "citylist_filter.txt"; }
 
-    static citylist::sort_mode_t gib_sortierung() { return sortby; }
-    static void setze_sortierung(const citylist::sort_mode_t& sm) { sortby = sm; }
+    static citylist::sort_mode_t get_sortierung() { return sortby; }
+    static void set_sortierung(const citylist::sort_mode_t& sm) { sortby = sm; }
 
-    static bool gib_reverse() { return sortreverse; }
-    static void setze_reverse(const bool& reverse) { sortreverse = reverse; }
+    static bool get_reverse() { return sortreverse; }
+    static void set_reverse(const bool& reverse) { sortreverse = reverse; }
 
     /**
      * This method is called if an action is triggered

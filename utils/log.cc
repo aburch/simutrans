@@ -206,9 +206,9 @@ void log_t::fatal(const char *who, const char *format, ...)
 
 		strcpy( buffer+n+1, "PRESS ANY KEY\n" );
 		news_img* sel = new news_img(buffer,IMG_LEER);
-		sel->setze_fenstergroesse( sel->gib_fenstergroesse()+koord(150,0) );
+		sel->set_fenstergroesse( sel->get_fenstergroesse()+koord(150,0) );
 
-		koord xy( display_get_width()/2 - 180, display_get_height()/2 - sel->gib_fenstergroesse().y/2 );
+		koord xy( display_get_width()/2 - 180, display_get_height()/2 - sel->get_fenstergroesse().y/2 );
 		event_t ev;
 
 		create_win( xy.x, xy.y, sel, w_info, magic_none );
@@ -217,7 +217,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 			// do not move, do not close it!
 			dr_sleep(50);
 			dr_prepare_flush();
-			sel->zeichnen( xy, sel->gib_fenstergroesse() );
+			sel->zeichnen( xy, sel->get_fenstergroesse() );
 			dr_flush();
 			display_poll_event(&ev);
 			// main window resized

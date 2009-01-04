@@ -21,12 +21,12 @@ gui_combobox_t::gui_combobox_t() :
 {
 //	textinp.add_listener(this);
 
-	bt_prev.setze_typ(button_t::arrowleft);
-	bt_prev.setze_pos( koord(0,2) );
-	bt_prev.setze_groesse( koord(10,10) );
+	bt_prev.set_typ(button_t::arrowleft);
+	bt_prev.set_pos( koord(0,2) );
+	bt_prev.set_groesse( koord(10,10) );
 
-	bt_next.setze_typ(button_t::arrowright);
-	bt_next.setze_groesse( koord(10,10) );
+	bt_next.set_typ(button_t::arrowright);
+	bt_next.set_groesse( koord(10,10) );
 
 	editstr[0] = 0;
 
@@ -34,7 +34,7 @@ gui_combobox_t::gui_combobox_t() :
 	finish = false;
 	droplist.set_visible(false);
 	droplist.add_listener(this);
-	setze_groesse(gib_groesse());
+	set_groesse(get_groesse());
 	max_size = koord(0,100);
 	set_highlight_color(0);
 	set_read_only(false);
@@ -64,9 +64,9 @@ DBG_MESSAGE("event","HOWDY!");
 			bt_prev.pressed = IS_LEFT_BUTTON_PRESSED(ev);
 			if(IS_LEFTRELEASE(ev)) {
 				bt_prev.pressed = false;
-				if (droplist.gib_selection() >= -1) {
+				if (droplist.get_selection() >= -1) {
 					value_t p;
-					p.i = droplist.gib_selection() - 1;
+					p.i = droplist.get_selection() - 1;
 					set_selection( p.i );
 					call_listeners( p );
 				}
@@ -77,9 +77,9 @@ DBG_MESSAGE("event","HOWDY!");
 			bt_next.pressed = IS_LEFT_BUTTON_PRESSED(ev);
 			if(IS_LEFTRELEASE(ev)) {
 				bt_next.pressed = false;
-				if (droplist.gib_selection() < droplist.get_count() - 1) {
+				if (droplist.get_selection() < droplist.get_count() - 1) {
 					value_t p;
-					p.i = droplist.gib_selection() + 1;
+					p.i = droplist.get_selection() + 1;
 					set_selection( p.i );
 					call_listeners(p);
 				}
@@ -104,11 +104,11 @@ DBG_MESSAGE("event","HOWDY!");
 			}
 
 			droplist.set_visible(true);
-			droplist.setze_groesse(koord(this->groesse.x, max_size.y - 16));
-			droplist.setze_pos(koord(this->pos.x, this->pos.y + 16));
-			droplist.request_groesse(droplist.gib_groesse());
-			setze_groesse(droplist.gib_groesse() + koord(0, 16));
-			int sel = droplist.gib_selection();
+			droplist.set_groesse(koord(this->groesse.x, max_size.y - 16));
+			droplist.set_pos(koord(this->pos.x, this->pos.y + 16));
+			droplist.request_groesse(droplist.get_groesse());
+			set_groesse(droplist.get_groesse() + koord(0, 16));
+			int sel = droplist.get_selection();
 			if((unsigned)sel>=droplist.get_count()  ||  !droplist.get_element(sel)->is_valid()) {
 				sel = 0;
 			}
@@ -144,11 +144,11 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 			droplist.set_visible(false);
 			close_box();
 			// update "mouse-click-catch-area"
-			setze_groesse(koord(groesse.x, droplist.is_visible() ? max_size.y : 14));
+			set_groesse(koord(groesse.x, droplist.is_visible() ? max_size.y : 14));
 		}
 	}
 	// update "mouse-click-catch-area"
-//	setze_groesse(koord(groesse.x, droplist.is_visible() ? max_size.y : 14));
+//	set_groesse(koord(groesse.x, droplist.is_visible() ? max_size.y : 14));
 }
 
 
@@ -175,7 +175,7 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","scroll selected %i",p.i);
 void gui_combobox_t::zeichnen(koord offset)
 {
 	// text changed? Then update it
-	gui_scrolled_list_t::scrollitem_t *item = droplist.get_element( droplist.gib_selection() );
+	gui_scrolled_list_t::scrollitem_t *item = droplist.get_element( droplist.get_selection() );
 	if(  item  &&  item->is_valid()  &&  strncmp(item->get_text(),editstr,127)!=0  ) {
 		item->set_text( editstr );
 		tstrncpy( editstr, item->get_text(), 128 );
@@ -208,18 +208,18 @@ gui_combobox_t::set_selection(int s)
 	}
 	else {
 		// just set it
-		droplist.setze_selection(s);
+		droplist.set_selection(s);
 	}
 	// edit the text
 	gui_scrolled_list_t::scrollitem_t *item = droplist.get_element(s);
 	if(  item==NULL  ) {
 		editstr[0] = 0;
-		textinp.setze_text( editstr, 0  );
-		droplist.setze_selection(-1);
+		textinp.set_text( editstr, 0  );
+		droplist.set_selection(-1);
 	}
 	else if(  item->is_valid()  &&  strncmp(editstr,item->get_text(),127)!=0  ) {
 		tstrncpy( editstr, item->get_text(), 128 );
-		textinp.setze_text( editstr, 128 );
+		textinp.set_text( editstr, 128 );
 	}
 }
 
@@ -234,14 +234,14 @@ gui_combobox_t::close_box()
 	if(finish) {
 //DBG_MESSAGE("gui_combobox_t::infowin_event()","prepare selected %i for %d listerners",get_selection(),listeners.count());
 		value_t p;
-		p.i = droplist.gib_selection();
+		p.i = droplist.get_selection();
 		call_listeners(p);
 		finish = false;
 	}
 	release_focus(this);
 	release_focus(&textinp);
 	droplist.set_visible(false);
-	setze_groesse(koord(groesse.x, 14));
+	set_groesse(koord(groesse.x, 14));
 	first_call = true;
 };
 
@@ -250,10 +250,10 @@ gui_combobox_t::close_box()
 /**
 * Release the focus if we had it
 */
-void gui_combobox_t::setze_groesse(koord gr)
+void gui_combobox_t::set_groesse(koord gr)
 {
-	textinp.setze_pos( pos+koord(12,0) );
-	textinp.setze_groesse( koord(gr.x-26,14) );
-	bt_next.setze_pos( koord(gr.x-12,2) );
+	textinp.set_pos( pos+koord(12,0) );
+	textinp.set_groesse( koord(gr.x-26,14) );
+	bt_next.set_pos( koord(gr.x-12,2) );
 	gui_komponente_t::groesse = gr;
 }

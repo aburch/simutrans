@@ -74,26 +74,26 @@ void sprachengui_t::init_font_from_lang()
 sprachengui_t::sprachengui_t() :
 	gui_frame_t("Sprachen"),
 	text_label(translator::translate("LANG_CHOOSE\n")),
-	flags(skinverwaltung_t::flaggensymbol->gib_bild_nr(0)),
+	flags(skinverwaltung_t::flaggensymbol->get_bild_nr(0)),
 	buttons(translator::get_language_count())
 {
-	text_label.setze_pos( koord(10,0) );
+	text_label.set_pos( koord(10,0) );
 	add_komponente( &text_label );
 
-	flags.setze_pos( koord(220-60,-2) );
+	flags.set_pos( koord(220-60,-2) );
 	add_komponente( &flags);
 
-	seperator.setze_pos( koord(10, 37) );
-	seperator.setze_groesse( koord(155,0) );
+	seperator.set_pos( koord(10, 37) );
+	seperator.set_groesse( koord(155,0) );
 	add_komponente( &seperator );
 
 	const translator::lang_info* lang = translator::get_langs();
 	for (int i = 0; i < translator::get_language_count(); ++i, ++lang) {
 		button_t& b = buttons[i];
 
-		b.setze_pos(koord(10 + (i % 2) * 100 , 44 + 14 * (i / 2)));
-		b.setze_typ(button_t::square_state);
-		b.setze_text(lang->name);
+		b.set_pos(koord(10 + (i % 2) * 100 , 44 + 14 * (i / 2)));
+		b.set_typ(button_t::square_state);
+		b.set_text(lang->name);
 		b.set_no_translate(true);
 
 		// check, if font exists
@@ -128,7 +128,7 @@ sprachengui_t::sprachengui_t() :
 	chdir(umgebung_t::user_dir);
 
 	buttons[translator::get_language()].pressed = true;
-	setze_fenstergroesse( koord(220, 74+(translator::get_language_count()/2)*14) );
+	set_fenstergroesse( koord(220, 74+(translator::get_language_count()/2)*14) );
 }
 
 

@@ -433,7 +433,7 @@ void translator::set_language(int lang)
 	if (0 <= lang && lang < single_instance.lang_count) {
 		single_instance.current_lang = lang;
 		umgebung_t::language_iso = langs[lang].iso;
-		umgebung_t::default_einstellungen.setze_name_language_iso( langs[lang].iso );
+		umgebung_t::default_einstellungen.set_name_language_iso( langs[lang].iso );
 		display_set_unicode(langs[lang].utf_encoded);
 		init_city_names(langs[lang].utf_encoded);
 		DBG_MESSAGE("translator::set_language()", "%s, unicode %d", langs[lang].name, langs[lang].utf_encoded);

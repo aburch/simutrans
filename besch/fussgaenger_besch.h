@@ -29,13 +29,13 @@ class fussgaenger_besch_t : public obj_besch_std_name_t {
 
     uint16 gewichtung;
 public:
-    int gib_bild_nr(ribi_t::dir dir) const
+    int get_bild_nr(ribi_t::dir dir) const
     {
-	const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild(dir);
+	const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(get_kind(2))->get_bild(dir);
 
-	return bild != NULL ? bild->gib_nummer() : IMG_LEER;
+	return bild != NULL ? bild->get_nummer() : IMG_LEER;
     }
-    int gib_gewichtung() const
+    int get_gewichtung() const
     {
 	return gewichtung;
     }

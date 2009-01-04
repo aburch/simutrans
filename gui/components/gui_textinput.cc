@@ -220,7 +220,7 @@ void gui_textinput_t::zeichnen(koord offset)
 		}
 
 		// set clipping to be within textinput button
-		struct clip_dimension original_clipping = display_gib_clip_wh();
+		struct clip_dimension original_clipping = display_get_clip_wh();
 		int text_clip_x = pos.x+offset.x + 1, text_clip_w = groesse.x - 2;
 
 		// check is within existing clipping
@@ -231,7 +231,7 @@ void gui_textinput_t::zeichnen(koord offset)
 		}
 		text_clip_x + text_clip_w > original_clipping.xx ? text_clip_w = original_clipping.xx - text_clip_x : 0;
 
-		display_setze_clip_wh(text_clip_x, original_clipping.y, text_clip_w, original_clipping.h);
+		display_set_clip_wh(text_clip_x, original_clipping.y, text_clip_w, original_clipping.h);
 
 		display_proportional_clip(pos.x+offset.x+2-cursor_offset+align_offset, pos.y+offset.y+2, text, align, textcol, true);
 
@@ -241,13 +241,13 @@ void gui_textinput_t::zeichnen(koord offset)
 		}
 
 		// reset clipping
-		display_setze_clip_wh(original_clipping.x, original_clipping.y, original_clipping.w, original_clipping.h);
+		display_set_clip_wh(original_clipping.x, original_clipping.y, original_clipping.w, original_clipping.h);
 	}
 }
 
 
 
-void gui_textinput_t::setze_text(char *text, int max)
+void gui_textinput_t::set_text(char *text, int max)
 {
 	this->text = text;
 	this->max = max;

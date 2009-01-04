@@ -18,36 +18,36 @@ char gui_numberinput_t::tooltip[256];
 
 gui_numberinput_t::gui_numberinput_t()
 {
-	bt_left.setze_typ(button_t::repeatarrowleft );
-	bt_left.setze_pos( koord(0,-1) );
-	bt_left.setze_groesse( koord(10,10) );
+	bt_left.set_typ(button_t::repeatarrowleft );
+	bt_left.set_pos( koord(0,-1) );
+	bt_left.set_groesse( koord(10,10) );
 	bt_left.add_listener(this );
 
 	textinp.set_alignment( ALIGN_RIGHT );
 	textinp.set_color( COL_WHITE );
 	textinp.add_listener( this );
 
-	bt_right.setze_typ(button_t::repeatarrowright );
-	bt_right.setze_groesse( koord(10,10) );
+	bt_right.set_typ(button_t::repeatarrowright );
+	bt_right.set_groesse( koord(10,10) );
 	bt_right.add_listener(this );
 
 	set_limits(0, 9999);
 	textbuffer[0] = 0;	// start with empty buffer
-	textinp.setze_text(textbuffer, 20);
+	textinp.set_text(textbuffer, 20);
 	set_increment_mode( 1 );
 	wrap_mode( true );
 }
 
 
 
-void gui_numberinput_t::setze_groesse(koord groesse)
+void gui_numberinput_t::set_groesse(koord groesse)
 {
 	// each button: width 10, margin 4
 	// [<] [0124] [>]
 	// 10 4  ??  4 10
-	textinp.setze_groesse(koord(groesse.x-2*10-2*4, groesse.y));
-	textinp.setze_pos( koord(14,-2) );
-	bt_right.setze_pos( koord(groesse.x-10,-1) );
+	textinp.set_groesse(koord(groesse.x-2*10-2*4, groesse.y));
+	textinp.set_pos( koord(14,-2) );
+	bt_right.set_pos( koord(groesse.x-10,-1) );
 
 	this->groesse = groesse;
 }
@@ -64,7 +64,7 @@ void gui_numberinput_t::set_value(sint32 new_value)
 	// To preserve cursor position if text was edited, only set new text if changed (or empty before)
 	if(  new_value != get_text_value()  ||  textbuffer[0]<=32  ) {
 		sprintf(textbuffer, "%d", new_value);
-		textinp.setze_text(textbuffer, 20);
+		textinp.set_text(textbuffer, 20);
 	}
 	textinp.set_color( value == new_value ? COL_WHITE : COL_RED );
 	value = new_value;
@@ -73,7 +73,7 @@ void gui_numberinput_t::set_value(sint32 new_value)
 
 sint32 gui_numberinput_t::get_text_value()
 {
-	return (sint32)atol( textinp.gib_text() );
+	return (sint32)atol( textinp.get_text() );
 }
 
 
@@ -212,13 +212,13 @@ void gui_numberinput_t::infowin_event(const event_t *ev)
 	// buttons pressed
 	if(  bt_left.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
-		translate_event(&ev2, -bt_left.gib_pos().x, -bt_left.gib_pos().y);
+		translate_event(&ev2, -bt_left.get_pos().x, -bt_left.get_pos().y);
 		bt_left.infowin_event(&ev2);
 		request_focus( &textinp );
 	}
 	else if(  bt_right.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
-		translate_event(&ev2, -bt_right.gib_pos().x, -bt_right.gib_pos().y);
+		translate_event(&ev2, -bt_right.get_pos().x, -bt_right.get_pos().y);
 		bt_right.infowin_event(&ev2);
 		request_focus( &textinp );
 	}
@@ -266,7 +266,7 @@ void gui_numberinput_t::infowin_event(const event_t *ev)
 			}
 			if(  call_textinp  ) {
 				event_t ev2 = *ev;
-				translate_event(&ev2, -textinp.gib_pos().x, -textinp.gib_pos().y);
+				translate_event(&ev2, -textinp.get_pos().x, -textinp.get_pos().y);
 				textinp.infowin_event(&ev2);
 				new_value = get_text_value();
 			}
@@ -296,8 +296,8 @@ void gui_numberinput_t::zeichnen(koord offset)
 	textinp.zeichnen(new_offset);
 	bt_right.zeichnen(new_offset);
 
-	if(getroffen( gib_maus_x()-offset.x, gib_maus_y()-offset.y )) {
+	if(getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )) {
 		sprintf( tooltip, translator::translate("enter a value between %i and %i"), min_value, max_value );
-		win_set_tooltip(gib_maus_x() + 16, gib_maus_y() - 16, tooltip );
+		win_set_tooltip(get_maus_x() + 16, get_maus_y() - 16, tooltip );
 	}
 }

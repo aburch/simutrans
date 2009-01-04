@@ -37,19 +37,19 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) :
 	this->pos = pos;
 	this->sp = sp;
 
-	scrolly.setze_pos(koord(1, 70));
-	scrolly.setze_groesse(koord(175+26*2-10, 100));
+	scrolly.set_pos(koord(1, 70));
+	scrolly.set_groesse(koord(175+26*2-10, 100));
 	scrolly.set_show_scroll_x(false);
 	scrolly.set_size_corner(false);
 
 	int y = 0;
-	slist_iterator_tpl <koord> iter (welt->gib_label_list());
+	slist_iterator_tpl <koord> iter (welt->get_label_list());
 	while(iter.next()) {
 		button_t * button = new button_t();
 		koord my_pos = iter.get_current();
 		const label_t* l = welt->lookup_kartenboden(my_pos)->find<label_t>();
 		if(l) {
-			const char* text = welt->lookup(my_pos)->gib_kartenboden()->gib_text();
+			const char* text = welt->lookup(my_pos)->get_kartenboden()->get_text();
 			if(text==NULL) {
 				text = "";
 			}
@@ -57,10 +57,10 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) :
 
 			sprintf(my_text, "(%d,%d) %s", my_pos.x, my_pos.y, text);
 
-			button->setze_text(my_text);
+			button->set_text(my_text);
 			buttons.insert(button);
-			button->setze_groesse(koord(187, 14));
-			button->setze_pos(koord(10,y));
+			button->set_groesse(koord(187, 14));
+			button->set_pos(koord(10,y));
 
 			button->add_listener(this);
 			button_frame.add_komponente(button);
@@ -68,36 +68,36 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) :
 			y+=14;
 		}
 	}
-	button_frame.setze_groesse(koord(175+26*2-10, y));
+	button_frame.set_groesse(koord(175+26*2-10, y));
 	add_komponente(&scrolly);
 
 	grund_t *gr = welt->lookup_kartenboden(pos);
 	if (gr != NULL) {
 		const ding_t* thing = gr->obj_bei(0);
 		if (thing == NULL || (
-					(thing->gib_besitzer() == NULL && thing->gib_typ() != ding_t::gebaeude) ||
-					thing->gib_besitzer() == sp
+					(thing->get_besitzer() == NULL && thing->get_typ() != ding_t::gebaeude) ||
+					thing->get_besitzer() == sp
 				)) {
 			sprintf(txlabel, "(%d,%d) ", pos.x, pos.y);
 
 			// Text
-			fnlabel.setze_pos (koord(10, 12));
-			fnlabel.setze_text (txlabel);
+			fnlabel.set_pos (koord(10, 12));
+			fnlabel.set_text (txlabel);
 			add_komponente(&fnlabel);
 
 			// Input box for new name
 			load_label();
-			input.setze_text(ibuf, 58);
+			input.set_text(ibuf, 58);
 			input.add_listener(this);
-			input.setze_pos(koord(75,8));
-			input.setze_groesse(koord(140, 14));
+			input.set_pos(koord(75,8));
+			input.set_groesse(koord(140, 14));
 			add_komponente(&input);
 
-			if(!gr->gib_halt().is_bound()) {
-				removebutton.setze_pos(koord(80,50));
-				removebutton.setze_groesse(koord(65, 14));
-				removebutton.setze_text("Remove");
-				removebutton.setze_typ(button_t::roundbox);
+			if(!gr->get_halt().is_bound()) {
+				removebutton.set_pos(koord(80,50));
+				removebutton.set_groesse(koord(65, 14));
+				removebutton.set_text("Remove");
+				removebutton.set_typ(button_t::roundbox);
 				removebutton.add_listener(this);
 				add_komponente(&removebutton);
 			}
@@ -105,30 +105,30 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) :
 	}
 	else {
 		// Text
-		fnlabel.setze_text ("Das Feld gehoert\neinem anderen Spieler\n");
+		fnlabel.set_text ("Das Feld gehoert\neinem anderen Spieler\n");
 		add_komponente(&fnlabel);
 	}
 
-	divider1.setze_pos(koord(10,40));
-	divider1.setze_groesse(koord(205,0));
+	divider1.set_pos(koord(10,40));
+	divider1.set_groesse(koord(205,0));
 	add_komponente(&divider1);
 
-	savebutton.setze_pos(koord(10,50));
-	savebutton.setze_groesse(koord(65, 14));
-	savebutton.setze_text("Ok");
-	savebutton.setze_typ(button_t::roundbox);
+	savebutton.set_pos(koord(10,50));
+	savebutton.set_groesse(koord(65, 14));
+	savebutton.set_text("Ok");
+	savebutton.set_typ(button_t::roundbox);
 	savebutton.add_listener(this);
 	add_komponente(&savebutton);
 
-	cancelbutton.setze_pos(koord(150,50));
-	cancelbutton.setze_groesse(koord(65, 14));
-	cancelbutton.setze_text("Cancel");
-	cancelbutton.setze_typ(button_t::roundbox);
+	cancelbutton.set_pos(koord(150,50));
+	cancelbutton.set_groesse(koord(65, 14));
+	cancelbutton.set_text("Cancel");
+	cancelbutton.set_typ(button_t::roundbox);
 	cancelbutton.add_listener(this);
 	add_komponente(&cancelbutton);
 
 	set_resizemode(vertical_resize);
-	setze_fenstergroesse(koord(175+26*2, window_height));
+	set_fenstergroesse(koord(175+26*2, window_height));
 	set_min_windowsize(koord(175+26*2, 16+70+100+10));
 
 	resize(koord(0,0));
@@ -141,7 +141,7 @@ label_frame_t::~label_frame_t()
 	slist_iterator_tpl <button_t *> iter (buttons);
 
 	while(iter.next()) {
-		delete const_cast<char *>(iter.get_current()->gib_text());
+		delete const_cast<char *>(iter.get_current()->get_text());
 		delete iter.get_current();
 	}
 	instance = NULL;
@@ -157,9 +157,9 @@ label_frame_t::~label_frame_t()
 void label_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta-koord(delta.x,0));
-	window_height = gib_fenstergroesse().y;
-	koord groesse = gib_fenstergroesse()-koord(10,16+70+10);
-	scrolly.setze_groesse(groesse);
+	window_height = get_fenstergroesse().y;
+	koord groesse = get_fenstergroesse()-koord(10,16+70+10);
+	scrolly.set_groesse(groesse);
 }
 
 
@@ -188,9 +188,9 @@ bool label_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		slist_iterator_tpl <button_t *> iter (buttons);
 		while(iter.next()) {
 			if(komp == iter.get_current()) {
-				goto_label(iter.get_current()->gib_text());
+				goto_label(iter.get_current()->get_text());
 				destroy_win(this);
-				welt->setze_dirty();
+				welt->set_dirty();
 				break;
 			}
 		}
@@ -202,13 +202,13 @@ bool label_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 
 void label_frame_t::load_label()
 {
-	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-	if (gr != NULL && gr->gib_text()) {
+	grund_t *gr = welt->lookup(pos)->get_kartenboden();
+	if (gr != NULL && gr->get_text()) {
 		const ding_t* thing = gr->obj_bei(0);
 		if (thing != NULL) {
-			const spieler_t* owner = thing->gib_besitzer();
+			const spieler_t* owner = thing->get_besitzer();
 			if (owner == NULL || owner == sp) {
-				tstrncpy(ibuf, gr->gib_text(), lengthof(ibuf));
+				tstrncpy(ibuf, gr->get_text(), lengthof(ibuf));
 				return;
 			}
 		}
@@ -220,21 +220,21 @@ void label_frame_t::load_label()
 
 void label_frame_t::create_label(const char *name)
 {
-	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+	grund_t *gr = welt->lookup(pos)->get_kartenboden();
 	if(gr) {
 		const label_t* l = gr->find<label_t>();
 		if (l == NULL) {
-			if (gr->gib_text() != NULL) return;
+			if (gr->get_text() != NULL) return;
 			const ding_t* thing = gr->obj_bei(0);
-			if (thing == NULL || (thing->gib_besitzer() == NULL || thing->gib_besitzer() == sp)) {
+			if (thing == NULL || (thing->get_besitzer() == NULL || thing->get_besitzer() == sp)) {
 				// label as ground owning indicator
 				// always there but only shown if tile is empty but for trees etc.
-				gr->obj_add(new label_t(welt, gr->gib_pos(), sp, name));
+				gr->obj_add(new label_t(welt, gr->get_pos(), sp, name));
 			}
 		} else {
-			if (l->gib_besitzer() == sp) {
+			if (l->get_besitzer() == sp) {
 				// just change text
-				gr->setze_text(name);
+				gr->set_text(name);
 			}
 		}
 	}
@@ -244,7 +244,7 @@ void label_frame_t::create_label(const char *name)
 
 void label_frame_t::remove_label()
 {
-	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+	grund_t *gr = welt->lookup(pos)->get_kartenboden();
 	if (gr) delete gr->find<label_t>();
 }
 

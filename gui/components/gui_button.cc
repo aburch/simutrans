@@ -60,28 +60,28 @@ static void init_button_images()
 {
 	if(square_button_pushed==IMG_LEER  &&  obj_reader_t::has_been_init) {
 
-		square_button_normal = skinverwaltung_t::window_skin->gib_bild(6)->gib_nummer();
-		square_button_pushed = skinverwaltung_t::window_skin->gib_bild(7)->gib_nummer();
+		square_button_normal = skinverwaltung_t::window_skin->get_bild(6)->get_nummer();
+		square_button_pushed = skinverwaltung_t::window_skin->get_bild(7)->get_nummer();
 
-		arrow_left_normal = skinverwaltung_t::window_skin->gib_bild(8)->gib_nummer();
-		arrow_left_pushed = skinverwaltung_t::window_skin->gib_bild(9)->gib_nummer();
+		arrow_left_normal = skinverwaltung_t::window_skin->get_bild(8)->get_nummer();
+		arrow_left_pushed = skinverwaltung_t::window_skin->get_bild(9)->get_nummer();
 
-		arrow_right_normal = skinverwaltung_t::window_skin->gib_bild(10)->gib_nummer();
-		arrow_right_pushed = skinverwaltung_t::window_skin->gib_bild(11)->gib_nummer();
+		arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
+		arrow_right_pushed = skinverwaltung_t::window_skin->get_bild(11)->get_nummer();
 
-		b_cap_left = skinverwaltung_t::window_skin->gib_bild(12)->gib_nummer();
-		b_cap_right = skinverwaltung_t::window_skin->gib_bild(13)->gib_nummer();
-		b_body = skinverwaltung_t::window_skin->gib_bild(14)->gib_nummer();
+		b_cap_left = skinverwaltung_t::window_skin->get_bild(12)->get_nummer();
+		b_cap_right = skinverwaltung_t::window_skin->get_bild(13)->get_nummer();
+		b_body = skinverwaltung_t::window_skin->get_bild(14)->get_nummer();
 
-		b_cap_left_p = skinverwaltung_t::window_skin->gib_bild(15)->gib_nummer();
-		b_cap_right_p = skinverwaltung_t::window_skin->gib_bild(16)->gib_nummer();
-		b_body_p = skinverwaltung_t::window_skin->gib_bild(17)->gib_nummer();
+		b_cap_left_p = skinverwaltung_t::window_skin->get_bild(15)->get_nummer();
+		b_cap_right_p = skinverwaltung_t::window_skin->get_bild(16)->get_nummer();
+		b_body_p = skinverwaltung_t::window_skin->get_bild(17)->get_nummer();
 
-		arrow_up_normal = skinverwaltung_t::window_skin->gib_bild(18)->gib_nummer();
-		arrow_up_pushed = skinverwaltung_t::window_skin->gib_bild(19)->gib_nummer();
+		arrow_up_normal = skinverwaltung_t::window_skin->get_bild(18)->get_nummer();
+		arrow_up_pushed = skinverwaltung_t::window_skin->get_bild(19)->get_nummer();
 
-		arrow_down_normal = skinverwaltung_t::window_skin->gib_bild(20)->gib_nummer();
-		arrow_down_pushed = skinverwaltung_t::window_skin->gib_bild(21)->gib_nummer();
+		arrow_down_normal = skinverwaltung_t::window_skin->get_bild(20)->get_nummer();
+		arrow_down_pushed = skinverwaltung_t::window_skin->get_bild(21)->get_nummer();
 	}
 }
 
@@ -130,14 +130,14 @@ static void display_button_image(sint16 x, sint16 y, int number, bool pushed)
 static void draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool pressed)
 {
 	if(b_cap_left!=IMG_LEER  &&  h==14) {
-		const sint16 lw = skinverwaltung_t::window_skin->gib_bild(12)->get_pic()->w;
-		const sint16 rw = skinverwaltung_t::window_skin->gib_bild(13)->get_pic()->w;
+		const sint16 lw = skinverwaltung_t::window_skin->get_bild(12)->get_pic()->w;
+		const sint16 rw = skinverwaltung_t::window_skin->get_bild(13)->get_pic()->w;
 		// first the center (may need extra clipping)
 		if(w-lw-rw<64) {
-			struct clip_dimension cl=display_gib_clip_wh();
-			display_setze_clip_wh(cl.x, cl.y, max(0,min(x+w-rw-cl.x,cl.w)), cl.h );
+			struct clip_dimension cl=display_get_clip_wh();
+			display_set_clip_wh(cl.x, cl.y, max(0,min(x+w-rw-cl.x,cl.w)), cl.h );
 			display_button_image(x+lw, y, RB_BODY_BUTTON, pressed);
-			display_setze_clip_wh(cl.x, cl.y, cl.w, cl.h );
+			display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
 		}
 		else {
 			// wider buttons
@@ -197,18 +197,18 @@ button_t::button_t()
 void button_t::init(enum type typ, const char *text, koord pos, koord size)
 {
 	b_no_translate = typ==posbutton;
-	setze_typ(typ);
-	setze_text(text);
-	setze_pos(pos);
+	set_typ(typ);
+	set_text(text);
+	set_pos(pos);
 	translated_tooltip = tooltip = NULL;
 	if(size != koord::invalid) {
-		setze_groesse(size);
+		set_groesse(size);
 	}
 }
 
 
 // set type. this includes size for specified buttons.
-void button_t::setze_typ(enum type t)
+void button_t::set_typ(enum type t)
 {
 	type = t;
 	switch (type&STATE_MASK) {
@@ -237,7 +237,7 @@ void button_t::setze_typ(enum type t)
  * @author Hj. Malthaner
  */
 void
-button_t::setze_text(const char * text)
+button_t::set_text(const char * text)
 {
 	this->text = text;
 	translated_text = b_no_translate ? text : translator::translate(text);
@@ -412,7 +412,7 @@ void button_t::zeichnen(koord offset)
 		break;
 	}
 
-	if(translated_tooltip &&  getroffen( gib_maus_x()-offset.x, gib_maus_y()-offset.y )) {
-		win_set_tooltip(gib_maus_x() + 16, gib_maus_y() - 16, translated_tooltip );
+	if(translated_tooltip &&  getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )) {
+		win_set_tooltip(get_maus_x() + 16, get_maus_y() - 16, translated_tooltip );
 	}
 }

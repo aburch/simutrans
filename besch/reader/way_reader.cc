@@ -15,7 +15,7 @@ void way_reader_t::register_obj(obj_besch_t *&data)
     weg_besch_t *besch = static_cast<weg_besch_t *>(data);
 
     wegbauer_t::register_besch(besch);
-//    printf("...Weg %s geladen\n", besch->gib_name());
+//    printf("...Weg %s geladen\n", besch->get_name());
 }
 
 

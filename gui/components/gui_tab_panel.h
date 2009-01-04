@@ -51,7 +51,7 @@ public:
 	 * Gibt die aktuell angezeigte Komponente zurück.
 	 * @author Hj. Malthaner
 	 */
-	gui_komponente_t* gib_aktives_tab() const { return tabs.at(active_tab).component; }
+	gui_komponente_t* get_aktives_tab() const { return tabs.at(active_tab).component; }
 
 	int get_active_tab_index() { return active_tab; }
 
@@ -73,7 +73,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  18.06.2003
 	 */
-	void setze_groesse(koord groesse);
+	void set_groesse(koord groesse);
 };
 
 #endif

@@ -27,9 +27,9 @@ public:
 	* @return gibt 'Fundament' zurueck.
 	* @author Hj. Malthaner
 	*/
-	const char *gib_name() const {return "Fundament";}
+	const char *get_name() const {return "Fundament";}
 
-	enum grund_t::typ gib_typ() const {return fundament;}
+	enum grund_t::typ get_typ() const {return fundament;}
 
 	/**
 	* Auffforderung, ein Infofenster zu öffnen.

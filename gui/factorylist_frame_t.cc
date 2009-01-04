@@ -40,7 +40,7 @@ factorylist_frame_t::factorylist_frame_t(karte_t * welt) :
 	stats(welt,sortby,sortreverse),
 	scrolly(&stats)
 {
-	sort_label.setze_pos(koord(BUTTON1_X, 4));
+	sort_label.set_pos(koord(BUTTON1_X, 4));
 	add_komponente(&sort_label);
 
 	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
@@ -52,14 +52,14 @@ factorylist_frame_t::factorylist_frame_t(karte_t * welt) :
 	add_komponente(&sorteddir);
 
 	// name buttons
-	sortedby.setze_text(sort_text[gib_sortierung()]);
-	sorteddir.setze_text(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+	sortedby.set_text(sort_text[get_sortierung()]);
+	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
-	scrolly.setze_pos(koord(1, 14+BUTTON_HEIGHT+2));
+	scrolly.set_pos(koord(1, 14+BUTTON_HEIGHT+2));
 	scrolly.set_show_scroll_x(false);
 	add_komponente(&scrolly);
 
-	setze_fenstergroesse(koord(TOTAL_WIDTH, 240));
+	set_fenstergroesse(koord(TOTAL_WIDTH, 240));
 	// a min-size for the window
 	set_min_windowsize(koord(TOTAL_WIDTH, 240));
 
@@ -76,14 +76,14 @@ factorylist_frame_t::factorylist_frame_t(karte_t * welt) :
 bool factorylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp == &sortedby) {
-		setze_sortierung((factorylist::sort_mode_t)((gib_sortierung() + 1) % factorylist::SORT_MODES));
-		sortedby.setze_text(sort_text[gib_sortierung()]);
-		stats.sort(gib_sortierung(),gib_reverse());
+		set_sortierung((factorylist::sort_mode_t)((get_sortierung() + 1) % factorylist::SORT_MODES));
+		sortedby.set_text(sort_text[get_sortierung()]);
+		stats.sort(get_sortierung(),get_reverse());
 	}
 	else if(komp == &sorteddir) {
-		setze_reverse(!gib_reverse());
-		sorteddir.setze_text(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-		stats.sort(gib_sortierung(),gib_reverse());
+		set_reverse(!get_reverse());
+		sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+		stats.sort(get_sortierung(),get_reverse());
 	}
 	return true;
 }
@@ -98,6 +98,6 @@ void factorylist_frame_t::resize(const koord delta)
 {
     gui_frame_t::resize(delta);
     // fensterhoehe - 16(title) -offset (header)
-    koord groesse = gib_fenstergroesse()-koord(0,14+BUTTON_HEIGHT+2+16);
-    scrolly.setze_groesse(groesse);
+    koord groesse = get_fenstergroesse()-koord(0,14+BUTTON_HEIGHT+2+16);
+    scrolly.set_groesse(groesse);
 }

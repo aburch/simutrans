@@ -48,7 +48,7 @@ public:
 
 	virtual ~wayobj_t();
 
-	const way_obj_besch_t *gib_besch() const {return besch;}
+	const way_obj_besch_t *get_besch() const {return besch;}
 
 	void rotate90();
 
@@ -56,7 +56,7 @@ public:
 	* the front image, drawn before vehicles
 	* @author V. Meyer
 	*/
-	image_id gib_bild() const {
+	image_id get_bild() const {
 		return hang ? besch->get_back_slope_image_id(hang) :
 			(diagonal ? besch->get_back_diagonal_image_id(dir) : besch->get_back_image_id(dir));
 	}
@@ -65,7 +65,7 @@ public:
 	* the front image, drawn after everything else
 	* @author V. Meyer
 	*/
-	image_id gib_after_bild() const {
+	image_id get_after_bild() const {
 		return hang ? besch->get_front_slope_image_id(hang) :
 			diagonal ? besch->get_front_diagonal_image_id(dir) : besch->get_front_image_id(dir);
 	}
@@ -75,7 +75,7 @@ public:
 	* @return Gibt den typ des Objekts zurück.
 	* @author Hj. Malthaner
 	*/
-	enum ding_t::typ gib_typ() const {return wayobj;}
+	enum ding_t::typ get_typ() const {return wayobj;}
 
 	/**
 	* no infowin

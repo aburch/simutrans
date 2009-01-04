@@ -222,7 +222,7 @@ static void ask_objfilename()
 		delete sel;
 		return;
 	}
-	koord xy( display_get_width()/2 - 180, display_get_height()/2 - sel->gib_fenstergroesse().y/2 );
+	koord xy( display_get_width()/2 - 180, display_get_height()/2 - sel->get_fenstergroesse().y/2 );
 	event_t ev;
 
 	destroy_all_win();	// since eventually the successful load message is still there ....
@@ -232,7 +232,7 @@ static void ask_objfilename()
 	while(umgebung_t::objfilename.empty()) {
 		// do not move, do not close it!
 		dr_prepare_flush();
-		sel->zeichnen( xy, sel->gib_fenstergroesse() );
+		sel->zeichnen( xy, sel->get_fenstergroesse() );
 		display_poll_event(&ev);
 		// main window resized
 		check_pos_win(&ev);
@@ -347,7 +347,7 @@ int simu_main(int argc, char** argv)
 	}
 
 	// only the pak specifiy conf should overide this!
-	uint16 pak_diagonal_multiplier = umgebung_t::default_einstellungen.gib_pak_diagonal_multiplier();
+	uint16 pak_diagonal_multiplier = umgebung_t::default_einstellungen.get_pak_diagonal_multiplier();
 
 	// parsing config/simuconf.tab
 	print("Reading low level config data ...\n");
@@ -383,7 +383,7 @@ int simu_main(int argc, char** argv)
 		umgebung_t::default_einstellungen.rdwr(&file);
 		file.close();
 		// reset to false (otherwise freeplay will persist)
-		umgebung_t::default_einstellungen.setze_freeplay( false );
+		umgebung_t::default_einstellungen.set_freeplay( false );
 	}
 
 	// continue parsing ...
@@ -407,7 +407,7 @@ int simu_main(int argc, char** argv)
 
 	// unmgebung: overide previous settings
 	if(  (gimme_arg(argc, argv, "-freeplay", 0) != NULL)  ) {
-		umgebung_t::default_einstellungen.setze_freeplay( true );
+		umgebung_t::default_einstellungen.set_freeplay( true );
 	}
 	if(  gimme_arg(argc, argv, "-debug", 0) != NULL  ) {
 		const char *s = gimme_arg(argc, argv, "-debug", 1);
@@ -531,7 +531,7 @@ int simu_main(int argc, char** argv)
 		sint16 idummy;
 		printf("parse_simuconf() at %sconfig/simuconf.tab", (const char *)obj_conf);
 		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
-		pak_diagonal_multiplier = umgebung_t::default_einstellungen.gib_pak_diagonal_multiplier();
+		pak_diagonal_multiplier = umgebung_t::default_einstellungen.get_pak_diagonal_multiplier();
 		simuconf.close();
 	}
 	// and parse again parse the user settings
@@ -546,7 +546,7 @@ int simu_main(int argc, char** argv)
 	}
 
 	// now (re)set the correct length from the pak
-	umgebung_t::default_einstellungen.setze_pak_diagonal_multiplier( pak_diagonal_multiplier );
+	umgebung_t::default_einstellungen.set_pak_diagonal_multiplier( pak_diagonal_multiplier );
 	vehikel_basis_t::set_diagonal_multiplier( pak_diagonal_multiplier, pak_diagonal_multiplier );
 
 	convoihandle_t::init( umgebung_t::max_convoihandles );
@@ -627,14 +627,14 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	if (gimme_arg(argc, argv, "-timeline", 0) != NULL) {
 		const char* ref_str = gimme_arg(argc, argv, "-timeline", 1);
 		if (ref_str != NULL) {
-			umgebung_t::default_einstellungen.setze_use_timeline( atoi(ref_str) );
+			umgebung_t::default_einstellungen.set_use_timeline( atoi(ref_str) );
 		}
 	}
 
 	if (gimme_arg(argc, argv, "-startyear", 0) != NULL) {
 		const char * ref_str = gimme_arg(argc, argv, "-startyear", 1); //1930
 		if (ref_str != NULL) {
-			umgebung_t::default_einstellungen.setze_starting_year( clamp(atoi(ref_str),1,2999) );
+			umgebung_t::default_einstellungen.set_starting_year( clamp(atoi(ref_str),1,2999) );
 		}
 	}
 
@@ -671,7 +671,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	karte_t *welt = new karte_t();
 	karte_ansicht_t *view = new karte_ansicht_t(welt);
-	welt->setze_ansicht( view );
+	welt->set_ansicht( view );
 
 	// some messages about old vehicle may appear ...
 	welt->get_message()->set_message_flags(0, 0, 0, 0);
@@ -692,21 +692,21 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		sint32 old_autosave = umgebung_t::autosave;
 		umgebung_t::autosave = false;
 		einstellungen_t sets = umgebung_t::default_einstellungen;
-		sets.setze_default_climates();
-		sets.setze_use_timeline( 1 );
-		sets.setze_grundwasser( -2*Z_TILE_STEP );
-		sets.setze_max_mountain_height( 160 );
-		sets.setze_map_roughness( 0.6 );
-		sets.setze_groesse(64,64);
-		sets.setze_anzahl_staedte(1);
-		sets.setze_land_industry_chains(1);
-		sets.setze_tourist_attractions(1);
-		sets.setze_verkehr_level(7);
-		sets.setze_karte_nummer( 33 );
+		sets.set_default_climates();
+		sets.set_use_timeline( 1 );
+		sets.set_grundwasser( -2*Z_TILE_STEP );
+		sets.set_max_mountain_height( 160 );
+		sets.set_map_roughness( 0.6 );
+		sets.set_groesse(64,64);
+		sets.set_anzahl_staedte(1);
+		sets.set_land_industry_chains(1);
+		sets.set_tourist_attractions(1);
+		sets.set_verkehr_level(7);
+		sets.set_karte_nummer( 33 );
 		welt->init(&sets,0);
 		//  start in June ...
 		intr_set(welt, view);
-		win_setze_welt(welt);
+		win_set_welt(welt);
 		werkzeug_t::toolbar_tool[0]->init(welt,welt->get_active_player());
 		welt->set_fast_forward(true);
 		welt->sync_step(5000,true,false);
@@ -718,7 +718,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	else {
 		// just init view (world was loaded from file)
 		intr_set(welt, view);
-		win_setze_welt(welt);
+		win_set_welt(welt);
 		werkzeug_t::toolbar_tool[0]->init(welt,welt->get_active_player());
 	}
 
@@ -737,14 +737,14 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	// Hajo: give user a mouse to work with
 	if (skinverwaltung_t::mouse_cursor != NULL) {
 		// we must use our softpointer (only Allegro!)
-		display_set_pointer(skinverwaltung_t::mouse_cursor->gib_bild_nr(0));
+		display_set_pointer(skinverwaltung_t::mouse_cursor->get_bild_nr(0));
 	}
 #endif
 	display_show_pointer(true);
 	show_pointer(1);
 	set_pointer(0);
 
-	welt->setze_dirty();
+	welt->set_dirty();
 
 	// Hajo: simgraph init loads default fonts, now we need to load
 	// the real fonts for the current language
@@ -775,8 +775,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 			// we want to center wg (width 260) between sg (width 220) and cg (176)
 
 			create_win(10, 40, sg, w_info, magic_sprachengui_t );
-			create_win((disp_width - 220 - cg->gib_fenstergroesse().x -10 -10- 260)/2 + 220 + 10, (disp_height - 300) / 2, wg, w_do_not_delete, magic_welt_gui_t );
-			create_win((disp_width - cg->gib_fenstergroesse().x-10), 40, cg, w_info, magic_climate );
+			create_win((disp_width - 220 - cg->get_fenstergroesse().x -10 -10- 260)/2 + 220 + 10, (disp_height - 300) / 2, wg, w_do_not_delete, magic_welt_gui_t );
+			create_win((disp_width - cg->get_fenstergroesse().x-10), 40, cg, w_info, magic_climate );
 
 			setsimrand(dr_time(), dr_time());
 
@@ -788,12 +788,12 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 				INT_CHECK("simmain 807");
 				dr_sleep(5);
 			} while(
-				!wg->gib_load() &&
-				!wg->gib_scenario() &&
-				!wg->gib_load_heightfield() &&
-				!wg->gib_start() &&
-				!wg->gib_close() &&
-				!wg->gib_quit()
+				!wg->get_load() &&
+				!wg->get_scenario() &&
+				!wg->get_load_heightfield() &&
+				!wg->get_start() &&
+				!wg->get_close() &&
+				!wg->get_quit()
 			);
 
 			if (IS_LEFTCLICK(&ev)) {
@@ -803,7 +803,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 			}
 
 			// scenario?
-			if(wg->gib_scenario()) {
+			if(wg->get_scenario()) {
 				char path[1024];
 				destroy_win( magic_climate );
 				destroy_win( magic_sprachengui_t );
@@ -815,14 +815,14 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 				chdir( umgebung_t::user_dir );
 			}
 			// Neue Karte erzeugen
-			else if (wg->gib_start()) {
+			else if (wg->get_start()) {
 				destroy_win( magic_climate );
 				destroy_win( magic_sprachengui_t );
 				destroy_win( magic_welt_gui_t );
 				// since not autodelete
 				delete wg;
 
-				create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->gib_bild_nr(0)), w_info, magic_none);
+				create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_bild_nr(0)), w_info, magic_none);
 				intr_refresh_display(true);
 
 				umgebung_t::default_einstellungen.heightfield = "";
@@ -836,13 +836,13 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 					file.close();
 				}
 				destroy_all_win();
-			} else if(wg->gib_load()) {
+			} else if(wg->get_load()) {
 				destroy_win( magic_climate );
 				destroy_win( magic_sprachengui_t );
 				destroy_win( magic_welt_gui_t );
 				delete wg;
 				create_win( new loadsave_frame_t(welt, true), w_info, magic_load_t);
-			} else if(wg->gib_load_heightfield()) {
+			} else if(wg->get_load_heightfield()) {
 				destroy_win( magic_climate );
 				destroy_win( magic_sprachengui_t );
 				destroy_win( magic_welt_gui_t );
@@ -853,7 +853,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 				destroy_win( magic_sprachengui_t );
 				destroy_win( magic_welt_gui_t );
 				// quit the game
-				if (wg->gib_quit()) break;
+				if (wg->get_quit()) break;
 				delete wg;
 			}
 		}

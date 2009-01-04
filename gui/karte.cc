@@ -61,7 +61,7 @@ reliefkarte_t::karte_to_screen( koord &k ) const
 {
 	if(rotate45) {
 		// 45 rotate view
-		sint16 x = welt->gib_groesse_y() + (k.x-k.y);
+		sint16 x = welt->get_groesse_y() + (k.x-k.y);
 		k.y = (k.x+k.y);
 		k.x = x;
 	}
@@ -76,7 +76,7 @@ reliefkarte_t::screen_to_karte( koord &k ) const
 {
 	k = koord( (k.x*zoom_in)/zoom_out, (k.y*zoom_in)/zoom_out );
 	if(rotate45) {
-		k.x = (k.x+k.y-welt->gib_groesse_y())/2;
+		k.x = (k.x+k.y-welt->get_groesse_y())/2;
 		k.y = k.y - k.x;
 	}
 }
@@ -102,7 +102,7 @@ reliefkarte_t::calc_severity_color(sint32 amount, sint32 max_value)
 
 
 void
-reliefkarte_t::setze_relief_farbe(koord k, const int color)
+reliefkarte_t::set_relief_farbe(koord k, const int color)
 {
 	// if map is in normal mode, set new color for map
 	// otherwise do nothing
@@ -134,7 +134,7 @@ reliefkarte_t::setze_relief_farbe(koord k, const int color)
 
 
 void
-reliefkarte_t::setze_relief_farbe_area(koord k, int areasize, uint8 color)
+reliefkarte_t::set_relief_farbe_area(koord k, int areasize, uint8 color)
 {
 	koord p;
 	karte_to_screen(k);
@@ -190,11 +190,11 @@ reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 		color = COL_PURPLE;
 	}else
 #endif
-	if(gr->gib_halt().is_bound()) {
+	if(gr->get_halt().is_bound()) {
 		color = HALT_KENN;
 	}
 	else {
-		switch(gr->gib_typ()) {
+		switch(gr->get_typ()) {
 			case grund_t::brueckenboden:
 				color = MN_GREY3;
 				break;
@@ -213,7 +213,7 @@ reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 						color = COL_GREY3;
 					}
 					else {
-						color = fab->gib_kennfarbe();
+						color = fab->get_kennfarbe();
 					}
 				}
 				break;
@@ -224,22 +224,22 @@ reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 					fabrik_t *fab = gb ? gb->get_fabrik() : NULL;
 					if(fab==NULL) {
 #ifndef DOUBLE_GROUNDS
-						sint16 height = (gr->gib_grund_hang()&1);
+						sint16 height = (gr->get_grund_hang()&1);
 #else
-						sint16 height = (gr->gib_grund_hang()%3);
+						sint16 height = (gr->get_grund_hang()%3);
 #endif
-						color = calc_hoehe_farbe((welt->lookup_hgt(gr->gib_pos().gib_2d())/Z_TILE_STEP)+height, welt->gib_grundwasser()/Z_TILE_STEP);
+						color = calc_hoehe_farbe((welt->lookup_hgt(gr->get_pos().get_2d())/Z_TILE_STEP)+height, welt->get_grundwasser()/Z_TILE_STEP);
 						//color = COL_BLUE;	// water with boat?
 					}
 					else {
-						color = fab->gib_kennfarbe();
+						color = fab->get_kennfarbe();
 					}
 				}
 				break;
 			// normal ground ...
 			default:
 				if(gr->hat_wege()) {
-					switch(gr->gib_weg_nr(0)->gib_waytype()) {
+					switch(gr->get_weg_nr(0)->get_waytype()) {
 						case road_wt: color = STRASSE_KENN; break;
 						case tram_wt:
 						case track_wt: color = SCHIENE_KENN; break;
@@ -257,11 +257,11 @@ reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 					}
 					else {
 #ifndef DOUBLE_GROUNDS
-						sint16 height = (gr->gib_grund_hang()&1);
+						sint16 height = (gr->get_grund_hang()&1);
 #else
-						sint16 height = (gr->gib_grund_hang()%3);
+						sint16 height = (gr->get_grund_hang()%3);
 #endif
-						color = calc_hoehe_farbe((gr->gib_hoehe()/Z_TILE_STEP)+height, welt->gib_grundwasser()/Z_TILE_STEP);
+						color = calc_hoehe_farbe((gr->get_hoehe()/Z_TILE_STEP)+height, welt->get_grundwasser()/Z_TILE_STEP);
 					}
 				}
 				break;
@@ -285,19 +285,19 @@ reliefkarte_t::calc_map_pixel(const koord k)
 	if(plan==NULL) {
 		return;
 	}
-	const grund_t *gr=plan->gib_boden_bei(plan->gib_boden_count()-1);
+	const grund_t *gr=plan->get_boden_bei(plan->get_boden_count()-1);
 
 	// first use ground color
-	setze_relief_farbe( k, calc_relief_farbe(gr) );
+	set_relief_farbe( k, calc_relief_farbe(gr) );
 
 	switch(mode) {
 		// show passenger coverage
 		// display coverage
 		case MAP_PASSENGER:
 			{
-				halthandle_t halt = gr->gib_halt();
+				halthandle_t halt = gr->get_halt();
 				if (halt.is_bound()    &&  halt->get_pax_enabled()) {
-					setze_relief_farbe_area(k, (welt->gib_einstellungen()->gib_station_coverage()*2)+1, halt->gib_besitzer()->get_player_color1()+3 );
+					set_relief_farbe_area(k, (welt->get_einstellungen()->get_station_coverage()*2)+1, halt->get_besitzer()->get_player_color1()+3 );
 				}
 			}
 			break;
@@ -306,9 +306,9 @@ reliefkarte_t::calc_map_pixel(const koord k)
 		// display coverage
 		case MAP_MAIL:
 			{
-				halthandle_t halt = gr->gib_halt();
+				halthandle_t halt = gr->get_halt();
 				if (halt.is_bound()  &&  halt->get_post_enabled()) {
-					setze_relief_farbe_area(k, (welt->gib_einstellungen()->gib_station_coverage()*2)+1,halt->gib_besitzer()->get_player_color1()+3 );
+					set_relief_farbe_area(k, (welt->get_einstellungen()->get_station_coverage()*2)+1,halt->get_besitzer()->get_player_color1()+3 );
 				}
 			}
 			break;
@@ -325,10 +325,10 @@ reliefkarte_t::calc_map_pixel(const koord k)
 				sint32 cargo=0;
 
 				// maximum two ways for one ground
-				const weg_t *w=gr->gib_weg_nr(0);
+				const weg_t *w=gr->get_weg_nr(0);
 				if(w) {
 					cargo = w->get_statistics(WAY_STAT_GOODS);
-					const weg_t *w=gr->gib_weg_nr(1);
+					const weg_t *w=gr->get_weg_nr(1);
 					if(w) {
 						cargo += w->get_statistics(WAY_STAT_GOODS);
 					}
@@ -336,7 +336,7 @@ reliefkarte_t::calc_map_pixel(const koord k)
 						if(cargo>max_cargo) {
 							max_cargo = cargo;
 						}
-						setze_relief_farbe(k, calc_severity_color(cargo, max_cargo));
+						set_relief_farbe(k, calc_severity_color(cargo, max_cargo));
 					}
 				}
 			}
@@ -345,11 +345,11 @@ reliefkarte_t::calc_map_pixel(const koord k)
 		// show station status
 		case MAP_STATUS:
 			{
-				halthandle_t halt = gr->gib_halt();
+				halthandle_t halt = gr->get_halt();
 				if (halt.is_bound()) {
-					const spieler_t* owner = halt->gib_besitzer();
-					if (owner == welt->get_active_player() || owner == welt->gib_spieler(1)) {
-						setze_relief_farbe_area(k, 3, halt->gib_status_farbe());
+					const spieler_t* owner = halt->get_besitzer();
+					if (owner == welt->get_active_player() || owner == welt->get_spieler(1)) {
+						set_relief_farbe_area(k, 3, halt->get_status_farbe());
 					}
 				}
 			}
@@ -363,16 +363,16 @@ reliefkarte_t::calc_map_pixel(const koord k)
 				calc_map();
 			}
 			else {
-				halthandle_t halt = gr->gib_halt();
+				halthandle_t halt = gr->get_halt();
 				if (halt.is_bound()) {
-					const spieler_t* owner = halt->gib_besitzer();
-					if (owner == welt->get_active_player() || owner == welt->gib_spieler(1)) {
+					const spieler_t* owner = halt->get_besitzer();
+					if (owner == welt->get_active_player() || owner == welt->get_spieler(1)) {
 						// get number of last month's arrived convois
 						sint32 arrived = halt->get_finance_history(1, HALT_CONVOIS_ARRIVED);
 						if(arrived>max_convoi_arrived) {
 							max_convoi_arrived = arrived;
 						}
-						setze_relief_farbe_area(k, 3, calc_severity_color(arrived, max_convoi_arrived));
+						set_relief_farbe_area(k, 3, calc_severity_color(arrived, max_convoi_arrived));
 					}
 				}
 			}
@@ -390,10 +390,10 @@ reliefkarte_t::calc_map_pixel(const koord k)
 				sint32 passed=0;
 
 				// maximum two ways for one ground
-				const weg_t *w=gr->gib_weg_nr(0);
+				const weg_t *w=gr->get_weg_nr(0);
 				if(w) {
 					passed = w->get_statistics(WAY_STAT_CONVOIS);
-					const weg_t *w=gr->gib_weg_nr(1);
+					const weg_t *w=gr->get_weg_nr(1);
 					if(w) {
 						passed += w->get_statistics(WAY_STAT_CONVOIS);
 					}
@@ -406,10 +406,10 @@ reliefkarte_t::calc_map_pixel(const koord k)
 						while( (1<<log_passed) > passed) {
 							log_passed --;
 						}
-						setze_relief_farbe_area(k, 1, calc_severity_color(log_passed+1, MAX_SEVERITY_COLORS ));
+						set_relief_farbe_area(k, 1, calc_severity_color(log_passed+1, MAX_SEVERITY_COLORS ));
 					}
 					else {
-						setze_relief_farbe_area(k, 1, reliefkarte_t::severity_color[0] );
+						set_relief_farbe_area(k, 1, reliefkarte_t::severity_color[0] );
 					}
 				}
 			}
@@ -422,17 +422,17 @@ reliefkarte_t::calc_map_pixel(const koord k)
 				max_arrived = 1;
 				calc_map();
 			}
-			else if (gr->gib_halt().is_bound()) {
-				halthandle_t halt = gr->gib_halt();
+			else if (gr->get_halt().is_bound()) {
+				halthandle_t halt = gr->get_halt();
 				// only show player's haltestellen
-				const spieler_t* owner = halt->gib_besitzer();
-				if (owner == welt->get_active_player() || owner == welt->gib_spieler(1)) {
+				const spieler_t* owner = halt->get_besitzer();
+				if (owner == welt->get_active_player() || owner == welt->get_spieler(1)) {
 					 sint32 arrived=halt->get_finance_history(1, HALT_DEPARTED)-halt->get_finance_history(1, HALT_ARRIVED);
 					if(arrived>max_arrived) {
 						max_arrived = arrived;
 					}
 					const uint8 color = calc_severity_color( arrived, max_arrived );
-					setze_relief_farbe_area(k, 3, color);
+					set_relief_farbe_area(k, 3, color);
 				}
 			}
 			break;
@@ -445,16 +445,16 @@ reliefkarte_t::calc_map_pixel(const koord k)
 				calc_map();
 			}
 			else {
-				halthandle_t halt = gr->gib_halt();
+				halthandle_t halt = gr->get_halt();
 				if (halt.is_bound()) {
-					const spieler_t* owner = halt->gib_besitzer();
-					if (owner == welt->get_active_player() || owner == welt->gib_spieler(1)) {
+					const spieler_t* owner = halt->get_besitzer();
+					if (owner == welt->get_active_player() || owner == welt->get_spieler(1)) {
 						sint32 departed=halt->get_finance_history(1, HALT_ARRIVED)-halt->get_finance_history(1, HALT_DEPARTED);
 						if(departed>max_departed) {
 							max_departed = departed;
 						}
 						const uint8 color = calc_severity_color( departed, max_departed );
-						setze_relief_farbe_area(k, 3, color );
+						set_relief_farbe_area(k, 3, color );
 					}
 				}
 			}
@@ -463,12 +463,12 @@ reliefkarte_t::calc_map_pixel(const koord k)
 		// show waiting goods
 		case MAP_WAITING:
 			{
-				halthandle_t halt = gr->gib_halt();
+				halthandle_t halt = gr->get_halt();
 				if (halt.is_bound()) {
-					const spieler_t* owner = halt->gib_besitzer();
-					if (owner == welt->get_active_player() || owner == welt->gib_spieler(1)) {
+					const spieler_t* owner = halt->get_besitzer();
+					if (owner == welt->get_active_player() || owner == welt->get_spieler(1)) {
 						const uint8 color = calc_severity_color(halt->get_finance_history(0, HALT_WAITING), halt->get_capacity() );
-						setze_relief_farbe_area(k, 3, color );
+						set_relief_farbe_area(k, 3, color );
 					}
 				}
 			}
@@ -478,16 +478,16 @@ reliefkarte_t::calc_map_pixel(const koord k)
 		case MAP_TRACKS:
 			// show track
 			if (gr->hat_weg(track_wt)) {
-				const schiene_t * sch = (const schiene_t *) (gr->gib_weg(track_wt));
+				const schiene_t * sch = (const schiene_t *) (gr->get_weg(track_wt));
 				if(sch->is_electrified()) {
-					setze_relief_farbe(k, COL_RED);
+					set_relief_farbe(k, COL_RED);
 				}
 				else {
-					setze_relief_farbe(k, COL_WHITE);
+					set_relief_farbe(k, COL_WHITE);
 				}
 				// show signals
 				if(sch->has_sign()  ||  sch->has_signal()) {
-					setze_relief_farbe(k, COL_YELLOW);
+					set_relief_farbe(k, COL_YELLOW);
 				}
 			}
 			break;
@@ -497,7 +497,7 @@ reliefkarte_t::calc_map_pixel(const koord k)
 			{
 				sint32 speed=gr->get_max_speed();
 				if(speed) {
-					setze_relief_farbe(k, calc_severity_color(gr->get_max_speed(), 450));
+					set_relief_farbe(k, calc_severity_color(gr->get_max_speed(), 450));
 				}
 			}
 			break;
@@ -516,14 +516,14 @@ reliefkarte_t::calc_map_pixel(const koord k)
 					if(capacity>max_capacity) {
 						max_capacity = capacity;
 					}
-					setze_relief_farbe(k, calc_severity_color(capacity,max_capacity) );
+					set_relief_farbe(k, calc_severity_color(capacity,max_capacity) );
 				}
 			}
 			break;
 
 		case MAP_FOREST:
-			if(gr->gib_top()>1  &&  gr->obj_bei(gr->gib_top()-1)->gib_typ()==ding_t::baum) {
-				setze_relief_farbe(k, COL_GREEN );
+			if(gr->get_top()>1  &&  gr->obj_bei(gr->get_top()-1)->get_typ()==ding_t::baum) {
+				set_relief_farbe(k, COL_GREEN );
 			}
 			break;
 
@@ -539,12 +539,12 @@ reliefkarte_t::calc_map()
 {
 	// size cahnge due to zoom?
 	koord size = rotate45 ?
-			koord( ((welt->gib_groesse_y()+zoom_in)*zoom_out)/zoom_in+((welt->gib_groesse_x()+zoom_in)*zoom_out)/zoom_in+1, ((welt->gib_groesse_y()+zoom_in-1)*zoom_out)/zoom_in+((welt->gib_groesse_x()+zoom_in-1)*zoom_out)/zoom_in ) :
-			koord( ((welt->gib_groesse_x()+zoom_in-1)*zoom_out)/zoom_in, ((welt->gib_groesse_y()+zoom_in-1)*zoom_out)/zoom_in );
+			koord( ((welt->get_groesse_y()+zoom_in)*zoom_out)/zoom_in+((welt->get_groesse_x()+zoom_in)*zoom_out)/zoom_in+1, ((welt->get_groesse_y()+zoom_in-1)*zoom_out)/zoom_in+((welt->get_groesse_x()+zoom_in-1)*zoom_out)/zoom_in ) :
+			koord( ((welt->get_groesse_x()+zoom_in-1)*zoom_out)/zoom_in, ((welt->get_groesse_y()+zoom_in-1)*zoom_out)/zoom_in );
 	if((sint16)relief->get_width()!=size.x  ||  (sint16)relief->get_height()!=size.y) {
 		delete relief;
 		relief = new array2d_tpl<unsigned char> (size.x,size.y);
-		setze_groesse(size);	// of the gui_komponete to adjust scroll bars
+		set_groesse(size);	// of the gui_komponete to adjust scroll bars
 		if(rotate45) {
 			memset( (void *)(relief->to_array()), COL_BLACK, size.x*size.y );
 		}
@@ -552,8 +552,8 @@ reliefkarte_t::calc_map()
 
 	// redraw the map
 	koord k;
-	for(k.y=0; k.y<welt->gib_groesse_y(); k.y++) {
-		for(k.x=0; k.x<welt->gib_groesse_x(); k.x++) {
+	for(k.y=0; k.y<welt->get_groesse_y(); k.y++) {
+		for(k.x=0; k.x<welt->get_groesse_x(); k.x++) {
 			calc_map_pixel(k);
 		}
 	}
@@ -561,8 +561,8 @@ reliefkarte_t::calc_map()
 	// mark all vehicle positions
 	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
 		convoihandle_t cnv = *i;
-		for (uint16 i = 0; i < cnv->gib_vehikel_anzahl(); i++) {
-			setze_relief_farbe(cnv->gib_vehikel(i)->gib_pos().gib_2d(), VEHIKEL_KENN);
+		for (uint16 i = 0; i < cnv->get_vehikel_anzahl(); i++) {
+			set_relief_farbe(cnv->get_vehikel(i)->get_pos().get_2d(), VEHIKEL_KENN);
 		}
 	}
 
@@ -574,26 +574,26 @@ reliefkarte_t::calc_map()
 			max_tourist_ziele = 1;
 			calc_map();
 		}
-		const weighted_vector_tpl<gebaeude_t *> &ausflugsziele = welt->gib_ausflugsziele();
+		const weighted_vector_tpl<gebaeude_t *> &ausflugsziele = welt->get_ausflugsziele();
 		for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = ausflugsziele.begin(), end = ausflugsziele.end(); i != end; ++i) {
-			int pax = (*i)->gib_passagier_level();
+			int pax = (*i)->get_passagier_level();
 			if (max_tourist_ziele < pax) max_tourist_ziele = pax;
 		}
 		for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = ausflugsziele.begin(), end = ausflugsziele.end(); i != end; ++i) {
 			const gebaeude_t* g = *i;
-			koord pos = g->gib_pos().gib_2d();
-			setze_relief_farbe_area( pos, 7, calc_severity_color(g->gib_passagier_level(), max_tourist_ziele));
+			koord pos = g->get_pos().get_2d();
+			set_relief_farbe_area( pos, 7, calc_severity_color(g->get_passagier_level(), max_tourist_ziele));
 		}
 		return;
 	}
 
 	// since we do iterate the factory info list, this must be done here
 	if(mode==MAP_FACTORIES) {
-		slist_iterator_tpl <fabrik_t *> iter (welt->gib_fab_list());
+		slist_iterator_tpl <fabrik_t *> iter (welt->get_fab_list());
 		while(iter.next()) {
-			koord pos = iter.get_current()->gib_pos().gib_2d();
-			setze_relief_farbe_area( pos, 9, COL_BLACK );
-			setze_relief_farbe_area( pos, 7, iter.get_current()->gib_kennfarbe() );
+			koord pos = iter.get_current()->get_pos().get_2d();
+			set_relief_farbe_area( pos, 9, COL_BLACK );
+			set_relief_farbe_area( pos, 7, iter.get_current()->get_kennfarbe() );
 		}
 		return;
 	}
@@ -601,10 +601,10 @@ reliefkarte_t::calc_map()
 	if(mode==MAP_DEPOT) {
 		slist_iterator_tpl <depot_t *> iter (depot_t::get_depot_list());
 		while(iter.next()) {
-			koord pos = iter.get_current()->gib_pos().gib_2d();
+			koord pos = iter.get_current()->get_pos().get_2d();
 			// offset of one to avoid
 			static uint8 depot_typ_to_color[12]={ COL_ORANGE, COL_YELLOW, COL_RED, 0, 0, 0, 0, 0, 0, COL_PURPLE, COL_DARK_RED, COL_DARK_ORANGE };
-			setze_relief_farbe_area(pos, 3, depot_typ_to_color[iter.get_current()->gib_typ()-ding_t::bahndepot] );
+			set_relief_farbe_area(pos, 3, depot_typ_to_color[iter.get_current()->get_typ()-ding_t::bahndepot] );
 		}
 		return;
 	}
@@ -640,7 +640,7 @@ reliefkarte_t::~reliefkarte_t()
 
 
 reliefkarte_t *
-reliefkarte_t::gib_karte()
+reliefkarte_t::get_karte()
 {
 	if(single_instance == NULL) {
 		single_instance = new reliefkarte_t();
@@ -651,7 +651,7 @@ reliefkarte_t::gib_karte()
 
 
 void
-reliefkarte_t::setze_welt(karte_t *welt)
+reliefkarte_t::set_welt(karte_t *welt)
 {
 	this->welt = welt;			// Welt fuer display_win() merken
 	if(relief) {
@@ -661,10 +661,10 @@ reliefkarte_t::setze_welt(karte_t *welt)
 	rotate45 = false;
 
 	if(welt) {
-		koord size = koord( (welt->gib_groesse_x()*zoom_out)/zoom_in+1, (welt->gib_groesse_y()*zoom_out)/zoom_in+1 );
-DBG_MESSAGE("reliefkarte_t::setze_welt()","welt size %i,%i",size.x,size.y);
+		koord size = koord( (welt->get_groesse_x()*zoom_out)/zoom_in+1, (welt->get_groesse_y()*zoom_out)/zoom_in+1 );
+DBG_MESSAGE("reliefkarte_t::set_welt()","welt size %i,%i",size.x,size.y);
 		relief = new array2d_tpl<unsigned char> (size.x,size.y);
-		setze_groesse(size);
+		set_groesse(size);
 		max_capacity = max_departed = max_arrived = max_cargo = max_convoi_arrived = max_passed = max_tourist_ziele = 0;
 	}
 }
@@ -720,23 +720,23 @@ reliefkarte_t::infowin_event(const event_t *ev)
 // helper function for redraw: factory connections
 const fabrik_t* reliefkarte_t::draw_fab_connections(const uint8 colour, const koord pos) const
 {
-	const fabrik_t* const fab = fabrik_t::gib_fab(welt, last_world_pos);
+	const fabrik_t* const fab = fabrik_t::get_fab(welt, last_world_pos);
 	if(fab) {
-		koord fabpos = fab->gib_pos().gib_2d();
+		koord fabpos = fab->get_pos().get_2d();
 		karte_to_screen( fabpos );
 		fabpos += pos;
-		const vector_tpl<koord>& lieferziele = event_get_last_control_shift() & 1 ? fab->get_suppliers() : fab->gib_lieferziele();
+		const vector_tpl<koord>& lieferziele = event_get_last_control_shift() & 1 ? fab->get_suppliers() : fab->get_lieferziele();
 		for (vector_tpl<koord>::const_iterator i = lieferziele.begin(), end = lieferziele.end(); i != end; ++i) {
 			koord lieferziel = *i;
-			const fabrik_t * fab2 = fabrik_t::gib_fab(welt, lieferziel);
+			const fabrik_t * fab2 = fabrik_t::get_fab(welt, lieferziel);
 			if (fab2) {
 				karte_to_screen( lieferziel );
 				const koord end = lieferziel+pos;
 				display_direct_line(fabpos.x, fabpos.y, end.x, end.y, colour);
-				display_fillbox_wh_clip(end.x, end.y, 3, 3, ((welt->gib_zeit_ms() >> 10) & 1) == 0 ? COL_RED : COL_WHITE, true);
+				display_fillbox_wh_clip(end.x, end.y, 3, 3, ((welt->get_zeit_ms() >> 10) & 1) == 0 ? COL_RED : COL_WHITE, true);
 
 				const koord boxpos = end + koord(10, 0);
-				const char * name = translator::translate(fab2->gib_name());
+				const char * name = translator::translate(fab2->get_name());
 				display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 5, COL_WHITE, name, true);
 			}
 		}
@@ -752,11 +752,11 @@ void reliefkarte_t::draw_schedule(const koord pos) const
 
 	koord first_koord;
 	koord last_koord;
-	const uint8 color = welt->gib_spieler(fpl_player_nr)->get_player_color1()+1;
+	const uint8 color = welt->get_spieler(fpl_player_nr)->get_player_color1()+1;
 
 	// get stop list from schedule
 	for( int i=0;  i<fpl->maxi();  i++  ) {
-		koord new_koord = fpl->eintrag[i].pos.gib_2d();
+		koord new_koord = fpl->eintrag[i].pos.get_2d();
 		karte_to_screen( new_koord );
 		new_koord += pos;
 
@@ -768,7 +768,7 @@ void reliefkarte_t::draw_schedule(const koord pos) const
 			first_koord = new_koord;
 		}
 		//check, if mouse is near coordinate
-		if(abs_distance(last_world_pos,fpl->eintrag[i].pos.gib_2d())<=2) {
+		if(abs_distance(last_world_pos,fpl->eintrag[i].pos.get_2d())<=2) {
 			// draw stop name with an index
 			cbuffer_t buf(256);
 			buf.clear();
@@ -803,7 +803,7 @@ reliefkarte_t::zeichnen(koord pos)
 		const PLAYER_COLOR_VAL color = 127;
 
 		// get city list
-		const weighted_vector_tpl<stadt_t*>& staedte = welt->gib_staedte();
+		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
 		// for all cities
 		for(  weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end();  i != end;  ++i  ) {
 			const stadt_t* stadt = *i;
@@ -858,11 +858,11 @@ reliefkarte_t::zeichnen(koord pos)
 	// if we do not do this here, vehicles would erase the town names
 	// ADD: if CRTL key is pressed, temporary show the name
 	if( mode==MAP_TOWN  ||  event_get_last_control_shift()==2 ) {
-		const weighted_vector_tpl<stadt_t*>& staedte = welt->gib_staedte();
+		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
 		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i) {
 			const stadt_t* stadt = *i;
-			koord p = stadt->gib_pos();
-			const char * name = stadt->gib_name();
+			koord p = stadt->get_pos();
+			const char * name = stadt->get_name();
 
 			int w = proportional_string_width(name);
 			karte_to_screen( p );
@@ -917,10 +917,10 @@ reliefkarte_t::zeichnen(koord pos)
 		// draw factory connections, if on a factory
 		const fabrik_t* const fab = draw_fab_connections(event_get_last_control_shift() & 1 ? COL_RED : COL_WHITE, pos);
 		if(fab) {
-			koord fabpos = fab->gib_pos().gib_2d();
+			koord fabpos = fab->get_pos().get_2d();
 			karte_to_screen( fabpos );
 			const koord boxpos = fabpos + koord(10, 0) + pos;
-			const char * name = translator::translate(fab->gib_name());
+			const char * name = translator::translate(fab->get_name());
 			display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 10, COL_WHITE, name, true);
 		}
 	}

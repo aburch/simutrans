@@ -41,7 +41,7 @@ void
 route_t::kopiere(const route_t *r)
 {
 	assert(r != NULL);
-	const unsigned int hops = r->gib_max_n();
+	const unsigned int hops = r->get_max_n();
 	route.clear();
 	route.resize(hops + 1);
 	for( unsigned int i=0;  i<=hops;  i++ ) {
@@ -52,12 +52,12 @@ route_t::kopiere(const route_t *r)
 void route_t::append(const route_t *r)
 {
 	assert(r != NULL);
-	const uint32 hops = r->gib_max_n();
+	const uint32 hops = r->get_max_n();
 	route.resize(hops+1+route.get_count());
 
-	while(gib_max_n()>0  &&  route[gib_max_n()] == r->position_bei(0)) {
+	while(get_max_n()>0  &&  route[get_max_n()] == r->position_bei(0)) {
 		// skip identical end tiles
-		route.remove_at(gib_max_n());
+		route.remove_at(get_max_n());
 	}
 	// then append
 	for( unsigned int i=0;  i<=hops;  i++ ) {
@@ -85,10 +85,10 @@ void route_t::append(koord3d k)
 
 
 void route_t::remove_koord_from(uint32 i) {
-	while(  i<gib_max_n()  ) {
-		route.remove_at(gib_max_n());
+	while(  i<get_max_n()  ) {
+		route.remove_at(get_max_n());
 	}
-	route.push_back(route[gib_max_n()]); // the last is always double
+	route.push_back(route[get_max_n()]); // the last is always double
 }
 
 
@@ -100,7 +100,7 @@ void route_t::remove_koord_from(uint32 i) {
  */
 bool route_t::append_straight_route(karte_t *welt, koord3d dest )
 {
-	if(route.get_count()<=1u  ||  !welt->ist_in_kartengrenzen(dest.gib_2d())) {
+	if(route.get_count()<=1u  ||  !welt->ist_in_kartengrenzen(dest.get_2d())) {
 		return false;
 	}
 
@@ -109,8 +109,8 @@ bool route_t::append_straight_route(karte_t *welt, koord3d dest )
 	}
 
 	// then try to calculate direct route
-	koord pos = route[gib_max_n()].gib_2d();
-	const koord ziel=dest.gib_2d();
+	koord pos = route[get_max_n()].get_2d();
+	const koord ziel=dest.get_2d();
 	route.resize( route.get_count()+abs_distance(pos,ziel)+2 );
 DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",pos.x,pos.y,dest.x,dest.y);
 	while(pos!=ziel) {
@@ -124,7 +124,7 @@ DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",p
 		if(!welt->ist_in_kartengrenzen(pos)) {
 			break;
 		}
-		route.push_back(welt->lookup(pos)->gib_kartenboden()->gib_pos());
+		route.push_back(welt->lookup(pos)->get_kartenboden()->get_pos());
 	}
 	route.push_back(route.back());
 	DBG_MESSAGE("route_t::append_straight_route()","to (%i,%i) found.",ziel.x,ziel.y);
@@ -157,11 +157,11 @@ route_t::find_route(karte_t *welt,
 	}
 
 	// some thing for the search
-	const waytype_t wegtyp = fahr->gib_waytype();
+	const waytype_t wegtyp = fahr->get_waytype();
 
 	// memory in static list ...
 	if(nodes==NULL) {
-		MAX_STEP = welt->gib_einstellungen()->gib_max_route_steps();
+		MAX_STEP = welt->get_einstellungen()->get_max_route_steps();
 		nodes = new ANode[MAX_STEP];
 	}
 
@@ -207,7 +207,7 @@ route_t::find_route(karte_t *welt,
 		close.push_back(tmp);
 		gr = tmp->gr;
 
-//DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z,tmp->f);
+//DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->get_pos().x,gr->get_pos().y,gr->get_pos().z,tmp->f);
 		// already there
 		if(fahr->ist_ziel(gr,tmp->parent==NULL?NULL:tmp->parent->gr)) {
 			// we added a target to the closed list: we are finished
@@ -215,12 +215,12 @@ route_t::find_route(karte_t *welt,
 		}
 
 		// testing all four possible directions
-		const ribi_t::ribi ribi =  fahr->gib_ribi(gr);
+		const ribi_t::ribi ribi =  fahr->get_ribi(gr);
 		for(int r=0; r<4; r++) {
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			grund_t* to;
 			if(  (ribi & ribi_t::nsow[r] & start_dir)!=0  // allowed dir (we can restrict the first step by start_dir)
-				&& abs_distance(start.gib_2d(),gr->gib_pos().gib_2d()+koord::nsow[r])<max_depth	// not too far away
+				&& abs_distance(start.get_2d(),gr->get_pos().get_2d()+koord::nsow[r])<max_depth	// not too far away
 				&& gr->get_neighbour(to, wegtyp, koord::nsow[r])  // is connected
 				&& fahr->ist_befahrbar(to)	// can be driven on
 			) {
@@ -256,7 +256,7 @@ route_t::find_route(karte_t *welt,
 				k->gr = to;
 				k->count = tmp->count+1;
 
-//DBG_DEBUG("insert to open","%i,%i,%i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z);
+//DBG_DEBUG("insert to open","%i,%i,%i",to->get_pos().x,to->get_pos().y,to->get_pos().z);
 				// insert here
 				open.push_back(k);
 			}
@@ -279,7 +279,7 @@ route_t::find_route(karte_t *welt,
 		route.clear();
 		route.resize(tmp->count+16);
 		while(tmp != NULL) {
-			route.store_at( tmp->count, tmp->gr->gib_pos() );
+			route.store_at( tmp->count, tmp->gr->get_pos() );
 //DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
 			tmp = tmp->parent;
 		}
@@ -330,15 +330,15 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	}
 
 	// some thing for the search
-	const waytype_t wegtyp = fahr->gib_waytype();
-	const bool is_airplane = fahr->gib_waytype()==air_wt;
+	const waytype_t wegtyp = fahr->get_waytype();
+	const bool is_airplane = fahr->get_waytype()==air_wt;
 	grund_t *to;
 
 	bool ziel_erreicht=false;
 
 	// memory in static list ...
 	if(nodes==NULL) {
-		MAX_STEP = welt->gib_einstellungen()->gib_max_route_steps();	// may need very much memory => configurable
+		MAX_STEP = welt->get_einstellungen()->get_max_route_steps();	// may need very much memory => configurable
 		nodes = new ANode[MAX_STEP + 4 + 2];
 	}
 
@@ -396,17 +396,17 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		gr = tmp->gr;
 		welt->markiere(gr);
 
-//DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z,tmp->f);
+//DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->get_pos().x,gr->get_pos().y,gr->get_pos().z,tmp->f);
 
 		// we took the target pos out of the closed list
-		if(ziel==gr->gib_pos()) {
+		if(ziel==gr->get_pos()) {
 			ziel_erreicht = true;
 			break;
 		}
 
 		// testing all four possible directions
-		const ribi_t::ribi ribi =  fahr->gib_ribi(gr);
-		const ribi_t::ribi *next_ribi = get_next_dirs(gr->gib_pos().gib_2d(),ziel.gib_2d());
+		const ribi_t::ribi ribi =  fahr->get_ribi(gr);
+		const ribi_t::ribi *next_ribi = get_next_dirs(gr->get_pos().get_2d(),ziel.get_2d());
 		for(int r=0; r<4; r++) {
 
 			// a way in our direction?
@@ -416,9 +416,9 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 			to = NULL;
 			if(is_airplane) {
-				const planquadrat_t *pl=welt->lookup(gr->gib_pos().gib_2d()+koord(next_ribi[r]));
+				const planquadrat_t *pl=welt->lookup(gr->get_pos().get_2d()+koord(next_ribi[r]));
 				if(pl) {
-					to = pl->gib_kartenboden();
+					to = pl->get_kartenboden();
 				}
 			}
 
@@ -428,20 +428,20 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				// Do not go on a tile, where a oneway sign forbids going.
 				// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
 				ribi_t::ribi last_dir=next_ribi[r];
-				weg_t *w=to->gib_weg(wegtyp);
-				ribi_t::ribi go_dir = (w==NULL) ? 0 : w->gib_ribi_maske();
+				weg_t *w=to->get_weg(wegtyp);
+				ribi_t::ribi go_dir = (w==NULL) ? 0 : w->get_ribi_maske();
 				if((last_dir&go_dir)!=0) {
 						continue;
 				}
 
 				// new values for cost g
-				uint32 new_g = tmp->g + fahr->gib_kosten(to,max_speed);
+				uint32 new_g = tmp->g + fahr->get_kosten(to,max_speed);
 
 				// check for curves (usually, one would need the lastlast and the last;
 				// if not there, then we could just take the last
 				uint8 current_dir;
 				if(tmp->parent!=NULL) {
-					current_dir = ribi_typ( tmp->parent->gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
+					current_dir = ribi_typ( tmp->parent->gr->get_pos().get_2d(), to->get_pos().get_2d() );
 					if(tmp->dir!=current_dir) {
 						new_g += 3;
 						if(tmp->parent->dir!=tmp->dir) {
@@ -456,10 +456,10 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 				}
 				else {
-					 current_dir = ribi_typ( gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
+					 current_dir = ribi_typ( gr->get_pos().get_2d(), to->get_pos().get_2d() );
 				}
 
-				const uint32 new_f = new_g + calc_distance( to->gib_pos(), ziel );
+				const uint32 new_f = new_g + calc_distance( to->get_pos(), ziel );
 
 				// add new
 				ANode* k = &nodes[step];
@@ -480,7 +480,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 #ifdef DEBUG_ROUTES
 	// display marked route
-	//reliefkarte_t::gib_karte()->calc_map();
+	//reliefkarte_t::get_karte()->calc_map();
 	DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u (max %u)",step,MAX_STEP,queue.count(),tmp->g,max_cost);
 #endif
 
@@ -494,8 +494,8 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		route.clear();
 		route.resize(tmp->count+16);
 		while(tmp != NULL) {
-			route.store_at( tmp->count, tmp->gr->gib_pos() );
-//DBG_DEBUG("add","%i,%i at pos %i",tmp->gr->gib_pos().x,tmp->gr->gib_pos().y,tmp->count);
+			route.store_at( tmp->count, tmp->gr->get_pos() );
+//DBG_DEBUG("add","%i,%i at pos %i",tmp->gr->get_pos().x,tmp->gr->get_pos().y,tmp->count);
 			tmp = tmp->parent;
 		}
 		ok = true;
@@ -525,7 +525,7 @@ bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start,
 #endif
 	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm,max_cost);
 #ifdef DEBUG_ROUTES
-	if(fahr->gib_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-2, dr_time()-ms );}
+	if(fahr->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-2, dr_time()-ms );}
 #endif
 
 	INT_CHECK("route 343");
@@ -539,34 +539,34 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 	}
 	else {
 		// drive to the end in a station
-		halthandle_t halt = welt->lookup(start)->gib_halt();
+		halthandle_t halt = welt->lookup(start)->get_halt();
 
 		// only needed for stations: go to the very end
 		if(halt.is_bound()) {
 
 			// does only make sence for trains
-			if(fahr->gib_waytype()==track_wt  ||  fahr->gib_waytype()==monorail_wt  ||  fahr->gib_waytype()==tram_wt  ||  fahr->gib_waytype()==maglev_wt  ||  fahr->gib_waytype()==narrowgauge_wt) {
+			if(fahr->get_waytype()==track_wt  ||  fahr->get_waytype()==monorail_wt  ||  fahr->get_waytype()==tram_wt  ||  fahr->get_waytype()==maglev_wt  ||  fahr->get_waytype()==narrowgauge_wt) {
 
 				int max_n = route.get_count()-1;
 
-				const koord zv = route[max_n].gib_2d() - route[max_n - 1].gib_2d();
+				const koord zv = route[max_n].get_2d() - route[max_n - 1].get_2d();
 //DBG_DEBUG("route_t::calc_route()","zv=%i,%i",zv.x,zv.y);
 
-				const int ribi = ribi_typ(zv);//fahr->gib_ribi(welt->lookup(start));
+				const int ribi = ribi_typ(zv);//fahr->get_ribi(welt->lookup(start));
 				grund_t *gr=welt->lookup(start);
-				const waytype_t wegtyp=fahr->gib_waytype();
+				const waytype_t wegtyp=fahr->get_waytype();
 
-				while(gr->get_neighbour(gr,wegtyp,zv)  &&  gr->gib_halt() == halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->gib_ribi(gr)&&ribi)!=0) {
+				while(gr->get_neighbour(gr,wegtyp,zv)  &&  gr->get_halt() == halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->get_ribi(gr)&&ribi)!=0) {
 					// stop at end of track! (prissi)
 
 					// Do not go on a tile, where a oneway sign forbids going.
 					// This saves time and fixed the bug, that a oneway sign on the finaly tile was ignored.
-					ribi_t::ribi go_dir=gr->gib_weg(wegtyp)->gib_ribi_maske();
+					ribi_t::ribi go_dir=gr->get_weg(wegtyp)->get_ribi_maske();
 					if((ribi&go_dir)!=0) {
 						break;
 					}
-//DBG_DEBUG("route_t::calc_route()","add station at %i,%i",gr->gib_pos().x,gr->gib_pos().y);
-					route.push_back(gr->gib_pos());
+//DBG_DEBUG("route_t::calc_route()","add station at %i,%i",gr->get_pos().x,gr->get_pos().y);
+					route.push_back(gr->get_pos());
 				}
 			}
 		}

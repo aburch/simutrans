@@ -386,8 +386,8 @@ public:
 	 * dirty: redraw whole screen
 	 * @author Hj. Malthaner
 	 */
-	void setze_dirty() {dirty=true;}
-	void setze_dirty_zurueck() {dirty=false;}
+	void set_dirty() {dirty=true;}
+	void set_dirty_zurueck() {dirty=false;}
 	bool ist_dirty() const {return dirty;}
 
 	// do the internal accounting
@@ -415,8 +415,8 @@ public:
 	// recalcs all map images
 	void update_map();
 
-	karte_ansicht_t *gib_ansicht() const { return view; }
-	void setze_ansicht(karte_ansicht_t *v) { view = v; }
+	karte_ansicht_t *get_ansicht() const { return view; }
+	void set_ansicht(karte_ansicht_t *v) { view = v; }
 
 	/**
 	 * viewpoint in tile koordinates
@@ -425,8 +425,8 @@ public:
 	koord get_world_position() const { return ij_off; }
 
 	// fine offset within the viewprt tile
-	int gib_x_off() const {return x_off;}
-	int gib_y_off() const {return y_off;}
+	int get_x_off() const {return x_off;}
+	int get_y_off() const {return y_off;}
 
 	/**
 	 * set center viewport position
@@ -439,8 +439,8 @@ public:
 
 	// the koordinates between the screen and a tile may have several offset
 	// this routine caches them
-	void setze_ansicht_ij_offset( koord k ) { ansicht_ij_off=k; }
-	koord gib_ansicht_ij_offset() const { return ansicht_ij_off; }
+	void set_ansicht_ij_offset( koord k ) { ansicht_ij_off=k; }
+	koord get_ansicht_ij_offset() const { return ansicht_ij_off; }
 
 	/**
 	 * If this is true, the map will not be scrolled
@@ -455,7 +455,7 @@ public:
 	void set_follow_convoi(convoihandle_t cnv) { follow_convoi = cnv; }
 	convoihandle_t get_follow_convoi() const { return follow_convoi; }
 
-	einstellungen_t* gib_einstellungen() const { return einstellungen; }
+	einstellungen_t* get_einstellungen() const { return einstellungen; }
 
 	// returns current speed bonus
 	int get_average_speed(waytype_t typ) const { return average_speed[ (typ==16 ? 3 : (int)(typ-1)&7 ) ]; }
@@ -473,7 +473,7 @@ public:
 	bool is_fast_forward() const { return fast_forward; }
 	void set_fast_forward(bool ff) { fast_forward = ff; reset_timer(); }
 
-	zeiger_t * gib_zeiger() const { return zeiger; }
+	zeiger_t * get_zeiger() const { return zeiger; }
 
 	/**
 	 * marks an area using the grund_t mark flag
@@ -485,7 +485,7 @@ public:
 	 * Player management here
 	 */
 	uint8 sp2num(spieler_t *sp);
-	spieler_t * gib_spieler(uint8 n) const { return spieler[n&15]; }
+	spieler_t * get_spieler(uint8 n) const { return spieler[n&15]; }
 	spieler_t* get_active_player() const { return active_player; }
 	uint8 get_active_player_nr() const { return active_player_nr; }
 	void switch_active_player(uint8 nr);
@@ -497,7 +497,7 @@ public:
 	void set_schedule_counter() { schedule_counter++; }
 
 	// often used, therefore found here
-	bool use_timeline() const { return einstellungen->gib_use_timeline(); }
+	bool use_timeline() const { return einstellungen->get_use_timeline(); }
 
 	void reset_timer();
 	void step_year();
@@ -507,7 +507,7 @@ public:
 	void step_month( sint16 months=1 );
 
 	// returns either 0 or the current year*16 + month
-	uint16 get_timeline_year_month() const { return einstellungen->gib_use_timeline() ? current_month : 0; }
+	uint16 get_timeline_year_month() const { return einstellungen->get_use_timeline() ? current_month : 0; }
 
 	/**
 	* anzahl ticks pro tag in bits
@@ -522,7 +522,7 @@ public:
 	*/
 	uint32 ticks_per_tag;
 
-	void setze_ticks_bits_per_tag(uint32 bits) {ticks_bits_per_tag = bits; ticks_per_tag = (1 << ticks_bits_per_tag); }
+	void set_ticks_bits_per_tag(uint32 bits) {ticks_bits_per_tag = bits; ticks_per_tag = (1 << ticks_bits_per_tag); }
 
 	sint32 get_time_multiplier() const { return time_multiplier; }
 	void change_time_multiplier( sint32 delta );
@@ -531,13 +531,13 @@ public:
 	 * 0=winter, 1=spring, 2=summer, 3=autumn
 	 * @author prissi
 	 */
-	uint8 gib_jahreszeit() const { return season; }
+	uint8 get_jahreszeit() const { return season; }
 
 	/**
 	 * Zeit seit Kartenerzeugung/dem letzen laden in ms
 	 * @author Hj. Malthaner
 	 */
-	uint32 gib_zeit_ms() const { return ticks; }
+	uint32 get_zeit_ms() const { return ticks; }
 
 	/**
 	 * absolute month (count start year zero)
@@ -553,31 +553,31 @@ public:
 	 * Anzahl steps seit Kartenerzeugung
 	 * @author Hj. Malthaner
 	 */
-	long gib_steps() const { return steps; }
+	long get_steps() const { return steps; }
 
 	/**
 	 * Idle time. Nur zur Anzeige verwenden!
 	 * @author Hj. Malthaner
 	 */
-	uint32 gib_schlaf_zeit() const { return next_wait_time; }
+	uint32 get_schlaf_zeit() const { return next_wait_time; }
 
 	/**
 	 * Anzahl frames in der letzten Sekunde Realzeit
 	 * @author prissi
 	 */
-	uint32 gib_realFPS() const { return realFPS; }
+	uint32 get_realFPS() const { return realFPS; }
 
 	/**
 	 * Anzahl Simulationsloops in der letzten Sekunde. Kann sehr ungenau sein!
 	 * @author Hj. Malthaner
 	 */
-	uint32 gib_simloops() const { return simloops; }
+	uint32 get_simloops() const { return simloops; }
 
 	/**
 	* Holt den Grundwasserlevel der Karte
 	* @author Hj. Malthaner
 	*/
-	sint8 gib_grundwasser() const { return grundwasser; }
+	sint8 get_grundwasser() const { return grundwasser; }
 
 	/**
 	* returns the current snowline height
@@ -605,9 +605,9 @@ public:
 	werkzeug_t *get_werkzeug() const { return werkzeug; }
 
 	// all stuf concerning map size
-	inline int gib_groesse_x() const { return cached_groesse_gitter_x; }
-	inline int gib_groesse_y() const { return cached_groesse_gitter_y; }
-	inline int gib_groesse_max() const { return cached_groesse_max; }
+	inline int get_groesse_x() const { return cached_groesse_gitter_x; }
+	inline int get_groesse_y() const { return cached_groesse_gitter_y; }
+	inline int get_groesse_max() const { return cached_groesse_max; }
 
 	inline bool ist_in_kartengrenzen(koord k) const {
 		// prissi: since negative values will make the whole result negative, we can use bitwise or
@@ -659,8 +659,8 @@ public:
 	 */
 	inline grund_t * lookup(const koord3d pos) const
 	{
-		const planquadrat_t *plan = lookup(pos.gib_2d());
-		return plan ? plan->gib_boden_in_hoehe(pos.z) : NULL;
+		const planquadrat_t *plan = lookup(pos.get_2d());
+		return plan ? plan->get_boden_in_hoehe(pos.z) : NULL;
 	}
 
 	/**
@@ -671,7 +671,7 @@ public:
 	inline grund_t * lookup_kartenboden(const koord pos) const
 	{
 		const planquadrat_t *plan = lookup(pos);
-		return plan ? plan->gib_kartenboden() : NULL;
+		return plan ? plan->get_kartenboden() : NULL;
 	}
 
 	/**
@@ -808,7 +808,7 @@ public:
 	 * Zugriff auf das Städte Array.
 	 * @author Hj. Malthaner
 	 */
-	const weighted_vector_tpl<stadt_t*>& gib_staedte() const { return stadt; }
+	const weighted_vector_tpl<stadt_t*>& get_staedte() const { return stadt; }
 	const stadt_t *get_random_stadt() const;
 	void add_stadt(stadt_t *s);
 	bool rem_stadt(stadt_t *s);
@@ -816,18 +816,18 @@ public:
 	/* tourist attraction list */
 	void add_ausflugsziel(gebaeude_t *gb);
 	void remove_ausflugsziel(gebaeude_t *gb);
-	const gebaeude_t *gib_random_ausflugsziel() const;
-	const weighted_vector_tpl<gebaeude_t*> &gib_ausflugsziele() const {return ausflugsziele; }
+	const gebaeude_t *get_random_ausflugsziel() const;
+	const weighted_vector_tpl<gebaeude_t*> &get_ausflugsziele() const {return ausflugsziele; }
 
 	void add_label(koord pos) { if (!labels.contains(pos)) labels.append(pos); }
 	void remove_label(koord pos) { labels.remove(pos); }
-	const slist_tpl<koord>& gib_label_list() const { return labels; }
+	const slist_tpl<koord>& get_label_list() const { return labels; }
 
 	bool add_fab(fabrik_t *fab);
 	bool rem_fab(fabrik_t *fab);
-	int gib_fab_index(fabrik_t* fab) { return fab_list.index_of(fab); }
-	fabrik_t* gib_fab(unsigned index) { return index < fab_list.count() ? fab_list.at(index) : NULL; }
-	const slist_tpl<fabrik_t*>& gib_fab_list() const { return fab_list; }
+	int get_fab_index(fabrik_t* fab) { return fab_list.index_of(fab); }
+	fabrik_t* get_fab(unsigned index) { return index < fab_list.count() ? fab_list.at(index) : NULL; }
+	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
 	/* sucht zufaellig eine Fabrik aus der Fabrikliste
 	 * @author Hj. Malthaner
@@ -874,7 +874,7 @@ public:
 	 * Never set grid_hgts manually, always use this method!
 	 * @author Hj. Malthaner
 	 */
-	void setze_grid_hgt(koord k, sint16 hgt) { grid_hgts[k.x + k.y*(uint32)(cached_groesse_gitter_x+1)] = (hgt/Z_TILE_STEP); }
+	void set_grid_hgt(koord k, sint16 hgt) { grid_hgts[k.x + k.y*(uint32)(cached_groesse_gitter_x+1)] = (hgt/Z_TILE_STEP); }
 
 	/**
 	 * @return Minimale Hoehe des Planquadrates i,j
@@ -917,7 +917,7 @@ public:
 
 	void mute_sound( bool state ) { is_sound = !state; }
 
-	bool setze_hoehe(int x,int y,int h,int &n);
+	bool set_hoehe(int x,int y,int h,int &n);
 
 	/**
 	 * Saves the map to a file

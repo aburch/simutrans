@@ -63,11 +63,11 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	image_id gib_bild() const;
+	image_id get_bild() const;
 
 	// hide trees eventually with transparency
-	PLAYER_COLOR_VAL gib_outline_colour() const { return (umgebung_t::hide_trees  &&  umgebung_t::hide_with_transparency) ? (TRANSPARENT25_FLAG | OUTLINE_FLAG | COL_BLACK) : 0; }
-	image_id gib_outline_bild() const;
+	PLAYER_COLOR_VAL get_outline_colour() const { return (umgebung_t::hide_trees  &&  umgebung_t::hide_with_transparency) ? (TRANSPARENT25_FLAG | OUTLINE_FLAG | COL_BLACK) : 0; }
+	image_id get_outline_bild() const;
 
 	/**
 	 * Berechnet Alter und Bild abhängig vom Alter
@@ -75,8 +75,8 @@ public:
 	 */
 	void calc_bild();
 
-	const char *gib_name() const {return "Baum";}
-	enum ding_t::typ gib_typ() const {return baum;}
+	const char *get_name() const {return "Baum";}
+	enum ding_t::typ get_typ() const {return baum;}
 
 	bool check_season(const long delta_t);
 
@@ -89,7 +89,7 @@ public:
 	void * operator new(size_t s);
 	void operator delete(void *p);
 
-	const baum_besch_t* gib_besch() const { return baum_typen[baumtype]; }
+	const baum_besch_t* get_besch() const { return baum_typen[baumtype]; }
 
 	// static functions to handle trees
 
@@ -110,14 +110,14 @@ public:
 
 
 	// return list to beschs
-	static const vector_tpl<const baum_besch_t *> *gib_all_besch() { return &baum_typen; }
+	static const vector_tpl<const baum_besch_t *> *get_all_besch() { return &baum_typen; }
 
 	static const baum_besch_t *random_tree_for_climate(climate cl) { uint16 b = random_tree_for_climate_intern(cl);  return b!=0xFFFF ? baum_typen[b] : NULL; }
 
 	static const baum_besch_t *find_tree( const char *tree_name ) { return baum_typen.empty() ? NULL : baum_typen[besch_names.get(tree_name)]; }
 
-	static int gib_anzahl_besch() { return baum_typen.get_count(); }
-	static int gib_anzahl_besch(climate cl);
+	static int get_anzahl_besch() { return baum_typen.get_count(); }
+	static int get_anzahl_besch(climate cl);
 
 };
 

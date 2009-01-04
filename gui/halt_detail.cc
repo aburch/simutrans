@@ -23,7 +23,7 @@
 
 
 halt_detail_t::halt_detail_t(halthandle_t halt_) :
-	gui_frame_t(translator::translate("Details"), halt_->gib_besitzer()),
+	gui_frame_t(translator::translate("Details"), halt_->get_besitzer()),
 	halt(halt_),
 	scrolly(&cont),
 	txt_info(" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
@@ -37,20 +37,20 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 
 	// fill buffer with halt detail
 	halt_detail_info(cb_info_buffer);
-	txt_info.setze_text(cb_info_buffer);
-	txt_info.setze_pos(koord(10,10));
+	txt_info.set_text(cb_info_buffer);
+	txt_info.set_pos(koord(10,10));
 
 	// calc window size
-	const koord size = txt_info.gib_groesse();
+	const koord size = txt_info.get_groesse();
 	if (size.y < 400) {
-		setze_fenstergroesse(koord(300, size.y + 32));
+		set_fenstergroesse(koord(300, size.y + 32));
 	} else {
-		setze_fenstergroesse(koord(300, 400));
+		set_fenstergroesse(koord(300, 400));
 	}
 
 	// add scrollbar
-	scrolly.setze_pos(koord(1, 1));
-	scrolly.setze_groesse(gib_fenstergroesse() + koord(-1, -17));
+	scrolly.set_pos(koord(1, 1));
+	scrolly.set_groesse(get_fenstergroesse() + koord(-1, -17));
 
 	add_komponente(&scrolly);
 }
@@ -81,7 +81,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	}
 	buf.clear();
 
-	const slist_tpl<fabrik_t *> & fab_list = halt->gib_fab_list();
+	const slist_tpl<fabrik_t *> & fab_list = halt->get_fab_list();
 	slist_tpl<const ware_besch_t *> nimmt_an;
 
 	sint16 offset_y = 20;
@@ -95,18 +95,18 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 
 		while(fab_iter.next()) {
 			const fabrik_t * fab = fab_iter.get_current();
-			const koord pos = fab->gib_pos().gib_2d();
+			const koord pos = fab->get_pos().get_2d();
 
 			// target button ...
 			button_t *pb = new button_t();
 			pb->init( button_t::posbutton, NULL, koord(10, offset_y) );
-			pb->setze_targetpos( pos );
+			pb->set_targetpos( pos );
 			pb->add_listener( this );
 			posbuttons.append( pb );
 			cont.add_komponente( pb );
 
 			buf.append("   ");
-			buf.append(translator::translate(fab->gib_name()));
+			buf.append(translator::translate(fab->get_name()));
 			buf.append(" (");
 			buf.append(pos.x);
 			buf.append(", ");
@@ -114,9 +114,9 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 			buf.append(")\n");
 			offset_y += LINESPACE;
 
-			const vector_tpl<ware_production_t>& eingang = fab->gib_eingang();
+			const vector_tpl<ware_production_t>& eingang = fab->get_eingang();
 			for (uint32 i = 0; i < eingang.get_count(); i++) {
-				const ware_besch_t* ware = eingang[i].gib_typ();
+				const ware_besch_t* ware = eingang[i].get_typ();
 
 				if(!nimmt_an.contains(ware)) {
 					nimmt_an.append(ware);
@@ -138,12 +138,12 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	offset_y += LINESPACE;
 
 	if (!nimmt_an.empty()) {
-		for(uint32 i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-			const ware_besch_t *ware = warenbauer_t::gib_info(i);
+		for(uint32 i=0; i<warenbauer_t::get_waren_anzahl(); i++) {
+			const ware_besch_t *ware = warenbauer_t::get_info(i);
 			if(nimmt_an.contains(ware)) {
 
 				buf.append(" ");
-				buf.append(translator::translate(ware->gib_name()));
+				buf.append(translator::translate(ware->get_name()));
 				buf.append("\n");
 				offset_y += LINESPACE;
 			}
@@ -181,31 +181,31 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 
 	bool has_stops = false;
 
-	if(!halt->gib_warenziele_passenger()->empty()) {
+	if(!halt->get_warenziele_passenger()->empty()) {
 		buf.append("\n");
 		offset_y += LINESPACE;
 
 		buf.append(" ·");
-		buf.append(translator::translate(warenbauer_t::passagiere->gib_name()));
+		buf.append(translator::translate(warenbauer_t::passagiere->get_name()));
 		buf.append(":\n");
 		offset_y += LINESPACE;
 
-		const slist_tpl<warenziel_t> *ziele = halt->gib_warenziele_passenger();
+		const slist_tpl<warenziel_t> *ziele = halt->get_warenziele_passenger();
 		slist_iterator_tpl<warenziel_t> iter (ziele);
 		while(iter.next()) {
 			warenziel_t wz = iter.get_current();
-			halthandle_t a_halt = wz.gib_zielhalt();
+			halthandle_t a_halt = wz.get_zielhalt();
 			if(a_halt.is_bound()) {
 
 				has_stops = true;
 
 				buf.append("   ");
-				buf.append(a_halt->gib_name());
+				buf.append(a_halt->get_name());
 
 				// target button ...
 				button_t *pb = new button_t();
 				pb->init( button_t::posbutton, NULL, koord(10, offset_y) );
-				pb->setze_targetpos( a_halt->gib_basis_pos() );
+				pb->set_targetpos( a_halt->get_basis_pos() );
 				pb->add_listener( this );
 				posbuttons.append( pb );
 				cont.add_komponente( pb );
@@ -216,31 +216,31 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 		}
 	}
 
-	if(!halt->gib_warenziele_mail()->empty()) {
+	if(!halt->get_warenziele_mail()->empty()) {
 		buf.append("\n");
 		offset_y += LINESPACE;
 
 		buf.append(" ·");
-		buf.append(translator::translate(warenbauer_t::post->gib_name()));
+		buf.append(translator::translate(warenbauer_t::post->get_name()));
 		buf.append(":\n");
 		offset_y += LINESPACE;
 
-		const slist_tpl<warenziel_t> *ziele = halt->gib_warenziele_mail();
+		const slist_tpl<warenziel_t> *ziele = halt->get_warenziele_mail();
 		slist_iterator_tpl<warenziel_t> iter (ziele);
 		while(iter.next()) {
 			warenziel_t wz = iter.get_current();
-			halthandle_t a_halt = wz.gib_zielhalt();
+			halthandle_t a_halt = wz.get_zielhalt();
 			if(a_halt.is_bound()) {
 
 				has_stops = true;
 
 				buf.append("   ");
-				buf.append(a_halt->gib_name());
+				buf.append(a_halt->get_name());
 
 				// target button ...
 				button_t *pb = new button_t();
 				pb->init( button_t::posbutton, NULL, koord(10, offset_y) );
-				pb->setze_targetpos( a_halt->gib_basis_pos() );
+				pb->set_targetpos( a_halt->get_basis_pos() );
 				pb->add_listener( this );
 				posbuttons.append( pb );
 				cont.add_komponente( pb );
@@ -254,26 +254,26 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	buf.append("\n\n");
 	offset_y += LINESPACE;
 	offset_y += LINESPACE;
-	if(!halt->gib_warenziele_freight()->empty()) {
+	if(!halt->get_warenziele_freight()->empty()) {
 
 		bool first = true;
 
-		const slist_tpl<warenziel_t> *ziele = halt->gib_warenziele_freight();
+		const slist_tpl<warenziel_t> *ziele = halt->get_warenziele_freight();
 		slist_iterator_tpl<warenziel_t> iter (ziele);
 		while(iter.next()) {
 				warenziel_t wz = iter.get_current();
-				halthandle_t a_halt = wz.gib_zielhalt();
+				halthandle_t a_halt = wz.get_zielhalt();
 				if(a_halt.is_bound()) {
 
 					has_stops = true;
 
 					buf.append("   ");
-					buf.append(a_halt->gib_name());
+					buf.append(a_halt->get_name());
 
 					// target button ...
 					button_t *pb = new button_t();
 					pb->init( button_t::posbutton, NULL, koord(10, offset_y) );
-					pb->setze_targetpos( a_halt->gib_basis_pos() );
+					pb->set_targetpos( a_halt->get_basis_pos() );
 					pb->add_listener( this );
 					posbuttons.append( pb );
 					cont.add_komponente( pb );
@@ -282,19 +282,19 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 					offset_y += LINESPACE;
 
 					first = true;
-					for(uint32 i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-						const ware_besch_t *ware = warenbauer_t::gib_info(i);
+					for(uint32 i=0; i<warenbauer_t::get_waren_anzahl(); i++) {
+						const ware_besch_t *ware = warenbauer_t::get_info(i);
 
-						if(wz.gib_catg_index()==ware->gib_catg_index()) {
+						if(wz.get_catg_index()==ware->get_catg_index()) {
 
 						if(first) {
 							buf.append(" ·");
-							buf.append(translator::translate(ware->gib_name()));
+							buf.append(translator::translate(ware->get_name()));
 							first = false;
 
 						} else {
 							buf.append(", ");
-							buf.append(translator::translate(ware->gib_name()));
+							buf.append(translator::translate(ware->get_name()));
 						}
 					}
 				}
@@ -312,9 +312,9 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	}
 	buf.append("\n\n");
 
-	txt_info.setze_text(buf);
+	txt_info.set_text(buf);
 	txt_info.recalc_size();
-	cont.setze_groesse( txt_info.gib_groesse() );
+	cont.set_groesse( txt_info.get_groesse() );
 
 	// ok, we have now this counter for pending updates
 	destination_counter = halt->get_rebuild_destination_counter();
@@ -339,7 +339,7 @@ void halt_detail_t::zeichnen(koord pos, koord gr)
 		if(halt->get_rebuild_destination_counter()!=destination_counter) {
 			// fill buffer with halt detail
 			halt_detail_info(cb_info_buffer);
-			txt_info.setze_text(cb_info_buffer);
+			txt_info.set_text(cb_info_buffer);
 		}
 	}
 	gui_frame_t::zeichnen( pos, gr );

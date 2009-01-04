@@ -59,7 +59,7 @@ planquadrat_t::~planquadrat_t()
 
 
 grund_t *
-planquadrat_t::gib_boden_von_obj(ding_t *obj) const
+planquadrat_t::get_boden_von_obj(ding_t *obj) const
 {
 	if(ground_size==1) {
 		if(data.one  &&  data.one->obj_ist_da(obj)) {
@@ -85,14 +85,14 @@ void planquadrat_t::boden_hinzufuegen(grund_t *bd)
 		// completely empty
 		data.one = bd;
 		ground_size = 1;
-		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
+		reliefkarte_t::get_karte()->calc_map_pixel(bd->get_pos().get_2d());
 		return;
 	}
 	else if(ground_size==1) {
 		// needs to convert to array
-//	assert(data.one->gib_hoehe()!=bd->gib_hoehe());
-		if(data.one->gib_hoehe()==bd->gib_hoehe()) {
-DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at (%i,%i,%i) will be ignored!",bd->gib_name(),bd->gib_pos().x,bd->gib_pos().y,bd->gib_pos().z);
+//	assert(data.one->get_hoehe()!=bd->get_hoehe());
+		if(data.one->get_hoehe()==bd->get_hoehe()) {
+DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at (%i,%i,%i) will be ignored!",bd->get_name(),bd->get_pos().x,bd->get_pos().y,bd->get_pos().z);
 			return;
 		}
 		grund_t **tmp = new grund_t *[2];
@@ -100,19 +100,19 @@ DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at (%i,%i,%
 		tmp[1] = bd;
 		data.some = tmp;
 		ground_size = 2;
-		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
+		reliefkarte_t::get_karte()->calc_map_pixel(bd->get_pos().get_2d());
 		return;
 	}
 	else {
 		// insert into array
 		uint8 i;
 		for(i=1;  i<ground_size;  i++) {
-			if(data.some[i]->gib_hoehe()>=bd->gib_hoehe()) {
+			if(data.some[i]->get_hoehe()>=bd->get_hoehe()) {
 				break;
 			}
 		}
-		if(i<ground_size  &&  data.some[i]->gib_hoehe()==bd->gib_hoehe()) {
-DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at (%i,%i,%i) will be ignored!",bd->gib_name(),bd->gib_pos().x,bd->gib_pos().y,bd->gib_pos().z);
+		if(i<ground_size  &&  data.some[i]->get_hoehe()==bd->get_hoehe()) {
+DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at (%i,%i,%i) will be ignored!",bd->get_name(),bd->get_pos().x,bd->get_pos().y,bd->get_pos().z);
 			return;
 		}
 		bd->set_kartenboden(false);
@@ -129,7 +129,7 @@ DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at (%i,%i,%
 		ground_size ++;
 		delete [] data.some;
 		data.some = tmp;
-		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
+		reliefkarte_t::get_karte()->calc_map_pixel(bd->get_pos().get_2d());
 	}
 }
 
@@ -172,7 +172,7 @@ void
 planquadrat_t::kartenboden_setzen(grund_t *bd)
 {
 	assert(bd);
-	grund_t *tmp = gib_kartenboden();
+	grund_t *tmp = get_kartenboden();
 	if(tmp) {
 		boden_ersetzen(tmp,bd);
 	}
@@ -182,7 +182,7 @@ planquadrat_t::kartenboden_setzen(grund_t *bd)
 		bd->set_kartenboden(true);
 	}
 	bd->calc_bild();
-	reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
+	reliefkarte_t::get_karte()->calc_map_pixel(bd->get_pos().get_2d());
 }
 
 
@@ -222,7 +222,7 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 			alt->clear_flag(grund_t::has_text);
 		}
 		// transfer all objects
-		while(  alt->gib_top()>0  ) {
+		while(  alt->get_top()>0  ) {
 			neu->obj_add( alt->obj_remove_top() );
 		}
 		// delete old ground
@@ -239,12 +239,12 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file, koord pos )
 
 	if(file->is_saving()) {
 		if(ground_size==1) {
-			file->wr_obj_id(data.one->gib_typ());
+			file->wr_obj_id(data.one->get_typ());
 			data.one->rdwr(file);
 		}
 		else {
 			for(int i=0; i<ground_size; i++) {
-				file->wr_obj_id(data.some[i]->gib_typ());
+				file->wr_obj_id(data.some[i]->get_typ());
 				data.some[i]->rdwr(file);
 			}
 		}
@@ -270,7 +270,7 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file, koord pos )
 			}
 			// check if we have a matching building here, otherwise set to nothing
 			if (gr  &&  gtyp == grund_t::fundament  &&  gr->find<gebaeude_t>() == NULL) {
-				koord3d pos = gr->gib_pos();
+				koord3d pos = gr->get_pos();
 				// show normal ground here
 				grund_t *neu = new boden_t(welt, pos, 0);
 				if(gr->get_flag(grund_t::has_text)) {
@@ -278,7 +278,7 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file, koord pos )
 					gr->clear_flag(grund_t::has_text);
 				}
 				// transfer all objects
-				while(  gr->gib_top()>0  ) {
+				while(  gr->get_top()>0  ) {
 					neu->obj_add( gr->obj_remove_top() );
 				}
 				delete gr;
@@ -321,38 +321,38 @@ void planquadrat_t::check_season(const long month)
 
 void planquadrat_t::abgesenkt(karte_t *welt)
 {
-	grund_t *gr = gib_kartenboden();
+	grund_t *gr = get_kartenboden();
 	if(gr) {
-		koord k=gr->gib_pos().gib_2d();
+		koord k=gr->get_pos().get_2d();
 		uint8 slope = welt->calc_natural_slope(k);
 
 		gr->obj_loesche_alle(NULL);
-		gr->setze_pos(koord3d(k,welt->min_hgt(k)));
-		if(welt->max_hgt(k) <= welt->gib_grundwasser()  &&  gr->gib_typ()!=grund_t::wasser) {
-			kartenboden_setzen(new wasser_t(welt, gr->gib_pos()) );
+		gr->set_pos(koord3d(k,welt->min_hgt(k)));
+		if(welt->max_hgt(k) <= welt->get_grundwasser()  &&  gr->get_typ()!=grund_t::wasser) {
+			kartenboden_setzen(new wasser_t(welt, gr->get_pos()) );
 		}
 		else {
-			reliefkarte_t::gib_karte()->calc_map_pixel(k);
+			reliefkarte_t::get_karte()->calc_map_pixel(k);
 		}
-		gr->setze_grund_hang( slope );
+		gr->set_grund_hang( slope );
 	}
 }
 
 void planquadrat_t::angehoben(karte_t *welt)
 {
-	grund_t *gr = gib_kartenboden();
+	grund_t *gr = get_kartenboden();
 	if(gr) {
-		koord k ( gr->gib_pos().gib_2d() );
+		koord k ( gr->get_pos().get_2d() );
 		uint8 slope = welt->calc_natural_slope(k);
 
 		gr->obj_loesche_alle(NULL);
-		gr->setze_pos(koord3d(k,welt->min_hgt(k)));
-		if (welt->max_hgt(k) > welt->gib_grundwasser()  &&  gr->gib_typ()==grund_t::wasser) {
-			kartenboden_setzen(new boden_t(welt, gr->gib_pos(), slope ) );
+		gr->set_pos(koord3d(k,welt->min_hgt(k)));
+		if (welt->max_hgt(k) > welt->get_grundwasser()  &&  gr->get_typ()==grund_t::wasser) {
+			kartenboden_setzen(new boden_t(welt, gr->get_pos(), slope ) );
 		}
 		else {
-			gr->setze_grund_hang( slope );
-			reliefkarte_t::gib_karte()->calc_map_pixel(k);
+			gr->set_grund_hang( slope );
+			reliefkarte_t::get_karte()->calc_map_pixel(k);
 		}
 	}
 }
@@ -360,7 +360,7 @@ void planquadrat_t::angehoben(karte_t *welt)
 
 void planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos) const
 {
-	grund_t *gr=gib_kartenboden();
+	grund_t *gr=get_kartenboden();
 	if(!gr->get_flag(grund_t::draw_as_ding)) {
 		gr->display_boden(xpos, ypos);
 	}
@@ -371,7 +371,7 @@ void planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos) const
 void
 planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool called_by_simview) const
 {
-	grund_t *gr=gib_kartenboden();
+	grund_t *gr=get_kartenboden();
 	//const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
 	if(gr->get_flag(grund_t::draw_as_ding)) {
 		gr->display_boden(xpos, ypos);
@@ -379,10 +379,10 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 	gr->display_dinge(xpos, ypos, called_by_simview);
 
 	if(ground_size>1) {
-		const sint16 h0 = gr->gib_hoehe();
+		const sint16 h0 = gr->get_hoehe();
 		for(uint8 i=1;  i<ground_size;  i++) {
 			gr=data.some[i];
-			const sint16 yypos = ypos - tile_raster_scale_y( (gr->gib_hoehe()-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
+			const sint16 yypos = ypos - tile_raster_scale_y( (gr->get_hoehe()-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
 			gr->display_boden(xpos, yypos );
 			gr->display_dinge(xpos, yypos, called_by_simview );
 		}
@@ -392,7 +392,7 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 
 void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 {
-	grund_t *gr=gib_kartenboden();
+	grund_t *gr=get_kartenboden();
 
 	// display station owner boxes
 	if(umgebung_t::station_coverage_show  &&  halt_list_count>0) {
@@ -400,14 +400,14 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 		if(umgebung_t::use_transparency_station_coverage) {
 
 			// only transparent outline
-			image_id img = gib_kartenboden()->gib_bild();
+			image_id img = get_kartenboden()->get_bild();
 			if(img==IMG_LEER) {
 				// default image (since i.e. foundations do not have an image)
-				img = grund_besch_t::ausserhalb->gib_bild(hang_t::flach);
+				img = grund_besch_t::ausserhalb->get_bild(hang_t::flach);
 			}
 
 			for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
-				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (halt_list[halt_count]->gib_besitzer()->get_player_color1() + 4);
+				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (halt_list[halt_count]->get_besitzer()->get_player_color1() + 4);
 				display_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
 			}
 /*
@@ -415,10 +415,10 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			// plot player outline colours - we always plot in order of players so that the order of the stations in halt_list
 			// doesn't affect the colour displayed [since blend(col1,blend(col2,screen)) != blend(col2,blend(col1,screen))]
 			for(int spieler_count = 0; spieler_count<MAX_PLAYER_COUNT; spieler_count++) {
-				spieler_t *display_player = gr->get_welt()->gib_spieler(spieler_count);
+				spieler_t *display_player = gr->get_welt()->get_spieler(spieler_count);
 				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color1() * 4 + 4);
 				for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
-					if(halt_list[halt_count]->gib_besitzer() == display_player) {
+					if(halt_list[halt_count]->get_besitzer() == display_player) {
 						display_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
 					}
 				}
@@ -430,20 +430,20 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			// opaque boxes (
 			const sint16 r=raster_tile_width/8;
 			const sint16 x=xpos+raster_tile_width/2-r;
-			const sint16 y=ypos+(raster_tile_width*3)/4-r - (gib_kartenboden()->gib_grund_hang()? tile_raster_scale_y(8,raster_tile_width): 0);
+			const sint16 y=ypos+(raster_tile_width*3)/4-r - (get_kartenboden()->get_grund_hang()? tile_raster_scale_y(8,raster_tile_width): 0);
 			const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
 			// suitable start search
 			for(sint16 h=halt_list_count-1;  h>=0;  h--  ) {
-				display_fillbox_wh_clip(x - h * 2, y + h * 2, r, r, PLAYER_FLAG | (halt_list[h]->gib_besitzer()->get_player_color1() + 4), kartenboden_dirty);
+				display_fillbox_wh_clip(x - h * 2, y + h * 2, r, r, PLAYER_FLAG | (halt_list[h]->get_besitzer()->get_player_color1() + 4), kartenboden_dirty);
 			}
 		}
 	}
 
 	if(ground_size>1) {
-		const sint16 h0 = gr->gib_hoehe();
+		const sint16 h0 = gr->get_hoehe();
 		for(uint8 i=0;  i<ground_size;  i++) {
 			gr=data.some[i];
-			const sint16 yypos = ypos - (gr->gib_hoehe()-h0)*get_tile_raster_width()/(2*Z_TILE_STEP);
+			const sint16 yypos = ypos - (gr->get_hoehe()-h0)*get_tile_raster_width()/(2*Z_TILE_STEP);
 			gr->display_overlay(xpos, yypos );
 		}
 	}
@@ -457,12 +457,12 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
  * Der Zeiger auf die Haltestelle wird hiermit gesetzt.
  * @author Hj. Malthaner
  */
-void planquadrat_t::setze_halt(halthandle_t halt)
+void planquadrat_t::set_halt(halthandle_t halt)
 {
 #ifdef DEBUG
 	if(halt.is_bound()  &&  this_halt.is_bound()  &&  halt!=this_halt) {
-		koord k = (ground_size>0) ? gib_kartenboden()->gib_pos().gib_2d() : koord::invalid;
-		dbg->warning("planquadrat_t::setze_halt()","assign new halt to already bound halt at (%i,%i)!", k.x, k.y );
+		koord k = (ground_size>0) ? get_kartenboden()->get_pos().get_2d() : koord::invalid;
+		dbg->warning("planquadrat_t::set_halt()","assign new halt to already bound halt at (%i,%i)!", k.x, k.y );
 	}
 #endif
 	this_halt = halt;
@@ -515,21 +515,21 @@ void planquadrat_t::halt_list_insert_at( halthandle_t halt, uint8 pos )
 void planquadrat_t::add_to_haltlist(halthandle_t halt)
 {
 	if(halt.is_bound()) {
-		spieler_t *sp=halt->gib_besitzer();
+		spieler_t *sp=halt->get_besitzer();
 
 		unsigned insert_pos = 0;
 		// quick and dirty way to our 2d koodinates ...
-		const koord pos = gib_kartenboden()->gib_pos().gib_2d();
+		const koord pos = get_kartenboden()->get_pos().get_2d();
 
 		// exact position does matter only for passenger/mail transport
-		if(sp!=NULL  &&  halt->gib_warenziele_passenger()->count()+halt->gib_warenziele_mail()->count()>0  &&  halt_list_count>0  ) {
+		if(sp!=NULL  &&  halt->get_warenziele_passenger()->count()+halt->get_warenziele_mail()->count()>0  &&  halt_list_count>0  ) {
 			halt_list_remove(halt);
 
 			// since only the first one gets all the passengers, we want the closest one for passenger transport to be on top
 			for(insert_pos=0;  insert_pos<halt_list_count;  insert_pos++) {
 
 				// not a passenger KI or other is farer away
-				if(  halt_list[insert_pos]->gib_warenziele_passenger()->count()+halt_list[insert_pos]->gib_warenziele_mail()->count()==0  ||
+				if(  halt_list[insert_pos]->get_warenziele_passenger()->count()+halt_list[insert_pos]->get_warenziele_mail()->count()==0  ||
 				     abs_distance(halt_list[insert_pos]->get_next_pos(pos), pos) > abs_distance(halt->get_next_pos(pos), pos))
 				{
 					halt_list_insert_at( halt, insert_pos );
@@ -561,15 +561,15 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 void planquadrat_t::remove_from_haltlist(karte_t *welt, halthandle_t halt)
 {
 	// quick and dirty way to our 2d koodinates ...
-	const koord pos = gib_kartenboden()->gib_pos().gib_2d();
+	const koord pos = get_kartenboden()->get_pos().get_2d();
 
-	int cov = welt->gib_einstellungen()->gib_station_coverage();
+	int cov = welt->get_einstellungen()->get_station_coverage();
 	for (int y = -cov; y <= cov; y++) {
 		for (int x = -cov; x <= cov; x++) {
 			koord test_pos = pos+koord(x,y);
 			const planquadrat_t *pl = welt->lookup(test_pos);
 
-			if(pl   &&  pl->gib_halt()==halt  ) {
+			if(pl   &&  pl->get_halt()==halt  ) {
 				// still conncected  => do nothing
 				return;
 			}

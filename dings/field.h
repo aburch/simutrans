@@ -21,10 +21,10 @@ public:
 	field_t(karte_t *welt, const koord3d pos, spieler_t *sp, const field_besch_t *besch, fabrik_t *fab);
 	virtual ~field_t();
 
-	const char* gib_name() const { return "Field"; }
-	enum ding_t::typ gib_typ() const { return ding_t::field; }
+	const char* get_name() const { return "Field"; }
+	enum ding_t::typ get_typ() const { return ding_t::field; }
 
-	image_id gib_bild() const;
+	image_id get_bild() const;
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
@@ -48,7 +48,7 @@ private:
 public:
 	static void register_besch(field_besch_t *besch, const char *name);
 
-	static const field_besch_t *gib_besch(const char *name);
+	static const field_besch_t *get_besch(const char *name);
 };
 
 #endif

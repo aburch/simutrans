@@ -103,20 +103,20 @@ public:
 		geschw = speed;
 	}
 
-	const ware_besch_t *gib_ware() const { return static_cast<const ware_besch_t *>(gib_kind(2)); }
+	const ware_besch_t *get_ware() const { return static_cast<const ware_besch_t *>(get_kind(2)); }
 
-	const skin_besch_t *gib_rauch() const { return static_cast<const skin_besch_t *>(gib_kind(3)); }
+	const skin_besch_t *get_rauch() const { return static_cast<const skin_besch_t *>(get_kind(3)); }
 
-	image_id gib_basis_bild() const { return gib_bild_nr(ribi_t::dir_sued, gib_ware() ); }
+	image_id get_basis_bild() const { return get_bild_nr(ribi_t::dir_sued, get_ware() ); }
 
 	// returns the number of different directions
-	uint8 gib_dirs() const { return (static_cast<const bildliste_besch_t *>(gib_kind(4)))->gib_bild(4) ? 8 : 4; }
+	uint8 get_dirs() const { return (static_cast<const bildliste_besch_t *>(get_kind(4)))->get_bild(4) ? 8 : 4; }
 
 	// return a matching image
 	// beware, there are three class of vehicles
 	// vehicles with and without freight images, and vehicles with different freight images
 	// they can have 4 or 8 directions ...
-	image_id gib_bild_nr(ribi_t::dir dir, const ware_besch_t *ware) const
+	image_id get_bild_nr(ribi_t::dir dir, const ware_besch_t *ware) const
 	{
 		const bild_besch_t *bild=0;
 		const bildliste_besch_t *liste=0;
@@ -127,60 +127,60 @@ public:
 			sint8 ware_index=0; // freight images: if not found use first freight
 
 			for( sint8 i=0;  i<freight_image_type;  i++  ) {
-				if(ware->gib_index()==static_cast<const ware_besch_t *>(gib_kind(6 + nachfolger + vorgaenger + i))->gib_index()) {
+				if(ware->get_index()==static_cast<const ware_besch_t *>(get_kind(6 + nachfolger + vorgaenger + i))->get_index()) {
 					ware_index = i;
 					break;
 				}
 			}
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
-			const bildliste2d_besch_t *liste2d = static_cast<const bildliste2d_besch_t *>(gib_kind(5));
-			bild=liste2d->gib_bild(dir, ware_index);
+			const bildliste2d_besch_t *liste2d = static_cast<const bildliste2d_besch_t *>(get_kind(5));
+			bild=liste2d->get_bild(dir, ware_index);
 			if(!bild) {
 				if(dir>3) {
-					bild = liste2d->gib_bild(dir - 4, ware_index);
+					bild = liste2d->get_bild(dir - 4, ware_index);
 				}
 			}
-			if (bild != NULL) return bild->gib_nummer();
+			if (bild != NULL) return bild->get_nummer();
 		}
 
 		// only try 1d freight image list for old style vehicles
 		if(freight_image_type==0  &&  ware!=NULL) {
-			liste = static_cast<const bildliste_besch_t *>(gib_kind(5));
+			liste = static_cast<const bildliste_besch_t *>(get_kind(5));
 		}
 		else {
-			liste = static_cast<const bildliste_besch_t *>(gib_kind(4));
+			liste = static_cast<const bildliste_besch_t *>(get_kind(4));
 		}
 
 		if(!liste) {
-			liste = static_cast<const bildliste_besch_t *>(gib_kind(4));
+			liste = static_cast<const bildliste_besch_t *>(get_kind(4));
 			if(!liste) {
 				return IMG_LEER;
 			}
 		}
 
-		bild = liste->gib_bild(dir);
+		bild = liste->get_bild(dir);
 		if(!bild) {
 			if(dir>3) {
-				bild = liste->gib_bild(dir - 4);
+				bild = liste->get_bild(dir - 4);
 			}
 			if(!bild) {
 				return IMG_LEER;
 			}
 		}
-		return bild->gib_nummer();
+		return bild->get_nummer();
 	}
 
 	// Liefert die erlaubten Vorgaenger.
-	// liefert gib_vorgaenger(0) == NULL, so bedeutet das entweder alle
+	// liefert get_vorgaenger(0) == NULL, so bedeutet das entweder alle
 	// Vorgänger sind erlaubt oder keine. Um das zu unterscheiden, sollte man
 	// vorher hat_vorgaenger() befragen
-	const vehikel_besch_t *gib_vorgaenger(int i) const
+	const vehikel_besch_t *get_vorgaenger(int i) const
 	{
 		if(i < 0 || i >= vorgaenger) {
 			return 0;
 		}
-		return static_cast<const vehikel_besch_t *>(gib_kind(6 + i));
+		return static_cast<const vehikel_besch_t *>(get_kind(6 + i));
 	}
 
 	/* returns true, if this veh can be after the prev_veh */
@@ -190,7 +190,7 @@ public:
 			return prev_veh == 0;
 		}
 		for( int i=0;  i<vorgaenger;  i++  ) {
-			const vehikel_besch_t *veh = (vehikel_besch_t *)gib_kind(6 + i);
+			const vehikel_besch_t *veh = (vehikel_besch_t *)get_kind(6 + i);
 			if(veh==prev_veh) {
 				return true;
 			}
@@ -199,30 +199,30 @@ public:
 		return false;
 	}
 
-	int gib_vorgaenger_count() const { return vorgaenger; }
+	int get_vorgaenger_count() const { return vorgaenger; }
 
 	// Liefert die erlaubten Nachfolger.
-	// liefert gib_nachfolger(0) == NULL, so bedeutet das entweder alle
+	// liefert get_nachfolger(0) == NULL, so bedeutet das entweder alle
 	// Nachfolger sind erlaubt oder keine. Um das zu unterscheiden, sollte
 	// man vorher hat_nachfolger() befragen
-	const vehikel_besch_t *gib_nachfolger(int i) const
+	const vehikel_besch_t *get_nachfolger(int i) const
 	{
 		if(i < 0 || i >= nachfolger) {
 			return 0;
 		}
-		return static_cast<const vehikel_besch_t *>(gib_kind(6 + vorgaenger + i));
+		return static_cast<const vehikel_besch_t *>(get_kind(6 + vorgaenger + i));
 	}
 
-	int gib_nachfolger_count() const { return nachfolger; }
+	int get_nachfolger_count() const { return nachfolger; }
 
 	waytype_t get_waytype() const { return static_cast<waytype_t>(typ); }
-	uint16 gib_zuladung() const { return zuladung; }
-	uint32 gib_preis() const { return preis; }
-	uint16 gib_geschw() const { return geschw; }
-	uint16 gib_gewicht() const { return gewicht; }
-	uint32 gib_leistung() const { return leistung; }
-	uint16 gib_betriebskosten() const { return betriebskosten; }
-	sint8 gib_sound() const { return sound; }
+	uint16 get_zuladung() const { return zuladung; }
+	uint32 get_preis() const { return preis; }
+	uint16 get_geschw() const { return geschw; }
+	uint16 get_gewicht() const { return gewicht; }
+	uint32 get_leistung() const { return leistung; }
+	uint16 get_betriebskosten() const { return betriebskosten; }
+	sint8 get_sound() const { return sound; }
 
 	/**
 	* @return introduction year
@@ -276,7 +276,7 @@ public:
 			return true;
 		}
 		for( int i=0;  i<vorgaenger;  i++  ) {
-			if(gib_kind(6 + i)==NULL) {
+			if(get_kind(6 + i)==NULL) {
 				return true;
 			}
 		}

@@ -45,11 +45,11 @@ public:
 
 	bool ist_blockiert() const {return blockend != 0;}
 
-	ding_t::typ gib_typ() const 	{ return type; }
+	ding_t::typ get_typ() const 	{ return type; }
 
 	void rdwr(loadsave_t *file);
 
-	image_id gib_bild() const { return IMG_LEER; }
+	image_id get_bild() const { return IMG_LEER; }
 };
 
 
@@ -94,7 +94,7 @@ old_blockmanager_t::rdwr_block(karte_t *welt,loadsave_t *file)
 		// read the old signals (only opurpose of the here
 		typ=file->rd_obj_id();
 		oldsignal_t *sig = new oldsignal_t(welt, file, (ding_t::typ)typ);
-		DBG_MESSAGE("oldsignal_t()","on %i,%i with dir=%i blockend=%i",sig->gib_pos().x,sig->gib_pos().y,sig->get_dir(),sig->ist_blockiert());
+		DBG_MESSAGE("oldsignal_t()","on %i,%i with dir=%i blockend=%i",sig->get_pos().x,sig->get_pos().y,sig->get_dir(),sig->ist_blockiert());
 		signale.insert( sig );
 	}
 
@@ -146,26 +146,26 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 	while (!signale.empty()) {
 		oldsignal_t *os1=signale.remove_first();
 		oldsignal_t *os2=NULL;
-		grund_t *gr=welt->lookup(os1->gib_pos());
+		grund_t *gr=welt->lookup(os1->get_pos());
 		grund_t *to=NULL;
 		uint8 directions=0;
 		waytype_t wt=gr->hat_weg(track_wt) ? track_wt : monorail_wt;
 		if(gr->get_neighbour(to,wt,koord((ribi_t::ribi)os1->get_dir()))) {
 			slist_iterator_tpl<oldsignal_t *> iter(signale);
 			while(iter.next()) {
-				if(iter.get_current()->gib_pos()==to->gib_pos()) {
+				if(iter.get_current()->get_pos()==to->get_pos()) {
 					os2 = iter.get_current();
 					break;
 				}
 			}
 			if(os2==NULL) {
-				dbg->error("old_blockmanager_t::laden_abschliessen()","old signal near (%i,%i) is unpaired!",gr->gib_pos().x,gr->gib_pos().y);
-				welt->get_message()->add_message(translator::translate("Orphan signal during loading!"),os1->gib_pos().gib_2d(),message_t::problems);
+				dbg->error("old_blockmanager_t::laden_abschliessen()","old signal near (%i,%i) is unpaired!",gr->get_pos().x,gr->get_pos().y);
+				welt->get_message()->add_message(translator::translate("Orphan signal during loading!"),os1->get_pos().get_2d(),message_t::problems);
 			}
 		}
 		else {
-			dbg->error("old_blockmanager_t::laden_abschliessen()","old signal near (%i,%i) is unpaired!",gr->gib_pos().x,gr->gib_pos().y);
-			welt->get_message()->add_message(translator::translate("Orphan signal during loading!"),os1->gib_pos().gib_2d(),message_t::problems);
+			dbg->error("old_blockmanager_t::laden_abschliessen()","old signal near (%i,%i) is unpaired!",gr->get_pos().x,gr->get_pos().y);
+			welt->get_message()->add_message(translator::translate("Orphan signal during loading!"),os1->get_pos().get_2d(),message_t::problems);
 		}
 
 		// remove second signal from list
@@ -184,10 +184,10 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 			grund_t *tmp=to;
 			to = gr;
 			gr = tmp;
-			if(os2->gib_typ()==ding_t::old_presignal) {
+			if(os2->get_typ()==ding_t::old_presignal) {
 				type = roadsign_besch_t::SIGN_PRE_SIGNAL;
 			}
-			else if(os2->gib_typ()==ding_t::old_choosesignal) {
+			else if(os2->get_typ()==ding_t::old_choosesignal) {
 				type |= roadsign_besch_t::FREE_ROUTE;
 			}
 			dir = os2->get_dir();
@@ -196,10 +196,10 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 		else {
 			// gr is already the first choice
 			// so we just have to determine the type
-			if(os1->gib_typ()==ding_t::old_presignal) {
+			if(os1->get_typ()==ding_t::old_presignal) {
 				type = roadsign_besch_t::SIGN_PRE_SIGNAL;
 			}
-			else if(os1->gib_typ()==ding_t::old_choosesignal) {
+			else if(os1->get_typ()==ding_t::old_choosesignal) {
 				type |= roadsign_besch_t::FREE_ROUTE;
 			}
 		}
@@ -210,42 +210,42 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 		}
 
 		// now check where we can built best
-		if(gr->hat_weg(wt)  &&  ribi_t::is_twoway(gr->gib_weg(wt)->gib_ribi_unmasked())) {
+		if(gr->hat_weg(wt)  &&  ribi_t::is_twoway(gr->get_weg(wt)->get_ribi_unmasked())) {
 			new_signal_gr = gr;
 		}
-		if((new_signal_gr==NULL  ||  !os1->ist_blockiert())  &&  to  &&  to->hat_weg(wt)  &&  ribi_t::is_twoway(to->gib_weg(wt)->gib_ribi_unmasked())) {
+		if((new_signal_gr==NULL  ||  !os1->ist_blockiert())  &&  to  &&  to->hat_weg(wt)  &&  ribi_t::is_twoway(to->get_weg(wt)->get_ribi_unmasked())) {
 			new_signal_gr = to;
 		}
 		if(directions==2  &&  new_signal_gr) {
-			dir = new_signal_gr->gib_weg(wt)->gib_ribi_unmasked();
+			dir = new_signal_gr->get_weg(wt)->get_ribi_unmasked();
 		}
 
 		// found a suitable location, ribi, signal type => construct
 		if(new_signal_gr  &&  dir!=0) {
 			const roadsign_besch_t *sb=roadsign_t::roadsign_search(type,wt,0);
 			if(sb!=NULL) {
-				signal_t *sig = new signal_t(welt,new_signal_gr->gib_weg(wt)->gib_besitzer(),new_signal_gr->gib_pos(),dir,sb);
+				signal_t *sig = new signal_t(welt,new_signal_gr->get_weg(wt)->get_besitzer(),new_signal_gr->get_pos(),dir,sb);
 				new_signal_gr->obj_add(sig);
-//DBG_MESSAGE("old_blockmanager::laden_abschliessen()","signal restored at %i,%i with dir %i",gr->gib_pos().x,gr->gib_pos().y,dir);
+//DBG_MESSAGE("old_blockmanager::laden_abschliessen()","signal restored at %i,%i with dir %i",gr->get_pos().x,gr->get_pos().y,dir);
 			}
 			else {
 				dbg->error("old_blockmanager_t::laden_abschliessen()","no roadsign for way %x with type %d found!",type,wt);
-				sprintf(buf,err_text,os1->gib_pos().x,os1->gib_pos().y);
-				welt->get_message()->add_message(buf,os1->gib_pos().gib_2d(),message_t::problems);
+				sprintf(buf,err_text,os1->get_pos().x,os1->get_pos().y);
+				welt->get_message()->add_message(buf,os1->get_pos().get_2d(),message_t::problems);
 				failure++;
 			}
 		}
 		else {
-			dbg->warning("old_blockmanager_t::laden_abschliessen()","could not restore old signal near (%i,%i), dir=%i",gr->gib_pos().x,gr->gib_pos().y,dir);
-			sprintf(buf,err_text,os1->gib_pos().x,os1->gib_pos().y);
-			welt->get_message()->add_message(buf,os1->gib_pos().gib_2d(),message_t::problems);
+			dbg->warning("old_blockmanager_t::laden_abschliessen()","could not restore old signal near (%i,%i), dir=%i",gr->get_pos().x,gr->get_pos().y,dir);
+			sprintf(buf,err_text,os1->get_pos().x,os1->get_pos().y);
+			welt->get_message()->add_message(buf,os1->get_pos().get_2d(),message_t::problems);
 			failure ++;
 		}
 
-		os1->setze_pos(koord3d::invalid);
+		os1->set_pos(koord3d::invalid);
 		delete os1;
 		if(os2) {
-			os2->setze_pos(koord3d::invalid);
+			os2->set_pos(koord3d::invalid);
 			delete os2;
 		}
 	}

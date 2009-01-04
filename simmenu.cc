@@ -249,13 +249,13 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 					i++;
 				}
 				const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
-				w->icon = s ? s->gib_bild_nr(0) : IMG_LEER;
+				w->icon = s ? s->get_bild_nr(0) : IMG_LEER;
 			}
 			else {
-				if(  icon>=skinverwaltung_t::werkzeuge_general->gib_bild_anzahl()  ) {
+				if(  icon>=skinverwaltung_t::werkzeuge_general->get_bild_anzahl()  ) {
 					dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for general_tool[%i]", icon, i );
 				}
-				w->icon = skinverwaltung_t::werkzeuge_general->gib_bild_nr(icon);
+				w->icon = skinverwaltung_t::werkzeuge_general->get_bild_nr(icon);
 			}
 			do {
 				*str++;
@@ -266,10 +266,10 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 			str++;
 			if(*str!=',') {
 				uint16 cursor = (uint16)atoi(str);
-				if(  cursor>=skinverwaltung_t::werkzeuge_general->gib_bild_anzahl()  ) {
+				if(  cursor>=skinverwaltung_t::werkzeuge_general->get_bild_anzahl()  ) {
 					dbg->fatal( "werkzeug_t::init_menu()", "wrong cursor (%i) given for general_tool[%i]", cursor, i );
 				}
-				w->cursor = skinverwaltung_t::cursor_general->gib_bild_nr(cursor);
+				w->cursor = skinverwaltung_t::cursor_general->get_bild_nr(cursor);
 				do
 					*str++;
 				while(*str  &&  *str!=',');
@@ -329,13 +329,13 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 					i++;
 				}
 				const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
-				w->icon = s ? s->gib_bild_nr(0) : IMG_LEER;
+				w->icon = s ? s->get_bild_nr(0) : IMG_LEER;
 			}
 			else {
-				if(  icon>=skinverwaltung_t::werkzeuge_simple->gib_bild_anzahl()  ) {
+				if(  icon>=skinverwaltung_t::werkzeuge_simple->get_bild_anzahl()  ) {
 					dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for simple_tool[%i]", icon, i );
 				}
-				w->icon = skinverwaltung_t::werkzeuge_simple->gib_bild_nr(icon);
+				w->icon = skinverwaltung_t::werkzeuge_simple->get_bild_nr(icon);
 			}
 			do {
 				*str++;
@@ -382,13 +382,13 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 					i++;
 				}
 				const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
-				w->icon = s ? s->gib_bild_nr(0) : IMG_LEER;
+				w->icon = s ? s->get_bild_nr(0) : IMG_LEER;
 			}
 			else {
-				if(  icon>=skinverwaltung_t::werkzeuge_dialoge->gib_bild_anzahl()  ) {
+				if(  icon>=skinverwaltung_t::werkzeuge_dialoge->get_bild_anzahl()  ) {
 					dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for dialoge_tool[%i]", icon, i );
 				}
-				w->icon = skinverwaltung_t::werkzeuge_dialoge->gib_bild_nr(icon);
+				w->icon = skinverwaltung_t::werkzeuge_dialoge->get_bild_nr(icon);
 			}
 			do {
 				*str++;
@@ -414,7 +414,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 	// default size
 	koord size( contents.get_int("icon_width",32), contents.get_int("icon_height",32) );
 	// first: add main menu
-	toolbar_tool.resize( skinverwaltung_t::werkzeuge_toolbars->gib_bild_anzahl() );
+	toolbar_tool.resize( skinverwaltung_t::werkzeuge_toolbars->get_bild_anzahl() );
 	toolbar_tool.push_back(new toolbar_t("", "", size));
 	toolbar_tool[0]->id = TOOLBAR_TOOL;
 	// now for the rest
@@ -469,13 +469,13 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 							i++;
 						}
 						const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
-						icon = s ? s->gib_bild_nr(0) : IMG_LEER;
+						icon = s ? s->get_bild_nr(0) : IMG_LEER;
 					}
 					else {
-						if(  icon>=skinverwaltung_t::werkzeuge_toolbars->gib_bild_anzahl()  ) {
+						if(  icon>=skinverwaltung_t::werkzeuge_toolbars->get_bild_anzahl()  ) {
 							dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for toolbar_tool[%i][%i]", icon, i, j );
 						}
-						icon = skinverwaltung_t::werkzeuge_toolbars->gib_bild_nr(icon);
+						icon = skinverwaltung_t::werkzeuge_toolbars->get_bild_nr(icon);
 					}
 					while(*str  &&  *str!=',') {
 						*str++;
@@ -618,7 +618,7 @@ werkzeug_t *werkzeug_t::dummy = new wkz_dummy_t();
 image_id toolbar_t::get_icon(spieler_t *sp)
 {
 	// no image for edit tools => do not open
-	if(sp!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  sp!=sp->get_welt()->gib_spieler(1)  ) {
+	if(sp!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  sp!=sp->get_welt()->get_spieler(1)  ) {
 		return IMG_LEER;
 	}
 	return icon;
@@ -641,7 +641,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 		wzw = new werkzeug_waehler_t( welt, default_param, helpfile, iconsize, this!=werkzeug_t::toolbar_tool[0] );
 	}
 
-	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->gib_spieler(1))  ||
+	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1))  ||
 		 (grund_t::underground_mode  &&  strcmp(default_param,"SLOPETOOLS")==0)
 		) {
 		destroy_win(wzw);
@@ -707,7 +707,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 {
 	update( welt, sp );
-	bool close = (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->gib_spieler(1));
+	bool close = (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1));
 	if(  grund_t::underground_mode  &&  strcmp(default_param,"SLOPETOOLS")==0  ) {
 		close = true;
 	}

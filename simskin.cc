@@ -146,10 +146,10 @@ bool skinverwaltung_t::register_besch(skintyp_t type, const skin_besch_t* besch)
 		if(  !(type==cursor  ||  type==symbol)  ) {
 			if(  type==menu  ) {
 				extra_obj.insert( besch );
-				dbg->message( "skinverwaltung_t::register_besch()","Extra object %s added.", besch->gib_name() );
+				dbg->message( "skinverwaltung_t::register_besch()","Extra object %s added.", besch->get_name() );
 			}
 			else {
-				dbg->warning("skinverwaltung_t::register_besch()","Spurious object '%s' loaded (will not be referenced anyway)!", besch->gib_name() );
+				dbg->warning("skinverwaltung_t::register_besch()","Spurious object '%s' loaded (will not be referenced anyway)!", besch->get_name() );
 			}
 		}
 		else {
@@ -166,7 +166,7 @@ const skin_besch_t *skinverwaltung_t::get_extra( const char *str, int len )
 {
 	slist_iterator_tpl<const skin_besch_t *> iter(skinverwaltung_t::extra_obj);
 	while(  iter.next()  ) {
-		if(  strncmp(str,iter.get_current()->gib_name(),len)==0  ) {
+		if(  strncmp(str,iter.get_current()->get_name(),len)==0  ) {
 			return iter.get_current();
 		}
 	}

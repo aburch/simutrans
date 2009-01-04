@@ -44,53 +44,53 @@ private:
 	*/
 	sint8 number_seasons;
 public:
-	const bild_besch_t *gib_hintergrund(hang_t::typ hang, uint8 season) const
+	const bild_besch_t *get_hintergrund(hang_t::typ hang, uint8 season) const
 	{
 		const bild_besch_t *bild = NULL;
 		if(season && number_seasons == 1) {
-			bild = static_cast<const bildliste_besch_t *>(gib_kind(5))->gib_bild(hang_indices[hang]);
+			bild = static_cast<const bildliste_besch_t *>(get_kind(5))->get_bild(hang_indices[hang]);
 		}
 		if(bild == NULL) {
-			bild = static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild(hang_indices[hang]);
+			bild = static_cast<const bildliste_besch_t *>(get_kind(2))->get_bild(hang_indices[hang]);
 		}
 		return bild;
 	}
 
-	image_id gib_hintergrund_nr(hang_t::typ hang, uint8 season) const
+	image_id get_hintergrund_nr(hang_t::typ hang, uint8 season) const
 	{
-		const bild_besch_t *besch = gib_hintergrund(hang, season);
-		return besch != NULL ? besch->gib_nummer() : IMG_LEER;
+		const bild_besch_t *besch = get_hintergrund(hang, season);
+		return besch != NULL ? besch->get_nummer() : IMG_LEER;
 	}
 
-	const bild_besch_t *gib_vordergrund(hang_t::typ hang, uint8 season) const
+	const bild_besch_t *get_vordergrund(hang_t::typ hang, uint8 season) const
 	{
 		const bild_besch_t *bild = NULL;
 		if(season && number_seasons == 1) {
-			bild = static_cast<const bildliste_besch_t *>(gib_kind(6))->gib_bild(hang_indices[hang]);
+			bild = static_cast<const bildliste_besch_t *>(get_kind(6))->get_bild(hang_indices[hang]);
 		}
 		if(bild == NULL) {
-			bild = static_cast<const bildliste_besch_t *>(gib_kind(3))->gib_bild(hang_indices[hang]);
+			bild = static_cast<const bildliste_besch_t *>(get_kind(3))->get_bild(hang_indices[hang]);
 		}
 		return bild;
 	}
 
-	image_id gib_vordergrund_nr(hang_t::typ hang, uint8 season) const
+	image_id get_vordergrund_nr(hang_t::typ hang, uint8 season) const
 	{
-		const bild_besch_t *besch = gib_vordergrund(hang, season);
-		return besch != NULL ? besch->gib_nummer() :IMG_LEER;
+		const bild_besch_t *besch = get_vordergrund(hang, season);
+		return besch != NULL ? besch->get_nummer() :IMG_LEER;
 	}
 
-	const skin_besch_t *gib_cursor() const { return static_cast<const skin_besch_t *>(gib_kind(4)); }
+	const skin_besch_t *get_cursor() const { return static_cast<const skin_besch_t *>(get_kind(4)); }
 
 
 	// get costs etc.
-	waytype_t gib_waytype() const { return static_cast<waytype_t>(wegtyp); }
+	waytype_t get_waytype() const { return static_cast<waytype_t>(wegtyp); }
 
-	sint32 gib_preis() const { return preis; }
+	sint32 get_preis() const { return preis; }
 
-	sint32 gib_wartung() const { return maintenance; }
+	sint32 get_wartung() const { return maintenance; }
 
-	uint32  gib_topspeed() const { return topspeed; }
+	uint32  get_topspeed() const { return topspeed; }
 
 	uint16 get_intro_year_month() const { return intro_date; }
 

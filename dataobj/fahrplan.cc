@@ -121,10 +121,10 @@ bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 {
 	aktuell = max(aktuell,0);
 #ifndef _MSC_VER
-	struct linieneintrag_t stop = { gr->gib_pos(), ladegrad, waiting_time_shift };
+	struct linieneintrag_t stop = { gr->get_pos(), ladegrad, waiting_time_shift };
 #else
 	struct linieneintrag_t stop;
-	stop.pos = gr->gib_pos();
+	stop.pos = gr->get_pos();
 	stop.ladegrad = ladegrad;
 	stop.waiting_time_shift = waiting_time_shift;
 #endif
@@ -152,10 +152,10 @@ bool schedule_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 {
 	aktuell = max(aktuell,0);
 #ifndef _MSC_VER
-	struct linieneintrag_t stop = { gr->gib_pos(), ladegrad, waiting_time_shift };
+	struct linieneintrag_t stop = { gr->get_pos(), ladegrad, waiting_time_shift };
 #else
 	struct linieneintrag_t stop;
-	stop.pos = gr->gib_pos();
+	stop.pos = gr->get_pos();
 	stop.ladegrad = ladegrad;
 	stop.waiting_time_shift = waiting_time_shift;
 #endif
@@ -171,7 +171,7 @@ bool schedule_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 		return true;
 	}
 	else {
-		DBG_MESSAGE("fahrplan_t::append()","forbidden stop at %i,%i,%i",gr->gib_pos().x, gr->gib_pos().x, gr->gib_pos().z );
+		DBG_MESSAGE("fahrplan_t::append()","forbidden stop at %i,%i,%i",gr->get_pos().x, gr->get_pos().x, gr->get_pos().z );
 		// error
 		create_win( new news_img(fehlermeldung()), w_time_delete, magic_none);
 		return false;
@@ -322,7 +322,7 @@ schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 			bool ok = false;
 			if(  f1<eintrag.get_count()  ) {
 				grund_t *gr1 = welt->lookup(eintrag[f1].pos);
-				if(  gr1->gib_depot()  ) {
+				if(  gr1->get_depot()  ) {
 					// skip depot
 					f1++;
 					ok = true;
@@ -330,7 +330,7 @@ schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 			}
 			if(  f2<fpl->eintrag.get_count()  ) {
 				grund_t *gr2 = welt->lookup(fpl->eintrag[f2].pos);
-				if(  gr2->gib_depot()  ) {
+				if(  gr2->get_depot()  ) {
 					ok = true;
 					f2++;
 				}
@@ -368,13 +368,13 @@ DBG_MESSAGE("zugfahrplan_t::ist_halt_erlaubt()","Checking for stop");
 		return false;
 	}
 DBG_MESSAGE("zugfahrplan_t::ist_halt_erlaubt()","track ok");
-	const depot_t *dp = gr->gib_depot();
+	const depot_t *dp = gr->get_depot();
 	if(dp==NULL) {
 		// empty track => ok
 		return true;
 	}
 	// test for no street depot (may happen with trams)
-	if(dp->gib_tile()->gib_besch()->gib_extra()!=track_wt) {
+	if(dp->get_tile()->get_besch()->get_extra()!=track_wt) {
 		return false;
 	}
 	return true;
@@ -390,13 +390,13 @@ DBG_MESSAGE("tramfahrplan_t::ist_halt_erlaubt()","Checking for stop");
 		return false;
 	}
 DBG_MESSAGE("tramfahrplan_t::ist_halt_erlaubt()","track ok");
-	const depot_t *dp = gr->gib_depot();
+	const depot_t *dp = gr->get_depot();
 	if(dp==NULL) {
 		// empty track => ok
 		return true;
 	}
 	// test for no street depot (may happen with trams)
-	if(dp->gib_tile()->gib_besch()->gib_extra()!=tram_wt) {
+	if(dp->get_tile()->get_besch()->get_extra()!=tram_wt) {
 		return false;
 	}
 	return true;
@@ -410,13 +410,13 @@ autofahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 		// no road
 		return false;
 	}
-	const depot_t *gb = gr->gib_depot();
+	const depot_t *gb = gr->get_depot();
 	if(gb==NULL) {
 		// empty road => ok
 		return true;
 	}
 	// test for no railway depot (may happen with trams)
-	if(gb->gib_tile()->gib_besch()->gib_extra()!=road_wt) {
+	if(gb->get_tile()->get_besch()->get_extra()!=road_wt) {
 		return false;
 	}
 	return true;
@@ -434,11 +434,11 @@ bool
 airfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
 	// since we go above everything, we must make sure, that there are no waypoints on foreign depots and halts
-	const depot_t *gb = gr->gib_depot();
-	if(gb!=NULL  &&  gb->gib_tile()->gib_besch()->gib_extra()!=air_wt) {
+	const depot_t *gb = gr->get_depot();
+	if(gb!=NULL  &&  gb->get_tile()->get_besch()->get_extra()!=air_wt) {
 		return false;
 	}
-	bool hat_halt = haltestelle_t::gib_halt(gr->get_welt(),gr->gib_pos().gib_2d()).is_bound();
+	bool hat_halt = haltestelle_t::get_halt(gr->get_welt(),gr->get_pos().get_2d()).is_bound();
 	return hat_halt ? gr->hat_weg(air_wt) : true;
 }
 

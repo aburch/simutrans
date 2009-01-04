@@ -60,7 +60,7 @@ warenbauer_t::alles_geladen()
 	max_catg_index = 0;
 	// first assign special freight (which always needs an own category)
 	for( unsigned i=0;  i<waren.get_count();  i++  ) {
-		if(waren[i]->gib_catg()==0) {
+		if(waren[i]->get_catg()==0) {
 			waren[i]->catg_index = max_catg_index++;
 		}
 	}
@@ -68,11 +68,11 @@ warenbauer_t::alles_geladen()
 	// now assign all unused waren.
 	for( unsigned i=0;  i<waren.get_count();  i++  ) {
 		// now search, if we already have a matching category
-		if(waren[i]->gib_catg()>0) {
+		if(waren[i]->get_catg()>0) {
 			waren[i]->catg_index = waren[i]->catg+max_special_catg_index;
-			if(waren[i]->gib_catg_index()>=max_catg_index) {
+			if(waren[i]->get_catg_index()>=max_catg_index) {
 				// find the higest catg used ...
-				max_catg_index = waren[i]->gib_catg_index()+1;
+				max_catg_index = waren[i]->get_catg_index()+1;
 			}
 		}
 	}
@@ -85,7 +85,7 @@ warenbauer_t::alles_geladen()
 			ware_t::index_to_besch[i] = NULL;
 		}
 		else {
-			assert(waren[i]->gib_index()==i);
+			assert(waren[i]->get_index()==i);
 			ware_t::index_to_besch[i] = waren[i];
 			if(waren[i]->color==255) {
 				waren[i]->color = 16+4+((i-2)*8)%207;
@@ -113,7 +113,7 @@ bool warenbauer_t::register_besch(ware_besch_t *besch)
 {
 	besch->value = besch->base_value;
 	::register_besch(spezial_objekte, besch);
-	besch_names.put(besch->gib_name(), besch);
+	besch_names.put(besch->get_name(), besch);
 
 	if(besch==passagiere) {
 		besch->ware_index = 0;
@@ -136,11 +136,11 @@ bool warenbauer_t::register_besch(ware_besch_t *besch)
 
 
 const ware_besch_t *
-warenbauer_t::gib_info(const char* name)
+warenbauer_t::get_info(const char* name)
 {
 	const ware_besch_t* t = besch_names.get(name);
 	if(t == NULL) {
-		dbg->fatal("warenbauer_t::gib_info()", "No info for good '%s' available", name);
+		dbg->fatal("warenbauer_t::get_info()", "No info for good '%s' available", name);
 	}
 	return t;
 }
@@ -148,26 +148,26 @@ warenbauer_t::gib_info(const char* name)
 
 
 const ware_besch_t *
-warenbauer_t::gib_info_catg(const uint8 catg)
+warenbauer_t::get_info_catg(const uint8 catg)
 {
 	if(catg>0) {
-		for(unsigned i=0;  i<gib_waren_anzahl();  i++  ) {
+		for(unsigned i=0;  i<get_waren_anzahl();  i++  ) {
 			if(waren[i]->catg==catg) {
 				return waren[i];
 			}
 		}
 	}
-	dbg->warning("warenbauer_t::gib_info()", "No info for good catg %d available, set to passengers", catg);
+	dbg->warning("warenbauer_t::get_info()", "No info for good catg %d available, set to passengers", catg);
 	return waren[0];
 }
 
 
 
 const ware_besch_t *
-warenbauer_t::gib_info_catg_index(const uint8 catg_index)
+warenbauer_t::get_info_catg_index(const uint8 catg_index)
 {
-	for(unsigned i=0;  i<gib_waren_anzahl();  i++  ) {
-		if(waren[i]->gib_catg_index()==catg_index) {
+	for(unsigned i=0;  i<get_waren_anzahl();  i++  ) {
+		if(waren[i]->get_catg_index()==catg_index) {
 			return waren[i];
 		}
 	}
@@ -182,7 +182,7 @@ void
 warenbauer_t::set_multiplier(sint32 multiplier)
 {
 //DBG_MESSAGE("warenbauer_t::set_multiplier()","new factor %i",multiplier);
-	for(unsigned i=0;  i<gib_waren_anzahl();  i++  ) {
+	for(unsigned i=0;  i<get_waren_anzahl();  i++  ) {
 		sint32 long_base_value = waren[i]->base_value;
 		waren[i]->value = (uint16)((long_base_value*multiplier)/1000l);
 	}

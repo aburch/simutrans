@@ -59,79 +59,79 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	this->welt = welt;
 	this->sets = sets;
 	this->old_lang = -1;
-	this->sets->setze_beginner_mode(umgebung_t::default_einstellungen.gib_beginner_mode());
+	this->sets->set_beginner_mode(umgebung_t::default_einstellungen.get_beginner_mode());
 	loaded_heightfield = load_heightfield = false;
 	load = start = close = scenario = quit = false;
 	int intTopOfButton=START_HEIGHT;
 	sets->heightfield = "";
 
 	// select map stuff ..
-	inp_map_number.setze_pos(koord(LEFT_ARROW, intTopOfButton));
-	inp_map_number.setze_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	inp_map_number.set_pos(koord(LEFT_ARROW, intTopOfButton));
+	inp_map_number.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_map_number.set_limits(0,0x7FFFFFFF);
-	inp_map_number.set_value(abs(sets->gib_karte_nummer())%9999);
+	inp_map_number.set_value(abs(sets->get_karte_nummer())%9999);
 	inp_map_number.add_listener( this );
 	add_komponente( &inp_map_number );
 
 	intTopOfButton += 12;
 	intTopOfButton += 12;
 
-	inp_x_size.setze_pos(koord(LEFT_ARROW,intTopOfButton) );
-	inp_x_size.setze_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	inp_x_size.set_pos(koord(LEFT_ARROW,intTopOfButton) );
+	inp_x_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_x_size.add_listener(this);
 	inp_x_size.set_limits(64,4096);
-	inp_x_size.set_value( sets->gib_groesse_x() );
-	inp_x_size.set_limits( 64, min(32766,4194304/sets->gib_groesse_y()) );
-	inp_x_size.set_increment_mode( sets->gib_groesse_x()>=512 ? 128 : 64 );
+	inp_x_size.set_value( sets->get_groesse_x() );
+	inp_x_size.set_limits( 64, min(32766,4194304/sets->get_groesse_y()) );
+	inp_x_size.set_increment_mode( sets->get_groesse_x()>=512 ? 128 : 64 );
 	inp_x_size.wrap_mode( false );
 	add_komponente( &inp_x_size );
 	intTopOfButton += 12;
 
-	inp_y_size.setze_pos(koord(LEFT_ARROW,intTopOfButton) );
-	inp_y_size.setze_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	inp_y_size.set_pos(koord(LEFT_ARROW,intTopOfButton) );
+	inp_y_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_y_size.add_listener(this);
-	inp_y_size.set_limits( 64, min(32766,4194304/sets->gib_groesse_x()) );
-	inp_y_size.set_value( sets->gib_groesse_y() );
-	inp_y_size.set_increment_mode( sets->gib_groesse_y()>=512 ? 128 : 64 );
+	inp_y_size.set_limits( 64, min(32766,4194304/sets->get_groesse_x()) );
+	inp_y_size.set_value( sets->get_groesse_y() );
+	inp_y_size.set_increment_mode( sets->get_groesse_y()>=512 ? 128 : 64 );
 	inp_y_size.wrap_mode( false );
 	add_komponente( &inp_y_size );
 	intTopOfButton += 12;
 
 	// maps etc.
 	intTopOfButton += 5;
-	random_map.setze_pos( koord(11, intTopOfButton) );
-	random_map.setze_groesse( koord(104, BUTTON_HEIGHT) );
-	random_map.setze_typ(button_t::roundbox);
+	random_map.set_pos( koord(11, intTopOfButton) );
+	random_map.set_groesse( koord(104, BUTTON_HEIGHT) );
+	random_map.set_typ(button_t::roundbox);
 	random_map.add_listener( this );
 	add_komponente( &random_map );
-	load_map.setze_pos( koord(104+11+30, intTopOfButton) );
-	load_map.setze_groesse( koord(104, BUTTON_HEIGHT) );
-	load_map.setze_typ(button_t::roundbox);
+	load_map.set_pos( koord(104+11+30, intTopOfButton) );
+	load_map.set_groesse( koord(104, BUTTON_HEIGHT) );
+	load_map.set_typ(button_t::roundbox);
 	load_map.add_listener( this );
 	add_komponente( &load_map );
 	intTopOfButton += BUTTON_HEIGHT;
 
 	// city stuff
 	intTopOfButton += 5;
-	inp_number_of_towns.setze_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_number_of_towns.setze_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_number_of_towns.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_number_of_towns.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_number_of_towns.add_listener(this);
 	inp_number_of_towns.set_limits(0,999);
-	inp_number_of_towns.set_value(abs(sets->gib_anzahl_staedte()) );
+	inp_number_of_towns.set_value(abs(sets->get_anzahl_staedte()) );
 	add_komponente( &inp_number_of_towns );
 	intTopOfButton += 12;
 
-	inp_town_size.setze_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_town_size.setze_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_town_size.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_town_size.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_town_size.add_listener(this);
 	inp_town_size.set_limits(0,999999);
-	inp_town_size.set_value( sets->gib_mittlere_einwohnerzahl() );
+	inp_town_size.set_value( sets->get_mittlere_einwohnerzahl() );
 	add_komponente( &inp_town_size );
 	intTopOfButton += 12;
 
 
-	inp_intercity_road_len.setze_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_intercity_road_len.setze_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_intercity_road_len.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_intercity_road_len.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_intercity_road_len.add_listener(this);
 	inp_intercity_road_len.set_limits(0,9999);
 	inp_intercity_road_len.set_value( umgebung_t::intercity_road_length );
@@ -139,101 +139,101 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( &inp_intercity_road_len );
 	intTopOfButton += 12;
 
-	inp_traffic_density.setze_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_traffic_density.setze_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_traffic_density.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_traffic_density.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_traffic_density.add_listener(this);
 	inp_traffic_density.set_limits(0,16);
-	inp_traffic_density.set_value(abs(sets->gib_verkehr_level()) );
+	inp_traffic_density.set_value(abs(sets->get_verkehr_level()) );
 	add_komponente( &inp_traffic_density );
 	intTopOfButton += 12;
 
 	// industry stuff
 	intTopOfButton += 5;
-	inp_other_industries.setze_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_other_industries.setze_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_other_industries.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_other_industries.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_other_industries.add_listener(this);
 	inp_other_industries.set_limits(0,999);
-	inp_other_industries.set_value(abs(sets->gib_land_industry_chains()) );
+	inp_other_industries.set_value(abs(sets->get_land_industry_chains()) );
 	add_komponente( &inp_other_industries );
 	intTopOfButton += 12;
 
-	inp_electric_producer.setze_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_electric_producer.setze_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_electric_producer.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_electric_producer.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_electric_producer.add_listener(this);
 	inp_electric_producer.set_limits(0,100);
-	inp_electric_producer.set_value(abs(sets->gib_electric_promille()/10) );
+	inp_electric_producer.set_value(abs(sets->get_electric_promille()/10) );
 	add_komponente( &inp_electric_producer );
 	intTopOfButton += 12;
 
-	inp_tourist_attractions.setze_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_tourist_attractions.setze_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_tourist_attractions.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_tourist_attractions.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_tourist_attractions.add_listener(this);
 	inp_tourist_attractions.set_limits(0,999);
-	inp_tourist_attractions.set_value(abs(sets->gib_tourist_attractions()) );
+	inp_tourist_attractions.set_value(abs(sets->get_tourist_attractions()) );
 	add_komponente( &inp_tourist_attractions );
 	intTopOfButton += 12;
 
 	// other settings
 	intTopOfButton += 5;
-	use_intro_dates.setze_pos( koord(10,intTopOfButton) );
-	use_intro_dates.setze_typ( button_t::square );
+	use_intro_dates.set_pos( koord(10,intTopOfButton) );
+	use_intro_dates.set_typ( button_t::square );
 	use_intro_dates.add_listener( this );
 	add_komponente( &use_intro_dates );
 
-	inp_intro_date.setze_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_intro_date.setze_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_intro_date.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_intro_date.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_intro_date.add_listener(this);
 	inp_intro_date.set_limits(1400,2050);
 	inp_intro_date.set_increment_mode(10);
-	inp_intro_date.set_value(abs(sets->gib_starting_year()) );
+	inp_intro_date.set_value(abs(sets->get_starting_year()) );
 	add_komponente( &inp_intro_date );
 	intTopOfButton += 12;
 
 	intTopOfButton += 5;
-	allow_player_change.setze_pos( koord(10,intTopOfButton) );
-	allow_player_change.setze_typ( button_t::square );
+	allow_player_change.set_pos( koord(10,intTopOfButton) );
+	allow_player_change.set_typ( button_t::square );
 	allow_player_change.add_listener( this );
 	add_komponente( &allow_player_change );
 	intTopOfButton += 12;
 
 	intTopOfButton += 5;
-	use_beginner_mode.setze_pos( koord(10,intTopOfButton) );
-	use_beginner_mode.setze_typ( button_t::square );
+	use_beginner_mode.set_pos( koord(10,intTopOfButton) );
+	use_beginner_mode.set_typ( button_t::square );
 	use_beginner_mode.add_listener( this );
 	add_komponente( &use_beginner_mode );
 	intTopOfButton += 12;
 
 	// load game
 	intTopOfButton += 10;
-	load_game.setze_pos( koord(10, intTopOfButton) );
-	load_game.setze_groesse( koord(104, 14) );
-	load_game.setze_typ(button_t::roundbox);
+	load_game.set_pos( koord(10, intTopOfButton) );
+	load_game.set_groesse( koord(104, 14) );
+	load_game.set_typ(button_t::roundbox);
 	load_game.add_listener( this );
 	add_komponente( &load_game );
 
 	// load scenario
-	load_scenario.setze_pos( koord(104+11+30, intTopOfButton) );
-	load_scenario.setze_groesse( koord(104, 14) );
-	load_scenario.setze_typ(button_t::roundbox);
+	load_scenario.set_pos( koord(104+11+30, intTopOfButton) );
+	load_scenario.set_groesse( koord(104, 14) );
+	load_scenario.set_typ(button_t::roundbox);
 	load_scenario.add_listener( this );
 	add_komponente( &load_scenario );
 
 	// start game
 	intTopOfButton += 5+BUTTON_HEIGHT;
-	start_game.setze_pos( koord(10, intTopOfButton) );
-	start_game.setze_groesse( koord(104, 14) );
-	start_game.setze_typ(button_t::roundbox);
+	start_game.set_pos( koord(10, intTopOfButton) );
+	start_game.set_groesse( koord(104, 14) );
+	start_game.set_typ(button_t::roundbox);
 	start_game.add_listener( this );
 	add_komponente( &start_game );
 
 	// quit game
-	quit_game.setze_pos( koord(104+11+30, intTopOfButton) );
-	quit_game.setze_groesse( koord(104, 14) );
-	quit_game.setze_typ(button_t::roundbox);
+	quit_game.set_pos( koord(104+11+30, intTopOfButton) );
+	quit_game.set_groesse( koord(104, 14) );
+	quit_game.set_typ(button_t::roundbox);
 	quit_game.add_listener( this );
 	add_komponente( &quit_game );
 
-	setze_fenstergroesse( koord(260, intTopOfButton+14+8+16) );
+	set_fenstergroesse( koord(260, intTopOfButton+14+8+16) );
 
 	update_preview();
 }
@@ -252,9 +252,9 @@ welt_gui_t::update_from_heightfield(const char *filename)
 
 	sint16 w, h;
 	sint8 *h_field=NULL;
-	if(karte_t::get_height_data_from_file(filename, sets->gib_grundwasser(), h_field, w, h, false )) {
-		sets->setze_groesse_x(w);
-		sets->setze_groesse_y(h);
+	if(karte_t::get_height_data_from_file(filename, sets->get_grundwasser(), h_field, w, h, false )) {
+		sets->set_groesse_x(w);
+		sets->set_groesse_y(h);
 
 		// ensure correct display under all circumstances
 		const float skip_x = (float)preview_size/(float)w;
@@ -267,7 +267,7 @@ welt_gui_t::update_from_heightfield(const char *filename)
 
 				for(int x=0; x<w; x++) {
 					while(karte_x<=rest_x  &&  karte_x<preview_size) {
-						karte[(karte_y*preview_size)+karte_x] = reliefkarte_t::calc_hoehe_farbe( h_field[x+y*w], sets->gib_grundwasser()-1 );
+						karte[(karte_y*preview_size)+karte_x] = reliefkarte_t::calc_hoehe_farbe( h_field[x+y*w], sets->get_grundwasser()-1 );
 						karte_x ++;
 					}
 					rest_x += skip_x;
@@ -303,17 +303,17 @@ welt_gui_t::update_from_heightfield(const char *filename)
 void
 welt_gui_t::update_preview()
 {
-	const int mx = sets->gib_groesse_x()/preview_size;
-	const int my = sets->gib_groesse_y()/preview_size;
+	const int mx = sets->get_groesse_x()/preview_size;
+	const int my = sets->get_groesse_y()/preview_size;
 
 	if(loaded_heightfield) {
 		update_from_heightfield(sets->heightfield);
 	}
 	else {
-		setsimrand( 0xFFFFFFFF, sets->gib_karte_nummer() );
+		setsimrand( 0xFFFFFFFF, sets->get_karte_nummer() );
 		for(int j=0; j<preview_size; j++) {
 			for(int i=0; i<preview_size; i++) {
-				karte[j*preview_size+i] = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe( sets, koord(i*mx,j*my), koord::invalid ), sets->gib_grundwasser()/Z_TILE_STEP);
+				karte[j*preview_size+i] = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe( sets, koord(i*mx,j*my), koord::invalid ), sets->get_grundwasser()/Z_TILE_STEP);
 			}
 		}
 		sets->heightfield = "";
@@ -335,41 +335,41 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	int knr = inp_map_number.get_value(); //
 
 	if(komp==&inp_x_size) {
-		sets->setze_groesse_x( v.i );
+		sets->set_groesse_x( v.i );
 		inp_x_size.set_increment_mode( v.i>=512 ? 128 : 64 );
-		inp_y_size.set_limits( 64, min(32766,16777216/sets->gib_groesse_x()) );
+		inp_y_size.set_limits( 64, min(32766,16777216/sets->get_groesse_x()) );
 		update_preview();
 	}
 	else if(komp==&inp_y_size) {
-		sets->setze_groesse_y( v.i );
+		sets->set_groesse_y( v.i );
 		inp_y_size.set_increment_mode( v.i>=512 ? 128 : 64 );
-		inp_x_size.set_limits( 64, min(32766,16777216/sets->gib_groesse_y()) );
+		inp_x_size.set_limits( 64, min(32766,16777216/sets->get_groesse_y()) );
 		update_preview();
 	}
 	else if(komp==&inp_number_of_towns) {
-		sets->setze_anzahl_staedte( v.i );
+		sets->set_anzahl_staedte( v.i );
 	}
 	else if(komp==&inp_town_size) {
-		sets->setze_mittlere_einwohnerzahl( v.i );
+		sets->set_mittlere_einwohnerzahl( v.i );
 	}
 	else if(komp==&inp_intercity_road_len) {
 		umgebung_t::intercity_road_length = v.i;
 		inp_intercity_road_len.set_increment_mode( v.i>=1000 ? 100 : 20 );
 	}
 	else if(komp==&inp_traffic_density) {
-		sets->setze_verkehr_level( v.i );
+		sets->set_verkehr_level( v.i );
 	}
 	else if(komp==&inp_other_industries) {
-		sets->setze_land_industry_chains( v.i );
+		sets->set_land_industry_chains( v.i );
 	}
 	else if(komp==&inp_electric_producer) {
-		sets->setze_electric_promille( v.i );
+		sets->set_electric_promille( v.i );
 	}
 	else if(komp==&inp_tourist_attractions) {
-		sets->setze_tourist_attractions( v.i );
+		sets->set_tourist_attractions( v.i );
 	}
 	else if(komp==&inp_intro_date) {
-		sets->setze_starting_year( v.i );
+		sets->set_starting_year( v.i );
 	}
 	else if(komp==&random_map) {
 		knr = simrand(9999);
@@ -381,18 +381,18 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		// load relief
 		loaded_heightfield = false;
 		sets->heightfield = "";
-		sets->setze_grundwasser(-2);
+		sets->set_grundwasser(-2);
 		create_win(new load_relief_frame_t(sets), w_info, magic_load_t);
-		knr = sets->gib_karte_nummer();	// otherwise using cancel would not show the normal generated map again
+		knr = sets->get_karte_nummer();	// otherwise using cancel would not show the normal generated map again
 	}
 	else if(komp==&use_intro_dates) {
-		sets->setze_use_timeline( !sets->gib_use_timeline() );
+		sets->set_use_timeline( !sets->get_use_timeline() );
 	}
 	else if(komp==&allow_player_change) {
-		sets->setze_allow_player_change( !sets->gib_allow_player_change() );
+		sets->set_allow_player_change( !sets->get_allow_player_change() );
 	}
 	else if(komp==&use_beginner_mode) {
-		sets->setze_beginner_mode( !sets->gib_beginner_mode() );
+		sets->set_beginner_mode( !sets->get_beginner_mode() );
 	}
 	else if(komp==&load_game) {
 		load = true;
@@ -413,7 +413,7 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	}
 
 	if(knr>=0) {
-		sets->setze_karte_nummer( knr );
+		sets->set_karte_nummer( knr );
 		if(!loaded_heightfield) {
 			update_preview();
 		}
@@ -445,25 +445,25 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 			sets->heightfield = "";
 		}
 	}
-	use_intro_dates.pressed = sets->gib_use_timeline();
-	allow_player_change.pressed = sets->gib_allow_player_change();
-	use_beginner_mode.pressed = sets->gib_beginner_mode();
+	use_intro_dates.pressed = sets->get_use_timeline();
+	allow_player_change.pressed = sets->get_allow_player_change();
+	use_beginner_mode.pressed = sets->get_beginner_mode();
 
 	if(old_lang!=translator::get_language()) {
 		// update button texts!
-		random_map.setze_text("Random map");
+		random_map.set_text("Random map");
 		random_map.set_tooltip("chooses a random map");
-		load_map.setze_text("Lade Relief");
+		load_map.set_text("Lade Relief");
 		load_map.set_tooltip("load height data from file");
-		use_intro_dates.setze_text("Use timeline start year");
-		allow_player_change.setze_text("Allow player change");
-		use_beginner_mode.setze_text("Beginner mode");
-		load_game.setze_text("Load game");
-		load_scenario.setze_text("Load scenario");
-		start_game.setze_text("Starte Spiel");
-		quit_game.setze_text("Beenden");
+		use_intro_dates.set_text("Use timeline start year");
+		allow_player_change.set_text("Allow player change");
+		use_beginner_mode.set_text("Beginner mode");
+		load_game.set_text("Load game");
+		load_scenario.set_text("Load scenario");
+		start_game.set_text("Starte Spiel");
+		quit_game.set_text("Beenden");
 		old_lang = translator::get_language();
-		welt->setze_dirty();
+		welt->set_dirty();
 	}
 
 	gui_frame_t::zeichnen(pos, gr);
@@ -482,14 +482,14 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	// since the display is done via a textfiled, we have nothing to do
 	y += 12;
 
-	const uint sx = sets->gib_groesse_x();
-	const uint sy = sets->gib_groesse_y();
+	const uint sx = sets->get_groesse_x();
+	const uint sy = sets->get_groesse_y();
 	const long memory = (
 		sizeof(karte_t) +
 		sizeof(spieler_t) * 8 +
 		sizeof(convoi_t) * 1000 +
 		(sizeof(schiene_t) + sizeof(vehikel_t)) * 10 * (sx + sy) +
-		sizeof(stadt_t) * sets->gib_anzahl_staedte() +
+		sizeof(stadt_t) * sets->get_anzahl_staedte() +
 		(
 			sizeof(grund_t) +
 			sizeof(planquadrat_t) +

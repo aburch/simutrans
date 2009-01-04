@@ -17,16 +17,16 @@ public:
 	tunnel_t(karte_t *welt, loadsave_t *file);
 	tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch_t *besch);
 
-	const char *gib_name() const {return "Tunnelmuendung";}
-	enum ding_t::typ gib_typ() const {return tunnel;}
+	const char *get_name() const {return "Tunnelmuendung";}
+	enum ding_t::typ get_typ() const {return tunnel;}
 
 	void calc_bild();
 
-	inline void setze_bild( image_id b ) { bild = b; }
-	image_id gib_bild() const {return bild;}
-	image_id gib_after_bild() const { return after_bild; }
+	inline void set_bild( image_id b ) { bild = b; }
+	image_id get_bild() const {return bild;}
+	image_id get_after_bild() const { return after_bild; }
 
-	const tunnel_besch_t *gib_besch() const { return besch; }
+	const tunnel_besch_t *get_besch() const { return besch; }
 
 	void zeige_info() {} // show no info
 

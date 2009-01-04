@@ -39,7 +39,7 @@ protected:
 	sint32 time_to_life;
 
 protected:
-	virtual waytype_t gib_waytype() const { return road_wt; }
+	virtual waytype_t get_waytype() const { return road_wt; }
 
 	virtual bool hop_check() {return true;}
 	virtual void hop();
@@ -50,8 +50,8 @@ protected:
 public:
 	virtual ~verkehrsteilnehmer_t();
 
-	const char *gib_name() const = 0;
-	enum ding_t::typ gib_typ() const  = 0;
+	const char *get_name() const = 0;
+	enum ding_t::typ get_typ() const  = 0;
 
 	/**
 	 * Öffnet ein neues Beobachtungsfenster für das Objekt.
@@ -104,7 +104,7 @@ public:
 
 	virtual ~stadtauto_t();
 
-	const stadtauto_besch_t *gib_besch() const { return besch; }
+	const stadtauto_besch_t *get_besch() const { return besch; }
 
 	bool sync_step(long delta_t);
 
@@ -114,8 +114,8 @@ public:
 
 	void calc_current_speed();
 
-	const char *gib_name() const {return "Verkehrsteilnehmer";}
-	enum ding_t::typ gib_typ() const {return verkehr;}
+	const char *get_name() const {return "Verkehrsteilnehmer";}
+	enum ding_t::typ get_typ() const {return verkehr;}
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem

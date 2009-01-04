@@ -31,12 +31,12 @@
 #endif
 
 
-void help_frame_t::setze_text(const char * buf)
+void help_frame_t::set_text(const char * buf)
 {
 	flow.set_text(buf);
 
-	flow.setze_pos(koord(10, 6));
-	flow.setze_groesse(koord(220, 0));
+	flow.set_pos(koord(10, 6));
+	flow.set_groesse(koord(220, 0));
 
 	// try to get the following sizes
 	// y<400 or, if not possible, x<620
@@ -44,23 +44,23 @@ void help_frame_t::setze_text(const char * buf)
 	koord curr=flow.get_preferred_size();
 	for( int i=0;  i<10  &&  curr.y>400  &&  curr.y!=last_y;  i++  )
 	{
-		flow.setze_groesse(koord(260+i*40, 0));
+		flow.set_groesse(koord(260+i*40, 0));
 		last_y = curr.y;
 		curr = flow.get_preferred_size();
 	}
 
 	// the second line isn't redundant!!!
-	flow.setze_groesse(flow.get_preferred_size());
-	flow.setze_groesse(flow.get_preferred_size());
+	flow.set_groesse(flow.get_preferred_size());
+	flow.set_groesse(flow.get_preferred_size());
 
-	setze_name(flow.get_title());
+	set_name(flow.get_title());
 
 	// set window size
-	curr = flow.gib_groesse()+koord(20, 36);
+	curr = flow.get_groesse()+koord(20, 36);
 	if(curr.y>display_get_height()-64) {
 		curr.y = display_get_height()-64;
 	}
-	setze_fenstergroesse( curr );
+	set_fenstergroesse( curr );
 	resize( koord(0,0) );
 }
 
@@ -69,7 +69,7 @@ help_frame_t::help_frame_t() :
 	gui_frame_t("Help"),
 	scrolly(&flow)
 {
-	setze_text("<title>Unnamed</title><p>No text set</p>");
+	set_text("<title>Unnamed</title><p>No text set</p>");
 	add_komponente(&flow);
 	flow.add_listener(this);
 }
@@ -111,7 +111,7 @@ help_frame_t::help_frame_t(cstring_t filename) :
 			}
 			buf.printf( trad_str, c, (*iter)->get_tooltip(sp) );
 		}
-		setze_text(buf);
+		set_text(buf);
 	}
 	else {
 		cstring_t file_prefix("text/");
@@ -141,13 +141,13 @@ help_frame_t::help_frame_t(cstring_t filename) :
 				buf[len] = '\0';
 				fclose(file);
 				success = true;
-				setze_text(buf);
+				set_text(buf);
 				free(buf);
 			}
 		}
 
 		if(!success) {
-			setze_text("<title>Error</title>Help text not found");
+			set_text("<title>Error</title>Help text not found");
 		}
 	}
 
@@ -183,5 +183,5 @@ help_frame_t::action_triggered( gui_action_creator_t *, value_t extra)
 void help_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	scrolly.setze_groesse(get_client_windowsize());
+	scrolly.set_groesse(get_client_windowsize());
 }

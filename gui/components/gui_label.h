@@ -51,7 +51,7 @@ public:
 	 * setzt den Text des Labels
 	 * @author Hansjörg Malthaner
 	 */
-	void setze_text(const char *text);
+	void set_text(const char *text);
 
 	/**
 	 * set the text without translation

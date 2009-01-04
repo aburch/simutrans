@@ -29,9 +29,9 @@ public:
 
 	inline bool ist_natur() const { return !hat_wege(); }
 
-	const char *gib_name() const;
+	const char *get_name() const;
 
-	grund_t::typ gib_typ() const {return boden;}
+	grund_t::typ get_typ() const {return boden;}
 };
 
 #endif

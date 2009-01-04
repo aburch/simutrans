@@ -148,7 +148,7 @@ void win_display_flush(double konto); // draw the frame and all windows
 void win_get_event(struct event_t *ev);
 void win_poll_event(struct event_t *ev);
 
-void win_setze_welt(karte_t *welt);
+void win_set_welt(karte_t *welt);
 
 bool win_change_zoom_factor(bool magnify);
 

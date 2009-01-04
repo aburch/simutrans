@@ -61,23 +61,23 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const sched
 		sprintf( tmp, "%s (%i,%i,%i)", translator::translate("Invalid coordinate"), entry.pos.x, entry.pos.y, entry.pos.z );
 	}
 	else {
-		halthandle_t halt = gr->ist_wasser() ? haltestelle_t::gib_halt(welt, entry.pos) : gr->gib_halt();
+		halthandle_t halt = gr->ist_wasser() ? haltestelle_t::get_halt(welt, entry.pos) : gr->get_halt();
 
 		if(halt.is_bound()) {
 			if (entry.ladegrad != 0) {
 				sprintf(tmp, "%d%% %s (%d,%d)",
 					entry.ladegrad,
-					halt->gib_name(),
+					halt->get_name(),
 					entry.pos.x, entry.pos.y);
 			}
 			else {
 				sprintf(tmp, "%s (%d,%d)",
-					halt->gib_name(),
+					halt->get_name(),
 					entry.pos.x, entry.pos.y);
 			}
 		}
 		else {
-			if(gr->gib_depot() != NULL) {
+			if(gr->get_depot() != NULL) {
 				sprintf(tmp, "%s (%d,%d)", translator::translate("Depot"), entry.pos.x, entry.pos.y);
 			}
 			else {
@@ -108,13 +108,13 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const 
 		p = translator::translate("Invalid coordinate");
 	}
 	else {
-		halthandle_t halt = haltestelle_t::gib_halt(welt, entry.pos);
+		halthandle_t halt = haltestelle_t::get_halt(welt, entry.pos);
 
 		if(halt.is_bound()) {
-			p = halt->gib_name();
+			p = halt->get_name();
 		}
 		else {
-			if(gr->gib_depot() != NULL) {
+			if(gr->get_depot() != NULL) {
 				p = translator::translate("Depot");
 			}
 			else {
@@ -143,7 +143,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 	if(fpl) {
 		sint16 width = 16;
 		cbuffer_t buf(512);
-		image_id const arrow_right_normal = skinverwaltung_t::window_skin->gib_bild(10)->gib_nummer();
+		image_id const arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
 
 		for (int i = 0; i < fpl->maxi(); i++) {
 
@@ -159,11 +159,11 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 			}
 			else {
 				// select goto button
-				display_color_img(skinverwaltung_t::window_skin->gib_bild(11)->gib_nummer(),
+				display_color_img(skinverwaltung_t::window_skin->get_bild(11)->get_nummer(),
 					offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
 			}
 		}
-		setze_groesse( koord(width+11, fpl->maxi() * (LINESPACE + 1) ) );
+		set_groesse( koord(width+11, fpl->maxi() * (LINESPACE + 1) ) );
 	}
 }
 
@@ -173,7 +173,7 @@ fahrplan_gui_t::~fahrplan_gui_t()
 {
 	update_werkzeug( false );
 	// hide schedule on minimap (may not current, but for safe)
-	reliefkarte_t::gib_karte()->set_current_fpl(NULL, 0); // (*fpl,player_nr)
+	reliefkarte_t::get_karte()->set_current_fpl(NULL, 0); // (*fpl,player_nr)
 }
 
 
@@ -190,7 +190,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	this->sp = sp_;
 	this->fpl = fpl_;
 	this->cnv = cnv_;
-	stats.setze_fahrplan(fpl);
+	stats.set_fahrplan(fpl);
 	if(!cnv.is_bound()) {
 		new_line = linehandle_t();
 		show_line_selector(false);
@@ -205,7 +205,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	sint16 ypos = 0;
 	if (cnv.is_bound()) {
 		// things, only relevant to convois, like creating/selecting lines
-		lb_line.setze_pos(koord(10, ypos+2));
+		lb_line.set_pos(koord(10, ypos+2));
 		add_komponente(&lb_line);
 
 		bt_promote_to_line.init(button_t::roundbox, "promote to line", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
@@ -215,8 +215,8 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 
 		ypos += BUTTON_HEIGHT+1;
 
-		line_selector.setze_pos(koord(0, ypos));
-		line_selector.setze_groesse(koord(BUTTON_WIDTH*3, BUTTON_HEIGHT));
+		line_selector.set_pos(koord(0, ypos));
+		line_selector.set_groesse(koord(BUTTON_WIDTH*3, BUTTON_HEIGHT));
 		line_selector.set_max_size(koord(BUTTON_WIDTH*3, 13*LINESPACE+2+16));
 		line_selector.set_highlight_color(sp->get_player_color1() + 1);
 		line_selector.clear_elements();
@@ -230,11 +230,11 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	}
 
 	// waiting in parts per month
-	lb_wait.setze_pos( koord( 10, ypos+2 ) );
+	lb_wait.set_pos( koord( 10, ypos+2 ) );
 	add_komponente(&lb_wait);
 
-	bt_wait_prev.setze_pos( koord( BUTTON_WIDTH*2-65, ypos+3 ) );
-	bt_wait_prev.setze_typ(button_t::arrowleft);
+	bt_wait_prev.set_pos( koord( BUTTON_WIDTH*2-65, ypos+3 ) );
+	bt_wait_prev.set_typ(button_t::arrowleft);
 	bt_wait_prev.add_listener(this);
 	add_komponente(&bt_wait_prev);
 
@@ -245,22 +245,22 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		sprintf( str_parts_month, "1/%d",  1<<(16-fpl->eintrag[fpl->aktuell].waiting_time_shift) );
 	}
 	lb_waitlevel.set_text_pointer( str_parts_month );
-	lb_waitlevel.setze_pos( koord( BUTTON_WIDTH*2-20, ypos+3 ) );
+	lb_waitlevel.set_pos( koord( BUTTON_WIDTH*2-20, ypos+3 ) );
 	add_komponente(&lb_waitlevel);
 
-	bt_wait_next.setze_pos( koord( BUTTON_WIDTH*2-15, ypos+2 ) );
-	bt_wait_next.setze_typ(button_t::arrowright);
+	bt_wait_next.set_pos( koord( BUTTON_WIDTH*2-15, ypos+2 ) );
+	bt_wait_next.set_typ(button_t::arrowright);
 	bt_wait_next.add_listener(this);
 	add_komponente(&bt_wait_next);
 
 	ypos += BUTTON_HEIGHT;
 
 	// loading level and return tickets
-	lb_load.setze_pos( koord( 10, ypos+2 ) );
+	lb_load.set_pos( koord( 10, ypos+2 ) );
 	add_komponente(&lb_load);
 
-	numimp_load.setze_pos( koord( BUTTON_WIDTH*2-65, ypos+2 ) );
-	numimp_load.setze_groesse( koord( 60, BUTTON_HEIGHT ) );
+	numimp_load.set_pos( koord( BUTTON_WIDTH*2-65, ypos+2 ) );
+	numimp_load.set_groesse( koord( 60, BUTTON_HEIGHT ) );
 	numimp_load.set_value( (uint)fpl->aktuell < (uint)fpl->maxi() ? fpl->eintrag[fpl->aktuell].ladegrad : 0 );
 	numimp_load.set_limits( 0, 100 );
 	numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
@@ -293,7 +293,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	add_komponente(&bt_remove);
 
 	ypos += BUTTON_HEIGHT;
-	scrolly.setze_pos( koord( 0, ypos ) );
+	scrolly.set_pos( koord( 0, ypos ) );
 	// scrolly.set_show_scroll_x(false);
 	add_komponente(&scrolly);
 
@@ -303,7 +303,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	resize( koord(0,(LINESPACE + 1)*min(15,fpl->maxi())) );
 
 	// set this schedule as current to show on minimap if possible
-	reliefkarte_t::gib_karte()->set_current_fpl(fpl, sp->get_player_nr()); // (*fpl,player_nr)
+	reliefkarte_t::get_karte()->set_current_fpl(fpl, sp->get_player_nr()); // (*fpl,player_nr)
 	set_resizemode(diagonal_resize);
 }
 
@@ -349,7 +349,7 @@ void fahrplan_gui_t::update_selection()
 	lb_wait.set_color( COL_GREY3 );
 	if(fpl->maxi()>0) {
 		fpl->aktuell = min(fpl->maxi()-1,fpl->aktuell);
-		if(haltestelle_t::gib_halt(sp->get_welt(), fpl->eintrag[fpl->aktuell].pos).is_bound()) {
+		if(haltestelle_t::get_halt(sp->get_welt(), fpl->eintrag[fpl->aktuell].pos).is_bound()) {
 			lb_load.set_color( COL_BLACK );
 			numimp_load.set_value( fpl->eintrag[fpl->aktuell].ladegrad );
 			if(  fpl->eintrag[fpl->aktuell].ladegrad>0  ) {
@@ -383,16 +383,16 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 		// close combo box; we must do it ourselves, since the box does not recieve outside events ...
 		line_selector.close_box();
 
-		if(ev->my>=scrolly.gib_pos().y+16) {
+		if(ev->my>=scrolly.get_pos().y+16) {
 			// we are now in the multiline region ...
-			const int line = ( ev->my - scrolly.gib_pos().y + scrolly.get_scroll_y() - 16)/(LINESPACE+1);
+			const int line = ( ev->my - scrolly.get_pos().y + scrolly.get_scroll_y() - 16)/(LINESPACE+1);
 
 			if(line >= 0 && line < fpl->maxi()) {
 				if(IS_RIGHTCLICK(ev)  ||  ev->mx<16) {
 					// just center on it
 					sp->get_welt()->change_world_position( fpl->eintrag[line].pos );
 				}
-				else if(ev->mx<scrolly.gib_groesse().x-11) {
+				else if(ev->mx<scrolly.get_groesse().x-11) {
 					fpl->aktuell = line;
 					if(mode == removing) {
 						fpl->remove();
@@ -513,7 +513,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			line_selector.set_selection(0);
 		}
 	}
-	scrolly.setze_groesse( scrolly.gib_groesse() );
+	scrolly.set_groesse( scrolly.get_groesse() );
 	return true;
 }
 
@@ -555,6 +555,6 @@ void fahrplan_gui_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
 
-	const koord groesse = gib_fenstergroesse();
-	scrolly.setze_groesse( koord(groesse.x, groesse.y-scrolly.gib_pos().y-16) );
+	const koord groesse = get_fenstergroesse();
+	scrolly.set_groesse( koord(groesse.x, groesse.y-scrolly.get_pos().y-16) );
 }

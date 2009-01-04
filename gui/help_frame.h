@@ -20,7 +20,7 @@ private:
 	gui_flowtext_t flow;
 
 public:
-	void setze_text(const char * text);
+	void set_text(const char * text);
 
 	help_frame_t();
 	help_frame_t(cstring_t filename);

@@ -31,7 +31,7 @@ monorailboden_t::rdwr(loadsave_t *file)
 			slope = sl;
 		}
 		else {
-			slope = grund_t::gib_grund_hang();
+			slope = grund_t::get_grund_hang();
 		}
 	}
 }
@@ -39,14 +39,14 @@ monorailboden_t::rdwr(loadsave_t *file)
 
 void monorailboden_t::calc_bild_internal()
 {
-	setze_bild( IMG_LEER );
+	set_bild( IMG_LEER );
 	clear_back_bild();
-	if(gib_weg_nr(0)) {
+	if(get_weg_nr(0)) {
 		if(grund_t::underground_mode) {
-			gib_weg_nr(0)->setze_bild(IMG_LEER);
+			get_weg_nr(0)->set_bild(IMG_LEER);
 		}
 		else {
-			gib_weg_nr(0)->calc_bild();
+			get_weg_nr(0)->calc_bild();
 		}
 	}
 }

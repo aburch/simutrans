@@ -145,7 +145,7 @@ public:
 	//
 	static ribi doppelt(ribi x) { return doppelr[x]; }
 	static ribi rueckwaerts(ribi x) { return rwr[x]; }
-	static ribi gib_forward(ribi x) { return fwrd[x]; }	// all ribis, that are in front of this thing
+	static ribi get_forward(ribi x) { return fwrd[x]; }	// all ribis, that are in front of this thing
 	static ribi rotate90(ribi x) { return ((x&8) ? 1|((x<<1)&0x0E) : x<<1); }
 
 	static bool is_twoway(ribi x) { return (flags[x]&twoway)!=0; }
@@ -160,7 +160,7 @@ public:
 	static bool ist_gerade_ow(ribi x) { return (flags[x] & gerade_ow) != 0; }
 	static bool ist_kreuzung(ribi x) { return x > 0 && flags[x] == 0; }
 
-	static dir gib_dir(ribi x) { return dirs[x]; }
+	static dir get_dir(ribi x) { return dirs[x]; }
 };
 
 //

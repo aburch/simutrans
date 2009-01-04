@@ -16,9 +16,9 @@
  *  Beschreibung:
  *      Rechnet aus dem Index das Layout aus, zu dem diese Tile gehört.
  */
-uint8 haus_tile_besch_t::gib_layout() const
+uint8 haus_tile_besch_t::get_layout() const
 {
-    koord groesse = gib_besch()->gib_groesse();
+    koord groesse = get_besch()->get_groesse();
 
     return index / (groesse.x * groesse.y);
 }
@@ -33,10 +33,10 @@ uint8 haus_tile_besch_t::gib_layout() const
  *      Bestimmt die Relativ-Position des Einzelbildes im Gesamtbild des
  *	Gebäudes.
  */
-koord haus_tile_besch_t::gib_offset() const
+koord haus_tile_besch_t::get_offset() const
 {
-    const haus_besch_t *besch = gib_besch();
-    koord groesse = besch->gib_groesse(gib_layout());	// ggf. gedreht
+    const haus_besch_t *besch = get_besch();
+    koord groesse = besch->get_groesse(get_layout());	// ggf. gedreht
 
     return koord( index % groesse.x, (index / groesse.x) % groesse.y );
 }
@@ -47,7 +47,7 @@ koord haus_tile_besch_t::gib_offset() const
  * Mail generation level
  * @author Hj. Malthaner
  */
-int haus_besch_t::gib_post_level() const
+int haus_besch_t::get_post_level() const
 {
 	switch (gtyp) {
 		default:
@@ -65,7 +65,7 @@ int haus_besch_t::gib_post_level() const
  */
 bool haus_besch_t::is_connected_with_town() const
 {
-	switch(gib_utyp()) {
+	switch(get_utyp()) {
 		case haus_besch_t::unbekannt:	// normal town buildings (RES, COM, IND)
 		case haus_besch_t::denkmal:	// monuments
 		case haus_besch_t::rathaus:	// townhalls
@@ -85,17 +85,17 @@ bool haus_besch_t::is_connected_with_town() const
  *  Beschreibung:
  *      Abhängig von Position und Layout ein tile zurückliefern
  */
-const haus_tile_besch_t *haus_besch_t::gib_tile(int layout, int x, int y) const
+const haus_tile_besch_t *haus_besch_t::get_tile(int layout, int x, int y) const
 {
     layout = layout_anpassen(layout);
-    koord dims = gib_groesse(layout);
+    koord dims = get_groesse(layout);
 
-    if(layout < 0  ||  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= gib_b(layout)  ||  y >= gib_h(layout)) {
-	dbg->fatal("hausbauer_t::gib_tile()",
+    if(layout < 0  ||  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= get_b(layout)  ||  y >= get_h(layout)) {
+	dbg->fatal("hausbauer_t::get_tile()",
 	           "invalid request for l=%d, x=%d, y=%d on building %s (l=%d, x=%d, y=%d)",
-		   layout, x, y, gib_name(), layouts, groesse.x, groesse.y);
+		   layout, x, y, get_name(), layouts, groesse.x, groesse.y);
     }
-    return gib_tile(layout * dims.x * dims.y + y * dims.x + x);
+    return get_tile(layout * dims.x * dims.y + y * dims.x + x);
 }
 
 

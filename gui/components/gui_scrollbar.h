@@ -43,9 +43,9 @@ private:
 	 */
 	int real_knob_position() {
 		if (type == vertical) {
-			return button_def[2].gib_pos().y-12;
+			return button_def[2].get_pos().y-12;
 		} else /* horizontal */ {
-			return button_def[2].gib_pos().x-12;
+			return button_def[2].get_pos().x-12;
 		}
 	}
 
@@ -58,18 +58,18 @@ public:
 	 * obwohl groesse public ist.
 	 * @author Hj. Malthaner
 	 */
-	void setze_groesse(koord groesse);
+	void set_groesse(koord groesse);
 
-	void setze_scroll_amount(sint32 sa) { knob_scroll_amount = sa; }
+	void set_scroll_amount(sint32 sa) { knob_scroll_amount = sa; }
 
 	/**
 	 * size is visible size, area is total size in pixels of _parent_.
 	 */
-	void setze_knob(sint32 knob_size, sint32 knob_area);
+	void set_knob(sint32 knob_size, sint32 knob_area);
 
-	sint32 gib_knob_offset() const {return knob_offset;}
+	sint32 get_knob_offset() const {return knob_offset;}
 
-	void setze_knob_offset(sint32 v) { knob_offset = v; reposition_buttons(); }
+	void set_knob_offset(sint32 v) { knob_offset = v; reposition_buttons(); }
 
 	void infowin_event(const event_t *ev);
 

@@ -64,55 +64,55 @@ public:
 	/*
 	 * Name und Copyright sind beim Cursor gespeichert!
 	 */
-	const char *gib_name() const { return gib_cursor()->gib_name(); }
-	const char *gib_copyright() const { return gib_cursor()->gib_copyright(); }
+	const char *get_name() const { return get_cursor()->get_name(); }
+	const char *get_copyright() const { return get_cursor()->get_copyright(); }
 
-	const skin_besch_t *gib_cursor() const { return static_cast<const skin_besch_t *>(gib_kind(2+offset)); }
+	const skin_besch_t *get_cursor() const { return static_cast<const skin_besch_t *>(get_kind(2+offset)); }
 
-	image_id gib_hintergrund(img_t img, uint8 season) const 	{
+	image_id get_hintergrund(img_t img, uint8 season) const 	{
 		const bild_besch_t *bild = NULL;
 		if(season && number_seasons == 1) {
-			bild = static_cast<const bildliste_besch_t *>(gib_kind(3+offset))->gib_bild(img);
+			bild = static_cast<const bildliste_besch_t *>(get_kind(3+offset))->get_bild(img);
 		}
 		if(bild == NULL) {
-			bild = static_cast<const bildliste_besch_t *>(gib_kind(0+offset))->gib_bild(img);
+			bild = static_cast<const bildliste_besch_t *>(get_kind(0+offset))->get_bild(img);
 		}
-		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
+		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
-	image_id gib_vordergrund(img_t img, uint8 season) const {
+	image_id get_vordergrund(img_t img, uint8 season) const {
 		const bild_besch_t *bild = NULL;
 		if(season && number_seasons == 1) {
-			bild = static_cast<const bildliste_besch_t *>(gib_kind(4+offset))->gib_bild(img);
+			bild = static_cast<const bildliste_besch_t *>(get_kind(4+offset))->get_bild(img);
 		}
 		if(bild == NULL) {
-			bild = static_cast<const bildliste_besch_t *>(gib_kind(1+offset))->gib_bild(img);
+			bild = static_cast<const bildliste_besch_t *>(get_kind(1+offset))->get_bild(img);
 		}
-		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
+		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
-	static img_t gib_simple(ribi_t::ribi ribi);
-	static img_t gib_start(ribi_t::ribi ribi);
-	static img_t gib_rampe(ribi_t::ribi ribi);
-	static img_t gib_pillar(ribi_t::ribi ribi);
+	static img_t get_simple(ribi_t::ribi ribi);
+	static img_t get_start(ribi_t::ribi ribi);
+	static img_t get_rampe(ribi_t::ribi ribi);
+	static img_t get_pillar(ribi_t::ribi ribi);
 
-	waytype_t gib_waytype() const { return static_cast<waytype_t>(wegtyp); }
+	waytype_t get_waytype() const { return static_cast<waytype_t>(wegtyp); }
 
-	sint32 gib_preis() const { return preis; }
+	sint32 get_preis() const { return preis; }
 
-	sint32 gib_wartung() const { return maintenance; }
+	sint32 get_wartung() const { return maintenance; }
 
 	/**
 	 * Determines max speed in km/h allowed on this bridge
 	 * @author Hj. Malthaner
 	 */
-	uint32  gib_topspeed() const { return topspeed; }
+	uint32  get_topspeed() const { return topspeed; }
 
 	/**
 	 * Distance of pillars (=0 for no pillars)
 	 * @author prissi
 	 */
-	int  gib_pillar() const { return pillars_every; }
+	int  get_pillar() const { return pillars_every; }
 
 	/**
 	 * skips lowest pillar on south/west slopes?
@@ -124,13 +124,13 @@ public:
 	 * maximum bridge span (=0 for infinite)
 	 * @author prissi
 	 */
-	int  gib_max_length() const { return max_length; }
+	int  get_max_length() const { return max_length; }
 
 	/**
 	 * maximum bridge height (=0 for infinite)
 	 * @author prissi
 	 */
-	int  gib_max_height() const { return max_height; }
+	int  get_max_height() const { return max_height; }
 
 	/**
 	 * @return introduction month

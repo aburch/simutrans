@@ -70,7 +70,7 @@ intr_refresh_display(bool dirty)
 	wasser_t::prepare_for_refresh();
 	dr_prepare_flush();
 	welt_ansicht->display( dirty );
-	win_display_flush(welt_modell->get_active_player()->gib_konto_als_double());
+	win_display_flush(welt_modell->get_active_player()->get_konto_als_double());
 	dr_flush();
 }
 

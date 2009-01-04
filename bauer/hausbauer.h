@@ -58,7 +58,7 @@ public:
 	/* finds a station building, which enables pas/mail/goods for the AI
 	 * for time==0 the timeline will be ignored
 	 */
-	static const haus_besch_t* gib_random_station(const haus_besch_t::utyp utype, const waytype_t wt, const uint16 time, const uint8 enables);
+	static const haus_besch_t* get_random_station(const haus_besch_t::utyp utype, const waytype_t wt, const uint16 time, const uint8 enables);
 
 	static const haus_tile_besch_t* find_tile(const char* name, int idx);
 
@@ -76,21 +76,21 @@ public:
 	 * eindeutig aufsteigend.
 	 * @author V. Meyer
 	 */
-	static const haus_besch_t* gib_gewerbe(int level, uint16 time, climate cl);
+	static const haus_besch_t* get_gewerbe(int level, uint16 time, climate cl);
 
 	/**
 	 * Industriegebäude passend zum Level liefern. Zur Zeit sind die Einträge
 	 * eindeutig aufsteigend.
 	 * @author V. Meyer
 	 */
-	static const haus_besch_t* gib_industrie(int level, uint16 time, climate cl);
+	static const haus_besch_t* get_industrie(int level, uint16 time, climate cl);
 
 	/**
 	 * Wohnhaus passend zum Level liefern. Zur Zeit sind die Einträge
 	 * eindeutig aufsteigend.
 	 * @author V. Meyer
 	 */
-	static const haus_besch_t* gib_wohnhaus(int level, uint16 time, climate cl);
+	static const haus_besch_t* get_wohnhaus(int level, uint16 time, climate cl);
 
 	/**
 	 * Liefert per Zufall die Beschreibung eines Sehenswuerdigkeit,
@@ -127,7 +127,7 @@ public:
 	/* called for an attraction or a townhall with a certain number of inhabitants (bev)
 	 * bev==-1 will search for an attraction outside of cities.
 	 */
-	static const haus_besch_t* gib_special(int bev, haus_besch_t::utyp utype, uint16 time, bool ignore_retire, climate cl);
+	static const haus_besch_t* get_special(int bev, haus_besch_t::utyp utype, uint16 time, bool ignore_retire, climate cl);
 
 	/* use this to remove an arbitary building
 	 * it will also take care of factories and foundations

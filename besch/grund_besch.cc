@@ -64,9 +64,9 @@ static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, con
 {
 	bild_besch_t *bild_dest = bild_lightmap->copy_rotate(0);
 
-	PIXVAL *dest = (PIXVAL *)bild_dest->gib_daten();
+	PIXVAL *dest = (PIXVAL *)bild_dest->get_daten();
 
-	const PIXVAL *texture = (const PIXVAL *)bild_texture->gib_daten();
+	const PIXVAL *texture = (const PIXVAL *)bild_texture->get_daten();
 	const sint16 x_y = bild_texture->get_pic()->w;
 	// now mix the images
 	for (int j = 0; j < bild_dest->get_pic()->h; j++) {
@@ -96,7 +96,7 @@ static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, con
 			x += *dest;
 		} while(  (*dest++)!=0 );
 	}
-	assert(dest - (const PIXVAL*)bild_dest->gib_daten() == (ptrdiff_t)bild_dest->get_pic()->len);
+	assert(dest - (const PIXVAL*)bild_dest->get_daten() == (ptrdiff_t)bild_dest->get_pic()->len);
 	return bild_dest;
 }
 
@@ -111,10 +111,10 @@ static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap,
 {
 	bild_besch_t *bild_dest = bild_lightmap->copy_rotate(0);
 
-	const PIXVAL *mixmap = (const PIXVAL *)bild_mixmap->gib_daten();
-	const PIXVAL *src1 = (const PIXVAL *)bild_src1->gib_daten() - bild_src1->get_pic()->y*(bild_src1->get_pic()->w+3l);
-	const PIXVAL *src2 = (const PIXVAL *)bild_src2->gib_daten() - bild_src2->get_pic()->y*(bild_src2->get_pic()->w+3l);
-	const PIXVAL *src3 = (const PIXVAL *)bild_src3->gib_daten() - bild_src3->get_pic()->y*(bild_src3->get_pic()->w+3l);
+	const PIXVAL *mixmap = (const PIXVAL *)bild_mixmap->get_daten();
+	const PIXVAL *src1 = (const PIXVAL *)bild_src1->get_daten() - bild_src1->get_pic()->y*(bild_src1->get_pic()->w+3l);
+	const PIXVAL *src2 = (const PIXVAL *)bild_src2->get_daten() - bild_src2->get_pic()->y*(bild_src2->get_pic()->w+3l);
+	const PIXVAL *src3 = (const PIXVAL *)bild_src3->get_daten() - bild_src3->get_pic()->y*(bild_src3->get_pic()->w+3l);
 	const sint32 x_y = bild_src1->get_pic()->w;
 	const sint32 mix_x_y = bild_mixmap->get_pic()->w;
 	sint16 tile_x, tile_y;
@@ -144,7 +144,7 @@ static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap,
 	const sint16 middle_y = (corner2_y+corner4_y)/2;
 
 	// now mix the images
-	PIXVAL *dest = (PIXVAL *)bild_dest->gib_daten();
+	PIXVAL *dest = (PIXVAL *)bild_dest->get_daten();
 	for (int j = 0; j < bild_dest->get_pic()->h; j++) {
 		tile_y = bild_dest->get_pic()->y + j;
 		tile_x = *dest++;
@@ -326,16 +326,16 @@ static slist_tpl<bild_besch_t *>ground_bild_list;
  */
 bool grund_besch_t::register_besch(const grund_besch_t *besch)
 {
-	if(strcmp("Outside", besch->gib_name())==0) {
-		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(besch->gib_kind(2))->gib_bild(0,0);
+	if(strcmp("Outside", besch->get_name())==0) {
+		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(besch->get_kind(2))->get_bild(0,0);
 		dbg->message("grund_besch_t::register_besch()", "setting raster width to %i", bild->pic.w);
 		display_set_base_raster_width(bild->pic.w);
 	}
 	// find out water animation stages
-	if(strcmp("Water", besch->gib_name())==0) {
+	if(strcmp("Water", besch->get_name())==0) {
 		water_animation_stages = 0;
-		while(  besch->gib_bild(0, water_animation_stages)!=IMG_LEER  ) {
-			DBG_MESSAGE( "water", "bild(0,%i)=%u", water_animation_stages, besch->gib_bild(0, water_animation_stages) );
+		while(  besch->get_bild(0, water_animation_stages)!=IMG_LEER  ) {
+			DBG_MESSAGE( "water", "bild(0,%i)=%u", water_animation_stages, besch->get_bild(0, water_animation_stages) );
 			water_animation_stages ++;
 		}
 		// then ignore all ms settings
@@ -380,7 +380,7 @@ grund_besch_t::calc_water_level(karte_t *w, uint8 *height_to_climate)
 {
 	grund_besch_t::welt = w;
 
-	DBG_MESSAGE("grund_besch_t::calc_water_level()","grundwasser %i",welt->gib_grundwasser());
+	DBG_MESSAGE("grund_besch_t::calc_water_level()","grundwasser %i",welt->get_grundwasser());
 
 	printf("Calculating textures ...");
 
@@ -394,7 +394,7 @@ grund_besch_t::calc_water_level(karte_t *w, uint8 *height_to_climate)
 
 	// create height table
 	sint16 climate_border[MAX_CLIMATES];
-	memcpy( climate_border, welt->gib_einstellungen()->gib_climate_borders(), sizeof(climate_border) );
+	memcpy( climate_border, welt->get_einstellungen()->get_climate_borders(), sizeof(climate_border) );
 	for( int cl=0;  cl<MAX_CLIMATES-1;  cl++ ) {
 		if(climate_border[cl]>climate_border[arctic_climate]) {
 			// unused climate
@@ -441,7 +441,7 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
 #endif
 
 	// not the wrong tile size?
-	assert(boden_texture->gib_bild_ptr(0)->pic.w == grund_besch_t::ausserhalb->gib_bild_ptr(0)->pic.w);
+	assert(boden_texture->get_bild_ptr(0)->pic.w == grund_besch_t::ausserhalb->get_bild_ptr(0)->pic.w);
 
 #ifdef DOUBLE_GROUNDS
 //#error "Implement it for double grounds too!"
@@ -455,60 +455,60 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
 	for( int slope=1;  slope<15;  slope++ ) {
 		switch(slope) {
 			case ribi_t::nord:
-				all_rotations_beach[slope] = transition_water_texture->gib_bild_ptr(2)->copy_rotate( 180 );
-				all_rotations_slope[slope] = transition_slope_texture->gib_bild_ptr(2)->copy_rotate( 180 );
+				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(2)->copy_rotate( 180 );
+				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(2)->copy_rotate( 180 );
 				break;
 			case ribi_t::ost:
-				all_rotations_beach[slope] = transition_water_texture->gib_bild_ptr(2)->copy_rotate( 270 );
-				all_rotations_slope[slope]= transition_slope_texture->gib_bild_ptr(2)->copy_rotate( 270 );
+				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(2)->copy_rotate( 270 );
+				all_rotations_slope[slope]= transition_slope_texture->get_bild_ptr(2)->copy_rotate( 270 );
 				break;
 			case ribi_t::nordost:
-				all_rotations_beach[slope] = transition_water_texture->gib_bild_ptr(0)->copy_rotate( 180 );
-				all_rotations_slope[slope] = transition_slope_texture->gib_bild_ptr(0)->copy_rotate( 180 );
+				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(0)->copy_rotate( 180 );
+				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(0)->copy_rotate( 180 );
 				break;
 			case ribi_t::sued:
-				all_rotations_beach[slope] = transition_water_texture->gib_bild_ptr(2)->copy_rotate( 0 );
-				all_rotations_slope[slope] = transition_slope_texture->gib_bild_ptr(2)->copy_rotate( 0 );
+				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(2)->copy_rotate( 0 );
+				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(2)->copy_rotate( 0 );
 				break;
 			case ribi_t::nordsued:
-				all_rotations_beach[slope] = transition_water_texture->gib_bild_ptr(3)->copy_rotate( 90 );
-				all_rotations_slope[slope] = transition_slope_texture->gib_bild_ptr(3)->copy_rotate( 90 );
+				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(3)->copy_rotate( 90 );
+				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(3)->copy_rotate( 90 );
 				break;
 			case ribi_t::suedost:
-				all_rotations_beach[slope] = transition_water_texture->gib_bild_ptr(0)->copy_rotate( 270 );
-				all_rotations_slope[slope] = transition_slope_texture->gib_bild_ptr(0)->copy_rotate( 270 );
+				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(0)->copy_rotate( 270 );
+				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(0)->copy_rotate( 270 );
 				break;
 			case ribi_t::nordsuedost:
-				all_rotations_beach[slope] = transition_water_texture->gib_bild_ptr(1)->copy_rotate( 270 );
-				all_rotations_slope[slope] = transition_slope_texture->gib_bild_ptr(1)->copy_rotate( 270 );
+				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(1)->copy_rotate( 270 );
+				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(1)->copy_rotate( 270 );
 				break;
 			case ribi_t::west:
-				all_rotations_beach[slope] = transition_water_texture->gib_bild_ptr(2)->copy_rotate( 90 );
-				all_rotations_slope[slope] = transition_slope_texture->gib_bild_ptr(2)->copy_rotate( 90 );
+				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(2)->copy_rotate( 90 );
+				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(2)->copy_rotate( 90 );
 				break;
 			case ribi_t::nordwest:
-				all_rotations_beach[slope] = transition_water_texture->gib_bild_ptr(0)->copy_rotate( 90 );
-				all_rotations_slope[slope] = transition_slope_texture->gib_bild_ptr(0)->copy_rotate( 90 );
+				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(0)->copy_rotate( 90 );
+				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(0)->copy_rotate( 90 );
 				break;
 			case ribi_t::ostwest:
-				all_rotations_beach[slope] = transition_water_texture->gib_bild_ptr(3)->copy_rotate( 0 );
-				all_rotations_slope[slope] = transition_slope_texture->gib_bild_ptr(3)->copy_rotate( 0 );
+				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(3)->copy_rotate( 0 );
+				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(3)->copy_rotate( 0 );
 				break;
 			case ribi_t::nordostwest:
-				all_rotations_beach[slope] = transition_water_texture->gib_bild_ptr(1)->copy_rotate( 180 );
-				all_rotations_slope[slope] = transition_slope_texture->gib_bild_ptr(1)->copy_rotate( 180 );
+				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(1)->copy_rotate( 180 );
+				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(1)->copy_rotate( 180 );
 				break;
 			case ribi_t::suedwest:
-				all_rotations_beach[slope] = transition_water_texture->gib_bild_ptr(0)->copy_rotate( 0 );
-				all_rotations_slope[slope] = transition_slope_texture->gib_bild_ptr(0)->copy_rotate( 0 );
+				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(0)->copy_rotate( 0 );
+				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(0)->copy_rotate( 0 );
 				break;
 			case ribi_t::nordsuedwest:
-				all_rotations_beach[slope] = transition_water_texture->gib_bild_ptr(1)->copy_rotate( 90 );
-				all_rotations_slope[slope] = transition_slope_texture->gib_bild_ptr(1)->copy_rotate( 90 );
+				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(1)->copy_rotate( 90 );
+				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(1)->copy_rotate( 90 );
 				break;
 			case ribi_t::suedostwest:
-				all_rotations_beach[slope] = transition_water_texture->gib_bild_ptr(1)->copy_rotate( 0 );
-				all_rotations_slope[slope] = transition_slope_texture->gib_bild_ptr(1)->copy_rotate( 0 );
+				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(1)->copy_rotate( 0 );
+				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(1)->copy_rotate( 0 );
 				break;
 		}
 	}
@@ -517,26 +517,26 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
 
 	// coastal slopes: water tile
 	// first water only
-	final_tile = create_textured_tile( light_map->gib_bild_ptr(0), boden_texture->gib_bild_ptr(water_climate) );
+	final_tile = create_textured_tile( light_map->get_bild_ptr(0), boden_texture->get_bild_ptr(water_climate) );
 	register_image(&final_tile->pic);
-	image_offset = final_tile->gib_nummer();
+	image_offset = final_tile->get_nummer();
 	ground_bild_list.append( final_tile );
 
 	DBG_MESSAGE("grund_besch_t::calc_water_level()","image_offset=%d",image_offset);
 	// beaches
 	for( int slope=1; slope<15;  slope++ ) {
 		final_tile = create_textured_tile_mix(
-			light_map->gib_bild_ptr(slope), slope,
+			light_map->get_bild_ptr(slope), slope,
 			all_rotations_beach[slope],
-			boden_texture->gib_bild_ptr(water_climate),
-			boden_texture->gib_bild_ptr(desert_climate),
-			boden_texture->gib_bild_ptr(climate_list[0]) );
+			boden_texture->get_bild_ptr(water_climate),
+			boden_texture->get_bild_ptr(desert_climate),
+			boden_texture->get_bild_ptr(climate_list[0]) );
 		register_image(&final_tile->pic);
 		ground_bild_list.append( final_tile );
 	}
 	// coastal snow: winter water so far identical ...
 	for( int slope=1; slope<15;  slope++ ) {
-		final_tile = create_textured_tile_mix( light_map->gib_bild_ptr(slope), slope, all_rotations_beach[slope], boden_texture->gib_bild_ptr(water_climate), boden_texture->gib_bild_ptr(desert_climate), boden_texture->gib_bild_ptr(arctic_climate) );
+		final_tile = create_textured_tile_mix( light_map->get_bild_ptr(slope), slope, all_rotations_beach[slope], boden_texture->get_bild_ptr(water_climate), boden_texture->get_bild_ptr(desert_climate), boden_texture->get_bild_ptr(arctic_climate) );
 		register_image(&final_tile->pic);
 		ground_bild_list.append( final_tile );
 	}
@@ -544,33 +544,33 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
 	// now the other transitions
 	for(  int i=0;  i<number_of_climates;  i++ ) {
 		// normal tile (no transition, not snow
-		final_tile = create_textured_tile( light_map->gib_bild_ptr(0), boden_texture->gib_bild_ptr(climate_list[i]) );
+		final_tile = create_textured_tile( light_map->get_bild_ptr(0), boden_texture->get_bild_ptr(climate_list[i]) );
 		register_image(&final_tile->pic);
 		ground_bild_list.append( final_tile );
 		for( int slope=1; slope<15;  slope++ ) {
-			bild_besch_t *final_tile = create_textured_tile( light_map->gib_bild_ptr(slope), boden_texture->gib_bild_ptr(climate_list[i]) );
+			bild_besch_t *final_tile = create_textured_tile( light_map->get_bild_ptr(slope), boden_texture->get_bild_ptr(climate_list[i]) );
 			register_image(&final_tile->pic);
 			ground_bild_list.append( final_tile );
 		}
 		// without snow, transition
 		for( int slope=1; slope<15;  slope++ ) {
-			bild_besch_t *final_tile = create_textured_tile_mix( light_map->gib_bild_ptr(slope), slope, all_rotations_slope[slope], boden_texture->gib_bild_ptr(climate_list[i]), boden_texture->gib_bild_ptr(climate_list[i]), boden_texture->gib_bild_ptr(climate_list[i+1]) );
+			bild_besch_t *final_tile = create_textured_tile_mix( light_map->get_bild_ptr(slope), slope, all_rotations_slope[slope], boden_texture->get_bild_ptr(climate_list[i]), boden_texture->get_bild_ptr(climate_list[i]), boden_texture->get_bild_ptr(climate_list[i+1]) );
 			register_image(&final_tile->pic);
 			ground_bild_list.append( final_tile );
 		}
 		// and with snow
 		for( int slope=1; slope<15;  slope++ ) {
-			bild_besch_t *final_tile = create_textured_tile_mix( light_map->gib_bild_ptr(slope), slope, all_rotations_slope[slope], boden_texture->gib_bild_ptr(climate_list[i]), boden_texture->gib_bild_ptr(climate_list[i]), boden_texture->gib_bild_ptr(arctic_climate) );
+			bild_besch_t *final_tile = create_textured_tile_mix( light_map->get_bild_ptr(slope), slope, all_rotations_slope[slope], boden_texture->get_bild_ptr(climate_list[i]), boden_texture->get_bild_ptr(climate_list[i]), boden_texture->get_bild_ptr(arctic_climate) );
 			register_image(&final_tile->pic);
 			ground_bild_list.append( final_tile );
 		}
 	}
 	// finally full snow
-	final_tile = create_textured_tile( light_map->gib_bild_ptr(0), boden_texture->gib_bild_ptr(arctic_climate) );
+	final_tile = create_textured_tile( light_map->get_bild_ptr(0), boden_texture->get_bild_ptr(arctic_climate) );
 	register_image(&final_tile->pic);
 	ground_bild_list.append( final_tile );
 	for( int slope=1; slope<15;  slope++ ) {
-		final_tile = create_textured_tile( light_map->gib_bild_ptr(slope), boden_texture->gib_bild_ptr(arctic_climate) );
+		final_tile = create_textured_tile( light_map->get_bild_ptr(slope), boden_texture->get_bild_ptr(arctic_climate) );
 		register_image(&final_tile->pic);
 		ground_bild_list.append( final_tile );
 	}
@@ -592,9 +592,9 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
  * private (static table "height_to_texture_climate" for lookup)
  */
 image_id
-grund_besch_t::gib_ground_tile(hang_t::typ slope, sint16 height )
+grund_besch_t::get_ground_tile(hang_t::typ slope, sint16 height )
 {
-	const sint16 h = (height-welt->gib_grundwasser())/Z_TILE_STEP;
+	const sint16 h = (height-welt->get_grundwasser())/Z_TILE_STEP;
 #ifdef DOUBLE_GROUNDS
 	slope = get_double_hang(slope);
 	if((int)slope>78) {
@@ -603,9 +603,9 @@ grund_besch_t::gib_ground_tile(hang_t::typ slope, sint16 height )
 #endif
 	if(h<0  ||  (h==0  &&  slope==hang_t::flach)) {
 		// deep water
-		const bildliste2d_besch_t *liste = static_cast<const bildliste2d_besch_t *>(sea->gib_kind(2));
-		int nr = min( -h, liste->gib_anzahl()-2 );
-		return liste->gib_bild(nr,0)->gib_nummer();
+		const bildliste2d_besch_t *liste = static_cast<const bildliste2d_besch_t *>(sea->get_kind(2));
+		int nr = min( -h, liste->get_anzahl()-2 );
+		return liste->get_bild(nr,0)->get_nummer();
 	}
 	else {
 		const bool snow_transition = (height+Z_TILE_STEP==welt->get_snowline());

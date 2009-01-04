@@ -21,9 +21,9 @@ private:
 	image_id bild;
 
 public:
-	void setze_richtung(ribi_t::ribi r);
+	void set_richtung(ribi_t::ribi r);
 
-	ribi_t::ribi gib_richtung() const {return richtung;}
+	ribi_t::ribi get_richtung() const {return richtung;}
 
 	zeiger_t(karte_t *welt, loadsave_t *file);
 	zeiger_t(karte_t *welt, koord3d pos, spieler_t *sp);
@@ -34,14 +34,14 @@ public:
 	 */
 	void change_pos(koord3d k);
 
-	const char *gib_name() const {return "Zeiger";}
-	enum ding_t::typ gib_typ() const {return zeiger;}
+	const char *get_name() const {return "Zeiger";}
+	enum ding_t::typ get_typ() const {return zeiger;}
 
-	void setze_area( koord area, uint8 center );
+	void set_area( koord area, uint8 center );
 	bool area_changed();
 
-	void setze_bild( image_id b );
-	image_id gib_bild() const {return bild;}
+	void set_bild( image_id b );
+	image_id get_bild() const {return bild;}
 };
 
 #endif

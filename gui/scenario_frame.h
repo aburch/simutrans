@@ -42,7 +42,7 @@ public:
 	* @return den Dateinamen für die Hilfe, oder NULL
 	* @author Hj. Malthaner
 	*/
-	virtual const char * gib_hilfe_datei() const { return "scenario.txt"; }
+	virtual const char * get_hilfe_datei() const { return "scenario.txt"; }
 
 	scenario_frame_t(karte_t *welt);
 };

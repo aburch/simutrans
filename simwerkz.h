@@ -88,7 +88,7 @@ private:
 public:
 	wkz_raise_t() : werkzeug_t() { offset = Z_GRID; }
 	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
-	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Anheben", sp->get_welt()->gib_einstellungen()->cst_alter_land); }
+	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Anheben", sp->get_welt()->get_einstellungen()->cst_alter_land); }
 	bool init( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	bool exit( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	const char *work( karte_t *, spieler_t *, koord3d );
@@ -102,7 +102,7 @@ private:
 public:
 	wkz_lower_t() : werkzeug_t() { offset = Z_GRID; }
 	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
-	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Absenken", sp->get_welt()->gib_einstellungen()->cst_alter_land); }
+	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Absenken", sp->get_welt()->get_einstellungen()->cst_alter_land); }
 	bool init( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	bool exit( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	virtual const char *work( karte_t *, spieler_t *, koord3d);
@@ -114,18 +114,18 @@ class wkz_setslope_t : public werkzeug_t {
 public:
 	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	static const char *wkz_set_slope_work( karte_t *welt, spieler_t *sp, koord pos, int slope );
-	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Built artifical slopes", sp->get_welt()->gib_einstellungen()->cst_set_slope); }
-	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k ) { return wkz_set_slope_work( welt, sp, k.gib_2d(), atoi(default_param) ); }
+	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Built artifical slopes", sp->get_welt()->get_einstellungen()->cst_set_slope); }
+	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k ) { return wkz_set_slope_work( welt, sp, k.get_2d(), atoi(default_param) ); }
 };
 
 class wkz_restoreslope_t : public werkzeug_t {
 	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
-	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Restore natural slope", sp->get_welt()->gib_einstellungen()->cst_set_slope); }
-	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k ) { return wkz_setslope_t::wkz_set_slope_work( welt, sp, k.gib_2d(), RESTORE_SLOPE ); }
+	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Restore natural slope", sp->get_welt()->get_einstellungen()->cst_set_slope); }
+	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k ) { return wkz_setslope_t::wkz_set_slope_work( welt, sp, k.get_2d(), RESTORE_SLOPE ); }
 };
 
 class wkz_marker_t : public werkzeug_t {
-	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Marker", sp->get_welt()->gib_einstellungen()->cst_set_slope); }
+	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Marker", sp->get_welt()->get_einstellungen()->cst_set_slope); }
 	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k );
 };
 
@@ -143,7 +143,7 @@ class wkz_transformer_t : public werkzeug_t {
 };
 
 class wkz_add_city_t : public werkzeug_t {
-	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price( "Found new city", sp->get_welt()->gib_einstellungen()->cst_found_city ); }
+	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price( "Found new city", sp->get_welt()->get_einstellungen()->cst_found_city ); }
 	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 };
@@ -338,9 +338,9 @@ public:
 /* protects map from further change (here because two clicks to confirm it!) */
 class wkz_lock_game_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Lock game"); }
-	bool init( karte_t *welt, spieler_t * ) { return welt->gib_einstellungen()->gib_allow_player_change(); }
+	bool init( karte_t *welt, spieler_t * ) { return welt->get_einstellungen()->get_allow_player_change(); }
 	const char *work( karte_t *welt, spieler_t *, koord3d ) {
-		welt->gib_einstellungen()->setze_allow_player_change( false );
+		welt->get_einstellungen()->set_allow_player_change( false );
 		destroy_all_win();
 		welt->switch_active_player( 0 );
 		welt->set_werkzeug( general_tool[WKZ_ABFRAGE] );
@@ -485,7 +485,7 @@ class wkz_zoom_in_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("zooming in"); }
 	bool init( karte_t *welt, spieler_t * ) {
 		win_change_zoom_factor(true);
-		welt->setze_dirty();
+		welt->set_dirty();
 		return false;
 	}
 };
@@ -494,7 +494,7 @@ class wkz_zoom_out_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("zooming out"); }
 	bool init( karte_t *welt, spieler_t * ) {
 		win_change_zoom_factor(false);
-		welt->setze_dirty();
+		welt->set_dirty();
 		return false;
 	}
 };
@@ -504,7 +504,7 @@ class wkz_show_coverage_t : public werkzeug_t {
 	bool is_selected(karte_t *) { return umgebung_t::station_coverage_show; }
 	bool init( karte_t *welt, spieler_t * ) {
 		umgebung_t::station_coverage_show = !umgebung_t::station_coverage_show;
-		welt->setze_dirty();
+		welt->set_dirty();
 		return false;
 	}
 };
@@ -517,7 +517,7 @@ class wkz_show_name_t : public werkzeug_t {
 	}
 	bool init( karte_t *welt, spieler_t * ) {
 		umgebung_t::show_names = (umgebung_t::show_names+1) & 3;
-		welt->setze_dirty();
+		welt->set_dirty();
 		return false;
 	}
 };
@@ -527,7 +527,7 @@ class wkz_show_grid_t : public werkzeug_t {
 	bool is_selected(karte_t *) { return grund_t::show_grid; }
 	bool init( karte_t *welt, spieler_t * ) {
 		grund_t::toggle_grid();
-		welt->setze_dirty();
+		welt->set_dirty();
 		return false;
 	}
 };
@@ -537,7 +537,7 @@ class wkz_show_trees_t : public werkzeug_t {
 	bool is_selected(karte_t *) { return umgebung_t::hide_trees; }
 	bool init( karte_t *welt, spieler_t * ) {
 		umgebung_t::hide_trees = !umgebung_t::hide_trees;
-		welt->setze_dirty();
+		welt->set_dirty();
 		return false;
 	}
 };
@@ -553,7 +553,7 @@ class wkz_show_houses_t : public werkzeug_t {
 		if(umgebung_t::hide_buildings>umgebung_t::ALL_HIDDEN_BUIDLING) {
 			umgebung_t::hide_buildings = umgebung_t::NOT_HIDE;
 		}
-		welt->setze_dirty();
+		welt->set_dirty();
 		return false;
 	}
 };

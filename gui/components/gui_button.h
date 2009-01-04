@@ -81,21 +81,21 @@ public:
 
 	void init(enum type typ, const char *text, koord pos, koord size = koord::invalid);
 
-	void setze_typ(enum type typ);
+	void set_typ(enum type typ);
 
-	const char * gib_text() const {return text;}
+	const char * get_text() const {return text;}
 
 	/**
 	 * Setzt den im Button angezeigten Text
 	 * @author Hj. Malthaner
 	 */
-	void setze_text(const char * text);
+	void set_text(const char * text);
 
 	/**
 	 * Set text to position
 	 * @author prissi
 	 */
-	void setze_targetpos(const koord k ) { this->targetpos.x = k.x; this->targetpos.y = k.y; }
+	void set_targetpos(const koord k ) { this->targetpos.x = k.x; this->targetpos.y = k.y; }
 
 	/**
 	 * Setzt den im Button angezeigten Text

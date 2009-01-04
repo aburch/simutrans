@@ -98,7 +98,7 @@ public:
 	 * sets the highlight color for the droplist
 	 * @author hsiegeln
 	 */
-	void set_highlight_color(int color) { droplist.setze_highlight_color(color); }
+	void set_highlight_color(int color) { droplist.set_highlight_color(color); }
 
 	/**
 	 * set maximum size for control
@@ -110,7 +110,7 @@ public:
 	 * returns the selection id
 	 * @author hsiegeln
 	 */
-	int get_selection() { return droplist.gib_selection(); }
+	int get_selection() { return droplist.get_selection(); }
 
 	/**
 	 * sets the selection
@@ -123,7 +123,7 @@ public:
 	 * obwohl groesse public ist.
 	 * @author Hj. Malthaner
 	 */
-	void setze_groesse(koord groesse);
+	void set_groesse(koord groesse);
 
 	/**
 	 * called when the focus should be released

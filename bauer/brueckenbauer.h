@@ -69,7 +69,7 @@ public:
 	static bool laden_erfolgreich();
 
 
-	static const bruecke_besch_t *gib_besch(const char *name);
+	static const bruecke_besch_t *get_besch(const char *name);
 
 	// the main construction routine
 	static const char *baue( karte_t *welt, spieler_t *sp, koord pos, const bruecke_besch_t *besch);
