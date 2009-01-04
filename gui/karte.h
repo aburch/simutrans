@@ -53,7 +53,7 @@ private:
 	// to be prepared for more than one map => nonstatic
 	void setze_relief_farbe_area(koord k, int areasize, uint8 color);
 
-	const fahrplan_t *fpl;
+	const schedule_t *fpl;
 	uint8 fpl_player_nr;
 
 	koord last_world_pos;
@@ -132,7 +132,7 @@ public:
 
 	void zeichnen(koord pos);
 
-	void set_current_fpl(const fahrplan_t *current_fpl, uint8 player_nr) {fpl = current_fpl; fpl_player_nr = player_nr;};
+	void set_current_fpl(const schedule_t *current_fpl, uint8 player_nr) {fpl = current_fpl; fpl_player_nr = player_nr;};
 };
 
 #endif

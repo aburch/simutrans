@@ -12,7 +12,7 @@
 
 
 line_management_gui_t::line_management_gui_t(linehandle_t line, spieler_t* sp) :
-	fahrplan_gui_t(line->get_fahrplan(), sp, convoihandle_t() )
+	fahrplan_gui_t(line->get_schedule(), sp, convoihandle_t() )
 {
 	this->line = line;
 	this->sp = sp;

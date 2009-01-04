@@ -1103,7 +1103,7 @@ const char *wkz_plant_tree_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
  * So if there is a halt, then it must be either public or our!
  * @autor prissi
  */
-static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord pos, fahrplan_t *fpl, bool append)
+static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord pos, schedule_t *fpl, bool append)
 {
 	if(fpl == NULL) {
 dbg->warning("wkz_fahrplan_insert_aux()","Schedule is (null), doing nothing");
@@ -1169,12 +1169,12 @@ dbg->warning("wkz_fahrplan_insert_aux()","Schedule is (null), doing nothing");
 
 const char *wkz_fahrplan_add_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
-	return wkz_fahrplan_insert_aux( welt, sp, k.gib_2d(), (fahrplan_t *)default_param, true );
+	return wkz_fahrplan_insert_aux( welt, sp, k.gib_2d(), (schedule_t *)default_param, true );
 }
 
 const char *wkz_fahrplan_ins_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
-	return wkz_fahrplan_insert_aux( welt, sp, k.gib_2d(), (fahrplan_t *)default_param, false );
+	return wkz_fahrplan_insert_aux( welt, sp, k.gib_2d(), (schedule_t *)default_param, false );
 }
 
 
@@ -3393,7 +3393,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					convoihandle_t cnv = *i;
 					// check line and owner
 					if(!cnv->get_line().is_bound()  &&  cnv->gib_besitzer()==sp) {
-						fahrplan_t *fpl = cnv->gib_fahrplan();
+						schedule_t *fpl = cnv->get_schedule();
 						// check waytype
 						if(fpl  &&  fpl->ist_halt_erlaubt(bd)) {
 							bool updated = false;
@@ -3406,7 +3406,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 							if(updated) {
 								fpl->cleanup();
 								// set this schedule
-								cnv->setze_fahrplan(fpl);
+								cnv->set_schedule(fpl);
 							}
 						}
 					}
@@ -3416,7 +3416,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 				sp->simlinemgmt.get_lines(simline_t::line,&lines);
 				for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; ++i) {
 					linehandle_t line = (*i);
-					fahrplan_t *fpl = line->get_fahrplan();
+					schedule_t *fpl = line->get_schedule();
 					// check waytype
 					if(fpl->ist_halt_erlaubt(bd)) {
 						bool updated = false;

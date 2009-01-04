@@ -1176,9 +1176,9 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 			sprintf(txt_convoi_speed,  "%s %d(%d)km/h", translator::translate("Max. speed:"), min_speed, max_speed );
 			sprintf(txt_convoi_value, "%s %d$", translator::translate("Restwert:"), cnv->calc_restwert()/100);
 			// just recheck if schedules match
-			if(  cnv->get_line().is_bound()  &&  cnv->get_line()->get_fahrplan()->ist_abgeschlossen()  ) {
+			if(  cnv->get_line().is_bound()  &&  cnv->get_line()->get_schedule()->ist_abgeschlossen()  ) {
 				cnv->check_pending_updates();
-				if(  !cnv->get_line()->get_fahrplan()->matches( get_welt(), cnv->gib_fahrplan() )  ) {
+				if(  !cnv->get_line()->get_schedule()->matches( get_welt(), cnv->get_schedule() )  ) {
 					cnv->unset_line();
 				}
 			}
@@ -1262,7 +1262,7 @@ void depot_frame_t::fahrplaneingabe()
 	convoihandle_t cnv = depot->get_convoi(icnv);
 	if(cnv.is_bound()  &&  cnv->gib_vehikel_anzahl() > 0) {
 
-		fahrplan_t *fpl = cnv->erzeuge_fahrplan();
+		schedule_t *fpl = cnv->create_schedule();
 		if(fpl!=NULL) {
 			if(fpl->ist_abgeschlossen()) {
 
@@ -1271,7 +1271,7 @@ void depot_frame_t::fahrplaneingabe()
 
 				// evtl. hat ein callback cnv gelöscht, so erneut testen
 				if(cnv.is_bound()  &&  fpl != NULL) {
-					cnv->setze_fahrplan(fpl);
+					cnv->set_schedule(fpl);
 				}
 			}
 			else {

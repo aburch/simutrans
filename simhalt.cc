@@ -877,7 +877,7 @@ bool haltestelle_t::is_connected(const halthandle_t halt, const ware_besch_t * w
 
 
 
-void haltestelle_t::hat_gehalten(const ware_besch_t *type, const fahrplan_t *fpl)
+void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl)
 {
 	if(type != warenbauer_t::nichts) {
 		for(int i=0; i<fpl->maxi(); i++) {
@@ -940,7 +940,7 @@ void haltestelle_t::rebuild_destinations()
 
 			INT_CHECK("simhalt.cc 612");
 
-			fahrplan_t *fpl = cnv->gib_fahrplan();
+			schedule_t *fpl = cnv->get_schedule();
 			if(fpl) {
 				for(int i=0; i<fpl->maxi(); i++) {
 
@@ -972,7 +972,7 @@ void haltestelle_t::rebuild_destinations()
 	// now for the lines
 	for(uint i=0; i<registered_lines.get_count(); i++) {
 		const linehandle_t line = registered_lines[i];
-		fahrplan_t *fpl = line->get_fahrplan();
+		schedule_t *fpl = line->get_schedule();
 		assert(fpl);
 		// ok, now add line to the connections
 		if(line->count_convoys()>0  &&  (i_am_public  ||  line->get_convoy(0)->gib_besitzer()==gib_besitzer())) {
@@ -1335,7 +1335,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 
 
 // will load something compatible with wtyp into the car which schedule is fpl
-ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, fahrplan_t *fpl)
+ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t *fpl)
 {
 	// prissi: first iterate over the next stop, then over the ware
 	// might be a little slower, but ensures that passengers to nearest stop are served first
@@ -2292,7 +2292,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 				for(  uint j=0;  j<check_line.get_count();  j++  ) {
 					// only add unknow lines
 					if(  !registered_lines.is_contained(check_line[j])  ) {
-						const fahrplan_t *fpl = check_line[j]->get_fahrplan();
+						const schedule_t *fpl = check_line[j]->get_schedule();
 						for(  int k=0;  k<fpl->maxi();  k++  ) {
 							if(gib_halt(welt,fpl->eintrag[k].pos)==self) {
 								registered_lines.push_back(check_line[j]);
@@ -2309,7 +2309,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 		for(  uint32 j=0;  j<check_line.get_count();  j++  ) {
 			// only add unknow lines
 			if(  !registered_lines.is_contained(check_line[j])  ) {
-				const fahrplan_t *fpl = check_line[j]->get_fahrplan();
+				const schedule_t *fpl = check_line[j]->get_schedule();
 				for(  int k=0;  k<fpl->maxi();  k++  ) {
 					if(gib_halt(welt,fpl->eintrag[k].pos)==self) {
 						registered_lines.push_back(check_line[j]);
@@ -2394,7 +2394,7 @@ void haltestelle_t::rem_grund(grund_t *gr)
 
 		// remove lines eventually
 		for(  int j=registered_lines.get_count()-1;  j>=0;  j--  ) {
-			const fahrplan_t *fpl = registered_lines[j]->get_fahrplan();
+			const schedule_t *fpl = registered_lines[j]->get_schedule();
 			bool ok=false;
 			for(  int k=0;  k<fpl->maxi();  k++  ) {
 				if(gib_halt(welt,fpl->eintrag[k].pos)==self) {

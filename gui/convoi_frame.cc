@@ -109,7 +109,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 			!(gib_filter(stucked_filter) && (cnv->get_state()==convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS)) &&
 			!(gib_filter(indepot_filter) && cnv->in_depot()) &&
 			!(gib_filter(noline_filter) && !cnv->get_line().is_bound()) &&
-			!(gib_filter(nofpl_filter) && cnv->gib_fahrplan() == 0) &&
+			!(gib_filter(nofpl_filter) && cnv->get_schedule() == 0) &&
 			!(gib_filter(noincome_filter) && cnv->gib_jahresgewinn()/100 <= 0))
 		{
 			return false;

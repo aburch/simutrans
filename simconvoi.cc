@@ -518,7 +518,7 @@ bool convoi_t::sync_step(long delta_t)
 			// schedule window closed?
 			if(fpl!=NULL  &&  fpl->ist_abgeschlossen()) {
 
-				setze_fahrplan(fpl);
+				set_schedule(fpl);
 
 				if(fpl->maxi()==0) {
 					// no entry => no route ...
@@ -662,7 +662,7 @@ int convoi_t::drive_to(koord3d start, koord3d ziel)
  */
 void convoi_t::drive_to_next_stop()
 {
-	fahrplan_t *fpl = gib_fahrplan();
+	schedule_t *fpl = get_schedule();
 	assert(fpl != NULL);
 
 	if(fpl->aktuell+1 < fpl->maxi()) {
@@ -902,7 +902,7 @@ convoi_t::betrete_depot(depot_t *dep)
 		}
 	}
 
-	dep->convoi_arrived(self, self->gib_fahrplan()!=0);
+	dep->convoi_arrived(self, self->get_schedule()!=0);
 	destroy_win((long)this);
 
 	// Hajo: since 0.81.5exp it's safe to
@@ -1144,7 +1144,7 @@ convoi_t::setze_erstes_letztes()
 
 
 
-bool convoi_t::setze_fahrplan(fahrplan_t * f)
+bool convoi_t::set_schedule(schedule_t * f)
 {
 	enum states old_state = state;
 	state = INITIAL;	// because during a sync-step we might be called twice ...
@@ -1183,7 +1183,7 @@ bool convoi_t::setze_fahrplan(fahrplan_t * f)
 
 
 
-fahrplan_t *convoi_t::erzeuge_fahrplan()
+schedule_t *convoi_t::create_schedule()
 {
 	if(fpl == NULL) {
 		const vehikel_t* v = fahr[0];
@@ -1677,7 +1677,7 @@ convoi_t::rdwr(loadsave_t *file)
 		// schedule needed. This hack is safe because convois
 		// without vehicles get deleted right after loading.
 		if(fpl == 0) {
-			fpl = new fahrplan_t();
+			fpl = new schedule_t();
 		}
 
 		// Hajo: now read the schedule, we have one for sure here
@@ -2330,8 +2330,8 @@ void convoi_t::set_line(linehandle_t org_line)
 	}
 	line = org_line;
 	line_id = org_line->get_line_id();
-	fahrplan_t *new_fpl= new fahrplan_t( org_line->get_fahrplan() );
-	setze_fahrplan(new_fpl);
+	schedule_t *new_fpl= new schedule_t( org_line->get_schedule() );
+	set_schedule(new_fpl);
 	line->add_convoy(self);
 }
 
@@ -2377,12 +2377,12 @@ DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from line=%d, fpl
 
 
 
-void convoi_t::prepare_for_new_schedule(fahrplan_t *f)
+void convoi_t::prepare_for_new_schedule(schedule_t *f)
 {
 	alte_richtung = fahr[0]->gib_fahrtrichtung();
 
 	state = FAHRPLANEINGABE;
-	setze_fahrplan(f);
+	set_schedule(f);
 
 	// Hajo: setze_fahrplan sets state to ROUTING_1
 	// need to undo that
@@ -2437,7 +2437,7 @@ void convoi_t::check_pending_updates()
 			destroy_win((long)fpl);
 		}
 		delete fpl;
-		fpl = new fahrplan_t(line->get_fahrplan());
+		fpl = new schedule_t(line->get_schedule());
 		fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
 		if(state!=INITIAL) {
 			state = FAHRPLANEINGABE;

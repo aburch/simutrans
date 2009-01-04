@@ -187,7 +187,7 @@ void
 simlinemgmt_t::rotate90( sint16 y_size )
 {
 	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
-		fahrplan_t *fpl = (*i)->get_fahrplan();
+		schedule_t *fpl = (*i)->get_schedule();
 		if(fpl) {
 			fpl->rotate90( y_size );
 		}
@@ -230,7 +230,7 @@ void simlinemgmt_t::new_month()
 
 
 linehandle_t
-simlinemgmt_t::create_line(int ltype, fahrplan_t * fpl)
+simlinemgmt_t::create_line(int ltype, schedule_t * fpl)
 {
 	simline_t * line = NULL;
 	DBG_MESSAGE("simlinemgmt_t::create_line()", "fpl is of type %i", ltype);
@@ -268,7 +268,7 @@ simlinemgmt_t::create_line(int ltype, fahrplan_t * fpl)
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "narrowgaugeline created");
 			break;
 		default:
-		    line = new simline_t(this, new fahrplan_t(fpl));
+		    line = new simline_t(this, new schedule_t(fpl));
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "default line created");
 			break;
 	}

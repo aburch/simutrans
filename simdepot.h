@@ -17,7 +17,7 @@
 
 class karte_t;
 class vehikel_t;
-class fahrplan_t;
+class schedule_t;
 class depot_frame_t;
 class vehikel_besch_t;
 

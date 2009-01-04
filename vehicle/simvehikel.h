@@ -27,7 +27,7 @@
 #include "../tpl/slist_tpl.h"
 
 class convoi_t;
-class fahrplan_t;
+class schedule_t;
 class signal_t;
 class ware_t;
 class route_t;
@@ -412,7 +412,7 @@ public:
 	* erzeuge einen für diesen Vehikeltyp passenden Fahrplan
 	* @author Hj. Malthaner
 	*/
-	virtual fahrplan_t * erzeuge_neuen_fahrplan() const = 0;
+	virtual schedule_t * erzeuge_neuen_fahrplan() const = 0;
 
 	const char * ist_entfernbar(const spieler_t *sp);
 
@@ -466,7 +466,7 @@ public:
 
 	ding_t::typ gib_typ() const { return automobil; }
 
-	fahrplan_t * erzeuge_neuen_fahrplan() const;
+	schedule_t * erzeuge_neuen_fahrplan() const;
 
 	virtual overtaker_t *get_overtaker() { return cnv ? static_cast<overtaker_t *>(cnv) : NULL; }
 };
@@ -519,7 +519,7 @@ public:
 
 	virtual void setze_convoi(convoi_t *c);
 
-	virtual fahrplan_t * erzeuge_neuen_fahrplan() const;
+	virtual schedule_t * erzeuge_neuen_fahrplan() const;
 };
 
 
@@ -540,7 +540,7 @@ public:
 
 	enum ding_t::typ gib_typ() const { return monorailwaggon; }
 
-	fahrplan_t * erzeuge_neuen_fahrplan() const;
+	schedule_t * erzeuge_neuen_fahrplan() const;
 };
 
 
@@ -561,7 +561,7 @@ public:
 
 	enum ding_t::typ gib_typ() const { return maglevwaggon; }
 
-	fahrplan_t * erzeuge_neuen_fahrplan() const;
+	schedule_t * erzeuge_neuen_fahrplan() const;
 };
 
 
@@ -582,7 +582,7 @@ public:
 
 	enum ding_t::typ gib_typ() const { return narrowgaugewaggon; }
 
-	fahrplan_t * erzeuge_neuen_fahrplan() const;
+	schedule_t * erzeuge_neuen_fahrplan() const;
 };
 
 
@@ -617,7 +617,7 @@ public:
 
 	ding_t::typ gib_typ() const { return schiff; }
 
-	fahrplan_t * erzeuge_neuen_fahrplan() const;
+	schedule_t * erzeuge_neuen_fahrplan() const;
 };
 
 
@@ -691,7 +691,7 @@ public:
 
 	enum ding_t::typ gib_typ() const { return aircraft; }
 
-	fahrplan_t * erzeuge_neuen_fahrplan() const;
+	schedule_t * erzeuge_neuen_fahrplan() const;
 
 	void rdwr_from_convoi(loadsave_t *file);
 

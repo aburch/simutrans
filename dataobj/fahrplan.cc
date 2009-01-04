@@ -28,25 +28,25 @@
  * deshalb verwaltet die Klasse eine Liste aller Fahrpläne
  * @author Hj. Malthaner
  */
-static slist_tpl<fahrplan_t *> alle_fahrplaene;
+static slist_tpl<schedule_t *> alle_fahrplaene;
 
-void fahrplan_t::init()
+void schedule_t::init()
 {
 	aktuell = 0;
 	abgeschlossen = false;
 	alle_fahrplaene.insert(this);
-	type = fahrplan_t::fahrplan;
+	type = schedule_t::fahrplan;
 }
 
 
 
-fahrplan_t::fahrplan_t()
+schedule_t::schedule_t()
 {
 	init();
 }
 
 
-fahrplan_t::fahrplan_t(fahrplan_t * old)
+schedule_t::schedule_t(schedule_t * old)
 {
 	if (old == NULL) {
 		init();
@@ -64,9 +64,9 @@ fahrplan_t::fahrplan_t(fahrplan_t * old)
 	}
 }
 
-fahrplan_t::fahrplan_t(loadsave_t *file)
+schedule_t::schedule_t(loadsave_t *file)
 {
-	type = fahrplan_t::fahrplan;
+	type = schedule_t::fahrplan;
 	rdwr(file);
 	if(file->is_loading()) {
 		cleanup();
@@ -74,7 +74,7 @@ fahrplan_t::fahrplan_t(loadsave_t *file)
 }
 
 
-fahrplan_t::~fahrplan_t()
+schedule_t::~schedule_t()
 {
 	const  bool ok = alle_fahrplaene.remove(this);
 	if(ok) {
@@ -88,7 +88,7 @@ fahrplan_t::~fahrplan_t()
 
 
 // copy all entries from schedule src to this and adjusts aktuell
-void fahrplan_t::copy_from(const fahrplan_t *src)
+void schedule_t::copy_from(const schedule_t *src)
 {
 	// make sure, we can access both
 	if(src==NULL) {
@@ -110,14 +110,14 @@ void fahrplan_t::copy_from(const fahrplan_t *src)
 
 
 
-bool fahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
+bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
 {
 	return gr->hat_weg(my_waytype);
 }
 
 
 
-bool fahrplan_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift )
+bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift )
 {
 	aktuell = max(aktuell,0);
 #ifndef _MSC_VER
@@ -148,7 +148,7 @@ bool fahrplan_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 
 
 
-bool fahrplan_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift)
+bool schedule_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift)
 {
 	aktuell = max(aktuell,0);
 #ifndef _MSC_VER
@@ -181,7 +181,7 @@ bool fahrplan_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 
 
 // cleanup a schedule
-void fahrplan_t::cleanup()
+void schedule_t::cleanup()
 {
 	if (eintrag.empty()) return; // nothing to check
 
@@ -213,7 +213,7 @@ void fahrplan_t::cleanup()
 
 
 bool
-fahrplan_t::remove()
+schedule_t::remove()
 {
 	bool ok=eintrag.remove_at(aktuell);
 	if( aktuell>=(int)eintrag.get_count()) {
@@ -225,7 +225,7 @@ fahrplan_t::remove()
 
 
 void
-fahrplan_t::rdwr(loadsave_t *file)
+schedule_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t f( file, "fahrplan_t" );
 
@@ -280,7 +280,7 @@ fahrplan_t::rdwr(loadsave_t *file)
 
 
 
-void fahrplan_t::rotate90( sint16 y_size )
+void schedule_t::rotate90( sint16 y_size )
 {
  	// now we have to rotate all entries ...
 	for(unsigned i = 0; i<eintrag.get_count(); i++) {
@@ -295,7 +295,7 @@ void fahrplan_t::rotate90( sint16 y_size )
  * @author hsiegeln
  */
 bool
-fahrplan_t::matches(karte_t *welt, const fahrplan_t *fpl)
+schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 {
 	if(fpl == NULL) {
 		return false;
@@ -349,7 +349,7 @@ fahrplan_t::matches(karte_t *welt, const fahrplan_t *fpl)
 
 
 
-void fahrplan_t::add_return_way()
+void schedule_t::add_return_way()
 {
 	if(eintrag.get_count()<127) {
 		for( int maxi = ((int)eintrag.get_count())-2;  maxi>0;  maxi--  ) {

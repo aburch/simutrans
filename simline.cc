@@ -16,7 +16,7 @@ karte_t *simline_t::welt=NULL;
 
 
 
-simline_t::simline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl)
+simline_t::simline_t(simlinemgmt_t* simlinemgmt, schedule_t* fpl)
 {
 	welt = simlinemgmt->get_welt();
 	self = linehandle_t(this);
@@ -25,7 +25,7 @@ simline_t::simline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl)
 	memset(this->name, 0, 128);
 	sprintf(this->name, "%s (%02d)", translator::translate("Line"), i);
 	this->fpl = fpl;
-	this->old_fpl = new fahrplan_t(fpl);
+	this->old_fpl = new schedule_t(fpl);
 	this->id = i;
 	this->state_color = COL_WHITE;
 	type = simline_t::line;
@@ -42,7 +42,7 @@ simline_t::simline_t(karte_t* welt, loadsave_t* file)
 	rdwr(file);
 DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,loadsave_t)","load line id=%d",id);
 	this->welt = welt;
-	this->old_fpl = new fahrplan_t(fpl);
+	this->old_fpl = new schedule_t(fpl);
 }
 
 
@@ -53,7 +53,7 @@ simline_t::~simline_t()
 	for (int i = count; i>=0; i--)
 	{
 		DBG_DEBUG("simline_t::~simline_t()", "convoi '%d' removed", i);
-		DBG_DEBUG("simline_t::~simline_t()", "convoi '%d'->fpl=%p", i, get_convoy(i)->gib_fahrplan());
+		DBG_DEBUG("simline_t::~simline_t()", "convoi '%d'->fpl=%p", i, get_convoy(i)->get_schedule());
 
 		// Hajo: take care - this call will do "remove_convoi()"
 		// on our list!
@@ -152,7 +152,7 @@ void simline_t::rdwr(loadsave_t *file)
 
 	// only create a new fahrplan if we are loading a savegame!
 	if (file->is_loading()) {
-		fpl = new fahrplan_t();
+		fpl = new schedule_t();
 	}
 
 	file->rdwr_str(name, sizeof(name));
@@ -186,7 +186,7 @@ void simline_t::laden_abschliessen()
 
 
 
-void simline_t::register_stops(fahrplan_t * fpl)
+void simline_t::register_stops(schedule_t * fpl)
 {
 DBG_DEBUG("simline_t::register_stops()", "%d fpl entries in schedule %p", fpl->maxi(),fpl);
 	for (int i = 0; i<fpl->maxi(); i++) {
@@ -210,7 +210,7 @@ void simline_t::unregister_stops()
 
 
 
-void simline_t::unregister_stops(fahrplan_t * fpl)
+void simline_t::unregister_stops(schedule_t * fpl)
 {
 	for (int i = 0; i<fpl->maxi(); i++) {
 		halthandle_t halt = haltestelle_t::gib_halt( welt, fpl->eintrag[i].pos );
@@ -252,7 +252,7 @@ void simline_t::prepare_for_update()
 {
 	DBG_DEBUG("simline_t::prepare_for_update()", "line %d (%p)", id, this);
 	delete (old_fpl);
-	this->old_fpl = new fahrplan_t(fpl);
+	this->old_fpl = new schedule_t(fpl);
 }
 
 

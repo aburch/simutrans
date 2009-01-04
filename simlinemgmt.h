@@ -17,7 +17,7 @@
 
 #include "simdebug.h"
 
-class fahrplan_t;
+class schedule_t;
 class spieler_t;
 
 #define INVALID_LINE_ID ((uint16)(-1))
@@ -88,7 +88,7 @@ public:
 	/**
 	 * @author hsiegeln
 	 */
-	linehandle_t create_line(int ltype, fahrplan_t * fpl=NULL);
+	linehandle_t create_line(int ltype, schedule_t * fpl=NULL);
 
 	/*
 	 * fill the list with all lines of a certain type

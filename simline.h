@@ -45,7 +45,7 @@ public:
 	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6, maglevline=7, narrowgaugeline=8};
 	static uint8 convoi_to_line_catgory[MAX_CONVOI_COST];
 
-	simline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl);
+	simline_t(simlinemgmt_t* simlinemgmt, schedule_t* fpl);
 	simline_t(karte_t* welt, loadsave_t* file);
 	~simline_t();
 
@@ -83,9 +83,9 @@ public:
 	 * return fahrplan of line
 	 * @author hsiegeln
 	 */
-	fahrplan_t * get_fahrplan() { return fpl; }
+	schedule_t * get_schedule() { return fpl; }
 
-	void set_fahrplan(fahrplan_t* fpl)
+	void set_schedule(schedule_t* fpl)
 	{
 		delete this->fpl;
 		this->fpl = fpl;
@@ -109,14 +109,14 @@ public:
 	/*
 	 * register line with stop
 	 */
-	void register_stops(fahrplan_t * fpl);
+	void register_stops(schedule_t * fpl);
 
 	void laden_abschliessen();
 
 	/*
 	 * unregister line from stop
 	 */
-	void unregister_stops(fahrplan_t * fpl);
+	void unregister_stops(schedule_t * fpl);
 	void unregister_stops();
 
 	/*
@@ -155,7 +155,7 @@ public:
 	void recalc_catg_index();
 
 protected:
-	fahrplan_t * fpl,  *old_fpl;
+	schedule_t * fpl,  *old_fpl;
 	linetype type;
 
 private:
@@ -200,7 +200,7 @@ private:
 class truckline_t : public simline_t
 {
 	public:
-		truckline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl) : simline_t(simlinemgmt, fpl)
+		truckline_t(simlinemgmt_t* simlinemgmt, schedule_t* fpl) : simline_t(simlinemgmt, fpl)
 		{
 			type = simline_t::truckline;
 		}
@@ -208,14 +208,14 @@ class truckline_t : public simline_t
 		truckline_t(karte_t* welt, loadsave_t* file) : simline_t(welt, file)
 		{
 			type = simline_t::truckline;
-			set_fahrplan(new autofahrplan_t(fpl));
+			set_schedule(new autofahrplan_t(fpl));
 		}
 };
 
 class trainline_t : public simline_t
 {
 	public:
-		trainline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl) : simline_t(simlinemgmt, fpl)
+		trainline_t(simlinemgmt_t* simlinemgmt, schedule_t* fpl) : simline_t(simlinemgmt, fpl)
 		{
 			type = simline_t::trainline;
 		}
@@ -223,14 +223,14 @@ class trainline_t : public simline_t
 		trainline_t(karte_t* welt, loadsave_t* file) : simline_t(welt, file)
 		{
 			type = simline_t::trainline;
-			set_fahrplan(new zugfahrplan_t(fpl));
+			set_schedule(new zugfahrplan_t(fpl));
 		}
 };
 
 class shipline_t : public simline_t
 {
 	public:
-		shipline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl) : simline_t(simlinemgmt, fpl)
+		shipline_t(simlinemgmt_t* simlinemgmt, schedule_t* fpl) : simline_t(simlinemgmt, fpl)
 		{
 			type = simline_t::shipline;
 		}
@@ -238,14 +238,14 @@ class shipline_t : public simline_t
 		shipline_t(karte_t* welt, loadsave_t* file) : simline_t(welt, file)
 		{
 			type = simline_t::shipline;
-			set_fahrplan(new schifffahrplan_t(fpl));
+			set_schedule(new schifffahrplan_t(fpl));
 		}
 };
 
 class airline_t : public simline_t
 {
 	public:
-		airline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl) : simline_t(simlinemgmt, fpl)
+		airline_t(simlinemgmt_t* simlinemgmt, schedule_t* fpl) : simline_t(simlinemgmt, fpl)
 		{
 			type = simline_t::airline;
 		}
@@ -253,14 +253,14 @@ class airline_t : public simline_t
 		airline_t(karte_t* welt, loadsave_t* file) : simline_t(welt, file)
 		{
 			type = simline_t::airline;
-			set_fahrplan(new airfahrplan_t(fpl));
+			set_schedule(new airfahrplan_t(fpl));
 		}
 };
 
 class monorailline_t : public simline_t
 {
 	public:
-		monorailline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl) : simline_t(simlinemgmt, fpl)
+		monorailline_t(simlinemgmt_t* simlinemgmt, schedule_t* fpl) : simline_t(simlinemgmt, fpl)
 		{
 			type = simline_t::monorailline;
 		}
@@ -268,43 +268,43 @@ class monorailline_t : public simline_t
 		monorailline_t(karte_t* welt, loadsave_t* file) : simline_t(welt, file)
 		{
 			type = simline_t::monorailline;
-			set_fahrplan(new monorailfahrplan_t(fpl));
+			set_schedule(new monorailfahrplan_t(fpl));
 		}
 };
 
 class tramline_t : public simline_t
 {
 	public:
-		tramline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl) : simline_t(simlinemgmt, fpl) { type = simline_t::tramline; }
+		tramline_t(simlinemgmt_t* simlinemgmt, schedule_t* fpl) : simline_t(simlinemgmt, fpl) { type = simline_t::tramline; }
 
 		tramline_t(karte_t* welt, loadsave_t* file) : simline_t(welt, file)
 		{
 			type = simline_t::tramline;
-			set_fahrplan(new tramfahrplan_t(fpl));
+			set_schedule(new tramfahrplan_t(fpl));
 		}
 };
 
 class narrowgaugeline_t : public simline_t
 {
 	public:
-		narrowgaugeline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl) : simline_t(simlinemgmt, fpl) { type = simline_t::narrowgaugeline; }
+		narrowgaugeline_t(simlinemgmt_t* simlinemgmt, schedule_t* fpl) : simline_t(simlinemgmt, fpl) { type = simline_t::narrowgaugeline; }
 
 		narrowgaugeline_t(karte_t* welt, loadsave_t* file) : simline_t(welt, file)
 		{
 			type = simline_t::narrowgaugeline;
-			set_fahrplan(new narrowgaugefahrplan_t(fpl));
+			set_schedule(new narrowgaugefahrplan_t(fpl));
 		}
 };
 
 class maglevline_t : public simline_t
 {
 	public:
-		maglevline_t(simlinemgmt_t* simlinemgmt, fahrplan_t* fpl) : simline_t(simlinemgmt, fpl) { type = simline_t::maglevline; }
+		maglevline_t(simlinemgmt_t* simlinemgmt, schedule_t* fpl) : simline_t(simlinemgmt, fpl) { type = simline_t::maglevline; }
 
 		maglevline_t(karte_t* welt, loadsave_t* file) : simline_t(welt, file)
 		{
 			type = simline_t::maglevline;
-			set_fahrplan(new maglevfahrplan_t(fpl));
+			set_schedule(new maglevfahrplan_t(fpl));
 		}
 };
 

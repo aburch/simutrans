@@ -203,8 +203,8 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		if(cnv->gib_besitzer()==cnv->get_welt()->get_active_player()) {
 			button.enable();
 			go_home_button.pressed = route_search_in_progress;
-			if(  cnv->gib_fahrplan()->maxi() > 0  ) {
-				const grund_t* g = cnv->get_welt()->lookup(cnv->gib_fahrplan()->eintrag[cnv->gib_fahrplan()->aktuell].pos);
+			if(  cnv->get_schedule()->maxi() > 0  ) {
+				const grund_t* g = cnv->get_welt()->lookup(cnv->get_schedule()->eintrag[cnv->get_schedule()->aktuell].pos);
 				if (g != NULL && g->gib_depot()) {
 					go_home_button.disable();
 				} else {
@@ -263,7 +263,7 @@ enable_home:
 		display_proportional( pos.x+11, pos.y+16+20+2*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
 
 		// next stop
-		const fahrplan_t * fpl = cnv->gib_fahrplan();
+		const schedule_t * fpl = cnv->get_schedule();
 		info_buf.clear();
 		info_buf.append(translator::translate("Fahrtziel"));
 		fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->get_welt(), fpl, fpl->aktuell, 34);
@@ -372,10 +372,10 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			// if route to a depot has been found, update the convoi's schedule
 			bool b_depot_found = false;
 			if(!shortest_route->empty()) {
-				fahrplan_t *fpl = cnv->gib_fahrplan();
+				schedule_t *fpl = cnv->get_schedule();
 				fpl->insert(cnv->get_welt()->lookup(home));
 				fpl->aktuell = (fpl->aktuell+fpl->maxi()-1)%fpl->maxi();
-				b_depot_found = cnv->setze_fahrplan(fpl);
+				b_depot_found = cnv->set_schedule(fpl);
 			}
 			delete shortest_route;
 			route_search_in_progress = false;

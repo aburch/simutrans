@@ -702,7 +702,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 bool vehikel_t::load_freight(halthandle_t halt)
 {
 	const bool ok = halt->gibt_ab(besch->gib_ware());
-	fahrplan_t *fpl = cnv->gib_fahrplan();
+	schedule_t *fpl = cnv->get_schedule();
 	if( ok ) {
 
 		while(total_freight < besch->gib_zuladung()) {
@@ -770,7 +770,7 @@ void vehikel_t::remove_stale_freight()
 	if (!fracht.empty()) {
 		slist_iterator_tpl<ware_t> iter (fracht);
 		while(iter.next()) {
-			fahrplan_t *fpl = cnv->gib_fahrplan();
+			schedule_t *fpl = cnv->get_schedule();
 
 			ware_t& tmp = iter.access_current();
 			bool found = false;
@@ -1960,7 +1960,7 @@ void automobil_t::betrete_feld()
 
 
 
-fahrplan_t * automobil_t::erzeuge_neuen_fahrplan() const
+schedule_t * automobil_t::erzeuge_neuen_fahrplan() const
 {
   return new autofahrplan_t();
 }
@@ -2295,14 +2295,14 @@ waggon_t::ist_weg_frei(int & restart_speed)
 				}
 
 				bool exit_loop = false;
-				short fahrplan_index = cnv->gib_fahrplan()->get_aktuell();
+				short fahrplan_index = cnv->get_schedule()->get_aktuell();
 				int count = 0;
 				route_t target_rt;
 				koord3d cur_pos = rt->position_bei(next_block+1);
 				// next tile is end of schedule => must start with next leg of schedule
 				if(count==0  &&  next_block+1u>=rt->gib_max_n()) {
 					fahrplan_index ++;
-					if(fahrplan_index >= cnv->gib_fahrplan()->maxi()) {
+					if(fahrplan_index >= cnv->get_schedule()->maxi()) {
 						fahrplan_index = 0;
 					}
 					count++;
@@ -2310,7 +2310,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 				// now search
 				do {
 					// search for route
-					if(!target_rt.calc_route( welt, cur_pos, cnv->gib_fahrplan()->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->gib_min_top_speed()))) {
+					if(!target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->gib_min_top_speed()))) {
 						exit_loop = true;
 					}
 					else {
@@ -2340,15 +2340,15 @@ waggon_t::ist_weg_frei(int & restart_speed)
 
 					if(!exit_loop) {
 						target_rt.clear();
-						cur_pos = cnv->gib_fahrplan()->eintrag[fahrplan_index].pos;
+						cur_pos = cnv->get_schedule()->eintrag[fahrplan_index].pos;
 						fahrplan_index ++;
-						if(fahrplan_index >= cnv->gib_fahrplan()->maxi()) {
+						if(fahrplan_index >= cnv->get_schedule()->maxi()) {
 							fahrplan_index = 0;
 						}
 						count++;
 					}
 
-				} while(count < cnv->gib_fahrplan()->maxi()  &&  exit_loop == false); // stop after we've looped round schedule...
+				} while(count < cnv->get_schedule()->maxi()  &&  exit_loop == false); // stop after we've looped round schedule...
 				// we can't go
 				sig->setze_zustand(roadsign_t::rot);
 				if(route_index==next_block+1) {
@@ -2637,25 +2637,25 @@ waggon_t::betrete_feld()
 
 
 
-fahrplan_t * waggon_t::erzeuge_neuen_fahrplan() const
+schedule_t * waggon_t::erzeuge_neuen_fahrplan() const
 {
   return besch->get_waytype()==tram_wt ? new tramfahrplan_t() : new zugfahrplan_t();
 }
 
 
-fahrplan_t * monorail_waggon_t::erzeuge_neuen_fahrplan() const
+schedule_t * monorail_waggon_t::erzeuge_neuen_fahrplan() const
 {
 	return new monorailfahrplan_t();
 }
 
 
-fahrplan_t * maglev_waggon_t::erzeuge_neuen_fahrplan() const
+schedule_t * maglev_waggon_t::erzeuge_neuen_fahrplan() const
 {
 	return new maglevfahrplan_t();
 }
 
 
-fahrplan_t * narrowgauge_waggon_t::erzeuge_neuen_fahrplan() const
+schedule_t * narrowgauge_waggon_t::erzeuge_neuen_fahrplan() const
 {
 	return new narrowgaugefahrplan_t();
 }
@@ -2754,7 +2754,7 @@ schiff_t::ist_weg_frei(int &restart_speed)
 
 
 
-fahrplan_t * schiff_t::erzeuge_neuen_fahrplan() const
+schedule_t * schiff_t::erzeuge_neuen_fahrplan() const
 {
   return new schifffahrplan_t();
 }
@@ -3283,7 +3283,7 @@ aircraft_t::setze_convoi(convoi_t *c)
 
 
 
-fahrplan_t * aircraft_t::erzeuge_neuen_fahrplan() const
+schedule_t * aircraft_t::erzeuge_neuen_fahrplan() const
 {
 	return new airfahrplan_t();
 }

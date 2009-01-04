@@ -25,7 +25,7 @@
 #include "../linehandle_t.h"
 
 
-class fahrplan_t;
+class schedule_t;
 class spieler_t;
 
 
@@ -33,12 +33,12 @@ class fahrplan_gui_stats_t : public gui_komponente_t
 {
 private:
 	static karte_t *welt;
-	fahrplan_t* fpl;
+	schedule_t* fpl;
 
 public:
 	fahrplan_gui_stats_t(karte_t* w) { welt = w; fpl = NULL; }
 
-	void setze_fahrplan( fahrplan_t* f ) { fpl = f; }
+	void setze_fahrplan( schedule_t* f ) { fpl = f; }
 
 	/** Zeichnet die Komponente */
 	void zeichnen(koord offset);
@@ -63,7 +63,7 @@ class fahrplan_gui_t :	public gui_frame_t,
 	 */
 	static void gimme_stop_name(cbuffer_t & buf,
 			      karte_t *welt,
-			      const fahrplan_t *fpl,
+			      const schedule_t *fpl,
 			      int i,
 			      int max_chars);
 
@@ -74,7 +74,7 @@ class fahrplan_gui_t :	public gui_frame_t,
 	 */
 	static void gimme_short_stop_name(cbuffer_t & buf,
 				     karte_t *welt,
-				     const fahrplan_t *fpl,
+				     const schedule_t *fpl,
 				     int i,
 				     int max_chars);
 
@@ -108,7 +108,7 @@ private:
 	fahrplan_gui_stats_t stats;
 	gui_scrollpane_t scrolly;
 
-	fahrplan_t* fpl;
+	schedule_t* fpl;
 	spieler_t *sp;
 	convoihandle_t cnv;
 
@@ -123,7 +123,7 @@ private:
 	void update_selection();
 
 public:
-    fahrplan_gui_t(fahrplan_t* fpl, spieler_t* sp, convoihandle_t cnv);
+    fahrplan_gui_t(schedule_t* fpl, spieler_t* sp, convoihandle_t cnv);
 
 	~fahrplan_gui_t();
 

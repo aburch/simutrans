@@ -130,13 +130,13 @@ depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 			v->setze_pos( koord3d::invalid );
 		}
 		// Volker: remove depot from schedule
-		fahrplan_t *fpl = acnv->gib_fahrplan();
+		schedule_t *fpl = acnv->get_schedule();
 		for(  int i=0;  i<fpl->maxi();  i++  ) {
 			// only if convoi found
 			if(fpl->eintrag[i].pos==gib_pos()) {
 				fpl->aktuell = i;
 				fpl->remove();
-				acnv->setze_fahrplan(fpl);
+				acnv->set_schedule(fpl);
 				break;
 			}
 		}
@@ -244,8 +244,8 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 				new_cnv->set_line(old_cnv->get_line());
 			}
 			else {
-				if (old_cnv->gib_fahrplan() != NULL) {
-					new_cnv->setze_fahrplan(old_cnv->gib_fahrplan()->copy());
+				if (old_cnv->get_schedule() != NULL) {
+					new_cnv->set_schedule(old_cnv->get_schedule()->copy());
 				}
 			}
 		return new_cnv->self;
@@ -284,23 +284,23 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 bool depot_t::start_convoi(convoihandle_t cnv)
 {
 	// close schedule window if not yet closed
-	if(cnv.is_bound() &&  cnv->gib_fahrplan()!=NULL) {
-		if(!cnv->gib_fahrplan()->ist_abgeschlossen()) {
-			destroy_win((long)cnv->gib_fahrplan());
-			cnv->gib_fahrplan()->cleanup();
-			cnv->gib_fahrplan()->eingabe_abschliessen();
+	if(cnv.is_bound() &&  cnv->get_schedule()!=NULL) {
+		if(!cnv->get_schedule()->ist_abgeschlossen()) {
+			destroy_win((long)cnv->get_schedule());
+			cnv->get_schedule()->cleanup();
+			cnv->get_schedule()->eingabe_abschliessen();
 			// just recheck if schedules match
-			if(  cnv->get_line().is_bound()  &&  !cnv->get_line()->get_fahrplan()->matches( welt, cnv->gib_fahrplan() )  ) {
+			if(  cnv->get_line().is_bound()  &&  !cnv->get_line()->get_schedule()->matches( welt, cnv->get_schedule() )  ) {
 				cnv->unset_line();
 			}
 		}
 	}
 
-	if(cnv.is_bound() &&  cnv->gib_fahrplan()!=NULL  &&  cnv->gib_fahrplan()->maxi() > 0) {
+	if(cnv.is_bound() &&  cnv->get_schedule()!=NULL  &&  cnv->get_schedule()->maxi() > 0) {
 		// if next schedule entry is this depot => advance to next entry
-		const koord3d& cur_pos = cnv->gib_fahrplan()->eintrag[cnv->gib_fahrplan()->aktuell].pos;
+		const koord3d& cur_pos = cnv->get_schedule()->eintrag[cnv->get_schedule()->aktuell].pos;
 		if (cur_pos == gib_pos()) {
-			cnv->gib_fahrplan()->aktuell = (cnv->gib_fahrplan()->aktuell+1) % cnv->gib_fahrplan()->maxi();
+			cnv->get_schedule()->aktuell = (cnv->get_schedule()->aktuell+1) % cnv->get_schedule()->maxi();
 		}
 
 		// pruefen ob zug vollstaendig
@@ -329,10 +329,10 @@ bool depot_t::start_convoi(convoihandle_t cnv)
 		if(!cnv.is_bound()) {
 			dbg->warning("depot_t::start_convoi()","No convoi to start!");
 		}
-		if(cnv.is_bound() && cnv->gib_fahrplan() == NULL) {
+		if(cnv.is_bound() && cnv->get_schedule() == NULL) {
 			dbg->warning("depot_t::start_convoi()","No schedule for convoi.");
 		}
-		if (cnv.is_bound() && cnv->gib_fahrplan() != NULL && !cnv->gib_fahrplan()->ist_abgeschlossen()) {
+		if (cnv.is_bound() && cnv->get_schedule() != NULL && !cnv->get_schedule()->ist_abgeschlossen()) {
 			dbg->warning("depot_t::start_convoi()","Schedule is incomplete/not finished");
 		}
 	}

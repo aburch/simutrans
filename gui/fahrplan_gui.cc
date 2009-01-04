@@ -47,7 +47,7 @@ static char ladegrade[MAX_LADEGRADE]=
  *
  * @author Hj. Malthaner
  */
-void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const fahrplan_t *fpl, int i, int max_chars)
+void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const schedule_t *fpl, int i, int max_chars)
 {
 	if(i<0  ||  fpl==NULL  ||  i>=fpl->maxi()) {
 		dbg->warning("void fahrplan_gui_t::gimme_stop_name()","tried to recieved unused entry %i in schedule %p.",i,fpl);
@@ -95,7 +95,7 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const fahrp
  * short version, without loading level and position ...
  * @author Hj. Malthaner
  */
-void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const fahrplan_t *fpl, int i, int max_chars)
+void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const schedule_t *fpl, int i, int max_chars)
 {
 	if(i<0  ||  fpl==NULL  ||  i>=fpl->maxi()) {
 		dbg->warning("void fahrplan_gui_t::gimme_stop_name()","tried to recieved unused entry %i in schedule %p.",i,fpl);
@@ -178,7 +178,7 @@ fahrplan_gui_t::~fahrplan_gui_t()
 
 
 
-fahrplan_gui_t::fahrplan_gui_t(fahrplan_t* fpl_, spieler_t* sp_, convoihandle_t cnv_) :
+fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t cnv_) :
 	gui_frame_t("Fahrplan", sp_),
 	lb_line("Serves Line:"),
 	lb_wait("month wait time"),
@@ -410,12 +410,12 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 		fpl->eingabe_abschliessen();
 		if (cnv.is_bound()) {
 			// if a line is selected
-			if (new_line.is_bound()  &&  new_line->get_fahrplan()->matches( sp->get_welt(), fpl )) {
+			if (new_line.is_bound()  &&  new_line->get_schedule()->matches( sp->get_welt(), fpl )) {
 				// if the selected line is different to the convoi's line, apply it
 				if(new_line!=cnv->get_line()) {
 					int akt=fpl->aktuell;
 					cnv->set_line(new_line);
-					cnv->gib_fahrplan()->aktuell = max( 0, min( akt, cnv->gib_fahrplan()->maxi()-1 ) );
+					cnv->get_schedule()->aktuell = max( 0, min( akt, cnv->get_schedule()->maxi()-1 ) );
 				}
 			}
 			else {
@@ -493,7 +493,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 //DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 		if(  (unsigned)(selection-1)<line_selector.count_elements()  ) {
 			new_line = lines[selection - 1];
-			fpl->copy_from( new_line->get_fahrplan() );
+			fpl->copy_from( new_line->get_schedule() );
 			fpl->eingabe_beginnen();
 		}
 		else {
@@ -508,7 +508,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 	// recheck lines
 	if (cnv.is_bound()) {
 		// unequal to line => remove from line ...
-		if(new_line.is_bound()  &&   !fpl->matches(sp->get_welt(),new_line->get_fahrplan())) {
+		if(new_line.is_bound()  &&   !fpl->matches(sp->get_welt(),new_line->get_schedule())) {
 			new_line = linehandle_t();
 			line_selector.set_selection(0);
 		}
@@ -538,7 +538,7 @@ void fahrplan_gui_t::init_line_selector()
 
 void fahrplan_gui_t::zeichnen(koord pos, koord gr)
 {
-	if(  new_line.is_bound()  &&  !new_line->get_fahrplan()->matches(sp->get_welt(),fpl)  ) {
+	if(  new_line.is_bound()  &&  !new_line->get_schedule()->matches(sp->get_welt(),fpl)  ) {
 		line_selector.set_selection(0);
 	}
 	gui_frame_t::zeichnen(pos,gr);

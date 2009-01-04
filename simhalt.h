@@ -44,7 +44,7 @@ class lagerhaus_t;
 #endif
 class ware_t;
 class grund_t;
-class fahrplan_t;
+class schedule_t;
 class cbuffer_t;
 
 #include "halthandle_t.h"
@@ -459,7 +459,7 @@ public:
 	 * @return abgeholte menge
 	 * @author Hj. Malthaner
 	 */
-	ware_t hole_ab(const ware_besch_t *warentyp, uint32 menge, fahrplan_t *fpl);
+	ware_t hole_ab(const ware_besch_t *warentyp, uint32 menge, schedule_t *fpl);
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
 	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach
@@ -480,7 +480,7 @@ public:
 	 * @param typ der beförderte warentyp
 	 * @author Hj. Malthaner
 	 */
-	void hat_gehalten(const ware_besch_t *warentyp, const fahrplan_t *fpl);
+	void hat_gehalten(const ware_besch_t *warentyp, const schedule_t *fpl);
 
 	const grund_t *find_matching_position(waytype_t wt) const;
 

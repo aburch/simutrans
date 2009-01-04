@@ -233,7 +233,7 @@ schedule_list_gui_t::infowin_event(const event_t *ev)
 		}
 		else if(  (ev->ev_code==WIN_OPEN  ||  ev->ev_code==WIN_TOP)  &&  line.is_bound() ) {
 			// set this schedule as current to show on minimap if possible
-			reliefkarte_t::gib_karte()->set_current_fpl(line->get_fahrplan(), sp->get_player_nr()); // (*fpl,player_nr)
+			reliefkarte_t::gib_karte()->set_current_fpl(line->get_schedule(), sp->get_player_nr()); // (*fpl,player_nr)
 		}
 	}
 	gui_frame_t::infowin_event(ev);
@@ -461,8 +461,8 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		cont_haltestellen.remove_all();
 		ypos = 5;
 //		slist_tpl<koord3d> tmp; // stores koords of stops that are allready displayed
-		for(i=0; i<new_line->get_fahrplan()->maxi(); i++) {
-			const koord3d fahrplan_koord = new_line->get_fahrplan()->eintrag[i].pos;
+		for(i=0; i<new_line->get_schedule()->maxi(); i++) {
+			const koord3d fahrplan_koord = new_line->get_schedule()->eintrag[i].pos;
 			halthandle_t halt = haltestelle_t::gib_halt(sp->get_welt(), fahrplan_koord);
 			if (halt.is_bound()) {
 //				// only add a haltestelle to the list, if it is not in the list allready
@@ -489,7 +489,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		chart.set_visible(true);
 
 		// set this schedule as current to show on minimap if possible
-		reliefkarte_t::gib_karte()->set_current_fpl(new_line->get_fahrplan(), sp->get_player_nr()); // (*fpl,player_nr)
+		reliefkarte_t::gib_karte()->set_current_fpl(new_line->get_schedule(), sp->get_player_nr()); // (*fpl,player_nr)
 	}
 	else if(line.is_bound()) {
 		// previously a line was visible

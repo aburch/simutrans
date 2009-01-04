@@ -33,7 +33,7 @@ class spieler_t;
 class convoi_info_t;
 class vehikel_t;
 class vehikel_besch_t;
-class fahrplan_t;
+class schedule_t;
 class cbuffer_t;
 
 /**
@@ -111,7 +111,7 @@ private:
 	* Alle vehikel-fahrplanzeiger zeigen hierauf
 	* @author Hj. Malthaner
 	*/
-	fahrplan_t *fpl;
+	schedule_t *fpl;
 
 	/**
 	* loading_level was ladegrad before. Actual percentage loaded for loadable vehicles (station length!).
@@ -589,20 +589,20 @@ public:
 	* Sets a schedule
 	* @author Hj. Malthaner
 	*/
-	bool setze_fahrplan(fahrplan_t *f);
+	bool set_schedule(schedule_t *f);
 
 	/**
 	* @return Current schedule
 	* @author Hj. Malthaner
 	*/
-	fahrplan_t* gib_fahrplan() const { return fpl; }
+	schedule_t* get_schedule() const { return fpl; }
 
 	/**
 	* Creates a new schedule if there isn't one already.
 	* @return Current schedule
 	* @author Hj. Malthaner
 	*/
-	fahrplan_t * erzeuge_fahrplan();
+	schedule_t * create_schedule();
 
 	/**
 	* @return Owner of this convoi
@@ -719,7 +719,7 @@ public:
 	* prepares the convoi to receive a new schedule
 	* @author hsiegeln
 	*/
-	void prepare_for_new_schedule(fahrplan_t *);
+	void prepare_for_new_schedule(schedule_t *);
 
 	/**
 	* book a certain amount into the convois financial history
