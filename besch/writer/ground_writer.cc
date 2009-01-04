@@ -8,8 +8,6 @@
 
 void ground_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	grund_besch_t besch;
-
 	obj_node_t node(this, 0, &parent);
 
 	write_head(fp, node, obj);

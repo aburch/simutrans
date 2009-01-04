@@ -29,8 +29,6 @@ void skin_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj, c
 {
 	slist_tpl<cstring_t> keys;
 
-	skin_besch_t besch;
-
 	obj_node_t node(this, 0, &parent);
 
 	write_head(fp, node, obj);

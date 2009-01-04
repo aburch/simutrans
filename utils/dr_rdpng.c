@@ -15,6 +15,9 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	int rowbytes;
 	char* dst;
 
+	//png_uint_32 is 64 bit on some architectures!
+	png_uint_32 widthpu32,heightpu32;
+
 	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,NULL,NULL,NULL);
 	if (png_ptr == NULL) {
 		printf("read_png: Could not create read struct.\n");
@@ -47,9 +50,6 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	 */
 	png_read_info(png_ptr, info_ptr);
 
-
-	//png_uint_32 is 64 bit on some architectures!
-	png_uint_32 widthpu32,heightpu32;
 	png_get_IHDR(
 		png_ptr, info_ptr,
 		&widthpu32, &heightpu32, &bit_depth, &color_type,
