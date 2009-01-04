@@ -113,6 +113,19 @@ protected:
 
 	slist_tpl<halthandle_t> halt_list; ///< Liste der Haltestellen
 
+	class income_message_t {
+	public:
+		char str[33];
+		sint8 alter;
+		koord pos;
+		income_message_t() { str[0]=0; alter=127; pos==koord::invalid; }
+		income_message_t( sint32 betrag, koord pos );
+		void * operator new(size_t s);
+		void operator delete(void *p);
+	};
+
+	slist_tpl<income_message_t *>messages;
+
 	char  texte[50][32];
 	sint8 text_alter[50];
 	koord text_pos[50];

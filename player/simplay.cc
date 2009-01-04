@@ -117,9 +117,6 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	maintenance = 0;
 
 	last_message_index = 0;
-	for(int n=0; n<50; n++) {
-		text_alter[n] = -127;
-	}
 
 	// we have different AI, try to find out our type:
 	sprintf(spieler_name_buf,"player %i",player_nr-1);
@@ -129,6 +126,9 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 
 spieler_t::~spieler_t()
 {
+	while(  !messages.empty()  ) {
+		delete messages.remove_first();
+	}
 	destroy_win( (long)this );
 }
 
@@ -145,60 +145,85 @@ const char* spieler_t::gib_name(void) const
 
 
 /**
- * Zeigt Meldungen aus der Queue des Spielers auf dem Bildschirm an
- * @author Hj. Malthaner
+ * floating massages for all players here
+ */
+spieler_t::income_message_t::income_message_t( sint32 betrag, koord p )
+{
+	money_to_string(str, betrag/100.0);
+	alter = 127;
+	pos = p;
+}
+
+void *spieler_t::income_message_t::operator new(size_t /*s*/)
+{
+	return freelist_t::gimme_node(sizeof(spieler_t::income_message_t));
+}
+
+void spieler_t::income_message_t::operator delete(void *p)
+{
+	freelist_t::putback_node(sizeof(spieler_t::income_message_t),p);
+}
+
+
+/**
+ * Show them and probably delete them if too old
+ * @author prissi
  */
 void spieler_t::display_messages()
 {
 	const sint16 raster = get_tile_raster_width();
-	int last_displayed_message = -1;
 	const sint16 yoffset = welt->gib_y_off()+((display_get_width()/raster)&1)*(raster/4);
 
-	for(int n=0; n<50; n++) {
-		if(text_alter[n] >= -80) {
-			const koord ij = text_pos[n]-welt->get_world_position()-welt->gib_ansicht_ij_offset();
-			const sint16 x = (ij.x-ij.y)*(raster/2) + welt->gib_x_off();
-			const sint16 y = (ij.x+ij.y)*(raster/4) + (text_alter[n] >> 4) - tile_raster_scale_y( welt->lookup_hgt(text_pos[n])*TILE_HEIGHT_STEP, raster) + yoffset;
+	slist_iterator_tpl<income_message_t *>iter(messages);
+	// Hajo: we use a slight hack here to remove the current
+	// object from the list without wrecking the iterator
+	bool ok = iter.next();
+	while(ok) {
+		income_message_t *m = iter.get_current();
 
-			display_proportional_clip( x+1, y+1, texte[n], ALIGN_LEFT, COL_BLACK, true);
-			display_proportional_clip( x, y, texte[n], ALIGN_LEFT, PLAYER_FLAG|(kennfarbe1+3), true);
-			last_displayed_message = n;
+		// Hajo: advance iterator, so that we can remove the current object
+		// safely
+		ok = iter.next();
+
+		if (m->alter<-80) {
+			messages.remove(m);
+			delete m;
+		}
+		else {
+			const koord ij = m->pos - welt->get_world_position()-welt->gib_ansicht_ij_offset();
+			const sint16 x = (ij.x-ij.y)*(raster/2) + welt->gib_x_off();
+			const sint16 y = (ij.x+ij.y)*(raster/4) + (m->alter >> 4) - tile_raster_scale_y( welt->lookup_hgt(m->pos)*TILE_HEIGHT_STEP, raster) + yoffset;
+
+			display_proportional_clip( x+1, y+1, m->str, ALIGN_LEFT, COL_BLACK, true);
+			display_proportional_clip( x, y, m->str, ALIGN_LEFT, PLAYER_FLAG|(kennfarbe1+3), true);
 		}
 	}
-
-	last_message_index = last_displayed_message;
 }
 
 
 
 /**
  * Age messages (move them upwards)
- * @author Hj. Malthaner
+ * @author prissi
  */
-void
-spieler_t::age_messages(long /*delta_t*/)
+void spieler_t::age_messages(long /*delta_t*/)
 {
-	for(int n=0; n<50; n++) {
-		if(text_alter[n] >= -80) {
-			text_alter[n] -= 5;//delta_t>>2;
+	slist_iterator_tpl<income_message_t *>iter(messages);
+	while(iter.next()) {
+		income_message_t *m = iter.get_current();
+		if(m->alter<-80) {
+			return;
 		}
+		m->alter -= 5;//delta_t>>2;
 	}
 }
 
 
 
-void
-spieler_t::add_message(koord k, int betrag)
+void spieler_t::add_message(koord k, int betrag)
 {
-	for(int n=0; n<50; n++) {
-		if(text_alter[n] <= -80) {
-			text_pos[n] = k;
-
-			money_to_string(texte[n], betrag/100.0);
-			text_alter[n] = 127;
-			break;
-		}
-	}
+	income_message_t *m = new income_message_t(betrag,k);
+	messages.append( m );
 }
 
 
@@ -393,7 +418,10 @@ void spieler_t::buche(const sint64 betrag, const koord pos, enum player_cost typ
 	buche(betrag, type);
 
 	if(betrag != 0) {
-		add_message(pos, betrag);
+		if(  abs_distance(welt->get_world_position(),pos)<2*(display_get_width()/get_tile_raster_width())+3  ) {
+			// only display, if near the screen ...
+			add_message(pos, betrag);
+		}
 
 		if(!(labs((sint32)betrag)<=10000)) {
 			struct sound_info info;
