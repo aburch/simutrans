@@ -11,6 +11,8 @@ public:
 	label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text);
 	~label_t();
 
+	void laden_abschliessen();
+
 	enum ding_t::typ gib_typ() const { return ding_t::label; }
 
 	image_id gib_bild() const;

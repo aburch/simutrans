@@ -25,8 +25,8 @@ label_t::label_t(karte_t *welt, loadsave_t *file) :
 	ding_t(welt)
 {
 	rdwr(file);
-	welt->add_label(gib_pos().gib_2d());
 }
+
 
 
 label_t::label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text) :
@@ -57,6 +57,14 @@ label_t::~label_t()
 	if(gr) {
 		gr->setze_text(NULL);
 	}
+}
+
+
+
+void label_t::laden_abschliessen()
+{
+	// only now coordinates are known
+	welt->add_label(gib_pos().gib_2d());
 }
 
 

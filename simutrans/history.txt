@@ -1,4 +1,5 @@
 	FIX: connect stops again to public player
+	FIX: marker had invalid position after loading a game => crash when adding new marker
 
 
 Release of 101.0 (r2208)
