@@ -135,11 +135,11 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 		filterButtons[cost].set_visible(false);
 		filterButtons[cost].pressed = false;
 		add_komponente(filterButtons + cost);
-    }
-    add_komponente(&chart);
+	}
+	add_komponente(&chart);
 
-    add_komponente(&view);
-    add_komponente(&scrolly);
+	add_komponente(&view);
+	add_komponente(&scrolly);
 }
 
 

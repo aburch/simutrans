@@ -61,7 +61,7 @@ public:
 	*
 	* @author Hj. Malthaner
 	*/
-//	void zeichnen(koord pos, koord gr);
+	void zeichnen(koord pos, koord gr);
 
 	/**
 	* This method is called if an action is triggered

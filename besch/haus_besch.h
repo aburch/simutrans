@@ -62,11 +62,11 @@ public:
 			season = seasons-1;
 		}
 		if(phase>0 && phase<phasen) {
-			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_kind(0+2*season))->get_bild(hoehe, phase);
+			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_child(0+2*season))->get_bild(hoehe, phase);
 			if (bild != NULL) return bild->get_nummer();
 		}
 		// here if this phase does not exists ...
-		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_kind(0+2*season))->get_bild(hoehe, 0);
+		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_child(0+2*season))->get_bild(hoehe, 0);
 		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
@@ -76,11 +76,11 @@ public:
 			season = seasons-1;
 		}
 		if(phase>0 && phase<phasen) {
-			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_kind(1+2*season))->get_bild(0, phase);
+			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_child(1+2*season))->get_bild(0, phase);
 			if (bild != NULL) return bild->get_nummer();
 		}
 		// here if this phase does not exists ...
-		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_kind(1+2*season))->get_bild(0, 0);
+		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_child(1+2*season))->get_bild(0, 0);
 		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
@@ -232,7 +232,7 @@ public:
 
 	const haus_tile_besch_t *get_tile(int index) const {
 		assert(0<=index  &&  index < layouts * groesse.x * groesse.y);
-		return static_cast<const haus_tile_besch_t*>(get_kind(index + 2));
+		return static_cast<const haus_tile_besch_t*>(get_child(index + 2));
 	}
 
 	const haus_tile_besch_t *get_tile(int layout, int x, int y) const;
@@ -260,7 +260,7 @@ public:
 	* Skin: cursor (index 0) and icon (index 1)
 	* @author Hj. Malthaner
 	*/
-	const skin_besch_t * get_cursor() const { return (const skin_besch_t *)(get_kind(2+groesse.x*groesse.y*layouts)); }
+	const skin_besch_t * get_cursor() const { return (const skin_besch_t *)(get_child(2+groesse.x*groesse.y*layouts)); }
 
 	/**
 	* @return introduction month

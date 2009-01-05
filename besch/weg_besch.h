@@ -117,9 +117,9 @@ public:
 	image_id get_bild_nr(ribi_t::ribi ribi, uint8 season) const
 	{
 		if(season && number_seasons == 1) {
-			return static_cast<const bildliste_besch_t *>(get_kind(6))->get_bild_nr(ribi);
+			return static_cast<const bildliste_besch_t *>(get_child(6))->get_bild_nr(ribi);
 		}
-		return static_cast<const bildliste_besch_t *>(get_kind(2))->get_bild_nr(ribi);
+		return static_cast<const bildliste_besch_t *>(get_child(2))->get_bild_nr(ribi);
 	}
 
 	image_id get_hang_bild_nr(hang_t::typ hang, uint8 season) const
@@ -129,9 +129,9 @@ public:
 		return IMG_LEER;
 	}
 	if(season && number_seasons == 1) {
-		return static_cast<const bildliste_besch_t *>(get_kind(7))->get_bild_nr(hang / 3 - 1);
+		return static_cast<const bildliste_besch_t *>(get_child(7))->get_bild_nr(hang / 3 - 1);
 	}
-	return static_cast<const bildliste_besch_t *>(get_kind(3))->get_bild_nr(hang / 3 - 1);
+	return static_cast<const bildliste_besch_t *>(get_child(3))->get_bild_nr(hang / 3 - 1);
 #else
 		int nr;
 		switch(hang) {
@@ -151,22 +151,22 @@ public:
 				return IMG_LEER;
 		}
 		if(season && number_seasons == 1) {
-			return static_cast<const bildliste_besch_t *>(get_kind(7))->get_bild_nr(nr);
+			return static_cast<const bildliste_besch_t *>(get_child(7))->get_bild_nr(nr);
 		}
-		return static_cast<const bildliste_besch_t *>(get_kind(3))->get_bild_nr(nr);
+		return static_cast<const bildliste_besch_t *>(get_child(3))->get_bild_nr(nr);
 #endif
 	}
 
 	image_id get_diagonal_bild_nr(ribi_t::ribi ribi, uint8 season) const
 	{
 		if(season && number_seasons == 1) {
-			return static_cast<const bildliste_besch_t *>(get_kind(8))->get_bild_nr(ribi / 3 - 1);
+			return static_cast<const bildliste_besch_t *>(get_child(8))->get_bild_nr(ribi / 3 - 1);
 		}
-		return static_cast<const bildliste_besch_t *>(get_kind(4))->get_bild_nr(ribi / 3 - 1);
+		return static_cast<const bildliste_besch_t *>(get_child(4))->get_bild_nr(ribi / 3 - 1);
 	}
 
 	bool has_diagonal_bild() const {
-		return static_cast<const bildliste_besch_t *>(get_kind(4))->get_bild_nr(0)!=IMG_LEER;
+		return static_cast<const bildliste_besch_t *>(get_child(4))->get_bild_nr(0)!=IMG_LEER;
 	}
 
 	/**
@@ -190,7 +190,7 @@ public:
 	*/
 	const skin_besch_t * get_cursor() const
 	{
-		return (const skin_besch_t *)(get_kind(5));
+		return (const skin_besch_t *)(get_child(5));
 	}
 };
 

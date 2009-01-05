@@ -44,7 +44,7 @@ public:
 	bool is_allowed_climate( climate cl ) const { return ((1<<cl)&allowed_climates)!=0; }
 
 	const bild_besch_t *get_bild(int season, int phase) const  	{
-		return static_cast<const bildliste2d_besch_t *>(get_kind(2))->get_bild(phase, season);
+		return static_cast<const bildliste2d_besch_t *>(get_child(2))->get_bild(phase, season);
 	}
 
 	// moving stuff should have eight
@@ -52,7 +52,7 @@ public:
 	// if anzahl==1, this will not appear on slopes
 	uint16 get_phases() const
 	{
-		return static_cast<const bildliste2d_besch_t *>(get_kind(2))->get_anzahl();
+		return static_cast<const bildliste2d_besch_t *>(get_child(2))->get_anzahl();
 	}
 
 	int get_seasons() const { return number_of_seasons; }

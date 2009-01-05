@@ -48,10 +48,10 @@ public:
 	{
 		const bild_besch_t *bild = NULL;
 		if(season && number_seasons == 1) {
-			bild = static_cast<const bildliste_besch_t *>(get_kind(5))->get_bild(hang_indices[hang]);
+			bild = static_cast<const bildliste_besch_t *>(get_child(5))->get_bild(hang_indices[hang]);
 		}
 		if(bild == NULL) {
-			bild = static_cast<const bildliste_besch_t *>(get_kind(2))->get_bild(hang_indices[hang]);
+			bild = static_cast<const bildliste_besch_t *>(get_child(2))->get_bild(hang_indices[hang]);
 		}
 		return bild;
 	}
@@ -66,10 +66,10 @@ public:
 	{
 		const bild_besch_t *bild = NULL;
 		if(season && number_seasons == 1) {
-			bild = static_cast<const bildliste_besch_t *>(get_kind(6))->get_bild(hang_indices[hang]);
+			bild = static_cast<const bildliste_besch_t *>(get_child(6))->get_bild(hang_indices[hang]);
 		}
 		if(bild == NULL) {
-			bild = static_cast<const bildliste_besch_t *>(get_kind(3))->get_bild(hang_indices[hang]);
+			bild = static_cast<const bildliste_besch_t *>(get_child(3))->get_bild(hang_indices[hang]);
 		}
 		return bild;
 	}
@@ -80,7 +80,7 @@ public:
 		return besch != NULL ? besch->get_nummer() :IMG_LEER;
 	}
 
-	const skin_besch_t *get_cursor() const { return static_cast<const skin_besch_t *>(get_kind(4)); }
+	const skin_besch_t *get_cursor() const { return static_cast<const skin_besch_t *>(get_child(4)); }
 
 
 	// get costs etc.

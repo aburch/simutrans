@@ -22,7 +22,7 @@
 class obj_besch_t {
 
  protected:
-    obj_besch_t *get_kind(int i) const { return node_info[i]; }
+    obj_besch_t *get_child(int i) const { return node_info[i]; }
 
 	/*
 	 * Internal Node information - the derived class knows,

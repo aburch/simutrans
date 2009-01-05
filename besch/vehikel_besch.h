@@ -103,14 +103,14 @@ public:
 		geschw = speed;
 	}
 
-	const ware_besch_t *get_ware() const { return static_cast<const ware_besch_t *>(get_kind(2)); }
+	const ware_besch_t *get_ware() const { return static_cast<const ware_besch_t *>(get_child(2)); }
 
-	const skin_besch_t *get_rauch() const { return static_cast<const skin_besch_t *>(get_kind(3)); }
+	const skin_besch_t *get_rauch() const { return static_cast<const skin_besch_t *>(get_child(3)); }
 
 	image_id get_basis_bild() const { return get_bild_nr(ribi_t::dir_sued, get_ware() ); }
 
 	// returns the number of different directions
-	uint8 get_dirs() const { return (static_cast<const bildliste_besch_t *>(get_kind(4)))->get_bild(4) ? 8 : 4; }
+	uint8 get_dirs() const { return (static_cast<const bildliste_besch_t *>(get_child(4)))->get_bild(4) ? 8 : 4; }
 
 	// return a matching image
 	// beware, there are three class of vehicles
@@ -127,14 +127,14 @@ public:
 			sint8 ware_index=0; // freight images: if not found use first freight
 
 			for( sint8 i=0;  i<freight_image_type;  i++  ) {
-				if(ware->get_index()==static_cast<const ware_besch_t *>(get_kind(6 + nachfolger + vorgaenger + i))->get_index()) {
+				if(ware->get_index()==static_cast<const ware_besch_t *>(get_child(6 + nachfolger + vorgaenger + i))->get_index()) {
 					ware_index = i;
 					break;
 				}
 			}
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
-			const bildliste2d_besch_t *liste2d = static_cast<const bildliste2d_besch_t *>(get_kind(5));
+			const bildliste2d_besch_t *liste2d = static_cast<const bildliste2d_besch_t *>(get_child(5));
 			bild=liste2d->get_bild(dir, ware_index);
 			if(!bild) {
 				if(dir>3) {
@@ -146,14 +146,14 @@ public:
 
 		// only try 1d freight image list for old style vehicles
 		if(freight_image_type==0  &&  ware!=NULL) {
-			liste = static_cast<const bildliste_besch_t *>(get_kind(5));
+			liste = static_cast<const bildliste_besch_t *>(get_child(5));
 		}
 		else {
-			liste = static_cast<const bildliste_besch_t *>(get_kind(4));
+			liste = static_cast<const bildliste_besch_t *>(get_child(4));
 		}
 
 		if(!liste) {
-			liste = static_cast<const bildliste_besch_t *>(get_kind(4));
+			liste = static_cast<const bildliste_besch_t *>(get_child(4));
 			if(!liste) {
 				return IMG_LEER;
 			}
@@ -180,7 +180,7 @@ public:
 		if(i < 0 || i >= vorgaenger) {
 			return 0;
 		}
-		return static_cast<const vehikel_besch_t *>(get_kind(6 + i));
+		return static_cast<const vehikel_besch_t *>(get_child(6 + i));
 	}
 
 	/* returns true, if this veh can be after the prev_veh */
@@ -190,7 +190,7 @@ public:
 			return prev_veh == 0;
 		}
 		for( int i=0;  i<vorgaenger;  i++  ) {
-			const vehikel_besch_t *veh = (vehikel_besch_t *)get_kind(6 + i);
+			const vehikel_besch_t *veh = (vehikel_besch_t *)get_child(6 + i);
 			if(veh==prev_veh) {
 				return true;
 			}
@@ -210,7 +210,7 @@ public:
 		if(i < 0 || i >= nachfolger) {
 			return 0;
 		}
-		return static_cast<const vehikel_besch_t *>(get_kind(6 + vorgaenger + i));
+		return static_cast<const vehikel_besch_t *>(get_child(6 + vorgaenger + i));
 	}
 
 	int get_nachfolger_count() const { return nachfolger; }
@@ -276,7 +276,7 @@ public:
 			return true;
 		}
 		for( int i=0;  i<vorgaenger;  i++  ) {
-			if(get_kind(6 + i)==NULL) {
+			if(get_child(6 + i)==NULL) {
 				return true;
 			}
 		}

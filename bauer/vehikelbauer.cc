@@ -203,7 +203,7 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 		display_set_base_image_offset( besch->get_bild_nr(7,NULL), -XOFF-YOFF, 0 );
 
 		if(besch->freight_image_type>0) {
-			const bildliste2d_besch_t *liste2d = static_cast<const bildliste2d_besch_t *>(besch->get_kind(5));
+			const bildliste2d_besch_t *liste2d = static_cast<const bildliste2d_besch_t *>(besch->get_child(5));
 			for(int i=0; i<besch->freight_image_type; i++) {
 				display_set_base_image_offset(liste2d->get_bild(0, i)->get_nummer(),        +XOFF, +YOFF);
 				display_set_base_image_offset(liste2d->get_bild(1, i)->get_nummer(),        -XOFF, +YOFF);
@@ -216,7 +216,7 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 			}
 		}
 		else {
-			const bildliste_besch_t *liste = static_cast<const bildliste_besch_t *>(besch->get_kind(5));
+			const bildliste_besch_t *liste = static_cast<const bildliste_besch_t *>(besch->get_child(5));
 			if(liste) {
 				display_set_base_image_offset(liste->get_bild(0)->get_nummer(),        +XOFF, +YOFF);
 				display_set_base_image_offset(liste->get_bild(1)->get_nummer(),        -XOFF, +YOFF);

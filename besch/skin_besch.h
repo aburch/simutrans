@@ -28,9 +28,9 @@ class skin_besch_t : public obj_besch_std_name_t {
 	friend class skin_writer_t;
 
 public:
-	const bild_besch_t *get_bild(int i) const  { return static_cast<const bildliste_besch_t *>(get_kind(2))->get_bild(i); }
+	const bild_besch_t *get_bild(int i) const  { return static_cast<const bildliste_besch_t *>(get_child(2))->get_bild(i); }
 
-	int get_bild_anzahl() const { return static_cast<const bildliste_besch_t *>(get_kind(2))->get_anzahl(); }
+	int get_bild_anzahl() const { return static_cast<const bildliste_besch_t *>(get_child(2))->get_anzahl(); }
 
 	image_id get_bild_nr(int i) const
 	{

@@ -100,9 +100,9 @@ public:
 	waytype_t get_own_wtyp() const { return (waytype_t)own_wtyp; }
 
 	// way objects can have a front and a backimage, unlike ways ...
-	image_id get_front_image_id(ribi_t::ribi ribi) const { return static_cast<const bildliste_besch_t *>(get_kind(2))->get_bild_nr(ribi); }
+	image_id get_front_image_id(ribi_t::ribi ribi) const { return static_cast<const bildliste_besch_t *>(get_child(2))->get_bild_nr(ribi); }
 
-	image_id get_back_image_id(ribi_t::ribi ribi) const { return static_cast<const bildliste_besch_t *>(get_kind(3))->get_bild_nr(ribi); }
+	image_id get_back_image_id(ribi_t::ribi ribi) const { return static_cast<const bildliste_besch_t *>(get_child(3))->get_bild_nr(ribi); }
 
 	image_id get_front_slope_image_id(hang_t::typ hang) const
 	{
@@ -110,7 +110,7 @@ public:
 		if(!hang_t::ist_einfach(hang)) {
 			return IMG_LEER;
 		}
-		return static_cast<const bildliste_besch_t *>(get_kind(4))->get_bild_nr(hang / 3 - 1);
+		return static_cast<const bildliste_besch_t *>(get_child(4))->get_bild_nr(hang / 3 - 1);
 #else
 		int nr;
 		switch(hang) {
@@ -129,7 +129,7 @@ public:
 			default:
 				return IMG_LEER;
 		}
-		return static_cast<const bildliste_besch_t *>(get_kind(4))->get_bild_nr(nr);
+		return static_cast<const bildliste_besch_t *>(get_child(4))->get_bild_nr(nr);
 #endif
 	  }
 
@@ -139,7 +139,7 @@ public:
 		if(!hang_t::ist_einfach(hang)) {
 			return IMG_LEER;
 		}
-		return static_cast<const bildliste_besch_t *>(get_kind(5))->get_bild_nr(hang / 3 - 1);
+		return static_cast<const bildliste_besch_t *>(get_child(5))->get_bild_nr(hang / 3 - 1);
 #else
 		int nr;
 		switch(hang) {
@@ -158,7 +158,7 @@ public:
 			default:
 				return IMG_LEER;
 		}
-		return static_cast<const bildliste_besch_t *>(get_kind(5))->get_bild_nr(nr);
+		return static_cast<const bildliste_besch_t *>(get_child(5))->get_bild_nr(nr);
 #endif
 	  }
 
@@ -167,7 +167,7 @@ public:
 		if(!ribi_t::ist_kurve(ribi)) {
 			return IMG_LEER;
 		}
-		return static_cast<const bildliste_besch_t *>(get_kind(6))->get_bild_nr(ribi / 3 - 1);
+		return static_cast<const bildliste_besch_t *>(get_child(6))->get_bild_nr(ribi / 3 - 1);
 	}
 
 	image_id get_back_diagonal_image_id(ribi_t::ribi ribi) const
@@ -175,11 +175,11 @@ public:
 		if(!ribi_t::ist_kurve(ribi)) {
 			return IMG_LEER;
 		}
-		return static_cast<const bildliste_besch_t *>(get_kind(7))->get_bild_nr(ribi / 3 - 1);
+		return static_cast<const bildliste_besch_t *>(get_child(7))->get_bild_nr(ribi / 3 - 1);
 	}
 
 	bool has_diagonal_bild() const {
-		return static_cast<const bildliste_besch_t *>(get_kind(4))->get_bild_nr(0)!=IMG_LEER;
+		return static_cast<const bildliste_besch_t *>(get_child(4))->get_bild_nr(0)!=IMG_LEER;
 	}
 
 	/**
@@ -198,7 +198,7 @@ public:
 	* Skin: cursor (index 0) and icon (index 1)
 	* @author Hj. Malthaner
 	*/
-	const skin_besch_t * get_cursor() const { return (const skin_besch_t *)(get_kind(8)); }
+	const skin_besch_t * get_cursor() const { return (const skin_besch_t *)(get_child(8)); }
 
 };
 

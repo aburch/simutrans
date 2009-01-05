@@ -29,7 +29,7 @@ private:
 	uint16 production_per_field;
 
 public:
-	const skin_besch_t *get_bilder() const { return static_cast<const skin_besch_t *>(get_kind(0)); }
+	const skin_besch_t *get_bilder() const { return static_cast<const skin_besch_t *>(get_child(0)); }
 	const char *get_name() const { return get_bilder()->get_name(); }
 	const char *get_copyright() const { return get_bilder()->get_copyright(); }
 
@@ -65,7 +65,7 @@ private:
 public:
 	const char *get_name() const { return get_bilder()->get_name(); }
 	const char *get_copyright() const { return get_bilder()->get_copyright(); }
-	const skin_besch_t *get_bilder() const { return static_cast<const skin_besch_t *>(get_kind(0)); }
+	const skin_besch_t *get_bilder() const { return static_cast<const skin_besch_t *>(get_child(0)); }
 	koord get_pos_off() const { return pos_off; }
 	koord get_xy_off() const { return xy_off; }
 	sint16 get_zeitmaske() const { return zeitmaske; }
@@ -92,7 +92,7 @@ private:
 	uint16  verbrauch;
 
 public:
-	const ware_besch_t *get_ware() const { return static_cast<const ware_besch_t *>(get_kind(0)); }
+	const ware_besch_t *get_ware() const { return static_cast<const ware_besch_t *>(get_child(0)); }
 	int get_kapazitaet() const { return kapazitaet; }
 	int get_anzahl() const { return anzahl; }
 	int get_verbrauch() const { return verbrauch; }
@@ -124,7 +124,7 @@ private:
     uint16 faktor;
 
 public:
-	const ware_besch_t *get_ware() const { return static_cast<const ware_besch_t *>(get_kind(0)); }
+	const ware_besch_t *get_ware() const { return static_cast<const ware_besch_t *>(get_child(0)); }
 	uint32 get_kapazitaet() const { return kapazitaet; }
 	uint32 get_faktor() const { return faktor; }
 };
@@ -173,21 +173,21 @@ public:
 	*/
 	const char *get_name() const { return get_haus()->get_name(); }
 	const char *get_copyright() const { return get_haus()->get_copyright(); }
-	const haus_besch_t *get_haus() const { return static_cast<const haus_besch_t *>(get_kind(0)); }
-	const rauch_besch_t *get_rauch() const { return static_cast<const rauch_besch_t *>(get_kind(1)); }
+	const haus_besch_t *get_haus() const { return static_cast<const haus_besch_t *>(get_child(0)); }
+	const rauch_besch_t *get_rauch() const { return static_cast<const rauch_besch_t *>(get_child(1)); }
 
 	// we must take care, for the case of no producer/consumer
 	const fabrik_lieferant_besch_t *get_lieferant(int i) const
 	{
-		return (i >= 0 && i < lieferanten) ? static_cast<const fabrik_lieferant_besch_t *>(get_kind(2 + i)) : NULL;
+		return (i >= 0 && i < lieferanten) ? static_cast<const fabrik_lieferant_besch_t *>(get_child(2 + i)) : NULL;
 	}
 	const fabrik_produkt_besch_t *get_produkt(int i) const
 	{
-		return (i >= 0 && i < produkte) ? static_cast<const fabrik_produkt_besch_t *>(get_kind(2 + lieferanten + i)) : NULL;
+		return (i >= 0 && i < produkte) ? static_cast<const fabrik_produkt_besch_t *>(get_child(2 + lieferanten + i)) : NULL;
 	}
 	const field_besch_t *get_field() const {
 		if(!fields) return NULL;
-		return static_cast<const field_besch_t *>(get_kind(2 + lieferanten + produkte));
+		return static_cast<const field_besch_t *>(get_child(2 + lieferanten + produkte));
 	}
 
 	int get_lieferanten() const { return lieferanten; }

@@ -217,6 +217,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 	if(entry>=0  &&  entry<(sint32)hauslist.get_count()) {
 
 		const haus_besch_t *new_besch = hauslist[entry];
+
 		if(new_besch!=besch) {
 
 			buf.clear();
@@ -316,4 +317,18 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		besch = NULL;
 		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
 	}
+}
+
+
+void curiosity_edit_frame_t::zeichnen(koord pos, koord gr)
+{
+	// remove constructed monuments from list
+	if(besch  &&  besch->get_utyp()==haus_besch_t::denkmal  &&  !hausbauer_t::is_valid_denkmal(besch)  ) {
+		change_item_info(0x7FFFFFFF);
+		scl.set_selection(-1);
+		img[3].set_image( IMG_LEER );
+		fill_list( is_show_trans_name );
+	}
+
+	extend_edit_gui_t::zeichnen(pos,gr);
 }

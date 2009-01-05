@@ -60,13 +60,13 @@ public:
 
 	int get_bild_nr(ribi_t::dir dir) const
 	{
-		const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(get_kind(2))->get_bild(dir);
+		const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(get_child(2))->get_bild(dir);
 		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
-	int get_bild_anzahl() const { return static_cast<const bildliste_besch_t *>(get_kind(2))->get_anzahl(); }
+	int get_bild_anzahl() const { return static_cast<const bildliste_besch_t *>(get_child(2))->get_anzahl(); }
 
-	const skin_besch_t *get_cursor() const { return (const skin_besch_t *)get_kind(3); }
+	const skin_besch_t *get_cursor() const { return (const skin_besch_t *)get_child(3); }
 
 	/**
 	 * get way type

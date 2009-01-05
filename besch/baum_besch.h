@@ -50,14 +50,14 @@ public:
 			i += season*5;
 			season = 0;
 		}
-		return static_cast<const bildliste2d_besch_t *>(get_kind(2))->get_bild(i, season)->get_nummer();
+		return static_cast<const bildliste2d_besch_t *>(get_child(2))->get_bild(i, season)->get_nummer();
 	}
 
 	// old style trees and new style tree support ...
 	int get_seasons() const
 	{
 		if(number_of_seasons==0) {
-			return static_cast<const bildliste2d_besch_t *>(get_kind(2))->get_anzahl()/5;
+			return static_cast<const bildliste2d_besch_t *>(get_child(2))->get_anzahl()/5;
 		}
 		return number_of_seasons;
 	}

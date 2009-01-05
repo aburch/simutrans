@@ -327,7 +327,7 @@ static slist_tpl<bild_besch_t *>ground_bild_list;
 bool grund_besch_t::register_besch(const grund_besch_t *besch)
 {
 	if(strcmp("Outside", besch->get_name())==0) {
-		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(besch->get_kind(2))->get_bild(0,0);
+		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(besch->get_child(2))->get_bild(0,0);
 		dbg->message("grund_besch_t::register_besch()", "setting raster width to %i", bild->pic.w);
 		display_set_base_raster_width(bild->pic.w);
 	}
@@ -603,7 +603,7 @@ grund_besch_t::get_ground_tile(hang_t::typ slope, sint16 height )
 #endif
 	if(h<0  ||  (h==0  &&  slope==hang_t::flach)) {
 		// deep water
-		const bildliste2d_besch_t *liste = static_cast<const bildliste2d_besch_t *>(sea->get_kind(2));
+		const bildliste2d_besch_t *liste = static_cast<const bildliste2d_besch_t *>(sea->get_child(2));
 		int nr = min( -h, liste->get_anzahl()-2 );
 		return liste->get_bild(nr,0)->get_nummer();
 	}

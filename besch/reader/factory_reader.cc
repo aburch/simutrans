@@ -48,7 +48,7 @@ factory_field_reader_t::register_obj(obj_besch_t *&data)
 {
 	field_besch_t *besch = static_cast<field_besch_t *>(data);
 	// Xref ist hier noch nicht aufgelöst!
-	const char* name = static_cast<xref_besch_t*>(besch->get_kind(0))->get_name();
+	const char* name = static_cast<xref_besch_t*>(besch->get_child(0))->get_name();
 	field_t::register_besch(besch, name);
 }
 
