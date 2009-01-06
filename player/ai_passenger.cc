@@ -835,8 +835,12 @@ ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int limit 
 							for( uint8 own=0;  own<pl->get_haltlist_count();  own++  ) {
 								if(  hl[own]->is_enabled(warenbauer_t::passagiere)  ) {
 									// our stop => nothing to do
+#if AUTOJOIN_PUBLIC
 									// we leave also public stops alone
 									if(  hl[own]->get_besitzer()==this  ||  hl[own]->get_besitzer()==welt->get_spieler(1)  ) {
+#else
+									if(  hl[own]->get_besitzer()==this  ) {
+#endif
 										covered_tiles ++;
 										break;
 									}

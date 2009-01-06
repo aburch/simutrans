@@ -180,6 +180,7 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 		}
 	}
 
+#if AUTOJOIN_PUBLIC
 	// now search everything for public stops
 	for(  int i=0;  i<8;  i++ ) {
 		const planquadrat_t *plan = welt->lookup(pos.get_2d()+koord::neighbours[i]);
@@ -190,6 +191,7 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 			}
 		}
 	}
+#endif
 
 	// here we reach only with a non-found station, i.e. a non-bounded handle
 	return halthandle_t();

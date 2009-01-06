@@ -49,6 +49,9 @@
 // define this to disallow the harbour tunnel feature
 //#define ONLY_TUNNELS_BELOW_GROUND
 
+// define this for automaticcally joining stations next to a public stop with it
+//#define AUTOJOIN_PUBLIC
+
 /******************************* obsolete stuf ******************************/
 
 /* storage shed (old implementation) LIKELY NOT WORKING */
