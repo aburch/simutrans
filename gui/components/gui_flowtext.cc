@@ -97,6 +97,13 @@ void gui_flowtext_t::set_text(const char *text)
 				strcpy( word, lead[1]=='l' ? "<" : ">" );
 				lead += 4;
 			}
+			else if(  lead[1]=='#'  ) {
+				// decimal number
+				word[0] = atoi( (const char *)lead+2 );
+				word[1] = 0;
+				while( *lead++!=';'  ) {
+				}
+			}
 			else {
 				// only copy ampersand
 				strcpy( word, "&" );

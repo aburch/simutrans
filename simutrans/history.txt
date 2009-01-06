@@ -1,6 +1,7 @@
 	FIX: connect stops again to public player
 	FIX: marker had invalid position after loading a game => crash when adding new marker
 	FIX: again income messages even with very many convois
+	ADD: &#; for direkt character input (but no unicode yet) to help files "HTML" (&#30; happy face, &#31; unhappy face)
 
 
 Release of 101.0 (r2208)
