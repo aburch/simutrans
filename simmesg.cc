@@ -41,7 +41,7 @@ message_t::~message_t()
 
 
 /* get flags for message routing */
-void message_t::get_message_flags( int *t, int *w, int *a, int  *i)
+void message_t::get_message_flags( sint32 *t, sint32 *w, sint32 *a, sint32 *i)
 {
 	*t = ticker_flags;
 	*w = win_flags;
@@ -52,7 +52,7 @@ void message_t::get_message_flags( int *t, int *w, int *a, int  *i)
 
 
 /* set flags for message routing */
-void message_t::set_message_flags( int t, int w, int a, int i)
+void message_t::set_message_flags( sint32 t, sint32 w, sint32 a, sint32 i)
 {
 	ticker_flags = t;
 	win_flags = w;
