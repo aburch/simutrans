@@ -4,7 +4,7 @@
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  *
- * construction of cities, names of stops, creation of passengers
+ * construction of cities, creation of passengers
  *
  */
 

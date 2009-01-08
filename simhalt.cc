@@ -588,32 +588,35 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 		}
 
 		const char *dirname = NULL;
+		static char *diagonal_name[4] = { "nordwest", "nordost", "suedost", "suedwest" };
+		static char *direction_name[4] = { "nord", "ost", "sued", "west" };
+
 		if (k.y < ob_gr  ||  (inside  &&  k.y*3 < (un_gr+ob_gr+ob_gr))  ) {
 			if (k.x < li_gr) {
-				dirname = "nordwest";
+				dirname = diagonal_name[(4-welt->get_einstellungen()->get_rotation())%4];
 			}
 			else if (k.x > re_gr) {
-				dirname = "nordost";
+				dirname = diagonal_name[(1-welt->get_einstellungen()->get_rotation())%4];;
 			}
 			else {
-				dirname = "nord";
+				dirname = direction_name[(0-welt->get_einstellungen()->get_rotation())%4];;
 			}
 		} else if (k.y > un_gr  ||  (inside  &&  k.y*3 > (un_gr+un_gr+ob_gr))  ) {
 			if (k.x < li_gr) {
-				dirname = "suedwest";
+				dirname = diagonal_name[(3-welt->get_einstellungen()->get_rotation())%4];;
 			}
 			else if (k.x > re_gr) {
-				dirname = "suedost";
+				dirname = diagonal_name[(2-welt->get_einstellungen()->get_rotation())%4];;
 			}
 			else {
-				dirname = "sued";
+				dirname = direction_name[(2-welt->get_einstellungen()->get_rotation())%4];;
 			}
 		} else {
 			if (k.x <= stadt->get_pos().x) {
-				dirname = "west";
+				dirname = direction_name[(3-welt->get_einstellungen()->get_rotation())%4];;
 			}
 			else {
-				dirname = "ost";
+				dirname = direction_name[(1-welt->get_einstellungen()->get_rotation())%4];;
 			}
 		}
 		dirname = translator::translate(dirname);
