@@ -378,12 +378,19 @@ int simu_main(int argc, char** argv)
 
 	// now read last setting (might be overwritten by the tab-files)
 	loadsave_t file;
-	if(file.rd_open("settings.xml")) {
-		umgebung_t::rdwr(&file);
-		umgebung_t::default_einstellungen.rdwr(&file);
-		file.close();
-		// reset to false (otherwise freeplay will persist)
-		umgebung_t::default_einstellungen.set_freeplay( false );
+	if(file.rd_open("settings.xml"))  {
+		if(  file.get_version()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL )  ) {
+			// too new => remove it
+			file.close();
+			remove( "settings.xml" );
+		}
+		else {
+			umgebung_t::rdwr(&file);
+			umgebung_t::default_einstellungen.rdwr(&file);
+			file.close();
+			// reset to false (otherwise freeplay will persist)
+			umgebung_t::default_einstellungen.set_freeplay( false );
+		}
 	}
 
 	// continue parsing ...
