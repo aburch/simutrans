@@ -658,6 +658,19 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 void
 stadtauto_t::betrete_feld()
 {
+#ifdef DESTINATION_CITYCARS
+	if(target!=koord::invalid  &&  abs_distance(pos_next.get_2d(),target)<10) {
+		// delete it ...
+		time_to_life = 0;
+
+		fussgaenger_t *fg = new fussgaenger_t(welt, pos_next);
+		bool ok = welt->lookup(pos_next)->obj_add(fg) != 0;
+		for(int i=0; i<(fussgaenger_t::count & 3); i++) {
+			fg->sync_step(64*24);
+		}
+		welt->sync_add( fg );
+	}
+#endif
 	vehikel_basis_t::betrete_feld();
 	welt->lookup( get_pos() )->get_weg(road_wt)->book(1, WAY_STAT_CONVOIS);
 }
@@ -712,9 +725,19 @@ stadtauto_t::hop_check()
 			return ist_weg_frei(from);
 		}
 
+#ifdef DESTINATION_CITYCARS
+		static weighted_vector_tpl<koord3d> posliste(4);
+		posliste.clear();
+		const uint8 offset = ribi_t::ist_einfach(ribi) ? 0 : simrand(4);
+		for(uint8 r = 0; r < 4; r++) {
+			if(  get_pos().get_2d()==koord::nsow[r]+pos_next.get_2d()  ) {
+				continue;
+			}
+#else
 		const uint8 offset = ribi_t::ist_einfach(ribi) ? 0 : simrand(4);
 		for(uint8 i = 0; i < 4; i++) {
 			const uint8 r = (i+offset)&3;
+#endif
 			if(  (ribi&ribi_t::nsow[r])!=0  ) {
 				grund_t *to;
 				if(from->get_neighbour(to, road_wt, koord::nsow[r])) {
@@ -733,6 +756,10 @@ stadtauto_t::hop_check()
 							continue;
 						}
 					}
+#ifdef DESTINATION_CITYCARS
+					unsigned long dist=abs_distance( to->get_pos().get_2d(), target );
+					posliste.append( to->get_pos(), dist*dist );
+#else
 					// ok, now check if we are allowed to go here (i.e. no cars blocking)
 					pos_next_next = to->get_pos();
 					if(ist_weg_frei(from)) {
@@ -746,6 +773,7 @@ stadtauto_t::hop_check()
 					else {
 						pos_next_next == koord3d::invalid;
 					}
+#endif
 				}
 				else {
 					// not connected?!? => ribi likely wrong
@@ -753,11 +781,29 @@ stadtauto_t::hop_check()
 				}
 			}
 		}
+#ifdef DESTINATION_CITYCARS
+		if(posliste.get_count()>0) {
+			pos_next_next = posliste.at_weight(simrand(posliste.get_sum_weight()));
+			return true;
+		}
+		else {
+			pos_next_next = get_pos();
+		}
+		if(ist_weg_frei(from)) {
+			// ok, this direction is fine!
+			ms_traffic_jam = 0;
+			if(current_speed<48) {
+				current_speed = 48;
+			}
+			return true;
+		}
+#else
 		// only stumps at single way crossing, all other blocked => turn around
 		if(ribi==0) {
 			pos_next_next = get_pos();
 			return ist_weg_frei(from);
 		}
+#endif
 	}
 	else {
 		if(from  &&  ist_weg_frei(from)) {
