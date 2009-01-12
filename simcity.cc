@@ -2031,6 +2031,12 @@ void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 level, koord target)
 								gr->get_weg_ribi_unmasked(road_wt) == ribi_t::nordsued ||
 								gr->get_weg_ribi_unmasked(road_wt) == ribi_t::ostwest
 							)) {
+#ifdef DESTINATION_CITYCARS
+						// already a car here => avoid congestion
+						if(gr->obj_bei(gr->get_top()-1)->is_moving()) {
+							continue;
+						}
+#endif
 						if (!stadtauto_t::list_empty()) {
 							stadtauto_t* vt = new stadtauto_t(welt, gr->get_pos(), target);
 							gr->obj_add(vt);

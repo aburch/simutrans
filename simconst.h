@@ -31,7 +31,7 @@
 //#define AUTOMATIC_BRIDGES
 
 /* citycars have a destination; if they could get near, they dissolve */
-//#define DESTINATION_CITYCARS
+#define DESTINATION_CITYCARS
 
 /* need to emulate the mouse pointer with a graphic */
 //#define USE_SOFTPOINTER
