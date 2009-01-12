@@ -696,6 +696,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		// create a default map
 		DBG_MESSAGE("init with default map","(failing will be a pak error!)");
 		// no autosave on initial map during the first six month ...
+		loadgame = "";
+		new_world = true;
 		sint32 old_autosave = umgebung_t::autosave;
 		umgebung_t::autosave = false;
 		einstellungen_t sets = umgebung_t::default_einstellungen;
