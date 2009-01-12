@@ -118,6 +118,39 @@ char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 pric
 
 
 /**
+ * Creates a tooltip from tip text and money value
+ * @author Hj. Malthaner
+ */
+char *tooltip_with_price_maintenance_level(karte_t *welt, const char *tip, sint64 price, sint64 maitenance, uint32 level, uint8 enables)
+{
+	int n = sprintf(werkzeug_t::toolstr, "%s, ", translator::translate(tip) );
+	money_to_string(werkzeug_t::toolstr+n, (double)price/-100.0);
+	strcat( werkzeug_t::toolstr, " (" );
+	n = strlen(werkzeug_t::toolstr);
+
+	money_to_string(werkzeug_t::toolstr+n, (double)(maitenance<<(welt->ticks_bits_per_tag-18))/100.0 );
+	strcat( werkzeug_t::toolstr, ")" );
+	n = strlen(werkzeug_t::toolstr);
+
+	n += sprintf( werkzeug_t::toolstr+n, ", %d", level*32 );
+	if(enables&1) {
+		n += sprintf( werkzeug_t::toolstr+n, " %s", translator::translate("Passagiere") );
+	}
+	if(enables&2) {
+		n += sprintf( werkzeug_t::toolstr+n, " %s", translator::translate("Post") );
+	}
+	if(enables&4) {
+		n += sprintf( werkzeug_t::toolstr+n, " %s", translator::translate("Fracht") );
+	}
+	if((enables&7)==0) {
+		n += sprintf( werkzeug_t::toolstr+n, " %s", translator::translate("None") );
+	}
+	return werkzeug_t::toolstr;
+}
+
+
+
+/**
  * sucht Haltestelle um Umkreis +1/-1 um (pos, b, h)
  * extended to search first in our direction
  * @author Hj. Malthaner, V.Meyer, prissi
@@ -2349,22 +2382,22 @@ const char *wkz_station_t::get_tooltip(spieler_t *sp)
 			case maglev_wt:
 			case tram_wt:
 			case narrowgauge_wt:
-				return tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_station*besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y );
+				return tooltip_with_price_maintenance_level( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_station*besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level(), besch->get_level(), besch->get_enabled() );
 			case road_wt:
-				return tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_roadstop*besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y );
+				return tooltip_with_price_maintenance_level( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_roadstop*besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level(), besch->get_level(), besch->get_enabled() );
 			case water_wt:
-				return tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_dock*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y );
+				return tooltip_with_price_maintenance_level( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_dock*besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level(), besch->get_level(), besch->get_enabled() );
 			case air_wt:
-				return tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_airterminal*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y );
+				return tooltip_with_price_maintenance_level( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_airterminal*besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level(), besch->get_level(), besch->get_enabled() );
 			case 0:
-				return tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_post*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y );
+				return tooltip_with_price_maintenance_level( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_post*besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level(), besch->get_level(), besch->get_enabled() );
 		}
 	}
 	else if(  besch->get_utyp()==haus_besch_t::generic_extension  ) {
-		return tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_post*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y );
+		return tooltip_with_price_maintenance_level( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_post*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y, besch->get_level()*besch->get_groesse().x*besch->get_groesse().y, besch->get_enabled() );
 	}
 	else if(  besch->get_utyp()==haus_besch_t::hafen  ) {
-		return tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_dock*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y );
+		return tooltip_with_price_maintenance_level( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_dock*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y, besch->get_level()*besch->get_groesse().x*besch->get_groesse().y, besch->get_enabled() );
 	}
 	return "Illegal description";
 }
