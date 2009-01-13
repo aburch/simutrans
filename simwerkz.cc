@@ -3533,7 +3533,7 @@ bool wkz_make_stop_public_t::init( karte_t *, spieler_t * )
 }
 
 const char *wkz_make_stop_public_t::get_tooltip(spieler_t *sp) {
-	sprintf(toolstr, translator::translate("make stop public (or join with public stop next) costs %i per tile and level"), sp->get_welt()->get_einstellungen()->maint_building*60 );
+	sprintf(toolstr, translator::translate("make stop public (or join with public stop next) costs %i per tile and level"), ((sp->get_welt()->get_einstellungen()->maint_building*60)<<(sp->get_welt()->ticks_bits_per_tag-18))/100 );
 	return toolstr;
 }
 
