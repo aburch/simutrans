@@ -50,7 +50,7 @@ Release of 101.0 (r2208)
 	ADD: (isidoro/prissi) overtaking for road vehicles/citycars
 	ADD: (z9999) right mouse button to minimize windows to title bar and restore
 	CHANGE: payment is now only for the decrease in distance to the next transfer stop
-	ADD: instead a numger also a name of a  menu object (with image zero) can be given for an icon in menuconf.tab
+	ADD: instead a number also a name of a  menu object (with image zero) can be given for an icon in menuconf.tab
 	ADD: (Gerd Wachsmuth) map enlargement during the game
 	ADD: (VS) electric EMU/trolley bus tab added to depot
 	CHANGE: AI now seperate files, which would allow for a greater varienty of AIs
