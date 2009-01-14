@@ -24,21 +24,21 @@
 
 
 static const char *sort_text[4] = {
-  "Zielort",
-  "via",
-  "via Menge",
-  "Menge"
+	"Zielort",
+	"via",
+	"via Menge",
+	"Menge"
 };
 
 const char cost_type[MAX_HALT_COST][64] =
 {
-  "Happy",
-  "Unhappy",
-  "No Route",
-  "hl_btn_sort_waiting",
-  "Arrived",
-  "Departed",
-  "Convoys"
+	"Happy",
+	"Unhappy",
+	"No Route",
+	"hl_btn_sort_waiting",
+	"Arrived",
+	"Departed",
+	"Convoys"
 };
 
 const uint8 index_of_haltinfo[MAX_HALT_COST] = {
@@ -71,7 +71,8 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 		),
 		sort_label(translator::translate("Hier warten/lagern:")),
 		view(welt, halt->get_basis_pos3d()),
-		freight_info(16384)
+		freight_info(16384),
+		info_buf(256)
 {
 	this->halt = halt;
 	halt->set_sortby( umgebung_t::default_sortmode );
@@ -168,72 +169,92 @@ halt_info_t::zeichnen(koord pos, koord gr)
 
 		gui_frame_t::zeichnen(pos, gr);
 
-		unsigned indikatorfarbe = halt->get_status_farbe();
-		display_fillbox_wh_clip(pos.x+11, pos.y + 42, INDICATOR_WIDTH, INDICATOR_HEIGHT, indikatorfarbe, true);
+		sint16 top = pos.y+36;
+		COLOR_VAL indikatorfarbe = halt->get_status_farbe();
+		display_fillbox_wh_clip(pos.x+11, top+2, INDICATOR_WIDTH, INDICATOR_HEIGHT, indikatorfarbe, true);
 
 		// now what do we accept here?
 		int left = 11+INDICATOR_WIDTH+2;
 		if (halt->get_pax_enabled()) {
-			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), pos.x+left, pos.y+40, 0, false, false);
+			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 10;
 		}
 		if (halt->get_post_enabled()) {
-			display_color_img(skinverwaltung_t::post->get_bild_nr(0), pos.x+left, pos.y+40, 0, false, false);
+			display_color_img(skinverwaltung_t::post->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 10;
 		}
 		if (halt->get_ware_enabled()) {
-			display_color_img(skinverwaltung_t::waren->get_bild_nr(0), pos.x+left, pos.y+40, 0, false, false);
+			display_color_img(skinverwaltung_t::waren->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 10;
 		}
+
 		// what kind of station?
 		left -= 20;
+		top -= 44;
 		int halttype = halt->get_station_type();
 		if (halttype & haltestelle_t::railstation) {
-			display_color_img(skinverwaltung_t::zughaltsymbol->get_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
+			display_color_img(skinverwaltung_t::zughaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::loadingbay) {
-			display_color_img(skinverwaltung_t::autohaltsymbol->get_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
+			display_color_img(skinverwaltung_t::autohaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::busstop) {
-			display_color_img(skinverwaltung_t::bushaltsymbol->get_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
+			display_color_img(skinverwaltung_t::bushaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::dock) {
-			display_color_img(skinverwaltung_t::schiffshaltsymbol->get_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
+			display_color_img(skinverwaltung_t::schiffshaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::airstop) {
-			display_color_img(skinverwaltung_t::airhaltsymbol->get_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
+			display_color_img(skinverwaltung_t::airhaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::monorailstop) {
-			display_color_img(skinverwaltung_t::monorailhaltsymbol->get_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
+			display_color_img(skinverwaltung_t::monorailhaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::maglevstop) {
-			display_color_img(skinverwaltung_t::maglevhaltsymbol->get_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
+			display_color_img(skinverwaltung_t::maglevhaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::narrowgaugestop) {
-			display_color_img(skinverwaltung_t::narrowgaugehaltsymbol->get_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
+			display_color_img(skinverwaltung_t::narrowgaugehaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
 
-		// capacity
-		static cbuffer_t info_buf(256);
+		top = pos.y+50;
 		info_buf.clear();
 		info_buf.append(translator::translate("Storage capacity"));
 		info_buf.append(": ");
-		info_buf.append(halt->get_capacity());
-		display_proportional(pos.x+view.get_pos().x-11, pos.y+40, info_buf, ALIGN_RIGHT, COL_BLACK, true);
+		left = pos.x+11;
+		// passagiere
+		info_buf.append(halt->get_capacity(0));
+		left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
+		display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), left, top, 0, false, false);
+		left += 10;
+		// post
+		info_buf.clear();
+		info_buf.append(",  ");
+		info_buf.append(halt->get_capacity(1));
+		left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
+		display_color_img(skinverwaltung_t::post->get_bild_nr(0), left, top, 0, false, false);
+		left += 10;
+		// goods
+		info_buf.clear();
+		info_buf.append(",  ");
+		info_buf.append(halt->get_capacity(2));
+		left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
+		display_color_img(skinverwaltung_t::waren->get_bild_nr(0), left, top, 0, false, false);
+		left = 53+LINESPACE;
 
 		// Hajo: Reuse of freight_info buffer to get and display
 		// information about the convoi itself
 		info_buf.clear();
 		halt->info(info_buf);
-		display_multiline_text(pos.x+11, pos.y+56, info_buf, COL_BLACK);
+		display_multiline_text(pos.x+11, pos.y+53+LINESPACE, info_buf, COL_BLACK);
 	}
 }
 

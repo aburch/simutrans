@@ -95,7 +95,7 @@ private:
 	void init_financial_history();
 
 	uint8 status_color;
-	uint16 capacity;
+	uint16 capacity[3]; // passenger, post, goods
 	void recalc_status();
 
 public:
@@ -288,7 +288,7 @@ public:
 	 * Calculates a status color for status bars
 	 * @author Hj. Malthaner
 	 */
-	int get_status_farbe() const { return status_color; }
+	COLOR_VAL get_status_farbe() const { return status_color; }
 
 	/**
 	 * Draws some nice colored bars giving some status information
@@ -408,7 +408,7 @@ public:
 	bool add_grund(grund_t *gb);
 	void rem_grund(grund_t *gb);
 
-	uint32 get_capacity() const {return capacity*32;}
+	uint32 get_capacity(uint8 typ) const { return capacity[typ]; }
 
 	bool existiert_in_welt();
 

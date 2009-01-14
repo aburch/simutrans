@@ -164,6 +164,9 @@ einstellungen_t::einstellungen_t() :
 	way_count_tunnel=8;
 	way_max_bridge_len=15;
 	way_count_leaving_road=25;
+
+	// defualt: joined capacities
+	seperate_halt_capacities = false;
 }
 
 
@@ -327,9 +330,9 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			uint16 old_multiplier = pak_diagonal_multiplier;
 			file->rdwr_short( old_multiplier, "m" );
 			vehikel_basis_t::set_diagonal_multiplier( pak_diagonal_multiplier, old_multiplier );
+			// since vehicle will need realignment afterwards!
 		}
 
-		// since vehicle will need realignment afterwards!
 		if(file->get_version()>=101000) {
 			// game mechanics
 			file->rdwr_short( origin_x, "ox" );
@@ -425,6 +428,10 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				password[i][0] = 0;
 			}
 		}
+
+		if(file->get_version()>101000) {
+			file->rdwr_bool( seperate_halt_capacities, "" );
+		}
 	}
 }
 
@@ -432,43 +439,64 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 
 // read the settings from this file
-void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename )
+void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename, bool einstellungen_only )
 {
 	tabfileobj_t contents;
 
 	simuconf.read(contents);
 
-	umgebung_t::max_convoihandles = contents.get_int("convoys", umgebung_t::max_convoihandles );
-	umgebung_t::max_linehandles = contents.get_int("lines", umgebung_t::max_linehandles );
-	umgebung_t::max_halthandles = contents.get_int("stations", umgebung_t::max_halthandles );
+	if(  !einstellungen_only  ) {
+		umgebung_t::max_convoihandles = contents.get_int("convoys", umgebung_t::max_convoihandles );
+		umgebung_t::max_linehandles = contents.get_int("lines", umgebung_t::max_linehandles );
+		umgebung_t::max_halthandles = contents.get_int("stations", umgebung_t::max_halthandles );
+
+		umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
+		umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
+		umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability);
+		umgebung_t::drive_on_left = contents.get_int("drive_left", umgebung_t::drive_on_left );
+
+		umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::verkehrsteilnehmer_info) != 0;
+		umgebung_t::tree_info = contents.get_int("tree_info", umgebung_t::tree_info) != 0;
+		umgebung_t::ground_info = contents.get_int("ground_info", umgebung_t::ground_info) != 0;
+		umgebung_t::townhall_info = contents.get_int("townhall_info", umgebung_t::townhall_info) != 0;
+		umgebung_t::single_info = contents.get_int("only_single_info", umgebung_t::single_info);
+
+		umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", umgebung_t::window_buttons_right);
+		umgebung_t::window_frame_active = contents.get_int("window_frame_active", umgebung_t::window_frame_active);
+
+		umgebung_t::show_tooltips = contents.get_int("show_tooltips", umgebung_t::show_tooltips);
+		umgebung_t::tooltip_color = contents.get_int("tooltip_background_color", umgebung_t::tooltip_color);
+		umgebung_t::tooltip_textcolor = contents.get_int("tooltip_text_color", umgebung_t::tooltip_textcolor);
+
+		// display stuff
+		umgebung_t::show_names = contents.get_int("show_names", umgebung_t::show_names);
+		umgebung_t::show_month = contents.get_int("show_month", umgebung_t::show_month);
+		umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration);
+
+		umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", umgebung_t::intercity_road_length);
+		cstring_t *test = new cstring_t(ltrim(contents.get("intercity_road_type")));
+		if(test->len()>0) {
+			delete umgebung_t::intercity_road_type;
+			umgebung_t::intercity_road_type = test;
+		}
+		else {
+			delete test;
+		}
+
+		umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave));
+		umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps);
+	}
 
 	// routing stuff
 	max_route_steps = contents.get_int("max_route_steps", max_route_steps );
 	max_hops = contents.get_int("max_hops", max_hops );
 	max_transfers = contents.get_int("max_transfers", max_transfers );
 	passenger_factor = contents.get_int("passenger_factor", passenger_factor ); /* this can manipulate the passenger generation */
+	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 
 	fussgaenger = contents.get_int("random_pedestrians", fussgaenger ) != 0;
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;
 	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration);	// ten normal years
-
-	umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
-	umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
-	umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability);
-	umgebung_t::drive_on_left = contents.get_int("drive_left", umgebung_t::drive_on_left );
-
-	umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::verkehrsteilnehmer_info) != 0;
-	umgebung_t::tree_info = contents.get_int("tree_info", umgebung_t::tree_info) != 0;
-	umgebung_t::ground_info = contents.get_int("ground_info", umgebung_t::ground_info) != 0;
-	umgebung_t::townhall_info = contents.get_int("townhall_info", umgebung_t::townhall_info) != 0;
-	umgebung_t::single_info = contents.get_int("only_single_info", umgebung_t::single_info);
-
-	umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", umgebung_t::window_buttons_right);
-	umgebung_t::window_frame_active = contents.get_int("window_frame_active", umgebung_t::window_frame_active);
-
-	umgebung_t::show_tooltips = contents.get_int("show_tooltips", umgebung_t::show_tooltips);
-	umgebung_t::tooltip_color = contents.get_int("tooltip_background_color", umgebung_t::tooltip_color);
-	umgebung_t::tooltip_textcolor = contents.get_int("tooltip_text_color", umgebung_t::tooltip_textcolor);
 
 	starting_money = contents.get_int("starting_money", starting_money );
 	maint_building = contents.get_int("maintenance_building", maint_building);
@@ -476,25 +504,11 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	numbered_stations = contents.get_int("numbered_stations", numbered_stations ) != 0;
 	station_coverage_size = contents.get_int("station_coverage", station_coverage_size );
 
-	// display stuff
-	umgebung_t::show_names = contents.get_int("show_names", umgebung_t::show_names);
-	umgebung_t::show_month = contents.get_int("show_month", umgebung_t::show_month);
-	umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration);
-
 	// time stuff
 	bits_per_month = contents.get_int("bits_per_month", bits_per_month);
 	use_timeline = contents.get_int("use_timeline", use_timeline);
 	starting_year = contents.get_int("starting_year", starting_year);
 
-	umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", umgebung_t::intercity_road_length);
-	cstring_t *test = new cstring_t(ltrim(contents.get("intercity_road_type")));
-	if(test->len()>0) {
-		delete umgebung_t::intercity_road_type;
-		umgebung_t::intercity_road_type = test;
-	}
-	else {
-		delete test;
-	}
 	const char *str = ltrim(contents.get("city_road_type"));
 	if(str[0]>0) {
 		strncpy( city_road_type, str, 256 );
@@ -502,8 +516,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	}
 
 	pak_diagonal_multiplier = contents.get_int("diagonal_multiplier", pak_diagonal_multiplier);
-
-	umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave));
 
 	factory_spacing = contents.get_int("factory_spacing", factory_spacing );
 	crossconnect_factories = contents.get_int("crossconnect_factories", crossconnect_factories ) != 0;
@@ -573,7 +585,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	disp_width = contents.get_int("display_width", disp_width);
 	disp_height = contents.get_int("display_height", disp_height);
 	fullscreen = contents.get_int("fullscreen", fullscreen);
-	umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps);
 
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", "" ));

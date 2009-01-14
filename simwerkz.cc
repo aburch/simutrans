@@ -119,7 +119,7 @@ char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 pric
 
 /**
  * Creates a tooltip from tip text and money value
- * @author Hj. Malthaner
+ * @author z9999
  */
 char *tooltip_with_price_maintenance_level(karte_t *welt, const char *tip, sint64 price, sint64 maitenance, uint32 level, uint8 enables)
 {
@@ -132,18 +132,17 @@ char *tooltip_with_price_maintenance_level(karte_t *welt, const char *tip, sint6
 	strcat( werkzeug_t::toolstr, ")" );
 	n = strlen(werkzeug_t::toolstr);
 
-	n += sprintf( werkzeug_t::toolstr+n, ", %d", level*32 );
-	if(enables&1) {
-		n += sprintf( werkzeug_t::toolstr+n, " %s", translator::translate("Passagiere") );
-	}
-	if(enables&2) {
-		n += sprintf( werkzeug_t::toolstr+n, " %s", translator::translate("Post") );
-	}
-	if(enables&4) {
-		n += sprintf( werkzeug_t::toolstr+n, " %s", translator::translate("Fracht") );
-	}
-	if((enables&7)==0) {
-		n += sprintf( werkzeug_t::toolstr+n, " %s", translator::translate("None") );
+	if((enables&7)!=0) {
+		n += sprintf( werkzeug_t::toolstr+n, ", %d", level*32 );
+		if(enables&1) {
+			n += sprintf( werkzeug_t::toolstr+n, " %s", translator::translate("Passagiere") );
+		}
+		if(enables&2) {
+			n += sprintf( werkzeug_t::toolstr+n, " %s", translator::translate("Post") );
+		}
+		if(enables&4) {
+			n += sprintf( werkzeug_t::toolstr+n, " %s", translator::translate("Fracht") );
+		}
 	}
 	return werkzeug_t::toolstr;
 }

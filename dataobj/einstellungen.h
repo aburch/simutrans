@@ -128,6 +128,9 @@ private:
 	// names of the stations ...
 	char language_code_names[4];
 
+	// true, if the different caacities (passengers/mail/freight) are counted seperately
+	bool seperate_halt_capacities;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -188,7 +191,7 @@ public:
 	void rdwr(loadsave_t *file);
 
 	// init form this file ...
-	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename );
+	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename, bool omit_umgebung );
 
 	void set_groesse_x(sint32 g) {groesse_x=g;}
 	void set_groesse_y(sint32 g) {groesse_y=g;}
@@ -307,6 +310,9 @@ public:
 
 	uint8 get_player_type(uint8 i) const { return spieler_type[i]; }
 	void set_player_type(uint8 i, uint8 t) { spieler_type[i] = t; }
+
+	bool is_seperate_halt_capacities() const { return seperate_halt_capacities ; }
+	void set_seperate_halt_capacities( bool b ) { seperate_halt_capacities = b; }
 };
 
 #endif

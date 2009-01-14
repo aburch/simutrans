@@ -467,7 +467,9 @@ reliefkarte_t::calc_map_pixel(const koord k)
 				if (halt.is_bound()) {
 					const spieler_t* owner = halt->get_besitzer();
 					if (owner == welt->get_active_player() || owner == welt->get_spieler(1)) {
-						const uint8 color = calc_severity_color(halt->get_finance_history(0, HALT_WAITING), halt->get_capacity() );
+						// we need to sum up only for seperate capacities
+						sint32 total_capacity = welt->get_einstellungen()->is_seperate_halt_capacities() ? halt->get_capacity(0)+halt->get_capacity(1)+halt->get_capacity(2) : halt->get_capacity(0);
+						const uint8 color = calc_severity_color(halt->get_finance_history(0, HALT_WAITING), total_capacity );
 						set_relief_farbe_area(k, 3, color );
 					}
 				}

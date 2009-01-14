@@ -51,6 +51,7 @@ private:
 	* @author Hj. Malthaner
 	*/
 	cbuffer_t freight_info;
+	cbuffer_t info_buf;
 
 public:
 	halt_info_t(karte_t *welt, halthandle_t halt);

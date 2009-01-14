@@ -1659,8 +1659,8 @@ void haltestelle_t::info(cbuffer_t & buf) const
 	  30,
 	  pax_unhappy,
 	  31,
-	  pax_no_route,
-	  get_capacity()
+	  pax_no_route
+//	  get_capacity()
 	  );
 	buf.append(tmp);
 }
@@ -1853,7 +1853,10 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 void haltestelle_t::recalc_station_type()
 {
 	int new_station_type = 0;
-	capacity = 0;
+	uint16 notype_capacity=0;
+	capacity[0] = 0;
+	capacity[1] = 0;
+	capacity[2] = 0;
 	enables &= CROWDED;	// clear flags
 
 	// iterate over all tiles
@@ -1867,9 +1870,24 @@ void haltestelle_t::recalc_station_type()
 			new_station_type |= dock;
 			// for water factories
 			if(besch) {
+				// enabled the matching types
 				enables |= besch->get_enabled();
-				capacity += besch->get_level();
-				DBG_MESSAGE("haltestelle_t::recalc_station_type()","factory enables %i",besch->get_enabled());
+				if(  welt->get_einstellungen()->is_seperate_halt_capacities()  ) {
+					if(besch->get_enabled()&1) {
+						capacity[0] += besch->get_level()*32;
+					}
+					if(besch->get_enabled()&2) {
+						capacity[1] += besch->get_level()*32;
+					}
+					if(besch->get_enabled()&4) {
+						capacity[2] += besch->get_level()*32;
+					}
+				}
+				else {
+					// no sperate capacities: sum up all
+					capacity[0] += besch->get_level()*32;
+					capacity[2] = capacity[1] = capacity[0];
+				}
 			}
 			continue;
 		}
@@ -1918,12 +1936,26 @@ void haltestelle_t::recalc_station_type()
 
 		// enabled the matching types
 		enables |= besch->get_enabled();
-		capacity += besch->get_level();
-
+		if(  welt->get_einstellungen()->is_seperate_halt_capacities()  ) {
+			if(besch->get_enabled()&1) {
+				capacity[0] += besch->get_level()*32;
+			}
+			if(besch->get_enabled()&2) {
+				capacity[1] += besch->get_level()*32;
+			}
+			if(besch->get_enabled()&4) {
+				capacity[2] += besch->get_level()*32;
+			}
+		}
+		else {
+			// no sperate capacities: sum up all
+			capacity[0] += besch->get_level()*32;
+			capacity[2] = capacity[1] = capacity[0];
+		}
 	}
 	station_type = (haltestelle_t::stationtyp)new_station_type;
 
-//DBG_DEBUG("haltestelle_t::recalc_station_type()","result=%x, capacity=%i",new_station_type,capacity);
+//DBG_DEBUG("haltestelle_t::recalc_station_type()","result=%x, capacity[0]=%i, capacity[1], capacity[2]",new_station_type,capacity[0],capacity[1],capacity[2]);
 }
 
 
@@ -2149,10 +2181,11 @@ void haltestelle_t::recalc_status()
 	uint8 status_bits = 0;
 
 	// update total waiting plus overflow
-	const sint32 max_ware = get_capacity();
+	sint32 max_ware;
 
 	long total_sum = 0;
 	if(get_pax_enabled()) {
+		max_ware = get_capacity(0);
 		total_sum += get_ware_summe(warenbauer_t::passagiere);
 		if(get_pax_unhappy() > 40 ) {
 			status_bits = (total_sum>max_ware+200 || get_pax_unhappy()>200) ? 2 : 1;
@@ -2162,6 +2195,7 @@ void haltestelle_t::recalc_status()
 	}
 
 	if(get_post_enabled()) {
+		max_ware = get_capacity(1);
 		sint32 post = get_ware_summe(warenbauer_t::post);
 		total_sum += post;
 		if(post>max_ware) {
@@ -2172,7 +2206,7 @@ void haltestelle_t::recalc_status()
 	// now for all goods
 	if(status_color!=COL_RED  &&  get_ware_enabled()) {
 		const int count = warenbauer_t::get_waren_anzahl();
-
+		max_ware = get_capacity(2);
 		for( int i=2; i+1<count; i++) {
 			const ware_besch_t *wtyp = warenbauer_t::get_info(i+1);
 			long ware_sum = get_ware_summe(wtyp);
@@ -2214,12 +2248,18 @@ void haltestelle_t::display_status(sint16 xpos, sint16 ypos) const
 	ypos -= 11;
 	xpos -= (count*4 - get_tile_raster_width())/2;
 	sint16 x = xpos;
-	const uint32 max_capacity=get_capacity();
+	uint32 max_capacity;
 
 	for( unsigned i=0;  i<warenbauer_t::get_waren_anzahl(); i++) {
 		if(i==2) continue;	// ignore freight none
 		const ware_besch_t *wtyp = warenbauer_t::get_info(i);
 		if(gibt_ab(wtyp)) {
+			if(i<2) {
+				max_capacity = get_capacity(i);
+			}
+			else {
+				max_capacity = get_capacity(2);
+			}
 			const uint32 sum = get_ware_summe(wtyp);
 			uint32 v = min(sum, max_capacity);
 			if(max_capacity>512) {
