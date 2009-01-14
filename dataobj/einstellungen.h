@@ -56,8 +56,8 @@ private:
 	double max_mountain_height;                  //01-Dec-01        Markus Weber    Added
 	double map_roughness;                        //01-Dec-01        Markus Weber    Added
 
-	unsigned char allow_player_change;
-	unsigned char use_timeline;
+	uint8 allow_player_change;
+	uint8 use_timeline;
 	sint16 starting_year;
 	sint16 bits_per_month;
 

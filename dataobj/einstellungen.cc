@@ -50,7 +50,7 @@ einstellungen_t::einstellungen_t() :
 
 	// some settigns more
 	allow_player_change = true;
-	use_timeline = true;
+	use_timeline = 2;
 	starting_year = 1930;
 	bits_per_month = 18;
 
