@@ -32,6 +32,7 @@
 class halt_info_t : public gui_frame_t, private action_listener_t
 {
 private:
+	static karte_t *welt;
 	gui_scrollpane_t scrolly;
 	gui_textarea_t text;
 	gui_textinput_t input;

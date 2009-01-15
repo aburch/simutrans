@@ -23,6 +23,9 @@
 
 
 
+karte_t *halt_info_t::welt = NULL;
+
+
 static const char *sort_text[4] = {
 	"Zielort",
 	"via",
@@ -75,6 +78,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 		info_buf(256)
 {
 	this->halt = halt;
+	this->welt = welt;
 	halt->set_sortby( umgebung_t::default_sortmode );
 
 	input.set_pos(koord(11,4));
@@ -233,22 +237,25 @@ halt_info_t::zeichnen(koord pos, koord gr)
 		// passagiere
 		info_buf.append(halt->get_capacity(0));
 		left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
-		display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), left, top, 0, false, false);
-		left += 10;
-		// post
-		info_buf.clear();
-		info_buf.append(",  ");
-		info_buf.append(halt->get_capacity(1));
-		left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
-		display_color_img(skinverwaltung_t::post->get_bild_nr(0), left, top, 0, false, false);
-		left += 10;
-		// goods
-		info_buf.clear();
-		info_buf.append(",  ");
-		info_buf.append(halt->get_capacity(2));
-		left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
-		display_color_img(skinverwaltung_t::waren->get_bild_nr(0), left, top, 0, false, false);
-		left = 53+LINESPACE;
+		if(  welt->get_einstellungen()->is_seperate_halt_capacities()  ) {
+			// here only for seperate capacities
+			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), left, top, 0, false, false);
+			left += 10;
+			// post
+			info_buf.clear();
+			info_buf.append(",  ");
+			info_buf.append(halt->get_capacity(1));
+			left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
+			display_color_img(skinverwaltung_t::post->get_bild_nr(0), left, top, 0, false, false);
+			left += 10;
+			// goods
+			info_buf.clear();
+			info_buf.append(",  ");
+			info_buf.append(halt->get_capacity(2));
+			left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
+			display_color_img(skinverwaltung_t::waren->get_bild_nr(0), left, top, 0, false, false);
+			left = 53+LINESPACE;
+		}
 
 		// Hajo: Reuse of freight_info buffer to get and display
 		// information about the convoi itself
