@@ -229,6 +229,19 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		ypos += BUTTON_HEIGHT+4;
 	}
 
+	// loading level and return tickets
+	lb_load.set_pos( koord( 10, ypos+2 ) );
+	add_komponente(&lb_load);
+
+	numimp_load.set_pos( koord( BUTTON_WIDTH*2-65, ypos+2 ) );
+	numimp_load.set_groesse( koord( 60, BUTTON_HEIGHT ) );
+	numimp_load.set_value( (uint)fpl->aktuell < (uint)fpl->maxi() ? fpl->eintrag[fpl->aktuell].ladegrad : 0 );
+	numimp_load.set_limits( 0, 100 );
+	numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
+	numimp_load.add_listener(this);
+	add_komponente(&numimp_load);
+	ypos += BUTTON_HEIGHT;
+
 	// waiting in parts per month
 	lb_wait.set_pos( koord( 10, ypos+2 ) );
 	add_komponente(&lb_wait);
@@ -252,20 +265,6 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	bt_wait_next.set_typ(button_t::arrowright);
 	bt_wait_next.add_listener(this);
 	add_komponente(&bt_wait_next);
-
-	ypos += BUTTON_HEIGHT;
-
-	// loading level and return tickets
-	lb_load.set_pos( koord( 10, ypos+2 ) );
-	add_komponente(&lb_load);
-
-	numimp_load.set_pos( koord( BUTTON_WIDTH*2-65, ypos+2 ) );
-	numimp_load.set_groesse( koord( 60, BUTTON_HEIGHT ) );
-	numimp_load.set_value( (uint)fpl->aktuell < (uint)fpl->maxi() ? fpl->eintrag[fpl->aktuell].ladegrad : 0 );
-	numimp_load.set_limits( 0, 100 );
-	numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
-	numimp_load.add_listener(this);
-	add_komponente(&numimp_load);
 
 	bt_return.init(button_t::roundbox, "return ticket", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
 	bt_return.set_tooltip("Add stops for backward travel");
