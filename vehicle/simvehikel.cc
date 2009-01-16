@@ -1174,7 +1174,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 	slist_tpl<ware_t> kill_queue;
 	slist_iterator_tpl <ware_t> iter (fracht);
 
-	if(  welt->get_einstellungen()->is_pay_form_total_distance()  ) {
+	if(  welt->get_einstellungen()->is_pay_for_total_distance()  ) {
 		// pay only the distance, we get closer to our destination
 		while( iter.next() ) {
 
