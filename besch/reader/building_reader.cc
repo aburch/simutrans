@@ -59,7 +59,7 @@ obj_besch_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 void building_reader_t::register_obj(obj_besch_t *&data)
 {
-    haus_besch_t *besch = static_cast<haus_besch_t *>(data);
+	haus_besch_t *besch = static_cast<haus_besch_t *>(data);
 
 	if (besch->utype == haus_besch_t::fabrik) {
 		// this stuff is just for compatibility
@@ -150,8 +150,8 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 		}
 	}
 
-    hausbauer_t::register_besch(besch);
-    DBG_DEBUG("building_reader_t::register_obj", "Loaded '%s'", besch->get_name());
+	hausbauer_t::register_besch(besch);
+	DBG_DEBUG("building_reader_t::register_obj", "Loaded '%s'", besch->get_name());
 }
 
 
@@ -321,7 +321,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->animation_time,
 		besch->intro_date,
 		besch->obsolete_date
-	     );
+	);
 
 	return besch;
 

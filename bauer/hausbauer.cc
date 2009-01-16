@@ -64,8 +64,8 @@ vector_tpl<const haus_besch_t *> hausbauer_t::station_building;
 vector_tpl<const haus_besch_t *> hausbauer_t::headquarter;
 
 static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
-    { &hausbauer_t::elevated_foundation_besch,   "MonorailGround" },
-    { NULL, NULL }
+	{ &hausbauer_t::elevated_foundation_besch,   "MonorailGround" },
+	{ NULL, NULL }
 };
 
 
