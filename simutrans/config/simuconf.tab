@@ -115,6 +115,9 @@ passenger_factor=16
 # if enabled (default = 0 off) stops may have different capacities for passengers, mail, and  freight
 seperate_halt_capacities = 0
 
+# if enabled (default = 0 off) the payment is only relative to the distance to the trips destination (defualt is to next interchange)
+pay_for_total_distance = 0
+
 # in beginner mode, all good prices are multiplied by a factor (default 1500=1.5)
 beginner_price_factor = 1500
 

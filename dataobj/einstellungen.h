@@ -131,6 +131,9 @@ private:
 	// true, if the different caacities (passengers/mail/freight) are counted seperately
 	bool seperate_halt_capacities;
 
+	// payment is only for the distance that got shorter between target and start
+	bool pay_for_total_distance;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -313,6 +316,9 @@ public:
 
 	bool is_seperate_halt_capacities() const { return seperate_halt_capacities ; }
 	void set_seperate_halt_capacities( bool b ) { seperate_halt_capacities = b; }
+
+	bool is_pay_for_total_distance() const { return pay_for_total_distance ; }
+	void set_pay_for_total_distance( bool b ) { pay_for_total_distance = b; }
 };
 
 #endif

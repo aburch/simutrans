@@ -1174,24 +1174,48 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 	slist_tpl<ware_t> kill_queue;
 	slist_iterator_tpl <ware_t> iter (fracht);
 
-	while( iter.next() ) {
+	if(  welt->get_einstellungen()->is_pay_form_total_distance()  ) {
+		// pay only the distance, we get closer to our destination
+		while( iter.next() ) {
 
-		const ware_t & ware = iter.get_current();
+			const ware_t & ware = iter.get_current();
 
-		if(ware.menge==0  ||  !ware.get_zwischenziel().is_bound()) {
-			continue;
+			if(ware.menge==0  ||  !ware.get_zwischenziel().is_bound()) {
+				continue;
+			}
+
+			// now only use the real gain in difference for the revenue (may as well be negative!)
+			const koord zwpos = ware.get_zwischenziel()->get_basis_pos();
+			const long dist = abs(zwpos.x - start.x) + abs(zwpos.y - start.y) - (abs(end.x - zwpos.x) + abs(end.y - zwpos.y));
+
+			const sint32 grundwert128 = ware.get_besch()->get_preis()<<7;	// bonus price will be always at least 0.128 of the real price
+			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+speed_base*ware.get_besch()->get_speed_bonus()));
+			const sint64 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus) * (sint64)dist * (sint64)ware.menge;
+
+			// sum up new price
+			value += price;
 		}
+	}
+	else {
+		while( iter.next() ) {
 
-		// now only use the real gain in difference for the revenue (may as well be negative!)
-		const koord zwpos = ware.get_zwischenziel()->get_basis_pos();
-		const long dist = abs(zwpos.x - start.x) + abs(zwpos.y - start.y) - (abs(end.x - zwpos.x) + abs(end.y - zwpos.y));
+			const ware_t & ware = iter.get_current();
 
-		const sint32 grundwert128 = ware.get_besch()->get_preis()<<7;	// bonus price will be always at least 0.128 of the real price
-		const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+speed_base*ware.get_besch()->get_speed_bonus()));
-		const sint64 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus) * (sint64)dist * (sint64)ware.menge;
+			if(ware.menge==0  ||  !ware.get_ziel().is_bound()) {
+				continue;
+			}
 
-		// sum up new price
-		value += price;
+			// now only use the real gain in difference for the revenue (may as well be negative!)
+			const koord zwpos = ware.get_ziel()->get_basis_pos();
+			const long dist = abs(zwpos.x - start.x) + abs(zwpos.y - start.y) - (abs(end.x - zwpos.x) + abs(end.y - zwpos.y));
+
+			const sint32 grundwert128 = ware.get_besch()->get_preis()<<7;	// bonus price will be always at least 0.128 of the real price
+			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+speed_base*ware.get_besch()->get_speed_bonus()));
+			const sint64 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus) * (sint64)dist * (sint64)ware.menge;
+
+			// sum up new price
+			value += price;
+		}
 	}
 
 	// Hajo: Rounded value, in cents

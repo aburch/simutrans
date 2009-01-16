@@ -4,6 +4,8 @@
 	ADD: &#; for direkt character input (but no unicode yet) to help files "HTML" (&#30; happy face, &#31; unhappy face)
 	ADD: (z9999) capacity of a stop shown in tooltip
 	ADD: (z9999) halt can have different storage capabilities for different good types (seperate_halt_capacities=1 in simuconf.tab)
+	ADD: if pay_for_total_distance=1 in simuconf.tab, price is calculated for the distance you got nearer to destination
+
 
 
 Release of 101.0 (r2208)
