@@ -77,7 +77,9 @@ void citylist_stats_t::infowin_event(const event_t * ev)
 	const uint line = ev->cy / (LINESPACE + 1);
 
 	line_select = 0xFFFFFFFFu;
-	if (line >= city_list.get_count()) return;
+	if (line >= city_list.get_count()) {
+		return;
+	}
 
 	stadt_t* stadt = city_list[line];
 	if(  ev->button_state>0  &&  ev->cx>0  &&  ev->cx<15  ) {

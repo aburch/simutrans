@@ -7,6 +7,7 @@
 	ADD: if pay_for_total_distance=1 in simuconf.tab, price is calculated for the distance you got nearer to destination
 	ADD: (isidoro) jump to line window from halt_details
 	FIX: mark deleted trees dirty when building roads
+	CHANGE: message window now obeys also Simutrans UI (array/rightclick for goto on map, leftclik on text to show again)
 
 
 
