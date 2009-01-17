@@ -19,6 +19,7 @@
 
 class schedule_t;
 class spieler_t;
+class schedule_list_gui_t;
 
 #define INVALID_LINE_ID ((uint16)(-1))
 
@@ -28,7 +29,7 @@ public:
  	simlinemgmt_t(karte_t* welt);
  	~simlinemgmt_t();
 
-	void zeige_info(spieler_t *) const;
+	void zeige_info(spieler_t *);
 
 	/*
 	 * add a line
@@ -57,7 +58,7 @@ public:
  	/*
  	 * load or save the linemanagement
  	 */
- 	void rdwr(karte_t * welt, loadsave_t * file);
+ 	void rdwr(karte_t * welt, loadsave_t * file, spieler_t * sp);
 
  	/*
  	 * sort the lines by name
@@ -88,7 +89,7 @@ public:
 	/**
 	 * @author hsiegeln
 	 */
-	linehandle_t create_line(int ltype, schedule_t * fpl=NULL);
+	linehandle_t create_line(int ltype, spieler_t * sp, schedule_t * fpl=NULL);
 
 	/*
 	 * fill the list with all lines of a certain type
@@ -98,12 +99,20 @@ public:
 
 	karte_t* get_welt() const { return welt; }
 
+	/**
+	 * Will open the line management window and offer information about the line
+	 * @author isidoro
+	 */
+	void show_lineinfo(spieler_t *sp, linehandle_t line);
+
  private:
 	static uint8 used_ids[8192];
 
 	vector_tpl<linehandle_t> all_managed_lines;
 
 	karte_t * welt;
+
+	schedule_list_gui_t *schedule_list_gui;  // Use with caution.  Valid only afer zeige_info
 };
 
 #endif

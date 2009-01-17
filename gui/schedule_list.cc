@@ -60,7 +60,7 @@ static uint8 max_idx=0;
 
 const int schedule_list_gui_t::cost_type_color[MAX_LINE_COST] =
 {
-  COL_FREE_CAPACITY, COL_TRANSPORTED, COL_REVENUE, COL_OPERATION, COL_PROFIT, COL_VEHICLE_ASSETS
+	COL_FREE_CAPACITY, COL_TRANSPORTED, COL_REVENUE, COL_OPERATION, COL_PROFIT, COL_VEHICLE_ASSETS
 };
 
 uint8 schedule_list_gui_t::statistic[MAX_LINE_COST]={
@@ -253,7 +253,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp,value_t /
 			// create typed line
 			assert(tabs.get_active_tab_index()<max_idx);
 			uint8 type=tabs_to_lineindex[tabs.get_active_tab_index()];
-			linehandle_t new_line = sp->simlinemgmt.create_line(type);
+			linehandle_t new_line = sp->simlinemgmt.create_line(type,sp);
 			create_win( new line_management_gui_t(new_line, sp), w_info, (long)line.get_rep());
 			update_lineinfo( new_line );
 			build_line_list( tabs.get_active_tab_index() );
@@ -406,6 +406,7 @@ void schedule_list_gui_t::resize(const koord delta)
 void schedule_list_gui_t::build_line_list(int filter)
 {
 	const sint32 sb_offset = line.is_bound() ? scl.get_sb_offset() : 0;
+	sint32 sel = -1;
 	sp->simlinemgmt.sort_lines();	// to take care of renaming ...
 	scl.clear_elements();
 	sp->simlinemgmt.get_lines(tabs_to_lineindex[filter], &lines);
@@ -413,10 +414,14 @@ void schedule_list_gui_t::build_line_list(int filter)
 		linehandle_t l = *i;
 		scl.append_element( new line_scrollitem_t(l) );
 		if (line == l) {
-			scl.set_selection(scl.get_count() - 1);
+			sel = scl.get_count() - 1;
 		}
 	}
 	scl.set_sb_offset( sb_offset );
+	if(  sel>=0  ) {
+		scl.set_selection( sel );
+		scl.show_selection( sel );
+	}
 }
 
 
@@ -514,3 +519,17 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 	}
 	line = new_line;
 }
+
+void schedule_list_gui_t::show_lineinfo(linehandle_t line)
+{
+	update_lineinfo(line);
+	// rebuilding line list will also show selection
+	for(  uint8 i=0;  i<max_idx;  i++  ) {
+		if(  tabs_to_lineindex[i]==line->get_linetype()  ) {
+			tabs.set_active_tab_index( i );
+			build_line_list( i );
+			break;
+		}
+	}
+}
+

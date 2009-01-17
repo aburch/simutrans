@@ -319,7 +319,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	fpl->append( welt->lookup_kartenboden(best_pos), 0 );
 	fpl->append( welt->lookup(qfab->get_pos()), 100 );
 	fpl->aktuell = 1;
-	linehandle_t line=simlinemgmt.create_line(simline_t::shipline,fpl);
+	linehandle_t line=simlinemgmt.create_line(simline_t::shipline,this,fpl);
 	delete fpl;
 
 	// now create all vehicles as convois
@@ -378,7 +378,7 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		fpl->append(welt->lookup(pos1), start_location == 0 ? 100 : 0);
 		fpl->append(welt->lookup(pos2), start_location == 1 ? 100 : 0);
 		fpl->aktuell = start_location;
-		linehandle_t line=simlinemgmt.create_line(simline_t::truckline,fpl);
+		linehandle_t line=simlinemgmt.create_line(simline_t::truckline,this,fpl);
 		delete fpl;
 
 		// now create all vehicles as convois

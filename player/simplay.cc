@@ -811,7 +811,7 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 
 	// linemanagement
 	if(file->get_version()>=88003) {
-		simlinemgmt.rdwr(welt,file);
+		simlinemgmt.rdwr(welt,file,this);
 	}
 }
 

@@ -92,7 +92,7 @@ public:
 	void set_text(const char * text);
 
 	/**
-	 * Set text to position
+	 * Get/Set text to position
 	 * @author prissi
 	 */
 	void set_targetpos(const koord k ) { this->targetpos.x = k.x; this->targetpos.y = k.y; }

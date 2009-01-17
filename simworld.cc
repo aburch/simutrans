@@ -3520,7 +3520,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 	// @author hsiegeln
 	if (file->get_version() > 82003  &&  file->get_version()<88003) {
 		DBG_MESSAGE("karte_t::laden()", "load linemanagement");
-		get_spieler(0)->simlinemgmt.rdwr(this, file);
+		get_spieler(0)->simlinemgmt.rdwr(this, file, get_spieler(0));
 	}
 	// end load linemanagement
 

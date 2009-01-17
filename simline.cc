@@ -16,7 +16,7 @@ karte_t *simline_t::welt=NULL;
 
 
 
-simline_t::simline_t(simlinemgmt_t* simlinemgmt, schedule_t* fpl)
+simline_t::simline_t(simlinemgmt_t* simlinemgmt, schedule_t* fpl, spieler_t* sp)
 {
 	welt = simlinemgmt->get_welt();
 	self = linehandle_t(this);
@@ -26,6 +26,7 @@ simline_t::simline_t(simlinemgmt_t* simlinemgmt, schedule_t* fpl)
 	sprintf(this->name, "%s (%02d)", translator::translate("Line"), i);
 	this->fpl = fpl;
 	this->old_fpl = new schedule_t(fpl);
+	this->sp = sp;
 	this->id = i;
 	this->state_color = COL_WHITE;
 	type = simline_t::line;
@@ -35,7 +36,7 @@ DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,fahrplan_t)","create with 
 
 
 
-simline_t::simline_t(karte_t* welt, loadsave_t* file)
+simline_t::simline_t(karte_t* welt, loadsave_t* file, spieler_t* sp)
 {
 	self = linehandle_t(this);
 	init_financial_history();
@@ -43,6 +44,7 @@ simline_t::simline_t(karte_t* welt, loadsave_t* file)
 DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,loadsave_t)","load line id=%d",id);
 	this->welt = welt;
 	this->old_fpl = new schedule_t(fpl);
+	this->sp = sp;
 }
 
 

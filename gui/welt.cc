@@ -386,7 +386,7 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		knr = sets->get_karte_nummer();	// otherwise using cancel would not show the normal generated map again
 	}
 	else if(komp==&use_intro_dates) {
-		sets->set_use_timeline( !sets->get_use_timeline() );
+		sets->set_use_timeline( !(sets->get_use_timeline()&1) );
 	}
 	else if(komp==&allow_player_change) {
 		sets->set_allow_player_change( !sets->get_allow_player_change() );
@@ -445,7 +445,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 			sets->heightfield = "";
 		}
 	}
-	use_intro_dates.pressed = sets->get_use_timeline();
+	use_intro_dates.pressed = sets->get_use_timeline()&1;
 	allow_player_change.pressed = sets->get_allow_player_change();
 	use_beginner_mode.pressed = sets->get_beginner_mode();
 

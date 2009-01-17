@@ -19,6 +19,8 @@
 #include "../dataobj/warenziel.h"
 #include "../dataobj/translator.h"
 
+#include "schedule_list.h"
+
 #include "halt_detail.h"
 
 
@@ -53,6 +55,7 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	scrolly.set_groesse(get_fenstergroesse() + koord(-1, -17));
 
 	add_komponente(&scrolly);
+	cached_active_player=NULL;
 }
 
 
@@ -76,6 +79,16 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 
 	while(!posbuttons.empty()) {
 		button_t *b = posbuttons.remove_first();
+		cont.remove_komponente( b );
+		delete b;
+	}
+	while(!linelabels.empty()) {
+		gui_label_t *l = linelabels.remove_first();
+		cont.remove_komponente( l );
+		delete l;
+	}
+	while(!linebuttons.empty()) {
+		button_t *b = linebuttons.remove_first();
 		cont.remove_komponente( b );
 		delete b;
 	}
@@ -165,8 +178,21 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 		offset_y += LINESPACE;
 
 		for (unsigned int i = 0; i<halt->registered_lines.get_count(); i++) {
-			buf.append(" ");
-			buf.append(halt->registered_lines[i]->get_name());
+			// Line buttons only if owner ...
+			if (halt->get_welt()->get_active_player()==halt->registered_lines[i]->get_besitzer()) {
+				button_t *b = new button_t();
+				b->init( button_t::posbutton, NULL, koord(10, offset_y) );
+				b->set_targetpos( koord(-1,i) );
+				b->add_listener( this );
+				linebuttons.append( b );
+				cont.add_komponente( b );
+			}
+
+			// Line labels with color of player
+			gui_label_t *l = new gui_label_t(halt->registered_lines[i]->get_name(),PLAYER_FLAG|(halt->registered_lines[i]->get_besitzer()->get_player_color1()+0));
+			l->set_pos( koord(26, offset_y) );
+			linelabels.append( l );
+			cont.add_komponente( l );
 			buf.append("\n");
 			offset_y += LINESPACE;
 		}
@@ -322,11 +348,28 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 
 
 
-bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
+bool halt_detail_t::action_triggered( gui_action_creator_t *ac, value_t extra)
 {
 	if(extra.i&~1) {
 		koord k = *(const koord *)extra.p;
-		halt->get_welt()->change_world_position( koord3d(k,halt->get_welt()->max_hgt(k)) );
+		if(k.x>=0) {
+			// goto button pressed
+			halt->get_welt()->change_world_position( koord3d(k,halt->get_welt()->max_hgt(k)) );
+		}
+		else {
+			// Line button pressed.
+			uint16 j=k.y;
+			if(  j < halt->registered_lines.get_count()  ) {
+				linehandle_t line=halt->registered_lines[j];
+				spieler_t *sp=halt->get_welt()->get_active_player();
+				if(  sp==line->get_besitzer()  ) {
+					//TODO:
+					// Change player => change marked lines
+					sp->simlinemgmt.show_lineinfo(sp,line);
+					halt->get_welt()->set_dirty();
+				}
+			}
+		}
 	}
 	return true;
 }
@@ -336,10 +379,11 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
 void halt_detail_t::zeichnen(koord pos, koord gr)
 {
 	if(halt.is_bound()) {
-		if(halt->get_rebuild_destination_counter()!=destination_counter) {
+		if(halt->get_rebuild_destination_counter()!=destination_counter || cached_active_player!=halt->get_welt()->get_active_player()) {
 			// fill buffer with halt detail
 			halt_detail_info(cb_info_buffer);
 			txt_info.set_text(cb_info_buffer);
+			cached_active_player=halt->get_welt()->get_active_player();
 		}
 	}
 	gui_frame_t::zeichnen( pos, gr );

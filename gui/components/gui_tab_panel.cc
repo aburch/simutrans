@@ -20,7 +20,7 @@
 
 gui_tab_panel_t::gui_tab_panel_t()
 {
-    active_tab = 0;
+	active_tab = 0;
 }
 
 
@@ -106,9 +106,10 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 				display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, COL_WHITE, true);
 			}
 			else {
-				display_color_img( i->img->get_nummer(), text_x - i->img->get_pic()->x + (IMG_WIDTH/2) - (i->img->get_pic()->w/2), ypos - i->img->get_pic()->y + 10 - (i->img->get_pic()->h/2), 0, false, true);
+				display_img_blend( i->img->get_nummer(), text_x - i->img->get_pic()->x + (IMG_WIDTH/2) - (i->img->get_pic()->w/2), ypos - i->img->get_pic()->y + 10 - (i->img->get_pic()->h/2), TRANSPARENT50_FLAG, false, true);
 			}
-		} else {
+		}
+		else {
 			display_fillbox_wh_clip(text_x-3, ypos+3, width+5, 1, MN_GREY4, true);
 
 			display_vline_wh_clip(text_x-4, ypos+4, 13, MN_GREY4, true);

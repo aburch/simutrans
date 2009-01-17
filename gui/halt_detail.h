@@ -12,6 +12,7 @@
 
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
+#include "components/gui_label.h"
 
 #include "../halthandle_t.h"
 #include "../utils/cbuffer_t.h"
@@ -32,6 +33,7 @@ class halt_detail_t : public gui_frame_t, action_listener_t
 private:
 	halthandle_t halt;
 	uint8 destination_counter;	// last destination counter of the halt; if mismatch to current, then redraw destinations
+	spieler_t *cached_active_player; // So that, if different from current, change line links
 
 	gui_container_t cont;
 	gui_scrollpane_t scrolly;
@@ -40,6 +42,8 @@ private:
 	cbuffer_t cb_info_buffer;
 
 	slist_tpl<button_t *>posbuttons;
+	slist_tpl<gui_label_t *>linelabels;
+	slist_tpl<button_t *>linebuttons;
 
 public:
 	halt_detail_t(halthandle_t halt);

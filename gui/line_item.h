@@ -16,6 +16,7 @@ private:
 public:
 	line_scrollitem_t( linehandle_t l ) : gui_scrolled_list_t::scrollitem_t( COL_ORANGE ) { line = l; }
 	COLOR_VAL get_color() { return line->get_state_color(); }
+	linehandle_t get_line() const { return line; }
 	void set_color(COLOR_VAL col) { assert(false); }
 	virtual const char *get_text() { return line->get_name(); }
 	virtual void set_text(char *t) { tstrncpy( line->get_name(), t, 128 ); }

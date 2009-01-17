@@ -407,7 +407,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	fpl->append( welt->lookup_kartenboden(start_pos), 0, 0 );
 	fpl->append( welt->lookup_kartenboden(end_pos), 90, 0 );
 	fpl->aktuell = 1;
-	linehandle_t line=simlinemgmt.create_line(simline_t::shipline,fpl);
+	linehandle_t line=simlinemgmt.create_line(simline_t::shipline,this,fpl);
 	delete fpl;
 
 	// now create one plane
@@ -731,7 +731,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 	fpl->append( start, 0, 0 );
 	fpl->append( end, 90, 0 );
 	fpl->aktuell = 1;
-	linehandle_t line=simlinemgmt.create_line(simline_t::airline,fpl);
+	linehandle_t line=simlinemgmt.create_line(simline_t::airline,this,fpl);
 	delete fpl;
 
 	// now create one plane
@@ -776,7 +776,7 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",st
 		fpl->append(welt->lookup(stops[j])->get_kartenboden(), j == 0 || !do_wait ? 0 : 10);
 	}
 	fpl->aktuell = (stops[0]==startpos2d);
-	linehandle_t line=simlinemgmt.create_line(simline_t::truckline,fpl);
+	linehandle_t line=simlinemgmt.create_line(simline_t::truckline,this,fpl);
 	delete fpl;
 
 	// now create all vehicles as convois
@@ -887,7 +887,7 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 
 	// and init all stuff for recursion
 	grund_t *start = welt->lookup_kartenboden(start_pos);
-	linehandle_t line = simlinemgmt.create_line( simline_t::truckline, new autofahrplan_t() );
+	linehandle_t line = simlinemgmt.create_line( simline_t::truckline,this, new autofahrplan_t() );
 	line->get_schedule()->append(start,0);
 
 	// now create a line

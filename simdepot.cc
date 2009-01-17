@@ -444,7 +444,7 @@ slist_tpl<const vehikel_besch_t*>* depot_t::get_vehicle_type()
 linehandle_t
 depot_t::create_line()
 {
-	return get_besitzer()->simlinemgmt.create_line(get_line_type());
+	return get_besitzer()->simlinemgmt.create_line(get_line_type(),get_besitzer());
 }
 
 

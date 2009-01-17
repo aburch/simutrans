@@ -108,6 +108,12 @@ public:
 	* V.Meyer
 	*/
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+
+	/**
+	 * Select line and show its info
+	 * @author isidoro
+	 */
+	void show_lineinfo(linehandle_t line);
 };
 
 #endif
