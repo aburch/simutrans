@@ -886,6 +886,8 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 				if(d==NULL) {
 					break;
 				}
+				// we must mark it by hand, sinc ewe want to join costs
+				mark_image_dirty( get_bild(), 0 );
 				delete d;
 				cost -= welt->get_einstellungen()->cst_remove_tree;
 			}
