@@ -39,11 +39,11 @@ void message_stats_t::infowin_event(const event_t * ev)
 {
 	message_selected = -1;
 	if(  ev->button_state>0  &&  ev->cx>=2  &&  ev->cx<=12  ) {
-		message_selected = (ev->cy-15)/14;
+		message_selected = ev->cy/14;
 	}
 
 	if(IS_LEFTRELEASE(ev)) {
-		sint32 line = (ev->cy-15)/14;
+		sint32 line = ev->cy/14;
 		if(  (uint32)line<msg->get_count()  ) {
 			message_t::node *n=msg->get_node(line);
 			if(n) {
@@ -66,7 +66,7 @@ void message_stats_t::infowin_event(const event_t * ev)
 	}
 	else if (IS_RIGHTRELEASE(ev)) {
 		// just reposition
-		sint32 line = (ev->cy-15)/14;
+		sint32 line = ev->cy/14;
 		if(  (uint32)line<msg->get_count()  ) {
 			message_t::node *n=msg->get_node(line);
 			if(n  &&  welt->ist_in_kartengrenzen(n->pos)  ) {
@@ -92,21 +92,18 @@ void message_stats_t::zeichnen(koord offset)
 {
 	const image_id arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
 	struct clip_dimension cd = display_get_clip_wh();
-	const int offsets = (cd.y-offset.y+13)/14;
-	int max_message = (cd.yy-offset.y-13)/14;
+	const int offsets = (cd.y-offset.y)/14;
+	int max_message = (cd.yy-offset.y)/14+1;
 	if(max_message>msg->get_count()) {
 		max_message = msg->get_count();
 	}
 
 	for( int i=offsets;  i<max_message;  i++  ) {
 
-		if(offset.y+i*14<cd.y) {
-			// reached the top
+		const sint16 y = offset.y+i*14;
+		if(y+14<cd.y) {
+			// below the top
 			continue;
-		}
-		if(offset.y+i*14+15>cd.yy) {
-			// reached the bottom
-			break;
 		}
 
 		message_t::node *n=msg->get_node(i);
@@ -119,11 +116,11 @@ DBG_MESSAGE("message_stats_t::zeichnen()","invalid message %i",i);
 		// goto information
 		if(n->pos!=koord::invalid) {
 			if(message_selected!=i) {
-				display_color_img(arrow_right_normal, offset.x + 2, 15+offset.y+i*14, 0, false, true);
+				display_color_img(arrow_right_normal, offset.x + 2, y, 0, false, true);
 			}
 			else {
 				// select goto button
-				display_color_img(skinverwaltung_t::window_skin->get_bild(11)->get_nummer(), offset.x + 2, 15+offset.y+i*14, 0, false, true);
+				display_color_img(skinverwaltung_t::window_skin->get_bild(11)->get_nummer(), offset.x + 2, y, 0, false, true);
 			}
 		}
 
@@ -135,6 +132,6 @@ DBG_MESSAGE("message_stats_t::zeichnen()","invalid message %i",i);
 			}
 		}
 		// display text with clipping
-		display_proportional_clip(offset.x+4+10, 15+offset.y+i*14, buf, ALIGN_LEFT, n->color,true);
+		display_proportional_clip(offset.x+4+10, y, buf, ALIGN_LEFT, n->color,true);
 	}
 }

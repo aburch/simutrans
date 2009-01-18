@@ -27,6 +27,7 @@ message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t("Mailbox"),
 {
 	this->welt = welt;
 
+	scrolly.set_pos( koord(0,BUTTON_HEIGHT) );
 	add_komponente(&scrolly);
 
 	option_bt.init(button_t::box, translator::translate("Optionen"), koord(BUTTON1_X,0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
@@ -51,7 +52,7 @@ message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t("Mailbox"),
 void message_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = get_fenstergroesse()-koord(0,16);
+	koord groesse = get_fenstergroesse()-koord(0,16+BUTTON_HEIGHT);
 	scrolly.set_groesse(groesse);
 }
 
