@@ -21,8 +21,8 @@
  */
 class obj_besch_t {
 
- protected:
-    obj_besch_t *get_child(int i) const { return node_info[i]; }
+protected:
+	obj_besch_t *get_child(int i) const { return node_info[i]; }
 
 	/*
 	 * Internal Node information - the derived class knows,

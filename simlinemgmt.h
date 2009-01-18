@@ -26,8 +26,8 @@ class schedule_list_gui_t;
 class simlinemgmt_t
 {
 public:
- 	simlinemgmt_t(karte_t* welt);
- 	~simlinemgmt_t();
+	simlinemgmt_t(karte_t* welt);
+	~simlinemgmt_t();
 
 	void zeige_info(spieler_t *);
 
@@ -35,13 +35,13 @@ public:
 	 * add a line
 	 * @author hsiegeln
 	 */
- 	void add_line(linehandle_t new_line);
+	void add_line(linehandle_t new_line);
 
 	/*
 	 * delete a line
 	 * @author hsiegeln
 	 */
- 	bool delete_line(linehandle_t line);
+	bool delete_line(linehandle_t line);
 
 	/*
 	 * update a line -> apply updated fahrplan to all convoys
@@ -55,19 +55,19 @@ public:
 	*/
 	linehandle_t get_line_by_id(uint16 line);
 
- 	/*
- 	 * load or save the linemanagement
- 	 */
- 	void rdwr(karte_t * welt, loadsave_t * file, spieler_t * sp);
+	/*
+	 * load or save the linemanagement
+	 */
+	void rdwr(karte_t * welt, loadsave_t * file, spieler_t * sp);
 
- 	/*
- 	 * sort the lines by name
- 	 */
+	/*
+	 * sort the lines by name
+	 */
 	void sort_lines();
 
- 	/*
- 	 * will register all stops for all lines
- 	 */
+	/*
+	 * will register all stops for all lines
+	 */
 	void register_all_stops();
 
 	/*
@@ -87,9 +87,16 @@ public:
 	void new_month();
 
 	/**
+	 * creates a line with an empty schedule
 	 * @author hsiegeln
 	 */
-	linehandle_t create_line(int ltype, spieler_t * sp, schedule_t * fpl=NULL);
+	linehandle_t create_line(int ltype, spieler_t * sp);
+
+	/**
+	 * Creates a line and sets its schedule
+	 * @author prissi
+	 */
+	linehandle_t create_line(int ltype, spieler_t * sp, schedule_t * fpl);
 
 	/*
 	 * fill the list with all lines of a certain type
@@ -105,12 +112,12 @@ public:
 	 */
 	void show_lineinfo(spieler_t *sp, linehandle_t line);
 
- private:
+private:
 	static uint8 used_ids[8192];
 
 	vector_tpl<linehandle_t> all_managed_lines;
 
-	karte_t * welt;
+	static karte_t * welt;
 
 	schedule_list_gui_t *schedule_list_gui;  // Use with caution.  Valid only afer zeige_info
 };

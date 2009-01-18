@@ -1676,8 +1676,9 @@ convoi_t::rdwr(loadsave_t *file)
 		// but no vehicle so we can't determine the exact type of
 		// schedule needed. This hack is safe because convois
 		// without vehicles get deleted right after loading.
+		// Since generic schedules are not allowed, we use a zugfahrplan_t
 		if(fpl == 0) {
-			fpl = new schedule_t();
+			fpl = new zugfahrplan_t();
 		}
 
 		// Hajo: now read the schedule, we have one for sure here
@@ -2330,7 +2331,7 @@ void convoi_t::set_line(linehandle_t org_line)
 	}
 	line = org_line;
 	line_id = org_line->get_line_id();
-	schedule_t *new_fpl= new schedule_t( org_line->get_schedule() );
+	schedule_t *new_fpl= org_line->get_schedule()->copy();
 	set_schedule(new_fpl);
 	line->add_convoy(self);
 }
@@ -2437,7 +2438,7 @@ void convoi_t::check_pending_updates()
 			destroy_win((long)fpl);
 		}
 		delete fpl;
-		fpl = new schedule_t(line->get_schedule());
+		fpl = line->get_schedule()->copy();
 		fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
 		if(state!=INITIAL) {
 			state = FAHRPLANEINGABE;

@@ -19,6 +19,7 @@
 
 uint8 simlinemgmt_t::used_ids[8192];
 
+karte_t *simlinemgmt_t::welt = NULL;
 
 void simlinemgmt_t::init_line_ids()
 {
@@ -144,16 +145,19 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 			file->rdwr_enum(lt, "\n");
 			simline_t * line;
 			switch(lt) {
-				case simline_t::truckline:    line = new truckline_t(   welt, file, sp); break;
-				case simline_t::trainline:    line = new trainline_t(   welt, file, sp); break;
-				case simline_t::shipline:     line = new shipline_t(    welt, file, sp); break;
-				case simline_t::airline:      line = new airline_t(     welt, file, sp); break;
-				case simline_t::monorailline: line = new monorailline_t(welt, file, sp); break;
-				case simline_t::tramline:     line = new tramline_t(    welt, file, sp); break;
-				case simline_t::maglevline:   line = new maglevline_t(  welt, file, sp); break;
-				case simline_t::narrowgaugeline:line = new narrowgaugeline_t(welt, file, sp); break;
-				default:                      line = new simline_t(     welt, file, sp); break;
+				case simline_t::truckline:    line = new truckline_t(   welt, sp); break;
+				case simline_t::trainline:    line = new trainline_t(   welt, sp); break;
+				case simline_t::shipline:     line = new shipline_t(    welt, sp); break;
+				case simline_t::airline:      line = new airline_t(     welt, sp); break;
+				case simline_t::monorailline: line = new monorailline_t(welt, sp); break;
+				case simline_t::tramline:     line = new tramline_t(    welt, sp); break;
+				case simline_t::maglevline:   line = new maglevline_t(  welt, sp); break;
+				case simline_t::narrowgaugeline:line = new narrowgaugeline_t(welt, sp); break;
+				default:
+					// line = new simline_t(     welt, sp); break;
+					dbg->fatal( "simlinemgmt_t::create_line()", "Cannot create default line!" );
 			}
+			line->rdwr(file);
 			add_line(line->self);
 		}
 	}
@@ -234,49 +238,59 @@ void simlinemgmt_t::new_month()
 
 
 linehandle_t
-simlinemgmt_t::create_line(int ltype, spieler_t * sp, schedule_t * fpl)
+simlinemgmt_t::create_line(int ltype, spieler_t * sp)
 {
 	simline_t * line = NULL;
-	DBG_MESSAGE("simlinemgmt_t::create_line()", "fpl is of type %i", ltype);
 	switch (ltype) {
 		case simline_t::truckline:
-			line = new truckline_t(this, new autofahrplan_t(fpl), sp);
+			line = new truckline_t(welt, sp);
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "truckline created");
 			break;
 		case simline_t::trainline:
-			line = new trainline_t(this, new zugfahrplan_t(fpl), sp);
+			line = new trainline_t(welt, sp);
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "trainline created");
 			break;
 		case simline_t::shipline:
-			line = new shipline_t(this, new schifffahrplan_t(fpl), sp);
+			line = new shipline_t(welt, sp);
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "shipline created");
 			break;
 		case simline_t::airline:
-			line = new airline_t(this, new airfahrplan_t(fpl), sp);
+			line = new airline_t(welt, sp);
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "airline created");
 			break;
 		case simline_t::monorailline:
-			line = new monorailline_t(this, new monorailfahrplan_t(fpl), sp);
+			line = new monorailline_t(welt, sp);
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "monorailline created");
 			break;
 		case simline_t::tramline:
-			line = new tramline_t(this, new tramfahrplan_t(fpl), sp);
+			line = new tramline_t(welt, sp);
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "tramline created");
 			break;
 		case simline_t::maglevline:
-			line = new maglevline_t(this, new maglevfahrplan_t(fpl), sp);
+			line = new maglevline_t(welt, sp);
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "maglevline created");
 			break;
 		case simline_t::narrowgaugeline:
-			line = new narrowgaugeline_t(this, new narrowgaugefahrplan_t(fpl), sp);
+			line = new narrowgaugeline_t(welt, sp);
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "narrowgaugeline created");
 			break;
 		default:
-		    line = new simline_t(this, new schedule_t(fpl), sp);
-			DBG_MESSAGE("simlinemgmt_t::create_line()", "default line created");
+			dbg->fatal( "simlinemgmt_t::create_line()", "Cannot create default line!" );
 			break;
 	}
 	return line->self;
+}
+
+
+
+linehandle_t
+simlinemgmt_t::create_line(int ltype, spieler_t * sp, schedule_t * fpl)
+{
+	linehandle_t line = create_line( ltype, sp );
+	if(fpl) {
+		line->get_schedule()->copy_from(fpl);
+	}
+	return line;
 }
 
 

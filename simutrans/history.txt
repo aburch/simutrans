@@ -9,7 +9,7 @@
 	FIX: mark deleted trees dirty when building roads
 	CHANGE: message window now obeys also Simutrans UI (array/rightclick for goto on map, leftclik on text to show again)
 	CHANGE: inactive tabs nor greyed out
-	ADD: got line also in convoi info window
+	ADD: goto line also in convoi info window
 
 
 

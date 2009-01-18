@@ -19,7 +19,7 @@
 
 warenziel_t::warenziel_t(loadsave_t *file)
 {
-  rdwr(file);
+	rdwr(file);
 }
 
 
@@ -39,6 +39,5 @@ warenziel_t::rdwr(loadsave_t *file)
 		file->rdwr_str(tn,256);
 		halt = halthandle_t();
 		catg_index = warenbauer_t::get_info(tn)->get_catg_index();
-		guarded_free(const_cast<char *>(tn));
 	}
 }

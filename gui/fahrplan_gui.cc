@@ -501,7 +501,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			line_selector.set_selection( 0 );
 		}
 	} else if (komp == &bt_promote_to_line) {
-		new_line = sp->simlinemgmt.create_line(fpl->get_type(), sp,this->fpl);
+		new_line = sp->simlinemgmt.create_line(fpl->get_type(), sp, this->fpl);
 		init_line_selector();
 	}
 	// recheck lines

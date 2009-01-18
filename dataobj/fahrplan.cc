@@ -40,14 +40,9 @@ void schedule_t::init()
 
 
 
-schedule_t::schedule_t()
-{
-	init();
-}
-
-
 schedule_t::schedule_t(schedule_t * old)
 {
+	assert(0);	//obsolete!
 	if (old == NULL) {
 		init();
 	}
@@ -112,7 +107,29 @@ void schedule_t::copy_from(const schedule_t *src)
 
 bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
 {
-	return gr->hat_weg(my_waytype);
+	// first: check, if we can go here
+	bool ok = gr->hat_weg(my_waytype);
+	if(  !ok  ) {
+		if(  my_waytype==air_wt  ) {
+			// everywhere is ok but not on stops (we have to load at airports only ...)
+			ok = !gr->get_halt().is_bound();
+		}
+		else if(  my_waytype==water_wt  &&  gr->get_typ()==grund_t::wasser  ) {
+			ok = true;
+		}
+		else if(  my_waytype==tram_wt  ) {
+			// tram rails are track iternally
+			ok = gr->hat_weg(track_wt);
+		}
+	}
+
+	if(  ok  ) {
+		// ok, we can go here; but we must also check, that we are not entring a foreign depot
+		depot_t *dp = gr->get_depot();
+		ok &=  (dp==NULL  ||  dp->get_tile()->get_besch()->get_extra()==my_waytype);
+	}
+
+	return ok;
 }
 
 
@@ -357,89 +374,3 @@ void schedule_t::add_return_way()
 		}
 	}
 }
-
-
-bool
-zugfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
-{
-DBG_MESSAGE("zugfahrplan_t::ist_halt_erlaubt()","Checking for stop");
-	if(!gr->hat_weg(track_wt)) {
-		// no track
-		return false;
-	}
-DBG_MESSAGE("zugfahrplan_t::ist_halt_erlaubt()","track ok");
-	const depot_t *dp = gr->get_depot();
-	if(dp==NULL) {
-		// empty track => ok
-		return true;
-	}
-	// test for no street depot (may happen with trams)
-	if(dp->get_tile()->get_besch()->get_extra()!=track_wt) {
-		return false;
-	}
-	return true;
-}
-
-
-bool
-tramfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
-{
-DBG_MESSAGE("tramfahrplan_t::ist_halt_erlaubt()","Checking for stop");
-	if(!(gr->hat_weg(track_wt)  ||  gr->hat_weg(tram_wt))) {
-		// no track
-		return false;
-	}
-DBG_MESSAGE("tramfahrplan_t::ist_halt_erlaubt()","track ok");
-	const depot_t *dp = gr->get_depot();
-	if(dp==NULL) {
-		// empty track => ok
-		return true;
-	}
-	// test for no street depot (may happen with trams)
-	if(dp->get_tile()->get_besch()->get_extra()!=tram_wt) {
-		return false;
-	}
-	return true;
-}
-
-
-bool
-autofahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
-{
-	if(!gr->hat_weg(road_wt)) {
-		// no road
-		return false;
-	}
-	const depot_t *gb = gr->get_depot();
-	if(gb==NULL) {
-		// empty road => ok
-		return true;
-	}
-	// test for no railway depot (may happen with trams)
-	if(gb->get_tile()->get_besch()->get_extra()!=road_wt) {
-		return false;
-	}
-	return true;
-}
-
-
-bool
-schifffahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
-{
-    return gr!=NULL &&  (gr->ist_wasser()  ||  gr->hat_weg(water_wt));
-}
-
-
-bool
-airfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
-{
-	// since we go above everything, we must make sure, that there are no waypoints on foreign depots and halts
-	const depot_t *gb = gr->get_depot();
-	if(gb!=NULL  &&  gb->get_tile()->get_besch()->get_extra()!=air_wt) {
-		return false;
-	}
-	bool hat_halt = haltestelle_t::get_halt(gr->get_welt(),gr->get_pos().get_2d()).is_bound();
-	return hat_halt ? gr->hat_weg(air_wt) : true;
-}
-
-

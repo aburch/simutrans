@@ -16,34 +16,14 @@ karte_t *simline_t::welt=NULL;
 
 
 
-simline_t::simline_t(simlinemgmt_t* simlinemgmt, schedule_t* fpl, spieler_t* sp)
-{
-	welt = simlinemgmt->get_welt();
-	self = linehandle_t(this);
-	init_financial_history();
-	const int i = simlinemgmt->get_unique_line_id();
-	memset(this->name, 0, 128);
-	sprintf(this->name, "%s (%02d)", translator::translate("Line"), i);
-	this->fpl = fpl;
-	this->old_fpl = new schedule_t(fpl);
-	this->sp = sp;
-	this->id = i;
-	this->state_color = COL_WHITE;
-	type = simline_t::line;
-	simlinemgmt->add_line(self);
-DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,fahrplan_t)","create with %d (unique %d)",self.get_id(),get_line_id());
-}
-
-
-
-simline_t::simline_t(karte_t* welt, loadsave_t* file, spieler_t* sp)
+simline_t::simline_t(karte_t* welt, spieler_t* sp)
 {
 	self = linehandle_t(this);
 	init_financial_history();
-	rdwr(file);
 DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,loadsave_t)","load line id=%d",id);
 	this->welt = welt;
-	this->old_fpl = new schedule_t(fpl);
+	this->old_fpl = NULL;
+	this->fpl = NULL;
 	this->sp = sp;
 }
 
@@ -51,9 +31,8 @@ DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,loadsave_t)","load line id
 
 simline_t::~simline_t()
 {
-	int count = count_convoys() - 1;
-	for (int i = count; i>=0; i--)
-	{
+	sint32 count = count_convoys() - 1;
+	for(  sint32 i = count;  i>=0;  i--  ) 	{
 		DBG_DEBUG("simline_t::~simline_t()", "convoi '%d' removed", i);
 		DBG_DEBUG("simline_t::~simline_t()", "convoi '%d'->fpl=%p", i, get_convoy(i)->get_schedule());
 
@@ -65,8 +44,8 @@ simline_t::~simline_t()
 
 	DBG_DEBUG("simline_t::~simline_t()", "deleting fpl=%p and old_fpl=%p", fpl, old_fpl);
 
-	delete (fpl);
-	delete (old_fpl);
+	delete fpl;
+	delete old_fpl;
 
 	self.detach();
 
@@ -152,10 +131,7 @@ void simline_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t s( file, "simline_t" );
 
-	// only create a new fahrplan if we are loading a savegame!
-	if (file->is_loading()) {
-		fpl = new schedule_t();
-	}
+	assert(fpl);
 
 	file->rdwr_str(name, sizeof(name));
 	if(file->get_version()<88003) {
@@ -226,8 +202,10 @@ void simline_t::unregister_stops(schedule_t * fpl)
 
 void simline_t::renew_stops()
 {
-	unregister_stops(this->old_fpl);
-	register_stops(this->fpl);
+	if(  old_fpl  ) {
+		unregister_stops( old_fpl );
+	}
+	register_stops( fpl );
 	DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", id, name);
 }
 
@@ -253,8 +231,8 @@ void simline_t::new_month()
 void simline_t::prepare_for_update()
 {
 	DBG_DEBUG("simline_t::prepare_for_update()", "line %d (%p)", id, this);
-	delete (old_fpl);
-	this->old_fpl = new schedule_t(fpl);
+	delete old_fpl;
+	old_fpl = fpl->copy();
 }
 
 
