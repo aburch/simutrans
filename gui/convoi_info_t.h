@@ -16,6 +16,7 @@
 #include "components/gui_world_view_t.h"
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
+#include "../linehandle_t.h"
 
 #include "../utils/cbuffer_t.h"
 
@@ -51,6 +52,9 @@ private:
 	button_t details_button;
 	button_t toggler;
 
+	button_t line_button;	// got to line ...
+	bool line_bound;
+
 	convoihandle_t cnv;
 	sint32 mean_convoi_speed;
 	sint32 max_convoi_speed;
@@ -68,36 +72,36 @@ private:
 	static const char *sort_text[SORT_MODES];
 
 public:
-    convoi_info_t(convoihandle_t cnv);
+	convoi_info_t(convoihandle_t cnv);
 
-    /**
-     * Manche Fenster haben einen Hilfetext assoziiert.
-     * @return den Dateinamen für die Hilfe, oder NULL
-     * @author V. Meyer
-     */
-    const char * get_hilfe_datei() const {return "convoiinfo.txt"; }
+	/**
+	 * Manche Fenster haben einen Hilfetext assoziiert.
+	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * @author V. Meyer
+	 */
+	const char * get_hilfe_datei() const {return "convoiinfo.txt"; }
 
-    /**
-     * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-     * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-     * in dem die Komponente dargestellt wird.
-     * @author Hj. Malthaner
-     */
-    void zeichnen(koord pos, koord gr);
+	/**
+	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
+	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
+	 * in dem die Komponente dargestellt wird.
+	 * @author Hj. Malthaner
+	 */
+	void zeichnen(koord pos, koord gr);
 
-    /**
-     * resize window in response to a resize event
-     * @author Hj. Malthaner
-     */
-    void resize(const koord delta);
+	/**
+	 * resize window in response to a resize event
+	 * @author Hj. Malthaner
+	 */
+	void resize(const koord delta);
 
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     *
-     * Returns true, if action is done and no more
-     * components should be triggered.
-     * V.Meyer
-     */
-    bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	/**
+	 * This method is called if an action is triggered
+	 * @author Hj. Malthaner
+	 *
+	 * Returns true, if action is done and no more
+	 * components should be triggered.
+	 * V.Meyer
+	 */
+	bool action_triggered( gui_action_creator_t *komp, value_t extra);
 };

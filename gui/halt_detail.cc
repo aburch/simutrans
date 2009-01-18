@@ -29,10 +29,10 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	halt(halt_),
 	scrolly(&cont),
 	txt_info(" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-       " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-       " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-       " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-       " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"),
+		" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
+		" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
+		" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
+		" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"),
 	cb_info_buffer(8192)
 {
 	cont.add_komponente(&txt_info);

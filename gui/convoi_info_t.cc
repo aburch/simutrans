@@ -47,35 +47,35 @@ bool convoi_info_t::route_search_in_progress=false;
 /**
  * This variable defines by which column the table is sorted
  * Values: 0 = destination
- *         1 = via
- *         2 = via_amount
- *         3 = amount
+ *                 1 = via
+ *                 2 = via_amount
+ *                 3 = amount
  * @author prissi
  */
 const char *convoi_info_t::sort_text[SORT_MODES] = {
-  "Zielort",
-  "via",
-  "via Menge",
-  "Menge"
+	"Zielort",
+	"via",
+	"via Menge",
+	"Menge"
 };
 
 const int cost_type_color[MAX_CONVOI_COST] =
 {
-  COL_FREE_CAPACITY, COL_TRANSPORTED, COL_REVENUE, COL_OPERATION, COL_PROFIT
+	COL_FREE_CAPACITY, COL_TRANSPORTED, COL_REVENUE, COL_OPERATION, COL_PROFIT
 };
 
 
 convoi_info_t::convoi_info_t(convoihandle_t cnv)
-: gui_frame_t(cnv->get_name(), cnv->get_besitzer()),
-  scrolly(&text),
-  text(" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-       " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-       " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-       " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-       " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"),
-  view(cnv->get_vehikel(0)),
-  sort_label(translator::translate("loaded passenger/freight")),
-  freight_info(8192)
+:	gui_frame_t(cnv->get_name(), cnv->get_besitzer()),
+	scrolly(&text),
+	text(" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
+			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
+			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
+			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
+			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"),
+	view(cnv->get_vehikel(0)),
+	sort_label(translator::translate("loaded passenger/freight")),
+	freight_info(8192)
 {
 	this->cnv = cnv;
 	this->mean_convoi_speed = speed_to_kmh(cnv->get_akt_speed()*4);
@@ -124,6 +124,12 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	// we update this ourself!
 	route_bar.add_color_value(&cnv_route_index, COL_GREEN);
 	add_komponente(&route_bar);
+
+	// goto line button
+	line_button.init( button_t::posbutton, NULL, koord(10, 64) );
+	line_button.set_targetpos( koord(0,0) );
+	line_button.add_listener( this );
+	line_bound = false;
 
 	set_fenstergroesse(koord(TOTAL_WIDTH, 278));
 
@@ -201,6 +207,14 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 	}
 	else {
 		if(cnv->get_besitzer()==cnv->get_welt()->get_active_player()) {
+			if(  line_bound  &&  !cnv->get_line().is_bound()  ) {
+				remove_komponente( &line_button );
+				line_bound = false;
+			}
+			else if(  !line_bound  &&  cnv->get_line().is_bound()  ) {
+				add_komponente( &line_button );
+				line_bound = true;
+			}
 			button.enable();
 			go_home_button.pressed = route_search_in_progress;
 			if(  cnv->get_schedule()->maxi() > 0  ) {
@@ -219,6 +233,11 @@ enable_home:
 			no_load_button.enable();
 		}
 		else {
+			if(  line_bound  ) {
+				// do not jump to other player line window
+				remove_komponente( &line_button );
+				line_bound = false;
+			}
 			button.disable();
 			go_home_button.disable();
 			no_load_button.disable();
@@ -275,12 +294,13 @@ enable_home:
 		route_bar.set_groesse(koord(view.get_pos().x-offset-5, 4));
 
 		/*
-		* only show assigned line, if there is one!
-		* @author hsiegeln
-		*/
-		if (cnv->get_line().is_bound()) {
-			sint16 w = display_proportional( pos.x+11, pos.y+16+20+4*LINESPACE, translator::translate("Serves Line:"), ALIGN_LEFT, COL_BLACK, true );
-			display_proportional( pos.x+11+w+5, pos.y+16+20+4*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
+		 * only show assigned line, if there is one!
+		 * @author hsiegeln
+		 */
+		if(  cnv->get_line().is_bound()  ) {
+			sint16 add_off = line_bound*12;
+			sint16 w = display_proportional( pos.x+11+add_off, pos.y+16+20+4*LINESPACE, translator::translate("Serves Line:"), ALIGN_LEFT, COL_BLACK, true );
+			display_proportional( pos.x+11+w+5+add_off, pos.y+16+20+4*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
 		}
 	}
 }
@@ -310,6 +330,11 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		return true;
 	}
 
+	if(  komp == &line_button  ) {
+		cnv->get_besitzer()->simlinemgmt.show_lineinfo( cnv->get_besitzer(), cnv->get_line() );
+		cnv->get_welt()->set_dirty();
+	}
+
 	// sort by what
 	if(komp == &sort_button) {
 		// sort by what
@@ -326,7 +351,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			return true;
 		}
 
-		if(komp == &no_load_button  &&  !route_search_in_progress) {
+		if(komp == &no_load_button    &&    !route_search_in_progress) {
 			cnv->set_no_load(!cnv->get_no_load());
 			if(!cnv->get_no_load()) {
 				cnv->set_withdraw(false);
@@ -334,7 +359,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			return true;
 		}
 
-		if(komp == &go_home_button  &&  !route_search_in_progress) {
+		if(komp == &go_home_button    &&    !route_search_in_progress) {
 			// limit update to certain states that are considered to be save for fahrplan updates
 			int state = cnv->get_state();
 			if(state==convoi_t::FAHRPLANEINGABE) {
@@ -350,17 +375,17 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			koord3d home = koord3d(0,0,0);
 			while (depot_iter.next()) {
 				depot_t *depot = depot_iter.get_current();
-				if(depot->get_wegtyp()!=cnv->get_vehikel(0)->get_besch()->get_waytype()  ||  depot->get_besitzer()!=cnv->get_besitzer()) {
+				if(depot->get_wegtyp()!=cnv->get_vehikel(0)->get_besch()->get_waytype()    ||    depot->get_besitzer()!=cnv->get_besitzer()) {
 					continue;
 				}
 				koord3d pos = depot->get_pos();
-				if(!shortest_route->empty()  &&  abs_distance(pos.get_2d(),cnv->get_pos().get_2d())>=shortest_route->get_max_n()) {
+				if(!shortest_route->empty()    &&    abs_distance(pos.get_2d(),cnv->get_pos().get_2d())>=shortest_route->get_max_n()) {
 					// the current route is already shorter, no need to search further
 					continue;
 				}
-				bool found = cnv->get_vehikel(0)->calc_route(cnv->get_pos(), pos,  50, route); // do not care about speed
+				bool found = cnv->get_vehikel(0)->calc_route(cnv->get_pos(), pos,    50, route); // do not care about speed
 				if (found) {
-					if(  route->get_max_n() < shortest_route->get_max_n()  ||  shortest_route->empty()  ) {
+					if(  route->get_max_n() < shortest_route->get_max_n()    ||    shortest_route->empty()  ) {
 						shortest_route->kopiere(route);
 						home = pos;
 					}
@@ -408,18 +433,18 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 
 	for ( int i = 0; i<MAX_CONVOI_COST; i++) {
 		if (komp == &filterButtons[i]) {
-		  filterButtons[i].pressed = !filterButtons[i].pressed;
-		  if(filterButtons[i].pressed) {
-		    chart.show_curve(i);
-		  } else {
-		    chart.hide_curve(i);
-		  }
+			filterButtons[i].pressed = !filterButtons[i].pressed;
+			if(filterButtons[i].pressed) {
+				chart.show_curve(i);
+			} else {
+				chart.hide_curve(i);
+			}
 
-		  return true;
+			return true;
 		}
 	}
 
-  	return false;
+	return false;
 }
 
 
