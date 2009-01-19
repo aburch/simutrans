@@ -1119,7 +1119,12 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 		ribi_t::ribi add=(weg->get_ribi_unmasked()&rem);
 		sint32 costs = 0;
 
-		for(uint8 i=0;  i<get_top();  i++  ) {
+		for(  sint16 i=get_top();  i>=0;  i--  ) {
+			// we need to delete backwards, since we might miss things otherwise
+			if(  i>=get_top()  ) {
+				continue;
+			}
+
 			ding_t *d=obj_bei(i);
 			// do not delete ways
 			if(d->is_way()) {
@@ -1176,6 +1181,12 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 		if(add==ribi_t::keine) {
 			costs -= weg_entfernen(wt, true);
 			if(add==ribi_t::keine  &&  (flags&is_kartenboden)  &&  get_typ()==tunnelboden  &&  (flags&has_way1)==0) {
+				// remove tunnel portals
+				tunnel_t *t = find<tunnel_t>();
+				if(t) {
+					t->entferne(sp);
+					delete t;
+				}
 				// remove tunnelportal and set to normal ground
 				obj_loesche_alle( sp );
 				welt->access(pos.get_2d())->kartenboden_setzen( new boden_t( welt, pos, slope ) );
