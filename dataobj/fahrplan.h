@@ -141,7 +141,7 @@ public:
 class zugfahrplan_t : public schedule_t
 {
 public:
-	zugfahrplan_t() { init(); type = zugfahrplan; }
+	zugfahrplan_t() { init(); type = zugfahrplan; my_waytype=track_wt; }
 	zugfahrplan_t(loadsave_t* file) : schedule_t(file) { type = zugfahrplan; my_waytype=track_wt; }
 	schedule_t* copy() { schedule_t *s = new zugfahrplan_t(); s->copy_from(this); return s; }
 	const char *fehlermeldung() const { return "Zughalt muss auf\nSchiene liegen!\n"; }

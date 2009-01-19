@@ -278,6 +278,7 @@ simlinemgmt_t::create_line(int ltype, spieler_t * sp)
 			dbg->fatal( "simlinemgmt_t::create_line()", "Cannot create default line!" );
 			break;
 	}
+	add_line( line->self );
 	return line->self;
 }
 

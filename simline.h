@@ -101,9 +101,9 @@ public:
 
 	void set_line_id(uint32 id) {this->id=id;}
 
- 	/*
- 	 * load or save the line
- 	 */
+	/*
+	 * load or save the line
+	 */
 	void rdwr(loadsave_t * file);
 
 	/*
