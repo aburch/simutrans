@@ -1358,10 +1358,13 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 				// we will come later here again ...
 				break;
 			}
-			else if(plan_halt.is_bound()) {
+			else if(  plan_halt.is_bound()  &&  warray->get_count()>0  ) {
 
-				for(unsigned i=0;  i<warray->get_count();  i++ ) {
-					ware_t &tmp = (*warray)[i];
+				// The random offset will ensure that all goods have an equal chance to be loaded.
+				static uint32 offset = 0;
+				offset++;
+				for(  uint32 i=0;  i<warray->get_count();  i++  ) {
+					ware_t &tmp = (*warray)[ (i+offset) % warray->get_count() ];
 
 					// skip empty entries
 					if(tmp.menge==0) {

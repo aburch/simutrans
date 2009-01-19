@@ -55,7 +55,7 @@ static void MTgenerate(void)
 
 
 /* generates a random number on [0,0xffffffff]-interval */
-static uint32 simrand_plain(void)
+uint32 simrand_plain(void)
 {
 	uint32 y;
 
