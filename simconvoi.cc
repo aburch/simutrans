@@ -2135,12 +2135,12 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 	else {
 		// calculate real station length
 		koord zv = koord( ribi_t::rueckwaerts(fahr[0]->get_fahrtrichtung()) );
-		koord pos = fahr[0]->get_pos().get_2d();
-		const planquadrat_t *plan=welt->lookup(pos);
-		while(plan  &&  plan->get_halt()==halt) {
+		koord3d pos = fahr[0]->get_pos();
+		const grund_t *grund = welt->lookup(pos);
+		while(  grund  &&  grund->get_halt() == halt  ) {
 			station_lenght += TILE_STEPS;
 			pos += zv;
-			plan = welt->lookup(pos);
+			grund = welt->lookup(pos);
 		}
 	}
 
