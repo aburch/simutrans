@@ -19,7 +19,7 @@ karte_t *simline_t::welt=NULL;
 simline_t::simline_t(karte_t* welt, spieler_t* sp)
 {
 	self = linehandle_t(this);
-	sprintf( name, "(%i) Line", self.get_id() );
+	sprintf( name, "(%i) %s", self.get_id(), translator::translate("Line") );
 	init_financial_history();
 	this->welt = welt;
 	this->old_fpl = NULL;
