@@ -280,13 +280,7 @@ private:
 	* Berechne route von Start- zu Zielkoordinate
 	* @author Hanjsörg Malthaner
 	*/
-	int  drive_to(koord3d s, koord3d z);
-
-	/**
-	* Berechne route zum nächsten Halt
-	* @author Hanjsörg Malthaner
-	*/
-	void drive_to_next_stop();
+	int drive_to(koord3d s, koord3d z);
 
 	/**
 	* Setup vehicles for moving in same direction than before

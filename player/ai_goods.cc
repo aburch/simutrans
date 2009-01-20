@@ -318,7 +318,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	schedule_t *fpl=new schifffahrplan_t();
 	fpl->append( welt->lookup_kartenboden(best_pos), 0 );
 	fpl->append( welt->lookup(qfab->get_pos()), 100 );
-	fpl->aktuell = 1;
+	fpl->set_aktuell( 1 );
 	linehandle_t line=simlinemgmt.create_line(simline_t::shipline,this,fpl);
 	delete fpl;
 
@@ -377,7 +377,7 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		schedule_t *fpl=new autofahrplan_t();
 		fpl->append(welt->lookup(pos1), start_location == 0 ? 100 : 0);
 		fpl->append(welt->lookup(pos2), start_location == 1 ? 100 : 0);
-		fpl->aktuell = start_location;
+		fpl->set_aktuell( start_location );
 		linehandle_t line=simlinemgmt.create_line(simline_t::truckline,this,fpl);
 		delete fpl;
 
@@ -438,7 +438,7 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 
 	fpl = cnv->get_vehikel(0)->erzeuge_neuen_fahrplan();
 
-	fpl->aktuell = 0;
+	fpl->set_aktuell( 0 );
 	fpl->append(welt->lookup(pos1), ladegrad);
 	fpl->append(welt->lookup(pos2), 0);
 
@@ -521,7 +521,7 @@ bool ai_goods_t::create_simple_rail_transport()
 
 	bool ok=true;
 	// first: make plain stations tiles as intended
-	sint16 z1 = max( welt->get_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(platz1)->get_hoehe() );
+	sint8 z1 = max( welt->get_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(platz1)->get_hoehe() );
 	koord k = platz1;
 	koord diff1( sgn(size1.x), sgn(size1.y) );
 	koord perpend( sgn(size1.y), sgn(size1.x) );
@@ -541,7 +541,7 @@ bool ai_goods_t::create_simple_rail_transport()
 	}
 
 	// make the second ones flat ...
-	sint16 z2 = max( welt->get_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(platz2)->get_hoehe() );
+	sint8 z2 = max( welt->get_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(platz2)->get_hoehe() );
 	k = platz2;
 	perpend = koord( sgn(size2.y), sgn(size2.x) );
 	koord diff2( sgn(size2.x), sgn(size2.y) );
@@ -995,7 +995,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 						if(!lines.empty()) {
 							linehandle_t line = lines.back();
 							schedule_t *fpl=line->get_schedule();
-							if(fpl->maxi()>1  &&  haltestelle_t::get_halt(welt,fpl->eintrag[0].pos)==start_halt) {
+							if(fpl->get_count()>1  &&  haltestelle_t::get_halt(welt,fpl->eintrag[0].pos)==start_halt) {
 								while(line->count_convoys()>0) {
 									line->get_convoy(0)->self_destruct();
 									line->get_convoy(0)->step();
@@ -1089,7 +1089,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 					koord3d start_pos, end_pos;
 					schedule_t *fpl = cnv->get_schedule();
-					if(fpl  &&  fpl->maxi()>1) {
+					if(fpl  &&  fpl->get_count()>1) {
 						start_pos = fpl->eintrag[0].pos;
 						end_pos = fpl->eintrag[1].pos;
 					}
@@ -1109,7 +1109,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 							for (vector_tpl<linehandle_t>::const_iterator iter2 = lines.begin(), end = lines.end(); iter2 != end; iter2++) {
 								linehandle_t line = *iter2;
 								schedule_t *fpl=line->get_schedule();
-								if(fpl->maxi()>1  &&  haltestelle_t::get_halt(welt,fpl->eintrag[0].pos)==start_halt) {
+								if(fpl->get_count()>1  &&  haltestelle_t::get_halt(welt,fpl->eintrag[0].pos)==start_halt) {
 									water_stop = koord( (start_pos.x+fpl->eintrag[0].pos.x)/2, (start_pos.y+fpl->eintrag[0].pos.y)/2 );
 									while(line->count_convoys()>0) {
 										line->get_convoy(0)->self_destruct();

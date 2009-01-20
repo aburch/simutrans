@@ -217,8 +217,8 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 			}
 			button.enable();
 			go_home_button.pressed = route_search_in_progress;
-			if(  cnv->get_schedule()->maxi() > 0  ) {
-				const grund_t* g = cnv->get_welt()->lookup(cnv->get_schedule()->eintrag[cnv->get_schedule()->aktuell].pos);
+			if(  cnv->get_schedule()->get_count() > 0  ) {
+				const grund_t* g = cnv->get_welt()->lookup(cnv->get_schedule()->get_current_eintrag().pos);
 				if (g != NULL && g->get_depot()) {
 					go_home_button.disable();
 				} else {
@@ -285,7 +285,7 @@ enable_home:
 		const schedule_t * fpl = cnv->get_schedule();
 		info_buf.clear();
 		info_buf.append(translator::translate("Fahrtziel"));
-		fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->get_welt(), fpl, fpl->aktuell, 34);
+		fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->get_welt(), fpl, fpl->get_aktuell(), 34);
 		len = display_proportional( pos.x+11, pos.y+16+20+3*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
 
 		// convoi load indicator
@@ -399,7 +399,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			if(!shortest_route->empty()) {
 				schedule_t *fpl = cnv->get_schedule();
 				fpl->insert(cnv->get_welt()->lookup(home));
-				fpl->aktuell = (fpl->aktuell+fpl->maxi()-1)%fpl->maxi();
+				fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
 				b_depot_found = cnv->set_schedule(fpl);
 			}
 			delete shortest_route;

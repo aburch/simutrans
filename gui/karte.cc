@@ -750,14 +750,14 @@ const fabrik_t* reliefkarte_t::draw_fab_connections(const uint8 colour, const ko
 // draw current schedule
 void reliefkarte_t::draw_schedule(const koord pos) const
 {
-	assert(fpl!=NULL  ||  fpl->maxi()>0);
+	assert(fpl!=NULL  ||  fpl->get_count()>0);
 
 	koord first_koord;
 	koord last_koord;
 	const uint8 color = welt->get_spieler(fpl_player_nr)->get_player_color1()+1;
 
 	// get stop list from schedule
-	for( int i=0;  i<fpl->maxi();  i++  ) {
+	for( int i=0;  i<fpl->get_count();  i++  ) {
 		koord new_koord = fpl->eintrag[i].pos.get_2d();
 		karte_to_screen( new_koord );
 		new_koord += pos;
@@ -908,7 +908,7 @@ reliefkarte_t::zeichnen(koord pos)
 
 	// draw a halt name, if it is under the cursor of a schedule
 	if(is_show_schedule  &&  fpl) {
-		if(fpl->maxi()<=0) {
+		if(fpl->get_count()<=0) {
 			fpl = NULL;
 		}
 		else {

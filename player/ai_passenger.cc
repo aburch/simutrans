@@ -406,7 +406,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	schedule_t *fpl=new schifffahrplan_t();
 	fpl->append( welt->lookup_kartenboden(start_pos), 0, 0 );
 	fpl->append( welt->lookup_kartenboden(end_pos), 90, 0 );
-	fpl->aktuell = 1;
+	fpl->set_aktuell( 1 );
 	linehandle_t line=simlinemgmt.create_line(simline_t::shipline,this,fpl);
 	delete fpl;
 
@@ -730,7 +730,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 	schedule_t *fpl=new airfahrplan_t();
 	fpl->append( start, 0, 0 );
 	fpl->append( end, 90, 0 );
-	fpl->aktuell = 1;
+	fpl->set_aktuell( 1 );
 	linehandle_t line=simlinemgmt.create_line(simline_t::airline,this,fpl);
 	delete fpl;
 
@@ -775,7 +775,7 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",st
 	for(int j=0;  j<anzahl;  j++) {
 		fpl->append(welt->lookup(stops[j])->get_kartenboden(), j == 0 || !do_wait ? 0 : 10);
 	}
-	fpl->aktuell = (stops[0]==startpos2d);
+	fpl->set_aktuell( stops[0]==startpos2d );
 	linehandle_t line=simlinemgmt.create_line(simline_t::truckline,this,fpl);
 	delete fpl;
 
@@ -800,7 +800,7 @@ void
 ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int limit )
 {
 	//maximum number of stops reached?
-	if(line->get_schedule()->maxi()>=limit)  {
+	if(line->get_schedule()->get_count()>=limit)  {
 		return;
 	}
 
@@ -894,7 +894,7 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 	walk_city( line, start, number_of_stops );
 
 	road_vehicle = vehikelbauer_t::vehikel_search( road_wt, welt->get_timeline_year_month(), 1, 50, warenbauer_t::passagiere, false, false );
-	if( line->get_schedule()->maxi()>1  ) {
+	if( line->get_schedule()->get_count()>1  ) {
 		// success: add a bus to the line
 		vehikel_t* v = vehikelbauer_t::baue(start->get_pos(), this, NULL, road_vehicle);
 		convoi_t* cnv = new convoi_t(this);
@@ -1259,7 +1259,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				}
 
 				// avoid empty schedule ?!?
-				assert(line->get_schedule()->maxi()>0);
+				assert(line->get_schedule()->get_count()>0);
 
 				// made loss with this line
 				if(line->get_finance_history(0,LINE_PROFIT)<0) {

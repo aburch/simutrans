@@ -131,10 +131,10 @@ depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 		}
 		// Volker: remove depot from schedule
 		schedule_t *fpl = acnv->get_schedule();
-		for(  int i=0;  i<fpl->maxi();  i++  ) {
+		for(  int i=0;  i<fpl->get_count();  i++  ) {
 			// only if convoi found
 			if(fpl->eintrag[i].pos==get_pos()) {
-				fpl->aktuell = i;
+				fpl->set_aktuell( i );
 				fpl->remove();
 				acnv->set_schedule(fpl);
 				break;
@@ -296,11 +296,11 @@ bool depot_t::start_convoi(convoihandle_t cnv)
 		}
 	}
 
-	if(cnv.is_bound() &&  cnv->get_schedule()!=NULL  &&  cnv->get_schedule()->maxi() > 0) {
+	if(cnv.is_bound() &&  cnv->get_schedule()!=NULL  &&  cnv->get_schedule()->get_count() > 0) {
 		// if next schedule entry is this depot => advance to next entry
-		const koord3d& cur_pos = cnv->get_schedule()->eintrag[cnv->get_schedule()->aktuell].pos;
+		const koord3d& cur_pos = cnv->get_schedule()->get_current_eintrag().pos;
 		if (cur_pos == get_pos()) {
-			cnv->get_schedule()->aktuell = (cnv->get_schedule()->aktuell+1) % cnv->get_schedule()->maxi();
+			cnv->get_schedule()->advance();
 		}
 
 		// pruefen ob zug vollstaendig

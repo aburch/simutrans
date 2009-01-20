@@ -775,7 +775,7 @@ void vehikel_t::remove_stale_freight()
 			ware_t& tmp = iter.access_current();
 			bool found = false;
 
-			for (int i = 0; i < fpl->maxi(); i++) {
+			for (int i = 0; i < fpl->get_count(); i++) {
 				if (haltestelle_t::get_halt( welt, fpl->eintrag[i].pos ) == tmp.get_zwischenziel()) {
 					found = true;
 					break;
@@ -2327,7 +2327,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 				// next tile is end of schedule => must start with next leg of schedule
 				if(count==0  &&  next_block+1u>=rt->get_max_n()) {
 					fahrplan_index ++;
-					if(fahrplan_index >= cnv->get_schedule()->maxi()) {
+					if(fahrplan_index >= cnv->get_schedule()->get_count()) {
 						fahrplan_index = 0;
 					}
 					count++;
@@ -2367,13 +2367,13 @@ waggon_t::ist_weg_frei(int & restart_speed)
 						target_rt.clear();
 						cur_pos = cnv->get_schedule()->eintrag[fahrplan_index].pos;
 						fahrplan_index ++;
-						if(fahrplan_index >= cnv->get_schedule()->maxi()) {
+						if(fahrplan_index >= cnv->get_schedule()->get_count()) {
 							fahrplan_index = 0;
 						}
 						count++;
 					}
 
-				} while(count < cnv->get_schedule()->maxi()  &&  exit_loop == false); // stop after we've looped round schedule...
+				} while(count < cnv->get_schedule()->get_count()  &&  exit_loop == false); // stop after we've looped round schedule...
 				// we can't go
 				sig->set_zustand(roadsign_t::rot);
 				if(route_index==next_block+1) {
@@ -2664,7 +2664,7 @@ waggon_t::betrete_feld()
 
 schedule_t * waggon_t::erzeuge_neuen_fahrplan() const
 {
-  return besch->get_waytype()==tram_wt ? new tramfahrplan_t() : new zugfahrplan_t();
+	return besch->get_waytype()==tram_wt ? new tramfahrplan_t() : new zugfahrplan_t();
 }
 
 

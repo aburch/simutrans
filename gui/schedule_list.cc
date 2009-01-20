@@ -466,7 +466,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		cont_haltestellen.remove_all();
 		ypos = 5;
 //		slist_tpl<koord3d> tmp; // stores koords of stops that are allready displayed
-		for(i=0; i<new_line->get_schedule()->maxi(); i++) {
+		for(i=0; i<new_line->get_schedule()->get_count(); i++) {
 			const koord3d fahrplan_koord = new_line->get_schedule()->eintrag[i].pos;
 			halthandle_t halt = haltestelle_t::get_halt(sp->get_welt(), fahrplan_koord);
 			if (halt.is_bound()) {

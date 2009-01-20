@@ -23,41 +23,16 @@
 #include "../tpl/slist_tpl.h"
 
 
-/**
- * Manche Methoden müssen auf alle Fahrpläne angewandt werden
- * deshalb verwaltet die Klasse eine Liste aller Fahrpläne
- * @author Hj. Malthaner
- */
-static slist_tpl<schedule_t *> alle_fahrplaene;
+struct linieneintrag_t schedule_t::dummy_eintrag = { koord3d::invalid, 0, 0 };
 
 void schedule_t::init()
 {
 	aktuell = 0;
 	abgeschlossen = false;
-	alle_fahrplaene.insert(this);
 	type = schedule_t::fahrplan;
 }
 
 
-
-schedule_t::schedule_t(schedule_t * old)
-{
-	assert(0);	//obsolete!
-	if (old == NULL) {
-		init();
-	}
-	else {
-		aktuell = old->aktuell;
-		type = old->type;
-		my_waytype = old->my_waytype;
-
-		for(unsigned i=0; i<old->eintrag.get_count(); i++) {
-			eintrag.append(old->eintrag[i]);
-		}
-		abgeschlossen = true;
-		alle_fahrplaene.insert(this);
-	}
-}
 
 schedule_t::schedule_t(loadsave_t *file)
 {
@@ -69,36 +44,21 @@ schedule_t::schedule_t(loadsave_t *file)
 }
 
 
-schedule_t::~schedule_t()
-{
-	const  bool ok = alle_fahrplaene.remove(this);
-	if(ok) {
-		DBG_MESSAGE("fahrplan_t::~fahrplan_t()", "Schedule %p destructed", this);
-	}
-	else {
-		dbg->error("fahrplan_t::~fahrplan_t()", "Schedule %p was not registered!", this);
-	}
-}
-
-
 
 // copy all entries from schedule src to this and adjusts aktuell
 void schedule_t::copy_from(const schedule_t *src)
 {
 	// make sure, we can access both
-	if(src==NULL) {
-		dbg->error("fahrplan_t::copy_to()","cannot copy from NULL");
+	if(  src==NULL  ) {
+		dbg->fatal("fahrplan_t::copy_to()","cannot copy from NULL");
 		return;
 	}
 	eintrag.clear();
-	for(unsigned i=0; i<src->eintrag.get_count(); i++) {
+	for(  uint8 i=0;  i<src->eintrag.get_count();  i++  ) {
 		eintrag.append(src->eintrag[i]);
 	}
-	if(aktuell>=(int)eintrag.get_count()) {
-		aktuell = eintrag.get_count()-1;
-	}
-	if(aktuell<0) {
-		aktuell = 0;
+	if(  aktuell>=eintrag.get_count()  ) {
+		aktuell = max(1,eintrag.get_count())-1;
 	}
 	// do not touch abgeschlossen!
 }
@@ -136,7 +96,6 @@ bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
 
 bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift )
 {
-	aktuell = max(aktuell,0);
 #ifndef _MSC_VER
 	struct linieneintrag_t stop = { gr->get_pos(), ladegrad, waiting_time_shift };
 #else
@@ -146,12 +105,12 @@ bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 	stop.waiting_time_shift = waiting_time_shift;
 #endif
 	// stored in minivec, so wie have to avoid adding too many
-	if(eintrag.get_count()>=254) {
+	if(  eintrag.get_count()>=254  ) {
 		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
 		return false;
 	}
 
-	if(ist_halt_erlaubt(gr)) {
+	if(  ist_halt_erlaubt(gr)  ) {
 		eintrag.insert_at(aktuell, stop);
 		aktuell ++;
 		return true;
@@ -167,7 +126,6 @@ bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 
 bool schedule_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift)
 {
-	aktuell = max(aktuell,0);
 #ifndef _MSC_VER
 	struct linieneintrag_t stop = { gr->get_pos(), ladegrad, waiting_time_shift };
 #else
@@ -200,20 +158,23 @@ bool schedule_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 // cleanup a schedule
 void schedule_t::cleanup()
 {
-	if (eintrag.empty()) return; // nothing to check
+	if (eintrag.empty()) {
+		return; // nothing to check
+		aktuell = 0;
+	}
 
 	// first and last must not be the same!
 	koord3d lastpos = eintrag.back().pos;
-  	// now we have to check all entries ...
-	for(unsigned i=0; i<eintrag.get_count(); i++) {
-		if (eintrag[i].pos == lastpos) {
+	// now we have to check all entries ...
+	for(  uint8 i=0;  i<eintrag.get_count();  i++  ) {
+		if(  eintrag[i].pos == lastpos  ) {
 			// ingore double entries just one after the other
 			eintrag.remove_at(i);
-			if(i<(unsigned)aktuell) {
+			if(  i<aktuell  ) {
 				aktuell --;
 			}
 			i--;
-		} else if (eintrag[i].pos == koord3d::invalid) {
+		} else if(  eintrag[i].pos == koord3d::invalid  ) {
 			// ingore double entries just one after the other
 			eintrag.remove_at(i);
 		}
@@ -222,8 +183,8 @@ void schedule_t::cleanup()
 			lastpos = eintrag[i].pos;
 		}
 	}
-	if((unsigned)aktuell+1>eintrag.get_count()) {
-		aktuell = eintrag.get_count()-1;
+	if(  aktuell>=eintrag.get_count()  ) {
+		aktuell = max(1,eintrag.get_count())-1;
 	}
 }
 
@@ -232,9 +193,9 @@ void schedule_t::cleanup()
 bool
 schedule_t::remove()
 {
-	bool ok=eintrag.remove_at(aktuell);
-	if( aktuell>=(int)eintrag.get_count()) {
-		aktuell = eintrag.get_count()-1;
+	bool ok = eintrag.remove_at(aktuell);
+	if(  aktuell>=eintrag.get_count()  ) {
+		aktuell = max(1,eintrag.get_count())-1;
 	}
 	return ok;
 }
@@ -246,22 +207,35 @@ schedule_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t f( file, "fahrplan_t" );
 
-	uint32 dummy=aktuell;
-	file->rdwr_long(dummy, " ");
-	aktuell = (sint16)dummy;
+	if(  aktuell>=eintrag.get_count()  ) {
+		aktuell = max(1,eintrag.get_count())-1;
+	}
 
-	sint32 maxi=eintrag.get_count();
-	file->rdwr_long(maxi, " ");
-	DBG_MESSAGE("fahrplan_t::rdwr()","read schedule %p with %i entries",this,maxi);
-	eintrag.resize(max(0,maxi));
+	uint8 size = eintrag.get_count();
+	if(  file->get_version()<=101000  ) {
+		uint32 dummy=aktuell;
+		file->rdwr_long(dummy, " ");
+		aktuell = (uint8)dummy;
 
-	if(file->get_version()<99012) {
+		sint32 maxi=size;
+		file->rdwr_long(maxi, " ");
+		DBG_MESSAGE("fahrplan_t::rdwr()","read schedule %p with %i entries",this,maxi);
 		if(file->get_version()<86010) {
 			// old array had different maxi-counter
 			maxi ++;
 		}
-		for(int i=0; i<maxi; i++) {
+		size = (uint8)max(0,maxi);
+	}
+	else {
+		file->rdwr_byte(aktuell, " ");
+		file->rdwr_byte(size, " ");
+	}
+	eintrag.resize(size);
+
+	if(file->get_version()<99012) {
+		for(  uint8 i=0; i<size; i++  ) {
 			koord3d pos;
+			uint32 dummy;
 			pos.rdwr(file);
 			file->rdwr_long(dummy, "\n");
 
@@ -274,7 +248,7 @@ schedule_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// loading/saving new version
-		for(sint32 i=0; i<maxi; i++) {
+		for(  uint8 i=0;  i<size;  i++  ) {
 			if(eintrag.get_count()<=i) {
 				eintrag.append( linieneintrag_t() );
 				eintrag[i] .waiting_time_shift = 0;
@@ -300,7 +274,7 @@ schedule_t::rdwr(loadsave_t *file)
 void schedule_t::rotate90( sint16 y_size )
 {
  	// now we have to rotate all entries ...
-	for(unsigned i = 0; i<eintrag.get_count(); i++) {
+	for(  uint8 i = 0;  i<eintrag.get_count();  i++  ) {
 		eintrag[i].pos.rotate90(y_size);
 	}
 }
@@ -323,12 +297,12 @@ schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 	}
 	// unequal count => not equal
 	const uint8 min_count = min( fpl->eintrag.get_count(), eintrag.get_count() );
-	if(min_count==0  &&  fpl->eintrag.get_count()!=eintrag.get_count()) {
+	if(  min_count==0  &&  fpl->eintrag.get_count()!=eintrag.get_count()  ) {
 		return false;
 	}
 	// now we have to check all entries ...
 	// we need to do this that complicated, because they last stop may make the difference
-	unsigned f1=0, f2=0;
+	uint16 f1=0, f2=0;
 	while(  f1+f2<eintrag.get_count()+fpl->eintrag.get_count()  ) {
 		if(f1<eintrag.get_count()  &&  f2<fpl->eintrag.get_count()  &&  fpl->eintrag[f2].pos == eintrag[f1].pos) {
 			// ladegrad/waiting ignored: identical
@@ -368,8 +342,8 @@ schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 
 void schedule_t::add_return_way()
 {
-	if(eintrag.get_count()<127) {
-		for( int maxi = ((int)eintrag.get_count())-2;  maxi>0;  maxi--  ) {
+	if(  eintrag.get_count()<127  &&  eintrag.get_count()>1  ) {
+		for(  uint8 maxi=eintrag.get_count()-2;  maxi>0;  maxi--  ) {
 			eintrag.append(eintrag[maxi]);
 		}
 	}

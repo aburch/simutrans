@@ -192,7 +192,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 		if(!fpl->ist_abgeschlossen()) {
 			destroy_win((long)fpl);
 		}
-		if(fpl->maxi()>0  &&  !line.is_bound()  ) {
+		if(fpl->get_count()>0  &&  !line.is_bound()  ) {
 			welt->set_schedule_counter();
 		}
 		delete fpl;
@@ -520,7 +520,7 @@ bool convoi_t::sync_step(long delta_t)
 
 				set_schedule(fpl);
 
-				if(fpl->maxi()==0) {
+				if(fpl->get_count()==0) {
 					// no entry => no route ...
 					state = NO_ROUTE;
 					wait_lock = 0;
@@ -528,7 +528,7 @@ bool convoi_t::sync_step(long delta_t)
 				else {
 					// Schedule changed at station
 					// this station? then complete loading task else drive on
-					state = (get_pos() == fpl->eintrag[fpl->aktuell].pos ? LOADING : ROUTING_1);
+					state = (get_pos() == fpl->get_current_eintrag().pos ? LOADING : ROUTING_1);
 				}
 			}
 			break;
@@ -657,24 +657,6 @@ int convoi_t::drive_to(koord3d start, koord3d ziel)
 
 
 /**
- * Berechne route zum nächsten Halt
- * @author Hanjsörg Malthaner
- */
-void convoi_t::drive_to_next_stop()
-{
-	schedule_t *fpl = get_schedule();
-	assert(fpl != NULL);
-
-	if(fpl->aktuell+1 < fpl->maxi()) {
-		fpl->aktuell ++;
-	}
-	else {
-		fpl->aktuell = 0;
-	}
-}
-
-
-/**
  * Ein Fahrzeug hat ein Problem erkannt und erzwingt die
  * Berechnung einer neuen Route
  * @author Hanjsörg Malthaner
@@ -715,16 +697,17 @@ void convoi_t::step()
 			{
 				vehikel_t* v = fahr[0];
 
-				if(fpl->maxi()==0) {
+				if(fpl->get_count()==0) {
 					state = NO_ROUTE;
 				}
 				else {
 					// check first, if we are already there:
-					if(fpl->aktuell>=fpl->maxi()  ||  v->get_pos()==fpl->eintrag[fpl->get_aktuell()].pos) {
-						drive_to_next_stop();
+					assert( fpl->get_aktuell()<fpl->get_count()  );
+					if(  v->get_pos()==fpl->get_current_eintrag().pos  ) {
+						fpl->advance();
 					}
 					// Hajo: now calculate a new route
-					drive_to(v->get_pos(), fpl->eintrag[fpl->get_aktuell()].pos);
+					drive_to(v->get_pos(), fpl->get_current_eintrag().pos);
 					if(!route.empty()) {
 						vorfahren();
 					}
@@ -744,7 +727,7 @@ void convoi_t::step()
 			{
 				vehikel_t* v = fahr[0];
 
-				if(fpl->maxi()==0) {
+				if(fpl->get_count()==0) {
 					// no entries => no route ...
 					get_besitzer()->bescheid_vehikel_problem(self, v->get_pos());
 					// wait 10s before next attempt
@@ -752,7 +735,7 @@ void convoi_t::step()
 				}
 				else {
 					// Hajo: now calculate a new route
-					drive_to(v->get_pos(), fpl->eintrag[fpl->get_aktuell()].pos);
+					drive_to(v->get_pos(), fpl->get_current_eintrag().pos);
 					if(!route.empty()) {
 						vorfahren();
 					}
@@ -992,7 +975,7 @@ void convoi_t::ziel_erreicht()
 		}
 		else {
 			// Neither depot nor station: waypoint
-			drive_to_next_stop();
+			fpl->advance();
 			state = ROUTING_1;
 		}
 	}
@@ -2048,20 +2031,20 @@ void convoi_t::laden()
 	if(state == FAHRPLANEINGABE) {
 		return;
 	}
-	const koord k = fpl->eintrag[fpl->aktuell].pos.get_2d();
 
-	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->eintrag[fpl->aktuell].pos);
+	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos);
 	// eigene haltestelle ?
 	if (halt.is_bound()) {
+		const koord k = fpl->get_current_eintrag().pos.get_2d();
 		const spieler_t* owner = halt->get_besitzer();
-		if (owner == get_besitzer()  || owner == welt->get_spieler(1)) {
+		if(  owner == get_besitzer()  ||  owner == welt->get_spieler(1)  ) {
 			// loading/unloading ...
 			hat_gehalten(k, halt);
 		}
 	}
 
-	if(go_on_ticks==WAIT_INFINITE  &&  fpl->eintrag[fpl->aktuell].waiting_time_shift>0) {
-		go_on_ticks = welt->get_zeit_ms() + (welt->ticks_per_tag >> (16-fpl->eintrag[fpl->aktuell].waiting_time_shift));
+	if(go_on_ticks==WAIT_INFINITE  &&  fpl->get_current_eintrag().waiting_time_shift>0) {
+		go_on_ticks = welt->get_zeit_ms() + (welt->ticks_per_tag >> (16-fpl->get_current_eintrag().waiting_time_shift));
 	}
 
 	INT_CHECK("simconvoi 1077");
@@ -2084,7 +2067,7 @@ void convoi_t::laden()
 		}
 
 		// Advance schedule
-		drive_to_next_stop();
+		fpl->advance();
 		state = ROUTING_1;
 	}
 	// This is the minimum time it takes for loading
@@ -2168,7 +2151,7 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 
 	// any loading went on?
 	calc_loading();
-	loading_limit = fpl->eintrag[fpl->aktuell].ladegrad;
+	loading_limit = fpl->get_current_eintrag().ladegrad;
 
 	if(gewinn) {
 		besitzer_p->buche(gewinn, fahr[0]->get_pos().get_2d(), COST_INCOME);
@@ -2325,7 +2308,7 @@ void convoi_t::set_line(linehandle_t org_line)
 	if(line.is_bound()) {
 		unset_line();
 	}
-	else if(fpl  &&  fpl->maxi()>0) {
+	else if(fpl  &&  fpl->get_count()>0) {
 		// since this schedule is no longer served
 		welt->set_schedule_counter();
 	}

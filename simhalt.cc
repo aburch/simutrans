@@ -24,6 +24,7 @@
 #include "simintr.h"
 #include "simmem.h"
 #include "simplan.h"
+#include "simtools.h"
 #include "player/simplay.h"
 #include "simwin.h"
 #include "simworld.h"
@@ -883,7 +884,7 @@ bool haltestelle_t::is_connected(const halthandle_t halt, const ware_besch_t * w
 void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl)
 {
 	if(type != warenbauer_t::nichts) {
-		for(int i=0; i<fpl->maxi(); i++) {
+		for(int i=0; i<fpl->get_count(); i++) {
 
 			// Hajo: Haltestelle selbst wird nicht in Zielliste aufgenommen
 			halthandle_t halt = get_halt(welt, fpl->eintrag[i].pos);
@@ -945,7 +946,7 @@ void haltestelle_t::rebuild_destinations()
 
 			schedule_t *fpl = cnv->get_schedule();
 			if(fpl) {
-				for(int i=0; i<fpl->maxi(); i++) {
+				for(int i=0; i<fpl->get_count(); i++) {
 
 					// Hajo: Hält dieser convoi hier?
 					if (get_halt(welt, fpl->eintrag[i].pos) == self) {
@@ -1343,15 +1344,15 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 	// prissi: first iterate over the next stop, then over the ware
 	// might be a little slower, but ensures that passengers to nearest stop are served first
 	// this allows for separate high speed and normal service
-	const int count = fpl->maxi();
+	const uint8 count = fpl->get_count();
 	vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
 
 	if(warray!=NULL) {
 
 		// da wir schon an der aktuellem haltestelle halten
 		// startet die schleife ab 1, d.h. dem naechsten halt
-		for(int i=1; i<count; i++) {
-			const int wrap_i = (i + fpl->aktuell) % count;
+		for(  uint8 i=1; i<count; i++  ) {
+			const uint8 wrap_i = (i + fpl->get_aktuell()) % count;
 
 			const halthandle_t plan_halt = get_halt(welt, fpl->eintrag[wrap_i].pos);
 			if(plan_halt == self) {
@@ -1361,10 +1362,14 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 			else if(  plan_halt.is_bound()  &&  warray->get_count()>0  ) {
 
 				// The random offset will ensure that all goods have an equal chance to be loaded.
-				static uint32 offset = 0;
-				offset++;
-				for(  uint32 i=0;  i<warray->get_count();  i++  ) {
-					ware_t &tmp = (*warray)[ (i+offset) % warray->get_count() ];
+				sint32 offset = simrand(warray->get_count());
+				for(  sint32 i=0;  i<warray->get_count();  i++  ) {
+					ware_t &tmp = (*warray)[ i+offset ];
+
+					// prevent overflow (faster than division)
+					if(  i+offset+1>=warray->get_count()  ) {
+						offset -= warray->get_count();
+					}
 
 					// skip empty entries
 					if(tmp.menge==0) {
@@ -1372,11 +1377,11 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 					}
 
 					// compatible car and right target stop?
-					if(tmp.get_zwischenziel()==plan_halt ) {
+					if(  tmp.get_zwischenziel()==plan_halt  ) {
 
 						// not too much?
-						ware_t neu (tmp);
-						if(tmp.menge > maxi) {
+						ware_t neu(tmp);
+						if(  tmp.menge > maxi  ) {
 							// not all can be loaded
 							neu.menge = maxi;
 							tmp.menge -= maxi;
@@ -2339,7 +2344,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 					// only add unknow lines
 					if(  !registered_lines.is_contained(check_line[j])  ) {
 						const schedule_t *fpl = check_line[j]->get_schedule();
-						for(  int k=0;  k<fpl->maxi();  k++  ) {
+						for(  int k=0;  k<fpl->get_count();  k++  ) {
 							if(get_halt(welt,fpl->eintrag[k].pos)==self) {
 								registered_lines.push_back(check_line[j]);
 								break;
@@ -2356,7 +2361,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 			// only add unknow lines
 			if(  !registered_lines.is_contained(check_line[j])  ) {
 				const schedule_t *fpl = check_line[j]->get_schedule();
-				for(  int k=0;  k<fpl->maxi();  k++  ) {
+				for(  int k=0;  k<fpl->get_count();  k++  ) {
 					if(get_halt(welt,fpl->eintrag[k].pos)==self) {
 						registered_lines.push_back(check_line[j]);
 						break;
@@ -2442,7 +2447,7 @@ void haltestelle_t::rem_grund(grund_t *gr)
 		for(  int j=registered_lines.get_count()-1;  j>=0;  j--  ) {
 			const schedule_t *fpl = registered_lines[j]->get_schedule();
 			bool ok=false;
-			for(  int k=0;  k<fpl->maxi();  k++  ) {
+			for(  int k=0;  k<fpl->get_count();  k++  ) {
 				if(get_halt(welt,fpl->eintrag[k].pos)==self) {
 					ok = true;
 					break;

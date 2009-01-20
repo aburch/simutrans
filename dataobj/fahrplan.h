@@ -25,14 +25,12 @@ public:
 private:
 	bool abgeschlossen;
 
-	/**
-	 * Copy constructor: do not use, use the copy method instead!
-	 * @author hsiegeln
-	 */
-	schedule_t(schedule_t *);
+	static struct linieneintrag_t dummy_eintrag;
 
 protected:
-	schedule_t() { init(); }
+	schedule_t() {}
+
+	uint8 aktuell;
 
 	waytype_t my_waytype;
 	schedule_type type;
@@ -45,6 +43,8 @@ protected:
 	void init();
 
 public:
+	minivec_tpl<struct linieneintrag_t> eintrag;
+
 	/**
 	* sollte eine Fehlermeldung ausgeben, wenn halt nicht erlaubt ist
 	* @author Hj. Malthaner
@@ -58,33 +58,45 @@ public:
 	*/
 	virtual bool ist_halt_erlaubt(const grund_t *gr) const;
 
-	waytype_t get_waytype() const {return my_waytype;}
-
-	minivec_tpl<struct linieneintrag_t> eintrag;
-	short aktuell;
-
-	int maxi() const { return eintrag.get_count(); }
+	uint8 get_count() const { return eintrag.get_count(); }
 
 	schedule_type get_type() const {return type;}
+
+	waytype_t get_waytype() const {return my_waytype;}
 
 	/**
 	* get current stop of fahrplan
 	* @author hsiegeln
 	*/
-	int get_aktuell() const { return aktuell; }
+	uint8 get_aktuell() const { return aktuell; }
+
+	// always returns a valid entry to the current stop
+	const struct linieneintrag_t &get_current_eintrag() const { return aktuell>=eintrag.get_count() ? dummy_eintrag : eintrag[aktuell]; }
 
 	/**
 	 * set the current stop of the fahrplan
 	 * if new value is bigger than stops available, the max stop will be used
 	 * @author hsiegeln
 	 */
-	void set_aktuell(int new_aktuell) { aktuell = (unsigned)new_aktuell >= eintrag.get_count() ? eintrag.get_count() - 1 : new_aktuell; }
+	void set_aktuell(uint8 new_aktuell) {
+		if(  new_aktuell>=eintrag.get_count()  ) {
+			new_aktuell = max(1,eintrag.get_count())-1;
+		}
+		aktuell = new_aktuell;
+	}
+
+	// advance entry by one ...
+	void advance() {
+		if(  !eintrag.empty()  ) {
+			aktuell = (aktuell+1)%eintrag.get_count();
+		}
+	}
 
 	inline bool ist_abgeschlossen() const { return abgeschlossen; }
 	void eingabe_abschliessen() { abgeschlossen = true; }
 	void eingabe_beginnen() { abgeschlossen = false; }
 
-	virtual ~schedule_t();
+	virtual ~schedule_t() {}
 
 	schedule_t(loadsave_t *file);
 
@@ -125,7 +137,7 @@ public:
 	 */
 	void add_return_way();
 
-	virtual schedule_t* copy() { return new schedule_t(this); }
+	virtual schedule_t* copy() = 0;//{ return new schedule_t(this); }
 
 	// copy all entries from schedule src to this and adjusts aktuell
 	void copy_from(const schedule_t *src);
