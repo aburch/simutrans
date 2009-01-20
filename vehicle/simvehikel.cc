@@ -1162,7 +1162,7 @@ vehikel_t::rauche()
 sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 {
 	// may happen when waiting in station
-	if(start==end) {
+	if(start==end  ||  fracht.count()==0) {
 		return 0;
 	}
 
@@ -1174,8 +1174,8 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 	slist_tpl<ware_t> kill_queue;
 	slist_iterator_tpl <ware_t> iter (fracht);
 
-	if(  welt->get_einstellungen()->is_pay_for_total_distance()  ) {
-		// pay only the distance, we get closer to our destination
+	if(  !welt->get_einstellungen()->is_pay_for_total_distance()  ) {
+		// pay distance traveled to next stop
 		while( iter.next() ) {
 
 			const ware_t & ware = iter.get_current();
@@ -1197,16 +1197,17 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 		}
 	}
 	else {
+		// pay only the distance, we get closer to our destination
 		while( iter.next() ) {
 
 			const ware_t & ware = iter.get_current();
 
-			if(ware.menge==0  ||  !ware.get_ziel().is_bound()) {
+			if(  ware.menge==0  ) {
 				continue;
 			}
 
 			// now only use the real gain in difference for the revenue (may as well be negative!)
-			const koord zwpos = ware.get_ziel()->get_basis_pos();
+			const koord &zwpos = ware.get_zielpos();
 			const long dist = abs(zwpos.x - start.x) + abs(zwpos.y - start.y) - (abs(end.x - zwpos.x) + abs(end.y - zwpos.y));
 
 			const sint32 grundwert128 = ware.get_besch()->get_preis()<<7;	// bonus price will be always at least 0.128 of the real price
