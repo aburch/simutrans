@@ -131,8 +131,15 @@ private:
 	// true, if the different caacities (passengers/mail/freight) are counted seperately
 	bool seperate_halt_capacities;
 
-	// payment is only for the distance that got shorter between target and start
-	bool pay_for_total_distance;
+	/**
+	 * payment is only for the distance that got shorter between target and start
+	 * three modes:
+	 * 0 = pay for travelled manhattan distance
+	 * 1 = pay for distance difference to next transfer stop
+	 * 2 = pay for distance to destination
+	 * 0 allows chaeting, but the income with 1 or two are much lower
+	 */
+	uint8 pay_for_total_distance;
 
 public:
 	/* the big cost section */
@@ -317,8 +324,10 @@ public:
 	bool is_seperate_halt_capacities() const { return seperate_halt_capacities ; }
 	void set_seperate_halt_capacities( bool b ) { seperate_halt_capacities = b; }
 
-	bool is_pay_for_total_distance() const { return pay_for_total_distance ; }
-	void set_pay_for_total_distance( bool b ) { pay_for_total_distance = b; }
+	// allowed modes are 0,1,2
+	enum { TO_PREVIOUS, TO_TRANSFER, TO_DESTINATION };
+	uint8 get_pay_for_total_distance_mode() const { return pay_for_total_distance ; }
+	void set_pay_for_total_distance_mode( uint8 b ) { pay_for_total_distance = b < 2 ? b : 0; }
 };
 
 #endif

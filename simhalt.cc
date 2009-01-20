@@ -900,7 +900,7 @@ void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl
 			slist_iterator_tpl<warenziel_t> iter(wz_list);
 			while(iter.next()) {
 				const warenziel_t &tmp = iter.get_current();
-				if(tmp.get_catg_index()==type->get_catg_index() &&  tmp.get_zielhalt()==wz.get_zielhalt()) {
+				if(  tmp.get_catg_index()==type->get_catg_index()  &&  tmp.get_zielhalt()==wz.get_zielhalt()  ) {
 					goto skip;
 				}
 			}
@@ -1029,7 +1029,7 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	vector_tpl<halthandle_t> ziel_list(plan->get_haltlist_count());
 	for( unsigned h=0;  h<plan->get_haltlist_count();  h++ ) {
 		halthandle_t halt = halt_list[h];
-		if(	halt->is_enabled(warentyp)  ) {
+		if(  halt->is_enabled(warentyp)  ) {
 			ziel_list.push_back(halt);
 		}
 		else {
@@ -1037,22 +1037,22 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 		}
 	}
 
-	if (ziel_list.empty()) {
+	if(  ziel_list.empty()  ) {
 		//no target station found
 		ware.set_ziel( halthandle_t() );
 		ware.set_zwischenziel( halthandle_t() );
 		// printf("keine route zu %d,%d nach %d steps\n", ziel.x, ziel.y, step);
-		if(next_to_ziel!=NULL) {
+		if(  next_to_ziel != NULL  ) {
 			*next_to_ziel = koord::invalid;
 		}
 		return;
 	}
 
 	// check, if the shortest connection is not right to us ...
-	if(ziel_list.is_contained(self)) {
+	if(  ziel_list.is_contained(self)  ) {
 		ware.set_ziel( self );
 		ware.set_zwischenziel( halthandle_t() );
-		if(next_to_ziel!=NULL) {
+		if(  next_to_ziel != NULL  ) {
 			*next_to_ziel = koord::invalid;
 		}
 	}
@@ -1064,9 +1064,9 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	/* Need to clean up?
 	 * Otherwise we just incease the mark => less time for cleanups
 	 */
-	if(current_mark == 0xFFFFFFFFu) {
+	if(  current_mark == 0xFFFFFFFFu  ) {
 		slist_iterator_tpl<halthandle_t > halt_iter (alle_haltestellen);
-		while(halt_iter.next()) {
+		while(  halt_iter.next()  ) {
 			halt_iter.get_current()->marke = 0;
 		}
 		current_mark = 0;
@@ -1104,7 +1104,9 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 #else
 		tmp = route_start;
 		route_start = route_start->next;
-		if(route_start==NULL) route_tail = NULL;
+		if(  route_start == NULL  ) {
+			route_tail = NULL;
+		}
 #endif
 
 		const halthandle_t halt = tmp->halt;

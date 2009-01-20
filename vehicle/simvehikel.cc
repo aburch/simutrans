@@ -1174,8 +1174,30 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 	slist_tpl<ware_t> kill_queue;
 	slist_iterator_tpl <ware_t> iter (fracht);
 
-	if(  !welt->get_einstellungen()->is_pay_for_total_distance()  ) {
-		// pay distance traveled to next stop
+	if(  welt->get_einstellungen()->get_pay_for_total_distance_mode()==einstellungen_t::TO_DESTINATION  ) {
+		// pay only the distance, we get closer to our destination
+		while( iter.next() ) {
+
+			const ware_t & ware = iter.get_current();
+
+			if(  ware.menge==0  ) {
+				continue;
+			}
+
+			// now only use the real gain in difference for the revenue (may as well be negative!)
+			const koord &zwpos = ware.get_zielpos();
+			const long dist = abs(zwpos.x - start.x) + abs(zwpos.y - start.y) - (abs(end.x - zwpos.x) + abs(end.y - zwpos.y));
+
+			const sint32 grundwert128 = ware.get_besch()->get_preis()<<7;	// bonus price will be always at least 0.128 of the real price
+			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+speed_base*ware.get_besch()->get_speed_bonus()));
+			const sint64 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus) * (sint64)dist * (sint64)ware.menge;
+
+			// sum up new price
+			value += price;
+		}
+	}
+	else if(  welt->get_einstellungen()->get_pay_for_total_distance_mode()==einstellungen_t::TO_TRANSFER  ) {
+		// pay distance traveled to next trasnfer stop
 		while( iter.next() ) {
 
 			const ware_t & ware = iter.get_current();
@@ -1197,19 +1219,17 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 		}
 	}
 	else {
-		// pay only the distance, we get closer to our destination
+		// pay distance traveled
+		const long dist = abs_distance( start, end );
 		while( iter.next() ) {
 
 			const ware_t & ware = iter.get_current();
 
-			if(  ware.menge==0  ) {
+			if(ware.menge==0  ||  !ware.get_zwischenziel().is_bound()) {
 				continue;
 			}
 
 			// now only use the real gain in difference for the revenue (may as well be negative!)
-			const koord &zwpos = ware.get_zielpos();
-			const long dist = abs(zwpos.x - start.x) + abs(zwpos.y - start.y) - (abs(end.x - zwpos.x) + abs(end.y - zwpos.y));
-
 			const sint32 grundwert128 = ware.get_besch()->get_preis()<<7;	// bonus price will be always at least 0.128 of the real price
 			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+speed_base*ware.get_besch()->get_speed_bonus()));
 			const sint64 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus) * (sint64)dist * (sint64)ware.menge;
