@@ -60,7 +60,7 @@ void schedule_t::copy_from(const schedule_t *src)
 	if(  aktuell>=eintrag.get_count()  ) {
 		aktuell = max(1,eintrag.get_count())-1;
 	}
-	// do not touch abgeschlossen!
+	abgeschlossen = src->ist_abgeschlossen();
 }
 
 

@@ -531,6 +531,10 @@ bool convoi_t::sync_step(long delta_t)
 					state = (get_pos() == fpl->get_current_eintrag().pos ? LOADING : ROUTING_1);
 				}
 			}
+			else {
+				// still entring => check only each 500ms for change
+				wait_lock = 500;
+			}
 			break;
 
 		case ROUTING_1:
