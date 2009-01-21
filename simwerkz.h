@@ -48,6 +48,7 @@
 #include "gui/factorylist_frame_t.h"
 #include "gui/curiositylist_frame_t.h"
 #include "gui/enlarge_map_frame_t.h"
+#include "gui/labellist_frame_t.h"
 
 #include "tpl/slist_tpl.h"
 
@@ -125,7 +126,7 @@ class wkz_restoreslope_t : public werkzeug_t {
 };
 
 class wkz_marker_t : public werkzeug_t {
-	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Marker", sp->get_welt()->get_einstellungen()->cst_set_slope); }
+	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Marker", sp->get_welt()->get_einstellungen()->cst_buy_land); }
 	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k );
 };
 
@@ -866,4 +867,13 @@ class wkz_enlarge_map_t : public werkzeug_t{
 	}
 };
 
+/* open the list of label */
+class wkz_list_label_t : public werkzeug_t {
+	const char *get_tooltip(spieler_t *) { return translator::translate("labellist_title"); }
+	bool is_selected(karte_t *) { return win_get_magic(magic_labellist); }
+	bool init( karte_t *welt, spieler_t * ) {
+		create_win( new labellist_frame_t(welt), w_info, magic_labellist );
+		return false;
+	}
+};
 #endif

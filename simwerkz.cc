@@ -47,7 +47,7 @@
 #include "vehicle/simverkehr.h"
 #include "vehicle/simpeople.h"
 
-#include "gui/label_frame.h"
+//#include "gui/label_frame.h"
 #include "gui/werkzeug_waehler.h"
 #include "gui/karte.h"	// to update map after construction of new industry
 
@@ -61,6 +61,7 @@
 #include "dings/leitung2.h"
 #include "dings/baum.h"
 #include "dings/field.h"
+#include "dings/label.h"
 
 #include "dataobj/tabfile.h"
 #include "dataobj/einstellungen.h"
@@ -345,6 +346,17 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 	}
 	// everything removed, nothing left ...
 	if(gr==NULL) {
+		return true;
+	}
+
+	// marker?
+	label_t* l = gr->find<label_t>();
+	if (l) {
+		msg = l->ist_entfernbar(sp);
+		if(msg) {
+			return false;
+		}
+		delete l;
 		return true;
 	}
 
@@ -929,10 +941,19 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
 	if(welt->ist_in_kartengrenzen(pos.get_2d())) {
-		create_win( new label_frame_t(welt, sp, pos.get_2d()), w_info, magic_label_frame);
-		return NULL;
+		grund_t *gr = welt->lookup(pos.get_2d())->get_kartenboden();
+		if(gr && !gr->get_text()) {
+			const ding_t* thing = gr->obj_bei(0);
+			const label_t* l = gr->find<label_t>();
+
+			if(thing == NULL  ||  thing->get_besitzer() == sp  ||  (spieler_t::check_owner(thing->get_besitzer(), sp)  &&  (thing->get_typ() != ding_t::gebaeude))) {
+				gr->obj_add(new label_t(welt, gr->get_pos(), sp, "\0"));
+				gr->find<label_t>()->zeige_info();
+				return "";
+			}
+		}
 	}
-	return "";
+	return "Das Feld gehoert\neinem anderen Spieler\n";
 }
 
 

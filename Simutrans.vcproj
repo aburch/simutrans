@@ -577,7 +577,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gui\label_frame.cc"
+				RelativePath=".\gui\label_info.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\labellist_frame_t.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\labellist_stats_t.cc"
 				>
 			</File>
 			<File

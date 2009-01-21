@@ -13,6 +13,8 @@ public:
 
 	void laden_abschliessen();
 
+	void zeige_info();
+
 	enum ding_t::typ get_typ() const { return ding_t::label; }
 
 	image_id get_bild() const;

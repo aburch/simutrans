@@ -666,7 +666,9 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 PLAYER_COLOR_VAL grund_t::text_farbe() const
 {
 	// if this gund belongs to a halt, the color should reflect the halt owner, not the grund owner!
-	if(is_halt()) {
+	// Now, we use the color of label_t owner
+	if(is_halt()  &&  find<label_t>()==NULL) {
+		// only halt label
 		const halthandle_t halt = welt->lookup(pos.get_2d())->get_halt();
 		const spieler_t *sp=halt->get_besitzer();
 		if(sp) {
@@ -675,7 +677,11 @@ PLAYER_COLOR_VAL grund_t::text_farbe() const
 	}
 	// else color according to current owner
 	else if(obj_bei(0)) {
-		const spieler_t *sp = obj_bei(0)->get_besitzer();
+		const spieler_t *sp = obj_bei(0)->get_besitzer(); // for cityhall
+		const label_t* l = find<label_t>();
+		if(l) {
+			sp = l->get_besitzer();
+		}
 		if(sp) {
 			return PLAYER_FLAG|(sp->get_player_color1()+4);
 		}

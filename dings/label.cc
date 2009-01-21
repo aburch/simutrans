@@ -13,7 +13,9 @@
 #include "../simdings.h"
 #include "../simimg.h"
 #include "../simskin.h"
+#include "../simwin.h"
 #include "../player/simplay.h"
+#include "../gui/label_info.h"
 
 #include "../besch/grund_besch.h"
 
@@ -36,10 +38,14 @@ label_t::label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text) :
 	welt->add_label(pos.get_2d());
 	grund_t *gr=welt->lookup_kartenboden(pos.get_2d());
 	if(gr) {
+#if 0
+		// This only allows to own cityroad and city buildins.
+		// Land don't have owner anymore.
 		ding_t *d=gr->obj_bei(0);
 		if(d  &&  d->get_besitzer()==NULL) {
 			d->set_besitzer(sp);
 		}
+#endif
 		if (text) {
 			gr->set_text(text);
 		}
@@ -73,4 +79,12 @@ image_id label_t::get_bild() const
 {
 	grund_t *gr=welt->lookup(get_pos());
 	return (gr  &&  gr->obj_bei(0)==this) ? skinverwaltung_t::belegtzeiger->get_bild_nr(0) : IMG_LEER;
+}
+
+
+
+void label_t::zeige_info()
+{
+	label_t* l = this;
+	create_win(new label_info_t(welt, l), w_info, (long)this );
 }
