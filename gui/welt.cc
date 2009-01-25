@@ -363,7 +363,7 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		sets->set_land_industry_chains( v.i );
 	}
 	else if(komp==&inp_electric_producer) {
-		sets->set_electric_promille( v.i );
+		sets->set_electric_promille( v.i*10 );
 	}
 	else if(komp==&inp_tourist_attractions) {
 		sets->set_tourist_attractions( v.i );
