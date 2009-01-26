@@ -749,7 +749,7 @@ void haltestelle_t::reroute_goods()
 {
 	// reroute only on demand
 	reroute_counter = welt->get_schedule_counter();
-	// iterate over all different categories
+
 	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
 		if(waren[i]) {
 			vector_tpl<ware_t> * warray = waren[i];
@@ -794,12 +794,12 @@ void haltestelle_t::reroute_goods()
 			if (new_warray->empty()) {
 				bool delete_it = true;
 				switch(i) {
-					case 0: delete_it = warenziele_passenger.empty();
+					case 0: delete_it = warenziele[0].empty();
 						break;
-					case 1: delete_it = warenziele_mail.empty();
+					case 1: delete_it = warenziele[1].empty();
 						break;
 					default:
-						slist_iterator_tpl<warenziel_t> iter(warenziele_freight);
+						slist_iterator_tpl<warenziel_t> iter(warenziele[2]);
 						while(iter.next()  &&  delete_it) {
 							delete_it = iter.get_current().get_catg_index()!=i;
 						}
@@ -896,7 +896,7 @@ void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl
 			// we need to do this here; otherwise the position of the stop (if in water) may not directly be a halt!
 			const warenziel_t wz (halt, type);
 
-			slist_tpl<warenziel_t> *wz_list = &(type->get_catg_index()==0 ? warenziele_passenger : (type->get_catg_index()==1 ? warenziele_mail : warenziele_freight));
+			slist_tpl<warenziel_t> * wz_list = warenziele+min(2,type->get_catg_index());
 			slist_iterator_tpl<warenziel_t> iter(wz_list);
 			while(iter.next()) {
 				const warenziel_t &tmp = iter.get_current();
@@ -906,6 +906,10 @@ void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl
 			}
 
 			wz_list->insert(wz);
+			if(  waren[type->get_catg_index()] == NULL  ) {
+				// indicates that this can route those goods
+				waren[type->get_catg_index()] = new vector_tpl<ware_t>(0);
+			}
 			skip:;
 		}
 	}
@@ -921,9 +925,9 @@ void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl
 void haltestelle_t::rebuild_destinations()
 {
 	// Hajo: first, remove all old entries
-	warenziele_passenger.clear();
-	warenziele_mail.clear();
-	warenziele_freight.clear();
+	warenziele[0].clear();
+	warenziele[1].clear();
+	warenziele[2].clear();
 	rebuilt_destination_counter = welt->get_schedule_counter();
 	resort_freight_info = true;	// might result in error in routing
 
@@ -1125,7 +1129,7 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 				/* for passengers and mail only matching connectings are in the list
 				 * => we can skip many checks
 				 */
-				slist_iterator_tpl<warenziel_t> iter(halt->get_warenziele(ware_catg_index));
+				slist_iterator_tpl<warenziel_t> iter(halt->get_warenziele_unsafe(ware_catg_index));
 				while(  iter.next()  &&  step<max_hops  ) {
 
 					// since these are precalculated, they should be always pointing to a valid ground
@@ -1155,21 +1159,20 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 					}
 				}
 			}
-			else {
+			else if(  waren[ware_catg_index]!=NULL  ) {
 				// for freight, we need more detailed check
-				slist_iterator_tpl<warenziel_t> iter(halt->get_warenziele(ware_catg_index));
+				slist_iterator_tpl<warenziel_t> iter(halt->get_warenziele_freight());
 
 				while(  iter.next()  &&  step<max_hops  ) {
 
 					// check if destination if for the goods type
 					const warenziel_t &wz = iter.get_current();
-
 					if(wz.get_catg_index()==ware_catg_index) {
 
 						// since these are precalculated, they should be always pointing to a valid ground
 						// (if not, we were just under construction, and will be fine after 16 steps)
 						const halthandle_t &tmp_halt = wz.get_zielhalt();
-						if(tmp_halt.is_bound()  &&  tmp_halt->marke != current_mark  &&  tmp_halt->is_enabled(warentyp)) {
+						if(  tmp_halt.is_bound()  &&  tmp_halt->marke != current_mark  ) {
 
 							HNode *node = &nodes[step++];
 
@@ -1307,10 +1310,10 @@ void haltestelle_t::liefere_an_fabrik(const ware_t& ware)
 bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 {
 	w.menge = 0;
-	vector_tpl<ware_t> * warray = waren[w.get_besch()->get_catg_index()];
+	vector_tpl<ware_t> *warray = waren[w.get_besch()->get_catg_index()];
 	if(warray!=NULL) {
 
-		for(unsigned i=0;  i<warray->get_count();  i++ ) {
+		for(  uint32 i=0;  i<warray->get_count();  i++ ) {
 			ware_t &tmp = (*warray)[i];
 
 			// skip empty entries
@@ -1347,7 +1350,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 	// might be a little slower, but ensures that passengers to nearest stop are served first
 	// this allows for separate high speed and normal service
 	const uint8 count = fpl->get_count();
-	vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
+	vector_tpl<ware_t> *warray = waren[wtyp->get_catg_index()];
 
 	if(warray!=NULL) {
 
@@ -1661,17 +1664,16 @@ haltestelle_t::quote_bezeichnung(int quote, convoihandle_t cnv) const
 
 void haltestelle_t::info(cbuffer_t & buf) const
 {
-  char tmp [512];
+	char tmp [512];
 
-  sprintf(tmp,
-	  translator::translate("Passengers %d %c, %d %c, %d no route"),
-	  pax_happy,
-	  30,
-	  pax_unhappy,
-	  31,
-	  pax_no_route
-//	  get_capacity()
-	  );
+	sprintf(tmp,
+		translator::translate("Passengers %d %c, %d %c, %d no route"),
+		pax_happy,
+		30,
+		pax_unhappy,
+		31,
+		pax_no_route
+		);
 	buf.append(tmp);
 }
 
@@ -2071,7 +2073,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				for(int i = 0; i < count; i++) {
 					// add to internal storage (use this function, since the old categories were different)
 					ware_t ware(welt,file);
-					add_ware_to_halt(ware);
+					if(  ware.menge  ) {
+						add_ware_to_halt(ware);
+					}
 				}
 			}
 			file->rdwr_str(s,256);

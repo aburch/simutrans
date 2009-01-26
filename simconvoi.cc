@@ -2141,9 +2141,12 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 			break;
 		}
 
-		// calc_revenue
-		gewinn += v->calc_gewinn(v->last_stop_pos, v->get_pos().get_2d() );
-		v->last_stop_pos = v->get_pos().get_2d();
+		// we need not to call this on the same position
+		if(  v->last_stop_pos != v->get_pos().get_2d()  ) {
+			// calc_revenue
+			gewinn += v->calc_gewinn(v->last_stop_pos, v->get_pos().get_2d() );
+			v->last_stop_pos = v->get_pos().get_2d();
+		}
 
 		freight_info_resort |= v->entladen(k, halt);
 		if(!no_load) {

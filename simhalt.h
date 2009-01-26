@@ -22,6 +22,7 @@
 
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
+#include "tpl/array_tpl.h"
 
 
 
@@ -180,9 +181,7 @@ private:
 	koord init_pos;	// for halt without grounds, created during game initialisation
 
 	// List with all reachable destinations
-	slist_tpl<warenziel_t> warenziele_passenger;
-	slist_tpl<warenziel_t> warenziele_mail;
-	slist_tpl<warenziel_t> warenziele_freight;
+	slist_tpl<warenziel_t> warenziele[3];
 
 	// loest warte_menge ab
 	vector_tpl<ware_t> **waren;
@@ -322,12 +321,15 @@ public:
 
 	void make_public_and_join( spieler_t *sp );
 
-	const slist_tpl<warenziel_t> * get_warenziele_passenger() const {return &warenziele_passenger;}
-	const slist_tpl<warenziel_t> * get_warenziele_mail() const {return &warenziele_mail;}
-	const slist_tpl<warenziel_t> * get_warenziele_freight() const {return &warenziele_freight;}
+	const slist_tpl<warenziel_t> * get_warenziele_passenger() const {return warenziele;}
+	const slist_tpl<warenziel_t> * get_warenziele_mail() const {return warenziele+1;}
+	const slist_tpl<warenziel_t> * get_warenziele_freight() const {return warenziele+2;}
 
 	// returns the matchin warenziele
-	const slist_tpl<warenziel_t> * get_warenziele(uint8 catg_index) const {return &(catg_index==0 ? warenziele_passenger : (catg_index==1 ? warenziele_mail : warenziele_freight));}
+	const slist_tpl<warenziel_t> * get_warenziele(uint8 catg_index) const {return warenziele+min(2,catg_index);}
+
+	// since for suche_route, speed is essential ...
+	const slist_tpl<warenziel_t> * get_warenziele_unsafe(uint8 catg_index) const {return warenziele+catg_index;}
 
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 

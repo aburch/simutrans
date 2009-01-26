@@ -47,7 +47,6 @@
 #include "vehicle/simverkehr.h"
 #include "vehicle/simpeople.h"
 
-//#include "gui/label_frame.h"
 #include "gui/werkzeug_waehler.h"
 #include "gui/karte.h"	// to update map after construction of new industry
 

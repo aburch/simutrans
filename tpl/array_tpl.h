@@ -21,7 +21,9 @@ template<class T> class array_tpl
 
 		explicit array_tpl(index s, const T& value) : data(new T[s]), size(s)
 		{
-			for (index i = 0; i < size; i++) data[i] = value;
+			for (index i = 0; i < size; i++) {
+				data[i] = value;
+			}
 		}
 
 		~array_tpl() { delete [] data; }
@@ -38,7 +40,9 @@ template<class T> class array_tpl
 		{
 			if (size < resize) {
 				T* new_data = new T[resize];
-				for (index i = 0;  i < size; i++) new_data[i] = data[i];
+				for (index i = 0;  i < size; i++) {
+					new_data[i] = data[i];
+				}
 				delete [] data;
 				data = new_data;
 				size = resize;
@@ -50,8 +54,12 @@ template<class T> class array_tpl
 			if (size < resize) {
 				T* new_data = new T[resize];
 				index i;
-				for (i = 0;  i < size; i++) new_data[i] = data[i];
-				for (; i < resize; i++) new_data[i] = value;
+				for (i = 0;  i < size; i++) {
+					new_data[i] = data[i];
+				}
+				for (; i < resize; i++) {
+					new_data[i] = value;
+				}
 				delete [] data;
 				data = new_data;
 				size = resize;
