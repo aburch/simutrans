@@ -44,11 +44,11 @@ private:
 	koord zielpos;
 
 public:
-	halthandle_t get_ziel() const { return ziel; }
-	void set_ziel(halthandle_t ziel) { this->ziel = ziel; }
+	const halthandle_t &get_ziel() const { return ziel; }
+	void set_ziel(const halthandle_t &ziel) { this->ziel = ziel; }
 
-	halthandle_t get_zwischenziel() const { return zwischenziel; }
-	void set_zwischenziel(halthandle_t zwischenziel) { this->zwischenziel = zwischenziel; }
+	const halthandle_t &get_zwischenziel() const { return zwischenziel; }
+	void set_zwischenziel(const halthandle_t &zwischenziel) { this->zwischenziel = zwischenziel; }
 
 	koord get_zielpos() const { return zielpos; }
 	void set_zielpos(const koord zielpos) { this->zielpos = zielpos; }
