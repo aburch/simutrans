@@ -56,6 +56,11 @@ private:
 	double max_mountain_height;                  //01-Dec-01        Markus Weber    Added
 	double map_roughness;                        //01-Dec-01        Markus Weber    Added
 
+	// river stuff
+	sint16 river_number;
+	sint16 min_river_length;
+	sint16 max_river_length;
+
 	uint8 allow_player_change;
 	uint8 use_timeline;
 	sint16 starting_year;
@@ -328,6 +333,13 @@ public:
 	enum { TO_PREVIOUS, TO_TRANSFER, TO_DESTINATION };
 	uint8 get_pay_for_total_distance_mode() const { return pay_for_total_distance ; }
 	void set_pay_for_total_distance_mode( uint8 b ) { pay_for_total_distance = b < 2 ? b : 0; }
+
+	sint16 get_river_number() const { return river_number; }
+	void set_river_number( sint16 n ) { river_number=n; }
+	sint16 get_min_river_length() const { return min_river_length; }
+	void set_min_river_length( sint16 n ) { min_river_length=n; }
+	sint16 get_max_river_length() const { return max_river_length; }
+	void set_max_river_length( sint16 n ) { max_river_length=n; }
 };
 
 #endif

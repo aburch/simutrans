@@ -173,6 +173,13 @@ public:
 	static cstring_t *intercity_road_type;
 
 	/**
+	 * Typ (Name) initiale Stadtverbindungen
+	 *
+	 * @author Hj. Malthaner
+	 */
+	static cstring_t *river_type;
+
+	/**
 	* show month in date?
 	*
 	* @author hsiegeln

@@ -79,7 +79,6 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	inp_x_size.set_pos(koord(LEFT_ARROW,intTopOfButton) );
 	inp_x_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_x_size.add_listener(this);
-	inp_x_size.set_limits(64,4096);
 	inp_x_size.set_value( sets->get_groesse_x() );
 	inp_x_size.set_limits( 64, min(32766,4194304/sets->get_groesse_y()) );
 	inp_x_size.set_increment_mode( sets->get_groesse_x()>=512 ? 128 : 64 );

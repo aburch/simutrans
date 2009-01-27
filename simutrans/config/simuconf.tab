@@ -263,6 +263,19 @@ show_names = 3
 # Fallback (and default) is "city_road"
 #city_road_type = city_road
 
+# now river stuff
+# first river type (should be defined in pak dependent file)
+#river_type = river
+
+# river number (16 gives a few nicely branched rivers)
+#river_number = 16
+
+# min length
+#river_min_length = 16
+
+# max length
+#river_max_length = 320
+
 ###################################time stuff###################################
 
 # Enforce vehicle introduction dates?

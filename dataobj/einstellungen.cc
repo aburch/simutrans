@@ -48,10 +48,9 @@ einstellungen_t::einstellungen_t() :
 	max_mountain_height = 160;                  //can be 0-160.0  01-Dec-01        Markus Weber    Added
 	map_roughness = 0.6;                        //can be 0-1      01-Dec-01        Markus Weber    Added
 
-	// relative to map size
-//	river_number = 4;
-//	min_river_length = 16;
-//	max_river_length = 1000;
+	river_number = 16;
+	min_river_length = 16;
+	max_river_length = 256;
 
 	// some settigns more
 	allow_player_change = true;
@@ -440,6 +439,10 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		if(file->get_version()>101000) {
 			file->rdwr_bool( seperate_halt_capacities, "" );
 			file->rdwr_byte( pay_for_total_distance, "" );
+
+			file->rdwr_short( river_number, "" );
+			file->rdwr_short( min_river_length, "" );
+			file->rdwr_short( max_river_length, "" );
 		}
 	}
 }
@@ -492,6 +495,15 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 			delete test;
 		}
 
+		test = new cstring_t(ltrim(contents.get("river_type")));
+		if(test->len()>0) {
+			delete umgebung_t::river_type;
+			umgebung_t::river_type = test;
+		}
+		else {
+			delete test;
+		}
+
 		umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave));
 		umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps);
 	}
@@ -524,6 +536,10 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 		strncpy( city_road_type, str, 256 );
 		city_road_type[255] = 0;
 	}
+
+	river_number = contents.get_int("river_number", river_number );
+	min_river_length = contents.get_int("river_min_length", min_river_length );
+	max_river_length = contents.get_int("river_max_length", max_river_length );
 
 	pak_diagonal_multiplier = contents.get_int("diagonal_multiplier", pak_diagonal_multiplier);
 

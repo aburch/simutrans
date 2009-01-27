@@ -755,10 +755,14 @@ void karte_t::init_felder()
 
 
 
-void karte_t::create_rivers(uint8 number)
+void karte_t::create_rivers( sint16 number )
 {
 	// First check, wether there is a canal:
-	const weg_besch_t* river_besch = wegbauer_t::weg_search(water_wt, 1, 0, weg_t::type_flat);
+	const weg_besch_t* river_besch = wegbauer_t::get_besch( *umgebung_t::river_type, 0 );
+	if(  river_besch == NULL  ) {
+		// try a channel instead ...
+		river_besch = wegbauer_t::weg_search( water_wt, 1, 0, weg_t::type_flat );
+	}
 	if(  river_besch == NULL  ) {
 		dbg->warning("karte_t::create_rivers()","There is no canal!\n");
 		return;
@@ -802,13 +806,13 @@ void karte_t::create_rivers(uint8 number)
 		koord start = mountain_tiles.at_weight( simrand(mountain_tiles.get_sum_weight()) );
 		koord end = water_tiles[ simrand(water_tiles.get_count()) ];
 		sint16 dist = abs_distance(start,end);
-		if(  dist>min(cached_groesse_karte_x/4,100)  ) {
+		if(  dist > einstellungen->get_min_river_length()  &&  dist < einstellungen->get_max_river_length()  ) {
 			// should be at least of decent length
 			wegbauer_t riverbuilder(this, spieler[1]);
 			riverbuilder.route_fuer(wegbauer_t::river, river_besch);
 			riverbuilder.set_maximum( dist*50 );
 			riverbuilder.calc_route( lookup_kartenboden(end)->get_pos(), lookup_kartenboden(start)->get_pos() );
-			if(  riverbuilder.max_n>15  ) {
+			if(  riverbuilder.max_n >= einstellungen->get_min_river_length()  ) {
 				// do not built too short rivers
 				riverbuilder.baue();
 				number --;
@@ -824,9 +828,7 @@ void karte_t::distribute_groundobjs_cities(int new_anzahl_staedte, sint16 old_x,
 {
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 
-	if(  true  ) { // Generation of rivers.
-		create_rivers( einstellungen->get_anzahl_staedte() );
-	}
+	create_rivers( einstellungen->get_river_number() );
 
 	if(  umgebung_t::ground_object_probability > 0  ) {
 		// add eyecandy like rocky, moles, flowers, ...
@@ -906,9 +908,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
 		}
 
-		// Hajo: No owner so that roads can be removed!
-		wegbauer_t bauigel (this, 0);
-		bauigel.route_fuer(wegbauer_t::strasse, besch);
+		wegbauer_t bauigel (this, spieler[1] );
+		bauigel.route_fuer(wegbauer_t::strasse, besch, NULL, brueckenbauer_t::find_bridge(road_wt,15,get_timeline_year_month()) );
 		bauigel.set_keep_existing_ways(true);
 		bauigel.set_maximum(umgebung_t::intercity_road_length);
 

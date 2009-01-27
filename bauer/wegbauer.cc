@@ -1051,7 +1051,7 @@ wegbauer_t::route_fuer(enum bautyp_t wt, const weg_besch_t *b, const tunnel_besc
 		wt = (bautyp_t)(wt&(bautyp_mask|bot_flag));
 	}
 	if(sp==NULL) {
-	bruecke_besch = NULL;
+		bruecke_besch = NULL;
 		tunnel_besch = NULL;
 	}
 #if AUTOMATIC_BRIDGES

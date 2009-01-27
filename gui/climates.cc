@@ -46,7 +46,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	this->welt_gui = welt_gui;
 
 	// select map stuff ..
-	int intTopOfButton = 16;
+	int intTopOfButton = 4;
 
 	// mountian/water stuff
 	water_level[0].init( button_t::repeatarrowleft, NULL, koord(LEFT_ARROW,intTopOfButton) );
@@ -134,14 +134,42 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	intTopOfButton += 12;
 
 	// the rocky will be alway below the snow line; no need to set this explicitely
+	intTopOfButton += 4;
 
-	set_fenstergroesse( koord(RIGHT_ARROW+16, intTopOfButton+14+8+16) );
-
-	no_tree.init( button_t::square, "no tree", koord(14,intTopOfButton+7), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
+	no_tree.init( button_t::square, "no tree", koord(10,intTopOfButton), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
 	no_tree.pressed=umgebung_t::no_tree;
 	no_tree.add_listener( this );
 	add_komponente( &no_tree );
+	intTopOfButton += 12+4;
+
+	river_n.set_pos(koord(LEFT_ARROW,intTopOfButton) );
+	river_n.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	river_n.add_listener(this);
+	river_n.set_limits(0,1024);
+	river_n.set_value( sets->get_river_number() );
+	river_n.wrap_mode( false );
+	add_komponente( &river_n );
 	intTopOfButton += 12;
+
+	river_min.set_pos(koord(LEFT_ARROW,intTopOfButton) );
+	river_min.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	river_min.add_listener(this);
+	river_min.set_limits(0,1024);
+	river_min.set_value( sets->get_min_river_length() );
+	river_min.wrap_mode( false );
+	add_komponente( &river_min );
+	intTopOfButton += 12;
+
+	river_max.set_pos(koord(LEFT_ARROW,intTopOfButton) );
+	river_max.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	river_max.add_listener(this);
+	river_max.set_limits(0,1024);
+	river_max.set_value( sets->get_max_river_length() );
+	river_max.wrap_mode( false );
+	add_komponente( &river_max );
+	intTopOfButton += 12;
+
+	set_fenstergroesse( koord(RIGHT_ARROW+16, intTopOfButton+4+16) );
 }
 
 
@@ -153,13 +181,13 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
  * @author Hj. Malthaner
  */
 bool
-climate_gui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 {
 	if(komp==&no_tree) {
 		umgebung_t::no_tree ^= 1;
 		no_tree.pressed ^= 1;
 		welt_gui->update_preview();
-		}
+	}
 	else if(komp==water_level+0) {
 		if(sets->get_grundwasser() > -10*Z_TILE_STEP ) {
 			sets->set_grundwasser( sets->get_grundwasser() - Z_TILE_STEP );
@@ -200,7 +228,15 @@ climate_gui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			welt_gui->update_preview();
 		}
 	}
-
+	else if(komp==&river_n) {
+		sets->set_river_number( v.i );
+	}
+	else if(komp==&river_min) {
+		sets->set_min_river_length( v.i );
+	}
+	else if(komp==&river_max) {
+		sets->set_max_river_length( v.i );
+	}
 	else {
 		// all climate borders from here on
 		sint16 *climate_borders = (sint16 *)sets->get_climate_borders();
@@ -284,14 +320,14 @@ climate_gui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 
 void climate_gui_t::zeichnen(koord pos, koord gr)
 {
-	no_tree.pressed=umgebung_t::no_tree;
+	no_tree.pressed = umgebung_t::no_tree;
 
 	no_tree.set_text( "no tree" );
 
 	gui_frame_t::zeichnen(pos, gr);
 
 	const int x = pos.x+10;
-	int y = pos.y+16+16;
+	int y = pos.y+16+4;
 
 	const sint16 water_level = (sets->get_grundwasser()/Z_TILE_STEP)+6;
 	const sint16 *climate_borders = sets->get_climate_borders();
@@ -333,5 +369,14 @@ void climate_gui_t::zeichnen(koord pos, koord gr)
 	y += 12;
 	display_proportional_clip(x, y, translator::translate(grund_besch_t::get_climate_name_from_bit(rocky_climate)), ALIGN_LEFT, COL_BLACK, true);
 	display_proportional_clip(x+TEXT_RIGHT, y, ntos(climate_borders[rocky_climate], 0), ALIGN_RIGHT, COL_WHITE, true);
+	y += 12;
+
+	y += 12+4+4;	// no tree
+
+	display_proportional_clip(x, y, translator::translate("Number of rivers"), ALIGN_LEFT, COL_BLACK, true);
+	y += 12;
+	display_proportional_clip(x, y, translator::translate("minimum length of rivers"), ALIGN_LEFT, COL_BLACK, true);
+	y += 12;
+	display_proportional_clip(x, y, translator::translate("maximum length of rivers"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
 }

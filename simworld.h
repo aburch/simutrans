@@ -357,7 +357,7 @@ private:
 	/*
 	 * Will create rivers.
 	 */
-	void create_rivers(uint8 number);
+	void create_rivers(sint16 number);
 
 	/**
 	 * Distribute groundobjs and cities on the map but not
