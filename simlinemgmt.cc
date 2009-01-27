@@ -54,12 +54,16 @@ void
 simlinemgmt_t::add_line(linehandle_t new_line)
 {
 	uint16 id = new_line->get_line_id();
-DBG_MESSAGE("simlinemgmt_t::add_line()","id=%d",new_line.get_id());
+	if(  id==INVALID_LINE_ID  ) {
+		id = get_unique_line_id();
+		new_line->set_line_id( id );
+	}
+DBG_MESSAGE("simlinemgmt_t::add_line()","id=%d",new_line->get_line_id());
 	if( (used_ids[id/8] & (1<<(id&7)) ) !=0 ) {
 		dbg->error("simlinemgmt_t::add_line()","Line id %i doubled! (0x%X)",id,used_ids[id/8]);
 		id += 12345 + ((7*id) & 0x0FFF);
-		dbg->message("simlinemgmt_t::add_line()","new line id %i!",id);
 		new_line->set_line_id( id );
+		dbg->message("simlinemgmt_t::add_line()","new line id %i!",id);
 	}
 	used_ids[id/8] |= (1<<(id&7));	// should be registered anyway ...
 	all_managed_lines.push_back(new_line);

@@ -21,6 +21,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp)
 	self = linehandle_t(this);
 	sprintf( name, "(%i) %s", self.get_id(), translator::translate("Line") );
 	init_financial_history();
+	this->id = INVALID_LINE_ID;
 	this->welt = welt;
 	this->old_fpl = NULL;
 	this->fpl = NULL;
