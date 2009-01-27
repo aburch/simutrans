@@ -64,6 +64,7 @@ public:
 		luft=air_wt,
 		narrowgauge=narrowgauge_wt,
 		leitung=powerline_wt,
+		river=127,
 		bautyp_mask=255,
 		bot_flag=0x100,					// do not connect to other ways
 		elevated_flag=0x200,			// elevated structure
@@ -163,11 +164,12 @@ private:
 	void baue_strasse();
 	void baue_schiene();
 	void baue_leitung();
+	void baue_fluss();
 
 public:
 	koord3d get_route_bei(int i) const { return route[i]; }
 
-	int n, max_n;
+	sint32 n, max_n;
 
 	/**
 	 * If a way is built on top of another way, should the type

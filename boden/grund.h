@@ -376,7 +376,7 @@ public:
 	halthandle_t get_halt() const;
 	bool is_halt() const { return flags & is_halt_flag; }
 
-	inline sint16 get_hoehe() const {return pos.z;}
+	inline sint8 get_hoehe() const {return pos.z;}
 
 	void set_hoehe(int h) { pos.z = h;}
 

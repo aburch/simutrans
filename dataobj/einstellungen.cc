@@ -48,6 +48,11 @@ einstellungen_t::einstellungen_t() :
 	max_mountain_height = 160;                  //can be 0-160.0  01-Dec-01        Markus Weber    Added
 	map_roughness = 0.6;                        //can be 0-1      01-Dec-01        Markus Weber    Added
 
+	// relative to map size
+//	river_number = 4;
+//	min_river_length = 16;
+//	max_river_length = 1000;
+
 	// some settigns more
 	allow_player_change = true;
 	use_timeline = 2;

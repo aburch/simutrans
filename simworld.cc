@@ -755,9 +755,79 @@ void karte_t::init_felder()
 
 
 
+void karte_t::create_rivers(uint8 number)
+{
+	// First check, wether there is a canal:
+	const weg_besch_t* river_besch = wegbauer_t::weg_search(water_wt, 1, 0, weg_t::type_flat);
+	if(  river_besch == NULL  ) {
+		dbg->warning("karte_t::create_rivers()","There is no canal!\n");
+		return;
+	}
+
+// create a vector of the highest points
+	vector_tpl<koord> water_tiles;
+	weighted_vector_tpl<koord> mountain_tiles;
+
+	sint8 last_height = 1;
+	koord last_koord(0,0);
+	const sint16 max_dist = cached_groesse_karte_y+cached_groesse_karte_x;
+
+	// trunk of 16 will ensure that rivers are long enough apart ...
+	for(  sint16 y = 8;  y < cached_groesse_karte_y;  y+=16  ) {
+		for(  sint16 x = 8;  x < cached_groesse_karte_x;  x+=16  ) {
+			koord k(x,y);
+			grund_t *gr = lookup_kartenboden(k);
+			const sint8 h = gr->get_hoehe()-get_grundwasser();
+			if(  gr->ist_wasser()  ) {
+				// may be good to start a river here
+				water_tiles.push_back(k);
+			}
+			else if(  h>=last_height  ||  abs_distance(last_koord,k)>simrand(max_dist)  ) {
+				// something worth to add here
+				if(  h>last_height  ) {
+					last_height = h;
+				}
+				last_koord = k;
+				mountain_tiles.append( k, h, 256 );
+			}
+		}
+	}
+	if(  water_tiles.get_count() == 0  ) {
+		dbg->message("karte_t::create_rivers()","There aren't any water tiles!\n");
+		return;
+	}
+
+	// now make rivers
+	while(  number>0  &&  mountain_tiles.get_count()>0  ) {
+		koord start = mountain_tiles.at_weight( simrand(mountain_tiles.get_sum_weight()) );
+		koord end = water_tiles[ simrand(water_tiles.get_count()) ];
+		sint16 dist = abs_distance(start,end);
+		if(  dist>min(cached_groesse_karte_x/4,100)  ) {
+			// should be at least of decent length
+			wegbauer_t riverbuilder(this, spieler[1]);
+			riverbuilder.route_fuer(wegbauer_t::river, river_besch);
+			riverbuilder.set_maximum( dist*50 );
+			riverbuilder.calc_route( lookup_kartenboden(end)->get_pos(), lookup_kartenboden(start)->get_pos() );
+			if(  riverbuilder.max_n>15  ) {
+				// do not built too short rivers
+				riverbuilder.baue();
+				number --;
+			}
+			mountain_tiles.remove( start );
+		}
+	}
+}
+
+
+
 void karte_t::distribute_groundobjs_cities(int new_anzahl_staedte, sint16 old_x, sint16 old_y)
 {
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
+
+	if(  true  ) { // Generation of rivers.
+		create_rivers( einstellungen->get_anzahl_staedte() );
+	}
+
 	if(  umgebung_t::ground_object_probability > 0  ) {
 		// add eyecandy like rocky, moles, flowers, ...
 		koord k;
@@ -765,7 +835,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 		for(  k.y=0;  k.y<get_groesse_y();  k.y++  ) {
 			for(  k.x=(k.y<old_y)?old_x:0;  k.x<get_groesse_x();  k.x++  ) {
 				grund_t *gr = lookup_kartenboden(k);
-				if(gr->get_typ()==grund_t::boden) {
+				if(  gr->get_typ()==grund_t::boden  &&  !gr->hat_wege()  ) {
 					queried --;
 					if(  queried<0  ) {
 						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(gr->get_hoehe()), gr->get_grund_hang() );

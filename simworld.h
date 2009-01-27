@@ -354,6 +354,11 @@ private:
 	// restores history for older savegames
 	void restore_history();
 
+	/*
+	 * Will create rivers.
+	 */
+	void create_rivers(uint8 number);
+
 	/**
 	 * Distribute groundobjs and cities on the map but not
 	 * in the rectangle from (0,0) till (old_x, old_y).

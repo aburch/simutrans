@@ -17,6 +17,7 @@
 #include "../simmesg.h"
 #include "../player/simplay.h"
 #include "../simplan.h"
+#include "../simtools.h"
 #include "../simdepot.h"
 
 #include "wegbauer.h"
@@ -108,9 +109,9 @@ bool wegbauer_t::alle_wege_geladen()
 
 bool wegbauer_t::register_besch(const weg_besch_t *besch)
 {
-  DBG_DEBUG("wegbauer_t::register_besch()", besch->get_name());
-  alle_wegtypen.put(besch->get_name(), besch);
-  return true;
+	DBG_DEBUG("wegbauer_t::register_besch()", besch->get_name());
+	alle_wegtypen.put(besch->get_name(), besch);
+	return true;
 }
 
 
@@ -281,13 +282,13 @@ wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
 	leitung_t* lt = bd->find<leitung_t>();
 	if(lt!=NULL) {
 		ribi_t::ribi lt_ribi = lt->get_ribi();
-	    // it is our way we want to cross: can we built a crossing here?
-	    // both ways must be straight and no ends
-	    return
-	      ribi_t::ist_gerade(lt_ribi)
-	      &&  !ribi_t::ist_einfach(lt_ribi)
-	      &&  ribi_t::ist_gerade(ribi_typ(zv))
-	      &&  (lt_ribi&ribi_typ(zv))==0;
+		// it is our way we want to cross: can we built a crossing here?
+		// both ways must be straight and no ends
+		return
+		  ribi_t::ist_gerade(lt_ribi)
+		  &&  !ribi_t::ist_einfach(lt_ribi)
+		  &&  ribi_t::ist_gerade(ribi_typ(zv))
+		  &&  (lt_ribi&ribi_typ(zv))==0;
 	}
 	// check for transformer
 	if (bd->find<pumpe_t>() != NULL || bd->find<senke_t>()  != NULL) {
@@ -753,11 +754,35 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			}
 			break;
 
-	case luft: // hsiegeln: runway
-		ok = !to->ist_wasser() && (to->hat_weg(air_wt) || !to->hat_wege())  &&  to->find<leitung_t>()==NULL  &&  !fundament  &&  check_building( from, zv )  &&  check_building( to, -zv );
-		// calculate costs
-		*costs = welt->get_einstellungen()->way_count_straight;
-		break;
+		case river:
+			if(  to->ist_wasser()  ) {
+				ok = true;
+				// do not care while in ocean
+				*costs = 1;
+			}
+			else {
+				// only downstream
+				ok = from->get_pos().z>=to->get_pos().z  &&  check_for_leitung(zv,to)  &&  (to->hat_weg(water_wt)  ||  !to->hat_wege());
+				// calculate costs
+				if(ok) {
+					// check for depots/stops/...
+					if(  !check_building( from, zv )  ||  !check_building( to, -zv )  ) {
+						return false;
+					}
+					// prefer existing rivers:
+					*costs = to->hat_weg(water_wt) ? 10 : 10+simrand(50);
+					if(to->get_weg_hang()!=0) {
+						*costs += welt->get_einstellungen()->way_count_slope*2;
+					}
+				}
+			}
+			break;
+
+		case luft: // hsiegeln: runway
+			ok = !to->ist_wasser() && (to->hat_weg(air_wt) || !to->hat_wege())  &&  to->find<leitung_t>()==NULL  &&  !fundament  &&  check_building( from, zv )  &&  check_building( to, -zv );
+			// calculate costs
+			*costs = welt->get_einstellungen()->way_count_straight;
+			break;
 	}
 	return ok;
 }
@@ -999,15 +1024,15 @@ wegbauer_t::wegbauer_t(karte_t* wl, spieler_t* spl) : next_gr(32)
  */
 void wegbauer_t::set_keep_existing_ways(bool yesno)
 {
-  keep_existing_ways = yesno;
-  keep_existing_faster_ways = false;
+	keep_existing_ways = yesno;
+	keep_existing_faster_ways = false;
 }
 
 
 void wegbauer_t::set_keep_existing_faster_ways(bool yesno)
 {
-  keep_existing_ways = false;
-  keep_existing_faster_ways = yesno;
+	keep_existing_ways = false;
+	keep_existing_faster_ways = yesno;
 }
 
 
@@ -1015,9 +1040,9 @@ void wegbauer_t::set_keep_existing_faster_ways(bool yesno)
 void
 wegbauer_t::route_fuer(enum bautyp_t wt, const weg_besch_t *b, const tunnel_besch_t *tunnel, const bruecke_besch_t *br)
 {
-  bautyp = wt;
-  besch = b;
-  bruecke_besch = br;
+	bautyp = wt;
+	besch = b;
+	bruecke_besch = br;
 	tunnel_besch = tunnel;
 	if(wt&tunnel_flag  &&  tunnel==NULL) {
 		dbg->fatal("wegbauer_t::route_fuer()","needs a tunnel description for an underground route!");
@@ -1025,14 +1050,14 @@ wegbauer_t::route_fuer(enum bautyp_t wt, const weg_besch_t *b, const tunnel_besc
 	if((wt&bautyp_mask)==luft) {
 		wt = (bautyp_t)(wt&(bautyp_mask|bot_flag));
 	}
-  if(sp==NULL) {
-  	bruecke_besch = NULL;
+	if(sp==NULL) {
+	bruecke_besch = NULL;
 		tunnel_besch = NULL;
-  }
+	}
 #if AUTOMATIC_BRIDGES
-  else if(bruecke_besch==NULL) {
-  	bruecke_besch = brueckenbauer_t::find_bridge((waytype_t)b->get_wtyp(),25,0);
-  }
+	else if(bruecke_besch==NULL) {
+		bruecke_besch = brueckenbauer_t::find_bridge((waytype_t)b->get_wtyp(),25,0);
+	}
 #endif
   DBG_MESSAGE("wegbauer_t::route_fuer()",
          "setting way type to %d, besch=%s, bruecke_besch=%s",
@@ -1102,15 +1127,15 @@ wegbauer_t::intern_calc_route(const koord3d start3d, const koord3d ziel3d)
 	// there are several variant for mantaining the open list
 	// however, only binary heap and HOT queue with binary heap are worth considering
 #ifdef tpl_HOT_queue_tpl_h
-    //static HOT_queue_tpl <route_t::ANode *> queue;
+	//static HOT_queue_tpl <route_t::ANode *> queue;
 #else
 #ifdef tpl_binary_heap_tpl_h
-    static binary_heap_tpl <route_t::ANode *> queue;
+	static binary_heap_tpl <route_t::ANode *> queue;
 #else
 #ifdef tpl_sorted_heap_tpl_h
-    //static sorted_heap_tpl <route_t::ANode *> queue;
+	//static sorted_heap_tpl <route_t::ANode *> queue;
 #else
-    //static prioqueue_tpl <route_t::ANode *> queue;
+	//static prioqueue_tpl <route_t::ANode *> queue;
 #endif
 #endif
 #endif
@@ -1546,6 +1571,21 @@ long ms=dr_time();
 
 	if(bautyp==luft  &&  besch->get_styp()==1) {
 		intern_calc_route_runways(start, ziel);
+	}
+	else if(bautyp==river) {
+		// river only go downards => start and end are clear ...
+		if(  start.z > ziel.z  ) {
+			intern_calc_route( start, ziel );
+		}
+		else {
+			intern_calc_route( ziel, start );
+		}
+		while(  route.get_count()>0  &&  welt->lookup(route[0])->ist_wasser()  ) {
+			// remove leading water ...
+			route.remove_at(0);
+		}
+		// now this is the true length of the river
+		max_n = route.get_count()-1;
 	}
 	else {
 		// we need start and target for on plain ground and never on monorails!
@@ -2010,6 +2050,58 @@ wegbauer_t::baue_leitung()
 
 
 
+// make a river
+void
+wegbauer_t::baue_fluss()
+{
+	/* since the contraits of the wayfinder ensures that a river flows always downwards
+	 * we can assume that the first tiles are the ocean.
+	 * Usually the wayfinder would find either direction!
+	 */
+
+	// Do we join an other river?
+	sint32 start_n = 0;
+	for(  sint32 idx=start_n;  idx<=max_n;  idx++  ) {
+		if(  welt->lookup(route[idx])->hat_weg(water_wt)  ) {
+			start_n = idx;
+		}
+	}
+	if(  start_n>= max_n  ) {
+		// completly joined another river => nothing to do
+		return;
+	}
+
+	// first lower riverbed
+	const sint8 start_h = route[start_n].z;
+	for(  sint32 idx=start_n;  idx<=max_n;  idx++  ) {
+		koord3d pos = route[idx];
+		if(pos.z<=start_h){
+			// do not handle both joining and water ...
+			continue;
+		}
+		if(  !welt->ebne_planquadrat( NULL, pos.get_2d(), pos.z-1 )  ) {
+			dbg->message( "wegbauer_t::baue_fluss()","lowering tile %s failed.", pos.get_str() );
+		}
+	}
+
+	// now build the river
+	for(  sint32 i=start_n;  i<=max_n;  i++  ) {
+		grund_t* gr = welt->lookup_kartenboden(route[i].get_2d());
+		if(  gr->get_typ()!=grund_t::wasser  ) {
+			// get direction
+			ribi_t::ribi ribi = calc_ribi(i);
+			bool extend = gr->weg_erweitern(water_wt, ribi);
+			if(  !extend  ) {
+				weg_t *sch=weg_t::alloc(water_wt);
+				sch->set_besch(besch);
+				gr->neuen_weg_bauen(sch, ribi, NULL);
+			}
+		}
+	}
+}
+
+
+
 void
 wegbauer_t::baue()
 {
@@ -2048,12 +2140,15 @@ INT_CHECK("simbau 1072");
 			DBG_MESSAGE("wegbauer_t::baue", "schiene");
 			baue_schiene();
 			break;
-   	case strasse:
+		case strasse:
 			baue_strasse();
 			DBG_MESSAGE("wegbauer_t::baue", "strasse");
 			break;
 		case leitung:
 			baue_leitung();
+			break;
+		case river:
+			baue_fluss();
 			break;
 	}
 
