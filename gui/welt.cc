@@ -175,7 +175,8 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	// other settings
 	intTopOfButton += 5;
 	use_intro_dates.set_pos( koord(10,intTopOfButton) );
-	use_intro_dates.set_typ( button_t::square );
+	use_intro_dates.set_typ( button_t::square_state );
+	use_intro_dates.pressed = sets->get_use_timeline()&1;
 	use_intro_dates.add_listener( this );
 	add_komponente( &use_intro_dates );
 
@@ -190,15 +191,17 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 
 	intTopOfButton += 5;
 	allow_player_change.set_pos( koord(10,intTopOfButton) );
-	allow_player_change.set_typ( button_t::square );
+	allow_player_change.set_typ( button_t::square_state );
 	allow_player_change.add_listener( this );
+	allow_player_change.pressed = sets->get_allow_player_change();
 	add_komponente( &allow_player_change );
 	intTopOfButton += 12;
 
 	intTopOfButton += 5;
 	use_beginner_mode.set_pos( koord(10,intTopOfButton) );
-	use_beginner_mode.set_typ( button_t::square );
+	use_beginner_mode.set_typ( button_t::square_state );
 	use_beginner_mode.add_listener( this );
+	use_beginner_mode.pressed = sets->get_beginner_mode();
 	add_komponente( &use_beginner_mode );
 	intTopOfButton += 12;
 
@@ -385,13 +388,16 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		knr = sets->get_karte_nummer();	// otherwise using cancel would not show the normal generated map again
 	}
 	else if(komp==&use_intro_dates) {
-		sets->set_use_timeline( !(sets->get_use_timeline()&1) );
+		sets->set_use_timeline( use_intro_dates.pressed^1 );
+		use_intro_dates.pressed = sets->get_use_timeline();
 	}
 	else if(komp==&allow_player_change) {
-		sets->set_allow_player_change( !sets->get_allow_player_change() );
+		sets->set_allow_player_change( allow_player_change.pressed^1 );
+		allow_player_change.pressed = sets->get_allow_player_change();
 	}
 	else if(komp==&use_beginner_mode) {
-		sets->set_beginner_mode( !sets->get_beginner_mode() );
+		sets->set_beginner_mode( use_beginner_mode.pressed^1 );
+		use_intro_dates.pressed = sets->get_beginner_mode();
 	}
 	else if(komp==&load_game) {
 		load = true;
@@ -444,9 +450,6 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 			sets->heightfield = "";
 		}
 	}
-	use_intro_dates.pressed = sets->get_use_timeline()&1;
-	allow_player_change.pressed = sets->get_allow_player_change();
-	use_beginner_mode.pressed = sets->get_beginner_mode();
 
 	if(old_lang!=translator::get_language()) {
 		// update button texts!

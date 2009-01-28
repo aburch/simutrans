@@ -1013,6 +1013,7 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 	*einstellungen = *sets;
 	// names during creation time
 	einstellungen->set_name_language_iso( umgebung_t::language_iso );
+	einstellungen->set_use_timeline( einstellungen->get_use_timeline()&1 );
 
 	x_off = y_off = 0;
 
