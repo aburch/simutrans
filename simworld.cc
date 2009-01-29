@@ -758,17 +758,14 @@ void karte_t::init_felder()
 void karte_t::create_rivers( sint16 number )
 {
 	// First check, wether there is a canal:
-	const weg_besch_t* river_besch = wegbauer_t::get_besch( *umgebung_t::river_type, 0 );
+	const weg_besch_t* river_besch = wegbauer_t::get_besch( umgebung_t::river_type[umgebung_t::river_types-1], 0 );
 	if(  river_besch == NULL  ) {
-		// try a channel instead ...
-		river_besch = wegbauer_t::weg_search( water_wt, 1, 0, weg_t::type_flat );
-	}
-	if(  river_besch == NULL  ) {
-		dbg->warning("karte_t::create_rivers()","There is no canal!\n");
+		// should never reaching here ...
+		dbg->warning("karte_t::create_rivers()","There is no river defined!\n");
 		return;
 	}
 
-// create a vector of the highest points
+	// create a vector of the highest points
 	vector_tpl<koord> water_tiles;
 	weighted_vector_tpl<koord> mountain_tiles;
 
@@ -828,7 +825,9 @@ void karte_t::distribute_groundobjs_cities(int new_anzahl_staedte, sint16 old_x,
 {
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 
-	create_rivers( einstellungen->get_river_number() );
+	if(  umgebung_t::river_types>0  &&  einstellungen->get_river_number()>0  ) {
+		create_rivers( einstellungen->get_river_number() );
+	}
 
 	if(  umgebung_t::ground_object_probability > 0  ) {
 		// add eyecandy like rocky, moles, flowers, ...
@@ -901,7 +900,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev;
 
 		// Hajo: connect some cities with roads
-		const weg_besch_t* besch = wegbauer_t::get_besch(*umgebung_t::intercity_road_type);
+		const weg_besch_t* besch = wegbauer_t::get_besch(umgebung_t::intercity_road_type);
 		if(besch == 0) {
 			dbg->warning("karte_t::init()", "road type '%s' not found", (const char*)*umgebung_t::intercity_road_type);
 			// Hajo: try some default (might happen with timeline ... )

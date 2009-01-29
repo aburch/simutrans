@@ -265,7 +265,10 @@ show_names = 3
 
 # now river stuff
 # first river type (should be defined in pak dependent file)
-#river_type = river
+# The highest number is the smallest. A river with max_speed==0 is not navigavable by ships.
+#river_type[0] = river
+#river_type[1] = small_river
+#river_type[2] = just_the source
 
 # river number (16 gives a few nicely branched rivers)
 #river_number = 16

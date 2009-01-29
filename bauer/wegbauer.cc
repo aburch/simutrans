@@ -1580,7 +1580,7 @@ long ms=dr_time();
 		else {
 			intern_calc_route( ziel, start );
 		}
-		while(  route.get_count()>0  &&  welt->lookup(route[0])->ist_wasser()  ) {
+		while(  route.get_count()>0  &&  welt->lookup(route[0])->get_grund_hang()==hang_t::flach  ) {
 			// remove leading water ...
 			route.remove_at(0);
 		}
@@ -2095,6 +2095,28 @@ wegbauer_t::baue_fluss()
 				weg_t *sch=weg_t::alloc(water_wt);
 				sch->set_besch(besch);
 				gr->neuen_weg_bauen(sch, ribi, NULL);
+			}
+		}
+	}
+
+	// we will make rivers gradually larger by stepping up their width
+	if(  umgebung_t::river_types>1  ) {
+		for(  sint32 idx=0;  idx<=start_n;  idx++  ) {
+			weg_t* w = welt->lookup_kartenboden(route[idx].get_2d())->get_weg(water_wt);
+			if(w) {
+				int type;
+				for(  type=umgebung_t::river_types-1;  type>0;  type--  ) {
+					// llokup type
+					if(  w->get_besch()==alle_wegtypen.get(umgebung_t::river_type[type])  ) {
+						break;
+					}
+				}
+				// still room to expand
+				if(  type>0  ) {
+					// thus we enlarge
+					w->set_besch( alle_wegtypen.get(umgebung_t::river_type[type-1]) );
+					w->calc_bild();
+				}
 			}
 		}
 	}

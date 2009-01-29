@@ -486,22 +486,20 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 		umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration);
 
 		umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", umgebung_t::intercity_road_length);
-		cstring_t *test = new cstring_t(ltrim(contents.get("intercity_road_type")));
-		if(test->len()>0) {
+		const char *test = ltrim(contents.get("intercity_road_type"));
+		if(*test  &&  test) {
 			delete umgebung_t::intercity_road_type;
-			umgebung_t::intercity_road_type = test;
-		}
-		else {
-			delete test;
+			umgebung_t::intercity_road_type = strdup(test);
 		}
 
-		test = new cstring_t(ltrim(contents.get("river_type")));
-		if(test->len()>0) {
-			delete umgebung_t::river_type;
-			umgebung_t::river_type = test;
-		}
-		else {
-			delete test;
+		// up to ten rivers are possible
+		for(  int i = 0;  i<10;  i++  ) {
+			char name[32];
+			sprintf( name, "river_type[%i]", i );
+			const char *test = ltrim(contents.get(name));
+			if(test  &&  *test) {
+				umgebung_t::river_type[umgebung_t::river_types++] = strdup( test );
+			}
 		}
 
 		umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave));

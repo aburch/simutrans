@@ -2742,7 +2742,11 @@ schiff_t::schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last)
 bool
 schiff_t::ist_befahrbar(const grund_t *bd) const
 {
-	return bd->ist_wasser()  ||  bd->hat_weg(water_wt);
+	if(  bd->ist_wasser()  ) {
+		return true;
+	}
+	const weg_t *w = bd->get_weg(water_wt);
+	return (w  &&  w->get_max_speed()>0);
 }
 
 
