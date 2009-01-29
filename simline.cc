@@ -31,6 +31,14 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp)
 
 
 
+void simline_t::set_line_id(uint32 id)
+{
+	this->id = id;
+	sprintf( name, "(%i) %s", id, translator::translate("Line") );
+}
+
+
+
 simline_t::~simline_t()
 {
 	sint32 count = count_convoys() - 1;

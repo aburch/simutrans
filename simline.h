@@ -145,7 +145,7 @@ public:
 
 	uint16 get_line_id() const {return id;}
 
-	void set_line_id(uint32 id) {this->id=id;}
+	void set_line_id(uint32 id);
 
 	/*
 	 * load or save the line
