@@ -1920,7 +1920,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	for( int r=0;  r<2;  r++  ) {
 		koord testsize = (r&1)==0 ? size : koord(size.y,size.x);
 		for(  sint8 j=3;  j>=0;  j-- ) {
-			koord offset(((j&1)^1)*(testsize.x-1),(j&1)*(testsize.y-1));
+			koord offset(((j&1)^1)*(testsize.x-1),((j>>1)&1)*(testsize.y-1));
 			if(welt->ist_platz_frei(pos-offset, testsize.x, testsize.y, NULL, besch->get_allowed_climate_bits())) {
 				// well, at least this is theoretical possible here
 				any_ok = true;
@@ -1930,7 +1930,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 				int best_halt_n = 0, best_halt_s = 0, best_halt_e = 0, best_halt_w = 0;
 				// test also diagonal corners (that is why from -1 to size!)
 				for(  sint16 y=-1;  y<=testsize.y;  y++  ) {
-					// left ( for all tiles, even bridges)
+					// left (for all tiles, even bridges)
 					const planquadrat_t *pl = welt->lookup( test_start+koord(-1,y) );
 					if(  pl  &&  pl->get_halt().is_bound()  &&  sp==pl->get_halt()->get_besitzer()  ) {
 						halt = pl->get_halt();
@@ -2032,7 +2032,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		return "Tile not empty.";
 	}
 	// is there no halt to connect?
-	if(!halt.is_bound()) {
+	if(  !halt.is_bound()  ||  any_halt==0  ) {
 		return "Post muss neben\nHaltestelle\nliegen!\n";
 	}
 
