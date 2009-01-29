@@ -26,6 +26,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp)
 	this->old_fpl = NULL;
 	this->fpl = NULL;
 	this->sp = sp;
+	state_color = COL_YELLOW;
 }
 
 
@@ -101,9 +102,7 @@ void simline_t::add_convoy(convoihandle_t cnv)
 
 	// will not hurt ...
 	financial_history[0][LINE_CONVOIS] = count_convoys();
-	if(state_color==COL_BLACK  &&  cnv->has_obsolete_vehicles()) {
-		state_color = COL_DARK_BLUE;
-	}
+	recalc_status();
 
 	// do we need to tell the world about our new schedule?
 	if(  update_schedules  ) {

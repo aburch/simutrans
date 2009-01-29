@@ -34,20 +34,66 @@ class karte_t;
 class simlinemgmt_t;
 
 class simline_t {
+
+public:
+	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6, maglevline=7, narrowgaugeline=8};
+	static uint8 convoi_to_line_catgory[MAX_CONVOI_COST];
+
 protected:
 	simline_t(karte_t* welt, spieler_t*sp);
 
-public:
+	schedule_t * fpl,  *old_fpl;
+	linetype type;
+	spieler_t *sp;
+
+private:
+	static karte_t * welt;
+	char name[128];
+
 	/**
 	 * Handle for ourselves. Can be used like the 'this' pointer
 	 * @author Hj. Malthaner
 	 */
 	linehandle_t self;
 
-	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6, maglevline=7, narrowgaugeline=8};
-	static uint8 convoi_to_line_catgory[MAX_CONVOI_COST];
+	/*
+	 * the line id
+	 * @author hsiegeln
+	 */
+	uint16 id;
 
+	/*
+	 * the current state saved as color
+	 * Meanings are BLACK (ok), WHITE (no convois), YELLOW (no vehicle moved), RED (last month income minus), BLUE (at least one convoi vehicle is obsolete)
+	 */
+	uint8 state_color;
+
+	/*
+	 * a list of all convoys assigned to this line
+	 * @author hsiegeln
+	 */
+	vector_tpl<convoihandle_t> line_managed_convoys;
+
+	/*
+	 * a list of all convoys assigned to this line
+	 * @author hsiegeln
+	 */
+	minivec_tpl<uint8> goods_catg_index;
+
+	/*
+ 	 * struct holds new financial history for line
+	 * @author hsiegeln
+	 */
+	sint64 financial_history[MAX_MONTHS][MAX_LINE_COST];
+
+	void init_financial_history();
+
+	void recalc_status();
+
+public:
 	~simline_t();
+
+	linehandle_t get_handle() const { return self; }
 
 	/*
 	 * add convoy to route
@@ -154,51 +200,9 @@ public:
 	// recalculates the good transported by this line and (in case of changes) will start schedule recalculation
 	void recalc_catg_index();
 
-protected:
-	schedule_t * fpl,  *old_fpl;
-	linetype type;
-	spieler_t *sp;
-
 public:
 	spieler_t *get_besitzer() const {return sp;}
 
-private:
-	static karte_t * welt;
-	char name[128];
-
-	/*
-	 * the line id
-	 * @author hsiegeln
-	 */
-	uint16 id;
-
-	/*
-	 * the current state saved as color
-	 * Meanings are BLACK (ok), WHITE (no convois), YELLOW (no vehicle moved), RED (last month income minus), BLUE (at least one convoi vehicle is obsolete)
-	 */
-	uint8 state_color;
-
-	/*
-	 * a list of all convoys assigned to this line
-	 * @author hsiegeln
-	 */
-	vector_tpl<convoihandle_t> line_managed_convoys;
-
-	/*
-	 * a list of all convoys assigned to this line
-	 * @author hsiegeln
-	 */
-	minivec_tpl<uint8> goods_catg_index;
-
-	/*
- 	 * struct holds new financial history for line
-	 * @author hsiegeln
-	 */
-	sint64 financial_history[MAX_MONTHS][MAX_LINE_COST];
-
-	void init_financial_history();
-
-	void recalc_status();
 };
 
 
