@@ -770,9 +770,9 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 						return false;
 					}
 					// prefer existing rivers:
-					*costs = to->hat_weg(water_wt) ? 10 : 10+simrand(50);
+					*costs = to->hat_weg(water_wt) ? 10 : 10+simrand(welt->get_einstellungen()->way_count_90_curve);
 					if(to->get_weg_hang()!=0) {
-						*costs += welt->get_einstellungen()->way_count_slope*2;
+						*costs += welt->get_einstellungen()->way_count_slope*10;
 					}
 				}
 			}
@@ -2099,6 +2099,8 @@ wegbauer_t::baue_fluss()
 		}
 	}
 
+#if 0
+// problem: way is not alsways to same destination!
 	// we will make rivers gradually larger by stepping up their width
 	if(  umgebung_t::river_types>1  ) {
 		for(  sint32 idx=0;  idx<=start_n;  idx++  ) {
@@ -2120,6 +2122,7 @@ wegbauer_t::baue_fluss()
 			}
 		}
 	}
+#endif
 }
 
 
