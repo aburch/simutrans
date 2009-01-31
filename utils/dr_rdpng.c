@@ -1,6 +1,7 @@
-#include <png.h>
+//#include <png.h>
 #include <stdlib.h>
 #include "dr_rdpng.h"
+#include "openttd/png.h"
 
 
 static int bit_depth, color_type, interlace_type;
@@ -23,6 +24,7 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 		printf("read_png: Could not create read struct.\n");
 		exit(1);
 	}
+
 
 	info_ptr = png_create_info_struct(png_ptr);
 	if (info_ptr == NULL) {

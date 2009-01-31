@@ -71,6 +71,20 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->styp = decode_uint8(p);
 			besch->draw_as_ding = decode_uint8(p);
 			besch->number_seasons = decode_sint8(p);
+			if(node.size == 27)
+			{
+				//If node.size is 27, we have version 4a.
+				//Backwards compatible with version 4, but
+				//has extra functions (way constraints).
+				besch->way_constraints_permissive = decode_uint8(p);
+				besch->way_constraints_prohibitive = decode_uint8(p);
+			}
+			else
+			{
+				besch->way_constraints_permissive = 0;
+				besch->way_constraints_prohibitive = 0;
+			}
+
 		}
 		else if(version==3) {
 			// Versioned node, version 3
@@ -129,6 +143,13 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if(besch->wtyp==128) {
 		besch->wtyp = powerline_wt;
 	}
+	
+	if(version < 4)
+	{
+		besch->way_constraints_permissive = 0;
+		besch->way_constraints_prohibitive = 0;
+	}
+	
 	if(version<=2  &&  besch->wtyp==air_wt  &&  besch->topspeed>=250) {
 		// runway!
 		besch->styp = 1;
@@ -136,7 +157,8 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
   DBG_DEBUG("way_reader_t::read_node()",
 	     "version=%d price=%d maintenance=%d topspeed=%d max_weight=%d "
-	     "wtype=%d styp=%d intro_year=%i",
+	     "wtype=%d styp=%d intro_year=%i way_constraints_permissive = %d "
+		 "way_constraints_prohibitive = %d",
 	     version,
 	     besch->price,
 	     besch->maintenance,
@@ -144,7 +166,9 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	     besch->max_weight,
 	     besch->wtyp,
 	     besch->styp,
-	     besch->intro_date/12);
+	     besch->intro_date/12,
+		 besch->way_constraints_permissive,
+		 besch->way_constraints_prohibitive);
 
   return besch;
 }

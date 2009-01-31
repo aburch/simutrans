@@ -400,7 +400,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 		// we took the target pos out of the closed list
 		if(ziel==gr->get_pos()) {
-			ziel_erreicht = true;
+			ziel_erreicht = true; //"a goal reaches" (Babelfish).
 			break;
 		}
 

@@ -778,6 +778,10 @@ public:
 
 	// Overtaking for convois
 	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length);
+
+	//Returns the maximum catering level of the category type given in the convoy.
+	//@author: jamespetts
+	uint8 get_catering_level(uint8 type) const;
 };
 
 #endif

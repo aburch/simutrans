@@ -349,7 +349,7 @@ void depot_frame_t::layout(koord *gr)
 	/*
 	*	Structure of [VINFO] is one multiline text.
 	*/
-	int VINFO_HEIGHT = 86;
+	int VINFO_HEIGHT = 185;
 
 	/*
 	* Total width is the max from [CONVOI] and [ACTIONS] width.
@@ -667,7 +667,7 @@ void depot_frame_t::build_vehicle_lists()
 					if(veh_action == va_insert) {
 						append = !(!convoi_t::pruefe_nachfolger(info, veh) || (veh && !convoi_t::pruefe_vorgaenger(info, veh)));
 					} else if(veh_action == va_append) {
-						append = convoi_t::pruefe_vorgaenger(veh, info);
+						append = convoi_t::pruefe_vorgaenger(veh, info); //"Pruefe vorgaenger" = check predecessors (Google)
 					}
 				}
 				if(append) {
@@ -1346,10 +1346,11 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 	display_proportional( pos.x + 4, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 16 + 4, c, ALIGN_LEFT, COL_BLACK, true );
 
 	if(veh_type) {
+		int k = 0;
 		// lok oder waggon ?
-		if(veh_type->get_leistung() > 0) {
+		if(veh_type->get_leistung() > 0) { //"Leistung" = performance (Google)
 			//lok
-			const int zuladung = veh_type->get_zuladung();
+			const int zuladung = veh_type->get_zuladung(); //"Zuladung" = payload (Google)
 
 			char name[128];
 
@@ -1362,29 +1363,31 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 				translator::translate("LOCO_INFO"),
 				name,
 				veh_type->get_preis()/100,
-				veh_type->get_betriebskosten()/100.0,
+				veh_type->get_betriebskosten(get_welt())/100.0,
 				veh_type->get_leistung(),
 				veh_type->get_geschw(),
 				veh_type->get_gewicht()
 				);
 
+			//"Payload" (Google)
 			if(zuladung>0) {
-				sprintf(buf + n,
+				n += sprintf(buf + n,
 					translator::translate("LOCO_CAP"),
 					zuladung,
 					translator::translate(veh_type->get_ware()->get_mass()),
 					veh_type->get_ware()->get_catg() == 0 ? translator::translate(veh_type->get_ware()->get_name()) : translator::translate(veh_type->get_ware()->get_catg_name())
 					);
+			k = n;
 			}
 
 		}
 		else {
 			// waggon
-			sprintf(buf,
+			int n = sprintf(buf,
 				translator::translate("WAGGON_INFO"),
 				translator::translate(veh_type->get_name()),
 				veh_type->get_preis()/100,
-				veh_type->get_betriebskosten()/100.0,
+				veh_type->get_betriebskosten(get_welt())/100.0,
 				veh_type->get_zuladung(),
 				translator::translate(veh_type->get_ware()->get_mass()),
 				veh_type->get_ware()->get_catg() == 0 ?
@@ -1393,32 +1396,84 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 				veh_type->get_gewicht(),
 				veh_type->get_geschw()
 				);
+
+			k = n;
 		}
+				
+		if(veh_type->get_catering_level() > 0)
+		{
+			if(veh_type->get_ware()->get_catg_index() == 1) 
+			{
+				//Catering vehicles that carry mail are treated as TPOs.
+				k +=  sprintf(buf + k, translator::translate("This is a travelling post office"));
+			}
+			else
+			{
+				k += sprintf(buf + k, translator::translate("Catering level: %i"), veh_type->get_catering_level());
+			}
+		}
+		
+		// Permissive way constraints
+		// (If vehicle has, way must have)
+		// @author: jamespetts
+		for(uint8 i = 0; i < 8; i++)
+		{
+			if(veh_type->permissive_way_constraint_set(i))
+			{
+				k += sprintf(buf + k, translator::translate("\nMUST USE: "));
+				char tmpbuf[30];
+				sprintf(tmpbuf, "Permissive %i", i);
+				k += sprintf(buf + k, translator::translate(tmpbuf));
+			}
+		}
+
 		display_multiline_text( pos.x + 4, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE*1 + 4, buf,  COL_BLACK);
 
 		// column 2
-		int n = sprintf(buf, "%s %s %04d\n",
-			translator::translate("Intro. date:"),
+	
+		int j = sprintf(buf, "%s %s %04d\n",
+			translator::translate("Intro. date:"),	
 			translator::get_month_name(veh_type->get_intro_year_month()%12),
 			veh_type->get_intro_year_month()/12 );
 
 		if(veh_type->get_retire_year_month() !=DEFAULT_RETIRE_DATE*12) {
-			n += sprintf(buf+n, "%s %s %04d\n",
+			j += sprintf(buf + j, "%s %s %04d\n",
 				translator::translate("Retire. date:"),
 				translator::get_month_name(veh_type->get_retire_year_month()%12),
 				veh_type->get_retire_year_month()/12 );
 		}
 
 		if(veh_type->get_leistung() > 0  &&  veh_type->get_gear()!=64) {
-			n+= sprintf(buf+n, "%s %0.2f : 1\n", translator::translate("Gear:"), 	veh_type->get_gear()/64.0);
+			j+= sprintf(buf + j, "%s %0.2f : 1\n", translator::translate("Gear: "), 	veh_type->get_gear()/64.0);
 		}
 
-		if(veh_type->get_copyright()!=NULL  &&  veh_type->get_copyright()[0]!=0) {
-			n += sprintf(buf + n, translator::translate("Constructed by %s"), veh_type->get_copyright());
+		if(veh_type->get_copyright()!=NULL  &&  veh_type->get_copyright()[0]!=0) 
+		{
+			j += sprintf(buf + j, translator::translate("Constructed by %s\n"), veh_type->get_copyright());
+		}
+		if(veh_type->get_tilting())
+		{
+			j += sprintf(buf + j, translator::translate("This is a tilting vehicle\n"));
 		}
 
-		if(value != -1) {
-			sprintf(buf + strlen(buf), "%s %d Cr", translator::translate("Restwert:"), 	value);
+		if(value != -1) 
+		{
+			sprintf(buf + strlen(buf), "%s %d Cr", translator::translate("Restwert: "), 	value); //"Restwert" = residual (Google)
+		}
+		
+		// Prohibitibve way constraints
+		// (If way has, vehicle must have)
+		// @author: jamespetts
+		j += sprintf(buf + j, "\n");
+		for(uint8 i = 0; i < 8; i++)
+		{
+			if(veh_type->prohibitive_way_constraint_set(i))
+			{
+				j += sprintf(buf + j, translator::translate("\nMAY USE: "));
+				char tmpbuf[30];
+				sprintf(tmpbuf, "Prohibitive %i", i);
+				j += sprintf(buf + j, translator::translate(tmpbuf));
+			}
 		}
 
 		display_multiline_text( pos.x + 200, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE*2 + 4, buf, COL_BLACK);

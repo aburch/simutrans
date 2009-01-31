@@ -45,6 +45,7 @@ private:
 
 	uint8 max_length;	// =0 off, else maximum length
 	uint8 max_height;	// =0 off, else maximum length
+	uint32 max_weight; //@author: jamespetts. Weight limit for vehicles.
 
 	// allowed eara
 	uint16 intro_date;
@@ -53,6 +54,12 @@ private:
 	/* number of seasons (0 = none, 1 = no snow/snow
 	*/
 	sint8 number_seasons;
+
+	/*Way constraints for, e.g., loading gauges, types of electrification, etc.
+	* @author: jamespetts*/
+	uint8 way_constraints_permissive;
+	uint8 way_constraints_prohibitive;
+
 public:
 	/*
 	 * Nummerierung all der verschiedenen Schienstücke
@@ -109,6 +116,12 @@ public:
 	uint32  get_topspeed() const { return topspeed; }
 
 	/**
+	 * Determines max weight in tonnes for vehicles allowed on this bridge
+	 * @author jamespetts
+	 */
+	uint32 get_max_weight() const { return max_weight; }
+
+	/**
 	 * Distance of pillars (=0 for no pillars)
 	 * @author prissi
 	 */
@@ -143,6 +156,26 @@ public:
 	 * @author prissi
 	 */
 	int get_retire_year_month() const { return obsolete_date; }
+
+	/* Way constraints: determines whether vehicles
+	 * can travel on this way. This method decodes
+	 * the byte into bool values. See here for
+	 * information on bitwise operations: 
+	 * http://www.cprogramming.com/tutorial/bitwise_operators.html
+	 * @author: jamespetts
+	 * */
+	const bool permissive_way_constraint_set(uint8 i)
+	{
+		return (way_constraints_permissive & 1<<i != 0);
+	}
+
+	const bool prohibitive_way_constraint_set(uint8 i)
+	{
+		return (way_constraints_prohibitive & 1<<i != 0);
+	}
+
+	uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
+	uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
 };
 
 #endif

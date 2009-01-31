@@ -3,6 +3,11 @@
  * Transportfahrzeuge sind in simvehikel.h definiert, da sie sich
  * stark von den hier definierten Fahrzeugen fuer den Individualverkehr
  * unterscheiden.
+ * 
+ * Mobile objects for Simutrans.
+ * Transport vehicles are defined in simvehikel.h, since they differ
+ * strongly from the vehicles defined here more for the individual traffic.
+ * (Babelfish)
  *
  * Hj. Malthaner
  *
@@ -21,7 +26,7 @@
 
 #include "simverkehr.h"
 #ifdef DESTINATION_CITYCARS
-// for final citcar destinations
+// for final citycar destinations
 #include "simpeople.h"
 #endif
 
@@ -34,6 +39,7 @@
 
 #include "../boden/grund.h"
 #include "../boden/wege/weg.h"
+#include "../boden/wege/strasse.h"
 
 #include "../besch/stadtauto_besch.h"
 #include "../besch/roadsign_besch.h"
@@ -370,7 +376,21 @@ bool stadtauto_t::list_empty()
 
 stadtauto_t::~stadtauto_t()
 {
+	if(!welt->get_is_shutting_down() && current_list != NULL  && current_list->count() > 0)
+	{
+		stadtauto_t *tmp = this;
+		if(!current_list->remove(tmp))
+		{
+			DBG_MESSAGE("stadtauto_t", "Failure to remove city car from list!");
+		}
+		else
+		{
+			DBG_MESSAGE("stadtauto_t", "Succeeded in removing city car from list.");
+		}
+
+	}
 	welt->buche( -1, karte_t::WORLD_CITYCARS );
+	//"Buche" = "Books" (Babelfish)
 }
 
 
@@ -378,6 +398,13 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file)
  : verkehrsteilnehmer_t(welt)
 {
 	rdwr(file);
+		
+	//No provision for saving the destinations yet.
+	target = koord::invalid;
+	
+	current_list = &welt->unassigned_cars;
+	welt->add_unassigned_car(this);
+
 	ms_traffic_jam = 0;
 	if(besch) {
 		welt->sync_add(this);
@@ -387,7 +414,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file)
 
 
 #ifdef DESTINATION_CITYCARS
-stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord target)
+stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord target, slist_tpl<stadtauto_t*>* car_list)
 #else
 stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
 #endif
@@ -406,6 +433,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
 #endif
 	calc_bild();
 	welt->buche( +1, karte_t::WORLD_CITYCARS );
+	current_list = car_list;
 }
 
 
@@ -434,7 +462,7 @@ stadtauto_t::sync_step(long delta_t)
 			else {
 				if(ms_traffic_jam>welt->ticks_per_tag  &&  old_ms_traffic_jam<=welt->ticks_per_tag) {
 					// message after two month, reset waiting timer
-					welt->get_message()->add_message( translator::translate("To heavy traffic\nresults in traffic jam.\n"), get_pos().get_2d(), message_t::warnings, COL_ORANGE );
+					welt->get_message()->add_message( translator::translate("Excess traffic \nresults in traffic jams.\n"), get_pos().get_2d(), message_t::warnings, COL_ORANGE );
 				}
 			}
 		}
@@ -484,6 +512,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 
 	if(file->get_version() <= 86001) {
 		time_to_life = simrand(1000000)+10000;
+
 	}
 	else if(file->get_version() <= 89004) {
 		file->rdwr_long(time_to_life, "\n");
@@ -520,11 +549,12 @@ void stadtauto_t::rdwr(loadsave_t *file)
 
 	// do not start with zero speed!
 	current_speed ++;
+
 }
 
 
 
-bool stadtauto_t::ist_weg_frei(grund_t *gr)
+bool stadtauto_t::ist_weg_frei(const grund_t *gr) //Frie = "freely" (Babelfish)
 {
 	if(gr->get_top()>200) {
 		// already too many things here
@@ -659,10 +689,13 @@ void
 stadtauto_t::betrete_feld()
 {
 #ifdef DESTINATION_CITYCARS
+	// Destination city car code revived from an older version of Simutrans.
+	// (Thanks to Prissi for finding this older code).
 	if(target!=koord::invalid  &&  abs_distance(pos_next.get_2d(),target)<10) {
 		// delete it ...
 		time_to_life = 0;
 
+		//"fussgaenger" = pedestrian (Babelfish)
 		fussgaenger_t *fg = new fussgaenger_t(welt, pos_next);
 		bool ok = welt->lookup(pos_next)->obj_add(fg) != 0;
 		for(int i=0; i<(fussgaenger_t::count & 3); i++) {
@@ -676,10 +709,17 @@ stadtauto_t::betrete_feld()
 }
 
 
+void
+stadtauto_t::kill()
+{
+	time_to_life = 0;
+}
+
 
 bool
 stadtauto_t::hop_check()
 {
+
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(pos_next);
 	if(from==NULL) {
@@ -770,8 +810,9 @@ stadtauto_t::hop_check()
 						}
 						return true;
 					}
+
 					else {
-						pos_next_next == koord3d::invalid;
+						pos_next_next = koord3d::invalid;
 					}
 #endif
 				}
@@ -873,7 +914,15 @@ void
 stadtauto_t::calc_current_speed()
 {
 	const weg_t * weg = welt->lookup(get_pos())->get_weg(road_wt);
-	const uint16 max_speed = besch->get_geschw();
+	uint16 max_speed;
+	if(besch != NULL)
+	{
+		max_speed = besch->get_geschw();
+	}
+	else
+	{
+		max_speed = kmh_to_speed(90);
+	}
 	const uint16 speed_limit = weg ? kmh_to_speed(weg->get_max_speed()) : max_speed;
 	current_speed += max_speed>>2;
 	if(current_speed > max_speed) {
@@ -911,8 +960,6 @@ void stadtauto_t::get_screen_offset( int &xoff, int &yoff ) const
 		yoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_fahrtrichtung())][1], raster_width)/5;
 	}
 }
-
-
 
 /**
  * conditions for a city car to overtake another overtaker.

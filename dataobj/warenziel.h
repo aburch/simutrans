@@ -18,6 +18,10 @@ class loadsave_t;
  * Haltestellen benutzt. Grundlegende Elemente sind
  * eine Koordinate und ein Zeitstempel.
  *
+ * This class is for the management of targets 
+ * used by bus stops. Essential elements are a
+ * coordinate and a time stamp.
+ *
  * @author Hj. Malthaner
  */
 

@@ -14,6 +14,7 @@
 #include "skin_besch.h"
 #include "sound_besch.h"
 #include "../dataobj/ribi.h"
+#include "../simworld.h"
 #include "../simtypes.h"
 
 
@@ -63,12 +64,12 @@ public:
 
 
 private:
-	uint32  preis;
-	uint16  zuladung;
-	uint16  geschw;
-	uint16  gewicht;
-	uint32  leistung;
-	uint16  betriebskosten;
+	uint32  preis;  //Price
+	uint16  zuladung; //Payload
+	uint16  geschw; //Speed
+	uint16  gewicht; //Weight
+	uint32  leistung; //Power
+	uint16  betriebskosten;  //Running costs
 
 	uint16  intro_date; // introduction date
 	uint16  obsolete_date; //phase out at
@@ -84,6 +85,13 @@ private:
 	uint8  engine_type; // diesel, steam, electric (requires electrified ways), fuel_cell, etc.
 
 	sint8 freight_image_type;	// number of freight images (displayed for different goods)
+
+	uint8 is_tilting; //Whether it is a tilting train (can take corners at higher speeds). 0 for no, 1 for yes. Anything other than 1 is assumed to be no.
+	
+	uint8 way_constraints_permissive; //Way constraints. Actually, 8 boolean values. Bitwise operations necessary
+	uint8 way_constraints_prohibitive; //to uncompress this (but if value is 0, are no constraints).
+
+	uint8 catering_level; //The level of catering. 0 for no catering. Higher numbers for better catering.
 
 
 public:
@@ -101,6 +109,9 @@ public:
 		typ = wtyp;
 		engine_type = (uint8)engine;
 		geschw = speed;
+		is_tilting = 0;
+		way_constraints_prohibitive = way_constraints_permissive = 0;
+		catering_level = 0;
 	}
 
 	const ware_besch_t *get_ware() const { return static_cast<const ware_besch_t *>(get_child(2)); }
@@ -222,7 +233,9 @@ public:
 	uint16 get_gewicht() const { return gewicht; }
 	uint32 get_leistung() const { return leistung; }
 	uint16 get_betriebskosten() const { return betriebskosten; }
+	uint16  get_betriebskosten(static karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	sint8 get_sound() const { return sound; }
+	
 
 	/**
 	* @return introduction year
@@ -266,6 +279,33 @@ public:
 	* @author prissi
 	*/
 	uint8 get_length() const { return len; }
+	
+	/*Whether this is a tilting train (and can take coerners faster
+	*@author: jamespetts*/
+	bool get_tilting() const { return (is_tilting == 1);	}
+	
+	/*Bitwise encoded way constraints (permissive)
+	*@author: jamespetts*/
+	uint8 get_permissive_constraints() const { return way_constraints_permissive; }
+	
+	/*Bitwise encoded way constraints (prohibitive)
+	*@author: jamespetts*/
+	uint8 get_prohibitive_constraints() const { return way_constraints_prohibitive; }
+
+	bool permissive_way_constraint_set(uint8 i) const
+	{
+		return (way_constraints_permissive & 1<<i != 0);
+	}
+
+	bool prohibitive_way_constraint_set(uint8 i) const
+	{
+		return (way_constraints_prohibitive & 1<<i != 0);
+	}
+	
+	/*The level of catering provided by this vehicle (0 if none)
+	*@author: jamespetts*/
+	uint8 get_catering_level() const { return catering_level; }
+
 
 	/* test, if a certain vehicle can lead a convoi *
 	 * used by vehikel_search

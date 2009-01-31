@@ -206,6 +206,32 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				extra_y += LINESPACE;
 			}
 
+			//Catering
+			if(v->get_besch()->get_catering_level() > 0)
+			{
+				if(v->get_besch()->get_ware()->get_catg_index() == 1)
+				{
+					//Catering vehicles that carry mail are treated as TPOs.
+					sprintf(buf , translator::translate("This is a travelling post office\n"));
+					display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
+					extra_y += LINESPACE;
+				}
+				else
+				{
+					sprintf(buf, translator::translate("Catering level: %i\n"), v->get_besch()->get_catering_level());
+					display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
+					extra_y += LINESPACE;
+				}
+			}
+
+			//Tilting
+			if(v->get_besch()->get_tilting())
+			{
+				sprintf(buf, translator::translate("This is a tilting vehicle\n"));
+				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
+				extra_y += LINESPACE;
+			}
+
 			// friction
 			sprintf( buf, "%s %i", translator::translate("Friction:"), v->get_frictionfactor() );
 			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
@@ -217,7 +243,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				int len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Max income:"), ALIGN_LEFT, COL_BLACK, true );
 				const sint32 grundwert128 = v->get_fracht_typ()->get_preis()<<7;
 				const sint32 grundwert_bonus = v->get_fracht_typ()->get_preis()*(1000l+speed_base*v->get_fracht_typ()->get_speed_bonus());
-				const sint32 price = (v->get_fracht_max()*(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus))/30 - v->get_betriebskosten();
+				const sint32 price = (v->get_fracht_max()*(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus))/30 - v->get_betriebskosten(cnv->get_welt());
 				money_to_string( tmp, price/100.0 );
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, tmp, ALIGN_LEFT, price>0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;
@@ -241,6 +267,41 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				}
 				extra_y += returns*LINESPACE;
 			}
+			
+			// Permissive way constraints
+			// (If vehicle has, way must have)
+			// @author: jamespetts
+			for(uint8 i = 0; i < 8; i++)
+			{
+				if(v->get_besch()->permissive_way_constraint_set(i))
+				{
+					char tmpbuf1[13];
+					sprintf(tmpbuf1, "\nMUST USE: ");
+					char tmpbuf[14];
+					sprintf(tmpbuf, "Permissive %i", i);
+					sprintf(buf, "%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
+					display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
+					extra_y += LINESPACE;
+				}
+			}
+			
+			// Prohibitive way constraints
+			// (If way has, vehicle must have)
+			// @author: jamespetts
+			for(uint8 i = 0; i < 8; i++)
+			{
+				if(v->get_besch()->prohibitive_way_constraint_set(i))
+				{
+					char tmpbuf1[13];
+					sprintf(tmpbuf1, "\nMAY USE: ");
+					char tmpbuf[14];
+					sprintf(tmpbuf, "Prohibitive %i", i);
+					sprintf(buf, "%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
+					display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
+					extra_y += LINESPACE;
+				}
+			}
+			
 			//skip at least five lines
 			total_height += max(extra_y,4*LINESPACE)+5;
 		}

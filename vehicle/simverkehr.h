@@ -15,8 +15,12 @@
 #include "simvehikel.h"
 #include "overtaker.h"
 
+#include "../tpl/slist_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 #include "../ifc/sync_steppable.h"
+//#include "../slisthandle_t.h"
+
+#define DESTINATION_CITYCARS
 
 class stadtauto_besch_t;
 class karte_t;
@@ -24,6 +28,7 @@ class karte_t;
 /**
  * Base class for traffic participants with random movement
  * @author Hj. Malthaner
+ * "verkehrsteilnehmer" = road user (Babelfish)
  */
 class verkehrsteilnehmer_t : public vehikel_basis_t, public sync_steppable
 {
@@ -66,15 +71,22 @@ public:
 
 	// we allow to remove all cars etc.
 	const char *ist_entfernbar(const spieler_t *) { return NULL; }
+
 };
 
 
 class stadtauto_t : public verkehrsteilnehmer_t, public overtaker_t
 {
 private:
+	
+	slist_tpl<stadtauto_t*> * current_list;
+	
 	static stringhashtable_tpl<const stadtauto_besch_t *> table;
 
 	const stadtauto_besch_t *besch;
+
+	route_t route;
+	uint16 route_index;
 
 	// prissi: time to life in blocks
 #ifdef DESTINATION_CITYCARS
@@ -91,7 +103,8 @@ private:
 	uint32 ms_traffic_jam;
 
 	bool hop_check();
-	bool ist_weg_frei(grund_t *gr);
+	bool ist_weg_frei(const grund_t *gr);
+	bool calc_route(const koord3d ziel, const koord3d start);
 
 protected:
 	void rdwr(loadsave_t *file);
@@ -100,7 +113,7 @@ protected:
 
 public:
 	stadtauto_t(karte_t *welt, loadsave_t *file);
-	stadtauto_t(karte_t *welt, koord3d pos, koord target);
+	stadtauto_t(karte_t *welt, koord3d pos, koord target, slist_tpl<stadtauto_t*>* car_list);
 
 	virtual ~stadtauto_t();
 
@@ -109,6 +122,9 @@ public:
 	bool sync_step(long delta_t);
 
 	void hop();
+
+	//Gets rid of the car by setting its life to 0.
+	void kill(); 
 
 	void betrete_feld();
 
@@ -145,6 +161,10 @@ public:
 
 	// Overtaking for city cars
 	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length);
+
+	// Sets the list in which the vehicle is referenced, so that
+	// it can be removed from the list when it is deleted. 
+	void set_list(slist_tpl<stadtauto_t*> *this_list) { current_list = this_list; }
 };
 
 #endif

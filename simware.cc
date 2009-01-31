@@ -38,6 +38,19 @@ ware_t::ware_t(const ware_besch_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -
 {
 	menge = 0;
 	index = wtyp->get_index();
+	total_journey_start_time = journey_leg_start_time = 0;
+	halthandle_t x;
+	origin = previous_transfer = x;
+}
+
+// Constructor for new revenue system: packet of cargo keeps track of its origin.
+//@author: jamespetts
+ware_t::ware_t(const ware_besch_t *wtyp, halthandle_t o, uint32 t) : ziel(), zwischenziel(), zielpos(-1, -1)
+{
+	menge = 0;
+	index = wtyp->get_index();
+	origin = previous_transfer = o;
+	total_journey_start_time = journey_leg_start_time = t;
 }
 
 ware_t::ware_t(karte_t *welt,loadsave_t *file)
@@ -108,7 +121,7 @@ ware_t::rdwr(karte_t *welt,loadsave_t *file)
 
 
 void
-ware_t::laden_abschliessen(karte_t *welt)
+ware_t::laden_abschliessen(karte_t *welt) //"Invite finish" (Google); "load lock" (Babelfish).
 {
 	// since some halt was referred by with several koordinates
 	// this routine will correct it

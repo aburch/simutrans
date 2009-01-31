@@ -24,15 +24,17 @@ const char *hist_type[MAX_CITY_HISTORY] =
 {
   "citicens", "Growth", "Buildings", "Verkehrsteilnehmer",
   "Transported", "Passagiere", "sended", "Post",
-  "Arrived", "Goods", "Electricity"
+  "Arrived", "Goods", "Congestion"
 };
 
+// Note: "Congestion" was "Electricity", but this value was unused.
+//@author: jamespetts
 
 const int hist_type_color[MAX_CITY_HISTORY] =
 {
 	COL_WHITE, COL_DARK_GREEN, COL_LIGHT_PURPLE, COL_POWERLINES,
 	COL_LIGHT_BLUE, COL_BLUE, COL_LIGHT_YELLOW, COL_YELLOW,
-	COL_LIGHT_BROWN, COL_BROWN
+	COL_LIGHT_BROWN, COL_BROWN, COL_DARK_TURQOISE
 };
 
 
@@ -80,7 +82,8 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	add_komponente(&year_month_tabs);
 
 	// add filter buttons
-	for(  int hist=0;  hist<MAX_CITY_HISTORY-1;  hist++  ) {
+	for(  int hist=0;  hist<MAX_CITY_HISTORY;  hist++  ) //Note: Removed -1 from "MAX_CITY_HISTORY" because the redundant "electricity" is now used for congestion.
+	{
 		filterButtons[hist].init(button_t::box_state, translator::translate(hist_type[hist]), koord(4+(hist%4)*100,270+(hist/4)*(BUTTON_HEIGHT+4)), koord(96, BUTTON_HEIGHT));
 		filterButtons[hist].background = hist_type_color[hist];
 		filterButtons[hist].pressed = (stadt->stadtinfo_options & (1<<hist))!=0;
@@ -125,6 +128,11 @@ stadt_info_t::zeichnen(koord pos, koord gr)
 		translator::translate("Homeless"),
 		c->get_homeless()
 	);
+
+	b += sprintf(b, "%s: %d %%. \n", 
+		translator::translate("Car ownership"), 
+		c->get_private_car_ownership(c->get_welt()->get_timeline_year_month())
+		);
 
 	display_multiline_text(pos.x+8, pos.y+48, buf, COL_BLACK);
 

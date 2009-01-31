@@ -1266,11 +1266,12 @@ const weg_besch_t * wkz_wegebau_t::get_besch(bool remember)
 const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 {
 	const weg_besch_t *besch = get_besch(false);
-	sprintf(toolstr, "%s, %ld$ (%ld$), %dkm/h",
+	sprintf(toolstr, "%s, %ld$ (%ld$), %dkm/h, %dt",
 		translator::translate(besch->get_name()),
 		besch->get_preis()/100l,
 		(besch->get_wartung()<<(sp->get_welt()->ticks_bits_per_tag-18))/100l,
-		besch->get_topspeed());
+		besch->get_topspeed(),
+		besch->get_max_weight());
 	return toolstr;
 }
 
@@ -1523,6 +1524,7 @@ const char *wkz_brueckenbau_t::get_tooltip(spieler_t *sp)
 	if(besch->get_waytype()!=powerline_wt) {
 		n += sprintf(toolstr+n, ", %dkm/h", besch->get_topspeed());
 	}
+	n += sprintf(toolstr+n, ", %dt", besch->get_max_weight());
 	if(besch->get_max_length()>0) {
 		n += sprintf(toolstr+n, ", %dkm", besch->get_max_length());
 	}
@@ -1549,7 +1551,9 @@ const char *wkz_tunnelbau_t::get_tooltip(spieler_t *sp)
 		  (besch->get_wartung()<<(sp->get_welt()->ticks_bits_per_tag-18))/100);
 
 	if(besch->get_waytype()!=powerline_wt) {
-		n += sprintf(toolstr+n, ", %dkm/h", besch->get_topspeed());
+		n += sprintf(toolstr+n, ", %dkm/h, %dt", 
+			besch->get_topspeed(),
+			besch->get_max_weight());
 	}
 	return toolstr;
 }
@@ -1920,7 +1924,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	for( int r=0;  r<2;  r++  ) {
 		koord testsize = (r&1)==0 ? size : koord(size.y,size.x);
 		for(  sint8 j=3;  j>=0;  j-- ) {
-			koord offset(((j&1)^1)*(testsize.x-1),(j&1)*(testsize.y-1));
+			koord offset(((j&1)^1)*(testsize.x-1),((j>>1)&1)*(testsize.y-1));
 			if(welt->ist_platz_frei(pos-offset, testsize.x, testsize.y, NULL, besch->get_allowed_climate_bits())) {
 				// well, at least this is theoretical possible here
 				any_ok = true;
@@ -1930,7 +1934,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 				int best_halt_n = 0, best_halt_s = 0, best_halt_e = 0, best_halt_w = 0;
 				// test also diagonal corners (that is why from -1 to size!)
 				for(  sint16 y=-1;  y<=testsize.y;  y++  ) {
-					// left ( for all tiles, even bridges)
+					// left (for all tiles, even bridges)
 					const planquadrat_t *pl = welt->lookup( test_start+koord(-1,y) );
 					if(  pl  &&  pl->get_halt().is_bound()  &&  sp==pl->get_halt()->get_besitzer()  ) {
 						halt = pl->get_halt();
@@ -2032,7 +2036,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		return "Tile not empty.";
 	}
 	// is there no halt to connect?
-	if(!halt.is_bound()) {
+	if(  !halt.is_bound()  ||  any_halt==0  ) {
 		return "Post muss neben\nHaltestelle\nliegen!\n";
 	}
 
@@ -3213,7 +3217,7 @@ const char *wkz_add_citycar_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 	if(  gr != NULL  &&  ribi_t::is_twoway(gr->get_weg_ribi_unmasked(road_wt))  &&  gr->find<stadtauto_t>() == NULL) {
 		// add citycar
-		stadtauto_t* vt = new stadtauto_t(welt, gr->get_pos(), koord::invalid);
+		stadtauto_t* vt = new stadtauto_t(welt, gr->get_pos(), koord::invalid, &(welt->unassigned_cars));
 		gr->obj_add(vt);
 		welt->sync_add(vt);
 		return NULL;

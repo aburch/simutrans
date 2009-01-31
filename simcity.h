@@ -14,6 +14,9 @@
 #include "tpl/vector_tpl.h"
 #include "tpl/weighted_vector_tpl.h"
 #include "tpl/array2d_tpl.h"
+#include "tpl/slist_tpl.h"
+
+#include "vehicle/simverkehr.h"
 
 class karte_t;
 class spieler_t;
@@ -35,11 +38,11 @@ enum city_cost {
 	HIST_CITYCARS,	// number of citycars generated
 	HIST_PAS_TRANSPORTED, // number of passengers who could start their journey
 	HIST_PAS_GENERATED,	// total number generated
-	HIST_MAIL_TRANSPORTED,	// letters that could be sended
+	HIST_MAIL_TRANSPORTED,	// letters that could be sent
 	HIST_MAIL_GENERATED,	// all letters generated
 	HIST_GOODS_RECIEVED,	// times all storages were not empty
 	HIST_GOODS_NEEDED,	// times sotrages checked
-	HIST_POWER_RECIEVED,	// power consumption (not used at the moment!)
+	HIST_CONGESTION,	// Level of congestion in the city, expressed in percent.(Was power consumption - discused)
 	MAX_CITY_HISTORY	// Total number of items in array
 };
 
@@ -82,6 +85,8 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	static bool cityrules_init(cstring_t objpathname);
+	static void stadt_t::privatecar_init(cstring_t objfilename);
+	sint16 stadt_t::get_private_car_ownership(sint32 monthyear);
 
 private:
 	static karte_t *welt;
@@ -148,6 +153,16 @@ private:
 	*/
 	void roll_history(void);
 
+	inline void set_private_car_trip(int passengers, stadt_t* destination_town);
+
+	// This is needed to prevent double counting of incoming traffic.
+	sint16 incoming_private_cars;
+	
+	//This is needed because outgoing cars are disregarded when calculating growth.
+	sint16 outgoing_private_cars;
+
+	slist_tpl<stadtauto_t *> current_cars;
+
 public:
 	/**
 	 * Returns pointer to history for city
@@ -156,10 +171,19 @@ public:
 	sint64* get_city_history_year() { return *city_history_year; }
 	sint64* get_city_history_month() { return *city_history_month; }
 
+	sint16 get_outstanding_cars();
+
 	// just needed by stadt_info.cc
 	static inline karte_t* get_welt() { return welt; }
 
 	uint32 stadtinfo_options;
+
+	void set_private_car_trips(uint16 number) 
+	{
+		city_history_month[0][HIST_CITYCARS] += number;
+		city_history_year[0][HIST_CITYCARS] += number;
+		incoming_private_cars += number;
+	}
 
 	/* end of histroy related thingies */
 private:
@@ -397,11 +421,21 @@ public:
 
 	void neuer_monat();
 
+	//@author: jamespetts
+	struct destination
+	{
+		koord location;
+		uint16 type; //1 = town; others as #define above.
+		stadt_t* town; //NULL if the type is not a town.
+	};
+
+
 	/**
 	 * such ein (zufälliges) ziel für einen Passagier
 	 * @author Hj. Malthaner
 	 */
-	koord finde_passagier_ziel(pax_zieltyp *will_return);
+	destination finde_passagier_ziel(pax_zieltyp* will_return);
+	destination finde_passagier_ziel(pax_zieltyp* will_return, uint16 min_distance, uint16 max_distance);
 
 	/**
 	 * Gibt die Gruendungsposition der Stadt zurueck.
@@ -428,6 +462,8 @@ public:
 	void zeige_info(void);
 
 	void add_factory_arbeiterziel(fabrik_t *fab);
+
+	uint8 get_congestion() { return city_history_month[0][HIST_CONGESTION]; }
 };
 
 #endif

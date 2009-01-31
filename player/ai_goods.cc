@@ -835,7 +835,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				// only uneven number of cars bigger than 3 makes sense ...
 				count_rail = max( 3, count_rail );
 				income_rail = (freight_price*best_rail_speed)/(2*dist+count_rail);
-				cost_rail = rail_weg->get_wartung() + (((count_rail+1)/2)*300)/dist + ((count_rail*rail_vehicle->get_betriebskosten()+rail_engine->get_betriebskosten())*best_rail_speed)/(2*dist+count_rail);
+				cost_rail = rail_weg->get_wartung() + (((count_rail+1)/2)*300)/dist + ((count_rail*rail_vehicle->get_betriebskosten(welt)+rail_engine->get_betriebskosten(welt))*best_rail_speed)/(2*dist+count_rail);
 				DBG_MESSAGE("ai_goods_t::do_ki()","Netto credits per day for rail transport %.2f (income %.2f)",cost_rail/100.0, income_rail/100.0 );
 				cost_rail -= income_rail;
 			}
@@ -846,7 +846,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				// calculated here, since the above number was based on production
 				count_road = CLIP( (dist*15)/best_road_speed, 2, count_road );
 				int freight_price = (freight->get_preis()*road_vehicle->get_zuladung()*count_road)/24*((8000+(best_road_speed-80)*freight->get_speed_bonus())/1000);
-				cost_road = road_weg->get_wartung() + 300/dist + (count_road*road_vehicle->get_betriebskosten()*best_road_speed)/(2*dist+5);
+				cost_road = road_weg->get_wartung() + 300/dist + (count_road*road_vehicle->get_betriebskosten(welt)*best_road_speed)/(2*dist+5);
 				income_road = (freight_price*best_road_speed)/(2*dist+5);
 				DBG_MESSAGE("ai_goods_t::do_ki()","Netto credits per day and km for road transport %.2f (income %.2f)",cost_road/100.0, income_road/100.0 );
 				cost_road -= income_road;
@@ -940,7 +940,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 						// for engine: gues number of cars
 						long power_needed=(long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->get_gewicht()+rail_vehicle->get_zuladung()*freight->get_weight_per_unit()*0.001)));
 						const vehikel_besch_t *v=vehikelbauer_t::vehikel_search( track_wt, month_now, power_needed, best_rail_speed, NULL, false, false );
-						if(v->get_betriebskosten()<rail_engine->get_betriebskosten()) {
+						if(v->get_betriebskosten(welt)<rail_engine->get_betriebskosten(welt)) {
 							rail_engine = v;
 						}
 					}

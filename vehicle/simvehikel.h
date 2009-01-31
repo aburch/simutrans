@@ -16,6 +16,7 @@
 #define _simvehikel_h
 
 #include "../simtypes.h"
+#include "../simworld.h"
 #include "../simdings.h"
 #include "../halthandle_t.h"
 #include "../convoihandle_t.h"
@@ -25,6 +26,8 @@
 #include "../besch/vehikel_besch.h"
 #include "../vehicle/overtaker.h"
 #include "../tpl/slist_tpl.h"
+
+#include "../tpl/fixed_list_tpl.h"
 
 class convoi_t;
 class schedule_t;
@@ -98,6 +101,7 @@ protected:
 	// only needed for old way of moving vehicles to determine position at loading time
 	bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const;
 
+
 public:
 	// only called during load time: set some offsets
 	static void set_diagonal_multiplier( uint32 multiplier, uint32 old_multiplier );
@@ -120,6 +124,7 @@ public:
 
 	ribi_t::ribi calc_richtung(koord start, koord ende) const;
 	ribi_t::ribi calc_set_richtung(koord start, koord ende);
+	ribi_t::ribi calc_check_richtung(koord start, koord ende);
 
 	ribi_t::ribi get_fahrtrichtung() const {return fahrtrichtung;}
 
@@ -172,6 +177,10 @@ private:
 	 */
 	virtual void calc_akt_speed(const grund_t *gr);
 
+	uint32 calc_modified_speed_limit(const koord3d *position, ribi_t::ribi current_direction, bool is_corner);
+
+	uint32 smooth_speed(uint32 current_limit);
+
 	/**
 	 * Unload freight to halt
 	 * @return sum of unloaded goods
@@ -191,8 +200,15 @@ protected:
 
 	// current limit (due to track etc.)
 	uint32 speed_limit;
+	//uint32 weight_limit;
 
 	ribi_t::ribi alte_fahrtrichtung;
+
+	//sint16 pre_corner_direction[16];
+
+	//uint16 target_speed[16];
+
+	//const koord3d *lookahead[16];
 
 	// for target reservation and search
 	halthandle_t target_halt;
@@ -209,7 +225,7 @@ protected:
 	uint16 route_index;
 
 	uint16 total_freight;	// since the sum is needed quite often, it is chached
-	slist_tpl<ware_t> fracht;   // liste der gerade transportierten güter
+	slist_tpl<ware_t> fracht;   // liste der gerade transportierten güter ("list of goods being transported" - Google)
 
 	const vehikel_besch_t *besch;
 
@@ -229,6 +245,8 @@ protected:
 	virtual void calc_bild();
 
 	virtual bool ist_befahrbar(const grund_t* ) const {return false;}
+
+	bool vehikel_t::check_way_constraints(const weg_t *way) const;
 
 public:
 	// the coordinates, where the vehicle was loaded the last time
@@ -283,6 +301,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 	int get_betriebskosten() const { return besch->get_betriebskosten(); }
+	int get_betriebskosten(static karte_t* welt) const { 	return besch->get_betriebskosten(welt); }
 
 	/**
 	* spielt den Sound, wenn das Vehikel sichtbar ist
@@ -366,6 +385,24 @@ public:
 	*/
 	void get_fracht_info(cbuffer_t & buf);
 
+	// Check for straightness of way.
+	//@author jamespetts
+	
+	static enum direction_degrees {
+		North = 360,
+		Northeast = 45,
+		East = 90,
+		Southeast = 135,
+		South = 180,
+		Southwest = 225,
+		West = 270,
+		Northwest = 315,
+	};
+
+	direction_degrees get_direction_degrees(ribi_t::ribi);
+
+	sint16 vehikel_t::compare_directions(sint16 first_direction, sint16 second_direction);
+
 	/**
 	* loescht alle fracht aus dem Fahrzeug
 	* @author Hj. Malthaner
@@ -379,7 +416,7 @@ public:
 	* @return income total for last hop
 	* @author Hj. Malthaner
 	*/
-	sint64  calc_gewinn(koord start, koord end) const;
+	sint64  calc_gewinn(koord start, koord end, convoi_t* cnv) const;
 
 	/**
 	* fahrzeug an haltestelle entladen
@@ -426,6 +463,8 @@ public:
 
 	// this draws a tooltips for things stucked on depot order or lost
 	virtual void display_after(int xpos, int ypos, bool dirty) const;
+
+
 };
 
 
@@ -602,6 +641,8 @@ protected:
 
 	void calc_akt_speed(const grund_t *gr);
 
+	//uint32 calc_modified_speed_limit(const weg_t *w, uint8 s, ribi_t::ribi current_direction) { return base_limit; }  //Ships do not modify speed limits.
+
 	bool ist_befahrbar(const grund_t *bd) const;
 
 public:
@@ -618,6 +659,7 @@ public:
 	ding_t::typ get_typ() const { return schiff; }
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
+
 };
 
 
@@ -711,6 +753,8 @@ public:
 
 	// the speed calculation happens it calc_height
 	void calc_akt_speed(const grund_t*) {}
+
+	//uint32 calc_modified_speed_limit(const weg_t *w, uint32 base_limit, uint8 s, ribi_t::ribi current_direction) { return base_limit; } 
 };
 
 #endif

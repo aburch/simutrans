@@ -129,6 +129,7 @@ ding_t::~ding_t()
 /**
  * setzt den Besitzer des dings
  * (public wegen Rathausumbau - V.Meyer)
+ * "sets the owner of the thing" (Babelfish)
  * @author Hj. Malthaner
  */
 void ding_t::set_besitzer(spieler_t *sp)

@@ -1085,13 +1085,14 @@ void win_display_flush(double konto)
 	// @author prissi - also show date if desired
 	switch(umgebung_t::show_month) {
 		// german style
-		case 4:	sprintf(time, "%s, %d. %s %d %d:%02dh",
-						translator::translate(seasons[wl->get_jahreszeit()]),
-						tage,
-						translator::get_month_name(month%12),
+		case 4:	sprintf(time, "%s, %d %s %d %d:%02dh  TICKS: %d",
+						translator::translate(seasons[wl->get_jahreszeit()]), //Season
+						tage, //Day
+						translator::get_month_name(month%12), //Month
 						year,
-						stunden,
-						minuten
+						stunden, //"Hours" (Google)
+						minuten, //Minutes
+						ticks //HACK: Testing purposes only.
 						);
 					break;
 		// us style

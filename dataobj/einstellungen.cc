@@ -48,6 +48,10 @@ einstellungen_t::einstellungen_t() :
 	max_mountain_height = 160;                  //can be 0-160.0  01-Dec-01        Markus Weber    Added
 	map_roughness = 0.6;                        //can be 0-1      01-Dec-01        Markus Weber    Added
 
+	river_number = 16;
+	min_river_length = 16;
+	max_river_length = 256;
+
 	// some settigns more
 	allow_player_change = true;
 	use_timeline = 2;
@@ -167,6 +171,28 @@ einstellungen_t::einstellungen_t() :
 
 	// defualt: joined capacities
 	seperate_halt_capacities = false;
+
+	// Local bonus adjustment
+	uint16 min_bonus_max_distance = 16;
+	uint16 max_bonus_min_distance = 256;
+	uint16 local_bonus_multiplier = 10;
+
+	// Obsolete vehicles running costs adjustment
+	uint16 obsolete_running_cost_increase_percent = 400; //Running costs will be this % of normal costs after vehicle has been obsolete
+	uint16 obsolete_running_cost_increase_phase_years = 20; //for this number of years.
+
+	// Passenger destination ranges
+
+	uint16 local_passengers_min_distance = 0;
+	uint16 local_passengers_max_distance = 64;
+	uint16 midrange_passengers_min_distance = 0;
+	uint16 midrange_passengers_max_distance = 128;
+	uint16 longdistance_passengers_min_distance = 0;
+	uint16 longdistance_passengers_max_distance = 4096;
+
+	// Passenger routing settings
+	uint8 passenger_routing_packet_size = 7;
+	uint8 max_alternative_destinations = 3;
 
 	// this will pay for distance to next change station
 	pay_for_total_distance = TO_PREVIOUS;
@@ -435,6 +461,10 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		if(file->get_version()>101000) {
 			file->rdwr_bool( seperate_halt_capacities, "" );
 			file->rdwr_byte( pay_for_total_distance, "" );
+
+			file->rdwr_short( river_number, "" );
+			file->rdwr_short( min_river_length, "" );
+			file->rdwr_short( max_river_length, "" );
 		}
 	}
 }
@@ -478,13 +508,20 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 		umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration);
 
 		umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", umgebung_t::intercity_road_length);
-		cstring_t *test = new cstring_t(ltrim(contents.get("intercity_road_type")));
-		if(test->len()>0) {
+		const char *test = ltrim(contents.get("intercity_road_type"));
+		if(*test  &&  test) {
 			delete umgebung_t::intercity_road_type;
-			umgebung_t::intercity_road_type = test;
+			umgebung_t::intercity_road_type = strdup(test);
 		}
-		else {
-			delete test;
+
+		// up to ten rivers are possible
+		for(  int i = 0;  i<10;  i++  ) {
+			char name[32];
+			sprintf( name, "river_type[%i]", i );
+			const char *test = ltrim(contents.get(name));
+			if(test  &&  *test) {
+				umgebung_t::river_type[umgebung_t::river_types++] = strdup( test );
+			}
 		}
 
 		umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave));
@@ -519,6 +556,10 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 		strncpy( city_road_type, str, 256 );
 		city_road_type[255] = 0;
 	}
+
+	river_number = contents.get_int("river_number", river_number );
+	min_river_length = contents.get_int("river_min_length", min_river_length );
+	max_river_length = contents.get_int("river_max_length", max_river_length );
 
 	pak_diagonal_multiplier = contents.get_int("diagonal_multiplier", pak_diagonal_multiplier);
 
@@ -568,6 +609,89 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	way_count_tunnel = contents.get_int("way_tunnel", way_count_tunnel);
 	way_max_bridge_len = contents.get_int("way_max_bridge_len", way_max_bridge_len);
 	way_count_leaving_road = contents.get_int("way_leaving_road", way_count_leaving_road);
+
+	//Local bonus adjustment
+	min_bonus_max_distance = contents.get_int("min_bonus_max_distance", min_bonus_max_distance);
+	max_bonus_min_distance = contents.get_int("max_bonus_min_distance", max_bonus_min_distance);
+	local_bonus_multiplier = contents.get_int("local_bonus_multiplier_percent", local_bonus_multiplier);
+
+	//Obsolete vehicles' running cost increase
+	obsolete_running_cost_increase_percent = contents.get_int("obsolete_running_cost_increase_percent", obsolete_running_cost_increase_percent);
+	obsolete_running_cost_increase_phase_years = contents.get_int("obsolete_running_cost_increase_phase_years", obsolete_running_cost_increase_phase_years);
+
+	// Passenger destination ranges
+	local_passengers_min_distance = contents.get_int("local_passengers_min_distance", local_passengers_min_distance);
+	local_passengers_max_distance = contents.get_int("local_passengers_max_distance", local_passengers_max_distance);
+	midrange_passengers_min_distance = contents.get_int("midrange_passengers_min_distance", midrange_passengers_min_distance);
+	midrange_passengers_max_distance = contents.get_int("midrange_passengers_max_distance", midrange_passengers_max_distance);
+	longdistance_passengers_min_distance = contents.get_int("longdistance_passengers_min_distance", longdistance_passengers_min_distance);
+	longdistance_passengers_max_distance = contents.get_int("longdistance_passengers_max_distance", longdistance_passengers_max_distance);
+
+	// Passenger routing settings
+	passenger_routing_packet_size = contents.get_int("passenger_routing_packet_size", passenger_routing_packet_size);
+	max_alternative_destinations = contents.get_int("max_alternative_destinations", max_alternative_destinations);
+	passenger_routing_local_chance  = contents.get_int("passenger_routing_local_chance ", passenger_routing_local_chance);
+	passenger_routing_midrange_chance = contents.get_int("passenger_routing_midrange_chance", passenger_routing_midrange_chance);
+	base_car_preference_percent = contents.get_int("base_car_preference_percent", 90);
+	always_prefer_car_percent = contents.get_int("always_prefer_car_percent", 10);
+	congestion_density_factor = contents.get_int("congestion_density_factor", 12);
+
+	//Cornering settings
+	max_corner_limit[waytype_t::road_wt] = contents.get_int("max_corner_limit_road", 200);
+	min_corner_limit[waytype_t::road_wt] = contents.get_int("min_corner_limit_road", 30);
+	max_corner_adjustment_factor[waytype_t::road_wt] = contents.get_int("max_corner_adjustment_factor_road", 75);
+	min_corner_adjustment_factor[waytype_t::road_wt] = contents.get_int("min_corner_adjustment_factor_road", 97);
+	min_direction_steps[waytype_t::road_wt] = contents.get_int("min_direction_steps_road", 3);
+	max_direction_steps[waytype_t::road_wt] = contents.get_int("max_direction_steps_road", 6);
+	curve_friction_factor[waytype_t::road_wt] = contents.get_int("curve_friction_factor_road", 0);
+
+	max_corner_limit[waytype_t::track_wt] = contents.get_int("max_corner_limit_track", 425);
+	min_corner_limit[waytype_t::track_wt] = contents.get_int("min_corner_limit_track", 45);
+	max_corner_adjustment_factor[waytype_t::track_wt] = contents.get_int("max_corner_adjustment_factor_track", 50);
+	min_corner_adjustment_factor[waytype_t::track_wt] = contents.get_int("min_corner_adjustment_factor_track", 85);
+	min_direction_steps[waytype_t::track_wt] = contents.get_int("min_direction_steps_track", 4);
+	max_direction_steps[waytype_t::track_wt] = contents.get_int("max_direction_steps_track", 14);
+	curve_friction_factor[waytype_t::track_wt] = contents.get_int("curve_friction_factor_track", 0);
+
+	max_corner_limit[waytype_t::tram_wt] = contents.get_int("max_corner_limit_tram", 425);
+	min_corner_limit[waytype_t::tram_wt] = contents.get_int("min_corner_limit_tram", 45);
+	max_corner_adjustment_factor[waytype_t::tram_wt] = contents.get_int("max_corner_adjustment_factor_tram", 50);
+	min_corner_adjustment_factor[waytype_t::tram_wt] = contents.get_int("min_corner_adjustment_factor_tram", 85);
+	min_direction_steps[waytype_t::tram_wt] = contents.get_int("min_direction_steps_tram", 4);
+	max_direction_steps[waytype_t::tram_wt] = contents.get_int("max_direction_steps_tram", 14);
+	curve_friction_factor[waytype_t::tram_wt] = contents.get_int("curve_friction_factor_tram", 0);
+
+	max_corner_limit[waytype_t::tram_wt] = contents.get_int("max_corner_limit_tram", 250);
+	min_corner_limit[waytype_t::tram_wt] = contents.get_int("min_corner_limit_tram", 30);
+	max_corner_adjustment_factor[waytype_t::tram_wt] = contents.get_int("max_corner_adjustment_factor_tram", 60);
+	min_corner_adjustment_factor[waytype_t::tram_wt] = contents.get_int("min_corner_adjustment_factor_tram", 90);
+	min_direction_steps[waytype_t::tram_wt] = contents.get_int("min_direction_steps_tram", 3);
+	max_direction_steps[waytype_t::tram_wt] = contents.get_int("max_direction_steps_tram", 10);
+	curve_friction_factor[waytype_t::tram_wt] = contents.get_int("curve_friction_factor_tram", 0);
+
+	max_corner_limit[waytype_t::monorail_wt] = contents.get_int("max_corner_limit_monorail", 425);
+	min_corner_limit[waytype_t::monorail_wt] = contents.get_int("min_corner_limit_monorail", 75);
+	max_corner_adjustment_factor[waytype_t::monorail_wt] = contents.get_int("max_corner_adjustment_factor_monorail", 50);
+	min_corner_adjustment_factor[waytype_t::monorail_wt] = contents.get_int("min_corner_adjustment_factor_monorail", 85);
+	min_direction_steps[waytype_t::monorail_wt] = contents.get_int("min_direction_steps_monorail", 5);
+	max_direction_steps[waytype_t::monorail_wt] = contents.get_int("max_direction_steps_monorail", 16);
+	curve_friction_factor[waytype_t::monorail_wt] = contents.get_int("curve_friction_factor_monorail", 0);
+
+	max_corner_limit[waytype_t::maglev_wt] = contents.get_int("max_corner_limit_maglev", 500);
+	min_corner_limit[waytype_t::maglev_wt] = contents.get_int("min_corner_limit_maglev", 50);
+	max_corner_adjustment_factor[waytype_t::maglev_wt] = contents.get_int("max_corner_adjustment_factor_maglev", 40);
+	min_corner_adjustment_factor[waytype_t::maglev_wt] = contents.get_int("min_corner_adjustment_factor_maglev", 80);
+	min_direction_steps[waytype_t::maglev_wt] = contents.get_int("min_direction_steps_maglev", 4);
+	max_direction_steps[waytype_t::maglev_wt] = contents.get_int("max_direction_steps_maglev", 16);
+	curve_friction_factor[waytype_t::maglev_wt] = contents.get_int("curve_friction_factor_maglev", 0);
+
+	max_corner_limit[waytype_t::narrowgauge_wt] = contents.get_int("max_corner_limit_narrowgauge", 250);
+	min_corner_limit[waytype_t::narrowgauge_wt] = contents.get_int("min_corner_limit_narrowgauge", 30);
+	max_corner_adjustment_factor[waytype_t::narrowgauge_wt] = contents.get_int("max_corner_adjustment_factor_narrowgauge", 66);
+	min_corner_adjustment_factor[waytype_t::narrowgauge_wt] = contents.get_int("min_corner_adjustment_factor_narrowgauge", 92);
+	min_direction_steps[waytype_t::narrowgauge_wt] = contents.get_int("min_direction_steps_narrowgauge", 3);
+	max_direction_steps[waytype_t::narrowgauge_wt] = contents.get_int("max_direction_steps_narrowgauge", 8);
+	curve_friction_factor[waytype_t::narrowgauge_wt] = contents.get_int("curve_friction_factor_narrowgauge", 0);
 
 	/*
 	* Selection of savegame format through inifile

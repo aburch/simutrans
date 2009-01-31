@@ -227,6 +227,8 @@ void grund_t::rdwr(loadsave_t *file)
 							w->set_besch(sch->get_besch());
 							w->set_max_speed(sch->get_max_speed());
 							w->set_ribi(sch->get_ribi_unmasked());
+							weg->set_max_weight(sch->get_max_weight()); 
+							weg->add_way_constraints(sch->get_way_constraints_permissive(), sch->get_way_constraints_prohibitive());
 							delete sch;
 							weg = w;
 						}

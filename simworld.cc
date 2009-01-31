@@ -43,6 +43,8 @@
 
 
 #include "tpl/vector_tpl.h"
+#include "tpl/binary_heap_tpl.h"
+#include "tpl/ordered_vector_tpl.h"
 
 #include "boden/boden.h"
 #include "boden/wasser.h"
@@ -525,6 +527,8 @@ karte_t::destroy()
 {
 DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
+	is_shutting_down = true;
+
 	// rotate the map until it can be saved
 	for( int i=0;  i<4  &&  nosave;  i++  ) {
 DBG_MESSAGE("karte_t::destroy()", "rotating");
@@ -622,6 +626,8 @@ DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 	printf("World destroyed.\n");
 
 	msg->clear();
+	
+	is_shutting_down = false;
 }
 
 
@@ -643,10 +649,17 @@ void karte_t::rem_convoi(convoihandle_t& cnv)
 
 /**
  * Zugriff auf das Städte Array.
+ * Access to the cities array.
  * @author Hj. Malthaner
  */
 const stadt_t *karte_t::get_random_stadt() const
 {
+	return stadt.at_weight(simrand(stadt.get_sum_weight()));
+}
+
+stadt_t *karte_t::get_random_town()
+{
+	//Non-const version of get_random_stadt().
 	return stadt.at_weight(simrand(stadt.get_sum_weight()));
 }
 
@@ -753,11 +766,84 @@ void karte_t::init_felder()
 	nosave = false;
 }
 
+void karte_t::create_rivers( sint16 number )
+{	
+	// First check, wether there is a canal:
+	const weg_besch_t* river_besch = wegbauer_t::get_besch( umgebung_t::river_type[umgebung_t::river_types-1], 0 );
+	if(  river_besch == NULL  ) {		
+		// should never reaching here ...		
+		dbg->warning("karte_t::create_rivers()","There is no river defined!\n");
+		return;	
+	}	
+	// create a vector of the highest points
+	vector_tpl<koord> water_tiles;	
+	weighted_vector_tpl<koord> mountain_tiles;
+	sint8 last_height = 1;	
+	koord last_koord(0,0);
+	const sint16 max_dist = cached_groesse_karte_y+cached_groesse_karte_x;	
 
+	// trunk of 16 will ensure that rivers are long enough apart ...
+	for(  sint16 y = 8;  y < cached_groesse_karte_y;  y+=16  )
+	{		
+		for(  sint16 x = 8;  x < cached_groesse_karte_x;  x+=16  )
+		{			
+			koord k(x,y);			
+			grund_t *gr = lookup_kartenboden(k);			
+			const sint8 h = gr->get_hoehe()-get_grundwasser();			
+			if(  gr->ist_wasser()  ) 
+			{				
+				// may be good to start a river here				
+				water_tiles.push_back(k);			
+			}			
+			else if(  h>=last_height  ||  abs_distance(last_koord,k)>simrand(max_dist))  
+			{				
+				// something worth to add here
+				if(  h>last_height  )
+				{					
+					last_height = h;			
+				}				
+				last_koord = k;				
+				mountain_tiles.append( k, h, 256 );
+			}		
+		}	
+	}	
+	if(  water_tiles.get_count() == 0  ) 
+	{		
+		dbg->message("karte_t::create_rivers()","There aren't any water tiles!\n");
+		return;	
+	}	
+	// now make rivers
+	while(  number>0  &&  mountain_tiles.get_count()>0  ) 
+	{		
+		koord start = mountain_tiles.at_weight( simrand(mountain_tiles.get_sum_weight()) );		
+		koord end = water_tiles[ simrand(water_tiles.get_count()) ];		
+		sint16 dist = abs_distance(start,end);		
+		if(  dist > einstellungen->get_min_river_length()  &&  dist < einstellungen->get_max_river_length()  ) 
+		{			
+			// should be at least of decent length
+			wegbauer_t riverbuilder(this, spieler[1]);
+			riverbuilder.route_fuer(wegbauer_t::river, river_besch);
+			riverbuilder.set_maximum( dist*50 );			
+			riverbuilder.calc_route( lookup_kartenboden(end)->get_pos(), lookup_kartenboden(start)->get_pos() );
+			if(  riverbuilder.max_n >= einstellungen->get_min_river_length()  ) 
+			{
+				// do not built too short rivers
+				riverbuilder.baue();
+				number --;			
+			}			
+			mountain_tiles.remove( start );		
+		}
+	}
+}
 
 void karte_t::distribute_groundobjs_cities(int new_anzahl_staedte, sint16 old_x, sint16 old_y)
 {
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
+
+	if(  umgebung_t::river_types>0  &&  einstellungen->get_river_number()>0  ) {
+		create_rivers( einstellungen->get_river_number() );
+	}
+
 	if(  umgebung_t::ground_object_probability > 0  ) {
 		// add eyecandy like rocky, moles, flowers, ...
 		koord k;
@@ -765,7 +851,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 		for(  k.y=0;  k.y<get_groesse_y();  k.y++  ) {
 			for(  k.x=(k.y<old_y)?old_x:0;  k.x<get_groesse_x();  k.x++  ) {
 				grund_t *gr = lookup_kartenboden(k);
-				if(gr->get_typ()==grund_t::boden) {
+				if(  gr->get_typ()==grund_t::boden  &&  !gr->hat_wege()  ) {
 					queried --;
 					if(  queried<0  ) {
 						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(gr->get_hoehe()), gr->get_grund_hang() );
@@ -829,16 +915,15 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev;
 
 		// Hajo: connect some cities with roads
-		const weg_besch_t* besch = wegbauer_t::get_besch(*umgebung_t::intercity_road_type);
+		const weg_besch_t* besch = wegbauer_t::get_besch(umgebung_t::intercity_road_type);
 		if(besch == 0) {
 			dbg->warning("karte_t::init()", "road type '%s' not found", (const char*)*umgebung_t::intercity_road_type);
 			// Hajo: try some default (might happen with timeline ... )
 			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
 		}
 
-		// Hajo: No owner so that roads can be removed!
-		wegbauer_t bauigel (this, 0);
-		bauigel.route_fuer(wegbauer_t::strasse, besch);
+		wegbauer_t bauigel (this, spieler[1] );
+		bauigel.route_fuer(wegbauer_t::strasse, besch, NULL, brueckenbauer_t::find_bridge(road_wt,15,get_timeline_year_month()) );
 		bauigel.set_keep_existing_ways(true);
 		bauigel.set_maximum(umgebung_t::intercity_road_length);
 
@@ -942,6 +1027,7 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 	*einstellungen = *sets;
 	// names during creation time
 	einstellungen->set_name_language_iso( umgebung_t::language_iso );
+	einstellungen->set_use_timeline( einstellungen->get_use_timeline()&1 );
 
 	x_off = y_off = 0;
 
@@ -2272,9 +2358,11 @@ void karte_t::neuer_monat()
 	// roll city history and copy the new citicens (i.e. the new weight) into the stadt array
 	// no INT_CHECK() here, or dialoges will go crazy!!!
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
+	outstanding_cars = 0;
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		stadt_t* s = *i;
 		s->neuer_monat();
+		outstanding_cars +=	s->get_outstanding_cars();
 		new_weighted_stadt.append(s, s->get_einwohner(), 64);
 		INT_CHECK("simworld 1278");
 	}
@@ -2288,6 +2376,13 @@ void karte_t::neuer_monat()
 		if(  spieler[i] != NULL  ) {
 			spieler[i]->neuer_monat();
 		}
+	}
+
+	while(unassigned_cars.count() > outstanding_cars)
+	{
+		//Make sure that there are not too many cars on the roads. 
+		stadtauto_t* car = unassigned_cars.remove_first();
+		car->kill();
 	}
 
 	INT_CHECK("simworld 1289");

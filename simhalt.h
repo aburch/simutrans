@@ -184,6 +184,7 @@ private:
 	slist_tpl<warenziel_t> warenziele[3];
 
 	// loest warte_menge ab
+	// "solves wait mixes off" (Babelfish); "solves warte volume from" (Google)
 	vector_tpl<ware_t> **waren;
 
 	/**
@@ -236,8 +237,11 @@ private:
 	 */
 	uint32 marke;
 
+//#define USE_QUOTE
+
 #ifdef USE_QUOTE
 	// for station rating
+	//const char * quote_bezeichnung(int quote, convoihandle_t cnv) const;
 	const char * quote_bezeichnung(int quote) const;
 #endif
 
@@ -458,7 +462,10 @@ public:
 
 	/**
 	 * holt ware ab
+	 * fetches ware from (Google)
+	 *
 	 * @return abgeholte menge
+	 * @return collected volume (Google)
 	 * @author Hj. Malthaner
 	 */
 	ware_t hole_ab(const ware_besch_t *warentyp, uint32 menge, schedule_t *fpl);
@@ -466,6 +473,10 @@ public:
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
 	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach
 	 * aufruf dieser Methode nicht mehr referenzieren!
+	 *
+	 * Ware to deliver. If the goods to waiting to be taken product 
+	 * can be ware_t may be deleted! I.e. we must, after calling this 
+	 * method no longer refer! (Google)
 	 *
 	 * The second version is like the first, but will not recalculate the route
 	 * This is used for inital passenger, since they already know a route

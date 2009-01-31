@@ -948,6 +948,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		halthandle_t halt = haltlist[i];
 
 		// Über alle Ziele iterieren
+		// "Iterate over all goals" (Babelfish)
 		for(uint32 n=0; n<lieferziele.get_count(); n++) {
 
 			// prissi: this way, the halt, that is tried first, will change. As a result, if all destinations are empty, it will be spread evenly
@@ -957,7 +958,8 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			int vorrat;
 
 			if (ziel_fab && (vorrat = ziel_fab->verbraucht(ausgang[produkt].get_typ())) >= 0) {
-				ware_t ware(ausgang[produkt].get_typ());
+				//ware_t ware(ausgang[produkt].get_typ());
+				ware_t ware(ausgang[produkt].get_typ(), halt, welt->get_zeit_ms());
 				ware.menge = menge;
 				ware.set_zielpos( lieferziel );
 
@@ -1003,6 +1005,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	}
 
 	// Auswertung der Ergebnisse
+	// "Evaluation of the results" (Babelfish)
 	if (!dist_list.empty()) {
 
 		slist_iterator_tpl<distribute_ware_t> iter (dist_list);

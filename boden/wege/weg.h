@@ -107,6 +107,12 @@ private:
 	*/
 	uint16 max_speed;
 
+	/**
+	* Likewise for weight
+	* @author: jamespetts
+	*/
+	uint32 max_weight;
+
 	image_id bild;
 
 	/**
@@ -120,6 +126,11 @@ private:
 	* @author hsiegeln
 	*/
 	void init_statistics();
+
+	/*Way constraints for, e.g., loading gauges, types of electrification, etc.
+	* @author: jamespetts*/
+	uint8 way_constraints_permissive;
+	uint8 way_constraints_prohibitive;
 
 
 public:
@@ -140,15 +151,43 @@ public:
 	*/
 	void set_max_speed(unsigned int s);
 
+	void set_max_weight(uint32 w);
+
+	//Adds the way constraints to the way. Note: does *not* replace them - they are added together.
+	void add_way_constraints(const uint8 permissive, const uint8 prohibitive);
+	
+	//Resets constraints to their base values. Used when removing way objects.
+	void weg_t::reset_way_constraints();
+
+	uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
+	uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
+
+	
+	bool permissive_way_constraint_set(uint8 i) const
+	{
+		return (way_constraints_permissive & 1<<i != 0);
+	}
+
+	bool prohibitive_way_constraint_set(uint8 i) const
+	{
+		return (way_constraints_prohibitive & 1<<i != 0);
+	}
+
+
 	/**
 	* Ermittelt die erlaubte Höchstgeschwindigkeit
 	* @author Hj. Malthaner
 	*/
 	uint16 get_max_speed() const {return max_speed;}
 
+	uint32 get_max_weight() const { return max_weight; }
+
 	/**
 	* Setzt neue Beschreibung. Ersetzt alte Höchstgeschwindigkeit
 	* mit wert aus Beschreibung.
+	*
+	* Sets a new description. Replaces old with maximum speed
+	* worth of description.
 	* @author Hj. Malthaner
 	*/
 	void set_besch(const weg_besch_t *b);

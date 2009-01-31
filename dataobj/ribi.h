@@ -83,6 +83,10 @@ public:
  * brauchen wir etwas entsprechendes für Richtungsbits. Deshalb habe ich hier
  * eine Klasse mit einer Sammlung von Daten für richtungsbits angelegt
  *
+ * Hajo: After Volkers introduction of the NSOW array in the coordinates class
+ * we need something similar for direction bits. That is why I have a class with 
+ * a collection of data created for direction bits.
+ *
  * @author Hansjörg Malthaner
  */
 class ribi_t {
@@ -96,24 +100,30 @@ public:
 	 * 1=Nord, 2=Ost, 4=Sued, 8=West
 	 *
 	 * richtungsbits (ribi) koennen 16 Komb. darstellen.
+	 *
+	 * the enum direction is a generalization of the 
+	 * direction bits to designated constants, the 
+	 * values are as follows 1 = North, 2 = East, 4 = South, 8 = West
+	 *
+	 * direction bits (ribi) can 16 Komb. represent.
 	 */
 	enum _ribi {
-		keine=0,
-		nord = 1,
-		ost = 2,
-		nordost = 3,
-		sued = 4,
-		nordsued = 5,
-		suedost = 6,
-		nordsuedost = 7,
-		west = 8,
-		nordwest = 9,
-		ostwest = 10,
+		keine=0, //None
+		nord = 1, //North
+		ost = 2, //East
+		nordost = 3, //North-East
+		sued = 4, // South
+		nordsued = 5, 
+		suedost = 6, //South-East
+		nordsuedost = 7, 
+		west = 8, //West
+		nordwest = 9, //North-West
+		ostwest = 10, 
 		nordostwest = 11,
-		suedwest = 12,
-		nordsuedwest = 13,
-		suedostwest = 14,
-		alle = 15
+		suedwest = 12, //South-West
+		nordsuedwest = 13, 
+		suedostwest = 14, 
+		alle = 15 //"Everything".
 	};
 	typedef uint8 ribi;
 
@@ -161,6 +171,7 @@ public:
 	static bool ist_kreuzung(ribi x) { return x > 0 && flags[x] == 0; }
 
 	static dir get_dir(ribi x) { return dirs[x]; }
+
 };
 
 //
@@ -168,6 +179,7 @@ public:
 //
 //	ribi_t::nord entspricht koord::nord entspricht hang_t::sued !!!
 //	-> ich denke aufwaerts, also geht es auf einem Suedhang nach Norden!
+// I think upwards, so it goes on a southern slope to the north! (Google)
 //
 hang_t::typ  hang_typ(koord dir);   // dir:nord -> hang:sued, ...
 ribi_t::ribi ribi_typ(koord dir);

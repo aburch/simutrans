@@ -92,7 +92,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 
 
 
-// correct speed and maitainace
+// correct speed, maitainace and weight limit
 void bruecke_t::laden_abschliessen()
 {
 	grund_t *gr = welt->lookup(get_pos());
@@ -117,7 +117,9 @@ void bruecke_t::laden_abschliessen()
 				gr->neuen_weg_bauen( weg, 0, welt->get_spieler(1) );
 			}
 			weg->set_max_speed(besch->get_topspeed());
-			weg->set_besitzer(sp);
+			weg->set_max_weight(besch->get_max_weight());
+			weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
+			weg->set_besitzer(sp);  //"besitzer" = owner (Babelfish)
 			spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
 		}
 		spieler_t::add_maintenance( sp,  besch->get_wartung() );
@@ -137,6 +139,8 @@ void bruecke_t::entferne( spieler_t *sp2 )
 			weg_t *weg = gr->get_weg( besch->get_waytype() );
 			if(weg) {
 				weg->set_max_speed( weg->get_besch()->get_topspeed() );
+				weg->set_max_weight(weg->get_besch()->get_max_weight());
+				weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 				spieler_t::add_maintenance( sp,  weg->get_besch()->get_wartung());
 			}
 		}

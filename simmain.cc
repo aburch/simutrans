@@ -587,6 +587,9 @@ int simu_main(int argc, char** argv)
 	print("Reading speedbonus configuration ...\n");
 	vehikelbauer_t::speedbonus_init(umgebung_t::objfilename);
 
+	print("Reading private car ownership configuration ...\n");
+	stadt_t::privatecar_init(umgebung_t::objfilename);
+
 	print("Reading forest configuration ...\n");
 	baum_t::forestrules_init(umgebung_t::objfilename);
 

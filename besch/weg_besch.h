@@ -85,9 +85,14 @@ private:
 	*/
 	uint8 draw_as_ding;
 
-	/* number of seasons (0 = none, 1 = no snow/snow
+	/* number of seasons (0 = none, 1 = no snow/snow)
 	*/
 	sint8 number_seasons;
+
+	/*Way constraints for, e.g., loading gauges, types of electrification, etc.
+	* @author: jamespetts*/
+	uint8 way_constraints_permissive;
+	uint8 way_constraints_prohibitive;
 
 public:
 	long get_preis() const { return price; }
@@ -99,6 +104,9 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	uint32 get_topspeed() const { return topspeed; }
+
+	//Returns maximum weight
+	uint32 get_max_weight() const { return (max_weight < 9999 && max_weight > 0) ? max_weight : 999; }
 
 	/**
 	 * get way type
@@ -173,7 +181,9 @@ public:
 	* @return introduction year
 	* @author Hj. Malthaner
 	*/
+
 	uint16 get_intro_year_month() const { return intro_date; }
+
 
 	/**
 	* @return introduction month
@@ -192,6 +202,26 @@ public:
 	{
 		return (const skin_besch_t *)(get_child(5));
 	}
+
+	/* Way constraints: determines whether vehicles
+	 * can travel on this way. This method decodes
+	 * the byte into bool values. See here for
+	 * information on bitwise operations: 
+	 * http://www.cprogramming.com/tutorial/bitwise_operators.html
+	 * @author: jamespetts
+	 * */
+	const bool permissive_way_constraint_set(uint8 i) const
+	{
+		return (way_constraints_permissive & 1<<i != 0);
+	}
+
+	const bool prohibitive_way_constraint_set(uint8 i) const
+	{
+		return (way_constraints_prohibitive & 1<<i != 0);
+	}
+
+	uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
+	uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
 };
 
 #endif

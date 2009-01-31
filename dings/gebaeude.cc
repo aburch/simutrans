@@ -451,7 +451,7 @@ gebaeude_t::get_after_bild() const
  */
 int gebaeude_t::get_passagier_level() const
 {
-	koord dim = tile->get_besch()->get_groesse();
+	koord dim = tile->get_besch()->get_groesse();  //("Groesse" = "size")
 	long pax = tile->get_besch()->get_level();
 	if (!is_factory && ptr.stadt != NULL) {
 		// belongs to a city ...

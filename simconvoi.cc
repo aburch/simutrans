@@ -71,7 +71,7 @@
 static const char * state_names[convoi_t::MAX_STATES] =
 {
 	"INITIAL",
-	"FAHRPLANEINGABE",
+	"FAHRPLANEINGABE", //"Schedule input"
 	"ROUTING_1",
 	"",
 	"",
@@ -713,7 +713,7 @@ void convoi_t::step()
 					// Hajo: now calculate a new route
 					drive_to(v->get_pos(), fpl->get_current_eintrag().pos);
 					if(!route.empty()) {
-						vorfahren();
+						vorfahren(); //"Front" (Google)
 					}
 					else {
 						state = NO_ROUTE;
@@ -1169,7 +1169,6 @@ bool convoi_t::set_schedule(schedule_t * f)
 }
 
 
-
 schedule_t *convoi_t::create_schedule()
 {
 	if(fpl == NULL) {
@@ -1253,7 +1252,7 @@ convoi_t::can_go_alte_richtung()
 //DBG_MESSAGE("convoi_t::go_alte_richtung()","alte=%d, neu_rwr=%d",alte_richtung,neue_richtung_rwr);
 
 	// we continue our journey; however later cars need also a correct route entry
-	// eventually we need to add their positions to the convois route
+	// eventually we need to add their positions to the convoi's route
 	koord3d pos = fahr[0]->get_pos();
 	assert(pos==route.position_bei(0));
 	if(welt->lookup(pos)->get_depot()) {
@@ -1631,7 +1630,7 @@ convoi_t::rdwr(loadsave_t *file)
 					}
 					state = INITIAL;
 				}
-				// add to blockstrecke
+				// add to blockstrecke "block stretch" (Google). Possibly "block section"?
 				if(v->get_waytype()==track_wt  ||  v->get_waytype()==monorail_wt  ||  v->get_waytype()==maglev_wt  ||  v->get_waytype()==narrowgauge_wt) {
 					schiene_t* sch = (schiene_t*)gr->get_weg(v->get_waytype());
 					if(sch) {
@@ -1856,6 +1855,8 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 				ware_t ware = iter_vehicle_ware.get_current();
 				for(unsigned i=0;  i<total_fracht.get_count();  i++ ) {
 
+					//TODO: Reform the merging code to work with the new revenue system.
+
 					// could this be joined with existing freight?
 					ware_t &tmp = total_fracht[i];
 
@@ -1878,10 +1879,11 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		}
 		buf.clear();
 
-		// apend info on total capacity
+		// append info on total capacity
 		slist_tpl <ware_t>capacity;
 		for(i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) {
 			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) {
+				//TODO: Replace this with the new constructor with the origin and timekeeping values.
 				ware_t ware(warenbauer_t::get_info(i));
 				ware.menge = max_loaded_waren[i];
 				if(ware.get_catg()==0) {
@@ -1944,6 +1946,9 @@ void convoi_t::open_schedule_window()
 /* Fahrzeuge passen oft nur in bestimmten kombinationen
  * die Beschraenkungen werden hier geprueft, die für die Nachfolger von
  * vor gelten - daher muß vor != NULL sein..
+ * TRANSLATION: (Google)
+ * Vehicles are often triggered only in certain combinations restrictions are approved,
+ * the successor to continue to apply - therefore must be done before != NULL.
  */
 bool
 convoi_t::pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter)
@@ -1963,6 +1968,7 @@ convoi_t::pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *h
 
 		if(hinter == soll) {
 			// Diese Beschränkung erlaubt unseren Nachfolger
+			// This restriction allows our successors (Google translations)
 			return true;
 		}
 	}
@@ -1974,14 +1980,19 @@ convoi_t::pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *h
 /* Fahrzeuge passen oft nur in bestimmten kombinationen
  * die Beschraenkungen werden hier geprueft, die für die Vorgänger von
  *  hinter gelten - daher muß hinter != NULL sein.
+ * 
+ * Vehicles are often only fit in certain combinations, 
+ * the restrictions are approved, the predecessor of 
+ * behind apply - must be behind! = NULL. (Google)
  */
 bool
 convoi_t::pruefe_vorgaenger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter)
 {
-	const vehikel_besch_t *soll;
+	const vehikel_besch_t *soll; //"Soll" = should (Google)
 
 	if(!hinter->get_vorgaenger_count()) {
 		// Alle Vorgänger erlaubt
+		// "All previous permits" (Google).
 		return true;
 	}
 	for(int i=0; i < hinter->get_vorgaenger_count(); i++) {
@@ -1993,6 +2004,7 @@ convoi_t::pruefe_vorgaenger(const vehikel_besch_t *vor, const vehikel_besch_t *h
 
 		if(vor == soll) {
 			// Diese Beschränkung erlaubt unseren Vorgänger
+			// 	This restriction allows our predecessors (Google)
 			return true;
 		}
 	}
@@ -2089,7 +2101,8 @@ void convoi_t::calc_gewinn()
 
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		vehikel_t* v = fahr[i];
-		gewinn += v->calc_gewinn(v->last_stop_pos, v->get_pos().get_2d() );
+		convoi_t *tmp = this;
+		gewinn += v->calc_gewinn(v->last_stop_pos, v->get_pos().get_2d(), tmp );
 		v->last_stop_pos = v->get_pos().get_2d();
 	}
 
@@ -2105,6 +2118,7 @@ void convoi_t::calc_gewinn()
 
 /**
  * convoi an haltestelle anhalten
+ * "Convoi stop at stop" (Google translations)
  * @author Hj. Malthaner
  *
  * V.Meyer: ladegrad is now stored in the object (not returned)
@@ -2141,13 +2155,9 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 			break;
 		}
 
-		// we need not to call this on the same position
-		if(  v->last_stop_pos != v->get_pos().get_2d()  ) {
-			// calc_revenue
-			gewinn += v->calc_gewinn(v->last_stop_pos, v->get_pos().get_2d() );
-			v->last_stop_pos = v->get_pos().get_2d();
-		}
-
+		// we need not to call this on the same position		if(  v->last_stop_pos != v->get_pos().get_2d()  ) {		// calc_revenue
+		convoi_t *tmp = this;
+		gewinn += v->calc_gewinn(v->last_stop_pos, v->get_pos().get_2d(), tmp );		v->last_stop_pos = v->get_pos().get_2d();
 		freight_info_resort |= v->entladen(k, halt);
 		if(!no_load) {
 			// do not load anymore
@@ -2406,12 +2416,12 @@ convoi_t::init_financial_history()
 	}
 }
 
-sint32
-convoi_t::get_running_cost() const
+sint32 convoi_t::get_running_cost() const
 {
 	sint32 running_cost = 0;
-	for (unsigned i = 0; i<get_vehikel_anzahl(); i++) {
-		running_cost += fahr[i]->get_betriebskosten();
+	for (unsigned i = 0; i<get_vehikel_anzahl(); i++) { //"anzahl" = "number" (Babelfish)
+		sint32 vehicle_running_cost = fahr[i]->get_betriebskosten(welt); //"get_operatingCost" (Google). "Fahr" = "Drive" (Babelfish)
+		running_cost += vehicle_running_cost;
 	}
 	return running_cost;
 }
@@ -2465,6 +2475,27 @@ uint8 convoi_t::get_status_color() const
 	}
 	// normal state
 	return COL_BLACK;
+}
+
+uint8 
+convoi_t::get_catering_level(uint8 type) const
+{
+	uint8 max_catering_level = 0;
+	uint8 current_catering_level;
+	for(sint16 i = fahr.get_size() - 1; i >= 0; i --)
+	{
+		vehikel_t* v = get_vehikel(i);
+		if(v == NULL)
+		{
+			continue;
+		}
+		current_catering_level = v->get_besch()->get_catering_level();
+		if(current_catering_level > max_catering_level && v->get_besch()->get_ware()->get_catg_index() == type)
+		{
+			max_catering_level = current_catering_level;
+		}
+	}
+	return max_catering_level;
 }
 
 

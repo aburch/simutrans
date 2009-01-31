@@ -54,6 +54,20 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->intro_date = decode_uint16(p);
 			besch->obsolete_date = decode_uint16(p);
 			besch->number_seasons = decode_uint8(p);
+			if(node.size == 26)
+			{
+				// Node size == 26 - extra features to be read. Version 2a.
+				// Backwards compatible with version 2 with this code.
+				besch->max_weight =  decode_uint32(p);
+				besch->way_constraints_permissive = decode_uint8(p);
+				besch->way_constraints_prohibitive = decode_uint8(p);
+			}
+			else
+			{
+				besch->max_weight = 999;
+				besch->way_constraints_permissive = 0;
+				besch->way_constraints_prohibitive = 0;
+			}
 		}
 		else if(version == 1) {
 	    	// first versioned node, version 1
@@ -64,14 +78,19 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->intro_date = decode_uint16(p);
 			besch->obsolete_date = decode_uint16(p);
 			besch->number_seasons = 0;
+			besch->max_weight = 999;
+			besch->way_constraints_permissive = 0;
+			besch->way_constraints_prohibitive = 0;
+			
+
 
 		} else {
 			dbg->fatal("tunnel_reader_t::read_node()","illegal version %d",version);
 		}
 
 		DBG_DEBUG("bridge_reader_t::read_node()",
-		     "version=%d waytype=%d price=%d topspeed=%d, intro_year=%d",
-		     version, besch->wegtyp, besch->preis, besch->topspeed, besch->intro_date/12);
+		     "version=%d waytype=%d price=%d topspeed=%d, intro_year=%d, max_weight%d",
+			 version, besch->wegtyp, besch->preis, besch->topspeed, besch->intro_date/12, besch->max_weight);
 	}
 
 	return besch;

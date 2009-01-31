@@ -8,6 +8,7 @@
 
 /**
  * Spieleinstellungen
+ * "Game options"
  *
  * Hj. Malthaner
  *
@@ -55,6 +56,11 @@ private:
 
 	double max_mountain_height;                  //01-Dec-01        Markus Weber    Added
 	double map_roughness;                        //01-Dec-01        Markus Weber    Added
+
+	// river stuff
+	sint16 river_number;
+	sint16 min_river_length;
+	sint16 max_river_length;
 
 	uint8 allow_player_change;
 	uint8 use_timeline;
@@ -141,6 +147,20 @@ private:
 	 */
 	uint8 pay_for_total_distance;
 
+	//Cornering settings
+	//@author: jamespetts
+	
+	//The array index corresponds
+	//to the waytype index.
+	
+	uint32 max_corner_limit[10];
+	uint32 min_corner_limit[10];
+	float max_corner_adjustment_factor[10];
+	float min_corner_adjustment_factor[10];
+	uint8 min_direction_steps[10];
+	uint8 max_direction_steps[10];
+	uint8 curve_friction_factor[10];
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -180,6 +200,41 @@ public:
 	sint32 way_count_tunnel;
 	uint32 way_max_bridge_len;
 	sint32 way_count_leaving_road;
+
+	//@author: jamespetts
+	// Speed bonus local adjustment
+	uint16 min_bonus_max_distance;
+	uint16 max_bonus_min_distance;
+	uint16 local_bonus_multiplier; 
+
+	//@author: jamespetts
+	// Obsolete vehicle maintenance cost increases
+	uint16 obsolete_running_cost_increase_percent;
+	uint16 obsolete_running_cost_increase_phase_years;
+
+	//@author: jamespetts
+	// Passenger destination ranges
+	// Use to set the extent to which passengers prefer local, medium, or long-range destinations.
+	// The distances can (and probably should) overlap.
+	uint16 local_passengers_min_distance;
+	uint16 local_passengers_max_distance;
+	uint16 midrange_passengers_min_distance;
+	uint16 midrange_passengers_max_distance;
+	uint16 longdistance_passengers_min_distance;
+	uint16 longdistance_passengers_max_distance;
+	
+	// @author: jamespetts
+	// Private ar settings
+	uint8 always_prefer_car_percent;
+	uint8 base_car_preference_percent;
+	uint8 congestion_density_factor;
+
+	//@author: jamespetts
+	// Passenger routing settings
+	uint8 passenger_routing_packet_size;
+	uint8 max_alternative_destinations;
+	uint8 passenger_routing_local_chance;
+	uint8 passenger_routing_midrange_chance;
 
 	// true if active
 	bool automaten[MAX_PLAYER_COUNT];
@@ -328,6 +383,39 @@ public:
 	enum { TO_PREVIOUS, TO_TRANSFER, TO_DESTINATION };
 	uint8 get_pay_for_total_distance_mode() const { return pay_for_total_distance ; }
 	void set_pay_for_total_distance_mode( uint8 b ) { pay_for_total_distance = b < 2 ? b : 0; }
+	sint16 get_river_number() const { return river_number; }	void set_river_number( sint16 n ) { river_number=n; }	sint16 get_min_river_length() const { return min_river_length; }	void set_min_river_length( sint16 n ) { min_river_length=n; }	sint16 get_max_river_length() const { return max_river_length; }	void set_max_river_length( sint16 n ) { max_river_length=n; }	uint16 get_min_bonus_max_distance() const { return min_bonus_max_distance; }
+	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
+	uint16 get_local_bonus_multiplier() const { return local_bonus_multiplier; }
+
+	uint16 get_obsolete_running_cost_increase_percent() const { return obsolete_running_cost_increase_percent; }
+	uint16 get_obsolete_running_cost_increase_phase_years() const { return obsolete_running_cost_increase_phase_years; }
+
+	uint16 get_local_passengers_min_distance() const { return local_passengers_min_distance; }
+	uint16 get_local_passengers_max_distance() const { return local_passengers_max_distance; }
+	uint16 get_midrange_passengers_min_distance() const { return midrange_passengers_min_distance; }
+	uint16 get_midrange_passengers_max_distance() const { return midrange_passengers_max_distance; }
+	uint16 get_longdistance_passengers_min_distance() const { return longdistance_passengers_min_distance; }
+	uint16 get_longdistance_passengers_max_distance() const { return longdistance_passengers_max_distance; }
+
+	uint8 get_passenger_routing_packet_size() const { return passenger_routing_packet_size; }
+	uint8 get_max_alternative_destinations() const { return max_alternative_destinations; }
+	uint8 get_passenger_routing_local_chance() const { return passenger_routing_local_chance; }
+	uint8 get_passenger_routing_midrange_chance() const { return passenger_routing_midrange_chance; }
+
+	uint8 get_always_prefer_car_percent() const { return always_prefer_car_percent; }
+	uint8 get_base_car_preference_percent () const { return base_car_preference_percent; }
+	uint8 get_congestion_density_factor () const { return (congestion_density_factor > 0) ? congestion_density_factor : 1; }
+
+	uint32 get_max_corner_limit(waytype_t waytype) const { return kmh_to_speed(max_corner_limit[waytype]); }
+	uint32 get_min_corner_limit (waytype_t waytype) const { return kmh_to_speed(min_corner_limit[waytype]); }
+	float get_max_corner_adjustment_factor (waytype_t waytype) const { return max_corner_adjustment_factor[waytype] / 100; }
+	float get_min_corner_adjustment_factor (waytype_t waytype) const {  return  min_corner_adjustment_factor[waytype] / 100; }
+	uint8 get_min_direction_steps (waytype_t waytype) const { return min_direction_steps[waytype]; }
+	uint8 get_max_direction_steps (waytype_t waytype) const { return max_direction_steps[waytype]; }
+	uint8 get_curve_friction_factor (waytype_t waytype) const { return curve_friction_factor[waytype]; }
+
+	bool is_pay_for_total_distance() const { return pay_for_total_distance ; }
+	void set_pay_for_total_distance( bool b ) { pay_for_total_distance = b; }
 };
 
 #endif

@@ -152,7 +152,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->zuladung = decode_uint16(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
-		besch->leistung = decode_uint32(p);
+		besch->leistung = decode_uint32(p); //"performance" (Google)
 		besch->betriebskosten = decode_uint16(p);
 
 		besch->intro_date = decode_uint16(p);
@@ -163,9 +163,26 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->sound = decode_sint8(p);
 		besch->engine_type = decode_uint8(p);
 		besch->len = decode_uint8(p);
-		besch->vorgaenger = decode_uint8(p);
-		besch->nachfolger = decode_uint8(p);
+		besch->vorgaenger = decode_uint8(p); //"Predecessors" (Google)
+		besch->nachfolger = decode_uint8(p); //"Successor" (Google)
 		besch->freight_image_type = decode_uint8(p);
+		if(node.size == 35)
+		{
+			// Node size == 35 - extra features to be read. Version 8a.
+			// Backwards compatible with version 8 with this code.
+			besch->is_tilting = decode_uint8(p);
+			besch->way_constraints_permissive = decode_uint8(p);
+			besch->way_constraints_prohibitive = decode_uint8(p);
+			besch->catering_level = decode_uint8(p);
+		}
+		else
+		{
+			//Standard version 8: default values for new items.
+			besch->is_tilting = 0;
+			besch->way_constraints_permissive = 0;
+			besch->way_constraints_prohibitive = 0;
+			besch->catering_level = 0;
+		}
 	}
 	else {
 		if(  version!=0  ) {
@@ -225,8 +242,13 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	// before version 8 vehicles could only have one freight image in each direction
 	if(version<8) {
-		besch->freight_image_type=0;
+		besch->freight_image_type = 0;
+		besch->is_tilting = 0;
+		besch->way_constraints_permissive = 0;
+		besch->way_constraints_prohibitive = 0;
+		besch->catering_level = 0;
 	}
+
 
 	if(besch->sound==LOAD_SOUND) {
 		uint8 len=decode_sint8(p);
@@ -248,7 +270,8 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 		"version=%d "
 		"way=%d zuladung=%d preis=%d geschw=%d gewicht=%d leistung=%d "
 		"betrieb=%d sound=%d vor=%d nach=%d "
-		"date=%d/%d gear=%d engine_type=%d len=%d",
+		"date=%d/%d gear=%d engine_type=%d len=%d is_tilting=%d catering_level=%d "
+		"way_constraints_permissive=%d way_constraints_prohibitive%d",
 		version,
 		besch->typ,
 		besch->zuladung,
@@ -264,7 +287,11 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 		besch->intro_date/12,
 		besch->gear,
 		besch->engine_type,
-		besch->len);
+		besch->len,
+		besch->is_tilting,
+		besch->catering_level,
+		besch->way_constraints_permissive,
+		besch->way_constraints_prohibitive);
 
 	return besch;
 }

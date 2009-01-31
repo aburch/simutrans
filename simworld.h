@@ -88,6 +88,14 @@ public:
 	#define MAX_WORLD_HISTORY_YEARS  (12) // number of years to keep history
 	#define MAX_WORLD_HISTORY_MONTHS  (12) // number of months to keep history
 
+	bool get_is_shutting_down() { return is_shutting_down; }
+
+	// City cars that are not assigned to a particular city are stored in this list.
+	// @author:jamespetts
+	slist_tpl<stadtauto_t *> unassigned_cars;
+	
+	void add_unassigned_car(stadtauto_t* car) { unassigned_cars.append(car); outstanding_cars --; } 
+
 private:
 	// die Einstellungen
 	einstellungen_t *einstellungen;
@@ -107,6 +115,12 @@ private:
 	werkzeug_t *werkzeug;
 	koord werkzeug_last_pos;	// last position a tool was called
 	uint8 werkzeug_last_button;
+
+	// Whether the map is currently being destroyed. 
+	// Useful to prevent access violations if objects with
+	// references to other objects that are destroyed first
+	// reference members of those objects in their destructors.
+	bool is_shutting_down; 
 
 	/**
 	 * redraw whole map
@@ -195,6 +209,10 @@ private:
 	// the recorded history so far
 	sint64 finance_history_year[MAX_WORLD_HISTORY_YEARS][MAX_WORLD_COST];
 	sint64 finance_history_month[MAX_WORLD_HISTORY_MONTHS][MAX_WORLD_COST];
+	
+	// The number of cars that should be in the world somewhere, but are not
+	// in any particular city's list.
+	sint16 outstanding_cars;
 
 	// word record of speed ...
 	class speed_record_t {
@@ -354,7 +372,7 @@ private:
 	// restores history for older savegames
 	void restore_history();
 
-	/**
+	/*	 * Will create rivers.	 */	void create_rivers(sint16 number);	/**
 	 * Distribute groundobjs and cities on the map but not
 	 * in the rectangle from (0,0) till (old_x, old_y).
 	 * It's now an extra function so we don't need the code twice.
@@ -513,12 +531,16 @@ public:
 	* anzahl ticks pro tag in bits
 	* @see ticks_per_tag
 	* @author Hj. Malthaner
+	*
+	* number ticks per day in bits (Babelfish)
 	*/
 	uint32 ticks_bits_per_tag;
 
 	/**
 	* anzahl ticks pro MONTH!
 	* @author Hj. Malthaner
+	*
+	* number ticks per MONTH! (Babelfish)
 	*/
 	uint32 ticks_per_tag;
 
@@ -536,6 +558,9 @@ public:
 	/**
 	 * Zeit seit Kartenerzeugung/dem letzen laden in ms
 	 * @author Hj. Malthaner
+	 *
+	 * 	
+	 * Time cards since creation / the last load in ms (Google)
 	 */
 	uint32 get_zeit_ms() const { return ticks; }
 
@@ -552,30 +577,40 @@ public:
 	/**
 	 * Anzahl steps seit Kartenerzeugung
 	 * @author Hj. Malthaner
+	 *
+	 * Number of steps since map production (Babelfish)
 	 */
 	long get_steps() const { return steps; }
 
 	/**
 	 * Idle time. Nur zur Anzeige verwenden!
 	 * @author Hj. Malthaner
+	 *
+	 * Idle time. Use only to the announcement! (Babelfish)
 	 */
 	uint32 get_schlaf_zeit() const { return next_wait_time; }
 
 	/**
 	 * Anzahl frames in der letzten Sekunde Realzeit
 	 * @author prissi
+	 *
+	 * Number of frames in the last second of real time (Babelfish)
 	 */
 	uint32 get_realFPS() const { return realFPS; }
 
 	/**
 	 * Anzahl Simulationsloops in der letzten Sekunde. Kann sehr ungenau sein!
 	 * @author Hj. Malthaner
+	 *
+	 * Number of simulation loops in the last second. Can be very inaccurate! (Babelfish)
 	 */
 	uint32 get_simloops() const { return simloops; }
 
 	/**
 	* Holt den Grundwasserlevel der Karte
 	* @author Hj. Malthaner
+	*
+	* Gets the groundwater level of the map (Babelfish)
 	*/
 	sint8 get_grundwasser() const { return grundwasser; }
 
@@ -604,7 +639,7 @@ public:
 	void set_werkzeug( werkzeug_t *w );
 	werkzeug_t *get_werkzeug() const { return werkzeug; }
 
-	// all stuf concerning map size
+	// all stuff concerning map size
 	inline int get_groesse_x() const { return cached_groesse_gitter_x; }
 	inline int get_groesse_y() const { return cached_groesse_gitter_y; }
 	inline int get_groesse_max() const { return cached_groesse_max; }
@@ -647,9 +682,10 @@ public:
 	* @return Planquadrat an koordinate pos
 	* @author Hj. Malthaner
 	*/
-	inline const planquadrat_t * lookup(const koord k) const
+	inline const planquadrat_t * lookup(const koord k) const //planquadrat = "grid square" (Babelfish)
 	{
 		return ist_in_kartengrenzen(k.x, k.y) ? &plan[k.x+k.y*cached_groesse_gitter_x] : 0;
+		//ist in kartengrenzen = "is in map-border". (Babelfish)
 	}
 
 	/**
@@ -661,6 +697,7 @@ public:
 	{
 		const planquadrat_t *plan = lookup(pos.get_2d());
 		return plan ? plan->get_boden_in_hoehe(pos.z) : NULL;
+		//"boden in hoehe" = floor in height (Google)
 	}
 
 	/**
@@ -672,6 +709,7 @@ public:
 	{
 		const planquadrat_t *plan = lookup(pos);
 		return plan ? plan->get_kartenboden() : NULL;
+		//kartenboden = map ground (Babelfish)
 	}
 
 	/**
@@ -810,6 +848,7 @@ public:
 	 */
 	const weighted_vector_tpl<stadt_t*>& get_staedte() const { return stadt; }
 	const stadt_t *get_random_stadt() const;
+	stadt_t *get_random_town();
 	void add_stadt(stadt_t *s);
 	bool rem_stadt(stadt_t *s);
 
@@ -863,6 +902,7 @@ public:
 
 	/**
 	 * @return Hoehe am Gitterpunkt i,j
+	 * "Height at the grid point" (Google)
 	 * @author Hj. Malthaner
 	 */
 	inline sint16 lookup_hgt(koord k) const {

@@ -48,9 +48,12 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	besch->pillars_asymmetric = false;
 	besch->max_length = 0;
 	besch->max_height = 0;
+	besch->max_weight = 999;
 	besch->intro_date = DEFAULT_INTRO_DATE*12;
 	besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
 	besch->number_seasons = 0;
+	besch->way_constraints_permissive = 0;
+	besch->way_constraints_prohibitive = 0;
 
 	if(version == 1) {
 		// Versioned node, version 1
@@ -137,6 +140,23 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->pillars_asymmetric = (decode_uint8(p)!=0);
 		besch->max_height = decode_uint8(p);
 		besch->number_seasons = decode_uint8(p);
+		if(node.size == 28)
+		{
+			// 28 byte node = version 8a. New features,
+			// (weight limits and way constraints), but
+			// backwards compatible with version 8.
+
+			besch->max_weight = decode_uint32(p);
+			besch->way_constraints_permissive = decode_uint8(p);
+			besch->way_constraints_prohibitive = decode_uint8(p);
+		}
+		else
+		{
+			besch->max_weight = 999;
+			besch->way_constraints_permissive = 0;
+			besch->way_constraints_prohibitive = 0;
+		}
+
 
 	} else {
 		// old node, version 0
@@ -145,6 +165,9 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		decode_uint16(p);                    // Menupos, no more used
 		besch->preis = decode_uint32(p);
 		besch->topspeed = 999;               // Safe default ...
+		besch->max_weight = 999;
+		besch->way_constraints_permissive = 0;
+		besch->way_constraints_prohibitive = 0;
 	}
 
 	// pillars cannot be heigher than this to avoid drawing errors
@@ -155,8 +178,8 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	besch->offset = version<8 ? 0 : 2;
 
 	DBG_DEBUG("bridge_reader_t::read_node()",
-	"version=%d waytype=%d price=%d topspeed=%d,pillars=%i,max_length=%i",
-	version, besch->wegtyp, besch->preis, besch->topspeed,besch->pillars_every,besch->max_length);
+	"version=%d waytype=%d price=%d topspeed=%d,pillars=%i,max_length=%i,max_weight%d",
+	version, besch->wegtyp, besch->preis, besch->topspeed,besch->pillars_every,besch->max_length,besch->max_weight);
 
   return besch;
 }

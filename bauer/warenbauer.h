@@ -17,7 +17,7 @@ class ware_besch_t;
 
 /**
  * Factory-Klasse fuer Waren.
- *
+ * "Factory class for goods" (Google)
  * @author Hj. Malthaner
  */
 class warenbauer_t
@@ -40,7 +40,7 @@ public:
 
 	static const ware_besch_t *passagiere;
 	static const ware_besch_t *post;
-	static const ware_besch_t *nichts;
+	static const ware_besch_t *nichts; //"Nothing".
 
 	static bool alles_geladen();
 	static bool register_besch(ware_besch_t *besch);
@@ -51,6 +51,9 @@ public:
 	* Sucht information zur ware 'name' und gibt die
 	* Beschreibung davon zurück. Gibt NULL zurück wenn die
 	* Ware nicht bekannt ist.
+	*
+	* Searches for information on software 'name' and gives
+	* the description of it back. Returns NULL if the product is not known.
 	*
 	* @param name der nicht-übersetzte Warenname
 	* @author Hj. Malthaner/V. Meyer

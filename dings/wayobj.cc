@@ -78,18 +78,21 @@ wayobj_t::~wayobj_t()
 			if(weg) {
 				// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 				weg->set_electrify(false);
-				// restore old speed limit
+				// restore old speed limit and way constraints
+				weg->reset_way_constraints();
 				uint32 max_speed = weg->hat_gehweg() ? 50 : weg->get_besch()->get_topspeed();
 				if(gr->get_typ()==grund_t::tunnelboden) {
 					tunnel_t *t = gr->find<tunnel_t>(1);
 					if(t) {
 						max_speed = t->get_besch()->get_topspeed();
+						weg->add_way_constraints(t->get_besch()->get_way_constraints_permissive(), t->get_besch()->get_way_constraints_prohibitive());
 					}
 				}
 				if(gr->get_typ()==grund_t::brueckenboden) {
 					bruecke_t *b = gr->find<bruecke_t>(1);
 					if(b) {
 						max_speed = b->get_besch()->get_topspeed();
+						weg->add_way_constraints(b->get_besch()->get_way_constraints_permissive(), b->get_besch()->get_way_constraints_prohibitive());
 					}
 				}
 				weg->set_max_speed(max_speed);
@@ -171,10 +174,11 @@ wayobj_t::laden_abschliessen()
 		set_dir(dir);
 	}
 
+	const waytype_t wt = (besch->get_wtyp()==tram_wt) ? track_wt : besch->get_wtyp();
+	weg_t *weg = welt->lookup(get_pos())->get_weg(wt);
+
 	// electrify a way if we are a catenary
-	if(besch->get_own_wtyp()==overheadlines_wt) {
-		const waytype_t wt = (besch->get_wtyp()==tram_wt) ? track_wt : besch->get_wtyp();
-		weg_t *weg = welt->lookup(get_pos())->get_weg(wt);
+	if(besch->get_own_wtyp()==overheadlines_wt) {	
 		if(weg) {
 			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 			weg->set_electrify(true);
@@ -187,6 +191,9 @@ wayobj_t::laden_abschliessen()
 		}
 	}
 
+	//Add the way constraints together.
+	weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
+	
 	if(get_besitzer()) {
 		spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
 	}

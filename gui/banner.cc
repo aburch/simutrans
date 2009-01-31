@@ -54,19 +54,19 @@ void banner_t::zeichnen(koord /*pos*/, koord)
 		int heading = (s == 0 ? 7 : COL_BLACK);
 		int color   = (s == 0 ? COL_WHITE : COL_BLACK);
 
-		display_proportional(xoff + s + 24+30, yoff + s +  10, "This is a beta version of Simutrans:", ALIGN_LEFT, heading, true);
+		display_proportional(xoff + s + 24+30, yoff + s +  10, "This is an experimental version of Simutrans:", ALIGN_LEFT, heading, true);
 		display_proportional(xoff + s + 48+30, yoff + s +  22, "Version " VERSION_NUMBER " " VERSION_DATE, ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 24+30, yoff + s +  40, "This version is developed by", ALIGN_LEFT, heading, true);
-		display_proportional(xoff + s + 48+30, yoff + s +  56, "the simutrans team, based on", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 48+30, yoff + s +  70, "Simutrans 0.84.21.2 by", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 48+30, yoff + s +  82, "Hansjörg Malthaner et al.", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 48+30, yoff + s +  94, "under Artistic Licence.", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 24+30, yoff + s + 112, "Please send ideas and questions to:", ALIGN_LEFT, heading, true);
-		display_proportional(xoff + s + 48+30, yoff + s + 128, "Markus Pristovsek", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 48+30, yoff + s + 140, "<team@64.simutrans.com>", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 24+30, yoff + s + 158, "or visit the Simutrans pages on the web:", ALIGN_LEFT, heading, true);
+		display_proportional(xoff + s + 24+30, yoff + s +  40, "This experimental version", ALIGN_LEFT, heading, true);
+		display_proportional(xoff + s + 48+30, yoff + s +  56, "is modified by James E. Petts", ALIGN_LEFT, color, true);
+		display_proportional(xoff + s + 48+30, yoff + s +  70, "from Simutrans, 1997-2005", ALIGN_LEFT, color, true);
+		display_proportional(xoff + s + 48+30, yoff + s +  82, "(c) Hj. Malthaner; and", ALIGN_LEFT, color, true);
+		display_proportional(xoff + s + 48+30, yoff + s +  94, "2005-2009 maintained by", ALIGN_LEFT, color, true);
+		display_proportional(xoff + s + 24+30, yoff + s + 112, "Markus Pristovsek and the Simutrans team,", ALIGN_LEFT, heading, true);
+		display_proportional(xoff + s + 48+30, yoff + s + 128, "released under the Artistic Licence.", ALIGN_LEFT, color, true);
+		display_proportional(xoff + s + 48+30, yoff + s + 140, "For more information, please", ALIGN_LEFT, color, true);
+		display_proportional(xoff + s + 24+30, yoff + s + 158, "visit the Simutrans website or forum", ALIGN_LEFT, heading, true);
 		display_proportional(xoff + s + 48+30, yoff + s + 174, "http://www.simutrans.com", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 48+30, yoff + s + 186, "http://simutrans.sourceforge.net", ALIGN_LEFT, color, true);
+		display_proportional(xoff + s + 48+30, yoff + s + 186, "http://forum.simutrans.com", ALIGN_LEFT, color, true);
 	}
 
 	// now the scrolling

@@ -37,6 +37,7 @@
 
 /*
  * Die verschiedenen Gebäudegruppen sind in eigenen Listen gesammelt.
+ * The various groups are building their own lists collected.
  */
 static vector_tpl<const haus_besch_t*> wohnhaeuser;
 static vector_tpl<const haus_besch_t*> gewerbehaeuser;
@@ -49,6 +50,7 @@ slist_tpl<const haus_besch_t *> hausbauer_t::ungebaute_denkmaeler;
 
 /*
  * Diese Tabelle ermöglicht das Auffinden einer Beschreibung durch ihren Namen
+ * 	This table allows you to find a description by its name
  */
 static stringhashtable_tpl<const haus_besch_t*> besch_names;
 

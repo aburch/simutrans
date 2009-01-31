@@ -95,6 +95,7 @@ void tunnel_t::laden_abschliessen()
 		weg_t *weg = gr->get_weg(besch->get_waytype());
 		if(weg) {
 			weg->set_max_speed(besch->get_topspeed());
+			weg->set_max_speed(besch->get_topspeed());
 			spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
 		}
 		spieler_t::add_maintenance( sp,  besch->get_wartung() );
@@ -117,6 +118,8 @@ void tunnel_t::entferne( spieler_t *sp2 )
 		if(gr) {
 			weg_t *weg = gr->get_weg( besch->get_waytype() );
 			weg->set_max_speed( weg->get_besch()->get_topspeed() );
+			weg->set_max_weight( weg->get_besch()->get_max_weight() );
+			weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 			spieler_t::add_maintenance( sp,  weg->get_besch()->get_wartung());
 			spieler_t::add_maintenance( sp,  -besch->get_wartung() );
 		}

@@ -165,6 +165,7 @@ schiene_t::rdwr(loadsave_t *file)
 		file->rdwr_str(bname, 128 );
 
 		int old_max_speed=get_max_speed();
+		int old_max_weight = get_max_weight();
 		const weg_besch_t *besch = wegbauer_t::get_besch(bname);
 		if(besch==NULL) {
 			int old_max_speed=get_max_speed();
@@ -177,6 +178,11 @@ schiene_t::rdwr(loadsave_t *file)
 		set_besch(besch);
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
+		}
+		//DBG_MESSAGE("schiene_t::rdwr","track %s at (%i,%i) max_speed %i",bname,get_pos().x,get_pos().y,old_max_speed);
+		if(old_max_weight > 0)
+		{
+			set_max_weight(old_max_weight);
 		}
 		//DBG_MESSAGE("schiene_t::rdwr","track %s at (%i,%i) max_speed %i",bname,get_pos().x,get_pos().y,old_max_speed);
 	}

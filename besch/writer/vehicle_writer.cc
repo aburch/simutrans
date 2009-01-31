@@ -1,3 +1,4 @@
+#include <cmath>
 #include "../../utils/simstring.h"
 #include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
@@ -49,15 +50,35 @@ static uint8 get_engine_type(const char* engine_type, tabfileobj_t& obj)
 
 /**
  * Writes vehicle node data to file
+ *
+ * NOTE: The data must be written in _exactly_
+ * the same sequence as it is to be read in the
+ * relevant reader file. The "total_len" field is
+ * the length in bytes of the VHCL node of the
+ * pak file. The VHCL node is the first node
+ * beneath the header node, and contains all of
+ * the _numerical_ information about the vehicle,
+ * such as the introduction date, running costs,
+ * etc.. Text (including filenames of sound files),
+ * and graphics are _not_ part of the VHCL node,
+ * and therefore do not count towards total length.
+ * Furthermore, the third argument to the node.write
+ * method must ascend sequentially with the number 
+ * of bytes written so far (up 1 for a uint8, 2 for
+ * a uint16, 4 for a uint32 and so forth). Failure
+ * to observe these rules will result in data
+ * corruption and errors when the pak file is read
+ * by the main program.
+ * @author of note: jamespetts
  */
 void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	int i;
 	uint8  uv8;
 
-	int total_len = 31;
+	int total_len = 35;
 
-	// prissi: must be done here, since it may affect the len of the header!
+	// prissi: must be done here, since it may affect the length of the header!
 	cstring_t sound_str = ltrim( obj.get("sound") );
 	sint8 sound_id=NO_SOUND;
 	if (sound_str.len() > 0) {
@@ -141,7 +162,6 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 gear = (obj.get_int("gear", 100) * 64) / 100;
 	node.write_uint16(fp, gear, 22);
 
-
 	// Hajodoc: Type of way this vehicle drives on
 	// Hajoval: road, track, electrified_track, monorail_track, maglev_track, water
 	const char* waytype = obj.get("waytype");
@@ -159,6 +179,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	xref_writer_t::instance()->write_obj(fp, node, obj_smoke, obj.get("smoke"), false);
 
 	// Jetzt kommen die Bildlisten
+	// "Now the picture lists" (Google)
 	static const char* const dir_codes[] = {
 		"s", "w", "sw", "se", "n", "e", "ne", "nw"
 	};
@@ -185,7 +206,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	for (i = 0; i < 8; i++) {
 		char buf[40];
 
-		// Hajodoc: Empty vehicle image for direction, direction in "s", "w", "sw", "se", unsymmetric vehicles need also "n", "e", "ne", "nw"
+		// Hajodoc: Empty vehicle image for direction, direction in "s", "w", "sw", "se", asymmetric vehicles need also "n", "e", "ne", "nw"
 		sprintf(buf, "emptyimage[%s]", dir_codes[i]);
 		str = obj.get(buf);
 		if (str.len() > 0) {
@@ -245,6 +266,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	//
 	// Vorgänger/Nachfolgerbedingungen
+	// "Predecessor / Successor conditions" (Google)
 	//
 	uint8 besch_vorgaenger = 0;
 	do {
@@ -328,10 +350,58 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_sint8(fp, besch_nachfolger, 29);
 	node.write_uint8(fp, (uint8) freight_max, 30);
 
+	// Whether this is a tilting train
+	// int
+	//@author: jamespetts
+	uint8 tilting = (obj.get_int("is_tilting", 0));
+	node.write_uint8(fp, tilting, 31);
+
+	// Way constraints
+	// One byte for permissive, one byte for prohibitive.
+	// Therefore, 8 possible constraints of each type.
+	// Permissive: way allows vehicles with matching constraint:
+	// vehicles not allowed on any other sort of way. Vehicles
+	// without that constraint also allowed on the way.
+	// Prohibitive: way allows only vehicles with matching constraint:
+	// vehicles with matching constraint allowed on other sorts of way.
+	// @author: jamespetts
+	
+	uint8 permissive_way_constraints = 0;
+	uint8 prohibitive_way_constraints = 0;
+	char buf_permissive[60];
+	char buf_prohibitive[60];
+	//Read the values from a file, and put them into an array.
+	for(uint8 i = 0; i < 8; i++)
+	{
+		sprintf(buf_permissive, "way_constraint_permissive[%d]", i);
+		sprintf(buf_prohibitive, "way_constraint_prohibitive[%d]", i);
+		uint8 tmp_permissive = (obj.get_int(buf_permissive, 255));
+		uint8 tmp_prohibitive = (obj.get_int(buf_prohibitive, 255));
+		
+		//Compress values into a single byte using bitwise OR.
+		if(tmp_permissive < 8)
+		{
+			permissive_way_constraints = (tmp_permissive > 0) ? permissive_way_constraints | (uint8)pow(2, (double)tmp_permissive) : permissive_way_constraints | 1;
+		}
+		if(tmp_prohibitive < 8)
+		{
+			prohibitive_way_constraints = (tmp_prohibitive > 0) ? prohibitive_way_constraints | (uint8)pow(2, (double)tmp_prohibitive) : prohibitive_way_constraints | 1;
+		}
+	}
+	node.write_uint8(fp, permissive_way_constraints, 32);
+	node.write_uint8(fp, prohibitive_way_constraints, 33);
+
+	// Catering level. 0 = no catering. 
+	// Higher numbers, better catering.
+	// Catering boosts passenger revenue.
+	// @author: jamespetts
+	uint8 catering_level = (obj.get_int("catering_level", 0));
+	node.write_uint8(fp, catering_level, 34);		
+
 	sint8 sound_str_len = sound_str.len();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 31);
-		node.write_data_at(fp, sound_str,     32, sound_str_len);
+		node.write_sint8  (fp, sound_str_len, 35);
+		node.write_data_at(fp, sound_str,     36, sound_str_len);
 	}
 
 	node.write(fp);

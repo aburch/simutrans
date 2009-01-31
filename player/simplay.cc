@@ -423,7 +423,8 @@ void spieler_t::buche(const sint64 betrag, const koord pos, enum player_cost typ
 			add_message(pos, betrag);
 		}
 
-		if(!(labs((sint32)betrag)<=10000)) {
+		if(!(labs((sint32)betrag)<=10000) && !(welt->is_fast_forward())) {
+			// play sound only for more than 100 money units AND in normal speed
 			struct sound_info info;
 
 			info.index = SFX_CASH;
@@ -607,7 +608,7 @@ void spieler_t::ai_bankrupt()
 	automat = false;
 	char buf[256];
 	sprintf(buf, translator::translate("%s\nwas liquidated."), get_name() );
-	welt->get_message()->add_message( buf, koord::invalid, message_t::ai, player_nr );
+	welt->get_message()->add_message( buf, koord::invalid, message_t::ai, PLAYER_FLAG|player_nr );
 }
 
 

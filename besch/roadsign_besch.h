@@ -25,7 +25,10 @@ class skin_besch_t;
  *  Beschreibung:
  *	Straﬂenschildere
  *
- *  Kindknoten:
+ * Description: 
+ * Street Signs
+ *
+ *  Kindknoten: ("Child nodes" - Google)
  *	0   Name
  *	1   Copyright
  *	2   Bildliste

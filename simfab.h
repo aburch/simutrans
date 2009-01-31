@@ -56,7 +56,11 @@ public:
  * hergestellt oder verbraucht wird, 0 wenn gerade nichts
  * hergestellt oder verbraucht wird und > 0 sonst
  * (entspricht Vorrat/Verbrauch).
- *
+ * 
+ * A class of factories in Simutrans.
+ *  Factories produce and consume goods and supplies near bus stops. 
+ * The query functions return -1 if a product is never produced or consumed, 
+ * 0 when nothing is manufactured or consumed and> 0 otherwise (equivalent to stocks / consumption).
  * @date 1998
  * @see haltestelle_t
  * @author Hj. Malthaner
@@ -73,6 +77,8 @@ public:
 private:
 	/**
 	 * Die möglichen Lieferziele
+	 * 
+	 * The possible delivery targets
 	 * @author Hj. Malthaner
 	 */
 	vector_tpl <koord> lieferziele;
@@ -92,6 +98,7 @@ private:
 
 	/**
 	 * Die erzeugten waren auf die Haltestellen verteilen
+	 * The produced were distributed at the stops
 	 * @author Hj. Malthaner
 	 */
 	void verteile_waren(const uint32 produkt);
@@ -107,18 +114,21 @@ private:
 
 	/**
 	 * Bauposition gedreht?
+	 * Building position turned?
 	 * @author V.Meyer
 	 */
 	uint8 rotate;
 
 	/**
 	 * produktionsgrundmenge
+	 * "production fundamental set"
 	 * @author Hj. Malthaner
 	 */
 	sint32 prodbase;
 
 	/**
 	 * multiplikator für die Produktionsgrundmenge
+	 * multiplier for the production of basic quantity
 	 * @author Hj. Malthaner
 	 */
 	sint32 prodfaktor;
@@ -128,6 +138,7 @@ private:
 
 	/**
 	 * Zeitakkumulator für Produktion
+	 * Time accumulator for production
 	 * @author Hj. Malthaner
 	 */
 	sint32 delta_sum;
@@ -190,6 +201,7 @@ public:
 
 	/**
 	 * Fügt ein neues Lieferziel hinzu
+	 * Adds a new delivery goal
 	 * @author Hj. Malthaner
 	 */
 	void  add_lieferziel(koord ziel);
@@ -203,11 +215,11 @@ public:
 	void  rem_supplier(koord pos);
 
 	/**
-	 * @return menge der ware typ
-	 *   -1 wenn typ nicht produziert wird
-	 *   sonst die gelagerte menge
+	 * @return menge der ware typ ("quantity of the goods type")
+	 *   -1 wenn typ nicht produziert wird ("if not type is produced")
+	 *   sonst die gelagerte menge ("otherwise the stored quantity")
 	 */
-	sint32 input_vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
+	sint32 input_vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp ("Inventories of product")
 	sint32 vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
 
 	// returns all power and consume it
@@ -224,13 +236,13 @@ public:
 	 * 0 wenn Produktionsstopp,
 	 * -1 wenn Ware nicht verarbeitet wird
 	 */
-	sint32 verbraucht(const ware_besch_t *);             // Nimmt fab das an ??
-	sint32 hole_ab(const ware_besch_t *, sint32 menge );     // jemand will waren abholen
+	sint32 verbraucht(const ware_besch_t *);             // Nimmt fab das an ?? ("Notes to the fab?")
+	sint32 hole_ab(const ware_besch_t *, sint32 menge );     // jemand will waren abholen ("someone wants to pick up were")
 	sint32 liefere_an(const ware_besch_t *, sint32 menge);
 
 	sint32 get_abgabe_letzt(sint32 t) { return ausgang[t].abgabe_letzt; }
 
-	void step(long delta_t);                  // fabrik muss auch arbeiten
+	void step(long delta_t);                  // fabrik muss auch arbeiten ("factory must also work")
 	void neuer_monat();
 
 	const char *get_name() const { return besch ? translator::translate(besch->get_name()) : "unnamed"; }
@@ -247,12 +259,15 @@ public:
 	/**
 	 * gibt eine NULL-Terminierte Liste von Fabrikpointern zurück
 	 *
+	 * a zero-scheduled list of factory pointers returns
 	 * @author Hj. Malthaner
 	 */
 	static vector_tpl<fabrik_t *> & sind_da_welche(karte_t *welt, koord min, koord max);
 
 	/**
 	 * gibt true zurueck wenn sich ein fabrik im feld befindet
+	 * 
+	 * "gives true back if factory in the field is"
 	 *
 	 * @author Hj. Malthaner
 	 */
@@ -260,9 +275,12 @@ public:
 	static bool ist_bauplatz(karte_t *welt, koord pos, koord groesse, bool water, climate_bits cl);
 
 	// hier die methoden zum parametrisieren der Fabrik
+	// "here the methods to parameterize the factory"
 
 	/**
 	 * Baut die Gebäude für die Fabrik
+	 *
+	 * "Build the buildings for the factory"
 	 *
 	 * @author Hj. Malthaner, V. Meyer
 	 */

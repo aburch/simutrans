@@ -33,8 +33,10 @@ int main(int argc, char* argv[])
 		argv++, argc--;
 	} else {
 		puts(
-			"\nMakeobj version " MAKEOBJ_VERSION " for simutrans " VERSION_NUMBER " and higher\n"
-			"(c) 2002-2006 V. Meyer , Hj. Malthaner, M. Pristovsek (markus@pristovsek.de)\n"
+			"\nMakeobj-Experimental, based on Makeobj version " MAKEOBJ_VERSION " for Simutrans-Experimental " VERSION_NUMBER " and higher\n"
+			"Experimental version by James E. Petts, derived from Makeobj, \n (c) 2002-2006 V. Meyer , Hj. Malthaner and \n"
+			"M. Pristovsek (markus@pristovsek.de). Files compiled with Makeobj-Experimental work with\n"
+			"Simutrans-Experimental and standard Simutrans.\n"
 		);
 	}
 

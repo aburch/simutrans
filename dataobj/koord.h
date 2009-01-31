@@ -109,6 +109,10 @@ static inline koord operator + (const koord& a, const koord& b)
 	return koord(a.x + b.x, a.y + b.y);
 }
 
+static inline bool operator <= (const koord & a, const koord & b)
+{
+	return (a.x == b.x) ? (a.y <= b.y) : (a.x < b.x);
+}
 
 static inline koord operator - (const koord& a, const koord& b)
 {

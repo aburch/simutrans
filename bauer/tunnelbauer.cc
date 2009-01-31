@@ -312,6 +312,9 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		weg->set_besch(weg_besch);
 		weg->set_max_speed(besch->get_topspeed());
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
+		weg->set_max_weight(besch->get_max_weight());
+		weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
+		
 		tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
 		tunnel->obj_add(new tunnel_t(welt, pos, sp, besch));
 		assert(!tunnel->ist_karten_boden());
@@ -331,6 +334,8 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		weg->set_besch(weg_besch);
 		weg->set_max_speed(besch->get_topspeed());
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
+		weg->set_max_weight(besch->get_max_weight());
+		weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 		tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
 		tunnel->obj_add(new tunnel_t(welt, pos, sp, besch));
 		assert(!tunnel->ist_karten_boden());
@@ -368,6 +373,8 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
 		tunnel->neuen_weg_bauen( weg, ribi, sp );
 	}
 	weg->set_max_speed( besch->get_topspeed() );
+	weg->set_max_weight( besch->get_max_weight() );
+	weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 	tunnel->calc_bild();
 
 	if(sp!=NULL) {

@@ -48,6 +48,19 @@ obj_besch_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = decode_uint16(p);
 		besch->wtyp = decode_uint8(p);
 		besch->own_wtyp = decode_uint8(p);
+		if(node.size == 22)
+		{
+			// 22 byte node = version 1a. New features,
+			// (weight limits and way constraints), but
+			// backwards compatible with version 1.
+			besch->way_constraints_permissive = decode_uint8(p);
+			besch->way_constraints_prohibitive = decode_uint8(p);
+		}
+		else
+		{
+			besch->way_constraints_permissive = 0;
+			besch->way_constraints_prohibitive = 0;
+		}
 	}
 	else {
 		dbg->fatal("way_obj_reader_t::read_node()","Invalid version %d", version);

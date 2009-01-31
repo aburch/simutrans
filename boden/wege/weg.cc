@@ -134,6 +134,23 @@ void weg_t::set_max_speed(unsigned int s)
 	max_speed = s;
 }
 
+void weg_t::set_max_weight(uint32 w)
+{
+	max_weight = w;
+}
+
+void weg_t::add_way_constraints(const uint8 permissive, const uint8 prohibitive)
+{
+	way_constraints_permissive |= permissive;
+	way_constraints_prohibitive |= prohibitive;
+}
+
+void weg_t::reset_way_constraints()
+{
+	way_constraints_permissive = besch->get_way_constraints_permissive();
+	way_constraints_prohibitive = besch->get_way_constraints_prohibitive();
+}
+
 
 /**
  * Setzt neue Beschreibung. Ersetzt alte Höchstgeschwindigkeit
@@ -144,11 +161,16 @@ void weg_t::set_besch(const weg_besch_t *b)
 {
 	besch = b;
 	if (hat_gehweg() && besch->get_wtyp() == road_wt && besch->get_topspeed() > 50) {
+		//Limit speeds for city roads.
 		max_speed = 50;
 	}
 	else {
 		max_speed = besch->get_topspeed();
 	}
+
+	max_weight = besch->get_max_weight();
+	way_constraints_permissive = besch->get_way_constraints_permissive();
+	way_constraints_prohibitive = besch->get_way_constraints_prohibitive();
 }
 
 
@@ -249,13 +271,34 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append(max_speed);
 	buf.append(translator::translate("km/h\n"));
 
+	buf.append(translator::translate("\nMax. weight:"));
+	buf.append(" ");
+	buf.append(max_weight);
+	buf.append("t ");
+	buf.append("\n");
+	for(sint8 i = -8; i < 8; i ++)
+	{
+		if(permissive_way_constraint_set(i + 8))
+		{
+			buf.append(translator::translate("Way constraint permissive "));
+			buf.append(i);
+			buf.append("\n");
+		}
+		if(prohibitive_way_constraint_set(i))
+		{
+			buf.append(translator::translate("Way constraint prohibitive %n\n"));
+			buf.append(i);
+			buf.append("\n");
+		}
+	}
+#ifdef DEBUG
 	buf.append(translator::translate("\nRibi (unmasked)"));
 	buf.append(get_ribi_unmasked());
 
 	buf.append(translator::translate("\nRibi (masked)"));
 	buf.append(get_ribi());
 	buf.append("\n");
-
+#endif
 	if(has_sign()) {
 		buf.append(translator::translate("\nwith sign/signal\n"));
 	}

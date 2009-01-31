@@ -1,3 +1,4 @@
+#include <cmath>
 #include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 #include "obj_node.h"
@@ -21,7 +22,7 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	};
 	int ribi, hang;
 
-	obj_node_t node(this, 20, &parent);
+	obj_node_t node(this, 22, &parent);
 
 
 	// Hajo: Version needs high bit set as trigger -> this is required
@@ -40,14 +41,49 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	uint8 wtyp     =  get_waytype(obj.get("waytype"));
 	uint8 own_wtyp =  get_waytype(obj.get("own_waytype"));
 
-	node.write_uint16(outfp, version,      0);
-	node.write_uint32(outfp, price,        2);
-	node.write_uint32(outfp, maintenance,  6);
-	node.write_uint32(outfp, topspeed,    10);
-	node.write_uint16(outfp, intro,       14);
-	node.write_uint16(outfp, retire,      16);
-	node.write_uint8 (outfp, wtyp,        18);
-	node.write_uint8 (outfp, own_wtyp,    19);
+	// Way constraints
+	// One byte for permissive, one byte for prohibitive.
+	// Therefore, 8 possible constraints of each type.
+	// Permissive: way allows vehicles with matching constraint:
+	// vehicles not allowed on any other sort of way. Vehicles
+	// without that constraint also allowed on the way.
+	// Prohibitive: way allows only vehicles with matching constraint:
+	// vehicles with matching constraint allowed on other sorts of way.
+	// @author: jamespetts
+	
+	uint8 permissive_way_constraints = 0;
+	uint8 prohibitive_way_constraints = 0;
+	char buf_permissive[60];
+	char buf_prohibitive[60];
+	//Read the values from a file, and put them into an array.
+	for(uint8 i = 0; i < 8; i++)
+	{
+		sprintf(buf_permissive, "way_constraint_permissive[%d]", i);
+		sprintf(buf_prohibitive, "way_constraint_prohibitive[%d]", i);
+		uint8 tmp_permissive = (obj.get_int(buf_permissive, 255));
+		uint8 tmp_prohibitive = (obj.get_int(buf_prohibitive, 255));
+		
+		//Compress values into a single byte using bitwise OR.
+		if(tmp_permissive < 8)
+		{
+			permissive_way_constraints = (tmp_permissive > 0) ? permissive_way_constraints | (uint8)pow(2, (double)tmp_permissive) : permissive_way_constraints | 1;
+		}
+		if(tmp_prohibitive < 8)
+		{
+			prohibitive_way_constraints = (tmp_prohibitive > 0) ? prohibitive_way_constraints | (uint8)pow(2, (double)tmp_prohibitive) : prohibitive_way_constraints | 1;
+		}
+	}
+
+	node.write_uint16(outfp, version,					0);
+	node.write_uint32(outfp, price,						2);
+	node.write_uint32(outfp, maintenance,				6);
+	node.write_uint32(outfp, topspeed,					10);
+	node.write_uint16(outfp, intro,						14);
+	node.write_uint16(outfp, retire,					16);
+	node.write_uint8 (outfp, wtyp,						18);
+	node.write_uint8 (outfp, own_wtyp,					19);
+	node.write_uint8(outfp, permissive_way_constraints,	20);
+	node.write_uint8(outfp, prohibitive_way_constraints,21);
 
 	write_head(outfp, node, obj);
 
