@@ -46,6 +46,8 @@ private:
 
 	button_t no_tree; // without tree
 
+	gui_numberinput_t river_n, river_min, river_max;
+
 public:
 	climate_gui_t(welt_gui_t* welt_gui, einstellungen_t* sets);
 

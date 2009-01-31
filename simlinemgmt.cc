@@ -162,7 +162,7 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 					dbg->fatal( "simlinemgmt_t::create_line()", "Cannot create default line!" );
 			}
 			line->rdwr(file);
-			add_line(line->self);
+			add_line( line->get_handle() );
 		}
 	}
 }
@@ -282,8 +282,8 @@ simlinemgmt_t::create_line(int ltype, spieler_t * sp)
 			dbg->fatal( "simlinemgmt_t::create_line()", "Cannot create default line!" );
 			break;
 	}
-	add_line( line->self );
-	return line->self;
+	add_line( line->get_handle() );
+	return line->get_handle();
 }
 
 

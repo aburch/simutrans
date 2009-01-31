@@ -71,7 +71,14 @@ sint32 umgebung_t::intercity_road_length = 8000;
  *
  * @author Hj. Malthaner
  */
-cstring_t *umgebung_t::intercity_road_type = new cstring_t( "cobblestone_road" );
+const char *umgebung_t::intercity_road_type = NULL;
+
+const char *umgebung_t::river_type[10] = {
+	0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0,
+};
+uint8 umgebung_t::river_types = 0;
+
 
 /* prissi: autosave every x months (0=off) */
 sint32 umgebung_t::autosave = 0;

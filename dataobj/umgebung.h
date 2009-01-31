@@ -170,7 +170,14 @@ public:
 	*
 	* @author Hj. Malthaner
 	*/
-	static cstring_t *intercity_road_type;
+	static const char *intercity_road_type;
+
+	/**
+	 * Name of rivers; first the river with the lowest number
+	 * @author prissi
+	 */
+	static const char *river_type[10];
+	static uint8 river_types;
 
 	/**
 	* show month in date?
