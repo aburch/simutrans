@@ -12,6 +12,7 @@
 	ADD: goto line also in convoi info window
 	CHANGE: (z9999) finally useful marker with a simutrans consistent gui
 	ADD: (gerw mostly) river are now created during map creation, new options in simuconf.tab
+	ADD: no vehicle/cash sounds during fast forward
 
 
 
