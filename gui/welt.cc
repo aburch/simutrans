@@ -397,7 +397,7 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	}
 	else if(komp==&use_beginner_mode) {
 		sets->set_beginner_mode( use_beginner_mode.pressed^1 );
-		use_intro_dates.pressed = sets->get_beginner_mode();
+		use_beginner_mode.pressed = sets->get_beginner_mode();
 	}
 	else if(komp==&load_game) {
 		load = true;
