@@ -104,7 +104,7 @@ fixed_list_tpl<sint16, 16> pre_corner_direction;
 
 sint16 direction_steps = 4;
 
-bool hill[2];
+fixed_list_tpl<bool, 5> hill;
 bool is_overweight = false;
 
 // set only once, before loading!
@@ -1371,38 +1371,48 @@ vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu
 	// or a hill?
 	// Cumulative drag for hills: @author: jamespetts
 	const hang_t::typ hang = gr->get_weg_hang();
-	hill[2] = hill[1];
-	hill[1] = hill[0];
-	if(hang!=hang_t::flach) {
-		hill[0] = (ribi_typ(hang)==fahrtrichtung);
-		if(hill[0])
-		{
-			// hill up, since height offsets are negative: heavy deccelerate
-
-			if(!hill[1])
-			{
-				//No hill last tile, minimal friction increase.
-				current_friction += 18;
-			}
-			else if(hill[1] && !hill[2])
-			{
-				//Hill last tile, but not the tile before. Moderate friction increase.
-				current_friction += 25;
-			}
-			else if(hill[1] && hill[2])
-			{
-				//Hill last two tiles. Maximum friction increase.
-				current_friction += 32;
-			}
-		}
-		else {
-			// hill down: accelrate
-			current_friction += -13;
-		}
-	}
-	else
+	if(hang!=hang_t::flach) 
 	{
-		hill[0] = false;
+		hill.add_to_head(ribi_typ(hang)==fahrtrichtung);
+		uint8 hill_number;
+		for(hill_number = 0; hill_number < 5; hill_number ++)
+		{
+			if(!hill[hill_number])
+			{
+				break;
+			}
+		}
+
+		switch(hill_number)
+		{
+		case 0:
+			//Must be downhill
+			current_friction += -13;
+			break;
+
+		case 1:
+			current_friction += 18;
+			break;
+
+		case 2:
+			current_friction += 25;
+			break;
+
+		case 3:
+			current_friction += 32;
+			break;
+
+		case 4:
+			current_friction += 38;
+			break;
+
+		case 5:
+			current_friction += 45;
+			break;
+
+		default:
+			break;
+		};
 	}
 
 	if(ist_erstes) { //"Is the first" (Google)

@@ -25,6 +25,21 @@ public:
 	
 	T get_element(uint8 e)
 	{
+		//Depracated, retained for backwards compatibility.
+		//Use [] instead.
+		if(e > size)
+		{
+			return NULL;
+		}
+		else
+		{
+			uint8 i = add_index(head, e, N);
+			return data[i];
+		}
+	}
+
+	T operator[](uint8 e)
+	{
 		if(e > size)
 		{
 			return NULL;
