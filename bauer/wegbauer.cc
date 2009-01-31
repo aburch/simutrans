@@ -735,7 +735,11 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			ok &= (welt->lookup(to_pos)->get_boden_in_hoehe(to->get_pos().z+Z_TILE_STEP)==NULL);
 			// calculate costs
 			if(ok) {
-				*costs = welt->get_einstellungen()->way_count_straight+to->hat_wege() ? 8 : 0;
+				*costs = welt->get_einstellungen()->way_count_straight;
+				if(  !to->get_leitung()  ) {
+					// extra malus for not following an existing line or going on ways
+					*costs += welt->get_einstellungen()->way_count_double_curve + to->hat_wege() ? 8 : 0; // prefer existing powerlines
+				}
 			}
 		break;
 
@@ -1272,7 +1276,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 					}
 				}
 				else if(bautyp==leitung  &&  ribi_t::ist_kurve(current_dir)) {
-					new_g += welt->get_einstellungen()->way_count_curve;
+					new_g += welt->get_einstellungen()->way_count_double_curve;
 				}
 				// extra malus leave an existing road after only one tile
 				if(tmp->parent->gr->hat_weg((waytype_t)besch->get_wtyp())  &&
