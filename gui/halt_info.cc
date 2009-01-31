@@ -326,3 +326,12 @@ void halt_info_t::resize(const koord delta)
 	view.set_pos(koord(get_fenstergroesse().x - 64 - 16 , 21));
 	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
 }
+
+
+
+void halt_info_t::map_rotate90( sint16 new_ysize )
+{
+	koord3d l = view.get_location();
+	l.rotate90( new_ysize );
+	view.set_location( l );
+}

@@ -87,6 +87,8 @@ public:
 	 * V.Meyer
 	 */
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+
+	void map_rotate90( sint16 );
 };
 
 #endif
