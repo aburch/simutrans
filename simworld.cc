@@ -766,75 +766,73 @@ void karte_t::init_felder()
 	nosave = false;
 }
 
+
+
 void karte_t::create_rivers( sint16 number )
-{	
+{
 	// First check, wether there is a canal:
 	const weg_besch_t* river_besch = wegbauer_t::get_besch( umgebung_t::river_type[umgebung_t::river_types-1], 0 );
-	if(  river_besch == NULL  ) {		
-		// should never reaching here ...		
+	if(  river_besch == NULL  ) {
+		// should never reaching here ...
 		dbg->warning("karte_t::create_rivers()","There is no river defined!\n");
-		return;	
-	}	
+		return;
+	}
+
 	// create a vector of the highest points
-	vector_tpl<koord> water_tiles;	
+	vector_tpl<koord> water_tiles;
 	weighted_vector_tpl<koord> mountain_tiles;
-	sint8 last_height = 1;	
+
+	sint8 last_height = 1;
 	koord last_koord(0,0);
-	const sint16 max_dist = cached_groesse_karte_y+cached_groesse_karte_x;	
+	const sint16 max_dist = cached_groesse_karte_y+cached_groesse_karte_x;
 
 	// trunk of 16 will ensure that rivers are long enough apart ...
-	for(  sint16 y = 8;  y < cached_groesse_karte_y;  y+=16  )
-	{		
-		for(  sint16 x = 8;  x < cached_groesse_karte_x;  x+=16  )
-		{			
-			koord k(x,y);			
-			grund_t *gr = lookup_kartenboden(k);			
-			const sint8 h = gr->get_hoehe()-get_grundwasser();			
-			if(  gr->ist_wasser()  ) 
-			{				
-				// may be good to start a river here				
-				water_tiles.push_back(k);			
-			}			
-			else if(  h>=last_height  ||  abs_distance(last_koord,k)>simrand(max_dist))  
-			{				
+	for(  sint16 y = 8;  y < cached_groesse_karte_y;  y+=16  ) {
+		for(  sint16 x = 8;  x < cached_groesse_karte_x;  x+=16  ) {
+			koord k(x,y);
+			grund_t *gr = lookup_kartenboden(k);
+			const sint8 h = gr->get_hoehe()-get_grundwasser();
+			if(  gr->ist_wasser()  ) {
+				// may be good to start a river here
+				water_tiles.push_back(k);
+			}
+			else if(  h>=last_height  ||  abs_distance(last_koord,k)>simrand(max_dist)  ) {
 				// something worth to add here
-				if(  h>last_height  )
-				{					
-					last_height = h;			
-				}				
-				last_koord = k;				
+				if(  h>last_height  ) {
+					last_height = h;
+				}
+				last_koord = k;
 				mountain_tiles.append( k, h, 256 );
-			}		
-		}	
-	}	
-	if(  water_tiles.get_count() == 0  ) 
-	{		
+			}
+		}
+	}
+	if(  water_tiles.get_count() == 0  ) {
 		dbg->message("karte_t::create_rivers()","There aren't any water tiles!\n");
-		return;	
-	}	
+		return;
+	}
+
 	// now make rivers
-	while(  number>0  &&  mountain_tiles.get_count()>0  ) 
-	{		
-		koord start = mountain_tiles.at_weight( simrand(mountain_tiles.get_sum_weight()) );		
-		koord end = water_tiles[ simrand(water_tiles.get_count()) ];		
-		sint16 dist = abs_distance(start,end);		
-		if(  dist > einstellungen->get_min_river_length()  &&  dist < einstellungen->get_max_river_length()  ) 
-		{			
+	while(  number>0  &&  mountain_tiles.get_count()>0  ) {
+		koord start = mountain_tiles.at_weight( simrand(mountain_tiles.get_sum_weight()) );
+		koord end = water_tiles[ simrand(water_tiles.get_count()) ];
+		sint16 dist = abs_distance(start,end);
+		if(  dist > einstellungen->get_min_river_length()  &&  dist < einstellungen->get_max_river_length()  ) {
 			// should be at least of decent length
 			wegbauer_t riverbuilder(this, spieler[1]);
 			riverbuilder.route_fuer(wegbauer_t::river, river_besch);
-			riverbuilder.set_maximum( dist*50 );			
+			riverbuilder.set_maximum( dist*50 );
 			riverbuilder.calc_route( lookup_kartenboden(end)->get_pos(), lookup_kartenboden(start)->get_pos() );
-			if(  riverbuilder.max_n >= einstellungen->get_min_river_length()  ) 
-			{
+			if(  riverbuilder.max_n >= einstellungen->get_min_river_length()  ) {
 				// do not built too short rivers
 				riverbuilder.baue();
-				number --;			
-			}			
-			mountain_tiles.remove( start );		
+				number --;
+			}
+			mountain_tiles.remove( start );
 		}
 	}
 }
+
+
 
 void karte_t::distribute_groundobjs_cities(int new_anzahl_staedte, sint16 old_x, sint16 old_y)
 {
@@ -915,7 +913,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev;
 
 		// Hajo: connect some cities with roads
-		const weg_besch_t* besch = wegbauer_t::get_besch(umgebung_t::intercity_road_type);
+		const weg_besch_t* besch = umgebung_t::intercity_road_type ? wegbauer_t::get_besch(umgebung_t::intercity_road_type) : NULL;
 		if(besch == 0) {
 			dbg->warning("karte_t::init()", "road type '%s' not found", (const char*)*umgebung_t::intercity_road_type);
 			// Hajo: try some default (might happen with timeline ... )

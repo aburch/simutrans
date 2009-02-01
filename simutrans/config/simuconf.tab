@@ -115,7 +115,8 @@ passenger_factor=16
 # if enabled (default = 0 off) stops may have different capacities for passengers, mail, and  freight
 seperate_halt_capacities = 0
 
-# if enabled (default = 0 off) the payment is only relative to the distance to the trips destination (defualt is to next interchange)
+# three modes (default = 0)
+# 1: the payment is only relative to the distance to next interchange, 2 to the trips destination (default is distance since last stop)
 pay_for_total_distance = 0
 
 # in beginner mode, all good prices are multiplied by a factor (default 1500=1.5)
@@ -262,6 +263,22 @@ show_names = 3
 # Type of city roads - must be available as PAK file.
 # Fallback (and default) is "city_road"
 #city_road_type = city_road
+
+# now river stuff
+# first river type (should be defined in pak dependent file)
+# The highest number is the smallest. A river with max_speed==0 is not navigavable by ships.
+#river_type[0] = river
+#river_type[1] = small_river
+#river_type[2] = just_the source
+
+# river number (16 gives a few nicely branched rivers)
+#river_number = 16
+
+# min length
+#river_min_length = 16
+
+# max length
+#river_max_length = 320
 
 ###################################time stuff###################################
 

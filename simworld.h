@@ -372,7 +372,12 @@ private:
 	// restores history for older savegames
 	void restore_history();
 
-	/*	 * Will create rivers.	 */	void create_rivers(sint16 number);	/**
+	/*
+	 * Will create rivers.
+	 */
+	void create_rivers(sint16 number);
+
+	/**
 	 * Distribute groundobjs and cities on the map but not
 	 * in the rectangle from (0,0) till (old_x, old_y).
 	 * It's now an extra function so we don't need the code twice.

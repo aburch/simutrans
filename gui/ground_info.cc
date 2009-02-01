@@ -50,3 +50,12 @@ void grund_info_t::zeichnen(koord pos, koord groesse)
 	gui_frame_t::zeichnen(pos,groesse);
 	display_multiline_text(pos.x+10, pos.y+16+8, gr_info, COL_BLACK);
 }
+
+
+
+void grund_info_t::map_rotate90( sint16 new_ysize )
+{
+	koord3d l = view.get_location();
+	l.rotate90( new_ysize );
+	view.set_location( l );
+}

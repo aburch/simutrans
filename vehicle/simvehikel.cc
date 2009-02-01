@@ -153,6 +153,7 @@ void vehikel_basis_t::set_overtaking_offsets( bool driving_on_the_left )
 }
 
 
+
 /**
  * Checks if this vehicle must change the square upon next move
  * @author Hj. Malthaner
@@ -875,7 +876,7 @@ void vehikel_t::remove_stale_freight()
 void
 vehikel_t::play_sound() const
 {
-	if(besch->get_sound() >= 0 && !(welt->is_fast_forward())) {
+	if(  besch->get_sound() >= 0  &&  !welt->is_fast_forward()  ) {
 		struct sound_info info;
 		info.index = besch->get_sound();
 		info.volume = 255;

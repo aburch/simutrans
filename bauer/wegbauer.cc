@@ -735,7 +735,11 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			ok &= (welt->lookup(to_pos)->get_boden_in_hoehe(to->get_pos().z+Z_TILE_STEP)==NULL);
 			// calculate costs
 			if(ok) {
-				*costs = welt->get_einstellungen()->way_count_straight+to->hat_wege() ? 8 : 0;
+				*costs = welt->get_einstellungen()->way_count_straight;
+				if(  !to->get_leitung()  ) {
+					// extra malus for not following an existing line or going on ways
+					*costs += welt->get_einstellungen()->way_count_double_curve + to->hat_wege() ? 8 : 0; // prefer existing powerlines
+				}
 			}
 		break;
 
@@ -1272,7 +1276,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 					}
 				}
 				else if(bautyp==leitung  &&  ribi_t::ist_kurve(current_dir)) {
-					new_g += welt->get_einstellungen()->way_count_curve;
+					new_g += welt->get_einstellungen()->way_count_double_curve;
 				}
 				// extra malus leave an existing road after only one tile
 				if(tmp->parent->gr->hat_weg((waytype_t)besch->get_wtyp())  &&
@@ -2052,6 +2056,17 @@ wegbauer_t::baue_leitung()
 
 
 
+// this can drive any river, even a river that has max_speed=0
+class fluss_fahrer_t : fahrer_t
+{
+	bool ist_befahrbar(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt)!=0; }
+	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt); }
+	virtual waytype_t get_waytype() const { return invalid_wt; }
+	virtual int get_kosten(const grund_t *,const uint32) const { return 1; }
+	virtual bool ist_ziel(const grund_t *cur,const grund_t *) const { return cur->ist_wasser()  &&  cur->get_grund_hang()==hang_t::flach; }
+};
+
+
 // make a river
 void
 wegbauer_t::baue_fluss()
@@ -2094,6 +2109,7 @@ wegbauer_t::baue_fluss()
 			ribi_t::ribi ribi = calc_ribi(i);
 			bool extend = gr->weg_erweitern(water_wt, ribi);
 			if(  !extend  ) {
+				assert(i!=start_n);
 				weg_t *sch=weg_t::alloc(water_wt);
 				sch->set_besch(besch);
 				gr->neuen_weg_bauen(sch, ribi, NULL);
@@ -2101,30 +2117,35 @@ wegbauer_t::baue_fluss()
 		}
 	}
 
-#if 0
-// problem: way is not alsways to same destination!
 	// we will make rivers gradually larger by stepping up their width
 	if(  umgebung_t::river_types>1  ) {
-		for(  sint32 idx=0;  idx<=start_n;  idx++  ) {
-			weg_t* w = welt->lookup_kartenboden(route[idx].get_2d())->get_weg(water_wt);
-			if(w) {
-				int type;
-				for(  type=umgebung_t::river_types-1;  type>0;  type--  ) {
-					// llokup type
-					if(  w->get_besch()==alle_wegtypen.get(umgebung_t::river_type[type])  ) {
-						break;
+		/* since we will stop at the first crossing with an existent river,
+		 * we cannot make sure, we have the same destination;
+		 * thus we use the routefinder to find the sea
+		 */
+		route_t to_the_sea;
+		fluss_fahrer_t ff;
+		if(  to_the_sea.find_route( welt, welt->lookup_kartenboden(route[start_n].get_2d())->get_pos(), (fahrer_t *)&ff, 0, ribi_t::alle, 0x7FFFFFFF )  ) {
+			for(  sint32 idx=0;  idx<to_the_sea.get_max_n();  idx++  ) {
+				weg_t* w = welt->lookup(to_the_sea.position_bei(idx))->get_weg(water_wt);
+				if(w) {
+					int type;
+					for(  type=umgebung_t::river_types-1;  type>0;  type--  ) {
+						// llokup type
+						if(  w->get_besch()==alle_wegtypen.get(umgebung_t::river_type[type])  ) {
+							break;
+						}
 					}
-				}
-				// still room to expand
-				if(  type>0  ) {
-					// thus we enlarge
-					w->set_besch( alle_wegtypen.get(umgebung_t::river_type[type-1]) );
-					w->calc_bild();
+					// still room to expand
+					if(  type>0  ) {
+						// thus we enlarge
+						w->set_besch( alle_wegtypen.get(umgebung_t::river_type[type-1]) );
+						w->calc_bild();
+					}
 				}
 			}
 		}
 	}
-#endif
 }
 
 
