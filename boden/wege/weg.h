@@ -157,7 +157,7 @@ public:
 	void add_way_constraints(const uint8 permissive, const uint8 prohibitive);
 	
 	//Resets constraints to their base values. Used when removing way objects.
-	void weg_t::reset_way_constraints();
+	void reset_way_constraints();
 
 	uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
 	uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }

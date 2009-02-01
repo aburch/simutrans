@@ -3,7 +3,7 @@
 // Get running costs. Running costs increased if the vehicle is obsolete.
 // @author: jamespetts
 uint16
-vehikel_besch_t::get_betriebskosten(static karte_t* welt) const
+vehikel_besch_t::get_betriebskosten(karte_t* welt) const
 {
 	uint16 month_now = welt->get_current_month();
 	int normal_running_costs = get_betriebskosten();

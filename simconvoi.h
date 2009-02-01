@@ -513,12 +513,12 @@ public:
 	 * @return total power of this convoi
 	 * @author Hj. Malthaner
 	 */
-	const uint32 & get_sum_leistung() const {return sum_leistung;}
-	const uint32 & get_power_from_steam() const {return power_from_steam;}
-	const uint32 & get_power_from_steam_with_gear() const {return power_from_steam_with_gear;}
-	const sint32 & get_min_top_speed() const {return min_top_speed;}
-	const sint32 & get_sum_gewicht() const {return sum_gewicht;}
-	const sint32 & get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
+	uint32 get_sum_leistung() const {return sum_leistung;}
+	uint32 get_power_from_steam() const {return power_from_steam;}
+	uint32 get_power_from_steam_with_gear() const {return power_from_steam_with_gear;}
+	sint32 get_min_top_speed() const {return min_top_speed;}
+	sint32 get_sum_gewicht() const {return sum_gewicht;}
+	sint32 get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
 
 	uint32 get_length() const;
 

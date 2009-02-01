@@ -233,7 +233,7 @@ public:
 	uint16 get_gewicht() const { return gewicht; }
 	uint32 get_leistung() const { return leistung; }
 	uint16 get_betriebskosten() const { return betriebskosten; }
-	uint16  get_betriebskosten(static karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
+	uint16 get_betriebskosten(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	sint8 get_sound() const { return sound; }
 	
 
