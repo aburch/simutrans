@@ -484,7 +484,11 @@ void convoi_t::calc_acceleration(long delta_t)
 
 sint32 convoi_t::calc_adjusted_power()
 {
-	if(power_from_steam < 1 && speed_to_kmh(akt_speed) < 50)
+	uint16 max_speed = speed_to_kmh(fahr[0]->get_besch()->get_geschw());
+	float highpoint_speed = (max_speed >= 30) ? max_speed - 30 : 30;
+	uint16 current_speed = speed_to_kmh(akt_speed);
+	
+	if(power_from_steam < 1 || speed_to_kmh(current_speed) > highpoint_speed)
 	{
 		// Either no steam engines, or going fast
 		// enough that it makes no difference,
@@ -493,54 +497,52 @@ sint32 convoi_t::calc_adjusted_power()
 	}
 	// There must be a steam engine here.
 	// So, reduce the power at lower speeds.
-	// Should be approx: 40% power at 15kph
-	// 70% power at 25kph; 85% power at 32kph
-	// and 100% power at >50kph.
+	// Should be approx (for medium speed locomotive):
+	// 40% power at 15kph 70% power at 25kph;
+	// 85% power at 32kph; and 100% power at >50kph.
 	// See here for details: http://www.railway-technical.com/st-vs-de.shtml
 
 	//This is needed to add back at the end.
 	uint32 power_without_steam = sum_gear_und_leistung - power_from_steam_with_gear;
 	
-	float speed_factor = 1.0;
-	uint16 current_speed = speed_to_kmh(akt_speed);
+	float speed_factor;
 	
-	// Manually (with some manual interpretation) because formula not linear,
-	// and actual formula not known to me.
-	if(current_speed <= 10)
+	if(power_from_steam > 500)
 	{
-		speed_factor = 0.3;
-	}
-	else if(current_speed <=15)
-	{
-		speed_factor = 0.4;
-	}
-	else if(current_speed <= 20)
-	{
-		speed_factor = 0.55;
-	}
-	else if(current_speed <= 25)
-	{
-		speed_factor = 0.7;
-	}
-	else if(current_speed <= 28)
-	{
-		speed_factor = 0.775;
-	}
-	else if(current_speed <= 32)
-	{
-		speed_factor = 0.85;
-	}
-	else if(current_speed <= 38)
-	{
-		speed_factor = 0.9;
-	}
-	else if(current_speed <= 43)
-	{
-		speed_factor = 0.92;
+		speed_factor = 1.0;
 	}
 	else
 	{
-		speed_factor = 0.96;
+		float difference = 450 - (power_from_steam  - 50);
+		float proportion = difference / 450.0;
+		float factor = 0.66 * proportion;
+		speed_factor = 1 + factor;
+	}
+
+	
+	//These values are needed to apply different power reduction factors
+	//depending on the maximum speed.
+
+	float lowpoint_speed = highpoint_speed * 0.3;
+	float midpoint_speed = lowpoint_speed * 2;
+
+	if(current_speed <= lowpoint_speed)
+	{
+		speed_factor *= 0.4;
+	}
+	else if(current_speed <= midpoint_speed)
+	{
+		float speed_differential_actual = (float)current_speed - (float)lowpoint_speed;
+		float speed_differential_maximum = (float)midpoint_speed - (float)lowpoint_speed;
+		float factor_modification = speed_differential_actual / speed_differential_maximum;
+		speed_factor *= ((factor_modification * 0.4) + 0.4);
+	}
+	else
+	{
+		float speed_differential_actual = (float)current_speed - (float)midpoint_speed;
+		float speed_differential_maximum = (float)highpoint_speed - (float)lowpoint_speed;
+		float factor_modification = speed_differential_actual / speed_differential_maximum;
+		speed_factor *= ((factor_modification * 0.15) + 0.8);
 	}
 
 	uint32 modified_power_from_steam = power_from_steam_with_gear * speed_factor;
