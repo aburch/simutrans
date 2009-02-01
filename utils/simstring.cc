@@ -80,10 +80,10 @@ void money_to_string(char * p, double f)
 	int    i,l;
 
 	if(  f>1000.0*large_number_factor  ) {
-		sprintf(tp,"%.1f%s",large_number_string,f/large_number_factor);
+		sprintf( tp, "%.1f%s", f/large_number_factor, large_number_string );
 	}
 	else {
-		sprintf(tp,"%.2f",f);
+		sprintf( tp, "%.2f", f );
 	}
 
 	// Hajo: skip sign
@@ -112,9 +112,10 @@ void money_to_string(char * p, double f)
 	i = l+1;
 
 	*p++ = fraction_sep;
-	*p++ = tp[i++];
-	*p++ = tp[i++];
-
+	// since it might be longer due to unicode characters
+	while(  tp[i]!=0  ) {
+		*p++ = tp[i++];
+	}
 	*p++ = '$';
 	*p = 0;
 }

@@ -70,7 +70,7 @@ void sprachengui_t::init_font_from_lang()
 
 	const char *str = "LARGE_NUMBER_STRING";
 	p = translator::translate(str);
-	double v = atof( translator::translate("LARGE_AMOUNT_VALUE") );
+	double v = atof( translator::translate("LARGE_NUMBER_VALUE") );
 	if(p == str  ||  v==0.0) {
 		// fallback: will ignore it
 		p = "";
