@@ -195,7 +195,7 @@ einstellungen_t::einstellungen_t() :
 	uint8 max_alternative_destinations = 3;
 
 	// this will pay for distance to next change station
-	pay_for_total_distance = TO_PREVIOUS;
+	pay_for_total_distance = 0;
 }
 
 
