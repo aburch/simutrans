@@ -8,8 +8,8 @@
 
 static char thousand_sep = ',';
 static char fraction_sep = '.';
-static char *large_number_string = "M";
-startic double large_number_factor = 1e6;
+static const char *large_number_string = "M";
+static double large_number_factor = 1e99;	// off
 
 
 
@@ -60,9 +60,9 @@ char get_fraction_sep(void)
 	return fraction_sep;
 }
 
-void set_large_amout(char *s, double v)
+void set_large_amout(const char *s, const double v)
 {
-	large_number_str = c;
+	large_number_string = s;
 	large_number_factor = v;
 }
 

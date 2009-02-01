@@ -73,8 +73,8 @@ void sprachengui_t::init_font_from_lang()
 	double v = atof( translator::translate("LARGE_AMOUNT_VALUE") );
 	if(p == str  ||  v==0.0) {
 		// fallback: will ignore it
-		P = "";
-		v = 1e99
+		p = "";
+		v = 1e99;
 	}
 	set_large_amout(p,v);
 }
