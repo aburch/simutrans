@@ -143,6 +143,7 @@ SOURCES += besch/reader/way_reader.cc
 SOURCES += besch/reader/xref_reader.cc
 SOURCES += besch/sound_besch.cc
 SOURCES += besch/tunnel_besch.cc
+SOURCES += besch/vehikel_besch.cc
 SOURCES += besch/ware_besch.cc
 SOURCES += boden/boden.cc
 SOURCES += boden/brueckenboden.cc
