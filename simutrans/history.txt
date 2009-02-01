@@ -14,6 +14,7 @@
 	ADD: (gerw mostly) river are now created during map creation, new options in simuconf.tab
 	ADD: no vehicle/cash sounds during fast forward
 	ADD: (gerw/prissi) powerline remover
+	CHANGE: language specific divider for amout possible (like million for most) using LARGE_NUMBER_STRING and LARGE_NUMBER_VALUE
 
 
 

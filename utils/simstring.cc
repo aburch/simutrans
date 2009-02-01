@@ -8,23 +8,26 @@
 
 static char thousand_sep = ',';
 static char fraction_sep = '.';
+static char *large_number_string = "M";
+startic double large_number_factor = 1e6;
 
 
 
 // a single use number to string ...
 char *ntos(int number, const char *format)
 {
-    static char tempstring[32];
-    int r;
+	static char tempstring[32];
+	int r;
 
-    if (format) {
-          r = sprintf(tempstring, format, number);
-    } else {
-          r = sprintf(tempstring, "%d", number);
-    }
-    assert(r<16);
+	if (format) {
+		r = sprintf(tempstring, format, number);
+	}
+	else {
+		r = sprintf(tempstring, "%d", number);
+	}
+	assert(r<16);
 
-    return tempstring;
+	return tempstring;
 }
 
 
@@ -37,7 +40,7 @@ char *ntos(int number, const char *format)
  */
 void set_thousand_sep(char c)
 {
-  thousand_sep = c;
+	thousand_sep = c;
 }
 
 
@@ -48,13 +51,19 @@ void set_thousand_sep(char c)
  */
 void set_fraction_sep(char c)
 {
-  fraction_sep = c;
+	fraction_sep = c;
 }
 
 
 char get_fraction_sep(void)
 {
-  return fraction_sep;
+	return fraction_sep;
+}
+
+void set_large_amout(char *s, double v)
+{
+	large_number_str = c;
+	large_number_factor = v;
 }
 
 
@@ -70,7 +79,12 @@ void money_to_string(char * p, double f)
 	char   *tp = tmp;
 	int    i,l;
 
-	sprintf(tp,"%.2f",f);
+	if(  f>1000.0*large_number_factor  ) {
+		sprintf(tp,"%.1f%s",large_number_string,f/large_number_factor);
+	}
+	else {
+		sprintf(tp,"%.2f",f);
+	}
 
 	// Hajo: skip sign
 	if(*tp == '-') {
@@ -100,6 +114,7 @@ void money_to_string(char * p, double f)
 	*p++ = fraction_sep;
 	*p++ = tp[i++];
 	*p++ = tp[i++];
+
 	*p++ = '$';
 	*p = 0;
 }
