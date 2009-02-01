@@ -110,7 +110,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	besitzer_p = sp;
 
 	is_electric = false;
-	sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = 0;
+	sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = power_from_steam = power_from_steam_with_gear = 0;
 	previous_delta_v = 0;
 	min_top_speed = 9999999;
 
@@ -449,7 +449,9 @@ void convoi_t::calc_acceleration(long delta_t)
 
 		// prissi:
 		// integer sucks with planes => using floats ...
-		sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel)*(double)delta_t)/(double)sum_gesamtgewicht);
+		//sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel)*(double)delta_t)/(double)sum_gesamtgewicht);
+		sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:calc_adjusted_power()) - deccel)*(double)delta_t)/(double)sum_gesamtgewicht);
+		//"leistung" = "performance" (Google)
 
 		// we normalize delta_t to 1/64th and check for speed limit */
 //		sint32 delta_v = ( ( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel) * delta_t)/sum_gesamtgewicht;
@@ -478,6 +480,71 @@ void convoi_t::calc_acceleration(long delta_t)
 		max_record_speed = akt_speed;
 		record_pos = fahr[0]->get_pos().get_2d();
 	}
+}
+
+sint32 convoi_t::calc_adjusted_power()
+{
+	if(power_from_steam < 1 && speed_to_kmh(akt_speed) < 50)
+	{
+		// Either no steam engines, or going fast
+		// enough that it makes no difference,
+		// so the simple formula prevails.
+		return sum_gear_und_leistung;
+	}
+	// There must be a steam engine here.
+	// So, reduce the power at lower speeds.
+	// Should be approx: 40% power at 15kph
+	// 70% power at 25kph; 85% power at 32kph
+	// and 100% power at >50kph.
+	// See here for details: http://www.railway-technical.com/st-vs-de.shtml
+
+	//This is needed to add back at the end.
+	uint32 power_without_steam = sum_gear_und_leistung - power_from_steam_with_gear;
+	
+	float speed_factor = 1.0;
+	uint16 current_speed = speed_to_kmh(akt_speed);
+	
+	// Manually (with some manual interpretation) because formula not linear,
+	// and actual formula not known to me.
+	if(current_speed <= 10)
+	{
+		speed_factor = 0.3;
+	}
+	else if(current_speed <=15)
+	{
+		speed_factor = 0.4;
+	}
+	else if(current_speed <= 20)
+	{
+		speed_factor = 0.55;
+	}
+	else if(current_speed <= 25)
+	{
+		speed_factor = 0.7;
+	}
+	else if(current_speed <= 28)
+	{
+		speed_factor = 0.775;
+	}
+	else if(current_speed <= 32)
+	{
+		speed_factor = 0.85;
+	}
+	else if(current_speed <= 38)
+	{
+		speed_factor = 0.9;
+	}
+	else if(current_speed <= 43)
+	{
+		speed_factor = 0.92;
+	}
+	else
+	{
+		speed_factor = 0.96;
+	}
+
+	uint32 modified_power_from_steam = power_from_steam_with_gear * speed_factor;
+	return modified_power_from_steam + power_without_steam;
 }
 
 
@@ -1034,6 +1101,11 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 			is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 		}
 		sum_leistung += info->get_leistung();
+		if(info->get_engine_type() == vehikel_besch_t::steam)
+		{
+			power_from_steam += info->get_leistung();
+			power_from_steam_with_gear += info->get_leistung()*info->get_gear();
+		}
 		sum_gear_und_leistung += info->get_leistung()*info->get_gear();
 		sum_gewicht += info->get_gewicht();
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_besch()->get_geschw() ) );
@@ -1075,6 +1147,11 @@ convoi_t::remove_vehikel_bei(uint16 i)
 
 			const vehikel_besch_t *info = v->get_besch();
 			sum_leistung -= info->get_leistung();
+			if(info->get_engine_type() == vehikel_besch_t::steam)
+			{
+				power_from_steam -= info->get_leistung();
+				power_from_steam_with_gear -= info->get_leistung()*info->get_gear();
+			}
 			sum_gear_und_leistung -= info->get_leistung()*info->get_gear();
 			sum_gewicht -= info->get_gewicht();
 		}
@@ -1603,6 +1680,11 @@ convoi_t::rdwr(loadsave_t *file)
 			// info
 			if(info) {
 				sum_leistung += info->get_leistung();
+				if(info->get_engine_type() == vehikel_besch_t::steam)
+				{
+					power_from_steam += info->get_leistung();
+					power_from_steam_with_gear += info->get_leistung()*info->get_gear();
+				}
 				sum_gear_und_leistung += info->get_leistung()*info->get_gear();
 				sum_gewicht += info->get_gewicht();
 				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;

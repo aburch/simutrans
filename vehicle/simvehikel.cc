@@ -1387,7 +1387,7 @@ vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu
 		{
 		case 0:
 			//Must be downhill
-			current_friction += -13;
+			current_friction -= 13;
 			break;
 
 		case 1:

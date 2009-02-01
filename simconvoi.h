@@ -196,12 +196,20 @@ private:
 	*/
 	uint32 sum_leistung;
 
+	// How much of the convoy's power comes from steam engines?
+	// Needed when applying realistic physics to steam engines.
+	// @author: jamespetts
+	uint32 power_from_steam;
+
 	/**
 	* Gesamtleistung mit Gear. Wird nicht gespeichert, sondern aus den Einzelleistungen
 	* errechnet.
 	* @author prissi
 	*/
 	sint32 sum_gear_und_leistung;
+
+	// @author: jamespetts
+	sint32 power_from_steam_with_gear;
 
 	/* sum_gewicht: leergewichte aller vehicles *
 	* sum_gesamtgewicht: gesamtgewichte aller vehicles *
@@ -317,6 +325,10 @@ private:
 	 * needed for driving, entering and leaving a depot)
 	 */
 	void calc_acceleration(long delta_t);
+
+	// Calculate the total power as adjusted to take account of steam engine physics
+	//@author: jamespetts
+	sint32 calc_adjusted_power();
 
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
@@ -502,6 +514,8 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	const uint32 & get_sum_leistung() const {return sum_leistung;}
+	const uint32 & get_power_from_steam() const {return power_from_steam;}
+	const uint32 & get_power_from_steam_with_gear() const {return power_from_steam_with_gear;}
 	const sint32 & get_min_top_speed() const {return min_top_speed;}
 	const sint32 & get_sum_gewicht() const {return sum_gewicht;}
 	const sint32 & get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
