@@ -243,6 +243,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	pax_no_route = 0;
 
 	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
+	warenziele = new vector_tpl<halthandle_t>[ warenbauer_t::get_max_catg_index() ];
 
 	status_color = COL_YELLOW;
 
@@ -282,6 +283,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	rebuilt_destination_counter = reroute_counter;
 
 	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
+	warenziele = new vector_tpl<halthandle_t>[ warenbauer_t::get_max_catg_index() ];
 
 	pax_happy = 0;
 	pax_unhappy = 0;
@@ -371,6 +373,7 @@ haltestelle_t::~haltestelle_t()
 		}
 	}
 	free( waren );
+	delete[] warenziele;
 
 	// routes may have changed without this station ...
 	verbinde_fabriken();
@@ -792,19 +795,7 @@ void haltestelle_t::reroute_goods()
 
 			// delete, if nothing connects here
 			if (new_warray->empty()) {
-				bool delete_it = true;
-				switch(i) {
-					case 0: delete_it = warenziele[0].empty();
-						break;
-					case 1: delete_it = warenziele[1].empty();
-						break;
-					default:
-						slist_iterator_tpl<warenziel_t> iter(warenziele[2]);
-						while(iter.next()  &&  delete_it) {
-							delete_it = iter.get_current().get_catg_index()!=i;
-						}
-				}
-				if(delete_it) {
+				if(  warenziele[i].empty()  ) {
 					// no connections from here => delete
 					delete new_warray;
 					new_warray = NULL;
@@ -864,23 +855,6 @@ haltestelle_t::remove_fabriken(fabrik_t *fab)
 
 
 
-/* true, if there is a conncetion between these places
- * @author prissi
- */
-bool haltestelle_t::is_connected(const halthandle_t halt, const ware_besch_t * wtyp)
-{
-	slist_iterator_tpl<warenziel_t> iter(get_warenziele(wtyp->get_catg_index()));
-	while(iter.next()) {
-		const warenziel_t &tmp = iter.get_current();
-		if(tmp.get_catg_index()==wtyp->get_catg_index() && tmp.get_zielhalt()==halt) {
-			return true;
-		}
-	}
-	return true;
-}
-
-
-
 void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl)
 {
 	if(type != warenbauer_t::nichts) {
@@ -894,23 +868,14 @@ void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl
 			}
 
 			// we need to do this here; otherwise the position of the stop (if in water) may not directly be a halt!
-			const warenziel_t wz (halt, type);
-
-			slist_tpl<warenziel_t> * wz_list = warenziele+min(2,type->get_catg_index());
-			slist_iterator_tpl<warenziel_t> iter(wz_list);
-			while(iter.next()) {
-				const warenziel_t &tmp = iter.get_current();
-				if(  tmp.get_catg_index()==type->get_catg_index()  &&  tmp.get_zielhalt()==wz.get_zielhalt()  ) {
-					goto skip;
+			vector_tpl<halthandle_t> &wz_list = warenziele[ type->get_catg_index() ];
+			if(  !wz_list.is_contained(halt)  ) {
+				wz_list.push_back( halt );
+				if(  waren[type->get_catg_index()] == NULL  ) {
+					// indicates that this can route those goods
+					waren[type->get_catg_index()] = new vector_tpl<ware_t>(0);
 				}
 			}
-
-			wz_list->insert(wz);
-			if(  waren[type->get_catg_index()] == NULL  ) {
-				// indicates that this can route those goods
-				waren[type->get_catg_index()] = new vector_tpl<ware_t>(0);
-			}
-			skip:;
 		}
 	}
 }
@@ -925,9 +890,9 @@ void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl
 void haltestelle_t::rebuild_destinations()
 {
 	// Hajo: first, remove all old entries
-	warenziele[0].clear();
-	warenziele[1].clear();
-	warenziele[2].clear();
+	for (uint8 i=0; i<warenbauer_t::get_max_catg_index(); i++){
+		warenziele[i].clear();
+	};
 	rebuilt_destination_counter = welt->get_schedule_counter();
 	resort_freight_info = true;	// might result in error in routing
 
@@ -1122,83 +1087,36 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 		// Hajo: check for max transfers -> don't add more stations
 		//      to queue if the limit is reached
-		if(tmp->depth < max_transfers) {
+		if(tmp->depth < max_transfers  &&  step<64000u  ) {
+			const vector_tpl<halthandle_t> *wz = halt->get_warenziele(ware_catg_index);
+			for(  uint32 i=0;  i<wz->get_count();  i++  ) {
 
-			if(ware_catg_index<2) {
+				// since these are precalculated, they should be always pointing to a valid ground
+				// (if not, we were just under construction, and will be fine after 16 steps)
+				const halthandle_t &tmp_halt = (*wz)[i];
+				if(tmp_halt.is_bound() &&  tmp_halt->marke!=current_mark) {
 
-				/* for passengers and mail only matching connectings are in the list
-				 * => we can skip many checks
-				 */
-				slist_iterator_tpl<warenziel_t> iter(halt->get_warenziele_unsafe(ware_catg_index));
-				while(  iter.next()  &&  step<max_hops  ) {
-
-					// since these are precalculated, they should be always pointing to a valid ground
-					// (if not, we were just under construction, and will be fine after 16 steps)
-					const halthandle_t &tmp_halt = iter.get_current().get_zielhalt();
-					if(tmp_halt.is_bound() &&  tmp_halt->marke!=current_mark) {
-
-						HNode *node = &nodes[step++];
-						node->halt = tmp_halt;
-						node->depth = tmp->depth + 1;
-						node->link = tmp;
+					HNode *node = &nodes[step++];
+					node->halt = tmp_halt;
+					node->depth = tmp->depth + 1;
+					node->link = tmp;
 
 #ifdef USE_ROUTE_SLIST_TPL
-						queue.append( node );
+					queue.append( node );
 #else
-						node->next = NULL;
-						if(route_tail==NULL) {
-							route_start = node;
-						}
-						else {
-							route_tail->next = node;
-						}
-						route_tail = node;
-#endif
-						// betretene Haltestellen markieren
-						tmp_halt->marke = current_mark;
+					node->next = NULL;
+					if(route_tail==NULL) {
+						route_start = node;
 					}
+					else {
+						route_tail->next = node;
+					}
+					route_tail = node;
+#endif
+					// betretene Haltestellen markieren
+					tmp_halt->marke = current_mark;
 				}
 			}
-			else if(  waren[ware_catg_index]!=NULL  ) {
-				// for freight, we need more detailed check
-				slist_iterator_tpl<warenziel_t> iter(halt->get_warenziele_freight());
-
-				while(  iter.next()  &&  step<max_hops  ) {
-
-					// check if destination if for the goods type
-					const warenziel_t &wz = iter.get_current();
-					if(wz.get_catg_index()==ware_catg_index) {
-
-						// since these are precalculated, they should be always pointing to a valid ground
-						// (if not, we were just under construction, and will be fine after 16 steps)
-						const halthandle_t &tmp_halt = wz.get_zielhalt();
-						if(  tmp_halt.is_bound()  &&  tmp_halt->marke != current_mark  ) {
-
-							HNode *node = &nodes[step++];
-
-							node->halt = tmp_halt;
-							node->depth = tmp->depth + 1;
-							node->link = tmp;
-
-#ifdef USE_ROUTE_SLIST_TPL
-							queue.append( node );
-#else
-							node->next = NULL;
-							if(route_tail==NULL) {
-								route_start = node;
-							}
-							else {
-								route_tail->next = node;
-							}
-							route_tail = node;
-#endif
-							// betretene Haltestellen markieren
-							tmp_halt->marke = current_mark;
-						}
-					}
-				}
-			}
-
 		} // max transfers
 
 #ifdef USE_ROUTE_SLIST_TPL

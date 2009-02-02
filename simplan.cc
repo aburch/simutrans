@@ -522,14 +522,14 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 		const koord pos = get_kartenboden()->get_pos().get_2d();
 
 		// exact position does matter only for passenger/mail transport
-		if(sp!=NULL  &&  halt->get_warenziele_passenger()->count()+halt->get_warenziele_mail()->count()>0  &&  halt_list_count>0  ) {
+		if(sp!=NULL  &&  halt->get_warenziele_passenger()->get_count()+halt->get_warenziele_mail()->get_count()>0  &&  halt_list_count>0  ) {
 			halt_list_remove(halt);
 
 			// since only the first one gets all the passengers, we want the closest one for passenger transport to be on top
 			for(insert_pos=0;  insert_pos<halt_list_count;  insert_pos++) {
 
 				// not a passenger KI or other is farer away
-				if(  halt_list[insert_pos]->get_warenziele_passenger()->count()+halt_list[insert_pos]->get_warenziele_mail()->count()==0  ||
+				if(  halt_list[insert_pos]->get_warenziele_passenger()->get_count()+halt_list[insert_pos]->get_warenziele_mail()->get_count()==0  ||
 				     abs_distance(halt_list[insert_pos]->get_next_pos(pos), pos) > abs_distance(halt->get_next_pos(pos), pos))
 				{
 					halt_list_insert_at( halt, insert_pos );

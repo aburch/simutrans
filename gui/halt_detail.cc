@@ -16,7 +16,6 @@
 #include "../besch/ware_besch.h"
 #include "../bauer/warenbauer.h"
 
-#include "../dataobj/warenziel.h"
 #include "../dataobj/translator.h"
 
 #include "schedule_list.h"
@@ -207,88 +206,21 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 
 	bool has_stops = false;
 
-	if(!halt->get_warenziele_passenger()->empty()) {
-		buf.append("\n");
-		offset_y += LINESPACE;
+	for (uint i=0; i<warenbauer_t::get_max_catg_index(); i++){
+		const vector_tpl<halthandle_t> *ziele = halt->get_warenziele(i);
+		if(!ziele->empty()) {
+			buf.append("\n");
+			offset_y += LINESPACE;
 
-		buf.append(" ·");
-		buf.append(translator::translate(warenbauer_t::passagiere->get_name()));
-		buf.append(":\n");
-		offset_y += LINESPACE;
+			buf.append(" ·");
+			const ware_besch_t* info = warenbauer_t::get_info_catg_index(i);
+			// If it is a special freight, we display the name of the good, otherwise the name of the category.
+			buf.append(translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()));
+			buf.append(":\n");
+			offset_y += LINESPACE;
 
-		const slist_tpl<warenziel_t> *ziele = halt->get_warenziele_passenger();
-		slist_iterator_tpl<warenziel_t> iter (ziele);
-		while(iter.next()) {
-			warenziel_t wz = iter.get_current();
-			halthandle_t a_halt = wz.get_zielhalt();
-			if(a_halt.is_bound()) {
-
-				has_stops = true;
-
-				buf.append("   ");
-				buf.append(a_halt->get_name());
-
-				// target button ...
-				button_t *pb = new button_t();
-				pb->init( button_t::posbutton, NULL, koord(10, offset_y) );
-				pb->set_targetpos( a_halt->get_basis_pos() );
-				pb->add_listener( this );
-				posbuttons.append( pb );
-				cont.add_komponente( pb );
-
-				buf.append("\n");
-				offset_y += LINESPACE;
-			}
-		}
-	}
-
-	if(!halt->get_warenziele_mail()->empty()) {
-		buf.append("\n");
-		offset_y += LINESPACE;
-
-		buf.append(" ·");
-		buf.append(translator::translate(warenbauer_t::post->get_name()));
-		buf.append(":\n");
-		offset_y += LINESPACE;
-
-		const slist_tpl<warenziel_t> *ziele = halt->get_warenziele_mail();
-		slist_iterator_tpl<warenziel_t> iter (ziele);
-		while(iter.next()) {
-			warenziel_t wz = iter.get_current();
-			halthandle_t a_halt = wz.get_zielhalt();
-			if(a_halt.is_bound()) {
-
-				has_stops = true;
-
-				buf.append("   ");
-				buf.append(a_halt->get_name());
-
-				// target button ...
-				button_t *pb = new button_t();
-				pb->init( button_t::posbutton, NULL, koord(10, offset_y) );
-				pb->set_targetpos( a_halt->get_basis_pos() );
-				pb->add_listener( this );
-				posbuttons.append( pb );
-				cont.add_komponente( pb );
-
-				buf.append("\n");
-				offset_y += LINESPACE;
-			}
-		}
-	}
-
-	buf.append("\n\n");
-	offset_y += LINESPACE;
-	offset_y += LINESPACE;
-	if(!halt->get_warenziele_freight()->empty()) {
-
-		bool first = true;
-
-		const slist_tpl<warenziel_t> *ziele = halt->get_warenziele_freight();
-		slist_iterator_tpl<warenziel_t> iter (ziele);
-		while(iter.next()) {
-				warenziel_t wz = iter.get_current();
-				halthandle_t a_halt = wz.get_zielhalt();
+			for(  uint32 idx=0;  idx < ziele->get_count();  idx++  ) {
+				halthandle_t a_halt = (*ziele)[idx];
 				if(a_halt.is_bound()) {
 
 					has_stops = true;
@@ -303,26 +235,6 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 					pb->add_listener( this );
 					posbuttons.append( pb );
 					cont.add_komponente( pb );
-
-					buf.append("\n");
-					offset_y += LINESPACE;
-
-					first = true;
-					for(uint32 i=0; i<warenbauer_t::get_waren_anzahl(); i++) {
-						const ware_besch_t *ware = warenbauer_t::get_info(i);
-
-						if(wz.get_catg_index()==ware->get_catg_index()) {
-
-						if(first) {
-							buf.append(" ·");
-							buf.append(translator::translate(ware->get_name()));
-							first = false;
-
-						} else {
-							buf.append(", ");
-							buf.append(translator::translate(ware->get_name()));
-						}
-					}
 				}
 
 				buf.append("\n");

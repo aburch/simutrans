@@ -17,7 +17,6 @@
 
 #include "bauer/warenbauer.h"
 
-#include "dataobj/warenziel.h"
 #include "dataobj/koord3d.h"
 
 #include "tpl/slist_tpl.h"
@@ -181,7 +180,7 @@ private:
 	koord init_pos;	// for halt without grounds, created during game initialisation
 
 	// List with all reachable destinations
-	slist_tpl<warenziel_t> warenziele[3];
+	vector_tpl<halthandle_t>* warenziele;
 
 	// loest warte_menge ab
 	vector_tpl<ware_t> **waren;
@@ -321,15 +320,11 @@ public:
 
 	void make_public_and_join( spieler_t *sp );
 
-	const slist_tpl<warenziel_t> * get_warenziele_passenger() const {return warenziele;}
-	const slist_tpl<warenziel_t> * get_warenziele_mail() const {return warenziele+1;}
-	const slist_tpl<warenziel_t> * get_warenziele_freight() const {return warenziele+2;}
+	const vector_tpl<halthandle_t> *get_warenziele_passenger() const {return warenziele;}
+	const vector_tpl<halthandle_t> *get_warenziele_mail() const {return warenziele+1;}
 
 	// returns the matchin warenziele
-	const slist_tpl<warenziel_t> * get_warenziele(uint8 catg_index) const {return warenziele+min(2,catg_index);}
-
-	// since for suche_route, speed is essential ...
-	const slist_tpl<warenziel_t> * get_warenziele_unsafe(uint8 catg_index) const {return warenziele+catg_index;}
+	const vector_tpl<halthandle_t> *get_warenziele(uint8 catg_index) const {return warenziele+catg_index;}
 
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
@@ -358,12 +353,12 @@ public:
 	 * @author prissi
 	 */
 	void suche_route(ware_t &ware, koord *next_to_ziel=NULL);
-
+#if 0
 	/* true, if there is a conncetion between these places
-	* @author prissi
-	*/
-	bool is_connected(const halthandle_t halt, const ware_besch_t * wtyp);
-
+	 * @author prissi
+	 */
+	bool is_connected(const halthandle_t halt, const ware_besch_t * wtyp) const { return get_warenziele(wtyp->get_catg_index(halt))->is_contained(); }
+#endif
 	int get_pax_enabled()  const { return enables & PAX;  }
 	int get_post_enabled() const { return enables & POST; }
 	int get_ware_enabled() const { return enables & WARE; }
