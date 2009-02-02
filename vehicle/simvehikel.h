@@ -246,7 +246,7 @@ protected:
 
 	virtual bool ist_befahrbar(const grund_t* ) const {return false;}
 
-	bool vehikel_t::check_way_constraints(const weg_t *way) const;
+	bool check_way_constraints(const weg_t *way) const;
 
 public:
 	// the coordinates, where the vehicle was loaded the last time
@@ -301,7 +301,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 	int get_betriebskosten() const { return besch->get_betriebskosten(); }
-	int get_betriebskosten(static karte_t* welt) const { 	return besch->get_betriebskosten(welt); }
+	int get_betriebskosten(karte_t* welt) const { 	return besch->get_betriebskosten(welt); }
 
 	/**
 	* spielt den Sound, wenn das Vehikel sichtbar ist
@@ -388,7 +388,7 @@ public:
 	// Check for straightness of way.
 	//@author jamespetts
 	
-	static enum direction_degrees {
+	enum direction_degrees {
 		North = 360,
 		Northeast = 45,
 		East = 90,
@@ -401,7 +401,7 @@ public:
 
 	direction_degrees get_direction_degrees(ribi_t::ribi);
 
-	sint16 vehikel_t::compare_directions(sint16 first_direction, sint16 second_direction);
+	sint16 compare_directions(sint16 first_direction, sint16 second_direction);
 
 	/**
 	* loescht alle fracht aus dem Fahrzeug

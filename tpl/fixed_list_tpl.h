@@ -27,15 +27,7 @@ public:
 	{
 		//Depracated, retained for backwards compatibility.
 		//Use [] instead.
-		if(e > size)
-		{
-			return NULL;
-		}
-		else
-		{
-			uint8 i = add_index(head, e, N);
-			return data[i];
-		}
+		return (*this)[e];
 	}
 
 	T operator[](uint8 e)

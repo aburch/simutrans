@@ -85,8 +85,8 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	static bool cityrules_init(cstring_t objpathname);
-	static void stadt_t::privatecar_init(cstring_t objfilename);
-	sint16 stadt_t::get_private_car_ownership(sint32 monthyear);
+	static void privatecar_init(cstring_t objfilename);
+	sint16 get_private_car_ownership(sint32 monthyear);
 
 private:
 	static karte_t *welt;
