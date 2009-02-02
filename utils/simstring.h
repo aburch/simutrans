@@ -28,6 +28,12 @@ void set_fraction_sep(char c);
 char get_fraction_sep(void);
 
 
+/**
+ * Set abbrevitation and the amout by which large money amouts will be shortened
+ * @author prissi
+ */
+void set_large_amout( const char *, const double v );
+
 /* copies n lines of the source into a buffer *
  * @return a temporary buffer with the result
  * @author prissi

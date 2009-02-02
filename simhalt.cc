@@ -589,8 +589,8 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 		}
 
 		const char *dirname = NULL;
-		static char *diagonal_name[4] = { "nordwest", "nordost", "suedost", "suedwest" };
-		static char *direction_name[4] = { "nord", "ost", "sued", "west" };
+		static const char *diagonal_name[4] = { "nordwest", "nordost", "suedost", "suedwest" };
+		static const char *direction_name[4] = { "nord", "ost", "sued", "west" };
 
 		if (k.y < ob_gr  ||  (inside  &&  k.y*3 < (un_gr+ob_gr+ob_gr))  ) {
 			if (k.x < li_gr) {
@@ -2111,7 +2111,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		// restoring all goods in the station
 		char s[256];
 		file->rdwr_str(s,256);
-		while(s && *s) {
+		while(*s) {
 			file->rdwr_short(count, " ");
 			if(count>0) {
 				for(int i = 0; i < count; i++) {

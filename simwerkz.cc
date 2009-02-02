@@ -2609,11 +2609,12 @@ const char *wkz_roadsign_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 						rs->set_dir(dir);
 						DBG_MESSAGE("wkz_roadsign()", "reverse ribi %i", dir);
 					}
-				} else {
+				}
+				else {
 					// add a new roadsign at position zero!
 					// if single way, we need to reduce the allowed ribi to one
 					if (besch->is_single_way() || besch->is_free_route()) {
-						for (int i = 0; i <= 4; i++) {
+						for(  int i=0;  i<4;  i++  ) {
 							if ((dir & ribi_t::nsow[i]) != 0) {
 								dir = ribi_t::nsow[i];
 								break;

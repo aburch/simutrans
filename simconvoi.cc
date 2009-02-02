@@ -2522,6 +2522,8 @@ void convoi_t::check_pending_updates()
 			destroy_win((long)fpl);
 		}
 		delete fpl;
+		// an open window will destroy our line information, so we renew again ...
+		line = line_update_pending;
 		fpl = line->get_schedule()->copy();
 		fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
 		if(state!=INITIAL) {

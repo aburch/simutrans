@@ -1173,7 +1173,7 @@ void win_display_flush(double konto)
 
 void win_set_welt(karte_t *welt)
 {
-    wl = welt;
+	wl = welt;
 }
 
 

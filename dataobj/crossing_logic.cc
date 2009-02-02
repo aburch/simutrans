@@ -48,7 +48,7 @@ void crossing_logic_t::info(cbuffer_t & buf) const
 	assert(zustand<4);
 	buf.append( translator::translate("\nway1 reserved by") );
 	buf.append( on_way1.get_count() );
-	buf.append( translator::translate("\nway1 reserved by") );
+	buf.append( translator::translate("\nway2 reserved by") );
 	buf.append( on_way2.get_count() );
 	buf.append( translator::translate( "cars.\nstate") );
 	buf.append( translator::translate(state_str[zustand]) );

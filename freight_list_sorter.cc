@@ -29,8 +29,8 @@ struct travel_details
  */
 int freight_list_sorter_t::compare_ware(const void *td1, const void *td2)
 {
-  const travel_details * const td1p = (const travel_details*)td1;
-  const travel_details * const td2p = (const travel_details*)td2;
+	const travel_details * const td1p = (const travel_details*)td1;
+	const travel_details * const td2p = (const travel_details*)td2;
 
 	halthandle_t halt1 = td1p->destination;
 	halthandle_t halt2 = td2p->destination;

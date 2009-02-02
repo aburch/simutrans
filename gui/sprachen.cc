@@ -59,7 +59,6 @@ void sprachengui_t::init_font_from_lang()
 	if(*p != 'S') {
 		c = *p;
 	}
-
 	set_thousand_sep(c);
 
 	p = translator::translate("SEP_FRACTION");
@@ -68,6 +67,16 @@ void sprachengui_t::init_font_from_lang()
 		c = *p;
 	}
 	set_fraction_sep(c);
+
+	const char *str = "LARGE_NUMBER_STRING";
+	p = translator::translate(str);
+	double v = atof( translator::translate("LARGE_NUMBER_VALUE") );
+	if(p == str  ||  v==0.0) {
+		// fallback: will ignore it
+		p = "";
+		v = 1e99;
+	}
+	set_large_amout(p,v);
 }
 
 

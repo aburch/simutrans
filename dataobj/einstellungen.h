@@ -321,8 +321,8 @@ public:
 	void set_just_in_time(bool yesno) {just_in_time=yesno;}	// prissi, Aug-06
 	bool get_just_in_time() const {return just_in_time;}
 
-	void set_default_climates();
-	const sint16 *get_climate_borders() const {return climate_borders;}
+	void set_default_climates();	// will reanble the new borders assigned below to the array
+	const sint16 *get_climate_borders() { return climate_borders; }
 
 	void set_winter_snowline(sint16 sl) { winter_snowline = sl; }
 	sint16 get_winter_snowline() const {return winter_snowline;}
