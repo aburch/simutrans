@@ -50,7 +50,7 @@ bool loadsave_t::rd_open(const char *filename)
 		}
 		else {
 			mode = xml|zipped;
-			while(  lsgetc()!='<'  );
+			while(  lsgetc()!='<'  ) { /* nothing */ }
 			read( buf, sizeof(SAVEGAME_PREFIX) - 1 );
 			if(  strncmp(buf, SAVEGAME_PREFIX, sizeof(SAVEGAME_PREFIX) - 1)  ) {
 				close();
@@ -416,7 +416,7 @@ void loadsave_t::rdwr_bool(bool &i, const char *)
 		}
 		else {
 			// find start of tag
-			while(  lsgetc()!='<'  );
+			while(  lsgetc()!='<'  ) { /* nothing */ }
 			// check for correct tag
 			char buffer[7];
 			read( buffer, 5 );
@@ -427,7 +427,7 @@ void loadsave_t::rdwr_bool(bool &i, const char *)
 			read( buffer, 4 );
 			buffer[4] = 0;
 			i = strcmp("true",buffer)==0;
-			while(  lsgetc()!='<'  );
+			while(  lsgetc()!='<'  ) { /* nothing */ }
 			read( buffer, 6 );
 			buffer[6] = 0;
 			if(  strcmp("/bool>",buffer)!=0  ) {
@@ -450,7 +450,7 @@ void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 		const int len = (int)strlen(typ);
 		assert(len<256);
 		// find start of tag
-		while(  lsgetc()!='<'  );
+		while(  lsgetc()!='<'  ) { /* nothing */ }
 		// check for correct tag
 		char buffer[256];
 		read( buffer, len );
@@ -479,7 +479,7 @@ void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 					}
 				}
 				if(c==' ') {
-					while(  lsgetc()!='<'  );
+					while(  lsgetc()!='<'  ) { /* nothing */ }
 					break;
 				}
 				else if(c=='<') {
@@ -613,7 +613,7 @@ void loadsave_t::rdwr_str(char *s, int size)
 		}
 		else {
 			// find start of tag
-			while(  lsgetc()!='<'  );
+			while(  lsgetc()!='<'  ) { /* nothing */ }
 			// check for correct tag
 			char buffer[10];
 			read( buffer, 7 );
@@ -650,7 +650,7 @@ void loadsave_t::rdwr_str(char *s, int size)
 			}
 			else {
 				char last_three_chars[4];
-				char len = 0;
+				sint8 len = 0;	// maximum is three
 				for(  int i=0;  i<size;  ) {
 					char c = lsgetc();
 					if(  c==']'  &&  (  len==0  ||  (len==1  &&  last_three_chars[0] == ']') )  ) {
@@ -751,7 +751,7 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 		else {
 			char buf[6];
 			// find start of tag
-			while(  lsgetc()!='<'  );
+			while(  lsgetc()!='<'  ) { /* nothing */ }
 			read( buf, 6 );
 			buf[5] = 0;
 			if(  strncmp(buf,"<id=\"",5)!=0  ) {
@@ -845,7 +845,7 @@ void loadsave_t::start_tag(const char *tag)
 			char buf[256];
 			const int len = strlen(tag);
 			// find start of tag
-			while(  lsgetc()!='<'  );
+			while(  lsgetc()!='<'  ) { /* nothing */ }
 			read( buf, len );
 			if(  strncmp(buf,tag,len)!=0  ) {
 				dbg->fatal( "loadsave_t::start_tag()","expected \"%s\", got \"%s\"", tag, buf );
