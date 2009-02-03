@@ -144,7 +144,10 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 			ok = (farbe==COL_RED  ||  farbe==COL_ORANGE);
 		}
 		if(!ok && get_filter(ohneverb_filter)) {
-			ok = halt->get_warenziele_passenger()->empty()  &&  halt->get_warenziele_mail()->empty()  &&  halt->get_warenziele_freight()->empty(); //only display stations with NO connection
+			ok = true;
+			for (uint8 i = 0; i<warenbauer_t::get_max_catg_index(); i++){
+				ok &= halt->get_warenziele(i)->empty(); //only display stations with NO connection
+			}
 		}
 		if(!ok) {
 			return false;

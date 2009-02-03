@@ -32,8 +32,6 @@ private:
 
 	// number of different good classes;
 	static uint8 max_catg_index;
-	// up to this are special freight indexes
-	static uint8 max_special_catg_index;
 
 public:
 	enum { INDEX_PAS=0, INDEX_MAIL=1, INDEX_NONE=2 };

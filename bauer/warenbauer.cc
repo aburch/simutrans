@@ -18,7 +18,6 @@ stringhashtable_tpl<const ware_besch_t *> warenbauer_t::besch_names;
 vector_tpl<ware_besch_t *> warenbauer_t::waren;
 
 uint8 warenbauer_t::max_catg_index = 0;
-uint8 warenbauer_t::max_special_catg_index = 0;
 
 const ware_besch_t *warenbauer_t::passagiere = NULL;
 const ware_besch_t *warenbauer_t::post = NULL;
@@ -64,16 +63,16 @@ warenbauer_t::alles_geladen()
 			waren[i]->catg_index = max_catg_index++;
 		}
 	}
-	max_special_catg_index = max_catg_index-1;
-	// now assign all unused waren.
-	for( unsigned i=0;  i<waren.get_count();  i++  ) {
-		// now search, if we already have a matching category
-		if(waren[i]->get_catg()>0) {
-			waren[i]->catg_index = waren[i]->catg+max_special_catg_index;
-			if(waren[i]->get_catg_index()>=max_catg_index) {
-				// find the higest catg used ...
-				max_catg_index = waren[i]->get_catg_index()+1;
+	// mapping of waren_t::catg to catg_index, map[catg] = catg_index
+	uint8 map[255] = {0};
+
+	for(  uint8 i=0;  i<waren.get_count();  i++  ) {
+		const uint8 catg = waren[i]->get_catg();
+		if(  catg > 0  ) {
+			if(  map[catg] == 0  ) { // We didn't found this category yet -> just create new index.
+				map[catg] = max_catg_index++;
 			}
+			waren[i]->catg_index = map[catg];
 		}
 	}
 

@@ -204,10 +204,10 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			start_connect_hub = start_hub;
 			start_hub = halthandle_t();
 			// is there already one harbour next to this one?
-			slist_iterator_tpl<warenziel_t>iter(start_connect_hub->get_warenziele_passenger());
-			while(iter.next()) {
-				if(iter.get_current().get_zielhalt()->get_station_type()&haltestelle_t::dock) {
-					start_hub = iter.get_current().get_zielhalt();
+			for(  uint32 i=0;  i<start_connect_hub->get_warenziele(0)->get_count();  i++  ) {
+				halthandle_t h = (*(start_connect_hub->get_warenziele(0)))[i];
+				if( h->get_station_type()&haltestelle_t::dock  ) {
+					start_hub = h;
 					break;
 				}
 			}
@@ -232,11 +232,11 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		if(  (end_hub->get_station_type()&haltestelle_t::dock)==0  ) {
 			end_connect_hub = end_hub;
 			end_hub = halthandle_t();
-			// is there already one dock next to this town?
-			slist_iterator_tpl<warenziel_t>iter(end_connect_hub->get_warenziele_passenger());
-			while(iter.next()) {
-				if(iter.get_current().get_zielhalt()->get_station_type()&haltestelle_t::dock) {
-					end_hub = iter.get_current().get_zielhalt();
+			// is there already one harbour next to this one?
+			for(  uint32 i=0;  i<end_connect_hub->get_warenziele(0)->get_count();  i++  ) {
+				halthandle_t h = (*(end_connect_hub->get_warenziele(0)))[i];
+				if( h->get_station_type()&haltestelle_t::dock  ) {
+					start_hub = h;
 					break;
 				}
 			}
@@ -628,10 +628,10 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 			start_connect_hub = start_hub;
 			start_hub = halthandle_t();
 			// is there already one airport next to this town?
-			slist_iterator_tpl<warenziel_t>iter(start_connect_hub->get_warenziele_passenger());
-			while(iter.next()) {
-				if(iter.get_current().get_zielhalt()->get_station_type()&haltestelle_t::airstop) {
-					start_hub = iter.get_current().get_zielhalt();
+			for(  uint32 i=0;  i<start_connect_hub->get_warenziele(0)->get_count();  i++  ) {
+				halthandle_t h = (*(start_connect_hub->get_warenziele(0)))[i];
+				if( h->get_station_type()&haltestelle_t::airstop  ) {
+					start_hub = h;
 					break;
 				}
 			}
@@ -657,10 +657,10 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 			end_connect_hub = end_hub;
 			end_hub = halthandle_t();
 			// is there already one airport next to this town?
-			slist_iterator_tpl<warenziel_t>iter(end_connect_hub->get_warenziele_passenger());
-			while(iter.next()) {
-				if(iter.get_current().get_zielhalt()->get_station_type()&haltestelle_t::airstop) {
-					end_hub = iter.get_current().get_zielhalt();
+			for(  uint32 i=0;  i<end_connect_hub->get_warenziele(0)->get_count();  i++  ) {
+				halthandle_t h = (*(end_connect_hub->get_warenziele(0)))[i];
+				if( h->get_station_type()&haltestelle_t::airstop  ) {
+					start_hub = h;
 					break;
 				}
 			}
@@ -698,7 +698,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 		if(!end_hub.is_bound()) {
 			end_hub = build_airport(end_stadt, end_airport, true);
 			if(!end_hub.is_bound()) {
-				if(start_hub->get_warenziele_passenger()->count()==0) {
+				if(start_hub->get_warenziele_passenger()->get_count()==0) {
 					// remove airport busstop
 					welt->lookup_kartenboden(start_hub->get_basis_pos())->remove_everything_from_way( this, road_wt, ribi_t::keine );
 					koord center = start_hub->get_basis_pos() + koord( welt->lookup_kartenboden(start_hub->get_basis_pos())->get_weg_ribi_unmasked( air_wt ) );

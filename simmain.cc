@@ -292,6 +292,8 @@ int simu_main(int argc, char** argv)
 	sint16 disp_height = 0;
 	sint16 fullscreen = false;
 
+	uint32 quit_month = 0x7FFFFFFFu;
+
 #ifdef _MSC_VER
 	_set_new_handler(sim_new_handler);
 #else
@@ -739,6 +741,11 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	if (gimme_arg(argc, argv, "-times", 0) != NULL) {
 		show_times(welt, view);
 	}
+
+	// finish after a certain month? (must be entered decimal, i.e. 12*year+month
+	if(  gimme_arg(argc, argv, "-until", 0) != NULL  ) {
+		quit_month = atoi( gimme_arg(argc, argv, "-until", 1) );
+	}
 #endif
 
 	welt->set_fast_forward(false);
@@ -873,8 +880,14 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		loadgame = ""; // only first time
 
 		// run the loop
-		while(welt->interactive())
-			;
+		while(welt->interactive()) {
+#ifdef DEBUG
+			if(  welt->get_current_month() >= quit_month  ) {
+				umgebung_t::quit_simutrans = true;
+				break;
+			}
+#endif
+		}
 
 		new_world = true;
 		welt->get_message()->get_message_flags(&umgebung_t::message_flags[0], &umgebung_t::message_flags[1], &umgebung_t::message_flags[2], &umgebung_t::message_flags[3]);
