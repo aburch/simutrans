@@ -902,7 +902,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 		// Hajo: connect some cities with roads
 		const weg_besch_t* besch = umgebung_t::intercity_road_type ? wegbauer_t::get_besch(umgebung_t::intercity_road_type) : NULL;
 		if(besch == 0) {
-			dbg->warning("karte_t::init()", "road type '%s' not found", (const char*)*umgebung_t::intercity_road_type);
+			dbg->warning("karte_t::init()", "road type '%s' not found", umgebung_t::intercity_road_type);
 			// Hajo: try some default (might happen with timeline ... )
 			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
 		}
