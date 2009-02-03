@@ -605,6 +605,7 @@ DBG_MESSAGE("wkz_remover()", "removing ground");
 		plan->get_kartenboden()->clear_flag(grund_t::marked);
 		// remove upper or lower ground
 		plan->boden_entfernen(gr);
+		delete gr;
 	}
 
 	return true;
@@ -1803,6 +1804,7 @@ DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.get_max_n()
 							gr->obj_loesche_alle(sp);
 							// delete tunnel ground too, if empty
 							welt->access(gr->get_pos().get_2d())->boden_entfernen(gr);
+							delete gr;
 						}
 					}
 					else {
