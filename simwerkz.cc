@@ -1977,7 +1977,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 						halt = pl->get_halt();
 						for(  uint b=0;  b<pl->get_boden_count();  b++  ) {
 							grund_t *gr = pl->get_boden_bei(b);
-							if(  gr->is_halt()  &&  gr->hat_wege()  ) {
+							if(  gr->is_halt()  &&  (gr->hat_wege()  ||  gr->get_hoehe()==welt->get_grundwasser())  ) {
 								neighbour_halt_w ++;
 								gebaeude_t *gb = gr->find<gebaeude_t>();
 								if(  gb  &&  gb->get_tile()->get_besch()->get_extra()==besch->get_extra()  ) {
@@ -1991,7 +1991,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 						halt = pl->get_halt();
 						for(  uint b=0;  b<pl->get_boden_count();  b++  ) {
 							grund_t *gr = pl->get_boden_bei(b);
-							if(  gr->is_halt()  &&  gr->hat_wege()  ) {
+							if(  gr->is_halt()  &&  (gr->hat_wege()  ||  gr->get_hoehe()==welt->get_grundwasser())  ) {
 								neighbour_halt_e ++;
 								gebaeude_t *gb = gr->find<gebaeude_t>();
 								if(  gb  &&  gb->get_tile()->get_besch()->get_extra()==besch->get_extra()  ) {
@@ -2009,7 +2009,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 						halt = pl->get_halt();
 						for(  uint b=0;  b<pl->get_boden_count();  b++  ) {
 							grund_t *gr = pl->get_boden_bei(b);
-							if(  gr->is_halt()  &&  gr->hat_wege()  ) {
+							if(  gr->is_halt()  &&  (gr->hat_wege()  ||  gr->get_hoehe()==welt->get_grundwasser())  ) {
 								neighbour_halt_n ++;
 								gebaeude_t *gb = gr->find<gebaeude_t>();
 								if(  gb  &&  gb->get_tile()->get_besch()->get_extra()==besch->get_extra()  ) {
@@ -2023,7 +2023,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 						halt = pl->get_halt();
 						for(  uint b=0;  b<pl->get_boden_count();  b++  ) {
 							grund_t *gr = pl->get_boden_bei(b);
-							if(  gr->is_halt()  &&  gr->hat_wege()  ) {
+							if(  gr->is_halt()  &&  (gr->hat_wege()  ||  gr->get_hoehe()==welt->get_grundwasser())  ) {
 								neighbour_halt_s ++;
 								gebaeude_t *gb = gr->find<gebaeude_t>();
 								if(  gb  &&  gb->get_tile()->get_besch()->get_extra()==besch->get_extra()  ) {
