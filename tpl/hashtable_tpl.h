@@ -6,6 +6,7 @@
 
 
 #define STHT_BAGSIZE 101
+#define STHT_BAG_COUNTER_T uint8
 
 template<class key_t, class value_t, class hash_t>  class hashtable_iterator_tpl;
 
@@ -30,40 +31,22 @@ class hashtable_tpl : public hash_t
 
 	slist_tpl <node_t> bags[STHT_BAGSIZE];
 
-	uint32 get_hash(const key_t key) const
+	STHT_BAG_COUNTER_T get_hash(const key_t key) const
 	{
-		return hash_t::hash(key) % STHT_BAGSIZE;
+		return (STHT_BAG_COUNTER_T)(hash_t::hash(key) % STHT_BAGSIZE);
 	}
 
 public:
-	static int node_size() // debuging
-	{
-		return sizeof(node_t);
-	}
-
-	static int bag_size() // debuging
-	{
-		return sizeof(slist_tpl <node_t>);
-	}
-
-	static int bagnode_size() // debuging
-	{
-		return slist_tpl <node_t>::node_size();
-	}
-
 	void clear()
 	{
-		for(int i=0; i<STHT_BAGSIZE; i++) {
+		for(STHT_BAG_COUNTER_T i=0; i<STHT_BAGSIZE; i++) {
 			bags[i].clear();
 		}
 	}
 
 	const value_t get(const key_t key) const
 	{
-		const uint32 code = get_hash(key);
-
-		slist_iterator_tpl<node_t> iter(bags[code]);
-
+		slist_iterator_tpl<node_t> iter(bags[get_hash(key)]);
 		while(iter.next()) {
 			node_t node = iter.get_current();
 
@@ -76,10 +59,7 @@ public:
 
 	value_t *access(const key_t key)
 	{
-		const uint32 code = get_hash(key);
-
-		slist_iterator_tpl<node_t> iter(bags[code]);
-
+		slist_iterator_tpl<node_t> iter(bags[get_hash(key)]);
 		while(iter.next()) {
 			node_t &node = iter.access_current();
 
@@ -96,7 +76,7 @@ public:
 	//
 	bool put(const key_t key, value_t object)
 	{
-		const uint32 code = get_hash(key);
+		const STHT_BAG_COUNTER_T code = get_hash(key);
 		slist_iterator_tpl<node_t> iter(bags[code]);
 
 		//
@@ -127,7 +107,7 @@ public:
 	//
 	value_t set(const key_t key, value_t object)
 	{
-		const uint32 code = get_hash(key);
+		const STHT_BAG_COUNTER_T code = get_hash(key);
 
 		slist_iterator_tpl<node_t> iter(bags[code]);
 
@@ -155,7 +135,7 @@ public:
 	//
 	value_t remove(const key_t key)
 	{
-		const uint32 code = get_hash(key);
+		const STHT_BAG_COUNTER_T code = get_hash(key);
 		slist_iterator_tpl<node_t> iter(bags[code]);
 
 		while(iter.next()) {
@@ -171,10 +151,10 @@ public:
 
 	void dump_stats()
 	{
-		for(int i = 0; i < STHT_BAGSIZE; i++) {
-			int count = bags[i].count();
+		for(STHT_BAG_COUNTER_T i = 0; i < STHT_BAGSIZE; i++) {
+			uint32 count = bags[i].count();
 
-			printf("Bag %d contains %d elements\n", i, count);
+			printf("Bag %d contains %ud elements\n", i, count);
 
 			slist_iterator_tpl<node_t> iter ( bags[i] );
 
@@ -187,10 +167,10 @@ public:
 		}
 	}
 
-	int count() const
+	uint32 count() const
 	{
-		int count = 0;
-		for(int i = 0; i < STHT_BAGSIZE; i++) {
+		uint32 count = 0;
+		for(STHT_BAG_COUNTER_T i = 0; i < STHT_BAGSIZE; i++) {
 			count += bags[i].count();
 		}
 		return count;
@@ -198,8 +178,10 @@ public:
 
 	bool empty() const
 	{
-		for (int i = 0; i < STHT_BAGSIZE; i++) {
-			if (!bags[i].empty()) return false;
+		for (STHT_BAG_COUNTER_T i = 0; i < STHT_BAGSIZE; i++) {
+			if (!bags[i].empty()) {
+				return false;
+			}
 		}
 		return true;
 	}
@@ -214,7 +196,7 @@ class hashtable_iterator_tpl {
 	const slist_tpl < typename hashtable_tpl<key_t, value_t, hash_t>::node_t> *bags;
 	slist_iterator_tpl < typename hashtable_tpl<key_t, value_t, hash_t>::node_t> bag_iter;
 
-	int current_bag;
+	STHT_BAG_COUNTER_T current_bag;
 public:
 	hashtable_iterator_tpl(const hashtable_tpl<key_t, value_t, hash_t> *hashtable) :
 			bag_iter(hashtable->bags)
