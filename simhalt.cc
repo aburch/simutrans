@@ -981,9 +981,9 @@ struct HNode {
  * same route back
  *
  * if USE_ROUTE_SLIST_TPL is defined, the list template will be used.
- * However, this is about 15% slower.
+ * However, this is about 50% slower.
  *
- * @author Hj. Malthaner
+ * @author Hj. Malthaner/prissi/gerw
  */
 void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 {
@@ -1048,8 +1048,8 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 #ifdef USE_ROUTE_SLIST_TPL
 	slist_tpl<HNode *> queue;
 #else
-	// manual list
-	HNode *route_start, *route_tail;
+	// we need just need to know the current bottom of the list with respect to the nodes array
+	sint32 bottom_of_the_list = 0;
 #endif
 	sint32 step = 1;
 	HNode *tmp;
@@ -1060,9 +1060,6 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 #ifdef USE_ROUTE_SLIST_TPL
 	queue.insert( &nodes[0] );	// init queue mit erstem feld
-#else
-	nodes[0].next = NULL;
-	route_start = route_tail = nodes;
 #endif
 	self->marke = current_mark;
 
@@ -1071,11 +1068,7 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 #ifdef USE_ROUTE_SLIST_TPL
 		tmp = queue.remove_first();
 #else
-		tmp = route_start;
-		route_start = route_start->next;
-		if(  route_start == NULL  ) {
-			route_tail = NULL;
-		}
+		tmp = &nodes[bottom_of_the_list++];
 #endif
 
 		const halthandle_t halt = tmp->halt;
@@ -1103,15 +1096,6 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 #ifdef USE_ROUTE_SLIST_TPL
 					queue.append( node );
-#else
-					node->next = NULL;
-					if(route_tail==NULL) {
-						route_start = node;
-					}
-					else {
-						route_tail->next = node;
-					}
-					route_tail = node;
 #endif
 					// betretene Haltestellen markieren
 					tmp_halt->marke = current_mark;
@@ -1122,7 +1106,7 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 #ifdef USE_ROUTE_SLIST_TPL
 	} while (!queue.empty() && step < welt->get_einstellungen()->get_max_hops());
 #else
-	} while(  route_start!=NULL  &&  step<max_hops  );
+	} while(  bottom_of_the_list < step  &&  step < max_hops  );
 #endif
 
 	// if the loop ends, nothing was found

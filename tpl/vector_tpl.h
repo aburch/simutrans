@@ -20,7 +20,10 @@ template<class T> class vector_tpl
 
 		/** Construct a vector for cap elements */
 		vector_tpl() : data(NULL), size(0), count(0) {}
-		explicit vector_tpl(uint32 cap) : data(cap > 0 ? new T[cap] : NULL), size(cap), count(0) {}
+		explicit vector_tpl(const uint32 cap) :
+			data(cap > 0 ? new T[cap] : NULL),
+			size(cap),
+			count(0) {}
 
 		~vector_tpl() { delete [] data; }
 
@@ -31,7 +34,7 @@ template<class T> class vector_tpl
 		 * Resizes the maximum data that can be hold by this vector.
 		 * Existing entries are preserved, new_size must be big enough to hold them
 		 */
-		void resize(uint32 new_size)
+		void resize(const uint32 new_size)
 		{
 			if (new_size <= size) return; // do nothing
 
@@ -50,7 +53,7 @@ template<class T> class vector_tpl
 		 * Checks if element elem is contained in vector.
 		 * Uses the == operator for comparison.
 		 */
-		bool is_contained(T elem) const
+		bool is_contained(const T& elem) const
 		{
 			for (uint32 i = 0; i < count; i++) {
 				if (data[i] == elem) {
@@ -64,7 +67,7 @@ template<class T> class vector_tpl
 		 * Checks if element elem is contained in vector.
 		 * Uses the == operator for comparison.
 		 */
-		uint32 index_of(T elem) const
+		uint32 index_of(const T& elem) const
 		{
 			for (uint32 i = 0; i < count; i++) {
 				if (data[i] == elem) {
@@ -87,7 +90,7 @@ template<class T> class vector_tpl
 		 * Checks if element is contained. Appends only new elements.
 		 * extend vector if nessesary
 		 */
-		bool push_back_unique(T elem)
+		bool push_back_unique(const T& elem)
 		{
 			if (is_contained(elem)) {
 				return false;
@@ -97,7 +100,7 @@ template<class T> class vector_tpl
 		}
 
 		/** removes element, if contained */
-		void remove(T elem)
+		void remove(const T& elem)
 		{
 			uint32 i, j;
 			for (i = j = 0; i < count; i++, j++) {
@@ -114,7 +117,7 @@ template<class T> class vector_tpl
 		}
 
 		/** insets data at a certain pos */
-		void insert_at(uint32 pos, T elem)
+		void insert_at(const uint32 pos, const T& elem)
 		{
 			if (pos < count) {
 				if (count == size) {
@@ -135,7 +138,7 @@ template<class T> class vector_tpl
  		 * BEWARE: using this function will create default objects, depending on
 		 * the type of the vector
 		 */
-		void store_at(uint32 pos, T elem)
+		void store_at(const uint32 pos, const T& elem)
 		{
 			if (pos >= size) {
 				resize((pos & 0xFFFFFFF7) + 8);
@@ -147,7 +150,7 @@ template<class T> class vector_tpl
 		}
 
 		/** removes element at position */
-		void remove_at(uint32 pos)
+		void remove_at(const uint32 pos)
 		{
 			assert(pos<count);
 			for (uint i = pos; i < count - 1; i++) {

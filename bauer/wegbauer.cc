@@ -2107,7 +2107,6 @@ wegbauer_t::baue_fluss()
 			ribi_t::ribi ribi = calc_ribi(i);
 			bool extend = gr->weg_erweitern(water_wt, ribi);
 			if(  !extend  ) {
-				assert(i!=start_n);
 				weg_t *sch=weg_t::alloc(water_wt);
 				sch->set_besch(besch);
 				gr->neuen_weg_bauen(sch, ribi, NULL);

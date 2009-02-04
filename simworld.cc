@@ -2150,13 +2150,9 @@ karte_t::sync_step(long delta_t, bool sync, bool display )
 		ticks += delta_t;
 
 		// ingore calls by interrupt during fast forward ...
-		if (!sync_add_list.empty()) {
-			slist_iterator_tpl<sync_steppable *> iter (sync_add_list);
-			while(iter.next()) {
-				sync_steppable *ss = iter.get_current();
-				sync_list.put( ss, ss );
-			}
-			sync_add_list.clear();
+		while(!sync_add_list.empty()) {
+			sync_steppable *ss = sync_add_list.remove_first();
+			sync_list.put( ss, ss );
 		}
 
 		ptrhashtable_iterator_tpl<sync_steppable*,sync_steppable*> iter (sync_list);
@@ -2306,7 +2302,7 @@ void karte_t::neuer_monat()
 	if(letzter_monat>11) {
 		letzter_monat = 0;
 	}
-	DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
+	DBG_MESSAGE("karte_t::neuer_monat()","Month (%d/%d) has started", (letzter_monat%12)+1, letzter_monat/12 );
 	DBG_MESSAGE("karte_t::neuer_monat()","sync_step %u objects", sync_list.count() );
 
 	// this should be done before a map update, since the map may want an update of the way usage
