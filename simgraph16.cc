@@ -2276,7 +2276,7 @@ void display_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const PLAYE
  * the area of this image need update
  * @author Hj. Malthaner
  */
-void display_mark_img_dirty(unsigned bild, int xp, int yp)
+void display_mark_img_dirty(unsigned bild, KOORD_VAL xp, KOORD_VAL yp)
 {
 	if (bild < anz_images) {
 		mark_rect_dirty_wc(

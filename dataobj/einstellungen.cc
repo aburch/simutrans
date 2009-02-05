@@ -56,6 +56,7 @@ einstellungen_t::einstellungen_t() :
 	allow_player_change = true;
 	use_timeline = 2;
 	starting_year = 1930;
+	starting_month = 0;
 	bits_per_month = 18;
 
 	beginner_mode = false;
@@ -440,6 +441,8 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_bool( seperate_halt_capacities, "" );
 			file->rdwr_byte( pay_for_total_distance, "" );
 
+			file->rdwr_short(starting_month, "");
+
 			file->rdwr_short( river_number, "" );
 			file->rdwr_short( min_river_length, "" );
 			file->rdwr_short( max_river_length, "" );
@@ -528,6 +531,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	bits_per_month = contents.get_int("bits_per_month", bits_per_month);
 	use_timeline = contents.get_int("use_timeline", use_timeline);
 	starting_year = contents.get_int("starting_year", starting_year);
+	starting_month = contents.get_int("starting_month", starting_month+1)-1;
 
 	const char *str = ltrim(contents.get("city_road_type"));
 	if(str[0]>0) {
