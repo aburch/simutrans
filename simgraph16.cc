@@ -1291,9 +1291,7 @@ void register_image(struct bild_t* bild)
 
 	// allocate and copy if needed
 	image->recode_flags = FLAG_NORMAL_RECODE | FLAG_REZOOM | (bild->zoomable & FLAG_ZOOMABLE);
-#ifdef NEED_PLAYER_RECODE
 	image->player_flags = NEED_PLAYER_RECODE;
-#endif
 
 	image->base_data = NULL;
 	image->zoom_data = NULL;
@@ -1941,25 +1939,26 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 			rezoom_img(n);
 		}
 
-		{
-			// first test, if there is a cached version (or we can built one ... )
-			const unsigned char player_flag = images[n].player_flags&0x7F;
-			if ((daynight  ||  night_shift==0)  &&  (player_flag==0  ||  player_flag == player_nr)  ) {
-				if (images[n].player_flags==128  ||  player_flag==0) {
-					recode_color_img(n, player_nr);
-				}
+		if(  daynight  ||  night_shift==0  ) {
+			// Hajo: since the colors for player 0 are already right,
+			// only use the expensive replacement routine for colored images
+			// of other players
+			if(  player_nr==0  ||  (images[n].recode_flags & FLAG_PLAYERCOLOR)==0  ) {
+				display_img_aux(n, xp, yp, dirty, false);
+				return;
+			}
+
+			// first test, if we can/need to build a cached version
+			if(  images[n].player_flags&(~NEED_PLAYER_RECODE)==0  ) {
+				// we can still recoler if needed
+				recode_color_img(n, player_nr);
+			}
+			// ok, there is a cached version
+			if(  images[n].player_flags&(~NEED_PLAYER_RECODE) == player_nr  ) {
 				// ok, now we could use the same faster code as for the normal images
 				display_img_aux(n, xp, yp, dirty, true);
 				return;
 			}
-		}
-
-		// Hajo: since the colors for player 0 are already right,
-		// only use the expensive replacement routine for colored images
-		// of other players
-		if ((daynight  ||  night_shift==0)  &&  (player_nr<=0  ||  (images[n].recode_flags & FLAG_PLAYERCOLOR)==0)) {
-			display_img_aux(n, xp, yp, dirty, false);
-			return;
 		}
 
 		// prissi: now test if visible and clipping needed
