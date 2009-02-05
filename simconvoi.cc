@@ -2222,10 +2222,21 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 		koord zv = koord( ribi_t::rueckwaerts(fahr[0]->get_fahrtrichtung()) );
 		koord3d pos = fahr[0]->get_pos();
 		const grund_t *grund = welt->lookup(pos);
+		if(  grund->get_weg_yoff()==TILE_HEIGHT_STEP  ) {
+			// start on bridge?
+			pos.z += Z_TILE_STEP;
+		}
 		while(  grund  &&  grund->get_halt() == halt  ) {
 			station_lenght += TILE_STEPS;
 			pos += zv;
 			grund = welt->lookup(pos);
+			if(  grund==NULL  ) {
+				grund = welt->lookup(pos-koord3d(0,0,Z_TILE_STEP));
+				if(  grund &&  grund->get_weg_yoff()!=TILE_HEIGHT_STEP  ) {
+					// not end/start of bridge
+					break;
+				}
+			}
 		}
 	}
 

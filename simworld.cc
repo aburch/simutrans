@@ -915,7 +915,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 		// Hajo: connect some cities with roads
 		const weg_besch_t* besch = umgebung_t::intercity_road_type ? wegbauer_t::get_besch(umgebung_t::intercity_road_type) : NULL;
 		if(besch == 0) {
-			dbg->warning("karte_t::init()", "road type '%s' not found", (const char*)*umgebung_t::intercity_road_type);
+			dbg->warning("karte_t::init()", "road type '%s' not found", umgebung_t::intercity_road_type);
 			// Hajo: try some default (might happen with timeline ... )
 			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
 		}
@@ -2163,13 +2163,9 @@ karte_t::sync_step(long delta_t, bool sync, bool display )
 		ticks += delta_t;
 
 		// ingore calls by interrupt during fast forward ...
-		if (!sync_add_list.empty()) {
-			slist_iterator_tpl<sync_steppable *> iter (sync_add_list);
-			while(iter.next()) {
-				sync_steppable *ss = iter.get_current();
-				sync_list.put( ss, ss );
-			}
-			sync_add_list.clear();
+		while(!sync_add_list.empty()) {
+			sync_steppable *ss = sync_add_list.remove_first();
+			sync_list.put( ss, ss );
 		}
 
 		ptrhashtable_iterator_tpl<sync_steppable*,sync_steppable*> iter (sync_list);
@@ -2319,7 +2315,7 @@ void karte_t::neuer_monat()
 	if(letzter_monat>11) {
 		letzter_monat = 0;
 	}
-	DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
+	DBG_MESSAGE("karte_t::neuer_monat()","Month (%d/%d) has started", (letzter_monat%12)+1, letzter_monat/12 );
 	DBG_MESSAGE("karte_t::neuer_monat()","sync_step %u objects", sync_list.count() );
 
 	// this should be done before a map update, since the map may want an update of the way usage

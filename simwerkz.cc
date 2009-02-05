@@ -605,6 +605,7 @@ DBG_MESSAGE("wkz_remover()", "removing ground");
 		plan->get_kartenboden()->clear_flag(grund_t::marked);
 		// remove upper or lower ground
 		plan->boden_entfernen(gr);
+		delete gr;
 	}
 
 	return true;
@@ -1807,6 +1808,7 @@ DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.get_max_n()
 							gr->obj_loesche_alle(sp);
 							// delete tunnel ground too, if empty
 							welt->access(gr->get_pos().get_2d())->boden_entfernen(gr);
+							delete gr;
 						}
 					}
 					else {
@@ -1981,10 +1983,10 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 						halt = pl->get_halt();
 						for(  uint b=0;  b<pl->get_boden_count();  b++  ) {
 							grund_t *gr = pl->get_boden_bei(b);
-							if(  gr->is_halt()  &&  gr->hat_wege()  ) {
+							if(  gr->is_halt()  ) {
 								neighbour_halt_w ++;
 								gebaeude_t *gb = gr->find<gebaeude_t>();
-								if(  gb  &&  gb->get_tile()->get_besch()->get_extra()==besch->get_extra()  ) {
+								if(  gr->hat_wege()  &&  gb  &&  gb->get_tile()->get_besch()->get_extra()==besch->get_extra()  ) {
 									best_halt_w ++;
 								}
 							}
@@ -1995,10 +1997,10 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 						halt = pl->get_halt();
 						for(  uint b=0;  b<pl->get_boden_count();  b++  ) {
 							grund_t *gr = pl->get_boden_bei(b);
-							if(  gr->is_halt()  &&  gr->hat_wege()  ) {
+							if(  gr->is_halt()  ) {
 								neighbour_halt_e ++;
 								gebaeude_t *gb = gr->find<gebaeude_t>();
-								if(  gb  &&  gb->get_tile()->get_besch()->get_extra()==besch->get_extra()  ) {
+								if(  gr->hat_wege()  &&  gb  &&  gb->get_tile()->get_besch()->get_extra()==besch->get_extra()  ) {
 									best_halt_e ++;
 								}
 							}
@@ -2013,10 +2015,10 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 						halt = pl->get_halt();
 						for(  uint b=0;  b<pl->get_boden_count();  b++  ) {
 							grund_t *gr = pl->get_boden_bei(b);
-							if(  gr->is_halt()  &&  gr->hat_wege()  ) {
+							if(  gr->is_halt()  ) {
 								neighbour_halt_n ++;
 								gebaeude_t *gb = gr->find<gebaeude_t>();
-								if(  gb  &&  gb->get_tile()->get_besch()->get_extra()==besch->get_extra()  ) {
+								if(  gr->hat_wege()  &&  gb  &&  gb->get_tile()->get_besch()->get_extra()==besch->get_extra()  ) {
 									best_halt_n ++;
 								}
 							}
@@ -2027,10 +2029,10 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 						halt = pl->get_halt();
 						for(  uint b=0;  b<pl->get_boden_count();  b++  ) {
 							grund_t *gr = pl->get_boden_bei(b);
-							if(  gr->is_halt()  &&  gr->hat_wege()  ) {
+							if(  gr->is_halt()  ) {
 								neighbour_halt_s ++;
 								gebaeude_t *gb = gr->find<gebaeude_t>();
-								if(  gb  &&  gb->get_tile()->get_besch()->get_extra()==besch->get_extra()  ) {
+								if(  gr->hat_wege()  &&  gb  &&  gb->get_tile()->get_besch()->get_extra()==besch->get_extra()  ) {
 									best_halt_s ++;
 								}
 							}
