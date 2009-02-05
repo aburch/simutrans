@@ -97,13 +97,22 @@ void fabrik_t::unlink_halt(halthandle_t halt)
 }
 
 
+
 void
 fabrik_t::add_lieferziel(koord ziel)
 {
-	lieferziele.push_back_unique(ziel);
-	fabrik_t * fab = fabrik_t::get_fab(welt, ziel);
-	if (fab) {
-		fab->add_supplier(get_pos().get_2d());
+	if(  !lieferziele.is_contained(ziel)  ) {
+		// we want them sorted ...
+		uint32 i=0;
+		while(  i<lieferziele.get_count()  &&  abs_distance(pos.get_2d(),ziel)>abs_distance(pos.get_2d(),lieferziele[i])  ) {
+			i++;
+		}
+		lieferziele.insert_at( i, ziel );
+		// now tell factory too
+		fabrik_t * fab = fabrik_t::get_fab(welt, ziel);
+		if (fab) {
+			fab->add_supplier(get_pos().get_2d());
+		}
 	}
 }
 
@@ -1432,9 +1441,16 @@ void fabrik_t::rotate90( const sint16 y_size )
 
 
 void
-fabrik_t::add_supplier(koord pos)
+fabrik_t::add_supplier(koord ziel)
 {
-	suppliers.push_back_unique(pos);
+	if(  !suppliers.is_contained(ziel)  ) {
+		// we want them sorted ...
+		uint32 i=0;
+		while(  i<suppliers.get_count()  &&  abs_distance(pos.get_2d(),ziel)>abs_distance(pos.get_2d(),suppliers[i])  ) {
+			i++;
+		}
+		suppliers.insert_at( i, ziel );
+	}
 }
 
 
