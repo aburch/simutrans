@@ -156,13 +156,13 @@ public:
 	enum platzierung {Land, Wasser, Stadt};
 
 private:
-	enum platzierung platzierung;
-	uint16 produktivitaet;
-	uint16 bereich;
-	uint16 gewichtung;	// Wie wahrscheinlich soll der Bau sein?
-	uint8 kennfarbe;
-	uint16 lieferanten;
-	uint16 produkte;
+	enum platzierung platzierung; //"placement" (Babelfish)
+	uint16 produktivitaet; //"productivity" (Babelfish)
+	uint16 bereich; //"range" (Babelfish)
+	uint16 gewichtung;	// Wie wahrscheinlich soll der Bau sein? ("How likely will the building be?" (Google)). 
+	uint8 kennfarbe; //"identification colour code" (Babelfish)
+	uint16 lieferanten; //"supplier" (Babelfish)
+	uint16 produkte; //"products" (Babelfish)
 	uint8 fields;	// only if there are any ...
 	uint16 pax_level;
 	bool electricity_producer;

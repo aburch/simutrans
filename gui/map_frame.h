@@ -25,6 +25,7 @@ class karte_t;
 
 /**
  * Reliefkartenfenster für Simutrans.
+ * Relief map window for Simutrans. (Babelfish)
  *
  * @author Hj. Malthaner
  * @date 03-Mar-01

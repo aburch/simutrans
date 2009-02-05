@@ -88,7 +88,7 @@ public:
 	#define MAX_WORLD_HISTORY_YEARS  (12) // number of years to keep history
 	#define MAX_WORLD_HISTORY_MONTHS  (12) // number of months to keep history
 
-	bool get_is_shutting_down() { return is_shutting_down; }
+	bool get_is_shutting_down() const { return is_shutting_down; }
 
 	// City cars that are not assigned to a particular city are stored in this list.
 	// @author:jamespetts

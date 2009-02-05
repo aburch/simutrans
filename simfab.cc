@@ -189,6 +189,28 @@ fabrik_t::~fabrik_t()
 		plan->boden_ersetzen( gr, new boden_t( welt, gr->get_pos(), hang_t::flach ) );
 		plan->get_kartenboden()->calc_bild();
 	}
+
+	//Disconnect this factory from all chains.
+	//@author: jamespetts
+	uint32 number_of_customers = lieferziele.get_count();
+	uint32 number_of_suppliers = suppliers.get_count();
+
+	if (!welt->get_is_shutting_down())
+	{
+		char buf[192];
+		uint16 jobs =  besch->get_pax_level();
+		sprintf(buf, translator::translate("Industry: %s has closed down, with the loss of %d jobs. %d upstream suppliers and %d downstream customers are affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
+		welt->get_message()->add_message(buf, pos.get_2d(),message_t::general,COL_RED,skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
+		for(sint32 i = number_of_customers - 1; i >= 0; i --)
+		{
+			get_fab(welt, lieferziele[i])->rem_lieferziel(pos.get_2d());
+		}
+
+		for(sint32 i = number_of_suppliers - 1; i >= 0; i --)
+		{
+			get_fab(welt, suppliers[i])->rem_supplier(pos.get_2d());
+		}
+	}
 }
 
 

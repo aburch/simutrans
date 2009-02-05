@@ -176,14 +176,14 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(version == 2) {
 		// Versioned node, version 2
-		besch->platzierung = (enum fabrik_besch_t::platzierung)decode_uint16(p);
-		besch->produktivitaet = decode_uint16(p);
-		besch->bereich = decode_uint16(p);
-		besch->gewichtung = decode_uint16(p);
-		besch->kennfarbe = decode_uint8(p);
-		besch->fields = decode_uint8(p);
-		besch->lieferanten = decode_uint16(p);
-		besch->produkte = decode_uint16(p);
+		besch->platzierung = (enum fabrik_besch_t::platzierung)decode_uint16(p); //"placement" (Babelfish)
+		besch->produktivitaet = decode_uint16(p); //"productivity" (Babelfish)
+		besch->bereich = decode_uint16(p); //"range" (Babelfish)
+		besch->gewichtung = decode_uint16(p); //"weighting" (Babelfish)
+		besch->kennfarbe = decode_uint8(p); //"identification colour code" (Babelfish)
+		besch->fields = decode_uint8(p); //"fields" (Babelfish)
+		besch->lieferanten = decode_uint16(p); //"supplier" (Babelfish)
+		besch->produkte = decode_uint16(p); //"products" (Babelfish)
 		besch->pax_level = decode_uint16(p);
 		DBG_DEBUG("factory_reader_t::read_node()","version=2, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level );
 	} else if(version == 1) {

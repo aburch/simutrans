@@ -107,7 +107,7 @@ private:
 	 */
 	slist_tpl<stadt_t *> arbeiterziele;
 
-	spieler_t *besitzer_p;
+	spieler_t *besitzer_p; //"possessive" (Google)
 	karte_t *welt;
 
 	const fabrik_besch_t *besch;
@@ -133,8 +133,8 @@ private:
 	 */
 	sint32 prodfaktor;
 
-	vector_tpl<ware_production_t> eingang; //< das einganslagerfeld
-	vector_tpl<ware_production_t> ausgang; //< das ausgangslagerfeld
+	vector_tpl<ware_production_t> eingang; //< das einganslagerfeld ("in goose camp field" (!!) (Babelfish)
+	vector_tpl<ware_production_t> ausgang; //< das ausgangslagerfeld ("the output camp field") (Babelfish)
 
 	/**
 	 * Zeitakkumulator für Produktion
