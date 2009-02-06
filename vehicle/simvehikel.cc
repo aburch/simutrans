@@ -734,7 +734,8 @@ vehikel_t::unload_freight(halthandle_t halt)
 					//			   halt->get_name());
 
 					// hier sollte nur ordentliche ware verabeitet werden
-					int menge = halt->liefere_an(tmp);
+					// "here only tidy commodity should be processed" (Babelfish)
+					int menge = halt->liefere_an(tmp); //"supply" (Babelfish)
 					sum_menge += menge;
 
 					// book delivered goods to destination
