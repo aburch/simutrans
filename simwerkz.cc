@@ -1620,6 +1620,7 @@ const char *wkz_tunnelbau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 		}
 		else {
 			// we have a start, now just try to built it ...
+			wkz_tunnelbau_bauer->mark_image_dirty( wkz_tunnelbau_bauer->get_bild(), 0 );
 			delete wkz_tunnelbau_bauer;
 			wkz_tunnelbau_bauer = NULL;
 
@@ -1911,6 +1912,7 @@ const char *wkz_wayobj_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		DBG_MESSAGE("wkz_wayremover()", "Setting end to %d,%d,%d",gr->get_pos().x, gr->get_pos().y,gr->get_pos().z);
 
 		// remove marker
+		wkz_wayobj_bauer->mark_image_dirty( skinverwaltung_t::bauigelsymbol->get_bild_nr(0), 0 );
 		delete wkz_wayobj_bauer ;
 		wkz_wayobj_bauer = NULL;
 		erster = true;

@@ -65,6 +65,7 @@ private:
 	uint8 allow_player_change;
 	uint8 use_timeline;
 	sint16 starting_year;
+	sint16 starting_month;
 	sint16 bits_per_month;
 
 	cstring_t filename;
@@ -308,6 +309,8 @@ public:
 
 	void set_starting_year(short n) {starting_year=n;}	// prissi, Oct-2005
 	short get_starting_year() const {return starting_year;}
+
+	short get_starting_month() const {return starting_month;}
 
 	void set_bits_per_month(short n) {bits_per_month=n;}	// prissi, Oct-2005
 	short get_bits_per_month() const {return bits_per_month;}

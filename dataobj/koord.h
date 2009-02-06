@@ -72,39 +72,39 @@ private:
 };
 
 
-static inline koord operator * (const koord& k, const sint16 m)
-{
-	return koord(k.x * m, k.y * m);
-}
-
-
-static inline koord operator / (const koord& k, const sint16 m)
-{
-	return koord(k.x / m, k.y / m);
-}
-
-
-static inline unsigned abs_distance(koord a, koord b)
+static inline unsigned abs_distance(const koord &a, const koord &b)
 {
 	return abs(a.x - b.x) + abs(a.y - b.y);
 }
 
 
-static inline bool operator == (const koord& a, const koord& b)
+static inline koord operator * (const koord &k, const sint16 m)
+{
+	return koord(k.x * m, k.y * m);
+}
+
+
+static inline koord operator / (const koord &k, const sint16 m)
+{
+	return koord(k.x / m, k.y / m);
+}
+
+
+static inline bool operator == (const koord &a, const koord &b)
 {
 	// only this works with O3 optimisation!
 	return ((a.x-b.x)|(a.y-b.y))==0;
 }
 
 
-static inline bool operator != (const koord & a, const koord & b)
+static inline bool operator != (const koord &a, const koord &b)
 {
 	// only this works with O3 optimisation!
 	return ((a.x-b.x)|(a.y-b.y))!=0;
 }
 
 
-static inline koord operator + (const koord& a, const koord& b)
+static inline koord operator + (const koord &a, const koord &b)
 {
 	return koord(a.x + b.x, a.y + b.y);
 }
@@ -114,13 +114,13 @@ static inline bool operator <= (const koord & a, const koord & b)
 	return (a.x == b.x) ? (a.y <= b.y) : (a.x < b.x);
 }
 
-static inline koord operator - (const koord& a, const koord& b)
+static inline koord operator - (const koord &a, const koord &b)
 {
 	return koord(a.x - b.x, a.y - b.y);
 }
 
 
-static inline koord operator - (const koord& a)
+static inline koord operator - (const koord &a)
 {
 	return koord(-a.x, -a.y);
 }

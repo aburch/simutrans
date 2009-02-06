@@ -298,6 +298,9 @@ use_timeline = 2
 #
 starting_year = 1930
 
+# Starting month of the game for people who want to start in summer (default 1=January)
+#starting_month = 6
+
 # Should month be shown in date? (0=no, 1=yes, 2>=show day in japan format=2, us format=3, german=4)
 # This is most useful, if you use longer months than the default length (see below)
 #

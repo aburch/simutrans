@@ -94,7 +94,7 @@ void display_get_base_image_offset( unsigned bild, KOORD_VAL *xoff, KOORD_VAL *y
 // zoomed offsets
 void display_get_image_offset( unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
 void display_get_base_image_offset( unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
-void display_mark_img_dirty( unsigned bild, int x, int y );
+void display_mark_img_dirty( unsigned bild, KOORD_VAL x, KOORD_VAL y );
 
 int get_maus_x(void);
 int get_maus_y(void);

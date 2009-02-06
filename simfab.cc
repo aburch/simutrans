@@ -97,13 +97,22 @@ void fabrik_t::unlink_halt(halthandle_t halt)
 }
 
 
+
 void
 fabrik_t::add_lieferziel(koord ziel)
 {
-	lieferziele.push_back_unique(ziel);
-	fabrik_t * fab = fabrik_t::get_fab(welt, ziel);
-	if (fab) {
-		fab->add_supplier(get_pos().get_2d());
+	if(  !lieferziele.is_contained(ziel)  ) {
+		// we want them sorted ...
+		uint32 i=0;
+		while(  i<lieferziele.get_count()  &&  abs_distance(pos.get_2d(),ziel)>abs_distance(pos.get_2d(),lieferziele[i])  ) {
+			i++;
+		}
+		lieferziele.insert_at( i, ziel );
+		// now tell factory too
+		fabrik_t * fab = fabrik_t::get_fab(welt, ziel);
+		if (fab) {
+			fab->add_supplier(get_pos().get_2d());
+		}
 	}
 }
 
@@ -125,6 +134,23 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	power = 0;
 
 	rdwr(file);
+
+	if(  !welt->ist_in_kartengrenzen(pos.get_2d())  ) {
+		dbg->error( "fabrik_t::baue()", "%s is not a valid position! (Will not be built!)", pos.get_str() );
+	}
+	else {
+		baue(rotate);
+		// now get rid of construction image
+		for(  sint16 y=0;  y<besch->get_haus()->get_h(rotate);  y++  ) {
+			for(  sint16 x=0;  x<besch->get_haus()->get_b(rotate);  x++  ) {
+				gebaeude_t *gb = welt->lookup_kartenboden( pos.get_2d()+koord(x,y) )->find<gebaeude_t>();
+				if(  gb  ) {
+					gb->add_alter(10000);
+				}
+			}
+		}
+	}
+
 
 	delta_sum = 0;
 	last_lieferziel_start = 0;
@@ -242,7 +268,7 @@ void fabrik_t::baue(sint32 rotate)
 		}
 	}
 	else {
-		dbg->error("fabrik_t::baue()", "Good pak not available!");
+		dbg->error("fabrik_t::baue()", "Bulding description not available!");
 	}
 }
 
@@ -576,15 +602,6 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 				k.rdwr(file);
 				fields.push_back(k);
 			}
-		}
-	}
-
-	if(file->is_loading()  &&  besch) {
-		if(  !welt->ist_in_kartengrenzen(pos.get_2d())  ) {
-			dbg->error( "fabrik_t::baue()", "%s is not a valid position! (Will not be built!)", pos.get_str() );
-		}
-		else {
-			baue(rotate);
 		}
 	}
 
@@ -1457,9 +1474,16 @@ void fabrik_t::rotate90( const sint16 y_size )
 
 
 void
-fabrik_t::add_supplier(koord pos)
+fabrik_t::add_supplier(koord ziel)
 {
-	suppliers.push_back_unique(pos);
+	if(  !suppliers.is_contained(ziel)  ) {
+		// we want them sorted ...
+		uint32 i=0;
+		while(  i<suppliers.get_count()  &&  abs_distance(pos.get_2d(),ziel)>abs_distance(pos.get_2d(),suppliers[i])  ) {
+			i++;
+		}
+		suppliers.insert_at( i, ziel );
+	}
 }
 
 

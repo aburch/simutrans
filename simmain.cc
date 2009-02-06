@@ -855,6 +855,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 					file.close();
 				}
 				destroy_all_win();
+				welt->step_month( umgebung_t::default_einstellungen.get_starting_month() );
 			} else if(wg->get_load()) {
 				destroy_win( magic_climate );
 				destroy_win( magic_sprachengui_t );

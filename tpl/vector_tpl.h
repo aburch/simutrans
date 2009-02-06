@@ -128,7 +128,8 @@ template<class T> class vector_tpl
 				}
 				data[pos] = elem;
 				count++;
-			} else {
+			}
+			else {
 				push_back(elem);
 			}
 		}
