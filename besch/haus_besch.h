@@ -63,11 +63,24 @@ public:
 		}
 		if(phase>0 && phase<phasen) {
 			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_child(0+2*season))->get_bild(hoehe, phase);
-			if (bild != NULL) return bild->get_nummer();
+			if (bild != NULL) {
+				return bild->get_nummer();
+			}
 		}
 		// here if this phase does not exists ...
 		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_child(0+2*season))->get_bild(hoehe, 0);
 		return bild != NULL ? bild->get_nummer() : IMG_LEER;
+	}
+
+	// returns true, if the background is animated
+	bool is_hintergrund_phases(int season) const
+	{
+		for(  uint8 phase=1;  phase<phasen;  phase++  ) {
+			if(  static_cast<const bildliste2d_besch_t *>(get_child(0+2*season))->get_bild(0, phase)  ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	image_id get_vordergrund(int phase,int season) const
@@ -77,7 +90,9 @@ public:
 		}
 		if(phase>0 && phase<phasen) {
 			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_child(1+2*season))->get_bild(0, phase);
-			if (bild != NULL) return bild->get_nummer();
+			if (bild != NULL) {
+				return bild->get_nummer();
+			}
 		}
 		// here if this phase does not exists ...
 		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_child(1+2*season))->get_bild(0, 0);
