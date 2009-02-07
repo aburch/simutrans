@@ -1,3 +1,6 @@
+Release of 102.0 (r231x)
+
+10-Feb-2009:
 	FIX: connect stops again to public player
 	FIX: marker had invalid position after loading a game => crash when adding new marker
 	FIX: again income messages even with very many convois
