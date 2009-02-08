@@ -305,10 +305,12 @@ bool gebaeude_t::sync_step(long delta_t)
 			if(!zeige_baugrube)  {
 
 				// old positions need redraw
-				image_id bild = get_bild(0);
-				if(bild!=IMG_LEER) {
+				if(  tile->is_hintergrund_phases( get_pos().z>=welt->get_snowline() )  ) {
+					// the background is animated
+					set_flag(ding_t::dirty);
+					// we must take care of the tiles above
 					for(int i=1;  ;  i++) {
-						bild = get_bild(i);
+						image_id bild = get_bild(i);
 						if(bild==IMG_LEER) {
 							break;
 						}
@@ -317,7 +319,10 @@ bool gebaeude_t::sync_step(long delta_t)
 				}
 				else {
 					// try foreground
-					bild = get_after_bild();
+					image_id bild = tile->get_vordergrund(count, get_pos().z>=welt->get_snowline());
+					mark_image_dirty(bild,0);
+					// next phase must be marked dirty too ...
+					bild = tile->get_vordergrund( count+1>=tile->get_phasen()?0:count+1, get_pos().z>=welt->get_snowline());
 					mark_image_dirty(bild,0);
 				}
 
@@ -327,7 +332,6 @@ bool gebaeude_t::sync_step(long delta_t)
 					count = 0;
 				}
 				// winter for buildings only above snowline
-				set_flag(ding_t::dirty);
 			}
 		}
 	}

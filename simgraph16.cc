@@ -576,11 +576,9 @@ int zoom_factor_down()
 static inline void mark_tile_dirty(const int x, const int y)
 {
 	const int bit = x + y * tiles_per_line;
-
 #if 0
 	assert(bit / 8 < tile_buffer_length);
 #endif
-
 	tile_dirty[bit >> 3] |= 1 << (bit & 7);
 }
 
