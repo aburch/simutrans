@@ -184,7 +184,14 @@ public:
 	}
 
 	bool has_diagonal_bild() const {
-		return static_cast<const bildliste_besch_t *>(get_child(4))->get_bild_nr(0)!=IMG_LEER;
+		if(  static_cast<const bildliste_besch_t *>(get_child(4))->get_bild(0)!=NULL  ) {
+			// has diagonal fontimage
+			return true;
+		}
+		if(  static_cast<const bildliste_besch_t *>(get_child(5))->get_bild(0)!=NULL  ) {
+			// or diagonal back image
+			return true;
+		}
 	}
 
 	/**

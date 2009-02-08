@@ -102,12 +102,7 @@ void
 fabrik_t::add_lieferziel(koord ziel)
 {
 	if(  !lieferziele.is_contained(ziel)  ) {
-		// we want them sorted ...
-		uint32 i=0;
-		while(  i<lieferziele.get_count()  &&  abs_distance(pos.get_2d(),ziel)>abs_distance(pos.get_2d(),lieferziele[i])  ) {
-			i++;
-		}
-		lieferziele.insert_at( i, ziel );
+		lieferziele.insert_ordered( ziel, RelativeDistanceOrdering(pos.get_2d()) );
 		// now tell factory too
 		fabrik_t * fab = fabrik_t::get_fab(welt, ziel);
 		if (fab) {
@@ -1589,14 +1584,7 @@ void fabrik_t::rotate90( const sint16 y_size )
 void
 fabrik_t::add_supplier(koord ziel)
 {
-	if(  !suppliers.is_contained(ziel)  ) {
-		// we want them sorted ...
-		uint32 i=0;
-		while(  i<suppliers.get_count()  &&  abs_distance(pos.get_2d(),ziel)>abs_distance(pos.get_2d(),suppliers[i])  ) {
-			i++;
-		}
-		suppliers.insert_at( i, ziel );
-	}
+	suppliers.insert_unique_ordered( ziel, RelativeDistanceOrdering(pos.get_2d()) );
 }
 
 

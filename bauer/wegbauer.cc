@@ -1412,7 +1412,7 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 			ok = (bd_von==NULL)  ||  bd_von->get_typ()==grund_t::tunnelboden;
 #ifdef ONLY_TUNNELS_BELOW_GROUND
 			// ground must be above tunnel
-			ok &= (bd_von->get_hoehe() > start.z);
+			ok &= (welt->lookup(pos)->get_kartenboden()->get_hoehe() > start.z);
 #endif
 			// check for halt or crossing ...
 			if(ok  &&  bd_von  &&  (bd_von->is_halt()  ||  bd_von->has_two_ways())) {

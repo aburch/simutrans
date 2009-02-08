@@ -90,13 +90,13 @@ void
 crossing_t::calc_bild()
 {
 	if(logic) {
-		uint8 zustand = logic->get_state();
-		// recalc bild each step ...
-		const bild_besch_t *a = besch->get_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0 );
-		after_bild = a ? a->get_nummer() : IMG_LEER;
-		const bild_besch_t *b = besch->get_bild( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0 );
-		bild = b ? b->get_nummer() : IMG_LEER;
+		zustand = logic->get_state();
 	}
+	// recalc bild each step ...
+	const bild_besch_t *a = besch->get_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0 );
+	after_bild = a ? a->get_nummer() : IMG_LEER;
+	const bild_besch_t *b = besch->get_bild( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0 );
+	bild = b ? b->get_nummer() : IMG_LEER;
 }
 
 
@@ -109,7 +109,7 @@ crossing_t::rdwr(loadsave_t *file)
 	ding_t::rdwr(file);
 
 	// variables ... attention, logic now in crossing_logic_t
-	uint8 zustand = logic==NULL ? crossing_logic_t::CROSSING_INVALID : logic->get_state();
+	zustand = logic==NULL ? crossing_logic_t::CROSSING_INVALID : logic->get_state();
 	file->rdwr_byte(zustand, " ");
 	file->rdwr_byte(ns, " ");
 	if(file->get_version()<99016) {
@@ -159,7 +159,7 @@ void crossing_t::laden_abschliessen()
 		weg_t *w2=gr->get_weg(besch->get_waytype(1));
 		w2->count_sign();
 		ns = ribi_t::ist_gerade_ns(w2->get_ribi_unmasked());
-			crossing_logic_t::add( welt, this, static_cast<crossing_logic_t::crossing_state_t>(zustand) );
+		crossing_logic_t::add( welt, this, static_cast<crossing_logic_t::crossing_state_t>(zustand) );
 		logic->recalc_state();
 	}
 }

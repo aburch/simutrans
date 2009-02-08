@@ -254,10 +254,35 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 			}
 		}
 DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_index );
-		// lines are still unknown during loading!
+		// lines have been still unknown during loading for old savegames!
 		if (line_id != INVALID_LINE_ID) {
 			// if a line is assigned, set line!
-			register_with_line(line_id);
+			linehandle_t new_line = besitzer_p->simlinemgmt.get_line_by_id(line_id);
+			if(  new_line.is_bound()  &&  !fpl->matches( welt, new_line->get_schedule() )  ) {
+				// 101 version produced broken line ids => we have to find our line the hard way ...
+				vector_tpl<linehandle_t> lines;
+				get_besitzer()->simlinemgmt.get_lines(fpl->get_type(), &lines);
+				new_line = linehandle_t();
+				for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; i++) {
+					linehandle_t l = *i;
+					if(  fpl->matches( welt, l->get_schedule() )  ) {
+						// if a line is assigned, set line!
+						new_line = l;
+						break;
+					}
+				}
+			}
+			// now the line should match our schedule or else ...
+			if(new_line.is_bound()) {
+				line = new_line;
+				line_id = new_line->get_line_id();
+				line->add_convoy(self);
+				DBG_DEBUG("convoi_t::register_with_line()","%s registers for %d", name_and_id, line_id);
+			}
+			else {
+				line_id = INVALID_LINE_ID;
+				line = linehandle_t();
+			}
 		}
 	}
 	else {
@@ -2431,27 +2456,6 @@ void convoi_t::set_line(linehandle_t org_line)
 	line->add_convoy(self);
 }
 
-/**
-* register_with_line
-* sets the convoi's line by using the line_id, rather than the line object
-* CAUTION: THIS CALL WILL NOT SET A NEW FAHRPLAN!!! IT WILL JUST REGISTER THE CONVOI WITH THE LINE
-* @author hsiegeln
-*/
-void convoi_t::register_with_line(uint16 id)
-{
-	DBG_DEBUG("convoi_t::register_with_line()","%s registers for %d", name_and_id, id);
-
-	linehandle_t new_line = besitzer_p->simlinemgmt.get_line_by_id(id);
-	if(new_line.is_bound()) {
-		line = new_line;
-		line_id = new_line->get_line_id();
-		line->add_convoy(self);
-	}
-	else {
-		line_id = INVALID_LINE_ID;
-		line = linehandle_t();
-	}
-}
 
 
 

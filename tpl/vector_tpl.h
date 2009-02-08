@@ -135,6 +135,45 @@ template<class T> class vector_tpl
 		}
 
 		/**
+		 * Insert `elem' with respect to ordering.
+		 */
+		template<class StrictWeakOrdering>
+		void
+		insert_ordered(const T& elem, StrictWeakOrdering comp)
+		{
+			uint32 i = 0;
+			for(  ; i < count; ++i  ) {
+				/* We are past `elem'.  Insert here. */
+				if(  comp(elem, (*this)[i])  )
+					break;
+			}
+
+			insert_at(i, elem);
+		}
+
+		/**
+		 * Only insert `elem' if not already contained in this vector.
+		 * Respects the ordering and assumes the vector is ordered.
+		 */
+		template<class StrictWeakOrdering>
+		void
+		insert_unique_ordered(const T& elem, StrictWeakOrdering comp)
+		{
+			uint32 i = 0;
+			for(  ; i < count; ++i  ) {
+				const T& here = (*this)[i];
+
+				/* We are past `elem'.  Insert here. */
+				if(  comp(elem, here)  )
+					break;
+				if(  here == elem  )
+					return;
+			}
+
+			insert_at(i, elem);
+		}
+
+		/**
 		 * put the data at a certain position
  		 * BEWARE: using this function will create default objects, depending on
 		 * the type of the vector

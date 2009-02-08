@@ -125,4 +125,25 @@ static inline koord operator - (const koord &a)
 	return koord(-a.x, -a.y);
 }
 
+/**
+ * Ordering based on relative distance to a fixed point `origin'.
+ */
+class RelativeDistanceOrdering
+{
+private:
+	const koord m_origin;
+public:
+	RelativeDistanceOrdering(const koord& origin)
+		: m_origin(origin)
+	{ /* nothing */ }
+
+	/**
+	 * Returns true if `a' is closer to the origin than `b', otherwise false.
+	 */
+	bool operator()(const koord& a, const koord& b) const
+	{
+		return abs_distance(m_origin, a) < abs_distance(m_origin, b);
+	}
+};
+
 #endif

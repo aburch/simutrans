@@ -190,31 +190,31 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
 		if(!welt->ist_in_kartengrenzen(pos.get_2d())) {
 			return koord3d::invalid;
 		}
-		gr = welt->lookup(pos);
 
 #ifdef ONLY_TUNNELS_BELOW_GROUND
 		// check if ground is below tunnel level
 		gr = welt->lookup(pos.get_2d())->get_kartenboden();
-		if (gr->get_hoehe() < pos.z ){
-				return koord3d::invalid;
+		if(  gr->get_hoehe() < pos.z  ){
+			return koord3d::invalid;
 		}
 #endif
 
+		gr = welt->lookup(pos);
 		if(gr) {
-			if(gr->get_typ()!=grund_t::boden) {
-				// must end on boden_t and nowhere else ...
+			if(  gr->get_typ() != grund_t::boden  ||  gr->get_grund_hang() != hang_typ(-zv)  ) {
+				// must end on boden_t and correct slope
 				return koord3d::invalid;
 			}
-			ribi_t::ribi ribi = gr->get_weg_ribi_unmasked(wegtyp);
 
-			if(ribi && koord(ribi) == zv) {
-				// Ende am Hang - Endschiene vorhanden
+			ribi_t::ribi ribi = gr->get_weg_ribi_unmasked(wegtyp);
+			if(  ribi && koord(ribi) == zv  ) {
+				// There is already a way (with correct ribi)
 				return pos;
 			}
-			if(!ribi && gr->get_grund_hang() == hang_typ(-zv)) {
+			if(  !ribi  ) {
 				// Ende am Hang - Endschiene fehlt oder hat keine ribis
 				// Wir prüfen noch, ob uns dort ein anderer Weg stört
-				if(!gr->hat_wege() || gr->hat_weg(wegtyp)) {
+				if(  !gr->hat_wege()  ||  gr->hat_weg(wegtyp)  ) {
 					return pos;
 				}
 			}
