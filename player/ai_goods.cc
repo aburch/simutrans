@@ -657,9 +657,14 @@ void ai_goods_t::step()
 			if(root==NULL) {
 				// find a tree root to complete
 				weighted_vector_tpl<fabrik_t *> start_fabs(20);
-				slist_iterator_tpl<fabrik_t *> fabiter( welt->get_fab_list() );
-				while(fabiter.next()) {
-					fabrik_t *fab = fabiter.get_current();
+				//slist_iterator_tpl<fabrik_t *> fabiter( welt->get_fab_list() );
+				//while(fabiter.next()) {
+				//vector_tpl<fabrik_t*> factories = welt->get_fab_list();
+				sint16 number_of_factories = welt->get_fab_list().get_count();
+				for(sint16 i = number_of_factories - 1; i >= 0; i --)
+				{
+					fabrik_t *fab = welt->get_fab_list()[i];
+					//fabrik_t *fab = fabiter.get_current();
 					// consumer and not completely overcrowded
 					if(fab->get_besch()->get_produkte()==0  &&  fab->get_status()!=fabrik_t::bad) {
 						int missing = get_factory_tree_missing_count( fab );

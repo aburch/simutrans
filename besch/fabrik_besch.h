@@ -93,9 +93,9 @@ private:
 
 public:
 	const ware_besch_t *get_ware() const { return static_cast<const ware_besch_t *>(get_child(0)); }
-	int get_kapazitaet() const { return kapazitaet; }
-	int get_anzahl() const { return anzahl; }
-	int get_verbrauch() const { return verbrauch; }
+	int get_kapazitaet() const { return kapazitaet; } //"capacity" (Babelfish)
+	int get_anzahl() const { return anzahl; } //"number" (Babelfish)
+	int get_verbrauch() const { return verbrauch; } //"consumption" (Babelfish)
 };
 
 
@@ -177,7 +177,7 @@ public:
 	const rauch_besch_t *get_rauch() const { return static_cast<const rauch_besch_t *>(get_child(1)); }
 
 	// we must take care, for the case of no producer/consumer
-	const fabrik_lieferant_besch_t *get_lieferant(int i) const
+	const fabrik_lieferant_besch_t *get_lieferant(int i) const //"supplier" (Babelfish)
 	{
 		return (i >= 0 && i < lieferanten) ? static_cast<const fabrik_lieferant_besch_t *>(get_child(2 + i)) : NULL;
 	}
@@ -190,18 +190,18 @@ public:
 		return static_cast<const field_besch_t *>(get_child(2 + lieferanten + produkte));
 	}
 
-	int get_lieferanten() const { return lieferanten; }
+	int get_lieferanten() const { return lieferanten; } //"supplier" (Babelfish)
 	uint get_produkte() const { return produkte; }
 
 	/* where to built */
 	enum platzierung get_platzierung() const { return platzierung; }
 	int get_gewichtung() const { return gewichtung;     }
 
-	uint8 get_kennfarbe() const { return kennfarbe; }
+	uint8 get_kennfarbe() const { return kennfarbe; } //"identification colour code" (Babelfish)
 
 	void set_produktivitaet(int p) { produktivitaet=p; }
 	int get_produktivitaet() const { return produktivitaet; }
-	int get_bereich() const { return bereich; }
+	int get_bereich() const { return bereich; } //"range" (Babelfish)
 
 	/* level for post and passenger generation */
 	int get_pax_level() const { return pax_level; }

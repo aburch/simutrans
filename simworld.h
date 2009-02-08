@@ -196,7 +196,8 @@ private:
 
 	vector_tpl<convoihandle_t> convoi_array;
 
-	slist_tpl<fabrik_t *> fab_list;
+	//slist_tpl<fabrik_t *> fab_list;
+	vector_tpl<fabrik_t *> fab_list;
 
 	weighted_vector_tpl<gebaeude_t *> ausflugsziele;
 
@@ -212,6 +213,7 @@ private:
 	
 	// The number of cars that should be in the world somewhere, but are not
 	// in any particular city's list.
+	//@author: jamespetts
 	sint16 outstanding_cars;
 
 	// word record of speed ...
@@ -289,7 +291,7 @@ private:
 	 * Die Spieler
 	 * @author Hj. Malthaner
 	 */
-	spieler_t *spieler[MAX_PLAYER_COUNT];                   // Mensch ist spieler Nr. 0
+	spieler_t *spieler[MAX_PLAYER_COUNT];                   // Mensch ist spieler Nr. 0 "Humans are player no. 0"
 	spieler_t	*active_player;
 	uint8 active_player_nr;
 
@@ -870,8 +872,8 @@ public:
 	bool add_fab(fabrik_t *fab);
 	bool rem_fab(fabrik_t *fab);
 	int get_fab_index(fabrik_t* fab) { return fab_list.index_of(fab); }
-	fabrik_t* get_fab(unsigned index) { return index < fab_list.count() ? fab_list.at(index) : NULL; }
-	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
+	fabrik_t* get_fab(unsigned index) { return index < fab_list.get_count() ? fab_list[index] : NULL; }
+	const vector_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
 	/* sucht zufaellig eine Fabrik aus der Fabrikliste
 	 * @author Hj. Malthaner

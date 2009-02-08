@@ -225,7 +225,7 @@ void hausbauer_t::neue_karte()
 
 
 
-void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
+void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebaeude = "building" (Babelfish)
 {
 	const haus_tile_besch_t *tile  = gb->get_tile();
 	const haus_besch_t *hb = tile->get_besch();

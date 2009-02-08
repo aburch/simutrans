@@ -591,11 +591,15 @@ reliefkarte_t::calc_map()
 
 	// since we do iterate the factory info list, this must be done here
 	if(mode==MAP_FACTORIES) {
-		slist_iterator_tpl <fabrik_t *> iter (welt->get_fab_list());
-		while(iter.next()) {
-			koord pos = iter.get_current()->get_pos().get_2d();
+		//slist_iterator_tpl <fabrik_t *> iter (welt->get_fab_list());
+		//vector_tpl <fabrik_t*> factories = welt->get_fab_list();
+		for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
+		{
+		//while(iter.next()) {
+			//koord pos = iter.get_current()->get_pos().get_2d();
+			koord pos = welt->get_fab_list()[i]->get_pos().get_2d();
 			set_relief_farbe_area( pos, 9, COL_BLACK );
-			set_relief_farbe_area( pos, 7, iter.get_current()->get_kennfarbe() );
+			set_relief_farbe_area( pos, 7, welt->get_fab_list()[i]->get_kennfarbe() );
 		}
 		return;
 	}

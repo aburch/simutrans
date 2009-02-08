@@ -1188,10 +1188,13 @@ void stadt_t::verbinde_fabriken()
 {
 	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "search factories near %s (center at %i,%i)", get_name(), pos.x, pos.y);
 
-	slist_iterator_tpl<fabrik_t*> fab_iter(welt->get_fab_list());
+	//slist_iterator_tpl<fabrik_t*> fab_iter(welt->get_fab_list());
 	arbeiterziele.clear();
-	while (fab_iter.next()) {
-		add_factory_arbeiterziel(fab_iter.get_current());
+	for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
+	{
+	//while (fab_iter.next()) {
+		//add_factory_arbeiterziel(fab_iter.get_current());
+		add_factory_arbeiterziel(welt->get_fab_list()[i]);
 	}
 	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "is connected with %i factories (sum_weight=%i).", arbeiterziele.get_count(), arbeiterziele.get_sum_weight());
 }
@@ -1359,7 +1362,8 @@ void stadt_t::neuer_monat() //"New month" (Google)
 		// everywhere will become completely clogged with traffic. Linear rather than logorithmic scaling so
 		// that the player can have a better idea visually of the amount of traffic.
 
-#ifdef DESTINATION_CITYCARS
+#define DESTINATION_CITYCARS
+#ifdef DESTINATION_CITYCARS 
 		// Subtract incoming trips and cars already generated to prevent double counting.
 		sint16 factor = city_history_month[1][HIST_CITYCARS] - incoming_private_cars - current_cars.count();
 		

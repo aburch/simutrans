@@ -123,6 +123,82 @@ fabrik_t::rem_lieferziel(koord ziel)
 	lieferziele.remove(ziel);
 }
 
+bool
+fabrik_t::disconnect_consumer(koord pos) //Returns true if must be destroyed.
+{
+	rem_lieferziel(pos);
+	if(lieferziele.get_count() < 1)
+	{
+		// If there are no consumers left, industry is orphaned.
+		// Reconnect or close.
+		bool is_orphaned = true;
+
+		//HACK: Avoid problematic code for the time being.
+		return true;
+		
+		//Attempt to reconnect.
+		//Note: this code has problems, because there may be multiple consumers of different types.
+		//slist_iterator_tpl<fabrik_t*> fab_iter(welt->get_fab_list());
+		//while (fab_iter.next()) 
+		//{
+		//	fabrik_t* tmp = fab_iter.get_current();
+		//	for(sint16 n = tmp->get_besch()->get_lieferanten() - 1; n >= 0; n --)
+		//	{
+		//		const ware_besch_t* input = tmp->get_besch()->get_lieferant(n)->get_ware();
+		//		if(input == get_besch()->get_produkt(n)->get_ware())
+		//		{
+		//			//Can connect
+		//			add_lieferziel(tmp->get_pos().get_2d());
+		//			tmp->add_supplier(this);
+		//			// Only add one.
+		//			is_orphaned = false;
+		//			break;
+		//		}
+		//	}
+		//}
+		//If we have reached here, we are orphaned, and cannot reconnect.
+		return is_orphaned;
+	}
+	return false;
+}
+
+bool
+fabrik_t::disconnect_supplier(koord pos) //Returns true if must be destroyed.
+{
+	rem_supplier(pos);
+	if(suppliers.get_count() < 1)
+	{
+		// If there are no suppliers left, industry is orphaned.
+		// Reconnect or close.
+
+		//HACK: Avoid problematic code for the time being.
+		return true;
+
+		//Attempt to reconnect.
+		//Note: this code has problems, because there may be multiple consumers of different types.
+		//slist_iterator_tpl<fabrik_t*> fab_iter(welt->get_fab_list());
+		//while (fab_iter.next()) 
+		//{
+		//	fabrik_t* tmp = fab_iter.get_current();
+		//	for(sint16 n = tmp->get_besch()->get_produkte() - 1; n >= 0; n --)
+		//	{
+		//		const ware_besch_t* output = tmp->get_besch()->get_produkt(n)->get_ware();
+		//		if(output == get_besch()->get_lieferant(n)->get_ware())
+		//		{
+		//			//Can connect
+		//			add_supplier(tmp);
+		//			tmp->add_lieferziel(get_pos().get_2d());
+		//			// Only add one.
+		//			return false;
+		//		}
+		//	}
+		//}
+		//If we have reached here, we are orphaned, and cannot reconnect.
+		return true;
+	}
+	return false;
+}
+
 
 fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 {
@@ -205,7 +281,8 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 
 fabrik_t::~fabrik_t()
 {
-	while(!fields.empty()) {
+	while(!fields.empty()) 
+	{
 		planquadrat_t *plan = welt->access( fields.back() );
 		assert(plan);
 		grund_t *gr = plan->get_kartenboden();
@@ -215,6 +292,8 @@ fabrik_t::~fabrik_t()
 		plan->boden_ersetzen( gr, new boden_t( welt, gr->get_pos(), hang_t::flach ) );
 		plan->get_kartenboden()->calc_bild();
 	}
+
+	fabrik_t* tmp = this;
 
 	//Disconnect this factory from all chains.
 	//@author: jamespetts
@@ -226,15 +305,31 @@ fabrik_t::~fabrik_t()
 		char buf[192];
 		uint16 jobs =  besch->get_pax_level();
 		sprintf(buf, translator::translate("Industry: %s has closed down, with the loss of %d jobs. %d upstream suppliers and %d downstream customers are affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
-		welt->get_message()->add_message(buf, pos.get_2d(),message_t::general,COL_RED,skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
+		welt->get_message()->add_message(buf, pos.get_2d(), message_t::general, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 		for(sint32 i = number_of_customers - 1; i >= 0; i --)
 		{
-			get_fab(welt, lieferziele[i])->rem_lieferziel(pos.get_2d());
+			fabrik_t* tmp = get_fab(welt, lieferziele[i]);
+			if(tmp->disconnect_supplier(pos.get_2d()))
+			{
+				//Orphaned, must be deleted.
+				grund_t *gr = 0;
+				gr = welt->lookup(tmp->get_pos());
+				gebaeude_t* gb = gr->find<gebaeude_t>();
+				hausbauer_t::remove(welt,  welt->get_spieler(1), gb);
+			}
 		}
 
 		for(sint32 i = number_of_suppliers - 1; i >= 0; i --)
 		{
-			get_fab(welt, suppliers[i])->rem_supplier(pos.get_2d());
+			fabrik_t* tmp = get_fab(welt, suppliers[i]);
+			if(tmp->disconnect_consumer(pos.get_2d()))
+			{
+				//Orphaned, must be deleted.
+				grund_t *gr = 0;
+				gr = welt->lookup(tmp->get_pos());
+				gebaeude_t* gb = gr->find<gebaeude_t>();
+				hausbauer_t::remove(welt,  welt->get_spieler(1), gb);
+			}
 		}
 	}
 }
@@ -1121,6 +1216,49 @@ fabrik_t::neuer_monat()
 		ausgang[index].abgabe_letzt = ausgang[index].abgabe_sum;
 		ausgang[index].abgabe_sum = 0;
 	}
+
+	// Check to see whether factory is obsolete.
+	// If it is, give it a chance of being closed down.
+	//@author: jamespetts
+
+	if(welt->use_timeline() && besch->get_haus()->get_retire_year_month() < welt->get_timeline_year_month())
+	{
+		uint32 difference =  welt->get_timeline_year_month() - besch->get_haus()->get_retire_year_month();
+		uint32 max_difference = welt->get_einstellungen()->get_factory_max_years_obsolete() * 12;
+		if(difference > max_difference)
+		{
+			uint32 number_of_customers = lieferziele.get_count();
+			uint32 number_of_suppliers = suppliers.get_count();
+			char buf[192];
+			uint16 jobs =  besch->get_pax_level();
+			sprintf(buf, translator::translate("Industry: %s has closed down, with the loss of %d jobs. %d upstream suppliers and %d downstream customers are affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
+			welt->get_message()->add_message(buf, pos.get_2d(), message_t::general, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
+			grund_t *gr = 0;
+			gr = welt->lookup(pos);
+			gebaeude_t* gb = gr->find<gebaeude_t>();
+			hausbauer_t::remove(welt, welt->get_spieler(1), gb);
+		}
+		else
+		{
+			float proportion = (float)difference / (float)max_difference;
+			proportion *= 100; //Set to percentage value.
+			uint8 chance = simrand(100);
+			if(chance <= proportion)
+			{
+				uint32 number_of_customers = lieferziele.get_count();
+				uint32 number_of_suppliers = suppliers.get_count();
+				char buf[192];
+				uint16 jobs =  besch->get_pax_level();
+				sprintf(buf, translator::translate("Industry: %s has closed down, with the loss of %d jobs. %d upstream suppliers and %d downstream customers are affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
+				welt->get_message()->add_message(buf, pos.get_2d(), message_t::general, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
+				grund_t *gr = 0;
+				gr = welt->lookup(pos);
+				gebaeude_t* gb = gr->find<gebaeude_t>();
+				hausbauer_t::remove(welt, welt->get_spieler(1), gb);
+			}
+		}
+	}
+
 }
 
 
@@ -1506,12 +1644,15 @@ fabrik_t::add_all_suppliers()
 		const fabrik_lieferant_besch_t *lieferant = besch->get_lieferant(i);
 		const ware_besch_t *ware = lieferant->get_ware();
 
-		const slist_tpl<fabrik_t *> & list = welt->get_fab_list();
-		slist_iterator_tpl <fabrik_t *> iter (list);
+		//const slist_tpl<fabrik_t *> & list = welt->get_fab_list();
+		const vector_tpl<fabrik_t*> & list = welt->get_fab_list();
+		//slist_iterator_tpl <fabrik_t *> iter (list);
 
-		while( iter.next() ) {
-
-			fabrik_t * fab = iter.get_current();
+		//while( iter.next() ) {
+		for(sint16 i = list.get_count() - 1; i >= 0; i --)
+		{
+			//fabrik_t * fab = iter.get_current();
+			fabrik_t * fab = list[i];
 
 			// connect to an existing one, if this is an producer
 			if(fab!=this  &&  fab->vorrat_an(ware) > -1) {

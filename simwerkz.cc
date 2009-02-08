@@ -2943,10 +2943,14 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 
 			// crossconnect all?
 			if(welt->get_einstellungen()->is_crossconnect_factories()) {
-				const slist_tpl<fabrik_t *> & list = welt->get_fab_list();
-				slist_iterator_tpl <fabrik_t *> iter (list);
-				while( iter.next() ) {
-					iter.get_current()->add_all_suppliers();
+				//const slist_tpl<fabrik_t *> & list = welt->get_fab_list();
+				const vector_tpl<fabrik_t *> & list = welt->get_fab_list();
+				//slist_iterator_tpl <fabrik_t *> iter (list);
+				//while( iter.next() ) {
+				for(sint16 i = list.get_count() - 1; i >= 0; i --)
+				{
+					//iter.get_current()->add_all_suppliers();
+					list[i]->add_all_suppliers();
 				}
 			}
 			return NULL;
@@ -3015,10 +3019,14 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 
 		// crossconnect all?
 		if(welt->get_einstellungen()->is_crossconnect_factories()) {
-			const slist_tpl<fabrik_t *> & list = welt->get_fab_list();
-			slist_iterator_tpl <fabrik_t *> iter (list);
-			while( iter.next() ) {
-				iter.get_current()->add_all_suppliers();
+			//const slist_tpl<fabrik_t *> & list = welt->get_fab_list();
+			const vector_tpl<fabrik_t *> & list = welt->get_fab_list();
+			//slist_iterator_tpl <fabrik_t *> iter (list);
+			//while( iter.next() ) {
+			for(sint16 i = list.get_count() - 1; i >= 0; i --)
+			{
+				//iter.get_current()->add_all_suppliers();
+				list[i]->add_all_suppliers();
 			}
 		}
 		// ain't going to be cheap
@@ -3111,10 +3119,14 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 			// crossconnect all?
 			if(welt->get_einstellungen()->is_crossconnect_factories()) {
-				const slist_tpl<fabrik_t *> & list = welt->get_fab_list();
-				slist_iterator_tpl <fabrik_t *> iter (list);
-				while( iter.next() ) {
-					iter.get_current()->add_all_suppliers();
+				//const slist_tpl<fabrik_t *> & list = welt->get_fab_list();
+				const vector_tpl<fabrik_t *> & list = welt->get_fab_list();
+				//slist_iterator_tpl <fabrik_t *> iter (list);
+				//while( iter.next() ) {
+				for(sint16 i = list.get_count() - 1; i >= 0; i --)
+				{
+					//iter.get_current()->add_all_suppliers();
+					list[i]->add_all_suppliers();
 				}
 			}
 			return NULL;

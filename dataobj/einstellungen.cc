@@ -697,6 +697,9 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	max_direction_steps[waytype_t(narrowgauge_wt)] = contents.get_int("max_direction_steps_narrowgauge", 8);
 	curve_friction_factor[waytype_t(narrowgauge_wt)] = contents.get_int("curve_friction_factor_narrowgauge", 0);
 
+	//Factory settings
+	factory_max_years_obsolete = contents.get_int("max_years_obsolete", 30);
+
 	/*
 	* Selection of savegame format through inifile
 	*/

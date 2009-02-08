@@ -237,6 +237,10 @@ public:
 	uint8 passenger_routing_local_chance;
 	uint8 passenger_routing_midrange_chance;
 
+	//@author: jamespetts
+	// Factory retirement settings
+	uint16 factory_max_years_obsolete;
+
 	// true if active
 	bool automaten[MAX_PLAYER_COUNT];
 	// 0 = emtpy, otherwise some vaule from simplay
@@ -415,6 +419,8 @@ public:
 
 	bool is_pay_for_total_distance() const { return pay_for_total_distance ; }
 	void set_pay_for_total_distance( bool b ) { pay_for_total_distance = b; }
+
+	uint16 get_factory_max_years_obsolete() const { return factory_max_years_obsolete; }
 
 	sint16 get_river_number() const { return river_number; }
 	void set_river_number( sint16 n ) { river_number=n; }

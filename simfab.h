@@ -207,6 +207,9 @@ public:
 	void  add_lieferziel(koord ziel);
 	void  rem_lieferziel(koord pos);
 
+	bool disconnect_consumer(koord pos);
+	bool disconnect_supplier(koord pos);
+
 	/**
 	 * adds a supplier
 	 * @author Hj. Malthaner
