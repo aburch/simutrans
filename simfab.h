@@ -217,6 +217,8 @@ public:
 	void  add_supplier(koord pos);
 	void  rem_supplier(koord pos);
 
+
+
 	/**
 	 * @return menge der ware typ ("quantity of the goods type")
 	 *   -1 wenn typ nicht produziert wird ("if not type is produced")
@@ -339,6 +341,11 @@ public:
 	 * fails if no matching goods are there
 	 */
 	bool add_supplier(fabrik_t* fab);
+
+	/* adds a new customer to this factory
+	 * fails if no matching goods are accepted
+	 */
+	bool add_customer(fabrik_t* fab);
 };
 
 #endif

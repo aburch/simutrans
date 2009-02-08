@@ -131,33 +131,19 @@ fabrik_t::disconnect_consumer(koord pos) //Returns true if must be destroyed.
 	{
 		// If there are no consumers left, industry is orphaned.
 		// Reconnect or close.
-		bool is_orphaned = true;
 
-		//HACK: Avoid problematic code for the time being.
-		return true;
+		//Attempt to reconnect. NOTE: This code may not work well if there are multiple supply types.
 		
-		//Attempt to reconnect.
-		//Note: this code has problems, because there may be multiple consumers of different types.
-		//slist_iterator_tpl<fabrik_t*> fab_iter(welt->get_fab_list());
-		//while (fab_iter.next()) 
-		//{
-		//	fabrik_t* tmp = fab_iter.get_current();
-		//	for(sint16 n = tmp->get_besch()->get_lieferanten() - 1; n >= 0; n --)
-		//	{
-		//		const ware_besch_t* input = tmp->get_besch()->get_lieferant(n)->get_ware();
-		//		if(input == get_besch()->get_produkt(n)->get_ware())
-		//		{
-		//			//Can connect
-		//			add_lieferziel(tmp->get_pos().get_2d());
-		//			tmp->add_supplier(this);
-		//			// Only add one.
-		//			is_orphaned = false;
-		//			break;
-		//		}
-		//	}
-		//}
-		//If we have reached here, we are orphaned, and cannot reconnect.
-		return is_orphaned;
+		for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
+		{
+			fabrik_t* fab = welt->get_fab_list()[i];
+			if(add_customer(fab)) 
+			{
+				//Only reconnect one.
+				return false;
+			}
+		}
+		return true;
 	}
 	return false;
 }
@@ -171,29 +157,18 @@ fabrik_t::disconnect_supplier(koord pos) //Returns true if must be destroyed.
 		// If there are no suppliers left, industry is orphaned.
 		// Reconnect or close.
 
-		//HACK: Avoid problematic code for the time being.
-		return true;
+		//Attempt to reconnect. NOTE: This code may not work well if there are multiple supply types.
+		
+		for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
+		{
 
-		//Attempt to reconnect.
-		//Note: this code has problems, because there may be multiple consumers of different types.
-		//slist_iterator_tpl<fabrik_t*> fab_iter(welt->get_fab_list());
-		//while (fab_iter.next()) 
-		//{
-		//	fabrik_t* tmp = fab_iter.get_current();
-		//	for(sint16 n = tmp->get_besch()->get_produkte() - 1; n >= 0; n --)
-		//	{
-		//		const ware_besch_t* output = tmp->get_besch()->get_produkt(n)->get_ware();
-		//		if(output == get_besch()->get_lieferant(n)->get_ware())
-		//		{
-		//			//Can connect
-		//			add_supplier(tmp);
-		//			tmp->add_lieferziel(get_pos().get_2d());
-		//			// Only add one.
-		//			return false;
-		//		}
-		//	}
-		//}
-		//If we have reached here, we are orphaned, and cannot reconnect.
+			fabrik_t* fab = welt->get_fab_list()[i];
+			if(add_supplier(fab))
+			{
+				//Only reconnect one.
+				return false;
+			}
+		}
 		return true;
 	}
 	return false;
@@ -1675,9 +1650,29 @@ bool fabrik_t::add_supplier(fabrik_t* fab)
 		const ware_besch_t *ware = lieferant->get_ware();
 
 			// connect to an existing one, if this is an producer
-			if(fab!=this  &&  fab->vorrat_an(ware) > -1) {
+			if(fab!=this  &&  fab->vorrat_an(ware) > -1) { //"inventory to" (Google)
 				// add us to this factory
 				fab->add_lieferziel(pos.get_2d());
+				return true;
+			}
+	}
+	return false;
+}
+
+/* adds a new customer to this factory
+ * fails if no matching goods are accepted
+ */
+
+bool fabrik_t::add_customer(fabrik_t* fab)
+{
+	for(int i=0; i < fab->get_besch()->get_lieferanten(); i++) {
+		const fabrik_lieferant_besch_t *lieferant = fab->get_besch()->get_lieferant(i);
+		const ware_besch_t *ware = lieferant->get_ware();
+
+			// connect to an existing one, if it is a consumer
+			if(fab!=this  &&  vorrat_an(ware) > -1) { //"inventory to" (Google)
+				// add this factory
+				add_lieferziel(fab->pos.get_2d());
 				return true;
 			}
 	}

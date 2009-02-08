@@ -375,6 +375,7 @@ void fabrikbauer_t::verteile_tourist(karte_t* welt, int max_number)
 
 /**
  * baue fabrik nach Angaben in info
+ * "build the factory, according to info" (Google)
  * @author Hj.Malthaner
  */
 fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d pos, spieler_t* spieler)
@@ -524,6 +525,13 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 		// Das könnte ein Zeitproblem geben, wenn eine Stadt keine solchen Bauplatz
 		// hat und die Suche bis zur nächsten Stadt weiterläuft
 		// Ansonsten erscheint mir das am realistischtsten..
+
+		/* Three variants:
+		 * A:
+		 * A building site, preferably close to the town hall with a street next to it.
+		 * This could be a temporary problem, if a city has no such site and the search until 
+		 * the next city continues Otherwise seems to me the most realistic Google)*/
+
 		bool	is_rotate=info->get_haus()->get_all_layouts()>1;
 		k = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(sf.stadt->get_pos(), size.x, size.y, info->get_haus()->get_allowed_climate_bits(), &is_rotate);
 		rotate = is_rotate?1:0;
@@ -533,13 +541,21 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 		// B:
 		// Gefällt mir auch. Die Endfabriken stehen eventuell etwas außerhalb der Stadt
 		// aber nicht weit weg.
+
+		// Pleases me also. The final factories stand possibly somewhat outside of the city however not far away. (Babelfish)
 		// (does not obey climates though!)
+
 		// k = finde_zufallsbauplatz(welt, welt->lookup(sf.stadt->get_pos())->get_boden()->get_pos(), 3, land_bau.dim).get_2d();
 
 		// C:
 		// Ein Bauplatz, möglichst nah am Rathaus.
 		// Wenn mehrere Endfabriken bei einer Stadt landen, sind die oft hinter
 		// einer Reihe Häuser "versteckt", von Strassen abgeschnitten.
+
+		// A building site, as near as possible at the city hall. 
+		// If several final factories land with a city, often behind
+		// a row the houses are hidden, of roads cut off.(Babelfish)
+
 		//k = bauplatz_sucher_t(welt).suche_platz(sf.stadt->get_pos(), land_bau.dim.x, land_bau.dim.y, info->get_haus()->get_allowed_climate_bits(), &is_rotate);
 
 		if(k != koord::invalid) {
