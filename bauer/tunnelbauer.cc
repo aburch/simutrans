@@ -299,15 +299,22 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 
 	baue_einfahrt(welt, sp, pos, zv, besch, weg_besch, cost);
 
-	ribi = welt->lookup(pos)->get_weg_ribi_unmasked(wegtyp);
+	// now we seach a matchin wy for the tunnels top speed
+	const weg_besch_t *wb = wegbauer_t::weg_search( wegtyp, besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat );
+	if(  wb  ) {
+		weg_besch = wb;
+	}
+
+	ribi = ribi_typ(-zv);
 	// don't move on to next tile if only one tile long
-	if(end!=start) pos = pos + zv;
+	if(  end  !=  start  ) {
+		pos = pos + zv;
+	}
 
 	// Now we build the invisible part
 	while(pos!=end) {
 		assert(pos.get_2d()!=end.get_2d());
 		tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0);
-		// use the fastest way
 		weg = weg_t::alloc(besch->get_waytype());
 		weg->set_besch(weg_besch);
 		weg->set_max_speed(besch->get_topspeed());
@@ -324,14 +331,14 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 	// if end is above ground construct an exit
 	if(welt->lookup(end.get_2d())->get_kartenboden()->get_pos().z==end.z) {
 		baue_einfahrt(welt, sp, pos, -zv, besch, weg_besch, cost);
-	} else {
+	}
+	else {
 		tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0);
-		// use the fastest way
 		weg = weg_t::alloc(besch->get_waytype());
 		weg->set_besch(weg_besch);
 		weg->set_max_speed(besch->get_topspeed());
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
-		tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
+		tunnel->neuen_weg_bauen(weg, ribi, sp);
 		tunnel->obj_add(new tunnel_t(welt, pos, sp, besch));
 		assert(!tunnel->ist_karten_boden());
 		spieler_t::add_maintenance( sp,  -weg->get_besch()->get_wartung() );
