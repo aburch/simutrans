@@ -30,7 +30,7 @@
 class convoi_info_t : public gui_frame_t, private action_listener_t
 {
 public:
-	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, SORT_MODES=4 };
+	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, by_origin=4, SORT_MODES=5 };
 
 private:
 	gui_scrollpane_t scrolly;

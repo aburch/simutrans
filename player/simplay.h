@@ -111,7 +111,8 @@ protected:
 	 */
 	sint32 konto_ueberzogen;
 
-	slist_tpl<halthandle_t> halt_list; ///< Liste der Haltestellen
+	//slist_tpl<halthandle_t> halt_list; ///< Liste der Haltestellen
+	vector_tpl<halthandle_t> halt_list; ///< "List of the stops" (Babelfish)
 
 	class income_message_t {
 	public:

@@ -69,14 +69,18 @@ bool ai_passenger_t::set_active(bool new_state)
  */
 halthandle_t ai_passenger_t::get_our_hub( const stadt_t *s ) const
 {
-	slist_iterator_tpl <halthandle_t> iter( halt_list );
-	while(iter.next()) {
-		halthandle_t halt = iter.get_current();
+	//slist_iterator_tpl <halthandle_t> iter( halt_list );
+	//while(iter.next()) {
+	for(sint16 i = halt_list.get_count() - 1; i >= 0; i --)
+	{
+		//halthandle_t halt = iter.get_current();
+		halthandle_t halt = halt_list[i];
 		if(  halt->get_pax_enabled()  &&  (halt->get_station_type()&haltestelle_t::busstop)!=0  ) {
 			koord h=halt->get_basis_pos();
 			if(h.x>=s->get_linksoben().x  &&  h.y>=s->get_linksoben().y  &&  h.x<=s->get_rechtsunten().x  &&  h.y<=s->get_rechtsunten().y  ) {
 DBG_MESSAGE("ai_passenger_t::get_our_hub()","found %s at (%i,%i)",s->get_name(),h.x,h.y);
-				return iter.get_current();
+				//return iter.get_current();
+				return halt_list[i];
 			}
 		}
 	}

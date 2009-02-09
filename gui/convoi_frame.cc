@@ -47,7 +47,7 @@ const char *convoi_frame_t::sort_text[SORT_MODES] = {
     "cl_btn_sort_name",
     "cl_btn_sort_income",
     "cl_btn_sort_type",
-    "cl_btn_sort_id"
+    "cl_btn_sort_id",
 };
 
 

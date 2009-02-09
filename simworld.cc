@@ -3280,7 +3280,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved hgt");
 	file->rdwr_long(fabs, "\n");
 	//slist_iterator_tpl<fabrik_t*> fiter( fab_list );
 	//while(fiter.next()) {
-	for(uint16 i = fab_list.get_count() - 1; i >= 0; i --)
+	for(sint16 i = fab_list.get_count() - 1; i >= 0; i --)
 	{
 		//(fiter.get_current())->rdwr(file);
 		fab_list[i]->rdwr(file);

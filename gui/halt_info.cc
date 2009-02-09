@@ -26,11 +26,12 @@
 karte_t *halt_info_t::welt = NULL;
 
 
-static const char *sort_text[4] = {
+static const char *sort_text[5] = {
 	"Zielort",
 	"via",
 	"via Menge",
-	"Menge"
+	"Menge",
+	"origin"
 };
 
 const char cost_type[MAX_HALT_COST][64] =
@@ -275,7 +276,7 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	if (comp == &button) { 			// details button pressed
 		create_win( new halt_detail_t(halt), w_info, (long)this);
 	} else if (comp == &sort_button) { 	// @author hsiegeln sort button pressed
-		umgebung_t::default_sortmode = ((int)(halt->get_sortby())+1)%4;
+		umgebung_t::default_sortmode = ((int)(halt->get_sortby())+1)%5;
 		halt->set_sortby((freight_list_sorter_t::sort_mode_t) umgebung_t::default_sortmode);
 		sort_button.set_text(sort_text[umgebung_t::default_sortmode]);
 	} else  if (comp == &toggler) {

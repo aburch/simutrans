@@ -245,10 +245,13 @@ void spieler_t::step()
 {
 	// die haltestellen müssen die Fahrpläne rgelmaessig pruefen
 	uint8 i = (uint8)(welt->get_steps()+player_nr);
-	slist_iterator_tpl <halthandle_t> iter( halt_list );
-	while(iter.next()) {
+	//slist_iterator_tpl <halthandle_t> iter( halt_list );
+	//while(iter.next()) {
+	for(sint16 j = halt_list.get_count() - 1; j >= 0; j --)
+	{
 		if( (i & 31) == 0 ) {
-			iter.get_current()->step();
+			//iter.get_current()->step();
+			halt_list[j]->step();
 			INT_CHECK("simplay 156");
 		}
 		i++;
@@ -497,8 +500,8 @@ halthandle_t spieler_t::halt_add(koord pos)
 void
 spieler_t::halt_add(halthandle_t halt)
 {
-	if (!halt_list.contains(halt)) {
-		halt_list.append(halt);
+	if (!halt_list.is_contained(halt)) {
+		halt_list.push_back(halt);
 		haltcount ++;
 	}
 }
@@ -542,8 +545,11 @@ void spieler_t::ai_bankrupt()
 	headquarter_pos = koord::invalid;
 
 	// remove all stops
-	while(halt_list.count()>0) {
-		halthandle_t h = halt_list.remove_first();
+	//while(halt_list.get_count() > 0) 
+	for(sint16 i = halt_list.get_count() - 1; i >= 0; i --)
+	{
+		halthandle_t h = halt_list[0];
+		halt_list.remove(h);
 		haltestelle_t::destroy( h );
 	}
 
@@ -777,7 +783,7 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 			halthandle_t halt = haltestelle_t::create( welt, file );
 			// it was possible to have stops without ground: do not load them
 			if(halt.is_bound()) {
-				halt_list.insert(halt);
+				halt_list.insert_at(halt_list.get_count(), halt);
 				if(!halt->existiert_in_welt()) {
 					dbg->warning("spieler_t::rdwr()","empty halt id %i qill be ignored", halt.get_id() );
 				}

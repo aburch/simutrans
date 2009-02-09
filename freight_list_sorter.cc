@@ -18,6 +18,7 @@ struct travel_details
 	ware_t ware;
 	halthandle_t destination;
 	halthandle_t via_destination;
+	halthandle_t origin;
 };
 
 
@@ -36,12 +37,14 @@ int freight_list_sorter_t::compare_ware(const void *td1, const void *td2)
 	halthandle_t halt2 = td2p->destination;
 	halthandle_t via_halt1 = td1p->via_destination;
 	halthandle_t via_halt2 = td2p->via_destination;
+	halthandle_t origin_halt1 = td1p->origin;
+	halthandle_t origin_halt2 = td2p->origin;
 
-	if(!halt1.is_bound()  ||  !via_halt1.is_bound()) {
+	if(!halt1.is_bound()  ||  !via_halt1.is_bound() || !origin_halt1.is_bound()) {
 		return -1;
 	}
 
-	if( !halt2.is_bound()  ||    !via_halt2.is_bound() ) {
+	if( !halt2.is_bound()  ||    !via_halt2.is_bound() || !origin_halt2.is_bound()) {
 		return -2;
 	}
 
@@ -72,6 +75,11 @@ dbg->error("freight_list_sorter::compare_ware()","illegal sort mode!");
 
 		case by_via: // sort by via_destination name
 			order = strcmp(via_halt1->get_name(), via_halt2->get_name());
+			if (order != 0) break;
+			/* FALLTHROUGH */
+
+		case by_origin:
+			order = strcmp(origin_halt1->get_name(), origin_halt2->get_name());
 			if (order != 0) break;
 			/* FALLTHROUGH */
 
@@ -116,7 +124,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	// if there, give the capacity for each freight
 	slist_tpl <ware_t> dummy;
 	slist_iterator_tpl<ware_t> full_iter ( full_list==NULL ? &dummy : full_list );
-	bool list_finish=1;
+	bool list_finish = true;
 
 	// hsiegeln
 	// added sorting to ware's destination list
@@ -132,6 +140,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 		tdlist[pos].ware = ware;
 		tdlist[pos].destination = ware.get_ziel();
 		tdlist[pos].via_destination = ware.get_zwischenziel();
+		tdlist[pos].origin = ware.get_origin();
 		// for the sorting via the number for the next stop we unify entries
 		if(sort_mode==by_via_sum  &&  pos>0) {
 //DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i check connection",pos);
@@ -160,6 +169,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 		for (int j = 0; j<pos; j++) {
 			halthandle_t halt = tdlist[j].destination;
 			halthandle_t via_halt = tdlist[j].via_destination;
+			halthandle_t origin_halt = tdlist[j].origin;
 
 			const char * name = "Error in Routing";
 			if(halt.is_bound()) {
@@ -211,25 +221,39 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			buf.append(translator::translate(ware.get_besch()->get_name()));
 			buf.append(" > ");
 			// the target name is not correct for the via sort
-			if(sortby!=by_via_sum  ||  via_halt==halt  ) {
+			if(sortby != by_via_sum  ||  via_halt==halt  ) 
+			{
 				buf.append(name);
 			}
 
 			// for debugging
-			const char *via_name = "Error in Routing";
-			if(via_halt.is_bound()) {
-				via_name = via_halt->get_name();
-			}
 
-			if(via_halt != halt) {
+			if(via_halt != halt && (sortby == by_via || sortby == by_via_sum)) 
+			{
+				const char *via_name = "unknown";
+				if(via_halt.is_bound()) 
+				{
+					via_name = via_halt->get_name();
+				}
 				char tmp [512];
-				sprintf(tmp, translator::translate("via %s\n"), via_name);
+				sprintf(tmp, translator::translate(" via %s"), via_name);
 				buf.append(tmp);
 			}
-			else {
-				buf.append("\n");
-			}
 			// debug ende
+			
+			if(sortby == by_origin)
+			{
+				const char *origin_name = "unknown";
+				if(origin_halt.is_bound()) 
+				{
+					origin_name = origin_halt->get_name();
+				}
+
+				char tmp [512];
+				sprintf(tmp, translator::translate(" from %s"), origin_name);
+				buf.append(tmp);
+			}
+			buf.append("\n");
 		}
 	}
 

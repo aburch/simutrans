@@ -30,7 +30,7 @@ class convoi_frame_t :
 	private action_listener_t           //28-Dec-01     Markus Weber    Added , private action_listener_t
 {
 public:
-	enum sort_mode_t { nach_name=0, nach_gewinn=1, nach_typ=2, nach_id=3, SORT_MODES=4 };
+	enum sort_mode_t { nach_name=0, nach_gewinn=1, nach_typ=2, nach_id=3, SORT_MODES=5 };
 	enum filter_flag_t { any_filter=1, name_filter=2, typ_filter=4, ware_filter=8, spezial_filter=16,
 		sub_filter=32,	// Ab hier beginnen die Unterfilter!
 		lkws_filter=32, zuege_filter=64, schiffe_filter=128, aircraft_filter=256,

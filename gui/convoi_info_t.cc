@@ -46,17 +46,19 @@ bool convoi_info_t::route_search_in_progress=false;
 
 /**
  * This variable defines by which column the table is sorted
- * Values: 0 = destination
- *                 1 = via
- *                 2 = via_amount
- *                 3 = amount
- * @author prissi
+ * Values:			0 = destination
+ *                  1 = via
+ *                  2 = via_amount
+ *                  3 = amount
+ *					4 = origin
+ * @author prissi - amended by jamespetts (origins)
  */
 const char *convoi_info_t::sort_text[SORT_MODES] = {
 	"Zielort",
 	"via",
 	"via Menge",
-	"Menge"
+	"Menge",
+	"origin"
 };
 
 const int cost_type_color[MAX_CONVOI_COST] =
@@ -197,6 +199,11 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
  * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
  * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
  * in dem die Komponente dargestellt wird.
+ *
+ * Component draw again. The handed over values refer to the window,
+ * i.e. there is the Bildschirkoordinaten of the window in that the
+ * component is represented. (Babelfish)
+ *
  * @author Hj. Malthaner
  */
 void
