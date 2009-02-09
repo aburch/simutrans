@@ -18,9 +18,8 @@
  */
 uint8 haus_tile_besch_t::get_layout() const
 {
-    koord groesse = get_besch()->get_groesse();
-
-    return index / (groesse.x * groesse.y);
+	koord groesse = get_besch()->get_groesse();
+	return index / (groesse.x * groesse.y);
 }
 
 
@@ -35,10 +34,9 @@ uint8 haus_tile_besch_t::get_layout() const
  */
 koord haus_tile_besch_t::get_offset() const
 {
-    const haus_besch_t *besch = get_besch();
-    koord groesse = besch->get_groesse(get_layout());	// ggf. gedreht
-
-    return koord( index % groesse.x, (index / groesse.x) % groesse.y );
+	const haus_besch_t *besch = get_besch();
+	koord groesse = besch->get_groesse(get_layout());	// ggf. gedreht
+	return koord( index % groesse.x, (index / groesse.x) % groesse.y );
 }
 
 
@@ -47,7 +45,7 @@ koord haus_tile_besch_t::get_offset() const
  * Mail generation level
  * @author Hj. Malthaner
  */
-int haus_besch_t::get_post_level() const
+uint16 haus_besch_t::get_post_level() const
 {
 	switch (gtyp) {
 		default:
@@ -87,15 +85,15 @@ bool haus_besch_t::is_connected_with_town() const
  */
 const haus_tile_besch_t *haus_besch_t::get_tile(int layout, int x, int y) const
 {
-    layout = layout_anpassen(layout);
-    koord dims = get_groesse(layout);
+	layout = layout_anpassen(layout);
+	koord dims = get_groesse(layout);
 
-    if(layout < 0  ||  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= get_b(layout)  ||  y >= get_h(layout)) {
+	if(layout < 0  ||  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= get_b(layout)  ||  y >= get_h(layout)) {
 	dbg->fatal("hausbauer_t::get_tile()",
-	           "invalid request for l=%d, x=%d, y=%d on building %s (l=%d, x=%d, y=%d)",
+			   "invalid request for l=%d, x=%d, y=%d on building %s (l=%d, x=%d, y=%d)",
 		   layout, x, y, get_name(), layouts, groesse.x, groesse.y);
-    }
-    return get_tile(layout * dims.x * dims.y + y * dims.x + x);
+	}
+	return get_tile(layout * dims.x * dims.y + y * dims.x + x);
 }
 
 

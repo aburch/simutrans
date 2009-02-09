@@ -234,13 +234,13 @@ public:
 	* the level is used in many places: for price, for capacity, ...
 	* @author Hj. Malthaner
 	*/
-	int get_level() const { return level; }
+	uint16 get_level() const { return level; }
 
 	/**
 	 * Mail generation level
 	 * @author Hj. Malthaner
 	 */
-	int get_post_level() const;
+	uint16 get_post_level() const;
 
 	// how often will this appear
 	int get_chance() const { return chance; }

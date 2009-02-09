@@ -73,6 +73,7 @@ enum magic_numbers {
 	magic_edit_tree,
 	magic_bigger_map,
 	magic_labellist,
+	magic_station_building_select,
 	magic_info_pointer,	// mark end of the list
 	magic_keyhelp=magic_info_pointer+842,
 };
