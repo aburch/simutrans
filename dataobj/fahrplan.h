@@ -165,7 +165,7 @@ public:
 class tramfahrplan_t : public zugfahrplan_t
 {
 public:
-	tramfahrplan_t() { init(); type = tramfahrplan; my_waytype=track_wt; }
+	tramfahrplan_t() { init(); type = tramfahrplan; my_waytype=tram_wt; }
 	tramfahrplan_t(loadsave_t* file) : zugfahrplan_t(file) { type = tramfahrplan; my_waytype=track_wt; }
 	schedule_t* copy() { schedule_t *s = new tramfahrplan_t(); s->copy_from(this); return s; }
 };
