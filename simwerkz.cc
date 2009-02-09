@@ -2087,7 +2087,6 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 
 	if(  rotation>besch->get_all_layouts()  ) {
 		rotation %= besch->get_all_layouts();
-		offsets = offsets - besch->get_groesse(rotation) + koord(1,1);
 	}
 
 	hausbauer_t::baue(welt, halt->get_besitzer(), k-offsets, rotation, besch, &halt);

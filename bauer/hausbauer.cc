@@ -433,7 +433,8 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 	}
 	// remove only once ...
 	if(besch->get_utyp()==haus_besch_t::denkmal) {
-		assert(ungebaute_denkmaeler.remove( besch ));
+		bool removed = ungebaute_denkmaeler.remove( besch );
+		assert( removed );
 	}
 	return first_building;
 }
