@@ -187,6 +187,7 @@ public:
 			// or diagonal back image
 			return true;
 		}
+		return false;
 	}
 
 	/**
