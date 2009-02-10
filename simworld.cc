@@ -799,7 +799,8 @@ void karte_t::create_rivers( sint16 number )
 	}
 
 	// now make rivers
-	while(  number>0  &&  mountain_tiles.get_count()>0  ) {
+	uint8 retrys = 0;
+	while(  number>0  &&  mountain_tiles.get_count()>0  &&  retrys++<100  ) {
 		koord start = mountain_tiles.at_weight( simrand(mountain_tiles.get_sum_weight()) );
 		koord end = water_tiles[ simrand(water_tiles.get_count()) ];
 		sint16 dist = abs_distance(start,end);
@@ -813,9 +814,14 @@ void karte_t::create_rivers( sint16 number )
 				// do not built too short rivers
 				riverbuilder.baue();
 				number --;
+				retrys = 0;
 			}
 			mountain_tiles.remove( start );
 		}
+	}
+	// we gave up => tell te user
+	if(  number>0  ) {
+		dbg->warning( "karte_t::create_rivers()","Too many rivers requested! (%i not constructed)", number );
 	}
 }
 

@@ -154,7 +154,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	river_min.set_pos(koord(LEFT_ARROW,intTopOfButton) );
 	river_min.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	river_min.add_listener(this);
-	river_min.set_limits(0,1024);
+	river_min.set_limits(0,max(16,sets->get_max_river_length())-16);
 	river_min.set_value( sets->get_min_river_length() );
 	river_min.wrap_mode( false );
 	add_komponente( &river_min );
@@ -163,7 +163,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	river_max.set_pos(koord(LEFT_ARROW,intTopOfButton) );
 	river_max.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	river_max.add_listener(this);
-	river_max.set_limits(0,1024);
+	river_max.set_limits(sets->get_min_river_length()+16,1024);
 	river_max.set_value( sets->get_max_river_length() );
 	river_max.wrap_mode( false );
 	add_komponente( &river_max );
@@ -233,9 +233,11 @@ climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	}
 	else if(komp==&river_min) {
 		sets->set_min_river_length( v.i );
+		river_max.set_limits(v.i+16,1024);
 	}
 	else if(komp==&river_max) {
 		sets->set_max_river_length( v.i );
+		river_min.set_limits(0,max(16,v.i)-16);
 	}
 	else {
 		// all climate borders from here on
