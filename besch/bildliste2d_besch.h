@@ -28,13 +28,13 @@ class bildliste2d_besch_t : public obj_besch_t {
 	uint16  anzahl;
 
 public:
-    bildliste2d_besch_t() : anzahl(0) {}
+	bildliste2d_besch_t() : anzahl(0) {}
 
 	uint16 get_anzahl() const { return anzahl; }
 
 	const bildliste_besch_t *get_liste(uint16 i) const { return (i < anzahl) ? static_cast<const bildliste_besch_t *>(get_child(i)) : 0; }
 
-    const bild_besch_t *get_bild(uint16 i, uint16 j) const { return (i < anzahl) ? static_cast<const bildliste_besch_t *>(get_child(i))->get_bild(j) : 0; }
+	const bild_besch_t *get_bild(uint16 i, uint16 j) const { return (i < anzahl) ? static_cast<const bildliste_besch_t *>(get_child(i))->get_bild(j) : 0; }
 };
 
 #endif
