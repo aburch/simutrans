@@ -8,7 +8,7 @@
 <p>
 <em>Angenommene Waren:</em> Alle Warenarten, welche von an die Haltestelle angeschlossenen Fabriken benötigt werden, sind alphabetisch gelistet.</p>
 <p>
-<em>Linien, die diesen Stop anfahren:</em> Alle Linien, welche die Haltestelle anfahren, sind alphanumerisch gelistet.</p>
+<em>Linien, die diesen Stop anfahren:</em> Alle Linien, welche die Haltestelle anfahren, sind alphanumerisch gelistet. Ein Klick auf den Pfeil öffnet die <a href="linemanagement.txt">Linienverwaltung</a>.</p>
 <p>
-<em>Verkehrsverbindungen (direkt):</em> Alle Haltestellen sind gelistet, welche direkt über Linien von der Haltestelle aus angefahren werden. Dem Namen der Haltestelle folgt jeweils in einer weiteren Zeile nach einem Bindestrich die Beförderungsart.
+<em>Verkehrsverbindungen (direkt):</em> Alle Haltestellen sind gelistet, welche direkt über Linien von der Haltestelle aus angefahren werden. Dem Namen der Haltestelle folgt jeweils in einer weiteren Zeile nach einem Bindestrich die Beförderungsart. Über den Pfeil vor dem Haltestellennamen kannst du direkt zu dieser Haltestelle springen.
 </p>
