@@ -1915,9 +1915,9 @@ void stadt_t::bewerte_res_com_ind(const koord pos, int &ind_score, int &com_scor
 
 // return the eight neighbours
 static koord neighbours[] = {
-	koord( 0, -1),
-	koord( 1,  0),
 	koord( 0,  1),
+	koord( 1,  0),
+	koord( 0, -1),
 	koord(-1,  0),
 	// now the diagonals
 	koord(-1, -1),
@@ -1988,7 +1988,7 @@ void stadt_t::baue_gebaeude(const koord k)
 					strasse_t* weg = (strasse_t*)gr->get_weg(road_wt);
 					if (weg != NULL) {
 						if (i < 4 && streetdir == -1) {
-							// update directions (NESW)
+							// update directions (SENW)
 							streetdir = i;
 						}
 						weg->set_gehweg(true);
