@@ -35,6 +35,7 @@
 #include "../besch/skin_besch.h"
 
 #include "../dings/bruecke.h"
+#include "../dings/crossing.h"
 #include "../dings/leitung2.h"
 #include "../dings/pillar.h"
 #include "../dings/signal.h"
@@ -199,9 +200,21 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 		}
 
 		gr1 = welt->lookup(pos + koord3d(0, 0, Z_TILE_STEP));
-		if(gr1 && gr1->get_weg_hang()==hang_t::flach  &&  (gr1->get_typ()==grund_t::boden  ||  gr1->get_typ()==grund_t::monorailboden)) {
-			// on slope ok, but not on other bridges
-			return gr1->get_pos();
+		if(  gr1  &&  gr1->get_weg_hang()==hang_t::flach  )
+			if(  gr1->get_typ()==grund_t::boden  ) {
+				// on slope ok, but not on other bridges
+				return gr1->get_pos();
+			}
+			else if(  gr1->get_typ()==grund_t::monorailboden  ) {
+				// check if we can connect ro elevated way
+				const weg_t* weg = gr1->get_weg_nr(0);
+				if(  weg==NULL  ||  weg->get_waytype()==wegtyp
+//					|| (crossing_logic_t::get_crossing(wegtyp, weg->get_waytype()))
+//					|| (wegtyp==powerline_wt)
+				) {
+					return gr1->get_pos();
+				}
+			}
 		}
 		gr2 = welt->lookup(pos);
 		if(gr2  &&  (gr2->get_typ()==grund_t::boden  ||  gr2->get_typ()==grund_t::monorailboden)) {
