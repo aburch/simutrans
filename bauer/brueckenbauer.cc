@@ -200,7 +200,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 		}
 
 		gr1 = welt->lookup(pos + koord3d(0, 0, Z_TILE_STEP));
-		if(  gr1  &&  gr1->get_weg_hang()==hang_t::flach  )
+		if(  gr1  &&  gr1->get_weg_hang()==hang_t::flach  ) {
 			if(  gr1->get_typ()==grund_t::boden  ) {
 				// on slope ok, but not on other bridges
 				return gr1->get_pos();
