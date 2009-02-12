@@ -748,6 +748,10 @@ void karte_t::init_felder()
 		}
 	}
 
+	convoihandle_t::init( umgebung_t::max_convoihandles );
+	linehandle_t::init( umgebung_t::max_linehandles );
+	halthandle_t::init( umgebung_t::max_halthandles );
+
 	scenario = new scenario_t(this);
 
 	nosave = false;
