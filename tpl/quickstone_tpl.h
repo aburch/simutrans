@@ -87,7 +87,7 @@ public:
 		for(int i=0; i<size; i++) {
 			data[i] = 0;
 		}
-			next = 1;
+		next = 1;
 	}
 
 	// empty handle (entry 0 is always zero)
@@ -102,15 +102,14 @@ public:
 		if(p) {
 			entry = find_next();
 			data[entry] = p;
-		} else {
+		}
+		else {
 			// all NULL pointers are mapped to entry 0
 			entry = 0;
 		}
 	}
 
-	quickstone_tpl(const quickstone_tpl& r) : entry(r.entry)
-	{
-	}
+	quickstone_tpl(const quickstone_tpl& r) : entry(r.entry) {}
 
 #if 0	// shoudl be unneccessary, since compiler handles this much faster
 	/**

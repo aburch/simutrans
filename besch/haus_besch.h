@@ -58,9 +58,7 @@ public:
 
 	image_id get_hintergrund(int phase, int hoehe,int season) const
 	{
-		if(season>=seasons) {
-			season = seasons-1;
-		}
+		season &= (seasons-1);
 		if(phase>0 && phase<phasen) {
 			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_child(0+2*season))->get_bild(hoehe, phase);
 			if (bild != NULL) {
@@ -75,6 +73,7 @@ public:
 	// returns true, if the background is animated
 	bool is_hintergrund_phases(int season) const
 	{
+		season &= (seasons-1);
 		for(  uint8 phase=1;  phase<phasen;  phase++  ) {
 			if(  static_cast<const bildliste2d_besch_t *>(get_child(0+2*season))->get_bild(0, phase)  ) {
 				return true;
@@ -85,9 +84,7 @@ public:
 
 	image_id get_vordergrund(int phase,int season) const
 	{
-		if(season>=seasons) {
-			season = seasons-1;
-		}
+		season &= (seasons-1);
 		if(phase>0 && phase<phasen) {
 			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_child(1+2*season))->get_bild(0, phase);
 			if (bild != NULL) {
@@ -234,13 +231,13 @@ public:
 	* the level is used in many places: for price, for capacity, ...
 	* @author Hj. Malthaner
 	*/
-	int get_level() const { return level; }
+	uint16 get_level() const { return level; }
 
 	/**
 	 * Mail generation level
 	 * @author Hj. Malthaner
 	 */
-	int get_post_level() const;
+	uint16 get_post_level() const;
 
 	// how often will this appear
 	int get_chance() const { return chance; }

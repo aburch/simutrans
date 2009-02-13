@@ -952,6 +952,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\station_building_select.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\boden\wege\strasse.cc"
 				>
 			</File>
