@@ -113,8 +113,8 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		margin(NULL, COL_WHITE, gui_label_t::money),
 		transport(NULL, COL_WHITE, gui_label_t::right),
 		old_transport(NULL, COL_WHITE, gui_label_t::right),
-		powerline(NULL, COL_WHITE, gui_label_t::right),
-		old_powerline(NULL, COL_WHITE, gui_label_t::right),
+		powerline(NULL, COL_WHITE, gui_label_t::money),
+		old_powerline(NULL, COL_WHITE, gui_label_t::money),
 		maintenance_label("This Month",COL_WHITE, gui_label_t::right),
 		maintenance_money(NULL, COL_RED, gui_label_t::money),
 		warn("", COL_YELLOW, gui_label_t::left),
@@ -182,8 +182,8 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	old_conmoney.set_pos(koord(lyl_x,top+5*BUTTONSPACE));
 	tmoney.set_pos(koord(tyl_x,top+6*BUTTONSPACE));
 	old_tmoney.set_pos(koord(lyl_x,top+6*BUTTONSPACE));
-	powerline.set_pos(koord(tyl_x+19,top+7*BUTTONSPACE));
-	old_powerline.set_pos(koord(lyl_x+19,top+7*BUTTONSPACE));
+	powerline.set_pos(koord(tyl_x,top+7*BUTTONSPACE));
+	old_powerline.set_pos(koord(lyl_x,top+7*BUTTONSPACE));
 	transport.set_pos(koord(tyl_x+19, top+8*BUTTONSPACE));
 	old_transport.set_pos(koord(lyl_x+19, top+8*BUTTONSPACE));
 
@@ -339,14 +339,12 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	old_transport.set_text(str_buf[21]);
 	old_transport.set_color(get_money_colour(COST_ALL_TRANSPORTED, 0));
 
-	money_to_string(str_buf[22], sp->get_finance_history_year(0, COST_POWERLINES) );
-	str_buf[22][strlen(str_buf[22])-4] = 0;	// remove comma
-	powerline.set_text(str_buf[22]);
+	//money_to_string(str_buf[22], sp->get_finance_history_year(0, COST_POWERLINES) );
+	powerline.set_text(display_money(COST_POWERLINES, str_buf[22], 0)); //set_text(str_buf[22]);
 	powerline.set_color(get_money_colour(COST_POWERLINES, 0));
 
-	money_to_string(str_buf[23], sp->get_finance_history_year(1, COST_POWERLINES) );
-	str_buf[23][strlen(str_buf[23])-4] = 0;	// remove comma
-	old_powerline.set_text(str_buf[23]);
+	//money_to_string(str_buf[23], sp->get_finance_history_year(1, COST_POWERLINES) );
+	old_powerline.set_text(display_money(COST_POWERLINES, str_buf[23], 1));
 	old_powerline.set_color(get_money_colour(COST_POWERLINES, 1));
 
 	conmoney.set_color(get_money_colour(COST_CONSTRUCTION, 0));
