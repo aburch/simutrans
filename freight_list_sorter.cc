@@ -171,7 +171,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			halthandle_t via_halt = tdlist[j].via_destination;
 			halthandle_t origin_halt = tdlist[j].origin;
 
-			const char * name = "Error in Routing";
+			const char * name = "unknown";
 			if(halt.is_bound()) {
 				name = halt->get_name();
 			}

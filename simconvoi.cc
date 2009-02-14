@@ -737,6 +737,7 @@ bool convoi_t::sync_step(long delta_t)
 
 /**
  * Berechne route von Start- zu Zielkoordinate
+ * "Compute route from starting to goal coordinate" (Babelfish)
  * @author Hanjsörg Malthaner
  */
 int convoi_t::drive_to(koord3d start, koord3d ziel)
@@ -757,6 +758,8 @@ int convoi_t::drive_to(koord3d start, koord3d ziel)
 /**
  * Ein Fahrzeug hat ein Problem erkannt und erzwingt die
  * Berechnung einer neuen Route
+ * 
+ * "A vehicle recognized and forces a problem the computation of a new route" (Babelfish)
  * @author Hanjsörg Malthaner
  */
 void convoi_t::suche_neue_route()
@@ -1220,6 +1223,7 @@ void
 convoi_t::set_erstes_letztes()
 {
 	// anz_vehikel muss korrekt init sein
+	// "anz vehicle must be correctly INIT" (Babelfish)
 	if(anz_vehikel>0) {
 		fahr[0]->set_erstes(true);
 		for(unsigned i=1; i<anz_vehikel; i++) {
@@ -1419,7 +1423,7 @@ convoi_t::can_go_alte_richtung()
 
 
 void
-convoi_t::vorfahren()
+convoi_t::vorfahren() //"move forward" (Babelfish)
 {
 	// Hajo: init speed settings
 	sp_soll = 0;
@@ -1884,6 +1888,13 @@ convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_byte( tiles_overtaking, "o" );
 		set_tiles_overtaking( tiles_overtaking );
 	}
+	
+	// TODO: Add load/save parameters for:
+	// (1) origin;
+	// (2) last transfer;
+	// (3) origin departure time; and 
+	// (4) last transfer departure time.
+	// Then, reversion the save game file format.
 }
 
 
@@ -1962,16 +1973,25 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			slist_iterator_tpl<ware_t> iter_vehicle_ware(v->get_fracht());
 			while(iter_vehicle_ware.next()) {
 				ware_t ware = iter_vehicle_ware.get_current();
-				for(unsigned i=0;  i<total_fracht.get_count();  i++ ) {
-
-					//TODO: Reform the merging code to work with the new revenue system.
+				for(unsigned i = 0;  i < total_fracht.get_count();  i++ ) {
 
 					// could this be joined with existing freight?
 					ware_t &tmp = total_fracht[i];
 
-					// for pax: join according next stop
-					// for all others we *must* use target coordinates
-					if( ware.same_destination(tmp) ) {
+					/* OLD SYSTEM - no account taken of origins and timings.
+					 *
+					 * // for pax: join according next stop
+					 * // for all others we *must* use target coordinates
+					 * if( ware.same_destination(tmp) ) {
+					 */
+
+					// New system: ensure that only sufficiently similar cargo
+					// packets are merged, to preserve, e.g., origins for revenue
+					// calculation. Does not require packets to be identical:
+					// some approximation of the timings is permitted, and intermediate
+					// stop data is merged without checking for equality.
+					if(ware.can_merge_with(tmp))
+					{
 						tmp.menge += ware.menge;
 						ware.menge = 0;
 						break;
@@ -2125,7 +2145,7 @@ convoi_t::pruefe_vorgaenger(const vehikel_besch_t *vor, const vehikel_besch_t *h
 
 
 bool
-convoi_t::pruefe_alle()
+convoi_t::pruefe_alle() //"examine all" (Babelfish)
 {
 	bool ok = (anz_vehikel == 0 || pruefe_vorgaenger(NULL, fahr[0]->get_besch()));
 	unsigned i;
@@ -2151,7 +2171,7 @@ convoi_t::pruefe_alle()
  *
  * V.Meyer: ladegrad is now stored in the object (not returned)
  */
-void convoi_t::laden()
+void convoi_t::laden() //"load" (Babelfish)
 {
 	if(state == FAHRPLANEINGABE) {
 		return;
@@ -2159,6 +2179,7 @@ void convoi_t::laden()
 
 	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos);
 	// eigene haltestelle ?
+	// "own stop?" (Babelfish)
 	if (halt.is_bound()) {
 		const koord k = fpl->get_current_eintrag().pos.get_2d();
 		const spieler_t* owner = halt->get_besitzer();
@@ -2232,12 +2253,12 @@ void convoi_t::calc_gewinn()
  *
  * V.Meyer: ladegrad is now stored in the object (not returned)
  */
-void convoi_t::hat_gehalten(koord k, halthandle_t halt)
+void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 {
 	sint64 gewinn = 0;
-	grund_t *gr=welt->lookup(fahr[0]->get_pos());
+	grund_t *gr = welt->lookup(fahr[0]->get_pos());
 
-	int station_lenght=0;
+	int station_lenght = 0;
 	if(gr->ist_wasser()) {
 		// habour has any size
 		station_lenght = 24*16;

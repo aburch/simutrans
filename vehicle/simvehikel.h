@@ -195,6 +195,29 @@ private:
 	 */
 	bool load_freight(halthandle_t halt);
 
+	//@author: jamespetts
+	//uint16 local_bonus_supplement; 
+	//A supplementary bonus for local transportation,
+	//if needed, to compensate for not having the effect
+	//of the long-distance speed bonus.
+
+	//@author: jamespetts
+	// Cornering settings.
+
+	fixed_list_tpl<bool, 16> curve_history;
+	fixed_list_tpl<sint16, 16> pre_corner_direction;
+
+	sint16 direction_steps;
+
+	fixed_list_tpl<bool, 5> hill;
+	bool is_overweight;
+
+//#define debug_corners
+
+#ifdef debug_corners
+	uint16 current_corner;
+#endif
+
 protected:
 	virtual void hop();
 

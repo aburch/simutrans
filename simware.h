@@ -111,11 +111,22 @@ public:
 	bool is_freight() const {  return index>2; }
 
 	int operator==(const ware_t &w) {
-		return index  == w.index  &&
-			menge == w.menge &&
-			ziel  == w.ziel  &&
+		return	menge == w.menge &&
 			zwischenziel == w.zwischenziel &&
-			zielpos == w.zielpos &&
+			// No need to repeat the position checking if
+			// this will be done in can_merge_with.
+			(index < 3 || zielpos == w.zielpos) &&
+			can_merge_with(w);
+	}
+
+	// Lighter version of operator == that only checks equality
+	// of metrics needed for merging.
+	inline bool can_merge_with (const ware_t &w) const
+	{
+		return index  == w.index  &&
+			ziel  == w.ziel  &&
+			// Only merge the destination *position* if the load is not freight
+			(index > 2 || zielpos == w.zielpos) &&
 			origin == w.origin &&
 			previous_transfer == w.previous_transfer &&
 			// Goods generated within 15 secs (at default speed) of each other 
@@ -125,6 +136,7 @@ public:
 			!(journey_leg_start_time > w.journey_leg_start_time + 15000) &&
 			!(journey_leg_start_time < w.journey_leg_start_time - 15000);
 	}
+
 
 	uint8 get_journey_steps() { return journey_steps; }
 	void set_journey_steps(uint8 value) { journey_steps = value; }

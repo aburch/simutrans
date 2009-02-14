@@ -296,6 +296,13 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	if(welt->ist_in_kartengrenzen(k)) {
 		welt->access(k)->set_halt(self);
 	}
+
+	// TODO: Add load/save parameters for:
+	// (1) origin;
+	// (2) last transfer;
+	// (3) origin departure time; and 
+	// (4) last transfer departure time.
+	// Then, reversion the save game file format.
 }
 
 
@@ -766,7 +773,7 @@ void haltestelle_t::reroute_goods()
 			for(int j=warray->get_count()-1;  j>=0;  j--  ) {
 				ware_t & ware = (*warray)[j];
 
-				if(ware.menge==0) {
+				if(ware.menge == 0) {
 					continue;
 				}
 
@@ -861,9 +868,10 @@ void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl
 		for(int i=0; i<fpl->get_count(); i++) {
 
 			// Hajo: Haltestelle selbst wird nicht in Zielliste aufgenommen
+			//"Station itself is not in target list" (Google)
 			halthandle_t halt = get_halt(welt, fpl->eintrag[i].pos);
 			// not existing, or own, or not enabled => ignore
-			if(!halt.is_bound()  ||  halt==self  ||  !halt->is_enabled(type)) {
+			if(!halt.is_bound()  ||  halt == self  ||  !halt->is_enabled(type)) {
 				continue;
 			}
 
@@ -1187,7 +1195,7 @@ void haltestelle_t::add_pax_unhappy(int n)
 
 
 
-void haltestelle_t::liefere_an_fabrik(const ware_t& ware)
+void haltestelle_t::liefere_an_fabrik(const ware_t& ware) //"deliver to the factory" (Google)
 {
 	slist_iterator_tpl<fabrik_t *> fab_iter(fab_list);
 
@@ -1245,8 +1253,8 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 
 
 
-// will load something compatible with wtyp into the car which schedule is fpl
-ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t *fpl)
+// will load something compatible with wtyp into the car which schedule is fpl 
+ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t *fpl) //"hole from" (Google)
 {
 	// prissi: first iterate over the next stop, then over the ware
 	// might be a little slower, but ensures that passengers to nearest stop are served first
@@ -1258,10 +1266,14 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 
 		// da wir schon an der aktuellem haltestelle halten
 		// startet die schleife ab 1, d.h. dem naechsten halt
+
+		// because we have to keep the current haltestelle
+		// loop starts from 1, i.e. the next stop (Google)
+
 		for(  uint8 i=1; i<count; i++  ) {
 			const uint8 wrap_i = (i + fpl->get_aktuell()) % count;
 
-			const halthandle_t plan_halt = get_halt(welt, fpl->eintrag[wrap_i].pos);
+			const halthandle_t plan_halt = get_halt(welt, fpl->eintrag[wrap_i].pos); //eintrag = "entry" (Google)
 			if(plan_halt == self) {
 				// we will come later here again ...
 				break;
@@ -1284,7 +1296,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 					}
 
 					// compatible car and right target stop?
-					if(  tmp.get_zwischenziel()==plan_halt  ) {
+					if(  tmp.get_zwischenziel() == plan_halt  ) {
 
 						// not too much?
 						ware_t neu(tmp);
@@ -1384,17 +1396,34 @@ uint32 haltestelle_t::sum_all_waiting_goods() const      //15-Feb-2002    Markus
 
 
 
-bool haltestelle_t::vereinige_waren(const ware_t &ware)
+bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 {
 	// pruefen ob die ware mit bereits wartender ware vereinigt werden kann
+	// "examine whether the ware with software already waiting to be united" (Google)
+
 	vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
 	if(warray!=NULL) {
 		for(unsigned i=0;  i<warray->get_count();  i++ ) {
 			ware_t &tmp = (*warray)[i];
 
-			// es wird auf basis von Haltestellen vereinigt
-			// prissi: das ist aber ein Fehler für alle anderen Güter, daher Zielkoordinaten für alles, was kein passagier ist ...
-			if(ware.same_destination(tmp)) {
+			/*
+			* OLD SYSTEM - did not take account of origins and timings when merging.
+			*
+			* // es wird auf basis von Haltestellen vereinigt
+			* // prissi: das ist aber ein Fehler für alle anderen Güter, daher Zielkoordinaten für alles, was kein passagier ist ...
+			*
+			* //it is based on uniting stops. 
+			* //prissi: but that is a mistake for all other goods, therefore, target coordinates for everything that is not a passenger ...
+			* // (Google)
+			*
+			* if(ware.same_destination(tmp)) {
+			*/
+
+			// NEW SYSTEM
+			// Checks adds a great deal more checks.
+			// @author: jamespetts
+			if(ware.can_merge_with(tmp))
+			{
 				tmp.menge += ware.menge;
 				resort_freight_info = true;
 				return true;

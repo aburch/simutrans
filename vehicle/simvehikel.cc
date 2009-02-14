@@ -90,22 +90,7 @@ uint8 vehikel_basis_t::old_diagonal_length = 127;
 uint8 vehikel_basis_t::diagonal_length = 180;
 uint16 vehikel_basis_t::diagonal_multiplier = 724;
 
-//@author: jamespetts
-uint16 local_bonus_supplement = 0; 
-//A supplementary bonus for local transportation,
-//if needed, to compensate for not having the effect
-//of the long-distance speed bonus.
-
-//@author: jamespetts
-// Cornering settings.
-
-fixed_list_tpl<bool, 16> curve_history;
-fixed_list_tpl<sint16, 16> pre_corner_direction;
-
-sint16 direction_steps = 4;
-
-fixed_list_tpl<bool, 5> hill;
-bool is_overweight = false;
+uint16 local_bonus_supplement; 
 
 // set only once, before loading!
 void vehikel_basis_t::set_diagonal_multiplier( uint32 multiplier, uint32 old_diagonal_multiplier )
@@ -791,9 +776,18 @@ bool vehikel_t::load_freight(halthandle_t halt)
 			while(iter.next()) {
 				ware_t &tmp = iter.access_current();
 
-				// for pax: join according next stop
-				// for all others we *must* use target coordinates
-				if(ware.same_destination(tmp)) {
+				/*
+				 *	OLD SYSTEM - did not take account of origins, etc.
+				 * 
+				 * // for pax: join according next stop
+				 * // for all others we *must* use target coordinates
+				 * if(ware.same_destination(tmp)) {
+				 */
+
+				// New system: only merges if origins and timings are alike.
+				// @author: jamespetts
+				if(ware.can_merge_with(tmp))
+				{
 					tmp.menge += ware.menge;
 					total_freight += ware.menge;
 					ware.menge = 0;
@@ -964,8 +958,16 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 	ist_erstes = ist_letztes = false;
 	check_for_finish = false;
 	use_calc_height = true;
-	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine; //I
+	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
 	target_halt = halthandle_t();
+
+	//@author: jamespetts 
+#ifdef debug_corners	 
+	current_corner = 0;
+#endif
+	 direction_steps = 4;
+	 local_bonus_supplement = 0;
+	 is_overweight = false;
 }
 
 
@@ -985,7 +987,15 @@ vehikel_t::vehikel_t(karte_t *welt) :
 	ist_erstes = ist_letztes = false;
 	check_for_finish = false;
 	use_calc_height = true;
-	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine; //II
+	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
+
+	//@author: jamespetts 
+#ifdef debug_corners 
+	 current_corner = 0;
+#endif
+	 direction_steps = 4;
+	 local_bonus_supplement = 0;
+	 is_overweight = false;
 }
 
 
@@ -1216,8 +1226,10 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 	static uint8 min_direction_steps = welt->get_einstellungen()->get_min_direction_steps(waytype);
 	static uint8 max_direction_steps = welt->get_einstellungen()->get_max_direction_steps(waytype);
 	
+#ifndef debug_corners	
 	if(is_corner)
 	{
+#endif
  		sint16 direction_difference = 0;
 		sint16 direction = get_direction_degrees(ribi_t::get_dir(current_direction));
 		const koord3d *current_tile = position;
@@ -1261,6 +1273,9 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 			}
 		}
 
+#ifdef debug_corners
+		current_corner = direction_difference;
+#endif
 		if(direction_difference == 0 && current_direction != old_direction)
 		{
 			//Fallback code in case the checking the histories did not work properly (for example, if the histories were cleared recently) 
@@ -1296,7 +1311,11 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 				
 				//If we are here, there *must* be a curve, since we have already checked that.
 				//If this is 0, this is an error, and we will assume a 45 degree bend.
+#ifndef debug_corners
 				corner_speed_limit = (base_limit * limit_adjustment_factor); 
+#else
+				corner_speed_limit = base_limit;
+#endif
 				break;
 
 			case 45 :
@@ -1323,8 +1342,9 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 				//There *must* be a curve here, as the original bool flag was triggered.
 				corner_speed_limit = (base_limit * limit_adjustment_factor);
 		}
-		
+#ifndef debug_corners
 	}
+#endif
 	
 	//Overweight penalty not to be made cumulative to cornering penalty
 
@@ -2034,6 +2054,10 @@ vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 			sprintf(tooltip_text, translator::translate("Vehicle %s is too heavy for this route: speed limited."), cnv->get_name());
 			color = COL_YELLOW;
 		}
+#ifdef debug_corners
+			sprintf(tooltip_text, translator::translate("CORNER: %i"), current_corner);
+			color = COL_GREEN;
+#endif
 		
 
 		// something to show?
