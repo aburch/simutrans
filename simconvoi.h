@@ -160,6 +160,24 @@ private:
 	*/
 	bool no_load;
 
+	/*
+	* the convoy is marked for automatic replacing
+	* @author isidoro
+	*/
+	bool replace;
+
+	/**
+	* if marked for replacing, once in depot, auto restar the vehicle
+	* @author isidoro
+	*/
+	bool autostart;
+
+	/**
+	* send to depot when empty
+	* @author isidoro
+	*/
+	bool depot_when_empty;
+
 	/**
 	* the convoi caches its freight info; it is only recalculation after loading or resorting
 	* @author prissi
@@ -277,6 +295,9 @@ private:
 
 	ribi_t::ribi alte_richtung;
 
+	// The replacing vehicles, if any
+	vector_tpl<const vehikel_besch_t *> replacing_vehicles;
+
 	/**
 	* Initialize all variables with default values.
 	* Each constructor must call this method first!
@@ -354,6 +375,10 @@ private:
 	* @author hsiegeln
 	*/
 	koord3d home_depot;
+
+	// Helper function: used in init and replacing
+	void reset();
+
 
 public:
 	route_t* get_route() { return &route; }
@@ -789,6 +814,27 @@ public:
 	bool get_no_load() const { return no_load; }
 
 	void set_no_load(bool new_no_load) { no_load = new_no_load; }
+
+	bool get_replace() const { return replace; }
+
+	void set_replace(bool new_replace) { replace = new_replace; }
+
+	bool get_depot_when_empty() const { return depot_when_empty; }
+
+	void set_depot_when_empty(bool new_dwe) { depot_when_empty=new_dwe; }
+
+	bool get_autostart() const { return autostart; }
+
+	void set_autostart(bool new_autostart) { autostart=new_autostart; }
+
+	const vector_tpl<const vehikel_besch_t *> *get_replacing_vehicles() const { return &replacing_vehicles; }
+	void set_replacing_vehicles(const vector_tpl<const vehikel_besch_t *> *rv);
+
+	// True if the convoy has the same vehicles
+	bool has_same_vehicles(convoihandle_t other) const;
+
+	// Go to depot, if possible
+	bool go_to_depot(bool show_success);
 
 	// Overtaking for convois
 	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length);

@@ -63,7 +63,7 @@ public:
 	 * returns the pointer (i.e. for freeing untranslater contents)
 	 * @author Hansjörg Malthaner
 	 */
-	const char * get_text_pointer() { return text; }
+	const char * get_text_pointer() const { return text; }
 
 	/**
 	 * Zeichnet die Komponente
@@ -83,6 +83,7 @@ public:
 	 * @author Volker Meyer
 	 */
 
+	align_t get_align() const {return align;}
 	void set_align(align_t align) { this->align = align; }
 };
 

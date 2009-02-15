@@ -20,6 +20,7 @@ class vehikel_t;
 class schedule_t;
 class depot_frame_t;
 class vehikel_besch_t;
+class gui_convoy_assembler;
 
 
 /**
@@ -29,7 +30,7 @@ class vehikel_besch_t;
 class depot_t : public gebaeude_t
 {
 protected:
-	/**
+	/** 
 	 * Reworked depot data!
 	 *
 	 * It can now contain any number of vehicles bough by the user (as before).
@@ -57,6 +58,8 @@ public:
 
 	static const slist_tpl<depot_t *>& get_depot_list() { return all_depots; }
 
+	static unsigned get_max_convoy_length(waytype_t wt);
+
 	depot_t(karte_t *welt,loadsave_t *file);
 	depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t);
 	virtual ~depot_t();
@@ -66,12 +69,6 @@ public:
 	void rdwr(loadsave_t *file);
 
 	virtual linehandle_t create_line();
-
-	// text for the tabs is defaulted to the train names
-	virtual const char * get_electrics_name() { return "Electrics_tab"; };
-	virtual const char * get_passenger_name() { return "Pas_tab"; }
-	virtual const char * get_zieher_name() { return "Lokomotive_tab"; }
-	virtual const char * get_haenger_name() { return "Waggon_tab"; }
 
 	/**
 	 * Access to convoi list.
@@ -167,17 +164,6 @@ public:
 	void convoi_arrived(convoihandle_t cnv, bool fpl_adjust);
 
 	/**
-	 * Parameters to determine layout and behaviour of the depot_frame_t.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
-	 */
-	virtual int get_x_grid() const = 0;
-	virtual int get_y_grid() const = 0;
-	virtual int get_x_placement() const = 0;
-	virtual int get_y_placement() const = 0;
-	virtual unsigned get_max_convoi_length() const = 0;
-
-	/**
 	 * Öffnet ein neues Beobachtungsfenster für das Objekt.
 	 * @author Hj. Malthaner
 	 */
@@ -196,11 +182,30 @@ public:
 	 */
 	vehikel_t* get_oldest_vehicle(const vehikel_besch_t* besch);
 
+	/**
+	 * Calulate the values of the vehicles of the given type owned by the
+	 * player in this depot.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	sint32 calc_restwert(const vehikel_besch_t *veh_type);
+
 	/*
 	 * sets/gets the line that was selected the last time in the depot-dialog
 	 */
 	void set_selected_line(const linehandle_t sel_line);
 	linehandle_t get_selected_line();
+
+	/*
+	 * Find the oldest/newest vehicle in the depot
+	 */
+	vehikel_t* find_oldest_newest(const vehikel_besch_t* besch, bool old);
+
+	// true if already stored here
+	bool is_contained(const vehikel_besch_t *info);
+
+	// Helper function
+	inline unsigned get_max_convoi_length() const {return get_max_convoy_length(get_wegtyp());}
 
 private:
 	linehandle_t selected_line;
@@ -225,17 +230,6 @@ public:
 	virtual simline_t::linetype get_line_type() const { return simline_t::trainline; }
 
 	void rdwr_vehicles(loadsave_t *file) { depot_t::rdwr_vehikel(vehicles,file); }
-
-	/**
-	 * Parameters to determine layout and behaviour of the depot_frame_t.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
-	 */
-	int get_x_placement() const {return -25; }
-	int get_y_placement() const {return -28; }
-	int get_x_grid() const { return 24; }
-	int get_y_grid() const { return 24; }
-	unsigned get_max_convoi_length() const { return convoi_t::max_rail_vehicle; }
 
 	virtual waytype_t get_wegtyp() const {return track_wt;}
 	virtual enum ding_t::typ get_typ() const {return bahndepot;}
@@ -303,28 +297,11 @@ public:
  */
 class strassendepot_t : public depot_t
 {
-protected:
-	virtual const char * get_passenger_name() { return "Bus_tab"; }
-	virtual const char * get_electrics_name() { return "TrolleyBus_tab"; }
-	virtual const char * get_zieher_name() { return "LKW_tab"; }
-	virtual const char * get_haenger_name() { return "Anhaenger_tab"; }
-
 public:
 	strassendepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
 	strassendepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt,pos,sp,t) {}
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::truckline; }
-
-	/**
-	 * Parameters to determine layout and behaviour of the depot_frame_t.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
-	 */
-	int get_x_placement() const { return -20; }
-	int get_y_placement() const { return -25; }
-	int get_x_grid() const { return 24; }
-	int get_y_grid() const { return 24; }
-	unsigned get_max_convoi_length() const { return 4; }
 
 	virtual waytype_t get_wegtyp() const {return road_wt; }
 	enum ding_t::typ get_typ() const {return strassendepot;}
@@ -340,28 +317,12 @@ public:
  */
 class schiffdepot_t : public depot_t
 {
-protected:
-	virtual const char * get_passenger_name() { return "Ferry_tab"; }
-	virtual const char * get_zieher_name() { return "Schiff_tab"; }
-	virtual const char * get_haenger_name() { return "Schleppkahn_tab"; }
-
 public:
 	schiffdepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
 	schiffdepot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt,pos,sp,t) {}
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::shipline; }
 
-	/**
-	 * Parameters to determine layout and behaviour of the depot_frame_t.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
-	 */
-	int get_x_placement() const { return -1; }
-	int get_y_placement() const { return -11; }
-	int get_x_grid() const { return 60; }
-	int get_y_grid() const { return 46; }
-
-	unsigned get_max_convoi_length() const { return 4; }
 	virtual waytype_t get_wegtyp() const {return water_wt; }
 	enum ding_t::typ get_typ() const {return schiffdepot;}
 	const char *get_name() const {return "Schiffdepot";}
@@ -369,26 +330,11 @@ public:
 
 class airdepot_t : public depot_t
 {
-protected:
-	virtual const char * get_zieher_name() { return "aircraft_tab"; }
-	virtual const char * get_passenger_name() { return "Flug_tab"; }
-
 public:
 	airdepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
 	airdepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt,pos,sp,t) {}
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::airline; }
-
-	/**
-	 * Parameters to determine layout and behaviour of the depot_frame_t.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
-	 */
-	int get_x_placement() const {return -10; }
-	int get_y_placement() const {return -23; }
-	int get_x_grid() const { return 36; }
-	int get_y_grid() const { return 36; }
-	unsigned get_max_convoi_length() const { return 1; }
 
 	virtual waytype_t get_wegtyp() const { return air_wt; }
 	enum ding_t::typ get_typ() const { return airdepot; }

@@ -109,6 +109,16 @@ depot_t *depot_t::find_depot( koord3d start, const ding_t::typ depot_type, const
 	return found;
 }
 
+unsigned depot_t::get_max_convoy_length(waytype_t wt)
+{
+	if (wt==road_wt || wt==water_wt) {
+		return 4;
+	}
+	if (wt==air_wt) {
+		return 1;
+	}
+	return convoi_t::max_rail_vehicle;
+}
 
 
 /* this is called on two occasions:
@@ -434,6 +444,25 @@ const char * depot_t::ist_entfernbar(const spieler_t *sp)
 	return NULL;
 }
 
+// returns the indest of the old/newest vehicle in a list
+//@author: isidoro
+vehikel_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old)
+{
+	vehikel_t* found_veh = NULL;
+	slist_iterator_tpl<vehikel_t*> iter(get_vehicle_list());
+	while (iter.next()) {
+		vehikel_t* veh = iter.get_current();
+		if (veh->get_besch() == besch) {
+			// joy of XOR, finally a line where I could use it!
+			if (found_veh == NULL ||
+					old ^ (found_veh->get_insta_zeit() > veh->get_insta_zeit())) {
+				found_veh = veh;
+			}
+		}
+	}
+	return found_veh;
+}
+
 
 slist_tpl<const vehikel_besch_t*>* depot_t::get_vehicle_type()
 {
@@ -477,6 +506,21 @@ linehandle_t depot_t::get_selected_line()
 {
 	return selected_line;
 }
+
+
+sint32 depot_t::calc_restwert(const vehikel_besch_t *veh_type)
+{
+	sint32 wert = 0;
+
+	slist_iterator_tpl<vehikel_t *> iter(get_vehicle_list());
+	while(iter.next()) {
+		if(iter.get_current()->get_besch() == veh_type) {
+			wert += iter.get_current()->calc_restwert();
+		}
+	}
+	return wert;
+}
+
 
 bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 {
@@ -525,4 +569,18 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 		}
 	}
 	return  success;
+}
+
+// true if already stored here
+bool depot_t::is_contained(const vehikel_besch_t *info)
+{
+	if(vehicle_count()>0) {
+		slist_iterator_tpl<vehikel_t *> iter(get_vehicle_list());
+		while(iter.next()) {
+			if(iter.get_current()->get_besch()==info) {
+				return true;
+			}
+		}
+	}
+	return false;
 }

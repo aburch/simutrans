@@ -20,7 +20,9 @@
 #include "components/gui_button.h"
 #include "components/action_listener.h"
 #include "components/gui_scrollpane.h"
+#include "components/gui_convoy_assembler.h"
 #include "../simtypes.h"
+#include "../simdepot.h"
 
 class depot_t;
 class vehikel_besch_t;
@@ -47,16 +49,6 @@ private:
 	 */
 	int	icnv;
 
-	/* show retired vehicles (same for all depot)
-	* @author prissi
-	*/
-	static bool show_retired_vehicles;
-
-	/* show retired vehicles (same for all depot)
-	* @author prissi
-	*/
-	static bool show_all;
-
 	/**
 	 * Gui elements
 	 * @author Volker Meyer
@@ -67,8 +59,6 @@ private:
 	gui_label_t lb_convois;
 	button_t bt_next;
 
-	gui_label_t lb_convoi_count;
-	gui_label_t lb_convoi_speed;
 	gui_label_t lb_convoi_value;
 	gui_label_t lb_convoi_line;
 
@@ -76,15 +66,6 @@ private:
 	button_t bt_schedule;
 	button_t bt_destroy;
 	button_t bt_sell;
-
-	button_t bt_obsolete;
-	button_t bt_show_all;
-
-	gui_tab_panel_t tabs;
-	gui_divider_t   div_tabbottom;
-
-	gui_label_t lb_veh_action;
-	button_t bt_veh_action;
 
 	/**
 	 * buttons for new route-management
@@ -95,29 +76,11 @@ private:
 	button_t bt_copy_convoi;
 	button_t bt_apply_line;
 
-	vector_tpl<gui_image_list_t::image_data_t> convoi_pics;
-	gui_image_list_t convoi;
-
-	vector_tpl<gui_image_list_t::image_data_t> pas_vec;
-	vector_tpl<gui_image_list_t::image_data_t> electrics_vec;
-	vector_tpl<gui_image_list_t::image_data_t> loks_vec;
-	vector_tpl<gui_image_list_t::image_data_t> waggons_vec;
-
-	gui_image_list_t pas;
-	gui_image_list_t electrics;
-	gui_image_list_t loks;
-	gui_image_list_t waggons;
-	gui_scrollpane_t scrolly_pas;
-	gui_scrollpane_t scrolly_electrics;
-	gui_scrollpane_t scrolly_loks;
-	gui_scrollpane_t scrolly_waggons;
-	gui_container_t cont_pas;
-	gui_container_t cont_electrics;
-	gui_container_t cont_loks;
-	gui_container_t cont_waggons;
-
 	static char no_line_text[128];
 	gui_combobox_t line_selector;
+
+	gui_convoy_assembler_t *convoy_assembler;
+
 
 	linehandle_t selected_line;
 
@@ -132,21 +95,8 @@ private:
 
 	char txt_cnv_name[118];
 
-	char txt_convoi_count[40];
 	char txt_convoi_value[40];
-	char txt_convoi_speed[80];
 	char txt_convoi_line[128];
-
-	enum { va_append, va_insert, va_sell };
-	uint8 veh_action;
-
-	/**
-	 * A helper map to update loks_vec and waggons_Vec. All entries from
-	 * loks_vec and waggons_vec are referenced here.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
-	 */
-	ptrhashtable_tpl<const vehikel_besch_t *, gui_image_list_t::image_data_t *> vehicle_map;
 
 	/**
 	 * Update texts, image lists and buttons according to the current state.
@@ -154,22 +104,6 @@ private:
 	 * @date  09.06.2003
 	 */
 	void update_data();
-
-	/**
-	 * Draw the info text for the vehicle the mouse is over - if any.
-	 * @author Volker Meyer, Hj. Malthaner
-	 * @date  09.06.2003
-	 * @update 09-Jan-04
-	 */
-	void draw_vehicle_info_text(koord pos);
-
-	/**
-	 * Calulate the values of the vehicles of the given type owned by the
-	 * player.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
-	 */
-	sint32 calc_restwert(const vehikel_besch_t *veh_type);
 
 	/**
 	 * Do the dynamic dialog layout
@@ -185,23 +119,11 @@ private:
 	 */
 	bool has_min_sizer() const {return true;}
 
-	// true if already stored here
-	bool is_contained(const vehikel_besch_t *info);
-
-	// add a single vehicle (helper function)
-	void add_to_vehicle_list(const vehikel_besch_t *info);
-
-	// for convoi image
-	void image_from_convoi_list(uint nr);
-
-	vehikel_t* find_oldest_newest(const vehikel_besch_t* besch, bool old);
-
-	void image_from_storage_list(gui_image_list_t::image_data_t *bild_data);
-
 	karte_t* get_welt() { return depot->get_welt(); }
 
 public:
 	depot_frame_t(depot_t* depot);
+	virtual ~depot_frame_t();
 
 	/**
 	 * Setzt die Fenstergroesse
@@ -209,13 +131,6 @@ public:
 	 * @date   11-Mar-2003
 	 */
 	void set_fenstergroesse(koord groesse);
-
-	/**
-	 * Create and fill loks_vec and waggons_vec.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
-	 */
-	void build_vehicle_lists();
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.
@@ -259,6 +174,9 @@ public:
 	 * V.Meyer
 	 */
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	inline depot_t *get_depot() const {return depot;}
+	inline convoihandle_t get_convoy() const {return depot->get_convoi(icnv);}
+	inline void update_convoy() {icnv<0?convoy_assembler->clear_convoy():convoy_assembler->set_vehicles(get_convoy());}
 };
 
 #endif

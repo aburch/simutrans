@@ -46,6 +46,7 @@ private:
 	button_t follow_button;
 	button_t go_home_button;
 	button_t no_load_button;
+	button_t replace_button;
 	button_t filterButtons[7];
 
 	button_t sort_button;
@@ -68,10 +69,10 @@ private:
 	*/
 	cbuffer_t freight_info;
 
-	static bool route_search_in_progress;
 	static const char *sort_text[SORT_MODES];
 
 public:
+	static bool route_search_in_progress;
 	convoi_info_t(convoihandle_t cnv);
 
 	/**

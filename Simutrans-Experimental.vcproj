@@ -452,6 +452,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\components\gui_convoy_assembler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\components\gui_convoy_label.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\components\gui_flowtext.cc"
 				>
 			</File>
@@ -697,6 +705,10 @@
 			</File>
 			<File
 				RelativePath=".\dataobj\powernet.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\replace_frame.cc"
 				>
 			</File>
 			<File

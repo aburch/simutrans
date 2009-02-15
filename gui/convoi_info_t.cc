@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include "convoi_info_t.h"
+#include "replace_frame.h"
 
 #include "../simconvoi.h"
 #include "../simdepot.h"
@@ -178,6 +179,14 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	add_komponente(&no_load_button);
 	no_load_button.add_listener(this);
 
+	replace_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	replace_button.set_pos(koord(BUTTON3_X,76+BUTTON_HEIGHT+1));
+	replace_button.set_text("Replace");
+	replace_button.set_typ(button_t::box);
+	replace_button.set_tooltip("Automatically replace this convoy.");
+	add_komponente(&replace_button);
+	replace_button.add_listener(this);
+
 	follow_button.set_groesse(koord(66, BUTTON_HEIGHT));
 	follow_button.set_text("follow me");
 	follow_button.set_typ(button_t::roundbox_state);
@@ -238,6 +247,9 @@ enable_home:
 			}
 			no_load_button.pressed = cnv->get_no_load();
 			no_load_button.enable();
+			replace_button.background= cnv->get_replace()?COL_LIGHT_RED:MN_GREY3;
+			replace_button.set_text(cnv->get_replace()?"Replacing":"Replace");
+			replace_button.enable();
 		}
 		else {
 			if(  line_bound  ) {
@@ -248,6 +260,7 @@ enable_home:
 			button.disable();
 			go_home_button.disable();
 			no_load_button.disable();
+			replace_button.disable();
 		}
 		follow_button.pressed = (cnv->get_welt()->get_follow_convoi()==cnv);
 
@@ -366,60 +379,17 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			return true;
 		}
 
-		if(komp == &go_home_button    &&    !route_search_in_progress) {
-			// limit update to certain states that are considered to be save for fahrplan updates
-			int state = cnv->get_state();
-			if(state==convoi_t::FAHRPLANEINGABE) {
-DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot change schedule ... ", state );
+		if(komp == &replace_button) {
+			if (cnv->get_replace()) {
+				cnv->set_replace(false);
 				return true;
 			}
-			route_search_in_progress = true;
-
-			// iterate over all depots and try to find shortest route
-			slist_iterator_tpl<depot_t *> depot_iter(depot_t::get_depot_list());
-			route_t * shortest_route = new route_t();
-			route_t * route = new route_t();
-			koord3d home = koord3d(0,0,0);
-			while (depot_iter.next()) {
-				depot_t *depot = depot_iter.get_current();
-				if(depot->get_wegtyp()!=cnv->get_vehikel(0)->get_besch()->get_waytype()    ||    depot->get_besitzer()!=cnv->get_besitzer()) {
-					continue;
-				}
-				koord3d pos = depot->get_pos();
-				if(!shortest_route->empty()    &&    abs_distance(pos.get_2d(),cnv->get_pos().get_2d())>=shortest_route->get_max_n()) {
-					// the current route is already shorter, no need to search further
-					continue;
-				}
-				bool found = cnv->get_vehikel(0)->calc_route(cnv->get_pos(), pos,    50, route); // do not care about speed
-				if (found) {
-					if(  route->get_max_n() < shortest_route->get_max_n()    ||    shortest_route->empty()  ) {
-						shortest_route->kopiere(route);
-						home = pos;
-					}
-				}
-			}
-			delete route;
-			DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->get_max_n());
-
-			// if route to a depot has been found, update the convoi's schedule
-			bool b_depot_found = false;
-			if(!shortest_route->empty()) {
-				schedule_t *fpl = cnv->get_schedule();
-				fpl->insert(cnv->get_welt()->lookup(home));
-				fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
-				b_depot_found = cnv->set_schedule(fpl);
-			}
-			delete shortest_route;
-			route_search_in_progress = false;
-
-			// show result
-			const char* txt;
-			if (b_depot_found) {
-				txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
-			} else {
-				txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
-			}
-			create_win( new news_img(txt), w_time_delete, magic_none);
+			create_win(20, 20, new replace_frame_t(cnv, get_name()), w_info, (long)this);
+			return true;
+		}
+		if(komp == &go_home_button    &&    !route_search_in_progress) {
+			cnv->go_to_depot(true);
+			return true;
 		} // end go home button
 	}
 

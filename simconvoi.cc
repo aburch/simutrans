@@ -28,6 +28,8 @@
 #include "boden/grund.h"
 #include "boden/wege/schiene.h"	// for railblocks
 
+#include "bauer/vehikelbauer.h"
+
 #include "besch/vehikel_besch.h"
 #include "besch/roadsign_besch.h"
 
@@ -104,15 +106,34 @@ static int calc_min_top_speed(const array_tpl<vehikel_t*>& fahr, uint8 anz_vehik
 }
 
 
+// Reset some values.  Used in init and replacing.
+void convoi_t::reset()
+{
+	is_electric = false;
+	sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = power_from_steam = power_from_steam_with_gear = 0;
+	previous_delta_v = 0;
+	min_top_speed = 9999999;
+
+	withdraw = false;
+	has_obsolete = false;
+	no_load = false;
+	replace = false;
+	depot_when_empty = false;
+
+	jahresgewinn = 0;
+
+	max_record_speed = 0;
+	akt_speed_soll = 0;            // Sollgeschwindigkeit
+	akt_speed = 0;                 // momentane Geschwindigkeit
+	sp_soll = 0;
+}
+
 void convoi_t::init(karte_t *wl, spieler_t *sp)
 {
 	welt = wl;
 	besitzer_p = sp;
 
-	is_electric = false;
-	sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = power_from_steam = power_from_steam_with_gear = 0;
-	previous_delta_v = 0;
-	min_top_speed = 9999999;
+	reset();
 
 	fpl = NULL;
 	line = linehandle_t();
@@ -120,13 +141,9 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	anz_vehikel = 0;
 	steps_driven = -1;
-	withdraw = false;
-	has_obsolete = false;
-	no_load = false;
+	autostart = true;
 	wait_lock = 0;
 	go_on_ticks = WAIT_INFINITE;
-
-	jahresgewinn = 0;
 
 	alte_richtung = ribi_t::keine;
 	next_wolke = 0;
@@ -140,11 +157,6 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	freight_info_order = 0;
 	loading_level = 0;
 	loading_limit = 0;
-
-	max_record_speed = 0;
-	akt_speed_soll = 0;            // Sollgeschwindigkeit
-	akt_speed = 0;                 // momentane Geschwindigkeit
-	sp_soll = 0;
 
 	next_stop_index = 65535;
 
@@ -788,6 +800,46 @@ void convoi_t::step()
 
 	switch(state) {
 
+		case INITIAL:
+
+			// If there is a pending replacement, just do it
+			if (get_replace() && replacing_vehicles.get_count()>0) {
+				const grund_t *gr = welt->lookup(home_depot);
+				depot_t *dep;
+				if ( gr && (dep=gr->get_depot()) ) {
+					bool keep_name=(anz_vehikel>0 && strcmp(get_name(),fahr[0]->get_besch()->get_name())!=0);
+					// Sell the old convoy
+					besitzer_p->buche( calc_restwert(), dep->get_pos().get_2d(), COST_NEW_VEHICLE );
+					besitzer_p->buche( -calc_restwert(), COST_ASSETS );
+					for(int i=anz_vehikel-1;  i>=0; i--) {
+						delete fahr[i];
+					}
+					anz_vehikel = 0;
+					reset();
+					// Buy the new one
+					for (unsigned int i=0; i<replacing_vehicles.get_count(); ++i) {
+						vehikel_t* veh = dep->find_oldest_newest(replacing_vehicles[i], true);
+						if (veh == NULL) {
+							// nothing there => we buy it
+							veh = dep->buy_vehicle(replacing_vehicles[i]);
+						}
+						dep->append_vehicle(self, veh, false);
+					}
+					if (!keep_name) {
+						set_name(fahr[0]->get_besch()->get_name());
+					}
+					set_replace(false);
+					replacing_vehicles.clear();
+					if (line.is_bound()) {
+						line->recalc_status();
+					}
+					if (autostart) {
+						dep->start_convoi(self);
+					}
+				}
+			}
+			break;
+
 		case LOADING:
 			laden();
 			break;
@@ -994,6 +1046,7 @@ convoi_t::betrete_depot(depot_t *dep)
 	// the sync list from inside sync_step()
 	welt->sync_remove(this);
 	state = INITIAL;
+	wait_lock = 0;
 }
 
 
@@ -1061,7 +1114,7 @@ void convoi_t::ziel_erreicht()
 		akt_speed = 0;
 		sprintf(buf, translator::translate("!1_DEPOT_REACHED"), get_name());
 		welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::convoi, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
-
+		home_depot=v->get_pos();
 		betrete_depot(dp);
 	}
 	else {
@@ -1078,6 +1131,11 @@ void convoi_t::ziel_erreicht()
 			// Neither depot nor station: waypoint
 			fpl->advance();
 			state = ROUTING_1;
+			if(depot_when_empty && loading_level==0) {
+				depot_when_empty=false;
+				no_load=false;
+				go_to_depot(false);
+			}
 		}
 	}
 	wait_lock = 0;
@@ -2620,6 +2678,102 @@ convoi_t::get_catering_level(uint8 type) const
 	return max_catering_level;
 }
 
+void convoi_t::set_replacing_vehicles(const vector_tpl<const vehikel_besch_t *> *rv)
+{
+	replacing_vehicles.clear();
+	replacing_vehicles.resize(rv->get_count());  // To save some memory
+	for (unsigned int i=0; i<rv->get_count(); ++i) {
+		replacing_vehicles.push_back((*rv)[i]);
+	}
+}
+ 
+
+ /**
+ * True if this convoy has the same vehicles as the other
+ * @author isidoro
+ */
+bool convoi_t::has_same_vehicles(convoihandle_t other) const
+{
+	if (other.is_bound()) {
+		if (get_vehikel_anzahl()!=other->get_vehikel_anzahl()) {
+			return false;
+		}
+		for (int i=0; i<get_vehikel_anzahl(); i++) {
+			if (get_vehikel(i)->get_besch()!=other->get_vehikel(i)->get_besch()) {
+				return false;
+			}
+		}
+		return true;
+	}
+	return false;
+}
+
+
+/**
+ * Convoy is sent to depot.  Return value, success or not.
+ */
+bool convoi_t::go_to_depot(bool show_success)
+{
+	if (convoi_info_t::route_search_in_progress) {
+		return false;
+	}
+	// limit update to certain states that are considered to be save for fahrplan updates
+	int state = get_state();
+	if(state==convoi_t::FAHRPLANEINGABE) {
+DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule ... ", state );
+		return false;
+	}
+	convoi_info_t::route_search_in_progress = true;
+
+	// iterate over all depots and try to find shortest route
+	slist_iterator_tpl<depot_t *> depot_iter(depot_t::get_depot_list());
+	route_t * shortest_route = new route_t();
+	route_t * route = new route_t();
+	koord3d home = koord3d(0,0,0);
+	while (depot_iter.next()) {
+		depot_t *depot = depot_iter.get_current();
+		if(depot->get_wegtyp()!=get_vehikel(0)->get_besch()->get_waytype()    ||    depot->get_besitzer()!=get_besitzer()) {
+			continue;
+		}
+		koord3d pos = depot->get_pos();
+		if(!shortest_route->empty()    &&    abs_distance(pos.get_2d(),get_pos().get_2d())>=shortest_route->get_max_n()) {
+			// the current route is already shorter, no need to search further
+			continue;
+		}
+		bool found = get_vehikel(0)->calc_route(get_pos(), pos,    50, route); // do not care about speed
+		if (found) {
+			if(  route->get_max_n() < shortest_route->get_max_n()    ||    shortest_route->empty()  ) {
+				shortest_route->kopiere(route);
+				home = pos;
+			}
+		}
+	}
+	delete route;
+	DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->get_max_n());
+
+	// if route to a depot has been found, update the convoi's schedule
+	bool b_depot_found = false;
+	if(!shortest_route->empty()) {
+		schedule_t *fpl = get_schedule();
+		fpl->insert(get_welt()->lookup(home));
+		fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
+		b_depot_found = set_schedule(fpl);
+	}
+	delete shortest_route;
+	convoi_info_t::route_search_in_progress = false;
+
+	// show result
+	const char* txt;
+	if (b_depot_found) {
+		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
+	} else {
+		txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
+	}
+	if (!b_depot_found || show_success) {
+		create_win( new news_img(txt), w_time_delete, magic_none);
+	}
+	return b_depot_found;
+}
 
 
 /**

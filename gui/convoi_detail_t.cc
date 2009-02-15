@@ -51,6 +51,13 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	withdraw_button.set_tooltip("Convoi is sold when all wagons are empty.");
 	add_komponente(&withdraw_button);
 	withdraw_button.add_listener(this);
+	retire_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	retire_button.set_pos(koord(BUTTON3_X,16+BUTTON_HEIGHT));
+	retire_button.set_text("Retire");
+	retire_button.set_typ(button_t::roundbox);
+	retire_button.set_tooltip("Convoi is sent to depot when all wagons are empty.");
+	add_komponente(&retire_button);
+	retire_button.add_listener(this);
 
 	scrolly.set_pos(koord(0, 64));
 	add_komponente(&scrolly);
@@ -80,12 +87,15 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		if(cnv->get_besitzer()==cnv->get_welt()->get_active_player()) {
 			withdraw_button.enable();
 			sale_button.enable();
+			retire_button.enable();
 		}
 		else {
-			sale_button.disable();
 			withdraw_button.disable();
+			sale_button.disable();
+			retire_button.disable();
 		}
 		withdraw_button.pressed = cnv->get_withdraw();
+		retire_button.pressed = cnv->get_depot_when_empty();
 
 		// all gui stuff set => display it
 		veh_info.set_groesse(koord(1,1));
@@ -125,6 +135,11 @@ convoi_detail_t::action_triggered(gui_action_creator_t *komp,value_t /* */)     
 		else if(komp==&withdraw_button) {
 			cnv->set_withdraw(!cnv->get_withdraw());
 			cnv->set_no_load(cnv->get_withdraw());
+			return true;
+		}
+		else if(komp==&retire_button) {
+			cnv->set_depot_when_empty(!cnv->get_depot_when_empty());
+			cnv->set_no_load(cnv->get_depot_when_empty());
 			return true;
 		}
 	}

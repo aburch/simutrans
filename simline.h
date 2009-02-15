@@ -88,8 +88,6 @@ private:
 
 	void init_financial_history();
 
-	void recalc_status();
-
 public:
 	~simline_t();
 
@@ -202,6 +200,8 @@ public:
 
 public:
 	spieler_t *get_besitzer() const {return sp;}
+
+	void recalc_status();
 
 };
 
