@@ -624,7 +624,9 @@ DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 	delete scenario;
 	scenario = NULL;
 
-assert( depot_t::get_depot_list().empty() );
+
+	bool empty_depot_list = depot_t::get_depot_list().empty();
+	assert( empty_depot_list );
 
 DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 	printf("World destroyed.\n");

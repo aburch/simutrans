@@ -505,7 +505,8 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 			pos->rotate90( welt->get_groesse_y()-info->get_haus()->get_h(rotate) );
 			welt->rotate90();
 		}
-		assert( !welt->cannot_save() );
+		bool can_save = !welt->cannot_save();
+		assert( can_save );
 	}
 
 	// intown needs different place search

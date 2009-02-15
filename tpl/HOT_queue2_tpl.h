@@ -56,7 +56,8 @@ public:
 
 private:
 	void heapify(uint32 pocket) {
-		assert(!nodes[pocket].empty());
+		bool nodes_not_empty = !nodes[pocket].empty();
+		assert(nodes_not_empty);
 
 		// needs resort: NULL pointer in the first pocket
 		if (nodes[pocket].front() == NULL) {

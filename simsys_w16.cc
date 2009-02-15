@@ -683,7 +683,7 @@ void show_pointer(int yesno)
 		state = yesno;
 	}
 }
-
+ 
 
 
 void ex_ord_update_mx_my()

@@ -82,7 +82,8 @@ public:
 			// ok, touching a possibly unsorted pocket
 			if(need_resort) {
 				// need heap'ifying ...
-				assert(heap.empty());
+				bool heap_empty = heap.empty();
+				assert(heap_empty);
 				node_count -= nodes[node_top].count();
 				while (!nodes[node_top].empty()) {
 					heap.insert( nodes[node_top].remove_first() );
