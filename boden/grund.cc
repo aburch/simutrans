@@ -598,7 +598,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 			// up slope hiding something ...
 			if(diff_from_ground_1-corner1(slope_this)<0  ||  diff_from_ground_2-corner4(slope_this)<0)  {
 				set_flag(grund_t::draw_as_ding);
-				fence_west = true;
+				fence_west = corner1(slope_this)==corner4(slope_this);
 			}
 			// any height difference AND something to see?
 			if(  (diff_from_ground_1-corner1(slope_this)>0  ||  diff_from_ground_2-corner4(slope_this)>0)
@@ -625,7 +625,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 			// up slope hiding something ...
 			if(diff_from_ground_1-corner4(slope_this)<0  ||  diff_from_ground_2-corner3(slope_this)<0) {
 				set_flag(grund_t::draw_as_ding);
-				fence_north = true;
+				fence_north = corner4(slope_this)==corner3(slope_this);
 			}
 			// any height difference AND something to see?
 			if(  (diff_from_ground_1-corner4(slope_this)>0  ||  diff_from_ground_2-corner3(slope_this)>0)
@@ -701,13 +701,14 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos) const
 	if(back_bild_nr!=0) {
 		if(abs(back_bild_nr)>121) {
 			// fence before a drop
+			const sint16 offset = slope ? -TILE_HEIGHT_STEP : 0;
 			if(back_bild_nr<0) {
 				// behind a building
-				display_img(grund_besch_t::fences->get_bild(-back_bild_nr-122+3), xpos, ypos, dirty);
+				display_img(grund_besch_t::fences->get_bild(-back_bild_nr-122+3), xpos, ypos+offset, dirty);
 			}
 			else {
 				// on a normal tile
-				display_img(grund_besch_t::fences->get_bild(back_bild_nr-122), xpos, ypos, dirty);
+				display_img(grund_besch_t::fences->get_bild(back_bild_nr-122), xpos, ypos+offset, dirty);
 			}
 		}
 		else {
