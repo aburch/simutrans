@@ -78,7 +78,7 @@ template<class T> class vector_tpl
 			return 0xFFFFFFFFu;
 		}
 
-		void append(const T& elem, int resize)
+		void append(const T& elem)
 		{
 			if(  count == size  ) {
 				resize(size == 0 ? 1 : size * 2);
