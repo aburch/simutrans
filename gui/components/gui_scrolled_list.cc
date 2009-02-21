@@ -18,7 +18,7 @@
 
 int gui_scrolled_list_t::total_vertical_size() const
 {
-	return item_list.count() * LINESPACE + 2;
+	return item_list.get_count() * LINESPACE + 2;
 }
 
 
@@ -58,7 +58,7 @@ bool gui_scrolled_list_t::action_triggered( gui_action_creator_t * /* comp */, v
 // set the scrollbar offset, so that the selected itm is visible
 void gui_scrolled_list_t::show_selection(int s)
 {
-	if((unsigned)s<item_list.count()) {
+	if((unsigned)s<item_list.get_count()) {
 		selection = s;
 DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, groesse.y=%d",s,offset,groesse.y);
 		s *= LINESPACE;
@@ -145,7 +145,7 @@ gui_scrolled_list_t::infowin_event(const event_t *ev)
 					int new_selection = (y-(border/2)-2+offset);
 					if(new_selection>=0) {
 						new_selection/=LINESPACE;
-						if((unsigned)new_selection>=item_list.count()) {
+						if((unsigned)new_selection>=item_list.get_count()) {
 							new_selection = -1;
 						}
 						DBG_MESSAGE("gui_scrolled_list_t::infowin_event()","selected %i",selection);

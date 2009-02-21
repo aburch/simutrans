@@ -210,10 +210,10 @@ class compare_factories
 void factorylist_stats_t::sort(factorylist::sort_mode_t sortby, bool sortreverse)
 {
 	fab_list.clear();
-	fab_list.resize(welt->get_fab_list().count());
+	fab_list.resize(welt->get_fab_list().get_count());
 	for (slist_iterator_tpl<fabrik_t*> i(welt->get_fab_list()); i.next();) {
-		fab_list.push_back(i.get_current());
+		fab_list.append(i.get_current());
 	}
 	std::sort(fab_list.begin(), fab_list.end(), compare_factories(sortby, sortreverse));
-	set_groesse(koord(210, welt->get_fab_list().count()*(LINESPACE+1)-10));
+	set_groesse(koord(210, welt->get_fab_list().get_count()*(LINESPACE+1)-10));
 }

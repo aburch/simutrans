@@ -3589,7 +3589,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 						if(fpl  &&  fpl->ist_halt_erlaubt(bd)) {
 							bool updated = false;
 							for(  int k=0;  k<fpl->get_count();  k++  ) {
-								if(  (catch_all_halt  &&  haltestelle_t::get_halt(welt,fpl->eintrag[k].pos)==last_halt)  ||  old_platform.contains(fpl->eintrag[k].pos)  ) {
+								if(  (catch_all_halt  &&  haltestelle_t::get_halt(welt,fpl->eintrag[k].pos)==last_halt)  ||  old_platform.is_contained(fpl->eintrag[k].pos)  ) {
 									fpl->eintrag[k].pos = pos;
 									updated = true;
 								}
@@ -3613,7 +3613,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 						bool updated = false;
 						for(  int k=0;  k<fpl->get_count();  k++  ) {
 							// ok!
-							if(  (catch_all_halt  &&  haltestelle_t::get_halt(welt,fpl->eintrag[k].pos)==last_halt)  ||  old_platform.contains(fpl->eintrag[k].pos)  ) {
+							if(  (catch_all_halt  &&  haltestelle_t::get_halt(welt,fpl->eintrag[k].pos)==last_halt)  ||  old_platform.is_contained(fpl->eintrag[k].pos)  ) {
 								fpl->eintrag[k].pos = pos;
 								updated = true;
 							}

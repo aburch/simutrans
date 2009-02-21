@@ -130,7 +130,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 			for (uint32 i = 0; i < eingang.get_count(); i++) {
 				const ware_besch_t* ware = eingang[i].get_typ();
 
-				if(!nimmt_an.contains(ware)) {
+				if(!nimmt_an.is_contained(ware)) {
 					nimmt_an.append(ware);
 				}
 			}
@@ -152,7 +152,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	if (!nimmt_an.empty()) {
 		for(uint32 i=0; i<warenbauer_t::get_waren_anzahl(); i++) {
 			const ware_besch_t *ware = warenbauer_t::get_info(i);
-			if(nimmt_an.contains(ware)) {
+			if(nimmt_an.is_contained(ware)) {
 
 				buf.append(" ");
 				buf.append(translator::translate(ware->get_name()));

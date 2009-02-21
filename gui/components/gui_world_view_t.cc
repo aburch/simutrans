@@ -189,13 +189,13 @@ void world_view_t::set_groesse(koord size)
 	for( sint16 dy=-max_dy;  dy<=2;  ) {
 		{
 		for( sint16 dx=-2;  dx<max_dx;  dx+=2  ) {
-			offsets.push_back(koord((dy + dx)/2, (dy - dx) / 2));
+			offsets.append(koord((dy + dx)/2, (dy - dx) / 2));
 //			DBG_MESSAGE("world_view_t::set_groesse()","offset %d,%d added",offsets.get(offsets.get_count()-1).x,offsets.get(offsets.get_count()-1).y );
 		}
 		}
 		dy++;
 		for( sint16 dx=-1;  dx<max_dx;  dx+=2  ) {
-			offsets.push_back(koord((dy + dx) / 2, (dy - dx) / 2));
+			offsets.append(koord((dy + dx) / 2, (dy - dx) / 2));
 //			DBG_MESSAGE("world_view_t::set_groesse()","offset %d,%d added",offsets.get(offsets.get_count()-1).x,offsets.get(offsets.get_count()-1).y );
 		}
 		dy++;

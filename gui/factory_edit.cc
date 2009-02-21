@@ -132,16 +132,16 @@ void factory_edit_frame_t::fill_list( bool translate )
 
 				if(city_chain) {
 					if(besch->get_platzierung()==fabrik_besch_t::Stadt  &&  besch->get_produkt(0)==NULL) {
-						fablist.push_back(besch);
+						fablist.append(besch);
 					}
 				}
 				if(land_chain) {
 					if(besch->get_platzierung()==fabrik_besch_t::Land  &&  besch->get_produkt(0)==NULL) {
-						fablist.push_back(besch);
+						fablist.append(besch);
 					}
 				}
 				if(!city_chain  &&  !land_chain) {
-					fablist.push_back(besch);
+					fablist.append(besch);
 				}
 			}
 		}

@@ -222,12 +222,12 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 
 	// prissi: added more error checks
-	if (has_8_images && emptykeys.count() < 8) {
-		printf("*** FATAL ***:\nMissing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.count());
+	if (has_8_images && emptykeys.get_count() < 8) {
+		printf("*** FATAL ***:\nMissing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.get_count());
 		exit(0);
 	}
-	if (!freightkeys_old.empty() && emptykeys.count() != freightkeys_old.count()) {
-		printf("*** FATAL ***:\nMissing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.count());
+	if (!freightkeys_old.empty() && emptykeys.get_count() != freightkeys_old.get_count()) {
+		printf("*** FATAL ***:\nMissing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.get_count());
 		exit(0);
 	}
 
@@ -235,7 +235,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	if (freight_max > 0) {
 		imagelist2d_writer_t::instance()->write_obj(fp, node, freightkeys);
 	} else {
-		if (freightkeys_old.count() == emptykeys.count()) {
+		if (freightkeys_old.get_count() == emptykeys.get_count()) {
 			imagelist_writer_t::instance()->write_obj(fp, node, freightkeys_old);
 		} else {
 			// really empty list ...

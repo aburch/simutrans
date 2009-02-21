@@ -1162,7 +1162,7 @@ vehikel_t::rauche()
 sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 {
 	// may happen when waiting in station
-	if(start==end  ||  fracht.count()==0) {
+	if(start==end  ||  fracht.get_count()==0) {
 		return 0;
 	}
 
@@ -1390,7 +1390,7 @@ void vehikel_t::rdwr_from_convoi(loadsave_t *file)
 	sint32 fracht_count = 0;
 
 	if(file->is_saving()) {
-		fracht_count = fracht.count();
+		fracht_count = fracht.get_count();
 		// we try to have one freight count to guess the right freight
 		// when no besch is given
 		if(fracht_count==0  &&  besch->get_ware()!=warenbauer_t::nichts  &&  besch->get_zuladung()>0) {

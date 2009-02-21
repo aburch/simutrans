@@ -62,8 +62,8 @@ void ai_goods_t::neues_jahr()
 	spieler_t::neues_jahr();
 
 	// AI will reconsider the oldes unbuiltable lines again
-	uint remove = (uint)max(0,(int)forbidden_conections.count()-3);
-	while(  remove < forbidden_conections.count()  ) {
+	uint remove = (uint)max(0,(int)forbidden_conections.get_count()-3);
+	while(  remove < forbidden_conections.get_count()  ) {
 		forbidden_conections.remove_first();
 	}
 }
@@ -902,7 +902,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				}
 				int ships_needed = 1 + (prod*abs_distance(harbour,start->get_pos().get_2d())) / (ship_vehicle->get_zuladung()*max(20,ship_vehicle->get_geschw()));
 				if(create_ship_transport_vehikel(start,ships_needed)) {
-					if(welt->lookup(harbour)->get_halt()->get_fab_list().contains(ziel)) {
+					if(welt->lookup(harbour)->get_halt()->get_fab_list().is_contained(ziel)) {
 						// so close, so we are already connected
 						grund_t *gr = welt->lookup_kartenboden(platz2);
 						if (gr) gr->obj_loesche_alle(this);
@@ -1270,7 +1270,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 	}
 
 	// finally: forbidden connection list
-	sint32 cnt = forbidden_conections.count();
+	sint32 cnt = forbidden_conections.get_count();
 	file->rdwr_long(cnt,"Fc");
 	if(file->is_saving()) {
 		slist_iterator_tpl<fabconnection_t> iter(forbidden_conections);

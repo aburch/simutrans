@@ -180,7 +180,7 @@ void convoi_frame_t::sort_list()
 	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
 		convoihandle_t cnv = *i;
 		if(cnv->get_besitzer()==owner  &&   passes_filter(cnv)) {
-			convois.push_back(cnv);
+			convois.append(cnv);
 		}
 	}
 	qsort(convois.begin(), convois.get_count(), sizeof(convoihandle_t), compare_convois);

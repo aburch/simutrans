@@ -1895,7 +1895,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 				// if != 0 we could not join it to existing => load it
 				if(ware.menge != 0) {
-					total_fracht.push_back(ware);
+					total_fracht.append(ware);
 				}
 			}
 

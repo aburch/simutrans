@@ -41,7 +41,7 @@ bool ticker::empty()
 void ticker::add_msg(const char* txt, koord pos, int color)
 {
 	// don't store more than 4 messages, it's useless.
-	const int count = list.count();
+	const int count = list.get_count();
 
 	if(count==0) {
 		redraw_all = true;

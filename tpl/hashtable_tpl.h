@@ -152,7 +152,7 @@ public:
 	void dump_stats()
 	{
 		for(STHT_BAG_COUNTER_T i = 0; i < STHT_BAGSIZE; i++) {
-			uint32 count = bags[i].count();
+			uint32 count = bags[i].get_count();
 
 			printf("Bag %d contains %ud elements\n", i, count);
 
@@ -167,11 +167,11 @@ public:
 		}
 	}
 
-	uint32 count() const
+	uint32 get_count() const
 	{
 		uint32 count = 0;
 		for(STHT_BAG_COUNTER_T i = 0; i < STHT_BAGSIZE; i++) {
-			count += bags[i].count();
+			count += bags[i].get_count();
 		}
 		return count;
 	}

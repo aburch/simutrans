@@ -824,14 +824,14 @@ public:
 	const gebaeude_t *get_random_ausflugsziel() const;
 	const weighted_vector_tpl<gebaeude_t*> &get_ausflugsziele() const {return ausflugsziele; }
 
-	void add_label(koord pos) { if (!labels.contains(pos)) labels.append(pos); }
+	void add_label(koord pos) { if (!labels.is_contained(pos)) labels.append(pos); }
 	void remove_label(koord pos) { labels.remove(pos); }
 	const slist_tpl<koord>& get_label_list() const { return labels; }
 
 	bool add_fab(fabrik_t *fab);
 	bool rem_fab(fabrik_t *fab);
 	int get_fab_index(fabrik_t* fab) { return fab_list.index_of(fab); }
-	fabrik_t* get_fab(unsigned index) { return index < fab_list.count() ? fab_list.at(index) : NULL; }
+	fabrik_t* get_fab(unsigned index) { return index < fab_list.get_count() ? fab_list.at(index) : NULL; }
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
 	/* sucht zufaellig eine Fabrik aus der Fabrikliste

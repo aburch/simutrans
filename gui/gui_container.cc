@@ -126,7 +126,7 @@ void gui_container_t::zeichnen(koord offset)
 
 void gui_container_t::set_focus( gui_komponente_t *k )
 {
-	if(  komponenten.contains(k)  ||  k==NULL  ) {
+	if(  komponenten.is_contained(k)  ||  k==NULL  ) {
 		komp_focus = k;
 		if(  k!=NULL  ) {
 			request_focus( k );

@@ -122,7 +122,7 @@ bool warenbauer_t::register_besch(ware_besch_t *besch)
 		load_post = besch;
 	} else if(besch != nichts) {
 		besch->ware_index = waren.get_count()+3;
-		waren.push_back(besch);
+		waren.append(besch);
 	}
 	else {
 		load_nichts = besch;

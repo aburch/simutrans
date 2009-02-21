@@ -140,7 +140,7 @@ public:
 
 	static char *access_name_filter() { return name_filter_value; }
 
-	static bool get_ware_filter(const ware_besch_t *ware) { return waren_filter.contains(ware); }
+	static bool get_ware_filter(const ware_besch_t *ware) { return waren_filter.is_contained(ware); }
 	// mode: 0=off, 1=on, -1=toggle
 	static void set_ware_filter(const ware_besch_t *ware, int mode);
 	static void set_alle_ware_filter(int mode);

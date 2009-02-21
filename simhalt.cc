@@ -265,7 +265,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 {
 	self = halthandle_t(this);
-	assert( !alle_haltestellen.contains(self) );
+	assert( !alle_haltestellen.is_contained(self) );
 	alle_haltestellen.insert(self);
 
 	welt = wl;
@@ -305,7 +305,7 @@ haltestelle_t::~haltestelle_t()
 
 	// first: remove halt from all lists
 	int i=0;
-	while(alle_haltestellen.contains(self)) {
+	while(alle_haltestellen.is_contained(self)) {
 		alle_haltestellen.remove(self);
 		i++;
 	}
@@ -528,7 +528,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 			// since the distance are presorted, we can just append for a good choice ...
 			for(  int test=0;  test<24;  test++  ) {
 				fabrik_t *fab = fabrik_t::get_fab(welt,k+next_building[test]);
-				if(fab  &&  fabs.contains(fab)) {
+				if(fab  &&  fabs.is_contained(fab)) {
 					fabs.append(fab);
 				}
 			}
@@ -788,7 +788,7 @@ void haltestelle_t::reroute_goods()
 				}
 
 				// add to new array
-				new_warray->push_back( ware );
+				new_warray->append( ware );
 			}
 
 			INT_CHECK( "simhalt.cc 489" );
@@ -834,7 +834,7 @@ void haltestelle_t::verbinde_fabriken()
 		vector_tpl<fabrik_t*>& fablist = fabrik_t::sind_da_welche(welt, p - koord(cov, cov), p + koord(cov, cov));
 		for(unsigned i=0; i<fablist.get_count(); i++) {
 			fabrik_t* fab = fablist[i];
-			if(!fab_list.contains(fab)) {
+			if(!fab_list.is_contained(fab)) {
 				fab_list.insert(fab);
 				fab->link_halt(self);
 			}
@@ -870,7 +870,7 @@ void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl
 			// we need to do this here; otherwise the position of the stop (if in water) may not directly be a halt!
 			vector_tpl<halthandle_t> &wz_list = warenziele[ type->get_catg_index() ];
 			if(  !wz_list.is_contained(halt)  ) {
-				wz_list.push_back( halt );
+				wz_list.append( halt );
 				if(  waren[type->get_catg_index()] == NULL  ) {
 					// indicates that this can route those goods
 					waren[type->get_catg_index()] = new vector_tpl<ware_t>(0);
@@ -933,7 +933,7 @@ void haltestelle_t::rebuild_destinations()
 							if(ware!=warenbauer_t::nichts  &&  !add_catg_index.is_contained(ware->get_catg_index())) {
 								// now add the freights
 								hat_gehalten(ware, fpl );
-								add_catg_index.push_back_unique(ware->get_catg_index());
+								add_catg_index.append_unique(ware->get_catg_index());
 							}
 						}
 					}
@@ -999,7 +999,7 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	for( unsigned h=0;  h<plan->get_haltlist_count();  h++ ) {
 		halthandle_t halt = halt_list[h];
 		if(  halt->is_enabled(warentyp)  ) {
-			ziel_list.push_back(halt);
+			ziel_list.append(halt);
 		}
 		else {
 //DBG_MESSAGE("suche_route()","halt %s near (%i,%i) does not accept  %s!",halt->get_name(),ziel.x,ziel.y,warentyp->get_name());
@@ -1426,7 +1426,7 @@ void haltestelle_t::add_ware_to_halt(ware_t ware)
 		}
 	}
 	// here, if no free entries found
-	warray->push_back(ware);
+	warray->append(ware);
 }
 
 
@@ -1707,7 +1707,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 				const planquadrat_t *pl2 = welt->lookup(gr->get_pos().get_2d()+koord::neighbours[i]);
 				if(  pl2  ) {
 					halthandle_t halt = pl2->get_halt();
-					if(  halt.is_bound()  &&  halt->get_besitzer()==public_owner  &&  !joining.contains(halt)) {
+					if(  halt.is_bound()  &&  halt->get_besitzer()==public_owner  &&  !joining.is_contained(halt)) {
 						joining.append(halt);
 					}
 				}
@@ -2210,7 +2210,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	assert(gr!=NULL);
 
 	// neu halt?
-	if (tiles.contains(gr)) return false;
+	if (tiles.is_contained(gr)) return false;
 
 	koord pos=gr->get_pos().get_2d();
 	gr->set_halt(self);
@@ -2235,7 +2235,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	vector_tpl<fabrik_t*>& fablist = fabrik_t::sind_da_welche(welt, pos - koord(cov, cov), pos + koord(cov, cov));
 	for(unsigned i=0; i<fablist.get_count(); i++) {
 		fabrik_t* fab = fablist[i];
-		if(!fab_list.contains(fab)) {
+		if(!fab_list.is_contained(fab)) {
 			fab_list.insert(fab);
 			fab->link_halt(self);
 		}
@@ -2254,7 +2254,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 						const schedule_t *fpl = check_line[j]->get_schedule();
 						for(  int k=0;  k<fpl->get_count();  k++  ) {
 							if(get_halt(welt,fpl->eintrag[k].pos)==self) {
-								registered_lines.push_back(check_line[j]);
+								registered_lines.append(check_line[j]);
 								break;
 							}
 						}
@@ -2271,7 +2271,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 				const schedule_t *fpl = check_line[j]->get_schedule();
 				for(  int k=0;  k<fpl->get_count();  k++  ) {
 					if(get_halt(welt,fpl->eintrag[k].pos)==self) {
-						registered_lines.push_back(check_line[j]);
+						registered_lines.append(check_line[j]);
 						break;
 					}
 				}
@@ -2327,11 +2327,11 @@ void haltestelle_t::rem_grund(grund_t *gr)
 			for(unsigned i=0;  i<pl->get_boden_count();  i++  ) {
 				if(pl->get_boden_bei(i)->get_halt().is_bound()) {
 					// still connected with other ground => do not remove from plan ...
-					DBG_DEBUG("haltestelle_t::rem_grund()", "keep floor, count=%i", tiles.count());
+					DBG_DEBUG("haltestelle_t::rem_grund()", "keep floor, count=%i", tiles.get_count());
 					return;
 				}
 			}
-			DBG_DEBUG("haltestelle_t::rem_grund()", "remove also floor, count=%i", tiles.count());
+			DBG_DEBUG("haltestelle_t::rem_grund()", "remove also floor, count=%i", tiles.get_count());
 			// otherwise remove from plan ...
 			pl->set_halt(halthandle_t());
 			pl->get_kartenboden()->set_flag(grund_t::dirty);

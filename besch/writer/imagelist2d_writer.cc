@@ -14,7 +14,7 @@ void imagelist2d_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_t
 
 	slist_iterator_tpl<slist_tpl<cstring_t> > iter(keys);
 
-	besch.anzahl = keys.count();
+	besch.anzahl = keys.get_count();
 
 	while (iter.next()) {
 		imagelist_writer_t::instance()->write_obj(fp, node, iter.get_current());

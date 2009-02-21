@@ -78,7 +78,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  30.05.2003
 	 */
-	unsigned convoi_count() const { return convois.count(); }
+	unsigned convoi_count() const { return convois.get_count(); }
 
 	convoihandle_t get_convoi(unsigned int icnv) const { return icnv < convoi_count() ? convois.at(icnv) : convoihandle_t(); }
 
@@ -128,7 +128,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  30.05.2003
 	 */
-	unsigned vehicle_count() const { return vehicles.count(); }
+	unsigned vehicle_count() const { return vehicles.get_count(); }
 	const slist_tpl<vehikel_t *> *get_vehicle_list() { return &vehicles; }
 
 	/**

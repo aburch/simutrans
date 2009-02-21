@@ -300,7 +300,7 @@ halt_list_frame_t::~halt_list_frame_t()
 void halt_list_frame_t::display_list(void)
 {
 	slist_iterator_tpl<halthandle_t > halt_iter (haltestelle_t::get_alle_haltestellen());	// iteration with haltestellen (stations)
-	const int count = haltestelle_t::get_alle_haltestellen().count();				// count of stations
+	const int count = haltestelle_t::get_alle_haltestellen().get_count();				// count of stations
 
 	ALLOCA(halthandle_t, a, count);
 	int n = 0; // temporary variable
@@ -333,7 +333,7 @@ void halt_list_frame_t::display_list(void)
 
 	// display stations
 	for (i = 0; i < n; i++) {
-		stops.push_back(halt_list_stats_t(a[i]));
+		stops.append(halt_list_stats_t(a[i]));
 		stops.back().set_pos(koord(0,0));
 	}
 	// hide/show scroll bar

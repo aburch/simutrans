@@ -55,7 +55,7 @@ static stringhashtable_tpl<const bruecke_besch_t *> bruecken_by_name;
 void brueckenbauer_t::register_besch(const bruecke_besch_t *besch)
 {
 	bruecken_by_name.put(besch->get_name(), besch);
-	bruecken.push_back(besch);
+	bruecken.append(besch);
 }
 
 
@@ -146,7 +146,7 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, c
 					time == 0 ||
 					(b->get_intro_year_month() <= time && time < b->get_retire_year_month())
 				)) {
-			matching.push_back(b);
+			matching.append(b);
 		}
 	}
 	std::sort(matching.begin(), matching.end(), compare_bridges);

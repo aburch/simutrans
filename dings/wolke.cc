@@ -22,7 +22,7 @@ vector_tpl<const skin_besch_t *>wolke_t::all_clouds(0);
 
 bool wolke_t::register_besch(const skin_besch_t* besch)
 {
-	return all_clouds.push_back_unique( besch );
+	return all_clouds.append_unique( besch );
 }
 
 

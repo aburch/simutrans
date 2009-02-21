@@ -288,7 +288,7 @@ baum_t::alles_geladen()
 {
 	if (besch_names.empty()) {
 		DBG_MESSAGE("baum_t", "No trees found - feature disabled");
-		baum_typen.push_back(NULL);
+		baum_typen.append(NULL);
 	}
 	return true;
 }
@@ -300,10 +300,10 @@ baum_t::register_besch(baum_besch_t *besch)
 {
 	if(baum_typen.get_count()==0) {
 		// NULL for empty object
-		baum_typen.push_back(NULL);
+		baum_typen.append(NULL);
 	}
 	besch_names.put(besch->get_name(), baum_typen.get_count() );
-	baum_typen.push_back(besch);
+	baum_typen.append(besch);
 	return true;
 }
 

@@ -53,13 +53,13 @@ gui_chart_t::add_curve(int color, sint64 *values, int size, int offset, int elem
 	new_curve.show_value = show_value;
 	new_curve.type = type;
 	curves.append(new_curve);
-	return curves.count();
+	return curves.get_count();
 };
 
 
 void gui_chart_t::hide_curve(unsigned int id)
 {
-  if (id <= curves.count()) {
+  if (id <= curves.get_count()) {
     curves.at(id).show = false;
   }
 }
@@ -67,7 +67,7 @@ void gui_chart_t::hide_curve(unsigned int id)
 
 void gui_chart_t::show_curve(unsigned int id)
 {
-  if (id <= curves.count()) {
+  if (id <= curves.get_count()) {
     curves.at(id).show = true;
   }
 }

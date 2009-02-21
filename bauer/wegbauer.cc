@@ -223,7 +223,7 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
 					time == 0 ||
 					(besch->get_intro_year_month() <= time && time < besch->get_retire_year_month())
 				)) {
-			matching.push_back(besch);
+			matching.append(besch);
 		}
 	}
 	std::sort(matching.begin(), matching.end(), compare_ways);
@@ -819,7 +819,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 		while(gr) {
 			gr->get_neighbour(to, wegtyp, zv);
 			if(to  &&  to->ist_karten_boden()) {
-				next_gr.push_back(next_gr_t(to, 7));
+				next_gr.append(next_gr_t(to, 7));
 				return;
 			}
 			gr = to;
@@ -895,7 +895,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 					// ok, here we may end
 					// we return the koord3d AFTER we came down!
 					if(has_reason_for_bridge) {
-						next_gr.push_back(next_gr_t(gr, i * cost_difference + welt->get_einstellungen()->way_count_slope));
+						next_gr.append(next_gr_t(gr, i * cost_difference + welt->get_einstellungen()->way_count_slope));
 					}
 					return;
 				}
@@ -907,7 +907,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 					// ok, here we may end
 					// we return the koord3d AFTER we came down!
 					if(has_reason_for_bridge) {
-						next_gr.push_back(next_gr_t(gr, i * cost_difference + welt->get_einstellungen()->way_count_slope * 2));
+						next_gr.append(next_gr_t(gr, i * cost_difference + welt->get_einstellungen()->way_count_slope * 2));
 						return;
 					}
 				}
@@ -957,7 +957,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 					// ok, here we may end
 					// we return the koord3d AFTER we came down!
 					// this make always sense, since it is a counter slope
-					next_gr.push_back(next_gr_t(gr, i * cost_difference));
+					next_gr.append(next_gr_t(gr, i * cost_difference));
 					return;
 				}
 			}
@@ -972,7 +972,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 				if(!gr->hat_wege()  &&  gr->ist_natur()  &&  !gr->ist_wasser()  &&  !gr2->hat_wege()  &&  is_allowed_step(gr, gr2, &internal_cost )) {
 					// ok, here we may end
 					if(has_reason_for_bridge) {
-						next_gr.push_back(next_gr_t(gr, i * cost_difference + welt->get_einstellungen()->way_count_slope));
+						next_gr.append(next_gr_t(gr, i * cost_difference + welt->get_einstellungen()->way_count_slope));
 					}
 				}
 			}
@@ -998,7 +998,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 				if(!gr->hat_wege()  &&  gr->ist_natur()  &&  !gr->ist_wasser()  &&  is_allowed_step(gr, gr2, &internal_cost )) {
 					// ok, here we may end
 					// we return the koord3d AFTER we came down!
-					next_gr.push_back(next_gr_t(gr, i * welt->get_einstellungen()->way_count_tunnel));
+					next_gr.append(next_gr_t(gr, i * welt->get_einstellungen()->way_count_tunnel));
 					return;
 				}
 			}
@@ -1241,7 +1241,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 					}
 				}
 				// now add it to the array ...
-				next_gr.push_back(next_gr_t(to, new_cost));
+				next_gr.append(next_gr_t(to, new_cost));
 			}
 			else if(tmp->parent!=NULL  &&  !gr->hat_wege()  &&  bridge_nsow==koord::nsow[r]) {
 				// try to build a bridge or tunnel here, since we cannot go here ...
@@ -1341,7 +1341,7 @@ DBG_DEBUG("insert to open","(%i,%i,%i)  f=%i",to->get_pos().x,to->get_pos().y,to
 	} while (!queue.empty() && step < route_t::MAX_STEP && gr->get_pos() != ziel3d);
 
 #ifdef DEBUG_ROUTES
-DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u",step,route_t::MAX_STEP,queue.count(),tmp->g);
+DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u",step,route_t::MAX_STEP,queue.get_count(),tmp->g);
 #endif
 	INT_CHECK("wegbauer 194");
 
@@ -1357,7 +1357,7 @@ DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %
 		const long cost = tmp->g;
 		// reached => construct route
 		while(tmp != NULL) {
-			route.push_back(tmp->gr->get_pos());
+			route.append(tmp->gr->get_pos());
 //DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
 			tmp = tmp->parent;
 		}
@@ -1450,7 +1450,7 @@ DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %i,%i = %i",diff.x,diff.y,
 	route.clear();
 	// we can built a straight route?
 	if(ok) {
-		route.push_back(start);
+		route.append(start);
 		pos = start.get_2d();
 		while(pos!=ziel.get_2d()) {
 			// shortest way
@@ -1463,10 +1463,10 @@ DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %i,%i = %i",diff.x,diff.y,
 			}
 			pos += diff;
 			if(bautyp&tunnel_flag) {
-				route.push_back(koord3d(pos, start.z));
+				route.append(koord3d(pos, start.z));
 			}
 			else {
-				route.push_back(welt->lookup(pos)->get_kartenboden()->get_pos());
+				route.append(welt->lookup(pos)->get_kartenboden()->get_pos());
 			}
 		}
 		max_n = route.get_count() - 1;
@@ -1533,7 +1533,7 @@ wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d)
 	route.clear();
 	route.resize(dist + 2);
 	for(  int i=0;  i<=dist;  i++  ) {
-		route.push_back(welt->lookup(start + zv * i)->get_kartenboden()->get_pos());
+		route.append(welt->lookup(start + zv * i)->get_kartenboden()->get_pos());
 	}
 	max_n = dist;
 	return true;

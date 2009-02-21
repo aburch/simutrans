@@ -66,7 +66,7 @@ DBG_MESSAGE("simlinemgmt_t::add_line()","id=%d",new_line->get_line_id());
 		dbg->message("simlinemgmt_t::add_line()","new line id %i!",id);
 	}
 	used_ids[id/8] |= (1<<(id&7));	// should be registered anyway ...
-	all_managed_lines.push_back(new_line);
+	all_managed_lines.append(new_line);
 	sort_lines();
 }
 
@@ -305,7 +305,7 @@ void simlinemgmt_t::get_lines(int type, vector_tpl<linehandle_t>* lines) const
 	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
 		linehandle_t line = *i;
 		if (type == simline_t::line || line->get_linetype() == simline_t::line || line->get_linetype() == type) {
-			lines->push_back(line);
+			lines->append(line);
 		}
 	}
 }

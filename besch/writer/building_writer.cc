@@ -24,14 +24,14 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 	for (int i = 0; i < seasons; i++) {
 		slist_iterator_tpl<slist_tpl<cstring_t> > iter(backkeys.at(i));
 		while (iter.next()) {
-			if (iter.get_current().count() > besch.phasen) {
-				besch.phasen = iter.get_current().count();
+			if (iter.get_current().get_count() > besch.phasen) {
+				besch.phasen = iter.get_current().get_count();
 			}
 		}
 		iter = slist_iterator_tpl<slist_tpl<cstring_t> >(frontkeys.at(i));
 		while (iter.next()) {
-			if (iter.get_current().count() > besch.phasen) {
-				besch.phasen = iter.get_current().count();
+			if (iter.get_current().get_count() > besch.phasen) {
+				besch.phasen = iter.get_current().get_count();
 			}
 		}
 	}
@@ -264,7 +264,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 								}
 								keys.at(season).at(h).append(str);
 							}
-							if (keys.at(season).count() <= h) {
+							if (keys.at(season).get_count() <= h) {
 								break;
 							}
 						}

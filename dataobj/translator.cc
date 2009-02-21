@@ -231,7 +231,7 @@ static void init_city_names(bool is_utf_language)
 			if (fgets(buf, 128, file)) {
 				rtrim(buf);
 				char* c = recode(buf, file_is_utf, is_utf_language);
-				namen_liste.push_back(c);
+				namen_liste.append(c);
 			}
 		}
 		fclose(file);
@@ -261,7 +261,7 @@ static void init_city_names(bool is_utf_language)
 				const size_t l2 = strlen(s2);
 				char* const c = MALLOCN(char, l1 + l2 + 1);
 				sprintf(c, "%s%s", s1, s2);
-				namen_liste.push_back(c);
+				namen_liste.append(c);
 			}
 		}
 	}

@@ -143,7 +143,7 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 				label.set_at(i++, '\0');
 			}
 
-			legend.push_back(legend_entry(label, iter.get_current_value()->get_kennfarbe()));
+			legend.append(legend_entry(label, iter.get_current_value()->get_kennfarbe()));
 		}
 	}
 

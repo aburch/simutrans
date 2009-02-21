@@ -497,7 +497,7 @@ halthandle_t spieler_t::halt_add(koord pos)
 void
 spieler_t::halt_add(halthandle_t halt)
 {
-	if (!halt_list.contains(halt)) {
+	if (!halt_list.is_contained(halt)) {
 		halt_list.append(halt);
 		haltcount ++;
 	}
@@ -542,7 +542,7 @@ void spieler_t::ai_bankrupt()
 	headquarter_pos = koord::invalid;
 
 	// remove all stops
-	while(halt_list.count()>0) {
+	while(halt_list.get_count()>0) {
 		halthandle_t h = halt_list.remove_first();
 		haltestelle_t::destroy( h );
 	}
@@ -908,7 +908,7 @@ spieler_t::add_undo(koord3d k)
 {
 	if(last_built.get_size()>0) {
 //DBG_DEBUG("spieler_t::add_undo()","tile at (%i,%i)",k.x,k.y);
-		last_built.push_back(k);
+		last_built.append(k);
 	}
 }
 

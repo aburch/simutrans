@@ -302,7 +302,7 @@ fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const in
 				continue;
 			}
 			if(fabrik_t::ist_bauplatz(welt, k, groesse,wasser,besch->get_allowed_climate_bits())) {
-				list.push_back(welt->lookup(k)->get_kartenboden()->get_pos());
+				list.append(welt->lookup(k)->get_kartenboden()->get_pos());
 				// nicht gleich daneben nochmal suchen
 				k.x += 4;
 				if(list.get_count()>=10000) {

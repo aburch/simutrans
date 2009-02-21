@@ -232,7 +232,7 @@ void
 gui_combobox_t::close_box()
 {
 	if(finish) {
-//DBG_MESSAGE("gui_combobox_t::infowin_event()","prepare selected %i for %d listerners",get_selection(),listeners.count());
+//DBG_MESSAGE("gui_combobox_t::infowin_event()","prepare selected %i for %d listerners",get_selection(),listeners.get_count());
 		value_t p;
 		p.i = droplist.get_selection();
 		call_listeners(p);

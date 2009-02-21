@@ -471,7 +471,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 			halthandle_t halt = haltestelle_t::get_halt(sp->get_welt(), fahrplan_koord);
 			if (halt.is_bound()) {
 //				// only add a haltestelle to the list, if it is not in the list allready
-//				if (!tmp.contains(fahrplan_koord)) {
+//				if (!tmp.is_contained(fahrplan_koord)) {
 					halt_list_stats_t* cinfo = new halt_list_stats_t(halt);
 					cinfo->set_pos(koord(0, ypos));
 					cinfo->set_groesse(koord(500, 28));

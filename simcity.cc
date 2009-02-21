@@ -2408,11 +2408,11 @@ vector_tpl<koord>* stadt_t::random_place(
 	}
 	DBG_DEBUG("karte_t::init()", "get random places in climates %x", cl);
 	slist_tpl<koord>* list = wl->finde_plaetze(2, 3, (climate_bits)cl, old_x, old_y);
-	DBG_DEBUG("karte_t::init()", "found %i places", list->count());
+	DBG_DEBUG("karte_t::init()", "found %i places", list->get_count());
 	vector_tpl<koord>* result = new vector_tpl<koord>(anzahl);
 
 	for (int i = 0; i < anzahl; i++) {
-		int len = list->count();
+		int len = list->get_count();
 		// check distances of all cities to their respective neightbours
 		while (len > 0) {
 			int minimum_dist = 0x7FFFFFFF;  // init with maximum
@@ -2431,7 +2431,7 @@ vector_tpl<koord>* stadt_t::random_place(
 			}
 			if (minimum_dist > minimum_city_distance) {
 				// all citys are far enough => ok, find next place
-				result->push_back(k);
+				result->append(k);
 				break;
 			}
 			// if we reached here, the city was not far enough => try again

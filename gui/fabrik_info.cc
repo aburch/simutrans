@@ -187,11 +187,11 @@ void fabrik_info_t::update_info()
 	const slist_tpl <stadt_t *> & arbeiterziele = fab->get_arbeiterziele();
 #ifdef _MSC_VER
 	// V.Meyer: MFC has a bug with "new x[0]"
-	stadtbuttons = new button_t [arbeiterziele.count()+1];
+	stadtbuttons = new button_t [arbeiterziele.get_count()+1];
 #else
-	stadtbuttons = new button_t [arbeiterziele.count()];
+	stadtbuttons = new button_t [arbeiterziele.get_count()];
 #endif
-	for(unsigned i=0; i<arbeiterziele.count(); i++) {
+	for(unsigned i=0; i<arbeiterziele.get_count(); i++) {
 		stadtbuttons[i].set_pos(koord(16, 112+y_off+i*LINESPACE));
 		stadtbuttons[i].set_typ(button_t::posbutton);
 		stadtbuttons[i].set_targetpos(arbeiterziele.at(i)->get_pos());

@@ -55,7 +55,7 @@ void
 tunnelbauer_t::register_besch(tunnel_besch_t *besch)
 {
 	tunnel_by_name.put(besch->get_name(), besch);
-	tunnel.push_back(besch);
+	tunnel.append(besch);
 }
 
 
@@ -154,7 +154,7 @@ void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, con
 					time == 0 ||
 					(besch->get_intro_year_month() <= time && time < besch->get_retire_year_month())
 				)) {
-			matching.push_back(besch);
+			matching.append(besch);
 		}
 	}
 	std::sort(matching.begin(), matching.end(), compare_tunnels);

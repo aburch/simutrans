@@ -125,7 +125,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 			const haus_besch_t *besch = (*i);
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.push_back(besch);
+				hauslist.append(besch);
 			}
 		}
 	}
@@ -137,7 +137,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 			const haus_besch_t *besch = (*i);
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.push_back(besch);
+				hauslist.append(besch);
 			}
 		}
 	}
@@ -149,7 +149,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 			const haus_besch_t *besch = (*i);
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.push_back(besch);
+				hauslist.append(besch);
 			}
 		}
 	}

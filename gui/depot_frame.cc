@@ -570,20 +570,20 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 	img_data.text = info->get_name();
 
 	if(  info->get_engine_type() == vehikel_besch_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)  ) {
-		electrics_vec.push_back(img_data);
+		electrics_vec.append(img_data);
 		vehicle_map.set(info, &electrics_vec.back());
 	}
 	// since they come "pre-sorted" for the vehikelbauer, we have to do nothing to keep them sorted
 	else if(info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post) {
-		pas_vec.push_back(img_data);
+		pas_vec.append(img_data);
 		vehicle_map.set(info, &pas_vec.back());
 	}
 	else if(info->get_leistung() > 0  ||  info->get_zuladung()==0) {
-		loks_vec.push_back(img_data);
+		loks_vec.append(img_data);
 		vehicle_map.set(info, &loks_vec.back());
 	}
 	else {
-		waggons_vec.push_back(img_data);
+		waggons_vec.append(img_data);
 		vehicle_map.set(info, &waggons_vec.back());
 	}
 }
@@ -741,7 +741,7 @@ void depot_frame_t::update_data()
 			img_data.count = 0;
 			img_data.lcolor = img_data.rcolor= EMPTY_IMAGE_BAR;
 			img_data.text = cnv->get_vehikel(i)->get_besch()->get_name();
-			convoi_pics.push_back(img_data);
+			convoi_pics.append(img_data);
 		}
 
 		/* color bars for current convoi: */
@@ -901,7 +901,7 @@ DBG_MESSAGE("depot_frame_t::image_from_storage_list()","appended %s",info->get_n
 		}
 
 		if(veh_action == va_sell) {
-			while(new_vehicle_info.count()) {
+			while(new_vehicle_info.get_count()) {
 				/*
 				*	We sell the newest vehicle - gives most money back.
 				*/
@@ -922,11 +922,11 @@ DBG_MESSAGE("depot_frame_t::image_from_storage_list()","appended %s",info->get_n
 				cnv->set_name(new_vehicle_info.front()->get_name());
 			}
 
-			if(cnv->get_vehikel_anzahl()+new_vehicle_info.count() <= depot->get_max_convoi_length()) {
+			if(cnv->get_vehikel_anzahl()+new_vehicle_info.get_count() <= depot->get_max_convoi_length()) {
 
-				for( unsigned i=0;  i<new_vehicle_info.count();  i++ ) {
+				for( unsigned i=0;  i<new_vehicle_info.get_count();  i++ ) {
 					// insert/append needs reverse order
-					unsigned nr = (veh_action == va_insert) ? new_vehicle_info.count()-i-1 : i;
+					unsigned nr = (veh_action == va_insert) ? new_vehicle_info.get_count()-i-1 : i;
 					// We add the oldest vehicle - newer stay for selling
 					const vehikel_besch_t* vb = new_vehicle_info.at(nr);
 					vehikel_t* veh = find_oldest_newest(vb, true);

@@ -87,7 +87,7 @@ void simline_t::add_convoy(convoihandle_t cnv)
 		}
 	}
 	// only add convoy if not already member of line
-	line_managed_convoys.push_back_unique(cnv);
+	line_managed_convoys.append_unique(cnv);
 
 	// what goods can this line transport?
 	bool update_schedules = false;

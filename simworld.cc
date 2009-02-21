@@ -629,7 +629,7 @@ DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 void karte_t::add_convoi(convoihandle_t &cnv)
 {
 	assert(cnv.is_bound());
-	convoi_array.push_back_unique(cnv);
+	convoi_array.append_unique(cnv);
 	cnv->get_besitzer()->buche( 1, COST_ALL_CONVOIS );
 }
 
@@ -674,7 +674,7 @@ bool karte_t::rem_stadt(stadt_t *s)
 	einstellungen->set_anzahl_staedte(einstellungen->get_anzahl_staedte()-1);
 
 	// remove all links from factories
-	DBG_MESSAGE("karte_t::rem_stadt()", "fab_list %i", fab_list.count() );
+	DBG_MESSAGE("karte_t::rem_stadt()", "fab_list %i", fab_list.get_count() );
 	slist_iterator_tpl<fabrik_t *> iter(fab_list);
 	while(iter.next()) {
 		(iter.get_current())->remove_arbeiterziel(s);
@@ -785,7 +785,7 @@ void karte_t::create_rivers( sint16 number )
 			const sint8 h = gr->get_hoehe()-get_grundwasser();
 			if(  gr->ist_wasser()  ) {
 				// may be good to start a river here
-				water_tiles.push_back(k);
+				water_tiles.append(k);
 			}
 			else if(  h>=last_height  ||  abs_distance(last_koord,k)>simrand(max_dist)  ) {
 				// something worth to add here
@@ -1091,7 +1091,7 @@ DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
 		int progress_count = 16 + einstellungen->get_anzahl_staedte()*4 + i;
 		display_progress(progress_count, max_display_progress );
 	}
-	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.count();
+	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
 	// tourist attractions
 	fabrikbauer_t::verteile_tourist(this, einstellungen->get_tourist_attractions());
@@ -2055,7 +2055,7 @@ bool karte_t::rem_fab(fabrik_t *fab)
 fabrik_t *
 karte_t::get_random_fab() const
 {
-	const int anz = fab_list.count();
+	const int anz = fab_list.get_count();
 	fabrik_t *result = NULL;
 
 	if(anz > 0) {
@@ -2313,7 +2313,7 @@ void karte_t::neuer_monat()
 		letzter_monat = 0;
 	}
 	DBG_MESSAGE("karte_t::neuer_monat()","Month (%d/%d) has started", (letzter_monat%12)+1, letzter_monat/12 );
-	DBG_MESSAGE("karte_t::neuer_monat()","sync_step %u objects", sync_list.count() );
+	DBG_MESSAGE("karte_t::neuer_monat()","sync_step %u objects", sync_list.get_count() );
 
 	// this should be done before a map update, since the map may want an update of the way usage
 //	DBG_MESSAGE("karte_t::neuer_monat()","ways");
@@ -2730,7 +2730,7 @@ karte_t::step()
 	while(iter.next()) {
 		iter.get_current()->step(delta_t);
 	}
-	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.count();
+	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
 	// then step all players
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
@@ -2853,7 +2853,7 @@ void karte_t::restore_history()
 void karte_t::update_history()
 {
 	finance_history_year[0][WORLD_CONVOIS] = finance_history_month[0][WORLD_CONVOIS] = convoi_array.get_count();
-	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.count();
+	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
 	// now step all towns (to generate passengers)
 	sint64 bev=0;
@@ -3231,7 +3231,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved hgt");
 
-	sint32 fabs = fab_list.count();
+	sint32 fabs = fab_list.get_count();
 	file->rdwr_long(fabs, "\n");
 	slist_iterator_tpl<fabrik_t*> fiter( fab_list );
 	while(fiter.next()) {
@@ -3242,7 +3242,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved hgt");
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
 
-	sint32 haltcount=haltestelle_t::get_alle_haltestellen().count();
+	sint32 haltcount=haltestelle_t::get_alle_haltestellen().get_count();
 	file->rdwr_long(haltcount,"hc");
 	slist_iterator_tpl<halthandle_t> iter (haltestelle_t::get_alle_haltestellen());
 	while(iter.next()) {
@@ -3570,7 +3570,7 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 
 	display_progress(get_groesse_y()+24, get_groesse_y()+256+stadt.get_count());
 
-DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
+DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 
 	// must be done after reliefkarte is initialized
 	int x = get_groesse_y() + 24;
@@ -3633,7 +3633,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 			}
 		}
 		convoi_t *cnv = new convoi_t(this, file);
-		convoi_array.push_back(cnv->self);
+		convoi_array.append(cnv->self);
 
 		if(cnv->in_depot()) {
 			grund_t * gr = lookup(cnv->get_pos());
@@ -3685,7 +3685,7 @@ DBG_MESSAGE("karte_t::laden()", "players loaded");
 	// right season for recalculations
 	recalc_snowline();
 
-DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().count());
+DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_count());
 	for (int y = 0; y < get_groesse_y(); y++) {
 		for (int x = 0; x < get_groesse_x(); x++) {
 			const planquadrat_t *plan = lookup(koord(x,y));
@@ -3737,7 +3737,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().count())
 
 	// recalculate halt connections
 	slist_iterator_tpl<halthandle_t>iter(haltestelle_t::get_alle_haltestellen());
-	int hnr=0, hmax=haltestelle_t::get_alle_haltestellen().count();
+	int hnr=0, hmax=haltestelle_t::get_alle_haltestellen().get_count();
 	while(iter.next()) {
 		if((hnr++%32)==0) {
 			display_progress(get_groesse_y()+48+stadt.get_count()+128+(hnr*80)/hmax, get_groesse_y()+256+stadt.get_count());

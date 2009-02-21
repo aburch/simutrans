@@ -50,7 +50,7 @@ bool movingobj_t::alles_geladen()
 	if (besch_names.empty()) {
 		DBG_MESSAGE("movingobj_t", "No movingobj found - feature disabled");
 		// NULL for empty object
-		movingobj_typen.push_back(NULL);
+		movingobj_typen.append(NULL);
 	}
 	return true;
 }
@@ -61,10 +61,10 @@ bool movingobj_t::register_besch(groundobj_besch_t *besch)
 {
 	if(movingobj_typen.get_count()==0) {
 		// NULL for empty object
-		movingobj_typen.push_back(NULL);
+		movingobj_typen.append(NULL);
 	}
 	besch_names.put(besch->get_name(), movingobj_typen.get_count() );
-	movingobj_typen.push_back(besch);
+	movingobj_typen.append(besch);
 	return true;
 }
 
