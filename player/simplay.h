@@ -210,6 +210,8 @@ public:
 
 	virtual ~spieler_t();
 
+	sint32 get_maintenance() const { return maintenance; }
+
 	static sint32 add_maintenance(spieler_t *sp, sint32 change) {
 		if(sp) {
 			sp->maintenance += change;

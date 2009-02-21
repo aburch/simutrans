@@ -238,10 +238,11 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const baum_besc
 
 
 
-void baum_t::create_forest(karte_t *welt, koord new_center, koord wh )
+uint32 baum_t::create_forest(karte_t *welt, koord new_center, koord wh )
 {
 	const sint16 xpos_f = new_center.x;
 	const sint16 ypos_f = new_center.y;
+	uint32 number_of_new_trees = 0;
 	for( sint16 j = 0; j < wh.x; j++) {
 		for( sint16 i = 0; i < wh.y; i++) {
 
@@ -256,10 +257,12 @@ void baum_t::create_forest(karte_t *welt, koord new_center, koord wh )
 				if (rating < tree_probability ) {
 					const koord pos( (sint16)(xpos_f+x_tree_pos), (sint16)(ypos_f+y_tree_pos));
 					baum_t::plant_tree_on_coordinate(welt, pos, 3 );
+					number_of_new_trees ++;
 				}
 			}
 		}
 	}
+	return number_of_new_trees;
 }
 
 

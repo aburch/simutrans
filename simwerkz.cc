@@ -1298,10 +1298,10 @@ const weg_besch_t * wkz_wegebau_t::get_besch(bool remember)
 const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 {
 	const weg_besch_t *besch = get_besch(false);
-	sprintf(toolstr, "%s, %ld$ (%ld$), %dkm/h",
+	sprintf(toolstr, "%s, %ld$ (%.2lf$), %dkm/h",
 		translator::translate(besch->get_name()),
 		besch->get_preis()/100l,
-		(besch->get_wartung()<<(sp->get_welt()->ticks_bits_per_tag-18))/100l,
+		(double)(besch->get_wartung()<<(sp->get_welt()->ticks_bits_per_tag-18))/100.0,
 		besch->get_topspeed());
 	return toolstr;
 }
@@ -3433,7 +3433,8 @@ const char *wkz_forest_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 		// remove old pointers
 		init(welt,sp);
 
-		baum_t::create_forest( welt, nw.get_2d(), wh );
+		sint64 costs = baum_t::create_forest( welt, nw.get_2d(), wh );
+		spieler_t::accounting( sp, costs*welt->get_einstellungen()->cst_remove_tree, pos.get_2d(), COST_CONSTRUCTION );
 
 		// then init
 		init( welt, sp );
