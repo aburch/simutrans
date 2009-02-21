@@ -700,6 +700,12 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	//Factory settings
 	factory_max_years_obsolete = contents.get_int("max_years_obsolete", 30);
 
+	//@author: jamespetts
+	// Insolvency and debt settings
+	interest_rate_percent = contents.get_int("interest_rate_percent", 10);
+	allow_bankruptsy = contents.get_int("allow_bankruptsy", 0);
+	allow_purhcases_when_insolvent = contents.get_int("allow_purhcases_when_insolvent", 0);
+
 	/*
 	* Selection of savegame format through inifile
 	*/

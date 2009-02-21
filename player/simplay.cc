@@ -307,26 +307,60 @@ void spieler_t::neuer_monat()
 		return;
 	}
 
-	// Bankrott ?
-	if(konto < 0) {
+	// Insolvency settings.
+	// Modified by jamespetts, February 2009
+	if(konto < 0) 
+	{	
 		konto_ueberzogen++;
-		if(!welt->get_einstellungen()->is_freeplay()) {
+		
+		//Add interest
+
+		//Monthly rate
+		if(welt->get_einstellungen()->get_interest_rate_percent() > 0.0)
+		{
+			double interest_rate = ((welt->get_einstellungen()->get_interest_rate_percent() / 100.0) / 12.0); 
+			sint32 monthly_interest = interest_rate * konto;
+			konto += monthly_interest;
+		}
+
+		if(!welt->get_einstellungen()->is_freeplay()) 
+		{
 			if(this == welt->get_spieler(0)) {
-				if(finance_history_year[0][COST_NETWEALTH]<0) {
+				if(finance_history_year[0][COST_NETWEALTH]<0 && welt->get_einstellungen()->bankruptsy_allowed()) 
+				{
 					destroy_all_win();
 					create_win(280, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
 					welt->beenden(false);
 				}
-				else {
+				else 
+				{
+					int n = 0;
 					// tell the player
-					sprintf(buf, translator::translate("On loan since %i month(s)"), konto_ueberzogen );
+					if(konto_ueberzogen > 1)
+					{
+						// Plural detection for the months. 
+						// Different languages pluralise in different ways, so whole string must
+						// be re-translated.
+						n += sprintf(buf, translator::translate("You have been overdrawn for %i months"), konto_ueberzogen );
+					}
+					else
+					{
+						n += sprintf(buf, translator::translate("You have been overdrawn for one month"), konto_ueberzogen );
+					}
+					if(welt->get_einstellungen()->get_interest_rate_percent() > 0)
+					{
+						n += sprintf(buf + n, translator::translate("\n\nInterest on your debt is\naccumulating at %i %%"), welt->get_einstellungen()->get_interest_rate_percent() );
+					}
 //					sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"), MAX_KONTO_VERZUG-konto_ueberzogen+1 );
 					welt->get_message()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				}
 			}
-			else if(automat  &&  this!=welt->get_spieler(1)) {
+			else if(automat  &&  this!=welt->get_spieler(1)) 
+			{
 				// for AI, we only declare bankrupt, if total assest are below zero
-				if(finance_history_year[0][COST_NETWEALTH]<0) {
+				// Also, AI players play by the same rules as human players: will only go bankrupt if humans can.
+				if(finance_history_year[0][COST_NETWEALTH]<0 && welt->get_einstellungen()->bankruptsy_allowed()) 
+				{
 					ai_bankrupt();
 				}
 			}

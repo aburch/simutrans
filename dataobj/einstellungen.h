@@ -241,6 +241,12 @@ public:
 	// Factory retirement settings
 	uint16 factory_max_years_obsolete;
 
+	//@author: jamespetts
+	// Insolvency and debt settings
+	uint8 interest_rate_percent;
+	bool allow_bankruptsy;
+	bool allow_purhcases_when_insolvent;
+
 	// true if active
 	bool automaten[MAX_PLAYER_COUNT];
 	// 0 = emtpy, otherwise some vaule from simplay
@@ -417,10 +423,14 @@ public:
 	uint8 get_max_direction_steps (waytype_t waytype) const { return max_direction_steps[waytype]; }
 	uint8 get_curve_friction_factor (waytype_t waytype) const { return curve_friction_factor[waytype]; }
 
-	bool is_pay_for_total_distance() const { return pay_for_total_distance ; }
+	bool is_pay_for_total_distance() const { return pay_for_total_distance; }
 	void set_pay_for_total_distance( bool b ) { pay_for_total_distance = b; }
 
 	uint16 get_factory_max_years_obsolete() const { return factory_max_years_obsolete; }
+
+	uint8 get_interest_rate_percent() const { return interest_rate_percent; }
+	bool bankruptsy_allowed() const { return allow_bankruptsy; }
+	bool insolvent_purchases_allowed() const { return allow_purhcases_when_insolvent; }
 
 	sint16 get_river_number() const { return river_number; }
 	void set_river_number( sint16 n ) { river_number=n; }

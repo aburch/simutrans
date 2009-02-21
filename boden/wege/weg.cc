@@ -155,6 +155,8 @@ void weg_t::reset_way_constraints()
 /**
  * Setzt neue Beschreibung. Ersetzt alte Höchstgeschwindigkeit
  * mit wert aus Beschreibung.
+ *
+ * "Sets new description. Replaced old with maximum speed value of description." (Google)
  * @author Hj. Malthaner
  */
 void weg_t::set_besch(const weg_besch_t *b)
@@ -197,6 +199,7 @@ void weg_t::init()
 	set_flag(ding_t::is_wayding);
 	ribi = ribi_maske = ribi_t::keine;
 	max_speed = 450;
+	max_weight = 999;
 	besch = 0;
 	init_statistics();
 	alle_wege.insert(this);
@@ -238,6 +241,8 @@ void weg_t::rdwr(loadsave_t *file)
 	uint16 dummy16=max_speed;
 	file->rdwr_short(dummy16, "\n");
 	max_speed=dummy16;
+
+	//TODO: Implement load/save for weight limits
 
 	if(file->get_version()>=89000) {
 		dummy8 = flags;

@@ -1482,6 +1482,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\components\gui_convoy_assembler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\components\gui_convoy_label.h"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\components\gui_divider.h"
 				>
 			</File>

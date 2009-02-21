@@ -39,8 +39,6 @@ ware_t::ware_t(const ware_besch_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -
 	menge = 0;
 	index = wtyp->get_index();
 	total_journey_start_time = journey_leg_start_time = 0;
-	halthandle_t x;
-	origin = previous_transfer = x;
 }
 
 // Constructor for new revenue system: packet of cargo keeps track of its origin.
@@ -52,6 +50,7 @@ ware_t::ware_t(const ware_besch_t *wtyp, halthandle_t o, uint32 t) : ziel(), zwi
 	origin = previous_transfer = o;
 	total_journey_start_time = journey_leg_start_time = t;
 }
+
 
 ware_t::ware_t(karte_t *welt,loadsave_t *file)
 {
@@ -114,6 +113,11 @@ ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		ziel = welt->get_halt_koord_index(ziel_koord);
 		ziel_koord.rdwr(file);
 		zwischenziel = welt->get_halt_koord_index(ziel_koord);
+
+		//TODO: Make the following the default option only if cannot load origin, etc., from file:
+		origin = previous_transfer = zwischenziel;
+		total_journey_start_time = journey_leg_start_time = welt->get_zeit_ms();
+
 	}
 	zielpos.rdwr(file);
 }
@@ -130,5 +134,13 @@ ware_t::laden_abschliessen(karte_t *welt) //"Invite finish" (Google); "load lock
 	}
 	if(zwischenziel.is_bound()) {
 		zwischenziel = welt->lookup(zwischenziel->get_init_pos())->get_halt();
+	}
+
+	if(origin.is_bound()) {
+		origin = welt->lookup(origin->get_init_pos())->get_halt();
+	}
+
+	if(previous_transfer.is_bound()) {
+		previous_transfer = welt->lookup(previous_transfer->get_init_pos())->get_halt();
 	}
 }

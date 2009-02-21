@@ -99,17 +99,19 @@ protected:
 
 	/**
 	 * Der Kontostand.
+	 * "The account balance." (Google)
 	 *
 	 * @author Hj. Malthaner
 	 */
-	sint64 konto;
+	sint64 konto; //"account" (Google)
 
 	/**
 	 * Zählt wie viele Monate das Konto schon ueberzogen ist
+	 * "Count how many months the account is already overdrawn"  (Google)
 	 *
 	 * @author Hj. Malthaner
 	 */
-	sint32 konto_ueberzogen;
+	sint32 konto_ueberzogen; //"overdrawn account" (Google)
 
 	//slist_tpl<halthandle_t> halt_list; ///< Liste der Haltestellen
 	vector_tpl<halthandle_t> halt_list; ///< "List of the stops" (Babelfish)
@@ -341,6 +343,16 @@ public:
 	 * @date 26-Nov-2001
 	 */
 	virtual void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
+
+	// The maximum amount overdrawn that a player can be
+	// before no more purchases can be made.
+	uint32 credit_limit;
+	
+	//Checks the affordability of any possible purchase.
+	inline bool can_afford(sint64 price)
+	{
+		return  (price < (konto + credit_limit) || welt->get_einstellungen()->insolvent_purchases_allowed() || welt->get_einstellungen()->is_freeplay());
+	}
 
 private:
 	/* undo informations *

@@ -1404,7 +1404,7 @@ void
 fabrik_t::info(cbuffer_t& buf) const
 {
 	buf.clear();
-	buf.printf("%s %li %s\n", translator::translate("Durchsatz"), get_current_production(), translator::translate("units/day"));
+	buf.printf("%s %i %s\n", translator::translate("Durchsatz"), get_current_production(), translator::translate("units/day"));
 
 	if (!lieferziele.empty()) {
 		buf.append("\n");

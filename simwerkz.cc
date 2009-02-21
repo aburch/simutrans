@@ -202,7 +202,7 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 		}
 	}
 
-	// now just search alll neighbours
+	// now just search all neighbours
 	for(  sint16 y=-1;  y<=h;  y++  ) {
 		const planquadrat_t *plan = welt->lookup( pos.get_2d()+koord(-1,y) );
 		if(plan) {
@@ -311,7 +311,8 @@ static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koor
 /****************************************** now the actual tools **************************************/
 
 // werkzeuge
-const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
+// "tools" (Babelfish)
+const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos ) //"queries" (Babelfish)
 {
 	const planquadrat_t *plan = welt->lookup(pos.get_2d());
 	if(plan) {
@@ -1555,8 +1556,8 @@ const char *wkz_brueckenbau_t::get_tooltip(spieler_t *sp)
 
 	if(besch->get_waytype()!=powerline_wt) {
 		n += sprintf(toolstr+n, ", %dkm/h", besch->get_topspeed());
+		n += sprintf(toolstr+n, ", %dt", besch->get_max_weight());
 	}
-	n += sprintf(toolstr+n, ", %dt", besch->get_max_weight());
 	if(besch->get_max_length()>0) {
 		n += sprintf(toolstr+n, ", %dkm", besch->get_max_length());
 	}
