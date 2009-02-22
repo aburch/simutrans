@@ -408,12 +408,6 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 					}
 					break;
 				default: // append/insert_in_front
-					if(!cnv.is_bound()) {
-						// create a new convoi
-						cnv = depot->add_convoi();
-						icnv = depot->convoi_count() - 1;
-						cnv->set_name((*convoy_assembler->get_vehicles())[0]->get_name());
-					}
 					const vehikel_besch_t* vb;
 					if (k.x==gui_convoy_assembler_t::insert_vehicle_in_front_action) {
 						vb=(*convoy_assembler->get_vehicles())[0];
@@ -424,6 +418,13 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 					if (veh == NULL) {
 						// nothing there => we buy it
 						veh = depot->buy_vehicle(vb);
+					}
+					if(!cnv.is_bound()) 
+					{
+						// create a new convoi
+						cnv = depot->add_convoi();
+						icnv = depot->convoi_count() - 1;
+						cnv->set_name((*convoy_assembler->get_vehicles())[0]->get_name());
 					}
 					depot->append_vehicle(cnv, veh, k.x == gui_convoy_assembler_t::insert_vehicle_in_front_action);
 					break;

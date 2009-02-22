@@ -120,6 +120,9 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 
 	// we have different AI, try to find out our type:
 	sprintf(spieler_name_buf,"player %i",player_nr-1);
+
+	base_credit_limit = 1000000;
+	credit_limit = calc_credit_limit();
 }
 
 
@@ -269,8 +272,10 @@ void spieler_t::neuer_monat()
 	// since the messages must remain on the screen longer ...
 	static char buf[256];
 
+	credit_limit = calc_credit_limit();
 
 	// Wartungskosten abziehen
+	// "Deduct maintenance costs" (Google)
 	calc_finance_history();
 	roll_finance_history_month();
 
@@ -447,12 +452,29 @@ void spieler_t::calc_finance_history()
 	finance_history_month[0][COST_SCENARIO_COMPLETED] = finance_history_year[0][COST_SCENARIO_COMPLETED] = welt->get_scenario()->completed(player_nr);
 }
 
+sint32 spieler_t::calc_credit_limit()
+{
+	sint32 profit = 0;
+	sint32 assets = 0;
+	for(uint8 i = 0; i <= 12; i++)
+	{
+		profit += finance_history_month[i][COST_OPERATING_PROFIT];
+		assets += finance_history_month[i][COST_NETWEALTH];
+	}
+	// Credit limit is 40% of net profit for the past year,
+	// plus 40% of the net assets for the past year,
+	// or 0, whichever is lower.
 
+	profit = (profit / 12.0) * 0.4;
+	assets = (assets/ 12.0) * 0.4;
+
+	return ((profit + assets) > base_credit_limit) ? profit + assets : base_credit_limit;
+}
 
 // add and amount, including the display of the message and some other things ...
 void spieler_t::buche(const sint64 betrag, const koord pos, enum player_cost type)
 {
-	buche(betrag, type);
+	buche(betrag, type); //"Buche" = "books"; "betrag" = "amount" (Babelfish).
 
 	if(betrag != 0) {
 		if(  abs_distance(welt->get_world_position(),pos)<2*(display_get_width()/get_tile_raster_width())+3  ) {
@@ -500,11 +522,25 @@ void spieler_t::buche(const sint64 betrag, enum player_cost type)
 void spieler_t::accounting( spieler_t *sp, const sint64 amount, koord k, enum player_cost pc )
 {
 	if(sp!=NULL  &&  sp!=welt->get_spieler(1)) {
-		sp->buche( amount, k, pc );
+		sp->buche( amount, k, pc ); //"Books"  (Babelfish)
 	}
 }
 
 
+// Will only process the transaction if it can be afforded.
+// @author: jamespetts
+bool spieler_t::accounting_with_check( spieler_t *sp, const sint64 amount, koord k, enum player_cost pc )
+{
+	if(sp->can_afford(amount))
+	{
+		accounting(sp, amount, k, pc);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 
 bool spieler_t::check_owner( const spieler_t *owner, const spieler_t *test )
@@ -853,6 +889,9 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 	if(file->get_version()>=88003) {
 		simlinemgmt.rdwr(welt,file,this);
 	}
+
+	base_credit_limit = 1000000;
+	credit_limit = calc_credit_limit();
 }
 
 

@@ -261,15 +261,23 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 		}
 	}
 
+	if(!sp->can_afford(besch->get_preis()))
+	{
+		return "That would exceed\nyour credit limit.";
+	}
+
 	// pruefe ob Tunnel auf strasse/schiene endet
+	// "examine whether the tunnel on road / rail ends" (Google)
 	if(!welt->ist_in_kartengrenzen(end.get_2d())) {
 		return "Tunnel must end on single way!";
 	}
 
 	// Anfang und ende sind geprueft, wir konnen endlich bauen
+	// "examine whether the tunnel on road / rail ends" (Google)
 	if(!baue_tunnel(welt, sp, gr->get_pos(), end, zv, besch)) {
 		return "Ways not connected";
 	}
+
 	return NULL;
 }
 

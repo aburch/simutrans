@@ -178,8 +178,9 @@ bool depot_t::can_convoi_start(convoihandle_t /*cnv*/) const
 vehikel_t* depot_t::buy_vehicle(const vehikel_besch_t* info)
 {
 	// Offen: prüfen ob noch platz im depot ist???
+	// "Hours: check whether there is space in the depot?" (Google)
 	DBG_DEBUG("depot_t::buy_vehicle()", info->get_name());
-	vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info );
+	vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info ); //"besitzer" = "owner" (Google)
 	DBG_DEBUG("depot_t::buy_vehicle()", "vehiclebauer %p", veh);
 
 	vehicles.append(veh);
@@ -452,7 +453,7 @@ vehikel_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old)
 	slist_iterator_tpl<vehikel_t*> iter(get_vehicle_list());
 	while (iter.next()) {
 		vehikel_t* veh = iter.get_current();
-		if (veh->get_besch() == besch) {
+		if (veh != NULL && veh->get_besch() == besch) {
 			// joy of XOR, finally a line where I could use it!
 			if (found_veh == NULL ||
 					old ^ (found_veh->get_insta_zeit() > veh->get_insta_zeit())) {

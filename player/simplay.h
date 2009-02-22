@@ -229,6 +229,8 @@ public:
 
 	// this is also save to be called with sp==NULL, which may happen for unowned objects like bridges, ways, trees, ...
 	static void accounting( spieler_t *sp, const sint64 betrag, koord k, enum player_cost pc );
+	
+	static bool accounting_with_check( spieler_t *sp, const sint64 betrag, koord k, enum player_cost pc );
 
 	/**
 	 * @return Kontostand als double (Gleitkomma) Wert
@@ -344,16 +346,6 @@ public:
 	 */
 	virtual void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
 
-	// The maximum amount overdrawn that a player can be
-	// before no more purchases can be made.
-	uint32 credit_limit;
-	
-	//Checks the affordability of any possible purchase.
-	inline bool can_afford(sint64 price)
-	{
-		return  (price < (konto + credit_limit) || welt->get_einstellungen()->insolvent_purchases_allowed() || welt->get_einstellungen()->is_freeplay());
-	}
-
 private:
 	/* undo informations *
 	 * @author prissi
@@ -361,10 +353,26 @@ private:
 	vector_tpl<koord3d> last_built;
 	waytype_t undo_type;
 
+	// The maximum amount overdrawn that a player can be
+	// before no more purchases can be made.
+	sint32 credit_limit;
+	sint32 base_credit_limit;
+
+protected:
+	sint32 calc_credit_limit();
+
 public:
 	void init_undo(waytype_t t, unsigned short max );
 	void add_undo(koord3d k);
 	bool undo();
+
+	//Checks the affordability of any possible purchase.
+	inline bool can_afford(sint64 price) const
+	{
+		return  (price < (konto + credit_limit) || welt->get_einstellungen()->insolvent_purchases_allowed() || welt->get_einstellungen()->is_freeplay());
+	}
+
+	uint32 get_credit_limit() const { return credit_limit; }
 
 	// headquarter stuff
 private:

@@ -198,6 +198,8 @@ public:
 	// recalculates the good transported by this line and (in case of changes) will start schedule recalculation
 	void recalc_catg_index();
 
+	int get_replacing_convoys_count() const;
+
 public:
 	spieler_t *get_besitzer() const {return sp;}
 

@@ -106,6 +106,8 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		old_tmoney(NULL, COL_WHITE, gui_label_t::money),
 		old_mmoney(NULL, COL_WHITE, gui_label_t::money),
 		old_omoney(NULL, COL_WHITE, gui_label_t::money),
+		credit_limit("Credit limit:", COL_WHITE, gui_label_t::right),
+		clamount(NULL, COL_BLACK, gui_label_t::money),
 		tylabel2("This Year", COL_WHITE, gui_label_t::right),
 		gtmoney(NULL, COL_WHITE, gui_label_t::money),
 		vtmoney(NULL, COL_WHITE, gui_label_t::money),
@@ -191,11 +193,14 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	maintenance_label.set_pos(koord(left+340+80, top+1*BUTTONSPACE-2));
 	maintenance_money.set_pos(koord(left+340+55, top+2*BUTTONSPACE));
 
-	tylabel2.set_pos(koord(left+140+80+335,top+4*BUTTONSPACE-2));
-	gtmoney.set_pos(koord(left+140+335+55, top+5*BUTTONSPACE));
-	vtmoney.set_pos(koord(left+140+335+55, top+6*BUTTONSPACE));
-	margin.set_pos(koord(left+140+335+55, top+7*BUTTONSPACE));
-	money.set_pos(koord(left+140+335+55, top+8*BUTTONSPACE));
+	credit_limit.set_pos(koord(left+140+80+335,top+3*BUTTONSPACE-8));
+	clamount.set_pos(koord(left+140+335+55,top+4*BUTTONSPACE-8));
+	
+	tylabel2.set_pos(koord(left+140+80+335,top+5*BUTTONSPACE-8));
+	gtmoney.set_pos(koord(left+140+335+55, top+6*BUTTONSPACE-8));
+	vtmoney.set_pos(koord(left+140+335+55, top+7*BUTTONSPACE-8));
+	margin.set_pos(koord(left+140+335+55, top+8*BUTTONSPACE-8));
+	money.set_pos(koord(left+140+335+55, top+9*BUTTONSPACE-8));
 
 	// return money or else stuff ...
 	warn.set_pos(koord(left+335, top+10*BUTTONSPACE));
@@ -227,6 +232,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
 
 	add_komponente(&lylabel);
 	add_komponente(&tylabel);
+
+	add_komponente(&credit_limit);
+	add_komponente(&clamount);
 
 	add_komponente(&tylabel2);
 	add_komponente(&gtmoney);
@@ -308,7 +316,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 void money_frame_t::zeichnen(koord pos, koord gr)
 {
 	// Hajo: each label needs its own buffer
-	static char str_buf[24][256];
+	static char str_buf[25][256];
 
 	sp->calc_finance_history();
 
@@ -346,6 +354,10 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	//money_to_string(str_buf[23], sp->get_finance_history_year(1, COST_POWERLINES) );
 	old_powerline.set_text(display_money(COST_POWERLINES, str_buf[23], 1));
 	old_powerline.set_color(get_money_colour(COST_POWERLINES, 1));
+
+	//clamount.set_text(display_money(sp->get_credit_limit(), str_buf[24], 1));
+	money_to_string(str_buf[24], sp->get_credit_limit() / 100.0);
+	clamount.set_text(str_buf[24]);
 
 	conmoney.set_color(get_money_colour(COST_CONSTRUCTION, 0));
 	nvmoney.set_color(get_money_colour(COST_NEW_VEHICLE, 0));

@@ -187,7 +187,15 @@ DBG_DEBUG("simline_t::register_stops()", "halt null");
 	}
 }
 
-
+int simline_t::get_replacing_convoys_count() const {
+	int count=0;
+	for (int i=0; i<line_managed_convoys.get_count(); ++i) {
+		if (line_managed_convoys[i]->get_replace()) {
+			count++;
+		}
+	}
+	return count;
+}
 
 void simline_t::unregister_stops()
 {

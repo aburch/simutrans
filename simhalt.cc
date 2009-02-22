@@ -1711,7 +1711,7 @@ sint64 haltestelle_t::calc_maintenance()
 
 
 // changes this to a publix transfer exchange stop
-void haltestelle_t::make_public_and_join( spieler_t *sp )
+bool haltestelle_t::make_public_and_join( spieler_t *sp )
 {
 	spieler_t *public_owner=welt->get_spieler(1);
 	sint64 total_costs = 0;
@@ -1727,6 +1727,10 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 				spieler_t *gb_sp=gb->get_besitzer();
 				sint64 costs = welt->get_einstellungen()->maint_building*gb->get_tile()->get_besch()->get_level();
 				total_costs += costs;
+				if(!sp->can_afford((total_costs*60)<<(welt->ticks_bits_per_tag-18)))
+				{
+					return false;
+				}
 				spieler_t::add_maintenance( gb_sp, -costs );
 				gb->set_besitzer(public_owner);
 				spieler_t::add_maintenance(public_owner, costs );
@@ -1782,6 +1786,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 	}
 
 	recalc_station_type();
+	return true;
 }
 
 

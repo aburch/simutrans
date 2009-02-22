@@ -51,6 +51,11 @@ private:
 	gui_label_t old_mmoney;
 	gui_label_t old_omoney;
 
+	//Credit limit, right column
+	//@author: jamespetts
+	gui_label_t credit_limit;
+	gui_label_t clamount;
+	
 	gui_label_t tylabel2; // this year, right column
 
 	gui_label_t gtmoney; // balance (current)

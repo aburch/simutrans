@@ -720,6 +720,7 @@ const haus_besch_t* hausbauer_t::get_wohnhaus(int level, uint16 time, climate cl
 // get a random object
 const haus_besch_t *hausbauer_t::waehle_aus_liste(slist_tpl<const haus_besch_t *> &liste, uint16 time, bool ignore_retire, climate cl)
 {
+	//"select from list" (Google)
 	if (!liste.empty()) {
 		// previously just returned a random object; however, now we do als look at the chance entry
 		weighted_vector_tpl<const haus_besch_t *> auswahl(16);

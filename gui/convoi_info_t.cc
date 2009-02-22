@@ -137,7 +137,10 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	set_fenstergroesse(koord(TOTAL_WIDTH, 278));
 
 	// chart
-	chart.set_pos(koord(44,76+BUTTON_HEIGHT+8));
+	chart.set_pos(koord(44,76+BUTTON_HEIGHT+18));
+ 	chart.set_groesse(koord(TOTAL_WIDTH-44-4, 100));
+ 	chart.set_dimension(12, 10000);
+ 	chart.set_visible(false);
 	chart.set_groesse(koord(TOTAL_WIDTH-44-4, 100));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
@@ -395,7 +398,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 
 	if (komp == &toggler) {
 		toggler.pressed = !toggler.pressed;
-		const koord offset = toggler.pressed ? koord(0, 170) : koord(0, -170);
+		const koord offset = toggler.pressed ? koord(0, 170) : koord(0, -180);
 		set_min_windowsize( koord(TOTAL_WIDTH, toggler.pressed ? 364: 194));
 		scrolly.set_pos( scrolly.get_pos()+koord(0,offset.y) );
 		// toggle visibility of components

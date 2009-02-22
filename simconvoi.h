@@ -836,6 +836,10 @@ public:
 	// Go to depot, if possible
 	bool go_to_depot(bool show_success);
 
+	// True if convoy has no cargo
+	//@author: isidoro
+	bool has_no_cargo() const;
+
 	// Overtaking for convois
 	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length);
 

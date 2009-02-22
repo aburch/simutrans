@@ -978,7 +978,12 @@ const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			const ding_t* thing = gr->obj_bei(0);
 			const label_t* l = gr->find<label_t>();
 
-			if(thing == NULL  ||  thing->get_besitzer() == sp  ||  (spieler_t::check_owner(thing->get_besitzer(), sp)  &&  (thing->get_typ() != ding_t::gebaeude))) {
+			if(thing == NULL  ||  thing->get_besitzer() == sp  ||  (spieler_t::check_owner(thing->get_besitzer(), sp)  &&  (thing->get_typ() != ding_t::gebaeude))) 
+			{
+				if(!sp->can_afford(welt->get_einstellungen()->cst_buy_land))
+				{	
+					return "That would exceed\nyour credit limit.";
+				}
 				gr->obj_add(new label_t(welt, gr->get_pos(), sp, "\0"));
 				gr->find<label_t>()->zeige_info();
 				return "";
@@ -1060,6 +1065,12 @@ const char *wkz_transformer_t::get_tooltip( spieler_t *sp )
 const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
+
+	if(!sp->can_afford(welt->get_einstellungen()->cst_transformer))
+	{
+		return "That would exceed\nyour credit limit.";
+	}
+
 	grund_t *gr=welt->lookup_kartenboden(k.get_2d());
 	if(gr  &&  gr->get_grund_hang()==0  &&  !gr->ist_wasser()  &&  !gr->hat_wege()  &&  gr->kann_alle_obj_entfernen(sp)==NULL) {
 
@@ -1096,6 +1107,12 @@ DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
  */
 const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
+	
+	if(!sp->can_afford(0 - welt->get_einstellungen()->cst_found_city))
+	{
+		return "That would exceed\nyour credit limit.";
+	}
+	
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 	if(gr) {
 
@@ -1164,20 +1181,28 @@ const char *wkz_change_city_size_t::work( karte_t *welt, spieler_t *, koord3d po
 
 const char *wkz_plant_tree_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
-	if(welt->ist_in_kartengrenzen(pos.get_2d())) {
+	if(!sp->can_afford(welt->get_einstellungen()->cst_remove_tree))
+	{
+		return "That would exceed\nyour credit limit.";
+	}
+	
+	if(welt->ist_in_kartengrenzen(pos.get_2d())) 
+	{
 		const baum_besch_t *besch = NULL;
 		bool check_climates = true;
 		bool random_age = false;
 		if(default_param==NULL) {
 			besch = baum_t::random_tree_for_climate( welt->get_climate(pos.z) );
 		}
-		else {
+		else
+		{
 			// parse default_param: bbbesch_nr b=1 ignore climate b=1 randome age
 			check_climates = default_param[0]=='0';
 			random_age = default_param[1]=='1';
 			besch = baum_t::find_tree(default_param+3);
 		}
-		if(besch  &&  baum_t::plant_tree_on_coordinate( welt, pos.get_2d(), besch, check_climates, random_age )  ) {
+		if(besch  &&  baum_t::plant_tree_on_coordinate( welt, pos.get_2d(), besch, check_climates, random_age )  ) 
+		{
 			spieler_t::accounting( sp, welt->get_einstellungen()->cst_remove_tree, pos.get_2d(), COST_CONSTRUCTION );
 			return NULL;
 		}
@@ -1451,6 +1476,11 @@ const char *wkz_wegebau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 	const planquadrat_t *plan = welt->lookup(pos.get_2d());
 	if(plan == NULL) {
 		return false;
+	}
+
+	if(!sp->can_afford(besch->get_preis()))
+	{
+		return "That would exceed\nyour credit limit.";
 	}
 
 	grund_t *gr=NULL;
@@ -1910,6 +1940,12 @@ const char *wkz_wayobj_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	if(besch==NULL) {
 		besch = default_electric;
 	}
+
+	if(!sp->can_afford(besch->get_preis()))
+	{
+		return "That would exceed\nyour credit limit.";
+	}
+
 	waytype_t wt=besch->get_wtyp();
 	koord3d end;
 
@@ -1975,6 +2011,12 @@ const char *wkz_wayobj_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 /* build all kind of station extension buildings */
 const char *wkz_station_t::wkz_station_building_aux(karte_t *welt, spieler_t *sp, koord3d k, const haus_besch_t *besch, sint8 rotation )
 {
+	
+	if(!sp->can_afford(welt->get_einstellungen()->cst_multiply_post*besch->get_level()*besch->get_b()*besch->get_h()))
+	{
+		return "That would exceed\nyour credit limit.";
+	}
+	
 	koord pos = k.get_2d();
 DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building on square %d,%d", pos.x, pos.y);
 
@@ -2576,9 +2618,16 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 	sint8 rotation;
 	const haus_besch_t *besch=get_besch(rotation);
+
+	
+
 	const char *msg = NULL;
 	switch (besch->get_utyp()) {
 		case haus_besch_t::hafen:
+			if(!sp->can_afford(welt->get_einstellungen()->cst_multiply_dock * besch->get_level()))
+			{
+				return "That would exceed\nyour credit limit.";
+			}
 			msg = wkz_station_t::wkz_station_dock_aux(welt, sp, pos, besch );
 			break;
 		case haus_besch_t::hafen_geb:
@@ -2588,6 +2637,10 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		case haus_besch_t::generic_stop:
 			switch(besch->get_extra()) {
 				case road_wt:
+					if(!sp->can_afford(welt->get_einstellungen()->cst_multiply_roadstop * besch->get_level()))
+					{
+						return "That would exceed\nyour credit limit.";
+					}
 					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, road_wt, welt->get_einstellungen()->cst_multiply_roadstop, "H");
 					break;
 				case track_wt:
@@ -2595,12 +2648,24 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 				case maglev_wt:
 				case narrowgauge_wt:
 				case tram_wt:
+					if(!sp->can_afford(welt->get_einstellungen()->cst_multiply_station * besch->get_level()))
+					{
+						return "That would exceed\nyour credit limit.";
+					}
 					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, (waytype_t)besch->get_extra(), welt->get_einstellungen()->cst_multiply_station, "BF");
 					break;
 				case water_wt:
+					if(!sp->can_afford(welt->get_einstellungen()->cst_multiply_dock * besch->get_level()))
+					{
+						return "That would exceed\nyour credit limit.";
+					}
 					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, water_wt, welt->get_einstellungen()->cst_multiply_dock, "Dock");
 					break;
 				case air_wt:
+					if(!sp->can_afford(welt->get_einstellungen()->cst_multiply_airterminal * besch->get_level()))
+					{
+						return "That would exceed\nyour credit limit.";
+					}
 					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, air_wt, welt->get_einstellungen()->cst_multiply_airterminal, "Airport");
 					break;
 			}
@@ -2632,6 +2697,10 @@ const char *wkz_roadsign_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	DBG_MESSAGE("wkz_roadsign()","called on %d,%d", k.x, k.y);
 	const roadsign_besch_t * besch = roadsign_t::find_besch(default_param);
+	if(!sp->can_afford(besch->get_preis()))
+	{
+		return "That would exceed\nyour credit limit.";
+	}
 	if(besch==NULL) {
 		dbg->fatal("wkz_roadsign_t::work()","No roadsign \"%s\"", default_param );
 	}
@@ -2734,6 +2803,34 @@ built_sign:
 // built all types of depots
 const char *wkz_depot_t::wkz_depot_aux(karte_t *welt, spieler_t *sp, koord pos, const haus_besch_t *besch, waytype_t wegtype, sint64 cost)
 {
+	switch(wegtype)
+	{
+	case monorail_wt: 
+	case maglev_wt: 
+	case narrowgauge_wt:
+	case tram_wt:	
+	case track_wt: 
+		if(!sp->can_afford(welt->get_einstellungen()->cst_depot_rail))
+		{
+			return "That would exceed\nyour credit limit.";
+		}
+	case water_wt:
+		if(!sp->can_afford(welt->get_einstellungen()->cst_depot_ship))
+		{
+			return "That would exceed\nyour credit limit.";
+		}
+	case air_wt:
+		if(!sp->can_afford(welt->get_einstellungen()->cst_depot_air))
+		{
+			return "That would exceed\nyour credit limit.";
+		}
+	case road_wt:
+		if(!sp->can_afford(welt->get_einstellungen()->cst_depot_road))
+		{
+			return "That would exceed\nyour credit limit.";
+		}
+	};
+	
 	if(welt->ist_in_kartengrenzen(pos)) {
 		grund_t *bd=NULL;
 		// special for the seven seas ...
@@ -3730,16 +3827,23 @@ const char *wkz_make_stop_public_t::move( karte_t *welt, spieler_t *sp, uint16, 
 const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d p )
 {
 	const planquadrat_t *pl = welt->lookup(p.get_2d());
-	if(!pl  ||  !pl->get_halt().is_bound()) {
+	if(!pl  ||  !pl->get_halt().is_bound()) 
+	{
 		return "No stop here!";
 	}
-	else {
+	else 
+	{
 		halthandle_t halt = pl->get_halt();
-		if(  !(spieler_t::check_owner(halt->get_besitzer(),sp)  ||  halt->get_besitzer()==welt->get_spieler(1))  ) {
+		if(  !(spieler_t::check_owner(halt->get_besitzer(),sp)  ||  halt->get_besitzer()==welt->get_spieler(1))  ) 
+		{
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
-		else {
-			halt->make_public_and_join(sp);
+		else 
+		{
+			if(!halt->make_public_and_join(sp))
+			{
+				return "That would exceed\nyour credit limit.";
+			}
 		}
 	}
 	return NULL;

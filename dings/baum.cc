@@ -599,7 +599,7 @@ void baum_t::info(cbuffer_t & buf) const
 
 
 void
-baum_t::entferne(spieler_t *sp)
+baum_t::entferne(spieler_t *sp) //"remove" (Babelfish)
 {
 	spieler_t::accounting(sp, welt->get_einstellungen()->cst_remove_tree, get_pos().get_2d(), COST_CONSTRUCTION);
 	mark_image_dirty( get_bild(), 0 );

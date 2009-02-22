@@ -364,6 +364,7 @@ const char *brueckenbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, cons
 
 	zv = koord(ribi_t::rueckwaerts(ribi));
 	// Brückenende suchen
+	// "Bridge End Search" (Google)
 	const char *msg;
 	koord3d end = finde_ende(welt, gr->get_pos(), zv, besch, msg );
 
@@ -377,10 +378,21 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 	if(gr_end->kann_alle_obj_entfernen(sp)) {
 		return "Tile not empty.";
 	}
+
+	if(!sp->can_afford(besch->get_preis()))
+	{
+		return "That would exceed\nyour credit limit.";
+	}
+
 	// Anfang und ende sind geprueft, wir konnen endlich bauen
-	if(powerbridge) {
+	// "Beginning and end are approved, we can finally build" (Google)
+	if(powerbridge) 
+	{
 		baue_bruecke(welt, sp, gr->get_pos(), end, zv, besch, wegbauer_t::leitung_besch );
-	} else {
+	} 
+	
+	else 
+	{
 		baue_bruecke(welt, sp, gr->get_pos(), end, zv, besch, weg->get_besch() );
 	}
 	return NULL;
@@ -440,7 +452,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 
 	// must determine end tile: on a slope => likely need auffahrt
 	bool need_auffahrt = (pos.z==end.z);
-	if(need_auffahrt) {
+	if(need_auffahrt) { //"Need ramp" (Google)
 		grund_t *gr = welt->lookup(end);
 		weg_t *w = gr->get_weg( (waytype_t)weg_besch->get_wtyp());
 		if(w) {
@@ -473,7 +485,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 				spieler_t::accounting(sp, -wegbauer_t::leitung_besch->get_preis(), gr->get_pos().get_2d(), COST_CONSTRUCTION);
 				gr->obj_add(lt);
 			}
-			lt->calc_neighbourhood();
+			 lt->calc_neighbourhood();
 		}
 	}
 }
@@ -491,8 +503,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 	if(grund_hang == hang_t::flach) {
 		weg_hang = hang_typ(zv);    // nordhang - suedrampe
 	}
-
-	bruecke = new brueckenboden_t(welt, end, grund_hang, weg_hang);
+		bruecke = new brueckenboden_t(welt, end, grund_hang, weg_hang);
 	// add the ramp
 	if(bruecke->get_grund_hang() == hang_t::flach) {
 		img = besch->get_rampe(ribi_neu);
@@ -520,7 +531,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 	} else {
 		leitung_t *lt = bruecke->get_leitung();
 		if(!lt) {
-			lt = new leitung_t(welt, bruecke->get_pos(), sp);
+			lt = new leitung_t(welt, bruecke->get_pos(), sp); //"leading" (Google)
 			bruecke->obj_add( lt );
 		} else {
 			// remove maintainance
@@ -528,6 +539,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 		}
 		lt->laden_abschliessen();
 	}
+
 	bruecke_t *br = new bruecke_t(welt, end, sp, besch, img);
 	bruecke->obj_add( br );
 	br->laden_abschliessen();

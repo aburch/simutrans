@@ -832,6 +832,12 @@ void convoi_t::step()
 					replacing_vehicles.clear();
 					if (line.is_bound()) {
 						line->recalc_status();
+						if (line->get_replacing_convoys_count()==0) {
+							char buf[128];
+							sprintf(buf, translator::translate("Replacing\nvehicles of\n%-20s\ncompleted"), line->get_name());
+							welt->get_message()->add_message(buf, home_depot.get_2d(),message_t::convoi, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
+						}
+
 					}
 					if (autostart) {
 						dep->start_convoi(self);
@@ -1112,8 +1118,11 @@ void convoi_t::ziel_erreicht()
 		calc_gewinn();
 
 		akt_speed = 0;
-		sprintf(buf, translator::translate("!1_DEPOT_REACHED"), get_name());
-		welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::convoi, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
+		if (!replace || !autostart) {
+			sprintf(buf, translator::translate("!1_DEPOT_REACHED"), get_name());
+			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::convoi, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
+		}
+
 		home_depot=v->get_pos();
 		betrete_depot(dp);
 	}
@@ -1131,7 +1140,7 @@ void convoi_t::ziel_erreicht()
 			// Neither depot nor station: waypoint
 			fpl->advance();
 			state = ROUTING_1;
-			if(depot_when_empty && loading_level==0) {
+			if(replace && depot_when_empty &&  has_no_cargo()) {
 				depot_when_empty=false;
 				no_load=false;
 				go_to_depot(false);
@@ -2256,7 +2265,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	// Nun wurde ein/ausgeladen werden
 	if(loading_level>=loading_limit  ||  no_load  ||  welt->get_zeit_ms()>go_on_ticks)  {
 
-		if(withdraw  &&  loading_level==0) {
+		if(withdraw  &&  has_no_cargo()) {
 			// destroy when empty
 			besitzer_p->buche( calc_restwert(), COST_NEW_VEHICLE );
 			besitzer_p->buche( -calc_restwert(), COST_ASSETS );
@@ -2773,6 +2782,27 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		create_win( new news_img(txt), w_time_delete, magic_none);
 	}
 	return b_depot_found;
+}
+
+bool convoi_t::has_no_cargo() const
+{
+	if (loading_level==0) 
+	{
+		return true;
+	}
+	if (loading_level!=100)
+	{
+		return false;
+	}
+	/* a convoy with max capacity of zero, has always loading_level==100 */
+	for(unsigned i=0; i<anz_vehikel; i++) 
+	{
+		if (fahr[i]->get_fracht_max()>0) 
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 

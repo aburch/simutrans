@@ -322,7 +322,7 @@ public:
 	// just for info so far
 	sint64 calc_maintenance();
 
-	void make_public_and_join( spieler_t *sp );
+	bool make_public_and_join( spieler_t *sp );
 
 	const vector_tpl<halthandle_t> *get_warenziele_passenger() const {return warenziele;}
 	const vector_tpl<halthandle_t> *get_warenziele_mail() const {return warenziele+1;}
