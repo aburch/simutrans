@@ -884,7 +884,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		// first left side
 		const grund_t *grleft=welt->lookup(pos+koord(-1,0))->get_kartenboden();
 		if(grleft) {
-			const sint16 left_hgt=grleft->get_hoehe()/Z_TILE_STEP;
+			const sint16 left_hgt=grleft->get_hoehe()/Z_TILE_STEP + (new_slope==ALL_DOWN_SLOPE && grleft->get_grund_hang()? 1 : 0);
 			const sint8 diff_from_ground = abs(left_hgt-test_hgt);
 			if(diff_from_ground>2) {
 				return "Maximum tile height difference reached.";
@@ -894,7 +894,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		// right side
 		const grund_t *grright=welt->lookup(pos+koord(1,0))->get_kartenboden();
 		if(grright) {
-			const sint16 right_hgt=grright->get_hoehe()/Z_TILE_STEP;
+			const sint16 right_hgt=grright->get_hoehe()/Z_TILE_STEP  + (new_slope==ALL_DOWN_SLOPE && grright->get_grund_hang()? 1 : 0);
 			const sint8 diff_from_ground = abs(right_hgt-test_hgt);
 			if(diff_from_ground>2) {
 				return "Maximum tile height difference reached.";
@@ -903,7 +903,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 		const grund_t *grback=welt->lookup(pos+koord(0,-1))->get_kartenboden();
 		if(grback) {
-			const sint16 back_hgt=grback->get_hoehe()/Z_TILE_STEP;
+			const sint16 back_hgt=grback->get_hoehe()/Z_TILE_STEP  + (new_slope==ALL_DOWN_SLOPE && grback->get_grund_hang()? 1 : 0);
 			const sint8 diff_from_ground = abs(back_hgt-test_hgt);
 			if(diff_from_ground>2) {
 				return "Maximum tile height difference reached.";
@@ -912,7 +912,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 		const grund_t *grfront=welt->lookup(pos+koord(0,1))->get_kartenboden();
 		if(grfront) {
-			const sint16 front_hgt=grfront->get_hoehe()/Z_TILE_STEP;
+			const sint16 front_hgt=grfront->get_hoehe()/Z_TILE_STEP  + (new_slope==ALL_DOWN_SLOPE && grfront->get_grund_hang()? 1 : 0);
 			const sint8 diff_from_ground = abs(front_hgt-test_hgt);
 			if(diff_from_ground>2) {
 				return "Maximum tile height difference reached.";
