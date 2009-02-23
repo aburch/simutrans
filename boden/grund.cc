@@ -600,7 +600,8 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 				set_flag(grund_t::draw_as_ding);
 				if(  corner1(slope_this)==corner4(slope_this)  ) {
 					// ok, we need a fence here, if there is not a vertical bridgehead
-					fence_west = (flags&has_way1)==0  ||  (static_cast<weg_t *>(obj_bei(0))->get_ribi_unmasked()&ribi_t::west)==0;
+					fence_west = (flags&has_way1)==0  ||  (static_cast<weg_t*>(obj_bei(0))->get_ribi_unmasked()&ribi_t::west)==0
+								&& ( (flags&has_way2)==0  ||  (static_cast<weg_t *>(obj_bei(1))->get_ribi_unmasked()&ribi_t::west)==0);
 				}
 			}
 			// any height difference AND something to see?
@@ -630,7 +631,8 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 				set_flag(grund_t::draw_as_ding);
 				if(  corner3(slope_this)==corner4(slope_this)  ) {
 					// ok, we need a fence here, if there is not a vertical bridgehead
-					fence_north = (flags&has_way1)==0  ||  (static_cast<weg_t *>(obj_bei(0))->get_ribi_unmasked()&ribi_t::nord)==0;
+					fence_north = (flags&has_way1)==0  ||  (static_cast<weg_t*>(obj_bei(0))->get_ribi_unmasked()&ribi_t::nord)==0
+								&& ( (flags&has_way2)==0  ||  (static_cast<weg_t *>(obj_bei(1))->get_ribi_unmasked()&ribi_t::nord)==0);
 				}
 			}
 			// any height difference AND something to see?
