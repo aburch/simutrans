@@ -707,7 +707,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos) const
 	if(back_bild_nr!=0) {
 		if(abs(back_bild_nr)>121) {
 			// fence before a drop
-			const sint16 offset = slope ? -TILE_HEIGHT_STEP : 0;
+			const sint16 offset = corner4(slope) ? -TILE_HEIGHT_STEP : 0;
 			if(back_bild_nr<0) {
 				// behind a building
 				display_img(grund_besch_t::fences->get_bild(-back_bild_nr-122+3), xpos, ypos+offset, dirty);
