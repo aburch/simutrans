@@ -1049,9 +1049,9 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	slist_tpl<HNode *> queue;
 #else
 	// we need just need to know the current bottom of the list with respect to the nodes array
-	sint32 bottom_of_the_list = 0;
+	uint32 bottom_of_the_list = 0;
 #endif
-	sint32 step = 1;
+	uint32 step = 1;
 	HNode *tmp;
 
 	nodes[0].halt = self;
@@ -1063,7 +1063,7 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 #endif
 	self->marke = current_mark;
 
-	const sint32 max_hops = welt->get_einstellungen()->get_max_hops();
+	const uint32 max_hops = welt->get_einstellungen()->get_max_hops();
 	do {
 #ifdef USE_ROUTE_SLIST_TPL
 		tmp = queue.remove_first();
@@ -1270,7 +1270,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 
 				// The random offset will ensure that all goods have an equal chance to be loaded.
 				sint32 offset = simrand(warray->get_count());
-				for(  sint32 i=0;  i<warray->get_count();  i++  ) {
+				for(  uint32 i=0;  i<warray->get_count();  i++  ) {
 					ware_t &tmp = (*warray)[ i+offset ];
 
 					// prevent overflow (faster than division)
@@ -1767,7 +1767,6 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 void haltestelle_t::recalc_station_type()
 {
 	int new_station_type = 0;
-	uint16 notype_capacity=0;
 	capacity[0] = 0;
 	capacity[1] = 0;
 	capacity[2] = 0;

@@ -109,7 +109,7 @@ DBG_MESSAGE("event","HOWDY!");
 			droplist.request_groesse(droplist.get_groesse());
 			set_groesse(droplist.get_groesse() + koord(0, 16));
 			int sel = droplist.get_selection();
-			if((unsigned)sel>=droplist.get_count()  ||  !droplist.get_element(sel)->is_valid()) {
+			if((uint32)sel>=(uint32)droplist.get_count()  ||  !droplist.get_element(sel)->is_valid()) {
 				sel = 0;
 			}
 			droplist.show_selection(sel);
@@ -159,8 +159,6 @@ bool gui_combobox_t::action_triggered( gui_action_creator_t *komp,value_t p)
 	if (komp == &droplist) {
 DBG_MESSAGE("gui_combobox_t::infowin_event()","scroll selected %i",p.i);
 		finish = true;
-		// check string of old item
-		gui_scrolled_list_t::scrollitem_t *item = droplist.get_element(p.i);
 		set_selection(p.i);
 	}
 	return false;

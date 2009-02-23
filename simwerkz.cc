@@ -973,10 +973,8 @@ const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
 	if(welt->ist_in_kartengrenzen(pos.get_2d())) {
 		grund_t *gr = welt->lookup(pos.get_2d())->get_kartenboden();
-		if(gr && !gr->get_text()) {
+		if(  gr  &&  !gr->get_text()  ) {
 			const ding_t* thing = gr->obj_bei(0);
-			const label_t* l = gr->find<label_t>();
-
 			if(thing == NULL  ||  thing->get_besitzer() == sp  ||  (spieler_t::check_owner(thing->get_besitzer(), sp)  &&  (thing->get_typ() != ding_t::gebaeude))) {
 				gr->obj_add(new label_t(welt, gr->get_pos(), sp, "\0"));
 				gr->find<label_t>()->zeige_info();
@@ -1698,7 +1696,7 @@ class electron_t : fahrer_t {
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_leitung()->get_ribi(); }
 	virtual waytype_t get_waytype() const { return invalid_wt; }
 	virtual int get_kosten(const grund_t *,const uint32) const { return 1; }
-	virtual bool ist_ziel(const grund_t *cur,const grund_t *) const { return false; }
+	virtual bool ist_ziel(const grund_t *,const grund_t *) const { return false; }
 };
 
 const char *wkz_wayremover_t::work( karte_t *welt, spieler_t *sp, koord3d pos )

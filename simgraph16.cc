@@ -1952,7 +1952,7 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 				recode_color_img(n, player_nr);
 			}
 			// ok, there is a cached version
-			if(  images[n].player_flags&(~NEED_PLAYER_RECODE) == player_nr  ) {
+			if(  (images[n].player_flags&(~NEED_PLAYER_RECODE)) == player_nr  ) {
 				// ok, now we could use the same faster code as for the normal images
 				display_img_aux(n, xp, yp, dirty, true);
 				return;

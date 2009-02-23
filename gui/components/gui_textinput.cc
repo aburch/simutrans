@@ -61,7 +61,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 					if (cursor_pos >= 0) {
 						cursor_pos = get_next_char(text, cursor_pos);
 					}
-					if (cursor_pos > strlen(text)) {
+					if (cursor_pos > (long)strlen(text)) {
 						cursor_pos = strlen(text);
 					}
 					break;

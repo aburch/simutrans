@@ -1569,12 +1569,12 @@ convoi_t::rdwr(loadsave_t *file)
 	else {
 		bool override_monorail = false;
 		is_electric = false;
-		for(unsigned i=0; i<anz_vehikel; i++) {
+		for(  uint8 i=0;  i<anz_vehikel;  i++  ) {
 			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
 			vehikel_t *v = 0;
 
 			const bool first = (i==0);
-			const bool last = (i==anz_vehikel-1);
+			const bool last = (i==anz_vehikel-1u);
 			if(override_monorail) {
 				// ignore type for ancient monorails
 				v = new monorail_waggon_t(welt, file, first, last);

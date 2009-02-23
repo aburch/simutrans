@@ -33,7 +33,7 @@ void goods_stats_t::zeichnen(koord offset)
 	int yoff = offset.y;
 	char buf[256];
 
-	for(unsigned int i=0; i<warenbauer_t::get_waren_anzahl()-1; i++) {
+	for(  uint16 i=0;  i<warenbauer_t::get_waren_anzahl()-1u;  i++  ) {
 		const ware_besch_t * wtyp = warenbauer_t::get_info(goodslist[i]);
 
 		display_ddd_box_clip(offset.x + 2, yoff, 8, 8, MN_GREY0, MN_GREY4);

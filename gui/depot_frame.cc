@@ -78,8 +78,8 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	electrics(&electrics_vec),
 	loks(&loks_vec),
 	waggons(&waggons_vec),
-	scrolly_electrics(&cont_electrics),
 	scrolly_pas(&cont_pas),
+	scrolly_electrics(&cont_electrics),
 	scrolly_loks(&cont_loks),
 	scrolly_waggons(&cont_waggons)
 {
@@ -1057,7 +1057,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 		} else if(komp == &line_selector) {
 			int selection = p.i;
 //DBG_MESSAGE("depot_frame_t::action_triggered()","line selection=%i",selection);
-			if(  (unsigned)(selection-1)<line_selector.count_elements()  ) {
+			if(  (uint32)(selection-1)<(uint32)line_selector.count_elements()  ) {
 				vector_tpl<linehandle_t> lines;
 				get_line_list(depot, &lines);
 				selected_line = lines[selection - 1];
@@ -1174,7 +1174,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 				translator::translate("Fahrzeuge:"), cnv->get_vehikel_anzahl(),
 				translator::translate("Station tiles:"), (length+TILE_STEPS-1)/TILE_STEPS );
 			sprintf(txt_convoi_speed,  "%s %d(%d)km/h", translator::translate("Max. speed:"), min_speed, max_speed );
-			sprintf(txt_convoi_value, "%s %d$", translator::translate("Restwert:"), cnv->calc_restwert()/100);
+			sprintf(txt_convoi_value, "%s %ld$", translator::translate("Restwert:"), (long)(cnv->calc_restwert()/100) );
 			// just recheck if schedules match
 			if(  cnv->get_line().is_bound()  &&  cnv->get_line()->get_schedule()->ist_abgeschlossen()  ) {
 				cnv->check_pending_updates();

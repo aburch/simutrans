@@ -1476,8 +1476,8 @@ void stadt_t::step_passagiere()
 				}
 
 				// now try to add them to the target halt
-				sint32 max_ware =ret_halt->get_capacity(wtyp->get_index());
-				if (ret_halt->get_ware_summe(wtyp) <= max_ware) {
+				uint32 max_ware =ret_halt->get_capacity(wtyp->get_index());
+				if(ret_halt->get_ware_summe(wtyp) <= max_ware) {
 					// prissi: not overcrowded and can recieve => add them
 					if (found) {
 						ware_t return_pax (wtyp);

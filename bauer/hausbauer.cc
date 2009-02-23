@@ -471,7 +471,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 						break;
 					}
 				}
-				gebaeude_t* gb = gr->find<gebaeude_t>();
+				gb = gr->find<gebaeude_t>();
 			}
 			if(gb  &&  gb->get_tile()->get_besch()->get_utyp()>=8) {
 				corner_layout &= ~2; // clear near bit

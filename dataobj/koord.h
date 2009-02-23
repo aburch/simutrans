@@ -72,7 +72,7 @@ private:
 };
 
 
-static inline unsigned abs_distance(const koord &a, const koord &b)
+static inline uint32 abs_distance(const koord &a, const koord &b)
 {
 	return abs(a.x - b.x) + abs(a.y - b.y);
 }

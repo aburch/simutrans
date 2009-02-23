@@ -418,7 +418,7 @@ void spieler_t::buche(const sint64 betrag, const koord pos, enum player_cost typ
 	buche(betrag, type);
 
 	if(betrag != 0) {
-		if(  abs_distance(welt->get_world_position(),pos)<2*(display_get_width()/get_tile_raster_width())+3  ) {
+		if(  abs_distance(welt->get_world_position(),pos)<2*(uint32)(display_get_width()/get_tile_raster_width())+3  ) {
 			// only display, if near the screen ...
 			add_message(pos, betrag);
 		}

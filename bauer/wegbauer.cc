@@ -2124,7 +2124,7 @@ wegbauer_t::baue_fluss()
 		route_t to_the_sea;
 		fluss_fahrer_t ff;
 		if(  to_the_sea.find_route( welt, welt->lookup_kartenboden(route[start_n].get_2d())->get_pos(), (fahrer_t *)&ff, 0, ribi_t::alle, 0x7FFFFFFF )  ) {
-			for(  sint32 idx=0;  idx<to_the_sea.get_max_n();  idx++  ) {
+			for(  uint32 idx=0;  idx<to_the_sea.get_max_n();  idx++  ) {
 				weg_t* w = welt->lookup(to_the_sea.position_bei(idx))->get_weg(water_wt);
 				if(w) {
 					int type;
