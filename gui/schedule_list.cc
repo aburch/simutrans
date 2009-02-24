@@ -213,7 +213,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	set_min_windowsize(koord(488, 300));
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
-	resize(koord(0,10));
+	resize(koord(0,100));
 
 	build_line_list(0);
 }
