@@ -203,18 +203,31 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 		if(  gr1  &&  gr1->get_weg_hang()==hang_t::flach  ) {
 			if(  gr1->get_typ()==grund_t::boden  ) {
 				// on slope ok, but not on other bridges
-				return gr1->get_pos();
+				if(  gr1->has_two_ways()  ) {
+					// crossing => then we must be sure we have our way in our direction
+					const weg_t* weg = gr1->get_weg(wegtyp);
+					if(  ribi_t::ist_gerade(ribi_typ(zv)|weg->get_ribi_unmasked())  ) {
+						// way goes in our direction already
+						return gr1->get_pos();
+					}
+				}
+				else {
+					// no or one way
+					const weg_t* weg = gr1->get_weg_nr(0);
+					if(  weg==NULL  ||  weg->get_waytype()==wegtyp
+						|| (crossing_logic_t::get_crossing(wegtyp, weg->get_waytype())  &&  (ribi_typ(zv)&weg->get_ribi_unmasked())==0)
+					) {
+						return gr1->get_pos();
+					}
+				}
 			}
 			else if(  gr1->get_typ()==grund_t::monorailboden  ) {
 				// check if we can connect ro elevated way
-				const weg_t* weg = gr1->get_weg_nr(0);
-				if(  weg==NULL  ||  weg->get_waytype()==wegtyp
-//					|| (crossing_logic_t::get_crossing(wegtyp, weg->get_waytype()))
-//					|| (wegtyp==powerline_wt)
-				) {
+				if(  gr1->hat_weg(wegtyp)  ) {
 					return gr1->get_pos();
 				}
 			}
+			// invalid ground in its way => while loop will finish
 		}
 		gr2 = welt->lookup(pos);
 		if(gr2  &&  (gr2->get_typ()==grund_t::boden  ||  gr2->get_typ()==grund_t::monorailboden)) {
@@ -274,7 +287,7 @@ bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 	if(gr->get_typ()!=grund_t::boden  &&  gr->get_typ()!=grund_t::monorailboden) {
 		return false;
 	}
-	if(gr->ist_uebergang()) {
+	if(  gr->ist_uebergang()  ||  (  gr->hat_wege()  &&  gr->get_leitung()  )  ) {
 		return false;
 	}
 	ding_t *d=gr->obj_bei(0);
