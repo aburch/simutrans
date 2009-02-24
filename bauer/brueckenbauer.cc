@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansj�rg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -172,8 +172,8 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, c
 
 koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&error_msg )
 {
-	const grund_t *gr1; // auf Br�ckenebene
-	const grund_t *gr2; // unter Br�ckenebene
+	const grund_t *gr1; // on the level of the bridge
+	const grund_t *gr2; // the level under the bridge
 	waytype_t wegtyp = besch->get_waytype();
 	leitung_t *lt;
 	error_msg = NULL;
@@ -194,11 +194,14 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 		}
 		// check for height
 		sint16 height = pos.z -welt->lookup_kartenboden(pos.get_2d())->get_hoehe();
-		if( (besch->get_max_height()!=0  &&  height>besch->get_max_height()) || (height<-Z_TILE_STEP) ) {
+		if(besch->get_max_height()!=0  &&  height>besch->get_max_height()) {
 			error_msg = "bridge is too high for its type!";
 			return koord3d::invalid;
 		}
-
+		// and if ground is above bridge / double slopes
+ 		if (height<-Z_TILE_STEP){
+			break; // to trigger the right error message
+		}
 		gr1 = welt->lookup(pos + koord3d(0, 0, Z_TILE_STEP));
 		if(  gr1  &&  gr1->get_weg_hang()==hang_t::flach  ) {
 			if(  gr1->get_typ()==grund_t::boden  ) {
@@ -243,27 +246,27 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 			if(gr2->get_grund_hang()==hang_t::flach) {
 				if(gr2->get_typ()==grund_t::boden  &&  !gr2->get_halt().is_bound()) {
 					if(ribi_t::ist_einfach(ribi) && koord(ribi) == zv) {
-						// Ende mit Rampe - Endschiene vorhanden
+						// end with ramp, end way is already built
 						return pos;
 					}
 					if(ribi==ribi_t::keine && wegtyp!=powerline_wt && gr2->hat_weg(wegtyp)) {
-						// Ende mit Rampe - Endschiene hat keine ribis
+						// end with ramp, end way is already built but ribi's are missing
 						return pos;
 					}
 					if(ribi==ribi_t::keine && wegtyp==powerline_wt && gr2->suche_obj(ding_t::leitung)) {
-						// Ende mit Rampe - Endschiene hat keine ribis
+						// end with ramp, end way is already built but ribi's are missing - for powerlines
 						return pos;
 					}
 				}
 			}
 			else {
 				if(ribi_t::ist_einfach(ribi)  &&  koord(ribi) == zv) {
-					// Ende am Hang - Endschiene vorhanden
+					// end on slope with way
 					return pos;
 				}
 				if(!ribi  &&  gr2->get_grund_hang()==hang_typ(zv)) {
-					// Ende am Hang - Endschiene fehlt oder hat keine ribis
-					// Wir pr�fen noch, ob uns dort ein anderer Weg st�rt
+					// end on slope, way (or ribi) is missing
+					// check if another way is blocking us
 					if(wegtyp!=powerline_wt && (!gr2->hat_wege() || gr2->hat_weg(wegtyp))) {
 						return pos;
 					}
@@ -273,8 +276,8 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 				}
 			}
 		}
-	} while(!gr1 &&                             // keine Br�cke im Weg
-		(!gr2 || gr2->get_grund_hang()==hang_t::flach  ||  gr2->get_hoehe()<pos.z ) ); // Boden kommt nicht hoch
+	} while(!gr1 &&                             // no bridge is crossing
+		(!gr2 || gr2->get_grund_hang()==hang_t::flach  ||  gr2->get_hoehe()<pos.z ) ); // ground stays below bridge
 
 	error_msg = "A bridge must end on a way!";
 	return koord3d::invalid;
@@ -376,7 +379,7 @@ const char *brueckenbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, cons
 	}
 
 	zv = koord(ribi_t::rueckwaerts(ribi));
-	// Br�ckenende suchen
+	// search for suitable bridge end tile
 	const char *msg;
 	koord3d end = finde_ende(welt, gr->get_pos(), zv, besch, msg );
 
@@ -556,8 +559,6 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 	slist_tpl<koord3d> tmp_list;
 	const char    *msg;
 
-	// Erstmal das ganze Au�ma� der Br�cke bestimmen und sehen,
-	// ob uns was im Weg ist.
 	tmp_list.insert(pos);
 	marker.markiere(welt->lookup(pos));
 	waytype_t delete_wegtyp = wegtyp==powerline_wt ? invalid_wt : wegtyp;
@@ -571,8 +572,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		koord zv = koord::invalid;
 
 		if(from->ist_karten_boden()) {
-			// Der Grund ist Br�ckenanfang/-ende - hier darf nur in
-			// eine Richtung getestet werden.
+			// gr is start/end - test only one direction
 			if(from->get_grund_hang() != hang_t::flach) {
 				zv = koord(hang_t::gegenueber(from->get_grund_hang()));
 			}
@@ -584,14 +584,14 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		else if(from->ist_bruecke()) {
 			part_list.insert(pos);
 		}
-		// Alle Br�ckenteile auf Entfernbarkeit pr�fen!
+		// can we delete everything there?
 		msg = from->kann_alle_obj_entfernen(sp);
 
 		if(msg != NULL  ||  (from->get_halt().is_bound()  &&  from->get_halt()->get_besitzer()!=sp)) {
 			return "Die Bruecke ist nicht frei!\n";
 		}
 
-		// Nachbarn raussuchen
+		// search neighbors
 		for(int r = 0; r < 4; r++) {
 			if(  (zv == koord::invalid  ||  zv == koord::nsow[r])  &&  from->get_neighbour(to, delete_wegtyp, koord::nsow[r])  &&  !marker.ist_markiert(to)  &&  to->ist_bruecke()  ) {
 				tmp_list.insert(to->get_pos());
@@ -600,7 +600,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		}
 	} while (!tmp_list.empty());
 
-	// Jetzt geht es ans l�schen der Br�cke
+	// now delete the bridge
 	while (!part_list.empty()) {
 		pos = part_list.remove_first();
 
@@ -627,7 +627,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 			delete p;
 		}
 	}
-	// Und die Br�ckenenden am Schlu�
+	// finally delete the bridge ends
 	while (!end_list.empty()) {
 		pos = end_list.remove_first();
 
