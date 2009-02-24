@@ -210,9 +210,10 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	update_lineinfo( linehandle_t() );
 
 	// resize button
-	set_min_windowsize(koord(488, 400));
+	set_min_windowsize(koord(488, 300));
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
+	resize(koord(0,10));
 
 	build_line_list(0);
 }

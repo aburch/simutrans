@@ -241,13 +241,11 @@ gui_combobox_t::close_box()
 	droplist.set_visible(false);
 	set_groesse(koord(groesse.x, 14));
 	first_call = true;
-};
+}
 
 
 
-/**
-* Release the focus if we had it
-*/
+
 void gui_combobox_t::set_groesse(koord gr)
 {
 	textinp.set_pos( pos+koord(12,0) );
