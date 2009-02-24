@@ -246,7 +246,7 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 		return "Tunnel muss an\neinfachem\nHang beginnen!\n";
 	}
 	if(weg->get_ribi_unmasked() & ~ribi_t::rueckwaerts(ribi_typ(gr->get_grund_hang()))) {
-		return "Tunnel must end on single way!";
+		return "Tunnel must start on single way!";
 	}
 	zv = koord(gr->get_grund_hang());
 
@@ -263,7 +263,7 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 
 	// pruefe ob Tunnel auf strasse/schiene endet
 	if(!welt->ist_in_kartengrenzen(end.get_2d())) {
-		return "Tunnel must end on single way!";
+		return "Tunnel must start on single way!";
 	}
 
 	// Anfang und ende sind geprueft, wir konnen endlich bauen
