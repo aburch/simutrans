@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -172,8 +172,8 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, c
 
 koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&error_msg )
 {
-	const grund_t *gr1; // auf Brückenebene
-	const grund_t *gr2; // unter Brückenebene
+	const grund_t *gr1; // auf Brï¿½ckenebene
+	const grund_t *gr2; // unter Brï¿½ckenebene
 	waytype_t wegtyp = besch->get_waytype();
 	leitung_t *lt;
 	error_msg = NULL;
@@ -194,7 +194,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 		}
 		// check for height
 		sint16 height = pos.z -welt->lookup_kartenboden(pos.get_2d())->get_hoehe();
-		if(besch->get_max_height()!=0  &&  height>besch->get_max_height()  ) {
+		if( (besch->get_max_height()!=0  &&  height>besch->get_max_height()) || (height<-Z_TILE_STEP) ) {
 			error_msg = "bridge is too high for its type!";
 			return koord3d::invalid;
 		}
@@ -263,7 +263,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 				}
 				if(!ribi  &&  gr2->get_grund_hang()==hang_typ(zv)) {
 					// Ende am Hang - Endschiene fehlt oder hat keine ribis
-					// Wir prüfen noch, ob uns dort ein anderer Weg stört
+					// Wir prï¿½fen noch, ob uns dort ein anderer Weg stï¿½rt
 					if(wegtyp!=powerline_wt && (!gr2->hat_wege() || gr2->hat_weg(wegtyp))) {
 						return pos;
 					}
@@ -273,7 +273,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 				}
 			}
 		}
-	} while(!gr1 &&                             // keine Brücke im Weg
+	} while(!gr1 &&                             // keine Brï¿½cke im Weg
 		(!gr2 || gr2->get_grund_hang()==hang_t::flach  ||  gr2->get_hoehe()<pos.z ) ); // Boden kommt nicht hoch
 
 	error_msg = "A bridge must end on a way!";
@@ -376,7 +376,7 @@ const char *brueckenbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, cons
 	}
 
 	zv = koord(ribi_t::rueckwaerts(ribi));
-	// Brückenende suchen
+	// Brï¿½ckenende suchen
 	const char *msg;
 	koord3d end = finde_ende(welt, gr->get_pos(), zv, besch, msg );
 
@@ -556,7 +556,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 	slist_tpl<koord3d> tmp_list;
 	const char    *msg;
 
-	// Erstmal das ganze Außmaß der Brücke bestimmen und sehen,
+	// Erstmal das ganze Auï¿½maï¿½ der Brï¿½cke bestimmen und sehen,
 	// ob uns was im Weg ist.
 	tmp_list.insert(pos);
 	marker.markiere(welt->lookup(pos));
@@ -571,7 +571,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		koord zv = koord::invalid;
 
 		if(from->ist_karten_boden()) {
-			// Der Grund ist Brückenanfang/-ende - hier darf nur in
+			// Der Grund ist Brï¿½ckenanfang/-ende - hier darf nur in
 			// eine Richtung getestet werden.
 			if(from->get_grund_hang() != hang_t::flach) {
 				zv = koord(hang_t::gegenueber(from->get_grund_hang()));
@@ -584,7 +584,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		else if(from->ist_bruecke()) {
 			part_list.insert(pos);
 		}
-		// Alle Brückenteile auf Entfernbarkeit prüfen!
+		// Alle Brï¿½ckenteile auf Entfernbarkeit prï¿½fen!
 		msg = from->kann_alle_obj_entfernen(sp);
 
 		if(msg != NULL  ||  (from->get_halt().is_bound()  &&  from->get_halt()->get_besitzer()!=sp)) {
@@ -600,7 +600,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		}
 	} while (!tmp_list.empty());
 
-	// Jetzt geht es ans löschen der Brücke
+	// Jetzt geht es ans lï¿½schen der Brï¿½cke
 	while (!part_list.empty()) {
 		pos = part_list.remove_first();
 
@@ -627,7 +627,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 			delete p;
 		}
 	}
-	// Und die Brückenenden am Schluß
+	// Und die Brï¿½ckenenden am Schluï¿½
 	while (!end_list.empty()) {
 		pos = end_list.remove_first();
 
