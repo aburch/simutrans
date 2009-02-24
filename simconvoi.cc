@@ -1801,6 +1801,15 @@ convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_byte( tiles_overtaking, "o" );
 		set_tiles_overtaking( tiles_overtaking );
 	}
+	// no_load, withdraw
+	if(file->get_version()<102001) {
+		no_load = false;
+		withdraw = false;
+	}
+	else {
+		file->rdwr_bool( no_load, "" );
+		file->rdwr_bool( withdraw, "" );
+	}
 }
 
 
