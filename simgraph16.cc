@@ -84,7 +84,7 @@ static font_type large_font = { 0, 0, 0, NULL, NULL };
 int large_font_height = 10;
 
 #define LIGHT_COUNT (15)
-#define MAX_PLAYER (16)
+#define MAX_PLAYER_COUNT (16)
 
 #define RGBMAPSIZE (0x8000+LIGHT_COUNT+16)
 
@@ -129,7 +129,7 @@ static PIXVAL specialcolormap_all_day[256];
 
 
 // offsets of first and second comany color
-static uint8 player_offsets[MAX_PLAYER][2];
+static uint8 player_offsets[MAX_PLAYER_COUNT][2];
 
 
 /*
@@ -654,7 +654,7 @@ void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
 
 static uint8 player_night=0xFF;
 static uint8 player_day=0xFF;
-static void	activate_player_color(sint8 player_nr, bool daynight)
+static void activate_player_color(sint8 player_nr, bool daynight)
 {
 	// cahces the last settings
 	if(!daynight) {
@@ -669,7 +669,7 @@ static void	activate_player_color(sint8 player_nr, bool daynight)
 		rgbmap_current = rgbmap_all_day;
 	}
 	else {
-		// chaning colortable
+		// changing colortable
 		if(player_night!=player_nr) {
 			int i;
 			player_night = player_nr;
@@ -2971,7 +2971,7 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 	memset(tile_dirty_old, 255, tile_buffer_length);
 
 	// init player colors
-	for(i=0;  i<MAX_PLAYER;  i++  ) {
+	for(i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		player_offsets[i][0] = i*8;
 		player_offsets[i][1] = i*8+24;
 	}

@@ -506,67 +506,79 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 
 			if(strstr(toolname,"general_tool[")) {
 				uint8 toolnr = atoi(toolname+13);
-				assert(toolnr<GENERAL_TOOL_COUNT);
-				if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
-					addtool = create_general_tool( toolnr );
-					// copy defaults
-					*addtool = *(general_tool[toolnr]);
-					// add specials
-					if(icon!=IMG_LEER) {
-						addtool->icon = icon;
+				if(  toolnr<GENERAL_TOOL_COUNT  ) {
+					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
+						addtool = create_general_tool( toolnr );
+						// copy defaults
+						*addtool = *(general_tool[toolnr]);
+						// add specials
+						if(icon!=IMG_LEER) {
+							addtool->icon = icon;
+						}
+						if(key_str!=NULL) {
+							addtool->command_key = str_to_key(key_str);
+							char_to_tool.append(addtool);
+						}
+						if(param_str!=NULL) {
+							addtool->default_param = strdup(param_str);
+						}
 					}
-					if(key_str!=NULL) {
-						addtool->command_key = str_to_key(key_str);
-						char_to_tool.append(addtool);
-					}
-					if(param_str!=NULL) {
-						addtool->default_param = strdup(param_str);
+					else {
+						addtool = general_tool[toolnr];
 					}
 				}
 				else {
-					addtool = general_tool[toolnr];
+					dbg->error( "werkzeug_t::init_menu()", "When parsing menuconf.tab: No general tool %i defined (max %i)!", toolnr, GENERAL_TOOL_COUNT );
 				}
 			}
 			else if(strstr(toolname,"simple_tool[")) {
 				uint8 toolnr = atoi(toolname+12);
-				assert(toolnr<SIMPLE_TOOL_COUNT);
-				if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
-					addtool = create_simple_tool( toolnr );
-					*addtool = *(simple_tool[toolnr]);
-					if(icon!=IMG_LEER) {
-						addtool->icon = icon;
+				if(  toolnr<SIMPLE_TOOL_COUNT  ) {
+					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
+						addtool = create_simple_tool( toolnr );
+						*addtool = *(simple_tool[toolnr]);
+						if(icon!=IMG_LEER) {
+							addtool->icon = icon;
+						}
+						if(key_str!=NULL) {
+							addtool->command_key = str_to_key(key_str);
+							char_to_tool.append(addtool);
+						}
+						if(param_str!=NULL) {
+							addtool->default_param = strdup(param_str);
+						}
 					}
-					if(key_str!=NULL) {
-						addtool->command_key = str_to_key(key_str);
-						char_to_tool.append(addtool);
-					}
-					if(param_str!=NULL) {
-						addtool->default_param = strdup(param_str);
+					else {
+						addtool = simple_tool[toolnr];
 					}
 				}
 				else {
-					addtool = simple_tool[toolnr];
+					dbg->error( "werkzeug_t::init_menu()", "When parsing menuconf.tab: No simple tool %i defined (max %i)!", toolnr, GENERAL_TOOL_COUNT );
 				}
 			}
 			else if(strstr(toolname,"dialog_tool[")) {
 				uint8 toolnr = atoi(toolname+12);
-				assert(toolnr<DIALOGE_TOOL_COUNT);
-				if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
-					addtool = create_dialog_tool( toolnr );;
-					*addtool = *(dialog_tool[toolnr]);
-					if(icon!=IMG_LEER) {
-						addtool->icon = icon;
+				if(  toolnr<DIALOGE_TOOL_COUNT  ) {
+					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
+						addtool = create_dialog_tool( toolnr );;
+						*addtool = *(dialog_tool[toolnr]);
+						if(icon!=IMG_LEER) {
+							addtool->icon = icon;
+						}
+						if(key_str!=NULL) {
+							addtool->command_key = str_to_key(key_str);
+							char_to_tool.append(addtool);
+						}
+						if(param_str!=NULL) {
+							addtool->default_param = strdup(param_str);
+						}
 					}
-					if(key_str!=NULL) {
-						addtool->command_key = str_to_key(key_str);
-						char_to_tool.append(addtool);
-					}
-					if(param_str!=NULL) {
-						addtool->default_param = strdup(param_str);
+					else {
+						addtool = dialog_tool[toolnr];
 					}
 				}
 				else {
-					addtool = dialog_tool[toolnr];
+					dbg->error( "werkzeug_t::init_menu()", "When parsing menuconf.tab: No dialog tool %i defined (max %i)!", toolnr, GENERAL_TOOL_COUNT );
 				}
 			}
 			else if(strstr(toolname,"toolbar[")) {
