@@ -233,8 +233,11 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	add_komponente(&lylabel);
 	add_komponente(&tylabel);
 
-	add_komponente(&credit_limit);
-	add_komponente(&clamount);
+	if(!sp->get_welt()->get_einstellungen()->insolvent_purchases_allowed() || sp->get_welt()->get_einstellungen()->is_freeplay())
+	{
+		add_komponente(&credit_limit);
+		add_komponente(&clamount);
+	}
 
 	add_komponente(&tylabel2);
 	add_komponente(&gtmoney);
