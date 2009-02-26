@@ -80,266 +80,262 @@ static font_type large_font;
 // needed for gui
 int large_font_height = 10;
 
+#define CLEAR_COLOR (239)
+#define DEFAULT_COLOR (239)
 
-static const PIXVAL colortable_8bit[3 * 256] = {
-	 65,  96, 122,
-	105, 135, 165,
-	146, 176, 210,
-	187, 216, 255,
-	110, 110, 110,
-	148, 148, 148,
-	186, 186, 186,
-	225, 225, 225,
-	 37,  74, 142,
-	 60, 106, 177,
-	 83, 138, 212,
-	107, 170, 247,
-	137, 110,  19,
-	175, 155,  28,
-	212, 200,  36,
-	250, 245,  45,
-	102,  43,  22,
-	147,  61,  30,
-	191,  79,  37,
-	237,  98,  44,
-	 47,  77,  21,
-	 68, 118,  33,
-	 90, 159,  45,
-	112, 200,  58,
-	 14, 105,  97,
-	 19, 149, 137,
-	 25, 192, 176,
-	 31, 236, 217,
-	105,  41, 148,
-	146,  67, 180,
-	186,  92, 211,
-	227, 118, 244,
-  0x57, 0x65, 0x6F, // Dark windows, lit yellowish at night
-  0x7F, 0x9B, 0xF1, // Lighter windows, lit blueish at night
-  0xFF, 0xFF, 0x53, // Yellow light
-  0xFF, 0x21, 0x1D, // Red light
-  0x01, 0xDD, 0x01, // Green light
-  0x6B, 0x6B, 0x6B, // Non-darkening grey 1 (menus)
-  0x9B, 0x9B, 0x9B, // Non-darkening grey 2 (menus)
-  0xB3, 0xB3, 0xB3, // non-darkening grey 3 (menus)
-  0xC9, 0xC9, 0xC9, // Non-darkening grey 4 (menus)
-  0xDF, 0xDF, 0xDF, // Non-darkening grey 5 (menus)
-  0xE3, 0xE3, 0xFF, // Nearly white light at day, yellowish light at night
-  0xC1, 0xB1, 0xD1, // Windows, lit yellow
-  0x4D, 0x4D, 0x4D, // Windows, lit yellow
-	 32,  64, 255, // blue for non-zomables (non darkening)
-	 80, 150,  30, // grass green
-	255,  32,   0, // very red
-	222,  52,  52, // light red
-	225, 192,   0, // red yellow
-	160,  80,   0, // orange
-	180, 128,  96, // earth color
-	136, 171, 211, // light player color
-	 57,  94, 124, // player color
-	128, 255, 128, // blueish green
-	225, 255, 128, // very light green
-	161, 110, 120, // normal darkening colors again
-	 84, 125, 118,
-	 38,  21,  21,
-	165, 186, 145,
-	 91,  60,  88,
-	255, 255, 251,
-	 66,  97,  93,
-	176, 163, 197,
-	124,  90, 138,
-	238, 242, 232,
-	132, 156, 176,
-	185, 164, 144,
-	 75,  96,  65,
-	184, 205, 208,
-	 97,  77, 118,
-	174, 130, 140,
-	 26,  40,  36,
-	143, 181, 143,
-	 90,  66,  63,
-	232, 219, 219,
-	 93, 137, 134,
-	191, 188, 160,
-	197, 183, 210,
-	 49,  42,  63,
-	150,  99, 133,
-	 82,  68, 102,
-	113, 164, 137,
-	212, 229, 222,
-	 40,  36,  26,
-	 72,  52,  79,
-	 22,  39,  22,
-	 21,  21,  38,
-	  0,   0,   0,
-	 22,  22,  22,
-	 46,  46,  46,
-	 61,  61,  61,
-	 78,  78,  78,
-	 95,  95,  95,
-	113, 113, 113,
-	132, 132, 132,
-	152, 152, 152,
+
+// the players colors and colors for simple drawing operations
+// each eight colors are corresponding to a player color
+static const uint8 colortable_simutrans[224*3]=
+{
+	36, 75, 103,
+	57, 94, 124,
+	76, 113, 145,
+	96, 132, 167,
+	116, 151, 189,
+	136, 171, 211,
+	156, 190, 233,
+	176, 210, 255,
+	88, 88, 88,
+	107, 107, 107,
+	125, 125, 125,
+	144, 144, 144,
+	162, 162, 162,
+	181, 181, 181,
+	200, 200, 200,
+	219, 219, 219,
+	17, 55, 133,
+	27, 71, 150,
+	37, 86, 167,
+	48, 102, 185,
+	58, 117, 202,
+	69, 133, 220,
+	79, 149, 237,
+	90, 165, 255,
+	123, 88, 3,
+	142, 111, 4,
+	161, 134, 5,
+	180, 157, 7,
+	198, 180, 8,
+	217, 203, 10,
+	236, 226, 11,
+	255, 249, 13,
+	86, 32, 14,
+	110, 40, 16,
+	134, 48, 18,
+	158, 57, 20,
+	182, 65, 22,
+	206, 74, 24,
+	230, 82, 26,
+	255, 91, 28,
+	34, 59, 10,
+	44, 80, 14,
+	53, 101, 18,
+	63, 122, 22,
+	77, 143, 29,
+	92, 164, 37,
+	106, 185, 44,
+	121, 207, 52,
+	0, 86, 78,
+	0, 108, 98,
+	0, 130, 118,
+	0, 152, 138,
+	0, 174, 158,
+	0, 196, 178,
+	0, 218, 198,
+	0, 241, 219,
+	74, 7, 122,
+	95, 21, 139,
+	116, 37, 156,
+	138, 53, 173,
+	160, 69, 191,
+	181, 85, 208,
+	203, 101, 225,
+	225, 117, 243,
+	59, 41, 0,
+	83, 55, 0,
+	107, 69, 0,
+	131, 84, 0,
+	155, 98, 0,
+	179, 113, 0,
+	203, 128, 0,
+	227, 143, 0,
+	87, 0, 43,
+	111, 11, 69,
+	135, 28, 92,
+	159, 45, 115,
+	183, 62, 138,
+	230, 74, 174,
+	245, 121, 194,
+	255, 156, 209,
+	20, 48, 10,
+	44, 74, 28,
+	68, 99, 45,
+	93, 124, 62,
+	118, 149, 79,
+	143, 174, 96,
+	168, 199, 113,
+	193, 225, 130,
+	54, 19, 29,
+	82, 44, 44,
+	110, 69, 58,
+	139, 95, 72,
+	168, 121, 86,
+	197, 147, 101,
+	226, 173, 115,
+	255, 199, 130,
+	8, 11, 100,
+	14, 22, 116,
+	20, 33, 139,
+	26, 44, 162,
+	41, 74, 185,
+	57, 104, 208,
+	76, 132, 231,
+	96, 160, 255,
+	43, 30, 46,
+	68, 50, 85,
+	93, 70, 110,
+	118, 91, 130,
+	143, 111, 170,
+	168, 132, 190,
+	193, 153, 210,
+	219, 174, 230,
+	63, 18, 12,
+	90, 38, 30,
+	117, 58, 42,
+	145, 78, 55,
+	172, 98, 67,
+	200, 118, 80,
+	227, 138, 92,
+	255, 159, 105,
+	11, 68, 30,
+	33, 94, 56,
+	54, 120, 81,
+	76, 147, 106,
+	98, 174, 131,
+	120, 201, 156,
+	142, 228, 181,
+	164, 255, 207,
+	64, 0, 0,
+	96, 0, 0,
+	128, 0, 0,
+	192, 0, 0,
+	255, 0, 0,
+	255, 64, 64,
+	255, 96, 96,
+	255, 128, 128,
+	0, 128, 0,
+	0, 196, 0,
+	0, 225, 0,
+	0, 240, 0,
+	0, 255, 0,
+	64, 255, 64,
+	94, 255, 94,
+	128, 255, 128,
+	0, 0, 128,
+	0, 0, 192,
+	0, 0, 224,
+	0, 0, 255,
+	0, 64, 255,
+	0, 94, 255,
+	0, 106, 255,
+	0, 128, 255,
+	128, 64, 0,
+	193, 97, 0,
+	215, 107, 0,
+	255, 128, 0,
+	255, 128, 0,
+	255, 149, 43,
+	255, 170, 85,
+	255, 193, 132,
+	8, 52, 0,
+	16, 64, 0,
+	32, 80, 4,
+	48, 96, 4,
+	64, 112, 12,
+	84, 132, 20,
+	104, 148, 28,
+	128, 168, 44,
+	164, 164, 0,
+	193, 193, 0,
+	215, 215, 0,
+	255, 255, 0,
+	255, 255, 32,
+	255, 255, 64,
+	255, 255, 128,
+	255, 255, 172,
+	32, 4, 0,
+	64, 20, 8,
+	84, 28, 16,
+	108, 44, 28,
+	128, 56, 40,
+	148, 72, 56,
+	168, 92, 76,
+	184, 108, 88,
+	64, 0, 0,
+	96, 8, 0,
+	112, 16, 0,
+	120, 32, 8,
+	138, 64, 16,
+	156, 72, 32,
+	174, 96, 48,
+	192, 128, 64,
+	32, 32, 0,
+	64, 64, 0,
+	96, 96, 0,
+	128, 128, 0,
+	144, 144, 0,
+	172, 172, 0,
+	192, 192, 0,
+	224, 224, 0,
+	64, 96, 8,
+	80, 108, 32,
+	96, 120, 48,
+	112, 144, 56,
+	128, 172, 64,
+	150, 210, 68,
+	172, 238, 80,
+	192, 255, 96,
+	32, 32, 32,
+	48, 48, 48,
+	64, 64, 64,
+	80, 80, 80,
+	96, 96, 96,
 	172, 172, 172,
-	191, 191, 191,
-	211, 211, 211,
-	231, 231, 231,
-	247, 247, 247,
+	236, 236, 236,
 	255, 255, 255,
-	 96,  22,  13,
-	135,  46,  22,
-	170, 122, 104,
-	220, 195, 186,
-	198, 125, 107,
-	248, 199, 190,
-	128, 101, 86,
-	142, 118, 100,
-	150, 150, 107,
-	178, 153, 110,
-	206, 156, 114,
-	212, 188, 121,
-	254, 231, 197,
-	247, 209, 162,
-	129,  78,  56,
-	183, 129,  91,
-	238, 180, 126,
-	247, 222, 131,
-	254, 254, 138,
-	173,  69,  31,
-	212,  90,  39,
-	219,  97, 104,
-	100,  75,  24,
-	128,  79,  28,
-	156, 115,  37,
-	156,  82,  31,
-	191, 117,  42,
-	202, 145,  49,
-	219, 121,  45,
-	225, 152,  52,
-	107, 107,  31,
-	135, 110,  34,
-	141, 141,  42,
-	169, 145,  45,
-	204, 179,  55,
-	212, 212,  62,
-	232, 184,  59,
-	239, 215,  65,
-	114, 114,  97,
-	100, 122,  79,
-	121, 145, 104,
-	184, 184, 117,
-	156, 181, 114,
-	226, 226, 193,
-	204, 226, 161,
-	255, 255, 204,
-	 49,  70,  39,
-	 72,  72,  21,
-	176, 176,  52,
-	191, 216, 125,
-	163, 212, 120,
-	198, 247, 131,
-	170, 244, 128,
-	 79, 103,  28,
-	113, 138,  38,
-	148, 173,  49,
-	120, 169,  45,
-	184, 207,  59,
-	128, 201,  52,
-	 44,  69,  18,
-	 52,  92,  23,
-	 64, 129,  31,
-	 85, 135,  34,
-	 92, 166,  41,
-	 99, 197,  48,
-	134, 232,  59,
-	106, 229,  55,
-	 87, 111,  94,
-	164, 188, 180,
-	136, 185, 176,
-	199, 223, 190,
-	171, 220, 186,
-	206, 254, 197,
-	 48,  90,  63,
-	 93, 142, 100,
-	128, 178, 110,
-	100, 173, 107,
-	146, 200, 169,
-	143, 216, 183,
-	135, 209, 117,
-	  8,  41,   8,
-	 19,  84,  18,
-	 19,  64,  51,
-	 31, 104,  86,
-	 37, 135,  93,
-	 72, 170, 104,
-	 45, 143, 159,
-	 66, 214, 238,
-	 42, 150, 133,
-	 53, 189, 170,
-	 43, 190,  41,
-	114, 139, 162,
-	157, 157, 173,
-	122, 122, 162,
-	157, 181, 208,
-	235, 235, 255,
-	207, 231, 255,
-	200, 200, 248,
-	179, 228, 252,
-	 51,  76,  83,
-	 73,  98, 119,
-	101, 150, 165,
-	 94, 119, 159,
-	 88,  88, 152,
-	172, 197, 245,
-	165, 165, 238,
-	144, 192, 242,
-	 66, 116, 155,
-	 83, 114, 185,
-	100, 144, 206,
-	137, 161, 235,
-	130, 130, 228,
-	116, 189, 238,
-	109, 158, 232,
-	102, 126, 224,
-	 25,  31,  94,
-	 41,  79, 122,
-	 43,  55, 135,
-	 53,  85, 147,
-	 38, 111, 152,
-	 81, 154, 228,
-	 74, 123, 221,
-	 67,  92, 214,
-	 74,  28,  22,
-	107,  83,  89,
-	114,  96, 116,
-	168, 144, 169,
-	185, 160, 176,
-	223, 192, 223,
-	255, 238, 255,
-	228, 203, 253,
-	 68,  47,  48,
-	135,  87,  94,
-	150, 126, 166,
-	178, 129, 169,
-	213, 164, 180,
-	193, 169, 242,
-	221, 172, 245,
-	241, 168, 183,
-	116,  91, 156,
-	144,  94, 159,
-	172,  98, 162,
-	163,  90,  97,
-	190, 104, 159,
-	191,  94, 100,
-	214, 141, 238,
-	 94,  26,  65,
-	 97,  25, 131,
-	142,  64, 112,
-	140,  54, 165,
-	184,  83, 200,
-	207, 109, 232,
-	241, 255, 255
+	41, 41, 54,
+	60, 45, 70,
+	75, 62, 108,
+	95, 77, 136,
+	113, 105, 150,
+	135, 120, 176,
+	165, 145, 218,
+	198, 191, 232,
 };
 
+static const PIXVAL colortable_system[3 * 16] = {
+	0, 0, 0,
+	128, 0, 0,
+	0, 128, 0,
+	128, 128, 0,
+	0, 0, 128,
+	128, 0, 128,
+	0, 128, 128,
+	192, 192, 192,
+	128, 128, 128,
+	255, 0, 0,
+	0, 255, 0,
+	255, 255, 0,
+	0, 0, 255,
+	255, 0, 255,
+	0, 255, 255,
+	255, 255, 255,
+};
+
+// offsets of first and second comany color
+#define MAX_PLAYER_COUNT 16
+static uint8 player_offsets[MAX_PLAYER_COUNT][2];
 
 // the palette for the display ...
 static PIXVAL textur_palette[256 * 3];
@@ -383,9 +379,9 @@ struct imd {
 };
 
 // offsets in the recode array
-#define NEED_REZOOM (0)
-#define NEED_NORMAL_RECODE (1)
-#define NEED_PLAYER_RECODE (2)
+#define FLAG_REZOOM (0)
+#define FLAG_NORMAL_RECODE (1)
+#define FLAG_PLAYER_RECODE (2)
 #define FLAGS (3)
 
 // flags for recoding
@@ -445,55 +441,61 @@ static int color_level = 1;
 static int night_shift = -1;
 
 
-#define LIGHT_COUNT 13
+#define LIGHT_COUNT 15
 
 /*
  * Hajo: speical colors during daytime
  */
-static const int day_lights[LIGHT_COUNT] = {
-	0x57656F, // Dark windows, lit yellowish at night
-	0x7F9BF1, // Lighter windows, lit blueish at night
-	0xFFFF53, // Yellow light
-	0xFF211D, // Red light
-	0x01DD01, // Green light
-	0x6B6B6B, // Non-darkening grey 1 (menus)
-	0x9B9B9B, // Non-darkening grey 2 (menus)
-	0xB3B3B3, // non-darkening grey 3 (menus)
-	0xC9C9C9, // Non-darkening grey 4 (menus)
-	0xDFDFDF, // Non-darkening grey 5 (menus)
-	0xE3E3FF, // Nearly white light at day, yellowish light at night
-	0xC1B1D1, // Windows, lit yellow
-	0x4D4D4D, // Windows, lit yellow
+static const uint8 day_lights[LIGHT_COUNT*3] = {
+	0x57,	0x65,	0x6F, // Dark windows, lit yellowish at night
+	0x7F,	0x9B,	0xF1, // Lighter windows, lit blueish at night
+	0xFF,	0xFF,	0x53, // Yellow light
+	0xFF,	0x21,	0x1D, // Red light
+	0x01,	0xDD,	0x01, // Green light
+	0x6B,	0x6B,	0x6B, // Non-darkening grey 1 (menus)
+	0x9B,	0x9B,	0x9B, // Non-darkening grey 2 (menus)
+	0xB3,	0xB3,	0xB3, // non-darkening grey 3 (menus)
+	0xC9,	0xC9,	0xC9, // Non-darkening grey 4 (menus)
+	0xDF,	0xDF,	0xDF, // Non-darkening grey 5 (menus)
+	0xE3,	0xE3,	0xFF, // Nearly white light at day, yellowish light at night
+	0xC1,	0xB1,	0xD1, // Windows, lit yellow
+	0x4D,	0x4D,	0x4D, // Windows, lit yellow
+	0xE1,	0x00,	0xE1, // purple light for signals
+	0x01, 0x01, 0xFF, // blue light
 };
 
 
 /*
  * Hajo: speical colors during nighttime
  */
-static const int night_lights[LIGHT_COUNT] = {
-	0xD3C380, // Dark windows, lit yellowish at night
-	0x80C3D3, // Lighter windows, lit blueish at night
-	0xFFFF53, // Yellow light
-	0xFF211D, // Red light
-	0x01DD01, // Green light
-	0x6B6B6B, // Non-darkening grey 1 (menus)
-	0x9B9B9B, // Non-darkening grey 2 (menus)
-	0xB3B3B3, // non-darkening grey 3 (menus)
-	0xC9C9C9, // Non-darkening grey 4 (menus)
-	0xDFDFDF, // Non-darkening grey 5 (menus)
-	0xFFFFE3, // Nearly white light at day, yellowish light at night
-	0xD3C380, // Windows, lit yellow
-	0xD3C380, // Windows, lit yellow
+static const uint8 night_lights[LIGHT_COUNT*3] = {
+	0xD3,	0xC3,	0x80, // Dark windows, lit yellowish at night
+	0x80,	0xC3,	0xD3, // Lighter windows, lit blueish at night
+	0xFF,	0xFF,	0x53, // Yellow light
+	0xFF,	0x21,	0x1D, // Red light
+	0x01,	0xDD,	0x01, // Green light
+	0x6B,	0x6B,	0x6B, // Non-darkening grey 1 (menus)
+	0x9B,	0x9B,	0x9B, // Non-darkening grey 2 (menus)
+	0xB3,	0xB3,	0xB3, // non-darkening grey 3 (menus)
+	0xC9,	0xC9,	0xC9, // Non-darkening grey 4 (menus)
+	0xDF,	0xDF,	0xDF, // Non-darkening grey 5 (menus)
+	0xFF,	0xFF,	0xE3, // Nearly white light at day, yellowish light at night
+	0xD3,	0xC3,	0x80, // Windows, lit yellow
+	0xD3,	0xC3,	0x80, // Windows, lit yellow
+	0xE1,	0x00,	0xE1, // purple light for signals
+	0x01, 0x01, 0xFF, // blue light
 };
 
 
 static PIXVAL* conversion_table = NULL;
+static PIXVAL darken_table[768];
+
 
 /*
  * Hajo: tile raster width
  */
-int tile_raster_width = 16;
-static int base_tile_raster_width = 16;
+KOORD_VAL tile_raster_width = 16;
+KOORD_VAL base_tile_raster_width = 16;
 
 /*
  * Hajo: Zoom factor
@@ -502,10 +504,11 @@ static int zoom_factor = 1;
 
 
 /* changes the raster width after loading */
-int display_set_base_raster_width(int new_raster)
+KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster)
 {
-	int old = base_tile_raster_width;
+	KOORD_VAL old = base_tile_raster_width;
 	base_tile_raster_width = new_raster;
+//	tile_raster_width = (new_raster *  zoom_num[zoom_factor]) / zoom_den[zoom_factor];
 	tile_raster_width = new_raster / zoom_factor;
 	return old;
 }
@@ -520,9 +523,9 @@ static void rezoom(void)
 	unsigned int n;
 
 	for (n = 0; n < anz_images; n++) {
-		images[n].recode_flags[NEED_REZOOM] = ((images[n].recode_flags[FLAGS]&FLAG_ZOOMABLE)!=0 && images[n].base_h > 0);
-		images[n].recode_flags[NEED_NORMAL_RECODE] = 128;
-		images[n].recode_flags[NEED_PLAYER_RECODE] = 128;	// color will be set next time
+		images[n].recode_flags[FLAG_REZOOM] = ((images[n].recode_flags[FLAGS]&FLAG_ZOOMABLE)!=0 && images[n].base_h > 0);
+		images[n].recode_flags[FLAG_NORMAL_RECODE] = 128;
+		images[n].recode_flags[FLAG_PLAYER_RECODE] = 128;	// color will be set next time
 	}
 }
 
@@ -542,6 +545,27 @@ void set_zoom_factor(int z)
 	fprintf(stderr, "set_zoom_factor() : factor=%d\n", zoom_factor);
 
 	rezoom();
+}
+
+
+int zoom_factor_up()
+{
+	// zoom out, if size permits
+	if(  zoom_factor>1  ) {
+		set_zoom_factor( zoom_factor-1 );
+		return true;
+	}
+	return false;
+}
+
+
+int zoom_factor_down()
+{
+	if (zoom_factor<4) {
+		set_zoom_factor( zoom_factor+1 );
+		return true;
+	}
+	return false;
 }
 
 
@@ -636,7 +660,7 @@ static void init_16_to_8_conversion(void)
 
 	if (day_pal[0] == 0) {
 		// not yet init?
-		memcpy(day_pal, colortable_8bit, sizeof(day_pal));
+		memcpy(day_pal, colortable_simutrans, sizeof(colortable_simutrans));
 	}
 
 	conversion_table = MALLOCN(PIXVAL, 32768 + 256);
@@ -645,16 +669,14 @@ static void init_16_to_8_conversion(void)
 			for (blue = 0; blue < 256; blue += 8) {
 				const int index = red << 7 | green << 2 | blue >> 3;
 
-				PIXVAL best_match = 88;
+				PIXVAL best_match = DEFAULT_COLOR;
 				long distance = 0x00FFFFFF;
 				int i;
-				for (i = 4; i < 256; i++) {
-					if (i == 32) { i += 24; }
-
+				for (i = 0; i < 224; i++) {
 					long new_dist =
-						abs(red   - day_pal[i * 3 + 0]) +
-						abs(green - day_pal[i * 3 + 1]) +
-						abs(blue  - day_pal[i * 3 + 2]);
+						abs(red   - colortable_simutrans[i * 3 + 0]) +
+						abs(green - colortable_simutrans[i * 3 + 1]) +
+						abs(blue  - colortable_simutrans[i * 3 + 2]);
 					if (new_dist < distance) {
 						distance = new_dist;
 						best_match = i;
@@ -664,19 +686,25 @@ static void init_16_to_8_conversion(void)
 			}
 		}
 	}
-	// now the special colors
+	// now the first and second player color
 	int index;
-	for (index =  0; index <  7; index++) {
+	for (index =  0; index <  16; index++) {
 		// player color
-		conversion_table[index + 32768] = index / 2;
+		conversion_table[index + 32768] = index+240;
 	}
-	for (index =  8; index < 16; index++) {
-		// should be unused ...
-		conversion_table[index + 32768] = 88;
-	}
-	for (index = 16; index < 40; index++) {
+	for (index = 16; index < 16+LIGHT_COUNT; index++) {
 		// non-darkening color
-		conversion_table[index + 32768] = 16 + index;
+		conversion_table[index + 32768] = 224+index-16;
+	}
+
+	// init table for blending
+	for(uint8 index = 0; index < 224; index++) {
+		darken_table[index] = ((index&7)<1) ? index : index -1;	// 25% dark
+		darken_table[256+index] = ((index&7)<2) ? index&0xF8u : index - 2; // 50% dark
+		darken_table[512+index] = ((index&7)<3) ? index&0xF8u : index - 3; // 75% dark
+	}
+	for(uint16 index = 224; index < 256; index++) {
+		darken_table[index] = darken_table[256+index] = darken_table[512+index] = index; // keep unchanged
 	}
 
 	printf("ok.\n");
@@ -723,7 +751,7 @@ static bool recode_img_src16_target8(int h, PIXVAL *src16, PIXVAL *target, bool 
 						long blue  = (pix << 3) & 0x00F8;
 						if (pix > 0x8000) {
 							if (pix < 0x8008) {
-								*target++ = pix > 0x8004 ? 52 : 53;
+								*target++ = pix-0x8000;
 								has_player_color = true;
 								continue;
 							}
@@ -732,22 +760,21 @@ static bool recode_img_src16_target8(int h, PIXVAL *src16, PIXVAL *target, bool 
 								red   = day_pal[pix * 3 + 0];
 								green = day_pal[pix * 3 + 1];
 								blue  = day_pal[pix * 3 + 2];
-							} else {
+							}
+							else {
 								*target++ = (pix & 0x00FF) + 16;
 								continue;
 							}
 						}
 
-						PIXVAL best_match = 88;
+						PIXVAL best_match = DEFAULT_COLOR;
 						long distance = red * red + green * green + blue * blue;
 						int i;
-						for (i = 32 + 2; i < 56; i++) {
-							if (i == 42) i = 45;
-
+						for(i = 0; i < 256; i++) {
 							long new_dist =
-								(red   - colortable_8bit[i * 3 + 0]) * (red   - colortable_8bit[i * 3 + 0]) +
-								(green - colortable_8bit[i * 3 + 1]) * (green - colortable_8bit[i * 3 + 1]) +
-								(blue  - colortable_8bit[i * 3 + 2]) * (blue  - colortable_8bit[i * 3 + 2]);
+								(red   - textur_palette[i * 3 + 0]) * (red   - textur_palette[i * 3 + 0]) +
+								(green - textur_palette[i * 3 + 1]) * (green - textur_palette[i * 3 + 1]) +
+								(blue  - textur_palette[i * 3 + 2]) * (blue  - textur_palette[i * 3 + 2]);
 
 							if (new_dist < distance) {
 								distance = new_dist;
@@ -775,9 +802,9 @@ static void rezoom_img(const unsigned int n)
 	// Hajo: may this image be zoomed
 	if (n < anz_images && images[n].base_h > 0) {
 		// we may need night conversion afterwards
-		images[n].recode_flags[NEED_REZOOM] = FALSE;
-		images[n].recode_flags[NEED_NORMAL_RECODE] = 128;
-		images[n].recode_flags[NEED_PLAYER_RECODE] = 128;
+		images[n].recode_flags[FLAG_REZOOM] = FALSE;
+		images[n].recode_flags[FLAG_NORMAL_RECODE] = 128;
+		images[n].recode_flags[FLAG_PLAYER_RECODE] = 128;
 
 		// just restore original size?
 		if (zoom_factor <= 1) {
@@ -829,18 +856,24 @@ static void rezoom_img(const unsigned int n)
 
 				// left offset, which was left by division
 				runlen = images[n].base_x%zoom_factor;
-				while (runlen--) *p++ = 54;
+				while (runlen--) {
+					*p++ = CLEAR_COLOR;
+				}
 
 				// decode line
 				runlen = *src++;
 				color -= runlen;
 				do {
 					// clear run
-					while (runlen--) *p++ = 54;
+					while (runlen--) {
+						*p++ = CLEAR_COLOR;
+					}
 					// color pixel
 					runlen = *src++;
 					color += runlen;
-					while (runlen--) *p++ = *src++;
+					while (runlen--) {
+						*p++ = *src++;
+					}
 				} while ((runlen = *src++));
 
 				if (y_left == 0 || last_color < color) {
@@ -858,10 +891,10 @@ static void rezoom_img(const unsigned int n)
 					// encode this line
 					do {
 						// check length of transparent pixels
-						for (i = 0; line[step] == 54 && step < imgw; i++, step += zoom_factor) {}
+						for (i = 0;  line[step] == CLEAR_COLOR  &&  step < imgw;  i++, step += zoom_factor  ) {}
 						*dest++ = i;
 						// chopy for non-transparent
-						for (i = 0; line[step] != 54 && step < imgw; i++, step += zoom_factor) {
+						for (i = 0; line[step] != CLEAR_COLOR  &&  step < imgw;  i++, step += zoom_factor) {
 							dest[i + 1] = line[step];
 						}
 						*dest++ = i;
@@ -900,7 +933,7 @@ static void rezoom_img(const unsigned int n)
 }
 
 
-int	display_set_unicode(int use_unicode)
+int display_set_unicode(int use_unicode)
 {
 	return has_unicode = (use_unicode != 0);
 }
@@ -914,38 +947,6 @@ bool display_load_font(const char* fname)
 	} else {
 		return false;
 	}
-}
-
-
-/**
- * Laedt die Palette
- * @author Hj. Malthaner
- */
-static int load_palette(const char *filename, unsigned char *palette)
-{
-	FILE* file = fopen(filename,"rb");
-
-	if (file != NULL) {
-		int x;
-		int anzahl = 256;
-		int r, g, b;
-
-		fscanf(file, "%d", &anzahl);
-
-		for (x = 0; x < anzahl; x++) {
-			fscanf(file,"%d %d %d", &r, &g, &b);
-
-			palette[x * 3 + 0] = r;
-			palette[x * 3 + 1] = g;
-			palette[x * 3 + 2] = b;
-		}
-
-		fclose(file);
-	} else {
-		fprintf(stderr, "Error: can't open file '%s' for reading\n", filename);
-	}
-
-	return file != NULL;
 }
 
 
@@ -980,27 +981,6 @@ int display_get_light(void)
 }
 
 
-/**
- * Setzt Farbeinstellungen
- * @author Hj. Malthaner
- */
-static void display_set_color(int new_color_level)
-{
-	color_level = new_color_level;
-
-	if (color_level < 0) color_level = 0;
-	if (color_level > 3) color_level = 3;
-
-	switch (color_level) {
-		case 0: load_palette(PALETTE_PATH_X "simud70.pal",  day_pal); break;
-		case 1: load_palette(PALETTE_PATH_X "simud80.pal",  day_pal); break;
-		case 2: load_palette(PALETTE_PATH_X "simud90.pal",  day_pal); break;
-		case 3: load_palette(PALETTE_PATH_X "simud100.pal", day_pal); break;
-	}
-}
-
-
-
 /* Tomas variant */
 static void calc_base_pal_from_night_shift(const int night)
 {
@@ -1017,14 +997,13 @@ static void calc_base_pal_from_night_shift(const int night)
 	const double RG_nihgt_multiplier = pow(0.75, night) * ((light_level + 8.0) / 8.0);
 	const double B_nihgt_multiplier  = pow(0.83, night) * ((light_level + 8.0) / 8.0);
 
-	for (i = 0; i<256; i++) {
+	for (i = 0; i<224; i++) {
 		// (1<<15) this is total no of all possible colors in RGB555)
-		if (i == 32) i = 56; // skip special colors
 
 		// RGB 555 input
-		int R = day_pal[i * 3 + 0];
-		int G = day_pal[i * 3 + 1];
-		int B = day_pal[i * 3 + 2];
+		int R = colortable_simutrans[i * 3 + 0];
+		int G = colortable_simutrans[i * 3 + 1];
+		int B = colortable_simutrans[i * 3 + 2];
 
 		// lines generate all possible colors in 555RGB code - input
 		// however the result is in 888RGB - 8bit per channel
@@ -1051,18 +1030,24 @@ static void calc_base_pal_from_night_shift(const int night)
 		const int G = (day_G * day + night_G * night2) >> 2;
 		const int B = (day_B * day + night_B * night2) >> 2;
 
-		textur_palette[i * 3 + 32 * 3 + 0] = R>0 ? R : 0;
-		textur_palette[i * 3 + 32 * 3 + 1] = G>0 ? R : 0;
-		textur_palette[i * 3 + 32 * 3 + 2] = B>0 ? R : 0;
+		textur_palette[i * 3 + 224 * 3 + 0] = R>0 ? R : 0;
+		textur_palette[i * 3 + 224 * 3 + 1] = G>0 ? R : 0;
+		textur_palette[i * 3 + 224 * 3 + 2] = B>0 ? R : 0;
 	}
-	// non darkening
-	for (i = LIGHT_COUNT + 32; i < 56; i++) {
-		textur_palette[i * 3 + 0] = colortable_8bit[i * 3 + 0];
-		textur_palette[i * 3 + 1] = colortable_8bit[i * 3 + 1];
-		textur_palette[i * 3 + 2] = colortable_8bit[i * 3 + 2];
+	// empty
+	for (i = 224+LIGHT_COUNT; i < 240; i++) {
+		textur_palette[i * 3 + 0] = 0;
+		textur_palette[i * 3 + 1] = 255;
+		textur_palette[i * 3 + 2] = 255;
+	}
+	// system color
+	for (i = 0; i < 16; i++) {
+		textur_palette[i * 3 + 240*3 + 0] = colortable_system[i * 3 + 0];
+		textur_palette[i * 3 + 240*3 + 1] = colortable_system[i * 3 + 1];
+		textur_palette[i * 3 + 240*3 + 2] = colortable_system[i * 3 + 2];
 	}
 
-	dr_setRGB8multi(0, 256, textur_palette);
+//	dr_setRGB8multi(0, 256, textur_palette);
 }
 
 
@@ -1087,37 +1072,17 @@ void display_day_night_shift(int night)
 }
 
 
-/**
- * Sets color set for player 0
- * @param entry   number of color set, range 0..15
- * @author Hj. Malthaner
- */
-static void display_set_player_color(int entry)
+// set first and second company color for player
+void display_set_player_color_scheme(const int player, const COLOR_VAL col1, const COLOR_VAL col2 )
 {
-	int i;
-
-	selected_player_color_set = entry;
-
-	entry *= 16 * 3;
-
-	// Legacy set of 4 player colors, unshaded
-	for (i = 0; i < 4; i++) {
-		day_pal[i * 3 + 0] = special_pal[entry + i * 3 * 2 + 0];
-		day_pal[i * 3 + 1] = special_pal[entry + i * 3 * 2 + 1];
-		day_pal[i * 3 + 2] = special_pal[entry + i * 3 * 2 + 2];
+	if(player_offsets[player][0]!=col1  ||  player_offsets[player][1]!=col2) {
+		// set new player colors
+		player_offsets[player][0] = col1;
+		player_offsets[player][1] = col2;
+		mark_rect_dirty_nc(0, 32, disp_width - 1, disp_height - 1);
 	}
-
-	// light
-	for (i = 32; i < 56; i++) {
-		day_pal[i * 3 + 0] = colortable_8bit[i * 3 * 2 + 0];
-		day_pal[i * 3 + 1] = colortable_8bit[i * 3 * 2 + 1];
-		day_pal[i * 3 + 2] = colortable_8bit[i * 3 * 2 + 2];
-	}
-
-	calc_base_pal_from_night_shift(night_shift);
-
-	mark_rect_dirty_nc(0, 0, disp_width - 1, disp_height - 1);
 }
+
 
 
 /**
@@ -1159,11 +1124,11 @@ void register_image(struct bild_t* bild)
 	}
 
 	// allocate and copy if needed
-	image->recode_flags[NEED_NORMAL_RECODE] = 128;
-#ifdef NEED_PLAYER_RECODE
-	image->recode_flags[NEED_PLAYER_RECODE] = 128;
+	image->recode_flags[FLAG_NORMAL_RECODE] = 128;
+#ifdef FLAG_PLAYER_RECODE
+	image->recode_flags[FLAG_PLAYER_RECODE] = 128;
 #endif
-	image->recode_flags[NEED_REZOOM] = true;
+	image->recode_flags[FLAG_REZOOM] = true;
 
 	image->base_data = NULL;
 	image->zoom_data = NULL;
@@ -1176,7 +1141,8 @@ void register_image(struct bild_t* bild)
 	if ((bild->zoomable & 0xFE) == 0) {
 		// this is an 16 Bit image => we need to resize it to 8 Bit ...
 		image->recode_flags[FLAGS] |= FLAG_PLAYERCOLOR*recode_img_src16_target8(image->base_h, (PIXVAL*)(bild + 1), image->base_data, bild->zoomable & 1);
-	} else {
+	}
+	else {
 		memcpy(image->base_data, (PIXVAL*)(bild + 1), image->len * sizeof(PIXVAL));
 	}
 
@@ -1184,7 +1150,19 @@ void register_image(struct bild_t* bild)
 
 
 // prissi: query offsets
-void display_get_image_offset(unsigned bild, int *xoff, int *yoff, int *xw, int *yw)
+void display_get_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
+{
+	if (bild < anz_images) {
+		*xoff = images[bild].x;
+		*yoff = images[bild].y;
+		*xw   = images[bild].w;
+		*yw   = images[bild].h;
+	}
+}
+
+
+// prissi: query unzoiomed offsets
+void display_get_base_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
 {
 	if (bild < anz_images) {
 		*xoff = images[bild].base_x;
@@ -1197,7 +1175,7 @@ void display_get_image_offset(unsigned bild, int *xoff, int *yoff, int *xw, int 
 
 // prissi: canges the offset of an image
 // we need it this complex, because the actual x-offset is coded into the image
-void display_set_image_offset(unsigned bild, int xoff, int yoff)
+void display_set_base_image_offset(unsigned bild, KOORD_VAL xoff, KOORD_VAL yoff)
 {
 	if (bild < anz_images && images[bild].base_h > 0 && images[bild].base_w > 0) {
 		int h = images[bild].base_h;
@@ -1219,11 +1197,11 @@ void display_set_image_offset(unsigned bild, int xoff, int yoff)
 			sp++;
 		}
 		// need recoding
-		images[anz_images].recode_flags[NEED_NORMAL_RECODE] = 128;
-#ifdef NEED_PLAYER_RECODE
-		images[anz_images].recode_flags[NEED_PLAYER_RECODE] = 128;
+		images[anz_images].recode_flags[FLAG_NORMAL_RECODE] = 128;
+#ifdef FLAG_PLAYER_RECODE
+		images[anz_images].recode_flags[FLAG_PLAYER_RECODE] = 128;
 #endif
-		images[anz_images].recode_flags[NEED_REZOOM] = true;
+		images[anz_images].recode_flags[FLAG_REZOOM] = true;
 	}
 }
 
@@ -1475,7 +1453,7 @@ void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const i
 		// need to go to nightmode and or rezoomed?
 		KOORD_VAL h, reduce_h, skip_lines;
 
-		if (images[n].recode_flags[NEED_REZOOM]) {
+		if (images[n].recode_flags[FLAG_REZOOM]) {
 			rezoom_img(n);
 		}
 
@@ -1603,7 +1581,7 @@ static void display_color_img_aux(const int n, const KOORD_VAL xp, const KOORD_V
  * Zeichnet Bild, ersetzt Spielerfarben
  * @author Hj. Malthaner
  */
-void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const COLOR_VAL color, const int daynight, const int dirty)
+void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const sint8 color, const int daynight, const int dirty)
 {
 	if (n < anz_images) {
 		// Hajo: since the colors for player 0 are already right,
@@ -1615,7 +1593,7 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 			return;
 		}
 
-		if (images[n].recode_flags[NEED_REZOOM]) {
+		if (images[n].recode_flags[FLAG_REZOOM]) {
 			rezoom_img(n);
 		}
 
@@ -1643,10 +1621,169 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 
 
 /**
+ * draw unscaled images, replaces base color
+ * @author prissi
+ */
+void display_base_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty)
+{
+	display_color_img( n, xp, yp, player_nr, daynight, dirty );
+/*
+	if(  base_tile_raster_width==tile_raster_width  ) {
+		// same size => use standard routine
+		display_color_img( n, xp, yp, player_nr, daynight, dirty );
+	}
+	else if (n < anz_images) {
+
+		// prissi: now test if visible and clipping needed
+		const KOORD_VAL x = images[n].base_x;
+		const KOORD_VAL y = images[n].base_y;
+		const KOORD_VAL w = images[n].base_w;
+		const KOORD_VAL h = images[n].base_h;
+
+		if (h == 0 || xp > clip_rect.xx || yp + y > clip_rect.yy || xp + x + w <= clip_rect.x || yp + y + h <= clip_rect.y) {
+			// not visible => we are done
+			// happens quite often ...
+			return;
+		}
+
+		if (dirty) {
+			mark_rect_dirty_wc(xp + x, yp + y, xp + x + w - 1, yp + y + h - 1);
+		}
+
+		// colors for 2nd company color
+		if(player_nr>=0) {
+			activate_player_color( player_nr, daynight );
+		}
+		else {
+			// no player
+			activate_player_color( 0, daynight );
+		}
+		display_color_img_aux( images[n].base_data, xp+x, yp+y, h );
+	} // number ok
+*/
+}
+
+static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, uint8 factor )
+{
+	const uint16 offset = 256*factor;
+	if (h > 0) {
+		PIXVAL *tp = textur + yp * disp_width;
+
+		do { // zeilen dekodieren
+			int xpos = xp;
+
+			// bild darstellen
+			PIXVAL runlen = *sp++;
+
+			do {
+				// wir starten mit einem clear run
+				xpos += runlen;
+
+				// jetzt kommen farbige pixel
+				runlen = *sp++;
+
+				// Hajo: something to display?
+				if (xpos + runlen >= clip_rect.x && xpos <= clip_rect.xx) {
+					const KOORD_VAL left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
+					const KOORD_VAL len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
+					{
+						PIXVAL *dest = tp + xpos + left;
+						const PIXVAL *const end = dest + len;
+						while (dest < end) {
+							*dest = darken_table[offset+*dest];
+							dest++;
+						}
+					}
+				}
+
+				sp += runlen;
+				xpos += runlen;
+			} while ((runlen = *sp++));
+
+			tp += disp_width;
+		} while (--h);
+	}
+}
+
+/**
+ * draws the transparent outline of an image
+ * @author kierongreen
+ */
+void display_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty)
+{
+	if (n < anz_images) {
+		// need to go to nightmode and or rezoomed?
+		KOORD_VAL h, reduce_h, skip_lines;
+
+		if (images[n].recode_flags[FLAG_REZOOM]) {
+			rezoom_img(n);
+		}
+		PIXVAL *sp = (zoom_factor > 1 && images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data;
+
+		// now, since zooming may have change this image
+		xp += images[n].x;
+		yp += images[n].y;
+		h = images[n].h; // may change due to vertical clipping
+
+		// in the next line the vertical clipping will be handled
+		// by that way the drawing routines must only take into account the horizontal clipping
+		// this should be much faster in most cases
+
+		// must the height be reduced?
+		reduce_h = yp + h - clip_rect.yy;
+		if (reduce_h > 0) h -= reduce_h;
+		// still something to draw
+		if (h <= 0) return;
+
+		// vertically lines to skip (only bottom is visible
+		skip_lines = clip_rect.y - (int)yp;
+		if (skip_lines > 0) {
+			if (skip_lines >= h) {
+				// not visible at all
+				return;
+			}
+			h -= skip_lines;
+			yp += skip_lines;
+			// now skip them
+			while (skip_lines--) {
+				do {
+					// clear run + colored run + next clear run
+					sp++;
+					sp += *sp + 1;
+				} while (*sp);
+				sp++;
+			}
+			// now sp is the new start of an image with height h
+		}
+
+		// new block for new variables
+		{
+			// needed now ...
+			const KOORD_VAL w = images[n].w;
+			// we use function pointer for the blend runs for the moment ...
+			uint8 blend_factor = (color_index&OUTLINE_FLAG) ? (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1 : (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1;
+
+			// use horzontal clipping or skip it?
+			if (xp >= clip_rect.x && xp + w - 1 <= clip_rect.xx) {
+				// marking change?
+				if (dirty) mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
+				display_img_blend_wc( h, xp, yp, sp, blend_factor );
+			} else if (xp <= clip_rect.xx && xp + w > clip_rect.x) {
+				display_img_blend_wc( h, xp, yp, sp, blend_factor );
+				// since height may be reduced, start marking here
+				if (dirty) mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
+			}
+		}
+	}
+}
+
+
+
+/**
  * the area of this image need update
  * @author Hj. Malthaner
  */
-void display_mark_img_dirty(unsigned bild, int xp, int yp)
+void display_mark_img_dirty(unsigned bild, KOORD_VAL xp, KOORD_VAL yp)
 {
 	if (bild < anz_images) {
 		mark_rect_dirty_wc(
@@ -1694,11 +1831,15 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 			unsigned int count = w;
 			unsigned short* lp;
 
-			if (count & 1) *p++ = longcolval;
+			if (count & 1) {
+				*p++ = longcolval;
+			}
 			count >>= 1;
-			lp = p;
-			while (count-- != 0) *lp++ = longcolval;
-			p = lp;
+			lp = (unsigned short *)p;
+			while (count-- != 0) {
+				*lp++ = longcolval;
+			}
+			p = (PIXVAL *)lp;
 
 			p += dx;
 		} while (--h != 0);
@@ -1803,6 +1944,14 @@ int get_prev_char(const char* text, int pos)
 	} else {
 		return pos - 1;
 	}
+}
+
+
+KOORD_VAL display_get_char_width(utf16 c)
+{
+	KOORD_VAL w = large_font.screen_width[c];
+	if (w == 0) w = large_font.screen_width[0];
+	return w;
 }
 
 
@@ -2144,7 +2293,7 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
 void display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_COLOR_VAL color)
 {
 	if (buf != NULL && *buf != '\0') {
-		char *next;
+		const char *next;
 
 		do {
 			next = strchr(buf, '\n');
@@ -2200,8 +2349,6 @@ void display_flush_buffer(void)
 		} while (x < tiles_per_line);
 #endif
 	}
-
-	dr_flush();
 
 	// swap tile buffers
 	tmp = tile_dirty_old;
@@ -2263,12 +2410,12 @@ void display_show_load_pointer(int loading)
  * Initialises the graphics module
  * @author Hj. Malthaner
  */
-int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, int full_screen)
+int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 {
 	int parameter[2];
 
-	parameter[0] = use_shm;
-	parameter[1] = do_sync;
+	parameter[0] = 0;
+	parameter[1] = 1;
 
 	dr_os_init(parameter);
 
@@ -2279,15 +2426,12 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
 		disp_width = width;
 		disp_height = height;
 
-		textur = dr_textur_init();
+		textur = (PIXVAL *)dr_textur_init();
 
 		// init, load, and check fonts
 		large_font.screen_width = NULL;
 		large_font.char_data = NULL;
-		display_load_font(FONT_PATH_X "prop.fnt", true);
-
-		load_palette(PALETTE_PATH_X "special.pal", special_pal);
-		display_set_color(1);
+		display_load_font(FONT_PATH_X "prop.fnt");
 	} else {
 		puts("Error  : can't open window!");
 		exit(-1);
@@ -2304,10 +2448,15 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
 	memset(tile_dirty,     255, tile_buffer_length);
 	memset(tile_dirty_old, 255, tile_buffer_length);
 
+	// init player colors
+	for(int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+		player_offsets[i][0] = i*8;
+		player_offsets[i][1] = i*8+24;
+	}
+
 	display_set_clip_wh(0, 0, disp_width, disp_height);
 
 	display_day_night_shift(0);
-	display_set_player_color(0);
 
 	calc_base_pal_from_night_shift(0);
 
@@ -2447,4 +2596,42 @@ void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL x
 		xp += xs;
 		yp += ys;
 	}
+}
+
+
+/**
+ * Zeichnet eine Fortschrittsanzeige
+ * @author Hj. Malthaner
+ */
+static const char *progress_text=NULL;
+
+void display_set_progress_text(const char *t)
+{
+	progress_text = t;
+}
+
+void display_progress(int part, int total)
+{
+	const int disp_width=display_get_width();
+	const int disp_height=display_get_height();
+
+	const int width=disp_width/2;
+	part = (part*width)/total;
+
+	dr_prepare_flush();
+
+	// outline
+	display_ddd_box(width/2-2, disp_height/2-9, width+4, 20, COL_GREY6, COL_GREY4);
+	display_ddd_box(width/2-1, disp_height/2-8, width+2, 18, COL_GREY4, COL_GREY6);
+
+	// inner
+	display_fillbox_wh(width/2, disp_height/2-7, width, 16, COL_GREY5, TRUE);
+
+	// progress
+	display_fillbox_wh(width/2, disp_height/2-5, part, 12, COL_BLUE, TRUE);
+
+	if(progress_text) {
+		display_proportional(width,display_get_height()/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);
+	}
+	dr_flush();
 }
