@@ -553,7 +553,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 					}
 				}
 				else {
-					dbg->error( "werkzeug_t::init_menu()", "When parsing menuconf.tab: No simple tool %i defined (max %i)!", toolnr, GENERAL_TOOL_COUNT );
+					dbg->error( "werkzeug_t::init_menu()", "When parsing menuconf.tab: No simple tool %i defined (max %i)!", toolnr, SIMPLE_TOOL_COUNT );
 				}
 			}
 			else if(strstr(toolname,"dialog_tool[")) {
@@ -578,7 +578,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 					}
 				}
 				else {
-					dbg->error( "werkzeug_t::init_menu()", "When parsing menuconf.tab: No dialog tool %i defined (max %i)!", toolnr, GENERAL_TOOL_COUNT );
+					dbg->error( "werkzeug_t::init_menu()", "When parsing menuconf.tab: No dialog tool %i defined (max %i)!", toolnr, DIALOGE_TOOL_COUNT );
 				}
 			}
 			else if(strstr(toolname,"toolbar[")) {
@@ -612,7 +612,9 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 				addtool->default_param = strdup(toolname);
 				addtool->command_key = 1;
 			}
-			toolbar_tool[i]->append(addtool);
+			if(addtool) {
+				toolbar_tool[i]->append(addtool);
+			}
 		}
 	}
 	// sort characters
