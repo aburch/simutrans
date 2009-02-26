@@ -210,9 +210,10 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	update_lineinfo( linehandle_t() );
 
 	// resize button
-	set_min_windowsize(koord(488, 400));
+	set_min_windowsize(koord(488, 300));
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
+	resize(koord(0,100));
 
 	build_line_list(0);
 }
@@ -471,7 +472,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 			halthandle_t halt = haltestelle_t::get_halt(sp->get_welt(), fahrplan_koord);
 			if (halt.is_bound()) {
 //				// only add a haltestelle to the list, if it is not in the list allready
-//				if (!tmp.contains(fahrplan_koord)) {
+//				if (!tmp.is_contained(fahrplan_koord)) {
 					halt_list_stats_t* cinfo = new halt_list_stats_t(halt);
 					cinfo->set_pos(koord(0, ypos));
 					cinfo->set_groesse(koord(500, 28));

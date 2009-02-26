@@ -89,7 +89,7 @@ public:
 
 	void set_show_y_axis(bool yesno) { show_y_axis = yesno; }
 
-	int get_curve_count() { return curves.count(); }
+	int get_curve_count() { return curves.get_count(); }
 
 private:
 

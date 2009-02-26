@@ -82,7 +82,7 @@ void curiositylist_stats_t::get_unique_attractions(curiositylist::sort_mode_t so
 		if (geb != NULL &&
 				geb->get_tile()->get_offset() == koord(0, 0) &&
 				geb->get_passagier_level() != 0) {
-			attractions.push_back(geb);
+			attractions.append(geb);
 		}
 	}
 	std::sort(attractions.begin(), attractions.end(), compare_curiosities(sortby, sortreverse));

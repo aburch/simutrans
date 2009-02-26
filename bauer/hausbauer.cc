@@ -115,15 +115,15 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 	::register_besch(spezial_objekte, besch);
 
 	switch(besch->get_typ()) {
-		case gebaeude_t::wohnung:   wohnhaeuser.push_back(besch);      break;
-		case gebaeude_t::industrie: industriehaeuser.push_back(besch); break;
-		case gebaeude_t::gewerbe:   gewerbehaeuser.push_back(besch);   break;
+		case gebaeude_t::wohnung:   wohnhaeuser.append(besch);      break;
+		case gebaeude_t::industrie: industriehaeuser.append(besch); break;
+		case gebaeude_t::gewerbe:   gewerbehaeuser.append(besch);   break;
 
 		case gebaeude_t::unbekannt:
 		switch (besch->get_utyp()) {
 			case haus_besch_t::denkmal:         denkmaeler.append(besch);               break;
 			case haus_besch_t::attraction_land: sehenswuerdigkeiten_land.append(besch); break;
-			case haus_besch_t::firmensitz:      headquarter.push_back(besch);           break;
+			case haus_besch_t::firmensitz:      headquarter.append(besch);           break;
 			case haus_besch_t::rathaus:         rathaeuser.append(besch);               break;
 			case haus_besch_t::attraction_city: sehenswuerdigkeiten_city.append(besch); break;
 
@@ -134,7 +134,7 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 			case haus_besch_t::depot:
 			case haus_besch_t::generic_stop:
 			case haus_besch_t::generic_extension:
-				station_building.push_back(besch);
+				station_building.append(besch);
 DBG_DEBUG("hausbauer_t::register_besch()","Infrastructure %s",besch->get_name());
 				break;
 
@@ -473,7 +473,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 						break;
 					}
 				}
-				gebaeude_t* gb = gr->find<gebaeude_t>();
+				gb = gr->find<gebaeude_t>();
 			}
 			if(gb  &&  gb->get_tile()->get_besch()->get_utyp()>=8) {
 				corner_layout &= ~2; // clear near bit

@@ -317,7 +317,8 @@ void leitung_t::recalc_bild()
 	else {
 		if(gr->hat_wege()) {
 			// crossing with road or rail
-			if(ribi_t::ist_gerade_ns(ribi)) {
+			weg_t* way = gr->get_weg_nr(0);
+			if(ribi_t::ist_gerade_ow(way->get_ribi())) {
 				set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::ost,0));
 			}
 			else {

@@ -600,7 +600,11 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 			// up slope hiding something ...
 			if(diff_from_ground_1-corner1(slope_this)<0  ||  diff_from_ground_2-corner4(slope_this)<0)  {
 				set_flag(grund_t::draw_as_ding);
-				fence_west = corner1(slope_this)==corner4(slope_this);
+				if(  corner1(slope_this)==corner4(slope_this)  ) {
+					// ok, we need a fence here, if there is not a vertical bridgehead
+					fence_west = (flags&has_way1)==0  ||  (static_cast<weg_t*>(obj_bei(0))->get_ribi_unmasked()&ribi_t::west)==0
+								&& ( (flags&has_way2)==0  ||  (static_cast<weg_t *>(obj_bei(1))->get_ribi_unmasked()&ribi_t::west)==0);
+				}
 			}
 			// any height difference AND something to see?
 			if(  (diff_from_ground_1-corner1(slope_this)>0  ||  diff_from_ground_2-corner4(slope_this)>0)
@@ -627,7 +631,11 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 			// up slope hiding something ...
 			if(diff_from_ground_1-corner4(slope_this)<0  ||  diff_from_ground_2-corner3(slope_this)<0) {
 				set_flag(grund_t::draw_as_ding);
-				fence_north = corner4(slope_this)==corner3(slope_this);
+				if(  corner3(slope_this)==corner4(slope_this)  ) {
+					// ok, we need a fence here, if there is not a vertical bridgehead
+					fence_north = (flags&has_way1)==0  ||  (static_cast<weg_t*>(obj_bei(0))->get_ribi_unmasked()&ribi_t::nord)==0
+								&& ( (flags&has_way2)==0  ||  (static_cast<weg_t *>(obj_bei(1))->get_ribi_unmasked()&ribi_t::nord)==0);
+				}
 			}
 			// any height difference AND something to see?
 			if(  (diff_from_ground_1-corner4(slope_this)>0  ||  diff_from_ground_2-corner3(slope_this)>0)
@@ -703,7 +711,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos) const
 	if(back_bild_nr!=0) {
 		if(abs(back_bild_nr)>121) {
 			// fence before a drop
-			const sint16 offset = slope ? -TILE_HEIGHT_STEP : 0;
+			const sint16 offset = corner4(slope) ? -TILE_HEIGHT_STEP : 0;
 			if(back_bild_nr<0) {
 				// behind a building
 				display_img(grund_besch_t::fences->get_bild(-back_bild_nr-122+3), xpos, ypos+offset, dirty);

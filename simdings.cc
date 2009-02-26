@@ -238,9 +238,10 @@ ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 
 	while(bild!=IMG_LEER) {
 
-		if(besitzer_n!=-1) {
+		if(besitzer_n!=PLAYER_UNOWNED) {
 			display_color_img(bild, xpos, ypos, besitzer_n, true, dirty);
-		}	else {
+		}
+		else {
 			display_img(bild, xpos, ypos, dirty);
 		}
 		// this ding has another image on top (e.g. skyscraper)
@@ -285,7 +286,7 @@ ding_t::display_after(int xpos, int ypos, bool /*is_global*/ ) const
 
 		// unfourtunately the dirty flag is already cleared, when we reach here ...
 		// thus we assume we need redraw
-		if(besitzer_n!=-1) {
+		if(besitzer_n!=PLAYER_UNOWNED) {
 			display_color_img(bild, xpos, ypos, besitzer_n, true, false );
 		}
 		else {

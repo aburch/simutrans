@@ -376,7 +376,7 @@ bool stadtauto_t::list_empty()
 
 stadtauto_t::~stadtauto_t()
 {
-	if(!welt->get_is_shutting_down() && current_list != NULL  && current_list->count() > 0)
+	if(!welt->get_is_shutting_down() && current_list != NULL  && current_list->get_count() > 0)
 	{
 		stadtauto_t *tmp = this;
 		if(!current_list->remove(tmp))

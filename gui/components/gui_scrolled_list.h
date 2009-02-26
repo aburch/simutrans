@@ -100,14 +100,14 @@ public:
 	void show_selection(int s);
 
 	void set_selection(int s) { selection = s; }
-	int get_selection() { return selection; }
-	int get_count() { return item_list.count(); }
+	sint32 get_selection() { return selection; }
+	sint32 get_count() { return item_list.get_count(); }
 
 	/*  when rebuilding a list, be sure to call recalculate the slider
 	 *  with recalculate_slider() to update the scrollbar properly. */
 	void clear_elements();
 	void append_element( scrollitem_t *item );
-	scrollitem_t *get_element(int i) const { return ((unsigned)i<item_list.count()) ? item_list.at(i) : NULL; }
+	scrollitem_t *get_element(sint32 i) const { return ((uint32)i<item_list.get_count()) ? item_list.at(i) : NULL; }
 
 	// set the first element to be shown in the list
 	sint32 get_sb_offset() { return sb.get_knob_offset(); }

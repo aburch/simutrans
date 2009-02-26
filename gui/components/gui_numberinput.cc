@@ -179,8 +179,8 @@ sint32 gui_numberinput_t::get_prev_value()
 		// power of 2
 		case POWER2:
 		{
-			uint32 new_value=1;
-			for( int i=31;  i>=0;  i--  ) {
+			sint32 new_value=1;
+			for( int i=30;  i>=0;  i--  ) {
 				if(  value>(new_value<<i)  ) {
 					return clamp( (new_value<<i), min_value, max_value );
 				}

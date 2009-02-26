@@ -93,8 +93,8 @@ void message_stats_t::zeichnen(koord offset)
 	const image_id arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
 	struct clip_dimension cd = display_get_clip_wh();
 	const int offsets = (cd.y-offset.y)/14;
-	int max_message = (cd.yy-offset.y)/14+1;
-	if(max_message>msg->get_count()) {
+	sint32 max_message = (cd.yy-offset.y)/14+1;
+	if(  max_message>(sint32)msg->get_count()  ) {
 		max_message = msg->get_count();
 	}
 

@@ -136,7 +136,7 @@ public:
 
 
 
-	int count() const
+	int get_count() const
 	{
 		return node_count;
 	}

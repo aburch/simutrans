@@ -12,6 +12,17 @@
  * (such as char). 
  */ 
 
+#ifndef TPL_FIXED_LIST_H
+#define TPL_FIXED_LIST_H
+
+#ifndef ITERATE
+#define ITERATE(collection,i) for(uint16 i = 0; i < collection.get_count(); i++)
+#endif
+
+#ifndef ITERATE_PTR
+#define ITERATE_PTR(collection,i) for(uint16 i = 0; i < collection->get_count(); i++)
+#endif 
+
 #include <typeinfo>
 #include "../simtypes.h"
 #include "../simdebug.h"
@@ -34,6 +45,21 @@ public:
 	{
 		if(e > size)
 		{
+			dbg->fatal("fixed_list_tpl<T>::[]", "index out of bounds: %i not in 0..%d", e, size - 1);
+			return NULL;
+		}
+		else
+		{
+			uint8 i = add_index(head, e, N);
+			return data[i];
+		}
+	}
+
+	const T operator[](uint8 e) const
+	{
+		if(e > size)
+		{
+			dbg->fatal("fixed_list_tpl<T>::[]", "index out of bounds: %i not in 0..%d", e, size - 1);
 			return NULL;
 		}
 		else
@@ -123,7 +149,7 @@ public:
 		return;
 	}
 
-	uint8 get_size()
+	uint8 get_count() const
 	{
 		return size;
 	}
@@ -436,3 +462,4 @@ private:
 		}
 	}
 };
+#endif

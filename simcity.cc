@@ -105,7 +105,7 @@ void stadt_t::privatecar_init(cstring_t objfilename)
 	for(  int i=1;  i<tracks[0];  i+=2  ) 
 	{
 		car_ownership_record_t c( tracks[i], tracks[i+1] );
-		car_ownership[0].push_back( c );
+		car_ownership[0].append( c );
 	}
 	delete [] tracks;
 }
@@ -1365,7 +1365,7 @@ void stadt_t::neuer_monat() //"New month" (Google)
 #define DESTINATION_CITYCARS
 #ifdef DESTINATION_CITYCARS 
 		// Subtract incoming trips and cars already generated to prevent double counting.
-		sint16 factor = city_history_month[1][HIST_CITYCARS] - incoming_private_cars - current_cars.count();
+		sint16 factor = city_history_month[1][HIST_CITYCARS] - incoming_private_cars - current_cars.get_count();
 		
 		//Manual assignment of traffic level modifiers, since I could not find a suitable mathematical formula.
 		float traffic_level;
@@ -1446,7 +1446,7 @@ void stadt_t::neuer_monat() //"New month" (Google)
 		//uint16 number_of_cars = ((city_history_month[1][HIST_CITYCARS] * welt->get_einstellungen()->get_verkehr_level()) / 16) / 64;
 #endif
 
-		while(current_cars.count() > number_of_cars)
+		while(current_cars.get_count() > number_of_cars)
 		{
 			//Make sure that there are not too many cars on the roads. 
 			stadtauto_t* car = current_cars.remove_first();
@@ -1478,7 +1478,7 @@ void stadt_t::neuer_monat() //"New month" (Google)
 
 sint16 stadt_t::get_outstanding_cars()
 {
-	return number_of_cars - current_cars.count();
+	return number_of_cars - current_cars.get_count();
 }
 
 
@@ -1646,7 +1646,7 @@ void stadt_t::step_passagiere()
 	bool has_private_car = (simrand(100) <= get_private_car_ownership(welt->get_timeline_year_month()));
 
 	//Only continue if there are suitable start halts nearby, or the passengers have their own car.
-	if(start_halts.get_size() > 0 || has_private_car)
+	if(start_halts.get_count() > 0 || has_private_car)
 	{
 		if(passenger_routing_local_chance < 1)
 		{
@@ -1725,7 +1725,7 @@ void stadt_t::step_passagiere()
 				//citycars with destination
 				if(has_private_car)
 				{
-					if(start_halts.get_size() > 0)
+					if(start_halts.get_count() > 0)
 					{
 						halthandle_t start_halt = *start_halts.get_element(0);
 						if(start_halt.is_bound())
@@ -1749,9 +1749,9 @@ void stadt_t::step_passagiere()
 					if (halt->is_enabled(wtyp)) 
 					{
 						ziel_count++;
-						for(int i = start_halts.get_size(); i >= 0; i--)
+						for(int i = start_halts.get_count(); i >= 0; i--)
 						{
-							if(start_halts.get_size() > i && halt == *start_halts.get_element(i))
+							if(start_halts.get_count() > i && halt == *start_halts.get_element(i))
 							{
 								can_walk_ziel = true;
 								start_halt = *start_halts.get_element(i);
@@ -1766,7 +1766,7 @@ void stadt_t::step_passagiere()
 					// Thus, routing is not possible and we do not need to do a calculation.
 					// Mark ziel as destination without route and continue.
 					merke_passagier_ziel(destinations[current_destination].location, COL_DARK_ORANGE);
-					if(start_halts.get_size() > 0)
+					if(start_halts.get_count() > 0)
 					{
 						halthandle_t current_halt = *start_halts.get_element(0);
 						current_halt->add_pax_no_route(pax_left_to_do);
@@ -1823,9 +1823,9 @@ void stadt_t::step_passagiere()
 				halthandle_t best_destination[3];
 				uint8 best_journey_steps = 255;
 
-				for(int i = start_halts.get_size() - 1; i >= 0; i--)
+				for(int i = start_halts.get_count() - 1; i >= 0; i--)
 				{
-					if(start_halts.get_size() < 1)
+					if(start_halts.get_count() < 1)
 					{
 						break;
 					}
@@ -2015,7 +2015,7 @@ void stadt_t::step_passagiere()
 					city_history_month[0][history_type] += pax.menge;
 
 				} else {
-					if(start_halts.get_size() > 0)
+					if(start_halts.get_count() > 0)
 					{
 						start_halt = *start_halts.get_element(0); //If there is no route, it does not matter where passengers express their unhappiness.
 						start_halt->add_pax_no_route(pax_left_to_do);
@@ -3078,11 +3078,11 @@ vector_tpl<koord>* stadt_t::random_place(
 	}
 	DBG_DEBUG("karte_t::init()", "get random places in climates %x", cl);
 	slist_tpl<koord>* list = wl->finde_plaetze(2, 3, (climate_bits)cl, old_x, old_y);
-	DBG_DEBUG("karte_t::init()", "found %i places", list->count());
+	DBG_DEBUG("karte_t::init()", "found %i places", list->get_count());
 	vector_tpl<koord>* result = new vector_tpl<koord>(anzahl);
 
 	for (int i = 0; i < anzahl; i++) {
-		int len = list->count();
+		int len = list->get_count();
 		// check distances of all cities to their respective neightbours
 		while (len > 0) {
 			int minimum_dist = 0x7FFFFFFF;  // init with maximum
@@ -3101,7 +3101,7 @@ vector_tpl<koord>* stadt_t::random_place(
 			}
 			if (minimum_dist > minimum_city_distance) {
 				// all citys are far enough => ok, find next place
-				result->push_back(k);
+				result->append(k);
 				break;
 			}
 			// if we reached here, the city was not far enough => try again

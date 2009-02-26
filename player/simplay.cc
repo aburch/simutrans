@@ -477,7 +477,7 @@ void spieler_t::buche(const sint64 betrag, const koord pos, enum player_cost typ
 	buche(betrag, type); //"Buche" = "books"; "betrag" = "amount" (Babelfish).
 
 	if(betrag != 0) {
-		if(  abs_distance(welt->get_world_position(),pos)<2*(display_get_width()/get_tile_raster_width())+3  ) {
+		if(  abs_distance(welt->get_world_position(),pos)<2*(uint32)(display_get_width()/get_tile_raster_width())+3  ) {
 			// only display, if near the screen ...
 			add_message(pos, betrag);
 		}
@@ -571,7 +571,7 @@ void
 spieler_t::halt_add(halthandle_t halt)
 {
 	if (!halt_list.is_contained(halt)) {
-		halt_list.push_back(halt);
+		halt_list.append(halt);
 		haltcount ++;
 	}
 }
@@ -614,8 +614,7 @@ void spieler_t::ai_bankrupt()
 	// remove headquarter pos
 	headquarter_pos = koord::invalid;
 
-	// remove all stops
-	//while(halt_list.get_count() > 0) 
+	// remove all stops 
 	for(sint16 i = halt_list.get_count() - 1; i >= 0; i --)
 	{
 		halthandle_t h = halt_list[0];
@@ -987,7 +986,7 @@ spieler_t::add_undo(koord3d k)
 {
 	if(last_built.get_size()>0) {
 //DBG_DEBUG("spieler_t::add_undo()","tile at (%i,%i)",k.x,k.y);
-		last_built.push_back(k);
+		last_built.append(k);
 	}
 }
 
@@ -1001,7 +1000,8 @@ spieler_t::undo()
 		return false;
 	}
 	// check, if we can still do undo
-	for(unsigned short i=0;  i<last_built.get_count();  i++  ) {
+	ITERATE(last_built,i)
+	{
 		grund_t* gr = welt->lookup(last_built[i]);
 		if(gr==NULL  ||  gr->get_typ()!=grund_t::boden) {
 			// well, something was built here ... so no undo

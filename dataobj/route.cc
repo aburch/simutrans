@@ -45,7 +45,7 @@ route_t::kopiere(const route_t *r)
 	route.clear();
 	route.resize(hops + 1);
 	for( unsigned int i=0;  i<=hops;  i++ ) {
-		route.push_back(r->route[i]);
+		route.append(r->route[i]);
 	}
 }
 
@@ -61,7 +61,7 @@ void route_t::append(const route_t *r)
 	}
 	// then append
 	for( unsigned int i=0;  i<=hops;  i++ ) {
-		route.push_back(r->position_bei(i));
+		route.append(r->position_bei(i));
 	}
 }
 
@@ -78,9 +78,9 @@ void route_t::append(koord3d k)
 		route.remove_at(route.get_count()-1);
 	}
 	if(  route.empty()  ||  k != route.back()  ) {
-		route.push_back(k);
+		route.append(k);
 	}
-	route.push_back(k);	// the last is always double
+	route.append(k);	// the last is always double
 }
 
 
@@ -88,7 +88,7 @@ void route_t::remove_koord_from(uint32 i) {
 	while(  i<get_max_n()  ) {
 		route.remove_at(get_max_n());
 	}
-	route.push_back(route[get_max_n()]); // the last is always double
+	route.append(route[get_max_n()]); // the last is always double
 }
 
 
@@ -124,9 +124,9 @@ DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",p
 		if(!welt->ist_in_kartengrenzen(pos)) {
 			break;
 		}
-		route.push_back(welt->lookup(pos)->get_kartenboden()->get_pos());
+		route.append(welt->lookup(pos)->get_kartenboden()->get_pos());
 	}
-	route.push_back(route.back());
+	route.append(route.back());
 	DBG_MESSAGE("route_t::append_straight_route()","to (%i,%i) found.",ziel.x,ziel.y);
 
 	return pos==ziel;
@@ -191,7 +191,7 @@ route_t::find_route(karte_t *welt,
 	tmp->count = 0;
 
 	// start in open
-	open.push_back(tmp);
+	open.append(tmp);
 
 //DBG_MESSAGE("route_t::find_route()","calc route from %d,%d,%d",start.x, start.y, start.z);
 	const grund_t* gr;
@@ -204,7 +204,7 @@ route_t::find_route(karte_t *welt,
 		tmp = open[0];
 		open.remove_at( 0 );
 
-		close.push_back(tmp);
+		close.append(tmp);
 		gr = tmp->gr;
 
 //DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->get_pos().x,gr->get_pos().y,gr->get_pos().z,tmp->f);
@@ -258,7 +258,7 @@ route_t::find_route(karte_t *welt,
 
 //DBG_DEBUG("insert to open","%i,%i,%i",to->get_pos().x,to->get_pos().y,to->get_pos().z);
 				// insert here
-				open.push_back(k);
+				open.append(k);
 			}
 		}
 
@@ -481,7 +481,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 #ifdef DEBUG_ROUTES
 	// display marked route
 	//reliefkarte_t::get_karte()->calc_map();
-	DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u (max %u)",step,MAX_STEP,queue.count(),tmp->g,max_cost);
+	DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u (max %u)",step,MAX_STEP,queue.get_count(),tmp->g,max_cost);
 #endif
 
 	INT_CHECK("route 194");
@@ -534,7 +534,7 @@ bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start,
 DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x, start.y, ziel.x, ziel.y);
 		// no route found
 		route.resize(1);
-		route.push_back(start); // just to be safe
+		route.append(start); // just to be safe
 		return false;
 	}
 	else {
@@ -566,7 +566,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 						break;
 					}
 //DBG_DEBUG("route_t::calc_route()","add station at %i,%i",gr->get_pos().x,gr->get_pos().y);
-					route.push_back(gr->get_pos());
+					route.append(gr->get_pos());
 				}
 			}
 		}
@@ -589,7 +589,7 @@ void route_t::rdwr(loadsave_t *file)
 		route.resize(max_n+2);
 		for(sint32 i=0;  i<=max_n;  i++ ) {
 			k.rdwr(file);
-			route.push_back(k);
+			route.append(k);
 		}
 	}
 	else {

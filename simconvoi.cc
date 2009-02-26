@@ -1718,12 +1718,12 @@ convoi_t::rdwr(loadsave_t *file)
 	else {
 		bool override_monorail = false;
 		is_electric = false;
-		for(unsigned i=0; i<anz_vehikel; i++) {
+		for(  uint8 i=0;  i<anz_vehikel;  i++  ) {
 			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
 			vehikel_t *v = 0;
 
 			const bool first = (i==0);
-			const bool last = (i==anz_vehikel-1);
+			const bool last = (i==anz_vehikel-1u);
 			if(override_monorail) {
 				// ignore type for ancient monorails
 				v = new monorail_waggon_t(welt, file, first, last);
@@ -1962,6 +1962,15 @@ convoi_t::rdwr(loadsave_t *file)
 	// (3) origin departure time; and 
 	// (4) last transfer departure time.
 	// Then, reversion the save game file format.
+	// no_load, withdraw
+	if(file->get_version()<102001) {
+		no_load = false;
+		withdraw = false;
+	}
+	else {
+		file->rdwr_bool( no_load, "" );
+		file->rdwr_bool( withdraw, "" );
+	}
 }
 
 
@@ -2067,7 +2076,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 				// if != 0 we could not join it to existing => load it
 				if(ware.menge != 0) {
-					total_fracht.push_back(ware);
+					total_fracht.append(ware);
 				}
 			}
 
@@ -2692,7 +2701,7 @@ void convoi_t::set_replacing_vehicles(const vector_tpl<const vehikel_besch_t *> 
 	replacing_vehicles.clear();
 	replacing_vehicles.resize(rv->get_count());  // To save some memory
 	for (unsigned int i=0; i<rv->get_count(); ++i) {
-		replacing_vehicles.push_back((*rv)[i]);
+		replacing_vehicles.append((*rv)[i]);
 	}
 }
  

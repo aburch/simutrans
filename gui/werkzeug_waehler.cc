@@ -42,7 +42,7 @@ void werkzeug_waehler_t::add_werkzeug(werkzeug_t *w)
 	}
 
 	// only for non-empty icons ...
-	tools.push_back(w);
+	tools.append(w);
 
 	int ww = (display_get_width()/icon.x)-2;
 	tool_icon_width = tools.get_count();

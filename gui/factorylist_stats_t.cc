@@ -214,8 +214,8 @@ void factorylist_stats_t::sort(factorylist::sort_mode_t sortby, bool sortreverse
 	//for (slist_iterator_tpl<fabrik_t*> i(welt->get_fab_list()); i.next();) {
 	for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
 	{
-		//fab_list.push_back(i.get_current());
-		fab_list.push_back(welt->get_fab_list()[i]);
+		//fab_list.append(i.get_current());
+		fab_list.append(welt->get_fab_list()[i]);
 	}
 	std::sort(fab_list.begin(), fab_list.end(), compare_factories(sortby, sortreverse));
 	set_groesse(koord(210, welt->get_fab_list().get_count()*(LINESPACE+1)-10));

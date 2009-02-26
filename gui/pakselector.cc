@@ -51,7 +51,7 @@ bool pakselector_t::check_file( const char *filename, const char * )
 	}
 	// found only one?
 	if(f!=NULL) {
-		if(entries.count()==0) {
+		if(entries.get_count()==0) {
 			umgebung_t::objfilename = (cstring_t)filename + "/";
 		}
 		else if(  !umgebung_t::objfilename.empty()  ) {

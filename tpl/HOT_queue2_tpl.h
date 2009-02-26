@@ -64,12 +64,12 @@ private:
 			nodes[pocket].remove_first();	// remove NULL
 		}
 		// first: close the old one ...
-		node_count += heap.count();
+		node_count += heap.get_count();
 		while (!heap.empty()) {
 			nodes[heap_index].append(heap.pop());
 		}
 		// now insert everything into the heap
-		node_count -= nodes[pocket].count();
+		node_count -= nodes[pocket].get_count();
 		while (!nodes[pocket].empty()) {
 			heap.insert( nodes[pocket].remove_first() );
 		}
@@ -91,7 +91,7 @@ public:
 			// open a new pocket (which is of course still empty)
 
 			// first: close the old one (first is still the lowest!)
-			node_count += heap.count();
+			node_count += heap.get_count();
 			while (!heap.empty()) {
 				nodes[heap_index].append(heap.pop());
 			}
@@ -109,7 +109,7 @@ public:
 		}
 		else {	// d==node_top
 			// ok, touching a possibly unsorted pocket
-			if (nodes[d].count() > 2 && nodes[d].front() == NULL) {
+			if (nodes[d].get_count() > 2 && nodes[d].front() == NULL) {
 				heapify(d);
 			}
 			// now either heap or just normal insertion1
@@ -184,7 +184,7 @@ public:
 			else {
 				node_count --;
 				// now there are some cases to handle
-				switch(nodes[node_top].count()) {
+				switch(nodes[node_top].get_count()) {
 					case 0:
 						while (nodes[node_top].empty() && node_top < node_size) {
 							node_top ++;
@@ -218,7 +218,7 @@ public:
 			if (!nodes[node_top].empty() && nodes[node_top].front() == NULL) {
 				node_count ++;
 			}
-			node_count -= nodes[node_top].count();
+			node_count -= nodes[node_top].get_count();
 			nodes[node_top].clear();
 			node_top ++;
 		}
@@ -229,20 +229,20 @@ public:
 
 	// we have to count all pockets
 	// so only call this, if you really need it ...
-	int count() const
+	int get_count() const
 	{
 		uint32 full_count = 0;
 		for(  uint32 i=node_top;  i<node_size;  i++  ) {
 			if (!nodes[i].empty()) {
-				full_count += nodes[i].count();
+				full_count += nodes[i].get_count();
 				if (nodes[i].front() == NULL) {
 					full_count --;
 				}
 			}
 		}
-DBG_MESSAGE("HOT_queue_tpl::count()","expected %i found %i (%i in heap)",node_count,full_count,heap.count());
+DBG_MESSAGE("HOT_queue_tpl::get_count()","expected %i found %i (%i in heap)",node_count,full_count,heap.get_count());
 		assert(full_count==node_count);
-		return full_count+heap.count();
+		return full_count+heap.get_count();
 	}
 
 

@@ -68,7 +68,7 @@ koord enlarge_map_frame_t::koord_from_rotation( einstellungen_t *sets, sint16 x,
 
 
 
-enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *spieler, karte_t *welt) :
+enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *welt) :
 	gui_frame_t("enlarge map"),
 	memory(memory_str),
 	xsize(xsize_str,COL_WHITE,gui_label_t::centered),

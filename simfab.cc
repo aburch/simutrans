@@ -231,7 +231,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 		ware.abgabe_letzt = ware.abgabe_sum = 0;
 		ware.max = lieferant->get_kapazitaet() << fabrik_t::precision_bits;
 		ware.menge = 0;
-		eingang.push_back(ware);
+		eingang.append(ware);
 	}
 
 	// create consumer information
@@ -243,7 +243,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 		ware.max = produkt->get_kapazitaet() << fabrik_t::precision_bits;
 		// if source then start with full storage (thus AI will built immeadiately lines)
 		ware.menge = (fabesch->get_lieferanten()==0) ? ware.max-(16<<fabrik_t::precision_bits) : 0;
-		ausgang.push_back(ware);
+		ausgang.append(ware);
 	}
 }
 
@@ -382,13 +382,13 @@ fabrik_t::add_random_field(uint16 probability)
 				}
 			}
 		}
-		if(build_locations.count() == 0) {
+		if(build_locations.get_count() == 0) {
 			radius++;
 		}
-	} while (radius < 10 && build_locations.count() == 0);
+	} while (radius < 10 && build_locations.get_count() == 0);
 	// built on one of the positions
-	if(build_locations.count() > 0) {
-		grund_t *gr = build_locations.at(simrand(build_locations.count()));
+	if(build_locations.get_count() > 0) {
+		grund_t *gr = build_locations.at(simrand(build_locations.get_count()));
 		leitung_t* lt = gr->find<leitung_t>();
 		if(lt) {
 			gr->obj_remove(lt);
@@ -397,7 +397,7 @@ fabrik_t::add_random_field(uint16 probability)
 		// first make foundation below
 		const koord k = gr->get_pos().get_2d();
 		assert(!fields.is_contained(k));
-		fields.push_back(k);
+		fields.append(k);
 		grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
 		welt->access(k)->boden_ersetzen(gr, gr2);
 		gr2->obj_add( new field_t( welt, gr2->get_pos(), besitzer_p, fb, this ) );
@@ -460,7 +460,7 @@ fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 		for(int x=min_pos.x; x<=max_pos.x; x++) {
 			fabrik_t *fab=get_fab(welt,koord(x,y));
 			if(fab) {
-				if (fablist.push_back_unique(fab)) {
+				if (fablist.append_unique(fab)) {
 //DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",gr->first_obj()->get_fabrik()->get_besch()->get_name(),x,y);
 				}
 			}
@@ -561,7 +561,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			if(dummy.menge > (FAB_MAX_INPUT << precision_bits)) {
 				dummy.menge = (FAB_MAX_INPUT << precision_bits);
 			}
-			eingang.push_back(dummy);
+			eingang.append(dummy);
 		}
 	}
 
@@ -589,7 +589,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			guarded_free(const_cast<char *>(typ));
 			dummy.menge >>= (old_precision_bits-precision_bits);
 			dummy.max >>= (old_precision_bits-precision_bits);
-			ausgang.push_back(dummy);
+			ausgang.append(dummy);
 		}
 	}
 	// restore other information
@@ -665,14 +665,14 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 			fields.resize(nr);
 			for(int i=0; i<nr; i++) {
 				k.rdwr(file);
-				fields.push_back(k);
+				fields.append(k);
 			}
 		}
 	}
 
 	// restore city pointer here
 	if(  file->get_version()>=99014  ) {
-		sint32 nr = arbeiterziele.count();
+		sint32 nr = arbeiterziele.get_count();
 		file->rdwr_long( nr, "c" );
 		for( int i=0;  i<nr;  i++  ) {
 			sint32 city_index = -1;

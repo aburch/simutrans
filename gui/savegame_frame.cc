@@ -337,7 +337,8 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 	gui_frame_t::set_fenstergroesse(groesse);
 	input.set_groesse(koord(groesse.x-75-10-10, 14));
 	for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
-		button_t*    button1 = i->del;
+		// resize all but delete button
+		// button_t*    button1 = i->del;
 		button_t*    button2 = i->button;
 		gui_label_t* label   = i->label;
 		button2->set_groesse(koord( groesse.x/2-40, 14));

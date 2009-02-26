@@ -184,7 +184,7 @@ vehikel_t* depot_t::buy_vehicle(const vehikel_besch_t* info)
 	DBG_DEBUG("depot_t::buy_vehicle()", "vehiclebauer %p", veh);
 
 	vehicles.append(veh);
-	DBG_DEBUG("depot_t::buy_vehicle()", "appended %i vehicle", vehicles.count());
+	DBG_DEBUG("depot_t::buy_vehicle()", "appended %i vehicle", vehicles.get_count());
 	return veh;
 }
 
@@ -374,7 +374,7 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 	sint32 count;
 
 	if(file->is_saving()) {
-		count = list.count();
+		count = list.get_count();
 		DBG_MESSAGE("depot_t::vehikel_laden()","saving %d vehicles",count);
 	}
 	file->rdwr_long(count, "\n");

@@ -101,7 +101,7 @@ private:
 
 	// return true, if this a route to avoid (i.e. we did a construction without sucess here ...)
 	bool is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const ware_besch_t *w ) const {
-		return forbidden_conections.contains( fabconnection_t( fab1, fab2, w ) );
+		return forbidden_conections.is_contained( fabconnection_t( fab1, fab2, w ) );
 	}
 
 	/* recursive lookup of a factory tree:

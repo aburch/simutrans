@@ -560,7 +560,7 @@ destroy_win(const gui_fenster_t *gui)
 			if(inside_event_handling) {
 				// only add this, if not already added
 				if (!kill_list.is_contained(wins[i])) {
-					kill_list.push_back(wins[i]);
+					kill_list.append(wins[i]);
 				}
 			}
 			else {
@@ -584,7 +584,7 @@ void destroy_all_win()
 		if(inside_event_handling) {
 			// only add this, if not already added
 			if (!kill_list.is_contained(wins[i])) {
-				kill_list.push_back(wins[i]);
+				kill_list.append(wins[i]);
 			}
 		}
 		else {

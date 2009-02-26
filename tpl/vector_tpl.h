@@ -1,6 +1,14 @@
 #ifndef TPL_VECTOR_H
 #define TPL_VECTOR_H
 
+#ifndef ITERATE
+#define ITERATE(collection,i) for(uint16 i = 0; i < collection.get_count(); i++)
+#endif
+
+#ifndef ITERATE_PTR
+#define ITERATE_PTR(collection,i) for(uint16 i = 0; i < collection->get_count(); i++)
+#endif 
+
 #include <stdlib.h>
 #include "../macros.h"
 #include "../simtypes.h"
@@ -78,9 +86,9 @@ template<class T> class vector_tpl
 			return 0xFFFFFFFFu;
 		}
 
-		void push_back(const T& elem)
+		void append(const T& elem)
 		{
-			if (count == size) {
+			if(  count == size  ) {
 				resize(size == 0 ? 1 : size * 2);
 			}
 			data[count++] = elem;
@@ -90,12 +98,12 @@ template<class T> class vector_tpl
 		 * Checks if element is contained. Appends only new elements.
 		 * extend vector if nessesary
 		 */
-		bool push_back_unique(const T& elem)
+		bool append_unique(const T& elem)
 		{
 			if (is_contained(elem)) {
 				return false;
 			}
-			push_back(elem);
+			append(elem);
 			return true;
 		}
 
@@ -130,7 +138,7 @@ template<class T> class vector_tpl
 				count++;
 			}
 			else {
-				push_back(elem);
+				append(elem);
 			}
 		}
 
@@ -138,8 +146,7 @@ template<class T> class vector_tpl
 		 * Insert `elem' with respect to ordering.
 		 */
 		template<class StrictWeakOrdering>
-		void
-		insert_ordered(const T& elem, StrictWeakOrdering comp)
+		void insert_ordered(const T& elem, StrictWeakOrdering comp)
 		{
 			uint32 i = 0;
 			for(  ; i < count; ++i  ) {
@@ -156,8 +163,7 @@ template<class T> class vector_tpl
 		 * Respects the ordering and assumes the vector is ordered.
 		 */
 		template<class StrictWeakOrdering>
-		void
-		insert_unique_ordered(const T& elem, StrictWeakOrdering comp)
+		void insert_unique_ordered(const T& elem, StrictWeakOrdering comp)
 		{
 			uint32 i = 0;
 			for(  ; i < count; ++i  ) {

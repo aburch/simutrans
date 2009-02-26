@@ -33,15 +33,6 @@
 
 char fahrplan_gui_t::no_line[128];	// contains the current translation of "<no line>"
 
-// here are the default loading values
-#define MAX_LADEGRADE (12)
-
-static char ladegrade[MAX_LADEGRADE]=
-{
-	0, 1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100
-};
-
-
 /**
  * Fuellt buf mit Beschreibung des i-ten Eintrages des Fahrplanes
  *
@@ -491,7 +482,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 	} else if (komp == &line_selector) {
 		int selection = p.i;
 //DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
-		if(  (unsigned)(selection-1)<line_selector.count_elements()  ) {
+		if(  (uint32)(selection-1)<(uint32)line_selector.count_elements()  ) {
 			new_line = lines[selection - 1];
 			fpl->copy_from( new_line->get_schedule() );
 			fpl->eingabe_beginnen();

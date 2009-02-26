@@ -1,6 +1,14 @@
 #ifndef TPL_WEIGHTED_VECTOR_H
 #define TPL_WEIGHTED_VECTOR_H
 
+#ifndef ITERATE
+#define ITERATE(collection,i) for(uint16 i = 0; i < collection.get_count(); i++)
+#endif
+
+#ifndef ITERATE_PTR
+#define ITERATE_PTR(collection,i) for(uint16 i = 0; i < collection->get_count(); i++)
+#endif 
+
 #include "../macros.h"
 #include "../simdebug.h"
 

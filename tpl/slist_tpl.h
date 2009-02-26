@@ -167,7 +167,7 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	bool contains(const T data) const
+	bool is_contained(const T data) const
 	{
 		node_t *p = head;
 
@@ -265,21 +265,23 @@ public:
 		node_count = 0;
 	}
 
-	unsigned int count() const
+	uint32  get_count() const
 	{
 		return node_count;
 	}
 
 	bool empty() const { return head == 0; }
 
-	T& at(uint pos) const
+	T& at(uint32 pos) const
 	{
-		if (pos >= count()) {
+		if (pos >= node_count) {
 			dbg->fatal("slist_tpl<T>::at()", "<%s> index %d is out of bounds", typeid(T).name(), pos);
 		}
 
 		node_t* p = head;
-		while (pos--) p = p->next;
+		while (pos--) {
+			p = p->next;
+		}
 		return p->data;
 	}
 

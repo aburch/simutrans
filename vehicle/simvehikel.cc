@@ -1167,7 +1167,7 @@ vehikel_t::hop()
 	
 	calc_akt_speed(gr);
 
-	sint8 trim_size = curve_history.get_size() - direction_steps;
+	sint8 trim_size = curve_history.get_count() - direction_steps;
 	curve_history.trim_from_head((trim_size >= 0) ? trim_size : 0);
 	pre_corner_direction.trim_from_head((trim_size >= 0) ? trim_size : 0);
 
@@ -1264,7 +1264,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 		
 		uint16 tmp;
 
-		for(int i = (curve_history.get_size() >= direction_steps) ? direction_steps - 1 : curve_history.get_size() - 1; i > 0; i --)
+		for(int i = (curve_history.get_count() >= direction_steps) ? direction_steps - 1 : curve_history.get_count() - 1; i > 0; i --)
 		{
 			tmp = vehikel_t::compare_directions(direction, pre_corner_direction.get_element(i));
 			if(tmp > direction_difference)
@@ -1546,7 +1546,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end, convoi_t *cnv) const
 	//"Preis" = "Price"
 
 	// may happen when waiting in station
-	if(start==end  ||  fracht.count()==0) {
+	if(start==end  ||  fracht.get_count()==0) {
 		return 0;
 	}
 
@@ -1779,7 +1779,7 @@ void vehikel_t::rdwr_from_convoi(loadsave_t *file)
 	sint32 fracht_count = 0;
 
 	if(file->is_saving()) {
-		fracht_count = fracht.count();
+		fracht_count = fracht.get_count();
 		// we try to have one freight count to guess the right freight
 		// when no besch is given
 		if(fracht_count==0  &&  besch->get_ware()!=warenbauer_t::nichts  &&  besch->get_zuladung()>0) {

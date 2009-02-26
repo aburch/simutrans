@@ -194,7 +194,7 @@ public:
 	/* workers origin only used for info dialog purposes and saving; otherwise useless ...
 	 * @author Hj. Malthaner/prissi
 	 */
-	void  add_arbeiterziel(stadt_t *s) { if(!arbeiterziele.contains(s)) arbeiterziele.insert(s); }
+	void  add_arbeiterziel(stadt_t *s) { if(!arbeiterziele.is_contained(s)) arbeiterziele.insert(s); }
 	void  remove_arbeiterziel(stadt_t *s) { arbeiterziele.remove(s); }
 	void  clear_arbeiterziele() { arbeiterziele.clear(); }
 	const slist_tpl<stadt_t*>& get_arbeiterziele() const { return arbeiterziele; }

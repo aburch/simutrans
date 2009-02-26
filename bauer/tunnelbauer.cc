@@ -55,7 +55,7 @@ void
 tunnelbauer_t::register_besch(tunnel_besch_t *besch)
 {
 	tunnel_by_name.put(besch->get_name(), besch);
-	tunnel.push_back(besch);
+	tunnel.append(besch);
 }
 
 
@@ -154,7 +154,7 @@ void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, con
 					time == 0 ||
 					(besch->get_intro_year_month() <= time && time < besch->get_retire_year_month())
 				)) {
-			matching.push_back(besch);
+			matching.append(besch);
 		}
 	}
 	std::sort(matching.begin(), matching.end(), compare_tunnels);
@@ -246,7 +246,7 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 		return "Tunnel muss an\neinfachem\nHang beginnen!\n";
 	}
 	if(weg->get_ribi_unmasked() & ~ribi_t::rueckwaerts(ribi_typ(gr->get_grund_hang()))) {
-		return "Tunnel must end on single way!";
+		return "Tunnel must start on single way!";
 	}
 	zv = koord(gr->get_grund_hang());
 
@@ -269,7 +269,7 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 	// pruefe ob Tunnel auf strasse/schiene endet
 	// "examine whether the tunnel on road / rail ends" (Google)
 	if(!welt->ist_in_kartengrenzen(end.get_2d())) {
-		return "Tunnel must end on single way!";
+		return "Tunnel must start on single way!";
 	}
 
 	// Anfang und ende sind geprueft, wir konnen endlich bauen

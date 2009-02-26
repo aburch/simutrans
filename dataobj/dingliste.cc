@@ -58,19 +58,19 @@
 
 // priority for entering into dingliste
 // unused entries have 255
-static uint8 type_to_pri[32]=
+static uint8 type_to_pri[256]=
 {
 	255, //
 	baum_pri, // baum
-	100, // zeiger
-	90, 90, 90,	// wolke
+	254, // zeiger
+	200, 200, 200,	// wolke
 	3, 3, // buildings
 	6, // signal
 	2, 2, // bridge/tunnel
 	255,
 	1, 1, 1, // depots
 	5, // smoke generator (not used any more)
-	75, 4, 4, // powerlines
+	150, 4, 4, // powerlines
 	6, // roadsign
 	6, // pillar
 	1, 1, 1, 1, // depots (must be before tunnel!)
@@ -80,7 +80,44 @@ static uint8 type_to_pri[32]=
 	3, // field (factory extension)
 	1, // crossings, treated like bridges or tunnels
 	1, // groundobjs, overlays over bare ground like lakes etc.
-	1  // narrowgaugedepot
+	1,  // narrowgaugedepot
+	255, 255, 255, 255, 255, 255, 255, 255,	// 32-63 left empty (old numbers)
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,
+	100,	// pedestrians
+	100,	// city cars
+	100,	// road vehilce
+	100,	// rail vehicle
+	100,	// monorail
+	100,	// maglev
+	100,	// narrowgauge
+	255, 255, 255, 255, 255, 255, 255, 255, 255,
+	100,	// ship
+	100,	// aircraft
+	100,		// movingobject
+	255, 255, 255, 255, 255, 255, 255, 255,	// 83-95 left empty (for other moving stuff) 95, is reserved for old choosesignals
+	255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,	// 96-128 left empty (old numbers)
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,	// 128-255 left empty
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255
 };
 
 

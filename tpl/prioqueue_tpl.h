@@ -30,7 +30,7 @@ template<class T> class slist_iterator_tpl;
  * <p>The pop() operation works in O(1) steps</p>
  * <p>The contains() operation works in O(n), average n/2 steps</p>
  * <p>The remove() operation works in O(n), average n steps</p>
- * <p>The count() and empty() operation work in O(1) steps</p>
+ * <p>The get_count() and empty() operation work in O(1) steps</p>
  *
  * @date November 2001
  * @author Hj. Malthaner
@@ -224,7 +224,7 @@ public:
 
 
 
-    int count() const
+    int get_count() const
     {
 	return node_count;
     }

@@ -82,7 +82,7 @@ bool vehikelbauer_t::speedbonus_init(cstring_t objfilename)
 		speedbonus[j].resize( tracks[0]/2 );
 		for(  int i=1;  i<tracks[0];  i+=2  ) {
 			bonus_record_t b( tracks[i], tracks[i+1] );
-			speedbonus[j].push_back( b );
+			speedbonus[j].append( b );
 		}
 		delete [] tracks;
 	}
@@ -286,7 +286,7 @@ bool vehikelbauer_t::alles_geladen()
 	inthashtable_iterator_tpl<waytype_t, slist_tpl<const vehikel_besch_t*> > typ_iter(typ_fahrzeuge);
 	while (typ_iter.next()) {
 		slist_tpl<const vehikel_besch_t*>& typ_liste = typ_iter.access_current_value();
-		uint count = typ_liste.count();
+		uint count = typ_liste.get_count();
 		if (count == 0) continue;
 		const vehikel_besch_t** const tmp     = new const vehikel_besch_t*[count];
 		const vehikel_besch_t** const tmp_end = tmp + count;

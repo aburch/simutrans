@@ -54,7 +54,7 @@ public:
 	gui_komponente_t* get_aktives_tab() const { return tabs.at(active_tab).component; }
 
 	int get_active_tab_index() const { return active_tab; }
-	void set_active_tab_index( int i ) { active_tab = min(tabs.count()-1,i); }
+	void set_active_tab_index( int i ) { active_tab = min(tabs.get_count()-1,i); }
 
 	/**
 	 * Events werden hiermit an die GUI-Komponenten

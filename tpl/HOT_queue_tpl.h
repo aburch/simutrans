@@ -63,7 +63,7 @@ public:
 			// open a new pocket (which is of course still empty)
 
 			// first: close the old one ...
-			node_count += heap.count();
+			node_count += heap.get_count();
 			while (!heap.empty()) {
 				nodes[node_top].append(heap.pop());
 			}
@@ -84,7 +84,7 @@ public:
 				// need heap'ifying ...
 				bool heap_empty = heap.empty();
 				assert(heap_empty);
-				node_count -= nodes[node_top].count();
+				node_count -= nodes[node_top].get_count();
 				while (!nodes[node_top].empty()) {
 					heap.insert( nodes[node_top].remove_first() );
 				}
@@ -145,7 +145,7 @@ public:
 	{
 		heap.clear();
 		while(node_top<node_size) {
-			node_count -= nodes[node_top].count();
+			node_count -= nodes[node_top].get_count();
 			nodes[node_top].clear();
 			node_top ++;
 		}
@@ -156,14 +156,14 @@ public:
 
 	// we have to count all pockets
 	// so only call this, if you really need it ...
-	int count() const
+	int get_count() const
 	{
 		uint32 full_count = 0;
 		for(  uint32 i=node_top;  i<node_size;  i++  ) {
-			full_count += nodes[i].count();
+			full_count += nodes[i].get_count();
 		}
 		assert(full_count==node_count);
-		return full_count+heap.count();
+		return full_count+heap.get_count();
 	}
 
 

@@ -21,10 +21,10 @@ karte_t *label_info_t::welt = NULL;
 
 
 
-label_info_t::label_info_t(karte_t *welt, label_t* l)
-	: gui_frame_t("Marker", l->get_besitzer()),
-		view(welt, l->get_pos()),
-		player_name("")
+label_info_t::label_info_t(karte_t *welt, label_t* l) :
+	gui_frame_t("Marker", l->get_besitzer()),
+	player_name(""),
+	view(welt, l->get_pos())
 {
 
 	this->welt = welt;

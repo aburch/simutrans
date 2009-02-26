@@ -120,8 +120,8 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		// ok, we have this direction
 		openkeys_ew.append(str);
 	}
-	if(openkeys_ns.count()==0  ||  openkeys_ew.count()==0) {
-		printf("*** FATAL ***:\nMissing images (at least one openimage! (but %i and %i found)!)\n", openkeys_ns.count(), openkeys_ew.count());
+	if(openkeys_ns.get_count()==0  ||  openkeys_ew.get_count()==0) {
+		printf("*** FATAL ***:\nMissing images (at least one openimage! (but %i and %i found)!)\n", openkeys_ns.get_count(), openkeys_ew.get_count());
 		exit(0);
 	}
 	// these must exists!
@@ -152,14 +152,14 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		front_openkeys_ew.append(str);
 	}
 	// the following lists are optional
-	if(front_openkeys_ns.count()>0) {
+	if(front_openkeys_ns.get_count()>0) {
 		imagelist_writer_t::instance()->write_obj(fp, node, front_openkeys_ns);
 	}
 	else {
 		// really empty list ...
 		xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
 	}
-	if(front_openkeys_ew.count()>0) {
+	if(front_openkeys_ew.get_count()>0) {
 		imagelist_writer_t::instance()->write_obj(fp, node, front_openkeys_ew);
 	}
 	else {
@@ -190,14 +190,14 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		// ok, we have this direction
 		closekeys_ew.append(str);
 	}
-	if(closekeys_ns.count()>0) {
+	if(closekeys_ns.get_count()>0) {
 		imagelist_writer_t::instance()->write_obj(fp, node, closekeys_ns);
 	}
 	else {
 		// really empty list ...
 		xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
 	}
-	if(closekeys_ew.count()>0) {
+	if(closekeys_ew.get_count()>0) {
 		imagelist_writer_t::instance()->write_obj(fp, node, closekeys_ew);
 	}
 	else {
@@ -228,14 +228,14 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		// ok, we have this direction
 		front_closekeys_ew.append(str);
 	}
-	if(front_closekeys_ns.count()>0) {
+	if(front_closekeys_ns.get_count()>0) {
 		imagelist_writer_t::instance()->write_obj(fp, node, front_closekeys_ns);
 	}
 	else {
 		// really empty list ...
 		xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
 	}
-	if(front_closekeys_ew.count()>0) {
+	if(front_closekeys_ew.get_count()>0) {
 		imagelist_writer_t::instance()->write_obj(fp, node, front_closekeys_ew);
 	}
 	else {

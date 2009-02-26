@@ -109,7 +109,7 @@ DBG_MESSAGE("event","HOWDY!");
 			droplist.request_groesse(droplist.get_groesse());
 			set_groesse(droplist.get_groesse() + koord(0, 16));
 			int sel = droplist.get_selection();
-			if((unsigned)sel>=droplist.get_count()  ||  !droplist.get_element(sel)->is_valid()) {
+			if((uint32)sel>=(uint32)droplist.get_count()  ||  !droplist.get_element(sel)->is_valid()) {
 				sel = 0;
 			}
 			droplist.show_selection(sel);
@@ -159,8 +159,6 @@ bool gui_combobox_t::action_triggered( gui_action_creator_t *komp,value_t p)
 	if (komp == &droplist) {
 DBG_MESSAGE("gui_combobox_t::infowin_event()","scroll selected %i",p.i);
 		finish = true;
-		// check string of old item
-		gui_scrolled_list_t::scrollitem_t *item = droplist.get_element(p.i);
 		set_selection(p.i);
 	}
 	return false;
@@ -232,7 +230,7 @@ void
 gui_combobox_t::close_box()
 {
 	if(finish) {
-//DBG_MESSAGE("gui_combobox_t::infowin_event()","prepare selected %i for %d listerners",get_selection(),listeners.count());
+//DBG_MESSAGE("gui_combobox_t::infowin_event()","prepare selected %i for %d listerners",get_selection(),listeners.get_count());
 		value_t p;
 		p.i = droplist.get_selection();
 		call_listeners(p);
@@ -243,13 +241,11 @@ gui_combobox_t::close_box()
 	droplist.set_visible(false);
 	set_groesse(koord(groesse.x, 14));
 	first_call = true;
-};
+}
 
 
 
-/**
-* Release the focus if we had it
-*/
+
 void gui_combobox_t::set_groesse(koord gr)
 {
 	textinp.set_pos( pos+koord(12,0) );

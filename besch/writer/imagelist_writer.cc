@@ -23,11 +23,11 @@ void imagelist_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_tpl
 		image_writer_t::instance()->write_obj(fp, node, iter.get_current());
 		count ++;
 	}
-	if (count < keys.count()) {
-		printf("WARNING: Expected %i images, but found only %i (but might be still correct)!\n", keys.count(), count);
+	if (count < keys.get_count()) {
+		printf("WARNING: Expected %i images, but found only %i (but might be still correct)!\n", keys.get_count(), count);
 		fflush(NULL);
 	}
-	besch.anzahl = count;//keys.count();
+	besch.anzahl = count;//keys.get_count();
 
 	node.write_uint16(fp, besch.anzahl, 0);
 	node.write_uint16(fp, 0,            2);

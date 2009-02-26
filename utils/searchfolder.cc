@@ -81,7 +81,7 @@ int searchfolder_t::search(const char *filepath, const char *extension)
 			if(stricmp(entry.name + entry_len - lookfor.len(), (const char*)lookfor) == 0) {
 				char* const c = MALLOCN(char, path.len() + entry_len + 1);
 				sprintf(c,"%s%s",(const char*)path,entry.name);
-				files.push_back(c);
+				files.append(c);
 			}
 		} while(_findnext(hfind, &entry) == 0 );
 	}
@@ -100,7 +100,7 @@ int searchfolder_t::search(const char *filepath, const char *extension)
 				if (strcasecmp(entry->d_name + entry_len - lookfor.len(), lookfor) == 0) {
 					char* const c = MALLOCN(char, path.len() + entry_len + 1);
 					sprintf(c,"%s%s", (const char*)path, entry->d_name);
-					files.push_back(c);
+					files.append(c);
 				}
 			}
 		}
