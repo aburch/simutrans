@@ -1397,7 +1397,8 @@ vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu
 	{
 		hill.add_to_head(ribi_typ(hang)==fahrtrichtung);
 		uint8 hill_number;
-		for(hill_number = 0; hill_number < 5; hill_number ++)
+		uint8 hill_count = hill.get_count();
+		for(hill_number = 0; hill_number < hill_count; hill_number ++)
 		{
 			if(!hill[hill_number])
 			{
