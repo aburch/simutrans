@@ -530,7 +530,7 @@ KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster)
  */
 static void rezoom(void)
 {
-	unsigned int n;
+	uint16 n;
 
 	for (n = 0; n < anz_images; n++) {
 		if((images[n].recode_flags & FLAG_ZOOMABLE) != 0 && images[n].base_h > 0) {

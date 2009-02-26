@@ -135,8 +135,13 @@ int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data,
 	gdiplusStartupInput.SuppressExternalCodecs = FALSE;
 	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-	GdipCreateBitmapFromScan0(w, h, ((w + 15) & 0xFFF0) * 2, bitdepth == 16 ? PixelFormat16bppRGB565 : PixelFormat16bppRGB555, (BYTE*)data, &myImage);
-	if(  myImage==NULL  ) {
+	if(  bitdepth==8  ) {
+		GdipCreateBitmapFromScan0(w, h, ((w + 7) & 0xFFF8), PixelFormat8bppIndexed , (BYTE*)data, &myImage);
+	}
+	else {
+		GdipCreateBitmapFromScan0(w, h, ((w + 15) & 0xFFF0) * 2, bitdepth == 16 ? PixelFormat16bppRGB565 : PixelFormat16bppRGB555, (BYTE*)data, &myImage);
+	}
+	if(  myImage==NULL  &&  bitdepth>8  ) {
 		/* we may have XP or newer => have to convert them to 32 first to save them ... Grrrr */
 		BYTE *newdata = malloc( w*h*4 );
 		BYTE *dest = newdata;

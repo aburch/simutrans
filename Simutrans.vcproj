@@ -803,7 +803,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\simgraph8.cc"
+				RelativePath=".\simgraph16.cc"
 				>
 			</File>
 			<File
@@ -869,24 +869,6 @@
 			<File
 				RelativePath=".\simsys_w16.cc"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\simsys_w32_png.c"
