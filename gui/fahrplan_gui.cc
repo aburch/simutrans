@@ -206,7 +206,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 
 		ypos += BUTTON_HEIGHT+1;
 
-		line_selector.set_pos(koord(0, ypos));
+		line_selector.set_pos(koord(2, ypos));
 		line_selector.set_groesse(koord(BUTTON_WIDTH*3, BUTTON_HEIGHT));
 		line_selector.set_max_size(koord(BUTTON_WIDTH*3, 13*LINESPACE+2+16));
 		line_selector.set_highlight_color(sp->get_player_color1() + 1);
@@ -288,7 +288,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	add_komponente(&scrolly);
 
 	mode = adding;
-	set_min_windowsize( koord(BUTTON_WIDTH*3, ypos+BUTTON_HEIGHT+3*(LINESPACE + 1)+16) );
+	set_min_windowsize( koord(BUTTON_WIDTH*3+16, ypos+BUTTON_HEIGHT+3*(LINESPACE + 1)+16) );
 	resize( koord(0,0) );
 	resize( koord(0,(LINESPACE + 1)*min(15,fpl->get_count())) );
 
@@ -550,4 +550,6 @@ void fahrplan_gui_t::resize(const koord delta)
 
 	const koord groesse = get_fenstergroesse();
 	scrolly.set_groesse( koord(groesse.x, groesse.y-scrolly.get_pos().y-16) );
+
+	line_selector.set_max_size(koord(BUTTON_WIDTH*3, groesse.y-line_selector.get_pos().y -2*16));
 }

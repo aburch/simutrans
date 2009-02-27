@@ -104,9 +104,8 @@ DBG_MESSAGE("event","HOWDY!");
 			}
 
 			droplist.set_visible(true);
-			droplist.set_groesse(koord(this->groesse.x, max_size.y - 16));
 			droplist.set_pos(koord(this->pos.x, this->pos.y + 16));
-			droplist.request_groesse(droplist.get_groesse());
+			droplist.request_groesse(koord(this->groesse.x, max_size.y - 16));
 			set_groesse(droplist.get_groesse() + koord(0, 16));
 			int sel = droplist.get_selection();
 			if((uint32)sel>=(uint32)droplist.get_count()  ||  !droplist.get_element(sel)->is_valid()) {
@@ -252,4 +251,17 @@ void gui_combobox_t::set_groesse(koord gr)
 	textinp.set_groesse( koord(gr.x-26,14) );
 	bt_next.set_pos( koord(gr.x-12,2) );
 	gui_komponente_t::groesse = gr;
+}
+
+/**
+* set maximum size for control
+* @author hsiegeln, Dwachs
+*/
+void gui_combobox_t::set_max_size(koord max)
+{
+	max_size = max;
+	droplist.request_groesse(koord(this->groesse.x, max_size.y - 16));
+	if (droplist.is_visible()) {
+		set_groesse(droplist.get_groesse() + koord(0, 16));
+	}
 }

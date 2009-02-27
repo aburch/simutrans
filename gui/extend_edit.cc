@@ -61,7 +61,6 @@ extend_edit_gui_t::extend_edit_gui_t(spieler_t* sp_,karte_t* welt) :
 	scl.set_groesse(koord(NAME_COLUMN_WIDTH, SCL_HEIGHT-14));
 	scl.set_pos(koord(0,1));
 	scl.set_highlight_color(sp->get_player_color1()+1);
-	scl.request_groesse(scl.get_groesse());
 	scl.set_selection(-1);
 	scl.add_listener(this);
 
