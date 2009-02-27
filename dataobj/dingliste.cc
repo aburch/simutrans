@@ -56,6 +56,9 @@
 
 #define baum_pri (50)
 
+// priority of moving things: should be smaller than the priority of powerlines
+#define moving_obj_pri (100)
+
 // priority for entering into dingliste
 // unused entries have 255
 static uint8 type_to_pri[256]=
@@ -85,17 +88,17 @@ static uint8 type_to_pri[256]=
 	255, 255, 255, 255, 255, 255, 255, 255,
 	255, 255, 255, 255, 255, 255, 255, 255,
 	255, 255, 255, 255, 255, 255, 255, 255,
-	100,	// pedestrians
-	100,	// city cars
-	100,	// road vehilce
-	100,	// rail vehicle
-	100,	// monorail
-	100,	// maglev
-	100,	// narrowgauge
+	moving_obj_pri,	// pedestrians
+	moving_obj_pri,	// city cars
+	moving_obj_pri,	// road vehilce
+	moving_obj_pri,	// rail vehicle
+	moving_obj_pri,	// monorail
+	moving_obj_pri,	// maglev
+	moving_obj_pri,	// narrowgauge
 	255, 255, 255, 255, 255, 255, 255, 255, 255,
-	100,	// ship
-	100,	// aircraft
-	100,		// movingobject
+	moving_obj_pri,	// ship
+	moving_obj_pri+1,	// aircraft (no trailer, could be handled by normal method)
+	moving_obj_pri+1,	// movingobject (no trailer, could be handled by normal method)
 	255, 255, 255, 255, 255, 255, 255, 255,	// 83-95 left empty (for other moving stuff) 95, is reserved for old choosesignals
 	255, 255, 255, 255, 255,
 	255, 255, 255, 255, 255, 255, 255, 255,	// 96-128 left empty (old numbers)
@@ -277,17 +280,23 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 	// vehicles types (number returned by get_typ()). However, this would increase
 	// the calculation even further. :(
 
-	if(top==0  ||  obj.some[0]->get_typ()==ding_t::baum) {
-		// airplane or movingobj
-		intern_insert_at( ding, ((vehikel_basis_t*)ding)->get_waytype()==air_wt ? top : 0 );
-		return true;
-	}
-
 	// find out about the first car etc. moving thing.
-	// We can start to insert things after this index.
+	// We can start to insert between (start) and (end)
 	uint8 start=0;
-	while(start<top  &&   !obj.some[start]->is_moving()) {
+	while(start<top  &&  !obj.some[start]->is_moving()  ) {
 		start ++;
+	}
+/*	uint8 end=start;
+	while(end<top  && obj.some[end]->is_moving()) {
+		end ++;
+	}*/
+	uint8 end = top;
+	while(  end>start  &&  !obj.some[end-1]->is_moving()  ) {
+		end--;
+	}
+	if(start==end) {
+		intern_insert_at(ding, start);
+		return true;
 	}
 
 	// if we have two ways, the way at index 0 is ALWAYS the road!
@@ -310,14 +319,14 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 				}
 				else {
 					// we must be drawn before south or west (thus insert after)
-					for(uint8 i=start;  i<top;  i++  ) {
+					for(uint8 i=start;  i<end;  i++  ) {
 						if((((const vehikel_t*)obj.some[i])->get_fahrtrichtung()&ribi_t::suedwest)!=0) {
 							intern_insert_at(ding, i);
 							return true;
 						}
 					}
 					// nothing going southwest
-					obj.some[top++] = ding;
+					intern_insert_at(ding, end);
 					return true;
 				}
 
@@ -326,7 +335,7 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 				// going south, west or the rest
 				if((fahrtrichtung&(~ribi_t::suedost))==0) {
 					// if we are going south or southeast we must be drawn as the first in east direction (after nord and nordeast)
-					for(uint8 i=start;  i<top;  i++  ) {
+					for(uint8 i=start;  i<end;  i++  ) {
 						const ding_t *dt = obj.some[i];
 						if(dt  &&  dt->is_moving()  &&  (((const vehikel_t*)dt)->get_fahrtrichtung()&ribi_t::suedwest)!=0) {
 							intern_insert_at(ding, i);
@@ -335,7 +344,7 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 					}
 				}
 				// nothing going southeast
-				obj.some[top++] = ding;
+				intern_insert_at(ding, end);
 				return true;
 			}
 		}
@@ -346,7 +355,7 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 				if((fahrtrichtung&(~ribi_t::suedost))==0) {
 
 					// if we are going east we must be drawn as the first in east direction (after nord and nordeast)
-					for(uint8 i=start;  i<top;  i++  ) {
+					for(uint8 i=start;  i<end;  i++  ) {
 						if( (((const vehikel_t*)obj.some[i])->get_fahrtrichtung()&ribi_t::nordost)!=0) {
 							intern_insert_at(ding, i);
 							return true;
@@ -355,7 +364,7 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 					// nothing going to the east
 				}
 				// we must be drawn before south or west (thus append after)
-				obj.some[top++] = ding;
+				intern_insert_at(ding, end);
 				return true;
 
 			}
@@ -368,7 +377,7 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 					return true;
 				}
 				else {
-					for(uint8 i=start;  i<top;  i++  ) {
+					for(uint8 i=start;  i<end;  i++  ) {
 						// west or northwest: append after all westwards
 						if((((const vehikel_t*)obj.some[i])->get_fahrtrichtung()&ribi_t::suedwest)==0) {
 							intern_insert_at(ding, i);
@@ -376,7 +385,7 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 						}
 					}
 					// nothing going to nordeast
-					obj.some[top++] = ding;
+					intern_insert_at(ding, end);
 					return true;
 				}
 			}
@@ -396,7 +405,7 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 		}
 		else {
 			// for north east we must be draw last
-			obj.some[top++] = ding;
+			intern_insert_at(ding, end);
 			return true;
 		}
 	}
@@ -419,19 +428,24 @@ bool dingliste_t::add(ding_t* ding)
 		// memory exceeded
 		return false;
 	}
-
-	// vehicles need a special order
-	if(ding->is_moving()) {
-		return intern_add_moving(ding);
+	if(top==0) {
+		intern_insert_at( ding, 0);
+		return true;
 	}
+	// now top>0
 
 	// now insert it a the correct place
-	uint8 pri=type_to_pri[ding->get_typ()];
+	const uint8 pri=type_to_pri[ding->get_typ()];
+
+	// vehicles need a special order
+	if(pri==moving_obj_pri) {
+		return intern_add_moving(ding);
+	}
 
 	// roads must be first!
 	if(pri==0) {
 		// check for other ways to keep order! (maximum is two ways per tile at the moment)
-		if(top>0  &&  obj.some[0]->get_typ()==ding_t::way  &&  ((weg_t *)ding)->get_waytype()>((weg_t *)obj.some[0])->get_waytype()) {
+		if( obj.some[0]->get_typ()==ding_t::way  &&  ((weg_t *)ding)->get_waytype()>((weg_t *)obj.some[0])->get_waytype()) {
 			intern_insert_at(ding, 1);
 		} else {
 			intern_insert_at(ding, 0);
