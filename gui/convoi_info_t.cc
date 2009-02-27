@@ -254,6 +254,8 @@ enable_home:
 		// all gui stuff set => display it
 		gui_frame_t::zeichnen(pos, gr);
 
+		PUSH_CLIP(pos.x+1,pos.y+16,gr.x-2,gr.y-16);
+
 		// convoi information
 		char tmp[256];
 		static cbuffer_t info_buf(256);
@@ -286,7 +288,7 @@ enable_home:
 		info_buf.clear();
 		info_buf.append(translator::translate("Fahrtziel"));
 		fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->get_welt(), fpl, fpl->get_aktuell(), 34);
-		len = display_proportional( pos.x+11, pos.y+16+20+3*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
+		len = display_proportional_clip( pos.x+11, pos.y+16+20+3*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
 
 		// convoi load indicator
 		const int offset = max( len, 167)+3;
@@ -300,8 +302,9 @@ enable_home:
 		if(  cnv->get_line().is_bound()  ) {
 			sint16 add_off = line_bound*12;
 			sint16 w = display_proportional( pos.x+11+add_off, pos.y+16+20+4*LINESPACE, translator::translate("Serves Line:"), ALIGN_LEFT, COL_BLACK, true );
-			display_proportional( pos.x+11+w+5+add_off, pos.y+16+20+4*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
+			display_proportional_clip( pos.x+11+w+5+add_off, pos.y+16+20+4*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
 		}
+		POP_CLIP();
 	}
 }
 
