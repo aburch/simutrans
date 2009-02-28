@@ -124,6 +124,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	inp_town_size.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_town_size.add_listener(this);
 	inp_town_size.set_limits(0,999999);
+	inp_town_size.set_increment_mode(50);
 	inp_town_size.set_value( sets->get_mittlere_einwohnerzahl() );
 	add_komponente( &inp_town_size );
 	intTopOfButton += 12;

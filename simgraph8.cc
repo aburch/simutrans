@@ -297,8 +297,8 @@ static const uint8 colortable_simutrans[224*3]=
 	150, 210, 68,
 	172, 238, 80,
 	192, 255, 96,
+	0, 0, 0,
 	32, 32, 32,
-	48, 48, 48,
 	64, 64, 64,
 	80, 80, 80,
 	96, 96, 96,
@@ -524,9 +524,7 @@ KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster)
  */
 static void rezoom(void)
 {
-	uint16 n;
-
-	for (n = 0; n < anz_images; n++) {
+	for(  uint16 n = 0;  n < anz_images;  n++  ) {
 		if((images[n].recode_flags & FLAG_ZOOMABLE) != 0 && images[n].base_h > 0) {
 			images[n].recode_flags |= FLAG_REZOOM;
 		}
@@ -704,10 +702,31 @@ static void init_16_to_8_conversion(void)
 	}
 
 	// init table for blending
+	static uint8 overflow_index[28]=
+	{
+		16, 210,
+		97, 194,
+		112, 160,
+		120, 105,
+		176, 88,
+		192, 176,
+		88, 192,
+		128, 160,
+		176, 41,
+		96, 66,
+		176, 26,
+		208, 176,
+		208, 41,
+		208, 209
+	};
+	// now darken table
 	for(uint8 index = 0; index < 224; index++) {
-		darken_table[index] = ((index&7)<1) ? index : index -1;	// 25% dark
-		darken_table[256+index] = ((index&7)<2) ? index&0xF8u : index - 2; // 50% dark
-		darken_table[512+index] = ((index&7)<3) ? index&0xF8u : index - 3; // 75% dark
+		uint8 new_index = (index&7)==0 ? overflow_index[index/8] : index -1;	// 25% dark
+		darken_table[index] = new_index;
+		new_index = (new_index&7)==0 ? overflow_index[new_index/8] : new_index -1;
+		darken_table[256+index] = new_index; // 50% dark
+		new_index = (new_index&7)==0 ? overflow_index[new_index/8] : new_index -1;
+		darken_table[512+index] = new_index; // 75% dark
 	}
 	for(uint16 index = 224; index < 256; index++) {
 		darken_table[index] = darken_table[256+index] = darken_table[512+index] = index; // keep unchanged
