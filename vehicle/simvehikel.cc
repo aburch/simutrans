@@ -1395,47 +1395,72 @@ vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu
 	const hang_t::typ hang = gr->get_weg_hang();
 	if(hang!=hang_t::flach) 
 	{
-		hill.add_to_head(ribi_typ(hang)==fahrtrichtung);
-		uint8 hill_number;
-		uint8 hill_count = hill.get_count();
-		for(hill_number = 0; hill_number < hill_count; hill_number ++)
+		if(ribi_typ(hang) == fahrtrichtung)
 		{
-			if(!hill[hill_number])
+			//Uphill
+			hill_up ++;
+			hill_down = 0;
+
+			switch(hill_up)
 			{
+			case 0:
 				break;
-			}
+
+			case 1:
+				current_friction += 18;
+				break;
+
+			case 2:
+				current_friction += 25;
+				break;
+
+			case 3:
+				current_friction += 32;
+				break;
+
+			case 4:
+				current_friction += 38;
+				break;
+
+			case 5:
+			default:
+				current_friction += 45;
+				break;
+
+			};
 		}
 
-		switch(hill_number)
+		else
 		{
-		case 0:
-			//Must be downhill
-			current_friction -= 13;
-			break;
+			//Downhill
+			hill_down ++;
+			hill_up = 0;
+	
+			switch(hill_down)
+			{
+			case 0:
+				break;
 
-		case 1:
-			current_friction += 18;
-			break;
+			case 1:
+				current_friction -= 10;
+				break;
 
-		case 2:
-			current_friction += 25;
-			break;
+			case 2:
+				current_friction -= 13;
+				break;
 
-		case 3:
-			current_friction += 32;
-			break;
+			case 3:
+			default:
+				current_friction -= 15;
+			};
+		}
+	}
 
-		case 4:
-			current_friction += 38;
-			break;
-
-		case 5:
-			current_friction += 45;
-			break;
-
-		default:
-			break;
-		};
+	else
+	{
+		//No hill at all - reset hill count.
+		hill_up = 0;
+		hill_down = 0;
 	}
 
 	if(ist_erstes) { //"Is the first" (Google)

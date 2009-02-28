@@ -209,7 +209,8 @@ private:
 
 	sint16 direction_steps;
 
-	fixed_list_tpl<bool, 5> hill;
+	uint8 hill_up;
+	uint8 hill_down;
 	bool is_overweight;
 
 //#define debug_corners
