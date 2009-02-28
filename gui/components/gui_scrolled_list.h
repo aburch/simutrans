@@ -113,11 +113,17 @@ public:
 	sint32 get_sb_offset() { return sb.get_knob_offset(); }
 	void set_sb_offset( sint32 off ) { sb.set_knob_offset( off ); offset = sb.get_knob_offset(); }
 
+	// resizes scrollbar
+	void adjust_scrollbar();
 	/**
 	 * request other pane-size. returns realized size.
-	 * @return value can be in between current and wanted.
+	 * use this for flexible sized lists
+	 * for fixed sized used only set_groesse()
+	 * @return value can be in between full-size wanted.
 	 */
 	koord request_groesse(koord request);
+
+	void set_groesse(koord groesse);
 
 	void infowin_event(const event_t *ev);
 	void zeichnen(koord pos);

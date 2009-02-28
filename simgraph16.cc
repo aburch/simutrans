@@ -530,7 +530,7 @@ KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster)
  */
 static void rezoom(void)
 {
-	unsigned int n;
+	uint16 n;
 
 	for (n = 0; n < anz_images; n++) {
 		if((images[n].recode_flags & FLAG_ZOOMABLE) != 0 && images[n].base_h > 0) {
@@ -1407,10 +1407,10 @@ static int clip_wh(KOORD_VAL *x, KOORD_VAL *width, const KOORD_VAL min_width, co
 		*width += *x-min_width;
 		*x = min_width;
 
-		if (*x + *width >= max_width) *width = max_width - *x;
+		if (*x + *width > max_width) *width = max_width - *x;
 
 		return xoff;
-	} else if (*x + *width >= max_width) {
+	} else if (*x + *width > max_width) {
 		*width = max_width - *x;
 	}
 	return 0;
@@ -1427,7 +1427,7 @@ static int clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD
 	const KOORD_VAL l = *x;      // leftmost pixel
 	const KOORD_VAL r = *x + *w; // rightmost pixel
 
-	if (l > right || r < left) {
+	if (l >= right || r <= left) {
 		*w = 0;
 		return FALSE;
 	}
@@ -1457,6 +1457,12 @@ struct clip_dimension display_get_clip_wh(void)
 /**
  * Setzt Clipping Rechteck
  * @author Hj. Malthaner
+ *
+ * here, a pixel at coordinate xp is displayed if
+ *  clip. x <= xp < clip.xx
+ * the right-most pixel of an image located at xp with width w is displayed if
+ *  clip.x < xp+w <= clip.xx
+ * analogously for the y coordinate
  */
 void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h)
 {
@@ -1548,7 +1554,7 @@ static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				runlen = *sp++;
 
 				// Hajo: something to display?
-				if (xpos + runlen >= clip_rect.x && xpos <= clip_rect.xx) {
+				if (xpos + runlen > clip_rect.x && xpos < clip_rect.xx) {
 					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 					const int len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
 
@@ -1853,11 +1859,11 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const int dir
 			xp += images[n].x;
 
 			// use horzontal clipping or skip it?
-			if (xp >= clip_rect.x  &&  xp + w - 1 <= clip_rect.xx) {
+			if (xp >= clip_rect.x  &&  xp + w <= clip_rect.xx) {
 				// marking change?
 				if (dirty) mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
 				display_img_nc(h, xp, yp, sp);
-			} else if (xp <= clip_rect.xx  &&  xp + w > clip_rect.x) {
+			} else if (xp < clip_rect.xx  &&  xp + w > clip_rect.x) {
 				display_img_wc(h, xp, yp, sp);
 				// since height may be reduced, start marking here
 				if (dirty) mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
@@ -1907,7 +1913,7 @@ static void display_color_img_aux(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KO
 				runlen = *sp++;
 
 				// Hajo: something to display?
-				if (xpos + runlen >= clip_rect.x && xpos <= clip_rect.xx) {
+				if (xpos + runlen > clip_rect.x && xpos < clip_rect.xx) {
 					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 					const int len  = (clip_rect.xx-xpos > runlen ? runlen : clip_rect.xx - xpos);
 
@@ -1966,7 +1972,7 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 			const KOORD_VAL w = images[n].w;
 			const KOORD_VAL h = images[n].h;
 
-			if (h == 0 || xp > clip_rect.xx || yp + y > clip_rect.yy || xp + x + w <= clip_rect.x || yp + y + h <= clip_rect.y) {
+			if (h == 0 || xp + x >= clip_rect.xx || yp + y > clip_rect.yy || xp + x + w <= clip_rect.x || yp + y + h <= clip_rect.y) {
 				// not visible => we are done
 				// happens quite often ...
 				return;
@@ -2009,7 +2015,7 @@ void display_base_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, 
 		const KOORD_VAL w = images[n].base_w;
 		const KOORD_VAL h = images[n].base_h;
 
-		if (h == 0 || xp > clip_rect.xx || yp + y > clip_rect.yy || xp + x + w <= clip_rect.x || yp + y + h <= clip_rect.y) {
+		if (h == 0 || xp + x >= clip_rect.xx || yp + y > clip_rect.yy || xp + x + w <= clip_rect.x || yp + y + h <= clip_rect.y) {
 			// not visible => we are done
 			// happens quite often ...
 			return;
@@ -2175,7 +2181,7 @@ static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 				runlen = *sp++;
 
 				// Hajo: something to display?
-				if (xpos + runlen >= clip_rect.x && xpos <= clip_rect.xx) {
+				if (xpos + runlen > clip_rect.x && xpos < clip_rect.xx) {
 					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 					const int len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
 					p(tp + xpos + left, sp + left, colour, len - left);
@@ -2255,11 +2261,11 @@ void display_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const PLAYE
 			blend_proc pix_blend = (color_index&OUTLINE_FLAG) ? outline[ (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1 ] : blend[ (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1 ];
 
 			// use horzontal clipping or skip it?
-			if (xp >= clip_rect.x && xp + w - 1 <= clip_rect.xx) {
+			if (xp >= clip_rect.x && xp + w  <= clip_rect.xx) {
 				// marking change?
 				if (dirty) mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
 				display_img_blend_wc( h, xp, yp, sp, color, pix_blend );
-			} else if (xp <= clip_rect.xx && xp + w > clip_rect.x) {
+			} else if (xp < clip_rect.xx && xp + w > clip_rect.x) {
 				display_img_blend_wc( h, xp, yp, sp, color, pix_blend );
 				// since height may be reduced, start marking here
 				if (dirty) mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
@@ -2293,7 +2299,7 @@ void display_mark_img_dirty(unsigned bild, KOORD_VAL xp, KOORD_VAL yp)
  */
 static void display_pixel(KOORD_VAL x, KOORD_VAL y, PIXVAL color)
 {
-	if (x >= clip_rect.x && x <= clip_rect.xx && y >= clip_rect.y && y <= clip_rect.yy) {
+	if (x >= clip_rect.x && x < clip_rect.xx && y >= clip_rect.y && y < clip_rect.yy) {
 		PIXVAL* const p = textur + x + y * disp_width;
 
 		*p = color;
@@ -2371,7 +2377,7 @@ void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL 
  */
 static void display_vl_internal(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
 {
-	if (xp >= cL && xp <= cR && clip_lr(&yp, &h, cT, cB)) {
+	if (xp >= cL && xp < cR && clip_lr(&yp, &h, cT, cB)) {
 		PIXVAL *p = textur + xp + yp * disp_width;
 		const PIXVAL colval =specialcolormap_all_day[color & 0xFF];
 
@@ -2517,15 +2523,15 @@ static unsigned char get_h_mask(const int xL, const int xR, const int cL, const 
 	unsigned char mask;
 
 	// check, if there is something to display
-	if (xR < cL || xL >= cR) return 0;
+	if (xR <= cL || xL >= cR) return 0;
 	mask = 0xFF;
 	// check for left border
-	if (xL < cL && xR >= cL) {
+	if (xL < cL && xR > cL) {
 		// Left border clipped
 		mask = byte_to_mask_array[cL - xL];
 	}
 	// check for right border
-	if (xL < cR && xR >= cR) {
+	if (xL < cR && xR > cR) {
 		// right border clipped
 		mask &= ~byte_to_mask_array[cR - xL];
 	}
@@ -2591,7 +2597,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 	}
 
 	// still something to display?
-	if (x > cR || y > cB || y + fnt->height <= cT) {
+	if (x >= cR || y >= cB || y + fnt->height <= cT) {
 		// nothing to display
 		return 0;
 	}

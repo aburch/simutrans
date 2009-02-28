@@ -100,9 +100,15 @@ world_view_t::zeichnen(koord offset)
 
 		// do not draw outside (may happen with scroll bars)
 		const clip_dimension old_clip = display_get_clip_wh();
+
+		// something to draw?
+		if (pos.x >= old_clip.xx || pos.x+gr.x <= old_clip.x || gr.x<=0 ||
+			pos.y >= old_clip.yy || pos.y+gr.y <= old_clip.y || gr.y<=0) {
+				return;
+		}
 		const int clip_x =  max(old_clip.x,pos.x);
 		const int clip_y =  max(old_clip.y,pos.y);
-		display_set_clip_wh( clip_x, clip_y, min(old_clip.x+old_clip.w,pos.x+gr.x)-clip_x, min(old_clip.y+old_clip.h,pos.y+gr.y)-clip_y );
+		display_set_clip_wh( clip_x, clip_y, min(old_clip.xx,pos.x+gr.x)-clip_x, min(old_clip.yy,pos.y+gr.y)-clip_y );
 
 		mark_rect_dirty_wc( pos.x, pos.y, pos.x+gr.x, pos.y+gr.y );
 

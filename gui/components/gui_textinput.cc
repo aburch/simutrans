@@ -220,19 +220,17 @@ void gui_textinput_t::zeichnen(koord offset)
 		}
 
 		// set clipping to be within textinput button
-		struct clip_dimension original_clipping = display_get_clip_wh();
+		const clip_dimension old_clip = display_get_clip_wh();
+
 		int text_clip_x = pos.x+offset.x + 1, text_clip_w = groesse.x - 2;
-
-		// check is within existing clipping
-		if(text_clip_x < original_clipping.x)
-		{
-			text_clip_w -= original_clipping.x - text_clip_x;
-			text_clip_x = original_clipping.x;
+		// something to draw?
+		if (text_clip_x >= old_clip.xx || text_clip_x+text_clip_w <= old_clip.x || text_clip_w<=0) {
+				return;
 		}
-		text_clip_x + text_clip_w > original_clipping.xx ? text_clip_w = original_clipping.xx - text_clip_x : 0;
+		const int clip_x =  old_clip.x > text_clip_x ? old_clip.x : text_clip_x;
+		display_set_clip_wh( clip_x, old_clip.y, min(old_clip.xx, text_clip_x+text_clip_w)-clip_x, old_clip.h);
 
-		display_set_clip_wh(text_clip_x, original_clipping.y, text_clip_w, original_clipping.h);
-
+		// display text
 		display_proportional_clip(pos.x+offset.x+2-cursor_offset+align_offset, pos.y+offset.y+2, text, align, textcol, true);
 
 		// cursor must been shown, if textinput has focus!
@@ -241,7 +239,7 @@ void gui_textinput_t::zeichnen(koord offset)
 		}
 
 		// reset clipping
-		display_set_clip_wh(original_clipping.x, original_clipping.y, original_clipping.w, original_clipping.h);
+		display_set_clip_wh(old_clip.x, old_clip.y, old_clip.w, old_clip.h);
 	}
 }
 

@@ -104,7 +104,7 @@ public:
 	 * set maximum size for control
 	 * @author hsiegeln
 	 */
-	void set_max_size(koord max) { max_size = max; }
+	void set_max_size(koord max);
 
 	/**
 	 * returns the selection id

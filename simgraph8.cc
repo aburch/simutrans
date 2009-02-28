@@ -83,6 +83,7 @@ int large_font_height = 10;
 #define CLEAR_COLOR (239)
 #define DEFAULT_COLOR (239)
 
+#define LIGHT_COUNT 15
 
 // the players colors and colors for simple drawing operations
 // each eight colors are corresponding to a player color
@@ -333,116 +334,6 @@ static const PIXVAL colortable_system[3 * 16] = {
 	255, 255, 255,
 };
 
-// offsets of first and second comany color
-#define MAX_PLAYER_COUNT 16
-static uint8 player_offsets[MAX_PLAYER_COUNT][2];
-
-// the palette for the display ...
-static PIXVAL textur_palette[256 * 3];
-
-// the palette actually used for the display ...
-static PIXVAL day_pal[256 * 3];
-
-// the palette with player colors
-static PIXVAL special_pal[256 * 3];
-
-/*
- * Hajo: Currently selected color set for player 0 (0..15)
- */
-static int selected_player_color_set = 0;
-
-
-/*
- * Hajo: Image map descriptor struture
- */
-struct imd {
-	unsigned char base_x; // current min x offset
-	unsigned char base_w; // current width
-	unsigned char base_y; // current min y offset
-	unsigned char base_h; // current width
-
-	unsigned char x; // current (zoomed) min x offset
-	unsigned char w; // current (zoomed) width
-	unsigned char y; // current (zoomed) min y offset
-	unsigned char h; // current (zoomed) width
-
-	unsigned int len; // base image data size (used for allocation purposes only)
-	unsigned char recode_flags[4]; // first byte: needs recode, second byte: code normal, second byte: code for player1
-
-	PIXVAL* data; // current data, zoomed and adapted to output format RGB 555 or RGB 565
-
-	PIXVAL* zoom_data; // zoomed original data
-
-	PIXVAL* base_data; // original image data
-
-	PIXVAL* player_data; // current data coded for player1 (since many building belong to him)
-};
-
-// offsets in the recode array
-#define FLAG_REZOOM (0)
-#define FLAG_NORMAL_RECODE (1)
-#define FLAG_PLAYER_RECODE (2)
-#define FLAGS (3)
-
-// flags for recoding
-#define FLAG_ZOOMABLE (1)
-#define FLAG_PLAYERCOLOR (2)
-
-static int disp_width  = 640;
-static int disp_height = 480;
-
-
-/*
- * Image table
- */
-static struct imd* images = NULL;
-
-/*
- * Number of loaded images
- */
-static unsigned int anz_images = 0;
-
-/*
- * Number of allocated entries for images
- * (>= anz_images)
- */
-static unsigned int alloc_images = 0;
-
-
-/*
- * Output framebuffer
- */
-static PIXVAL* textur = NULL;
-
-
-/*
- * Hajo: Current clipping rectangle
- */
-static struct clip_dimension clip_rect;
-
-
-/*
- * Hajo: dirty tile management strcutures
- */
-#define DIRTY_TILE_SIZE 16
-#define DIRTY_TILE_SHIFT 4
-
-static unsigned char *tile_dirty = NULL;
-static unsigned char *tile_dirty_old = NULL;
-
-static int tiles_per_line = 0;
-static int tile_lines = 0;
-static int tile_buffer_length = 0;
-
-
-static int light_level = 0;
-static int color_level = 1;
-
-static int night_shift = -1;
-
-
-#define LIGHT_COUNT 15
-
 /*
  * Hajo: speical colors during daytime
  */
@@ -487,6 +378,119 @@ static const uint8 night_lights[LIGHT_COUNT*3] = {
 };
 
 
+// offsets of first and second comany color
+#define MAX_PLAYER_COUNT 16
+static uint8 player_offsets[MAX_PLAYER_COUNT][2];
+
+// the palette for the display ...
+static PIXVAL textur_palette[256 * 3];
+
+// the palette actually used for the display ...
+static PIXVAL day_pal[256 * 3];
+
+// the palette with player colors
+static PIXVAL special_pal[256 * 3];
+
+/*
+ * Hajo: Currently selected color set for player 0 (0..15)
+ */
+static int selected_player_color_set = 0;
+
+
+/*
+ * Hajo: Image map descriptor struture
+ */
+struct imd {
+	sint16 base_x; // min x offset
+	sint16 base_y; // min y offset
+	uint8 base_w; //  width
+	uint8 base_h; // height
+
+	sint16 x; // current (zoomed) min x offset
+	sint16 y; // current (zoomed) min y offset
+	uint8 w; // current (zoomed) width
+	uint8 h; // current (zoomed) height
+
+	uint16 len; // base image data size (used for allocation purposes only)
+
+	uint8 recode_flags; // divers flags for recoding
+	uint8 player_flags; // 128 = free/needs recode, otherwise coded to this color in player_data
+
+	PIXVAL* data; // current data, zoomed and adapted to output format RGB 555 or RGB 565
+
+	PIXVAL* zoom_data; // zoomed original data
+
+	PIXVAL* base_data; // original image data
+
+	PIXVAL* player_data; // current data coded for player1 (since many building belong to him)
+};
+
+// flags for recoding
+#define FLAG_ZOOMABLE (1)
+#define FLAG_PLAYERCOLOR (2)
+#define FLAG_REZOOM (4)
+#define FLAG_NORMAL_RECODE (8)
+#define FLAG_POSITION_CHANGED (16)
+
+#define NEED_PLAYER_RECODE (128)
+
+
+
+static int disp_width  = 640;
+static int disp_height = 480;
+
+
+/*
+ * Image table
+ */
+static struct imd* images = NULL;
+
+/*
+ * Number of loaded images
+ */
+static uint16 anz_images = 0;
+
+/*
+ * Number of allocated entries for images
+ * (>= anz_images)
+ */
+static unsigned int alloc_images = 0;
+
+
+/*
+ * Output framebuffer
+ */
+static PIXVAL* textur = NULL;
+
+
+/*
+ * Hajo: Current clipping rectangle
+ */
+static struct clip_dimension clip_rect;
+
+
+/*
+ * Hajo: dirty tile management strcutures
+ */
+#define DIRTY_TILE_SIZE 16
+#define DIRTY_TILE_SHIFT 4
+
+static unsigned char *tile_dirty = NULL;
+static unsigned char *tile_dirty_old = NULL;
+
+static int tiles_per_line = 0;
+static int tile_lines = 0;
+static int tile_buffer_length = 0;
+
+
+static int light_level = 0;
+static int color_level = 1;
+
+static int night_shift = -1;
+
+
+
+
 static PIXVAL* conversion_table = NULL;
 static PIXVAL darken_table[768];
 
@@ -520,12 +524,14 @@ KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster)
  */
 static void rezoom(void)
 {
-	unsigned int n;
+	uint16 n;
 
 	for (n = 0; n < anz_images; n++) {
-		images[n].recode_flags[FLAG_REZOOM] = ((images[n].recode_flags[FLAGS]&FLAG_ZOOMABLE)!=0 && images[n].base_h > 0);
-		images[n].recode_flags[FLAG_NORMAL_RECODE] = 128;
-		images[n].recode_flags[FLAG_PLAYER_RECODE] = 128;	// color will be set next time
+		if((images[n].recode_flags & FLAG_ZOOMABLE) != 0 && images[n].base_h > 0) {
+			images[n].recode_flags |= FLAG_REZOOM;
+		}
+		images[n].recode_flags |= FLAG_NORMAL_RECODE;
+		images[n].player_flags = NEED_PLAYER_RECODE;	// color will be set next time
 	}
 }
 
@@ -690,11 +696,11 @@ static void init_16_to_8_conversion(void)
 	int index;
 	for (index =  0; index <  16; index++) {
 		// player color
-		conversion_table[index + 32768] = index+240;
+		conversion_table[index + 32768] = 240+index;
 	}
-	for (index = 16; index < 16+LIGHT_COUNT; index++) {
+	for (index = 0; index < LIGHT_COUNT; index++) {
 		// non-darkening color
-		conversion_table[index + 32768] = 224+index-16;
+		conversion_table[index + 32768 + 16] = 224+index;
 	}
 
 	// init table for blending
@@ -707,7 +713,7 @@ static void init_16_to_8_conversion(void)
 		darken_table[index] = darken_table[256+index] = darken_table[512+index] = index; // keep unchanged
 	}
 
-	printf("ok.\n");
+	printf("colortables ok.\n");
 }
 
 
@@ -741,7 +747,8 @@ static bool recode_img_src16_target8(int h, PIXVAL *src16, PIXVAL *target, bool 
 						}
 						*target++ = conversion_table[pix];
 					}
-				} else {
+				}
+				else {
 					// find best match by foot (slowly, but not often used)
 					// this avoids darkening
 					while (runlen-- != 0) {
@@ -802,9 +809,9 @@ static void rezoom_img(const unsigned int n)
 	// Hajo: may this image be zoomed
 	if (n < anz_images && images[n].base_h > 0) {
 		// we may need night conversion afterwards
-		images[n].recode_flags[FLAG_REZOOM] = FALSE;
-		images[n].recode_flags[FLAG_NORMAL_RECODE] = 128;
-		images[n].recode_flags[FLAG_PLAYER_RECODE] = 128;
+		images[n].recode_flags &= ~FLAG_REZOOM;
+		images[n].recode_flags |= FLAG_NORMAL_RECODE;
+		images[n].player_flags = NEED_PLAYER_RECODE;
 
 		// just restore original size?
 		if (zoom_factor <= 1) {
@@ -1018,13 +1025,13 @@ static void calc_base_pal_from_night_shift(const int night)
 
 	// Lights
 	for (i = 0; i < LIGHT_COUNT; i++) {
-		const int day_R =  day_lights[i] >> 16;
-		const int day_G = (day_lights[i] >> 8) & 0xFF;
-		const int day_B =  day_lights[i] & 0xFF;
+		const int day_R =  day_lights[i*3];
+		const int day_B =  day_lights[i*3+1];
+		const int day_G = day_lights[i*3+2];
 
-		const int night_R =  night_lights[i] >> 16;
-		const int night_G = (night_lights[i] >> 8) & 0xFF;
-		const int night_B =  night_lights[i] & 0xFF;
+		const int night_R =  night_lights[i*3];
+		const int night_G =  night_lights[i*3+1];
+		const int night_B =  night_lights[i*3+2];
 
 		const int R = (day_R * day + night_R * night2) >> 2;
 		const int G = (day_G * day + night_G * night2) >> 2;
@@ -1047,7 +1054,7 @@ static void calc_base_pal_from_night_shift(const int night)
 		textur_palette[i * 3 + 240*3 + 2] = colortable_system[i * 3 + 2];
 	}
 
-//	dr_setRGB8multi(0, 256, textur_palette);
+	dr_setRGB8multi(0, 256, textur_palette);
 }
 
 
@@ -1124,23 +1131,19 @@ void register_image(struct bild_t* bild)
 	}
 
 	// allocate and copy if needed
-	image->recode_flags[FLAG_NORMAL_RECODE] = 128;
-#ifdef FLAG_PLAYER_RECODE
-	image->recode_flags[FLAG_PLAYER_RECODE] = 128;
-#endif
-	image->recode_flags[FLAG_REZOOM] = true;
+	image->recode_flags = FLAG_NORMAL_RECODE | FLAG_REZOOM | (bild->zoomable & FLAG_ZOOMABLE);
+	image->player_flags = NEED_PLAYER_RECODE;
 
 	image->base_data = NULL;
 	image->zoom_data = NULL;
 	image->data = NULL;
 	image->player_data = NULL;	// chaches data for one AI
-	image->recode_flags[FLAGS] = (bild->zoomable&1);
 
 	image->base_data = MALLOCN(PIXVAL, image->len);
 	// currently, makeobj has not yet an option to pak 8 Bit images ....
 	if ((bild->zoomable & 0xFE) == 0) {
 		// this is an 16 Bit image => we need to resize it to 8 Bit ...
-		image->recode_flags[FLAGS] |= FLAG_PLAYERCOLOR*recode_img_src16_target8(image->base_h, (PIXVAL*)(bild + 1), image->base_data, bild->zoomable & 1);
+		image->recode_flags |= FLAG_PLAYERCOLOR*recode_img_src16_target8(image->base_h, (PIXVAL*)(bild + 1), image->base_data, bild->zoomable & 1);
 	}
 	else {
 		memcpy(image->base_data, (PIXVAL*)(bild + 1), image->len * sizeof(PIXVAL));
@@ -1177,32 +1180,24 @@ void display_get_base_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yo
 // we need it this complex, because the actual x-offset is coded into the image
 void display_set_base_image_offset(unsigned bild, KOORD_VAL xoff, KOORD_VAL yoff)
 {
-	if (bild < anz_images && images[bild].base_h > 0 && images[bild].base_w > 0) {
-		int h = images[bild].base_h;
-		PIXVAL *sp = images[bild].base_data;
-
-		// avoid overflow
-		if (images[bild].base_x + xoff < 0) xoff = -images[bild].base_x;
-		images[bild].base_x += xoff;
-		images[bild].base_y += yoff;
-		// the offfset is hardcoded into the image
-		while (h-- > 0) {
-			// one line
-			*sp += xoff;	// reduce number of transparent pixels (always first)
-			do {
-				// clear run + colored run + next clear run
-				++sp;
-				sp += *sp + 1;
-			} while (*sp);
-			sp++;
-		}
-		// need recoding
-		images[anz_images].recode_flags[FLAG_NORMAL_RECODE] = 128;
-#ifdef FLAG_PLAYER_RECODE
-		images[anz_images].recode_flags[FLAG_PLAYER_RECODE] = 128;
-#endif
-		images[anz_images].recode_flags[FLAG_REZOOM] = true;
+	if(bild >= anz_images) {
+		fprintf(stderr, "Warning: display_set_base_image_offset(): illegal image=%d\n", bild);
+		return;
 	}
+
+	// only move images once
+	if(  images[bild].recode_flags & FLAG_POSITION_CHANGED  ) {
+		fprintf(stderr, "Warning: display_set_base_image_offset(): image=%d was already moved!\n", bild);
+		return;
+	}
+	images[bild].recode_flags |= FLAG_POSITION_CHANGED;
+
+	assert(images[bild].base_h > 0);
+	assert(images[bild].base_w > 0);
+
+	// avoid overflow
+	images[bild].base_x += xoff;
+	images[bild].base_y += yoff;
 }
 
 
@@ -1447,13 +1442,13 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
  * Zeichnet Bild mit verticalem clipping (schnell) und horizontalem (langsam)
  * @author prissi
  */
-void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const int dirty, bool player)
+void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const int dirty, bool player)
 {
 	if (n < anz_images) {
 		// need to go to nightmode and or rezoomed?
 		KOORD_VAL h, reduce_h, skip_lines;
 
-		if (images[n].recode_flags[FLAG_REZOOM]) {
+		if (images[n].recode_flags&FLAG_REZOOM) {
 			rezoom_img(n);
 		}
 
@@ -1501,17 +1496,18 @@ void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const i
 		// new block for new variables
 		{
 			// needed now ...
-			const KOORD_VAL x = images[n].x;
 			const KOORD_VAL w = images[n].w;
-
-			// since height may be reduced, start marking here
-			if (dirty) mark_rect_dirty_wc(xp + x, yp, xp + x + w - 1, yp + h - 1);
+			xp += images[n].x;
 
 			// use horzontal clipping or skip it?
-			if (xp + x >= clip_rect.x && xp + x + w - 1 <= clip_rect.xx) {
+			if (xp >= clip_rect.x  &&  xp + w - 1 <= clip_rect.xx) {
+				// marking change?
+				if (dirty) mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
 				display_img_nc(h, xp, yp, sp);
-			} else if (xp <= clip_rect.xx && xp + x + w > clip_rect.x) {
+			} else if (xp <= clip_rect.xx  &&  xp + w > clip_rect.x) {
 				display_img_wc(h, xp, yp, sp);
+				// since height may be reduced, start marking here
+				if (dirty) mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
 			}
 		}
 	}
@@ -1523,16 +1519,45 @@ void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const i
  * assumes height is ok and valid data are caluclated
  * @author hajo/prissi
  */
-static void display_color_img_aux(const int n, const KOORD_VAL xp, const KOORD_VAL yp, const int color)
+static void display_color_img_aux(const int n, KOORD_VAL xp, const KOORD_VAL yp, const int color)
 {
 	KOORD_VAL h = images[n].h;
 	KOORD_VAL y = yp + images[n].y;
 	KOORD_VAL yoff = clip_wh(&y, &h, clip_rect.y, clip_rect.yy);
 
+	static uint8 conversion[256] = {
+		0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+		16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+		32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+		48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+		64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+		80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,
+		96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
+		112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127,
+		128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143,
+		144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159,
+		160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175,
+		176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191,
+		192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207,
+		208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223,
+		224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239,
+		240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255
+	};
+	static uint8 last_player = 255;
+
 	if (h > 0) { // clipping may have reduced it
 		// color replacement needs the original data
 		const PIXVAL *sp = (zoom_factor > 1 && images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data;
 		PIXVAL *tp = textur + y * disp_width;
+
+		if(  last_player!=color  ) {
+			// need to activate player color
+			for( int i=0;  i<8;  i++  ) {
+				conversion[240+i] = player_offsets[color][0]+i; // player color 1
+				conversion[248+i] = player_offsets[color][1]+i; // player color 2
+			}
+			last_player = color;
+		}
 
 		// oben clippen
 		while (yoff) {
@@ -1564,7 +1589,14 @@ static void display_color_img_aux(const int n, const KOORD_VAL xp, const KOORD_V
 					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 					const int len  = (clip_rect.xx - xpos + 1 >= runlen ? runlen : clip_rect.xx - xpos + 1);
 
-					colorpixcopy(tp + xpos + left, sp + left, sp + len, color);
+					{
+						PIXVAL *dest = tp+xpos+left;
+						const PIXVAL *src = sp+left;
+						const PIXVAL * const end = sp + len;
+						while (src < end) {
+							*dest++ = conversion[*src++];
+						}
+					}
 				}
 
 				sp += runlen;
@@ -1588,12 +1620,12 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 		// only use the expensive replacement routine for colored images
 		// of other players
 		// Hajo: player 1 does not need any recoloring, too
-		if (daynight && (color < 4 || (images[n].recode_flags[FLAGS] & FLAG_PLAYERCOLOR) == 0)) {
+		if (daynight  &&  (images[n].recode_flags & FLAG_PLAYERCOLOR) == 0) {
 			display_img_aux(n, xp, yp, dirty, false);
 			return;
 		}
 
-		if (images[n].recode_flags[FLAG_REZOOM]) {
+		if (images[n].recode_flags&FLAG_REZOOM) {
 			rezoom_img(n);
 		}
 
@@ -1613,9 +1645,9 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 			if (dirty) {
 				mark_rect_dirty_wc(xp + x, yp + y, xp + x + w - 1, yp + y + h - 1);
 			}
-		}
 
-		display_color_img_aux(n, xp, yp, color); // color is multiple of 4
+			display_color_img_aux( n, xp+x, yp, h );
+		}
 	} // number ok
 }
 
@@ -1715,7 +1747,7 @@ void display_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const PLAYE
 		// need to go to nightmode and or rezoomed?
 		KOORD_VAL h, reduce_h, skip_lines;
 
-		if (images[n].recode_flags[FLAG_REZOOM]) {
+		if (images[n].recode_flags&FLAG_REZOOM) {
 			rezoom_img(n);
 		}
 		PIXVAL *sp = (zoom_factor > 1 && images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data;
@@ -2313,6 +2345,8 @@ void display_flush_buffer(void)
 {
 	int x, y;
 	unsigned char* tmp;
+
+	dr_setRGB8multi(0, 256, textur_palette);
 
 #ifdef USE_SOFTPOINTER
 	if (softpointer != -1) {

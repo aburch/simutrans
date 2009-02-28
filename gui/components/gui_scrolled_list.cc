@@ -80,19 +80,22 @@ void gui_scrolled_list_t::clear_elements()
 	while(  !item_list.empty()  ) {
 		delete item_list.remove_first();
 	}
-	sb.set_knob(groesse.y-border, total_vertical_size());
+	adjust_scrollbar();
 }
 
 
 void gui_scrolled_list_t::append_element( scrollitem_t *item )
 {
 	item_list.append( item );
-	sb.set_knob(groesse.y-border, total_vertical_size());
+	adjust_scrollbar();
 }
 
-
+// minimum vertical size
 // no less than 3, must be room for scrollbuttons
 #define YMIN ((LINESPACE*3)+2)
+
+// sets size: if requested is too large, then the size is adjusted
+// use this only for variable sized lists
 koord gui_scrolled_list_t::request_groesse(koord request)
 {
 	koord groesse = get_groesse();
@@ -100,14 +103,9 @@ koord gui_scrolled_list_t::request_groesse(koord request)
 	groesse.x = request.x;
 	int y = request.y;
 	int vz = total_vertical_size();
-	// if y is too large, but smaller than current, accept it.
-	if (y > vz && y > (groesse.y - border)) {
-		if (vz > groesse.y - border) {
-			y = vz;
-		}
-		else {
-			y = groesse.y - border;
-		}
+
+	if (y > vz) {
+		y = vz;
 	}
 
 	if (y < YMIN) {
@@ -118,14 +116,31 @@ koord gui_scrolled_list_t::request_groesse(koord request)
 
 	set_groesse( groesse );
 
-	sb.set_pos(koord(groesse.x-12,0));
-	sb.set_groesse(koord(10, (int)groesse.y+border));
-	sb.set_knob(groesse.y-border, total_vertical_size());
-
 	return groesse;
 }
 
+void gui_scrolled_list_t::set_groesse(koord groesse) {
+	gui_komponente_t::set_groesse(groesse);
+	adjust_scrollbar();
+}
 
+
+/* resizes scrollbar */
+void gui_scrolled_list_t::adjust_scrollbar()
+{
+	sb.set_pos(koord(groesse.x-12,0));
+
+	int vz = total_vertical_size();
+	// need scrollbar?
+	if ( groesse.y-border < vz) {
+		sb.set_visible(true);
+		sb.set_groesse(koord(10, (int)groesse.y+border));
+		sb.set_knob(groesse.y-border, vz);
+	}
+	else {
+		sb.set_visible(false);
+	}
+}
 
 void
 gui_scrolled_list_t::infowin_event(const event_t *ev)
@@ -230,5 +245,7 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 	}
 	POP_CLIP();
 
-	sb.zeichnen(pos);
+	if (sb.is_visible()) {
+		sb.zeichnen(pos);
+	}
 }

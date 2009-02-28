@@ -95,7 +95,6 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	scl.set_groesse(koord(LINE_NAME_COLUMN_WIDTH-22, SCL_HEIGHT-14));
 	scl.set_pos(koord(0,1));
 	scl.set_highlight_color(sp->get_player_color1()+1);
-	scl.request_groesse(scl.get_groesse());
 	scl.add_listener(this);
 
 	// tab panel
