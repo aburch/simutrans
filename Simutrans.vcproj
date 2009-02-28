@@ -803,7 +803,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\simgraph8.cc"
+				RelativePath=".\simgraph16.cc"
 				>
 			</File>
 			<File
@@ -867,11 +867,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\simsys_w32_png.c"
+				RelativePath=".\simsys_w16.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\simsys_w8.cc"
+				RelativePath=".\simsys_w32_png.c"
 				>
 			</File>
 			<File
