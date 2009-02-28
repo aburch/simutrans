@@ -26,6 +26,7 @@
 #include <math.h>
 
 #include "simtypes.h"
+#include "macros.h"
 #include "font.h"
 #include "pathes.h"
 #include "simsys.h"
@@ -46,6 +47,9 @@
 #endif
 
 #include "simgraph.h"
+
+// if you want to dither (ugly) define this
+//#dfine DITHER
 
 
 /*
@@ -357,7 +361,7 @@ static const uint8 day_lights[LIGHT_COUNT*3] = {
 
 
 /*
- * Hajo: speical colors during nighttime
+ * Hajo: special colors during nighttime
  */
 static const uint8 night_lights[LIGHT_COUNT*3] = {
 	0xD3,	0xC3,	0x80, // Dark windows, lit yellowish at night
@@ -415,6 +419,8 @@ struct imd {
 
 	uint8 recode_flags; // divers flags for recoding
 	uint8 player_flags; // 128 = free/needs recode, otherwise coded to this color in player_data
+
+	uint16 *src;	// original data
 
 	PIXVAL* data; // current data, zoomed and adapted to output format RGB 555 or RGB 565
 
@@ -489,9 +495,7 @@ static int color_level = 1;
 static int night_shift = -1;
 
 
-
-
-static PIXVAL* conversion_table = NULL;
+static PIXVAL *conversion_table = NULL;
 static PIXVAL darken_table[768];
 
 
@@ -667,7 +671,7 @@ static void init_16_to_8_conversion(void)
 		memcpy(day_pal, colortable_simutrans, sizeof(colortable_simutrans));
 	}
 
-	conversion_table = MALLOCN(PIXVAL, 32768 + 256);
+	conversion_table = MALLOCN(PIXVAL, 32768 + 16 + LIGHT_COUNT);
 	for (red = 0; red < 256; red += 8) {
 		for (green = 0; green < 256; green += 8) {
 			for (blue = 0; blue < 256; blue += 8) {
@@ -749,6 +753,9 @@ static bool recode_img_src16_target8(int h, PIXVAL *src16, PIXVAL *target, bool 
 	}
 
 	unsigned short *src=(unsigned short *)src16;
+#ifdef DITHER
+	sint16 last_errors[3] = {0, 0, 0};
+#endif
 	if (h > 0) {
 		do {
 			unsigned char runlen = *target ++ = *src++;
@@ -760,11 +767,29 @@ static bool recode_img_src16_target8(int h, PIXVAL *src16, PIXVAL *target, bool 
 				// now just convert the color pixels
 				if (darkens) {
 					while (runlen--) {
-						unsigned short pix = *src++;
-						if(pix>=0x8000  &&  pix<0x8008) {
-							has_player_color = true;
+						uint16 pix = *src++;
+						if(pix>=0x8000) {
+							has_player_color = pix<0x8010;
+							*target++ = conversion_table[pix];
 						}
-						*target++ = conversion_table[pix];
+						else {
+#ifdef DITHER
+							sint16 r = (pix>>10)&0x1F;
+							sint16 g = (pix>>5)&0x1F;
+							sint16 b = pix&0x1F;
+							last_errors[0] = clamp( last_errors[0] + r, 0, 31 );
+							last_errors[1] = clamp( last_errors[1] + g, 0, 31 );
+							last_errors[2] = clamp( last_errors[2] + b, 0, 31 );
+							pix = (last_errors[0]<<10) | (last_errors[1]<<5) | last_errors[2];
+							*target = conversion_table[pix];
+							last_errors[0] = r-(sint16)(colortable_simutrans[*target*3+0]>>3);
+							last_errors[1] = g-(sint16)(colortable_simutrans[*target*3+1]>>3);
+							last_errors[2] = b-(sint16)(colortable_simutrans[*target*3+2]>>3);
+							target ++;
+#else
+							*target++ = conversion_table[pix];
+#endif
+						}
 					}
 				}
 				else {
@@ -776,7 +801,7 @@ static bool recode_img_src16_target8(int h, PIXVAL *src16, PIXVAL *target, bool 
 						long green = (pix >> 2) & 0x00F8;
 						long blue  = (pix << 3) & 0x00F8;
 						if (pix > 0x8000) {
-							if (pix < 0x8008) {
+							if (pix < 0x8010) {
 								*target++ = pix-0x8000;
 								has_player_color = true;
 								continue;
@@ -796,7 +821,7 @@ static bool recode_img_src16_target8(int h, PIXVAL *src16, PIXVAL *target, bool 
 						PIXVAL best_match = DEFAULT_COLOR;
 						long distance = red * red + green * green + blue * blue;
 						int i;
-						for(i = 0; i < 256; i++) {
+						for(i = 0; i < 239; i++) {
 							long new_dist =
 								(red   - textur_palette[i * 3 + 0]) * (red   - textur_palette[i * 3 + 0]) +
 								(green - textur_palette[i * 3 + 1]) * (green - textur_palette[i * 3 + 1]) +
@@ -858,15 +883,15 @@ static void rezoom_img(const unsigned int n)
 
 		if (images[n].h > 0 && images[n].w > 0) {
 			// just recalculate the image in the new size
-			unsigned char y_left = (images[n].base_y + zoom_factor - 1) % zoom_factor;
-			unsigned char h = images[n].base_h;
+			sint16 y_left = (images[n].base_y + zoom_factor - 1) % zoom_factor;
+			uint8 h = images[n].base_h;
 
 			static PIXVAL line[512];
 			PIXVAL *src = images[n].base_data;
 			PIXVAL *dest, *last_dest;
 
 			// decode/recode linewise
-			unsigned int last_color = 255; // ==255 to keep compiler happy
+			int last_color = 255; // ==255 to keep compiler happy
 
 			if (images[n].zoom_data == NULL) {
 				// normal len is ok, since we are only skipping parts ...
@@ -876,9 +901,9 @@ static void rezoom_img(const unsigned int n)
 
 			do { // decode/recode line
 				unsigned int runlen;
-				unsigned int color = 0;
+				int color = 0;
 				PIXVAL *p = line;
-				const int imgw = images[n].base_x + images[n].base_w;
+				const int imgw = images[n].base_w;
 
 				// left offset, which was left by division
 				runlen = images[n].base_x%zoom_factor;
@@ -1094,6 +1119,10 @@ void display_day_night_shift(int night)
 		night_shift = night;
 		calc_base_pal_from_night_shift(night);
 		mark_rect_dirty_nc(0, 0, disp_width - 1, disp_height - 1);
+		for(  uint16 n = 0;  n < anz_images;  n++  ) {
+			images[n].recode_flags |= FLAG_NORMAL_RECODE;
+		}
+
 	}
 }
 
@@ -1163,9 +1192,11 @@ void register_image(struct bild_t* bild)
 	if ((bild->zoomable & 0xFE) == 0) {
 		// this is an 16 Bit image => we need to resize it to 8 Bit ...
 		image->recode_flags |= FLAG_PLAYERCOLOR*recode_img_src16_target8(image->base_h, (PIXVAL*)(bild + 1), image->base_data, bild->zoomable & 1);
+		image->src = (uint16*)(bild + 1);
 	}
 	else {
 		memcpy(image->base_data, (PIXVAL*)(bild + 1), image->len * sizeof(PIXVAL));
+		image->src = NULL;
 	}
 
 }
@@ -1436,17 +1467,17 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				// jetzt kommen farbige pixel
 				runlen = *sp++;
 				{
-					const unsigned short* ls;
+					unsigned short* ls;
 					unsigned short* ld;
 
 					if (runlen & 1) *p++ = *sp++;
 
-					ls = (const unsigned short*)sp;
+					ls = (unsigned short*)sp;
 					ld = (unsigned short*)p;
 					runlen >>= 1;
 					while (runlen--) *ld++ = *ls++;
 					p = (PIXVAL*)ld;
-					sp = (const PIXVAL*)ls;
+					sp = (PIXVAL*)ls;
 				}
 				runlen = *sp++;
 			} while (runlen != 0);
@@ -1482,7 +1513,7 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const int dir
 		// this should be much faster in most cases
 
 		// must the height be reduced?
-		reduce_h = yp + h - 1 - clip_rect.yy;
+		reduce_h = yp + h - clip_rect.yy;
 		if (reduce_h > 0) {
 			h -= reduce_h;
 		}
@@ -1519,7 +1550,7 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const int dir
 			xp += images[n].x;
 
 			// use horzontal clipping or skip it?
-			if (xp >= clip_rect.x  &&  xp + w - 1 <= clip_rect.xx) {
+			if (xp >= clip_rect.x  &&  xp-images[n].x + w - 1 <= clip_rect.xx) {
 				// marking change?
 				if (dirty) mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
 				display_img_nc(h, xp, yp, sp);
@@ -1538,7 +1569,7 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const int dir
  * assumes height is ok and valid data are caluclated
  * @author hajo/prissi
  */
-static void display_color_img_aux(const int n, KOORD_VAL xp, const KOORD_VAL yp, const int color)
+static void display_color_img_aux(const int n, KOORD_VAL xp, const KOORD_VAL yp, const uint8 player)
 {
 	KOORD_VAL h = images[n].h;
 	KOORD_VAL y = yp + images[n].y;
@@ -1562,20 +1593,21 @@ static void display_color_img_aux(const int n, KOORD_VAL xp, const KOORD_VAL yp,
 		224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239,
 		240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255
 	};
-	static uint8 last_player = 255;
+	static uint8 last_color1 = 255, last_color2 = 255;
 
 	if (h > 0) { // clipping may have reduced it
 		// color replacement needs the original data
 		const PIXVAL *sp = (zoom_factor > 1 && images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data;
 		PIXVAL *tp = textur + y * disp_width;
 
-		if(  last_player!=color  ) {
+		if(  last_color1!=player_offsets[player][0]  ||  last_color2!=player_offsets[player][1]  ) {
 			// need to activate player color
 			for( int i=0;  i<8;  i++  ) {
-				conversion[240+i] = player_offsets[color][0]+i; // player color 1
-				conversion[248+i] = player_offsets[color][1]+i; // player color 2
+				conversion[240+i] = player_offsets[player][0]+i; // player color 1
+				conversion[248+i] = player_offsets[player][1]+i; // player color 2
 			}
-			last_player = color;
+			last_color1 = player_offsets[player][0]; // player color 1
+			last_color2 = player_offsets[player][1]; // player color 1
 		}
 
 		// oben clippen
@@ -1639,6 +1671,12 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 		// only use the expensive replacement routine for colored images
 		// of other players
 		// Hajo: player 1 does not need any recoloring, too
+
+		if(  images[n].recode_flags&FLAG_NORMAL_RECODE  ) {
+			recode_img_src16_target8(images[n].base_h, (PIXVAL*)images[n].src, images[n].base_data, (images[n].recode_flags&FLAG_ZOOMABLE)!=0 );
+			images[n].recode_flags &= ~FLAG_NORMAL_RECODE;
+		}
+
 		if (daynight  &&  (images[n].recode_flags & FLAG_PLAYERCOLOR) == 0) {
 			display_img_aux(n, xp, yp, dirty, false);
 			return;
@@ -1665,7 +1703,7 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 				mark_rect_dirty_wc(xp + x, yp + y, xp + x + w - 1, yp + y + h - 1);
 			}
 
-			display_color_img_aux( n, xp+x, yp, h );
+			display_color_img_aux( n, xp+x, yp, color );
 		}
 	} // number ok
 }
@@ -1871,7 +1909,7 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 	clip_lr(&yp, &h, cT, cB - 1);
 
 	if (w > 0 && h > 0) {
-		const PIXVAL colval = (color >= PLAYER_FLAG ? ((color-2)&0x0F)/2 + (color/4) : color);
+		const PIXVAL colval = color&0xFF;
 		PIXVAL *p = textur + xp + yp*disp_width;
 		const unsigned long longcolval = (colval << 8) | colval;
 		const int dx = disp_width - w;
@@ -1914,13 +1952,13 @@ void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL 
  * Zeichnet vertikale Linie
  * @author Hj. Malthaner
  */
-static void display_vl_internal(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const int color, int dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
+static void display_vl_internal(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
 {
 	clip_lr(&yp, &h, cT, cB - 1);
 
 	if (xp >= cL && xp <= cR && h > 0) {
 		PIXVAL *p = textur + xp + yp*disp_width;
-		const PIXVAL colval = color;
+		const PIXVAL colval = color&0xFF;
 
 		if (dirty) mark_rect_dirty_nc(xp, yp, xp, yp + h - 1);
 
@@ -2365,7 +2403,7 @@ void display_flush_buffer(void)
 	int x, y;
 	unsigned char* tmp;
 
-	dr_setRGB8multi(0, 256, textur_palette);
+	dr_setRGB8multi(0, 239, textur_palette);
 
 #ifdef USE_SOFTPOINTER
 	if (softpointer != -1) {
