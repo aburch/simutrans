@@ -927,7 +927,6 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 		if(alte_fahrtrichtung != fahrtrichtung)
 		{
 			pre_corner_direction.clear();
-			curve_history.clear();
 		}
 	}
 
@@ -1140,7 +1139,6 @@ vehikel_t::hop()
 		}
 		is_overweight = (sum_weight > weight_limit); 
 
-		curve_history.add_to_tail(alte_fahrtrichtung != fahrtrichtung);
 		if(alte_fahrtrichtung != fahrtrichtung)
 		{
 			pre_corner_direction.add_to_tail(get_direction_degrees(ribi_t::get_dir(alte_fahrtrichtung)));
@@ -1167,8 +1165,7 @@ vehikel_t::hop()
 	
 	calc_akt_speed(gr);
 
-	sint8 trim_size = curve_history.get_count() - direction_steps;
-	curve_history.trim_from_head((trim_size >= 0) ? trim_size : 0);
+	sint8 trim_size = pre_corner_direction.get_count() - direction_steps;
 	pre_corner_direction.trim_from_head((trim_size >= 0) ? trim_size : 0);
 
 }
@@ -1264,7 +1261,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 		
 		uint16 tmp;
 
-		for(int i = (curve_history.get_count() >= direction_steps) ? direction_steps - 1 : curve_history.get_count() - 1; i > 0; i --)
+		for(int i = (pre_corner_direction.get_count() >= direction_steps) ? direction_steps - 1 : pre_corner_direction.get_count() - 1; i > 0; i --)
 		{
 			tmp = vehikel_t::compare_directions(direction, pre_corner_direction.get_element(i));
 			if(tmp > direction_difference)

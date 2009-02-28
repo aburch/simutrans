@@ -204,7 +204,6 @@ private:
 	//@author: jamespetts
 	// Cornering settings.
 
-	fixed_list_tpl<bool, 16> curve_history;
 	fixed_list_tpl<sint16, 16> pre_corner_direction;
 
 	sint16 direction_steps;
