@@ -938,6 +938,9 @@ void convoi_t::start()
 			home_depot = route.position_bei(0);
 			fahr[0]->set_pos( home_depot );
 		}
+		grund_t *gr = welt->lookup( home_depot );
+		assert(gr);
+		gr->obj_add( fahr[0] );
 
 		alte_richtung = ribi_t::keine;
 		no_load = false;
