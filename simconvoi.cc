@@ -126,6 +126,8 @@ void convoi_t::reset()
 	akt_speed_soll = 0;            // Sollgeschwindigkeit
 	akt_speed = 0;                 // momentane Geschwindigkeit
 	sp_soll = 0;
+
+	heaviest_vehicle = 0;
 }
 
 void convoi_t::init(karte_t *wl, spieler_t *sp)
@@ -164,6 +166,9 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	home_depot = koord3d::invalid;
 	last_stop_pos = koord3d::invalid;
+
+	reversable = false;
+	reversed = false;
 }
 
 
@@ -173,7 +178,6 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	init(wl, 0);
 	rdwr(file);
 }
-
 
 convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 {
@@ -351,7 +355,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			vehikel_t* v = fahr[i];
 
-			v->darf_rauchen(false);
+			v->darf_rauchen(false); //"Allowed to smoke" (Google)
 			fahr[i]->fahre_basis( ((TILE_STEPS)*train_length)<<12 );
 			train_length -= v->get_besch()->get_length();
 			v->darf_rauchen(true);
@@ -618,6 +622,9 @@ bool convoi_t::sync_step(long delta_t)
 		case INITIAL:
 			// jemand muﬂ start aufrufen, damit der convoi von INITIAL
 			// nach ROUTING_1 geht, das kann nicht automatisch gehen
+			
+			//someone must call start, so that convoi from INITIAL 
+			//to ROUTING_1 goes, which cannot go automatically (Google)
 			break;
 
 		case FAHRPLANEINGABE:
@@ -707,7 +714,7 @@ bool convoi_t::sync_step(long delta_t)
 				}
 				// now move the rest (so all vehikel are moving synchroniously)
 				for(unsigned i=1; i<anz_vehikel; i++) {
-					fahr[i]->fahre_basis(sp_hat);
+					fahr[i]->fahre_basis(sp_hat); //"cycle basis" (Google)
 				}
 				// maybe we have been stopped be something => avoid wide jumps
 				sp_soll = (sp_soll-sp_hat) & 0x0FFF;
@@ -788,6 +795,7 @@ void convoi_t::suche_neue_route()
  */
 void convoi_t::step()
 {
+
 	// moved check to here, as this will apply the same update
 	// logic/constraints convois have for manual schedule manipulation
 	if (line_update_pending.is_bound()) {
@@ -1113,6 +1121,12 @@ void convoi_t::ziel_erreicht()
 	if(dp) {
 		// ok, we are entering a depot
 		char buf[128];
+		if(reversed)
+		{
+			//Always enter a depot facing forward
+			reversable = fahr[anz_vehikel - 1]->get_besch()->get_can_lead_from_rear();
+			reverse_order(reversable);
+		}
 
 		// we still book the money for the trip; however, the frieght will be lost
 		calc_gewinn();
@@ -1154,6 +1168,7 @@ void convoi_t::ziel_erreicht()
 
 /**
  * Wartet bis Fahrzeug 0 freie Fahrt meldet
+ * Wait until the vehicle returns 0 free ride (Google)
  * @author Hj. Malthaner
  */
 void convoi_t::warten_bis_weg_frei(int restart_speed)
@@ -1164,6 +1179,7 @@ void convoi_t::warten_bis_weg_frei(int restart_speed)
 	}
 	if(restart_speed>=0) {
 		// langsam anfahren
+		// "slow start" (Google)
 		akt_speed = restart_speed;
 	}
 }
@@ -1177,7 +1193,8 @@ DBG_MESSAGE("convoi_t::add_vehikel()","at pos %i of %i totals.",anz_vehikel,max_
 	// extend array if requested (only needed for trains)
 	if(anz_vehikel == max_vehicle) {
 DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_vehicle);
-		fahr.resize(max_rail_vehicle, NULL);
+		//fahr.resize(max_rail_vehicle, NULL);
+		fahr.resize(max_rail_vehicle);
 	}
 	// now append
 	if (anz_vehikel < fahr.get_size()) {
@@ -1220,6 +1237,8 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 
 	// der convoi hat jetzt ein neues ende
 	set_erstes_letztes();
+
+	heaviest_vehicle = calc_heaviest_vehicle();
 
 DBG_MESSAGE("convoi_t::add_vehikel()","now %i of %i total vehikels.",anz_vehikel,max_vehicle);
 	return true;
@@ -1283,11 +1302,14 @@ convoi_t::remove_vehikel_bei(uint16 i)
 			}
 		}
 	}
+
+	heaviest_vehicle = calc_heaviest_vehicle();
+
 	return v;
 }
 
 void
-convoi_t::set_erstes_letztes()
+convoi_t::set_erstes_letztes() //"set only last" (Google)
 {
 	// anz_vehikel muss korrekt init sein
 	// "anz vehicle must be correctly INIT" (Babelfish)
@@ -1539,7 +1561,26 @@ convoi_t::vorfahren() //"move forward" (Babelfish)
 	}
 	else {
 		// still leaving depot (steps_driven!=0) or going in other direction or misalignment?
-		if(  steps_driven>0  ||  !can_go_alte_richtung()  ) {
+		if(  steps_driven>0  ||  !can_go_alte_richtung()  ) 
+		{
+
+			//Convoy needs to reverse
+			//@author: jamespetts
+			if(!can_go_alte_richtung())
+			{
+				switch(fahr[0]->get_waytype())
+				{
+					case road_wt:
+					case air_wt:
+						//Only track based vehicles reverse.
+						break;
+
+					default:
+						reversable = fahr[anz_vehikel - 1]->get_besch()->get_can_lead_from_rear();
+						//reversable = true;
+						reverse_order(reversable);
+				}
+			}
 
 			// since start may have been changed
 			k0 = route.position_bei(0);
@@ -1551,7 +1592,7 @@ convoi_t::vorfahren() //"move forward" (Babelfish)
 				grund_t* gr = welt->lookup(v->get_pos());
 				if(gr) {
 					v->mark_image_dirty( v->get_bild(), v->get_hoff() );
-					v->verlasse_feld();
+					v->verlasse_feld(); //"leave field" (Google)
 					// eventually unreserve this
 					schiene_t * sch0 = dynamic_cast<schiene_t *>( gr->get_weg(fahr[i]->get_waytype()) );
 					if(sch0) {
@@ -1567,34 +1608,53 @@ convoi_t::vorfahren() //"move forward" (Babelfish)
 				gr=welt->lookup(v->get_pos());
 				if(gr) {
 					v->set_pos(k0);
-					v->betrete_feld();
+					v->betrete_feld(); //"enter field" (Google)
 				}
 			}
 
 			// move one train length to the start position ...
 			int train_length = 0;
-			for(unsigned i=0; i<anz_vehikel-1u; i++) {
+			for(unsigned i=0; i<anz_vehikel-1u; i++) 
+			{
 				train_length += fahr[i]->get_besch()->get_length(); // this give the length in 1/TILE_STEPS of a full tile
 			}
 			// in north/west direction, we leave the vehicle away to start as much back as possible
-			ribi_t::ribi neue_richtung = fahr[0]->get_fahrtrichtung();
-			if(neue_richtung==ribi_t::sued  ||  neue_richtung==ribi_t::ost) {
+			ribi_t::ribi neue_richtung = fahr[0]->get_direction_of_travel();
+			if(neue_richtung==ribi_t::sued  ||  neue_richtung==ribi_t::ost)
+			{
 				train_length += fahr[anz_vehikel-1]->get_besch()->get_length();
 			}
-			else {
+			else
+			{
 				train_length += 1;
 			}
 			train_length = max(1,train_length);
 
 			// now advance all convoi until it is completely on the track
 			fahr[0]->set_erstes(false); // switches off signal checks ...
-			for(unsigned i=0; i<anz_vehikel; i++) {
-				vehikel_t* v = fahr[i];
+			if(reversed && (reversable || fahr[0]->is_reversed()))
+			{
+				for(sint8 i = anz_vehikel - 1; i >= 0; i--)
+				{
+					vehikel_t* v = fahr[i];
+					v->darf_rauchen(false);
+					fahr[i]->fahre_basis( ((TILE_STEPS)*train_length)<<12 ); //"fahre" = "go" (Google)
+					train_length += (v->get_besch()->get_length());	// this give the length in 1/TILE_STEPS of a full tile => all cars closely coupled!
+					v->darf_rauchen(true);
+				}
+			}
 
-				v->darf_rauchen(false);
-				fahr[i]->fahre_basis( ((TILE_STEPS)*train_length)<<12 );
-				train_length -= v->get_besch()->get_length();	// this give the length in 1/TILE_STEPS of a full tile => all cars closely coupled!
-				v->darf_rauchen(true);
+			else
+			{
+				for(sint8 i = 0; i < anz_vehikel; i++)
+				{
+					vehikel_t* v = fahr[i];
+					v->darf_rauchen(false);
+					fahr[i]->fahre_basis( ((TILE_STEPS)*train_length)<<12 ); //"fahre" = "go" (Google)
+					train_length -= (v->get_besch()->get_length());	// this give the length in 1/TILE_STEPS of a full tile => all cars closely coupled!
+					v->darf_rauchen(true);
+				}
+					
 			}
 			fahr[0]->set_erstes(true);
 		}
@@ -1629,6 +1689,63 @@ convoi_t::vorfahren() //"move forward" (Babelfish)
 
 	INT_CHECK("simconvoi 711");
 }
+
+void
+convoi_t::reverse_order(bool rev)
+{
+	// Code snippet obtained and adapted from:
+	// http://www.cprogramming.com/snippets/show.php?tip=15&count=30&page=0
+	// by John Shao (public domain work)
+	
+	uint8 a = 0;
+    vehikel_t* reverse;
+	uint8 b  = anz_vehikel;
+	if(rev)
+	{
+		fahr[0]->set_erstes(false);
+	}
+	else
+	{
+		b--;
+		a++;
+	}
+
+	fahr[anz_vehikel - 1]->set_letztes(false);
+    
+    for(a; a<--b; a++) //increment a and decrement b until they meet each other
+    {
+		reverse = fahr[a];		//put what's in a into swap space
+        fahr[a] = fahr[b];		//put what's in b into a
+        fahr[b] = reverse;		//put what's in the swap (a) into b
+    }
+
+	if(!rev)
+	{
+		fahr[0]->set_erstes(true);
+	}
+
+	fahr[anz_vehikel - 1]->set_letztes(true);
+
+	if(reversed)
+	{
+		reversed = false;
+		for(uint8 i = 0; i < anz_vehikel; i ++)
+		{
+			fahr[i]->set_reversed(false);
+		}
+	}
+	else
+	{
+		reversed = true;
+		for(uint8 i = 0; i < anz_vehikel; i ++)
+		{
+			fahr[i]->set_reversed(true);
+		}
+	}
+}
+
+
+
 
 
 void
@@ -1959,9 +2076,11 @@ convoi_t::rdwr(loadsave_t *file)
 	// TODO: Add load/save parameters for:
 	// (1) origin;
 	// (2) last transfer;
-	// (3) origin departure time; and 
-	// (4) last transfer departure time.
+	// (3) origin departure time;  
+	// (4) last transfer departure time; and
+	// (5) whether the convoy is in reverse formation.
 	// Then, reversion the save game file format.
+
 	// no_load, withdraw
 	if(file->get_version()<102001) {
 		no_load = false;
@@ -1971,6 +2090,11 @@ convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_bool( no_load, "" );
 		file->rdwr_bool( withdraw, "" );
 	}
+
+	heaviest_vehicle = calc_heaviest_vehicle();
+	
+	//HACK: Should be loaded from file.
+	reversed = false;
 }
 
 
@@ -2023,7 +2147,7 @@ void convoi_t::set_sortby(uint8 sort_order)
 
 
 
-//chaches the last info; resorts only when needed
+//caches the last info; resorts only when needed
 void convoi_t::get_freight_info(cbuffer_t & buf)
 {
 	if(freight_info_resort) {
@@ -2965,4 +3089,19 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 	set_tiles_overtaking( 1+n_tiles );
 	other_overtaker->set_tiles_overtaking( -1-(n_tiles/2) );
 	return true;
+}
+
+uint32 
+convoi_t::calc_heaviest_vehicle()
+{
+	uint32 heaviest = 0;
+	for(uint8 i = 0; i < anz_vehikel; i ++)
+	{
+		uint32 tmp = fahr[i]->get_sum_weight();
+		if(tmp > heaviest)
+		{
+			heaviest = tmp;
+		}
+	}
+	return heaviest;
 }

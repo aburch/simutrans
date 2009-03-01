@@ -166,14 +166,16 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->vorgaenger = decode_uint8(p); //"Predecessors" (Google)
 		besch->nachfolger = decode_uint8(p); //"Successor" (Google)
 		besch->freight_image_type = decode_uint8(p);
-		if(node.size == 35)
+		if(node.size == 37)
 		{
-			// Node size == 35 - extra features to be read. Version 8a.
+			// Node size == 37 - extra features to be read. Version 8a.
 			// Backwards compatible with version 8 with this code.
 			besch->is_tilting = decode_uint8(p);
 			besch->way_constraints_permissive = decode_uint8(p);
 			besch->way_constraints_prohibitive = decode_uint8(p);
 			besch->catering_level = decode_uint8(p);
+			besch->bidirectional = decode_uint8(p);
+			besch->can_lead_from_rear = decode_uint8(p);
 		}
 		else
 		{
@@ -182,6 +184,8 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->way_constraints_permissive = 0;
 			besch->way_constraints_prohibitive = 0;
 			besch->catering_level = 0;
+			besch->bidirectional = false;
+			besch->can_lead_from_rear = false;
 		}
 	}
 	else {
@@ -247,6 +251,8 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->way_constraints_permissive = 0;
 		besch->way_constraints_prohibitive = 0;
 		besch->catering_level = 0;
+		besch->bidirectional = false;
+		besch->can_lead_from_rear = false;
 	}
 
 
@@ -271,7 +277,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 		"way=%d zuladung=%d preis=%d geschw=%d gewicht=%d leistung=%d "
 		"betrieb=%d sound=%d vor=%d nach=%d "
 		"date=%d/%d gear=%d engine_type=%d len=%d is_tilting=%d catering_level=%d "
-		"way_constraints_permissive=%d way_constraints_prohibitive%d",
+		"way_constraints_permissive=%d way_constraints_prohibitive%d bidirectional%d can_lead_from_rear%d",
 		version,
 		besch->typ,
 		besch->zuladung,
@@ -291,7 +297,9 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 		besch->is_tilting,
 		besch->catering_level,
 		besch->way_constraints_permissive,
-		besch->way_constraints_prohibitive);
+		besch->way_constraints_prohibitive,
+		besch->bidirectional,
+		besch->can_lead_from_rear);
 
 	return besch;
 }

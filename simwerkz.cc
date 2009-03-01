@@ -1320,11 +1320,12 @@ const weg_besch_t * wkz_wegebau_t::get_besch(bool remember)
 const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 {
 	const weg_besch_t *besch = get_besch(false);
-	sprintf(toolstr, "%s, %ld$ (%ld$), %dkm/h",
+	sprintf(toolstr, "%s, %ld$ (%ld$), %dkm/h, %dt",
 		translator::translate(besch->get_name()),
 		besch->get_preis()/100l,
 		(besch->get_wartung()<<(sp->get_welt()->ticks_bits_per_tag-18))/100l,
-		besch->get_topspeed());
+		besch->get_topspeed(),
+		besch->get_max_weight());
 	return toolstr;
 }
 

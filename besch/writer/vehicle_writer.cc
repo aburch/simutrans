@@ -76,7 +76,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 35;
+	int total_len = 37;
 
 	// prissi: must be done here, since it may affect the length of the header!
 	cstring_t sound_str = ltrim( obj.get("sound") );
@@ -398,10 +398,22 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint8 catering_level = (obj.get_int("catering_level", 0));
 	node.write_uint8(fp, catering_level, 34);		
 
+	//Reverseing settings.
+	//@author: jamespetts
+
+	// Bidirectional: vehicle can travel backwards without turning around.
+	// Function is disabled for road and air vehicles.
+	uint8 bidirectional = (obj.get_int("bidirectional", 0));
+	node.write_uint8(fp, bidirectional, 35);
+
+	// Can lead from rear: train can run backwards without turning around.
+	uint8 can_lead_from_rear = (obj.get_int("can_lead_from_rear", 0));
+	node.write_uint8(fp, can_lead_from_rear, 36);
+
 	sint8 sound_str_len = sound_str.len();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 35);
-		node.write_data_at(fp, sound_str,     36, sound_str_len);
+		node.write_sint8  (fp, sound_str_len, 37);
+		node.write_data_at(fp, sound_str,     38, sound_str_len);
 	}
 
 	node.write(fp);

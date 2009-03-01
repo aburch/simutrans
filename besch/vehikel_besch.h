@@ -93,6 +93,9 @@ private:
 
 	uint8 catering_level; //The level of catering. 0 for no catering. Higher numbers for better catering.
 
+	bool bidirectional; //Whether must always travel in one direction
+	bool can_lead_from_rear;
+
 
 public:
 	// since we have a second constructor
@@ -235,6 +238,8 @@ public:
 	uint16 get_betriebskosten() const { return betriebskosten; }
 	uint16 get_betriebskosten(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	sint8 get_sound() const { return sound; }
+	bool is_bidirectional() const { return bidirectional; }
+	bool get_can_lead_from_rear() const { return can_lead_from_rear; }
 	
 
 	/**

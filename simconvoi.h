@@ -293,7 +293,7 @@ private:
 
 	enum states state;
 
-	ribi_t::ribi alte_richtung;
+	ribi_t::ribi alte_richtung; //"Old direction" (Google)
 
 	// The replacing vehicles, if any
 	vector_tpl<const vehikel_besch_t *> replacing_vehicles;
@@ -378,6 +378,14 @@ private:
 
 	// Helper function: used in init and replacing
 	void reset();
+
+	// Reverses the order of the convoy.
+	// @author: jamespetts
+	void reverse_order(bool rev);
+	bool reversable;
+	bool reversed;
+
+	uint32 heaviest_vehicle;
 
 
 public:
@@ -846,6 +854,12 @@ public:
 	//Returns the maximum catering level of the category type given in the convoy.
 	//@author: jamespetts
 	uint8 get_catering_level(uint8 type) const;
+
+	bool get_reversable() const { return reversable; }
+	bool is_reversed() const { return reversed; }
+
+	uint32 calc_heaviest_vehicle();
+	uint32 get_heaviest_vehicle() const { return heaviest_vehicle; }
 };
 
 #endif

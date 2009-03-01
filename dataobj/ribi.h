@@ -108,7 +108,7 @@ public:
 	 * direction bits (ribi) can 16 Komb. represent.
 	 */
 	enum _ribi {
-		keine=0, //None
+		keine = 0, //None
 		nord = 1, //North
 		ost = 2, //East
 		nordost = 3, //North-East

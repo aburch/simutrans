@@ -142,6 +142,7 @@ public:
 	vehikel_basis_t(karte_t *welt);
 
 	vehikel_basis_t(karte_t *welt, koord3d pos);
+
 };
 
 
@@ -212,6 +213,10 @@ private:
 	uint8 hill_down;
 	bool is_overweight;
 
+	// Whether this individual vehicle is reversed.
+	//@author: jamespetts
+	bool reversed;
+
 //#define debug_corners
 
 #ifdef debug_corners
@@ -226,8 +231,6 @@ protected:
 	//uint32 weight_limit;
 
 	ribi_t::ribi alte_fahrtrichtung;
-
-	//sint16 pre_corner_direction[16];
 
 	//uint16 target_speed[16];
 
@@ -260,8 +263,8 @@ protected:
 	*/
 	koord3d pos_prev;
 
-	bool ist_erstes:1;				// falls vehikel im convoi fährt, geben diese
-	bool ist_letztes:1;				// flags auskunft über die position
+	bool ist_erstes:1;				// falls vehikel im convoi fährt, geben diese ("appropriate vehicle in Convoi runs, these" - Google)
+	bool ist_letztes:1;				// flags auskunft über die position ("flags provide information on the position" - Google)
 	bool rauchen:1;
 	bool check_for_finish:1;		// true, if on the last tile
 
@@ -453,7 +456,7 @@ public:
 	bool beladen(koord k, halthandle_t halt);
 
 	// sets or querey begin and end of convois
-	void set_erstes(bool janein) {ist_erstes = janein;}
+	void set_erstes(bool janein) {ist_erstes = janein;} //janein = "yesno" (Google)
 	bool is_first() {return ist_erstes;}
 
 	void set_letztes(bool janein) {ist_letztes = janein;}
@@ -487,6 +490,14 @@ public:
 	// this draws a tooltips for things stucked on depot order or lost
 	virtual void display_after(int xpos, int ypos, bool dirty) const;
 
+	bool is_reversed() const { return reversed; }
+	void set_reversed(bool value);
+
+	// Gets modified direction, used for drawing
+	// vehicles in reverse formation.
+	ribi_t::ribi get_direction_of_travel();
+
+	uint16 get_sum_weight() const { return sum_weight; }
 
 };
 

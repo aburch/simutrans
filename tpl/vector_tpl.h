@@ -2,11 +2,11 @@
 #define TPL_VECTOR_H
 
 #ifndef ITERATE
-#define ITERATE(collection,i) for(uint16 i = 0; i < collection.get_count(); i++)
+#define ITERATE(collection,i) for(uint16 i = 0; i < (collection).get_count(); i++)
 #endif
 
 #ifndef ITERATE_PTR
-#define ITERATE_PTR(collection,i) for(uint16 i = 0; i < collection->get_count(); i++)
+#define ITERATE_PTR(collection,i) for(uint16 i = 0; i < (collection)->get_count(); i++)
 #endif 
 
 #include <stdlib.h>

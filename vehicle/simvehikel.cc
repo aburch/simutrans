@@ -196,7 +196,7 @@ void vehikel_basis_t::rotate90()
 
 
 void
-vehikel_basis_t::verlasse_feld()
+vehikel_basis_t::verlasse_feld() //"leave field" (Google)
 {
 	// first: release crossing
 	grund_t *gr = welt->lookup(get_pos());
@@ -967,6 +967,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 	 direction_steps = 4;
 	 local_bonus_supplement = 0;
 	 is_overweight = false;
+	 reversed = false;
 }
 
 
@@ -995,6 +996,7 @@ vehikel_t::vehikel_t(karte_t *welt) :
 	 direction_steps = 4;
 	 local_bonus_supplement = 0;
 	 is_overweight = false;
+	 reversed = false;
 }
 
 
@@ -1078,7 +1080,7 @@ void
 vehikel_t::betrete_feld()
 {
 	if(ist_erstes  &&  reliefkarte_t::is_visible) {
-		reliefkarte_t::get_karte()->set_relief_farbe(get_pos().get_2d(), VEHIKEL_KENN);
+		reliefkarte_t::get_karte()->set_relief_farbe(get_pos().get_2d(), VEHIKEL_KENN); //"Set relief colour" (Babelfish)
 	}
 
 	vehikel_basis_t::betrete_feld();
@@ -1120,7 +1122,7 @@ vehikel_t::hop()
 			fahrtrichtung = calc_set_richtung( pos_prev.get_2d(), pos_next.get_2d() );
 		}
 	}
-	calc_bild();
+	calc_bild(); //Calculate image
 
 	betrete_feld(); //"Enter field" (Google)
 	grund_t *gr;
@@ -1137,7 +1139,7 @@ vehikel_t::hop()
 		{
 			weight_limit = 1;
 		}
-		is_overweight = (sum_weight > weight_limit); 
+		is_overweight = (cnv->get_heaviest_vehicle() > weight_limit); 
 
 		if(alte_fahrtrichtung != fahrtrichtung)
 		{
@@ -1198,17 +1200,18 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 	uint32 overweight_speed_limit = base_limit;
 	uint32 corner_speed_limit = base_limit;
 	uint32 new_limit = base_limit;
+	uint32 heaviest_vehicle = cnv->get_heaviest_vehicle();
 
 	//Reduce speed for overweight vehicles
 
-	if(sum_weight > weight_limit)
+	if(heaviest_vehicle > weight_limit)
 	{
-		if(sum_weight / weight_limit <= 1.1)
+		if(heaviest_vehicle / weight_limit <= 1.1)
 		{
 			//Overweight by up to 10% - reduce speed limit to a third.
 			overweight_speed_limit = base_limit / 3;
 		}
-		else if(sum_weight / weight_limit > 1.1)
+		else if(heaviest_vehicle / weight_limit > 1.1)
 		{
 			//Overweight by more than 10% - reduce speed limit by a factor of 10.
 			overweight_speed_limit = base_limit / 10;
@@ -1774,18 +1777,71 @@ void
 vehikel_t::calc_bild() //"Bild" = "picture" (Google)
 {
 	image_id old_bild=get_bild();
-	if (fracht.empty()) {
-		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_fahrtrichtung()),NULL));
+	if (fracht.empty()) 
+	{
+		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()),NULL)); 
 	}
-	else {
-		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_fahrtrichtung()), fracht.front().get_besch()));
+	else 
+	{
+		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()), fracht.front().get_besch()));
 	}
 	if(old_bild!=get_bild()) {
 		set_flag(ding_t::dirty);
 	}
 }
 
+ribi_t::ribi
+vehikel_t::get_direction_of_travel()
+{
+	ribi_t::ribi dir = get_fahrtrichtung();
+	if(reversed)
+	{
+		switch(dir)
+		{
+		case ribi_t::nord:
+			dir = ribi_t::sued;
+			break;
 
+		case ribi_t::ost:
+			dir = ribi_t::west;
+			break;
+
+		case ribi_t::nordost:
+			dir = ribi_t::suedwest;
+			break;
+
+		case ribi_t::sued:
+			dir = ribi_t::nord;
+			break;
+
+		case ribi_t::suedost:
+			dir = ribi_t::nordwest;
+			break;
+
+		case ribi_t::west:
+			dir = ribi_t::ost;
+			break;
+
+		case ribi_t::nordwest:
+			dir = ribi_t::suedost;
+			break;
+
+		case ribi_t::suedwest:
+			dir = ribi_t::nordost;
+			break;
+		};
+	}
+	return dir;
+}
+
+void 
+vehikel_t::set_reversed(bool value)
+{
+	if(besch->is_bidirectional() || (cnv != NULL && cnv->get_reversable()))
+	{
+		reversed = value;
+	}
+}
 
 void vehikel_t::rdwr(loadsave_t *file)
 {

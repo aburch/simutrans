@@ -4,7 +4,6 @@
 #include <typeinfo>
 #include "../simdebug.h"
 #include "../simtypes.h"
-
 /**
  * A template class for bounds checked 1-dimesnional arrays.
  * This is kept as simple as possible. Does not use exceptions
