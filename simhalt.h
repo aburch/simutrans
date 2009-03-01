@@ -96,6 +96,7 @@ private:
 
 	uint8 status_color;
 	uint16 capacity[3]; // passenger, post, goods
+	uint8 overcrowded[8];	// bit set, when overcrowded
 	void recalc_status();
 
 public:
@@ -417,6 +418,9 @@ public:
 	 * @author prissi
 	 */
 	koord get_next_pos( koord start ) const;
+
+	// true, if this station is overcroded for this category
+	bool is_overcrowded( const uint8 idx ) const { return (overcrowded[idx/8] & (1<<(idx%8)))!=0; }
 
 	/**
 	 * gibt Gesamtmenge derware vom typ typ zurück

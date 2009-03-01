@@ -147,6 +147,9 @@ private:
 	 */
 	uint8 pay_for_total_distance;
 
+	/* if set, goods will avoid being routed over overcrowded stops */
+	bool avoid_overcrowding;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -336,6 +339,9 @@ public:
 	enum { TO_PREVIOUS, TO_TRANSFER, TO_DESTINATION };
 	uint8 get_pay_for_total_distance_mode() const { return pay_for_total_distance ; }
 	void set_pay_for_total_distance_mode( uint8 b ) { pay_for_total_distance = b < 2 ? b : 0; }
+
+	// do not take people to overcrowded destinations
+	bool get_avoid_overcrowding() const { return avoid_overcrowding; }
 
 	sint16 get_river_number() const { return river_number; }
 	void set_river_number( sint16 n ) { river_number=n; }

@@ -1117,6 +1117,10 @@ void stadt_t::change_size(long delta_citicens)
 
 void stadt_t::step(long delta_t)
 {
+	if(delta_t>20000) {
+		delta_t = 1;
+	}
+
 	// Ist es Zeit für einen neuen step?
 	next_step += delta_t;
 	next_bau_step += delta_t;

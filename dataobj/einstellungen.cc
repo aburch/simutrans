@@ -175,6 +175,8 @@ einstellungen_t::einstellungen_t() :
 
 	// this will pay for distance to next change station
 	pay_for_total_distance = TO_PREVIOUS;
+
+	avoid_overcrowding = false;
 }
 
 
@@ -447,6 +449,10 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_short( min_river_length, "" );
 			file->rdwr_short( max_river_length, "" );
 		}
+
+		if(file->get_version()>102000) {
+			file->rdwr_bool( avoid_overcrowding, "" );
+		}
 	}
 }
 
@@ -516,6 +522,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	passenger_factor = contents.get_int("passenger_factor", passenger_factor ); /* this can manipulate the passenger generation */
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 	pay_for_total_distance = contents.get_int("pay_for_total_distance", pay_for_total_distance );
+	avoid_overcrowding = contents.get_int("avoid_overcrowding", avoid_overcrowding )!=0;
 
 	fussgaenger = contents.get_int("random_pedestrians", fussgaenger ) != 0;
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;
