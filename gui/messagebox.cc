@@ -30,7 +30,8 @@ news_window::news_window(const char* t, PLAYER_COLOR_VAL title_color) :
 
 news_window::~news_window()
 {
-	delete text;
+	// allocated by strdup() ...
+	free( text );
 }
 
 
