@@ -20,7 +20,8 @@ Release of 102.0 (r231x)
 	FIX: lines always got id 1 => saving was not sucessful!
 	CHANGE: language specific divider for amout possible (like million for most) using LARGE_NUMBER_STRING and LARGE_NUMBER_VALUE
 	CHANGE: start at any month you like (parameter starting_month in simuconf.tab)
-	FIX: fences and slopes in most suituations now without graphcis errors (some are currently unavoidable)
+	FIX: fences and slopes in most suituations now without graphic errors (some are currently unavoidable)
+	ADD: (z9999) new sort option for good list by category
 
 
 

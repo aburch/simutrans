@@ -115,6 +115,13 @@ void wolke_t::entferne(spieler_t *)
 
 
 
+// called during map rotation
+void wolke_t::rotate90()
+{
+	set_yoff( 0 );
+	ding_t::rotate90();
+	set_yoff( ((insta_zeit*TILE_STEPS) >> 12) + base_y_off );
+}
 
 /***************************** just for compatibility, the old raucher and smoke clouds *********************************/
 

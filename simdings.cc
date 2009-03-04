@@ -264,7 +264,6 @@ void ding_t::rotate90()
 	// most basic: rotate coordinate
 	pos.rotate90( welt->get_groesse_y()-1 );
 	if(xoff!=0) {
-		// these is no simple height
 		sint8 new_dx = -2*yoff;
 		yoff = xoff/2;
 		xoff = new_dx;
