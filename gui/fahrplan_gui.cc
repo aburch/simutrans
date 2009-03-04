@@ -46,7 +46,7 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const sched
 	}
 	const linieneintrag_t& entry = fpl->eintrag[i];
 	const grund_t* gr = welt->lookup(entry.pos);
-	char tmp [256];
+	char tmp [512];
 
 	if(gr==NULL) {
 		sprintf( tmp, "%s (%i,%i,%i)", translator::translate("Invalid coordinate"), entry.pos.x, entry.pos.y, entry.pos.z );
