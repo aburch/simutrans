@@ -43,9 +43,12 @@ void interrupt_check();
 void interrupt_check(const char* caller_info);
 
 // standard version
+#ifdef NDEBUG
 #define INT_CHECK(info) interrupt_check();
 
+#else
 // debug version
-// #define INT_CHECK(info) interrupt_check(info);
+ #define INT_CHECK(info) interrupt_check(info);
+#endif
 
 #endif

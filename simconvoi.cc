@@ -680,9 +680,16 @@ bool convoi_t::sync_step(long delta_t)
 					}
 					// until all are moving or something went wrong (sp_hat==0)
 					if(sp_hat==0  ||  v_nr==anz_vehikel) {
-						steps_driven = -1;
-						state = DRIVING;
-						return true;
+						// Attempted fix of depot squashing problem:
+						// but causes problems with signals.
+						//if (v_nr==anz_vehikel) {
+							steps_driven = -1;
+						//}
+						//else {
+						//}
+
+ 						state = DRIVING;
+ 						return true;
 					}
 					// now only the right numbers
 					for(int i=1; i<=v_nr; i++) {
@@ -875,8 +882,8 @@ void convoi_t::step()
 					}
 					// Hajo: now calculate a new route
 					drive_to(v->get_pos(), fpl->get_current_eintrag().pos);
-					if(!route.empty()) {
-						vorfahren(); //"Front" (Google)
+					if(!route.empty()) { 
+						vorfahren(); //"Drive"
 					}
 					else {
 						state = NO_ROUTE;
@@ -1518,6 +1525,8 @@ convoi_t::vorfahren() //"move forward" (Babelfish)
 	sp_soll = 0;
 	set_tiles_overtaking( 0 );
 
+	uint16 reverse_delay = 0;
+
 	set_akt_speed_soll( vehikel_t::SPEED_UNLIMITED );
 
 	koord3d k0 = route.position_bei(0);
@@ -1572,12 +1581,36 @@ convoi_t::vorfahren() //"move forward" (Babelfish)
 				{
 					case road_wt:
 					case air_wt:
-						//Only track based vehicles reverse.
+						//Road vehicles and aircraft do not need to change direction
+						//Canal barges *may* change direction, so water is omitted.
 						break;
 
 					default:
-						reversable = fahr[anz_vehikel - 1]->get_besch()->get_can_lead_from_rear();
-						//reversable = true;
+						if(reversed)
+						{
+							reversable = fahr[0]->get_besch()->get_can_lead_from_rear();
+						}
+						else
+						{
+							reversable = fahr[anz_vehikel - 1]->get_besch()->get_can_lead_from_rear();
+						}
+
+						if(reversable)
+						{
+							//Multiple unit or similar: quick reverse
+							reverse_delay = welt->get_einstellungen()->get_unit_reverse_time();
+						}
+						else if(fahr[0]->get_besch()->is_bidirectional())
+						{
+							//Loco hauled, no turntable.
+							reverse_delay = welt->get_einstellungen()->get_hauled_reverse_time();
+						}
+						else
+						{
+							//Locomotive needs turntable: slow reverse
+							reverse_delay = welt->get_einstellungen()->get_turntable_reverse_time();
+						}
+
 						reverse_order(reversable);
 				}
 			}
@@ -1634,6 +1667,8 @@ convoi_t::vorfahren() //"move forward" (Babelfish)
 			fahr[0]->set_erstes(false); // switches off signal checks ...
 			if(reversed && (reversable || fahr[0]->is_reversed()))
 			{
+				//train_length -= fahr[0]->get_besch()->get_length();
+				train_length = 0;
 				for(sint8 i = anz_vehikel - 1; i >= 0; i--)
 				{
 					vehikel_t* v = fahr[i];
@@ -1646,6 +1681,13 @@ convoi_t::vorfahren() //"move forward" (Babelfish)
 
 			else
 			{
+				//if(!reversable && fahr[0]->get_besch()->is_bidirectional())
+				//{
+				//	//This can sometimes relieve excess setting back on reversing.
+				//	//Unfortunately, it seems to produce bizarre results on occasion.
+				//	train_length -= (fahr[0]->get_besch()->get_length()) / 2;
+				//	train_length = train_length > 0 ? train_length : 0;
+				//}
 				for(sint8 i = 0; i < anz_vehikel; i++)
 				{
 					vehikel_t* v = fahr[i];
@@ -1667,7 +1709,8 @@ convoi_t::vorfahren() //"move forward" (Babelfish)
 			if(haltestelle_t::get_halt(welt,k0).is_bound()) {
 				fahr[0]->play_sound();
 			}
-			wait_lock = 0;
+			//wait_lock = 0;
+			wait_lock = reverse_delay;
 			state = DRIVING;
 		}
 	}
@@ -1700,14 +1743,28 @@ convoi_t::reverse_order(bool rev)
 	uint8 a = 0;
     vehikel_t* reverse;
 	uint8 b  = anz_vehikel;
+
 	if(rev)
 	{
 		fahr[0]->set_erstes(false);
 	}
 	else
 	{
-		b--;
+		if(!fahr[anz_vehikel - 1]->get_besch()->is_bidirectional())
+		{
+			//Do not change the order at all if the last vehicle is not bidirectional
+			return;
+		}
+
 		a++;
+		a += fahr[0]->get_besch()->get_nachfolger_count();
+		for(uint8 i = 1; i < anz_vehikel; i++)
+		{
+			if(fahr[i]->get_besch()->get_leistung() > 0)
+			{
+				a++;
+			}
+		}
 	}
 
 	fahr[anz_vehikel - 1]->set_letztes(false);

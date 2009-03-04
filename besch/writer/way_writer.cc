@@ -23,7 +23,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	int ribi, hang;
 
 	// Hajo: node size is 27 bytes
-	obj_node_t node(this, 27, &parent);
+	obj_node_t node(this, 28, &parent);
 
 
 	// Hajo: Version needs high bit set as trigger -> this is required

@@ -189,6 +189,11 @@ public:
 	// liefert get_vorgaenger(0) == NULL, so bedeutet das entweder alle
 	// Vorgänger sind erlaubt oder keine. Um das zu unterscheiden, sollte man
 	// vorher hat_vorgaenger() befragen
+
+	// Returns allowed predecessor.
+	// provides get_vorgaenger (0) == NULL, it means that either all 
+	// predecessors are allowed or not. To distinguish, one should 
+	// predict hat_vorgaenger () question (Google)
 	const vehikel_besch_t *get_vorgaenger(int i) const
 	{
 		if(i < 0 || i >= vorgaenger) {
@@ -219,6 +224,11 @@ public:
 	// liefert get_nachfolger(0) == NULL, so bedeutet das entweder alle
 	// Nachfolger sind erlaubt oder keine. Um das zu unterscheiden, sollte
 	// man vorher hat_nachfolger() befragen
+
+	//Returns the lawful successor.
+	//provides get_nachfolger (0) == NULL, it means that either all
+	// succeed or none are allowed. To distinguish, one should 
+	// predict hat_nachfolger () question (Google)
 	const vehikel_besch_t *get_nachfolger(int i) const
 	{
 		if(i < 0 || i >= nachfolger) {

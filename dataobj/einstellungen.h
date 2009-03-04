@@ -247,6 +247,12 @@ public:
 	bool allow_bankruptsy;
 	bool allow_purhcases_when_insolvent;
 
+	// Reversing settings
+	//@author: jamespetts
+	uint16 unit_reverse_time;
+	uint16 hauled_reverse_time;
+	uint16 turntable_reverse_time;
+
 	// true if active
 	bool automaten[MAX_PLAYER_COUNT];
 	// 0 = emtpy, otherwise some vaule from simplay
@@ -431,6 +437,10 @@ public:
 	uint8 get_interest_rate_percent() const { return interest_rate_percent; }
 	bool bankruptsy_allowed() const { return allow_bankruptsy; }
 	bool insolvent_purchases_allowed() const { return allow_purhcases_when_insolvent; }
+
+	uint16 get_unit_reverse_time() const { return unit_reverse_time; }
+	uint16 get_hauled_reverse_time() const { return hauled_reverse_time; }
+	uint16 get_turntable_reverse_time() const { return turntable_reverse_time; }
 
 	sint16 get_river_number() const { return river_number; }
 	void set_river_number( sint16 n ) { river_number=n; }

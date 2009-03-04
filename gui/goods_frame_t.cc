@@ -42,7 +42,8 @@ const char *goods_frame_t::sort_text[SORT_MODES] = {
     "gl_btn_unsort",
     "gl_btn_sort_name",
     "gl_btn_sort_revenue",
-    "gl_btn_sort_bonus"
+    "gl_btn_sort_bonus",
+	"gl_btn_sort_catg"
 };
 
 
@@ -133,6 +134,9 @@ int goods_frame_t::compare_goods(const void *p1, const void *p2)
 			break;
 		case 3: // sort by speed bonus
 			order = w2->get_speed_bonus()-w1->get_speed_bonus();
+			break;
+		case 4: // sort by catg_index
+			order = w1->get_catg()-w2->get_catg();
 			break;
 		default:	// sort by name
 			order = strcmp(translator::translate(w1->get_name()), translator::translate(w2->get_name()));

@@ -196,7 +196,7 @@ void depot_frame_t::layout(koord *gr)
 	*	    [Start][Schedule][Destroy][Sell]
 	*      [new Route][change Route][delete Route]
 	*/
-	int ABUTTON_WIDTH = 96;
+	int ABUTTON_WIDTH = 128;
 	int ABUTTON_HEIGHT = 14;
 	int ACTIONS_WIDTH = 4 * ABUTTON_WIDTH;
 	int ACTIONS_HEIGHT = ABUTTON_HEIGHT + ABUTTON_HEIGHT; // @author hsiegeln: added "+ ABUTTON_HEIGHT"

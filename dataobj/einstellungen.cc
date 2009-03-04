@@ -706,6 +706,11 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	allow_bankruptsy = contents.get_int("allow_bankruptsy", 0);
 	allow_purhcases_when_insolvent = contents.get_int("allow_purhcases_when_insolvent", 0);
 
+	//Reversing settings
+	unit_reverse_time = contents.get_int("unit_reverse_time", 1500);
+	hauled_reverse_time = contents.get_int("hauled_reverse_time", 2500);
+	turntable_reverse_time = contents.get_int("turntable_reverse_time", 4000);
+
 	/*
 	* Selection of savegame format through inifile
 	*/
