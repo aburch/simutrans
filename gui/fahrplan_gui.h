@@ -33,6 +33,8 @@ class fahrplan_gui_stats_t : public gui_komponente_t
 {
 private:
 	static karte_t *welt;
+	static cbuffer_t buf;
+
 	schedule_t* fpl;
 
 public:
@@ -55,17 +57,12 @@ class fahrplan_gui_t :	public gui_frame_t,
 						public action_listener_t
 {
  public:
-
 	/**
 	 * Fuellt buf mit Beschreibung des i-ten Eintrages des Fahrplanes
 	 *
 	 * @author Hj. Malthaner
 	 */
-	static void gimme_stop_name(cbuffer_t & buf,
-			      karte_t *welt,
-			      const schedule_t *fpl,
-			      int i,
-			      int max_chars);
+	static void gimme_stop_name(cbuffer_t & buf, karte_t *welt, const linieneintrag_t &entry );
 
 	/**
 	 * Fuellt buf mit Beschreibung des i-ten Eintrages des Fahrplanes
