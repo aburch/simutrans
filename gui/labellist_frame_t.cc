@@ -30,9 +30,9 @@ bool labellist_frame_t::filter_state = true;
 labellist::sort_mode_t labellist_frame_t::sortby = labellist::by_name;
 
 const char *labellist_frame_t::sort_text[labellist::SORT_MODES] = {
-    "hl_btn_sort_name",
-    "koord",
-    "player"
+	"hl_btn_sort_name",
+	"koord",
+	"player"
 };
 
 labellist_frame_t::labellist_frame_t(karte_t * welt) :

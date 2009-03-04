@@ -78,7 +78,7 @@ public:
 	static void init(const uint16 n)
 	{
 		if(data) {
-			delete data;
+			delete [] data;
 		}
 		size = n;
 		data = new T* [size];

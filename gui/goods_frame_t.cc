@@ -43,7 +43,7 @@ const char *goods_frame_t::sort_text[SORT_MODES] = {
     "gl_btn_sort_name",
     "gl_btn_sort_revenue",
     "gl_btn_sort_bonus",
-	"gl_btn_sort_catg"
+    "gl_btn_sort_catg"
 };
 
 
@@ -115,7 +115,7 @@ int goods_frame_t::compare_goods(const void *p1, const void *p2)
 	const ware_besch_t * w1 = warenbauer_t::get_info(*(const unsigned short *)p1);
 	const ware_besch_t * w2 = warenbauer_t::get_info(*(const unsigned short *)p2);
 
-	int order;
+	int order = 0;
 
 	switch (sortby) {
 		case 0: // sort by number
@@ -138,13 +138,13 @@ int goods_frame_t::compare_goods(const void *p1, const void *p2)
 		case 4: // sort by catg_index
 			order = w1->get_catg()-w2->get_catg();
 			break;
-		default:	// sort by name
-			order = strcmp(translator::translate(w1->get_name()), translator::translate(w2->get_name()));
-			break;
+	}
+	if(  order==0  ) {
+		// sort by name if not sorted or not unique
+		order = strcmp(translator::translate(w1->get_name()), translator::translate(w2->get_name()));
 	}
 	return sortreverse ? -order : order;
 }
-
 
 
 // creates the list and pass it to the child finction good_stats, which does the display stuff ...

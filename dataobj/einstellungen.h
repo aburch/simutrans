@@ -162,6 +162,9 @@ private:
 	uint8 max_direction_steps[10];
 	uint8 curve_friction_factor[10];
 
+	/* if set, goods will avoid being routed over overcrowded stops */
+	bool avoid_overcrowding;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -441,6 +444,9 @@ public:
 	uint16 get_unit_reverse_time() const { return unit_reverse_time; }
 	uint16 get_hauled_reverse_time() const { return hauled_reverse_time; }
 	uint16 get_turntable_reverse_time() const { return turntable_reverse_time; }
+
+	// do not take people to overcrowded destinations
+	bool get_avoid_overcrowding() const { return avoid_overcrowding; }
 
 	sint16 get_river_number() const { return river_number; }
 	void set_river_number( sint16 n ) { river_number=n; }

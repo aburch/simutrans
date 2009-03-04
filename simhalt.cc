@@ -1298,6 +1298,13 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 					// compatible car and right target stop?
 					if(  tmp.get_zwischenziel() == plan_halt  ) {
 
+						if(  plan_halt->is_overcrowded(wtyp->get_catg_index())  ) {
+							if(  welt->get_einstellungen()->get_avoid_overcrowding()  &&  !(tmp.get_ziel()==plan_halt)  ) {
+								// do not go for transfer to overcrowded transfer stop
+								continue;
+							}
+						}
+
 						// not too much?
 						ware_t neu(tmp);
 						if(  tmp.menge > maxi  ) {
@@ -2129,13 +2136,15 @@ void haltestelle_t::recalc_status()
 	// since the status is ored ...
 	uint8 status_bits = 0;
 
-	// update total waiting plus overflow
-	sint32 max_ware;
+	memset( overcrowded, 0, 8 );
 
 	long total_sum = 0;
 	if(get_pax_enabled()) {
-		max_ware = get_capacity(0);
+		sint32 max_ware = get_capacity(0);
 		total_sum += get_ware_summe(warenbauer_t::passagiere);
+		if(total_sum>max_ware) {
+			overcrowded[0] |= 1;
+		}
 		if(get_pax_unhappy() > 40 ) {
 			status_bits = (total_sum>max_ware+200 || get_pax_unhappy()>200) ? 2 : 1;
 		} else if(total_sum>max_ware) {
@@ -2144,24 +2153,26 @@ void haltestelle_t::recalc_status()
 	}
 
 	if(get_post_enabled()) {
-		max_ware = get_capacity(1);
+		sint32 max_ware = get_capacity(1);
 		sint32 post = get_ware_summe(warenbauer_t::post);
 		total_sum += post;
 		if(post>max_ware) {
 			status_bits |= post>max_ware+200 ? 2 : 1;
+			overcrowded[0] |= 2;
 		}
 	}
 
 	// now for all goods
 	if(status_color!=COL_RED  &&  get_ware_enabled()) {
 		const int count = warenbauer_t::get_waren_anzahl();
-		max_ware = get_capacity(2);
+		sint32 max_ware = get_capacity(2);
 		for( int i=2; i+1<count; i++) {
 			const ware_besch_t *wtyp = warenbauer_t::get_info(i+1);
 			long ware_sum = get_ware_summe(wtyp);
 			total_sum += ware_sum;
 			if(ware_sum>max_ware) {
 				status_bits |= (ware_sum>max_ware+32  ||  CROWDED) ? 2 : 1;
+				overcrowded[wtyp->get_catg_index()/8] |= 1<<(wtyp->get_catg_index()%8);
 			}
 		}
 	}
