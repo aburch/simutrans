@@ -1,6 +1,6 @@
-Release of 102.0 (r231x)
+Release of 102.0 (r2366)
 
-10-Feb-2009:
+5-Mar-2009:
 	FIX: connect stops again to public player
 	FIX: marker had invalid position after loading a game => crash when adding new marker
 	FIX: again income messages even with very many convois
@@ -23,6 +23,7 @@ Release of 102.0 (r231x)
 	FIX: fences and slopes in most suituations now without graphic errors (some are currently unavoidable)
 	ADD: (z9999) new sort option for good list by category
 	FIX: (mostly Dwachs) way graphic for way in tunnel now matches speed and maintenance fixed
+	ADD: avoid overcroded stops (experimental, avoid_overcrowding=1 in simucon.tab)
 
 
 
