@@ -392,15 +392,6 @@ static PIXVAL textur_palette[256 * 3];
 // the palette actually used for the display ...
 static PIXVAL day_pal[256 * 3];
 
-// the palette with player colors
-static PIXVAL special_pal[256 * 3];
-
-/*
- * Hajo: Currently selected color set for player 0 (0..15)
- */
-static int selected_player_color_set = 0;
-
-
 /*
  * Hajo: Image map descriptor struture
  */
@@ -488,9 +479,7 @@ static int tiles_per_line = 0;
 static int tile_lines = 0;
 static int tile_buffer_length = 0;
 
-
 static int light_level = 0;
-static int color_level = 1;
 
 static int night_shift = -1;
 
