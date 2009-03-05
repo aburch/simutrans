@@ -22,6 +22,7 @@ Release of 102.0 (r231x)
 	CHANGE: start at any month you like (parameter starting_month in simuconf.tab)
 	FIX: fences and slopes in most suituations now without graphic errors (some are currently unavoidable)
 	ADD: (z9999) new sort option for good list by category
+	FIX: (mostly Dwachs) way graphic for way in tunnel now matches speed and maintenance fixed
 
 
 
