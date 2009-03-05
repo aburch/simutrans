@@ -150,9 +150,6 @@ void groundobj_t::calc_bild()
 groundobj_t::groundobj_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
 	rdwr(file);
-	if(get_besch()) {
-		calc_bild();
-	}
 }
 
 

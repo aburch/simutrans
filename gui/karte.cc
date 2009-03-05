@@ -628,6 +628,7 @@ reliefkarte_t::reliefkarte_t()
 	fpl = NULL;
 	fpl_player_nr = 0;
 	is_show_schedule = false;
+	is_show_fab = false;
 }
 
 

@@ -758,6 +758,7 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	next_step = 0;
 	step_interval = 1;
 	next_bau_step = 0;
+	has_low_density = false;
 
 	stadtinfo_options = 3;	// citicens and growth
 
@@ -843,6 +844,7 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	next_step = 0;
 	step_interval = 1;
 	next_bau_step = 0;
+	has_low_density = false;
 
 	wachstum = 0;
 	name = NULL;
@@ -964,9 +966,8 @@ void stadt_t::rdwr(loadsave_t* file)
 		// and we need to correct it here.
 		DBG_MESSAGE("stadt_t::rdwr()", "borders (%i,%i) -> (%i,%i)", lo.x, lo.y, ur.x, ur.y);
 
-		// borders will be corrected later one anyways for newer versions
-		pruefe_grenzen( pos-koord(33,33) );
-		pruefe_grenzen( pos+koord(33,33) );
+		// recalculate borders
+		recalc_city_size();
 	}
 }
 

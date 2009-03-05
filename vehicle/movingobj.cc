@@ -145,7 +145,6 @@ movingobj_t::movingobj_t(karte_t *welt, loadsave_t *file) : vehikel_basis_t(welt
 {
 	rdwr(file);
 	if(get_besch()) {
-		calc_bild();
 		welt->sync_add( this );
 	}
 }
@@ -204,6 +203,7 @@ void movingobj_t::rdwr(loadsave_t *file)
 		// if not there, besch will be zero
 		use_calc_height = true;
 	}
+	weg_next = 0;
 }
 
 
