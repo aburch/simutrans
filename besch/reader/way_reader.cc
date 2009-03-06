@@ -59,6 +59,28 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		const uint16 v = decode_uint16(p);
 		version = v & 0x7FFF;
 
+		// Whether the read file is from Simutrans-Experimental
+		//@author: jamespetts
+
+		const bool experimental = version > 0 ? v & EXP_VER : false;
+		uint16 experimental_version = 0;
+		if(experimental)
+		{
+			// Experimental version to start at 0 and increment.
+			version = version & EXP_VER ? version & 0x3FFF : 0;
+			while(version > 0x100)
+			{
+				version -= 0x100;
+				experimental_version ++;
+			}
+			experimental_version -=1;
+		}
+		else
+		{
+			besch->way_constraints_permissive = 0;
+			besch->way_constraints_prohibitive = 0;
+		}
+
 		if(version==4) {
 			// Versioned node, version 4
 			besch->price = decode_uint32(p);
@@ -71,18 +93,17 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->styp = decode_uint8(p);
 			besch->draw_as_ding = decode_uint8(p);
 			besch->number_seasons = decode_sint8(p);
-			if(node.size == 27)
+			if(experimental)
 			{
-				//If node.size is 27, we have version 4a.
-				//Backwards compatible with version 4, but
-				//has extra functions (way constraints).
-				besch->way_constraints_permissive = decode_uint8(p);
-				besch->way_constraints_prohibitive = decode_uint8(p);
-			}
-			else
-			{
-				besch->way_constraints_permissive = 0;
-				besch->way_constraints_prohibitive = 0;
+				if(experimental_version == 0)
+				{
+					besch->way_constraints_permissive = decode_uint8(p);
+					besch->way_constraints_prohibitive = decode_uint8(p);
+				}
+				else
+				{
+					dbg->fatal( "way_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", experimental_version );
+				}
 			}
 
 		}
@@ -142,12 +163,6 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if(besch->wtyp==128) {
 		besch->wtyp = powerline_wt;
-	}
-	
-	if(version < 4)
-	{
-		besch->way_constraints_permissive = 0;
-		besch->way_constraints_prohibitive = 0;
 	}
 	
 	if(version<=2  &&  besch->wtyp==air_wt  &&  besch->topspeed>=250) {

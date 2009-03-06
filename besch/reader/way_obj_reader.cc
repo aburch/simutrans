@@ -37,7 +37,24 @@ obj_besch_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// Hajo: old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
 	const uint16 v = decode_uint16(p);
-	const uint16 version = v & 0x7FFF;
+	uint16 version = v & 0x7FFF;
+
+	// Whether the read file is from Simutrans-Experimental
+	//@author: jamespetts
+
+	const bool experimental = version > 0 ? v & EXP_VER : false;
+	uint16 experimental_version = 0;
+	if(experimental)
+	{
+		// Experimental version to start at 0 and increment.
+		version = version & EXP_VER ? version & 0x3FFF : 0;
+		while(version > 0x100)
+		{
+			version -= 0x100;
+			experimental_version ++;
+		}
+		experimental_version -=1;
+	}
 
 	if(version==1) {
 		// Versioned node, version 3
@@ -48,23 +65,29 @@ obj_besch_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = decode_uint16(p);
 		besch->wtyp = decode_uint8(p);
 		besch->own_wtyp = decode_uint8(p);
-		if(node.size == 22)
+		if(experimental)
 		{
-			// 22 byte node = version 1a. New features,
-			// (weight limits and way constraints), but
-			// backwards compatible with version 1.
-			besch->way_constraints_permissive = decode_uint8(p);
-			besch->way_constraints_prohibitive = decode_uint8(p);
-		}
-		else
-		{
-			besch->way_constraints_permissive = 0;
-			besch->way_constraints_prohibitive = 0;
+			if(experimental_version == 0)
+			{
+				besch->way_constraints_permissive = decode_uint8(p);
+				besch->way_constraints_prohibitive = decode_uint8(p);
+			}
+			else
+			{
+				dbg->fatal( "way_obj_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", experimental_version );
+			}
 		}
 	}
 	else {
 		dbg->fatal("way_obj_reader_t::read_node()","Invalid version %d", version);
 	}
+
+	if(!experimental)
+	{
+		besch->way_constraints_permissive = 0;
+		besch->way_constraints_prohibitive = 0;
+	}
+
   DBG_DEBUG("way_obj_reader_t::read_node()",
 	     "version=%d price=%d maintenance=%d topspeed=%d max_weight=%d "
 	     "wtype=%d styp=%d intro_year=%i",

@@ -27,7 +27,6 @@ tunnel_reader_t::successfully_loaded() const
 }
 
 
-
 obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	tunnel_besch_t *besch = new tunnel_besch_t();
@@ -43,7 +42,24 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		char * p = besch_buf;
 
 		const uint16 v = decode_uint16(p);
-		const int version = v & 0x8000 ? v & 0x7FFF : 0;
+		int version = v & 0x8000 ? v & 0x7FFF : 0;
+
+		// Whether the read file is from Simutrans-Experimental
+		//@author: jamespetts
+
+		const bool experimental = version > 0 ? v & EXP_VER : false;
+		uint16 experimental_version = 0;
+		if(experimental)
+		{
+			// Experimental version to start at 0 and increment.
+			version = version & EXP_VER ? version & 0x3FFF : 0;
+			while(version > 0x100)
+			{
+				version -= 0x100;
+				experimental_version ++;
+			}
+			experimental_version -=1;
+		}
 
 		if(version == 2) {
 	    	// versioned node, version 2 - snow image support
@@ -54,19 +70,18 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->intro_date = decode_uint16(p);
 			besch->obsolete_date = decode_uint16(p);
 			besch->number_seasons = decode_uint8(p);
-			if(node.size == 26)
+			if(experimental)
 			{
-				// Node size == 26 - extra features to be read. Version 2a.
-				// Backwards compatible with version 2 with this code.
-				besch->max_weight =  decode_uint32(p);
-				besch->way_constraints_permissive = decode_uint8(p);
-				besch->way_constraints_prohibitive = decode_uint8(p);
-			}
-			else
-			{
-				besch->max_weight = 999;
-				besch->way_constraints_permissive = 0;
-				besch->way_constraints_prohibitive = 0;
+				if(experimental_version == 0)
+				{
+					besch->max_weight =  decode_uint32(p);
+					besch->way_constraints_permissive = decode_uint8(p);
+					besch->way_constraints_prohibitive = decode_uint8(p);
+				}
+				else
+				{
+					dbg->fatal( "tunnel_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", experimental_version );
+				}
 			}
 		}
 		else if(version == 1) {
@@ -86,6 +101,13 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		} else {
 			dbg->fatal("tunnel_reader_t::read_node()","illegal version %d",version);
+		}
+
+		if(!experimental)
+		{
+			besch->max_weight = 999;
+			besch->way_constraints_permissive = 0;
+			besch->way_constraints_prohibitive = 0;
 		}
 
 		DBG_DEBUG("bridge_reader_t::read_node()",

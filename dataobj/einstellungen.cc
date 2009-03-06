@@ -197,7 +197,7 @@ einstellungen_t::einstellungen_t() :
 
 	// this will pay for distance to next change station
 
-	pay_for_total_distance = TO_PREVIOUS;
+	pay_for_total_distance = 0;
 
 	avoid_overcrowding = true;
 }

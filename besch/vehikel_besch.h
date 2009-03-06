@@ -197,7 +197,7 @@ public:
 	const vehikel_besch_t *get_vorgaenger(int i) const
 	{
 		if(i < 0 || i >= vorgaenger) {
-			return 0;
+			return NULL;
 		}
 		return static_cast<const vehikel_besch_t *>(get_child(6 + i));
 	}

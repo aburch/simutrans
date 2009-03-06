@@ -5,6 +5,9 @@
 #define COMPILER_VERSION      "0.1.2exp"
 #define COMPILER_VERSION_CODE (0 * 1000000 + 1 * 1000 + 1)
 
+//The experimental subversion
+#define EXP_VER 0x4000
+
 /*
  * obj_type value are stored inside the pak-files. Values are choosen to make
  * them somewhat readable (up to 4 uppercase letters describing the type).
@@ -31,7 +34,7 @@ enum obj_type
 	obj_fsupplier   = C4ID('F','S','U','P'),
 	obj_good        = C4ID('G','O','O','D'),
 	obj_ground      = C4ID('G','R','N','D'),
-	obj_groundobj = C4ID('G','O','B','J'),
+	obj_groundobj	= C4ID('G','O','B','J'),
 	obj_image       = C4ID('I','M','G', 0 ),
 	obj_imagelist   = C4ID('I','M','G','1'),
 	obj_imagelist2d = C4ID('I','M','G','2'),

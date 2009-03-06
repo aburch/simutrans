@@ -10,8 +10,6 @@
 #include "vehicle_reader.h"
 #include "../obj_node_info.h"
 
-
-
 void
 vehicle_reader_t::register_obj(obj_besch_t *&data)
 {
@@ -19,7 +17,6 @@ vehicle_reader_t::register_obj(obj_besch_t *&data)
 	vehikelbauer_t::register_besch(besch);
 	obj_for_xref(get_type(), besch->get_name(), data);
 }
-
 
 
 bool
@@ -45,7 +42,24 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// But we know, the higher most bit was always cleared.
 
 	const uint16 v = decode_uint16(p);
-	const int version = v & 0x8000 ? v & 0x7FFF : 0;
+	int version = v & 0x8000 ? v & 0x7FFF : 0;
+	
+	// Whether the read file is from Simutrans-Experimental
+	//@author: jamespetts
+
+	const bool experimental = version > 0 ? v & EXP_VER : false;
+	uint16 experimental_version = 0;
+	if(experimental)
+	{
+		// Experimental version to start at 0 and increment.
+		version = version & EXP_VER ? version & 0x3FFF : 0;
+		while(version > 0x100)
+		{
+			version -= 0x100;
+			experimental_version ++;
+		}
+		experimental_version -=1;
+	}
 
 	if(version == 1) {
 		// Versioned node, version 1
@@ -166,26 +180,21 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->vorgaenger = decode_uint8(p); //"Predecessors" (Google)
 		besch->nachfolger = decode_uint8(p); //"Successor" (Google)
 		besch->freight_image_type = decode_uint8(p);
-		if(node.size == 37)
+		if(experimental)
 		{
-			// Node size == 37 - extra features to be read. Version 8a.
-			// Backwards compatible with version 8 with this code.
-			besch->is_tilting = decode_uint8(p);
-			besch->way_constraints_permissive = decode_uint8(p);
-			besch->way_constraints_prohibitive = decode_uint8(p);
-			besch->catering_level = decode_uint8(p);
-			besch->bidirectional = decode_uint8(p);
-			besch->can_lead_from_rear = decode_uint8(p);
-		}
-		else
-		{
-			//Standard version 8: default values for new items.
-			besch->is_tilting = 0;
-			besch->way_constraints_permissive = 0;
-			besch->way_constraints_prohibitive = 0;
-			besch->catering_level = 0;
-			besch->bidirectional = false;
-			besch->can_lead_from_rear = false;
+			if(experimental_version == 0)
+			{
+				besch->is_tilting = decode_uint8(p);
+				besch->way_constraints_permissive = decode_uint8(p);
+				besch->way_constraints_prohibitive = decode_uint8(p);
+				besch->catering_level = decode_uint8(p);
+				besch->bidirectional = decode_uint8(p);
+				besch->can_lead_from_rear = decode_uint8(p);
+			}
+			else
+			{
+				dbg->fatal( "vehicle_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", experimental_version );
+			}
 		}
 	}
 	else {
@@ -245,8 +254,14 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	besch->len *= TILE_STEPS/16;
 
 	// before version 8 vehicles could only have one freight image in each direction
-	if(version<8) {
+	if(version<8) 
+	{
 		besch->freight_image_type = 0;
+	}
+
+	if(!experimental)
+	{
+		// Default values for items not in the standard vehicle format.
 		besch->is_tilting = 0;
 		besch->way_constraints_permissive = 0;
 		besch->way_constraints_prohibitive = 0;
