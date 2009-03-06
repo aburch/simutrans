@@ -263,7 +263,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 	} while(!gr1 &&                             // keine Brücke im Weg
 		(!gr2 || gr2->get_grund_hang()==hang_t::flach  ||  gr2->get_hoehe()<pos.z ) ); // Boden kommt nicht hoch
 
-	error_msg = "A bridge must end on a way!";
+	error_msg = "A bridge must start on a way!";
 	return koord3d::invalid;
 }
 

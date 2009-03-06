@@ -455,9 +455,6 @@ uint16 baum_t::random_tree_for_climate_intern(climate cl)
 baum_t::baum_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
 	rdwr(file);
-	if(get_besch()) {
-		calc_bild();
-	}
 }
 
 

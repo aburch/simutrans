@@ -1401,6 +1401,10 @@ int get_maus_y(void)
  */
 static int clip_wh(KOORD_VAL *x, KOORD_VAL *width, const KOORD_VAL min_width, const KOORD_VAL max_width)
 {
+	if (*width <= 0) {
+		*width = 0;
+		return 0;
+	}
 	if (*x < min_width) {
 		const KOORD_VAL xoff = min_width - *x;
 
@@ -1427,7 +1431,7 @@ static int clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD
 	const KOORD_VAL l = *x;      // leftmost pixel
 	const KOORD_VAL r = *x + *w; // rightmost pixel
 
-	if (l >= right || r <= left) {
+	if (*w <= 0 || l >= right || r <= left) {
 		*w = 0;
 		return FALSE;
 	}

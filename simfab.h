@@ -160,6 +160,9 @@ private:
 
 	void recalc_factory_status();
 
+	// create some smoke on the map
+	void smoke() const;
+
 	/**
 	 * increase the amount for a fixed time PRODUCTION_DELTA_T
 	 * @author Hj. Malthaner

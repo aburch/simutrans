@@ -2096,6 +2096,7 @@ void haltestelle_t::laden_abschliessen()
 			DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",bd->get_text());
 		}
 	}
+	recalc_status();
 }
 
 

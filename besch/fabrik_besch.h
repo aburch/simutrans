@@ -66,8 +66,27 @@ public:
 	const char *get_name() const { return get_bilder()->get_name(); }
 	const char *get_copyright() const { return get_bilder()->get_copyright(); }
 	const skin_besch_t *get_bilder() const { return static_cast<const skin_besch_t *>(get_child(0)); }
-	koord get_pos_off() const { return pos_off; }
-	koord get_xy_off() const { return xy_off; }
+
+	// get the tile with the smoke
+	koord get_pos_off( koord size, uint8 rotation) const {
+		switch( rotation%4 ) {
+			case 1: return koord( size.y-pos_off.y, pos_off.x );
+			case 2: return koord( size.x-pos_off.x, size.y-pos_off.y );
+			case 3: return koord( pos_off.y, size.x-pos_off.x );
+		}
+		return pos_off;
+	}
+
+	// offset in pixel (remember intern size TILE_STEPS==16)
+	koord get_xy_off(uint8 rotation) const {
+		switch( rotation%4 ) {
+			case 1: return koord( 0, xy_off.y+xy_off.x/2 );
+			case 2: return koord( -xy_off.x, xy_off.y );
+			case 3: return koord( 0, xy_off.y-xy_off.x/2 );
+		}
+		return xy_off;
+	}
+
 	sint16 get_zeitmaske() const { return zeitmaske; }
 };
 

@@ -26,7 +26,7 @@ private:
 	sint8 cloud_nr;
 
 public:
-    static bool register_besch(const skin_besch_t *besch);
+	static bool register_besch(const skin_besch_t *besch);
 
 	inline sint32 get_insta_zeit() const { return insta_zeit; }
 
@@ -46,6 +46,8 @@ public:
 	void rdwr(loadsave_t *file);
 
 	virtual void entferne(spieler_t *sp);
+
+	virtual void rotate90();
 };
 
 

@@ -33,51 +33,43 @@
 
 char fahrplan_gui_t::no_line[128];	// contains the current translation of "<no line>"
 
+
 /**
  * Fuellt buf mit Beschreibung des i-ten Eintrages des Fahrplanes
  *
  * @author Hj. Malthaner
  */
-void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const schedule_t *fpl, int i, int max_chars)
+void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const linieneintrag_t &entry )
 {
-	if(i<0  ||  fpl==NULL  ||  i>=fpl->get_count()) {
-		dbg->warning("void fahrplan_gui_t::gimme_stop_name()","tried to recieved unused entry %i in schedule %p.",i,fpl);
-		return;
-	}
-	const linieneintrag_t& entry = fpl->eintrag[i];
 	const grund_t* gr = welt->lookup(entry.pos);
-	char tmp [256];
-
 	if(gr==NULL) {
-		sprintf( tmp, "%s (%i,%i,%i)", translator::translate("Invalid coordinate"), entry.pos.x, entry.pos.y, entry.pos.z );
+		buf.printf("%s (%s)", translator::translate("Invalid coordinate"), entry.pos.get_str() );
 	}
 	else {
 		halthandle_t halt = gr->ist_wasser() ? haltestelle_t::get_halt(welt, entry.pos) : gr->get_halt();
 
 		if(halt.is_bound()) {
 			if (entry.ladegrad != 0) {
-				sprintf(tmp, "%d%% %s (%d,%d)",
+				buf.printf("%d%% %s (%s)",
 					entry.ladegrad,
 					halt->get_name(),
-					entry.pos.x, entry.pos.y);
+					entry.pos.get_str() );
 			}
 			else {
-				sprintf(tmp, "%s (%d,%d)",
+				buf.printf("%s (%s)",
 					halt->get_name(),
-					entry.pos.x, entry.pos.y);
+					entry.pos.get_str() );
 			}
 		}
 		else {
 			if(gr->get_depot() != NULL) {
-				sprintf(tmp, "%s (%d,%d)", translator::translate("Depot"), entry.pos.x, entry.pos.y);
+				buf.printf("%s (%s)", translator::translate("Depot"), entry.pos.get_str() );
 			}
 			else {
-				sprintf(tmp, "%s (%d,%d)", translator::translate("Wegpunkt"), entry.pos.x, entry.pos.y);
+				buf.printf("%s (%s)", translator::translate("Wegpunkt"), entry.pos.get_str() );
 			}
 		}
 	}
-	sprintf(tmp+max_chars-4, "...");
-	buf.append(tmp);
 }
 
 
@@ -100,7 +92,6 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const 
 	}
 	else {
 		halthandle_t halt = haltestelle_t::get_halt(welt, entry.pos);
-
 		if(halt.is_bound()) {
 			p = halt->get_name();
 		}
@@ -128,21 +119,23 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const 
 
 
 karte_t *fahrplan_gui_stats_t::welt = NULL;
+cbuffer_t fahrplan_gui_stats_t::buf(320);
 
 void fahrplan_gui_stats_t::zeichnen(koord offset)
 {
 	if(fpl) {
 		sint16 width = 16;
-		cbuffer_t buf(512);
 		image_id const arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
 
 		for (int i = 0; i < fpl->get_count(); i++) {
 
 			buf.clear();
 			buf.printf( "%i) ", i+1 );
-			fahrplan_gui_t::gimme_stop_name( buf, welt, fpl, i, 512 );
-			width = max( width, display_calc_proportional_string_len_width(buf,buf.len()) );
-			display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1) + 2, buf, ALIGN_LEFT, COL_BLACK, true);
+			fahrplan_gui_t::gimme_stop_name( buf, welt, fpl->eintrag[i] );
+			sint16 w = display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1) + 2, buf, ALIGN_LEFT, COL_BLACK, true);
+			if(  w>width  ) {
+				width = w;
+			}
 
 			if(i!=fpl->get_aktuell()) {
 				// goto information
@@ -176,11 +169,11 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_waitlevel(NULL, COL_WHITE, gui_label_t::right),
 	lb_load("Full load"),
 	stats(sp_->get_welt()),
-	scrolly(&stats)
+	scrolly(&stats),
+	fpl(fpl_),
+	sp(sp_),
+	cnv(cnv_)
 {
-	this->sp = sp_;
-	this->fpl = fpl_;
-	this->cnv = cnv_;
 	stats.set_fahrplan(fpl);
 	if(!cnv.is_bound()) {
 		new_line = linehandle_t();

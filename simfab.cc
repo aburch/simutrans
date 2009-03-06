@@ -695,6 +695,26 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 
 
 /*
+ * let the chimney smoke, if there is something to produce
+ * @author Hj. Malthaner
+ */
+void fabrik_t::smoke() const
+{
+	const rauch_besch_t *rada = besch->get_rauch();
+	if(rada) {
+		const koord size = besch->get_haus()->get_groesse(0)-koord(1,1);
+		const uint8 rot = rotate%besch->get_haus()->get_all_layouts();
+		koord ro = rada->get_pos_off(size,rot);
+		grund_t *gr=welt->lookup_kartenboden(pos.get_2d()+ro);
+		wolke_t *smoke =  new wolke_t(welt, gr->get_pos(), ((rada->get_xy_off(rot).x+simrand(7)-3)*TILE_STEPS)/16, ((rada->get_xy_off(rot).y+simrand(7)-3)*TILE_STEPS)/16, rada->get_bilder() );
+		gr->obj_add(smoke);
+		welt->sync_add( smoke );
+	}
+}
+
+
+
+/*
  * calculates the produktion per delta_t; this is now PRODUCTION_DELTA_T
  * @author Hj. Malthaner
  */
@@ -839,13 +859,7 @@ void fabrik_t::step(long delta_t)
 				power = prodbase*n_intervall*PRODUCTION_DELTA_T*4;
 			}
 			// do smoking?
-			const rauch_besch_t *rada = besch->get_rauch();
-			if(rada) {
-				grund_t *gr=welt->lookup_kartenboden(pos.get_2d()+rada->get_pos_off());
-				wolke_t *smoke =  new wolke_t(welt, pos+rada->get_pos_off(), ((rada->get_xy_off().x+simrand(7)-3)*TILE_STEPS)/16, ((rada->get_xy_off().y+simrand(7)-3)*TILE_STEPS)/16, rada->get_bilder() );
-				gr->obj_add(smoke);
-				welt->sync_add( smoke );
-			}
+			smoke();
 			// otherwise nothing to do ...
 			return;
 		}
@@ -975,14 +989,9 @@ void fabrik_t::step(long delta_t)
 		recalc_factory_status();
 
 		if((delta_menge>>fabrik_t::precision_bits)>0) {
-			// we produce some real quantity => smoke
-			const rauch_besch_t *rada = besch->get_rauch();
-			if(rada) {
-				grund_t *gr=welt->lookup_kartenboden(pos.get_2d()+rada->get_pos_off());
-				wolke_t *smoke =  new wolke_t(welt, pos+rada->get_pos_off(), ((rada->get_xy_off().x+simrand(7)-3)*TILE_STEPS)/16, ((rada->get_xy_off().y+simrand(7)-3)*TILE_STEPS)/16, rada->get_bilder() );
-				gr->obj_add(smoke);
-				welt->sync_add( smoke );
-			}
+
+			// we produced some real quantity => smoke
+			smoke();
 
 			if(besch->get_field()  &&  fields.get_count()<besch->get_field()->get_max_fields()) {
 				// spawn new field with given probablitily
