@@ -4,7 +4,7 @@
 - <a href="simutrans.txt">Bem-vindo</a><br>
 - <a href="window.txt">Interface/janela do jogo</a><br>
 - <a href="mouse.txt">Mouse</a><br>
-- <a href="keys.txt">Configuração do teclado</a><br>
+- <a href="keys.txt">Configuração do teclado</a>
 <p>
 <a href="options.txt"><strong>Preferências</strong></a><br>
 - <a href="language.txt">Idioma</a><br>

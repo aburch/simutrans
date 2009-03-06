@@ -52,6 +52,7 @@ Los botones de opcion (pulsa para usar) de <strong>Controles de Cochera</strong>
 <p>
 <em>Vender:</em> vende el <a href="convoiinfo.txt">Convoy</a> actual, el balance aumente con la cantidad de <em>Valor de Reventa</em>.
 </p>
+
 <p>
 <a href="linemanagement.txt"><em>Nueva Linea:</em></a> abre los controles para definir una <a href="schedule.txt">Ruta</a> (una ruta y una minima cantidad de elementos que el Convoy puede cargar en una Parada), que pueda ser usado por varios <a href="convoiinfo.txt">Convoys</a>.
 </p>

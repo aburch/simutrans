@@ -24,5 +24,3 @@ Oben befinden sich zwei Reiter, die die Anzeige umschalten.<br>
 · <em>alle Klimazonen:</em> Diese Option deaktiviert die Klimazonenzuordnung beim pflanzen des Baums.<br>
 · <em>Zufallsjahr:</em> Es wird beim Pflanzen des Baums ein zufälliges Baumalter gewählt.<br>
 </p>
-
-

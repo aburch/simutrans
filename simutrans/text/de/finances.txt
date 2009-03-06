@@ -3,7 +3,7 @@
 <h1><strong>Finanzen</strong></h1>
 
 <p>
-Die Finanzen können im Finanzfenster betrachtet werden. Dieses kann durch Drücken von <em>f</em> oder über die <a href="mainmenu.txt">Hauptmenüleiste</a> geöffnet werden.<br>
+Die Finanzen können im Finanzfenster betrachtet werden. Dieses kann durch Drücken von <em>f</em> oder über die <a href="mainmenu2.txt">Hauptmenüleiste</a> geöffnet werden.<br>
 Dort sind die Informationen über die Finanzen zusammengefaßt.
 </p>
 <p>

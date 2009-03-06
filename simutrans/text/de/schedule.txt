@@ -26,7 +26,7 @@ Die <em>Schaltfächen</em> haben folgende Bedeutung:<br/>
 · <em>Löschen:</em> Der per Mausklick angewählte Fahrplanhalt wird aus der Liste gelöscht. Nach löschen eines Fahrplanhaltes wird die Schaltfläche <em>Hinzufügen</em> wider aktiviert.
 </p>
 <p>
-· <em>Rückfahrkarte:</em> Alle Fahrplanhalte werden bis zum Maximum von 254 Gesamteinträgen in umgekehrter Reihenfolge (ohne 1. und letzten Halt) an den bestehenden Fahrplan angefügt. Bei Verwendung von Richtungsstrecken (einseitige Signale bei Eisen-, Straßen- und Einschienenbahnen) wird die Rückfahrkarte allerdings nicht einsetzbar sein, da der Haltepunkt bei der Rückfahrt nicht direkt angefahren werden kann. Wenn ein Weg gefunden wird, erfolgt dieser dann mit einem großen Umweg.
+· <em>Rückfahrkarte:</em> Alle Fahrplanhalte werden bis zum Maximum von 32 Gesamteinträgen in umgekehrter Reihenfolge (ohne 1. und letzten Halt) an den bestehenden Fahrplan angefügt. Bei Verwendung von Richtungsstrecken (einseitige Signale bei Eisen-, Straßen- und Einschienenbahnen) wird die Rückfahrkarte allerdings nicht einsetzbar sein, da der Haltepunkt bei der Rückfahrt nicht direkt angefahren werden kann. Wenn ein Weg gefunden wird, erfolgt dieser dann mit einem großen Umweg.
 </p>
 <p>
 Bei der Nutzung einer der Schaltflächen "Hinzufügen" oder "Einfügen" ändert sich der Cursor in einen Haltepunktmarker. Klickst Du mit dem Werkzeug auf ein Haltestellenfeld oder auf einen freien Wegpunkt, welcher vom Fahrzeugverband befahren werden kann (je nach Fahrzeugart zBsp. Straßen-, Wasser-, oder Gleisfeld), wird der Punkt als Fahrplanhalt in die Liste der Fahrplanhalte aufgenommen.<br>

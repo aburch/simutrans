@@ -27,9 +27,7 @@ Clique sobre um botão para selecionar critérios para a filtragem (o botão fica a
 <p>
 <em>Necessidade:</em> Seleciona as <a href="station.txt">paradas</a> de acordo com as necessidades das indústrias próximas. Use a <a href="mouse.txt">barra de rolagem</a> para rolar pela lista dos artigos. As opções incluem:<br>
  - <em>tudo</em> seleciona todos os artigos.<br>
-
  - <em>nada</em> desfaz todas as seleções.<br>
-
  - <em>inv.</em> inverte a seleção atual.
 </p>
 <p>

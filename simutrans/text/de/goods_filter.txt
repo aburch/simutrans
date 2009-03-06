@@ -16,7 +16,7 @@ In der Warenliste sind Pssagiere sowie alle Güter, die Dir im gespielten pak zum
 · <em>Bonus:</em> Werden Güter, und vor allem Passagiere und Post auf einem Verkehrsträger schneller als oben angezeigt befördert, wird auf den Grundumsatz pro weitere 10 km/h der Bonus aufgerechnet; ist das Fahrzeug langsamer, kann der Umsatz auch sinken. Die Berechnungsformel ist komplex. Maßgebend für die Höhe des Bonus ist die zulässige Höchstgeschwindigkeit des Konvois. Die Höchstgeschwindigkeit der befahrenen Strecke und die tatsächliche Beförderungszeit finden keine Berücksichtigung.
 </p>
 <p>
-· <em>Kategorie:</em>  Jede Frachtart ist einer Güterkategorie zugeordnet. Für jede Güterkategorie ist ein bestimmter Fahrzeugtyp vorgesehen. Alle Sonderfrachten können nur mit spezifischen Fahrzeugen transportiert werden. Im <a href="depot.txt">Depotfenster</a> kannst Du die Güterarten unter "Zuladung" einsehen.
+· <em>Kategorie:</em>  Jede Frachtart ist einer Güterkategorie zugeordnet. Für jede Güterkategorie ist ein bestimmter Fahrzeugtyp vorgesehen. Alle Sonderfrachten können nur mit spezifischen Fahrzeugen transportiert werden. Im <a href="depot3.txt">Depotfenster</a> kannst Du die Güterarten unter "Zuladung" einsehen.
 </p>
 <p>
 · <em>Gewicht:</em> Das Gewicht einer Einheit eines Gutes in kg.

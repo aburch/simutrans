@@ -1,24 +1,18 @@
 <title> Ajuda - Estatísticas da Cidade</title>
-
 <h1><strong>Estatísticas da Cidade</strong></h1>
-
 <p>
-  <strong>Estatísticas da Cidade</strong> mostra estatísticas sobre a área urbana (cidade) selecionada e pode ser usada para alterar o seu nome.
+<strong>Estatísticas da Cidade</strong> mostra estatísticas sobre a área urbana (cidade) selecionada e pode ser usada para alterar o seu nome.
 </p>
 <p> Cada cidade tem sua própria Prefeitura, ao redor da qual ela se desenvolve. O transporte de passageiros e de correio ajuda o seu crescimento, de forma que novas estradas são construídas e administradas pelo
-  <a href="players.txt">Jogador Poder Público</a>, novos prédios aparecem na cidade,
-  <a href="industry_info.txt">indústrias</a> são criadas e os limites da cidade se expandem.
+<a href="players.txt">Jogador Poder Público</a>, novos prédios aparecem na cidade,
+<a href="industry_info.txt">indústrias</a> são criadas e os limites da cidade se expandem.
 </p>
 <p> Clique em uma Prefeitura na tela do jogo com a
-  <a href="inspection_tool.txt">Ferramenta Verificar</a> ou em uma cidade listada em
-  <a href="citylist_filter.txt">Lista das Cidades</a> para abrir
-  <strong>Informações das Cidades</strong>, a qual contém: um campo para o nome, estatísticas, dois mini-mapas e um gráfico informativo da área urbana.
+<a href="inspection_tool.txt">Ferramenta Verificar</a> ou em uma cidade listada em <a href="citylist_filter.txt">Lista das Cidades</a> para abrir <strong>Informações das Cidades</strong>, a qual contém: um campo para o nome, estatísticas, dois mini-mapas e um gráfico informativo da área urbana.
 </p>
 <p>
-  <em> Nome:
-  </em> o nome atribuído à cidade aparece num campo de nome no topo das
-  <strong>Estatísticas da Cidade</strong>. Este nome é usado nos nomes dados às Paradas criadas.
-  <br> Para alterar o nome: clique no campo do nome e digite o novo nome.
+<em> Nome:</em> o nome atribuído à cidade aparece num campo de nome no topo das <strong>Estatísticas da Cidade</strong>. Este nome é usado nos nomes dados às Paradas criadas.
+<br> Para alterar o nome: clique no campo do nome e digite o novo nome.
   <br> {Dica: Use
   <a href="keys.txt">[!]</a> para alternar a visualização do nome da área urbana sobre a Prefeitura e os marcadores das diversas paradas criadas, na tela do jogo. Veja readme_citylist.txt (em ...simutrans/text/) para maior ajuda na criação de nomes para as cidades}.
 </p>

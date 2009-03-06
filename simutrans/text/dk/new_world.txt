@@ -65,5 +65,56 @@ værdien er 4
 </p>
 
 <p>
-<a href="new_world2.txt">Skab verden dialog (fortsat)</a>
+<em>Kuperet terræn:</em><br>
+Bestemmer højden af det højeste bjerg. Jo lavere værdi desto færre og lavere
+bjerge og dale. Værdierne går fra 0 til 160 med default værdi 160.
+</p>
+
+<p>
+<em>Bjergstejlhed:</em><br>
+Angiver hvor stejle bjergene vil være. Jo lavere værdi desto "jævnere" vil
+bjergstigningerne være.
+</p>
+
+<p>
+<em>Tilfældigt kort:</em><br>
+Vælger et tilfældigt kortnummer (opdateret med de valgte indstillinger)
+</p>
+
+<p>
+<em>Vis fodgængere</em><br>
+Bestemmer om fodgængere skal være synlige eller ej. Indstillingen kan ændres
+under spillet<br>
+ved at benytte <a href="display.txt">Udseende dialogen.</a>
+</p>
+
+<p>
+<em>Dag og nat indstilling</em><br>
+Bestemmer om der alt efter klokkeslet skal skiftes imellem dag og nat
+belysning. Denne indstilling kan ligeledes ændres under spillet<br>
+ved at benytte <a href="display.txt">Udseende dialogen.</a>
+</p>
+
+<p>
+De fire knapper er:
+</p>
+
+<p>
+<em>Indlæs spil:</em><br>
+Indlæser et tidligere gemt spil.<br>
+Se <a href="load.txt">Indlæs dialogen</a> for nærmere information
+</p>
+
+<p>
+<em>Indlæs reliefkort:</em>
+</p>
+
+<p>
+<em>Start spil</em><br>
+Starter et nyt spil med de valgte indstillinger.
+</p>
+
+<p>
+<em>Afslut</em><br>
+Afslutter Simutrans - "no questions asked".
 </p>
