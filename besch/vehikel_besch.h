@@ -64,29 +64,32 @@ public:
 
 
 private:
-	uint32  preis;  //Price
-	uint16  zuladung; //Payload
-	uint16  geschw; //Speed
-	uint16  gewicht; //Weight
-	uint32  leistung; //Power
-	uint16  betriebskosten;  //Running costs
+	uint32 preis;  //Price
+	uint32 upgrade_price; //Price if this vehicle is bought as an upgrade, not a new vehicle.
+	uint16 zuladung; //Payload
+	uint16 overcrowded_capacity; // The capacity of a vehicle if overcrowded (usually expressed as the standing capacity).
+	uint16 geschw; //Speed
+	uint16 gewicht; //Weight
+	uint32 leistung; //Power
+	uint16 betriebskosten;  //Running costs
 
-	uint16  intro_date; // introduction date
-	uint16  obsolete_date; //phase out at
-	uint16  gear;       // engine gear (power multiplier), 64=100
+	uint16 intro_date; // introduction date
+	uint16 obsolete_date; //phase out at
+	uint16 gear;       // engine gear (power multiplier), 64=100
 
-	sint8  typ;         	// see weg_t for allowed types
+	sint8 typ;         	// see weg_t for allowed types
 	uint8 len;			// length (=8 is half a tile, the old default)
 	sint8 sound;
 
-	uint8  vorgaenger;	// all defined leading vehicles
-	uint8  nachfolger;	// all defined trailer
+	uint8 vorgaenger;	// all defined leading vehicles
+	uint8 nachfolger;	// all defined trailer
+	uint8 upgrades;		// The vehicles types to which this type may be upgraded.
 
-	uint8  engine_type; // diesel, steam, electric (requires electrified ways), fuel_cell, etc.
+	uint8 engine_type; // diesel, steam, electric (requires electrified ways), fuel_cell, etc.
 
 	sint8 freight_image_type;	// number of freight images (displayed for different goods)
 
-	uint8 is_tilting; //Whether it is a tilting train (can take corners at higher speeds). 0 for no, 1 for yes. Anything other than 1 is assumed to be no.
+	bool is_tilting; //Whether it is a tilting train (can take corners at higher speeds). 0 for no, 1 for yes. Anything other than 1 is assumed to be no.
 	
 	uint8 way_constraints_permissive; //Way constraints. Actually, 8 boolean values. Bitwise operations necessary
 	uint8 way_constraints_prohibitive; //to uncompress this (but if value is 0, are no constraints).
@@ -94,7 +97,17 @@ private:
 	uint8 catering_level; //The level of catering. 0 for no catering. Higher numbers for better catering.
 
 	bool bidirectional; //Whether must always travel in one direction
-	bool can_lead_from_rear;
+	bool can_lead_from_rear; //Whether vehicle can lead a convoy when it is at the rear.
+
+	uint8 comfort; // How comfortable that a vehicle is for passengers.
+
+	uint16 loading_time; //Time in MS (at speed 1.0) to load/unload.
+
+	bool available_only_as_upgrade; //If yes, can not be bought as new: only upgraded.
+
+
+
+
 
 
 public:
@@ -104,17 +117,17 @@ public:
 	// default vehicle (used for way seach and similar tasks)
 	// since it has no images and not even a name knot any calls to this will case a crash
 	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) {
-		freight_image_type = preis = zuladung = betriebskosten = intro_date = vorgaenger = nachfolger = 0;
-		leistung = gewicht = 1;
+		freight_image_type = preis = upgrade_price = zuladung = overcrowded_capacity = betriebskosten = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
+		leistung = gewicht = comfort = 1;
 		gear = 64;
 		len = 8;
 		sound = -1;
 		typ = wtyp;
 		engine_type = (uint8)engine;
 		geschw = speed;
-		is_tilting = 0;
+		is_tilting = bidirectional = can_lead_from_rear = available_only_as_upgrade = false;
 		way_constraints_prohibitive = way_constraints_permissive = 0;
-		catering_level = 0;
+		loading_time = 2000;
 	}
 
 	const ware_besch_t *get_ware() const { return static_cast<const ware_besch_t *>(get_child(2)); }
@@ -225,19 +238,32 @@ public:
 	// Nachfolger sind erlaubt oder keine. Um das zu unterscheiden, sollte
 	// man vorher hat_nachfolger() befragen
 
-	//Returns the lawful successor.
-	//provides get_nachfolger (0) == NULL, it means that either all
+	// Returns the lawful successor.
+	// provides get_nachfolger (0) == NULL, it means that either all
 	// succeed or none are allowed. To distinguish, one should 
 	// predict hat_nachfolger () question (Google)
 	const vehikel_besch_t *get_nachfolger(int i) const
 	{
 		if(i < 0 || i >= nachfolger) {
-			return 0;
+			return NULL;
 		}
 		return static_cast<const vehikel_besch_t *>(get_child(6 + vorgaenger + i));
 	}
 
 	int get_nachfolger_count() const { return nachfolger; }
+
+	// Returns the vehicle types to which this vehicle type is an upgrade.
+
+	const vehikel_besch_t * get_upgrades(int i) const
+	{
+		if(i < 0 || i >= upgrades)
+		{
+			return NULL;
+		}
+		return static_cast<const vehikel_besch_t *>(get_child(6 + nachfolger + i));
+	}
+
+	int get_upgrades_count() const { return upgrades; }
 
 	waytype_t get_waytype() const { return static_cast<waytype_t>(typ); }
 	uint16 get_zuladung() const { return zuladung; }
@@ -250,6 +276,11 @@ public:
 	sint8 get_sound() const { return sound; }
 	bool is_bidirectional() const { return bidirectional; }
 	bool get_can_lead_from_rear() const { return can_lead_from_rear; }
+	uint8 get_comfort() const { return comfort; }
+	uint16 get_overcrowded_capacity() const { return overcrowded_capacity; }
+	uint16 get_loading_time() const { return loading_time; }
+	uint32 get_upgrade_price() const { return upgrade_price; }
+	bool is_available_only_as_upgrade() { return available_only_as_upgrade; }
 	
 
 	/**
@@ -297,7 +328,7 @@ public:
 	
 	/*Whether this is a tilting train (and can take coerners faster
 	*@author: jamespetts*/
-	bool get_tilting() const { return (is_tilting == 1);	}
+	bool get_tilting() const { return (is_tilting);	}
 	
 	/*Bitwise encoded way constraints (permissive)
 	*@author: jamespetts*/

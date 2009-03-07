@@ -90,8 +90,6 @@ uint8 vehikel_basis_t::old_diagonal_length = 127;
 uint8 vehikel_basis_t::diagonal_length = 180;
 uint16 vehikel_basis_t::diagonal_multiplier = 724;
 
-uint16 local_bonus_supplement; 
-
 // set only once, before loading!
 void vehikel_basis_t::set_diagonal_multiplier( uint32 multiplier, uint32 old_diagonal_multiplier )
 {
@@ -969,7 +967,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 	current_corner = 0;
 #endif
 	 direction_steps = 4;
-	 local_bonus_supplement = 0;
+	 //local_bonus_supplement = 0;
 	 is_overweight = false;
 	 reversed = false;
 }
@@ -998,7 +996,7 @@ vehikel_t::vehikel_t(karte_t *welt) :
 	 current_corner = 0;
 #endif
 	 direction_steps = 4;
-	 local_bonus_supplement = 0;
+	 //local_bonus_supplement = 0;
 	 is_overweight = false;
 	 reversed = false;
 }
@@ -1612,7 +1610,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end, convoi_t *cnv) const
 
 		const uint16 base_bonus = goods->get_speed_bonus();
 		uint16 adjusted_bonus = 0;
-		local_bonus_supplement = (welt->get_einstellungen()->get_local_bonus_multiplier() / 100) * base_bonus;
+		uint16 local_bonus_supplement = (welt->get_einstellungen()->get_local_bonus_multiplier() / 100) * base_bonus;
 		
 		if(dist <= welt->get_einstellungen()->get_min_bonus_max_distance())
 		{

@@ -76,7 +76,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 37;
+	int total_len = 48;
 
 	// prissi: must be done here, since it may affect the length of the header!
 	cstring_t sound_str = ltrim( obj.get("sound") );
@@ -314,6 +314,23 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		}
 	} while (str.len() > 0);
 
+	// Upgrades: these are the vehicle types to which this vehicle type
+	// is an upgrade. "None" means that it is not an upgrade.
+	uint8 upgrades = 0;
+	do {
+		char buf[40];
+		sprintf(buf, "upgrade[%d]", upgrades);
+		str = obj.get(buf);
+		if (str.len() > 0) {
+			if (upgrades == 0 && !STRICMP(str, "none")) 
+			{
+				str = "";
+			}
+			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str, false);
+			upgrades++;
+		}
+	} while (str.len() > 0);
+
 	// multiple freight image types - define what good uses each index
 	// good without index will be an error
 	for (i = 0; i <= freight_max; i++) {
@@ -420,10 +437,43 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint8 can_lead_from_rear = (obj.get_int("can_lead_from_rear", 0));
 	node.write_uint8(fp, can_lead_from_rear, 36);
 
+	// Passenger comfort rating - affects revenue on longer journies.
+	//@author: jamespetts
+	uint8 comfort = (obj.get_int("ccomfort", 1));
+	node.write_uint8(fp, comfort, 37);
+
+	// Overcrowded capacity - can take this much *in addition to* normal capacity,
+	// but revenue will be lower and dwell times higher. Mainly for passengers.
+	//@author: jamespetts
+	uint16 overcrowded_capacity = (obj.get_int("overcrowded_capacity", 0));
+	node.write_uint8(fp, overcrowded_capacity, 38);
+
+	// The time that it takes the vehicle to load and unload at stations (i.e., the 
+	// dwell time). The default is 2,000 because that is the value used in Simutrans-
+	// Standard.
+	//@author: jamespetts
+	uint16 loading_time = (obj.get_int("loading_time", 2000));
+	node.write_uint16(fp, loading_time, 40);
+
+	// Upgrading settings
+	//@author: jamespetts
+
+	node.write_sint8(fp, upgrades, 42);
+
+	// This is the cost of upgrading to this vehicle, rather than buying it new.
+	// By default, the cost is the same as a new purchase.
+	uint32 upgrade_price = (obj.get_int("upgrade_price", cost));
+	node.write_uint32(fp, upgrade_price, 43);
+
+	// If this is set to true (is read as a bool), this will only be able to be purchased
+	// as an upgrade to another vehicle, not as a new vehicle.
+	uint8 available_only_as_upgrade = (obj.get_int("available_only_as_upgrade", 0));
+	node.write_uint8(fp, available_only_as_upgrade, 47);
+
 	sint8 sound_str_len = sound_str.len();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 37);
-		node.write_data_at(fp, sound_str,     38, sound_str_len);
+		node.write_sint8  (fp, sound_str_len, 48);
+		node.write_data_at(fp, sound_str,     49, sound_str_len);
 	}
 
 	node.write(fp);

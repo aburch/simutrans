@@ -190,6 +190,12 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->catering_level = decode_uint8(p);
 				besch->bidirectional = decode_uint8(p);
 				besch->can_lead_from_rear = decode_uint8(p);
+				besch->comfort = decode_uint8(p);
+				besch->overcrowded_capacity = decode_uint16(p);
+				besch->loading_time = decode_uint16(p);
+				besch->upgrades = decode_uint8(p);
+				besch->upgrade_price = decode_uint32(p);
+				besch->available_only_as_upgrade = decode_uint8(p);
 			}
 			else
 			{
@@ -262,12 +268,18 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(!experimental)
 	{
 		// Default values for items not in the standard vehicle format.
-		besch->is_tilting = 0;
+		besch->is_tilting = false;
 		besch->way_constraints_permissive = 0;
 		besch->way_constraints_prohibitive = 0;
 		besch->catering_level = 0;
 		besch->bidirectional = false;
 		besch->can_lead_from_rear = false;
+		besch->comfort = 1;
+		besch->overcrowded_capacity = 0;
+		besch->loading_time = 2000;
+		besch->upgrades = 0;
+		besch->upgrade_price = besch->preis;
+		besch->available_only_as_upgrade = false;
 	}
 
 
