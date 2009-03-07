@@ -1850,7 +1850,6 @@ wegbauer_t::baue_tunnelboden()
 			weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 			tunnel->calc_bild();
 			cost -= tunnel_besch->get_preis();
-			spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
 			spieler_t::add_maintenance( sp,  tunnel_besch->get_wartung() );
 		}
 		else if(gr->get_typ()==grund_t::tunnelboden) {
@@ -1862,6 +1861,7 @@ wegbauer_t::baue_tunnelboden()
 				spieler_t::add_maintenance(sp, -weg->get_besch()->get_wartung());
 				weg->set_besch(besch);
 				weg->set_max_speed(tunnel_besch->get_topspeed());
+				weg->set_max_weight(tunnel_besch->get_max_weight());
 				gr->calc_bild();
 				cost -= besch->get_preis();
 				spieler_t::add_maintenance( sp,  tunnel_besch->get_wartung() );
