@@ -1,3 +1,6 @@
+	ADD: (mostly gerw) sparse data and overlay in main map for passenger destinations
+
+
 Release of 102.0 (r2366)
 
 5-Mar-2009:

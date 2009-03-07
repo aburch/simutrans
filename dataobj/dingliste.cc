@@ -150,9 +150,9 @@ static ding_t** dl_alloc(uint8 size)
 
 dingliste_t::dingliste_t()
 {
-    obj.one = NULL;
-    capacity = 0;
-    top = 0;
+	obj.one = NULL;
+	capacity = 0;
+	top = 0;
 }
 
 
@@ -251,8 +251,8 @@ bool dingliste_t::grow_capacity()
 void
 dingliste_t::shrink_capacity(uint8 o_top)
 {
-    // strategy: avoid free'ing mem if not neccesary. Only if we hold lots
-    // of memory then free it.
+	// strategy: avoid free'ing mem if not neccesary. Only if we hold lots
+	// of memory then free it.
 	if(capacity > 16 && o_top <= 4) {
 		set_capacity(o_top);
 	}
@@ -699,6 +699,33 @@ dingliste_t::get_leitung() const
 		for(uint8 i=0; i<top; i++) {
 			uint8 typ = obj.some[i]->get_typ();
 			if(typ>=ding_t::leitung  &&  typ<=ding_t::senke) {
+				return obj.some[i];
+			}
+		}
+	}
+	return NULL;
+}
+
+
+
+ding_t *
+dingliste_t::get_convoi_vehicle() const
+{
+	if(capacity==0) {
+		return NULL;
+	}
+	else if(capacity==1) {
+		// could
+		uint8 t = obj.one->get_typ();
+		if(  t==ding_t::aircraft  ||  t==ding_t::schiff  ) {
+			return obj.one;
+		}
+	}
+	else if(top>0) {
+		// else we have to search the list
+		for(uint8 i=0; i<top; i++) {
+			uint8 typ = obj.some[i]->get_typ();
+			if(  typ>=ding_t::automobil  &&  typ<=ding_t::aircraft  ) {
 				return obj.some[i];
 			}
 		}

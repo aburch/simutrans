@@ -15,6 +15,7 @@
 #include "components/list_button.h"
 
 #include "stadt_info.h"
+#include "karte.h"
 
 #include "../simgraph.h"
 
@@ -22,9 +23,9 @@
 // @author hsiegeln
 const char *hist_type[MAX_CITY_HISTORY] =
 {
-  "citicens", "Growth", "Buildings", "Verkehrsteilnehmer",
-  "Transported", "Passagiere", "sended", "Post",
-  "Arrived", "Goods", "Electricity"
+	"citicens", "Growth", "Buildings", "Verkehrsteilnehmer",
+	"Transported", "Passagiere", "sended", "Post",
+	"Arrived", "Goods", "Electricity"
 };
 
 
@@ -37,7 +38,7 @@ const int hist_type_color[MAX_CITY_HISTORY] =
 
 
 stadt_info_t::stadt_info_t(stadt_t* stadt_) :
-  gui_frame_t("Stadtinformation"),
+	gui_frame_t("Stadtinformation"),
 	stadt(stadt_)
 {
 	tstrncpy( name, stadt->get_name(), 256 );
@@ -54,9 +55,8 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	chart.set_dimension(MAX_CITY_HISTORY_YEARS, 10000);
 	chart.set_seed(stadt->get_welt()->get_last_year());
 	chart.set_background(MN_GREY1);
-	int i;
-	for (i = 0; i<MAX_CITY_HISTORY; i++) {
-		chart.add_curve(hist_type_color[i], stadt->get_city_history_year(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true);
+	for(  uint32 i = 0;  i<MAX_CITY_HISTORY;  i++  ) {
+		chart.add_curve( hist_type_color[i], stadt->get_city_history_year(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true );
 	}
 	//CHART YEAR END
 
@@ -66,8 +66,8 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	mchart.set_dimension(MAX_CITY_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
 	mchart.set_background(MN_GREY1);
-	for (i = 0; i<MAX_CITY_HISTORY; i++) {
-		mchart.add_curve(hist_type_color[i], stadt->get_city_history_month(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true);
+	for(  uint32 i = 0;  i<MAX_CITY_HISTORY;  i++  ) {
+		mchart.add_curve( hist_type_color[i], stadt->get_city_history_month(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true );
 	}
 	mchart.set_visible(false);
 	//CHART MONTH END
@@ -88,11 +88,49 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 		filterButtons[hist].add_listener(this);
 		add_komponente(filterButtons + hist);
 	}
+
+	pax_dest_old = new uint8[PAX_DESTINATIONS_SIZE*PAX_DESTINATIONS_SIZE];
+	pax_dest_new = new uint8[PAX_DESTINATIONS_SIZE*PAX_DESTINATIONS_SIZE];
+
+	init_pax_dest(pax_dest_old);
+	memcpy(pax_dest_new, pax_dest_old, PAX_DESTINATIONS_SIZE*PAX_DESTINATIONS_SIZE*sizeof(uint8));
+
+	add_pax_dest( pax_dest_old, stadt->get_pax_destinations_old());
+	add_pax_dest( pax_dest_new, stadt->get_pax_destinations_new());
+	pax_destinations_last_change = stadt->get_pax_destinations_new_change();
 }
 
 
-void
-stadt_info_t::zeichnen(koord pos, koord gr)
+
+
+void stadt_info_t::init_pax_dest( uint8* pax_dest )
+{
+	const int gr_x = stadt_t::get_welt()->get_groesse_x();
+	const int gr_y = stadt_t::get_welt()->get_groesse_y();
+	for( uint16 i = 0; i < PAX_DESTINATIONS_SIZE; i++ ) {
+		for( uint16 j = 0; j < PAX_DESTINATIONS_SIZE; j++ ) {
+			const koord pos(i * gr_x / PAX_DESTINATIONS_SIZE, j * gr_y / PAX_DESTINATIONS_SIZE);
+			const grund_t* gr = stadt_t::get_welt()->lookup(pos)->get_kartenboden();
+			pax_dest[j*PAX_DESTINATIONS_SIZE+i] = reliefkarte_t::calc_relief_farbe(gr);
+		}
+	}
+}
+
+
+
+void stadt_info_t::add_pax_dest( uint8* pax_dest, const sparse_tpl< uint8 >* city_pax_dest )
+{
+	uint8 color;
+	koord pos;
+	for( uint16 i = 0;  i < city_pax_dest->get_data_count();  i++  ) {
+		city_pax_dest->get_nonzero(i, pos, color);
+		pax_dest[pos.y*PAX_DESTINATIONS_SIZE+pos.x] = color;
+	}
+}
+
+
+
+void stadt_info_t::zeichnen(koord pos, koord gr)
 {
 	stadt_t* const c = stadt;
 
@@ -128,17 +166,21 @@ stadt_info_t::zeichnen(koord pos, koord gr)
 
 	display_multiline_text(pos.x+8, pos.y+48, buf, COL_BLACK);
 
-	display_array_wh(pos.x + 140,           pos.y + 24, 128, 128, c->get_pax_ziele_alt()->to_array());
-	display_array_wh(pos.x + 140 + 128 + 4, pos.y + 24, 128, 128, c->get_pax_ziele_neu()->to_array());
+	const unsigned long current_pax_destinations = c->get_pax_destinations_new_change();
+	if(  pax_destinations_last_change > current_pax_destinations  ) {
+		// new month started
+		sim::swap<uint8 *>( pax_dest_old, pax_dest_new );
+		init_pax_dest( pax_dest_new );
+		add_pax_dest( pax_dest_new, c->get_pax_destinations_new());
+	}
+	else if(  pax_destinations_last_change != current_pax_destinations  ) {
+		// Since there are only new colors, this is enough:
+		add_pax_dest( pax_dest_new, c->get_pax_destinations_new() );
+	}
+	pax_destinations_last_change =  current_pax_destinations;
 
-#if 0
-    sprintf(buf, "%s: %d/%d",
-            translator::translate("Passagiere"),
-            stadt->get_pax_transport(),
-            stadt->get_pax_erzeugt());
-
-    display_proportional(pos.x+144, pos.y+180, buf, ALIGN_LEFT, COL_BLACK, true);
-#endif
+	display_array_wh(pos.x + 140, pos.y + 24, PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE, pax_dest_old);
+	display_array_wh(pos.x + 140 + PAX_DESTINATIONS_SIZE + 4, pos.y + 24, PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE, pax_dest_new);
 }
 
 
@@ -162,4 +204,27 @@ bool stadt_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		}
 	}
 	return false;
+}
+
+
+
+void stadt_info_t::map_rotate90( sint16 )
+{
+	init_pax_dest(pax_dest_old);
+	memcpy(pax_dest_new, pax_dest_old, PAX_DESTINATIONS_SIZE*PAX_DESTINATIONS_SIZE*sizeof(uint8));
+
+	add_pax_dest( pax_dest_old, stadt->get_pax_destinations_old());
+	add_pax_dest( pax_dest_new, stadt->get_pax_destinations_new());
+	pax_destinations_last_change = stadt->get_pax_destinations_new_change();
+}
+
+
+
+
+// curretn task: just update the city pointer ...
+void stadt_info_t::infowin_event(const event_t *ev)
+{
+	if(  IS_WINDOW_TOP(ev)  ) {
+		reliefkarte_t::get_karte()->set_city( stadt );
+	}
 }

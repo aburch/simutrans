@@ -41,6 +41,7 @@ public:
 
 	// since this is often needed, it is defined here
 	ding_t * get_leitung() const;
+	ding_t * get_convoi_vehicle() const;
 
 	// show all info about the current liste and its objects
 	void dump() const;

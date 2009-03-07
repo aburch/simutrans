@@ -70,12 +70,13 @@ const char map_frame_t::map_type[MAX_BUTTON_TYPE][64] =
 	"Factories",
 	"Depots",
 	"Forest",
-	"CityLimit"
+	"CityLimit",
+	"PaxDest"
 };
 
 const uint8 map_frame_t::map_type_color[MAX_BUTTON_TYPE] =
 {
-	215, 23, 31, 157, 46, 55, 63, 133, 79, 191, 207, 11, 123, 221, 71, 135, 127, 198
+	215, 23, 31, 157, 46, 55, 63, 133, 79, 191, 207, 11, 123, 221, 71, 135, 127, 198, 23
 };
 
 

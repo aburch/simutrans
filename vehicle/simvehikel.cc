@@ -991,11 +991,10 @@ vehikel_t::verlasse_feld()
 void
 vehikel_t::betrete_feld()
 {
-	if(ist_erstes  &&  reliefkarte_t::is_visible) {
-		reliefkarte_t::get_karte()->set_relief_farbe(get_pos().get_2d(), VEHIKEL_KENN);
-	}
-
 	vehikel_basis_t::betrete_feld();
+	if(ist_erstes  &&  reliefkarte_t::is_visible  ) {
+		reliefkarte_t::get_karte()->calc_map_pixel( get_pos().get_2d() );
+	}
 }
 
 
