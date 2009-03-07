@@ -34,5 +34,3 @@ Die Schriftfarben haben folgende Bedeutung:<br>
 <br>
 · <em>Rotation:</em> Sofern das ausgewählte Stadtgebäude mehrere Ansichten hat, kann hier eine bestimmte Ansicht ausgewählt werden. Die Grafik unten links wird entsprechen gewechselt. Bei der Auswahl von <em>Zufällig</em>, wird beim Bau des Stadtgebäudes irgendeine Ansicht gewählt.<br>
 </p>
-
-

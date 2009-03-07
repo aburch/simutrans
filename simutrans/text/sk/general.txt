@@ -3,20 +3,20 @@
 <h1>Klikni na témy :</h1>
 
 <p>
-<a href="keys.txt">Ovládacie klávesy</a><br>
-<a href="param.txt">Spustenie hry s parametrami</a>
+<a href="keys.txt">Ovládacie klávesy</a><br>
+<a href="param.txt">Spustenie hry s parametrami</a>
 </p>
 <p>
-<a href="options.txt">Nastavenia hry</a><br>
-<a href="roadtools.txt">Nástroje na stavbu ciest</a><br>
-<a href="railtools.txt">Nástroje na stavbu ¾eleznice</a><br>
-<a href="shiptools.txt">Nástroje na stavbu lodnej dopravy</a><br>
-<a href="bridges.txt">Nástroje na stavbu mostov</a><br>
-<a href="station.txt">Stanice a zastávky</a><br>
-<a href="schedule.txt">Cestovný poriadok</a><br>
-<a href="haltlist.txt">Prehµad zastávok</a><br>
-<a href="convoi.txt">Prehµad vozidlového parku</a><br>
-<a href="finances.txt">Prehµad financií</a><br>
+<a href="options.txt">Nastavenia hry</a><br>
+<a href="roadtools.txt">Nástroje na stavbu ciest</a><br>
+<a href="railtools.txt">Nástroje na stavbu ¾eleznice</a><br>
+<a href="shiptools.txt">Nástroje na stavbu lodnej dopravy</a><br>
+<a href="bridges.txt">Nástroje na stavbu mostov</a><br>
+<a href="station.txt">Stanice a zastávky</a><br>
+<a href="schedule.txt">Cestovný poriadok</a><br>
+<a href="haltlist.txt">Prehµad zastávok</a><br>
+<a href="convoi.txt">Prehµad vozidlového parku</a><br>
+<a href="finances.txt">Prehµad financií</a><br>
 </p>
 <p>
 Slovenský popis : Ján Krnáè<br>

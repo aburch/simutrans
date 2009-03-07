@@ -64,5 +64,21 @@ på en lastplads af gangen</strong>
 </p>
 
 <p>
-<a href="roadtools2.txt">Vejanlæg dialog hjælp (fortsat)</a>
+<em>Byg vejdepot:</em><br>
+Dette værktøj benyttes til at bygge<br>
+<a href="depot.txt">vejdepoter.</a> Depoter benyttes til at købe, sælge og
+opdatere dine køretøjer. Depoter bygges, ligesom lastepladser på
+<strong>vejafslutninger</strong> ved at venstreklikke på symbolet, hvorved cursoren
+forandres til et depotsymbol, og derefter venstreklikke, hvor depotet skal
+placeres,
+</p>
+
+<p>
+<em>Byg jernbaneovergang:</em><br>
+Dette værktøj benyttes til at bygge en jernbaneovergang over et
+jernbanespor. Ved venstreklik på symbolet ændres cursoren til et
+jernbaneovergangssymbol. Jernbaneovergange benyttes til at krydse
+jernbanespor. For at bygge en jernbaneovergang venstreklikkes på et
+<strong>lige</strong> sporstykke, hvorefter veje via jernbaneovergangen kan
+krydse jernbanesporet.
 </p>

@@ -289,29 +289,14 @@ bool tunnelbauer_t::baue_tunnel(karte_t *welt, spieler_t *sp, koord3d start, koo
 	weg_t *weg;
 	koord3d pos = start;
 	int cost = 0;
-	const weg_besch_t *weg_besch;
 	waytype_t wegtyp = besch->get_waytype();
 
 DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.x, pos.y, pos.z, end.x, end.y, end.z );
 
-	// get a way for enty/exit
-	weg = welt->lookup(start)->get_weg(wegtyp);
-	if(weg==NULL) {
-		weg = welt->lookup(end)->get_weg(wegtyp);
-	}
-	if(weg==NULL) {
-		dbg->error("tunnelbauer_t::baue_tunnel()","No way found!");
-		return false;
-	}
-	weg_besch = weg->get_besch();
+	// now we seach a matchin way for the tunnels top speed
+	const weg_besch_t *weg_besch = wegbauer_t::weg_search( wegtyp, besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat );
 
 	baue_einfahrt(welt, sp, pos, zv, besch, weg_besch, cost);
-
-	// now we seach a matchin wy for the tunnels top speed
-	const weg_besch_t *wb = wegbauer_t::weg_search( wegtyp, besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat );
-	if(  wb  ) {
-		weg_besch = wb;
-	}
 
 	ribi = ribi_typ(-zv);
 	// don't move on to next tile if only one tile long
@@ -381,10 +366,12 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
 	if(weg) {
 		// has already a way
 		tunnel->weg_erweitern(besch->get_waytype(), ribi);
+		spieler_t::add_maintenance( sp,  -weg->get_besch()->get_wartung() );
 	}
 	else {
 		// needs still one
 		weg = weg_t::alloc( besch->get_waytype() );
+		weg->set_besch( weg_besch );
 		tunnel->neuen_weg_bauen( weg, ribi, sp );
 	}
 	weg->set_max_speed( besch->get_topspeed() );
@@ -393,7 +380,6 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
 	tunnel->calc_bild();
 
 	if(sp!=NULL) {
-		spieler_t::add_maintenance( sp,  -weg_besch->get_wartung() );
 		spieler_t::add_maintenance( sp,  besch->get_wartung() );
 	}
 	cost += besch->get_preis();

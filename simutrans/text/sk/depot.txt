@@ -12,7 +12,7 @@ Depo obsahuje informáciu o dopravnom prostriedku, ktorý mô¾e¹ kúpit'
 na príslu¹né vozidlo. Kliknutím na vedµaj¹iu zálo¾ku ,,Prívesy'' alebo ,,Vagóny''
 zobrazí¹ zoznam prívesov alebo vagónov. Nad informaènou zónou (s cenou a parametrami
 vozidla) nájde¹ skupinu tlaèidiel. Prvú skupinu tvoria :<br>
-,,©tart'',<a href="schedule.txt">,,Cestovný poriadok''</a>, ,,Rozdelit' '' a ,,Predat' ''.
+,,©tart'',<a href="schedule.txt">,,Cestovný poriadok''</a>, ,,Rozdelit' '' a ,,Predat' ''.
 </p>
 <p>
 Tlaèidlom ,,©tart'' vypustí¹ vozidlo so zadaným cestovným poriadkom do premávky.
@@ -21,7 +21,7 @@ a ako bude chodit vyt'a¾ené. Tlaèidlom ,,Rozpojit' '' dosiahne¹ rozpojenie
 zostavy vozidla s prívesom alebo vlaku. Pod nápisom ,,Vozidlá'' je umiestnené
 tlaèidlo módu. Klikaním nadobúda tri stavy ,,Pridávanie'' ,,Zostavovanie''
 a ,,Predávanie''. V móde predávania si zvolí¹, ktorý vlastnený dopravný
-prostriedok predat' (za zostatkovú cenu). Predávanie ukonèí¹ prepnutím tohto tlaèidla.
+prostriedok predat' (za zostatkovú cenu). Predávanie ukonèí¹ prepnutím tohto tlaèidla.
 Informácie o hodnote a parametroch budú zobrazené v informaènej zóne (tesne pod tlaèidlami).<br>
 Predat' okam¾ite nejaký Tvoj privolaný dopravný prostriedok mô¾e¹ aj tlaèidlom ,,Predat' ''.
 <br>

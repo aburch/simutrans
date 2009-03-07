@@ -67,7 +67,7 @@ Die Anzahl von eingelagerten Einzelfahrzeugen eines Typs ist an einer weißen Zah
 Unter dem Einzelfahrzeugdepot wird die Anzahl aller hier eingelagerter Einzelfahrzeuge angezeigt.
 </p>
 <p>
-<em>Einzelfahrzeugdaten:</em> Führst Du die Maus über ein Einzelfahrzeug im Fahrzeugverband (oben) oder im Einzelfahrzeugdepot (mittig), werden dessen Daten im unteren Teil des Fensters eingeblendet:
+<em>Einzelfahrzeugdaten:</em> Führst Du die Maus über ein Einzelfahrzeugen im Fahrzeugverband (oben) oder im Einzelfahrzeugdepot (mittig), werden dessen Daten im unteren Teil des Fensters eingeblendet:
 </p>
 <p>
 <em>Linke Spalte angetriebene Fahrzeuge:</em><br/>

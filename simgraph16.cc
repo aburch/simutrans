@@ -1411,7 +1411,9 @@ static int clip_wh(KOORD_VAL *x, KOORD_VAL *width, const KOORD_VAL min_width, co
 		*width += *x-min_width;
 		*x = min_width;
 
-		if (*x + *width > max_width) *width = max_width - *x;
+		if (*x + *width > max_width) {
+			*width = max_width - *x;
+		}
 
 		return xoff;
 	} else if (*x + *width > max_width) {

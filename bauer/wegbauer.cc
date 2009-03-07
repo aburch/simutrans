@@ -1841,6 +1841,7 @@ wegbauer_t::baue_tunnelboden()
 			// make new tunnelboden
 			tunnelboden_t* tunnel = new tunnelboden_t(welt, route[i], 0);
 			weg_t *weg = weg_t::alloc(tunnel_besch->get_waytype());
+			weg->set_besch( besch );
 			welt->access(route[i].get_2d())->boden_hinzufuegen(tunnel);
 			tunnel->neuen_weg_bauen(weg, calc_ribi(i), sp);
 			tunnel->obj_add(new tunnel_t(welt, route[i], sp, tunnel_besch));
@@ -1855,6 +1856,16 @@ wegbauer_t::baue_tunnelboden()
 		else if(gr->get_typ()==grund_t::tunnelboden) {
 			// check for extension only ...
 			gr->weg_erweitern(tunnel_besch->get_waytype(),calc_ribi(i));
+			weg_t *weg = gr->get_weg(tunnel_besch->get_waytype());
+			// take the faster way
+			if (!(keep_existing_ways  ||  (keep_existing_faster_ways  && (weg->get_max_speed() > tunnel_besch->get_topspeed())))) {
+				spieler_t::add_maintenance(sp, -weg->get_besch()->get_wartung());
+				weg->set_besch(besch);
+				weg->set_max_speed(tunnel_besch->get_topspeed());
+				gr->calc_bild();
+				cost -= besch->get_preis();
+				spieler_t::add_maintenance( sp,  tunnel_besch->get_wartung() );
+			}
 		}
 	}
 	spieler_t::accounting(sp, cost, route[0].get_2d(), COST_CONSTRUCTION);

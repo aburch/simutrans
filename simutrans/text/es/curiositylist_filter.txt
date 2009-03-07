@@ -1,50 +1,94 @@
-<title>Ayuda de la Lista de Atracciones</title>
+<title>Ayuda de Informacion del Convoy</title>
 
-<h1><strong>Lista de Atracciones</strong></h1>
+<h1><strong>Informacion del Convoy</strong></h1>
 
 <p>
-<strong>Lista de Atracciones</strong> tiene informacion acerca de todas las atracciones turisticas que tiene un origen y destino para correo y pasajeros.
+<strong>Informacion del Convoy</strong> muestra informacion sobre un Convoy (un vehiculo individual o una combinacion de varias unidades) usado para transportar pasajeros o mercancias.<br>
+Se lista los elementos cargados por un Convoy y tambien tiene controles para acceder a mas detalles y para la venta del Convoy; seguir la trayectoria del Convoy; y cambiar el nombre y la <a href="schedule.txt">Ruta</a> de un Convoy.
+</p>
+
+<p>
+Un convoy esta compuesto por al menos una unidad motorizada (motorised) y un numero cualquiera de vagones/remolques.<br>
+Ejemplos de convoys: un grupo de caballos arrastrando un carruaje; una locomotora parte de un tender y vagones; un autobus; una camioneta; un camion con remolque; un tranvia de varios vagones; un barco; un remolcador empujando una barcaza; o un avion.<br>
+Los convoys son ensamblados y vendidos en el <a href="depot.txt">deposito</a> segun el tipo de transporte.<br>
+{Consejos: Un convoy tiene un numero maximo de unidades segun su tipo: trenes, 24; vehiculos de carretera, 4 .}
 </p>
 <p>
-Para abrir <strong>Lista de Atracciones</strong>: pulsa en la herramienta de la Lista de Atracciones en el icono de <a href="list.txt">Administracion de Listas</a>.<br>
-{Consejos: Si los elementos de la lista son parcialmente visibles, entonces <a href="mouse.txt">ajusta</a> la ventana de <strong>Lista de Atracciones</strong> o desplaza la lista con la barra de desplazamiento.}
+Pulsa en un convoy con la <a href="inspection_tool.txt">Herramienta Explorar</a> o pulsa en un convoy listado en la <a href="convoi.txt">Lista de Vehiculos</a> o en <a href="linemanagement.txt">Administracion de Lineas</a> para abrir la ventana <strong>Informacion del Convoy</strong><br>
+El titulo de la ventana <strong>Informacion del Convoy</strong> muestra un numero ID y el nombre del (por defecto esto ocurre solo con el primer vehiculo del convoy ensamblado en el <a href="depot.txt">deposito</a>).<br>
+<strong>Informacion del Convoy</strong> contiene una caja de texto para el nombre; una mini-vista e informacion acerca del convoy; botones de opcion; y una lista de los elementos cargados actualmente (si todos los elementos no son visibles <a href="mouse.txt">ajusta</a> la ventana <strong>Informacion del Convoy</strong> o usa la barra de desplazamiento).
 </p>
 <p>
-<em>Ordenado por:</em> tiene opciones que determinan el orden de las atracciones turisticas mostradas.<br>
-Pulsa en los botones para pasar a la siguiente opcion (cambia el nombre del boton de opcion):
+La informacion mostrada en la parte superior de la ventana <strong>Informacion del Convoy</strong>:
 </p>
 <p>
-- <em>Nombre</em> ordena alfabeticamente por nombre.<br>
-- <em>Nivel de Pasajeros</em> ordena por popularidad relativa como destino de pasajeros y correo.
+<em>ID interno</em>: un numero ID unico por convoy (asignado por defecto cuando el convoy se compra o ensambla en el <a href=depot.txt">deposito</a>).
 </p>
 <p>
-- <em>ascendente</em> / <em>descendente</em> invierte el orden de la lista.
+- <em>nombre</em>: muestra el nombre asignado al convoy (asignado por defecto cuando el convoy se compra o ensambla en el <a href=depot.txt">deposito</a>).<br>
+Pulsa en la caja de texto del nombre y escribe el nuevo nombre del Convoy para cambiarlo.
 </p>
 <p>
-Pulsa en un elemento de la <strong>Lista de Atracciones</strong> para ver mas informacion acerca de esa atraccion turistica.<br>
-{Consejos: pulsa en el dibujo de la atraccion turistica en la ventana Informacion para situar la vista de juego sobre la atraccion.}
+- <em>velocidad:</em> muestra la velocidad actual en km/h.<br>
+Entre parentesis, el limite maximo de velocidad del Convoy (determinado por la unidad mas lenta en un Convoy).<br>
+La barra verde indica la velocidad actual en relacion al limite maximo de velocidad.
 </p>
 <p>
-Los elementos listados para cada atraccion turistica incluyen:
+- <em>Ingresos:</em> beneficios generados por el vehiculo (ingresos generados restando los costes de operacion) en el año actual de juego.<br>
+Entre parentesis, el coste operacional del Convoy en creditos Hajo por cuadricula.
 </p>
 <p>
-<em>La barra de color de estado</em> indica el nivel de popularidad de la atraccion:<br>
-- <em>amarillo:</em>no esta en el area de influencia de una <a href="station.txt">Parada</a>.<br>
-- <em>verde:</em> tiene asociada una(s) Parada(s) de pasajeros.<br>
-- <em>azul:</em> tiene asociada una(s) Parada(s) de correo.<br>
-- <em>turquesa:</em> tiene asociada una(s) Parada(s) de pasajeros y correo.<br>
-- <em>naranja:</em> un Parada asociada esta abarrotada.<br>
-- <em>rojo:</em> todas las Paradas asociadas estan abarrotadas.
+- <em>Peso:</em> peso actual combinado del Convoy y la carga en toneladas.<br>
+Entre parentesis, el peso de la carga actual.<br>
+La barra verde indica la capacidad usada, para cargar mercancias y pasajeros.<br>
+La barra amarilla indica el nivel de <a href="schedule.txt">Carga</a> (cantidad minima de mercancias y pasajeros necesaria para continuar a la siguiente parada) establecida en los controles de Enrutar.<br>
+{Consejos: Para establecer o cambiar el nivel de carga en cada parada, para todos los convoys de una linea, usa la opcion Actualizar linea en la ventana <a href="linemanagement.txt">Administracion de lineas</a> o en los <a href="depot.txt">Controles del Deposito</a>. Para establecer o cambiar el nivel de carga en cada parada, para un convoy solamente, en una linea, usa el boton <em>Enrutar</em> dentro de la ventana <strong>Informacion del Convoy</strong> o en los Controles del Deposito.}
 </p>
 <p>
-<em>grafico del edificio</em> indica si es un atraccion en la <a href="citywindow.txt">ciudad</a>.
+- <em>Destino:</em> La proximo <a href="station.txt">Parada</a> o punto de paso en la <a href="schedule.txt">Ruta</a> del Convoy.<br>
+La barra verde indica el progreso hacia la siguiente parada.
 </p>
 <p>
-<em>nombre</em> de la atraccion turistica.
+- <em>Sirve la linea:</em> indica cualquier <a href="linemanagement.txt">Linea</a> asignada al Convoy.
 </p>
 <p>
-<em>nivel de pasajeros</em> entre parentesis es un valor que indica la popularidad relativa como destino de pasajeros y correo.
+- <em>mini-vista</em> muestra el Convoy.<br>
+Pulsa en la mini-vista para centrar la vista del juego en el Convoy.
 </p>
 <p>
-{Consejos: Para proveer de un servicio optimo, la atraccion turistica completa debe estar en el area de influencia de una o varias Paradas.}
+Pulsa en los botones de la ventana <strong>Informacion del Convoy</strong> para abrir controles o seleccionar opciones:
+</p>
+<p>
+<a href="schedule.txt"><em>Enrutar:</em></a> abre los controles para cambiar la ruta y la cantidad minima de mercancias y pasajeros necesaria para continuar a la siguiente parada.
+</p>
+<p>
+<em>Ir a casa:</em> manda el Convoy al <a href="depot.txt">deposito</a> apropiado mas cercano. La carga se pierde, pero se recibe un ingreso por transporte al deposito.<br>
+En el deposito, el Convoy mantiene su <a href="schedule.txt">Ruta</a> y la <a href="linemanagement.txt">Linea</a> asignada.
+</p>
+<p>
+<em>sigueme:</em> boton que permite seguir al Convoy (se oscurece si esta activada la opcion).<br>
+Para deseleccionar la opcion, pulsa el boton de nuevo o el boton izquierdo en la ventana del <a href="map.txt">Mapa</a>.
+</p>
+<p>
+<em>Grafica:</em> pulsa el boton para mostrar el grafico (el boton se oscurece cuando el grafico esta visible) en la <strong>Informacion del Convoy</strong>.<br>
+El grafico muestra estadisticas de los ultimos 12 meses (eje x) cuando se selecciona la opcion.<br>
+Pulsa en los botones de opcion para ver informacion en el grafico (el boton se oscurece cuando la opcion esta seleccionada).<br>
+Las lineas de colores en el grafico corresponden a los colores de los botones:<br>
+- <em>Capacidad libre</em> indica el espacio no usado en el Convoy.<br>
+- <em>Recorrido</em> indica el numero de mercancias, pasajeros y correo transportado.<br>
+- <em>Ingresos</em> indica los ingresos generados por transporte.<br>
+- <em>Operacion</em> indica los costes generados por el Convoy en uso.<br>
+- <em>Beneficio</em> indica el beneficio recibido por transporte (Ingresos menos Costes de Operacion).
+</p>
+<p>
+<em>Detalles</em> abre la ventana<a href="convoidetail.txt">Detalles del Convoy</a> que contiene mas informacion y opciones para vender el Convoy.
+</p>
+<p>
+<em>Ordenar pasajeros/mercancia por:</em> lista elementos actualmente cargados por el Convoy.<br>
+La informacion mostrada incluye la cantidad y capacidad del Convoy, tipo de carga, destino final y primera <a href="station.txt">Parada</a>.<br>
+El boton de opcion (cambia de nombre con cada seleccion) ordena la carga en grupos de pasajeros, correo y mercancias:<br>
+ - <em>destino:</em> ordena la carga alfanumericamente, mayusculas antes que minusculas, por nombre del destino final.<br>
+ - <em>por (detalle):</em> ordena la carga alfanumericamente, mayusculas antes que minusculas, por nombre del destino inicial.<br>
+ - <em>por (cantidad):</em> ordena la carga por cantidad disponible en el destino intermedio.<br>
+ - <em>cantidad:</em> ordena la carga por cantidad en orden descendente.
 </p>
