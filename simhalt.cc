@@ -1064,50 +1064,100 @@ void haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	self->marke = current_mark;
 
 	const uint32 max_hops = welt->get_einstellungen()->get_max_hops();
-	do {
+	if(  welt->get_einstellungen()->get_avoid_overcrowding()  ) {
+		// to save "if"s laster, the avoiding routing over overcrowded stops branch is here
+		do {
 #ifdef USE_ROUTE_SLIST_TPL
-		tmp = queue.remove_first();
+			tmp = queue.remove_first();
 #else
-		tmp = &nodes[bottom_of_the_list++];
+			tmp = &nodes[bottom_of_the_list++];
 #endif
 
-		const halthandle_t halt = tmp->halt;
+			const halthandle_t halt = tmp->halt;
 
-		// we end this loop always with this jump (if sucessful)
-		if(ziel_list.is_contained(halt)) {
-			goto found;
-		}
-
-		// Hajo: check for max transfers -> don't add more stations
-		//      to queue if the limit is reached
-		if(tmp->depth < max_transfers  &&  step<64000u  ) {
-			const vector_tpl<halthandle_t> *wz = halt->get_warenziele(ware_catg_index);
-			for(  uint32 i=0;  i<wz->get_count();  i++  ) {
-
-				// since these are precalculated, they should be always pointing to a valid ground
-				// (if not, we were just under construction, and will be fine after 16 steps)
-				const halthandle_t &tmp_halt = (*wz)[i];
-				if(tmp_halt.is_bound() &&  tmp_halt->marke!=current_mark) {
-
-					HNode *node = &nodes[step++];
-					node->halt = tmp_halt;
-					node->depth = tmp->depth + 1;
-					node->link = tmp;
-
-#ifdef USE_ROUTE_SLIST_TPL
-					queue.append( node );
-#endif
-					// betretene Haltestellen markieren
-					tmp_halt->marke = current_mark;
-				}
+			// we end this loop always with this jump (if sucessful)
+			if(ziel_list.is_contained(halt)) {
+				goto found;
 			}
-		} // max transfers
+
+			// Hajo: check for max transfers -> don't add more stations
+			//      to queue if the limit is reached
+			if(tmp->depth < max_transfers  &&  step<64000u  ) {
+				const vector_tpl<halthandle_t> *wz = halt->get_warenziele(ware_catg_index);
+				for(  uint32 i=0;  i<wz->get_count();  i++  ) {
+
+					// since these are precalculated, they should be always pointing to a valid ground
+					// (if not, we were just under construction, and will be fine after 16 steps)
+					const halthandle_t &tmp_halt = (*wz)[i];
+					if(  tmp_halt.is_bound()  &&  tmp_halt->marke!=current_mark  &&  !tmp_halt->is_overcrowded(ware_catg_index)  ) {
+
+						HNode *node = &nodes[step++];
+						node->halt = tmp_halt;
+						node->depth = tmp->depth + 1;
+						node->link = tmp;
 
 #ifdef USE_ROUTE_SLIST_TPL
-	} while (!queue.empty() && step < welt->get_einstellungen()->get_max_hops());
-#else
-	} while(  bottom_of_the_list < step  &&  step < max_hops  );
+						queue.append( node );
 #endif
+						// betretene Haltestellen markieren
+						tmp_halt->marke = current_mark;
+					}
+				}
+			} // max transfers
+
+#ifdef USE_ROUTE_SLIST_TPL
+		} while (!queue.empty() && step < welt->get_einstellungen()->get_max_hops());
+#else
+		} while(  bottom_of_the_list < step  &&  step < max_hops  );
+#endif
+	}
+	else {
+		// here the normal routing with overcrowded stops is done
+		do {
+#ifdef USE_ROUTE_SLIST_TPL
+			tmp = queue.remove_first();
+#else
+			tmp = &nodes[bottom_of_the_list++];
+#endif
+
+			const halthandle_t halt = tmp->halt;
+
+			// we end this loop always with this jump (if sucessful)
+			if(ziel_list.is_contained(halt)) {
+				goto found;
+			}
+
+			// Hajo: check for max transfers -> don't add more stations
+			//      to queue if the limit is reached
+			if(tmp->depth < max_transfers  &&  step<64000u  ) {
+				const vector_tpl<halthandle_t> *wz = halt->get_warenziele(ware_catg_index);
+				for(  uint32 i=0;  i<wz->get_count();  i++  ) {
+
+					// since these are precalculated, they should be always pointing to a valid ground
+					// (if not, we were just under construction, and will be fine after 16 steps)
+					const halthandle_t &tmp_halt = (*wz)[i];
+					if(tmp_halt.is_bound() &&  tmp_halt->marke!=current_mark) {
+
+						HNode *node = &nodes[step++];
+						node->halt = tmp_halt;
+						node->depth = tmp->depth + 1;
+						node->link = tmp;
+
+#ifdef USE_ROUTE_SLIST_TPL
+						queue.append( node );
+#endif
+						// betretene Haltestellen markieren
+						tmp_halt->marke = current_mark;
+					}
+				}
+			} // max transfers
+
+#ifdef USE_ROUTE_SLIST_TPL
+		} while (!queue.empty() && step < welt->get_einstellungen()->get_max_hops());
+#else
+		} while(  bottom_of_the_list < step  &&  step < max_hops  );
+#endif
+	}
 
 	// if the loop ends, nothing was found
 	tmp = 0;
