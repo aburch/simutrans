@@ -1199,7 +1199,7 @@ void convoi_t::ziel_erreicht()
 		if(reversed)
 		{
 			//Always enter a depot facing forward
-			reversable = fahr[anz_vehikel - 1]->get_besch()->get_can_lead_from_rear();
+			reversable = fahr[anz_vehikel - 1]->get_besch()->get_can_lead_from_rear() || (anz_vehikel == 1 && fahr[0]->get_besch()->is_bidirectional());
 			reverse_order(reversable);
 		}
 
@@ -1658,11 +1658,11 @@ convoi_t::vorfahren() //"move forward" (Babelfish)
 					default:
 						if(reversed)
 						{
-							reversable = fahr[0]->get_besch()->get_can_lead_from_rear();
+							reversable = fahr[0]->get_besch()->get_can_lead_from_rear() || (anz_vehikel == 1 && fahr[0]->get_besch()->is_bidirectional());
 						}
 						else
 						{
-							reversable = fahr[anz_vehikel - 1]->get_besch()->get_can_lead_from_rear();
+							reversable = fahr[anz_vehikel - 1]->get_besch()->get_can_lead_from_rear() || (anz_vehikel == 1 && fahr[0]->get_besch()->is_bidirectional());
 						}
 
 						if(reversable)
@@ -1747,6 +1747,7 @@ convoi_t::vorfahren() //"move forward" (Babelfish)
 					train_length += (v->get_besch()->get_length());	// this give the length in 1/TILE_STEPS of a full tile => all cars closely coupled!
 					v->darf_rauchen(true);
 				}
+				train_length -= fahr[anz_vehikel - 1]->get_besch()->get_length();
 			}
 
 			else

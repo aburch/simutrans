@@ -278,7 +278,7 @@ public:
 	bool get_can_lead_from_rear() const { return can_lead_from_rear; }
 	uint8 get_comfort() const { return comfort; }
 	uint16 get_overcrowded_capacity() const { return overcrowded_capacity; }
-	uint16 get_loading_time() const { return loading_time; }
+	uint16 get_loading_time() const { return zuladung > 0 ? loading_time : 0; }
 	uint32 get_upgrade_price() const { return upgrade_price; }
 	bool is_available_only_as_upgrade() const { return available_only_as_upgrade; }
 	

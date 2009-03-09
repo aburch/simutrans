@@ -476,6 +476,8 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		if(file->get_version()>102000) {
 			file->rdwr_bool( avoid_overcrowding, "" );
 		}
+
+		//TODO: Add *all* Simutrans-Experimental settings here.
 	}
 }
 
@@ -715,9 +717,9 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	allow_purhcases_when_insolvent = contents.get_int("allow_purhcases_when_insolvent", 0);
 
 	//Reversing settings
-	unit_reverse_time = contents.get_int("unit_reverse_time", 1500);
-	hauled_reverse_time = contents.get_int("hauled_reverse_time", 2500);
-	turntable_reverse_time = contents.get_int("turntable_reverse_time", 4000);
+	unit_reverse_time = contents.get_int("unit_reverse_time", 0);
+	hauled_reverse_time = contents.get_int("hauled_reverse_time", 0);
+	turntable_reverse_time = contents.get_int("turntable_reverse_time", 0);
 
 	/*
 	* Selection of savegame format through inifile

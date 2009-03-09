@@ -439,7 +439,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	// Passenger comfort rating - affects revenue on longer journies.
 	//@author: jamespetts
-	uint8 comfort = (obj.get_int("ccomfort", 1));
+	uint8 comfort = (obj.get_int("comfort", 100));
 	node.write_uint8(fp, comfort, 37);
 
 	// Overcrowded capacity - can take this much *in addition to* normal capacity,

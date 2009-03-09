@@ -1218,7 +1218,19 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 
 		// column 2
 	
-		int j =  sprintf(buf, "%s %i \n", translator::translate("Loading time:"), veh_type->get_loading_time());
+		int j = 0;
+
+		if(veh_type->get_zuladung() > 0)
+		{
+			//Loading time is only relevant if there is something to load.
+			j +=  sprintf(buf, "%s %i \n", translator::translate("Loading time:"), veh_type->get_loading_time());
+		}
+
+		if(veh_type->get_ware()->get_catg_index() == 0)
+		{
+			//Comfort only applies to passengers.
+			j += sprintf(buf + j, "%s %i \n", translator::translate("Comfort:"), veh_type->get_comfort());
+		}
 
 		j += sprintf(buf + j, "%s %s %04d\n",
 			translator::translate("Intro. date:"),	

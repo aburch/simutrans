@@ -274,7 +274,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->catering_level = 0;
 		besch->bidirectional = false;
 		besch->can_lead_from_rear = false;
-		besch->comfort = 1;
+		besch->comfort = 100;
 		besch->overcrowded_capacity = 0;
 		besch->loading_time = 2000;
 		besch->upgrades = 0;
