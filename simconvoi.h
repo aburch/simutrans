@@ -386,6 +386,7 @@ private:
 	bool reversed;
 
 	uint32 heaviest_vehicle;
+	uint16 longest_loading_time;
 
 
 public:
@@ -860,6 +861,9 @@ public:
 
 	uint32 calc_heaviest_vehicle();
 	uint32 get_heaviest_vehicle() const { return heaviest_vehicle; }
+	
+	uint16 calc_longest_loading_time();
+	uint16 get_longest_loading_time() const { return longest_loading_time; }
 };
 
 #endif

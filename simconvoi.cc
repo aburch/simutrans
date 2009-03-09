@@ -128,6 +128,7 @@ void convoi_t::reset()
 	sp_soll = 0;
 
 	heaviest_vehicle = 0;
+	longest_loading_time = 0;
 }
 
 void convoi_t::init(karte_t *wl, spieler_t *sp)
@@ -1313,6 +1314,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 	set_erstes_letztes();
 
 	heaviest_vehicle = calc_heaviest_vehicle();
+	longest_loading_time = calc_longest_loading_time();
 
 DBG_MESSAGE("convoi_t::add_vehikel()","now %i of %i total vehikels.",anz_vehikel,max_vehicle);
 	return true;
@@ -1378,6 +1380,7 @@ convoi_t::remove_vehikel_bei(uint16 i)
 	}
 
 	heaviest_vehicle = calc_heaviest_vehicle();
+	longest_loading_time = calc_longest_loading_time();
 
 	return v;
 }
@@ -2201,8 +2204,9 @@ convoi_t::rdwr(loadsave_t *file)
 	// (1) origin;
 	// (2) last transfer;
 	// (3) origin departure time;  
-	// (4) last transfer departure time; and
-	// (5) whether the convoy is in reverse formation.
+	// (4) last transfer departure time; 
+	// (5) whether the convoy is in reverse formation; and
+	// (6) how overcrowded that the vehicle is.
 	// Then, reversion the save game file format.
 
 	// no_load, withdraw
@@ -2216,6 +2220,7 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 
 	heaviest_vehicle = calc_heaviest_vehicle();
+	longest_loading_time = calc_longest_loading_time();
 	
 	//HACK: Should be loaded from file.
 	reversed = false;
@@ -2541,7 +2546,8 @@ void convoi_t::laden() //"load" (Babelfish)
 		state = ROUTING_1;
 	}
 	// This is the minimum time it takes for loading
-	wait_lock = WTT_LOADING;
+	//wait_lock = WTT_LOADING;
+	wait_lock = longest_loading_time;
 }
 
 
@@ -3228,4 +3234,19 @@ convoi_t::calc_heaviest_vehicle()
 		}
 	}
 	return heaviest;
+}
+
+uint16
+convoi_t::calc_longest_loading_time()
+{
+	uint16 longest = 0;
+	for(uint8 i = 0; i < anz_vehikel; i ++)
+	{
+		uint16 tmp = fahr[i]->get_besch()->get_loading_time();
+		if(tmp > longest)
+		{
+			longest = tmp;
+		}
+	}
+	return longest;
 }

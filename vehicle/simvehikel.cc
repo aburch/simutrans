@@ -2655,7 +2655,7 @@ waggon_t::set_convoi(convoi_t *c)
 				if(c->get_state()>=convoi_t::WAITING_FOR_CLEARANCE) {
 //	DBG_MESSAGE("waggon_t::set_convoi()","new route %p, route_index %i",c->get_route(),route_index);
 					// find about next signal after loading
-					uint16 next_signal_index=65535;
+					uint16 next_signal_index=65535;	
 					route_t *route=c->get_route();
 
 					if(route->empty()  ||  get_pos()==route->position_bei(route->get_max_n())) {
