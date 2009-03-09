@@ -252,7 +252,7 @@ public:
 
 	int get_nachfolger_count() const { return nachfolger; }
 
-	// Returns the vehicle types to which this vehicle type is an upgrade.
+	// Returns the vehicle types to which this vehicle type may be upgraded.
 
 	const vehikel_besch_t * get_upgrades(int i) const
 	{
@@ -280,7 +280,7 @@ public:
 	uint16 get_overcrowded_capacity() const { return overcrowded_capacity; }
 	uint16 get_loading_time() const { return loading_time; }
 	uint32 get_upgrade_price() const { return upgrade_price; }
-	bool is_available_only_as_upgrade() { return available_only_as_upgrade; }
+	bool is_available_only_as_upgrade() const { return available_only_as_upgrade; }
 	
 
 	/**

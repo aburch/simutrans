@@ -194,7 +194,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 
 	va_end(argptr);
 
-#define MAKEOBJ
+//#define MAKEOBJ
 #ifdef MAKEOBJ
 	// no display available
 	puts( buffer );

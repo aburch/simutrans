@@ -314,8 +314,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		}
 	} while (str.len() > 0);
 
-	// Upgrades: these are the vehicle types to which this vehicle type
-	// is an upgrade. "None" means that it is not an upgrade.
+	// Upgrades: these are the vehicle types to which this vehicle
+	// can be upgraded. "None" means that it cannot be upgraded. 
 	uint8 upgrades = 0;
 	do {
 		char buf[40];

@@ -70,6 +70,7 @@ class gui_convoy_assembler_t :
 
 	// If this is used for a depot, which depot_frame manages, else NULL
 	class depot_frame_t *depot_frame;
+	class replace_frame_t *replace_frame;
 
 	/* Gui parameters */
 	koord placement;	// ...of first vehicle image
@@ -92,6 +93,9 @@ class gui_convoy_assembler_t :
 
 	gui_label_t lb_veh_action;
 	gui_combobox_t action_selector;
+
+	//gui_label_t lb_upgrade;
+	gui_combobox_t upgrade_selector;
 
 	vector_tpl<gui_image_list_t::image_data_t> convoi_pics;
 	gui_image_list_t convoi;
@@ -119,6 +123,7 @@ class gui_convoy_assembler_t :
 
 	enum { va_append, va_insert, va_sell };
 	uint8 veh_action;
+	uint8 upgrade;
 
 	// text for the tabs is defaulted to the train names
 	static const char * get_electrics_name(waytype_t wt);
@@ -155,6 +160,8 @@ class gui_convoy_assembler_t :
 public:
 	// Used for listeners to know what has happened
 	enum { clear_convoy_action, remove_vehicle_action, insert_vehicle_in_front_action, append_vehicle_action };
+
+	enum { u_buy, u_upgrade };
 
 	gui_convoy_assembler_t(karte_t *w, waytype_t wt, bool electrified, signed char player_nr );
 
@@ -206,6 +213,7 @@ public:
 	inline karte_t *get_welt() const {return welt;}
 
 	inline void set_depot_frame(depot_frame_t *df) {depot_frame=df;}
+	inline void set_replace_frame(replace_frame_t *rf) {replace_frame=rf;}
 
 	inline const vector_tpl<const vehikel_besch_t *>* get_vehicles() const {return &vehicles;}
 	void set_vehicles(convoihandle_t cnv);
@@ -243,6 +251,9 @@ public:
 	inline int get_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_panel_height() + get_vinfo_height();}
 
 	inline int get_min_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_min_panel_height() + get_vinfo_height();}
+
+	inline uint8 get_upgrade() const { return upgrade; }
+	inline uint8 get_action() const { return veh_action; }
 };
 
 #endif

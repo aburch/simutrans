@@ -175,17 +175,21 @@ bool depot_t::can_convoi_start(convoihandle_t /*cnv*/) const
 }
 
 
-vehikel_t* depot_t::buy_vehicle(const vehikel_besch_t* info)
+vehikel_t* depot_t::buy_vehicle(const vehikel_besch_t* info, bool upgrade)
 {
 	// Offen: prüfen ob noch platz im depot ist???
 	// "Hours: check whether there is space in the depot?" (Google)
 	DBG_DEBUG("depot_t::buy_vehicle()", info->get_name());
-	vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info ); //"besitzer" = "owner" (Google)
+	vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info, upgrade ); //"besitzer" = "owner" (Google)
 	DBG_DEBUG("depot_t::buy_vehicle()", "vehiclebauer %p", veh);
 
-	vehicles.append(veh);
-	DBG_DEBUG("depot_t::buy_vehicle()", "appended %i vehicle", vehicles.get_count());
-	return veh;
+	if(!upgrade)
+	{
+		vehicles.append(veh);
+		DBG_DEBUG("depot_t::buy_vehicle()", "appended %i vehicle", vehicles.get_count());
+		return veh;
+	}
+	return NULL;
 }
 
 

@@ -18,7 +18,7 @@
 
 replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	gui_frame_t(translator::translate("Replace"), cnv->get_besitzer()),
-	cnv(cnv), new_convoy_cost(0),
+	cnv(cnv),
 	replace_line(false), replace_all(false), depot(false), autostart(true),
 	state(state_replace), replaced_so_far(0),
 	lb_convoy(cnv, true, true),
@@ -78,8 +78,8 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	if (cnv->get_vehikel_anzahl()>0) { // Should always be true
 		wt=cnv->get_vehikel(0)->get_besch()->get_waytype();
 	}
-	const bool weg_electrified = true;  // TODO: refine
-	convoy_assembler=new gui_convoy_assembler_t(cnv->get_welt(), wt, weg_electrified,  cnv->get_besitzer()->get_player_nr() );
+	const bool weg_electrified = cnv->get_welt()->lookup(cnv->get_vehikel(0)->get_pos())->get_weg(wt)->is_electrified();
+	convoy_assembler = new gui_convoy_assembler_t(cnv->get_welt(), wt, weg_electrified,  cnv->get_besitzer()->get_player_nr() );
 	convoy_assembler->set_convoy_tabs_skip(-2*LINESPACE+3*LINESPACE+2*margin+a_button_height);
 	convoy_assembler->add_listener(this);
 	convoy_assembler->set_vehicles(cnv->get_replacing_vehicles());
@@ -120,6 +120,8 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
+
+	convoy_assembler->set_replace_frame(this);
 }
 
 
@@ -263,10 +265,11 @@ void replace_frame_t::update_data()
 	n[1]=0;
 	n[2]=0;
 	money = 0;
+	sint32 base_total_cost = calc_total_cost();
 	if (replace_line || replace_all) {
 		start_replacing();
 	} else {
-		money=cnv->calc_restwert()-new_convoy_cost;
+		money -= base_total_cost;
 	}
 	if (replace_line) {
 		linehandle_t line=cnv.is_bound()?cnv->get_line():linehandle_t();
@@ -278,9 +281,23 @@ void replace_frame_t::update_data()
 					if (present_state==-1) {
 						continue;
 					}
-					money-=(present_state==state_replace?new_convoy_cost:0);
-					money+=(present_state==state_replace||present_state==state_sell?cnv_aux->calc_restwert():0);
-					n[present_state]++;
+					switch(convoy_assembler->get_action())
+					{
+						
+					case gui_convoy_assembler_t::clear_convoy_action:
+						money = 0;
+						n[present_state]++;
+						break;
+
+					case gui_convoy_assembler_t::remove_vehicle_action:
+						money += base_total_cost;
+						n[present_state]++;
+						break;
+
+					default:
+						money -= base_total_cost;
+						n[present_state]++;
+					};
 				}
 			}
 		}
@@ -288,14 +305,31 @@ void replace_frame_t::update_data()
 		karte_t *welt=cnv->get_welt();
 		for (unsigned int i=0; i<welt->get_convoi_count(); i++) {
 			convoihandle_t cnv_aux=welt->get_convoi(i);
-			if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) {
-					int present_state=get_present_state();
-					if (present_state==-1) {
-						continue;
-					}
-					money-=(present_state==state_replace?new_convoy_cost:0);
-					money+=(present_state==state_replace||present_state==state_sell?cnv_aux->calc_restwert():0);
+			if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) 
+			{
+				int present_state=get_present_state();
+				if (present_state==-1) 
+				{
+					continue;
+				}
+
+				switch(convoy_assembler->get_action())
+				{
+					
+				case gui_convoy_assembler_t::clear_convoy_action:
+					money = 0;
 					n[present_state]++;
+					break;
+
+				case gui_convoy_assembler_t::remove_vehicle_action:
+					money += base_total_cost;
+					n[present_state]++;
+					break;
+
+				default:
+					money -= base_total_cost;
+					n[present_state]++;
+				};	
 			}
 		}
 	}
@@ -314,7 +348,7 @@ void replace_frame_t::update_data()
 }
 
 
-int replace_frame_t::get_present_state() {
+uint8 replace_frame_t::get_present_state() {
 	if (numinp[state_replace].get_value()==0 && numinp[state_sell].get_value()==0 && numinp[state_skip].get_value()==0) {
 		return -1;
 	}
@@ -359,6 +393,7 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv)
 			cnv->set_no_load(false);
 			cnv->go_to_depot(false);
 		}
+			//TODO: Add code for upgrading.
 		break;
 	
 	case state_sell:
@@ -378,17 +413,17 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 	if(komp != NULL) {	// message from outside!
 		if(komp == convoy_assembler) {
 			const koord k=*static_cast<const koord *>(p.p);
-			switch (k.x) {
-				case gui_convoy_assembler_t::clear_convoy_action:
-					new_convoy_cost=0;
-					break;
-				case gui_convoy_assembler_t::remove_vehicle_action:
-					new_convoy_cost-=convoy_assembler->get_last_changed_vehicle()->get_preis();
-					break;
-				default: // append/insert_in_front
-					new_convoy_cost+=convoy_assembler->get_last_changed_vehicle()->get_preis();
-					break;
-			}
+			//switch (k.x) {
+			//	case gui_convoy_assembler_t::clear_convoy_action:
+			//		new_convoy_cost=0;
+			//		break;
+			//	case gui_convoy_assembler_t::remove_vehicle_action:
+			//		new_convoy_cost-=convoy_assembler->get_last_changed_vehicle()->get_preis();
+			//		break;
+			//	default: // append/insert_in_front
+			//		new_convoy_cost+=convoy_assembler->get_last_changed_vehicle()->get_preis();
+			//		break;
+			//}
 		} else if(komp == &bt_replace_line) {
 			replace_line=!replace_line;
 			replace_all=false;
@@ -475,4 +510,72 @@ void replace_frame_t::zeichnen(koord pos, koord groesse)
 	lb_skip.set_color(color);
 
 	gui_frame_t::zeichnen(pos, groesse);
+}
+
+sint32 replace_frame_t::calc_total_cost()
+{
+	sint32 total_cost = 0;
+	vector_tpl<const vehikel_t*> current_vehicles;
+	vector_tpl<uint8> keep_vehicles;
+	for(uint8 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
+	{
+		current_vehicles.append(cnv->get_vehikel(i));
+	}
+	ITERATE((*convoy_assembler->get_vehicles()),j)
+	{
+		const vehikel_besch_t* veh = NULL;
+		const vehikel_besch_t* test_new_vehicle = (*convoy_assembler->get_vehicles())[j];
+		// First - check whether there are any of the required vehicles already
+		// in the convoy (free)
+		ITERATE(current_vehicles,k)
+		{
+			const vehikel_besch_t* test_old_vehicle = current_vehicles[k]->get_besch();
+			if(!keep_vehicles.is_contained(k) && current_vehicles[k]->get_besch() == (*convoy_assembler->get_vehicles())[j])
+			{
+				veh = current_vehicles[k]->get_besch();
+				keep_vehicles.append_unique(k);
+				// No change to price here.
+				break;
+			}
+		}
+
+		// We cannot look up the home depot here, so we cannot check whether there are any 
+		// suitable vehicles stored there as is done when the actual replacing takes place.
+
+		if (veh == NULL) 
+		{
+			// Second - check whether the vehicle can be upgraded (cheap)
+			ITERATE(current_vehicles,l)
+			{	
+				for(uint8 c = 0; c < current_vehicles[l]->get_besch()->get_upgrades_count(); c ++)
+				{
+					const vehikel_besch_t* possible_upgrade_test = current_vehicles[l]->get_besch()->get_upgrades(c);
+					if(!keep_vehicles.is_contained(l) && (*convoy_assembler->get_vehicles())[j] == current_vehicles[l]->get_besch()->get_upgrades(c))
+					{
+						veh = current_vehicles[l]->get_besch();
+						keep_vehicles.append_unique(l);
+						total_cost += veh->get_upgrades(c)->get_upgrade_price();
+						goto end_loop;
+					}
+				}
+			}
+end_loop:	
+			if(veh == NULL)
+			{
+				// Third - if all else fails, buy from new (expensive).
+				total_cost += (*convoy_assembler->get_vehicles())[j]->get_preis();
+			}
+		}
+	}
+	ITERATE(current_vehicles,m)
+	{
+		if(!keep_vehicles.is_contained(m))
+		{
+			// This vehicle will not be kept after replacing - 
+			// deduct its resale value from the total cost.
+			total_cost -= current_vehicles[m]->calc_restwert();
+		}
+	}
+	
+	return total_cost;
 }

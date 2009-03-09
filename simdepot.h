@@ -134,7 +134,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	vehikel_t* buy_vehicle(const vehikel_besch_t* info);
+	vehikel_t* buy_vehicle(const vehikel_besch_t* info, bool upgrade);
 
 	/**
 	 * Sell a vehicle from the vehicle list.

@@ -415,10 +415,28 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 						vb=(*convoy_assembler->get_vehicles())[convoy_assembler->get_vehicles()->get_count()-1];
 					}
 					vehikel_t* veh = depot->find_oldest_newest(vb, true);
-					if (veh == NULL) {
+					if (veh == NULL) 
+					{
 						// nothing there => we buy it
-						veh = depot->buy_vehicle(vb);
+						veh = depot->buy_vehicle(vb, convoy_assembler->get_upgrade() == gui_convoy_assembler_t::u_upgrade);
+						if(convoy_assembler->get_upgrade() == gui_convoy_assembler_t::u_upgrade && cnv.is_bound())
+						{
+							//Upgrading, so vehicles must be *replaced*.
+							for(uint16 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
+							{
+								for(uint8 c = 0; c < cnv->get_vehikel(i)->get_besch()->get_upgrades_count(); c ++)
+								{
+									if(cnv->get_vehikel(i)->get_besch()->get_upgrades(c)->get_name() == vb->get_name())
+									{
+										cnv->get_vehikel(i)->set_besch(vb);
+										update_convoy();
+										goto end;
+									}
+								}
+							}
+						}			
 					}
+end:
 					if(!cnv.is_bound()) 
 					{
 						// create a new convoi
@@ -426,7 +444,10 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 						icnv = depot->convoi_count() - 1;
 						cnv->set_name((*convoy_assembler->get_vehicles())[0]->get_name());
 					}
-					depot->append_vehicle(cnv, veh, k.x == gui_convoy_assembler_t::insert_vehicle_in_front_action);
+					if(convoy_assembler->get_upgrade() == gui_convoy_assembler_t::u_buy)
+					{
+						depot->append_vehicle(cnv, veh, k.x == gui_convoy_assembler_t::insert_vehicle_in_front_action);
+					}
 					break;
 			}
 		} else if(komp == &bt_start) {

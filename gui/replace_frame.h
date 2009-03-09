@@ -33,15 +33,14 @@ private:
 	 * The convoy to be replaced
 	 */
 	convoihandle_t cnv;
-	sint32 new_convoy_cost;
 
 	bool replace_line;	// True if all convoys like this in its line are to be replaced
 	bool replace_all;	// True if all convoys like this are to be replaced
 	bool depot;		// True if convoy is to be sent to depot only
 	bool autostart;		// True if convoy is to be sent to depot and restarted automatically
 	enum {state_replace=0, state_sell, state_skip, n_states};
-	int state;
-	int replaced_so_far;
+	uint8 state;
+	uint8 replaced_so_far;
 	sint32 money;
 
 	/**
@@ -88,9 +87,11 @@ private:
 	void update_total_width(int width);
 	void replace_convoy(convoihandle_t cnv);
 	inline void start_replacing() {state=state_replace; replaced_so_far=0;}
-	int get_present_state();
+	uint8 get_present_state();
 
 	karte_t* get_welt() { return cnv->get_welt(); }
+
+	sint32 calc_total_cost();
 
 public:
 	replace_frame_t(convoihandle_t cnv, const char *name);
@@ -127,6 +128,8 @@ public:
 	 * V.Meyer
 	 */
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+
+	const convoihandle_t get_convoy() const { return cnv; }
 
 };
 

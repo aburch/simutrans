@@ -321,6 +321,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 	const vehikel_besch_t *get_besch() const {return besch; }
+	void set_besch(const vehikel_besch_t* value) { besch = value; }
 
 	/**
 	* @return die Betriebskosten in Cr/100Km

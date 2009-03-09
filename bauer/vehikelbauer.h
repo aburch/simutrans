@@ -41,7 +41,12 @@ public:
 	static bool register_besch(const vehikel_besch_t *besch);
 	static bool alles_geladen();
 
-	static vehikel_t* baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb );
+	static vehikel_t* baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb )
+	{
+		return baue(k, sp, cnv, vb, false);
+	}
+
+	static vehikel_t* baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb, bool upgrade );
 
 	static const vehikel_besch_t * get_info(const char *name);
 	static slist_tpl<const vehikel_besch_t*>* get_info(waytype_t typ);

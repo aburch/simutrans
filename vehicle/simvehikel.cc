@@ -2045,6 +2045,10 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 			total_freight += iter.get_current().menge;
 		}
 	}
+	// TODO - Add saves for:
+	// (1) whether vehicle is reversed; and
+	// (2) whether vehicle is to be upgrade-replaced.
+
 }
 
 

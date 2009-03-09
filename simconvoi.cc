@@ -822,24 +822,86 @@ void convoi_t::step()
 				const grund_t *gr = welt->lookup(home_depot);
 				depot_t *dep;
 				if ( gr && (dep=gr->get_depot()) ) {
-					bool keep_name=(anz_vehikel>0 && strcmp(get_name(),fahr[0]->get_besch()->get_name())!=0);
-					// Sell the old convoy
-					besitzer_p->buche( calc_restwert(), dep->get_pos().get_2d(), COST_NEW_VEHICLE );
-					besitzer_p->buche( -calc_restwert(), COST_ASSETS );
-					for(int i=anz_vehikel-1;  i>=0; i--) {
-						delete fahr[i];
+					bool keep_name=(anz_vehikel>0 && strcmp(get_name(),fahr[0]->get_besch()->get_name())!=0);						
+					vector_tpl<vehikel_t*> new_vehicles;
+
+					// Acquire the new one
+					ITERATE(replacing_vehicles,i)
+					{
+						vehikel_t* veh = NULL;
+						// First - check whether there are any of the required vehicles already
+						// in the convoy (free)
+						for(uint8 k = 0; k < anz_vehikel; k++)
+						{
+							if(fahr[k]->get_besch() == replacing_vehicles[i])
+							{
+								veh = remove_vehikel_bei(k);
+								//keep_vehicles.append_unique(k);
+								break;
+							}
+						}
+
+						// This part of the code is abandoned, as it causes problems: vehicles that have already been bought
+						// are added twice to the convoy, causing bizarre corruption issues.
+						/*if( veh == NULL)
+						{
+							 //Second - check whether there are any of the required vehicles already
+							 //in the depot (more or less free).
+							veh = dep->find_oldest_newest(replacing_vehicles[i], true);
+						}*/
+
+						if (veh == NULL) 
+						{
+							// Third - check whether the vehicle can be upgraded (cheap)
+							for(uint16 j = 0; j < anz_vehikel; j ++)
+							{
+								
+								for(uint8 c = 0; c < fahr[j]->get_besch()->get_upgrades_count(); c ++)
+								{
+									if(replacing_vehicles[i] == fahr[j]->get_besch()->get_upgrades(c))
+									{
+										veh = remove_vehikel_bei(j);
+										veh->set_besch(replacing_vehicles[i]);
+										dep->buy_vehicle(veh->get_besch(), true);
+										goto end_loop;
+									}
+								}
+							}
+end_loop:	
+							if(veh == NULL)
+							{
+								// Fourth - if all else fails, buy from new (expensive).
+								veh = dep->buy_vehicle(replacing_vehicles[i], false);
+							}
+						}
+
+						//dep->append_vehicle(self, veh, false);
+						
+						// This new method is needed to enable this method to iterate over
+						// the existing vehicles in the convoy while it is adding new vehicles.
+						// They must be added to temporary storage, and appended to the existing
+						// convoy at the end, after the existing convoy has been deleted.
+						new_vehicles.append(veh);
+						
+					}
+
+					//First, delete the existing convoy
+					for(sint8 a = anz_vehikel-1;  a >= 0; a--) 
+					{
+						//Sell any vehicles not upgraded or kept.
+						besitzer_p->buche( fahr[a]->calc_restwert(), dep->get_pos().get_2d(), COST_NEW_VEHICLE );
+						besitzer_p->buche( -fahr[a]->calc_restwert(), COST_ASSETS );	
+						delete fahr[a];
 					}
 					anz_vehikel = 0;
 					reset();
-					// Buy the new one
-					for (unsigned int i=0; i<replacing_vehicles.get_count(); ++i) {
-						vehikel_t* veh = dep->find_oldest_newest(replacing_vehicles[i], true);
-						if (veh == NULL) {
-							// nothing there => we buy it
-							veh = dep->buy_vehicle(replacing_vehicles[i]);
-						}
-						dep->append_vehicle(self, veh, false);
+
+					//Next, add all the new vehicles to the convoy in order.
+					ITERATE(new_vehicles,b)
+					{
+						dep->append_vehicle(self, new_vehicles[b], false);
 					}
+					
 					if (!keep_name) {
 						set_name(fahr[0]->get_besch()->get_name());
 					}

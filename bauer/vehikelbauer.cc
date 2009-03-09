@@ -147,7 +147,7 @@ sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 
 
 
-vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb )
+vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb, bool upgrade )
 {
 	vehikel_t* v;
 	switch (vb->get_waytype()) {
@@ -164,7 +164,15 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 			dbg->fatal("vehikelbauer_t::baue()", "cannot built a vehicle with waytype %i", vb->get_waytype());
 	}
 
-	sp->buche(-(sint32)vb->get_preis(), k.get_2d(), COST_NEW_VEHICLE );
+	if(upgrade)
+	{
+		sp->buche(-(sint32)vb->get_upgrade_price(), k.get_2d(), COST_NEW_VEHICLE );
+	}
+	else
+	{
+		sp->buche(-(sint32)vb->get_preis(), k.get_2d(), COST_NEW_VEHICLE );
+	}
+
 	sp->buche( (sint32)vb->get_preis(), COST_ASSETS );
 
 	return v;
