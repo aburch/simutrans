@@ -1,5 +1,6 @@
 	ADD: (mostly gerw) sparse data and overlay in main map for passenger destinations
 	ADD: No connections found via overcrowded stops, if overcrowded flag active
+	ADD: do not create goods/passenger/mail when the only route is over an overcrowded stop (simuconf.tab no_routing_over_overcrowded)
 
 
 

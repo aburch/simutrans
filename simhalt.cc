@@ -1338,7 +1338,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 					if(  tmp.get_zwischenziel()==plan_halt  ) {
 
 						if(  plan_halt->is_overcrowded(wtyp->get_catg_index())  ) {
-							if(  welt->get_einstellungen()->get_avoid_overcrowding()  &&  !(tmp.get_ziel()==plan_halt)  ) {
+							if(  welt->get_einstellungen()->is_avoid_overcrowding()  &&  !(tmp.get_ziel()==plan_halt)  ) {
 								// do not go for transfer to overcrowded transfer stop
 								continue;
 							}
@@ -2072,6 +2072,18 @@ void haltestelle_t::laden_abschliessen()
 			vector_tpl<ware_t> * warray = waren[i];
 			for(unsigned j=0; j<warray->get_count(); j++) {
 				(*warray)[j].laden_abschliessen(welt);
+			}
+			// merge identical entries (should only happen with old games)
+			for(unsigned j=0; j<warray->get_count(); j++) {
+				if(  (*warray)[j].menge==0  ) {
+					continue;
+				}
+				for(unsigned k=j+1; k<warray->get_count(); k++) {
+					if(  (*warray)[k].menge>0  &&  (*warray)[j].same_destination( (*warray)[k] )  ) {
+						(*warray)[j].menge += (*warray)[k].menge;
+						(*warray)[k].menge = 0;
+					}
+				}
 			}
 		}
 	}
