@@ -17,6 +17,7 @@
 #include "tpl/slist_tpl.h"
 
 #include "vehicle/simverkehr.h"
+#include "tpl/sparse_tpl.h"
 
 class karte_t;
 class spieler_t;
@@ -31,6 +32,8 @@ class cstring_t;
 #define MAX_CITY_HISTORY_YEARS  (12) // number of years to keep history
 #define MAX_CITY_HISTORY_MONTHS (12) // number of months to keep history
 
+#define PAX_DESTINATIONS_SIZE (128) // size of the minimap.
+
 enum city_cost {
 	HIST_CITICENS=0,// total people
 	HIST_GROWTH,	// growth (just for convenience)
@@ -42,7 +45,7 @@ enum city_cost {
 	HIST_MAIL_GENERATED,	// all letters generated
 	HIST_GOODS_RECIEVED,	// times all storages were not empty
 	HIST_GOODS_NEEDED,	// times sotrages checked
-	HIST_CONGESTION,	// Level of congestion in the city, expressed in percent.(Was power consumption - discused)
+	HIST_CONGESTION,	// Level of congestion in the city, expressed in percent.(Was power consumption - disused)
 	MAX_CITY_HISTORY	// Total number of items in array
 };
 
@@ -95,8 +98,11 @@ private:
 
 	weighted_vector_tpl <gebaeude_t *> buildings;
 
-	array2d_tpl<uint8> pax_ziele_alt;
-	array2d_tpl<uint8> pax_ziele_neu;
+	sparse_tpl<uint8> pax_destinations_old;
+	sparse_tpl<uint8> pax_destinations_new;
+
+	// this counter will increment by one for every change => dialogs can question, if they need to update map
+	unsigned long pax_destinations_new_change;
 
 	koord pos;			// Gruendungsplanquadrat der Stadt
 	koord lo, ur;		// max size of housing area
@@ -200,10 +206,10 @@ private:
 	weighted_vector_tpl<fabrik_t *> arbeiterziele;
 
 	/**
-	 * allokiert pax_ziele_alt/neu und init. die werte
+	 * Initialization of pax_destinations_old/new
 	 * @author Hj. Malthaner
 	 */
-	void init_pax_ziele();
+	void init_pax_destinations();
 
 	// recalculate house informations (used for target selection)
 	void recount_houses();
@@ -362,13 +368,19 @@ public:
 	 * gibt das pax-statistik-array für letzten monat zurück
 	 * @author Hj. Malthaner
 	 */
-	const array2d_tpl<unsigned char>* get_pax_ziele_alt() const { return &pax_ziele_alt; }
+	const sparse_tpl<unsigned char>* get_pax_destinations_old() const { return &pax_destinations_old; }
 
 	/**
 	 * gibt das pax-statistik-array für den aktuellen monat zurück
 	 * @author Hj. Malthaner
 	 */
-	const array2d_tpl<unsigned char>* get_pax_ziele_neu() const { return &pax_ziele_neu; }
+	const sparse_tpl<unsigned char>* get_pax_destinations_new() const { return &pax_destinations_new; }
+
+	/* this counter will increment by one for every change
+	 * => dialogs can question, if they need to update map
+	 * @author prissi
+	 */
+	unsigned long get_pax_destinations_new_change() const { return pax_destinations_new_change; }
 
 	/**
 	 * Erzeugt eine neue Stadt auf Planquadrat (x,y) die dem Spieler sp

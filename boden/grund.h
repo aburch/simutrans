@@ -527,6 +527,12 @@ public:
 	*/
 	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)dinge.bei(1))->get_besch()->get_styp()!=7; }
 
+	/**
+	* returns the vehcile of a convoi (if there)
+	* @author V. Meyer
+	*/
+	ding_t *get_convoi_vehicle() const { return dinge.get_convoi_vehicle(); }
+
 	virtual hang_t::typ get_weg_hang() const { return get_grund_hang(); }
 
 	/**

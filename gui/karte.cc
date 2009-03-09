@@ -287,6 +287,11 @@ reliefkarte_t::calc_map_pixel(const koord k)
 	}
 	const grund_t *gr=plan->get_boden_bei(plan->get_boden_count()-1);
 
+	if(  mode!=MAP_PAX_DEST  &&  gr->get_convoi_vehicle()  ) {
+		set_relief_farbe( k, VEHIKEL_KENN );
+		return;
+	}
+
 	// first use ground color
 	set_relief_farbe( k, calc_relief_farbe(gr) );
 
@@ -529,6 +534,20 @@ reliefkarte_t::calc_map_pixel(const koord k)
 			}
 			break;
 
+		case MAP_PAX_DEST:
+			if(  city  ) {
+				const koord p = koord(
+					((k.x * PAX_DESTINATIONS_SIZE) / welt->get_groesse_x()) & (PAX_DESTINATIONS_SIZE-1),
+					((k.y * PAX_DESTINATIONS_SIZE) / welt->get_groesse_y()) & (PAX_DESTINATIONS_SIZE-1)
+				);
+				const uint8 color = city->get_pax_destinations_new()->get(p);
+				if( color != 0 ) {
+					set_relief_farbe(k, color);
+				}
+			}
+
+			break;
+
 		default:
 			break;
 	}
@@ -536,10 +555,9 @@ reliefkarte_t::calc_map_pixel(const koord k)
 
 
 
-void
-reliefkarte_t::calc_map()
+void reliefkarte_t::calc_map()
 {
-	// size cahnge due to zoom?
+	// size change due to zoom?
 	koord size = rotate45 ?
 			koord( ((welt->get_groesse_y()+zoom_in)*zoom_out)/zoom_in+((welt->get_groesse_x()+zoom_in)*zoom_out)/zoom_in+1, ((welt->get_groesse_y()+zoom_in-1)*zoom_out)/zoom_in+((welt->get_groesse_x()+zoom_in-1)*zoom_out)/zoom_in ) :
 			koord( ((welt->get_groesse_x()+zoom_in-1)*zoom_out)/zoom_in, ((welt->get_groesse_y()+zoom_in-1)*zoom_out)/zoom_in );
@@ -557,14 +575,6 @@ reliefkarte_t::calc_map()
 	for(k.y=0; k.y<welt->get_groesse_y(); k.y++) {
 		for(k.x=0; k.x<welt->get_groesse_x(); k.x++) {
 			calc_map_pixel(k);
-		}
-	}
-
-	// mark all vehicle positions
-	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
-		convoihandle_t cnv = *i;
-		for (uint16 i = 0; i < cnv->get_vehikel_anzahl(); i++) {
-			set_relief_farbe(cnv->get_vehikel(i)->get_pos().get_2d(), VEHIKEL_KENN);
 		}
 	}
 
@@ -631,6 +641,7 @@ reliefkarte_t::reliefkarte_t()
 	mode = MAP_TOWN;
 	fpl = NULL;
 	fpl_player_nr = 0;
+	city = NULL;
 	is_show_schedule = false;
 	is_show_fab = false;
 }
@@ -794,11 +805,15 @@ void reliefkarte_t::draw_schedule(const koord pos) const
 
 
 // draw the map
-void
-reliefkarte_t::zeichnen(koord pos)
+void reliefkarte_t::zeichnen(koord pos)
 {
 	if(relief==NULL) {
 		return;
+	}
+
+	if(  mode==MAP_PAX_DEST  &&  city!=NULL  &&  pax_destinations_last_change != city->get_pax_destinations_new_change()  ) {
+		calc_map();
+		pax_destinations_last_change = city->get_pax_destinations_new_change();
 	}
 
 	display_fillbox_wh_clip(pos.x, pos.y, 4000, 4000, COL_BLACK, true);
@@ -858,13 +873,11 @@ reliefkarte_t::zeichnen(koord pos)
 				display_direct_line(k[0].x, k[2].y, k[2].x, k[2].y, color);
 			}
 		}
-
 	}
-
 
 	// if we do not do this here, vehicles would erase the town names
 	// ADD: if CRTL key is pressed, temporary show the name
-	if( mode==MAP_TOWN  ||  event_get_last_control_shift()==2 ) {
+	if(  mode==MAP_TOWN  ||  event_get_last_control_shift()==2  ) {
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
 		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i) {
 			const stadt_t* stadt = *i;
@@ -930,5 +943,18 @@ reliefkarte_t::zeichnen(koord pos)
 			const char * name = translator::translate(fab->get_name());
 			display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 10, COL_WHITE, name, true);
 		}
+	}
+}
+
+
+
+void reliefkarte_t::set_city( const stadt_t* _city )
+{
+	if(  city != _city  ) {
+		city = _city;
+		if(  _city  ) {
+			pax_destinations_last_change = _city->get_pax_destinations_new_change();
+		}
+		calc_map();
 	}
 }

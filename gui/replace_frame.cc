@@ -412,7 +412,7 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 {
 	if(komp != NULL) {	// message from outside!
 		if(komp == convoy_assembler) {
-			const koord k=*static_cast<const koord *>(p.p);
+			//const koord k=*static_cast<const koord *>(p.p);
 			//switch (k.x) {
 			//	case gui_convoy_assembler_t::clear_convoy_action:
 			//		new_convoy_cost=0;
@@ -424,6 +424,7 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 			//		new_convoy_cost+=convoy_assembler->get_last_changed_vehicle()->get_preis();
 			//		break;
 			//}
+
 		} else if(komp == &bt_replace_line) {
 			replace_line=!replace_line;
 			replace_all=false;

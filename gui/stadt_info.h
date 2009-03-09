@@ -19,6 +19,7 @@
 #include "components/gui_tab_panel.h"
 
 class stadt_t;
+template <class T> class sparse_tpl;
 
 /**
  * Dies stellt ein Fenster mit den Informationen
@@ -42,6 +43,14 @@ private:
 	button_t filterButtons[MAX_CITY_HISTORY];
 	bool bFilterIsActive[MAX_CITY_HISTORY];
 
+	uint8* pax_dest_old;
+	uint8* pax_dest_new;
+
+	unsigned long pax_destinations_last_change;
+
+	void init_pax_dest( uint8* pax_dest );
+	void add_pax_dest( uint8* pax_dest, const sparse_tpl< uint8 >* city_pax_dest );
+
 public:
 	stadt_info_t(stadt_t *stadt);
 
@@ -50,7 +59,7 @@ public:
 	 * @return den Dateinamen für die Hilfe, oder NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_hilfe_datei() const {return "citywindow.txt";}
+	const char *get_hilfe_datei() const {return "citywindow.txt";}
 
 	/**
 	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
@@ -59,15 +68,20 @@ public:
 	*/
 	void zeichnen(koord pos, koord gr);
 
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     *
-     * Returns true, if action is done and no more
-     * components should be triggered.
-     * V.Meyer
-     */
-    bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	/**
+	 * This method is called if an action is triggered
+	 * @author Hj. Malthaner
+	 *
+	 * Returns true, if action is done and no more
+	 * components should be triggered.
+	 * V.Meyer
+	 */
+	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+
+	void map_rotate90( sint16 );
+
+	// since we need to update the city pointer when topped
+	void infowin_event(const event_t *ev);
 };
 
 #endif

@@ -9,6 +9,7 @@
 class karte_t;
 class fabrik_t;
 class grund_t;
+class stadt_t;
 
 
 #define MAX_MAP_TYPE_LAND 14
@@ -28,7 +29,7 @@ class grund_t;
 class reliefkarte_t : public gui_komponente_t
 {
 public:
-	typedef enum { PLAIN=-1, MAP_TOWN=0, MAP_PASSENGER, MAP_MAIL, MAP_FREIGHT, MAP_STATUS, MAP_SERVICE, MAP_TRAFFIC, MAP_ORIGIN, MAP_DESTINATION, MAP_WAITING, MAP_TRACKS, MAX_SPEEDLIMIT, MAP_POWERLINES, MAP_TOURIST, MAP_FACTORIES, MAP_DEPOT, MAP_FOREST, MAP_CITYLIMIT } MAP_MODES;
+	typedef enum { PLAIN=-1, MAP_TOWN=0, MAP_PASSENGER, MAP_MAIL, MAP_FREIGHT, MAP_STATUS, MAP_SERVICE, MAP_TRAFFIC, MAP_ORIGIN, MAP_DESTINATION, MAP_WAITING, MAP_TRACKS, MAX_SPEEDLIMIT, MAP_POWERLINES, MAP_TOURIST, MAP_FACTORIES, MAP_DEPOT, MAP_FOREST, MAP_CITYLIMIT, MAP_PAX_DEST } MAP_MODES;
 
 private:
 	static karte_t *welt;
@@ -52,6 +53,10 @@ private:
 
 	// to be prepared for more than one map => nonstatic
 	void set_relief_farbe_area(koord k, int areasize, uint8 color);
+
+	// for passenger destination display
+	const stadt_t *city;
+	unsigned long pax_destinations_last_change;
 
 	const schedule_t *fpl;
 	uint8 fpl_player_nr;
@@ -133,6 +138,10 @@ public:
 	void zeichnen(koord pos);
 
 	void set_current_fpl(const schedule_t *current_fpl, uint8 player_nr) {fpl = current_fpl; fpl_player_nr = player_nr;};
+
+	void set_city( const stadt_t* _city );
+
+	const stadt_t* get_city() const { return city; };
 };
 
 #endif

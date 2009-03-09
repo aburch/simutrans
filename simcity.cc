@@ -794,18 +794,11 @@ void stadt_t::recalc_city_size()
 
 
 
-void stadt_t::init_pax_ziele()
+void stadt_t::init_pax_destinations()
 {
-	const int gr_x = welt->get_groesse_x();
-	const int gr_y = welt->get_groesse_y();
-
-	for (int j = 0; j < 128; j++) {
-		for (int i = 0; i < 128; i++) {
-			const koord pos(i * gr_x / 128, j * gr_y / 128);
-			const grund_t* gr = welt->lookup(pos)->get_kartenboden();
-			pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i, j) = reliefkarte_t::calc_relief_farbe(gr);
-		}
-	}
+	pax_destinations_old.clear();
+	pax_destinations_new.clear();
+	pax_destinations_new_change = 0;
 }
 
 
@@ -816,6 +809,10 @@ stadt_t::~stadt_t()
 
 	// Empty the list of city cars
 	current_cars.clear();
+
+	if(  reliefkarte_t::get_karte()->get_city() == this  ) {
+		reliefkarte_t::get_karte()->set_city(NULL);
+	}
 
 	// olny if there is still a world left to delete from
 	if(welt->get_groesse_x()>1) {
@@ -847,14 +844,15 @@ stadt_t::~stadt_t()
 
 stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	buildings(16),
-	pax_ziele_alt(128, 128),
-	pax_ziele_neu(128, 128),
+	pax_destinations_old(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE)),
+	pax_destinations_new(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE)),
 	arbeiterziele(4)
 {
 	welt = sp->get_welt();
 	assert(welt->ist_in_kartengrenzen(pos));
 
 	step_count = 0;
+	pax_destinations_new_change = 0;
 	next_step = 0;
 	step_interval = 1;
 	next_bau_step = 0;
@@ -939,8 +937,8 @@ next_name:;
 
 stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	buildings(16),
-	pax_ziele_alt(128, 128),
-	pax_ziele_neu(128, 128)
+	pax_destinations_old(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE)),
+	pax_destinations_new(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE))
 {
 	welt = wl;
 	step_count = 0;
@@ -1100,7 +1098,7 @@ void stadt_t::laden_abschliessen()
 	}
 
 	// clear the minimaps
-	init_pax_ziele();
+	init_pax_destinations();
 
 	// init step counter with meaningful value
 	step_interval = (2 << 18u) / (buildings.get_count() * 4 + 1);
@@ -1130,15 +1128,25 @@ void stadt_t::rotate90( const sint16 y_size )
 	best_strasse.reset(pos);
 	best_haus.reset(pos);
 	// rathaus position may be changed a little!
-	array2d_tpl<uint8> pax_ziele_temp( 128, 128 );
-	pax_ziele_temp.copy_from( pax_ziele_neu );
-	for( int y=0;  y<128;  y++  ) {
-		for( int x=0;  x<128;  x++  ) {
-			pax_ziele_neu.at( 127-y, x) = pax_ziele_temp.at(x, y);
-			pax_ziele_temp.at( x, y ) = pax_ziele_alt.at( 127-y, x );
-		}
+	sparse_tpl<uint8> pax_destinations_temp(koord( PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE ));
+
+	uint8 color;
+	koord pos;
+	for( uint16 i = 0; i < pax_destinations_new.get_data_count(); i++ ) {
+		pax_destinations_new.get_nonzero(i, pos, color);
+		assert( color != 0 );
+		pax_destinations_temp.set( PAX_DESTINATIONS_SIZE-1-pos.y, pos.x, color );
 	}
-	pax_ziele_alt.copy_from( pax_ziele_temp );
+	swap<uint8>( pax_destinations_temp, pax_destinations_new );
+
+	pax_destinations_temp.clear();
+	for( uint16 i = 0; i < pax_destinations_old.get_data_count(); i++ ) {
+		pax_destinations_old.get_nonzero(i, pos, color);
+		assert( color != 0 );
+		pax_destinations_temp.set( PAX_DESTINATIONS_SIZE-1-pos.y, pos.x, color );
+	}
+	pax_destinations_new_change ++;
+	swap<uint8>( pax_destinations_temp, pax_destinations_old );
 }
 
 
@@ -1320,17 +1328,9 @@ void stadt_t::roll_history()
 
 void stadt_t::neuer_monat() //"New month" (Google)
 {
-	const int gr_x = welt->get_groesse_x();
-	const int gr_y = welt->get_groesse_y();
-
-	pax_ziele_alt.copy_from(pax_ziele_neu);
-	for (int j = 0; j < 128; j++) {
-		for (int i = 0; i < 128; i++) {
-			const koord pos(i * gr_x / 128, j * gr_y / 128);
-			const grund_t* gr = welt->lookup(pos)->get_kartenboden();
-			pax_ziele_neu.at(i, j) = pax_ziele_neu.at(i, j) = reliefkarte_t::calc_relief_farbe(gr);
-		}
-	}
+	swap<uint8>( pax_destinations_old, pax_destinations_new );
+	pax_destinations_new.clear();
+	pax_destinations_new_change = 0;
 
 	roll_history();
 
@@ -2262,10 +2262,11 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return)
 void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 {
 	const koord p = koord(
-		((k.x * 128) / welt->get_groesse_x()) & 127,
-		((k.y * 128) / welt->get_groesse_y()) & 127
+		((k.x * PAX_DESTINATIONS_SIZE) / welt->get_groesse_x()) & (PAX_DESTINATIONS_SIZE-1),
+		((k.y * PAX_DESTINATIONS_SIZE) / welt->get_groesse_y()) & (PAX_DESTINATIONS_SIZE-1)
 	);
-	pax_ziele_neu.at(p) = color;
+	pax_destinations_new_change ++;
+	pax_destinations_new.set(p, color);
 }
 
 
