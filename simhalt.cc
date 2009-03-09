@@ -1453,6 +1453,10 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware)
 			// es wird auf basis von Haltestellen vereinigt
 			// prissi: das ist aber ein Fehler für alle anderen Güter, daher Zielkoordinaten für alles, was kein passagier ist ...
 			if(ware.same_destination(tmp)) {
+				if(  ware.get_zwischenziel().is_bound()  &&  ware.get_zwischenziel()!=self  ) {
+					// update route if there is newer route
+					tmp.set_zwischenziel( ware.get_zwischenziel() );
+				}
 				tmp.menge += ware.menge;
 				resort_freight_info = true;
 				return true;
