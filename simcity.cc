@@ -1441,7 +1441,7 @@ void stadt_t::step_passagiere()
 
 			// now, finally search a route; this consumes most of the time
 			koord return_zwischenziel = koord::invalid; // for people going back ...
-			start_halt->suche_route(pax, will_return ? &return_zwischenziel : NULL);
+			start_halt->suche_route( pax, will_return ? &return_zwischenziel : NULL, welt->get_einstellungen()->get_avoid_overcrowding() );
 
 			if (pax.get_ziel().is_bound()) {
 				// so we have happy traveling passengers

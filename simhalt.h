@@ -351,9 +351,12 @@ public:
 	 * @author Hj. Malthaner
 	 *
 	 * for reverse routing, also the next to last stop can be added, if next_to_ziel!=NULL
+	 *
+	 * if avoid_overcrowding is set, a valid route in only found when there is no overflowing stop in between
+	 *
 	 * @author prissi
 	 */
-	void suche_route(ware_t &ware, koord *next_to_ziel=NULL);
+	void suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_overcrowding );
 #if 0
 	/* true, if there is a conncetion between these places
 	 * @author prissi
