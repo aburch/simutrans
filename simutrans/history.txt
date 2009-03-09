@@ -1,4 +1,6 @@
 	ADD: (mostly gerw) sparse data and overlay in main map for passenger destinations
+	ADD: No connections found via overcrowded stops, if overcrowded flag active
+
 
 
 Release of 102.0 (r2366)

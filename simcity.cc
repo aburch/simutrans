@@ -1791,6 +1791,7 @@ void stadt_t::step_passagiere()
 						
 						set_private_car_trip(pax_left_to_do, destinations[current_destination].town);
 						route_good = true;
+
 #ifdef DESTINATION_CITYCARS
 						//citycars with destinations
 						if(start_halt.is_bound())
@@ -1835,7 +1836,7 @@ void stadt_t::step_passagiere()
 						break;
 					}
 					halthandle_t current_halt = *start_halts.get_element(i);
-					current_halt->suche_route(pax, will_return ? &return_zwischenziel : NULL);
+					current_halt->suche_route(pax, will_return ? &return_zwischenziel : NULL, welt->get_einstellungen()->get_avoid_overcrowding());
 					if(!pax.get_ziel().is_bound())
 					{
 						//Only continue processing if there is a route.
