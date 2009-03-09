@@ -1218,7 +1218,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 
 		// column 2
 	
-		int j = sprintf(buf, "%s %s %04d\n",
+		int j =  sprintf(buf, "%s %i \n", translator::translate("Loading time:"), veh_type->get_loading_time());
+
+		j += sprintf(buf + j, "%s %s %04d\n",
 			translator::translate("Intro. date:"),	
 			translator::get_month_name(veh_type->get_intro_year_month()%12),
 			veh_type->get_intro_year_month()/12 );
@@ -1234,15 +1236,16 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			j+= sprintf(buf + j, "%s %0.2f : 1\n", translator::translate("Gear: "), 	veh_type->get_gear()/64.0);
 		}
 
-		if(veh_type->get_copyright()!=NULL  &&  veh_type->get_copyright()[0]!=0) 
-		{
-			j += sprintf(buf + j, translator::translate("Constructed by %s\n"), veh_type->get_copyright());
-		}
 		if(veh_type->get_tilting())
 		{
 			j += sprintf(buf + j, translator::translate("This is a tilting vehicle\n"));
 		}
 
+		if(veh_type->get_copyright()!=NULL  &&  veh_type->get_copyright()[0]!=0) 
+		{
+			j += sprintf(buf + j, translator::translate("Constructed by %s\n"), veh_type->get_copyright());
+		}
+		
 		if(value != -1) 
 		{
 			sprintf(buf + strlen(buf), "%s %d Cr", translator::translate("Restwert: "), 	value); //"Restwert" = residual (Google)
