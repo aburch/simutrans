@@ -1664,8 +1664,8 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 				}
 				break;
 
-			case convoi_t::	FAHRPLANEINGABE:
-			case convoi_t::	ROUTING_1:
+			case convoi_t::FAHRPLANEINGABE:
+//			case convoi_t::ROUTING_1:
 				if(  state>=2  ) {
 					sprintf( tooltip_text, translator::translate("Schedule changing!") );
 					color = COL_YELLOW;

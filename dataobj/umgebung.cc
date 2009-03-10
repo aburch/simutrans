@@ -184,5 +184,9 @@ void umgebung_t::rdwr(loadsave_t *file)
 	file->rdwr_bool( mute_sound, "" );
 	file->rdwr_bool( mute_midi, "" );
 	file->rdwr_bool( shuffle_midi, "" );
+
+	if(  file->get_version()>102001  ) {
+		file->rdwr_byte( show_vehicle_states, "" );
+	}
 }
 

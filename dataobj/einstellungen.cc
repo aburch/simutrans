@@ -606,8 +606,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	way_count_leaving_road = contents.get_int("way_leaving_road", way_count_leaving_road);
 
 	/*
-	* Selection of savegame format through inifile
-	*/
+	 * Selection of savegame format through inifile
+	 */
 	str = contents.get("saveformat");
 	while (*str == ' ') str++;
 	if (strcmp(str, "binary") == 0) {
