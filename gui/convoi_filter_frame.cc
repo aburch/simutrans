@@ -18,23 +18,23 @@
 #include "../dataobj/translator.h"
 
 koord convoi_filter_frame_t::filter_buttons_pos[FILTER_BUTTONS] = {
-    koord(5,   4),
-    koord(5,  43),
-    koord(21, 58),
-    koord(21, 74),
-    koord(21, 90),
-    koord(21, 106),
-    koord(5,  175),
-    koord(21, 191),
-    koord(21, 207),
-    koord(21, 223),
-    koord(21, 239),
-    koord(21, 255),
-    koord(21, 271),
-    koord(125, 4),
-    koord(21, 122),
-    koord(21, 138),
-    koord(21, 154)
+	koord(5,   4),
+	koord(5,  43),
+	koord(21, 58),
+	koord(21, 74),
+	koord(21, 90),
+	koord(21, 106),
+	koord(5,  175),
+	koord(21, 191),
+	koord(21, 207),
+	koord(21, 223),
+	koord(21, 239),
+	koord(21, 255),
+	koord(21, 271),
+	koord(125, 4),
+	koord(21, 122),
+	koord(21, 138),
+	koord(21, 154)
 };
 
 const char *convoi_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {

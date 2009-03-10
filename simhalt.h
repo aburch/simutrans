@@ -65,6 +65,8 @@ class haltestelle_t
 public:
 	enum station_flags { NOT_ENABLED=0, PAX=1, POST=2, WARE=4, CROWDED=8 };
 
+	enum routine_result_flags { NO_ROUTE=0, ROUTE_OK=1, ROUTE_OVERCROWDED=8 };
+
 	//13-Jan-02     Markus Weber    Added
 	enum stationtyp {invalid=0, loadingbay=1, railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32, tramstop = 64, maglevstop=128, narrowgaugestop=256 }; //could be combined with or!
 
@@ -356,13 +358,8 @@ public:
 	 *
 	 * @author prissi
 	 */
-	void suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_overcrowding );
-#if 0
-	/* true, if there is a conncetion between these places
-	 * @author prissi
-	 */
-	bool is_connected(const halthandle_t halt, const ware_besch_t * wtyp) const { return get_warenziele(wtyp->get_catg_index(halt))->is_contained(); }
-#endif
+	int suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_overcrowding );
+
 	int get_pax_enabled()  const { return enables & PAX;  }
 	int get_post_enabled() const { return enables & POST; }
 	int get_ware_enabled() const { return enables & WARE; }

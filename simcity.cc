@@ -1363,7 +1363,7 @@ void stadt_t::step_passagiere()
 	halthandle_t start_halt = halthandle_t();
 	for (uint h = 0; h < plan->get_haltlist_count(); h++) {
 		halthandle_t halt = halt_list[h];
-		if (halt->is_enabled(wtyp)  &&  halt->get_ware_summe(wtyp)<=halt->get_capacity(wtyp->get_index())) {
+		if(  halt->is_enabled(wtyp)  &&  !halt->is_overcrowded(wtyp->get_catg_index())  ) {
 			start_halt = halt;
 			break;
 		}
@@ -1441,9 +1441,9 @@ void stadt_t::step_passagiere()
 
 			// now, finally search a route; this consumes most of the time
 			koord return_zwischenziel = koord::invalid; // for people going back ...
-			start_halt->suche_route( pax, will_return ? &return_zwischenziel : NULL, welt->get_einstellungen()->is_no_routing_over_overcrowding() );
+			const int route_result = start_halt->suche_route( pax, will_return ? &return_zwischenziel : NULL, welt->get_einstellungen()->is_no_routing_over_overcrowding() );
 
-			if (pax.get_ziel().is_bound()) {
+			if(  route_result == haltestelle_t::ROUTE_OK  ) {
 				// so we have happy traveling passengers
 				start_halt->starte_mit_route(pax);
 				start_halt->add_pax_happy(pax.menge);
@@ -1451,7 +1451,15 @@ void stadt_t::step_passagiere()
 				merke_passagier_ziel(ziel, COL_YELLOW);
 				city_history_year[0][history_type] += pax.menge;
 				city_history_month[0][history_type] += pax.menge;
-			} else {
+			}
+			else if(  route_result==haltestelle_t::ROUTE_OVERCROWDED  ) {
+				merke_passagier_ziel(ziel, COL_ORANGE );
+				start_halt->add_pax_unhappy(pax_left_to_do);
+				if(  will_return  ) {
+					pax.get_ziel()->add_pax_unhappy(pax_left_to_do);
+				}
+			}
+			else {
 				start_halt->add_pax_no_route(pax_left_to_do);
 				merke_passagier_ziel(ziel, COL_DARK_ORANGE);
 #ifdef DESTINATION_CITYCARS
@@ -1461,10 +1469,10 @@ void stadt_t::step_passagiere()
 			}
 
 			// send them also back
-			if (will_return != no_return && pax.get_ziel().is_bound()) {
+			if(  route_result==haltestelle_t::ROUTE_OK  &&  will_return != no_return  ) {
 				// this comes most of the times for free and balances also the amounts!
 				halthandle_t ret_halt = pax.get_ziel();
-				if (will_return != town_return) {
+				if(will_return != town_return) {
 					// restore normal mail amount => more mail from attractions and factories than going to them
 					pax.menge = pax_left_to_do;
 				}
@@ -1482,7 +1490,7 @@ void stadt_t::step_passagiere()
 
 				// now try to add them to the target halt
 				uint32 max_ware =ret_halt->get_capacity(wtyp->get_index());
-				if(ret_halt->get_ware_summe(wtyp) <= max_ware) {
+				if(  !ret_halt->is_overcrowded(wtyp->get_catg_index())  ) {
 					// prissi: not overcrowded and can recieve => add them
 					if (found) {
 						ware_t return_pax (wtyp);
@@ -1506,7 +1514,8 @@ void stadt_t::step_passagiere()
 			}
 			INT_CHECK( "simcity 1579" );
 		}
-	} else {
+	}
+	else {
 		// the unhappy passengers will be added to all crowded stops
 		// however, there might be no stop too
 		for(  uint h=0;  h<plan->get_haltlist_count(); h++  ) {

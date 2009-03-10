@@ -1695,12 +1695,12 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 
 			case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
 			case convoi_t::CAN_START_TWO_MONTHS:
-				sprintf( tooltip_text, translator::translate("Stucked!") );
+				sprintf( tooltip_text, translator::translate("clf_chk_stucked") );
 				color = COL_ORANGE;
 				break;
 
 			case convoi_t::NO_ROUTE:
-				sprintf( tooltip_text, translator::translate("No Route") );
+				sprintf( tooltip_text, translator::translate("clf_chk_noroute") );
 				color = COL_RED;
 				break;
 		}
