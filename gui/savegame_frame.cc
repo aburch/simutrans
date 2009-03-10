@@ -21,6 +21,8 @@
 #include "../simdebug.h"
 #include "../simwin.h"
 #include "../simintr.h"
+
+#include "../dataobj/umgebung.h"
 #include "../utils/simstring.h"
 
 #include "components/list_button.h"
@@ -232,19 +234,46 @@ void savegame_frame_t::add_file(const char *filename, const char *pak, const boo
 	char * name = new char [strlen(filename)+10];
 	char * date = new char[strlen(pak)+1];
 
-	sprintf(date, "%s", pak);
-	sprintf(name, "%s", filename);
+	strcpy( date, pak );
+	strcpy( name, filename );
 	if(!no_cutting_suffix) {
 		name[strlen(name)-4] = '\0';
 	}
 	button->set_no_translate(true);
 	button->set_text(name);	// to avoid translation
 
+	const cstring_t compare_to = umgebung_t::objfilename.len()>0  ?  umgebung_t::objfilename.left( umgebung_t::objfilename.len()-1 ) + " -"  :  "";
 	// sort by date descending:
 	slist_tpl<entry>::iterator i = entries.begin();
-	for (slist_tpl<entry>::iterator end = entries.end(); i != end; ++i) {
-		if (strcmp(i->label->get_text_pointer(), date) < 0) {
-			break;
+	slist_tpl<entry>::iterator end = entries.end();
+	if(  strncmp( compare_to, pak, compare_to.len() )!=0  ) {
+		// skip current ones
+		while(  i != end  ) {
+			// extract palname in same format than in savegames ...
+			if(  strncmp( compare_to, i->label->get_text_pointer(), compare_to.len() ) !=0  ) {
+				break;
+			}
+			++i;
+		}
+		// now just sort according time
+		while(  i != end  ) {
+			if(  strcmp(i->label->get_text_pointer(), date) < 0  ) {
+				break;
+			}
+			++i;
+		}
+	}
+	else {
+		// Insert to our games (or in front if none)
+		while(  i != end  ) {
+			if(  strcmp(i->label->get_text_pointer(), date) < 0  ) {
+				break;
+			}
+			// not our savegame any more => insert
+			if(  strncmp( compare_to, i->label->get_text_pointer(), compare_to.len() ) !=0  ) {
+				break;
+			}
+			++i;
 		}
 	}
 
