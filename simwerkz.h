@@ -608,6 +608,16 @@ class wkz_daynight_level_t : public werkzeug_t {
 	bool init( karte_t *, spieler_t * );
 };
 
+
+/* change day/night view manually */
+class wkz_vehicle_tooltips_t : public werkzeug_t {
+	const char *get_tooltip(spieler_t *) { return "Toggle vehicle tooltips"; }
+	bool init( karte_t *, spieler_t * ) {
+		umgebung_t::show_vehicle_states = (umgebung_t::show_vehicle_states+1)%3;
+		return false;
+	}
+};
+
 /********************** dialoge tools *****************************/
 
 // general help

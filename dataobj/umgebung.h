@@ -209,6 +209,9 @@ public:
 	static uint8 tooltip_color;
 	static uint8 tooltip_textcolor;
 
+	// show error/info tooltips over the vehicles
+	static uint8 show_vehicle_states;
+
 	// fixed day/night view level
 	static sint8 daynight_level;
 

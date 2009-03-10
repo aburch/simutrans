@@ -46,6 +46,7 @@
 #include "../dings/signal.h"
 #include "../dings/roadsign.h"
 #include "../dings/crossing.h"
+#include "../dings/zeiger.h"
 
 #include "../gui/karte.h"
 
@@ -1626,32 +1627,89 @@ vehikel_t::~vehikel_t()
 
 
 // this routine will display a tooltip for lost, on depot order and stucked vehicles
-void
-vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
+void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 {
 	if(is_gobal  &&  cnv  &&  ist_erstes) {
 
 		COLOR_VAL color = COL_GREEN; // not used, but stop compiler warning about uninitialized
 		char tooltip_text[1024];
 		tooltip_text[0] = 0;
+		uint8 state = umgebung_t::show_vehicle_states;
+		if(  state==1  ) {
+			// only show when mouse over vehicle
+			if(  welt->get_zeiger()->get_pos()==get_pos()  ) {
+				state = 2;
+			}
+			else {
+				state = 0;
+			}
+		}
 
 		// now find out what has happend
 		switch(cnv->get_state()) {
+			case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
+			case convoi_t::WAITING_FOR_CLEARANCE:
+			case convoi_t::CAN_START:
+			case convoi_t::CAN_START_ONE_MONTH:
+				if(  state>=2  ) {
+					sprintf( tooltip_text, translator::translate("Waiting for clearance!") );
+					color = COL_YELLOW;
+				}
+				break;
+
+			case convoi_t::LOADING:
+				if(  state>=1  ) {
+					sprintf( tooltip_text, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit() );
+					color = COL_YELLOW;
+				}
+				break;
+
+			case convoi_t::	FAHRPLANEINGABE:
+			case convoi_t::	ROUTING_1:
+				if(  state>=2  ) {
+					sprintf( tooltip_text, translator::translate("Schedule changing!") );
+					color = COL_YELLOW;
+				}
+				break;
+
+			case convoi_t::DRIVING:
+				if(  state>=1  ) {
+					grund_t *gr = welt->lookup( cnv->get_route()->position_bei( cnv->get_route()->get_max_n() ) );
+					if(  gr  &&  gr->get_depot()  ) {
+						sprintf( tooltip_text, translator::translate("go home") );
+						color = COL_GREEN;
+					}
+					else if(  cnv->get_no_load()  ) {
+						sprintf( tooltip_text, translator::translate("no load") );
+						color = COL_GREEN;
+					}
+				}
+				break;
+
+			case convoi_t::LEAVING_DEPOT:
+				if(  state>=2  ) {
+					sprintf( tooltip_text, translator::translate("Leaving depot!") );
+					color = COL_GREEN;
+				}
+				break;
+
 			case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
 			case convoi_t::CAN_START_TWO_MONTHS:
-				sprintf( tooltip_text, translator::translate("Vehicle %s is stucked!"), cnv->get_name() );
+				sprintf( tooltip_text, translator::translate("Stucked!") );
 				color = COL_ORANGE;
 				break;
+
 			case convoi_t::NO_ROUTE:
-				sprintf( tooltip_text, translator::translate("Vehicle %s can't find a route!"), cnv->get_name() );
+				sprintf( tooltip_text, translator::translate("No Route") );
 				color = COL_RED;
 				break;
 		}
 
 		// something to show?
-		if(tooltip_text[0]) {
+		if(  tooltip_text[0]  ) {
 			const int width = proportional_string_width(tooltip_text)+7;
 			const int raster_width = get_tile_raster_width();
+			get_screen_offset( xpos, ypos );
 			xpos += tile_raster_scale_x(get_xoff(), raster_width);
 			ypos += tile_raster_scale_y(get_yoff(), raster_width);
 			if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
