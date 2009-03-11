@@ -236,4 +236,5 @@ void stadt_info_t::infowin_event(const event_t *ev)
 	if(  IS_WINDOW_TOP(ev)  ) {
 		reliefkarte_t::get_karte()->set_city( stadt );
 	}
+	gui_frame_t::infowin_event(ev);
 }

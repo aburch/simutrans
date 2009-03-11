@@ -165,6 +165,9 @@ private:
 	/* if set, goods will avoid being routed over overcrowded stops */
 	bool avoid_overcrowding;
 
+	/* if set, goods will not routed over overcroded stations but rather try detours (if possible) */
+	bool no_routing_over_overcrowding;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -446,7 +449,10 @@ public:
 	uint16 get_turntable_reverse_time() const { return turntable_reverse_time; }
 
 	// do not take people to overcrowded destinations
-	bool get_avoid_overcrowding() const { return avoid_overcrowding; }
+	bool is_avoid_overcrowding() const { return avoid_overcrowding; }
+
+	// do not allow routes over overcrowded destinations
+	bool is_no_routing_over_overcrowding() const { return no_routing_over_overcrowding; }
 
 	sint16 get_river_number() const { return river_number; }
 	void set_river_number( sint16 n ) { river_number=n; }

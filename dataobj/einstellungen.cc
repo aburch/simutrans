@@ -98,6 +98,7 @@ einstellungen_t::einstellungen_t() :
 	max_route_steps = 1000000;
 	max_transfers = 7;
 	max_hops = 300;
+	no_routing_over_overcrowding = false;
 
 	/* multiplier for steps on diagonal:
 	 * 1024: TT-like, faktor 2, vehicle will be too long and too fast
@@ -477,7 +478,12 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_bool( avoid_overcrowding, "" );
 		}
 
-		//TODO: Add *all* Simutrans-Experimental settings here.
+		if(file->get_version()>102001) {
+			file->rdwr_bool( no_routing_over_overcrowding, "" );
+		}
+
+	//TODO: Add *all* Simutrans-Experimental settings here.
+
 	}
 }
 
@@ -548,6 +554,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 	pay_for_total_distance = contents.get_int("pay_for_total_distance", pay_for_total_distance );
 	avoid_overcrowding = contents.get_int("avoid_overcrowding", avoid_overcrowding )!=0;
+	no_routing_over_overcrowding = contents.get_int("no_routing_over_overcrowded", no_routing_over_overcrowding )!=0;
+
 
 	fussgaenger = contents.get_int("random_pedestrians", fussgaenger ) != 0;
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;
