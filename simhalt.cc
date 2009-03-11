@@ -786,10 +786,8 @@ void haltestelle_t::reroute_goods()
 					continue;
 				}
 
-				suche_route( ware, NULL, false );
-
 				// check if this good can still reach its destination
-				if(!ware.get_ziel().is_bound() ||  !ware.get_zwischenziel().is_bound()) {
+				if(  suche_route( ware, NULL, false )==NO_ROUTE  ) {
 					// remove invalid destinations
 					continue;
 				}
@@ -993,7 +991,7 @@ struct HNode {
  *
  * @author Hj. Malthaner/prissi/gerw
  */
-void haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_overcrowding )
+int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_overcrowding )
 {
 	const ware_besch_t * warentyp = ware.get_besch();
 	const uint8 ware_catg_index = warentyp->get_catg_index();
@@ -1022,7 +1020,7 @@ void haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_o
 		if(  next_to_ziel != NULL  ) {
 			*next_to_ziel = koord::invalid;
 		}
-		return;
+		return NO_ROUTE;
 	}
 
 	// check, if the shortest connection is not right to us ...
@@ -1072,101 +1070,51 @@ void haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_o
 	self->marke = current_mark;
 
 	const uint32 max_hops = welt->get_einstellungen()->get_max_hops();
-	if(  avoid_overcrowding  ) {
-		// to save "if"s laster, the avoiding routing over overcrowded stops branch is here
-		do {
+	// here the normal routing with overcrowded stops is done
+	do {
 #ifdef USE_ROUTE_SLIST_TPL
-			tmp = queue.remove_first();
+		tmp = queue.remove_first();
 #else
-			tmp = &nodes[bottom_of_the_list++];
+		tmp = &nodes[bottom_of_the_list++];
 #endif
 
-			const halthandle_t halt = tmp->halt;
+		const halthandle_t halt = tmp->halt;
 
-			// we end this loop always with this jump (if sucessful)
-			if(ziel_list.is_contained(halt)) {
-				goto found;
-			}
+		// we end this loop always with this jump (if sucessful)
+		if(ziel_list.is_contained(halt)) {
+			goto found;
+		}
 
-			// Hajo: check for max transfers -> don't add more stations
-			//      to queue if the limit is reached
-			if(tmp->depth < max_transfers  &&  step<64000u  ) {
-				const vector_tpl<halthandle_t> *wz = halt->get_warenziele(ware_catg_index);
-				for(  uint32 i=0;  i<wz->get_count();  i++  ) {
+		// Hajo: check for max transfers -> don't add more stations
+		//      to queue if the limit is reached
+		if(tmp->depth < max_transfers  &&  step<64000u  ) {
+			const vector_tpl<halthandle_t> *wz = halt->get_warenziele(ware_catg_index);
+			for(  uint32 i=0;  i<wz->get_count();  i++  ) {
 
-					// since these are precalculated, they should be always pointing to a valid ground
-					// (if not, we were just under construction, and will be fine after 16 steps)
-					const halthandle_t &tmp_halt = (*wz)[i];
-					if(  tmp_halt.is_bound()  &&  tmp_halt->marke!=current_mark  ) {
-						if(  !tmp_halt->is_overcrowded(ware_catg_index)  ) {
+				// since these are precalculated, they should be always pointing to a valid ground
+				// (if not, we were just under construction, and will be fine after 16 steps)
+				const halthandle_t &tmp_halt = (*wz)[i];
+				if(tmp_halt.is_bound() &&  tmp_halt->marke!=current_mark) {
 
-							HNode *node = &nodes[step++];
-							node->halt = tmp_halt;
-							node->depth = tmp->depth + 1;
-							node->link = tmp;
+					HNode *node = &nodes[step++];
+					node->halt = tmp_halt;
+					node->depth = tmp->depth + 1;
+					node->link = tmp;
+
 #ifdef USE_ROUTE_SLIST_TPL
-							queue.append( node );
+					queue.append( node );
 #endif
-						}
-						// mark in any case
-						tmp_halt->marke = current_mark;
-					}
+					// betretene Haltestellen markieren
+					tmp_halt->marke = current_mark;
 				}
-			} // max transfers
-
-#ifdef USE_ROUTE_SLIST_TPL
-		} while (!queue.empty() && step < welt->get_einstellungen()->get_max_hops());
-#else
-		} while(  bottom_of_the_list < step  &&  step < max_hops  );
-#endif
-	}
-	else {
-		// here the normal routing with overcrowded stops is done
-		do {
-#ifdef USE_ROUTE_SLIST_TPL
-			tmp = queue.remove_first();
-#else
-			tmp = &nodes[bottom_of_the_list++];
-#endif
-
-			const halthandle_t halt = tmp->halt;
-
-			// we end this loop always with this jump (if sucessful)
-			if(ziel_list.is_contained(halt)) {
-				goto found;
 			}
-
-			// Hajo: check for max transfers -> don't add more stations
-			//      to queue if the limit is reached
-			if(tmp->depth < max_transfers  &&  step<64000u  ) {
-				const vector_tpl<halthandle_t> *wz = halt->get_warenziele(ware_catg_index);
-				for(  uint32 i=0;  i<wz->get_count();  i++  ) {
-
-					// since these are precalculated, they should be always pointing to a valid ground
-					// (if not, we were just under construction, and will be fine after 16 steps)
-					const halthandle_t &tmp_halt = (*wz)[i];
-					if(tmp_halt.is_bound() &&  tmp_halt->marke!=current_mark) {
-
-						HNode *node = &nodes[step++];
-						node->halt = tmp_halt;
-						node->depth = tmp->depth + 1;
-						node->link = tmp;
+		} // max transfers
 
 #ifdef USE_ROUTE_SLIST_TPL
-						queue.append( node );
-#endif
-						// betretene Haltestellen markieren
-						tmp_halt->marke = current_mark;
-					}
-				}
-			} // max transfers
-
-#ifdef USE_ROUTE_SLIST_TPL
-		} while (!queue.empty() && step < welt->get_einstellungen()->get_max_hops());
+	} while (!queue.empty() && step < welt->get_einstellungen()->get_max_hops());
 #else
-		} while(  bottom_of_the_list < step  &&  step < max_hops  );
+	} while(  bottom_of_the_list < step  &&  step < max_hops  );
 #endif
-	}
 
 	// if the loop ends, nothing was found
 	tmp = 0;
@@ -1190,13 +1138,16 @@ found:
 				// for reverse route the next hop
 				*next_to_ziel = tmp->link->halt->get_basis_pos();
 			}
-			// zwischenziel ermitteln
+			// find the intermediate stops
 			while(tmp->link->link) {
 				tmp = tmp->link;
+				if(  avoid_overcrowding  &&  tmp->halt->is_overcrowded(ware_catg_index)  ) {
+					return ROUTE_OVERCROWDED;
+				}
 			}
 			ware.set_zwischenziel(tmp->halt);
 		}
-
+		return ROUTE_OK;
 	}
 	else {
 		// no suitable target station found
@@ -1205,6 +1156,7 @@ found:
 		if(next_to_ziel!=NULL) {
 			*next_to_ziel = koord::invalid;
 		}
+		return NO_ROUTE;
 	}
 }
 
@@ -1524,7 +1476,9 @@ void haltestelle_t::add_ware_to_halt(ware_t ware)
 
 
 
-/* same as liefere an, but there will be no route calculated, since it hase be calculated just before
+/* same as liefere an, but there will be no route calculated,
+ * since it hase be calculated just before
+ * (execption: route contains us as intermediate stop)
  * @author prissi
  */
 uint32 haltestelle_t::starte_mit_route(ware_t ware)
@@ -1541,9 +1495,8 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 	// no valid next stops? Or we are the next stop?
 	if(ware.get_zwischenziel()==self) {
 		dbg->error("haltestelle_t::starte_mit_route()","route cannot contain us as first transfer stop => recalc route!");
-		suche_route( ware, NULL, false );
-		// no route found?
-		if(!ware.get_ziel().is_bound()) {
+		if(  suche_route( ware, NULL, false )==NO_ROUTE  ) {
+			// no route found?
 			dbg->error("haltestelle_t::starte_mit_route()","no route found!");
 			return ware.menge;
 		}
@@ -1590,7 +1543,6 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 					grund_t* gr = i->grund;
 					menge = erzeuge_fussgaenger(welt, gr->get_pos(), menge);
 				}
-
 				INT_CHECK("simhalt 938");
 			}
 		}
@@ -1598,26 +1550,26 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 
 	// do we have already something going in this direction here?
-	if(vereinige_waren(ware)) {
+	if(  vereinige_waren(ware)  ) {
 		return ware.menge;
 	}
 
 	// not near enough => we need to do a rerouting
-	suche_route( ware, NULL, false );
-	INT_CHECK("simhalt 1364");
+	if(  suche_route( ware, NULL, false )==NO_ROUTE  ) {
+		// target no longer there => delete
 
-	// target no longer there => delete
-	if(!ware.get_ziel().is_bound() ||  !ware.get_zwischenziel().is_bound()) {
+		INT_CHECK("simhalt 1364");
+
 		DBG_MESSAGE("haltestelle_t::liefere_an()","%s: delivered goods (%d %s) to ??? via ??? could not be routed to their destination!",get_name(), ware.menge, translator::translate(ware.get_name()) );
 		return ware.menge;
 	}
-
+#if 1
 	// passt das zu bereits wartender ware ?
 	if(vereinige_waren(ware)) {
 		// dann sind wir schon fertig;
 		return ware.menge;
 	}
-
+#endif
 	// add to internal storage
 	add_ware_to_halt(ware);
 

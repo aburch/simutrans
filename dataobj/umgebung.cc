@@ -98,6 +98,8 @@ bool umgebung_t::show_tooltips = true;
 uint8 umgebung_t::tooltip_color = 4;
 uint8 umgebung_t::tooltip_textcolor = COL_BLACK;
 
+uint8 umgebung_t::show_vehicle_states = 1;
+
 sint8 umgebung_t::daynight_level = 0;
 
 const char *umgebung_t::language_iso = "en";
@@ -182,5 +184,9 @@ void umgebung_t::rdwr(loadsave_t *file)
 	file->rdwr_bool( mute_sound, "" );
 	file->rdwr_bool( mute_midi, "" );
 	file->rdwr_bool( shuffle_midi, "" );
+
+	if(  file->get_version()>102001  ) {
+		file->rdwr_byte( show_vehicle_states, "" );
+	}
 }
 

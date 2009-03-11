@@ -1085,10 +1085,8 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				// Station can only store up to a maximum amount of goods per square
 				const sint32 halt_left = (sint32)halt->get_capacity(2) - (sint32)halt->get_ware_summe(ware.get_besch());
 				// ok, still enough space
-				halt->suche_route( ware, NULL, welt->get_einstellungen()->is_no_routing_over_overcrowding() );
+				if(  halt->suche_route( ware, NULL, welt->get_einstellungen()->is_no_routing_over_overcrowding() )==haltestelle_t::ROUTE_OK  ) {
 
-//DBG_MESSAGE("verteile_waren()","searched for route for %s with result %i,%i",translator::translate(ware.get_name()),ware.get_ziel().x,ware.get_ziel().y);
-				if(ware.get_ziel().is_bound()) {
 					// if only overflown factories found => deliver to first
 					// else deliver to non-overflown factory
 					bool overflown = (ziel_fab->get_eingang()[w].menge >= ziel_fab->get_eingang()[w].max);

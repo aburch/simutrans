@@ -1632,7 +1632,7 @@ void stadt_t::step_passagiere()
 	fixed_list_tpl<halthandle_t*, 5> start_halts;
 	for (uint h = 0; h < plan->get_haltlist_count(); h++) {
 		halthandle_t halt = halt_list[h];
-		if (halt->is_enabled(wtyp)  &&  halt->get_ware_summe(wtyp)<=halt->get_capacity(wtyp->get_index())) {
+		if (halt->is_enabled(wtyp)  &&  !halt->is_overcrowded(wtyp->get_catg_index())) {
 			if(halt.is_bound() && !start_halts.add_to_tail_no_overwrite(&halt))
 			{
 				// Stops looking for new halts if we have found too many to fit
@@ -1720,10 +1720,11 @@ void stadt_t::step_passagiere()
 			}
 			
 			int current_destination = 0;
-			bool route_good = false;
+			//bool route_good = false;
+			route_result = haltestelle_t::NO_ROUTE;
 			bool can_walk_ziel = false;
 
-			while(!route_good && !can_walk_ziel && current_destination < destination_count)
+			while(route_result != haltestelle_t::ROUTE_OK && !can_walk_ziel && current_destination < destination_count)
 			{	
 
 #ifdef DESTINATION_CITYCARS
@@ -1776,7 +1777,8 @@ void stadt_t::step_passagiere()
 						halthandle_t current_halt = *start_halts.get_element(0);
 						current_halt->add_pax_no_route(pax_left_to_do);
 					}
-					route_good = false;
+					//route_good = false;
+					route_result = haltestelle_t::NO_ROUTE;
 
 					if(has_private_car)
 					{
@@ -1790,8 +1792,8 @@ void stadt_t::step_passagiere()
 						//@author: jamespetts
 						
 						set_private_car_trip(pax_left_to_do, destinations[current_destination].town);
-						route_good = true;
-
+						//route_good = true;
+						route_result = haltestelle_t::ROUTE_OK;
 
 #ifdef DESTINATION_CITYCARS
 						//citycars with destinations
@@ -1813,7 +1815,8 @@ void stadt_t::step_passagiere()
 					merke_passagier_ziel(destinations[0].location, COL_YELLOW);
 					city_history_year[0][history_type] += pax_left_to_do;
 					city_history_month[0][history_type] += pax_left_to_do;
-					route_good = true;
+					//route_good = true;
+					route_result = haltestelle_t::ROUTE_OK;
 					current_destination ++;
 					continue;
 				}
@@ -1826,7 +1829,6 @@ void stadt_t::step_passagiere()
 
 				// now, finally search a route; this consumes most of the time
 				koord return_zwischenziel = koord::invalid; // for people going back ...
-				//start_halt->suche_route(pax, will_return ? &return_zwischenziel : NULL);
 				halthandle_t best_destination[3];
 				uint8 best_journey_steps = 255;
 
@@ -1837,13 +1839,14 @@ void stadt_t::step_passagiere()
 						break;
 					}
 					halthandle_t current_halt = *start_halts.get_element(i);
-					current_halt->suche_route(pax, will_return ? &return_zwischenziel : NULL, welt->get_einstellungen()->is_no_routing_over_overcrowding());
+					route_result = current_halt->suche_route( pax, will_return ? &return_zwischenziel : NULL, welt->get_einstellungen()->is_no_routing_over_overcrowding() );
 					if(!pax.get_ziel().is_bound())
 					{
 						//Only continue processing if there is a route.
 						continue;
 					}
-					route_good = true;
+
+					//route_good = true;
 					halthandle_t tmp[3];
 					tmp[0] = pax.get_ziel();
 					tmp[1] = pax.get_zwischenziel();
@@ -1862,7 +1865,7 @@ void stadt_t::step_passagiere()
 				
 				//TODO: Improve means of selecting the best route here.
 		
-				if(route_good)
+				if(route_result == haltestelle_t::ROUTE_OK)
 				{
 					//Only add passengers to the start halt (etc.) if a route was found.
 					pax.set_ziel(best_destination[0]);
@@ -2025,12 +2028,24 @@ void stadt_t::step_passagiere()
 					if(start_halts.get_count() > 0)
 					{
 						start_halt = *start_halts.get_element(0); //If there is no route, it does not matter where passengers express their unhappiness.
-						start_halt->add_pax_no_route(pax_left_to_do);
-						merke_passagier_ziel(destinations[current_destination].location, COL_DARK_ORANGE);
+						if(  route_result == haltestelle_t::ROUTE_OVERCROWDED  ) 
+						{
+							merke_passagier_ziel(destinations[current_destination].location, COL_ORANGE );
+							start_halt->add_pax_unhappy(pax_left_to_do);
+							if(  will_return  ) 
+							{
+								pax.get_ziel()->add_pax_unhappy(pax_left_to_do);
+							}
+						}
+						else
+						{
+							start_halt->add_pax_no_route(pax_left_to_do);							
+							merke_passagier_ziel(destinations[current_destination].location, COL_DARK_ORANGE);
+						}
 					}
 					if(has_private_car)
 					{
-						//Must use private car, since there is no route.
+						//Must use private car, since there is no suitable route.
 						set_private_car_trip(num_pax, destinations[current_destination].town);
 	#ifdef DESTINATION_CITYCARS
 					//citycars with destination
@@ -2043,7 +2058,7 @@ void stadt_t::step_passagiere()
 				}
 
 				// send them also back
-				if (will_return != no_return && route_good) {
+				if (will_return != no_return && route_result == haltestelle_t::ROUTE_OK) {
 					// this comes most of the times for free and balances also the amounts!
 					halthandle_t ret_halt = pax.get_ziel();
 					if (will_return != town_return) {
@@ -2062,9 +2077,9 @@ void stadt_t::step_passagiere()
 						}
 					}
 
-					// now try to add them to the target halt
-				sint32 max_ware = ret_halt->get_capacity(wtyp->get_index());
-				if (ret_halt->get_ware_summe(wtyp) <= max_ware) {
+				// now try to add them to the target halt
+				uint32 max_ware = ret_halt->get_capacity(wtyp->get_index());
+				if(  !ret_halt->is_overcrowded(wtyp->get_catg_index())  ) {
 					// prissi: not overcrowded and can recieve => add them
 					if (found) {
 						ware_t return_pax (wtyp, ret_halt, welt->get_zeit_ms());

@@ -169,6 +169,8 @@ private:
 
 	slist_tpl<stadtauto_t *> current_cars;
 
+	int route_result;
+
 public:
 	/**
 	 * Returns pointer to history for city

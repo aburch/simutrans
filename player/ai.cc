@@ -114,8 +114,7 @@ bool ai_t::is_connected( const koord start_pos, const koord dest_pos, const ware
 	ware.set_zielpos(dest_pos);
 	ware.menge = 1;
 	for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++) {
-		start_list[hh]->suche_route( ware, NULL, false );
-		if (ware.get_ziel().is_bound()) {
+		if(  start_list[hh]->suche_route( ware, NULL, false ) != haltestelle_t::NO_ROUTE  ) {
 			// ok, already connected
 			return true;
 		}
