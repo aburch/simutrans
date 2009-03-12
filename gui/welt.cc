@@ -37,6 +37,9 @@
 #include "../utils/simstring.h"
 #include "components/list_button.h"
 
+#include "sprachen.h"
+#include "climates.h"
+
 #define START_HEIGHT (28)
 
 #define LEFT_ARROW (110)
@@ -129,7 +132,6 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( &inp_town_size );
 	intTopOfButton += 12;
 
-
 	inp_intercity_road_len.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
 	inp_intercity_road_len.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_intercity_road_len.add_listener(this);
@@ -190,7 +192,6 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( &inp_intro_date );
 	intTopOfButton += 12;
 
-	intTopOfButton += 5;
 	allow_player_change.set_pos( koord(10,intTopOfButton) );
 	allow_player_change.set_typ( button_t::square_state );
 	allow_player_change.add_listener( this );
@@ -198,12 +199,22 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( &allow_player_change );
 	intTopOfButton += 12;
 
-	intTopOfButton += 5;
-	use_beginner_mode.set_pos( koord(10,intTopOfButton) );
-	use_beginner_mode.set_typ( button_t::square_state );
-	use_beginner_mode.add_listener( this );
-	use_beginner_mode.pressed = sets->get_beginner_mode();
-	add_komponente( &use_beginner_mode );
+	intTopOfButton += 10;
+	open_sprach_gui.set_pos( koord(10,intTopOfButton) );
+	open_sprach_gui.set_groesse( koord(80, 14) );
+	open_sprach_gui.set_typ( button_t::roundbox );
+	open_sprach_gui.set_text("Sprache");
+	open_sprach_gui.add_listener( this );
+	open_sprach_gui.pressed = win_get_magic( magic_sprachengui_t );
+	add_komponente( &open_sprach_gui );
+
+	open_climate_gui.set_pos( koord(80+20,intTopOfButton) );
+	open_climate_gui.set_groesse( koord(150, 14) );
+	open_climate_gui.set_typ( button_t::roundbox );
+	open_climate_gui.add_listener( this );
+	open_climate_gui.set_text("Climate Control");
+	open_climate_gui.pressed = win_get_magic( magic_climate );
+	add_komponente( &open_climate_gui );
 	intTopOfButton += 12;
 
 	// load game
@@ -396,9 +407,29 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		sets->set_allow_player_change( allow_player_change.pressed^1 );
 		allow_player_change.pressed = sets->get_allow_player_change();
 	}
-	else if(komp==&use_beginner_mode) {
-		sets->set_beginner_mode( use_beginner_mode.pressed^1 );
-		use_beginner_mode.pressed = sets->get_beginner_mode();
+	else if(komp==&open_sprach_gui) {
+		gui_fenster_t *sprachen_gui = win_get_magic( magic_sprachengui_t );
+		if(  sprachen_gui  ) {
+			destroy_win( sprachen_gui );
+			open_sprach_gui.pressed = false;
+		}
+		else {
+			sprachengui_t *sg = new sprachengui_t();
+			create_win(10, 40, sg, w_info, magic_sprachengui_t );
+			open_sprach_gui.pressed = true;
+		}
+	}
+	else if(komp==&open_climate_gui) {
+		gui_fenster_t *climate_gui = win_get_magic( magic_climate );
+		if(  climate_gui  ) {
+			destroy_win( climate_gui );
+			open_climate_gui.pressed = false;
+		}
+		else {
+			climate_gui_t *cg = new climate_gui_t(sets);
+			create_win((display_get_width() - cg->get_fenstergroesse().x-10), 40, cg, w_info, magic_climate );
+			open_climate_gui.pressed = true;
+		}
 	}
 	else if(komp==&load_game) {
 		load = true;
@@ -460,7 +491,9 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 		load_map.set_tooltip("load height data from file");
 		use_intro_dates.set_text("Use timeline start year");
 		allow_player_change.set_text("Allow player change");
-		use_beginner_mode.set_text("Beginner mode");
+//		use_beginner_mode.set_text("Beginner mode");
+		open_sprach_gui.set_text("Sprache");
+		open_climate_gui.set_text("Climate Control");
 		load_game.set_text("Load game");
 		load_scenario.set_text("Load scenario");
 		start_game.set_text("Starte Spiel");
@@ -468,6 +501,9 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 		old_lang = translator::get_language();
 		welt->set_dirty();
 	}
+
+	open_climate_gui.pressed = win_get_magic( magic_climate );
+	open_sprach_gui.pressed = win_get_magic( magic_sprachengui_t );
 
 	gui_frame_t::zeichnen(pos, gr);
 
@@ -525,6 +561,8 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	y += 12+5;
 	y += 12+5;
 	y += 12+5;
+
+	display_ddd_box_clip(x, y-22, 240, 0, MN_GREY0, MN_GREY4);
 
 	display_ddd_box_clip(x, y, 240, 0, MN_GREY0, MN_GREY4);
 }

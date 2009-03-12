@@ -28,7 +28,7 @@ class translator
 {
 	private:
 		//cannot be instantiated outside translator
-		translator() {}
+		translator() { current_lang = -1; }
 		~translator() {}
 
 		int current_lang;
@@ -69,8 +69,7 @@ class translator
 		 * Get/Set the currently selected language, based on the
 		 * index number
 		 */
-		static int get_language()
-		{
+		static int get_language() {
 			return single_instance.current_lang;
 		}
 

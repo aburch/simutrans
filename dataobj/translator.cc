@@ -39,6 +39,7 @@ const char* translator::lang_info::translate(const char* text) const
 
 /* Made to be dynamic, allowing any number of languages to be loaded */
 static translator::lang_info langs[40];
+static translator::lang_info *current_langinfo = langs;
 static stringhashtable_tpl<const char*> compatibility;
 
 
@@ -47,7 +48,7 @@ translator translator::single_instance;
 
 const translator::lang_info* translator::get_lang()
 {
-	return &langs[single_instance.current_lang];
+	return current_langinfo;
 }
 
 
@@ -334,7 +335,8 @@ bool translator::load(const cstring_t& scenario_path)
 	tstrncpy(szenario_path, scenario_path, lengthof(szenario_path));
 
 	//initialize these values to 0(ie. nothing loaded)
-	single_instance.lang_count = single_instance.current_lang = 0;
+	single_instance.current_lang = -1;
+	single_instance.lang_count = 0;
 
 	DBG_MESSAGE("translator::load()", "Loading languages...");
 	searchfolder_t folder;
@@ -409,7 +411,7 @@ bool translator::load(const cstring_t& scenario_path)
 	}
 
 	// use english if available
-	set_language( umgebung_t::language_iso );
+	current_langinfo = get_lang_by_iso("en");
 
 	// it's all ok
 	return true;
@@ -430,14 +432,16 @@ void translator::load_language_iso(cstring_t& iso)
 
 void translator::set_language(int lang)
 {
-	if (0 <= lang && lang < single_instance.lang_count) {
+	if(  0 <= lang  &&  lang < single_instance.lang_count  ) {
 		single_instance.current_lang = lang;
+		current_langinfo = langs+lang;
 		umgebung_t::language_iso = langs[lang].iso;
 		umgebung_t::default_einstellungen.set_name_language_iso( langs[lang].iso );
 		display_set_unicode(langs[lang].utf_encoded);
 		init_city_names(langs[lang].utf_encoded);
 		DBG_MESSAGE("translator::set_language()", "%s, unicode %d", langs[lang].name, langs[lang].utf_encoded);
-	} else {
+	}
+	else {
 		dbg->warning("translator::set_language()", "Out of bounds : %d", lang);
 	}
 }
