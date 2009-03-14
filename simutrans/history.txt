@@ -3,6 +3,7 @@
 	ADD: do not create goods/passenger/mail when the only route is over an overcrowded stop (simuconf.tab no_routing_over_overcrowded)
 	ADD: more vehicle messages show in main screen
 	CHANGE: ask for language only once (prepare for difficulty dialoge)
+	ADD: UNDO for powerlines
 
 
 

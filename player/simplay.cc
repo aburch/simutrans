@@ -56,6 +56,7 @@
 #include "../dataobj/umgebung.h"
 
 #include "../dings/gebaeude.h"
+#include "../dings/leitung2.h"
 #include "../dings/wayobj.h"
 #include "../dings/zeiger.h"
 
@@ -956,10 +957,17 @@ spieler_t::undo()
 
 	// ok, now remove everything last built
 	uint32 cost=0;
-	for(unsigned short i=0;  i<last_built.get_count();  i++  ) {
+	for(  uint32 i=0;  i<last_built.get_count();  i++  ) {
 		grund_t* gr = welt->lookup(last_built[i]);
-		cost += gr->weg_entfernen(undo_type,true);
-//DBG_DEBUG("spieler_t::add_undo()","undo tile %i at (%i,%i)",i,last_built.at(i).x,last_built.at(i).y);
+		if(  undo_type != powerline_wt  ) {
+			cost += gr->weg_entfernen(undo_type,true);
+		}
+		else {
+			cost = 1;
+			leitung_t* lt = gr->get_leitung();
+			lt->entferne(NULL);
+			delete lt;
+		}
 	}
 	last_built.clear();
 	return cost!=0;
