@@ -5,6 +5,8 @@
  * (see licence.txt)
  */
 
+#include <algorithm>
+
 #include "citylist_stats_t.h"
 #include "stadt_info.h"
 

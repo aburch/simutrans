@@ -25,7 +25,7 @@
 
 
 class schedule_t;
-class linieneintrag_t;
+struct linieneintrag_t;
 class spieler_t;
 class cbuffer_t;
 

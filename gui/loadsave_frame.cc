@@ -15,6 +15,7 @@
 #include <direct.h>
 #endif
 #include <sys/stat.h>
+#include <time.h>
 
 #include "loadsave_frame.h"
 
