@@ -694,7 +694,7 @@ void karte_t::init_felder()
 {
 	assert(plan==0);
 
-	plan   = new planquadrat_t[get_groesse_x()*get_groesse_y()];
+	plan = new planquadrat_t[get_groesse_x()*get_groesse_y()];
 	grid_hgts = new sint8[(get_groesse_x()+1)*(get_groesse_y()+1)];
 
 	memset(grid_hgts, 0, sizeof(sint8)*(get_groesse_x()+1)*(get_groesse_y()+1));
