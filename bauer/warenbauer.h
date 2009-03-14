@@ -8,8 +8,6 @@
 #ifndef warenbauer_t_h
 #define warenbauer_t_h
 
-#include "../besch/ware_besch.h"
-
 #include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 

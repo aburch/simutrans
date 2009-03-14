@@ -4,8 +4,8 @@
 #include "extend_edit.h"
 #include "components/gui_label.h"
 #include "components/gui_numberinput.h"
-#include "../besch/fabrik_besch.h"
 
+class fabrik_besch_t;
 
 class wkz_build_industries_land_t;
 class wkz_build_industries_city_t;

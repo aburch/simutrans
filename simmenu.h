@@ -12,14 +12,12 @@
 #include "besch/sound_besch.h"
 
 #include "dataobj/translator.h"
-#include "dataobj/koord.h"
-#include "dataobj/koord3d.h"
-
-#include "tpl/vector_tpl.h"
-#include "tpl/slist_tpl.h"
 
 #include "simtypes.h"
 #include "simworld.h"
+
+template<class T> class vector_tpl;
+template<class T> class slist_tpl;
 
 class werkzeug_waehler_t;
 class karte_t;

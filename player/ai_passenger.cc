@@ -10,6 +10,7 @@
 #include "../simcity.h"
 #include "../simhalt.h"
 #include "../simtools.h"
+#include "../simmesg.h"
 #include "../simworld.h"
 
 #include "../bauer/brueckenbauer.h"

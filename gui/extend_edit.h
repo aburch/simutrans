@@ -13,12 +13,11 @@
 #include "components/gui_textarea.h"
 
 #include "gui_convoiinfo.h"
-#include "../simline.h"
-#include "../besch/haus_besch.h"
-#include "../besch/fabrik_besch.h"
 #include "../utils/cbuffer_t.h"
-#include "../dings/baum.h"
+#include "../simtypes.h"
 
+class karte_t;
+class spieler_t;
 
 #define NAME_COLUMN_WIDTH (int)(BUTTON_WIDTH*2.25)
 #define SCL_HEIGHT (170)

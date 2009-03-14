@@ -10,7 +10,6 @@
 
 #include "../simdings.h"
 #include "../simtypes.h"
-#include "../simwerkz.h"
 #include "../besch/roadsign_besch.h"
 #include "../ifc/sync_steppable.h"
 #include "../tpl/vector_tpl.h"

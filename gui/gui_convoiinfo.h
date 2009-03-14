@@ -11,7 +11,6 @@
 #include "../dataobj/koord.h"
 #include "gui_container.h"
 #include "components/gui_speedbar.h"
-#include "../simconvoi.h"
 #include "../convoihandle_t.h"
 
 

@@ -14,7 +14,6 @@
 #include "components/gui_scrollpane.h"
 
 #include "message_stats_t.h"
-#include "../simmesg.h"
 #include "components/action_listener.h"
 
 class karte_t;

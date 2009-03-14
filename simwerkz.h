@@ -8,7 +8,6 @@
 #define simwerkz2_h
 
 #include "simtypes.h"
-#include "simwerkz.h"
 #include "simskin.h"
 #include "simsound.h"
 #include "simworld.h"
@@ -22,6 +21,7 @@
 #include "dataobj/umgebung.h"
 #include "dataobj/translator.h"
 
+#include "dings/baum.h"
 
 #include "gui/factory_edit.h"
 #include "gui/curiosity_edit.h"
@@ -58,6 +58,7 @@ class koord;
 class toolbar_t;
 class werkzeug_waehler_t;
 class wegbauer_t;
+class weg_besch_t;
 
 /****************************** helper functions: *****************************/
 

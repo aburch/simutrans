@@ -18,6 +18,7 @@
 #include "../gui/label_info.h"
 
 #include "../besch/grund_besch.h"
+#include "../besch/skin_besch.h"
 
 #include "../dataobj/umgebung.h"
 

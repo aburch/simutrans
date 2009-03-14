@@ -9,14 +9,14 @@
 #define crossing_logic_h
 
 #include "../simtypes.h"
-#include "../besch/kreuzung_besch.h"
-#include "../utils/cbuffer_t.h"
 #include "../tpl/minivec_tpl.h"
 #include "../tpl/slist_tpl.h"
 
-class vehikel_basis_t;
-class karte_t;
+class cbuffer_t;
 class crossing_t;
+class karte_t;
+class kreuzung_besch_t;
+class vehikel_basis_t;
 
 /**
  * road sign for traffic (one way minimum speed, traffic lights)

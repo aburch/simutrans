@@ -16,6 +16,7 @@
 #define _simvehikel_h
 
 #include "../simtypes.h"
+#include "../simconvoi.h"
 #include "../simdings.h"
 #include "../halthandle_t.h"
 #include "../convoihandle_t.h"

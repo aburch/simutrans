@@ -8,8 +8,6 @@
 #ifndef tpl_HOT_queue_tpl_h
 #define tpl_HOT_queue_tpl_h
 
-#include <stdlib.h>
-
 #include "debug_helper.h"
 
 

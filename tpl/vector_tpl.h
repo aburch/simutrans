@@ -1,7 +1,6 @@
 #ifndef TPL_VECTOR_H
 #define TPL_VECTOR_H
 
-#include <stdlib.h>
 #include "../macros.h"
 #include "../simtypes.h"
 #include "../simdebug.h"

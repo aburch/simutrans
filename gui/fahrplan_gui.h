@@ -11,7 +11,6 @@
 
 #include "gui_frame.h"
 
-#include "../utils/cbuffer_t.h"
 #include "components/gui_label.h"
 #include "components/gui_numberinput.h"
 #include "components/gui_combobox.h"
@@ -26,7 +25,9 @@
 
 
 class schedule_t;
+class linieneintrag_t;
 class spieler_t;
+class cbuffer_t;
 
 
 class fahrplan_gui_stats_t : public gui_komponente_t

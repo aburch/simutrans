@@ -8,16 +8,12 @@
 #ifndef simwin_h
 #define simwin_h
 
-#include "simevent.h"
 #include "simtypes.h"
-#include "simconst.h"
-
-#include "gui/werkzeug_waehler.h"	// for main menu
 
 class karte_t;
 class gui_fenster_t;
 class gui_komponente_t;
-
+struct event_t;
 
 /* Typen fuer die Fenster */
 enum wintype {

@@ -63,6 +63,7 @@
 
 #include "gui/messagebox.h"
 #include "gui/help_frame.h"
+#include "gui/karte.h"
 
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"

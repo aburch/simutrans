@@ -42,6 +42,7 @@
 #include "besch/haus_besch.h"
 #include "besch/way_obj_besch.h"
 #include "besch/skin_besch.h"
+#include "besch/tunnel_besch.h"
 
 #include "vehicle/simvehikel.h"
 #include "vehicle/simverkehr.h"

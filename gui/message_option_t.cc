@@ -9,9 +9,11 @@
 
 #include <stdio.h>
 
-#include "../simskin.h"
-#include "../besch/skin_besch.h"
 #include "../simmesg.h"
+#include "../simskin.h"
+#include "../simworld.h"
+
+#include "../besch/skin_besch.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 #include "message_option_t.h"

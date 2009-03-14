@@ -10,18 +10,19 @@
 
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
+#include "halthandle_t.h"
 
-#include "simdebug.h"
-#include "simtypes.h"
 #include "simdings.h"
+#include "simtypes.h"
 
 #include "bauer/warenbauer.h"
 
-#include "dataobj/koord3d.h"
+#include "besch/ware_besch.h"
+
+#include "dataobj/koord.h"
 
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
-#include "tpl/array_tpl.h"
 
 
 
@@ -36,18 +37,18 @@
 #define HALT_NOROUTE         5 // number of no-route passangers
 #define HALT_CONVOIS_ARRIVED             6 // number of convois arrived this month
 
-class spieler_t;
+class cbuffer_t;
+class grund_t;
 class fabrik_t;
 class karte_t;
+class koord3d;
 #ifdef LAGER_NOT_IN_USE
 class lagerhaus_t;
 #endif
-class ware_t;
-class grund_t;
+class loadsave_t;
 class schedule_t;
-class cbuffer_t;
-
-#include "halthandle_t.h"
+class spieler_t;
+class ware_t;
 
 // -------------------------- Haltestelle ----------------------------
 

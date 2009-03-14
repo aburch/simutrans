@@ -8,8 +8,6 @@
 #ifndef money_frame_h
 #define money_frame_h
 
-#include "../player/simplay.h"
-
 #include "gui_frame.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
@@ -17,6 +15,8 @@
 #include "components/gui_tab_panel.h"
 #include "components/gui_chart.h"
 #include "components/gui_world_view_t.h"
+
+class spieler_t;
 
 /**
  * Finances dialog

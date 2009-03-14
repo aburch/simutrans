@@ -9,14 +9,15 @@
 #ifndef climate_gui_h
 #define climate_gui_h
 
-#include "welt.h"
 #include "gui_frame.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
+#include "components/gui_numberinput.h"
 #include "components/action_listener.h"
 #include "components/gui_textinput.h"
 
 class einstellungen_t;
+class welt_gui_t;
 
 
 /**

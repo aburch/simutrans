@@ -3,11 +3,11 @@
 
 #include "simtypes.h"
 #include "simcolor.h"
-#include "simworld.h"
 #include "simimg.h"
 #include "dataobj/koord.h"
-#include "tpl/slist_tpl.h"
+#include "tpl/vector_tpl.h"
 
+class karte_t;
 
 /* class for a simple message
  * this way they are stored in a list

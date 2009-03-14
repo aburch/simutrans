@@ -9,6 +9,7 @@
 #define bauplatz_sucher_t_h
 
 #include "platzsucher.h"
+#include "../simworld.h"
 
 /**
  * bauplatz_sucher_t:

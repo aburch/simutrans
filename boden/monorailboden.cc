@@ -10,6 +10,7 @@
 
 #include "../dataobj/loadsave.h"
 #include "monorailboden.h"
+#include "wege/weg.h"
 
 
 monorailboden_t::monorailboden_t(karte_t *welt, koord3d pos,hang_t::typ slope) : grund_t(welt, pos)

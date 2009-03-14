@@ -15,12 +15,11 @@
 #include <direct.h>
 #endif
 #include <sys/stat.h>
-#include <string.h>
-#include <time.h>
 
 #include "loadsave_frame.h"
 
 #include "../simworld.h"
+#include "../dataobj/loadsave.h"
 #include "../pathes.h"
 #include "../utils/simstring.h"
 

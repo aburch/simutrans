@@ -1,8 +1,7 @@
 #ifndef __SIMSKIN_H
 #define __SIMSKIN_H
 
-#include "tpl/slist_tpl.h"
-
+template<class T> class slist_tpl;
 class skin_besch_t;
 
 

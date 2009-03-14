@@ -11,7 +11,8 @@
 #include "gui_frame.h"
 #include "components/gui_world_view_t.h"
 #include "components/gui_textarea.h"
-#include "../boden/grund.h"
+
+class grund_t;
 
 /**
  * An adapter class to display info windows for ground (floor) objects

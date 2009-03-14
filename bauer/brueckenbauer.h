@@ -11,16 +11,13 @@
 #include "../simtypes.h"
 #include "../dataobj/koord.h"
 #include "../dataobj/koord3d.h"
-#include "../boden/wege/weg.h"
-
-// Hajo: these are needed to build the menu entries
-#include "../gui/werkzeug_waehler.h"
-#include "../besch/skin_besch.h"
 
 class bruecke_besch_t;
+class grund_t;
 class karte_t;                 // Hajo: 22-Nov-01: Added forward declaration
 class spieler_t;               // Hajo: 22-Nov-01: Added forward declaration
-class grund_t;
+class weg_besch_t;
+class werkzeug_waehler_t;
 
 /**
  * Baut Brücken. Brücken sollten nicht direct instanziiert werden

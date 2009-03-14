@@ -11,15 +11,15 @@
 #include "../simtypes.h"
 #include "../simimg.h"
 #include "../simdings.h"
-#include "../simworld.h"
 #include "../dataobj/ribi.h"
 #include "../besch/way_obj_besch.h"
 #include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
-#include "../simwerkz.h"
 
 class spieler_t;
+class karte_t;
 class koord;
+class grund_t;
 class werkzeug_waehler_t;
 
 /**

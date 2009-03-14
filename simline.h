@@ -6,18 +6,15 @@
 #ifndef simline_h
 #define simline_h
 
-#include <string.h>
-
+#include "convoihandle_t.h"
+#include "linehandle_t.h"
+#include "simconvoi.h"
 #include "simtypes.h"
-#include "dataobj/loadsave.h"
+
 #include "dataobj/fahrplan.h"
 
+#include "tpl/minivec_tpl.h"
 #include "tpl/vector_tpl.h"
-#include "simconvoi.h"
-
-#include "simdebug.h"
-#include "linehandle_t.h"
-#include "convoihandle_t.h"
 
 #define MAX_LINE_COST   6 // Total number of cost items
 #define MAX_MONTHS     12 // Max history
@@ -31,7 +28,9 @@
 #define LINE_PROFIT             5 // total profit of line
 
 class karte_t;
+class loadsave_t;
 class simlinemgmt_t;
+class spieler_t;
 
 class simline_t {
 

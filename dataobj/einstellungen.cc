@@ -15,6 +15,7 @@
 #include "../vehicle/simvehikel.h"
 #include "../player/simplay.h"
 #include "loadsave.h"
+#include "tabfile.h"
 
 einstellungen_t::einstellungen_t() :
 	filename(""),

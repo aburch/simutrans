@@ -11,9 +11,11 @@
 #define _AI_H
 
 #include "simplay.h"
-#include "../simworld.h"
 
 #include "../sucher/bauplatz_sucher.h"
+
+class karte_t;
+class ware_besch_t;
 
 /**
  * bauplatz_mit_strasse_sucher_t:

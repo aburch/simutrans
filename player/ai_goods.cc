@@ -6,6 +6,7 @@
 #include "simplay.h"
 
 #include "../simhalt.h"
+#include "../simmesg.h"
 #include "../simtools.h"
 #include "../simworld.h"
 

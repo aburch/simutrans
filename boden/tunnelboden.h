@@ -2,6 +2,7 @@
 #define tunnelboden_h
 
 #include "boden.h"
+#include "wege/weg.h"
 
 
 class tunnelboden_t : public boden_t

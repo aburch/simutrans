@@ -7,19 +7,15 @@
 #ifndef simlinemgmt_h
 #define simlinemgmt_h
 
-#include <string.h>
-
-#include "simtypes.h"
-#include "simline.h"
 #include "linehandle_t.h"
-#include "dataobj/loadsave.h"
-#include "simconvoi.h"
+#include "simtypes.h"
+#include "tpl/vector_tpl.h"
 
-#include "simdebug.h"
-
+class loadsave_t;
 class schedule_t;
 class spieler_t;
 class schedule_list_gui_t;
+class karte_t;
 
 #define INVALID_LINE_ID ((uint16)(-1))
 

@@ -16,7 +16,9 @@
 #include "../simimg.h"
 #include "../simdings.h"
 #include "../player/simplay.h"
+#include "../simwerkz.h"
 
+#include "../dataobj/loadsave.h"
 #include "../dataobj/ribi.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
@@ -28,6 +30,7 @@
 #include "../gui/werkzeug_waehler.h"
 
 #include "../boden/grund.h"
+#include "../boden/wege/weg.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 

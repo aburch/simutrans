@@ -14,6 +14,7 @@
 #include "simintr.h"
 
 #include "dataobj/fahrplan.h"
+#include "dataobj/loadsave.h"
 
 #include "gui/schedule_list.h"
 

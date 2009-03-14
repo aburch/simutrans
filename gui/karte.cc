@@ -16,6 +16,7 @@
 #include "../boden/wege/schiene.h"
 #include "../dings/leitung2.h"
 #include "../dataobj/powernet.h"
+#include "../utils/cbuffer_t.h"
 #include "../simgraph.h"
 
 

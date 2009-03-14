@@ -6,7 +6,6 @@
  */
 
 #include "gui_numberinput.h"
-#include <stdlib.h>
 #include "../../simwin.h"
 #include "../../simgraph.h"
 #include "../../macros.h"

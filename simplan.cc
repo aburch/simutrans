@@ -24,6 +24,7 @@
 #include "boden/monorailboden.h"
 
 #include "dings/zeiger.h"
+#include "dings/gebaeude.h"
 
 #include "dataobj/loadsave.h"
 #include "dataobj/umgebung.h"

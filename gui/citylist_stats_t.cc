@@ -5,18 +5,21 @@
  * (see licence.txt)
  */
 
-#include <algorithm>
 #include "citylist_stats_t.h"
-#include "../simgraph.h"
+#include "stadt_info.h"
+
+#include "../simcity.h"
 #include "../simcolor.h"
+#include "../simgraph.h"
+#include "../simskin.h"
 #include "../simwin.h"
 #include "../simworld.h"
-#include "../simskin.h"
+
 #include "../besch/skin_besch.h"
-#include "../gui/stadt_info.h"
+
 #include "../dataobj/translator.h"
+
 #include "../utils/cbuffer_t.h"
-#include <string.h>
 
 static const char* total_bev_translation = NULL;
 char citylist_stats_t::total_bev_string[128];

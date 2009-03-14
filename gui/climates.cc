@@ -8,6 +8,7 @@
 
 #include "climates.h"
 #include "karte.h"
+#include "welt.h"
 
 #include "../besch/grund_besch.h"
 

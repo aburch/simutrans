@@ -14,7 +14,8 @@
 #include <algorithm>
 
 #include "freight_list_sorter.h"
-#include "freight_list_sorter.h"
+
+#include "simcity.h"
 #include "simcolor.h"
 #include "simconvoi.h"
 #include "simdebug.h"
@@ -23,11 +24,13 @@
 #include "simhalt.h"
 #include "simintr.h"
 #include "simmem.h"
+#include "simmesg.h"
 #include "simplan.h"
 #include "simtools.h"
 #include "player/simplay.h"
 #include "simwin.h"
 #include "simworld.h"
+#include "simware.h"
 
 #include "bauer/hausbauer.h"
 #include "bauer/warenbauer.h"

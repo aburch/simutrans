@@ -21,26 +21,29 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "simcolor.h"
+#include "simevent.h"
+#include "simgraph.h"
+#include "simmenu.h"
+#include "simskin.h"
+#include "simsys.h"
+#include "simticker.h"
 #include "simwin.h"
 #include "simworld.h"
-#include "simmenu.h"
-#include "player/simplay.h"
-#include "simcolor.h"
-#include "simgraph.h"
-#include "simskin.h"
-#include "simticker.h"
-#include "simsys.h"
 
 #include "dataobj/translator.h"
 #include "dataobj/umgebung.h"
 
-#include "ifc/gui_fenster.h"
-#include "gui/help_frame.h"
-#include "gui/werkzeug_waehler.h"
-
 #include "besch/skin_besch.h"
 
 #include "dings/zeiger.h"
+
+#include "gui/help_frame.h"
+#include "gui/werkzeug_waehler.h"
+
+#include "ifc/gui_fenster.h"
+
+#include "player/simplay.h"
 
 #include "tpl/vector_tpl.h"
 

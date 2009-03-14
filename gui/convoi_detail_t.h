@@ -16,8 +16,7 @@
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
 
-#include "../dataobj/koord.h"
-
+class koord;
 
 /**
  * One element of the vehicle list display
