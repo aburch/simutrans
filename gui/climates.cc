@@ -13,6 +13,7 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
+#include "../simwin.h"
 
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
@@ -38,12 +39,11 @@
  * @author prissi
  */
 
-climate_gui_t::climate_gui_t(welt_gui_t* welt_gui, einstellungen_t* sets) :
+climate_gui_t::climate_gui_t(einstellungen_t* sets) :
 	gui_frame_t("Climate Control")
 {
 DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );
 	this->sets = sets;
-	this->welt_gui = welt_gui;
 
 	// select map stuff ..
 	int intTopOfButton = 4;
@@ -183,39 +183,52 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 bool
 climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 {
+	welt_gui_t *welt_gui = dynamic_cast<welt_gui_t *>(win_get_magic( magic_welt_gui_t ));
 	if(komp==&no_tree) {
 		umgebung_t::no_tree ^= 1;
 		no_tree.pressed ^= 1;
-		welt_gui->update_preview();
+		if(  welt_gui  ) {
+			welt_gui->update_preview();
+		}
 	}
 	else if(komp==water_level+0) {
 		if(sets->get_grundwasser() > -10*Z_TILE_STEP ) {
 			sets->set_grundwasser( sets->get_grundwasser() - Z_TILE_STEP );
-			welt_gui->update_preview();
+			if(  welt_gui  ) {
+				welt_gui->update_preview();
+			}
 		}
 	}
 	else if(komp==water_level+1) {
 		if(sets->get_grundwasser() < 0 ) {
 			sets->set_grundwasser( sets->get_grundwasser() + Z_TILE_STEP );
-			welt_gui->update_preview();
+			if(  welt_gui  ) {
+				welt_gui->update_preview();
+			}
 		}
 	}
 	else if(komp==mountain_height+0) {
 		if(sets->get_max_mountain_height() > 0.0 ) {
 			sets->set_max_mountain_height( sets->get_max_mountain_height() - 10 );
-			welt_gui->update_preview();
+			if(  welt_gui  ) {
+				welt_gui->update_preview();
+			}
 		}
 	}
 	else if(komp==mountain_height+1) {
 		if(sets->get_max_mountain_height() < 320.0 ) {
 			sets->set_max_mountain_height( sets->get_max_mountain_height() + 10 );
-			welt_gui->update_preview();
+			if(  welt_gui  ) {
+				welt_gui->update_preview();
+			}
 		}
 	}
 	else if(komp==mountain_roughness+0) {
 		if(sets->get_map_roughness() > 0.4 ) {
 			sets->set_map_roughness( sets->get_map_roughness() - 0.05 );
-			welt_gui->update_preview();
+			if(  welt_gui  ) {
+				welt_gui->update_preview();
+			}
 		}
 	}
 	else if(komp==mountain_roughness+1) {
@@ -225,7 +238,9 @@ climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		if(sets->get_map_roughness() < 1.00) {
 #endif
 			sets->set_map_roughness( sets->get_map_roughness() + 0.05 );
-			welt_gui->update_preview();
+			if(  welt_gui  ) {
+				welt_gui->update_preview();
+			}
 		}
 	}
 	else if(komp==&river_n) {

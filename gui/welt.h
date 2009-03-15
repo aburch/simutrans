@@ -27,7 +27,7 @@ class einstellungen_t;
 class welt_gui_t  : public gui_frame_t, private action_listener_t
 {
 private:
-	einstellungen_t * sets;
+	einstellungen_t *sets;
 
 	enum { preview_size = 64 };
 
@@ -63,7 +63,8 @@ private:
 
 	button_t use_intro_dates;
 	button_t allow_player_change;
-	button_t use_beginner_mode;
+
+	button_t open_climate_gui, open_sprach_gui;
 
 	button_t load_game;
 	button_t load_scenario;
@@ -88,7 +89,7 @@ public:
 	* public, because also the climate dialog need it
 	* @author Hj. Malthaner
 	*/
-	void  update_preview();
+	void update_preview();
 	void clear_loaded_heightfield() { loaded_heightfield =0; }
 	bool get_loaded_heightfield() const { return loaded_heightfield; }
 

@@ -251,6 +251,43 @@ static void ask_objfilename()
 
 
 /**
+ * Show language selector
+ */
+static void ask_language()
+{
+	display_show_pointer(true);
+	show_pointer(1);
+	set_pointer(0);
+	sprachengui_t* sel = new sprachengui_t();
+	koord xy( display_get_width()/2 - sel->get_fenstergroesse().x/2, display_get_height()/2 - sel->get_fenstergroesse().y/2 );
+	event_t ev;
+
+	destroy_all_win();	// since eventually the successful load message is still there ....
+	create_win( xy.x, xy.y, sel, w_info, magic_none );
+
+	while(  translator::get_language()==-1  ) {
+		// do not move, do not close it!
+		dr_prepare_flush();
+		sel->zeichnen( xy, sel->get_fenstergroesse() );
+		display_poll_event(&ev);
+		// main window resized
+		check_pos_win(&ev);
+		dr_flush();
+		dr_sleep(50);
+		// main window resized
+		if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_RESIZE) {
+			// main window resized
+			simgraph_resize( ev.mx, ev.my );
+			display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
+		}
+	}
+	destroy_win( sel );
+	set_pointer(0);
+}
+
+
+
+/**
  * Dies wird in main mittels set_new_handler gesetzt und von der
  * Laufzeitumgebung im Falle des Speichermangels bei new() aufgerufen
  */
@@ -353,7 +390,8 @@ int simu_main(int argc, char** argv)
 
 	// parsing config/simuconf.tab
 	print("Reading low level config data ...\n");
-	bool found_simuconf=false;
+	bool found_settings = false;
+	bool found_simuconf = false;
 	bool multiuser = (gimme_arg(argc, argv, "-singleuser", 0) == NULL);
 
 	tabfile_t simuconf;
@@ -387,6 +425,7 @@ int simu_main(int argc, char** argv)
 			remove( "settings.xml" );
 		}
 		else {
+			found_settings = true;
 			umgebung_t::rdwr(&file);
 			umgebung_t::default_einstellungen.rdwr(&file);
 			file.close();
@@ -578,6 +617,11 @@ int simu_main(int argc, char** argv)
 		exit(11);
 	}
 
+	// use requested (if available)
+	if(  found_settings  ) {
+		translator::set_language( umgebung_t::language_iso );
+	}
+
 	// Hajo: simgraph init loads default fonts, now we need to load
 	// the real fonts for the current language
 	sprachengui_t::init_font_from_lang();
@@ -608,6 +652,10 @@ int simu_main(int argc, char** argv)
 
 	print("Reading menu configuration ...\n");
 	werkzeug_t::init_menu(umgebung_t::objfilename);
+
+	if(  translator::get_language()==-1  ) {
+		ask_language();
+	}
 
 	bool new_world = true;
 	cstring_t loadgame = "";
@@ -784,18 +832,16 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		welt->get_message()->set_message_flags(umgebung_t::message_flags[0], umgebung_t::message_flags[1], umgebung_t::message_flags[2], umgebung_t::message_flags[3]);
 
 		if (new_world) {
-			welt_gui_t *wg = new welt_gui_t(welt, &umgebung_t::default_einstellungen);
-			sprachengui_t* sg = new sprachengui_t();
-			climate_gui_t* cg = new climate_gui_t(wg, &umgebung_t::default_einstellungen);
+			climate_gui_t *cg = new climate_gui_t(&umgebung_t::default_einstellungen);
 			event_t ev;
 
 			view->display(true);
 
-			// we want to center wg (width 260) between sg (width 220) and cg (176)
-
-			create_win(10, 40, sg, w_info, magic_sprachengui_t );
-			create_win((disp_width - 220 - cg->get_fenstergroesse().x -10 -10- 260)/2 + 220 + 10, (disp_height - 300) / 2, wg, w_do_not_delete, magic_welt_gui_t );
 			create_win((disp_width - cg->get_fenstergroesse().x-10), 40, cg, w_info, magic_climate );
+
+			// we want to center wg (width 260) between sg (width 220) and cg (176)
+			welt_gui_t *wg = new welt_gui_t(welt, &umgebung_t::default_einstellungen);
+			create_win((disp_width - 220 - cg->get_fenstergroesse().x -10 -10- 260)/2 + 220 + 10, (disp_height - 300) / 2, wg, w_do_not_delete, magic_welt_gui_t );
 
 			setsimrand(dr_time(), dr_time());
 
@@ -821,23 +867,18 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 				} while (!IS_LEFTRELEASE(&ev));
 			}
 
+			destroy_all_win();
 			// scenario?
 			if(wg->get_scenario()) {
 				char path[1024];
-				destroy_win( magic_climate );
-				destroy_win( magic_sprachengui_t );
-				destroy_win( magic_welt_gui_t );
-				delete wg;
 				sprintf( path, "%s%sscenario/", umgebung_t::program_dir, (const char *)umgebung_t::objfilename );
 				chdir( path );
+				delete wg;
 				create_win( new scenario_frame_t(welt), w_info, magic_load_t );
 				chdir( umgebung_t::user_dir );
 			}
 			// Neue Karte erzeugen
 			else if (wg->get_start()) {
-				destroy_win( magic_climate );
-				destroy_win( magic_sprachengui_t );
-				destroy_win( magic_welt_gui_t );
 				// since not autodelete
 				delete wg;
 
@@ -857,24 +898,17 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 				destroy_all_win();
 				welt->step_month( umgebung_t::default_einstellungen.get_starting_month() );
 			} else if(wg->get_load()) {
-				destroy_win( magic_climate );
-				destroy_win( magic_sprachengui_t );
-				destroy_win( magic_welt_gui_t );
 				delete wg;
 				create_win( new loadsave_frame_t(welt, true), w_info, magic_load_t);
 			} else if(wg->get_load_heightfield()) {
-				destroy_win( magic_climate );
-				destroy_win( magic_sprachengui_t );
-				destroy_win( magic_welt_gui_t );
 				welt->load_heightfield(&umgebung_t::default_einstellungen);
 				delete wg;
 			} else {
-				destroy_win( magic_climate );
-				destroy_win( magic_sprachengui_t );
-				destroy_win( magic_welt_gui_t );
 				// quit the game
-				if (wg->get_quit()) break;
-				delete wg;
+				if (wg->get_quit()) {
+					delete wg;
+					break;
+				}
 			}
 		}
 

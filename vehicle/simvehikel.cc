@@ -4291,12 +4291,12 @@ aircraft_t::hop()
 
 // this routine will display the shadow
 void
-aircraft_t::display_after(int xpos, int ypos, bool /*reset_dirty*/) const
+aircraft_t::display_after(int xpos_org, int ypos_org, bool /*reset_dirty*/) const
 {
 	if(bild != IMG_LEER) {
+		int xpos = xpos_org, ypos = ypos_org;
+
 		const int raster_width = get_tile_raster_width();
-		get_screen_offset( xpos, ypos );
-		xpos += tile_raster_scale_x(get_xoff(), raster_width);
 		sint16 current_flughohe = flughoehe;
 		const sint16 target = target_height - ((sint16)get_pos().z*TILE_HEIGHT_STEP)/Z_TILE_STEP;
 		if(  current_flughohe < target  ) {
@@ -4305,9 +4305,14 @@ aircraft_t::display_after(int xpos, int ypos, bool /*reset_dirty*/) const
 		else if(  current_flughohe > target  ) {
 			current_flughohe -= (steps*TILE_HEIGHT_STEP) >> 8;
 		}
+
 		ypos += tile_raster_scale_y(get_yoff()-current_flughohe-hoff-2, raster_width);
+		xpos += tile_raster_scale_x(get_xoff(), raster_width);
+		get_screen_offset( xpos, ypos );
 
 		// will be dirty
 		display_color_img(bild, xpos, ypos, get_player_nr(), true, true/*get_flag(ding_t::dirty)*/ );
+
+		vehikel_t::display_after( xpos_org, ypos_org-tile_raster_scale_y(current_flughohe-hoff-2, raster_width), true );
 	}
 }

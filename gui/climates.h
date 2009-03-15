@@ -27,7 +27,6 @@ class climate_gui_t  : public gui_frame_t, private action_listener_t
 {
 private:
 	einstellungen_t * sets;
-	welt_gui_t *welt_gui;
 
 	// since decrease/increase buttons always pair these ...
 	button_t water_level[2];
@@ -49,7 +48,7 @@ private:
 	gui_numberinput_t river_n, river_min, river_max;
 
 public:
-	climate_gui_t(welt_gui_t* welt_gui, einstellungen_t* sets);
+	climate_gui_t(einstellungen_t* sets);
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.

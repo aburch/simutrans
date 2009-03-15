@@ -83,7 +83,7 @@ void sprachengui_t::init_font_from_lang()
 sprachengui_t::sprachengui_t() :
 	gui_frame_t("Sprachen"),
 	text_label(translator::translate("LANG_CHOOSE\n")),
-	flags(skinverwaltung_t::flaggensymbol->get_bild_nr(0)),
+	flags(skinverwaltung_t::flaggensymbol?skinverwaltung_t::flaggensymbol->get_bild_nr(0):NULL),
 	buttons(translator::get_language_count())
 {
 	text_label.set_pos( koord(10,0) );
@@ -136,7 +136,9 @@ sprachengui_t::sprachengui_t() :
 	}
 	chdir(umgebung_t::user_dir);
 
-	buttons[translator::get_language()].pressed = true;
+	if(  translator::get_language()>0  ) {
+		buttons[translator::get_language()].pressed = true;
+	}
 	set_fenstergroesse( koord(220, 74+(translator::get_language_count()/2)*14) );
 }
 
@@ -147,11 +149,13 @@ sprachengui_t::action_triggered( gui_action_creator_t *komp, value_t)
 {
 	for(int i=0; i<translator::get_language_count(); i++) {
 		button_t& b = buttons[i];
-		if (&b == komp) {
-			buttons[translator::get_language()].pressed = false;
+		if(&b == komp) {
 			b.pressed = true;
 			translator::set_language(i);
 			init_font_from_lang();
+		}
+		else {
+			b.pressed = false;
 		}
 	}
 	return true;
