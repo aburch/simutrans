@@ -166,10 +166,11 @@ bool
 help_frame_t::action_triggered( gui_action_creator_t *, value_t extra)
 {
 	const char *str = (const char *)(extra.p);
-	uint32 magic = magic_info_pointer;
+	uint32 magic = 0;
 	while(*str) {
 		magic += *str++;
 	}
+	magic = (magic % 842) + magic_info_pointer;
 	create_win(new help_frame_t((const char *)(extra.p)), w_info, magic );
 	return true;
 }

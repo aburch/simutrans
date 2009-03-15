@@ -4,6 +4,7 @@
 	ADD: more vehicle messages show in main screen
 	CHANGE: ask for language only once (prepare for difficulty dialoge)
 	ADD: UNDO for powerlines
+	FIX: convoi details (and info- windows) were not always correctly (re)opened
 
 
 

@@ -70,8 +70,11 @@ enum magic_numbers {
 	magic_bigger_map,
 	magic_labellist,
 	magic_station_building_select,
+	magic_keyhelp,
 	magic_info_pointer,	// mark end of the list
-	magic_keyhelp=magic_info_pointer+842,
+	magic_convoi_info=magic_info_pointer+839,
+	magic_convoi_detail=magic_convoi_info+65536,
+	magix_max=magic_convoi_detail+65536
 };
 
 // Haltezeit für Nachrichtenfenster
