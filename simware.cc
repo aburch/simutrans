@@ -101,25 +101,56 @@ ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		}
 	}
 	// convert coordinate to halt indices
-	if(file->is_saving()) {
+	if(file->is_saving()) 
+	{
 		koord ziel_koord = ziel.is_bound() ? ziel->get_basis_pos() : koord::invalid;
 		koord zwischenziel_koord = zwischenziel.is_bound() ? zwischenziel->get_basis_pos() : koord::invalid;
 		ziel_koord.rdwr(file);
 		zwischenziel_koord.rdwr(file);
+		if(file->get_experimental_version() >= 1)
+		{
+			koord origin_koord = origin.is_bound() ? origin->get_basis_pos() : koord::invalid;	
+			koord previous_transfer_koord = previous_transfer.is_bound() ? previous_transfer->get_basis_pos() : koord::invalid;	
+
+			origin_koord.rdwr(file);
+			previous_transfer_koord.rdwr(file);			
+		}
 	}
-	else {
+	else 
+	{
 		koord ziel_koord;
 		ziel_koord.rdwr(file);
 		ziel = welt->get_halt_koord_index(ziel_koord);
 		ziel_koord.rdwr(file);
 		zwischenziel = welt->get_halt_koord_index(ziel_koord);
 
-		//TODO: Make the following the default option only if cannot load origin, etc., from file:
-		origin = previous_transfer = zwischenziel;
-		total_journey_start_time = journey_leg_start_time = welt->get_zeit_ms();
+		
+		if(file->get_experimental_version() >= 1)
+		{
+			koord origin_koord;	
+			koord previous_transfer_koord;
+
+			origin_koord.rdwr(file);
+			previous_transfer_koord.rdwr(file);
+			
+			origin = welt->get_halt_koord_index(origin_koord);
+			previous_transfer = welt->get_halt_koord_index(previous_transfer_koord);
+			
+		}
+		else
+		{
+			origin = previous_transfer = zwischenziel;
+			total_journey_start_time = journey_leg_start_time = welt->get_zeit_ms();
+		}
 
 	}
 	zielpos.rdwr(file);
+
+	if(file->get_experimental_version() >= 1)
+	{
+		file->rdwr_long(total_journey_start_time, "");
+		file->rdwr_long(journey_leg_start_time, "");
+	}
 }
 
 

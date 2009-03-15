@@ -5,6 +5,7 @@
 
 #ifndef simconvoi_h
 #define simconvoi_h
+//#define TEST_SPEED
 
 #include "simtypes.h"
 #include "linehandle_t.h"
@@ -14,9 +15,14 @@
 #include "dataobj/route.h"
 #include "vehicle/overtaker.h"
 #include "tpl/array_tpl.h"
+#include "tpl/fixed_list_tpl.h"
 
 #include "convoihandle_t.h"
 #include "halthandle_t.h"
+
+#ifdef TEST_SPEED
+#include "simconst.h"
+#endif
 
 #define MAX_CONVOI_COST   5 // Total number of cost items
 #define MAX_MONTHS     12 // Max history
@@ -534,7 +540,14 @@ public:
 	 * set from the first vehicle, and takes into account all speed limits, brakes at stations etc.
 	 * @author Hj. Malthaner
 	 */
+#ifdef TEST_SPEED
+	void set_akt_speed_soll(sint32 set_akt_speed) { akt_speed_soll = kmh_to_speed(10); }
+	struct speed_testing { uint32 ticks; koord tile; };
+	fixed_list_tpl<speed_testing, 16> ticks_per_tile;
+	uint32 average_speed;
+#else
 	void set_akt_speed_soll(sint32 set_akt_speed) { akt_speed_soll = min( set_akt_speed, min_top_speed ); }
+#endif
 
 	/**
 	 * @return current speed, this might be different from topspeed

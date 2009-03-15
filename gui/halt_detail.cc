@@ -275,7 +275,6 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
 				linehandle_t line=halt->registered_lines[j];
 				spieler_t *sp=halt->get_welt()->get_active_player();
 				if(  sp==line->get_besitzer()  ) {
-					//TODO:
 					// Change player => change marked lines
 					sp->simlinemgmt.show_lineinfo(sp,line);
 					halt->get_welt()->set_dirty();

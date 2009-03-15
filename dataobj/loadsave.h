@@ -36,7 +36,8 @@ public:
 private:
 	int mode;
 	bool saving;
-	int version;
+	uint32 version;
+	uint32 experimental_version;
 	int ident;		// only for XML formatting
 	char pak_extension[64];	// name of the pak folder during savetime
 
@@ -54,10 +55,16 @@ private:
 
 	void rdwr_xml_number(sint64 &s, const char *typ);
 
-public:
-	static mode_t save_mode;	// default to use for saving
-	static uint32 int_version(const char *version_text, int *mode, char *pak);
+	bool save_experimental;
 
+public:
+	
+	struct combined_version { uint32 version; uint32 experimental_version; };
+
+	static mode_t save_mode;	// default to use for saving
+	static combined_version int_version(const char *version_text, int *mode, char *pak);
+
+	loadsave_t(bool experimental);
 	loadsave_t();
 	~loadsave_t();
 
@@ -78,7 +85,9 @@ public:
 	bool is_zipped() const { return mode&zipped; }
 	bool is_xml() const { return mode&xml; }
 	uint32 get_version() const { return version; }
+	uint32 get_experimental_version() const { return experimental_version; }
 	const char *get_pak_extension() const { return pak_extension; }
+	bool get_save_experimental() const { return save_experimental; }
 
 	void rdwr_byte(sint8 &c, const char *delim);
 	void rdwr_byte(uint8 &c, const char *delim);

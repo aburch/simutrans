@@ -242,8 +242,6 @@ void weg_t::rdwr(loadsave_t *file)
 	file->rdwr_short(dummy16, "\n");
 	max_speed=dummy16;
 
-	//TODO: Implement load/save for weight limits
-
 	if(file->get_version()>=89000) {
 		dummy8 = flags;
 		file->rdwr_byte(dummy8,"f");
@@ -260,6 +258,13 @@ void weg_t::rdwr(loadsave_t *file)
 			statistics[month][type] = (sint16)w;
 			// DBG_DEBUG("weg_t::rdwr()", "statistics[%d][%d]=%d", month, type, statistics[month][type]);
 		}
+	}
+
+	if(file->get_experimental_version() >= 1)
+	{
+		uint16 wdummy16 = max_weight;
+		file->rdwr_short(wdummy16, "\n");
+		max_weight = wdummy16;
 	}
 }
 

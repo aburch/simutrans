@@ -18,9 +18,16 @@
 
 loadsave_t::mode_t loadsave_t::save_mode = zipped;	// default to use for saving
 
+loadsave_t::loadsave_t(bool experimental) : filename()
+{
+	fp = NULL;
+	save_experimental = experimental;
+}
+
 loadsave_t::loadsave_t() : filename()
 {
 	fp = NULL;
+	save_experimental = true;
 }
 
 loadsave_t::~loadsave_t()
@@ -33,6 +40,7 @@ bool loadsave_t::rd_open(const char *filename)
 	close();
 
 	version = 0;
+	experimental_version = 0;
 	fp = (FILE *)gzopen(filename, "rb");
 	if(!fp) {
 		return false;
@@ -70,7 +78,10 @@ bool loadsave_t::rd_open(const char *filename)
 			}
 			*s = 0;
 			int dummy;
-			version = int_version(str, &dummy, pak_extension);
+			
+			combined_version versions = int_version(str, &dummy, pak_extension);
+			version = versions.version;
+			experimental_version = versions.experimental_version;
 
 			read( buf, sizeof(" pak=\"")-1 );
 			s = pak_extension;
@@ -86,7 +97,9 @@ bool loadsave_t::rd_open(const char *filename)
 		}
 	}
 	else {
-		version = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode, pak_extension);
+		combined_version versions = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode, pak_extension);
+		version = versions.version;
+		experimental_version = versions.experimental_version;
 	}
 	if(mode==text) {
 		close();
@@ -135,6 +148,21 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	const char *start = pak_extension;
 	const char *end = pak_extension + strlen(pak_extension)-1;
 	const char *c = pak_extension;
+	
+	// Use Experimental version numbering if appropriate.
+	char *savegame_version;
+	char *savegame_ver_nr;
+	if(save_experimental)
+	{
+		savegame_version = EXPERIMENTAL_SAVEGAME_VERSION;
+		savegame_ver_nr = COMBINED_VER_NR;
+	}
+	else
+	{
+		savegame_version = SAVEGAME_VERSION;
+		savegame_ver_nr = SAVEGAME_VER_NR;
+	}
+
 	// find the start
 	while(*c<*end) {
 		if(*c==':'  ||  *c=='\\'  ||  *c=='/') {
@@ -149,20 +177,22 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 
 	if(  !is_xml()  ) {
 		if(is_zipped()) {
-			gzprintf(fp, "%s%s%s\n", SAVEGAME_VERSION, "zip", this->pak_extension);
+			gzprintf(fp, "%s%s%s\n", savegame_version, "zip", this->pak_extension);
 		}
 		else {
-			fprintf(fp, "%s%s%s\n", SAVEGAME_VERSION, mode == binary ? "bin" : "", this->pak_extension);
+			fprintf(fp, "%s%s%s\n", savegame_version, mode == binary ? "bin" : "", this->pak_extension);
 		}
 	}
 	else {
 		char str[4096];
-		int n = sprintf( str, "<?xml version=\"1.0\"?>\n<Simutrans version=\"%s\" pak=\"%s\">\n", SAVEGAME_VER_NR, this->pak_extension );
+		int n = sprintf( str, "<?xml version=\"1.0\"?>\n<Simutrans version=\"%s\" pak=\"%s\">\n", savegame_ver_nr, this->pak_extension );
 		write( str, n );
 		ident = 1;
 	}
 
-	version = int_version(SAVEGAME_VER_NR, NULL, NULL );
+	combined_version versions = int_version(savegame_ver_nr, NULL, NULL );
+	version = versions.version;
+	experimental_version = versions.experimental_version;
 	this->mode = mode;
 	this->filename = filename;
 
@@ -447,6 +477,7 @@ void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 		this->write( nr, strlen(nr) );
 	}
 	else {
+		uint32 test = get_version();
 		const int len = (int)strlen(typ);
 		assert(len<256);
 		// find start of tag
@@ -777,15 +808,21 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 }
 
 
-uint32 loadsave_t::int_version(const char *version_text, int *mode, char *pak_extension)
-{
+loadsave_t::combined_version loadsave_t::int_version(const char *version_text, int *mode, char *pak_extension)
+{	
+	uint32 version;
+	uint32 experimental_version = 0;
+
 	// major number (0..)
 	uint32 v0 = atoi(version_text);
 	while(*version_text && *version_text++ != '.')
 		;
 	if(!*version_text) {
 		dbg->fatal( "loadsave_t::int_version()","Really broken version string!" );
-		return 0;
+		combined_version dud;
+		dud.version = 0;
+		dud.experimental_version = 0;
+		return dud;
 	}
 
 	// middle number (.99.)
@@ -794,12 +831,42 @@ uint32 loadsave_t::int_version(const char *version_text, int *mode, char *pak_ex
 		;
 	if(!*version_text) {
 		dbg->fatal( "loadsave_t::int_version()","Really broken version string!" );
-		return 0;
+		combined_version dud;
+		dud.version = 0;
+		dud.experimental_version = 0;
+		return dud;
 	}
 
 	// minor number (..08)
 	uint32 v2 = atoi(version_text);
-	uint32 version = v0 * 1000000 + v1 * 1000 + v2;
+	uint16 count = 0;
+	while(*version_text && *version_text++ != '.')
+	{
+		count++;
+	}
+	if(!*version_text) 
+	{
+		experimental_version = 0;
+		// Decrement the pointer if this is not an Experimental version.
+		//*version_text -= count;
+		while(count > 0)
+		{
+			*version_text --;
+			count--;
+		}
+	}
+	else
+	{
+		experimental_version = atoi(version_text);
+		while(count > 0)
+		{
+			*version_text --;
+			count--;
+		}
+	}
+	
+
+	version = v0 * 1000000 + v1 * 1000 + v2;
 
 	if(mode) {
 		while(*version_text && *version_text != 'b' && *version_text != 'z') {
@@ -814,7 +881,7 @@ uint32 loadsave_t::int_version(const char *version_text, int *mode, char *pak_ex
 		}
 
 		// also pak extension was saved
-		if(version>=99008) {
+		if(version >= 99008) {
 			if(*mode!=text) {
 				version_text += 3;
 			}
@@ -825,9 +892,12 @@ uint32 loadsave_t::int_version(const char *version_text, int *mode, char *pak_ex
 		*pak_extension = 0;
 	}
 
-	return version;
-}
+	combined_version loadsave_version;
+	loadsave_version.version = version;
+	loadsave_version.experimental_version = experimental_version;
 
+	return loadsave_version;
+}
 
 
 void loadsave_t::start_tag(const char *tag)

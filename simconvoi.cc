@@ -502,7 +502,11 @@ void convoi_t::calc_acceleration(long delta_t)
 		delta_v += previous_delta_v;
 		previous_delta_v = delta_v & 0x0FFF;
 		// and finally calculate new speed
+#ifdef TEST_SPEED
+		akt_speed = kmh_to_speed(10);
+#else
 		akt_speed = max(akt_speed_soll>>4, akt_speed+(sint32)(delta_v>>12l) );
+
 	}
 	else {
 		// very old vehicle ...
@@ -515,6 +519,7 @@ void convoi_t::calc_acceleration(long delta_t)
 		if(akt_speed > akt_speed_soll+kmh_to_speed(20)) {
 			akt_speed = akt_speed_soll+kmh_to_speed(20);
 		}
+#endif
 	}
 
 	// new record?
@@ -757,6 +762,19 @@ bool convoi_t::sync_step(long delta_t)
 			break;
 	}
 
+#ifdef TEST_SPEED
+
+	speed_testing tmp;
+	tmp.ticks = welt->get_steps();
+	tmp.tile = fahr[0]->get_pos().get_2d();
+	if(ticks_per_tile.get_count() < 1 || ((tmp.tile.x != ticks_per_tile[0].tile.x) || (tmp.tile.y != ticks_per_tile[0].tile.y)))
+	{
+		ticks_per_tile.add_to_head(tmp);
+	}
+
+
+#endif
+	
 	return true;
 }
 
@@ -1040,6 +1058,8 @@ end_loop:
 		default:	/* keeps compiler silent*/
 			break;
 	}
+
+
 }
 
 
@@ -1912,7 +1932,7 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 
 	file->rdwr_long(wait_lock, " ");
-	// some versions may produce broken safegames apparently
+	// some versions may produce broken savegames apparently
 	if(wait_lock > 60000) {
 		dbg->warning("convoi_t::sync_prepre()","Convoi %d: wait lock out of bounds: wait_lock = %d, setting to 60000",self.get_id(), wait_lock);
 		wait_lock = 60000;
@@ -2201,14 +2221,7 @@ convoi_t::rdwr(loadsave_t *file)
 		set_tiles_overtaking( tiles_overtaking );
 	}
 	
-	// TODO: Add load/save parameters for:
-	// (1) origin;
-	// (2) last transfer;
-	// (3) origin departure time;  
-	// (4) last transfer departure time; 
-	// (5) whether the convoy is in reverse formation; and
-	// (6) how overcrowded that the vehicle is.
-	// Then, reversion the save game file format.
+
 
 	// no_load, withdraw
 	if(file->get_version()<102001) {
@@ -2219,12 +2232,66 @@ convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_bool( no_load, "" );
 		file->rdwr_bool( withdraw, "" );
 	}
+	
+	// Simutrans-Experimental specific parameters. 
+	// Must *always* go after standard parameters.
 
 	heaviest_vehicle = calc_heaviest_vehicle();
 	longest_loading_time = calc_longest_loading_time();
-	
-	//HACK: Should be loaded from file.
-	reversed = false;
+
+	if(file->get_experimental_version() >= 1)
+	{
+		file->rdwr_bool(reversed, "");
+		
+		//Replacing settings
+		file->rdwr_bool(replace, "");
+		file->rdwr_bool(autostart, "");
+		file->rdwr_bool(depot_when_empty, "");
+
+		uint16 replacing_vehicles_count;
+
+		if(file->is_saving())
+		{
+			replacing_vehicles_count = replacing_vehicles.get_count();
+			file->rdwr_short(replacing_vehicles_count, "");
+			ITERATE(replacing_vehicles, i)
+			{
+				const char *s = replacing_vehicles[i]->get_name();
+				file->rdwr_str(s);
+			}
+		}
+		else
+		{
+			
+			file->rdwr_short(replacing_vehicles_count, "");
+			for(uint16 i = 0; i < replacing_vehicles_count; i ++)
+			{
+				char vehicle_name[256];
+				file->rdwr_str(vehicle_name, 256);
+				const vehikel_besch_t* besch = vehikelbauer_t::get_info(vehicle_name);
+				if(besch == NULL) 
+				{
+					besch = vehikelbauer_t::get_info(translator::compatibility_name(vehicle_name));
+				}
+				if(besch == NULL)
+				{
+					dbg->warning("convoi_t::rdwr()","no vehicle pak for '%s' search for something similar", vehicle_name);
+				}
+				else
+				{
+					replacing_vehicles.append(besch);
+				}
+			}
+		}
+
+		
+
+		// TODO: Add load/save parameters for:
+		// (1) origin;
+		// (2) last transfer;
+		// (3) origin departure time; and
+		// (4) last transfer departure time.
+	}
 }
 
 
@@ -2342,8 +2409,9 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		slist_tpl <ware_t>capacity;
 		for(i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) {
 			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) {
-				//TODO: Replace this with the new constructor with the origin and timekeeping values.
 				ware_t ware(warenbauer_t::get_info(i));
+				//halthandle_t origin = welt->get_halt_koord_index(fahr[0]->get_pos().get_2d());
+				//ware_t ware(warenbauer_t::get_info(i), origin, welt->get_zeit_ms())
 				ware.menge = max_loaded_waren[i];
 				if(ware.get_catg()==0) {
 					capacity.append( ware );

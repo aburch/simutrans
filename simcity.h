@@ -169,7 +169,7 @@ private:
 
 	slist_tpl<stadtauto_t *> current_cars;
 
-	int route_result;
+	uint8 route_result;
 
 public:
 	/**

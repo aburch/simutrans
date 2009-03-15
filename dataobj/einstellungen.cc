@@ -175,26 +175,50 @@ einstellungen_t::einstellungen_t() :
 	seperate_halt_capacities = false;
 
 	// Local bonus adjustment
-	uint16 min_bonus_max_distance = 16;
-	uint16 max_bonus_min_distance = 256;
-	uint16 local_bonus_multiplier = 10;
+	min_bonus_max_distance = 16;
+	max_bonus_min_distance = 256;
+	local_bonus_multiplier = 10;
 
 	// Obsolete vehicles running costs adjustment
-	uint16 obsolete_running_cost_increase_percent = 400; //Running costs will be this % of normal costs after vehicle has been obsolete
-	uint16 obsolete_running_cost_increase_phase_years = 20; //for this number of years.
+	obsolete_running_cost_increase_percent = 400; //Running costs will be this % of normal costs after vehicle has been obsolete
+	obsolete_running_cost_increase_phase_years = 20; //for this number of years.
 
 	// Passenger destination ranges
 
-	uint16 local_passengers_min_distance = 0;
-	uint16 local_passengers_max_distance = 64;
-	uint16 midrange_passengers_min_distance = 0;
-	uint16 midrange_passengers_max_distance = 128;
-	uint16 longdistance_passengers_min_distance = 0;
-	uint16 longdistance_passengers_max_distance = 4096;
+	local_passengers_min_distance = 0;
+	local_passengers_max_distance = 64;
+	midrange_passengers_min_distance = 0;
+	midrange_passengers_max_distance = 128;
+	longdistance_passengers_min_distance = 0;
+	longdistance_passengers_max_distance = 4096;
 
 	// Passenger routing settings
-	uint8 passenger_routing_packet_size = 7;
-	uint8 max_alternative_destinations = 3;
+	passenger_routing_packet_size = 7;
+	max_alternative_destinations = 3;
+
+	always_prefer_car_percent = 10;
+	base_car_preference_percent = 90;
+	congestion_density_factor = 12;
+
+	//@author: jamespetts
+	// Passenger routing settings
+	passenger_routing_packet_size = 7;
+
+	//@author: jamespetts
+	// Factory retirement settings
+	factory_max_years_obsolete = 30;
+
+	//@author: jamespetts
+	// Insolvency and debt settings
+	interest_rate_percent = 10;
+	allow_bankruptsy  = 0;
+	allow_purhcases_when_insolvent  = 0;
+
+	// Reversing settings
+	//@author: jamespetts
+	unit_reverse_time = 0;
+	hauled_reverse_time = 0;
+	turntable_reverse_time = 0;
 
 	// this will pay for distance to next change station
 
@@ -482,7 +506,100 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_bool( no_routing_over_overcrowding, "" );
 		}
 
-	//TODO: Add *all* Simutrans-Experimental settings here.
+		if(file->get_experimental_version() >= 1)
+		{
+			file->rdwr_short(min_bonus_max_distance, "");
+			file->rdwr_short(max_bonus_min_distance, "");
+			file->rdwr_short(local_bonus_multiplier, "");
+
+			file->rdwr_short(obsolete_running_cost_increase_percent, "");
+			file->rdwr_short(obsolete_running_cost_increase_phase_years, "");
+
+			file->rdwr_short(local_passengers_min_distance, "");
+			file->rdwr_short(local_passengers_max_distance, "");
+			file->rdwr_short(midrange_passengers_min_distance, "");
+			file->rdwr_short(midrange_passengers_max_distance, "");
+			file->rdwr_short(longdistance_passengers_min_distance, "");
+			file->rdwr_short(longdistance_passengers_max_distance, "");
+
+			file->rdwr_byte(passenger_routing_packet_size, "");
+			file->rdwr_byte(max_alternative_destinations, "");
+			file->rdwr_byte(passenger_routing_local_chance, "");
+			file->rdwr_byte(passenger_routing_midrange_chance, "");
+			file->rdwr_byte(base_car_preference_percent, "");
+			file->rdwr_byte(always_prefer_car_percent, "");
+			file->rdwr_byte(congestion_density_factor, "");
+
+			file->rdwr_long(max_corner_limit[waytype_t(road_wt)], "");
+			file->rdwr_long(min_corner_limit[waytype_t(road_wt)], "");
+			double tmp = (double)max_corner_adjustment_factor[waytype_t(road_wt)];
+			file->rdwr_double(tmp);
+			tmp = (double)min_corner_adjustment_factor[waytype_t(road_wt)];
+			file->rdwr_double(tmp);
+			file->rdwr_byte(min_direction_steps[waytype_t(road_wt)], "");
+			file->rdwr_byte(max_direction_steps[waytype_t(road_wt)], "");
+			file->rdwr_byte(curve_friction_factor[waytype_t(road_wt)], "");
+
+			file->rdwr_long(max_corner_limit[waytype_t(track_wt)], "");
+			file->rdwr_long(min_corner_limit[waytype_t(track_wt)], "");
+			tmp = (double)max_corner_adjustment_factor[waytype_t(track_wt)];
+			file->rdwr_double(tmp);
+			tmp = (double)min_corner_adjustment_factor[waytype_t(track_wt)];
+			file->rdwr_double(tmp);
+			file->rdwr_byte(min_direction_steps[waytype_t(track_wt)], "");
+			file->rdwr_byte(max_direction_steps[waytype_t(track_wt)], "");
+			file->rdwr_byte(curve_friction_factor[waytype_t(track_wt)], "");
+
+			file->rdwr_long(max_corner_limit[waytype_t(tram_wt)], "");
+			file->rdwr_long(min_corner_limit[waytype_t(tram_wt)], "");
+			tmp = (double)max_corner_adjustment_factor[waytype_t(tram_wt)];
+			file->rdwr_double(tmp);
+			tmp = (double)min_corner_adjustment_factor[waytype_t(tram_wt)];
+			file->rdwr_double(tmp);
+			file->rdwr_byte(min_direction_steps[waytype_t(tram_wt)], "");
+			file->rdwr_byte(max_direction_steps[waytype_t(tram_wt)], "");
+			file->rdwr_byte(curve_friction_factor[waytype_t(tram_wt)], "");
+
+			file->rdwr_long(max_corner_limit[waytype_t(monorail_wt)], "");
+			file->rdwr_long(min_corner_limit[waytype_t(monorail_wt)], "");
+			tmp = (double)max_corner_adjustment_factor[waytype_t(monorail_wt)];
+			file->rdwr_double(tmp);
+			tmp = (double)min_corner_adjustment_factor[waytype_t(monorail_wt)];
+			file->rdwr_double(tmp);
+			file->rdwr_byte(min_direction_steps[waytype_t(monorail_wt)], "");
+			file->rdwr_byte(max_direction_steps[waytype_t(monorail_wt)], "");
+			file->rdwr_byte(curve_friction_factor[waytype_t(monorail_wt)], "");
+
+			file->rdwr_long(max_corner_limit[waytype_t(maglev_wt)], "");
+			file->rdwr_long(min_corner_limit[waytype_t(maglev_wt)], "");
+			tmp = (double)max_corner_adjustment_factor[waytype_t(maglev_wt)];
+			file->rdwr_double(tmp);
+			tmp = (double)min_corner_adjustment_factor[waytype_t(maglev_wt)];
+			file->rdwr_double(tmp);
+			file->rdwr_byte(min_direction_steps[waytype_t(maglev_wt)], "");
+			file->rdwr_byte(max_direction_steps[waytype_t(maglev_wt)], "");
+			file->rdwr_byte(curve_friction_factor[waytype_t(maglev_wt)], "");
+
+			file->rdwr_long(max_corner_limit[waytype_t(narrowgauge_wt)], "");
+			file->rdwr_long(min_corner_limit[waytype_t(narrowgauge_wt)], "");
+			tmp = (double)max_corner_adjustment_factor[waytype_t(narrowgauge_wt)];
+			file->rdwr_double(tmp);
+			tmp = min_corner_adjustment_factor[waytype_t(narrowgauge_wt)];
+			file->rdwr_double(tmp);
+			file->rdwr_byte(min_direction_steps[waytype_t(narrowgauge_wt)], "");
+			file->rdwr_byte(max_direction_steps[waytype_t(narrowgauge_wt)], "");
+			file->rdwr_byte(curve_friction_factor[waytype_t(narrowgauge_wt)], "");
+
+			file->rdwr_short(factory_max_years_obsolete, "");
+
+			file->rdwr_byte(interest_rate_percent, "");
+			file->rdwr_bool(allow_bankruptsy, "");
+			file->rdwr_bool(allow_purhcases_when_insolvent, "");
+
+			file->rdwr_short(unit_reverse_time, "");
+			file->rdwr_short(hauled_reverse_time, "");
+			file->rdwr_short(turntable_reverse_time, "");
+		}
 
 	}
 }
@@ -654,9 +771,9 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	max_alternative_destinations = contents.get_int("max_alternative_destinations", max_alternative_destinations);
 	passenger_routing_local_chance  = contents.get_int("passenger_routing_local_chance ", passenger_routing_local_chance);
 	passenger_routing_midrange_chance = contents.get_int("passenger_routing_midrange_chance", passenger_routing_midrange_chance);
-	base_car_preference_percent = contents.get_int("base_car_preference_percent", 90);
-	always_prefer_car_percent = contents.get_int("always_prefer_car_percent", 10);
-	congestion_density_factor = contents.get_int("congestion_density_factor", 12);
+	base_car_preference_percent = contents.get_int("base_car_preference_percent", base_car_preference_percent);
+	always_prefer_car_percent = contents.get_int("always_prefer_car_percent", always_prefer_car_percent);
+	congestion_density_factor = contents.get_int("congestion_density_factor", congestion_density_factor);
 
 	//Cornering settings
 	max_corner_limit[waytype_t(road_wt)] = contents.get_int("max_corner_limit_road", 200);
@@ -716,18 +833,18 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	curve_friction_factor[waytype_t(narrowgauge_wt)] = contents.get_int("curve_friction_factor_narrowgauge", 0);
 
 	//Factory settings
-	factory_max_years_obsolete = contents.get_int("max_years_obsolete", 30);
+	factory_max_years_obsolete = contents.get_int("max_years_obsolete", factory_max_years_obsolete);
 
 	//@author: jamespetts
 	// Insolvency and debt settings
-	interest_rate_percent = contents.get_int("interest_rate_percent", 10);
-	allow_bankruptsy = contents.get_int("allow_bankruptsy", 0);
-	allow_purhcases_when_insolvent = contents.get_int("allow_purhcases_when_insolvent", 0);
+	interest_rate_percent = contents.get_int("interest_rate_percent", interest_rate_percent);
+	allow_bankruptsy = contents.get_int("allow_bankruptsy", allow_bankruptsy);
+	allow_purhcases_when_insolvent = contents.get_int("allow_purhcases_when_insolvent", allow_purhcases_when_insolvent);
 
 	//Reversing settings
-	unit_reverse_time = contents.get_int("unit_reverse_time", 0);
-	hauled_reverse_time = contents.get_int("hauled_reverse_time", 0);
-	turntable_reverse_time = contents.get_int("turntable_reverse_time", 0);
+	unit_reverse_time = contents.get_int("unit_reverse_time", unit_reverse_time);
+	hauled_reverse_time = contents.get_int("hauled_reverse_time", hauled_reverse_time);
+	turntable_reverse_time = contents.get_int("turntable_reverse_time", turntable_reverse_time);
 
 	/*
 	 * Selection of savegame format through inifile

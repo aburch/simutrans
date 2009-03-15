@@ -393,7 +393,6 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv)
 			cnv->set_no_load(false);
 			cnv->go_to_depot(false);
 		}
-			//TODO: Add code for upgrading.
 		break;
 	
 	case state_sell:

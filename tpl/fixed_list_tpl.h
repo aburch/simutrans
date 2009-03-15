@@ -43,30 +43,30 @@ public:
 
 	T operator[](uint8 e)
 	{
+		uint8 i;
 		if(e > size)
 		{
 			dbg->fatal("fixed_list_tpl<T>::[]", "index out of bounds: %i not in 0..%d", e, size - 1);
-			return NULL;
 		}
 		else
 		{
-			uint8 i = add_index(head, e, N);
-			return data[i];
+			i = add_index(head, e, N);
 		}
+		return data[i];
 	}
 
 	const T operator[](uint8 e) const
 	{
+		uint8 i;
 		if(e > size)
 		{
 			dbg->fatal("fixed_list_tpl<T>::[]", "index out of bounds: %i not in 0..%d", e, size - 1);
-			return NULL;
 		}
 		else
 		{
-			uint8 i = add_index(head, e, N);
-			return data[i];
+			i = add_index(head, e, N);
 		}
+		return data[i];
 	}
 
 	void clear()
