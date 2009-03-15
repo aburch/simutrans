@@ -1400,18 +1400,18 @@ void stadt_t::step_passagiere()
 
 			// suitable end search
 			unsigned ziel_count = 0;
-			for (uint h = 0; h < dest_plan->get_haltlist_count(); h++) {
+			for(  uint8 h = 0;  h < dest_plan->get_haltlist_count();  h++  ) {
 				halthandle_t halt = dest_list[h];
-				if (halt->is_enabled(wtyp)) {
+				if(  halt->is_enabled(wtyp)  ) {
 					ziel_count++;
-					if (halt == start_halt) {
+					if(  halt == start_halt  ) {
 						can_walk_ziel = true;
 						break; // because we found at least one valid step ...
 					}
 				}
 			}
 
-			if (ziel_count == 0) {
+			if(  ziel_count == 0  ) {
 // DBG_MESSAGE("stadt_t::step_passagiere()", "No stop near dest (%d, %d)", ziel.x, ziel.y);
 				// Thus, routing is not possible and we do not need to do a calculation.
 				// Mark ziel as destination without route and continue.

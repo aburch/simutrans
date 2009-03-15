@@ -1698,7 +1698,7 @@ sint64 haltestelle_t::calc_maintenance()
 
 
 
-// changes this to a publix transfer exchange stop
+// changes this to a public transfer exchange stop
 void haltestelle_t::make_public_and_join( spieler_t *sp )
 {
 	spieler_t *public_owner=welt->get_spieler(1);
@@ -2243,7 +2243,9 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	assert(gr!=NULL);
 
 	// neu halt?
-	if (tiles.is_contained(gr)) return false;
+	if (tiles.is_contained(gr)) {
+		return false;
+	}
 
 	koord pos=gr->get_pos().get_2d();
 	gr->set_halt(self);
@@ -2358,7 +2360,7 @@ void haltestelle_t::rem_grund(grund_t *gr)
 			gr->set_halt(halthandle_t());
 			// still connected elsewhere?
 			for(unsigned i=0;  i<pl->get_boden_count();  i++  ) {
-				if(pl->get_boden_bei(i)->get_halt().is_bound()) {
+				if(pl->get_boden_bei(i)->get_halt()==self) {
 					// still connected with other ground => do not remove from plan ...
 					DBG_DEBUG("haltestelle_t::rem_grund()", "keep floor, count=%i", tiles.get_count());
 					return;
