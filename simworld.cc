@@ -1389,6 +1389,8 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	// length of day and other time stuff
 	ticks_bits_per_tag = 20;
 	ticks_per_tag = (1 << ticks_bits_per_tag);
+	last_step_ticks = 0;
+	last_interaction = dr_time();
 	fast_forward = false;
 	pause = false;
 	time_multiplier = 16;
