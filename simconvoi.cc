@@ -129,6 +129,9 @@ void convoi_t::reset()
 
 	heaviest_vehicle = 0;
 	longest_loading_time = 0;
+	last_departure_time = welt->get_zeit_ms();
+	rolling_average_speed = 0;
+	rolling_average_speed_count = 0;
 }
 
 void convoi_t::init(karte_t *wl, spieler_t *sp)
@@ -709,9 +712,13 @@ bool convoi_t::sync_step(long delta_t)
 					next_wolke = 0;
 					for(int i=0;  i<anz_vehikel;  i++  ) {
 						fahr[i]->rauche();
+						fahr[i]->last_stop_pos = fahr[i]->get_pos().get_2d();
 					}
 				}
 			}
+
+			last_departure_time = welt->get_zeit_ms();
+
 			break;	// LEAVING_DEPOT
 
 		case DRIVING:
@@ -1086,6 +1093,10 @@ void convoi_t::new_month()
 		}
 		financial_history[0][j] = 0;
 	}
+
+	rolling_average_speed = 0;
+	rolling_average_speed_count = 0;
+
 	// check for traffic jam
 	if(state==WAITING_FOR_CLEARANCE) {
 		state = WAITING_FOR_CLEARANCE_ONE_MONTH;
@@ -2127,24 +2138,59 @@ convoi_t::rdwr(loadsave_t *file)
 	// Hajo: since sp_ist became obsolete, sp_soll is used modulo 65536
 	sp_soll &= 65535;
 
-	if(file->get_version()<=88003) {
+	if(file->get_version()<=88003) 
+	{
 		// load statistics
 		int j;
-		for (j = 0; j<3; j++) {
-			for (int k = MAX_MONTHS-1; k>=0; k--) {
+		for (j = 0; j < 3; j++) 
+		{
+			for (int k = MAX_MONTHS-1; k >= 0; k--) 
+			{
+				if(j == CONVOI_AVERAGE_SPEED && file->get_experimental_version() <= 1)
+				{
+					// Versions of Experimental saves with 1 and below
+					// did not have a setting for average speed.
+					// Thus, this value must be skipped properly to
+					// assign the values.
+					financial_history[k][j] = 0;
+					continue;
+				}
 				file->rdwr_longlong(financial_history[k][j], " ");
 			}
 		}
-		for (j = 2; j<5; j++) {
-			for (int k = MAX_MONTHS-1; k>=0; k--) {
+		for (j = 2; j < 5; j++) 
+		{
+			for (int k = MAX_MONTHS-1; k >= 0; k--) 
+			{
+				if(j == CONVOI_AVERAGE_SPEED && file->get_experimental_version() <= 1)
+				{
+					// Versions of Experimental saves with 1 and below
+					// did not have a setting for average speed.
+					// Thus, this value must be skipped properly to
+					// assign the values.
+					financial_history[k][j] = 0;
+					continue;
+				}
 				file->rdwr_longlong(financial_history[k][j], " ");
 			}
 		}
 	}
-	else {
+	else 
+	{
 		// load statistics
-		for (int j = 0; j<MAX_CONVOI_COST; j++) {
-			for (int k = MAX_MONTHS-1; k>=0; k--) {
+		for (int j = 0; j < MAX_CONVOI_COST; j++) 
+		{
+			for (int k = MAX_MONTHS-1; k >= 0; k--) 
+			{
+				if(j == CONVOI_AVERAGE_SPEED && file->get_experimental_version() <= 1)
+				{
+					// Versions of Experimental saves with 1 and below
+					// did not have a setting for average speed.
+					// Thus, this value must be skipped properly to
+					// assign the values.
+					financial_history[k][j] = 0;
+					continue;
+				}
 				file->rdwr_longlong(financial_history[k][j], " ");
 			}
 		}
@@ -2152,9 +2198,11 @@ convoi_t::rdwr(loadsave_t *file)
 
 	// since it was saved as an signed int
 	// we recalc it anyhow
-	if(file->is_loading()) {
-		jahresgewinn = 0;
-		for(int i=welt->get_last_month()%12;  i>=0;  i--  ) {
+	if(file->is_loading()) 
+	{
+		jahresgewinn = 0; //"annual profit" (Babelfish)
+		for(int i=welt->get_last_month()%12;  i>=0;  i--  ) 
+		{
 			jahresgewinn += financial_history[i][CONVOI_PROFIT];
 		}
 	}
@@ -2283,14 +2331,12 @@ convoi_t::rdwr(loadsave_t *file)
 				}
 			}
 		}
-
-		
-
-		// TODO: Add load/save parameters for:
-		// (1) origin;
-		// (2) last transfer;
-		// (3) origin departure time; and
-		// (4) last transfer departure time.
+	}
+	if(file->get_experimental_version() >= 2)
+	{
+		file->rdwr_long(last_departure_time, "");
+		file->rdwr_long(rolling_average_speed, "");
+		file->rdwr_short(rolling_average_speed_count, "");
 	}
 }
 
@@ -2370,7 +2416,8 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			slist_iterator_tpl<ware_t> iter_vehicle_ware(v->get_fracht());
 			while(iter_vehicle_ware.next()) {
 				ware_t ware = iter_vehicle_ware.get_current();
-				for(unsigned i = 0;  i < total_fracht.get_count();  i++ ) {
+				ITERATE(total_fracht, i)
+				{
 
 					// could this be joined with existing freight?
 					ware_t &tmp = total_fracht[i];
@@ -2410,6 +2457,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		for(i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) {
 			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) {
 				ware_t ware(warenbauer_t::get_info(i));
+				//TODO: Setup origins so that the ultimate origin, as well as the previous transfer, is stored.
 				//halthandle_t origin = welt->get_halt_koord_index(fahr[0]->get_pos().get_2d());
 				//ware_t ware(warenbauer_t::get_info(i), origin, welt->get_zeit_ms())
 				ware.menge = max_loaded_waren[i];
@@ -2571,7 +2619,12 @@ convoi_t::pruefe_alle() //"examine all" (Babelfish)
  */
 void convoi_t::laden() //"load" (Babelfish)
 {
-	if(state == FAHRPLANEINGABE) {
+	const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096;
+	const double journey_distance = accurate_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
+	const uint16 average_speed = (journey_distance / journey_time) * 20;
+	book(average_speed, CONVOI_AVERAGE_SPEED);
+
+	if(state == FAHRPLANEINGABE) { //"ENTER SCHEDULE" (Google)
 		return;
 	}
 
@@ -2579,7 +2632,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	// eigene haltestelle ?
 	// "own stop?" (Babelfish)
 	if (halt.is_bound()) {
-		const koord k = fpl->get_current_eintrag().pos.get_2d();
+		const koord k = fpl->get_current_eintrag().pos.get_2d(); //"eintrag" = "entry" (Google)
 		const spieler_t* owner = halt->get_besitzer();
 		if(  owner == get_besitzer()  ||  owner == welt->get_spieler(1)  ) {
 			// loading/unloading ...
@@ -2617,6 +2670,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	// This is the minimum time it takes for loading
 	//wait_lock = WTT_LOADING;
 	wait_lock = longest_loading_time;
+	last_departure_time = welt->get_zeit_ms();
 }
 
 
@@ -2634,6 +2688,8 @@ void convoi_t::calc_gewinn()
 		gewinn += v->calc_gewinn(v->last_stop_pos, v->get_pos().get_2d(), tmp );
 		v->last_stop_pos = v->get_pos().get_2d();
 	}
+
+	last_departure_time = welt->get_zeit_ms();
 
 	if(gewinn) {
 		besitzer_p->buche(gewinn, fahr[0]->get_pos().get_2d(), COST_INCOME);
@@ -2915,7 +2971,16 @@ void convoi_t::book(sint64 amount, int cost_type)
 {
 	assert(  cost_type<MAX_CONVOI_COST);
 
-	financial_history[0][cost_type] += amount;
+	if(cost_type != CONVOI_AVERAGE_SPEED)
+	{
+		financial_history[0][cost_type] += amount;
+	}
+	else
+	{
+		rolling_average_speed += amount;
+		rolling_average_speed_count ++;
+		financial_history[0][cost_type] = rolling_average_speed / rolling_average_speed_count;
+	}
 	if (line.is_bound()) {
 		line->book(amount, simline_t::convoi_to_line_catgory[cost_type] );
 	}

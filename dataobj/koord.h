@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 #include <assert.h>
+#include <math.h>
 
 #include "ribi.h"
 #include "../simtypes.h"
@@ -74,7 +75,14 @@ private:
 
 static inline uint32 abs_distance(const koord &a, const koord &b)
 {
+	// Manhattan distance
 	return abs(a.x - b.x) + abs(a.y - b.y);
+}
+
+static inline double accurate_distance(const koord &a, const koord &b)
+{
+	// Euclidian distance
+	return sqrt(pow((double)a.x - (int)b.x, 2) + pow((double)a.y - (int)b.y, 2));
 }
 
 

@@ -38,6 +38,7 @@ const char cost_type[MAX_CONVOI_COST][64] =
 {
 	"Free Capacity",
 	"Transported",
+	"Average speed",
 	"Revenue",
 	"Operation",
 	"Profit"
@@ -64,7 +65,7 @@ const char *convoi_info_t::sort_text[SORT_MODES] = {
 
 const int cost_type_color[MAX_CONVOI_COST] =
 {
-	COL_FREE_CAPACITY, COL_TRANSPORTED, COL_REVENUE, COL_OPERATION, COL_PROFIT
+	COL_FREE_CAPACITY, COL_TRANSPORTED, COL_AVERAGE_SPEED, COL_REVENUE, COL_OPERATION, COL_PROFIT
 };
 
 

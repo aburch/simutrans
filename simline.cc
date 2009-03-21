@@ -10,7 +10,7 @@
 #include "simlinemgmt.h"
 
 
-uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT };
+uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_AVERAGE_SPEED, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT };
 
 karte_t *simline_t::welt=NULL;
 
@@ -27,6 +27,8 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp)
 	this->fpl = NULL;
 	this->sp = sp;
 	state_color = COL_YELLOW;
+	rolling_average_speed = 0;
+	rolling_average_speed_count = 0;
 }
 
 
@@ -153,13 +155,30 @@ void simline_t::rdwr(loadsave_t *file)
 	fpl->rdwr(file);
 
 	//financial history
-	for (int j = 0; j<MAX_LINE_COST; j++) {
-		for (int k = MAX_MONTHS-1; k>=0; k--) {
+	for (int j = 0; j<MAX_LINE_COST; j++) 
+	{
+		for (int k = MAX_MONTHS-1; k>=0; k--) 
+		{
+			if(j == LINE_AVERAGE_SPEED && file->get_experimental_version() <= 1)
+			{
+				// Versions of Experimental saves with 1 and below
+				// did not have a setting for average speed.
+				// Thus, this value must be skipped properly to
+				// assign the values.
+				financial_history[k][j] = 0;
+				continue;
+			}
 			file->rdwr_longlong(financial_history[k][j], " ");
 		}
 	}
 	// otherwise inintialized to zero if loading ...
 	financial_history[0][LINE_CONVOIS] = count_convoys();
+
+	if(file->get_experimental_version() >= 2)
+	{
+		file->rdwr_long(rolling_average_speed, "");
+		file->rdwr_short(rolling_average_speed_count, "");
+	}
 }
 
 
@@ -237,6 +256,9 @@ void simline_t::new_month()
 		financial_history[0][j] = 0;
 	}
 	financial_history[0][LINE_CONVOIS] = count_convoys();
+
+	rolling_average_speed = 0;
+	rolling_average_speed_count = 0;
 }
 
 

@@ -24,14 +24,17 @@
 #include "simconst.h"
 #endif
 
-#define MAX_CONVOI_COST   5 // Total number of cost items
+#define MAX_CONVOI_COST   6 // Total number of cost items
 #define MAX_MONTHS     12 // Max history
-#define MAX_CONVOI_NON_MONEY_TYPES 2 // number of non money types in convoi's financial statistic
-#define CONVOI_CAPACITY   0 // the amount of ware that could be transported, theoretically
-#define CONVOI_TRANSPORTED_GOODS 1 // the amount of ware that has been transported
-#define CONVOI_REVENUE		2 // the income this CONVOI generated
-#define CONVOI_OPERATIONS         3 // the cost of operations this CONVOI generated
-#define CONVOI_PROFIT             4 // total profit of this convoi
+#define MAX_CONVOI_NON_MONEY_TYPES 3 // number of non money types in convoi's financial statistic
+
+#define CONVOI_CAPACITY			  0 // the amount of ware that could be transported, theoretically
+#define CONVOI_TRANSPORTED_GOODS  1 // the amount of ware that has been transported
+#define CONVOI_AVERAGE_SPEED	  2 // The average speed of the convoy per rolling month
+#define CONVOI_REVENUE			  3 // the income this CONVOI generated
+#define CONVOI_OPERATIONS         4 // the cost of operations this CONVOI generated
+#define CONVOI_PROFIT             5 // total profit of this convoi
+
 
 class depot_t;
 class karte_t;
@@ -359,6 +362,7 @@ private:
 
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
+	* "Convoi holds by stop and sets ratio for freight" (Babelfish)
 	* @author Hj. Malthaner
 	*/
 	void hat_gehalten(koord k, halthandle_t halt);
@@ -393,6 +397,15 @@ private:
 
 	uint32 heaviest_vehicle;
 	uint16 longest_loading_time;
+
+	// Time in ticks since it departed from the previous stop.
+	// Used for measuring average speed.
+	// @author: jamespetts
+	uint32 last_departure_time;
+
+	//@author: jamespetts
+	uint32 rolling_average_speed;
+	uint16 rolling_average_speed_count;
 
 
 public:
@@ -459,6 +472,7 @@ public:
 
 	/**
 	* Der Gewinn in diesem Jahr
+	* "The profit in this year" (Babelfish)
 	* @author Hanjsörg Malthaner
 	*/
 	const sint64 & get_jahresgewinn() const {return jahresgewinn;}
@@ -701,12 +715,14 @@ public:
 
 	/**
 	* pruefe ob Beschraenkungen fuer alle Fahrzeuge erfuellt sind
+	* "	examine whether restrictions for all vehicles are fulfilled" (Google)
 	* @author Hj. Malthaner
 	*/
 	bool pruefe_alle();
 
 	/**
 	* Kontrolliert Be- und Entladen.
+	* "Controlled loading and unloading" (Google)
 	* V.Meyer: returns nothing
 	* @author Hj. Malthaner
 	*/

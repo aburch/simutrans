@@ -19,16 +19,17 @@
 #include "linehandle_t.h"
 #include "convoihandle_t.h"
 
-#define MAX_LINE_COST   6 // Total number of cost items
-#define MAX_MONTHS     12 // Max history
-#define MAX_NON_MONEY_TYPES 2 // number of non money types in line's financial statistic
+#define MAX_LINE_COST			7 // Total number of cost items
+#define MAX_MONTHS				12 // Max history
+#define MAX_NON_MONEY_TYPES		3 // number of non money types in line's financial statistic
 
-#define LINE_CAPACITY   0 // the amount of ware that could be transported, theoretically
-#define LINE_TRANSPORTED_GOODS 1 // the amount of ware that has been transported
-#define LINE_CONVOIS		2 // number of convois for this line
-#define LINE_REVENUE		3 // the income this line generated
+#define LINE_CAPACITY			0 // the amount of ware that could be transported, theoretically
+#define LINE_TRANSPORTED_GOODS	1 // the amount of ware that has been transported
+#define LINE_AVERAGE_SPEED		2 // The average speed of all convoys in the line
+#define LINE_REVENUE			3 // the income this line generated
 #define LINE_OPERATIONS         4 // the cost of operations this line generated
 #define LINE_PROFIT             5 // total profit of line
+#define LINE_CONVOIS			6 // number of convois for this line
 
 class karte_t;
 class simlinemgmt_t;
@@ -180,7 +181,19 @@ public:
 
 	sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; }
 
-	void book(sint64 amount, int cost_type) { financial_history[0][cost_type] += amount; }
+	void book(sint64 amount, int cost_type) 
+	{
+		if(cost_type != LINE_AVERAGE_SPEED)
+		{
+			financial_history[0][cost_type] += amount; 
+		}
+		else
+		{
+			rolling_average_speed += amount;
+			rolling_average_speed_count ++;
+			financial_history[0][LINE_AVERAGE_SPEED] = rolling_average_speed / rolling_average_speed_count;
+		}
+	}
 
 	void new_month();
 
@@ -199,6 +212,10 @@ public:
 	void recalc_catg_index();
 
 	int get_replacing_convoys_count() const;
+
+	//@author: jamespetts
+	uint32 rolling_average_speed;
+	uint16 rolling_average_speed_count;
 
 public:
 	spieler_t *get_besitzer() const {return sp;}
