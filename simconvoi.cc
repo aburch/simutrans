@@ -2620,7 +2620,7 @@ convoi_t::pruefe_alle() //"examine all" (Babelfish)
 void convoi_t::laden() //"load" (Babelfish)
 {
 	const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096;
-	const double journey_distance = accurate_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
+	const uint32 journey_distance = accurate_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
 	const uint16 average_speed = (journey_distance / journey_time) * 20;
 	book(average_speed, CONVOI_AVERAGE_SPEED);
 

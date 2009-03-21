@@ -3,7 +3,6 @@
 
 #include <cstdlib>
 #include <assert.h>
-#include <math.h>
 
 #include "ribi.h"
 #include "../simtypes.h"
@@ -72,6 +71,22 @@ private:
 	static const koord from_hang[16];
 };
 
+static inline uint32 int_sqrt(const uint32 num) 
+{
+    if (0 == num) 
+	{ 
+		// Avoid zero divide
+		return 0; 
+	}  
+    uint32 n = (num / 2) + 1;       // Initial estimate, never low
+    uint32 n1 = (n + (num / n)) / 2;
+    while (n1 < n) 
+	{
+        n = n1;
+        n1 = (n + (num / n)) / 2;
+    }
+    return n;
+}
 
 static inline uint32 abs_distance(const koord &a, const koord &b)
 {
@@ -79,10 +94,10 @@ static inline uint32 abs_distance(const koord &a, const koord &b)
 	return abs(a.x - b.x) + abs(a.y - b.y);
 }
 
-static inline double accurate_distance(const koord &a, const koord &b)
+static inline uint32 accurate_distance(const koord &a, const koord &b)
 {
 	// Euclidian distance
-	return sqrt(pow((double)a.x - (int)b.x, 2) + pow((double)a.y - (int)b.y, 2));
+	return int_sqrt(((a.x - b.x) * (a.x - b.x)) + ((a.y - b.y) * (a.y - b.y)));
 }
 
 
