@@ -916,6 +916,10 @@ DBG_MESSAGE("depot_frame_t::image_from_storage_list()","appended %s",info->get_n
 			// append/insert into convoi
 			convoihandle_t cnv = depot->get_convoi(icnv);
 			if(!cnv.is_bound()) {
+				if(  convoihandle_t::is_exhausted()  ) {
+					create_win( new news_img("Convoi handles exhausted!"), w_time_delete, magic_none);
+					return;
+				}
 				// create a new convoi
 				cnv = depot->add_convoi();
 				icnv = depot->convoi_count() - 1;
@@ -1049,9 +1053,14 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 			change_line();
 			return true;
 		} else if(komp == &bt_copy_convoi) {
-			depot->copy_convoi(cnv);
-			// automatically select newly created convoi
-			icnv = depot->convoi_count()-1;
+			if(  convoihandle_t::is_exhausted()  ) {
+				create_win( new news_img("Convoi handles exhausted!"), w_time_delete, magic_none);
+			}
+			else {
+				depot->copy_convoi(cnv);
+				// automatically select newly created convoi
+				icnv = depot->convoi_count()-1;
+			}
 		} else if(komp == &bt_apply_line) {
 			apply_line();
 		} else if(komp == &line_selector) {

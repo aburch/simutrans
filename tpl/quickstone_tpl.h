@@ -56,7 +56,22 @@ private:
 			}
 		}
 
-		// no free entry found, can't continue
+		// no free entry found, extent array if possible
+		uint16 newsize = (uint16)max( 65535ul, 2l*size );
+		if(  size<newsize  ) {
+			T ** newdata = new T* [newsize];
+			memcpy( newdata, data, sizeof(T*)*size );
+			for(  uint16 i=size;  i<newsize;  i++  ) {
+				newdata[i] = 0;
+			}
+			delete [] data;
+			data = newdata;
+			next = size+1;
+			size = newsize;
+			return next-1;
+		}
+
+		// completely out of handles
 		dbg->fatal("quickstone<T>::find_next()","no free index found (size=%i)",size);
 		return 0; //dummy for compiler
 	}
@@ -124,6 +139,25 @@ public:
 		return *this;
 	}
 #endif
+
+	// returns true, if no handles left
+	static bool is_exhausted() {
+
+		if(  size==65535  ) {
+			// scan  array
+			for(  uint16 i = 1; i<size; i++) {
+				if(data[i] == 0) {
+					// still empty handles left
+					return false;
+				}
+			}
+			// no handles left => cannot extent
+			return true;
+		}
+		// can extent in any case => ok
+		return false;
+	}
+
 
 	inline bool is_bound() const
 	{

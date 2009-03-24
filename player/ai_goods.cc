@@ -282,6 +282,11 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	}
 	DBG_MESSAGE( "ai_goods_t::create_ship_transport_vehikel()", "for %i ships", anz_vehikel );
 
+	if(  convoihandle_t::is_exhausted()  ) {
+		// too many convois => cannot do anything about this ...
+		return false;
+	}
+
 	// must remove marker
 	grund_t* gr = welt->lookup_kartenboden(platz1);
 	if (gr) gr->obj_loesche_alle(this);
@@ -325,6 +330,10 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 
 	// now create all vehicles as convois
 	for(int i=0;  i<anz_vehikel;  i++) {
+		if(  convoihandle_t::is_exhausted()  ) {
+			// too many convois => cannot do anything about this ...
+			return i>0;
+		}
 		vehikel_t* v = vehikelbauer_t::baue( qfab->get_pos(), this, NULL, ship_vehicle);
 		convoi_t* cnv = new convoi_t(this);
 		// V.Meyer: give the new convoi name from first vehicle
@@ -384,6 +393,10 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 
 		// now create all vehicles as convois
 		for(int i=0;  i<anz_vehikel;  i++) {
+			if(  convoihandle_t::is_exhausted()  ) {
+				// too many convois => cannot do anything about this ...
+				return;
+			}
 			vehikel_t* v = vehikelbauer_t::baue(startpos, this, NULL, road_vehicle);
 			convoi_t* cnv = new convoi_t(this);
 			// V.Meyer: give the new convoi name from first vehicle
@@ -405,6 +418,10 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord platz2, int anz_vehikel, int ladegrad)
 {
 	schedule_t *fpl;
+	if(  convoihandle_t::is_exhausted()  ) {
+		// too many convois => cannot do anything about this ...
+		return;
+	}
 	convoi_t* cnv = new convoi_t(this);
 	koord3d pos1= welt->lookup(platz1)->get_kartenboden()->get_pos();
 	koord3d pos2 = welt->lookup(platz2)->get_kartenboden()->get_pos();
@@ -652,6 +669,7 @@ void ai_goods_t::step()
 	switch(state) {
 
 		case NR_INIT:
+
 			state = NR_SAMMLE_ROUTEN;
 			count = 0;
 			built_update_headquarter();
