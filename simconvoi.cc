@@ -2460,21 +2460,22 @@ convoi_t::get_running_cost() const
 void convoi_t::check_pending_updates()
 {
 	if (line_update_pending.is_bound()  &&  line.is_bound()) {
-		destroy_win((long)fpl);	// close the schedule window, if open
 		int aktuell = fpl->get_aktuell(); // save current position of schedule
+		line = line_update_pending;
+		line_update_pending = linehandle_t();
 		// destroy old schedule and all related windows
 		if(fpl &&  !fpl->ist_abgeschlossen()) {
-			destroy_win((long)fpl);
+			fpl->copy_from( line->get_schedule() );
+			fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
+			fpl->eingabe_beginnen();
 		}
-		delete fpl;
-		// an open window will destroy our line information, so we renew again ...
-		line = line_update_pending;
-		fpl = line->get_schedule()->copy();
-		fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
+		else {
+			fpl->copy_from( line->get_schedule() );
+			fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
+		}
 		if(state!=INITIAL) {
 			state = FAHRPLANEINGABE;
 		}
-		line_update_pending = linehandle_t();
 	}
 }
 

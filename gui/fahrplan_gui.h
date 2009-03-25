@@ -110,7 +110,7 @@ private:
 	spieler_t *sp;
 	convoihandle_t cnv;
 
-	linehandle_t new_line;
+	linehandle_t new_line, old_line;
 
 	void init_line_selector();
 

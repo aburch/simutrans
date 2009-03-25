@@ -3595,8 +3595,12 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 							}
 							if(updated) {
 								fpl->cleanup();
-								// set this schedule
-								cnv->set_schedule(fpl);
+								if(  !fpl->ist_abgeschlossen()  ) {
+									// schedule is not owned by schedule window ...
+									// ... thus we can set this schedule
+									cnv->set_schedule(fpl);
+									// otherwise the schedule window will reset it
+								}
 							}
 						}
 					}

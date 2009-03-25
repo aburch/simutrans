@@ -30,19 +30,11 @@ private:
 	einstellungen_t * sets;
 
 	// since decrease/increase buttons always pair these ...
-	button_t water_level[2];
-	button_t mountain_height[2];
-	button_t mountain_roughness[2];
+	gui_numberinput_t water_level, mountain_height, mountain_roughness;
 
-	button_t snowline_summer[2];
-	button_t snowline_winter[2];
+	gui_numberinput_t snowline_winter;
 
-	button_t end_desert[2];
-	button_t end_tropic[2];
-	button_t end_mediterran[2];
-	button_t end_temperate[2];
-	button_t end_tundra[2];
-	button_t end_rocky[2];
+	gui_numberinput_t climate_borders_ui[rocky_climate];
 
 	button_t no_tree; // without tree
 

@@ -5,6 +5,9 @@
 	CHANGE: ask for language only once (prepare for difficulty dialoge)
 	ADD: UNDO for powerlines
 	FIX: convoi details (and info- windows) were not always correctly (re)opened
+	CHANGE: convoi, station and line handles autoextent their capacity
+	FIX: chanhing schedule bz stop mover did not worked on open schedule windows
+	CHANGE: climate dialoge now completely gui_numberinput_t
 
 
 
