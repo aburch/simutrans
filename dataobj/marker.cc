@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -45,8 +45,8 @@ void marker_t::unmarkiere_alle()
 void marker_t::markiere(const grund_t *gr)
 {
 	if(gr != NULL) {
-		if(gr->get_typ()<=grund_t::fundament) {
-			// these types (boden, wasser, fundament) are always at ground level
+		if(gr->ist_karten_boden()) {
+			// ground level
 			const int bit = gr->get_pos().y*cached_groesse+gr->get_pos().x;
 			bits[bit/bit_unit] |= 1 << (bit & bit_mask);
 		}
@@ -59,8 +59,8 @@ void marker_t::markiere(const grund_t *gr)
 void marker_t::unmarkiere(const grund_t *gr)
 {
 	if(gr != NULL) {
-		if(gr->get_typ()<=grund_t::fundament) {
-			// these types (boden, wasser, fundament) are always at ground level
+		if(gr->ist_karten_boden()) {
+			// ground level
 			const int bit = gr->get_pos().y*cached_groesse+gr->get_pos().x;
 			bits[bit/bit_unit] &= ~(1 << (bit & bit_mask));
 		}
@@ -75,8 +75,8 @@ bool marker_t::ist_markiert(const grund_t *gr) const
 	if(gr==NULL) {
 		return false;
 	}
-	if(gr->get_typ()<=grund_t::fundament) {
-		// these types (boden, wasser, fundament) are always at ground level
+	if(gr->ist_karten_boden()) {
+		// ground level
 		const int bit = gr->get_pos().y*cached_groesse+gr->get_pos().x;
 		return (bits[bit/bit_unit] & (1 << (bit & bit_mask))) != 0;
 	}

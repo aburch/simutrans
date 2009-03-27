@@ -266,6 +266,9 @@ wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wtyp, co
 					&&  ribi_t::ist_gerade(ribi_typ(zv))
 					&&  (w_ribi&ribi_typ(zv))==0;
 	}
+	if(  !w  ) {
+		return true;
+	}
 	// nothing to cross here
 	return false;
 }
@@ -585,13 +588,11 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			if(!ok) {
 				return false;
 			}
-			if(str==NULL) {
-				ok = !to->hat_wege()  ||  check_crossing(zv,to,road_wt,sp);
-				if(!ok) {
-					const weg_t *sch=to->get_weg(track_wt);
-					if(sch  &&  sch->get_besch()->get_styp()==7) {
-						ok = true;
-					}
+			ok = !to->hat_wege()  ||  check_crossing(zv,to,road_wt,sp);
+			if(!ok) {
+				const weg_t *sch=to->get_weg(track_wt);
+				if(sch  &&  sch->get_besch()->get_styp()==7) {
+					ok = true;
 				}
 			}
 			if(ok) {
@@ -625,8 +626,8 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			}
 			// ok, regular construction here
 			if((bautyp&elevated_flag)==0) {
-				ok =	!fundament  &&  !to->ist_wasser()  &&
-				  ((sch  &&  check_owner(sch->get_besitzer(),sp))  ||  !to->hat_wege()  ||  (sch==NULL  &&  check_crossing(zv,to,track_wt,sp)))  &&
+				ok =	!fundament  &&  !to->ist_wasser()  &&  check_crossing(zv,to,track_wt,sp)  &&
+				  (!sch  ||  check_owner(sch->get_besitzer(),sp))  &&
 					check_for_leitung(zv,to);
 			}
 			if(ok) {
@@ -662,9 +663,9 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			}
 			if((bautyp&elevated_flag)==0) {
 				// classical monorail
-				ok =	!to->ist_wasser()  &&  !fundament  &&
-					((sch  &&  check_owner(sch->get_besitzer(),sp))  ||  !to->hat_wege()  ||  (sch==NULL  &&  check_crossing(zv,to,besch->get_wtyp(),sp)))
-					&&  check_for_leitung(zv,to)  && !to->get_depot();
+				ok =	!fundament  &&  !to->ist_wasser()  &&  check_crossing(zv,to,besch->get_wtyp(),sp)  &&
+				  (!sch  ||  check_owner(sch->get_besitzer(),sp))  &&
+					check_for_leitung(zv,to)  &&  !to->get_depot();
 				// check for end/start of bridge
 				if(to->get_weg_hang()!=to->get_grund_hang()  &&  (sch==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->get_ribi_unmasked()))) {
 					return false;
