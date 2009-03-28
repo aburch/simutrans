@@ -168,6 +168,60 @@ private:
 	/* if set, goods will not routed over overcroded stations but rather try detours (if possible) */
 	bool no_routing_over_overcrowding;
 
+	//@author: jamespetts
+	// Speed bonus local adjustment
+	uint16 min_bonus_max_distance;
+	uint16 max_bonus_min_distance;
+	uint16 local_bonus_multiplier; 
+
+	//@author: jamespetts
+	// Obsolete vehicle maintenance cost increases
+	uint16 obsolete_running_cost_increase_percent;
+	uint16 obsolete_running_cost_increase_phase_years;
+
+	//@author: jamespetts
+	// Passenger destination ranges
+	// Use to set the extent to which passengers prefer local, medium, or long-range destinations.
+	// The distances can (and probably should) overlap.
+	uint16 local_passengers_min_distance;
+	uint16 local_passengers_max_distance;
+	uint16 midrange_passengers_min_distance;
+	uint16 midrange_passengers_max_distance;
+	uint16 longdistance_passengers_min_distance;
+	uint16 longdistance_passengers_max_distance;
+	
+	// @author: jamespetts
+	// Private car settings
+	uint8 always_prefer_car_percent;
+	uint8 base_car_preference_percent;
+	uint8 congestion_density_factor;
+
+	//@author: jamespetts
+	// Passenger routing settings
+	uint8 passenger_routing_packet_size;
+	uint8 max_alternative_destinations;
+	uint8 passenger_routing_local_chance;
+	uint8 passenger_routing_midrange_chance;
+
+	//@author: jamespetts
+	// Factory retirement settings
+	uint16 factory_max_years_obsolete;
+
+	//@author: jamespetts
+	// Insolvency and debt settings
+	uint8 interest_rate_percent;
+	bool allow_bankruptsy;
+	bool allow_purhcases_when_insolvent;
+
+	// Reversing settings
+	//@author: jamespetts
+	uint16 unit_reverse_time;
+	uint16 hauled_reverse_time;
+	uint16 turntable_reverse_time;
+
+	//@author: jamespetts
+	float global_power_factor; 
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -207,57 +261,6 @@ public:
 	sint32 way_count_tunnel;
 	uint32 way_max_bridge_len;
 	sint32 way_count_leaving_road;
-
-	//@author: jamespetts
-	// Speed bonus local adjustment
-	uint16 min_bonus_max_distance;
-	uint16 max_bonus_min_distance;
-	uint16 local_bonus_multiplier; 
-
-	//@author: jamespetts
-	// Obsolete vehicle maintenance cost increases
-	uint16 obsolete_running_cost_increase_percent;
-	uint16 obsolete_running_cost_increase_phase_years;
-
-	//@author: jamespetts
-	// Passenger destination ranges
-	// Use to set the extent to which passengers prefer local, medium, or long-range destinations.
-	// The distances can (and probably should) overlap.
-	uint16 local_passengers_min_distance;
-	uint16 local_passengers_max_distance;
-	uint16 midrange_passengers_min_distance;
-	uint16 midrange_passengers_max_distance;
-	uint16 longdistance_passengers_min_distance;
-	uint16 longdistance_passengers_max_distance;
-	
-	// @author: jamespetts
-	// Private ar settings
-	uint8 always_prefer_car_percent;
-	uint8 base_car_preference_percent;
-	uint8 congestion_density_factor;
-
-	//@author: jamespetts
-	// Passenger routing settings
-	uint8 passenger_routing_packet_size;
-	uint8 max_alternative_destinations;
-	uint8 passenger_routing_local_chance;
-	uint8 passenger_routing_midrange_chance;
-
-	//@author: jamespetts
-	// Factory retirement settings
-	uint16 factory_max_years_obsolete;
-
-	//@author: jamespetts
-	// Insolvency and debt settings
-	uint8 interest_rate_percent;
-	bool allow_bankruptsy;
-	bool allow_purhcases_when_insolvent;
-
-	// Reversing settings
-	//@author: jamespetts
-	uint16 unit_reverse_time;
-	uint16 hauled_reverse_time;
-	uint16 turntable_reverse_time;
 
 	// true if active
 	bool automaten[MAX_PLAYER_COUNT];
@@ -448,6 +451,8 @@ public:
 	uint16 get_hauled_reverse_time() const { return hauled_reverse_time; }
 	uint16 get_turntable_reverse_time() const { return turntable_reverse_time; }
 
+	float get_global_power_factor() const { return global_power_factor; }
+
 	// do not take people to overcrowded destinations
 	bool is_avoid_overcrowding() const { return avoid_overcrowding; }
 
@@ -455,11 +460,11 @@ public:
 	bool is_no_routing_over_overcrowding() const { return no_routing_over_overcrowding; }
 
 	sint16 get_river_number() const { return river_number; }
-	void set_river_number( sint16 n ) { river_number=n; }
+	void set_river_number( sint16 n ) { river_number = n; }
 	sint16 get_min_river_length() const { return min_river_length; }
-	void set_min_river_length( sint16 n ) { min_river_length=n; }
+	void set_min_river_length( sint16 n ) { min_river_length = n; }
 	sint16 get_max_river_length() const { return max_river_length; }
-	void set_max_river_length( sint16 n ) { max_river_length=n; }
+	void set_max_river_length( sint16 n ) { max_river_length = n; }
 };
 
 #endif

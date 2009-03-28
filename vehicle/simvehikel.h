@@ -180,8 +180,6 @@ private:
 
 	uint32 calc_modified_speed_limit(const koord3d *position, ribi_t::ribi current_direction, bool is_corner);
 
-	uint32 smooth_speed(uint32 current_limit);
-
 	/**
 	 * Unload freight to halt
 	 * @return sum of unloaded goods
@@ -194,15 +192,17 @@ private:
 	 * @return loading successful?
 	 * @author Hj. Malthaner
 	 */
-	bool load_freight(halthandle_t halt);
+	bool load_freight(halthandle_t halt) { return load_freight(halt, false); }
 
-	//@author: jamespetts
-	//uint16 local_bonus_supplement; 
-	//A supplementary bonus for local transportation,
-	//if needed, to compensate for not having the effect
-	//of the long-distance speed bonus.
+	bool load_freight(halthandle_t halt, bool overcrowd);
 
-	//@author: jamespetts
+	// @author: jamespetts
+	// uint16 local_bonus_supplement; 
+	// A supplementary bonus for local transportation,
+	// if needed, to compensate for not having the effect
+	// of the long-distance speed bonus.
+
+	// @author: jamespetts
 	// Cornering settings.
 
 	fixed_list_tpl<sint16, 16> pre_corner_direction;
@@ -214,8 +214,13 @@ private:
 	bool is_overweight;
 
 	// Whether this individual vehicle is reversed.
-	//@author: jamespetts
+	// @author: jamespetts
 	bool reversed;
+
+	
+	//@author: jamespetts
+	uint16 diagonal_costs;
+	uint16 base_costs;
 
 //#define debug_corners
 
@@ -454,7 +459,9 @@ public:
 	/**
 	* fahrzeug an haltestelle beladen
 	*/
-	bool beladen(koord k, halthandle_t halt);
+	bool beladen(koord k, halthandle_t halt) { return beladen(k, halt, false); }
+
+	bool beladen(koord k, halthandle_t halt, bool overcrowd);
 
 	// sets or querey begin and end of convois
 	void set_erstes(bool janein) {ist_erstes = janein;} //janein = "yesno" (Google)
@@ -499,6 +506,12 @@ public:
 	ribi_t::ribi get_direction_of_travel();
 
 	uint16 get_sum_weight() const { return sum_weight; }
+
+	// @author: jamespetts
+	uint16 get_overcrowding() const;
+
+	// @author: jamespetts
+	uint8 get_comfort() const;
 
 };
 

@@ -2406,6 +2406,20 @@ void karte_t::neuer_monat()
 	}*/
 	INT_CHECK("simworld 1278");
 
+	//	DBG_MESSAGE("karte_t::neuer_monat()","cities");
+	// roll city history and copy the new citicens (i.e. the new weight) into the stadt array
+	// no INT_CHECK() here, or dialoges will go crazy!!!
+	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		stadt_t* s = *i;
+		s->neuer_monat();
+		new_weighted_stadt.append(s, s->get_einwohner(), 64);
+		INT_CHECK("simworld 1278");
+	}
+	swap(stadt, new_weighted_stadt);
+
+	INT_CHECK("simworld 1282");
+
 //	DBG_MESSAGE("karte_t::neuer_monat()","players");
 	// spieler
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
@@ -2762,7 +2776,8 @@ karte_t::step()
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step");
 
-	for(unsigned i=0; i<convoi_array.get_count();  i++) {
+	ITERATE(convoi_array,i)
+	{
 		convoihandle_t cnv = convoi_array[i];
 		cnv->step();
 		if((i&7)==0) {
@@ -2780,11 +2795,8 @@ karte_t::step()
 	// the inhabitants stuff
 	finance_history_month[0][WORLD_CITICENS] = bev;
 
-	//slist_iterator_tpl<fabrik_t *> iter(fab_list);
-	//while(iter.next()) {
-	for(sint16 i = fab_list.get_count() - 1; i >= 0; i --)
+	ITERATE(fab_list,i)
 	{
-		//iter.get_current()->step(delta_t);
 		fab_list[i]->step(delta_t);
 	}
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();

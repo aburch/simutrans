@@ -24,16 +24,17 @@
 #include "simconst.h"
 #endif
 
-#define MAX_CONVOI_COST   6 // Total number of cost items
+#define MAX_CONVOI_COST   7 // Total number of cost items
 #define MAX_MONTHS     12 // Max history
-#define MAX_CONVOI_NON_MONEY_TYPES 3 // number of non money types in convoi's financial statistic
+#define MAX_CONVOI_NON_MONEY_TYPES 4 // number of non money types in convoi's financial statistic
 
 #define CONVOI_CAPACITY			  0 // the amount of ware that could be transported, theoretically
 #define CONVOI_TRANSPORTED_GOODS  1 // the amount of ware that has been transported
 #define CONVOI_AVERAGE_SPEED	  2 // The average speed of the convoy per rolling month
-#define CONVOI_REVENUE			  3 // the income this CONVOI generated
-#define CONVOI_OPERATIONS         4 // the cost of operations this CONVOI generated
-#define CONVOI_PROFIT             5 // total profit of this convoi
+#define CONVOI_COMFORT			  3 // The aggregate comfort rating of this convoy
+#define CONVOI_REVENUE			  4 // the income this CONVOI generated
+#define CONVOI_OPERATIONS         5 // the cost of operations this CONVOI generated
+#define CONVOI_PROFIT             6 // total profit of this convoi
 
 
 class depot_t;
@@ -44,6 +45,7 @@ class vehikel_t;
 class vehikel_besch_t;
 class schedule_t;
 class cbuffer_t;
+class ware_t;
 
 /**
  * Basisklasse für alle Fahrzeugverbände. Convois könnnen über Zeiger
@@ -58,7 +60,7 @@ public:
 	/* Konstanten
 	* @author prissi
 	*/
-	enum { max_vehicle=4, max_rail_vehicle = 24 };
+	enum { max_vehicle=4, max_rail_vehicle = 64 };
 
 	enum states {INITIAL,
 		FAHRPLANEINGABE,
@@ -404,8 +406,8 @@ private:
 	uint32 last_departure_time;
 
 	//@author: jamespetts
-	uint32 rolling_average_speed;
-	uint16 rolling_average_speed_count;
+	uint32 rolling_average[MAX_CONVOI_COST];
+	uint16 rolling_average_count[MAX_CONVOI_COST];
 
 
 public:
@@ -885,14 +887,35 @@ public:
 	//@author: jamespetts
 	uint8 get_catering_level(uint8 type) const;
 
+	//@author: jamespetts
 	bool get_reversable() const { return reversable; }
 	bool is_reversed() const { return reversed; }
 
+	//@author: jamespetts
 	uint32 calc_heaviest_vehicle();
 	uint32 get_heaviest_vehicle() const { return heaviest_vehicle; }
 	
+	//@author: jamespetts
 	uint16 calc_longest_loading_time();
 	uint16 get_longest_loading_time() const { return longest_loading_time; }
+
+	// @author: jamespetts
+	// Returns the number of standing passengers (etc.) in this convoy.
+	uint16 get_overcrowded() const;
+
+	// @author: jamespetts
+	// Returns the average comfort of this convoy,
+	// taking into account any catering.
+	uint8 get_comfort() const;
+
+	// The new revenue calculation method for per-leg
+	// based revenue calculation, rather than per-hop
+	// based revenue calculation. This method calculates
+	// the revenue of a ware packet unloaded, rather
+	// than iterating through each ware packet in each
+	// vehicle in the convoy.
+	// @author: jamespetts
+	void calc_revenue(ware_t &ware);
 };
 
 #endif

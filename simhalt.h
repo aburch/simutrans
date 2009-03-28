@@ -235,6 +235,8 @@ private:
 	/**
 	 * Haltestellen werden beim warenrouting markiert. Jeder durchgang
 	 * hat eine eindeutige marke
+	 *
+	 * "Stops are at the routing were highlighted. Each passage has a unique brand" (Google)
 	 * @author Hj. Malthaner
 	 */
 	uint32 marke;
@@ -597,7 +599,7 @@ public:
 	 * return a specified element from the financial history
 	 * @author hsiegeln
 	 */
-	sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; }
+	sint64 get_finance_history(int month, int cost_type) const { return financial_history[month][cost_type]; }
 
 	// flags station for a crowded message at the beginning of next month
 	void bescheid_station_voll() { enables |= CROWDED; status_color = COL_RED; }
@@ -606,5 +608,10 @@ public:
 	* @author prissi
 	*/
 	void mark_unmark_coverage(const bool mark) const;
+
+	// @author: jamespetts
+	// Returns the proportion of unhappy people of the total of
+	// happy and unhappy people.
+	float get_unhappy_proportion(uint8 month) const { return financial_history[month][HALT_UNHAPPY] / (financial_history[month][HALT_HAPPY] + financial_history[month][HALT_UNHAPPY]); }
 };
 #endif

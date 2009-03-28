@@ -215,16 +215,20 @@ einstellungen_t::einstellungen_t() :
 	allow_purhcases_when_insolvent  = 0;
 
 	// Reversing settings
-	//@author: jamespetts
+	// @author: jamespetts
 	unit_reverse_time = 0;
 	hauled_reverse_time = 0;
 	turntable_reverse_time = 0;
+
+	// Global power factor
+	// @author: jamespetts
+	global_power_factor = 1.0;
 
 	// this will pay for distance to next change station
 
 	pay_for_total_distance = 0;
 
-	avoid_overcrowding = true;
+	avoid_overcrowding = false;
 }
 
 
@@ -599,6 +603,14 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_short(unit_reverse_time, "");
 			file->rdwr_short(hauled_reverse_time, "");
 			file->rdwr_short(turntable_reverse_time, "");
+
+		}
+
+		if(file->get_experimental_version() >= 2)
+		{
+			uint16 global_power_factor_percent = global_power_factor * 100;
+			//file->rdwr_short(global_power_factor_percent, "");
+			global_power_factor = (float)global_power_factor_percent / 100;
 		}
 
 	}
@@ -835,16 +847,23 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	//Factory settings
 	factory_max_years_obsolete = contents.get_int("max_years_obsolete", factory_max_years_obsolete);
 
-	//@author: jamespetts
+	// @author: jamespetts
 	// Insolvency and debt settings
 	interest_rate_percent = contents.get_int("interest_rate_percent", interest_rate_percent);
 	allow_bankruptsy = contents.get_int("allow_bankruptsy", allow_bankruptsy);
 	allow_purhcases_when_insolvent = contents.get_int("allow_purhcases_when_insolvent", allow_purhcases_when_insolvent);
 
-	//Reversing settings
+	// Reversing settings
+	// @author: jamespetts
 	unit_reverse_time = contents.get_int("unit_reverse_time", unit_reverse_time);
 	hauled_reverse_time = contents.get_int("hauled_reverse_time", hauled_reverse_time);
 	turntable_reverse_time = contents.get_int("turntable_reverse_time", turntable_reverse_time);
+
+	// Global power factor
+	// @author: jamespetts
+	uint16 global_power_factor_percent = 100;
+	global_power_factor_percent = contents.get_int("global_power_factor_percent", global_power_factor_percent);
+	global_power_factor = (float)global_power_factor_percent / 100;
 
 	/*
 	 * Selection of savegame format through inifile

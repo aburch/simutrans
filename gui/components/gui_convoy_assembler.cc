@@ -1137,10 +1137,22 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			}
 
 			//"Payload" (Google)
-			if(zuladung>0) {
+			if(zuladung > 0 && veh_type->get_overcrowded_capacity() < 1) 
+			{
 				n += sprintf(buf + n,
 					translator::translate("LOCO_CAP"),
 					zuladung,
+					translator::translate(veh_type->get_ware()->get_mass()),
+					veh_type->get_ware()->get_catg() == 0 ? translator::translate(veh_type->get_ware()->get_name()) : translator::translate(veh_type->get_ware()->get_catg_name())
+					);
+			k = n;
+			}
+			else if(zuladung > 0 && veh_type->get_overcrowded_capacity() > 0)
+			{
+				n += sprintf(buf + n,
+					translator::translate("Capacity: %d (%d)%s %s\n"),
+					zuladung,
+					veh_type->get_overcrowded_capacity(),
 					translator::translate(veh_type->get_ware()->get_mass()),
 					veh_type->get_ware()->get_catg() == 0 ? translator::translate(veh_type->get_ware()->get_name()) : translator::translate(veh_type->get_ware()->get_catg_name())
 					);
@@ -1153,35 +1165,75 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			int n;
 			if(upgrade == u_buy)
 			{
-				n = sprintf(buf,
-					translator::translate("WAGGON_INFO"),
-					translator::translate(veh_type->get_name()),
-					veh_type->get_preis()/100,
-					veh_type->get_betriebskosten(get_welt())/100.0,
-					veh_type->get_zuladung(),
-					translator::translate(veh_type->get_ware()->get_mass()),
-					veh_type->get_ware()->get_catg() == 0 ?
-					translator::translate(veh_type->get_ware()->get_name()) :
-					translator::translate(veh_type->get_ware()->get_catg_name()),
-					veh_type->get_gewicht(),
-					veh_type->get_geschw()
-					);
+				if(veh_type->get_overcrowded_capacity() < 1)
+				{
+					n = sprintf(buf,
+						translator::translate("WAGGON_INFO"),
+						translator::translate(veh_type->get_name()),
+						veh_type->get_preis()/100,
+						veh_type->get_betriebskosten(get_welt())/100.0,
+						veh_type->get_zuladung(),
+						translator::translate(veh_type->get_ware()->get_mass()),
+						veh_type->get_ware()->get_catg() == 0 ?
+						translator::translate(veh_type->get_ware()->get_name()) :
+						translator::translate(veh_type->get_ware()->get_catg_name()),
+						veh_type->get_gewicht(),
+						veh_type->get_geschw()
+						);
+				}
+				else
+				{
+					n = sprintf(buf,
+						translator::translate("%s\nCost:     %d$ (%1.2f$/km)\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n"),
+						translator::translate(veh_type->get_name()),
+						veh_type->get_preis()/100,
+						veh_type->get_betriebskosten(get_welt())/100.0,
+						veh_type->get_zuladung(),
+						veh_type->get_overcrowded_capacity(),
+						translator::translate(veh_type->get_ware()->get_mass()),
+						veh_type->get_ware()->get_catg() == 0 ?
+						translator::translate(veh_type->get_ware()->get_name()) :
+						translator::translate(veh_type->get_ware()->get_catg_name()),
+						veh_type->get_gewicht(),
+						veh_type->get_geschw()
+						);
+				}
 			}
 			else
 			{
-				n = sprintf(buf,
-					translator::translate("WAGGON_INFO"),
-					translator::translate(veh_type->get_name()),
-					veh_type->get_upgrade_price()/100,
-					veh_type->get_betriebskosten(get_welt())/100.0,
-					veh_type->get_zuladung(),
-					translator::translate(veh_type->get_ware()->get_mass()),
-					veh_type->get_ware()->get_catg() == 0 ?
-					translator::translate(veh_type->get_ware()->get_name()) :
-					translator::translate(veh_type->get_ware()->get_catg_name()),
-					veh_type->get_gewicht(),
-					veh_type->get_geschw()
-					);
+				if(veh_type->get_overcrowded_capacity() < 1)
+				{
+					n = sprintf(buf,
+						translator::translate("WAGGON_INFO"),
+						translator::translate(veh_type->get_name()),
+						veh_type->get_upgrade_price()/100,
+						veh_type->get_betriebskosten(get_welt())/100.0,
+						veh_type->get_zuladung(),
+						translator::translate(veh_type->get_ware()->get_mass()),
+						veh_type->get_ware()->get_catg() == 0 ?
+						translator::translate(veh_type->get_ware()->get_name()) :
+						translator::translate(veh_type->get_ware()->get_catg_name()),
+						veh_type->get_gewicht(),
+						veh_type->get_geschw()
+						);
+				}
+				else
+				{
+					n = sprintf(buf,
+						translator::translate("%s\nCost:     %d$ (%1.2f$/km)\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n"),
+						translator::translate(veh_type->get_name()),
+						veh_type->get_upgrade_price()/100,
+						veh_type->get_betriebskosten(get_welt())/100.0,
+						veh_type->get_zuladung(),
+						veh_type->get_overcrowded_capacity(),
+						translator::translate(veh_type->get_ware()->get_mass()),
+						veh_type->get_ware()->get_catg() == 0 ?
+						translator::translate(veh_type->get_ware()->get_name()) :
+						translator::translate(veh_type->get_ware()->get_catg_name()),
+						veh_type->get_gewicht(),
+						veh_type->get_geschw()
+						);
+				}
 			}
 
 			k = n;

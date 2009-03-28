@@ -1368,6 +1368,7 @@ void stadt_t::neuer_monat() //"New month" (Google)
 		// that the player can have a better idea visually of the amount of traffic.
 
 #define DESTINATION_CITYCARS
+
 #ifdef DESTINATION_CITYCARS 
 		// Subtract incoming trips and cars already generated to prevent double counting.
 		sint16 factor = city_history_month[1][HIST_CITYCARS] - incoming_private_cars - current_cars.get_count();
@@ -1873,9 +1874,6 @@ void stadt_t::step_passagiere()
 					pax.set_journey_steps(best_journey_steps);
 					start_halt = best_destination[2];
 					pax.set_origin(start_halt);
-					pax.set_previous_transfer(start_halt);
-					pax.set_total_journey_start_time(welt->get_zeit_ms());
-					pax.set_journey_leg_start_time(welt->get_zeit_ms());
 
 					// Now, decide whether passengers would prefer to use their private cars,
 					// even though they can travel by public transport.
@@ -2002,13 +2000,13 @@ void stadt_t::step_passagiere()
 						if(private_car_chance <= car_preference)
 						{
 							set_private_car_trip(num_pax, destinations[current_destination].town);
-	#ifdef DESTINATION_CITYCARS
+#ifdef DESTINATION_CITYCARS
 							//citycars with destination
 							if(start_halt.is_bound())
 							{
 								erzeuge_verkehrsteilnehmer(start_halt->get_basis_pos(), step_count, destinations[current_destination].location);
 							}
-	#endif
+#endif
 							current_destination ++;
 							break;
 						}
@@ -2082,7 +2080,7 @@ void stadt_t::step_passagiere()
 				if(  !ret_halt->is_overcrowded(wtyp->get_catg_index())  ) {
 					// prissi: not overcrowded and can recieve => add them
 					if (found) {
-						ware_t return_pax (wtyp, ret_halt, welt->get_zeit_ms());
+						ware_t return_pax(wtyp, ret_halt);
 							return_pax.menge = pax_left_to_do;
 							return_pax.set_zielpos(k);
 							return_pax.set_ziel(start_halt);

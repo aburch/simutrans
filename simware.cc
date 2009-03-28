@@ -31,24 +31,29 @@ ware_t::ware_t() : ziel(), zwischenziel(), zielpos(-1, -1)
 {
 	menge = 0;
 	index = 0;
+	accumulated_distance = 0;
+	journey_steps = 0;
 }
 
 
 ware_t::ware_t(const ware_besch_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -1)
 {
+	//This constructor is called from simcity.cc
 	menge = 0;
 	index = wtyp->get_index();
-	total_journey_start_time = journey_leg_start_time = 0;
+	accumulated_distance = 0;
+	journey_steps = 0;
 }
 
 // Constructor for new revenue system: packet of cargo keeps track of its origin.
 //@author: jamespetts
-ware_t::ware_t(const ware_besch_t *wtyp, halthandle_t o, uint32 t) : ziel(), zwischenziel(), zielpos(-1, -1)
+ware_t::ware_t(const ware_besch_t *wtyp, halthandle_t o) : ziel(), zwischenziel(), zielpos(-1, -1)
 {
 	menge = 0;
 	index = wtyp->get_index();
-	origin = previous_transfer = o;
-	total_journey_start_time = journey_leg_start_time = t;
+	origin = o;
+	accumulated_distance = 0;
+	journey_steps = 0;
 }
 
 
@@ -110,10 +115,8 @@ ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		if(file->get_experimental_version() >= 1)
 		{
 			koord origin_koord = origin.is_bound() ? origin->get_basis_pos() : koord::invalid;	
-			koord previous_transfer_koord = previous_transfer.is_bound() ? previous_transfer->get_basis_pos() : koord::invalid;	
-
 			origin_koord.rdwr(file);
-			previous_transfer_koord.rdwr(file);			
+	
 		}
 	}
 	else 
@@ -128,28 +131,45 @@ ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		if(file->get_experimental_version() >= 1)
 		{
 			koord origin_koord;	
-			koord previous_transfer_koord;
 
 			origin_koord.rdwr(file);
-			previous_transfer_koord.rdwr(file);
+			if(file->get_experimental_version() == 1)
+			{				
+				// Simutrans-Experimental save version 1 had extra parameters
+				// such as "previous transfer" intended for use in the new revenue
+				// system. In the end, the system was designed differently, and
+				// these values are not present in versions 2 and above.
+				koord dummy;
+				dummy.rdwr(file);
+			}
 			
 			origin = welt->get_halt_koord_index(origin_koord);
-			previous_transfer = welt->get_halt_koord_index(previous_transfer_koord);
 			
 		}
 		else
 		{
-			origin = previous_transfer = zwischenziel;
-			total_journey_start_time = journey_leg_start_time = welt->get_zeit_ms();
+			origin = zwischenziel;
 		}
 
 	}
 	zielpos.rdwr(file);
 
-	if(file->get_experimental_version() >= 1)
+	if(file->get_experimental_version() == 1)
 	{
-		file->rdwr_long(total_journey_start_time, "");
-		file->rdwr_long(journey_leg_start_time, "");
+		uint32 dummy_2;
+		file->rdwr_long(dummy_2, "");
+		file->rdwr_long(dummy_2, "");
+	}
+
+	if(file->get_experimental_version() >= 2)
+	{
+		file->rdwr_long(accumulated_distance, "");
+		file->rdwr_byte(journey_steps, "");
+	}
+	else
+	{
+		accumulated_distance = 0;
+		journey_steps = 0;
 	}
 }
 
@@ -170,8 +190,9 @@ ware_t::laden_abschliessen(karte_t *welt) //"Invite finish" (Google); "load lock
 	if(origin.is_bound()) {
 		origin = welt->lookup(origin->get_init_pos())->get_halt();
 	}
+}
 
-	if(previous_transfer.is_bound()) {
-		previous_transfer = welt->lookup(previous_transfer->get_init_pos())->get_halt();
-	}
+void ware_t::add_distance(uint32 distance)
+{
+	accumulated_distance += distance; 
 }

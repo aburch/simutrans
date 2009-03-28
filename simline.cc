@@ -10,7 +10,7 @@
 #include "simlinemgmt.h"
 
 
-uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_AVERAGE_SPEED, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT };
+uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_AVERAGE_SPEED, LINE_COMFORT, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT };
 
 karte_t *simline_t::welt=NULL;
 
@@ -27,8 +27,11 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp)
 	this->fpl = NULL;
 	this->sp = sp;
 	state_color = COL_YELLOW;
-	rolling_average_speed = 0;
-	rolling_average_speed_count = 0;
+	for(uint8 i = 0; i < MAX_LINE_COST; i ++)
+	{	
+		rolling_average[i] = 0;
+		rolling_average_count[i] = 0;
+	}
 }
 
 
@@ -159,10 +162,10 @@ void simline_t::rdwr(loadsave_t *file)
 	{
 		for (int k = MAX_MONTHS-1; k>=0; k--) 
 		{
-			if(j == LINE_AVERAGE_SPEED && file->get_experimental_version() <= 1)
+			if(j == LINE_AVERAGE_SPEED || j == LINE_COMFORT && file->get_experimental_version() <= 1)
 			{
 				// Versions of Experimental saves with 1 and below
-				// did not have a setting for average speed.
+				// did not have settings for average speed or comfort.
 				// Thus, this value must be skipped properly to
 				// assign the values.
 				financial_history[k][j] = 0;
@@ -176,8 +179,11 @@ void simline_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 2)
 	{
-		file->rdwr_long(rolling_average_speed, "");
-		file->rdwr_short(rolling_average_speed_count, "");
+		for(uint8 i = 0; i < MAX_LINE_COST; i ++)
+		{	
+			file->rdwr_long(rolling_average[i], "");
+			file->rdwr_short(rolling_average_count[i], "");
+		}	
 	}
 }
 
@@ -257,8 +263,11 @@ void simline_t::new_month()
 	}
 	financial_history[0][LINE_CONVOIS] = count_convoys();
 
-	rolling_average_speed = 0;
-	rolling_average_speed_count = 0;
+	for(uint8 i = 0; i < MAX_LINE_COST; i ++)
+	{	
+		rolling_average[i] = 0;
+		rolling_average_count[i] = 0;
+	}
 }
 
 
@@ -284,36 +293,60 @@ void simline_t::init_financial_history()
 
 /*
  * the current state saved as color
- * Meanings are BLACK (ok), WHITE (no convois), YELLOW (no vehicle moved), RED (last month income minus), BLUE (at least one convoi vehicle is obsolete)
+ * Meanings are BLACK (ok), WHITE (no convois), YELLOW (no vehicle moved), RED (last month income minus), DARK PURPLE (some vehicles overcrowded), BLUE (at least one convoi vehicle is obsolete)
  */
 void simline_t::recalc_status()
 {
-	if(financial_history[0][LINE_CONVOIS]==0) {
-		// noconvois assigned to this line
+	// normal state
+	// Moved from an else statement at bottom
+	// to ensure that this value is always initialised.
+	state_color = COL_BLACK;
+
+	if(financial_history[0][LINE_CONVOIS]==0) 
+	{
+		// no convoys assigned to this line
 		state_color = COL_WHITE;
 	}
-	else if(financial_history[0][LINE_PROFIT]<0) {
-		// ok, not performing best
+	else if(financial_history[0][LINE_PROFIT]<0) 
+	{
+		// Loss-making
 		state_color = COL_RED;
-	} else if((financial_history[0][LINE_OPERATIONS]|financial_history[1][LINE_OPERATIONS])==0) {
-		// nothing moved
+	} 
+
+	else if((financial_history[0][LINE_OPERATIONS]|financial_history[1][LINE_OPERATIONS])==0) 
+	{
+		// Stuck or static
 		state_color = COL_YELLOW;
 	}
-	else if(welt->use_timeline()) {
-		// convois has obsolete vehicles?
+	else if(has_overcrowded())
+	{
+		// Overcrowded
+		state_color = COL_DARK_PURPLE;
+	}
+	else if(welt->use_timeline()) 
+	{
+		// Has obsolete vehicles.
 		bool has_obsolete = false;
-		for(unsigned i=0;  !has_obsolete  &&  i<line_managed_convoys.get_count();  i++ ) {
+		for(unsigned i=0;  !has_obsolete  &&  i<line_managed_convoys.get_count();  i++ ) 
+		{
 			has_obsolete = line_managed_convoys[i]->has_obsolete_vehicles();
 		}
 		// now we have to set it
 		state_color = has_obsolete ? COL_DARK_BLUE : COL_BLACK;
 	}
-	else {
-		// normal state
-		state_color = COL_BLACK;
-	}
 }
 
+bool simline_t::has_overcrowded() const
+{
+	ITERATE(line_managed_convoys,i)
+	{
+		if(line_managed_convoys[i]->get_overcrowded() > 0)
+		{
+			return true;
+		}
+	}
+	return false;
+}
 
 
 // recalc what good this line is moving

@@ -130,8 +130,11 @@ void convoi_t::reset()
 	heaviest_vehicle = 0;
 	longest_loading_time = 0;
 	last_departure_time = welt->get_zeit_ms();
-	rolling_average_speed = 0;
-	rolling_average_speed_count = 0;
+	for(uint8 i = 0; i < MAX_CONVOI_COST; i ++)
+	{	
+		rolling_average[i] = 0;
+		rolling_average_count[i] = 0;
+	}
 }
 
 void convoi_t::init(karte_t *wl, spieler_t *sp)
@@ -534,19 +537,23 @@ void convoi_t::calc_acceleration(long delta_t)
 
 sint32 convoi_t::calc_adjusted_power()
 {
-	uint16 max_speed = speed_to_kmh(fahr[0]->get_besch()->get_geschw());
+	//uint16 max_speed = speed_to_kmh(fahr[0]->get_besch()->get_geschw());
+	uint16 max_speed = fahr[0]->get_besch()->get_geschw();
 	float highpoint_speed = (max_speed >= 30) ? max_speed - 30 : 30;
 	uint16 current_speed = speed_to_kmh(akt_speed);
 	
-	if(power_from_steam < 1 || speed_to_kmh(current_speed) > highpoint_speed)
+	// Within 15% of top speed - locomotive less efficient
+	float high_speed = (float)max_speed * 0.85; 
+	
+	if(power_from_steam < 1 || current_speed > highpoint_speed && current_speed < high_speed)
 	{
 		// Either no steam engines, or going fast
 		// enough that it makes no difference,
 		// so the simple formula prevails.
 		return sum_gear_und_leistung;
 	}
-	// There must be a steam engine here.
-	// So, reduce the power at lower speeds.
+	// There must be a steam locomotive here.
+	// So, reduce the power at higher and lower speeds.
 	// Should be approx (for medium speed locomotive):
 	// 40% power at 15kph 70% power at 25kph;
 	// 85% power at 32kph; and 100% power at >50kph.
@@ -568,7 +575,6 @@ sint32 convoi_t::calc_adjusted_power()
 		float factor = 0.66 * proportion;
 		speed_factor = 1 + factor;
 	}
-
 	
 	//These values are needed to apply different power reduction factors
 	//depending on the maximum speed.
@@ -587,10 +593,19 @@ sint32 convoi_t::calc_adjusted_power()
 		float factor_modification = speed_differential_actual / speed_differential_maximum;
 		speed_factor *= ((factor_modification * 0.4) + 0.4);
 	}
-	else
+	else if(current_speed <= high_speed)
 	{
+		// Not at high speed
 		float speed_differential_actual = (float)current_speed - (float)midpoint_speed;
 		float speed_differential_maximum = (float)highpoint_speed - (float)lowpoint_speed;
+		float factor_modification = speed_differential_actual / speed_differential_maximum;
+		speed_factor *= ((factor_modification * 0.15) + 0.8);
+	}
+	else
+	{
+		// Must be within 15% of top speed here.
+		float speed_differential_actual = (float)max_speed - (float)current_speed;
+		float speed_differential_maximum = (float)max_speed - (float)high_speed;
 		float factor_modification = speed_differential_actual / speed_differential_maximum;
 		speed_factor *= ((factor_modification * 0.15) + 0.8);
 	}
@@ -1070,13 +1085,64 @@ end_loop:
 }
 
 
-
 void convoi_t::neues_jahr()
 {
     jahresgewinn = 0;
 }
 
 
+uint16 convoi_t::get_overcrowded() const
+{
+	uint16 overcrowded = 0;
+	for(uint8 i = 0; i < anz_vehikel; i ++)
+	{
+		overcrowded += fahr[i]->get_overcrowding();
+	}
+	return overcrowded;
+}
+
+uint8 convoi_t::get_comfort() const
+{
+	uint8 base_comfort = 0;
+	uint8 catering_level = get_catering_level(0);
+	for(uint8 i = 0; i < anz_vehikel; i ++)
+	{
+		base_comfort += fahr[i]->get_comfort();
+	}
+	if(anz_vehikel > 1)
+	{
+		// Avoid division if possible
+		base_comfort /= anz_vehikel;
+	}
+	//Else
+	switch(catering_level)
+	{
+	case 0:
+		return base_comfort;
+		break;
+
+	case 1:
+		return base_comfort + 5;
+		break;
+
+	case 2:
+		return base_comfort + 10;
+		break;
+
+	case 3:
+		return base_comfort + 16;
+		break;
+
+	case 4:
+		return base_comfort + 20;
+		break;
+
+	default:
+	case 5:
+		return base_comfort + 25;
+		break;
+	};
+}
 
 void convoi_t::new_month()
 {
@@ -1094,8 +1160,11 @@ void convoi_t::new_month()
 		financial_history[0][j] = 0;
 	}
 
-	rolling_average_speed = 0;
-	rolling_average_speed_count = 0;
+	for(uint8 i = 0; i < MAX_CONVOI_COST; i ++)
+	{	
+		rolling_average[i] = 0;
+		rolling_average_count[i] = 0;
+	}
 
 	// check for traffic jam
 	if(state==WAITING_FOR_CLEARANCE) {
@@ -1235,7 +1304,8 @@ void convoi_t::ziel_erreicht()
 		}
 
 		// we still book the money for the trip; however, the frieght will be lost
-		calc_gewinn();
+		//calc_gewinn();
+		last_departure_time = welt->get_zeit_ms();
 
 		akt_speed = 0;
 		if (!replace || !autostart) {
@@ -1324,9 +1394,9 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		if(info->get_engine_type() == vehikel_besch_t::steam)
 		{
 			power_from_steam += info->get_leistung();
-			power_from_steam_with_gear += info->get_leistung()*info->get_gear();
+			power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 		}
-		sum_gear_und_leistung += info->get_leistung()*info->get_gear();
+		sum_gear_und_leistung += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 		sum_gewicht += info->get_gewicht();
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_besch()->get_geschw() ) );
 		sum_gesamtgewicht = sum_gewicht;
@@ -1373,9 +1443,9 @@ convoi_t::remove_vehikel_bei(uint16 i)
 			if(info->get_engine_type() == vehikel_besch_t::steam)
 			{
 				power_from_steam -= info->get_leistung();
-				power_from_steam_with_gear -= info->get_leistung()*info->get_gear();
+				power_from_steam_with_gear -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 			}
-			sum_gear_und_leistung -= info->get_leistung()*info->get_gear();
+			sum_gear_und_leistung -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 			sum_gewicht -= info->get_gewicht();
 		}
 		sum_gesamtgewicht = sum_gewicht;
@@ -2057,9 +2127,9 @@ convoi_t::rdwr(loadsave_t *file)
 				if(info->get_engine_type() == vehikel_besch_t::steam)
 				{
 					power_from_steam += info->get_leistung();
-					power_from_steam_with_gear += info->get_leistung()*info->get_gear();
+					power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 				}
-				sum_gear_und_leistung += info->get_leistung()*info->get_gear();
+				sum_gear_und_leistung += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 				sum_gewicht += info->get_gewicht();
 				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 			}
@@ -2146,10 +2216,10 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--) 
 			{
-				if(j == CONVOI_AVERAGE_SPEED && file->get_experimental_version() <= 1)
+				if(j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT && file->get_experimental_version() <= 1)
 				{
 					// Versions of Experimental saves with 1 and below
-					// did not have a setting for average speed.
+					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
 					// assign the values.
 					financial_history[k][j] = 0;
@@ -2162,10 +2232,10 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--) 
 			{
-				if(j == CONVOI_AVERAGE_SPEED && file->get_experimental_version() <= 1)
+				if(j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT && file->get_experimental_version() <= 1)
 				{
 					// Versions of Experimental saves with 1 and below
-					// did not have a setting for average speed.
+					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
 					// assign the values.
 					financial_history[k][j] = 0;
@@ -2182,10 +2252,10 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--) 
 			{
-				if(j == CONVOI_AVERAGE_SPEED && file->get_experimental_version() <= 1)
+				if(j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT && file->get_experimental_version() <= 1)
 				{
 					// Versions of Experimental saves with 1 and below
-					// did not have a setting for average speed.
+					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
 					// assign the values.
 					financial_history[k][j] = 0;
@@ -2335,8 +2405,11 @@ convoi_t::rdwr(loadsave_t *file)
 	if(file->get_experimental_version() >= 2)
 	{
 		file->rdwr_long(last_departure_time, "");
-		file->rdwr_long(rolling_average_speed, "");
-		file->rdwr_short(rolling_average_speed_count, "");
+		for(uint8 i = 0; i < MAX_CONVOI_COST; i ++)
+		{	
+			file->rdwr_long(rolling_average[i], "");
+			file->rdwr_short(rolling_average_count[i], "");
+		}		
 	}
 }
 
@@ -2454,23 +2527,26 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 		// append info on total capacity
 		slist_tpl <ware_t>capacity;
-		for(i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) {
-			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) {
+		for(i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) 
+		{
+			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) 
+			{
 				ware_t ware(warenbauer_t::get_info(i));
-				//TODO: Setup origins so that the ultimate origin, as well as the previous transfer, is stored.
-				//halthandle_t origin = welt->get_halt_koord_index(fahr[0]->get_pos().get_2d());
-				//ware_t ware(warenbauer_t::get_info(i), origin, welt->get_zeit_ms())
 				ware.menge = max_loaded_waren[i];
 				if(ware.get_catg()==0) {
 					capacity.append( ware );
-				} else {
+				} 
+				else 
+				{
 					// append to category?
 					slist_tpl<ware_t>::iterator j   = capacity.begin();
 					slist_tpl<ware_t>::iterator end = capacity.end();
 					while (j != end && j->get_catg() < ware.get_catg()) ++j;
 					if (j != end && j->get_catg() == ware.get_catg()) {
 						j->menge += max_loaded_waren[i];
-					} else {
+					} 
+					else 
+					{
 						// not yet there
 						capacity.insert(j, ware);
 					}
@@ -2505,7 +2581,8 @@ void convoi_t::open_schedule_window()
 
 	if(state==DRIVING) {
 		// book the current value of goods
-		calc_gewinn();
+		//calc_gewinn();
+		last_departure_time = welt->get_zeit_ms();
 	}
 
 	akt_speed = 0;	// stop the train ...
@@ -2619,37 +2696,60 @@ convoi_t::pruefe_alle() //"examine all" (Babelfish)
  */
 void convoi_t::laden() //"load" (Babelfish)
 {
+	//Calculate average speed
+	//@author: jamespetts
 	const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096;
 	const uint32 journey_distance = accurate_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
 	const uint16 average_speed = (journey_distance / journey_time) * 20;
 	book(average_speed, CONVOI_AVERAGE_SPEED);
+	last_departure_time = welt->get_zeit_ms();
 
-	if(state == FAHRPLANEINGABE) { //"ENTER SCHEDULE" (Google)
+	// Recalculate comfort
+	book(get_comfort(), CONVOI_COMFORT);
+
+	for(uint8 i = 0; i < anz_vehikel; i++)
+	{
+		// Accumulate distance 
+		slist_iterator_tpl<ware_t> iter_cargo(fahr[i]->get_fracht());
+		while(iter_cargo.next())
+		{
+			iter_cargo.access_current().add_distance(journey_distance);
+		}
+	}
+
+	if(state == FAHRPLANEINGABE) //"ENTER SCHEDULE" (Google)
+	{ 
 		return;
 	}
 
 	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos);
 	// eigene haltestelle ?
 	// "own stop?" (Babelfish)
-	if (halt.is_bound()) {
+	if (halt.is_bound()) 
+	{
 		const koord k = fpl->get_current_eintrag().pos.get_2d(); //"eintrag" = "entry" (Google)
-		const spieler_t* owner = halt->get_besitzer();
-		if(  owner == get_besitzer()  ||  owner == welt->get_spieler(1)  ) {
+		const spieler_t* owner = halt->get_besitzer(); //"get owner" (Google)
+		if(  owner == get_besitzer()  ||  owner == welt->get_spieler(1)  ) 
+		{
 			// loading/unloading ...
 			hat_gehalten(k, halt);
 		}
 	}
 
-	if(go_on_ticks==WAIT_INFINITE  &&  fpl->get_current_eintrag().waiting_time_shift>0) {
+	if(go_on_ticks==WAIT_INFINITE  &&  fpl->get_current_eintrag().waiting_time_shift>0) 
+	{
 		go_on_ticks = welt->get_zeit_ms() + (welt->ticks_per_tag >> (16-fpl->get_current_eintrag().waiting_time_shift));
 	}
 
 	INT_CHECK("simconvoi 1077");
 
 	// Nun wurde ein/ausgeladen werden
-	if(loading_level>=loading_limit  ||  no_load  ||  welt->get_zeit_ms()>go_on_ticks)  {
+	// "Now, a / unloaded" (Google)
+	if(loading_level >= loading_limit  ||  no_load  ||  welt->get_zeit_ms()>go_on_ticks)  
+	{
 
-		if(withdraw  &&  has_no_cargo()) {
+		if(withdraw  &&  has_no_cargo()) 
+		{
 			// destroy when empty
 			besitzer_p->buche( calc_restwert(), COST_NEW_VEHICLE );
 			besitzer_p->buche( -calc_restwert(), COST_ASSETS );
@@ -2659,7 +2759,8 @@ void convoi_t::laden() //"load" (Babelfish)
 		}
 
 		// add available capacity after loading(!) to statistics
-		for (unsigned i = 0; i<anz_vehikel; i++) {
+		for (uint8 i = 0; i<anz_vehikel; i++) 
+		{
 			book(get_vehikel(i)->get_fracht_max()-get_vehikel(i)->get_fracht_menge(), CONVOI_CAPACITY);
 		}
 
@@ -2667,10 +2768,10 @@ void convoi_t::laden() //"load" (Babelfish)
 		fpl->advance();
 		state = ROUTING_1;
 	}
+		
 	// This is the minimum time it takes for loading
 	//wait_lock = WTT_LOADING;
 	wait_lock = longest_loading_time;
-	last_departure_time = welt->get_zeit_ms();
 }
 
 
@@ -2689,8 +2790,6 @@ void convoi_t::calc_gewinn()
 		v->last_stop_pos = v->get_pos().get_2d();
 	}
 
-	last_departure_time = welt->get_zeit_ms();
-
 	if(gewinn) {
 		besitzer_p->buche(gewinn, fahr[0]->get_pos().get_2d(), COST_INCOME);
 		jahresgewinn += gewinn;
@@ -2700,6 +2799,50 @@ void convoi_t::calc_gewinn()
 	}
 }
 
+
+void convoi_t::calc_revenue(ware_t& ware)
+{
+	sint64 revenue = 0;
+	float average_speed;
+	if(financial_history[1][CONVOI_AVERAGE_SPEED] < 1)
+	{
+		average_speed = financial_history[0][CONVOI_AVERAGE_SPEED];
+	}
+	else
+	{	
+		average_speed = financial_history[1][CONVOI_AVERAGE_SPEED];
+	}
+
+	const uint32 distance = ware.get_accumulated_distance();
+	ware.reset_accumulated_distance();
+	//TODO: Consdier whether to tweak this with a multiplier factor.
+	float journey_hours = (float)distance / average_speed;
+
+	const ware_besch_t* goods = ware.get_besch();
+	const sint32 min_price = goods->get_preis()<<7;
+	const sint32 base_bonus = (goods->get_preis() * (1000 + average_speed * goods->get_speed_bonus()));
+	revenue = (sint64)(min_price > base_bonus ? min_price : base_bonus) * (sint64)distance * (sint64)ware.menge;
+
+	//TODO: Refine the calculation of the revenue to include comfort and overcrowding of origin stop.
+
+	//Apply the catering bonus, if applicable.
+	if(get_catering_level(ware.get_besch()->get_catg_index()) > 0)
+	{
+		float catering_bonus = 1;
+		//TODO: Add code for calculating catering bonus
+	}
+
+	sint64 final_revenue = (revenue + 1500ll) / 3000ll;
+	
+	if(final_revenue > 0) 
+	{
+		besitzer_p->buche(final_revenue, fahr[0]->get_pos().get_2d(), COST_INCOME);
+		jahresgewinn += final_revenue;
+
+		book(final_revenue, CONVOI_PROFIT);
+		book(final_revenue, CONVOI_REVENUE);
+	}
+}
 
 /**
  * convoi an haltestelle anhalten
@@ -2714,26 +2857,32 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 	grund_t *gr = welt->lookup(fahr[0]->get_pos());
 
 	int station_lenght = 0;
-	if(gr->ist_wasser()) {
+	if(gr->ist_wasser()) 
+	{
 		// habour has any size
 		station_lenght = 24*16;
 	}
-	else {
+	else
+	{
 		// calculate real station length
 		koord zv = koord( ribi_t::rueckwaerts(fahr[0]->get_fahrtrichtung()) );
 		koord3d pos = fahr[0]->get_pos();
 		const grund_t *grund = welt->lookup(pos);
-		if(  grund->get_weg_yoff()==TILE_HEIGHT_STEP  ) {
+		if(  grund->get_weg_yoff()==TILE_HEIGHT_STEP  ) 
+		{
 			// start on bridge?
 			pos.z += Z_TILE_STEP;
 		}
-		while(  grund  &&  grund->get_halt() == halt  ) {
+		while(  grund  &&  grund->get_halt() == halt  ) 
+		{
 			station_lenght += TILE_STEPS;
 			pos += zv;
 			grund = welt->lookup(pos);
-			if(  grund==NULL  ) {
+			if(  grund==NULL  ) 
+			{
 				grund = welt->lookup(pos-koord3d(0,0,Z_TILE_STEP));
-				if(  grund &&  grund->get_weg_yoff()!=TILE_HEIGHT_STEP  ) {
+				if(  grund &&  grund->get_weg_yoff()!=TILE_HEIGHT_STEP  )
+				{
 					// not end/start of bridge
 					break;
 				}
@@ -2743,32 +2892,53 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 
 	// only load vehicles in station
 	// don't load when vehicle is being withdrawn
-	for(unsigned i=0; i<anz_vehikel; i++) {
+	bool second_run = anz_vehikel <= 1;
+	for(uint8 i=0; i < anz_vehikel ; i++) 
+	{
 		vehikel_t* v = fahr[i];
+		
+		// Run this routine twice: first, load all vehicles to their non-overcrowded capacity.
+		// Then, allow them to run to their overcrowded capacity.
+		if(!second_run && i >= anz_vehikel - 1)
+		{
+			//Reset counter for one more go
+			second_run = true;
+			i = 0;
+		}
 
 		station_lenght -= v->get_besch()->get_length();
-		if(station_lenght<0) {
+		if(station_lenght<0) 
+		{
 			break;
 		}
 
 		// we need not to call this on the same position		if(  v->last_stop_pos != v->get_pos().get_2d()  ) {		// calc_revenue
-		convoi_t *tmp = this;
-		gewinn += v->calc_gewinn(v->last_stop_pos, v->get_pos().get_2d(), tmp );		v->last_stop_pos = v->get_pos().get_2d();
-		freight_info_resort |= v->entladen(k, halt);
-		if(!no_load) {
+		if(!second_run || anz_vehikel == 1)
+		{
+			convoi_t *tmp = this;
+			// Replaced by new revenue model
+			//gewinn += v->calc_gewinn(v->last_stop_pos, v->get_pos().get_2d(), tmp );		
+			v->last_stop_pos = v->get_pos().get_2d();
+			//Unload
+			freight_info_resort |= v->entladen(k, halt);
+		}
+		if(!no_load) 
+		{
 			// do not load anymore
-			freight_info_resort |= v->beladen(k, halt);
+			freight_info_resort |= v->beladen(k, halt, second_run);
+
 		}
 
 	}
 
 	// any loading went on?
 	calc_loading();
-	loading_limit = fpl->get_current_eintrag().ladegrad;
+	loading_limit = fpl->get_current_eintrag().ladegrad; //"charge degree" (??) (Babelfish)
 
-	if(gewinn) {
+	if(gewinn) 
+	{
 		besitzer_p->buche(gewinn, fahr[0]->get_pos().get_2d(), COST_INCOME);
-		jahresgewinn += gewinn;
+		jahresgewinn += gewinn; //"annual profit" (Babelfish)
 
 		book(gewinn, CONVOI_PROFIT);
 		book(gewinn, CONVOI_REVENUE);
@@ -2807,7 +2977,7 @@ void convoi_t::calc_loading()
 
 
 /**
- * Schedule convoid for self destruction. Will be executed
+ * Schedule convoi for self destruction. Will be executed
  * upon next sync step
  * @author Hj. Malthaner
  */
@@ -2971,21 +3141,26 @@ void convoi_t::book(sint64 amount, int cost_type)
 {
 	assert(  cost_type<MAX_CONVOI_COST);
 
-	if(cost_type != CONVOI_AVERAGE_SPEED)
+	if(cost_type != CONVOI_AVERAGE_SPEED && cost_type != CONVOI_COMFORT)
 	{
+		// Summative types
 		financial_history[0][cost_type] += amount;
 	}
 	else
 	{
-		rolling_average_speed += amount;
-		rolling_average_speed_count ++;
-		financial_history[0][cost_type] = rolling_average_speed / rolling_average_speed_count;
+		// Average types
+		rolling_average[cost_type] += amount;
+		rolling_average_count[cost_type] ++;
+		sint32 tmp = rolling_average[cost_type] / rolling_average_count[cost_type];
+		financial_history[0][cost_type] = tmp;
 	}
-	if (line.is_bound()) {
+	if (line.is_bound()) 
+	{
 		line->book(amount, simline_t::convoi_to_line_catgory[cost_type] );
 	}
 
-	if(cost_type == CONVOI_TRANSPORTED_GOODS) {
+	if(cost_type == CONVOI_TRANSPORTED_GOODS) 
+	{
 		besitzer_p->buche(amount, COST_ALL_TRANSPORTED);
 	}
 }
@@ -3037,26 +3212,37 @@ void convoi_t::check_pending_updates()
 
 /*
  * the current state saved as color
- * Meanings are BLACK (ok), WHITE (no convois), YELLOW (no vehicle moved), RED (last month income minus), BLUE (at least one convoi vehicle is obsolete)
+ * Meanings are BLACK (ok), WHITE (no convois), YELLOW (no vehicle moved), RED (last month income minus), DARK_PURPLE (convoy has overcrowded vehicles), BLUE (at least one convoi vehicle is obsolete)
  */
 uint8 convoi_t::get_status_color() const
 {
-	if(state==INITIAL) {
+	if(state==INITIAL)
+	{
 		// in depot/under assembly
 		return COL_WHITE;
 	}
-	else if(state==WAITING_FOR_CLEARANCE_ONE_MONTH  ||  state==CAN_START_ONE_MONTH  ||  hat_keine_route()) {
+	else if(state==WAITING_FOR_CLEARANCE_ONE_MONTH  ||  state==CAN_START_ONE_MONTH  ||  hat_keine_route()) 
+	{
 		// stuck or no route
 		return COL_ORANGE;
 	}
-	else if(financial_history[0][CONVOI_PROFIT]+financial_history[1][CONVOI_PROFIT]<0) {
+	else if(financial_history[0][CONVOI_PROFIT]+financial_history[1][CONVOI_PROFIT]<0) 
+	{
 		// ok, not performing best
 		return COL_RED;
-	} else if((financial_history[0][CONVOI_OPERATIONS]|financial_history[1][CONVOI_OPERATIONS])==0) {
+	} 
+	else if((financial_history[0][CONVOI_OPERATIONS]|financial_history[1][CONVOI_OPERATIONS])==0) 
+	{
 		// nothing moved
 		return COL_YELLOW;
 	}
-	else if(has_obsolete) {
+	else if(get_overcrowded() > 0)
+	{
+		// Overcrowded
+		return COL_DARK_PURPLE;
+	}
+	else if(has_obsolete) 
+	{
 		return COL_BLUE;
 	}
 	// normal state
@@ -3068,7 +3254,8 @@ convoi_t::get_catering_level(uint8 type) const
 {
 	uint8 max_catering_level = 0;
 	uint8 current_catering_level;
-	for(sint16 i = fahr.get_size() - 1; i >= 0; i --)
+	//for(sint16 i = fahr.get_size() - 1; i >= 0; i --)
+	for(uint8 i = 0; i < anz_vehikel; i ++)
 	{
 		vehikel_t* v = get_vehikel(i);
 		if(v == NULL)

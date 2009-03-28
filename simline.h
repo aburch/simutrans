@@ -19,17 +19,18 @@
 #include "linehandle_t.h"
 #include "convoihandle_t.h"
 
-#define MAX_LINE_COST			7 // Total number of cost items
+#define MAX_LINE_COST			8 // Total number of cost items
 #define MAX_MONTHS				12 // Max history
 #define MAX_NON_MONEY_TYPES		3 // number of non money types in line's financial statistic
 
 #define LINE_CAPACITY			0 // the amount of ware that could be transported, theoretically
 #define LINE_TRANSPORTED_GOODS	1 // the amount of ware that has been transported
 #define LINE_AVERAGE_SPEED		2 // The average speed of all convoys in the line
-#define LINE_REVENUE			3 // the income this line generated
-#define LINE_OPERATIONS         4 // the cost of operations this line generated
-#define LINE_PROFIT             5 // total profit of line
-#define LINE_CONVOIS			6 // number of convois for this line
+#define LINE_COMFORT			3 // The average comfort rating of all vehicles on this line (weighted by numbers)
+#define LINE_REVENUE			4 // the income this line generated
+#define LINE_OPERATIONS         5 // the cost of operations this line generated
+#define LINE_PROFIT             6 // total profit of line
+#define LINE_CONVOIS			7 // number of convois for this line
 
 class karte_t;
 class simlinemgmt_t;
@@ -183,15 +184,15 @@ public:
 
 	void book(sint64 amount, int cost_type) 
 	{
-		if(cost_type != LINE_AVERAGE_SPEED)
+		if(cost_type != LINE_AVERAGE_SPEED && cost_type != LINE_COMFORT)
 		{
 			financial_history[0][cost_type] += amount; 
 		}
 		else
 		{
-			rolling_average_speed += amount;
-			rolling_average_speed_count ++;
-			financial_history[0][LINE_AVERAGE_SPEED] = rolling_average_speed / rolling_average_speed_count;
+			rolling_average[cost_type] += amount;
+			rolling_average_count[cost_type] ++;
+			financial_history[0][cost_type] = rolling_average[cost_type] / rolling_average_count[cost_type];
 		}
 	}
 
@@ -213,9 +214,12 @@ public:
 
 	int get_replacing_convoys_count() const;
 
+	// @author: jamespetts
+	uint32 rolling_average[MAX_LINE_COST];
+	uint16 rolling_average_count[MAX_LINE_COST];
+
 	//@author: jamespetts
-	uint32 rolling_average_speed;
-	uint16 rolling_average_speed_count;
+	bool has_overcrowded() const;
 
 public:
 	spieler_t *get_besitzer() const {return sp;}

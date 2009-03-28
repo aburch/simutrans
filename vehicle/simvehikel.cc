@@ -696,11 +696,14 @@ vehikel_t::unload_freight(halthandle_t halt)
 	uint16 sum_menge = 0;
 
 	slist_tpl<ware_t> kill_queue;
-	if(halt->is_enabled( get_fracht_typ() )) {
-		if (!fracht.empty()) {
+	if(halt->is_enabled( get_fracht_typ() )) 
+	{
+		if (!fracht.empty())
+		{
 
 			slist_iterator_tpl<ware_t> iter (fracht);
-			while(iter.next()) {
+			while(iter.next()) 
+			{
 				const ware_t& tmp = iter.get_current();
 
 				halthandle_t end_halt = tmp.get_ziel();
@@ -709,10 +712,14 @@ vehikel_t::unload_freight(halthandle_t halt)
 				// probleme mit fehlerhafter ware
 				// vielleicht wurde zwischendurch die
 				// Zielhaltestelle entfernt ?
-				if(!end_halt.is_bound() || !via_halt.is_bound()) {
+				if(!end_halt.is_bound() || !via_halt.is_bound()) 
+				{
 					DBG_MESSAGE("vehikel_t::entladen()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.get_name()));
 					kill_queue.insert(tmp);
-				} else if(end_halt==halt || via_halt==halt) {
+				} 
+
+				else if(end_halt==halt || via_halt==halt) 
+				{
 
 					//		    printf("Liefere %d %s nach %s via %s an %s\n",
 					//                           tmp->menge,
@@ -722,13 +729,19 @@ vehikel_t::unload_freight(halthandle_t halt)
 					//			   halt->get_name());
 
 					// hier sollte nur ordentliche ware verabeitet werden
-					// "here only tidy commodity should be processed" (Babelfish)
+					// "here only tidy commodity should be processed" (Babelfish) 
 					int menge = halt->liefere_an(tmp); //"supply" (Babelfish)
 					sum_menge += menge;
 
+					// Calculates the revenue for each packet under the new
+					// revenue model. 
+					// @author: jamespetts
+					cnv->calc_revenue(iter.access_current());
+
 					// book delivered goods to destination
-					if(end_halt==halt) {
-						// pax is alway index 1
+					if(end_halt==halt) 
+					{
+						// pax is always index 1
 						const int categorie = tmp.get_index()>1 ? 2 : tmp.get_index();
 						get_besitzer()->buche( menge, (player_cost)(COST_TRANSPORTED_PAS+categorie) );
 					}
@@ -742,7 +755,8 @@ vehikel_t::unload_freight(halthandle_t halt)
 	}
 
 	slist_iterator_tpl<ware_t> iter (kill_queue);
-	while( iter.next() ) {
+	while( iter.next() ) 
+	{
 		total_freight -= iter.get_current().menge;
 		bool ok = fracht.remove(iter.get_current());
 		assert(ok);
@@ -757,18 +771,24 @@ vehikel_t::unload_freight(halthandle_t halt)
  * @return loading successful?
  * @author Hj. Malthaner
  */
-bool vehikel_t::load_freight(halthandle_t halt)
+bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 {
 	const bool ok = halt->gibt_ab(besch->get_ware());
 	schedule_t *fpl = cnv->get_schedule();
-	if( ok ) {
+	if( ok ) 
+	{
 
-		while(total_freight < besch->get_zuladung()) {
-			const uint16 hinein = besch->get_zuladung() - total_freight;
+		while(total_freight < besch->get_zuladung() + (overcrowd ? besch->get_overcrowded_capacity() : 0)) //"Payload" (Google)
+		{
+			// Modified to allow overcrowding.
+			// @author: jamespetts
+			const uint16 hinein = (besch->get_zuladung() - total_freight) + (overcrowd ? besch->get_overcrowded_capacity() : 0); 
+			//hinein = inside (Google)
 
 			ware_t ware = halt->hole_ab(besch->get_ware(), hinein, fpl);
-			//hinein = inside (Google)
-			if(ware.menge==0) {
+			
+			if(ware.menge==0) 
+			{
 				// now empty, but usually, we can get it here ...
 				return ok;
 			}
@@ -776,7 +796,8 @@ bool vehikel_t::load_freight(halthandle_t halt)
 			slist_iterator_tpl<ware_t> iter (fracht);
 
 			// could this be joined with existing freight?
-			while(iter.next()) {
+			while(iter.next()) 
+			{
 				ware_t &tmp = iter.access_current();
 
 				/*
@@ -787,7 +808,7 @@ bool vehikel_t::load_freight(halthandle_t halt)
 				 * if(ware.same_destination(tmp)) {
 				 */
 
-				// New system: only merges if origins and timings are alike.
+				// New system: only merges if origins are alike.
 				// @author: jamespetts
 				if(ware.can_merge_with(tmp))
 				{
@@ -798,8 +819,9 @@ bool vehikel_t::load_freight(halthandle_t halt)
 				}
 			}
 
-			// if != 0 we could not joi it to existing => load it
-			if(ware.menge != 0) {
+			// if != 0 we could not join it to existing => load it
+			if(ware.menge != 0) 
+			{
 				fracht.insert(ware);
 				total_freight += ware.menge;
 			}
@@ -1094,7 +1116,21 @@ vehikel_t::hop()
 {
 	// Fahrtkosten
 	// "Travel costs" (Babelfish)
-	cnv->add_running_cost(-besch->get_betriebskosten(welt));	
+	uint16 costs = besch->get_betriebskosten(welt);
+	if(costs != base_costs)
+	{
+		// Recalculate base costs only if necessary
+		// With this formula, no need to initialise base 
+		// costs or diagonal costs!
+		base_costs = costs;
+		diagonal_costs = (costs * diagonal_length) / 255;
+	}
+	if(steps_next != 255)
+	{
+		costs = diagonal_costs;
+	}
+	
+	cnv->add_running_cost(-costs);	
 	
 	verlasse_feld(); //"Verlasse" = "leave" (Babelfish)
 
@@ -1586,11 +1622,13 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end, convoi_t *cnv) const
 	slist_tpl<ware_t> kill_queue;
 	slist_iterator_tpl <ware_t> iter (fracht);
 
-	while( iter.next() ) {
+	while( iter.next() ) 
+	{
 
 		const ware_t &ware = iter.get_current();
 
-		if(ware.menge==0  ||  !ware.get_zwischenziel().is_bound()) {
+		if(ware.menge==0  ||  !ware.get_zwischenziel().is_bound()) 
+		{
 			continue;
 		}
 
@@ -1730,13 +1768,14 @@ vehikel_t::loesche_fracht()
 
 
 bool
-vehikel_t::beladen(koord , halthandle_t halt)
+vehikel_t::beladen(koord, halthandle_t halt, bool overcrowd)
 {
 	bool ok = true;
-	if(halt.is_bound()) {
-		ok = load_freight(halt);
+	if(halt.is_bound()) 
+	{
+		ok = load_freight(halt, overcrowd);
 	}
-	sum_weight =  (get_fracht_gewicht()+499)/1000 + besch->get_gewicht();
+	sum_weight = (get_fracht_gewicht()+499)/1000 + besch->get_gewicht();
 	calc_bild();
 	return ok;
 }
@@ -1751,7 +1790,8 @@ bool vehikel_t::entladen(koord, halthandle_t halt)
 {
 	// printf("Vehikel %p entladen\n", this);
 	uint16 menge = unload_freight(halt);
-	if(menge>0) {
+	if(menge > 0) 
+	{
 		// add delivered goods to statistics
 		cnv->book(menge, CONVOI_TRANSPORTED_GOODS);
 		// add delivered goods to halt's statistics
@@ -1836,13 +1876,55 @@ vehikel_t::get_direction_of_travel()
 	return dir;
 }
 
-void 
-vehikel_t::set_reversed(bool value)
+void vehikel_t::set_reversed(bool value)
 {
 	if(besch->is_bidirectional() || (cnv != NULL && cnv->get_reversable()))
 	{
 		reversed = value;
 	}
+}
+
+uint16 vehikel_t::get_overcrowding() const
+{
+	return total_freight - besch->get_zuladung() > 0 ? total_freight - besch->get_zuladung() : 0;
+}
+
+uint8 vehikel_t::get_comfort() const
+{
+	if(besch->get_comfort() == 0)
+	{
+		return 0;
+	}
+	else if(total_freight <= get_fracht_max())
+	{
+		// Not overcrowded - return base level
+		return besch->get_comfort();
+	}
+
+	// Else
+	// Overcrowded - adjust comfort. Standing passengers
+	// are very uncomfortable (no more than 10).
+	const uint8 standing_comfort = 10 < besch->get_comfort() - 5 ? 10 : besch->get_comfort() / 2;
+	uint16 passenger_count = 0;
+	slist_iterator_tpl<ware_t> iter(fracht);
+	while(iter.next()) 
+	{
+		ware_t ware = iter.get_current();
+		if(ware.get_catg() == 0)
+		{
+			passenger_count += ware.menge;
+		}
+	}
+	const uint16 total_seated_passengers = passenger_count < get_fracht_max() ? passenger_count : get_fracht_max();
+	const uint16 total_standing_passengers = passenger_count > total_seated_passengers ? passenger_count - total_seated_passengers : 0;
+	// Avoid division if we can
+	if(total_seated_passengers < 1)
+	{
+		return besch->get_comfort();
+	}
+	// Else
+	// Average comfort of seated and standing
+	return ((total_seated_passengers * besch->get_comfort()) + (total_standing_passengers * standing_comfort)) / passenger_count;
 }
 
 void vehikel_t::rdwr(loadsave_t *file)

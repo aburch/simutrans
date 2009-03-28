@@ -41,15 +41,6 @@ private:
 	//A handle to the ultimate origin.
 	halthandle_t origin;
 
-	//The immediately previous transfer (*not* hop)
-	halthandle_t previous_transfer;
-
-	//The time at which the packet's whole journey began, in ticks.
-	uint32 total_journey_start_time;
-	
-	//The time at which the current leg of the journey began, in ticks.
-	uint32 journey_leg_start_time;
-
 	/**
 	 * die engültige Zielposition,
 	 * das ist i.a. nicht die Zielhaltestellenposition
@@ -61,6 +52,10 @@ private:
 	//@author: jamespetts
 	//The number of remaining steps on this packet's journey.
 	uint8 journey_steps;
+
+	// @author: jamespetts
+	// The distance travelled so far this leg of the journey.
+	uint32 accumulated_distance;
 
 public:
 	const halthandle_t &get_ziel() const { return ziel; }
@@ -74,7 +69,7 @@ public:
 
 	ware_t();
 	ware_t(const ware_besch_t *typ);
-	ware_t(const ware_besch_t *typ, halthandle_t o, uint32 t);
+	ware_t(const ware_besch_t *typ, halthandle_t o);
 	ware_t(karte_t *welt,loadsave_t *file);
 
 	/**
@@ -91,12 +86,12 @@ public:
 	//@author: jamespetts
 	halthandle_t get_origin() const { return origin; }
 	void set_origin(halthandle_t value) { origin = value; }
-	halthandle_t get_previous_transfer() const { return previous_transfer; }
-	void set_previous_transfer(halthandle_t value) { previous_transfer = value; }
-	uint32 get_total_journey_start_time() const { return total_journey_start_time; }
-	void set_total_journey_start_time(uint32 value) { total_journey_start_time = value; }
-	uint32 get_journey_leg_start_time() const { return journey_leg_start_time; }
-	void set_journey_leg_start_time(uint32 value) { journey_leg_start_time = value; }
+
+	//@author: jamespetts
+	uint32 get_accumulated_distance() const { return accumulated_distance; }
+	//void add_distance(uint32 distance) { accumulated_distance += distance; }
+	void add_distance(uint32 distance);
+	void reset_accumulated_distance() { accumulated_distance = 0; }
 
 	const ware_besch_t* get_besch() const { return index_to_besch[index]; }
 	void set_besch(const ware_besch_t* type);
@@ -127,14 +122,7 @@ public:
 			ziel  == w.ziel  &&
 			// Only merge the destination *position* if the load is not freight
 			(index > 2 || zielpos == w.zielpos) &&
-			origin == w.origin &&
-			previous_transfer == w.previous_transfer &&
-			// Goods generated within 15 secs (at default speed) of each other 
-			// treated as identical if identical in all other respects.
-			!(total_journey_start_time  > w.total_journey_start_time + 15000) &&
-			!(total_journey_start_time < w.total_journey_start_time - 15000) &&
-			!(journey_leg_start_time > w.journey_leg_start_time + 15000) &&
-			!(journey_leg_start_time < w.journey_leg_start_time - 15000);
+			origin == w.origin;
 	}
 
 

@@ -1028,10 +1028,11 @@ public:
 
 /**
  * Die erzeugten waren auf die Haltestellen verteilen
+ * "The produced were on the stops distribute" (Babelfish)
  * @author Hj. Malthaner
  */
 void fabrik_t::verteile_waren(const uint32 produkt)
-{
+{	
 	// wohin liefern ?
 	if (lieferziele.empty()) {
 		return;
@@ -1072,7 +1073,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 			if (ziel_fab && (vorrat = ziel_fab->verbraucht(ausgang[produkt].get_typ())) >= 0) {
 				//ware_t ware(ausgang[produkt].get_typ());
-				ware_t ware(ausgang[produkt].get_typ(), halt, welt->get_zeit_ms());
+				ware_t ware(ausgang[produkt].get_typ(), halt);
 				ware.menge = menge;
 				ware.set_zielpos( lieferziel );
 
