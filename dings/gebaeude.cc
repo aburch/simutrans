@@ -702,7 +702,16 @@ gebaeude_t::rdwr(loadsave_t *file)
 		file->rdwr_str(buf, 128 );
 	}
 	file->rdwr_short(idx, "\n");
-	file->rdwr_long(insta_zeit, " ");
+	if(file->get_experimental_version() <= 1)
+	{
+		uint32 old_insta_zeit = (uint32) insta_zeit;
+		file->rdwr_long(old_insta_zeit, " ");
+		insta_zeit = old_insta_zeit;
+	}
+	else
+	{
+		file->rdwr_longlong(insta_zeit, " ");
+	}
 
 	if(file->is_loading()) {
 		tile = hausbauer_t::find_tile(buf, idx);

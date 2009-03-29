@@ -43,9 +43,10 @@ private:
 
 	/**
 	 * Zeitpunkt an dem das Gebaeude Gebaut wurde
+	 * "Time at that was built the building" (Babelfish)
 	 * @author Hj. Malthaner
 	 */
-	uint32 insta_zeit;
+	sint64 insta_zeit;
 
 	/**
 	 * Time control for animation progress.

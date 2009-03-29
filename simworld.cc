@@ -2682,17 +2682,19 @@ karte_t::step()
 		next_month_ticks += karte_t::ticks_per_tag;
 
 		// avoid overflow here ...
-		if(ticks>next_month_ticks) {
+		// Should not overflow: now usint 64-bit values.
+		//@jamespetts
+		/*if(ticks>next_month_ticks) {
 			ticks %= karte_t::ticks_per_tag;
 			ticks += karte_t::ticks_per_tag;
 			next_month_ticks = ticks+karte_t::ticks_per_tag;
 			last_step_ticks %= karte_t::ticks_per_tag;
-		}
+		}*/
 
 		neuer_monat();
 	}
 
-	const long delta_t = (long)ticks-(long)last_step_ticks;
+	const long delta_t = ticks - last_step_ticks;
 	if(!fast_forward) {
 		/* Try to maintain a decent pause, with a step every 170-250 ms (~5,5 simloops/s)
 		 * Also avoid too large or negative steps
@@ -3270,7 +3272,16 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 		einstellungen->set_player_type( i, old_sp[i] );
 	}
 
-	file->rdwr_long(ticks, " ");
+	if(file->get_experimental_version() <= 1)
+	{
+		uint32 old_ticks = (uint32)ticks;
+		file->rdwr_long(old_ticks, " ");
+		ticks = old_ticks;
+	}
+	else
+	{
+		file->rdwr_longlong((sint64)ticks, " ");
+	}
 	file->rdwr_long(letzter_monat, " ");
 	file->rdwr_long(letztes_jahr, "\n");
 
@@ -3495,7 +3506,7 @@ DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i be
 	grundwasser = einstellungen->get_grundwasser();
 	grund_besch_t::calc_water_level( this, height_to_climate );
 
-DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
+	DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 
 	init_felder();
 
@@ -3505,12 +3516,22 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	hausbauer_t::neue_karte();
 	fabrikbauer_t::neue_karte(this);
 
-DBG_DEBUG("karte_t::laden", "init felder ok");
+	DBG_DEBUG("karte_t::laden", "init felder ok");
 
-	file->rdwr_long(ticks, " ");
+	if(file->get_experimental_version() <= 1)
+	{
+		uint32 old_ticks = (uint32)ticks;
+		file->rdwr_long(old_ticks, " ");
+		ticks = old_ticks;
+	}
+	else
+	{
+		file->rdwr_longlong((sint64)ticks, "");
+	}
 	file->rdwr_long(letzter_monat, " ");
 	file->rdwr_long(letztes_jahr, "\n");
-	if(file->get_version()<86006) {
+	if(file->get_version()<86006) 
+	{
 		letztes_jahr += umgebung_t::default_einstellungen.get_starting_year();
 	}
 	// old game might have wrong month

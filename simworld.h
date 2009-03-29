@@ -307,9 +307,9 @@ private:
 	 * Die Zeit in ms
 	 * @author Hj. Malthaner
 	 */
-	uint32 ticks;		      // Anzahl ms seit Erzeugung
-	uint32 last_step_ticks; // ticks counter at last steps
-	uint32 next_month_ticks;	// from now on is next month
+	sint64 ticks;		      // Anzahl ms seit Erzeugung
+	sint64 last_step_ticks; // ticks counter at last steps
+	sint64 next_month_ticks;	// from now on is next month
 
 	// default time stretching factor
 	uint32 time_multiplier;
@@ -541,7 +541,7 @@ public:
 	*
 	* number ticks per day in bits (Babelfish)
 	*/
-	uint32 ticks_bits_per_tag;
+	sint64 ticks_bits_per_tag;
 
 	/**
 	* anzahl ticks pro MONTH!
@@ -549,9 +549,9 @@ public:
 	*
 	* number ticks per MONTH! (Babelfish)
 	*/
-	uint32 ticks_per_tag;
+	sint64 ticks_per_tag;
 
-	void set_ticks_bits_per_tag(uint32 bits) {ticks_bits_per_tag = bits; ticks_per_tag = (1 << ticks_bits_per_tag); }
+	void set_ticks_bits_per_tag(sint64 bits) {ticks_bits_per_tag = bits; ticks_per_tag = (1 << ticks_bits_per_tag); }
 
 	sint32 get_time_multiplier() const { return time_multiplier; }
 	void change_time_multiplier( sint32 delta );
@@ -569,7 +569,7 @@ public:
 	 * 	
 	 * Time cards since creation / the last load in ms (Google)
 	 */
-	uint32 get_zeit_ms() const { return ticks; }
+	sint64 get_zeit_ms() const { return ticks; }
 
 	/**
 	 * absolute month (count start year zero)

@@ -2305,19 +2305,43 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 
 	// waiting time left ...
-	if(file->get_version()>=99017) {
-		if(file->is_saving()) {
-			if(go_on_ticks==WAIT_INFINITE) {
-				file->rdwr_long( go_on_ticks, "dt" );
+	if(file->get_version()>=99017) 
+	{
+		if(file->is_saving()) 
+		{
+			if(go_on_ticks==WAIT_INFINITE) 
+			{
+				if(file->get_experimental_version() <= 1)
+				{
+					uint32 old_go_on_ticks = (uint32)go_on_ticks;				
+					file->rdwr_long( old_go_on_ticks, "dt" );
+				}
+				else
+				{
+					file->rdwr_longlong((sint64)go_on_ticks, "dt" );
+				}
 			}
-			else {
-				uint32 diff_ticks = welt->get_zeit_ms()>go_on_ticks ? 0 : go_on_ticks-welt->get_zeit_ms();
-				file->rdwr_long( diff_ticks, "dt" );
+			else 
+			{
+				sint64 diff_ticks= welt->get_zeit_ms()>go_on_ticks ? 0 : go_on_ticks-welt->get_zeit_ms();
+				file->rdwr_longlong((sint64)diff_ticks, "dt" );
 			}
 		}
-		else {
-			file->rdwr_long( go_on_ticks, "dt" );
-			if(go_on_ticks!=WAIT_INFINITE) {
+		else 
+		{
+			if(file->get_experimental_version() <= 1)
+			{
+				uint32 old_go_on_ticks = (uint32)go_on_ticks;				
+				file->rdwr_long( old_go_on_ticks, "dt" );
+				go_on_ticks = old_go_on_ticks;
+			}
+			else
+			{
+				file->rdwr_longlong((sint64)go_on_ticks, "dt" );
+			}
+
+			if(go_on_ticks!=WAIT_INFINITE)
+			{
 				go_on_ticks += welt->get_zeit_ms();
 			}
 		}
@@ -2404,7 +2428,7 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 	if(file->get_experimental_version() >= 2)
 	{
-		file->rdwr_long(last_departure_time, "");
+		file->rdwr_longlong((sint64)last_departure_time, "");
 		for(uint8 i = 0; i < MAX_CONVOI_COST; i ++)
 		{	
 			file->rdwr_long(rolling_average[i], "");
@@ -2856,12 +2880,12 @@ void convoi_t::calc_revenue(ware_t& ware)
 			const float multiplier = welt->get_einstellungen()->get_max_luxury_bonus();
 			if(differential >= max_differential)
 			{
-				final_revenue *= multiplier;
+				final_revenue = revenue * multiplier;
 			}
 			else
 			{
 				const float proportion = (float)differential / (float)max_differential;
-				final_revenue += final_revenue * (multiplier * proportion);
+				final_revenue += revenue * (multiplier * proportion);
 			}
 		}
 		else if(comfort < tolerable_comfort)
@@ -2872,12 +2896,12 @@ void convoi_t::calc_revenue(ware_t& ware)
 			const float multiplier = welt->get_einstellungen()->get_max_discomfort_penalty();
 			if(differential >= max_differential)
 			{
-				final_revenue *= multiplier;
+				final_revenue = revenue * multiplier;
 			}
 			else
 			{
 				const float proportion = (float)differential / (float)max_differential;
-				final_revenue -= final_revenue * (multiplier * proportion);
+				final_revenue -= revenue * (multiplier * proportion);
 			}
 		}
 		

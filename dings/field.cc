@@ -87,7 +87,7 @@ field_t::get_bild() const
 	}
 	else {
 		// resolution 1/8th month (0..95)
-		const uint32 yearsteps = (welt->get_current_month()%12)*8 + ((welt->get_zeit_ms()>>(welt->ticks_bits_per_tag-3))&7) + 1;
+		const sint64 yearsteps = (welt->get_current_month()%12)*8 + ((welt->get_zeit_ms()>>(welt->ticks_bits_per_tag-3))&7) + 1;
 		const image_id bild = s->get_bild_nr( (anzahl*yearsteps-1)/96 );
 		if((anzahl*yearsteps-1)%96<anzahl) {
 			mark_image_dirty( bild, 0 );

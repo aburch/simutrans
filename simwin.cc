@@ -1051,7 +1051,7 @@ void win_display_flush(double konto)
 	}
 
 	koord3d pos;
-	uint32 ticks=1, month=0, year=0;
+	sint64 ticks=1, month=0, year=0;
 
 	const ding_t *dt = wl->get_zeiger();
 	pos = dt->get_pos();
@@ -1060,12 +1060,12 @@ void win_display_flush(double konto)
 	ticks = wl->get_zeit_ms();
 
 	// calculate also days if desired
-	const uint32 ticks_this_month = ticks % wl->ticks_per_tag;
+	const sint64 ticks_this_month = ticks % wl->ticks_per_tag;
 	uint32 tage, stunden, minuten;
 	if(umgebung_t::show_month>1) {
 		static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
-		tage = (((sint64)ticks_this_month*tage_per_month[month]) >> wl->ticks_bits_per_tag) + 1;
-		stunden = (((sint64)ticks_this_month*tage_per_month[month]) >> (wl->ticks_bits_per_tag-16));
+		tage = ((ticks_this_month*tage_per_month[month]) >> wl->ticks_bits_per_tag) + 1;
+		stunden = ((ticks_this_month*tage_per_month[month]) >> (wl->ticks_bits_per_tag-16));
 		minuten = (((stunden*3) % 8192)*60)/8192;
 		stunden = ((stunden*3) / 8192)%24;
 	}
@@ -1085,22 +1085,22 @@ void win_display_flush(double konto)
 	// @author prissi - also show date if desired
 	switch(umgebung_t::show_month) {
 		// german style
-#ifdef DEBUG		
-		case 4:	sprintf(time, "%s, %d %s %d %d:%02dh TICKS: %d",
-#else
-		case 4:	sprintf(time, "%s, %d %s %d %d:%02dh",
-#endif
+//#ifdef DEBUG		
+//		case 4:	sprintf(time, "%s, %d %s %d %d:%02dh TICKS: %li",
+//#else
+		case 4:	sprintf(time, "%s, %d %s %d %u:%02uh",
+//#endif
 						translator::translate(seasons[wl->get_jahreszeit()]), //Season
 						tage, //Day
 						translator::get_month_name(month%12), //Month
 						year,
 						stunden, //"Hours" (Google)
-#ifdef DEBUG
-						minuten, //Minutes
-						ticks
-#else
+//#ifdef DEBUG
+//						minuten, //Minutes
+//						ticks
+//#else
 						minuten //Minutes
-#endif
+//#endif
 						);
 					break;
 		// us style

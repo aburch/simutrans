@@ -354,7 +354,7 @@ public:
 	short get_starting_month() const {return starting_month;}
 
 	void set_bits_per_month(short n) {bits_per_month=n;}	// prissi, Oct-2005
-	short get_bits_per_month() const {return bits_per_month;}
+	sint16 get_bits_per_month() const {return bits_per_month;}
 
 	void set_filename(const char *n) {filename=n;}	// prissi, Jun-06
 	const char* get_filename() const { return filename; }

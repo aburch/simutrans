@@ -275,7 +275,7 @@ private:
 	* time, when a convoi waiting for full load will drive on
 	* @author prissi
 	*/
-	uint32 go_on_ticks;
+	sint64 go_on_ticks;
 
 	/**
 	* akkumulierter gewinn über ein jahr hinweg
@@ -403,7 +403,7 @@ private:
 	// Time in ticks since it departed from the previous stop.
 	// Used for measuring average speed.
 	// @author: jamespetts
-	uint32 last_departure_time;
+	sint64 last_departure_time;
 
 	// @author: jamespetts
 	uint32 rolling_average[MAX_CONVOI_COST];
