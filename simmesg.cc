@@ -19,6 +19,7 @@
 #include "utils/simstring.h"
 #include "tpl/slist_tpl.h"
 #include "gui/messagebox.h"
+#include <string.h>
 
 
 

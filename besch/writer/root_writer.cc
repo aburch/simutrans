@@ -5,6 +5,7 @@
 #include "obj_node.h"
 #include "obj_writer.h"
 #include "root_writer.h"
+#include <stdlib.h>
 
 
 cstring_t root_writer_t::inpath;
