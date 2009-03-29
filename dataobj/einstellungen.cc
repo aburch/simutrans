@@ -174,10 +174,27 @@ einstellungen_t::einstellungen_t() :
 	// defualt: joined capacities
 	seperate_halt_capacities = false;
 
-	// Local bonus adjustment
+	// Revenue calibration settings
+	// @author: jamespetts
 	min_bonus_max_distance = 16;
-	max_bonus_min_distance = 256;
-	local_bonus_multiplier = 10;
+	max_bonus_min_distance = 1024;
+	median_bonus_distance = 0;
+	max_bonus_multiplier_percent = 300;
+	journey_time_multiplier_percent = 30;
+	tolerable_comfort_short = 15;
+	tolerable_comfort_median_short = 60;
+	tolerable_comfort_median_median = 100;
+	tolerable_comfort_median_long = 160;
+	tolerable_comfort_long = 220;
+	tolerable_comfort_short_minutes = 2;
+	tolerable_comfort_median_short_minutes = 30;
+	tolerable_comfort_median_median_minutes = 120;
+	tolerable_comfort_median_long_minutes = 300;
+	tolerable_comfort_long_minutes = 720;
+	max_luxury_bonus_differential = 75;
+	max_luxury_bonus_percent = 50;
+	max_discomfort_penalty_differential = 200;
+	max_discomfort_penalty_percent = 95;
 
 	// Obsolete vehicles running costs adjustment
 	obsolete_running_cost_increase_percent = 400; //Running costs will be this % of normal costs after vehicle has been obsolete
@@ -514,7 +531,31 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		{
 			file->rdwr_short(min_bonus_max_distance, "");
 			file->rdwr_short(max_bonus_min_distance, "");
-			file->rdwr_short(local_bonus_multiplier, "");
+			if(file->get_experimental_version() <= 1)
+			{
+				uint16 dummy;
+				file->rdwr_short(dummy, "");
+			}
+			else
+			{
+				file->rdwr_short(median_bonus_distance, "");
+				file->rdwr_short(max_bonus_multiplier_percent, "");
+				file->rdwr_short(journey_time_multiplier_percent, "");
+				file->rdwr_byte(tolerable_comfort_short, "");
+				file->rdwr_byte(tolerable_comfort_median_short, "");
+				file->rdwr_byte(tolerable_comfort_median_median, "");
+				file->rdwr_byte(tolerable_comfort_median_long, "");
+				file->rdwr_byte(tolerable_comfort_long, "");
+				file->rdwr_short(tolerable_comfort_short_minutes, "");
+				file->rdwr_short(tolerable_comfort_median_short_minutes, "");
+				file->rdwr_short(tolerable_comfort_median_median_minutes, "");
+				file->rdwr_short(tolerable_comfort_median_long_minutes, "");
+				file->rdwr_short(tolerable_comfort_long_minutes, "");
+				file->rdwr_byte(max_luxury_bonus_differential, "");
+				file->rdwr_byte(max_discomfort_penalty_differential, "");
+				file->rdwr_short(max_discomfort_penalty_percent, "");
+				file->rdwr_short(max_luxury_bonus_percent, "");
+			}
 
 			file->rdwr_short(obsolete_running_cost_increase_percent, "");
 			file->rdwr_short(obsolete_running_cost_increase_phase_years, "");
@@ -609,7 +650,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		if(file->get_experimental_version() >= 2)
 		{
 			uint16 global_power_factor_percent = global_power_factor * 100;
-			//file->rdwr_short(global_power_factor_percent, "");
+			file->rdwr_short(global_power_factor_percent, "");
 			global_power_factor = (float)global_power_factor_percent / 100;
 		}
 
@@ -761,12 +802,29 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	way_max_bridge_len = contents.get_int("way_max_bridge_len", way_max_bridge_len);
 	way_count_leaving_road = contents.get_int("way_leaving_road", way_count_leaving_road);
 
-	//Local bonus adjustment
+	// Revenue calibration settings
+	// @author: jamespetts
 	min_bonus_max_distance = contents.get_int("min_bonus_max_distance", min_bonus_max_distance);
 	max_bonus_min_distance = contents.get_int("max_bonus_min_distance", max_bonus_min_distance);
-	local_bonus_multiplier = contents.get_int("local_bonus_multiplier_percent", local_bonus_multiplier);
+	median_bonus_distance = contents.get_int("median_bonus_distance", median_bonus_distance);
+	max_bonus_multiplier_percent = contents.get_int("max_bonus_multiplier_percent", max_bonus_multiplier_percent);
+	journey_time_multiplier_percent = contents.get_int("journey_time_multiplier_percent", journey_time_multiplier_percent);
+	tolerable_comfort_short = contents.get_int("tolerable_comfort_short", tolerable_comfort_short);
+	tolerable_comfort_long = contents.get_int("tolerable_comfort_long", tolerable_comfort_long);
+	tolerable_comfort_short_minutes = contents.get_int("tolerable_comfort_short_minutes", tolerable_comfort_short_minutes);
+	tolerable_comfort_long_minutes = contents.get_int("tolerable_comfort_long_minutes", tolerable_comfort_long_minutes);
+	tolerable_comfort_median_short = contents.get_int("tolerable_comfort_median_short", tolerable_comfort_median_short);
+	tolerable_comfort_median_median = contents.get_int("tolerable_comfort_median_median", tolerable_comfort_median_median);
+	tolerable_comfort_median_long = contents.get_int("tolerable_comfort_median_long", tolerable_comfort_median_long);
+	tolerable_comfort_median_short_minutes = contents.get_int("tolerable_comfort_median_short_minutes", tolerable_comfort_median_short_minutes);
+	tolerable_comfort_median_short_minutes = contents.get_int("tolerable_comfort_median_median_minutes", tolerable_comfort_median_median_minutes);
+	tolerable_comfort_median_long_minutes = contents.get_int("tolerable_comfort_median_long_minutes", tolerable_comfort_median_long_minutes);
+	max_luxury_bonus_differential = contents.get_int("max_luxury_bonus_differential", max_luxury_bonus_differential);
+	max_discomfort_penalty_differential = contents.get_int("max_discomfort_penalty_differential", max_discomfort_penalty_differential);
+	max_luxury_bonus_percent = contents.get_int("max_luxury_bonus_percent", max_luxury_bonus_percent);
+	max_discomfort_penalty_percent = contents.get_int("max_discomfort_penalty_percent", max_discomfort_penalty_percent);
 
-	//Obsolete vehicles' running cost increase
+	// Obsolete vehicles' running cost increase
 	obsolete_running_cost_increase_percent = contents.get_int("obsolete_running_cost_increase_percent", obsolete_running_cost_increase_percent);
 	obsolete_running_cost_increase_phase_years = contents.get_int("obsolete_running_cost_increase_phase_years", obsolete_running_cost_increase_phase_years);
 
@@ -787,7 +845,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	always_prefer_car_percent = contents.get_int("always_prefer_car_percent", always_prefer_car_percent);
 	congestion_density_factor = contents.get_int("congestion_density_factor", congestion_density_factor);
 
-	//Cornering settings
+	// Cornering settings
 	max_corner_limit[waytype_t(road_wt)] = contents.get_int("max_corner_limit_road", 200);
 	min_corner_limit[waytype_t(road_wt)] = contents.get_int("min_corner_limit_road", 30);
 	max_corner_adjustment_factor[waytype_t(road_wt)] = contents.get_int("max_corner_adjustment_factor_road", 75);
@@ -844,7 +902,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	max_direction_steps[waytype_t(narrowgauge_wt)] = contents.get_int("max_direction_steps_narrowgauge", 8);
 	curve_friction_factor[waytype_t(narrowgauge_wt)] = contents.get_int("curve_friction_factor_narrowgauge", 0);
 
-	//Factory settings
+	// Factory settings
 	factory_max_years_obsolete = contents.get_int("max_years_obsolete", factory_max_years_obsolete);
 
 	// @author: jamespetts

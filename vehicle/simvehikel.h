@@ -448,7 +448,7 @@ public:
 	* @return income total for last hop
 	* @author Hj. Malthaner
 	*/
-	sint64  calc_gewinn(koord start, koord end, convoi_t* cnv) const;
+	//sint64  calc_gewinn(koord start, koord end, convoi_t* cnv) const;
 
 	/**
 	* fahrzeug an haltestelle entladen

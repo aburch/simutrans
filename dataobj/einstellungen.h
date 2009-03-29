@@ -169,10 +169,26 @@ private:
 	bool no_routing_over_overcrowding;
 
 	//@author: jamespetts
-	// Speed bonus local adjustment
+	// Revenue calibration settings
 	uint16 min_bonus_max_distance;
 	uint16 max_bonus_min_distance;
-	uint16 local_bonus_multiplier; 
+	uint16 median_bonus_distance;
+	uint16 max_bonus_multiplier_percent;
+	uint16 journey_time_multiplier_percent;
+	uint8 tolerable_comfort_short;
+	uint8 tolerable_comfort_median_short;
+	uint8 tolerable_comfort_median_median;
+	uint8 tolerable_comfort_median_long;
+	uint8 tolerable_comfort_long;
+	uint16 tolerable_comfort_short_minutes;
+	uint16 tolerable_comfort_median_short_minutes;
+	uint16 tolerable_comfort_median_median_minutes;
+	uint16 tolerable_comfort_median_long_minutes;
+	uint16 tolerable_comfort_long_minutes;
+	uint8 max_luxury_bonus_differential;
+	uint8 max_discomfort_penalty_differential;
+	uint16 max_luxury_bonus_percent;
+	uint16 max_discomfort_penalty_percent;
 
 	//@author: jamespetts
 	// Obsolete vehicle maintenance cost increases
@@ -409,7 +425,23 @@ public:
 
 	uint16 get_min_bonus_max_distance() const { return min_bonus_max_distance; }
 	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
-	uint16 get_local_bonus_multiplier() const { return local_bonus_multiplier; }
+	uint16 get_median_bonus_distance() const { return median_bonus_distance; }
+	float get_max_bonus_multiplier() const { return (float)max_bonus_multiplier_percent * 0.01; }
+	float get_journey_time_multiplier() const { return (float)journey_time_multiplier_percent * 0.01; }
+	uint8 get_tolerable_comfort_short() const { return tolerable_comfort_short; }
+	uint8 get_tolerable_comfort_median_short() const { return tolerable_comfort_median_short; }
+	uint8 get_tolerable_comfort_median_median() const { return tolerable_comfort_median_median; }
+	uint8 get_tolerable_comfort_median_long() const { return tolerable_comfort_median_long; }
+	uint8 get_tolerable_comfort_long() const { return tolerable_comfort_long; }
+	uint16 get_tolerable_comfort_short_minutes() const { return tolerable_comfort_short_minutes; }
+	uint16 get_tolerable_comfort_median_short_minutes() const { return tolerable_comfort_median_short_minutes; }
+	uint16 get_tolerable_comfort_median_median_minutes() const { return tolerable_comfort_median_median_minutes; }
+	uint16 get_tolerable_comfort_median_long_minutes() const { return tolerable_comfort_median_long_minutes; }
+	uint16 get_tolerable_comfort_long_minutes() const { return tolerable_comfort_long_minutes; }
+	uint8 get_max_luxury_bonus_differential() const { return max_luxury_bonus_differential; }
+	uint8 get_max_discomfort_penalty_differential() const { return max_discomfort_penalty_differential; }
+	float get_max_luxury_bonus() const { return (float)max_luxury_bonus_percent * 0.01; }
+	float get_max_discomfort_penalty() const { return (float) max_discomfort_penalty_percent * 0.01; }
 
 	uint16 get_obsolete_running_cost_increase_percent() const { return obsolete_running_cost_increase_percent; }
 	uint16 get_obsolete_running_cost_increase_phase_years() const { return obsolete_running_cost_increase_phase_years; }

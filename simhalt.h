@@ -612,6 +612,6 @@ public:
 	// @author: jamespetts
 	// Returns the proportion of unhappy people of the total of
 	// happy and unhappy people.
-	float get_unhappy_proportion(uint8 month) const { return financial_history[month][HALT_UNHAPPY] / (financial_history[month][HALT_HAPPY] + financial_history[month][HALT_UNHAPPY]); }
+	float get_unhappy_proportion(uint8 month) const { return financial_history[month][HALT_HAPPY] > 0 ? (float)financial_history[month][HALT_UNHAPPY] / (float)(financial_history[month][HALT_HAPPY] + financial_history[month][HALT_UNHAPPY]) : 0; }
 };
 #endif

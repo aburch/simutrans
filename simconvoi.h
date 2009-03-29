@@ -157,7 +157,7 @@ private:
 	* Current map
 	* @author Hj. Malthaner
 	*/
-	karte_t   *welt;
+	karte_t *welt;
 
  	/**
 	* the convoi is being withdrawn from service
@@ -343,7 +343,7 @@ private:
 	* only used for entering depot or recalculating routes when a schedule window is opened
 	* @author Hj. Malthaner
 	*/
-	void calc_gewinn();
+	//void calc_gewinn();
 
 	/**
 	* Recalculates loading level and limit.
@@ -405,9 +405,13 @@ private:
 	// @author: jamespetts
 	uint32 last_departure_time;
 
-	//@author: jamespetts
+	// @author: jamespetts
 	uint32 rolling_average[MAX_CONVOI_COST];
 	uint16 rolling_average_count[MAX_CONVOI_COST];
+
+	// @author: jamespetts
+	const uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance) const;
+	const uint8 calc_tolerable_comfort(uint16 journey_minutes) const;
 
 
 public:

@@ -2779,7 +2779,7 @@ void convoi_t::laden() //"load" (Babelfish)
  * calculate income for last hop
  * @author Hj. Malthaner
  */
-void convoi_t::calc_gewinn()
+/*void convoi_t::calc_gewinn()
 {
 	sint64 gewinn = 0;
 
@@ -2797,12 +2797,11 @@ void convoi_t::calc_gewinn()
 		book(gewinn, CONVOI_PROFIT);
 		book(gewinn, CONVOI_REVENUE);
 	}
-}
+}*/
 
 
 void convoi_t::calc_revenue(ware_t& ware)
 {
-	sint64 revenue = 0;
 	float average_speed;
 	if(financial_history[1][CONVOI_AVERAGE_SPEED] < 1)
 	{
@@ -2813,26 +2812,86 @@ void convoi_t::calc_revenue(ware_t& ware)
 		average_speed = financial_history[1][CONVOI_AVERAGE_SPEED];
 	}
 
+	// Cannot not charge for journey if the journey distance is more than a certain proportion of the straight line distance.
+	// This eliminates the possibility of cheating by building circuitous routes, or the need to prevent that by always using
+	// the straight line distance, which makes the game difficult and unrealistic. 
+	const uint32 max_distance = accurate_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2.2;
 	const uint32 distance = ware.get_accumulated_distance();
+	const uint32 revenue_distance = distance < max_distance ? distance : max_distance;
+
 	ware.reset_accumulated_distance();
-	//TODO: Consdier whether to tweak this with a multiplier factor.
-	float journey_hours = (float)distance / average_speed;
+
+	//Multiply by a factor (default: 0.3) to ensure that it fits the scale properly. Journey times can easily appear too long.
+	uint16 journey_minutes = (((float)distance / average_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60);
 
 	const ware_besch_t* goods = ware.get_besch();
-	const sint32 min_price = goods->get_preis()<<7;
-	const sint32 base_bonus = (goods->get_preis() * (1000 + average_speed * goods->get_speed_bonus()));
-	revenue = (sint64)(min_price > base_bonus ? min_price : base_bonus) * (sint64)distance * (sint64)ware.menge;
+	const uint16 price = goods->get_preis();
+	const sint32 min_price = price << 7;
+	const uint16 speed_bonus_rating = calc_adjusted_speed_bonus(goods->get_speed_bonus(), distance);
+	const sint32 ref_speed = welt->get_average_speed( fahr[0]->get_besch()->get_waytype() );
+	const sint32 speed_base = (100 * average_speed) / ref_speed - 100;
+	const sint32 base_bonus = (price * (1000 + speed_base * speed_bonus_rating));
+	const sint64 revenue = (sint64)(min_price > base_bonus ? min_price : base_bonus) * (sint64)revenue_distance * (sint64)ware.menge;
+	sint64 final_revenue = revenue;
 
-	//TODO: Refine the calculation of the revenue to include comfort and overcrowding of origin stop.
-
-	//Apply the catering bonus, if applicable.
-	if(get_catering_level(ware.get_besch()->get_catg_index()) > 0)
+	const float happy_ratio = ware.get_origin()->get_unhappy_proportion(1);
+	if(speed_bonus_rating > 0 && happy_ratio > 0)
 	{
-		float catering_bonus = 1;
-		//TODO: Add code for calculating catering bonus
+		// Reduce revenue if the origin stop is crowded, if speed is important for the cargo.
+		sint64 tmp = ((float)speed_bonus_rating / 100.0) * revenue;
+		tmp *= (happy_ratio * 2);
+		final_revenue -= tmp;
+	}
+	
+	if(goods->get_catg() == 0)
+	{
+		//Passengers care about their comfort
+		const uint8 tolerable_comfort = calc_tolerable_comfort(journey_minutes);
+		const uint8 comfort = get_comfort();
+		if(comfort > tolerable_comfort)
+		{
+			// Apply luxury bonus
+			const uint8 max_differential = welt->get_einstellungen()->get_max_luxury_bonus_differential();
+			const uint8 differential = comfort - tolerable_comfort;
+			const float multiplier = welt->get_einstellungen()->get_max_luxury_bonus();
+			if(differential >= max_differential)
+			{
+				final_revenue *= multiplier;
+			}
+			else
+			{
+				const float proportion = (float)differential / (float)max_differential;
+				final_revenue += final_revenue * (multiplier * proportion);
+			}
+		}
+		else if(comfort < tolerable_comfort)
+		{
+			// Apply discomfort penalty
+			const uint8 max_differential = welt->get_einstellungen()->get_max_discomfort_penalty_differential();
+			const uint8 differential = tolerable_comfort - comfort;
+			const float multiplier = welt->get_einstellungen()->get_max_discomfort_penalty();
+			if(differential >= max_differential)
+			{
+				final_revenue *= multiplier;
+			}
+			else
+			{
+				const float proportion = (float)differential / (float)max_differential;
+				final_revenue -= final_revenue * (multiplier * proportion);
+			}
+		}
+		
+		// Do nothing if comfort == tolerable_comfort			
 	}
 
-	sint64 final_revenue = (revenue + 1500ll) / 3000ll;
+	//Add catering or TPO revenue
+	const uint8 catering_level = get_catering_level(ware.get_besch()->get_catg_index());
+	if(catering_level > 0)
+	{
+		//TODO: Add code for calculating catering/TPO revenue
+	}
+
+	final_revenue = (final_revenue + 1500ll) / 3000ll;
 	
 	if(final_revenue > 0) 
 	{
@@ -2842,6 +2901,108 @@ void convoi_t::calc_revenue(ware_t& ware)
 		book(final_revenue, CONVOI_PROFIT);
 		book(final_revenue, CONVOI_REVENUE);
 	}
+}
+
+const uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes) const
+{
+	const uint16 comfort_short_minutes = welt->get_einstellungen()->get_tolerable_comfort_short_minutes();
+	const uint8 comfort_short = welt->get_einstellungen()->get_tolerable_comfort_short();
+	if(journey_minutes <= comfort_short_minutes)
+	{
+		return comfort_short;
+	}
+
+	const uint16 comfort_median_short_minutes = welt->get_einstellungen()->get_tolerable_comfort_median_short_minutes();
+	const uint8 comfort_median_short = welt->get_einstellungen()->get_tolerable_comfort_median_short();
+	if(journey_minutes == comfort_median_short_minutes)
+	{
+		return comfort_median_short;
+	}
+	if(journey_minutes < comfort_median_short_minutes)
+	{
+		const float proportion = (float)(journey_minutes - comfort_short_minutes) / (float)(comfort_median_short_minutes - comfort_short_minutes);
+		return (proportion * (comfort_median_short_minutes - comfort_short)) + comfort_short;
+	}
+
+	const uint16 comfort_median_median_minutes = welt->get_einstellungen()->get_tolerable_comfort_median_median_minutes();
+	const uint8 comfort_median_median = welt->get_einstellungen()->get_tolerable_comfort_median_median();
+	if(journey_minutes == comfort_median_median_minutes)
+	{
+		return comfort_median_median;
+	}
+	if(journey_minutes < comfort_median_median_minutes)
+	{
+		const float proportion = (float)(journey_minutes - comfort_median_short_minutes) / (float)(comfort_median_median_minutes - comfort_median_short_minutes);
+		return (proportion * (comfort_median_median_minutes - comfort_median_short)) + comfort_median_short;
+	}
+
+	const uint16 comfort_median_long_minutes = welt->get_einstellungen()->get_tolerable_comfort_median_long_minutes();
+	const uint8 comfort_median_long = welt->get_einstellungen()->get_tolerable_comfort_median_long();
+	if(journey_minutes == comfort_median_long_minutes)
+	{
+		return comfort_median_long;
+	}
+	if(journey_minutes < comfort_median_long_minutes)
+	{
+		const float proportion = (float)(journey_minutes - comfort_median_median_minutes) / (float)(comfort_median_long_minutes - comfort_median_median_minutes);
+		return (proportion * (comfort_median_long_minutes - comfort_median_median)) + comfort_median_median;
+	}
+	
+	const uint16 comfort_long_minutes = welt->get_einstellungen()->get_tolerable_comfort_long_minutes();
+	const uint8 comfort_long = welt->get_einstellungen()->get_tolerable_comfort_long();
+	if(journey_minutes >= comfort_long_minutes)
+	{
+		return comfort_long;
+	}
+
+	const float proportion = (float)(journey_minutes - comfort_median_long_minutes) / (float)(comfort_long_minutes - comfort_median_long_minutes);
+	return (proportion * (comfort_long - comfort_median_long)) + comfort_median_long;
+}
+
+const uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance) const
+{
+	const uint32 min_distance = welt->get_einstellungen()->get_min_bonus_max_distance();
+	if(distance <= min_distance)
+	{
+		return 0;
+	}
+
+	const uint16 max_distance = welt->get_einstellungen()->get_max_bonus_min_distance();
+	const float multiplier = welt->get_einstellungen()->get_max_bonus_multiplier();
+	
+	if(distance >= max_distance)
+	{
+		return base_bonus * multiplier;
+	}
+
+	const uint16 median_distance = welt->get_einstellungen()->get_median_bonus_distance();
+	if(median_distance == 0)
+	{
+		// There is no median, so scale evenly.
+		const double proportion = (double)(distance - min_distance) / (double)(max_distance - min_distance);
+		return (base_bonus * multiplier) * proportion;
+	}
+
+	// There is a median, so scale differently each side of the median.
+
+	if(distance == median_distance)
+	{
+		return base_bonus;
+	}
+
+	if(distance < median_distance)
+	{
+		const double proportion = (double)(distance - min_distance) / (double)(median_distance - min_distance);
+		return base_bonus * proportion;
+	}
+
+	// If the program gets here, it must be true that:
+	// distance > median_distance
+
+	const double proportion = (double)(distance - median_distance) / (double)(max_distance - min_distance);
+	uint16 intermediate_bonus = (base_bonus * multiplier) - base_bonus;
+	intermediate_bonus *= proportion;
+	return intermediate_bonus + base_bonus;
 }
 
 /**

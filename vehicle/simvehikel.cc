@@ -1599,7 +1599,7 @@ vehikel_t::rauche()
  * @return income total for last hop
  * @author Hj. Malthaner
  */
-sint64 vehikel_t::calc_gewinn(koord start, koord end, convoi_t *cnv) const 
+/*sint64 vehikel_t::calc_gewinn(koord start, koord end, convoi_t *cnv) const 
 {
 	//According to Google translations: 
 	//Calculate profit ("gewinn")
@@ -1640,11 +1640,11 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end, convoi_t *cnv) const
 		const sint32 grundwert128 = goods->get_preis()<<7;
 
 		
-		/* Calculates the speed bonus, taking into account: (
-		 * (1) the local bonus; and
-		 * (2) the speed bonus distance settings. 
-		 * @author: jamespetts
-		 */
+		 // Calculates the speed bonus, taking into account: (
+		 // (1) the local bonus; and
+		 // (2) the speed bonus distance settings. 
+		 // @author: jamespetts
+		 
 
 		const uint16 base_bonus = goods->get_speed_bonus();
 		uint16 adjusted_bonus = 0;
@@ -1694,7 +1694,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end, convoi_t *cnv) const
 	// Hajo: Rounded value, in cents
 	// prissi: Why on earth 1/3???
 	return (value+1500ll)/3000ll;
-}
+}*/
 
 
 const char *vehikel_t::get_fracht_mass() const
