@@ -467,8 +467,8 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 					min_weight = min(min_weight, ware->get_weight_per_unit());
 				}
 			}
-			total_max_weight += max_weight*besch->get_zuladung()/1000;
-			total_min_weight += min_weight*besch->get_zuladung()/1000;
+			total_max_weight += (max_weight*besch->get_zuladung()+499)/1000;
+			total_min_weight += (min_weight*besch->get_zuladung()+499)/1000;
 
 			min_top_speed=min(min_top_speed, besch->get_geschw()); // In kmh
 		}

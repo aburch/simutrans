@@ -18,6 +18,8 @@
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
 
+#include "../simworld.h"
+
 
 enum player_cost {
 	COST_CONSTRUCTION=0,// Construction
@@ -45,7 +47,6 @@ enum player_cost {
 #define MAX_PLAYER_HISTORY_MONTHS  (12) // number of months to keep history
 
 
-class karte_t;
 class fabrik_t;
 class stadt_t;
 class gebaeude_t;

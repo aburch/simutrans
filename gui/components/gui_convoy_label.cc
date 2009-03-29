@@ -111,8 +111,8 @@ void gui_convoy_label_t::zeichnen(koord offset)
 						min_weight = min(min_weight, ware->get_weight_per_unit());
 					}
 				}
-				total_max_weight += max_weight*besch->get_zuladung()/1000;
-				total_min_weight += min_weight*besch->get_zuladung()/1000;
+				total_max_weight += (max_weight*besch->get_zuladung()+499)/1000;
+				total_min_weight += (min_weight*besch->get_zuladung()+499)/1000;
 			}
 			max_speed = min(speed_to_kmh(cnv->get_min_top_speed()), (uint32) sqrt((((double)total_power/total_min_weight)-1)*2500));
 			min_speed = min(speed_to_kmh(cnv->get_min_top_speed()), (uint32) sqrt((((double)total_power/total_max_weight)-1)*2500));

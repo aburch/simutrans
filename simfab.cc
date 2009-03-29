@@ -33,7 +33,7 @@
 #include "besch/ware_besch.h"
 #include "player/simplay.h"
 
-
+#include "simmesg.h"
 #include "simintr.h"
 
 #include "dings/wolke.h"
