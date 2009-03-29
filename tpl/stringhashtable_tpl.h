@@ -5,8 +5,6 @@
 #ifndef stringhashtable_tpl_h
 #define stringhashtable_tpl_h
 
-#include <string.h>
-
 #include "hashtable_tpl.h"
 
 

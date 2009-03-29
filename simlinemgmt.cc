@@ -14,6 +14,7 @@
 #include "simintr.h"
 
 #include "dataobj/fahrplan.h"
+#include "dataobj/loadsave.h"
 
 #include "gui/schedule_list.h"
 
@@ -33,6 +34,7 @@ void simlinemgmt_t::init_line_ids()
 simlinemgmt_t::simlinemgmt_t(karte_t* welt)
 {
 	this->welt = welt;
+	schedule_list_gui = NULL;
 }
 
 simlinemgmt_t::~simlinemgmt_t()
@@ -44,9 +46,9 @@ void
 simlinemgmt_t::zeige_info(spieler_t *sp)
 {
 	schedule_list_gui_t *slg;
-	if (create_win( slg=new schedule_list_gui_t(sp), w_info, (long)this )>0) {
+	if(  create_win( slg=new schedule_list_gui_t(sp), w_info, (long)this )>0  ) {
 		// New window created, not reused.  Update schedule_list_gui
-		schedule_list_gui=slg;
+		schedule_list_gui = slg;
 	}
 }
 

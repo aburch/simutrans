@@ -9,14 +9,14 @@
 #define route_h
 
 #include "../simdebug.h"
-#include "../simdings.h"
 
 #include "../dataobj/koord3d.h"
 
-#include "../ifc/fahrer.h"
 #include "../tpl/vector_tpl.h"
 
 class karte_t;
+class fahrer_t;
+class grund_t;
 
 /**
  * Routen, zB für Fahrzeuge

@@ -10,6 +10,7 @@
 #include "../simcity.h"
 #include "../simhalt.h"
 #include "../simtools.h"
+#include "../simmesg.h"
 #include "../simworld.h"
 
 #include "../bauer/brueckenbauer.h"
@@ -186,6 +187,11 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search(water_wt, welt->get_timeline_year_month(), 10, 40, warenbauer_t::passagiere, false, true );
 	if(v_besch==NULL  ) {
 		// no ship there
+		return false;
+	}
+
+	if(  convoihandle_t::is_exhausted()  ) {
+		// too many convois => cannot do anything about this ...
 		return false;
 	}
 
@@ -414,7 +420,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	linehandle_t line=simlinemgmt.create_line(simline_t::shipline,this,fpl);
 	delete fpl;
 
-	// now create one plane
+	// now create one ship
 	vehikel_t* v = vehikelbauer_t::baue( koord3d(start_pos,welt->get_grundwasser()), this, NULL, v_besch);
 	convoi_t* cnv = new convoi_t(this);
 	cnv->set_name(v->get_besch()->get_name());
@@ -624,6 +630,11 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 		return false;
 	}
 
+	if(  convoihandle_t::is_exhausted()  ) {
+		// too many convois => cannot do anything about this ...
+		return false;
+	}
+
 	halthandle_t start_hub = get_our_hub( start_stadt );
 	halthandle_t start_connect_hub = halthandle_t();
 	koord start_airport;
@@ -786,6 +797,10 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",st
 	// now create all vehicles as convois
 	for(int i=0;  i<anz_vehikel;  i++) {
 		vehikel_t* v = vehikelbauer_t::baue(startpos, this, NULL, road_vehicle);
+		if(  convoihandle_t::is_exhausted()  ) {
+			// too many convois => cannot do anything about this ...
+			return;
+		}
 		convoi_t* cnv = new convoi_t(this);
 		// V.Meyer: give the new convoi name from first vehicle
 		cnv->set_name(v->get_besch()->get_name());
@@ -886,6 +901,11 @@ ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int limit 
  */
 void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_stops)
 {
+	if(  convoihandle_t::is_exhausted()  ) {
+		// too many convois => cannot do anything about this ...
+		return;
+	}
+
 	// nothing in lists
 	welt->unmarkiere_alle();
 
@@ -1285,6 +1305,10 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 							if(  !v_besch->is_retired(welt->get_current_month())  &&  v_besch!=line->get_convoy(0)->get_vehikel(0)->get_besch()) {
 								// there is a newer one ...
 								for(  uint32 new_capacity=0;  capacity>new_capacity;  new_capacity+=v_besch->get_zuladung()) {
+									if(  convoihandle_t::is_exhausted()  ) {
+										// too many convois => cannot do anything about this ...
+										break;
+									}
 									vehikel_t* v = vehikelbauer_t::baue( line->get_schedule()->eintrag[0].pos, this, NULL, v_besch  );
 									convoi_t* new_cnv = new convoi_t(this);
 									new_cnv->set_name( v->get_besch()->get_name() );
@@ -1314,7 +1338,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				sint32 ratio = (sint32)((free_cap*100l)/(free_cap+used_cap));
 
 				// next: check for overflowing lines, i.e. running with 3/4 of the capacity
-				if(  ratio<10  ) {
+				if(  ratio<10  &&  !convoihandle_t::is_exhausted()  ) {
 					// else add the first convoi again
 					vehikel_t* v = vehikelbauer_t::baue( line->get_schedule()->eintrag[0].pos, this, NULL, line->get_convoy(0)->get_vehikel(0)->get_besch()  );
 					convoi_t* new_cnv = new convoi_t(this);

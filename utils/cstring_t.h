@@ -1,9 +1,6 @@
 #ifndef CSTRING_T_H
 #define CSTRING_T_H
 
-#include <stdarg.h>
-
-
 #ifndef STRICMP
 #ifdef _MSC_VER
 #define STRICMP stricmp

@@ -65,6 +65,7 @@
 
 #include "gui/messagebox.h"
 #include "gui/help_frame.h"
+#include "gui/karte.h"
 
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
@@ -716,7 +717,7 @@ void karte_t::init_felder()
 {
 	assert(plan==0);
 
-	plan   = new planquadrat_t[get_groesse_x()*get_groesse_y()];
+	plan = new planquadrat_t[get_groesse_x()*get_groesse_y()];
 	grid_hgts = new sint8[(get_groesse_x()+1)*(get_groesse_y()+1)];
 
 	memset(grid_hgts, 0, sizeof(sint8)*(get_groesse_x()+1)*(get_groesse_y()+1));
@@ -1412,6 +1413,8 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	// length of day and other time stuff
 	ticks_bits_per_tag = 20;
 	ticks_per_tag = (1 << ticks_bits_per_tag);
+	last_step_ticks = 0;
+	last_interaction = dr_time();
 	fast_forward = false;
 	pause = false;
 	time_multiplier = 16;

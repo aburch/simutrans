@@ -49,6 +49,7 @@ class cstring_t;
 class werkzeug_t;
 class scenario_t;
 class message_t;
+class weg_besch_t;
 
 
 /**

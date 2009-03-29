@@ -201,6 +201,16 @@ convoi_t::~convoi_t()
 	assert(self.is_bound());
 	assert(anz_vehikel==0);
 
+	// close windows
+	gui_fenster_t *gui = win_get_magic( magic_convoi_info+self.get_id() );
+	if(  gui  ) {
+		destroy_win( gui );
+	}
+	gui = win_get_magic( magic_convoi_detail+self.get_id() );
+	if(  gui  ) {
+		destroy_win( gui );
+	}
+
 DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	// stop following
 	if(welt->get_follow_convoi()==self) {
@@ -2447,7 +2457,7 @@ convoi_t::zeige_info()
 			dump();
 		}
 
-		create_win( new convoi_info_t(self), w_info, (long)this );
+		create_win( new convoi_info_t(self), w_info, magic_convoi_info+self.get_id() );
 	}
 }
 
@@ -2456,24 +2466,24 @@ void convoi_t::info(cbuffer_t & buf) const
 {
 	const vehikel_t* v = fahr[0];
 	if (v != NULL) {
-    char tmp[128];
+		char tmp[128];
 
-    sprintf(tmp, "\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->get_besch()->get_geschw(), get_running_cost() / 100.0);
-    buf.append(tmp);
+		sprintf(tmp, "\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->get_besch()->get_geschw(), get_running_cost() / 100.0);
+		buf.append(tmp);
 
-    sprintf(tmp," %s: %ikW\n", translator::translate("Leistung"), sum_leistung );
-    buf.append(tmp);
+		sprintf(tmp," %s: %ikW\n", translator::translate("Leistung"), sum_leistung );
+		buf.append(tmp);
 
-    sprintf(tmp," %s: %i (%i) t\n", translator::translate("Gewicht"), sum_gewicht, sum_gesamtgewicht-sum_gewicht );
-    buf.append(tmp);
+		sprintf(tmp," %s: %i (%i) t\n", translator::translate("Gewicht"), sum_gewicht, sum_gesamtgewicht-sum_gewicht );
+		buf.append(tmp);
 
-    sprintf(tmp," %s: ", translator::translate("Gewinn")  );
-    buf.append(tmp);
+		sprintf(tmp," %s: ", translator::translate("Gewinn")  );
+		buf.append(tmp);
 
-    money_to_string( tmp, (double)jahresgewinn );
-    buf.append(tmp);
-    buf.append("\n");
-  }
+		money_to_string( tmp, (double)jahresgewinn );
+		buf.append(tmp);
+		buf.append("\n");
+	}
 }
 
 
@@ -3375,21 +3385,22 @@ sint32 convoi_t::get_running_cost() const
 void convoi_t::check_pending_updates()
 {
 	if (line_update_pending.is_bound()  &&  line.is_bound()) {
-		destroy_win((long)fpl);	// close the schedule window, if open
 		int aktuell = fpl->get_aktuell(); // save current position of schedule
+		line = line_update_pending;
+		line_update_pending = linehandle_t();
 		// destroy old schedule and all related windows
 		if(fpl &&  !fpl->ist_abgeschlossen()) {
-			destroy_win((long)fpl);
+			fpl->copy_from( line->get_schedule() );
+			fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
+			fpl->eingabe_beginnen();
 		}
-		delete fpl;
-		// an open window will destroy our line information, so we renew again ...
-		line = line_update_pending;
-		fpl = line->get_schedule()->copy();
-		fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
+		else {
+			fpl->copy_from( line->get_schedule() );
+			fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
+		}
 		if(state!=INITIAL) {
 			state = FAHRPLANEINGABE;
 		}
-		line_update_pending = linehandle_t();
 	}
 }
 

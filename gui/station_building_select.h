@@ -16,10 +16,10 @@
 #include "components/gui_image.h"
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
-#include "../besch/haus_besch.h"
 
 #include "../simwerkz.h"
 
+class haus_besch_t;
 class karte_t;
 
 class station_building_select_t : public gui_frame_t, action_listener_t

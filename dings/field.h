@@ -6,7 +6,6 @@
 #include "../simdings.h"
 #include "../simworld.h"
 #include "../simimg.h"
-#include "../besch/fabrik_besch.h"
 
 
 class loadsave_t;

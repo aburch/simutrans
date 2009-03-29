@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <cmath>
 
+#include "karte.h"
 #include "map_frame.h"
 #include "components/list_button.h"
 

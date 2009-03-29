@@ -2,7 +2,6 @@
 #define boden_wege_dock_h
 
 #include "weg.h"
-#include "kanal.h"
 #include "../../dataobj/loadsave.h"
 #include "../../utils/cbuffer_t.h"
 

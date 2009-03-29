@@ -9,7 +9,6 @@
 #define fabrikbauer_t_h
 
 #include "../tpl/stringhashtable_tpl.h"
-#include "../tpl/array_tpl.h"
 #include "../dataobj/koord3d.h"
 
 class haus_besch_t;

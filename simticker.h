@@ -8,8 +8,9 @@
 #ifndef SIMTICKER_H
 #define SIMTICKER_H
 
-#include "dataobj/koord.h"
 #include "simcolor.h"
+
+class koord;
 
 /**
  * A very simple news ticker.

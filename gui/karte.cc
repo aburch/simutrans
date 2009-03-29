@@ -16,6 +16,7 @@
 #include "../boden/wege/schiene.h"
 #include "../dings/leitung2.h"
 #include "../dataobj/powernet.h"
+#include "../utils/cbuffer_t.h"
 #include "../simgraph.h"
 
 
@@ -537,8 +538,8 @@ reliefkarte_t::calc_map_pixel(const koord k)
 		case MAP_PAX_DEST:
 			if(  city  ) {
 				const koord p = koord(
-					((k.x * PAX_DESTINATIONS_SIZE) / welt->get_groesse_x()) & (PAX_DESTINATIONS_SIZE-1),
-					((k.y * PAX_DESTINATIONS_SIZE) / welt->get_groesse_y()) & (PAX_DESTINATIONS_SIZE-1)
+					((k.x * PAX_DESTINATIONS_SIZE) / welt->get_groesse_x()),
+					((k.y * PAX_DESTINATIONS_SIZE) / welt->get_groesse_y())
 				);
 				const uint8 color = city->get_pax_destinations_new()->get(p);
 				if( color != 0 ) {
@@ -811,8 +812,30 @@ void reliefkarte_t::zeichnen(koord pos)
 		return;
 	}
 
-	if(  mode==MAP_PAX_DEST  &&  city!=NULL  &&  pax_destinations_last_change != city->get_pax_destinations_new_change()  ) {
-		calc_map();
+	if(  mode==MAP_PAX_DEST  &&  city!=NULL  ) {
+		const unsigned long current_pax_destinations = city->get_pax_destinations_new_change();
+		if(  pax_destinations_last_change > current_pax_destinations  ) {
+			// new month started.
+			calc_map();
+		}
+		else if(  pax_destinations_last_change < current_pax_destinations  ) {
+			// new pax_dest in city.
+			const sparse_tpl<uint8> *pax_dests = city->get_pax_destinations_new();
+			koord pos, min, max;
+			uint8 color;
+			for(  uint8 i = 0;  i < pax_dests->get_data_count();  i++  ) {
+				pax_dests->get_nonzero( i, pos, color );
+				min = koord((pos.x*welt->get_groesse_x())/PAX_DESTINATIONS_SIZE,
+				            (pos.y*welt->get_groesse_y())/PAX_DESTINATIONS_SIZE);
+				max = koord(((pos.x+1)*welt->get_groesse_x())/PAX_DESTINATIONS_SIZE,
+				            ((pos.y+1)*welt->get_groesse_y())/PAX_DESTINATIONS_SIZE);
+				for( pos.x = min.x;  pos.x < max.x;  pos.x++  ) {
+					for( pos.y = min.y;  pos.y < max.y;  pos.y++  ) {
+						set_relief_farbe(pos, color);
+					}
+				}
+			}
+		}
 		pax_destinations_last_change = city->get_pax_destinations_new_change();
 	}
 

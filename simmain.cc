@@ -898,13 +898,17 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 				}
 				destroy_all_win();
 				welt->step_month( umgebung_t::default_einstellungen.get_starting_month() );
-			} else if(wg->get_load()) {
+			}
+			else if(wg->get_load()) {
 				delete wg;
 				create_win( new loadsave_frame_t(welt, true), w_info, magic_load_t);
-			} else if(wg->get_load_heightfield()) {
-				welt->load_heightfield(&umgebung_t::default_einstellungen);
+			}
+			else if(wg->get_load_heightfield()) {
 				delete wg;
-			} else {
+				welt->load_heightfield(&umgebung_t::default_einstellungen);
+				welt->step_month( umgebung_t::default_einstellungen.get_starting_month() );
+			}
+			else {
 				// quit the game
 				if (wg->get_quit()) {
 					delete wg;

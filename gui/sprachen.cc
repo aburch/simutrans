@@ -83,7 +83,7 @@ void sprachengui_t::init_font_from_lang()
 sprachengui_t::sprachengui_t() :
 	gui_frame_t("Sprachen"),
 	text_label(translator::translate("LANG_CHOOSE\n")),
-	flags(skinverwaltung_t::flaggensymbol?skinverwaltung_t::flaggensymbol->get_bild_nr(0):NULL),
+	flags(skinverwaltung_t::flaggensymbol?skinverwaltung_t::flaggensymbol->get_bild_nr(0):IMG_LEER),
 	buttons(translator::get_language_count())
 {
 	text_label.set_pos( koord(10,0) );

@@ -146,6 +146,9 @@ int dr_query_screen_height()
 // open the window
 int dr_os_open(int w, int h, int bpp, int fullscreen)
 {
+	MaxSize.right = (w+16)&x7FF0;
+	MaxSize.bottom = h;
+
 	// fake fullscreen
 	if (fullscreen) {
 		// try to force display mode and size
@@ -166,8 +169,6 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 		}
 		else {
 			ChangeDisplaySettings(&settings, CDS_FULLSCREEN);
-			MaxSize.right = w;
-			MaxSize.bottom = h;
 		}
 		is_fullscreen = fullscreen;
 	}

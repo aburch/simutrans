@@ -17,7 +17,6 @@
 #include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
-#include "karte.h"
 
 class karte_t;
 

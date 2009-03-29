@@ -3,10 +3,9 @@
 
 #include "halthandle_t.h"
 #include "dataobj/koord.h"
-#include "bauer/warenbauer.h"
 #include "besch/ware_besch.h"
 
-class ware_besch_t;
+class warenbauer_t;
 class karte_t;
 
 /** Eine Klasse zur Verwaltung von Informationen ueber Fracht und Waren */

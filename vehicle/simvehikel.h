@@ -17,6 +17,7 @@
 
 #include "../simtypes.h"
 #include "../simworld.h"
+#include "../simconvoi.h"
 #include "../simdings.h"
 #include "../halthandle_t.h"
 #include "../convoihandle_t.h"

@@ -9,7 +9,6 @@
 #define gui_label_info_h
 
 #include "gui_frame.h"
-#include "../dings/label.h"
 #include "components/gui_label.h"
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
@@ -17,8 +16,7 @@
 #include "components/gui_world_view_t.h"
 #include "components/action_listener.h"
 
-#include "../utils/cbuffer_t.h"
-
+class label_t;
 
 /**
  * Dies stellt ein Fenster mit den Zielinformationen

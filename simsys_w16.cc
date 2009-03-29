@@ -146,6 +146,9 @@ int dr_query_screen_height()
 // open the window
 int dr_os_open(int w, int h, int bpp, int fullscreen)
 {
+	MaxSize.right = (w+16)&0x7FF0;
+	MaxSize.bottom = h;
+
 	// fake fullscreen
 	if (fullscreen) {
 		// try to force display mode and size
@@ -170,8 +173,6 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 		}
 		else {
 			ChangeDisplaySettings(&settings, CDS_FULLSCREEN);
-			MaxSize.right = w;
-			MaxSize.bottom = h;
 		}
 		is_fullscreen = fullscreen;
 	}
@@ -242,7 +243,7 @@ int dr_os_close(void)
 int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 {
 	WAIT_FOR_SCREEN();
-	if(w>MaxSize.right+15  ||  h>MaxSize.bottom+2) {
+	if(w>MaxSize.right  ||  h>MaxSize.bottom) {
 		// since the query routines that return the desktop data do not take into account a change of resolution
 		free(AllDibData);
 		AllDibData = NULL;

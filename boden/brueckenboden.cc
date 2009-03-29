@@ -17,6 +17,7 @@
 #include "../tpl/ptrhashtable_tpl.h"
 
 #include "brueckenboden.h"
+#include "wege/weg.h"
 
 
 brueckenboden_t::brueckenboden_t(karte_t *welt, koord3d pos, int grund_hang, int weg_hang) : grund_t(welt, pos)

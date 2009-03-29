@@ -8,6 +8,7 @@
  */
 
 #include "../simcolor.h"
+#include "../simevent.h"
 #include "../simimg.h"
 #include "../simworld.h"
 #include "../simskin.h"

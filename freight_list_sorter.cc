@@ -1,13 +1,17 @@
+#include "freight_list_sorter.h"
+#include "simhalt.h"
 #include "simtypes.h"
 #include "simware.h"
-#include "simhalt.h"
 #include "simworld.h"
-#include "dataobj/translator.h"
-#include "freight_list_sorter.h"
 
+#include "dataobj/translator.h"
+
+#include "tpl/slist_tpl.h"
+#include "tpl/vector_tpl.h"
+
+#include "utils/cbuffer_t.h"
 
 freight_list_sorter_t::sort_mode_t freight_list_sorter_t::sortby=by_name;
-
 
 /*
  * struct hold travel details for wares that travel

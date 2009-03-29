@@ -27,6 +27,7 @@
 #include "messagebox.h"
 
 #include "../utils/simstring.h"
+#include "../utils/cbuffer_t.h"
 
 #include "components/gui_chart.h"
 #include "components/list_button.h"

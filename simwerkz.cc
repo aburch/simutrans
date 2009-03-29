@@ -42,6 +42,7 @@
 #include "besch/haus_besch.h"
 #include "besch/way_obj_besch.h"
 #include "besch/skin_besch.h"
+#include "besch/tunnel_besch.h"
 
 #include "vehicle/simvehikel.h"
 #include "vehicle/simverkehr.h"
@@ -3700,8 +3701,12 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 							}
 							if(updated) {
 								fpl->cleanup();
-								// set this schedule
-								cnv->set_schedule(fpl);
+								if(  !fpl->ist_abgeschlossen()  ) {
+									// schedule is not owned by schedule window ...
+									// ... thus we can set this schedule
+									cnv->set_schedule(fpl);
+									// otherwise the schedule window will reset it
+								}
 							}
 						}
 					}

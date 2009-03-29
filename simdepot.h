@@ -10,7 +10,6 @@
 
 #include "tpl/slist_tpl.h"
 #include "dings/gebaeude.h"
-#include "boden/wege/weg.h"
 #include "convoihandle_t.h"
 #include "simline.h"
 

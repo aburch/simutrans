@@ -4,7 +4,6 @@
 #include "../utils/cstring_t.h"
 #include "../simtypes.h"
 #include "../simconst.h"
-#include "tabfile.h"
 
 /**
  * Spieleinstellungen
@@ -16,6 +15,7 @@
  */
 
 class loadsave_t;
+class tabfile_t;
 
 class einstellungen_t
 {

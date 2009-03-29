@@ -8,7 +8,6 @@
 #ifndef tpl_sorted_heap_tpl_h
 #define tpl_sorted_heap_tpl_h
 
-#include <stdlib.h>
 
 #include "debug_helper.h"
 

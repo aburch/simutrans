@@ -9,7 +9,6 @@
 #define ITERATE_PTR(collection,enumerator) for(uint16 enumerator = 0; enumerator < (collection)->get_count(); enumerator++)
 #endif 
 
-#include <stdlib.h>
 #include "../macros.h"
 #include "../simtypes.h"
 #include "../simdebug.h"

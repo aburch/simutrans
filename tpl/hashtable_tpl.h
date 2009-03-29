@@ -1,9 +1,7 @@
 #ifndef tpl_hashtable_tpl_h
 #define tpl_hashtable_tpl_h
 
-#include <stdio.h>
 #include "slist_tpl.h"
-
 
 #define STHT_BAGSIZE 101
 #define STHT_BAG_COUNTER_T uint8

@@ -176,11 +176,11 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 {
 	stats.set_fahrplan(fpl);
 	if(!cnv.is_bound()) {
-		new_line = linehandle_t();
+		old_line = new_line = linehandle_t();
 		show_line_selector(false);
 	}
 	else {
-		new_line = cnv_->get_line();
+		old_line = new_line = cnv_->get_line();
 	}
 	this->fpl = fpl;
 	fpl->eingabe_beginnen();
@@ -486,15 +486,19 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			line_selector.set_selection( 0 );
 		}
 	} else if (komp == &bt_promote_to_line) {
-		this->fpl->eingabe_abschliessen();
+		fpl->eingabe_abschliessen();
 		new_line = sp->simlinemgmt.create_line(fpl->get_type(), sp, this->fpl);
-		this->fpl->eingabe_beginnen();
+		fpl->eingabe_beginnen();
 		init_line_selector();
 	}
 	// recheck lines
 	if (cnv.is_bound()) {
 		// unequal to line => remove from line ...
-		if(new_line.is_bound()  &&   !fpl->matches(sp->get_welt(),new_line->get_schedule())) {
+		if(old_line.is_bound()  &&   fpl->matches(sp->get_welt(),old_line->get_schedule())) {
+			new_line = old_line;
+			init_line_selector();
+		}
+		else if(new_line.is_bound()  &&   !fpl->matches(sp->get_welt(),new_line->get_schedule())) {
 			new_line = linehandle_t();
 			line_selector.set_selection(0);
 		}
@@ -524,9 +528,17 @@ void fahrplan_gui_t::init_line_selector()
 
 void fahrplan_gui_t::zeichnen(koord pos, koord gr)
 {
-	if(  new_line.is_bound()  &&  !new_line->get_schedule()->matches(sp->get_welt(),fpl)  ) {
-		line_selector.set_selection(0);
+	if(  new_line.is_bound()  ) {
+		if(  !new_line->get_schedule()->matches(sp->get_welt(),fpl)  ) {
+			line_selector.set_selection(0);
+			new_line = linehandle_t();
+		}
 	}
+	else if(old_line.is_bound()  &&   fpl->matches(sp->get_welt(),old_line->get_schedule())) {
+		new_line = old_line;
+		init_line_selector();
+	}
+
 	gui_frame_t::zeichnen(pos,gr);
 }
 

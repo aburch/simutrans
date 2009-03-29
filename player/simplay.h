@@ -13,12 +13,7 @@
 #include "../halthandle_t.h"
 #include "../convoihandle_t.h"
 
-#include "../besch/weg_besch.h"
-#include "../besch/vehikel_besch.h"
-
 #include "../dataobj/koord.h"
-
-#include "../boden/wege/weg.h"
 
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"

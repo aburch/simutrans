@@ -13,6 +13,7 @@
 #include "../simhalt.h"
 #include "../boden/wege/weg.h"
 #include "../boden/grund.h"
+#include "../ifc/fahrer.h"
 #include "loadsave.h"
 #include "route.h"
 #include "umgebung.h"

@@ -5,7 +5,6 @@
 #include "../ifc/sync_steppable.h"
 #include "../tpl/vector_tpl.h"
 #include "../simimg.h"
-#include "../simimg.h"
 
 class karte_t;
 class rauch_besch_t;

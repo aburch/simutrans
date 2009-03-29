@@ -1,13 +1,14 @@
 #ifndef freight_list_sorter_h
 #define freight_list_sorter_h
 
-#include "utils/cbuffer_t.h"
-#include "halthandle_t.h"
-#include "simware.h"
-
 // same sorting for stations and vehicle/convoi freight ...
 
+#include "simtypes.h"
+
+template<class T> class slist_tpl;
+template<class T> class vector_tpl;
 class ware_t;
+class cbuffer_t;
 
 class freight_list_sorter_t
 {

@@ -8,8 +8,6 @@
 #ifndef tpl_binary_heap_tpl_h
 #define tpl_binary_heap_tpl_h
 
-#include <stdlib.h>
-
 #include "debug_helper.h"
 #include "../simmem.h"
 

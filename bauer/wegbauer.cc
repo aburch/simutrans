@@ -266,6 +266,9 @@ wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wtyp, co
 					&&  ribi_t::ist_gerade(ribi_typ(zv))
 					&&  (w_ribi&ribi_typ(zv))==0;
 	}
+	if(  !w  ) {
+		return true;
+	}
 	// nothing to cross here
 	return false;
 }
@@ -585,13 +588,11 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			if(!ok) {
 				return false;
 			}
-			if(str==NULL) {
-				ok = !to->hat_wege()  ||  check_crossing(zv,to,road_wt,sp);
-				if(!ok) {
-					const weg_t *sch=to->get_weg(track_wt);
-					if(sch  &&  sch->get_besch()->get_styp()==7) {
-						ok = true;
-					}
+			ok = !to->hat_wege()  ||  check_crossing(zv,to,road_wt,sp);
+			if(!ok) {
+				const weg_t *sch=to->get_weg(track_wt);
+				if(sch  &&  sch->get_besch()->get_styp()==7) {
+					ok = true;
 				}
 			}
 			if(ok) {
@@ -625,8 +626,8 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			}
 			// ok, regular construction here
 			if((bautyp&elevated_flag)==0) {
-				ok =	!fundament  &&  !to->ist_wasser()  &&
-				  ((sch  &&  check_owner(sch->get_besitzer(),sp))  ||  !to->hat_wege()  ||  (sch==NULL  &&  check_crossing(zv,to,track_wt,sp)))  &&
+				ok =	!fundament  &&  !to->ist_wasser()  &&  check_crossing(zv,to,track_wt,sp)  &&
+				  (!sch  ||  check_owner(sch->get_besitzer(),sp))  &&
 					check_for_leitung(zv,to);
 			}
 			if(ok) {
@@ -662,9 +663,9 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			}
 			if((bautyp&elevated_flag)==0) {
 				// classical monorail
-				ok =	!to->ist_wasser()  &&  !fundament  &&
-					((sch  &&  check_owner(sch->get_besitzer(),sp))  ||  !to->hat_wege()  ||  (sch==NULL  &&  check_crossing(zv,to,besch->get_wtyp(),sp)))
-					&&  check_for_leitung(zv,to)  && !to->get_depot();
+				ok =	!fundament  &&  !to->ist_wasser()  &&  check_crossing(zv,to,besch->get_wtyp(),sp)  &&
+				  (!sch  ||  check_owner(sch->get_besitzer(),sp))  &&
+					check_for_leitung(zv,to)  &&  !to->get_depot();
 				// check for end/start of bridge
 				if(to->get_weg_hang()!=to->get_grund_hang()  &&  (sch==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->get_ribi_unmasked()))) {
 					return false;
@@ -1877,7 +1878,7 @@ wegbauer_t::baue_tunnelboden()
 void
 wegbauer_t::baue_elevated()
 {
-	for(int i=0; i<=max_n; i++) {
+	for(  sint32 i=0;  i<=max_n;  i++  ) {
 
 		planquadrat_t* plan = welt->access(route[i].get_2d());
 		route[i].z = plan->get_kartenboden()->get_pos().z + Z_TILE_STEP;
@@ -1910,7 +1911,7 @@ wegbauer_t::baue_strasse()
 		sp->init_undo(road_wt,max_n);
 	}
 
-	for(int i=0; i<=max_n; i++) {
+	for(  sint32 i=0;  i<=max_n;  i++  ) {
 		if((i&3)==0) {
 			INT_CHECK( "wegbauer 1584" );
 		}
@@ -1969,13 +1970,12 @@ wegbauer_t::baue_strasse()
 void
 wegbauer_t::baue_schiene()
 {
-	int i;
 	if(max_n >= 1) {
 		// init undo
 		sp->init_undo((waytype_t)besch->get_wtyp(),max_n);
 
 		// built tracks
-		for(i=0; i<=max_n; i++) {
+		for(  sint32 i=0;  i<=max_n;  i++  ) {
 			int cost = 0;
 			grund_t* gr = welt->lookup(route[i]);
 			ribi_t::ribi ribi = calc_ribi(i);
@@ -2017,6 +2017,7 @@ wegbauer_t::baue_schiene()
 					ribi = ribi_t::doppelt(ribi);
 				}
 				cost = -gr->neuen_weg_bauen(sch, ribi, sp)-besch->get_preis();
+
 				// prissi: into UNDO-list, so wie can remove it later
 				sp->add_undo( position_bei(i) );
 			}
@@ -2037,12 +2038,15 @@ wegbauer_t::baue_schiene()
 void
 wegbauer_t::baue_leitung()
 {
-	int i;
-	for(i=0; i<=max_n; i++) {
-		grund_t* gr = welt->lookup(route[i]);
+	if(  max_n<=0  ) {
+		return;
+	}
 
-		// no undo
-		sp->init_undo(road_wt,0);
+	// no undo
+	sp->init_undo(powerline_wt,max_n);
+
+	for(  sint32 i=0;  i<=max_n;  i++  ) {
+		grund_t* gr = welt->lookup(route[i]);
 
 		leitung_t* lt = gr->get_leitung();
 		// ok, really no lt here ...
@@ -2054,6 +2058,9 @@ wegbauer_t::baue_leitung()
 			lt = new leitung_t( welt, route[i], sp );
 			spieler_t::accounting(sp, -leitung_besch->get_preis(), gr->get_pos().get_2d(), COST_CONSTRUCTION);
 			gr->obj_add(lt);
+
+			// prissi: into UNDO-list, so wie can remove it later
+			sp->add_undo( position_bei(i) );
 		}
 		else {
 			spieler_t::add_maintenance( lt->get_besitzer(),  -wegbauer_t::leitung_besch->get_wartung() );

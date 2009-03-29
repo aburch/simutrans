@@ -10,10 +10,11 @@
 #include "../simcolor.h"
 #include "../simwin.h"
 #include "../simskin.h"
-#include "../utils/simstring.h"
+#include "../besch/skin_besch.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
-#include "../besch/skin_besch.h"
+#include "../dings/label.h"
+#include "../utils/simstring.h"
 
 
 

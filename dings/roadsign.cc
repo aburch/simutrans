@@ -12,6 +12,7 @@
 #include "../simdings.h"
 #include "../simimg.h"
 #include "../player/simplay.h"
+#include "../simwerkz.h"
 #include "../simworld.h"
 
 #include "../besch/roadsign_besch.h"

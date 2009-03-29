@@ -9,10 +9,11 @@
 #define CITYLIST_STATS_T_H
 
 #include "../ifc/gui_komponente.h"
-#include "../simcity.h"
+#include "../tpl/vector_tpl.h"
 
 
 class karte_t;
+class stadt_t;
 
 
 namespace citylist {

@@ -9,7 +9,6 @@
 #define message_stats_t_h
 
 #include "../ifc/gui_komponente.h"
-#include "../simmesg.h"
 #include "../simimg.h"
 
 class karte_t;

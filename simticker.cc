@@ -6,6 +6,7 @@
  */
 
 #include <string.h>
+#include "dataobj/koord.h"
 #include "simdebug.h"
 #include "simticker.h"
 #include "simgraph.h"

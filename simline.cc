@@ -1,4 +1,5 @@
 #include "dataobj/translator.h"
+#include "dataobj/loadsave.h"
 #include "simtypes.h"
 #include "simline.h"
 #include "simhalt.h"
