@@ -236,7 +236,13 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 		if(gr2  &&  (gr2->get_typ()==grund_t::boden  ||  gr2->get_typ()==grund_t::monorailboden)) {
 			ribi_t::ribi ribi = ribi_t::keine;
 			if(wegtyp != powerline_wt) {
-				ribi = gr2->get_weg_ribi_unmasked(wegtyp);
+				if(  gr2->has_two_ways()  &&  !gr2->ist_uebergang()  ) {
+					// If road and tram, we have to check both ribis.
+					ribi = gr2->get_weg_nr(0)->get_ribi_unmasked() | gr2->get_weg_nr(1)->get_ribi_unmasked();
+				}
+				else {
+					ribi = gr2->get_weg_ribi_unmasked(wegtyp);
+				}
 			} else {
 				lt = dynamic_cast<leitung_t *> (gr2->suche_obj(ding_t::leitung));
 				if(lt) {
@@ -334,6 +340,21 @@ const char *brueckenbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, cons
 			powerbridge = true;
 		}
 	}
+	else {
+		if(  gr->has_two_ways()  &&  !gr->ist_uebergang()  ) {
+			// If road and tram, we have to check both ribis.
+			ribi = gr->get_weg_nr(0)->get_ribi_unmasked() | gr->get_weg_nr(1)->get_ribi_unmasked();
+
+			if(  besch->get_waytype()  !=  road_wt  ) {
+				// only road bridges allowed here.
+				ribi = 0;
+			}
+		}
+		else {
+			ribi = weg->get_ribi_unmasked();
+		}
+	}
+
 	if((!lt && !weg) || !ist_ende_ok(sp, gr)) {
 		DBG_MESSAGE("brueckenbauer_t::baue()", "no way %x found",besch->get_waytype());
 		return "A bridge must start on a way!";
@@ -347,30 +368,15 @@ const char *brueckenbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, cons
 		return "Bruecke muss an\neinfachem\nHang beginnen!\n";
 	}
 
-	if(powerbridge) {
-		if(gr->get_grund_hang() == hang_t::flach) {
-			if(!ribi_t::ist_einfach(ribi)) {
-				ribi = 0;
-			}
+	if(gr->get_grund_hang() == hang_t::flach) {
+		if(!ribi_t::ist_einfach(ribi)) {
+			ribi = 0;
 		}
-		else {
-			ribi = ribi_typ(gr->get_grund_hang());
-			if(lt->get_ribi() & ~ribi) {
-				ribi = 0;
-			}
-		}
-	} else {
-		if(gr->get_grund_hang() == hang_t::flach) {
-			ribi = weg->get_ribi_unmasked();
-			if(!ribi_t::ist_einfach(ribi)) {
-				ribi = 0;
-			}
-		}
-		else {
-			ribi = ribi_typ(gr->get_grund_hang());
-			if(weg->get_ribi_unmasked() & ~ribi) {
-				ribi = 0;
-			}
+	}
+	else {
+		ribi_t::ribi hang_ribi = ribi_typ(gr->get_grund_hang());
+		if(ribi & ~hang_ribi) {
+			ribi = 0;
 		}
 	}
 
