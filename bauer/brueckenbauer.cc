@@ -239,6 +239,10 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 				if(  gr2->has_two_ways()  &&  !gr2->ist_uebergang()  ) {
 					// If road and tram, we have to check both ribis.
 					ribi = gr2->get_weg_nr(0)->get_ribi_unmasked() | gr2->get_weg_nr(1)->get_ribi_unmasked();
+					if(  besch->get_waytype()  !=  road_wt  ) {
+						// only road bridges allowed here.
+						ribi = 0;
+					}
 				}
 				else {
 					ribi = gr2->get_weg_ribi_unmasked(wegtyp);
