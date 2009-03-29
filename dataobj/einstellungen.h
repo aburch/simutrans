@@ -190,6 +190,21 @@ private:
 	uint16 max_luxury_bonus_percent;
 	uint16 max_discomfort_penalty_percent;
 
+	uint16 catering_min_minutes;
+	uint16 catering_level1_minutes;
+	uint16 catering_level1_max_revenue;
+	uint16 catering_level2_minutes;
+	uint16 catering_level2_max_revenue;
+	uint16 catering_level3_minutes;
+	uint16 catering_level3_max_revenue;
+	uint16 catering_level4_minutes;
+	uint16 catering_level4_max_revenue;
+	uint16 catering_level5_minutes;
+	uint16 catering_level5_max_revenue;
+
+	uint16 tpo_min_minutes;
+	uint16 tpo_revenue;
+
 	//@author: jamespetts
 	// Obsolete vehicle maintenance cost increases
 	uint16 obsolete_running_cost_increase_percent;
@@ -442,6 +457,21 @@ public:
 	uint8 get_max_discomfort_penalty_differential() const { return max_discomfort_penalty_differential; }
 	float get_max_luxury_bonus() const { return (float)max_luxury_bonus_percent * 0.01; }
 	float get_max_discomfort_penalty() const { return (float) max_discomfort_penalty_percent * 0.01; }
+
+	uint16 get_catering_min_minutes() const { return catering_min_minutes; }
+	uint16 get_catering_level1_minutes() const { return catering_level1_minutes; }
+	uint16 get_catering_level1_max_revenue() const { return catering_level1_max_revenue; }
+	uint16 get_catering_level2_minutes() const { return catering_level2_minutes; }
+	uint16 get_catering_level2_max_revenue() const { return catering_level2_max_revenue; }
+	uint16 get_catering_level3_minutes() const { return catering_level3_minutes; }
+	uint16 get_catering_level3_max_revenue() const { return catering_level3_max_revenue; }
+	uint16 get_catering_level4_minutes() const { return catering_level4_minutes; }
+	uint16 get_catering_level4_max_revenue() const { return catering_level4_max_revenue; }
+	uint16 get_catering_level5_minutes() const { return catering_level5_minutes; }
+	uint16 get_catering_level5_max_revenue() const { return catering_level5_max_revenue; }
+	
+	uint16 get_tpo_min_minutes() const { return tpo_min_minutes; }
+	uint16 get_tpo_revenue() const { return tpo_revenue; }
 
 	uint16 get_obsolete_running_cost_increase_percent() const { return obsolete_running_cost_increase_percent; }
 	uint16 get_obsolete_running_cost_increase_phase_years() const { return obsolete_running_cost_increase_phase_years; }

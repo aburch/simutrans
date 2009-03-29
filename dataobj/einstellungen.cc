@@ -197,6 +197,21 @@ einstellungen_t::einstellungen_t() :
 	max_discomfort_penalty_differential = 200;
 	max_discomfort_penalty_percent = 95;
 
+	catering_min_minutes = 60;
+	catering_level1_minutes = 90;
+	catering_level1_max_revenue = 150;
+	catering_level2_minutes = 120;
+	catering_level2_max_revenue = 250;
+	catering_level3_minutes = 150;
+	catering_level3_max_revenue = 350;
+	catering_level4_minutes = 240;
+	catering_level4_max_revenue = 400;
+	catering_level5_minutes = 300;
+	catering_level5_max_revenue = 475;
+
+	tpo_min_minutes = 120;
+	tpo_revenue = 300;
+
 	// Obsolete vehicles running costs adjustment
 	obsolete_running_cost_increase_percent = 400; //Running costs will be this % of normal costs after vehicle has been obsolete
 	obsolete_running_cost_increase_phase_years = 20; //for this number of years.
@@ -556,6 +571,21 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				file->rdwr_byte(max_discomfort_penalty_differential, "");
 				file->rdwr_short(max_discomfort_penalty_percent, "");
 				file->rdwr_short(max_luxury_bonus_percent, "");
+
+				file->rdwr_short(catering_min_minutes, "");
+				file->rdwr_short(catering_level1_minutes, "");
+				file->rdwr_short(catering_level1_max_revenue, "");
+				file->rdwr_short(catering_level2_minutes, "");
+				file->rdwr_short(catering_level2_max_revenue, "");
+				file->rdwr_short(catering_level3_minutes, "");
+				file->rdwr_short(catering_level3_max_revenue, "");
+				file->rdwr_short(catering_level4_minutes, "");
+				file->rdwr_short(catering_level4_max_revenue, "");
+				file->rdwr_short(catering_level5_minutes, "");
+				file->rdwr_short(catering_level5_max_revenue, "");
+
+				file->rdwr_short(tpo_min_minutes, "");
+				file->rdwr_short(tpo_revenue, "");
 			}
 
 			file->rdwr_short(obsolete_running_cost_increase_percent, "");
@@ -824,6 +854,21 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	max_discomfort_penalty_differential = contents.get_int("max_discomfort_penalty_differential", max_discomfort_penalty_differential);
 	max_luxury_bonus_percent = contents.get_int("max_luxury_bonus_percent", max_luxury_bonus_percent);
 	max_discomfort_penalty_percent = contents.get_int("max_discomfort_penalty_percent", max_discomfort_penalty_percent);
+
+	catering_min_minutes = contents.get_int("catering_min_minutes", catering_min_minutes);
+	catering_level1_minutes = contents.get_int("catering_level1_minutes", catering_level1_minutes);
+	catering_level1_max_revenue = contents.get_int("catering_level1_max_revenue", catering_level1_max_revenue);
+	catering_level2_minutes = contents.get_int("catering_level2_minutes", catering_level2_minutes);
+	catering_level2_max_revenue = contents.get_int("catering_level2_max_revenue", catering_level2_max_revenue);
+	catering_level3_minutes = contents.get_int("catering_level3_minutes", catering_level3_minutes);
+	catering_level3_max_revenue = contents.get_int("catering_level3_max_revenue", catering_level3_max_revenue);
+	catering_level4_minutes = contents.get_int("catering_level4_minutes", catering_level4_minutes);
+	catering_level4_max_revenue = contents.get_int("catering_level4_max_revenue", catering_level4_max_revenue);
+	catering_level5_minutes = contents.get_int("catering_level5_minutes", catering_level5_minutes);
+	catering_level5_max_revenue = contents.get_int("catering_level5_max_revenue", catering_level5_max_revenue);
+
+	tpo_min_minutes = contents.get_int("tpo_min_minutes", tpo_min_minutes);
+	tpo_revenue = contents.get_int("tpo_revenue", tpo_revenue);
 
 	// Obsolete vehicles' running cost increase
 	obsolete_running_cost_increase_percent = contents.get_int("obsolete_running_cost_increase_percent", obsolete_running_cost_increase_percent);
