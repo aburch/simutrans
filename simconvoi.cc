@@ -2837,13 +2837,30 @@ void convoi_t::laden() //"load" (Babelfish)
 void convoi_t::calc_revenue(ware_t& ware)
 {
 	float average_speed;
-	if(financial_history[1][CONVOI_AVERAGE_SPEED] < 1)
+	
+	if(!line.is_bound())
 	{
-		average_speed = financial_history[0][CONVOI_AVERAGE_SPEED];
+		// No line - must use convoy
+		if(financial_history[1][CONVOI_AVERAGE_SPEED] < 1)
+		{
+			average_speed = financial_history[0][CONVOI_AVERAGE_SPEED];
+		}
+		else
+		{	
+			average_speed = financial_history[1][CONVOI_AVERAGE_SPEED];
+		}
 	}
+
 	else
-	{	
-		average_speed = financial_history[1][CONVOI_AVERAGE_SPEED];
+	{
+		if(line->get_finance_history(1, LINE_AVERAGE_SPEED) < 1)
+		{
+			average_speed = line->get_finance_history(0, LINE_AVERAGE_SPEED);
+		}
+		else
+		{	
+			average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED);
+		}
 	}
 
 	// Cannot not charge for journey if the journey distance is more than a certain proportion of the straight line distance.
@@ -2881,7 +2898,32 @@ void convoi_t::calc_revenue(ware_t& ware)
 	{
 		//Passengers care about their comfort
 		const uint8 tolerable_comfort = calc_tolerable_comfort(journey_minutes);
-		const uint8 comfort = get_comfort();
+		uint8 comfort = 100;
+		if(line.is_bound())
+		{
+			if(line->get_finance_history(1, LINE_COMFORT) < 1)
+			{
+				comfort = line->get_finance_history(0, LINE_COMFORT);
+			}
+			else
+			{	
+				comfort = line->get_finance_history(1, LINE_COMFORT);
+			}
+		}
+		else
+		{
+			// No line - must use convoy
+			if(financial_history[1][CONVOI_COMFORT] < 1)
+			{
+				comfort = financial_history[0][CONVOI_COMFORT];
+			}
+			else
+			{	
+				comfort = financial_history[1][CONVOI_COMFORT];
+			}
+		}
+
+		
 		if(comfort > tolerable_comfort)
 		{
 			// Apply luxury bonus
@@ -3005,7 +3047,6 @@ void convoi_t::calc_revenue(ware_t& ware)
 				break;
 
 			case 5:
-			case_5:
 			default:
 				if(journey_minutes < welt->get_einstellungen()->get_catering_level4_minutes())
 				{

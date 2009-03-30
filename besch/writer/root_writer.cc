@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 #include "../../utils/searchfolder.h"
