@@ -146,7 +146,7 @@ private:
 	* Current map
 	* @author Hj. Malthaner
 	*/
-	karte_t   *welt;
+	static karte_t *welt;
 
  	/**
 	* the convoi is being withdrawn from service
@@ -765,6 +765,9 @@ public:
 
 	/* the current state of the convoi */
 	uint8 get_status_color() const;
+
+	// returns tiles needed for this convoi
+	uint16 get_tile_length() const;
 
 	bool has_obsolete_vehicles() const { return has_obsolete; }
 

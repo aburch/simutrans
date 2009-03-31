@@ -1150,7 +1150,6 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 	const convoihandle_t cnv = depot->get_convoi(icnv);
 	if(cnv.is_bound()) {
 		if(cnv->get_vehikel_anzahl() > 0) {
-			int length=0;
 			uint32 total_power=0;
 			uint32 total_max_weight=0;
 			uint32 total_min_weight=0;
@@ -1159,7 +1158,6 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 			for( unsigned i=0;  i<cnv->get_vehikel_anzahl();  i++) {
 				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
 
-				length += besch->get_length();
 				total_power += besch->get_leistung()*besch->get_gear()/64;
 				total_min_weight += besch->get_gewicht();
 				total_max_weight += besch->get_gewicht();
@@ -1181,7 +1179,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 			min_speed = min(speed_to_kmh(cnv->get_min_top_speed()), (uint32) sqrt((((double)total_power/total_max_weight)-1)*2500));
 			sprintf(txt_convoi_count, "%s %d (%s %i)",
 				translator::translate("Fahrzeuge:"), cnv->get_vehikel_anzahl(),
-				translator::translate("Station tiles:"), (length+TILE_STEPS-1)/TILE_STEPS );
+				translator::translate("Station tiles:"), cnv->get_tile_length() );
 			sprintf(txt_convoi_speed,  "%s %d(%d)km/h", translator::translate("Max. speed:"), min_speed, max_speed );
 			sprintf(txt_convoi_value, "%s %ld$", translator::translate("Restwert:"), (long)(cnv->calc_restwert()/100) );
 			// just recheck if schedules match

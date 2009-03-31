@@ -211,7 +211,7 @@ route_t::find_route(karte_t *welt,
 //DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->get_pos().x,gr->get_pos().y,gr->get_pos().z,tmp->f);
 		// already there
 		if(fahr->ist_ziel(gr,tmp->parent==NULL?NULL:tmp->parent->gr)) {
-			// we added a target to the closed list: we are finished
+			// we added a target to the closed list: check for length
 			break;
 		}
 
@@ -500,7 +500,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			tmp = tmp->parent;
 		}
 		ok = true;
-    }
+	}
 
 	RELEASE_NODE();
 

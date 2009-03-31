@@ -1843,12 +1843,31 @@ automobil_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
 
 
 // this routine is called by find_route, to determined if we reached a destination
-bool automobil_t::ist_ziel(const grund_t *gr, const grund_t *) const
+bool automobil_t::ist_ziel(const grund_t *gr, const grund_t *prev_gr) const
 {
 	//  just check, if we reached a free stop position of this halt
 	if(gr->is_halt()  &&  gr->get_halt()==target_halt  &&  target_halt->is_reservable(gr,cnv->self)) {
+		// now we must check the precessor => try to advance as much as possible
+		if(prev_gr!=NULL) {
+			const koord dir=gr->get_pos().get_2d()-prev_gr->get_pos().get_2d();
+			grund_t *to;
+			if(!gr->get_neighbour(to,road_wt,dir)  ||  !(to->get_halt()==target_halt)  ||  !target_halt->is_reservable(to,cnv->self)) {
+				// end of stop: Is it long enough?
+				uint16 tiles = cnv->get_tile_length();
+				while(  tiles>1  ) {
+					if(  !gr->get_neighbour(to,get_waytype(),-dir)  ||  !(to->get_halt()==target_halt)  ) {
+						return false;
+					}
+					gr = to;
+					tiles --;
+				}
+				return true;
+			}
+			// can advance more
+			return false;
+		}
 //DBG_MESSAGE("is_target()","success at %i,%i",gr->get_pos().x,gr->get_pos().y);
-		return true;
+//		return true;
 	}
 	return false;
 }
@@ -2336,6 +2355,15 @@ waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 				const koord dir=gr->get_pos().get_2d()-prev_gr->get_pos().get_2d();
 				grund_t *to;
 				if(!gr->get_neighbour(to,get_waytype(),dir)  ||  !(to->get_halt()==target_halt)) {
+					// end of stop: Is it long enough?
+					uint16 tiles = cnv->get_tile_length();
+					while(  tiles>1  ) {
+						if(  !gr->get_neighbour(to,get_waytype(),-dir)  ||  !(to->get_halt()==target_halt)  ) {
+							return false;
+						}
+						gr = to;
+						tiles --;
+					}
 					return true;
 				}
 			}
@@ -2501,7 +2529,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 #ifdef MAX_CHOOSE_BLOCK_TILES
 				if(!target_rt.find_route( welt, rt->position_bei(next_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, MAX_CHOOSE_BLOCK_TILES )) {
 #else
-				if(!target_rt.find_route( welt, rt->position_bei(next_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_groesse_x()+welt->get_groesse_y() )) {
+				if(!target_rt.find_route( welt, rt->position_bei(next_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, /*welt->get_groesse_x()+welt->get_groesse_y()*/50 )) {
 #endif
 					// nothing empty or not route with less than MAX_CHOOSE_BLOCK_TILES tiles
 					target_halt = halthandle_t();
