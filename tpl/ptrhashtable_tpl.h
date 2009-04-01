@@ -6,7 +6,7 @@
 #define ptrhashtable_tpl_h
 
 #include "hashtable_tpl.h"
-
+#include <stdlib.h>
 
 /*
  * Define the key characteristica for hashing pointers. For hashing the

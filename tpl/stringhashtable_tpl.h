@@ -6,7 +6,7 @@
 #define stringhashtable_tpl_h
 
 #include "hashtable_tpl.h"
-
+#include <string.h>
 
 /*
  * Define the key characteristica for hashing "const char *".

@@ -254,7 +254,10 @@ bool
 wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wtyp, const spieler_t *sp) const
 {
 	const weg_t *w = bd->get_weg_nr(0);
-	if(w  &&  w->get_waytype()==wtyp) {
+	if(  w  &&  w->get_waytype() == wtyp  ) {
+		if(  ribi_t::doppelt(w->get_ribi_unmasked()) == ribi_t::doppelt(ribi_typ(zv))  ) {
+			return true;
+		}
 		w = bd->get_weg_nr(1);
 	}
 	if(w  &&  !bd->get_halt().is_bound()  &&  check_owner(w->get_besitzer(),sp)  &&  crossing_logic_t::get_crossing(wtyp,w->get_waytype())!=NULL) {
