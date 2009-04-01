@@ -2923,7 +2923,6 @@ void convoi_t::calc_revenue(ware_t& ware)
 			}
 		}
 
-		
 		if(comfort > tolerable_comfort)
 		{
 			// Apply luxury bonus

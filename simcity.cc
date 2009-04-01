@@ -1833,13 +1833,13 @@ void stadt_t::step_passagiere()
 				halthandle_t best_destination[3];
 				uint8 best_journey_steps = 255;
 
-				for(int i = start_halts.get_count() - 1; i >= 0; i--)
+				ITERATE(start_halts,i)
 				{
 					if(start_halts.get_count() < 1)
 					{
 						break;
 					}
-					halthandle_t current_halt = *start_halts.get_element(i);
+					halthandle_t current_halt = *start_halts[i];
 					route_result = current_halt->suche_route( pax, will_return ? &return_zwischenziel : NULL, welt->get_einstellungen()->is_no_routing_over_overcrowding() );
 					if(!pax.get_ziel().is_bound())
 					{
@@ -1851,7 +1851,7 @@ void stadt_t::step_passagiere()
 					halthandle_t tmp[3];
 					tmp[0] = pax.get_ziel();
 					tmp[1] = pax.get_zwischenziel();
-					tmp[2] = *start_halts.get_element(i);
+					tmp[2] = current_halt;
 					// Will fail if there is another journey with the same number of steps, 
 					// but this does not matter, since they both count as the same.
 					uint8 tmp2 = pax.get_journey_steps();

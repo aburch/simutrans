@@ -1005,32 +1005,39 @@ int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_ov
 	const halthandle_t *halt_list = plan->get_haltlist();
 	// but we can only use a subset of these
 	vector_tpl<halthandle_t> ziel_list(plan->get_haltlist_count());
-	for( unsigned h=0;  h<plan->get_haltlist_count();  h++ ) {
+	for( unsigned h=0;  h<plan->get_haltlist_count();  h++ ) 
+	{
 		halthandle_t halt = halt_list[h];
-		if(  halt->is_enabled(warentyp)  ) {
+		if(  halt->is_enabled(warentyp)  ) 
+		{
 			ziel_list.append(halt);
 		}
-		else {
+		else 
+		{
 //DBG_MESSAGE("suche_route()","halt %s near (%i,%i) does not accept  %s!",halt->get_name(),ziel.x,ziel.y,warentyp->get_name());
 		}
 	}
 
-	if(  ziel_list.empty()  ) {
+	if(  ziel_list.empty()  ) 
+	{
 		//no target station found
 		ware.set_ziel( halthandle_t() );
 		ware.set_zwischenziel( halthandle_t() );
 		// printf("keine route zu %d,%d nach %d steps\n", ziel.x, ziel.y, step);
-		if(  next_to_ziel != NULL  ) {
+		if(  next_to_ziel != NULL  ) 
+		{
 			*next_to_ziel = koord::invalid;
 		}
 		return NO_ROUTE;
 	}
 
 	// check, if the shortest connection is not right to us ...
-	if(  ziel_list.is_contained(self)  ) {
+	if(  ziel_list.is_contained(self)  ) 
+	{
 		ware.set_ziel( self );
 		ware.set_zwischenziel( halthandle_t() );
-		if(  next_to_ziel != NULL  ) {
+		if(  next_to_ziel != NULL  ) 
+		{
 			*next_to_ziel = koord::invalid;
 		}
 	}
@@ -1042,9 +1049,11 @@ int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_ov
 	/* Need to clean up?
 	 * Otherwise we just incease the mark => less time for cleanups
 	 */
-	if(  current_mark == 0xFFFFFFFFu  ) {
+	if(  current_mark == 0xFFFFFFFFu  )
+	{
 		slist_iterator_tpl<halthandle_t > halt_iter (alle_haltestellen);
-		while(  halt_iter.next()  ) {
+		while(  halt_iter.next()  ) 
+		{
 			halt_iter.get_current()->marke = 0;
 		}
 		current_mark = 0;
@@ -1053,6 +1062,7 @@ int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_ov
 
 	// die Berechnung erfolgt durch eine Breitensuche fuer Graphen
 	// Warteschlange fuer Breitensuche
+	// "The calculation is performed by a wide search for graphs queued for Beam Search" (Google)
 	const uint16 max_transfers = welt->get_einstellungen()->get_max_transfers();
 #ifdef USE_ROUTE_SLIST_TPL
 	slist_tpl<HNode *> queue;
@@ -1064,11 +1074,11 @@ int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_ov
 	HNode *tmp;
 
 	nodes[0].halt = self;
-	nodes[0].link = 0;
-	nodes[0].depth = 0;
+	nodes[0].link = NULL;
+	nodes[0].depth = NULL;
 
 #ifdef USE_ROUTE_SLIST_TPL
-	queue.insert( &nodes[0] );	// init queue mit erstem feld
+	queue.insert( &nodes[0] );	// init queue mit erstem feld "with the first field" (Google)
 #endif
 	self->marke = current_mark;
 
@@ -1084,21 +1094,24 @@ int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_ov
 		const halthandle_t halt = tmp->halt;
 
 		// we end this loop always with this jump (if sucessful)
-		if(ziel_list.is_contained(halt)) {
+		if(ziel_list.is_contained(halt)) 
+		{
 			goto found;
 		}
 
 		// Hajo: check for max transfers -> don't add more stations
 		//      to queue if the limit is reached
-		if(tmp->depth < max_transfers  &&  step<64000u  ) {
+		if(tmp->depth < max_transfers  &&  step<64000u  ) 
+		{
 			const vector_tpl<halthandle_t> *wz = halt->get_warenziele(ware_catg_index);
-			for(  uint32 i=0;  i<wz->get_count();  i++  ) {
+			for(  uint32 i=0;  i<wz->get_count();  i++  ) 
+			{
 
 				// since these are precalculated, they should be always pointing to a valid ground
 				// (if not, we were just under construction, and will be fine after 16 steps)
 				const halthandle_t &tmp_halt = (*wz)[i];
-				if(tmp_halt.is_bound() &&  tmp_halt->marke!=current_mark) {
-
+				if(tmp_halt.is_bound() &&  tmp_halt->marke!=current_mark) 
+				{
 					HNode *node = &nodes[step++];
 					node->halt = tmp_halt;
 					node->depth = tmp->depth + 1;
@@ -1124,27 +1137,36 @@ int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_ov
 
 found:
 
-	if(tmp) {
+	if(tmp) 
+	{
 		// ziel gefunden
+		// "target found"  (Google)
 		ware.set_ziel( tmp->halt );
 
-		if(tmp->link == NULL) {
+		if(tmp->link == NULL) 
+		{
 			// kein zwischenziel
+			// "no between target" (Google)
 			ware.set_zwischenziel(ware.get_ziel());
-			if(next_to_ziel!=NULL) {
+			if(next_to_ziel!=NULL) 
+			{
 				// for reverse route the next hop, but not hop => enter start
 				*next_to_ziel = self->get_basis_pos();
 			}
 		}
-		else {
-			if(next_to_ziel!=NULL) {
+		else 
+		{
+			if(next_to_ziel!=NULL) 
+			{
 				// for reverse route the next hop
 				*next_to_ziel = tmp->link->halt->get_basis_pos();
 			}
 			// find the intermediate stops
-			while(tmp->link->link) {
+			while(tmp->link->link) 
+			{
 				tmp = tmp->link;
-				if(  avoid_overcrowding  &&  tmp->halt->is_overcrowded(ware_catg_index)  ) {
+				if(  avoid_overcrowding  &&  tmp->halt->is_overcrowded(ware_catg_index)  ) 
+				{
 					return ROUTE_OVERCROWDED;
 				}
 			}
@@ -1152,7 +1174,8 @@ found:
 		}
 		return ROUTE_OK;
 	}
-	else {
+	else 
+	{
 		// no suitable target station found
 		ware.set_ziel( halthandle_t() );
 		ware.set_zwischenziel( halthandle_t() );

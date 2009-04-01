@@ -188,7 +188,6 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 	}
 	pax_destinations_last_change =  current_pax_destinations;
 
-	//TODO: Check whether this needs changing given that max_train_length has now increased.
 	display_array_wh(pos.x + 140, pos.y + 24, PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE, pax_dest_old);
 	display_array_wh(pos.x + 140 + PAX_DESTINATIONS_SIZE + 4, pos.y + 24, PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE, pax_dest_new);
 }
