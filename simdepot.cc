@@ -530,12 +530,6 @@ sint32 depot_t::calc_restwert(const vehikel_besch_t *veh_type)
 bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 {
 	waytype_t wt=cnv->get_vehikel(0)->get_waytype();
-	uint32 tiles=0;
-	for(uint8 i=0;  i<cnv->get_vehikel_anzahl();  i++) {
-		tiles += cnv->get_vehikel(i)->get_besch()->get_length();
-	}
-	tiles = (tiles+TILE_STEPS-1)/TILE_STEPS;
-
 	schiene_t* sch0 = (schiene_t *)welt->lookup(get_pos())->get_weg(wt);
 	if(sch0==NULL) {
 		// no rail here???
@@ -550,6 +544,7 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 	// reserve the next segments of the train
 	route_t *route=cnv->get_route();
 	bool success = true;
+	uint16 tiles = cnv->get_tile_length();
 	uint32 i;
 	for(  i=0;  success  &&  i<tiles  &&  i<=route->get_max_n();  i++  ) {
 		schiene_t * sch1 = (schiene_t *) welt->lookup( route->position_bei(i))->get_weg(wt);

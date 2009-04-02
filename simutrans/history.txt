@@ -8,6 +8,7 @@
 	CHANGE: convoi, station and line handles autoextent their capacity
 	FIX: chanhing schedule bz stop mover did not worked on open schedule windows
 	CHANGE: climate dialoge now completely gui_numberinput_t
+	CHANGE: convois will only choose stops that can fit their entire length
 
 
 

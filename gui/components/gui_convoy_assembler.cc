@@ -442,7 +442,6 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 	*txt_convoi_count = '\0';
 	*txt_convoi_speed = '\0';
 	if (vehicles.get_count()>0) {
-		int length=0;
 		uint32 total_power=0;
 		uint32 total_max_weight=0;
 		uint32 total_min_weight=0;
@@ -452,7 +451,6 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 		for( unsigned i=0;  i<vehicles.get_count();  i++) {
 			const vehikel_besch_t *besch = vehicles[i];
 
-			length += besch->get_length();
 			total_power += besch->get_leistung()*besch->get_gear()/64;
 			total_min_weight += besch->get_gewicht();
 			total_max_weight += besch->get_gewicht();
@@ -474,9 +472,18 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 		}
 		max_speed = min(min_top_speed, (uint32) sqrt((((double)total_power/total_min_weight)-1)*2500));
 		min_speed = min(min_top_speed, (uint32) sqrt((((double)total_power/total_max_weight)-1)*2500));
+		uint8 tile_length;
+		if(depot_frame != NULL)
+		{
+			tile_length = depot_frame->get_convoy()->get_tile_length();
+		}
+		else
+		{
+			tile_length = replace_frame->get_convoy()->get_tile_length();
+		}
 		sprintf(txt_convoi_count, "%s %d (%s %i)",
 			translator::translate("Fahrzeuge:"), vehicles.get_count(),
-			translator::translate("Station tiles:"), (length+TILE_STEPS-1)/TILE_STEPS );
+			translator::translate("Station tiles:"), tile_length );
 			sprintf(txt_convoi_speed,  "%s %d(%d)km/h", translator::translate("Max. speed:"), min_speed, max_speed );
 	}
 

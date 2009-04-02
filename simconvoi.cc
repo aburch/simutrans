@@ -66,6 +66,10 @@
 
 
 
+karte_t *convoi_t::welt = NULL;
+
+
+
 /*
  * Debugging helper - translate state value to human readable name
  * @author Hj- Malthaner
@@ -3724,6 +3728,17 @@ bool convoi_t::has_no_cargo() const
 	}
 	return true;
 }
+
+
+// returns tiles needed for this convoi
+uint16 convoi_t::get_tile_length() const {
+	uint16 tiles=0;
+	for(uint8 i=0;  i<anz_vehikel;  i++) {
+		tiles += fahr[i]->get_besch()->get_length();
+	}
+	return (tiles+16-1)/16;
+}
+
 
 
 /**
