@@ -33,6 +33,7 @@ ware_t::ware_t() : ziel(), zwischenziel(), zielpos(-1, -1)
 	index = 0;
 	accumulated_distance = 0;
 	journey_steps = 0;
+	arrival_time = 0;
 }
 
 
@@ -43,6 +44,7 @@ ware_t::ware_t(const ware_besch_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -
 	index = wtyp->get_index();
 	accumulated_distance = 0;
 	journey_steps = 0;
+	arrival_time = 0;
 }
 
 // Constructor for new revenue system: packet of cargo keeps track of its origin.
@@ -54,6 +56,7 @@ ware_t::ware_t(const ware_besch_t *wtyp, halthandle_t o) : ziel(), zwischenziel(
 	origin = o;
 	accumulated_distance = 0;
 	journey_steps = 0;
+	arrival_time = 0;
 }
 
 
@@ -165,11 +168,13 @@ ware_t::rdwr(karte_t *welt,loadsave_t *file)
 	{
 		file->rdwr_long(accumulated_distance, "");
 		file->rdwr_byte(journey_steps, "");
+		file->rdwr_longlong(arrival_time, "");
 	}
 	else
 	{
 		accumulated_distance = 0;
 		journey_steps = 0;
+		arrival_time = 0;
 	}
 }
 

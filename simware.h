@@ -50,6 +50,7 @@ private:
 
 	//@author: jamespetts
 	//The number of remaining steps on this packet's journey.
+	//TODO: Remove this variable when the new system is implemented.
 	uint8 journey_steps;
 
 	// @author: jamespetts
@@ -135,6 +136,10 @@ public:
 	inline bool same_destination(const ware_t &w) const {
 		return index==w.get_index()  &&  ziel==w.get_ziel()  &&  (index<2  ||  zielpos==w.get_zielpos());
 	}
+
+	// The time at which this packet arrived at the current station
+	// @author: jamespetts
+	sint64 arrival_time;
 };
 
 #endif

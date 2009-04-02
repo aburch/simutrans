@@ -1810,7 +1810,8 @@ void stadt_t::step_passagiere()
 				}
 
 				// check, if they can walk there?
-				if (can_walk_ziel) {
+				if (can_walk_ziel) 
+				{
 					// so we have happy passengers
 					start_halt->add_pax_happy(pax_left_to_do);
 					merke_passagier_ziel(destinations[0].location, COL_YELLOW);
@@ -1872,6 +1873,7 @@ void stadt_t::step_passagiere()
 					pax.set_ziel(best_destination[0]);
 					pax.set_zwischenziel(best_destination[1]);
 					pax.set_journey_steps(best_journey_steps);
+					pax.arrival_time = welt->get_zeit_ms();
 					start_halt = best_destination[2];
 					pax.set_origin(start_halt);
 
@@ -2086,6 +2088,7 @@ void stadt_t::step_passagiere()
 							return_pax.set_ziel(start_halt);
 							return_pax.set_zwischenziel(welt->lookup(return_zwischenziel)->get_halt());
 							return_pax.set_journey_steps(best_journey_steps);
+							return_pax.arrival_time = welt->get_zeit_ms();
 
 							ret_halt->starte_mit_route(return_pax);
 							ret_halt->add_pax_happy(pax_left_to_do);

@@ -1084,7 +1084,8 @@ int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_ov
 
 	const uint32 max_hops = welt->get_einstellungen()->get_max_hops();
 	// here the normal routing with overcrowded stops is done
-	do {
+	do 
+	{
 #ifdef USE_ROUTE_SLIST_TPL
 		tmp = queue.remove_first();
 #else
@@ -1106,7 +1107,6 @@ int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_ov
 			const vector_tpl<halthandle_t> *wz = halt->get_warenziele(ware_catg_index);
 			for(  uint32 i=0;  i<wz->get_count();  i++  ) 
 			{
-
 				// since these are precalculated, they should be always pointing to a valid ground
 				// (if not, we were just under construction, and will be fine after 16 steps)
 				const halthandle_t &tmp_halt = (*wz)[i];
@@ -1456,14 +1456,21 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 			*/
 
 			// NEW SYSTEM
-			// Checks adds a great deal more checks.
+			// Adds more checks.
 			// @author: jamespetts
 			if(ware.can_merge_with(tmp))
 			{
-				//Note: the below if statement is part of the new system of avoiding overcrowded routes.
-				if(  ware.get_zwischenziel().is_bound()  &&  ware.get_zwischenziel()!=self  ) {
+				if(  ware.get_zwischenziel().is_bound()  &&  ware.get_zwischenziel()!=self  ) 
+				{
 					// update route if there is newer route
 					tmp.set_zwischenziel( ware.get_zwischenziel() );
+				}
+
+				// Merge waiting times.
+				if(tmp.menge > 0 && ware.menge > 0)
+				{
+					//The waiting time for ware will always be zero.
+					tmp.arrival_time = welt->get_zeit_ms() - ((welt->get_zeit_ms() - tmp.arrival_time) * tmp.menge) / (tmp.menge + ware.menge);
 				}
 
 				tmp.menge += ware.menge;
@@ -1481,17 +1488,23 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 // take care of all allocation neccessary
 void haltestelle_t::add_ware_to_halt(ware_t ware)
 {
+	//@author: jamespetts
+	ware.arrival_time = welt->get_zeit_ms();
+
 	// now we have to add the ware to the stop
 	vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
-	if(warray==NULL) {
+	if(warray==NULL) 
+	{
 		// this type was not stored here before ...
 		warray = new vector_tpl<ware_t>(4);
 		waren[ware.get_besch()->get_catg_index()] = warray;
 	}
 	// the ware will be put into the first entry with menge==0
 	resort_freight_info = true;
-	for(unsigned i=0;  i<warray->get_count();  i++ ) {
-		if((*warray)[i].menge==0) {
+	ITERATE_PTR(warray,i)
+	{
+		if((*warray)[i].menge==0) 
+		{
 			(*warray)[i] = ware;
 			return;
 		}
@@ -1549,23 +1562,29 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 uint32 haltestelle_t::liefere_an(ware_t ware)
 {
 	// no valid next stops?
-	if(!ware.get_ziel().is_bound()  ||  !ware.get_zwischenziel().is_bound()) {
+	if(!ware.get_ziel().is_bound()  ||  !ware.get_zwischenziel().is_bound()) 
+	{
 		// write a log entry and discard the goods
 dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer a route to their destination!", ware.menge, translator::translate(ware.get_name()), get_name() );
 		return ware.menge;
 	}
 
 	// did we arrived?
-	if(welt->lookup(ware.get_zielpos())->is_connected(self)) {
-		if(ware.is_freight()) {
+	if(welt->lookup(ware.get_zielpos())->is_connected(self)) 
+	{
+		if(ware.is_freight()) 
+		{
 			// muss an fabrik geliefert werden
 			liefere_an_fabrik(ware);
 		}
-		else if(ware.get_besch()==warenbauer_t::passagiere) {
+		else if(ware.get_besch()==warenbauer_t::passagiere) 
+		{
 			// arriving passenger may create pedestrians
-			if(welt->get_einstellungen()->get_show_pax()) {
+			if(welt->get_einstellungen()->get_show_pax())
+			{
 				int menge = ware.menge;
-				for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); menge > 0 && i != end; ++i) {
+				for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); menge > 0 && i != end; ++i)
+				{
 					grund_t* gr = i->grund;
 					menge = erzeuge_fussgaenger(welt, gr->get_pos(), menge);
 				}
@@ -1576,12 +1595,14 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 
 	// do we have already something going in this direction here?
-	if(  vereinige_waren(ware)  ) {
+	if(  vereinige_waren(ware)  ) 
+	{
 		return ware.menge;
 	}
 
 	// not near enough => we need to do a rerouting
-	if(  suche_route( ware, NULL, false )==NO_ROUTE  ) {
+	if(  suche_route( ware, NULL, false )==NO_ROUTE  ) 
+	{
 		// target no longer there => delete
 
 		INT_CHECK("simhalt 1364");
@@ -1591,7 +1612,8 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 #if 1
 	// passt das zu bereits wartender ware ?
-	if(vereinige_waren(ware)) {
+	if(vereinige_waren(ware)) 
+	{
 		// dann sind wir schon fertig;
 		return ware.menge;
 	}
@@ -2084,19 +2106,25 @@ void haltestelle_t::laden_abschliessen()
 	}
 
 	// fix good destination coordinates
-	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
+	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) 
+	{
 		if(waren[i]) {
 			vector_tpl<ware_t> * warray = waren[i];
-			for(unsigned j=0; j<warray->get_count(); j++) {
+			for(unsigned j=0; j<warray->get_count(); j++) 
+			{
 				(*warray)[j].laden_abschliessen(welt);
 			}
 			// merge identical entries (should only happen with old games)
-			for(unsigned j=0; j<warray->get_count(); j++) {
-				if(  (*warray)[j].menge==0  ) {
+			for(unsigned j=0; j<warray->get_count(); j++)
+			{
+				if(  (*warray)[j].menge==0  ) 
+				{
 					continue;
 				}
-				for(unsigned k=j+1; k<warray->get_count(); k++) {
-					if(  (*warray)[k].menge>0  &&  (*warray)[j].same_destination( (*warray)[k] )  ) {
+				for(unsigned k=j+1; k<warray->get_count(); k++) 
+				{
+					if(  (*warray)[k].menge > 0  &&  (*warray)[j].can_merge_with( (*warray)[k] )  ) 
+					{
 						(*warray)[j].menge += (*warray)[k].menge;
 						(*warray)[k].menge = 0;
 					}

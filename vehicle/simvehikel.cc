@@ -1683,7 +1683,6 @@ vehikel_t::rauche()
 		if(cnv->get_catering_level(ware.get_besch()->get_catg_index()) > 0)
 		{
 			float catering_bonus = 1;
-			//TODO: Add code for calculating catering bonus
 			value *= catering_bonus;
 		}
 

@@ -1076,6 +1076,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				ware_t ware(ausgang[produkt].get_typ(), halt);
 				ware.menge = menge;
 				ware.set_zielpos( lieferziel );
+				ware.arrival_time = welt->get_zeit_ms();
 
 				unsigned w;
 				// find the index in the target factory
@@ -1154,6 +1155,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				if(amount > most_waiting.menge) {
 					most_waiting.set_zielpos( lieferziele[n] );
 					most_waiting.menge = amount;
+					most_waiting.arrival_time = welt->get_zeit_ms();
 				}
 			}
 
