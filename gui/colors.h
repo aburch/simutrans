@@ -3,6 +3,7 @@
 
 #include "gui_frame.h"
 #include "components/gui_button.h"
+#include "components/gui_numberinput.h"
 
 /**
  * Menü zur Änderung der Anzeigeeinstellungen.
@@ -12,7 +13,8 @@ class color_gui_t : public gui_frame_t, private action_listener_t
 {
 private:
 	karte_t *welt;
-	button_t buttons[20];
+	button_t buttons[21];
+	gui_numberinput_t brightness, scrollspeed, traffic_density;
 
 public:
     color_gui_t(karte_t *welt);

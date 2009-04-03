@@ -5,6 +5,8 @@
  * (see licence.txt)
  */
 
+#include "components/list_button.h"
+
 #include "colors.h"
 
 #include "../simdebug.h"
@@ -60,9 +62,6 @@
 
 // x coordinates
 #define RIGHT_WIDTH (220)
-#define ARR_LEFT (125)
-#define ARR_RIGHT (150)
-#define NUMBER (148)
 
 
 
@@ -72,25 +71,28 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	this->welt = welt;
 
 	// brightness
-	buttons[0].set_pos( koord(ARR_LEFT,BRIGHTNESS) );
-	buttons[0].set_typ(button_t::repeatarrowleft);
-
-	buttons[1].set_pos( koord(ARR_RIGHT,BRIGHTNESS) );
-	buttons[1].set_typ(button_t::repeatarrowright);
+	brightness.set_pos( koord(RIGHT_WIDTH-10-40,BRIGHTNESS) );
+	brightness.set_groesse( koord( 40, BUTTON_HEIGHT-1 ) );
+	brightness.set_value( umgebung_t::daynight_level );
+	brightness.set_limits( 0, 9 );
+	brightness.add_listener(this);
+	add_komponente(&brightness);
 
 	// scrollspeed
-	buttons[2].set_pos( koord(ARR_LEFT,SCROLL_SPEED) );
-	buttons[2].set_typ(button_t::repeatarrowleft);
-
-	buttons[3].set_pos( koord(ARR_RIGHT,SCROLL_SPEED) );
-	buttons[3].set_typ(button_t::repeatarrowright);
+	scrollspeed.set_pos( koord(RIGHT_WIDTH-10-40,SCROLL_SPEED) );
+	scrollspeed.set_groesse( koord( 40, BUTTON_HEIGHT-1 ) );
+	scrollspeed.set_value( welt->get_einstellungen()->get_verkehr_level() );
+	scrollspeed.set_limits( 1, 9 );
+	scrollspeed.add_listener(this);
+	add_komponente(&scrollspeed);
 
 	// traffic density
-	buttons[4].set_pos( koord(ARR_LEFT,DENS_TRAFFIC) );
-	buttons[4].set_typ(button_t::repeatarrowleft);
-
-	buttons[5].set_pos( koord(ARR_RIGHT,DENS_TRAFFIC) );
-	buttons[5].set_typ(button_t::repeatarrowright);
+	traffic_density.set_pos( koord(RIGHT_WIDTH-10-50,DENS_TRAFFIC) );
+	traffic_density.set_groesse( koord( 50, BUTTON_HEIGHT-1 ) );
+	traffic_density.set_value( abs(umgebung_t::scroll_multi) );
+	traffic_density.set_limits( 0, 16 );
+	traffic_density.add_listener(this);
+	add_komponente(&traffic_density);
 
 	// other settings
 	buttons[6].set_pos( koord(10,SCROLL_INVERS) );
@@ -168,41 +170,19 @@ color_gui_t::color_gui_t(karte_t *welt) :
 
 
 bool
-color_gui_t::action_triggered( gui_action_creator_t *komp, value_t)
+color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 {
 	einstellungen_t * sets = welt->get_einstellungen();
 
-	if((buttons+0)==komp) {
-		if(  umgebung_t::daynight_level>0  ) {
-			umgebung_t::daynight_level--;
-		}
-	} else if((buttons+1)==komp) {
-		umgebung_t::daynight_level++;
-	} else if((buttons+4)==komp) {
-		if(sets->get_verkehr_level() > 0 ) {
-			sets->set_verkehr_level( sets->get_verkehr_level() - 1 );
-		}
-	} else if((buttons+5)==komp) {
-		if(sets->get_verkehr_level() < 16 ) {
-			sets->set_verkehr_level( sets->get_verkehr_level() + 1 );
-		}
-	} else if((buttons+2)==komp) {
-		if(umgebung_t::scroll_multi > 1) {
-			umgebung_t::scroll_multi --;
-		}
-		if(umgebung_t::scroll_multi < -1) {
-			umgebung_t::scroll_multi ++;
-		}
-	} else if((buttons+3)==komp) {
-		if(umgebung_t::scroll_multi >= 1) {
-			umgebung_t::scroll_multi ++;
-		}
-		if(umgebung_t::scroll_multi <= -1) {
-			umgebung_t::scroll_multi --;
-		}
+	if(&brightness==komp) {
+		umgebung_t::daynight_level = v.i;
+	} else if(&traffic_density==komp) {
+		sets->set_verkehr_level( v.i );
+	} else if(&scrollspeed==komp) {
+		umgebung_t::scroll_multi = buttons[6].pressed ? -v.i : v.i;
 	} else if((buttons+6)==komp) {
-		umgebung_t::scroll_multi = -umgebung_t::scroll_multi;
 		buttons[6].pressed ^= 1;
+		umgebung_t::scroll_multi = -umgebung_t::scroll_multi;
 	} else if((buttons+7)==komp) {
 		welt->get_einstellungen()->set_show_pax( !welt->get_einstellungen()->get_show_pax() );
 		buttons[7].pressed ^= 1;
@@ -278,13 +258,10 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	display_ddd_box_clip(x+10, y+SEPERATE4, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
 
 	display_proportional_clip(x+10, y+BRIGHTNESS, translator::translate("1LIGHT_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+NUMBER, y+BRIGHTNESS, ntos(display_get_light(), 0), ALIGN_RIGHT, COL_WHITE, true);
 
 	display_proportional_clip(x+10, y+SCROLL_SPEED, translator::translate("3LIGHT_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+NUMBER, y+SCROLL_SPEED, ntos(abs(umgebung_t::scroll_multi), 0), ALIGN_RIGHT, COL_WHITE, true);
 
 	display_proportional_clip(x+10, y+DENS_TRAFFIC, translator::translate("6WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+NUMBER, y+DENS_TRAFFIC, ntos(sets->get_verkehr_level(),0), ALIGN_RIGHT, COL_WHITE, true);
 
 	int len=15+display_proportional_clip(x+10, y+FPS_DATA, translator::translate("Frame time:"), ALIGN_LEFT, COL_BLACK, true);
 	sprintf(buf,"%ld ms", get_frame_time() );
@@ -300,7 +277,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	uint32 target_fps = welt->is_fast_forward() ? 10 : umgebung_t::fps;
 	if(loops<(target_fps*3)/4) {
 		farbe = (loops<=target_fps/2) ? COL_RED : COL_YELLOW;
-  }
+	}
 	len = 15+display_proportional_clip(x+10, y+FRAME_DATA, translator::translate("FPS:"), ALIGN_LEFT, COL_BLACK, true);
 	sprintf(buf,"%d fps", loops );
 	display_proportional_clip(x+len, y+FRAME_DATA, buf, ALIGN_LEFT, farbe, true);
