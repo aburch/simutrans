@@ -472,10 +472,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	simuconf.read(contents);
 
 	if(  !einstellungen_only  ) {
-		umgebung_t::max_convoihandles = contents.get_int("convoys", umgebung_t::max_convoihandles );
-		umgebung_t::max_linehandles = contents.get_int("lines", umgebung_t::max_linehandles );
-		umgebung_t::max_halthandles = contents.get_int("stations", umgebung_t::max_halthandles );
-
 		umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
 		umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
 		umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability);

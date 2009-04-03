@@ -34,11 +34,6 @@ public:
 
 	static cstring_t objfilename;
 
-	// maximum number of handles
-	static uint16 max_convoihandles;
-	static uint16 max_linehandles;
-	static uint16 max_halthandles;
-
 	// scrollrichtung
 	static sint16 scroll_multi;
 
