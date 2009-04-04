@@ -598,7 +598,9 @@ class wkz_fill_trees_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Fill trees"); }
 	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	bool init( karte_t *welt, spieler_t * ) {
-		baum_t::fill_trees( welt, atoi(default_param) );
+		if(  default_param  ) {
+			baum_t::fill_trees( welt, atoi(default_param) );
+		}
 		return false;
 	}
 };
