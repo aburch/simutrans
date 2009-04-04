@@ -35,15 +35,6 @@
 #
 #################################program stuff##################################
 
-# max number of stations (just the amount of internal handles)
-stations = 8192
-
-# max number of convoys (i.e. train or truck with trailer or single truck)
-convoys = 8192
-
-# max number of lines (all line handles)
-lines = 2048
-
 # maximum number of position tested during a way search
 # 100000 should be ok even for large maps with ships
 # 10000 is ok for everything else (consumes 16*x Bytes main  memory)

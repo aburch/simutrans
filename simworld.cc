@@ -771,9 +771,9 @@ void karte_t::init_felder()
 		}
 	}
 
-	convoihandle_t::init( umgebung_t::max_convoihandles );
-	linehandle_t::init( umgebung_t::max_linehandles );
-	halthandle_t::init( umgebung_t::max_halthandles );
+	convoihandle_t::init( 1024 );
+	linehandle_t::init( 1024 );
+	halthandle_t::init( 1024 );
 
 	scenario = new scenario_t(this);
 

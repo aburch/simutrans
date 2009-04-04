@@ -13,10 +13,6 @@ const char *umgebung_t::user_dir = 0;
 
 cstring_t umgebung_t::objfilename;	// will start empty ...
 
-uint16 umgebung_t::max_convoihandles = 8192;
-uint16 umgebung_t::max_linehandles = 2048;
-uint16 umgebung_t::max_halthandles = 8192;
-
 bool umgebung_t::night_shift = false;
 
 bool umgebung_t::hide_with_transparency = true;

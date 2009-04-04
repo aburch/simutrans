@@ -598,9 +598,9 @@ int simu_main(int argc, char** argv)
 	umgebung_t::default_einstellungen.set_pak_diagonal_multiplier( pak_diagonal_multiplier );
 	vehikel_basis_t::set_diagonal_multiplier( pak_diagonal_multiplier, pak_diagonal_multiplier );
 
-	convoihandle_t::init( umgebung_t::max_convoihandles );
-	linehandle_t::init( umgebung_t::max_linehandles );
-	halthandle_t::init( umgebung_t::max_halthandles );
+	convoihandle_t::init( 1024 );
+	linehandle_t::init( 1024 );
+	halthandle_t::init( 1024 );
 
 	// just check before loading objects
 	if (!gimme_arg(argc, argv, "-nosound", 0)  &&  dr_init_sound()) {
