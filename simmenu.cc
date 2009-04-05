@@ -156,6 +156,7 @@ werkzeug_t *create_dialog_tool(int toolnr)
 		case WKZ_EDIT_TREE:      return new wkz_treebuilder_t();
 		case WKZ_ENLARGE_MAP:    return new wkz_enlarge_map_t();
 		case WKZ_LIST_LABEL:     return new wkz_list_label_t();
+		case WKZ_CLIMATES:       return new wkz_climates_t();
 	}
 	dbg->fatal("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
 	return NULL;

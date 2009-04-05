@@ -49,6 +49,7 @@
 #include "gui/curiositylist_frame_t.h"
 #include "gui/enlarge_map_frame_t.h"
 #include "gui/labellist_frame_t.h"
+#include "gui/climates.h"
 
 #include "tpl/slist_tpl.h"
 
@@ -887,6 +888,16 @@ class wkz_list_label_t : public werkzeug_t {
 	bool is_selected(karte_t *) { return win_get_magic(magic_labellist); }
 	bool init( karte_t *welt, spieler_t * ) {
 		create_win( new labellist_frame_t(welt), w_info, magic_labellist );
+		return false;
+	}
+};
+
+/* open the list of label */
+class wkz_climates_t : public werkzeug_t {
+	const char *get_tooltip(spieler_t *) { return translator::translate("Climate Control"); }
+	bool is_selected(karte_t *) { return win_get_magic(magic_climate); }
+	bool init( karte_t *welt, spieler_t * ) {
+		create_win( new climate_gui_t(welt->get_einstellungen()), w_info, magic_climate );
 		return false;
 	}
 };
