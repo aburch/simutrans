@@ -825,7 +825,7 @@ bool check_pos_win(event_t *ev)
 			return true;
 		}
 	}
-	else if(werkzeug_t::toolbar_tool.get_count()>0  &&  y<werkzeug_t::toolbar_tool[0]->iconsize.y  &&  ev->ev_class!=EVENT_KEYBOARD) {
+	else if(werkzeug_t::toolbar_tool.get_count()>0  &&  werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()  &&  y<werkzeug_t::toolbar_tool[0]->iconsize.y  &&  ev->ev_class!=EVENT_KEYBOARD) {
 		// click in main menu
 		event_t wev = *ev;
 		werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()->infowin_event( &wev );
