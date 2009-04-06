@@ -1661,22 +1661,6 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf)
 
 void haltestelle_t::zeige_info()
 {
-#if 1
-	cbuffer_t buf(8192);
-	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
-		if(waren[i]) {
-			buf.printf("\ncatg %i:",i);
-			vector_tpl<ware_t> * warray = waren[i];
-			for(int j=warray->get_count()-1;  j>=0;  j--  ) {
-				ware_t & ware = (*warray)[j];
-				if(ware.menge>0) {
-					buf.printf( "%i-(%s), ", ware.menge, ware.get_zielpos().get_str());
-				}
-			}
-		}
-	}
-	dbg->message("haltestelle_t::zeige_info()", (const char *)buf );
-#endif
 	create_win(new halt_info_t(welt, self), w_info, (long)this );
 }
 

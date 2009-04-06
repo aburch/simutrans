@@ -91,8 +91,11 @@ void cbuffer_t::printf(const char* fmt, ...)
 	va_list ap;
 	va_start(ap, fmt);
 	int count = vsnprintf( buf+size, capacity-size, fmt, ap);
-	assert(count >= 0);
-	if(capacity-size <= (uint)count) {
+	if(count==-1) {
+		// truncated
+		buf[capacity-1] = 0;
+	}
+	else if(capacity-size <= (uint)count) {
 		size = capacity - 1;
 	} else {
 		size += count;
