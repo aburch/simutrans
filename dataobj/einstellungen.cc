@@ -101,6 +101,14 @@ einstellungen_t::einstellungen_t() :
 	max_hops = 300;
 	no_routing_over_overcrowding = false;
 
+	//Two and a half hours (9 * 18 = 162; 162 approx 2:30h)
+	passenger_max_wait = 2700;
+
+	// 4 is faster; 2 is more accurate.
+	// Not recommended to use anything other than 2 or 4
+	// @author: jamespetts
+	max_rerouting_interval_months = 4;
+
 	/* multiplier for steps on diagonal:
 	 * 1024: TT-like, faktor 2, vehicle will be too long and too fast
 	 * 724: correct one, faktor sqrt(2)
@@ -256,10 +264,6 @@ einstellungen_t::einstellungen_t() :
 	// Global power factor
 	// @author: jamespetts
 	global_power_factor = 1.0;
-
-	// this will pay for distance to next change station
-
-	pay_for_total_distance = 0;
 
 	avoid_overcrowding = false;
 }
@@ -526,7 +530,13 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 		if(file->get_version()>101000) {
 			file->rdwr_bool( seperate_halt_capacities, "" );
-			file->rdwr_byte( pay_for_total_distance, "" );
+			if(file->get_experimental_version() < 2)
+			{
+				// Was pay for total distance.
+				// Now depracated.
+				uint8 dummy;
+				file->rdwr_byte( dummy, "" );
+			}
 
 			file->rdwr_short(starting_month, "");
 
@@ -547,7 +557,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		{
 			file->rdwr_short(min_bonus_max_distance, "");
 			file->rdwr_short(max_bonus_min_distance, "");
-			if(file->get_experimental_version() <= 1)
+			if(file->get_experimental_version() == 1)
 			{
 				uint16 dummy;
 				file->rdwr_short(dummy, "");
@@ -683,6 +693,8 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			uint16 global_power_factor_percent = global_power_factor * 100;
 			file->rdwr_short(global_power_factor_percent, "");
 			global_power_factor = (float)global_power_factor_percent / 100;
+			file->rdwr_short(passenger_max_wait, "");
+			file->rdwr_byte(max_rerouting_interval_months, "");
 		}
 
 	}
@@ -749,10 +761,10 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	max_transfers = contents.get_int("max_transfers", max_transfers );
 	passenger_factor = contents.get_int("passenger_factor", passenger_factor ); /* this can manipulate the passenger generation */
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
-	pay_for_total_distance = contents.get_int("pay_for_total_distance", pay_for_total_distance );
 	avoid_overcrowding = contents.get_int("avoid_overcrowding", avoid_overcrowding )!=0;
 	no_routing_over_overcrowding = contents.get_int("no_routing_over_overcrowded", no_routing_over_overcrowding )!=0;
-
+	passenger_max_wait = contents.get_int("passenger_max_wait", passenger_max_wait); 
+	max_rerouting_interval_months = contents.get_int("max_rerouting_interval_months", max_rerouting_interval_months);
 
 	fussgaenger = contents.get_int("random_pedestrians", fussgaenger ) != 0;
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;

@@ -226,11 +226,24 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 
 	// force asynchronous recalculation
 	if(fpl) {
-		if(!fpl->ist_abgeschlossen()) {
+		if(!fpl->ist_abgeschlossen()) { //"is completed" (Google)
 			destroy_win((long)fpl);
 		}
-		if(fpl->get_count()>0  &&  !line.is_bound()  ) {
-			welt->set_schedule_counter();
+
+#ifdef NEW_PATHING		
+		if(fpl->get_count()>0  &&  !line.is_bound()  ) 
+		{
+			// New method - recalculate as necessary
+			ITERATE(fpl, j)
+			{
+				halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
+				tmp_halt->reschedule = true;
+				tmp_halt->force_paths_stale);
+			}
+#else			
+			// Old method - brute force
+			 welt->set_schedule_counter();
+#endif
 		}
 		delete fpl;
 	}
@@ -1283,8 +1296,22 @@ void convoi_t::start()
 			// might have changed the vehicles in this car ...
 			line->recalc_catg_index();
 		}
-		else {
+		else 
+		{
+#ifdef NEW_PATHING
+
+			// New method - recalculate as necessary
+			ITERATE(fpl, j)
+			{
+				halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
+				tmp_halt->reschedule = true;
+				tmp_halt->force_paths_stale);
+			}
+			
+#else
+			// Old method - brute force
 			welt->set_schedule_counter();
+#endif
 		}
 
 		DBG_MESSAGE("convoi_t::start()","Convoi %s wechselt von INITIAL nach ROUTING_1", name_and_id);
@@ -1527,14 +1554,38 @@ bool convoi_t::set_schedule(schedule_t * f)
 
 	DBG_DEBUG("convoi_t::set_fahrplan()", "new=%p, old=%p", f, fpl);
 
-	if(f == NULL) {
+	if(f == NULL) 
+	{
 		return false;
 	}
 
+#ifdef NEW_PATHING	
+	if(!line.is_bound() && old_state != INITIAL)
+	{
+		// New method - recalculate as necessary
+		ITERATE(fpl, j)
+		{
+			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
+			tmp_halt->reschedule = true;
+			tmp_halt->force_paths_stale);
+		}
+
+		ITERATE(f, k)
+		{
+			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
+			tmp_halt->reschedule = true;
+			tmp_halt->force_paths_stale);
+		}
+	}
+#endif
+	
 	// happens to be identical?
-	if(fpl!=f) {
+	if(fpl != f) 
+	{
 		// destroy a possibly open schedule window
-		if(fpl &&  !fpl->ist_abgeschlossen()) {
+		if(fpl &&  !fpl->ist_abgeschlossen()) 
+		{ 
+			//"is completed" (Google)
 			destroy_win((long)fpl);
 			delete fpl;
 		}
@@ -1542,17 +1593,24 @@ bool convoi_t::set_schedule(schedule_t * f)
 	}
 
 	// remove wrong freight
-	for(unsigned i=0; i<anz_vehikel; i++) {
+	for(unsigned i=0; i<anz_vehikel; i++) 
+	{
 		fahr[i]->remove_stale_freight();
 	}
 
 	// ok, now we have a schedule
-	if(old_state!=INITIAL) {
+	if(old_state != INITIAL) 
+	{
 		state = FAHRPLANEINGABE;
-		if(  !line.is_bound()  ) {
+
+#ifndef NEW_PATHING		
+		// Old method - brute force
+		if(  !line.is_bound()  ) 
+		{
 			// asynchronous recalculation of routes
 			welt->set_schedule_counter();
 		}
+#endif
 	}
 	return true;
 }
@@ -2736,9 +2794,12 @@ void convoi_t::laden() //"load" (Babelfish)
 {
 	//Calculate average speed
 	//@author: jamespetts
-	const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096;
+	const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096.0;
 	const uint32 journey_distance = accurate_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
+	//const uint16 TEST_speed = (1 / journey_time) * 20;
+	//const uint16 TEST_minutes = (((float)1 / TEST_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60);
 	const uint16 average_speed = (journey_distance / journey_time) * 20;
+	//const uint16 TEST_actual_minutes = (((float)journey_distance / average_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60);
 	book(average_speed, CONVOI_AVERAGE_SPEED);
 	last_departure_time = welt->get_zeit_ms();
 
@@ -3235,15 +3296,6 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 	for(uint8 i=0; i < anz_vehikel ; i++) 
 	{
 		vehikel_t* v = fahr[i];
-		
-		// Run this routine twice: first, load all vehicles to their non-overcrowded capacity.
-		// Then, allow them to run to their overcrowded capacity.
-		if(!second_run && i >= anz_vehikel - 1)
-		{
-			//Reset counter for one more go
-			second_run = true;
-			i = 0;
-		}
 
 		station_lenght -= v->get_besch()->get_length();
 		if(station_lenght<0) 
@@ -3266,6 +3318,15 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 			// do not load anymore
 			freight_info_resort |= v->beladen(k, halt, second_run);
 
+		}
+
+		// Run this routine twice: first, load all vehicles to their non-overcrowded capacity.
+		// Then, allow them to run to their overcrowded capacity.
+		if(!second_run && i >= anz_vehikel - 1)
+		{
+			//Reset counter for one more go
+			second_run = true;
+			i = 0;
 		}
 
 	}
@@ -3430,14 +3491,35 @@ void convoi_t::set_line(linehandle_t org_line)
 	if(line.is_bound()) {
 		unset_line();
 	}
-	else if(fpl  &&  fpl->get_count()>0) {
+	else if(fpl  &&  fpl->get_count()>0) 
+	{
 		// since this schedule is no longer served
+		
+#ifdef NEW_PATHING
+		// New method - recalculate on demand
+		ITERATE(fpl, j)
+		{
+			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
+			tmp_halt->reschedule = true;
+			tmp_halt->force_paths_stale);
+		}
+#else
+		// Old method - brute force
 		welt->set_schedule_counter();
+#endif
 	}
 	line = org_line;
 	line_id = org_line->get_line_id();
 	schedule_t *new_fpl= org_line->get_schedule()->copy();
 	set_schedule(new_fpl);
+
+	ITERATE(new_fpl, j)
+	{
+		halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
+		tmp_halt->reschedule = true;
+		tmp_halt->force_paths_stale);
+	}
+
 	line->add_convoy(self);
 }
 

@@ -138,16 +138,6 @@ private:
 	// true, if the different caacities (passengers/mail/freight) are counted seperately
 	bool seperate_halt_capacities;
 
-	/**
-	 * payment is only for the distance that got shorter between target and start
-	 * three modes:
-	 * 0 = pay for travelled manhattan distance
-	 * 1 = pay for distance difference to next transfer stop
-	 * 2 = pay for distance to destination
-	 * 0 allows chaeting, but the income with 1 or two are much lower
-	 */
-	uint8 pay_for_total_distance;
-
 	//Cornering settings
 	//@author: jamespetts
 	
@@ -167,6 +157,13 @@ private:
 
 	/* if set, goods will not routed over overcroded stations but rather try detours (if possible) */
 	bool no_routing_over_overcrowding;
+
+	// The longest time that a passenger is
+	// prepared to wait for transport.
+	// @author: jamespetts
+	uint16 passenger_max_wait;
+
+	uint8 max_rerouting_interval_months;
 
 	//@author: jamespetts
 	// Revenue calibration settings
@@ -500,9 +497,6 @@ public:
 	uint8 get_max_direction_steps (waytype_t waytype) const { return max_direction_steps[waytype]; }
 	uint8 get_curve_friction_factor (waytype_t waytype) const { return curve_friction_factor[waytype]; }
 
-	bool is_pay_for_total_distance() const { return pay_for_total_distance; }
-	void set_pay_for_total_distance( bool b ) { pay_for_total_distance = b; }
-
 	uint16 get_factory_max_years_obsolete() const { return factory_max_years_obsolete; }
 
 	uint8 get_interest_rate_percent() const { return interest_rate_percent; }
@@ -520,6 +514,10 @@ public:
 
 	// do not allow routes over overcrowded destinations
 	bool is_no_routing_over_overcrowding() const { return no_routing_over_overcrowding; }
+
+	uint16 get_passenger_max_wait() const { return passenger_max_wait; }
+
+	uint8 get_max_rerouting_interval_months() const { return max_rerouting_interval_months; }
 
 	sint16 get_river_number() const { return river_number; }
 	void set_river_number( sint16 n ) { river_number = n; }

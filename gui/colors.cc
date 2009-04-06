@@ -81,7 +81,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	// scrollspeed
 	scrollspeed.set_pos( koord(RIGHT_WIDTH-10-40,SCROLL_SPEED) );
 	scrollspeed.set_groesse( koord( 40, BUTTON_HEIGHT-1 ) );
-	scrollspeed.set_value( welt->get_einstellungen()->get_verkehr_level() );
+	scrollspeed.set_value( abs(umgebung_t::scroll_multi) );
 	scrollspeed.set_limits( 1, 9 );
 	scrollspeed.add_listener(this);
 	add_komponente(&scrollspeed);
@@ -89,7 +89,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	// traffic density
 	traffic_density.set_pos( koord(RIGHT_WIDTH-10-50,DENS_TRAFFIC) );
 	traffic_density.set_groesse( koord( 50, BUTTON_HEIGHT-1 ) );
-	traffic_density.set_value( abs(umgebung_t::scroll_multi) );
+	traffic_density.set_value( welt->get_einstellungen()->get_verkehr_level() );
 	traffic_density.set_limits( 0, 16 );
 	traffic_density.add_listener(this);
 	add_komponente(&traffic_density);

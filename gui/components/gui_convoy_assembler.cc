@@ -472,7 +472,7 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 		}
 		max_speed = min(min_top_speed, (uint32) sqrt((((double)total_power/total_min_weight)-1)*2500));
 		min_speed = min(min_top_speed, (uint32) sqrt((((double)total_power/total_max_weight)-1)*2500));
-		uint8 tile_length;
+		uint16 tile_length;
 		if(depot_frame != NULL)
 		{
 			tile_length = depot_frame->get_convoy()->get_tile_length();

@@ -9,7 +9,7 @@
 #include <stdlib.h>
 
 /*
- * Define the key characteristica for hashing pointers. For hashing the
+ * Define the key characteristics for hashing pointers. For hashing the
  * direct value is used.
  */
 template<class key_t>

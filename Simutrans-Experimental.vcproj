@@ -1877,6 +1877,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tpl\quickstone_hashtable_tpl.h"
+				>
+			</File>
+			<File
 				RelativePath=".\tpl\quickstone_tpl.h"
 				>
 			</File>

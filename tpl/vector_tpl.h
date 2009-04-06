@@ -204,6 +204,11 @@ template<class T> class vector_tpl
 			count--;
 		}
 
+		T& get_element(uint e)
+		{
+			return (*this)[e];
+		}
+		
 		T& operator [](uint i)
 		{
 			if (i >= count) {

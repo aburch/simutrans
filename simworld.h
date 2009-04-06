@@ -388,6 +388,10 @@ private:
 	 */
 	void distribute_groundobjs_cities(int new_cities, sint16 old_x, sint16 old_y);
 
+	// Used for detecting whether paths/connexions are stale.
+	// @author: jamespetts
+	uint16 base_pathing_counter;
+
 public:
 	/* reads height data from 8 or 25 bit bmp or ppm files
 	 * @return either pointer to heightfield (use delete [] for it) or NULL
@@ -996,6 +1000,8 @@ public:
 	 * @author Hansjörg Malthaner
 	 */
 	bool interactive();
+
+	uint16 get_base_pathing_counter() const { return base_pathing_counter; }
 };
 
 #endif

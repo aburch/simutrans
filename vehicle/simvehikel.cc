@@ -740,6 +740,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 					cnv->calc_revenue(iter.access_current());
 
 					// book delivered goods to destination
+					
 					if(end_halt==halt) 
 					{
 						// pax is always index 1

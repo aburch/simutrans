@@ -1452,6 +1452,8 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	scenario = NULL;
 
 	msg = new message_t(this);
+
+	base_pathing_counter = 0;
 }
 
 
@@ -2387,6 +2389,8 @@ void karte_t::neuer_monat()
 		convoihandle_t cnv = convoi_array[i];
 		cnv->new_month();
 	}
+
+	base_pathing_counter ++;
 
 	INT_CHECK("simworld 1701");
 
@@ -3399,6 +3403,11 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 
 	// finally a possible scenario
 	scenario->rdwr( file );
+
+	if(file->get_experimental_version() >= 2)
+	{
+		file->rdwr_short(base_pathing_counter, "");
+	}
 
 	if(needs_redraw) {
 		update_map();

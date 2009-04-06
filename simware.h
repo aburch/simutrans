@@ -105,12 +105,14 @@ public:
 	bool is_mail() const {  return index==1; }
 	bool is_freight() const {  return index>2; }
 
+	// The time at which this packet arrived at the current station
+	// @author: jamespetts
+	sint64 arrival_time;
+
 	int operator==(const ware_t &w) {
 		return	menge == w.menge &&
 			zwischenziel == w.zwischenziel &&
-			// No need to repeat the position checking if
-			// this will be done in can_merge_with.
-			(index < 3 || zielpos == w.zielpos) &&
+			arrival_time == w.arrival_time &&
 			can_merge_with(w);
 	}
 
@@ -118,10 +120,21 @@ public:
 	// of metrics needed for merging.
 	inline bool can_merge_with (const ware_t &w) const
 	{
+		bool test_index = index == w.index;
+		bool test_zeil = ziel  == w.ziel;
+		bool test_position = (index < 3 || zielpos == w.zielpos);
+		bool test_origin = origin == w.origin;
+
+		bool test_total = index  == w.index  &&
+			ziel  == w.ziel  &&
+			// Only merge the destination *position* if the load is not freight
+			(index < 3 || zielpos == w.zielpos) &&
+			origin == w.origin;
+		
 		return index  == w.index  &&
 			ziel  == w.ziel  &&
 			// Only merge the destination *position* if the load is not freight
-			(index > 2 || zielpos == w.zielpos) &&
+			(index < 3 || zielpos == w.zielpos) &&
 			origin == w.origin;
 	}
 
@@ -136,10 +149,6 @@ public:
 	inline bool same_destination(const ware_t &w) const {
 		return index==w.get_index()  &&  ziel==w.get_ziel()  &&  (index<2  ||  zielpos==w.get_zielpos());
 	}
-
-	// The time at which this packet arrived at the current station
-	// @author: jamespetts
-	sint64 arrival_time;
 };
 
 #endif

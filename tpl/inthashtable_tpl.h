@@ -9,7 +9,7 @@
 
 
 /*
- * Define the key characteristica for hashing integer types
+ * Define the key characteristics for hashing integer types
  */
 template<class key_t>
 class inthash_tpl {
