@@ -4,7 +4,7 @@
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  */
-
+#ifndef NEW_PATHING
 #ifndef dataobj_warenziel_h
 #define dataobj_warenziel_h
 
@@ -55,4 +55,5 @@ public:
 	void rdwr(loadsave_t *file);
 };
 
+#endif
 #endif

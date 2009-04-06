@@ -1,3 +1,4 @@
+#ifndef NEW_PATHING
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
@@ -41,3 +42,4 @@ warenziel_t::rdwr(loadsave_t *file)
 		catg_index = warenbauer_t::get_info(tn)->get_catg_index();
 	}
 }
+#endif

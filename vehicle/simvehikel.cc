@@ -787,7 +787,8 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 			const uint16 hinein = (besch->get_zuladung() - total_freight) + (overcrowd ? besch->get_overcrowded_capacity() : 0); 
 			//hinein = inside (Google)
 
-			ware_t ware = halt->hole_ab(besch->get_ware(), hinein, fpl);
+			convoihandle_t convoy(cnv);
+			ware_t ware = halt->hole_ab(besch->get_ware(), hinein, fpl, convoy);
 			
 			if(ware.menge==0) 
 			{

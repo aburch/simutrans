@@ -3851,7 +3851,9 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		if((hnr++%32)==0) {
 			display_progress(get_groesse_y()+48+stadt.get_count()+128+(hnr*80)/hmax, get_groesse_y()+256+stadt.get_count());
 		}
+#ifndef NEW_PATHING
 		iter.get_current()->rebuild_destinations();
+#endif
 	}
 
 #if 0

@@ -411,7 +411,6 @@ private:
 	uint16 rolling_average_count[MAX_CONVOI_COST];
 
 	// @author: jamespetts
-	const uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance) const;
 	const uint8 calc_tolerable_comfort(uint16 journey_minutes) const;
 
 
@@ -924,6 +923,9 @@ public:
 	// vehicle in the convoy.
 	// @author: jamespetts
 	void calc_revenue(ware_t &ware);
+
+	// @author: jamespetts
+	static const uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance);
 };
 
 #endif

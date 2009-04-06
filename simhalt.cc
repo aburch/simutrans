@@ -48,7 +48,9 @@
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
 #include "dataobj/umgebung.h"
+#ifndef NEW_PATHING
 #include "dataobj/warenziel.h"
+#endif
 
 #include "dings/gebaeude.h"
 #include "dings/label.h"
@@ -247,7 +249,11 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	pax_no_route = 0;
 
 	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
+#ifdef NEW_PATHING
+	iterations = 0;
+#else
 	warenziele = new vector_tpl<halthandle_t>[ warenbauer_t::get_max_catg_index() ];
+#endif
 
 	status_color = COL_YELLOW;
 
@@ -291,7 +297,11 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	rebuilt_destination_counter = reroute_counter;
 
 	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
+#ifdef NEW_PATHING
+	iterations = 0;
+#else
 	warenziele = new vector_tpl<halthandle_t>[ warenbauer_t::get_max_catg_index() ];
+#endif
 
 	pax_happy = 0;
 	pax_unhappy = 0;
@@ -304,10 +314,11 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	if(welt->ist_in_kartengrenzen(k)) {
 		welt->access(k)->set_halt(self);
 	}
-
+#ifdef NEW_PATHING
 	connexions_timestamp = 0;
 	paths_timestamp = 0;
 	reschedule = false;
+#endif
 }
 
 
@@ -385,7 +396,9 @@ haltestelle_t::~haltestelle_t()
 		}
 	}
 	free( waren );
+#ifndef NEW_PATHING
 	delete[] warenziele;
+#endif
 
 	// routes may have changed without this station ...
 	verbinde_fabriken();
@@ -831,7 +844,7 @@ void haltestelle_t::reroute_goods()
 			}
 
 			INT_CHECK( "simhalt.cc 489" );
-
+#ifndef NEW_PATHING
 			// delete, if nothing connects here
 			if (new_warray->empty()) {
 				if(  warenziele[i].empty()  ) {
@@ -844,6 +857,7 @@ void haltestelle_t::reroute_goods()
 			// replace the array
 			delete waren[i];
 			waren[i] = new_warray;
+#endif
 		}
 	}
 	// likely the display must be updated after this
@@ -893,7 +907,7 @@ haltestelle_t::remove_fabriken(fabrik_t *fab)
 }
 
 
-
+#ifndef NEW_PATHING
 void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl)
 {
 	if(type != warenbauer_t::nichts) {
@@ -920,7 +934,7 @@ void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl
 	}
 }
 
-#ifdef NEW_PATHING
+#else
 void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fpl, const convoihandle_t cnv, const linehandle_t line)
 {
 	if(type != warenbauer_t::nichts) 
@@ -991,16 +1005,18 @@ void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fp
 linehandle_t haltestelle_t::get_preferred_line(halthandle_t transfer, uint8 category) const
 {
 	linehandle_t best_line = connexions[category].get(transfer).best_line;
-	return linehandle_t;
+	return best_line;
 }
 
-convoihandle_t haltestelle_t::get_preferred_convoi(halthandle_t transfer, uint8 category) const
+convoihandle_t haltestelle_t::get_preferred_convoy(halthandle_t transfer, uint8 category) const
 {
 	convoihandle_t best_convoy  = connexions[category].get(transfer).best_convoy;
 	return best_convoy;
 }
 
-#else
+#endif
+
+#ifndef NEW_PATHING
 
 /**
  * Rebuilds the list of reachable destinations
@@ -1075,9 +1091,8 @@ void haltestelle_t::rebuild_destinations()
 		}
 	}
 }
-#endif
 
-#ifdef NEW_PATHING
+#else
 
 //@author: jamespetts (although much is taken from the original rebuild_destinations())
 void haltestelle_t::rebuild_connexions(uint8 category)
@@ -1199,14 +1214,17 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		paths_timestamp = welt->get_base_pathing_counter();
 	}
 
-	uint16 iterations = 0;
-
-	path_node* starting_node;
-	starting_node->halt = self;
-	starting_node->link = NULL;
-	starting_node->journey_time = 0; // Takes 0 time to stay in the same place
-
-	open_list.insert(starting_node);
+	if(open_list.get_count() < 1)
+	{
+		// Only reset the list if it is empty, so as to allow for re-using the open
+		// list on subsequent occasions of finding a path. 
+		iterations = 0;
+		path_node* starting_node;
+		starting_node->halt = self;
+		starting_node->link = NULL;
+		starting_node->journey_time = 0; // Takes 0 time to stay in the same place
+		open_list.insert(starting_node);
+	}
 
 	const uint16 max_transfers = welt->get_einstellungen()->get_max_transfers();
 
@@ -1222,8 +1240,8 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			// not found, is searched for, unless the index is stale.
 			return;
 		}
-		quickstone_hashtable_tpl<haltestelle_t, connexion> current_connexions = current_node->halt->get_connexions(category);
-		quickstone_hashtable_iterator_tpl<haltestelle_t, connexion> iter(current_connexions);
+		quickstone_hashtable_tpl<haltestelle_t, connexion> *current_connexions = current_node->halt->get_connexions(category);
+		quickstone_hashtable_iterator_tpl<haltestelle_t, connexion> iter(*current_connexions);
 		while(iter.next())
 		{
 			path_node* new_node;
@@ -1278,7 +1296,7 @@ haltestelle_t::path haltestelle_t::get_path_to(halthandle_t goal, uint8 category
 	return destination_path;
 }
 
-quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion> haltestelle_t::get_connexions(uint8 c)
+quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion>* haltestelle_t::get_connexions(uint8 c)
 { 
 	if(reschedule || paths_timestamp < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
 	{
@@ -1286,7 +1304,7 @@ quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion> haltestelle_t:
 		rebuild_connexions(c);
 	}
 	
-	return connexions[c]; 
+	return &connexions[c]; 
 }
 
 void haltestelle_t::force_paths_stale()
@@ -1343,9 +1361,9 @@ uint16 haltestelle_t::find_route(ware_t &ware, const uint16 previous_journey_tim
 	uint16 best_destination;
 
 	// Now, find the best route from here.
-	ITERATE(zeil_list,i)
+	ITERATE(ziel_list,i)
 	{
-		path test_path = get_path_to(zeil_list[i], ware.get_catg());
+		path test_path = get_path_to(ziel_list[i], ware.get_catg());
 		if(test_path.journey_time < journey_time)
 		{
 			journey_time = test_path.journey_time;
@@ -1357,8 +1375,8 @@ uint16 haltestelle_t::find_route(ware_t &ware, const uint16 previous_journey_tim
 	{
 		// If we are comparing this with other routes from different start halts,
 		// only set the details if it is the best route so far.
-		ware.set_ziel(zeil_list[best_destination]);
-		path final_path = get_path_to(zeil_list[best_destination], ware.get_catg();
+		ware.set_ziel(ziel_list[best_destination]);
+		path final_path = get_path_to(ziel_list[best_destination], ware.get_catg());
 		ware.set_zwischenziel(final_path.next_transfer);
 		return final_path.journey_time;
 	}
@@ -1366,7 +1384,9 @@ uint16 haltestelle_t::find_route(ware_t &ware, const uint16 previous_journey_tim
 	return journey_time;
 }
 
-#else
+#endif
+
+#ifndef NEW_PATHING
 
 
 /* HNode is used for route search */
@@ -1760,7 +1780,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 						{
 							if(cnv->get_line().is_bound())
 							{
-								linehandle_t best_line = halt->get_preferred_line(ware.get_zwischenziel(), ware.get_catg();
+								linehandle_t best_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_catg());
 								if(!best_line.is_bound() && best_line == cnv->get_line())
 								{
 									continue;
@@ -1768,7 +1788,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 							}
 							else
 							{
-								convoihandle_t best_convoy = halt->get_preferred_convoy(ware.get_zwischenziel(), ware.get_catg();
+								convoihandle_t best_convoy = get_preferred_convoy(tmp.get_zwischenziel(), tmp.get_catg());
 								if(!best_convoy.is_bound() && best_convoy == cnv)
 								{
 									continue;
@@ -2563,11 +2583,24 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 		// old games save the list with stations
 		// however, we have to rebuilt them anyway for the new format
-		if(file->get_version()<99013) {
+		if(file->get_version()<99013) 
+		{
 			file->rdwr_short(count, " ");
-			for(int i=0; i<count; i++) {
+
+			for(int i=0; i<count; i++) 
+			{
+#ifndef NEW_PATHING
 				warenziel_t wz (file);
+#else
+				if(file->is_loading())
+				{
+					// Dummy loading and saving to maintain backwards compatibility
+					char dummy[256];
+					file->rdwr_str(dummy,256);
+				}
+#endif
 			}
+			
 		}
 
 	}

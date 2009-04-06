@@ -145,8 +145,13 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 		}
 		if(!ok && get_filter(ohneverb_filter)) {
 			ok = true;
-			for (uint8 i = 0; i<warenbauer_t::get_max_catg_index(); i++){
+			for (uint8 i = 0; i<warenbauer_t::get_max_catg_index(); i++)
+			{
+#ifdef NEW_PATHING
+				ok &= halt->get_connexions(i)->empty();  //only display stations with NO connexion
+#else
 				ok &= halt->get_warenziele(i)->empty(); //only display stations with NO connection
+#endif
 			}
 		}
 		if(!ok) {

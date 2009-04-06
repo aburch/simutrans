@@ -32,7 +32,9 @@ ware_t::ware_t() : ziel(), zwischenziel(), zielpos(-1, -1)
 	menge = 0;
 	index = 0;
 	accumulated_distance = 0;
+#ifndef NEW_PATHING
 	journey_steps = 0;
+#endif
 	arrival_time = 0;
 }
 
@@ -42,8 +44,10 @@ ware_t::ware_t(const ware_besch_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -
 	//This constructor is called from simcity.cc
 	menge = 0;
 	index = wtyp->get_index();
-	accumulated_distance = 0;
+#ifndef NEW_PATHING
 	journey_steps = 0;
+#endif
+	accumulated_distance = 0;
 	arrival_time = 0;
 }
 
@@ -55,7 +59,9 @@ ware_t::ware_t(const ware_besch_t *wtyp, halthandle_t o) : ziel(), zwischenziel(
 	index = wtyp->get_index();
 	origin = o;
 	accumulated_distance = 0;
+#ifndef NEW_PATHING
 	journey_steps = 0;
+#endif
 	arrival_time = 0;
 }
 
@@ -167,13 +173,21 @@ ware_t::rdwr(karte_t *welt,loadsave_t *file)
 	if(file->get_experimental_version() >= 2)
 	{
 		file->rdwr_long(accumulated_distance, "");
+#ifdef NEW_PATHING
+		// Was journey steps
+		uint8 dummy;
+		file->rdwr_byte(dummy, "");
+#else
 		file->rdwr_byte(journey_steps, "");
+#endif
 		file->rdwr_longlong(arrival_time, "");
 	}
 	else
 	{
 		accumulated_distance = 0;
+#ifndef NEW_PATHING
 		journey_steps = 0;
+#endif
 		arrival_time = 0;
 	}
 }

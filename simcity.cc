@@ -1630,11 +1630,13 @@ void stadt_t::step_passagiere()
 	const halthandle_t* halt_list = plan->get_haltlist();
 
 	// suitable start search
-	fixed_list_tpl<halthandle_t*, 5> start_halts;
-	for (uint h = 0; h < plan->get_haltlist_count(); h++) {
+	vector_tpl<halthandle_t> start_halts(2);
+	for (uint h = 0; h < plan->get_haltlist_count(); h++) 
+	{
 		halthandle_t halt = halt_list[h];
-		if (halt->is_enabled(wtyp)  &&  !halt->is_overcrowded(wtyp->get_catg_index())) {
-			if(halt.is_bound() && !start_halts.add_to_tail_no_overwrite(&halt))
+		if (halt->is_enabled(wtyp)  &&  !halt->is_overcrowded(wtyp->get_catg_index())) 
+		{
+			if(halt.is_bound() && !start_halts.append_unique(halt))
 			{
 				// Stops looking for new halts if we have found too many to fit
 				// into the fixed size list. Number limited to keep the speed up. 
@@ -1742,7 +1744,7 @@ void stadt_t::step_passagiere()
 				{
 					if(start_halts.get_count() > 0)
 					{
-						halthandle_t start_halt = *start_halts.get_element(0);
+						halthandle_t start_halt = start_halts.get_element(0);
 						if(start_halt.is_bound())
 						{
 							erzeuge_verkehrsteilnehmer(start_halt->get_basis_pos(), step_count, destinations[current_destination].location);
@@ -1766,10 +1768,10 @@ void stadt_t::step_passagiere()
 						ziel_count++;
 						for(int i = start_halts.get_count(); i >= 0; i--)
 						{
-							if(start_halts.get_count() > i && halt == *start_halts.get_element(i))
+							if(start_halts.get_count() > i && halt == start_halts.get_element(i))
 							{
 								can_walk_ziel = true;
-								start_halt = *start_halts.get_element(i);
+								start_halt = start_halts.get_element(i);
 							}
 						}
 							break; // because we found at least one valid step ...
@@ -1783,7 +1785,7 @@ void stadt_t::step_passagiere()
 					merke_passagier_ziel(destinations[current_destination].location, COL_DARK_ORANGE);
 					if(start_halts.get_count() > 0)
 					{
-						halthandle_t current_halt = *start_halts.get_element(0);
+						halthandle_t current_halt = start_halts.get_element(0);
 						current_halt->add_pax_no_route(pax_left_to_do);
 					}
 #ifdef NEW_PATHING
@@ -1862,9 +1864,9 @@ void stadt_t::step_passagiere()
 					{
 						break;
 					}
-					halthandle_t current_halt = *start_halts[i];
+					halthandle_t current_halt = start_halts[i];
 #ifdef NEW_PATHING
-					uint16 current_journey_time = current_halt->find_route(ware, best_journey_time);
+					uint16 current_journey_time = current_halt->find_route(pax, best_journey_time);
 					if(current_journey_time < best_journey_time)
 					{
 						best_journey_time = current_journey_time;
@@ -1896,9 +1898,10 @@ void stadt_t::step_passagiere()
 						best_destination[1] = pax.get_zwischenziel();
 						best_destination[2] = tmp[2];
 					}
+#endif
 				}
 				
-#endif
+
 #ifdef NEW_PATHING
 				if(route_good)
 				{
@@ -1990,9 +1993,10 @@ void stadt_t::step_passagiere()
 						// *road* transport.
 
 						// This is the speed bonus calculation, without reference to price.
-						const uint16 average_speed = (60 * distance) / (best_journey_time * (1.0 - welt->get_einstellungen()->get_journey_time_multiplier());
+						const ware_besch_t* passengers = pax.get_besch();
+						const uint16 average_speed = (60 * distance) / (best_journey_time * (1.0 - welt->get_einstellungen()->get_journey_time_multiplier()));
 						const sint32 ref_speed = welt->get_average_speed(road_wt);
-						const uint16 speed_bonus_rating = calc_adjusted_speed_bonus(goods->get_speed_bonus(), distance);
+						const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(passengers->get_speed_bonus(), distance);
 						const sint32 speed_base = (100 * average_speed) / ref_speed - 100;
 						const float base_bonus = (float)speed_base * ((float)speed_bonus_rating / 100.0);
 						//base_bonus should be 1 if the average speed is the same as the bonus speed.
@@ -2056,7 +2060,7 @@ void stadt_t::step_passagiere()
 #endif
 
 						//Secondly, the number of unhappy passengers at the start station compared with the number of happy passengers.
-						float unhappy_factor = start_halt->get_unhappy_proportion;
+						float unhappy_factor = start_halt->get_unhappy_proportion(0);
 						/*float unhappy_total = start_halt->get_pax_unhappy() - start_halt->get_pax_happy();
 						float unhappy_factor;
 						if(unhappy_total > 0)
@@ -2099,10 +2103,12 @@ void stadt_t::step_passagiere()
 					city_history_year[0][history_type] += pax.menge;
 					city_history_month[0][history_type] += pax.menge;
 
-				} else {
+				} 
+				else 
+				{
 					if(start_halts.get_count() > 0)
 					{
-						start_halt = *start_halts.get_element(0); //If there is no route, it does not matter where passengers express their unhappiness.
+						start_halt = start_halts.get_element(0); //If there is no route, it does not matter where passengers express their unhappiness.
 #ifndef NEW_PATHING
 						if(  route_result == haltestelle_t::ROUTE_OVERCROWDED  ) 
 						{
@@ -2158,8 +2164,13 @@ void stadt_t::step_passagiere()
 					for (uint i = 0; i < plan->get_haltlist_count(); i++) 
 					{
 						halthandle_t test_halt = halt_list[i];
-					if (test_halt->is_enabled(wtyp)  &&  (start_halt==test_halt  ||  test_halt->get_warenziele(wtyp->get_catg_index())->is_contained(start_halt))) 
-					{
+#ifdef NEW_PATHING
+						if(test_halt->is_enabled(wtyp) && (start_halt==test_halt  ||  test_halt->get_connexions(wtyp->get_catg_index())->access(start_halt) != NULL))
+						{
+#else
+						if (test_halt->is_enabled(wtyp)  &&  (start_halt==test_halt  ||  test_halt->get_warenziele(wtyp->get_catg_index())->is_contained(start_halt))) 
+						{
+#endif
 							found = true;
 							start_halt = test_halt;
 							break;
@@ -2178,7 +2189,9 @@ void stadt_t::step_passagiere()
 							return_pax.set_zielpos(k);
 							return_pax.set_ziel(start_halt);
 							return_pax.set_zwischenziel(welt->lookup(return_zwischenziel)->get_halt());
+#ifndef NEW_PATHING
 							return_pax.set_journey_steps(best_journey_steps);
+#endif
 							return_pax.arrival_time = welt->get_zeit_ms();
 
 							ret_halt->starte_mit_route(return_pax);
@@ -2200,6 +2213,7 @@ void stadt_t::step_passagiere()
 					{
 						// return halt crowded
 						ret_halt->add_pax_unhappy(pax_left_to_do);
+				
 						if(has_private_car)
 						{
 							//Must use private car, since the halt is crowded.

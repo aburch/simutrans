@@ -234,11 +234,11 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 		if(fpl->get_count()>0  &&  !line.is_bound()  ) 
 		{
 			// New method - recalculate as necessary
-			ITERATE(fpl, j)
+			ITERATE_PTR(fpl, j)
 			{
 				halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
 				tmp_halt->reschedule = true;
-				tmp_halt->force_paths_stale);
+				tmp_halt->force_paths_stale();
 			}
 #else			
 			// Old method - brute force
@@ -1301,11 +1301,11 @@ void convoi_t::start()
 #ifdef NEW_PATHING
 
 			// New method - recalculate as necessary
-			ITERATE(fpl, j)
+			ITERATE_PTR(fpl, j)
 			{
 				halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
 				tmp_halt->reschedule = true;
-				tmp_halt->force_paths_stale);
+				tmp_halt->force_paths_stale();
 			}
 			
 #else
@@ -1563,18 +1563,18 @@ bool convoi_t::set_schedule(schedule_t * f)
 	if(!line.is_bound() && old_state != INITIAL)
 	{
 		// New method - recalculate as necessary
-		ITERATE(fpl, j)
+		ITERATE_PTR(fpl, j)
 		{
 			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
 			tmp_halt->reschedule = true;
-			tmp_halt->force_paths_stale);
+			tmp_halt->force_paths_stale();
 		}
 
-		ITERATE(f, k)
+		ITERATE_PTR(f, k)
 		{
-			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
+			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[k].pos);
 			tmp_halt->reschedule = true;
-			tmp_halt->force_paths_stale);
+			tmp_halt->force_paths_stale();
 		}
 	}
 #endif
@@ -3198,7 +3198,7 @@ const uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes) const
 	return (proportion * (comfort_long - comfort_median_long)) + comfort_median_long;
 }
 
-const uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance) const
+const uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance)
 {
 	const uint32 min_distance = welt->get_einstellungen()->get_min_bonus_max_distance();
 	if(distance <= min_distance)
@@ -3497,11 +3497,11 @@ void convoi_t::set_line(linehandle_t org_line)
 		
 #ifdef NEW_PATHING
 		// New method - recalculate on demand
-		ITERATE(fpl, j)
+		ITERATE_PTR(fpl, j)
 		{
 			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
 			tmp_halt->reschedule = true;
-			tmp_halt->force_paths_stale);
+			tmp_halt->force_paths_stale();
 		}
 #else
 		// Old method - brute force
@@ -3513,11 +3513,11 @@ void convoi_t::set_line(linehandle_t org_line)
 	schedule_t *new_fpl= org_line->get_schedule()->copy();
 	set_schedule(new_fpl);
 
-	ITERATE(new_fpl, j)
+	ITERATE_PTR(new_fpl, j)
 	{
 		halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
 		tmp_halt->reschedule = true;
-		tmp_halt->force_paths_stale);
+		tmp_halt->force_paths_stale();
 	}
 
 	line->add_convoy(self);
