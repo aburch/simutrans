@@ -413,6 +413,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	fpl->append( welt->lookup_kartenboden(start_pos), 0, 0 );
 	fpl->append( welt->lookup_kartenboden(end_pos), 90, 0 );
 	fpl->set_aktuell( 1 );
+	fpl->eingabe_abschliessen();
 	linehandle_t line=simlinemgmt.create_line(simline_t::shipline,this,fpl);
 	delete fpl;
 
@@ -742,6 +743,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 	fpl->append( start, 0, 0 );
 	fpl->append( end, 90, 0 );
 	fpl->set_aktuell( 1 );
+	fpl->eingabe_abschliessen();
 	linehandle_t line=simlinemgmt.create_line(simline_t::airline,this,fpl);
 	delete fpl;
 
@@ -787,6 +789,7 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",st
 		fpl->append(welt->lookup(stops[j])->get_kartenboden(), j == 0 || !do_wait ? 0 : 10);
 	}
 	fpl->set_aktuell( stops[0]==startpos2d );
+	fpl->eingabe_abschliessen();
 	linehandle_t line=simlinemgmt.create_line(simline_t::truckline,this,fpl);
 	delete fpl;
 
