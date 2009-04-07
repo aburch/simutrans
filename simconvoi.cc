@@ -967,6 +967,9 @@ void convoi_t::start()
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			fahr[i]->beladen( home_depot.get_2d(), halthandle_t() );
 		}
+		// do not show the vehicle - it will be wrong positioned -vorfahren() will correct this
+		fahr[0]->set_bild(IMG_LEER);
+
 		// calc state for convoi
 		calc_loading();
 
