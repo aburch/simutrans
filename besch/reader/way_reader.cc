@@ -16,6 +16,7 @@ void way_reader_t::register_obj(obj_besch_t *&data)
 
     wegbauer_t::register_besch(besch);
 //    printf("...Weg %s geladen\n", besch->get_name());
+	obj_for_xref(get_type(), besch->get_name(), data);
 }
 
 

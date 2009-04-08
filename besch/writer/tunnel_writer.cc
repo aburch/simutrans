@@ -4,6 +4,7 @@
 #include "../tunnel_besch.h"
 #include "obj_node.h"
 #include "text_writer.h"
+#include "xref_writer.h"
 #include "imagelist_writer.h"
 #include "skin_writer.h"
 #include "get_waytype.h"
@@ -14,7 +15,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	int pos, i;
 
-	obj_node_t node(this, 20, &parent);
+	obj_node_t node(this, 21, &parent);
 
 	uint32 topspeed    = obj.get_int("topspeed",     999);
 	uint32 preis       = obj.get_int("cost",           0);
@@ -30,7 +31,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 
 	// Version uses always high bit set as trigger
 	// version 2: snow images
-	uint16 version = 0x8002;
+	uint16 version = 0x8003;
 	node.write_uint16(fp, version,        0);
 	node.write_uint32(fp, topspeed,       2);
 	node.write_uint32(fp, preis,          6);
@@ -99,6 +100,15 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 			}
 		}
 	}
+	str = obj.get("way");
+	if (str.len() > 0) {
+		xref_writer_t::instance()->write_obj(fp, node, obj_way, str, true);
+		node.write_sint8(fp, 1, 20);
+	}
+	else {
+		node.write_sint8(fp, 0, 20);
+	}
+
 	cursorkeys.clear();
 
 	node.write(fp);

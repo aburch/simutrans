@@ -21,7 +21,7 @@
 #include "obj_besch_std_name.h"
 #include "skin_besch.h"
 #include "bildliste2d_besch.h"
-
+#include "weg_besch.h"
 
 class tunnel_besch_t : public obj_besch_std_name_t {
 	friend class tunnel_writer_t;
@@ -43,6 +43,10 @@ private:
 	/* number of seasons (0 = none, 1 = no snow/snow
 	*/
 	sint8 number_seasons;
+
+	/* has underground way image ? ( 0 = no, 1 = yes
+	*/
+	uint8 has_way;
 public:
 	const bild_besch_t *get_hintergrund(hang_t::typ hang, uint8 season) const
 	{
@@ -95,6 +99,14 @@ public:
 	uint16 get_intro_year_month() const { return intro_date; }
 
 	uint16 get_retire_year_month() const { return obsolete_date; }
+
+	const weg_besch_t *get_weg_besch() const
+	{
+		if(has_way) {
+			return static_cast<const weg_besch_t *>(get_child(5 + number_seasons * 2));
+		}
+		return NULL;
+	}
 };
 
 #endif
