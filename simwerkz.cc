@@ -1646,7 +1646,7 @@ const char *wkz_tunnelbau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 			// now try construction
 			wegbauer_t bauigel(welt, sp);
 			bauigel.route_fuer((wegbauer_t::bautyp_t)bt, wb, besch);
-			bauigel.set_keep_existing_ways( event_get_last_control_shift()==2 );
+			bauigel.set_keep_existing_faster_ways( event_get_last_control_shift()!=2 );
 			bauigel.calc_straight_route(start,koord3d(pos.get_2d(),start.z));
 			welt->mute_sound(true);
 			bauigel.baue();

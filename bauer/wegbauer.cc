@@ -1860,13 +1860,17 @@ wegbauer_t::baue_tunnelboden()
 			gr->weg_erweitern(tunnel_besch->get_waytype(),calc_ribi(i));
 			weg_t *weg = gr->get_weg(tunnel_besch->get_waytype());
 			// take the faster way
-			if (!(keep_existing_ways  ||  (keep_existing_faster_ways  && (weg->get_max_speed() > tunnel_besch->get_topspeed())))) {
-				spieler_t::add_maintenance(sp, -weg->get_besch()->get_wartung());
+			if(  !keep_existing_faster_ways  ||  ( weg->get_max_speed() < tunnel_besch->get_topspeed() )) {
+				tunnel_t *tunnel = gr->find<tunnel_t>();
+				spieler_t::add_maintenance(sp, -tunnel->get_besch()->get_wartung());
+				spieler_t::add_maintenance(sp,  tunnel_besch->get_wartung() );
+
+				tunnel->set_besch(tunnel_besch);
 				weg->set_besch(besch);
 				weg->set_max_speed(tunnel_besch->get_topspeed());
 				gr->calc_bild();
-				cost -= besch->get_preis();
-				spieler_t::add_maintenance( sp,  tunnel_besch->get_wartung() );
+
+				cost -= tunnel_besch->get_preis();
 			}
 		}
 	}
