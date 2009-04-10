@@ -1620,7 +1620,8 @@ void stadt_t::step_passagiere()
 			max(1,(gb->get_tile()->get_besch()->get_post_level() + 5) >> 4);
 
 	// create pedestrians in the near area?
-	if (welt->get_einstellungen()->get_random_pedestrians() && wtyp == warenbauer_t::passagiere) {
+	if (welt->get_einstellungen()->get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
+	{
 		haltestelle_t::erzeuge_fussgaenger(welt, gb->get_pos(), num_pax);
 	}
 
@@ -1636,12 +1637,7 @@ void stadt_t::step_passagiere()
 		halthandle_t halt = halt_list[h];
 		if (halt->is_enabled(wtyp)  &&  !halt->is_overcrowded(wtyp->get_catg_index())) 
 		{
-			if(halt.is_bound() && !start_halts.append_unique(halt))
-			{
-				// Stops looking for new halts if we have found too many to fit
-				// into the fixed size list. Number limited to keep the speed up. 
-				break;
-			}
+			start_halts.append(halt);
 		}
 	}
 
@@ -1731,7 +1727,7 @@ void stadt_t::step_passagiere()
 			bool can_walk_ziel = false;
 
 #ifdef NEW_PATHING
-			while(route_good && !can_walk_ziel && current_destination < destination_count)
+			while(!route_good && !can_walk_ziel && current_destination < destination_count)
 			{
 #else
 			while(route_result != haltestelle_t::ROUTE_OK && !can_walk_ziel && current_destination < destination_count)
@@ -1849,11 +1845,12 @@ void stadt_t::step_passagiere()
 				//"Menge" = volume (Google)
 
 				// now, finally search a route; this consumes most of the time
-				koord return_zwischenziel = koord::invalid; // for people going back ...
+
 #ifdef NEW_PATHING
 				uint16 best_journey_time = 65535;
 				uint8 best_start_halt = 0;
 #else
+				koord return_zwischenziel = koord::invalid; // for people going back ...
 				halthandle_t best_destination[3];
 				uint8 best_journey_steps = 255;
 #endif
@@ -2165,7 +2162,7 @@ void stadt_t::step_passagiere()
 					{
 						halthandle_t test_halt = halt_list[i];
 #ifdef NEW_PATHING
-						if(test_halt->is_enabled(wtyp) && (start_halt==test_halt  ||  test_halt->get_connexions(wtyp->get_catg_index())->access(start_halt) != NULL))
+						if(test_halt->is_enabled(wtyp) && (start_halt == test_halt || test_halt->get_connexions(wtyp->get_catg_index())->access(start_halt) != NULL))
 						{
 #else
 						if (test_halt->is_enabled(wtyp)  &&  (start_halt==test_halt  ||  test_halt->get_warenziele(wtyp->get_catg_index())->is_contained(start_halt))) 
@@ -2188,9 +2185,11 @@ void stadt_t::step_passagiere()
 							return_pax.menge = pax_left_to_do;
 							return_pax.set_zielpos(k);
 							return_pax.set_ziel(start_halt);
-							return_pax.set_zwischenziel(welt->lookup(return_zwischenziel)->get_halt());
 #ifndef NEW_PATHING
+							return_pax.set_zwischenziel(welt->lookup(return_zwischenziel)->get_halt());
 							return_pax.set_journey_steps(best_journey_steps);
+#else
+							ret_halt->find_route(return_pax);
 #endif
 							return_pax.arrival_time = welt->get_zeit_ms();
 

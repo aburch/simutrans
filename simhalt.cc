@@ -236,7 +236,6 @@ void haltestelle_t::destroy_all(karte_t *welt)
 	}
 }
 
-
 haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 {
 	self = halthandle_t(this);
@@ -251,6 +250,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
 #ifdef NEW_PATHING
 	iterations = 0;
+	search_complete = false;
 #else
 	warenziele = new vector_tpl<halthandle_t>[ warenbauer_t::get_max_catg_index() ];
 #endif
@@ -299,6 +299,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
 #ifdef NEW_PATHING
 	iterations = 0;
+	search_complete = false;
 #else
 	warenziele = new vector_tpl<halthandle_t>[ warenbauer_t::get_max_catg_index() ];
 #endif
@@ -396,7 +397,10 @@ haltestelle_t::~haltestelle_t()
 		}
 	}
 	free( waren );
-#ifndef NEW_PATHING
+#ifdef NEW_PATHING
+	//delete[] connexions;
+	//delete[] paths;
+#else
 	delete[] warenziele;
 #endif
 
@@ -945,7 +949,7 @@ void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fp
 			//"Station itself is not in target list" (Google)
 			halthandle_t halt = get_halt(welt, fpl->eintrag[i].pos);
 			// not existing, or own, or not enabled => ignore
-			if(!halt.is_bound()  ||  halt == self  ||  !halt->is_enabled(type)) 
+			if(!halt.is_bound() || halt == self || !halt->is_enabled(type)) 
 			{
 				continue;
 			}
@@ -955,18 +959,24 @@ void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fp
 			new_connexion.waiting_time = get_average_waiting_time(halt, type->get_catg_index());
 			
 			// Check the average speed.
-			uint16 average_speed;
+			uint16 average_speed = 0;
 			if(line.is_bound())
 			{
-				average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, LINE_AVERAGE_SPEED) : cnv->get_finance_history(0, LINE_AVERAGE_SPEED);
-				// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-				average_speed = average_speed > 0 ? average_speed : line->get_convoy(0)->get_min_top_speed() / 2;
+				average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? line->get_finance_history(1, LINE_AVERAGE_SPEED) : line->get_finance_history(0, LINE_AVERAGE_SPEED);
+				if(average_speed == 0)
+				{
+					// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
+					average_speed = speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) / 2;
+				}
 			}
 			else if(cnv.is_bound())
 			{
 				average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED);
-				// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-				average_speed = average_speed > 0 ? average_speed : cnv->get_min_top_speed() / 2;
+				if(average_speed == 0)
+				{
+					// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
+					average_speed =  speed_to_kmh(cnv->get_min_top_speed()) / 2;
+				}
 			}
 			else
 			{
@@ -975,7 +985,50 @@ void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fp
 				continue;
 			}
 			
-			const uint32 journey_distance = accurate_distance(halt->get_basis_pos(), get_basis_pos());
+			//const uint32 journey_distance = accurate_distance(halt->get_basis_pos(), get_basis_pos());
+			uint32 journey_distance = 0;
+			bool start_counting = false;
+			halthandle_t current_halt;
+			halthandle_t previous_halt;
+			bool goal_found = false;
+			//ITERATE_PTR(fpl, j)
+			const uint16 max_steps = fpl->get_count();
+			uint16 current_step = 0;
+			while(!goal_found)
+			{
+				previous_halt = current_halt;
+				current_halt = get_halt(welt, fpl->eintrag[current_step].pos);
+				if(current_halt == self)
+				{
+					if(!start_counting)
+					{
+						start_counting = true;
+					}
+					else
+					{
+						// This means that the route returns to this halt before it gets
+						// to the destination, so the distance will be measured from the
+						// *second* instance of it coming here. 
+						journey_distance = 0;
+					}
+				}
+				if(start_counting && current_halt.is_bound() && previous_halt.is_bound() && current_halt != self)
+				{
+					journey_distance += accurate_distance(current_halt->get_basis_pos(), previous_halt->get_basis_pos());
+				}
+				if(start_counting && current_halt == halt)
+				{
+					goal_found = true;
+				}
+				if(current_step < max_steps - 1)
+				{
+					current_step ++;
+				}
+				else
+				{
+					current_step = 0;
+				}
+			}
 			new_connexion.journey_time = (((float)journey_distance / average_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60);
 			new_connexion.best_convoy = cnv;
 			new_connexion.best_line = line;
@@ -1173,7 +1226,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 		if(line->count_convoys( )> 0 && (i_am_public || line->get_convoy(0)->get_besitzer() == get_besitzer()))
 		{
 			const convoihandle_t dummy;
-			add_connexion(warenbauer_t::get_info_catg_index(line->get_goods_catg_index()[category]), fpl, dummy, line);
+			add_connexion(warenbauer_t::get_info_catg_index(category), fpl, dummy, line);
 		}
 	}
 }
@@ -1214,66 +1267,136 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		paths_timestamp = welt->get_base_pathing_counter();
 	}
 
+	const uint32 total_halts = alle_haltestellen.get_count();
+	const sint32 max_transfers = welt->get_einstellungen()->get_max_transfers();
+	const uint32 max_depth = total_halts * max_transfers;
+	const uint32 max_iterations = max_depth <= 65535 ? max_depth : 65535;
+
+	iterations = 0;
+	path_node* path_nodes = new path_node[max_iterations];
+
 	if(open_list.get_count() < 1)
 	{
 		// Only reset the list if it is empty, so as to allow for re-using the open
 		// list on subsequent occasions of finding a path. 
-		iterations = 0;
-		path_node* starting_node;
+		path_node* starting_node = &path_nodes[iterations++];
 		starting_node->halt = self;
+		starting_node->journey_time = 0;
 		starting_node->link = NULL;
-		starting_node->journey_time = 0; // Takes 0 time to stay in the same place
 		open_list.insert(starting_node);
 	}
 
-	const uint16 max_transfers = welt->get_einstellungen()->get_max_transfers();
-
 	do
-	{
-		iterations ++;
+	{	
 		path_node* current_node = open_list.pop();
-		if(current_node->halt == goal)
+		assert(current_node->halt.is_bound());
+
+		uint32 open_list_count = open_list.get_count();
+
+		const char* current_node_halt_name = (char*)current_node->halt->get_name();
+		const bool is_in_list_1 = paths[category].is_contained(current_node->halt);
+		const bool is_in_list_2 = paths[category].get(current_node->halt).next_transfer.is_bound();
+		const path test_path_1 = paths[category].get(current_node->halt);
+		if(paths[category].get(current_node->halt).journey_time != 65535)
 		{
-			// Abort the search early if the goal stop is found.
-			// Because the open list is stored on the heap, the search
-			// can be resumed where it left off if another goal, as yet
-			// not found, is searched for, unless the index is stale.
-			return;
+			// Only insert into the open list if the 
+			// item is not already on the closed list
+			continue;
 		}
+
 		quickstone_hashtable_tpl<haltestelle_t, connexion> *current_connexions = current_node->halt->get_connexions(category);
 		quickstone_hashtable_iterator_tpl<haltestelle_t, connexion> iter(*current_connexions);
-		while(iter.next())
+		while(iter.next() && iterations <= max_iterations)
 		{
-			path_node* new_node;
-			new_node->halt = iter.get_current_key();
-			new_node->link = current_node;
+			const halthandle_t h = iter.get_current_key();
+
+			if(paths[category].get(h).journey_time != 65535)
+			{
+				// Only insert into the open list if the 
+				// item is not already on the closed list.
+				continue;
+			}
+			
+			//open_list_count = open_list.get_count();
 			connexion current_connexion = iter.get_current_value();
+			path_node* new_node = &path_nodes[iterations++];
+			new_node->halt = h;
 			new_node->journey_time = current_connexion.journey_time + current_connexion.waiting_time + current_node->journey_time;
+			new_node->link = current_node;
+			
+			/*const char* new_node_halt_name = (char*)new_node->halt->get_name();
+			const path test_path_2 = paths[category].get(new_node->halt);
+			const bool n_is_in_list_1 = paths[category].is_contained(new_node->halt);
+			const bool n_is_in_list_2 = paths[category].get(new_node->halt).next_transfer.is_bound();*/
+
 			open_list.insert(new_node);
+
 		}
 		
 		path new_path;
 		new_path.journey_time = current_node->journey_time;
 
-		// Add only if not already contained.
-		if(paths[category].put(current_node->halt, new_path))
+		open_list_count = open_list.get_count();
+
+		// Add only if not already contained and it is not the head node.
+		if(current_node->link != NULL && paths[category].put(current_node->halt, new_path))
 		{
 			// Track the path back to get the next transfer from this halt
 			path_node* track_node = current_node;
-			while(track_node->link->halt != self)
+			//while(track_node->link != NULL)
+			//for(uint8 depth = 0; depth <= max_transfers; depth ++)
+			for(uint8 depth = 0; depth <= 255; depth ++)
 			{
+				if(track_node->link->link == NULL && track_node->halt.is_bound())
+				{
+					paths[category].access(current_node->halt)->next_transfer = track_node->halt;
+					break;
+				}
+				
 				track_node = track_node->link;
 			}
-			paths[category].access(current_node->halt)->next_transfer = track_node->halt;
+			if(!paths[category].get(current_node->halt).next_transfer.is_bound())
+			{
+				// Remove bad paths (transfer depth too great, so aborted)
+				paths[category].remove(current_node->halt);
+			}
+		}
+		
+		if(current_node->halt == goal)
+		//path test_path_3 = paths[category].get(goal);
+		//if(paths[category].get(goal).journey_time != 65535)
+		{
+			// Abort the search early if the goal stop is found.
+			// Because the open list is stored on the heap, the search
+			// can be resumed where it left off if another goal, as yet
+			// not found, is searched for, unless the index is stale.
+
+			/*char* goal_name = (char*)goal->get_name();
+			char* next_transfer_name = "NULL";
+			if(paths[category].access(current_node->halt)->next_transfer.is_bound())
+			{
+				next_transfer_name = (char*)paths[category].access(current_node->halt)->next_transfer->get_name();
+			}*/
+
+			return;
+		}	
+		
+		current_node = NULL;
+		if(iterations >= max_iterations)
+		{
+			// The search is not complete, but we abandon it for now
+			// to save memory. It can be resumed again later when the
+			// next packet tries to find a route.
+			break;
 		}
 	}
-	while(iterations <= max_transfers && open_list.get_count() > 0);
-	search_complete = true;
-
+	while(open_list.get_count() > 0);
+	search_complete = open_list.get_count() < 1;
 }
 
 haltestelle_t::path haltestelle_t::get_path_to(halthandle_t goal, uint8 category) 
 {
+	assert(goal.is_bound());
 	path destination_path;
 	
 	if(reschedule || paths_timestamp < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
@@ -1282,9 +1405,18 @@ haltestelle_t::path haltestelle_t::get_path_to(halthandle_t goal, uint8 category
 		// This will mean that all the paths will need to be recalculated.
 		// Must always recalculate if the schedules change.
 		paths[category].clear();
+		search_complete = false;
 	}
 
 	destination_path = paths[category].get(goal);
+	char* self_name = (char*)self->get_name();
+	char* goal_name = (char*)goal->get_name();
+	char* next_transfer_name = "NULL";
+	if(destination_path.next_transfer.is_bound())
+	{
+		next_transfer_name = (char*)destination_path.next_transfer->get_name();
+	}
+
 	if(!destination_path.next_transfer.is_bound() && !search_complete)
 	{
 		// The pathfinding is incomplete or stale - recalculate
@@ -1293,12 +1425,19 @@ haltestelle_t::path haltestelle_t::get_path_to(halthandle_t goal, uint8 category
 		calculate_paths(goal, category);
 		destination_path = paths[category].get(goal);
 	}
+
+	if(destination_path.next_transfer.is_bound())
+	{
+		next_transfer_name = (char*)destination_path.next_transfer->get_name();
+	}
+
 	return destination_path;
 }
 
 quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion>* haltestelle_t::get_connexions(uint8 c)
 { 
-	if(reschedule || paths_timestamp < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
+
+	if(reschedule || connexions->get_count() == 0 || paths_timestamp < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
 	{
 		// Rebuild the connexions if they are stale.
 		rebuild_connexions(c);
@@ -1325,6 +1464,13 @@ uint16 haltestelle_t::find_route(ware_t &ware, const uint16 previous_journey_tim
 	uint16 journey_time = previous_journey_time;
 	const ware_besch_t * warentyp = ware.get_besch();
 	const uint8 ware_catg_index = warentyp->get_catg_index();
+	
+
+	if(ware.get_zielpos() == koord::invalid && ware.get_ziel().is_bound())
+	{
+		ware.set_zielpos(ware.get_ziel()->get_basis_pos());
+	}
+		
 	const koord ziel = ware.get_zielpos();
 
 	// since also the factory halt list is added to the ground, we can use just this ...
@@ -1358,20 +1504,24 @@ uint16 haltestelle_t::find_route(ware_t &ware, const uint16 previous_journey_tim
 		return 0;
 	}
 
-	uint16 best_destination;
+	sint16 best_destination = -1;
 
 	// Now, find the best route from here.
 	ITERATE(ziel_list,i)
 	{
 		path test_path = get_path_to(ziel_list[i], ware.get_catg());
+		if(!test_path.next_transfer.is_bound())
+		{
+			continue;
+		}
 		if(test_path.journey_time < journey_time)
 		{
 			journey_time = test_path.journey_time;
 			best_destination = i;
 		}
 	}
-
-	if(journey_time < previous_journey_time)
+	
+	if(journey_time < previous_journey_time && best_destination >= 0)
 	{
 		// If we are comparing this with other routes from different start halts,
 		// only set the details if it is the best route so far.
@@ -2595,6 +2745,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				if(file->is_loading())
 				{
 					// Dummy loading and saving to maintain backwards compatibility
+					koord dummy_koord;
+					dummy_koord.rdwr(file);
+
 					char dummy[256];
 					file->rdwr_str(dummy,256);
 				}

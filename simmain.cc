@@ -290,6 +290,10 @@ static void ask_language()
 /**
  * Dies wird in main mittels set_new_handler gesetzt und von der
  * Laufzeitumgebung im Falle des Speichermangels bei new() aufgerufen
+ * 
+ * 	
+ * This is main means of set_new_handler set and the runtime environment 
+ * in the case of memory shortage when new () is called (Google)
  */
 #ifdef _MSC_VER
 int sim_new_handler(unsigned int)
@@ -297,7 +301,7 @@ int sim_new_handler(unsigned int)
 void sim_new_handler()
 #endif
 {
-	dbg->fatal("sim_new_handler()", "OUT OF MEMORY");
+	dbg->fatal("sim_new_handler()", "Error allocating new object");
 #ifdef _MSC_VER
 	return 0;
 #endif

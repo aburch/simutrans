@@ -98,6 +98,30 @@ public:
 	}
 
 	//
+	// Checks whether the specified key is already
+	// contained in the hashtable.
+	// @author: jamespetts
+	//
+	bool is_contained(const key_t key)
+	{
+		const STHT_BAG_COUNTER_T code = get_hash(key);
+		slist_iterator_tpl<node_t> iter(bags[code]);
+
+		// Code taken from the "put" method.
+		while(iter.next()) 
+		{
+			node_t &node = iter.access_current();
+
+			if(comp(node.key, key) == 0) 
+			{
+				// duplicate
+				return false;
+			}
+		}
+		return true;
+	}
+
+	//
 	// Insert or replace a value - if a value is replaced, the old value is
 	// returned, otherwise a nullvalue. This may be useful, if You need to delete it
 	// afterwards.

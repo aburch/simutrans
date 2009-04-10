@@ -8,6 +8,8 @@
 #ifndef simhalt_h
 #define simhalt_h
 
+#define NEW_PATHING
+
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
 #include "halthandle_t.h"
@@ -25,9 +27,9 @@
 #include "tpl/vector_tpl.h"
 #include "tpl/quickstone_hashtable_tpl.h"
 #include "tpl/fixed_list_tpl.h"
-#include "tpl/HOT_queue2_tpl.h"
-
-#define NEW_PATHING
+#ifdef NEW_PATHING
+#include "tpl/binary_heap_tpl.h"
+#endif
 
 #define MAX_HALT_COST   7 // Total number of cost items
 #define MAX_MONTHS     12 // Max history
@@ -192,15 +194,9 @@ public:
 		uint16 waiting_time;
 		
 		// Convoy only used if line not used 
-		// (i.e., if the best route involves using a convoi without a line)
+		// (i.e., if the best route involves using a convoy without a line)
 		linehandle_t best_line;
 		convoihandle_t best_convoy;
-
-		// Necessary for sorting
-		bool operator ==(const connexion& c) { return (journey_time + waiting_time) == (c.journey_time + c.waiting_time); }
-		bool operator !=(const connexion& c) { return (journey_time + waiting_time) != (c.journey_time + c.waiting_time); }
-		bool operator >(const connexion& c) { return (journey_time + waiting_time) > (c.journey_time + c.waiting_time); }
-		bool operator <(const connexion& c) { return (journey_time + waiting_time) < (c.journey_time + c.waiting_time); }
 
 		// TODO: Consider whether to add comfort
 	};
@@ -211,16 +207,9 @@ public:
 		uint16 journey_time;
 		path_node* link;
 
-		// Necessary for sorting
-		bool operator ==(const path_node& p) { return journey_time == p.journey_time; }
-		bool operator !=(const path_node& p) { return journey_time != p.journey_time; }
-		bool operator >(const path_node& p) { return journey_time > p.journey_time; }
-		bool operator <(const path_node& p) { return journey_time < p.journey_time; }
-		bool operator <=(const path_node& p) { return journey_time <= p.journey_time; }
-		bool operator >=(const path_node& p) { return journey_time < p.journey_time; }
+		// Necessary for sorting in a binary heap
+		inline bool operator <= (const path_node p) const { return journey_time <= p.journey_time; }
 
-		// Necessary to work with the HOT queue.
-		inline uint32 get_distance() { return journey_time; }
 	};
 
 	// Data on paths to ultimate destinations
@@ -229,6 +218,7 @@ public:
 	{
 		halthandle_t next_transfer;
 		uint16 journey_time;
+		path() { journey_time = 65535; }
 		
 		//TODO: Consider whether to add comfort
 	};
@@ -243,9 +233,9 @@ private:
 #ifdef NEW_PATHING
 	// Table of all direct connexions to this halt, with routing information.
 	// Array: one entry per goods type.
-	quickstone_hashtable_tpl<haltestelle_t, connexion> connexions[8];
+	quickstone_hashtable_tpl<haltestelle_t, connexion> connexions[16];
 
-	quickstone_hashtable_tpl<haltestelle_t, path> paths[8];
+	quickstone_hashtable_tpl<haltestelle_t, path> paths[16];
 
 	// The number of iterations of paths currently traversed. Used for
 	// detecting when max_transfers has been reached.
@@ -356,7 +346,7 @@ private:
 	// Used for pathfinding. The list is stored on the heap so that it can be re-used
 	// if searching is aborted part-way through.
 	// @author: jamespetts
-	HOT_queue_tpl<path_node*> open_list;
+	binary_heap_tpl<path_node*> open_list;
 
 	// Whether the search for the destination has completed: if so, the search will not
 	// re-run unless the results are stale.

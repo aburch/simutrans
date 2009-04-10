@@ -263,10 +263,13 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 					buf.append(translator::translate(" mins. travelling"));
 					buf.append(", ");
 					buf.append(cnx.waiting_time);
-					buf.append(translator::translate(" mins. waiting"));
+					buf.append(translator::translate(" mins. waiting)"));
 					buf.append("\n");
-#endif
+
+				offset_y += 2 * LINESPACE;
+#else
 				offset_y += LINESPACE;
+#endif
 			}
 		}
 	}

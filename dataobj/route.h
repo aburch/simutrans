@@ -49,8 +49,8 @@ public:
 		// next one only needed for sorted_heap_tpl
 		inline bool operator == (const ANode k) const { return f==k.f  &&  g==k.g; }
 		// next two only needed for HOT-queues
-		inline bool is_matching(const ANode &l) const { return gr==l.gr; }
-		inline uint32 get_distance() const { return f; }
+		//inline bool is_matching(const ANode &l) const { return gr==l.gr; }
+		//inline uint32 get_distance() const { return f; }
 	};
 
 	static ANode *nodes;
