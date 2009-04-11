@@ -737,7 +737,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 					// Calculates the revenue for each packet under the new
 					// revenue model. 
 					// @author: jamespetts
-					cnv->calc_revenue(iter.access_current());
+					current_revenue += cnv->calc_revenue(iter.access_current());
 
 					// book delivered goods to destination
 					
@@ -787,8 +787,7 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 			const uint16 hinein = (besch->get_zuladung() - total_freight) + (overcrowd ? besch->get_overcrowded_capacity() : 0); 
 			//hinein = inside (Google)
 
-			convoihandle_t convoy(cnv);
-			ware_t ware = halt->hole_ab(besch->get_ware(), hinein, fpl, convoy);
+			ware_t ware = halt->hole_ab(besch->get_ware(), hinein, fpl, cnv);
 			
 			if(ware.menge==0) 
 			{
@@ -996,6 +995,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 	 //local_bonus_supplement = 0;
 	 is_overweight = false;
 	 reversed = false;
+	 current_revenue = 0;
 }
 
 
@@ -1025,6 +1025,7 @@ vehikel_t::vehikel_t(karte_t *welt) :
 	 //local_bonus_supplement = 0;
 	 is_overweight = false;
 	 reversed = false;
+	 current_revenue = 0;
 }
 
 

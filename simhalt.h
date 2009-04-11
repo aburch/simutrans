@@ -8,7 +8,9 @@
 #ifndef simhalt_h
 #define simhalt_h
 
+#ifndef OLD_PATHING
 #define NEW_PATHING
+#endif
 
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
@@ -31,16 +33,16 @@
 #include "tpl/binary_heap_tpl.h"
 #endif
 
-#define MAX_HALT_COST   7 // Total number of cost items
-#define MAX_MONTHS     12 // Max history
-#define MAX_HALT_NON_MONEY_TYPES 7 // number of non money types in HALT's financial statistic
-#define HALT_ARRIVED   0 // the amount of ware that arrived here
-#define HALT_DEPARTED 1 // the amount of ware that has departed from here
-#define HALT_WAITING		2 // the amount of ware waiting
-#define HALT_HAPPY		3 // number of happy passangers
-#define HALT_UNHAPPY		4 // number of unhappy passangers
-#define HALT_NOROUTE         5 // number of no-route passangers
-#define HALT_CONVOIS_ARRIVED             6 // number of convois arrived this month
+#define MAX_HALT_COST				7 // Total number of cost items
+#define MAX_MONTHS					12 // Max history
+#define MAX_HALT_NON_MONEY_TYPES	7 // number of non money types in HALT's financial statistic
+#define HALT_ARRIVED				0 // the amount of ware that arrived here
+#define HALT_DEPARTED				1 // the amount of ware that has departed from here
+#define HALT_WAITING				2 // the amount of ware waiting
+#define HALT_HAPPY					3 // number of happy passangers
+#define HALT_UNHAPPY				4 // number of unhappy passangers
+#define HALT_NOROUTE				5 // number of no-route passangers
+#define HALT_CONVOIS_ARRIVED        6 // number of convois arrived this month
 
 class cbuffer_t;
 class grund_t;
@@ -70,9 +72,9 @@ class haltestelle_t
 {
 public:
 	enum station_flags { NOT_ENABLED=0, PAX=1, POST=2, WARE=4, CROWDED=8 };
-
+#ifndef NEW_PATHING
 	enum routine_result_flags { NO_ROUTE=0, ROUTE_OK=1, ROUTE_OVERCROWDED=8 };
-
+#endif
 	//13-Jan-02     Markus Weber    Added
 	enum stationtyp {invalid=0, loadingbay=1, railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32, tramstop = 64, maglevstop=128, narrowgaugestop=256 }; //could be combined with or!
 
@@ -340,7 +342,7 @@ private:
 	// Record of waiting times. Takes a list of the last 16 waiting times per type of goods.
 	// Getter method will need to average the waiting times. 
 	// @author: jamespetts
-	quickstone_hashtable_tpl<haltestelle_t, fixed_list_tpl<uint16, 16>> waiting_times[8];
+	quickstone_hashtable_tpl<haltestelle_t, fixed_list_tpl<uint16, 16>> waiting_times[16];
 
 #ifdef NEW_PATHING
 	// Used for pathfinding. The list is stored on the heap so that it can be re-used
@@ -579,7 +581,7 @@ public:
 	 * @return collected volume (Google)
 	 * @author Hj. Malthaner
 	 */
-	ware_t hole_ab(const ware_besch_t *warentyp, uint32 menge, schedule_t *fpl, convoihandle_t cnv);
+	ware_t hole_ab(const ware_besch_t *warentyp, uint32 menge, schedule_t *fpl, convoi_t* cnv);
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
 	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach
@@ -737,28 +739,7 @@ public:
  
 	// Getting and setting average waiting times in minutes
 	// @author: jamespetts
-	uint16 get_average_waiting_time(halthandle_t halt, uint8 category) const
-	{
-		if(&waiting_times[category].get(halt) != NULL)
-		{
-			fixed_list_tpl<uint16, 16> times = waiting_times[category].get(halt);
-			const uint8 count = times.get_count();
-			if(count > 0 && halt.is_bound())
-			{
-				uint16 total_times = 0;
-				ITERATE(times,i)
-				{
-					total_times += times.get_element(i);
-				}
-				total_times /= count;
-				return total_times;
-			}
-
-			return 0;
-		}
-
-		return 0;
-	}
+	uint16 get_average_waiting_time(halthandle_t halt, uint8 category) const;
 
 	void add_waiting_time(uint16 time, halthandle_t halt, uint8 category)
 	{

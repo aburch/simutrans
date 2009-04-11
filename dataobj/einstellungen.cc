@@ -107,7 +107,7 @@ einstellungen_t::einstellungen_t() :
 	// 4 is faster; 2 is more accurate.
 	// Not recommended to use anything other than 2 or 4
 	// @author: jamespetts
-	max_rerouting_interval_months = 4;
+	max_rerouting_interval_months = 2;
 
 	/* multiplier for steps on diagonal:
 	 * 1024: TT-like, faktor 2, vehicle will be too long and too fast

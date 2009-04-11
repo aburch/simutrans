@@ -259,10 +259,10 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 				buf.append("\n");
 #ifdef NEW_PATHING
 					buf.append("(");
-					buf.append(cnx.journey_time);
+					buf.append(cnx.journey_time * 0.1); // Convert from tenths
 					buf.append(translator::translate(" mins. travelling"));
 					buf.append(", ");
-					buf.append(cnx.waiting_time);
+					buf.append(cnx.waiting_time * 0.1); // Convert from tenths
 					buf.append(translator::translate(" mins. waiting)"));
 					buf.append("\n");
 

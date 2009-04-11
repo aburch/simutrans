@@ -514,6 +514,8 @@ public:
 	// @author: jamespetts
 	uint8 get_comfort() const;
 
+	sint64 current_revenue;
+
 };
 
 

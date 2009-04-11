@@ -2288,7 +2288,7 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--) 
 			{
-				if(j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT && file->get_experimental_version() <= 1)
+				if((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1)
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
@@ -2304,7 +2304,7 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--) 
 			{
-				if(j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT && file->get_experimental_version() <= 1)
+				if((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1)
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
@@ -2324,7 +2324,7 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--) 
 			{
-				if(j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT && file->get_experimental_version() <= 1)
+				if((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1)
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
@@ -2506,6 +2506,13 @@ convoi_t::rdwr(loadsave_t *file)
 			file->rdwr_long(rolling_average[i], "");
 			file->rdwr_short(rolling_average_count[i], "");
 		}		
+	}
+	else
+	{
+		// For loading older games, assume that the convoy
+		// left twenty seconds ago, to avoid anomalies when
+		// measuring average speed. 
+		last_departure_time = welt->get_zeit_ms() - 20000;
 	}
 }
 
@@ -2899,7 +2906,7 @@ void convoi_t::laden() //"load" (Babelfish)
 }*/
 
 
-void convoi_t::calc_revenue(ware_t& ware)
+sint64 convoi_t::calc_revenue(ware_t& ware)
 {
 	float average_speed;
 	
@@ -3132,14 +3139,7 @@ void convoi_t::calc_revenue(ware_t& ware)
 
 	final_revenue = (final_revenue + 1500ll) / 3000ll;
 	
-	if(final_revenue > 0) 
-	{
-		besitzer_p->buche(final_revenue, fahr[0]->get_pos().get_2d(), COST_INCOME);
-		jahresgewinn += final_revenue;
-
-		book(final_revenue, CONVOI_PROFIT);
-		book(final_revenue, CONVOI_REVENUE);
-	}
+	return final_revenue;
 }
 
 const uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes) const
@@ -3311,7 +3311,9 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 			//gewinn += v->calc_gewinn(v->last_stop_pos, v->get_pos().get_2d(), tmp );		
 			v->last_stop_pos = v->get_pos().get_2d();
 			//Unload
+			v->current_revenue = 0;
 			freight_info_resort |= v->entladen(k, halt);
+			gewinn += v->current_revenue;
 		}
 		if(!no_load) 
 		{
@@ -3337,9 +3339,8 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 
 	if(gewinn) 
 	{
-		besitzer_p->buche(gewinn, fahr[0]->get_pos().get_2d(), COST_INCOME);
 		jahresgewinn += gewinn; //"annual profit" (Babelfish)
-
+		besitzer_p->buche(gewinn, fahr[0]->get_pos().get_2d(), COST_INCOME);
 		book(gewinn, CONVOI_PROFIT);
 		book(gewinn, CONVOI_REVENUE);
 	}

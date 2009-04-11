@@ -922,7 +922,7 @@ public:
 	// than iterating through each ware packet in each
 	// vehicle in the convoy.
 	// @author: jamespetts
-	void calc_revenue(ware_t &ware);
+	sint64 calc_revenue(ware_t &ware);
 
 	// @author: jamespetts
 	static const uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance);

@@ -939,6 +939,28 @@ void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl
 }
 
 #else
+
+uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category) const
+{
+	if(&waiting_times[category].get(halt) != NULL)
+	{
+		fixed_list_tpl<uint16, 16> times = waiting_times[category].get(halt);
+		const uint8 count = times.get_count();
+		if(count > 0 && halt.is_bound())
+		{
+			uint16 total_times = 0;
+			ITERATE(times,i)
+			{
+				total_times += times.get_element(i);
+			}
+			total_times /= count;
+			return total_times;
+		}
+			return 0;
+	}
+		return 0;
+}
+
 void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fpl, const convoihandle_t cnv, const linehandle_t line)
 {
 	if(type != warenbauer_t::nichts) 
@@ -963,6 +985,7 @@ void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fp
 			if(line.is_bound())
 			{
 				average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? line->get_finance_history(1, LINE_AVERAGE_SPEED) : line->get_finance_history(0, LINE_AVERAGE_SPEED);
+
 				if(average_speed == 0)
 				{
 					// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
@@ -994,6 +1017,7 @@ void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fp
 			//ITERATE_PTR(fpl, j)
 			const uint16 max_steps = fpl->get_count();
 			uint16 current_step = 0;
+			
 			while(!goal_found)
 			{
 				previous_halt = current_halt;
@@ -1029,7 +1053,8 @@ void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fp
 					current_step = 0;
 				}
 			}
-			new_connexion.journey_time = (((float)journey_distance / average_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60);
+			// Journey time in *tenths* of minutes.
+			new_connexion.journey_time = (((float)journey_distance / (float)average_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 600);
 			new_connexion.best_convoy = cnv;
 			new_connexion.best_line = line;
 
@@ -1238,7 +1263,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 	// http://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
 
 	// Only recalculate when necessary (i.e., on schedule change, or
-	// after a certain period of time has elapse), and in any event
+	// after a certain period of time has elapsed), and in any event
 	// not until a destination from this halt is requested, to prevent
 	// the game pausing and becoming unresponsive whilst everything is
 	// re-calculated all at the same time.
@@ -1263,6 +1288,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		// If this is false, then this is only being called to finish calculating
 		// paths that have not yet been calculated.
 		open_list.clear();
+
 		// Reset the timestamp.
 		paths_timestamp = welt->get_base_pathing_counter();
 	}
@@ -1272,13 +1298,13 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 	const uint32 max_depth = total_halts * max_transfers;
 	const uint32 max_iterations = max_depth <= 65535 ? max_depth : 65535;
 
-	iterations = 0;
 	path_node* path_nodes = new path_node[max_iterations];
 
 	if(open_list.get_count() < 1)
 	{
 		// Only reset the list if it is empty, so as to allow for re-using the open
 		// list on subsequent occasions of finding a path. 
+		iterations = 0;
 		path_node* starting_node = &path_nodes[iterations++];
 		starting_node->halt = self;
 		starting_node->journey_time = 0;
@@ -1286,17 +1312,13 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		open_list.insert(starting_node);
 	}
 
-	do
+	while(open_list.get_count() > 0 || iterations < max_iterations)
 	{	
 		path_node* current_node = open_list.pop();
 		assert(current_node->halt.is_bound());
 
 		uint32 open_list_count = open_list.get_count();
 
-		const char* current_node_halt_name = (char*)current_node->halt->get_name();
-		const bool is_in_list_1 = paths[category].is_contained(current_node->halt);
-		const bool is_in_list_2 = paths[category].get(current_node->halt).next_transfer.is_bound();
-		const path test_path_1 = paths[category].get(current_node->halt);
 		if(paths[category].get(current_node->halt).journey_time != 65535)
 		{
 			// Only insert into the open list if the 
@@ -1309,7 +1331,6 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		while(iter.next() && iterations <= max_iterations)
 		{
 			const halthandle_t h = iter.get_current_key();
-
 			if(paths[category].get(h).journey_time != 65535)
 			{
 				// Only insert into the open list if the 
@@ -1323,11 +1344,6 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			new_node->halt = h;
 			new_node->journey_time = current_connexion.journey_time + current_connexion.waiting_time + current_node->journey_time;
 			new_node->link = current_node;
-			
-			/*const char* new_node_halt_name = (char*)new_node->halt->get_name();
-			const path test_path_2 = paths[category].get(new_node->halt);
-			const bool n_is_in_list_1 = paths[category].is_contained(new_node->halt);
-			const bool n_is_in_list_2 = paths[category].get(new_node->halt).next_transfer.is_bound();*/
 
 			open_list.insert(new_node);
 
@@ -1363,35 +1379,20 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		}
 		
 		if(current_node->halt == goal)
-		//path test_path_3 = paths[category].get(goal);
-		//if(paths[category].get(goal).journey_time != 65535)
 		{
 			// Abort the search early if the goal stop is found.
 			// Because the open list is stored on the heap, the search
 			// can be resumed where it left off if another goal, as yet
 			// not found, is searched for, unless the index is stale.
 
-			/*char* goal_name = (char*)goal->get_name();
-			char* next_transfer_name = "NULL";
-			if(paths[category].access(current_node->halt)->next_transfer.is_bound())
-			{
-				next_transfer_name = (char*)paths[category].access(current_node->halt)->next_transfer->get_name();
-			}*/
-
 			return;
 		}	
 		
 		current_node = NULL;
-		if(iterations >= max_iterations)
-		{
-			// The search is not complete, but we abandon it for now
-			// to save memory. It can be resumed again later when the
-			// next packet tries to find a route.
-			break;
-		}
 	}
-	while(open_list.get_count() > 0);
-	search_complete = open_list.get_count() < 1;
+	
+	// If the code has reached here without returning, the search is complete.
+	search_complete = true;
 }
 
 haltestelle_t::path haltestelle_t::get_path_to(halthandle_t goal, uint8 category) 
@@ -1409,13 +1410,13 @@ haltestelle_t::path haltestelle_t::get_path_to(halthandle_t goal, uint8 category
 	}
 
 	destination_path = paths[category].get(goal);
-	char* self_name = (char*)self->get_name();
+	/*char* self_name = (char*)self->get_name();
 	char* goal_name = (char*)goal->get_name();
 	char* next_transfer_name = "NULL";
 	if(destination_path.next_transfer.is_bound())
 	{
 		next_transfer_name = (char*)destination_path.next_transfer->get_name();
-	}
+	}*/
 
 	if(!destination_path.next_transfer.is_bound() && !search_complete)
 	{
@@ -1426,10 +1427,10 @@ haltestelle_t::path haltestelle_t::get_path_to(halthandle_t goal, uint8 category
 		destination_path = paths[category].get(goal);
 	}
 
-	if(destination_path.next_transfer.is_bound())
+	/*if(destination_path.next_transfer.is_bound())
 	{
 		next_transfer_name = (char*)destination_path.next_transfer->get_name();
-	}
+	}*/
 
 	return destination_path;
 }
@@ -1855,7 +1856,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 
 
 // will load something compatible with wtyp into the car which schedule is fpl 
-ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t *fpl, convoihandle_t cnv) //"hole from" (Google)
+ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t *fpl, convoi_t* cnv) //"hole from" (Google)
 {
 	// prissi: first iterate over the next stop, then over the ware
 	// might be a little slower, but ensures that passengers to nearest stop are served first
@@ -1908,7 +1909,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 					if(tmp.get_besch()->get_speed_bonus() > 0)
 					{
 						//Only consider for discarding if the goods care about their timings.
-						const uint16 max_minutes = welt->get_einstellungen()->get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus();
+						const uint16 max_minutes = (welt->get_einstellungen()->get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10;  // Minutes are recorded in tenths
 						const sint64 waiting_ticks = welt->get_zeit_ms() - tmp.arrival_time;
 						const uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 						if(waiting_minutes > max_minutes)
@@ -1926,12 +1927,12 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 #ifdef NEW_PATHING
 						// Skip if the goods have recently arrived, and this is not their preferred line/convoy
 						// After waiting some time (1/3rd of their maximum wait), they will board anything.
-						if(cnv.is_bound() && waiting_minutes <= max_minutes / 3)
+						if(cnv != NULL && waiting_minutes <= max_minutes / 3)
 						{
 							if(cnv->get_line().is_bound())
 							{
 								linehandle_t best_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_catg());
-								if(!best_line.is_bound() && best_line == cnv->get_line())
+								if(best_line.is_bound() && best_line != cnv->get_line())
 								{
 									continue;
 								}
@@ -1939,7 +1940,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 							else
 							{
 								convoihandle_t best_convoy = get_preferred_convoy(tmp.get_zwischenziel(), tmp.get_catg());
-								if(!best_convoy.is_bound() && best_convoy == cnv)
+								if(best_convoy.is_bound() && best_convoy.get_rep() != cnv)
 								{
 									continue;
 								}
@@ -1996,7 +1997,11 @@ inline uint16 haltestelle_t::get_waiting_minutes(uint32 waiting_ticks) const
 {
 	// Waiting time is reduced (2* ...) instead of (3 * ...) because, in real life, people
 	// can organise their journies according to timetables, so waiting is more efficient.
-	return (2 * welt->get_einstellungen()->get_journey_time_multiplier() * waiting_ticks) / 4096.0;
+
+	// Note: waiting times now in *tenths* of minutes (hence difference in arithmetic)
+	//uint16 test_minutes_1 = ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) * welt->get_einstellungen()->get_journey_time_multiplier() * 600);
+	//uint16 test_minutes_2 = (2 * welt->get_einstellungen()->get_journey_time_multiplier() * waiting_ticks) / 409.6;
+	return (2 * welt->get_einstellungen()->get_journey_time_multiplier() * waiting_ticks) / 409.6;
 
 	//Old method (both are functionally equivalent, except for reduction in time. Would be fully equivalent if above was 3 * ...):
 	//return ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) * welt->get_einstellungen()->get_journey_time_multiplier() * 60);
@@ -2776,11 +2781,19 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			
 				quickstone_hashtable_iterator_tpl<haltestelle_t, fixed_list_tpl<uint16, 16>> iter(waiting_times[i]);
 
-				iter.begin();
+				//iter.begin();
 				while(iter.next())
 				{
 					// Store the coordinates of the key halt
-					iter.get_current_key()->get_basis_pos().rdwr(file);
+
+					koord halt_position = koord::invalid;
+					
+					if(iter.get_current_key().is_bound())
+					{
+						halt_position = iter.get_current_key()->get_basis_pos();
+					}
+
+					halt_position.rdwr(file);
 					uint8 waiting_time_count = iter.get_current_value().get_count();
 					file->rdwr_byte(waiting_time_count, "");
 					ITERATE(iter.get_current_value(),i)
@@ -2799,17 +2812,31 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				{
 					koord halt_position;
 					halt_position.rdwr(file);
-					halthandle_t current_halt = welt->lookup(halt_position)->get_halt();
-					fixed_list_tpl<uint16, 16> list;
-					uint8 waiting_time_count;
-					file->rdwr_byte(waiting_time_count, "");
-					for(uint8 j = 0; j < waiting_time_count; j ++)
+					if(halt_position != koord::invalid)
 					{
-						uint16 current_time;
-						file->rdwr_short(current_time, "");
-						list.add_to_tail(current_time);
+						halthandle_t current_halt = welt->lookup(halt_position)->get_halt();
+						fixed_list_tpl<uint16, 16> list;
+						uint8 waiting_time_count;
+						file->rdwr_byte(waiting_time_count, "");
+						for(uint8 j = 0; j < waiting_time_count; j ++)
+						{
+							uint16 current_time;
+							file->rdwr_short(current_time, "");
+							list.add_to_tail(current_time);
+						}
+						waiting_times[i].put(current_halt, list);
 					}
-					waiting_times[i].put(current_halt, list);
+					else
+					{
+						// The halt was not properly saved.
+						uint8 waiting_time_count;
+						file->rdwr_byte(waiting_time_count, "");
+						for(uint8 j = 0; j < waiting_time_count; j ++)
+						{
+							uint16 current_time;
+							file->rdwr_short(current_time, "");
+						}
+					}
 				}
 			}
 		}

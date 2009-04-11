@@ -159,11 +159,11 @@ void simline_t::rdwr(loadsave_t *file)
 	fpl->rdwr(file);
 
 	//financial history
-	for (int j = 0; j<MAX_LINE_COST; j++) 
+	for (int j = 0; j < MAX_LINE_COST; j++) 
 	{
-		for (int k = MAX_MONTHS-1; k>=0; k--) 
+		for (int k = MAX_MONTHS - 1; k >= 0; k--) 
 		{
-			if(j == LINE_AVERAGE_SPEED || j == LINE_COMFORT && file->get_experimental_version() <= 1)
+			if((j == LINE_AVERAGE_SPEED || j == LINE_COMFORT) && file->get_experimental_version() <= 1)
 			{
 				// Versions of Experimental saves with 1 and below
 				// did not have settings for average speed or comfort.
