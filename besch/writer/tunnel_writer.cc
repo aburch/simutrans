@@ -88,7 +88,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint32(fp, max_weight,					20);
 	node.write_uint8(fp, permissive_way_constraints,	24);
 	node.write_uint8(fp, prohibitive_way_constraints,	25);
-	str = obj.get("way");
+	cstring_t str = obj.get("way");
 	if (str.len() > 0) 
 	{
 		xref_writer_t::instance()->write_obj(fp, node, obj_way, str, true);
@@ -112,7 +112,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	char buf[40];
 	sprintf(buf, "%simage[%s][0]", "back", indices[0]);
 
-	cstring_t str = obj.get(buf);
+	str = obj.get(buf);
 	if (strlen(str) == 0) {
 		node.write_sint8(fp, number_seasons, 19);
 		write_head(fp, node, obj);
