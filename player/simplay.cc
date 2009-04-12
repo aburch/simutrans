@@ -326,6 +326,7 @@ void spieler_t::neuer_monat()
 			sint32 monthly_interest = interest_rate * konto;
 			konto += monthly_interest;
 			finance_history_month[0][COST_INTEREST] += monthly_interest;
+			finance_history_month[0][COST_PROFIT] -= monthly_interest;
 		}
 
 		// Adjust credit limit
@@ -340,7 +341,7 @@ void spieler_t::neuer_monat()
 		{
 			if(this == welt->get_spieler(0)) 
 			{
-				if(finance_history_year[0][COST_NETWEALTH]<0 && welt->get_einstellungen()->bankruptsy_allowed()) 
+				if(finance_history_year[0][COST_NETWEALTH] < 0 && welt->get_einstellungen()->bankruptsy_allowed() && konto_ueberzogen > 3) 
 				{
 					destroy_all_win();
 					create_win(280, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
