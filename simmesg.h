@@ -24,7 +24,7 @@ public:
 		long time;
 	};
 
-	enum msg_typ {general=0, ai=1, city=2, convoi=3, industry=4, tourist=5, new_vehicle=6, full=7, problems=8, warnings=9 };
+	enum msg_typ {general=0, ai=1, city=2, convoi=3, industry=4, tourist=5, new_vehicle=6, full=7, problems=8, warnings=9, MAX_MESSAGE_TYPE };
 
 	void add_message( const char *text, koord pos, msg_typ where, PLAYER_COLOR_VAL color=COL_BLACK, image_id bild=IMG_LEER );
 
@@ -41,10 +41,10 @@ private:
 	karte_t	*welt;
 
 	// bitfields that contains the messages
-	int	ticker_flags;
-	int win_flags;
-	int auto_win_flags;
-	int ignore_flags;
+	sint32 ticker_flags;
+	sint32 win_flags;
+	sint32 auto_win_flags;
+	sint32 ignore_flags;
 
 	vector_tpl<node> list;
 

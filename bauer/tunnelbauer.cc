@@ -294,9 +294,13 @@ bool tunnelbauer_t::baue_tunnel(karte_t *welt, spieler_t *sp, koord3d start, koo
 DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.x, pos.y, pos.z, end.x, end.y, end.z );
 
 	// now we seach a matchin way for the tunnels top speed
-	const weg_besch_t *weg_besch = wegbauer_t::weg_search( wegtyp, besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat );
+	const weg_besch_t *weg_besch = besch->get_weg_besch();
+	if(weg_besch==NULL) {
+		// now we seach a matchin wy for the tunnels top speed
+		weg_besch = wegbauer_t::weg_search( wegtyp, besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat );
+	}
 
-	baue_einfahrt(welt, sp, pos, zv, besch, weg_besch, cost);
+	const weg_besch_t *einfahrt_weg_besch = baue_einfahrt(welt, sp, pos, zv, besch, NULL, cost);
 
 	ribi = ribi_typ(-zv);
 	// don't move on to next tile if only one tile long
@@ -326,7 +330,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 
 	// if end is above ground construct an exit
 	if(welt->lookup(end.get_2d())->get_kartenboden()->get_pos().z==end.z) {
-		baue_einfahrt(welt, sp, pos, -zv, besch, weg_besch, cost);
+		baue_einfahrt(welt, sp, pos, -zv, besch, einfahrt_weg_besch, cost);
 	}
 	else {
 		tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0);
@@ -350,8 +354,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 
 
 
-void
-tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, const tunnel_besch_t *besch, const weg_besch_t *weg_besch, int &cost)
+const weg_besch_t *tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, const tunnel_besch_t *besch, const weg_besch_t *weg_besch, int &cost)
 {
 	grund_t *alter_boden = welt->lookup(end);
 	ribi_t::ribi ribi = alter_boden->get_weg_ribi_unmasked(besch->get_waytype()) | ribi_typ(zv);
@@ -359,7 +362,7 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
 	tunnelboden_t *tunnel = new tunnelboden_t(welt, end, alter_boden->get_grund_hang());
 	tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
 
-	weg_t *weg=alter_boden->get_weg( besch->get_waytype() );
+	weg_t *weg = alter_boden->get_weg( besch->get_waytype() );
 	// take care of everything on that tile ...
 	tunnel->take_obj_from( alter_boden );
 	welt->access(end.get_2d())->kartenboden_setzen( tunnel );
@@ -371,8 +374,13 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
 	else {
 		// needs still one
 		weg = weg_t::alloc( besch->get_waytype() );
-		weg->set_besch( weg_besch );
+		if(  weg_besch  ) {
+			weg->set_besch( weg_besch );
+		}
 		tunnel->neuen_weg_bauen( weg, ribi, sp );
+		if(sp!=NULL) {
+			spieler_t::add_maintenance( sp,  weg->get_besch()->get_wartung() );
+		}
 	}
 	weg->set_max_speed( besch->get_topspeed() );
 	weg->set_max_weight( besch->get_max_weight() );
@@ -383,6 +391,7 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
 		spieler_t::add_maintenance( sp,  besch->get_wartung() );
 	}
 	cost += besch->get_preis();
+	return weg->get_besch();
 }
 
 

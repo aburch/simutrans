@@ -98,5 +98,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_AVERAGE_SPEED (69)
 #define COL_AVEARGE_WAIT  COL_DARK_PURPLE
 #define COL_COMFORT COL_DARK_TURQOISE
+#define COL_INTEREST (101)
+#define COL_CREDIT_LIMIT (99)
 
 #endif

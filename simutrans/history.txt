@@ -9,6 +9,9 @@
 	FIX: chanhing schedule bz stop mover did not worked on open schedule windows
 	CHANGE: climate dialoge now completely gui_numberinput_t
 	CHANGE: convois will only choose stops that can fit their entire length
+	FIX: (mostly gerw) tunnel maintenance costs
+	ADD: (z9999) tunnel can have predefined way (new syntax, need new makeobj)
+	ADD: completly ignore message button at beginning of dialoge
 
 
 

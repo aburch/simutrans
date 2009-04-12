@@ -9,19 +9,19 @@
 // structures, since we use the C-interface
 typedef struct
 {
-    CLSID Clsid;
-    GUID  FormatID;
-    const WCHAR* CodecName;
-    const WCHAR* DllName;
-    const WCHAR* FormatDescription;
-    const WCHAR* FilenameExtension;
-    const WCHAR* MimeType;
-    DWORD Flags;
-    DWORD Version;
-    DWORD SigCount;
-    DWORD SigSize;
-    const BYTE* SigPattern;
-    const BYTE* SigMask;
+	CLSID Clsid;
+	GUID  FormatID;
+	const WCHAR* CodecName;
+	const WCHAR* DllName;
+	const WCHAR* FormatDescription;
+	const WCHAR* FilenameExtension;
+	const WCHAR* MimeType;
+	DWORD Flags;
+	DWORD Version;
+	DWORD SigCount;
+	DWORD SigSize;
+	const BYTE* SigPattern;
+	const BYTE* SigMask;
 } ImageCodecInfo;
 
 #define    PixelFormatIndexed      0x00010000 // Indexes into a palette

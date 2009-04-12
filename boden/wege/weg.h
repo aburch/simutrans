@@ -65,7 +65,7 @@ public:
 		HAS_CROSSING   = 0x20
 	};
 
-	enum system_type { type_flat=0, type_elevated=1, type_tram=7, type_all=255 };
+	enum system_type { type_flat=0, type_elevated=1, type_tram=7, type_underground=64, type_all=255 };
 
 private:
 	/**

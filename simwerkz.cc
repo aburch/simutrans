@@ -1550,6 +1550,10 @@ DBG_MESSAGE("wkz_wegebau()", "try straight route");
 		DBG_MESSAGE("wkz_wegebau()", "builder found route with %d sqaures length.", bauigel.max_n);
 
 		long cost = bauigel.calc_costs();
+		if(!sp->can_afford(cost))
+		{
+			return CREDIT_MESSAGE;
+		}
 		welt->mute_sound(true);
 		bauigel.baue();
 		welt->mute_sound(false);
@@ -1675,7 +1679,7 @@ const char *wkz_tunnelbau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 			// now try construction
 			wegbauer_t bauigel(welt, sp);
 			bauigel.route_fuer((wegbauer_t::bautyp_t)bt, wb, besch);
-			bauigel.set_keep_existing_ways( event_get_last_control_shift()==2 );
+			bauigel.set_keep_existing_faster_ways( event_get_last_control_shift()!=2 );
 			bauigel.calc_straight_route(start,koord3d(pos.get_2d(),start.z));
 			welt->mute_sound(true);
 			bauigel.baue();
@@ -2156,8 +2160,13 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		rotation %= besch->get_all_layouts();
 	}
 
+	const sint64 cost = welt->get_einstellungen()->cst_multiply_post*besch->get_level()*besch->get_b()*besch->get_h();
+	if(!sp->can_afford(cost))
+	{
+		return CREDIT_MESSAGE;
+	}
 	hausbauer_t::baue(welt, halt->get_besitzer(), k-offsets, rotation, besch, &halt);
-	sp->buche(welt->get_einstellungen()->cst_multiply_post*besch->get_level()*besch->get_b()*besch->get_h(), pos, COST_CONSTRUCTION);
+	sp->buche(cost, pos, COST_CONSTRUCTION);
 	halt->recalc_station_type();
 
 	return NULL;
@@ -2174,6 +2183,13 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 	int len = besch->get_groesse().y-1;
 	koord dx = koord((hang_t::typ)hang);
 	koord last_pos = pos - dx*len;
+
+	sint64 costs = welt->get_einstellungen()->cst_multiply_dock * besch->get_level();
+
+	if(!sp->can_afford(costs))
+	{
+		return CREDIT_MESSAGE;
+	}
 
 	// check, if we can built here ...
 	if(!hang_t::ist_einfach(hang)) {
@@ -2286,11 +2302,12 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	halthandle_t halt = suche_nahe_haltestelle(sp, welt, welt->lookup_kartenboden(pos)->get_pos() );
 	bool neu = !halt.is_bound();
 
-	if(neu) { // neues dock
+	if(neu) 
+	{ // neues dock
 		halt = sp->halt_add(pos);
 	}
 	hausbauer_t::baue(welt, halt->get_besitzer(), bau_pos, layout, besch, &halt);
-	sint64 costs = welt->get_einstellungen()->cst_multiply_dock*besch->get_level();
+
 	if(sp!=halt->get_besitzer()) {
 		// public stops are expensive!
 		costs -= ((welt->get_einstellungen()->maint_building*besch->get_level()*60)<<(welt->ticks_bits_per_tag-18));
@@ -2334,6 +2351,11 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	if(bd->get_typ()==grund_t::tunnelboden  &&  bd->ist_karten_boden()) {
 		// do not build on tunnel entries
 		return false;
+	}
+
+	if(!sp->can_afford(cost + ((welt->get_einstellungen()->maint_building*besch->get_level()*besch->get_b()*besch->get_h()*60)<<(welt->ticks_bits_per_tag-18))));
+	{
+		return CREDIT_MESSAGE;
 	}
 
 	if(bd->get_depot()) {
@@ -2479,6 +2501,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		// public stops are expensive!
 		cost += ((welt->get_einstellungen()->maint_building*besch->get_level()*besch->get_b()*besch->get_h()*60)<<(welt->ticks_bits_per_tag-18));
 	}
+
 	sp->buche( cost, pos, COST_CONSTRUCTION);
 	if(umgebung_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==pos) {
 		// since we are larger now ...
@@ -3396,7 +3419,8 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 		return "";
 	}
 
-	if(welt->ist_in_kartengrenzen(pos.get_2d())) {
+	if(welt->ist_in_kartengrenzen(pos.get_2d())) 
+	{
 
 		// remove previous one
 		koord previous = sp->get_headquarter_pos();
@@ -3409,6 +3433,13 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 
 		koord size = besch->get_groesse();
 		int rotate = 0;
+
+		const sint64 headquarters_cost = welt->get_einstellungen()->cst_multiply_headquarter * besch->get_level() * size.x * size.y;
+		
+		if(!sp->can_afford(headquarters_cost))
+		{
+			return CREDIT_MESSAGE;
+		}
 
 		if(welt->ist_platz_frei(pos.get_2d(), size.x, size.y, NULL, besch->get_allowed_climate_bits())) {
 			ok = true;
@@ -3427,7 +3458,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 				city->add_gebaeude_to_stadt( hq );
 			}
 			sp->add_headquarter( besch->get_extra()+1, pos.get_2d() );
-			sp->buche(welt->get_einstellungen()->cst_multiply_headquarter * besch->get_level() * size.x * size.y, pos.get_2d(), COST_CONSTRUCTION);
+			sp->buche(headquarters_cost, pos.get_2d(), COST_CONSTRUCTION);
 			if(sp == welt->get_active_player()) 
 			{
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );

@@ -5,6 +5,7 @@
 #include "../tunnel_besch.h"
 #include "obj_node.h"
 #include "text_writer.h"
+#include "xref_writer.h"
 #include "imagelist_writer.h"
 #include "skin_writer.h"
 #include "get_waytype.h"
@@ -15,7 +16,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	int pos, i;
 
-	obj_node_t node(this, 26, &parent);
+	obj_node_t node(this, 27, &parent);
 
 	uint32 topspeed    = obj.get_int("topspeed",    999);
 	uint32 preis       = obj.get_int("cost",          0);
@@ -65,7 +66,8 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 
 	// Version uses always high bit set as trigger
 	// version 2: snow images
-	uint16 version = 0x8002;
+	// Version 3: pre-defined ways
+	uint16 version = 0x8003;
 
 	// This is the overlay flag for Simutrans-Experimental
 	// This sets the *second* highest bit to 1. 
@@ -86,6 +88,16 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint32(fp, max_weight,					20);
 	node.write_uint8(fp, permissive_way_constraints,	24);
 	node.write_uint8(fp, prohibitive_way_constraints,	25);
+	str = obj.get("way");
+	if (str.len() > 0) 
+	{
+		xref_writer_t::instance()->write_obj(fp, node, obj_way, str, true);
+		node.write_sint8(fp, 1, 26);
+	}
+	else 
+	{
+		node.write_sint8(fp, 0, 26);
+	}
 
 	sint8 number_seasons = 0;
 
@@ -147,6 +159,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 			}
 		}
 	}
+	
 	cursorkeys.clear();
 
 	node.write(fp);

@@ -22,24 +22,26 @@
 
 
 enum player_cost {
-	COST_CONSTRUCTION=0,// Construction
-	COST_VEHICLE_RUN,   // Vehicle running costs
-	COST_NEW_VEHICLE,   // New vehicles
-	COST_INCOME,        // Income
-	COST_MAINTENANCE,   // Upkeep
-	COST_ASSETS,        // value of all vehicles and buildings
-	COST_CASH,          // Cash
-	COST_NETWEALTH,     // Total Cash + Assets
-	COST_PROFIT,        // COST_POWERLINES+COST_INCOME-(COST_CONSTRUCTION+COST_VEHICLE_RUN+COST_NEW_VEHICLE+COST_MAINTENANCE)
-	COST_OPERATING_PROFIT, // COST_POWERLINES+COST_INCOME-(COST_VEHICLE_RUN+COST_MAINTENANCE)
-	COST_MARGIN,        // COST_OPERATING_PROFIT/(COST_VEHICLE_RUN+COST_MAINTENANCE)
-	COST_ALL_TRANSPORTED, // all transported goods
-	COST_POWERLINES,	  // revenue from the power grid
+	COST_CONSTRUCTION = 0,	// Construction
+	COST_VEHICLE_RUN,		// Vehicle running costs
+	COST_NEW_VEHICLE,		// New vehicles
+	COST_INCOME,			// Income
+	COST_MAINTENANCE,		// Upkeep
+	COST_ASSETS,			// value of all vehicles and buildings
+	COST_CASH,				// Cash
+	COST_NETWEALTH,			// Total Cash + Assets
+	COST_PROFIT,			// COST_POWERLINES+COST_INCOME-(COST_CONSTRUCTION+COST_VEHICLE_RUN+COST_NEW_VEHICLE+COST_MAINTENANCE)
+	COST_OPERATING_PROFIT,	// COST_POWERLINES+COST_INCOME-(COST_VEHICLE_RUN+COST_MAINTENANCE)
+	COST_MARGIN,			// COST_OPERATING_PROFIT/(COST_VEHICLE_RUN+COST_MAINTENANCE)
+	COST_ALL_TRANSPORTED,	// all transported goods
+	COST_POWERLINES,		// revenue from the power grid
 	COST_TRANSPORTED_PAS,	// number of passengers that actually reached destination
 	COST_TRANSPORTED_MAIL,
 	COST_TRANSPORTED_GOOD,
 	COST_ALL_CONVOIS,		// number of convois
 	COST_SCENARIO_COMPLETED,// scenario success (only useful if there is one ... )
+	COST_INTEREST,			// Interest paid servicing debt
+	COST_CREDIT_LIMIT,		// Player's credit limit.
 	MAX_PLAYER_COST
 };
 
@@ -353,11 +355,12 @@ private:
 
 	// The maximum amount overdrawn that a player can be
 	// before no more purchases can be made.
-	sint32 credit_limit;
 	sint32 base_credit_limit;
 
 protected:
-	sint32 calc_credit_limit();
+	sint64 calc_credit_limit();
+
+	sint64 get_base_credit_limit();
 
 public:
 	void init_undo(waytype_t t, unsigned short max );
@@ -367,10 +370,10 @@ public:
 	//Checks the affordability of any possible purchase.
 	inline bool can_afford(sint64 price) const
 	{
-		return  (price < (konto + credit_limit) || welt->get_einstellungen()->insolvent_purchases_allowed() || welt->get_einstellungen()->is_freeplay());
+		return  (price < (konto + finance_history_month[0][COST_CREDIT_LIMIT]) || welt->get_einstellungen()->insolvent_purchases_allowed() || welt->get_einstellungen()->is_freeplay());
 	}
 
-	uint32 get_credit_limit() const { return credit_limit; }
+	uint32 get_credit_limit() const { return finance_history_month[0][COST_CREDIT_LIMIT]; }
 
 	// headquarter stuff
 private:

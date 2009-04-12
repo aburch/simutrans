@@ -36,20 +36,20 @@
 #define USE_TRANSPARENCY	(6*13+6+4)
 #define HIDE_TREES				(7*13+6+4)
 #define HIDE_CITY_HOUSES	(8*13+6+4)
-#define HIDE_ALL_HOUSES		(9*13+6+4)
 
-#define SEPERATE2 (10*13+6+4)
+#define SEPERATE2 (9*13+6+4)
 
-#define USE_TRANSPARENCY_STATIONS	(10*13+6+2*4)
-#define SHOW_STATION_COVERAGE			(11*13+6+2*4)
-#define SHOW_STATION_SIGNS				(12*13+6+2*4)
-#define SHOW_STATION_GOODS				(13*13+6+2*4)
+#define USE_TRANSPARENCY_STATIONS	(9*13+6+2*4)
+#define SHOW_STATION_COVERAGE			(10*13+6+2*4)
+#define SHOW_STATION_SIGNS				(11*13+6+2*4)
+#define SHOW_STATION_GOODS				(12*13+6+2*4)
 
-#define SEPERATE3	(14*13+6+2*4)
+#define SEPERATE3	(13*13+6+2*4)
 
-#define CITY_WALKER								(14*13+6+3*4)
-#define STOP_WALKER								(15*13+6+3*4)
-#define DENS_TRAFFIC							(16*13+6+3*4)
+#define CITY_WALKER								(13*13+6+3*4)
+#define STOP_WALKER								(14*13+6+3*4)
+#define DENS_TRAFFIC							(15*13+6+3*4)
+#define CONVOI_TOOLTIPS							(16*13+6+3*4)
 
 #define SEPERATE4	(17*13+6+3*4)
 
@@ -124,13 +124,11 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[11].set_typ(button_t::square_state);
 	buttons[11].set_text("hide trees");
 
+	// left right for hide messages
 	buttons[12].set_pos( koord(10,HIDE_CITY_HOUSES) );
-	buttons[12].set_typ(button_t::square_state);
-	buttons[12].set_text("hide city building");
-
-	buttons[13].set_pos( koord(10,HIDE_ALL_HOUSES) );
-	buttons[13].set_typ(button_t::square_state);
-	buttons[13].set_text("hide all building");
+	buttons[12].set_typ(button_t::arrowleft);
+	buttons[13].set_pos( koord(RIGHT_WIDTH-10-10,HIDE_CITY_HOUSES) );
+	buttons[13].set_typ(button_t::arrowright);
 
 	buttons[14].set_pos( koord(10,USE_TRANSPARENCY_STATIONS) );
 	buttons[14].set_typ(button_t::square_state);
@@ -159,6 +157,12 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[19].set_text("show waiting bars");
 	buttons[19].pressed = umgebung_t::show_names&1;
 
+	// left/right for convoi tooltips
+	buttons[0].set_pos( koord(10,CONVOI_TOOLTIPS) );
+	buttons[0].set_typ(button_t::arrowleft);
+	buttons[1].set_pos( koord(RIGHT_WIDTH-10-10,CONVOI_TOOLTIPS) );
+	buttons[1].set_typ(button_t::arrowright);
+
 	for(int i=0;  i<MAX_BUTTONS;  i++ ) {
 		buttons[i].add_listener(this);
 		add_komponente( buttons+i );
@@ -180,6 +184,10 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		sets->set_verkehr_level( v.i );
 	} else if(&scrollspeed==komp) {
 		umgebung_t::scroll_multi = buttons[6].pressed ? -v.i : v.i;
+	} else if((buttons+0)==komp) {
+		umgebung_t::show_vehicle_states = (umgebung_t::show_vehicle_states+2)%3;
+	} else if((buttons+1)==komp) {
+		umgebung_t::show_vehicle_states = (umgebung_t::show_vehicle_states+1)%3;
 	} else if((buttons+6)==komp) {
 		buttons[6].pressed ^= 1;
 		umgebung_t::scroll_multi = -umgebung_t::scroll_multi;
@@ -198,9 +206,9 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	} else if((buttons+11)==komp) {
 		umgebung_t::hide_trees = !umgebung_t::hide_trees;
 	} else if((buttons+12)==komp) {
-		umgebung_t::hide_buildings = !umgebung_t::hide_buildings;
+		umgebung_t::hide_buildings = (umgebung_t::hide_buildings+2)%3;
 	} else if((buttons+13)==komp) {
-		umgebung_t::hide_buildings = umgebung_t::hide_buildings>1 ? 0 : 2;
+		umgebung_t::hide_buildings = (umgebung_t::hide_buildings+1)%3;
 	} else if((buttons+14)==komp) {
 		umgebung_t::use_transparency_station_coverage = !umgebung_t::use_transparency_station_coverage;
 		buttons[14].pressed ^= 1;
@@ -241,8 +249,6 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 
 	// can be changed also with keys ...
 	buttons[11].pressed = umgebung_t::hide_trees;
-	buttons[12].pressed = umgebung_t::hide_buildings>0;
-	buttons[13].pressed = umgebung_t::hide_buildings>1;
 	buttons[15].pressed = umgebung_t::station_coverage_show;
 	buttons[16].pressed = grund_t::underground_mode;
 	buttons[17].pressed = grund_t::show_grid;
@@ -257,11 +263,17 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	display_ddd_box_clip(x+10, y+SEPERATE3, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
 	display_ddd_box_clip(x+10, y+SEPERATE4, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
 
-	display_proportional_clip(x+10, y+BRIGHTNESS, translator::translate("1LIGHT_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x+10, y+BRIGHTNESS+1, translator::translate("1LIGHT_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 
-	display_proportional_clip(x+10, y+SCROLL_SPEED, translator::translate("3LIGHT_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x+10, y+SCROLL_SPEED+1, translator::translate("3LIGHT_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 
-	display_proportional_clip(x+10, y+DENS_TRAFFIC, translator::translate("6WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x+10, y+DENS_TRAFFIC+1, translator::translate("6WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
+
+	const char *hhc = translator::translate( umgebung_t::hide_buildings==0 ? "no buildings hidden" : (umgebung_t::hide_buildings==1 ? "hide city building" : "hide all building") );
+	display_proportional_clip(x+10+16, y+HIDE_CITY_HOUSES+1, hhc, ALIGN_LEFT, COL_BLACK, true);
+
+	const char *ctc = translator::translate( umgebung_t::show_vehicle_states==0 ? "convoi error tooltips" : (umgebung_t::show_vehicle_states==1 ? "convoi mouseover tooltips" : "all convoi tooltips") );
+	display_proportional_clip(x+10+16, y+CONVOI_TOOLTIPS+1, ctc, ALIGN_LEFT, COL_BLACK, true);
 
 	int len=15+display_proportional_clip(x+10, y+FPS_DATA, translator::translate("Frame time:"), ALIGN_LEFT, COL_BLACK, true);
 	sprintf(buf,"%ld ms", get_frame_time() );

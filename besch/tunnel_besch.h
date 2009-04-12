@@ -21,7 +21,7 @@
 #include "obj_besch_std_name.h"
 #include "skin_besch.h"
 #include "bildliste2d_besch.h"
-
+#include "weg_besch.h"
 
 class tunnel_besch_t : public obj_besch_std_name_t {
 	friend class tunnel_writer_t;
@@ -49,6 +49,10 @@ private:
 	* @author: jamespetts*/
 	uint8 way_constraints_permissive;
 	uint8 way_constraints_prohibitive;
+
+	/* has underground way image ? (0 = no, 1 = yes)
+	*/
+	uint8 has_way;
 
 public:
 	const bild_besch_t *get_hintergrund(hang_t::typ hang, uint8 season) const
@@ -124,6 +128,14 @@ public:
 
 	uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
 	uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
+
+	const weg_besch_t *get_weg_besch() const
+	{
+		if(has_way) {
+			return static_cast<const weg_besch_t *>(get_child(5 + number_seasons * 2));
+		}
+		return NULL;
+	}
 };
 
 #endif

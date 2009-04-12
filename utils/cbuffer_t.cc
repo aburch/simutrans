@@ -91,11 +91,28 @@ void cbuffer_t::printf(const char* fmt, ...)
 	va_list ap;
 	va_start(ap, fmt);
 	int count = vsnprintf( buf+size, capacity-size, fmt, ap);
-	assert(count >= 0);
-	if(capacity-size <= (uint)count) {
+	if(count==-1) {
+		// truncated
+		buf[capacity-1] = 0;
+	}
+	else if(capacity-size <= (uint)count) {
 		size = capacity - 1;
 	} else {
 		size += count;
 	}
 	va_end(ap);
 }
+
+
+void cbuffer_t::extent(const unsigned int by_amount)
+{
+	if(  size+by_amount > capacity  ) {
+		unsigned int new_capacity = capacity + by_amount;
+		char *new_buf = new char [new_capacity];
+		memcpy( new_buf, buf, capacity );
+		delete [] buf;
+		buf = new_buf;
+		capacity = new_capacity;
+	}
+}
+

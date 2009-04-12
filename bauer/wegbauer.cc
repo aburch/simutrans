@@ -1841,11 +1841,17 @@ wegbauer_t::baue_tunnelboden()
 
 		grund_t* gr = welt->lookup(route[i]);
 
+		const weg_besch_t *wb = tunnel_besch->get_weg_besch();
+		if(wb==NULL) {
+			// now we seach a matchin wy for the tunnels top speed
+			wb = wegbauer_t::weg_search( tunnel_besch->get_waytype(), tunnel_besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat );
+		}
+
 		if(gr==NULL) {
 			// make new tunnelboden
 			tunnelboden_t* tunnel = new tunnelboden_t(welt, route[i], 0);
 			weg_t *weg = weg_t::alloc(tunnel_besch->get_waytype());
-			weg->set_besch( besch );
+			weg->set_besch( wb );
 			welt->access(route[i].get_2d())->boden_hinzufuegen(tunnel);
 			tunnel->neuen_weg_bauen(weg, calc_ribi(i), sp);
 			tunnel->obj_add(new tunnel_t(welt, route[i], sp, tunnel_besch));
@@ -1858,17 +1864,21 @@ wegbauer_t::baue_tunnelboden()
 		}
 		else if(gr->get_typ()==grund_t::tunnelboden) {
 			// check for extension only ...
-			gr->weg_erweitern(tunnel_besch->get_waytype(),calc_ribi(i));
+			gr->weg_erweitern( tunnel_besch->get_waytype(), calc_ribi(i) );
 			weg_t *weg = gr->get_weg(tunnel_besch->get_waytype());
 			// take the faster way
-			if (!(keep_existing_ways  ||  (keep_existing_faster_ways  && (weg->get_max_speed() > tunnel_besch->get_topspeed())))) {
-				spieler_t::add_maintenance(sp, -weg->get_besch()->get_wartung());
-				weg->set_besch(besch);
+			if(  !keep_existing_faster_ways  ||  (weg->get_max_speed() < tunnel_besch->get_topspeed())  ) {
+				tunnel_t *tunnel = gr->find<tunnel_t>();
+				spieler_t::add_maintenance(sp, -tunnel->get_besch()->get_wartung());
+				spieler_t::add_maintenance(sp,  tunnel_besch->get_wartung() );
+
+				tunnel->set_besch(tunnel_besch);
+				weg->set_besch(wb);
 				weg->set_max_speed(tunnel_besch->get_topspeed());
 				weg->set_max_weight(tunnel_besch->get_max_weight());
 				gr->calc_bild();
-				cost -= besch->get_preis();
-				spieler_t::add_maintenance( sp,  tunnel_besch->get_wartung() );
+
+				cost -= tunnel_besch->get_preis();
 			}
 		}
 	}

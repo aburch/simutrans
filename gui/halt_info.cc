@@ -75,7 +75,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 		),
 		sort_label(translator::translate("Hier warten/lagern:")),
 		view(welt, halt->get_basis_pos3d()),
-		freight_info(16384),
+		freight_info(4096),
 		info_buf(256)
 {
 	this->halt = halt;
@@ -167,8 +167,10 @@ halt_info_t::zeichnen(koord pos, koord gr)
 		// buffer update now only when needed by halt itself => dedicated buffer for this
 		int old_len=freight_info.len();
 		halt->get_freight_info(freight_info);
-		text.set_text(freight_info);
 		if(old_len!=freight_info.len()) {
+			// will grow as needed
+			freight_info.extent( 1024 );
+			text.set_text(freight_info);
 			text.recalc_size();
 		}
 
