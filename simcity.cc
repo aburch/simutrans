@@ -1671,7 +1671,8 @@ void stadt_t::step_passagiere()
 		if(passenger_packet_size < 1) passenger_packet_size = 7;
 
 		// Find passenger destination
-		for (int pax_routed = 0; pax_routed < num_pax; pax_routed += passenger_packet_size) {
+		for (int pax_routed = 0; pax_routed < num_pax; pax_routed += passenger_packet_size) 
+		{
 			
 			/* number of passengers that want to travel
 			* Hajo: for efficiency we try to route not every
@@ -1718,7 +1719,7 @@ void stadt_t::step_passagiere()
 				}
 			}
 			
-			int current_destination = 0;
+			uint8 current_destination = 0;
 #ifdef NEW_PATHING
 			bool route_good = false;
 #else
@@ -1754,10 +1755,10 @@ void stadt_t::step_passagiere()
 				const halthandle_t* dest_list = dest_plan->get_haltlist();
 
 				halthandle_t start_halt;
-
-				// suitable end search
+			
 				unsigned ziel_count = 0;
-				for (uint h = 0; h < dest_plan->get_haltlist_count(); h++) {
+				for (uint h = 0; h < dest_plan->get_haltlist_count(); h++) 
+				{
 					halthandle_t halt = dest_list[h];
 					if (halt->is_enabled(wtyp)) 
 					{
@@ -1774,7 +1775,9 @@ void stadt_t::step_passagiere()
 					}
 				}
 
-				if (ziel_count == 0) {
+				//if (ziel_count == 0) 
+				if(ziel_count == 0 && !can_walk_ziel)
+				{
 	// DBG_MESSAGE("stadt_t::step_passagiere()", "No stop near dest (%d, %d)", ziel.x, ziel.y);
 					// Thus, routing is not possible and we do not need to do a calculation.
 					// Mark ziel as destination without route and continue.
@@ -1810,10 +1813,10 @@ void stadt_t::step_passagiere()
 
 #ifdef DESTINATION_CITYCARS
 						//citycars with destinations
-						if(start_halt.is_bound())
+						if(start_halts.get_count() > 0)
 						{
 							//"Produce road users" (Babelfish)
-							erzeuge_verkehrsteilnehmer(start_halt->get_basis_pos(), step_count, destinations[current_destination].location);
+							erzeuge_verkehrsteilnehmer(start_halts[0]->get_basis_pos(), step_count, destinations[current_destination].location);
 						}
 #endif
 					}
@@ -1997,8 +2000,36 @@ void stadt_t::step_passagiere()
 						const sint32 speed_base = (100 * average_speed) / ref_speed - 100;
 						const float base_bonus = (float)speed_base * ((float)speed_bonus_rating / 100.0);
 						//base_bonus should be 1 if the average speed is the same as the bonus speed.
-						//TODO: Check whether these calculations are correct.
-						private_car_chance *= base_bonus;
+
+						if(base_bonus > 0)
+						{
+							// Positive bonus - reduce probability of car use
+							// by up to 50% if the bonus is 50 or more.
+							if(base_bonus >= 50)
+							{
+								private_car_chance *= 0.5;
+							}
+							else
+							{
+								const float proportion = (float)base_bonus / 50.0;
+								private_car_chance -= (private_car_chance * 0.5) * proportion;
+							}
+						}
+						else if(base_bonus < 0)
+						{
+							// Negative bonus - increase probability of car use
+							// by up to 85% if the bonus is -50 or less.
+							if(base_bonus <= -50)
+							{
+								private_car_chance += private_car_chance * 0.85;
+							}
+							else
+							{
+								const float proportion = (float)base_bonus / -50.0;
+								private_car_chance += (private_car_chance * 0.85) * proportion;
+							}
+						}
+						// Do nothing if base_bonus == 0.
 						
 #else
 

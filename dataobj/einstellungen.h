@@ -155,8 +155,10 @@ private:
 	/* if set, goods will avoid being routed over overcrowded stops */
 	bool avoid_overcrowding;
 
+#ifndef NEW_PATHING	
 	/* if set, goods will not routed over overcroded stations but rather try detours (if possible) */
 	bool no_routing_over_overcrowding;
+#endif
 
 	// The longest time that a passenger is
 	// prepared to wait for transport.
@@ -509,12 +511,12 @@ public:
 
 	float get_global_power_factor() const { return global_power_factor; }
 
-	// do not take people to overcrowded destinations
 	bool is_avoid_overcrowding() const { return avoid_overcrowding; }
 
+#ifndef NEW_PATHING
 	// do not allow routes over overcrowded destinations
 	bool is_no_routing_over_overcrowding() const { return no_routing_over_overcrowding; }
-
+#endif
 	uint16 get_passenger_max_wait() const { return passenger_max_wait; }
 
 	uint8 get_max_rerouting_interval_months() const { return max_rerouting_interval_months; }

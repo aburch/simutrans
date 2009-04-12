@@ -22,7 +22,7 @@
 			IntermediateDirectory="..\simutrans-experimental-binaries\debug\intermediates"
 			ConfigurationType="1"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -43,7 +43,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;G:\Projects\SDL-1.2.10\include&quot;;&quot;G:\Program Files\PlatformSDK\Include&quot;;G:\Projects\zlib\include"
-				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;DEBUG=3"
+				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;DEBUG=3;NEW_PATHING"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -127,7 +127,7 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="2"
 				AdditionalIncludeDirectories="&quot;G:\Projects\SDL-1.2.10\include&quot;;&quot;G:\Program Files\PlatformSDK\Include&quot;;G:\Projects\zlib\include"
-				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;NDEBUG"
+				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;NDEBUG;NEW_PATHING"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"

@@ -8,9 +8,9 @@
 #ifndef simhalt_h
 #define simhalt_h
 
-#ifndef OLD_PATHING
-#define NEW_PATHING
-#endif
+//#ifndef OLD_PATHING
+//#define NEW_PATHING
+//#endif
 
 #include "convoihandle_t.h"
 #include "linehandle_t.h"

@@ -315,6 +315,7 @@ void spieler_t::neuer_monat()
 	// Modified by jamespetts, February 2009
 	if(konto < 0) 
 	{	
+		// Record of the number of months for which a player has been overdrawn.
 		konto_ueberzogen++;
 		
 		// Add interest
@@ -341,7 +342,7 @@ void spieler_t::neuer_monat()
 		{
 			if(this == welt->get_spieler(0)) 
 			{
-				if(finance_history_year[0][COST_NETWEALTH] < 0 && welt->get_einstellungen()->bankruptsy_allowed() && konto_ueberzogen > 3) 
+				if(finance_history_year[0][COST_NETWEALTH] < 0 && welt->get_einstellungen()->bankruptsy_allowed()) 
 				{
 					destroy_all_win();
 					create_win(280, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
@@ -389,11 +390,18 @@ void spieler_t::neuer_monat()
 	else 
 	{
 		konto_ueberzogen = 0;
-		if(base_credit_limit != get_base_credit_limit())
+		if(base_credit_limit < get_base_credit_limit())
 		{
 			// Restore credit rating slowly 
 			// after a period of debt
 			base_credit_limit += (get_base_credit_limit() *0.1);
+		}
+		if(base_credit_limit > get_base_credit_limit())
+		{
+			// Make sure that the above computation does not
+			// allow the credit limit to increase beyond its
+			// normal level.
+			base_credit_limit = get_base_credit_limit();
 		}
 	}
 }

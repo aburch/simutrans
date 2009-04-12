@@ -1915,7 +1915,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 						if(waiting_minutes > max_minutes)
 						{
 							// Waiting too long: discard
-							if(tmp.get_catg() == 1)
+							if(tmp.is_passenger())
 							{
 								// Passengers - use unhappy graph.
 								add_pax_unhappy(tmp.menge);
@@ -1952,15 +1952,16 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 					// compatible car and right target stop?
 					if(  tmp.get_zwischenziel() == plan_halt  ) 
 					{
-
-						if(  plan_halt->is_overcrowded(wtyp->get_catg_index())  ) 
+						// Overcrowding is now dealt with elsewhere. This method creates deadlocks.
+						
+						/*if(  plan_halt->is_overcrowded(wtyp->get_catg_index())  ) 
 						{
 							if(  welt->get_einstellungen()->is_avoid_overcrowding()  &&  !(tmp.get_ziel()==plan_halt)  ) 
 							{
 								// do not go for transfer to overcrowded transfer stop
 								continue;
 							}
-						}
+						}*/
 
 						// not too much?
 						ware_t neu(tmp);

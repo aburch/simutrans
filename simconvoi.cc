@@ -2969,7 +2969,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		final_revenue -= tmp;
 	}
 	
-	if(goods->get_catg() == 0)
+	if(ware.is_passenger())
 	{
 		//Passengers care about their comfort
 		const uint8 tolerable_comfort = calc_tolerable_comfort(journey_minutes);

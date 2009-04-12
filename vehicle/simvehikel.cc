@@ -719,7 +719,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 					kill_queue.insert(tmp);
 				} 
 
-				else if(end_halt==halt || via_halt==halt) 
+				else if(halt == end_halt || halt == via_halt) 
 				{
 
 					//		    printf("Liefere %d %s nach %s via %s an %s\n",
@@ -731,22 +731,34 @@ vehikel_t::unload_freight(halthandle_t halt)
 
 					// hier sollte nur ordentliche ware verabeitet werden
 					// "here only tidy commodity should be processed" (Babelfish) 
-					int menge = halt->liefere_an(tmp); //"supply" (Babelfish)
-					sum_menge += menge;
-
-					// Calculates the revenue for each packet under the new
-					// revenue model. 
-					// @author: jamespetts
-					current_revenue += cnv->calc_revenue(iter.access_current());
-
-					// book delivered goods to destination
 					
-					if(end_halt==halt) 
+					if(halt != end_halt && halt->is_overcrowded(tmp.get_catg()) && welt->get_einstellungen()->is_avoid_overcrowding())
 					{
-						// pax is always index 1
-						const int categorie = tmp.get_index()>1 ? 2 : tmp.get_index();
-						get_besitzer()->buche( menge, (player_cost)(COST_TRANSPORTED_PAS+categorie) );
+						// Halt overcrowded - discard goods/passengers, and collect no revenue.
+						// Add passengers to unhappy passengers.
+						if(tmp.is_passenger())
+						{
+							halt->add_pax_unhappy(tmp.menge);
+						}
 					}
+					
+					else
+					{
+						const uint32 menge = halt->liefere_an(tmp); //"supply" (Babelfish)
+						sum_menge += menge;
+
+						// Calculates the revenue for each packet under the new
+						// revenue model. 
+						// @author: jamespetts
+						current_revenue += cnv->calc_revenue(iter.access_current());
+						// book delivered goods to destination
+						if(end_halt == halt) 
+						{
+							// pax is always index 1
+							const int categorie = tmp.get_index()>1 ? 2 : tmp.get_index();
+							get_besitzer()->buche( menge, (player_cost)(COST_TRANSPORTED_PAS+categorie) );
+						}
+					}				
 
 					kill_queue.insert(tmp);
 
@@ -1914,7 +1926,7 @@ uint8 vehikel_t::get_comfort() const
 	while(iter.next()) 
 	{
 		ware_t ware = iter.get_current();
-		if(ware.get_catg() == 0)
+		if(ware.is_passenger())
 		{
 			passenger_count += ware.menge;
 		}
