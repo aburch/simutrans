@@ -1431,7 +1431,7 @@ static int clip_wh(KOORD_VAL *x, KOORD_VAL *width, const KOORD_VAL min_width, co
 static int clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD_VAL right)
 {
 	const KOORD_VAL l = *x;      // leftmost pixel
-	const KOORD_VAL r = *x + *w; // rightmost pixel
+	const sint32 r = (sint32)*x + (sint32)*w; // rightmost pixel
 
 	if (*w <= 0 || l >= right || r <= left) {
 		*w = 0;
@@ -1444,7 +1444,7 @@ static int clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD
 		*x = left;
 	}
 	if (r > right) {
-		*w -= r - right;
+		*w -= (KOORD_VAL)(r - right);
 	}
 	return *w > 0;
 }

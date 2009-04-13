@@ -63,6 +63,10 @@ private:
 
 	koord last_world_pos;
 
+	// current and new offset and size (to avoid drawing invisible parts)
+	koord cur_off, cur_size;
+	koord new_off, new_size;
+
 	const fabrik_t* draw_fab_connections(uint8 colour, koord pos) const;
 
 	void draw_schedule(const koord pos) const;
@@ -113,6 +117,14 @@ public:
 
 	// we are single instance ...
 	static reliefkarte_t *get_karte();
+
+	// HACK! since we cannot get cleanly the current offset/size, we use this helper function
+	void set_xy_offset_size( koord off, koord size ) {
+		new_off = off;
+		new_size = size;
+	}
+
+	koord get_offset() const { return cur_off; };
 
 	// update color with render mode (but few are ignored ... )
 	void calc_map_pixel(const koord k);
