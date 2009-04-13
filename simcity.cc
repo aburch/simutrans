@@ -2206,7 +2206,7 @@ void stadt_t::step_passagiere()
 					}
 
 				// now try to add them to the target halt
-				uint32 max_ware = ret_halt->get_capacity(wtyp->get_index());
+				uint32 max_ware = ret_halt->get_capacity(wtyp->get_catg_index());
 				if(  !ret_halt->is_overcrowded(wtyp->get_catg_index())  ) 
 				{
 					// prissi: not overcrowded and can recieve => add them

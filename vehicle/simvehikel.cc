@@ -707,6 +707,11 @@ vehikel_t::unload_freight(halthandle_t halt)
 			{
 				const ware_t& tmp = iter.get_current();
 
+				if(&tmp == NULL)
+				{
+					continue;
+				}
+
 				halthandle_t end_halt = tmp.get_ziel();
 				halthandle_t via_halt = tmp.get_zwischenziel();
 
@@ -732,7 +737,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 					// hier sollte nur ordentliche ware verabeitet werden
 					// "here only tidy commodity should be processed" (Babelfish) 
 					
-					if(halt != end_halt && halt->is_overcrowded(tmp.get_catg()) && welt->get_einstellungen()->is_avoid_overcrowding())
+					if(halt != end_halt && halt->is_overcrowded(tmp.get_besch()->get_catg_index()) && welt->get_einstellungen()->is_avoid_overcrowding())
 					{
 						// Halt overcrowded - discard goods/passengers, and collect no revenue.
 						// Add passengers to unhappy passengers.

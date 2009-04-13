@@ -56,8 +56,9 @@ void banner_t::zeichnen(koord /*pos*/, koord)
 		int color   = (s == 0 ? COL_WHITE : COL_BLACK);
 
 		display_proportional(xoff + s + 24+30, yoff + s +  10, "This is an experimental version of Simutrans:", ALIGN_LEFT, heading, true);
-		display_proportional(xoff + s + 48+30, yoff + s +  22, "Version " VERSION_NUMBER " " VERSION_DATE, ALIGN_LEFT, color, true);
+		display_proportional(xoff + s + 48+30, yoff + s +  22, "Version " VERSION_NUMBER " "  VERSION_DATE, ALIGN_LEFT, color, true);
 		display_proportional(xoff + s + 24+30, yoff + s +  40, "This experimental version", ALIGN_LEFT, heading, true);
+		display_proportional(xoff + s + 24+30+155, yoff + s +  40, (const char*)EXPERIMENTAL_VERSION, ALIGN_LEFT, color, true);
 		display_proportional(xoff + s + 48+30, yoff + s +  56, "is modified by James E. Petts", ALIGN_LEFT, color, true);
 		display_proportional(xoff + s + 48+30, yoff + s +  70, "from Simutrans, 1997-2005", ALIGN_LEFT, color, true);
 		display_proportional(xoff + s + 48+30, yoff + s +  82, "(c) Hj. Malthaner; and", ALIGN_LEFT, color, true);

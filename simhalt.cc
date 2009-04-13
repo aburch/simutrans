@@ -847,6 +847,10 @@ void haltestelle_t::reroute_goods()
 				new_warray->append( ware );
 			}
 
+			// TESTING CODE
+
+			
+
 			INT_CHECK( "simhalt.cc 489" );
 #ifndef NEW_PATHING
 			// delete, if nothing connects here
@@ -1229,11 +1233,14 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 								continue;
 							}
 							
-							if(ware != warenbauer_t::nichts && !add_catg_index.is_contained(ware->get_catg_index())) 
+							if(ware != warenbauer_t::nichts)
 							{
 								// now add the freights
 								add_connexion(ware, fpl, cnv, dummy);
-								add_catg_index.append_unique(category);
+								if(!add_catg_index.is_contained(ware->get_catg_index()))
+								{
+									add_catg_index.append_unique(category);
+								}
 							}
 						}
 					}
@@ -1250,8 +1257,42 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 		// ok, now add line to the connections
 		if(line->count_convoys( )> 0 && (i_am_public || line->get_convoy(0)->get_besitzer() == get_besitzer()))
 		{
-			const convoihandle_t dummy;
-			add_connexion(warenbauer_t::get_info_catg_index(category), fpl, dummy, line);
+			INT_CHECK("simhalt.cc 613");
+			schedule_t *fpl = line->get_schedule();
+
+			if(fpl != NULL) 
+			{
+				const convoihandle_t dummy;
+
+				ITERATE_PTR(fpl, i)
+				{
+					if (get_halt(welt, fpl->eintrag[i].pos) == self) 
+					{
+						// what goods can this line transport?
+						add_catg_index.clear();
+						const minivec_tpl<uint8> &goods = line->get_goods_catg_index();
+						ITERATE(goods, j)
+						{
+							const ware_besch_t *ware = warenbauer_t::get_info_catg_index(goods[j]);
+
+							if (ware->get_catg_index() != category) 
+							{
+								continue;
+							}
+							
+							if(ware != warenbauer_t::nichts) 
+							{
+								// now add the freights
+								add_connexion(ware, fpl, dummy, line);
+								if(!add_catg_index.is_contained(ware->get_catg_index()))
+								{
+									add_catg_index.append_unique(category);
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }
@@ -1507,10 +1548,18 @@ uint16 haltestelle_t::find_route(ware_t &ware, const uint16 previous_journey_tim
 
 	sint16 best_destination = -1;
 
+	const uint8 test_1 = ware.get_catg();
+	const uint8 test_2 = ware.get_index();
+	const uint8 test_3 = ware.get_besch()->get_catg();
+	const uint8 test_4 = ware.get_besch()->get_catg_index();
+	const char* test_5 = ware.get_name();
+	const char* test_6 = ware.get_besch()->get_catg_name();
+	uint8 a = 1 + 1;
+
 	// Now, find the best route from here.
 	ITERATE(ziel_list,i)
 	{
-		path test_path = get_path_to(ziel_list[i], ware.get_catg());
+		path test_path = get_path_to(ziel_list[i], ware.get_besch()->get_catg_index());
 		if(!test_path.next_transfer.is_bound())
 		{
 			continue;
@@ -1527,7 +1576,7 @@ uint16 haltestelle_t::find_route(ware_t &ware, const uint16 previous_journey_tim
 		// If we are comparing this with other routes from different start halts,
 		// only set the details if it is the best route so far.
 		ware.set_ziel(ziel_list[best_destination]);
-		path final_path = get_path_to(ziel_list[best_destination], ware.get_catg());
+		path final_path = get_path_to(ziel_list[best_destination], ware.get_besch()->get_catg_index());
 		ware.set_zwischenziel(final_path.next_transfer);
 		return final_path.journey_time;
 	}
@@ -1931,7 +1980,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 						{
 							if(cnv->get_line().is_bound())
 							{
-								linehandle_t best_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_catg());
+								linehandle_t best_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
 								if(best_line.is_bound() && best_line != cnv->get_line())
 								{
 									continue;
@@ -1939,7 +1988,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 							}
 							else
 							{
-								convoihandle_t best_convoy = get_preferred_convoy(tmp.get_zwischenziel(), tmp.get_catg());
+								convoihandle_t best_convoy = get_preferred_convoy(tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
 								if(best_convoy.is_bound() && best_convoy.get_rep() != cnv)
 								{
 									continue;
@@ -1979,7 +2028,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 				
 						book(neu.menge, HALT_DEPARTED);
 						const uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - neu.arrival_time);
-						add_waiting_time(waiting_minutes, neu.get_zwischenziel(), neu.get_catg());
+						add_waiting_time(waiting_minutes, neu.get_zwischenziel(), neu.get_besch()->get_catg_index());
 						resort_freight_info = true;
 						return neu;
 					}

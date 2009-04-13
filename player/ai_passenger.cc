@@ -72,7 +72,7 @@ halthandle_t ai_passenger_t::get_our_hub( const stadt_t *s ) const
 {
 	//slist_iterator_tpl <halthandle_t> iter( halt_list );
 	//while(iter.next()) {
-	for(sint16 i = halt_list.get_count() - 1; i >= 0; i --)
+	ITERATE(halt_list,i)
 	{
 		//halthandle_t halt = iter.get_current();
 		halthandle_t halt = halt_list[i];

@@ -815,8 +815,7 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 
 	// major number (0..)
 	uint32 v0 = atoi(version_text);
-	while(*version_text && *version_text++ != '.')
-		;
+	while(*version_text && *version_text++ != '.');
 	if(!*version_text) {
 		dbg->fatal( "loadsave_t::int_version()","Really broken version string!" );
 		combined_version dud;
@@ -827,8 +826,7 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 
 	// middle number (.99.)
 	uint32 v1 = atoi(version_text);
-	while(*version_text && *version_text++ != '.')
-		;
+	while(*version_text && *version_text++ != '.');
 	if(!*version_text) {
 		dbg->fatal( "loadsave_t::int_version()","Really broken version string!" );
 		combined_version dud;

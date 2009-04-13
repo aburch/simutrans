@@ -422,14 +422,16 @@ int simu_main(int argc, char** argv)
 
 	// now read last setting (might be overwritten by the tab-files)
 	loadsave_t file;
-	if(file.rd_open("settings.xml"))  {
-		if(  file.get_version() > loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL).version || file.get_experimental_version() > loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL).experimental_version) 
+	if(file.rd_open("settings-experimental.xml"))  
+	{
+		if(  file.get_version() > loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL).version || file.get_experimental_version() > loadsave_t::int_version(EXPERIMENTAL_SAVEGAME_VERSION, NULL, NULL).experimental_version) 
 		{
 			// too new => remove it
 			file.close();
-			remove( "settings.xml" );
+			remove( "settings-experimental.xml" );
 		}
-		else {
+		else 
+		{
 			found_settings = true;
 			umgebung_t::rdwr(&file);
 			umgebung_t::default_einstellungen.rdwr(&file);
@@ -943,7 +945,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	// save setting ...
 	chdir( umgebung_t::user_dir );
-	if(file.wr_open("settings.xml",loadsave_t::xml,"settings only/")) {
+	if(file.wr_open("settings-experimental.xml",loadsave_t::xml,"settings only/")) 
+	{
 		umgebung_t::rdwr(&file);
 		umgebung_t::default_einstellungen.rdwr(&file);
 		file.close();

@@ -76,7 +76,7 @@ private:
 	vector_tpl<convoihandle_t> line_managed_convoys;
 
 	/*
-	 * a list of all convoys assigned to this line
+	 * ???
 	 * @author hsiegeln
 	 */
 	minivec_tpl<uint8> goods_catg_index;

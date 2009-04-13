@@ -83,7 +83,7 @@ bool ai_t::is_my_halt(koord pos) const
  */
 bool ai_t::is_connected( const koord start_pos, const koord dest_pos, const ware_besch_t *wtyp ) const
 {
-	// Dario: Check if there's a stop near destination
+	// Dario: Check if there's a stop near the start
 	const planquadrat_t* start_plan = welt->lookup(start_pos);
 	const halthandle_t* start_list = start_plan->get_haltlist();
 

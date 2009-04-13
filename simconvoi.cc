@@ -237,8 +237,11 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 			ITERATE_PTR(fpl, j)
 			{
 				halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
-				tmp_halt->reschedule = true;
-				tmp_halt->force_paths_stale();
+				if(tmp_halt.is_bound())
+				{
+					tmp_halt->reschedule = true;
+					tmp_halt->force_paths_stale();
+				}
 			}
 #else			
 			// Old method - brute force
@@ -1307,8 +1310,15 @@ void convoi_t::start()
 			ITERATE_PTR(fpl, j)
 			{
 				halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
-				tmp_halt->reschedule = true;
-				tmp_halt->force_paths_stale();
+				if(tmp_halt.is_bound())
+				{
+					tmp_halt->reschedule = true;
+					tmp_halt->force_paths_stale();
+				}
+				else
+				{
+					dbg->error("convoi_t::start()", "Halt in schedule does not exist");
+				}
 			}
 			
 #else
@@ -1569,8 +1579,11 @@ bool convoi_t::set_schedule(schedule_t * f)
 		ITERATE_PTR(fpl, j)
 		{
 			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
-			tmp_halt->reschedule = true;
-			tmp_halt->force_paths_stale();
+			if(tmp_halt.is_bound())
+			{
+				tmp_halt->reschedule = true;
+				tmp_halt->force_paths_stale();
+			}
 		}
 
 		ITERATE_PTR(f, k)
@@ -3038,7 +3051,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	const uint8 catering_level = get_catering_level(ware.get_besch()->get_catg_index());
 	if(catering_level > 0)
 	{
-		if(ware.get_index() == 1)
+		if(ware.is_mail())
 		{
 			// Mail
 			if(journey_minutes >= welt->get_einstellungen()->get_tpo_min_minutes())
@@ -3046,7 +3059,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 				final_revenue += (welt->get_einstellungen()->get_tpo_revenue() * ware.menge);
 			}
 		}
-		else if(ware.get_index() == 0)
+		else if(ware.is_passenger())
 		{
 			// Passengers
 			float proportion = 0.0;
@@ -3504,8 +3517,11 @@ void convoi_t::set_line(linehandle_t org_line)
 		ITERATE_PTR(fpl, j)
 		{
 			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
-			tmp_halt->reschedule = true;
-			tmp_halt->force_paths_stale();
+			if(tmp_halt.is_bound())
+			{
+				tmp_halt->reschedule = true;
+				tmp_halt->force_paths_stale();
+			}
 		}
 #else
 		// Old method - brute force

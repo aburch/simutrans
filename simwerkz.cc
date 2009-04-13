@@ -722,17 +722,29 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				n = welt->raise(pos);
 				ok = (n!=0);
 			}
-			if(n>0) {
-				spieler_t::accounting(sp, welt->get_einstellungen()->cst_alter_land*n, pos, COST_CONSTRUCTION);
-				// update image
-				for(int j=-n; j<=n; j++) {
-					for(int i=-n; i<=n; i++) {
-						const planquadrat_t* p = welt->lookup(pos + koord(i, j));
-						if (p)  {
-							grund_t* g = p->get_kartenboden();
-							if (g) g->calc_bild();
+			if(n>0) 
+			{
+				const sint64 cost = welt->get_einstellungen()->cst_alter_land * n;
+				if(sp->can_afford(-cost))
+				{
+					spieler_t::accounting(sp, cost, pos, COST_CONSTRUCTION);
+					// update image
+					for(int j=-n; j<=n; j++) 
+					{
+						for(int i=-n; i<=n; i++) 
+						{
+							const planquadrat_t* p = welt->lookup(pos + koord(i, j));
+							if (p)  
+							{
+								grund_t* g = p->get_kartenboden();
+								if (g) g->calc_bild();
+							}
 						}
 					}
+				}
+				else
+				{
+					return CREDIT_MESSAGE;
 				}
 			}
 			return !ok ? "Tile not empty." : NULL;
@@ -1109,7 +1121,7 @@ DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
  */
 const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
-		if(!sp->can_afford(0 - welt->get_einstellungen()->cst_found_city))
+	if(!sp->can_afford(0 - welt->get_einstellungen()->cst_found_city))
 	{
 		return CREDIT_MESSAGE;
 	}
@@ -2353,7 +2365,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		return false;
 	}
 
-	if(!sp->can_afford(cost + ((welt->get_einstellungen()->maint_building*besch->get_level()*besch->get_b()*besch->get_h()*60)<<(welt->ticks_bits_per_tag-18))));
+	if(!sp->can_afford(cost + ((welt->get_einstellungen()->maint_building*besch->get_level()*besch->get_b()*besch->get_h()*60)<<(welt->ticks_bits_per_tag-18))))
 	{
 		return CREDIT_MESSAGE;
 	}
@@ -2643,7 +2655,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		case haus_besch_t::generic_stop:
 			switch(besch->get_extra()) {
 				case road_wt:
-					if(!sp->can_afford(welt->get_einstellungen()->cst_multiply_roadstop * besch->get_level()))
+					if(!sp->can_afford(-(welt->get_einstellungen()->cst_multiply_roadstop * besch->get_level())))
 					{
 						return CREDIT_MESSAGE;
 					}
@@ -3436,7 +3448,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 
 		const sint64 headquarters_cost = welt->get_einstellungen()->cst_multiply_headquarter * besch->get_level() * size.x * size.y;
 		
-		if(!sp->can_afford(headquarters_cost))
+		if(!sp->can_afford(-headquarters_cost))
 		{
 			return CREDIT_MESSAGE;
 		}
