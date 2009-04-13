@@ -214,8 +214,9 @@ template<class T> class weighted_vector_tpl
 		/** removes element, if contained */
 		bool remove(T elem)
 		{
-			for (uint32 i = 0; i < count; i++) {
-				if (nodes[i].data == elem) return remove_at(i);
+			for (uint32 i = 0; i < count; i++)
+			{
+				if (nodes != NULL && nodes[i].data == elem) return remove_at(i);
 			}
 			return false;
 		}

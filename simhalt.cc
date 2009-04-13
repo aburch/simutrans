@@ -62,7 +62,6 @@
 
 #include "vehicle/simpeople.h"
 
-
 #ifdef LAGER_NOT_IN_USE
 #include "dings/lagerhaus.h"
 #endif
@@ -398,6 +397,7 @@ haltestelle_t::~haltestelle_t()
 	}
 	free( waren );
 #ifdef NEW_PATHING
+	// These do not work: access violations result. Not clear why.
 	//delete[] connexions;
 	//delete[] paths;
 #else
@@ -799,8 +799,6 @@ void haltestelle_t::neuer_monat()
  */
 void haltestelle_t::reroute_goods()
 {
-	//TODO: Update this to use the new routing method.
-	
 	// reroute only on demand
 	reroute_counter = welt->get_schedule_counter();
 
@@ -1297,6 +1295,8 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 	}
 }
 
+
+
 //@author: jamespetts
 void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 {
@@ -1314,6 +1314,11 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		// Cannot route from this station: do not try.
 		return;
 	}
+
+	const uint32 total_halts = alle_haltestellen.get_count();
+	const sint32 max_transfers = welt->get_einstellungen()->get_max_transfers();
+	const uint32 max_depth = total_halts * max_transfers;
+	const uint32 max_iterations = max_depth <= 65535 ? max_depth : 65535;
 	
 	if(reschedule || connexions_timestamp < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
 	{
@@ -1321,25 +1326,31 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		rebuild_connexions(category);
 		// Not clearing the open list would be faster, but could give anomalous results.
 		// Thus, if connexions are stale, all new paths will be recalculated from scratch.
-		open_list.clear();
+		if(!open_list.empty())
+		{
+			open_list.clear();
+			delete[] path_nodes;
+		}
+
+		path_nodes = new path_node[max_iterations];
+
 	}
 	if(paths_timestamp < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
 	{
 		// List is stale. Recalculate.
 		// If this is false, then this is only being called to finish calculating
 		// paths that have not yet been calculated.
-		open_list.clear();
+		if(!open_list.empty())
+		{
+			open_list.clear();
+			delete[] path_nodes;
+		}
+
+		path_nodes = new path_node[max_iterations];
 
 		// Reset the timestamp.
 		paths_timestamp = welt->get_base_pathing_counter();
 	}
-
-	const uint32 total_halts = alle_haltestellen.get_count();
-	const sint32 max_transfers = welt->get_einstellungen()->get_max_transfers();
-	const uint32 max_depth = total_halts * max_transfers;
-	const uint32 max_iterations = max_depth <= 65535 ? max_depth : 65535;
-
-	path_node* path_nodes = new path_node[max_iterations];
 
 	if(open_list.get_count() < 1)
 	{
@@ -1426,6 +1437,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			// can be resumed where it left off if another goal, as yet
 			// not found, is searched for, unless the index is stale.
 
+			//delete[] path_nodes;
 			return;
 		}	
 		
@@ -1434,6 +1446,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 	
 	// If the code has reached here without returning, the search is complete.
 	search_complete = true;
+	//delete[] path_nodes;
 }
 
 haltestelle_t::path haltestelle_t::get_path_to(halthandle_t goal, uint8 category) 

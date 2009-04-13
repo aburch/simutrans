@@ -243,6 +243,10 @@ private:
 	// detecting when max_transfers has been reached.
 	uint16 iterations;
 
+	// Allocation of memory for nodes used during the pathing search.
+	// @author: jamespetts
+	path_node* path_nodes;
+
 #else
 	// List with all reachable destinations (old method)
 	vector_tpl<halthandle_t>* warenziele;

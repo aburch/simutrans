@@ -1091,7 +1091,7 @@ void win_display_flush(double konto)
 //#ifdef DEBUG		
 //		case 4:	sprintf(time, "%s, %d %s %d %d:%02dh TICKS: %li",
 //#else
-		case 4:	sprintf(time, "%s, %d %s %d %u:%02uh",
+		case 4:	sprintf(time, "%s, %d %s %lld %u:%02uh",
 //#endif
 						translator::translate(seasons[wl->get_jahreszeit()]), //Season
 						tage, //Day
@@ -1107,7 +1107,7 @@ void win_display_flush(double konto)
 						);
 					break;
 		// us style
-		case 3:	sprintf(time, "%s, %s %d %d %2d:%02d%s",
+		case 3:	sprintf(time, "%s, %s %d %lld %2d:%02d%s",
 						translator::translate(seasons[wl->get_jahreszeit()]),
 						translator::get_month_name(month%12),
 						tage,
@@ -1118,7 +1118,7 @@ void win_display_flush(double konto)
 						);
 					break;
 		// japanese style
-		case 2:	sprintf(time, "%s, %d/%s/%d %2d:%02dh",
+		case 2:	sprintf(time, "%s, %lld/%s/%d %2d:%02dh",
 						translator::translate(seasons[wl->get_jahreszeit()]),
 						year,
 						translator::get_month_name(month%12),
@@ -1128,7 +1128,7 @@ void win_display_flush(double konto)
 						);
 					break;
 		// just month
-		case 1:	sprintf(time, "%s, %s %d %2d:%02dh",
+		case 1:	sprintf(time, "%s, %s %lld %2d:%02dh",
 						translator::get_month_name(month%12),
 						translator::translate(seasons[wl->get_jahreszeit()]),
 						year,
@@ -1137,7 +1137,7 @@ void win_display_flush(double konto)
 						);
 					break;
 		// just only season
-		default:	sprintf(time, "%s %d",
+		default:	sprintf(time, "%s %lld",
 						translator::translate(seasons[wl->get_jahreszeit()]),
 						year);
 					break;
