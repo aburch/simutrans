@@ -364,7 +364,7 @@ void fabrikbauer_t::verteile_tourist(karte_t* welt, int max_number)
 
 	}
 	// update an open map
-	reliefkarte_t::get_karte()->calc_map();
+	reliefkarte_t::get_karte()->calc_map_groesse();
 }
 
 
@@ -562,8 +562,8 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",in
 	if(parent==NULL) {
 		DBG_MESSAGE("fabrikbauer_t::baue_hierarchie()","update karte");
 
-		// update an open map
-		reliefkarte_t::get_karte()->calc_map();
+		// update the map if needed
+		reliefkarte_t::get_karte()->calc_map_groesse();
 
 		INT_CHECK( "fabrikbauer 730" );
 
@@ -918,7 +918,7 @@ next_ware_check:
 							last_built_consumer = our_fab;
 							last_built_consumer_ware = 1;
 						}
-						reliefkarte_t::get_karte()->calc_map();
+						reliefkarte_t::get_karte()->calc_map_groesse();
 						// tell the player
 						if(tell_me) {
 							stadt_t *s = welt->suche_naechste_stadt( pos.get_2d() );

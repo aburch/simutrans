@@ -67,6 +67,9 @@ private:
 	koord cur_off, cur_size;
 	koord new_off, new_size;
 
+	// true, if full redraw is needed
+	bool needs_redraw;
+
 	const fabrik_t* draw_fab_connections(uint8 colour, koord pos) const;
 
 	void draw_schedule(const koord pos) const;
@@ -130,6 +133,9 @@ public:
 	void calc_map_pixel(const koord k);
 
 	void calc_map();
+
+	// calculates the current size of the map (but do nopt change anything else)
+	void calc_map_groesse();
 
 	~reliefkarte_t();
 
