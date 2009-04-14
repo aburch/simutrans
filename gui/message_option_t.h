@@ -15,7 +15,7 @@ class message_option_t : public gui_frame_t, private action_listener_t
 {
 private:
 	gui_textarea_t text_label;
-	button_t buttons[4*(message_t::MAX_MESSAGE_TYPE-1)];
+	button_t buttons[4*message_t::MAX_MESSAGE_TYPE];
 	gui_image_t legend;
 	sint32 ticker_msg, window_msg, auto_msg, ignore_msg;
 

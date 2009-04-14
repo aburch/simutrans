@@ -240,7 +240,7 @@ map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		if(reliefkarte_t::get_karte()->zoom_out>1) {
 			reliefkarte_t::get_karte()->zoom_out--;
 		}
-		else if(reliefkarte_t::get_karte()->zoom_in<4) {
+		else if(reliefkarte_t::get_karte()->zoom_in<4  &&  reliefkarte_t::get_karte()->get_welt()->get_groesse_max()*(reliefkarte_t::get_karte()->zoom_in+1)>32766  ) {
 			reliefkarte_t::get_karte()->zoom_in++;
 		}
 		reliefkarte_t::get_karte()->calc_map();
@@ -293,7 +293,7 @@ void map_frame_t::infowin_event(const event_t *ev)
 	if(ev->ev_class == INFOWIN) {
 		if(ev->ev_code == WIN_OPEN) {
 			reliefkarte_t::get_karte()->is_visible = true;
-			reliefkarte_t::get_karte()->calc_map();
+			reliefkarte_t::get_karte()->set_xy_offset_size( koord(0,0), koord(0,0) );
 		}
 		else if(ev->ev_code == WIN_CLOSE) {
 			reliefkarte_t::get_karte()->is_visible = false;
@@ -441,6 +441,8 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 {
 	// update our stored screen position
 	screenpos = pos;
+
+	reliefkarte_t::get_karte()->set_xy_offset_size( koord(scrolly.get_scroll_x(), scrolly.get_scroll_y()), koord(scrolly.get_groesse()-koord(12,11)) );
 
 	// first: check if cursor within map screen size
 	karte_t *welt=reliefkarte_t::get_karte()->get_welt();
