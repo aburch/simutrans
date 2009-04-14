@@ -250,6 +250,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 #ifdef NEW_PATHING
 	iterations = 0;
 	search_complete = false;
+	waiting_times = new quickstone_hashtable_tpl<haltestelle_t, fixed_list_tpl<uint16, 16>>[warenbauer_t::get_max_catg_index()];
 #else
 	warenziele = new vector_tpl<halthandle_t>[ warenbauer_t::get_max_catg_index() ];
 #endif
@@ -299,6 +300,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 #ifdef NEW_PATHING
 	iterations = 0;
 	search_complete = false;
+	waiting_times = new quickstone_hashtable_tpl<haltestelle_t, fixed_list_tpl<uint16, 16>>[warenbauer_t::get_max_catg_index()];
 #else
 	warenziele = new vector_tpl<halthandle_t>[ warenbauer_t::get_max_catg_index() ];
 #endif
@@ -400,6 +402,11 @@ haltestelle_t::~haltestelle_t()
 	// These do not work: access violations result. Not clear why.
 	//delete[] connexions;
 	//delete[] paths;
+	if(!open_list.empty())
+	{
+		delete[] path_nodes;
+	}
+	delete[] waiting_times;
 #else
 	delete[] warenziele;
 #endif
@@ -1331,9 +1338,6 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			open_list.clear();
 			delete[] path_nodes;
 		}
-
-		path_nodes = new path_node[max_iterations];
-
 	}
 	if(paths_timestamp < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
 	{
@@ -1346,8 +1350,6 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			delete[] path_nodes;
 		}
 
-		path_nodes = new path_node[max_iterations];
-
 		// Reset the timestamp.
 		paths_timestamp = welt->get_base_pathing_counter();
 	}
@@ -1356,6 +1358,8 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 	{
 		// Only reset the list if it is empty, so as to allow for re-using the open
 		// list on subsequent occasions of finding a path. 
+		path_nodes = new path_node[max_iterations];
+
 		iterations = 0;
 		path_node* starting_node = &path_nodes[iterations++];
 		starting_node->halt = self;
@@ -2855,13 +2859,26 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			{
 				uint16 halts_count;
 				file->rdwr_short(halts_count, "");
-				for(uint16 i = 0; i < halts_count; i ++)
+				for(uint16 k = 0; k < halts_count; k ++)
 				{
 					koord halt_position;
 					halt_position.rdwr(file);
 					if(halt_position != koord::invalid)
 					{
 						halthandle_t current_halt = welt->lookup(halt_position)->get_halt();
+						if(!current_halt.is_bound())
+						{
+							// The halt was not properly saved,
+							// or was removed at some point.
+							uint8 waiting_time_count;
+							file->rdwr_byte(waiting_time_count, "");
+							for(uint8 j = 0; j < waiting_time_count; j ++)
+							{
+								uint16 current_time;
+								file->rdwr_short(current_time, "");
+							}
+							continue;
+						}
 						fixed_list_tpl<uint16, 16> list;
 						uint8 waiting_time_count;
 						file->rdwr_byte(waiting_time_count, "");
