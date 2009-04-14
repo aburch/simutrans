@@ -829,7 +829,7 @@ void reliefkarte_t::zeichnen(koord pos)
 
 	// sanity check, needed for overlarge maps
 	if(  (new_off.x|new_off.y)<0  ) {
-		new_off = new_off;
+		new_off = cur_off;
 	}
 	if(  (new_size.x|new_size.y)<0  ) {
 		new_size = cur_size;
