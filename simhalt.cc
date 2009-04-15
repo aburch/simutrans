@@ -988,6 +988,7 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 
 void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fpl, const convoihandle_t cnv, const linehandle_t line)
 {
+	
 	if(type != warenbauer_t::nichts) 
 	{
 		ITERATE_PTR(fpl,i)
@@ -1087,11 +1088,16 @@ void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fp
 			if(!connexions[type->get_catg_index()].put(halt, new_connexion))
 			{
 				// The key exists in the hashtable already - check whether this entry is better.
-				const connexion* existing_connexion = connexions[type->get_catg_index()].get(halt);
+				connexion* existing_connexion = connexions[type->get_catg_index()].get(halt);
 				if(existing_connexion->journey_time > new_connexion->journey_time)
 				{
 					// The new connexion is better - replace it.
+					delete existing_connexion;
 					connexions[type->get_catg_index()].set(halt, new_connexion);
+				}
+				else
+				{
+					delete new_connexion;
 				}
 				//TODO: Consider whether to add code for comfort here, too.
 
@@ -1230,7 +1236,7 @@ void haltestelle_t::reset_connexions(uint8 category)
 
 //@author: jamespetts (although much is taken from the original rebuild_destinations())
 void haltestelle_t::rebuild_connexions(uint8 category)
-{
+{	
 	reset_connexions(category);
 	connexions_timestamp = welt->get_base_pathing_counter();
 	if(connexions_timestamp == 0 || reschedule)
@@ -1362,7 +1368,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 	// not until a destination from this halt is requested, to prevent
 	// the game pausing and becoming unresponsive whilst everything is
 	// re-calculated all at the same time.
-	
+
 	if((category == 0 && !get_pax_enabled()) || (category == 1 && !get_post_enabled()) || (category > 1 && !get_ware_enabled()))
 	{
 		// Cannot route from this station: do not try.
