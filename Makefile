@@ -50,7 +50,7 @@ ifeq ($(OSTYPE),cygwin)
 endif
 
 ifeq ($(OSTYPE),mingw)
-  CC = gcc
+  CC ?= gcc
   SOURCES += simsys_w32_png.cc
   OS_OPT   ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
   STD_LIBS ?= -lz

@@ -369,7 +369,6 @@ const weg_besch_t *tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, ko
 	if(weg) {
 		// has already a way
 		tunnel->weg_erweitern(besch->get_waytype(), ribi);
-		spieler_t::add_maintenance( sp,  -weg->get_besch()->get_wartung() );
 	}
 	else {
 		// needs still one
@@ -378,10 +377,8 @@ const weg_besch_t *tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, ko
 			weg->set_besch( weg_besch );
 		}
 		tunnel->neuen_weg_bauen( weg, ribi, sp );
-		if(sp!=NULL) {
-			spieler_t::add_maintenance( sp,  weg->get_besch()->get_wartung() );
-		}
 	}
+	spieler_t::add_maintenance( sp,  -weg->get_besch()->get_wartung() );
 	weg->set_max_speed( besch->get_topspeed() );
 	weg->set_max_weight( besch->get_max_weight() );
 	weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());

@@ -560,6 +560,16 @@ reliefkarte_t::calc_map_pixel(const koord k)
 
 
 
+void reliefkarte_t::calc_map_groesse()
+{
+	const sint32 size_x = rotate45 ? ((welt->get_groesse_y()+zoom_in)*zoom_out)/zoom_in+((welt->get_groesse_x()+zoom_in)*zoom_out)/zoom_in+1 : ((welt->get_groesse_x()+zoom_in-1)*zoom_out)/zoom_in;
+	const sint32 size_y = rotate45 ? ((welt->get_groesse_y()+zoom_in-1)*zoom_out)/zoom_in+((welt->get_groesse_x()+zoom_in-1)*zoom_out)/zoom_in : ((welt->get_groesse_y()+zoom_in-1)*zoom_out)/zoom_in;
+	set_groesse( koord( min(32767,size_x), min(32767,size_y-1) ) ); // of the gui_komponete to adjust scroll bars
+	needs_redraw = true;
+}
+
+
+
 void reliefkarte_t::calc_map()
 {
 	// size change due to zoom?
@@ -575,12 +585,13 @@ void reliefkarte_t::calc_map()
 	set_groesse( koord( min(32767,size_x), min(32767,size_y-1) ) ); // of the gui_komponete to adjust scroll bars
 	cur_off = new_off;
 	cur_size = new_size;
+	needs_redraw = false;
 
 	// redraw the map
 	if(  !rotate45  ) {
 		koord k;
 		koord start_off = koord( (cur_off.x*zoom_in)/zoom_out, (cur_off.y*zoom_in)/zoom_out );
-		koord end_off = start_off+koord( (relief->get_height()*zoom_in)/zoom_out+1, (relief->get_height()*zoom_in)/zoom_out+1 );
+		koord end_off = start_off+koord( (relief->get_width()*zoom_in)/zoom_out+1, (relief->get_height()*zoom_in)/zoom_out+1 );
 		for(  k.y=start_off.y;  k.y<end_off.y;  k.y+=zoom_in  ) {
 			for(  k.x=start_off.x;  k.x<end_off.x;  k.x+=zoom_in  ) {
 				calc_map_pixel(k);
@@ -667,6 +678,7 @@ reliefkarte_t::reliefkarte_t()
 	is_show_schedule = false;
 	is_show_fab = false;
 	cur_off = new_off = cur_size = new_size = koord(0,0);
+	needs_redraw = true;
 }
 
 
@@ -700,11 +712,10 @@ reliefkarte_t::set_welt(karte_t *welt)
 		relief = NULL;
 	}
 	rotate45 = false;
+	needs_redraw = true;
 
 	if(welt) {
-		koord size = koord( (welt->get_groesse_x()*zoom_out)/zoom_in+1, (welt->get_groesse_y()*zoom_out)/zoom_in+1 );
-DBG_MESSAGE("reliefkarte_t::set_welt()","welt size %i,%i",size.x,size.y);
-		set_groesse(size);
+		calc_map_groesse();
 		max_capacity = max_departed = max_arrived = max_cargo = max_convoi_arrived = max_passed = max_tourist_ziele = 0;
 	}
 }
@@ -715,7 +726,7 @@ void
 reliefkarte_t::set_mode(MAP_MODES new_mode)
 {
 	mode = new_mode;
-	calc_map();
+	needs_redraw = true;
 }
 
 
@@ -723,7 +734,7 @@ reliefkarte_t::set_mode(MAP_MODES new_mode)
 void
 reliefkarte_t::neuer_monat()
 {
-	calc_map();
+	needs_redraw = true;
 }
 
 
@@ -827,20 +838,20 @@ void reliefkarte_t::draw_schedule(const koord pos) const
 // draw the map
 void reliefkarte_t::zeichnen(koord pos)
 {
-	if(relief==NULL) {
-		return;
-	}
-
 	// sanity check, needed for overlarge maps
 	if(  (new_off.x|new_off.y)<0  ) {
-		new_off = new_off;
+		new_off = cur_off;
 	}
 	if(  (new_size.x|new_size.y)<0  ) {
 		new_size = cur_size;
 	}
 
-	if(  cur_off!=new_off  ||  cur_size!=new_size  ) {
+	if(  needs_redraw  ||  cur_off!=new_off  ||  cur_size!=new_size  ) {
 		calc_map();
+	}
+
+	if(relief==NULL) {
+		return;
 	}
 
 	if(  mode==MAP_PAX_DEST  &&  city!=NULL  ) {

@@ -197,8 +197,6 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 bool
 map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
-	reliefkarte_t::get_karte()->calc_map();
-
 	if(komp==&b_show_legend) {
 		if(!legend_visible) {
 			for (int type=0; type<MAX_BUTTON_TYPE; type++) {
@@ -228,11 +226,11 @@ map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		if(reliefkarte_t::get_karte()->zoom_in>1) {
 			reliefkarte_t::get_karte()->zoom_in--;
 		}
-		else if(reliefkarte_t::get_karte()->zoom_out<4) {
+		else if(reliefkarte_t::get_karte()->zoom_out<4  ) {
 			reliefkarte_t::get_karte()->zoom_out++;
 		}
-		reliefkarte_t::get_karte()->calc_map();
 		// recalc sliders
+		reliefkarte_t::get_karte()->calc_map_groesse();
 		scrolly.set_groesse( scrolly.get_groesse() );
 	}
 	else if(komp==zoom_buttons+0) {
@@ -240,17 +238,17 @@ map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		if(reliefkarte_t::get_karte()->zoom_out>1) {
 			reliefkarte_t::get_karte()->zoom_out--;
 		}
-		else if(reliefkarte_t::get_karte()->zoom_in<4  &&  reliefkarte_t::get_karte()->get_welt()->get_groesse_max()*(reliefkarte_t::get_karte()->zoom_in+1)>32766  ) {
+		else if(reliefkarte_t::get_karte()->zoom_in<4  ) {
 			reliefkarte_t::get_karte()->zoom_in++;
 		}
-		reliefkarte_t::get_karte()->calc_map();
 		// recalc sliders
+		reliefkarte_t::get_karte()->calc_map_groesse();
 		scrolly.set_groesse( scrolly.get_groesse() );
 	}
 	else if(komp==&b_rotate45) {
 		// rotated/straight map
 		reliefkarte_t::get_karte()->rotate45 ^= 1;
-		reliefkarte_t::get_karte()->calc_map();
+		reliefkarte_t::get_karte()->calc_map_groesse();
 		scrolly.set_groesse( scrolly.get_groesse() );
 	}
 	else if(komp==&b_show_schedule) {
