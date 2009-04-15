@@ -30,12 +30,16 @@ class werkzeug_waehler_t;
 class brueckenbauer_t {
 private:
 
+	brueckenbauer_t() {} // private -> no instance please
+
+
+public:
 	/*
 	 * Grund bestimmen, auf dem die Brücke enden soll.
 	 *
 	 * @author V. Meyer
 	 */
-	static koord3d finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&msg );
+	static koord3d finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&msg, bool ai_bridge=false );
 
 	/*
 	 * Brückenendpunkte bei Rampen werden auf flachem Grund gebaut und müssen daher genauer
@@ -45,11 +49,6 @@ private:
 	 */
 	static bool ist_ende_ok(spieler_t *sp, const grund_t *gr);
 
-
-	brueckenbauer_t() {} // private -> no instance please
-
-
-public:
 	// built a ramp to change level
 	static void baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
 

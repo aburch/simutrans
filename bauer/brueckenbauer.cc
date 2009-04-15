@@ -170,7 +170,7 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, c
 
 
 
-koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&error_msg )
+koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge )
 {
 	const grund_t *gr1; // on the level of the bridge
 	const grund_t *gr2; // the level under the bridge
@@ -241,7 +241,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 					ribi = gr2->get_weg_nr(0)->get_ribi_unmasked() | gr2->get_weg_nr(1)->get_ribi_unmasked();
 					if(  besch->get_waytype()  !=  road_wt  ) {
 						// only road bridges allowed here.
-						ribi = 0;
+						ribi = 15;
 					}
 				}
 				else {
@@ -254,6 +254,9 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 				}
 			}
 			if(gr2->get_grund_hang()==hang_t::flach) {
+				if(  ai_bridge  &&  !gr2->hat_wege()  &&  !gr2->get_leitung()  ) {
+					return pos;
+				}
 				if(gr2->get_typ()==grund_t::boden  &&  !gr2->get_halt().is_bound()) {
 					if(ribi_t::ist_einfach(ribi) && koord(ribi) == zv) {
 						// end with ramp, end way is already built
