@@ -215,7 +215,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			start_hub = halthandle_t();
 			// is there already one harbour next to this one?
 #ifdef NEW_PATHING
-			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion> iter(*start_connect_hub->get_connexions(0));
+			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*start_connect_hub->get_connexions(0));
 			while(iter.next())
 			{
 				halthandle_t h = iter.get_current_key();
@@ -253,7 +253,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			end_hub = halthandle_t();
 			// is there already one harbour next to this one?
 #ifdef NEW_PATHING
-			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion> iter(*end_connect_hub->get_connexions(0));
+			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*end_connect_hub->get_connexions(0));
 			while(iter.next())
 			{
 				halthandle_t h = iter.get_current_key();
@@ -663,7 +663,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 			start_hub = halthandle_t();
 			// is there already one airport next to this town?
 #ifdef NEW_PATHING
-			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion> iter(*start_connect_hub->get_connexions(0));
+			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*start_connect_hub->get_connexions(0));
 			while(iter.next())
 			{
 				halthandle_t h = iter.get_current_key();
@@ -699,7 +699,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 			end_hub = halthandle_t();
 			// is there already one airport next to this town?
 #ifdef NEW_PATHING
-			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion> iter(*end_connect_hub->get_connexions(0));
+			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*end_connect_hub->get_connexions(0));
 			while(iter.next())
 			{
 				halthandle_t h = iter.get_current_key();

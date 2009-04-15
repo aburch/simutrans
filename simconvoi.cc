@@ -2954,7 +2954,9 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	// Cannot not charge for journey if the journey distance is more than a certain proportion of the straight line distance.
 	// This eliminates the possibility of cheating by building circuitous routes, or the need to prevent that by always using
 	// the straight line distance, which makes the game difficult and unrealistic. 
-	const uint32 max_distance = accurate_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2.2;
+	// If the origin has been deleted since the packet departed, then the best that we can do is guess by
+	// trebling the distance to the last stop.
+	const uint32 max_distance = ware.get_origin().is_bound() ? accurate_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2.2 : 3 * accurate_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d());
 	const uint32 distance = ware.get_accumulated_distance();
 	const uint32 revenue_distance = distance < max_distance ? distance : max_distance;
 
@@ -2973,7 +2975,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	const sint64 revenue = (sint64)(min_price > base_bonus ? min_price : base_bonus) * (sint64)revenue_distance * (sint64)ware.menge;
 	sint64 final_revenue = revenue;
 
-	const float happy_ratio = ware.get_origin()->get_unhappy_proportion(1);
+	const float happy_ratio = ware.get_origin().is_bound() ? ware.get_origin()->get_unhappy_proportion(1) : 1;
 	if(speed_bonus_rating > 0 && happy_ratio > 0)
 	{
 		// Reduce revenue if the origin stop is crowded, if speed is important for the cargo.

@@ -8,10 +8,6 @@
 #ifndef simhalt_h
 #define simhalt_h
 
-//#ifndef OLD_PATHING
-//#define NEW_PATHING
-//#endif
-
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
 #include "halthandle_t.h"
@@ -235,9 +231,9 @@ private:
 #ifdef NEW_PATHING
 	// Table of all direct connexions to this halt, with routing information.
 	// Array: one entry per goods type.
-	quickstone_hashtable_tpl<haltestelle_t, connexion> connexions[16];
+	quickstone_hashtable_tpl<haltestelle_t, connexion*> *connexions;
 
-	quickstone_hashtable_tpl<haltestelle_t, path> paths[16];
+	quickstone_hashtable_tpl<haltestelle_t, path> *paths;
 
 	// The number of iterations of paths currently traversed. Used for
 	// detecting when max_transfers has been reached.
@@ -246,6 +242,8 @@ private:
 	// Allocation of memory for nodes used during the pathing search.
 	// @author: jamespetts
 	path_node* path_nodes;
+
+	void reset_connexions(uint8 category);
 
 #else
 	// List with all reachable destinations (old method)
@@ -766,7 +764,7 @@ public:
 	inline uint16 get_waiting_minutes(uint32 waiting_ticks) const;
 
 #ifdef NEW_PATHING
-	quickstone_hashtable_tpl<haltestelle_t, connexion>* get_connexions(uint8 c); 
+	quickstone_hashtable_tpl<haltestelle_t, connexion*>* get_connexions(uint8 c); 
 
 	// Finds the best path from here to the goal halt.
 	// Looks up the paths in the hashtable - if the table

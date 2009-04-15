@@ -210,7 +210,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	{
 
 #ifdef NEW_PATHING
-		const quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion> *connexions = halt->get_connexions(i);
+		const quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *connexions = halt->get_connexions(i);
 #else
 		const vector_tpl<halthandle_t> *ziele = halt->get_warenziele(i);
 		if(!ziele->empty())
@@ -230,11 +230,11 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 			buf.append(":\n");
 			offset_y += LINESPACE;
 #ifdef NEW_PATHING
-			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion> iter(*connexions);
+			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*connexions);
 			while(iter.next())
 			{
 				halthandle_t a_halt = iter.get_current_key();
-				haltestelle_t::connexion cnx = iter.get_current_value();
+				haltestelle_t::connexion* cnx = iter.get_current_value();
 #else
 			for(  uint32 idx=0;  idx < ziele->get_count();  idx++  ) {
 				halthandle_t a_halt = (*ziele)[idx];
@@ -259,10 +259,10 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 				buf.append("\n");
 #ifdef NEW_PATHING
 					buf.append("(");
-					buf.append(cnx.journey_time * 0.1); // Convert from tenths
+					buf.append(cnx->journey_time * 0.1); // Convert from tenths
 					buf.append(translator::translate(" mins. travelling"));
 					buf.append(", ");
-					buf.append(cnx.waiting_time * 0.1); // Convert from tenths
+					buf.append(cnx->waiting_time * 0.1); // Convert from tenths
 					buf.append(translator::translate(" mins. waiting)"));
 					buf.append("\n");
 

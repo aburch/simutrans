@@ -805,8 +805,8 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 			//hinein = inside (Google)
 
 			ware_t ware = halt->hole_ab(besch->get_ware(), hinein, fpl, cnv);
-			
-			if(ware.menge==0) 
+					
+			if(ware.menge == 0) 
 			{
 				// now empty, but usually, we can get it here ...
 				return ok;
@@ -829,6 +829,7 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 
 				// New system: only merges if origins are alike.
 				// @author: jamespetts
+
 				if(ware.can_merge_with(tmp))
 				{
 					tmp.menge += ware.menge;
