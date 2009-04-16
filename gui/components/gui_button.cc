@@ -298,7 +298,7 @@ void button_t::infowin_event(const event_t *ev)
 
 	if(type<=STATE_MASK) {
 		// Hajo: check button state, if we should look depressed
-		pressed  =  (ev->button_state==1)  &&  b_enabled;
+		pressed = (ev->button_state==1)  &&  b_enabled;
 	}
 
 	if(IS_LEFTRELEASE(ev)) {
