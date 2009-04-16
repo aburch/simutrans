@@ -839,11 +839,13 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 		// Try a bridge.
 		const long cost_difference=besch->get_wartung()>0 ? (bruecke_besch->get_wartung()*4l+3l)/besch->get_wartung() : 16;
 		const char *error;
+		// first: add long bridge
 		koord3d end = brueckenbauer_t::finde_ende( welt, from->get_pos(), zv, bruecke_besch, error, false );
 		if(  error == NULL  &&  end != ziel  &&  brueckenbauer_t::ist_ende_ok(sp, welt->lookup(end)) ) {
 			uint32 length = koord_distance(from->get_pos(), end);
 			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference + 2*welt->get_einstellungen()->way_count_slope ));
 		}
+		// then: add shortest possible bridge
 		end = brueckenbauer_t::finde_ende( welt, from->get_pos(), zv, bruecke_besch, error, true );
 		if(  error == NULL  &&  end != ziel  &&  brueckenbauer_t::ist_ende_ok(sp, welt->lookup(end)) ) {
 			uint32 length = koord_distance(from->get_pos(), end);
