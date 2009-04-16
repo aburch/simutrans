@@ -142,6 +142,39 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 spe
 	return best;
 }
 
+// Finds a way with a given speed *and* weight limit
+// for a given way type.
+// @author: jamespetts (slightly adapted from the standard version with just speed limit)
+const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 speed_limit, const uint32 weight_limit, const uint16 time, const weg_t::system_type system_type)
+{
+	const weg_besch_t* best = NULL;
+	for(  stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen); iter.next();  ) 
+	{
+		const weg_besch_t* const test = iter.get_current_value();
+		if(  ((test->get_wtyp()==wtyp  &&
+			     (test->get_styp()==system_type  ||  system_type==weg_t::type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
+			     &&  test->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) 
+		{
+			if(  best==NULL  ||  time==0  ||  (test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month())) 
+			{
+				if(  best == NULL ||
+						((best->get_topspeed() < speed_limit && test->get_topspeed() >= speed_limit) ||
+						(best->get_max_weight() < weight_limit && test->get_max_weight() >= weight_limit))	||		
+						((test->get_topspeed() <=  speed_limit && best->get_topspeed() < test->get_topspeed()) ||	
+						(((test->get_max_weight() <=  weight_limit && best->get_max_weight() < test->get_max_weight())))) ||
+						((best->get_topspeed() > speed_limit && test->get_topspeed() < best->get_topspeed()) ||		
+						((best->get_max_weight() > weight_limit && test->get_max_weight()) < best->get_max_weight())) ||
+						(time != 0 && (best->get_intro_year_month()>time  ||  time>=best->get_retire_year_month()))
+					) 
+				{
+					best = test;
+				}
+			}
+		}
+	}
+	return best;
+}
+
 
 
 const weg_besch_t * wegbauer_t::get_besch(const char * way_name,const uint16 time)

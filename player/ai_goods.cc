@@ -835,7 +835,7 @@ DBG_MESSAGE("do_ki()","check railway");
 			if(  road_vehicle!=NULL  ) {
 				best_road_speed = road_vehicle->get_geschw();
 				// find cheapest road
-				road_weg = wegbauer_t::weg_search( road_wt, best_road_speed, welt->get_timeline_year_month(),weg_t::type_flat );
+				road_weg = wegbauer_t::weg_search( road_wt, best_road_speed, road_vehicle->get_gewicht(), welt->get_timeline_year_month(),weg_t::type_flat );
 				if(  road_weg!=NULL  ) {
 					if(  best_road_speed>road_weg->get_topspeed()  ) {
 						best_road_speed = road_weg->get_topspeed();
