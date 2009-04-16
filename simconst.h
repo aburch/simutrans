@@ -27,8 +27,11 @@
 /* normal ground can be covered by other ground (building does not work correctly yet ...) */
 //#define COVER_TILES
 
-/* construct automatic bridges also a active player */
+/* construct automatic bridges also as active player */
 //#define AUTOMATIC_BRIDGES
+
+/* construct automatic tunnels also as active player */
+//#define AUTOMATIC_TUNNELS
 
 /* citycars have a destination; if they could get near, they dissolve */
 //#define DESTINATION_CITYCARS

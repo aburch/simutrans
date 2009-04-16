@@ -70,12 +70,14 @@
 #include "../simsys.h"
 #endif
 
-
 // built bridges automatically
-//#define AUTOMATIC_BRIDGES 1
+//#define AUTOMATIC_BRIDGES
+
+// built tunnels automatically
+//#define AUTOMATIC_TUNNELS
 
 // lookup also return route and take the better of the two
-#define REVERSE_CALC_ROUTE_TOO 1
+#define REVERSE_CALC_ROUTE_TOO
 
 const weg_besch_t *wegbauer_t::leitung_besch = NULL;
 
@@ -603,13 +605,20 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		ok = true;
 	}
 
-	// not jumping to other lanes on bridges or tunnels
 	if((bautyp&tunnel_flag)==0) {
-		if(to->get_typ()==grund_t::brueckenboden  ||  to->get_typ()==grund_t::tunnelboden) {
+		// not jumping to other lanes on bridges
+		if( to->get_typ()==grund_t::brueckenboden ) {
 			weg_t *weg=to->get_weg_nr(0);
 			if(weg && !ribi_t::ist_gerade(weg->get_ribi_unmasked()|ribi_typ(zv))) {
 				return false;
 			}
+		}
+		// Do not switch to tunnel through cliffs!
+		if( from->get_typ() == grund_t::tunnelboden  &&  to->get_typ() != grund_t::tunnelboden  &&  !from->ist_karten_boden() ) {
+			return false;
+		}
+		if( to->get_typ()==grund_t::tunnelboden  &&  from->get_typ() != grund_t::tunnelboden   &&  !to->ist_karten_boden() ) {
+			return false;
 		}
 	}
 
@@ -832,213 +841,60 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 
 void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* from, koord3d ziel)
 {
-	// bridge not enabled or wrong starting slope or tile already occupied with a way ...
-	if (!hang_t::ist_wegbar(from->get_grund_hang())) return;
-
-	// since we were allowed to go there, it is ok ...
-	if(from->get_grund_hang()!=from->get_weg_hang()) {
-//		DBG_MESSAGE("wegbauer_t::check_for_bridge()","has bridge starting");
-		// now find the end ...
-		grund_t *gr=welt->lookup(from->get_pos());
-		grund_t *to=gr;
-		waytype_t wegtyp=(waytype_t)from->get_weg_nr(0)->get_besch()->get_wtyp();
-		koord zv = koord::invalid;
-		if(from->ist_karten_boden()) {
-			// Der Grund ist Brückenanfang/-ende - hier darf nur in
-			// eine Richtung getestet werden.
-			if(from->get_grund_hang() != hang_t::flach) {
-				zv = koord(hang_t::gegenueber(from->get_grund_hang()));
-			}
-			else {
-				zv = koord(from->get_weg_hang());
-			}
-		}
-		while(gr) {
-			gr->get_neighbour(to, wegtyp, zv);
-			if(to  &&  to->ist_karten_boden()) {
-				next_gr.append(next_gr_t(to, 7));
-				return;
-			}
-			gr = to;
-		}
+	// wrong starting slope or tile already occupied with a way ...
+	if (!hang_t::ist_wegbar(from->get_grund_hang())) {
 		return;
 	}
 
-	if(parent_from==NULL  ||  bruecke_besch==NULL  ||  (from->get_grund_hang()==0  &&  from->hat_wege())) {
-		return;
+	/*
+	 * now check existing ways:
+	 * no tunnels/bridges at crossings and no track tunnels/bridges on roads (bot road tunnels/bridges on tram are allowed).
+	 * (keep in mind, that our waytype isn't currently on the tile and will be built later)
+	 */
+	if(  from->has_two_ways()  ) {
+		if(  from->ist_uebergang()  ||  besch->get_wtyp() != road_wt  ) {
+			return;
+		}
+	}
+	else if(  from->hat_wege()  ) {
+		// ground has (currently) exact one way
+		weg_t *w = from->get_weg_nr(0);
+		if(  w->get_besch()->get_styp() != weg_t::type_tram  &&  w->get_besch() != besch  ) {
+			return;
+		}
 	}
 
 	const koord zv=from->get_pos().get_2d()-parent_from->get_pos().get_2d();
-	const koord to_pos=from->get_pos().get_2d()+zv;
-	bool has_reason_for_bridge=false;
 
 	// ok, so now we do a closer investigation
-	grund_t *gr, *gr2;
-	long internal_cost;
-	const long cost_difference=besch->get_wartung()>0 ? (bruecke_besch->get_wartung()*4l+3l)/besch->get_wartung() : 16;
-
-	if(from->get_grund_hang()==0) {
-		// try bridge on even ground
-		int max_lenght=bruecke_besch->get_max_length()>0 ? bruecke_besch->get_max_length()-2 : welt->get_einstellungen()->way_max_bridge_len;
-		max_lenght = min( max_lenght, welt->get_einstellungen()->way_max_bridge_len );
-
-		for(int i=0;  i<max_lenght;  i++ ) {
-			// not on map or already something there => fail
-			if (!welt->ist_in_kartengrenzen(to_pos + zv * (i + 1))) {
-				return;
-			}
-			gr = welt->lookup(to_pos+zv*i)->get_kartenboden();
-			gr2 = welt->lookup(to_pos+zv*(i+1))->get_kartenboden();
-			if (gr2->get_pos() == ziel) {
-				return;
-			}
-			if (welt->lookup(from->get_pos() + zv * i + koord3d(0, 0, Z_TILE_STEP))) {
-				// something in the way
-				return;
-			}
-			if (gr->get_pos().z == from->get_pos().z && gr->find<leitung_t>()) {
-				// powerline in the way
-				return;
-			}
-			if (gr->get_pos().z > from->get_pos().z) {
-				// some artificial tiles here?!?
-				return;
-			}
-			if (gr->hat_weg(air_wt)) {
-				// not above runways ...
-				return;
-			}
-			// check, if we need really a bridge
-			if(i<=2  &&  !has_reason_for_bridge) {
-				long dummy;
-				has_reason_for_bridge = !is_allowed_step(gr, gr2, &dummy );
-			}
-			// non-mangable slope?
-			if(gr->get_pos().z==from->get_pos().z  &&  gr->get_grund_hang()!=0) {
-#ifndef DOUBLE_GROUNDS
-				if (!hang_t::ist_wegbar(gr->get_grund_hang()) || ribi_typ(zv) != ribi_typ(gr->get_grund_hang())) return;
-#else
-				if (hang_t::ist_wegbar(gr->get_grund_hang()) || !hang_t::ist_einfach(gr->get_grund_hang()) || ribi_typ(zv) != ribi_typ(gr->get_grund_hang())) return;
-#endif
-			}
-			// make sure, the bridge is not too short
-			if(i==0) {
-				continue;
-			}
-			// here is a hang
-			if(gr->get_pos().z==from->get_pos().z  &&  gr->get_grund_hang()!=0) {
-				// ok, qualify for endpos
-				if(!gr->hat_wege()  &&  gr->ist_natur()  &&  !gr->ist_wasser()  &&  is_allowed_step(gr, gr2, &internal_cost )) {
-					// ok, here we may end
-					// we return the koord3d AFTER we came down!
-					if(has_reason_for_bridge) {
-						next_gr.append(next_gr_t(gr, i * cost_difference + welt->get_einstellungen()->way_count_slope));
-					}
-					return;
-				}
-			}
-			// check for flat landing
-			if(gr->get_pos().z==from->get_pos().z) {
-				// ok, height qualify for endpos
-				if(!gr->hat_wege()  &&  gr->ist_natur()  &&  !gr->ist_wasser()  &&  !gr2->hat_wege()  &&  is_allowed_step(gr, gr2, &internal_cost )) {
-					// ok, here we may end
-					// we return the koord3d AFTER we came down!
-					if(has_reason_for_bridge) {
-						next_gr.append(next_gr_t(gr, i * cost_difference + welt->get_einstellungen()->way_count_slope * 2));
-						return;
-					}
-				}
-			}
+	if(  bruecke_besch && (  ribi_typ(from->get_grund_hang()) == ribi_t::rueckwaerts(ribi_typ(zv))  ||  from->get_grund_hang() == 0  )
+			&&  brueckenbauer_t::ist_ende_ok(sp, from)  &&  !from->get_leitung()  ) {
+		// Try a bridge.
+		const long cost_difference=besch->get_wartung()>0 ? (bruecke_besch->get_wartung()*4l+3l)/besch->get_wartung() : 16;
+		const char *error;
+		// first: add long bridge
+		koord3d end = brueckenbauer_t::finde_ende( welt, from->get_pos(), zv, bruecke_besch, error, false );
+		if(  error == NULL  &&  end != ziel  &&  brueckenbauer_t::ist_ende_ok(sp, welt->lookup(end)) ) {
+			uint32 length = koord_distance(from->get_pos(), end);
+			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference + 2*welt->get_einstellungen()->way_count_slope ));
+		}
+		// then: add shortest possible bridge
+		end = brueckenbauer_t::finde_ende( welt, from->get_pos(), zv, bruecke_besch, error, true );
+		if(  error == NULL  &&  end != ziel  &&  brueckenbauer_t::ist_ende_ok(sp, welt->lookup(end)) ) {
+			uint32 length = koord_distance(from->get_pos(), end);
+			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference + 2*welt->get_einstellungen()->way_count_slope ));
 		}
 		return;
 	}
 
-	// downhill hang ...
-	if(ribi_typ(from->get_grund_hang())==ribi_t::rueckwaerts(ribi_typ(zv))) {
-		// try bridge
-
-		int max_lenght=bruecke_besch->get_max_length()>0 ? bruecke_besch->get_max_length()-2 : welt->get_einstellungen()->way_max_bridge_len;
-		max_lenght = min( max_lenght, welt->get_einstellungen()->way_max_bridge_len );
-
-		for(int i=1;  i<max_lenght;  i++ ) {
-			// not on map or already something there => fail
-			if (!welt->ist_in_kartengrenzen(to_pos + zv * (i + 1))) return;
-			gr = welt->lookup(to_pos+zv*i)->get_kartenboden();
-			gr2 = welt->lookup(to_pos+zv*(i+1))->get_kartenboden();
-			// must leave one field empty ...
-			if (gr2->get_pos() == ziel) return;
-			// something in the way?
-			if (welt->lookup(from->get_pos() + zv * i)) return;
-			// powerline in the way?
-			if (gr->get_pos().z == from->get_pos().z + Z_TILE_STEP && gr->find<leitung_t>()) return;
-			// some articial tiles here?!?
-			if (gr->get_pos().z > from->get_pos().z) return;
-			// check for runways ...
-			if (gr->hat_weg(air_wt)) return;
-			// non-manable slope?
-			if(gr->get_pos().z==from->get_pos().z  &&  gr->get_grund_hang()!=0) {
-#ifndef DOUBLE_GROUNDS
-				if (!hang_t::ist_wegbar(gr->get_grund_hang()) || ribi_typ(zv) != ribi_typ(gr->get_grund_hang())) return;
-#else
-				if (hang_t::ist_wegbar(gr->get_grund_hang()) || !hang_t::ist_einfach(gr->get_grund_hang()) || ribi_typ(zv) != ribi_typ(gr->get_grund_hang())) return;
-#endif
-			}
-			// make sure, the bridge is not too short
-			if(i==1) {
-				continue;
-			}
-			// here is the uphill hang
-			if(gr->get_pos().z==from->get_pos().z  &&  gr->get_grund_hang()!=0) {
-				// ok, qualify for endpos
-				if(!gr->hat_wege()  &&  gr->ist_natur()  &&  !gr->ist_wasser()  &&  is_allowed_step(gr, gr2, &internal_cost )) {
-					// ok, here we may end
-					// we return the koord3d AFTER we came down!
-					// this make always sense, since it is a counter slope
-					next_gr.append(next_gr_t(gr, i * cost_difference));
-					return;
-				}
-			}
-			// check, if we need really a bridge
-			if(!has_reason_for_bridge) {
-				long dummy;
-				has_reason_for_bridge = !is_allowed_step(gr, gr2, &dummy );
-			}
-			// check for flat landing
-			if(gr->get_pos().z==from->get_pos().z  &&  has_reason_for_bridge) {
-				// ok, height qualify for endpos
-				if(!gr->hat_wege()  &&  gr->ist_natur()  &&  !gr->ist_wasser()  &&  !gr2->hat_wege()  &&  is_allowed_step(gr, gr2, &internal_cost )) {
-					// ok, here we may end
-					if(has_reason_for_bridge) {
-						next_gr.append(next_gr_t(gr, i * cost_difference + welt->get_einstellungen()->way_count_slope));
-					}
-				}
-			}
-		}
-		return;
-	}
-
+	if(  tunnel_besch  &&  ribi_typ(from->get_grund_hang()) == ribi_typ(zv)  ) {
 	// uphill hang ... may be tunnel?
-	if(ribi_typ(from->get_grund_hang())==ribi_typ(zv)) {
-
-		for(unsigned i=0;  i<(unsigned)welt->get_einstellungen()->way_max_bridge_len;  i++ ) {
-			// not on map or already something there => fail
-			if (!welt->ist_in_kartengrenzen(to_pos + zv * (i + 1))) return;
-			gr = welt->lookup(to_pos+zv*i)->get_kartenboden();
-			gr2 = welt->lookup(to_pos+zv*(i+1))->get_kartenboden();
-			// here is a hang
-			if(gr->get_pos().z==from->get_pos().z  &&  gr->get_grund_hang()!=0) {
-				if(ribi_t::rueckwaerts(ribi_typ(zv))!=ribi_typ(gr->get_grund_hang())  ||  !hang_t::ist_einfach(gr->get_grund_hang())) {
-					// non, manable slope
-					return;
-				}
-				// ok, qualify for endpos
-				if(!gr->hat_wege()  &&  gr->ist_natur()  &&  !gr->ist_wasser()  &&  is_allowed_step(gr, gr2, &internal_cost )) {
-					// ok, here we may end
-					// we return the koord3d AFTER we came down!
-					next_gr.append(next_gr_t(gr, i * welt->get_einstellungen()->way_count_tunnel));
-					return;
-				}
-			}
+		const long cost_difference=besch->get_wartung()>0 ? (tunnel_besch->get_wartung()*4l+3l)/besch->get_wartung() : 16;
+		koord3d end = tunnelbauer_t::finde_ende( welt, from->get_pos(), zv, besch->get_wtyp());
+		if(  end != koord3d::invalid  &&  end != ziel  ) {
+			uint32 length = koord_distance(from->get_pos(), end);
+			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference ));
+			return;
 		}
 	}
 }
@@ -1096,16 +952,24 @@ wegbauer_t::route_fuer(enum bautyp_t wt, const weg_besch_t *b, const tunnel_besc
 		bruecke_besch = NULL;
 		tunnel_besch = NULL;
 	}
-#if AUTOMATIC_BRIDGES
-	else if(bruecke_besch==NULL) {
-		bruecke_besch = brueckenbauer_t::find_bridge((waytype_t)b->get_wtyp(),25,0);
-	}
+	else if(  bautyp != river  ) {
+#ifdef AUTOMATIC_BRIDGES
+		if(  bruecke_besch == NULL  ) {
+			bruecke_besch = brueckenbauer_t::find_bridge((waytype_t)b->get_wtyp(),25,welt->get_timeline_year_month());
+		}
 #endif
+#ifdef AUTOMATIC_TUNNELS
+		if(  tunnel_besch == NULL  ) {
+			tunnel_besch = tunnelbauer_t::find_tunnel((waytype_t)b->get_wtyp(),25,welt->get_timeline_year_month());
+		}
+#endif
+	}
   DBG_MESSAGE("wegbauer_t::route_fuer()",
-         "setting way type to %d, besch=%s, bruecke_besch=%s",
+         "setting way type to %d, besch=%s, bruecke_besch=%s, tunnel_besch=%s",
          bautyp,
          besch ? besch->get_name() : "NULL",
-         bruecke_besch ? bruecke_besch->get_name() : "NULL"
+         bruecke_besch ? bruecke_besch->get_name() : "NULL",
+         tunnel_besch ? tunnel_besch->get_name() : "NULL"
          );
 }
 
@@ -1280,7 +1144,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 				// now add it to the array ...
 				next_gr.append(next_gr_t(to, new_cost));
 			}
-			else if(tmp->parent!=NULL  &&  !gr->hat_wege()  &&  bridge_nsow==koord::nsow[r]) {
+			else if(tmp->parent!=NULL  &&  bridge_nsow==next_koord[r]) {
 				// try to build a bridge or tunnel here, since we cannot go here ...
 				check_for_bridge(tmp->parent->gr,gr,ziel3d);
 			}
@@ -1656,8 +1520,8 @@ long ms=dr_time();
 		long cost = intern_calc_route(ziel, start);
 		INT_CHECK("wegbauer 1165");
 
-		// the ceaper will survive ...
-		if(cost2<cost  &&  cost>0) {
+		// the cheaper will survive ...
+		if(  cost2 < cost  ||  cost < 0  ) {
 			swap(route, route2);
 		}
 #endif
@@ -1702,23 +1566,20 @@ wegbauer_t::baue_tunnel_und_bruecken()
 	if(bruecke_besch==NULL  &&  tunnel_besch==NULL) {
 		return;
 	}
-	// tunnel pruefen
+	// check for bridges and tunnels
 	for(int i=1; i<max_n-1; i++) {
 		koord d = (route[i + 1] - route[i]).get_2d();
+		koord zv = koord (sgn(d.x), sgn(d.y));
 
 		// ok, here is a gap ...
 		if(d.x > 1 || d.y > 1 || d.x < -1 || d.y < -1) {
 
 			if(d.x*d.y!=0) {
-				koord3d start = route[i];
-				koord3d end   = route[i + 1];
-				dbg->error("wegbauer_t::baue_tunnel_und_bruecken()","cannot built a bridge between %i,%i,%i (n=%i, max_n=%i) and %i,%i,%i",start.x,start.y,start.z,i,max_n,end.x,end.y,end.z);
+				dbg->error("wegbauer_t::baue_tunnel_und_bruecken()","cannot built a bridge between %s (n=%i, max_n=%i) and %s", route[i].get_str(),i,max_n,route[i+1].get_str());
 				continue;
 			}
 
-			koord zv = koord (sgn(d.x), sgn(d.y));
-
-			DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken", "built bridge %p between %i,%i,%i and %i,%i,%i", bruecke_besch, route[i].x, route[i].y, route[i].z, route[i + 1].x, route[i + 1].y, route[i + 1].z);
+			DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken", "built bridge %p between %s and %s", bruecke_besch, route[i].get_str(), route[i + 1].get_str());
 
 			const grund_t* start = welt->lookup(route[i]);
 			const grund_t* end   = welt->lookup(route[i + 1]);
@@ -1733,8 +1594,8 @@ wegbauer_t::baue_tunnel_und_bruecken()
 			}
 
 			if(start->get_grund_hang()==0  ||  start->get_grund_hang()==hang_typ(zv*(-1))) {
-				// bridge here
-				brueckenbauer_t::baue( welt, sp, route[i].get_2d(), bruecke_besch);
+				// bridge here, since the route is saved backwards, we have to build it at the posterior end
+				brueckenbauer_t::baue( welt, sp, route[i+1].get_2d(), bruecke_besch);
 			}
 			else {
 				// tunnel
@@ -1742,7 +1603,8 @@ wegbauer_t::baue_tunnel_und_bruecken()
 			}
 			INT_CHECK( "wegbauer 1584" );
 		}
-		else {
+		// Don't build short tunnels/bridges if they block a bridge/tunnel behind!
+		else if(  bautyp != leitung  &&  koord_distance(route[i + 2], route[i + 1]) == 1  ) {
 			grund_t *gr_i = welt->lookup(route[i]);
 			grund_t *gr_i1 = welt->lookup(route[i+1]);
 			hang_t::typ h = gr_i->get_weg_hang();
@@ -1754,13 +1616,15 @@ wegbauer_t::baue_tunnel_und_bruecken()
 				weg_t *wi1 = gr_i1->get_weg(wt);
 				if(wi->get_besitzer()==sp  &&  wi1->get_besitzer()==sp) {
 					// we are the owner
-					if(welt->lookup(route[i-1])->get_hoehe()>gr_i->get_hoehe()  &&  bruecke_besch) {
+					if(  h != hang_typ(zv)  ) {
 						// its a bridge
-						wi->set_ribi(ribi_typ(h));
-						wi1->set_ribi(ribi_typ(hang_t::gegenueber(h)));
-						brueckenbauer_t::baue( welt, sp, route[i].get_2d(), bruecke_besch);
+						if( bruecke_besch ) {
+							wi->set_ribi(ribi_typ(h));
+							wi1->set_ribi(ribi_typ(hang_t::gegenueber(h)));
+							brueckenbauer_t::baue( welt, sp, route[i].get_2d(), bruecke_besch);
+						}
 					}
-					else if(tunnel_besch) {
+					else if( tunnel_besch ) {
 						// make a short tunnel
 						wi->set_ribi(ribi_typ(hang_t::gegenueber(h)));
 						wi1->set_ribi(ribi_typ(h));
@@ -1788,50 +1652,7 @@ wegbauer_t::calc_costs()
 
 	for(int i=0; i<=max_n; i++) {
 
-		// last tile cannot be start of tunnel/bridge
-		if(i<max_n) {
-			koord d = (route[i + 1] - route[i]).get_2d();
-
-			// ok, here is a gap ... => either bridge or tunnel
-			if(d.x > 1 || d.y > 1 || d.x < -1 || d.y < -1) {
-
-				koord zv = koord (sgn(d.x), sgn(d.y));
-
-				const grund_t* start = welt->lookup(route[i]);
-				const grund_t* end   = welt->lookup(route[i + 1]);
-
-				if(start->get_weg_hang()!=start->get_grund_hang()) {
-					// already a bridge/tunnel there ...
-					continue;
-				}
-				if(end->get_weg_hang()!=end->get_grund_hang()) {
-					// already a bridge/tunnel there ...
-					continue;
-				}
-
-				if(start->get_grund_hang()==0  ||  start->get_grund_hang()==hang_typ(zv*(-1))) {
-					// bridge
-					koord pos = route[i].get_2d();
-					while (route[i + 1].get_2d() != pos) {
-						pos += zv;
-						costs += bruecke_besch->get_preis();
-					}
-					continue;
-				}
-				else {
-					// tunnel
-					// bridge
-					koord pos = route[i].get_2d();
-					while (route[i + 1].get_2d() != pos) {
-						pos += zv;
-						costs -= welt->get_einstellungen()->cst_tunnel;
-					}
-					continue;
-				}
-			}
-		}
-
-		// no gap => normal way
+		// cost for normal way (also build at bridge starts / tunnel entrances), calculates the cost of removing trees.
 		const grund_t* gr = welt->lookup(route[i]);
 		if(gr) {
 			const weg_t *weg=gr->get_weg((waytype_t)besch->get_wtyp());
@@ -1857,6 +1678,41 @@ wegbauer_t::calc_costs()
 				}
 			}
 		}
+
+		// last tile cannot be start of tunnel/bridge
+		if(i<max_n) {
+			koord d = (route[i + 1] - route[i]).get_2d();
+
+			// ok, here is a gap ... => either bridge or tunnel
+			if(d.x > 1 || d.y > 1 || d.x < -1 || d.y < -1) {
+
+				koord zv = koord (sgn(d.x), sgn(d.y));
+
+				const grund_t* start = welt->lookup(route[i]);
+				const grund_t* end   = welt->lookup(route[i + 1]);
+
+				if(start->get_weg_hang()!=start->get_grund_hang()) {
+					// already a bridge/tunnel there ...
+					continue;
+				}
+				if(end->get_weg_hang()!=end->get_grund_hang()) {
+					// already a bridge/tunnel there ...
+					continue;
+				}
+
+				if(start->get_grund_hang()==0  ||  start->get_grund_hang()==hang_typ(zv*(-1))) {
+					// bridge
+					costs += bruecke_besch->get_preis()*(koord_distance(route[i], route[i+1])+1);
+					continue;
+				}
+				else {
+					// tunnel
+					costs += tunnel_besch->get_preis()*(koord_distance(route[i], route[i+1])+1);
+					continue;
+				}
+			}
+		}
+
 		// check next tile
 	}
 	DBG_MESSAGE("wegbauer_t::calc_costs()","construction estimate: %f",costs/100.0);
@@ -1902,6 +1758,9 @@ wegbauer_t::baue_tunnelboden()
 			// take the faster way
 			if(  !keep_existing_faster_ways  ||  (weg->get_max_speed() < tunnel_besch->get_topspeed())  ) {
 				tunnel_t *tunnel = gr->find<tunnel_t>();
+				if( tunnel->get_besch() == tunnel_besch ) {
+					continue;
+				}
 				spieler_t::add_maintenance(sp, -tunnel->get_besch()->get_wartung());
 				spieler_t::add_maintenance(sp,  tunnel_besch->get_wartung() );
 
