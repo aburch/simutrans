@@ -3613,12 +3613,12 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		const bool backwards=event_get_last_control_shift()==2;
 		const grund_t *bd=0;
 		// search all grounds for match
-		halthandle_t h = pl->get_halt();
+		halthandle_t h = haltestelle_t::get_halt(welt,pos);
 		if(last_pos!=koord3d::invalid  &&  (h.is_bound() ^ last_halt.is_bound())) {
 			init(welt,sp);
 			return "Can only move from halt to halt or waypoint to waypoint.";
 		}
-		if(h.is_bound()  &&  !spieler_t::check_owner( sp, pl->get_haltlist()[0]->get_besitzer())) {
+		if(  h.is_bound()  &&  !spieler_t::check_owner( sp, h->get_besitzer() )  ) {
 			init(welt,sp);
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
@@ -3627,38 +3627,28 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			// with control backwards
 			const unsigned i = (backwards) ? pl->get_boden_count()-1-cnt : cnt;
 			bd = pl->get_boden_bei(i);
-			// ignore tunnel (can be set with Underground mode)
-			if(bd->ist_im_tunnel()) {
-				bd = 0;
+			// ok, now we have old_stop
+			if(  h.is_bound()  &&  !(bd->is_halt()  ||  (h->get_station_type()&haltestelle_t::dock  &&  bd->ist_wasser())  )  ) {
+				// not this halt ...
 				continue;
 			}
-			// must be on a way or in the sea?
-			if(!bd->ist_wasser()) {
-				weg_t *w1 = bd->get_weg_nr(0);
-				if(  w1==NULL  ||  !spieler_t::check_owner( w1->get_besitzer(), sp )  ) {
-					// fails, if no way
-					bd = 0;
-					continue;
-				}
-				weg_t *w2 = bd->get_weg_nr(1);
-				if(  w2  &&  !spieler_t::check_owner( w2->get_besitzer(), sp )  ) {
-					// this only fails, if wrong owner
-					bd = 0;
-					continue;
-				}
+			if(  waytype[0] == invalid_wt  &&  (bd->ist_wasser()  ||  bd->hat_wege())  ) {
+				break;
 			}
-			// ok, now we have old_stop
-			break;
+			if(  (waytype[0] == water_wt  &&  bd->ist_wasser())  ||  bd->hat_weg(waytype[0])  ) {
+				break;
+			}
+			bd = NULL;
 		}
 		if(bd==NULL) {
 			// here we failed
-			return "";
+			return "No suitable ground!";
 		}
 
-		if(last_pos == koord3d::invalid) {
+		if(  last_pos == koord3d::invalid  ) {
 			// put cursor
 			last_pos = bd->get_pos();
-			last_halt = bd->ist_wasser() ?  haltestelle_t::get_halt(welt,last_pos) : bd->get_halt();
+			last_halt = h;
 			if(bd->ist_wasser()) {
 				waytype[0] = water_wt;
 			}
@@ -3676,7 +3666,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		else {
 			// second click
 			pos = bd->get_pos();
-			const halthandle_t new_halt = haltestelle_t::get_halt(welt,pos);
+			const halthandle_t new_halt = h;
 			// depending on the waytype we simply built replacements lists
 			// in the wort case we have to iterate over all tiles twice ...
 			for(  uint i=0;  i<2;  i++  ) {

@@ -9,6 +9,7 @@
 
 class pakselector_t : public savegame_frame_t
 {
+	button_t load_addons;
 protected:
 	/**
 	* Aktion, die nach Knopfdruck gestartet wird.
@@ -29,12 +30,24 @@ protected:
 	virtual bool check_file( const char *filename, const char *suffix );
 
 public:
+	void fill_list();	// do the search ...
+
 	bool has_pak() const { return !entries.empty(); }
 
 	const char * get_hilfe_datei() const { return ""; }
 
 	// since we only want to see the frames ...
 	void zeichnen(koord pos, koord gr);
+
+	/**
+	 * This method is called if an action is triggered
+	 * @author Hj. Malthaner
+	 *
+	 * Returns true, if action is done and no more
+	 * components should be triggered.
+	 * V.Meyer
+	 */
+	virtual bool action_triggered( gui_action_creator_t *komp, value_t extra);
 
 	pakselector_t();
 };

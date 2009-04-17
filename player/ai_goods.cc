@@ -225,7 +225,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 	bool ok = false;
 
 	if(qfab->get_besch()->get_platzierung()!=fabrik_besch_t::Wasser) {
-		ok = suche_platz(start, start_size, ziel, qfab->get_besch()->get_haus()->get_groesse() );
+		ok = suche_platz(start, start_size, ziel, qfab->get_besch()->get_haus()->get_groesse(qfab->get_rotate()) );
 	}
 	else {
 		// water factory => find harbour location
@@ -233,7 +233,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 	}
 	if(ok) {
 		// found a place, search for target
-		ok = suche_platz(ziel, ziel_size, start, zfab->get_besch()->get_haus()->get_groesse() );
+		ok = suche_platz(ziel, ziel_size, start, zfab->get_besch()->get_haus()->get_groesse(zfab->get_rotate()) );
 	}
 
 	INT_CHECK("simplay 1729");
@@ -619,13 +619,14 @@ DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track 
 		bauigel.baue();
 		// connect to track
 		ribi1 = ribi_typ(diff1);
-		assert( welt->lookup_kartenboden(platz1+size1-diff1)->weg_erweitern(track_wt, ribi1) );
+		bool success = welt->lookup_kartenboden(platz1+size1-diff1)->weg_erweitern(track_wt, ribi1);
 		ribi1 = ribi_t::rueckwaerts(ribi1);
-		assert( welt->lookup_kartenboden(platz1+size1)->weg_erweitern(track_wt, ribi1) );
+		success &= welt->lookup_kartenboden(platz1+size1)->weg_erweitern(track_wt, ribi1);
 		ribi2 = ribi_typ(diff2);
-		assert( welt->lookup_kartenboden(platz2+size2-diff2)->weg_erweitern(track_wt, ribi2) );
+		success &= welt->lookup_kartenboden(platz2+size2-diff2)->weg_erweitern(track_wt, ribi2);
 		ribi2 = ribi_t::rueckwaerts(ribi2);
-		assert( welt->lookup_kartenboden(platz2+size2)->weg_erweitern(track_wt, ribi2) );
+		success &= welt->lookup_kartenboden(platz2+size2)->weg_erweitern(track_wt, ribi2);
+		assert(success);
 		return true;
 	}
 	else {

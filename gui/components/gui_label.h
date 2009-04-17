@@ -27,12 +27,12 @@
 class gui_label_t : public gui_komponente_t
 {
 public:
-    enum align_t {
+	enum align_t {
 		left,
 		centered,
 		right,
 		money
-    };
+	};
 private:
 	align_t align:4;
 
