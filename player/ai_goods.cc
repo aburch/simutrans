@@ -225,7 +225,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 	bool ok = false;
 
 	if(qfab->get_besch()->get_platzierung()!=fabrik_besch_t::Wasser) {
-		ok = suche_platz(start, start_size, ziel, qfab->get_besch()->get_haus()->get_groesse() );
+		ok = suche_platz(start, start_size, ziel, qfab->get_besch()->get_haus()->get_groesse(qfab->get_rotate()) );
 	}
 	else {
 		// water factory => find harbour location
@@ -233,7 +233,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 	}
 	if(ok) {
 		// found a place, search for target
-		ok = suche_platz(ziel, ziel_size, start, zfab->get_besch()->get_haus()->get_groesse() );
+		ok = suche_platz(ziel, ziel_size, start, zfab->get_besch()->get_haus()->get_groesse(zfab->get_rotate()) );
 	}
 
 	INT_CHECK("simplay 1729");
