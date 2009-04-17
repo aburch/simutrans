@@ -188,13 +188,17 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	show_retired_vehicles = old_retired;
 	show_all = old_show_all;
 
+	bool one = false;
+
 	cont_pas.add_komponente(&pas);
 	scrolly_pas.set_show_scroll_x(false);
 	scrolly_pas.set_size_corner(false);
 	scrolly_pas.set_read_only(false);
-
-	// always add
-	tabs.add_tab(&scrolly_pas, translator::translate( depot->get_passenger_name() ) );
+	// add only if there are any
+	if(!pas_vec.empty()) {
+		tabs.add_tab(&scrolly_pas, translator::translate( depot->get_passenger_name() ) );
+		one = true;
+	}
 
 	cont_electrics.add_komponente(&electrics);
 	scrolly_electrics.set_show_scroll_x(false);
@@ -203,6 +207,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	// add only if there are any trolleybuses
 	if(!electrics_vec.empty()) {
 		tabs.add_tab(&scrolly_electrics, translator::translate( depot->get_electrics_name() ) );
+		one = true;
 	}
 
 	cont_loks.add_komponente(&loks);
@@ -212,6 +217,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	// add, if waggons are there ...
 	if (!loks_vec.empty() || !waggons_vec.empty()) {
 		tabs.add_tab(&scrolly_loks, translator::translate( depot->get_zieher_name() ) );
+		one = true;
 	}
 
 	cont_waggons.add_komponente(&waggons);
@@ -221,6 +227,12 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	// only add, if there are waggons
 	if (!waggons_vec.empty()) {
 		tabs.add_tab(&scrolly_waggons, translator::translate( depot->get_haenger_name() ) );
+		one = true;
+	}
+
+	if(!one) {
+		// add passenger as default
+		tabs.add_tab(&scrolly_pas, translator::translate( depot->get_passenger_name() ) );
 	}
 
 	pas.set_player_nr(depot->get_player_nr());
