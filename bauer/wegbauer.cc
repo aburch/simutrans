@@ -1574,6 +1574,10 @@ wegbauer_t::baue_tunnel_und_bruecken()
 		else if(  bautyp != leitung  &&  koord_distance(route[i + 2], route[i + 1]) == 1  ) {
 			grund_t *gr_i = welt->lookup(route[i]);
 			grund_t *gr_i1 = welt->lookup(route[i+1]);
+			if(  gr_i->get_weg_hang() != gr_i->get_grund_hang()  ||  gr_i1->get_weg_hang() != gr_i1->get_grund_hang()  ) {
+				// Here is already a tunnel or a bridge.
+				return;
+			}
 			hang_t::typ h = gr_i->get_weg_hang();
 			waytype_t wt = (waytype_t)(besch->get_wtyp());
 			if(h!=hang_t::flach  &&  hang_t::gegenueber(h)==gr_i1->get_weg_hang()) {
