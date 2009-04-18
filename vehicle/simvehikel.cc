@@ -1158,26 +1158,32 @@ vehikel_t::hop()
 
 	pos_prev = get_pos();
 	set_pos( pos_next );  // naechstes Feld ("next field" - Babelfish)
-	if(route_index<cnv->get_route()->get_max_n()) {
+	if(route_index<cnv->get_route()->get_max_n()) 
+	{
 		route_index ++;
 		pos_next = cnv->get_route()->position_bei(route_index);
 	}
-	else {
+	else 
+	{
 		check_for_finish = true;
 	}
-	alte_fahrtrichtung = fahrtrichtung; //2
+	alte_fahrtrichtung = fahrtrichtung;
 
 	// this is a required hack for aircraft: aircraft can turn on a single square, and this confuses the previous calculation.
 	// author: hsiegeln
-	if(!check_for_finish  &&  pos_prev.get_2d()==pos_next.get_2d()) {
+	if(!check_for_finish  &&  pos_prev.get_2d()==pos_next.get_2d()) 
+	{
 		fahrtrichtung = calc_set_richtung( get_pos().get_2d(), pos_next.get_2d() );
 		steps_next = 0;
 	}
-	else {
-		if(pos_next!=get_pos()) {
+	else 
+	{
+		if(pos_next!=get_pos()) 
+		{
 			fahrtrichtung = calc_set_richtung( pos_prev.get_2d(), pos_next.get_2d() );
 		}
-		else if(  (  check_for_finish  &&  welt->lookup(pos_next)  &&  ribi_t::ist_gerade(welt->lookup(pos_next)->get_weg_ribi_unmasked(get_waytype()))  )  ||  welt->lookup(pos_next)->is_halt()) {
+		else if(  (  check_for_finish  &&  welt->lookup(pos_next)  &&  ribi_t::ist_gerade(welt->lookup(pos_next)->get_weg_ribi_unmasked(get_waytype()))  )  ||  welt->lookup(pos_next)->is_halt()) 
+		{
 			// allow diagonal stops at waypoints on diagonal tracks but avoid them on halts and at straight tracks...
 			fahrtrichtung = calc_set_richtung( pos_prev.get_2d(), pos_next.get_2d() );
 		}
@@ -1189,16 +1195,14 @@ vehikel_t::hop()
 	gr = welt->lookup(pos_next);
 
 	const weg_t * weg = gr->get_weg(get_waytype());
-	if(weg) {
+	if(weg)
+	{
 		speed_limit = kmh_to_speed( weg->get_max_speed() );
 		// Weight limit needed for GUI flag
-		uint32 weight_limit = (weg->get_max_weight());	
+		const uint32 weight_limit = (weg->get_max_weight()) > 0 ? weg->get_max_weight() : 1;
 		// Necessary to prevent division by zero exceptions if
 		// weight limit is set to 0 in the file.
-		if(weight_limit < 1)
-		{
-			weight_limit = 1;
-		}
+
 		is_overweight = (cnv->get_heaviest_vehicle() > weight_limit); 
 
 		if(alte_fahrtrichtung != fahrtrichtung)
@@ -1211,16 +1215,20 @@ vehikel_t::hop()
 		}
 
 		speed_limit = calc_modified_speed_limit(&(cnv->get_route()->position_bei(route_index)), fahrtrichtung, (alte_fahrtrichtung != fahrtrichtung));
-		if(weg->is_crossing()) {
+		if(weg->is_crossing()) 
+		{
 			gr->find<crossing_t>(2)->add_to_crossing(this);
-			}
+		}
 	}
-	else {
+	else
+	{
 		speed_limit = SPEED_UNLIMITED;
 	}
 
-	if(check_for_finish & ist_erstes) {
-		if(  fahrtrichtung==ribi_t::nord  || fahrtrichtung==ribi_t::west ) {
+	if(check_for_finish & ist_erstes) 
+	{
+		if(  fahrtrichtung==ribi_t::nord  || fahrtrichtung==ribi_t::west ) 
+		{
 			steps_next = (steps_next/2)+1;
 		}
 	}
@@ -2301,7 +2309,7 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 		}
 		if(is_overweight)
 		{
-			sprintf(tooltip_text, translator::translate("Vehicle %s is too heavy for this route: speed limited."), cnv->get_name());
+			sprintf(tooltip_text, translator::translate("Too heavy"), cnv->get_name());
 			color = COL_YELLOW;
 		}
 #ifdef debug_corners
