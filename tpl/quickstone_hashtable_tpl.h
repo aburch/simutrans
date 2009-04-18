@@ -6,6 +6,7 @@
 #ifndef quickstone_hashtable_tpl_h
 #define quickstone_hashtable_tpl_h
 
+#include "ptrhashtable_tpl.h"
 #include "hashtable_tpl.h"
 #include "quickstone_tpl.h"
 #include <stdlib.h>
@@ -53,7 +54,7 @@ class quickstone_hashtable_iterator_tpl : public hashtable_iterator_tpl<quicksto
 {
 public:
 	quickstone_hashtable_iterator_tpl(const hashtable_tpl<quickstone_tpl<key_t>, value_t, quickstone_hash_tpl<key_t> > *hashtable) :
-	hashtable_iterator_tpl<quickstone_tpl<key_t>, value_t, ptrhash_tpl<quickstone_tpl<key_t>> >(hashtable)
+	hashtable_iterator_tpl<quickstone_tpl<key_t>, value_t, ptrhash_tpl<quickstone_tpl<key_t> > >(hashtable)
 	{ }
 
 	quickstone_hashtable_iterator_tpl(const hashtable_tpl<quickstone_tpl<key_t>, value_t, quickstone_hash_tpl<key_t> > &hashtable) :

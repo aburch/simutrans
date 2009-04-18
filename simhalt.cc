@@ -250,7 +250,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 #ifdef NEW_PATHING
 	iterations = 0;
 	search_complete = false;
-	waiting_times = new quickstone_hashtable_tpl<haltestelle_t, fixed_list_tpl<uint16, 16>>[warenbauer_t::get_max_catg_index()];
+	waiting_times = new quickstone_hashtable_tpl<haltestelle_t, fixed_list_tpl<uint16, 16> >[warenbauer_t::get_max_catg_index()];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[warenbauer_t::get_max_catg_index()];
 	paths = new quickstone_hashtable_tpl<haltestelle_t, path>[warenbauer_t::get_max_catg_index()];
 #else
@@ -302,7 +302,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 #ifdef NEW_PATHING
 	iterations = 0;
 	search_complete = false;
-	waiting_times = new quickstone_hashtable_tpl<haltestelle_t, fixed_list_tpl<uint16, 16>>[warenbauer_t::get_max_catg_index()];
+	waiting_times = new quickstone_hashtable_tpl<haltestelle_t, fixed_list_tpl<uint16, 16> >[warenbauer_t::get_max_catg_index()];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[warenbauer_t::get_max_catg_index()];
 	paths = new quickstone_hashtable_tpl<haltestelle_t, path>[warenbauer_t::get_max_catg_index()];
 #else
@@ -2875,7 +2875,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				halts_count = waiting_times[i].get_count();
 				file->rdwr_short(halts_count, "");
 			
-				quickstone_hashtable_iterator_tpl<haltestelle_t, fixed_list_tpl<uint16, 16>> iter(waiting_times[i]);
+				quickstone_hashtable_iterator_tpl<haltestelle_t, fixed_list_tpl<uint16, 16> > iter(waiting_times[i]);
 
 				//iter.begin();
 				while(iter.next())
