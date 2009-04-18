@@ -3,8 +3,7 @@
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
- */
-
+ */ 
 #include <stdio.h>
 #include <math.h>
 

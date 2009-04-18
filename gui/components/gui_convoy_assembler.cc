@@ -194,7 +194,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, bool el
 
 	// add only if there are any
 	if(!pas_vec.empty()) {
-		tabs.add_tab(&scrolly_pas, translator::translate( depot->get_passenger_name() ) );
+		tabs.add_tab(&scrolly_pas, translator::translate( get_passenger_name(wt) ) );
 		one = true;
 	}
 
@@ -230,7 +230,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, bool el
 
 	if(!one) {
 		// add passenger as default
-		tabs.add_tab(&scrolly_pas, translator::translate( depot->get_passenger_name() ) );
+		tabs.add_tab(&scrolly_pas, translator::translate( get_passenger_name(wt) ) );
  	}
 
 	pas.set_player_nr(player_nr);
