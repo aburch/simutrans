@@ -714,7 +714,7 @@ bool vehikel_t::load_freight(halthandle_t halt)
 		while(total_freight < besch->get_zuladung()) {
 			const uint16 hinein = besch->get_zuladung() - total_freight;
 
-			ware_t ware = halt->hole_ab(besch->get_ware(), hinein, fpl);
+			ware_t ware = halt->hole_ab(besch->get_ware(), hinein, fpl, cnv->get_besitzer() );
 			if(ware.menge==0) {
 				// now empty, but usually, we can get it here ...
 				return ok;
@@ -782,7 +782,7 @@ void vehikel_t::remove_stale_freight()
 			bool found = false;
 
 			for (int i = 0; i < fpl->get_count(); i++) {
-				if (haltestelle_t::get_halt( welt, fpl->eintrag[i].pos ) == tmp.get_zwischenziel()) {
+				if (haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, cnv->get_besitzer() ) == tmp.get_zwischenziel()) {
 					found = true;
 					break;
 				}

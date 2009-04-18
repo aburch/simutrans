@@ -65,18 +65,6 @@ bool ai_bauplatz_mit_strasse_sucher_t::ist_platz_ok(koord pos, sint16 b, sint16 
 /************************** and now the "real" helper functions ***************/
 
 
-/* return true, if my bahnhof is here
- * @author prissi
- */
-bool ai_t::is_my_halt(koord pos) const
-{
-	const halthandle_t halt = haltestelle_t::get_halt(welt, pos);
-	return
-		halt.is_bound() && check_owner(this,halt->get_besitzer());
-}
-
-
-
 /* returns true,
  * if there is already a connection
  * @author prissi
@@ -235,7 +223,7 @@ bool ai_t::suche_platz(koord &start, koord &size, koord target, koord off)
 			}
 			else {
 				koord test(x,y);
-				if(is_my_halt(test)) {
+				if(  haltestelle_t::get_halt(welt,test,this).is_bound()  ) {
 DBG_MESSAGE("ai_t::suche_platz()","Search around stop at (%i,%i)",x,y);
 
 					// we are on a station that belongs to us

@@ -38,11 +38,6 @@ class ai_t : public spieler_t
 public:
 	ai_t(karte_t *wl, uint8 nr) : spieler_t( wl, nr ) {}
 
-	/* returns true for a halt of the player at that position
-	 * @author prissi
-	 */
-	bool is_my_halt(koord pos) const;
-
 	// return true, if there is already a connection
 	bool is_connected(const koord star_pos, const koord end_pos, const ware_besch_t *wtyp) const;
 

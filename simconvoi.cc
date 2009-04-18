@@ -796,7 +796,7 @@ void convoi_t::step()
 				if (v->ist_weg_frei(restart_speed)) {
 					// can reserve new block => drive on
 					state = (steps_driven>=0) ? LEAVING_DEPOT : DRIVING;
-					if(haltestelle_t::get_halt(welt,v->get_pos()).is_bound()) {
+					if(haltestelle_t::get_halt(welt,v->get_pos(),besitzer_p).is_bound()) {
 						v->play_sound();
 					}
 				}
@@ -1016,7 +1016,7 @@ void convoi_t::ziel_erreicht()
 	}
 	else {
 		// no depot reached, check for stop!
-		halthandle_t halt = gr->ist_wasser() ? haltestelle_t::get_halt(welt, v->get_pos()) : gr->get_halt();
+		halthandle_t halt = haltestelle_t::get_halt(welt, v->get_pos(),besitzer_p);
 		if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
 			// seems to be a stop, so book the money for the trip
 			akt_speed = 0;
@@ -1477,7 +1477,7 @@ convoi_t::vorfahren()
 		int restart_speed=-1;
 		if(fahr[0]->ist_weg_frei(restart_speed)) {
 			// can reserve new block => drive on
-			if(haltestelle_t::get_halt(welt,k0).is_bound()) {
+			if(haltestelle_t::get_halt(welt,k0,besitzer_p).is_bound()) {
 				fahr[0]->play_sound();
 			}
 			wait_lock = 0;
@@ -2092,7 +2092,7 @@ void convoi_t::laden()
 		return;
 	}
 
-	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos);
+	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos,besitzer_p);
 	// eigene haltestelle ?
 	if (halt.is_bound()) {
 		const koord k = fpl->get_current_eintrag().pos.get_2d();

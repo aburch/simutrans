@@ -72,19 +72,30 @@ stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 
 
 
-halthandle_t haltestelle_t::get_halt(karte_t *welt, const koord pos)
+halthandle_t haltestelle_t::get_halt( karte_t *welt, const koord pos, const spieler_t *sp )
 {
 	const planquadrat_t *plan = welt->lookup(pos);
 	if(plan) {
-		if(plan->get_halt().is_bound()) {
+		if(plan->get_halt().is_bound()  &&  spieler_t::check_owner(sp,plan->get_halt()->get_besitzer())  ) {
 			return plan->get_halt();
 		}
 		// no halt? => we do the water check
 		if(plan->get_kartenboden()->ist_wasser()) {
 			// may catch bus stops close to water ...
-			if(plan->get_haltlist_count()>0) {
-				return plan->get_haltlist()[0];
+			const uint8 cnt = plan->get_haltlist_count();
+			// first check for own stop
+			for(  uint8 i=0;  i<cnt;  i++  ) {
+				if(  plan->get_haltlist()[i]->get_besitzer()==sp  ) {
+					return plan->get_haltlist()[i];
+				}
 			}
+			// then for public stop
+			for(  uint8 i=0;  i<cnt;  i++  ) {
+				if(  plan->get_haltlist()[i]->get_besitzer()==welt->get_spieler(1)  ) {
+					return plan->get_haltlist()[i];
+				}
+			}
+			// so: nothing found
 		}
 	}
 	return halthandle_t();
@@ -92,20 +103,31 @@ halthandle_t haltestelle_t::get_halt(karte_t *welt, const koord pos)
 
 
 halthandle_t
-haltestelle_t::get_halt(karte_t *welt, const koord3d pos)
+haltestelle_t::get_halt( karte_t *welt, const koord3d pos, const spieler_t *sp )
 {
 	const grund_t *gr = welt->lookup(pos);
 	if(gr) {
-		if(gr->get_halt().is_bound()) {
+		if(gr->get_halt().is_bound()  &&  spieler_t::check_owner(sp,gr->get_halt()->get_besitzer())  ) {
 			return gr->get_halt();
 		}
 		// no halt? => we do the water check
 		if(gr->ist_wasser()) {
 			// may catch bus stops close to water ...
 			const planquadrat_t *plan = welt->lookup(pos.get_2d());
-			if(plan->get_haltlist_count()>0) {
-				return plan->get_haltlist()[0];
+			const uint8 cnt = plan->get_haltlist_count();
+			// first check for own stop
+			for(  uint8 i=0;  i<cnt;  i++  ) {
+				if(  plan->get_haltlist()[i]->get_besitzer()==sp  ) {
+					return plan->get_haltlist()[i];
+				}
 			}
+			// then for public stop
+			for(  uint8 i=0;  i<cnt;  i++  ) {
+				if(  plan->get_haltlist()[i]->get_besitzer()==welt->get_spieler(1)  ) {
+					return plan->get_haltlist()[i];
+				}
+			}
+			// so: nothing found
 		}
 	}
 	return halthandle_t();
@@ -154,7 +176,7 @@ haltestelle_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, const char *&ms
 		return false;
 	}
 
-	halthandle_t halt = get_halt(welt,pos);
+	halthandle_t halt = bd->get_halt();
 	if(!halt.is_bound()) {
 		dbg->error("haltestelle_t::remove()","no halt at %d,%d,%d", pos.x, pos.y, pos.z);
 		return false;
@@ -856,13 +878,13 @@ haltestelle_t::remove_fabriken(fabrik_t *fab)
 
 
 
-void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl)
+void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl, const spieler_t *sp )
 {
 	if(type != warenbauer_t::nichts) {
 		for(int i=0; i<fpl->get_count(); i++) {
 
 			// Hajo: Haltestelle selbst wird nicht in Zielliste aufgenommen
-			halthandle_t halt = get_halt(welt, fpl->eintrag[i].pos);
+			halthandle_t halt = get_halt(welt, fpl->eintrag[i].pos, sp);
 			// not existing, or own, or not enabled => ignore
 			if(!halt.is_bound()  ||  halt==self  ||  !halt->is_enabled(type)) {
 				continue;
@@ -915,11 +937,12 @@ void haltestelle_t::rebuild_destinations()
 			INT_CHECK("simhalt.cc 612");
 
 			schedule_t *fpl = cnv->get_schedule();
+			const spieler_t *cnv_owner = cnv->get_besitzer();
 			if(fpl) {
 				for(int i=0; i<fpl->get_count(); i++) {
 
 					// Hajo: Hält dieser convoi hier?
-					if (get_halt(welt, fpl->eintrag[i].pos) == self) {
+					if (get_halt(welt, fpl->eintrag[i].pos,cnv_owner) == self) {
 
 						// what goods can this line transport?
 						add_catg_index.clear();
@@ -933,7 +956,7 @@ void haltestelle_t::rebuild_destinations()
 							const ware_besch_t *ware=cnv->get_vehikel(i)->get_fracht_typ();
 							if(ware!=warenbauer_t::nichts  &&  !add_catg_index.is_contained(ware->get_catg_index())) {
 								// now add the freights
-								hat_gehalten(ware, fpl );
+								hat_gehalten( ware, fpl, cnv_owner );
 								add_catg_index.append_unique(ware->get_catg_index());
 							}
 						}
@@ -947,11 +970,12 @@ void haltestelle_t::rebuild_destinations()
 	for(uint i=0; i<registered_lines.get_count(); i++) {
 		const linehandle_t line = registered_lines[i];
 		schedule_t *fpl = line->get_schedule();
+		const spieler_t *line_owner = line->get_besitzer();
 		assert(fpl);
 		// ok, now add line to the connections
-		if(line->count_convoys()>0  &&  (i_am_public  ||  line->get_convoy(0)->get_besitzer()==get_besitzer())) {
+		if(line->count_convoys()>0  &&  (i_am_public  ||  line_owner==get_besitzer())) {
 			for( uint j=0; j<line->get_goods_catg_index().get_count();  j++  ) {
-				hat_gehalten( warenbauer_t::get_info_catg_index(line->get_goods_catg_index()[j]), fpl );
+				hat_gehalten( warenbauer_t::get_info_catg_index(line->get_goods_catg_index()[j]), fpl, line_owner );
 			}
 		}
 	}
@@ -1252,7 +1276,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 
 
 // will load something compatible with wtyp into the car which schedule is fpl
-ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t *fpl)
+ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const schedule_t *fpl, const spieler_t *sp )
 {
 	// prissi: first iterate over the next stop, then over the ware
 	// might be a little slower, but ensures that passengers to nearest stop are served first
@@ -1267,7 +1291,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 		for(  uint8 i=1; i<count; i++  ) {
 			const uint8 wrap_i = (i + fpl->get_aktuell()) % count;
 
-			const halthandle_t plan_halt = get_halt(welt, fpl->eintrag[wrap_i].pos);
+			const halthandle_t plan_halt = haltestelle_t::get_halt(welt, fpl->eintrag[wrap_i].pos, sp);
 			if(plan_halt == self) {
 				// we will come later here again ...
 				break;
@@ -2272,7 +2296,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 					if(  !registered_lines.is_contained(check_line[j])  ) {
 						const schedule_t *fpl = check_line[j]->get_schedule();
 						for(  int k=0;  k<fpl->get_count();  k++  ) {
-							if(get_halt(welt,fpl->eintrag[k].pos)==self) {
+							if(get_halt(welt,fpl->eintrag[k].pos,check_line[j]->get_besitzer())==self) {
 								registered_lines.append(check_line[j]);
 								break;
 							}
@@ -2289,7 +2313,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 			if(  !registered_lines.is_contained(check_line[j])  ) {
 				const schedule_t *fpl = check_line[j]->get_schedule();
 				for(  int k=0;  k<fpl->get_count();  k++  ) {
-					if(get_halt(welt,fpl->eintrag[k].pos)==self) {
+					if(get_halt(welt,fpl->eintrag[k].pos,get_besitzer())==self) {
 						registered_lines.append(check_line[j]);
 						break;
 					}
@@ -2375,7 +2399,7 @@ void haltestelle_t::rem_grund(grund_t *gr)
 			const schedule_t *fpl = registered_lines[j]->get_schedule();
 			bool ok=false;
 			for(  int k=0;  k<fpl->get_count();  k++  ) {
-				if(get_halt(welt,fpl->eintrag[k].pos)==self) {
+				if(get_halt(welt,fpl->eintrag[k].pos,registered_lines[j]->get_besitzer())==self) {
 					ok = true;
 					break;
 				}

@@ -297,20 +297,15 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	}
 
 	// sea pos (and not on harbour ... )
-	halthandle_t halt = haltestelle_t::get_halt(welt,platz1);
+	halthandle_t halt = haltestelle_t::get_halt(welt,platz1,this);
 	koord pos1 = platz1 - koord(gr->get_grund_hang())*h->get_groesse().y;
 	koord best_pos = pos1;
 	for(  int y = pos1.y-welt->get_einstellungen()->get_station_coverage();  y<=pos1.y+welt->get_einstellungen()->get_station_coverage();  y++  ) {
 		for(  int x = pos1.x-welt->get_einstellungen()->get_station_coverage();  x<=pos1.x+welt->get_einstellungen()->get_station_coverage();  x++  ) {
 			koord p(x,y);
-			const planquadrat_t *plan = welt->lookup(p);
-			if(plan) {
-				grund_t *gr = plan->get_kartenboden();
-				if(  gr->ist_wasser()  &&  !gr->get_halt().is_bound()  ) {
-					if(plan->get_haltlist_count()>=1  &&  plan->get_haltlist()[0]==halt  &&  abs_distance(best_pos,platz2)<abs_distance(p,platz2)) {
-						best_pos = p;
-					}
-				}
+			// in water, the water tiles have no halt flag!
+			if(  !welt->lookup(p)->get_halt().is_bound()  &&  halt == haltestelle_t::get_halt(welt,p,this)  &&  abs_distance(best_pos,platz2)<abs_distance(p,platz2)  ) {
+				best_pos = p;
 			}
 		}
 	}
@@ -510,7 +505,12 @@ int ai_goods_t::baue_bahnhof(const koord* p, int anz_vehikel)
 	}
 	koord pos;
 	for(  pos=t-zv;  pos!=*p;  pos-=zv ) {
-		if(  make_all_bahnhof  ||  is_my_halt(pos+koord(-1,-1))  ||  is_my_halt(pos+koord(-1,1))  ||  is_my_halt(pos+koord(1,-1))  ||  is_my_halt(pos+koord(1,1))  ) {
+		if(  make_all_bahnhof  ||
+			haltestelle_t::get_halt(welt,pos+koord(-1,-1),this).is_bound()  ||
+			haltestelle_t::get_halt(welt,pos+koord(-1, 1),this).is_bound()  ||
+			haltestelle_t::get_halt(welt,pos+koord( 1,-1),this).is_bound()  ||
+			haltestelle_t::get_halt(welt,pos+koord( 1, 1),this).is_bound()
+		) {
 			// start building, if next to an existing station
 			make_all_bahnhof = true;
 			call_general_tool( WKZ_STATION, pos, besch->get_name() );
@@ -519,7 +519,7 @@ int ai_goods_t::baue_bahnhof(const koord* p, int anz_vehikel)
 	}
 	// now add the other squares (going backwards)
 	for(  pos=*p;  pos!=t;  pos+=zv ) {
-		if(  !is_my_halt(pos)  ) {
+		if(  !haltestelle_t::get_halt(welt,pos,this).is_bound()  ) {
 			call_general_tool( WKZ_STATION, pos, besch->get_name() );
 		}
 	}
@@ -1010,7 +1010,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 				// only here, if we could built ships but no connection
 				halthandle_t start_halt;
 				for( int r=0;  r<4;  r++  ) {
-					start_halt = haltestelle_t::get_halt(welt,platz1+koord::nsow[r]);
+					start_halt = haltestelle_t::get_halt(welt,platz1+koord::nsow[r],this);
 					if(start_halt.is_bound()  &&  (start_halt->get_station_type()&haltestelle_t::dock)!=0) {
 						// delete all ships on this line
 						vector_tpl<linehandle_t> lines;
@@ -1018,7 +1018,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 						if(!lines.empty()) {
 							linehandle_t line = lines.back();
 							schedule_t *fpl=line->get_schedule();
-							if(fpl->get_count()>1  &&  haltestelle_t::get_halt(welt,fpl->eintrag[0].pos)==start_halt) {
+							if(fpl->get_count()>1  &&  haltestelle_t::get_halt(welt,fpl->eintrag[0].pos,this)==start_halt) {
 								while(line->count_convoys()>0) {
 									line->get_convoy(0)->self_destruct();
 									line->get_convoy(0)->step();
@@ -1123,7 +1123,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					// last vehicle on that connection (no line => railroad)
 					if(  !line.is_bound()  ||  line->count_convoys()==0  ) {
 						// check if a conncetion boat must be removed
-						halthandle_t start_halt = haltestelle_t::get_halt(welt,start_pos);
+						halthandle_t start_halt = haltestelle_t::get_halt(welt,start_pos,this);
 						if(start_halt.is_bound()  &&  (start_halt->get_station_type()&haltestelle_t::dock)!=0) {
 							// delete all ships on this line
 							vector_tpl<linehandle_t> lines;
@@ -1132,7 +1132,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 							for (vector_tpl<linehandle_t>::const_iterator iter2 = lines.begin(), end = lines.end(); iter2 != end; iter2++) {
 								linehandle_t line = *iter2;
 								schedule_t *fpl=line->get_schedule();
-								if(fpl->get_count()>1  &&  haltestelle_t::get_halt(welt,fpl->eintrag[0].pos)==start_halt) {
+								if(fpl->get_count()>1  &&  haltestelle_t::get_halt(welt,fpl->eintrag[0].pos,this)==start_halt) {
 									water_stop = koord( (start_pos.x+fpl->eintrag[0].pos.x)/2, (start_pos.y+fpl->eintrag[0].pos.y)/2 );
 									while(line->count_convoys()>0) {
 										line->get_convoy(0)->self_destruct();

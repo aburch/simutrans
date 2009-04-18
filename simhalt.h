@@ -110,18 +110,18 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	static int erzeuge_fussgaenger(karte_t *welt, koord3d pos, int anzahl);
+	static int erzeuge_fussgaenger(karte_t *welt, const koord3d pos, int anzahl);
 
 	/* searches for a stop at the given koordinate
-	 * this is called damend often, so we should think about inline it
 	 * @return halthandle_t(), if nothing found
 	 * @author prissi
 	 */
-	static halthandle_t get_halt(karte_t *welt, const koord pos);
+	static halthandle_t get_halt(karte_t *welt, const koord pos, const spieler_t *sp );
 
-	// Hajo: for future compatibility, migrate to this call
-	// but since we allow only for a single stop per planquadrat, this is as good as the above
-	static halthandle_t get_halt(karte_t *welt, const koord3d pos);
+	/* since we allow only for a single stop per planquadrat
+	 * this will always return something even if there is not stop some of the ground level
+	 */
+	static halthandle_t get_halt( karte_t *welt, const koord3d pos, const spieler_t *sp );
 
 	static const slist_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 
@@ -461,7 +461,7 @@ public:
 	 * @return abgeholte menge
 	 * @author Hj. Malthaner
 	 */
-	ware_t hole_ab(const ware_besch_t *warentyp, uint32 menge, schedule_t *fpl);
+	ware_t hole_ab( const ware_besch_t *warentyp, uint32 menge, const schedule_t *fpl, const spieler_t *sp );
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
 	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach
@@ -482,7 +482,7 @@ public:
 	 * @param typ der beförderte warentyp
 	 * @author Hj. Malthaner
 	 */
-	void hat_gehalten(const ware_besch_t *warentyp, const schedule_t *fpl);
+	void hat_gehalten( const ware_besch_t *warentyp, const schedule_t *fpl, const spieler_t *sp );
 
 	const grund_t *find_matching_position(waytype_t wt) const;
 
