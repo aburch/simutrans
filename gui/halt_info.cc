@@ -31,7 +31,7 @@ static const char *sort_text[6] = {
 	"via",
 	"via Menge",
 	"Menge",
-	"origin",
+	"origin (detail)",
 	"origin (amount)"
 };
 

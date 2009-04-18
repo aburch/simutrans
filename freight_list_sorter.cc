@@ -156,7 +156,14 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			{
 				if(tdlist[i].ware.get_index() == tdlist[pos].ware.get_index() && 
 					tdlist[i].via_destination == tdlist[pos].via_destination  &&  
-					tdlist[i].destination!=tdlist[i].via_destination) 
+					tdlist[i].destination != tdlist[i].via_destination) 
+				{
+					tdlist[i].ware.menge += tdlist[pos--].ware.menge;
+					break;
+				}
+				else if(tdlist[i].ware.get_index() == tdlist[pos].ware.get_index() && 
+					tdlist[i].destination == tdlist[pos].destination &&  
+					tdlist[i].destination == tdlist[i].via_destination) 
 				{
 					tdlist[i].ware.menge += tdlist[pos--].ware.menge;
 					break;
@@ -167,8 +174,19 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 		{
 			for(int i = 0; i < pos; i++) 
 			{
-				if(tdlist[i].ware.get_index() == tdlist[pos].ware.get_index() && 
-					tdlist[i].origin == tdlist[pos].origin) 
+				if(tdlist[i].ware.get_index() == tdlist[pos].ware.get_index() && tdlist[i].origin == tdlist[pos].origin) 
+				{
+					tdlist[i].ware.menge += tdlist[pos--].ware.menge;
+					break;
+				}
+			}
+		}
+
+		if((sort_mode == by_name || sort_mode == by_via || sort_mode == by_amount) && pos > 0) 
+		{
+			for(int i = 0; i < pos; i++) 
+			{
+				if(tdlist[i].ware.get_index() == tdlist[pos].ware.get_index() && tdlist[i].destination == tdlist[pos].destination) 
 				{
 					tdlist[i].ware.menge += tdlist[pos--].ware.menge;
 					break;
@@ -203,7 +221,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			}
 
 			const ware_t& ware = tdlist[j].ware;
-			if(last_ware_index!=ware.get_index()  &&  last_ware_catg!=ware.get_catg()) 
+			if(last_ware_index != ware.get_index() && last_ware_catg != ware.get_catg()) 
 			{
 				sint32 sum = 0;
 				last_ware_index = ware.get_index();
@@ -263,9 +281,22 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 				buf.append(" < ");
 			}
 			// the target name is not correct for the via sort
-			if((sortby != by_via_sum || via_halt == halt) && sortby != by_origin_amount)
+			/*if((sortby != by_via_sum || via_halt == halt) && sortby != by_origin_amount && sortby != by_name && sortby != by_amount)
 			{
 				buf.append(name);
+			}*/
+
+			if(sortby == by_name || sortby == by_amount || sortby == by_origin || (sortby == by_via_sum && via_halt == halt) || sortby == by_via)
+			{
+				const char *destination_name = "unknown";
+				if(halt.is_bound()) 
+				{
+					destination_name = halt->get_name();
+				}
+
+				char tmp [512];
+				sprintf(tmp, destination_name);
+				buf.append(tmp);
 			}
 
 			if(sortby == by_origin_amount)
@@ -277,12 +308,10 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 				}
 
 				char tmp [512];
-				sprintf(tmp, translator::translate(origin_name));
+				sprintf(tmp, origin_name);
 				buf.append(tmp);
 			}
 			
-			// for debugging
-
 			if(via_halt != halt && (sortby == by_via || sortby == by_via_sum))
 			{
 				const char *via_name = "unknown";
@@ -294,7 +323,6 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 				sprintf(tmp, translator::translate(" via %s"), via_name);
 				buf.append(tmp);
 			}
-			// debug ende
 			
 			if(sortby == by_origin)
 			{
@@ -310,6 +338,8 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			}
 			buf.append("\n");
 		}
+
+	
 	}
 
 	// still entires left?
