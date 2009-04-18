@@ -13,7 +13,7 @@ class cbuffer_t;
 class freight_list_sorter_t
 {
 public:
-	enum sort_mode_t { by_name=0, by_via=1, by_via_sum=2, by_amount=3, by_origin=4};
+	enum sort_mode_t { by_name = 0, by_via = 1, by_via_sum = 2, by_amount = 3, by_origin = 4, by_origin_amount = 5};
 
 	static void sort_freight(const vector_tpl<ware_t>* warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing);
 

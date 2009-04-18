@@ -723,6 +723,11 @@ bool convoi_t::sync_step(long delta_t)
 				akt_speed_soll = max( akt_speed_soll, kmh_to_speed(30) );
 				calc_acceleration(delta_t);
 				sp_soll += (akt_speed*delta_t);
+				// Make sure that the last_stop_pos is set here so as not
+				// to skew average speed readings from vehicles emerging 
+				// from depots.
+				// @author: jamespetts
+				fahr[0]->last_stop_pos = fahr[0]->get_pos().get_2d();
 
 				// now actually move the units
 				while(sp_soll>>12) {

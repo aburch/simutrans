@@ -54,14 +54,17 @@ bool convoi_info_t::route_search_in_progress = false;
  *                  2 = via_amount
  *                  3 = amount
  *					4 = origin
+ *					5 = origin_amount
  * @author prissi - amended by jamespetts (origins)
  */
-const char *convoi_info_t::sort_text[SORT_MODES] = {
+const char *convoi_info_t::sort_text[SORT_MODES] = 
+{
 	"Zielort",
 	"via",
 	"via Menge",
 	"Menge",
-	"origin"
+	"origin",
+	"origin (amount)"
 };
 
 const int cost_type_color[MAX_CONVOI_COST] =
@@ -405,12 +408,12 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 
 	if (komp == &toggler) {
 		toggler.pressed = !toggler.pressed;
-		const koord offset = toggler.pressed ? koord(0, 170) : koord(0, -180);
+		const koord offset = toggler.pressed ? koord(0, 170) : koord(0, -170);
 		set_min_windowsize( koord(TOTAL_WIDTH, toggler.pressed ? 364: 194));
 		scrolly.set_pos( scrolly.get_pos()+koord(0,offset.y) );
 		// toggle visibility of components
 		chart.set_visible(toggler.pressed);
-		set_fenstergroesse(get_fenstergroesse() + offset);
+		set_fenstergroesse(get_fenstergroesse() + offset); // "Window size"
 		resize(koord(0,0));
 		for (int i=0;i<MAX_CONVOI_COST;i++) {
 			filterButtons[i].set_visible(toggler.pressed);

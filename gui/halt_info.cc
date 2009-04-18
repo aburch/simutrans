@@ -26,12 +26,13 @@
 karte_t *halt_info_t::welt = NULL;
 
 
-static const char *sort_text[5] = {
+static const char *sort_text[6] = {
 	"Zielort",
 	"via",
 	"via Menge",
 	"Menge",
-	"origin"
+	"origin",
+	"origin (amount)"
 };
 
 const char cost_type[MAX_HALT_COST][64] =

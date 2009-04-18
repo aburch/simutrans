@@ -44,11 +44,13 @@ int freight_list_sorter_t::compare_ware(const void *td1, const void *td2)
 	halthandle_t origin_halt1 = td1p->origin;
 	halthandle_t origin_halt2 = td2p->origin;
 
-	if(!halt1.is_bound()  ||  !via_halt1.is_bound() || !origin_halt1.is_bound()) {
+	if(!halt1.is_bound()  ||  !via_halt1.is_bound() || !origin_halt1.is_bound()) 
+	{
 		return -1;
 	}
 
-	if( !halt2.is_bound()  ||    !via_halt2.is_bound() || !origin_halt2.is_bound()) {
+	if( !halt2.is_bound()  ||    !via_halt2.is_bound() || !origin_halt2.is_bound())
+	{
 		return -2;
 	}
 
@@ -57,12 +59,14 @@ int freight_list_sorter_t::compare_ware(const void *td1, const void *td2)
 
 	// sort according to freight
 	int index = ware1.get_besch()->get_index()-ware2.get_besch()->get_index();
-	if(index!=0) {
+	if(index!=0) 
+	{
 		return index;
 	}
 
 	int order;
-	switch (sortby) {
+	switch (sortby) 
+	{
 		default:
 dbg->error("freight_list_sorter::compare_ware()","illegal sort mode!");
 
@@ -77,7 +81,8 @@ dbg->error("freight_list_sorter::compare_ware()","illegal sort mode!");
 			if (order != 0) break;
 			/* FALLTHROUGH */
 
-		case by_origin:
+		case by_origin: // Sort by origin name
+		case by_origin_amount: 
 			order = strcmp(origin_halt1->get_name(), origin_halt2->get_name());
 			if (order != 0) break;
 			/* FALLTHROUGH */
@@ -130,9 +135,11 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	int pos = 0;
 	ALLOCA(travel_details, tdlist, warray->get_count());
 
-	for(unsigned i=0;  i<warray->get_count();  i++  ) {
+	for(unsigned i = 0; i < warray->get_count(); i++) 
+	{
 		const ware_t &ware = (*warray)[i];
-		if(ware.get_besch()==warenbauer_t::nichts  ||  ware.menge==0) {
+		if(ware.get_besch() == warenbauer_t::nichts || ware.menge == 0)
+		{
 			continue;
 		}
 //DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i",pos);
@@ -141,11 +148,28 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 		tdlist[pos].via_destination = ware.get_zwischenziel();
 		tdlist[pos].origin = ware.get_origin();
 		// for the sorting via the number for the next stop we unify entries
-		if(sort_mode==by_via_sum  &&  pos>0) {
+		if(sort_mode == by_via_sum && pos > 0) 
+		{
 //DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i check connection",pos);
 			// only add it, if there is not another thing waiting with the same via but another destination
-			for( int i=0;  i<pos;  i++ ) {
-				if(tdlist[i].ware.get_index()==tdlist[pos].ware.get_index()  &&  tdlist[i].via_destination==tdlist[pos].via_destination  &&  tdlist[i].destination!=tdlist[i].via_destination) {
+			for(int i = 0; i < pos; i++) 
+			{
+				if(tdlist[i].ware.get_index() == tdlist[pos].ware.get_index() && 
+					tdlist[i].via_destination == tdlist[pos].via_destination  &&  
+					tdlist[i].destination!=tdlist[i].via_destination) 
+				{
+					tdlist[i].ware.menge += tdlist[pos--].ware.menge;
+					break;
+				}
+			}
+		}
+		if(sort_mode == by_origin_amount && pos > 0) 
+		{
+			for(int i = 0; i < pos; i++) 
+			{
+				if(tdlist[i].ware.get_index() == tdlist[pos].ware.get_index() && 
+					tdlist[i].origin == tdlist[pos].origin) 
+				{
 					tdlist[i].ware.menge += tdlist[pos--].ware.menge;
 					break;
 				}
@@ -156,7 +180,8 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	}
 
 	// at least some capacity added?
-	if(pos!=0) {
+	if(pos!=0) 
+	{
 
 		// sort the ware's list
 		qsort((void *)tdlist, pos, sizeof (travel_details), compare_ware);
@@ -165,25 +190,31 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 		int last_ware_index = -1;
 		int last_ware_catg = -1;
 
-		for (int j = 0; j<pos; j++) {
+		for (int j = 0; j < pos; j++)
+		{
 			halthandle_t halt = tdlist[j].destination;
 			halthandle_t via_halt = tdlist[j].via_destination;
 			halthandle_t origin_halt = tdlist[j].origin;
 
 			const char * name = "unknown";
-			if(halt.is_bound()) {
+			if(halt.is_bound()) 
+			{
 				name = halt->get_name();
 			}
 
 			const ware_t& ware = tdlist[j].ware;
-			if(last_ware_index!=ware.get_index()  &&  last_ware_catg!=ware.get_catg()) {
+			if(last_ware_index!=ware.get_index()  &&  last_ware_catg!=ware.get_catg()) 
+			{
 				sint32 sum = 0;
 				last_ware_index = ware.get_index();
 				last_ware_catg = (ware.get_catg()!=0) ? ware.get_catg() : -1;
-				for(int i=j;  i<pos;  i++  ) {
+				for(int i=j;  i<pos;  i++  ) 
+				{
 					const ware_t& sumware = tdlist[i].ware;
-					if(last_ware_index!=sumware.get_index()) {
-						if(last_ware_catg!=sumware.get_catg()) {
+					if(last_ware_index!=sumware.get_index()) 
+					{
+						if(last_ware_catg!=sumware.get_catg()) 
+						{
 							break;	// next category reached ...
 						}
 					}
@@ -194,19 +225,24 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 				last_ware_catg = (ware.get_catg()!=0) ? ware.get_catg() : -1;
 
 				// display all ware
-				if(full_list==NULL) {
+				if(full_list == NULL) 
+				{
 					add_ware_heading( buf, sum, 0, &ware, what_doing );
 				}
-				else {
-					// ok, we have a list of freights
-					while(list_finish  &&  (list_finish=full_iter.next())!=0) {
+				else
+				{
+					// ok, we have a list of freight
+					while(list_finish && (list_finish = full_iter.next()) != 0) 
+					{
 
 						const ware_t& current = full_iter.get_current();
-						if(last_ware_index==current.get_index()  ||  last_ware_catg==current.get_catg()) {
-							add_ware_heading( buf, sum, current.menge, &current, what_doing );
+						if(last_ware_index == current.get_index() || last_ware_catg==current.get_catg()) 
+						{
+							add_ware_heading(buf, sum, current.menge, &current, what_doing);
 							break;
 						}
-						else {
+						else 
+						{
 							add_ware_heading( buf, 0, current.menge, &current, what_doing );
 						}
 					}
@@ -218,16 +254,36 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			buf.append(translator::translate(ware.get_besch()->get_mass()));
 			buf.append(" ");
 			buf.append(translator::translate(ware.get_besch()->get_name()));
-			buf.append(" > ");
+			if(sortby != by_origin_amount)
+			{
+				buf.append(" > ");
+			}
+			else
+			{
+				buf.append(" < ");
+			}
 			// the target name is not correct for the via sort
-			if(sortby != by_via_sum  ||  via_halt==halt  ) 
+			if((sortby != by_via_sum || via_halt == halt) && sortby != by_origin_amount)
 			{
 				buf.append(name);
 			}
 
+			if(sortby == by_origin_amount)
+			{
+				const char *origin_name = "unknown";
+				if(origin_halt.is_bound()) 
+				{
+					origin_name = origin_halt->get_name();
+				}
+
+				char tmp [512];
+				sprintf(tmp, translator::translate(origin_name));
+				buf.append(tmp);
+			}
+			
 			// for debugging
 
-			if(via_halt != halt && (sortby == by_via || sortby == by_via_sum)) 
+			if(via_halt != halt && (sortby == by_via || sortby == by_via_sum))
 			{
 				const char *via_name = "unknown";
 				if(via_halt.is_bound()) 
@@ -257,7 +313,8 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	}
 
 	// still entires left?
-	while(list_finish  &&  full_iter.next()) {
+	while(list_finish  &&  full_iter.next()) 
+	{
 		add_ware_heading( buf, 0, full_iter.get_current().menge, &(full_iter.get_current()), what_doing );
 	}
 }
