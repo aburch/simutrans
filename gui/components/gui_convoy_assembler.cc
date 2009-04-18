@@ -185,13 +185,18 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, bool el
 	show_retired_vehicles = old_retired;
 	show_all = old_show_all;
 
+	bool one = false;
+
 	cont_pas.add_komponente(&pas);
 	scrolly_pas.set_show_scroll_x(false);
 	scrolly_pas.set_size_corner(false);
 	scrolly_pas.set_read_only(false);
 
-	// always add
-	tabs.add_tab(&scrolly_pas, translator::translate( get_passenger_name(wt) ) );
+	// add only if there are any
+	if(!pas_vec.empty()) {
+		tabs.add_tab(&scrolly_pas, translator::translate( depot->get_passenger_name() ) );
+		one = true;
+	}
 
 	cont_electrics.add_komponente(&electrics);
 	scrolly_electrics.set_show_scroll_x(false);
@@ -200,6 +205,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, bool el
 	// add only if there are any trolleybuses
 	if(!electrics_vec.empty()) {
 		tabs.add_tab(&scrolly_electrics, translator::translate( get_electrics_name(wt) ) );
+		one = true;
 	}
 
 	cont_loks.add_komponente(&loks);
@@ -209,6 +215,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, bool el
 	// add, if waggons are there ...
 	if (!loks_vec.empty() || !waggons_vec.empty()) {
 		tabs.add_tab(&scrolly_loks, translator::translate( get_zieher_name(wt) ) );
+		one = true;
 	}
 
 	cont_waggons.add_komponente(&waggons);
@@ -218,7 +225,13 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, bool el
 	// only add, if there are waggons
 	if (!waggons_vec.empty()) {
 		tabs.add_tab(&scrolly_waggons, translator::translate( get_haenger_name(wt) ) );
+		one = true;
 	}
+
+	if(!one) {
+		// add passenger as default
+		tabs.add_tab(&scrolly_pas, translator::translate( depot->get_passenger_name() ) );
+ 	}
 
 	pas.set_player_nr(player_nr);
 	pas.add_listener(this);
