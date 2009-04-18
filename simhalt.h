@@ -344,7 +344,7 @@ private:
 	// Record of waiting times. Takes a list of the last 16 waiting times per type of goods.
 	// Getter method will need to average the waiting times. 
 	// @author: jamespetts
-	quickstone_hashtable_tpl<haltestelle_t, fixed_list_tpl<uint16, 16>>* waiting_times;
+	quickstone_hashtable_tpl<haltestelle_t, fixed_list_tpl<uint16, 16> >* waiting_times;
 
 #ifdef NEW_PATHING
 	// Used for pathfinding. The list is stored on the heap so that it can be re-used

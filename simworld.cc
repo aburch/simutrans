@@ -3287,7 +3287,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	}
 	else
 	{
-		file->rdwr_longlong((sint64)ticks, " ");
+		file->rdwr_longlong(ticks, " ");
 	}
 	file->rdwr_long(letzter_monat, " ");
 	file->rdwr_long(letztes_jahr, "\n");
@@ -3538,7 +3538,7 @@ DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i be
 	}
 	else
 	{
-		file->rdwr_longlong((sint64)ticks, "");
+		file->rdwr_longlong(ticks, "");
 	}
 	file->rdwr_long(letzter_monat, " ");
 	file->rdwr_long(letztes_jahr, "\n");

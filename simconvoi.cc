@@ -243,11 +243,11 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 					tmp_halt->force_paths_stale();
 				}
 			}
+		}
 #else			
 			// Old method - brute force
 			 welt->set_schedule_counter();
 #endif
-		}
 		delete fpl;
 	}
 
@@ -2406,18 +2406,18 @@ convoi_t::rdwr(loadsave_t *file)
 			{
 				if(file->get_experimental_version() <= 1)
 				{
-					uint32 old_go_on_ticks = (uint32)go_on_ticks;				
+					uint32 old_go_on_ticks = (uint32)go_on_ticks;
 					file->rdwr_long( old_go_on_ticks, "dt" );
 				}
 				else
 				{
-					file->rdwr_longlong((sint64)go_on_ticks, "dt" );
+					file->rdwr_longlong(go_on_ticks, "dt" );
 				}
 			}
 			else 
 			{
 				sint64 diff_ticks= welt->get_zeit_ms()>go_on_ticks ? 0 : go_on_ticks-welt->get_zeit_ms();
-				file->rdwr_longlong((sint64)diff_ticks, "dt" );
+				file->rdwr_longlong(diff_ticks, "dt" );
 			}
 		}
 		else 
@@ -2430,7 +2430,7 @@ convoi_t::rdwr(loadsave_t *file)
 			}
 			else
 			{
-				file->rdwr_longlong((sint64)go_on_ticks, "dt" );
+				file->rdwr_longlong(go_on_ticks, "dt" );
 			}
 
 			if(go_on_ticks!=WAIT_INFINITE)
@@ -2521,7 +2521,7 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 	if(file->get_experimental_version() >= 2)
 	{
-		file->rdwr_longlong((sint64)last_departure_time, "");
+		file->rdwr_longlong(last_departure_time, "");
 		for(uint8 i = 0; i < MAX_CONVOI_COST; i ++)
 		{	
 			file->rdwr_long(rolling_average[i], "");
@@ -3540,12 +3540,14 @@ void convoi_t::set_line(linehandle_t org_line)
 	schedule_t *new_fpl= org_line->get_schedule()->copy();
 	set_schedule(new_fpl);
 
+#ifdef NEW_PATHING
 	ITERATE_PTR(new_fpl, j)
 	{
 		halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
 		tmp_halt->reschedule = true;
 		tmp_halt->force_paths_stale();
 	}
+#endif
 
 	line->add_convoy(self);
 }
