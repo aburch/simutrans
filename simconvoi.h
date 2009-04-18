@@ -410,9 +410,6 @@ private:
 	uint32 rolling_average[MAX_CONVOI_COST];
 	uint16 rolling_average_count[MAX_CONVOI_COST];
 
-	// @author: jamespetts
-	const uint8 calc_tolerable_comfort(uint16 journey_minutes) const;
-
 
 public:
 	route_t* get_route() { return &route; }
@@ -925,7 +922,12 @@ public:
 	sint64 calc_revenue(ware_t &ware);
 
 	// @author: jamespetts
-	static const uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance);
+	static const uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, karte_t* w);
+	const uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance) { return calc_adjusted_speed_bonus(base_bonus, distance, welt); }
+
+	// @author: jamespetts
+	static uint8 calc_tolerable_comfort(uint16 journey_minutes, karte_t* w);
+	uint8 calc_tolerable_comfort(uint16 journey_minutes) { return calc_tolerable_comfort(journey_minutes, welt); }
 };
 
 #endif

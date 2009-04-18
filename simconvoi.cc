@@ -3165,17 +3165,17 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	return final_revenue;
 }
 
-const uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes) const
+uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w) 
 {
-	const uint16 comfort_short_minutes = welt->get_einstellungen()->get_tolerable_comfort_short_minutes();
-	const uint8 comfort_short = welt->get_einstellungen()->get_tolerable_comfort_short();
+	const uint16 comfort_short_minutes = w->get_einstellungen()->get_tolerable_comfort_short_minutes();
+	const uint8 comfort_short = w->get_einstellungen()->get_tolerable_comfort_short();
 	if(journey_minutes <= comfort_short_minutes)
 	{
 		return comfort_short;
 	}
 
-	const uint16 comfort_median_short_minutes = welt->get_einstellungen()->get_tolerable_comfort_median_short_minutes();
-	const uint8 comfort_median_short = welt->get_einstellungen()->get_tolerable_comfort_median_short();
+	const uint16 comfort_median_short_minutes = w->get_einstellungen()->get_tolerable_comfort_median_short_minutes();
+	const uint8 comfort_median_short = w->get_einstellungen()->get_tolerable_comfort_median_short();
 	if(journey_minutes == comfort_median_short_minutes)
 	{
 		return comfort_median_short;
@@ -3186,8 +3186,8 @@ const uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes) const
 		return (proportion * (comfort_median_short_minutes - comfort_short)) + comfort_short;
 	}
 
-	const uint16 comfort_median_median_minutes = welt->get_einstellungen()->get_tolerable_comfort_median_median_minutes();
-	const uint8 comfort_median_median = welt->get_einstellungen()->get_tolerable_comfort_median_median();
+	const uint16 comfort_median_median_minutes = w->get_einstellungen()->get_tolerable_comfort_median_median_minutes();
+	const uint8 comfort_median_median = w->get_einstellungen()->get_tolerable_comfort_median_median();
 	if(journey_minutes == comfort_median_median_minutes)
 	{
 		return comfort_median_median;
@@ -3198,8 +3198,8 @@ const uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes) const
 		return (proportion * (comfort_median_median_minutes - comfort_median_short)) + comfort_median_short;
 	}
 
-	const uint16 comfort_median_long_minutes = welt->get_einstellungen()->get_tolerable_comfort_median_long_minutes();
-	const uint8 comfort_median_long = welt->get_einstellungen()->get_tolerable_comfort_median_long();
+	const uint16 comfort_median_long_minutes = w->get_einstellungen()->get_tolerable_comfort_median_long_minutes();
+	const uint8 comfort_median_long = w->get_einstellungen()->get_tolerable_comfort_median_long();
 	if(journey_minutes == comfort_median_long_minutes)
 	{
 		return comfort_median_long;
@@ -3210,8 +3210,8 @@ const uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes) const
 		return (proportion * (comfort_median_long_minutes - comfort_median_median)) + comfort_median_median;
 	}
 	
-	const uint16 comfort_long_minutes = welt->get_einstellungen()->get_tolerable_comfort_long_minutes();
-	const uint8 comfort_long = welt->get_einstellungen()->get_tolerable_comfort_long();
+	const uint16 comfort_long_minutes = w->get_einstellungen()->get_tolerable_comfort_long_minutes();
+	const uint8 comfort_long = w->get_einstellungen()->get_tolerable_comfort_long();
 	if(journey_minutes >= comfort_long_minutes)
 	{
 		return comfort_long;
@@ -3221,23 +3221,23 @@ const uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes) const
 	return (proportion * (comfort_long - comfort_median_long)) + comfort_median_long;
 }
 
-const uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance)
+const uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance,  karte_t* w)
 {
-	const uint32 min_distance = welt->get_einstellungen()->get_min_bonus_max_distance();
+	const uint32 min_distance = w != NULL ? w->get_einstellungen()->get_min_bonus_max_distance() : 10;
 	if(distance <= min_distance)
 	{
 		return 0;
 	}
 
-	const uint16 max_distance = welt->get_einstellungen()->get_max_bonus_min_distance();
-	const float multiplier = welt->get_einstellungen()->get_max_bonus_multiplier();
+	const uint16 max_distance = w != NULL ? w->get_einstellungen()->get_max_bonus_min_distance() : 16;
+	const float multiplier = w != NULL ? w->get_einstellungen()->get_max_bonus_multiplier() : 30;
 	
 	if(distance >= max_distance)
 	{
 		return base_bonus * multiplier;
 	}
 
-	const uint16 median_distance = welt->get_einstellungen()->get_median_bonus_distance();
+	const uint16 median_distance = w != NULL ? w->get_einstellungen()->get_median_bonus_distance() : 128;
 	if(median_distance == 0)
 	{
 		// There is no median, so scale evenly.

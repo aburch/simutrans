@@ -29,20 +29,30 @@ private:
 
 	// static, so we remember the last settings
 	static int relative_speed_change;
+	static uint16 distance;
+	static uint8 comfort;
 	static bool sortreverse;
 	static sort_mode_t sortby;
 
-	karte_t * welt;
+	karte_t* welt;
 	char	speed_bonus[6];
+	char	distance_txt[6];
+	char	comfort_txt[6];
 	char	speed_message[256];
-	uint16 good_list[256];
+	uint16	good_list[256];
 
 	gui_label_t sort_label;
 	button_t	sortedby;
 	button_t	sorteddir;
 	gui_label_t change_speed_label;
+	gui_label_t	change_distance_label;
+	gui_label_t	change_comfort_label;
 	button_t	speed_up;
 	button_t	speed_down;
+	button_t	distance_up;
+	button_t	distance_down;
+	button_t	comfort_up;
+	button_t	comfort_down;
 
 	goods_stats_t goods_stats;
 	gui_scrollpane_t scrolly;

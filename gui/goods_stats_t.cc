@@ -43,9 +43,57 @@ void goods_stats_t::zeichnen(koord offset)
 		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, COL_BLACK, true);
 
 		// prissi
-		const sint32 grundwert128 = wtyp->get_preis()<<7;
-		const sint32 grundwert_bonus = wtyp->get_preis()*(1000l+(bonus-100l)*wtyp->get_speed_bonus());
-		const sint32 price = (grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus);
+		// Modified by jamespetts 18 Apr. 2009
+
+		const uint16 base_price = wtyp->get_preis();
+		const sint32 min_price = base_price << 7;
+		const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(wtyp->get_speed_bonus(), distance, welt);
+		const sint32 base_bonus = base_price * (1000l + (bonus - 100l) * speed_bonus_rating);
+		const sint32 revenue = (min_price > base_bonus ? min_price : base_bonus) * distance;
+		sint32 price = revenue;
+
+		const uint16 journey_minutes = (((float)distance / (float)welt->get_average_speed(road_wt)*bonus)/100) * welt->get_einstellungen()->get_journey_time_multiplier() * 60;
+
+		if(wtyp->get_catg_index() < 1)
+		{
+			//Passengers care about their comfort
+			const uint8 tolerable_comfort = convoi_t::calc_tolerable_comfort(journey_minutes, welt);
+
+			if(comfort > tolerable_comfort)
+			{
+				// Apply luxury bonus
+				const uint8 max_differential = welt->get_einstellungen()->get_max_luxury_bonus_differential();
+				const uint8 differential = comfort - tolerable_comfort;
+				const float multiplier = welt->get_einstellungen()->get_max_luxury_bonus();
+				if(differential >= max_differential)
+				{
+					price += (revenue * multiplier);
+				}
+				else
+				{
+					const float proportion = (float)differential / (float)max_differential;
+					price += revenue * (multiplier * proportion);
+				}
+			}
+			else if(comfort < tolerable_comfort)
+			{
+				// Apply discomfort penalty
+				const uint8 max_differential = welt->get_einstellungen()->get_max_discomfort_penalty_differential();
+				const uint8 differential = tolerable_comfort - comfort;
+				const float multiplier = welt->get_einstellungen()->get_max_discomfort_penalty();
+				if(differential >= max_differential)
+				{
+					price -= (revenue * multiplier);
+				}
+				else
+				{
+					const float proportion = (float)differential / (float)max_differential;
+					price -= revenue * (multiplier * proportion);
+				}
+			}	
+			// Do nothing if comfort == tolerable_comfort			
+		}
+	
 		sprintf(buf, "%.2f$", price/300000.0);
 		display_proportional_clip(offset.x + 130, yoff, buf, 	ALIGN_RIGHT, 	COL_BLACK, true);
 

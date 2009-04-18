@@ -1996,7 +1996,7 @@ void stadt_t::step_passagiere()
 						const ware_besch_t* passengers = pax.get_besch();
 						const uint16 average_speed = (60 * distance) / (best_journey_time * (1.0 - welt->get_einstellungen()->get_journey_time_multiplier()));
 						const sint32 ref_speed = welt->get_average_speed(road_wt);
-						const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(passengers->get_speed_bonus(), distance);
+						const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(passengers->get_speed_bonus(), distance, welt);
 						const sint32 speed_base = (100 * average_speed) / ref_speed - 100;
 						const float base_bonus = (float)speed_base * ((float)speed_bonus_rating / 100.0);
 						//base_bonus should be 1 if the average speed is the same as the bonus speed.
