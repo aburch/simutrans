@@ -1109,7 +1109,7 @@ int grund_t::get_max_speed() const
 		max = ((weg_t *)obj_bei(0))->get_max_speed();
 	}
 	if(flags&has_way2) {
-		max = min( max, ((weg_t *)obj_bei(0))->get_max_speed() );
+		max = min( max, ((weg_t *)obj_bei(1))->get_max_speed() );
 	}
 	return max;
 }
