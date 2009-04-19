@@ -1001,6 +1001,10 @@ end_loop:
 
 		case LOADING:
 			laden();
+			if(get_depot_when_empty() && has_no_cargo())
+			{
+				go_to_depot(false);
+			}
 			break;
 
 		case DUMMY4:
@@ -2610,9 +2614,16 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			}
 
 			// then add the actual load
+#ifdef SLIST_FREIGHT
 			slist_iterator_tpl<ware_t> iter_vehicle_ware(v->get_fracht());
 			while(iter_vehicle_ware.next()) {
 				ware_t ware = iter_vehicle_ware.get_current();
+#else
+			const vector_tpl<ware_t> &freight = v->get_fracht();
+			ITERATE(freight, j)
+			{
+				ware_t ware = freight[j];
+#endif
 				ITERATE(total_fracht, i)
 				{
 
@@ -2837,10 +2848,17 @@ void convoi_t::laden() //"load" (Babelfish)
 	for(uint8 i = 0; i < anz_vehikel; i++)
 	{
 		// Accumulate distance 
+#ifdef SLIST_FREIGHT
 		slist_iterator_tpl<ware_t> iter_cargo(fahr[i]->get_fracht());
 		while(iter_cargo.next())
 		{
 			iter_cargo.access_current().add_distance(journey_distance);
+#else
+		vector_tpl<ware_t> &freight = fahr[i]->get_freight_to_change();
+		ITERATE(freight,j)
+		{
+			freight[j].add_distance(journey_distance);
+#endif
 		}
 	}
 
@@ -3221,7 +3239,7 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 	return (proportion * (comfort_long - comfort_median_long)) + comfort_median_long;
 }
 
-const uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance,  karte_t* w)
+const uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, karte_t* w)
 {
 	const uint32 min_distance = w != NULL ? w->get_einstellungen()->get_min_bonus_max_distance() : 10;
 	if(distance <= min_distance)
@@ -3761,7 +3779,7 @@ bool convoi_t::go_to_depot(bool show_success)
 	if (convoi_info_t::route_search_in_progress) {
 		return false;
 	}
-	// limit update to certain states that are considered to be save for fahrplan updates
+	// limit update to certain states that are considered to be safe for fahrplan updates
 	int state = get_state();
 	if(state==convoi_t::FAHRPLANEINGABE) {
 DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule ... ", state );

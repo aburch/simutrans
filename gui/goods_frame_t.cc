@@ -156,68 +156,68 @@ int goods_frame_t::compare_goods(const void *p1, const void *p2)
 			break;
 		case 2: // sort by revenue
 			{			
-				//sint32 price[2];
-				//for(uint8 i = 0; i < 2; i ++)
-				//{
-				//	const uint16 base_price = w[i]->get_preis();
-				//	const sint32 min_price = base_price << 7;
-				//	const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(w[i]->get_speed_bonus(), distance);
-				//	const sint32 base_bonus = base_price * (1000l + (relative_speed_change - 100l) * speed_bonus_rating);
-				//	const sint32 revenue = (min_price > base_bonus ? min_price : base_bonus) * distance;
-				//	price[i] = revenue;
+				sint32 price[2];
+				for(uint8 i = 0; i < 2; i ++)
+				{
+					const uint16 base_price = w[i]->get_preis();
+					const sint32 min_price = base_price << 7;
+					const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(w[i]->get_speed_bonus(), distance, NULL);
+					const sint32 base_bonus = base_price * (1000l + (relative_speed_change - 100l) * speed_bonus_rating);
+					const sint32 revenue = (min_price > base_bonus ? min_price : base_bonus) * distance;
+					price[i] = revenue;
 
-				//	const uint16 journey_minutes = (((float)distance / (float)goods_frame_t::welt->get_average_speed(road_wt)*relative_speed_change)/100) * goods_frame_t::welt->get_einstellungen()->get_journey_time_multiplier() * 60;
+					const uint16 journey_minutes = ((float)distance / (float)((50 * relative_speed_change)/100)) * 0.3 * 60;
 
-				//	if(w[i]->get_catg_index() < 1)
-				//	{
-				//		//Passengers care about their comfort
-				//		const uint8 tolerable_comfort = convoi_t::calc_tolerable_comfort(journey_minutes, goods_frame_t::welt);
+					if(w[i]->get_catg_index() < 1)
+					{
+						//Passengers care about their comfort
+						const uint8 tolerable_comfort = 65;
 
-				//		if(comfort > tolerable_comfort)
-				//		{
-				//			// Apply luxury bonus
-				//			const uint8 max_differential = goods_frame_t::welt->get_einstellungen()->get_max_luxury_bonus_differential();
-				//			const uint8 differential = comfort - tolerable_comfort;
-				//			const float multiplier = goods_frame_t::welt->get_einstellungen()->get_max_luxury_bonus();
-				//			if(differential >= max_differential)
-				//			{
-				//				price[i] += (revenue * multiplier);
-				//			}
-				//			else
-				//			{
-				//				const float proportion = (float)differential / (float)max_differential;
-				//				price[i] += revenue * (multiplier * proportion);
-				//			}
-				//		}
-				//		else if(comfort < tolerable_comfort)
-				//		{
-				//			// Apply discomfort penalty
-				//			const uint8 max_differential = goods_frame_t::welt->get_einstellungen()->get_max_discomfort_penalty_differential();
-				//			const uint8 differential = tolerable_comfort - comfort;
-				//			const float multiplier = goods_frame_t::welt->get_einstellungen()->get_max_discomfort_penalty();
-				//			if(differential >= max_differential)
-				//			{
-				//				price[i] -= (revenue * multiplier);
-				//			}
-				//			else
-				//			{
-				//				const float proportion = (float)differential / (float)max_differential;
-				//				price[i] -= revenue * (multiplier * proportion);
-				//			}
-				//		}	
-				//		// Do nothing if comfort == tolerable_comfort			
-				//	}
-				//}
+						if(comfort > tolerable_comfort)
+						{
+							// Apply luxury bonus
+							const uint8 max_differential = 55;
+							const uint8 differential = comfort - tolerable_comfort;
+							const float multiplier = 4;
+							if(differential >= max_differential)
+							{
+								price[i] += (revenue * multiplier);
+							}
+							else
+							{
+								const float proportion = (float)differential / (float)max_differential;
+								price[i] += revenue * (multiplier * proportion);
+							}
+						}
+						else if(comfort < tolerable_comfort)
+						{
+							// Apply discomfort penalty
+							const uint8 max_differential = 200;
+							const uint8 differential = tolerable_comfort - comfort;
+							const float multiplier = 9.5;
+							if(differential >= max_differential)
+							{
+								price[i] -= (revenue * multiplier);
+							}
+							else
+							{
+								const float proportion = (float)differential / (float)max_differential;
+								price[i] -= revenue * (multiplier * proportion);
+							}
+						}	
+						// Do nothing if comfort == tolerable_comfort			
+					}
+				}
 
-				const sint32 grundwert1281 = w[0]->get_preis()<<7;
+				/*const sint32 grundwert1281 = w[0]->get_preis()<<7;
 				const sint32 grundwert_bonus1 = w[0]->get_preis()*(1000l+(relative_speed_change-100l)*w[0]->get_speed_bonus());
 				const sint32 price1 = (grundwert1281>grundwert_bonus1 ? grundwert1281 : grundwert_bonus1)  * 10000;
 				const sint32 grundwert1282 = w[1]->get_preis()<<7;
 				const sint32 grundwert_bonus2 = w[1]->get_preis()*(1000l+(relative_speed_change-100l)*w[1]->get_speed_bonus());
 				const sint32 price2 = (grundwert1282>grundwert_bonus2 ? grundwert1282 : grundwert_bonus2) * 10000;
-				order = price2-price1;
+				order = price2-price1;*/
 
-				//order = price[0] - price[1];
+				order = price[0] - price[1];
 			}
 			break;
 		case 3: // sort by speed bonus

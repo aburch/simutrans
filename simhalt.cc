@@ -979,11 +979,14 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 				total_times += times.get_element(i);
 			}
 			total_times /= count;
-			return total_times;
+			// Minimum waiting time of 1 minute (i.e., 10 tenths of a minute)
+			// This simulates the overhead time needed to arrive at a stop, and 
+			// board, etc. It should help to prevent perverse vias on a single route.
+			return total_times >= 10 ? total_times : 10;
 		}
-			return 0;
+			return 10;
 	}
-		return 0;
+		return 10;
 }
 
 void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fpl, const convoihandle_t cnv, const linehandle_t line)
@@ -1975,7 +1978,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 	const uint8 count = fpl->get_count();
 	vector_tpl<ware_t> *warray = waren[wtyp->get_catg_index()];
 
-	if(warray!=NULL) 
+	if(warray != NULL) 
 	{
 
 		// da wir schon an der aktuellem haltestelle halten
@@ -1986,7 +1989,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 
 		for(uint8 i = 1; i < count; i++) 
 		{
-			const uint8 wrap_i = (i + fpl->get_aktuell()) % count;
+			const uint8 wrap_i = (i + fpl->get_aktuell()) % count; //aktuell = "current" (Google)
 
 			const halthandle_t plan_halt = get_halt(welt, fpl->eintrag[wrap_i].pos); //eintrag = "entry" (Google)
 			if(plan_halt == self) 
@@ -1994,17 +1997,17 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, schedule_t 
 				// we will come later here again ...
 				break;
 			}
-			else if(plan_halt.is_bound()  &&  warray->get_count() > 0) 
+			else if(plan_halt.is_bound() && warray->get_count() > 0) 
 			{
 
 				// The random offset will ensure that all goods have an equal chance to be loaded.
 				sint32 offset = simrand(warray->get_count());
-				for(  uint32 i=0;  i<warray->get_count();  i++  ) 
+				for(uint32 i = 0;  i < warray->get_count();  i++) 
 				{
 					ware_t &tmp = (*warray)[ i+offset ];
 
 					// prevent overflow (faster than division)
-					if(  i+offset+1>=warray->get_count()  ) 
+					if(i + offset + 1 >= warray->get_count()) 
 					{
 						offset -= warray->get_count();
 					}

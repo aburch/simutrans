@@ -633,9 +633,15 @@ vehikel_t::rotate90()
 	pos_prev.rotate90( welt->get_groesse_y()-1 );
 	last_stop_pos.rotate90( welt->get_groesse_y()-1 );
 	// now rotate the freight
+#ifdef SLIST_FREIGHT
 	slist_iterator_tpl<ware_t> iter (fracht);
 	while(iter.next()) {
 		ware_t& tmp = iter.access_current();
+#else
+	ITERATE(fracht,i)
+	{
+		ware_t& tmp = fracht[i];
+#endif
 		koord k = tmp.get_zielpos();
 		k.rotate90( welt->get_groesse_y()-1 );
 		tmp.set_zielpos( k );
@@ -676,9 +682,15 @@ void vehikel_t::set_convoi(convoi_t *c)
 			pos_next = cnv->get_route()->position_bei(route_index+1u);
 		}
 		// just correct freight deistinations
+#ifdef SLIST_FREIGHT
 		slist_iterator_tpl <ware_t> iter (fracht);
 		while(iter.next()) {
 			iter.access_current().laden_abschliessen(welt);
+#else
+		ITERATE(fracht,i)
+		{
+			fracht[i].laden_abschliessen(welt);
+#endif
 		}
 	}
 }
@@ -696,17 +708,22 @@ vehikel_t::unload_freight(halthandle_t halt)
 	assert(halt.is_bound());
 	uint16 sum_menge = 0;
 
-	slist_tpl<ware_t> kill_queue;
+	//slist_tpl<ware_t> kill_queue;
+	minivec_tpl<ware_t> kill_queue;
 	if(halt->is_enabled( get_fracht_typ() )) 
 	{
 		if (!fracht.empty())
 		{
-
+#ifdef SLIST_FREIGHT
 			slist_iterator_tpl<ware_t> iter (fracht);
 			while(iter.next()) 
 			{
 				const ware_t& tmp = iter.get_current();
-
+#else
+			ITERATE(fracht,i)
+			{
+				const ware_t& tmp = fracht[i];
+#endif
 				if(&tmp == NULL)
 				{
 					continue;
@@ -721,7 +738,8 @@ vehikel_t::unload_freight(halthandle_t halt)
 				if(!end_halt.is_bound() || !via_halt.is_bound()) 
 				{
 					DBG_MESSAGE("vehikel_t::entladen()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.get_name()));
-					kill_queue.insert(tmp);
+					//kill_queue.insert(tmp);
+					kill_queue.append(tmp);
 				} 
 
 				else if(halt == end_halt || halt == via_halt) 
@@ -755,7 +773,11 @@ vehikel_t::unload_freight(halthandle_t halt)
 						// Calculates the revenue for each packet under the new
 						// revenue model. 
 						// @author: jamespetts
+#ifdef SLIST_FREIGHT
 						current_revenue += cnv->calc_revenue(iter.access_current());
+#else
+						current_revenue += cnv->calc_revenue(fracht[i]);
+#endif
 						// book delivered goods to destination
 						if(end_halt == halt) 
 						{
@@ -765,7 +787,8 @@ vehikel_t::unload_freight(halthandle_t halt)
 						}
 					}				
 
-					kill_queue.insert(tmp);
+					//kill_queue.insert(tmp);
+					kill_queue.append(tmp);
 
 					INT_CHECK("simvehikel 937");
 				}
@@ -773,12 +796,19 @@ vehikel_t::unload_freight(halthandle_t halt)
 		}
 	}
 
-	slist_iterator_tpl<ware_t> iter (kill_queue);
-	while( iter.next() ) 
+	//slist_iterator_tpl<ware_t> iter (kill_queue);
+	//while( iter.next() ) 
+	ITERATE(kill_queue,i)
 	{
-		total_freight -= iter.get_current().menge;
-		bool ok = fracht.remove(iter.get_current());
+		//total_freight -= iter.get_current().menge;
+		total_freight -= kill_queue[i].menge;
+		//bool ok = fracht.remove(iter.get_current());
+#ifdef SLIST_FREIGHT
+		bool ok = fracht.remove(kill_queue[i]);
 		assert(ok);
+#else
+		fracht.remove(kill_queue[i]);
+#endif
 	}
 
 	return sum_menge;
@@ -811,13 +841,23 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 				// now empty, but usually, we can get it here ...
 				return ok;
 			}
-
+#ifdef SLIST_FREIGHT
 			slist_iterator_tpl<ware_t> iter (fracht);
+			uint16 count = 0;
 
 			// could this be joined with existing freight?
-			while(iter.next()) 
+			while(iter.next() && count <= fracht.get_count()) 
 			{
+				// For some reason, the iter.next() method can in some
+				// cases produce an infinite loop, so we must count
+				// to make sure that this cannot happen.
+				count ++;
 				ware_t &tmp = iter.access_current();
+#else
+			ITERATE(fracht,i)
+			{
+				ware_t &tmp = fracht[i];
+#endif
 
 				/*
 				 *	OLD SYSTEM - did not take account of origins, etc.
@@ -842,7 +882,11 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 			// if != 0 we could not join it to existing => load it
 			if(ware.menge != 0) 
 			{
+#ifdef SLIST_FREIGHT
 				fracht.insert(ware);
+#else
+				fracht.append(ware);
+#endif
 				total_freight += ware.menge;
 			}
 
@@ -878,11 +922,17 @@ void vehikel_t::remove_stale_freight()
 	total_freight = 0;
 
 	if (!fracht.empty()) {
+#ifdef SLIST_FREIGHT
 		slist_iterator_tpl<ware_t> iter (fracht);
 		while(iter.next()) {
-			schedule_t *fpl = cnv->get_schedule();
-
 			ware_t& tmp = iter.access_current();
+#else
+		ITERATE(fracht,i)
+		{
+			ware_t& tmp = fracht[i];
+#endif
+
+			schedule_t *fpl = cnv->get_schedule();
 			bool found = false;
 
 			for (int i = 0; i < fpl->get_count(); i++) {
@@ -1741,12 +1791,20 @@ const char *vehikel_t::get_fracht_mass() const
 uint32 vehikel_t::get_fracht_gewicht() const
 {
 	uint32 weight = 0;
-
+#ifdef SLIST_FREIGHT
 	slist_iterator_tpl<ware_t> iter(fracht);
-	while(iter.next()) {
+	uint16 count = 0;
+	while(iter.next() && count < fracht.get_count()) 
+	{
 		weight +=
 			iter.get_current().menge *
 			iter.get_current().get_besch()->get_weight_per_unit();
+		count ++;
+#else
+	ITERATE(fracht,i)
+	{
+		weight += fracht[i].menge * fracht[i].get_besch()->get_weight_per_unit();
+#endif
 	}
 	return weight;
 }
@@ -1766,10 +1824,16 @@ void vehikel_t::get_fracht_info(cbuffer_t & buf)
 		buf.append("\n");
 	} else {
 
+#ifdef SLIST_FREIGHT
 		slist_iterator_tpl<ware_t> iter (fracht);
 
 		while(iter.next()) {
 			const ware_t& ware = iter.get_current();
+#else
+		ITERATE(fracht,i)
+		{
+			const ware_t& ware = fracht[i];
+#endif
 			const char * name = "Error in Routing";
 
 			halthandle_t halt = ware.get_ziel();
@@ -1855,7 +1919,11 @@ vehikel_t::calc_bild() //"Bild" = "picture" (Google)
 	}
 	else 
 	{
+#ifdef SLIST_FREIGHT
 		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()), fracht.front().get_besch()));
+#else
+		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()), fracht[0].get_besch()));
+#endif
 	}
 	if(old_bild!=get_bild()) {
 		set_flag(ding_t::dirty);
@@ -1936,10 +2004,17 @@ uint8 vehikel_t::get_comfort() const
 	// are very uncomfortable (no more than 10).
 	const uint8 standing_comfort = 10 < besch->get_comfort() - 5 ? 10 : besch->get_comfort() / 2;
 	uint16 passenger_count = 0;
+#ifdef SLIST_FREIGHT
 	slist_iterator_tpl<ware_t> iter(fracht);
 	while(iter.next()) 
 	{
 		ware_t ware = iter.get_current();
+#else
+	ITERATE(fracht,i)
+	{
+		ware_t ware = fracht[i];
+#endif
+
 		if(ware.is_passenger())
 		{
 			passenger_count += ware.menge;
@@ -2115,9 +2190,15 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 			ware.rdwr(welt,file);
 		}
 		else {
+#ifdef SLIST_FREIGHT
 			slist_iterator_tpl<ware_t> iter(fracht);
 			while(iter.next()) {
 				ware_t ware = iter.get_current();
+#else
+			ITERATE(fracht,i)
+			{
+				ware_t ware = fracht[i];
+#endif
 				ware.rdwr(welt,file);
 			}
 		}
@@ -2126,7 +2207,11 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		for(int i=0; i<fracht_count; i++) {
 			ware_t ware(welt,file);
 			if(besch==NULL  ||  ware.menge>0) {	// also add, of the besch is unknown to find matching replacement
+#ifdef SLIST_FREIGHT
 				fracht.insert(ware);
+#else
+				fracht.append(ware);
+#endif
 			}
 		}
 	}
@@ -2152,9 +2237,15 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		}
 		// recalc total freight
 		total_freight = 0;
+#ifdef SLIST_FREIGHT
 		slist_iterator_tpl<ware_t> iter(fracht);
 		while(iter.next()) {
 			total_freight += iter.get_current().menge;
+#else
+		ITERATE(fracht,i)
+		{
+			total_freight += fracht[i].menge;
+#endif
 		}
 	}
 
@@ -2358,7 +2449,11 @@ automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is
 		}
 		// try to find a matching vehivle
 		if(besch==NULL) {
+#ifdef SLIST_FREIGHT
 			const ware_besch_t* w = (!fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere);
+#else
+			const ware_besch_t* w = (!fracht.empty() ? fracht[0].get_besch() : warenbauer_t::passagiere); 
+#endif
 			dbg->warning("automobil_t::automobil_t()","try to find a fitting vehicle for %s.",  w->get_name() );
 			besch = vehikelbauer_t::get_best_matching(road_wt, 0, (fracht.empty() ? 0 : 50), is_first?50:0, speed_to_kmh(speed_limit), w, false, true, last_besch, is_last );
 			if(besch) {
@@ -2366,9 +2461,15 @@ automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is
 				// still wrong load ...
 				calc_bild();
 			}
+#ifdef SLIST_FREIGHT
 			if(!fracht.empty()  &&  fracht.front().menge == 0) {
 				// this was only there to find a matching vehicle
 				fracht.remove_first();
+#else
+			if(!fracht.empty() && fracht[0].menge == 0)
+			{
+				fracht.remove_at(0);
+#endif
 			}
 		}
 		if(  besch  ) {
@@ -2757,8 +2858,13 @@ waggon_t::waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last)
 		}
 		// try to find a matching vehicle
 		if(besch==NULL) {
+#ifdef SLIST_FREIGHT
 			int power = (is_first || fracht.empty() || fracht.front() == warenbauer_t::nichts) ? 500 : 0;
 			const ware_besch_t* w = fracht.empty() ? warenbauer_t::nichts : fracht.front().get_besch();
+#else
+			int power = (is_first || fracht.empty() || fracht[0] == warenbauer_t::nichts) ? 500 : 0;
+			const ware_besch_t* w = fracht.empty() ? warenbauer_t::nichts : fracht[0].get_besch();
+#endif
 			dbg->warning("waggon_t::waggon_t()","try to find a fitting vehicle for %s.", power>0 ? "engine": w->get_name() );
 			if(last_besch!=NULL  &&  last_besch->can_follow(last_besch)  &&  last_besch->get_ware()==w  &&  (!is_last  ||  last_besch->get_nachfolger(0)==NULL)) {
 				// same as previously ...
@@ -2775,9 +2881,15 @@ DBG_MESSAGE("waggon_t::waggon_t()","replaced by %s",besch->get_name());
 			else {
 				dbg->error("waggon_t::waggon_t()","no matching besch found for %s!",w->get_name());
 			}
+#ifdef SLIST_FREIGHT
 			if (!fracht.empty() && fracht.front().menge == 0) {
 				// this was only there to find a matchin vehicle
 				fracht.remove_first();
+#else
+			if(!fracht.empty() && fracht[0].menge == 0)
+			{
+				fracht.remove_at(0);
+#endif
 			}
 		}
 		// update last besch
@@ -3445,8 +3557,13 @@ schiff_t::schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last)
 		}
 		// try to find a matching vehivle
 		if(besch==NULL) {
+#ifdef SLIST_FREIGHT
 			dbg->warning("schiff_t::schiff_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
 			besch = vehikelbauer_t::get_best_matching(water_wt, 0, fracht.empty() ? 0 : 30, 100, 40, !fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere, false, true, last_besch, is_last );
+#else
+			dbg->warning("schiff_t::schiff_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht[0].get_name() : "passagiere");
+			besch = vehikelbauer_t::get_best_matching(water_wt, 0, fracht.empty() ? 0 : 30, 100, 40, !fracht.empty() ? fracht[0].get_besch() : warenbauer_t::passagiere, false, true, last_besch, is_last );
+#endif
 			if(besch) {
 				calc_bild();
 			}
@@ -3968,8 +4085,13 @@ aircraft_t::aircraft_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_l
 		}
 		// try to find a matching vehivle
 		if(besch==NULL) {
+#ifdef SLIST_FREIGHT
 			dbg->warning("aircraft_t::aircraft_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
 			besch = vehikelbauer_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere, false, true, last_besch, is_last );
+#else
+			dbg->warning("aircraft_t::aircraft_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht[0].get_name() : "passagiere");
+			besch = vehikelbauer_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht[0].get_besch() : warenbauer_t::passagiere, false, true, last_besch, is_last );
+#endif
 			if(besch) {
 				calc_bild();
 			}
