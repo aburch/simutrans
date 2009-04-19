@@ -1081,7 +1081,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 						// in any case we do not want to serve this location already
 						const koord cov = koord(welt->get_einstellungen()->get_station_coverage(),welt->get_einstellungen()->get_station_coverage());
 						koord test_platz=find_area_for_hub(pos-cov,pos+size+cov,pos);
-						if(!is_my_halt(test_platz)) {
+						if(  !haltestelle_t::get_halt(welt,test_platz,this).is_bound()  ) {
 							// not served
 							dist = abs_distance(platz1,test_platz);
 							if(dist+simrand(50)<last_dist  &&   dist>3) {
@@ -1203,14 +1203,14 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 			if(bs  &&  create_simple_road_transport(platz1, koord(1,1),platz2,koord(1,1),road_weg)  ) {
 				// since the road my have led to a crossing at the indended stop position ...
 				bool ok = true;
-				if(!is_my_halt(platz1)) {
+				if(  !haltestelle_t::get_halt(welt,platz1,this).is_bound()  ) {
 					if(  !call_general_tool( WKZ_STATION, platz1, bs->get_name() )  ) {
 						platz1 = find_area_for_hub( platz1-koord(2,2), platz1+koord(2,2), platz1 );
 						ok = call_general_tool( WKZ_STATION, platz1, bs->get_name() );
 					}
 				}
 				if(  ok  ) {
-					if(!is_my_halt(platz2)) {
+					if(  !haltestelle_t::get_halt(welt,platz2,this).is_bound()  ) {
 						if(  !call_general_tool( WKZ_STATION, platz2, bs->get_name() )  ) {
 							platz2 = find_area_for_hub( platz2-koord(2,2), platz2+koord(2,2), platz2 );
 							ok = call_general_tool( WKZ_STATION, platz2, bs->get_name() );

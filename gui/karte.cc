@@ -822,7 +822,7 @@ void reliefkarte_t::draw_schedule(const koord pos) const
 			cbuffer_t buf(256);
 			buf.clear();
 			buf.printf( translator::translate("(%i)-"), i+1 );
-			fahrplan_gui_t::gimme_short_stop_name(buf, welt, fpl, i, 240);
+			fahrplan_gui_t::gimme_short_stop_name(buf, welt, welt->get_spieler(fpl_player_nr), fpl, i, 240);
 			display_ddd_proportional_clip(new_koord.x+10, new_koord.y+7, proportional_string_width(buf)+8, 0, color, COL_WHITE, buf, true);
 		}
 		// box at station

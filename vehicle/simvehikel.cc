@@ -834,7 +834,7 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 			const uint16 hinein = (besch->get_zuladung() - total_freight) + (overcrowd ? besch->get_overcrowded_capacity() : 0); 
 			//hinein = inside (Google)
 
-			ware_t ware = halt->hole_ab(besch->get_ware(), hinein, fpl, cnv);
+			ware_t ware = halt->hole_ab(besch->get_ware(), hinein, fpl, cnv->get_besitzer(), cnv);
 					
 			if(ware.menge == 0) 
 			{
@@ -936,7 +936,7 @@ void vehikel_t::remove_stale_freight()
 			bool found = false;
 
 			for (int i = 0; i < fpl->get_count(); i++) {
-				if (haltestelle_t::get_halt( welt, fpl->eintrag[i].pos ) == tmp.get_zwischenziel()) {
+				if (haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, cnv->get_besitzer() ) == tmp.get_zwischenziel()) {
 					found = true;
 					break;
 				}

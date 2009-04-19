@@ -470,7 +470,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 //		slist_tpl<koord3d> tmp; // stores koords of stops that are allready displayed
 		for(i=0; i<new_line->get_schedule()->get_count(); i++) {
 			const koord3d fahrplan_koord = new_line->get_schedule()->eintrag[i].pos;
-			halthandle_t halt = haltestelle_t::get_halt(sp->get_welt(), fahrplan_koord);
+			halthandle_t halt = haltestelle_t::get_halt(sp->get_welt(),fahrplan_koord, sp);
 			if (halt.is_bound()) {
 //				// only add a haltestelle to the list, if it is not in the list allready
 //				if (!tmp.is_contained(fahrplan_koord)) {

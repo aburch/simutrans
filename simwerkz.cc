@@ -3613,7 +3613,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		const bool backwards=event_get_last_control_shift()==2;
 		const grund_t *bd=0;
 		// search all grounds for match
-		halthandle_t h = haltestelle_t::get_halt(welt,pos);
+		halthandle_t h = haltestelle_t::get_halt(welt,pos,sp);
 		if(last_pos!=koord3d::invalid  &&  (h.is_bound() ^ last_halt.is_bound())) {
 			init(welt,sp);
 			return "Can only move from halt to halt or waypoint to waypoint.";
@@ -3635,7 +3635,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			if(  waytype[0] == invalid_wt  &&  (bd->ist_wasser()  ||  bd->hat_wege())  ) {
 				break;
 			}
-			if(  (waytype[0] == water_wt  &&  bd->ist_wasser())  ||  bd->hat_weg(waytype[0])  ) {
+			if(  (waytype[0] == water_wt  &&  bd->ist_wasser())  ||  bd->hat_weg(waytype[0])  ||  bd->hat_weg(waytype[1])  ) {
 				break;
 			}
 			bd = NULL;
@@ -3727,7 +3727,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 						if(fpl  &&  fpl->ist_halt_erlaubt(bd)) {
 							bool updated = false;
 							for(  int k=0;  k<fpl->get_count();  k++  ) {
-								if(  (catch_all_halt  &&  haltestelle_t::get_halt(welt,fpl->eintrag[k].pos)==last_halt)  ||  old_platform.is_contained(fpl->eintrag[k].pos)  ) {
+								if(  (catch_all_halt  &&  haltestelle_t::get_halt(welt,fpl->eintrag[k].pos,cnv->get_besitzer())==last_halt)  ||  old_platform.is_contained(fpl->eintrag[k].pos)  ) {
 									fpl->eintrag[k].pos = pos;
 									updated = true;
 								}
@@ -3755,7 +3755,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 						bool updated = false;
 						for(  int k=0;  k<fpl->get_count();  k++  ) {
 							// ok!
-							if(  (catch_all_halt  &&  haltestelle_t::get_halt(welt,fpl->eintrag[k].pos)==last_halt)  ||  old_platform.is_contained(fpl->eintrag[k].pos)  ) {
+							if(  (catch_all_halt  &&  haltestelle_t::get_halt(welt,fpl->eintrag[k].pos,line->get_besitzer())==last_halt)  ||  old_platform.is_contained(fpl->eintrag[k].pos)  ) {
 								fpl->eintrag[k].pos = pos;
 								updated = true;
 							}

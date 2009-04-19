@@ -39,35 +39,29 @@ char fahrplan_gui_t::no_line[128];	// contains the current translation of "<no l
  *
  * @author Hj. Malthaner
  */
-void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const linieneintrag_t &entry )
+void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const spieler_t *sp, const linieneintrag_t &entry )
 {
-	const grund_t* gr = welt->lookup(entry.pos);
-	if(gr==NULL) {
-		buf.printf("%s (%s)", translator::translate("Invalid coordinate"), entry.pos.get_str() );
-	}
-	else {
-		halthandle_t halt = gr->ist_wasser() ? haltestelle_t::get_halt(welt, entry.pos) : gr->get_halt();
-
-		if(halt.is_bound()) {
-			if (entry.ladegrad != 0) {
-				buf.printf("%d%% %s (%s)",
-					entry.ladegrad,
-					halt->get_name(),
-					entry.pos.get_str() );
-			}
-			else {
-				buf.printf("%s (%s)",
-					halt->get_name(),
-					entry.pos.get_str() );
-			}
+	halthandle_t halt = haltestelle_t::get_halt(welt, entry.pos, sp);
+	if(halt.is_bound()) {
+		if (entry.ladegrad != 0) {
+			buf.printf("%d%% %s (%s)", entry.ladegrad, halt->get_name(), entry.pos.get_str() );
 		}
 		else {
-			if(gr->get_depot() != NULL) {
-				buf.printf("%s (%s)", translator::translate("Depot"), entry.pos.get_str() );
-			}
-			else {
-				buf.printf("%s (%s)", translator::translate("Wegpunkt"), entry.pos.get_str() );
-			}
+			buf.printf("%s (%s)",
+				halt->get_name(),
+				entry.pos.get_str() );
+		}
+	}
+	else {
+		const grund_t* gr = welt->lookup(entry.pos);
+		if(gr==NULL) {
+			buf.printf("%s (%s)", translator::translate("Invalid coordinate"), entry.pos.get_str() );
+		}
+		else if(gr->get_depot() != NULL) {
+			buf.printf("%s (%s)", translator::translate("Depot"), entry.pos.get_str() );
+		}
+		else {
+			buf.printf("%s (%s)", translator::translate("Wegpunkt"), entry.pos.get_str() );
 		}
 	}
 }
@@ -78,30 +72,28 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const linie
  * short version, without loading level and position ...
  * @author Hj. Malthaner
  */
-void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const schedule_t *fpl, int i, int max_chars)
+void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const spieler_t *sp, const schedule_t *fpl, int i, int max_chars)
 {
 	if(i<0  ||  fpl==NULL  ||  i>=fpl->get_count()) {
 		dbg->warning("void fahrplan_gui_t::gimme_stop_name()","tried to recieved unused entry %i in schedule %p.",i,fpl);
 		return;
 	}
 	const linieneintrag_t& entry = fpl->eintrag[i];
-	const grund_t* gr = welt->lookup(entry.pos);
 	const char *p;
-	if(gr==NULL) {
-		p = translator::translate("Invalid coordinate");
+	halthandle_t halt = haltestelle_t::get_halt(welt, entry.pos, sp);
+	if(halt.is_bound()) {
+		p = halt->get_name();
 	}
 	else {
-		halthandle_t halt = haltestelle_t::get_halt(welt, entry.pos);
-		if(halt.is_bound()) {
-			p = halt->get_name();
+		const grund_t* gr = welt->lookup(entry.pos);
+		if(gr==NULL) {
+			p = translator::translate("Invalid coordinate");
+		}
+		else if(gr->get_depot() != NULL) {
+			p = translator::translate("Depot");
 		}
 		else {
-			if(gr->get_depot() != NULL) {
-				p = translator::translate("Depot");
-			}
-			else {
-				p = translator::translate("Wegpunkt");
-			}
+			p = translator::translate("Wegpunkt");
 		}
 	}
 	// finally append
@@ -131,7 +123,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 
 			buf.clear();
 			buf.printf( "%i) ", i+1 );
-			fahrplan_gui_t::gimme_stop_name( buf, welt, fpl->eintrag[i] );
+			fahrplan_gui_t::gimme_stop_name( buf, welt, sp, fpl->eintrag[i] );
 			sint16 w = display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1) + 2, buf, ALIGN_LEFT, COL_BLACK, true);
 			if(  w>width  ) {
 				width = w;
@@ -168,7 +160,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_wait("month wait time"),
 	lb_waitlevel(NULL, COL_WHITE, gui_label_t::right),
 	lb_load("Full load"),
-	stats(sp_->get_welt()),
+	stats(sp_->get_welt(),sp_),
 	scrolly(&stats),
 	fpl(fpl_),
 	sp(sp_),
@@ -333,7 +325,7 @@ void fahrplan_gui_t::update_selection()
 	if(  fpl->get_count()>0  ) {
 		fpl->set_aktuell( min(fpl->get_count()-1,fpl->get_aktuell()) );
 		const uint8 aktuell = fpl->get_aktuell();
-		if(haltestelle_t::get_halt(sp->get_welt(), fpl->eintrag[aktuell].pos).is_bound()) {
+		if(  haltestelle_t::get_halt(sp->get_welt(), fpl->eintrag[aktuell].pos, sp).is_bound()  ) {
 			lb_load.set_color( COL_BLACK );
 			numimp_load.set_value( fpl->eintrag[aktuell].ladegrad );
 			if(  fpl->eintrag[aktuell].ladegrad>0  ) {

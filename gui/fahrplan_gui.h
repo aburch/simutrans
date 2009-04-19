@@ -37,9 +37,10 @@ private:
 	static cbuffer_t buf;
 
 	schedule_t* fpl;
+	spieler_t* sp;
 
 public:
-	fahrplan_gui_stats_t(karte_t* w) { welt = w; fpl = NULL; }
+	fahrplan_gui_stats_t(karte_t* w, spieler_t *s) { welt = w; fpl = NULL; sp = s; }
 
 	void set_fahrplan( schedule_t* f ) { fpl = f; }
 
@@ -63,18 +64,14 @@ class fahrplan_gui_t :	public gui_frame_t,
 	 *
 	 * @author Hj. Malthaner
 	 */
-	static void gimme_stop_name(cbuffer_t & buf, karte_t *welt, const linieneintrag_t &entry );
+	static void gimme_stop_name(cbuffer_t & buf, karte_t *welt, const spieler_t *sp, const linieneintrag_t &entry );
 
 	/**
 	 * Fuellt buf mit Beschreibung des i-ten Eintrages des Fahrplanes
 	 * short version, without loading level and position ...
 	 * @author Hj. Malthaner
 	 */
-	static void gimme_short_stop_name(cbuffer_t & buf,
-				     karte_t *welt,
-				     const schedule_t *fpl,
-				     int i,
-				     int max_chars);
+	static void gimme_short_stop_name(cbuffer_t & buf, karte_t *welt, const spieler_t *sp, const schedule_t *fpl, int i, int max_chars);
 
 private:
 	static char no_line[128];
@@ -121,7 +118,7 @@ private:
 	void update_selection();
 
 public:
-    fahrplan_gui_t(schedule_t* fpl, spieler_t* sp, convoihandle_t cnv);
+	fahrplan_gui_t(schedule_t* fpl, spieler_t* sp, convoihandle_t cnv);
 
 	~fahrplan_gui_t();
 
