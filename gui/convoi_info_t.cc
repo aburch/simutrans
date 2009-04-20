@@ -226,7 +226,8 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 void
 convoi_info_t::zeichnen(koord pos, koord gr)
 {
-	if(!cnv.is_bound()) {
+	if(!cnv.is_bound() || cnv->in_depot() || cnv->get_vehikel_anzahl() == 0) 
+	{
 		destroy_win(dynamic_cast <gui_fenster_t *> (this));
 	}
 	else {

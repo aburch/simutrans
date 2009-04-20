@@ -865,7 +865,17 @@ public:
 
 	bool get_depot_when_empty() const { return depot_when_empty; }
 
-	void set_depot_when_empty(bool new_dwe) { depot_when_empty=new_dwe; }
+	void set_depot_when_empty(bool new_dwe) 
+	{ 
+		if(loading_level > 0)
+		{
+			depot_when_empty = new_dwe;
+		}
+		else
+		{
+			go_to_depot(true);
+		}
+	}
 
 	bool get_autostart() const { return autostart; }
 

@@ -367,10 +367,11 @@ public:
 	void add_undo(koord3d k);
 	bool undo();
 
-	//Checks the affordability of any possible purchase.
+	// Checks the affordability of any possible purchase.
+	// Check is disapplied to the public service player.
 	inline bool can_afford(sint64 price) const
 	{
-		return (price < (konto + finance_history_month[0][COST_CREDIT_LIMIT]) || welt->get_einstellungen()->insolvent_purchases_allowed() || welt->get_einstellungen()->is_freeplay());
+		return player_nr == 1 || (price < (konto + finance_history_month[0][COST_CREDIT_LIMIT]) || welt->get_einstellungen()->insolvent_purchases_allowed() || welt->get_einstellungen()->is_freeplay());
 	}
 
 	uint32 get_credit_limit() const { return finance_history_month[0][COST_CREDIT_LIMIT]; }
