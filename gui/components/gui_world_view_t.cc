@@ -64,8 +64,8 @@ void world_view_t::infowin_event(const event_t* ev)
  * @author Hj. Malthaner
  */
 void
-world_view_t::zeichnen(koord offset)
-{
+world_view_t::zeichnen(koord offset) //"Draw" (Babelfish)
+{ 
 	const sint16 raster = get_tile_raster_width();
 
 //DBG_MESSAGE("world_view_t::zeichnen()","ding %p, location %d,%d,%d",ding,location.x,location.y,location.z );

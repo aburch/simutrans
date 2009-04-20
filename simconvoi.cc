@@ -236,7 +236,13 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 			// New method - recalculate as necessary
 			ITERATE_PTR(fpl, j)
 			{
-				halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
+				halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
+				if(!tmp_halt.is_bound())
+				{
+					// Try a public player halt
+					spieler_t* sp = welt->get_spieler(0);
+					tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, sp);
+				}
 				if(tmp_halt.is_bound())
 				{
 					tmp_halt->reschedule = true;
@@ -1318,7 +1324,13 @@ void convoi_t::start()
 			// New method - recalculate as necessary
 			ITERATE_PTR(fpl, j)
 			{
-				halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
+				halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
+				if(!tmp_halt.is_bound())
+				{
+					// Try a public player halt
+					spieler_t* sp = welt->get_spieler(0);
+					tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, sp);
+				}
 				if(tmp_halt.is_bound())
 				{
 					tmp_halt->reschedule = true;
@@ -1587,7 +1599,13 @@ bool convoi_t::set_schedule(schedule_t * f)
 		// New method - recalculate as necessary
 		ITERATE_PTR(fpl, j)
 		{
-			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
+			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
+			if(!tmp_halt.is_bound())
+			{
+				// Try a public player halt
+				spieler_t* sp = welt->get_spieler(0);
+				tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, sp);
+			}
 			if(tmp_halt.is_bound())
 			{
 				tmp_halt->reschedule = true;
@@ -1597,9 +1615,18 @@ bool convoi_t::set_schedule(schedule_t * f)
 
 		ITERATE_PTR(f, k)
 		{
-			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[k].pos);
-			tmp_halt->reschedule = true;
-			tmp_halt->force_paths_stale();
+			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[k].pos, besitzer_p);
+			if(!tmp_halt.is_bound())
+			{
+				// Try a public player halt
+				spieler_t* sp = welt->get_spieler(0);
+				tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[k].pos, sp);
+			}
+			if(tmp_halt.is_bound())
+			{
+				tmp_halt->reschedule = true;
+				tmp_halt->force_paths_stale();
+			}
 		}
 	}
 #endif
@@ -3541,7 +3568,13 @@ void convoi_t::set_line(linehandle_t org_line)
 		// New method - recalculate on demand
 		ITERATE_PTR(fpl, j)
 		{
-			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
+			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
+			if(!tmp_halt.is_bound())
+			{
+				// Try a public player halt
+				spieler_t* sp = welt->get_spieler(0);
+				tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, sp);
+			}
 			if(tmp_halt.is_bound())
 			{
 				tmp_halt->reschedule = true;
@@ -3561,9 +3594,19 @@ void convoi_t::set_line(linehandle_t org_line)
 #ifdef NEW_PATHING
 	ITERATE_PTR(new_fpl, j)
 	{
-		halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos);
-		tmp_halt->reschedule = true;
-		tmp_halt->force_paths_stale();
+		halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
+		if(!tmp_halt.is_bound())
+		{
+			// Try a public player halt
+			spieler_t* sp = welt->get_spieler(0);
+			tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, sp);
+		}
+		if(tmp_halt.is_bound())
+		{
+			// Might be a waypoint, so must check whether bound.
+			tmp_halt->reschedule = true;
+			tmp_halt->force_paths_stale();
+		}
 	}
 #endif
 
