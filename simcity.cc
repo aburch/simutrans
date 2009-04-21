@@ -1472,10 +1472,6 @@ void stadt_t::step_passagiere()
 			if(  route_result==haltestelle_t::ROUTE_OK  &&  will_return != no_return  ) {
 				// this comes most of the times for free and balances also the amounts!
 				halthandle_t ret_halt = pax.get_ziel();
-				if(will_return != town_return) {
-					// restore normal mail amount => more mail from attractions and factories than going to them
-					pax.menge = pax_left_to_do;
-				}
 
 				// we just have to ensure, the ware can be delivered at this station
 				bool found = false;
@@ -1489,12 +1485,14 @@ void stadt_t::step_passagiere()
 				}
 
 				// now try to add them to the target halt
-				uint32 max_ware =ret_halt->get_capacity(wtyp->get_index());
+				uint32 max_ware = ret_halt->get_capacity(wtyp->get_index());
 				if(  !ret_halt->is_overcrowded(wtyp->get_catg_index())  ) {
 					// prissi: not overcrowded and can recieve => add them
 					if (found) {
 						ware_t return_pax (wtyp);
 
+						// always use normal amount for return pas/mail
+						// (for mail pax.menge might have been smaller!)
 						return_pax.menge = pax_left_to_do;
 						return_pax.set_zielpos(k);
 						return_pax.set_ziel(start_halt);
