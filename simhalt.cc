@@ -1449,8 +1449,8 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 	if(paths_timestamp < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
 	{
 		// List is stale. Recalculate.
-		// If this is false, then this is only being called to finish calculating
-		// paths that have not yet been calculated.
+		// If this is false, then this is only being called to finish 
+		// calculating paths that have not yet been calculated.
 		if(!open_list.empty())
 		{
 			open_list.clear();
@@ -1518,17 +1518,53 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		{
 			// Track the path back to get the next transfer from this halt
 			path_node* track_node = current_node;
+			convoihandle_t current_best_convoy;
+			linehandle_t current_best_line;
+			convoihandle_t previous_best_convoy;
+			linehandle_t previous_best_line;
 			//while(track_node->link != NULL)
 			//for(uint8 depth = 0; depth <= max_transfers; depth ++)
 			for(uint8 depth = 0; depth <= 255; depth ++)
 			{
-				if(track_node->link->link == NULL && track_node->halt.is_bound())
+				if(track_node->halt.is_bound())
 				{
-					//path tmp = *paths[category].access(current_node->halt);
-					//tmp.next_transfer = track_node->halt;
-					//tmp = NULL;
-					paths[category].access(current_node->halt) ->next_transfer = track_node->halt;
-					break;
+#define AVOID_ROGUE_VIAS
+#ifdef AVOID_ROGUE_VIAS
+					if(track_node->link->halt.is_bound())
+					{
+						const quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion* > *tmp_table = track_node->halt->get_connexions(category);
+						const connexion* tmp_con = tmp_table->get(track_node->link->halt);
+						convoihandle_t tmp_convoy;
+						linehandle_t tmp_line;
+						if(tmp_con != NULL)
+						{
+							tmp_convoy = tmp_con->best_convoy;
+							tmp_line = tmp_con->best_line;
+						}
+
+						current_best_convoy = tmp_convoy;
+						current_best_line = tmp_line;
+					}
+				
+					if(current_best_convoy != previous_best_convoy || current_best_line != previous_best_line)
+					{
+						// Prevent transfers within the same line or convoy.
+#else
+					if(track_node->link->link == NULL)
+					{
+#endif
+						paths[category].access(current_node->halt)->next_transfer = track_node->halt;
+						//path tmp = *paths[category].access(current_node->halt);
+						//tmp.next_transfer = track_node->halt;
+						//tmp = NULL;
+					}
+					if(track_node->link->link == NULL)
+					{
+						// End of search.
+						break;
+					}
+					previous_best_convoy = current_best_convoy;
+					previous_best_line = current_best_line;
 				}
 				
 				track_node = track_node->link;
@@ -1555,6 +1591,8 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 	
 	// If the code has reached here without returning, the search is complete.
 	search_complete = true;
+	open_list.clear();
+	delete[] path_nodes;
 }
 
 

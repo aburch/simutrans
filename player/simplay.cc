@@ -491,9 +491,9 @@ void spieler_t::calc_finance_history()
 
 sint64 spieler_t::calc_credit_limit()
 {
-	sint32 profit = 0;
-	sint32 assets = 0;
-	for(uint8 i = 0; i <= MAX_PLAYER_HISTORY_MONTHS; i++)
+	sint64 profit = 0;
+	sint64 assets = 0;
+	for(uint8 i = 0; i < MAX_PLAYER_HISTORY_MONTHS; i++)
 	{
 		profit += finance_history_month[i][COST_OPERATING_PROFIT];
 		assets += finance_history_month[i][COST_NETWEALTH];
