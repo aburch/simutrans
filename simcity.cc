@@ -1437,7 +1437,7 @@ void stadt_t::step_passagiere()
 			// ok, they are not in walking distance
 			ware_t pax(wtyp);
 			pax.set_zielpos(ziel);
-			pax.menge = (wtyp == warenbauer_t::passagiere ? pax_left_to_do : max(1, pax_left_to_do >> 2));
+			pax.menge = (wtyp == warenbauer_t::passagiere ? pax_left_to_do : 1 );
 
 			// now, finally search a route; this consumes most of the time
 			koord return_zwischenziel = koord::invalid; // for people going back ...
