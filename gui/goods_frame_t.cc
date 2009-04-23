@@ -60,10 +60,11 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	change_comfort_label(comfort_txt,COL_WHITE,gui_label_t::right),
 	scrolly(&goods_stats)
 {
-	//static karte_t* welt = wl;
+	wtype = road_wt;
+	
 	this->goods_frame_t::welt = wl;
 	int y=BUTTON_HEIGHT+4-16;
-
+	
 	speed_bonus[0] = 0;
 	distance_txt[0] = 0;
 	comfort_txt[0] = 0;
@@ -99,6 +100,20 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	comfort_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 12), koord(10,BUTTON_HEIGHT));
 	comfort_up.add_listener(this);
 	add_komponente(&comfort_up);
+
+	way_type.add_listener(this);
+	add_komponente(&way_type);
+	way_type.clear_elements();
+	static const char *txt_wtype[8] = { "Road", "Rail", "Ship", "Monorail", "Maglev", "Tram", "Narrow gauge", "Air" };
+	for(uint8 i = 0; i < 8; i++)
+	{
+		way_type.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_wtype[i]), COL_WHITE ) );
+	}
+	way_type.set_selection(0);
+	way_type.set_pos(koord(BUTTON4_X-22, y + 36));
+	way_type.set_groesse(koord(110, 24));
+	way_type.set_max_size(koord(96, LINESPACE*2+2+16));
+	way_type.set_highlight_color(1);
 	
 	y=4+5*LINESPACE+6 + 25;	
 
@@ -255,7 +270,7 @@ void goods_frame_t::sort_list()
 	// now sort
 	qsort((void *)good_list, n, sizeof(unsigned short), compare_goods);
 
-	goods_stats.update_goodslist(good_list, relative_speed_change, goods_frame_t::distance, goods_frame_t::comfort, goods_frame_t::welt);
+	goods_stats.update_goodslist(good_list, relative_speed_change, goods_frame_t::distance, goods_frame_t::comfort, goods_frame_t::welt, wtype);
 }
 
 /**
@@ -312,7 +327,7 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		distance ++;
 		sort_list();
 	}
-else if(komp == &comfort_down) 
+	else if(komp == &comfort_down) 
 	{
 		if(comfort > 1) 
 		{
@@ -327,6 +342,44 @@ else if(komp == &comfort_down)
 			comfort ++;
 			sort_list();
 		}
+	}
+	else if (komp == &way_type)
+	{
+		switch(way_type.get_selection())
+		{
+		default:	
+		case 0:
+			wtype = road_wt;
+			break;
+
+		case 1:
+			wtype = track_wt;
+			break;
+
+		case 2:
+			wtype = water_wt;
+			break;
+
+		case 3:
+			wtype = monorail_wt;
+			break;
+
+		case 4:
+			wtype = maglev_wt;
+			break;
+
+		case 5:
+			wtype = tram_wt;
+			break;
+
+		case 6:
+			wtype = narrowgauge_wt;
+			break;
+
+		case 7:
+			wtype = air_wt;
+		};
+		sort_list();
 	}
 	return true;
 }

@@ -52,7 +52,7 @@ void goods_stats_t::zeichnen(koord offset)
 		const sint32 revenue = (min_price > base_bonus ? min_price : base_bonus) * distance;
 		sint32 price = revenue;
 
-		const uint16 journey_minutes = (((float)distance / (float)welt->get_average_speed(road_wt)*bonus)/100) * welt->get_einstellungen()->get_journey_time_multiplier() * 60;
+		const uint16 journey_minutes = (((float)distance / (float)welt->get_average_speed(way_type)*bonus)/100) * welt->get_einstellungen()->get_journey_time_multiplier() * 60;
 
 		if(wtyp->get_catg_index() < 1)
 		{

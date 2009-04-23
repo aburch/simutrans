@@ -13,7 +13,9 @@
 #include "components/gui_scrollpane.h"
 #include "components/gui_label.h"
 #include "components/action_listener.h"
+#include "components/gui_combobox.h"
 #include "goods_stats_t.h"
+//#include "../simtypes.h"
 
 class karte_t;
 
@@ -33,6 +35,8 @@ private:
 	static uint8 comfort;
 	static bool sortreverse;
 	static sort_mode_t sortby;
+	//static waytype_t wtype;
+	waytype_t wtype;
 
 	karte_t* welt;
 	char	speed_bonus[6];
@@ -41,18 +45,19 @@ private:
 	char	speed_message[256];
 	uint16	good_list[256];
 
-	gui_label_t sort_label;
-	button_t	sortedby;
-	button_t	sorteddir;
-	gui_label_t change_speed_label;
-	gui_label_t	change_distance_label;
-	gui_label_t	change_comfort_label;
-	button_t	speed_up;
-	button_t	speed_down;
-	button_t	distance_up;
-	button_t	distance_down;
-	button_t	comfort_up;
-	button_t	comfort_down;
+	gui_label_t		sort_label;
+	button_t		sortedby;
+	button_t		sorteddir;
+	gui_label_t		change_speed_label;
+	gui_label_t		change_distance_label;
+	gui_label_t		change_comfort_label;
+	button_t		speed_up;
+	button_t		speed_down;
+	button_t		distance_up;
+	button_t		distance_down;
+	button_t		comfort_up;
+	button_t		comfort_down;
+	gui_combobox_t	way_type;
 
 	goods_stats_t goods_stats;
 	gui_scrollpane_t scrolly;
