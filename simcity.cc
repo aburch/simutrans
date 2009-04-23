@@ -1844,7 +1844,8 @@ void stadt_t::step_passagiere()
 				// ok, they are not in walking distance
 				ware_t pax(wtyp); //Journey start information needs to be added later.
 				pax.set_zielpos(destinations[current_destination].location);
-				pax.menge = (wtyp == warenbauer_t::passagiere ? pax_left_to_do : max(1, pax_left_to_do >> 2));
+				//pax.menge = (wtyp == warenbauer_t::passagiere ? pax_left_to_do : max(1, pax_left_to_do >> 2));
+				pax.menge = (wtyp == warenbauer_t::passagiere ? pax_left_to_do : 1 );
 				//"Menge" = volume (Google)
 
 				// now, finally search a route; this consumes most of the time
@@ -2181,11 +2182,11 @@ void stadt_t::step_passagiere()
 #endif
 					// this comes most of the times for free and balances also the amounts!
 					halthandle_t ret_halt = pax.get_ziel();
-					if (will_return != town_return) 
-					{
-						// restore normal mail amount => more mail from attractions and factories than going to them
-						pax.menge = pax_left_to_do;
-					}
+					//if (will_return != town_return) 
+					//{
+					//	// restore normal mail amount => more mail from attractions and factories than going to them
+					//	pax.menge = pax_left_to_do;
+					//}
 
 					// we just have to ensure, the ware can be delivered at this station
 					bool found = false;
