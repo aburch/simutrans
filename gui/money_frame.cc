@@ -422,7 +422,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	}
 
 	if(old_level!=sp->get_headquarter_level()  ||  old_pos!=sp->get_headquarter_pos()) {
-		headquarter.set_text( sp->get_headquarter_pos()!=koord::invalid ? "upgrade HQ" : "Built HQ" );
+		headquarter.set_text( sp->get_headquarter_pos()!=koord::invalid ? "upgrade HQ" : "Build HQ" );
 		remove_komponente(&headquarter_view);
 		old_level = sp->get_headquarter_level();
 		old_pos = sp->get_headquarter_pos();
