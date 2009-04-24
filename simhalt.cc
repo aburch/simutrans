@@ -1294,9 +1294,14 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 
 	// first all single convois without lines
 	vector_tpl<uint8> add_catg_index(4);
+	halthandle_t tmp_halt;
+	const linehandle_t dummy_line;
+	const convoihandle_t dummy_convoy;
+	schedule_t *fpl = NULL;
+	convoihandle_t cnv;
 	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) 
 	{
-		convoihandle_t cnv = *i;
+		cnv = *i;
 		if(cnv->get_line().is_bound()) 
 		{
 			// Deal with lines later.
@@ -1307,15 +1312,14 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 		{
 			INT_CHECK("simhalt.cc 612");
 
-			schedule_t *fpl = cnv->get_schedule();
+			fpl = cnv->get_schedule();
 			if(fpl != NULL) 
-			{
-				const linehandle_t dummy;
+			{				
 				ITERATE_PTR(fpl, i)
 				{
 					// Hajo: Hält dieser convoi hier?
 					// "If this Convoi here?" (Google)
-					halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, besitzer_p);
+					tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, besitzer_p);
 					if(!tmp_halt.is_bound())
 					{
 						// Try a public player halt
@@ -1331,7 +1335,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 							// Only consider vehicles that really transport something
 							// this helps against routing errors through passenger
 							// trains pulling only freight wagons
-							const ware_besch_t *ware = cnv->get_vehikel(i)->get_fracht_typ();
+							const ware_besch_t* ware = cnv->get_vehikel(i)->get_fracht_typ();
 
 							if (cnv->get_vehikel(i)->get_fracht_max() == 0 || ware->get_catg_index() != category) 
 							{
@@ -1341,7 +1345,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 							if(ware != warenbauer_t::nichts)
 							{
 								// now add the freights
-								add_connexion(ware, fpl, cnv, dummy);
+								add_connexion(ware, fpl, cnv, dummy_line);
 								if(!add_catg_index.is_contained(ware->get_catg_index()))
 								{
 									add_catg_index.append_unique(category);
@@ -1357,7 +1361,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 	ITERATE(registered_lines,i)
 	{
 		const linehandle_t line = registered_lines[i];
-		schedule_t *fpl = line->get_schedule();
+		fpl = line->get_schedule();
 		assert(fpl);
 		// ok, now add line to the connections
 		if(line->count_convoys( )> 0 && (i_am_public || line->get_convoy(0)->get_besitzer() == get_besitzer()))
@@ -1367,11 +1371,11 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 
 			if(fpl != NULL) 
 			{
-				const convoihandle_t dummy;
+				halthandle_t tmp_halt;
 
 				ITERATE_PTR(fpl, i)
 				{
-					halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, besitzer_p);
+					tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, besitzer_p);
 					if(!tmp_halt.is_bound())
 					{
 						// Try a public player halt
@@ -1385,7 +1389,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 						const minivec_tpl<uint8> &goods = line->get_goods_catg_index();
 						ITERATE(goods, j)
 						{
-							const ware_besch_t *ware = warenbauer_t::get_info_catg_index(goods[j]);
+							const ware_besch_t* ware = warenbauer_t::get_info_catg_index(goods[j]);
 
 							if (ware->get_catg_index() != category) 
 							{
@@ -1395,7 +1399,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 							if(ware != warenbauer_t::nichts) 
 							{
 								// now add the freights
-								add_connexion(ware, fpl, dummy, line);
+								add_connexion(ware, fpl, dummy_convoy, line);
 								if(!add_catg_index.is_contained(ware->get_catg_index()))
 								{
 									add_catg_index.append_unique(category);
@@ -1475,9 +1479,19 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		open_list.insert(starting_node);
 	}
 
+	path_node* current_node = NULL;
+	quickstone_hashtable_tpl<haltestelle_t, connexion*> *current_connexions = NULL;
+	connexion* current_connexion = NULL;
+#define AVOID_ROGUE_VIAS_2
+#ifdef AVOID_ROGUE_VIAS_2
+	connexion* previous_connexion = NULL;
+#endif
+	path_node* new_node = NULL;
+	halthandle_t next_halt;
+
 	while(open_list.get_count() > 0 && iterations < max_iterations)
 	{	
-		path_node* current_node = open_list.pop();
+		current_node = open_list.pop();
 
 		if(!current_node->halt.is_bound() || paths[category].get(current_node->halt).journey_time != 65535)
 		{
@@ -1485,24 +1499,46 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			// item is not already on the closed list,
 			// and the halt has not been deleted since 
 			// being added to the open list.
+			// TODO: Consider whether to add a same best line/convoy check here,
+			// as suggested by Knightly.
 			continue;
 		}
 
-		quickstone_hashtable_tpl<haltestelle_t, connexion*> *current_connexions = current_node->halt->get_connexions(category);
+		current_connexions = current_node->halt->get_connexions(category);
 		quickstone_hashtable_iterator_tpl<haltestelle_t, connexion*> iter(*current_connexions);
+#ifdef AVOID_ROGUE_VIAS_2
+		linehandle_t previous_best_line;
+		convoihandle_t previous_best_convoy;
+		if(current_node->link != NULL)
+		{
+			previous_connexion = current_node->link->halt->get_connexions(category)->get(current_node->halt);
+			if(previous_connexion != NULL)
+			{
+				previous_best_line = previous_connexion->best_line;
+				previous_best_convoy = previous_connexion->best_convoy;
+			}
+		}
+#endif
 		while(iter.next() && iterations <= max_iterations)
 		{
-			const halthandle_t h = iter.get_current_key();
-			if(paths[category].get(h).journey_time != 65535)
+			next_halt = iter.get_current_key();
+			if(paths[category].get(next_halt).journey_time != 65535)
 			{
 				// Only insert into the open list if the 
 				// item is not already on the closed list.
 				continue;
 			}
-			
-			connexion* current_connexion = iter.get_current_value();
-			path_node* new_node = &path_nodes[iterations++];
-			new_node->halt = h;
+
+			current_connexion = iter.get_current_value();
+
+#ifdef AVOID_ROGUE_VIAS_2
+			if(previous_connexion != NULL && (previous_best_line.is_bound() && previous_best_line == current_connexion->best_line) || (previous_best_convoy.is_bound() && previous_best_convoy == current_connexion->best_convoy))
+			{
+				continue;
+			}
+#endif
+			new_node = &path_nodes[iterations++];
+			new_node->halt = next_halt;
 			new_node->journey_time = current_connexion->journey_time + current_connexion->waiting_time + current_node->journey_time;
 			new_node->link = current_node;
 
@@ -1528,8 +1564,8 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			{
 				if(track_node->halt.is_bound())
 				{
-#define AVOID_ROGUE_VIAS
-#ifdef AVOID_ROGUE_VIAS
+//#define AVOID_ROGUE_VIAS_1
+#ifdef AVOID_ROGUE_VIAS_1
 					if(track_node->link->halt.is_bound())
 					{
 						const quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion* > *tmp_table = track_node->halt->get_connexions(category);
@@ -1583,6 +1619,14 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			// can be resumed where it left off if another goal, as yet
 			// not found, is searched for, unless the index is stale.
 
+			// Consider whether to check here for the end of the search,
+			// and delete path nodes and the open list if so. (Knightly)
+
+			if(open_list.empty() || iterations == max_iterations)
+			{
+				open_list.clear();
+				delete[] path_nodes;
+			}
 			return;
 		}	
 		
@@ -1591,6 +1635,8 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 	
 	// If the code has reached here without returning, the search is complete.
 	search_complete = true;
+	
+	// Thanks to Knightly for this suggestion.
 	open_list.clear();
 	delete[] path_nodes;
 }
