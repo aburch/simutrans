@@ -195,7 +195,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, besch.lieferanten,          12);
 	node.write_uint16(fp, besch.produkte,             14);
 	node.write_uint16(fp, besch.pax_level,            16);
-	node.write_uint16(fp, electricity_percent		  18);
+	node.write_uint16(fp, electricity_percent,		  18);
 
 	node.write(fp);
 }
