@@ -890,6 +890,10 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	stadt_t * suche_naechste_stadt(koord pos) const;
+	
+	// Returns the city at the position given.
+	// Returns NULL if there is no city there.
+	stadt_t * get_city(koord pos) const;
 
 	bool cannot_save() const { return nosave; }
 	void set_nosave() { nosave = true; }

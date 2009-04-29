@@ -312,7 +312,7 @@ get_next_dirs(const koord gr_pos, const koord ziel)
 
 
 
-bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_speed, const uint32 max_cost)
+bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_speed, const uint32 max_cost, const uint32 weight)
 {
 	bool ok = false;
 
@@ -381,13 +381,15 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	uint32 beat=1;
 	do {
 		// Hajo: this is too expensive to be called each step
-		if((beat++ & 255) == 0) {
+		if((beat++ & 255) == 0) 
+		{
 			INT_CHECK("route 161");
 		}
 
 		ANode *test_tmp = queue.pop();
 
-		if(welt->ist_markiert(test_tmp->gr)) {
+		if(welt->ist_markiert(test_tmp->gr))
+		{
 			// we were already here on a faster route, thus ignore this branch
 			// (trading speed against memory consumption)
 			continue;
@@ -400,10 +402,13 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 //DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->get_pos().x,gr->get_pos().y,gr->get_pos().z,tmp->f);
 
 		// we took the target pos out of the closed list
-		if(ziel==gr->get_pos()) {
+		if(ziel==gr->get_pos())
+		{
 			ziel_erreicht = true; //"a goal reaches" (Babelfish).
 			break;
 		}
+
+		const bool enforce_weight_limits_strictly = welt->get_einstellungen()->get_enforce_weight_limits() == 2;
 
 		// testing all four possible directions
 		const ribi_t::ribi ribi =  fahr->get_ribi(gr);
@@ -411,29 +416,40 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		for(int r=0; r<4; r++) {
 
 			// a way in our direction?
-			if(  (ribi & next_ribi[r])==0  ) {
+			if(  (ribi & next_ribi[r])==0  ) 
+			{
 				continue;
 			}
 
 			to = NULL;
-			if(is_airplane) {
+			if(is_airplane) 
+			{
 				const planquadrat_t *pl=welt->lookup(gr->get_pos().get_2d()+koord(next_ribi[r]));
-				if(pl) {
+				if(pl) 
+				{
 					to = pl->get_kartenboden();
 				}
 			}
 
 			// a way goes here, and it is not marked (i.e. in the closed list)
-			if((to  ||  gr->get_neighbour(to, wegtyp, koord(next_ribi[r]) ))  &&  fahr->ist_befahrbar(to)  &&  !welt->ist_markiert(to)) {
-
+			if((to  ||  gr->get_neighbour(to, wegtyp, koord(next_ribi[r]) ))  &&  fahr->ist_befahrbar(to)  &&  !welt->ist_markiert(to)) 
+			{
 				// Do not go on a tile, where a oneway sign forbids going.
 				// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
 				ribi_t::ribi last_dir=next_ribi[r];
 				weg_t *w=to->get_weg(wegtyp);
 				ribi_t::ribi go_dir = (w==NULL) ? 0 : w->get_ribi_maske();
-				if((last_dir&go_dir)!=0) {
+				if((last_dir&go_dir)!=0) 
+				{
 						continue;
 				}
+				
+				if(enforce_weight_limits_strictly && weight > w->get_max_weight())
+				{
+					// Avoid routing over ways for which the convoy is overweight.
+					continue;
+				}
+
 
 				// new values for cost g
 				uint32 new_g = tmp->g + fahr->get_kosten(to,max_speed);
@@ -441,22 +457,27 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				// check for curves (usually, one would need the lastlast and the last;
 				// if not there, then we could just take the last
 				uint8 current_dir;
-				if(tmp->parent!=NULL) {
+				if(tmp->parent!=NULL) 
+				{
 					current_dir = ribi_typ( tmp->parent->gr->get_pos().get_2d(), to->get_pos().get_2d() );
-					if(tmp->dir!=current_dir) {
+					if(tmp->dir!=current_dir)
+					{
 						new_g += 3;
-						if(tmp->parent->dir!=tmp->dir) {
+						if(tmp->parent->dir!=tmp->dir) 
+						{
 							// discourage 90° turns
 							new_g += 10;
 						}
-						else if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir)) {
+						else if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir))
+						{
 							// discourage v turns heavily
 							new_g += 25;
 						}
 					}
 
 				}
-				else {
+				else 
+				{
 					 current_dir = ribi_typ( gr->get_pos().get_2d(), to->get_pos().get_2d() );
 				}
 
@@ -514,7 +535,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
  * corrected 12/2005 for station search
  * @author Hansjörg Malthaner, prissi
  */
-bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_khm, const uint32 max_cost)
+bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_khm, const uint32 weight, const uint32 max_cost)
 {
 	route.clear();
 
@@ -524,7 +545,7 @@ bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start,
 	// profiling for routes ...
 	long ms=dr_time();
 #endif
-	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm,max_cost);
+	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm, max_cost, weight);
 #ifdef DEBUG_ROUTES
 	if(fahr->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-2, dr_time()-ms );}
 #endif

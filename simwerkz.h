@@ -60,6 +60,7 @@ class toolbar_t;
 class werkzeug_waehler_t;
 class wegbauer_t;
 class weg_besch_t;
+class roadsign_besch_t;
 
 /****************************** helper functions: *****************************/
 
@@ -256,9 +257,31 @@ public:
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 };
 
-class wkz_roadsign_t : public werkzeug_t {
+class wkz_roadsign_t : public werkzeug_t 
+{
+private:
+	koord3d start, end;
+	zeiger_t *wkz_roadsign_bauer;
+	const roadsign_besch_t* besch;
+	karte_t* world;
+	spieler_t* player;
+	const char *place_sign_intern( karte_t *, spieler_t *, grund_t* );
+	uint8 signal_spacing;
+	vector_tpl<zeiger_t*> marked;
+	route_t sign_route;
+
+	bool remove_intermediate_signals, replace_other_signals;
+	void cleanup();
+public:
+	wkz_roadsign_t();
 	const char *get_tooltip(spieler_t *);
+	bool init( karte_t *, spieler_t * );
+	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual const char *move( karte_t *, spieler_t *, uint16 buttonstate, koord3d );
+
+	void set_values( uint8 spacing, bool remove, bool replace );
+	const char *place_signs();
 };
 
 class wkz_depot_t : public werkzeug_t {

@@ -268,6 +268,16 @@ einstellungen_t::einstellungen_t() :
 	global_power_factor = 1.0;
 
 	avoid_overcrowding = false;
+	
+	// Customisable city growth
+	// @author: jamespetts
+	city_weight_factor = 100;
+
+	// How and whether weight limits are enforced.
+	// @author: jamespetts
+	enforce_weight_limits = 1;
+
+	speed_bonus_multiplier = 1.0;
 }
 
 
@@ -706,6 +716,15 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_byte(max_rerouting_interval_months, "");
 		}
 
+		if(file->get_experimental_version() >= 3)
+		{
+			file->rdwr_short(city_weight_factor, "");
+			file->rdwr_byte(enforce_weight_limits, "");
+			uint16 speed_bonus_multiplier_percent = speed_bonus_multiplier * 100;
+			file->rdwr_short(speed_bonus_multiplier_percent, "");
+			speed_bonus_multiplier = (float)speed_bonus_multiplier_percent / 100;
+		}
+
 	}
 }
 
@@ -987,6 +1006,18 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	uint16 global_power_factor_percent = 100;
 	global_power_factor_percent = contents.get_int("global_power_factor_percent", global_power_factor_percent);
 	global_power_factor = (float)global_power_factor_percent / 100;
+
+	// City weight factor. Customisable city growth.
+	// @author: jamespetts
+	city_weight_factor = contents.get_int("city_weight_factor", city_weight_factor);
+
+	// How and whether weight limits are enforced.
+	// @author: jamespetts
+	enforce_weight_limits = contents.get_int("enforce_weight_limits", enforce_weight_limits);
+
+	uint16 speed_bonus_multiplier_percent = 100;
+	speed_bonus_multiplier_percent = contents.get_int("speed_bonus_multiplier_percent", speed_bonus_multiplier_percent);
+	speed_bonus_multiplier = speed_bonus_multiplier_percent / 100;
 
 	/*
 	 * Selection of savegame format through inifile

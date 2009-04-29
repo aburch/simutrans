@@ -76,7 +76,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 48;
+	int total_len = 50;
 
 	// prissi: must be done here, since it may affect the length of the header!
 	cstring_t sound_str = ltrim( obj.get("sound") );
@@ -114,7 +114,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x100;
+	version += 0x200;
 
 	node.write_uint16(fp, version, 0);
 
@@ -470,10 +470,15 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint8 available_only_as_upgrade = (obj.get_int("available_only_as_upgrade", 0));
 	node.write_uint8(fp, available_only_as_upgrade, 47);
 
+	// Fixed monthly maintenance costs
+	// @author: jamespetts
+	uint16 fixed_maintenance = obj.get_int("fixed_maintenance", 0);
+	node.write_uint16(fp, fixed_maintenance, 48);
+
 	sint8 sound_str_len = sound_str.len();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 48);
-		node.write_data_at(fp, sound_str,     49, sound_str_len);
+		node.write_sint8  (fp, sound_str_len, 50);
+		node.write_data_at(fp, sound_str,     51, sound_str_len);
 	}
 
 	node.write(fp);

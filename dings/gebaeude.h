@@ -107,6 +107,11 @@ public:
 	 * Ein Gebaeude kann zu einer Fabrik gehören.
 	 * @return Einen Zeiger auf die Fabrik zu der das Objekt gehört oder NULL,
 	 * wenn das Objekt zu keiner Fabrik gehört.
+	 *
+	 * A building can belong to a factory. 
+	 * return a pointer on the factory to that the object belongs or NULL,
+	 * if the object belongs to no factory. (Google)
+	 *
 	 * @author Hj. Malthaner
 	 */
 	fabrik_t* get_fabrik() const { return is_factory ? ptr.fab : NULL; }

@@ -184,6 +184,8 @@ private:
 	uint16 produkte; //"products" (Babelfish)
 	uint8 fields;	// only if there are any ...
 	uint16 pax_level;
+	float electricity_proportion; // Modifier of electricity consumption.
+	uint16 inverse_electricity_proportion;
 	bool electricity_producer;
 
 public:
@@ -224,6 +226,9 @@ public:
 
 	/* level for post and passenger generation */
 	int get_pax_level() const { return pax_level; }
+
+	float get_electricity_proportion() const { return electricity_proportion; }
+	uint16 get_inverse_electricity_proportion() const { return inverse_electricity_proportion; }
 
 	int is_electricity_producer() const { return electricity_producer; }
 };

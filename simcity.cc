@@ -53,6 +53,7 @@
 #include "utils/simstring.h"
 
 #include "tpl/ptrhashtable_tpl.h"
+#include "tpl/minivec_tpl.h"
 
 
 karte_t* stadt_t::welt = NULL; // one is enough ...
@@ -91,7 +92,7 @@ void stadt_t::privatecar_init(cstring_t objfilename)
 	tabfileobj_t contents;
 	ownership_file.read(contents);
 
-	/* init the values from line with the form year, speed, year, speed
+	/* init the values from line with the form year, proportion, year, proportion
 	 * must be increasing order!
 	 */
 	int *tracks = contents.get_ints("car_ownership");
@@ -115,7 +116,7 @@ void stadt_t::privatecar_init(cstring_t objfilename)
 sint16 stadt_t::get_private_car_ownership(sint32 monthyear)
 {
 
-	if(monthyear==0) 
+	if(monthyear == 0) 
 	{
 		return default_car_ownership_percent;
 	}
@@ -148,6 +149,99 @@ sint16 stadt_t::get_private_car_ownership(sint32 monthyear)
 	else
 	{
 		return default_car_ownership_percent;
+	}
+}
+
+// Private car ownership information.
+// @author: jamespetts
+// (But much of this code is adapted from the speed bonus code,
+// written by Prissi). 
+
+class electric_consumption_record_t {
+public:
+	sint32 year;
+	sint16 consumption_percent;
+	electric_consumption_record_t( sint32 y = 0, sint16 consumption = 0 ) {
+		year = y*12;
+		consumption_percent = consumption;
+	};
+};
+
+static float default_electricity_consumption = 1.0;
+
+static vector_tpl<electric_consumption_record_t> electricity_consumption[1];
+
+void stadt_t::electricity_consumption_init(cstring_t objfilename)
+{
+	tabfile_t consumption_file;
+	// first take user data, then user global data
+	if (!consumption_file.open(objfilename+"config/electricity.tab")) 
+	{
+		dbg->message("stadt_t::electricity_consumption_init()", "Error opening config/electricity.tab.\nWill use default value." );
+		return;
+	}
+
+	tabfileobj_t contents;
+	consumption_file.read(contents);
+
+	/* init the values from line with the form year, proportion, year, proportion
+	 * must be increasing order!
+	 */
+	int *tracks = contents.get_ints("electricity_consumption");
+	if((tracks[0]&1)==1) 
+	{
+		dbg->message("stadt_t::electricity_consumption_init()", "Ill formed line in config/electricity.tab.\nWill use default value. Format is year,ownership percentage[ year,ownership percentage]!" );
+		car_ownership->clear();
+		return;
+	}
+	electricity_consumption[0].resize( tracks[0]/2 );
+	for(  int i=1;  i<tracks[0];  i+=2  ) 
+	{
+		electric_consumption_record_t c( tracks[i], tracks[i+1] );
+		electricity_consumption[0].append( c );
+	}
+	delete [] tracks;
+}
+
+
+
+float stadt_t::get_electricity_consumption(sint32 monthyear) const
+{
+
+	if(monthyear == 0) 
+	{
+		return default_electricity_consumption;
+	}
+
+	// ok, now lets see if we have data for this
+	if(electricity_consumption->get_count()) 
+	{
+		uint i=0;
+		while(  i<electricity_consumption->get_count()  &&  monthyear>=electricity_consumption[0][i].year  ) 
+		{
+			i++;
+		}
+		if(  i==electricity_consumption->get_count()  ) 
+		{
+			// maxspeed already?
+			return electricity_consumption[0][i-1].consumption_percent;
+		}
+		else if(i==0) 
+		{
+			// minspeed below
+			return electricity_consumption[0][0].consumption_percent;
+		}
+		else 
+		{
+			// interpolate linear
+			const sint32 delta_ownership_percent = electricity_consumption[0][i].consumption_percent - electricity_consumption[0][i-1].consumption_percent;
+			const sint32 delta_years = electricity_consumption[0][i].year - electricity_consumption[0][i-1].year;
+			return (((float)(delta_ownership_percent*(monthyear-electricity_consumption[0][i-1].year)) / delta_years ) + electricity_consumption[0][i-1].consumption_percent) / 100.0;
+		}
+	}
+	else
+	{
+		return default_electricity_consumption;
 	}
 }
 
@@ -743,7 +837,16 @@ void stadt_t::pruefe_grenzen(koord k)
 	}
 }
 
+bool stadt_t::is_within_city_limits(koord k) const
+{
+	const sint16 li_gr = lo.x - 2;
+	const sint16 re_gr = ur.x + 2;
+	const sint16 ob_gr = lo.y - 2;
+	const sint16 un_gr = ur.y + 2;
 
+	bool inside = li_gr < k.x  &&  re_gr > k.x  &&  ob_gr < k.y  &&  un_gr > k.y;
+	return inside;
+}
 
 // recalculate the spreading of a city
 // will be updated also after house deletion
@@ -809,6 +912,12 @@ stadt_t::~stadt_t()
 
 	// Empty the list of city cars
 	current_cars.clear();
+
+	// Remove references to this city from factories.
+	ITERATE(city_factories, i)
+	{
+		city_factories[i]->clear_city();
+	}
 
 	if(  reliefkarte_t::get_karte()->get_city() == this  ) {
 		reliefkarte_t::get_karte()->set_city(NULL);
@@ -931,6 +1040,9 @@ next_name:;
 
 	outgoing_private_cars = 0;
 	incoming_private_cars = 0;
+
+	city_history_month[0][HIST_CAR_OWNERSHIP] = get_private_car_ownership(welt->get_timeline_year_month());
+	city_history_year[0][HIST_CAR_OWNERSHIP] = get_private_car_ownership(welt->get_timeline_year_month());
 }
 
 
@@ -1043,15 +1155,80 @@ void stadt_t::rdwr(loadsave_t* file)
 		file->rdwr_long(dummy, " ");
 		file->rdwr_long(dummy, "\n");
 	}
-	else {
+	else if (file->get_experimental_version() == 0)
+	{
 		// 99.17.0 extended city history
-		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
-			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
+		// Experimental version 3 extended it further, so skip the last step.
+		// For experimental versions *before* 3, power history was treated as congestion
+		// (they are now separate), so that must be handled differently.
+		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) 
+		{
+			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY - 3; hist_type++) 
+			{
 				file->rdwr_longlong(city_history_year[year][hist_type], " ");
 			}
 		}
-		for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) {
-			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
+		for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) 
+		{
+			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY - 3; hist_type++) 
+			{
+				file->rdwr_longlong(city_history_month[month][hist_type], " ");
+			}
+		}
+		// save button settings for this town
+		file->rdwr_long( stadtinfo_options, "si" );
+	}
+	else if(file->get_experimental_version() > 0 && file->get_experimental_version() < 3)
+	{
+		// Move congestion history to the correct place (shares with power received).
+		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) 
+		{
+			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) 
+			{
+				if(hist_type == HIST_POWER_RECIEVED)
+				{
+					city_history_year[year][HIST_POWER_RECIEVED] = 0;
+					hist_type = HIST_CONGESTION;
+				}
+				else if(hist_type == HIST_POWER_NEEDED || HIST_CAR_OWNERSHIP)
+				{
+					continue;
+				}
+				file->rdwr_longlong(city_history_year[year][hist_type], " ");
+			}
+		}
+		for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) 
+		{
+			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) 
+			{
+				if(hist_type == HIST_POWER_RECIEVED)
+				{
+					city_history_month[month][HIST_POWER_RECIEVED] = 0;
+					hist_type = HIST_CONGESTION;
+				}
+				else if(hist_type == HIST_POWER_NEEDED || HIST_CAR_OWNERSHIP)
+				{
+					continue;
+				}
+				file->rdwr_longlong(city_history_month[month][hist_type], " ");
+			}
+		}
+		// save button settings for this town
+		file->rdwr_long( stadtinfo_options, "si" );
+	}
+	else if(file->get_experimental_version() >= 3)
+	{
+		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) 
+		{
+			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) 
+			{
+				file->rdwr_longlong(city_history_year[year][hist_type], " ");
+			}
+		}
+		for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) 
+		{
+			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) 
+			{
 				file->rdwr_longlong(city_history_month[month][hist_type], " ");
 			}
 		}
@@ -1199,7 +1376,7 @@ void stadt_t::verbinde_fabriken()
 
 	//slist_iterator_tpl<fabrik_t*> fab_iter(welt->get_fab_list());
 	arbeiterziele.clear();
-	for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
+	ITERATE(welt->get_fab_list(), i)
 	{
 	//while (fab_iter.next()) {
 		//add_factory_arbeiterziel(fab_iter.get_current());
@@ -1352,6 +1529,15 @@ void stadt_t::neuer_monat() //"New month" (Google)
 		float proportion = (((cars_per_tile - 0.4) / 4.5) * population_density) / welt->get_einstellungen()->get_congestion_density_factor();
 		city_history_month[0][HIST_CONGESTION] = proportion * 100;
 	}
+
+	city_history_month[0][HIST_CAR_OWNERSHIP] = get_private_car_ownership(welt->get_timeline_year_month());
+	sint64 car_ownership_sum = 0;
+	for(uint8 months = 0; months < MAX_CITY_HISTORY_MONTHS; months ++)
+	{
+		car_ownership_sum += city_history_month[months][HIST_CAR_OWNERSHIP];
+	}
+	city_history_year[0][HIST_CAR_OWNERSHIP] = car_ownership_sum / MAX_CITY_HISTORY_MONTHS;
+
 
 	if (!stadtauto_t::list_empty()) {
 		// spawn eventuall citycars
@@ -1509,29 +1695,38 @@ void stadt_t::calc_growth()
 	}
 
 	/* four parts contribute to town growth:
-	 * passenger transport 40%, mail 20%, goods (30%), and electricity (10%)
+	 * passenger transport 40%, mail 21%, goods 24%, and electricity 20% (by default: varies)
 	 *
 	 * Congestion detracts from growth, but towns can now grow as a result of private car
 	 * transport as well as public transport: if private car ownership is high enough.
 	 * (@author: jamespetts)
 	 */
+	
+	const uint8 passenger_proportion = 40;
+	const uint8 electricity_proportion = get_electricity_consumption(welt->get_timeline_year_month()) * 20;
+	const uint8 goods_proportion = (100 - (passenger_proportion + electricity_proportion) * 0.4);
+	const uint8 mail_proportion = 100 - (passenger_proportion + electricity_proportion + goods_proportion);
+	
 	//sint32 pas = (city_history_month[0][HIST_PAS_TRANSPORTED] * (40<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
-	sint32 pas = ((city_history_month[0][HIST_PAS_TRANSPORTED] + (city_history_month[0][HIST_CITYCARS] - outgoing_private_cars)) * (40<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
-	sint32 mail = (city_history_month[0][HIST_MAIL_TRANSPORTED] * (20<<6)) / (city_history_month[0][HIST_MAIL_GENERATED] + 1);
-	sint32 electricity = 0;
-	sint32 goods = city_history_month[0][HIST_GOODS_NEEDED]==0 ? 0 : (city_history_month[0][HIST_GOODS_RECIEVED] * (20<<6)) / (city_history_month[0][HIST_GOODS_NEEDED]);
+	sint32 pas = ((city_history_month[0][HIST_PAS_TRANSPORTED] + (city_history_month[0][HIST_CITYCARS] - outgoing_private_cars)) * (passenger_proportion<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
+	sint32 mail = (city_history_month[0][HIST_MAIL_TRANSPORTED] * (mail_proportion<<6)) / (city_history_month[0][HIST_MAIL_GENERATED] + 1);
+	sint32 electricity = city_history_month[0][HIST_POWER_NEEDED]==0 ? 0 : (city_history_month[0][HIST_POWER_RECIEVED] * (electricity_proportion<<6)) / (city_history_month[0][HIST_POWER_NEEDED]);
+	sint32 goods = city_history_month[0][HIST_GOODS_NEEDED]==0 ? 0 : (city_history_month[0][HIST_GOODS_RECIEVED] * (goods_proportion<<6)) / (city_history_month[0][HIST_GOODS_NEEDED]);
 
 	// smaller towns should growth slower to have villages for a longer time
-	sint32 weight_factor = 100;
-	if(bev<1000) {
-		weight_factor = 400;
+	//sint32 weight_factor = 100;
+	static sint32 weight_factor = welt->get_einstellungen()->get_city_weight_factor();
+	if(bev < 1000) 
+	{
+		weight_factor *= 5;
 	}
-	else if(bev<10000) {
-		weight_factor = 200;
+	else if(bev < 10000) 
+	{
+		weight_factor *= 2.5;
 	}
 
 	// now give the growth for this step
-	sint32 growth_factor = (pas+mail+electricity+goods) / weight_factor; //"wachstum" = growth (Google)
+	sint32 growth_factor = weight_factor > 0? (pas+mail+electricity+goods) / weight_factor : 0;
 	
 	//Congestion adversely impacts on growth. At 100% congestion, there will be no growth. 
 	float congestion_factor;
@@ -1631,7 +1826,7 @@ void stadt_t::step_passagiere()
 	const halthandle_t* halt_list = plan->get_haltlist();
 
 	// suitable start search
-	vector_tpl<halthandle_t> start_halts(2);
+	minivec_tpl<halthandle_t> start_halts(2);
 	for (uint h = 0; h < plan->get_haltlist_count(); h++) 
 	{
 		halthandle_t halt = halt_list[h];
@@ -1741,7 +1936,7 @@ void stadt_t::step_passagiere()
 				{
 					if(start_halts.get_count() > 0)
 					{
-						halthandle_t start_halt = start_halts.get_element(0);
+						halthandle_t start_halt = start_halts[0];
 						if(start_halt.is_bound())
 						{
 							erzeuge_verkehrsteilnehmer(start_halt->get_basis_pos(), step_count, destinations[current_destination].location);
@@ -1765,10 +1960,10 @@ void stadt_t::step_passagiere()
 						ziel_count++;
 						for(int i = start_halts.get_count(); i >= 0; i--)
 						{
-							if(start_halts.get_count() > i && halt == start_halts.get_element(i))
+							if(start_halts.get_count() > i && halt == start_halts[i])
 							{
 								can_walk_ziel = true;
-								start_halt = start_halts.get_element(i);
+								start_halt = start_halts[i];
 							}
 						}
 							break; // because we found at least one valid step ...
@@ -1784,7 +1979,7 @@ void stadt_t::step_passagiere()
 					merke_passagier_ziel(destinations[current_destination].location, COL_DARK_ORANGE);
 					if(start_halts.get_count() > 0)
 					{
-						halthandle_t current_halt = start_halts.get_element(0);
+						halthandle_t current_halt = start_halts[0];
 						current_halt->add_pax_no_route(pax_left_to_do);
 					}
 #ifdef NEW_PATHING
@@ -2137,7 +2332,7 @@ void stadt_t::step_passagiere()
 				{
 					if(start_halts.get_count() > 0)
 					{
-						start_halt = start_halts.get_element(0); //If there is no route, it does not matter where passengers express their unhappiness.
+						start_halt = start_halts[0]; //If there is no route, it does not matter where passengers express their unhappiness.
 #ifndef NEW_PATHING
 						if(  route_result == haltestelle_t::ROUTE_OVERCROWDED  ) 
 						{
@@ -2682,6 +2877,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 
 		if (umziehen  &&  alte_str != koord::invalid) {
 			// Strasse vom ehemaligen Rathaus zum neuen verlegen.
+			//  "Street from the former City Hall as the new move." (Google)
 			wegbauer_t bauer(welt, NULL);
 			bauer.route_fuer(wegbauer_t::strasse, welt->get_city_road());
 			bauer.calc_route(welt->lookup(alte_str)->get_kartenboden()->get_pos(), welt->lookup(best_pos + koord(0, besch->get_h(layout)))->get_kartenboden()->get_pos());
@@ -3288,3 +3484,8 @@ vector_tpl<koord>* stadt_t::random_place(
 
 	return result;
 }
+
+uint32 stadt_t::get_power_demand() const
+ { 
+	return (city_history_month[0][HIST_CITICENS] * get_electricity_consumption(welt->get_timeline_year_month())) * 0.02; 
+ }

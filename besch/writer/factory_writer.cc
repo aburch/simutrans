@@ -117,7 +117,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 	besch.pax_level      = obj.get_int("pax_level", 12);
 
-	obj_node_t node(this, 18, &parent);
+	obj_node_t node(this, 20, &parent);
 
 	obj.put("type", "fac");
 
@@ -170,8 +170,21 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		factory_field_writer_t::instance()->write_obj(fp, node, obj, obj.get("fields"));
 	}
 
+	uint16 electricity_percent = obj.get_int("electricity_percent", 17);
+
 	// new version with pax_level
-	node.write_uint16(fp, 0x8002,                      0); // version
+	uint16 version = 0x8002;
+
+	// This is the overlay flag for Simutrans-Experimental
+	// This sets the *second* highest bit to 1. 
+	version |= EXP_VER;
+
+	// Finally, this is the experimental version number. This is *added*
+	// to the standard version number, to be subtracted again when read.
+	// Start at 0x100 and increment in hundreds (hex).
+	version += 0x100;
+	
+	node.write_uint16(fp, version,                      0); // version
 
 	node.write_uint16(fp, (uint16) besch.platzierung,  2);
 	node.write_uint16(fp, besch.produktivitaet,        4);
@@ -182,6 +195,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, besch.lieferanten,          12);
 	node.write_uint16(fp, besch.produkte,             14);
 	node.write_uint16(fp, besch.pax_level,            16);
+	node.write_uint16(fp, electricity_percent		  18);
 
 	node.write(fp);
 }

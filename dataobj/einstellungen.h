@@ -252,6 +252,19 @@ private:
 	//@author: jamespetts
 	float global_power_factor; 
 
+	// Customisable city growth.
+	// @author: jamespetts
+	uint16 city_weight_factor;
+	
+	// Whether and how weight limits are enforced
+	// @author: jamespetts
+	uint8 enforce_weight_limits;
+
+	// Adjustment of the speed bonus for use with
+	// speedbonus.tab files from Simutrans-Standard
+	// @author: jamespetts
+	float speed_bonus_multiplier;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -510,6 +523,12 @@ public:
 	uint16 get_turntable_reverse_time() const { return turntable_reverse_time; }
 
 	float get_global_power_factor() const { return global_power_factor; }
+
+	uint16 get_city_weight_factor() const { return city_weight_factor; }
+
+	uint8 get_enforce_weight_limits() const { return enforce_weight_limits; }
+
+	float get_speed_bonus_multiplier() const { return speed_bonus_multiplier; }
 
 	bool is_avoid_overcrowding() const { return avoid_overcrowding; }
 

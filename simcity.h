@@ -38,14 +38,17 @@ enum city_cost {
 	HIST_CITICENS=0,// total people
 	HIST_GROWTH,	// growth (just for convenience)
 	HIST_BUILDING,	// number of buildings
-	HIST_CITYCARS,	// number of citycars generated
+	HIST_CITYCARS,	// Amount of private traffic produced by the city
 	HIST_PAS_TRANSPORTED, // number of passengers who could start their journey
 	HIST_PAS_GENERATED,	// total number generated
 	HIST_MAIL_TRANSPORTED,	// letters that could be sent
 	HIST_MAIL_GENERATED,	// all letters generated
 	HIST_GOODS_RECIEVED,	// times all storages were not empty
 	HIST_GOODS_NEEDED,	// times sotrages checked
-	HIST_CONGESTION,	// Level of congestion in the city, expressed in percent.(Was power consumption - disused)
+	HIST_POWER_RECIEVED,	// power consumption 
+	HIST_POWER_NEEDED,		// Power demand by the city.
+	HIST_CONGESTION,	// Level of congestion in the city, expressed in percent.
+	HIST_CAR_OWNERSHIP,	// Proportion of total population who have access to cars.
 	MAX_CITY_HISTORY	// Total number of items in array
 };
 
@@ -60,6 +63,8 @@ class stadt_t
 	* best_t:
 	*
 	* Kleine Hilfsklasse - speichert die beste Bewertung einer Position.
+	*
+	* "Small helper class - saves the best assessment of a position." (Google)
 	*
 	* @author V. Meyer
 	*/
@@ -90,6 +95,8 @@ public:
 	static bool cityrules_init(cstring_t objpathname);
 	static void privatecar_init(cstring_t objfilename);
 	sint16 get_private_car_ownership(sint32 monthyear);
+	float get_electricity_consumption(sint32 monthyear) const;
+	static void electricity_consumption_init(cstring_t objfilename);
 
 private:
 	static karte_t *welt;
@@ -136,6 +143,7 @@ private:
 	uint32 next_bau_step;
 
 	// attribute fuer die Bevoelkerung
+	// "attribute for the population" (Google)
 	sint32 bev;	// Bevoelkerung gesamt
 	sint32 arb;	// davon mit Arbeit
 	sint32 won;	// davon mit Wohnung
@@ -169,7 +177,13 @@ private:
 
 	slist_tpl<stadtauto_t *> current_cars;
 
+	// The factories that are *inside* the city limits.
+	// Needed for power consumption of such factories.
+	vector_tpl<fabrik_t *> city_factories;
+
+#ifndef NEW_PATHING
 	uint8 route_result;
+#endif
 
 public:
 	/**
@@ -193,7 +207,12 @@ public:
 		incoming_private_cars += number;
 	}
 
-	/* end of histroy related thingies */
+	//@author: jamespetts
+	void add_power(uint32 p) { city_history_month[0][HIST_POWER_RECIEVED] += p; city_history_year[0][HIST_POWER_RECIEVED] += p; }
+
+	void add_power_demand(uint32 p) { city_history_month[0][HIST_POWER_NEEDED] += p; city_history_year[0][HIST_POWER_NEEDED] += p; }
+
+	/* end of history related thingies */
 private:
 	sint32 best_haus_wert;
 	sint32 best_strasse_wert;
@@ -203,6 +222,9 @@ private:
 
 	/**
 	 * Arbeitsplätze der Einwohner
+	 *
+	 * 	"Employment of residents" (Google)
+	 * 
 	 * @author Hj. Malthaner
 	 */
 	weighted_vector_tpl<fabrik_t *> arbeiterziele;
@@ -307,6 +329,7 @@ private:
 public:
 	/**
 	 * sucht arbeitsplätze für die Einwohner
+	 * "looking jobs for residents" (Google)
 	 * @author Hj. Malthaner
 	 */
 	void verbinde_fabriken();
@@ -339,6 +362,7 @@ public:
 
 	/**
 	 * ermittelt die Einwohnerzahl der Stadt
+	 * "determines the population of the city"
 	 * @author Hj. Malthaner
 	 */
 	sint32 get_einwohner() const {return (buildings.get_sum_weight()*6)+((2*bev-arb-won)>>1);}
@@ -349,6 +373,7 @@ public:
 
 	/**
 	 * Gibt den Namen der Stadt zurück.
+	 * "Specifies the name of the town." (Google)
 	 * @author Hj. Malthaner
 	 */
 	const char *get_name() const { return name; }
@@ -454,12 +479,16 @@ public:
 	/**
 	 * Gibt die Gruendungsposition der Stadt zurueck.
 	 * @return die Koordinaten des Gruendungsplanquadrates
+	 * "eturn the coordinates of the establishment grid square" (Babelfish)
 	 * @author Hj. Malthaner
 	 */
 	inline koord get_pos() const {return pos;}
 
-	inline koord get_linksoben() const { return lo;}
-	inline koord get_rechtsunten() const { return ur;}
+	inline koord get_linksoben() const { return lo;} // "Top left" (Google)
+	inline koord get_rechtsunten() const { return ur;} // "Bottom right" (Google)
+
+	// Checks whether any given postition is within the city limits.
+	bool is_within_city_limits(koord k) const;
 
 	/**
 	 * Erzeugt ein Array zufaelliger Startkoordinaten,
@@ -478,6 +507,12 @@ public:
 	void add_factory_arbeiterziel(fabrik_t *fab);
 
 	uint8 get_congestion() { return city_history_month[0][HIST_CONGESTION]; }
+
+	void add_city_factory(fabrik_t *fab) { city_factories.append(fab); }
+	void remove_city_factory(fabrik_t *fab) { city_factories.remove(fab); }
+	const vector_tpl<fabrik_t*>& get_city_factories() const { return city_factories; }
+
+	uint32 get_power_demand() const;
 };
 
 #endif

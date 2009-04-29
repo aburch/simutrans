@@ -172,7 +172,24 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// But we know, the higher most bit was always cleared.
 
 	const uint16 v = decode_uint16(p);
-	const int version = v & 0x8000 ? v & 0x7FFF : 0;
+	int version = v & 0x8000 ? v & 0x7FFF : 0;
+
+	// Whether the read file is from Simutrans-Experimental
+	//@author: jamespetts
+
+	const bool experimental = version > 0 ? v & EXP_VER : false;
+	uint16 experimental_version = 0;
+	if(experimental)
+	{
+		// Experimental version to start at 0 and increment.
+		version = version & EXP_VER ? version & 0x3FFF : 0;
+		while(version > 0x100)
+		{
+			version -= 0x100;
+			experimental_version ++;
+		}
+		experimental_version -=1;
+	}
 
 	if(version == 2) {
 		// Versioned node, version 2
@@ -185,6 +202,18 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->lieferanten = decode_uint16(p); //"supplier" (Babelfish)
 		besch->produkte = decode_uint16(p); //"products" (Babelfish)
 		besch->pax_level = decode_uint16(p);
+		if(experimental)
+		{
+			if(experimental_version == 1)
+			{
+				besch->electricity_proportion = ((float)decode_uint16(p) / 100.0);
+				besch->inverse_electricity_proportion = 1 / besch->electricity_proportion;
+			}
+			else
+			{
+				dbg->fatal( "factory_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", experimental_version );
+			}
+		}
 		DBG_DEBUG("factory_reader_t::read_node()","version=2, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level );
 	} else if(version == 1) {
 		// Versioned node, version 1
@@ -212,6 +241,13 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->pax_level = 12;
 		besch->fields = 0;
 	}
+
+	if(!experimental)
+	{
+		besch->electricity_proportion = 0.17;
+		besch->inverse_electricity_proportion = 1 / besch->electricity_proportion;
+	}
+
 	return besch;
 }
 

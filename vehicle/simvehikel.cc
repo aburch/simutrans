@@ -1100,7 +1100,7 @@ vehikel_t::vehikel_t(karte_t *welt) :
 
 bool vehikel_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
 {
-	return route->calc_route(welt, start, ziel, this, max_speed);
+	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight());
 }
 
 
@@ -1253,7 +1253,8 @@ vehikel_t::hop()
 		// Necessary to prevent division by zero exceptions if
 		// weight limit is set to 0 in the file.
 
-		is_overweight = (cnv->get_heaviest_vehicle() > weight_limit); 
+		// This is just used for the GUI display, so only set to true if the weight limit is set to enforce by speed restriction.
+		is_overweight = (cnv->get_heaviest_vehicle() > weight_limit && welt->get_einstellungen()->get_enforce_weight_limits() == 1); 
 
 		if(alte_fahrtrichtung != fahrtrichtung)
 		{
@@ -1322,7 +1323,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 
 	//Reduce speed for overweight vehicles
 
-	if(heaviest_vehicle > weight_limit)
+	if(heaviest_vehicle > weight_limit && welt->get_einstellungen()->get_enforce_weight_limits() == 1)
 	{
 		if(heaviest_vehicle / weight_limit <= 1.1)
 		{
@@ -2493,7 +2494,8 @@ bool automobil_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, rout
 		}
 	}
 	target_halt = halthandle_t();	// no block reserved
-	return route->calc_route(welt, start, ziel, this, max_speed );
+	const uint32 routing_weight = cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight();
+	return route->calc_route(welt, start, ziel, this, max_speed, routing_weight);
 }
 
 
@@ -2557,7 +2559,7 @@ automobil_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
 	//@author: jamespetts
 	// Strongly prefer routes for which the vehicle is not overweight.
 	uint16 weight_limit = w->get_max_weight();
-	if(vehikel_t::get_gesamtgewicht() > weight_limit)
+	if(vehikel_t::get_gesamtgewicht() > weight_limit && welt->get_einstellungen()->get_enforce_weight_limits() == 1)
 	{
 		costs += 40;
 	}
@@ -3001,7 +3003,7 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t
 		block_reserver( cnv->get_route(), cnv->get_vehikel(cnv->get_vehikel_anzahl()-1)->get_route_index(), target_halt.is_bound()?100000:1, false );
 	}
 	target_halt = halthandle_t();	// no block reserved
-	return route->calc_route(welt, start, ziel, this, max_speed );
+	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight());
 }
 
 
@@ -3061,7 +3063,7 @@ waggon_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
 	//@author: jamespetts
 	// Strongly prefer routes for which the vehicle is not overweight.
 	uint16 weight_limit = w->get_max_weight();
-	if(vehikel_t::get_gesamtgewicht() > weight_limit)
+	if(vehikel_t::get_gesamtgewicht() > weight_limit && welt->get_einstellungen()->get_enforce_weight_limits() == 1)
 	{
 		costs += 40;
 	}
@@ -3188,10 +3190,12 @@ waggon_t::ist_weg_frei(int & restart_speed)
 				// now search
 				do {
 					// search for route
-					if(!target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()))) {
+					if(!target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight())) 
+					{
 						exit_loop = true;
 					}
-					else {
+					else 
+					{
 						// check tiles of route until we find signal or reserved track
 						for(  uint i = count==0 ? next_block+1u : 0u; i<=target_rt.get_max_n(); i++) {
 							koord3d pos = target_rt.position_bei(i);
@@ -4251,7 +4255,8 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route
 
 		// see, if we find a direct route within 150 boxes: We are finished
 		state = taxiing;
-		if(route->calc_route( welt, start, ziel, this, max_speed, 600 )) {
+		if(route->calc_route( welt, start, ziel, this, max_speed, 600, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight() )) 
+		{
 			// ok, we can taxi to our location
 			return true;
 		}

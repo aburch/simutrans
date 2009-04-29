@@ -643,6 +643,9 @@ int simu_main(int argc, char** argv)
 	print("Reading private car ownership configuration ...\n");
 	stadt_t::privatecar_init(umgebung_t::objfilename);
 
+	print("Reading electricity consumption configuration ...\n");
+	stadt_t::electricity_consumption_init(umgebung_t::objfilename);
+	
 	print("Reading forest configuration ...\n");
 	baum_t::forestrules_init(umgebung_t::objfilename);
 

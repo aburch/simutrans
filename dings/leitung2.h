@@ -13,6 +13,7 @@
 #include "../dataobj/koord3d.h"
 #include "../dataobj/ribi.h"
 #include "../simdings.h"
+#include "../simcity.h"
 
 class powernet_t;
 class spieler_t;
@@ -54,7 +55,7 @@ public:
 	void set_net(powernet_t* p) { net = p; }
 
 	int gimme_neighbours(leitung_t **conn);
-	static fabrik_t * suche_fab_4(koord pos);
+	static fabrik_t * suche_fab_4(const koord pos);
 
 	leitung_t(karte_t *welt, loadsave_t *file);
 	leitung_t(karte_t *welt, koord3d pos, spieler_t *sp);
@@ -106,6 +107,8 @@ public:
 	* @author Hj. Malthaner
 	*/
 	virtual void rdwr(loadsave_t *file);
+
+	stadt_t *city;
 };
 
 
@@ -143,7 +146,7 @@ private:
 
 public:
 	senke_t(karte_t *welt, loadsave_t *file);
-	senke_t(karte_t *welt, koord3d pos, spieler_t *sp);
+	senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t *c);
 	~senke_t();
 
 	enum ding_t::typ get_typ() const {return senke;}

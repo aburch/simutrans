@@ -27,6 +27,7 @@
 #include "../dataobj/translator.h"
 
 #include "../tpl/vector_tpl.h"
+#include "../tpl/weighted_vector_tpl.h"
 #include "../tpl/array_tpl.h"
 #include "../sucher/bauplatz_sucher.h"
 
@@ -433,9 +434,11 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 	}
 
 	// add passenger to pax>0, (so no sucide diver at the fish swarm)
-	if(info->get_pax_level()>0) {
+	if(info->get_pax_level()>0) 
+	{
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
-		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i) {
+		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i)
+		{
 			(*i)->add_factory_arbeiterziel(fab);
 		}
 	}
@@ -839,27 +842,34 @@ int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me )
 	int last_built_consumer_ware = 0;
 
 	// find last consumer
-	if(!welt->get_fab_list().empty()) {
+	if(!welt->get_fab_list().empty()) 
+	{
 		//slist_iterator_tpl<fabrik_t*> iter (welt->get_fab_list());
 		//while(iter.next()) {
-		for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
+		ITERATE(welt->get_fab_list(), i)
 		{
 			//fabrik_t *fab = iter.get_current();
 			fabrik_t *fab = welt->get_fab_list()[i];
-			if(fab->get_besch()->get_produkte()==0) {
+			if(fab->get_besch()->get_produkte()==0) 
+			{
 				last_built_consumer = fab;
 				break;
 			}
 		}
 		// ok, found consumer
-		if(  last_built_consumer  ) {
-			for(  int i=0;  i < last_built_consumer->get_besch()->get_lieferanten();  i++  ) {
+		if(  last_built_consumer  ) 
+		{
+			for(  int i=0;  i < last_built_consumer->get_besch()->get_lieferanten();  i++  ) 
+			{
 				uint8 w_idx = last_built_consumer->get_besch()->get_lieferant(i)->get_ware()->get_index();
-				for(  uint32 j=0;  j<last_built_consumer->get_suppliers().get_count();  j++  ) {
+				for(  uint32 j=0;  j<last_built_consumer->get_suppliers().get_count();  j++  ) 
+				{
 					fabrik_t *sup = fabrik_t::get_fab( welt, last_built_consumer->get_suppliers()[j] );
 					const fabrik_besch_t* const fb = sup->get_besch();
-					for (uint32 k = 0; k < fb->get_produkte(); k++) {
-						if (fb->get_produkt(k)->get_ware()->get_index() == w_idx) {
+					for (uint32 k = 0; k < fb->get_produkte(); k++) 
+					{
+						if (fb->get_produkt(k)->get_ware()->get_index() == w_idx) 
+						{
 							last_built_consumer_ware = i+1;
 							goto next_ware_check;
 						}
@@ -873,18 +883,22 @@ next_ware_check:
 	}
 
 	// first: do we have to continue unfinished buissness?
-	if(last_built_consumer  &&  last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()) {
+	if(last_built_consumer  &&  last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten())
+	{
 		uint32 last_suppliers = last_built_consumer->get_suppliers().get_count();
 		do {
 			nr += baue_link_hierarchie( last_built_consumer, last_built_consumer->get_besch(), last_built_consumer_ware, welt->get_spieler(1) );
 			last_built_consumer_ware ++;
-		} while(  last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()  &&  last_built_consumer->get_suppliers().get_count()==last_suppliers  );
+		} 
+		while(last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()  &&  last_built_consumer->get_suppliers().get_count()==last_suppliers  );
 
-		// only return, if successfull
-		if(  last_built_consumer->get_suppliers().get_count() > last_suppliers  ) {
+		// only return, if successful
+		if(  last_built_consumer->get_suppliers().get_count() > last_suppliers  ) 
+		{
 			DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "added ware %i to factory %s", last_built_consumer_ware, last_built_consumer->get_name() );
 			// tell the player
-			if(tell_me) {
+			if(tell_me) 
+			{
 				stadt_t *s = welt->suche_naechste_stadt( last_built_consumer->get_pos().get_2d() );
 				const char *stadt_name = s ? s->get_name() : "simcity";
 				char buf[256];
@@ -907,17 +921,25 @@ next_ware_check:
 	//slist_iterator_tpl<fabrik_t*> iter (welt->get_fab_list());
 	//vector_tpl<fabrik_t*> factories = welt->get_fab_list();
 	//while(iter.next()) {
-	for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
+	ITERATE(welt->get_fab_list(), i)
 	{
 		//fabrik_t * fab = iter.get_current();
 		fabrik_t * fab = welt->get_fab_list()[i];
-		if(fab->get_besch()->is_electricity_producer()) {
+		if(fab->get_besch()->is_electricity_producer()) 
+		{
 			electric_productivity += fab->get_base_production();
 		}
-		else {
+		else 
+		{
 			total_produktivity += fab->get_base_production();
 		}
 	}
+
+		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
+		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i)
+		{
+			electric_productivity += (*i)->get_power_demand() * 5120;
+		}
 
 	// now decide producer of electricity or normal ...
 	sint32 promille = (electric_productivity*4000l)/total_produktivity;

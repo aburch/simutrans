@@ -245,8 +245,12 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 				}
 				if(tmp_halt.is_bound())
 				{
-					tmp_halt->reschedule = true;
-					tmp_halt->force_paths_stale();
+					for(uint8 i = 0; i < anz_vehikel; i ++)
+					{
+						const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
+						tmp_halt->reschedule[catg_index] = true;
+						tmp_halt->force_paths_stale(catg_index);
+					}
 				}
 			}
 		}
@@ -573,7 +577,6 @@ void convoi_t::calc_acceleration(long delta_t)
 
 sint32 convoi_t::calc_adjusted_power()
 {
-	//uint16 max_speed = speed_to_kmh(fahr[0]->get_besch()->get_geschw());
 	uint16 max_speed = fahr[0]->get_besch()->get_geschw();
 	float highpoint_speed = (max_speed >= 30) ? max_speed - 30 : 30;
 	uint16 current_speed = speed_to_kmh(akt_speed);
@@ -1125,8 +1128,6 @@ end_loop:
 		default:	/* keeps compiler silent*/
 			break;
 	}
-
-
 }
 
 
@@ -1148,8 +1149,8 @@ uint16 convoi_t::get_overcrowded() const
 
 uint8 convoi_t::get_comfort() const
 {
-	uint8 base_comfort = 0;
-	uint8 catering_level = get_catering_level(0);
+	uint16 base_comfort = 0;
+	
 	for(uint8 i = 0; i < anz_vehikel; i ++)
 	{
 		base_comfort += fahr[i]->get_comfort();
@@ -1159,7 +1160,8 @@ uint8 convoi_t::get_comfort() const
 		// Avoid division if possible
 		base_comfort /= anz_vehikel;
 	}
-	//Else
+	
+	const uint8 catering_level = get_catering_level(0);
 	switch(catering_level)
 	{
 	case 0:
@@ -1197,7 +1199,15 @@ void convoi_t::new_month()
 		self_destruct();
 		return;
 	}
-	// everything normal: update histroy
+
+	// Deduct monthly fixed maintenance costs.
+	// @author: jamespetts
+	for(unsigned j=0;  j<get_vehikel_anzahl();  j++ ) 
+	{
+		add_running_cost(-fahr[j]->get_besch()->get_fixed_maintenance()<<((sint64)welt->ticks_bits_per_tag-18ll));
+	}
+
+	// everything normal: update history
 	for (int j = 0; j<MAX_CONVOI_COST; j++) {
 		for (int k = MAX_MONTHS-1; k>0; k--) {
 			financial_history[k][j] = financial_history[k-1][j];
@@ -1333,8 +1343,12 @@ void convoi_t::start()
 				}
 				if(tmp_halt.is_bound())
 				{
-					tmp_halt->reschedule = true;
-					tmp_halt->force_paths_stale();
+					for(uint8 i = 0; i < anz_vehikel; i ++)
+					{
+						const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
+						tmp_halt->reschedule[catg_index] = true;
+						tmp_halt->force_paths_stale(catg_index);
+					}
 				}
 				else
 				{
@@ -1597,9 +1611,10 @@ bool convoi_t::set_schedule(schedule_t * f)
 	if(!line.is_bound() && old_state != INITIAL)
 	{
 		// New method - recalculate as necessary
+		halthandle_t tmp_halt;
 		ITERATE_PTR(fpl, j)
 		{
-			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
+			tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
 			if(!tmp_halt.is_bound())
 			{
 				// Try a public player halt
@@ -1608,14 +1623,18 @@ bool convoi_t::set_schedule(schedule_t * f)
 			}
 			if(tmp_halt.is_bound())
 			{
-				tmp_halt->reschedule = true;
-				tmp_halt->force_paths_stale();
+				for(uint8 i = 0; i < anz_vehikel; i ++)
+				{
+					const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
+					tmp_halt->reschedule[catg_index] = true;
+					tmp_halt->force_paths_stale(catg_index);
+				}
 			}
 		}
 
 		ITERATE_PTR(f, k)
 		{
-			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[k].pos, besitzer_p);
+			tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[k].pos, besitzer_p);
 			if(!tmp_halt.is_bound())
 			{
 				// Try a public player halt
@@ -1624,8 +1643,12 @@ bool convoi_t::set_schedule(schedule_t * f)
 			}
 			if(tmp_halt.is_bound())
 			{
-				tmp_halt->reschedule = true;
-				tmp_halt->force_paths_stale();
+				for(uint8 i = 0; i < anz_vehikel; i ++)
+				{
+					const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
+					tmp_halt->reschedule[catg_index] = true;
+					tmp_halt->force_paths_stale(catg_index);
+				}
 			}
 		}
 	}
@@ -3577,8 +3600,12 @@ void convoi_t::set_line(linehandle_t org_line)
 			}
 			if(tmp_halt.is_bound())
 			{
-				tmp_halt->reschedule = true;
-				tmp_halt->force_paths_stale();
+				for(uint8 i = 0; i < anz_vehikel; i ++)
+				{
+					const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
+					tmp_halt->reschedule[catg_index] = true;
+					tmp_halt->force_paths_stale(catg_index);
+				}
 			}
 		}
 #else
@@ -3604,8 +3631,12 @@ void convoi_t::set_line(linehandle_t org_line)
 		if(tmp_halt.is_bound())
 		{
 			// Might be a waypoint, so must check whether bound.
-			tmp_halt->reschedule = true;
-			tmp_halt->force_paths_stale();
+			for(uint8 i = 0; i < anz_vehikel; i ++)
+			{
+				const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
+				tmp_halt->reschedule[catg_index] = true;
+				tmp_halt->force_paths_stale(catg_index);
+			}
 		}
 	}
 #endif

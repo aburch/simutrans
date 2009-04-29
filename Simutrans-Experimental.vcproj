@@ -767,6 +767,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\signal_spacing.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\besch\reader\sim_reader.cc"
 				>
 			</File>
@@ -1950,6 +1954,10 @@
 			</File>
 			<File
 				RelativePath=".\dings\signal.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\signal_spacing.h"
 				>
 			</File>
 			<File

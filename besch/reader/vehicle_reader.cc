@@ -182,7 +182,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->freight_image_type = decode_uint8(p);
 		if(experimental)
 		{
-			if(experimental_version == 0)
+			if(experimental_version >= 0 && experimental_version <= 1)
 			{
 				besch->is_tilting = decode_uint8(p);
 				besch->way_constraints_permissive = decode_uint8(p);
@@ -196,6 +196,14 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->upgrades = decode_uint8(p);
 				besch->upgrade_price = decode_uint32(p);
 				besch->available_only_as_upgrade = decode_uint8(p);
+				if(experimental_version >= 1)
+				{
+					besch->fixed_maintenance = decode_uint8(p);
+				}
+				else
+				{
+					besch->fixed_maintenance=0;
+				}
 			}
 			else
 			{
@@ -280,6 +288,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->upgrades = 0;
 		besch->upgrade_price = besch->preis;
 		besch->available_only_as_upgrade = false;
+		besch->fixed_maintenance=0;
 	}
 
 

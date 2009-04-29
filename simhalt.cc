@@ -268,13 +268,24 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	pax_unhappy = 0;
 	pax_no_route = 0;
 
-	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
+	const uint8 max_categories = warenbauer_t::get_max_catg_index();
+
+	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
 #ifdef NEW_PATHING
 	iterations = 0;
 	search_complete = false;
-	waiting_times = new quickstone_hashtable_tpl<haltestelle_t, fixed_list_tpl<uint16, 16> >[warenbauer_t::get_max_catg_index()];
-	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[warenbauer_t::get_max_catg_index()];
-	paths = new quickstone_hashtable_tpl<haltestelle_t, path>[warenbauer_t::get_max_catg_index()];
+	waiting_times = new quickstone_hashtable_tpl<haltestelle_t, fixed_list_tpl<uint16, 16> >[max_categories];
+	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[max_categories];
+	paths = new quickstone_hashtable_tpl<haltestelle_t, path>[max_categories];
+	connexions_timestamp = new uint16[max_categories];
+	paths_timestamp = new uint16[max_categories];
+	reschedule = new bool[max_categories];
+	for(uint8 i = 0; i < max_categories; i ++)
+	{
+		paths_timestamp[i] = 0;
+		connexions_timestamp[i] = 0;
+		reschedule[i] = false;
+	}
 #else
 	warenziele = new vector_tpl<halthandle_t>[ warenbauer_t::get_max_catg_index() ];
 #endif
@@ -289,10 +300,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	// @author hsiegeln
 	sortierung = freight_list_sorter_t::by_name;
 	resort_freight_info = true;
-
-	connexions_timestamp = 0;
-	paths_timestamp = 0;
-	reschedule = false;
 	
 	rdwr(file);
 
@@ -320,15 +327,17 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	reroute_counter = welt->get_schedule_counter()-1;
 	rebuilt_destination_counter = reroute_counter;
 
-	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
+	const uint8 max_categories = warenbauer_t::get_max_catg_index();
+
+	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
 #ifdef NEW_PATHING
 	iterations = 0;
 	search_complete = false;
-	waiting_times = new quickstone_hashtable_tpl<haltestelle_t, fixed_list_tpl<uint16, 16> >[warenbauer_t::get_max_catg_index()];
-	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[warenbauer_t::get_max_catg_index()];
-	paths = new quickstone_hashtable_tpl<haltestelle_t, path>[warenbauer_t::get_max_catg_index()];
+	waiting_times = new quickstone_hashtable_tpl<haltestelle_t, fixed_list_tpl<uint16, 16> >[max_categories];
+	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[max_categories];
+	paths = new quickstone_hashtable_tpl<haltestelle_t, path>[max_categories];
 #else
-	warenziele = new vector_tpl<halthandle_t>[ warenbauer_t::get_max_catg_index() ];
+	warenziele = new vector_tpl<halthandle_t>[ max_categories ];
 #endif
 
 	pax_happy = 0;
@@ -343,9 +352,15 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 		welt->access(k)->set_halt(self);
 	}
 #ifdef NEW_PATHING
-	connexions_timestamp = 0;
-	paths_timestamp = 0;
-	reschedule = false;
+	connexions_timestamp = new uint16[max_categories];
+	paths_timestamp = new uint16[max_categories];
+	reschedule = new bool[max_categories];
+	for(uint8 i = 0; i < max_categories; i ++)
+	{
+		paths_timestamp[i] = 0;
+		connexions_timestamp[i] = 0;
+		reschedule[i] = false;
+	}
 #endif
 }
 
@@ -437,6 +452,9 @@ haltestelle_t::~haltestelle_t()
 		delete[] path_nodes;
 	}
 	delete[] waiting_times;
+	delete[] paths_timestamp;
+	delete[] connexions_timestamp;
+	delete[] reschedule;
 #else
 	delete[] warenziele;
 #endif
@@ -774,7 +792,11 @@ haltestelle_t::step()
 		
 		// New routing system -
 		// recalculate on demand
-		reschedule = true;
+		// Must recalculate all here, since this is non-specific.
+		for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i ++)
+		{
+			reschedule[i] = true;
+		}
 
 		// Note: setting reschedule to true here
 		// is inefficient, as it means that all halts
@@ -1278,14 +1300,14 @@ void haltestelle_t::reset_connexions(uint8 category)
 void haltestelle_t::rebuild_connexions(uint8 category)
 {	
 	reset_connexions(category);
-	connexions_timestamp = welt->get_base_pathing_counter();
-	if(connexions_timestamp == 0 || reschedule)
+	connexions_timestamp[category] = welt->get_base_pathing_counter();
+	if(connexions_timestamp[category] == 0 || reschedule[category])
 	{
 		// Spread the load of rebuilding this with pathing - advance by half the interval.
-		connexions_timestamp += (welt->get_einstellungen()->get_max_rerouting_interval_months() / 2);
+		connexions_timestamp[category] += (welt->get_einstellungen()->get_max_rerouting_interval_months() / 2);
 	}
 
-	reschedule = false;
+	reschedule[category] = false;
 	
 	rebuilt_destination_counter = welt->get_schedule_counter();
 	resort_freight_info = true;	// might result in error in routing
@@ -1432,13 +1454,8 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		// Cannot route from this station: do not try.
 		return;
 	}
-
-	const uint32 total_halts = alle_haltestellen.get_count();
-	const sint32 max_transfers = welt->get_einstellungen()->get_max_transfers();
-	const uint32 max_depth = total_halts * max_transfers;
-	const uint32 max_iterations = max_depth <= 65535 ? max_depth : 65535;
 	
-	if(reschedule || connexions_timestamp < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
+	if(reschedule[category] || connexions_timestamp[category] < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
 	{
 		// Connexions are stale. Recalculate.
 		rebuild_connexions(category);
@@ -1450,7 +1467,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			delete[] path_nodes;
 		}
 	}
-	if(paths_timestamp < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
+	if(paths_timestamp[category] < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
 	{
 		// List is stale. Recalculate.
 		// If this is false, then this is only being called to finish 
@@ -1462,13 +1479,18 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		}
 
 		// Reset the timestamp.
-		paths_timestamp = welt->get_base_pathing_counter();
+		paths_timestamp[category] = welt->get_base_pathing_counter();
 	}
 
 	if(open_list.empty())
 	{
 		// Only reset the list if it is empty, so as to allow for re-using the open
 		// list on subsequent occasions of finding a path. 
+		const uint32 total_halts = alle_haltestellen.get_count();
+		const sint32 max_transfers = welt->get_einstellungen()->get_max_transfers();
+		const uint32 max_depth = total_halts * max_transfers;
+		max_iterations = max_depth <= 65535 ? max_depth : 65535;
+		
 		path_nodes = new path_node[max_iterations];
 
 		iterations = 0;
@@ -1499,8 +1521,6 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			// item is not already on the closed list,
 			// and the halt has not been deleted since 
 			// being added to the open list.
-			// TODO: Consider whether to add a same best line/convoy check here,
-			// as suggested by Knightly.
 			continue;
 		}
 
@@ -1532,7 +1552,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			current_connexion = iter.get_current_value();
 
 #ifdef AVOID_ROGUE_VIAS_2
-			if(previous_connexion != NULL && (previous_best_line.is_bound() && previous_best_line == current_connexion->best_line) || (previous_best_convoy.is_bound() && previous_best_convoy == current_connexion->best_convoy))
+			if(previous_best_line == current_connexion->best_line && previous_best_convoy == current_connexion->best_convoy)
 			{
 				continue;
 			}
@@ -1564,7 +1584,6 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			{
 				if(track_node->halt.is_bound())
 				{
-//#define AVOID_ROGUE_VIAS_1
 #ifdef AVOID_ROGUE_VIAS_1
 					if(track_node->link->halt.is_bound())
 					{
@@ -1619,9 +1638,6 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			// can be resumed where it left off if another goal, as yet
 			// not found, is searched for, unless the index is stale.
 
-			// Consider whether to check here for the end of the search,
-			// and delete path nodes and the open list if so. (Knightly)
-
 			if(open_list.empty() || iterations == max_iterations)
 			{
 				open_list.clear();
@@ -1648,7 +1664,7 @@ haltestelle_t::path haltestelle_t::get_path_to(halthandle_t goal, uint8 category
 	assert(goal.is_bound());
 	path destination_path;
 	
-	if(reschedule || paths_timestamp < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
+	if(reschedule[category] || paths_timestamp[category] < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
 	{
 		// If the paths hashtable is stale, clear it.
 		// This will mean that all the paths will need to be recalculated.
@@ -1686,7 +1702,7 @@ haltestelle_t::path haltestelle_t::get_path_to(halthandle_t goal, uint8 category
 quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* haltestelle_t::get_connexions(uint8 c)
 { 
 
-	if(reschedule || connexions->get_count() == 0 || paths_timestamp < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
+	if(reschedule[c] || connexions->get_count() == 0 || paths_timestamp[c] < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
 	{
 		// Rebuild the connexions if they are stale.
 		rebuild_connexions(c);
@@ -1695,16 +1711,16 @@ quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* haltestelle_
 	return &connexions[c]; 
 }
 
-void haltestelle_t::force_paths_stale()
+void haltestelle_t::force_paths_stale(const uint8 category)
 {
-	if(paths_timestamp > welt->get_einstellungen()->get_max_rerouting_interval_months())
+	if(paths_timestamp[category] > welt->get_einstellungen()->get_max_rerouting_interval_months())
 	{
-		paths_timestamp -= welt->get_einstellungen()->get_max_rerouting_interval_months();
+		paths_timestamp[category] -= welt->get_einstellungen()->get_max_rerouting_interval_months();
 	}
 	else
 	{
 		// Prevent overflows.
-		paths_timestamp = 0;
+		paths_timestamp[category] = 0;
 	}
 }
 
@@ -2126,7 +2142,8 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 			const uint8 wrap_i = (i + fpl->get_aktuell()) % count; //aktuell = "current" (Google)
 
 			const halthandle_t plan_halt = haltestelle_t::get_halt(welt, fpl->eintrag[wrap_i].pos, sp); //eintrag = "entry" (Google)
-			if(plan_halt == self) {
+			if(plan_halt == self) 
+			{
 				// we will come later here again ...
 				break;
 			}
@@ -2174,7 +2191,10 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 #ifdef NEW_PATHING
 						// Skip if the goods have recently arrived, and this is not their preferred line/convoy
 						// After waiting some time (1/3rd of their maximum wait), they will board anything.
-						if(cnv != NULL && waiting_minutes <= max_minutes / 3)
+						const uint16 third_minutes = max_minutes / 3;
+						const uint16 twice_journey = connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel())->journey_time * 2 : max_minutes;
+						const uint16 max_best_minutes = third_minutes > twice_journey ? twice_journey : third_minutes;
+						if(cnv != NULL && waiting_minutes <= max_best_minutes / 3)
 						{
 							if(cnv->get_line().is_bound())
 							{
@@ -3089,9 +3109,30 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 2)
 	{
-		file->rdwr_short(connexions_timestamp, "");
-		file->rdwr_short(paths_timestamp, "");
-		file->rdwr_bool(reschedule, "");
+		if(file->get_experimental_version() < 3)
+		{
+			uint16 old_paths_timestamp = 0;
+			uint16 old_connexions_timestamp = 0;
+			bool old_reschedule = false;
+			file->rdwr_short(old_paths_timestamp, "");
+			file->rdwr_short(old_connexions_timestamp, "");
+			file->rdwr_bool(old_reschedule, "");
+			for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i ++)
+			{
+				paths_timestamp[i] = old_paths_timestamp;
+				connexions_timestamp[i] = old_connexions_timestamp;
+				reschedule[i] = old_reschedule;
+			}
+		}
+		else
+		{
+			for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i ++)
+			{
+				file->rdwr_short(paths_timestamp[i], "");
+				file->rdwr_short(connexions_timestamp[i], "");
+				file->rdwr_bool(reschedule[i], "");
+			}
+		}
 	}
 }
 

@@ -83,6 +83,10 @@ fabrik_info_t::~fabrik_info_t()
  * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
  * in dem die Komponente dargestellt wird.
  *
+ * 	
+ * component redraw. The given values refer to the window, i.e., it
+ * is the screen coordinates of the window in which the component is shown.
+ *
  * @author Hj. Malthaner
  */
 void fabrik_info_t::zeichnen(koord pos, koord gr)
@@ -158,8 +162,11 @@ void fabrik_info_t::update_info()
 #else
 	lieferbuttons = new button_t [lieferziele.get_count()];
 #endif
+	
+	const uint8 x = fab->get_city() == NULL ? 1 : 3;
+	
 	for(unsigned i=0; i<lieferziele.get_count(); i++) {
-		lieferbuttons[i].set_pos(koord(16, 46+i*LINESPACE));
+		lieferbuttons[i].set_pos(koord(16, 46+(i+x)*LINESPACE));
 		lieferbuttons[i].set_typ(button_t::posbutton);
 		lieferbuttons[i].set_targetpos(lieferziele[i]);
 		lieferbuttons[i].add_listener(this);
@@ -174,8 +181,9 @@ void fabrik_info_t::update_info()
 #else
 	supplierbuttons = new button_t [suppliers.get_count()];
 #endif
+	
 	for(unsigned i=0; i<suppliers.get_count(); i++) {
-		supplierbuttons[i].set_pos(koord(16, 79+y_off+i*LINESPACE));
+		supplierbuttons[i].set_pos(koord(16, 79+y_off+(i+x)*LINESPACE));
 		supplierbuttons[i].set_typ(button_t::posbutton);
 		supplierbuttons[i].set_targetpos(suppliers[i]);
 		supplierbuttons[i].add_listener(this);
@@ -192,7 +200,7 @@ void fabrik_info_t::update_info()
 	stadtbuttons = new button_t [arbeiterziele.get_count()];
 #endif
 	for(unsigned i=0; i<arbeiterziele.get_count(); i++) {
-		stadtbuttons[i].set_pos(koord(16, 112+y_off+i*LINESPACE));
+		stadtbuttons[i].set_pos(koord(16, 112+y_off+(i+x)*LINESPACE));
 		stadtbuttons[i].set_typ(button_t::posbutton);
 		stadtbuttons[i].set_targetpos(arbeiterziele.at(i)->get_pos());
 		stadtbuttons[i].add_listener(this);

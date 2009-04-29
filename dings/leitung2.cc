@@ -28,6 +28,9 @@
 #include "../boden/grund.h"
 #include "../bauer/wegbauer.h"
 
+#include "../tpl/vector_tpl.h"
+#include "../tpl/weighted_vector_tpl.h"
+
 
 #define PROD 1000
 
@@ -79,6 +82,7 @@ leitung_t::suche_fab_4(const koord pos)
 
 leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
+	city = NULL;
 	set_net(NULL);
 	rdwr(file);
 }
@@ -86,6 +90,7 @@ leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 
 leitung_t::leitung_t(karte_t *welt, koord3d pos, spieler_t *sp) : ding_t(welt, pos)
 {
+	city = NULL;
 	set_net(NULL);
 	set_besitzer( sp );
 }
@@ -143,7 +148,7 @@ leitung_t::~leitung_t()
 
 
 void
-leitung_t::entferne(spieler_t *sp)
+leitung_t::entferne(spieler_t *sp) //"remove".
 {
 	spieler_t::accounting(sp, -wegbauer_t::leitung_besch->get_preis()/2, get_pos().get_2d(), COST_CONSTRUCTION);
 	mark_image_dirty( bild, 0 );
@@ -378,9 +383,10 @@ void leitung_t::info(cbuffer_t & buf) const
 {
 	buf.append(translator::translate("Power"));
 	buf.append(": ");
-	buf.append(get_net()->get_capacity());
-	buf.append("\nNet: ");
-	buf.append((unsigned long)get_net());
+	buf.append(get_net()->get_capacity() / 20);
+	buf.append(" MW");
+	buf.append(translator::translate("\nNetwork ID: "));
+	buf.append((uint64)get_net());
 }
 
 
@@ -415,14 +421,28 @@ void leitung_t::rdwr(loadsave_t *file)
 	uint32 value;
 
 	ding_t::rdwr(file);
-	if(file->is_saving()) {
+	if(file->is_saving()) 
+	{
 		value = (unsigned long)get_net();
 		file->rdwr_long(value, "\n");
+		koord city_pos  = koord::invalid;
+		if(city != NULL)
+		{
+			city_pos = city->get_pos();
+		}
+		city_pos.rdwr(file);
 	}
-	else {
+	else 
+	{
 		file->rdwr_long(value, "\n");
 		//      net = powernet_t::load_net((powernet_t *) value);
 		set_net(NULL);
+		if(file->get_experimental_version() >= 3)
+		{
+			koord city_pos = koord::invalid;
+			city_pos.rdwr(file);
+			city = welt->get_city(city_pos);
+		}
 	}
 }
 
@@ -459,7 +479,8 @@ pumpe_t::~pumpe_t()
 bool
 pumpe_t::sync_step(long /*delta_t*/)
 {
-	if(fab==NULL) {
+	if(fab == NULL) 
+	{
 		return false;
 	}
 	image_id new_bild;
@@ -503,11 +524,12 @@ senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 }
 
 
-senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
+senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t* c) : leitung_t(welt, pos, sp)
 {
 	fab = NULL;
 	einkommen = 1;
 	max_einkommen = 1;
+	city = c;
 	sp->buche( welt->get_einstellungen()->cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
 }
 
@@ -528,15 +550,48 @@ senke_t::~senke_t()
 bool
 senke_t::sync_step(long time)
 {
-	if(fab==NULL) {
+	if(fab == NULL && city == NULL)
+	{
 		return false;
 	}
 
-	uint32 want_power = time*fab->get_base_production();
 	uint32 get_power = 0;
-	if(fab->is_currently_producing()) {
-		get_power = get_net()->withdraw_power(want_power);
-		fab->add_power( get_power );
+	uint32 want_power = 0;
+
+	if(fab != NULL)
+	{
+		want_power = time * ((float)fab->get_base_production() * fab->get_besch()->get_electricity_proportion());
+		if(fab->is_currently_producing()) 
+		{
+			get_power = get_net()->withdraw_power(want_power);
+			fab->add_power(get_power * fab->get_besch()->get_inverse_electricity_proportion());
+		}
+	}
+	if(city != NULL)
+	{
+		uint32 factory_power_demand = 0;
+		uint32 city_power_demand = time * ((city->get_finance_history_month(0, HIST_CITICENS) * city->get_electricity_consumption(welt->get_timeline_year_month())) * 0.02);
+		//uint32 city_power_demand = city->get_power_demand();
+		uint32 accumulated_power = 0;
+		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
+		uint32 current_factory_demand = 0;
+		ITERATE(city_factories, i)
+		{
+			if(city_factories[i]->is_currently_producing())
+			{
+				current_factory_demand = time * (city_factories[i]->get_base_production() * city_factories[i]->get_besch()->get_electricity_proportion());
+				factory_power_demand += current_factory_demand;
+				get_power = get_net()->withdraw_power(current_factory_demand);
+				city_factories[i]->add_power(get_power * city_factories[i]->get_besch()->get_inverse_electricity_proportion());
+				accumulated_power += get_power;
+			}
+		}
+
+		want_power = factory_power_demand + city_power_demand;
+		get_power = get_net()->withdraw_power(city_power_demand);
+		accumulated_power += get_power;
+		city->add_power(accumulated_power / 5120);
+		city->add_power_demand(want_power / 5120);
 	}
 	image_id new_bild;
 	if(get_power>want_power/2) {
@@ -569,7 +624,8 @@ senke_t::laden_abschliessen()
 	leitung_t::laden_abschliessen();
 	spieler_t::add_maintenance(get_besitzer(), -welt->get_einstellungen()->cst_maintain_transformer);
 
-	if(fab==NULL  &&  get_net()) {
+	if(fab == NULL && city == NULL && get_net()) 
+	{
 		fab = leitung_t::suche_fab_4(get_pos().get_2d());
 	}
 	welt->sync_add(this);
@@ -583,11 +639,11 @@ senke_t::info(cbuffer_t & buf) const
 	/* info in a drain */
 	buf.append(translator::translate("Power"));
 	buf.append(": ");
-	buf.append(get_net()->get_capacity());
-	buf.append("\n");
-	buf.append(translator::translate("Available"));
+	buf.append(get_net()->get_capacity() / 20);
+	buf.append(" MW");
+	buf.append(translator::translate("\nAvailable"));
 	buf.append(": ");
-	buf.append((200*einkommen+1)/(2*max_einkommen));
-	buf.append("\nNet: ");
-	buf.append((unsigned long)get_net());
+	buf.append((200*einkommen+1)/(2*max_einkommen)); //"income" (Google)
+	buf.append(translator::translate("\nNetwork ID: "));
+	buf.append((uint64)get_net());
 }

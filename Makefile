@@ -268,6 +268,7 @@ SOURCES += gui/replace_frame.cc
 SOURCES += gui/savegame_frame.cc
 SOURCES += gui/scenario_frame.cc
 SOURCES += gui/schedule_list.cc
+SOURCES += gui/signal_spacing.cc
 SOURCES += gui/sound_frame.cc
 SOURCES += gui/sprachen.cc
 SOURCES += gui/stadt_info.cc

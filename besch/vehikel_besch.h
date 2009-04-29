@@ -72,6 +72,7 @@ private:
 	uint16 gewicht; //Weight
 	uint32 leistung; //Power
 	uint16 betriebskosten;  //Running costs
+	uint16	fixed_maintenance; //@author: jamespetts, April 2009
 
 	uint16 intro_date; // introduction date
 	uint16 obsolete_date; //phase out at
@@ -117,7 +118,7 @@ public:
 	// default vehicle (used for way seach and similar tasks)
 	// since it has no images and not even a name knot any calls to this will case a crash
 	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) {
-		freight_image_type = preis = upgrade_price = zuladung = overcrowded_capacity = betriebskosten = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
+		freight_image_type = preis = upgrade_price = zuladung = overcrowded_capacity = betriebskosten = intro_date = vorgaenger = nachfolger = catering_level = upgrades = fixed_maintenance = 0;
 		leistung = gewicht = comfort = 1;
 		gear = 64;
 		len = 8;
@@ -272,6 +273,7 @@ public:
 	uint16 get_gewicht() const { return gewicht; }
 	uint32 get_leistung() const { return leistung; }
 	uint16 get_betriebskosten() const { return betriebskosten; }
+	uint16 get_fixed_maintenance() const { return fixed_maintenance; }
 	uint16 get_betriebskosten(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	sint8 get_sound() const { return sound; }
 	bool is_bidirectional() const { return bidirectional; }

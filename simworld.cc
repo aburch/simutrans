@@ -2157,6 +2157,7 @@ karte_t::get_random_ausflugsziel() const
 
 
 // -------- Verwaltung von Staedten -----------------------------
+// "look for next city" (Babelfish)
 
 stadt_t *karte_t::suche_naechste_stadt(const koord pos) const
 {
@@ -2177,6 +2178,28 @@ stadt_t *karte_t::suche_naechste_stadt(const koord pos) const
 	return best;
 }
 
+
+stadt_t *karte_t::get_city(const koord pos) const
+{
+	stadt_t* city = NULL;
+	if(pos == koord::invalid)
+	{
+		return NULL;
+	}
+
+	if(ist_in_kartengrenzen(pos)) 
+	{
+		for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) 
+		{
+			stadt_t* c = *i;
+			if(c->is_within_city_limits(pos))
+			{
+				city = c;
+			}
+		}
+	}
+	return city;
+}
 
 // -------- Verwaltung von synchronen Objekten ------------------
 
@@ -2513,7 +2536,7 @@ void karte_t::recalc_average_speed()
 
 	for(int i=road_wt; i<=narrowgauge_wt; i++) {
 		const int typ = i==4 ? 3 : (i-1)&7;
-		average_speed[typ] = vehikelbauer_t::get_speedbonus( this->get_timeline_year_month(), i==4 ? air_wt : (waytype_t)i );
+		average_speed[typ] = vehikelbauer_t::get_speedbonus( this->get_timeline_year_month(), i==4 ? air_wt : (waytype_t)i ) * get_einstellungen()->get_speed_bonus_multiplier();
 	}
 
 	//	DBG_MESSAGE("karte_t::recalc_average_speed()","");
@@ -2797,6 +2820,7 @@ karte_t::step()
 	// now step all towns (to generate passengers)
 	sint64 bev=0;
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		stadt_t* TEST = *i;
 		(*i)->step(delta_t);
 		bev += (*i)->get_finance_history_month( 0, HIST_CITICENS );
 	}

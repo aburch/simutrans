@@ -169,6 +169,11 @@ private:
 	 */
 	uint32 produktion(uint32 produkt) const;
 
+	// This is the city within whose city limits the factory is located.
+	// NULL if it is outside a city. This is re-checked monthly.
+	//@author: jamespetts
+	stadt_t* city;
+
 public:
 	fabrik_t(karte_t *welt, loadsave_t *file);
 	fabrik_t(koord3d pos, spieler_t* sp, const fabrik_besch_t* fabesch);
@@ -200,7 +205,7 @@ public:
 	void  add_arbeiterziel(stadt_t *s) { if(!arbeiterziele.is_contained(s)) arbeiterziele.insert(s); }
 	void  remove_arbeiterziel(stadt_t *s) { arbeiterziele.remove(s); }
 	void  clear_arbeiterziele() { arbeiterziele.clear(); }
-	const slist_tpl<stadt_t*>& get_arbeiterziele() const { return arbeiterziele; }
+	const slist_tpl<stadt_t*>& get_arbeiterziele() const { return arbeiterziele; } //"employee goals" (Google)
 
 	/**
 	 * Fügt ein neues Lieferziel hinzu
@@ -349,6 +354,9 @@ public:
 	 * fails if no matching goods are accepted
 	 */
 	bool add_customer(fabrik_t* fab);
+
+	stadt_t* get_city() const { return city; }
+	void clear_city() { city = NULL; }
 };
 
 #endif

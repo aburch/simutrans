@@ -197,7 +197,12 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 		}
 	}
 
-
+	city = welt->get_city(pos.get_2d());
+	if(city != NULL)
+	{
+		city->add_city_factory(this);
+	}
+	
 	delta_sum = 0;
 	last_lieferziel_start = 0;
 	total_input = total_output = 0;
@@ -245,6 +250,13 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 		ware.menge = (fabesch->get_lieferanten()==0) ? ware.max-(16<<fabrik_t::precision_bits) : 0;
 		ausgang.append(ware);
 	}
+
+	// Check to see whether this is within city limits, and add it to the city if it is.
+	city = welt->get_city(pos.get_2d());
+	if(city != NULL)
+	{
+		city->add_city_factory(this);
+	}
 }
 
 
@@ -264,6 +276,11 @@ fabrik_t::~fabrik_t()
 	}
 
 	fabrik_t* tmp = this;
+
+	if(city != NULL)
+	{
+		city->remove_city_factory(this);
+	}
 
 	//Disconnect this factory from all chains.
 	//@author: jamespetts
@@ -1263,7 +1280,22 @@ fabrik_t::neuer_monat()
 			}
 		}
 	}
-
+	// This needs to be re-checked regularly, as cities grow.
+	stadt_t* c = welt->get_city(pos.get_2d());
+	/*if(c == NULL)
+	{
+		city = NULL;
+	}*/
+	if(city == NULL && c != NULL)
+	{
+		city = c;
+		city->add_city_factory(this);
+	}
+	if(city != NULL && c != city && c != NULL)
+	{
+		city = c;
+		city->add_city_factory(this);
+	}
 }
 
 
@@ -1440,6 +1472,35 @@ fabrik_t::info(cbuffer_t& buf) const
 {
 	buf.clear();
 	buf.printf("%s %i %s\n", translator::translate("Durchsatz"), get_current_production(), translator::translate("units/day"));
+	if(get_besch()->is_electricity_producer())
+	{
+		buf.append(translator::translate("Electrical output: "));
+	}
+	else
+	{
+		buf.append(translator::translate("Electrical consumption: "));
+	}
+
+	uint32 n_intervall = 1;
+	sint32 ds = delta_sum;
+	while(ds > PRODUCTION_DELTA_T) 
+	{
+		ds -= PRODUCTION_DELTA_T;
+		n_intervall ++;
+	}
+	const float electricity_proportion = get_besch()->is_electricity_producer() ? 1 : get_besch()->get_electricity_proportion();
+	const uint32 p = (prodbase * n_intervall * PRODUCTION_DELTA_T * 4) * electricity_proportion;
+	buf.append(p / 5120);
+	buf.append(" MW");
+
+	if(city != NULL)
+	{
+		buf.append("\n\n");
+		buf.append(translator::translate("City"));
+		buf.append(": ");
+		buf.append(city->get_name());
+	}
+	buf.append("\n");
 
 	if (!lieferziele.empty()) {
 		buf.append("\n");

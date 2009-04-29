@@ -488,7 +488,7 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 	vehikel_besch_t test_besch(road_wt, 25, vehikel_besch_t::diesel );
 	vehikel_t* test_driver = vehikelbauer_t::baue(welt->lookup_kartenboden(platz1)->get_pos(), this, NULL, &test_besch);
 	route_t verbindung;
-	if (verbindung.calc_route(welt, welt->lookup_kartenboden(platz1)->get_pos(), welt->lookup_kartenboden(platz2)->get_pos(), test_driver, 0)  &&
+	if (verbindung.calc_route(welt, welt->lookup_kartenboden(platz1)->get_pos(), welt->lookup_kartenboden(platz2)->get_pos(), test_driver, 0, 0)  &&
 		verbindung.get_max_n()<2u*abs_distance(platz1,platz2))  {
 DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.get_max_n() );
 		// found something with the nearly same lenght

@@ -19,24 +19,28 @@
 
 #include "../simgraph.h"
 
+#define BUTTONS_PER_ROW 4 // This is 4 in Simutrans-Standard
+#define BUTTON_ROW_WIDTH 384
+
 
 // @author hsiegeln
 const char *hist_type[MAX_CITY_HISTORY] =
 {
-  "citicens", "Growth", "Buildings", "Verkehrsteilnehmer",
-  "Transported", "Passagiere", "sended", "Post",
-  "Arrived", "Goods", "Congestion"
+  "citicens", "Growth", "Buildings", 
+  "Verkehrsteilnehmer", "Transported", "Passagiere", 
+  "sended", "Post", "Arrived",  
+  "Goods", "Power supply", "Power demand", 
+  "Congestion", "Car ownership"
 
 };
 
-// Note: "Congestion" was "Electricity", but this value was unused.
-//@author: jamespetts
-
 const int hist_type_color[MAX_CITY_HISTORY] =
 {
-	COL_WHITE, COL_DARK_GREEN, COL_LIGHT_PURPLE, COL_POWERLINES,
-	COL_LIGHT_BLUE, COL_BLUE, COL_LIGHT_YELLOW, COL_YELLOW,
-	COL_LIGHT_BROWN, COL_BROWN, COL_DARK_TURQOISE
+	COL_WHITE, COL_DARK_GREEN, COL_LIGHT_PURPLE, 
+	COL_POWERLINES, COL_LIGHT_BLUE, COL_BLUE-128, 
+	COL_LIGHT_YELLOW, COL_YELLOW, COL_LIGHT_BROWN, 
+	COL_BROWN, COL_ELECTRICITY-1, COL_ELECTRICITY+2, 
+	COL_DARK_TURQOISE, COL_CAR_OWNERSHIP
 };
 
 
@@ -50,7 +54,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	name_input.set_pos(koord(8, 8));
 
 	add_komponente(&name_input);
-	set_fenstergroesse(koord(410, 305+20+20));
+	set_fenstergroesse(koord(410, 305 + (14*(1+((MAX_CITY_HISTORY - 1) / BUTTONS_PER_ROW)))));
 
 	//CHART YEAR
 	chart.set_pos(koord(1,1));
@@ -83,12 +87,11 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	add_komponente(&year_month_tabs);
 
 	// add filter buttons
-	for(  int hist=0;  hist<MAX_CITY_HISTORY;  hist++  ) //Note: Removed -1 from "MAX_CITY_HISTORY" because the redundant "electricity" is now used for congestion.
+	for(  int hist=0;  hist<MAX_CITY_HISTORY;  hist++  )
 	{
-		filterButtons[hist].init(button_t::box_state, translator::translate(hist_type[hist]), koord(4+(hist%4)*100,270+(hist/4)*(BUTTON_HEIGHT+4)), koord(96, BUTTON_HEIGHT));
+		filterButtons[hist].init(button_t::box_state, translator::translate(hist_type[hist]), koord(BUTTONS_PER_ROW+(hist%BUTTONS_PER_ROW)*((BUTTON_ROW_WIDTH / BUTTONS_PER_ROW) + BUTTONS_PER_ROW),270+(hist/BUTTONS_PER_ROW)*(BUTTON_HEIGHT+BUTTONS_PER_ROW)), koord(BUTTON_ROW_WIDTH / BUTTONS_PER_ROW, BUTTON_HEIGHT));
 		filterButtons[hist].background = hist_type_color[hist];
 		filterButtons[hist].pressed = (stadt->stadtinfo_options & (1<<hist))!=0;
-		// skip electricity
 		filterButtons[hist].add_listener(this);
 		add_komponente(filterButtons + hist);
 	}
@@ -168,10 +171,26 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 		c->get_homeless()
 	);
 
-	b += sprintf(b, "%s: %d %%. \n", 
+	// Obsolete - this is now shown in the graph.
+	/*b += sprintf(b, "%s: %d %%. \n", 
 		translator::translate("Car ownership"), 
 		c->get_private_car_ownership(c->get_welt()->get_timeline_year_month())
-		);
+		);*/
+
+	if(c->get_power_demand() < 1000)
+	{
+		b += sprintf(b, "%s: %i MW\n",
+			translator::translate("Power demand"),
+			(c->get_power_demand())
+			);
+	}
+	else
+	{
+		b += sprintf(b, "%s: %i GW\n",
+			translator::translate("Power demand"),
+			(c->get_power_demand() / 1000)
+			);
+	}
 
 	display_multiline_text(pos.x+8, pos.y+48, buf, COL_BLACK);
 
