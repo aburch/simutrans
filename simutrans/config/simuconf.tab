@@ -120,7 +120,6 @@ no_routing_over_overcrowded = 0
 beginner_price_factor = 1500
 
 # allow all possible supplier to connect to your factories?
-# This will also affect savegames!
 # best to leave it in default position. (only on for simuTTD)
 crossconnect_factories = 0
 

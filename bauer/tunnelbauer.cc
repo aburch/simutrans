@@ -205,6 +205,10 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
 				// must end on boden_t and correct slope
 				return koord3d::invalid;
 			}
+			if(  gr->has_two_ways()  &&  wegtyp != road_wt  ) {
+				// Only road tunnels allowed here.
+				return koord3d::invalid;
+			}
 
 			ribi_t::ribi ribi = gr->get_weg_ribi_unmasked(wegtyp);
 			if(  ribi && koord(ribi) == zv  ) {
@@ -246,6 +250,9 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 		return "Tunnel muss an\neinfachem\nHang beginnen!\n";
 	}
 	if(weg->get_ribi_unmasked() & ~ribi_t::rueckwaerts(ribi_typ(gr->get_grund_hang()))) {
+		return "Tunnel must start on single way!";
+	}
+	if(  gr->has_two_ways()  &&  wegtyp != road_wt  ) {
 		return "Tunnel must start on single way!";
 	}
 	zv = koord(gr->get_grund_hang());

@@ -101,7 +101,7 @@ private:
 	void init_financial_history();
 
 	uint8 status_color;
-	uint16 capacity[3]; // passenger, post, goods
+	uint32 capacity[3]; // passenger, post, goods
 	uint8 overcrowded[8];	// bit set, when overcrowded
 	void recalc_status();
 
