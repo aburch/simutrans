@@ -257,7 +257,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 				last_ware_catg = (ware.get_catg()!=0) ? ware.get_catg() : -1;
 
 				// display all ware
-				if(full_list == NULL) 
+				if(full_list == NULL || full_list->get_count() == 0) 
 				{
 					add_ware_heading( buf, sum, 0, &ware, what_doing );
 				}

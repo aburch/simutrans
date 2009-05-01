@@ -1181,34 +1181,27 @@ void stadt_t::rdwr(loadsave_t* file)
 	else if(file->get_experimental_version() > 0 && file->get_experimental_version() < 3)
 	{
 		// Move congestion history to the correct place (shares with power received).
+		
 		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) 
 		{
-			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) 
+			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY - 2; hist_type++) 
 			{
 				if(hist_type == HIST_POWER_RECIEVED)
 				{
 					city_history_year[year][HIST_POWER_RECIEVED] = 0;
 					hist_type = HIST_CONGESTION;
 				}
-				else if(hist_type == HIST_POWER_NEEDED || HIST_CAR_OWNERSHIP)
-				{
-					continue;
-				}
 				file->rdwr_longlong(city_history_year[year][hist_type], " ");
 			}
 		}
 		for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) 
 		{
-			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) 
+			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY - 2; hist_type++) 
 			{
 				if(hist_type == HIST_POWER_RECIEVED)
 				{
 					city_history_month[month][HIST_POWER_RECIEVED] = 0;
 					hist_type = HIST_CONGESTION;
-				}
-				else if(hist_type == HIST_POWER_NEEDED || HIST_CAR_OWNERSHIP)
-				{
-					continue;
 				}
 				file->rdwr_longlong(city_history_month[month][hist_type], " ");
 			}
