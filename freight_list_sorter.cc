@@ -121,13 +121,27 @@ freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max,
 }
 
 
+#ifdef SLIST_FREIGHT
 void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing)
+#else
+void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuffer_t& buf, sort_mode_t sort_mode, vector_tpl<ware_t>* full_list, const char* what_doing)
+#endif
 {
 	sortby = sort_mode;
 
 	// if there, give the capacity for each freight
+#ifdef SLIST_FREIGHT
 	slist_tpl <ware_t> dummy;
 	slist_iterator_tpl<ware_t> full_iter ( full_list==NULL ? &dummy : full_list );
+#else
+	uint16 count = 0;
+	bool delete_check = false;
+	if(full_list == NULL)
+	{
+		full_list = new vector_tpl<ware_t>;
+		delete_check = true;
+	}
+#endif
 	bool list_finish = true;
 
 	// hsiegeln
@@ -250,10 +264,17 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 				else
 				{
 					// ok, we have a list of freight
+#ifdef SLIST_FREIGHT
 					while(list_finish && (list_finish = full_iter.next()) != 0) 
 					{
 
 						const ware_t& current = full_iter.get_current();
+#else
+					
+					while(list_finish && (list_finish = count < full_list->get_count()))
+					{
+						const ware_t& current = full_list->get_element(count++);
+#endif
 						if(last_ware_index == current.get_index() || last_ware_catg==current.get_catg()) 
 						{
 							add_ware_heading(buf, sum, current.menge, &current, what_doing);
@@ -338,13 +359,22 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			}
 			buf.append("\n");
 		}
-
-	
 	}
 
 	// still entires left?
+#ifdef SLIST_FREIGHT
 	while(list_finish  &&  full_iter.next()) 
 	{
 		add_ware_heading( buf, 0, full_iter.get_current().menge, &(full_iter.get_current()), what_doing );
+#else
+	while(list_finish && count < full_list->get_count())
+	{
+		add_ware_heading(buf, 0, full_list->get_element(count).menge, &full_list->get_element(count), what_doing);
+		count ++;
+#endif
+	}
+	if(delete_check)
+	{
+		delete full_list;
 	}
 }

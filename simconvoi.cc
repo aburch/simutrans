@@ -605,12 +605,12 @@ sint32 convoi_t::calc_adjusted_power()
 	
 	if(power_from_steam > 500)
 	{
-		speed_factor = 1.0;
+		speed_factor = 1.0F;
 	}
 	else
 	{
 		float difference = 450 - (power_from_steam  - 50);
-		float proportion = difference / 450.0;
+		float proportion = difference / 450.0F;
 		float factor = 0.66 * proportion;
 		speed_factor = 1 + factor;
 	}
@@ -630,7 +630,7 @@ sint32 convoi_t::calc_adjusted_power()
 		float speed_differential_actual = (float)current_speed - (float)lowpoint_speed;
 		float speed_differential_maximum = (float)midpoint_speed - (float)lowpoint_speed;
 		float factor_modification = speed_differential_actual / speed_differential_maximum;
-		speed_factor *= ((factor_modification * 0.4) + 0.4);
+		speed_factor *= ((factor_modification * 0.4F) + 0.4F);
 	}
 	else if(current_speed <= high_speed)
 	{
@@ -638,7 +638,7 @@ sint32 convoi_t::calc_adjusted_power()
 		float speed_differential_actual = (float)current_speed - (float)midpoint_speed;
 		float speed_differential_maximum = (float)highpoint_speed - (float)lowpoint_speed;
 		float factor_modification = speed_differential_actual / speed_differential_maximum;
-		speed_factor *= ((factor_modification * 0.15) + 0.8);
+		speed_factor *= ((factor_modification * 0.15F) + 0.8F);
 	}
 	else
 	{
@@ -646,7 +646,7 @@ sint32 convoi_t::calc_adjusted_power()
 		float speed_differential_actual = (float)max_speed - (float)current_speed;
 		float speed_differential_maximum = (float)max_speed - (float)high_speed;
 		float factor_modification = speed_differential_actual / speed_differential_maximum;
-		speed_factor *= ((factor_modification * 0.15) + 0.8);
+		speed_factor *= ((factor_modification * 0.15F) + 0.8F);
 	}
 
 	uint32 modified_power_from_steam = power_from_steam_with_gear * speed_factor;
@@ -2612,7 +2612,7 @@ void convoi_t::info(cbuffer_t & buf) const
 	if (v != NULL) {
 		char tmp[128];
 
-		sprintf(tmp, "\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->get_besch()->get_geschw(), get_running_cost() / 100.0);
+		sprintf(tmp, "\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->get_besch()->get_geschw(), get_running_cost() / 100.0F);
 		buf.append(tmp);
 
 		sprintf(tmp," %s: %ikW\n", translator::translate("Leistung"), sum_leistung );
@@ -2711,30 +2711,50 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		buf.clear();
 
 		// append info on total capacity
+#ifdef SLIST_FREIGHT
 		slist_tpl <ware_t>capacity;
-		for(i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) 
+#else
+		vector_tpl <ware_t>capacity;
+#endif
+		for(i = 0; i < warenbauer_t::get_waren_anzahl(); i++) 
 		{
-			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) 
+			if(max_loaded_waren[i] > 0 && i != warenbauer_t::INDEX_NONE) 
 			{
 				ware_t ware(warenbauer_t::get_info(i));
 				ware.menge = max_loaded_waren[i];
-				if(ware.get_catg()==0) {
+				if(ware.get_catg() == 0) 
+				{
 					capacity.append( ware );
 				} 
 				else 
 				{
 					// append to category?
-					slist_tpl<ware_t>::iterator j   = capacity.begin();
+#ifdef SLIST_FREIGHT
+					slist_tpl<ware_t>::iterator beginning = capacity.begin();
 					slist_tpl<ware_t>::iterator end = capacity.end();
-					while (j != end && j->get_catg() < ware.get_catg()) ++j;
-					if (j != end && j->get_catg() == ware.get_catg()) {
-						j->menge += max_loaded_waren[i];
-					} 
+					while (beginning != end && beginning->get_catg() < ware.get_catg()) ++beginning;
+					if (beginning != end && beginning->get_catg() == ware.get_catg()) 
+					{
+						beginning->menge += max_loaded_waren[i];
+					}
 					else 
 					{
 						// not yet there
-						capacity.insert(j, ware);
+						capacity.insert(beginning, ware);
 					}
+#else
+					uint16 beginning = 0;
+					uint16 end = capacity.get_count() - 1;
+					while(capacity[beginning] != capacity[end] && capacity[beginning].get_catg() < ware.get_catg()) ++beginning;
+					if(capacity[beginning] != capacity[end] && capacity[beginning].get_catg() == ware.get_catg())
+					{
+						capacity[beginning].menge += max_loaded_waren[i];
+					}
+					else
+					{
+						capacity.insert_at(beginning, ware);
+					}
+#endif
 				}
 			}
 		}
@@ -2883,7 +2903,7 @@ void convoi_t::laden() //"load" (Babelfish)
 {
 	//Calculate average speed
 	//@author: jamespetts
-	const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096.0;
+	const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096.0F;
 	const uint32 journey_distance = accurate_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
 	//const uint16 TEST_speed = (1 / journey_time) * 20;
 	//const uint16 TEST_minutes = (((float)1 / TEST_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60);
@@ -3052,7 +3072,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	if(speed_bonus_rating > 0 && happy_ratio > 0)
 	{
 		// Reduce revenue if the origin stop is crowded, if speed is important for the cargo.
-		sint64 tmp = ((float)speed_bonus_rating / 100.0) * revenue;
+		sint64 tmp = ((float)speed_bonus_rating / 100.0F) * revenue;
 		tmp *= (happy_ratio * 2);
 		final_revenue -= tmp;
 	}
@@ -3137,7 +3157,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		else if(ware.is_passenger())
 		{
 			// Passengers
-			float proportion = 0.0;
+			float proportion = 0.0F;
 			switch(catering_level)
 			{
 			

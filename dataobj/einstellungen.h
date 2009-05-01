@@ -453,8 +453,8 @@ public:
 	uint16 get_min_bonus_max_distance() const { return min_bonus_max_distance; }
 	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
 	uint16 get_median_bonus_distance() const { return median_bonus_distance; }
-	float get_max_bonus_multiplier() const { return (float)max_bonus_multiplier_percent * 0.01; }
-	float get_journey_time_multiplier() const { return (float)journey_time_multiplier_percent * 0.01; }
+	float get_max_bonus_multiplier() const { return (float)max_bonus_multiplier_percent * 0.01F; }
+	float get_journey_time_multiplier() const { return (float)journey_time_multiplier_percent * 0.01F; }
 	uint8 get_tolerable_comfort_short() const { return tolerable_comfort_short; }
 	uint8 get_tolerable_comfort_median_short() const { return tolerable_comfort_median_short; }
 	uint8 get_tolerable_comfort_median_median() const { return tolerable_comfort_median_median; }
@@ -467,8 +467,8 @@ public:
 	uint16 get_tolerable_comfort_long_minutes() const { return tolerable_comfort_long_minutes; }
 	uint8 get_max_luxury_bonus_differential() const { return max_luxury_bonus_differential; }
 	uint8 get_max_discomfort_penalty_differential() const { return max_discomfort_penalty_differential; }
-	float get_max_luxury_bonus() const { return (float)max_luxury_bonus_percent * 0.01; }
-	float get_max_discomfort_penalty() const { return (float) max_discomfort_penalty_percent * 0.01; }
+	float get_max_luxury_bonus() const { return (float)max_luxury_bonus_percent * 0.01F; }
+	float get_max_discomfort_penalty() const { return (float) max_discomfort_penalty_percent * 0.01F; }
 
 	uint16 get_catering_min_minutes() const { return catering_min_minutes; }
 	uint16 get_catering_level1_minutes() const { return catering_level1_minutes; }

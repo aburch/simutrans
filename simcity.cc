@@ -167,7 +167,7 @@ public:
 	};
 };
 
-static float default_electricity_consumption = 1.0;
+static float default_electricity_consumption = 1.0F;
 
 static vector_tpl<electric_consumption_record_t> electricity_consumption[1];
 
@@ -236,7 +236,7 @@ float stadt_t::get_electricity_consumption(sint32 monthyear) const
 			// interpolate linear
 			const sint32 delta_ownership_percent = electricity_consumption[0][i].consumption_percent - electricity_consumption[0][i-1].consumption_percent;
 			const sint32 delta_years = electricity_consumption[0][i].year - electricity_consumption[0][i-1].year;
-			return (((float)(delta_ownership_percent*(monthyear-electricity_consumption[0][i-1].year)) / delta_years ) + electricity_consumption[0][i-1].consumption_percent) / 100.0;
+			return (((float)(delta_ownership_percent*(monthyear-electricity_consumption[0][i-1].year)) / delta_years ) + electricity_consumption[0][i-1].consumption_percent) / 100.0F;
 		}
 	}
 	else
@@ -1568,63 +1568,63 @@ void stadt_t::neuer_monat() //"New month" (Google)
 			break;
 
 		case 1:
-			traffic_level = 0.001;
+			traffic_level = 0.001F;
 			break;
 			
 			case 2:
-			traffic_level = 0.005;
+			traffic_level = 0.005F;
 			break;
 
 			case 3:
-			traffic_level = 0.01;
+			traffic_level = 0.01F;
 			break;
 
 		case 4:
-			traffic_level = 0.02;
+			traffic_level = 0.02F;
 			break;
 
 		case 5:
-			traffic_level = 0.025;
+			traffic_level = 0.025F;
 			break;
 
 		case 6:
-			traffic_level = 0.05;
+			traffic_level = 0.05F;
 			break;
 
 		case 7:
-			traffic_level = 0.075;
+			traffic_level = 0.075F;
 			break;
 
 		case 8:
-			traffic_level = 0.1;
+			traffic_level = 0.1F;
 			break;
 
 		case 9:
-			traffic_level = 0.15;
+			traffic_level = 0.15F;
 			break;
 
 		case 10:
-			traffic_level = 0.2;
+			traffic_level = 0.2F;
 			break;
 
 		case 11:
-			traffic_level = 0.25;
+			traffic_level = 0.25F;
 			break;
 
 		case 12:
-			traffic_level = 0.33;
+			traffic_level = 0.33F;
 			break;
 
 		case 13:
-			traffic_level = 0.5;
+			traffic_level = 0.5F;
 			break;
 
 		case 14:
-			traffic_level = 0.66;
+			traffic_level = 0.66F;
 			break;
 
 		case 15:
-			traffic_level = 0.75;
+			traffic_level = 0.75F;
 			break;
 
 		case 16:
@@ -1732,7 +1732,7 @@ void stadt_t::calc_growth()
 	float congestion_factor;
 	if(city_history_month[0][HIST_CONGESTION] > 0)
 	{
-		congestion_factor = (city_history_month[0][HIST_CONGESTION] / 100.0);
+		congestion_factor = (city_history_month[0][HIST_CONGESTION] / 100.0F);
 		growth_factor -= (congestion_factor * growth_factor);
 	}
 	
@@ -1842,7 +1842,8 @@ void stadt_t::step_passagiere()
 
 	// Check whether this batch of passengers has access to a private car each.
 	// Check run in batches to save computational effort.
-	bool has_private_car = (simrand(100) <= get_private_car_ownership(welt->get_timeline_year_month()));
+	const sint16 private_car_percent = get_private_car_ownership(welt->get_timeline_year_month());
+	bool has_private_car = private_car_percent > 0 ? simrand(100) <= private_car_percent : false;
 
 	//Only continue if there are suitable start halts nearby, or the passengers have their own car.
 	if(start_halts.get_count() > 0 || has_private_car)
@@ -2190,11 +2191,11 @@ void stadt_t::step_passagiere()
 
 						// This is the speed bonus calculation, without reference to price.
 						const ware_besch_t* passengers = pax.get_besch();
-						const uint16 average_speed = (60 * distance) / (best_journey_time * (1.0 - welt->get_einstellungen()->get_journey_time_multiplier()));
-						const sint32 ref_speed = welt->get_average_speed(road_wt);
+						const uint16 average_speed = (60 * distance) / (best_journey_time * (1.0F - welt->get_einstellungen()->get_journey_time_multiplier()));
+						const sint32 ref_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
 						const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(passengers->get_speed_bonus(), distance, welt);
 						const sint32 speed_base = (100 * average_speed) / ref_speed - 100;
-						const float base_bonus = (float)speed_base * ((float)speed_bonus_rating / 100.0);
+						const float base_bonus = (float)speed_base * ((float)speed_bonus_rating / 100.0F);
 						//base_bonus should be 1 if the average speed is the same as the bonus speed.
 
 						if(base_bonus > 0)
@@ -2203,12 +2204,12 @@ void stadt_t::step_passagiere()
 							// by up to 50% if the bonus is 50 or more.
 							if(base_bonus >= 50)
 							{
-								private_car_chance *= 0.5;
+								private_car_chance *= 0.5F;
 							}
 							else
 							{
-								const float proportion = (float)base_bonus / 50.0;
-								private_car_chance -= (private_car_chance * 0.5) * proportion;
+								const float proportion = (float)base_bonus / 50.0F;
+								private_car_chance -= (private_car_chance * 0.5F) * proportion;
 							}
 						}
 						else if(base_bonus < 0)
@@ -2217,12 +2218,12 @@ void stadt_t::step_passagiere()
 							// by up to 85% if the bonus is -50 or less.
 							if(base_bonus <= -50)
 							{
-								private_car_chance += private_car_chance * 0.85;
+								private_car_chance += private_car_chance * 0.85F;
 							}
 							else
 							{
-								const float proportion = (float)base_bonus / -50.0;
-								private_car_chance += (private_car_chance * 0.85) * proportion;
+								const float proportion = (float)base_bonus / -50.0F;
+								private_car_chance += (private_car_chance * 0.85F) * proportion;
 							}
 						}
 						// Do nothing if base_bonus == 0.
@@ -2296,7 +2297,7 @@ void stadt_t::step_passagiere()
 							unhappy_factor = 0.0;
 						}*/
 
-						if(unhappy_factor > 0.8)
+						if(unhappy_factor > 0.8F)
 						{
 							private_car_chance /= unhappy_factor;
 						}
@@ -3487,5 +3488,5 @@ vector_tpl<koord>* stadt_t::random_place(
 
 uint32 stadt_t::get_power_demand() const
  { 
-	return (city_history_month[0][HIST_CITICENS] * get_electricity_consumption(welt->get_timeline_year_month())) * 0.02; 
+	return (city_history_month[0][HIST_CITICENS] * get_electricity_consumption(welt->get_timeline_year_month())) * 0.02F; 
  }

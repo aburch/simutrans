@@ -2536,7 +2536,9 @@ void karte_t::recalc_average_speed()
 
 	for(int i=road_wt; i<=narrowgauge_wt; i++) {
 		const int typ = i==4 ? 3 : (i-1)&7;
-		average_speed[typ] = vehikelbauer_t::get_speedbonus( this->get_timeline_year_month(), i==4 ? air_wt : (waytype_t)i ) * get_einstellungen()->get_speed_bonus_multiplier();
+		const float speed_bonus_multiplier = get_einstellungen()->get_speed_bonus_multiplier();
+		const uint32 base_speed_bonus = vehikelbauer_t::get_speedbonus( this->get_timeline_year_month(), i==4 ? air_wt : (waytype_t)i );
+		average_speed[typ] = (float)base_speed_bonus * speed_bonus_multiplier;
 	}
 
 	//	DBG_MESSAGE("karte_t::recalc_average_speed()","");
@@ -2692,7 +2694,7 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 				case air_wt:      msg = "New world record for planes: %.1f km/h by %s.";    break;
 			}
 			char text[1024];
-			sprintf( text, translator::translate(msg), (float)speed_to_kmh(10*sr->speed)/10.0, sr->cnv->get_name() );
+			sprintf( text, translator::translate(msg), (float)speed_to_kmh(10*sr->speed)/10.0F, sr->cnv->get_name() );
 			get_message()->add_message(text, sr->pos, message_t::new_vehicle, PLAYER_FLAG|sr->besitzer->get_player_nr() );
 		}
 	}

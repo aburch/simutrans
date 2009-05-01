@@ -374,7 +374,7 @@ public:
 		return player_nr == 1 || (price < (konto + finance_history_month[0][COST_CREDIT_LIMIT]) || welt->get_einstellungen()->insolvent_purchases_allowed() || welt->get_einstellungen()->is_freeplay());
 	}
 
-	uint32 get_credit_limit() const { return finance_history_month[0][COST_CREDIT_LIMIT]; }
+	sint64 get_credit_limit() const { return finance_history_month[0][COST_CREDIT_LIMIT]; }
 
 	// headquarter stuff
 private:

@@ -1015,7 +1015,7 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 	if(&waiting_times[category].get(halt) != NULL)
 	{
 		fixed_list_tpl<uint16, 16> times = waiting_times[category].get(halt);
-		const uint8 count = times.get_count();
+		const uint16 count = times.get_count();
 		if(count > 0 && halt.is_bound())
 		{
 			uint16 total_times = 0;
@@ -1642,6 +1642,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			{
 				open_list.clear();
 				delete[] path_nodes;
+				search_complete = true;
 			}
 			return;
 		}	
@@ -2269,7 +2270,7 @@ inline uint16 haltestelle_t::get_waiting_minutes(uint32 waiting_ticks) const
 	// Note: waiting times now in *tenths* of minutes (hence difference in arithmetic)
 	//uint16 test_minutes_1 = ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) * welt->get_einstellungen()->get_journey_time_multiplier() * 600);
 	//uint16 test_minutes_2 = (2 * welt->get_einstellungen()->get_journey_time_multiplier() * waiting_ticks) / 409.6;
-	return (2 * welt->get_einstellungen()->get_journey_time_multiplier() * waiting_ticks) / 409.6;
+	return (2 * welt->get_einstellungen()->get_journey_time_multiplier() * waiting_ticks) / 409.6F;
 
 	//Old method (both are functionally equivalent, except for reduction in time. Would be fully equivalent if above was 3 * ...):
 	//return ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) * welt->get_einstellungen()->get_journey_time_multiplier() * 60);
@@ -3255,9 +3256,9 @@ void haltestelle_t::recalc_status()
 
 	memset( overcrowded, 0, 8 );
 
-	long total_sum = 0;
+	uint32 total_sum = 0;
 	if(get_pax_enabled()) {
-		sint32 max_ware = get_capacity(0);
+		const uint32 max_ware = get_capacity(0);
 		total_sum += get_ware_summe(warenbauer_t::passagiere);
 		if(total_sum>max_ware) {
 			overcrowded[0] |= 1;
@@ -3270,8 +3271,8 @@ void haltestelle_t::recalc_status()
 	}
 
 	if(get_post_enabled()) {
-		sint32 max_ware = get_capacity(1);
-		sint32 post = get_ware_summe(warenbauer_t::post);
+		const uint32 max_ware = get_capacity(1);
+		const uint32 post = get_ware_summe(warenbauer_t::post);
 		total_sum += post;
 		if(post>max_ware) {
 			status_bits |= post>max_ware+200 ? 2 : 1;
@@ -3282,10 +3283,10 @@ void haltestelle_t::recalc_status()
 	// now for all goods
 	if(status_color!=COL_RED  &&  get_ware_enabled()) {
 		const int count = warenbauer_t::get_waren_anzahl();
-		sint32 max_ware = get_capacity(2);
+		const uint32 max_ware = get_capacity(2);
 		for( int i=2; i+1<count; i++) {
 			const ware_besch_t *wtyp = warenbauer_t::get_info(i+1);
-			long ware_sum = get_ware_summe(wtyp);
+			const uint32 ware_sum = get_ware_summe(wtyp);
 			total_sum += ware_sum;
 			if(ware_sum>max_ware) {
 				status_bits |= (ware_sum>max_ware+32  ||  CROWDED) ? 2 : 1;

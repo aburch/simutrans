@@ -28,7 +28,7 @@ const char *hist_type[MAX_CITY_HISTORY] =
 {
   "citicens", "Growth", "Buildings", 
   "Verkehrsteilnehmer", "Transported", "Passagiere", 
-  "sended", "Post", "Arrived",  
+  "sended", "Post", "Goods supplied",  
   "Goods", "Power supply", "Power demand", 
   "Congestion", "Car ownership"
 
@@ -37,7 +37,7 @@ const char *hist_type[MAX_CITY_HISTORY] =
 const int hist_type_color[MAX_CITY_HISTORY] =
 {
 	COL_WHITE, COL_DARK_GREEN, COL_LIGHT_PURPLE, 
-	COL_POWERLINES, COL_LIGHT_BLUE, COL_BLUE-128, 
+	COL_POWERLINES, COL_LIGHT_BLUE, COL_PASSENGERS, 
 	COL_LIGHT_YELLOW, COL_YELLOW, COL_LIGHT_BROWN, 
 	COL_BROWN, COL_ELECTRICITY-1, COL_ELECTRICITY+2, 
 	COL_DARK_TURQOISE, COL_CAR_OWNERSHIP
@@ -155,7 +155,7 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 	b += sprintf(b, "%s: %d (%+.1f)\n",
 		translator::translate("City size"),
 		c->get_einwohner(),
-		c->get_wachstum() / 10.0
+		c->get_wachstum() / 10.0F
 	);
 
 	b += sprintf(b, translator::translate("%d buildings\n"), c->get_buildings());
