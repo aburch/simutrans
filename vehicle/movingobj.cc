@@ -185,6 +185,12 @@ void movingobj_t::rdwr(loadsave_t *file)
 	vehikel_basis_t::rdwr(file);
 
 	file->rdwr_enum(fahrtrichtung, " ");
+	if (file->is_loading()) {
+		// restore dxdy information
+		dx = dxdy[ ribi_t::get_dir(fahrtrichtung)*2];
+		dy = dxdy[ ribi_t::get_dir(fahrtrichtung)*2+1];
+	}
+
 	file->rdwr_byte(steps, " ");
 	file->rdwr_byte(steps_next, "\n");
 
