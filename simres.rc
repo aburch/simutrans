@@ -1,28 +1,27 @@
-/* ICON and Version info for Simutrans Windows */
+/* ICON and Version info for Simutrans-Experimental Windows */
 
 #include "simversion.h"
 
-100 ICON "stormoog.ico"
-101 ICON "simutrans.ico"
-102 ICON "old.ico"
+100 ICON "simutrans.ico"
+101 ICON "old.ico"
 
 
 1 VERSIONINFO
-FILEVERSION    RES_VERSION_NUMBER
-PRODUCTVERSION RES_VERSION_NUMBER
+FILEVERSION    COMBINED_VER_NR
+PRODUCTVERSION COMBINED_VER_NR
 {
  BLOCK "StringFileInfo"
  {
   BLOCK "040904E4"
   {
    VALUE "CompanyName", "Simutrans Team\000"
-   VALUE "FileDescription", "Simutrans\000"
-   VALUE "FileVersion", VERSION_NUMBER "\000"
-   VALUE "InternalName", "SIMUTRANS\000"
-   VALUE "LegalCopyright", "\251 Hj. Malthaner '97-'04 Simutrans Team '05-06\000"
-   VALUE "OriginalFilename", "SIMUTRANS.EXE\000"
-   VALUE "ProductName", "Simutrans\000"
-   VALUE "ProductVersion", VERSION_NUMBER "\000"
+   VALUE "FileDescription", "Simutrans-Experimental\000"
+   VALUE "FileVersion", VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION "\000"
+   VALUE "InternalName", "simutrans-experimental\000"
+   VALUE "LegalCopyright", "\251 Hj. Malthaner '97-'04 Simutrans Team '05-09 (Artistic Licence)\000"
+   VALUE "OriginalFilename", "simutrans-experimental.exe\000"
+   VALUE "ProductName", "Simutrans-Experimental\000"
+   VALUE "ProductVersion", VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION "\000"
   }
 
  }
