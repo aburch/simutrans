@@ -2743,16 +2743,19 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 						capacity.insert(beginning, ware);
 					}
 #else
-					uint16 beginning = 0;
-					uint16 end = capacity.get_count() - 1;
-					while(capacity[beginning] != capacity[end] && capacity[beginning].get_catg() < ware.get_catg()) ++beginning;
-					if(capacity[beginning] != capacity[end] && capacity[beginning].get_catg() == ware.get_catg())
+					if(capacity.get_count() > 0)
 					{
-						capacity[beginning].menge += max_loaded_waren[i];
-					}
-					else
-					{
-						capacity.insert_at(beginning, ware);
+						uint16 beginning = 0;
+						uint16 end = capacity.get_count() - 1;
+						while(capacity[beginning] != capacity[end] && capacity[beginning].get_catg() < ware.get_catg()) ++beginning;
+						if(capacity[beginning] != capacity[end] && capacity[beginning].get_catg() == ware.get_catg())
+						{
+							capacity[beginning].menge += max_loaded_waren[i];
+						}
+						else
+						{
+							capacity.insert_at(beginning, ware);
+						}
 					}
 #endif
 				}
