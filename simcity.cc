@@ -1688,7 +1688,7 @@ void stadt_t::calc_growth()
 	}
 
 	/* four parts contribute to town growth:
-	 * passenger transport 40%, mail 21%, goods 24%, and electricity 20% (by default: varies)
+	 * passenger transport 40%, mail 16%, goods 24%, and electricity 20% (by default: varies)
 	 *
 	 * Congestion detracts from growth, but towns can now grow as a result of private car
 	 * transport as well as public transport: if private car ownership is high enough.
@@ -1697,18 +1697,18 @@ void stadt_t::calc_growth()
 	
 	const uint8 passenger_proportion = 40;
 	const uint8 electricity_proportion = get_electricity_consumption(welt->get_timeline_year_month()) * 20;
-	const uint8 goods_proportion = (100 - (passenger_proportion + electricity_proportion) * 0.4);
+	const uint8 goods_proportion = (100 - (passenger_proportion + electricity_proportion)) * 0.4;
 	const uint8 mail_proportion = 100 - (passenger_proportion + electricity_proportion + goods_proportion);
 	
 	//sint32 pas = (city_history_month[0][HIST_PAS_TRANSPORTED] * (40<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
 	sint32 pas = ((city_history_month[0][HIST_PAS_TRANSPORTED] + (city_history_month[0][HIST_CITYCARS] - outgoing_private_cars)) * (passenger_proportion<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
 	sint32 mail = (city_history_month[0][HIST_MAIL_TRANSPORTED] * (mail_proportion<<6)) / (city_history_month[0][HIST_MAIL_GENERATED] + 1);
-	sint32 electricity = city_history_month[0][HIST_POWER_NEEDED]==0 ? 0 : (city_history_month[0][HIST_POWER_RECIEVED] * (electricity_proportion<<6)) / (city_history_month[0][HIST_POWER_NEEDED]);
-	sint32 goods = city_history_month[0][HIST_GOODS_NEEDED]==0 ? 0 : (city_history_month[0][HIST_GOODS_RECIEVED] * (goods_proportion<<6)) / (city_history_month[0][HIST_GOODS_NEEDED]);
+	sint32 electricity = city_history_month[0][HIST_POWER_NEEDED] == 0 ? 0 : (city_history_month[0][HIST_POWER_RECIEVED] * (electricity_proportion<<6)) / (city_history_month[0][HIST_POWER_NEEDED]);
+	sint32 goods = city_history_month[0][HIST_GOODS_NEEDED] == 0 ? 0 : (city_history_month[0][HIST_GOODS_RECIEVED] * (goods_proportion<<6)) / (city_history_month[0][HIST_GOODS_NEEDED]);
 
 	// smaller towns should growth slower to have villages for a longer time
 	//sint32 weight_factor = 100;
-	static sint32 weight_factor = welt->get_einstellungen()->get_city_weight_factor();
+	sint32 weight_factor = welt->get_einstellungen()->get_city_weight_factor();
 	if(bev < 1000) 
 	{
 		weight_factor *= 5;

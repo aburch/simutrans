@@ -2810,7 +2810,7 @@ const char *wkz_roadsign_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	if(  !gr_end  ) {
 		init( welt, sp );
 		// Will produce the right error msg:
-		return place_sign_intern( welt, sp, gr_end );
+		return place_sign_intern( welt, sp, gr_end, besch );
 	}
 	end = gr_end->get_pos();
 
@@ -2825,7 +2825,7 @@ const char *wkz_roadsign_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 	if(  start == koord3d::invalid  ||  start == end  ||  !besch->is_signal()  ) {
 		// Simple klick => just place a signal.
-		return place_sign_intern( welt, sp, gr_end );
+		return place_sign_intern( welt, sp, gr_end, besch );
 	}
 
 	vehikel_besch_t vehikel_besch( besch->get_wtyp(), 500, vehikel_besch_t::diesel );
@@ -2953,40 +2953,44 @@ const char *wkz_roadsign_t::place_signs()
 	return NULL;
 }
 
-const char *wkz_roadsign_t::place_sign_intern( karte_t *welt, spieler_t *sp, grund_t* gr )
+const char *wkz_roadsign_t::place_sign_intern( karte_t *welt, spieler_t *sp, grund_t* gr, const roadsign_besch_t* b )
 {
-	if(besch == NULL) 
+	if(b == NULL)
+	{
+		b = besch;
+	}
+	if(b == NULL) 
 	{
 		dbg->fatal("wkz_roadsign_t::work()","No roadsign \"%s\"", default_param );
 	}
 
-	if(!sp->can_afford(besch->get_preis()))
+	if(!sp->can_afford(b->get_preis()))
 	{
 		return CREDIT_MESSAGE;
 	}
 
 	const char * error = "Hier kann kein\nSignal aufge-\nstellt werden!\n";
 	// search for starting ground
-	//grund_t *gr=wkz_intern_koord_to_weg_grund(sp,welt,k.get_2d(),besch->get_wtyp());
+	//grund_t *gr=wkz_intern_koord_to_weg_grund(sp,welt,k.get_2d(),b->get_wtyp());
 	if(gr) {
 		// get the sign dirction
-		weg_t *weg = gr->get_weg(besch->get_wtyp());
+		weg_t *weg = gr->get_weg(b->get_wtyp());
 		signal_t *s = gr->find<signal_t>();
-		if(s  &&  s->get_besch()!=besch) {
+		if(s  &&  s->get_besch()!=b) {
 			// only one sign per tile
 			return error;
 		}
-		if(besch->is_signal()  &&  gr->find<roadsign_t>())  {
+		if(b->is_signal()  &&  gr->find<roadsign_t>())  {
 			// only one sign per tile
 			return error;
 		}
 		ribi_t::ribi dir = weg->get_ribi_unmasked();
 
-		const bool two_way = besch->is_single_way()  ||  besch->is_signal() ||  besch->is_pre_signal();
+		const bool two_way = b->is_single_way()  ||  b->is_signal() ||  b->is_pre_signal();
 
-		if(!(besch->is_traffic_light() || two_way)  ||  (two_way  &&  ribi_t::is_twoway(dir))  ||  (besch->is_traffic_light()  &&  ribi_t::is_threeway(dir))) {
+		if(!(b->is_traffic_light() || two_way)  ||  (two_way  &&  ribi_t::is_twoway(dir))  ||  (b->is_traffic_light()  &&  ribi_t::is_threeway(dir))) {
 			roadsign_t* rs;
-			if (besch->is_signal_type()) {
+			if (b->is_signal_type()) {
 				// if there is already a signal, we might need to inverse the direction
 				rs = gr->find<signal_t>();
 				if (rs) {
@@ -3015,7 +3019,7 @@ const char *wkz_roadsign_t::place_sign_intern( karte_t *welt, spieler_t *sp, gru
 					rs->set_dir(dir);
 				} else {
 					// add a new signal at position zero!
-					rs = new signal_t(welt, sp, gr->get_pos(), dir, besch);
+					rs = new signal_t(welt, sp, gr->get_pos(), dir, b);
 					DBG_MESSAGE("wkz_roadsign()", "new signal, dir is %i", dir);
 					goto built_sign;
 				}
@@ -3027,7 +3031,7 @@ const char *wkz_roadsign_t::place_sign_intern( karte_t *welt, spieler_t *sp, gru
 						return "Das Feld gehoert\neinem anderen Spieler\n";
 					}
 					// reverse only if single way sign
-					if (besch->is_single_way() || besch->is_free_route()) {
+					if (b->is_single_way() || b->is_free_route()) {
 						dir = ~rs->get_dir() & weg->get_ribi_unmasked();
 						rs->set_dir(dir);
 						DBG_MESSAGE("wkz_roadsign()", "reverse ribi %i", dir);
@@ -3036,7 +3040,7 @@ const char *wkz_roadsign_t::place_sign_intern( karte_t *welt, spieler_t *sp, gru
 				else {
 					// add a new roadsign at position zero!
 					// if single way, we need to reduce the allowed ribi to one
-					if (besch->is_single_way() || besch->is_free_route()) {
+					if (b->is_single_way() || b->is_free_route()) {
 						for(  int i=0;  i<4;  i++  ) {
 							if ((dir & ribi_t::nsow[i]) != 0) {
 								dir = ribi_t::nsow[i];
@@ -3045,12 +3049,12 @@ const char *wkz_roadsign_t::place_sign_intern( karte_t *welt, spieler_t *sp, gru
 						}
 					}
 					DBG_MESSAGE("wkz_roadsign()", "new roadsign, dir is %i", dir);
-					rs = new roadsign_t(welt, sp, gr->get_pos(), dir, besch);
+					rs = new roadsign_t(welt, sp, gr->get_pos(), dir, b);
 built_sign:
 					gr->obj_add(rs);
 					rs->laden_abschliessen();	// to make them visible
 					weg->count_sign();
-					spieler_t::accounting(sp, -besch->get_preis(), gr->get_pos().get_2d(), COST_CONSTRUCTION);
+					spieler_t::accounting(sp, -b->get_preis(), gr->get_pos().get_2d(), COST_CONSTRUCTION);
 				}
 			}
 			error = NULL;

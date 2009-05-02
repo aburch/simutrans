@@ -265,7 +265,7 @@ private:
 	const roadsign_besch_t* besch;
 	karte_t* world;
 	spieler_t* player;
-	const char *place_sign_intern( karte_t *, spieler_t *, grund_t* );
+	const char *place_sign_intern( karte_t *, spieler_t *, grund_t*, const roadsign_besch_t* b = NULL);
 	uint8 signal_spacing;
 	vector_tpl<zeiger_t*> marked;
 	route_t sign_route;
