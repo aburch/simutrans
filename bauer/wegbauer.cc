@@ -1612,7 +1612,7 @@ wegbauer_t::baue_tunnel_und_bruecken()
 			grund_t *gr_i1 = welt->lookup(route[i+1]);
 			if(  gr_i->get_weg_hang() != gr_i->get_grund_hang()  ||  gr_i1->get_weg_hang() != gr_i1->get_grund_hang()  ) {
 				// Here is already a tunnel or a bridge.
-				return;
+				continue;
 			}
 			hang_t::typ h = gr_i->get_weg_hang();
 			waytype_t wt = (waytype_t)(besch->get_wtyp());
