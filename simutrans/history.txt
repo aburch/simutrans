@@ -13,7 +13,7 @@
 	ADD: (z9999) tunnel can have predefined way (new syntax, need new makeobj)
 	ADD: completly ignore message button at beginning of dialoge
 	CHANGE: faster map (non-isometric) on very large maps and no crashes with extremely large maps anymore
-	ADD: paste letters under windows with CNTRL+V (may fail with Latin2 languages)
+	ADD: paste letters under windows with CNTRL+V
 
 
 
