@@ -3749,10 +3749,11 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 				halt->get_besitzer()->halt_add(halt);
 			}
 			else {
-				dbg->warning("karte_t::laden()", "could not restore stopnear %i,%i", halt->get_init_pos().x, halt->get_init_pos().y );
+				dbg->warning("karte_t::laden()", "could not restore stop near %i,%i", halt->get_init_pos().x, halt->get_init_pos().y );
 			}
 		}
 	}
+	DBG_MESSAGE("karte_t::laden()","%d halts loaded",halt_count);
 
 	DBG_MESSAGE("karte_t::laden()", "load convois");
 	uint16 convoi_nr = 65535;
