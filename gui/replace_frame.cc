@@ -78,7 +78,8 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	if (cnv->get_vehikel_anzahl()>0) { // Should always be true
 		wt=cnv->get_vehikel(0)->get_besch()->get_waytype();
 	}
-	const bool weg_electrified = cnv->get_welt()->lookup(cnv->get_vehikel(0)->get_pos())->get_weg(wt)->is_electrified();
+	const weg_t *way = cnv->get_welt()->lookup(cnv->get_vehikel(0)->get_pos())->get_weg(wt);
+	const bool weg_electrified = way == NULL ? false : way->is_electrified();
 	convoy_assembler = new gui_convoy_assembler_t(cnv->get_welt(), wt, weg_electrified,  cnv->get_besitzer()->get_player_nr() );
 	convoy_assembler->set_convoy_tabs_skip(-2*LINESPACE+3*LINESPACE+2*margin+a_button_height);
 	convoy_assembler->add_listener(this);

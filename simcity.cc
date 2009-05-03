@@ -1697,7 +1697,7 @@ void stadt_t::calc_growth()
 	
 	const uint8 passenger_proportion = 40;
 	const uint8 electricity_proportion = get_electricity_consumption(welt->get_timeline_year_month()) * 20;
-	const uint8 goods_proportion = (100 - (passenger_proportion + electricity_proportion)) * 0.4;
+	const uint8 goods_proportion = (100 - (passenger_proportion + electricity_proportion)) * 0.6;
 	const uint8 mail_proportion = 100 - (passenger_proportion + electricity_proportion + goods_proportion);
 	
 	//sint32 pas = (city_history_month[0][HIST_PAS_TRANSPORTED] * (40<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);

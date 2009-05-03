@@ -304,6 +304,8 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	rdwr(file);
 
 	alle_haltestellen.insert(self);
+
+	check_waiting = 0;
 }
 
 
@@ -362,6 +364,8 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 		reschedule[i] = false;
 	}
 #endif
+
+	check_waiting = 0;
 }
 
 
@@ -818,6 +822,59 @@ haltestelle_t::step()
 		}
 	}
 	recalc_status();
+	
+	// Every 256 steps - check whether
+	// passengers/goods have been waiting
+	// too long.
+	if(check_waiting == 0)
+	{
+		vector_tpl<ware_t> *warray;
+		for(uint16 j = 0; j < warenbauer_t::get_max_catg_index(); j ++)
+		{
+			warray = waren[j];
+			if(warray == NULL)
+			{
+				continue;
+			}
+			for(uint32 i = 0; i < warray->get_count(); i++) 
+			{
+				ware_t &tmp = (*warray)[i];
+
+				// skip empty entries
+				if(tmp.menge == 0) 
+				{
+					continue;
+				}
+						
+				// Checks to see whether the freight has been waiting too long.
+				// If so, discard it.
+				if(tmp.get_besch()->get_speed_bonus() > 0)
+				{
+					// Only consider for discarding if the goods care about their timings.
+					// Goods/passengers' maximum waiting times are proportionate to the length of the journey.
+					const uint16 base_max_minutes = (welt->get_einstellungen()->get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10;  // Minutes are recorded in tenths
+					const uint16 thrice_journey = connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel())->journey_time * 3 : base_max_minutes;
+					const uint16 max_minutes = base_max_minutes < thrice_journey ? base_max_minutes : thrice_journey;
+					const sint64 waiting_ticks = welt->get_zeit_ms() - tmp.arrival_time;
+					const uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
+					if(waiting_minutes > max_minutes)
+					{
+						// Waiting too long: discard
+						if(tmp.is_passenger())
+						{
+							// Passengers - use unhappy graph.
+							add_pax_unhappy(tmp.menge);
+						}
+						
+						// The goods/passengers leave.
+						tmp.menge = 0;
+					}		
+				}
+			}
+		}
+	}
+	// Will overflow at 255
+	check_waiting ++;
 }
 
 

@@ -366,6 +366,8 @@ private:
 	uint16 *paths_timestamp;
 #endif
 
+	uint8 check_waiting;
+
 public:
 	/**
 	* Called every 255 steps
