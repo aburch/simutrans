@@ -3611,6 +3611,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	if(file->get_version()>=99008) {
 		sint32 halt_count;
 		file->rdwr_long(halt_count,"hc");
+		DBG_MESSAGE("karte_t::laden()","%d halts loaded",halt_count);
 		for(int i=0; i<halt_count; i++) {
 			halthandle_t halt = haltestelle_t::create( this, file );
 			if(halt->existiert_in_welt()) {
@@ -3621,7 +3622,6 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 			}
 		}
 	}
-	DBG_MESSAGE("karte_t::laden()","%d halts loaded",halt_count);
 
 	DBG_MESSAGE("karte_t::laden()", "load convois");
 	uint16 convoi_nr = 65535;
