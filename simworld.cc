@@ -3740,20 +3740,24 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	// now load the stops
 	// (the players will be load later and overwrite some values,
 	//  like the total number of stops build (for the numbered station feature)
-	if(file->get_version()>=99008) {
+	if(file->get_version()>=99008) 
+	{
 		sint32 halt_count;
 		file->rdwr_long(halt_count,"hc");
-		for(int i=0; i<halt_count; i++) {
+		for(int i=0; i<halt_count; i++) 
+		{
 			halthandle_t halt = haltestelle_t::create( this, file );
-			if(halt->existiert_in_welt()) {
+			if(halt->existiert_in_welt())
+			{
 				halt->get_besitzer()->halt_add(halt);
 			}
-			else {
+			else 
+			{
 				dbg->warning("karte_t::laden()", "could not restore stop near %i,%i", halt->get_init_pos().x, halt->get_init_pos().y );
 			}
 		}
+		DBG_MESSAGE("karte_t::laden()","%d halts loaded",halt_count);
 	}
-	DBG_MESSAGE("karte_t::laden()","%d halts loaded",halt_count);
 
 	DBG_MESSAGE("karte_t::laden()", "load convois");
 	uint16 convoi_nr = 65535;

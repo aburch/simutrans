@@ -2226,6 +2226,8 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						continue;
 					}
 					
+					
+
 					// Checks to see whether the freight has been waiting too long.
 					// If so, discard it.
 					if(tmp.get_besch()->get_speed_bonus() > 0)
@@ -2233,10 +2235,13 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						// Only consider for discarding if the goods care about their timings.
 						// Goods/passengers' maximum waiting times are proportionate to the length of the journey.
 						const uint16 base_max_minutes = (welt->get_einstellungen()->get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10;  // Minutes are recorded in tenths
-						const uint16 thrice_journey = connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel())->journey_time * 3 : base_max_minutes;
-						const uint16 max_minutes = base_max_minutes < thrice_journey ? base_max_minutes : thrice_journey;
+						//const uint16 thrice_journey = connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel())->journey_time * 3 : base_max_minutes;
+						//const uint16 max_minutes = base_max_minutes < thrice_journey ? base_max_minutes : thrice_journey;
 						const sint64 waiting_ticks = welt->get_zeit_ms() - tmp.arrival_time;
 						const uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
+						/* 
+						 *  This is depracated here, since it is now called every 256 steps instead.
+						 *
 						if(waiting_minutes > max_minutes)
 						{
 							// Waiting too long: discard
@@ -2249,11 +2254,12 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 							// The goods/passengers leave.
 							tmp.menge = 0;
 						}
+						*/
 #ifdef NEW_PATHING
 						// Skip if the goods have recently arrived, and this is not their preferred line/convoy
 						// After waiting some time (1/3rd of their maximum wait), they will board anything.
-						const uint16 third_minutes = max_minutes / 3;
-						const uint16 twice_journey = connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel())->journey_time * 2 : max_minutes;
+						const uint16 third_minutes = base_max_minutes / 3;
+						const uint16 twice_journey = connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel())->journey_time * 2 : base_max_minutes;
 						const uint16 max_best_minutes = third_minutes > twice_journey ? twice_journey : third_minutes;
 						if(cnv != NULL && waiting_minutes <= max_best_minutes / 3)
 						{

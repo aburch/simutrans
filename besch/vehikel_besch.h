@@ -273,8 +273,9 @@ public:
 	uint16 get_gewicht() const { return gewicht; }
 	uint32 get_leistung() const { return leistung; }
 	uint16 get_betriebskosten() const { return betriebskosten; }
-	uint16 get_fixed_maintenance() const { return fixed_maintenance; }
 	uint16 get_betriebskosten(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
+	uint16 get_fixed_maintenance() const { return fixed_maintenance; }
+	uint16 get_fixed_maintenance(karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.
 	sint8 get_sound() const { return sound; }
 	bool is_bidirectional() const { return bidirectional; }
 	bool get_can_lead_from_rear() const { return can_lead_from_rear; }

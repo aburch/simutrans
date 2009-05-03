@@ -1204,7 +1204,7 @@ void convoi_t::new_month()
 	// @author: jamespetts
 	for(unsigned j=0;  j<get_vehikel_anzahl();  j++ ) 
 	{
-		add_running_cost(-fahr[j]->get_besch()->get_fixed_maintenance()<<((sint64)welt->ticks_bits_per_tag-18ll));
+		add_running_cost(-fahr[j]->get_besch()->get_fixed_maintenance(welt)<<((sint64)welt->ticks_bits_per_tag-18ll));
 	}
 
 	// everything normal: update history
