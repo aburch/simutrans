@@ -427,7 +427,8 @@ static void internal_GetEvents(int wait)
 			SDL_WaitEvent(&event);
 			n = SDL_PollEvent(NULL);
 		} while (n != 0 && event.type == SDL_MOUSEMOTION);
-	} else {
+	}
+	else {
 		int n;
 		int got_one = FALSE;
 
@@ -525,8 +526,31 @@ static void internal_GetEvents(int wait)
 				sys_event.code = event.key.keysym.sym - SDLK_F1 + SIM_KEY_F1;
 			} else if (event.key.keysym.sym > 0 && event.key.keysym.sym < 127) {
 				// printf("ASCII ");
-				sys_event.code = event.key.keysym.sym;	// try with the ASCII code ...
-			} else {
+				if(  event.key.keysym.sym==22  /*^V*/  ) {
+#ifdef _WIN32
+					// paste
+					if(  OpenClipboard(NULL)  ) {
+						HANDLE hText = GetClipboardData( CF_UNICODETEXT );
+						SDL_Event *event;
+						event.type =SDL_KEYDOWN;
+						event.key.keysym.sym = 0;
+						if(  hText  ) {
+							WCHAR *chr = (WCHAR *)hText;
+							while(  *chr!=0  ) {
+								if(  *chr!=10  ) {
+									event.key.keysym.sym = *chr;
+								}
+								chr ++;
+							}
+						}
+						CloseClipboard();
+#endif
+				}
+				else {
+					sys_event.code = event.key.keysym.sym;	// try with the ASCII code ...
+				}
+			}
+			else {
 				switch (event.key.keysym.sym) {
 					case SDLK_PAGEUP:   sys_event.code = '>';           break;
 					case SDLK_PAGEDOWN: sys_event.code = '<';           break;
