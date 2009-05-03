@@ -33,8 +33,8 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	lb_n_skip(NULL, COL_BLACK, gui_label_t::left)
 
 {
-	const int a_button_height=14;
-	const int margin=6;
+	const uint32 a_button_height = 14;
+	const uint32 margin = 6;
 	lb_money.set_text_pointer(txt_money);
 	add_komponente(&lb_money);
 	
@@ -132,14 +132,14 @@ replace_frame_t::~replace_frame_t()
 }
 
 
-void replace_frame_t::update_total_height(int height)
+void replace_frame_t::update_total_height(uint32 height)
 {
 	total_height+=height;
 	min_total_height+=height;
 }
 
 
-void replace_frame_t::update_total_width(int width)
+void replace_frame_t::update_total_width(uint32 width)
 {
 	total_width=max(total_width,width);
 	min_total_width=max(min_total_width,width);
@@ -148,10 +148,10 @@ void replace_frame_t::update_total_width(int width)
 
 void replace_frame_t::layout(koord *gr)
 {
-	const int window_bar_height=16;
-	const int margin=6;
-	const int a_button_width=96;
-	const int a_button_height=14;
+	const uint32 window_bar_height=16;
+	const uint32 margin=6;
+	const uint32 a_button_width=96;
+	const uint32 a_button_height=14;
 
 	/**
 	 * Let's calculate the space and min space
@@ -197,7 +197,7 @@ void replace_frame_t::layout(koord *gr)
 	/**
 	 * Now do the layout
 	 */
-	int current_y=margin;
+	uint32 current_y=margin;
 	if (gr) {
 		fgr=*gr;
 	} else {
@@ -214,8 +214,8 @@ void replace_frame_t::layout(koord *gr)
 	convoy_assembler->set_groesse(koord(fgr.x,convoy_assembler->get_height()));
 	convoy_assembler->layout();
 
-	int buttons_y=current_y+convoy_assembler->get_convoy_height()-2*LINESPACE+8;
-	int buttons_width=(fgr.x-2*margin)/3;
+	uint32 buttons_y=current_y+convoy_assembler->get_convoy_height()-2*LINESPACE+8;
+	uint32 buttons_width=(fgr.x-2*margin)/3;
 	bt_autostart.set_groesse(koord(buttons_width, a_button_height));
 	bt_depot.set_groesse(koord(buttons_width, a_button_height));
 	bt_mark.set_groesse(koord(buttons_width, a_button_height));
@@ -261,7 +261,7 @@ void replace_frame_t::update_data()
 	txt_n_replace[0]='\0';
 	txt_n_sell[0]='\0';
 	txt_n_skip[0]='\0';
-	int n[3];
+	uint32 n[3];
 	n[0]=0;
 	n[1]=0;
 	n[2]=0;
@@ -275,10 +275,10 @@ void replace_frame_t::update_data()
 	if (replace_line) {
 		linehandle_t line=cnv.is_bound()?cnv->get_line():linehandle_t();
 		if (line.is_bound()) {
-			for (unsigned int i=0; i<line->count_convoys(); i++) {
+			for (uint32 i=0; i<line->count_convoys(); i++) {
 				convoihandle_t cnv_aux=line->get_convoy(i);
 				if (cnv->has_same_vehicles(cnv_aux)) {
-					int present_state=get_present_state();
+					uint32 present_state=get_present_state();
 					if (present_state==-1) {
 						continue;
 					}
@@ -304,11 +304,11 @@ void replace_frame_t::update_data()
 		}
 	} else if (replace_all) {
 		karte_t *welt=cnv->get_welt();
-		for (unsigned int i=0; i<welt->get_convoi_count(); i++) {
+		for (uint32 i=0; i<welt->get_convoi_count(); i++) {
 			convoihandle_t cnv_aux=welt->get_convoi(i);
 			if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) 
 			{
-				int present_state=get_present_state();
+				uint32 present_state=get_present_state();
 				if (present_state==-1) 
 				{
 					continue;
@@ -353,7 +353,7 @@ uint8 replace_frame_t::get_present_state() {
 	if (numinp[state_replace].get_value()==0 && numinp[state_sell].get_value()==0 && numinp[state_skip].get_value()==0) {
 		return -1;
 	}
-	for (int i=0; i<n_states; ++i) {
+	for (uint32 i=0; i<n_states; ++i) {
 		if (replaced_so_far>=numinp[state].get_value()) {
 			replaced_so_far=0;
 			state=(state+1)%n_states;
@@ -368,7 +368,7 @@ uint8 replace_frame_t::get_present_state() {
 
 void replace_frame_t::replace_convoy(convoihandle_t cnv)
 {
-	int state=get_present_state();
+	uint32 state=get_present_state();
 	if (!cnv.is_bound() || cnv->in_depot() || state==-1) {
 		return;
 	}
@@ -445,7 +445,7 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 			} else if (replace_line) {
 				linehandle_t line=cnv.is_bound()?cnv->get_line():linehandle_t();
 				if (line.is_bound()) {
-					for (unsigned int i=0; i<line->count_convoys(); i++) {
+					for (uint32 i=0; i<line->count_convoys(); i++) {
 						convoihandle_t cnv_aux=line->get_convoy(i);
 						if (cnv->has_same_vehicles(cnv_aux)) {
 							replace_convoy(cnv_aux);
@@ -454,7 +454,7 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 				}
 			} else if (replace_all) {
 				karte_t *welt=cnv->get_welt();
-				for (unsigned int i=0; i<welt->get_convoi_count(); i++) {
+				for (uint32 i=0; i<welt->get_convoi_count(); i++) {
 					convoihandle_t cnv_aux=welt->get_convoi(i);
 					if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) {
 						replace_convoy(cnv_aux);
@@ -504,7 +504,7 @@ void replace_frame_t::zeichnen(koord pos, koord groesse)
 	bt_replace_all.pressed=replace_all;
 	
 	// Make replace cycle grey if not in use
-	int color=(replace_line||replace_all?COL_BLACK:COL_GREY4);
+	uint32 color=(replace_line||replace_all?COL_BLACK:COL_GREY4);
 	lb_replace_cycle.set_color(color);
 	lb_replace.set_color(color);
 	lb_sell.set_color(color);

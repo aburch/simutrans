@@ -108,8 +108,10 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
  */
 gebaeude_t::~gebaeude_t()
 {
-	if(get_stadt()) {
-		ptr.stadt->remove_gebaeude_from_stadt(this);
+	stadt_t* city = get_stadt();
+	if(city) 
+	{
+		city->remove_gebaeude_from_stadt(this);
 	}
 
 	if((tile  &&  tile->get_phasen()>1)  ||  zeige_baugrube) {
@@ -118,13 +120,15 @@ gebaeude_t::~gebaeude_t()
 	}
 
 	// tiles might be invalid, if no description is found during loading
-	if(tile  &&  tile->get_besch()  &&  tile->get_besch()->ist_ausflugsziel()) {
+	if(tile  &&  tile->get_besch()  &&  tile->get_besch()->ist_ausflugsziel()) 
+	{
 		welt->remove_ausflugsziel(this);
 	}
 
 	count = 0;
 	anim_time = 0;
-	if(tile) {
+	if(tile) 
+	{
 		spieler_t::add_maintenance(get_besitzer(), -welt->get_einstellungen()->maint_building*tile->get_besch()->get_level() );
 	}
 }

@@ -80,11 +80,11 @@ private:
 	 */
 	void layout(koord *);
 
-	int total_width, min_total_width, total_height, min_total_height;
+	uint32 total_width, min_total_width, total_height, min_total_height;
 
 	// Some helper functions
-	void update_total_height(int height);
-	void update_total_width(int width);
+	void update_total_height(uint32 height);
+	void update_total_width(uint32 width);
 	void replace_convoy(convoihandle_t cnv);
 	inline void start_replacing() {state=state_replace; replaced_so_far=0;}
 	uint8 get_present_state();

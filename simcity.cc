@@ -924,24 +924,29 @@ stadt_t::~stadt_t()
 	}
 
 	// olny if there is still a world left to delete from
-	if(welt->get_groesse_x()>1) {
+	if(welt->get_groesse_x()>1) 
+	{
 
 		welt->lookup_kartenboden(pos)->set_text(NULL);
 
 		// remove city info and houses
-		while (!buildings.empty()) {
+		while (!buildings.empty()) 
+		{
 			// old buildings are not where they think they are, so we ask for map floor
 			gebaeude_t* gb = (gebaeude_t *)buildings.front();
 			buildings.remove(gb);
 			assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
-			if(gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::firmensitz) {
+			if(gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::firmensitz)
+			{
 				stadt_t *city = welt->suche_naechste_stadt(gb->get_pos().get_2d());
 				gb->set_stadt( city );
-				if(city) {
+				if(city) 
+				{
 					city->buildings.append(gb,gb->get_passagier_level(),16);
 				}
 			}
-			else {
+			else 
+			{
 				gb->set_stadt( NULL );
 				hausbauer_t::remove(welt,welt->get_spieler(1),gb);
 			}
