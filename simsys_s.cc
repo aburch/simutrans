@@ -427,7 +427,8 @@ static void internal_GetEvents(int wait)
 			SDL_WaitEvent(&event);
 			n = SDL_PollEvent(NULL);
 		} while (n != 0 && event.type == SDL_MOUSEMOTION);
-	} else {
+	}
+	else {
 		int n;
 		int got_one = FALSE;
 
@@ -518,15 +519,66 @@ static void internal_GetEvents(int wait)
 			} else if (event.key.keysym.sym == SDLK_DELETE) {
 				sys_event.code = 127;
 			} else if (event.key.keysym.unicode > 0) {
-				// printf("Unicode ");
 				sys_event.code = event.key.keysym.unicode;
+				if(  event.key.keysym.unicode==22  /*^V*/  ) {
+#ifdef _WIN32
+					// paste
+					if(  OpenClipboard(NULL)  ) {
+						HANDLE hText = GetClipboardData( CF_UNICODETEXT );
+						SDL_Event new_event;
+						new_event.type =SDL_KEYDOWN;
+						new_event.key.keysym.sym = (SDLKey)0;
+						if(  hText  ) {
+							WCHAR *chr = (WCHAR *)hText;
+							while(  *chr!=0  ) {
+								if(  *chr!=10  ) {
+									new_event.key.keysym.unicode = (SDLKey)*chr;
+									SDL_PushEvent( &new_event );
+								}
+								chr ++;
+							}
+						}
+						CloseClipboard();
+					}
+#elif 0
+					// X11 magic ... not tested yet!
+					SDL_SysWMinfo si;
+					if(  SDL_GetWMInfo( &si )  &&  si.subsystem==SDL_SYSWM_X11  ) {
+						// clipboard under X11 ...
+						unsigned long sel_len = 0;	/* length of sel_buf */
+						unsigned char *sel_buf = 0;
+						Atom sseln = XA_CLIPBOARD(si.x11.display);
+						XEvent evt;			/* X Event Structures */
+						Atom target = XA_STRING;
+						unsigned int context = XCLIB_XCOUT_NONE;
+						xcout(si.x11.display, si.x11.window, evt, sseln, target, &sel_buf, &sel_len, &context);
+						/* fallback is needed. set XA_STRING to target and restart the loop. */
+						if (context == XCLIB_XCOUT_FALLBACK) {
+							// not sucessful?!?
+							sel_len = 0;
+						}
+						else {
+							// something in clipboard
+							SDL_Event new_event;
+							new_event.type =SDL_KEYDOWN;
+							new_event.key.keysym.sym = 0;
+							unsigned char *chr = sel_buf;
+							while(  sel_len-->=0  ) {
+								new_event.key.keysym.sym = (*chr==10 ? 13 : *chr);
+								SDL_PushEvent( &new_event );
+								chr ++;
+							}
+							free( sel_buf );
+						}
+					}
+#endif
+				}
 			} else if (event.key.keysym.sym >= SDLK_F1 && event.key.keysym.sym <= SDLK_F15) {
-				// printf("Function ");
 				sys_event.code = event.key.keysym.sym - SDLK_F1 + SIM_KEY_F1;
 			} else if (event.key.keysym.sym > 0 && event.key.keysym.sym < 127) {
-				// printf("ASCII ");
 				sys_event.code = event.key.keysym.sym;	// try with the ASCII code ...
-			} else {
+			}
+			else {
 				switch (event.key.keysym.sym) {
 					case SDLK_PAGEUP:   sys_event.code = '>';           break;
 					case SDLK_PAGEDOWN: sys_event.code = '<';           break;
