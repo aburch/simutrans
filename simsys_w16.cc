@@ -40,7 +40,7 @@
 #define USE_16BIT_DIB
 
 // for redraws in another thread
-#define MULTI_THREAD
+//#define MULTI_THREAD
 
 #include "simmain.h"
 #include "simmem.h"

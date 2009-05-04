@@ -444,7 +444,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 						continue;
 				}
 				
-				if(enforce_weight_limits_strictly && weight > w->get_max_weight())
+				if(enforce_weight_limits_strictly && w != NULL && weight > w->get_max_weight())
 				{
 					// Avoid routing over ways for which the convoy is overweight.
 					continue;
