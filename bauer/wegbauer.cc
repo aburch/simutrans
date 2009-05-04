@@ -839,17 +839,20 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 		// Try a bridge.
 		const long cost_difference=besch->get_wartung()>0 ? (bruecke_besch->get_wartung()*4l+3l)/besch->get_wartung() : 16;
 		const char *error;
-		// first: add long bridge
-		koord3d end = brueckenbauer_t::finde_ende( welt, from->get_pos(), zv, bruecke_besch, error, false );
-		if(  error == NULL  &&  end != ziel  &&  brueckenbauer_t::ist_ende_ok(sp, welt->lookup(end)) ) {
-			uint32 length = koord_distance(from->get_pos(), end);
-			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference + 2*welt->get_einstellungen()->way_count_slope ));
-		}
-		// then: add shortest possible bridge
-		end = brueckenbauer_t::finde_ende( welt, from->get_pos(), zv, bruecke_besch, error, true );
-		if(  error == NULL  &&  end != ziel  &&  brueckenbauer_t::ist_ende_ok(sp, welt->lookup(end)) ) {
-			uint32 length = koord_distance(from->get_pos(), end);
-			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference + 2*welt->get_einstellungen()->way_count_slope ));
+		// add long bridge (i==0) and shortest possible bridge (i==1)
+		koord3d end;
+		const grund_t* gr_end;
+		for( uint8 i = 0; i < 2; i++ ) {
+			end = brueckenbauer_t::finde_ende( welt, from->get_pos(), zv, bruecke_besch, error, i!=0 );
+			gr_end = welt->lookup(end);
+			if(  error == NULL  &&  end != ziel  &&  brueckenbauer_t::ist_ende_ok(sp, gr_end) ) {
+				uint32 length = koord_distance(from->get_pos(), end);
+				// If there is a slope on the starting tile, it's taken into account in is_allowed_step, but a bridge will be flat!
+				sint8 num_slopes = (from->get_grund_hang() == hang_t::flach) ? 1 : -1;
+				// On the end tile, we haven't to subtract way_count_slope, since is_allowed_step isn't called with this tile.
+				num_slopes += (gr_end->get_grund_hang() == hang_t::flach) ? 1 : 0;
+				next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference + num_slopes*welt->get_einstellungen()->way_count_slope ));
+			}
 		}
 		return;
 	}
