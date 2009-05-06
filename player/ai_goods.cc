@@ -304,7 +304,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		for(  int x = pos1.x-welt->get_einstellungen()->get_station_coverage();  x<=pos1.x+welt->get_einstellungen()->get_station_coverage();  x++  ) {
 			koord p(x,y);
 			// in water, the water tiles have no halt flag!
-			if(  !welt->lookup(p)->get_halt().is_bound()  &&  halt == haltestelle_t::get_halt(welt,p,this)  &&  abs_distance(best_pos,platz2)<abs_distance(p,platz2)  ) {
+			if(welt->ist_in_kartengrenzen(p)  &&  !welt->lookup(p)->get_halt().is_bound()  &&  halt == haltestelle_t::get_halt(welt,p,this)  &&  abs_distance(best_pos,platz2)<abs_distance(p,platz2)  ) {
 				best_pos = p;
 			}
 		}
