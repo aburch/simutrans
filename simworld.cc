@@ -2249,14 +2249,16 @@ karte_t::sync_step(long delta_t, bool sync, bool display )
 		// Hajo: we use a slight hack here to remove the current
 		// object from the list without wrecking the iterator
 		bool ok = iter.next();
-		while(ok) {
+		while(ok) 
+		{
 			sync_steppable *ss = iter.get_current_value();
 
 			// Hajo: advance iterator, so that we can remove the current object
 			// safely
 			ok = iter.next();
 
-			if (!ss->sync_step(delta_t)) {
+			if(!ss->sync_step(delta_t)) 
+			{
 				sync_list.remove(ss);
 				delete ss;
 			}

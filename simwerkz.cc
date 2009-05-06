@@ -422,8 +422,21 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 			msg = brueckenbauer_t::remove(welt, sp, gr->get_pos(), powerline_wt );
 			return msg == NULL;
 		}
-		else {
+		else 
+		{
 			lt->entferne(sp);
+			if(lt->get_typ() == ding_t::senke)
+			{
+				// This is an awful fudge, but there does not seem to be any other
+				// way of stopping crashes, since, inexplicably, the destructor
+				// is not properly called when "lt" is a substation in a city.
+				// @author: jamespetts. May 2009
+				senke_t* sn = (senke_t*)lt;
+				if(sn->city != NULL)
+				{
+					welt->sync_remove(sn);
+				}
+			}				
 			delete lt;
 			return true;
 		}

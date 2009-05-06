@@ -502,7 +502,7 @@ public:
 
 	uint8 get_always_prefer_car_percent() const { return always_prefer_car_percent; }
 	uint8 get_base_car_preference_percent () const { return base_car_preference_percent; }
-	uint8 get_congestion_density_factor () const { return (congestion_density_factor > 0) ? congestion_density_factor : 1; }
+	uint8 get_congestion_density_factor () const { return congestion_density_factor; }
 
 	uint32 get_max_corner_limit(waytype_t waytype) const { return kmh_to_speed(max_corner_limit[waytype]); }
 	uint32 get_min_corner_limit (waytype_t waytype) const { return kmh_to_speed(min_corner_limit[waytype]); }

@@ -1075,7 +1075,7 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 		const uint16 count = times.get_count();
 		if(count > 0 && halt.is_bound())
 		{
-			uint16 total_times = 0;
+			uint32 total_times = 0;
 			ITERATE(times,i)
 			{
 				total_times += times.get_element(i);
@@ -1084,7 +1084,7 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 			// Minimum waiting time of 1 minute (i.e., 10 tenths of a minute)
 			// This simulates the overhead time needed to arrive at a stop, and 
 			// board, etc. It should help to prevent perverse vias on a single route.
-			return total_times >= 10 ? total_times : 10;
+			return total_times >= 10 ? (uint16)total_times : 10;
 		}
 			return 10;
 	}

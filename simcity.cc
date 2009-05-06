@@ -1515,16 +1515,17 @@ void stadt_t::neuer_monat() //"New month" (Google)
 	// Anything > 4, very congested.
 	// @author: jamespetts
 	
-	float city_size = (float)(ur.x - lo.x) * (ur.y - lo.y);
-	float cars_per_tile = (float)city_history_month[1][HIST_CITYCARS] / city_size;
-	float population_density = (float)city_history_month[1][HIST_CITICENS] / city_size;
-	if(cars_per_tile <= 0.4)
+	const float city_size = (float)(ur.x - lo.x) * (ur.y - lo.y);
+	const float cars_per_tile = (float)city_history_month[1][HIST_CITYCARS] / city_size;
+	const float population_density = (float)city_history_month[1][HIST_CITICENS] / city_size;
+	if(cars_per_tile <= 0.4F)
 	{
 		city_history_month[0][HIST_CONGESTION] = 0;
 	}
 	else
 	{
-		float proportion = (((cars_per_tile - 0.4) / 4.5) * population_density) / welt->get_einstellungen()->get_congestion_density_factor();
+		const uint8 congestion_density_factor = welt->get_einstellungen()->get_congestion_density_factor();
+		const float proportion = congestion_density_factor > 0 ? (((cars_per_tile - 0.4F) / 4.5F) * population_density) / congestion_density_factor : (cars_per_tile - 0.4F) / 3;
 		city_history_month[0][HIST_CONGESTION] = proportion * 100;
 	}
 
@@ -1537,11 +1538,9 @@ void stadt_t::neuer_monat() //"New month" (Google)
 	city_history_year[0][HIST_CAR_OWNERSHIP] = car_ownership_sum / MAX_CITY_HISTORY_MONTHS;
 
 
-	if (!stadtauto_t::list_empty()) {
-		// spawn eventuall citycars
-		// the more transported, the less are spawned
-		// the larger the city, the more spawned ...
-
+	if (!stadtauto_t::list_empty()) 
+	{
+		// Spawn citycars
 		
 		// Citycars now used as an accurate measure of actual traffic level, not just the number of cars generated
 		// graphically on the map. Thus, the "traffic level" setting no longer has an effect on the city cars graph,
@@ -1555,7 +1554,7 @@ void stadt_t::neuer_monat() //"New month" (Google)
 
 #ifdef DESTINATION_CITYCARS 
 		// Subtract incoming trips and cars already generated to prevent double counting.
-		sint16 factor = city_history_month[1][HIST_CITYCARS] - incoming_private_cars - current_cars.get_count();
+		const sint16 factor = city_history_month[1][HIST_CITYCARS] - incoming_private_cars - current_cars.get_count();
 		
 		//Manual assignment of traffic level modifiers, since I could not find a suitable mathematical formula.
 		float traffic_level;
@@ -1706,12 +1705,12 @@ void stadt_t::calc_growth()
 	const uint8 mail_proportion = 100 - (passenger_proportion + electricity_proportion + goods_proportion);
 	
 	//sint32 pas = (city_history_month[0][HIST_PAS_TRANSPORTED] * (40<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
-	sint32 pas = ((city_history_month[0][HIST_PAS_TRANSPORTED] + (city_history_month[0][HIST_CITYCARS] - outgoing_private_cars)) * (passenger_proportion<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
-	sint32 mail = (city_history_month[0][HIST_MAIL_TRANSPORTED] * (mail_proportion<<6)) / (city_history_month[0][HIST_MAIL_GENERATED] + 1);
-	sint32 electricity = city_history_month[0][HIST_POWER_NEEDED] == 0 ? 0 : (city_history_month[0][HIST_POWER_RECIEVED] * (electricity_proportion<<6)) / (city_history_month[0][HIST_POWER_NEEDED]);
-	sint32 goods = city_history_month[0][HIST_GOODS_NEEDED] == 0 ? 0 : (city_history_month[0][HIST_GOODS_RECIEVED] * (goods_proportion<<6)) / (city_history_month[0][HIST_GOODS_NEEDED]);
+	const sint32 pas = ((city_history_month[0][HIST_PAS_TRANSPORTED] + (city_history_month[0][HIST_CITYCARS] - outgoing_private_cars)) * (passenger_proportion<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
+	const sint32 mail = (city_history_month[0][HIST_MAIL_TRANSPORTED] * (mail_proportion<<6)) / (city_history_month[0][HIST_MAIL_GENERATED] + 1);
+	const sint32 electricity = city_history_month[0][HIST_POWER_NEEDED] == 0 ? 0 : (city_history_month[0][HIST_POWER_RECIEVED] * (electricity_proportion<<6)) / (city_history_month[0][HIST_POWER_NEEDED]);
+	const sint32 goods = city_history_month[0][HIST_GOODS_NEEDED] == 0 ? 0 : (city_history_month[0][HIST_GOODS_RECIEVED] * (goods_proportion<<6)) / (city_history_month[0][HIST_GOODS_NEEDED]);
 
-	// smaller towns should growth slower to have villages for a longer time
+	// smaller towns should grow more slowly to have villages for a longer time
 	//sint32 weight_factor = 100;
 	sint32 weight_factor = welt->get_einstellungen()->get_city_weight_factor();
 	if(bev < 1000) 
@@ -1720,17 +1719,16 @@ void stadt_t::calc_growth()
 	}
 	else if(bev < 10000) 
 	{
-		weight_factor *= 2.5;
+		weight_factor *= 2.5F;
 	}
 
 	// now give the growth for this step
 	sint32 growth_factor = weight_factor > 0? (pas+mail+electricity+goods) / weight_factor : 0;
 	
 	//Congestion adversely impacts on growth. At 100% congestion, there will be no growth. 
-	float congestion_factor;
 	if(city_history_month[0][HIST_CONGESTION] > 0)
 	{
-		congestion_factor = (city_history_month[0][HIST_CONGESTION] / 100.0F);
+		const float congestion_factor = (city_history_month[0][HIST_CONGESTION] / 100.0F);
 		growth_factor -= (congestion_factor * growth_factor);
 	}
 	

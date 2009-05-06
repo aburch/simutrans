@@ -1244,7 +1244,7 @@ vehikel_t::hop()
 	grund_t *gr;
 	gr = welt->lookup(pos_next);
 
-	const weg_t * weg = gr->get_weg(get_waytype());
+	const weg_t * weg = gr != NULL ? gr->get_weg(get_waytype()) : NULL;
 	if(weg)
 	{
 		speed_limit = kmh_to_speed( weg->get_max_speed() );
@@ -1495,6 +1495,10 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 void
 vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu)
 {
+	if(gr == NULL)
+	{
+		return;
+	}
 
 	// assume straight flat track
 	current_friction = 1;
