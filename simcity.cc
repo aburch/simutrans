@@ -2036,8 +2036,8 @@ void stadt_t::step_passagiere()
 				// ok, they are not in walking distance
 				ware_t pax(wtyp); //Journey start information needs to be added later.
 				pax.set_zielpos(destinations[current_destination].location);
-				//pax.menge = (wtyp == warenbauer_t::passagiere ? pax_left_to_do : max(1, pax_left_to_do >> 2));
-				pax.menge = (wtyp == warenbauer_t::passagiere ? pax_left_to_do : 1 );
+				pax.menge = (wtyp == warenbauer_t::passagiere ? pax_left_to_do : max(1, pax_left_to_do >> 2));
+				//pax.menge = (wtyp == warenbauer_t::passagiere ? pax_left_to_do : 1 );
 				//"Menge" = volume (Google)
 
 				// now, finally search a route; this consumes most of the time

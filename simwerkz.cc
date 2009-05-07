@@ -3593,8 +3593,8 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				{
 					list[i]->add_all_suppliers();
 				}
-			return NULL;
 			}
+			return NULL;
 		}
 	}
 	return "No suitable ground!";

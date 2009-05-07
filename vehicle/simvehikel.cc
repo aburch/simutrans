@@ -1064,6 +1064,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 	 is_overweight = false;
 	 reversed = false;
 	 current_revenue = 0;
+	 hop_count = 0;
 }
 
 
@@ -1094,6 +1095,7 @@ vehikel_t::vehikel_t(karte_t *welt) :
 	 is_overweight = false;
 	 reversed = false;
 	 current_revenue = 0;
+	 hop_count = 0;
 }
 
 
@@ -1185,25 +1187,31 @@ vehikel_t::betrete_feld()
 
 void
 vehikel_t::hop()
-{
+{	
 	// Fahrtkosten
 	// "Travel costs" (Babelfish)
-	uint16 costs = besch->get_betriebskosten(welt);
-	if(costs != base_costs)
+	if(hop_count == 0)
 	{
-		// Recalculate base costs only if necessary
-		// With this formula, no need to initialise base 
-		// costs or diagonal costs!
-		base_costs = costs;
-		diagonal_costs = (costs * diagonal_length) / 255;
+		// Only re-check running costs every 256 steps
+		uint16 costs = besch->get_betriebskosten(welt);
+		if(costs != base_costs)
+		{
+			// Recalculate base costs only if necessary
+			// With this formula, no need to initialise base 
+			// costs or diagonal costs!
+			base_costs = costs;
+			diagonal_costs = (costs * diagonal_length) / 255;
+		}
 	}
 	if(steps_next != 255)
 	{
-		costs = diagonal_costs;
+		cnv->add_running_cost(-diagonal_costs);
 	}
-	
-	cnv->add_running_cost(-costs);	
-	
+	else
+	{
+		cnv->add_running_cost(-base_costs);
+	}
+
 	verlasse_feld(); //"Verlasse" = "leave" (Babelfish)
 
 	pos_prev = get_pos();
@@ -1288,7 +1296,7 @@ vehikel_t::hop()
 
 	sint8 trim_size = pre_corner_direction.get_count() - direction_steps;
 	pre_corner_direction.trim_from_head((trim_size >= 0) ? trim_size : 0);
-
+	hop_count ++;
 }
 
 /* Calculates the modified speed limit of the current way,

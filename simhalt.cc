@@ -1086,9 +1086,9 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 			// board, etc. It should help to prevent perverse vias on a single route.
 			return total_times >= 10 ? (uint16)total_times : 10;
 		}
-			return 10;
+		return 9;
 	}
-		return 10;
+	return 9;
 }
 
 void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fpl, const convoihandle_t cnv, const linehandle_t line)
@@ -1148,7 +1148,7 @@ void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fp
 			//const uint32 journey_distance = accurate_distance(halt->get_basis_pos(), get_basis_pos());
 			uint32 journey_distance = 0;
 			bool start_counting = false;
-			halthandle_t current_halt;
+			halthandle_t current_halt = self;
 			halthandle_t previous_halt;
 			bool goal_found = false;
 			//ITERATE_PTR(fpl, j)
@@ -1158,7 +1158,7 @@ void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fp
 			while(!goal_found)
 			{
 				previous_halt = current_halt;
-				current_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_step].pos, besitzer_p);
+				current_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_step].pos, besitzer_p).is_bound() ? haltestelle_t::get_halt(welt, fpl->eintrag[current_step].pos, besitzer_p) : previous_halt;
 				if(!current_halt.is_bound())
 				{
 					// Try a public player halt
@@ -2313,7 +2313,19 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 				
 						book(neu.menge, HALT_DEPARTED);
 						const uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - neu.arrival_time);
-						add_waiting_time(waiting_minutes, neu.get_zwischenziel(), neu.get_besch()->get_catg_index());
+						if(waiting_minutes == 0 && welt->get_zeit_ms() != neu.arrival_time)
+						{ 
+							/*const sint64 TEST_1 = welt->get_zeit_ms();
+							const sint64 TEST_2 = neu.arrival_time;
+							const sint64 DIFFERENCE = TEST_1 - TEST_2;
+							uint8 a = 1 + 1;*/
+
+							waiting_minutes == 1;
+						}
+						if(waiting_minutes > 0)
+						{
+							add_waiting_time(waiting_minutes, neu.get_zwischenziel(), neu.get_besch()->get_catg_index());
+						}
 						resort_freight_info = true;
 						return neu;
 					}
@@ -2337,6 +2349,8 @@ inline uint16 haltestelle_t::get_waiting_minutes(uint32 waiting_ticks) const
 	//uint16 test_minutes_1 = ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) * welt->get_einstellungen()->get_journey_time_multiplier() * 600);
 	//uint16 test_minutes_2 = (2 * welt->get_einstellungen()->get_journey_time_multiplier() * waiting_ticks) / 409.6;
 	return (2 * welt->get_einstellungen()->get_journey_time_multiplier() * waiting_ticks) / 409.6F;
+	//const uint32 value = (2 * welt->get_einstellungen()->get_journey_time_multiplier() * waiting_ticks) / 409.6F;
+	//return value <= 65535 ? value : 65535;
 
 	//Old method (both are functionally equivalent, except for reduction in time. Would be fully equivalent if above was 3 * ...):
 	//return ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) * welt->get_einstellungen()->get_journey_time_multiplier() * 60);

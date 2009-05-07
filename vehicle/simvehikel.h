@@ -283,6 +283,8 @@ protected:
 
 	bool check_way_constraints(const weg_t *way) const;
 
+	uint8 hop_count;
+
 public:
 	// the coordinates, where the vehicle was loaded the last time
 	koord last_stop_pos;

@@ -262,8 +262,16 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 					buf.append(cnx->journey_time * 0.1); // Convert from tenths
 					buf.append(translator::translate(" mins. travelling"));
 					buf.append(", ");
-					buf.append(cnx->waiting_time * 0.1); // Convert from tenths
-					buf.append(translator::translate(" mins. waiting)"));
+					if(cnx->waiting_time > 9)
+					{
+						buf.append(cnx->waiting_time * 0.1); // Convert from tenths
+						buf.append(translator::translate(" mins. waiting)"));
+					}
+					else
+					{
+						// Test for the default waiting value
+						buf.append(translator::translate("waiting time unknown)"));
+					}
 					buf.append("\n");
 
 				offset_y += 2 * LINESPACE;

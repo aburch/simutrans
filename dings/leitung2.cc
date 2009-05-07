@@ -644,6 +644,7 @@ senke_t::info(cbuffer_t & buf) const
 	buf.append(translator::translate("\nAvailable"));
 	buf.append(": ");
 	buf.append((200*einkommen+1)/(2*max_einkommen)); //"income" (Google)
+	buf.append("%");
 	buf.append(translator::translate("\nNetwork ID: "));
 	buf.append((uint64)get_net());
 }

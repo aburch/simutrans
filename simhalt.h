@@ -764,6 +764,7 @@ public:
 			}
 			waiting_times[category].access(halt)->add_to_tail(time);
 		}
+	
 	}
 
 	inline uint16 get_waiting_minutes(uint32 waiting_ticks) const;
