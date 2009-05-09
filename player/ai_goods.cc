@@ -210,6 +210,18 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 	return numbers;
 }
 
+void add_neighbourhood( vector_tpl<koord> &list, const uint16 size)
+{
+	uint32 old_size = list.get_count();
+	koord test;
+	for( uint32 i = 0; i < old_size; i++ ) {
+		for( test.x = -size; test.x < size+1; test.x++ ) {
+			for( test.y = -size; test.y < size+1; test.y++ ) {
+				list.append_unique( list[i] + test );
+			}
+		}
+	}
+}
 
 
 bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length )
@@ -223,15 +235,82 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 	koord ziel_size( length, 0 );
 
 	bool ok = false;
+	bool has_ziel = false;
 
 	if(qfab->get_besch()->get_platzierung()!=fabrik_besch_t::Wasser) {
-		ok = suche_platz(start, start_size, ziel, qfab->get_besch()->get_haus()->get_groesse(qfab->get_rotate()) );
+		if( length == 0 ) {
+			vector_tpl<koord3d> tile_list[2];
+			const uint8 cov = welt->get_einstellungen()->get_station_coverage();
+			koord test;
+			for( uint8 i = 0; i < 2; i++ ) {
+				fabrik_t *fab =  i==0 ? qfab : zfab;
+				vector_tpl<koord> fab_tiles;
+				fab->get_tile_list( fab_tiles );
+				add_neighbourhood( fab_tiles, cov );
+				vector_tpl<koord> one_more( fab_tiles );
+				add_neighbourhood( one_more, 1 );
+				// Any halts here?
+				vector_tpl<koord> halts;
+				for( uint32 j = 0; j < one_more.get_count(); j++ ) {
+					halthandle_t halt = haltestelle_t::get_halt( welt, one_more[j], this );
+					if( halt.is_bound() && !halts.is_contained(halt->get_basis_pos()) ) {
+						bool halt_connected = halt->get_fab_list().is_contained( fab );
+						for( slist_tpl< haltestelle_t::tile_t >::const_iterator iter = halt->get_tiles().begin(); iter != halt->get_tiles().end(); ++iter ) {
+							koord pos = iter->grund->get_pos().get_2d();
+							if( halt_connected || fab_tiles.is_contained(pos) ) {
+								halts.append_unique( pos );
+							}
+						}
+					}
+				}
+				add_neighbourhood( halts, 1 );
+				vector_tpl<koord> *next = &halts;
+				for( uint8 k = 0; k < 2; k++ ) {
+					// On which tiles we can start?
+					for( uint32 j = 0; j < next->get_count(); j++ ) {
+						const grund_t* gr = welt->lookup_kartenboden( next->operator[](j) );
+						if(  gr  &&  gr->get_grund_hang() == hang_t::flach  &&  !gr->hat_wege()  &&  !gr->get_leitung()  ) {
+							tile_list[i].append_unique( gr->get_pos() );
+						}
+					}
+					if( !tile_list[i].empty() ) {
+						// Skip, if found tiles beneath halts.
+						break;
+					}
+					next = &fab_tiles;
+				}
+			}
+			// Test which tiles are the best:
+			wegbauer_t bauigel(welt, this);
+			bauigel.route_fuer( wegbauer_t::strasse, road_weg, tunnelbauer_t::find_tunnel(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
+			// we won't destroy cities (and save the money)
+			bauigel.set_keep_existing_faster_ways(true);
+			bauigel.set_keep_city_roads(true);
+			bauigel.set_maximum(10000);
+			bauigel.calc_route(tile_list[0], tile_list[1]);
+			if(bauigel.max_n > 1) {
+				// Sometimes reverse route is the best, so we have to change the koords.
+				if( tile_list[0].is_contained( bauigel.get_route_bei(0) ) ) {
+					start = bauigel.get_route_bei(0).get_2d();
+					ziel = bauigel.get_route_bei(bauigel.max_n).get_2d();
+				} else {
+					start = bauigel.get_route_bei(bauigel.max_n).get_2d();
+					ziel = bauigel.get_route_bei(0).get_2d();
+				}
+				ok = true;
+				has_ziel = true;
+			}
+		}
+		if( !ok ) {
+			ok = suche_platz(start, start_size, ziel, qfab->get_besch()->get_haus()->get_groesse(qfab->get_rotate()) );
+		}
 	}
 	else {
 		// water factory => find harbour location
 		ok = find_harbour(start, start_size, ziel );
 	}
-	if(ok) {
+
+	if( ok && !has_ziel ) {
 		// found a place, search for target
 		ok = suche_platz(ziel, ziel_size, start, zfab->get_besch()->get_haus()->get_groesse(zfab->get_rotate()) );
 	}
@@ -540,93 +619,76 @@ bool ai_goods_t::create_simple_rail_transport()
 	clean_marker(platz1,size1);
 	clean_marker(platz2,size2);
 
+	wegbauer_t bauigel(welt, this);
+	bauigel.route_fuer( (wegbauer_t::bautyp_t)(wegbauer_t::schiene|wegbauer_t::bot_flag), rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	bauigel.set_keep_existing_ways(false);
+
 	bool ok=true;
 	// first: make plain stations tiles as intended
 	sint8 z1 = max( welt->get_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(platz1)->get_hoehe() );
 	koord k = platz1;
 	koord diff1( sgn(size1.x), sgn(size1.y) );
 	koord perpend( sgn(size1.y), sgn(size1.x) );
-	ribi_t::ribi ribi1 = ribi_typ( diff1 );
 	while(k!=size1+platz1) {
 		if(!welt->ebne_planquadrat( this, k, z1 )) {
-			ok = false;
-			break;
+			return false;
 		}
-		grund_t *gr = welt->lookup_kartenboden(k);
-		weg_t *sch = weg_t::alloc(track_wt);
-		sch->set_besch( rail_weg );
-		int cost = -gr->neuen_weg_bauen(sch, ribi1, this) - rail_weg->get_preis();
-		buche(cost, k, COST_CONSTRUCTION);
-		ribi1 = ribi_t::doppelt( ribi1 );
 		k += diff1;
 	}
+	bauigel.calc_route( koord3d(platz1,z1), koord3d(platz1+size1-diff1, z1));
+	bauigel.baue();
 
 	// make the second ones flat ...
 	sint8 z2 = max( welt->get_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(platz2)->get_hoehe() );
 	k = platz2;
 	perpend = koord( sgn(size2.y), sgn(size2.x) );
 	koord diff2( sgn(size2.x), sgn(size2.y) );
-	ribi_t::ribi ribi2 = ribi_typ( diff2 );
 	while(k!=size2+platz2  &&  ok) {
 		if(!welt->ebne_planquadrat(this,k,z2)) {
-			ok = false;
-			break;
+			return false;
 		}
-		grund_t *gr = welt->lookup_kartenboden(k);
-		weg_t *sch = weg_t::alloc(track_wt);
-		sch->set_besch( rail_weg );
-		int cost = -gr->neuen_weg_bauen(sch, ribi2, this) - rail_weg->get_preis();
-		buche(cost, k, COST_CONSTRUCTION);
-		ribi2 = ribi_t::doppelt( ribi2 );
 		k += diff2;
 	}
+	bauigel.calc_route( koord3d(platz2,z2), koord3d(platz2+size2-diff2, z2));
+	bauigel.baue();
 
+	vector_tpl<koord3d> starttiles, endtiles;
 	// now calc the route
-	wegbauer_t bauigel(welt, this);
 	if(ok) {
-		bauigel.route_fuer( (wegbauer_t::bautyp_t)(wegbauer_t::schiene|wegbauer_t::bot_flag), rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
-		bauigel.set_keep_existing_ways(false);
-		bauigel.calc_route( koord3d(platz2+size2,z2), koord3d(platz1+size1,z1) );
+		starttiles.append(welt->lookup_kartenboden(platz1 + size1)->get_pos());
+		starttiles.append(welt->lookup_kartenboden(platz1 - diff1)->get_pos());
+		endtiles.append(welt->lookup_kartenboden(platz2 + size2)->get_pos());
+		endtiles.append(welt->lookup_kartenboden(platz2 - diff2)->get_pos());
+		bauigel.calc_route( starttiles, endtiles );
 		INT_CHECK("simplay 2478");
 	}
 
 	if(ok  &&  bauigel.max_n > 3) {
-#if 0
-/* FIX THIS! */
-		//just check, if I could not start at the other end of the station ...
-		int start=0, end=bauigel.max_n;
-		for( int j=1;  j<bauigel.max_n-1;  j++  ) {
-			if(bauigel.get_route_bei(j)==platz2-diff2) {
-				start = j;
-				platz2 = platz2+size2-diff2;
-				size2 = size2*(-1);
-				diff2 = diff2*(-1);
-			}
-			if(bauigel.get_route_bei(j)==platz1-diff1) {
-				end = j;
-				platz1 = platz1+size1-diff1;
-				size1 = size1*(-1);
-				diff1 = diff1*(-1);
-			}
-		}
-		// so found shorter route?
-		if(start!=0  ||  end!=bauigel.max_n) {
-			bauigel.calc_route( koord3d(platz2+size2,z2), koord3d(platz1+size1,z1) );
-		}
-#endif
-
 DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		bauigel.baue();
 		// connect to track
-		ribi1 = ribi_typ(diff1);
-		bool success = welt->lookup_kartenboden(platz1+size1-diff1)->weg_erweitern(track_wt, ribi1);
-		ribi1 = ribi_t::rueckwaerts(ribi1);
-		success &= welt->lookup_kartenboden(platz1+size1)->weg_erweitern(track_wt, ribi1);
-		ribi2 = ribi_typ(diff2);
-		success &= welt->lookup_kartenboden(platz2+size2-diff2)->weg_erweitern(track_wt, ribi2);
-		ribi2 = ribi_t::rueckwaerts(ribi2);
-		success &= welt->lookup_kartenboden(platz2+size2)->weg_erweitern(track_wt, ribi2);
-		assert(success);
+
+		koord3d tile1, tile2;
+		if( starttiles.is_contained( bauigel.get_route_bei(0) ) ) {
+			tile1 = bauigel.get_route_bei(0);
+			tile2 = bauigel.get_route_bei(bauigel.max_n);
+		} else {
+			tile1 = bauigel.get_route_bei(bauigel.max_n);
+			tile2 = bauigel.get_route_bei(0);
+		}
+		// No botflag, since we want to connect with the station.
+		bauigel.route_fuer( wegbauer_t::schiene, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+		bauigel.calc_straight_route( koord3d(platz1,z1), tile1);
+		bauigel.baue();
+		bauigel.calc_straight_route( koord3d(platz2,z2), tile2);
+		bauigel.baue();
+		// If connection is built not at platz1/2, we must alter platz1/2, otherwise baue_bahnhof gets confused.
+		if(  tile1.get_2d() != platz1 + size1  ) {
+			platz1 = platz1 + size1 - diff1;
+		}
+		if(  tile2.get_2d() != platz2 + size2  ) {
+			platz2 = platz2 + size2 - diff2;
+		}
 		return true;
 	}
 	else {
@@ -887,7 +949,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 					}
 				}
 				// if state is still NR_BAUE_ROUTE1 then there are no sutiable places
-				if(state==NR_BAUE_ROUTE1  &&  suche_platz1_platz2(start, ziel, 1)) {
+				if(state==NR_BAUE_ROUTE1  &&  suche_platz1_platz2(start, ziel, 0)) {
 					// rail was too expensive or not successfull
 					count_rail = 255;
 					state = ship_vehicle ? NR_BAUE_WATER_ROUTE : NR_BAUE_STRASSEN_ROUTE;
@@ -984,7 +1046,12 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 				}
 			}
 			else {
-				state = NR_BAUE_STRASSEN_ROUTE;
+				if( suche_platz1_platz2(start, ziel, 0) ) {
+					state = NR_BAUE_STRASSEN_ROUTE;
+				}
+				else {
+					state = NR_BAUE_CLEAN_UP;
+				}
 			}
 		break;
 

@@ -178,6 +178,8 @@ public:
 		convoihandle_t reservation;
 	};
 
+	const slist_tpl<tile_t> &get_tiles() const { return tiles; };
+
 private:
 	slist_tpl<tile_t> tiles;
 

@@ -1512,3 +1512,20 @@ bool fabrik_t::add_supplier(fabrik_t* fab)
 	}
 	return false;
 }
+
+void fabrik_t::get_tile_list( vector_tpl<koord> &tile_list ) const
+{
+	tile_list.clear();
+
+	koord pos_2d = pos.get_2d();
+	koord size = this->get_besch()->get_haus()->get_groesse(this->get_rotate());
+	koord test;
+	// Which tiles belong to the fab?
+	for( test.x = 0; test.x < size.x; test.x++ ) {
+		for( test.y = 0; test.y < size.y; test.y++ ) {
+			if( fabrik_t::get_fab( welt, pos_2d+test ) == this ) {
+				tile_list.append( pos_2d+test );
+			}
+		}
+	}
+}

@@ -143,9 +143,9 @@ private:
 
 	// checks, if we can built a bridge here ...
 	// may modify next_gr array!
-	void check_for_bridge(const grund_t* parent_from, const grund_t* from, koord3d ziel);
+	void check_for_bridge(const grund_t* parent_from, const grund_t* from, const vector_tpl<koord3d> &ziel);
 
-	long intern_calc_route(koord3d start, const koord3d ziel);
+	long intern_calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel);
 	void intern_calc_straight_route(const koord3d start, const koord3d ziel);
 
 	// runways need to meet some special conditions enforced here
@@ -165,6 +165,8 @@ private:
 	void baue_schiene();
 	void baue_leitung();
 	void baue_fluss();
+
+	uint32 calc_distance( const koord3d &pos, const koord3d &mini, const koord3d &maxi );
 
 public:
 	koord3d get_route_bei(int i) const { return route[i]; }
@@ -195,8 +197,9 @@ public:
 
 	wegbauer_t(karte_t *welt, spieler_t *spl);
 
-	void calc_straight_route(koord3d start, const koord3d ziel);
-	void calc_route(koord3d start3d, koord3d ziel);
+	void calc_straight_route(const koord3d start, const koord3d ziel);
+	void calc_route(const koord3d &start3d, const koord3d &ziel);
+	void calc_route(const vector_tpl<koord3d> &start3d, const vector_tpl<koord3d> &ziel);
 
 	/* returns the amount needed to built this way
 	* author prissi
