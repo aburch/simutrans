@@ -16,6 +16,7 @@
 #include <stdio.h>
 
 // windows Bibliotheken DirectDraw 5.x
+// "Windows DirectDraw 5.x Libraries" (Babelfish)
 #define UNICODE 1
 #include <windows.h>
 #include <winreg.h>

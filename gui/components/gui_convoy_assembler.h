@@ -74,12 +74,12 @@ class gui_convoy_assembler_t :
 
 	/* Gui parameters */
 	koord placement;	// ...of first vehicle image
-	int placement_dx;
+	sint32 placement_dx;
 	koord grid;		// Offsets for adjacent vehicle images
-	int grid_dx;		// Horizontal offset adjustment for vehicles in convoy
-	unsigned int max_convoy_length;
-	int panel_rows;
-	int convoy_tabs_skip;
+	sint32 grid_dx;		// Horizontal offset adjustment for vehicles in convoy
+	uint32 max_convoy_length;
+	sint32 panel_rows;
+	sint32 convoy_tabs_skip;
 
 	/* Gui elements */
 	gui_label_t lb_convoi_count;
@@ -155,7 +155,7 @@ class gui_convoy_assembler_t :
 	// add a single vehicle (helper function)
 	void add_to_vehicle_list(const vehikel_besch_t *info);
 
-	static const int VINFO_HEIGHT = 186;
+	static const sint16 VINFO_HEIGHT = 186;
 
 public:
 	// Used for listeners to know what has happened
@@ -203,7 +203,7 @@ public:
 
 	inline void clear_convoy() {vehicles.clear();}
 
-	inline void remove_vehicle_at(int n) {vehicles.remove_at(n);}
+	inline void remove_vehicle_at(sint32 n) {vehicles.remove_at(n);}
 	inline void append_vehicle(const vehikel_besch_t* vb, bool in_front) {vehicles.insert_at(in_front?0:vehicles.get_count(),vb);}
 
 	/* Getter/setter methods */
@@ -219,23 +219,23 @@ public:
 	void set_vehicles(convoihandle_t cnv);
 	void set_vehicles(const vector_tpl<const vehikel_besch_t *>* vv);
 
-	inline void set_convoy_tabs_skip(int skip) {convoy_tabs_skip=skip;}
+	inline void set_convoy_tabs_skip(sint32 skip) {convoy_tabs_skip=skip;}
 
-	inline int get_convoy_clist_width() const {return vehicles.get_count() * (grid.x - grid_dx) + 2 * gui_image_list_t::BORDER;}
+	inline sint16 get_convoy_clist_width() const {return vehicles.get_count() * (grid.x - grid_dx) + 2 * gui_image_list_t::BORDER;}
 	//inline int get_convoy_clist_width() const {return depot_frame->get_depot()->get_max_convoi_length() * (grid.x - grid_dx) + 2 * gui_image_list_t::BORDER;}
 	
-	inline int get_convoy_image_width() const {return get_convoy_clist_width() + placement_dx;}
+	inline sint16 get_convoy_image_width() const {return get_convoy_clist_width() + placement_dx;}
 
-	inline int get_convoy_image_height() const {return grid.y + 2 * gui_image_list_t::BORDER;}
+	inline sint16 get_convoy_image_height() const {return grid.y + 2 * gui_image_list_t::BORDER;}
 
-	inline int get_convoy_height() const {
-		int CINFO_HEIGHT = 14;
+	inline sint16 get_convoy_height() const {
+		uint16 CINFO_HEIGHT = 14;
 		return get_convoy_image_height() + CINFO_HEIGHT + 2 + LINESPACE * 2;
 	}
 
-	inline int get_vinfo_height() const { return VINFO_HEIGHT; }
+	inline sint16 get_vinfo_height() const { return VINFO_HEIGHT; }
 
-	inline void set_panel_rows(int dy) {
+	inline void set_panel_rows(sint32 dy) {
 		if (dy==-1) {
 			panel_rows=3;
 			return;
@@ -244,13 +244,13 @@ public:
 		panel_rows = max(1, (dy/grid.y) );
 	}
 
-	inline int get_panel_height() const {return panel_rows * grid.y + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;}
+	inline sint16 get_panel_height() const {return panel_rows * grid.y + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;}
 
-	inline int get_min_panel_height() const {return grid.y + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;}
+	inline sint16 get_min_panel_height() const {return grid.y + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;}
 
-	inline int get_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_panel_height() + get_vinfo_height();}
+	inline sint16 get_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_panel_height() + get_vinfo_height();}
 
-	inline int get_min_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_min_panel_height() + get_vinfo_height();}
+	inline sint16 get_min_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_min_panel_height() + get_vinfo_height();}
 
 	inline uint8 get_upgrade() const { return upgrade; }
 	inline uint8 get_action() const { return veh_action; }

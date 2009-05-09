@@ -319,14 +319,14 @@ void gui_convoy_assembler_t::layout()
 	convoi.set_pos(koord((groesse.x-get_convoy_image_width())/2, 0));
 	convoi.set_groesse(koord(get_convoy_image_width(), get_convoy_image_height()));
 
-	int CINFO_VSTART = get_convoy_image_height();
+	sint16 CINFO_VSTART = get_convoy_image_height();
 	lb_convoi_count.set_pos(koord(4, CINFO_VSTART));
 	lb_convoi_speed.set_pos(koord(4, CINFO_VSTART + LINESPACE));
 
 	/*
 	* [PANEL]
 	*/
-	int PANEL_VSTART = get_convoy_height() + convoy_tabs_skip + 8;
+	sint16 PANEL_VSTART = get_convoy_height() + convoy_tabs_skip + 8;
 	tabs.set_pos(koord(0, PANEL_VSTART));
 	tabs.set_groesse(koord(groesse.x, get_panel_height()));
 
@@ -366,8 +366,8 @@ void gui_convoy_assembler_t::layout()
 	div_tabbottom.set_pos(koord(0,PANEL_VSTART+ get_panel_height()));
 	div_tabbottom.set_groesse(koord(groesse.x,0));
 
-	int ABUTTON_WIDTH=96;
-	int ABUTTON_HEIGHT=14;
+	sint16 ABUTTON_WIDTH=96;
+	sint16 ABUTTON_HEIGHT=14;
 	lb_veh_action.set_pos(koord(groesse.x-ABUTTON_WIDTH, PANEL_VSTART + get_panel_height() + 4));
 	//lb_upgrade.set_pos(koord(groesse.x-ABUTTON_WIDTH, PANEL_VSTART + get_panel_height() + 34));
 
@@ -421,7 +421,7 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *komp,value_
 			build_vehicle_lists();
 			update_data();
 		} else if(komp == &action_selector) {
-			int selection = p.i;
+			sint32 selection = p.i;
 			if ( selection < 0 ) {
 				action_selector.set_selection(0);
 				selection=0;
@@ -432,7 +432,7 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *komp,value_
 				update_data();
 			}
 		} else if(komp == &upgrade_selector) {
-			int upgrade_selection = p.i;
+			sint32 upgrade_selection = p.i;
 			if ( upgrade_selection < 0 ) {
 				upgrade_selector.set_selection(0);
 				upgrade_selection=0;
@@ -516,10 +516,10 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 		return;
 	}
 
-	const int month_now = get_welt()->get_timeline_year_month();
+	const uint16 month_now = get_welt()->get_timeline_year_month();
 
 	if(electrics_vec.empty()  &&  pas_vec.empty()  &&  loks_vec.empty()  &&  waggons_vec.empty()) {
-		int loks = 0, waggons = 0, pax=0, electrics = 0;
+		uint16 loks = 0, waggons = 0, pax=0, electrics = 0;
 		slist_iterator_tpl<const vehikel_besch_t*> vehinfo(vehikelbauer_t::get_info(way_type));
 		while (vehinfo.next()) {
 			const vehikel_besch_t* info = vehinfo.get_current();
@@ -810,7 +810,7 @@ DBG_MESSAGE("gui_convoy_assembler_t::image_from_storage_list()","built nr %i", n
 void gui_convoy_assembler_t::update_data()
 {
 	// change green into blue for retired vehicles
-	const int month_now = get_welt()->get_timeline_year_month();
+	const uint16 month_now = get_welt()->get_timeline_year_month();
 
 	const vehikel_besch_t *veh = NULL;
 
@@ -1116,11 +1116,11 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 	display_proportional( pos.x + 4, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 16 + 4, c, ALIGN_LEFT, COL_BLACK, true );
 
 	if(veh_type) {
-		int k = 0;
+		sint32 k = 0;
 		// lok oder waggon ?
 		if(veh_type->get_leistung() > 0) { //"Leistung" = performance (Google)
 			//lok
-			const int zuladung = veh_type->get_zuladung(); //"Zuladung" = payload (Google)
+			const sint32 zuladung = veh_type->get_zuladung(); //"Zuladung" = payload (Google)
 
 			char name[128];
 
@@ -1129,7 +1129,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			translator::translate(veh_type->get_name()),
 			translator::translate(engine_type_names[veh_type->get_engine_type()+1]));
 
-			int n;
+			sint32 n;
 			
 			if(upgrade == u_buy)
 			{
@@ -1186,7 +1186,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 		}
 		else {
 			// waggon
-			int n;
+			sint32 n;
 			if(upgrade == u_buy)
 			{
 				if(veh_type->get_overcrowded_capacity() < 1)
@@ -1301,7 +1301,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 
 		// column 2
 	
-		int j = 0;
+		sint32 j = 0;
 
 		if(veh_type->get_zuladung() > 0)
 		{
@@ -1371,7 +1371,7 @@ void gui_convoy_assembler_t::set_vehicles(convoihandle_t cnv)
 {
 	clear_convoy();
 	if (cnv.is_bound()) {
-		for (int i=0; i<cnv->get_vehikel_anzahl(); i++) {
+		for (uint8 i=0; i<cnv->get_vehikel_anzahl(); i++) {
 			vehicles.append(cnv->get_vehikel(i)->get_besch());
 		}
 	}

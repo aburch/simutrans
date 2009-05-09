@@ -1135,7 +1135,7 @@ void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fp
 				if(average_speed == 0)
 				{
 					// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-					average_speed =  speed_to_kmh(cnv->get_min_top_speed()) / 2;
+					average_speed = speed_to_kmh(cnv->get_min_top_speed()) / 2;
 				}
 			}
 			else
@@ -1151,19 +1151,21 @@ void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fp
 			halthandle_t current_halt = self;
 			halthandle_t previous_halt;
 			bool goal_found = false;
-			//ITERATE_PTR(fpl, j)
 			const uint16 max_steps = fpl->get_count();
 			uint16 current_step = 0;
 			
 			while(!goal_found)
 			{
 				previous_halt = current_halt;
-				current_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_step].pos, besitzer_p).is_bound() ? haltestelle_t::get_halt(welt, fpl->eintrag[current_step].pos, besitzer_p) : previous_halt;
+				current_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_step].pos, besitzer_p);
 				if(!current_halt.is_bound())
 				{
 					// Try a public player halt
-					spieler_t* sp = welt->get_spieler(0);
-					current_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_step].pos, sp);
+					current_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_step].pos, welt->get_spieler(0));
+				}
+				if(!current_halt.is_bound())
+				{
+					current_halt = previous_halt;
 				}
 				if(current_halt == self)
 				{
@@ -2261,7 +2263,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						const uint16 third_minutes = base_max_minutes / 3;
 						const uint16 twice_journey = connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel())->journey_time * 2 : base_max_minutes;
 						const uint16 max_best_minutes = third_minutes > twice_journey ? twice_journey : third_minutes;
-						if(cnv != NULL && waiting_minutes <= max_best_minutes / 3)
+						if(cnv != NULL && waiting_minutes <= third_minutes)
 						{
 							if(cnv->get_line().is_bound())
 							{
@@ -2312,7 +2314,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						}
 				
 						book(neu.menge, HALT_DEPARTED);
-						const uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - neu.arrival_time);
+						uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - neu.arrival_time);
 						if(waiting_minutes == 0 && welt->get_zeit_ms() != neu.arrival_time)
 						{ 
 							/*const sint64 TEST_1 = welt->get_zeit_ms();
@@ -2320,7 +2322,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 							const sint64 DIFFERENCE = TEST_1 - TEST_2;
 							uint8 a = 1 + 1;*/
 
-							waiting_minutes == 1;
+							waiting_minutes = 1;
 						}
 						if(waiting_minutes > 0)
 						{
@@ -2432,8 +2434,10 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 	// "examine whether the ware with software already waiting to be united" (Google)
 
 	vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
-	if(warray!=NULL) {
-		for(unsigned i=0;  i<warray->get_count();  i++ ) {
+	if(warray != NULL) 
+	{
+		for(uint32 i = 0; i < warray->get_count(); i++) 
+		{
 			ware_t &tmp = (*warray)[i];
 
 			/*
@@ -2461,7 +2465,7 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 				}
 
 				// Merge waiting times.
-				if(tmp.menge > 0 && ware.menge > 0)
+				if(ware.menge > 0)
 				{
 					//The waiting time for ware will always be zero.
 					tmp.arrival_time = welt->get_zeit_ms() - ((welt->get_zeit_ms() - tmp.arrival_time) * tmp.menge) / (tmp.menge + ware.menge);
