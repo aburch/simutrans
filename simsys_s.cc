@@ -665,11 +665,11 @@ bool dr_fatal_notify(const char* msg, int choices)
 {
 #ifdef _WIN32
 	if(choices==0) {
-		MessageBox( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_OK );
+		MessageBoxA( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_OK );
 		return 0;
 	}
 	else {
-		return MessageBox( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==IDRETRY;
+		return MessageBoxA( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==IDRETRY;
 	}
 #else
 	fputs(msg, stderr);
