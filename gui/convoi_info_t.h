@@ -72,7 +72,7 @@ private:
 	static const char *sort_text[SORT_MODES];
 
 public:
-	static bool route_search_in_progress;
+	//static bool route_search_in_progress;
 	convoi_info_t(convoihandle_t cnv);
 
 	/**

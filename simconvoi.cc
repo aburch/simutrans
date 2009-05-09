@@ -266,7 +266,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 
 	self.detach();
 
-	destroy_win((long)this);
+	//destroy_win((long)this);
 }
 
 
@@ -1278,7 +1278,19 @@ convoi_t::betrete_depot(depot_t *dep)
 	}
 
 	dep->convoi_arrived(self, self->get_schedule()!=0);
-	destroy_win((long)this);
+	//destroy_win((long)this);
+
+	// close windows
+	gui_fenster_t *gui = win_get_magic( magic_convoi_info+self.get_id() );
+	if(  gui  ) 
+	{
+		destroy_win( gui );
+	}
+	gui = win_get_magic( magic_convoi_detail+self.get_id() );
+	if(  gui  ) 
+	{
+		destroy_win( gui );
+	}
 
 	// Hajo: since 0.81.5exp it's safe to
 	// remove the current sync object from
@@ -3867,68 +3879,133 @@ bool convoi_t::has_same_vehicles(convoihandle_t other) const
 	return false;
 }
 
+/*
+ * Will find a depot for the vehicle "master".
+ */
+class depot_finder_t : public fahrer_t
+{
+private:
+	vehikel_t *master;
+public:
+	depot_finder_t( convoihandle_t cnv ) 
+	{ 
+		master = cnv->get_vehikel(0); 
+		assert(master!=NULL); 
+	};
+	virtual waytype_t get_waytype() const 
+	{ 
+		return master->get_waytype(); 
+	};
+	virtual bool ist_befahrbar( const grund_t* gr ) const 
+	{ 
+		return master->ist_befahrbar(gr); 
+	};
+	virtual bool ist_ziel( const grund_t* gr, const grund_t* ) const 
+	{ 
+		return gr->get_depot(); 
+	};
+	virtual ribi_t::ribi get_ribi( const grund_t* gr) const
+	{ 
+		return master->get_ribi(gr); 
+	};
+	virtual int get_kosten( const grund_t*, uint32) const 
+	{ 
+		return 1; 
+	};
+};
+
 
 /**
  * Convoy is sent to depot.  Return value, success or not.
  */
 bool convoi_t::go_to_depot(bool show_success)
 {
-	if (convoi_info_t::route_search_in_progress) {
+	/*if (convoi_info_t::route_search_in_progress) 
+	{
 		return false;
-	}
+	}*/
 	// limit update to certain states that are considered to be safe for fahrplan updates
 	int state = get_state();
 	if(state==convoi_t::FAHRPLANEINGABE) {
 DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule ... ", state );
 		return false;
 	}
-	convoi_info_t::route_search_in_progress = true;
+	//convoi_info_t::route_search_in_progress = true;
 
-	// iterate over all depots and try to find shortest route
-	slist_iterator_tpl<depot_t *> depot_iter(depot_t::get_depot_list());
-	route_t * shortest_route = new route_t();
-	route_t * route = new route_t();
-	koord3d home = koord3d(0,0,0);
-	while (depot_iter.next()) {
-		depot_t *depot = depot_iter.get_current();
-		if(depot->get_wegtyp()!=get_vehikel(0)->get_besch()->get_waytype()    ||    depot->get_besitzer()!=get_besitzer()) {
-			continue;
-		}
-		koord3d pos = depot->get_pos();
-		if(!shortest_route->empty()    &&    abs_distance(pos.get_2d(),get_pos().get_2d())>=shortest_route->get_max_n()) {
-			// the current route is already shorter, no need to search further
-			continue;
-		}
-		bool found = get_vehikel(0)->calc_route(get_pos(), pos,    50, route); // do not care about speed
-		if (found) {
-			if(  route->get_max_n() < shortest_route->get_max_n()    ||    shortest_route->empty()  ) {
-				shortest_route->kopiere(route);
-				home = pos;
-			}
-		}
-	}
-	delete route;
-	DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->get_max_n());
+	route_t route;
+	depot_finder_t finder( self );
+	route.find_route( welt, get_vehikel(0)->get_pos(), &finder, 0, ribi_t::alle, 0x7FFFFFFF);
 
 	// if route to a depot has been found, update the convoi's schedule
 	bool b_depot_found = false;
-	if(!shortest_route->empty()) {
+	
+	if(!route.empty())
+	{
+		koord3d depot_pos = route.position_bei(route.get_max_n());
 		schedule_t *fpl = get_schedule();
-		fpl->insert(get_welt()->lookup(home));
+		fpl->insert(get_welt()->lookup(depot_pos));
 		fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
 		b_depot_found = set_schedule(fpl);
 	}
-	delete shortest_route;
-	convoi_info_t::route_search_in_progress = false;
+	if(!b_depot_found)
+	{
+		// Second try - if the new system does not work, try the old system instead.
+		// iterate over all depots and try to find shortest route
+		slist_iterator_tpl<depot_t *> depot_iter(depot_t::get_depot_list());
+		route_t * shortest_route = new route_t();
+		route_t * route = new route_t();
+		koord3d home = koord3d(0,0,0);
+		while (depot_iter.next()) 
+		{
+			depot_t *depot = depot_iter.get_current();
+			if(depot->get_wegtyp()!=get_vehikel(0)->get_besch()->get_waytype()    ||    depot->get_besitzer()!=get_besitzer()) 
+			{
+				continue;
+			}
+			koord3d pos = depot->get_pos();
+			if(!shortest_route->empty()    &&    abs_distance(pos.get_2d(),get_pos().get_2d())>=shortest_route->get_max_n()) 
+			{
+				// the current route is already shorter, no need to search further
+				continue;
+			}
+			bool found = get_vehikel(0)->calc_route(get_pos(), pos,    50, route); // do not care about speed
+			if (found) 
+			{
+				if(  route->get_max_n() < shortest_route->get_max_n()    ||    shortest_route->empty()  ) 
+				{
+					shortest_route->kopiere(route);
+					home = pos;
+				}
+			}
+		}
+		DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->get_max_n());
+
+		if(!shortest_route->empty()) 
+		{
+			koord3d depot_pos = route->position_bei(route->get_max_n());
+			schedule_t *fpl = get_schedule();
+			fpl->insert(get_welt()->lookup(home));
+			fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
+			b_depot_found = set_schedule(fpl);
+		}
+
+		delete shortest_route;
+		delete route;
+	}
+	/*convoi_info_t::route_search_in_progress = false;*/
 
 	// show result
 	const char* txt;
-	if (b_depot_found) {
+	if (b_depot_found) 
+	{
 		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
-	} else {
+	} 
+	else
+	{
 		txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
 	}
-	if (!b_depot_found || show_success) {
+	if (!b_depot_found || show_success) 
+	{
 		create_win( new news_img(txt), w_time_delete, magic_none);
 	}
 	return b_depot_found;

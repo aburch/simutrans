@@ -45,7 +45,7 @@ const char cost_type[MAX_CONVOI_COST][64] =
 	"Profit"
 };
 
-bool convoi_info_t::route_search_in_progress = false;
+//bool convoi_info_t::route_search_in_progress = false;
 
 /**
  * This variable defines by which column the table is sorted
@@ -241,8 +241,9 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 				line_bound = true;
 			}
 			button.enable();
-			go_home_button.pressed = route_search_in_progress;
+			//go_home_button.pressed = route_search_in_progress;
 			details_button.pressed = win_get_magic( magic_convoi_detail+cnv.get_id() );
+			go_home_button.enable(); // Will be disabled, if convoy goes to a depot.
 			if(  cnv->get_schedule()->get_count() > 0  ) {
 				const grund_t* g = cnv->get_welt()->lookup(cnv->get_schedule()->get_current_eintrag().pos);
 				if (g != NULL && g->get_depot()) {
@@ -252,7 +253,8 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 					goto enable_home;
 				}
 			}
-			else {
+			else 
+			{
 enable_home:
 				go_home_button.enable();
 			}
@@ -385,7 +387,9 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			return true;
 		}
 
-		if(komp == &no_load_button    &&    !route_search_in_progress) {
+		//if(komp == &no_load_button    &&    !route_search_in_progress) 
+		if(komp == &no_load_button)
+		{
 			cnv->set_no_load(!cnv->get_no_load());
 			if(!cnv->get_no_load()) {
 				cnv->set_withdraw(false);
@@ -401,7 +405,9 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			create_win(20, 20, new replace_frame_t(cnv, get_name()), w_info, (long)this);
 			return true;
 		}
-		if(komp == &go_home_button    &&    !route_search_in_progress) {
+		//if(komp == &go_home_button    &&    !route_search_in_progress) 
+		if(komp == &go_home_button) 
+		{
 			cnv->go_to_depot(true);
 			return true;
 		} // end go home button

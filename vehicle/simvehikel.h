@@ -279,13 +279,14 @@ protected:
 
 	virtual void calc_bild();
 
+public:
 	virtual bool ist_befahrbar(const grund_t* ) const {return false;}
 
 	bool check_way_constraints(const weg_t *way) const;
 
 	uint8 hop_count;
 
-public:
+//public:
 	// the coordinates, where the vehicle was loaded the last time
 	koord last_stop_pos;
 
