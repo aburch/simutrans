@@ -151,6 +151,11 @@ template<class T> class minivec_tpl
 			return data[i];
 		}
 
+		T& get_element(uint e)
+		{
+			return (*this)[e];
+		}
+
 		T& back() { return data[count - 1]; }
 		const T& back() const { return data[count - 1]; }
 

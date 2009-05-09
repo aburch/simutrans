@@ -4,7 +4,16 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
+#ifndef WIN32
+#define SDL
+#endif
+
+#ifdef SDL
+#ifndef WIN32
 #include <SDL/SDL.h>
+#else
+#include "../SDL-1.2.13/include/SDL.h"
+#endif
 
 #ifndef _MSC_VER
 #include <unistd.h>
@@ -12,7 +21,8 @@
 #endif
 
 #ifdef _WIN32
-#include <SDL/SDL_syswm.h>
+//#include <SDL/SDL_syswm.h>
+#include "../SDL-1.2.13/include/SDL_syswm.h"
 #include <windows.h>
 #else
 #include <sys/stat.h>
@@ -718,3 +728,4 @@ int main(int argc, char **argv)
 #endif
 	return simu_main(argc, argv);
 }
+#endif

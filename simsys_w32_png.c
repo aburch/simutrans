@@ -1,4 +1,4 @@
-
+#ifndef SDL
 #ifndef WIN32
 #error "Only Windows has GDI+!"
 #endif
@@ -195,3 +195,5 @@ int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data,
 
 	return ok;
 }
+#endif
+

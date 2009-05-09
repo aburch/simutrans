@@ -4,6 +4,7 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
+#ifndef SDL
 #ifndef WIN32
 #error "Only Windows has GDI!"
 #endif
@@ -782,3 +783,4 @@ BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 #endif
 	return 0;
 }
+#endif

@@ -556,7 +556,7 @@ public:
 	*/
 	sint64 ticks_per_tag;
 
-	void set_ticks_bits_per_tag(sint64 bits) {ticks_bits_per_tag = bits; ticks_per_tag = (1 << ticks_bits_per_tag); }
+	void set_ticks_bits_per_tag(sint64 bits) {ticks_bits_per_tag = bits; ticks_per_tag = (1i64 << ticks_bits_per_tag); }
 
 	sint32 get_time_multiplier() const { return time_multiplier; }
 	void change_time_multiplier( sint32 delta );

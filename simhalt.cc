@@ -1784,12 +1784,10 @@ void haltestelle_t::force_paths_stale(const uint8 category)
 	}
 }
 
-uint16 haltestelle_t::find_route(ware_t &ware, const uint16 previous_journey_time)
+minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 {
-	uint16 journey_time = previous_journey_time;
 	const ware_besch_t * warentyp = ware.get_besch();
 	const uint8 ware_catg_index = warentyp->get_catg_index();
-	
 
 	if(ware.get_zielpos() == koord::invalid && ware.get_ziel().is_bound())
 	{
@@ -1802,18 +1800,24 @@ uint16 haltestelle_t::find_route(ware_t &ware, const uint16 previous_journey_tim
 	const planquadrat_t *plan = welt->lookup(ziel);
 	const halthandle_t *halt_list = plan->get_haltlist();
 	// but we can only use a subset of these
-	vector_tpl<halthandle_t> ziel_list(plan->get_haltlist_count());
+	minivec_tpl<halthandle_t> *ziel_list = new minivec_tpl<halthandle_t>(plan->get_haltlist_count());
 
 	for(uint16 h = 0; h < plan->get_haltlist_count(); h++) 
 	{
 		halthandle_t halt = halt_list[h];
 		if(halt->is_enabled(warentyp)) 
 		{
-			ziel_list.append(halt);
+			ziel_list->append(halt);
 		}
 	}
+	return ziel_list;
+}
 
-	if(ziel_list.empty()) 
+uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &ware, const uint16 previous_journey_time)
+{
+	uint16 journey_time = previous_journey_time;
+
+	if(ziel_list->empty()) 
 	{
 		//no target station found
 		ware.set_ziel(halthandle_t());
@@ -1822,7 +1826,7 @@ uint16 haltestelle_t::find_route(ware_t &ware, const uint16 previous_journey_tim
 	}
 
 	// check, if the shortest connection is not right to us ...
-	if(ziel_list.is_contained(self)) 
+	if(ziel_list->is_contained(self)) 
 	{
 		ware.set_ziel(self);
 		ware.set_zwischenziel( halthandle_t());
@@ -1832,9 +1836,9 @@ uint16 haltestelle_t::find_route(ware_t &ware, const uint16 previous_journey_tim
 	sint16 best_destination = -1;
 
 	// Now, find the best route from here.
-	ITERATE(ziel_list,i)
+	ITERATE_PTR(ziel_list,i)
 	{
-		path test_path = get_path_to(ziel_list[i], ware.get_besch()->get_catg_index());
+		path test_path = get_path_to(ziel_list->get_element(i), ware.get_besch()->get_catg_index());
 		if(test_path.journey_time != 65535 && test_path.next_transfer.is_bound())
 		{
 			journey_time = test_path.journey_time;
@@ -1846,8 +1850,8 @@ uint16 haltestelle_t::find_route(ware_t &ware, const uint16 previous_journey_tim
 	{
 		// If we are comparing this with other routes from different start halts,
 		// only set the details if it is the best route so far.
-		ware.set_ziel(ziel_list[best_destination]);
-		path final_path = get_path_to(ziel_list[best_destination], ware.get_besch()->get_catg_index());
+		ware.set_ziel(ziel_list->get_element(best_destination));
+		path final_path = get_path_to(ziel_list->get_element(best_destination), ware.get_besch()->get_catg_index());
 		if(final_path.next_transfer.is_bound())
 		{
 			ware.set_zwischenziel(final_path.next_transfer);
@@ -1857,6 +1861,14 @@ uint16 haltestelle_t::find_route(ware_t &ware, const uint16 previous_journey_tim
 		return 65535;
 	}
 	
+	return journey_time;
+}
+
+uint16 haltestelle_t::find_route (ware_t &ware, const uint16 previous_journey_time)
+{
+	minivec_tpl<halthandle_t> *ziel_list = build_destination_list(ware);
+	const uint16 journey_time = find_route(ziel_list, ware, previous_journey_time);
+	delete ziel_list;
 	return journey_time;
 }
 

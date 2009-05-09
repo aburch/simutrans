@@ -2045,21 +2045,22 @@ void stadt_t::step_passagiere()
 #ifdef NEW_PATHING
 				uint16 best_journey_time = 65535;
 				uint8 best_start_halt = 0;
+				minivec_tpl<halthandle_t> *destination_list = start_halts.empty() ? NULL : start_halts[0]->build_destination_list(pax);
 #else
 				koord return_zwischenziel = koord::invalid; // for people going back ...
 				halthandle_t best_destination[3];
 				uint8 best_journey_steps = 255;
 #endif
-
+				
 				ITERATE(start_halts,i)
 				{
-					if(start_halts.get_count() < 1)
+					if(start_halts.empty())
 					{
 						break;
 					}
 					halthandle_t current_halt = start_halts[i];
 #ifdef NEW_PATHING
-					uint16 current_journey_time = current_halt->find_route(pax, best_journey_time);
+					uint16 current_journey_time = current_halt->find_route(destination_list, pax, best_journey_time);
 					if(current_journey_time < best_journey_time)
 					{
 						best_journey_time = current_journey_time;
@@ -2094,8 +2095,9 @@ void stadt_t::step_passagiere()
 #endif
 				}
 				
-
 #ifdef NEW_PATHING
+				delete destination_list;
+				
 				if(route_good)
 				{
 #else
