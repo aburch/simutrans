@@ -63,7 +63,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	wtype = road_wt;
 	
 	this->goods_frame_t::welt = wl;
-	int y=BUTTON_HEIGHT+4-16;
+	int y = BUTTON_HEIGHT+4-16;
 	
 	speed_bonus[0] = 0;
 	distance_txt[0] = 0;
@@ -134,15 +134,16 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 
 	scrolly.set_pos(koord(1, y));
 	scrolly.set_show_scroll_x(false);
-	scrolly.set_groesse(koord(TOTAL_WIDTH-16+25, 191+16+16-y));
+	scrolly.set_groesse(koord(TOTAL_WIDTH + 10, 191 + 16 + 16 - y));
 	add_komponente(&scrolly);
 
-	int h = (warenbauer_t::get_waren_anzahl()+3)*LINESPACE+y;
-	if(h>450) {
-		h = y+10*LINESPACE+2;
+	int h =(warenbauer_t::get_waren_anzahl()+3) * LINESPACE + y;
+	if(h > 450) 
+	{
+		h = y + 10 * LINESPACE + 2;
 	}
 	set_fenstergroesse(koord(TOTAL_WIDTH, h));
-	set_min_windowsize(koord(TOTAL_WIDTH,y+6*LINESPACE+2));
+	set_min_windowsize(koord(TOTAL_WIDTH, y + 6 * LINESPACE + 2));
 	set_resizemode(vertical_resize);
 
 	sort_list();

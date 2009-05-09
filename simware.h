@@ -121,17 +121,6 @@ public:
 	// of metrics needed for merging.
 	inline bool can_merge_with (const ware_t &w) const
 	{
-		bool test_index = index == w.index;
-		bool test_zeil = ziel  == w.ziel;
-		bool test_position = (index < 3 || zielpos == w.zielpos);
-		bool test_origin = origin == w.origin;
-
-		bool test_total = index  == w.index  &&
-			ziel  == w.ziel  &&
-			// Only merge the destination *position* if the load is not freight
-			(index < 3 || zielpos == w.zielpos) &&
-			origin == w.origin;
-		
 		return index  == w.index  &&
 			ziel  == w.ziel  &&
 			// Only merge the destination *position* if the load is not freight

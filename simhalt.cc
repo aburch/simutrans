@@ -855,7 +855,6 @@ haltestelle_t::step()
 					const uint16 base_max_minutes = (welt->get_einstellungen()->get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10;  // Minutes are recorded in tenths
 					const uint16 thrice_journey = connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel())->journey_time * 3 : base_max_minutes;
 					const uint16 max_minutes = base_max_minutes < thrice_journey ? base_max_minutes : thrice_journey;
-					const sint64 waiting_ticks = welt->get_zeit_ms() - tmp.arrival_time;
 					const uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 					if(waiting_minutes > max_minutes)
 					{
@@ -2251,7 +2250,6 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						const uint16 base_max_minutes = (welt->get_einstellungen()->get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10;  // Minutes are recorded in tenths
 						//const uint16 thrice_journey = connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel())->journey_time * 3 : base_max_minutes;
 						//const uint16 max_minutes = base_max_minutes < thrice_journey ? base_max_minutes : thrice_journey;
-						const sint64 waiting_ticks = welt->get_zeit_ms() - tmp.arrival_time;
 						const uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 						/* 
 						 *  This is depracated here, since it is now called every 256 steps instead.
