@@ -364,7 +364,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			return true;
 		}
 
-		if(komp == &go_home_button    &&    !route_search_in_progress) {
+		if(komp == &go_home_button  &&  !route_search_in_progress) {
 			// limit update to certain states that are considered to be save for fahrplan updates
 			int state = cnv->get_state();
 			if(state==convoi_t::FAHRPLANEINGABE) {
