@@ -216,11 +216,26 @@ public:
 		return static_cast<const vehikel_besch_t *>(get_child(6 + i));
 	}
 
+	/* returns true, if this veh can be before the next_veh */
+	bool can_lead(const vehikel_besch_t *next_veh) const
+	{
+		if(  nachfolger==0  ) {
+			return next_veh != 0;
+		}
+		for( int i=0;  i<nachfolger;  i++  ) {
+			const vehikel_besch_t *veh = (vehikel_besch_t *)get_child(6 + vorgaenger + i);
+			if(veh==next_veh) {
+				return true;
+			}
+		}
+		// only here if not allowed
+		return false;
+	}
 	/* returns true, if this veh can be after the prev_veh */
 	bool can_follow(const vehikel_besch_t *prev_veh) const
 	{
 		if(  vorgaenger==0  ) {
-			return prev_veh == 0;
+			return prev_veh != 0;
 		}
 		for( int i=0;  i<vorgaenger;  i++  ) {
 			const vehikel_besch_t *veh = (vehikel_besch_t *)get_child(6 + i);
