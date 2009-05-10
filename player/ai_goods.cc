@@ -949,7 +949,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 					}
 				}
 				// if state is still NR_BAUE_ROUTE1 then there are no sutiable places
-				if(state==NR_BAUE_ROUTE1  &&  suche_platz1_platz2(start, ziel, 0)) {
+				if(state==NR_BAUE_ROUTE1  &&  road_weg  &&  suche_platz1_platz2(start, ziel, 0)) {
 					// rail was too expensive or not successfull
 					count_rail = 255;
 					state = ship_vehicle ? NR_BAUE_WATER_ROUTE : NR_BAUE_STRASSEN_ROUTE;
@@ -1046,7 +1046,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 				}
 			}
 			else {
-				if( suche_platz1_platz2(start, ziel, 0) ) {
+				if( road_weg && suche_platz1_platz2(start, ziel, 0) ) {
 					state = NR_BAUE_STRASSEN_ROUTE;
 				}
 				else {
