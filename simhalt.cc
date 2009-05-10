@@ -1632,10 +1632,12 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		{
 			// Track the path back to get the next transfer from this halt
 			path_node* track_node = current_node;
+#ifdef AVOID_ROGUE_VIAS_2
 			convoihandle_t current_best_convoy;
 			linehandle_t current_best_line;
 			convoihandle_t previous_best_convoy;
 			linehandle_t previous_best_line;
+#endif
 			//while(track_node->link != NULL)
 			//for(uint8 depth = 0; depth <= max_transfers; depth ++)
 			for(uint8 depth = 0; depth <= 255; depth ++)
@@ -1662,22 +1664,22 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 					if(current_best_convoy != previous_best_convoy || current_best_line != previous_best_line)
 					{
 						// Prevent transfers within the same line or convoy.
-#else
+#endif
 					if(track_node->link->link == NULL)
 					{
-#endif
+#ifndef AVOID_ROGUE_VIAS_1
 						paths[category].access(current_node->halt)->next_transfer = track_node->halt;
 						//path tmp = *paths[category].access(current_node->halt);
 						//tmp.next_transfer = track_node->halt;
 						//tmp = NULL;
-					}
-					if(track_node->link->link == NULL)
-					{
+#endif
 						// End of search.
 						break;
 					}
+#ifdef AVOID_ROGUE_VIAS_2
 					previous_best_convoy = current_best_convoy;
 					previous_best_line = current_best_line;
+#endif
 				}
 				
 				track_node = track_node->link;
@@ -3084,7 +3086,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					ware_t ware(welt, file);
 					if(ware.menge > 0) 
 					{
-						add_ware_to_halt(ware, true);
+						add_ware_to_halt(ware, file->get_experimental_version() >= 2);
 					}
 				}
 			}
