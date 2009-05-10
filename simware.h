@@ -104,7 +104,7 @@ public:
 	// find out the category ...
 	bool is_passenger() const { return index == 0; }
 	bool is_mail() const { return index == 1; }
-	bool is_freight() const { return index >= 2; }
+	bool is_freight() const { return index > 2; }
 
 	// The time at which this packet arrived at the current station
 	// @author: jamespetts
