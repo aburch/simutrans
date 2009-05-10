@@ -197,6 +197,17 @@ numbered_stations = 0
 #
 show_names = 3
 
+
+# Color of cursor overlay, which is blended over marked ground tiles
+# The available colors and their numbers can be found on
+#    http://simutrans-germany.com/wiki/wiki/tiki-index.php?page=en_FactoryDef#mapcolor
+# Suggested values (155 is the default)
+# -- pak64, pak.german, pak128
+cursor_overlay_color = 155
+# -- pak128.japan
+#cursor_overlay_color = 149
+
+
 ###################################money stuff##################################
 #
 # These values are usually set in the pak files

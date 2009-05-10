@@ -3891,7 +3891,10 @@ karte_t::mark_area( const koord3d pos, const koord size, const bool mark )
 {
 	for( sint16 y=pos.y;  y<pos.y+size.y;  y++  ) {
 		for( sint16 x=pos.x;  x<pos.x+size.x;  x++  ) {
-			grund_t *gr = lookup_kartenboden( koord(x,y) );
+			grund_t *gr = lookup( koord3d(x,y,pos.z));
+			if (!gr) {
+				gr = lookup_kartenboden( koord(x,y) );
+			}
 			if(gr) {
 				if(mark) {
 					gr->set_flag(grund_t::marked);
@@ -4003,17 +4006,12 @@ void karte_t::set_pause(bool p)
 
 void karte_t::bewege_zeiger(const event_t *ev)
 {
+	static int mb_alt=0;
+
 	if(zeiger) {
 		const int rw1 = get_tile_raster_width();
 		const int rw2 = rw1/2;
 		const int rw4 = rw1/4;
-
-		int i_alt=zeiger->get_pos().x;
-		int j_alt=zeiger->get_pos().y;
-		static int mb_alt=0;
-
-		// needed for dragging
-		const koord prev_pos = zeiger->get_pos().get_2d();
 
 		int screen_y = ev->my - y_off - rw2 - ((display_get_width()/rw1)&1)*rw4;
 		int screen_x = (ev->mx - x_off - rw2)/2;
@@ -4039,67 +4037,55 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 		*/
 
-		// iterative naeherung fuer zeigerposition
-		// iterative naehreung an gelaendehoehe
-
-		int hgt = lookup_hgt(koord(i_alt, j_alt));
-
 		const int i_off = ij_off.x+get_ansicht_ij_offset().x;
 		const int j_off = ij_off.y+get_ansicht_ij_offset().y;
 
 		bool found = false;
-		if(grund_t::underground_mode) {
-			static sint8 found_hgt = grundwasser;
+		// uncomment to: ctrl-key selects ground
+		//bool select_karten_boden = event_get_last_control_shift()==2;
 
-			for( hgt = grundwasser ; hgt < 32  && !found ; hgt++) {
-				const int base_i = (screen_x+screen_y + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1) )/2;
-				const int base_j = (screen_y-screen_x + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1))/2;
+		sint8 hgt; // trial height
+		// fallback: take kartenboden if nothing else found
+		const grund_t *bd = NULL;
+		// find matching and visible grund
+		for(hgt = 32; hgt>=grundwasser; hgt-=Z_TILE_STEP) {
 
-				mi = ((int)floor(base_i/(double)rw4)) + i_off;
-				mj = ((int)floor(base_j/(double)rw4)) + j_off;
+			const int base_i = (screen_x+screen_y + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1) )/2;
+			const int base_j = (screen_y-screen_x + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1))/2;
 
-				const planquadrat_t *plan = lookup(koord(mi,mj));
-				if(plan != NULL) {
-					for( unsigned i=0;  plan != NULL && i<plan->get_boden_count();  i++  ) {
-						if(!plan->get_boden_bei(i)->ist_tunnel() && hgt == plan->get_boden_bei(i)->get_hoehe()) {
-							found = true;
-							found_hgt = hgt;
-						}
-					}
+			mi = ((int)floor(base_i/(double)rw4)) + i_off;
+			mj = ((int)floor(base_j/(double)rw4)) + j_off;
+
+			const grund_t *gr = lookup(koord3d(mi,mj,hgt));
+			if(gr != NULL) {
+				found = /*select_karten_boden ? gr->ist_karten_boden() :*/ gr->is_visible();
+				if (found) {
+					break;
 				}
-			}
-			hgt = found_hgt;
-		}
-		if(!found) {
-			if(grund_t::underground_mode) {
-				hgt = zeiger->get_pos().z;
-			}
 
-			for(int n = 0; n < 2; n++) {
-
-				const int base_i = (screen_x+screen_y + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1) )/2;
-				const int base_j = (screen_y-screen_x + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1))/2;
-
-				mi = ((int)floor(base_i/(double)rw4)) + i_off;
-				mj = ((int)floor(base_j/(double)rw4)) + j_off;
-
-				const planquadrat_t *plan = lookup(koord(mi,mj));
-				if(plan != NULL) {
-					hgt = plan->get_kartenboden()->get_hoehe();
-				}
-				else {
-					hgt = grundwasser;
+				if (gr->ist_karten_boden() && bd==NULL) {
+					bd = gr;
 				}
 			}
 		}
+		// try kartenboden?
+		if (!found && bd!=NULL) {
+			mi = bd->get_pos().x;
+			mj = bd->get_pos().y;
+			hgt= bd->get_pos().z;
+			found = true;
+		}
+		// no suitable location found (outside map, ...)
+		if (!found) {
+			return;
+		}
+
+		// the new position
+		const koord3d pos = koord3d(mi,mj,hgt);
 
 		// rueckwaerttransformation um die zielkoordinaten
 		// mit den mauskoordinaten zu vergleichen
-		int neu_x = ((mi-i_off) - (mj-j_off))*rw2;
-		int neu_y = ((mi-i_off) + (mj-j_off))*rw4;
-
-		neu_x += display_get_width()/2 + rw2;
-		neu_y += rw1;
+		int neu_x = ((mi-i_off) - (mj-j_off))*rw2 + display_get_width()/2 + rw2;
 
 		// prüfe richtung d.h. welches nachbarfeld ist am naechsten
 		if(ev->mx-x_off < neu_x) {
@@ -4110,22 +4096,11 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		}
 
 		// zeiger bewegen
-		if(mi >= 0 && mj >= 0 &&  mi<get_groesse_x() &&  mj<get_groesse_y() && (mi != i_alt || mj != j_alt  ||  ev->button_state != mb_alt)) {
+		const koord3d prev_pos = zeiger->get_pos();
+		if(prev_pos != pos ||  ev->button_state != mb_alt) {
 
-			i_alt = mi;
-			j_alt = mj;
 			mb_alt = ev->button_state;
 
-			koord3d pos = lookup_kartenboden(koord(mi,mj))->get_pos();
-			if(grund_t::underground_mode) {
-				pos.z = hgt;
-			}
-			else {
-				if(zeiger->get_yoff()==Z_GRID) {
-					pos.z = lookup_hgt(koord(mi,mj));
-				}
-			}
-			koord3d prev_pos = zeiger->get_pos();
 			zeiger->change_pos(pos);
 			// resend init message, if mouse button pressed to enable dragging
 			if(is_dragging  &&  ev->button_state==0) {

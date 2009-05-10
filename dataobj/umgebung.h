@@ -10,6 +10,7 @@
 
 #include "../simtypes.h"
 #include "../simconst.h"
+#include "../simcolor.h"
 #include "einstellungen.h"
 
 class cstring_t;
@@ -203,6 +204,9 @@ public:
 	static bool show_tooltips;
 	static uint8 tooltip_color;
 	static uint8 tooltip_textcolor;
+
+	// color used for cursor overlay blending
+	static uint8 cursor_overlay_color;
 
 	// show error/info tooltips over the vehicles
 	static uint8 show_vehicle_states;
