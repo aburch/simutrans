@@ -2494,10 +2494,13 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 
 // put the ware into the internal storage
 // take care of all allocation neccessary
-void haltestelle_t::add_ware_to_halt(ware_t ware)
+void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 {
 	//@author: jamespetts
-	ware.arrival_time = welt->get_zeit_ms();
+	if(!from_saved)
+	{
+		ware.arrival_time = welt->get_zeit_ms();
+	}
 
 	// now we have to add the ware to the stop
 	vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
@@ -3065,18 +3068,23 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s);
 
 	}
-	else {
+	else 
+	{
 		// restoring all goods in the station
 		char s[256];
 		file->rdwr_str(s,256);
-		while(*s) {
+		while(*s) 
+		{
 			file->rdwr_short(count, " ");
-			if(count>0) {
-				for(int i = 0; i < count; i++) {
+			if(count > 0) 
+			{
+				for(int i = 0; i < count; i++) 
+				{
 					// add to internal storage (use this function, since the old categories were different)
-					ware_t ware(welt,file);
-					if(  ware.menge > 0 ) {
-						add_ware_to_halt(ware);
+					ware_t ware(welt, file);
+					if(ware.menge > 0) 
+					{
+						add_ware_to_halt(ware, true);
 					}
 				}
 			}
