@@ -27,10 +27,20 @@ template<class T> class vector_tpl
 
 		/** Construct a vector for cap elements */
 		vector_tpl() : data(NULL), size(0), count(0) {}
+
 		explicit vector_tpl(const uint32 cap) :
 			data(cap > 0 ? new T[cap] : NULL),
 			size(cap),
 			count(0) {}
+
+		vector_tpl(const vector_tpl& copy_from) :
+			data( copy_from.get_size() > 0 ? new T[ copy_from.get_size() ] : 0 ),
+			size( copy_from.get_size() ),
+			count( copy_from.get_size() ) {
+				for( uint32 i = 0; i < count; i++ ) {
+					data[i] = copy_from.data[i];
+				}
+			}
 
 		~vector_tpl() { delete [] data; }
 
@@ -242,8 +252,6 @@ template<class T> class vector_tpl
 		bool empty() const { return count == 0; }
 
 	private:
-		vector_tpl(const vector_tpl&);
-
 		T* data;
 		uint32 size;  ///< Capacity
 		uint32 count; ///< Number of elements in vector

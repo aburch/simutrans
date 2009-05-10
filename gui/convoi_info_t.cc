@@ -397,23 +397,33 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			return true;
 		}
 
-		if(komp == &replace_button) {
-			if (cnv->get_replace()) {
+		if(komp == &replace_button) 
+		{
+			if (cnv->get_replace()) 
+			{
 				cnv->set_replace(false);
 				return true;
 			}
 			create_win(20, 20, new replace_frame_t(cnv, get_name()), w_info, (long)this);
 			return true;
 		}
-		//if(komp == &go_home_button    &&    !route_search_in_progress) 
+
 		if(komp == &go_home_button) 
 		{
+			// limit update to certain states that are considered to be save for fahrplan updates
+			int state = cnv->get_state();
+			if(state==convoi_t::FAHRPLANEINGABE) 
+			{
+				DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot change schedule ... ", state );
+				return false;
+			}
 			cnv->go_to_depot(true);
 			return true;
 		} // end go home button
 	}
 
-	if (komp == &toggler) {
+	if (komp == &toggler) 
+	{
 		toggler.pressed = !toggler.pressed;
 		const koord offset = toggler.pressed ? koord(0, 170) : koord(0, -170);
 		set_min_windowsize( koord(TOTAL_WIDTH, toggler.pressed ? 364: 194));

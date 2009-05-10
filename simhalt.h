@@ -223,6 +223,7 @@ public:
 	};
 #endif
 
+	const slist_tpl<tile_t> &get_tiles() const { return tiles; };
 
 private:
 	slist_tpl<tile_t> tiles;
@@ -322,7 +323,7 @@ private:
 	bool vereinige_waren(const ware_t &ware);
 
 	// add the ware to the internal storage, called only internally
-	void add_ware_to_halt(ware_t ware);
+	void add_ware_to_halt(ware_t ware, bool from_saved = false);
 
 	/**
 	 * liefert wartende ware an eine Fabrik

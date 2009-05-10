@@ -269,6 +269,11 @@ public:
 
 	inline koord3d get_pos() const { return pos; }
 
+	/*
+	 * Fills the vector with the koords of the tiles.
+	 */
+	void get_tile_list( vector_tpl<koord> &tile_list ) const;
+
 	/**
 	 * gibt eine NULL-Terminierte Liste von Fabrikpointern zurück
 	 *
