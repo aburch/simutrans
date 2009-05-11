@@ -635,8 +635,6 @@ bool ai_goods_t::create_simple_rail_transport()
 		}
 		k += diff1;
 	}
-	bauigel.calc_route( koord3d(platz1,z1), koord3d(platz1+size1-diff1, z1));
-	bauigel.baue();
 
 	// make the second ones flat ...
 	sint8 z2 = max( welt->get_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(platz2)->get_hoehe() );
@@ -649,6 +647,9 @@ bool ai_goods_t::create_simple_rail_transport()
 		}
 		k += diff2;
 	}
+
+	bauigel.calc_route( koord3d(platz1,z1), koord3d(platz1+size1-diff1, z1));
+	bauigel.baue();
 	bauigel.calc_route( koord3d(platz2,z2), koord3d(platz2+size2-diff2, z2));
 	bauigel.baue();
 
@@ -949,7 +950,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 					}
 				}
 				// if state is still NR_BAUE_ROUTE1 then there are no sutiable places
-				if(state==NR_BAUE_ROUTE1  &&  road_weg  &&  suche_platz1_platz2(start, ziel, 0)) {
+				if(state==NR_BAUE_ROUTE1  &&  (count_road != 255)  &&  suche_platz1_platz2(start, ziel, 0)) {
 					// rail was too expensive or not successfull
 					count_rail = 255;
 					state = ship_vehicle ? NR_BAUE_WATER_ROUTE : NR_BAUE_STRASSEN_ROUTE;
@@ -1046,7 +1047,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 				}
 			}
 			else {
-				if( road_weg && suche_platz1_platz2(start, ziel, 0) ) {
+				if( (count_road != 255) && suche_platz1_platz2(start, ziel, 0) ) {
 					state = NR_BAUE_STRASSEN_ROUTE;
 				}
 				else {
