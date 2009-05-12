@@ -186,8 +186,11 @@ karte_ansicht_t::display(bool force_dirty)
 		if(gr && gr->is_visible()) {
 			const PLAYER_COLOR_VAL transparent = TRANSPARENT25_FLAG|OUTLINE_FLAG| umgebung_t::cursor_overlay_color;
 			if(  gr->get_bild()==IMG_LEER  ) {
-				if(  gr->obj_bei(0)  ) {
+				if(  gr->hat_wege()  ) {
 					display_img_blend( gr->obj_bei(0)->get_bild(), x, y, transparent, 0, true );
+				}
+				else {
+					display_img_blend( grund_besch_t::get_ground_tile(0,gr->get_hoehe()), x, y, transparent, 0, true );
 				}
 			}
 			else {
