@@ -78,7 +78,7 @@ class wkz_abfrage_t : public werkzeug_t {
 // remove uppermost object from tile
 class wkz_remover_t : public werkzeug_t {
 private:
-	static bool wkz_remover_intern(spieler_t *sp, karte_t *welt, koord pos, const char *&msg);
+	static bool wkz_remover_intern(spieler_t *sp, karte_t *welt, koord3d pos, const char *&msg);
 public:
 	const char *get_tooltip(spieler_t *) { return translator::translate("Abriss"); }
 	const char *work( karte_t *, spieler_t *, koord3d );
@@ -287,7 +287,7 @@ public:
 class wkz_depot_t : public werkzeug_t {
 private:
 	static char toolstring[256];
-	const char *wkz_depot_aux(karte_t *welt, spieler_t *sp, koord pos, const haus_besch_t *besch, waytype_t wegtype, sint64 cost);
+	const char *wkz_depot_aux(karte_t *welt, spieler_t *sp, koord3d pos, const haus_besch_t *besch, waytype_t wegtype, sint64 cost);
 public:
 	virtual image_id get_icon(spieler_t *sp) { return sp->get_player_nr()==1 ? IMG_LEER : icon; }
 	const char *get_tooltip(spieler_t *);

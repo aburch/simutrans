@@ -94,6 +94,8 @@ bool umgebung_t::show_tooltips = true;
 uint8 umgebung_t::tooltip_color = 4;
 uint8 umgebung_t::tooltip_textcolor = COL_BLACK;
 
+uint8 umgebung_t::cursor_overlay_color = COL_ORANGE;
+
 uint8 umgebung_t::show_vehicle_states = 1;
 
 sint8 umgebung_t::daynight_level = 0;

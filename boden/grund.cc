@@ -796,11 +796,35 @@ void grund_t::display_dinge(const sint16 xpos, sint16 ypos, const bool is_global
 
 	if(!ist_im_tunnel()) {
 		if(is_global  &&  get_flag(grund_t::marked)) {
-			uint8 hang = get_grund_hang();
+			uint8 hang = get_grund_hang() | get_weg_hang();
 			uint8 back_hang = (hang&1) + ((hang>>1)&6)+8;
 			display_img(grund_besch_t::marker->get_bild(back_hang), xpos, ypos, dirty);
 			dinge.display_dinge( xpos, ypos, start_offset, is_global );
-			display_img(grund_besch_t::marker->get_bild(hang&7), xpos, ypos, dirty);
+			display_img(grund_besch_t::marker->get_bild(get_grund_hang()&7), xpos, ypos, dirty);
+			//display_img(grund_besch_t::marker->get_bild(get_weg_hang()&7), xpos, ypos, dirty);
+
+			if (!ist_karten_boden()) {
+				const grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+				const sint16 raster_tile_width = get_tile_raster_width();
+				if (pos.z > gr->get_hoehe()) {
+					//display front part of marker for grunds in between
+					for(sint8 z = pos.z-Z_TILE_STEP; z>gr->get_hoehe(); z-=Z_TILE_STEP) {
+						display_img(grund_besch_t::marker->get_bild(0), xpos, ypos - tile_raster_scale_y( (z-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), true);
+					}
+					//display front part of marker for ground
+					display_img(grund_besch_t::marker->get_bild(gr->get_grund_hang()&7), xpos, ypos - tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), true);
+				}
+				else {
+					//display back part of marker for grunds in between
+					for(sint8 z = pos.z+Z_TILE_STEP; z<gr->get_hoehe(); z+=Z_TILE_STEP) {
+						display_img(grund_besch_t::borders->get_bild(0), xpos, ypos - tile_raster_scale_y( (z-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), true);
+					}
+					//display back part of marker for ground
+					const uint8 hang = gr->get_grund_hang() | gr->get_weg_hang();
+					const uint8 back_hang = (hang&1) + ((hang>>1)&6);
+					display_img(grund_besch_t::borders->get_bild(back_hang), xpos, ypos - tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), true);
+				}
+			}
 		}
 		else {
 			dinge.display_dinge( xpos, ypos, start_offset, is_global );

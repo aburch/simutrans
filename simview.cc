@@ -179,9 +179,25 @@ karte_ansicht_t::display(bool force_dirty)
 		// better not try to twist your brain to follow the retransformation ...
 		const sint16 rasterweite=get_tile_raster_width();
 		const koord diff = zeiger->get_pos().get_2d()-welt->get_world_position()-welt->get_ansicht_ij_offset();
-		const sint16 x = (diff.x-diff.y)*(rasterweite/2) + tile_raster_scale_x(zeiger->get_xoff(), rasterweite);
-		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( zeiger->get_yoff()-zeiger->get_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4);
-		zeiger->display( x+welt->get_x_off(), y+welt->get_y_off(), true );
+
+		const sint16 x = welt->get_x_off() + (diff.x-diff.y)*(rasterweite/2);
+		const sint16 y = welt->get_y_off() + (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( -zeiger->get_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4);
+		grund_t *gr = welt->lookup( zeiger->get_pos() );
+		if(gr && gr->is_visible()) {
+			const PLAYER_COLOR_VAL transparent = TRANSPARENT25_FLAG|OUTLINE_FLAG| umgebung_t::cursor_overlay_color;
+			if(  gr->get_bild()==IMG_LEER  ) {
+				if(  gr->hat_wege()  ) {
+					display_img_blend( gr->obj_bei(0)->get_bild(), x, y, transparent, 0, true );
+				}
+				else {
+					display_img_blend( grund_besch_t::get_ground_tile(0,gr->get_hoehe()), x, y, transparent, 0, true );
+				}
+			}
+			else {
+				display_img_blend( gr->get_bild(), x, y, transparent, 0, true );
+			}
+		}
+		zeiger->display( x + tile_raster_scale_x( zeiger->get_xoff(), rasterweite), y + tile_raster_scale_y( zeiger->get_yoff(), rasterweite), true );
 		zeiger->clear_flag(ding_t::dirty);
 	}
 

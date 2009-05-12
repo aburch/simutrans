@@ -630,6 +630,18 @@ public:
 
 	void* operator new(size_t s);
 	void  operator delete(void* p, size_t s);
+
+	// anticipating new undergroundmode
+	inline bool is_visible() const {
+		if (get_typ()==tunnelboden) {
+			return underground_mode ? true : ist_karten_boden();
+		}
+		else {
+			return !underground_mode;
+		}
+		return(false);
+	}
+
 };
 
 
