@@ -1561,10 +1561,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 	path_node* current_node = NULL;
 	quickstone_hashtable_tpl<haltestelle_t, connexion*> *current_connexions = NULL;
 	connexion* current_connexion = NULL;
-#define AVOID_ROGUE_VIAS_2
-#ifdef AVOID_ROGUE_VIAS_2
 	connexion* previous_connexion = NULL;
-#endif
 	path_node* new_node = NULL;
 	halthandle_t next_halt;
 
@@ -1583,7 +1580,6 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 
 		current_connexions = current_node->halt->get_connexions(category);
 		quickstone_hashtable_iterator_tpl<haltestelle_t, connexion*> iter(*current_connexions);
-#ifdef AVOID_ROGUE_VIAS_2
 		linehandle_t previous_best_line;
 		convoihandle_t previous_best_convoy;
 		if(current_node->link != NULL)
@@ -1595,7 +1591,6 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 				previous_best_convoy = previous_connexion->best_convoy;
 			}
 		}
-#endif
 		while(iter.next() && iterations <= max_iterations)
 		{
 			next_halt = iter.get_current_key();
@@ -1608,12 +1603,10 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 
 			current_connexion = iter.get_current_value();
 
-#ifdef AVOID_ROGUE_VIAS_2
 			if(previous_best_line == current_connexion->best_line && previous_best_convoy == current_connexion->best_convoy)
 			{
 				continue;
 			}
-#endif
 			new_node = &path_nodes[iterations++];
 			new_node->halt = next_halt;
 			new_node->journey_time = current_connexion->journey_time + current_connexion->waiting_time + current_node->journey_time;
@@ -1631,54 +1624,22 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		{
 			// Track the path back to get the next transfer from this halt
 			path_node* track_node = current_node;
-#ifdef AVOID_ROGUE_VIAS_2
-			convoihandle_t current_best_convoy;
-			linehandle_t current_best_line;
-			convoihandle_t previous_best_convoy;
-			linehandle_t previous_best_line;
-#endif
 			//while(track_node->link != NULL)
 			//for(uint8 depth = 0; depth <= max_transfers; depth ++)
 			for(uint8 depth = 0; depth <= 255; depth ++)
 			{
 				if(track_node->halt.is_bound())
 				{
-#ifdef AVOID_ROGUE_VIAS_1
-					if(track_node->link->halt.is_bound())
-					{
-						const quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion* > *tmp_table = track_node->halt->get_connexions(category);
-						const connexion* tmp_con = tmp_table->get(track_node->link->halt);
-						convoihandle_t tmp_convoy;
-						linehandle_t tmp_line;
-						if(tmp_con != NULL)
-						{
-							tmp_convoy = tmp_con->best_convoy;
-							tmp_line = tmp_con->best_line;
-						}
 
-						current_best_convoy = tmp_convoy;
-						current_best_line = tmp_line;
-					}
-				
-					if(current_best_convoy != previous_best_convoy || current_best_line != previous_best_line)
-					{
-						// Prevent transfers within the same line or convoy.
-#endif
 					if(track_node->link->link == NULL)
 					{
-#ifndef AVOID_ROGUE_VIAS_1
 						paths[category].access(current_node->halt)->next_transfer = track_node->halt;
 						//path tmp = *paths[category].access(current_node->halt);
 						//tmp.next_transfer = track_node->halt;
 						//tmp = NULL;
-#endif
 						// End of search.
 						break;
 					}
-#ifdef AVOID_ROGUE_VIAS_2
-					previous_best_convoy = current_best_convoy;
-					previous_best_line = current_best_line;
-#endif
 				}
 				
 				track_node = track_node->link;
