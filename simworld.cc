@@ -3432,12 +3432,14 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 	// finally a possible scenario
 	scenario->rdwr( file );
 
+#ifdef NEW_PATHING
 	if(file->get_experimental_version() >= 2)
 	{
 		file->rdwr_short(base_pathing_counter, "");
 	}
-
-	if(needs_redraw) {
+#endif
+	if(needs_redraw) 
+	{
 		update_map();
 	}
 }
@@ -3939,6 +3941,13 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	mute_sound(false);
 
 	set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
+
+#ifdef NEW_PATHING
+	if(file->get_experimental_version() >= 2)
+	{
+		file->rdwr_short(base_pathing_counter, "");
+	}
+#endif
 }
 
 

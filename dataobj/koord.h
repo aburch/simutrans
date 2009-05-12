@@ -148,6 +148,12 @@ static inline koord operator - (const koord &a)
 	return koord(-a.x, -a.y);
 }
 
+static inline bool operator == (const koord& a, int b)
+{
+	// For hashtable use.
+	return b == 0 && a == koord::invalid;
+}
+
 /**
  * Ordering based on relative distance to a fixed point `origin'.
  */

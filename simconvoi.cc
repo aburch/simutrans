@@ -188,6 +188,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	self = convoihandle_t(this);
 	init(wl, 0);
 	rdwr(file);
+	current_stop = fpl->get_aktuell() - 1;
 }
 
 convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
@@ -197,6 +198,7 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 	set_name( "Unnamed" );
 	welt->add_convoi( self );
 	init_financial_history();
+	current_stop = 255;
 }
 
 
@@ -1606,8 +1608,23 @@ bool convoi_t::set_schedule(schedule_t * f)
 	{
 		// New method - recalculate as necessary
 		halthandle_t tmp_halt;
+
+		minivec_tpl<uint8> supported_categories;
+
+		for(uint8 i = 0; i < anz_vehikel; i ++)
+		{
+			const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
+			supported_categories.append(catg_index);
+		}
+
 		ITERATE_PTR(fpl, j)
 		{
+			if(fpl == f)
+			{
+				// Do not do this twice if both are the same.
+				break;
+			}
+
 			tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
 			if(!tmp_halt.is_bound())
 			{
@@ -1617,9 +1634,9 @@ bool convoi_t::set_schedule(schedule_t * f)
 			}
 			if(tmp_halt.is_bound())
 			{
-				for(uint8 i = 0; i < anz_vehikel; i ++)
+				ITERATE(supported_categories,i)
 				{
-					const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
+					const uint8 catg_index = supported_categories[i];
 					tmp_halt->reschedule[catg_index] = true;
 					tmp_halt->force_paths_stale(catg_index);
 				}
@@ -1639,7 +1656,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 			{
 				for(uint8 i = 0; i < anz_vehikel; i ++)
 				{
-					const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
+					const uint8 catg_index = supported_categories[i];
 					tmp_halt->reschedule[catg_index] = true;
 					tmp_halt->force_paths_stale(catg_index);
 				}
@@ -2900,17 +2917,19 @@ void convoi_t::laden() //"load" (Babelfish)
 {
 	//Calculate average speed
 	//@author: jamespetts
-	const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096.0F;
 	const uint32 journey_distance = accurate_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
-	//const uint16 TEST_speed = (1 / journey_time) * 20;
-	//const uint16 TEST_minutes = (((float)1 / TEST_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60);
-	const uint16 average_speed = (journey_distance / journey_time) * 20;
-	//const uint16 TEST_actual_minutes = (((float)journey_distance / average_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60);
-	book(average_speed, CONVOI_AVERAGE_SPEED);
-	last_departure_time = welt->get_zeit_ms();
-
-	// Recalculate comfort
-	book(get_comfort(), CONVOI_COMFORT);
+	
+	const uint8 TEST = fpl->get_aktuell();
+	if(current_stop != fpl->get_aktuell())
+	{
+		const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096.0F;
+		const uint16 average_speed = (journey_distance / journey_time) * 20;
+		book(average_speed, CONVOI_AVERAGE_SPEED);
+		last_departure_time = welt->get_zeit_ms();
+		
+		// Recalculate comfort
+		book(get_comfort(), CONVOI_COMFORT);
+	}
 
 	for(uint8 i = 0; i < anz_vehikel; i++)
 	{
@@ -2948,19 +2967,21 @@ void convoi_t::laden() //"load" (Babelfish)
 		}
 	}
 
-	if(go_on_ticks==WAIT_INFINITE  &&  fpl->get_current_eintrag().waiting_time_shift>0) 
+	if(go_on_ticks == WAIT_INFINITE && fpl->get_current_eintrag().waiting_time_shift > 0) 
 	{
 		go_on_ticks = welt->get_zeit_ms() + (welt->ticks_per_tag >> (16-fpl->get_current_eintrag().waiting_time_shift));
 	}
 
 	INT_CHECK("simconvoi 1077");
+	
+	current_stop = fpl->get_aktuell();
 
 	// Nun wurde ein/ausgeladen werden
 	// "Now, a / unloaded" (Google)
-	if(loading_level >= loading_limit  ||  no_load  ||  welt->get_zeit_ms()>go_on_ticks)  
+	if(loading_level >= loading_limit  ||  no_load  ||  welt->get_zeit_ms() > go_on_ticks)  
 	{
 
-		if(withdraw  &&  has_no_cargo()) 
+		if(withdraw && has_no_cargo()) 
 		{
 			// destroy when empty
 			besitzer_p->buche( calc_restwert(), COST_NEW_VEHICLE );
@@ -2971,7 +2992,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		}
 
 		// add available capacity after loading(!) to statistics
-		for (uint8 i = 0; i<anz_vehikel; i++) 
+		for (uint8 i = 0; i < anz_vehikel; i++) 
 		{
 			book(get_vehikel(i)->get_fracht_max()-get_vehikel(i)->get_fracht_menge(), CONVOI_CAPACITY);
 		}
@@ -3594,18 +3615,30 @@ bool convoi_t::hat_keine_route() const
 void convoi_t::set_line(linehandle_t org_line)
 {
 	// to remove a convoi from a line, call unset_line(); passing a NULL is not allowed!
-	if(!org_line.is_bound()) {
+	if(!org_line.is_bound()) 
+	{
 		return;
 	}
-	if(line.is_bound()) {
+
+	minivec_tpl<uint8> supported_categories;
+
+	for(uint8 i = 0; i < anz_vehikel; i ++)
+	{
+		const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
+		supported_categories.append(catg_index);
+	}
+
+	if(line.is_bound()) 
+	{
 		unset_line();
 	}
-	else if(fpl  &&  fpl->get_count()>0) 
+	else if(fpl && fpl->get_count() > 0) 
 	{
 		// since this schedule is no longer served
 		
 #ifdef NEW_PATHING
 		// New method - recalculate on demand
+
 		ITERATE_PTR(fpl, j)
 		{
 			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
@@ -3619,7 +3652,7 @@ void convoi_t::set_line(linehandle_t org_line)
 			{
 				for(uint8 i = 0; i < anz_vehikel; i ++)
 				{
-					const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
+					const uint8 catg_index = supported_categories[i];
 					tmp_halt->reschedule[catg_index] = true;
 					tmp_halt->force_paths_stale(catg_index);
 				}
@@ -3650,7 +3683,7 @@ void convoi_t::set_line(linehandle_t org_line)
 			// Might be a waypoint, so must check whether bound.
 			for(uint8 i = 0; i < anz_vehikel; i ++)
 			{
-				const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
+				const uint8 catg_index = supported_categories[i];
 				tmp_halt->reschedule[catg_index] = true;
 				tmp_halt->force_paths_stale(catg_index);
 			}

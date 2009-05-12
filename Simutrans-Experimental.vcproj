@@ -1884,6 +1884,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tpl\koordhashtable_tpl.h"
+				>
+			</File>
+			<File
 				RelativePath=".\besch\kreuzung_besch.h"
 				>
 			</File>

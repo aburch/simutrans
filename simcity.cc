@@ -2454,7 +2454,7 @@ void stadt_t::step_passagiere()
 						}
 					}
 				}
-				INT_CHECK( "simcity 1579" );
+				INT_CHECK( "simcity 2457" );
 				current_destination ++;
 			}
 		}

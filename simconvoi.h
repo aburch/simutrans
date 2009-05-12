@@ -410,6 +410,11 @@ private:
 	uint32 rolling_average[MAX_CONVOI_COST];
 	uint16 rolling_average_count[MAX_CONVOI_COST];
 
+	// To prevent repeat bookings of journey time
+	// and comfort when a vehicle is waiting for
+	// load at a stop.
+	uint8 current_stop;
+
 
 public:
 	route_t* get_route() { return &route; }

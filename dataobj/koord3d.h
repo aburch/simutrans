@@ -82,7 +82,6 @@ static inline bool operator == (const koord3d& a, const koord3d& b)
 	return ((a.x-b.x)|(a.y-b.y)|(a.z-b.z))==0;
 }
 
-
 static inline bool operator != (const koord3d& a, const koord3d& b)
 {
 //	return a.x != b.x || a.y != b.y || a.z != b.z;

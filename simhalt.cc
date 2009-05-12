@@ -274,7 +274,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 #ifdef NEW_PATHING
 	iterations = 0;
 	search_complete = false;
-	waiting_times = new quickstone_hashtable_tpl<haltestelle_t, fixed_list_tpl<uint16, 16> >[max_categories];
+	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[max_categories];
 	paths = new quickstone_hashtable_tpl<haltestelle_t, path>[max_categories];
 	connexions_timestamp = new uint16[max_categories];
@@ -335,7 +335,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 #ifdef NEW_PATHING
 	iterations = 0;
 	search_complete = false;
-	waiting_times = new quickstone_hashtable_tpl<haltestelle_t, fixed_list_tpl<uint16, 16> >[max_categories];
+	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[max_categories];
 	paths = new quickstone_hashtable_tpl<haltestelle_t, path>[max_categories];
 #else
@@ -1068,9 +1068,9 @@ void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl
 
 uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category) const
 {
-	if(&waiting_times[category].get(halt) != NULL)
+	if(&waiting_times[category].get(halt->get_basis_pos()) != NULL)
 	{
-		fixed_list_tpl<uint16, 16> times = waiting_times[category].get(halt);
+		fixed_list_tpl<uint16, 16> times = waiting_times[category].get(halt->get_basis_pos());
 		const uint16 count = times.get_count();
 		if(count > 0 && halt.is_bound())
 		{
@@ -1447,7 +1447,6 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 		if(line->count_convoys( )> 0 && (i_am_public || line->get_convoy(0)->get_besitzer() == get_besitzer()))
 		{
 			INT_CHECK("simhalt.cc 613");
-			schedule_t *fpl = line->get_schedule();
 
 			if(fpl != NULL) 
 			{
@@ -1513,7 +1512,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		return;
 	}
 	
-	if(reschedule[category] || connexions_timestamp[category] < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
+	if(reschedule[category] || connexions_timestamp[category] <= welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
 	{
 		// Connexions are stale. Recalculate.
 		rebuild_connexions(category);
@@ -1525,7 +1524,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			delete[] path_nodes;
 		}
 	}
-	if(paths_timestamp[category] < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
+	if(paths_timestamp[category] <= welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
 	{
 		// List is stale. Recalculate.
 		// If this is false, then this is only being called to finish 
@@ -1691,6 +1690,8 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			}
 		}
 		
+		INT_CHECK( "simhalt 1694" );
+
 		if(current_node->halt == goal)
 		{
 			// Abort the search early if the goal stop is found.
@@ -1725,7 +1726,7 @@ haltestelle_t::path haltestelle_t::get_path_to(halthandle_t goal, uint8 category
 	assert(goal.is_bound());
 	path destination_path;
 	
-	if(reschedule[category] || paths_timestamp[category] < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
+	if(reschedule[category] || paths_timestamp[category] <= welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
 	{
 		// If the paths hashtable is stale, clear it.
 		// This will mean that all the paths will need to be recalculated.
@@ -1763,7 +1764,7 @@ haltestelle_t::path haltestelle_t::get_path_to(halthandle_t goal, uint8 category
 quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* haltestelle_t::get_connexions(uint8 c)
 { 
 
-	if(reschedule[c] || connexions->get_count() == 0 || paths_timestamp[c] < welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
+	if(reschedule[c] || connexions->get_count() == 0 || paths_timestamp[c] <= welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
 	{
 		// Rebuild the connexions if they are stale.
 		rebuild_connexions(c);
@@ -3136,21 +3137,12 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				halts_count = waiting_times[i].get_count();
 				file->rdwr_short(halts_count, "");
 			
-				quickstone_hashtable_iterator_tpl<haltestelle_t, fixed_list_tpl<uint16, 16> > iter(waiting_times[i]);
+				koordhashtable_iterator_tpl<koord, fixed_list_tpl<uint16, 16> > iter(waiting_times[i]);
 
-				//iter.begin();
 				while(iter.next())
 				{
-					// Store the coordinates of the key halt
-
-					koord halt_position = koord::invalid;
-					
-					if(iter.get_current_key().is_bound())
-					{
-						halt_position = iter.get_current_key()->get_basis_pos();
-					}
-
-					halt_position.rdwr(file);
+					koord save_koord = iter.get_current_key();
+					save_koord.rdwr(file);
 					uint8 waiting_time_count = iter.get_current_value().get_count();
 					file->rdwr_byte(waiting_time_count, "");
 					ITERATE(iter.get_current_value(),i)
@@ -3171,20 +3163,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					halt_position.rdwr(file);
 					if(halt_position != koord::invalid)
 					{
-						halthandle_t current_halt = welt->lookup(halt_position)->get_halt();
-						if(!current_halt.is_bound())
-						{
-							// The halt was not properly saved,
-							// or was removed at some point.
-							uint8 waiting_time_count;
-							file->rdwr_byte(waiting_time_count, "");
-							for(uint8 j = 0; j < waiting_time_count; j ++)
-							{
-								uint16 current_time;
-								file->rdwr_short(current_time, "");
-							}
-							continue;
-						}
 						fixed_list_tpl<uint16, 16> list;
 						uint8 waiting_time_count;
 						file->rdwr_byte(waiting_time_count, "");
@@ -3194,11 +3172,11 @@ void haltestelle_t::rdwr(loadsave_t *file)
 							file->rdwr_short(current_time, "");
 							list.add_to_tail(current_time);
 						}
-						waiting_times[i].put(current_halt, list);
+						waiting_times[i].put(halt_position, list);
 					}
 					else
 					{
-						// The halt was not properly saved.
+						// The list was not properly saved.
 						uint8 waiting_time_count;
 						file->rdwr_byte(waiting_time_count, "");
 						for(uint8 j = 0; j < waiting_time_count; j ++)

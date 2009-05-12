@@ -24,6 +24,7 @@
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/quickstone_hashtable_tpl.h"
+#include "tpl/koordhashtable_tpl.h"
 #include "tpl/fixed_list_tpl.h"
 #ifdef NEW_PATHING
 #include "tpl/binary_heap_tpl.h"
@@ -346,7 +347,7 @@ private:
 	// Record of waiting times. Takes a list of the last 16 waiting times per type of goods.
 	// Getter method will need to average the waiting times. 
 	// @author: jamespetts
-	quickstone_hashtable_tpl<haltestelle_t, fixed_list_tpl<uint16, 16> >* waiting_times;
+	koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >* waiting_times;
 
 #ifdef NEW_PATHING
 	// Used for pathfinding. The list is stored on the heap so that it can be re-used
@@ -760,12 +761,17 @@ public:
 			{
 				delete &tmp;
 			}*/
-			if(waiting_times[category].access(halt) == NULL)
+			
+			const fixed_list_tpl<uint16, 16> *TEST = waiting_times[category].access(halt->get_basis_pos());
+			fixed_list_tpl<uint16, 16> *tmp;
+			if(waiting_times[category].access(halt->get_basis_pos()) == NULL)
 			{
-				fixed_list_tpl<uint16, 16> *tmp = new fixed_list_tpl<uint16, 16>;
-				waiting_times[category].put(halt, *tmp);
+				//fixed_list_tpl<uint16, 16> *tmp = new fixed_list_tpl<uint16, 16>;
+				tmp = new fixed_list_tpl<uint16, 16>;
+				waiting_times[category].put(halt->get_basis_pos(), *tmp);
 			}
-			waiting_times[category].access(halt)->add_to_tail(time);
+			const fixed_list_tpl<uint16, 16> *TEST_2 = waiting_times[category].access(halt->get_basis_pos());
+			waiting_times[category].access(halt->get_basis_pos())->add_to_tail(time);
 		}
 	
 	}

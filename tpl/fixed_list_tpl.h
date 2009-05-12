@@ -156,17 +156,15 @@ public:
 
 	void add_to_head(T datum)
 	{
-		uint8 i;
 		if(size > 0)
 		{
-			i = subtract_index(head, 1, N);
+			head = subtract_index(head, 1, N);
 		}
 		else 
 		{
-			i = 0;
+			head = 0;
 		}
-		data[i] = datum;
-		head = i;
+		data[head] = datum;
 		if(tail == head && size > 0)
 		{
 			tail = subtract_index(head, 1, N);
@@ -175,7 +173,7 @@ public:
 		{
 			size ++;
 		}
-		if(placeholder_set && placeholder == i)
+		if(placeholder_set && placeholder == head)
 		{
 			//Placeholder is overwritten		
 			placeholder_set = false;
@@ -185,22 +183,19 @@ public:
 
 	void add_to_tail(T datum)
 	{
-		uint8 i;
-
 		if(size == 0)
 		{
-			i = 0;
+			tail = 0;
 		}
 		else
 		{
-			i = add_index(tail, 1, N);
+			tail = add_index(tail, 1, N);
 		}
-		data[i] = datum;
-		tail = i;
+		data[tail] = datum;
 		if(head == tail && size > 0)
 		{
 			head = add_index(tail, 1, N);
-			if(placeholder_set && placeholder == i)
+			if(placeholder_set && placeholder == tail)
 			{
 				//Placeholder is overwritten		
 				placeholder_set = false;
@@ -391,58 +386,68 @@ private:
 	bool placeholder_set;
 
 	//These methods are used for automating looping arithmetic
+	//uint8 add_index(uint8 base, uint8 addition, int index)
+	//{		
+	//	uint8 tmp;
+
+	//	if((base + addition) < index)
+	//	{
+	//		return base + addition;
+	//	}
+	//	else
+	//	{
+	//		tmp = (base + addition) - index;
+	//	}
+
+	//	if(tmp < index)
+	//	{
+	//		return tmp;
+	//	}
+	//	else
+	//	{
+	//		//There could be a sophisticated system of trimming here,
+	//		//but it would take extra work/memory/processing power, and
+	//		//is only used internally, so not worth it. This code should
+	//		//never be reached.
+	//		return index - 1;
+	//	}
+	//}
+
+	//uint8 subtract_index(uint8 base, uint8 subtraction, int index)
+	//{
+	//	uint8 tmp;
+
+	//	if((base - subtraction) < index && (base - subtraction) > 0)
+	//	{
+	//		return base - subtraction;
+	//	}
+	//	else
+	//	{
+	//		tmp = (base - subtraction) + index; //Should re-set the overflow
+	//	}
+
+	//	if(tmp < index)
+	//	{
+	//		return tmp;
+	//	}
+	//	else
+	//	{
+	//		//There could be a sophisticated system of trimming here,
+	//		//but it would take extra work/memory/processing power, and
+	//		//is only used internally, so not worth it. This code should
+	//		//never be reached.
+	//		return index - 1;
+	//	}
+	//}
+
 	uint8 add_index(uint8 base, uint8 addition, int index)
 	{		
-		uint8 tmp;
-
-		if((base + addition) < index)
-		{
-			return base + addition;
-		}
-		else
-		{
-			tmp = (base + addition) - index;
-		}
-
-		if(tmp < index)
-		{
-			return tmp;
-		}
-		else
-		{
-			//There could be a sophisticated system of trimming here,
-			//but it would take extra work/memory/processing power, and
-			//is only used internally, so not worth it. This code should
-			//never be reached.
-			return index - 1;
-		}
+		return (addition < index ? (base + addition) % index : -1);
 	}
 
 	uint8 subtract_index(uint8 base, uint8 subtraction, int index)
 	{
-		uint8 tmp;
-
-		if((base - subtraction) < index && (base - subtraction) > 0)
-		{
-			return base - subtraction;
-		}
-		else
-		{
-			tmp = (base - subtraction) + index; //Should re-set the overflow
-		}
-
-		if(tmp < index)
-		{
-			return tmp;
-		}
-		else
-		{
-			//There could be a sophisticated system of trimming here,
-			//but it would take extra work/memory/processing power, and
-			//is only used internally, so not worth it. This code should
-			//never be reached.
-			return index - 1;
-		}
+		return (substraction < index ? (base + index - subtraction) % index : -1);
 	}
 
 	bool index_is_in_range(uint8 index)
