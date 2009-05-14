@@ -447,7 +447,7 @@ private:
 
 	uint8 subtract_index(uint8 base, uint8 subtraction, int index)
 	{
-		return (substraction < index ? (base + index - subtraction) % index : -1);
+		return (subtraction < index ? (base + index - subtraction) % index : -1);
 	}
 
 	bool index_is_in_range(uint8 index)
