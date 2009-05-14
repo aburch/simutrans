@@ -27,6 +27,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp)
 	this->old_fpl = NULL;
 	this->fpl = NULL;
 	this->sp = sp;
+	withdraw = false;
 	state_color = COL_YELLOW;
 }
 
@@ -159,6 +160,11 @@ void simline_t::rdwr(loadsave_t *file)
 			file->rdwr_longlong(financial_history[k][j], " ");
 		}
 	}
+
+	if(file->get_version()>=102001) {
+		file->rdwr_bool( withdraw, "" );
+	}
+
 	// otherwise inintialized to zero if loading ...
 	financial_history[0][LINE_CONVOIS] = count_convoys();
 }
@@ -296,11 +302,13 @@ void simline_t::recalc_catg_index()
 		old_goods_catg_index.append( goods_catg_index[i] );
 	}
 	goods_catg_index.clear();
+	withdraw = true;
 	// then recreate current
 	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
 		// what goods can this line transport?
 //		const convoihandle_t cnv = line_managed_convoys[i];
 		const convoi_t *cnv = line_managed_convoys[i].get_rep();
+		withdraw &= cnv->get_withdraw();
 		for(uint i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
 			// Only consider vehicles that really transport something
 			// this helps against routing errors through passenger
@@ -328,5 +336,17 @@ void simline_t::recalc_catg_index()
 				break;
 			}
 		}
+	}
+}
+
+
+
+void simline_t::set_withdraw( bool yes_no )
+{
+	withdraw = yes_no;
+	// then recreate current
+	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
+		line_managed_convoys[i]->set_withdraw(yes_no);
+		line_managed_convoys[i]->set_no_load(yes_no);
 	}
 }

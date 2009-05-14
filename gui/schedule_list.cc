@@ -92,7 +92,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	button_t button_def;
 
 	// init scrolled list
-	scl.set_groesse(koord(LINE_NAME_COLUMN_WIDTH-22, SCL_HEIGHT-14));
+	scl.set_groesse(koord(LINE_NAME_COLUMN_WIDTH-22, SCL_HEIGHT-18));
 	scl.set_pos(koord(0,1));
 	scl.set_highlight_color(sp->get_player_color1()+1);
 	scl.add_listener(this);
@@ -167,14 +167,14 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	add_komponente(&scrolly_haltestellen);
 
 	// normal buttons edit new remove
-	bt_new_line.set_pos(koord(11, 14 + SCL_HEIGHT));
+	bt_new_line.set_pos(koord(11, 7 + SCL_HEIGHT));
 	bt_new_line.set_groesse(koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	bt_new_line.set_typ(button_t::roundbox);
 	bt_new_line.set_text("New Line");
 	add_komponente(&bt_new_line);
 	bt_new_line.add_listener(this);
 
-	bt_change_line.set_pos(koord(11+BUTTON_WIDTH, 14 + SCL_HEIGHT));
+	bt_change_line.set_pos(koord(11+BUTTON_WIDTH, 7 + SCL_HEIGHT));
 	bt_change_line.set_groesse(koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	bt_change_line.set_typ(button_t::roundbox);
 	bt_change_line.set_text("Update Line");
@@ -183,13 +183,22 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	bt_change_line.add_listener(this);
 	bt_change_line.disable();
 
-	bt_delete_line.set_pos(koord(11+2*BUTTON_WIDTH, 14 + SCL_HEIGHT));
+	bt_delete_line.set_pos(koord(11+2*BUTTON_WIDTH, 7 + SCL_HEIGHT));
 	bt_delete_line.set_groesse(koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	bt_delete_line.set_typ(button_t::roundbox);
 	bt_delete_line.set_text("Delete Line");
 	add_komponente(&bt_delete_line);
 	bt_delete_line.add_listener(this);
 	bt_delete_line.disable();
+
+	bt_withdraw_line.set_pos(koord(11+0*BUTTON_WIDTH, 7 + SCL_HEIGHT+BUTTON_HEIGHT));
+	bt_withdraw_line.set_groesse(koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	bt_withdraw_line.set_typ(button_t::roundbox_state);
+	bt_withdraw_line.set_text("Withdraw All");
+	bt_withdraw_line.set_tooltip("Convoi is sold when all wagons are empty.");
+	add_komponente(&bt_withdraw_line);
+	bt_withdraw_line.add_listener(this);
+	bt_withdraw_line.disable();
 
 	//CHART
 	chart.set_dimension(12, 1000);
@@ -273,6 +282,12 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp,value_t /
 			update_lineinfo( linehandle_t() );
 			sp->simlinemgmt.delete_line(delete_line);
 			build_line_list(tabs.get_active_tab_index());
+		}
+	}
+	else if (komp == &bt_withdraw_line) {
+		bt_withdraw_line.pressed ^= 1;
+		if (line.is_bound()) {
+			line->set_withdraw( bt_withdraw_line.pressed );
 		}
 	}
 	else if (komp == &tabs) {
@@ -455,12 +470,17 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		}
 		cont.set_groesse(koord(500, ypos));
 
+		bt_delete_line.disable();
+		bt_withdraw_line.disable();
 		if(icnv>0) {
-			bt_delete_line.disable();
+			bt_withdraw_line.enable();
 		}
 		else {
 			bt_delete_line.enable();
 		}
+
+		new_line->recalc_catg_index();	// update withdraw info
+		bt_withdraw_line.pressed = new_line->get_withdraw();
 
 		// fill haltestellen container with info of line's haltestellen
 		cont_haltestellen.remove_all();
@@ -507,6 +527,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		inp_name.set_visible(false);
 		filled_bar.set_visible(false);
 		scl.set_selection(-1);
+		bt_withdraw_line.disable();
 		bt_delete_line.disable();
 		bt_change_line.disable();
 		for(int i=0; i<MAX_LINE_COST; i++)  {
