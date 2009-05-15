@@ -773,7 +773,7 @@ public:
 
 	bool get_withdraw() const { return withdraw; }
 
-	void set_withdraw(bool new_withdraw) { withdraw = new_withdraw; }
+	void set_withdraw(bool new_withdraw);
 
 	bool get_no_load() const { return no_load; }
 
