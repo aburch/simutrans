@@ -514,7 +514,7 @@ void loadsave_t::rdwr_str(const char *&s)
 	if(!is_xml()) {
 		sint16 size;
 		if(saving) {
-			size = s ? (sint16)max(32767,strlen(s)) : 0;
+			size = s ? (sint16)min(32767,strlen(s)) : 0;
 #ifdef BIG_ENDIAN
 			{
 				uint16 ii = endian_uint16((uint16 *)&size);
@@ -578,7 +578,7 @@ void loadsave_t::rdwr_str(char *s, int size)
 	if(!is_xml()) {
 		sint16 len;
 		if(saving) {
-			len = (sint16)max(32767,strlen(s));
+			len = (sint16)min(32767,strlen(s));
 #ifdef BIG_ENDIAN
 			{
 				sint16 ii = (sint16)endian_uint16((uint16 *)&len);
