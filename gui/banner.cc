@@ -64,7 +64,7 @@ void banner_t::zeichnen(koord /*pos*/, koord)
 		display_proportional(xoff + s + 48+30, yoff + s +  94, "under Artistic Licence.", ALIGN_LEFT, color, true);
 		display_proportional(xoff + s + 24+30, yoff + s + 112, "Please send ideas and questions to:", ALIGN_LEFT, heading, true);
 		display_proportional(xoff + s + 48+30, yoff + s + 128, "Markus Pristovsek", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 48+30, yoff + s + 140, "<team@64.simutrans.com>", ALIGN_LEFT, color, true);
+		display_proportional(xoff + s + 48+30, yoff + s + 140, "<team@www.simutrans.com>", ALIGN_LEFT, color, true);
 		display_proportional(xoff + s + 24+30, yoff + s + 158, "or visit the Simutrans pages on the web:", ALIGN_LEFT, heading, true);
 		display_proportional(xoff + s + 48+30, yoff + s + 174, "http://www.simutrans.com", ALIGN_LEFT, color, true);
 		display_proportional(xoff + s + 48+30, yoff + s + 186, "http://simutrans.sourceforge.net", ALIGN_LEFT, color, true);
