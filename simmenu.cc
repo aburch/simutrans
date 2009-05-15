@@ -172,7 +172,7 @@ static uint16 str_to_key( const char *str )
 	else {
 		// check for utf8
 		if(  127<(uint8)*str  ) {
-			int len=0;
+			size_t len=0;
 			uint16 c = utf8_to_utf16( (const utf8 *)str, &len );
 			if(str[len]==',') {
 				return c;

@@ -11,6 +11,7 @@
 #include "../../ifc/gui_action_creator.h"
 #include "../../ifc/gui_komponente.h"
 #include "../../simcolor.h"
+#include "../../simgraph.h"
 
 
 /**
@@ -38,19 +39,19 @@ protected:
 	 * Maximallänge des Stringbuffers
 	 * @author Hj. Malthaner
 	 */
-	long max;
+	size_t max;
 
 	/**
 	 * position of text cursor
 	 * @author hsiegeln
 	 */
-	long cursor_pos;
+	size_t cursor_pos;
 
 	/**
 	  * offset for drawing the cursor
 	  * Dwachs: made private to check for mouse induced cursor moves
 	  */
-	long cursor_offset;
+	KOORD_VAL cursor_offset;
 
 	/**
 	 * text alignment
@@ -70,7 +71,7 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	void set_text(char *text, int max);
+	void set_text(char *text, size_t max);
 
 	/**
 	 * Holt den Textpuffer

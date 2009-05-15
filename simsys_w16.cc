@@ -379,7 +379,6 @@ int dr_screenshot(const char *filename)
 		FILE *fBmp = fopen(filename, "wb");
 		if (fBmp) {
 			BITMAPFILEHEADER bf;
-			unsigned i;
 
 			AllDib->biHeight = WindowSize.bottom + 1;
 
@@ -391,7 +390,7 @@ int dr_screenshot(const char *filename)
 			fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, fBmp);
 			fwrite(AllDib, sizeof(BITMAPINFOHEADER) + sizeof(DWORD) * 3, 1, fBmp);
 
-			for (i = 0; i < AllDib->biHeight; i++) {
+			for(  LONG i = 0; i < AllDib->biHeight; i++) {
 				fwrite(AllDibData + (AllDib->biHeight - 1 - i) * AllDib->biWidth, AllDib->biWidth, 2, fBmp);
 			}
 

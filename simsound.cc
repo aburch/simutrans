@@ -171,7 +171,7 @@ int midi_init(const char *directory)
 		while(!feof(file)) {
 			char buf[256];
 			char title[256];
-			long len;
+			size_t len;
 
 			read_line(buf, 256, file);
 			read_line(title, 256, file);

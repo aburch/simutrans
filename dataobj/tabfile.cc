@@ -109,6 +109,18 @@ int tabfileobj_t::get_int(const char *key, int def)
 	}
 }
 
+sint64 tabfileobj_t::get_int64(const char *key, sint64 def)
+{
+	const char *value = get(key);
+
+	if(!value || !*value) {
+		return def;
+	}
+	else {
+		return (sint64)(atof(value)+0.5);
+	}
+}
+
 int *tabfileobj_t::get_ints(const char *key)
 {
 	const char *value = get(key);
@@ -170,15 +182,15 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 bool tabfile_t::read_line(char *s, int size)
 {
 	char *r;
-	long l;
+	size_t l;
 
 	do {
 		r = fgets(s, size, file);
-	} while(r != NULL && (*s == '#' || *s == ' '));
+	} while(r != NULL  &&  (*s == '#' || *s == ' ')  );
 
 	if(r) {
 		l = strlen(r);
-		while(l && (r[l-1] == '\n' || r[l-1] == '\r')) {
+		while(  l  &&  (r[l-1] == '\n' || r[l-1] == '\r')  ) {
 			r[--l] = '\0';
 		}
 	}
@@ -226,7 +238,7 @@ void tabfile_t::format_key(char *key)
 
 void tabfile_t::format_value(char *value)
 {
-	long len = strlen(value);
+	size_t len = strlen(value);
 
 	// trim right
 	while(len && value[len - 1] == ' ') {

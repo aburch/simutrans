@@ -56,8 +56,7 @@ static nodelist_node_t *all_lists[NUM_LIST] = {
 };
 
 
-void *
-freelist_t::gimme_node(int size)
+void *freelist_t::gimme_node(size_t size)
 {
 	nodelist_node_t ** list = NULL;
 	if(size==0) {
@@ -90,7 +89,7 @@ freelist_t::gimme_node(int size)
 
 	// need new memory?
 	if(*list==NULL) {
-		int num_elements = 32764/size;
+		int num_elements = 32764/(int)size;
 		char* p = (char*)xmalloc(num_elements * size + sizeof(p));
 		// put the memory into the chunklist for free it
 		nodelist_node_t *chunk = (nodelist_node_t *)p;
@@ -137,8 +136,7 @@ static void putback_check_node(nodelist_node_t** list, nodelist_node_t* p)
 #endif
 
 
-void
-freelist_t::putback_node(int size,void *p)
+void freelist_t::putback_node( size_t size, void *p )
 {
 	nodelist_node_t ** list = NULL;
 	if(size==0  ||  p==NULL) {

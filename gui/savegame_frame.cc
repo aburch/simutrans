@@ -149,9 +149,9 @@ void savegame_frame_t::fill_list()
 #else
 	{
 		struct _finddata_t entry;
-		long hfind;
+		size_t hfind;
 
-		hfind = _findfirst( searchpath, &entry);
+		hfind = _findfirst( searchpath, &entry );
 		if(hfind == -1) {
 			dbg->warning("savegame_frame_t::savegame_frame_t()","Couldn't read directory.");
 		}
@@ -214,7 +214,7 @@ savegame_frame_t::~savegame_frame_t()
 // sets the current filename in the input box
 void savegame_frame_t::set_filename(const char *fn)
 {
-	long len = strlen(fn);
+	size_t len = strlen(fn);
 	if(len>=4  &&  len-SAVE_PATH_X_LEN-3<128) {
 		if(strncmp(fn,SAVE_PATH_X,SAVE_PATH_X_LEN)==0) {
 			tstrncpy(ibuf, fn+SAVE_PATH_X_LEN, len-SAVE_PATH_X_LEN-3 );

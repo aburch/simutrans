@@ -8,7 +8,7 @@ static inline int is_3byte_seq(utf8 c) { return (c & 0xF0) == 0xE0; }	// 3 Byte 
 static inline int is_cont_char(utf8 c) { return (c & 0xC0) == 0x80; }	// the bytes in a sequence have always the format 10xxxxxx
 
 
-int utf8_get_next_char(const utf8* text, int pos)
+size_t utf8_get_next_char(const utf8* text, size_t pos)
 {
 	// go right one character
 	// the bytes in a sequence have always the format 10xxxxxx, thus we use is_cont_char()
@@ -20,9 +20,9 @@ int utf8_get_next_char(const utf8* text, int pos)
 }
 
 
-int utf8_get_prev_char(const utf8* text, int pos)
+long utf8_get_prev_char(const utf8* text, long pos)
 {
-/*
+/* not needed, since the only position calling it, checks it too
 	if(pos==0) {
 		return 0;
 	}
@@ -39,7 +39,7 @@ int utf8_get_prev_char(const utf8* text, int pos)
 
 // these routines must be able to handle a mix of old and new, since after switching a
 // language the visible gui elements are not immediately retranslated
-utf16 utf8_to_utf16(const utf8* text, int* len)
+utf16 utf8_to_utf16(const utf8* text, size_t* len)
 {
 	if (is_1byte_seq(text[0])) {
 		// ASCII

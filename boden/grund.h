@@ -550,7 +550,7 @@ public:
 	 *
 	 * @author V. Meyer
 	 */
-	long neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp);
+	sint64 neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp);
 
 	/**
 	 * Bauhilfsfunktion - die ribis eines vorhandenen weges werden erweitert

@@ -161,7 +161,7 @@ void simline_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(file->get_version()>=102001) {
+	if(file->get_version()>=102002) {
 		file->rdwr_bool( withdraw, "" );
 	}
 

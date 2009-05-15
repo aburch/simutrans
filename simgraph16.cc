@@ -851,7 +851,7 @@ static void rezoom_img(const unsigned int n)
 					} while (*sp);
 					sp++;
 				}
-				images[n].len = (sp-images[n].base_data);
+				images[n].len = (uint16)(size_t)(sp-images[n].base_data);
 			}
 			return;
 		}
@@ -1052,10 +1052,10 @@ static void rezoom_img(const unsigned int n)
 			images[n].w = newzoomwidth;
 			images[n].h = newzoomheight;
 			if(newzoomheight>0) {
-				const uint32 zoom_len = ((uint8 *)dest) - ((uint8 *)baseimage);
-				images[n].len = zoom_len/sizeof(PIXVAL);
+				const size_t zoom_len = (size_t)(((uint8 *)dest) - ((uint8 *)baseimage));
+				images[n].len = (uint16)(zoom_len/sizeof(PIXVAL));
 				images[n].zoom_data = MALLOCN(PIXVAL, images[n].len);
-				assert( zoom_len>0  &&  zoom_len<65535*sizeof(PIXVAL)  &&  images[n].zoom_data  );
+				assert( zoom_len<65535*sizeof(PIXVAL)  &&  images[n].zoom_data  );
 				memcpy( images[n].zoom_data, baseimage, zoom_len );
 			}
 		} else {
@@ -1959,7 +1959,7 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 			}
 
 			// first test, if we can/need to build a cached version
-			if(  images[n].player_flags&(~NEED_PLAYER_RECODE)==0  ) {
+			if(  (images[n].player_flags&(~NEED_PLAYER_RECODE)) == 0  ) {
 				// we can still recoler if needed
 				recode_color_img(n, player_nr);
 			}
@@ -2441,19 +2441,22 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 
 
 // unicode save moving in strings
-int get_next_char(const char* text, int pos)
+size_t get_next_char(const char* text, size_t pos)
 {
 	if (has_unicode) {
 		return utf8_get_next_char((const utf8*)text, pos);
-	} else {
+	}
+	else {
 		return pos + 1;
 	}
 }
 
 
-int get_prev_char(const char* text, int pos)
+long get_prev_char(const char* text, long pos)
 {
-	if (pos <= 0) return 0;
+	if (pos <= 0) {
+		return 0;
+	}
 	if (has_unicode) {
 		return utf8_get_prev_char((const utf8*)text, pos);
 	} else {
@@ -2477,7 +2480,7 @@ KOORD_VAL display_get_char_width(utf16 c)
  * @author prissi
  * @date 29.11.04
  */
-int display_calc_proportional_string_len_width(const char* text, int len)
+int display_calc_proportional_string_len_width(const char* text, size_t len)
 {
 	const font_type* const fnt = &large_font;
 	unsigned int c, width = 0;
@@ -2486,7 +2489,7 @@ int display_calc_proportional_string_len_width(const char* text, int len)
 #ifdef UNICODE_SUPPORT
 	if (has_unicode) {
 		unsigned short iUnicode;
-		int	iLen = 0;
+		size_t	iLen = 0;
 
 		// decode char; Unicode is always 8 pixel (so far)
 		while (iLen < len) {
@@ -2556,7 +2559,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 	const font_type* const fnt = &large_font;
 	KOORD_VAL cL, cR, cT, cB;
 	uint32 c;
-	int	iTextPos = 0; // pointer on text position: prissi
+	size_t iTextPos = 0; // pointer on text position: prissi
 	int char_width_1, char_width_2; // 1 is char only, 2 includes room
 	int screen_pos;
 	const uint8 *char_data;
@@ -2816,7 +2819,7 @@ void display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_CO
 			display_text_proportional_len_clip(
 				x, y, buf,
 				ALIGN_LEFT | DT_DIRTY | DT_CLIP, color,
-				next != NULL ? next - buf : -1
+				next != NULL ? (int)(size_t)(next - buf) : -1
 			);
 			buf = next + 1;
 			y += LINESPACE;

@@ -10,8 +10,8 @@
 class freelist_t
 {
 public:
-	static void *gimme_node(int size);
-	static void putback_node(int size,void *p);
+	static void *gimme_node( size_t size );
+	static void putback_node( size_t size, void *p );
 
 	// clears all list memories
 	static void free_all_nodes();

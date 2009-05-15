@@ -1152,7 +1152,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					continue;
 				}
 
-				long gewinn = 0;
+				sint64 gewinn = 0;
 				for( int j=0;  j<12;  j++  ) {
 					gewinn += cnv->get_finance_history( j, CONVOI_PROFIT );
 				}

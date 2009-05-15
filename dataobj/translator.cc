@@ -136,7 +136,7 @@ static char* recode(const char* src, bool translate_from_utf, bool translate_to_
 					dst += c = utf16_to_utf8((unsigned char)*src++, (utf8*)dst);
 				} else if (translate_from_utf) {
 					// make latin from UTF8 (ignore overflows!)
-					int len = 0;
+					size_t len = 0;
 					*dst++ = c = (uint8)utf8_to_utf16((const utf8*)src, &len);
 					src += len;
 				}
