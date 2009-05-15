@@ -268,6 +268,7 @@ void simline_t::recalc_status()
 	if(financial_history[0][LINE_CONVOIS]==0) {
 		// noconvois assigned to this line
 		state_color = COL_WHITE;
+		withdraw = false;
 	}
 	else if(financial_history[0][LINE_PROFIT]<0) {
 		// ok, not performing best
@@ -302,7 +303,7 @@ void simline_t::recalc_catg_index()
 		old_goods_catg_index.append( goods_catg_index[i] );
 	}
 	goods_catg_index.clear();
-	withdraw = true;
+	withdraw = line_managed_convoys.get_count()>0;
 	// then recreate current
 	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
 		// what goods can this line transport?
@@ -343,7 +344,7 @@ void simline_t::recalc_catg_index()
 
 void simline_t::set_withdraw( bool yes_no )
 {
-	withdraw = yes_no;
+	withdraw = yes_no  &&  (line_managed_convoys.get_count()>0);
 	// then recreate current
 	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
 		line_managed_convoys[i]->set_withdraw(yes_no);

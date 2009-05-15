@@ -528,6 +528,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		filled_bar.set_visible(false);
 		scl.set_selection(-1);
 		bt_withdraw_line.disable();
+		bt_withdraw_line.pressed = false;
 		bt_delete_line.disable();
 		bt_change_line.disable();
 		for(int i=0; i<MAX_LINE_COST; i++)  {
