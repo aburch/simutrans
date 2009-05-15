@@ -220,8 +220,8 @@ char *tstrncpy(char *dest, const char *src, size_t n)
  */
 void rtrim(char * buf)
 {
-	size_t l = strlen(buf) - 1;
-	while(l >= 0 && buf[l] > 0 && buf[l] <= 32) {
+	long l = (long)strlen(buf) - 1;
+	while(  l >= 0  &&  buf[l] > 0  &&  buf[l] <= 32  ) {
 		buf[l--] = '\0';
 	}
 }

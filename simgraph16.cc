@@ -2554,7 +2554,7 @@ static unsigned char get_h_mask(const int xL, const int xR, const int cL, const 
  * @author Volker Meyer, prissi
  * @date  15.06.2003, 2.1.2005
  */
-int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, int flags, const PLAYER_COLOR_VAL color_index, int len)
+int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, int flags, const PLAYER_COLOR_VAL color_index, long len)
 {
 	const font_type* const fnt = &large_font;
 	KOORD_VAL cL, cR, cT, cB;
@@ -2629,7 +2629,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 	}
 
 	// big loop, char by char
-	while (iTextPos < len && txt[iTextPos] != 0) {
+	while (iTextPos < (size_t)len  &&  txt[iTextPos] != 0) {
 		int h;
 		uint8 char_yoffset;
 
