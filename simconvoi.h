@@ -392,6 +392,9 @@ private:
 	// Helper function: used in init and replacing
 	void reset();
 
+	// Helper function: used in betrete_depot and destructor.
+	void close_windows();
+
 	// Reverses the order of the convoy.
 	// @author: jamespetts
 	void reverse_order(bool rev);

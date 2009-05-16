@@ -207,9 +207,7 @@ convoi_t::~convoi_t()
 	assert(self.is_bound());
 	assert(anz_vehikel==0);
 
-	// close windows
-	destroy_win( magic_convoi_info+self.get_id() );
-	destroy_win( magic_convoi_detail+self.get_id() );
+	close_windows();
 
 DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	// stop following
@@ -225,8 +223,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 		if(!fpl->ist_abgeschlossen()) { //"is completed" (Google)
 			destroy_win((long)fpl);
 		}
-
-#ifdef NEW_PATHING		
+	
 		if(fpl->get_count()>0  &&  !line.is_bound()  ) 
 		{
 			// New method - recalculate as necessary
@@ -250,10 +247,6 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 				}
 			}
 		}
-#else			
-			// Old method - brute force
-			 welt->set_schedule_counter();
-#endif
 		delete fpl;
 	}
 
@@ -263,6 +256,13 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	self.detach();
 }
 
+void convoi_t::close_windows()
+{
+	// close windows
+	destroy_win( magic_convoi_info+self.get_id() );
+	destroy_win( magic_convoi_detail+self.get_id() );
+	destroy_win( magic_replace+self.get_id() );
+}
 
 
 void
@@ -1273,8 +1273,7 @@ convoi_t::betrete_depot(depot_t *dep)
 
 	dep->convoi_arrived(self, self->get_schedule()!=0);
 
-	destroy_win( magic_convoi_info+self.get_id() );
-	destroy_win( magic_convoi_detail+self.get_id() );
+	close_windows();
 
 	// Hajo: since 0.81.5exp it's safe to
 	// remove the current sync object from
@@ -1325,8 +1324,6 @@ void convoi_t::start()
 		}
 		else 
 		{
-#ifdef NEW_PATHING
-
 			// New method - recalculate as necessary
 			ITERATE_PTR(fpl, j)
 			{
@@ -1351,11 +1348,6 @@ void convoi_t::start()
 					dbg->error("convoi_t::start()", "Halt in schedule does not exist");
 				}
 			}
-			
-#else
-			// Old method - brute force
-			welt->set_schedule_counter();
-#endif
 		}
 
 		DBG_MESSAGE("convoi_t::start()","Convoi %s wechselt von INITIAL nach ROUTING_1", name_and_id);
@@ -1603,7 +1595,6 @@ bool convoi_t::set_schedule(schedule_t * f)
 		return false;
 	}
 
-#ifdef NEW_PATHING	
 	if(!line.is_bound() && old_state != INITIAL)
 	{
 		// New method - recalculate as necessary
@@ -1663,7 +1654,6 @@ bool convoi_t::set_schedule(schedule_t * f)
 			}
 		}
 	}
-#endif
 	
 	// happens to be identical?
 	if(fpl != f) 
@@ -1688,15 +1678,6 @@ bool convoi_t::set_schedule(schedule_t * f)
 	if(old_state != INITIAL) 
 	{
 		state = FAHRPLANEINGABE;
-
-#ifndef NEW_PATHING		
-		// Old method - brute force
-		if(  !line.is_bound()  ) 
-		{
-			// asynchronous recalculation of routes
-			welt->set_schedule_counter();
-		}
-#endif
 	}
 	return true;
 }
@@ -3635,9 +3616,6 @@ void convoi_t::set_line(linehandle_t org_line)
 	else if(fpl && fpl->get_count() > 0) 
 	{
 		// since this schedule is no longer served
-		
-#ifdef NEW_PATHING
-		// New method - recalculate on demand
 
 		ITERATE_PTR(fpl, j)
 		{
@@ -3658,17 +3636,12 @@ void convoi_t::set_line(linehandle_t org_line)
 				}
 			}
 		}
-#else
-		// Old method - brute force
-		welt->set_schedule_counter();
-#endif
 	}
 	line = org_line;
 	line_id = org_line->get_line_id();
 	schedule_t *new_fpl= org_line->get_schedule()->copy();
 	set_schedule(new_fpl);
 
-#ifdef NEW_PATHING
 	ITERATE_PTR(new_fpl, j)
 	{
 		halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
@@ -3689,8 +3662,6 @@ void convoi_t::set_line(linehandle_t org_line)
 			}
 		}
 	}
-#endif
-
 	line->add_convoy(self);
 }
 
@@ -3917,7 +3888,7 @@ public:
 	};
 	virtual bool ist_ziel( const grund_t* gr, const grund_t* ) const 
 	{ 
-		return gr->get_depot(); 
+		return gr->get_depot() && gr->get_depot()->get_besitzer() == master->get_besitzer(); 
 	};
 	virtual ribi_t::ribi get_ribi( const grund_t* gr) const
 	{ 
@@ -3951,7 +3922,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	depot_finder_t finder( self );
 	route.find_route( welt, get_vehikel(0)->get_pos(), &finder, 0, ribi_t::alle, 0x7FFFFFFF);
 
-	// if route to a depot has been found, update the convoi's schedule
+	// if route to a depot has been found, update the convoy's schedule
 	bool b_depot_found = false;
 	
 	if(!route.empty())
@@ -3973,17 +3944,17 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		while (depot_iter.next()) 
 		{
 			depot_t *depot = depot_iter.get_current();
-			if(depot->get_wegtyp()!=get_vehikel(0)->get_besch()->get_waytype()    ||    depot->get_besitzer()!=get_besitzer()) 
+			if(depot->get_wegtyp()!=get_vehikel(0)->get_besch()->get_waytype() || depot->get_besitzer() != get_besitzer()) 
 			{
 				continue;
 			}
 			koord3d pos = depot->get_pos();
-			if(!shortest_route->empty()    &&    abs_distance(pos.get_2d(),get_pos().get_2d())>=shortest_route->get_max_n()) 
+			if(!shortest_route->empty() && abs_distance(pos.get_2d(),get_pos().get_2d())>=shortest_route->get_max_n()) 
 			{
 				// the current route is already shorter, no need to search further
 				continue;
 			}
-			bool found = get_vehikel(0)->calc_route(get_pos(), pos,    50, route); // do not care about speed
+			bool found = get_vehikel(0)->calc_route(get_pos(), pos, 50, route); // do not care about speed
 			if (found) 
 			{
 				if(  route->get_max_n() < shortest_route->get_max_n()    ||    shortest_route->empty()  ) 

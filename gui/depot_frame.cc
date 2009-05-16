@@ -4,41 +4,36 @@
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  */ 
+
+#include "depot_frame.h"
+
 #include <stdio.h>
 #include <math.h>
 
-#include "../simworld.h"
-#include "../vehicle/simvehikel.h"
 #include "../simconvoi.h"
 #include "../simdepot.h"
-#include "../simwin.h"
+
 #include "../simcolor.h"
 #include "../simdebug.h"
 #include "../simgraph.h"
 #include "../simline.h"
 #include "../simlinemgmt.h"
+#include "../vehicle/simvehikel.h"
 
-#include "../tpl/slist_tpl.h"
+#include "../simworld.h"
+#include "../simwin.h"
 
 #include "fahrplan_gui.h"
 #include "line_management_gui.h"
 #include "line_item.h"
-#include "components/gui_image_list.h"
 #include "messagebox.h"
-#include "depot_frame.h"
 
-#include "../besch/ware_besch.h"
-#include "../besch/intro_dates.h"
-#include "../bauer/vehikelbauer.h"
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+
 #include "../utils/simstring.h"
 
-#include "../bauer/warenbauer.h"
-
 #include "../boden/wege/weg.h"
-
 
 char depot_frame_t::no_line_text[128];	// contains the current translation of "<no line>"
 
@@ -49,7 +44,8 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	icnv(depot->convoi_count()-1),
 	lb_convois(NULL, COL_BLACK, gui_label_t::left),
 	lb_convoi_value(NULL, COL_BLACK, gui_label_t::right),
-	lb_convoi_line(NULL, COL_BLACK, gui_label_t::left)
+	lb_convoi_line(NULL, COL_BLACK, gui_label_t::left),
+	convoy_assembler(get_welt(), depot->get_wegtyp(), depot->get_player_nr(), check_way_electrified() )
 {
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
 	selected_line = depot->get_selected_line(); //linehandle_t();
@@ -60,12 +56,8 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	/*
 	 * [CONVOY ASSEMBLER]
 	 */
-	const waytype_t wt = depot->get_wegtyp();
-	const weg_t *w = get_welt()->lookup(depot->get_pos())->get_weg(wt!=tram_wt ? wt : track_wt);
-	const bool weg_electrified = w ? w->is_electrified() : false;
-	convoy_assembler = new gui_convoy_assembler_t(get_welt(), wt, weg_electrified, depot->get_player_nr() );
-	convoy_assembler->set_depot_frame(this);
-	convoy_assembler->add_listener(this);
+	convoy_assembler.set_depot_frame(this);
+	convoy_assembler.add_listener(this);
 	update_convoy();
 
 	/*
@@ -150,17 +142,14 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	lb_convoi_value.set_text_pointer(txt_convoi_value);
 	lb_convoi_line.set_text_pointer(txt_convoi_line);
 
-	add_komponente(convoy_assembler);
+	check_way_electrified();
+	add_komponente(&img_bolt);
+
+	add_komponente(&convoy_assembler);
 
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
 }
-
-depot_frame_t::~depot_frame_t()
-{
-	delete convoy_assembler;
-}
-
 
 void depot_frame_t::layout(koord *gr)
 {
@@ -199,20 +188,20 @@ void depot_frame_t::layout(koord *gr)
 	int ABUTTON_HEIGHT = 14;
 	int ACTIONS_WIDTH = 4 * ABUTTON_WIDTH;
 	int ACTIONS_HEIGHT = ABUTTON_HEIGHT + ABUTTON_HEIGHT; // @author hsiegeln: added "+ ABUTTON_HEIGHT"
-	convoy_assembler->set_convoy_tabs_skip(ACTIONS_HEIGHT);
+	convoy_assembler.set_convoy_tabs_skip(ACTIONS_HEIGHT);
 
 	/*
 	* Total width is the max from [CONVOI] and [ACTIONS] width.
 	*/
-	int MIN_TOTAL_WIDTH = max(convoy_assembler->get_convoy_image_width(), ACTIONS_WIDTH);
-	int TOTAL_WIDTH = max(fgr.x,max(convoy_assembler->get_convoy_image_width(), ACTIONS_WIDTH));
+	int MIN_TOTAL_WIDTH = max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH);
+	int TOTAL_WIDTH = max(fgr.x,max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH));
 
 	/*
 	*	Now we can do the first vertical adjustement:
 	*/
 	int SELECT_VSTART = 16;
 	int ASSEMBLER_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE;
-	int ACTIONS_VSTART = ASSEMBLER_VSTART + convoy_assembler->get_convoy_height();
+	int ACTIONS_VSTART = ASSEMBLER_VSTART + convoy_assembler.get_convoy_height();
 
 	/*
 	* Now we determine the row/col layout for the panel and the total panel
@@ -220,13 +209,13 @@ void depot_frame_t::layout(koord *gr)
 	* build_vehicle_lists() fills loks_vec and waggon_vec.
 	* Total width will be expanded to match completo columns in panel.
 	*/
-	convoy_assembler->set_panel_rows(gr  &&  gr->y==0?-1:fgr.y-ASSEMBLER_VSTART);
+	convoy_assembler.set_panel_rows(gr  &&  gr->y==0?-1:fgr.y-ASSEMBLER_VSTART);
 
 	/*
 	 *	Now we can do the complete vertical adjustement:
 	 */
-	int TOTAL_HEIGHT = ASSEMBLER_VSTART + convoy_assembler->get_height();
-	int MIN_TOTAL_HEIGHT = ASSEMBLER_VSTART + convoy_assembler->get_min_height();
+	int TOTAL_HEIGHT = ASSEMBLER_VSTART + convoy_assembler.get_height();
+	int MIN_TOTAL_HEIGHT = ASSEMBLER_VSTART + convoy_assembler.get_min_height();
 
 	/*
 	* DONE with layout planning - now build everything.
@@ -266,12 +255,12 @@ void depot_frame_t::layout(koord *gr)
 	/*
 	 * [CONVOI]
 	 */
-	convoy_assembler->set_pos(koord(0,ASSEMBLER_VSTART));
-	convoy_assembler->set_groesse(koord(TOTAL_WIDTH,convoy_assembler->get_height()));
-	convoy_assembler->layout();
+	convoy_assembler.set_pos(koord(0,ASSEMBLER_VSTART));
+	convoy_assembler.set_groesse(koord(TOTAL_WIDTH,convoy_assembler.get_height()));
+	convoy_assembler.layout();
 
-	lb_convoi_value.set_pos(koord(TOTAL_WIDTH-10, ASSEMBLER_VSTART + convoy_assembler->get_convoy_image_height()));
-	lb_convoi_line.set_pos(koord(4, ASSEMBLER_VSTART + convoy_assembler->get_convoy_image_height() + LINESPACE * 2));
+	lb_convoi_value.set_pos(koord(TOTAL_WIDTH-10, ASSEMBLER_VSTART + convoy_assembler.get_convoy_image_height()));
+	lb_convoi_line.set_pos(koord(4, ASSEMBLER_VSTART + convoy_assembler.get_convoy_image_height() + LINESPACE * 2));
  
 
 	/*
@@ -312,6 +301,8 @@ void depot_frame_t::layout(koord *gr)
 	bt_copy_convoi.set_pos(koord(TOTAL_WIDTH*3/4, ACTIONS_VSTART+ABUTTON_HEIGHT));
 	bt_copy_convoi.set_groesse(koord(TOTAL_WIDTH-TOTAL_WIDTH*3/4, ABUTTON_HEIGHT));
 	bt_copy_convoi.set_text("Copy Convoi");
+	const uint8 margin = 4;
+	img_bolt.set_pos(koord(get_fenstergroesse().x-skinverwaltung_t::electricity->get_bild(0)->get_pic()->w-margin,margin));
 }
 
 
@@ -379,7 +370,7 @@ void depot_frame_t::update_data()
 			line_selector.set_selection( line_selector.count_elements()-1 );
 		}
 	}
-	convoy_assembler->update_data();
+	convoy_assembler.update_data();
 }
 
 bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
@@ -390,7 +381,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 	}
 
 	if(komp != NULL) {	// message from outside!
-		if(komp == convoy_assembler) {
+		if(komp == &convoy_assembler) {
 			const koord k=*static_cast<const koord *>(p.p);
 			switch (k.x) {
 				case gui_convoy_assembler_t::clear_convoy_action:
@@ -408,16 +399,16 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 				default: // append/insert_in_front
 					const vehikel_besch_t* vb;
 					if (k.x==gui_convoy_assembler_t::insert_vehicle_in_front_action) {
-						vb=(*convoy_assembler->get_vehicles())[0];
+						vb=(*convoy_assembler.get_vehicles())[0];
 					} else {
-						vb=(*convoy_assembler->get_vehicles())[convoy_assembler->get_vehicles()->get_count()-1];
+						vb=(*convoy_assembler.get_vehicles())[convoy_assembler.get_vehicles()->get_count()-1];
 					}
 					vehikel_t* veh = depot->find_oldest_newest(vb, true);
 					if (veh == NULL) 
 					{
 						// nothing there => we buy it
-						veh = depot->buy_vehicle(vb, convoy_assembler->get_upgrade() == gui_convoy_assembler_t::u_upgrade);
-						if(convoy_assembler->get_upgrade() == gui_convoy_assembler_t::u_upgrade && cnv.is_bound())
+						veh = depot->buy_vehicle(vb, convoy_assembler.get_upgrade() == gui_convoy_assembler_t::u_upgrade);
+						if(convoy_assembler.get_upgrade() == gui_convoy_assembler_t::u_upgrade && cnv.is_bound())
 						{
 							//Upgrading, so vehicles must be *replaced*.
 							for(uint16 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
@@ -440,9 +431,9 @@ end:
 						// create a new convoi
 						cnv = depot->add_convoi();
 						icnv = depot->convoi_count() - 1;
-						cnv->set_name((*convoy_assembler->get_vehicles())[0]->get_name());
+						cnv->set_name((*convoy_assembler.get_vehicles())[0]->get_name());
 					}
-					if(convoy_assembler->get_upgrade() == gui_convoy_assembler_t::u_buy)
+					if(convoy_assembler.get_upgrade() == gui_convoy_assembler_t::u_buy)
 					{
 						depot->append_vehicle(cnv, veh, k.x == gui_convoy_assembler_t::insert_vehicle_in_front_action);
 					}
@@ -513,7 +504,7 @@ end:
 		else {
 			return false;
 		}
-		convoy_assembler->build_vehicle_lists();
+		convoy_assembler.build_vehicle_lists();
 	}
 	update_data();
 	layout(NULL);
@@ -557,7 +548,7 @@ void depot_frame_t::infowin_event(const event_t *ev)
 		koord gr = get_fenstergroesse();
 		set_fenstergroesse(gr);
 	} else if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN) {
-		convoy_assembler->build_vehicle_lists();
+		convoy_assembler.build_vehicle_lists();
 		update_data();
 		layout(NULL);
 	}
@@ -688,5 +679,23 @@ void depot_frame_t::fahrplaneingabe()
 	}
 	else {
 		create_win( new news_img("Please choose vehicles first\n"), w_time_delete, magic_none);
+	}	
+}
+
+bool depot_frame_t::check_way_electrified()
+{
+	const waytype_t wt = depot->get_wegtyp();
+	const weg_t *w = get_welt()->lookup(depot->get_pos())->get_weg(wt!=tram_wt ? wt : track_wt);
+	const bool way_electrified = w ? w->is_electrified() : false;
+	convoy_assembler.set_electrified( way_electrified );
+	if( way_electrified ) 
+	{
+		img_bolt.set_image(skinverwaltung_t::electricity->get_bild_nr(0));
 	}
+	else
+	{
+		img_bolt.set_image(IMG_LEER);
+ 	}
+
+	return way_electrified;
 }

@@ -12,7 +12,7 @@
 
 #include "gui_label.h"
 
-#include "../../simconvoi.h"
+#include "../../convoihandle_t.h"
 
 
 /**

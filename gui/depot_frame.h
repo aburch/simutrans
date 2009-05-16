@@ -10,13 +10,8 @@
 
 #include "gui_frame.h"
 #include "components/gui_label.h"
-#include "components/gui_image_list.h"
 #include "components/gui_textinput.h"
 #include "components/gui_combobox.h"
-#include "components/gui_divider.h"
-#include "../tpl/ptrhashtable_tpl.h"
-#include "../tpl/vector_tpl.h"
-#include "components/gui_tab_panel.h"
 #include "components/gui_button.h"
 #include "components/action_listener.h"
 #include "components/gui_scrollpane.h"
@@ -24,7 +19,6 @@
 #include "../simtypes.h"
 #include "../simdepot.h"
 
-class depot_t;
 class vehikel_besch_t;
 /**
  * Depot frame, handles all interaction with a vehicle depot.
@@ -79,8 +73,9 @@ private:
 	static char no_line_text[128];
 	gui_combobox_t line_selector;
 
-	gui_convoy_assembler_t *convoy_assembler;
+	gui_convoy_assembler_t convoy_assembler;
 
+	gui_image_t img_bolt;
 
 	linehandle_t selected_line;
 
@@ -123,7 +118,6 @@ private:
 
 public:
 	depot_frame_t(depot_t* depot);
-	virtual ~depot_frame_t();
 
 	/**
 	 * Setzt die Fenstergroesse
@@ -176,7 +170,9 @@ public:
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
 	inline depot_t *get_depot() const {return depot;}
 	inline convoihandle_t get_convoy() const {return depot->get_convoi(icnv);}
-	inline void update_convoy() {icnv<0?convoy_assembler->clear_convoy():convoy_assembler->set_vehicles(get_convoy());}
+	inline void update_convoy() {icnv<0?convoy_assembler.clear_convoy():convoy_assembler.set_vehicles(get_convoy());}
+	// Check the electrification
+	bool check_way_electrified();
 };
 
 #endif

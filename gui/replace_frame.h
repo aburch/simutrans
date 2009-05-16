@@ -10,6 +10,8 @@
 
 #include "gui_frame.h"
 
+#include "../simconvoi.h"
+
 #include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_convoy_assembler.h"
@@ -48,7 +50,6 @@ private:
 	 */
 	gui_convoy_label_t	lb_convoy;
 	gui_label_t		lb_to_be_replaced;
-	gui_convoy_assembler_t *convoy_assembler;
 	gui_label_t		lb_money;
 	button_t		bt_replace_line;
 	button_t		bt_replace_all;
@@ -63,6 +64,7 @@ private:
 	gui_label_t		lb_n_sell;
 	gui_label_t		lb_n_skip;
 	gui_numberinput_t	numinp[n_states];
+	gui_convoy_assembler_t convoy_assembler;
 	char txt_money[16];
 	char txt_n_replace[8];
 	char txt_n_sell[8];
@@ -95,7 +97,6 @@ private:
 
 public:
 	replace_frame_t(convoihandle_t cnv, const char *name);
-	virtual ~replace_frame_t();
 
 	/**
 	 * Setzt die Fenstergroesse

@@ -13,7 +13,6 @@
 #include "convoihandle_t.h"
 #include "simline.h"
 
-
 class karte_t;
 class vehikel_t;
 class schedule_t;

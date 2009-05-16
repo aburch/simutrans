@@ -709,7 +709,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 	uint16 sum_menge = 0;
 
 	//slist_tpl<ware_t> kill_queue;
-	minivec_tpl<ware_t> kill_queue;
+	vector_tpl<ware_t> kill_queue;
 	if(halt->is_enabled( get_fracht_typ() )) 
 	{
 		if (!fracht.empty())

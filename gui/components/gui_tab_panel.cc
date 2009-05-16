@@ -31,9 +31,6 @@ void gui_tab_panel_t::add_tab(gui_komponente_t *c, const char *name, const skin_
 	c->set_groesse(get_groesse()-koord(0,HEADER_VSIZE));
 }
 
-
-
-
 void gui_tab_panel_t::set_groesse(koord groesse)
 {
 	gui_komponente_t::set_groesse(groesse);

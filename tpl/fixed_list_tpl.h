@@ -386,71 +386,18 @@ private:
 	bool placeholder_set;
 
 	//These methods are used for automating looping arithmetic
-	//uint8 add_index(uint8 base, uint8 addition, int index)
-	//{		
-	//	uint8 tmp;
 
-	//	if((base + addition) < index)
-	//	{
-	//		return base + addition;
-	//	}
-	//	else
-	//	{
-	//		tmp = (base + addition) - index;
-	//	}
-
-	//	if(tmp < index)
-	//	{
-	//		return tmp;
-	//	}
-	//	else
-	//	{
-	//		//There could be a sophisticated system of trimming here,
-	//		//but it would take extra work/memory/processing power, and
-	//		//is only used internally, so not worth it. This code should
-	//		//never be reached.
-	//		return index - 1;
-	//	}
-	//}
-
-	//uint8 subtract_index(uint8 base, uint8 subtraction, int index)
-	//{
-	//	uint8 tmp;
-
-	//	if((base - subtraction) < index && (base - subtraction) > 0)
-	//	{
-	//		return base - subtraction;
-	//	}
-	//	else
-	//	{
-	//		tmp = (base - subtraction) + index; //Should re-set the overflow
-	//	}
-
-	//	if(tmp < index)
-	//	{
-	//		return tmp;
-	//	}
-	//	else
-	//	{
-	//		//There could be a sophisticated system of trimming here,
-	//		//but it would take extra work/memory/processing power, and
-	//		//is only used internally, so not worth it. This code should
-	//		//never be reached.
-	//		return index - 1;
-	//	}
-	//}
-
-	uint8 add_index(uint8 base, uint8 addition, int index)
+	inline uint8 add_index(uint8 base, uint8 addition, int index)
 	{		
 		return (addition < index ? (base + addition) % index : -1);
 	}
 
-	uint8 subtract_index(uint8 base, uint8 subtraction, int index)
+	inline uint8 subtract_index(uint8 base, uint8 subtraction, int index)
 	{
 		return (subtraction < index ? (base + index - subtraction) % index : -1);
 	}
 
-	bool index_is_in_range(uint8 index)
+	inline bool index_is_in_range(uint8 index)
 	{
 		//Checks whether a possible data[index] value is within the current active range
 		if(tail >= head && index >= head && index <= tail)

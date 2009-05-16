@@ -208,37 +208,23 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 
 	for (uint i=0; i<warenbauer_t::get_max_catg_index(); i++)
 	{
-
-#ifdef NEW_PATHING
 		const quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *connexions = halt->get_connexions(i);
-#else
-		const vector_tpl<halthandle_t> *ziele = halt->get_warenziele(i);
-		if(!ziele->empty())
-		{
-#endif
 
-#ifdef NEW_PATHING
 		if(!connexions->empty())
 		{
 			buf.append("\n");
 			offset_y += LINESPACE;
-#endif
 			buf.append(" ·");
 			const ware_besch_t* info = warenbauer_t::get_info_catg_index(i);
 			// If it is a special freight, we display the name of the good, otherwise the name of the category.
 			buf.append(translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()));
 			buf.append(":\n");
 			offset_y += LINESPACE;
-#ifdef NEW_PATHING
 			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*connexions);
 			while(iter.next())
 			{
 				halthandle_t a_halt = iter.get_current_key();
 				haltestelle_t::connexion* cnx = iter.get_current_value();
-#else
-			for(  uint32 idx=0;  idx < ziele->get_count();  idx++  ) {
-				halthandle_t a_halt = (*ziele)[idx];
-#endif
 				if(a_halt.is_bound()) 
 				{
 
@@ -257,7 +243,6 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 				}
 
 				buf.append("\n");
-#ifdef NEW_PATHING
 					buf.append("(");
 					buf.append(cnx->journey_time * 0.1); // Convert from tenths
 					buf.append(translator::translate(" mins. travelling"));
@@ -275,9 +260,6 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 					buf.append("\n");
 
 				offset_y += 2 * LINESPACE;
-#else
-				offset_y += LINESPACE;
-#endif
 			}
 		}
 	}

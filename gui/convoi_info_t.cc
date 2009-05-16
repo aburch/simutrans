@@ -174,7 +174,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	go_home_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	go_home_button.set_pos(koord(BUTTON2_X,76));
 	go_home_button.set_text("go home");
-	go_home_button.set_typ(button_t::roundbox);
+	go_home_button.set_typ(button_t::roundbox_state);
 	go_home_button.set_tooltip("Sends the convoi to the last depot it departed from!");
 	add_komponente(&go_home_button);
 	go_home_button.add_listener(this);
@@ -404,7 +404,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 				cnv->set_replace(false);
 				return true;
 			}
-			create_win(20, 20, new replace_frame_t(cnv, get_name()), w_info, (long)this);
+			create_win(20, 20, new replace_frame_t(cnv, get_name()), w_info, magic_replace + cnv.get_id() );
 			return true;
 		}
 
@@ -417,7 +417,9 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 				DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot change schedule ... ", state );
 				return false;
 			}
+			go_home_button.pressed = true;
 			cnv->go_to_depot(true);
+			go_home_button.pressed = false;
 			return true;
 		} // end go home button
 	}

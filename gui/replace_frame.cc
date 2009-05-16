@@ -5,6 +5,8 @@
  * (see licence.txt)
  */
 
+#include "replace_frame.h"
+
 #include "../simcolor.h"
 #include "../simwin.h"
 #include "../simworld.h"
@@ -12,8 +14,6 @@
 #include "../dataobj/translator.h"
 #include "../utils/simstring.h"
 #include "../vehicle/simvehikel.h"
-
-#include "replace_frame.h"
 
 
 replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
@@ -30,7 +30,10 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	lb_skip(NULL, COL_BLACK, gui_label_t::left),
 	lb_n_replace(NULL, COL_BLACK, gui_label_t::left),
 	lb_n_sell(NULL, COL_BLACK, gui_label_t::left),
-	lb_n_skip(NULL, COL_BLACK, gui_label_t::left)
+	lb_n_skip(NULL, COL_BLACK, gui_label_t::left),
+	convoy_assembler(cnv->get_welt(), cnv->get_vehikel(0)->get_besch()->get_waytype(),  cnv->get_besitzer()->get_player_nr(), 
+	cnv->get_welt()->lookup(cnv->get_vehikel(0)->get_pos())->get_weg(cnv->get_vehikel(0)->get_waytype()) == NULL ? 
+	false : cnv->get_welt()->lookup(cnv->get_vehikel(0)->get_pos())->get_weg(cnv->get_vehikel(0)	->get_waytype())->is_electrified() )
 
 {
 	const uint32 a_button_height = 14;
@@ -74,17 +77,15 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	add_komponente(&numinp[state_skip]);
 	add_komponente(&lb_n_skip);
 
-	waytype_t wt = road_wt;
-	if (cnv->get_vehikel_anzahl()>0) { // Should always be true
-		wt=cnv->get_vehikel(0)->get_besch()->get_waytype();
-	}
-	const weg_t *way = cnv->get_welt()->lookup(cnv->get_vehikel(0)->get_pos())->get_weg(wt);
+	const vehikel_t *lead_vehicle = cnv->get_vehikel(0);
+	const waytype_t wt = lead_vehicle->get_waytype();
+	const weg_t *way = cnv->get_welt()->lookup(lead_vehicle->get_pos())->get_weg(wt);
 	const bool weg_electrified = way == NULL ? false : way->is_electrified();
-	convoy_assembler = new gui_convoy_assembler_t(cnv->get_welt(), wt, weg_electrified,  cnv->get_besitzer()->get_player_nr() );
-	convoy_assembler->set_convoy_tabs_skip(-2*LINESPACE+3*LINESPACE+2*margin+a_button_height);
-	convoy_assembler->add_listener(this);
-	convoy_assembler->set_vehicles(cnv->get_replacing_vehicles());
-	add_komponente(convoy_assembler);
+	convoy_assembler.set_electrified( weg_electrified );
+	convoy_assembler.set_convoy_tabs_skip(-2*LINESPACE+3*LINESPACE+2*margin+a_button_height);
+	convoy_assembler.add_listener(this);
+	convoy_assembler.set_vehicles(cnv->get_replacing_vehicles());
+	add_komponente(&convoy_assembler);
 
 	bt_replace_line.set_typ(button_t::square);
 	bt_replace_line.set_text("replace all in line");
@@ -122,13 +123,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
 
-	convoy_assembler->set_replace_frame(this);
-}
-
-
-replace_frame_t::~replace_frame_t()
-{
-	delete convoy_assembler;
+	convoy_assembler.set_replace_frame(this);
 }
 
 
@@ -148,7 +143,6 @@ void replace_frame_t::update_total_width(uint32 width)
 
 void replace_frame_t::layout(koord *gr)
 {
-	const uint32 window_bar_height=16;
 	const uint32 margin=6;
 	const uint32 a_button_width=96;
 	const uint32 a_button_height=14;
@@ -159,7 +153,7 @@ void replace_frame_t::layout(koord *gr)
 	koord fgr = (gr!=NULL)? *gr : get_fenstergroesse();
 	min_total_width=0;
 	total_width=fgr.x;
-	total_height=window_bar_height+2*margin;
+	total_height=margin;
 	min_total_height=total_height;
 
 	// Width at least to see labels ok
@@ -178,10 +172,10 @@ void replace_frame_t::layout(koord *gr)
 	// No update height needed, convoy assembler
 
 	// Rest of the vertical space, if any, for convoy_assembler
-	update_total_width(convoy_assembler->get_convoy_image_width());
-	convoy_assembler->set_panel_rows(gr  &&  gr->y==0?-1:fgr.y-total_height);
-	total_height+=convoy_assembler->get_height()+margin;
-	min_total_height+=convoy_assembler->get_min_height()+margin;
+	update_total_width(convoy_assembler.get_convoy_image_width());
+	convoy_assembler.set_panel_rows(gr  &&  gr->y==0?-1:fgr.y-total_height);
+	total_height+=convoy_assembler.get_height();
+	min_total_height+=convoy_assembler.get_min_height();
 
 	set_min_windowsize(koord(min_total_width, min_total_height));
 	if(fgr.x<total_width) {
@@ -210,11 +204,11 @@ void replace_frame_t::layout(koord *gr)
 	lb_to_be_replaced.set_pos(koord(fgr.x/2,current_y));
 	current_y+=LINESPACE;
 
-	convoy_assembler->set_pos(koord(0,current_y));
-	convoy_assembler->set_groesse(koord(fgr.x,convoy_assembler->get_height()));
-	convoy_assembler->layout();
+	convoy_assembler.set_pos(koord(0,current_y));
+	convoy_assembler.set_groesse(koord(fgr.x,convoy_assembler.get_height()));
+	convoy_assembler.layout();
 
-	uint32 buttons_y=current_y+convoy_assembler->get_convoy_height()-2*LINESPACE+8;
+	uint32 buttons_y=current_y+convoy_assembler.get_convoy_height()-2*LINESPACE+8;
 	uint32 buttons_width=(fgr.x-2*margin)/3;
 	bt_autostart.set_groesse(koord(buttons_width, a_button_height));
 	bt_depot.set_groesse(koord(buttons_width, a_button_height));
@@ -256,7 +250,7 @@ void replace_frame_t::set_fenstergroesse( koord gr )
 
 void replace_frame_t::update_data()
 {
-	convoy_assembler->update_data();
+	convoy_assembler.update_data();
 
 	txt_n_replace[0]='\0';
 	txt_n_sell[0]='\0';
@@ -282,7 +276,7 @@ void replace_frame_t::update_data()
 					if (present_state==-1) {
 						continue;
 					}
-					switch(convoy_assembler->get_action())
+					switch(convoy_assembler.get_action())
 					{
 						
 					case gui_convoy_assembler_t::clear_convoy_action:
@@ -314,7 +308,7 @@ void replace_frame_t::update_data()
 					continue;
 				}
 
-				switch(convoy_assembler->get_action())
+				switch(convoy_assembler.get_action())
 				{
 					
 				case gui_convoy_assembler_t::clear_convoy_action:
@@ -339,7 +333,7 @@ void replace_frame_t::update_data()
 		sprintf(txt_n_sell,"%d",n[1]);
 		sprintf(txt_n_skip,"%d",n[2]);
 	}
-	if (convoy_assembler->get_vehicles()->get_count()>0) {
+	if (convoy_assembler.get_vehicles()->get_count()>0) {
 		money_to_string(txt_money,money/100.0);
 		lb_money.set_color(money>=0?MONEY_PLUS:MONEY_MINUS);
 	} else {
@@ -383,11 +377,11 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv)
 			break;
 		}
 
-		cnv->set_replacing_vehicles(convoy_assembler->get_vehicles());
-		cnv->set_depot_when_empty( (depot || autostart) && convoy_assembler->get_vehicles()->get_count()>0 );
+		cnv->set_replacing_vehicles(convoy_assembler.get_vehicles());
+		cnv->set_depot_when_empty( (depot || autostart) && convoy_assembler.get_vehicles()->get_count()>0 );
 		cnv->set_autostart(autostart);
-		cnv->set_no_load( cnv->get_depot_when_empty() && convoy_assembler->get_vehicles()->get_count()>0 );
-		cnv->set_replace(convoy_assembler->get_vehicles()->get_count()>0);
+		cnv->set_no_load( cnv->get_depot_when_empty() && convoy_assembler.get_vehicles()->get_count()>0 );
+		cnv->set_replace(convoy_assembler.get_vehicles()->get_count()>0);
 		// If already empty, no need to be emptied
 		if(cnv->get_replace() && cnv->get_depot_when_empty() && cnv->has_no_cargo()) {
 			cnv->set_depot_when_empty(false);
@@ -411,17 +405,17 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv)
 bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 {
 	if(komp != NULL) {	// message from outside!
-		if(komp == convoy_assembler) {
+		if(komp == &convoy_assembler) {
 			//const koord k=*static_cast<const koord *>(p.p);
 			//switch (k.x) {
 			//	case gui_convoy_assembler_t::clear_convoy_action:
 			//		new_convoy_cost=0;
 			//		break;
 			//	case gui_convoy_assembler_t::remove_vehicle_action:
-			//		new_convoy_cost-=convoy_assembler->get_last_changed_vehicle()->get_preis();
+			//		new_convoy_cost-=convoy_assembler.get_last_changed_vehicle()->get_preis();
 			//		break;
 			//	default: // append/insert_in_front
-			//		new_convoy_cost+=convoy_assembler->get_last_changed_vehicle()->get_preis();
+			//		new_convoy_cost+=convoy_assembler.get_last_changed_vehicle()->get_preis();
 			//		break;
 			//}
 
@@ -465,7 +459,7 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 			return true;
 		}
 	}
-	convoy_assembler->build_vehicle_lists();
+	convoy_assembler.build_vehicle_lists();
 	update_data();
 	layout(NULL);
 	return true;
@@ -479,7 +473,7 @@ void replace_frame_t::infowin_event(const event_t *ev)
 		koord gr = get_fenstergroesse();
 		set_fenstergroesse(gr);
 	} else if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN) {
-		convoy_assembler->build_vehicle_lists();
+		convoy_assembler.build_vehicle_lists();
 		update_data();
 		layout(NULL);
 	}
@@ -522,16 +516,16 @@ sint32 replace_frame_t::calc_total_cost()
 	{
 		current_vehicles.append(cnv->get_vehikel(i));
 	}
-	ITERATE((*convoy_assembler->get_vehicles()),j)
+	ITERATE((*convoy_assembler.get_vehicles()),j)
 	{
 		const vehikel_besch_t* veh = NULL;
-		const vehikel_besch_t* test_new_vehicle = (*convoy_assembler->get_vehicles())[j];
+		const vehikel_besch_t* test_new_vehicle = (*convoy_assembler.get_vehicles())[j];
 		// First - check whether there are any of the required vehicles already
 		// in the convoy (free)
 		ITERATE(current_vehicles,k)
 		{
 			const vehikel_besch_t* test_old_vehicle = current_vehicles[k]->get_besch();
-			if(!keep_vehicles.is_contained(k) && current_vehicles[k]->get_besch() == (*convoy_assembler->get_vehicles())[j])
+			if(!keep_vehicles.is_contained(k) && current_vehicles[k]->get_besch() == (*convoy_assembler.get_vehicles())[j])
 			{
 				veh = current_vehicles[k]->get_besch();
 				keep_vehicles.append_unique(k);
@@ -551,7 +545,7 @@ sint32 replace_frame_t::calc_total_cost()
 				for(uint8 c = 0; c < current_vehicles[l]->get_besch()->get_upgrades_count(); c ++)
 				{
 					const vehikel_besch_t* possible_upgrade_test = current_vehicles[l]->get_besch()->get_upgrades(c);
-					if(!keep_vehicles.is_contained(l) && (*convoy_assembler->get_vehicles())[j] == current_vehicles[l]->get_besch()->get_upgrades(c))
+					if(!keep_vehicles.is_contained(l) && (*convoy_assembler.get_vehicles())[j] == current_vehicles[l]->get_besch()->get_upgrades(c))
 					{
 						veh = current_vehicles[l]->get_besch();
 						keep_vehicles.append_unique(l);
@@ -564,7 +558,7 @@ end_loop:
 			if(veh == NULL)
 			{
 				// Third - if all else fails, buy from new (expensive).
-				total_cost += (*convoy_assembler->get_vehicles())[j]->get_preis();
+				total_cost += (*convoy_assembler.get_vehicles())[j]->get_preis();
 			}
 		}
 	}

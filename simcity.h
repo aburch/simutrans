@@ -181,10 +181,6 @@ private:
 	// Needed for power consumption of such factories.
 	vector_tpl<fabrik_t *> city_factories;
 
-#ifndef NEW_PATHING
-	uint8 route_result;
-#endif
-
 public:
 	/**
 	 * Returns pointer to history for city

@@ -214,16 +214,10 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			start_connect_hub = start_hub;
 			start_hub = halthandle_t();
 			// is there already one harbour next to this one?
-#ifdef NEW_PATHING
 			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*start_connect_hub->get_connexions(0));
 			while(iter.next())
 			{
 				halthandle_t h = iter.get_current_key();
-#else
-			for(uint32 i = 0; i < start_connect_hub->get_warenziele(0)->get_count(); i++) 
-			{
-				halthandle_t h = (*(start_connect_hub->get_warenziele(0)))[i];
-#endif
 				if( h->get_station_type()&haltestelle_t::dock  ) 
 				{
 					start_hub = h;
@@ -252,16 +246,10 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			end_connect_hub = end_hub;
 			end_hub = halthandle_t();
 			// is there already one harbour next to this one?
-#ifdef NEW_PATHING
 			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*end_connect_hub->get_connexions(0));
 			while(iter.next())
 			{
 				halthandle_t h = iter.get_current_key();
-#else
-			for(  uint32 i=0;  i<end_connect_hub->get_warenziele(0)->get_count();  i++  ) 
-			{
-				halthandle_t h = (*(end_connect_hub->get_warenziele(0)))[i];
-#endif
 				if( h->get_station_type()&haltestelle_t::dock  ) 
 				{
 					start_hub = h;
@@ -662,15 +650,10 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 			start_connect_hub = start_hub;
 			start_hub = halthandle_t();
 			// is there already one airport next to this town?
-#ifdef NEW_PATHING
 			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*start_connect_hub->get_connexions(0));
 			while(iter.next())
 			{
 				halthandle_t h = iter.get_current_key();
-#else
-			for(  uint32 i=0;  i<start_connect_hub->get_warenziele(0)->get_count();  i++  ) {
-				halthandle_t h = (*(start_connect_hub->get_warenziele(0)))[i];
-#endif
 				if( h->get_station_type()&haltestelle_t::airstop  ) {
 					start_hub = h;
 					break;
@@ -698,16 +681,10 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 			end_connect_hub = end_hub;
 			end_hub = halthandle_t();
 			// is there already one airport next to this town?
-#ifdef NEW_PATHING
 			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*end_connect_hub->get_connexions(0));
 			while(iter.next())
 			{
 				halthandle_t h = iter.get_current_key();
-#else
-			for(  uint32 i=0;  i<end_connect_hub->get_warenziele(0)->get_count();  i++  ) 
-			{
-				halthandle_t h = (*(end_connect_hub->get_warenziele(0)))[i];
-#endif
 				if( h->get_station_type()&haltestelle_t::airstop  ) 
 				{
 					start_hub = h;
@@ -749,13 +726,8 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 			end_hub = build_airport(end_stadt, end_airport, true);
 			if(!end_hub.is_bound()) 
 			{
-#ifdef NEW_PATHING
 				if(start_hub->get_connexions(0)->empty())
 				{
-#else
-				if(start_hub->get_warenziele_passenger()->get_count()==0) 
-				{
-#endif
 					// remove airport busstop
 					welt->lookup_kartenboden(start_hub->get_basis_pos())->remove_everything_from_way( this, road_wt, ribi_t::keine );
 					koord center = start_hub->get_basis_pos() + koord( welt->lookup_kartenboden(start_hub->get_basis_pos())->get_weg_ribi_unmasked( air_wt ) );

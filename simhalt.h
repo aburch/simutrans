@@ -26,10 +26,8 @@
 #include "tpl/quickstone_hashtable_tpl.h"
 #include "tpl/koordhashtable_tpl.h"
 #include "tpl/fixed_list_tpl.h"
-#ifdef NEW_PATHING
 #include "tpl/binary_heap_tpl.h"
 #include "tpl/minivec_tpl.h"
-#endif
 
 #define MAX_HALT_COST				7 // Total number of cost items
 #define MAX_MONTHS					12 // Max history
@@ -70,9 +68,7 @@ class haltestelle_t
 {
 public:
 	enum station_flags { NOT_ENABLED=0, PAX=1, POST=2, WARE=4, CROWDED=8 };
-#ifndef NEW_PATHING
-	enum routine_result_flags { NO_ROUTE=0, ROUTE_OK=1, ROUTE_OVERCROWDED=8 };
-#endif
+
 	//13-Jan-02     Markus Weber    Added
 	enum stationtyp {invalid=0, loadingbay=1, railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32, tramstop = 64, maglevstop=128, narrowgaugestop=256 }; //could be combined with or!
 
@@ -182,8 +178,6 @@ public:
 		grund_t*       grund;
 		convoihandle_t reservation;
 	};
-
-#ifdef NEW_PATHING
 	
 	// Data on direct connexions from one station to the next.
 	// @author: jamespetts
@@ -197,32 +191,39 @@ public:
 		// (i.e., if the best route involves using a convoy without a line)
 		linehandle_t best_line;
 		convoihandle_t best_convoy;
+		// TODO: Think about whether to have an array of best lines/convoys
+		// Note: this is difficult because of the way in which the best line/
+		// convoy is selected.
 
 		// TODO: Consider whether to add comfort
-	};
 
-	struct path_node
-	{
-		halthandle_t halt;
-		uint16 journey_time;
-		path_node* link;
+		// Used for the memory pool only.
+		connexion* link;
 
-		// Necessary for sorting in a binary heap
-		inline bool operator <= (const path_node p) const { return journey_time <= p.journey_time; }
+		connexion() { link = NULL; }
 
+		// For the memory pool
+		void* operator new(size_t size);
+		void operator delete(void *p);
 	};
 
 	// Data on paths to ultimate destinations
-	// @author: jamespetts
 	struct path
 	{
-		halthandle_t next_transfer;
+		halthandle_t halt;
 		uint16 journey_time;
-		path() { journey_time = 65535; }
-		
+		path* link;
 		//TODO: Consider whether to add comfort
+
+		path() { journey_time = 65535; link = NULL; }
+
+		// Necessary for sorting in a binary heap
+		inline bool operator <= (const path p) const { return journey_time <= p.journey_time; }
+
+		// For the memory pool
+		void* operator new(size_t size);
+		void operator delete(void *p);
 	};
-#endif
 
 	const slist_tpl<tile_t> &get_tiles() const { return tiles; };
 
@@ -231,27 +232,31 @@ private:
 
 	koord init_pos;	// for halt without grounds, created during game initialisation
 
-#ifdef NEW_PATHING
+	// Memory pool for paths and connexions
+
+	static bool first_run_path;
+	static bool first_run_connexion;
+	static const uint16 chunk_quantity;
+	static path* head_path;
+	static connexion* head_connexion;
+
+	inline static void path_pool_push(path* p);
+	inline static path* path_pool_pop();
+
+	inline static void connexion_pool_push(connexion* p);
+	inline static connexion* connexion_pool_pop();
+	
 	// Table of all direct connexions to this halt, with routing information.
 	// Array: one entry per goods type.
 	quickstone_hashtable_tpl<haltestelle_t, connexion*> *connexions;
 
-	quickstone_hashtable_tpl<haltestelle_t, path> *paths;
+	quickstone_hashtable_tpl<haltestelle_t, path*> *paths;
 
 	// The number of iterations of paths currently traversed. Used for
 	// detecting when max_transfers has been reached.
 	uint16 iterations;
 
-	// Allocation of memory for nodes used during the pathing search.
-	// @author: jamespetts
-	path_node* path_nodes;
-
 	void reset_connexions(uint8 category);
-
-#else
-	// List with all reachable destinations (old method)
-	vector_tpl<halthandle_t>* warenziele;
-#endif
 
 	// loest warte_menge ab
 	// "solves wait mixes off" (Babelfish); "solves warte volume from" (Google)
@@ -349,11 +354,13 @@ private:
 	// @author: jamespetts
 	koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >* waiting_times;
 
-#ifdef NEW_PATHING
 	// Used for pathfinding. The list is stored on the heap so that it can be re-used
 	// if searching is aborted part-way through.
 	// @author: jamespetts
-	binary_heap_tpl<path_node*> open_list;
+	binary_heap_tpl<path*> *open_list;
+
+	void flush_open_list(uint8 category);
+	void flush_paths(uint8 category);
 
 	// Whether the search for the destination has completed: if so, the search will not
 	// re-run unless the results are stale.
@@ -367,7 +374,6 @@ private:
 	// Likewise for paths
 	// @author: jamespetts
 	uint16 *paths_timestamp;
-#endif
 
 	uint8 check_waiting;
 
@@ -406,18 +412,9 @@ public:
 	void verbinde_fabriken();
 	void remove_fabriken(fabrik_t *fab);
 
-#ifndef NEW_PATHING
-	/**
-	 * Rebuilds the list of reachable destinations
-	 *
-	 * @author Hj. Malthaner
-	 */
-	void rebuild_destinations();
-#endif
 
 	uint8 get_rebuild_destination_counter() const  { return rebuilt_destination_counter; }
 
-#ifdef NEW_PATHING
 	// New routing method: finds shortest route in *time*, not necessarily distance
 	// @ author: jamespetts
 
@@ -430,8 +427,6 @@ public:
 
 	uint32 max_iterations;
 
-#endif
-
 	void rotate90( const sint16 y_size );
 
 	spieler_t *get_besitzer() const {return besitzer_p;}
@@ -440,14 +435,6 @@ public:
 	sint64 calc_maintenance();
 
 	bool make_public_and_join( spieler_t *sp );
-
-#ifndef NEW_PATHING
-	const vector_tpl<halthandle_t> *get_warenziele_passenger() const {return warenziele;}
-	const vector_tpl<halthandle_t> *get_warenziele_mail() const {return warenziele+1;}
-
-	// returns the matchin warenziele
-	const vector_tpl<halthandle_t> *get_warenziele(uint8 catg_index) const {return warenziele+catg_index;}
-#endif
 
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
@@ -465,28 +452,11 @@ public:
 
 	karte_t* get_welt() const { return welt; }
 
-#ifndef NEW_PATHING
-	/**
-	 * Kann die Ware nicht zum Ziel geroutet werden (keine Route), dann werden
-	 * Ziel und Zwischenziel auf koord::invalid gesetzt.
-	 *
-	 * @param ware die zu routende Ware
-	 * @author Hj. Malthaner
-	 *
-	 * for reverse routing, also the next to last stop can be added, if next_to_ziel!=NULL
-	 *
-	 * if avoid_overcrowding is set, a valid route in only found when there is no overflowing stop in between
-	 *
-	 * @author prissi
-	 */
-	int suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_overcrowding );
-#else
 	// @author: jamespetts, although much is borrowed from suche_route
 	// Returns the journey time of the best possible route from this halt. Time == 65535 when there is no route.
 	uint16 find_route(ware_t &ware, const uint16 journey_time = 65535);
 	minivec_tpl<halthandle_t>* build_destination_list(ware_t &ware);
 	uint16 find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t & ware, const uint16 journey_time = 65535);
-#endif
 
 	int get_pax_enabled()  const { return enables & PAX;  }
 	int get_post_enabled() const { return enables & POST; }
@@ -611,24 +581,9 @@ public:
 	uint32 liefere_an(ware_t ware);
 	uint32 starte_mit_route(ware_t ware);
 
-#ifndef NEW_PATHING
-	/**
-	 * wird von Fahrzeug aufgerufen, wenn dieses an der Haltestelle
-	 * gehalten hat.
-	 * @param typ der beförderte warentyp
-	 *
-	 * "of vehicle is called when this at the bus stop has.
-	 * @ param type of product transported" (Google)
-	 * 
-	 * @author Hj. Malthaner
-	 */
-	void hat_gehalten( const ware_besch_t *warentyp, const schedule_t *fpl, const spieler_t *sp );
-#else
-
 	// Adding method for the new routing system. Equivalent to
 	// hat_gehalten with the old system. 
 	void add_connexion(const ware_besch_t *type, const schedule_t *fpl, const convoihandle_t cnv, const linehandle_t line);
-#endif
 
 	const grund_t *find_matching_position(waytype_t wt) const;
 
@@ -778,14 +733,13 @@ public:
 
 	inline uint16 get_waiting_minutes(uint32 waiting_ticks) const;
 
-#ifdef NEW_PATHING
 	quickstone_hashtable_tpl<haltestelle_t, connexion*>* get_connexions(uint8 c); 
 
 	// Finds the best path from here to the goal halt.
 	// Looks up the paths in the hashtable - if the table
 	// is not stale, and the path is in it, use that, or else
 	// search for a new path.
-	path get_path_to(halthandle_t goal, uint8 category);
+	path* get_path_to(halthandle_t goal, uint8 category);
 
 	linehandle_t get_preferred_line(halthandle_t transfer, uint8 category) const;
 	convoihandle_t get_preferred_convoy(halthandle_t transfer, uint8 category) const;
@@ -802,7 +756,6 @@ public:
 	// the counter.
 	// @author: jamespetts
 	void force_paths_stale(const uint8 category);
-#endif
 
 };
 #endif

@@ -105,13 +105,8 @@ bool ai_t::is_connected( const koord start_pos, const koord dest_pos, const ware
 	ware.menge = 1;
 	for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++) 
 	{
-#ifdef NEW_PATHING
 		if(start_list[hh]->find_route(ware) < 65535)
 		{
-#else
-		if(  start_list[hh]->suche_route( ware, NULL, false ) != haltestelle_t::NO_ROUTE  ) 
-		{
-#endif
 			// ok, already connected
 			return true;
 		}

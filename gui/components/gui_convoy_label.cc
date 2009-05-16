@@ -10,6 +10,7 @@
 #include "gui_convoy_label.h"
 
 #include "../../simconst.h"
+#include "../../simconvoi.h"
 #include "../../simgraph.h"
 #include "../../bauer/warenbauer.h"
 #include "../../dataobj/translator.h"

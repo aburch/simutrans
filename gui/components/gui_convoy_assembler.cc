@@ -13,6 +13,7 @@
 #include "../depot_frame.h"
 #include "../replace_frame.h"
 
+#include "../../simskin.h"
 #include "../../simworld.h"
 
 #include "../../bauer/warenbauer.h"
@@ -38,98 +39,16 @@ static const char * engine_type_names [9] =
   "battery"
 };
 
-
-koord gui_convoy_assembler_t::get_placement(waytype_t wt)
-{
-	if (wt==road_wt) {
-		return koord(-20,-25);
-	}
-	if (wt==water_wt) {
-		return koord(-1,-11);
-	}
-	if (wt==air_wt) {
-		return koord(-10,-23);
-	}
-	return koord(-25,-28);
-}
-
-
-koord gui_convoy_assembler_t::get_grid(waytype_t wt)
-{
-	if (wt==water_wt) {
-		return koord(60,46);
-	}
-	if (wt==air_wt) {
-		return koord(36,36);
-	}
-	return koord(24,24);
-}
-
-
-// Names for the tabs for different depot types, defaults to railway depots
-const char * gui_convoy_assembler_t::get_passenger_name(waytype_t wt)
-{
-	if (wt==road_wt) {
-		return "Bus_tab";
-	}
-	if (wt==water_wt) {
-		return "Ferry_tab";
-	}
-	if (wt==air_wt) {
-		return "Flug_tab";
-	}
-	return "Pas_tab";
-}
-
-const char * gui_convoy_assembler_t::get_electrics_name(waytype_t wt)
-{
-	if (wt==road_wt) {
-		return "TrolleyBus_tab";
-	}
-	return "Electrics_tab"; 
-}
-
-const char * gui_convoy_assembler_t::get_zieher_name(waytype_t wt)
-{
-	if (wt==road_wt) {
-		return "LKW_tab";
-	}
-	if (wt==water_wt) {
-		return "Schiff_tab";
-	}
-	if (wt==air_wt) {
-		return "aircraft_tab";
-	}
-	return "Lokomotive_tab";
-}
-
-const char * gui_convoy_assembler_t::get_haenger_name(waytype_t wt)
-{
-	if (wt==road_wt) {
-		return "Anhaenger_tab";
-	}
-	if (wt==water_wt) {
-		return "Schleppkahn_tab";
-	}
-	return "Waggon_tab";
-}
-
-bool  gui_convoy_assembler_t::show_retired_vehicles = false;
-
-bool  gui_convoy_assembler_t::show_all = false;
-
-
-gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, bool electrified, signed char player_nr) :
-	way_type(wt), weg_electrified(electrified), welt(w), last_changed_vehicle(NULL),
-	depot_frame(NULL), replace_frame(NULL), placement(get_placement(wt)), 
-	placement_dx(get_grid(wt).x * get_base_tile_raster_width() / 64 / 4), 
-	grid(get_grid(wt)), 
+gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed char player_nr, bool electrified) :
+	way_type(wt), welt(w), last_changed_vehicle(NULL),
+	depot_frame(NULL), placement(get_placement(wt)),
+	placement_dx(get_grid(wt).x * get_base_tile_raster_width() / 64 / 4),
+	grid(get_grid(wt)),
 	grid_dx(get_grid(wt).x * get_base_tile_raster_width() / 64 / 2),
 	max_convoy_length(depot_t::get_max_convoy_length(wt)), panel_rows(3), convoy_tabs_skip(0),
 	lb_convoi_count(NULL, COL_BLACK, gui_label_t::left),
 	lb_convoi_speed(NULL, COL_BLACK, gui_label_t::left),
 	lb_veh_action("Fahrzeuge:", COL_BLACK, gui_label_t::left),
-	//lb_upgrade("New/upgrade:", COL_BLACK, gui_label_t::left),
 	convoi_pics(depot_t::get_max_convoy_length(wt)),
 	convoi(&convoi_pics),
 	pas(&pas_vec),
@@ -139,8 +58,11 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, bool el
 	scrolly_pas(&cont_pas),
 	scrolly_electrics(&cont_electrics),
 	scrolly_loks(&cont_loks),
-	scrolly_waggons(&cont_waggons)
+	scrolly_waggons(&cont_waggons),
+	way_electrified(electrified)
+
 {
+
 	/*
 	* These parameter are adjusted to resolution.
 	* - Some extra space looks nicer.
@@ -283,9 +205,87 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, bool el
 
 	lb_convoi_count.set_text_pointer(txt_convoi_count);
 	lb_convoi_speed.set_text_pointer(txt_convoi_speed);
-
 }
 
+
+koord gui_convoy_assembler_t::get_placement(waytype_t wt)
+{
+	if (wt==road_wt) {
+		return koord(-20,-25);
+	}
+	if (wt==water_wt) {
+		return koord(-1,-11);
+	}
+	if (wt==air_wt) {
+		return koord(-10,-23);
+	}
+	return koord(-25,-28);
+}
+
+
+koord gui_convoy_assembler_t::get_grid(waytype_t wt)
+{
+	if (wt==water_wt) {
+		return koord(60,46);
+	}
+	if (wt==air_wt) {
+		return koord(36,36);
+	}
+	return koord(24,24);
+}
+
+
+// Names for the tabs for different depot types, defaults to railway depots
+const char * gui_convoy_assembler_t::get_passenger_name(waytype_t wt)
+{
+	if (wt==road_wt) {
+		return "Bus_tab";
+	}
+	if (wt==water_wt) {
+		return "Ferry_tab";
+	}
+	if (wt==air_wt) {
+		return "Flug_tab";
+	}
+	return "Pas_tab";
+}
+
+const char * gui_convoy_assembler_t::get_electrics_name(waytype_t wt)
+{
+	if (wt==road_wt) {
+		return "TrolleyBus_tab";
+	}
+	return "Electrics_tab";
+}
+
+const char * gui_convoy_assembler_t::get_zieher_name(waytype_t wt)
+{
+	if (wt==road_wt) {
+		return "LKW_tab";
+	}
+	if (wt==water_wt) {
+		return "Schiff_tab";
+	}
+	if (wt==air_wt) {
+		return "aircraft_tab";
+	}
+	return "Lokomotive_tab";
+}
+
+const char * gui_convoy_assembler_t::get_haenger_name(waytype_t wt)
+{
+	if (wt==road_wt) {
+		return "Anhaenger_tab";
+	}
+	if (wt==water_wt) {
+		return "Schleppkahn_tab";
+	}
+	return "Waggon_tab";
+	}
+
+bool  gui_convoy_assembler_t::show_retired_vehicles = false;
+
+bool  gui_convoy_assembler_t::show_all = true;
 
 
 void gui_convoy_assembler_t::layout()
@@ -548,7 +548,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 
 	vehicle_map.clear();
 
-	// we do not allow to built electric vehicle in a depot without electrification (weg_electrified)
+	// we do not allow to built electric vehicle in a depot without electrification (way_electrified)
 
 	// use this to show only sellable vehicles
 	if(!show_all  &&  veh_action==va_sell && depot_frame) {
@@ -573,7 +573,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 
 			// current vehicle
 			if( (depot_frame && depot_frame->get_depot()->is_contained(info))  ||
-				((weg_electrified  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
+				((way_electrified  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
 					 ((!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )  ) )) {
 				// check, if allowed
 				bool append = true;
@@ -1030,7 +1030,7 @@ void gui_convoy_assembler_t::update_data()
 			}
 		}
 
-DBG_DEBUG("gui_convoy_assembler_t::update_data()","current %i = %s with color %i",info->get_name(),iter1.get_current_value()->lcolor);
+DBG_DEBUG("gui_convoy_assembler_t::update_data()","current %s with colors %i,%i",info->get_name(),iter1.get_current_value()->lcolor,iter1.get_current_value()->rcolor);
 	}
 
 	if (depot_frame) {
@@ -1071,7 +1071,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 	}
 	int x = get_maus_x();
 	int y = get_maus_y();
-	int value = -1;
+	sint64 value = -1;
 	const vehikel_besch_t *veh_type = NULL;
 	koord relpos = koord( 0, ((gui_scrollpane_t *)tabs.get_aktives_tab())->get_scroll_y() );
 	int sel_index = lst->index_at(pos + tabs.get_pos() - relpos, x, y - 16 - gui_tab_panel_t::HEADER_VSIZE);
@@ -1402,3 +1402,24 @@ void gui_convoy_assembler_t::infowin_event(const event_t *ev)
 		upgrade_selector.close_box();
 	}
 }
+
+void gui_convoy_assembler_t::set_panel_rows(int dy)
+{
+	if (dy==-1) {
+		uint16 default_grid_y = 24 + 6; // grid.y of ships in pak64.
+		panel_rows=(7 * default_grid_y) / grid.y; // 7 rows of cars in pak64 fit at the screen (initial screen size).
+		panel_rows = clamp( panel_rows, 2, 3 ); // Not more then 3 rows and at least 2.
+		return;
+	}
+	dy -= get_convoy_height() + convoy_tabs_skip + 8 + get_vinfo_height() + 17 + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;
+	panel_rows = max(1, (dy/grid.y) );
+}
+
+void gui_convoy_assembler_t::set_electrified( bool ele )
+{
+	if( way_electrified != ele ) 
+	{
+		way_electrified = ele;
+		build_vehicle_lists();
+	}
+};

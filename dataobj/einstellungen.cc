@@ -99,9 +99,6 @@ einstellungen_t::einstellungen_t() :
 	max_route_steps = 1000000;
 	max_transfers = 7;
 	max_hops = 300;
-#ifndef NEW_PATHING
-	no_routing_over_overcrowding = false;
-#endif
 
 	//Two and a half hours (9 * 18 = 162; 162 approx 2:30h)
 	passenger_max_wait = 2700;
@@ -560,18 +557,11 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		if(file->get_version()>102000) {
 			file->rdwr_bool( avoid_overcrowding, "" );
 		}
-#ifndef NEW_PATHING
-		if(file->get_version()>102001) 
-		{
-			file->rdwr_bool( no_routing_over_overcrowding, "" );
-		}
-#else
 		if(file->get_version()>102001) 
 		{
 			bool dummy;
 			file->rdwr_bool(dummy, "" );
 		}
-#endif
 		if(file->get_experimental_version() >= 1)
 		{
 			file->rdwr_short(min_bonus_max_distance, "");
@@ -791,9 +781,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	passenger_factor = contents.get_int("passenger_factor", passenger_factor ); /* this can manipulate the passenger generation */
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 	avoid_overcrowding = contents.get_int("avoid_overcrowding", avoid_overcrowding )!=0;
-#ifndef NEW_PATHING
-	no_routing_over_overcrowding = contents.get_int("no_routing_over_overcrowded", no_routing_over_overcrowding )!=0;
-#endif
 	passenger_max_wait = contents.get_int("passenger_max_wait", passenger_max_wait); 
 	max_rerouting_interval_months = contents.get_int("max_rerouting_interval_months", max_rerouting_interval_months);
 

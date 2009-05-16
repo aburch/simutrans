@@ -5,6 +5,7 @@
 #include "gui_button.h"
 #include "gui_combobox.h"
 #include "gui_divider.h"
+#include "gui_image.h"
 #include "gui_image_list.h"
 #include "gui_label.h"
 #include "gui_scrollpane.h"
@@ -17,7 +18,6 @@
 #include "../../besch/vehikel_besch.h"
 
 #include "../../ifc/gui_action_creator.h"
-#include "../../ifc/gui_komponente.h"
 
 #include "../../tpl/ptrhashtable_tpl.h"
 #include "../../tpl/vector_tpl.h"
@@ -58,7 +58,7 @@ class gui_convoy_assembler_t :
 	static koord get_grid(waytype_t wt);
 
 	waytype_t way_type;
-	const bool weg_electrified;
+	bool way_electrified;
 	class karte_t *welt;
 
 	// The selected convoy so far...
@@ -163,7 +163,7 @@ public:
 
 	enum { u_buy, u_upgrade };
 
-	gui_convoy_assembler_t(karte_t *w, waytype_t wt, bool electrified, signed char player_nr );
+	gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed char player_nr, bool electrified = true);
 
 	/**
 	 * Create and fill loks_vec and waggons_vec.
@@ -235,22 +235,17 @@ public:
 
 	inline sint16 get_vinfo_height() const { return VINFO_HEIGHT; }
 
-	inline void set_panel_rows(sint32 dy) {
-		if (dy==-1) {
-			panel_rows=3;
-			return;
-		}
-		dy -= get_convoy_height() + convoy_tabs_skip + 8 + get_vinfo_height() + 17 + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;
-		panel_rows = max(1, (dy/grid.y) );
-	}
+	void set_panel_rows(sint32 dy); 
 
 	inline sint16 get_panel_height() const {return panel_rows * grid.y + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;}
 
 	inline sint16 get_min_panel_height() const {return grid.y + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;}
 
-	inline sint16 get_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_panel_height() + get_vinfo_height();}
+	inline int get_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_vinfo_height() + 17 + get_panel_height();}
 
-	inline sint16 get_min_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_min_panel_height() + get_vinfo_height();}
+	inline int get_min_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_vinfo_height() + 17 + get_min_panel_height();}
+
+	void set_electrified( bool ele );
 
 	inline uint8 get_upgrade() const { return upgrade; }
 	inline uint8 get_action() const { return veh_action; }

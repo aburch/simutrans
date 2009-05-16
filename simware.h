@@ -48,12 +48,6 @@ private:
 	// "the final target position, which is on behalf not the goal stop position"
 	koord zielpos;
 
-#ifndef NEW_PATHING
-	//@author: jamespetts
-	//The number of remaining steps on this packet's journey.
-	uint8 journey_steps;
-#endif
-
 	// @author: jamespetts
 	// The distance travelled so far this leg of the journey.
 	uint32 accumulated_distance;
@@ -127,11 +121,6 @@ public:
 			(index < 2 || zielpos == w.zielpos) &&
 			origin == w.origin;
 	}
-
-#ifndef NEW_PATHING
-	uint8 get_journey_steps() { return journey_steps; }
-	void set_journey_steps(uint8 value) { journey_steps = value; }
-#endif
 
 	int operator!=(const ware_t &w) { return !(*this == w); 	}
 
