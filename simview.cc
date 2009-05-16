@@ -182,19 +182,22 @@ karte_ansicht_t::display(bool force_dirty)
 
 		const sint16 x = welt->get_x_off() + (diff.x-diff.y)*(rasterweite/2);
 		const sint16 y = welt->get_y_off() + (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( -zeiger->get_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4);
-		grund_t *gr = welt->lookup( zeiger->get_pos() );
-		if(gr && gr->is_visible()) {
-			const PLAYER_COLOR_VAL transparent = TRANSPARENT25_FLAG|OUTLINE_FLAG| umgebung_t::cursor_overlay_color;
-			if(  gr->get_bild()==IMG_LEER  ) {
-				if(  gr->hat_wege()  ) {
-					display_img_blend( gr->obj_bei(0)->get_bild(), x, y, transparent, 0, true );
+		// mark the cursor position for all tools (except lower/raise)
+		if(zeiger->get_yoff()==Z_PLAN) {
+			grund_t *gr = welt->lookup( zeiger->get_pos() );
+			if(gr && gr->is_visible()) {
+				const PLAYER_COLOR_VAL transparent = TRANSPARENT25_FLAG|OUTLINE_FLAG| umgebung_t::cursor_overlay_color;
+				if(  gr->get_bild()==IMG_LEER  ) {
+					if(  gr->hat_wege()  ) {
+						display_img_blend( gr->obj_bei(0)->get_bild(), x, y, transparent, 0, true );
+					}
+					else {
+						display_img_blend( grund_besch_t::get_ground_tile(0,gr->get_hoehe()), x, y, transparent, 0, true );
+					}
 				}
 				else {
-					display_img_blend( grund_besch_t::get_ground_tile(0,gr->get_hoehe()), x, y, transparent, 0, true );
+					display_img_blend( gr->get_bild(), x, y, transparent, 0, true );
 				}
-			}
-			else {
-				display_img_blend( gr->get_bild(), x, y, transparent, 0, true );
 			}
 		}
 		zeiger->display( x + tile_raster_scale_x( zeiger->get_xoff(), rasterweite), y + tile_raster_scale_y( zeiger->get_yoff(), rasterweite), true );
