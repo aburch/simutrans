@@ -1273,10 +1273,12 @@ void convoi_t::start()
 	if(state == INITIAL || state == ROUTING_1) {
 
 		// set home depot to location of depot convoi is leaving
-		if(route.empty()) {
+		if(route.empty()) 
+		{
 			home_depot = fahr[0]->get_pos();
 		}
-		else {
+		else 
+		{
 			home_depot = route.position_bei(0);
 			fahr[0]->set_pos( home_depot );
 		}
@@ -1288,6 +1290,7 @@ void convoi_t::start()
 
 		alte_richtung = ribi_t::keine;
 		no_load = false;
+		depot_when_empty = false;
 
 		state = ROUTING_1;
 
@@ -1398,8 +1401,6 @@ void convoi_t::ziel_erreicht()
 	}
 	wait_lock = 0;
 }
-
-
 
 /**
  * Wartet bis Fahrzeug 0 freie Fahrt meldet
