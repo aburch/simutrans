@@ -17,6 +17,8 @@
 	ADD: paste letters under windows with CNTRL+V
 	ADD: button "withdraw all" in line window
 	CHANGE: simuconf.tab cost values can now go up to 48 bit (should be enough for insanely high starting capital)
+	CHANGE: addons can be put now into the user folder with the same name than the main pak folder
+	CHANGE: skins are now read first from program dir/skin then from own dir/skin and then from pak set
 
 
 
