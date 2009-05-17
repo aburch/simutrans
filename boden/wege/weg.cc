@@ -341,7 +341,7 @@ void weg_t::info(cbuffer_t & buf) const
 
 /**
  * called during map rotation
- * @author priss
+ * @author prissi
  */
 void weg_t::rotate90()
 {

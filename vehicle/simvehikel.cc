@@ -918,7 +918,8 @@ void vehikel_t::remove_stale_freight()
 	// and now check every piece of ware on board,
 	// if its target is somewhere on
 	// the new schedule, if not -> remove
-	slist_tpl<ware_t> kill_queue;
+	//slist_tpl<ware_t> kill_queue;
+	vector_tpl<ware_t> kill_queue;
 	total_freight = 0;
 
 	if (!fracht.empty()) {
@@ -942,8 +943,10 @@ void vehikel_t::remove_stale_freight()
 				}
 			}
 
-			if (!found) {
-				kill_queue.insert(tmp);
+			if (!found) 
+			{
+				//kill_queue.insert(tmp);
+				kill_queue.append(tmp);
 			}
 			else {
 				// since we need to point at factory (0,0), we recheck this too
@@ -955,9 +958,13 @@ void vehikel_t::remove_stale_freight()
 			}
 		}
 
-		slist_iterator_tpl<ware_t> killer (kill_queue);
+		/*slist_iterator_tpl<ware_t> killer (kill_queue);
 		while(killer.next()) {
 			fracht.remove(killer.get_current());
+		}*/
+		ITERATE(kill_queue,d)
+		{
+			fracht.remove(kill_queue[d]);
 		}
 	}
 }
@@ -1292,7 +1299,10 @@ vehikel_t::hop()
 		}
 	}
 	
-	calc_akt_speed(gr);
+	if(gr != NULL)
+	{
+		calc_akt_speed(gr);
+	}
 
 	sint8 trim_size = pre_corner_direction.get_count() - direction_steps;
 	pre_corner_direction.trim_from_head((trim_size >= 0) ? trim_size : 0);
@@ -1308,6 +1318,10 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 {
 	grund_t *g;
 	g = welt->lookup(*position);
+	if(g == NULL)
+	{
+		return speed_limit;
+	}
 	waytype_t waytype = get_waytype();
 	const weg_t *w = g->get_weg(waytype);
 	uint32 base_limit;
@@ -2814,6 +2828,10 @@ void automobil_t::betrete_feld()
 
 	const int cargo = get_fracht_menge();
 	weg_t *str = welt->lookup( get_pos() )->get_weg(road_wt);
+	if(str == NULL)
+	{
+		return;
+	}
 	str->book(cargo, WAY_STAT_GOODS);
 	if (ist_erstes)  {
 		str->book(1, WAY_STAT_CONVOIS);

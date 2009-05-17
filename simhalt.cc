@@ -462,19 +462,53 @@ haltestelle_t::rotate90( const sint16 y_size )
 	init_pos.rotate90( y_size );
 	// rotate waren destinations
 	// iterate over all different categories
-	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
-		if(waren[i]) {
+	for(uint32 i = 0; i < warenbauer_t::get_max_catg_index(); i++) 
+	{
+		if(waren[i]) 
+		{
+			vector_tpl<koord> k_list;
+			vector_tpl<fixed_list_tpl<uint16, 16>> f_list;
+			koordhashtable_iterator_tpl<koord, fixed_list_tpl<uint16, 16> > iter(waiting_times[i]);
+			while(iter.next())
+			{
+				koord k = iter.get_current_key();
+				fixed_list_tpl<uint16, 16> f  = waiting_times[i].remove(k);
+				k.rotate90(y_size);
+				if(waiting_times[i].is_contained(k))
+				{
+					fixed_list_tpl<uint16, 16> f_2 = waiting_times[i].remove(k);
+					koord k_2 = k;
+					k_2.rotate90(y_size);
+					assert(k_2 != koord::invalid);
+					k_list.append(k_2);
+					f_list.append(f_2);
+				}
+				assert(k != koord::invalid);
+				k_list.append(k);
+				f_list.append(f);
+			}
+
+			waiting_times[i].clear();
+			
+			ITERATE(k_list,j)
+			{
+				waiting_times[i].put(k_list[j], f_list[j]);
+			}
+
 			vector_tpl<ware_t> * warray = waren[i];
-			for(int j=warray->get_count()-1;  j>=0;  j--  ) {
+			for(int j = warray->get_count() - 1; j >= 0; j--) 
+			{
 				ware_t & ware = (*warray)[j];
-				if(ware.menge>0) {
+				if(ware.menge > 0) 
+				{
 					koord k = ware.get_zielpos();
 					k.rotate90( y_size );
 					// since we need to point at factory (0,0)
 					fabrik_t *fab = fabrik_t::get_fab( welt, k );
 					ware.set_zielpos( fab ? fab->get_pos().get_2d() : k );
 				}
-				else {
+				else 
+				{
 					// empty => remove
 					(*warray).remove_at( j );
 				}

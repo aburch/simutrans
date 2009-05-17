@@ -420,14 +420,17 @@ void convoi_t::rotate90( const sint16 y_size )
 	last_stop_pos.rotate90( y_size );
 	record_pos.rotate90( y_size );
 	home_depot.rotate90( y_size );
-	for(  uint32 i=0;  i<route.get_max_n()+1u;  i++  ) {
-		route.access_position_bei(i).rotate90( y_size );
+	for(uint32 i = 0; i < route.get_max_n()+1u; i++) 
+	{
+		route.access_position_bei(i).rotate90(y_size);
 	}
-	if(fpl) {
+	if(fpl) 
+	{
 		fpl->rotate90( y_size );
 	}
 	// eventually correct freight destinations (and remove all stale freight)
-	for(  int i=0;  i<anz_vehikel;  i++  ) {
+	for(int i = 0; i < anz_vehikel; i++) 
+	{
 		fahr[i]->remove_stale_freight();
 	}
 }

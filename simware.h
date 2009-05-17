@@ -108,7 +108,10 @@ public:
 		return	menge == w.menge &&
 			zwischenziel == w.zwischenziel &&
 			arrival_time == w.arrival_time &&
-			can_merge_with(w);
+			index  == w.index  &&
+			ziel  == w.ziel  &&
+			zielpos == w.zielpos &&
+			origin == w.origin;
 	}
 
 	// Lighter version of operator == that only checks equality
