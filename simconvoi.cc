@@ -4039,7 +4039,14 @@ void convoi_t::set_withdraw(bool new_withdraw)
 {
 	withdraw = new_withdraw;
 	if(  withdraw  &&  loading_level==0  ) {
-		state = SELF_DESTRUCT;
+		// test if convoi in depot
+		grund_t *gr = welt->lookup( get_pos());
+		if (gr && gr->get_depot()) {
+			gr->get_depot()->disassemble_convoi(self, true);
+		}
+		else {
+			self_destruct();
+		}
 	}
 }
 
