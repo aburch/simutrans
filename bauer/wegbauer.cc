@@ -1926,7 +1926,7 @@ void wegbauer_t::baue_schiene()
 				weg_t * weg = gr->get_weg((waytype_t)besch->get_wtyp());
 
 				// keep faster ways or if it is the same way ... (@author prissi)
-				if(weg->get_besch()==besch  ||  (weg->get_besch()->get_styp()==7  &&  gr->get_weg_nr(0)!=weg)  ||  keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->get_besch()->get_topspeed()>besch->get_topspeed()) || (gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0) ) {
+				if(weg->get_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->get_besch()->get_topspeed()>besch->get_topspeed()) || (gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0) ) {
 					//nothing to be done
 					cost = 0;
 				}

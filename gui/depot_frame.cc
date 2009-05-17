@@ -570,7 +570,14 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 		return;
 	}
 
-	const convoihandle_t cnv = depot->get_convoi(icnv);
+	convoihandle_t cnv = depot->get_convoi(icnv);
+	// check for data inconsistencies (can happen with withdraw-all and vehicle in depot)
+	if(!cnv.is_bound() && convoi_pics.get_count()>0){
+		icnv=0;
+		update_data();
+		cnv = depot->get_convoi(icnv);
+	}
+
 	if(cnv.is_bound()) {
 		if(cnv->get_vehikel_anzahl() > 0) {
 			sprintf(txt_convoi_value, "%s %d$", translator::translate("Restwert:"), cnv->calc_restwert()/100);

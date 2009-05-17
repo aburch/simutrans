@@ -39,7 +39,7 @@ bool pakselector_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		return true;
 	}
 	else {
-		savegame_frame_t::action_triggered( komp, v );
+		return savegame_frame_t::action_triggered( komp, v );
 	}
 }
 
