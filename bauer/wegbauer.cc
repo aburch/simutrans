@@ -1679,7 +1679,8 @@ sint64 wegbauer_t::calc_costs()
 		if(gr) {
 			const weg_t *weg=gr->get_weg((waytype_t)besch->get_wtyp());
 			// keep faster ways or if it is the same way ... (@author prissi)
-			if(weg!=NULL  &&  (weg->get_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_city_roads  && weg->get_besch()==cityroad)  ||  (keep_existing_faster_ways  &&  weg->get_besch()->get_topspeed()>besch->get_topspeed()))  ) {
+			if(weg->get_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->get_besch()->get_topspeed()>besch->get_topspeed()) || (gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0) ) 
+			{
 					//nothing to be done
 			}
 			else if(besch->get_wtyp()!=powerline_wt  ||  gr->get_leitung()==NULL) {

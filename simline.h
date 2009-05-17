@@ -213,7 +213,6 @@ public:
 	// recalculates the good transported by this line and (in case of changes) will start schedule recalculation
 	void recalc_catg_index();
 
-<<<<<<< HEAD:simline.h
 	int get_replacing_convoys_count() const;
 
 	// @author: jamespetts
@@ -222,11 +221,10 @@ public:
 
 	//@author: jamespetts
 	bool has_overcrowded() const;
-=======
+
 	void set_withdraw( bool yes_no );
 
 	bool get_withdraw() const { return withdraw; }
->>>>>>> Simutrans-base/master:simline.h
 
 public:
 	spieler_t *get_besitzer() const {return sp;}
