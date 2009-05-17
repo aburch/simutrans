@@ -1285,9 +1285,18 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 					tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, besitzer_p);
 					if(!tmp_halt.is_bound())
 					{
-						// Try a public player halt
-						spieler_t* sp = welt->get_spieler(0);
-						tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
+						if(i_am_public)
+						{
+							// Public halts can connect to all other halts, so try each.
+							spieler_t* sp = cnv->get_besitzer();
+							tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
+						}
+						else
+						{
+							// Try a public player halt
+							spieler_t* sp = welt->get_spieler(0);
+							tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
+						}
 					}
 					if (tmp_halt == self) 
 					{
@@ -1340,9 +1349,18 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 					tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, besitzer_p);
 					if(!tmp_halt.is_bound())
 					{
-						// Try a public player halt
-						spieler_t* sp = welt->get_spieler(0);
-						tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
+						if(i_am_public)
+						{
+							// Public halts can connect to all other halts, so try each.
+							spieler_t* sp = line->get_besitzer();
+							tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
+						}
+						else
+						{
+							// Try a public player halt
+							spieler_t* sp = welt->get_spieler(0);
+							tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
+						}
 					}
 					if (tmp_halt == self) 
 					{
