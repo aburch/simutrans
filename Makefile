@@ -353,12 +353,14 @@ ifeq ($(BACKEND),sdl)
   CFLAGS   += -DUSE_16BIT_DIB
   CXXFLAGS += -DUSE_16BIT_DIB
   ifeq ($(OSTYPE),mac)
-    # Core Audio (Quicktime) base sound system routines
-    SOURCES += sound/core-audio_sound.mm
-    SOURCES += music/core-audio_midi.mm
+#    # Core Audio (Quicktime) base sound system routines
+#    SOURCES += sound/core-audio_sound.mm
+#    SOURCES += music/core-audio_midi.mm
+    SOURCES  += sound/sdl_sound.cc
+    SOURCES += music/no_midi.cc
   else
     SOURCES  += sound/sdl_sound.cc
-    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+    ifeq ($(findstring $(OSTYPE), cygwin mingw mac),)
 	    SOURCES += music/no_midi.cc
     else
       SOURCES += music/w32_midi.cc
