@@ -918,7 +918,6 @@ void convoi_t::step()
 							if(fahr[k]->get_besch() == replacing_vehicles[i])
 							{
 								veh = remove_vehikel_bei(k);
-								//keep_vehicles.append_unique(k);
 								break;
 							}
 						}
@@ -956,8 +955,6 @@ end_loop:
 								veh = dep->buy_vehicle(replacing_vehicles[i], false);
 							}
 						}
-
-						//dep->append_vehicle(self, veh, false);
 						
 						// This new method is needed to enable this method to iterate over
 						// the existing vehicles in the convoy while it is adding new vehicles.
@@ -1384,7 +1381,6 @@ void convoi_t::ziel_erreicht()
 		}
 
 		// we still book the money for the trip; however, the frieght will be lost
-		//calc_gewinn();
 		last_departure_time = welt->get_zeit_ms();
 
 		akt_speed = 0;
@@ -2784,7 +2780,6 @@ void convoi_t::open_schedule_window()
 
 	if(state==DRIVING) {
 		// book the current value of goods
-		//calc_gewinn();
 		last_departure_time = welt->get_zeit_ms();
 	}
 
@@ -2990,32 +2985,6 @@ void convoi_t::laden() //"load" (Babelfish)
 	//wait_lock = WTT_LOADING;
 	wait_lock = longest_loading_time;
 }
-
-
-/**
- * calculate income for last hop
- * @author Hj. Malthaner
- */
-/*void convoi_t::calc_gewinn()
-{
-	sint64 gewinn = 0;
-
-	for(unsigned i=0; i<anz_vehikel; i++) {
-		vehikel_t* v = fahr[i];
-		convoi_t *tmp = this;
-		gewinn += v->calc_gewinn(v->last_stop_pos, v->get_pos().get_2d(), tmp );
-		v->last_stop_pos = v->get_pos().get_2d();
-	}
-
-	if(gewinn) {
-		besitzer_p->buche(gewinn, fahr[0]->get_pos().get_2d(), COST_INCOME);
-		jahresgewinn += gewinn;
-
-		book(gewinn, CONVOI_PROFIT);
-		book(gewinn, CONVOI_REVENUE);
-	}
-}*/
-
 
 sint64 convoi_t::calc_revenue(ware_t& ware)
 {
@@ -3419,9 +3388,7 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 		// we need not to call this on the same position		if(  v->last_stop_pos != v->get_pos().get_2d()  ) {		// calc_revenue
 		if(!second_run || anz_vehikel == 1)
 		{
-			convoi_t *tmp = this;
-			// Replaced by new revenue model
-			//gewinn += v->calc_gewinn(v->last_stop_pos, v->get_pos().get_2d(), tmp );		
+			convoi_t *tmp = this;	
 			v->last_stop_pos = v->get_pos().get_2d();
 			//Unload
 			v->current_revenue = 0;

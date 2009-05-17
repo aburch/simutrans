@@ -770,8 +770,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 						const uint32 menge = halt->liefere_an(tmp); //"supply" (Babelfish)
 						sum_menge += menge;
 
-						// Calculates the revenue for each packet under the new
-						// revenue model. 
+						// Calculates the revenue for each packet. 
 						// @author: jamespetts
 #ifdef SLIST_FREIGHT
 						current_revenue += cnv->calc_revenue(iter.access_current());
@@ -835,6 +834,9 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 			//hinein = inside (Google)
 
 			ware_t ware = halt->hole_ab(besch->get_ware(), hinein, fpl, cnv->get_besitzer(), cnv);
+			
+			// Needed here to prevent over-accumulation.
+			ware.reset_accumulated_distance();
 					
 			if(ware.menge == 0) 
 			{
@@ -858,15 +860,7 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 			{
 				ware_t &tmp = fracht[i];
 #endif
-
-				/*
-				 *	OLD SYSTEM - did not take account of origins, etc.
-				 * 
-				 * // for pax: join according next stop
-				 * // for all others we *must* use target coordinates
-				 * if(ware.same_destination(tmp)) {
-				 */
-
+				
 				// New system: only merges if origins are alike.
 				// @author: jamespetts
 
@@ -1697,112 +1691,6 @@ vehikel_t::rauche()
 		}
 	}
 }
-
-
-
-/**
- * Payment is done per hop. It iterates all goods and calculates
- * the income for the last hop. This method must be called upon
- * every stop.
- * @return income total for last hop
- * @author Hj. Malthaner
- */
-/*sint64 vehikel_t::calc_gewinn(koord start, koord end, convoi_t *cnv) const 
-{
-	//According to Google translations: 
-	//Calculate profit ("gewinn")
-	//"Menge" = "volume"
-	//"zwischenziel" = "Between target"
-	//"Fracht" = "Freight"
-	//"Grundwert" = "Fundamental value"
-	//"Preis" = "Price"
-
-	// may happen when waiting in station
-	if(start==end  ||  fracht.get_count()==0) {
-		return 0;
-	}
-
-	//const long dist = abs(end.x - start.x) + abs(end.y - start.y);
-	const sint32 ref_speed = welt->get_average_speed( get_besch()->get_waytype() );
-	const sint32 speed_base = (100*speed_to_kmh(cnv->get_min_top_speed()))/ref_speed-100;
-
-	sint64 value = 0;
-	slist_tpl<ware_t> kill_queue;
-	slist_iterator_tpl <ware_t> iter (fracht);
-
-	while( iter.next() ) 
-	{
-
-		const ware_t &ware = iter.get_current();
-
-		if(ware.menge==0  ||  !ware.get_zwischenziel().is_bound()) 
-		{
-			continue;
-		}
-
-		// now only use the real gain in difference for the revenue (may as well be negative!)
-		const koord zwpos = ware.get_zwischenziel()->get_basis_pos();
-		const long dist = abs(zwpos.x - start.x) + abs(zwpos.y - start.y) - (abs(end.x - zwpos.x) + abs(end.y - zwpos.y));
-
-		const ware_besch_t* goods = ware.get_besch();
-		const sint32 grundwert128 = goods->get_preis()<<7;
-
-		
-		 // Calculates the speed bonus, taking into account: (
-		 // (1) the local bonus; and
-		 // (2) the speed bonus distance settings. 
-		 // @author: jamespetts
-		 
-
-		const uint16 base_bonus = goods->get_speed_bonus();
-		uint16 adjusted_bonus = 0;
-		uint16 local_bonus_supplement = (welt->get_einstellungen()->get_local_bonus_multiplier() / 100) * base_bonus;
-		
-		if(dist <= welt->get_einstellungen()->get_min_bonus_max_distance())
-		{
-			//If distance of journey too low, disapply speed bonus entirely, but apply local bonus supplement instead.
-			adjusted_bonus = local_bonus_supplement;
-		}
-		
-		else if(dist > welt->get_einstellungen()->get_min_bonus_max_distance() && dist < welt->get_einstellungen()->get_max_bonus_min_distance())
-		{
-			//Apply proportionate mix of local bonus supplement and conventional speed bonus. 
-			//The effect of this code is that, if the local supplement is set to 1, a 100% speed bonus is applied until max_bonus_min_distance is reached.
-			//For that reason, it is better not to set local supplement to 1. 
-			float tmp = (welt->get_einstellungen()->get_max_bonus_min_distance() - welt->get_einstellungen()->get_min_bonus_max_distance());
-			float proportion_distance = dist / tmp;
-			uint16 intermediate_bonus = base_bonus * proportion_distance;
-			uint16 intermediate_local_supplement = local_bonus_supplement * (1 / proportion_distance);
-			adjusted_bonus = intermediate_bonus + intermediate_local_supplement;
-		}
-
-		else if(dist >= welt->get_einstellungen()->get_max_bonus_min_distance())
-		{
-			//Apply full speed bonus in conventional way.
-			adjusted_bonus = base_bonus;
-		}
-
-		//const sint32 grundwert128 = ware.get_besch()->get_preis()<<7;	// bonus price will be always at least 0.128 of the real price
-		const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000 + speed_base * adjusted_bonus));
-		sint64 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus) * (sint64)dist * (sint64)ware.menge;
-
-		//Apply the catering bonus, if applicable.
-		if(cnv->get_catering_level(ware.get_besch()->get_catg_index()) > 0)
-		{
-			float catering_bonus = 1;
-			value *= catering_bonus;
-		}
-
-
-		// sum up new price
-		value += price;
-	}
-
-	// Hajo: Rounded value, in cents
-	// prissi: Why on earth 1/3???
-	return (value+1500ll)/3000ll;
-}*/
-
 
 const char *vehikel_t::get_fracht_mass() const
 {
