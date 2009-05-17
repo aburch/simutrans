@@ -111,7 +111,7 @@ char *tooltip_with_price(const char * tip, sint64 price)
  */
 char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 price, sint64 maitenance)
 {
-	int n = sprintf(werkzeug_t::toolstr, "%s, ", translator::translate(tip) );
+	size_t n = sprintf(werkzeug_t::toolstr, "%s, ", translator::translate(tip) );
 	money_to_string(werkzeug_t::toolstr+n, (double)price/-100.0);
 	strcat( werkzeug_t::toolstr, " (" );
 	n = strlen(werkzeug_t::toolstr);
@@ -128,7 +128,7 @@ char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 pric
  */
 char *tooltip_with_price_maintenance_level(karte_t *welt, const char *tip, sint64 price, sint64 maitenance, uint32 level, uint8 enables)
 {
-	int n = sprintf(werkzeug_t::toolstr, "%s, ", translator::translate(tip) );
+	size_t n = sprintf(werkzeug_t::toolstr, "%s, ", translator::translate(tip) );
 	money_to_string(werkzeug_t::toolstr+n, (double)price/-100.0);
 	strcat( werkzeug_t::toolstr, " (" );
 	n = strlen(werkzeug_t::toolstr);

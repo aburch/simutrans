@@ -550,19 +550,23 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 		const char* rule = contents.get_string(buf, "");
 
 		// skip leading spaces (use . for padding)
-		while (*rule == ' ') rule++;
+		while (*rule == ' ') {
+			rule++;
+		}
 
 		// find out rule size
 		size_t size = 0;
 		size_t maxlen = strlen(rule);
-		while (size < maxlen  &&  rule[size]!=' ') size++;
+		while (size < maxlen  &&  rule[size]!=' ') {
+			size++;
+		}
 
-		if (size > 7 || maxlen < size * (size + 1) - 1 || (size & 1) == 0 || size <= 2) {
+		if (size > 7  ||  maxlen < size * (size + 1) - 1  ||  (size & 1) == 0  ||  size <= 2 ) {
 			dbg->fatal("stadt_t::cityrules_init()", "house rule %d has bad format!", i + 1);
 		}
 
 		// put rule into memory
-		const uint offset = (7 - size) / 2;
+		const uint offset = (7 - (uint)size) / 2;
 		for (uint y = 0; y < size; y++) {
 			for (uint x = 0; x < size; x++) {
 				house_rules[i].rule[(offset + y) * 7 + x + offset] = rule[x + y * (size + 1)];
@@ -580,19 +584,23 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 		const char* rule = contents.get_string(buf, "");
 
 		// skip leading spaces (use . for padding)
-		while (*rule == ' ') rule++;
+		while (*rule == ' ') {
+			rule++;
+		}
 
 		// find out rule size
 		size_t size = 0;
 		size_t maxlen = strlen(rule);
-		while (size < maxlen && rule[size] != ' ') size++;
+		while (size < maxlen && rule[size] != ' ') {
+			size++;
+		}
 
-		if (size > 7 || maxlen < size * (size + 1) - 1 || (size & 1) == 0 || size <= 2) {
+		if (  size > 7  ||  maxlen < size * (size + 1) - 1  ||  (size & 1) == 0  ||  size <= 2  ) {
 			dbg->fatal("stadt_t::cityrules_init()", "road rule %d has bad format!", i + 1);
 		}
 
 		// put rule into memory
-		const uint8 offset = (7 - size) / 2;
+		const uint8 offset = (7 - (uint)size) / 2;
 		for (uint y = 0; y < size; y++) {
 			for (uint x = 0; x < size; x++) {
 				road_rules[i].rule[(offset + y) * 7 + x + offset] = rule[x + y * (size + 1)];

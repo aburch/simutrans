@@ -1665,10 +1665,9 @@ wegbauer_t::baue_tunnel_und_bruecken()
 /* returns the amount needed to built this way
  * author prissi
  */
-long
-wegbauer_t::calc_costs()
+sint64 wegbauer_t::calc_costs()
 {
-	long costs=0;
+	sint64 costs=0;
 
 	// construct city road?
 	const weg_besch_t *cityroad = welt->get_city_road();
@@ -1826,8 +1825,7 @@ wegbauer_t::baue_elevated()
 
 
 
-void
-wegbauer_t::baue_strasse()
+void wegbauer_t::baue_strasse()
 {
 	// construct city road?
 	const weg_besch_t *cityroad = get_besch("city_road");
@@ -1850,7 +1848,7 @@ wegbauer_t::baue_strasse()
 
 		const koord k = route[i].get_2d();
 		grund_t* gr = welt->lookup(route[i]);
-		long cost = 0;
+		sint64 cost = 0;
 
 		bool extend = gr->weg_erweitern(road_wt, calc_ribi(i));
 
@@ -1899,8 +1897,7 @@ wegbauer_t::baue_strasse()
 
 
 
-void
-wegbauer_t::baue_schiene()
+void wegbauer_t::baue_schiene()
 {
 	if(max_n >= 1) {
 		// init undo
@@ -1908,7 +1905,7 @@ wegbauer_t::baue_schiene()
 
 		// built tracks
 		for(  sint32 i=0;  i<=max_n;  i++  ) {
-			int cost = 0;
+			sint64 cost = 0;
 			grund_t* gr = welt->lookup(route[i]);
 			ribi_t::ribi ribi = calc_ribi(i);
 

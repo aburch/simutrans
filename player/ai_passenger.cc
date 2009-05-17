@@ -1394,6 +1394,12 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 
 void ai_passenger_t::rdwr(loadsave_t *file)
 {
+	if(  file->get_version()<102002  ) {
+		// do to an error the player was never saved correctly
+		spieler_t::rdwr(file);
+		return;
+	}
+
 	xml_tag_t t( file, "ai_passenger_t" );
 
 	// first: do all the administration

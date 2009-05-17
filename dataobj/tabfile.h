@@ -137,13 +137,16 @@ public:
 	const koord &get_koord(const char *key, koord def);
 
 	/**
-	 * Get the value for a koord key - key must be lowercase
-	 *
-	 * @return koord	returns def, if key is not found
-	 *
+	 * Get an int
 	 * @author V. Meyer
 	 */
 	int get_int(const char *key, int def);
+
+	/**
+	 * Get an sint64 (actually uses double, thus only 48 bits are retrievable)
+	 * @author prissi
+	 */
+	sint64 get_int64(const char *key, sint64 def);
 
 	/**
 	 * Parses a value with the format "<num 1>,<num 2>,..,<num N>"

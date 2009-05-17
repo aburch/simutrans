@@ -15,6 +15,8 @@
 	ADD: completly ignore message button at beginning of dialoge
 	CHANGE: faster map (non-isometric) on very large maps and no crashes with extremely large maps anymore
 	ADD: paste letters under windows with CNTRL+V
+	ADD: button "withdraw all" in line window
+	CHANGE: simuconf.tab cost values can now go up to 48 bit (should be enough for insanely high starting capital)
 
 
 

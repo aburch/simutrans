@@ -206,7 +206,7 @@ public:
 	/* returns the amount needed to built this way
 	* author prissi
 	*/
-	long calc_costs();
+	sint64 calc_costs();
 
 	bool check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp, const spieler_t *sp) const;
 	bool check_for_leitung(const koord zv, const grund_t *bd) const;

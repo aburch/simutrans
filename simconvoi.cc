@@ -4020,12 +4020,24 @@ bool convoi_t::has_no_cargo() const
 
 
 // returns tiles needed for this convoi
-uint16 convoi_t::get_tile_length() const {
+uint16 convoi_t::get_tile_length() const
+{
 	uint16 tiles=0;
 	for(uint8 i=0;  i<anz_vehikel;  i++) {
 		tiles += fahr[i]->get_besch()->get_length();
 	}
 	return (tiles+16-1)/16;
+}
+
+
+
+// if withdraw and empty, then self destruct
+void convoi_t::set_withdraw(bool new_withdraw)
+{
+	withdraw = new_withdraw;
+	if(  withdraw  &&  loading_level==0  ) {
+		state = SELF_DESTRUCT;
+	}
 }
 
 

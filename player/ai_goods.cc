@@ -31,6 +31,8 @@ ai_goods_t::ai_goods_t(karte_t *wl, uint8 nr) : ai_t(wl,nr)
 {
 	state = NR_INIT;
 
+	freight = NULL;
+
 	root = NULL;
 	start = NULL;
 	ziel = NULL;
@@ -1157,7 +1159,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					continue;
 				}
 
-				long gewinn = 0;
+				sint64 gewinn = 0;
 				for( int j=0;  j<12;  j++  ) {
 					gewinn += cnv->get_finance_history( j, CONVOI_PROFIT );
 				}
@@ -1268,6 +1270,12 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 void ai_goods_t::rdwr(loadsave_t *file)
 {
+	if(  file->get_version()<102002  ) {
+		// do to an error the player was never saved correctly
+		spieler_t::rdwr(file);
+		return;
+	}
+
 	xml_tag_t t( file, "ai_goods_t" );
 
 	// first: do all the administration

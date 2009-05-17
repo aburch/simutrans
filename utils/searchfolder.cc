@@ -72,12 +72,12 @@ int searchfolder_t::search(const char *filepath, const char *extension)
 #ifdef _MSC_VER
 	lookfor = path + name + ext;
 	struct _finddata_t entry;
-	long hfind = _findfirst((const char*)lookfor, &entry);
+	intptr_t hfind = _findfirst((const char*)lookfor, &entry);
 
 	if(hfind != -1) {
 		lookfor = ext;
 		do {
-			int entry_len = strlen(entry.name);
+			size_t entry_len = strlen(entry.name);
 			if(stricmp(entry.name + entry_len - lookfor.len(), (const char*)lookfor) == 0) {
 				char* const c = MALLOCN(char, path.len() + entry_len + 1);
 				sprintf(c,"%s%s",(const char*)path,entry.name);

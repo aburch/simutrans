@@ -56,7 +56,7 @@ bool obj_reader_t::init(const char *liste)
 
 	searchfolder_t find;
 	cstring_t name = find.complete(liste, "dat");
-	int i;
+	size_t i;
 
 	if(name.right(1) != "/") {
 		// very old style ... (I think unused by now)
@@ -173,7 +173,7 @@ void obj_reader_t::read_file(const char *name)
 	FILE *fp = fopen(name, "rb");
 
 	if(fp) {
-		int n = 0;
+		sint32 n = 0;
 
 		// This is the normal header reading code
 		int c;

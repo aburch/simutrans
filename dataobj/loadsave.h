@@ -50,8 +50,8 @@ private:
 
 	// Hajo: getc got a name clash on my system
 	int lsgetc();
-	long write(const void * buf, unsigned long len);
-	long read (void *buf, unsigned long len);
+	long write(const void * buf, size_t len);
+	long read(void *buf, size_t len);
 
 	void rdwr_xml_number(sint64 &s, const char *typ);
 

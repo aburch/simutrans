@@ -88,7 +88,7 @@ ding_infowin_t::calc_draw_info( koord pos, bool draw ) const
 			}
 			else {
 				// normal char: retrieve and calculate width
-				int len = 0;
+				size_t len = 0;
 				int ch_width = display_get_char_width( unicode ? utf8_to_utf16((const utf8 *)p, &len) : *p++ );
 				p += len;
 				x += ch_width;
@@ -109,7 +109,7 @@ ding_infowin_t::calc_draw_info( koord pos, bool draw ) const
 
 		// start of new line or end of text
 		if(draw  &&  (line_end-line_start)!=0) {
-			display_text_proportional_len_clip( pos.x+10, pos.y+y+16, (const char *)line_start, ALIGN_LEFT, COL_BLACK, line_end - line_start);
+			display_text_proportional_len_clip( pos.x+10, pos.y+y+16, (const char *)line_start, ALIGN_LEFT, COL_BLACK, (size_t)(line_end - line_start) );
 		}
 		y += LINESPACE;
 		// back to start of new line

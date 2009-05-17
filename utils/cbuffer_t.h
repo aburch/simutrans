@@ -61,7 +61,7 @@ public:
 	 * be appended.
 	 * @author Hj. Malthaner
 	 */
-	void append(int n);
+	void append(long n);
 
 	/* Append formatted text to the buffer */
 	void printf(const char* fmt, ...);

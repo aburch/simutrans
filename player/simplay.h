@@ -297,7 +297,7 @@ public:
 	 * @param file die offene Save-Datei
 	 * @author Hj. Malthaner
 	 */
-	void rdwr(loadsave_t *file);
+	virtual void rdwr(loadsave_t *file);
 
 	/*
 	 * called after game is fully loaded;

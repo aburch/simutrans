@@ -72,7 +72,7 @@ void gui_convoiinfo_t::zeichnen(koord offset)
 		int max_x = display_proportional_clip(pos.x+offset.x+2,pos.y+offset.y+8+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true);
 
 		char buf[256];
-		money_to_string(buf, cnv->get_jahresgewinn()/100);
+		money_to_string(buf, (double)(cnv->get_jahresgewinn()/100) );
 		max_x += display_proportional_clip(pos.x+offset.x+2+max_x+5,pos.y+offset.y+8+LINESPACE, buf, ALIGN_LEFT, cnv->get_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true);
 
 		/*

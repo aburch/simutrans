@@ -113,7 +113,7 @@ void display_day_night_shift(int night);
 
 
 // scrolls horizontally, will ignore clipping etc.
-void	display_scroll_band( const KOORD_VAL start_y, const KOORD_VAL x_offset, const KOORD_VAL h );
+void display_scroll_band( const KOORD_VAL start_y, const KOORD_VAL x_offset, const KOORD_VAL h );
 
 // set first and second company color for player
 void display_set_player_color_scheme(const int player, const COLOR_VAL col1, const COLOR_VAL col2 );
@@ -157,8 +157,8 @@ void display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, 
 
 
 // unicode save moving in strings
-int get_next_char(const char* text, int pos);
-int get_prev_char(const char* text, int pos);
+size_t get_next_char(const char* text, size_t pos);
+long get_prev_char(const char* text, long pos);
 
 KOORD_VAL display_get_char_width(utf16 c);
 
@@ -166,7 +166,7 @@ KOORD_VAL display_get_char_width(utf16 c);
 #define proportional_string_width(text)          display_calc_proportional_string_len_width(text, 0x7FFF)
 #define proportional_string_len_width(text, len) display_calc_proportional_string_len_width(text, len)
 // length of a string in pixel
-int display_calc_proportional_string_len_width(const char* text, int len);
+int display_calc_proportional_string_len_width(const char* text, size_t len);
 
 /*
  * len parameter added - use -1 for previous behaviour.
@@ -184,7 +184,7 @@ enum
 	DT_CLIP      = 1 << 3
 };
 
-int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, int flags, PLAYER_COLOR_VAL color_index, int len);
+int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, int flags, PLAYER_COLOR_VAL color_index, long len);
 /* macro are for compatibility */
 #define display_proportional(     x,  y, txt, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0),           color,  -1)
 #define display_proportional_clip(x,  y, txt, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0) | DT_CLIP, color,  -1)

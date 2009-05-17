@@ -135,7 +135,7 @@ public:
 	// this type of AIs identifier
 	virtual uint8 get_ai_id() { return AI_GOODS; }
 
-	void rdwr(loadsave_t *file);
+	virtual void rdwr(loadsave_t *file);
 
 	virtual void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
 

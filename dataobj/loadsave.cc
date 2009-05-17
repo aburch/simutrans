@@ -262,7 +262,7 @@ int loadsave_t::lsgetc()
 	}
 }
 
-long loadsave_t::write(const void *buf, unsigned long len)
+long loadsave_t::write(const void *buf, size_t len)
 {
 	if(is_zipped()) {
 		return gzwrite(fp, const_cast<void *>(buf), len);
@@ -271,7 +271,7 @@ long loadsave_t::write(const void *buf, unsigned long len)
 	}
 }
 
-long loadsave_t::read(void *buf, unsigned long len)
+long loadsave_t::read(void *buf, size_t len)
 {
 	if(is_zipped()) {
 		return gzread(fp, buf, len);
@@ -545,7 +545,7 @@ void loadsave_t::rdwr_str(const char *&s)
 	if(!is_xml()) {
 		sint16 size;
 		if(saving) {
-			size = s ? strlen(s) : 0;
+			size = s ? (sint16)min(32767,strlen(s)) : 0;
 #ifdef BIG_ENDIAN
 			{
 				uint16 ii = endian_uint16((uint16 *)&size);
@@ -609,19 +609,19 @@ void loadsave_t::rdwr_str(char *s, int size)
 	if(!is_xml()) {
 		sint16 len;
 		if(saving) {
-			len = strlen(s);
+			len = (sint16)min(32767,strlen(s));
 #ifdef BIG_ENDIAN
 			{
 				sint16 ii = (sint16)endian_uint16((uint16 *)&len);
 				write(&ii, sizeof(sint16));
 			}
 #else
-			write(&len, sizeof(short));
+			write(&len, sizeof(sint16));
 #endif
 			write(s, len);
 		}
 		else {
-			read(&len, sizeof(short));
+			read(&len, sizeof(sint16));
 #ifdef BIG_ENDIAN
 			len = (sint16)endian_uint16((uint16 *)&len);
 #endif
@@ -911,7 +911,7 @@ void loadsave_t::start_tag(const char *tag)
 		}
 		else {
 			char buf[256];
-			const int len = strlen(tag);
+			const size_t len = strlen(tag);
 			// find start of tag
 			while(  lsgetc()!='<'  ) { /* nothing */ }
 			read( buf, len );

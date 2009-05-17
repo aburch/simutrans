@@ -73,7 +73,7 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 
 	if (besch->utype == haus_besch_t::weitere && besch->enables == 0x80) {
 		// this stuff is just for compatibility
-		long checkpos=strlen(besch->get_name());
+		size_t checkpos = strlen(besch->get_name());
 		besch->enables = 0;
 		// before station buildings were identified by their name ...
 		if(  strcmp("BusStop",besch->get_name()+checkpos-7)==0  ) {
@@ -114,7 +114,7 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 	}
 	// now old style depots ...
 	else if(besch->utype==haus_besch_t::weitere) {
-		long checkpos=strlen(besch->get_name());
+		size_t checkpos = strlen(besch->get_name());
 		if(  strcmp("AirDepot",besch->get_name()+checkpos-8)==0  ) {
 			besch->utype = haus_besch_t::depot;
 			besch->extra_data = (uint16)air_wt;

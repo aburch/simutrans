@@ -92,7 +92,7 @@ void money_to_string(char * p, double f)
 	}
 
 	// Hajo: format string
-	l = strchr(tp,'.') - tp;
+	l = (long)(size_t)(strchr(tp,'.') - tp);
 
 	i = l % 3;
 
@@ -125,7 +125,7 @@ void number_to_string(char * p, double f)
 {
   char   tmp[128];
   char   *tp = tmp;
-  int    i,l;
+  long    i,l;
 
   sprintf(tp,"%.2f",f);
 
@@ -135,7 +135,7 @@ void number_to_string(char * p, double f)
   }
 
   // Hajo: format string
-  l = strchr(tp,'.') - tp;
+  l = (long)(size_t)(strchr(tp,'.') - tp);
 
   i = l % 3;
 
@@ -220,11 +220,10 @@ char *tstrncpy(char *dest, const char *src, size_t n)
  */
 void rtrim(char * buf)
 {
-  int l = strlen(buf) - 1;
-
-  while(l >= 0 && buf[l] > 0 && buf[l] <= 32) {
-    buf[l--] = '\0';
-  }
+	long l = (long)strlen(buf) - 1;
+	while(  l >= 0  &&  buf[l] > 0  &&  buf[l] <= 32  ) {
+		buf[l--] = '\0';
+	}
 }
 
 
@@ -235,17 +234,18 @@ void rtrim(char * buf)
  */
 const char * ltrim(const char *p)
 {
-  while(*p != '\0' && *p > 0 && *p <= 32) {
-    p ++;
-  }
-
-  return p;
+	while(*p != '\0' && *p > 0 && *p <= 32) {
+		p ++;
+	}
+	return p;
 }
 
 
 int count_char(const char* str, const char c)
 {
 	int count = 0;
-	while (*str != '\0') count += (*str++ == c);
+	while (*str != '\0') {
+		count += (*str++ == c);
+	}
 	return count;
 }

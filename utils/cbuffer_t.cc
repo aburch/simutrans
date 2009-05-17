@@ -61,7 +61,7 @@ void cbuffer_t::append(const char * text)
  * be appended.
  * @author Hj. Malthaner
  */
-void cbuffer_t::append(int n)
+void cbuffer_t::append(long n)
 {
   char tmp[32];
   char * p = tmp+31;

@@ -46,7 +46,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_class == EVENT_KEYBOARD) {
 		if((text != NULL) && has_focus(this)) {
-			const long len = strlen(text);
+			const size_t len = strlen(text);
 
 			switch(ev->ev_code) {
 				case SIM_KEY_DOWN: // down arrow
@@ -61,7 +61,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 					if (cursor_pos >= 0) {
 						cursor_pos = get_next_char(text, cursor_pos);
 					}
-					if (cursor_pos > (long)strlen(text)) {
+					if (cursor_pos > strlen(text)) {
 						cursor_pos = strlen(text);
 					}
 					break;
@@ -78,9 +78,9 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 					// backspace
 					if(cursor_pos > 0) {
 						if (cursor_pos < len) {
-							int prev_pos = cursor_pos;
+							size_t prev_pos = cursor_pos;
 							cursor_pos = get_prev_char(text, cursor_pos);
-							for (int pos = cursor_pos; pos <= len-(prev_pos-cursor_pos); pos++) {
+							for (size_t pos = cursor_pos; pos <= len-(prev_pos-cursor_pos); pos++) {
 								text[pos] = text[pos+(prev_pos-cursor_pos)];
 							}
 						} else {
@@ -92,8 +92,8 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 				case 127:
 					// delete
 					if (cursor_pos <= len) {
-							int next_pos = get_next_char(text, cursor_pos);
-							for (int pos = cursor_pos; pos < len; pos++) {
+							size_t next_pos = get_next_char(text, cursor_pos);
+							for (size_t pos = cursor_pos; pos < len; pos++) {
 								text[pos] = text[pos+(next_pos-cursor_pos)];
 							}
 					}
@@ -147,7 +147,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 						letter[1] = 0;
 					}
 
-					int num_letter = strlen(letter);
+					size_t num_letter = strlen(letter);
 
 					if(len+num_letter>=max) {
 						// too many chars ...
@@ -156,7 +156,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 
 					// insert into text?
 					if (cursor_pos < len) {
-						for (int pos = len+num_letter; pos >= cursor_pos; pos--) {
+						for (size_t pos = len+num_letter; pos >= cursor_pos; pos--) {
 							text[pos] = text[pos-num_letter];
 						}
 						memcpy( text+cursor_pos, letter, num_letter );
@@ -179,7 +179,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 			request_focus(this);
 		}
 		cursor_pos = 0;
-		for( int i=strlen(text); i>0;  i-- ) {
+		for( size_t i=strlen(text); i>0;  i-- ) {
 			if(ev->cx+cursor_offset > display_calc_proportional_string_len_width(text,i)) {
 				cursor_pos = i;
 				break;
@@ -206,7 +206,7 @@ void gui_textinput_t::zeichnen(koord offset)
 		int align_offset = (align == ALIGN_RIGHT) ? proportional_string_width(text) : 0;
 
 		cursor_offset = proportional_string_len_width(text, cursor_pos);
-		if (cursor_offset > groesse.x - 2) {
+		if (cursor_offset+2 > groesse.x) {
 			cursor_offset -= (groesse.x - 3);
 		}
 		else {
@@ -245,7 +245,7 @@ void gui_textinput_t::zeichnen(koord offset)
 
 
 
-void gui_textinput_t::set_text(char *text, int max)
+void gui_textinput_t::set_text(char *text, size_t max)
 {
 	this->text = text;
 	this->max = max;

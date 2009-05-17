@@ -40,9 +40,12 @@ cstring_t::cstring_t()
 
 cstring_t::cstring_t(const char *other)
 {
-	const int len = strlen(other)+1;
-	buf = new char[len];
-	strcpy(buf, other);
+	buf = NULL;
+	if(other) {
+		const size_t len = strlen(other)+1;
+		buf = new char[len];
+		strcpy(buf, other);
+	}
 }
 
 
@@ -75,7 +78,7 @@ cstring_t cstring_t::operator+ (const char *other) const
 {
     //printf("cstring_t cstring_t::operator+ (const char *other) const\n");
 	if(buf) {
-		const int tmplen = strlen(buf)+strlen(other) + 1;
+		const size_t tmplen = strlen(buf)+strlen(other) + 1;
 		char *tmp = new char[tmplen];
 
 		strcpy(tmp, buf);
@@ -91,9 +94,9 @@ cstring_t cstring_t::operator+ (const char *other) const
 
 void cstring_t::set_at(int idx, char x) const
 {
-    if(idx > 0 && idx < len()) {
-	buf[idx] = x;
-    }
+	if(idx > 0 && idx < len()) {
+		buf[idx] = x;
+	}
 }
 
 
@@ -199,7 +202,7 @@ long cstring_t::find(char x) const
 	if(p && *p) {
 		do {
 			if(*p == x) {
-				return (p  - buf);
+				return (long)(size_t)(p - buf);
 			}
 		} while(*++p);
 	}
@@ -208,12 +211,12 @@ long cstring_t::find(char x) const
 
 long cstring_t::find(const char *text) const
 {
-	long l = strlen(text);
-	long	n = len() - l + 1;
+	size_t l = strlen(text);
+	size_t n = len() - l + 1;
 
-	for(int i = 0; i < n; i++) {
+	for(size_t i = 0; i < n; i++) {
 		if(!strncmp(text, buf, l)) {
-			return i;
+			return (long)i;
 		}
 	}
 	return -1;
@@ -226,7 +229,7 @@ long cstring_t::find_back(char x) const
 
 		while(p-- != buf) {
 			if(*p == x) {
-				return (p - buf);
+				return (long)(size_t)(p - buf);
 			}
 		}
 	}

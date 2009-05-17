@@ -4221,8 +4221,8 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			return;
 		}
 
-		// the new position
-		const koord3d pos = koord3d(mi,mj,hgt);
+		// the new position - extra logic for raise / lower tool
+		const koord3d pos = koord3d(mi,mj, zeiger->get_yoff()==Z_GRID ? lookup_hgt(koord(mi,mj)) : hgt);
 
 		// rueckwaerttransformation um die zielkoordinaten
 		// mit den mauskoordinaten zu vergleichen

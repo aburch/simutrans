@@ -20,7 +20,7 @@ class quickstone_hash_tpl {
 public:
 	static uint32 hash(const quickstone_tpl<key_t> key)
 	{
-		return labs((long)key.get_rep());
+		return (uint32)(size_t)key.get_rep();
 	}
 
 	static key_t null()
@@ -35,7 +35,7 @@ public:
 
 	static long comp(quickstone_tpl<key_t> key1, quickstone_tpl<key_t> key2)
 	{
-		return (long)key1.get_rep() - (long)key2.get_rep();
+		return (long)((size_t)key1.get_rep() - (size_t)key2.get_rep());
 	}
 };
 

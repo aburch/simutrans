@@ -17,7 +17,7 @@ class ptrhash_tpl {
 public:
 	static uint32 hash(const key_t key)
 	{
-		return labs((long)key);
+		return (uint32)(size_t)key;
 	}
 
 	static key_t null()
@@ -32,7 +32,7 @@ public:
 
 	static long comp(key_t key1, key_t key2)
 	{
-		return (long)key1 - (long)key2;
+		return (long)((size_t)key1 - (size_t)key2);
 	}
 };
 

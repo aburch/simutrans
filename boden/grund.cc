@@ -909,9 +909,9 @@ bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 }
 
 
-long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
+sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 {
-	long cost=0;
+	sint64 cost=0;
 
 	// not already there?
 	const weg_t * alter_weg = get_weg(weg->get_waytype());
