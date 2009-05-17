@@ -304,9 +304,6 @@ void simline_t::recalc_catg_index()
 	}
 	goods_catg_index.clear();
 	withdraw = line_managed_convoys.get_count()>0;
-	if( line_managed_convoys.get_count() == 0 ) {
-		withdraw = false;
-	}
 	// then recreate current
 	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
 		// what goods can this line transport?
