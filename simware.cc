@@ -177,7 +177,6 @@ ware_t::rdwr(karte_t *welt,loadsave_t *file)
 }
 
 
-
 void
 ware_t::laden_abschliessen(karte_t *welt) //"Invite finish" (Google); "load lock" (Babelfish).
 {

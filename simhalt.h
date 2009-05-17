@@ -711,21 +711,13 @@ public:
 	{
 		if(halt.is_bound())
 		{
-			/*fixed_list_tpl<uint16, 16> tmp = *(new fixed_list_tpl<uint16, 16>);
-			if(!waiting_times[category].put(halt, tmp))
-			{
-				delete &tmp;
-			}*/
 			
-			const fixed_list_tpl<uint16, 16> *TEST = waiting_times[category].access(halt->get_basis_pos());
 			fixed_list_tpl<uint16, 16> *tmp;
 			if(waiting_times[category].access(halt->get_basis_pos()) == NULL)
 			{
-				//fixed_list_tpl<uint16, 16> *tmp = new fixed_list_tpl<uint16, 16>;
 				tmp = new fixed_list_tpl<uint16, 16>;
 				waiting_times[category].put(halt->get_basis_pos(), *tmp);
 			}
-			const fixed_list_tpl<uint16, 16> *TEST_2 = waiting_times[category].access(halt->get_basis_pos());
 			waiting_times[category].access(halt->get_basis_pos())->add_to_tail(time);
 		}
 	

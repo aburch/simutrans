@@ -2824,7 +2824,6 @@ karte_t::step()
 	// now step all towns (to generate passengers)
 	sint64 bev=0;
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
-		stadt_t* TEST = *i;
 		(*i)->step(delta_t);
 		bev += (*i)->get_finance_history_month( 0, HIST_CITICENS );
 	}

@@ -545,9 +545,6 @@ void convoi_t::calc_acceleration(long delta_t)
 		delta_v += previous_delta_v;
 		previous_delta_v = delta_v & 0x0FFF;
 		// and finally calculate new speed
-#ifdef TEST_SPEED
-		akt_speed = kmh_to_speed(10);
-#else
 		akt_speed = max(akt_speed_soll>>4, akt_speed+(sint32)(delta_v>>12l) );
 
 	}
@@ -562,7 +559,6 @@ void convoi_t::calc_acceleration(long delta_t)
 		if(akt_speed > akt_speed_soll+kmh_to_speed(20)) {
 			akt_speed = akt_speed_soll+kmh_to_speed(20);
 		}
-#endif
 	}
 
 	// new record?
@@ -824,19 +820,6 @@ bool convoi_t::sync_step(long delta_t)
 			dbg->fatal("convoi_t::sync_step()", "Wrong state %d!\n", state);
 			break;
 	}
-
-#ifdef TEST_SPEED
-
-	speed_testing tmp;
-	tmp.ticks = welt->get_steps();
-	tmp.tile = fahr[0]->get_pos().get_2d();
-	if(ticks_per_tile.get_count() < 1 || ((tmp.tile.x != ticks_per_tile[0].tile.x) || (tmp.tile.y != ticks_per_tile[0].tile.y)))
-	{
-		ticks_per_tile.add_to_head(tmp);
-	}
-
-
-#endif
 	
 	return true;
 }
@@ -2898,7 +2881,6 @@ void convoi_t::laden() //"load" (Babelfish)
 	//@author: jamespetts
 	const uint32 journey_distance = accurate_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
 	
-	const uint8 TEST = fpl->get_aktuell();
 	if(current_stop != fpl->get_aktuell())
 	{
 		const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096.0F;

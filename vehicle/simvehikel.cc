@@ -1679,7 +1679,6 @@ vehikel_t::rauche()
 			grund_t * gr = welt->lookup( get_pos() );
 			// nicht im tunnel ?
 			if(gr && !gr->ist_im_tunnel() ) {
-				const koord3d TEST = get_pos();
 				wolke_t *abgas =  new wolke_t(welt, get_pos(), get_xoff()+((dx*(sint16)((uint16)steps*TILE_STEPS))>>8), get_yoff()+((dy*(sint16)((uint16)steps*TILE_STEPS))>>8)+hoff, besch->get_rauch() );
 
 				if( !gr->obj_add(abgas) ) {

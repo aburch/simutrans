@@ -349,13 +349,16 @@ int simu_main(int argc, char** argv)
 		printf(
 			"\n"
 			"---------------------------------------\n"
-			"  Simutrans " VERSION_NUMBER "\n"
+			"  Simutrans " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION "\n"
 			"  released " VERSION_DATE "\n"
-			"  developed\n"
+			"  modified by James E. Petts\n"
+			"  from Simutrans - developed\n"
 			"  by the Simutrans team.\n"
 			"\n"
-			"  Send feedback and questions to:\n"
-			"  <markus@pristovsek.de>\n"
+			"  For more information, please\n"
+			"  visit the Simutrans website or forum\n"
+			"  http://www.simutrans.com\n"
+		    "  http://forum.simutrans.com"
 			"\n"
 			"  Based on Simutrans 0.84.21.2\n"
 			"  by Hansjörg Malthaner et. al.\n"
@@ -486,7 +489,7 @@ int simu_main(int argc, char** argv)
 	} else {
 		init_logging(NULL, false, false);
 	}
-	DBG_MESSAGE( "simmain::main()", "Version: " VERSION_NUMBER "  Date: " VERSION_DATE);
+	DBG_MESSAGE( "simmain::main()", "Version: " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION "  Date: " VERSION_DATE);
 	DBG_MESSAGE( "Debuglevel","%i", umgebung_t::verbose_debug );
 	DBG_MESSAGE( "program_dir", umgebung_t::program_dir );
 	DBG_MESSAGE( "home_dir", umgebung_t::user_dir );

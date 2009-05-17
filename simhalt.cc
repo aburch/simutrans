@@ -1064,6 +1064,8 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fpl, const convoihandle_t cnv, const linehandle_t line)
 {
 	
+	const bool i_am_public = get_besitzer() == welt->get_spieler(1);
+
 	if(type != warenbauer_t::nichts) 
 	{
 		ITERATE_PTR(fpl,i)
@@ -1073,9 +1075,18 @@ void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fp
 			halthandle_t halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, besitzer_p);
 			if(!halt.is_bound())
 			{
-				// Try a public player halt
-				spieler_t* sp = welt->get_spieler(0);
-				halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
+				if(i_am_public)
+				{
+					// Public halts can connect to all other halts, so try each.
+					spieler_t* sp = line.is_bound() ? line->get_besitzer() : cnv->get_besitzer();
+					halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
+				}
+				else
+				{
+					// Try a public player halt
+					spieler_t* sp = welt->get_spieler(0);
+					halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
+				}
 			}
 			// not existing, or own, or not enabled => ignore
 			if(!halt.is_bound() || halt == self || !halt->is_enabled(type)) 
@@ -1124,8 +1135,18 @@ void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fp
 				current_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_step].pos, besitzer_p);
 				if(!current_halt.is_bound())
 				{
-					// Try a public player halt
-					current_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_step].pos, welt->get_spieler(0));
+					if(i_am_public)
+					{
+						// Public halts can connect to all other halts, so try each.
+						spieler_t* sp = line.is_bound() ? line->get_besitzer() : cnv->get_besitzer();
+						current_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
+					}
+					else
+					{
+						// Try a public player halt
+						spieler_t* sp = welt->get_spieler(0);
+						current_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
+					}
 				}
 				if(!current_halt.is_bound())
 				{
