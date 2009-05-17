@@ -56,9 +56,9 @@ static image_id b_cap_right_p = IMG_LEER;
  * Lazy button image number init
  * @author Hj. Malthaner
  */
-static void init_button_images()
+void button_t::init_button_images()
 {
-	if(square_button_pushed==IMG_LEER  &&  obj_reader_t::has_been_init) {
+	if(skinverwaltung_t::window_skin!=NULL) {
 
 		square_button_normal = skinverwaltung_t::window_skin->get_bild(6)->get_nummer();
 		square_button_pushed = skinverwaltung_t::window_skin->get_bild(7)->get_nummer();
@@ -190,7 +190,6 @@ button_t::button_t()
 	translated_tooltip = tooltip = NULL;
 	background = MN_GREY3;
 	b_enabled = true;
-	init_button_images();
 }
 
 

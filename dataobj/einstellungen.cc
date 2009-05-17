@@ -179,6 +179,9 @@ einstellungen_t::einstellungen_t() :
 	pay_for_total_distance = TO_PREVIOUS;
 
 	avoid_overcrowding = false;
+
+	// default: load also private extensions of the pak file
+	with_private_paks = true;
 }
 
 
@@ -457,6 +460,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		}
 		if(file->get_version()>102001) {
 			file->rdwr_bool( no_routing_over_overcrowding, "" );
+			file->rdwr_bool( with_private_paks, "" );
 		}
 	}
 }
@@ -624,6 +628,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	disp_width = contents.get_int("display_width", disp_width);
 	disp_height = contents.get_int("display_height", disp_height);
 	fullscreen = contents.get_int("fullscreen", fullscreen);
+
+	with_private_paks = contents.get_int("with_private_paks", with_private_paks)!=0;
 
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", "" ));

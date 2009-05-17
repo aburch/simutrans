@@ -153,6 +153,9 @@ private:
 	/* if set, goods will not routed over overcroded stations but rather try detours (if possible) */
 	bool no_routing_over_overcrowding;
 
+	// true, if this pak should be used with extensions (default)
+	bool with_private_paks;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -355,6 +358,10 @@ public:
 	void set_min_river_length( sint16 n ) { min_river_length=n; }
 	sint16 get_max_river_length() const { return max_river_length; }
 	void set_max_river_length( sint16 n ) { max_river_length=n; }
+
+	// true, if this pak should be used with extensions (default)
+	bool get_with_private_paks() const { return with_private_paks; }
+	void set_with_private_paks(bool b) { with_private_paks = b; }
 };
 
 #endif

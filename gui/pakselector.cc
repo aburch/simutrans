@@ -13,6 +13,7 @@
 void pakselector_t::action(const char *filename)
 {
 	umgebung_t::objfilename = (cstring_t)filename + "/";
+	umgebung_t::default_einstellungen.set_with_private_paks( false );
 }
 
 
@@ -20,6 +21,7 @@ void pakselector_t::del_action(const char *filename)
 {
 	// cannot delete set => use this for selection
 	umgebung_t::objfilename = (cstring_t)filename + "/";
+	umgebung_t::default_einstellungen.set_with_private_paks( true );
 }
 
 const char *pakselector_t::get_info(const char *)
@@ -52,13 +54,10 @@ void pakselector_t::zeichnen(koord p, koord gr)
 	display_multiline_text( p.x+10, p.y+10,
 		"You have multiple pak sets to choose from.\n", COL_BLACK );
 
-	display_multiline_text( p.x+gr.x/2-40+30, p.y+scrolly.get_pos().y+16,
-		"To avoid seeing this dialogue\n"
-		"define a path by:\n"
-		" - adding 'pak_file_path = pak/'\n"
-		"   to your simuconf.tab\n"
-		" - using '-objects pakxyz/'\n"
-		"   on the command line", COL_BLACK );
+	display_multiline_text( p.x+6, p.y+gr.y-38,
+		"To avoid seeing this dialogue define a path by:\n"
+		" - adding 'pak_file_path = pak/' to your simuconf.tab\n"
+		" - using '-objects pakxyz/' on the command line", COL_BLACK );
 }
 
 
@@ -85,13 +84,9 @@ bool pakselector_t::check_file( const char *filename, const char * )
 
 pakselector_t::pakselector_t() : savegame_frame_t( NULL, umgebung_t::program_dir )
 {
-//	savebutton.set_groesse(koord(14, 11));
-	savebutton.set_text("Load Addons");
-	savebutton.set_typ(button_t::roundbox_state);
-	savebutton.pressed = 1;
-
 	// remove unneccessary buttons
 	remove_komponente( &input );
+	remove_komponente( &savebutton );
 	remove_komponente( &cancelbutton );
 	remove_komponente( &divider1 );
 
@@ -103,7 +98,9 @@ void pakselector_t::fill_list()
 {
 	// do the search ...
 	savegame_frame_t::fill_list();
-
-	// now we know the button positions ...
-	savebutton.set_pos(koord(4, savebutton.get_pos().y));
+	for(  slist_tpl<entry>::iterator iter = entries.begin(), end = entries.end();  iter != end;  ++iter  ) {
+		iter->del->groesse.x += 150;
+		iter->del->set_text( "Load with addons" );
+		iter->button->set_pos( koord(150,0)+iter->button->get_pos() );
+	}
 }

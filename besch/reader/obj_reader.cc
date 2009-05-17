@@ -1,12 +1,13 @@
 #include <string.h>
 
+#include <direct.h>
 #ifndef _MSC_VER
 #include <unistd.h>
-#include <dirent.h>
 #else
 #include <sys/stat.h>
 #include <io.h>
 #endif
+
 
 // for the progress bar
 #include "../../simcolor.h"
@@ -18,7 +19,13 @@
 #include "../grund_besch.h"	// for the error message!
 #include "../../simskin.h"
 
+// for init of button images
+#include "../../gui/components/gui_button.h"
+
 // normal stuff
+#include "../../dataobj/translator.h"
+#include "../../dataobj/umgebung.h"
+
 #include "../../utils/searchfolder.h"
 
 #include "../../tpl/inthashtable_tpl.h"
@@ -37,26 +44,76 @@ inthashtable_tpl<obj_type, stringhashtable_tpl<obj_besch_t *> > obj_reader_t::lo
 inthashtable_tpl<obj_type, stringhashtable_tpl< slist_tpl<obj_besch_t **> > > obj_reader_t::unresolved;
 ptrhashtable_tpl<obj_besch_t **, int> obj_reader_t::fatals;
 
-bool obj_reader_t::has_been_init = false;
-
 void obj_reader_t::register_reader()
 {
-    if(!obj_reader) {
+	if(!obj_reader) {
 		obj_reader =  new inthashtable_tpl<obj_type, obj_reader_t *>;
-    }
-    obj_reader->put(get_type(), this);
-    //printf("This program can read %s objects\n", get_type_name());
+	}
+	obj_reader->put(get_type(), this);
+	//printf("This program can read %s objects\n", get_type_name());
 }
 
 
-bool obj_reader_t::init(const char *liste)
+bool obj_reader_t::init(const char *message)
 {
-	DBG_MESSAGE("obj_reader_t::init()","reading from '%s'", liste);
-	bool drawing=is_display_init();
+	// search for skins first
+	chdir( umgebung_t::program_dir );
+	load( "skin/", translator::translate("Loading skins ...") );
+	if(  umgebung_t::program_dir!=umgebung_t::user_dir  ) {
+		chdir( umgebung_t::user_dir );
+		load( "skin/", translator::translate("Loading skins ...") );
+	}
+	chdir( umgebung_t::program_dir );
+	button_t::init_button_images();
+	return true;
+}
 
+
+bool obj_reader_t::laden_abschliessen()
+{
+	resolve_xrefs();
+
+	inthashtable_iterator_tpl<obj_type, obj_reader_t *> iter(obj_reader);
+
+	while(iter.next()) {
+DBG_MESSAGE("obj_reader_t::laden_abschliessen()","Checking %s objects...",iter.get_current_value()->get_type_name());
+
+		if(!iter.get_current_value()->successfully_loaded()) {
+			dbg->warning("obj_reader_t::laden_abschliessen()","... failed!");
+			return false;
+		}
+	}
+
+#if 0
+	// disposing would be a great idea to save additional 256kB main memory ...
+	if(skinverwaltung_t::biglogosymbol) {
+		// this will crash simutrasn at zomming, nightmode , ...
+		delete skinverwaltung_t::biglogosymbol->get_bild(0);
+		delete skinverwaltung_t::biglogosymbol->get_bild(1);
+		delete skinverwaltung_t::biglogosymbol->get_bild(2);
+		delete skinverwaltung_t::biglogosymbol->get_bild(3);
+	}
+#endif
+
+#if 0
+	// clean screen
+	if(drawing) {
+		display_fillbox_wh( 0, display_get_height()/2-20, display_get_width(), display_get_height()/2+20, COL_BLACK, true );
+	}
+#endif
+
+DBG_MESSAGE("obj_reader_t::init()", "done");
+	button_t::init_button_images();
+	return true;
+}
+
+
+bool obj_reader_t::load(const char *liste, const char *message)
+{
 	searchfolder_t find;
 	cstring_t name = find.complete(liste, "dat");
 	size_t i;
+	const bool drawing=is_display_init();
 
 	if(name.right(1) != "/") {
 		// very old style ... (I think unused by now)
@@ -89,6 +146,7 @@ bool obj_reader_t::init(const char *liste)
 				}
 			}
 			fclose(listfp);
+			return true;
 		}
 	}
 	else {
@@ -104,36 +162,39 @@ bool obj_reader_t::init(const char *liste)
 			teilung = 0;
 		}
 		teilung = (2<<teilung)-1;
-		if(drawing) {
+
+		if(drawing  &&  skinverwaltung_t::biglogosymbol==NULL) {
 			display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
-			display_set_progress_text("Loading paks ...");
+			display_set_progress_text(message);
 			read_file(name+"symbol.BigLogo.pak");
-DBG_MESSAGE("obj_reader_t::init()","big logo %p", skinverwaltung_t::biglogosymbol);
-			if(skinverwaltung_t::biglogosymbol) {
-				const int w = skinverwaltung_t::biglogosymbol->get_bild(0)->get_pic()->w;
-				const int h = skinverwaltung_t::biglogosymbol->get_bild(0)->get_pic()->h;
-				int x = display_get_width()/2-w;
-				int y = display_get_height()/4-w;
-				if(y<0) {
-					y = 1;
-				}
-				display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(0), x, y, 0, false, true);
-				display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(1), x+w, y, 0, false, true);
-				display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(2), x, y+h, 0, false, true);
-				display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(3), x+w, y+h, 0, false, true);
+DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbol);
+		}
+		if(skinverwaltung_t::biglogosymbol) {
+			const int w = skinverwaltung_t::biglogosymbol->get_bild(0)->get_pic()->w;
+			const int h = skinverwaltung_t::biglogosymbol->get_bild(0)->get_pic()->h;
+			int x = display_get_width()/2-w;
+			int y = display_get_height()/4-w;
+			if(y<0) {
+				y = 1;
+			}
+			display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(0), x, y, 0, false, true);
+			display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(1), x+w, y, 0, false, true);
+			display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(2), x, y+h, 0, false, true);
+			display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(3), x+w, y+h, 0, false, true);
+#if 0
+			display_free_all_images_above( skinverwaltung_t::biglogosymbol->get_bild_nr(0) );
+#endif
+		}
+
+		if(  grund_besch_t::ausserhalb==NULL  ) {
+			// defining the pak tile witdh ....
+			read_file(name+"ground.Outside.pak");
+			if(grund_besch_t::ausserhalb==NULL) {
+				dbg->error("obj_reader_t::load()","ground.Outside.pak not found, cannot guess tile size! (driving on left will not work!)");
 			}
 		}
 
-		// and free all slots again ...
-		display_free_all_images_above(0);
-
-		// defining the pak tile witdh ....
-		read_file(name+"ground.Outside.pak");
-		if(grund_besch_t::ausserhalb==NULL) {
-			dbg->error("obj_reader_t::init()","ground.Outside.pak not found, cannot guess tile size! (driving on left will not work!)");
-		}
-
-DBG_MESSAGE("obj_reader_t::init()", "reading from '%s'", (const char*)name);
+DBG_MESSAGE("obj_reader_t::load()", "reading from '%s'", (const char*)name);
 		uint n = 0;
 		for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i, n++) {
 			read_file(*i);
@@ -141,27 +202,10 @@ DBG_MESSAGE("obj_reader_t::init()", "reading from '%s'", (const char*)name);
 				display_progress(n, max);
 			}
 		}
+
+		return find.begin()!=find.end();
 	}
-	resolve_xrefs();
-
-	inthashtable_iterator_tpl<obj_type, obj_reader_t *> iter(obj_reader);
-
-	while(iter.next()) {
-DBG_MESSAGE("obj_reader_t::init()","Checking %s objects...",iter.get_current_value()->get_type_name());
-
-		if(!iter.get_current_value()->successfully_loaded()) {
-			dbg->warning("obj_reader_t::init()","... failed!");
-			return false;
-		}
-	}
-
-	// clean screen
-	if(drawing) {
-		display_fillbox_wh( 0, display_get_height()/2-20, display_get_width(), display_get_height()/2+20, COL_BLACK, true );
-	}
-
-DBG_MESSAGE("obj_reader_t::init()", "done");
-	return true;
+	return false;
 }
 
 

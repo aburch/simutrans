@@ -72,6 +72,8 @@ private:
 	const char *translated_text;
 
 public:
+	static void init_button_images();	// must be called at least once after loading skins
+
 	PLAYER_COLOR_VAL background; //@author hsiegeln
 	PLAYER_COLOR_VAL foreground;
 
