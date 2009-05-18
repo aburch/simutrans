@@ -499,6 +499,9 @@ int simu_main(int argc, char** argv)
 		show_sizes();
 	}
 #endif
+
+	// prepare skins first
+	obj_reader_t::init( translator::translate("Loading skins ...") );
 	chdir( umgebung_t::program_dir );
 
 	// likely only the programm without graphics was downloaded
@@ -602,6 +605,10 @@ int simu_main(int argc, char** argv)
 			simuconf.close();
 		}
 	}
+	else {
+		// not possible for single user
+		umgebung_t::default_einstellungen.set_with_private_paks( false );
+	}
 
 	// now (re)set the correct length from the pak
 	umgebung_t::default_einstellungen.set_pak_diagonal_multiplier( pak_diagonal_multiplier );
@@ -654,11 +661,17 @@ int simu_main(int argc, char** argv)
 
 	// loading all paks
 	print("Reading object data from %s...\n", (const char*)umgebung_t::objfilename);
-	if (!obj_reader_t::init(umgebung_t::objfilename)) {
-		fprintf(stderr, "reading object data failed.\n");
-		exit(11);
+	obj_reader_t::load(umgebung_t::objfilename, translator::translate("Loading paks ...") );
+	if(  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
+		// try to read addons from private directory
+		chdir( umgebung_t::user_dir );
+		if(!obj_reader_t::load(umgebung_t::objfilename,translator::translate("Loading addon paks ..."))) {
+			fprintf(stderr, "reading addon object data failed (disabling).\n");
+			umgebung_t::default_einstellungen.set_with_private_paks( false );
+		}
+		chdir( umgebung_t::program_dir );
 	}
-	obj_reader_t::has_been_init = true;
+	obj_reader_t::laden_abschliessen();
 
 	// set overtaking offsets
 	vehikel_basis_t::set_overtaking_offsets( umgebung_t::drive_on_left );

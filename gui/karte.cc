@@ -116,16 +116,16 @@ reliefkarte_t::set_relief_farbe(koord k, const int color)
 
 	if(rotate45) {
 		// since isometric is distorted
-		const uint32 xw = zoom_in>=2 ? 1 : 2*zoom_out;
-		for(  uint32 x = max(0,k.x);  x < xw+k.x  &&  x < relief->get_width();  x++  ) {
-			for(  uint32 y = max(0,k.y);  y < zoom_out+k.y  &&  y<relief->get_height();  y++  ) {
+		const sint32 xw = zoom_in>=2 ? 1 : 2*zoom_out;
+		for(  sint32 x = max(0,k.x);  x < xw+k.x  &&  x < relief->get_width();  x++  ) {
+			for(  sint32 y = max(0,k.y);  y < zoom_out+k.y  &&  y<relief->get_height();  y++  ) {
 				relief->at(x, y) = color;
 			}
 		}
 	}
 	else {
-		for(  uint32 x = max(0,k.x);  x < zoom_out+k.x  &&  x<relief->get_width();  x++  ) {
-			for(  uint32 y = max(0,k.y);  y < zoom_out+k.y  &&  y<relief->get_height();  y++  ) {
+		for(  sint32 x = max(0,k.x);  x < zoom_out+k.x  &&  x<relief->get_width();  x++  ) {
+			for(  sint32 y = max(0,k.y);  y < zoom_out+k.y  &&  y<relief->get_height();  y++  ) {
 				relief->at(x, y) = color;
 			}
 		}

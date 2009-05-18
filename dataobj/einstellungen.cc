@@ -275,6 +275,9 @@ einstellungen_t::einstellungen_t() :
 	enforce_weight_limits = 1;
 
 	speed_bonus_multiplier = 1.0F;
+
+	// default: load also private extensions of the pak file
+	with_private_paks = true;
 }
 
 
@@ -557,10 +560,14 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		if(file->get_version()>102000) {
 			file->rdwr_bool( avoid_overcrowding, "" );
 		}
+
 		if(file->get_version()>102001) 
 		{
 			bool dummy;
 			file->rdwr_bool(dummy, "" );
+			// ISSUE: Version issue - incompatible with previous 
+			// 102.1 saved games, both in Standard and Experimental
+			file->rdwr_bool( with_private_paks, "" );
 		}
 		if(file->get_experimental_version() >= 1)
 		{
@@ -1028,6 +1035,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	disp_width = contents.get_int("display_width", disp_width);
 	disp_height = contents.get_int("display_height", disp_height);
 	fullscreen = contents.get_int("fullscreen", fullscreen);
+
+	with_private_paks = contents.get_int("with_private_paks", with_private_paks)!=0;
 
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", "" ));

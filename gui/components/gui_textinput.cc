@@ -156,7 +156,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 
 					// insert into text?
 					if (cursor_pos < len) {
-						for (size_t pos = len+num_letter; pos >= cursor_pos; pos--) {
+						for (sint64 pos = len+num_letter; pos >= cursor_pos; pos--) {
 							text[pos] = text[pos-num_letter];
 						}
 						memcpy( text+cursor_pos, letter, num_letter );

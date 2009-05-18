@@ -141,7 +141,7 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			delete besch;
 			besch = same;
 		}
-    }
+	}
 
 	return besch;
 }

@@ -137,10 +137,10 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 
 	if(opaque) {
 		// Hajo: skinned windows code
-		if(obj_reader_t::has_been_init) {
+		if(skinverwaltung_t::window_skin!=NULL) {
 			// draw background
 			PUSH_CLIP(pos.x+1,pos.y+16,gr.x-2,gr.y-16);
-			const int img = skinverwaltung_t::window_skin->get_bild(0)->get_nummer();
+			const int img = skinverwaltung_t::window_skin->get_bild_nr(0);
 
 			for(int j=0; j<gr.y; j+=64) {
 				for(int i=0; i<gr.x; i+=64) {
