@@ -192,20 +192,23 @@ DBG_MESSAGE("fabrikbauer_t::get_random_consumer()","No suitable consumer found")
 
 const fabrik_besch_t *fabrikbauer_t::get_fabesch(const char *fabtype)
 {
-    return table.get(fabtype);
+	return table.get(fabtype);
 }
 
 
 
 void fabrikbauer_t::register_besch(fabrik_besch_t *besch)
 {
- 	uint16 p=besch->get_produktivitaet();
- 	if(p&0x8000) {
- 		koord k=besch->get_haus()->get_groesse();
- 		// to be compatible with old factories, since new code only steps once per factory, not per tile
- 		besch->set_produktivitaet( (p&0x7FFF)*k.x*k.y );
+	uint16 p=besch->get_produktivitaet();
+	if(p&0x8000) {
+		koord k=besch->get_haus()->get_groesse();
+		// to be compatible with old factories, since new code only steps once per factory, not per tile
+		besch->set_produktivitaet( (p&0x7FFF)*k.x*k.y );
 DBG_DEBUG("fabrikbauer_t::register_besch()","Correction for old factory: Increase poduction from %i by %i",p&0x7FFF,k.x*k.y);
- 	}
+	}
+	if(  table.remove(besch->get_name())  ) {
+		dbg->warning( "fabrikbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+	}
 	table.put(besch->get_name(), besch);
 }
 

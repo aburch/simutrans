@@ -49,8 +49,9 @@ public:
 	static uint32 hash(const char *key)
 	{
 		uint32 code = 0;
-		while (*key)
+		while (*key) {
 			code = (code<<5) + code + *key++;
+		}
 		return code;
 	}
 
@@ -85,7 +86,7 @@ template<class value_t>
 class stringhashtable_iterator_tpl : public hashtable_iterator_tpl<const char *, value_t, stringhash_t>
 {
 public:
-    stringhashtable_iterator_tpl(const hashtable_tpl<const char *, value_t, stringhash_t> *hashtable) :
+	stringhashtable_iterator_tpl(const hashtable_tpl<const char *, value_t, stringhash_t> *hashtable) :
 		hashtable_iterator_tpl<const char *, value_t, stringhash_t>(hashtable) {}
 
 	stringhashtable_iterator_tpl(const hashtable_tpl<const char *, value_t, stringhash_t> &hashtable) :

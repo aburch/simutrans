@@ -407,9 +407,16 @@ bool wayobj_t::alles_geladen()
 
 
 
-bool
-wayobj_t::register_besch(way_obj_besch_t *besch)
+bool wayobj_t::register_besch(way_obj_besch_t *besch)
 {
+	// avoid duplicates with same name
+	const way_obj_besch_t *old_besch = table.get(besch->get_name());
+	if(old_besch) {
+		dbg->warning( "wayobj_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+		table.remove(besch->get_name());
+		liste.remove(old_besch);
+	}
+
 	table.put(besch->get_name(), besch);
 	liste.append(besch);
 	if(besch->get_own_wtyp()==overheadlines_wt  &&  besch->get_wtyp()==track_wt  &&

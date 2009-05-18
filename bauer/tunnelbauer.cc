@@ -46,16 +46,16 @@
 #include "../tpl/vector_tpl.h"
 
 
-static vector_tpl<tunnel_besch_t*> tunnel(16);
 static stringhashtable_tpl<tunnel_besch_t *> tunnel_by_name;
 
 
-
-void
-tunnelbauer_t::register_besch(tunnel_besch_t *besch)
+void tunnelbauer_t::register_besch(tunnel_besch_t *besch)
 {
+	// avoid duplicates with same name
+	if(  tunnel_by_name.remove(besch->get_name())  ) {
+		dbg->warning( "tunnelbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+	}
 	tunnel_by_name.put(besch->get_name(), besch);
-	tunnel.append(besch);
 }
 
 
@@ -64,8 +64,10 @@ tunnelbauer_t::register_besch(tunnel_besch_t *besch)
 bool
 tunnelbauer_t::laden_erfolgreich()
 {
-	for (vector_tpl<tunnel_besch_t*>::const_iterator i = tunnel.begin(), end = tunnel.end(); i != end; ++i) {
-		tunnel_besch_t* besch = *i;
+	stringhashtable_iterator_tpl<tunnel_besch_t *>iter(tunnel_by_name);
+	while(  iter.next()  ) {
+		tunnel_besch_t* besch = iter.get_current_value();
+
 		if(besch->get_topspeed()==0) {
 			// old style, need to convert
 			if(strcmp(besch->get_name(),"RoadTunnel")==0) {
@@ -108,8 +110,10 @@ tunnelbauer_t::find_tunnel(const waytype_t wtyp, const uint32 min_speed,const ui
 {
 	const tunnel_besch_t *find_besch=NULL;
 
-	for (vector_tpl<tunnel_besch_t*>::const_iterator i = tunnel.begin(), end = tunnel.end(); i != end; ++i) {
-		const tunnel_besch_t* besch = *i;
+	stringhashtable_iterator_tpl<tunnel_besch_t *>iter(tunnel_by_name);
+	while(  iter.next()  ) {
+		tunnel_besch_t* besch = iter.get_current_value();
+
 		if(besch->get_waytype() == wtyp) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 				if(find_besch==NULL  ||
@@ -147,9 +151,11 @@ void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, con
 	static stringhashtable_tpl<wkz_tunnelbau_t *> tunnel_tool;
 
 	const uint16 time=welt->get_timeline_year_month();
-	vector_tpl<const tunnel_besch_t*> matching;
-	for (vector_tpl<tunnel_besch_t*>::const_iterator i = tunnel.begin(), end = tunnel.end(); i != end; ++i) {
-		const tunnel_besch_t* besch = *i;
+	vector_tpl<const tunnel_besch_t*> matching(tunnel_by_name.get_count());
+
+	stringhashtable_iterator_tpl<tunnel_besch_t *>iter(tunnel_by_name);
+	while(  iter.next()  ) {
+		tunnel_besch_t* besch = iter.get_current_value();
 		if (besch->get_waytype() == wtyp && (
 					time == 0 ||
 					(besch->get_intro_year_month() <= time && time < besch->get_retire_year_month())

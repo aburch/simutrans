@@ -44,7 +44,7 @@
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 
-static vector_tpl<const bruecke_besch_t*> bruecken(16);
+
 static stringhashtable_tpl<const bruecke_besch_t *> bruecken_by_name;
 
 
@@ -54,8 +54,11 @@ static stringhashtable_tpl<const bruecke_besch_t *> bruecken_by_name;
  */
 void brueckenbauer_t::register_besch(const bruecke_besch_t *besch)
 {
+	// avoid duplicates with same name
+	if(  bruecken_by_name.remove(besch->get_name())  ) {
+		dbg->warning( "brueckenbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+	}
 	bruecken_by_name.put(besch->get_name(), besch);
-	bruecken.append(besch);
 }
 
 
@@ -72,8 +75,9 @@ bool brueckenbauer_t::laden_erfolgreich()
 	bool strasse_da = false;
 	bool schiene_da = false;
 
-	for(unsigned int i = 0; i < bruecken.get_count(); i++) {
-		const bruecke_besch_t* besch = bruecken[i];
+	stringhashtable_iterator_tpl<const bruecke_besch_t *>iter(bruecken_by_name);
+	while(  iter.next()  ) {
+		const bruecke_besch_t* besch = iter.get_current_value();
 
 		if(besch && besch->get_waytype() == track_wt) {
 			schiene_da = true;
@@ -105,8 +109,9 @@ brueckenbauer_t::find_bridge(const waytype_t wtyp, const uint32 min_speed,const 
 {
 	const bruecke_besch_t *find_besch=NULL;
 
-	for(unsigned int i = 0; i < bruecken.get_count(); i++) {
-		const bruecke_besch_t* besch = bruecken[i];
+	stringhashtable_iterator_tpl<const bruecke_besch_t *>iter(bruecken_by_name);
+	while(  iter.next()  ) {
+		const bruecke_besch_t* besch = iter.get_current_value();
 		if(besch->get_waytype() == wtyp) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 				if(find_besch==NULL  ||
@@ -137,11 +142,12 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, c
 	static stringhashtable_tpl<wkz_brueckenbau_t *> bruecken_tool;
 
 	const uint16 time = welt->get_timeline_year_month();
+	vector_tpl<const bruecke_besch_t*> matching(bruecken_by_name.get_count());
 
 	// list of matching types (sorted by speed)
-	vector_tpl<const bruecke_besch_t*> matching;
-	for (vector_tpl<const bruecke_besch_t*>::const_iterator i = bruecken.begin(), end = bruecken.end(); i != end; ++i) {
-		const bruecke_besch_t* b = *i;
+	stringhashtable_iterator_tpl<const bruecke_besch_t *>iter(bruecken_by_name);
+	while(  iter.next()  ) {
+		const bruecke_besch_t* b = iter.get_current_value();
 		if (b->get_waytype() == wtyp && (
 					time == 0 ||
 					(b->get_intro_year_month() <= time && time < b->get_retire_year_month())

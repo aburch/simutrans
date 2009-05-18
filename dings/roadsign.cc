@@ -445,6 +445,14 @@ bool roadsign_t::alles_geladen()
 
 bool roadsign_t::register_besch(roadsign_besch_t *besch)
 {
+	// remove duplicates
+	const roadsign_besch_t *old_besch = table.get( besch->get_name() );
+		if(  old_besch  ) {
+		table.remove( besch->get_name() );
+		liste.remove( old_besch );
+		dbg->warning( "roadsign_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+	}
+
 	roadsign_t::table.put(besch->get_name(), besch);
 	roadsign_t::liste.append(besch);
 	if(besch->get_wtyp()==track_wt  &&  besch->get_flags()==roadsign_besch_t::SIGN_SIGNAL) {
