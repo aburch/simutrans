@@ -1,10 +1,10 @@
 #include <string.h>
 
-#include <direct.h>
 #ifndef _MSC_VER
 #include <unistd.h>
 #else
 #include <sys/stat.h>
+#include <direct.h>
 #include <io.h>
 #endif
 
