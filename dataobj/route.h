@@ -155,6 +155,8 @@ public:
 	 * @author V. Meyer
 	 */
 	void rdwr(loadsave_t *file);
+
+	void rotate90(sint16 y_size);
 };
 
 #endif
