@@ -276,7 +276,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 
 	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
 	iterations = 0;
-	search_complete = false;
 	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[max_categories];
 	paths = new quickstone_hashtable_tpl<haltestelle_t, path* >[max_categories];
@@ -284,11 +283,14 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	paths_timestamp = new uint16[max_categories];
 	reschedule = new bool[max_categories];
 	open_list = new binary_heap_tpl<path*>[max_categories];
+	search_complete = new bool[max_categories];
+	max_iterations = new uint32[max_categories];
 	for(uint8 i = 0; i < max_categories; i ++)
 	{
 		paths_timestamp[i] = 0;
 		connexions_timestamp[i] = 0;
 		reschedule[i] = false;
+		search_complete[i] = false;
 	}
 
 	status_color = COL_YELLOW;
@@ -334,7 +336,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
 	iterations = 0;
-	search_complete = false;
 	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[max_categories];
 	paths = new quickstone_hashtable_tpl<haltestelle_t, path* >[max_categories];
@@ -354,11 +355,14 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	connexions_timestamp = new uint16[max_categories];
 	paths_timestamp = new uint16[max_categories];
 	reschedule = new bool[max_categories];
+	search_complete = new bool[max_categories];
+	max_iterations = new uint32[max_categories];
 	for(uint8 i = 0; i < max_categories; i ++)
 	{
 		paths_timestamp[i] = 0;
 		connexions_timestamp[i] = 0;
 		reschedule[i] = false;
+		search_complete[i] = false;
 	}
 	check_waiting = 0;
 }
@@ -449,6 +453,8 @@ haltestelle_t::~haltestelle_t()
 	delete[] connexions_timestamp;
 	delete[] reschedule;
 	delete[] open_list;
+	delete[] search_complete;
+	delete[] max_iterations;
 
 	// routes may have changed without this station ...
 	verbinde_fabriken();
@@ -467,7 +473,7 @@ haltestelle_t::rotate90( const sint16 y_size )
 		if(waren[i]) 
 		{
 			vector_tpl<koord> k_list;
-			vector_tpl<fixed_list_tpl<uint16, 16>> f_list;
+			vector_tpl<fixed_list_tpl<uint16, 16> > f_list;
 			koordhashtable_iterator_tpl<koord, fixed_list_tpl<uint16, 16> > iter(waiting_times[i]);
 			while(iter.next())
 			{
@@ -1466,7 +1472,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		const uint32 total_halts = alle_haltestellen.get_count();
 		const sint32 max_transfers = welt->get_einstellungen()->get_max_transfers();
 		const uint32 max_depth = total_halts * max_transfers;
-		max_iterations = max_depth <= 65535 ? max_depth : 65535;
+		max_iterations[category] = max_depth <= 65535 ? max_depth : 65535;
 		
 		iterations = 0;
 		path* starting_node = new path();
@@ -1510,7 +1516,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 				previous_best_convoy = previous_connexion->best_convoy;
 			}
 		}
-		while(iter.next() && iterations < max_iterations)
+		while(iter.next() && iterations < max_iterations[category])
 		{
 			next_halt = iter.get_current_key();
 			if(paths[category].get(next_halt) != NULL)
@@ -1538,7 +1544,6 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		// Add only if not already contained and it is not the head node.
 		if(current_node->link != NULL && paths[category].put(current_node->halt, current_node))
 		{
-			// "Relaxation" phase
 			// Track the path back to get the next transfer from this halt
 			path* track_node = current_node;
 			for(uint8 depth = 0; depth <= 255; depth ++)
@@ -1574,7 +1579,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 
 			if(open_list[category].empty())
 			{
-				search_complete = true;
+				search_complete[category] = true;
 			}
 			return;
 		}	
@@ -1583,7 +1588,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 	}
 	
 	// If the code has reached here without returning, the search is complete.
-	search_complete = true;
+	search_complete[category] = true;
 	delete current_node;
 }
 
@@ -1620,7 +1625,7 @@ haltestelle_t::path* haltestelle_t::get_path_to(halthandle_t goal, uint8 categor
 
 		flush_paths(category);
 		//paths[category].clear();
-		search_complete = false;
+		search_complete[category] = false;
 	}
 
 	destination_path = paths[category].get(goal);
@@ -1632,7 +1637,7 @@ haltestelle_t::path* haltestelle_t::get_path_to(halthandle_t goal, uint8 categor
 		next_transfer_name = (char*)destination_path.halt->get_name();
 	}*/
 
-	if((destination_path == NULL || !destination_path->halt.is_bound()) && !search_complete)
+	if((destination_path == NULL || !destination_path->halt.is_bound()) && !search_complete[category])
 	{
 		// The pathfinding is incomplete or stale - recalculate
 		// If the next transfer is not bound even though the search
@@ -3407,36 +3412,32 @@ void* haltestelle_t::path::operator new(size_t size)
 
 	if(head_path == NULL)
 	{
-		// Create new nodes if there are none left.
-		if(!first_run_path)
+		uint32 this_chunk;
+		const sint32 max_transfers = welt->get_einstellungen()->get_max_transfers();
+		if(first_run_path)
 		{
-			for(uint16 i = 0; i < chunk_quantity; i ++)
-			{
-				void *p = malloc(size);
-				if(p == NULL)
-				{
-					// Something has gone very wrong.
-					dbg->fatal("simhalt.cc", "Error in allocating new memory for paths");
-				}
-				path* tmp = (path*) p;
-				path_pool_push(tmp);
-			}
+			const uint32 total_halts = alle_haltestellen.get_count();
+			this_chunk = total_halts * max_transfers * warenbauer_t::get_max_catg_index();
+			first_run_path = false;
 		}
+
 		else
 		{
-			first_run_path = false;
-			//TODO: Refine this number
-			for(uint16 i = 0; i < 1024; i ++)
+			this_chunk = chunk_quantity * max_transfers;
+		}
+		
+		// Create new nodes if there are none left.
+		for(uint32 i = 0; i < this_chunk; i ++)
+		{
+			//void *p = malloc(size);
+			void *p = freelist_t::gimme_node(size);
+			if(p == NULL)
 			{
-				void *p = malloc(size);
-				if(p == NULL)
-				{
-					// Something has gone very wrong.
-					dbg->fatal("simhalt.cc", "Error in allocating new memory for paths");
-				}
-				path* tmp = (path*) p;
-				path_pool_push(tmp);
+				// Something has gone very wrong.
+				dbg->fatal("simhalt.cc", "Error in allocating new memory for paths");
 			}
+			path* tmp = (path*) p;
+			path_pool_push(tmp);
 		}
 	}
 	return path_pool_pop();
@@ -3473,36 +3474,31 @@ void* haltestelle_t::connexion::operator new(size_t size)
 
 	if(head_connexion == NULL)
 	{
-		// Create new nodes if there are none left.
-		if(!first_run_connexion)
+		uint32 this_chunk;
+		if(first_run_connexion)
 		{
-			for(uint16 i = 0; i < chunk_quantity; i ++)
-			{
-				void *p = malloc(size);
-				if(p == NULL)
-				{
-					// Something has gone very wrong.
-					dbg->fatal("simhalt.cc", "Error in allocating new memory for paths");
-				}
-				connexion* tmp = (connexion*) p;
-				connexion_pool_push(tmp);
-			}
+			const uint32 total_halts = alle_haltestellen.get_count();
+			this_chunk = total_halts * warenbauer_t::get_max_catg_index();
+			first_run_connexion = false;
 		}
+
 		else
 		{
-			first_run_connexion = false;
-			//TODO: Refine this number
-			for(uint16 i = 0; i < 1024; i ++)
+			this_chunk = chunk_quantity;
+		}
+		
+		// Create new nodes if there are none left.
+		for(uint32 i = 0; i < this_chunk; i ++)
+		{
+			//void *p = malloc(size);
+			void *p = freelist_t::gimme_node(size);
+			if(p == NULL)
 			{
-				void *p = malloc(size);
-				if(p == NULL)
-				{
-					// Something has gone very wrong.
-					dbg->fatal("simhalt.cc", "Error in allocating new memory for paths");
-				}
-				connexion* tmp = (connexion*) p;
-				connexion_pool_push(tmp);
+				// Something has gone very wrong.
+				dbg->fatal("simhalt.cc", "Error in allocating new memory for paths");
 			}
+			connexion* tmp = (connexion*) p;
+			connexion_pool_push(tmp);
 		}
 	}
 	return connexion_pool_pop();
