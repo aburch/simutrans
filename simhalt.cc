@@ -69,12 +69,14 @@ slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
 
 stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 
+#ifdef USE_INDEPENDENT_PATH_POOL
 // Initialise static/global variables for the memory pool.
 bool haltestelle_t::first_run_path = true;
 bool haltestelle_t::first_run_connexion = false;
 const uint16 haltestelle_t::chunk_quantity = 64;
 haltestelle_t::path* haltestelle_t::head_path = NULL;
 haltestelle_t::connexion* haltestelle_t::head_connexion = NULL;
+#endif
 
 
 
@@ -275,7 +277,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
 
 	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
-	iterations = 0;
 	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[max_categories];
 	paths = new quickstone_hashtable_tpl<haltestelle_t, path* >[max_categories];
@@ -284,13 +285,14 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	reschedule = new bool[max_categories];
 	open_list = new binary_heap_tpl<path*>[max_categories];
 	search_complete = new bool[max_categories];
-	max_iterations = new uint32[max_categories];
+	iterations = new uint32[max_categories];
 	for(uint8 i = 0; i < max_categories; i ++)
 	{
 		paths_timestamp[i] = 0;
 		connexions_timestamp[i] = 0;
 		reschedule[i] = false;
 		search_complete[i] = false;
+		iterations[i] = 0;
 	}
 
 	status_color = COL_YELLOW;
@@ -335,7 +337,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
 
 	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
-	iterations = 0;
 	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[max_categories];
 	paths = new quickstone_hashtable_tpl<haltestelle_t, path* >[max_categories];
@@ -356,13 +357,14 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	paths_timestamp = new uint16[max_categories];
 	reschedule = new bool[max_categories];
 	search_complete = new bool[max_categories];
-	max_iterations = new uint32[max_categories];
+	iterations = new uint32[max_categories];
 	for(uint8 i = 0; i < max_categories; i ++)
 	{
 		paths_timestamp[i] = 0;
 		connexions_timestamp[i] = 0;
 		reschedule[i] = false;
 		search_complete[i] = false;
+		iterations[i] = 0;
 	}
 	check_waiting = 0;
 }
@@ -454,7 +456,7 @@ haltestelle_t::~haltestelle_t()
 	delete[] reschedule;
 	delete[] open_list;
 	delete[] search_complete;
-	delete[] max_iterations;
+	delete[] iterations;
 
 	// routes may have changed without this station ...
 	verbinde_fabriken();
@@ -496,7 +498,7 @@ haltestelle_t::rotate90( const sint16 y_size )
 
 			waiting_times[i].clear();
 			
-			ITERATE(k_list,j)
+			for(uint32 j = 0; j < k_list.get_count(); j ++)
 			{
 				waiting_times[i].put(k_list[j], f_list[j]);
 			}
@@ -1471,10 +1473,9 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		// list on subsequent occasions of finding a path. 
 		const uint32 total_halts = alle_haltestellen.get_count();
 		const sint32 max_transfers = welt->get_einstellungen()->get_max_transfers();
-		const uint32 max_depth = total_halts * max_transfers;
-		max_iterations[category] = max_depth <= 65535 ? max_depth : 65535;
+		max_iterations = total_halts * max_transfers;
 		
-		iterations = 0;
+		iterations[category] = 0;
 		path* starting_node = new path();
 		starting_node->halt = self;
 		starting_node->journey_time = 0;
@@ -1491,7 +1492,6 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 	while(open_list[category].get_count() > 0)
 	{	
 		delete current_node;
-
 		current_node = open_list[category].pop();
 
 		if(!current_node->halt.is_bound() || paths[category].get(current_node->halt) != NULL)
@@ -1500,6 +1500,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			// item is not already on the closed list,
 			// and the halt has not been deleted since 
 			// being added to the open list.
+			//delete current_node;
 			continue;
 		}
 
@@ -1516,7 +1517,10 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 				previous_best_convoy = previous_connexion->best_convoy;
 			}
 		}
-		while(iter.next() && iterations < max_iterations[category])
+		
+		// If max_iterations is zero, max_transfers will have been zero, which is a flag
+		// to conduct an unlimited depth search. 
+		while(iter.next() && iterations[category] < max_iterations && max_iterations != 0)
 		{
 			next_halt = iter.get_current_key();
 			if(paths[category].get(next_halt) != NULL)
@@ -1530,8 +1534,10 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 
 			if(previous_best_line == current_connexion->best_line && previous_best_convoy == current_connexion->best_convoy)
 			{
+				//delete current_node;
 				continue;
 			}
+			iterations[category]++;
 			new_node = new path;
 			new_node->halt = next_halt;
 			new_node->journey_time = current_connexion->journey_time + current_connexion->waiting_time + current_node->journey_time;
@@ -3407,6 +3413,8 @@ DBG_MESSAGE("haltestelle_t::reserve_position()","failed for gr=%i,%i, cnv=%d",gr
 	return false;
 }
 
+#ifdef USE_INDEPENDENT_PATH_POOL
+
 void* haltestelle_t::path::operator new(size_t size)
 {
 
@@ -3429,8 +3437,8 @@ void* haltestelle_t::path::operator new(size_t size)
 		// Create new nodes if there are none left.
 		for(uint32 i = 0; i < this_chunk; i ++)
 		{
-			//void *p = malloc(size);
-			void *p = freelist_t::gimme_node(size);
+			void *p = malloc(size);
+			//void *p = freelist_t::gimme_node(size);
 			if(p == NULL)
 			{
 				// Something has gone very wrong.
@@ -3490,8 +3498,8 @@ void* haltestelle_t::connexion::operator new(size_t size)
 		// Create new nodes if there are none left.
 		for(uint32 i = 0; i < this_chunk; i ++)
 		{
-			//void *p = malloc(size);
-			void *p = freelist_t::gimme_node(size);
+			void *p = malloc(size);
+			//void *p = freelist_t::gimme_node(size);
 			if(p == NULL)
 			{
 				// Something has gone very wrong.
@@ -3529,3 +3537,27 @@ haltestelle_t::connexion* haltestelle_t::connexion_pool_pop()
 	}
 	return tmp;
 }
+
+#else
+
+void* haltestelle_t::path::operator new(size_t /*size*/)
+{
+	return freelist_t::gimme_node(sizeof(haltestelle_t::path));
+}
+
+void haltestelle_t::path::operator delete(void *p)
+{
+	freelist_t::putback_node(sizeof(haltestelle_t::path),p);
+}
+
+void* haltestelle_t::connexion::operator new(size_t /*size*/)
+{
+	return freelist_t::gimme_node(sizeof(haltestelle_t::connexion));
+}
+
+void haltestelle_t::connexion::operator delete(void *p)
+{
+	freelist_t::putback_node(sizeof(haltestelle_t::connexion),p);
+}
+
+#endif
