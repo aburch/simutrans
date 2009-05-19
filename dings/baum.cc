@@ -35,7 +35,7 @@
 
 static const uint8 baum_bild_alter[12] =
 {
-    0,1,2,3,3,3,3,3,3,4,4,4
+	0,1,2,3,3,3,3,3,3,4,4,4
 };
 
 /******************************** static stuff for forest rules ****************************************************************/
@@ -136,14 +136,14 @@ vector_tpl<const baum_besch_t *> baum_t::baum_typen(0);
 /*
  * Diese Tabelle ermöglicht das Auffinden einer Beschreibung durch ihren Namen
  */
-stringhashtable_tpl<uint32> baum_t::besch_names;
+stringhashtable_tpl<const baum_besch_t *> baum_t::besch_names;
 
 // total number of trees
 // the same for a certain climate
 int baum_t::get_anzahl_besch(climate cl)
 {
 	uint16 total_number=0;
-	for( unsigned i=1;  i<baum_typen.get_count();  i++  ) {
+	for( uint32 i=0;  i<baum_typen.get_count();  i++  ) {
 		if (baum_typen[i]->is_allowed_climate(cl)) {
 			total_number ++;
 		}
@@ -291,22 +291,25 @@ baum_t::alles_geladen()
 {
 	if (besch_names.empty()) {
 		DBG_MESSAGE("baum_t", "No trees found - feature disabled");
-		baum_typen.append(NULL);
+	}
+	else {
+		stringhashtable_iterator_tpl<const baum_besch_t*> iter(besch_names);
+		while(  iter.next()  ) {
+			baum_typen.append( iter.get_current_value() );
+		}
 	}
 	return true;
 }
 
 
 
-bool
-baum_t::register_besch(baum_besch_t *besch)
+bool baum_t::register_besch(baum_besch_t *besch)
 {
-	if(baum_typen.get_count()==0) {
-		// NULL for empty object
-		baum_typen.append(NULL);
+	// avoid duplicates with same name
+	if(besch_names.remove(besch->get_name())) {
+		dbg->warning( "baum_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 	}
-	besch_names.put(besch->get_name(), baum_typen.get_count() );
-	baum_typen.append(besch);
+	besch_names.put(besch->get_name(), besch );
 	return true;
 }
 
@@ -428,7 +431,7 @@ uint16 baum_t::random_tree_for_climate_intern(climate cl)
 {
 	int weight = 0;
 
-	for( unsigned i=1;  i<baum_typen.get_count();  i++  ) {
+	for( uint32 i=0;  i<baum_typen.get_count();  i++  ) {
 		if (baum_typen[i]->is_allowed_climate(cl)) {
 			weight += baum_typen[i]->get_distribution_weight();
 		}
@@ -438,7 +441,7 @@ uint16 baum_t::random_tree_for_climate_intern(climate cl)
 	if (weight > 0) {
 		const int w=simrand(weight);
 		weight = 0;
-		for( unsigned i=1; i<baum_typen.get_count();  i++  ) {
+		for( uint32 i=0; i<baum_typen.get_count();  i++  ) {
 			if (baum_typen[i]->is_allowed_climate(cl)) {
 				weight += baum_typen[i]->get_distribution_weight();
 				if(weight>=w) {
@@ -552,10 +555,13 @@ baum_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 		char buf[128];
 		file->rdwr_str(buf, 128);
-		baumtype = besch_names.get(buf);
-		if(baumtype==0) {
+		const baum_besch_t *besch = besch_names.get(buf);
+		if(  baum_typen.is_contained(besch)  ) {
+			baumtype = baum_typen.index_of( besch );
+		}
+		else {
 			// replace with random tree
-			baumtype = simrand(baum_typen.get_count()-1)+1;
+			baumtype = simrand(baum_typen.get_count());
 		}
 	}
 	else {

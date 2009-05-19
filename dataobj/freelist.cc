@@ -63,6 +63,9 @@ void *freelist_t::gimme_node(size_t size)
 		return NULL;
 	}
 
+	// all sizes should be dividable by 4
+	size = ((size+3)>>2)<<2;
+
 	// hold return value
 	nodelist_node_t *tmp;
 	if(size>MAX_LIST_INDEX) {
@@ -84,7 +87,7 @@ void *freelist_t::gimme_node(size_t size)
 		}
 	}
 	else {
-		list = &(all_lists[(size+3)/4]);
+		list = &(all_lists[size/4]);
 	}
 
 	// need new memory?
@@ -142,26 +145,30 @@ void freelist_t::putback_node( size_t size, void *p )
 	if(size==0  ||  p==NULL) {
 		return;
 	}
+
+	// all sizes should be dividable by 4
+	size = ((size+3)>>2);
+
 	if(size>MAX_LIST_INDEX) {
 		switch(size) {
 			case message_node_size:
 				list = &message_nodes;
 				break;
-			case 1220:
+			case 1220/4:
 				list = &node1220;
 				break;
-			case 1624:
+			case 1624/4:
 				list = &node1624;
 				break;
-			case 2440:
+			case 2440/4:
 				list = &node2440;
 				break;
 			default:
-				dbg->fatal("freelist_t::gimme_node()","No list with size %i! (only up to %i and %i, 1220, 1624, 2440)", size, MAX_LIST_INDEX, message_node_size );
+				dbg->fatal("freelist_t::gimme_node()","No list with size %i! (only up to %i and %i, 1220, 1624, 2440)", size*4, MAX_LIST_INDEX, message_node_size );
 		}
 	}
 	else {
-		list = &(all_lists[(size+3)/4]);
+		list = &(all_lists[size]);
 	}
 #ifdef DEBUG_MEM
 	putback_check_node(list,(nodelist_node_t *)p);

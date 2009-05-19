@@ -184,6 +184,11 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 {
 	// printf("N=%s T=%d V=%d P=%d\n", besch->get_name(), besch->get_typ(), besch->get_geschw(), besch->get_leistung());
 
+	const vehikel_besch_t *old_besch = name_fahrzeuge.get( besch->get_name() );
+	if(  old_besch  ) {
+		dbg->warning( "vehikelbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+		name_fahrzeuge.remove( besch->get_name() );
+	}
 	name_fahrzeuge.put(besch->get_name(), besch);
 
 	// register waytype liste
@@ -193,6 +198,7 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 		typ_fahrzeuge.put(typ, slist_tpl<const vehikel_besch_t *>());
 		typ_liste = typ_fahrzeuge.access(typ);
 	}
+	typ_liste->remove(old_besch);
 	typ_liste->append(besch);
 
 	// correct for driving on left side

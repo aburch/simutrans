@@ -112,6 +112,9 @@ bool wegbauer_t::alle_wege_geladen()
 bool wegbauer_t::register_besch(const weg_besch_t *besch)
 {
 	DBG_DEBUG("wegbauer_t::register_besch()", besch->get_name());
+	if(  alle_wegtypen.remove(besch->get_name())  ) {
+		dbg->warning( "wegbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+	}
 	alle_wegtypen.put(besch->get_name(), besch);
 	return true;
 }

@@ -114,20 +114,53 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 {
 	::register_besch(spezial_objekte, besch);
 
+	// avoid duplicates with same name
+	const haus_besch_t *old_besch = besch_names.get(besch->get_name());
+	if(old_besch) {
+		dbg->warning( "hausbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+		besch_names.remove(besch->get_name());
+	}
+	besch_names.put(besch->get_name(), besch);
+
 	switch(besch->get_typ()) {
-		case gebaeude_t::wohnung:   wohnhaeuser.append(besch);      break;
-		case gebaeude_t::industrie: industriehaeuser.append(besch); break;
-		case gebaeude_t::gewerbe:   gewerbehaeuser.append(besch);   break;
+		case gebaeude_t::wohnung:
+			wohnhaeuser.append(besch);
+			wohnhaeuser.remove(old_besch);
+			break;
+		case gebaeude_t::industrie:
+			industriehaeuser.append(besch);
+			industriehaeuser.remove(old_besch);
+			break;
+		case gebaeude_t::gewerbe:
+			gewerbehaeuser.append(besch);
+			gewerbehaeuser.remove(old_besch);
+			break;
 
 		case gebaeude_t::unbekannt:
 		switch (besch->get_utyp()) {
-			case haus_besch_t::denkmal:         denkmaeler.append(besch);               break;
-			case haus_besch_t::attraction_land: sehenswuerdigkeiten_land.append(besch); break;
-			case haus_besch_t::firmensitz:      headquarter.append(besch);           break;
-			case haus_besch_t::rathaus:         rathaeuser.append(besch);               break;
-			case haus_besch_t::attraction_city: sehenswuerdigkeiten_city.append(besch); break;
+			case haus_besch_t::denkmal:
+				denkmaeler.append(besch);
+				denkmaeler.remove(old_besch);
+				break;
+			case haus_besch_t::attraction_land:
+				sehenswuerdigkeiten_land.append(besch);
+				sehenswuerdigkeiten_land.remove(old_besch);
+				break;
+			case haus_besch_t::firmensitz:
+				headquarter.append(besch);
+				headquarter.remove(old_besch);
+				break;
+			case haus_besch_t::rathaus:
+				rathaeuser.append(besch);
+				rathaeuser.remove(old_besch);
+				break;
+			case haus_besch_t::attraction_city:
+				sehenswuerdigkeiten_city.append(besch);
+				sehenswuerdigkeiten_city.remove(old_besch);
+				break;
 
-			case haus_besch_t::fabrik: break;
+			case haus_besch_t::fabrik:
+				break;
 
 			case haus_besch_t::hafen:
 			case haus_besch_t::hafen_geb:
@@ -135,6 +168,7 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 			case haus_besch_t::generic_stop:
 			case haus_besch_t::generic_extension:
 				station_building.append(besch);
+				station_building.remove(old_besch);
 DBG_DEBUG("hausbauer_t::register_besch()","Infrastructure %s",besch->get_name());
 				break;
 
@@ -159,10 +193,6 @@ DBG_DEBUG("hausbauer_t::register_besch()","unknown subtype %i of %s: ignored",be
 		const_cast<haus_tile_besch_t *>(besch->get_tile(i))->set_besch(besch);
 	}
 
-	if(besch_names.get(besch->get_name())) {
-		dbg->fatal("hausbauer_t::register_Besch()", "building %s duplicated", besch->get_name());
-	}
-	besch_names.put(besch->get_name(), besch);
 	return true;
 }
 

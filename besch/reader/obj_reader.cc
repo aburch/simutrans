@@ -163,9 +163,12 @@ bool obj_reader_t::load(const char *liste, const char *message)
 		}
 		teilung = (2<<teilung)-1;
 
+		if(drawing) {
+			display_set_progress_text(message);
+		}
+
 		if(drawing  &&  skinverwaltung_t::biglogosymbol==NULL) {
 			display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
-			display_set_progress_text(message);
 			read_file(name+"symbol.BigLogo.pak");
 DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbol);
 		}
