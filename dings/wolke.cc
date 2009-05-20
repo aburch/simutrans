@@ -22,6 +22,13 @@ vector_tpl<const skin_besch_t *>wolke_t::all_clouds(0);
 
 bool wolke_t::register_besch(const skin_besch_t* besch)
 {
+	// avoid duplicates with same name
+	for(uint8 i=0; i<all_clouds.get_count(); i++) {
+		if (strcmp(all_clouds[i]->get_name(),besch->get_name())==0) {
+			all_clouds[i] = besch;
+			return true;
+		}
+	}
 	return all_clouds.append_unique( besch );
 }
 
@@ -30,7 +37,7 @@ bool wolke_t::register_besch(const skin_besch_t* besch)
 
 
 wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const skin_besch_t* besch ) :
-    ding_t(welt, pos)
+	ding_t(welt, pos)
 {
 	cloud_nr = all_clouds.index_of(besch);
 	base_y_off = clamp( (((sint16)y_off-8)*TILE_STEPS)/16, -128, 127 );

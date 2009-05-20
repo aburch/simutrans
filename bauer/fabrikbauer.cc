@@ -893,7 +893,7 @@ next_ware_check:
 	// now decide producer of electricity or normal ...
 	sint32 promille = (electric_productivity*4000l)/total_produktivity;
 	int no_electric = promille > welt->get_einstellungen()->get_electric_promille();
-	DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "production of electricity/total production is %i/%i (%i°/oo)", electric_productivity, total_produktivity, promille );
+	DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "production of electricity/total production is %i/%i (%i o/oo)", electric_productivity, total_produktivity, promille );
 
 	while(  no_electric<2  ) {
 		for(int retrys=20;  retrys>0;  retrys--  ) {

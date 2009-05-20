@@ -39,7 +39,7 @@ private:
 	koord pos_next_next;
 
 	// static for administration
-	static stringhashtable_tpl<uint32> besch_names;
+	static stringhashtable_tpl<groundobj_besch_t *> besch_names;
 	static vector_tpl<const groundobj_besch_t *> movingobj_typen;
 
 protected:

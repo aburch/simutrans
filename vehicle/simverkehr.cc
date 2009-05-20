@@ -332,7 +332,9 @@ void stadtauto_t::built_timeline_liste(karte_t *welt)
 
 bool stadtauto_t::register_besch(const stadtauto_besch_t *besch)
 {
-	liste.append(besch, besch->get_gewichtung(), 1);
+	if(  table.remove(besch->get_name())  ) {
+		dbg->warning( "stadtauto_besch_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+	}
 	table.put(besch->get_name(), besch);
 	// correct for driving on left side
 	if(umgebung_t::drive_on_left) {
@@ -355,6 +357,12 @@ bool stadtauto_t::register_besch(const stadtauto_besch_t *besch)
 
 bool stadtauto_t::laden_erfolgreich()
 {
+	liste.resize(table.get_count());
+	stringhashtable_iterator_tpl<const stadtauto_besch_t *>iter(table);
+	while(  iter.next()  ) {
+		const stadtauto_besch_t* besch = iter.get_current_value();
+		liste.append(besch, besch->get_gewichtung(), 1);
+	}
 	if (liste.empty()) {
 		DBG_MESSAGE("stadtauto_t", "No citycars found - feature disabled");
 	}

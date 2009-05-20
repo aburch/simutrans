@@ -26,6 +26,10 @@ stringhashtable_tpl<const field_besch_t *> field_t::besch_table;
 
 void field_t::register_besch(field_besch_t *besch, const char*name)
 {
+	// remove duplicates
+	if(  besch_table.remove( besch->get_name() )  ) {
+		dbg->warning( "field_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+	}
 	besch_table.put(name, besch);
 }
 

@@ -42,12 +42,21 @@ vector_tpl<const groundobj_besch_t *> movingobj_t::movingobj_typen(0);
 /*
  * Diese Tabelle ermöglicht das Auffinden einer Beschreibung durch ihren Namen
  */
-stringhashtable_tpl<uint32> movingobj_t::besch_names;
+stringhashtable_tpl<groundobj_besch_t *> movingobj_t::besch_names;
 
 
 bool movingobj_t::alles_geladen()
 {
-	if (besch_names.empty()) {
+	movingobj_typen.resize(besch_names.get_count()+1);
+	movingobj_typen.append(NULL);
+
+	stringhashtable_iterator_tpl<groundobj_besch_t *>iter(besch_names);
+	while(  iter.next()  ) {
+		iter.access_current_value()->index = movingobj_typen.get_count();
+		movingobj_typen.append( iter.get_current_value() );
+	}
+
+	if(besch_names.empty()) {
 		DBG_MESSAGE("movingobj_t", "No movingobj found - feature disabled");
 		// NULL for empty object
 		movingobj_typen.append(NULL);
@@ -59,12 +68,11 @@ bool movingobj_t::alles_geladen()
 
 bool movingobj_t::register_besch(groundobj_besch_t *besch)
 {
-	if(movingobj_typen.get_count()==0) {
-		// NULL for empty object
-		movingobj_typen.append(NULL);
+	// remove duplicates
+	if(  besch_names.remove( besch->get_name() )  ) {
+		dbg->warning( "movingobj_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 	}
-	besch_names.put(besch->get_name(), movingobj_typen.get_count() );
-	movingobj_typen.append(besch);
+	besch_names.put(besch->get_name(), besch );
 	return true;
 }
 
@@ -205,7 +213,7 @@ void movingobj_t::rdwr(loadsave_t *file)
 	else {
 		char bname[128];
 		file->rdwr_str(bname, 128);
-		groundobjtype = besch_names.get(bname);
+		groundobjtype = besch_names.get(bname)->get_index();
 		// if not there, besch will be zero
 		use_calc_height = true;
 	}
