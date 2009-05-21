@@ -1491,7 +1491,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 
 	while(open_list[category].get_count() > 0)
 	{	
-		delete current_node;
+		//delete current_node;
 		current_node = open_list[category].pop();
 
 		if(!current_node->halt.is_bound() || paths[category].get(current_node->halt) != NULL)
@@ -1500,7 +1500,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			// item is not already on the closed list,
 			// and the halt has not been deleted since 
 			// being added to the open list.
-			//delete current_node;
+			delete current_node;
 			continue;
 		}
 
@@ -1590,12 +1590,12 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			return;
 		}	
 		
-		current_node = NULL;
+		//current_node = NULL;
 	}
 	
 	// If the code has reached here without returning, the search is complete.
 	search_complete[category] = true;
-	delete current_node;
+	//delete current_node;
 }
 
 void haltestelle_t::flush_open_list(uint8 category)
