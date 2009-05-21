@@ -149,8 +149,7 @@ bool hausbauer_t::alles_geladen()
 						break;
 					}
 				default:
-					dbg->error("hausbauer_t::register_besch()","unknown subtype %i of %s: ignored",besch->get_utyp(),besch->get_name());
-					return false;
+					dbg->warning("hausbauer_t::register_besch()","unknown subtype %i of %s: ignored",besch->get_utyp(),besch->get_name());
 			}
 		}
 	}
