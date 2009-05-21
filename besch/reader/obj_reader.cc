@@ -393,9 +393,8 @@ void obj_reader_t::obj_for_xref(obj_type type, const char *name, obj_besch_t *da
 		loaded.put(type, stringhashtable_tpl<obj_besch_t *>());
 		objtype_loaded = loaded.access(type);
 	}
-	if(!objtype_loaded->get(name)) {
-		objtype_loaded->put(name, data);
-	}
+	objtype_loaded->remove(name);
+	objtype_loaded->put(name, data);
 }
 
 

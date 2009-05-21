@@ -43,14 +43,21 @@ vector_tpl<const groundobj_besch_t *> groundobj_t::groundobj_typen(0);
 /*
  * Diese Tabelle ermöglicht das Auffinden einer Beschreibung durch ihren Namen
  */
-stringhashtable_tpl<uint32> groundobj_t::besch_names;
+stringhashtable_tpl<groundobj_besch_t *> groundobj_t::besch_names;
 
 
 bool groundobj_t::alles_geladen()
 {
-	if (besch_names.empty()) {
+	groundobj_typen.resize(besch_names.get_count()+1);
+	groundobj_typen.append(NULL);
+
+	stringhashtable_iterator_tpl<groundobj_besch_t *>iter(besch_names);
+	while(  iter.next()  ) {
+		iter.access_current_value()->index = groundobj_typen.get_count();
+		groundobj_typen.append( iter.get_current_value() );
+	}
+	if(besch_names.empty()) {
 		DBG_MESSAGE("groundobj_t", "No groundobj found - feature disabled");
-		groundobj_typen.append(NULL);
 	}
 	return true;
 }
@@ -59,13 +66,12 @@ bool groundobj_t::alles_geladen()
 
 bool groundobj_t::register_besch(groundobj_besch_t *besch)
 {
-	if(groundobj_typen.get_count()==0) {
-		// NULL for empty object
-		groundobj_typen.append(NULL);
-	}
 	assert(besch->get_speed()==0);
-	besch_names.put(besch->get_name(), groundobj_typen.get_count() );
-	groundobj_typen.append(besch);
+	// remove duplicates
+	if(  besch_names.remove( besch->get_name() )  ) {
+		dbg->warning( "groundobj_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+	}
+	besch_names.put(besch->get_name(), besch );
 	return true;
 }
 
@@ -188,7 +194,7 @@ void groundobj_t::rdwr(loadsave_t *file)
 	else {
 		char bname[128];
 		file->rdwr_str(bname,128);
-		groundobjtype = besch_names.get(bname);
+		groundobjtype = besch_names.get(bname)->get_index();
 		// if not there, besch will be zero
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjoerg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -115,7 +115,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 						// ignore special keys not handled so far
 						break;
 					}
-					// Buchstaben, Ziffern und Sonderzeichen einfügen:
+					// insert letters, numbers, and special characters
 
 					// test, if we have top convert letter
 					char letter[8];
@@ -156,7 +156,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 
 					// insert into text?
 					if (cursor_pos < len) {
-						for (sint64 pos = len+num_letter; pos >= cursor_pos; pos--) {
+						for (sint64 pos = len+num_letter; pos >= (sint64)cursor_pos; pos--) {
 							text[pos] = text[pos-num_letter];
 						}
 						memcpy( text+cursor_pos, letter, num_letter );

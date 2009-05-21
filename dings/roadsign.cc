@@ -432,7 +432,13 @@ static bool compare_roadsign_besch(const roadsign_besch_t* a, const roadsign_bes
 /* static stuff from here on ... */
 bool roadsign_t::alles_geladen()
 {
-	if (liste.empty()) {
+	liste.resize(table.get_count());
+	stringhashtable_iterator_tpl<const roadsign_besch_t *>iter(table);
+	while(  iter.next()  ) {
+		liste.append( iter.get_current_value() );
+	}
+
+	if(liste.empty()) {
 		DBG_MESSAGE("roadsign_t", "No signs found - feature disabled");
 	}
 	else {
@@ -446,18 +452,15 @@ bool roadsign_t::alles_geladen()
 bool roadsign_t::register_besch(roadsign_besch_t *besch)
 {
 	// remove duplicates
-	const roadsign_besch_t *old_besch = table.get( besch->get_name() );
-		if(  old_besch  ) {
-		table.remove( besch->get_name() );
-		liste.remove( old_besch );
+	if(  table.remove( besch->get_name() )  ) {
 		dbg->warning( "roadsign_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 	}
-
 	roadsign_t::table.put(besch->get_name(), besch);
-	roadsign_t::liste.append(besch);
+
 	if(besch->get_wtyp()==track_wt  &&  besch->get_flags()==roadsign_besch_t::SIGN_SIGNAL) {
 		default_signal = besch;
 	}
+
 	if(umgebung_t::drive_on_left  &&  besch->get_wtyp()==road_wt) {
 		// correct for driving on left side
 		if(besch->is_traffic_light()) {
@@ -483,7 +486,6 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 			display_set_base_image_offset( besch->get_bild_nr(3), +XOFF, -YOFF );
 		}
 	}
-DBG_DEBUG( "roadsign_t::register_besch()","%s", besch->get_name() );
 	return true;
 }
 

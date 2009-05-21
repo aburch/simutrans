@@ -947,9 +947,6 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 
 		// Hajo: search for road offset
 		koord roff (0,1);
-		if (!lookup((*pos)[0] + roff)->get_kartenboden()->hat_weg(road_wt)) {
-			roff = koord(0,2);
-		}
 
 		int old_progress_count = 16+2*new_anzahl_staedte;
 		int count = 0;
@@ -959,8 +956,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 		for(int i = 0; i < einstellungen->get_anzahl_staedte(); i++) {
 		// Only new cities must be connected:
 			for (int j = max(i + 1, old_anzahl_staedte); j < einstellungen->get_anzahl_staedte(); j++) {
-				const koord k1 = stadt[i]->get_pos() + roff;//(*pos)[i] + roff;
-				const koord k2 = stadt[j]->get_pos() + roff;//(*pos)[j] + roff;
+				const koord k1 = stadt[i]->get_pos() + roff;
+				const koord k2 = stadt[j]->get_pos() + roff;
 				const koord diff = k1-k2;
 				const int d = diff.x*diff.x + diff.y*diff.y;
 

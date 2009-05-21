@@ -29,14 +29,22 @@ stringhashtable_tpl<const fussgaenger_besch_t *> fussgaenger_t::table;
 
 bool fussgaenger_t::register_besch(const fussgaenger_besch_t *besch)
 {
-	liste.append(besch, besch->get_gewichtung(), 1);
+	if(  table.remove(besch->get_name())  ) {
+		dbg->warning( "fussgaenger_besch_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+	}
 	table.put(besch->get_name(), besch);
-
 	return true;
 }
 
 bool fussgaenger_t::laden_erfolgreich()
 {
+	liste.resize(table.get_count());
+	stringhashtable_iterator_tpl<const fussgaenger_besch_t *>iter(table);
+	while(  iter.next()  ) {
+		const fussgaenger_besch_t* besch = iter.get_current_value();
+		liste.append(besch, besch->get_gewichtung(), 1);
+	}
+
 	if (liste.empty()) {
 		DBG_MESSAGE("fussgaenger_t", "No pedestrians found - feature disabled");
 	}

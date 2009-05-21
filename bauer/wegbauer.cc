@@ -2044,11 +2044,11 @@ wegbauer_t::baue_fluss()
 	const sint8 start_h = route[start_n].z;
 	for(  sint32 idx=start_n;  idx<=max_n;  idx++  ) {
 		koord3d pos = route[idx];
-		if(pos.z<=start_h){
+		if(pos.z < start_h){
 			// do not handle both joining and water ...
 			continue;
 		}
-		if(  !welt->ebne_planquadrat( NULL, pos.get_2d(), pos.z-1 )  ) {
+		if(  !welt->ebne_planquadrat( NULL, pos.get_2d(), max(pos.z-1, start_h) )  ) {
 			dbg->message( "wegbauer_t::baue_fluss()","lowering tile %s failed.", pos.get_str() );
 		}
 	}

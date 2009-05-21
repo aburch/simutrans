@@ -29,11 +29,14 @@
 class groundobj_besch_t : public obj_besch_std_name_t {
 	friend class groundobj_writer_t;
 	friend class groundobj_reader_t;
+	friend class groundobj_t;
+	friend class movingobj_t;
 
-	climate_bits	allowed_climates;
+	climate_bits allowed_climates;
 	uint16 distribution_weight;
 	uint8  number_of_seasons;
 	uint32  speed;
+	uint16 index;
 	bool  trees_on_top;
 	waytype_t waytype;
 	sint32 cost_removal;
@@ -64,6 +67,8 @@ public:
 	waytype_t get_waytype() const { return waytype; }
 
 	sint32 get_preis() const { return cost_removal; }
+
+	uint16 get_index() const { return index; }
 };
 
 #endif

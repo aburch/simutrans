@@ -118,9 +118,10 @@ bool warenbauer_t::register_besch(ware_besch_t *besch)
 	besch->value = besch->base_value;
 	::register_besch(spezial_objekte, besch);
 	// avoid duplicates with same name
-	ware_besch_t *old_besch = (ware_besch_t *)besch_names.remove(besch->get_name());
+	ware_besch_t *old_besch = (ware_besch_t *)besch_names.get(besch->get_name());
 	if(  old_besch  ) {
 		dbg->warning( "warenbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+		besch_names.remove(besch->get_name());
 		waren.remove( old_besch );
 	}
 	besch_names.put(besch->get_name(), besch);

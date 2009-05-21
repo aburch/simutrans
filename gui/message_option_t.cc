@@ -73,7 +73,7 @@ message_option_t::action_triggered( gui_action_creator_t *komp, value_t )
 {
 	((button_t*)komp)->pressed ^= 1;
 	for(  int i=0;  i<message_t::MAX_MESSAGE_TYPE;  i++  ) {
-		if(&buttons[i*4+1]==komp) {
+		if(&buttons[i*4+0]==komp) {
 			ignore_msg ^= (1<<i);
 		}
 		if(&buttons[i*4+1]==komp) {
