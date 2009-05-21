@@ -48,9 +48,7 @@ stringhashtable_tpl<groundobj_besch_t *> groundobj_t::besch_names;
 
 bool groundobj_t::alles_geladen()
 {
-	groundobj_typen.resize(besch_names.get_count()+1);
-	groundobj_typen.append(NULL);
-
+	groundobj_typen.resize(besch_names.get_count());
 	stringhashtable_iterator_tpl<groundobj_besch_t *>iter(besch_names);
 	while(  iter.next()  ) {
 		iter.access_current_value()->index = groundobj_typen.get_count();
@@ -85,7 +83,7 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 {
 	int weight = 0;
 
-	for( unsigned i=1;  i<groundobj_typen.get_count();  i++  ) {
+	for( unsigned i=0;  i<groundobj_typen.get_count();  i++  ) {
 		if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->get_phases()==16)  ) {
 			weight += groundobj_typen[i]->get_distribution_weight();
 		}
@@ -95,7 +93,7 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 	if (weight > 0) {
 		const int w=simrand(weight);
 		weight = 0;
-		for( unsigned i=1; i<groundobj_typen.get_count();  i++  ) {
+		for( unsigned i=0; i<groundobj_typen.get_count();  i++  ) {
 			if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->get_phases()==16)  ) {
 				weight += groundobj_typen[i]->get_distribution_weight();
 				if(weight>=w) {
