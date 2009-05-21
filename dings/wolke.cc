@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
 #include "../simworld.h"
 #include "../simdings.h"
