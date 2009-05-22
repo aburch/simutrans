@@ -892,10 +892,21 @@ bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 		weg->ribi_add(ribi);
 		weg->count_sign();
 		if(weg->is_electrified()) {
-			for(uint8 i=0;  i<get_top();  i++) {
-				ding_t *d=obj_bei(i);
-				if(d  &&  d->get_typ()==ding_t::wayobj  &&  ((wayobj_t *)d)->get_besch()->get_wtyp()==wegtyp) {
-					((wayobj_t *)d)->set_dir( ((wayobj_t *)d)->get_dir() | ribi );
+			wayobj_t *wo = get_wayobj( wegtyp );
+			if( (ribi & wo->get_dir()) == 0 ) {
+				// ribi isn't set at wayobj;
+				for( uint8 i = 0; i < 4; i++ ) {
+					// Add ribis to adjacent wayobj.
+					if( ribi_t::nsow[i] & ribi ) {
+						grund_t *next_gr;
+						if( get_neighbour( next_gr, wegtyp, ribi_t::nsow[i] ) ) {
+							wayobj_t *wo2 = next_gr->get_wayobj( wegtyp );
+							if( wo2 ) {
+								wo->set_dir( wo->get_dir() | ribi_t::nsow[i] );
+								wo2->set_dir( wo2->get_dir() | ribi_t::rueckwaerts(ribi_t::nsow[i]) );
+							}
+						}
+					}
 				}
 			}
 		}
@@ -1255,4 +1266,28 @@ void* grund_t::operator new(size_t s)
 void grund_t::operator delete(void* p, size_t s)
 {
 	return freelist_t::putback_node(s, p);
+}
+
+wayobj_t *grund_t::get_wayobj( waytype_t wt ) const
+{
+	waytype_t wt1 = ( wt == tram_wt ) ? track_wt : wt;
+
+	wayobj_t *wayobj;
+	if(  find<wayobj_t>()  ) {
+		// since there might be more than one, we have to iterate through all of them
+		for(  uint8 i = 0;  i < get_top();  i++  ) {
+			ding_t *d = obj_bei(i);
+			if(  d  &&  d->get_typ() == ding_t::wayobj  ) {
+				wayobj = (wayobj_t *)d;
+				waytype_t wt2 = wayobj->get_besch()->get_wtyp();
+				if(  wt2 == tram_wt  ) {
+					wt2 = track_wt;
+				}
+				if(  wt1 == wt2  ) {
+					return wayobj;
+				}
+			}
+		}
+	}
+	return NULL;
 }
