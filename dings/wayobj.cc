@@ -155,6 +155,21 @@ wayobj_t::entferne(spieler_t *sp)
 	if(besch) {
 		spieler_t::accounting(sp, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
 	}
+	grund_t *gr = welt->lookup( get_pos() );
+	if( gr ) {
+		for( uint8 i = 0; i < 4; i++ ) {
+			// Remove ribis from adjacent wayobj.
+			if( ribi_t::nsow[i] & get_dir() ) {
+				grund_t *next_gr;
+				if( gr->get_neighbour( next_gr, besch->get_wtyp(), ribi_t::nsow[i] ) ) {
+					wayobj_t *wo2 = next_gr->get_wayobj( besch->get_wtyp() );
+					if( wo2 ) {
+						wo2->set_dir( wo2->get_dir() & ribi_t::get_forward(ribi_t::nsow[i]) );
+					}
+				}
+			}
+		}
+	}
 }
 
 

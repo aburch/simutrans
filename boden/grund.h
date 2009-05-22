@@ -535,6 +535,11 @@ public:
 
 	virtual hang_t::typ get_weg_hang() const { return get_grund_hang(); }
 
+	/*
+	 * Search a matching wayobj
+	 */
+	wayobj_t *get_wayobj( waytype_t wt ) const;
+
 	/**
 	* Interface zur Bauen der Wege
 	* =============================
