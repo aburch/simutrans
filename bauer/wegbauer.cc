@@ -134,7 +134,7 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 spe
 			     &&  test->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) {
 			if(  best==NULL  ||  time==0  ||  (test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month())) {
 				if(  best==NULL  ||
-						(best->get_topspeed() < speed_limit  &&  test->get_topspeed() >= speed_limit  )  ||	// not yet there but this is ...
+						(best->get_topspeed() < speed_limit  &&  test->get_topspeed() <= speed_limit  &&  best->get_topspeed() < test->get_topspeed())  ||	// not yet there but this is ...
 						(test->get_topspeed() <=  speed_limit  &&  best->get_topspeed() < test->get_topspeed()) ||	// closer to desired speed (from the low end)
 						(best->get_topspeed() > speed_limit  &&  test->get_topspeed() < best->get_topspeed())  ||	// closer to desired speed (from the top end)
 						(time!=0  &&  (best->get_intro_year_month()>time  ||  time>=best->get_retire_year_month()))	// current choice is acutally not really allowed, timewise
@@ -186,7 +186,7 @@ const weg_besch_t * wegbauer_t::get_besch(const char * way_name,const uint16 tim
 {
 //DBG_MESSAGE("wegbauer_t::get_besch","return besch for %s in (%i)",way_name, time/12);
 	const weg_besch_t *besch = alle_wegtypen.get(way_name);
-	if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+	if(besch  &&  (time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))  ) {
 		return besch;
 	}
 	return NULL;

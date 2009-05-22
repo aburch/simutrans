@@ -37,6 +37,8 @@ public:
 	void laden_abschliessen();
 
 	void entferne(spieler_t *sp);
+
+	bool check_season( const long ) { calc_bild(); return true; };
 };
 
 #endif

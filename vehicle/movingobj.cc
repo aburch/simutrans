@@ -47,9 +47,7 @@ stringhashtable_tpl<groundobj_besch_t *> movingobj_t::besch_names;
 
 bool movingobj_t::alles_geladen()
 {
-	movingobj_typen.resize(besch_names.get_count()+1);
-	movingobj_typen.append(NULL);
-
+	movingobj_typen.resize(besch_names.get_count());
 	stringhashtable_iterator_tpl<groundobj_besch_t *>iter(besch_names);
 	while(  iter.next()  ) {
 		iter.access_current_value()->index = movingobj_typen.get_count();
@@ -58,8 +56,6 @@ bool movingobj_t::alles_geladen()
 
 	if(besch_names.empty()) {
 		DBG_MESSAGE("movingobj_t", "No movingobj found - feature disabled");
-		// NULL for empty object
-		movingobj_typen.append(NULL);
 	}
 	return true;
 }
@@ -86,7 +82,7 @@ const groundobj_besch_t *movingobj_t::random_movingobj_for_climate(climate cl)
 {
 	int weight = 0;
 
-	for( unsigned i=1;  i<movingobj_typen.get_count();  i++  ) {
+	for( unsigned i=0;  i<movingobj_typen.get_count();  i++  ) {
 		if(  movingobj_typen[i]->is_allowed_climate(cl)   ) {
 			weight += movingobj_typen[i]->get_distribution_weight();
 		}
@@ -96,7 +92,7 @@ const groundobj_besch_t *movingobj_t::random_movingobj_for_climate(climate cl)
 	if (weight > 0) {
 		const int w=simrand(weight);
 		weight = 0;
-		for( unsigned i=1; i<movingobj_typen.get_count();  i++  ) {
+		for( unsigned i=0; i<movingobj_typen.get_count();  i++  ) {
 			if(  movingobj_typen[i]->is_allowed_climate(cl) ) {
 				weight += movingobj_typen[i]->get_distribution_weight();
 				if(weight>=w) {
