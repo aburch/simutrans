@@ -477,7 +477,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		case air_wt:
 			default_loading_time = 30000;
 			break;
-	
+	}
 	uint16 loading_time = (obj.get_int("loading_time", default_loading_time));
 	node.write_uint16(fp, loading_time, 40);
 
