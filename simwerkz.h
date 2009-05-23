@@ -231,16 +231,26 @@ public:
 
 class wkz_wayobj_t : public werkzeug_t {
 private:
+	static const way_obj_besch_t *default_electric;
+
 	koord3d start;
 	bool erster;
 	zeiger_t *wkz_wayobj_bauer;
-	static const way_obj_besch_t *default_electric;
+	slist_tpl< zeiger_t* > marked;
+	karte_t *welt;
+	spieler_t *sp;
+	const way_obj_besch_t *besch;
+
+	void cleanup( bool delete_wayobj_bauer );
+	void start_at( grund_t *new_start );
+	bool calc_route( route_t &, const grund_t *to );
 public:
 	wkz_wayobj_t() : werkzeug_t() { wkz_wayobj_bauer=NULL; }
 	const char *get_tooltip(spieler_t *);
 	bool init( karte_t *, spieler_t * );
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
-	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual const char *work( karte_t *, spieler_t * sp, koord3d );
+	virtual const char *move( karte_t *, spieler_t *, uint16 buttonstate, koord3d );
 };
 
 class wkz_station_t : public werkzeug_t {

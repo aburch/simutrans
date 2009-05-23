@@ -1868,9 +1868,11 @@ const char *wkz_wayobj_t::get_tooltip(spieler_t *sp)
 	return NULL;
 }
 
-bool wkz_wayobj_t::init( karte_t *welt, spieler_t *sp )
+bool wkz_wayobj_t::init( karte_t *welt_, spieler_t *sp_ )
 {
-	const way_obj_besch_t *besch = default_param ? wayobj_t::find_besch(default_param) : NULL;
+	welt = welt_;
+	sp = sp_;
+	besch = default_param ? wayobj_t::find_besch(default_param) : NULL;
 	if(besch==NULL) {
 		besch = default_electric;
 		if(besch==NULL) {
@@ -1880,33 +1882,145 @@ bool wkz_wayobj_t::init( karte_t *welt, spieler_t *sp )
 	else {
 		default_electric = besch;
 	}
+	if( besch ) {
+	 cursor = besch->get_cursor()->get_bild_nr(0);
+	}
 	erster = true;
 	welt->show_distance = start = koord3d::invalid;
-	if(wkz_wayobj_bauer != NULL) {
+	cleanup( true );
+	return besch!=NULL;
+}
+
+void wkz_wayobj_t::cleanup( bool delete_wayobj_bauer )
+{
+	// delete marker.
+	if(wkz_wayobj_bauer != NULL  &&  delete_wayobj_bauer ) {
 		wkz_wayobj_bauer->mark_image_dirty( skinverwaltung_t::bauigelsymbol->get_bild_nr(0), 0 );
 		delete wkz_wayobj_bauer;
 		wkz_wayobj_bauer = NULL;
 	}
-	return besch!=NULL;
+	// delete old route.
+	while(!marked.empty()) {
+		zeiger_t *z = marked.remove_first();
+		z->mark_image_dirty( z->get_bild(), 0 );
+		z->mark_image_dirty( z->get_after_bild(), 0 );
+		delete z;
+	}
+
+	// delete tooltip.
+	win_set_static_tooltip( NULL );
 }
 
-const char *wkz_wayobj_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
+void wkz_wayobj_t::start_at( grund_t *new_start )
 {
-	const way_obj_besch_t *besch = wayobj_t::find_besch(default_param);
-	if(besch==NULL) {
-		besch = default_electric;
+	erster = false;
+	welt->show_distance = start = new_start->get_pos();
+	wkz_wayobj_bauer = new zeiger_t(welt, start, sp);
+	wkz_wayobj_bauer->set_bild( besch->get_cursor()->get_bild_nr(0) );
+	new_start->obj_add(wkz_wayobj_bauer);
+	DBG_MESSAGE("wkz_wayobj()", "Setting start to %d,%d,%d",start.x, start.y,start.z);
+}
+
+bool wkz_wayobj_t::calc_route( route_t &verbindung, const grund_t *to )
+{
+	// get a default vehikel
+	vehikel_besch_t remover_besch( besch->get_wtyp(), 500, vehikel_besch_t::diesel );
+	vehikel_t* test_driver = vehikelbauer_t::baue(start, sp, NULL, &remover_besch);
+	bool can_built = verbindung.calc_route(welt, start, to->get_pos(), test_driver, 0, 0);
+	delete test_driver;
+	return can_built;
+}
+
+const char *wkz_wayobj_t::move( karte_t * /*welt*/, spieler_t * /*sp*/, uint16 /* buttonstate */, koord3d pos )
+{
+	// search for starting ground
+	grund_t *gr=wkz_intern_koord_to_weg_grund(sp,welt,pos, besch->get_wtyp() );
+	if(gr==NULL) {
+		cleanup( false );
+		DBG_MESSAGE("wkz_wayobj()", "no ground on %i,%i",pos.x, pos.y);
+		// wrong ground or not this way here => exit, but no error message (while dragging)
+		return NULL;
+ 	}
+
+	// ignore start == pos.
+	if( start == pos ) {
+		init( welt, sp );
 	}
+
+	if( start == koord3d::invalid ) {
+		// start dragging.
+		cleanup( true );
+		start_at( gr );
+	}
+	else {
+		// continue dragging.
+		cleanup( false );
+
+		display_show_load_pointer(true);
+		route_t verbindung;
+		bool can_built = calc_route( verbindung, gr );
+		if( can_built ) {
+			sint32 cost_estimate = 0;
+
+			for( uint32 j = 0; j <= verbindung.get_max_n(); j++ ) {
+				koord3d pos = verbindung.position_bei(j);
+				grund_t *gr = welt->lookup(pos);
+
+				cost_estimate += besch->get_preis();
+
+				ribi_t::ribi show = ribi_t::keine;
+				// Search a matching catenary on gr.
+				wayobj_t *wayobj = gr->get_wayobj( besch->get_wtyp() );
+				if( wayobj ) {
+					show = wayobj->get_dir();
+					// Already a catenary here -> costs only, if new catenary is faster (this case is neglected here):
+					cost_estimate -= besch->get_preis();
+				}
+
+				if(j>0) {
+					show |= ribi_typ( verbindung.position_bei(j-1).get_2d()-pos.get_2d() );
+				}
+				if(j<verbindung.get_max_n()) {
+					show |= ribi_typ( verbindung.position_bei(j+1).get_2d()-pos.get_2d() );
+				}
+
+				zeiger_t *way_obj = new zeiger_t( welt, pos, sp );
+				if(  gr->get_weg_hang()  ) {
+					way_obj->set_after_bild( besch->get_front_slope_image_id(gr->get_weg_hang()) );
+					way_obj->set_bild( besch->get_back_slope_image_id(gr->get_weg_hang()) );
+				}
+				else if(  ribi_t::ist_kurve(show)  &&  besch->has_diagonal_bild()  ) {
+					way_obj->set_after_bild( besch->get_front_diagonal_image_id(show) );
+					way_obj->set_bild( besch->get_back_diagonal_image_id(show) );
+				}
+				else {
+					way_obj->set_after_bild( besch->get_front_image_id(show) );
+					way_obj->set_bild( besch->get_back_image_id(show) );
+				}
+				way_obj->mark_image_dirty( way_obj->get_bild(), 0 );
+				gr->obj_add( way_obj );
+				marked.insert( way_obj );
+
+			}
+			win_set_static_tooltip( tooltip_with_price("Building costs estimates", cost_estimate ) );
+			display_show_load_pointer(false);
+		}
+	}
+	return NULL;
+}
+
+const char *wkz_wayobj_t::work( karte_t * /*welt*/, spieler_t * sp, koord3d pos )
+{
+	// remove marker
+	cleanup( true );
 
 	if(!sp->can_afford(besch->get_preis()))
 	{
 		return CREDIT_MESSAGE;
 	}
 
-	waytype_t wt=besch->get_wtyp();
-	koord3d end;
-
 	// search for starting ground
-	grund_t *gr=wkz_intern_koord_to_weg_grund(sp,welt,pos,wt);
+	grund_t *gr=wkz_intern_koord_to_weg_grund(sp,welt,pos, besch->get_wtyp() );
 	if(gr==NULL) {
 		DBG_MESSAGE("wkz_wayremover()", "no ground on %i,%i",pos.x, pos.y);
 		// wrong ground or not this way here => exit
@@ -1915,33 +2029,18 @@ const char *wkz_wayobj_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 	if( erster ) {
 		// set start position
-		erster = false;
-		welt->show_distance = start = gr->get_pos();
-		wkz_wayobj_bauer = new zeiger_t(welt, start, sp);
-		wkz_wayobj_bauer->set_bild( besch->get_cursor()->get_bild_nr(0) );
-		gr->obj_add(wkz_wayobj_bauer);
-		DBG_MESSAGE("wkz_wayremover()", "Setting start to %d,%d,%d",start.x, start.y,start.z);
+		start_at( gr );
 	}
 	else {
-		DBG_MESSAGE("wkz_wayremover()", "Setting end to %d,%d,%d",gr->get_pos().x, gr->get_pos().y,gr->get_pos().z);
+		DBG_MESSAGE("wkz_wayobj()", "Setting end to %d,%d,%d",gr->get_pos().x, gr->get_pos().y,gr->get_pos().z);
 
-		// remove marker
-		wkz_wayobj_bauer->mark_image_dirty( skinverwaltung_t::bauigelsymbol->get_bild_nr(0), 0 );
-		delete wkz_wayobj_bauer ;
-		wkz_wayobj_bauer = NULL;
-		erster = true;
-
-		// get a default vehikel
-		vehikel_besch_t remover_besch(wt, 500, vehikel_besch_t::diesel );
-		vehikel_t* test_driver = vehikelbauer_t::baue(start, sp, NULL, &remover_besch);
 		route_t verbindung;
-		bool can_built = verbindung.calc_route(welt, start, gr->get_pos(), test_driver, 0, 0);
-		delete test_driver;
+		bool can_built = calc_route( verbindung, gr );
 		welt->show_distance = start = koord3d::invalid;
-		DBG_MESSAGE("wkz_wayremover()","route search returned %d",can_built);
+		DBG_MESSAGE("wkz_wayobj()","route search returned %d",can_built);
 
 		if(!can_built) {
-			DBG_MESSAGE("wkz_wayremover()","no route found");
+			DBG_MESSAGE("wkz_wayobj()","no route found");
 			return "Ways not connected";
 		}
 

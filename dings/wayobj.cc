@@ -236,7 +236,7 @@ wayobj_t::find_next_ribi(const grund_t *start, const koord dir, const waytype_t 
 	grund_t *to;
 	ribi_t::ribi r1 = ribi_t::keine;
 	if(start->get_neighbour(to,wt,dir)) {
-		const wayobj_t* wo = to->find<wayobj_t>();
+		const wayobj_t* wo = to->get_wayobj( wt );
 		if(wo) {
 			r1 = wo->get_dir();
 		}
@@ -326,7 +326,7 @@ wayobj_t::calc_bild()
 					rekursion++;
 					for(int r = 0; r < 4; r++) {
 						if(gr->get_neighbour(to, wt, koord::nsow[r])) {
-							wayobj_t* wo = to->find<wayobj_t>();
+							wayobj_t* wo = to->get_wayobj( wt );
 							if(wo) {
 								wo->calc_bild();
 							}
@@ -357,37 +357,26 @@ void
 wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch)
 {
 	grund_t *gr=welt->lookup(pos);
-	waytype_t wt1 = besch->get_wtyp()==tram_wt ? track_wt : besch->get_wtyp();
-	if(gr) {
-		if (gr->find<wayobj_t>()) {
-			// since there might be more than one, we have to iterate through all of them
-			for( uint8 i=0;  i<gr->get_top();  i++  ) {
-				ding_t *d=gr->obj_bei(i);
-				if(d  &&  d->get_typ()==ding_t::wayobj ) {
-					waytype_t wt2 = ((wayobj_t *)d)->get_besch()->get_wtyp();
-					if(wt2==tram_wt) {
-						wt2 = track_wt;
-					}
-					if(  wt1==wt2  ) {
-						if(((wayobj_t *)d)->get_besch()->get_topspeed()<besch->get_topspeed()  &&  spieler_t::check_owner(besitzer, d->get_besitzer())) {
-							// replace slower by faster
-							gr->obj_remove(d);
-							gr->set_flag(grund_t::dirty);
-							delete d;
-							break;
-						}
-						else {
-							// extend this one instead
-							((wayobj_t *)d)->set_dir(dir|((wayobj_t *)d)->get_dir());
-							d->calc_bild();
-							d->mark_image_dirty( d->get_after_bild(), 0 );
-							d->set_flag(ding_t::dirty);
-							return;
-						}
-					}
-				}
+	if(gr) 
+	{
+		wayobj_t *existing_wayobj = gr->get_wayobj( besch->get_wtyp() );
+		if( existing_wayobj ) {
+			if(existing_wayobj->get_besch()->get_topspeed()<besch->get_topspeed()  &&  spieler_t::check_owner(besitzer, existing_wayobj->get_besitzer())) {
+				// replace slower by faster
+				gr->obj_remove(existing_wayobj);
+				gr->set_flag(grund_t::dirty);
+				delete existing_wayobj;
+			}
+			else {
+				// extend this one instead
+				existing_wayobj->set_dir(dir|existing_wayobj->get_dir());
+				existing_wayobj->calc_bild();
+				existing_wayobj->mark_image_dirty( existing_wayobj->get_after_bild(), 0 );
+				existing_wayobj->set_flag(ding_t::dirty);
+				return;
 			}
 		}
+
 		// nothing found => make a new one
 		wayobj_t *wo = new wayobj_t(welt,pos,besitzer,dir,besch);
 		gr->obj_add(wo);
