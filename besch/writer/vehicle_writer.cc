@@ -448,11 +448,37 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 overcrowded_capacity = (obj.get_int("overcrowded_capacity", 0));
 	node.write_uint8(fp, overcrowded_capacity, 38);
 
-	// The time that it takes the vehicle to load and unload at stations (i.e., the 
-	// dwell time). The default is 2,000 because that is the value used in Simutrans-
-	// Standard.
+	// The time in ms that it takes the vehicle to load and unload at stations (i.e.,  
+	// the dwell time). The default is 2,000 because that is the value used in 
+	// Simutrans-Standard.
 	//@author: jamespetts
-	uint16 loading_time = (obj.get_int("loading_time", 2000));
+
+	uint16 default_loading_time;
+
+	switch(waytype_uint)
+	{
+		default:	
+		case tram_wt:
+		case road_wt:
+			default_loading_time = 2000;
+			break;
+
+		case monorail_wt:
+		case maglev_wt:
+		case narrowgauge_wt:
+		case track_wt:
+			default_loading_time = 4000;
+			break;
+
+		case water_wt:
+			default_loading_time = 20000;
+			break;
+
+		case air_wt:
+			default_loading_time = 30000;
+			break;
+	
+	uint16 loading_time = (obj.get_int("loading_time", default_loading_time));
 	node.write_uint16(fp, loading_time, 40);
 
 	// Upgrading settings

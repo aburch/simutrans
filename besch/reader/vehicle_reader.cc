@@ -284,7 +284,31 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->can_lead_from_rear = false;
 		besch->comfort = 100;
 		besch->overcrowded_capacity = 0;
-		besch->loading_time = 2000;
+
+		switch(besch->get_waytype())
+		{
+		default:	
+		case tram_wt:
+		case road_wt:
+			besch->loading_time = 2000;
+			break;
+
+		case monorail_wt:
+		case maglev_wt:
+		case narrowgauge_wt:
+		case track_wt:
+			besch->loading_time = 4000;
+			break;
+
+		case water_wt:
+			besch->loading_time = 20000;
+			break;
+
+		case air_wt:
+			besch->loading_time = 30000;
+			break;
+		}
+		
 		besch->upgrades = 0;
 		besch->upgrade_price = besch->preis;
 		besch->available_only_as_upgrade = false;

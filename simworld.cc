@@ -1451,6 +1451,8 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	msg = new message_t(this);
 
 	base_pathing_counter = 0;
+
+	outstanding_cars = 0;
 }
 
 
@@ -2442,6 +2444,7 @@ void karte_t::neuer_monat()
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		stadt_t* s = *i;
 		s->neuer_monat();
+		outstanding_cars += s->get_outstanding_cars();
 		new_weighted_stadt.append(s, s->get_einwohner(), 64);
 		INT_CHECK("simworld 1278");
 	}
@@ -2457,7 +2460,7 @@ void karte_t::neuer_monat()
 		}
 	}
 
-	while(unassigned_cars.get_count() > outstanding_cars)
+	while(!unassigned_cars.empty() && (sint32)unassigned_cars.get_count() > outstanding_cars)
 	{
 		//Make sure that there are not too many cars on the roads. 
 		stadtauto_t* car = unassigned_cars.remove_first();
@@ -3440,6 +3443,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 
 
 
+// LOAD, not save
 // just the preliminaries, opens the file, checks the versions ...
 bool
 karte_t::laden(const char *filename)
@@ -3482,6 +3486,14 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 #endif
 	einstellungen->set_filename(filename);
 	display_show_load_pointer(false);
+
+	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) 
+	{
+		stadt_t* s = *i;
+		outstanding_cars += s->get_outstanding_cars();
+	}
+
 	return ok;
 }
 

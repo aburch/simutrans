@@ -170,10 +170,10 @@ private:
 	inline void set_private_car_trip(int passengers, stadt_t* destination_town);
 
 	// This is needed to prevent double counting of incoming traffic.
-	sint16 incoming_private_cars;
+	sint32 incoming_private_cars;
 	
 	//This is needed because outgoing cars are disregarded when calculating growth.
-	sint16 outgoing_private_cars;
+	sint32 outgoing_private_cars;
 
 	slist_tpl<stadtauto_t *> current_cars;
 
@@ -189,7 +189,7 @@ public:
 	sint64* get_city_history_year() { return *city_history_year; }
 	sint64* get_city_history_month() { return *city_history_month; }
 
-	sint16 get_outstanding_cars();
+	sint32 get_outstanding_cars();
 
 	// just needed by stadt_info.cc
 	static inline karte_t* get_welt() { return welt; }

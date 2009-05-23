@@ -58,7 +58,7 @@
 
 karte_t* stadt_t::welt = NULL; // one is enough ...
 
-sint16 number_of_cars;
+sint32 number_of_cars;
 
 // Private car ownership information.
 // @author: jamespetts
@@ -1562,7 +1562,7 @@ void stadt_t::neuer_monat() //"New month" (Google)
 
 #ifdef DESTINATION_CITYCARS 
 		// Subtract incoming trips and cars already generated to prevent double counting.
-		const sint16 factor = city_history_month[1][HIST_CITYCARS] - incoming_private_cars - current_cars.get_count();
+		const sint32 factor = city_history_month[1][HIST_CITYCARS] - incoming_private_cars - (sint32)current_cars.get_count();
 		
 		//Manual assignment of traffic level modifiers, since I could not find a suitable mathematical formula.
 		float traffic_level;
@@ -1643,7 +1643,7 @@ void stadt_t::neuer_monat() //"New month" (Google)
 		//uint16 number_of_cars = ((city_history_month[1][HIST_CITYCARS] * welt->get_einstellungen()->get_verkehr_level()) / 16) / 64;
 #endif
 
-		while(current_cars.get_count() > number_of_cars)
+		while((sint32)current_cars.get_count() > number_of_cars)
 		{
 			//Make sure that there are not too many cars on the roads. 
 			stadtauto_t* car = current_cars.remove_first();
@@ -1673,7 +1673,7 @@ void stadt_t::neuer_monat() //"New month" (Google)
 	}
 }
 
-sint16 stadt_t::get_outstanding_cars()
+sint32 stadt_t::get_outstanding_cars()
 {
 	return number_of_cars - current_cars.get_count();
 }

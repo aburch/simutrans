@@ -215,7 +215,7 @@ private:
 	// The number of cars that should be in the world somewhere, but are not
 	// in any particular city's list.
 	//@author: jamespetts
-	sint16 outstanding_cars;
+	sint32 outstanding_cars;
 
 	// word record of speed ...
 	class speed_record_t {
