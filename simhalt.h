@@ -279,7 +279,7 @@ private:
 	stationtyp station_type;
 
 	uint8 rebuilt_destination_counter;	// new schedule, first rebuilt destinations asynchroniously
-	uint8 reroute_counter;						// the reroute goods
+	// uint8 reroute_counter;						// the reroute goods
 
 	/* station flags (most what enabled) */
 	uint8 enables;
@@ -582,7 +582,7 @@ public:
 
 	// Adding method for the new routing system. Equivalent to
 	// hat_gehalten with the old system. 
-	void add_connexion(const ware_besch_t *type, const schedule_t *fpl, const convoihandle_t cnv, const linehandle_t line);
+	void add_connexion(const uint8 category, const schedule_t *fpl, const convoihandle_t cnv, const linehandle_t line);
 
 	const grund_t *find_matching_position(waytype_t wt) const;
 
@@ -742,11 +742,23 @@ public:
 	// @author: jamespetts
 	bool *reschedule;
 
+	// Added by : Knightly
+	// Purpose	: To keep track of any need for re-routing existing goods packets in the halt
+	bool *reroute;
+
 	// Makes the paths recalculate, even if it would not otherwise be time for
 	// them to do so. Does this by making sure that the timestamp is lower than
 	// the counter.
 	// @author: jamespetts
 	void force_paths_stale(const uint8 category);
 
+	// Added by : Knightly
+	// Purpose  : To mark all paths of all halts stale and re-route existing goods packets
+	static void force_all_halts_paths_stale(const minivec_tpl<uint8> &categories);
+
+	// Added by		: Knightly
+	// Adapted from : Jamespetts' code
+	// Purpose		: To notify relevant halts to rebuild connexions and to notify all halts to recalculate paths
+	static void notify_halts_to_rebuild_connexions(const schedule_t *sched, const minivec_tpl<uint8> &categories, const spieler_t *player);
 };
 #endif

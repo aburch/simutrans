@@ -15,6 +15,7 @@
 #include "vehicle/overtaker.h"
 #include "tpl/array_tpl.h"
 #include "tpl/fixed_list_tpl.h"
+#include "tpl/minivec_tpl.h"
 
 #include "convoihandle_t.h"
 #include "halthandle_t.h"
@@ -118,6 +119,14 @@ private:
 	* @author Hj. Malthaner
 	*/
 	schedule_t *fpl;
+
+	// Added by : Knightly
+	// Purpose  : To hold the original schedule before opening schedule window
+	schedule_t *old_fpl;
+
+	// Added by : Knightly
+	// Purpose  : A mini-vector for storing supporting goods categories
+	minivec_tpl<uint8> goods_catg_index;
 
 	/**
 	* loading_level was ladegrad before. Actual percentage loaded for loadable vehicles (station length!).
@@ -935,6 +944,14 @@ public:
 	// @author: jamespetts
 	static uint8 calc_tolerable_comfort(uint16 journey_minutes, karte_t* w);
 	uint8 calc_tolerable_comfort(uint16 journey_minutes) { return calc_tolerable_comfort(journey_minutes, welt); }
+
+	// Added by		: Knightly
+	// Adapted from : simline_t
+	// Purpose		: To recalculate list of supported goods category
+	void recalc_catg_index();
+
+	// Added by : Knightly
+	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 };
 
 #endif
