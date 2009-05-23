@@ -1749,7 +1749,7 @@ void haltestelle_t::notify_halts_to_rebuild_connexions(const schedule_t *sched, 
 {
 	halthandle_t tmp_halt;
 
-	if(sched)
+	if(sched && player)
 	{
 		// Iterate over each line item in the schedule for connexions reconstruction
 		const uint8 entry_count = sched->get_count();
