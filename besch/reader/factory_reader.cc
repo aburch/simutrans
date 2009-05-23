@@ -191,7 +191,8 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		experimental_version -=1;
 	}
 
-	if(version == 2) {
+	if(version == 2) 
+	{
 		// Versioned node, version 2
 		besch->platzierung = (enum fabrik_besch_t::platzierung)decode_uint16(p); //"placement" (Babelfish)
 		besch->produktivitaet = decode_uint16(p); //"productivity" (Babelfish)
@@ -204,7 +205,7 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->pax_level = decode_uint16(p);
 		if(experimental)
 		{
-			if(experimental_version == 1)
+			if(experimental_version == 0)
 			{
 				besch->electricity_proportion = ((float)decode_uint16(p) / 100.0);
 				besch->inverse_electricity_proportion = 1 / besch->electricity_proportion;
@@ -215,7 +216,8 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			}
 		}
 		DBG_DEBUG("factory_reader_t::read_node()","version=2, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level );
-	} else if(version == 1) {
+	} else if(version == 1) 
+	{
 		// Versioned node, version 1
 		besch->platzierung = (enum fabrik_besch_t::platzierung)decode_uint16(p);
 		besch->produktivitaet = decode_uint16(p);
@@ -227,7 +229,8 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->pax_level = decode_uint16(p);
 		besch->fields = 0;
 		DBG_DEBUG("factory_reader_t::read_node()","version=1, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level);
-	} else {
+	} else 
+	{
 		// old node, version 0, without pax_level
 		DBG_DEBUG("factory_reader_t::read_node()","version=0");
 		besch->platzierung = (enum fabrik_besch_t::platzierung)v;

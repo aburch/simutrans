@@ -417,7 +417,7 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *komp,value_
 			build_vehicle_lists();
 			update_data();
 		} else if(komp == &bt_show_all) {
-			show_all = (show_all==0);
+			show_all = (show_all == false);
 			build_vehicle_lists();
 			update_data();
 		} else if(komp == &action_selector) {

@@ -328,6 +328,8 @@ void spieler_t::neuer_monat()
 			konto += monthly_interest;
 			finance_history_month[0][COST_INTEREST] += monthly_interest;
 			finance_history_month[0][COST_PROFIT] -= monthly_interest;
+			finance_history_year[0][COST_INTEREST] += monthly_interest;
+			finance_history_year[0][COST_PROFIT] -= monthly_interest;
 		}
 
 		// Adjust credit limit
@@ -491,6 +493,11 @@ void spieler_t::calc_finance_history()
 
 sint64 spieler_t::calc_credit_limit()
 {
+	if(base_credit_limit == 0)
+	{
+		return 0;
+	}
+
 	sint64 profit = 0;
 	sint64 assets = 0;
 	for(uint8 i = 0; i < MAX_PLAYER_HISTORY_MONTHS; i++)
@@ -503,7 +510,7 @@ sint64 spieler_t::calc_credit_limit()
 	// or 0, whichever is lower.
 
 	profit = (profit / 12.0) * 0.4;
-	assets = (assets/ 12.0) * 0.4;
+	assets = (assets / 12.0) * 0.4;
 
 	sint64 new_limit = ((profit + assets) > base_credit_limit) ? profit + assets : base_credit_limit;
 
@@ -1036,11 +1043,14 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 		simlinemgmt.rdwr(welt,file,this);
 	}
 
-	base_credit_limit = get_base_credit_limit();
-	//credit_limit = calc_credit_limit();
-	if(file->get_experimental_version() <= 1)
+	if(file->is_loading())
 	{
-		finance_history_month[0][COST_CREDIT_LIMIT] = calc_credit_limit();
+		base_credit_limit = get_base_credit_limit();
+		//credit_limit = calc_credit_limit();
+		if(file->get_experimental_version() <= 1)
+		{
+			finance_history_month[0][COST_CREDIT_LIMIT] = calc_credit_limit();
+		}
 	}
 }
 

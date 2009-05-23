@@ -188,7 +188,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	self = convoihandle_t(this);
 	init(wl, 0);
 	rdwr(file);
-	current_stop = fpl->get_aktuell() - 1;
+	current_stop = fpl == NULL ? 255 : fpl->get_aktuell() - 1;
 }
 
 convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
