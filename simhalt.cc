@@ -283,6 +283,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	connexions_timestamp = new uint16[max_categories];
 	paths_timestamp = new uint16[max_categories];
 	reschedule = new bool[max_categories];
+	reroute = new bool[max_categories];
 	open_list = new binary_heap_tpl<path*>[max_categories];
 	search_complete = new bool[max_categories];
 	iterations = new uint32[max_categories];
@@ -291,14 +292,15 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 		paths_timestamp[i] = 0;
 		connexions_timestamp[i] = 0;
 		reschedule[i] = false;
+		reroute[i] = false;
 		search_complete[i] = false;
 		iterations[i] = 0;
 	}
 
 	status_color = COL_YELLOW;
 
-	reroute_counter = welt->get_schedule_counter()-1;
-	rebuilt_destination_counter = reroute_counter;
+	// reroute_counter = welt->get_schedule_counter()-1;
+	rebuilt_destination_counter = welt->get_schedule_counter()-1;
 
 	enables = NOT_ENABLED;
 
@@ -331,8 +333,8 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	enables = NOT_ENABLED;
 
-	reroute_counter = welt->get_schedule_counter()-1;
-	rebuilt_destination_counter = reroute_counter;
+	// reroute_counter = welt->get_schedule_counter()-1;
+	rebuilt_destination_counter = welt->get_schedule_counter()-1;
 
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
 
@@ -356,6 +358,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	connexions_timestamp = new uint16[max_categories];
 	paths_timestamp = new uint16[max_categories];
 	reschedule = new bool[max_categories];
+	reroute = new bool[max_categories];	
 	search_complete = new bool[max_categories];
 	iterations = new uint32[max_categories];
 	for(uint8 i = 0; i < max_categories; i ++)
@@ -363,6 +366,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 		paths_timestamp[i] = 0;
 		connexions_timestamp[i] = 0;
 		reschedule[i] = false;
+		reroute[i] = false;
 		search_complete[i] = false;
 		iterations[i] = 0;
 	}
@@ -821,6 +825,7 @@ haltestelle_t::step()
 		for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i ++)
 		{
 			reschedule[i] = true;
+			reroute[i] = true;		// Added by : Knightly
 		}
 
 		// Note: setting reschedule to true here
@@ -830,7 +835,8 @@ haltestelle_t::step()
 		// individually depending on which halts are
 		// affected by rescheduling. 
 	}
-
+	
+	/*
 	else 
 	{
 		// all new connection updated => recalc routes
@@ -841,6 +847,12 @@ haltestelle_t::step()
 	//		DBG_MESSAGE("haltestelle_t::step()","rerouting goods at %s",get_name());
 		}
 	}
+	*/
+	
+	// Knightly : Every step needs to invoke reroute_goods()
+	//			  Only goods categories scheduled for re-routing will actually be re-routed
+	reroute_goods();
+
 	recalc_status();
 	
 	// Every 256 steps - check whether
@@ -932,14 +944,18 @@ void haltestelle_t::neuer_monat()
  * will distribute the goods to changed routes (if there are any)
  * @author Hj. Malthaner
  */
+// Modified by : Knightly
+
 void haltestelle_t::reroute_goods()
 {
 	// reroute only on demand
-	reroute_counter = welt->get_schedule_counter();
+	
+	// reroute_counter = welt->get_schedule_counter();
 
 	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) 
 	{
-		if(waren[i])
+		// Knightly : check also if re-routing is needed
+		if(reroute[i] && waren[i])
 		{
 			vector_tpl<ware_t> * warray = waren[i];
 			vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(warray->get_count());
@@ -999,9 +1015,11 @@ void haltestelle_t::reroute_goods()
 			waren[i] = new_warray;
 		}
 	}
+
 	// likely the display must be updated after this
 	resort_freight_info = true;
 }
+
 
 
 
@@ -1069,12 +1087,14 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 	return 9;
 }
 
-void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fpl, const convoihandle_t cnv, const linehandle_t line)
+// Modified by : Knightly
+void haltestelle_t::add_connexion(const uint8 category, const schedule_t *fpl, const convoihandle_t cnv, const linehandle_t line)
 {
+	const ware_besch_t *ware_type = warenbauer_t::get_info_catg_index(category);
 	
 	const bool i_am_public = get_besitzer() == welt->get_spieler(1);
 
-	if(type != warenbauer_t::nichts) 
+	if(category != warenbauer_t::nichts->get_catg_index()) 
 	{
 		ITERATE_PTR(fpl,i)
 		{
@@ -1097,14 +1117,14 @@ void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fp
 				}
 			}
 			// not existing, or own, or not enabled => ignore
-			if(!halt.is_bound() || halt == self || !halt->is_enabled(type)) 
+			if(!halt.is_bound() || halt == self || !halt->is_enabled(ware_type)) 
 			{
 				continue;
 			}
 
 			// Check the journey times to the connexion
 			connexion* new_connexion = new connexion;
-			new_connexion->waiting_time = get_average_waiting_time(halt, type->get_catg_index());
+			new_connexion->waiting_time = get_average_waiting_time(halt, category);
 			
 			// Check the average speed.
 			uint16 average_speed = 0;
@@ -1197,15 +1217,15 @@ void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fp
 			new_connexion->best_line = line;
 
 			// Check whether this is the best connexion so far, and, if so, add it.
-			if(!connexions[type->get_catg_index()].put(halt, new_connexion))
+			if(!connexions[category].put(halt, new_connexion))
 			{
 				// The key exists in the hashtable already - check whether this entry is better.
-				connexion* existing_connexion = connexions[type->get_catg_index()].get(halt);
+				connexion* existing_connexion = connexions[category].get(halt);
 				if(existing_connexion->journey_time > new_connexion->journey_time)
 				{
 					// The new connexion is better - replace it.
 					delete existing_connexion;
-					connexions[type->get_catg_index()].set(halt, new_connexion);
+					connexions[category].set(halt, new_connexion);
 				}
 				else
 				{
@@ -1213,10 +1233,10 @@ void haltestelle_t::add_connexion(const ware_besch_t *type, const schedule_t *fp
 				}
 				//TODO: Consider whether to add code for comfort here, too.
 
-				if(  waren[type->get_catg_index()] == NULL  ) 
+				if(  waren[category] == NULL  ) 
 				{
 					// indicates that this can route those goods
-					waren[type->get_catg_index()] = new vector_tpl<ware_t>(0);
+					waren[category] = new vector_tpl<ware_t>(0);
 				}
 			}
 		}
@@ -1285,7 +1305,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 	const bool i_am_public = get_besitzer() == welt->get_spieler(1);
 
 	// first all single convois without lines
-	vector_tpl<uint8> add_catg_index(4);
+	// vector_tpl<uint8> add_catg_index(4);
 	halthandle_t tmp_halt;
 	const linehandle_t dummy_line;
 	const convoihandle_t dummy_convoy;
@@ -1329,6 +1349,13 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 					}
 					if (tmp_halt == self) 
 					{
+						// Added by : Knightly
+						if (cnv->get_goods_catg_index().is_contained(category))
+							add_connexion(category, fpl, cnv, dummy_line);
+						// skip the rest of halts in fpl and prevent reprocessing the same halts in fpl more than once
+						break;  
+
+						/*
 						// what goods can this convoy transport?
 						add_catg_index.clear();
 						for(uint i = 0;  i < cnv->get_vehikel_anzahl();  i++) 
@@ -1353,6 +1380,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 								}
 							}
 						}
+						*/
 					}
 				}
 			}
@@ -1393,6 +1421,13 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 					}
 					if (tmp_halt == self) 
 					{
+						// Added by : Knightly
+						if (line->get_goods_catg_index().is_contained(category))
+							add_connexion(category, fpl, cnv, dummy_line);
+						// skip the rest of halts in fpl and prevent reprocessing the same halts in fpl more than once
+						break;
+
+						/*
 						// what goods can this line transport?
 						add_catg_index.clear();
 						const minivec_tpl<uint8> &goods = line->get_goods_catg_index();
@@ -1415,6 +1450,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 								}
 							}
 						}
+						*/
 					}
 				}
 			}
@@ -1684,6 +1720,67 @@ void haltestelle_t::force_paths_stale(const uint8 category)
 		paths_timestamp[category] = 0;
 	}
 }
+
+// Added by : Knightly
+// Purpose  : To force all paths of all halts stale and schedule re-routing of existing goods packets
+void haltestelle_t::force_all_halts_paths_stale(const minivec_tpl<uint8> &categories)
+{
+	slist_iterator_tpl<halthandle_t> iter (haltestelle_t::alle_haltestellen);
+	halthandle_t tmp_halt;
+
+	const uint8 catg_count = categories.get_count();
+
+	while (iter.next())
+	{
+		tmp_halt = iter.get_current();
+		for (uint8 i = 0; i < catg_count; i++)
+		{
+			tmp_halt->force_paths_stale(categories[i]);
+			tmp_halt->reroute[categories[i]] = true;
+		}
+	}
+}
+
+
+// Added by		: Knightly
+// Adapted from : Jamespetts' code
+// Purpose		: To notify relevant halts to rebuild connexions
+void haltestelle_t::notify_halts_to_rebuild_connexions(const schedule_t *sched, const minivec_tpl<uint8> &categories, const spieler_t *player)
+{
+	halthandle_t tmp_halt;
+
+	if(sched)
+	{
+		// Iterate over each line item in the schedule for connexions reconstruction
+		const uint8 entry_count = sched->get_count();
+		const uint8 catg_count = categories.get_count();
+
+		for (uint8 i = 0; i < entry_count; i++)
+		{
+			tmp_halt = get_halt(welt, sched->eintrag[i].pos, player);
+			
+			if(!tmp_halt.is_bound())
+			{
+				// Try a public player halt
+				spieler_t* sp = welt->get_spieler(0);
+				tmp_halt = get_halt(welt, sched->eintrag[i].pos, sp);
+			}
+
+			if(tmp_halt.is_bound())
+			{
+				for (uint8 j = 0; j < catg_count; j++)
+				{
+					tmp_halt->reschedule[categories[j]] = true;
+				}
+			}
+			else
+			{
+				dbg->error("convoi_t::notify_halts_to_recalculate()", "Halt in schedule does not exist");
+			}
+		}
+	}
+}
+
 
 minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 {

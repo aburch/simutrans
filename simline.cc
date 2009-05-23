@@ -99,6 +99,7 @@ void simline_t::add_convoy(convoihandle_t cnv)
 	// what goods can this line transport?
 	bool update_schedules = false;
 	if(  cnv->get_state()!=convoi_t::INITIAL  ) {
+		/*
 		// already on the road => need to add them
 		for(uint i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
 			// Only consider vehicles that really transport something
@@ -113,6 +114,19 @@ void simline_t::add_convoy(convoihandle_t cnv)
 				update_schedules = true;
 			}
 		}
+		*/
+
+		// Added by : Knightly
+		const minivec_tpl<uint8> &categories = cnv->get_goods_catg_index();
+		const uint8 catg_count = categories.get_count();
+		for (uint8 i = 0; i < catg_count; i++)
+		{
+			if (!goods_catg_index.is_contained(categories[i]))
+			{
+				goods_catg_index.append(categories[i], 1);
+				update_schedules = true;
+			}
+		}
 	}
 
 	// will not hurt ...
@@ -121,7 +135,11 @@ void simline_t::add_convoy(convoihandle_t cnv)
 
 	// do we need to tell the world about our new schedule?
 	if(  update_schedules  ) {
-		welt->set_schedule_counter();
+		// welt->set_schedule_counter();
+
+		// Added by : Knightly
+		haltestelle_t::notify_halts_to_rebuild_connexions(fpl, goods_catg_index, sp);
+		haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
 	}
 }
 
@@ -252,8 +270,16 @@ void simline_t::renew_stops()
 {
 	if(  old_fpl  ) {
 		unregister_stops( old_fpl );
+
+		// Added by : Knightly
+		haltestelle_t::notify_halts_to_rebuild_connexions(old_fpl, goods_catg_index, sp);
 	}
 	register_stops( fpl );
+	
+	// Added by Knightly
+	haltestelle_t::notify_halts_to_rebuild_connexions(fpl, goods_catg_index, sp);
+	haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
+	
 	DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", id, name);
 }
 
@@ -373,6 +399,7 @@ void simline_t::recalc_catg_index()
 //		const convoihandle_t cnv = line_managed_convoys[i];
 		const convoi_t *cnv = line_managed_convoys[i].get_rep();
 		withdraw &= cnv->get_withdraw();
+		/*
 		for(uint i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
 			// Only consider vehicles that really transport something
 			// this helps against routing errors through passenger
@@ -385,18 +412,44 @@ void simline_t::recalc_catg_index()
 				goods_catg_index.append_unique( ware->get_catg_index(), 1 );
 			}
 		}
+		*/
+
+		// Added by : Knightly
+		const minivec_tpl<uint8> &categories = cnv->get_goods_catg_index();
+		const uint8 catg_count = categories.get_count();
+		for (uint8 j = 0; j < catg_count; j++)
+			goods_catg_index.append_unique(categories[j], 1);
 	}
 	// if different => schedule need recalculation
 	if(  goods_catg_index.get_count()!=old_goods_catg_index.get_count()  ) {
 		// surely changed
-		welt->set_schedule_counter();
+		// welt->set_schedule_counter();
+
+		// Added by : Knightly
+		// Need to combine old and new category lists
+		for (uint8 k = 0; k < goods_catg_index.get_count(); k++)
+		{
+			old_goods_catg_index.append_unique(goods_catg_index[k], 1);
+		}
+		haltestelle_t::notify_halts_to_rebuild_connexions(fpl, old_goods_catg_index, sp);
+		haltestelle_t::force_all_halts_paths_stale(old_goods_catg_index);
 	}
 	else {
 		// maybe changed => must test all entries
 		for(  uint i=0;  i<goods_catg_index.get_count();  i++  ) {
 			if(  !old_goods_catg_index.is_contained(goods_catg_index[i])  ) {
 				// different => recalc
-				welt->set_schedule_counter();
+				// welt->set_schedule_counter();
+
+				// Added by : Knightly
+				// Need to combine old and new category lists
+				for (uint8 k = 0; k < goods_catg_index.get_count(); k++)
+				{
+					old_goods_catg_index.append_unique(goods_catg_index[k], 1);
+				}
+				haltestelle_t::notify_halts_to_rebuild_connexions(fpl, old_goods_catg_index, sp);
+				haltestelle_t::force_all_halts_paths_stale(old_goods_catg_index);
+
 				break;
 			}
 		}

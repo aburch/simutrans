@@ -189,6 +189,10 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	init(wl, 0);
 	rdwr(file);
 	current_stop = fpl->get_aktuell() - 1;
+
+	// Added by : Knightly
+	old_fpl = NULL;
+	recalc_catg_index();
 }
 
 convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
@@ -199,6 +203,9 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 	welt->add_convoi( self );
 	init_financial_history();
 	current_stop = 255;
+
+	// Added by : Knightly
+	old_fpl = NULL;
 }
 
 
@@ -227,6 +234,12 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 		if(fpl->get_count()>0  &&  !line.is_bound()  ) 
 		{
 			// New method - recalculate as necessary
+			
+			// Added by : Knightly
+			haltestelle_t::notify_halts_to_rebuild_connexions(fpl, goods_catg_index, besitzer_p);
+			haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
+
+			/*
 			ITERATE_PTR(fpl, j)
 			{
 				halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
@@ -246,6 +259,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 					}
 				}
 			}
+			*/
 		}
 		delete fpl;
 	}
@@ -689,6 +703,14 @@ bool convoi_t::sync_step(long delta_t)
 			if(fpl!=NULL  &&  fpl->ist_abgeschlossen()) {
 
 				set_schedule(fpl);
+				
+				// Added by : Knightly
+				// Purpose  : Remove the original schedule after update
+				if (old_fpl)
+				{
+					delete old_fpl;
+					old_fpl = NULL;
+				}
 
 				if(fpl->get_count()==0) {
 					// no entry => no route ...
@@ -1312,6 +1334,13 @@ void convoi_t::start()
 		else 
 		{
 			// New method - recalculate as necessary
+			
+			// Added by : Knightly
+			haltestelle_t::notify_halts_to_rebuild_connexions(fpl, goods_catg_index, besitzer_p);
+			haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
+
+
+			/*
 			ITERATE_PTR(fpl, j)
 			{
 				halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
@@ -1335,6 +1364,7 @@ void convoi_t::start()
 					dbg->error("convoi_t::start()", "Halt in schedule does not exist");
 				}
 			}
+			*/
 		}
 
 		DBG_MESSAGE("convoi_t::start()","Convoi %s wechselt von INITIAL nach ROUTING_1", name_and_id);
@@ -1447,6 +1477,17 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		}
 		anz_vehikel ++;
 
+		// Added by		: Knightly
+		// Adapted from : simline_t
+		// Purpose		: Try to update supported goods category of this convoy
+		if (v->get_fracht_max() > 0) 
+		{
+			const ware_besch_t *ware_type = v->get_fracht_typ();
+			if (ware_type != warenbauer_t::nichts)
+				goods_catg_index.append_unique(ware_type->get_catg_index(), 1);
+		}
+
+
 		const vehikel_besch_t *info = v->get_besch();
 		if(info->get_leistung()) {
 			is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
@@ -1498,6 +1539,10 @@ convoi_t::remove_vehikel_bei(uint16 i)
 
 			--anz_vehikel;
 			fahr[anz_vehikel] = NULL;
+
+			// Added by		: Knightly
+			// Purpose		: To recalculate the list of supported goods category
+			recalc_catg_index();
 
 			const vehikel_besch_t *info = v->get_besch();
 			sum_leistung -= info->get_leistung();
@@ -1582,6 +1627,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 	if(!line.is_bound() && old_state != INITIAL)
 	{
 		// New method - recalculate as necessary
+		/*
 		halthandle_t tmp_halt;
 
 		minivec_tpl<uint8> supported_categories;
@@ -1591,8 +1637,17 @@ bool convoi_t::set_schedule(schedule_t * f)
 			const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
 			supported_categories.append(catg_index);
 		}
+		*/
 
-		ITERATE_PTR(fpl, j)
+		// Added by : Knightly
+		schedule_t *old_schedule = ( (fpl == f && old_fpl) ? old_fpl : fpl );
+
+		// Added by : Knightly
+		if (old_schedule != f)
+			haltestelle_t::notify_halts_to_rebuild_connexions(old_schedule, goods_catg_index, besitzer_p);
+
+		/*
+		ITERATE_PTR(old_schedule, j)
 		{
 			if(fpl == f)
 			{
@@ -1617,7 +1672,13 @@ bool convoi_t::set_schedule(schedule_t * f)
 				}
 			}
 		}
+		*/
 
+		// Added by : Knightly
+		haltestelle_t::notify_halts_to_rebuild_connexions(f, goods_catg_index, besitzer_p);
+		haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
+
+		/*
 		ITERATE_PTR(f, k)
 		{
 			tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[k].pos, besitzer_p);
@@ -1637,6 +1698,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 				}
 			}
 		}
+		*/
 	}
 	
 	// happens to be identical?
@@ -2772,6 +2834,13 @@ void convoi_t::open_schedule_window()
 	state = FAHRPLANEINGABE;
 	alte_richtung = fahr[0]->get_fahrtrichtung();
 
+	// Added by : Knightly
+	// Purpose  : To keep a copy of the original schedule before opening schedule window
+	if (fpl)
+	{
+		old_fpl = fpl->copy();
+	}
+
 	// Fahrplandialog oeffnen
 	create_win( new fahrplan_gui_t(fpl,get_besitzer(),self), w_info, (long)fpl );
 }
@@ -3555,6 +3624,7 @@ void convoi_t::set_line(linehandle_t org_line)
 		return;
 	}
 
+	/*
 	minivec_tpl<uint8> supported_categories;
 
 	for(uint8 i = 0; i < anz_vehikel; i ++)
@@ -3562,15 +3632,16 @@ void convoi_t::set_line(linehandle_t org_line)
 		const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
 		supported_categories.append(catg_index);
 	}
+	*/
 
 	if(line.is_bound()) 
 	{
 		unset_line();
 	}
+	/*  This code is unnecessary because set_schedule() will be invoked below
 	else if(fpl && fpl->get_count() > 0) 
 	{
 		// since this schedule is no longer served
-
 		ITERATE_PTR(fpl, j)
 		{
 			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
@@ -3591,11 +3662,13 @@ void convoi_t::set_line(linehandle_t org_line)
 			}
 		}
 	}
+	*/
 	line = org_line;
 	line_id = org_line->get_line_id();
 	schedule_t *new_fpl= org_line->get_schedule()->copy();
 	set_schedule(new_fpl);
 
+	/* This code is unnecessary because set_schedule() has been invoked above
 	ITERATE_PTR(new_fpl, j)
 	{
 		halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
@@ -3616,6 +3689,8 @@ void convoi_t::set_line(linehandle_t org_line)
 			}
 		}
 	}
+	*/
+
 	line->add_convoy(self);
 }
 
@@ -4184,3 +4259,24 @@ convoi_t::calc_longest_loading_time()
 	}
 	return longest;
 }
+
+// Added by		: Knighty
+// Adapted from : simline_t
+// Purpose		: To recalculate the list of supported goods categories
+void convoi_t::recalc_catg_index()
+{
+	goods_catg_index.clear();
+
+	for(uint8 i = 0; i < anz_vehikel; i++) 
+	{
+		if (fahr[i]->get_fracht_max() > 0)
+		{
+			const ware_besch_t *ware_type = fahr[i]->get_fracht_typ();
+			if (ware_type != warenbauer_t::nichts) 
+			{
+				goods_catg_index.append_unique(ware_type->get_catg_index(), 1);
+			}
+		}
+	}
+}
+
