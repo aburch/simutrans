@@ -1423,7 +1423,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 					{
 						// Added by : Knightly
 						if (line->get_goods_catg_index().is_contained(category))
-							add_connexion(category, fpl, cnv, dummy_line);
+							add_connexion(category, fpl, dummy_convoy, line);
 						// skip the rest of halts in fpl and prevent reprocessing the same halts in fpl more than once
 						break;
 
