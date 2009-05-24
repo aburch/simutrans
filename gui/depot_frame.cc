@@ -45,15 +45,15 @@ char depot_frame_t::no_line_text[128];	// contains the current translation of "<
 
 static const char * engine_type_names [9] =
 {
-  "unknown",
-  "steam",
-  "diesel",
-  "electric",
-  "bio",
-  "sail",
-  "fuel_cell",
-  "hydrogene",
-  "battery"
+	"unknown",
+	"steam",
+	"diesel",
+	"electric",
+	"bio",
+	"sail",
+	"fuel_cell",
+	"hydrogene",
+	"battery"
 };
 
 
