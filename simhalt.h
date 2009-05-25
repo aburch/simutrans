@@ -764,8 +764,9 @@ public:
 	// Added by		: Knightly
 	// Adpated from : rebuild_connexions()
 	// Purpose		: To create a list of reachable halts with a line/convoy
+	// Return		: -1 if self halt is not found; or position of self halt in halt list if found
 	// Caution		: halt_list will be overwritten
-	void haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, const spieler_t *const sched_owner, minivec_tpl<halthandle_t> &halt_list);
+	sint16 haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, const spieler_t *const sched_owner, minivec_tpl<halthandle_t> &halt_list);
 
 };
 #endif

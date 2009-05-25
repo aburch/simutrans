@@ -1344,8 +1344,9 @@ void haltestelle_t::reset_connexions(uint8 category)
 // Added by		: Knightly
 // Adpated from : rebuild_connexions()
 // Purpose		: To create a list of reachable halts with a line/convoy
+// Return		: -1 if self halt is not found; or position of self halt in halt list if found
 // Caution		: halt_list will be overwritten
-void haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, const spieler_t *const sched_owner, 
+sint16 haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, const spieler_t *const sched_owner, 
 											   minivec_tpl<halthandle_t> &halt_list)
 {
 	halt_list.clear();
@@ -1353,13 +1354,19 @@ void haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, co
 	if (sched && sched_owner)
 	{
 		uint8 entry_count = sched->get_count();
+		sint16 self_halt_idx = -1;
 
 		if (entry_count == 0)
-			return;
+			return self_halt_idx;
 
 		halthandle_t tmp_halt;
 		const spieler_t *const public_player = welt->get_spieler(1); // public player is #1; #0 is human player
 		const bool is_public_halt = ( besitzer_p == public_player );
+
+		if (!welt)
+		{
+			welt = sched_owner->get_welt();
+		}
 
 		for (uint8 i = 0; i < entry_count; i++)
 		{
@@ -1379,9 +1386,16 @@ void haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, co
 				}
 			}
 
+			if ( tmp_halt == self && self_halt_idx == -1 )
+			{
+				self_halt_idx = i;
+			}
+
 			// Assign to halt list in the same order as schedule, even if no halt is found (i.e. tmp_halt is unbound)
 			halt_list.append(tmp_halt, 8);
 		}
+
+		return self_halt_idx;
 	}
 }
 
@@ -1418,6 +1432,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 		return;
 	minivec_tpl<halthandle_t> tmp_halt_list(32);  // Initial size is set to 32 to avoid resizing. Should be enough for most schedules.
 	uint8 entry_count;
+	sint16 self_halt_idx;
 
 	// first all single convois without lines
 	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) 
@@ -1444,16 +1459,10 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 			if(fpl != NULL) 
 			{			
 				// Added by : Knightly
-				create_reachable_halt_list(fpl, cnv->get_besitzer(), tmp_halt_list);
-				// We can actually use tmp_halt_list.is_contained(self), but we want to find self halt's index using loop
-				entry_count = tmp_halt_list.get_count();
-				for (uint8 i = 0; i < entry_count; i++)
+				self_halt_idx = create_reachable_halt_list(fpl, cnv->get_besitzer(), tmp_halt_list);
+				if (self_halt_idx >= 0)
 				{
-					if (tmp_halt_list[i] == self)
-					{
-						add_connexion(category, cnv, dummy_line, tmp_halt_list, i);
-						break;
-					}
+					add_connexion(category, cnv, dummy_line, tmp_halt_list, (uint8)self_halt_idx);
 				}
 
 				/*
@@ -1531,16 +1540,10 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 			if(fpl != NULL) 
 			{
 				// Added by : Knightly
-				create_reachable_halt_list(fpl, line->get_besitzer(), tmp_halt_list);
-				// We can actually use tmp_halt_list.is_contained(self), but we want to find self halt's index using loop
-				entry_count = tmp_halt_list.get_count();
-				for (uint8 j = 0; j < entry_count; j++)
+				self_halt_idx = create_reachable_halt_list(fpl, line->get_besitzer(), tmp_halt_list);
+				if (self_halt_idx >= 0)
 				{
-					if (tmp_halt_list[j] == self)
-					{
-						add_connexion(category, dummy_convoy, line, tmp_halt_list, j);
-						break;
-					}
+					add_connexion(category, dummy_convoy, line, tmp_halt_list, (uint8)self_halt_idx);
 				}
 
 				/*
