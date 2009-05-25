@@ -138,8 +138,8 @@ void simline_t::add_convoy(convoihandle_t cnv)
 		// welt->set_schedule_counter();
 
 		// Added by : Knightly
-		haltestelle_t::notify_halts_to_rebuild_connexions(fpl, goods_catg_index, sp);
-		haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
+		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp);
+		//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
 	}
 }
 
@@ -268,17 +268,18 @@ void simline_t::unregister_stops(schedule_t * fpl)
 
 void simline_t::renew_stops()
 {
-	if(  old_fpl  ) {
+	if(  old_fpl  ) 
+	{
 		unregister_stops( old_fpl );
 
 		// Added by : Knightly
-		haltestelle_t::notify_halts_to_rebuild_connexions(old_fpl, goods_catg_index, sp);
+		haltestelle_t::refresh_routing(old_fpl, goods_catg_index, sp, 1);
 	}
 	register_stops( fpl );
 	
 	// Added by Knightly
-	haltestelle_t::notify_halts_to_rebuild_connexions(fpl, goods_catg_index, sp);
-	haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
+	haltestelle_t::refresh_routing(fpl, goods_catg_index, sp);
+	//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
 	
 	DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", id, name);
 }
@@ -431,8 +432,8 @@ void simline_t::recalc_catg_index()
 		{
 			old_goods_catg_index.append_unique(goods_catg_index[k], 1);
 		}
-		haltestelle_t::notify_halts_to_rebuild_connexions(fpl, old_goods_catg_index, sp);
-		haltestelle_t::force_all_halts_paths_stale(old_goods_catg_index);
+		haltestelle_t::refresh_routing(fpl, old_goods_catg_index, sp);
+		//haltestelle_t::force_all_halts_paths_stale(old_goods_catg_index);
 	}
 	else {
 		// maybe changed => must test all entries
@@ -447,8 +448,8 @@ void simline_t::recalc_catg_index()
 				{
 					old_goods_catg_index.append_unique(goods_catg_index[k], 1);
 				}
-				haltestelle_t::notify_halts_to_rebuild_connexions(fpl, old_goods_catg_index, sp);
-				haltestelle_t::force_all_halts_paths_stale(old_goods_catg_index);
+				haltestelle_t::refresh_routing(fpl, old_goods_catg_index, sp);
+				//haltestelle_t::force_all_halts_paths_stale(old_goods_catg_index);
 
 				break;
 			}

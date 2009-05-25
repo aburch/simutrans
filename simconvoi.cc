@@ -236,8 +236,8 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 			// New method - recalculate as necessary
 			
 			// Added by : Knightly
-			haltestelle_t::notify_halts_to_rebuild_connexions(fpl, goods_catg_index, besitzer_p);
-			haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
+			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p);
+			//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
 
 			/*
 			ITERATE_PTR(fpl, j)
@@ -1336,8 +1336,8 @@ void convoi_t::start()
 			// New method - recalculate as necessary
 			
 			// Added by : Knightly
-			haltestelle_t::notify_halts_to_rebuild_connexions(fpl, goods_catg_index, besitzer_p);
-			haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
+			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p);
+			//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
 
 
 			/*
@@ -1644,7 +1644,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 
 		// Added by : Knightly
 		if (old_schedule != f)
-			haltestelle_t::notify_halts_to_rebuild_connexions(old_schedule, goods_catg_index, besitzer_p);
+			haltestelle_t::refresh_routing(old_schedule, goods_catg_index, besitzer_p, 1);
 
 		/*
 		ITERATE_PTR(old_schedule, j)
@@ -1675,8 +1675,8 @@ bool convoi_t::set_schedule(schedule_t * f)
 		*/
 
 		// Added by : Knightly
-		haltestelle_t::notify_halts_to_rebuild_connexions(f, goods_catg_index, besitzer_p);
-		haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
+		haltestelle_t::refresh_routing(f, goods_catg_index, besitzer_p);
+		//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
 
 		/*
 		ITERATE_PTR(f, k)

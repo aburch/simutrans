@@ -754,11 +754,16 @@ public:
 
 	// Added by : Knightly
 	// Purpose  : To mark all paths of all halts stale and re-route existing goods packets
-	static void force_all_halts_paths_stale(const minivec_tpl<uint8> &categories);
+	// static void force_all_halts_paths_stale(const minivec_tpl<uint8> &categories);
 
 	// Added by		: Knightly
 	// Adapted from : Jamespetts' code
 	// Purpose		: To notify relevant halts to rebuild connexions and to notify all halts to recalculate paths
-	static void notify_halts_to_rebuild_connexions(const schedule_t *sched, const minivec_tpl<uint8> &categories, const spieler_t *player);
+	// @jamespetts: modified the code to combine with previous method and provide options about partially delayed refreshes for performance.
+#ifdef IMMEDIATE_FULL_REROUTING
+	static void refresh_routing(const schedule_t *sched, const minivec_tpl<uint8> &categories, const spieler_t *player, uint8 path_option = 2);
+#else
+	static void refresh_routing(const schedule_t *sched, const minivec_tpl<uint8> &categories, const spieler_t *player, uint8 path_option = 0);
+#endif
 };
 #endif

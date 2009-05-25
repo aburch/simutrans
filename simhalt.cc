@@ -1112,7 +1112,7 @@ void haltestelle_t::add_connexion(const uint8 category, const schedule_t *fpl, c
 				else
 				{
 					// Try a public player halt
-					spieler_t* sp = welt->get_spieler(0);
+					spieler_t* sp = welt->get_spieler(1);
 					halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
 				}
 			}
@@ -1172,7 +1172,7 @@ void haltestelle_t::add_connexion(const uint8 category, const schedule_t *fpl, c
 					else
 					{
 						// Try a public player halt
-						spieler_t* sp = welt->get_spieler(0);
+						spieler_t* sp = welt->get_spieler(1);
 						current_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
 					}
 				}
@@ -1343,7 +1343,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 						else
 						{
 							// Try a public player halt
-							spieler_t* sp = welt->get_spieler(0);
+							spieler_t* sp = welt->get_spieler(1);
 							tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
 						}
 					}
@@ -1415,7 +1415,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 						else
 						{
 							// Try a public player halt
-							spieler_t* sp = welt->get_spieler(0);
+							spieler_t* sp = welt->get_spieler(1);
 							tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
 						}
 					}
@@ -1723,30 +1723,35 @@ void haltestelle_t::force_paths_stale(const uint8 category)
 
 // Added by : Knightly
 // Purpose  : To force all paths of all halts stale and schedule re-routing of existing goods packets
-void haltestelle_t::force_all_halts_paths_stale(const minivec_tpl<uint8> &categories)
-{
-	slist_iterator_tpl<halthandle_t> iter (haltestelle_t::alle_haltestellen);
-	halthandle_t tmp_halt;
-
-	const uint8 catg_count = categories.get_count();
-
-	while (iter.next())
-	{
-		tmp_halt = iter.get_current();
-		for (uint8 i = 0; i < catg_count; i++)
-		{
-			tmp_halt->force_paths_stale(categories[i]);
-			tmp_halt->reroute[categories[i]] = true;
-		}
-	}
-}
+//void haltestelle_t::force_all_halts_paths_stale(const minivec_tpl<uint8> &categories)
+//{
+//	slist_iterator_tpl<halthandle_t> iter (haltestelle_t::alle_haltestellen);
+//	halthandle_t tmp_halt;
+//
+//	const uint8 catg_count = categories.get_count();
+//
+//	while (iter.next())
+//	{
+//		tmp_halt = iter.get_current();
+//		for (uint8 i = 0; i < catg_count; i++)
+//		{
+//			tmp_halt->force_paths_stale(categories[i]);
+//			tmp_halt->reroute[categories[i]] = true;
+//		}
+//	}
+//}
 
 
 // Added by		: Knightly
 // Adapted from : Jamespetts' code
 // Purpose		: To notify relevant halts to rebuild connexions
-void haltestelle_t::notify_halts_to_rebuild_connexions(const schedule_t *sched, const minivec_tpl<uint8> &categories, const spieler_t *player)
+// @jamespetts: modified the code to combine with previous method and provide options about partially delayed refreshes for performance.
+void haltestelle_t::refresh_routing(const schedule_t *sched, const minivec_tpl<uint8> &categories, const spieler_t *player, uint8 path_option)
 {
+	// Path options: 0 = default: selective refresh.
+	// 1 = skip: no refresh.
+	// 2 = thorough: full refresh (default from 3.12. Not currently used). 
+
 	halthandle_t tmp_halt;
 
 	if(sched && player)
@@ -1765,9 +1770,23 @@ void haltestelle_t::notify_halts_to_rebuild_connexions(const schedule_t *sched, 
 			
 			if(!tmp_halt.is_bound())
 			{
-				// Try a public player halt
-				spieler_t* sp = welt->get_spieler(0);
-				tmp_halt = get_halt(welt, sched->eintrag[i].pos, sp);
+				if(player == welt->get_spieler(1))
+				{
+					// Public halts can connect to all other halts, so try each.
+					uint8 x = 0;
+					spieler_t* sp =	welt->get_spieler(x);
+					while(sp != NULL && !tmp_halt.is_bound())
+					{
+						tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[i].pos, sp);
+						sp = welt->get_spieler(++x);
+					}	
+				}
+				else
+				{
+					// Try a public player halt
+					spieler_t* sp = welt->get_spieler(1);
+					tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[i].pos, sp);
+				}
 			}
 
 			if(tmp_halt.is_bound())
@@ -1775,13 +1794,40 @@ void haltestelle_t::notify_halts_to_rebuild_connexions(const schedule_t *sched, 
 				for (uint8 j = 0; j < catg_count; j++)
 				{
 					tmp_halt->reschedule[categories[j]] = true;
+					if (path_option == 1)
+					{
+						tmp_halt->force_paths_stale(categories[i]);
+						tmp_halt->reroute[categories[i]] = true;
+					}
 				}
 			}
 			else
 			{
-				dbg->error("convoi_t::notify_halts_to_recalculate()", "Halt in schedule does not exist");
+				dbg->error("convoi_t::refresh_routing()", "Halt in schedule does not exist");
 			}
 		}
+
+		// If path_option == 1: do nothing.
+
+		if(path_option == 2)
+		{
+			slist_iterator_tpl<halthandle_t> iter (haltestelle_t::alle_haltestellen);
+			halthandle_t tmp_halt;
+			
+			while (iter.next())
+			{
+				tmp_halt = iter.get_current();
+				for (uint8 i = 0; i < catg_count; i++)
+				{
+					tmp_halt->force_paths_stale(categories[i]);
+					tmp_halt->reroute[categories[i]] = true;
+				}
+			}
+		}
+	}
+	else
+	{
+		dbg->error("convoi_t::refresh_routing()", "Schedule or player is NULL");
 	}
 }
 
