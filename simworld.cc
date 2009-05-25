@@ -958,10 +958,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 			for (int j = max(i + 1, old_anzahl_staedte); j < einstellungen->get_anzahl_staedte(); j++) {
 				const koord k1 = stadt[i]->get_pos() + roff;
 				const koord k2 = stadt[j]->get_pos() + roff;
-				const koord diff = k1-k2;
-				const int d = diff.x*diff.x + diff.y*diff.y;
 
-				if(d < umgebung_t::intercity_road_length) {
+				if(koord_distance(k1,k2) < umgebung_t::intercity_road_length) {
 //DBG_DEBUG("karte_t::distribute_groundobjs_cities()","built route fom city %d to %d", i, j);
 					bauigel.calc_route(lookup(k1)->get_kartenboden()->get_pos(), lookup(k2)->get_kartenboden()->get_pos());
 					if(bauigel.max_n >= 1) {
