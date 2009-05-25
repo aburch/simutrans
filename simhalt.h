@@ -582,7 +582,7 @@ public:
 
 	// Adding method for the new routing system. Equivalent to
 	// hat_gehalten with the old system. 
-	void add_connexion(const uint8 category, const schedule_t *fpl, const convoihandle_t cnv, const linehandle_t line);
+	void add_connexion(const uint8 category, const convoihandle_t cnv, const linehandle_t line, const minivec_tpl<halthandle_t> &halt_list, const uint8 self_halt_idx);
 
 	const grund_t *find_matching_position(waytype_t wt) const;
 
@@ -761,9 +761,17 @@ public:
 	// Purpose		: To notify relevant halts to rebuild connexions and to notify all halts to recalculate paths
 	// @jamespetts: modified the code to combine with previous method and provide options about partially delayed refreshes for performance.
 #ifdef IMMEDIATE_FULL_REROUTING
-	static void refresh_routing(const schedule_t *sched, const minivec_tpl<uint8> &categories, const spieler_t *player, uint8 path_option = 2);
+	static void refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const spieler_t *const player, const uint8 path_option = 2);
 #else
-	static void refresh_routing(const schedule_t *sched, const minivec_tpl<uint8> &categories, const spieler_t *player, uint8 path_option = 0);
+	static void refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const spieler_t *const player, const uint8 path_option = 0);
 #endif
+
+	// Added by		: Knightly
+	// Adpated from : rebuild_connexions()
+	// Purpose		: To create a list of reachable halts with a line/convoy
+	// Return		: -1 if self halt is not found; or position of self halt in halt list if found
+	// Caution		: halt_list will be overwritten
+	sint16 haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, const spieler_t *const sched_owner, minivec_tpl<halthandle_t> &halt_list);
+
 };
 #endif

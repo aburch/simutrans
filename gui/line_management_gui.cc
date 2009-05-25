@@ -34,8 +34,13 @@ line_management_gui_t::infowin_event(const event_t *ev)
 	}
 	else {
 		if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
-			// update all convoys of this line!
-			sp->simlinemgmt.update_line(line);
+			// Added by : Knightly
+			// Check if the schedule is modified
+			if ( line->is_schedule_updated() )
+			{
+				// update all convoys of this line!
+				sp->simlinemgmt.update_line(line);
+			}
 		}
 		fahrplan_gui_t::infowin_event(ev);
 	}

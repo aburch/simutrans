@@ -231,6 +231,9 @@ public:
 
 	void recalc_status();
 
+	// Added by : Knightly
+	bool is_schedule_updated() const;
+
 };
 
 

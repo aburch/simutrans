@@ -828,6 +828,11 @@ haltestelle_t::step()
 			reroute[i] = true;		// Added by : Knightly
 		}
 
+		// Relocated from rebuild_connexions() by Knightly
+		// Reason : Now rebuild_connexions() is performed only on demand, 
+		//			so it's safer to reset counter here right away
+		rebuilt_destination_counter = welt->get_schedule_counter();
+
 		// Note: setting reschedule to true here
 		// is inefficient, as it means that all halts
 		// will need to be recalculated. Where possible,
@@ -1088,14 +1093,14 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 }
 
 // Modified by : Knightly
-void haltestelle_t::add_connexion(const uint8 category, const schedule_t *fpl, const convoihandle_t cnv, const linehandle_t line)
+void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv, const linehandle_t line, 
+								  const minivec_tpl<halthandle_t> &halt_list, const uint8 self_halt_idx)
 {
-	const ware_besch_t *ware_type = warenbauer_t::get_info_catg_index(category);
-	
-	const bool i_am_public = get_besitzer() == welt->get_spieler(1);
+	const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(category);
 
-	if(category != warenbauer_t::nichts->get_catg_index()) 
+	if(ware_type != warenbauer_t::nichts) 
 	{
+		/*
 		ITERATE_PTR(fpl,i)
 		{
 			// Hajo: Haltestelle selbst wird nicht in Zielliste aufgenommen
@@ -1121,10 +1126,52 @@ void haltestelle_t::add_connexion(const uint8 category, const schedule_t *fpl, c
 			{
 				continue;
 			}
+		*/
 
+		const uint8 entry_count = halt_list.get_count();
+
+		const bool i_am_public = besitzer_p == welt->get_spieler(1);
+
+
+		halthandle_t current_halt;
+		halthandle_t previous_halt = halt_list[self_halt_idx];
+		uint32 journey_distance = 0;
+		
+		// Start with the next halt from self halt, and iterate for (entry_count - 1) times, skipping the last self halt
+		for (uint8 i = 0,				current_halt_idx = (self_halt_idx + 1) % entry_count ; 
+			 i < entry_count - 1; 
+			 i++,						current_halt_idx = (current_halt_idx + 1) % entry_count)
+		{
+			/*
+			// not existing, or own, or not enabled => ignore
+			if(!halt.is_bound() || halt == self || !halt->is_enabled(ware_type)) 
+			{
+				continue;
+			}
+			*/
+
+			current_halt = halt_list[current_halt_idx];
+
+			// Case : Waypoint or Halt which is not enabled for that ware category
+			if ( !current_halt.is_bound() || !current_halt->is_enabled(ware_type) )
+			{
+				continue;
+			}
+
+			// Case : Self Halt
+			if (current_halt == self)
+			{
+				// reset journey distance
+				journey_distance = 0;
+				previous_halt = current_halt;
+				continue;
+			}
+
+			// Case : Suitable Halt
+			
 			// Check the journey times to the connexion
 			connexion* new_connexion = new connexion;
-			new_connexion->waiting_time = get_average_waiting_time(halt, category);
+			new_connexion->waiting_time = get_average_waiting_time(current_halt, category);
 			
 			// Check the average speed.
 			uint16 average_speed = 0;
@@ -1147,7 +1194,12 @@ void haltestelle_t::add_connexion(const uint8 category, const schedule_t *fpl, c
 					average_speed = speed_to_kmh(cnv->get_min_top_speed()) / 2;
 				}
 			}
+
+			// Calculate journey distance
+			journey_distance += accurate_distance(current_halt->get_basis_pos(), previous_halt->get_basis_pos());
+			previous_halt = current_halt;
 			
+			/*
 			//const uint32 journey_distance = accurate_distance(halt->get_basis_pos(), get_basis_pos());
 			uint32 journey_distance = 0;
 			bool start_counting = false;
@@ -1156,7 +1208,7 @@ void haltestelle_t::add_connexion(const uint8 category, const schedule_t *fpl, c
 			bool goal_found = false;
 			const uint16 max_steps = fpl->get_count();
 			uint16 current_step = 0;
-			
+
 			while(!goal_found)
 			{
 				previous_halt = current_halt;
@@ -1211,21 +1263,24 @@ void haltestelle_t::add_connexion(const uint8 category, const schedule_t *fpl, c
 					current_step = 0;
 				}
 			}
+			*/
+
 			// Journey time in *tenths* of minutes.
 			new_connexion->journey_time = (((float)journey_distance / (float)average_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 600);
 			new_connexion->best_convoy = cnv;
 			new_connexion->best_line = line;
 
+
 			// Check whether this is the best connexion so far, and, if so, add it.
-			if(!connexions[category].put(halt, new_connexion))
+			if(!connexions[category].put(current_halt, new_connexion))
 			{
 				// The key exists in the hashtable already - check whether this entry is better.
-				connexion* existing_connexion = connexions[category].get(halt);
+				connexion* existing_connexion = connexions[category].get(current_halt);
 				if(existing_connexion->journey_time > new_connexion->journey_time)
 				{
 					// The new connexion is better - replace it.
 					delete existing_connexion;
-					connexions[category].set(halt, new_connexion);
+					connexions[category].set(current_halt, new_connexion);
 				}
 				else
 				{
@@ -1286,6 +1341,64 @@ void haltestelle_t::reset_connexions(uint8 category)
 	connexions[category].clear();
 }
 
+// Added by		: Knightly
+// Adpated from : rebuild_connexions()
+// Purpose		: To create a list of reachable halts with a line/convoy
+// Return		: -1 if self halt is not found; or position of self halt in halt list if found
+// Caution		: halt_list will be overwritten
+sint16 haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, const spieler_t *const sched_owner, 
+											   minivec_tpl<halthandle_t> &halt_list)
+{
+	halt_list.clear();
+
+	if (sched && sched_owner)
+	{
+		uint8 entry_count = sched->get_count();
+		sint16 self_halt_idx = -1;
+
+		if (entry_count == 0)
+			return self_halt_idx;
+
+		halthandle_t tmp_halt;
+		const spieler_t *const public_player = welt->get_spieler(1); // public player is #1; #0 is human player
+		const bool is_public_halt = ( besitzer_p == public_player );
+
+		if (!welt)
+		{
+			welt = sched_owner->get_welt();
+		}
+
+		for (uint8 i = 0; i < entry_count; i++)
+		{
+			tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[i].pos, besitzer_p);
+			
+			if(!tmp_halt.is_bound())
+			{
+				if(is_public_halt)
+				{
+					// Public halts can connect to all other halts, thus try line/convoy owner
+					tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[i].pos, sched_owner);
+				}
+				else
+				{
+					// Try a public player halt
+					tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[i].pos, public_player);
+				}
+			}
+
+			if ( tmp_halt == self && self_halt_idx == -1 )
+			{
+				self_halt_idx = i;
+			}
+
+			// Assign to halt list in the same order as schedule, even if no halt is found (i.e. tmp_halt is unbound)
+			halt_list.append(tmp_halt, 8);
+		}
+
+		return self_halt_idx;
+	}
+}
+
 //@author: jamespetts (although much is taken from the original rebuild_destinations())
 void haltestelle_t::rebuild_connexions(uint8 category)
 {	
@@ -1299,18 +1412,29 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 
 	reschedule[category] = false;
 	
-	rebuilt_destination_counter = welt->get_schedule_counter();
+	// rebuilt_destination_counter = welt->get_schedule_counter();	// Knightly : Relocated to haltestelle_t::step()
 	resort_freight_info = true;	// might result in error in routing
 
-	const bool i_am_public = get_besitzer() == welt->get_spieler(1);
+	const bool i_am_public = besitzer_p == welt->get_spieler(1);
 
-	// first all single convois without lines
 	// vector_tpl<uint8> add_catg_index(4);
 	halthandle_t tmp_halt;
 	const linehandle_t dummy_line;
 	const convoihandle_t dummy_convoy;
 	schedule_t *fpl = NULL;
 	convoihandle_t cnv;
+
+	// Added by : Knightly
+	// Fix a bug where halts, which is not enabled a certain ware category, build connexions for that ware category
+	const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(category);
+	// If the halt does not support this ware type, no connexion should be constructed
+	if (!is_enabled(ware_type))
+		return;
+	minivec_tpl<halthandle_t> tmp_halt_list(32);  // Initial size is set to 32 to avoid resizing. Should be enough for most schedules.
+	uint8 entry_count;
+	sint16 self_halt_idx;
+
+	// first all single convois without lines
 	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) 
 	{
 		cnv = *i;
@@ -1320,13 +1444,28 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 			continue;
 		}
 
-		if(i_am_public || cnv->get_besitzer() == get_besitzer()) 
+		// Added by : Knightly
+		// Early check for ware category
+		if (!cnv->get_goods_catg_index().is_contained(category))
+		{
+			continue;
+		}
+
+		if(i_am_public || cnv->get_besitzer() == besitzer_p)
 		{
 			INT_CHECK("simhalt.cc 612");
 
 			fpl = cnv->get_schedule();
 			if(fpl != NULL) 
-			{				
+			{			
+				// Added by : Knightly
+				self_halt_idx = create_reachable_halt_list(fpl, cnv->get_besitzer(), tmp_halt_list);
+				if (self_halt_idx >= 0)
+				{
+					add_connexion(category, cnv, dummy_line, tmp_halt_list, (uint8)self_halt_idx);
+				}
+
+				/*
 				ITERATE_PTR(fpl, i)
 				{
 					// Hajo: Hält dieser convoi hier?
@@ -1349,13 +1488,6 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 					}
 					if (tmp_halt == self) 
 					{
-						// Added by : Knightly
-						if (cnv->get_goods_catg_index().is_contained(category))
-							add_connexion(category, fpl, cnv, dummy_line);
-						// skip the rest of halts in fpl and prevent reprocessing the same halts in fpl more than once
-						break;  
-
-						/*
 						// what goods can this convoy transport?
 						add_catg_index.clear();
 						for(uint i = 0;  i < cnv->get_vehikel_anzahl();  i++) 
@@ -1380,9 +1512,9 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 								}
 							}
 						}
-						*/
 					}
 				}
+				*/
 			}
 		}
 	}
@@ -1390,6 +1522,14 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 	ITERATE(registered_lines,i)
 	{
 		const linehandle_t line = registered_lines[i];
+
+		// Added by : Knightly
+		// Early check for ware category
+		if (!line->get_goods_catg_index().is_contained(category))
+		{
+			continue;
+		}
+
 		fpl = line->get_schedule();
 		assert(fpl);
 		// ok, now add line to the connections
@@ -1399,6 +1539,14 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 
 			if(fpl != NULL) 
 			{
+				// Added by : Knightly
+				self_halt_idx = create_reachable_halt_list(fpl, line->get_besitzer(), tmp_halt_list);
+				if (self_halt_idx >= 0)
+				{
+					add_connexion(category, dummy_convoy, line, tmp_halt_list, (uint8)self_halt_idx);
+				}
+
+				/*
 				halthandle_t tmp_halt;
 
 				ITERATE_PTR(fpl, i)
@@ -1421,13 +1569,6 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 					}
 					if (tmp_halt == self) 
 					{
-						// Added by : Knightly
-						if (line->get_goods_catg_index().is_contained(category))
-							add_connexion(category, fpl, dummy_convoy, line);
-						// skip the rest of halts in fpl and prevent reprocessing the same halts in fpl more than once
-						break;
-
-						/*
 						// what goods can this line transport?
 						add_catg_index.clear();
 						const minivec_tpl<uint8> &goods = line->get_goods_catg_index();
@@ -1450,9 +1591,9 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 								}
 							}
 						}
-						*/
 					}
 				}
+				*/
 			}
 		}
 	}
@@ -1735,18 +1876,19 @@ void haltestelle_t::force_paths_stale(const uint8 category)
 //		tmp_halt = iter.get_current();
 //		for (uint8 i = 0; i < catg_count; i++)
 //		{
-//			tmp_halt->force_paths_stale(categories[i]);
+//			tmp_halt->paths_timestamp[categories[i]] = 0;
 //			tmp_halt->reroute[categories[i]] = true;
 //		}
 //	}
 //}
 
 
+
 // Added by		: Knightly
 // Adapted from : Jamespetts' code
 // Purpose		: To notify relevant halts to rebuild connexions
 // @jamespetts: modified the code to combine with previous method and provide options about partially delayed refreshes for performance.
-void haltestelle_t::refresh_routing(const schedule_t *sched, const minivec_tpl<uint8> &categories, const spieler_t *player, uint8 path_option)
+void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const spieler_t *const player, const uint8 path_option)
 {
 	// Path options: 0 = default: selective refresh.
 	// 1 = skip: no refresh.
@@ -1783,7 +1925,7 @@ void haltestelle_t::refresh_routing(const schedule_t *sched, const minivec_tpl<u
 				}
 				else
 				{
-					// Try a public player halt
+					// Try a public player halt (public player is #1; #0 is human player)
 					spieler_t* sp = welt->get_spieler(1);
 					tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[i].pos, sp);
 				}
