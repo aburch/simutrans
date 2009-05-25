@@ -582,7 +582,7 @@ public:
 
 	// Adding method for the new routing system. Equivalent to
 	// hat_gehalten with the old system. 
-	void add_connexion(const uint8 category, const schedule_t *fpl, const convoihandle_t cnv, const linehandle_t line);
+	void add_connexion(const uint8 category, const convoihandle_t cnv, const linehandle_t line, const minivec_tpl<halthandle_t> &halt_list, const uint8 self_halt_idx);
 
 	const grund_t *find_matching_position(waytype_t wt) const;
 
@@ -759,6 +759,13 @@ public:
 	// Added by		: Knightly
 	// Adapted from : Jamespetts' code
 	// Purpose		: To notify relevant halts to rebuild connexions and to notify all halts to recalculate paths
-	static void notify_halts_to_rebuild_connexions(const schedule_t *sched, const minivec_tpl<uint8> &categories, const spieler_t *player);
+	static void notify_halts_to_rebuild_connexions(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const spieler_t *const player);
+
+	// Added by		: Knightly
+	// Adpated from : rebuild_connexions()
+	// Purpose		: To create a list of reachable halts with a line/convoy
+	// Caution		: halt_list will be overwritten
+	void haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, const spieler_t *const sched_owner, minivec_tpl<halthandle_t> &halt_list);
+
 };
 #endif
