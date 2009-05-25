@@ -467,3 +467,15 @@ void simline_t::set_withdraw( bool yes_no )
 		line_managed_convoys[i]->set_no_load(yes_no);
 	}
 }
+
+
+// Added by : Knightly
+bool simline_t::is_schedule_updated() const
+{
+	if (!fpl)
+		return false;
+	else if (!old_fpl)
+		return true;
+	else  // Case : Both fpl and old_fpl contains a schedule
+		return !old_fpl->matches(welt, fpl);
+}

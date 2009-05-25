@@ -1873,7 +1873,7 @@ void haltestelle_t::force_all_halts_paths_stale(const minivec_tpl<uint8> &catego
 		tmp_halt = iter.get_current();
 		for (uint8 i = 0; i < catg_count; i++)
 		{
-			tmp_halt->force_paths_stale(categories[i]);
+			tmp_halt->paths_timestamp[categories[i]] = 0;
 			tmp_halt->reroute[categories[i]] = true;
 		}
 	}

@@ -1640,11 +1640,25 @@ bool convoi_t::set_schedule(schedule_t * f)
 		*/
 
 		// Added by : Knightly
-		schedule_t *old_schedule = ( (fpl == f && old_fpl) ? old_fpl : fpl );
+		if ( fpl == f && old_fpl )	// Case : Schedule window of operating convoy
+		{
+			if ( !old_fpl->matches(welt, fpl) )
+			{
+				haltestelle_t::notify_halts_to_rebuild_connexions(old_fpl, goods_catg_index, besitzer_p);
+				haltestelle_t::notify_halts_to_rebuild_connexions(fpl, goods_catg_index, besitzer_p);
+				haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
+			}
+		}
+		else
+		{
+			if (fpl != f)
+			{
+				haltestelle_t::notify_halts_to_rebuild_connexions(fpl, goods_catg_index, besitzer_p);
+			}
+			haltestelle_t::notify_halts_to_rebuild_connexions(f, goods_catg_index, besitzer_p);
+			haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
+		}
 
-		// Added by : Knightly
-		if (old_schedule != f)
-			haltestelle_t::notify_halts_to_rebuild_connexions(old_schedule, goods_catg_index, besitzer_p);
 
 		/*
 		ITERATE_PTR(old_schedule, j)
@@ -1672,13 +1686,8 @@ bool convoi_t::set_schedule(schedule_t * f)
 				}
 			}
 		}
-		*/
 
-		// Added by : Knightly
-		haltestelle_t::notify_halts_to_rebuild_connexions(f, goods_catg_index, besitzer_p);
-		haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
 
-		/*
 		ITERATE_PTR(f, k)
 		{
 			tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[k].pos, besitzer_p);
@@ -3638,10 +3647,15 @@ void convoi_t::set_line(linehandle_t org_line)
 	{
 		unset_line();
 	}
-	/*  This code is unnecessary because set_schedule() will be invoked below
 	else if(fpl && fpl->get_count() > 0) 
 	{
 		// since this schedule is no longer served
+
+		// Added by : Knightly
+		haltestelle_t::notify_halts_to_rebuild_connexions(fpl, goods_catg_index, besitzer_p);
+		haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
+
+		/*
 		ITERATE_PTR(fpl, j)
 		{
 			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
@@ -3661,14 +3675,15 @@ void convoi_t::set_line(linehandle_t org_line)
 				}
 			}
 		}
+		*/
 	}
-	*/
+	
 	line = org_line;
 	line_id = org_line->get_line_id();
 	schedule_t *new_fpl= org_line->get_schedule()->copy();
 	set_schedule(new_fpl);
 
-	/* This code is unnecessary because set_schedule() has been invoked above
+	/*  simline_t::add_convoy() will determine if connexions and paths need to be rebuilt
 	ITERATE_PTR(new_fpl, j)
 	{
 		halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
