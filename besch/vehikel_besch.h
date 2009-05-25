@@ -72,7 +72,7 @@ private:
 	uint16 gewicht; //Weight
 	uint32 leistung; //Power
 	uint16 betriebskosten;  //Running costs
-	uint16	fixed_maintenance; //@author: jamespetts, April 2009
+	uint32 fixed_maintenance; //@author: jamespetts, April 2009
 
 	uint16 intro_date; // introduction date
 	uint16 obsolete_date; //phase out at

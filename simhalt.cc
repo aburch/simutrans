@@ -1757,6 +1757,10 @@ void haltestelle_t::notify_halts_to_rebuild_connexions(const schedule_t *sched, 
 
 		for (uint8 i = 0; i < entry_count; i++)
 		{
+			if(welt == NULL)
+			{
+				welt = player->get_welt();
+			}
 			tmp_halt = get_halt(welt, sched->eintrag[i].pos, player);
 			
 			if(!tmp_halt.is_bound())

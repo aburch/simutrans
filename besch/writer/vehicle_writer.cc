@@ -114,7 +114,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x200;
+	version += 0x300;
 
 	node.write_uint16(fp, version, 0);
 
@@ -499,7 +499,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Fixed monthly maintenance costs
 	// @author: jamespetts
 	uint16 fixed_maintenance = obj.get_int("fixed_maintenance", 0);
-	node.write_uint16(fp, fixed_maintenance, 48);
+	node.write_uint32(fp, fixed_maintenance, 48);
 
 	sint8 sound_str_len = sound_str.len();
 	if (sound_str_len > 0) {

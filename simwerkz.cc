@@ -2798,7 +2798,7 @@ bool wkz_roadsign_t::init( karte_t *welt, spieler_t * sp)
 	if( welt && sp) { // Sometimes called by the GUI without welt and sp!
 		world = welt;
 		player = sp;
-		destroy_win((int)this);
+		destroy_win((long)this);
 	}
 
 	world->show_distance = start = end = koord3d::invalid;
@@ -2810,7 +2810,7 @@ bool wkz_roadsign_t::init( karte_t *welt, spieler_t * sp)
 const char *wkz_roadsign_t::move(karte_t *welt, spieler_t *sp, uint16 /*buttonstate*/, koord3d k )
 {
 	DBG_MESSAGE("wkz_roadsign::move()","called on %d,%d", k.x, k.y);
-	if( win_get_magic((int)this) ) {
+	if( win_get_magic((long)this) ) {
 		init( welt, sp );
 	}
 
@@ -2841,7 +2841,7 @@ const char *wkz_roadsign_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 	besch = roadsign_t::find_besch(default_param);
 
-	if( win_get_magic((int)this) ) {
+	if( win_get_magic((long)this) ) {
 		init( welt, sp );
 	}
 	else {
@@ -2875,7 +2875,7 @@ const char *wkz_roadsign_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 	if( sign_route.calc_route(world, start, end, test_driver, 0, 0) ) {
 		signal_spacing_frame_t* dialogue = new signal_spacing_frame_t( this );
-		create_win( dialogue, w_info, (int)this);
+		create_win( dialogue, w_info, (long)this);
 	}
 	else {
 		return "Ways not connected";

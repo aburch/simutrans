@@ -196,9 +196,13 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->upgrades = decode_uint8(p);
 				besch->upgrade_price = decode_uint32(p);
 				besch->available_only_as_upgrade = decode_uint8(p);
-				if(experimental_version >= 1)
+				if(experimental_version == 1)
 				{
-					besch->fixed_maintenance = decode_uint8(p);
+					besch->fixed_maintenance = decode_uint16(p);
+				}
+				else if(experimental_version >= 2)
+				{
+					besch->fixed_maintenance = decode_uint32(p);
 				}
 				else
 				{
