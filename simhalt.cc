@@ -962,6 +962,9 @@ void haltestelle_t::reroute_goods()
 		// Knightly : check also if re-routing is needed
 		if(reroute[i] && waren[i])
 		{
+			// Reset reroute[c] flag immediately
+			reroute[i] = false;
+
 			vector_tpl<ware_t> * warray = waren[i];
 			vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(warray->get_count());
 
