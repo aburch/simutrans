@@ -531,7 +531,7 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 
 				// not a passenger KI or other is farer away
 				if(  halt_list[insert_pos]->get_warenziele_passenger()->get_count()+halt_list[insert_pos]->get_warenziele_mail()->get_count()==0  ||
-				     abs_distance(halt_list[insert_pos]->get_next_pos(pos), pos) > abs_distance(halt->get_next_pos(pos), pos))
+				     koord_distance(halt_list[insert_pos]->get_next_pos(pos), pos) > koord_distance(halt->get_next_pos(pos), pos))
 				{
 					halt_list_insert_at( halt, insert_pos );
 					return;

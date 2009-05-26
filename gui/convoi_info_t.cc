@@ -384,7 +384,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 					continue;
 				}
 				koord3d pos = depot->get_pos();
-				if(!shortest_route->empty()    &&    abs_distance(pos.get_2d(),cnv->get_pos().get_2d())>=shortest_route->get_max_n()) {
+				if(!shortest_route->empty()    &&    koord_distance(pos.get_2d(),cnv->get_pos().get_2d())>=shortest_route->get_max_n()) {
 					// the current route is already shorter, no need to search further
 					continue;
 				}

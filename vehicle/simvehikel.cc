@@ -1225,7 +1225,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 	}
 	else {
 		// pay distance traveled
-		const long dist = abs_distance( start, end );
+		const long dist = koord_distance( start, end );
 		while( iter.next() ) {
 
 			const ware_t & ware = iter.get_current();

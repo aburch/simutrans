@@ -112,7 +112,7 @@ bool route_t::append_straight_route(karte_t *welt, koord3d dest )
 	// then try to calculate direct route
 	koord pos = route[get_max_n()].get_2d();
 	const koord ziel=dest.get_2d();
-	route.resize( route.get_count()+abs_distance(pos,ziel)+2 );
+	route.resize( route.get_count()+koord_distance(pos,ziel)+2 );
 DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",pos.x,pos.y,dest.x,dest.y);
 	while(pos!=ziel) {
 		// shortest way
@@ -221,7 +221,7 @@ route_t::find_route(karte_t *welt,
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			grund_t* to;
 			if(  (ribi & ribi_t::nsow[r] & start_dir)!=0  // allowed dir (we can restrict the first step by start_dir)
-				&& abs_distance(start.get_2d(),gr->get_pos().get_2d()+koord::nsow[r])<max_depth	// not too far away
+				&& koord_distance(start.get_2d(),gr->get_pos().get_2d()+koord::nsow[r])<max_depth	// not too far away
 				&& gr->get_neighbour(to, wegtyp, koord::nsow[r])  // is connected
 				&& fahr->ist_befahrbar(to)	// can be driven on
 			) {

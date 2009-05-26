@@ -65,6 +65,27 @@
 static const int FAB_MAX_INPUT = 15000;
 
 
+/**
+ * Ordering based on relative distance to a fixed point `origin'.
+ */
+class RelativeDistanceOrdering
+{
+private:
+	const koord m_origin;
+public:
+	RelativeDistanceOrdering(const koord& origin)
+		: m_origin(origin)
+	{ /* nothing */ }
+
+	/**
+	 * Returns true if `a' is closer to the origin than `b', otherwise false.
+	 */
+	bool operator()(const koord& a, const koord& b) const
+	{
+		return koord_distance(m_origin, a) < koord_distance(m_origin, b);
+	}
+};
+
 
 
 fabrik_t *fabrik_t::get_fab(const karte_t *welt, const koord pos)
@@ -1447,6 +1468,7 @@ void fabrik_t::rotate90( const sint16 y_size )
 		fields[i].rotate90( y_size );
 	}
 }
+
 
 
 
