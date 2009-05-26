@@ -539,7 +539,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 			int this_distance = 999;
 			slist_iterator_tpl<fabrik_t*> fab_iter(get_fab_list());
 			while (fab_iter.next()) {
-				int distance = abs_distance(fab_iter.get_current()->get_pos().get_2d(), k);
+				int distance = koord_distance(fab_iter.get_current()->get_pos().get_2d(), k);
 				if (distance < this_distance) {
 					fabs.insert(fab_iter.get_current());
 					distance = this_distance;
@@ -1772,6 +1772,17 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 			add_grund(gr);
 			// and check for existence
 			if(!halt->existiert_in_welt()) {
+				// transfer goods
+				for(uint8 i=0; i<warenbauer_t::get_max_catg_index(); i++) {
+					vector_tpl<ware_t> * warray = waren[i];
+					if (warray) {
+						for(uint32 j=0; j<warray->get_count(); j++) {
+							self->add_ware_to_halt( (*warray)[j] );
+						}
+						delete waren[i];
+						waren[i] = NULL;
+					}
+				}
 				destroy(halt);
 			}
 		}
@@ -2433,7 +2444,7 @@ koord haltestelle_t::get_next_pos( koord start ) const
 		int	dist = 0x7FFF;
 		for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
 			koord p = i->grund->get_pos().get_2d();
-			int d = abs_distance(start, p );
+			int d = koord_distance(start, p );
 			if(d<dist) {
 				// ok, this one is closer
 				dist = d;
