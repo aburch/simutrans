@@ -923,23 +923,32 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 		bauigel.set_keep_existing_ways(true);
 		bauigel.set_maximum(umgebung_t::intercity_road_length);
 
-		// Hajo: search for road offset
-		koord roff (0,1);
-
 		int old_progress_count = 16+2*new_anzahl_staedte;
 		int count = 0;
 		const int max_count=(einstellungen->get_anzahl_staedte()*(einstellungen->get_anzahl_staedte()-1))/2
 					- (old_anzahl_staedte*(old_anzahl_staedte-1))/2;
 
+
+                // find townhall of city i and road in front of it
+		vector_tpl<koord3d> k;
+                for(int i = 0; i < einstellungen->get_anzahl_staedte(); i++) {
+			koord k1 = stadt[i]->get_pos();
+			const gebaeude_t* gb = dynamic_cast<gebaeude_t*>(lookup_kartenboden(k1)->first_obj());
+			if (gb && gb->ist_rathaus()) {
+				k1.y += gb->get_tile()->get_besch()->get_h(gb->get_tile()->get_layout());
+				k.append( lookup_kartenboden(k1)->get_pos() );
+			}
+			else {
+				k.append( koord3d::invalid );
+			}
+		}
+
 		for(int i = 0; i < einstellungen->get_anzahl_staedte(); i++) {
 		// Only new cities must be connected:
 			for (int j = max(i + 1, old_anzahl_staedte); j < einstellungen->get_anzahl_staedte(); j++) {
-				const koord k1 = stadt[i]->get_pos() + roff;
-				const koord k2 = stadt[j]->get_pos() + roff;
-
-				if(koord_distance(k1,k2) < umgebung_t::intercity_road_length) {
+				if(koord_distance(k[i].get_2d(),k[j].get_2d()) < umgebung_t::intercity_road_length) {
 //DBG_DEBUG("karte_t::distribute_groundobjs_cities()","built route fom city %d to %d", i, j);
-					bauigel.calc_route(lookup(k1)->get_kartenboden()->get_pos(), lookup(k2)->get_kartenboden()->get_pos());
+					bauigel.calc_route(k[i],k[j]);
 					if(bauigel.max_n >= 1) {
 						bauigel.baue();
 					}
