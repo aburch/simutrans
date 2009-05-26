@@ -962,6 +962,9 @@ void haltestelle_t::reroute_goods()
 		// Knightly : check also if re-routing is needed
 		if(reroute[i] && waren[i])
 		{
+			// Reset reroute[c] flag immediately
+			reroute[i] = false;
+
 			vector_tpl<ware_t> * warray = waren[i];
 			vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(warray->get_count());
 
@@ -1350,11 +1353,11 @@ sint16 haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, 
 											   minivec_tpl<halthandle_t> &halt_list)
 {
 	halt_list.clear();
+	sint16 self_halt_idx = -1;
 
 	if (sched && sched_owner)
 	{
-		uint8 entry_count = sched->get_count();
-		sint16 self_halt_idx = -1;
+		const uint8 entry_count = sched->get_count();
 
 		if (entry_count == 0)
 			return self_halt_idx;
@@ -1394,9 +1397,9 @@ sint16 haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, 
 			// Assign to halt list in the same order as schedule, even if no halt is found (i.e. tmp_halt is unbound)
 			halt_list.append(tmp_halt, 8);
 		}
-
-		return self_halt_idx;
 	}
+
+	return self_halt_idx;
 }
 
 //@author: jamespetts (although much is taken from the original rebuild_destinations())
