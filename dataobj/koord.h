@@ -1,9 +1,6 @@
 #ifndef KOORD_H
 #define KOORD_H
 
-#include <cstdlib>
-#include <assert.h>
-
 #include "ribi.h"
 #include "../simtypes.h"
 
@@ -88,7 +85,7 @@ static inline uint32 int_sqrt(const uint32 num)
     return n;
 }
 
-static inline uint32 abs_distance(const koord &a, const koord &b)
+static inline uint32 koord_distance(const koord &a, const koord &b)
 {
 	// Manhattan distance
 	return abs(a.x - b.x) + abs(a.y - b.y);
@@ -154,25 +151,26 @@ static inline bool operator == (const koord& a, int b)
 	return b == 0 && a == koord::invalid;
 }
 
-/**
- * Ordering based on relative distance to a fixed point `origin'.
- */
-class RelativeDistanceOrdering
-{
-private:
-	const koord m_origin;
-public:
-	RelativeDistanceOrdering(const koord& origin)
-		: m_origin(origin)
-	{ /* nothing */ }
+///**
+// * Ordering based on relative distance to a fixed point `origin'.
+// */
+//class RelativeDistanceOrdering
+//{
+//private:
+//	const koord m_origin;
+//public:
+//	RelativeDistanceOrdering(const koord& origin)
+//		: m_origin(origin)
+//	{ /* nothing */ }
+//
+//	/**
+//	 * Returns true if `a' is closer to the origin than `b', otherwise false.
+//	 */
+//	bool operator()(const koord& a, const koord& b) const
+//	{
+//		return abs_distance(m_origin, a) < abs_distance(m_origin, b);
+//	}
+//};
 
-	/**
-	 * Returns true if `a' is closer to the origin than `b', otherwise false.
-	 */
-	bool operator()(const koord& a, const koord& b) const
-	{
-		return abs_distance(m_origin, a) < abs_distance(m_origin, b);
-	}
-};
 
 #endif

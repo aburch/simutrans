@@ -107,25 +107,19 @@ static inline koord3d operator - (const koord3d& a, const koord& b)
 }
 
 
-static inline int koord_distance(koord a, koord b)
+static inline uint32 koord_distance(koord3d a, koord b)
 {
 	return abs(a.x - b.x) + abs(a.y - b.y);
 }
 
 
-static inline int koord_distance(koord3d a, koord b)
+static inline uint32 koord_distance(koord a, koord3d b)
 {
 	return abs(a.x - b.x) + abs(a.y - b.y);
 }
 
 
-static inline int koord_distance(koord a, koord3d b)
-{
-	return abs(a.x - b.x) + abs(a.y - b.y);
-}
-
-
-static inline int koord_distance(koord3d a, koord3d b)
+static inline uint32 koord_distance(koord3d a, koord3d b)
 {
 	return abs(a.x - b.x) + abs(a.y - b.y);
 }

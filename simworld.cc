@@ -810,7 +810,7 @@ void karte_t::create_rivers( sint16 number )
 				// may be good to start a river here
 				water_tiles.append(k);
 			}
-			else if(  h>=last_height  ||  abs_distance(last_koord,k)>simrand(max_dist)  ) {
+			else if(  h>=last_height  ||  koord_distance(last_koord,k)>simrand(max_dist)  ) {
 				// something worth to add here
 				if(  h>last_height  ) {
 					last_height = h;
@@ -830,7 +830,7 @@ void karte_t::create_rivers( sint16 number )
 	while(  number>0  &&  mountain_tiles.get_count()>0  &&  retrys++<100  ) {
 		koord start = mountain_tiles.at_weight( simrand(mountain_tiles.get_sum_weight()) );
 		koord end = water_tiles[ simrand(water_tiles.get_count()) ];
-		sint16 dist = abs_distance(start,end);
+		sint16 dist = koord_distance(start,end);
 		if(  dist > einstellungen->get_min_river_length()  &&  dist < einstellungen->get_max_river_length()  ) {
 			// should be at least of decent length
 			wegbauer_t riverbuilder(this, spieler[1]);

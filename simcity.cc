@@ -2357,17 +2357,22 @@ stadt_t::set_private_car_trip(int passengers, stadt_t* destination_town)
 }
 
 
-/**
+/*
  * gibt einen zufällingen gleichverteilten Punkt innerhalb der
  * Stadtgrenzen zurück
+ *
+ * "gives an equally zufällingen point within the city borders" (Google)
+ *
  * @author Hj. Malthaner
  */
 koord stadt_t::get_zufallspunkt() const
 {
-	if(!buildings.empty()) {
+	if(!buildings.empty()) 
+	{
 		gebaeude_t* gb = buildings.at_weight(simrand(buildings.get_sum_weight()));
 		koord k = gb->get_pos().get_2d();
-		if(!welt->ist_in_kartengrenzen(k)) {
+		if(!welt->ist_in_kartengrenzen(k)) 
+		{
 			// this building should not be in this list, since it has been already deleted!
 			dbg->error("stadt_t::get_zufallspunkt()", "illegal building in city list of %s: %p removing!", this->get_name(), gb);
 			const_cast<stadt_t*>(this)->buildings.remove(gb);
