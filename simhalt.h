@@ -337,6 +337,13 @@ private:
 	void liefere_an_fabrik(const ware_t& ware);
 
 	/*
+	 * transfers all goods to given station
+	 *
+	 * @author Dwachs
+	 */
+	void transfer_goods(halthandle_t halt);
+
+	/*
 	* parameter to ease sorting
 	* sortierung is local and stores the sortorder for the individual station
 	* @author hsiegeln
