@@ -1773,16 +1773,8 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 			// and check for existence
 			if(!halt->existiert_in_welt()) {
 				// transfer goods
-				for(uint8 i=0; i<warenbauer_t::get_max_catg_index(); i++) {
-					vector_tpl<ware_t> * warray = waren[i];
-					if (warray) {
-						for(uint32 j=0; j<warray->get_count(); j++) {
-							self->add_ware_to_halt( (*warray)[j] );
-						}
-						delete waren[i];
-						waren[i] = NULL;
-					}
-				}
+				halt->transfer_goods(self);
+
 				destroy(halt);
 			}
 		}
@@ -1792,6 +1784,23 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 }
 
 
+void haltestelle_t::transfer_goods(halthandle_t halt)
+{
+	if (!self.is_bound() || !halt.is_bound()) {
+		return;
+	}
+	// transfer goods to halt
+	for(uint8 i=0; i<warenbauer_t::get_max_catg_index(); i++) {
+		vector_tpl<ware_t> * warray = waren[i];
+		if (warray) {
+			for(uint32 j=0; j<warray->get_count(); j++) {
+				halt->add_ware_to_halt( (*warray)[j] );
+			}
+			delete waren[i];
+			waren[i] = NULL;
+		}
+	}
+}
 
 /*
  * recalculated the station type(s)
