@@ -2839,8 +2839,6 @@ const char *wkz_roadsign_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	
 	const roadsign_besch_t * besch = roadsign_t::find_besch(default_param);
 
-	besch = roadsign_t::find_besch(default_param);
-
 	if( win_get_magic((long)this) ) {
 		init( welt, sp );
 	}
@@ -2891,6 +2889,7 @@ void wkz_roadsign_t::set_values( uint8 spacing, bool remove, bool replace )
 	signal_spacing = spacing;
 	remove_intermediate_signals = remove;
 	replace_other_signals = replace;
+	besch = roadsign_t::find_besch(default_param);
 
 	for( uint32 i = 0; i < marked.get_count(); i++ ) {
 		marked[i]->mark_image_dirty( marked[i]->get_bild(), 0 );

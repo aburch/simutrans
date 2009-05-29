@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #include "boden/wege/strasse.h"
 #include "boden/grund.h"
@@ -1056,6 +1055,30 @@ next_name:;
 
 	city_history_month[0][HIST_CAR_OWNERSHIP] = get_private_car_ownership(welt->get_timeline_year_month());
 	city_history_year[0][HIST_CAR_OWNERSHIP] = get_private_car_ownership(welt->get_timeline_year_month());
+
+	calc_internal_passengers();
+}
+
+
+void stadt_t::calc_internal_passengers()
+{
+	const uint32 median_town_size = welt->get_einstellungen()->get_mittlere_einwohnerzahl();
+	float internal_passenger_multiplier;
+	if(city_history_month[0][HIST_CITICENS] >= (median_town_size * 2.5F))
+	{
+		internal_passenger_multiplier = 0.85F;
+	}
+	else if((city_history_month[0][HIST_CITICENS] <= median_town_size / 2))
+	{
+		internal_passenger_multiplier = 0.33F;
+	}
+	else
+	{
+		float proportion = ((float)city_history_month[0][HIST_CITICENS] - (float)(median_town_size / 2.0F)) / (float)(median_town_size * 2.5F);
+		internal_passenger_multiplier = (proportion * 0.52F) + 0.33F;
+	}
+
+	adjusted_passenger_routing_local_chance = (float)welt->get_einstellungen()->get_passenger_routing_local_chance() * internal_passenger_multiplier;
 }
 
 
@@ -1085,6 +1108,8 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	rdwr(file);
 
 	verbinde_fabriken();
+
+	calc_internal_passengers();
 }
 
 
@@ -1515,6 +1540,8 @@ void stadt_t::neuer_monat() //"New month" (Google)
 	pax_destinations_new.clear();
 	pax_destinations_new_change = 0;
 
+	calc_internal_passengers();
+
 	roll_history();
 
 	// Calculate the level of congestion.
@@ -1927,8 +1954,17 @@ void stadt_t::step_passagiere()
 				//if(pax_routed < (number_packets / 3))
 				if(passenger_routing_choice <= passenger_routing_local_chance)
 				{
-					//Local
-					destinations[destinations_assigned] = finde_passagier_ziel(&will_return, local_passengers_min_distance, local_passengers_max_distance);
+					//Local - a designated proportion will automatically go to destinations within the town.
+					if((float)passenger_routing_choice <= adjusted_passenger_routing_local_chance)
+					{
+						// Will always be a destination in the current town.
+						destinations[destinations_assigned] = finde_passagier_ziel(&will_return, 0, 0);	
+					}
+					else
+					{
+						destinations[destinations_assigned] = finde_passagier_ziel(&will_return, local_passengers_min_distance, local_passengers_max_distance);
+					}
+					
 				}
 				//else if(pax_routed < ((number_packets / 3) * 2))
 				else if(passenger_routing_choice <= (passenger_routing_local_chance + passenger_routing_midrange_chance))
@@ -1997,8 +2033,7 @@ walk:
 				// ok, they are not in walking distance
 				ware_t pax(wtyp); //Journey start information needs to be added later.
 				pax.set_zielpos(destinations[current_destination].location);
-				pax.menge = (wtyp == warenbauer_t::passagiere ? pax_left_to_do : max(1, pax_left_to_do >> 2));
-				//pax.menge = (wtyp == warenbauer_t::passagiere ? pax_left_to_do : 1 );
+				pax.menge = (wtyp == warenbauer_t::passagiere ? pax_left_to_do : 1 );
 				//"Menge" = volume (Google)
 
 				// now, finally search a route; this consumes most of the time
@@ -2081,7 +2116,7 @@ walk:
 							}
 							else
 							{
-								float proportion = ((float)distance - (float)(midrange_passengers_max_distance * 3)) / (float)longdistance_passengers_max_distance;
+								float proportion = ((float)distance - (float)(midrange_passengers_max_distance * 3.0F)) / (float)longdistance_passengers_max_distance;
 								car_preference /= (10 * proportion);
 							}
 						}
@@ -2397,49 +2432,63 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 	current_destination.type = 1;
 
 	// about 1/3 are workers
-	if (rand < FACTORY_PAX && arbeiterziele.get_sum_weight() > 0) {
+	if (rand < FACTORY_PAX && arbeiterziele.get_sum_weight() > 0) 
+	{
 		const fabrik_t* fab = arbeiterziele.at_weight(simrand(arbeiterziele.get_sum_weight()));
 		*will_return = factoy_return;	// worker will return
 		current_destination.type = FACTORY_PAX;
 		current_destination.location = fab->get_pos().get_2d();
 		return current_destination;
-	} else if (rand < TOURIST_PAX + FACTORY_PAX && welt->get_ausflugsziele().get_sum_weight() > 0) {
+	} 
+	
+	else if (rand < TOURIST_PAX + FACTORY_PAX && welt->get_ausflugsziele().get_sum_weight() > 0) {
 		*will_return = tourist_return;	// tourists will return
 		const gebaeude_t* gb = welt->get_random_ausflugsziel();
 		current_destination.type = TOURIST_PAX ;
 		current_destination.location = gb->get_pos().get_2d();
 		return current_destination;
-	} else {
-		// if we reach here, at least a single town existes ...
-		//const stadt_t* zielstadt = welt->get_random_stadt();
+	}
 
-		// we like nearer towns more
-		//if (abs(zielstadt->pos.x - pos.x) + abs(zielstadt->pos.y - pos.y) > 120) {
-			// retry once ...
-		//	zielstadt = welt->get_random_stadt();
-		//}
+	else 
+	{
 
-		// Ensure that the returned town is within the distance range specified,
-		// or else find a new town and repeat.
 		stadt_t* zielstadt;
-		bool town_within_range = false;
-		uint8 retry_count = 0;
-		do
+
+		if(max_distance == 0)
 		{
-			zielstadt = welt->get_random_town();
-			if(abs(zielstadt->pos.x - pos.x) + abs(zielstadt->pos.y - pos.y) >= min_distance && (zielstadt->pos.x - pos.x) + abs(zielstadt->pos.y - pos.y)<= max_distance)
-			{
-				town_within_range = true;
-			}
-			//Prevent infinite loops here if there are no suitable towns at all.
-			retry_count++;
-			if(retry_count > 32) town_within_range = true;
+			// A proportion of local passengers will always travel *within* the town.
+			// This enables the town finding routine to be skipped.
+			zielstadt = this;
 		}
-		while(!town_within_range);
+
+		else
+		{
+			const uint32 weight = welt->get_town_list_weight();
+			const uint16 number_of_towns = welt->get_staedte().get_count();
+			const uint16 town_step = weight / number_of_towns;
+			uint32 random = simrand(weight);
+			uint32 distance = 0;
+			for(uint8 i = 0; i < 32; i ++)
+			{
+				zielstadt = welt->get_town_at(random);
+				distance = koord_distance(this->get_pos(), zielstadt->get_pos());
+				if(distance <= max_distance && distance >= min_distance)
+				{
+					break;
+				}
+				random += town_step;
+				if(random > weight)
+				{
+					random = 0;
+				}
+			}
+		}
 
 		// long distance traveller? => then we return
 		// zielstadt = "Destination city"
 		*will_return = (this != zielstadt) ? town_return : no_return;
+		// Testing having all passengers making only return trips.
+		//*will_return = town_return;
 		current_destination.location = zielstadt->get_zufallspunkt(); //"random dot"
 		current_destination.town = zielstadt;
 		return current_destination;

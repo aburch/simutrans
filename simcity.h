@@ -322,6 +322,10 @@ private:
 
 	void pruefe_grenzen(koord pos);
 
+	void calc_internal_passengers();
+
+	uint16 adjusted_passenger_routing_local_chance;
+
 public:
 	/**
 	 * sucht arbeitsplätze für die Einwohner

@@ -617,21 +617,21 @@ sint32 convoi_t::calc_adjusted_power()
 	}
 	else
 	{
-		float difference = 450 - (power_from_steam  - 50);
+		float difference = 450.0F - (power_from_steam  - 50.0F);
 		float proportion = difference / 450.0F;
-		float factor = 0.66 * proportion;
+		float factor = 0.66F * proportion;
 		speed_factor = 1 + factor;
 	}
 	
 	//These values are needed to apply different power reduction factors
 	//depending on the maximum speed.
 
-	float lowpoint_speed = highpoint_speed * 0.3;
-	float midpoint_speed = lowpoint_speed * 2;
+	float lowpoint_speed = highpoint_speed * 0.3F;
+	float midpoint_speed = lowpoint_speed * 2.0F;
 
 	if(current_speed <= lowpoint_speed)
 	{
-		speed_factor *= 0.4;
+		speed_factor *= 0.4F;
 	}
 	else if(current_speed <= midpoint_speed)
 	{
@@ -3987,7 +3987,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 				continue;
 			}
 			koord3d pos = depot->get_pos();
-			if(!shortest_route->empty() && abs_distance(pos.get_2d(),get_pos().get_2d())>=shortest_route->get_max_n()) 
+			if(!shortest_route->empty() && koord_distance(pos.get_2d(),get_pos().get_2d())>=shortest_route->get_max_n()) 
 			{
 				// the current route is already shorter, no need to search further
 				continue;

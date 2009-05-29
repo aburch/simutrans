@@ -863,7 +863,8 @@ public:
 	 */
 	const weighted_vector_tpl<stadt_t*>& get_staedte() const { return stadt; }
 	const stadt_t *get_random_stadt() const;
-	stadt_t *get_random_town();
+	stadt_t *get_town_at(const uint32 weight) { return stadt.at_weight(weight); }
+	const uint32 get_town_list_weight() const { return stadt.get_sum_weight(); }
 	void add_stadt(stadt_t *s);
 	bool rem_stadt(stadt_t *s);
 

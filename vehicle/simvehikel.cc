@@ -2993,10 +2993,20 @@ waggon_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
 signal_t *
 waggon_t::ist_blockwechsel(koord3d k2) const
 {
-	const schiene_t * sch1 = (const schiene_t *) welt->lookup( k2 )->get_weg(get_waytype());
-	if(sch1  &&  sch1->has_signal()) {
+	const grund_t* gr = welt->lookup(k2);
+	if(gr == NULL)
+	{
+		// Possible fix for rotation bug
+		// @author: jamespetts
+		return NULL;
+	}
+	
+	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
+	if(sch1  &&  sch1->has_signal()) 
+	{
 		// a signal for us
-		return welt->lookup(k2)->find<signal_t>();
+		
+		return gr->find<signal_t>();
 	}
 	return NULL;
 }
