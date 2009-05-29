@@ -123,9 +123,7 @@ private:
 	karte_t *welt;
 	uint32 maximum;    // hoechste Suchtiefe
 
-	vector_tpl<koord3d> route;
-
-	koord3d position_bei(unsigned i) const { return route[i]; }
+	koord3d_vector_t route;
 
 	// allowed owner?
 	bool check_owner( const spieler_t *sp1, const spieler_t *sp2 ) const;
@@ -169,7 +167,7 @@ private:
 	uint32 calc_distance( const koord3d &pos, const koord3d &mini, const koord3d &maxi );
 
 public:
-	koord3d get_route_bei(int i) const { return route[i]; }
+	const koord3d_vector_t &get_route() const { return route; }
 
 	sint32 n, max_n;
 

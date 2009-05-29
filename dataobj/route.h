@@ -33,7 +33,7 @@ private:
 	 */
 	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const uint32 max_kmh, const uint32 max_cost);
 
-	vector_tpl <koord3d> route;           // Die Koordinaten fuer die Fahrtroute
+	koord3d_vector_t route;           // Die Koordinaten fuer die Fahrtroute
 
 public:
 	// this class save the nodes during route search
@@ -70,6 +70,11 @@ public:
 		return (abs(p1.x-p2.x)+abs(p1.y-p2.y)+abs(p1.z-p2.z)/16);
 	}
 
+	const koord3d_vector_t &get_route() const { return route; }
+
+	void rotate90( sint16 y_size ) { route.rotate90( y_size ); };
+
+
 	bool is_contained(const koord3d k) const { return route.is_contained(k); }
 
 	uint32 index_of(const koord3d k) const { return (uint32)(route.index_of(k)); }
@@ -80,12 +85,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	const koord3d& position_bei(const uint16 n) const { return route[n]; }
-
-	/**
-	 * @return Koordinate an index n
-	 * @author Hj. Malthaner
-	 */
-	koord3d& access_position_bei(const uint16 n) { return route[n]; }
 
 	/**
 	 * @return letzer index in der Koordinatenliste

@@ -18,7 +18,7 @@ private:
 	uint8 center;
 	bool changed;
 	ribi_t::ribi richtung;
-	image_id bild;
+	image_id bild, after_bild;
 
 public:
 	void set_richtung(ribi_t::ribi r);
@@ -42,6 +42,9 @@ public:
 
 	void set_bild( image_id b );
 	image_id get_bild() const {return bild;}
+
+	void set_after_bild( image_id b );
+	image_id get_after_bild() const {return after_bild;}
 };
 
 #endif

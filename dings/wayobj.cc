@@ -102,6 +102,29 @@ wayobj_t::~wayobj_t()
 			}
 		}
 	}
+
+	mark_image_dirty( get_after_bild(), 0 );
+	mark_image_dirty( get_bild(), 0 );
+	grund_t *gr = welt->lookup( get_pos() );
+	if( gr ) {
+		for( uint8 i = 0; i < 4; i++ ) {
+			// Remove ribis from adjacent wayobj.
+			if( ribi_t::nsow[i] & get_dir() ) {
+				grund_t *next_gr;
+				if( gr->get_neighbour( next_gr, besch->get_wtyp(), ribi_t::nsow[i] ) ) {
+					wayobj_t *wo2 = next_gr->get_wayobj( besch->get_wtyp() );
+					if( wo2 ) {
+						wo2->mark_image_dirty( wo2->get_after_bild(), 0 );
+						wo2->mark_image_dirty( wo2->get_bild(), 0 );
+						wo2->set_dir( wo2->get_dir() & ribi_t::get_forward(ribi_t::nsow[i]) );
+						wo2->mark_image_dirty( wo2->get_after_bild(), 0 );
+						wo2->mark_image_dirty( wo2->get_bild(), 0 );
+						wo2->set_flag(ding_t::dirty);
+					}
+				}
+			}
+		}
+	}
 }
 
 
@@ -151,21 +174,6 @@ wayobj_t::entferne(spieler_t *sp)
 {
 	if(besch) {
 		spieler_t::accounting(sp, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
-	}
-	grund_t *gr = welt->lookup( get_pos() );
-	if( gr ) {
-		for( uint8 i = 0; i < 4; i++ ) {
-			// Remove ribis from adjacent wayobj.
-			if( ribi_t::nsow[i] & get_dir() ) {
-				grund_t *next_gr;
-				if( gr->get_neighbour( next_gr, besch->get_wtyp(), ribi_t::nsow[i] ) ) {
-					wayobj_t *wo2 = next_gr->get_wayobj( besch->get_wtyp() );
-					if( wo2 ) {
-						wo2->set_dir( wo2->get_dir() & ribi_t::get_forward(ribi_t::nsow[i]) );
-					}
-				}
-			}
-		}
 	}
 }
 
@@ -229,7 +237,7 @@ wayobj_t::find_next_ribi(const grund_t *start, const koord dir, const waytype_t 
 	grund_t *to;
 	ribi_t::ribi r1 = ribi_t::keine;
 	if(start->get_neighbour(to,wt,dir)) {
-		const wayobj_t* wo = to->find<wayobj_t>();
+		const wayobj_t* wo = to->get_wayobj( wt );
 		if(wo) {
 			r1 = wo->get_dir();
 		}
@@ -319,7 +327,7 @@ wayobj_t::calc_bild()
 					rekursion++;
 					for(int r = 0; r < 4; r++) {
 						if(gr->get_neighbour(to, wt, koord::nsow[r])) {
-							wayobj_t* wo = to->find<wayobj_t>();
+							wayobj_t* wo = to->get_wayobj( wt );
 							if(wo) {
 								wo->calc_bild();
 							}
@@ -346,41 +354,29 @@ wayobj_t::calc_bild()
 
 /* better use this constrcutor for new wayobj; it will extend a matching obj or make an new one
  */
-void
-wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch)
+void wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch)
 {
 	grund_t *gr=welt->lookup(pos);
-	waytype_t wt1 = besch->get_wtyp()==tram_wt ? track_wt : besch->get_wtyp();
 	if(gr) {
-		if (gr->find<wayobj_t>()) {
-			// since there might be more than one, we have to iterate through all of them
-			for( uint8 i=0;  i<gr->get_top();  i++  ) {
-				ding_t *d=gr->obj_bei(i);
-				if(d  &&  d->get_typ()==ding_t::wayobj ) {
-					waytype_t wt2 = ((wayobj_t *)d)->get_besch()->get_wtyp();
-					if(wt2==tram_wt) {
-						wt2 = track_wt;
-					}
-					if(  wt1==wt2  ) {
-						if(((wayobj_t *)d)->get_besch()->get_topspeed()<besch->get_topspeed()  &&  spieler_t::check_owner(besitzer, d->get_besitzer())) {
-							// replace slower by faster
-							gr->obj_remove(d);
-							gr->set_flag(grund_t::dirty);
-							delete d;
-							break;
-						}
-						else {
-							// extend this one instead
-							((wayobj_t *)d)->set_dir(dir|((wayobj_t *)d)->get_dir());
-							d->calc_bild();
-							d->mark_image_dirty( d->get_after_bild(), 0 );
-							d->set_flag(ding_t::dirty);
-							return;
-						}
-					}
-				}
+		wayobj_t *existing_wayobj = gr->get_wayobj( besch->get_wtyp() );
+		if( existing_wayobj ) {
+			if(existing_wayobj->get_besch()->get_topspeed()<besch->get_topspeed()  &&  spieler_t::check_owner(besitzer, existing_wayobj->get_besitzer())) {
+				// replace slower by faster
+				dir = dir | existing_wayobj->get_dir();
+				gr->obj_remove(existing_wayobj);
+				gr->set_flag(grund_t::dirty);
+				delete existing_wayobj;
+			}
+			else {
+				// extend this one instead
+				existing_wayobj->set_dir(dir|existing_wayobj->get_dir());
+				existing_wayobj->mark_image_dirty( existing_wayobj->get_after_bild(), 0 );
+				existing_wayobj->mark_image_dirty( existing_wayobj->get_bild(), 0 );
+				existing_wayobj->set_flag(ding_t::dirty);
+				return;
 			}
 		}
+
 		// nothing found => make a new one
 		wayobj_t *wo = new wayobj_t(welt,pos,besitzer,dir,besch);
 		gr->obj_add(wo);
@@ -388,6 +384,22 @@ wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_
 		wo->mark_image_dirty( wo->get_after_bild(), 0 );
 		wo->set_flag(ding_t::dirty);
 		spieler_t::accounting( besitzer,  -besch->get_preis(), pos.get_2d(), COST_CONSTRUCTION);
+
+		for( uint8 i = 0; i < 4; i++ ) {
+		// Extend wayobjects around the new one, that aren't already connected.
+			if( ribi_t::nsow[i] & ~wo->get_dir() ) {
+				grund_t *next_gr;
+				if( gr->get_neighbour( next_gr, besch->get_wtyp(), ribi_t::nsow[i] ) ) {
+					wayobj_t *wo2 = next_gr->get_wayobj( besch->get_wtyp() );
+					if( wo2 ) {
+						wo2->set_dir( wo2->get_dir() | ribi_t::rueckwaerts(ribi_t::nsow[i]) );
+						wo2->mark_image_dirty( wo2->get_after_bild(), 0 );
+						wo->set_dir( wo->get_dir() | ribi_t::nsow[i] );
+						wo->mark_image_dirty( wo->get_after_bild(), 0 );
+					}
+				}
+			}
+		}
 	}
 }
 

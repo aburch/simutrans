@@ -1854,7 +1854,7 @@ void wegbauer_t::baue_strasse()
 			// prissi: into UNDO-list, so wie can remove it later
 			if(sp!=NULL) {
 				// intercity raods have no owner, so we must check for an owner
-				sp->add_undo( position_bei(i));
+				sp->add_undo( route[i] );
 			}
 		}
 		gr->calc_bild();	// because it may be a crossing ...
@@ -1916,7 +1916,7 @@ void wegbauer_t::baue_schiene()
 				cost = -gr->neuen_weg_bauen(sch, ribi, sp)-besch->get_preis();
 
 				// prissi: into UNDO-list, so wie can remove it later
-				sp->add_undo( position_bei(i) );
+				sp->add_undo( route[i] );
 			}
 
 			gr->calc_bild();
@@ -1957,7 +1957,7 @@ wegbauer_t::baue_leitung()
 			gr->obj_add(lt);
 
 			// prissi: into UNDO-list, so wie can remove it later
-			sp->add_undo( position_bei(i) );
+			sp->add_undo( route[i] );
 		}
 		else {
 			spieler_t::add_maintenance( lt->get_besitzer(),  -wegbauer_t::leitung_besch->get_wartung() );
@@ -2042,7 +2042,7 @@ wegbauer_t::baue_fluss()
 		fluss_fahrer_t ff;
 		if(  to_the_sea.find_route( welt, welt->lookup_kartenboden(route[start_n].get_2d())->get_pos(), (fahrer_t *)&ff, 0, ribi_t::alle, 0x7FFFFFFF )  ) {
 			for(  uint32 idx=0;  idx<to_the_sea.get_max_n();  idx++  ) {
-				weg_t* w = welt->lookup(to_the_sea.position_bei(idx))->get_weg(water_wt);
+				weg_t* w = welt->lookup(to_the_sea.get_route()[idx])->get_weg(water_wt);
 				if(w) {
 					int type;
 					for(  type=umgebung_t::river_types-1;  type>0;  type--  ) {

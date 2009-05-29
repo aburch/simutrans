@@ -292,12 +292,12 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 			bauigel.calc_route(tile_list[0], tile_list[1]);
 			if(bauigel.max_n > 1) {
 				// Sometimes reverse route is the best, so we have to change the koords.
-				if( tile_list[0].is_contained( bauigel.get_route_bei(0) ) ) {
-					start = bauigel.get_route_bei(0).get_2d();
-					ziel = bauigel.get_route_bei(bauigel.max_n).get_2d();
+				if( tile_list[0].is_contained( bauigel.get_route()[0]) ) {
+					start = bauigel.get_route()[0].get_2d();
+					ziel = bauigel.get_route()[bauigel.max_n].get_2d();
 				} else {
-					start = bauigel.get_route_bei(bauigel.max_n).get_2d();
-					ziel = bauigel.get_route_bei(0).get_2d();
+					start = bauigel.get_route()[bauigel.max_n].get_2d();
+					ziel = bauigel.get_route()[0].get_2d();
 				}
 				ok = true;
 				has_ziel = true;
@@ -672,12 +672,12 @@ DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track 
 		// connect to track
 
 		koord3d tile1, tile2;
-		if( starttiles.is_contained( bauigel.get_route_bei(0) ) ) {
-			tile1 = bauigel.get_route_bei(0);
-			tile2 = bauigel.get_route_bei(bauigel.max_n);
+		if( starttiles.is_contained( bauigel.get_route()[0] ) ) {
+			tile1 = bauigel.get_route()[0];
+			tile2 = bauigel.get_route()[bauigel.max_n];
 		} else {
-			tile1 = bauigel.get_route_bei(bauigel.max_n);
-			tile2 = bauigel.get_route_bei(0);
+			tile1 = bauigel.get_route()[bauigel.max_n];
+			tile2 = bauigel.get_route()[0];
 		}
 		// No botflag, since we want to connect with the station.
 		bauigel.route_fuer( wegbauer_t::schiene, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );

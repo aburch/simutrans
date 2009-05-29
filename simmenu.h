@@ -59,6 +59,7 @@ enum {
 	WKZ_FOREST,
 	WKZ_STOP_MOVER,
 	WKZ_MAKE_STOP_PUBLIC,
+	WKZ_REMOVE_WAYOBJ,
 	GENERAL_TOOL_COUNT,
 	GENERAL_TOOL = 0x1000
 };
@@ -195,6 +196,51 @@ public:
 	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d ) { return ""; }
 };
 
+/*
+ * Class for tools needing two clicks (e.g. building ways).
+ * Dragging is also possible.
+ * @author Gerd Wachsmuth
+ */
+
+class two_click_werkzeug_t : public werkzeug_t {
+public:
+	two_click_werkzeug_t() : werkzeug_t() { start_marker = NULL; };
+
+	virtual bool init( karte_t *, spieler_t * );
+	virtual bool exit( karte_t *welt, spieler_t *sp ) { return init( welt, sp ); }
+
+	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d );
+
+private:
+	/*
+	 * These two routines have to be implemented in inherited classes.
+	 * mark_tiles: fill marked_tiles.
+	 * work: do the real work.
+	 * returned string is passed by work/move.
+	 */
+	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &start, const koord3d &end ) = 0;
+	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &start, const koord3d &end ) = 0;
+
+	/*
+	 * Can the tool start/end on this koord3d?
+	 * NULL = yes, other return values are passed by work/move.
+	 */
+	virtual const char *valid_pos( karte_t *, spieler_t *, const koord3d &start ) = 0;
+
+	virtual image_id get_marker_image();
+
+	bool first_click;
+	koord3d start;
+	void start_at( karte_t *, spieler_t *, koord3d &new_start );
+	void cleanup( bool delete_start_marker );
+
+	zeiger_t *start_marker;
+
+protected:
+	slist_tpl< zeiger_t* > marked;
+};
+
 /* toolbar are a new overclass */
 class toolbar_t : public werkzeug_t {
 public:
@@ -221,6 +267,5 @@ public:
 	void update(karte_t *, spieler_t *);	// just refresh content
 	void append(werkzeug_t *w) { tools.append(w); }
 };
-
 
 #endif
