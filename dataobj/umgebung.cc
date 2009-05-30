@@ -60,7 +60,7 @@ uint8 umgebung_t::show_month = 0;
  *
  * @author Hj. Malthaner
  */
-sint32 umgebung_t::intercity_road_length = 8000;
+sint32 umgebung_t::intercity_road_length = 200;
 
 /**
  * Typ (Name) initiale Stadtverbindungen
