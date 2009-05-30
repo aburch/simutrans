@@ -118,23 +118,6 @@ void zeiger_t::set_after_bild( image_id b )
 }
 
 
-
-void zeiger_t::set_after_bild( image_id b )
-{
-	// mark dirty
-	mark_image_dirty( after_bild, 0 );
-	mark_image_dirty( b, 0 );
-	after_bild = b;
-	if(  (area.x|area.y)>1  ) {
-		welt->mark_area( get_pos()-(area*center)/2, area, false );
-	}
-	if(!changed) {
-		area = koord(0,0);
-		center = 0;
-	}
-}
-
-
 /* change the marked area around the cursor */
 void zeiger_t::set_area(koord new_area, uint8 new_center)
 {

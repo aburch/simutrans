@@ -41,6 +41,26 @@ const char money_frame_t::cost_type[MAX_PLAYER_COST][64] =
   "", "", "", "", "", "Interest", "Credit limit"
 };
 
+const char money_frame_t::cost_tooltip[MAX_PLAYER_COST][256] =
+{
+  "Capital expenditure on infrastructure", 
+  "Vehicle running costs (both fixed and distance related)", 
+  "Capital expenditure on vehicle purchases and upgrades", 
+  "Gross revenue",
+  "Recurring expenses of infrastructure maintenance", 
+  "Total capital assets, excluding liabilities", 
+  "Total liquid assets", 
+  "Total assets less total liabilities", 
+  "Total income less total expenditure", 
+  "Operating revenue less operating expenditure", 
+  "Percentage of revenue retained as profit", 
+  "Number of units of passengers and goods transported", 
+  "Revenue from electricity transmission", 
+  "", "", "", "", "", 
+  "Cost of overdraft interest payments", 
+  "The maximum amount that can be borrowed without prohibiting further capital outlays"
+};
+
 const int money_frame_t::cost_type_color[MAX_PLAYER_COST] =
 {
 	COL_CONSTRUCTION,
@@ -303,6 +323,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		filterButtons[ibutton].init(button_t::box, cost_type[ibutton], koord(left, top+i*BUTTONSPACE-2), koord(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background = cost_type_color[ibutton];
+		filterButtons[ibutton].set_tooltip(cost_tooltip[ibutton]);
 		add_komponente(filterButtons + ibutton);
 	}
 	for(int i = 10; i < 15; i++) 
@@ -311,6 +332,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		filterButtons[ibutton].init(button_t::box, cost_type[ibutton], koord(left+335, top+(i-5)*BUTTONSPACE-2), koord(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background = cost_type_color[ibutton];
+		filterButtons[ibutton].set_tooltip(cost_tooltip[ibutton]);
 		add_komponente(filterButtons + ibutton);
 	}
 

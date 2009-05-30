@@ -622,10 +622,3 @@ void route_t::rdwr(loadsave_t *file)
 	}
 }
 
-void route_t::rotate90(sint16 y_size)
-{
-	ITERATE(route,i)
-	{
-		route[i].rotate90(y_size);
-	}
-}

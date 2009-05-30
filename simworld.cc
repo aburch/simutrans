@@ -1073,7 +1073,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 				// valid connection?
 				if(  conn.x >= 0  ) {
 					// is there a connection already
-					const bool connected = phase==1 && verbindung.calc_route(this,k[conn.x],k[conn.y],  test_driver, 0);
+					const bool connected = phase==1 && verbindung.calc_route(this,k[conn.x],k[conn.y],  test_driver, 0, 0);
 					// build this connestion?
 					bool build = false;
 					// set appropriate max length for way builder
@@ -4391,11 +4391,13 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			mb_alt = ev->button_state;
 
 			zeiger->change_pos(pos);
-			if(  ev->button_state == 0  ) {
+			if(  ev->button_state == 0  ) 
+			{
 				is_dragging = false;
-				if(  werkzeug_last_pos != pos.get_2d()  ) {
+				/*if(  werkzeug_last_pos != pos.get_2d()  ) 
+				{
 					werkzeug->move( this, get_active_player(), 0, pos );
-				}
+				}*/
 			}
 			else if(ev->ev_class==EVENT_DRAG  &&  werkzeug_last_pos!=pos.get_2d()) {
 				if(!is_dragging  &&  ist_in_kartengrenzen(prev_pos.get_2d())) {

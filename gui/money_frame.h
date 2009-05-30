@@ -98,6 +98,7 @@ private:
 	button_t filterButtons[MAX_PLAYER_COST];
 	void calc_chart_values();
 	static const char cost_type[MAX_PLAYER_COST][64];
+	static const char cost_tooltip[MAX_PLAYER_COST][256];
 	static const int cost_type_color[MAX_PLAYER_COST];
 	static char digit[4];
 	gui_tab_panel_t year_month_tabs;
