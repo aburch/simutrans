@@ -664,12 +664,6 @@ const stadt_t *karte_t::get_random_stadt() const
 	return stadt.at_weight(simrand(stadt.get_sum_weight()));
 }
 
-stadt_t *karte_t::get_random_town()
-{
-	//Non-const version of get_random_stadt().
-	return stadt.at_weight(simrand(stadt.get_sum_weight()));
-}
-
 void karte_t::add_stadt(stadt_t *s)
 {
 	einstellungen->set_anzahl_staedte(einstellungen->get_anzahl_staedte()+1);
@@ -2471,7 +2465,10 @@ void karte_t::neuer_monat()
 	{
 		//Make sure that there are not too many cars on the roads. 
 		stadtauto_t* car = unassigned_cars.remove_first();
-		car->kill();
+		if(car != NULL)
+		{
+			car->kill();
+		}
 	}
 
 	INT_CHECK("simworld 1289");

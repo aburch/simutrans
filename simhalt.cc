@@ -1456,7 +1456,8 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 
 		if(i_am_public || cnv->get_besitzer() == besitzer_p)
 		{
-			INT_CHECK("simhalt.cc 612");
+			// Interrupt checks here caused crashes on rotation.
+			//INT_CHECK("simhalt.cc 612");
 
 			fpl = cnv->get_schedule();
 			if(fpl != NULL) 
@@ -1467,57 +1468,6 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 				{
 					add_connexion(category, cnv, dummy_line, tmp_halt_list, (uint8)self_halt_idx);
 				}
-
-				/*
-				ITERATE_PTR(fpl, i)
-				{
-					// Hajo: Hält dieser convoi hier?
-					// "If this Convoi here?" (Google)
-					tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, besitzer_p);
-					if(!tmp_halt.is_bound())
-					{
-						if(i_am_public)
-						{
-							// Public halts can connect to all other halts, so try each.
-							spieler_t* sp = cnv->get_besitzer();
-							tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
-						}
-						else
-						{
-							// Try a public player halt
-							spieler_t* sp = welt->get_spieler(1);
-							tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
-						}
-					}
-					if (tmp_halt == self) 
-					{
-						// what goods can this convoy transport?
-						add_catg_index.clear();
-						for(uint i = 0;  i < cnv->get_vehikel_anzahl();  i++) 
-						{
-							// Only consider vehicles that really transport something
-							// this helps against routing errors through passenger
-							// trains pulling only freight wagons
-							const ware_besch_t* ware = cnv->get_vehikel(i)->get_fracht_typ();
-
-							if (cnv->get_vehikel(i)->get_fracht_max() == 0 || ware->get_catg_index() != category) 
-							{
-								continue;
-							}
-							
-							if(ware != warenbauer_t::nichts)
-							{
-								// now add the freights
-								add_connexion(ware, fpl, cnv, dummy_line);
-								if(!add_catg_index.is_contained(ware->get_catg_index()))
-								{
-									add_catg_index.append_unique(category);
-								}
-							}
-						}
-					}
-				}
-				*/
 			}
 		}
 	}
@@ -1538,7 +1488,8 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 		// ok, now add line to the connections
 		if(line->count_convoys( )> 0 && (i_am_public || line->get_convoy(0)->get_besitzer() == get_besitzer()))
 		{
-			INT_CHECK("simhalt.cc 613");
+			// Interrupt checks here caused crashes on rotation.
+			//INT_CHECK("simhalt.cc 613");
 
 			if(fpl != NULL) 
 			{
@@ -1548,55 +1499,6 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 				{
 					add_connexion(category, dummy_convoy, line, tmp_halt_list, (uint8)self_halt_idx);
 				}
-
-				/*
-				halthandle_t tmp_halt;
-
-				ITERATE_PTR(fpl, i)
-				{
-					tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, besitzer_p);
-					if(!tmp_halt.is_bound())
-					{
-						if(i_am_public)
-						{
-							// Public halts can connect to all other halts, so try each.
-							spieler_t* sp = line->get_besitzer();
-							tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
-						}
-						else
-						{
-							// Try a public player halt
-							spieler_t* sp = welt->get_spieler(1);
-							tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[i].pos, sp);
-						}
-					}
-					if (tmp_halt == self) 
-					{
-						// what goods can this line transport?
-						add_catg_index.clear();
-						const minivec_tpl<uint8> &goods = line->get_goods_catg_index();
-						ITERATE(goods, j)
-						{
-							const ware_besch_t* ware = warenbauer_t::get_info_catg_index(goods[j]);
-
-							if (ware->get_catg_index() != category) 
-							{
-								continue;
-							}
-							
-							if(ware != warenbauer_t::nichts) 
-							{
-								// now add the freights
-								add_connexion(ware, fpl, dummy_convoy, line);
-								if(!add_catg_index.is_contained(ware->get_catg_index()))
-								{
-									add_catg_index.append_unique(category);
-								}
-							}
-						}
-					}
-				}
-				*/
 			}
 		}
 	}
