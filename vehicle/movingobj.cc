@@ -55,6 +55,7 @@ bool movingobj_t::alles_geladen()
 	}
 
 	if(besch_names.empty()) {
+		movingobj_typen.append( NULL );
 		DBG_MESSAGE("movingobj_t", "No movingobj found - feature disabled");
 	}
 	return true;
@@ -80,6 +81,11 @@ bool movingobj_t::register_besch(groundobj_besch_t *besch)
  */
 const groundobj_besch_t *movingobj_t::random_movingobj_for_climate(climate cl)
 {
+	// none there
+	if(  besch_names.empty()  ) {
+		return NULL;
+	}
+
 	int weight = 0;
 
 	for( unsigned i=0;  i<movingobj_typen.get_count();  i++  ) {
@@ -209,7 +215,13 @@ void movingobj_t::rdwr(loadsave_t *file)
 	else {
 		char bname[128];
 		file->rdwr_str(bname, 128);
-		groundobjtype = besch_names.get(bname)->get_index();
+		groundobj_besch_t *besch = besch_names.get(bname);
+		if(  besch_names.empty()  ||  besch==NULL  ) {
+			groundobjtype = simrand(movingobj_typen.get_count());
+		}
+		else {
+			groundobjtype = besch->get_index();
+		}
 		// if not there, besch will be zero
 		use_calc_height = true;
 	}

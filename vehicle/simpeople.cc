@@ -36,7 +36,7 @@ bool fussgaenger_t::register_besch(const fussgaenger_besch_t *besch)
 	return true;
 }
 
-bool fussgaenger_t::laden_erfolgreich()
+bool fussgaenger_t::alles_geladen()
 {
 	liste.resize(table.get_count());
 	stringhashtable_iterator_tpl<const fussgaenger_besch_t *>iter(table);
@@ -102,7 +102,7 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s,256);
 		besch = table.get(s);
 		// unknow pedestrian => create random new one
-		if(besch == NULL) {
+		if(besch == NULL  &&  !liste.empty()  ) {
 			besch = liste.at_weight(simrand(liste.get_sum_weight()));
 		}
 	}
@@ -117,7 +117,9 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 // create anzahl pedestrains (if possible)
 void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &anzahl)
 {
-	if (liste.empty()) return;
+	if (liste.empty()) {
+		return;
+	}
 
 	const grund_t* bd = welt->lookup(k);
 	if (bd) {
@@ -152,7 +154,7 @@ fussgaenger_t::sync_step(long delta_t)
 	if(time_to_life<0) {
 		// remove obj
 //DBG_MESSAGE("verkehrsteilnehmer_t::sync_step()","stopped");
-  		return false;
+		return false;
 	}
 
 	time_to_life -= delta_t;

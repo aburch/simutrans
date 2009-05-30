@@ -136,7 +136,7 @@ public:
 	static bool list_empty();
 
 	static bool register_besch(const stadtauto_besch_t *besch);
-	static bool laden_erfolgreich();
+	static bool alles_geladen();
 
 	// since we must consider overtaking, we use this for offset calculation
 	virtual void get_screen_offset( int &xoff, int &yoff ) const;

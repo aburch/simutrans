@@ -19,6 +19,8 @@
 	CHANGE: simuconf.tab cost values can now go up to 48 bit (should be enough for insanely high starting capital)
 	CHANGE: addons can be put now into the user folder with the same name than the main pak folder
 	CHANGE: skins are now read first from program dir/skin then from own dir/skin and then from pak set
+	ADD: (gerw) dragging of wayobj and many other tools, adding wayobj-remover
+	CHNAGE: (Dwachs) better intercityroad creation
 
 
 
