@@ -1843,8 +1843,8 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 					tmp_halt->reschedule[categories[j]] = true;
 					if (path_option == 1)
 					{
-						tmp_halt->force_paths_stale(categories[i]);
-						tmp_halt->reroute[categories[i]] = true;
+						tmp_halt->force_paths_stale(categories[j]);
+						tmp_halt->reroute[categories[j]] = true;
 					}
 				}
 			}
@@ -1864,10 +1864,10 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 			while (iter.next())
 			{
 				tmp_halt = iter.get_current();
-				for (uint8 i = 0; i < catg_count; i++)
+				for (uint8 j = 0; j < catg_count; j++)
 				{
-					tmp_halt->force_paths_stale(categories[i]);
-					tmp_halt->reroute[categories[i]] = true;
+					tmp_halt->force_paths_stale(categories[j]);
+					tmp_halt->reroute[categories[j]] = true;
 				}
 			}
 		}

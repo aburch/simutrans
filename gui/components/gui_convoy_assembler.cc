@@ -492,7 +492,12 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 		}
 		else
 		{
-			tile_length = replace_frame->get_convoy()->get_tile_length();
+			tile_length = 0;
+			ITERATE(vehicles,i)
+			{
+				tile_length += vehicles[i]->get_length();
+			}
+			tile_length = (tile_length + 16 - 1) / 16;
 		}
 		sprintf(txt_convoi_count, "%s %d (%s %i)",
 			translator::translate("Fahrzeuge:"), vehicles.get_count(),
