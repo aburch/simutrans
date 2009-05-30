@@ -35,6 +35,7 @@
 
 #include "dings/roadsign.h"
 #include "dings/wayobj.h"
+#include "dings/zeiger.h"
 
 #include "gui/werkzeug_waehler.h"
 
@@ -91,6 +92,7 @@ werkzeug_t *create_general_tool(int toolnr)
 		case WKZ_FOREST:           return new wkz_forest_t();
 		case WKZ_STOP_MOVER:       return new wkz_stop_moving_t();
 		case WKZ_MAKE_STOP_PUBLIC: return new wkz_make_stop_public_t();
+		case WKZ_REMOVE_WAYOBJ:    return new wkz_wayobj_remover_t();
 
 	}
 	dbg->fatal("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
@@ -745,3 +747,115 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 	}
 	return false;
 }
+
+
+
+bool two_click_werkzeug_t::init( karte_t *welt, spieler_t * )
+{
+	first_click = true;
+	welt->show_distance = start = koord3d::invalid;
+	cleanup( true );
+
+	return true;
+}
+
+const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
+{
+	if( !first_click && start_marker ) {
+		start = start_marker->get_pos(); // if map was rotated.
+	}
+
+	// remove marker
+	cleanup( true );
+
+	const char *error = valid_pos( welt, sp, pos );
+	if( error ) {
+		init( welt, sp );
+		return error;
+	}
+
+	if( first_click ) {
+		// set starting position.
+		start_at( welt, sp, pos );
+	}
+	else {
+		DBG_MESSAGE("two_click_werkzeug_t::work", "Setting end to %s", pos.get_str() );
+
+		error = do_work( welt, sp, start, pos );
+		init( welt, sp ); // Do the cleanup stuff after(!) do_work (otherwise start==koord3d::invalid).
+		return error;
+	}
+	return NULL;
+}
+
+const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate, koord3d pos )
+{
+	DBG_MESSAGE("two_click_werkzeug_t::move", "Button: %d, Pos: %s", buttonstate, pos.get_str());
+	if(  buttonstate == 0  ) {
+		return NULL;
+	}
+	if( start == pos ) {
+		init( welt, sp );
+	}
+
+	if( start == koord3d::invalid ) {
+		// start dragging.
+		cleanup( true );
+		const char *error = valid_pos( welt, sp, pos );
+		if( error ) {
+			return error;
+		}
+		start_at( welt, sp, pos );
+	}
+	else {
+		// continue dragging.
+		cleanup( false );
+
+		if( start_marker ) {
+			start = start_marker->get_pos(); // if map was rotated.
+		}
+
+		display_show_load_pointer( true );
+		mark_tiles( welt, sp, start, pos );
+		display_show_load_pointer( false );
+	}
+	return NULL;
+}
+
+void two_click_werkzeug_t::start_at( karte_t *welt, spieler_t* sp, koord3d &new_start )
+{
+	first_click = false;
+	welt->show_distance = start = new_start;
+	start_marker = new zeiger_t(welt, start, sp);
+	start_marker->set_bild( get_marker_image() );
+	grund_t *gr = welt->lookup( start );
+	if( gr ) {
+		gr->obj_add(start_marker);
+	}
+	DBG_MESSAGE("two_click_werkzeug_t::start_at", "Setting start to %s", start.get_str());
+}
+
+void two_click_werkzeug_t::cleanup( bool delete_start_marker )
+{
+	// delete marker.
+	if(start_marker != NULL  &&  delete_start_marker ) {
+		start_marker->mark_image_dirty( start_marker->get_bild(), 0 );
+		delete start_marker;
+		start_marker = NULL;
+	}
+	// delete old route.
+	while(!marked.empty()) {
+		zeiger_t *z = marked.remove_first();
+		z->mark_image_dirty( z->get_bild(), 0 );
+		z->mark_image_dirty( z->get_after_bild(), 0 );
+		delete z;
+	}
+	// delete tooltip.
+	win_set_static_tooltip( NULL );
+}
+
+image_id two_click_werkzeug_t::get_marker_image()
+{
+	return skinverwaltung_t::bauigelsymbol->get_bild_nr(0);
+}
+

@@ -2,8 +2,10 @@
 #define KOORD3D_H
 
 #include <stdlib.h>
-#include "../simtypes.h"
 #include "koord.h"
+#include "ribi.h"
+#include "../simtypes.h"
+#include "../tpl/vector_tpl.h"
 
 
 /**
@@ -123,5 +125,17 @@ static inline uint32 koord_distance(koord3d a, koord3d b)
 {
 	return abs(a.x - b.x) + abs(a.y - b.y);
 }
+
+/*
+ * This class defines a vector_tpl<koord3d> with some
+ * helper functions
+ * @author Gerd Wachsmuth
+ */
+
+class koord3d_vector_t : public vector_tpl< koord3d > {
+public:
+	ribi_t::ribi get_ribi( uint32 index ) const;
+	void rotate90( sint16 );
+};
 
 #endif

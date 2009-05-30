@@ -180,22 +180,22 @@ class wkz_fahrplan_ins_t : public werkzeug_t {
 	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k );
 };
 
-class wkz_wegebau_t : public werkzeug_t {
+class wkz_wegebau_t : public two_click_werkzeug_t {
 private:
 	static const weg_besch_t *defaults[17];	// default ways for all types
-	koord3d start;
-	zeiger_t *wkz_wegebau_bauer;
-	slist_tpl <zeiger_t *>marked;
 	const weg_besch_t *besch;
 	const weg_besch_t *get_besch(bool);
 public:
-	wkz_wegebau_t() : werkzeug_t() { wkz_wegebau_bauer=NULL; }
 	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	const char *get_tooltip(spieler_t *);
 	bool init( karte_t *, spieler_t * );
-	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
-	const char *work( karte_t *, spieler_t *, koord3d );
-	const char *move( karte_t *, spieler_t *, uint16 buttonstate, koord3d );
+
+private:
+	void calc_route( wegbauer_t &bauigel, const koord3d &, const koord3d & );
+
+	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
+	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & );
+	virtual const char *valid_pos( karte_t *, spieler_t *, const koord3d & );
 };
 
 class wkz_brueckenbau_t : public werkzeug_t {
@@ -216,41 +216,40 @@ public:
 	const char *work( karte_t *welt, spieler_t *sp, koord3d k );
 };
 
-class wkz_wayremover_t : public werkzeug_t {
+class wkz_wayremover_t : public two_click_werkzeug_t {
 private:
-	koord3d start;
-	bool erster;
-	zeiger_t *wkz_wayremover_bauer;
+	bool calc_route( route_t &, spieler_t *, const koord3d& start, const koord3d &to );
 public:
-	wkz_wayremover_t() : werkzeug_t() { wkz_wayremover_bauer=NULL; }
 	const char *get_tooltip(spieler_t *);
-	bool init( karte_t *, spieler_t * );
-	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
-	virtual const char *work( karte_t *, spieler_t *, koord3d );
+private:
+	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
+	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & );
+	virtual const char *valid_pos( karte_t *, spieler_t *, const koord3d & );
 };
 
-class wkz_wayobj_t : public werkzeug_t {
+class wkz_wayobj_t : public two_click_werkzeug_t {
+protected:
+	bool build;
 private:
 	static const way_obj_besch_t *default_electric;
-
-	koord3d start;
-	bool erster;
-	zeiger_t *wkz_wayobj_bauer;
-	slist_tpl< zeiger_t* > marked;
-	karte_t *welt;
-	spieler_t *sp;
 	const way_obj_besch_t *besch;
+	waytype_t wt;
 
-	void cleanup( bool delete_wayobj_bauer );
-	void start_at( grund_t *new_start );
-	bool calc_route( route_t &, const grund_t *to );
+	bool calc_route( route_t &, spieler_t *, const koord3d& start, const koord3d &to );
+
+	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
+	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & );
+	virtual const char *valid_pos( karte_t *, spieler_t *, const koord3d & );
+
 public:
-	wkz_wayobj_t() : werkzeug_t() { wkz_wayobj_bauer=NULL; }
-	const char *get_tooltip(spieler_t *);
-	bool init( karte_t *, spieler_t * );
-	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
-	virtual const char *work( karte_t *, spieler_t * sp, koord3d );
-	virtual const char *move( karte_t *, spieler_t *, uint16 buttonstate, koord3d );
+	wkz_wayobj_t() : two_click_werkzeug_t(), build(true) {};
+	virtual const char *get_tooltip(spieler_t *);
+	virtual bool init( karte_t *, spieler_t * );
+};
+
+class wkz_wayobj_remover_t : public wkz_wayobj_t {
+public:
+	wkz_wayobj_remover_t() : wkz_wayobj_t() { build = false; };
 };
 
 class wkz_station_t : public werkzeug_t {
@@ -392,20 +391,14 @@ class wkz_add_citycar_t : public werkzeug_t {
 };
 
 /* make forest */
-class wkz_forest_t : public werkzeug_t {
-private:
-	koord3d start;
-	koord3d nw;
-	koord wh;
-	zeiger_t *marked;
+class wkz_forest_t : public two_click_werkzeug_t {
 public:
-	wkz_forest_t() : werkzeug_t() { marked=NULL; }
 	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Add forest"); }
-	bool init( karte_t *, spieler_t * );
-	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
-	const char *work( karte_t *, spieler_t *, koord3d );
-	const char *move( karte_t *, spieler_t *, uint16 buttonstate, koord3d );
+private:
+	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
+	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & );
+	virtual const char *valid_pos( karte_t *, spieler_t *, const koord3d & );
 };
 
 /* stop moving tool */

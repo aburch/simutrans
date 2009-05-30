@@ -911,6 +911,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 				printf("*");fflush(NULL);
 			}
 		}
+		delete pos;
+
 		for(  uint32 i=old_anzahl_staedte;  i<stadt.get_count();  i++  ) {
 			// Hajo: do final init after world was loaded/created
 			stadt[i]->laden_abschliessen();
@@ -935,59 +937,193 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 		}
 
 		wegbauer_t bauigel (this, spieler[1] );
-		bauigel.route_fuer(wegbauer_t::strasse, besch, NULL, brueckenbauer_t::find_bridge(road_wt,15,get_timeline_year_month()) );
+		bauigel.route_fuer(wegbauer_t::strasse, besch, tunnelbauer_t::find_tunnel(road_wt,15,get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,15,get_timeline_year_month()) );
 		bauigel.set_keep_existing_ways(true);
 		bauigel.set_maximum(umgebung_t::intercity_road_length);
 
+		// **** intercity road construction
+		// progress bar data
 		int old_progress_count = 16+2*new_anzahl_staedte;
 		int count = 0;
 		const int max_count=(einstellungen->get_anzahl_staedte()*(einstellungen->get_anzahl_staedte()-1))/2
 					- (old_anzahl_staedte*(old_anzahl_staedte-1))/2;
-
-
-                // find townhall of city i and road in front of it
-		vector_tpl<koord3d> k;
-                for(int i = 0; i < einstellungen->get_anzahl_staedte(); i++) {
-			koord k1 = stadt[i]->get_pos();
-			const gebaeude_t* gb = dynamic_cast<gebaeude_t*>(lookup_kartenboden(k1)->first_obj());
-			if (gb && gb->ist_rathaus()) {
-				k1.y += gb->get_tile()->get_besch()->get_h(gb->get_tile()->get_layout());
-				k.append( lookup_kartenboden(k1)->get_pos() );
-			}
-			else {
-				k.append( koord3d::invalid );
-			}
-		}
-
-		for(int i = 0; i < einstellungen->get_anzahl_staedte(); i++) {
-		// Only new cities must be connected:
-			for (int j = max(i + 1, old_anzahl_staedte); j < einstellungen->get_anzahl_staedte(); j++) {
-				if(koord_distance(k[i].get_2d(),k[j].get_2d()) < umgebung_t::intercity_road_length) {
-//DBG_DEBUG("karte_t::distribute_groundobjs_cities()","built route fom city %d to %d", i, j);
-					bauigel.calc_route(k[i],k[j]);
-					if(bauigel.max_n >= 1) {
-						bauigel.baue();
-					}
-					else {
-//DBG_DEBUG("karte_t::distribute_groundobjs_cities()","no route found fom city %d to %d", i, j);
-					}
+		// something to do??
+		if(  max_count > 0  ) {
+			// find townhall of city i and road in front of it
+			vector_tpl<koord3d> k;
+			for(  int i = 0;  i < einstellungen->get_anzahl_staedte();  i++  ) {
+				koord k1 = stadt[i]->get_pos();
+				const gebaeude_t* gb = dynamic_cast<gebaeude_t*>(lookup_kartenboden(k1)->first_obj());
+				if(  gb  &&  gb->ist_rathaus()  ) {
+					k1.y += gb->get_tile()->get_besch()->get_h(gb->get_tile()->get_layout());
+					k.append( lookup_kartenboden(k1)->get_pos() );
 				}
 				else {
-//DBG_DEBUG("karte_t::distribute_groundobjs_cities()","cites %d and %d are too far away", i, j);
+					k.append( koord3d::invalid );
 				}
-				count ++;
-				// how much we continued?
-				if(is_display_init()) {
+			}
+			// compute all distances
+			uint8 conn_comp=1; // current connection component for phase 0
+			vector_tpl<uint8> city_flag; // city already connected to the graph? >0 nr of connection component
+			array2d_tpl<sint32> city_dist(einstellungen->get_anzahl_staedte(), einstellungen->get_anzahl_staedte());
+			for(  int i = 0;  i < einstellungen->get_anzahl_staedte();  i++  ) {
+				for(  int j = max(i + 1, old_anzahl_staedte);  j < einstellungen->get_anzahl_staedte();  j++  ) {
+					city_dist.at(i,j) = koord_distance(k[i], k[j]);
+					city_dist.at(j,i) = city_dist.at(i,j);
+					// count unbuildable connections
+					if(  city_dist.at(i,j) >= umgebung_t::intercity_road_length  ) {
+						count++;
+					}
+				}
+				city_flag.append( i < old_anzahl_staedte ? conn_comp : 0 );
+
+				// progress bar stuff
+				if(  is_display_init()  &&  count<=max_count  ) {
 					int progress_count = 16+ 2*new_anzahl_staedte+ (count*einstellungen->get_anzahl_staedte()*2)/max_count;
-					if(old_progress_count!=progress_count) {
+					if(  old_progress_count != progress_count  ) {
 						display_progress(progress_count, max_display_progress );
 						old_progress_count = progress_count;
 					}
 				}
 			}
-		}
+			// mark first town as connected
+			if (old_anzahl_staedte==0) {
+				city_flag[0]=conn_comp;
+			}
 
-		delete pos;
+			// get a default vehikel
+			route_t verbindung;
+			fahrer_t* test_driver;
+			vehikel_besch_t test_drive_besch(road_wt, 500, vehikel_besch_t::diesel );
+			test_driver = vehikelbauer_t::baue(koord3d(), spieler[1], NULL, &test_drive_besch);
+
+			bool ready=false;
+			uint8 phase=0;
+			// 0 - first phase: built minimum spanning tree (edge weights: city distance)
+			// 1 - second phase: try to complete the graph, avoid edges that
+			// == have similar length then already existing connection
+			// == lead to triangles with an angle >90 deg
+
+			while( phase < 2  ) {
+				ready = true;
+				koord conn = koord::invalid;
+				sint32 best = umgebung_t::intercity_road_length;
+
+				if(  phase == 0  ) {
+					// loop over all unconnected cities
+					for(  int i = 0;  i < einstellungen->get_anzahl_staedte();  i++  ) {
+						if(  city_flag[i] == conn_comp  ) {
+							// loop over all connections to connected cities
+							for(  int j = old_anzahl_staedte; j < einstellungen->get_anzahl_staedte(); j++) {
+								if(  city_flag[j] == 0  ) {
+									ready=false;
+									if(  city_dist.at(i,j) < best  ) {
+										best = city_dist.at(i,j);
+										conn = koord(i,j);
+									}
+								}
+							}
+						}
+					}
+					// did we completed a connection component?
+					if(  !ready  &&  best == umgebung_t::intercity_road_length  ) {
+						// next component
+						conn_comp++;
+						// try the first not connected city
+						ready = true;
+						for(  int i = old_anzahl_staedte;  i < einstellungen->get_anzahl_staedte();  i++  ) {
+							if(  city_flag[i] ==0 ) {
+								city_flag[i] = conn_comp;
+								ready=false;
+								break;
+							}
+						}
+					}
+				}
+				else {
+					// loop over all unconnected cities
+					for(  int i = 0;  i < einstellungen->get_anzahl_staedte();  i++  ) {
+						for(  int j = max(old_anzahl_staedte, i+1);  j < einstellungen->get_anzahl_staedte();  j++  ) {
+							if(  city_dist.at(i,j) < best  &&  city_flag[i] == city_flag[j]  ) {
+								bool ok = true;
+								// is there a connection i..l..j ? forbid stumpfe winkel
+								for(  int l = 0;  l < einstellungen->get_anzahl_staedte();  l++  ) {
+									if(  city_flag[i] == city_flag[l]  &&  city_dist.at(i,l) == umgebung_t::intercity_road_length  &&  city_dist.at(j,l) == umgebung_t::intercity_road_length  ) {
+										// cosine < 0 ?
+										koord3d d1 = k[i]-k[l];
+										koord3d d2 = k[j]-k[l];
+										if(  d1.x*d2.x + d1.y*d2.y < 0  ) {
+											city_dist.at(i,j) = umgebung_t::intercity_road_length+1;
+											city_dist.at(j,i) = umgebung_t::intercity_road_length+1;
+											ok = false;
+											count ++;
+											break;
+										}
+									}
+								}
+								if(ok) {
+									ready = false;
+									best = city_dist.at(i,j);
+									conn = koord(i,j);
+								}
+							}
+						}
+					}
+				}
+				// valid connection?
+				if(  conn.x >= 0  ) {
+					// is there a connection already
+					const bool connected = phase==1 && verbindung.calc_route(this,k[conn.x],k[conn.y],  test_driver, 0);
+					// build this connestion?
+					bool build = false;
+					// set appropriate max length for way builder
+					if(  connected  ) {
+						if(  2*verbindung.get_max_n() > city_dist.at(conn)  ) {
+							bauigel.set_maximum(verbindung.get_max_n() / 2);
+							build = true;
+						}
+					}
+					else {
+						bauigel.set_maximum(umgebung_t::intercity_road_length);
+						build = true;
+					}
+
+					if(  build  ) {
+						bauigel.calc_route(k[conn.x],k[conn.y]);
+					}
+
+					if(  build  &&  bauigel.max_n >= 1  ) {
+						bauigel.baue();
+						if (phase==0) {
+							city_flag[ conn.y ] = conn_comp;
+						}
+						// mark as built
+						city_dist.at(conn) =  umgebung_t::intercity_road_length;
+						city_dist.at(conn.y, conn.x) =  umgebung_t::intercity_road_length;
+					}
+					else {
+						// do not try again
+						city_dist.at(conn) =  umgebung_t::intercity_road_length+1;
+						city_dist.at(conn.y, conn.x) =  umgebung_t::intercity_road_length+1;
+					}
+					count ++;
+				}
+				// progress bar stuff
+				if(  is_display_init()  &&  count<=max_count  ) {
+					int progress_count = 16+ 2*new_anzahl_staedte+ (count*einstellungen->get_anzahl_staedte()*2)/max_count;
+					if(  old_progress_count != progress_count  ) {
+						display_progress(progress_count, max_display_progress );
+						old_progress_count = progress_count;
+					}
+				}
+				// next phase?
+				if (ready) {
+					phase++;
+					ready = false;
+				}
+			}
+			delete test_driver;
+		}
 	}
 	else {
 		// could not generate any town
@@ -4255,10 +4391,11 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			mb_alt = ev->button_state;
 
 			zeiger->change_pos(pos);
-			// resend init message, if mouse button pressed to enable dragging
-			if(is_dragging  &&  ev->button_state==0) {
+			if(  ev->button_state == 0  ) {
 				is_dragging = false;
-				werkzeug->move( this, get_active_player(), 0, prev_pos );
+				if(  werkzeug_last_pos != pos.get_2d()  ) {
+					werkzeug->move( this, get_active_player(), 0, pos );
+				}
 			}
 			else if(ev->ev_class==EVENT_DRAG  &&  werkzeug_last_pos!=pos.get_2d()) {
 				if(!is_dragging  &&  ist_in_kartengrenzen(prev_pos.get_2d())) {

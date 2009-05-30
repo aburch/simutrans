@@ -253,15 +253,14 @@ cursor_overlay_color = 155
 # also pak dependent
 #
 
-# Max. length of intitial intercity road connections
-# If you want to speed up map creation, lower this value
-# If you want more initial intercity roads, raise this value
-# 8000 seems to be a good compromise between speed and road number
+# Max. length of initial intercity road connections
+# If you want to speed up map creation, lower this value.
+# If you want more initial intercity roads, raise this value.
+# If the value is too large then very long bridges might be created.
+# 200 seems to be a good compromise between speed and road number
 # note: this will slow down map creation dramatically!
 #
-# T. Kubes: 128x128 can use more roads to save player some money. => 19000
-#
-#intercity_road_length = 800
+#intercity_road_length = 200
 
 # Type of initial intercity roads - must be available
 # as PAK file. Fallback (if PAK is not found) is "asphalt_road"

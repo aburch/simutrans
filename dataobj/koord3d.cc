@@ -69,3 +69,24 @@ const char *koord3d::get_str() const
 	sprintf( pos_str, "%i,%i,%i", x, y, z );
 	return pos_str;
 }
+
+
+ribi_t::ribi koord3d_vector_t::get_ribi( uint32 index ) const
+{
+	ribi_t::ribi ribi = ribi_t::keine;
+	koord3d pos = operator[](index);
+	if( index > 0 ) {
+		ribi |= ribi_typ( operator[](index-1).get_2d()-pos.get_2d() );
+	}
+	if( index+1 < get_count() ) {
+		ribi |= ribi_typ( operator[](index+1).get_2d()-pos.get_2d() );
+	}
+	return ribi;
+}
+
+void koord3d_vector_t::rotate90( sint16 y_size )
+{
+	for( uint32 i = 0; i < get_count(); i++ ) {
+		operator[](i).rotate90( y_size );
+	}
+}
