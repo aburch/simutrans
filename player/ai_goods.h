@@ -111,7 +111,7 @@ private:
 	bool get_factory_tree_lowest_missing( fabrik_t *fab );
 
 	/* recursive lookup of a tree and how many factories must be at least connected
-	 * returns -1, if this tree is incomplete
+	 * returns -1, if this tree is can't be completed
 	 */
 	int get_factory_tree_missing_count( fabrik_t *fab );
 
@@ -126,7 +126,6 @@ private:
 	void create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
 	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int ladegrad);
 
-public:
 public:
 	ai_goods_t(karte_t *wl, uint8 nr);
 
