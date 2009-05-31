@@ -1756,6 +1756,10 @@ quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* haltestelle_
 
 void haltestelle_t::force_paths_stale(const uint8 category)
 {
+	// Knightly : It is already enough to reset path timestamp to 0
+	paths_timestamp[category] = 0;
+
+	/*
 	if(paths_timestamp[category] > welt->get_einstellungen()->get_max_rerouting_interval_months())
 	{
 		paths_timestamp[category] -= welt->get_einstellungen()->get_max_rerouting_interval_months();
@@ -1765,6 +1769,7 @@ void haltestelle_t::force_paths_stale(const uint8 category)
 		// Prevent overflows.
 		paths_timestamp[category] = 0;
 	}
+	*/
 }
 
 // Added by : Knightly
@@ -1795,9 +1800,10 @@ void haltestelle_t::force_paths_stale(const uint8 category)
 // @jamespetts: modified the code to combine with previous method and provide options about partially delayed refreshes for performance.
 void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const spieler_t *const player, const uint8 path_option)
 {
-	// Path options: 0 = default: selective refresh.
-	// 1 = skip: no refresh.
-	// 2 = thorough: full refresh (default from 3.12. Not currently used). 
+	// Path options: 
+	// 0 = skip		: no paths will be forced stale
+	// 1 = selective: refresh only paths of halts in the schedule
+	// 2 = thorough	: full refresh of all paths in all halts
 
 	halthandle_t tmp_halt;
 
@@ -1807,12 +1813,13 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 		const uint8 entry_count = sched->get_count();
 		const uint8 catg_count = categories.get_count();
 
+		if(welt == NULL)
+		{
+			welt = player->get_welt();
+		}
+
 		for (uint8 i = 0; i < entry_count; i++)
 		{
-			if(welt == NULL)
-			{
-				welt = player->get_welt();
-			}
 			tmp_halt = get_halt(welt, sched->eintrag[i].pos, player);
 			
 			if(!tmp_halt.is_bound())
@@ -1843,7 +1850,7 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 					tmp_halt->reschedule[categories[j]] = true;
 					if (path_option == 1)
 					{
-						tmp_halt->force_paths_stale(categories[j]);
+						tmp_halt->paths_timestamp[categories[j]] = 0;
 						tmp_halt->reroute[categories[j]] = true;
 					}
 				}
@@ -1859,15 +1866,14 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 		if(path_option == 2)
 		{
 			slist_iterator_tpl<halthandle_t> iter (haltestelle_t::alle_haltestellen);
-			halthandle_t tmp_halt;
 			
 			while (iter.next())
 			{
 				tmp_halt = iter.get_current();
-				for (uint8 j = 0; j < catg_count; j++)
+				for (uint8 k = 0; k < catg_count; k++)
 				{
-					tmp_halt->force_paths_stale(categories[j]);
-					tmp_halt->reroute[categories[j]] = true;
+					tmp_halt->paths_timestamp[categories[k]] = 0;
+					tmp_halt->reroute[categories[k]] = true;
 				}
 			}
 		}
