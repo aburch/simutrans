@@ -199,6 +199,10 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const uint8 max
  */
 bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const baum_besch_t *besch, const bool check_climate, const bool random_age )
 {
+	// none there
+	if(  besch_names.empty()  ) {
+		return false;
+	}
 	grund_t *gr = welt->lookup_kartenboden(pos);
 	if(gr) {
 		if( gr->ist_natur()  &&
@@ -240,6 +244,10 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const baum_besc
 
 uint32 baum_t::create_forest(karte_t *welt, koord new_center, koord wh )
 {
+	// none there
+	if(  besch_names.empty()  ) {
+		return 0;
+	}
 	const sint16 xpos_f = new_center.x;
 	const sint16 ypos_f = new_center.y;
 	uint32 number_of_new_trees = 0;
@@ -268,6 +276,10 @@ uint32 baum_t::create_forest(karte_t *welt, koord new_center, koord wh )
 
 void baum_t::fill_trees(karte_t *welt, int dichte)
 {
+	// none there
+	if(  besch_names.empty()  ) {
+		return;
+	}
 DBG_MESSAGE("verteile_baeume()","distributing single trees");
 	koord pos;
 	for(pos.y=0;pos.y<welt->get_groesse_y(); pos.y++) {
@@ -286,11 +298,11 @@ DBG_MESSAGE("verteile_baeume()","distributing single trees");
 
 
 
-bool
-baum_t::alles_geladen()
+bool baum_t::alles_geladen()
 {
 	if (besch_names.empty()) {
 		DBG_MESSAGE("baum_t", "No trees found - feature disabled");
+		baum_typen.append( NULL );
 	}
 	else {
 		stringhashtable_iterator_tpl<const baum_besch_t*> iter(besch_names);
@@ -317,8 +329,7 @@ bool baum_t::register_besch(baum_besch_t *besch)
 
 // calculates tree position on a tile
 // takes care of slopes
-void
-baum_t::calc_off()
+void baum_t::calc_off()
 {
 	int liob;
 	int reob;
@@ -400,8 +411,7 @@ baum_t::calc_bild()
 
 
 
-image_id
-baum_t::get_bild() const
+image_id baum_t::get_bild() const
 {
 	// alter/2048 is the age of the tree
 	if(umgebung_t::hide_trees) {

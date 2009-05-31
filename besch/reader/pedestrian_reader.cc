@@ -29,7 +29,7 @@ void pedestrian_reader_t::register_obj(obj_besch_t *&data)
 
 bool pedestrian_reader_t::successfully_loaded() const
 {
-	return fussgaenger_t::laden_erfolgreich();
+	return fussgaenger_t::alles_geladen();
 }
 
 
