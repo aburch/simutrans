@@ -166,7 +166,7 @@ bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 
 
 /* recursive lookup of a tree and how many factories must be at least connected
- * returns -1, if this tree is incomplete
+ * returns -1, if this tree is can't be completed
  */
 int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 {
@@ -185,28 +185,28 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 		const vector_tpl <koord> & sources = fab->get_suppliers();
 		for( unsigned q=0;  q<sources.get_count();  q++  ) {
 			fabrik_t *qfab = fabrik_t::get_fab(welt,sources[q]);
-			if(!fab) {
+			if(!qfab) {
 				dbg->error( "fabrik_t::get_fab()","fab %s at %s does not find supplier at %s.", fab->get_name(), fab->get_pos().get_str(), sources[q].get_str() );
 				continue;
 			}
-			const fabrik_besch_t* const fb = qfab->get_besch();
-			for (uint qq = 0; qq < fb->get_produkte(); qq++) {
-				if (fb->get_produkt(qq)->get_ware() == ware && !is_forbidden( fabrik_t::get_fab(welt,sources[q]), fab, ware)) {
-					int n = get_factory_tree_missing_count( qfab );
-					if(n>=0) {
-						complete = true;
-						if(  !is_connected( sources[q], fab->get_pos().get_2d(), ware )  ) {
-							numbers += 1;
+			if( !is_forbidden( qfab, fab, ware ) ) {
+				const fabrik_besch_t* const fb = qfab->get_besch();
+				for (uint qq = 0; qq < fb->get_produkte(); qq++) {
+					if (fb->get_produkt(qq)->get_ware() == ware ) {
+						int n = get_factory_tree_missing_count( qfab );
+						if(n>=0) {
+							complete = true;
+							if(  !is_connected( sources[q], fab->get_pos().get_2d(), ware )  ) {
+								numbers += 1;
+							}
+							numbers += n;
 						}
-						numbers += n;
 					}
 				}
 			}
 		}
 		if(!complete) {
-			if(fab->get_besch()->get_lieferanten()==0  ||  numbers==0) {
-				return -1;
-			}
+			return -1;
 		}
 	}
 	return numbers;
@@ -515,7 +515,9 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 		wkz.work( welt, this, welt->lookup_kartenboden(platz2)->get_pos() );
 		wkz.exit( welt, this );
 	}
-	vehikel_t* v = vehikelbauer_t::baue(pos2, this, NULL, rail_engine);
+
+	koord diff1( sgn(size1.x), sgn(size1.y) );
+	vehikel_t* v = vehikelbauer_t::baue(pos1+size1-diff1, this, NULL, rail_engine);
 
 	// V.Meyer: give the new convoi name from first vehicle
 	cnv->set_name(rail_engine->get_name());
@@ -528,7 +530,7 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 	 */
 	for(int i = 0; i < anz_vehikel; i++) {
 		// use the vehicle we searched before
-		vehikel_t* v = vehikelbauer_t::baue(pos2, this, NULL, rail_vehicle);
+		vehikel_t* v = vehikelbauer_t::baue(pos1+size1-diff1, this, NULL, rail_vehicle);
 		cnv->add_vehikel( v );
 	}
 
@@ -688,6 +690,7 @@ DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track 
 		// If connection is built not at platz1/2, we must alter platz1/2, otherwise baue_bahnhof gets confused.
 		if(  tile1.get_2d() != platz1 + size1  ) {
 			platz1 = platz1 + size1 - diff1;
+			size1 = -size1;
 		}
 		if(  tile2.get_2d() != platz2 + size2  ) {
 			platz2 = platz2 + size2 - diff2;
@@ -961,7 +964,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 					// rail was too expensive or not successfull
 					count_rail = 255;
 					state = ship_vehicle ? NR_BAUE_WATER_ROUTE : NR_BAUE_STRASSEN_ROUTE;
-					next_contruction_steps = 80;
+					next_contruction_steps += 80;
 				}
 			}
 			// no success at all?
@@ -999,7 +1002,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 						// so close, so we are already connected
 						grund_t *gr = welt->lookup_kartenboden(platz2);
 						if (gr) gr->obj_loesche_alle(this);
-						state = NR_ROAD_SUCCESS;
+						state = (rail_vehicle  &&  count_rail<255) ? NR_RAIL_SUCCESS : NR_ROAD_SUCCESS;
 					}
 					else {
 						// else we need to built the second part of the route

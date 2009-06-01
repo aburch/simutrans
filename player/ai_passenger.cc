@@ -934,6 +934,7 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 
 	// now create a line
 	walk_city( line, start, number_of_stops );
+	line->get_schedule()->eingabe_abschliessen();
 
 	road_vehicle = vehikelbauer_t::vehikel_search( road_wt, welt->get_timeline_year_month(), 1, 50, warenbauer_t::passagiere, false, false );
 	if( line->get_schedule()->get_count()>1  ) {
