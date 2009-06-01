@@ -1507,6 +1507,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 
 
 //@author: jamespetts
+// Modified by : Knightly
 void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 {
 	// Use Dijkstra's Algorithm to find all the best routes from here at once
@@ -1569,6 +1570,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 	connexion* current_connexion = NULL;
 	connexion* previous_connexion = NULL;
 	path* new_node = NULL;
+	halthandle_t current_halt;
 	halthandle_t next_halt;
 
 	while(open_list[category].get_count() > 0)
@@ -1628,10 +1630,29 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			open_list[category].insert(new_node);
 
 		}
+
+		current_halt = current_node->halt;
 		
 		// Add only if not already contained and it is not the head node.
-		if(current_node->link != NULL && paths[category].put(current_node->halt, current_node))
+		//if(current_node->link != NULL && paths[category].put(current_node->halt, current_node))
+		if(paths[category].put(current_halt, current_node))
 		{
+			if (current_node->link == NULL)
+			{
+				// case : origin path node
+				halthandle_t null_halt;
+				current_node->halt = null_halt;
+			}
+			else if (current_node->link->halt.is_bound())
+			{
+				// case : path nodes after immediate transfer
+				current_node->halt = current_node->link->halt;
+			}
+			// case : current_node->link->halt.is_bound() is false
+			//		  This is the case where current halt is the immediate transfer
+			//		  No extra processing is needed
+
+			/*
 			// Track the path back to get the next transfer from this halt
 			path* track_node = current_node;
 			for(uint8 depth = 0; depth <= 255; depth ++)
@@ -1654,11 +1675,12 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 				// Remove bad paths (transfer depth too great, so aborted)
 				delete paths[category].remove(current_node->halt);
 			}
+			*/
 		}
 		
 		INT_CHECK( "simhalt 1694" );
 
-		if(current_node->halt == goal)
+		if(current_halt == goal)
 		{
 			// Abort the search early if the goal stop is found.
 			// Because the open list is stored on the heap, the search
