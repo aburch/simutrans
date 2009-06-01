@@ -2177,8 +2177,6 @@ karte_t::add_fab(fabrik_t *fab)
 // beware: must remove also links from stops and towns
 bool karte_t::rem_fab(fabrik_t *fab)
 {
-	//if(!fab_list.remove( fab )) {
-	//if(fab_list.remove_at(fab_list.index_of(fab)))
 	if(!fab_list.is_contained(fab))
 	{
 		return false;
@@ -2204,30 +2202,6 @@ bool karte_t::rem_fab(fabrik_t *fab)
 			// then reconnect
 			list[i]->verbinde_fabriken();
 		}
-
-		// remove all links from factories
-		//slist_iterator_tpl<fabrik_t *> iter (fab_list);
-		//while(iter.next()) {
-		//	fabrik_t * fab = iter.get_current();
-		//	/*fab->rem_lieferziel(pos);
-		//	fab->rem_supplier(pos);*/
-		//	
-		//	//Delete orphaned factories
-		//	bool is_orphaned_consumer = false;
-		//	bool is_orphaned_supplier = false;
-		//	if(fab->get_lieferziele().get_count() > 0)
-		//	{
-		//		is_orphaned_consumer = fab->disconnect_consumer(fab->get_pos().get_2d());
-		//	}
-		//	if(fab->get_suppliers().get_count() > 0)
-		//	{
-		//		is_orphaned_supplier = fab->disconnect_supplier(fab->get_pos().get_2d());
-		//	}
-		//	if(is_orphaned_consumer || is_orphaned_supplier)
-		//	{
-		//		rem_fab(fab);
-		//	}
-		//}
 
 		// remove all links to cities
 		slist_iterator_tpl<stadt_t *> iter_city (fab->get_arbeiterziele());
