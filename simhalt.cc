@@ -284,7 +284,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	paths_timestamp = new uint16[max_categories];
 	reschedule = new bool[max_categories];
 	reroute = new bool[max_categories];
-	open_list = new binary_heap_tpl<path*>[max_categories];
+	open_list = new binary_heap_tpl<path_node*>[max_categories];
 	search_complete = new bool[max_categories];
 	iterations = new uint32[max_categories];
 	for(uint8 i = 0; i < max_categories; i ++)
@@ -342,7 +342,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[max_categories];
 	paths = new quickstone_hashtable_tpl<haltestelle_t, path* >[max_categories];
-	open_list = new binary_heap_tpl<path*>[max_categories];
+	open_list = new binary_heap_tpl<path_node*>[max_categories];
 
 	pax_happy = 0;
 	pax_unhappy = 0;
@@ -1508,7 +1508,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 
 //@author: jamespetts
 // Modified by : Knightly
-void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
+void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 category)
 {
 	// Use Dijkstra's Algorithm to find all the best routes from here at once
 	// http://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
@@ -1559,19 +1559,20 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		max_iterations = total_halts * max_transfers;
 		
 		iterations[category] = 0;
-		path* starting_node = new path();
+		path_node* starting_node = new path_node();
 		starting_node->halt = self;
 		starting_node->journey_time = 0;
 		open_list[category].insert(starting_node);
 	}
 
-	path* current_node = NULL;
+	path_node* current_node = NULL;
 	quickstone_hashtable_tpl<haltestelle_t, connexion*> *current_connexions = NULL;
 	connexion* current_connexion = NULL;
-	connexion* previous_connexion = NULL;
-	path* new_node = NULL;
-	halthandle_t current_halt;
+	// connexion* previous_connexion = NULL;
+	path_node* new_node = NULL;
+	// halthandle_t current_halt;
 	halthandle_t next_halt;
+	path* current_path;
 
 	while(open_list[category].get_count() > 0)
 	{	
@@ -1588,8 +1589,12 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			continue;
 		}
 
+		/* Relocated below
 		current_connexions = current_node->halt->get_connexions(category);
 		quickstone_hashtable_iterator_tpl<haltestelle_t, connexion*> iter(*current_connexions);
+		*/
+		
+		/* No longer needed
 		linehandle_t previous_best_line;
 		convoihandle_t previous_best_convoy;
 		if(current_node->link != NULL)
@@ -1601,7 +1606,9 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 				previous_best_convoy = previous_connexion->best_convoy;
 			}
 		}
-		
+		*/
+
+		/* Relocated below
 		// If max_iterations is zero, max_transfers will have been zero, which is a flag
 		// to conduct an unlimited depth search. 
 		while(iter.next() && iterations[category] < max_iterations && max_iterations != 0)
@@ -1630,27 +1637,71 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			open_list[category].insert(new_node);
 
 		}
+		*/
 
-		current_halt = current_node->halt;
+		// current_halt = current_node->halt;
+
+		current_path = new path();
 		
-		// Add only if not already contained and it is not the head node.
+		// Add only if not already contained
 		//if(current_node->link != NULL && paths[category].put(current_node->halt, current_node))
-		if(paths[category].put(current_halt, current_node))
+		if(paths[category].put(current_node->halt, current_path))
 		{
+			// Set journey time
+			current_path->journey_time = current_node->journey_time;
+
+
+			// Determine immediate transfer halt
 			if (current_node->link == NULL)
 			{
 				// case : origin path node
 				halthandle_t null_halt;
-				current_node->halt = null_halt;
+				current_path->halt = null_halt;
 			}
-			else if (current_node->link->halt.is_bound())
+			else if (!current_node->link->halt.is_bound())
+			{
+				// case : current halt is the immediate transfer
+				current_path->halt = current_node->halt;
+			}
+			else
 			{
 				// case : path nodes after immediate transfer
-				current_node->halt = current_node->link->halt;
+				current_path->halt = current_node->link->halt;
 			}
-			// case : current_node->link->halt.is_bound() is false
-			//		  This is the case where current halt is the immediate transfer
-			//		  No extra processing is needed
+
+
+			// Add reachable halts to open list
+			current_connexions = current_node->halt->get_connexions(category);
+			quickstone_hashtable_iterator_tpl<haltestelle_t, connexion*> iter(*current_connexions);
+
+			while(iter.next() && iterations[category] < max_iterations && max_iterations != 0)
+			{
+				next_halt = iter.get_current_key();
+				if(paths[category].get(next_halt) != NULL)
+				{
+					// Only insert into the open list if the 
+					// item is not already on the closed list.
+					continue;
+				}
+
+				current_connexion = iter.get_current_value();
+
+				if(current_node->previous_best_line == current_connexion->best_line 
+					&& current_node->previous_best_convoy == current_connexion->best_convoy)
+				{
+					continue;
+				}
+				iterations[category]++;
+				new_node = new path_node;
+				new_node->halt = next_halt;
+				new_node->journey_time = current_node->journey_time + current_connexion->journey_time + current_connexion->waiting_time;
+				new_node->link = current_path;
+				new_node->previous_best_line = current_connexion->best_line;
+				new_node->previous_best_convoy = current_connexion->best_convoy;
+
+				open_list[category].insert(new_node);
+
+			}
 
 			/*
 			// Track the path back to get the next transfer from this halt
@@ -1677,10 +1728,15 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			}
 			*/
 		}
+		else
+		{
+			delete current_path;
+		}
+
 		
 		INT_CHECK( "simhalt 1694" );
 
-		if(current_halt == goal)
+		if(current_node->halt == goal)
 		{
 			// Abort the search early if the goal stop is found.
 			// Because the open list is stored on the heap, the search
@@ -1691,9 +1747,12 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			{
 				search_complete[category] = true;
 			}
+
+			delete current_node;
 			return;
 		}	
 		
+		delete current_node;
 		//current_node = NULL;
 	}
 	
@@ -3790,6 +3849,17 @@ void* haltestelle_t::path::operator new(size_t /*size*/)
 void haltestelle_t::path::operator delete(void *p)
 {
 	freelist_t::putback_node(sizeof(haltestelle_t::path),p);
+}
+
+// Added by : Knightly
+void* haltestelle_t::path_node::operator new(size_t /*size*/)
+{
+	return freelist_t::gimme_node(sizeof(haltestelle_t::path_node));
+}
+
+void haltestelle_t::path_node::operator delete(void *p)
+{
+	freelist_t::putback_node(sizeof(haltestelle_t::path_node),p);
 }
 
 void* haltestelle_t::connexion::operator new(size_t /*size*/)
