@@ -448,16 +448,21 @@ haltestelle_t::~haltestelle_t()
 		}
 	}
 	free( waren );
-	for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i ++)
+	
+	for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++)
 	{
+		flush_paths(i);
 		reset_connexions(i);
+		open_list[i].delete_all_node_objects();
 	}
+
 	delete[] paths;
 	delete[] connexions;
 	delete[] waiting_times;
 	delete[] paths_timestamp;
 	delete[] connexions_timestamp;
 	delete[] reschedule;
+	delete[] reroute;
 	delete[] open_list;
 	delete[] search_complete;
 	delete[] iterations;
@@ -1533,7 +1538,8 @@ void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 categor
 		// Thus, if connexions are stale, all new paths will be recalculated from scratch.
 		if(!open_list[category].empty())
 		{
-			flush_open_list(category);
+			// flush_open_list(category);
+			open_list[category].delete_all_node_objects();
 		}
 	}
 	if(paths_timestamp[category] <= welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
@@ -1543,7 +1549,8 @@ void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 categor
 		// calculating paths that have not yet been calculated.
 		if(!open_list[category].empty())
 		{
-			flush_open_list(category);
+			// flush_open_list(category);
+			open_list[category].delete_all_node_objects();
 		}
 
 		// Reset the timestamp.
@@ -1761,6 +1768,7 @@ void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 categor
 	//delete current_node;
 }
 
+/*
 void haltestelle_t::flush_open_list(uint8 category)
 {
 	while(!open_list[category].empty())
@@ -1768,6 +1776,7 @@ void haltestelle_t::flush_open_list(uint8 category)
 		delete open_list[category].pop();
 	}
 }
+*/
 
 void haltestelle_t::flush_paths(uint8 category)
 {

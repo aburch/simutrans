@@ -385,7 +385,7 @@ private:
 	// @author: jamespetts
 	binary_heap_tpl<path_node*> *open_list;
 
-	void flush_open_list(uint8 category);
+	// void flush_open_list(uint8 category);
 	void flush_paths(uint8 category);
 
 	// Whether the search for the destination has completed: if so, the search will not
