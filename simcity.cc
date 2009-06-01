@@ -1875,6 +1875,8 @@ void stadt_t::step_passagiere()
 		}
 	}
 
+	INT_CHECK( "simcity 2459" );
+
 	// Hajo: track number of generated passengers.
 	city_history_year[0][history_type+1] += num_pax;
 	city_history_month[0][history_type+1] += num_pax;
@@ -1980,6 +1982,8 @@ void stadt_t::step_passagiere()
 				}
 			}
 			
+			INT_CHECK( "simcity 2460" );
+
 			uint8 current_destination = 0;
 
 			bool route_good = false;
@@ -2142,6 +2146,8 @@ walk:
 						// Thirdly adjust for service quality of the public transport.
 						// Compare the average speed, including waiting times, with the speed bonus speed for
 						// *road* transport.
+
+						INT_CHECK( "simcity 2461" );
 
 						// This is the speed bonus calculation, without reference to price.
 						const ware_besch_t* passengers = pax.get_besch();
@@ -2476,6 +2482,13 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 				{
 					break;
 				}
+
+				// Knightly : 32 iterations all at once may take too long
+				if ( (i % 8) == 0)
+				{
+					INT_CHECK( "simcity 2458" );
+				}
+
 				random += town_step;
 				if(random > weight)
 				{
