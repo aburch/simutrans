@@ -1795,7 +1795,7 @@ void haltestelle_t::force_paths_stale(const uint8 category)
 // @jamespetts: modified the code to combine with previous method and provide options about partially delayed refreshes for performance.
 void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const spieler_t *const player, const uint8 path_option)
 {
-	// Path options: 0 = default: selective refresh.
+	// Path options: 0 = default: selective refresh. {blibby}
 	// 1 = skip: no refresh.
 	// 2 = thorough: full refresh (default from 3.12. Not currently used). 
 
