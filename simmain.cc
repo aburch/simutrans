@@ -537,7 +537,7 @@ int simu_main(int argc, char** argv)
 		int n = 0;
 
 		if (res_str != NULL) {
-			n = sscanf(res_str, "%dx%d", &disp_width, &disp_height);
+			n = sscanf(res_str, "%hdx%hd", &disp_width, &disp_height);
 		}
 
 		if (n != 2) {
