@@ -1639,7 +1639,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 		{
 			if ( !old_fpl->matches(welt, fpl) )
 			{
-				haltestelle_t::refresh_routing(old_fpl, goods_catg_index, besitzer_p, 1);
+				haltestelle_t::refresh_routing(old_fpl, goods_catg_index, besitzer_p, 0);
 				haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p);
 			}
 		}
@@ -1647,7 +1647,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 		{
 			if (fpl != f)
 			{
-				haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, 1);
+				haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, 0);
 			}
 			haltestelle_t::refresh_routing(f, goods_catg_index, besitzer_p);
 		}

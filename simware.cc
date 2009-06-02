@@ -116,7 +116,6 @@ ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		{
 			koord origin_koord = origin.is_bound() ? origin->get_basis_pos() : koord::invalid;	
 			origin_koord.rdwr(file);
-	
 		}
 	}
 	else 

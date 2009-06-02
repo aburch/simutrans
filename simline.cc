@@ -273,7 +273,7 @@ void simline_t::renew_stops()
 		unregister_stops( old_fpl );
 
 		// Added by : Knightly
-		haltestelle_t::refresh_routing(old_fpl, goods_catg_index, sp, 1);
+		haltestelle_t::refresh_routing(old_fpl, goods_catg_index, sp, 0);
 	}
 	register_stops( fpl );
 	
