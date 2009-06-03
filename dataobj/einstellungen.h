@@ -263,6 +263,11 @@ private:
 	// true, if this pak should be used with extensions (default)
 	bool with_private_paks;
 
+	// Whether routes should be refreshed instantly.
+	// 1 = selective (better performance, lower network responsiveness)
+	// 2 = thorough (worse performance, higher network responsiveness)
+	uint8 default_path_option;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -545,6 +550,9 @@ public:
 	// true, if this pak should be used with extensions (default)
 	bool get_with_private_paks() const { return with_private_paks; }
 	void set_with_private_paks(bool b) { with_private_paks = b; }
+
+	inline uint8 get_default_path_option() const { return default_path_option; }
+	inline void set_default_path_option(uint8 value) { default_path_option = value; }
 
 };
 

@@ -1808,17 +1808,16 @@ void stadt_t::step_passagiere()
 {
 	//@author: jamespetts
 	// Passenger routing and generation metrics.	
-	static uint16 local_passengers_min_distance = welt->get_einstellungen()->get_local_passengers_min_distance();
-	static uint16 local_passengers_max_distance = welt->get_einstellungen()->get_local_passengers_max_distance();
-	static uint16 midrange_passengers_min_distance = welt->get_einstellungen()->get_midrange_passengers_min_distance();
-	static uint16 midrange_passengers_max_distance = welt->get_einstellungen()->get_midrange_passengers_max_distance();
-	static uint16 longdistance_passengers_min_distance = welt->get_einstellungen()->get_longdistance_passengers_min_distance();
-	static uint16 longdistance_passengers_max_distance = welt->get_einstellungen()->get_longdistance_passengers_max_distance();
+	const uint16 local_passengers_min_distance = welt->get_einstellungen()->get_local_passengers_min_distance();
+	const uint16 local_passengers_max_distance = welt->get_einstellungen()->get_local_passengers_max_distance();
+	const uint16 midrange_passengers_min_distance = welt->get_einstellungen()->get_midrange_passengers_min_distance();
+	const uint16 midrange_passengers_max_distance = welt->get_einstellungen()->get_midrange_passengers_max_distance();
+	const uint16 longdistance_passengers_min_distance = welt->get_einstellungen()->get_longdistance_passengers_min_distance();
+	const uint16 longdistance_passengers_max_distance = welt->get_einstellungen()->get_longdistance_passengers_max_distance();
 
-	static uint8 passenger_packet_size = welt->get_einstellungen()->get_passenger_routing_packet_size();
-	uint8 max_destinations = (welt->get_einstellungen()->get_max_alternative_destinations()) + 1;
-	static uint8 passenger_routing_local_chance = welt->get_einstellungen()->get_passenger_routing_local_chance();
-	static uint8 passenger_routing_midrange_chance = welt->get_einstellungen()->get_passenger_routing_midrange_chance();
+	const uint8 passenger_packet_size = welt->get_einstellungen()->get_passenger_routing_packet_size() > 0 ? welt->get_einstellungen()->get_passenger_routing_packet_size() : 7;
+	const uint8 passenger_routing_local_chance = welt->get_einstellungen()->get_passenger_routing_local_chance() > 1 && welt->get_einstellungen()->get_passenger_routing_local_chance() < 99 ? welt->get_einstellungen()->get_passenger_routing_local_chance() : 33;
+	const uint8 passenger_routing_midrange_chance = welt->get_einstellungen()->get_passenger_routing_midrange_chance() > 1 && (welt->get_einstellungen()->get_passenger_routing_midrange_chance() + passenger_routing_local_chance) < 99 ? welt->get_einstellungen()->get_passenger_routing_midrange_chance() : 33;
 
 	//	DBG_MESSAGE("stadt_t::step_passagiere()", "%s step_passagiere called (%d,%d - %d,%d)\n", name, li, ob, re, un);
 	//	long t0 = get_current_time_millis();
@@ -1890,39 +1889,13 @@ void stadt_t::step_passagiere()
 	//Only continue if there are suitable start halts nearby, or the passengers have their own car.
 	if(start_halts.get_count() > 0 || has_private_car)
 	{
-		if(passenger_routing_local_chance < 1)
-		{
-			passenger_routing_local_chance = 33;
-		}
-		if(passenger_routing_midrange_chance < 1)
-		{
-			passenger_routing_midrange_chance = 33; 
-		}
-		while(passenger_routing_midrange_chance + passenger_routing_local_chance > 99)
-		{
-			passenger_routing_midrange_chance = passenger_routing_midrange_chance / 2;
-			passenger_routing_local_chance = passenger_routing_local_chance / 2;
-		}
-		uint8 passenger_routing_longdistance_chance = 100 - (passenger_routing_local_chance + passenger_routing_midrange_chance);
+		const uint8 passenger_routing_longdistance_chance = 100 - (passenger_routing_local_chance + passenger_routing_midrange_chance);
 		//Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations
-		if(has_private_car)
-		{
-			// Passengers with a private car will
-			// not tolerate second best destinations,
-			// and will use their private car to get
-			// to their first choice destination
-			// regardless of whether they might
-			// go to other destinations by public transport.
-			max_destinations = 1;
-		}
-		else if(max_destinations > 16) 
-		{
-			max_destinations = 16;
-		}
-		if(passenger_packet_size < 1) 
-		{
-			passenger_packet_size = 7;
-		}
+		
+		const uint8 max_destinations = has_private_car ? 1 : (welt->get_einstellungen()->get_max_alternative_destinations() < 16 ? welt->get_einstellungen()->get_max_alternative_destinations() : 15) + 1;
+		// Passengers with a private car will not tolerate second best destinations,
+		// and will use their private car to get to their first choice destination
+		// regardless of whether they might go to other destinations by public transport.
 
 		// Find passenger destination
 		for (int pax_routed = 0; pax_routed < num_pax; pax_routed += passenger_packet_size) 

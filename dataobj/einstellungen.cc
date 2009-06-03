@@ -278,6 +278,9 @@ einstellungen_t::einstellungen_t() :
 
 	// default: load also private extensions of the pak file
 	with_private_paks = true;
+
+	// The default is a selective refresh.
+	default_path_option = 1;
 }
 
 
@@ -721,7 +724,11 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_short(speed_bonus_multiplier_percent, "");
 			speed_bonus_multiplier = (float)speed_bonus_multiplier_percent / 100.0F;
 		}
-
+		
+		if(file->get_experimental_version() >= 4)
+		{
+			file->rdwr_byte(default_path_option, "");
+		}
 	}
 }
 
@@ -1013,6 +1020,9 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	uint16 speed_bonus_multiplier_percent = 100;
 	speed_bonus_multiplier_percent = contents.get_int("speed_bonus_multiplier_percent", speed_bonus_multiplier_percent);
 	speed_bonus_multiplier = (float)speed_bonus_multiplier_percent / 100.0F;
+
+	bool instant_path_refresh = contents.get_int("instant_path_refresh", false);
+	default_path_option = instant_path_refresh ? 2 : 1;
 
 	/*
 	 * Selection of savegame format through inifile

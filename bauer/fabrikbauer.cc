@@ -922,7 +922,6 @@ next_ware_check:
 	uint32 electric_productivity = 0;
 
 	//slist_iterator_tpl<fabrik_t*> iter (welt->get_fab_list());
-	//vector_tpl<fabrik_t*> factories = welt->get_fab_list();
 	//while(iter.next()) {
 	ITERATE(welt->get_fab_list(), i)
 	{
@@ -939,9 +938,10 @@ next_ware_check:
 	}
 
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
+		
 		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i)
 		{
-			electric_productivity += (*i)->get_power_demand() * 5120;
+			total_produktivity += ((float)((*i)->get_finance_history_month(0, HIST_CITICENS) * (*i)->get_electricity_consumption(welt->get_timeline_year_month())) * 0.02);
 		}
 
 	// now decide producer of electricity or normal ...

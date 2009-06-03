@@ -138,7 +138,7 @@ void simline_t::add_convoy(convoihandle_t cnv)
 		// welt->set_schedule_counter();
 
 		// Added by : Knightly
-		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp);
+		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
 		//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
 	}
 }
@@ -278,7 +278,7 @@ void simline_t::renew_stops()
 	register_stops( fpl );
 	
 	// Added by Knightly
-	haltestelle_t::refresh_routing(fpl, goods_catg_index, sp);
+	haltestelle_t::refresh_routing(fpl, goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
 	//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
 	
 	DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", id, name);
@@ -432,7 +432,7 @@ void simline_t::recalc_catg_index()
 		{
 			old_goods_catg_index.append_unique(goods_catg_index[k], 1);
 		}
-		haltestelle_t::refresh_routing(fpl, old_goods_catg_index, sp);
+		haltestelle_t::refresh_routing(fpl, old_goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
 		//haltestelle_t::force_all_halts_paths_stale(old_goods_catg_index);
 	}
 	else {
@@ -448,7 +448,7 @@ void simline_t::recalc_catg_index()
 				{
 					old_goods_catg_index.append_unique(goods_catg_index[k], 1);
 				}
-				haltestelle_t::refresh_routing(fpl, old_goods_catg_index, sp);
+				haltestelle_t::refresh_routing(fpl, old_goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
 				//haltestelle_t::force_all_halts_paths_stale(old_goods_catg_index);
 
 				break;
