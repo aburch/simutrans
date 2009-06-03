@@ -186,9 +186,6 @@ private:
 	 */
 	void init_pax_destinations();
 
-	// recalculate house informations (used for target selection)
-	void recount_houses();
-
 	// recalcs city borders (after loading and deletion)
 	void recalc_city_size();
 
