@@ -3838,19 +3838,8 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		if(file->get_version()<99014) {
 			(*i)->verbinde_fabriken();
 		}
-		(*i)->laden_abschliessen();
 		display_progress(x++, get_groesse_y() + 256 + stadt.get_count());
 	}
-
-	// must resort them ...
-	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
-	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
-		stadt_t* s = *i;
-		new_weighted_stadt.append(s, s->get_einwohner(), 64);
-		INT_CHECK("simworld 1278");
-	}
-	swap(stadt, new_weighted_stadt);
-	DBG_MESSAGE("karte_t::laden()", "cities initialized");
 
 	// load linemanagement status (and lines)
 	// @author hsiegeln
@@ -3998,6 +3987,17 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 			spieler[i]->laden_abschliessen();
 		}
 	}
+
+	// must resort them ...
+	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		stadt_t* s = *i;
+		s->laden_abschliessen();
+		new_weighted_stadt.append(s, s->get_einwohner(), 64);
+		INT_CHECK("simworld 1278");
+	}
+	swap(stadt, new_weighted_stadt);
+	DBG_MESSAGE("karte_t::laden()", "cities initialized");
 
 	// recalculate halt connections
 	slist_iterator_tpl<halthandle_t>iter(haltestelle_t::get_alle_haltestellen());

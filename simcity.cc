@@ -757,27 +757,6 @@ void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
 
 
 
-// recalculate house informations (used for target selection)
-void stadt_t::recount_houses()
-{
-	DBG_MESSAGE("stadt_t::rdwr()", "borders (%i,%i) -> (%i,%i)", lo.x, lo.y, ur.x, ur.y);
-	buildings.clear();
-	for (sint16 y = lo.y; y <= ur.y; y++) {
-		for (sint16 x = lo.x; x <= ur.x; x++) {
-			const grund_t* gr = welt->lookup_kartenboden(koord(x, y));
-			gebaeude_t* gb = dynamic_cast<gebaeude_t*>(gr->first_obj());
-			if (gb!=NULL  &&  gb->get_tile()->get_besch()->is_connected_with_town()  &&  welt->suche_naechste_stadt(koord(x, y)) == this) {
-				// no attraction, just normal buidlings or townhall
-				buildings.append(gb, gb->get_tile()->get_besch()->get_level() + 1, 16);
-				gb->set_stadt(this);
-			}
-		}
-	}
-	DBG_MESSAGE("recount_houses()", "%s has %i bev", get_name(), get_einwohner());
-}
-
-
-
 void stadt_t::pruefe_grenzen(koord k)
 {
 	if(  has_low_density  ) {

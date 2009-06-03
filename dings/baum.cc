@@ -467,6 +467,9 @@ uint16 baum_t::random_tree_for_climate_intern(climate cl)
 
 baum_t::baum_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
+	season = 0;
+	geburt = welt->get_current_month();
+	baumtype = 0;
 	rdwr(file);
 }
 
@@ -477,6 +480,7 @@ baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 	// Hajo: auch aeltere Baeume erzeugen
 	geburt = welt->get_current_month() - simrand(400);
 	baumtype = random_tree_for_climate_intern(welt->get_climate(pos.z));
+	season = 0;
 	calc_off();
 	calc_bild();
 }
@@ -486,8 +490,8 @@ baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 baum_t::baum_t(karte_t *welt, koord3d pos, uint16 type) : ding_t(welt, pos)
 {
 	geburt = welt->get_current_month();
-
 	baumtype = type;
+	season = 0;
 	calc_off();
 	calc_bild();
 }
@@ -496,6 +500,7 @@ baum_t::baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch) : ding_t(w
 {
 	geburt = welt->get_current_month();
 	baumtype = baum_typen.index_of(besch);
+	season = 0;
 	calc_off();
 	calc_bild();
 }
