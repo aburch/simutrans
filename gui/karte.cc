@@ -692,8 +692,7 @@ reliefkarte_t::~reliefkarte_t()
 
 
 
-reliefkarte_t *
-reliefkarte_t::get_karte()
+reliefkarte_t *reliefkarte_t::get_karte()
 {
 	if(single_instance == NULL) {
 		single_instance = new reliefkarte_t();
@@ -703,8 +702,7 @@ reliefkarte_t::get_karte()
 
 
 
-void
-reliefkarte_t::set_welt(karte_t *welt)
+void reliefkarte_t::set_welt(karte_t *welt)
 {
 	this->welt = welt;			// Welt fuer display_win() merken
 	if(relief) {
@@ -713,6 +711,7 @@ reliefkarte_t::set_welt(karte_t *welt)
 	}
 	rotate45 = false;
 	needs_redraw = true;
+//	is_visible = false;
 
 	if(welt) {
 		calc_map_groesse();

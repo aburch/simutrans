@@ -401,7 +401,7 @@ public:
 	void set_winter_snowline(sint16 sl) { winter_snowline = sl; }
 	sint16 get_winter_snowline() const {return winter_snowline;}
 
-	void rotate90() { rotation = (rotation+1)&3; }
+	void rotate90() { rotation = (rotation+1)&3; set_groesse( groesse_y, groesse_x ); }
 	uint8 get_rotation() const { return rotation; }
 
 	void set_origin_x(sint16 x) { origin_x = x; }
