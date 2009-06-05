@@ -50,6 +50,7 @@
 // sorted heap, since we only need insert and pop
 #include "../tpl/binary_heap_tpl.h" // fastest
 
+#include "../dings/field.h"
 #include "../dings/gebaeude.h"
 #include "../dings/bruecke.h"
 #include "../dings/tunnel.h"
@@ -747,7 +748,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			}
 			// only fields are allowed
 			if(to->get_typ()!=grund_t::boden) {
-				ok &= (to->get_typ()==grund_t::fundament)  &&  (to->suche_obj(ding_t::field)!=NULL);
+				ok &= to->get_typ() == grund_t::fundament && to->find<field_t>();
 			}
 			// no bridges and monorails here in the air
 			ok &= (welt->lookup(to_pos)->get_boden_in_hoehe(to->get_pos().z+Z_TILE_STEP)==NULL);
