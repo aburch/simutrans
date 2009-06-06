@@ -40,6 +40,7 @@
 "Gerw","signal automation",
 "Knightly","fixes, optimisations",
 "Ansgar","Linux builds, patches",
+"Bernd Gabriel","patches",
 "Colin","beta testing",
 "Tick Tock","beta testing",
 "Z9999","beta testing",
