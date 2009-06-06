@@ -1794,9 +1794,9 @@ void stadt_t::step_passagiere()
 	const uint16 longdistance_passengers_min_distance = welt->get_einstellungen()->get_longdistance_passengers_min_distance();
 	const uint16 longdistance_passengers_max_distance = welt->get_einstellungen()->get_longdistance_passengers_max_distance();
 
-	const uint8 passenger_packet_size = welt->get_einstellungen()->get_passenger_routing_packet_size() > 0 ? welt->get_einstellungen()->get_passenger_routing_packet_size() : 7;
-	const uint8 passenger_routing_local_chance = welt->get_einstellungen()->get_passenger_routing_local_chance() > 1 && welt->get_einstellungen()->get_passenger_routing_local_chance() < 99 ? welt->get_einstellungen()->get_passenger_routing_local_chance() : 33;
-	const uint8 passenger_routing_midrange_chance = welt->get_einstellungen()->get_passenger_routing_midrange_chance() > 1 && (welt->get_einstellungen()->get_passenger_routing_midrange_chance() + passenger_routing_local_chance) < 99 ? welt->get_einstellungen()->get_passenger_routing_midrange_chance() : 33;
+	const uint8 passenger_packet_size = welt->get_einstellungen()->get_passenger_routing_packet_size();
+	const uint8 passenger_routing_local_chance = welt->get_einstellungen()->get_passenger_routing_local_chance();
+	const uint8 passenger_routing_midrange_chance = welt->get_einstellungen()->get_passenger_routing_midrange_chance();
 
 	//	DBG_MESSAGE("stadt_t::step_passagiere()", "%s step_passagiere called (%d,%d - %d,%d)\n", name, li, ob, re, un);
 	//	long t0 = get_current_time_millis();

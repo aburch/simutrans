@@ -125,7 +125,6 @@ ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		ziel = welt->get_halt_koord_index(ziel_koord);
 		ziel_koord.rdwr(file);
 		zwischenziel = welt->get_halt_koord_index(ziel_koord);
-
 		
 		if(file->get_experimental_version() >= 1)
 		{
@@ -149,7 +148,6 @@ ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		{
 			origin = zwischenziel;
 		}
-
 	}
 	zielpos.rdwr(file);
 
@@ -163,9 +161,12 @@ ware_t::rdwr(karte_t *welt,loadsave_t *file)
 	if(file->get_experimental_version() >= 2)
 	{
 		file->rdwr_long(accumulated_distance, "");
-		// Was journey steps
-		uint8 dummy;
-		file->rdwr_byte(dummy, "");
+		if(file->get_experimental_version() < 4)
+		{
+			// Was journey steps
+			uint8 dummy;
+			file->rdwr_byte(dummy, "");
+		}
 		file->rdwr_longlong(arrival_time, "");
 	}
 	else

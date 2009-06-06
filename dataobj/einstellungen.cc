@@ -635,6 +635,22 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_byte(always_prefer_car_percent, "");
 			file->rdwr_byte(congestion_density_factor, "");
 
+			if(file->get_experimental_version() < 4)
+			{
+				if(passenger_routing_packet_size < 1)
+				{
+					passenger_routing_packet_size = 7;
+				}
+				if(passenger_routing_local_chance < 1 || passenger_routing_local_chance > 99)
+				{
+					passenger_routing_local_chance = 33;
+				}
+				if(passenger_routing_midrange_chance < 1 || passenger_routing_midrange_chance > 99)
+				{
+					passenger_routing_midrange_chance = 33;
+				}
+			}
+
 			file->rdwr_long(max_corner_limit[waytype_t(road_wt)], "");
 			file->rdwr_long(min_corner_limit[waytype_t(road_wt)], "");
 			double tmp = (double)max_corner_adjustment_factor[waytype_t(road_wt)];
@@ -924,9 +940,21 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	// Passenger routing settings
 	passenger_routing_packet_size = contents.get_int("passenger_routing_packet_size", passenger_routing_packet_size);
+	if(passenger_routing_packet_size < 1)
+	{
+		passenger_routing_packet_size = 7;
+	}
 	max_alternative_destinations = contents.get_int("max_alternative_destinations", max_alternative_destinations);
 	passenger_routing_local_chance  = contents.get_int("passenger_routing_local_chance ", passenger_routing_local_chance);
+	if(passenger_routing_local_chance < 1 || passenger_routing_local_chance > 99)
+	{
+		passenger_routing_local_chance = 33;
+	}
 	passenger_routing_midrange_chance = contents.get_int("passenger_routing_midrange_chance", passenger_routing_midrange_chance);
+	if(passenger_routing_midrange_chance < 1 || passenger_routing_midrange_chance > 99)
+	{
+		passenger_routing_midrange_chance = 33;
+	}
 	base_car_preference_percent = contents.get_int("base_car_preference_percent", base_car_preference_percent);
 	always_prefer_car_percent = contents.get_int("always_prefer_car_percent", always_prefer_car_percent);
 	congestion_density_factor = contents.get_int("congestion_density_factor", congestion_density_factor);
