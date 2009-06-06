@@ -625,27 +625,27 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 				dirname = diagonal_name[(4-welt->get_einstellungen()->get_rotation())%4];
 			}
 			else if (k.x > re_gr) {
-				dirname = diagonal_name[(1-welt->get_einstellungen()->get_rotation())%4];;
+				dirname = diagonal_name[(5-welt->get_einstellungen()->get_rotation())%4];
 			}
 			else {
-				dirname = direction_name[(4-welt->get_einstellungen()->get_rotation())%4];;
+				dirname = direction_name[(4-welt->get_einstellungen()->get_rotation())%4];
 			}
 		} else if (k.y > un_gr  ||  (inside  &&  k.y*3 > (un_gr+un_gr+ob_gr))  ) {
 			if (k.x < li_gr) {
-				dirname = diagonal_name[(3-welt->get_einstellungen()->get_rotation())%4];;
+				dirname = diagonal_name[(3-welt->get_einstellungen()->get_rotation())%4];
 			}
 			else if (k.x > re_gr) {
-				dirname = diagonal_name[(2-welt->get_einstellungen()->get_rotation())%4];;
+				dirname = diagonal_name[(6-welt->get_einstellungen()->get_rotation())%4];
 			}
 			else {
-				dirname = direction_name[(2-welt->get_einstellungen()->get_rotation())%4];;
+				dirname = direction_name[(6-welt->get_einstellungen()->get_rotation())%4];
 			}
 		} else {
 			if (k.x <= stadt->get_pos().x) {
-				dirname = direction_name[(3-welt->get_einstellungen()->get_rotation())%4];;
+				dirname = direction_name[(3-welt->get_einstellungen()->get_rotation())%4];
 			}
 			else {
-				dirname = direction_name[(1-welt->get_einstellungen()->get_rotation())%4];;
+				dirname = direction_name[(5-welt->get_einstellungen()->get_rotation())%4];
 			}
 		}
 		dirname = translator::translate(dirname);
