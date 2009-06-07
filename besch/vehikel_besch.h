@@ -358,12 +358,12 @@ public:
 
 	bool permissive_way_constraint_set(uint8 i) const
 	{
-		return (way_constraints_permissive & 1<<i != 0);
+		return ((way_constraints_permissive & 1)<<i != 0);
 	}
 
 	bool prohibitive_way_constraint_set(uint8 i) const
 	{
-		return (way_constraints_prohibitive & 1<<i != 0);
+		return ((way_constraints_prohibitive & 1)<<i != 0);
 	}
 	
 	/*The level of catering provided by this vehicle (0 if none)

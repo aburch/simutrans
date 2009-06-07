@@ -72,7 +72,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	mountain_roughness.set_pos(koord(LEFT_ARROW,intTopOfButton) );
 	mountain_roughness.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 #ifndef DOUBLE_GROUNDS
-	mountain_roughness.set_limits( 0, 7 );
+	mountain_roughness.set_limits( -7, 7 );
 #else
 	mountain_roughness.set_limits( 0, 10 );
 #endif
