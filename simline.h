@@ -191,7 +191,7 @@ public:
 		}
 		else
 		{
-			rolling_average[cost_type] += amount;
+			rolling_average[cost_type] += (uint32) amount;
 			rolling_average_count[cost_type] ++;
 			financial_history[0][cost_type] = rolling_average[cost_type] / rolling_average_count[cost_type];
 		}

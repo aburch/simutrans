@@ -506,7 +506,7 @@ public:
 
 	void add_factory_arbeiterziel(fabrik_t *fab);
 
-	uint8 get_congestion() { return city_history_month[0][HIST_CONGESTION]; }
+	uint8 get_congestion() { return (uint8) city_history_month[0][HIST_CONGESTION]; }
 
 	void add_city_factory(fabrik_t *fab) { city_factories.append(fab); }
 	void remove_city_factory(fabrik_t *fab) { city_factories.remove(fab); }
