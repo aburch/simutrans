@@ -5,6 +5,8 @@
 #include "components/gui_button.h"
 #include "components/gui_numberinput.h"
 
+#define MAX_BUTTONS (21)
+
 /**
  * Menü zur Änderung der Anzeigeeinstellungen.
  * @author Hj. Malthaner
@@ -13,7 +15,7 @@ class color_gui_t : public gui_frame_t, private action_listener_t
 {
 private:
 	karte_t *welt;
-	button_t buttons[20];
+	button_t buttons[MAX_BUTTONS];
 	gui_numberinput_t brightness, scrollspeed, traffic_density;
 
 public:

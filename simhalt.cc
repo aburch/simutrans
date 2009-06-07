@@ -284,7 +284,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	paths_timestamp = new uint16[max_categories];
 	reschedule = new bool[max_categories];
 	reroute = new bool[max_categories];
-	open_list = new binary_heap_tpl<path*>[max_categories];
+	open_list = new binary_heap_tpl<path_node*>[max_categories];
 	search_complete = new bool[max_categories];
 	iterations = new uint32[max_categories];
 	for(uint8 i = 0; i < max_categories; i ++)
@@ -342,7 +342,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[max_categories];
 	paths = new quickstone_hashtable_tpl<haltestelle_t, path* >[max_categories];
-	open_list = new binary_heap_tpl<path*>[max_categories];
+	open_list = new binary_heap_tpl<path_node*>[max_categories];
 
 	pax_happy = 0;
 	pax_unhappy = 0;
@@ -448,16 +448,21 @@ haltestelle_t::~haltestelle_t()
 		}
 	}
 	free( waren );
-	for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i ++)
+	
+	for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++)
 	{
+		flush_paths(i);
 		reset_connexions(i);
+		open_list[i].delete_all_node_objects();
 	}
+
 	delete[] paths;
 	delete[] connexions;
 	delete[] waiting_times;
 	delete[] paths_timestamp;
 	delete[] connexions_timestamp;
 	delete[] reschedule;
+	delete[] reroute;
 	delete[] open_list;
 	delete[] search_complete;
 	delete[] iterations;
@@ -1507,7 +1512,8 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 
 
 //@author: jamespetts
-void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
+// Modified by : Knightly
+void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 category)
 {
 	// Use Dijkstra's Algorithm to find all the best routes from here at once
 	// http://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
@@ -1532,7 +1538,8 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		// Thus, if connexions are stale, all new paths will be recalculated from scratch.
 		if(!open_list[category].empty())
 		{
-			flush_open_list(category);
+			// flush_open_list(category);
+			open_list[category].delete_all_node_objects();
 		}
 	}
 	if(paths_timestamp[category] <= welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() || welt->get_base_pathing_counter() >= (65535 - welt->get_einstellungen()->get_max_rerouting_interval_months()))
@@ -1542,7 +1549,8 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		// calculating paths that have not yet been calculated.
 		if(!open_list[category].empty())
 		{
-			flush_open_list(category);
+			// flush_open_list(category);
+			open_list[category].delete_all_node_objects();
 		}
 
 		// Reset the timestamp.
@@ -1558,18 +1566,20 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 		max_iterations = total_halts * max_transfers;
 		
 		iterations[category] = 0;
-		path* starting_node = new path();
+		path_node* starting_node = new path_node();
 		starting_node->halt = self;
 		starting_node->journey_time = 0;
 		open_list[category].insert(starting_node);
 	}
 
-	path* current_node = NULL;
+	path_node* current_node = NULL;
 	quickstone_hashtable_tpl<haltestelle_t, connexion*> *current_connexions = NULL;
 	connexion* current_connexion = NULL;
-	connexion* previous_connexion = NULL;
-	path* new_node = NULL;
+	// connexion* previous_connexion = NULL;
+	path_node* new_node = NULL;
+	// halthandle_t current_halt;
 	halthandle_t next_halt;
+	path* current_path;
 
 	while(open_list[category].get_count() > 0)
 	{	
@@ -1586,8 +1596,12 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			continue;
 		}
 
+		/* Relocated below
 		current_connexions = current_node->halt->get_connexions(category);
 		quickstone_hashtable_iterator_tpl<haltestelle_t, connexion*> iter(*current_connexions);
+		*/
+		
+		/* No longer needed
 		linehandle_t previous_best_line;
 		convoihandle_t previous_best_convoy;
 		if(current_node->link != NULL)
@@ -1599,7 +1613,9 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 				previous_best_convoy = previous_connexion->best_convoy;
 			}
 		}
-		
+		*/
+
+		/* Relocated below
 		// If max_iterations is zero, max_transfers will have been zero, which is a flag
 		// to conduct an unlimited depth search. 
 		while(iter.next() && iterations[category] < max_iterations && max_iterations != 0)
@@ -1628,10 +1644,73 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			open_list[category].insert(new_node);
 
 		}
+		*/
+
+		// current_halt = current_node->halt;
+
+		current_path = new path();
 		
-		// Add only if not already contained and it is not the head node.
-		if(current_node->link != NULL && paths[category].put(current_node->halt, current_node))
+		// Add only if not already contained
+		//if(current_node->link != NULL && paths[category].put(current_node->halt, current_node))
+		if(paths[category].put(current_node->halt, current_path))
 		{
+			// Set journey time
+			current_path->journey_time = current_node->journey_time;
+
+
+			// Determine immediate transfer halt
+			if (current_node->link == NULL)
+			{
+				// case : origin path node
+				halthandle_t null_halt;
+				current_path->halt = null_halt;
+			}
+			else if (!current_node->link->halt.is_bound())
+			{
+				// case : current halt is the immediate transfer
+				current_path->halt = current_node->halt;
+			}
+			else
+			{
+				// case : path nodes after immediate transfer
+				current_path->halt = current_node->link->halt;
+			}
+
+
+			// Add reachable halts to open list
+			current_connexions = current_node->halt->get_connexions(category);
+			quickstone_hashtable_iterator_tpl<haltestelle_t, connexion*> iter(*current_connexions);
+
+			while(iter.next() && iterations[category] < max_iterations && max_iterations != 0)
+			{
+				next_halt = iter.get_current_key();
+				if(paths[category].get(next_halt) != NULL)
+				{
+					// Only insert into the open list if the 
+					// item is not already on the closed list.
+					continue;
+				}
+
+				current_connexion = iter.get_current_value();
+
+				if(current_node->previous_best_line == current_connexion->best_line 
+					&& current_node->previous_best_convoy == current_connexion->best_convoy)
+				{
+					continue;
+				}
+				iterations[category]++;
+				new_node = new path_node;
+				new_node->halt = next_halt;
+				new_node->journey_time = current_node->journey_time + current_connexion->journey_time + current_connexion->waiting_time;
+				new_node->link = current_path;
+				new_node->previous_best_line = current_connexion->best_line;
+				new_node->previous_best_convoy = current_connexion->best_convoy;
+
+				open_list[category].insert(new_node);
+
+			}
+
+			/*
 			// Track the path back to get the next transfer from this halt
 			path* track_node = current_node;
 			for(uint8 depth = 0; depth <= 255; depth ++)
@@ -1654,7 +1733,13 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 				// Remove bad paths (transfer depth too great, so aborted)
 				delete paths[category].remove(current_node->halt);
 			}
+			*/
 		}
+		else
+		{
+			delete current_path;
+		}
+
 		
 		INT_CHECK( "simhalt 1694" );
 
@@ -1669,9 +1754,12 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 			{
 				search_complete[category] = true;
 			}
+
+			delete current_node;
 			return;
 		}	
 		
+		delete current_node;
 		//current_node = NULL;
 	}
 	
@@ -1680,6 +1768,7 @@ void haltestelle_t::calculate_paths(halthandle_t goal, uint8 category)
 	//delete current_node;
 }
 
+/*
 void haltestelle_t::flush_open_list(uint8 category)
 {
 	while(!open_list[category].empty())
@@ -1687,6 +1776,7 @@ void haltestelle_t::flush_open_list(uint8 category)
 		delete open_list[category].pop();
 	}
 }
+*/
 
 void haltestelle_t::flush_paths(uint8 category)
 {
@@ -1756,6 +1846,10 @@ quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* haltestelle_
 
 void haltestelle_t::force_paths_stale(const uint8 category)
 {
+	// Knightly : It is already enough to reset path timestamp to 0
+	paths_timestamp[category] = 0;
+
+	/*
 	if(paths_timestamp[category] > welt->get_einstellungen()->get_max_rerouting_interval_months())
 	{
 		paths_timestamp[category] -= welt->get_einstellungen()->get_max_rerouting_interval_months();
@@ -1765,6 +1859,7 @@ void haltestelle_t::force_paths_stale(const uint8 category)
 		// Prevent overflows.
 		paths_timestamp[category] = 0;
 	}
+	*/
 }
 
 // Added by : Knightly
@@ -1795,9 +1890,10 @@ void haltestelle_t::force_paths_stale(const uint8 category)
 // @jamespetts: modified the code to combine with previous method and provide options about partially delayed refreshes for performance.
 void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const spieler_t *const player, const uint8 path_option)
 {
-	// Path options: 0 = default: selective refresh.
-	// 1 = skip: no refresh.
-	// 2 = thorough: full refresh (default from 3.12. Not currently used). 
+	// Path options: 
+	// 0 = skip		: no paths will be forced stale
+	// 1 = selective: refresh only paths of halts in the schedule
+	// 2 = thorough	: full refresh of all paths in all halts
 
 	halthandle_t tmp_halt;
 
@@ -1807,12 +1903,13 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 		const uint8 entry_count = sched->get_count();
 		const uint8 catg_count = categories.get_count();
 
+		if(welt == NULL)
+		{
+			welt = player->get_welt();
+		}
+
 		for (uint8 i = 0; i < entry_count; i++)
 		{
-			if(welt == NULL)
-			{
-				welt = player->get_welt();
-			}
 			tmp_halt = get_halt(welt, sched->eintrag[i].pos, player);
 			
 			if(!tmp_halt.is_bound())
@@ -1843,7 +1940,7 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 					tmp_halt->reschedule[categories[j]] = true;
 					if (path_option == 1)
 					{
-						tmp_halt->force_paths_stale(categories[j]);
+						tmp_halt->paths_timestamp[categories[j]] = 0;
 						tmp_halt->reroute[categories[j]] = true;
 					}
 				}
@@ -1859,15 +1956,14 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 		if(path_option == 2)
 		{
 			slist_iterator_tpl<halthandle_t> iter (haltestelle_t::alle_haltestellen);
-			halthandle_t tmp_halt;
 			
 			while (iter.next())
 			{
 				tmp_halt = iter.get_current();
-				for (uint8 j = 0; j < catg_count; j++)
+				for (uint8 k = 0; k < catg_count; k++)
 				{
-					tmp_halt->force_paths_stale(categories[j]);
-					tmp_halt->reroute[categories[j]] = true;
+					tmp_halt->paths_timestamp[categories[k]] = 0;
+					tmp_halt->reroute[categories[k]] = true;
 				}
 			}
 		}
@@ -3762,6 +3858,17 @@ void* haltestelle_t::path::operator new(size_t /*size*/)
 void haltestelle_t::path::operator delete(void *p)
 {
 	freelist_t::putback_node(sizeof(haltestelle_t::path),p);
+}
+
+// Added by : Knightly
+void* haltestelle_t::path_node::operator new(size_t /*size*/)
+{
+	return freelist_t::gimme_node(sizeof(haltestelle_t::path_node));
+}
+
+void haltestelle_t::path_node::operator delete(void *p)
+{
+	freelist_t::putback_node(sizeof(haltestelle_t::path_node),p);
 }
 
 void* haltestelle_t::connexion::operator new(size_t /*size*/)

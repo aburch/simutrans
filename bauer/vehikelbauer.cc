@@ -357,6 +357,10 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 			if(wt==track_wt  &&  !test_besch->can_follow_any()  ) {
 				continue;
 			}
+			// do not buy incomplete vehicles
+			if(wt==road_wt && !test_besch->can_lead(NULL)) {
+				continue;
+			}
 
 			// engine, but not allowed to lead a convoi, or no power at all or no electrics allowed
 			if(target_weight) {

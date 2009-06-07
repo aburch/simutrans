@@ -757,27 +757,6 @@ void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
 
 
 
-// recalculate house informations (used for target selection)
-void stadt_t::recount_houses()
-{
-	DBG_MESSAGE("stadt_t::rdwr()", "borders (%i,%i) -> (%i,%i)", lo.x, lo.y, ur.x, ur.y);
-	buildings.clear();
-	for (sint16 y = lo.y; y <= ur.y; y++) {
-		for (sint16 x = lo.x; x <= ur.x; x++) {
-			const grund_t* gr = welt->lookup_kartenboden(koord(x, y));
-			gebaeude_t* gb = dynamic_cast<gebaeude_t*>(gr->first_obj());
-			if (gb!=NULL  &&  gb->get_tile()->get_besch()->is_connected_with_town()  &&  welt->suche_naechste_stadt(koord(x, y)) == this) {
-				// no attraction, just normal buidlings or townhall
-				buildings.append(gb, gb->get_tile()->get_besch()->get_level() + 1, 16);
-				gb->set_stadt(this);
-			}
-		}
-	}
-	DBG_MESSAGE("recount_houses()", "%s has %i bev", get_name(), get_einwohner());
-}
-
-
-
 void stadt_t::pruefe_grenzen(koord k)
 {
 	if(  has_low_density  ) {
@@ -1808,17 +1787,16 @@ void stadt_t::step_passagiere()
 {
 	//@author: jamespetts
 	// Passenger routing and generation metrics.	
-	static uint16 local_passengers_min_distance = welt->get_einstellungen()->get_local_passengers_min_distance();
-	static uint16 local_passengers_max_distance = welt->get_einstellungen()->get_local_passengers_max_distance();
-	static uint16 midrange_passengers_min_distance = welt->get_einstellungen()->get_midrange_passengers_min_distance();
-	static uint16 midrange_passengers_max_distance = welt->get_einstellungen()->get_midrange_passengers_max_distance();
-	static uint16 longdistance_passengers_min_distance = welt->get_einstellungen()->get_longdistance_passengers_min_distance();
-	static uint16 longdistance_passengers_max_distance = welt->get_einstellungen()->get_longdistance_passengers_max_distance();
+	const uint16 local_passengers_min_distance = welt->get_einstellungen()->get_local_passengers_min_distance();
+	const uint16 local_passengers_max_distance = welt->get_einstellungen()->get_local_passengers_max_distance();
+	const uint16 midrange_passengers_min_distance = welt->get_einstellungen()->get_midrange_passengers_min_distance();
+	const uint16 midrange_passengers_max_distance = welt->get_einstellungen()->get_midrange_passengers_max_distance();
+	const uint16 longdistance_passengers_min_distance = welt->get_einstellungen()->get_longdistance_passengers_min_distance();
+	const uint16 longdistance_passengers_max_distance = welt->get_einstellungen()->get_longdistance_passengers_max_distance();
 
-	static uint8 passenger_packet_size = welt->get_einstellungen()->get_passenger_routing_packet_size();
-	uint8 max_destinations = (welt->get_einstellungen()->get_max_alternative_destinations()) + 1;
-	static uint8 passenger_routing_local_chance = welt->get_einstellungen()->get_passenger_routing_local_chance();
-	static uint8 passenger_routing_midrange_chance = welt->get_einstellungen()->get_passenger_routing_midrange_chance();
+	const uint8 passenger_packet_size = welt->get_einstellungen()->get_passenger_routing_packet_size();
+	const uint8 passenger_routing_local_chance = welt->get_einstellungen()->get_passenger_routing_local_chance();
+	const uint8 passenger_routing_midrange_chance = welt->get_einstellungen()->get_passenger_routing_midrange_chance();
 
 	//	DBG_MESSAGE("stadt_t::step_passagiere()", "%s step_passagiere called (%d,%d - %d,%d)\n", name, li, ob, re, un);
 	//	long t0 = get_current_time_millis();
@@ -1875,6 +1853,8 @@ void stadt_t::step_passagiere()
 		}
 	}
 
+	INT_CHECK( "simcity 2459" );
+
 	// Hajo: track number of generated passengers.
 	city_history_year[0][history_type+1] += num_pax;
 	city_history_month[0][history_type+1] += num_pax;
@@ -1888,39 +1868,13 @@ void stadt_t::step_passagiere()
 	//Only continue if there are suitable start halts nearby, or the passengers have their own car.
 	if(start_halts.get_count() > 0 || has_private_car)
 	{
-		if(passenger_routing_local_chance < 1)
-		{
-			passenger_routing_local_chance = 33;
-		}
-		if(passenger_routing_midrange_chance < 1)
-		{
-			passenger_routing_midrange_chance = 33; 
-		}
-		while(passenger_routing_midrange_chance + passenger_routing_local_chance > 99)
-		{
-			passenger_routing_midrange_chance = passenger_routing_midrange_chance / 2;
-			passenger_routing_local_chance = passenger_routing_local_chance / 2;
-		}
-		uint8 passenger_routing_longdistance_chance = 100 - (passenger_routing_local_chance + passenger_routing_midrange_chance);
+		const uint8 passenger_routing_longdistance_chance = 100 - (passenger_routing_local_chance + passenger_routing_midrange_chance);
 		//Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations
-		if(has_private_car)
-		{
-			// Passengers with a private car will
-			// not tolerate second best destinations,
-			// and will use their private car to get
-			// to their first choice destination
-			// regardless of whether they might
-			// go to other destinations by public transport.
-			max_destinations = 1;
-		}
-		else if(max_destinations > 16) 
-		{
-			max_destinations = 16;
-		}
-		if(passenger_packet_size < 1) 
-		{
-			passenger_packet_size = 7;
-		}
+		
+		const uint8 max_destinations = has_private_car ? 1 : (welt->get_einstellungen()->get_max_alternative_destinations() < 16 ? welt->get_einstellungen()->get_max_alternative_destinations() : 15) + 1;
+		// Passengers with a private car will not tolerate second best destinations,
+		// and will use their private car to get to their first choice destination
+		// regardless of whether they might go to other destinations by public transport.
 
 		// Find passenger destination
 		for (int pax_routed = 0; pax_routed < num_pax; pax_routed += passenger_packet_size) 
@@ -1980,6 +1934,8 @@ void stadt_t::step_passagiere()
 				}
 			}
 			
+			INT_CHECK( "simcity 2460" );
+
 			uint8 current_destination = 0;
 
 			bool route_good = false;
@@ -2142,6 +2098,8 @@ walk:
 						// Thirdly adjust for service quality of the public transport.
 						// Compare the average speed, including waiting times, with the speed bonus speed for
 						// *road* transport.
+
+						INT_CHECK( "simcity 2461" );
 
 						// This is the speed bonus calculation, without reference to price.
 						const ware_besch_t* passengers = pax.get_besch();
@@ -2476,6 +2434,13 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 				{
 					break;
 				}
+
+				// Knightly : 32 iterations all at once may take too long
+				if ( (i % 8) == 0)
+				{
+					INT_CHECK( "simcity 2458" );
+				}
+
 				random += town_step;
 				if(random > weight)
 				{

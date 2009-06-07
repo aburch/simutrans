@@ -2177,8 +2177,6 @@ karte_t::add_fab(fabrik_t *fab)
 // beware: must remove also links from stops and towns
 bool karte_t::rem_fab(fabrik_t *fab)
 {
-	//if(!fab_list.remove( fab )) {
-	//if(fab_list.remove_at(fab_list.index_of(fab)))
 	if(!fab_list.is_contained(fab))
 	{
 		return false;
@@ -2204,30 +2202,6 @@ bool karte_t::rem_fab(fabrik_t *fab)
 			// then reconnect
 			list[i]->verbinde_fabriken();
 		}
-
-		// remove all links from factories
-		//slist_iterator_tpl<fabrik_t *> iter (fab_list);
-		//while(iter.next()) {
-		//	fabrik_t * fab = iter.get_current();
-		//	/*fab->rem_lieferziel(pos);
-		//	fab->rem_supplier(pos);*/
-		//	
-		//	//Delete orphaned factories
-		//	bool is_orphaned_consumer = false;
-		//	bool is_orphaned_supplier = false;
-		//	if(fab->get_lieferziele().get_count() > 0)
-		//	{
-		//		is_orphaned_consumer = fab->disconnect_consumer(fab->get_pos().get_2d());
-		//	}
-		//	if(fab->get_suppliers().get_count() > 0)
-		//	{
-		//		is_orphaned_supplier = fab->disconnect_supplier(fab->get_pos().get_2d());
-		//	}
-		//	if(is_orphaned_consumer || is_orphaned_supplier)
-		//	{
-		//		rem_fab(fab);
-		//	}
-		//}
 
 		// remove all links to cities
 		slist_iterator_tpl<stadt_t *> iter_city (fab->get_arbeiterziele());
@@ -3864,19 +3838,8 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		if(file->get_version()<99014) {
 			(*i)->verbinde_fabriken();
 		}
-		(*i)->laden_abschliessen();
 		display_progress(x++, get_groesse_y() + 256 + stadt.get_count());
 	}
-
-	// must resort them ...
-	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
-	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
-		stadt_t* s = *i;
-		new_weighted_stadt.append(s, s->get_einwohner(), 64);
-		INT_CHECK("simworld 1278");
-	}
-	swap(stadt, new_weighted_stadt);
-	DBG_MESSAGE("karte_t::laden()", "cities initialized");
 
 	// load linemanagement status (and lines)
 	// @author hsiegeln
@@ -4024,6 +3987,17 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 			spieler[i]->laden_abschliessen();
 		}
 	}
+
+	// must resort them ...
+	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		stadt_t* s = *i;
+		s->laden_abschliessen();
+		new_weighted_stadt.append(s, s->get_einwohner(), 64);
+		INT_CHECK("simworld 1278");
+	}
+	swap(stadt, new_weighted_stadt);
+	DBG_MESSAGE("karte_t::laden()", "cities initialized");
 
 	// recalculate halt connections
 	slist_iterator_tpl<halthandle_t>iter(haltestelle_t::get_alle_haltestellen());

@@ -53,6 +53,8 @@ private:
 
 	static uint16 random_tree_for_climate_intern(climate cl);
 
+	static bool plant_tree_on_coordinate(karte_t *welt, koord pos, const uint8 maximum_count);
+
 public:
 	// only the load save constructor should be called outside
 	// otherwise I suggest use the plant tree function (see below)
@@ -99,7 +101,6 @@ public:
 	// distributes trees on a map
 	static void distribute_trees(karte_t *welt, int dichte);
 
-	static bool plant_tree_on_coordinate(karte_t *welt, koord pos, const uint8 maximum_count);
 	static bool plant_tree_on_coordinate(karte_t *welt, koord pos, const baum_besch_t *besch, const bool check_climate, const bool random_age );
 
 	static bool register_besch(baum_besch_t *besch);

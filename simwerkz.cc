@@ -3955,7 +3955,7 @@ const char *wkz_make_stop_public_t::move( karte_t *welt, spieler_t *sp, uint16, 
 		halthandle_t halt = pl->get_halt();
 		if(  halt.is_bound()  &&  (spieler_t::check_owner(halt->get_besitzer(),sp)  ||  halt->get_besitzer()==welt->get_spieler(1))  ) {
 			sint64 costs = halt->calc_maintenance();
-			// set only tooltip if it costs (us)
+			// set tooltip only if it costs (us)
 			if(costs>0) {
 				win_set_static_tooltip( tooltip_with_price("Building costs estimates", -((costs*60)<<(welt->ticks_bits_per_tag-18)) ) );
 			}

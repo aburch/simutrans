@@ -278,6 +278,9 @@ einstellungen_t::einstellungen_t() :
 
 	// default: load also private extensions of the pak file
 	with_private_paks = true;
+
+	// The default is a selective refresh.
+	default_path_option = 1;
 }
 
 
@@ -632,6 +635,22 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_byte(always_prefer_car_percent, "");
 			file->rdwr_byte(congestion_density_factor, "");
 
+			if(file->get_experimental_version() < 4)
+			{
+				if(passenger_routing_packet_size < 1)
+				{
+					passenger_routing_packet_size = 7;
+				}
+				if(passenger_routing_local_chance < 1 || passenger_routing_local_chance > 99)
+				{
+					passenger_routing_local_chance = 33;
+				}
+				if(passenger_routing_midrange_chance < 1 || passenger_routing_midrange_chance > 99)
+				{
+					passenger_routing_midrange_chance = 33;
+				}
+			}
+
 			file->rdwr_long(max_corner_limit[waytype_t(road_wt)], "");
 			file->rdwr_long(min_corner_limit[waytype_t(road_wt)], "");
 			double tmp = (double)max_corner_adjustment_factor[waytype_t(road_wt)];
@@ -721,7 +740,11 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_short(speed_bonus_multiplier_percent, "");
 			speed_bonus_multiplier = (float)speed_bonus_multiplier_percent / 100.0F;
 		}
-
+		
+		if(file->get_experimental_version() >= 4)
+		{
+			file->rdwr_byte(default_path_option, "");
+		}
 	}
 }
 
@@ -917,9 +940,21 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	// Passenger routing settings
 	passenger_routing_packet_size = contents.get_int("passenger_routing_packet_size", passenger_routing_packet_size);
+	if(passenger_routing_packet_size < 1)
+	{
+		passenger_routing_packet_size = 7;
+	}
 	max_alternative_destinations = contents.get_int("max_alternative_destinations", max_alternative_destinations);
 	passenger_routing_local_chance  = contents.get_int("passenger_routing_local_chance ", passenger_routing_local_chance);
+	if(passenger_routing_local_chance < 1 || passenger_routing_local_chance > 99)
+	{
+		passenger_routing_local_chance = 33;
+	}
 	passenger_routing_midrange_chance = contents.get_int("passenger_routing_midrange_chance", passenger_routing_midrange_chance);
+	if(passenger_routing_midrange_chance < 1 || passenger_routing_midrange_chance > 99)
+	{
+		passenger_routing_midrange_chance = 33;
+	}
 	base_car_preference_percent = contents.get_int("base_car_preference_percent", base_car_preference_percent);
 	always_prefer_car_percent = contents.get_int("always_prefer_car_percent", always_prefer_car_percent);
 	congestion_density_factor = contents.get_int("congestion_density_factor", congestion_density_factor);
@@ -1013,6 +1048,9 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	uint16 speed_bonus_multiplier_percent = 100;
 	speed_bonus_multiplier_percent = contents.get_int("speed_bonus_multiplier_percent", speed_bonus_multiplier_percent);
 	speed_bonus_multiplier = (float)speed_bonus_multiplier_percent / 100.0F;
+
+	bool instant_path_refresh = contents.get_int("instant_path_refresh", false);
+	default_path_option = instant_path_refresh ? 2 : 1;
 
 	/*
 	 * Selection of savegame format through inifile

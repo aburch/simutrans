@@ -50,6 +50,17 @@ public:
 		free( nodes );
 	}
 
+	// Added by : Knightly
+	void delete_all_node_objects()
+	{
+		// Note : nodes[0] is unused and the lowest item is in nodes[1]
+		for (uint32 i = 1; i <= node_count; i++)
+		{
+			delete nodes[i];
+		}
+
+		node_count = 0;
+	}
 
 	/**
 	* Inserts an element into the queue.

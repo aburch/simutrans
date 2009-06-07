@@ -46,7 +46,7 @@ public:
 
 	// class register functions
 	static bool register_besch(const fussgaenger_besch_t *besch);
-	static bool laden_erfolgreich();
+	static bool alles_geladen();
 
 	static void erzeuge_fussgaenger_an(karte_t *welt, koord3d k, int &anzahl);
 };
