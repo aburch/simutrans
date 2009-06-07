@@ -986,7 +986,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 
 		// just add the cost
 		if(sp && !ist_wasser()) {
-			spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung());
+			sp->add_maintenance( weg->get_besch()->get_wartung());
 			weg->set_besitzer( sp );
 		}
 
