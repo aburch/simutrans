@@ -65,6 +65,9 @@ public:
 
 	enum { EMPTY=0, HUMAN=1, AI_GOODS=2, AI_PASSENGER=3, MAX_AI };
 
+	// BG, 2009-06-06: differ between infrastructure and vehicle maintenance 
+	enum { MAINT_INFRASTRUCTURE=0, MAINT_VEHICLE=1, MAINT_COUNT };
+
 protected:
 	char spieler_name_buf[256];
 
@@ -86,7 +89,7 @@ protected:
 	 * Monthly maintenance cost
 	 * @author Hj. Malthaner
 	 */
-	sint32 maintenance;
+	sint32 maintenance[MAINT_COUNT];
 
 	/**
 	 * Die Welt in der gespielt wird.
@@ -148,18 +151,6 @@ protected:
 	uint8 player_nr;
 
 	/**
-	 * Adds somme amount to the maintenance costs
-	 * @param change the change
-	 * @return the new maintenance costs
-	 * @author Hj. Malthaner
-	 */
-	sint32 add_maintenance(sint32 change)
-	{
-		maintenance += change;
-		return maintenance;
-	}
-
-	/**
 	 * Ist dieser Spieler ein automatischer Spieler?
 	 * @author Hj. Malthaner
 	 */
@@ -211,12 +202,37 @@ public:
 
 	virtual ~spieler_t();
 
-	sint32 get_maintenance() const { return maintenance; }
+	sint32 get_maintenance(int which) const { return maintenance[which]; }
+
+	/**
+	 * Adds some amount to the maintenance costs
+	 * @param change the change
+	 * @return the new maintenance costs
+	 * @author Hj. Malthaner
+	 */
+
+	sint32 add_maintenance(sint32 change)
+	{
+		maintenance[MAINT_INFRASTRUCTURE] += change;
+		return maintenance[MAINT_INFRASTRUCTURE];
+	}
+
+	sint32 add_maintenance(sint32 change, int which)
+	{
+		maintenance[which] += change;
+		return maintenance[which];
+	}
 
 	static sint32 add_maintenance(spieler_t *sp, sint32 change) {
 		if(sp) {
-			sp->maintenance += change;
-			return sp->maintenance;
+			return sp->add_maintenance(change, MAINT_INFRASTRUCTURE);
+		}
+		return 0;
+	}
+
+	static sint32 add_maintenance(spieler_t *sp, sint32 change, int which) {
+		if(sp) {
+			return sp->add_maintenance(change, which);
 		}
 		return 0;
 	}

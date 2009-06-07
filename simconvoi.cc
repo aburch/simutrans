@@ -302,8 +302,9 @@ convoi_t::laden_abschliessen()
 		}
 		// anyway reassign convoi pointer ...
 		for( uint8 i=0;  i<anz_vehikel;  i++ ) {
-			vehikel_t* v = fahr[i];
-			v->set_convoi(this);
+			fahr[i]->set_convoi(this);
+			// BG, 06.06.2009: loader does not call laden_abschliessen() for vehicles in depots
+			fahr[i]->laden_abschliessen();
 		}
 		return;
 	}
@@ -1199,7 +1200,7 @@ void convoi_t::new_month()
 	// @author: jamespetts
 	for(unsigned j=0;  j<get_vehikel_anzahl();  j++ ) 
 	{
-		add_running_cost(-fahr[j]->get_besch()->get_fixed_maintenance(welt)<<((sint64)welt->ticks_bits_per_tag-18ll));
+		add_running_cost(-fahr[j]->get_besch()->get_fixed_maintenance(welt)<<(welt->ticks_bits_per_tag-18));
 	}
 
 	// everything normal: update history
@@ -3554,6 +3555,7 @@ void convoi_t::destroy()
 			fahr[i]->set_flag( ding_t::not_on_map );
 
 		}
+		fahr[i]->before_delete();
 		delete fahr[i];
 	}
 	anz_vehikel = 0;
@@ -4283,4 +4285,3 @@ void convoi_t::recalc_catg_index()
 		}
 	}
 }
-

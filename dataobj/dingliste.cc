@@ -855,6 +855,10 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				{
 					// for compatibilty reasons we may have to convert them to tram and monorail depots
 					gebaeude_t *gb = new gebaeude_t(welt, file);
+
+					// do not remove from this position, since there will be nothing
+					gb->set_flag(ding_t::not_on_map);
+/*
 					if(gb->get_tile()->get_besch()->get_extra()==monorail_wt) {
 						monoraildepot_t *md = new monoraildepot_t(welt,gb->get_pos(),(spieler_t *)NULL,gb->get_tile());
 						md->rdwr_vehicles(file);
@@ -871,11 +875,34 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						d = bd;
 					}
 					d->set_besitzer( gb->get_besitzer() );
-					spieler_t::add_maintenance( gb->get_besitzer(), welt->get_einstellungen()->maint_building );
+*/
+					bahndepot_t *depot;
+					switch (gb->get_tile()->get_besch()->get_extra())
+					{
+						case monorail_wt:
+						{
+							depot = new monoraildepot_t(welt,gb->get_pos(),gb->get_besitzer(),gb->get_tile());
+							break;
+						}
+
+						case tram_wt:
+						{
+							depot = new tramdepot_t(welt,gb->get_pos(),gb->get_besitzer(),gb->get_tile());
+							break;
+						}
+
+						default:
+						{
+							depot = new bahndepot_t(welt,gb->get_pos(),gb->get_besitzer(),gb->get_tile());
+							break;
+						}
+					}
+					depot->rdwr_vehicles(file);
+					d = depot;
 					typ = d->get_typ();
 
-					// do not remove from this position, since there will be nothing
-					gb->set_flag(ding_t::not_on_map);
+					// BG, 07.076.2009: has been done in creator: spieler_t::add_maintenance( d->get_besitzer(), welt->get_einstellungen()->maint_building);
+
 					delete gb;
 				}
 				break;
