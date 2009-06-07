@@ -17,7 +17,7 @@
 #include "../simworld.h"
 #include "../simtypes.h"
 
-const uint32 DEFAULT_FIXED_VEHICLE_MAINTENANCE = 100;
+const uint32 DEFAULT_FIXED_VEHICLE_MAINTENANCE = 0;
 
 /**
  * Vehicle type description - all attributes of a vehicle type
