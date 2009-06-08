@@ -113,7 +113,8 @@ int_noise(const long x, const long y)
 static double
 smoothed_noise(const int x, const int y)
 {
-/* this gives a very smooth world */
+#ifndef LANDSCAPE_HILLY
+	/* this gives a very smooth world */
     const double corners = ( int_noise(x-1, y-1)+int_noise(x+1, y-1)+
                              int_noise(x-1, y+1)+int_noise(x+1, y+1) );
 
@@ -124,15 +125,15 @@ smoothed_noise(const int x, const int y)
 
     return (corners + sides+sides + center*4.0) / 16.0;
 
-
-/* a hilly world
+#else
+ //a hilly world
     const double sides   = ( int_noise(x-1, y) + int_noise(x+1, y) +
                              int_noise(x, y-1) + int_noise(x, y+1) );
 
     const double center  =  int_noise(x, y);
 
     return (sides+sides + center*4) / 8.0;
-*/
+#endif
 
 // this gives very hilly world
 //   return int_noise(x,y);
@@ -188,8 +189,8 @@ double perlin_noise_2D(const double x, const double y, const double p)
 	const double frequency = (double)(1 << i);
 	const double amplitude = pow(p, (double)i);
 
-	total += interpolated_noise((x * frequency) / 64.0,
-                                    (y * frequency) / 64.0) * amplitude;
+	total += interpolated_noise((x * frequency) / 64.0 / 2.,
+                                    (y * frequency) / 64.0 / 2.) * amplitude;
     }
 
     return total;
