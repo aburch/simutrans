@@ -151,7 +151,7 @@ depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 			}
 		}
 	}
-	// this part stores the covoi in the depot
+	// this part stores the convoi in the depot
 	convois.append(acnv);
 	depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
 	if(depot_frame) {
@@ -219,6 +219,7 @@ void depot_t::sell_vehicle(vehikel_t* veh)
 	vehicles.remove(veh);
 	get_besitzer()->buche(veh->calc_restwert(), get_pos().get_2d(), COST_NEW_VEHICLE);
 	DBG_MESSAGE("depot_t::sell_vehicle()", "this=%p sells %p", this, veh);
+	veh->before_delete();
 	delete veh;
 }
 
@@ -272,9 +273,10 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 
 bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 {
-	if(cnv.is_bound()) {
-
-		if(!sell) {
+	if(cnv.is_bound()) 
+	{
+		if(!sell)
+		{
 			// store vehicles in depot
 			vehikel_t *v;
 			while(  (v=cnv->remove_vehikel_bei(0))!=NULL  ) {
@@ -375,6 +377,8 @@ depot_t::rdwr(loadsave_t *file)
 void
 depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 {
+// read/write vehicles in the depot, which are not part of a convoi.
+
 	sint32 count;
 
 	if(file->is_saving()) {
@@ -408,9 +412,12 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 				default:
 					dbg->fatal("depot_t::vehikel_laden()","invalid vehicle type $%X", typ);
 			}
-			if(v->get_besch()) {
-				DBG_MESSAGE("depot_t::vehikel_laden()","loaded %s", v->get_besch()->get_name());
+			const vehikel_besch_t *besch = v->get_besch();
+			if(besch) {
+				DBG_MESSAGE("depot_t::vehikel_laden()","loaded %s", besch->get_name());
 				list.insert( v );
+				// BG, 06.06.2009: fixed maintenance for vehicles in the depot, which are not part of a convoi
+				spieler_t::add_maintenance(get_besitzer(), besch->get_fixed_maintenance(get_welt()), spieler_t::MAINT_VEHICLE);
 			}
 			else {
 				dbg->error("depot_t::vehikel_laden()","vehicle has no besch => ignored");

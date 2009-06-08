@@ -69,8 +69,9 @@ wayobj_t::~wayobj_t()
 	if(!besch) {
 		return;
 	}
-	if(get_besitzer()) {
-		spieler_t::add_maintenance(get_besitzer(), -besch->get_wartung());
+	spieler_t *sp = get_besitzer();
+	if(sp) {
+		sp->add_maintenance(-besch->get_wartung());
 	}
 	if(besch->get_own_wtyp()==overheadlines_wt) {
 		grund_t *gr=welt->lookup(get_pos());
@@ -219,9 +220,10 @@ wayobj_t::laden_abschliessen()
 
 	//Add the way constraints together.
 	weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
-	
-	if(get_besitzer()) {
-		spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
+
+	spieler_t *sp = get_besitzer();
+	if(sp) {
+		sp->add_maintenance(besch->get_wartung());
 	}
 
 	calc_bild();

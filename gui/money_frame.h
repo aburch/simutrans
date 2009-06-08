@@ -72,7 +72,9 @@ private:
 	gui_label_t powerline, old_powerline;
 
 	gui_label_t maintenance_label;
+	gui_label_t maintenance_label2;
 	gui_label_t maintenance_money;
+	gui_label_t operational_money;
 
 	gui_label_t warn;
 	gui_label_t scenario;

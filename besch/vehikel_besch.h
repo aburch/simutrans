@@ -17,6 +17,7 @@
 #include "../simworld.h"
 #include "../simtypes.h"
 
+const uint32 DEFAULT_FIXED_VEHICLE_MAINTENANCE = 0;
 
 /**
  * Vehicle type description - all attributes of a vehicle type
@@ -118,7 +119,8 @@ public:
 	// default vehicle (used for way seach and similar tasks)
 	// since it has no images and not even a name knot any calls to this will case a crash
 	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) {
-		freight_image_type = preis = upgrade_price = zuladung = overcrowded_capacity = betriebskosten = intro_date = vorgaenger = nachfolger = catering_level = upgrades = fixed_maintenance = 0;
+		freight_image_type = preis = upgrade_price = zuladung = overcrowded_capacity = betriebskosten = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
+		fixed_maintenance = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 		leistung = gewicht = comfort = 1;
 		gear = 64;
 		len = 8;
