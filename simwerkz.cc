@@ -1079,7 +1079,7 @@ const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		if(gr->ist_natur() &&
 			!gr->ist_wasser() &&
 			gr->get_grund_hang() == 0  &&
-			hausbauer_t::get_special(0,haus_besch_t::rathaus,0,0,welt->get_climate(gr->get_hoehe()))!=NULL  ) {
+			hausbauer_t::get_special(0,haus_besch_t::rathaus,welt->get_timeline_year_month(),0,welt->get_climate(gr->get_hoehe()))!=NULL  ) {
 
 			ding_t *d = gr->first_obj();
 			gebaeude_t *gb = dynamic_cast<gebaeude_t *>(d);

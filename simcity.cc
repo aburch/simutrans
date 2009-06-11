@@ -2397,12 +2397,11 @@ void stadt_t::baue()
 
 
 // geeigneten platz zur Stadtgruendung durch Zufall ermitteln
-vector_tpl<koord>* stadt_t::random_place(
-	const karte_t* wl, const sint32 anzahl, sint16 old_x, sint16 old_y)
+vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl, sint16 old_x, sint16 old_y)
 {
 	int cl = 0;
 	for (int i = 0; i < MAX_CLIMATES; i++) {
-		if (hausbauer_t::get_special(0, haus_besch_t::rathaus, 0, 0, (climate)i)) {
+		if (hausbauer_t::get_special(0, haus_besch_t::rathaus, wl->get_timeline_year_month(), false, (climate)i)) {
 			cl |= (1 << i);
 		}
 	}
