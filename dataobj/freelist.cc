@@ -65,6 +65,7 @@ void *freelist_t::gimme_node(size_t size)
 
 	// all sizes should be dividable by 4
 	size = ((size+3)>>2)<<2;
+	size = min( 8, size );
 
 	// hold return value
 	nodelist_node_t *tmp;
@@ -148,6 +149,7 @@ void freelist_t::putback_node( size_t size, void *p )
 
 	// all sizes should be dividable by 4
 	size = ((size+3)>>2);
+	size = min( 2, size );
 
 	if(size>MAX_LIST_INDEX) {
 		switch(size) {
