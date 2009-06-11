@@ -64,8 +64,9 @@ void *freelist_t::gimme_node(size_t size)
 	}
 
 	// all sizes should be dividable by 4
-	size = ((size+3)>>2)<<2;
-	size = min( 8, size );
+	size = (size+3)>>2;
+	size = max( 2, size );
+	size <<= 2;
 
 	// hold return value
 	nodelist_node_t *tmp;
