@@ -290,11 +290,10 @@ void map_frame_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_class == INFOWIN) {
 		if(ev->ev_code == WIN_OPEN) {
-			reliefkarte_t::get_karte()->is_visible = true;
 			reliefkarte_t::get_karte()->set_xy_offset_size( koord(0,0), koord(0,0) );
 		}
 		else if(ev->ev_code == WIN_CLOSE) {
-			reliefkarte_t::get_karte()->is_visible = false;
+			reliefkarte_t::get_karte()->set_welt(NULL);
 		}
 	}
 

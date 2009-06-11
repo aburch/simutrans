@@ -586,6 +586,7 @@ void reliefkarte_t::calc_map()
 	cur_off = new_off;
 	cur_size = new_size;
 	needs_redraw = false;
+	is_visible = true;
 
 	// redraw the map
 	if(  !rotate45  ) {
@@ -707,7 +708,7 @@ void reliefkarte_t::set_welt(karte_t *welt)
 	}
 	rotate45 = false;
 	needs_redraw = true;
-//	is_visible = false;
+	is_visible = false;
 
 	if(welt) {
 		calc_map_groesse();
