@@ -1,5 +1,6 @@
 #include <math.h>
 #include "simtools.h"
+#include "dataobj/umgebung.h"
 
 /* This is the mersenne random generator: More random and faster! */
 
@@ -113,27 +114,29 @@ int_noise(const long x, const long y)
 static double
 smoothed_noise(const int x, const int y)
 {
-#ifndef LANDSCAPE_HILLY
-	/* this gives a very smooth world */
-    const double corners = ( int_noise(x-1, y-1)+int_noise(x+1, y-1)+
-                             int_noise(x-1, y+1)+int_noise(x+1, y+1) );
+	if(!umgebung_t::hilly)
+	{
+		/* this gives a very smooth world */
+		const double corners = ( int_noise(x-1, y-1)+int_noise(x+1, y-1)+
+								 int_noise(x-1, y+1)+int_noise(x+1, y+1) );
 
-    const double sides   = ( int_noise(x-1, y) + int_noise(x+1, y) +
-                             int_noise(x, y-1) + int_noise(x, y+1) );
+		const double sides   = ( int_noise(x-1, y) + int_noise(x+1, y) +
+								 int_noise(x, y-1) + int_noise(x, y+1) );
 
-    const double center  =  int_noise(x, y);
+		const double center  =  int_noise(x, y);
 
-    return (corners + sides+sides + center*4.0) / 16.0;
+		return (corners + sides+sides + center*4.0) / 16.0;
+	}
+	else
+	{
+	 //a hilly world
+		const double sides   = ( int_noise(x-1, y) + int_noise(x+1, y) +
+								 int_noise(x, y-1) + int_noise(x, y+1) );
 
-#else
- //a hilly world
-    const double sides   = ( int_noise(x-1, y) + int_noise(x+1, y) +
-                             int_noise(x, y-1) + int_noise(x, y+1) );
+		const double center  =  int_noise(x, y);
 
-    const double center  =  int_noise(x, y);
-
-    return (sides+sides + center*4) / 8.0;
-#endif
+		return (sides+sides + center*4) / 8.0;
+	}
 
 // this gives very hilly world
 //   return int_noise(x,y);
@@ -189,8 +192,8 @@ double perlin_noise_2D(const double x, const double y, const double p)
 	const double frequency = (double)(1 << i);
 	const double amplitude = pow(p, (double)i);
 
-	total += interpolated_noise((x * frequency) / 64.0 / 2.,
-                                    (y * frequency) / 64.0 / 2.) * amplitude;
+	total += interpolated_noise((x * frequency) / 64.0,
+                                    (y * frequency) / 64.0) * amplitude;
     }
 
     return total;

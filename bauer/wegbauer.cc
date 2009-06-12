@@ -169,7 +169,7 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 spe
 						((test->get_topspeed() <=  speed_limit && best->get_topspeed() < test->get_topspeed()) ||	
 						(((test->get_max_weight() <=  weight_limit && best->get_max_weight() < test->get_max_weight())))) ||
 						((best->get_topspeed() > speed_limit && test->get_topspeed() < best->get_topspeed()) ||		
-						((best->get_max_weight() > weight_limit && test->get_max_weight()) < best->get_max_weight())) ||
+						(((best->get_max_weight() > weight_limit) && (test->get_max_weight()) < best->get_max_weight()))) ||
 						(time != 0 && (best->get_intro_year_month()>time  ||  time>=best->get_retire_year_month()))
 					) 
 				{

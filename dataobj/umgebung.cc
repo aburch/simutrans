@@ -109,9 +109,10 @@ bool umgebung_t::mute_sound = false;
 bool umgebung_t::mute_midi = false;
 bool umgebung_t::shuffle_midi = true;
 
+bool umgebung_t::hilly = false;
+
 // default settings for new games
 einstellungen_t umgebung_t::default_einstellungen;
-
 
 
 // save/restore environment

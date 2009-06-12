@@ -26,7 +26,7 @@
 #include "../utils/simstring.h"
 #include "components/list_button.h"
 
-#define START_HEIGHT (28)
+#define START_HEIGHT (40)
 
 #define LEFT_ARROW (130)
 #define RIGHT_ARROW (170)
@@ -80,6 +80,12 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	mountain_roughness.wrap_mode( false );
 	mountain_roughness.add_listener( this );
 	add_komponente( &mountain_roughness );
+	intTopOfButton += 12;
+
+	hilly.init( button_t::square, "Hilly landscape", koord(10,intTopOfButton), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
+	hilly.pressed=umgebung_t::hilly;
+	hilly.add_listener( this );
+	add_komponente( &hilly );
 	intTopOfButton += 12;
 
 	// summer snowline alsway startig above highest climate
@@ -200,6 +206,15 @@ climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	else if(komp==&snowline_winter) {
 		sets->set_winter_snowline( v.i );
 	}
+	else if(komp==&hilly)
+	{
+		umgebung_t::hilly ^= 1;
+		hilly.pressed ^= 1;
+		if(  welt_gui  ) 
+		{
+			welt_gui->update_preview();
+		}
+	}
 	else {
 		// all climate borders from here on
 		sint16 *climate_borders = (sint16 *)sets->get_climate_borders();
@@ -234,6 +249,8 @@ void climate_gui_t::zeichnen(koord pos, koord gr)
 
 	no_tree.set_text( "no tree" );
 
+	hilly.pressed = umgebung_t::hilly;
+
 	gui_frame_t::zeichnen(pos, gr);
 
 	const int x = pos.x+10;
@@ -245,7 +262,7 @@ void climate_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x, y, translator::translate("Mountain height"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Map roughness"), ALIGN_LEFT, COL_BLACK, true);
-	y += 12+5;
+	y += 24+5;
 
 	// season stuff
 	display_proportional_clip(x, y, translator::translate("Summer snowline"), ALIGN_LEFT, COL_BLACK, true);

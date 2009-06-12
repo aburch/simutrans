@@ -207,7 +207,7 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			if(experimental_version == 0)
 			{
-				besch->electricity_proportion = ((float)decode_uint16(p) / 100.0);
+				besch->electricity_proportion = ((float)decode_uint16(p) / 100.0F);
 				besch->inverse_electricity_proportion = 1 / besch->electricity_proportion;
 			}
 			else
