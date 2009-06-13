@@ -21,44 +21,46 @@
 
 #include "../utils/simstring.h"
 
-#define MAX_BUTTONS (20)
-
 // y coordinates
-#define GRID_MODE			(0*13+6)
-#define UNDERGROUND		(1*13+6)
-#define DAY_NIGHT			(2*13+6)
-#define BRIGHTNESS		(3*13+6)
-#define SCROLL_INVERS (4*13+6)
-#define SCROLL_SPEED	(5*13+6)
+#define GRID_MODE						(0*13+6)
+#define UNDERGROUND						(1*13+6)
+#define DAY_NIGHT						(2*13+6)
+#define BRIGHTNESS						(3*13+6)
+#define SCROLL_INVERS					(4*13+6)
+#define SCROLL_SPEED					(5*13+6)
 
 #define SEPERATE1 (6*13+6)
 
-#define USE_TRANSPARENCY	(6*13+6+4)
-#define HIDE_TREES				(7*13+6+4)
-#define HIDE_CITY_HOUSES	(8*13+6+4)
+#define USE_TRANSPARENCY				(6*13+6+4)
+#define HIDE_TREES						(7*13+6+4)
+#define HIDE_CITY_HOUSES				(8*13+6+4)
 
 #define SEPERATE2 (9*13+6+4)
 
-#define USE_TRANSPARENCY_STATIONS	(9*13+6+2*4)
+#define USE_TRANSPARENCY_STATIONS		(9*13+6+2*4)
 #define SHOW_STATION_COVERAGE			(10*13+6+2*4)
 #define SHOW_STATION_SIGNS				(11*13+6+2*4)
 #define SHOW_STATION_GOODS				(12*13+6+2*4)
 
-#define SEPERATE3	(13*13+6+2*4)
+#define SEPERATE3						(13*13+6+2*4)
 
-#define CITY_WALKER								(13*13+6+3*4)
-#define STOP_WALKER								(14*13+6+3*4)
-#define DENS_TRAFFIC							(15*13+6+3*4)
-#define CONVOI_TOOLTIPS							(16*13+6+3*4)
+#define CITY_WALKER						(13*13+6+3*4)
+#define STOP_WALKER						(14*13+6+3*4)
+#define DENS_TRAFFIC					(15*13+6+3*4)
+#define CONVOI_TOOLTIPS					(16*13+6+3*4)
 
-#define SEPERATE4	(17*13+6+3*4)
+#define SEPERATE4						(17*13+6+3*4)
 
-#define FPS_DATA (17*13+6+4*4)
-#define IDLE_DATA (18*13+6+4*4)
-#define FRAME_DATA (19*13+6+4*4)
-#define LOOP_DATA (20*13+6+4*4)
+#define FPS_DATA						(17*13+6+4*4)
+#define IDLE_DATA						(18*13+6+4*4)
+#define FRAME_DATA						(19*13+6+4*4)
+#define LOOP_DATA						(20*13+6+4*4)
 
-#define BOTTOM (21*13+6+12+5*4)
+#define SEPERATE5						(21*13+6+4*4)
+
+#define INSTANT_REFRESH_ROUTES			(21*13+6+5*4)
+
+#define BOTTOM							(22*13+6+12+6*4)
 
 // x coordinates
 #define RIGHT_WIDTH (220)
@@ -99,30 +101,36 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[6].set_typ(button_t::square_state);
 	buttons[6].set_text("4LIGHT_CHOOSE");
 	buttons[6].pressed = umgebung_t::scroll_multi < 0;
+	buttons[6].set_tooltip("The main game window can be scrolled by right-clicking and dragging the ground.");
 
 	buttons[7].set_pos( koord(10,STOP_WALKER) );
 	buttons[7].set_typ(button_t::square_state);
 	buttons[7].set_text("5LIGHT_CHOOSE");
 	buttons[7].pressed = welt->get_einstellungen()->get_show_pax();
+	buttons[7].set_tooltip("Pedestrians will appear near stops whenver a passenger vehicle unloads there.");
 
 	buttons[8].set_pos( koord(10,CITY_WALKER) );
 	buttons[8].set_typ(button_t::square_state);
 	buttons[8].set_text("6LIGHT_CHOOSE");
 	buttons[8].pressed = welt->get_einstellungen()->get_random_pedestrians();
+	buttons[8].set_tooltip("Pedestrians will appear randomly in towns.");
 
 	buttons[9].set_pos( koord(10,DAY_NIGHT) );
 	buttons[9].set_typ(button_t::square_state);
 	buttons[9].set_text("8WORLD_CHOOSE");
 	buttons[9].pressed = umgebung_t::night_shift;
+	buttons[9].set_tooltip("Whether the lighting in the main game window simulates a periodic transition between day and night.");
 
 	buttons[10].set_pos( koord(10,USE_TRANSPARENCY) );
 	buttons[10].set_typ(button_t::square_state);
 	buttons[10].set_text("hide transparent");
 	buttons[10].pressed = umgebung_t::hide_with_transparency;
+	buttons[10].set_tooltip("All hidden items (such as trees and buildings) will appear as transparent.");
 
 	buttons[11].set_pos( koord(10,HIDE_TREES) );
 	buttons[11].set_typ(button_t::square_state);
 	buttons[11].set_text("hide trees");
+	buttons[11].set_tooltip("Trees will be miniaturised or made transparent in the main game window.");
 
 	// left right for hide messages
 	buttons[12].set_pos( koord(10,HIDE_CITY_HOUSES) );
@@ -134,28 +142,40 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[14].set_typ(button_t::square_state);
 	buttons[14].set_text("transparent station coverage");
 	buttons[14].pressed = umgebung_t::use_transparency_station_coverage;
+	buttons[14].set_tooltip("The display of the station coverage can either be a transparent rectangle or a series of boxes.");
 
 	buttons[15].set_pos( koord(10,SHOW_STATION_COVERAGE) );
 	buttons[15].set_typ(button_t::square_state);
 	buttons[15].set_text("show station coverage");
+	buttons[15].set_tooltip("Show from how far that passengers or goods will come to use your stops.");
 
 	buttons[16].set_pos( koord(10,UNDERGROUND) );
 	buttons[16].set_typ(button_t::square_state);
 	buttons[16].set_text("underground mode");
+	buttons[16].set_tooltip("See under the ground, to build tunnels and underground railways/metros.");
 
 	buttons[17].set_pos( koord(10,GRID_MODE) );
 	buttons[17].set_typ(button_t::square_state);
 	buttons[17].set_text("show grid");
+	buttons[17].set_tooltip("Shows the borderlines of each tile in the main game window. Can be useful for construction. Toggle with the # key.");
 
 	buttons[18].set_pos( koord(10,SHOW_STATION_SIGNS) );
 	buttons[18].set_typ(button_t::square_state);
 	buttons[18].set_text("show station names");
 	buttons[18].pressed = umgebung_t::show_names&1;
+	buttons[18].set_tooltip("Shows the names of the individual stations in the main game window.");
 
 	buttons[19].set_pos( koord(10,SHOW_STATION_GOODS) );
 	buttons[19].set_typ(button_t::square_state);
 	buttons[19].set_text("show waiting bars");
 	buttons[19].pressed = umgebung_t::show_names&1;
+	buttons[19].set_tooltip("Shows a bar graph representing the number of passengers/mail/goods waiting at stops.");
+
+	buttons[20].set_pos( koord(10,INSTANT_REFRESH_ROUTES) );
+	buttons[20].set_typ(button_t::square_state);
+	buttons[20].set_text("Refresh routes instantly");
+	buttons[20].pressed = welt->get_einstellungen()->get_default_path_option() == 2;
+	buttons[20].set_tooltip("Routes will update instantly after any changes to lines/schedules. Can make the game respond slowly on big maps.");
 
 	// left/right for convoi tooltips
 	buttons[0].set_pos( koord(10,CONVOI_TOOLTIPS) );
@@ -233,6 +253,23 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	} else if((buttons+19)==komp) {
 		umgebung_t::show_names ^= 2;
 	}
+
+	else if((buttons+20)==komp)
+	{
+		const uint8 current_option = welt->get_einstellungen()->get_default_path_option();
+		if(current_option == 1)
+		{
+			welt->get_einstellungen()->set_default_path_option(2);
+			buttons[20].pressed = true;
+		}
+		else
+		{
+			welt->get_einstellungen()->set_default_path_option(1);
+			buttons[20].pressed = false;
+		}
+		
+	}
+
 	welt->set_dirty();
 	return true;
 }
@@ -262,6 +299,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	display_ddd_box_clip(x+10, y+SEPERATE2, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
 	display_ddd_box_clip(x+10, y+SEPERATE3, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
 	display_ddd_box_clip(x+10, y+SEPERATE4, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip(x+10, y+SEPERATE5, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
 
 	display_proportional_clip(x+10, y+BRIGHTNESS+1, translator::translate("1LIGHT_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 

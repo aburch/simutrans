@@ -236,7 +236,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 			// New method - recalculate as necessary
 			
 			// Added by : Knightly
-			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p);
+			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
 			//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
 
 			/*
@@ -580,9 +580,27 @@ void convoi_t::calc_acceleration(long delta_t)
 
 sint32 convoi_t::calc_adjusted_power()
 {
-	uint16 max_speed = fahr[0]->get_besch()->get_geschw();
+	switch(fahr[0]->get_waytype())
+	{
+		// Adjustment of power only applies to steam vehicles
+		// with direct drive (as in steam railway locomotives),
+		// not steam vehicles with geared driving (as with steam
+		// road vehicles) or propellor shaft driving (as with
+		// water craft). Aircraft and maglev, although not
+		// likely ever to be steam, cannot conceivably have
+		// direct drive. 
+
+	case road_wt:
+	case water_wt:
+	case air_wt:
+	case maglev_wt:
+	case invalid_wt:
+	case ignore_wt:
+		return sum_gear_und_leistung;
+	}
+	const uint16 max_speed = fahr[0]->get_besch()->get_geschw();
 	float highpoint_speed = (max_speed >= 30) ? max_speed - 30 : 30;
-	uint16 current_speed = speed_to_kmh(akt_speed);
+	const uint16 current_speed = speed_to_kmh(akt_speed);
 	
 	// Within 15% of top speed - locomotive less efficient
 	float high_speed = (float)max_speed * 0.85; 
@@ -1331,7 +1349,7 @@ void convoi_t::start()
 			// New method - recalculate as necessary
 			
 			// Added by : Knightly
-			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p);
+			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
 			//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
 
 
@@ -1640,7 +1658,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 			if ( !old_fpl->matches(welt, fpl) )
 			{
 				haltestelle_t::refresh_routing(old_fpl, goods_catg_index, besitzer_p, 0);
-				haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p);
+				haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
 			}
 		}
 		else
@@ -1649,7 +1667,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 			{
 				haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, 0);
 			}
-			haltestelle_t::refresh_routing(f, goods_catg_index, besitzer_p);
+			haltestelle_t::refresh_routing(f, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
 		}
 
 		/*
@@ -3643,7 +3661,7 @@ void convoi_t::set_line(linehandle_t org_line)
 		// since this schedule is no longer served
 
 		// Added by : Knightly
-		haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p);
+		haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
 		//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
 
 		/*

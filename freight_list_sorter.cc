@@ -134,7 +134,6 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	slist_tpl <ware_t> dummy;
 	slist_iterator_tpl<ware_t> full_iter ( full_list==NULL ? &dummy : full_list );
 #else
-	uint16 count = 0;
 	bool delete_check = false;
 	if(full_list == NULL)
 	{
@@ -143,6 +142,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	}
 #endif
 	bool list_finish = true;
+	sint16 count = 0;
 
 	// hsiegeln
 	// added sorting to ware's destination list
@@ -221,6 +221,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 		// print the ware's list to buffer - it should be in sortorder by now!
 		int last_ware_index = -1;
 		int last_ware_catg = -1;
+		count = full_list->get_count();
 
 		for (int j = 0; j < pos; j++)
 		{
@@ -270,10 +271,9 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 
 						const ware_t& current = full_iter.get_current();
 #else
-					
-					while(list_finish && (list_finish = count < full_list->get_count()))
+					while(list_finish && (list_finish = --count >= 0))
 					{
-						const ware_t& current = full_list->get_element(count++);
+						const ware_t& current = full_list->get_element(count);
 #endif
 						if(last_ware_index == current.get_index() || last_ware_catg==current.get_catg()) 
 						{
@@ -367,10 +367,10 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	{
 		add_ware_heading( buf, 0, full_iter.get_current().menge, &(full_iter.get_current()), what_doing );
 #else
-	while(list_finish && count < full_list->get_count())
+	while(list_finish && count > 0)
 	{
 		add_ware_heading(buf, 0, full_list->get_element(count).menge, &full_list->get_element(count), what_doing);
-		count ++;
+		count--;
 #endif
 	}
 	if(delete_check)

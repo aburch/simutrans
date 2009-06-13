@@ -816,7 +816,6 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						// no citycars ... delete this
 						car->set_flag(ding_t::not_on_map);
 						delete car;
-						d = NULL;
 					} else {
 						d = car;
 					}
@@ -905,21 +904,24 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						// do not remove from this position, since there will be nothing
 						b->set_flag(ding_t::not_on_map);
 						delete b;
+						b = NULL;
 					}
-					d = b;
+					else {
+						d = b;
+					}
 				}
 				break;
 
 				case ding_t::groundobj:
 				{
 					groundobj_t* const groundobj = new groundobj_t(welt, file);
-					if (groundobj->get_besch() == NULL) {
+					if(groundobj->get_besch() == NULL) {
 						// do not remove from this position, since there will be nothing
 						groundobj->set_flag(ding_t::not_on_map);
 						// not use entferne, since it would try to lookup besch
 						delete groundobj;
-						d = NULL;
-					} else {
+					}
+					else {
 						d = groundobj;
 					}
 					break;
@@ -932,8 +934,8 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						// no citycars ... delete this
 						movingobj->set_flag(ding_t::not_on_map);
 						delete movingobj;
-						d = NULL;
-					} else {
+					}
+					else {
 						d = movingobj;
 					}
 					break;
@@ -949,9 +951,11 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						// do not remove from this position, since there will be nothing
 						gb->set_flag(ding_t::not_on_map);
 						delete gb;
-						gb  = 0;
+						gb = NULL;
 					}
-					d = gb;
+					else {
+						d = gb;
+					}
 				}
 				break;
 

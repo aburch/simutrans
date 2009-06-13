@@ -182,7 +182,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->freight_image_type = decode_uint8(p);
 		if(experimental)
 		{
-			if(experimental_version >= 0 && experimental_version <= 1)
+			if(experimental_version >= 0 && experimental_version <= 2)
 			{
 				besch->is_tilting = decode_uint8(p);
 				besch->way_constraints_permissive = decode_uint8(p);

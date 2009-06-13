@@ -3880,7 +3880,7 @@ bool aircraft_t::ist_weg_frei(int & restart_speed)
 	}
 
 	if(route_index<takeoff  &&  route_index>1  &&  takeoff<cnv->get_route()->get_max_n()) {
-		if(route_index>1  &&  gr->suche_obj(ding_t::aircraft)) {
+		if (route_index > 1 && gr->find<aircraft_t>()) {
 			// check, if tile occupied, if not on stop
 			restart_speed = 0;
 			return false;

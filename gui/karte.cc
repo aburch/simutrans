@@ -578,7 +578,7 @@ void reliefkarte_t::calc_map()
 	koord relief_size = koord( min(size_x,new_size.x), min(size_y,new_size.y) );
 	// actually the following line should reduce new/deletes, but does not work properly
 	// if(  relief==NULL  ||  (sint16)relief->get_width()<relief_size.x  ||  relief->get_width()>size_x  ||  (sint16)relief->get_height()<relief_size.y  ||  relief->get_height()>size_y  ) {
-	if(  relief==NULL  ||  (sint16)relief->get_width()!=relief_size.x  ||  (sint16)relief->get_height()<relief_size.y  ) {
+	if(  relief==NULL  ||  (sint16)relief->get_width()!=relief_size.x  ||  (sint16)relief->get_height()!=relief_size.y  ) {
 		delete relief;
 		relief = new array2d_tpl<unsigned char> (relief_size.x,relief_size.y);
 	}
@@ -692,8 +692,7 @@ reliefkarte_t::~reliefkarte_t()
 
 
 
-reliefkarte_t *
-reliefkarte_t::get_karte()
+reliefkarte_t *reliefkarte_t::get_karte()
 {
 	if(single_instance == NULL) {
 		single_instance = new reliefkarte_t();
@@ -703,8 +702,7 @@ reliefkarte_t::get_karte()
 
 
 
-void
-reliefkarte_t::set_welt(karte_t *welt)
+void reliefkarte_t::set_welt(karte_t *welt)
 {
 	this->welt = welt;			// Welt fuer display_win() merken
 	if(relief) {
@@ -713,6 +711,7 @@ reliefkarte_t::set_welt(karte_t *welt)
 	}
 	rotate45 = false;
 	needs_redraw = true;
+//	is_visible = false;
 
 	if(welt) {
 		calc_map_groesse();

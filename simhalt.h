@@ -787,19 +787,15 @@ public:
 	// Adapted from : Jamespetts' code
 	// Purpose		: To notify relevant halts to rebuild connexions and to notify all halts to recalculate paths
 	// @jamespetts: modified the code to combine with previous method and provide options about partially delayed refreshes for performance.
-#define IMMEDIATE_FULL_REROUTING
-#ifdef IMMEDIATE_FULL_REROUTING
-	static void refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const spieler_t *const player, const uint8 path_option = 2);
-#else
-	static void refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const spieler_t *const player, const uint8 path_option = 0);
-#endif
+
+	static void refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const spieler_t *const player, const uint8 path_option);
 
 	// Added by		: Knightly
 	// Adpated from : rebuild_connexions()
 	// Purpose		: To create a list of reachable halts with a line/convoy
 	// Return		: -1 if self halt is not found; or position of self halt in halt list if found
 	// Caution		: halt_list will be overwritten
-	sint16 haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, const spieler_t *const sched_owner, minivec_tpl<halthandle_t> &halt_list);
+	sint16 create_reachable_halt_list(const schedule_t *const sched, const spieler_t *const sched_owner, minivec_tpl<halthandle_t> &halt_list);
 
 };
 #endif

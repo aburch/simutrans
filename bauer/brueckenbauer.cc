@@ -181,7 +181,6 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 	const grund_t *gr1; // auf Brückenebene
 	const grund_t *gr2; // unter Brückenebene
 	waytype_t wegtyp = besch->get_waytype();
-	leitung_t *lt;
 	error_msg = NULL;
 	sint16 length = 0;
 	do {
@@ -237,11 +236,8 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 				else {
 					ribi = gr2->get_weg_ribi_unmasked(wegtyp);
 				}
-			} else {
-				lt = dynamic_cast<leitung_t *> (gr2->suche_obj(ding_t::leitung));
-				if(lt) {
-					ribi = lt->get_ribi();
-				}
+			} else if (leitung_t *lt = gr2->find<leitung_t>()) {
+				ribi = lt->get_ribi();
 			}
 			if(gr2->get_grund_hang()==hang_t::flach) {
 				if(  ai_bridge  &&  !gr2->hat_wege()  &&  !gr2->get_leitung()  ) {
@@ -256,8 +252,8 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 						// Ende mit Rampe - Endschiene hat keine ribis
 						return pos;
 					}
-					if(ribi==ribi_t::keine && wegtyp==powerline_wt && gr2->suche_obj(ding_t::leitung)) {
-						// Ende mit Rampe - Endschiene hat keine ribis
+					if (ribi == ribi_t::keine && wegtyp == powerline_wt && gr2->find<leitung_t>()) {
+						// end with ramp, end way is already built but ribi's are missing - for powerlines
 						return pos;
 					}
 				}
@@ -273,7 +269,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 					if(wegtyp!=powerline_wt && (!gr2->hat_wege() || gr2->hat_weg(wegtyp))) {
 						return pos;
 					}
-					if(wegtyp==powerline_wt && (!gr2->hat_wege() || gr2->suche_obj(ding_t::leitung))) {
+					if (wegtyp == powerline_wt && (!gr2->hat_wege() || gr2->find<leitung_t>())) {
 						return pos;
 					}
 				}
@@ -331,7 +327,7 @@ const char *brueckenbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, cons
 	leitung_t *lt = NULL;
 
 	if(!weg) {
-		lt = static_cast<leitung_t *>(gr->suche_obj(ding_t::leitung));
+		lt = gr->find<leitung_t>();
 		if(lt) {
 			ribi = lt->get_ribi();
 			powerbridge = true;
@@ -426,11 +422,8 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 	baue_auffahrt(welt, sp, pos, zv, besch, weg_besch );
 	if(besch->get_waytype() != powerline_wt) {
 		ribi = welt->lookup(pos)->get_weg_ribi_unmasked(besch->get_waytype());
-	} else {
-		leitung_t *lt = static_cast<leitung_t *>(welt->lookup(pos)->suche_obj(ding_t::leitung));
-		if(lt) {
-			ribi = lt->get_ribi();
-		}
+	} else if (leitung_t *lt = welt->lookup(pos)->find<leitung_t>()) {
+		ribi = lt->get_ribi();
 	}
 	pos = pos + zv;
 

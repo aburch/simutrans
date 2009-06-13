@@ -55,6 +55,7 @@ bool groundobj_t::alles_geladen()
 		groundobj_typen.append( iter.get_current_value() );
 	}
 	if(besch_names.empty()) {
+		groundobj_typen.append( NULL );
 		DBG_MESSAGE("groundobj_t", "No groundobj found - feature disabled");
 	}
 	return true;
@@ -81,19 +82,23 @@ bool groundobj_t::register_besch(groundobj_besch_t *besch)
  */
 const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, hang_t::typ slope  )
 {
-	int weight = 0;
+	// none there
+	if(  besch_names.empty()  ) {
+		return NULL;
+	}
 
-	for( unsigned i=0;  i<groundobj_typen.get_count();  i++  ) {
+	int weight = 0;
+	for(  unsigned i=0;  i<groundobj_typen.get_count();  i++  ) {
 		if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->get_phases()==16)  ) {
 			weight += groundobj_typen[i]->get_distribution_weight();
 		}
 	}
 
 	// now weight their distribution
-	if (weight > 0) {
+	if(  weight > 0  ) {
 		const int w=simrand(weight);
 		weight = 0;
-		for( unsigned i=0; i<groundobj_typen.get_count();  i++  ) {
+		for(  unsigned i=0;  i<groundobj_typen.get_count();  i++  ) {
 			if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->get_phases()==16)  ) {
 				weight += groundobj_typen[i]->get_distribution_weight();
 				if(weight>=w) {
@@ -192,7 +197,13 @@ void groundobj_t::rdwr(loadsave_t *file)
 	else {
 		char bname[128];
 		file->rdwr_str(bname,128);
-		groundobjtype = besch_names.get(bname)->get_index();
+		groundobj_besch_t *besch = besch_names.get(bname);
+		if(  besch_names.empty()  ||  besch==NULL  ) {
+			groundobjtype = simrand(groundobj_typen.get_count());
+		}
+		else {
+			groundobjtype = besch->get_index();
+		}
 		// if not there, besch will be zero
 	}
 }
