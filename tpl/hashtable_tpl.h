@@ -114,11 +114,11 @@ public:
 
 			if(comp(node.key, key) == 0) 
 			{
-				// duplicate
-				return false;
+				// Knightly : Same Key Found
+				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 
 	//
