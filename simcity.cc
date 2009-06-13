@@ -2409,7 +2409,6 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 
 	else 
 	{
-
 		stadt_t* zielstadt;
 
 		if(max_distance == 0)
@@ -3304,7 +3303,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 
 			// check minimum distance
 			for (int j = 0; (j < i) && minimum_dist > minimum_city_distance; j++) {
-				int dist = abs(k.x - (*result)[j].x) + abs(k.y - (*result)[j].y);
+				int dist = koord_distance( k, (*result)[j] );
 				if (minimum_dist > dist) {
 					minimum_dist = dist;
 				}

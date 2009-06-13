@@ -3341,7 +3341,8 @@ karte_t::play_sound_area_clipped(koord pos, sound_info info)
 {
 	if(is_sound) {
 		const int center = display_get_width() >> 7;
-		const int dist = abs((pos.x-center) - ij_off.x) + abs((pos.y-center) - ij_off.y);
+		pos -= koord(center,center);
+		const int dist = koord_distance( pos, ij_off );
 
 		if(dist < 25) {
 			info.volume = 255-dist*9;

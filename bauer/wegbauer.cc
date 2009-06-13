@@ -1443,7 +1443,7 @@ wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d)
 		return false;
 	}
 	// now try a straight line with no crossings and no curves at the end
-	const int dist=abs(ziel.x-start.x)+abs(ziel.y-start.y);
+	const int dist=koord_distance( ziel, start );
 	for(  int i=0;  i<=dist;  i++  ) {
 		gr=welt->lookup(start+zv*i)->get_kartenboden();
 		// no slopes!
