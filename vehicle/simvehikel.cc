@@ -1191,7 +1191,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 
 			// now only use the real gain in difference for the revenue (may as well be negative!)
 			const koord &zwpos = ware.get_zielpos();
-			const long dist = abs(zwpos.x - start.x) + abs(zwpos.y - start.y) - (abs(end.x - zwpos.x) + abs(end.y - zwpos.y));
+			const long dist = koord_distance( zwpos, start ) - koord_distance( end, zwpos );
 
 			const sint32 grundwert128 = ware.get_besch()->get_preis()<<7;	// bonus price will be always at least 0.128 of the real price
 			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+speed_base*ware.get_besch()->get_speed_bonus()));
@@ -1213,7 +1213,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 
 			// now only use the real gain in difference for the revenue (may as well be negative!)
 			const koord zwpos = ware.get_zwischenziel()->get_basis_pos();
-			const long dist = abs(zwpos.x - start.x) + abs(zwpos.y - start.y) - (abs(end.x - zwpos.x) + abs(end.y - zwpos.y));
+			const long dist = koord_distance( zwpos, start ) - koord_distance( end, zwpos );
 
 			const sint32 grundwert128 = ware.get_besch()->get_preis()<<7;	// bonus price will be always at least 0.128 of the real price
 			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+speed_base*ware.get_besch()->get_speed_bonus()));

@@ -1572,7 +1572,7 @@ koord stadt_t::finde_passagier_ziel(pax_zieltyp* will_return)
 		const stadt_t* zielstadt = welt->get_random_stadt();
 
 		// we like nearer towns more
-		if (abs(zielstadt->pos.x - pos.x) + abs(zielstadt->pos.y - pos.y) > 120) {
+		if( koord_distance( zielstadt->pos, pos ) > 120 ) {
 			// retry once ...
 			zielstadt = welt->get_random_stadt();
 		}
@@ -2423,7 +2423,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 
 			// check minimum distance
 			for (int j = 0; (j < i) && minimum_dist > minimum_city_distance; j++) {
-				int dist = abs(k.x - (*result)[j].x) + abs(k.y - (*result)[j].y);
+				int dist = koord_distance( k, (*result)[j] );
 				if (minimum_dist > dist) {
 					minimum_dist = dist;
 				}
