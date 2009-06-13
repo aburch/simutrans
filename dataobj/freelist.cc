@@ -56,6 +56,11 @@ static nodelist_node_t *all_lists[NUM_LIST] = {
 };
 
 
+// to have this working, we need chunks at least the size of a pointer
+const size_t min_size = sizeof(void *);
+
+
+
 void *freelist_t::gimme_node(size_t size)
 {
 	nodelist_node_t ** list = NULL;
@@ -63,8 +68,10 @@ void *freelist_t::gimme_node(size_t size)
 		return NULL;
 	}
 
-	// all sizes should be dividable by 4
-	size = ((size+3)>>2)<<2;
+	// all sizes should be dividable by 4 and at least as large as a pointer
+	size = max( min_size, size );
+	size = (size+3)>>2;
+	size <<= 2;
 
 	// hold return value
 	nodelist_node_t *tmp;
@@ -147,6 +154,7 @@ void freelist_t::putback_node( size_t size, void *p )
 	}
 
 	// all sizes should be dividable by 4
+	size = max( min_size, size );
 	size = ((size+3)>>2);
 
 	if(size>MAX_LIST_INDEX) {

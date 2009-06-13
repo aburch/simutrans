@@ -54,8 +54,8 @@ void zeiger_t::change_pos(koord3d k )
 			}
 			welt->mark_area( get_pos()-(area*center)/2, area, false );
 		}
-		mark_image_dirty( get_bild(), 0 );
-		mark_image_dirty( get_after_bild(), 0 );
+		mark_image_dirty( get_bild(), get_yoff() );
+		mark_image_dirty( get_after_bild(), get_yoff() );
 		set_flag(ding_t::dirty);
 
 		ding_t::set_pos(k);
@@ -90,8 +90,8 @@ void zeiger_t::set_richtung(ribi_t::ribi r)
 void zeiger_t::set_bild( image_id b )
 {
 	// mark dirty
-	mark_image_dirty( bild, 0 );
-	mark_image_dirty( b, 0 );
+	mark_image_dirty( bild, get_yoff() );
+	mark_image_dirty( b, get_yoff() );
 	bild = b;
 	if(  (area.x|area.y)>1  ) {
 		welt->mark_area( get_pos()-(area*center)/2, area, false );
@@ -105,8 +105,8 @@ void zeiger_t::set_bild( image_id b )
 void zeiger_t::set_after_bild( image_id b )
 {
 	// mark dirty
-	mark_image_dirty( after_bild, 0 );
-	mark_image_dirty( b, 0 );
+	mark_image_dirty( after_bild, get_yoff() );
+	mark_image_dirty( b, get_yoff() );
 	after_bild = b;
 	if(  (area.x|area.y)>1  ) {
 		welt->mark_area( get_pos()-(area*center)/2, area, false );

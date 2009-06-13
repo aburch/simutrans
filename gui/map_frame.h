@@ -35,12 +35,12 @@ class map_frame_t :
 {
 private:
 
-  /**
-   * This is kind of hack: we know there can only be one map frame
-   * at atime,and we want to save the current size for the next object
-   * so we use a static variable here.
-   * @author Hj. Malthaner
-   */
+	/**
+	 * This is kind of hack: we know there can only be one map frame
+	 * at atime,and we want to save the current size for the next object
+	 * so we use a static variable here.
+	 * @author Hj. Malthaner
+	 */
 	static koord size;
 	static koord screenpos;
 
@@ -77,64 +77,64 @@ private:
 
 public:
 
-    /**
-     * Manche Fenster haben einen Hilfetext assoziiert.
-     * @return den Dateinamen für die Hilfe, oder NULL
-     * @author Hj. Malthaner
-     */
-    const char * get_hilfe_datei() const {return "map.txt";}
+	/**
+	 * Manche Fenster haben einen Hilfetext assoziiert.
+	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * @author Hj. Malthaner
+	 */
+	const char * get_hilfe_datei() const {return "map.txt";}
 
-    /**
-     * Does this window need a min size button in the title bar?
-     * @return true if such a button is needed
-     * @author Hj. Malthaner
-     */
-    bool has_min_sizer() const {return true;}
+	/**
+	 * Does this window need a min size button in the title bar?
+	 * @return true if such a button is needed
+	 * @author Hj. Malthaner
+	 */
+	bool has_min_sizer() const {return true;}
 
-    /**
-     * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
-     * @author Hj. Malthaner
-     */
-    map_frame_t(const karte_t *welt);
+	/**
+	 * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
+	 * @author Hj. Malthaner
+	 */
+	map_frame_t(karte_t *welt);
 
-    /**
-     * Events werden hiermit an die GUI-Komponenten
-     * gemeldet
-     * @author Hj. Malthaner
-     */
-    void infowin_event(const event_t *ev);
+	/**
+	 * Events werden hiermit an die GUI-Komponenten
+	 * gemeldet
+	 * @author Hj. Malthaner
+	 */
+	void infowin_event(const event_t *ev);
 
-    /**
-     * Setzt die Fenstergroesse
-     * @author (Mathew Hounsell)
-     * @date   11-Mar-2003
-     */
-    void set_fenstergroesse(koord groesse);
+	/**
+	 * Setzt die Fenstergroesse
+	 * @author (Mathew Hounsell)
+	 * @date   11-Mar-2003
+	 */
+	void set_fenstergroesse(koord groesse);
 
-    /**
-     * resize window in response to a resize event
-     * @author Hj. Malthaner
-     * @date   01-Jun-2002
-     */
-    void resize(const koord delta);
+	/**
+	 * resize window in response to a resize event
+	 * @author Hj. Malthaner
+	 * @date   01-Jun-2002
+	 */
+	void resize(const koord delta);
 
-    /**
-     * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-     * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-     * in dem die Komponente dargestellt wird.
-     * @author Hj. Malthaner
-     */
-    void zeichnen(koord pos, koord gr);
+	/**
+	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
+	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
+	 * in dem die Komponente dargestellt wird.
+	 * @author Hj. Malthaner
+	 */
+	void zeichnen(koord pos, koord gr);
 
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     *
-     * Returns true, if action is done and no more
-     * components should be triggered.
-     * V.Meyer
-     */
-    bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	/**
+	 * This method is called if an action is triggered
+	 * @author Hj. Malthaner
+	 *
+	 * Returns true, if action is done and no more
+	 * components should be triggered.
+	 * V.Meyer
+	 */
+	bool action_triggered( gui_action_creator_t *komp, value_t extra);
 };
 
 #endif
