@@ -56,6 +56,11 @@ static nodelist_node_t *all_lists[NUM_LIST] = {
 };
 
 
+// to have this working, we need chunks at least the size of a pointer
+const size_t min_size = sizeof(void *);
+
+
+
 void *freelist_t::gimme_node(size_t size)
 {
 	nodelist_node_t ** list = NULL;
@@ -63,25 +68,22 @@ void *freelist_t::gimme_node(size_t size)
 		return NULL;
 	}
 
+//#ifdef _64BIT
+//	// all sizes should be divisible by 8
+//	size = ((size+3)>>2)<<2;
+//	if(size == 4)
+//	{
+//		size = 8;
+//	}
+//#else
+//	// all sizes should be divisible by 4
+//	size = ((size+3)>>2)<<2;
+//#endif
 
-#ifdef _64BIT
-	// all sizes should be divisible by 8
-	size = ((size+3)>>2)<<2;
-	if(size == 4)
-	{
-		size = 8;
-	}
-#else
-	// all sizes should be divisible by 4
-	size = ((size+3)>>2)<<2;
-#endif
-
-	// This is the new code from the trunk, but it does not work.
-	//// all sizes should be dividable by 4
-	//size = (size+3)>>2;
-	//size = max( 2, size );
-	//size <<= 2;
-
+	// all sizes should be divisible by 4 and at least as large as a pointer
+	size = max( min_size, size );
+	size = (size+3)>>2;
+	size <<= 2;
 
 	// hold return value
 	nodelist_node_t *tmp;
@@ -163,20 +165,21 @@ void freelist_t::putback_node( size_t size, void *p )
 		return;
 	}
 
-#ifdef _64BIT
-	// all sizes should be divisible by 8
-	size = ((size+3)>>2);
-	if(size == 1)
-	{
-		size = 2;
-	}
-#else
-	// all sizes should be divisible by 4
-	size = ((size+3)>>2);
-#endif
+//#ifdef _64BIT
+//	// all sizes should be divisible by 8
+//	size = ((size+3)>>2);
+//	if(size == 1)
+//	{
+//		size = 2;
+//	}
+//#else
+//	// all sizes should be divisible by 4
+//	size = ((size+3)>>2);
+//#endif
 	
-	// This is the new code from the trunk, but it does not work.
-	//size = max( 2, size );
+	// all sizes should be dividable by 4
+	size = max( min_size, size );
+	size = ((size+3)>>2);
 
 	if(size>MAX_LIST_INDEX) {
 		switch(size) {
