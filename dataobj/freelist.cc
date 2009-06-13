@@ -63,6 +63,7 @@ void *freelist_t::gimme_node(size_t size)
 		return NULL;
 	}
 
+
 #ifdef _64BIT
 	// all sizes should be divisible by 8
 	size = ((size+3)>>2)<<2;
@@ -74,6 +75,13 @@ void *freelist_t::gimme_node(size_t size)
 	// all sizes should be divisible by 4
 	size = ((size+3)>>2)<<2;
 #endif
+
+	// This is the new code from the trunk, but it does not work.
+	//// all sizes should be dividable by 4
+	//size = (size+3)>>2;
+	//size = max( 2, size );
+	//size <<= 2;
+
 
 	// hold return value
 	nodelist_node_t *tmp;
@@ -166,6 +174,9 @@ void freelist_t::putback_node( size_t size, void *p )
 	// all sizes should be divisible by 4
 	size = ((size+3)>>2);
 #endif
+	
+	// This is the new code from the trunk, but it does not work.
+	//size = max( 2, size );
 
 	if(size>MAX_LIST_INDEX) {
 		switch(size) {
