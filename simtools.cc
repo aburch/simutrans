@@ -1,3 +1,4 @@
+#ifndef MAKEOBJ
 #include <math.h>
 #include "simtools.h"
 #include "dataobj/umgebung.h"
@@ -198,3 +199,4 @@ double perlin_noise_2D(const double x, const double y, const double p)
 
     return total;
 }
+#endif
