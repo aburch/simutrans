@@ -1649,7 +1649,7 @@ void stadt_t::neuer_monat() //"New month" (Google)
 		//uint16 number_of_cars = ((city_history_month[1][HIST_CITYCARS] * welt->get_einstellungen()->get_verkehr_level()) / 16) / 64;
 #endif
 
-		while((sint32)current_cars.get_count() > number_of_cars)
+		while(!current_cars.empty() && (sint32)current_cars.get_count() > number_of_cars)
 		{
 			//Make sure that there are not too many cars on the roads. 
 			stadtauto_t* car = current_cars.remove_first();

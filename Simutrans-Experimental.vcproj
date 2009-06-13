@@ -2578,7 +2578,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\simutrans-experimental-binaries\debug\pak128\config\simuconf.tab"
+				RelativePath="..\simutrans-experimental-binaries\debug\config\simuconf.tab"
 				>
 			</File>
 		</Filter>

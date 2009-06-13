@@ -100,6 +100,7 @@ map_frame_t::map_frame_t(karte_t *welt) :
 
 	// rotate map 45°
 	b_rotate45.init(button_t::square, "isometric map", koord(BUTTON_WIDTH+40,BUTTON_HEIGHT+4), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	b_rotate45.set_tooltip("Show the map in the same isometric orientation as the main game window");
 	b_rotate45.add_listener(this);
 	add_komponente(&b_rotate45);
 

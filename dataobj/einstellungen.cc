@@ -68,9 +68,9 @@ einstellungen_t::einstellungen_t() :
 	origin_x = origin_y = 0;
 
 	// passenger manipulation factor (=16 about old value)
-	passenger_factor = 16;
+	passenger_factor = 10;
 
-	electric_promille = 330;
+	electric_promille = 1000;
 
 #ifdef OTTD_LIKE
 	/* prissi: crossconnect all factories (like OTTD and similar games) */
