@@ -143,8 +143,10 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		old_transport(NULL, COL_WHITE, gui_label_t::right),
 		powerline(NULL, COL_WHITE, gui_label_t::money),
 		old_powerline(NULL, COL_WHITE, gui_label_t::money),
-		maintenance_label("This Month",COL_WHITE, gui_label_t::right),
+		maintenance_label("This Month:",COL_WHITE, gui_label_t::right),
+		maintenance_label2("Fixed Costs",COL_WHITE, gui_label_t::right),
 		maintenance_money(NULL, COL_RED, gui_label_t::money),
+		operational_money(NULL, COL_RED, gui_label_t::money),
 		warn("", COL_YELLOW, gui_label_t::left),
 		scenario("", COL_BLACK, gui_label_t::left),
 		headquarter_view(sp->get_welt(), koord3d::invalid),
@@ -224,7 +226,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	old_transport.set_pos(koord(lyl_x+19, top+9*BUTTONSPACE));
 
 	// right column
-	maintenance_label.set_pos(koord(left+340+80, top+1*BUTTONSPACE-2));
+	maintenance_label.set_pos(koord(left+340+80, top-1*BUTTONSPACE-2));
+	maintenance_label2.set_pos(koord(left+340+80, top+0*BUTTONSPACE-2));
+	operational_money.set_pos(koord(left+340+55, top+1*BUTTONSPACE));
 	maintenance_money.set_pos(koord(left+340+55, top+2*BUTTONSPACE));
 
 	//credit_limit.set_pos(koord(left+140+80+335,top+3*BUTTONSPACE-8));
@@ -284,7 +288,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	add_komponente(&credit_limit);
 
 	add_komponente(&maintenance_label);
+	add_komponente(&maintenance_label2);
 	add_komponente(&maintenance_money);
+	add_komponente(&operational_money);
 
 	add_komponente(&warn);
 
@@ -361,7 +367,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 void money_frame_t::zeichnen(koord pos, koord gr)
 {
 	// Hajo: each label needs its own buffer
-	static char str_buf[28][256];
+	static char str_buf[29][256];
 
 	sp->calc_finance_history();
 
@@ -498,10 +504,18 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 		}
 	}
 
+	sint32 maintenance;
 	// Hajo: Money is counted in credit cents (100 cents = 1 Cr)
-	money_to_string(str_buf[27], (double)((sint64)sp->get_maintenance()<<((sint64)sp->get_welt()->ticks_bits_per_tag-18l))/100.0 );
+	maintenance = sp->get_maintenance(spieler_t::MAINT_INFRASTRUCTURE);
+	money_to_string(str_buf[27], (double)((sint64)maintenance<<((sint64)sp->get_welt()->ticks_bits_per_tag-18l))/100.0 );
 	maintenance_money.set_text(str_buf[27]);
-	maintenance_money.set_color(sp->get_maintenance()>=0?MONEY_PLUS:MONEY_MINUS);
+	maintenance_money.set_color(maintenance>=0?MONEY_PLUS:MONEY_MINUS);
+
+	// BG, 06.09.2009: fixed operational costs:
+	maintenance = sp->get_maintenance(spieler_t::MAINT_VEHICLE);
+	money_to_string(str_buf[28], (double)((sint64)maintenance<<((sint64)sp->get_welt()->ticks_bits_per_tag-18l))/100.0 );
+	operational_money.set_text(str_buf[28]);
+	operational_money.set_color(maintenance>=0?MONEY_PLUS:MONEY_MINUS);
 
 	for (int i = 0;  i<MAX_PLAYER_COST;  i++) {
 		filterButtons[i].pressed = ( (bFilterStates[sp->get_player_nr()]&(1<<i)) != 0 );

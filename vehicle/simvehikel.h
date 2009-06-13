@@ -143,7 +143,6 @@ public:
 	vehikel_basis_t(karte_t *welt);
 
 	vehikel_basis_t(karte_t *welt, koord3d pos);
-
 };
 
 
@@ -526,6 +525,9 @@ public:
 
 	sint64 current_revenue;
 
+	// BG, 06.06.2009: update player's fixed maintenance
+	void laden_abschliessen();
+	void before_delete();
 };
 
 

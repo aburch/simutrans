@@ -73,8 +73,10 @@ stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 // Initialise static/global variables for the memory pool.
 bool haltestelle_t::first_run_path = true;
 bool haltestelle_t::first_run_connexion = false;
+bool haltestelle_t::first_run_path_node = true;
 const uint16 haltestelle_t::chunk_quantity = 64;
 haltestelle_t::path* haltestelle_t::head_path = NULL;
+haltestelle_t::path_node* haltestelle_t::head_path_node = NULL;
 haltestelle_t::connexion* haltestelle_t::head_connexion = NULL;
 #endif
 
@@ -726,27 +728,27 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 				dirname = diagonal_name[(4-welt->get_einstellungen()->get_rotation())%4];
 			}
 			else if (k.x > re_gr) {
-				dirname = diagonal_name[(1-welt->get_einstellungen()->get_rotation())%4];;
+				dirname = diagonal_name[(5-welt->get_einstellungen()->get_rotation())%4];
 			}
 			else {
-				dirname = direction_name[(4-welt->get_einstellungen()->get_rotation())%4];;
+				dirname = direction_name[(4-welt->get_einstellungen()->get_rotation())%4];
 			}
 		} else if (k.y > un_gr  ||  (inside  &&  k.y*3 > (un_gr+un_gr+ob_gr))  ) {
 			if (k.x < li_gr) {
-				dirname = diagonal_name[(3-welt->get_einstellungen()->get_rotation())%4];;
+				dirname = diagonal_name[(3-welt->get_einstellungen()->get_rotation())%4];
 			}
 			else if (k.x > re_gr) {
-				dirname = diagonal_name[(2-welt->get_einstellungen()->get_rotation())%4];;
+				dirname = diagonal_name[(6-welt->get_einstellungen()->get_rotation())%4];
 			}
 			else {
-				dirname = direction_name[(2-welt->get_einstellungen()->get_rotation())%4];;
+				dirname = direction_name[(6-welt->get_einstellungen()->get_rotation())%4];
 			}
 		} else {
 			if (k.x <= stadt->get_pos().x) {
-				dirname = direction_name[(3-welt->get_einstellungen()->get_rotation())%4];;
+				dirname = direction_name[(3-welt->get_einstellungen()->get_rotation())%4];
 			}
 			else {
-				dirname = direction_name[(1-welt->get_einstellungen()->get_rotation())%4];;
+				dirname = direction_name[(5-welt->get_einstellungen()->get_rotation())%4];
 			}
 		}
 		dirname = translator::translate(dirname);
@@ -3782,6 +3784,68 @@ haltestelle_t::path* haltestelle_t::path_pool_pop()
 	{
 		head_path = tmp->link;
 		tmp->link = NULL;
+		tmp->journey_time = 65535;
+	}
+	return tmp;
+}
+
+void* haltestelle_t::path_node::operator new(size_t size)
+{
+
+	if(head_path_node == NULL)
+	{
+		uint32 this_chunk;
+		const sint32 max_transfers = welt->get_einstellungen()->get_max_transfers();
+		if(first_run_path_node)
+		{
+			const uint32 total_halts = alle_haltestellen.get_count();
+			this_chunk = total_halts * max_transfers * warenbauer_t::get_max_catg_index();
+			first_run_path_node = false;
+		}
+
+		else
+		{
+			this_chunk = chunk_quantity * max_transfers;
+		}
+		
+		// Create new nodes if there are none left.
+		for(uint32 i = 0; i < this_chunk; i ++)
+		{
+			void *p = malloc(size);
+			//void *p = freelist_t::gimme_node(size);
+			if(p == NULL)
+			{
+				// Something has gone very wrong.
+				dbg->fatal("simhalt.cc", "Error in allocating new memory for path nodes");
+			}
+			path_node* tmp = (path_node*) p;
+			path_node_pool_push(tmp);
+		}
+	}
+	return path_node_pool_pop();
+}
+
+void haltestelle_t::path_node::operator delete(void *p)
+{
+	if(p != NULL)
+	{
+		path_node_pool_push((path_node*)p);
+	}
+}
+
+void haltestelle_t::path_node_pool_push(path_node* p)
+{
+	p->node_link = head_path_node;
+	head_path_node = p;
+}
+
+haltestelle_t::path_node* haltestelle_t::path_node_pool_pop()
+{	
+	path_node* tmp = head_path_node;
+	if(tmp != NULL)
+	{
+		head_path_node = tmp->node_link;
+		tmp->node_link = NULL;
 		tmp->journey_time = 65535;
 	}
 	return tmp;

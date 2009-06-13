@@ -1649,7 +1649,7 @@ void stadt_t::neuer_monat() //"New month" (Google)
 		//uint16 number_of_cars = ((city_history_month[1][HIST_CITYCARS] * welt->get_einstellungen()->get_verkehr_level()) / 16) / 64;
 #endif
 
-		while((sint32)current_cars.get_count() > number_of_cars)
+		while(!current_cars.empty() && (sint32)current_cars.get_count() > number_of_cars)
 		{
 			//Make sure that there are not too many cars on the roads. 
 			stadtauto_t* car = current_cars.remove_first();
@@ -2409,7 +2409,6 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 
 	else 
 	{
-
 		stadt_t* zielstadt;
 
 		if(max_distance == 0)
@@ -2878,11 +2877,9 @@ void stadt_t::baue_gebaeude(const koord k)
 						weg->set_gehweg(true);
 						// if not current city road standard, then replace it
 						if (weg->get_besch() != welt->get_city_road()) {
-							if(weg->get_besitzer()!=NULL && !gr->get_depot() && !gr->is_halt()) {
-								spieler_t *sp = weg->get_besitzer();
-								if(sp) {
-									spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
-								}
+							spieler_t *sp = weg->get_besitzer();
+							if(sp && !gr->get_depot() && !gr->is_halt()) {
+								sp->add_maintenance( -weg->get_besch()->get_wartung());
 								weg->set_besitzer(NULL); // make public
 							}
 							weg->set_besch(welt->get_city_road());
@@ -3032,11 +3029,9 @@ void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 					weg->set_gehweg(true);
 					// if not current city road standard, then replace it
 					if (weg->get_besch() != welt->get_city_road()) {
-						if (weg->get_besitzer() != NULL && !gr->get_depot() && !gr->is_halt()) {
-							spieler_t *sp = weg->get_besitzer();
-							if(sp) {
-								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
-							}
+						spieler_t *sp = weg->get_besitzer();
+						if (sp && !gr->get_depot() && !gr->is_halt()) {
+							spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
 							weg->set_besitzer(NULL); // make public
 						}
 						weg->set_besch(welt->get_city_road());
@@ -3282,12 +3277,11 @@ void stadt_t::baue()
 
 
 // geeigneten platz zur Stadtgruendung durch Zufall ermitteln
-vector_tpl<koord>* stadt_t::random_place(
-	const karte_t* wl, const sint32 anzahl, sint16 old_x, sint16 old_y)
+vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl, sint16 old_x, sint16 old_y)
 {
 	int cl = 0;
 	for (int i = 0; i < MAX_CLIMATES; i++) {
-		if (hausbauer_t::get_special(0, haus_besch_t::rathaus, 0, 0, (climate)i)) {
+		if (hausbauer_t::get_special(0, haus_besch_t::rathaus, wl->get_timeline_year_month(), false, (climate)i)) {
 			cl |= (1 << i);
 		}
 	}
@@ -3309,7 +3303,7 @@ vector_tpl<koord>* stadt_t::random_place(
 
 			// check minimum distance
 			for (int j = 0; (j < i) && minimum_dist > minimum_city_distance; j++) {
-				int dist = abs(k.x - (*result)[j].x) + abs(k.y - (*result)[j].y);
+				int dist = koord_distance( k, (*result)[j] );
 				if (minimum_dist > dist) {
 					minimum_dist = dist;
 				}

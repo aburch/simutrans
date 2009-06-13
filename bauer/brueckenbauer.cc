@@ -275,13 +275,14 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 				}
 			}
 		}
-	} while(!gr1 &&                             // keine Brücke im Weg
-		(!gr2 || gr2->get_grund_hang()==hang_t::flach  ||  gr2->get_hoehe()<pos.z ) ); // Boden kommt nicht hoch
+	} while(  !gr1  &&  // no bridge is crossing
+		(!gr2 || gr2->get_grund_hang()==hang_t::flach  ||  gr2->get_hoehe()<pos.z )  &&  // ground stays below bridge
+		(!ai_bridge  ||  length <= welt->get_einstellungen()->way_max_bridge_len)  // not too long in case of AI
+		);
 
 	error_msg = "A bridge must start on a way!";
 	return koord3d::invalid;
 }
-
 
 
 bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)

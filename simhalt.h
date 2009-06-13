@@ -213,7 +213,9 @@ public:
 	{
 		halthandle_t halt;
 		uint16 journey_time;
-		// path* link;
+#ifdef USE_INDEPENDENT_PATH_POOL
+		path* link;
+#endif
 		//TODO: Consider whether to add comfort
 
 		path() { journey_time = 65535; }
@@ -232,7 +234,11 @@ public:
 	{
 		halthandle_t halt;
 		uint16 journey_time;
-		path* link;
+		union
+		{
+			path* link;
+			path_node* node_link;
+		};
 		linehandle_t previous_best_line;
 		convoihandle_t previous_best_convoy;
 
@@ -257,12 +263,17 @@ private:
 #ifdef USE_INDEPENDENT_PATH_POOL
 	static bool first_run_path;
 	static bool first_run_connexion;
+	static bool first_run_path_node;
 	static const uint16 chunk_quantity;
 	static path* head_path;
+	static path_node* head_path_node;
 	static connexion* head_connexion;
 
 	inline static void path_pool_push(path* p);
 	inline static path* path_pool_pop();
+
+	inline static void path_node_pool_push(path_node* p);
+	inline static path_node* path_node_pool_pop();
 
 	inline static void connexion_pool_push(connexion* p);
 	inline static connexion* connexion_pool_pop();

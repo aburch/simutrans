@@ -115,7 +115,8 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 
 	haltcount = 0;
 
-	maintenance = 0;
+	for (int maint=0; maint < MAINT_COUNT; maint++) 
+		maintenance[maint] = 0;
 
 	last_message_index = 0;
 
@@ -298,7 +299,10 @@ void spieler_t::neuer_monat()
 	simlinemgmt.new_month();
 
 	// subtract maintenance
-	buche( -((sint64)maintenance) <<((sint64)welt->ticks_bits_per_tag-18ll), COST_MAINTENANCE);
+	buche( -((sint64) get_maintenance(MAINT_INFRASTRUCTURE)) <<(welt->ticks_bits_per_tag-18), COST_MAINTENANCE);
+
+	// BG, 06.06.2009: you may expect this line here, but fixed maintenance is billed per vehicle. 
+	// buche( -((sint64) get_maintenance(MAINT_VEHICLE)) <<(welt->ticks_bits_per_tag-18), COST_OPERATING_PROFIT);
 
 	// enough money and scenario finished?
 	if(konto > 0  &&  welt->get_scenario()->active()  &&  finance_history_year[0][COST_SCENARIO_COMPLETED]>=100) {

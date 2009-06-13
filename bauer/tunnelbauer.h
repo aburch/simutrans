@@ -30,7 +30,7 @@ class werkzeug_waehler_t;
 class tunnelbauer_t {
 private:
 	static bool baue_tunnel(karte_t *welt, spieler_t *sp, koord3d pos, koord3d end, koord zv, const tunnel_besch_t *besch);
-	static const weg_besch_t *baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, const tunnel_besch_t *besch, const weg_besch_t *weg_besch, int &cost);
+	static const weg_besch_t *baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, const tunnel_besch_t *besch, const weg_besch_t *weg_besch, int &cost, int &maint);
 
 	tunnelbauer_t() {} // private -> no instance please
 

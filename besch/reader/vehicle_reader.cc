@@ -206,7 +206,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				else
 				{
-					besch->fixed_maintenance=0;
+					besch->fixed_maintenance = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 				}
 			}
 			else
@@ -316,7 +316,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->upgrades = 0;
 		besch->upgrade_price = besch->preis;
 		besch->available_only_as_upgrade = false;
-		besch->fixed_maintenance=0;
+		besch->fixed_maintenance = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 	}
 
 

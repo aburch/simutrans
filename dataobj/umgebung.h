@@ -221,6 +221,10 @@ public:
 	static sint16 global_volume, midi_volume;
 	static bool mute_sound, mute_midi, shuffle_midi;
 
+	// Whether to generate a hilly landscape
+	// @author: jamespetts
+	static bool hilly;
+
 	static einstellungen_t default_einstellungen;
 
 	// load/saving settings from file

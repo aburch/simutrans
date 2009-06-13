@@ -81,7 +81,7 @@ const uint8 map_frame_t::map_type_color[MAX_BUTTON_TYPE] =
 };
 
 
-map_frame_t::map_frame_t(const karte_t *welt) :
+map_frame_t::map_frame_t(karte_t *welt) :
 	gui_frame_t("Reliefkarte"),
 	scrolly(reliefkarte_t::get_karte()),
 	zoom_label("map zoom")
@@ -100,6 +100,7 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 
 	// rotate map 45°
 	b_rotate45.init(button_t::square, "isometric map", koord(BUTTON_WIDTH+40,BUTTON_HEIGHT+4), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	b_rotate45.set_tooltip("Show the map in the same isometric orientation as the main game window");
 	b_rotate45.add_listener(this);
 	add_komponente(&b_rotate45);
 
@@ -175,8 +176,9 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 	set_fenstergroesse(size);
 	resize( koord(0,0) );
 
-	// Clipping geändert - max. 250 war zu knapp für grosse Karten - V.Meyer
 	reliefkarte_t *karte = reliefkarte_t::get_karte();
+	karte->set_welt( welt );
+
 	const koord gr = karte->get_groesse();
 	const koord s_gr=scrolly.get_groesse();
 	const koord ij = welt->get_world_position();
@@ -290,7 +292,6 @@ void map_frame_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_class == INFOWIN) {
 		if(ev->ev_code == WIN_OPEN) {
-			reliefkarte_t::get_karte()->is_visible = true;
 			reliefkarte_t::get_karte()->set_xy_offset_size( koord(0,0), koord(0,0) );
 		}
 		else if(ev->ev_code == WIN_CLOSE) {
@@ -366,7 +367,7 @@ DBG_MESSAGE("map_frame_t::set_fenstergroesse()","gr.x=%i, gr.y=%i",size.x,size.y
  */
 void map_frame_t::resize(const koord delta)
 {
-	karte_t *welt=reliefkarte_t::get_karte()->get_welt();
+	karte_t *welt = reliefkarte_t::get_karte()->get_welt();
 
 	koord groesse = get_fenstergroesse()+delta;
 
