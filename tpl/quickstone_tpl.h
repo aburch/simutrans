@@ -219,6 +219,14 @@ public:
 	{
 		return entry != other.entry;
 	}
+
+	// Added by : Knightly
+	// Purpose  : For sorting of handles according to internal value of entry
+	bool operator<= (const quickstone_tpl<T> &other) const
+	{
+		return entry <= other.entry;
+	}
+
 };
 
 template <class T> T** quickstone_tpl<T>::data = 0;

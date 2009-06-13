@@ -208,10 +208,10 @@ template<class T> class vector_tpl
 		void remove_at(const uint32 pos)
 		{
 			assert(pos<count);
-			for (uint i = pos; i < count - 1; i++) {
+			count--;
+			for (uint i = pos; i < count; i++) {
 				data[i] = data[i + 1];
 			}
-			count--;
 		}
 
 		T& get_element(uint e)
