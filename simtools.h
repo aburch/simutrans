@@ -2,7 +2,6 @@
 #define SIMTOOLS_H
 
 #include "simtypes.h"
-#include "dataobj/umgebung.h"
 
 uint32 setsimrand(uint32 seed, uint32 noise_seed);
 
