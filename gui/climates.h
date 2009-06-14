@@ -40,6 +40,10 @@ private:
 
 	gui_numberinput_t river_n, river_min, river_max;
 
+	// Gives a hilly landscape
+	// @author: jamespetts
+	button_t hilly;
+
 public:
 	climate_gui_t(einstellungen_t* sets);
 

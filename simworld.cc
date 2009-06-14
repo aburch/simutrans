@@ -1546,7 +1546,11 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 	// length of day and other time stuff
 	ticks_bits_per_tag = 20;
-	ticks_per_tag = (1 << ticks_bits_per_tag);
+#ifdef _MSC_VER
+	ticks_per_tag = (1i64 << ticks_bits_per_tag);
+#else
+	ticks_per_tag = (1ll << ticks_bits_per_tag);
+#endif
 	last_step_ticks = 0;
 	last_interaction = dr_time();
 	fast_forward = false;
@@ -3337,7 +3341,8 @@ karte_t::play_sound_area_clipped(koord pos, sound_info info)
 {
 	if(is_sound) {
 		const int center = display_get_width() >> 7;
-		const int dist = abs((pos.x-center) - ij_off.x) + abs((pos.y-center) - ij_off.y);
+		pos -= koord(center,center);
+		const int dist = koord_distance( pos, ij_off );
 
 		if(dist < 25) {
 			info.volume = 255-dist*9;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="Simutrans-Experimental"
 	ProjectGUID="{0621B295-BEB7-4767-82F1-F27995610323}"
 	RootNamespace="Simutrans"
@@ -2578,7 +2578,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\simutrans-experimental-binaries\debug\pak128\config\simuconf.tab"
+				RelativePath="..\simutrans-experimental-binaries\debug\config\simuconf.tab"
 				>
 			</File>
 		</Filter>

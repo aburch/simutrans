@@ -604,7 +604,7 @@ sint32 convoi_t::calc_adjusted_power()
 	const uint16 current_speed = speed_to_kmh(akt_speed);
 	
 	// Within 15% of top speed - locomotive less efficient
-	float high_speed = (float)max_speed * 0.85; 
+	float high_speed = (float)max_speed * 0.85F; 
 	
 	if(power_from_steam < 1 || current_speed > highpoint_speed && current_speed < high_speed)
 	{

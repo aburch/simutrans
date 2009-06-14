@@ -68,7 +68,19 @@ void *freelist_t::gimme_node(size_t size)
 		return NULL;
 	}
 
-	// all sizes should be dividable by 4 and at least as large as a pointer
+//#ifdef _64BIT
+//	// all sizes should be divisible by 8
+//	size = ((size+3)>>2)<<2;
+//	if(size == 4)
+//	{
+//		size = 8;
+//	}
+//#else
+//	// all sizes should be divisible by 4
+//	size = ((size+3)>>2)<<2;
+//#endif
+
+	// all sizes should be divisible by 4 and at least as large as a pointer
 	size = max( min_size, size );
 	size = (size+3)>>2;
 	size <<= 2;
@@ -153,6 +165,18 @@ void freelist_t::putback_node( size_t size, void *p )
 		return;
 	}
 
+//#ifdef _64BIT
+//	// all sizes should be divisible by 8
+//	size = ((size+3)>>2);
+//	if(size == 1)
+//	{
+//		size = 2;
+//	}
+//#else
+//	// all sizes should be divisible by 4
+//	size = ((size+3)>>2);
+//#endif
+	
 	// all sizes should be dividable by 4
 	size = max( min_size, size );
 	size = ((size+3)>>2);

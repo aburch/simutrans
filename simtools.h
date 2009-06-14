@@ -3,7 +3,6 @@
 
 #include "simtypes.h"
 
-
 uint32 setsimrand(uint32 seed, uint32 noise_seed);
 
 /* generates a random number on [0,max-1]-interval */
