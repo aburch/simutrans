@@ -479,7 +479,7 @@ void spieler_t::calc_finance_history()
 	sint64 total_credit_limit = 0;
 	for(uint8 i = 0; i < MAX_PLAYER_HISTORY_MONTHS; i ++)
 	{
-		total_credit_limit = finance_history_month[i][COST_CREDIT_LIMIT];
+		total_credit_limit += finance_history_month[i][COST_CREDIT_LIMIT];
 	}
 	finance_history_year[0][COST_CREDIT_LIMIT] = total_credit_limit / MAX_PLAYER_HISTORY_MONTHS;
 
