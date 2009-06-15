@@ -29,8 +29,13 @@ brueckenboden_t::brueckenboden_t(karte_t *welt, koord3d pos, int grund_hang, int
 
 void brueckenboden_t::calc_bild_internal()
 {
-	if(ist_tunnel()) {
-		clear_back_bild();
+	if(!is_visible()) {
+		if (ist_karten_boden()) {
+			grund_t::calc_back_bild(get_disp_height()/Z_TILE_STEP, 0);
+		}
+		else {
+			clear_back_bild();
+		}
 		set_bild(IMG_LEER);
 	}
 	else {

@@ -80,7 +80,7 @@ sint8 vehikel_basis_t::dxdy[ 8*2 ] = {
 	-2, -1,	// w
 	-4, 0,	// sw
 	0, 2,	//se
-	2, -1, // n
+	2, -1,	// n
 	2, 1,	// e
 	4, 0,	// ne
 	0, -2	// nw
@@ -483,10 +483,10 @@ sint16 vehikel_basis_t::calc_height()
 		// slope changed below a moving thing?!?
 		return 0;
 	}
-	else if(gr->ist_tunnel()) {
+	else if(  gr->ist_tunnel()  &&  gr->ist_karten_boden()  ) {
 		hoff = 0;
-		if(!gr->ist_im_tunnel()) {
-			use_calc_height = true;
+		use_calc_height = true; // to avoid errors if undergroundmode is switched
+		if(grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && gr->get_hoehe()<grund_t::underground_level)) {
 			// need hiding? One of the few uses of XOR: not half driven XOR exiting => not hide!
 			ribi_t::ribi hang_ribi = ribi_typ( gr->get_grund_hang() );
 			if((steps<(steps_next/2))  ^  ((hang_ribi&fahrtrichtung)!=0)  ) {
@@ -1124,7 +1124,7 @@ void
 vehikel_t::rauche()
 {
 	// raucht ueberhaupt ?
-	if(rauchen && besch->get_rauch()) {
+	if(rauchen  &&  besch->get_rauch()) {
 
 		bool smoke = besch->get_engine_type()==vehikel_besch_t::steam;
 
@@ -1141,13 +1141,12 @@ vehikel_t::rauche()
 
 		if(smoke) {
 			grund_t * gr = welt->lookup( get_pos() );
-			// nicht im tunnel ?
-			if(gr && !gr->ist_im_tunnel() ) {
+			if(gr) {
 				wolke_t *abgas =  new wolke_t(welt, get_pos(), get_xoff()+((dx*(sint16)((uint16)steps*TILE_STEPS))>>8), get_yoff()+((dy*(sint16)((uint16)steps*TILE_STEPS))>>8)+hoff, besch->get_rauch() );
-
-				if( !gr->obj_add(abgas) ) {
+				if(  !gr->obj_add(abgas)  ) {
 					delete abgas;
-				} else {
+				}
+				else {
 					welt->sync_add( abgas );
 				}
 			}

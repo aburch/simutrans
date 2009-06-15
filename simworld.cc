@@ -4188,8 +4188,10 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		sint8 hgt; // trial height
 		// fallback: take kartenboden if nothing else found
 		const grund_t *bd = NULL;
+		// starting (maximal height)
+		const sint8 hmax = grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : 32;
 		// find matching and visible grund
-		for(hgt = 32; hgt>=grundwasser; hgt-=Z_TILE_STEP) {
+		for(hgt = hmax; hgt>=grundwasser; hgt-=Z_TILE_STEP) {
 
 			const int base_i = (screen_x+screen_y + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1) )/2;
 			const int base_j = (screen_y-screen_x + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1))/2;
@@ -4204,16 +4206,20 @@ void karte_t::bewege_zeiger(const event_t *ev)
 					break;
 				}
 
-				if (gr->ist_karten_boden() && bd==NULL) {
+				if (bd==NULL && gr->ist_karten_boden()) {
 					bd = gr;
 				}
+			}
+			else if (grund_t::underground_mode==grund_t::ugm_level && hgt==hmax) {
+				// fallback in sliced mode, if no ground is under cursor
+				bd = lookup_kartenboden(koord(mi,mj));
 			}
 		}
 		// try kartenboden?
 		if (!found && bd!=NULL) {
 			mi = bd->get_pos().x;
 			mj = bd->get_pos().y;
-			hgt= bd->get_pos().z;
+			hgt= bd->get_disp_height();
 			found = true;
 		}
 		// no suitable location found (outside map, ...)

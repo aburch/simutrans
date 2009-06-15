@@ -114,10 +114,16 @@ public:
 	 */
 	static bool show_grid;
 
-	/* true, when only underground should be visible
-	 * @author kierongreen
-	 */
-	static bool underground_mode;
+	/* underground modes */
+	/* @author Dwachs    */
+	enum _underground_modes {
+		ugm_none = 0,	// normal view
+		ugm_all  = 1,   // everything underground visible, grid for grounds
+		ugm_level= 2	// overground things visible if their height  <= underground_level
+						// underground things visible if their height == underground_level
+	};
+	static uint8 underground_mode;
+	static sint8 underground_level;
 
 protected:
 	/**
@@ -213,9 +219,9 @@ public:
 	static void toggle_grid() { grund_t::show_grid = !grund_t::show_grid; }
 
 	/**
-	 * Toggle underground display (now only a flag)
+	 * Sets the undergroundmode & level
 	 */
-	static void toggle_underground_mode() { grund_t::underground_mode = !grund_t::underground_mode; }
+	static void set_underground_mode(const uint8 ugm, const sint8 level);
 
 	karte_t *get_welt() const {return welt;}
 
@@ -315,18 +321,20 @@ public:
 	inline bool ist_bruecke() const {return get_typ()==brueckenboden;}
 
 	/**
-	* This is called very often, it must be inlined and therefore
-	* cannot be virtual - subclasses must set the flags appropriately!
-	* @author Hj. Malthaner
+	* true if tunnelboden (hence true also for tunnel mouths)
+	* check for visibility in is_visible()
 	*/
-	inline bool ist_tunnel() const {return ((get_typ()==tunnelboden)^grund_t::underground_mode);}
+	inline bool ist_tunnel() const {
+		return ( (get_typ()==tunnelboden) );
+	}
 
 	/**
-	* This is called very often, it must be inlined and therefore
-	* cannot be virtual - subclasses must set the flags appropriately!
-	* @author Hj. Malthaner
+	* gives true for grounds inside tunnel (not tunnel mouths)
+	* check for visibility in is_visible()
 	*/
-	inline bool ist_im_tunnel() const {return (get_typ()==tunnelboden  &&  ist_karten_boden()==0)^grund_t::underground_mode;}
+	inline bool ist_im_tunnel() const {
+		return ( get_typ()==tunnelboden && (!ist_karten_boden())) ;
+	}
 
 	/* this will be stored locally, since it is called many, many times */
 	inline uint8 ist_karten_boden() const {return (flags&is_kartenboden);}
@@ -379,6 +387,61 @@ public:
 	inline sint8 get_hoehe() const {return pos.z;}
 
 	void set_hoehe(int h) { pos.z = h;}
+
+	// Helper functions for underground modes
+	//
+	// returns the height for the use in underground-mode,
+	// heights above underground_level are cutted
+	inline sint8 get_disp_height() const {
+		return (underground_mode & ugm_level )
+			? (pos.z > underground_level ? underground_level : pos.z)
+			: pos.z ;
+	}
+
+	// returns slope
+	// if tile is not visible, 'flat' is returned
+	// special care has to be taken of tunnel mouths
+	inline hang_t::typ get_disp_slope() const {
+		return (  (underground_mode & ugm_level)  &&  (pos.z > underground_level  ||  (get_typ()==tunnelboden  &&  ist_karten_boden()  &&  pos.z == underground_level))
+							? (hang_t::typ)hang_t::flach
+							: get_grund_hang() );
+
+		/*switch(underground_mode) {// long version of the return statement above
+			case ugm_none: return(get_grund_hang());
+			case ugm_all:  return(get_grund_hang()); // get_typ()==tunnelboden && !ist_karten? hang_t::flach : get_grund_hang());
+			case ugm_level:return((pos.z > underground_level || (get_typ()==tunnelboden && ist_karten_boden() && pos.z == underground_level))
+							? hang_t::flach
+							: get_grund_hang());
+		}*/
+	}
+
+	inline bool is_visible() const {
+		if(get_typ()==tunnelboden) {
+			switch(underground_mode) {
+				case ugm_none: return ist_karten_boden();
+				case ugm_all:  return true;
+				case ugm_level:return  pos.z == underground_level  ||  (ist_karten_boden()  &&  pos.z <= underground_level);
+			}
+		}
+		else {
+			switch(underground_mode) {
+				case ugm_none: return true;
+				case ugm_all:  return false;
+				case ugm_level:return pos.z <= underground_level;
+			}
+		}
+		return(false);
+	}
+
+	// the same as above but specialized for kartenboden
+	inline bool is_karten_boden_visible() const {
+		switch(underground_mode) {
+			case ugm_none: return true;
+			case ugm_all:  return get_typ()==tunnelboden;
+			case ugm_level:return pos.z <= underground_level;
+		}
+		return(false);
+	}
 
 	/**
 	* Zeichnet Bodenbild des Grundes
@@ -635,17 +698,6 @@ public:
 
 	void* operator new(size_t s);
 	void  operator delete(void* p, size_t s);
-
-	// anticipating new undergroundmode
-	inline bool is_visible() const {
-		if (get_typ()==tunnelboden) {
-			return underground_mode ? true : ist_karten_boden();
-		}
-		else {
-			return !underground_mode;
-		}
-		return(false);
-	}
 
 };
 

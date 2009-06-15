@@ -14,7 +14,7 @@ class color_gui_t : public gui_frame_t, private action_listener_t
 private:
 	karte_t *welt;
 	button_t buttons[20];
-	gui_numberinput_t brightness, scrollspeed, traffic_density;
+	gui_numberinput_t brightness, scrollspeed, traffic_density, inp_underground_level;
 
 public:
 	color_gui_t(karte_t *welt);
