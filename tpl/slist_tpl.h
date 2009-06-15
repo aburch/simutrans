@@ -167,7 +167,7 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	bool is_contained(const T data) const
+	bool is_contained(const T& data) const
 	{
 		node_t *p = head;
 
@@ -182,7 +182,7 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	bool remove(const T data)
+	bool remove(const T& data)
 	{
 		if (empty()) {
 			//MESSAGE("slist_tpl<T>::remove()", "data not in list!");
