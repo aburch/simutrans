@@ -1414,6 +1414,11 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 {	
 	reset_connexions(category);
 	connexions_timestamp[category] = welt->get_base_pathing_counter();
+	if(connexions_timestamp[category] == 0 || reschedule[category])
+	{
+		// Spread the load of rebuilding this with pathing - advance by half the interval.
+		connexions_timestamp[category] += (welt->get_einstellungen()->get_max_rerouting_interval_months() / 2);
+	}
 
 	reschedule[category] = false;
 	
