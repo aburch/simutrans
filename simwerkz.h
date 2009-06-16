@@ -175,10 +175,12 @@ class wkz_wegebau_t : public two_click_werkzeug_t {
 private:
 	static const weg_besch_t *defaults[17];	// default ways for all types
 	const weg_besch_t *besch;
-	const weg_besch_t *get_besch(bool);
+	const weg_besch_t *get_besch(bool) const;
 public:
-	const char *get_tooltip(spieler_t *);
-	bool init( karte_t *, spieler_t * );
+	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
+	virtual const char *get_tooltip(spieler_t *);
+	virtual bool is_selected( karte_t *welt ) const;
+	virtual bool init( karte_t *, spieler_t * );
 
 private:
 	void calc_route( wegbauer_t &bauigel, const koord3d &, const koord3d & );
@@ -222,6 +224,7 @@ protected:
 private:
 	static const way_obj_besch_t *default_electric;
 	const way_obj_besch_t *besch;
+	const way_obj_besch_t *get_besch( const karte_t *welt ) const;
 	waytype_t wt;
 
 	bool calc_route( route_t &, spieler_t *, const koord3d& start, const koord3d &to );
@@ -233,12 +236,14 @@ private:
 public:
 	wkz_wayobj_t(bool b=true) : two_click_werkzeug_t(), build(b) {};
 	virtual const char *get_tooltip(spieler_t *);
+	virtual bool is_selected(karte_t *welt) const;
 	virtual bool init( karte_t *, spieler_t * );
 };
 
 class wkz_wayobj_remover_t : public wkz_wayobj_t {
 public:
 	wkz_wayobj_remover_t() : wkz_wayobj_t(false) {}
+	virtual bool is_selected(karte_t *welt) const { return werkzeug_t::is_selected( welt ); }
 };
 
 class wkz_station_t : public werkzeug_t {
