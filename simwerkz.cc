@@ -1305,7 +1305,7 @@ const char *wkz_fahrplan_ins_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 /* way construction */
 const weg_besch_t *wkz_wegebau_t::defaults[17] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-const weg_besch_t * wkz_wegebau_t::get_besch(bool remember)
+const weg_besch_t * wkz_wegebau_t::get_besch(bool remember) const
 {
 	const weg_besch_t *besch = wegbauer_t::get_besch(default_param,0);
 	if(besch==NULL) {
@@ -1339,6 +1339,12 @@ const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 		besch->get_topspeed(),
 		besch->get_max_weight());
 	return toolstr;
+}
+
+bool wkz_wegebau_t::is_selected( karte_t *welt ) const
+{
+	const wkz_wegebau_t *selected = dynamic_cast<const wkz_wegebau_t *>(welt->get_werkzeug());
+	return (selected  &&  selected->get_besch(false) == get_besch(false));
 }
 
 bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
@@ -1784,14 +1790,8 @@ const way_obj_besch_t *wkz_wayobj_t::default_electric = NULL;
 
 const char *wkz_wayobj_t::get_tooltip(spieler_t *sp)
 {
-	if( build ) {
-		const way_obj_besch_t *besch = wayobj_t::find_besch(default_param);
-		if(besch==NULL) {
-			besch = default_electric;
-			if(besch==NULL) {
-				besch = default_electric = wayobj_t::wayobj_search(track_wt,overheadlines_wt,sp->get_welt()->get_timeline_year_month());
-			}
-		}
+	if(  build  ) {
+		const way_obj_besch_t *besch = get_besch(sp->get_welt());
 		if(besch) {
 			sprintf(toolstr, "%s, %ld$ (%ld$), %dkm/h",
 					translator::translate(besch->get_name()),
@@ -1804,21 +1804,34 @@ const char *wkz_wayobj_t::get_tooltip(spieler_t *sp)
 	}
 	else {
 		wt = (waytype_t)atoi( default_param );
-		if( wt != 0 ) {
-			sprintf( toolstr, "Remove wayobj %d", wt );
-			return toolstr;
-		}
-		else {
-			return 0;
+		sprintf( toolstr, translator::translate("Remove wayobj %s"), weg_t::waytype_to_string(wt) );
+		return toolstr;
+	}
+}
+
+const way_obj_besch_t *wkz_wayobj_t::get_besch( const karte_t* welt ) const
+{
+	const way_obj_besch_t *besch = default_param ? wayobj_t::find_besch(default_param) : NULL;
+	if(besch==NULL) {
+		besch = default_electric;
+		if(besch==NULL) {
+			besch = wayobj_t::wayobj_search( track_wt, overheadlines_wt, welt->get_timeline_year_month() );
 		}
 	}
+	return besch;
+}
+
+bool wkz_wayobj_t::is_selected( karte_t *welt ) const
+{
+	const wkz_wayobj_t *selected = dynamic_cast<const wkz_wayobj_t *>(welt->get_werkzeug());
+	return (selected  &&  selected->get_besch(welt) == get_besch(welt));
 }
 
 bool wkz_wayobj_t::init( karte_t *welt_, spieler_t *sp_ )
 {
 	two_click_werkzeug_t::init( welt_, sp_ );
 	if( build ) {
-		besch = default_param ? wayobj_t::find_besch(default_param) : NULL;
+		besch = get_besch(welt_);
 		if(besch==NULL) {
 			besch = default_electric;
 			if(besch==NULL) {
@@ -1828,9 +1841,11 @@ bool wkz_wayobj_t::init( karte_t *welt_, spieler_t *sp_ )
 		else {
 			default_electric = besch;
 		}
+
 		if( besch ) {
 			cursor = besch->get_cursor()->get_bild_nr(0);
 			wt = besch->get_wtyp();
+			default_electric = besch;
 		}
 		return besch!=NULL;
 	}
