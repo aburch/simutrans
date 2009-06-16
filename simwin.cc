@@ -60,13 +60,13 @@ static gui_komponente_t * focus=NULL;
 class simwin_gadget_flags
 {
 public:
-   simwin_gadget_flags( void ) : close( false ) , help( false ) , prev( false ), size( false ), next( false ) { }
+	simwin_gadget_flags( void ) : close( false ) , help( false ) , prev( false ), size( false ), next( false ) { }
 
-   bool close;
-   bool help;
-   bool prev;
-   bool size;
-   bool next;
+	bool close;
+	bool help;
+	bool prev;
+	bool size;
+	bool next;
 };
 
 class simwin

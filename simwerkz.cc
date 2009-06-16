@@ -1707,7 +1707,7 @@ const way_obj_besch_t *wkz_wayobj_t::default_electric = NULL;
 
 const char *wkz_wayobj_t::get_tooltip(spieler_t *sp)
 {
-	if( build ) {
+	if(  build  ) {
 		const way_obj_besch_t *besch = wayobj_t::find_besch(default_param);
 		if(besch==NULL) {
 			besch = default_electric;
@@ -1727,13 +1727,8 @@ const char *wkz_wayobj_t::get_tooltip(spieler_t *sp)
 	}
 	else {
 		wt = (waytype_t)atoi( default_param );
-		if( wt != 0 ) {
-			sprintf( toolstr, "Remove wayobj %d", wt );
-			return toolstr;
-		}
-		else {
-			return 0;
-		}
+		sprintf( toolstr, translator::translate("Remove wayobj %s"), weg_t::waytype_to_string(wt) );
+		return toolstr;
 	}
 }
 
