@@ -650,6 +650,10 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 								&& ( (flags&has_way2)==0  ||  (static_cast<weg_t *>(obj_bei(1))->get_ribi_unmasked()&ribi_t::west)==0);
 				}
 			}
+			// no fences between water tiles or between invisible tiles
+			if (fence_west && ( (ist_wasser() && gr->ist_wasser()) || (!isvisible && !gr->is_visible()) ) ) {
+				fence_west = false;
+			}
 			// any height difference AND something to see?
 			if(  (diff_from_ground_1-corner1(slope_this)>0  ||  diff_from_ground_2-corner4(slope_this)>0)
 				&&  (diff_from_ground_1>0  ||  diff_from_ground_2>0)  ) {
@@ -704,6 +708,10 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 					fence_north = (flags&has_way1)==0  ||  (static_cast<weg_t*>(obj_bei(0))->get_ribi_unmasked()&ribi_t::nord)==0
 								&& ( (flags&has_way2)==0  ||  (static_cast<weg_t *>(obj_bei(1))->get_ribi_unmasked()&ribi_t::nord)==0);
 				}
+			}
+			// no fences between water tiles or between invisible tiles
+			if (fence_north && ( (ist_wasser() && gr->ist_wasser()) || (!isvisible && !gr->is_visible()) ) ) {
+				fence_north = false;
 			}
 			// any height difference AND something to see?
 			if(  (diff_from_ground_1-corner4(slope_this)>0  ||  diff_from_ground_2-corner3(slope_this)>0)
@@ -782,7 +790,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos) const
 	if(back_bild_nr!=0) {
 		if(abs(back_bild_nr)>121) {
 			// fence before a drop
-			const sint16 offset = visible && corner4(get_grund_hang()) ? -TILE_HEIGHT_STEP : 0;
+			const sint16 offset = visible && corner4(get_grund_hang()) ? -tile_raster_scale_y( TILE_HEIGHT_STEP/Z_TILE_STEP, get_tile_raster_width()) : 0;
 			if(back_bild_nr<0) {
 				// behind a building
 				display_img(grund_besch_t::fences->get_bild(-back_bild_nr-122+3), xpos, ypos+offset, dirty);

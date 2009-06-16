@@ -4189,7 +4189,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		// fallback: take kartenboden if nothing else found
 		const grund_t *bd = NULL;
 		// starting (maximal height)
-		const sint8 hmax = grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : 32;
+		const sint8 hmax = grund_t::underground_mode==grund_t::ugm_level ? max(grundwasser, grund_t::underground_level) : 32;
 		// find matching and visible grund
 		for(hgt = hmax; hgt>=grundwasser; hgt-=Z_TILE_STEP) {
 

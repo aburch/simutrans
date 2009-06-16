@@ -55,9 +55,17 @@ void
 wasser_t::calc_bild_internal()
 {
 	set_hoehe( welt->get_grundwasser() );
-	sint16 zpos = min( welt->lookup_hgt(get_pos().get_2d()), welt->get_grundwasser() ); // otherwise slope will fail ...
-	set_bild( grund_besch_t::get_ground_tile(0,zpos) );
 	slope = hang_t::flach;
+
+	sint16 zpos = min( welt->lookup_hgt(get_pos().get_2d()), welt->get_grundwasser() ); // otherwise slope will fail ...
+
+	if (grund_t::underground_mode==grund_t::ugm_level && grund_t::underground_level < zpos) {
+		set_bild(IMG_LEER);
+	}
+	else {
+		set_bild( grund_besch_t::get_ground_tile(0,zpos) );
+	}
+
 	// artifical walls from here on ...
 	grund_t::calc_back_bild(welt->get_grundwasser()/Z_TILE_STEP,0);
 }
