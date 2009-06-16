@@ -111,11 +111,31 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );
 		offset_y += LINESPACE;
 
+		// current resale value
 		char buf[32];
 		money_to_string( buf, cnv->calc_restwert()/100.0 );
 		sprintf( tmp, "%s %s", translator::translate("Restwert:"), buf );
 		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );
 		offset_y += LINESPACE;
+		
+		// Bernd Gabriel, 16.06.2009: current average obsolescence increase percentage
+		uint16 count = cnv->get_vehikel_anzahl();
+		if (count > 0)
+		{
+			uint32 fixed = 0, curr = 0;
+			karte_t *welt = cnv->get_welt();
+			for (uint16 i = 0; i < count; i++) {
+				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
+				fixed += besch->get_fixed_maintenance();
+				curr += besch->get_fixed_maintenance(welt);
+			}
+			if (curr != 0 && curr > fixed)
+			{
+				sprintf( tmp, "%s: %d%%", translator::translate("Obsolescence increase"), ((curr-fixed) * 100) / fixed);
+				display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, COL_BLUE, true );
+				offset_y += LINESPACE;
+			}
+		}
 	}
 }
 
@@ -214,6 +234,20 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			sprintf( buf, "%s %s", translator::translate("Restwert:"), tmp );
 			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 			extra_y += LINESPACE;
+			
+			// Bernd Gabriel, 16.06.2009: current average obsolescence increase percentage
+			const vehikel_besch_t *besch = v->get_besch();
+			uint32 fixed = besch->get_fixed_maintenance();
+			if (fixed != 0)
+			{
+				uint32 curr = besch->get_fixed_maintenance(v->get_welt());
+				if (curr > fixed)
+				{
+					sprintf( buf, "%s: %d%%", translator::translate("Obsolescence increase"), ((curr-fixed) * 100) / fixed);
+					display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLUE, true );
+					extra_y += LINESPACE;
+				}
+			}
 
 			// power
 			if(v->get_besch()->get_leistung()>0) {
@@ -249,9 +283,12 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			}
 
 			// friction
-			sprintf( buf, "%s %i", translator::translate("Friction:"), v->get_frictionfactor() );
-			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
-			extra_y += LINESPACE;
+			if (v->get_frictionfactor() != 1)
+			{
+				sprintf( buf, "%s %i", translator::translate("Friction:"), v->get_frictionfactor() );
+				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
+				extra_y += LINESPACE;
+			}
 
 			if(v->get_fracht_max() > 0) {
 

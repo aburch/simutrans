@@ -84,16 +84,16 @@ image_id
 field_t::get_bild() const
 {
 	const skin_besch_t *s=besch->get_bilder();
-	uint16 anzahl=s->get_bild_anzahl() - besch->has_snow_bild();
+	int anzahl=s->get_bild_anzahl() - besch->has_snow_bild();
 	if(besch->has_snow_bild()  &&  get_pos().z>=welt->get_snowline()) {
 		// last images will be shown above snowline
 		return s->get_bild_nr(anzahl);
 	}
 	else {
-		// resolution 1/8th month (0..95)
-		const sint64 yearsteps = (welt->get_current_month()%12)*8 + ((welt->get_zeit_ms()>>(welt->ticks_bits_per_tag-3))&7) + 1;
-		const image_id bild = s->get_bild_nr( (anzahl*yearsteps-1)/96 );
-		if((anzahl*yearsteps-1)%96<anzahl) {
+		// welt->get_yearsteps(): resolution 1/8th month (0..95)
+		int anzahl_yearsteps = anzahl * (welt->get_yearsteps() + 1) - 1;
+		const image_id bild = s->get_bild_nr( anzahl_yearsteps / 96 );
+		if(anzahl_yearsteps % 96 < anzahl) {
 			mark_image_dirty( bild, 0 );
 		}
 		return bild;

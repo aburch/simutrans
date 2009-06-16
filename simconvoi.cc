@@ -1217,10 +1217,12 @@ void convoi_t::new_month()
 
 	// Deduct monthly fixed maintenance costs.
 	// @author: jamespetts
+	uint32 running_cost = 0;
 	for(unsigned j=0;  j<get_vehikel_anzahl();  j++ ) 
 	{
-		add_running_cost(-fahr[j]->get_besch()->get_fixed_maintenance(welt)<<(welt->ticks_bits_per_tag-18));
+		running_cost += fahr[j]->get_besch()->get_fixed_maintenance(welt);
 	}
+	add_running_cost(-(sint32)welt->calc_adjusted_monthly_figure(running_cost));
 
 	// everything normal: update history
 	for (int j = 0; j<MAX_CONVOI_COST; j++) {

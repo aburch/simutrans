@@ -143,7 +143,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		old_transport(NULL, COL_WHITE, gui_label_t::right),
 		powerline(NULL, COL_WHITE, gui_label_t::money),
 		old_powerline(NULL, COL_WHITE, gui_label_t::money),
-		maintenance_label("This Month:",COL_WHITE, gui_label_t::right),
+		maintenance_label("Next Month:",COL_WHITE, gui_label_t::right),
 		maintenance_label2("Fixed Costs",COL_WHITE, gui_label_t::right),
 		maintenance_money(NULL, COL_RED, gui_label_t::money),
 		operational_money(NULL, COL_RED, gui_label_t::money),
@@ -504,16 +504,17 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 		}
 	}
 
+	karte_t *welt = sp->get_welt();
 	sint32 maintenance;
 	// Hajo: Money is counted in credit cents (100 cents = 1 Cr)
 	maintenance = sp->get_maintenance(spieler_t::MAINT_INFRASTRUCTURE);
-	money_to_string(str_buf[27], (double)((sint64)maintenance<<((sint64)sp->get_welt()->ticks_bits_per_tag-18l))/100.0 );
+	money_to_string(str_buf[27], (double)(welt->calc_adjusted_monthly_figure(maintenance) / 100.0));
 	maintenance_money.set_text(str_buf[27]);
 	maintenance_money.set_color(maintenance>=0?MONEY_PLUS:MONEY_MINUS);
 
 	// BG, 06.09.2009: fixed operational costs:
 	maintenance = sp->get_maintenance(spieler_t::MAINT_VEHICLE);
-	money_to_string(str_buf[28], (double)((sint64)maintenance<<((sint64)sp->get_welt()->ticks_bits_per_tag-18l))/100.0 );
+	money_to_string(str_buf[28], welt->calc_adjusted_monthly_figure(maintenance) / 100.0);
 	operational_money.set_text(str_buf[28]);
 	operational_money.set_color(maintenance>=0?MONEY_PLUS:MONEY_MINUS);
 

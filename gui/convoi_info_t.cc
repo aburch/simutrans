@@ -231,6 +231,9 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		destroy_win(dynamic_cast <gui_fenster_t *> (this));
 	}
 	else {
+		// Bernd Gabriel, 16.06.2009: show convoi name in status color
+		input.set_color(cnv->get_status_color());
+
 		if(cnv->get_besitzer()==cnv->get_welt()->get_active_player()) {
 			if(  line_bound  &&  !cnv->get_line().is_bound()  ) {
 				remove_komponente( &line_button );
