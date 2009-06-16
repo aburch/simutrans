@@ -122,16 +122,15 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		uint16 count = cnv->get_vehikel_anzahl();
 		if (count > 0)
 		{
-			uint32 fixed = 0, curr = 0;
+			uint32 percentage = 0;
 			karte_t *welt = cnv->get_welt();
 			for (uint16 i = 0; i < count; i++) {
-				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
-				fixed += besch->get_fixed_maintenance();
-				curr += besch->get_fixed_maintenance(welt);
+				percentage += cnv->get_vehikel(i)->get_besch()->calc_running_cost(welt, 10000);
 			}
-			if (curr != 0 && curr > fixed)
+			percentage = percentage / (count * 100) - 100;
+			if (percentage > 0)
 			{
-				sprintf( tmp, "%s: %d%%", translator::translate("Obsolescence increase"), ((curr-fixed) * 100) / fixed);
+				sprintf( tmp, "%s: %d%%", translator::translate("Obsolescence increase"), percentage);
 				display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, COL_BLUE, true );
 				offset_y += LINESPACE;
 			}
@@ -236,17 +235,12 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			extra_y += LINESPACE;
 			
 			// Bernd Gabriel, 16.06.2009: current average obsolescence increase percentage
-			const vehikel_besch_t *besch = v->get_besch();
-			uint32 fixed = besch->get_fixed_maintenance();
-			if (fixed != 0)
+			uint32 percentage = v->get_besch()->calc_running_cost(v->get_welt(), 100) - 100;
+			if (percentage > 0)
 			{
-				uint32 curr = besch->get_fixed_maintenance(v->get_welt());
-				if (curr > fixed)
-				{
-					sprintf( buf, "%s: %d%%", translator::translate("Obsolescence increase"), ((curr-fixed) * 100) / fixed);
-					display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLUE, true );
-					extra_y += LINESPACE;
-				}
+				sprintf( buf, "%s: %d%%", translator::translate("Obsolescence increase"), percentage);
+				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLUE, true );
+				extra_y += LINESPACE;
 			}
 
 			// power
