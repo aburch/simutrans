@@ -43,7 +43,7 @@ private:
 	enum {state_replace=0, state_sell, state_skip, n_states};
 	uint8 state;
 	uint8 replaced_so_far;
-	sint32 money;
+	sint64 money;
 
 	/**
 	 * Gui elements
@@ -93,7 +93,7 @@ private:
 
 	karte_t* get_welt() { return cnv->get_welt(); }
 
-	sint32 calc_total_cost();
+	sint64 calc_total_cost();
 
 public:
 	replace_frame_t(convoihandle_t cnv, const char *name);

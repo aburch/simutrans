@@ -3203,7 +3203,8 @@ bool wkz_build_haus_t::init( karte_t *welt, spieler_t * )
 const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
 	const grund_t* gr = welt->lookup_kartenboden(pos.get_2d());
-	if(gr==NULL || !gr->is_visible()) {		return "";
+	if(gr==NULL || !gr->is_visible()) {
+		return "";
 	}
 
 	// Parsing parameter (if there)
@@ -3284,7 +3285,8 @@ bool wkz_build_industries_land_t::init( karte_t *welt, spieler_t * )
 const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	const grund_t* gr = welt->lookup_kartenboden(k.get_2d());
-	if(gr==NULL || !gr->is_visible()) {		return "";
+	if(gr==NULL || !gr->is_visible()) {
+		return "";
 	}
 
 	const fabrik_besch_t *fab = NULL;
@@ -3380,7 +3382,8 @@ bool wkz_build_industries_city_t::init( karte_t *welt, spieler_t * )
 const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	const grund_t* gr = welt->lookup_kartenboden(k.get_2d());
-	if(gr==NULL|| !gr->is_visible()) {		return "";
+	if(gr==NULL|| !gr->is_visible()) {
+		return "";
 	}
 
 	const fabrik_besch_t *fab = NULL;
@@ -3453,8 +3456,8 @@ bool wkz_build_factory_t::init( karte_t *welt, spieler_t * )
 const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	const grund_t* gr = welt->lookup_kartenboden(k.get_2d());
-	if(gr==NULL || !gr->is_visible()) 
-	{
+
+	if(gr==NULL|| !gr->is_visible()) {
 		return "";
 	}
 
@@ -3624,13 +3627,11 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 		return "";
 	}
 
-	if(welt->ist_in_kartengrenzen(pos.get_2d())) 
-	{
-		// check for underground ..		
+	if(welt->ist_in_kartengrenzen(pos.get_2d())) {
+		// check for underground ..
 		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
-		if (!gr || !gr->is_visible()) 
-		{			
-			return "";		
+		if (!gr || !gr->is_visible()) {
+			return "";
 		}
 		// remove previous one
 		koord previous = sp->get_headquarter_pos();
@@ -4192,6 +4193,7 @@ const char *wkz_show_underground_t::get_tooltip(spieler_t *)
 			return translator::translate("sliced underground mode");
 		//  switch between full underground or normal/sliced view
 		case 'U':
+		default:
 			return translator::translate("underground mode");
 	}
 }

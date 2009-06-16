@@ -4316,7 +4316,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		// fallback: take kartenboden if nothing else found
 		const grund_t *bd = NULL;
 		// starting (maximal height)
-		const sint8 hmax = grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : 32;
+		const sint8 hmax = grund_t::underground_mode==grund_t::ugm_level ? max(grundwasser, grund_t::underground_level) : 32;
 		// find matching and visible grund
 		for(hgt = hmax; hgt>=grundwasser; hgt-=Z_TILE_STEP) {
 
@@ -4445,9 +4445,7 @@ void karte_t::switch_active_player(uint8 new_player)
 
 	// update menue entries (we do not want player1 to run anything)
 	if(renew_menu) {
-		for (vector_tpl<toolbar_t *>::const_iterator i = werkzeug_t::toolbar_tool.begin(), end = werkzeug_t::toolbar_tool.end();  i != end;  ++i  ) {
-			(*i)->update(this, active_player);
-		}
+		werkzeug_t::update_toolbars(this);
 		set_dirty();
 	}
 	set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );

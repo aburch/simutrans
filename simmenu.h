@@ -265,7 +265,7 @@ public:
 	}
 	const char *get_tooltip(spieler_t *) { return translator::translate(default_param); }
 	werkzeug_waehler_t *get_werkzeug_waehler() const { return wzw; }
-	virtual image_id get_icon(spieler_t *);
+	virtual image_id get_icon(spieler_t *) const;
 	bool is_selected(karte_t *welt) const;
 	// show this toolbar
 	virtual bool init(karte_t *w, spieler_t *sp);

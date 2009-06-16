@@ -988,8 +988,9 @@ end_loop:
 					for(sint8 a = anz_vehikel-1;  a >= 0; a--) 
 					{
 						//Sell any vehicles not upgraded or kept.
-						besitzer_p->buche( fahr[a]->calc_restwert(), dep->get_pos().get_2d(), COST_NEW_VEHICLE );
-						besitzer_p->buche( -fahr[a]->calc_restwert(), COST_ASSETS );	
+						sint64 value = fahr[a]->calc_restwert();
+						besitzer_p->buche( value, dep->get_pos().get_2d(), COST_NEW_VEHICLE );
+						besitzer_p->buche( -value, COST_ASSETS );	
 						delete fahr[a];
 					}
 					anz_vehikel = 0;

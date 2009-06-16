@@ -507,9 +507,9 @@ void replace_frame_t::zeichnen(koord pos, koord groesse)
 	gui_frame_t::zeichnen(pos, groesse);
 }
 
-sint32 replace_frame_t::calc_total_cost()
+sint64 replace_frame_t::calc_total_cost()
 {
-	sint32 total_cost = 0;
+	sint64 total_cost = 0;
 	vector_tpl<const vehikel_t*> current_vehicles;
 	vector_tpl<uint8> keep_vehicles;
 	for(uint8 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
