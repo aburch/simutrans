@@ -110,14 +110,14 @@ char *tooltip_with_price(const char * tip, sint64 price)
  * Creates a tooltip from tip text and money value
  * @author Hj. Malthaner
  */
-char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 price, sint64 maitenance)
+char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 price, sint64 maintenance)
 {
 	size_t n = sprintf(werkzeug_t::toolstr, "%s, ", translator::translate(tip) );
 	money_to_string(werkzeug_t::toolstr+n, (double)price/-100.0);
 	strcat( werkzeug_t::toolstr, " (" );
 	n = strlen(werkzeug_t::toolstr);
 
-	money_to_string(werkzeug_t::toolstr+n, (double)(maitenance<<(welt->ticks_bits_per_tag-18))/100.0 );
+	money_to_string(werkzeug_t::toolstr+n, (double)welt->calc_adjusted_monthly_figure(maintenance)/100.0 );
 	strcat( werkzeug_t::toolstr, ")" );
 	return werkzeug_t::toolstr;
 }
@@ -127,14 +127,14 @@ char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 pric
 /**
  * Creates a tooltip from tip text and money value
  */
-char *tooltip_with_price_maintenance_level(karte_t *welt, const char *tip, sint64 price, sint64 maitenance, uint32 level, uint8 enables)
+char *tooltip_with_price_maintenance_level(karte_t *welt, const char *tip, sint64 price, sint64 maintenance, uint32 level, uint8 enables)
 {
 	size_t n = sprintf(werkzeug_t::toolstr, "%s, ", translator::translate(tip) );
 	money_to_string(werkzeug_t::toolstr+n, (double)price/-100.0);
 	strcat( werkzeug_t::toolstr, " (" );
 	n = strlen(werkzeug_t::toolstr);
 
-	money_to_string(werkzeug_t::toolstr+n, (double)(maitenance<<(welt->ticks_bits_per_tag-18))/100.0 );
+	money_to_string(werkzeug_t::toolstr+n, (double)welt->calc_adjusted_monthly_figure(maintenance)/100.0 );
 	strcat( werkzeug_t::toolstr, ")" );
 	n = strlen(werkzeug_t::toolstr);
 
@@ -1068,7 +1068,11 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d k
 // transformer for electricity supply
 const char *wkz_transformer_t::get_tooltip( spieler_t *sp )
 {
-	sprintf(toolstr, "%s, %ld$ (%ld$)", translator::translate("Build drain"), (long)(sp->get_welt()->get_einstellungen()->cst_transformer/-100l), (long)(sp->get_welt()->get_einstellungen()->cst_maintain_transformer<<(sp->get_welt()->ticks_bits_per_tag-18))/-100l );
+	karte_t *welt = sp->get_welt();
+	sprintf(toolstr, "%s, %ld$ (%ld$)", 
+		translator::translate("Build drain"), 
+		(long)(welt->get_einstellungen()->cst_transformer/-100l), 
+		(long)(welt->calc_adjusted_monthly_figure(welt->get_einstellungen()->cst_maintain_transformer))/-100l );
 	return toolstr;
 }
 
@@ -1312,7 +1316,7 @@ const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 	sprintf(toolstr, "%s, %ld$ (%ld$), %dkm/h, %dt",
 		translator::translate(besch->get_name()),
 		besch->get_preis()/100l,
-		(besch->get_wartung()<<(sp->get_welt()->ticks_bits_per_tag-18))/100l,
+		(sp->get_welt()->calc_adjusted_monthly_figure(besch->get_wartung()))/100l,
 		besch->get_topspeed(),
 		besch->get_max_weight());
 	return toolstr;
@@ -1440,7 +1444,7 @@ const char *wkz_brueckenbau_t::get_tooltip(spieler_t *sp)
 	int n = sprintf(toolstr, "%s, %d$ (%d$)",
 		  translator::translate(besch->get_name()),
 		  besch->get_preis()/100,
-		  (besch->get_wartung()<<(sp->get_welt()->ticks_bits_per_tag-18))/100);
+		  (sp->get_welt()->calc_adjusted_monthly_figure(besch->get_wartung()))/100);
 
 	if(besch->get_waytype()!=powerline_wt) {
 		n += sprintf(toolstr+n, ", %dkm/h, %dt", 
@@ -1475,7 +1479,7 @@ const char *wkz_tunnelbau_t::get_tooltip(spieler_t *sp)
 	int n = sprintf(toolstr, "%s, %d$ (%d$)",
 		  translator::translate(besch->get_name()),
 		  besch->get_preis()/100,
-		  (besch->get_wartung()<<(sp->get_welt()->ticks_bits_per_tag-18))/100);
+		  (sp->get_welt()->calc_adjusted_monthly_figure(besch->get_wartung()))/100);
 
 	if(besch->get_waytype()!=powerline_wt) {
 				n += sprintf(toolstr+n, ", %dkm/h, %dt", 
@@ -1760,7 +1764,7 @@ const char *wkz_wayobj_t::get_tooltip(spieler_t *sp)
 			sprintf(toolstr, "%s, %ld$ (%ld$), %dkm/h",
 					translator::translate(besch->get_name()),
 					besch->get_preis()/100l,
-					(besch->get_wartung()<<(sp->get_welt()->ticks_bits_per_tag-18l))/100l,
+					(sp->get_welt()->calc_adjusted_monthly_figure(besch->get_wartung()))/100l,
 					besch->get_topspeed());
 			return toolstr;
 		}
@@ -2239,7 +2243,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 
 	if(sp!=halt->get_besitzer()) {
 		// public stops are expensive!
-		costs -= ((welt->get_einstellungen()->maint_building*besch->get_level()*60)<<(welt->ticks_bits_per_tag-18));
+		costs -= welt->calc_adjusted_monthly_figure(welt->get_einstellungen()->maint_building * besch->get_level() * 60);
 	}
 	for(int i=0;  i<=len;  i++ ) {
 		koord p=pos-dx*i;
@@ -2283,7 +2287,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		return false;
 	}
 
-	if(!sp->can_afford(cost + ((welt->get_einstellungen()->maint_building*besch->get_level()*besch->get_b()*besch->get_h()*60)<<(welt->ticks_bits_per_tag-18))))
+	if(!sp->can_afford(cost + welt->calc_adjusted_monthly_figure(welt->get_einstellungen()->maint_building * besch->get_level() * besch->get_b() * besch->get_h() * 60)))
 	{
 		return CREDIT_MESSAGE;
 	}
@@ -2431,7 +2435,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	cost *= besch->get_level()*besch->get_b()*besch->get_h();
 	if(sp!=halt->get_besitzer()) {
 		// public stops are expensive!
-		cost += ((welt->get_einstellungen()->maint_building*besch->get_level()*besch->get_b()*besch->get_h()*60)<<(welt->ticks_bits_per_tag-18));
+		cost += welt->calc_adjusted_monthly_figure(welt->get_einstellungen()->maint_building * besch->get_level() * besch->get_b() * besch->get_h() * 60);
 	}
 
 	sp->buche( cost, pos, COST_CONSTRUCTION);
@@ -3299,7 +3303,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 
 			// eventually adjust production
 			if(default_param) {
-				fabrik_t::get_fab(welt,k.get_2d())->set_base_production( atol(default_param+2)>>(welt->ticks_bits_per_tag-18) );
+				fabrik_t::get_fab(welt,k.get_2d())->set_base_production(welt->calc_adjusted_monthly_figure(atol(default_param+2)));
 			}
 
 			// crossconnect all?
@@ -3371,7 +3375,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 
 		// eventually adjust production
 		if(default_param) {
-			fabrik_t::get_fab(welt,k.get_2d())->set_base_production( atol(default_param+2)>>(welt->ticks_bits_per_tag-18) );
+			fabrik_t::get_fab(welt,k.get_2d())->set_base_production(welt->calc_adjusted_monthly_figure(atol(default_param+2)));
 		}
 
 		// crossconnect all?
@@ -3479,7 +3483,7 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			// eventually adjust production
 			if(default_param) 
 			{
-				f->set_base_production( atol(default_param+2)>>(welt->ticks_bits_per_tag-18) );
+				f->set_base_production(welt->calc_adjusted_monthly_figure(atol(default_param+2)));
 			}
 
 			// crossconnect all?
@@ -3943,7 +3947,8 @@ bool wkz_make_stop_public_t::init( karte_t *, spieler_t * )
 }
 
 const char *wkz_make_stop_public_t::get_tooltip(spieler_t *sp) {
-	sprintf(toolstr, translator::translate("make stop public (or join with public stop next) costs %i per tile and level"), ((sp->get_welt()->get_einstellungen()->maint_building*60)<<(sp->get_welt()->ticks_bits_per_tag-18))/100 );
+	sprintf(toolstr, translator::translate("make stop public (or join with public stop next) costs %i per tile and level"), 
+		sp->get_welt()->calc_adjusted_monthly_figure(sp->get_welt()->get_einstellungen()->maint_building*60) /100 );
 	return toolstr;
 }
 
@@ -3957,7 +3962,7 @@ const char *wkz_make_stop_public_t::move( karte_t *welt, spieler_t *sp, uint16, 
 			sint64 costs = halt->calc_maintenance();
 			// set tooltip only if it costs (us)
 			if(costs>0) {
-				win_set_static_tooltip( tooltip_with_price("Building costs estimates", -((costs*60)<<(welt->ticks_bits_per_tag-18)) ) );
+				win_set_static_tooltip( tooltip_with_price("Building costs estimates", -welt->calc_adjusted_monthly_figure(costs*60)));
 			}
 		}
 	}

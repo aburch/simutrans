@@ -139,9 +139,9 @@ void groundobj_t::calc_bild()
 					season = seasons;
 				}
 				else {
-					// resolution 1/8th month (0..95)
-					const sint64 yearsteps = (welt->get_current_month()%12)*8 + ((welt->get_zeit_ms()>>(welt->ticks_bits_per_tag-3))&7) + 1;
-					season = (seasons*yearsteps-1)/96;
+					// welt->get_yearsteps(): resolution 1/8th month (0..95)
+					//const sint64 yearsteps = (welt->get_current_month()%12)*8 + ((welt->get_zeit_ms()>>(welt->ticks_bits_per_tag-3))&7) + 1;
+					season = (seasons * (welt->get_yearsteps() + 1) - 1) / 96;
 				}
 				break;
 	}

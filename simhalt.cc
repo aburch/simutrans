@@ -2730,10 +2730,11 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb) {
 				spieler_t *gb_sp=gb->get_besitzer();
-				sint64 costs = welt->get_einstellungen()->maint_building*gb->get_tile()->get_besch()->get_level();
+				sint32 costs = welt->get_einstellungen()->maint_building * gb->get_tile()->get_besch()->get_level();
 				total_costs += costs;
-				if(!sp->can_afford((total_costs*60)<<(welt->ticks_bits_per_tag-18)))
+				if(!sp->can_afford(welt->calc_adjusted_monthly_figure(total_costs*60)))
 				{
+					// Bernd Gabriel: does anybody reassign the already disappropriated buildings?
 					return false;
 				}
 				spieler_t::add_maintenance( gb_sp, -costs );
@@ -2752,7 +2753,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 			}
 		}
 		// transfer ownership
-		spieler_t::accounting( sp, -((total_costs*60)<<(welt->ticks_bits_per_tag-18)), get_basis_pos(), COST_CONSTRUCTION);
+		spieler_t::accounting( sp, -(welt->calc_adjusted_monthly_figure(total_costs*60)), get_basis_pos(), COST_CONSTRUCTION);
 		besitzer_p->halt_remove(self);
 		besitzer_p = public_owner;
 		public_owner->halt_add(self);
@@ -2773,9 +2774,9 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 				spieler_t *gb_sp=gb->get_besitzer();
 				if(public_owner!=gb_sp) {
 					spieler_t *gb_sp=gb->get_besitzer();
-					sint64 costs = welt->get_einstellungen()->maint_building*gb->get_tile()->get_besch()->get_level();
+					sint32 costs = welt->get_einstellungen()->maint_building*gb->get_tile()->get_besch()->get_level();
 					spieler_t::add_maintenance( gb_sp, -costs );
-					spieler_t::accounting(gb_sp, -((costs*60)<<(welt->ticks_bits_per_tag-18)), gr->get_pos().get_2d(), COST_CONSTRUCTION);
+					spieler_t::accounting(gb_sp, -(welt->calc_adjusted_monthly_figure(costs*60)), gr->get_pos().get_2d(), COST_CONSTRUCTION);
 					gb->set_besitzer(public_owner);
 					spieler_t::add_maintenance(public_owner, costs );
 				}

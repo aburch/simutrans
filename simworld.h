@@ -564,6 +564,57 @@ public:
 	sint32 get_time_multiplier() const { return time_multiplier; }
 	void change_time_multiplier( sint32 delta );
 
+	/** 
+	 * calc_adjusted_monthly_figure()
+	 *
+	 * Quantities defined on a per month base must be adjusted according to the virtual
+	 * game speed defined by the ticks per month setting in simuconf.tab.
+	 *
+	 * NOTICE: Don't confuse, on the one hand, the game speed, represented by the number in the 
+	 * lower right hand corner, and, on the other hand, the ticks per month setting. 
+	 *
+	 * The first increases or decreases the speed of all things that happen in the game by the 
+	 * same amount: the whole game is fast forwarded or slowed down.
+	 *
+	 * The second is very different: it alters the relative scale of the speed of the game, 
+	 * on the one hand, against the passing of time on the other. Increasing the speed using 
+	 * the ticks per month setting (which requires reducing the number in simuconf.tab) 
+	 * increases the number of months/years that pass in comparison to everything else that 
+	 * happens in the game.
+	 *
+	 * Example: 
+	 *
+	 * suppose that you have a railway between two towns: A and B, and one train on 
+	 * that railway. At a speed setting of 1.00 and a ticks per month setting of 18 (the default), 
+	 * suppose that your train goes between A and B ten times per month, which takes ten real minutes. 
+	 * At a speed setting of 2.00 and the same ticks per month setting, in ten real minutes, the train 
+	 * would travel between A and B twenty times, earning twice as much revenue, and costing twice as 
+	 * much in maintenance, and two months would pass.
+	 * 
+	 * However, if, instead of increasing the time to 2.00, you reduced the ticks per month to 17 and 
+	 * left the game speed at 1.00, in ten minutes of real time, the train would still travel ten times 
+	 * between A and B and earn the same amount of revenue, and cost the same amount in maintenance as 
+	 * the first instance, but two game months would pass.
+	 *
+	 * It should be apparent from that description that the maintenance cost per month needs to be 
+	 * scaled with the proportion of months to ticks, since, were it not, lowering the ticks per month 
+	 * setting would mean that the fixed maintenance cost (the per month cost) would increase the 
+	 * monthly maintenance cost, but not the variable maintenance cost. Since changing the ticks per 
+	 * month setting is supposed to be cost-neutral, this cannot happen, so all costs that are 
+	 * calculated monthly have to be adjusted to take account of the ticks per month setting in order 
+	 * to counteract its effect.
+	 * 
+	 * James E. Petts
+	 *
+	 * same adjustment applies to production rates.
+	 *
+	 * @author: Bernd Gabriel, 14.06.2009
+	 */
+	sint32 calc_adjusted_monthly_figure(sint32 nominal_monthly_figure) { return nominal_monthly_figure << ((int)ticks_bits_per_tag-18); }
+	sint64 calc_adjusted_monthly_figure(sint64 nominal_monthly_figure) { return nominal_monthly_figure << ((int)ticks_bits_per_tag-18); }
+	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure) { return nominal_monthly_figure << ((int)ticks_bits_per_tag-18); }
+	uint64 calc_adjusted_monthly_figure(uint64 nominal_monthly_figure) { return nominal_monthly_figure << ((int)ticks_bits_per_tag-18); }
+
 	/**
 	 * 0=winter, 1=spring, 2=summer, 3=autumn
 	 * @author prissi
@@ -584,6 +635,18 @@ public:
 	 * @author prissi
 	 */
 	uint32 get_current_month() const { return current_month; }
+
+	/**
+	 * 1/8th month (0..95) within current year
+	 *
+	 * Is used to calculate seasonal images.
+	 *
+	 * Another ticks_bits_per_tag algorithm, I found repeatedly, 
+	 * although ticks_bits_per_tag should be private property of karte_t.
+	 *
+	 * @author: Bernd Gabriel, 14.06.2009
+	 */
+	int get_yearsteps() { return (int) ((current_month % 12) * 8 + (ticks >> (ticks_bits_per_tag-3)) & 7); }
 
 	// prissi: current city road
 	// may change due to timeline

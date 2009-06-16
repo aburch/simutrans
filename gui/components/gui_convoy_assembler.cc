@@ -1144,7 +1144,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					name,
 					veh_type->get_preis()/100,
 					veh_type->get_betriebskosten(get_welt())/100.0,
-					veh_type->get_fixed_maintenance(get_welt())/100.0,
+					veh_type->get_adjusted_monthly_fixed_maintenance(get_welt())/100.0,
 					veh_type->get_leistung(),
 					veh_type->get_geschw(),
 					veh_type->get_gewicht()
@@ -1158,7 +1158,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					name,
 					veh_type->get_upgrade_price()/100,
 					veh_type->get_betriebskosten(get_welt())/100.0,
-					veh_type->get_fixed_maintenance(get_welt())/100.0,
+					veh_type->get_adjusted_monthly_fixed_maintenance(get_welt())/100.0,
 					veh_type->get_leistung(),
 					veh_type->get_geschw(),
 					veh_type->get_gewicht()
@@ -1202,7 +1202,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						translator::translate(veh_type->get_name()),
 						veh_type->get_preis()/100,
 							veh_type->get_betriebskosten(get_welt())/100.0,
- 						veh_type->get_fixed_maintenance(get_welt())/100.0,
+ 						veh_type->get_adjusted_monthly_fixed_maintenance(get_welt())/100.0,
 						veh_type->get_zuladung(),
 						translator::translate(veh_type->get_ware()->get_mass()),
 						veh_type->get_ware()->get_catg() == 0 ?
@@ -1221,7 +1221,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						translator::translate(veh_type->get_name()),
 						veh_type->get_preis()/100,
 						veh_type->get_betriebskosten(get_welt())/100.0,
- 						veh_type->get_fixed_maintenance(get_welt())/100.0,
+ 						veh_type->get_adjusted_monthly_fixed_maintenance(get_welt())/100.0,
 						veh_type->get_zuladung(),
 						veh_type->get_overcrowded_capacity(),
 						translator::translate(veh_type->get_ware()->get_mass()),

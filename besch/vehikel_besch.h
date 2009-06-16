@@ -107,10 +107,8 @@ private:
 
 	bool available_only_as_upgrade; //If yes, can not be bought as new: only upgraded.
 
-
-
-
-
+	// BG, 15.06.2009: the formula for obsolescence formerly implemented twice in get_betriebskosten() and get_fixed_maintenance()
+	uint32 calc_running_cost(const karte_t *welt, uint32 base_cost) const;
 
 public:
 	// since we have a second constructor
@@ -293,6 +291,7 @@ public:
 	uint16 get_betriebskosten(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	uint32 get_fixed_maintenance() const { return fixed_maintenance; }
 	uint32 get_fixed_maintenance(karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.
+	uint32 get_adjusted_monthly_fixed_maintenance(karte_t *welt) const; // includes increase for obsolescence and adjustment for monthly figures
 	sint8 get_sound() const { return sound; }
 	bool is_bidirectional() const { return bidirectional; }
 	bool get_can_lead_from_rear() const { return can_lead_from_rear; }
