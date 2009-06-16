@@ -4316,9 +4316,7 @@ void karte_t::switch_active_player(uint8 new_player)
 
 	// update menue entries (we do not want player1 to run anything)
 	if(renew_menu) {
-		for (vector_tpl<toolbar_t *>::const_iterator i = werkzeug_t::toolbar_tool.begin(), end = werkzeug_t::toolbar_tool.end();  i != end;  ++i  ) {
-			(*i)->update(this, active_player);
-		}
+		werkzeug_t::update_toolbars(this);
 		set_dirty();
 	}
 	set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );

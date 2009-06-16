@@ -651,7 +651,7 @@ werkzeug_t *werkzeug_t::dummy = new wkz_dummy_t();
 
 
 
-image_id toolbar_t::get_icon(spieler_t *sp)
+image_id toolbar_t::get_icon(spieler_t *sp) const
 {
 	// no image for edit tools => do not open
 	if(sp!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  sp!=sp->get_welt()->get_spieler(1)  ) {
