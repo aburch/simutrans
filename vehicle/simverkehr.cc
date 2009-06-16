@@ -375,6 +375,7 @@ bool stadtauto_t::list_empty()
 }
 
 
+
 stadtauto_t::~stadtauto_t()
 {
 	if(!welt->get_is_shutting_down() && current_list != NULL  && current_list->get_count() > 0)
@@ -437,8 +438,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
 
 
 
-bool
-stadtauto_t::sync_step(long delta_t)
+bool stadtauto_t::sync_step(long delta_t)
 {
 	if(time_to_life<=0) {
 		// remove obj
@@ -710,8 +710,7 @@ stadtauto_t::kill()
 }
 
 
-bool
-stadtauto_t::hop_check()
+bool stadtauto_t::hop_check()
 {
 
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
@@ -858,8 +857,7 @@ stadtauto_t::hop_check()
 
 
 
-void
-stadtauto_t::hop()
+void stadtauto_t::hop()
 {
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *to = welt->lookup(pos_next);
@@ -891,21 +889,14 @@ stadtauto_t::hop()
 
 
 
-void
-stadtauto_t::calc_bild()
+void stadtauto_t::calc_bild()
 {
-	if(welt->lookup(get_pos())->ist_im_tunnel()) {
-		set_bild( IMG_LEER);
-	}
-	else {
-		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_fahrtrichtung())));
-	}
+	set_bild(besch->get_bild_nr(ribi_t::get_dir(get_fahrtrichtung())));
 }
 
 
 
-void
-stadtauto_t::calc_current_speed()
+void stadtauto_t::calc_current_speed()
 {
 	const weg_t * weg = welt->lookup(get_pos())->get_weg(road_wt);
 	uint16 max_speed;

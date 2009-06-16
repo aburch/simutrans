@@ -401,8 +401,13 @@ weg_t::calc_bild()
 	grund_t *from = welt->lookup(get_pos());
 	grund_t *to;
 
-	if(from==NULL  ||  besch==NULL  ||  from->ist_tunnel()) {
+	if(from==NULL  ||  besch==NULL  ||  !from->is_visible()) {
 		// no ground, in tunnel
+		set_bild(IMG_LEER);
+		return;
+	}
+	if (from->ist_tunnel() && from->ist_karten_boden() && (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))) {
+		// in tunnel mouth, no underground mode
 		set_bild(IMG_LEER);
 		return;
 	}

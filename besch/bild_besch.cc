@@ -12,8 +12,7 @@ typedef uint16 PIXVAL;
  * only rotates by 90 degrees or multiples thereof, and assumes a square image
  * Otherwise it will only succeed for angle=0;
 */
-bild_besch_t *
-bild_besch_t::copy_rotate(const sint16 angle) const
+bild_besch_t *bild_besch_t::copy_rotate(const sint16 angle) const
 {
 	assert(angle == 0 || (pic.w == pic.h && pic.x == 0 && pic.y == 0));
 

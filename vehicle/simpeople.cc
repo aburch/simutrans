@@ -74,15 +74,9 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, koord3d pos)
 
 
 
-void
-fussgaenger_t::calc_bild()
+void fussgaenger_t::calc_bild()
 {
-	if(welt->lookup(get_pos())->ist_im_tunnel()) {
-		set_bild(IMG_LEER);
-	}
-	else {
-		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_fahrtrichtung())));
-	}
+	set_bild(besch->get_bild_nr(ribi_t::get_dir(get_fahrtrichtung())));
 }
 
 
@@ -148,8 +142,7 @@ void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &
 
 
 
-bool
-fussgaenger_t::sync_step(long delta_t)
+bool fussgaenger_t::sync_step(long delta_t)
 {
 	if(time_to_life<0) {
 		// remove obj

@@ -153,9 +153,17 @@ world_view_t::zeichnen(koord offset) //"Draw" (Babelfish)
 
 			plan = welt->lookup(k);
 			if(plan  &&  plan->get_kartenboden()) {
-				const sint16 yypos = display_off.y + (offsets[i].y + offsets[i].x) * 16 * raster / 64 - tile_raster_scale_y(plan->get_kartenboden()->get_hoehe() * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
+				const grund_t *kb = plan->get_kartenboden();
+				// minimum height: ground height for overground,
+				// for the definition of underground_level see grund_t::set_underground_mode
+				const sint8 hmin = min(kb->get_hoehe(), grund_t::underground_level);
+
+				// maximum height: 127 for overground, undergroundlevel for sliced, ground height-1 for complete underground view
+				const sint8 hmax = grund_t::underground_mode==grund_t::ugm_all ? kb->get_hoehe()-(!kb->ist_tunnel()) : grund_t::underground_level;
+
+				const sint16 yypos = display_off.y + (offsets[i].y + offsets[i].x) * 16 * raster / 64 - tile_raster_scale_y(kb->get_hoehe() * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
 				if(yypos-(raster*2)<gr.y  &&  yypos+raster>=0) {
-					plan->display_dinge(pos.x+off_x,pos.y+yypos,raster,false);
+					plan->display_dinge(pos.x+off_x,pos.y+yypos,raster,false,hmin,hmax);
 				}
 				else if(yypos>gr.y) {
 					// now we can finish

@@ -100,6 +100,9 @@ karte_ansicht_t::display(bool force_dirty)
 	if(grund_t::underground_mode) {
 		display_fillbox_wh(0, 32, disp_width, disp_height-menu_height, COL_BLACK, force_dirty);
 	}
+	// to save calls to grund_t::get_disp_height
+	// gr->get_disp_height() == min(gr->get_hoehe(), hmax_ground)
+	const sint8 hmax_ground = (grund_t::underground_mode==grund_t::ugm_level) ? grund_t::underground_level : 127;
 
 	// first display ground
 	int	y;
@@ -116,13 +119,13 @@ karte_ansicht_t::display(bool force_dirty)
 			if(xpos+IMG_SIZE>0  &&  xpos<disp_width) {
 				const planquadrat_t *plan=welt->lookup(koord(i,j));
 				if(plan  &&  plan->get_kartenboden()) {
-					sint16 yypos = ypos - tile_raster_scale_y( plan->get_kartenboden()->get_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
+					sint16 yypos = ypos - tile_raster_scale_y( min(plan->get_kartenboden()->get_hoehe(), hmax_ground)*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE<disp_height  &&  yypos+IMG_SIZE>menu_height) {
 						plan->display_boden(xpos, yypos);
 					}
 				}
 				else {
-					// ouside ...
+					// outside ...
 					display_img(grund_besch_t::ausserhalb->get_bild(hang_t::flach), xpos,ypos - tile_raster_scale_y( welt->get_grundwasser()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE ), force_dirty);
 				}
 			}
@@ -130,6 +133,7 @@ karte_ansicht_t::display(bool force_dirty)
 	}
 
 	// and then things (and other ground)
+	// especially necessary for vehicles
 	for(y=-dpy_height; y<dpy_height+dpy_width; y++) {
 
 		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
@@ -143,9 +147,34 @@ karte_ansicht_t::display(bool force_dirty)
 			if(xpos+IMG_SIZE>0  &&  xpos<disp_width) {
 				const planquadrat_t *plan=welt->lookup(koord(i,j));
 				if(plan  &&  plan->get_kartenboden()) {
-					sint16 yypos = ypos - tile_raster_scale_y( plan->get_kartenboden()->get_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
+					const grund_t *gr = plan->get_kartenboden();
+					// minimum height: ground height for overground,
+					// for the definition of underground_level see grund_t::set_underground_mode
+					const sint8 hmin = min(gr->get_hoehe(), grund_t::underground_level);
+
+					// maximum height: 127 for overground, undergroundlevel for sliced, ground height-1 for complete underground view
+					const sint8 hmax = grund_t::underground_mode==grund_t::ugm_all ? gr->get_hoehe()-(!gr->ist_tunnel()) : grund_t::underground_level;
+
+					/* long version
+					switch(grund_t::underground_mode) {
+						case ugm_all:
+							hmin = -128;
+							hmax = gr->get_hoehe()-(!gr->ist_tunnel());
+							underground_level = -128;
+							break;
+						case ugm_level:
+							hmin = min(gr->get_hoehe(), underground_level);
+							hmax = underground_level;
+							underground_level = level;
+							break;
+						case ugm_none:
+							hmin = gr->get_hoehe();
+							hmax = 127;
+							underground_level = 127;
+					} */
+					sint16 yypos = ypos - tile_raster_scale_y( min(gr->get_hoehe(),hmax_ground)*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE*2<disp_height  &&  yypos+IMG_SIZE>menu_height) {
-						plan->display_dinge(xpos, yypos, IMG_SIZE, true);
+						plan->display_dinge(xpos, yypos, IMG_SIZE, true, hmin, hmax);
 					}
 				}
 			}
@@ -166,9 +195,17 @@ karte_ansicht_t::display(bool force_dirty)
 			if(xpos+IMG_SIZE>0  &&  xpos<disp_width) {
 				const planquadrat_t *plan=welt->lookup(koord(i,j));
 				if(plan  &&  plan->get_kartenboden()) {
-					sint16 yypos = ypos - tile_raster_scale_y( plan->get_kartenboden()->get_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
+					const grund_t *gr = plan->get_kartenboden();
+					// minimum height: ground height for overground,
+					// for the definition of underground_level see grund_t::set_underground_mode
+					const sint8 hmin = min(gr->get_hoehe(), grund_t::underground_level);
+
+					// maximum height: 127 for overground, undergroundlevel for sliced, ground height-1 for complete underground view
+					const sint8 hmax = grund_t::underground_mode==grund_t::ugm_all ? gr->get_hoehe()-(!gr->ist_tunnel()) : grund_t::underground_level;
+
+					sint16 yypos = ypos - tile_raster_scale_y( min(gr->get_hoehe(),hmax_ground)*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE<disp_height  &&  yypos+IMG_SIZE>menu_height) {
-						plan->display_overlay(xpos, yypos);
+						plan->display_overlay(xpos, yypos, hmin, hmax);
 					}
 				}
 			}

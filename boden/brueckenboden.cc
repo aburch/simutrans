@@ -29,8 +29,13 @@ brueckenboden_t::brueckenboden_t(karte_t *welt, koord3d pos, int grund_hang, int
 
 void brueckenboden_t::calc_bild_internal()
 {
-	if(ist_tunnel()) {
-		clear_back_bild();
+	if(!is_visible()) {
+		if (ist_karten_boden()) {
+			grund_t::calc_back_bild(get_disp_height()/Z_TILE_STEP, 0);
+		}
+		else {
+			clear_back_bild();
+		}
 		set_bild(IMG_LEER);
 	}
 	else {
@@ -68,7 +73,7 @@ brueckenboden_t::rdwr(loadsave_t *file)
 	file->rdwr_byte(weg_hang, "\n");
 
 	if(!find<bruecke_t>()) {
-		dbg->error( "brueckenboden_t::rdwr()","no bridge on bridgebround at (%s); try repalcement", pos.get_str()  );
+		dbg->error( "brueckenboden_t::rdwr()","no bridge on bridge ground at (%s); try replacement", pos.get_str() );
 		weg_t *w = get_weg_nr(0);
 		if(w) {
 			const bruecke_besch_t *br_besch = brueckenbauer_t::find_bridge( w->get_waytype(), w->get_max_speed(), 0 );

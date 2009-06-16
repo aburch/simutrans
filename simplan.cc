@@ -195,11 +195,6 @@ planquadrat_t::kartenboden_setzen(grund_t *bd)
 void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 {
 	assert(alt!=NULL  &&  neu!=NULL);
-#ifdef COVER_TILES
-	if(alt->get_flag(grund_t::is_cover_tile)) {
-		neu->set_flag(grund_t::is_cover_tile);
-	}
-#endif
 
 	if(ground_size<=1) {
 		assert(data.one==alt  ||  ground_size==0);
@@ -370,7 +365,7 @@ void planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos) const
 
 
 void
-planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool called_by_simview) const
+planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool called_by_simview, const sint8 hmin, const sint8 hmax) const
 {
 	grund_t *gr=get_kartenboden();
 	//const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
@@ -380,18 +375,24 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 	gr->display_dinge(xpos, ypos, called_by_simview);
 
 	if(ground_size>1) {
-		const sint16 h0 = gr->get_hoehe();
+		const sint8 h0 = gr->get_disp_height();
 		for(uint8 i=1;  i<ground_size;  i++) {
-			gr=data.some[i];
-			const sint16 yypos = ypos - tile_raster_scale_y( (gr->get_hoehe()-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
-			gr->display_boden(xpos, yypos );
-			gr->display_dinge(xpos, yypos, called_by_simview );
+			const grund_t* gr=data.some[i];
+			const sint8 h = gr->get_hoehe();
+			// too high
+			if (h > hmax) break;
+			// not too low?
+			if (h >= hmin) {
+				const sint16 yypos = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
+				gr->display_boden(xpos, yypos );
+				gr->display_dinge(xpos, yypos, called_by_simview );
+			}
 		}
 	}
 }
 
 
-void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
+void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint8 hmin, const sint8 hmax) const
 {
 	grund_t *gr=get_kartenboden();
 
@@ -401,7 +402,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 		if(umgebung_t::use_transparency_station_coverage) {
 
 			// only transparent outline
-			image_id img = get_kartenboden()->get_bild();
+			image_id img = gr->get_bild();
 			if(img==IMG_LEER) {
 				// default image (since i.e. foundations do not have an image)
 				img = grund_besch_t::ausserhalb->get_bild(hang_t::flach);
@@ -431,7 +432,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			// opaque boxes (
 			const sint16 r=raster_tile_width/8;
 			const sint16 x=xpos+raster_tile_width/2-r;
-			const sint16 y=ypos+(raster_tile_width*3)/4-r - (get_kartenboden()->get_grund_hang()? tile_raster_scale_y(8,raster_tile_width): 0);
+			const sint16 y=ypos+(raster_tile_width*3)/4-r - (gr->get_grund_hang()? tile_raster_scale_y(8,raster_tile_width): 0);
 			const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
 			// suitable start search
 			for(sint16 h=halt_list_count-1;  h>=0;  h--  ) {
@@ -440,16 +441,20 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 		}
 	}
 
+	gr->display_overlay(xpos, ypos );
 	if(ground_size>1) {
-		const sint16 h0 = gr->get_hoehe();
-		for(uint8 i=0;  i<ground_size;  i++) {
-			gr=data.some[i];
-			const sint16 yypos = ypos - (gr->get_hoehe()-h0)*get_tile_raster_width()/(2*Z_TILE_STEP);
-			gr->display_overlay(xpos, yypos );
+		const sint8 h0 = gr->get_disp_height();
+		for(uint8 i=1;  i<ground_size;  i++) {
+			grund_t* gr=data.some[i];
+			const sint8 h = gr->get_hoehe();
+			// too high
+			if (h > hmax) break;
+			// not too low?
+			if (h >= hmin) {
+				const sint16 yypos = ypos - (h-h0)*get_tile_raster_width()/(2*Z_TILE_STEP);
+				gr->display_overlay(xpos, yypos );
+			}
 		}
-	}
-	else {
-		gr->display_overlay(xpos, ypos );
 	}
 }
 

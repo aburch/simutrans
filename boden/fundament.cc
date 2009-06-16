@@ -54,12 +54,10 @@ void
 fundament_t::calc_bild_internal()
 {
 	slope = 0;
-	if(ist_im_tunnel()) {
-		clear_back_bild();
+	if (is_visible()) {
+		set_bild( grund_besch_t::get_ground_tile(0,get_pos().z) );
+	} else {
 		set_bild(IMG_LEER);
 	}
-	else {
-		set_bild( grund_besch_t::get_ground_tile(0,get_pos().z) );
-		grund_t::calc_back_bild(get_pos().z/Z_TILE_STEP,0);
-	}
+	grund_t::calc_back_bild(get_disp_height()/Z_TILE_STEP,0);
 }

@@ -18,6 +18,7 @@
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 #include "../simgraph.h"
+#include "../simmenu.h"
 
 #include "../utils/simstring.h"
 
@@ -64,6 +65,7 @@
 
 // x coordinates
 #define RIGHT_WIDTH (220)
+#define NUMBER_INP (170)
 
 
 
@@ -154,6 +156,14 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[16].set_text("underground mode");
 	buttons[16].set_tooltip("See under the ground, to build tunnels and underground railways/metros.");
 
+	inp_underground_level.set_pos(koord(NUMBER_INP, UNDERGROUND) );
+	inp_underground_level.set_groesse( koord(50,12));
+	inp_underground_level.set_value( grund_t::underground_level );
+	inp_underground_level.set_limits(welt->get_grundwasser(), 20);
+	add_komponente(&inp_underground_level);
+	inp_underground_level.add_listener(this);
+
+
 	buttons[17].set_pos( koord(10,GRID_MODE) );
 	buttons[17].set_typ(button_t::square_state);
 	buttons[17].set_text("show grid");
@@ -235,23 +245,25 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	} else if((buttons+15)==komp) {
 		umgebung_t::station_coverage_show = umgebung_t::station_coverage_show==0 ? 0xFF : 0;
 	} else if((buttons+16)==komp) {
-		grund_t::underground_mode = !grund_t::underground_mode;
-		for(int y=0; y<welt->get_groesse_y(); y++) {
-			for(int x=0; x<welt->get_groesse_x(); x++) {
-				const planquadrat_t *plan = welt->lookup(koord(x,y));
-				const int boden_count = plan->get_boden_count();
-				for(int schicht=0; schicht<boden_count; schicht++) {
-					grund_t *gr = plan->get_boden_bei(schicht);
-					gr->calc_bild();
-				}
-			}
-		}
+		// see simwerkz.cc::wkz_show_underground_t::init
+		grund_t::set_underground_mode(grund_t::underground_mode ^ grund_t::ugm_level, inp_underground_level.get_value());
+		buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_level;
+		// calc new images
+		welt->update_map();
+		// renew toolbar
+		werkzeug_t::update_toolbars(welt);
 	} else if((buttons+17)==komp) {
 		grund_t::toggle_grid();
 	} else if((buttons+18)==komp) {
 		umgebung_t::show_names ^= 1;
 	} else if((buttons+19)==komp) {
 		umgebung_t::show_names ^= 2;
+	} else if (komp == &inp_underground_level) {
+		if(grund_t::underground_mode==grund_t::ugm_level) {
+			grund_t::underground_level = inp_underground_level.get_value();
+			// calc new images
+			welt->update_map();
+		}
 	}
 
 	else if((buttons+20)==komp)
@@ -287,7 +299,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	// can be changed also with keys ...
 	buttons[11].pressed = umgebung_t::hide_trees;
 	buttons[15].pressed = umgebung_t::station_coverage_show;
-	buttons[16].pressed = grund_t::underground_mode;
+	buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_level;
 	buttons[17].pressed = grund_t::show_grid;
 	buttons[18].pressed = umgebung_t::show_names&1;
 	buttons[19].pressed = (umgebung_t::show_names&2)!=0;

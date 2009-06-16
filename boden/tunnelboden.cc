@@ -36,31 +36,44 @@ tunnelboden_t::tunnelboden_t(karte_t *welt, loadsave_t *file, koord pos ) : bode
 void
 tunnelboden_t::calc_bild_internal()
 {
-	if(!ist_tunnel()) {
-		// only here, when undergound_mode is true
-		clear_back_bild();
-		if(ist_karten_boden()) {
-			set_bild( IMG_LEER ); // tunnel mound
-		}
-		else {
+	// tunnel mouth
+	if (ist_karten_boden()) {
+		if (grund_t::underground_mode==grund_t::ugm_all || (grund_t::underground_mode==grund_t::ugm_level && pos.z==grund_t::underground_level)) {
+			if (grund_t::underground_mode==grund_t::ugm_all) {
+				clear_back_bild();
+			}
+			else {
+				boden_t::calc_bild_internal();
+			}
 			// default tunnel ground images
 			set_bild(skinverwaltung_t::fussweg->get_bild_nr(0));
+			clear_flag(draw_as_ding);
+		}
+		else {
+			// calculate the ground
+			boden_t::calc_bild_internal();
+			set_flag(draw_as_ding);
+		}
+
+		if (grund_t::underground_mode == grund_t::ugm_none) {
+			if(  (get_grund_hang()==hang_t::west  &&  abs(back_bild_nr)>11)  ||  (get_grund_hang()==hang_t::nord  &&  get_back_bild(0)!=IMG_LEER)  ) {
+				// must draw as ding, since there is a slop here nearby
+				koord pos = get_pos().get_2d()+koord(get_grund_hang());
+				grund_t *gr = welt->lookup_kartenboden(pos);
+				gr->set_flag(grund_t::draw_as_ding);
+			}
 		}
 	}
-	else if(ist_karten_boden()) {
-		// calculate the slope of ground
-		boden_t::calc_bild_internal();
-		set_flag(draw_as_ding);
-		if(  (get_grund_hang()==hang_t::west  &&  abs(back_bild_nr)>11)  ||  (get_grund_hang()==hang_t::nord  &&  get_back_bild(0)!=IMG_LEER)  ) {
-			// must draw as ding, since there is a slop here nearby
-			koord pos = get_pos().get_2d()+koord(get_grund_hang());
-			grund_t *gr = welt->lookup_kartenboden(pos);
-			gr->set_flag(grund_t::draw_as_ding);
-		}
-	}
+	// inside tunnel
 	else {
 		clear_back_bild();
-		set_bild(IMG_LEER);
+		if (is_visible()) {
+			// default tunnel ground images
+			set_bild(skinverwaltung_t::fussweg->get_bild_nr(get_disp_slope()));
+		}
+		else {
+			set_bild(IMG_LEER);
+		}
 	}
 }
 
