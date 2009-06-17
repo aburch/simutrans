@@ -110,6 +110,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 			!(get_filter(indepot_filter) && cnv->in_depot()) &&
 			!(get_filter(noline_filter) && !cnv->get_line().is_bound()) &&
 			!(get_filter(nofpl_filter) && cnv->get_schedule() == 0) &&
+			!(get_filter(obsolete_filter) && cnv->has_obsolete_vehicles()) &&
 			!(get_filter(noincome_filter) && cnv->get_jahresgewinn()/100 <= 0))
 		{
 			return false;

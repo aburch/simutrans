@@ -3803,7 +3803,14 @@ sint32 convoi_t::get_running_cost() const
 	return running_cost;
 }
 
-
+uint32 convoi_t::get_fixed_maintenance() const
+{
+	uint32 running_cost = 0;
+	for (unsigned i = 0; i<get_vehikel_anzahl(); i++) {
+		running_cost += fahr[i]->get_fixed_maintenance(welt); 
+	}
+	return running_cost;
+}
 
 void convoi_t::check_pending_updates()
 {

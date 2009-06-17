@@ -499,6 +499,12 @@ public:
 	sint32 get_running_cost() const;
 
 	/**
+	* returns the total monthly fixed maintenance cost for all vehicles in convoi
+	* @author Bernd Gabriel
+	*/
+	uint32 get_fixed_maintenance() const;
+
+	/**
 	* Constructor for loading from file,
 	* @author Hj. Malthaner
 	*/
