@@ -1790,16 +1790,16 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			for (k.x = 0; k.x < groesse_alt.x; k.x++) {
 				for (k.y = 0; k.y < groesse_alt.y; k.y++) {
 					// we itereate over all tiles, since the townhalls are allowed sizes bigger than 1x1
-
-					gr = welt->lookup(pos_alt + k)->get_kartenboden();
+					const koord pos = pos_alt + k;
+					gr = welt->lookup(pos)->get_kartenboden();
 		DBG_MESSAGE("stadt_t::check_bau_rathaus()", "loesch %p", gr->first_obj());
 					gr->obj_loesche_alle(NULL);
 
-					if (umziehen) {
+					if(umziehen) {
 						DBG_MESSAGE("stadt_t::check_bau_rathaus()", "delete townhall tile %i,%i (gb=%p)", k.x, k.y, gb);
+						welt->access(pos)->boden_ersetzen( gr, new boden_t(welt,gr->get_pos(),hang_t::flach) );
 						// replace old space by normal houses level 0 (must be 1x1!)
-						gb = hausbauer_t::neues_gebaeude(welt, NULL, gr->get_pos(), 0, hausbauer_t::get_wohnhaus(0, welt->get_timeline_year_month(), welt->get_climate(welt->max_hgt(pos))), NULL);
-						add_gebaeude_to_stadt(gb);
+						baue_gebaeude(pos);
 					}
 				}
 			}
