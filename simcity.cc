@@ -1927,6 +1927,10 @@ static koord neighbours[] = {
 };
 
 
+// return layout
+static int gebaeude_layout[] = {0,0,1,4,2,0,5,1,3,7,1,0,6,3,2,0};
+
+
 void stadt_t::baue_gebaeude(const koord k)
 {
 	grund_t* gr = welt->lookup_kartenboden(k);
@@ -1981,15 +1985,15 @@ void stadt_t::baue_gebaeude(const koord k)
 		// we have something to built here ...
 		if (h != NULL) {
 			// check for pavement
-			int streetdir = -1;
+			int streetdir = 0;
 			for (int i = 0; i < 8; i++) {
 				gr = welt->lookup_kartenboden(k + neighbours[i]);
 				if (gr && gr->get_weg_hang() == gr->get_grund_hang()) {
 					strasse_t* weg = (strasse_t*)gr->get_weg(road_wt);
 					if (weg != NULL) {
-						if (i < 4 && streetdir == -1) {
+						if (i < 4) {
 							// update directions (SENW)
-							streetdir = i;
+							streetdir += (1 << i);
 						}
 						weg->set_gehweg(true);
 						// if not current city road standard, then replace it
@@ -2009,7 +2013,7 @@ void stadt_t::baue_gebaeude(const koord k)
 				}
 			}
 
-			const gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, streetdir == -1 ? 0 : streetdir, h);
+			const gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, gebaeude_layout[streetdir], h);
 			add_gebaeude_to_stadt(gb);
 		}
 	}
@@ -2140,9 +2144,9 @@ void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 			if (gr != NULL && gr->get_weg_hang() == gr->get_grund_hang()) {
 				strasse_t* weg = static_cast<strasse_t*>(gr->get_weg(road_wt));
 				if (weg != NULL) {
-					if (i < 4 && streetdir == 0) {
-						// update directions (NESW)
-						streetdir = i;
+					if (i < 4) {
+							// update directions (SENW)
+							streetdir += (1 << i);
 					}
 					weg->set_gehweg(true);
 					// if not current city road standard, then replace it
@@ -2176,7 +2180,7 @@ void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 		}
 
 		// exchange building; try to face it to street in front
-		gb->set_tile( h->get_tile(streetdir, 0, 0) );
+		gb->set_tile( h->get_tile(gebaeude_layout[streetdir], 0, 0) );
 		welt->lookup(k)->get_kartenboden()->calc_bild();
 		update_gebaeude_from_stadt(gb);
 

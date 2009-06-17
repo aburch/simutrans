@@ -142,8 +142,8 @@ gebaeude_t::rotate90()
 		uint8 layout = tile->get_layout();
 		koord new_offset = tile->get_offset();
 
-		if(haus_besch->get_all_layouts()<=4) {
-			layout = (layout+3) % haus_besch->get_all_layouts();
+		if(haus_besch->get_utyp() == haus_besch_t::unbekannt  ||  haus_besch->get_all_layouts()<=4) {
+			layout = (layout & 4) + ((layout+3) % haus_besch->get_all_layouts() & 3);
 		}
 		else {
 

@@ -22,6 +22,7 @@
 	ADD: (gerw) dragging of wayobj and many other tools, adding wayobj-remover
 	CHANGE: (Dwachs) better intercityroad creation
 	ADD: (Dwachs) sliced underground mode
+	ADD: (z9999) 8 layout for city buildings allow also closed corners
 
 
 
