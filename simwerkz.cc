@@ -1580,18 +1580,26 @@ const char *wkz_wayremover_t::valid_pos( karte_t *welt, spieler_t *sp, const koo
 
 bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koord3d &start, const koord3d &end )
 {
-	waytype_t wt = (waytype_t)atoi(default_param);
-	// get a default vehikel
-	fahrer_t* test_driver;
-	if(  wt!=powerline_wt  ) {
-		vehikel_besch_t remover_besch(wt, 500, vehikel_besch_t::diesel );
-		test_driver = vehikelbauer_t::baue(start, sp, NULL, &remover_besch);
+	bool can_delete;
+	if(  start == end  ) {
+		verbindung.clear();
+		verbindung.append( start );
+		can_delete = true;
 	}
 	else {
-		test_driver = (fahrer_t * )new electron_t();
+		waytype_t wt = (waytype_t)atoi(default_param);
+		// get a default vehikel
+		fahrer_t* test_driver;
+		if(  wt!=powerline_wt  ) {
+			vehikel_besch_t remover_besch(wt, 500, vehikel_besch_t::diesel );
+			test_driver = vehikelbauer_t::baue(start, sp, NULL, &remover_besch);
+		}
+		else {
+			test_driver = (fahrer_t * )new electron_t();
+		}
+		can_delete = verbindung.calc_route(sp->get_welt(), start, end, test_driver, 0);
+		delete test_driver;
 	}
-	bool can_delete = verbindung.calc_route(sp->get_welt(), start, end, test_driver, 0);
-	delete test_driver;
 	DBG_MESSAGE("wkz_wayremover()", "route search returned %d", can_delete);
 	DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.get_max_n());
 	return can_delete;
@@ -1663,9 +1671,11 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 
 			// now the tricky part: delete just part of a way (or everything, if possible)
 			// calculated removing directions
-			ribi_t::ribi rem = (i>0) ? ribi_typ( verbindung.position_bei(i).get_2d(), verbindung.position_bei(i-1).get_2d() ) : 0;
-			ribi_t::ribi rem2 = (i<verbindung.get_max_n()) ? ribi_typ(verbindung.position_bei(i).get_2d(),verbindung.position_bei(i+1).get_2d()) : 0;
-			rem = ~(rem|rem2);
+			ribi_t::ribi rem = ~( verbindung.get_route().get_ribi(i) );
+			// if start=end tile then delete every direction
+			if( verbindung.get_max_n() == 1 ) {
+				rem = 0;
+			}
 
 			if(  wt!=powerline_wt  ) {
 				if(!gr->get_flag(grund_t::is_kartenboden)  &&  (gr->get_typ()==grund_t::tunnelboden  ||  gr->get_typ()==grund_t::monorailboden)  &&  gr->get_weg_nr(0)->get_waytype()==wt) {
