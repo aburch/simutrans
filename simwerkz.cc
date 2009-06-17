@@ -1663,9 +1663,12 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 						if(err) {
 							return err;
 						}
+						gr = welt->lookup(verbindung.position_bei(i));
 					}
-					// do not remove asphalt from a bridge ...
-					continue;
+					else {
+						// do not remove asphalt from a bridge ...
+						continue;
+					}
 				}
 			}
 
