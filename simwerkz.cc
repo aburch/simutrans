@@ -1236,7 +1236,7 @@ const char *wkz_fahrplan_ins_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 /* way construction */
 const weg_besch_t *wkz_wegebau_t::defaults[17] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-const weg_besch_t * wkz_wegebau_t::get_besch(bool remember) const
+const weg_besch_t *wkz_wegebau_t::get_besch( karte_t *welt, bool remember ) const
 {
 	const weg_besch_t *besch = wegbauer_t::get_besch(default_param,0);
 	if(besch==NULL) {
@@ -1244,9 +1244,8 @@ const weg_besch_t * wkz_wegebau_t::get_besch(bool remember) const
 		besch = defaults[wt&63];
 		if(besch==NULL) {
 			if(wt<=air_wt) {
-				weg_t *w = weg_t::alloc(wt);
-				besch = w->get_besch();
-				delete w;
+				// search fastest way.
+				besch = wegbauer_t::weg_search(wt, 0xffffffff, welt->get_timeline_year_month(), weg_t::type_flat);
 			}
 			else {
 				besch = wegbauer_t::leitung_besch;
@@ -1255,14 +1254,19 @@ const weg_besch_t * wkz_wegebau_t::get_besch(bool remember) const
 	}
 	assert(besch);
 	if(remember) {
-		defaults[besch->get_wtyp()&63] = besch;
+		if(  besch->get_styp() == weg_t::type_tram  ) {
+			defaults[ tram_wt ] = besch;
+		}
+		else {
+			defaults[besch->get_wtyp()&63] = besch;
+		}
 	}
 	return besch;
 }
 
 const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 {
-	const weg_besch_t *besch = get_besch(false);
+	const weg_besch_t *besch = get_besch(sp->get_welt(),false);
 	sprintf(toolstr, "%s, %ld$ (%.2lf$), %dkm/h",
 		translator::translate(besch->get_name()),
 		besch->get_preis()/100l,
@@ -1274,7 +1278,7 @@ const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 bool wkz_wegebau_t::is_selected( karte_t *welt ) const
 {
 	const wkz_wegebau_t *selected = dynamic_cast<const wkz_wegebau_t *>(welt->get_werkzeug());
-	return (selected  &&  selected->get_besch(false) == get_besch(false));
+	return (selected  &&  selected->get_besch(welt,false) == get_besch(welt,false));
 }
 
 bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
@@ -1282,7 +1286,7 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 	two_click_werkzeug_t::init( welt, sp );
 
 	// now get current besch
-	besch = get_besch(true);
+	besch = get_besch(welt, true);
 	if(besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_LEER) {
 		cursor = besch->get_cursor()->get_bild_nr(0);
 	}
