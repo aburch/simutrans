@@ -22,44 +22,45 @@
 
 #include "../utils/simstring.h"
 
-#define MAX_BUTTONS (20)
+#define MAX_BUTTONS (21)
 
 // y coordinates
 #define GRID_MODE			(0*13+6)
 #define UNDERGROUND		(1*13+6)
-#define DAY_NIGHT			(2*13+6)
-#define BRIGHTNESS		(3*13+6)
-#define SCROLL_INVERS (4*13+6)
-#define SCROLL_SPEED	(5*13+6)
+#define SLICE			(2*13+6)
+#define DAY_NIGHT			(3*13+6)
+#define BRIGHTNESS		(4*13+6)
+#define SCROLL_INVERS (5*13+6)
+#define SCROLL_SPEED	(6*13+6)
 
-#define SEPERATE1 (6*13+6)
+#define SEPERATE1 (7*13+6)
 
-#define USE_TRANSPARENCY	(6*13+6+4)
-#define HIDE_TREES				(7*13+6+4)
-#define HIDE_CITY_HOUSES	(8*13+6+4)
+#define USE_TRANSPARENCY	(7*13+6+4)
+#define HIDE_TREES				(8*13+6+4)
+#define HIDE_CITY_HOUSES	(9*13+6+4)
 
-#define SEPERATE2 (9*13+6+4)
+#define SEPERATE2 (10*13+6+4)
 
-#define USE_TRANSPARENCY_STATIONS	(9*13+6+2*4)
-#define SHOW_STATION_COVERAGE			(10*13+6+2*4)
-#define SHOW_STATION_SIGNS				(11*13+6+2*4)
-#define SHOW_STATION_GOODS				(12*13+6+2*4)
+#define USE_TRANSPARENCY_STATIONS	(10*13+6+2*4)
+#define SHOW_STATION_COVERAGE			(11*13+6+2*4)
+#define SHOW_STATION_SIGNS				(12*13+6+2*4)
+#define SHOW_STATION_GOODS				(13*13+6+2*4)
 
-#define SEPERATE3	(13*13+6+2*4)
+#define SEPERATE3	(14*13+6+2*4)
 
-#define CITY_WALKER								(13*13+6+3*4)
-#define STOP_WALKER								(14*13+6+3*4)
-#define DENS_TRAFFIC							(15*13+6+3*4)
-#define CONVOI_TOOLTIPS							(16*13+6+3*4)
+#define CITY_WALKER								(14*13+6+3*4)
+#define STOP_WALKER								(15*13+6+3*4)
+#define DENS_TRAFFIC							(16*13+6+3*4)
+#define CONVOI_TOOLTIPS							(17*13+6+3*4)
 
-#define SEPERATE4	(17*13+6+3*4)
+#define SEPERATE4	(18*13+6+3*4)
 
-#define FPS_DATA (17*13+6+4*4)
-#define IDLE_DATA (18*13+6+4*4)
-#define FRAME_DATA (19*13+6+4*4)
-#define LOOP_DATA (20*13+6+4*4)
+#define FPS_DATA (18*13+6+4*4)
+#define IDLE_DATA (19*13+6+4*4)
+#define FRAME_DATA (20*13+6+4*4)
+#define LOOP_DATA (21*13+6+4*4)
 
-#define BOTTOM (21*13+6+12+5*4)
+#define BOTTOM (22*13+6+12+5*4)
 
 // x coordinates
 #define RIGHT_WIDTH (220)
@@ -145,14 +146,6 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[16].set_typ(button_t::square_state);
 	buttons[16].set_text("underground mode");
 
-	inp_underground_level.set_pos(koord(NUMBER_INP, UNDERGROUND) );
-	inp_underground_level.set_groesse( koord(50,12));
-	inp_underground_level.set_value( grund_t::underground_level );
-	inp_underground_level.set_limits(welt->get_grundwasser(), 20);
-	add_komponente(&inp_underground_level);
-	inp_underground_level.add_listener(this);
-
-
 	buttons[17].set_pos( koord(10,GRID_MODE) );
 	buttons[17].set_typ(button_t::square_state);
 	buttons[17].set_text("show grid");
@@ -166,6 +159,17 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[19].set_typ(button_t::square_state);
 	buttons[19].set_text("show waiting bars");
 	buttons[19].pressed = umgebung_t::show_names&1;
+
+	buttons[20].set_pos( koord(10,SLICE) );
+	buttons[20].set_typ(button_t::square_state);
+	buttons[20].set_text("sliced underground mode");
+
+	inp_underground_level.set_pos(koord(NUMBER_INP, SLICE) );
+	inp_underground_level.set_groesse( koord(50,12));
+	inp_underground_level.set_limits(welt->get_grundwasser(), 20);
+	inp_underground_level.set_value( grund_t::underground_level );
+	add_komponente(&inp_underground_level);
+	inp_underground_level.add_listener(this);
 
 	// left/right for convoi tooltips
 	buttons[0].set_pos( koord(10,CONVOI_TOOLTIPS) );
@@ -226,8 +230,8 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		umgebung_t::station_coverage_show = umgebung_t::station_coverage_show==0 ? 0xFF : 0;
 	} else if((buttons+16)==komp) {
 		// see simwerkz.cc::wkz_show_underground_t::init
-		grund_t::set_underground_mode(grund_t::underground_mode ^ grund_t::ugm_level, inp_underground_level.get_value());
-		buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_level;
+		grund_t::set_underground_mode(buttons[16].pressed ? grund_t::ugm_none : grund_t::ugm_all, inp_underground_level.get_value());
+		buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
 		// calc new images
 		welt->update_map();
 		// renew toolbar
@@ -238,6 +242,14 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		umgebung_t::show_names ^= 1;
 	} else if((buttons+19)==komp) {
 		umgebung_t::show_names ^= 2;
+	} else if((buttons+20)==komp) {
+		// see simwerkz.cc::wkz_show_underground_t::init
+		grund_t::set_underground_mode(buttons[20].pressed ? grund_t::ugm_none : grund_t::ugm_level, inp_underground_level.get_value());
+		buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
+		// calc new images
+		welt->update_map();
+		// renew toolbar
+		werkzeug_t::update_toolbars(welt);
 	} else if (komp == &inp_underground_level) {
 		if(grund_t::underground_mode==grund_t::ugm_level) {
 			grund_t::underground_level = inp_underground_level.get_value();
@@ -262,10 +274,11 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	// can be changed also with keys ...
 	buttons[11].pressed = umgebung_t::hide_trees;
 	buttons[15].pressed = umgebung_t::station_coverage_show;
-	buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_level;
+	buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
 	buttons[17].pressed = grund_t::show_grid;
 	buttons[18].pressed = umgebung_t::show_names&1;
 	buttons[19].pressed = (umgebung_t::show_names&2)!=0;
+	buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
 
 	gui_frame_t::zeichnen(pos, gr);
 

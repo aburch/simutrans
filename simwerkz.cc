@@ -3670,13 +3670,23 @@ bool wkz_show_underground_t::init( karte_t *welt, spieler_t * )
 	switch(default_param[0]) {
 		// toggle sliced view by toolbar - height taken from extra mouse click
 		case 'C':
-			needs_click = true;
-			ok = false;
+			if(grund_t::underground_mode==grund_t::ugm_level) {
+				grund_t::set_underground_mode( grund_t::ugm_none, 0);
+			}
+			else if(grund_t::underground_mode==grund_t::ugm_none) {
+				needs_click = true;
+				ok = false;
+			}
+			else {
+				ok = false;
+			}
 			break;
 		// decrease slice level
 		case 'D':
 			if(grund_t::underground_mode==grund_t::ugm_level) {
-				grund_t::underground_level --;
+				if(  grund_t::underground_level>welt->get_grundwasser()-5  ) {
+					grund_t::underground_level --;
+				}
 			}
 			else {
 				ok = false;
@@ -3685,7 +3695,9 @@ bool wkz_show_underground_t::init( karte_t *welt, spieler_t * )
 		// increase slice level
 		case 'I':
 			if(grund_t::underground_mode==grund_t::ugm_level) {
-				grund_t::underground_level ++;
+				if(  grund_t::underground_level<20  ) {
+					grund_t::underground_level ++;
+				}
 			}
 			else {
 				ok = false;
@@ -3696,10 +3708,13 @@ bool wkz_show_underground_t::init( karte_t *welt, spieler_t * )
 		case 'K':
 			if(grund_t::underground_mode==grund_t::ugm_level) {
 				// switch to normal or full-underground
-				grund_t::set_underground_mode( save_underground_level==127 ? grund_t::ugm_none : grund_t::ugm_all, 0);
+				grund_t::set_underground_mode( grund_t::ugm_none, 0);
+			}
+			else if(grund_t::underground_mode==grund_t::ugm_none) {
+				grund_t::set_underground_mode( grund_t::ugm_level, zpos.z);
 			}
 			else {
-				grund_t::set_underground_mode( grund_t::ugm_level, zpos.z);
+				ok = false;
 			}
 			break;
 
@@ -3707,7 +3722,7 @@ bool wkz_show_underground_t::init( karte_t *welt, spieler_t * )
 		case 'U':
 			if (grund_t::underground_mode==grund_t::ugm_all) {
 				// switch back to normal or sliced view
-				grund_t::set_underground_mode( grund_t::ugm_none, 0); // save_underground_level==127 ? grund_t::ugm_none : grund_t::ugm_level, save_underground_level);
+				grund_t::set_underground_mode( save_underground_level==127 ? grund_t::ugm_none : grund_t::ugm_level, save_underground_level);
 			}
 			else {
 				grund_t::set_underground_mode( grund_t::ugm_all, 0);
