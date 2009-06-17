@@ -1727,7 +1727,7 @@ const char *wkz_wayobj_t::get_tooltip(spieler_t *sp)
 	}
 	else {
 		wt = (waytype_t)atoi( default_param );
-		sprintf( toolstr, translator::translate("Remove wayobj %s"), weg_t::waytype_to_string(wt) );
+		sprintf( toolstr, translator::translate("Remove wayobj %s"), translator::translate(weg_t::waytype_to_string(wt)) );
 		return toolstr;
 	}
 }
