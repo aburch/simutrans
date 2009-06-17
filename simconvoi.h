@@ -422,7 +422,14 @@ private:
 	// load at a stop.
 	uint8 current_stop;
 
-
+	/**
+	 * Get obsolescence from vehicle list.
+	 * Extracted from new_month().
+	 * Used to recalculate convoi_t::has_obsolete
+	 * 
+	 * @author: Bernd Gabriel
+	 */
+	bool calc_obsolescence(uint16 timeline_year_month);
 public:
 	route_t* get_route() { return &route; }
 
@@ -861,6 +868,7 @@ public:
 	// returns tiles needed for this convoi
 	uint16 get_tile_length() const;
 
+	// get cached obsolescence.
 	bool has_obsolete_vehicles() const { return has_obsolete; }
 
 	bool get_withdraw() const { return withdraw; }
