@@ -107,6 +107,9 @@ const haus_tile_besch_t *haus_besch_t::get_tile(int layout, int x, int y) const
  */
 int haus_besch_t::layout_anpassen(int layout) const
 {
+	if(layout >= 4 && layouts <= 4) {
+		layout -= 4;
+	}
 	if(layout >= 2 && layouts <= 2) {
 		// Sind Layout C und D nicht definiert, nehemen wir ersatzweise A und B
 		layout -= 2;

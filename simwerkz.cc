@@ -1309,7 +1309,7 @@ const char *wkz_fahrplan_ins_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 /* way construction */
 const weg_besch_t *wkz_wegebau_t::defaults[17] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-const weg_besch_t * wkz_wegebau_t::get_besch(bool remember) const
+const weg_besch_t *wkz_wegebau_t::get_besch( karte_t *welt, bool remember ) const
 {
 	const weg_besch_t *besch = wegbauer_t::get_besch(default_param,0);
 	if(besch==NULL) {
@@ -1317,9 +1317,8 @@ const weg_besch_t * wkz_wegebau_t::get_besch(bool remember) const
 		besch = defaults[wt&63];
 		if(besch==NULL) {
 			if(wt<=air_wt) {
-				weg_t *w = weg_t::alloc(wt);
-				besch = w->get_besch();
-				delete w;
+				// search fastest way.
+				besch = wegbauer_t::weg_search(wt, 0xffffffff, welt->get_timeline_year_month(), weg_t::type_flat);
 			}
 			else {
 				besch = wegbauer_t::leitung_besch;
@@ -1328,15 +1327,20 @@ const weg_besch_t * wkz_wegebau_t::get_besch(bool remember) const
 	}
 	assert(besch);
 	if(remember) {
-		defaults[besch->get_wtyp()&63] = besch;
+		if(  besch->get_styp() == weg_t::type_tram  ) {
+			defaults[ tram_wt ] = besch;
+		}
+		else {
+			defaults[besch->get_wtyp()&63] = besch;
+		}
 	}
 	return besch;
 }
 
 const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 {
-	const weg_besch_t *besch = get_besch(false);
-	sprintf(toolstr, "%s, %ld$ (%ld$), %dkm/h, %dt",
+	const weg_besch_t *besch = get_besch(sp->get_welt(),false);
+	sprintf(toolstr, "%s, %ld$ (%.2lf$), %dkm/h, %dt",
 		translator::translate(besch->get_name()),
 		besch->get_preis()/100l,
 		(sp->get_welt()->calc_adjusted_monthly_figure(besch->get_wartung()))/100l,
@@ -1348,7 +1352,7 @@ const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 bool wkz_wegebau_t::is_selected( karte_t *welt ) const
 {
 	const wkz_wegebau_t *selected = dynamic_cast<const wkz_wegebau_t *>(welt->get_werkzeug());
-	return (selected  &&  selected->get_besch(false) == get_besch(false));
+	return (selected  &&  selected->get_besch(welt,false) == get_besch(welt,false));
 }
 
 bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
@@ -1356,7 +1360,7 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 	two_click_werkzeug_t::init( welt, sp );
 
 	// now get current besch
-	besch = get_besch(true);
+	besch = get_besch(welt, true);
 	if(besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_LEER) {
 		cursor = besch->get_cursor()->get_bild_nr(0);
 	}
@@ -1661,18 +1665,26 @@ const char *wkz_wayremover_t::valid_pos( karte_t *welt, spieler_t *sp, const koo
 
 bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koord3d &start, const koord3d &end )
 {
-	waytype_t wt = (waytype_t)atoi(default_param);
-	// get a default vehikel
-	fahrer_t* test_driver;
-	if(  wt!=powerline_wt  ) {
-		vehikel_besch_t remover_besch(wt, 500, vehikel_besch_t::diesel );
-		test_driver = vehikelbauer_t::baue(start, sp, NULL, &remover_besch);
+	bool can_delete;
+	if(  start == end  ) {
+		verbindung.clear();
+		verbindung.append( start );
+		can_delete = true;
 	}
 	else {
-		test_driver = (fahrer_t * )new electron_t();
+		waytype_t wt = (waytype_t)atoi(default_param);
+		// get a default vehikel
+		fahrer_t* test_driver;
+		if(  wt!=powerline_wt  ) {
+			vehikel_besch_t remover_besch(wt, 500, vehikel_besch_t::diesel );
+			test_driver = vehikelbauer_t::baue(start, sp, NULL, &remover_besch);
+		}
+		else {
+			test_driver = (fahrer_t * )new electron_t();
+		}
+		can_delete = verbindung.calc_route(sp->get_welt(), start, end, test_driver, 0, 0);
+		delete test_driver;
 	}
-	bool can_delete = verbindung.calc_route(sp->get_welt(), start, end, test_driver, 0, 0);
-	delete test_driver;
 	DBG_MESSAGE("wkz_wayremover()", "route search returned %d", can_delete);
 	DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.get_max_n());
 	return can_delete;
@@ -1736,17 +1748,22 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 						if(err) {
 							return err;
 						}
+						gr = welt->lookup(verbindung.position_bei(i));
 					}
-					// do not remove asphalt from a bridge ...
-					continue;
+					else {
+						// do not remove asphalt from a bridge ...
+						continue;
+					}
 				}
 			}
 
 			// now the tricky part: delete just part of a way (or everything, if possible)
 			// calculated removing directions
-			ribi_t::ribi rem = (i>0) ? ribi_typ( verbindung.position_bei(i).get_2d(), verbindung.position_bei(i-1).get_2d() ) : 0;
-			ribi_t::ribi rem2 = (i<verbindung.get_max_n()) ? ribi_typ(verbindung.position_bei(i).get_2d(),verbindung.position_bei(i+1).get_2d()) : 0;
-			rem = ~(rem|rem2);
+			ribi_t::ribi rem = ~( verbindung.get_route().get_ribi(i) );
+			// if start=end tile then delete every direction
+			if( verbindung.get_max_n() == 1 ) {
+				rem = 0;
+			}
 
 			if(  wt!=powerline_wt  ) {
 				if(!gr->get_flag(grund_t::is_kartenboden)  &&  (gr->get_typ()==grund_t::tunnelboden  ||  gr->get_typ()==grund_t::monorailboden)  &&  gr->get_weg_nr(0)->get_waytype()==wt) {
@@ -4102,13 +4119,23 @@ bool wkz_show_underground_t::init( karte_t *welt, spieler_t * )
 	switch(default_param[0]) {
 		// toggle sliced view by toolbar - height taken from extra mouse click
 		case 'C':
-			needs_click = true;
-			ok = false;
+			if(grund_t::underground_mode==grund_t::ugm_level) {
+				grund_t::set_underground_mode( grund_t::ugm_none, 0);
+			}
+			else if(grund_t::underground_mode==grund_t::ugm_none) {
+				needs_click = true;
+				ok = false;
+			}
+			else {
+				ok = false;
+			}
 			break;
 		// decrease slice level
 		case 'D':
 			if(grund_t::underground_mode==grund_t::ugm_level) {
-				grund_t::underground_level --;
+				if(  grund_t::underground_level>welt->get_grundwasser()-5  ) {
+					grund_t::underground_level --;
+				}
 			}
 			else {
 				ok = false;
@@ -4117,7 +4144,9 @@ bool wkz_show_underground_t::init( karte_t *welt, spieler_t * )
 		// increase slice level
 		case 'I':
 			if(grund_t::underground_mode==grund_t::ugm_level) {
-				grund_t::underground_level ++;
+				if(  grund_t::underground_level<20  ) {
+					grund_t::underground_level ++;
+				}
 			}
 			else {
 				ok = false;
@@ -4128,10 +4157,13 @@ bool wkz_show_underground_t::init( karte_t *welt, spieler_t * )
 		case 'K':
 			if(grund_t::underground_mode==grund_t::ugm_level) {
 				// switch to normal or full-underground
-				grund_t::set_underground_mode( save_underground_level==127 ? grund_t::ugm_none : grund_t::ugm_all, 0);
+				grund_t::set_underground_mode( grund_t::ugm_none, 0);
+			}
+			else if(grund_t::underground_mode==grund_t::ugm_none) {
+				grund_t::set_underground_mode( grund_t::ugm_level, zpos.z);
 			}
 			else {
-				grund_t::set_underground_mode( grund_t::ugm_level, zpos.z);
+				ok = false;
 			}
 			break;
 
@@ -4139,7 +4171,7 @@ bool wkz_show_underground_t::init( karte_t *welt, spieler_t * )
 		case 'U':
 			if (grund_t::underground_mode==grund_t::ugm_all) {
 				// switch back to normal or sliced view
-				grund_t::set_underground_mode( grund_t::ugm_none, 0); // save_underground_level==127 ? grund_t::ugm_none : grund_t::ugm_level, save_underground_level);
+				grund_t::set_underground_mode( save_underground_level==127 ? grund_t::ugm_none : grund_t::ugm_level, save_underground_level);
 			}
 			else {
 				grund_t::set_underground_mode( grund_t::ugm_all, 0);

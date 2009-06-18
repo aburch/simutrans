@@ -130,16 +130,19 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	sortby = sort_mode;
 
 	// if there, give the capacity for each freight
-#ifdef SLIST_FREIGHT
-	slist_tpl <ware_t> dummy;
-	slist_iterator_tpl<ware_t> full_iter ( full_list==NULL ? &dummy : full_list );
-#else
+
 	bool delete_check = false;
 	if(full_list == NULL)
 	{
+#ifdef SLIST_FREIGHT
+		full_list = new slist_tpl<ware_t>;
+#else
 		full_list = new vector_tpl<ware_t>;
+#endif
 		delete_check = true;
 	}
+#ifdef SLIST_FREIGHT
+	slist_iterator_tpl<ware_t> full_iter ( full_list );
 #endif
 	bool list_finish = true;
 	sint16 count = 0;
@@ -366,13 +369,14 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	while(list_finish  &&  full_iter.next()) 
 	{
 		add_ware_heading( buf, 0, full_iter.get_current().menge, &(full_iter.get_current()), what_doing );
+	}
 #else
 	while(list_finish && count > 0)
 	{
 		add_ware_heading(buf, 0, full_list->get_element(count).menge, &full_list->get_element(count), what_doing);
 		count--;
-#endif
 	}
+#endif
 	if(delete_check)
 	{
 		delete full_list;

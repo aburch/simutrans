@@ -176,7 +176,7 @@ class wkz_wegebau_t : public two_click_werkzeug_t {
 private:
 	static const weg_besch_t *defaults[17];	// default ways for all types
 	const weg_besch_t *besch;
-	const weg_besch_t *get_besch(bool) const;
+	const weg_besch_t *get_besch(karte_t *,bool) const;
 public:
 	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
 	virtual const char *get_tooltip(spieler_t *);
