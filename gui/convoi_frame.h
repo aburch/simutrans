@@ -34,7 +34,7 @@ public:
 	enum filter_flag_t { any_filter=1, name_filter=2, typ_filter=4, ware_filter=8, spezial_filter=16,
 		sub_filter=32,	// Ab hier beginnen die Unterfilter!
 		lkws_filter=32, zuege_filter=64, schiffe_filter=128, aircraft_filter=256,
-		noroute_filter=512, nofpl_filter=1024, noincome_filter=2048, indepot_filter=4096, noline_filter=8192, stucked_filter=16384, monorail_filter=32768, maglev_filter=65536, narrowgauge_filter=131072 };
+		noroute_filter=512, nofpl_filter=1024, noincome_filter=2048, indepot_filter=4096, noline_filter=8192, stucked_filter=16384, monorail_filter=32768, maglev_filter=65536, narrowgauge_filter=131072, tram_filter=131072*2 };
 
 private:
 	spieler_t *owner;

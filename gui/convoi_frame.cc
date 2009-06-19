@@ -70,7 +70,13 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 				}
 				break;
 			case ding_t::waggon:
-				if(!get_filter(zuege_filter)) {
+				// filter trams: a convoi is considered tram if the first vehicle is a tram vehicle
+				if(fahr->get_besch()->get_waytype()==tram_wt) {
+					if (!get_filter(tram_filter)) {
+						return false;
+					}
+				}
+				else if (!get_filter(zuege_filter)) {
 					return false;
 				}
 				break;
