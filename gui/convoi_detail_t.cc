@@ -122,19 +122,62 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		uint16 count = cnv->get_vehikel_anzahl();
 		if (count > 0)
 		{
-			uint32 fixed = 0, curr = 0;
+/* Bernd Gabriel, 17.06.2009:
+The average percentage tells nothing about the real cost increase: If a cost-intensive 
+loco is very old and at max increase (1 * 400% * 1000 cr/month, but 15 low-cost cars are 
+brand new (15 * 100% * 100 cr/month), an average percentage of 
+(1 * 400% + 15 * 100%) / 16 = 118.75% does not tell the truth. Actually we pay
+(1 * 400% * 1000 + 15 * 100% * 100) / (1 * 1000 + 15 * 100) = 220% twice as much as in the
+early years of the loco.
+
+			uint32 percentage = 0;
 			karte_t *welt = cnv->get_welt();
 			for (uint16 i = 0; i < count; i++) {
-				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
-				fixed += besch->get_fixed_maintenance();
-				curr += besch->get_fixed_maintenance(welt);
+				percentage += cnv->get_vehikel(i)->get_besch()->calc_running_cost(welt, 10000);
 			}
-			if (curr != 0 && curr > fixed)
+			percentage = percentage / (count * 100) - 100;
+			if (percentage > 0)
 			{
-				sprintf( tmp, "%s: %d%%", translator::translate("Obsolescence increase"), ((curr-fixed) * 100) / fixed);
+				sprintf( tmp, "%s: %d%%", translator::translate("Obsolescence increase"), percentage);
 				display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, COL_BLUE, true );
 				offset_y += LINESPACE;
 			}
+On the other hand: a single effective percentage does not tell the truth as well. Supposed we 
+calculate the percentage from the costs per km, the relations for the month costs can widely differ.
+Therefore I show different values for running and monthly costs:
+*/
+			uint32 run_actual = 0, run_nominal = 0, run_percent = 0;
+			uint32 mon_actual = 0, mon_nominal = 0, mon_percent = 0;
+			karte_t *welt = cnv->get_welt();
+			for (uint16 i = 0; i < count; i++) {
+				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
+				run_nominal += besch->get_betriebskosten();
+				run_actual  += besch->get_betriebskosten(welt);
+				mon_nominal += besch->get_fixed_maintenance();
+				mon_actual  += besch->get_fixed_maintenance(welt);
+			}
+			if (run_nominal) run_percent = ((run_actual - run_nominal) * 100) / run_nominal;
+			if (mon_nominal) mon_percent = ((mon_actual - mon_nominal) * 100) / mon_nominal;
+			int len = 0;
+			if (run_percent)
+			{
+				if (mon_percent)
+					len = sprintf(tmp, "%s: %d%%/km %d%%/mon", translator::translate("Obsolescence increase"), run_percent, mon_percent);
+				else
+					len = sprintf(tmp, "%s: %d%%/km", translator::translate("Obsolescence increase"), run_percent);
+			}
+			else
+			{
+				if (mon_percent)
+					len = sprintf(tmp, "%s: %d%%/mon", translator::translate("Obsolescence increase"), mon_percent);
+			}
+			if (len)
+			{
+				offset_y += LINESPACE;
+				display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, COL_BLUE, true );
+				offset_y += LINESPACE;
+			}
+
 		}
 	}
 }
@@ -236,17 +279,12 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			extra_y += LINESPACE;
 			
 			// Bernd Gabriel, 16.06.2009: current average obsolescence increase percentage
-			const vehikel_besch_t *besch = v->get_besch();
-			uint32 fixed = besch->get_fixed_maintenance();
-			if (fixed != 0)
+			uint32 percentage = v->get_besch()->calc_running_cost(v->get_welt(), 100) - 100;
+			if (percentage > 0)
 			{
-				uint32 curr = besch->get_fixed_maintenance(v->get_welt());
-				if (curr > fixed)
-				{
-					sprintf( buf, "%s: %d%%", translator::translate("Obsolescence increase"), ((curr-fixed) * 100) / fixed);
-					display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLUE, true );
-					extra_y += LINESPACE;
-				}
+				sprintf( buf, "%s: %d%%", translator::translate("Obsolescence increase"), percentage);
+				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLUE, true );
+				extra_y += LINESPACE;
 			}
 
 			// power

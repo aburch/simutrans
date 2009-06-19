@@ -339,7 +339,14 @@ public:
 	* @author Hj. Malthaner
 	*/
 	int get_betriebskosten() const { return besch->get_betriebskosten(); }
-	int get_betriebskosten(karte_t* welt) const { 	return besch->get_betriebskosten(welt); }
+	int get_betriebskosten(karte_t* welt) const { return besch->get_betriebskosten(welt); }
+
+	/**
+	* @return fixed maintenance costs in Cr/100months
+	* @author Bernd Gabriel
+	*/
+	uint32 get_fixed_maintenance() const { return besch->get_fixed_maintenance(); }
+	uint32 get_fixed_maintenance(karte_t* welt) const { return besch->get_fixed_maintenance(welt); }
 
 	/**
 	* spielt den Sound, wenn das Vehikel sichtbar ist

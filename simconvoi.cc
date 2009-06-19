@@ -193,6 +193,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	// Added by : Knightly
 	old_fpl = NULL;
 	recalc_catg_index();
+	has_obsolete = calc_obsolescence(welt->get_timeline_year_month());
 }
 
 convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
@@ -1265,15 +1266,7 @@ void convoi_t::new_month()
 	}
 	// check for obsolete vehicles in the convoi
 	if(!has_obsolete  &&  welt->use_timeline()) {
-		// convoi has obsolete vehicles?
-		const int month_now = welt->get_timeline_year_month();
-		has_obsolete = false;
-		for(unsigned j=0;  j<get_vehikel_anzahl();  j++ ) {
-			if (fahr[j]->get_besch()->is_retired(month_now)) {
-				has_obsolete = true;
-				break;
-			}
-		}
+		has_obsolete = calc_obsolescence(welt->get_timeline_year_month());
 	}
 }
 
@@ -1585,11 +1578,7 @@ convoi_t::remove_vehikel_bei(uint16 i)
 
 		// check for obsolete
 		if(has_obsolete) {
-			has_obsolete = false;
-			const int month_now = welt->get_timeline_year_month();
-			for(unsigned i=0; i<anz_vehikel; i++) {
-				has_obsolete |= fahr[i]->get_besch()->is_retired(month_now);
-			}
+			has_obsolete = calc_obsolescence(welt->get_timeline_year_month());
 		}
 
 		// still requires electrifications?
@@ -3804,7 +3793,14 @@ sint32 convoi_t::get_running_cost() const
 	return running_cost;
 }
 
-
+uint32 convoi_t::get_fixed_maintenance() const
+{
+	uint32 running_cost = 0;
+	for (unsigned i = 0; i<get_vehikel_anzahl(); i++) {
+		running_cost += fahr[i]->get_fixed_maintenance(welt); 
+	}
+	return running_cost;
+}
 
 void convoi_t::check_pending_updates()
 {
@@ -4305,4 +4301,16 @@ void convoi_t::recalc_catg_index()
 			}
 		}
 	}
+}
+
+// Bernd Gabriel, 18.06.2009: extracted from new_month()
+bool convoi_t::calc_obsolescence(uint16 timeline_year_month)
+{
+	// convoi has obsolete vehicles?
+	for(int j = get_vehikel_anzahl(); --j >= 0; ) {
+		if (fahr[j]->get_besch()->is_retired(timeline_year_month)) {
+			return true;
+		}
+	}
+	return false;
 }

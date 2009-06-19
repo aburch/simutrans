@@ -107,9 +107,6 @@ private:
 
 	bool available_only_as_upgrade; //If yes, can not be bought as new: only upgraded.
 
-	// BG, 15.06.2009: the formula for obsolescence formerly implemented twice in get_betriebskosten() and get_fixed_maintenance()
-	uint32 calc_running_cost(const karte_t *welt, uint32 base_cost) const;
-
 public:
 	// since we have a second constructor
 	vehikel_besch_t() { }
@@ -300,7 +297,9 @@ public:
 	uint16 get_loading_time() const { return zuladung > 0 ? loading_time : 0; }
 	uint32 get_upgrade_price() const { return upgrade_price; }
 	bool is_available_only_as_upgrade() const { return available_only_as_upgrade; }
-	
+
+	// BG, 15.06.2009: the formula for obsolescence formerly implemented twice in get_betriebskosten() and get_fixed_maintenance()
+	uint32 calc_running_cost(const karte_t *welt, uint32 base_cost) const;	
 
 	/**
 	* @return introduction year

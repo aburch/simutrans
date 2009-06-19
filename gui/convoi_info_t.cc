@@ -306,8 +306,13 @@ enable_home:
 		int len = display_proportional(pos.x + 11, pos.y + 16 + 20 + 1 * LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true ) + 5;
 		money_to_string( tmp, cnv->get_jahresgewinn()/100.0 );
 		len += display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, cnv->get_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true )+5;
-		sprintf(tmp," (%1.2f$/km)", cnv->get_running_cost()/100.0 );
-		display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, COL_BLACK, true );
+		// Bernd Gabriel, 17.06.2009: add fixed maintenance info
+		uint32 fixed_monthly = cnv->get_fixed_maintenance();
+		if (fixed_monthly)
+			sprintf(tmp," (%1.2f$/km, %1.2f$/mon)", cnv->get_running_cost()/100.0, fixed_monthly/100.0 );
+		else
+			sprintf(tmp," (%1.2f$/km)", cnv->get_running_cost()/100.0 );
+		display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, cnv->has_obsolete_vehicles() ? COL_BLUE : COL_BLACK, true );
 
 		// the weight entry
 		info_buf.clear();
