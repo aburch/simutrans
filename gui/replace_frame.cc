@@ -48,9 +48,9 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	add_komponente(&lb_to_be_replaced);
 
 	lb_replace_cycle.set_text_pointer(translator::translate("Replace cycle:"));
-	lb_replace.set_text_pointer(translator::translate("Replace"));
-	lb_sell.set_text_pointer(translator::translate("Sell"));
-	lb_skip.set_text_pointer(translator::translate("Skip"));
+	lb_replace.set_text_pointer(translator::translate("rpl_cnv_replace"));
+	lb_sell.set_text_pointer(translator::translate("rpl_cnv_sell"));
+	lb_skip.set_text_pointer(translator::translate("rpl_cnv_skip"));
 	numinp[state_replace].set_value( 1 );
 	numinp[state_replace].set_limits( 0, 99 );
 	numinp[state_replace].set_increment_mode( 1 );
@@ -216,20 +216,24 @@ void replace_frame_t::layout(koord *gr)
 	bt_autostart.set_pos(koord(margin,buttons_y));
 	bt_depot.set_pos(koord(margin+buttons_width,buttons_y));
 	bt_mark.set_pos(koord(margin+buttons_width+buttons_width,buttons_y));
+
 	current_y=buttons_y+a_button_height+margin;
 	lb_money.set_pos(koord(110,current_y));
 	lb_replace_cycle.set_pos(koord(fgr.x-170,current_y));
 	lb_replace.set_pos(koord(fgr.x-166,current_y));
-	numinp[state_replace].set_pos( koord( fgr.x-110, current_y ) );
 
+	numinp[state_replace].set_pos( koord( fgr.x-110, current_y ) );
 	numinp[state_replace].set_groesse( koord( 50, a_button_height ) );
 	lb_n_replace.set_pos( koord( fgr.x-50, current_y ) );
 	current_y+=LINESPACE+2;
+
 	bt_replace_line.set_pos(koord(margin,current_y));
 	lb_sell.set_pos(koord(fgr.x-166,current_y));
+	numinp[state_sell].set_pos( koord( fgr.x-110, current_y ) );
 	numinp[state_sell].set_groesse( koord( 50, a_button_height ) );
 	lb_n_sell.set_pos( koord( fgr.x-50, current_y ) );
 	current_y+=LINESPACE+2;
+
 	bt_replace_all.set_pos(koord(margin,current_y));
 	lb_skip.set_pos(koord(fgr.x-166,current_y));
 	numinp[state_skip].set_pos( koord( fgr.x-110, current_y ) );
@@ -511,7 +515,7 @@ sint32 replace_frame_t::calc_total_cost()
 {
 	sint32 total_cost = 0;
 	vector_tpl<const vehikel_t*> current_vehicles;
-	vector_tpl<uint8> keep_vehicles;
+	vector_tpl<uint16> keep_vehicles;
 	for(uint8 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
 	{
 		current_vehicles.append(cnv->get_vehikel(i));
