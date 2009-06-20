@@ -94,6 +94,7 @@ werkzeug_t *create_general_tool(int toolnr)
 		case WKZ_MAKE_STOP_PUBLIC: return new wkz_make_stop_public_t();
 		case WKZ_REMOVE_WAYOBJ:    return new wkz_wayobj_remover_t();
 		case WKZ_SLICED_AND_UNDERGROUND_VIEW: return new wkz_show_underground_t();
+		case WKZ_BUY_HOUSE:        return new wkz_buy_house_t();
 	}
 	dbg->fatal("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 	return NULL;

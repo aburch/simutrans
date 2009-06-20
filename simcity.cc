@@ -2423,7 +2423,15 @@ void stadt_t::baue()
 
 	// renovation (only done when nothing matches a certain location
 	if (!buildings.empty()  &&  simrand(100) <= renovation_percentage) {
-		renoviere_gebaeude(buildings[simrand(buildings.get_count())]);
+		gebaeude_t* gb;
+		// try to find a public owned building
+		for(uint8 i=0; i<4; i++) {
+			gb = buildings[simrand(buildings.get_count())];
+			if (spieler_t::check_owner(welt->get_spieler(1),gb->get_besitzer())) {
+				renoviere_gebaeude(gb);
+				break;
+			}
+		}
 		INT_CHECK("simcity 876");
 	}
 }

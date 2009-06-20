@@ -161,7 +161,6 @@ void ding_t::info(cbuffer_t & buf) const
 		buf.append(translator::translate("Kein Besitzer\n"));
 	}
 	else {
-		buf.append(translator::translate("owned by"));
 		buf.append(get_besitzer()->get_name());
 		buf.append("\n");
 	}
