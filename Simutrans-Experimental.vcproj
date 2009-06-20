@@ -18,8 +18,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\simutrans-experimental-binaries\debug"
-			IntermediateDirectory="..\simutrans-experimental-binaries\debug\intermediates"
+			OutputDirectory="..\simutrans-experimental-binaries"
+			IntermediateDirectory="..\simutrans-experimental-binaries\intermediates\debug"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="0"
@@ -67,8 +67,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib $(NOINHERIT)"
+				OutputFile="$(OutDir)\$(ProjectName)-debug.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;G:\Program Files\PlatformSDK\Lib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
+				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Zlib\include&quot;"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames="libcmt.lib"
 				GenerateDebugInformation="true"
@@ -102,8 +103,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\simutrans-experimental-binaries\release"
-			IntermediateDirectory="..\simutrans-experimental-binaries\release\intermediates"
+			OutputDirectory="..\simutrans-experimental-binaries"
+			IntermediateDirectory="..\simutrans-experimental-binaries\intermediates\release"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -186,8 +187,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release (SDL)|Win32"
-			OutputDirectory="..\simutrans-experimental-binaries\release-sdl"
-			IntermediateDirectory="..\simutrans-experimental-binaries\release-sdl\intermediates"
+			OutputDirectory="..\simutrans-experimental-binaries"
+			IntermediateDirectory="..\simutrans-experimental-binaries\intermediates\release-SDL"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -235,7 +236,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="SDL.lib SDLmain.lib"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib $(NOINHERIT)"
-				OutputFile="$(OutDir)\$(ProjectName).exe"
+				OutputFile="$(OutDir)\$(ProjectName)-SDL.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Simutrans\SDL-1.2.13\include&quot;;&quot;c:\Program Files\PlatformSDK\Lib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
 				IgnoreDefaultLibraryNames="libcmt.lib"
@@ -272,8 +273,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug (SDL)|Win32"
-			OutputDirectory="..\simutrans-experimental-binaries\debug-sdl"
-			IntermediateDirectory="..\simutrans-experimental-binaries\debug-sdl\intermediates"
+			OutputDirectory="..\simutrans-experimental-binaries"
+			IntermediateDirectory="..\simutrans-experimental-binaries\intermediates\debug-SDL"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="0"
@@ -322,7 +323,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="SDL.lib SDLmain.lib"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib $(NOINHERIT)"
-				OutputFile="$(OutDir)\$(ProjectName).exe"
+				OutputFile="$(OutDir)\$(ProjectName)-debug-SDL.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Simutrans\SDL-1.2.13\include&quot;;&quot;G:\Program Files\PlatformSDK\Lib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
 				IgnoreAllDefaultLibraries="false"

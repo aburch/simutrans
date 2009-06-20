@@ -3859,7 +3859,7 @@ uint8 convoi_t::get_status_color() const
 	}
 	else if(has_obsolete) 
 	{
-		return COL_BLUE;
+		return COL_DARK_BLUE;
 	}
 	// normal state
 	return COL_BLACK;

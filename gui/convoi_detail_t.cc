@@ -139,7 +139,7 @@ early years of the loco.
 			if (percentage > 0)
 			{
 				sprintf( tmp, "%s: %d%%", translator::translate("Obsolescence increase"), percentage);
-				display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, COL_BLUE, true );
+				display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, COL_DARK_BLUE, true );
 				offset_y += LINESPACE;
 			}
 On the other hand: a single effective percentage does not tell the truth as well. Supposed we 
@@ -174,7 +174,7 @@ Therefore I show different values for running and monthly costs:
 			if (len)
 			{
 				offset_y += LINESPACE;
-				display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, COL_BLUE, true );
+				display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, COL_DARK_BLUE, true );
 				offset_y += LINESPACE;
 			}
 
@@ -283,7 +283,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			if (percentage > 0)
 			{
 				sprintf( buf, "%s: %d%%", translator::translate("Obsolescence increase"), percentage);
-				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLUE, true );
+				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_DARK_BLUE, true );
 				extra_y += LINESPACE;
 			}
 
