@@ -1079,7 +1079,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 	sint64 value = -1;
 	const vehikel_besch_t *veh_type = NULL;
 	koord relpos = koord( 0, ((gui_scrollpane_t *)tabs.get_aktives_tab())->get_scroll_y() );
-	int sel_index = lst->index_at(pos + tabs.get_pos() - relpos, x, y - 16 - gui_tab_panel_t::HEADER_VSIZE);
+	int sel_index = lst->index_at(pos + tabs.get_pos() - relpos, x, y - gui_tab_panel_t::HEADER_VSIZE);
 
 	if ((sel_index != -1) && (tabs.getroffen(x-pos.x,y-pos.y))) {
 		const vector_tpl<gui_image_list_t::image_data_t>& vec = (lst == &electrics ? electrics_vec : (lst == &pas ? pas_vec : (lst == &loks ? loks_vec : waggons_vec)));
@@ -1135,12 +1135,13 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			translator::translate(engine_type_names[veh_type->get_engine_type()+1]));
 
 			sint32 n;
+
 			
 			if(upgrade == u_buy)
 			{
 				n = sprintf(buf,
-					/*translator::translate("LOCO_INFO"),*/
-					translator::translate("%s\nCost: %d$\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkm/h\nWeight: %dt\n"),
+					translator::translate("LOCO_INFO_EXT"),
+					//translator::translate("%s\nCost: %d$\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkm/h\nWeight: %dt\n"),
 					name,
 					veh_type->get_preis()/100,
 					veh_type->get_betriebskosten(get_welt())/100.0,
@@ -1153,8 +1154,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			else
 			{
 				n = sprintf(buf,
-					/*translator::translate("LOCO_INFO"),*/
-					translator::translate("%s\nCost: %d$\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkm/h\nWeight: %dt\n"),
+					translator::translate("LOCO_INFO_EXT"),
+					//translator::translate("%s\nCost: %d$\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkm/h\nWeight: %dt\n"),
 					name,
 					veh_type->get_upgrade_price()/100,
 					veh_type->get_betriebskosten(get_welt())/100.0,
