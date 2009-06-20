@@ -167,7 +167,7 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			}
 			else
 			{
-				dbg->fatal( "bridge_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", experimental_version );
+				dbg->fatal( "bridge_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
 			}
 		}
 

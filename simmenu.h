@@ -60,6 +60,7 @@ enum {
 	WKZ_STOP_MOVER,
 	WKZ_MAKE_STOP_PUBLIC,
 	WKZ_REMOVE_WAYOBJ,
+	WKZ_SLICED_AND_UNDERGROUND_VIEW,
 	GENERAL_TOOL_COUNT,
 	GENERAL_TOOL = 0x1000
 };
@@ -148,18 +149,20 @@ public:
 	static vector_tpl<werkzeug_t *>char_to_tool;
 
 	image_id cursor;
-	int	ok_sound;
+	int ok_sound;
 	int failed_sound;
 	sint8 offset;
 	const char *default_param;
 
-	uint16	command_key;// key to toggle action for this function
-	uint16	id;			// value to trigger this command (see documentation)
+	uint16 command_key;// key to toggle action for this function
+	uint16 id;			// value to trigger this command (see documentation)
 
 	static vector_tpl<werkzeug_t *> general_tool;
 	static vector_tpl<werkzeug_t *> simple_tool;
 	static vector_tpl<werkzeug_t *> dialog_tool;
 	static vector_tpl<toolbar_t *> toolbar_tool;
+
+	static void update_toolbars(karte_t *welt);
 
 	// since only a single toolstr a time can be visible ...
 	static char toolstr[1024];
@@ -169,11 +172,14 @@ public:
 	werkzeug_t() { id = 0xFFFFu; cursor = icon = IMG_LEER; ok_sound = failed_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; }
 	virtual ~werkzeug_t() {}
 
-	virtual image_id get_icon(spieler_t *) { return icon; }
+	virtual image_id get_icon(spieler_t *) const { return icon; }
 	void set_icon(image_id i) { icon = i; }
 
 	// this will draw the tool with some indication, if active
-	virtual bool is_selected(karte_t *welt) { return welt->get_werkzeug()==this; }
+	virtual bool is_selected(karte_t *welt) const { return welt->get_werkzeug()==this; }
+
+	// will draw a dark frame, if selected
+	virtual void draw_after( karte_t *w, koord pos ) const;
 
 	/* could be used for player dependent images
 	 * will be called, when a toolbar is opened/updated
@@ -201,7 +207,6 @@ public:
  * Dragging is also possible.
  * @author Gerd Wachsmuth
  */
-
 class two_click_werkzeug_t : public werkzeug_t {
 public:
 	two_click_werkzeug_t() : werkzeug_t() { start_marker = NULL; };
@@ -260,8 +265,8 @@ public:
 	}
 	const char *get_tooltip(spieler_t *) { return translator::translate(default_param); }
 	werkzeug_waehler_t *get_werkzeug_waehler() const { return wzw; }
-	virtual image_id get_icon(spieler_t *);
-	bool is_selected(karte_t *welt);
+	virtual image_id get_icon(spieler_t *) const;
+	bool is_selected(karte_t *welt) const;
 	// show this toolbar
 	virtual bool init(karte_t *w, spieler_t *sp);
 	void update(karte_t *, spieler_t *);	// just refresh content

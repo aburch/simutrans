@@ -43,7 +43,7 @@ void monorailboden_t::calc_bild_internal()
 	set_bild( IMG_LEER );
 	clear_back_bild();
 	if(get_weg_nr(0)) {
-		if(grund_t::underground_mode) {
+		if (!is_visible()){
 			get_weg_nr(0)->set_bild(IMG_LEER);
 		}
 		else {

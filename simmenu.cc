@@ -93,7 +93,7 @@ werkzeug_t *create_general_tool(int toolnr)
 		case WKZ_STOP_MOVER:       return new wkz_stop_moving_t();
 		case WKZ_MAKE_STOP_PUBLIC: return new wkz_make_stop_public_t();
 		case WKZ_REMOVE_WAYOBJ:    return new wkz_wayobj_remover_t();
-
+		case WKZ_SLICED_AND_UNDERGROUND_VIEW: return new wkz_show_underground_t();
 	}
 	dbg->fatal("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 	return NULL;
@@ -625,6 +625,23 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 	std::sort(char_to_tool.begin(), char_to_tool.end(), compare_werkzeug);
 }
 
+void werkzeug_t::update_toolbars(karte_t *welt)
+{
+	// renew toolbar
+	for (vector_tpl<toolbar_t *>::const_iterator i = toolbar_tool.begin(), end = toolbar_tool.end();  i != end;  ++i  ) {
+		(*i)->update(welt, welt->get_active_player());
+	}
+}
+
+void werkzeug_t::draw_after( karte_t *welt, koord pos ) const
+{
+	// default action: grey corner if selected
+	image_id id = get_icon( welt->get_active_player() );
+	if(  id!=IMG_LEER  &&  is_selected(welt)  ) {
+		display_img_blend( id, pos.x, pos.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, true );
+	}
+}
+
 // seperator in toolbars
 class wkz_dummy_t : public werkzeug_t {
 	bool init( karte_t *, spieler_t * ) { return false; }
@@ -634,7 +651,7 @@ werkzeug_t *werkzeug_t::dummy = new wkz_dummy_t();
 
 
 
-image_id toolbar_t::get_icon(spieler_t *sp)
+image_id toolbar_t::get_icon(spieler_t *sp) const
 {
 	// no image for edit tools => do not open
 	if(sp!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  sp!=sp->get_welt()->get_spieler(1)  ) {
@@ -646,7 +663,7 @@ image_id toolbar_t::get_icon(spieler_t *sp)
 
 
 // simply true, if visible
-bool toolbar_t::is_selected(karte_t *)
+bool toolbar_t::is_selected(karte_t *) const
 {
 	return win_get_magic((long)this);
 }
@@ -661,8 +678,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 	}
 
 	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1))  ||
-		 (grund_t::underground_mode  &&  strcmp(default_param,"SLOPETOOLS")==0)
-		) {
+		(grund_t::underground_mode==grund_t::ugm_all  &&  strcmp(default_param,"SLOPETOOLS")==0)) {
 		destroy_win(wzw);
 		return;
 	}
@@ -727,9 +743,6 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 {
 	update( welt, sp );
 	bool close = (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1));
-	if(  grund_t::underground_mode  &&  strcmp(default_param,"SLOPETOOLS")==0  ) {
-		close = true;
-	}
 
 	// show/create window
 	if(win_get_magic((long)this)) {

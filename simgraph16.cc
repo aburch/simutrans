@@ -3198,7 +3198,7 @@ void display_progress(int part, int total)
 	display_fillbox_wh(width/2, disp_height/2-7, width, 16, COL_GREY5, TRUE);
 
 	// progress
-	display_fillbox_wh(width/2, disp_height/2-5, part, 12, COL_BLUE, TRUE);
+	display_fillbox_wh(width/2, disp_height/2-5, part, 12, COL_DARK_BLUE, TRUE);
 
 	if(progress_text) {
 		display_proportional(width,display_get_height()/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);

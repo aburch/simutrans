@@ -36,7 +36,7 @@ public:
 		lkws_filter=32, zuege_filter=64, schiffe_filter=128, aircraft_filter=256,
 		noroute_filter=512, nofpl_filter=1024, noincome_filter=2048, indepot_filter=4096, noline_filter=8192, 
 		stucked_filter=16384, monorail_filter=32768, maglev_filter=65536, narrowgauge_filter=131072, 
-		obsolete_filter=262144 
+		tram_filter=262144, obsolete_filter=524288 
 	};
 
 private:

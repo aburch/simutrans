@@ -205,6 +205,8 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 
 	lb_convoi_count.set_text_pointer(txt_convoi_count);
 	lb_convoi_speed.set_text_pointer(txt_convoi_speed);
+
+	replace_frame = NULL;
 }
 
 
@@ -388,13 +390,6 @@ void gui_convoy_assembler_t::layout()
 	bt_obsolete.set_pos(koord(groesse.x-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + get_panel_height() + 16));
 	bt_obsolete.set_groesse(koord(ABUTTON_WIDTH, ABUTTON_HEIGHT));
 	bt_obsolete.pressed = show_retired_vehicles;
-
-	if(replace_frame == NULL)
-	{
-		// Do not display this if this is not the replacing window.
-		// Vehicles cannot be upgraded from the depot window.
-		//upgrade_selector.set_visible(false);
-	}
 }
 
 

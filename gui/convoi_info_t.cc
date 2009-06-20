@@ -312,7 +312,7 @@ enable_home:
 			sprintf(tmp," (%1.2f$/km, %1.2f$/mon)", cnv->get_running_cost()/100.0, fixed_monthly/100.0 );
 		else
 			sprintf(tmp," (%1.2f$/km)", cnv->get_running_cost()/100.0 );
-		display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, cnv->has_obsolete_vehicles() ? COL_BLUE : COL_BLACK, true );
+		display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : COL_BLACK, true );
 
 		// the weight entry
 		info_buf.clear();

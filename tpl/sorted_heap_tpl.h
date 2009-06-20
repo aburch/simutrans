@@ -46,21 +46,53 @@ public:
 		free( nodes );
 	}
 
+	// Added by : Knightly
+	void delete_all_node_objects()
+	{
+		// Note : the lowest item is in nodes[0] which is different from binary_heap_tpl
+		for (uint32 i = 0; i < node_count; i++)
+		{
+			delete nodes[i];
+		}
+
+		node_count = 0;
+	}
 
 	/**
 	* Inserts an element into the queue.
 	*
 	* @author Hj. Malthaner
 	*/
-	void insert(const T item)
+	// Knightly : Modified to support unique insertion
+	bool insert(const T &item, const bool unique = false)
 	{
-		uint32 index = node_count;
-		// insert with binary search, ignore doublettes
-		if(node_count>0  &&  *(nodes[node_count-1])<=*item  &&  !(*(nodes[node_count-1])==*item)) {
+		// uint32 index = node_count;
+		uint32 index;
+		
+		if ( node_count == 0 || !(*item <= *(nodes[0])) )
+		{
+			// Case : Empty or larger than the largest data
+			// Note : Largest data is in nodes[0]
+			index = 0;
+		}
+		else if ( !(*(nodes[node_count-1]) <= *item) )
+		{
+			// Case : Smaller than the smallest data
+			index = node_count;
+		}
+		else
+		{
+			// Case : Within range : use binary search to locate appropriate insert location;
+			//						 abort insertion if same data found and unique is true
+
+			// insert with binary search, ignore doublettes
+			//if(node_count>0  &&  *(nodes[node_count-1])<=*item  &&  !(*(nodes[node_count-1])==*item)) {
 			sint32 high = node_count, low = -1, probe;
 			while(high - low>1) {
 				probe = ((uint32) (low + high)) >> 1;
 				if(*(nodes[probe])==*item) {
+					if (unique)
+						return false;
 					low = probe;
 					break;
 				}
@@ -72,6 +104,9 @@ public:
 				}
 			}
 			// we want to insert before, so we may add 1
+			index = low + 1;	// Knightly : Since we are within range, "low" will always be >= 0 and < node_count
+			
+			/*
 			index = 0;
 			if(low>=0) {
 				index = low;
@@ -79,6 +114,7 @@ public:
 					index ++;
 				}
 			}
+			*/
 //DBG_MESSAGE("bsort","current=%i f=%i  f+1=%i",new_f,nodes[index]->f,nodes[index+1]->f);
 		}
 
@@ -97,6 +133,7 @@ public:
 		}
 		nodes[index] = item;
 		node_count ++;
+		return true;
 	}
 
 	/**
@@ -104,10 +141,33 @@ public:
 	*
 	* @author Hj. Malthaner
 	*/
-	bool contains(const T data) const
+	bool contains(const T &item) const
 	{
 		// the fact that we are sorted does not help here ...
-		assert(0);
+		// assert(0);
+
+		// Knightly : Adapted from insert()
+		if( node_count > 0  &&  *(nodes[node_count-1]) <= *item  &&  *item <= *(nodes[0]) ) 
+		{
+			sint32 high = node_count, low = -1, probe;
+			while( high - low > 1) 
+			{
+				probe = ((uint32) (low + high)) >> 1;
+				if( *(nodes[probe]) == *item ) 
+				{
+					return true;
+				}
+				else if( *item <= *(nodes[probe]) ) 
+				{
+					low = probe;
+				}
+				else 
+				{
+					high = probe;
+				}
+			}
+		}
+		return false;
 	}
 
 
