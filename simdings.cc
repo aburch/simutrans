@@ -154,18 +154,17 @@ spieler_t *ding_t::get_besitzer() const {
 
 void ding_t::info(cbuffer_t & buf) const
 {
-	if(besitzer_n==1  ||  besitzer_n==PLAYER_UNOWNED) {
+	if(besitzer_n==1) {
 		buf.append(translator::translate("Eigenbesitz\n"));
 	}
+	else if(besitzer_n==PLAYER_UNOWNED) {
+		buf.append(translator::translate("Kein Besitzer\n"));
+	}
 	else {
-		buf.append(translator::translate("Spieler"));
-		buf.append(" ");
-		buf.append(besitzer_n);
+		buf.append(translator::translate("owned by"));
+		buf.append(get_besitzer()->get_name());
 		buf.append("\n");
 	}
-//	else {
-//		buf.append(translator::translate("Kein Besitzer\n"));
-//	}
 }
 
 
