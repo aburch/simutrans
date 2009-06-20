@@ -1789,7 +1789,7 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 			}
 			else {
 				leitung_t *lt = gr->get_leitung();
-				if(  (rem&lt->get_ribi())==0  ) {
+				if(  lt  &&  (rem&lt->get_ribi())==0  ) {
 					// remove only single connections
 					lt->entferne(sp);
 					delete lt;
