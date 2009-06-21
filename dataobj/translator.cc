@@ -28,6 +28,28 @@
 #include "../tpl/vector_tpl.h"
 
 
+// Bernd Gabriel: accept both standard and windows line feeds.
+char *fgets_line(char *buffer, int max_len, FILE *file)
+{
+	char *result = fgets(buffer, max_len, file);
+	int len = strlen(buffer);
+	switch (len)
+	{
+	default:
+		if (buffer[len - 2] == '\r')
+		{
+			buffer[len - 2] = '\0';
+			break;
+		}
+	case 1:
+		buffer[len - 1] = '\0';
+	case 0:
+		break;
+	}
+	return result;
+}
+
+
 const char* translator::lang_info::translate(const char* text) const
 {
 	if (text    == NULL) return "(null)";
@@ -229,7 +251,7 @@ static void init_city_names(bool is_utf_language)
 		char buf[256];
 		bool file_is_utf = is_unicode_file(file);
 		while (!feof(file)) {
-			if (fgets(buf, 128, file)) {
+			if (fgets_line(buf, 128, file)) {
 				rtrim(buf);
 				char* c = recode(buf, file_is_utf, is_utf_language);
 				namen_liste.append(c);
@@ -280,20 +302,20 @@ static void load_language_file_body(FILE* file, stringhashtable_tpl<const char*>
 	bool convert_to_unicode = language_is_utf && !file_is_utf;
 
 	do {
-		fgets(buffer1, 4095, file);
+		fgets_line(buffer1, 4095, file);
 		if (buffer1[0] == '#') {
 			// ignore comments
 			continue;
 		}
-		fgets(buffer2, 4095, file);
+		fgets_line(buffer2, 4095, file);
 
 		buffer1[4095] = 0;
 		buffer2[4095] = 0;
 
 		if (!feof(file)) {
 			// "\n" etc umsetzen
-			buffer1[strlen(buffer1) - 1] = '\0';
-			buffer2[strlen(buffer2) - 1] = '\0';
+			//buffer1[strlen(buffer1) - 1] = '\0';
+			//buffer2[strlen(buffer2) - 1] = '\0';
 			table->set(recode(buffer1, file_is_utf, false), recode(buffer2, false, convert_to_unicode));
 		}
 	} while (!feof(file));
@@ -305,8 +327,8 @@ void translator::load_language_file(FILE* file)
 	char buffer1 [256];
 	bool file_is_utf = is_unicode_file(file);
 	// Read language name
-	fgets(buffer1, 255, file);
-	buffer1[strlen(buffer1) - 1] = '\0';
+	fgets_line(buffer1, 255, file);
+	//buffer1[strlen(buffer1) - 1] = '\0';
 
 	langs[single_instance.lang_count].name = strdup(buffer1);
 	// if the language file is utf, all language strings are assumed to be unicode
