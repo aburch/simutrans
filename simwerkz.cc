@@ -1379,10 +1379,12 @@ const weg_besch_t *wkz_wegebau_t::get_besch( karte_t *welt, bool remember ) cons
 const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 {
 	const weg_besch_t *besch = get_besch(sp->get_welt(),false);
+	const sint64 base_maintenance = besch->get_wartung();
+	const sint64 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
 	sprintf(toolstr, "%s, %ld$ (%.2lf$), %dkm/h, %dt",
 		translator::translate(besch->get_name()),
 		besch->get_preis()/100l,
-		(sp->get_welt()->calc_adjusted_monthly_figure(besch->get_wartung()))/100l,
+		adjusted_maintenance/100.0F,
 		besch->get_topspeed(),
 		besch->get_max_weight());
 	return toolstr;
@@ -1513,10 +1515,12 @@ void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &sta
 const char *wkz_brueckenbau_t::get_tooltip(spieler_t *sp)
 {
 	const bruecke_besch_t * besch = brueckenbauer_t::get_besch(default_param);
+	const sint32 base_maintenance = besch->get_wartung();
+	const sint32 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
 	int n = sprintf(toolstr, "%s, %d$ (%d$)",
 		  translator::translate(besch->get_name()),
 		  besch->get_preis()/100,
-		  (sp->get_welt()->calc_adjusted_monthly_figure(besch->get_wartung()))/100);
+		  adjusted_maintenance/100);
 
 	if(besch->get_waytype()!=powerline_wt) {
 		n += sprintf(toolstr+n, ", %dkm/h, %dt", 
@@ -1548,10 +1552,12 @@ const char *wkz_brueckenbau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 const char *wkz_tunnelbau_t::get_tooltip(spieler_t *sp)
 {
 	const tunnel_besch_t * besch = tunnelbauer_t::get_besch(default_param);
+	const sint32 base_maintenance = besch->get_wartung();
+	const sint32 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
 	int n = sprintf(toolstr, "%s, %d$ (%d$)",
 		  translator::translate(besch->get_name()),
 		  besch->get_preis()/100,
-		  (sp->get_welt()->calc_adjusted_monthly_figure(besch->get_wartung()))/100);
+		  adjusted_maintenance/100);
 
 	if(besch->get_waytype()!=powerline_wt) {
 				n += sprintf(toolstr+n, ", %dkm/h, %dt", 
@@ -1853,10 +1859,12 @@ const char *wkz_wayobj_t::get_tooltip(spieler_t *sp)
 	if(  build  ) {
 		const way_obj_besch_t *besch = get_besch(sp->get_welt());
 		if(besch) {
+			const sint32 base_maintenance = besch->get_wartung();
+			const sint32 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
 			sprintf(toolstr, "%s, %ld$ (%ld$), %dkm/h",
 					translator::translate(besch->get_name()),
 					besch->get_preis()/100l,
-					(sp->get_welt()->calc_adjusted_monthly_figure(besch->get_wartung()))/100l,
+					adjusted_maintenance/100.0F,
 					besch->get_topspeed());
 			return toolstr;
 		}
@@ -3416,7 +3424,8 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 
 			// eventually adjust production
 			if(default_param) {
-				fabrik_t::get_fab(welt,k.get_2d())->set_base_production(welt->calc_adjusted_monthly_figure(atol(default_param+2)));
+				const sint32 base_maintenance = atol(default_param + 2);
+				fabrik_t::get_fab(welt,k.get_2d())->set_base_production(welt->calc_adjusted_monthly_figure(base_maintenance));
 			}
 
 			// crossconnect all?
@@ -3488,7 +3497,8 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 
 		// eventually adjust production
 		if(default_param) {
-			fabrik_t::get_fab(welt,k.get_2d())->set_base_production(welt->calc_adjusted_monthly_figure(atol(default_param+2)));
+			sint32 base_maintenance = atol(default_param+2);
+			fabrik_t::get_fab(welt,k.get_2d())->set_base_production(welt->calc_adjusted_monthly_figure(base_maintenance));
 		}
 
 		// crossconnect all?
@@ -3596,7 +3606,8 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			// eventually adjust production
 			if(default_param) 
 			{
-				f->set_base_production(welt->calc_adjusted_monthly_figure(atol(default_param+2)));
+				sint32 base_maintenance = atol(default_param+2);
+				f->set_base_production(welt->calc_adjusted_monthly_figure(base_maintenance));
 			}
 
 			// crossconnect all?

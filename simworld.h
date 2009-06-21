@@ -610,10 +610,9 @@ public:
 	 *
 	 * @author: Bernd Gabriel, 14.06.2009
 	 */
-	sint32 calc_adjusted_monthly_figure(sint32 nominal_monthly_figure) { return nominal_monthly_figure << ((int)ticks_bits_per_tag-18); }
-	sint64 calc_adjusted_monthly_figure(sint64 nominal_monthly_figure) { return nominal_monthly_figure << ((int)ticks_bits_per_tag-18); }
-	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure) { return nominal_monthly_figure << ((int)ticks_bits_per_tag-18); }
-	uint64 calc_adjusted_monthly_figure(uint64 nominal_monthly_figure) { return nominal_monthly_figure << ((int)ticks_bits_per_tag-18); }
+	sint32 calc_adjusted_monthly_figure(sint32 nominal_monthly_figure) { return nominal_monthly_figure << ((sint32)ticks_bits_per_tag-18); }
+	sint64 calc_adjusted_monthly_figure(sint64 nominal_monthly_figure) { return nominal_monthly_figure << (ticks_bits_per_tag-18ll); }
+	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure) { return nominal_monthly_figure << ((uint32)ticks_bits_per_tag-18); }
 
 	/**
 	 * 0=winter, 1=spring, 2=summer, 3=autumn
