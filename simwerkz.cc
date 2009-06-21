@@ -1206,7 +1206,46 @@ const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	return "";
 }
 
+// buy a house
+const char *wkz_buy_house_t::work( karte_t *welt, spieler_t *sp, koord3d pos)
+{
+	if ( sp == welt->get_spieler(1) ) {
+		return "";
+	}
+	grund_t* gr = welt->lookup_kartenboden(pos.get_2d());
+	if(!gr  ||  !gr->is_visible()  ||  gr->hat_wege()  ||  gr->get_halt().is_bound()) {
+		return "";
+	}
 
+	// since buildings can have more than one tile, we must handle them together
+	gebaeude_t* gb = gr->find<gebaeude_t>();
+	if(  gb== NULL  ||  gb->get_haustyp()==gebaeude_t::unbekannt  ||  !spieler_t::check_owner(gb->get_besitzer(),sp)  ) {
+		return "Das Feld gehoert\neinem anderen Spieler\n";
+	}
+
+	spieler_t *old_owner = gb->get_besitzer();
+	const haus_tile_besch_t *tile  = gb->get_tile();
+	const haus_besch_t * hb = tile->get_besch();
+	koord size = hb->get_groesse( tile->get_layout() );
+
+	koord k;
+	for(k.y = 0; k.y < size.y; k.y ++) {
+		for(k.x = 0; k.x < size.x; k.x ++) {
+			grund_t *gr = welt->lookup(koord3d(k,0)+pos);
+			if(gr) {
+				gebaeude_t *gb_part = gr->find<gebaeude_t>();
+				// there may be buildings with holes
+				if(gb_part  &&  gb_part->get_tile()->get_besch()==hb && spieler_t::check_owner(welt->get_spieler(1),gb->get_besitzer())) {
+					spieler_t::add_maintenance( old_owner, -welt->get_einstellungen()->maint_building*hb->get_level() );
+					spieler_t::add_maintenance( sp, +welt->get_einstellungen()->maint_building*hb->get_level() );
+					gb->set_besitzer(sp);
+					sp->buche( -welt->get_einstellungen()->maint_building*hb->get_level(), k+pos.get_2d(), COST_CONSTRUCTION);
+				}
+			}
+		}
+	}
+	return NULL;
+}
 
 /* change city size
  * @author prissi
