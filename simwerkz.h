@@ -146,6 +146,12 @@ class wkz_add_city_t : public werkzeug_t {
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 };
 
+// buy a house to protext it from renovating
+class wkz_buy_house_t : public werkzeug_t {
+public:
+	const char *get_tooltip(spieler_t *) { return translator::translate("Haus kaufen"); }
+	const char *work( karte_t *, spieler_t *, koord3d );
+};
 /************** the following tools need a valid default_param ************************/
 
 // step size by default_param

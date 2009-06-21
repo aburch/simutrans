@@ -23,6 +23,7 @@
 	CHANGE: (Dwachs) better intercityroad creation
 	ADD: (Dwachs) sliced underground mode
 	ADD: (z9999) 8 layout for city buildings allow also closed corners
+	ADD: (Dwachs) buying cityhouse will protect them from renovation
 
 
 

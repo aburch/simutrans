@@ -278,6 +278,7 @@ map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			filter_buttons[i].pressed = i==umgebung_t::default_mapmode;
 		}
 	}
+	filter_buttons[18].set_tooltip("Passenger destinations");
 	return true;
 }
 

@@ -1206,7 +1206,46 @@ const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	return "";
 }
 
+// buy a house
+const char *wkz_buy_house_t::work( karte_t *welt, spieler_t *sp, koord3d pos)
+{
+	if ( sp == welt->get_spieler(1) ) {
+		return "";
+	}
+	grund_t* gr = welt->lookup_kartenboden(pos.get_2d());
+	if(!gr  ||  !gr->is_visible()  ||  gr->hat_wege()  ||  gr->get_halt().is_bound()) {
+		return "";
+	}
 
+	// since buildings can have more than one tile, we must handle them together
+	gebaeude_t* gb = gr->find<gebaeude_t>();
+	if(  gb== NULL  ||  gb->get_haustyp()==gebaeude_t::unbekannt  ||  !spieler_t::check_owner(gb->get_besitzer(),sp)  ) {
+		return "Das Feld gehoert\neinem anderen Spieler\n";
+	}
+
+	spieler_t *old_owner = gb->get_besitzer();
+	const haus_tile_besch_t *tile  = gb->get_tile();
+	const haus_besch_t * hb = tile->get_besch();
+	koord size = hb->get_groesse( tile->get_layout() );
+
+	koord k;
+	for(k.y = 0; k.y < size.y; k.y ++) {
+		for(k.x = 0; k.x < size.x; k.x ++) {
+			grund_t *gr = welt->lookup(koord3d(k,0)+pos);
+			if(gr) {
+				gebaeude_t *gb_part = gr->find<gebaeude_t>();
+				// there may be buildings with holes
+				if(gb_part  &&  gb_part->get_tile()->get_besch()==hb && spieler_t::check_owner(welt->get_spieler(1),gb->get_besitzer())) {
+					spieler_t::add_maintenance( old_owner, -welt->get_einstellungen()->maint_building*hb->get_level() );
+					spieler_t::add_maintenance( sp, +welt->get_einstellungen()->maint_building*hb->get_level() );
+					gb->set_besitzer(sp);
+					sp->buche( -welt->get_einstellungen()->maint_building*hb->get_level(), k+pos.get_2d(), COST_CONSTRUCTION);
+				}
+			}
+		}
+	}
+	return NULL;
+}
 
 /* change city size
  * @author prissi
@@ -1340,10 +1379,12 @@ const weg_besch_t *wkz_wegebau_t::get_besch( karte_t *welt, bool remember ) cons
 const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 {
 	const weg_besch_t *besch = get_besch(sp->get_welt(),false);
+	const sint64 base_maintenance = besch->get_wartung();
+	const sint64 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
 	sprintf(toolstr, "%s, %ld$ (%.2lf$), %dkm/h, %dt",
 		translator::translate(besch->get_name()),
 		besch->get_preis()/100l,
-		(sp->get_welt()->calc_adjusted_monthly_figure(besch->get_wartung()))/100l,
+		adjusted_maintenance/100.0F,
 		besch->get_topspeed(),
 		besch->get_max_weight());
 	return toolstr;
@@ -1474,10 +1515,12 @@ void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &sta
 const char *wkz_brueckenbau_t::get_tooltip(spieler_t *sp)
 {
 	const bruecke_besch_t * besch = brueckenbauer_t::get_besch(default_param);
+	const sint32 base_maintenance = besch->get_wartung();
+	const sint32 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
 	int n = sprintf(toolstr, "%s, %d$ (%d$)",
 		  translator::translate(besch->get_name()),
 		  besch->get_preis()/100,
-		  (sp->get_welt()->calc_adjusted_monthly_figure(besch->get_wartung()))/100);
+		  adjusted_maintenance/100);
 
 	if(besch->get_waytype()!=powerline_wt) {
 		n += sprintf(toolstr+n, ", %dkm/h, %dt", 
@@ -1509,10 +1552,12 @@ const char *wkz_brueckenbau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 const char *wkz_tunnelbau_t::get_tooltip(spieler_t *sp)
 {
 	const tunnel_besch_t * besch = tunnelbauer_t::get_besch(default_param);
+	const sint32 base_maintenance = besch->get_wartung();
+	const sint32 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
 	int n = sprintf(toolstr, "%s, %d$ (%d$)",
 		  translator::translate(besch->get_name()),
 		  besch->get_preis()/100,
-		  (sp->get_welt()->calc_adjusted_monthly_figure(besch->get_wartung()))/100);
+		  adjusted_maintenance/100);
 
 	if(besch->get_waytype()!=powerline_wt) {
 				n += sprintf(toolstr+n, ", %dkm/h, %dt", 
@@ -1814,10 +1859,12 @@ const char *wkz_wayobj_t::get_tooltip(spieler_t *sp)
 	if(  build  ) {
 		const way_obj_besch_t *besch = get_besch(sp->get_welt());
 		if(besch) {
+			const sint32 base_maintenance = besch->get_wartung();
+			const sint32 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
 			sprintf(toolstr, "%s, %ld$ (%ld$), %dkm/h",
 					translator::translate(besch->get_name()),
 					besch->get_preis()/100l,
-					(sp->get_welt()->calc_adjusted_monthly_figure(besch->get_wartung()))/100l,
+					adjusted_maintenance/100.0F,
 					besch->get_topspeed());
 			return toolstr;
 		}
@@ -2961,7 +3008,7 @@ const char *wkz_roadsign_t::place_sign_intern( karte_t *welt, spieler_t *sp, gru
 
 	if(gr) {
 		// get the sign dirction
-		weg_t *weg = gr->get_weg(b->get_wtyp()!= tram_wt ? besch->get_wtyp() : track_wt);
+		weg_t *weg = gr->get_weg(b->get_wtyp()!= tram_wt ? b->get_wtyp() : track_wt);
 		signal_t *s = gr->find<signal_t>();
 		if(s  &&  s->get_besch()!=b) {
 			// only one sign per tile
@@ -2979,7 +3026,7 @@ const char *wkz_roadsign_t::place_sign_intern( karte_t *welt, spieler_t *sp, gru
 			roadsign_t* rs;
 			if (b->is_signal_type()) {
 				// if there is already a signal, we might need to inverse the direction
-				rs = gr->find<signal_t>();
+				rs = gr->find<signal_t>();	
 				if (rs) {
 					if(  !spieler_t::check_owner( rs->get_besitzer(), sp )  ) {
 						return "Das Feld gehoert\neinem anderen Spieler\n";
@@ -3377,7 +3424,8 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 
 			// eventually adjust production
 			if(default_param) {
-				fabrik_t::get_fab(welt,k.get_2d())->set_base_production(welt->calc_adjusted_monthly_figure(atol(default_param+2)));
+				const sint32 base_maintenance = atol(default_param + 2);
+				fabrik_t::get_fab(welt,k.get_2d())->set_base_production(welt->calc_adjusted_monthly_figure(base_maintenance));
 			}
 
 			// crossconnect all?
@@ -3449,7 +3497,8 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 
 		// eventually adjust production
 		if(default_param) {
-			fabrik_t::get_fab(welt,k.get_2d())->set_base_production(welt->calc_adjusted_monthly_figure(atol(default_param+2)));
+			sint32 base_maintenance = atol(default_param+2);
+			fabrik_t::get_fab(welt,k.get_2d())->set_base_production(welt->calc_adjusted_monthly_figure(base_maintenance));
 		}
 
 		// crossconnect all?
@@ -3557,7 +3606,8 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			// eventually adjust production
 			if(default_param) 
 			{
-				f->set_base_production(welt->calc_adjusted_monthly_figure(atol(default_param+2)));
+				sint32 base_maintenance = atol(default_param+2);
+				f->set_base_production(welt->calc_adjusted_monthly_figure(base_maintenance));
 			}
 
 			// crossconnect all?

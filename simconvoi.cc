@@ -2125,7 +2125,16 @@ convoi_t::reverse_order(bool rev)
 		}
 
 		a++;
-		a += fahr[0]->get_besch()->get_nachfolger_count();
+		if(fahr[0]->get_besch()->get_leistung() > 0)
+		{
+			// If this is a locomotive, check for tenders. 
+			a += fahr[0]->get_besch()->get_nachfolger_count();
+			if(fahr[a]->get_besch()->get_leistung() > 0)
+			{
+				// Check for double-headed tender locomotives
+				a += fahr[a]->get_besch()->get_nachfolger_count();
+			}
+		}
 		for(uint8 i = 1; i < anz_vehikel; i++)
 		{
 			if(fahr[i]->get_besch()->get_leistung() > 0)
