@@ -287,7 +287,7 @@ const char * gui_convoy_assembler_t::get_haenger_name(waytype_t wt)
 
 bool  gui_convoy_assembler_t::show_retired_vehicles = false;
 
-bool  gui_convoy_assembler_t::show_all = true;
+bool  gui_convoy_assembler_t::show_all = false;
 
 
 void gui_convoy_assembler_t::layout()
@@ -518,21 +518,27 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 
 	const uint16 month_now = get_welt()->get_timeline_year_month();
 
-	if(electrics_vec.empty()  &&  pas_vec.empty()  &&  loks_vec.empty()  &&  waggons_vec.empty()) {
+	if(electrics_vec.empty()  &&  pas_vec.empty()  &&  loks_vec.empty()  &&  waggons_vec.empty()) 
+	{
 		uint16 loks = 0, waggons = 0, pax=0, electrics = 0;
 		slist_iterator_tpl<const vehikel_besch_t*> vehinfo(vehikelbauer_t::get_info(way_type));
-		while (vehinfo.next()) {
+		while (vehinfo.next()) 
+		{
 			const vehikel_besch_t* info = vehinfo.get_current();
-			if(  info->get_engine_type() == vehikel_besch_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)) {
+			if(  info->get_engine_type() == vehikel_besch_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)) 
+			{
 				electrics++;
 			}
-			else if(info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post) {
+			else if(info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post) 
+			{
 				pax++;
 			}
-			else if(info->get_leistung() > 0  ||  info->get_zuladung()==0) {
+			else if(info->get_leistung() > 0  ||  (info->get_zuladung() == 0 && (info->get_vorgaenger_count() > 0 || info->get_nachfolger_count() > 0))) 
+			{
 				loks++;
 			}
-			else {
+			else 
+			{
 				waggons++;
 			}
 		}
@@ -586,7 +592,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 					} 
 					else if(veh_action == va_append) 
 					{
-						append = convoi_t::pruefe_vorgaenger(veh, info);
+						append = !(!convoi_t::pruefe_vorgaenger(veh, info) || (veh && !convoi_t::pruefe_nachfolger(veh, info)));
 					}
 					if(upgrade == u_upgrade)
 					{
@@ -668,7 +674,8 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 		pas_vec.append(img_data);
 		vehicle_map.set(info, &pas_vec.back());
 	}
-	else if(info->get_leistung() > 0  ||  info->get_zuladung()==0) {
+	else if(info->get_leistung() > 0  || (info->get_zuladung()==0  && (info->get_vorgaenger_count() > 0 || info->get_nachfolger_count() > 0)))
+	{
 		loks_vec.append(img_data);
 		vehicle_map.set(info, &loks_vec.back());
 	}
