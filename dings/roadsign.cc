@@ -132,9 +132,11 @@ void roadsign_t::info(cbuffer_t & buf) const
 		buf.append(translator::translate("\nminimum speed:"));
 		buf.append(speed_to_kmh(besch->get_min_speed()));
 	}
+#ifdef DEBUG
 	buf.append(translator::translate("\ndirection:"));
 	buf.append(dir);
 	buf.append("\n");
+#endif
 }
 
 

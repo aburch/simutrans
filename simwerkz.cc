@@ -2961,7 +2961,7 @@ const char *wkz_roadsign_t::place_sign_intern( karte_t *welt, spieler_t *sp, gru
 
 	if(gr) {
 		// get the sign dirction
-		weg_t *weg = gr->get_weg(b->get_wtyp()!= tram_wt ? besch->get_wtyp() : track_wt);
+		weg_t *weg = gr->get_weg(b->get_wtyp()!= tram_wt ? b->get_wtyp() : track_wt);
 		signal_t *s = gr->find<signal_t>();
 		if(s  &&  s->get_besch()!=b) {
 			// only one sign per tile
@@ -2979,7 +2979,7 @@ const char *wkz_roadsign_t::place_sign_intern( karte_t *welt, spieler_t *sp, gru
 			roadsign_t* rs;
 			if (b->is_signal_type()) {
 				// if there is already a signal, we might need to inverse the direction
-				rs = gr->find<signal_t>();
+				rs = gr->find<signal_t>();	
 				if (rs) {
 					if(  !spieler_t::check_owner( rs->get_besitzer(), sp )  ) {
 						return "Das Feld gehoert\neinem anderen Spieler\n";
