@@ -27,8 +27,25 @@
 #include "../unicode.h"
 #include "../tpl/vector_tpl.h"
 
+/*	Bernd Gabriel: 
 
-// Bernd Gabriel: accept both standard and windows line feeds.
+	Under windows git converts lf to cr/lf by default while writing to disk and
+	removes the cr while reading from disk.	This works well with source code 
+	files, but not with data files like *.tab.
+
+	Two alternative ways to handle it:
+
+	1) Accept cr/lf in *.tab: 
+		this is done by fgets_line().
+
+	2) After you initially cloned the <repository> tell git 
+		not to convert lf and then re-fetch all files:
+
+		git config core.autocrlf false
+		git reset --hard
+		git fetch <repository> (or use GitGui).
+*/
+
 char *fgets_line(char *buffer, int max_len, FILE *file)
 {
 	char *result = fgets(buffer, max_len, file);
@@ -36,6 +53,7 @@ char *fgets_line(char *buffer, int max_len, FILE *file)
 	switch (len)
 	{
 	default:
+		// Bernd Gabriel: accept both standard and windows line feeds.
 		if (buffer[len - 2] == '\r')
 		{
 			buffer[len - 2] = '\0';
