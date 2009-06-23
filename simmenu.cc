@@ -494,7 +494,7 @@ void werkzeug_t::init_menu(cstring_t objfilename)
 				while(*str==' '  &&  *str) {
 					str ++;
 				}
-				if(*str!=',') {
+				if(*str!=',' &&  *str) {
 					key_str = str;
 				}
 				while(*str!=','  &&  *str) {
