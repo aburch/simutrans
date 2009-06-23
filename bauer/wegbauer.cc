@@ -120,29 +120,35 @@ bool wegbauer_t::register_besch(const weg_besch_t *besch)
 	return true;
 }
 
-
 /**
  * Finds a way with a given speed limit for a given waytype
- * @author prissi
+ * It finds:
+ *  - the slowest way, as fast as speed limit
+ *  - if no way faster than speed limit, the fastest way.
+ * The timeline is also respected.
+ * @author prissi, gerw
  */
 const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 speed_limit, const uint16 time, const weg_t::system_type system_type)
 {
 	const weg_besch_t* best = NULL;
+	bool best_allowed = false; // Does the best way fulfill the timeline?
 	for(  stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen); iter.next();  ) {
 		const weg_besch_t* const test = iter.get_current_value();
 		if(  ((test->get_wtyp()==wtyp  &&
-			     (test->get_styp()==system_type  ||  system_type==weg_t::type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
-			     &&  test->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) {
-			if(  best==NULL  ||  time==0  ||  (test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month())) {
-				if(  best==NULL  ||
-						(best->get_topspeed() < speed_limit  &&  test->get_topspeed() <= speed_limit  &&  best->get_topspeed() < test->get_topspeed())  ||	// not yet there but this is ...
-						(test->get_topspeed() <=  speed_limit  &&  best->get_topspeed() < test->get_topspeed()) ||	// closer to desired speed (from the low end)
-						(best->get_topspeed() > speed_limit  &&  test->get_topspeed() < best->get_topspeed())  ||	// closer to desired speed (from the top end)
-						(time!=0  &&  (best->get_intro_year_month()>time  ||  time>=best->get_retire_year_month()))	// current choice is acutally not really allowed, timewise
-					) {
-					best = test;
+			(test->get_styp()==system_type  ||  system_type==weg_t::type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
+			&&  test->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) {
+				bool test_allowed = test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month();
+				if(  !best_allowed  ||  time==0  ||  test_allowed  ) {
+					if(  best==NULL  ||
+						( best->get_topspeed() <      speed_limit       &&      speed_limit      <= test->get_topspeed()) || // test is faster than speed_limit
+						( best->get_topspeed() <  test->get_topspeed()  &&  test->get_topspeed() <=     speed_limit  )    || // closer to desired speed (from the low end)
+						(     speed_limit      <= test->get_topspeed()  &&  test->get_topspeed() <  best->get_topspeed()) || // closer to desired speed (from the top end)
+						( time!=0  &&  !best_allowed  &&  test_allowed)                                                       // current choice is actually not really allowed, timewise
+						) {
+							best = test;
+							best_allowed = test_allowed;
+					}
 				}
-			}
 		}
 	}
 	return best;
