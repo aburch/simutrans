@@ -45,6 +45,8 @@ public:
 		erhoben = 15	    // Speziell für Brückenanfänge (prissi: unsued, I think)
 	};
 
+	static const hang_t::typ hang_from_ribi[16];
+
 	// Ein bischen tricky implementiert:
 	static bool ist_gegenueber(typ x, typ y) { return ist_einfach(x) && ist_einfach(y) && x + y == erhoben; }
 	static typ gegenueber(typ x) { return ist_einfach(x) ? erhoben - x : flach; }
@@ -170,6 +172,8 @@ public:
 //	-> ich denke aufwaerts, also geht es auf einem Suedhang nach Norden!
 //
 hang_t::typ  hang_typ(koord dir);   // dir:nord -> hang:sued, ...
+hang_t::typ  hang_typ(ribi_t::ribi);
+
 ribi_t::ribi ribi_typ(koord dir);
 ribi_t::ribi ribi_typ(koord from, koord to);
 ribi_t::ribi ribi_typ(koord3d dir);

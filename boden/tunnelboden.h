@@ -16,7 +16,7 @@ public:
 
 	virtual void rdwr(loadsave_t *file);
 
-	hang_t::typ get_weg_hang() const { return hang_t::flach; }
+	hang_t::typ get_weg_hang() const { return ist_karten_boden() ? hang_t::flach : get_grund_hang(); }
 
 	const char *get_name() const {return "Tunnelboden";}
 	enum grund_t::typ get_typ() const {return tunnelboden;}

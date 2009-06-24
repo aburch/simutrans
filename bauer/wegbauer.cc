@@ -1310,14 +1310,31 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 			diff = (pos.y>ziel.y) ? koord(0,-1) : koord(0,1);
 		}
 		if(bautyp&tunnel_flag) {
-			grund_t *bd_von = welt->lookup(koord3d(pos.get_2d(),start.z));
-			if(  bd_von  ) {
-				ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp();
-			}
 #ifdef ONLY_TUNNELS_BELOW_GROUND
 			// ground must be above tunnel
-			ok &= (welt->lookup(pos.get_2d())->get_kartenboden()->get_hoehe() > start.z);
+			ok &= (welt->lookup(pos.get_2d())->get_kartenboden()->get_hoehe() > pos.z);
 #endif
+			grund_t *bd_von = welt->lookup(pos);
+			if(  bd_von  ) {
+				ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp();
+				// if we have a slope, we must adjust height correspondingly
+				if(  bd_von->get_weg_hang()!=hang_t::flach  ) {
+					if(  ribi_typ(bd_von->get_weg_hang())==ribi_typ(diff)  ) {
+						pos.z += 1;
+					}
+				}
+			}
+			else {
+				// check for slope down ...
+				bd_von = welt->lookup(pos+koord3d(0,0,-1));
+				if(  bd_von  ) {
+					ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp()  &&  ribi_typ(bd_von->get_weg_hang())==ribi_t::rueckwaerts(ribi_typ(diff));
+					if(  ok  ) {
+						route[route.get_count()-1].z -= 1;
+						pos.z -= 1;
+					}
+				}
+			}
 			// check for halt or crossing ...
 			if(ok  &&  bd_von  &&  (bd_von->is_halt()  ||  bd_von->has_two_ways())) {
 				// then only single dir is ok ...
@@ -1328,7 +1345,7 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 			}
 			// and the same for the last tile
 			if(  ok  &&  pos.get_2d()+diff==ziel.get_2d()  ) {
-				grund_t *bd_von = welt->lookup(koord3d(ziel.get_2d(),start.z));
+				grund_t *bd_von = welt->lookup(koord3d(ziel.get_2d(),pos.z));
 				if(  bd_von  ) {
 					ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp();
 				}
@@ -1364,7 +1381,7 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 		route.append(pos);
 DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %i,%i = %i",diff.x,diff.y,ok);
 	}
-	ok = ok && (pos==ziel);
+	ok = ok && (bautyp&tunnel_flag ? pos.get_2d()==ziel.get_2d() : pos==ziel);
 
 	// we can built a straight route?
 	if(ok) {

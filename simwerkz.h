@@ -91,6 +91,7 @@ private:
 public:
 	wkz_raise_t() : werkzeug_t() { offset = Z_GRID; }
 	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Anheben", sp->get_welt()->get_einstellungen()->cst_alter_land); }
+	virtual image_id get_icon(spieler_t *sp) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	bool init( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	bool exit( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	const char *work( karte_t *, spieler_t *, koord3d );
@@ -104,6 +105,7 @@ private:
 public:
 	wkz_lower_t() : werkzeug_t() { offset = Z_GRID; }
 	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Absenken", sp->get_welt()->get_einstellungen()->cst_alter_land); }
+	virtual image_id get_icon(spieler_t *sp) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	bool init( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	bool exit( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	virtual const char *work( karte_t *, spieler_t *, koord3d);
@@ -113,14 +115,14 @@ public:
 /* slope tool definitions */
 class wkz_setslope_t : public werkzeug_t {
 public:
-	static const char *wkz_set_slope_work( karte_t *welt, spieler_t *sp, koord pos, int slope );
+	static const char *wkz_set_slope_work( karte_t *welt, spieler_t *sp, koord3d pos, int slope );
 	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Built artifical slopes", sp->get_welt()->get_einstellungen()->cst_set_slope); }
-	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k ) { return wkz_set_slope_work( welt, sp, k.get_2d(), atoi(default_param) ); }
+	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k ) { return wkz_set_slope_work( welt, sp, k, atoi(default_param) ); }
 };
 
 class wkz_restoreslope_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Restore natural slope", sp->get_welt()->get_einstellungen()->cst_set_slope); }
-	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k ) { return wkz_setslope_t::wkz_set_slope_work( welt, sp, k.get_2d(), RESTORE_SLOPE ); }
+	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k ) { return wkz_setslope_t::wkz_set_slope_work( welt, sp, k, RESTORE_SLOPE ); }
 };
 
 class wkz_marker_t : public werkzeug_t {
@@ -183,7 +185,7 @@ private:
 	const weg_besch_t *besch;
 	const weg_besch_t *get_besch(karte_t *,bool) const;
 public:
-	virtual image_id get_icon(spieler_t *) { return grund_t::underground_mode ? IMG_LEER : icon; }
+	virtual image_id get_icon(spieler_t *) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	virtual const char *get_tooltip(spieler_t *);
 	virtual bool is_selected( karte_t *welt ) const;
 	virtual bool init( karte_t *, spieler_t * );
@@ -197,6 +199,7 @@ private:
 };
 
 class wkz_brueckenbau_t : public werkzeug_t {
+	virtual image_id get_icon(spieler_t *) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	const char *get_tooltip(spieler_t *);
 	const char *work( karte_t *welt, spieler_t *sp, koord3d k );
 };

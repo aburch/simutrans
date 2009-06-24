@@ -678,8 +678,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 		wzw = new werkzeug_waehler_t( welt, default_param, helpfile, iconsize, this!=werkzeug_t::toolbar_tool[0] );
 	}
 
-	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1))  ||
-		(grund_t::underground_mode==grund_t::ugm_all  &&  strcmp(default_param,"SLOPETOOLS")==0)) {
+	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1))  ) {
 		destroy_win(wzw);
 		return;
 	}

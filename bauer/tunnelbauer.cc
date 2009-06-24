@@ -309,11 +309,11 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 
 	ribi = ribi_typ(-zv);
 	// don't move on to next tile if only one tile long
-	if(  end  !=  start  ) {
+	if(  end != start  ) {
 		pos = pos + zv;
 	}
 	// calc new back image for the ground
-	if (grund_t::underground_mode) {
+	if(grund_t::underground_mode) {
 		grund_t *gr = welt->lookup(pos.get_2d())->get_kartenboden();
 		gr->calc_bild();
 		gr->set_flag(grund_t::dirty);
