@@ -1317,8 +1317,11 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 				ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp();
 				// if we have a slope, we must adjust height correspondingly
 				if(  bd_von->get_weg_hang()!=hang_t::flach  ) {
-					if(  ribi_typ(bd_von->get_weg_hang())==ribi_typ(diff)  ) {
-						pos.z += 1;
+					if(  ribi_t::doppelt(ribi_typ(bd_von->get_weg_hang()))==ribi_t::doppelt(ribi_typ(diff)) ) {
+						pos.z = bd_von->get_vmove(diff);
+					}
+					else {
+						ok = false;
 					}
 				}
 			}
@@ -1346,6 +1349,8 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 				grund_t *bd_von = welt->lookup(koord3d(ziel.get_2d(),pos.z));
 				if(  bd_von  ) {
 					ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp();
+					// slope present?
+					ok = ok && (bd_von->get_vmove(-diff)==pos.z);
 				}
 				// check for halt or crossing ...
 				if(ok  &&  bd_von  &&  (bd_von->is_halt()  ||  bd_von->has_two_ways())) {
@@ -1354,6 +1359,11 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 					haltribi = ribi_t::doppelt(haltribi);
 					ribi_t::ribi diffribi = ribi_t::doppelt( ribi_typ(diff) );
 					ok = (haltribi==diffribi);
+				}
+				// check for slope down ...
+				bd_von = welt->lookup(pos+diff+koord3d(0,0,-1));
+				if(  bd_von  ) {
+					ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp()  &&  ribi_typ(bd_von->get_weg_hang())==ribi_t::rueckwaerts(ribi_typ(diff));
 				}
 			}
 			pos += diff;

@@ -849,6 +849,11 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			return "No suitable ground!";
 		}
 
+		// no slopes through the roof
+		if (gr1->ist_tunnel() && new_slope<=ALL_UP_SLOPE && (welt->lookup_kartenboden(pos.get_2d())->get_hoehe() <= pos.z+1)) {
+			return "Tile not empty.";
+		}
+
 		// finally: empty enough
 		if(  gr1->get_grund_hang()!=gr1->get_weg_hang()  ||  gr1->find<gebaeude_t>()  ||  gr1->kann_alle_obj_entfernen(sp)  ) {
 			return "Tile not empty.";
