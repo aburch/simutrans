@@ -295,11 +295,16 @@ enable_home:
 		// convoi information
 		char tmp[256];
 		static cbuffer_t info_buf(256);
+		convoy_metrics_t metrics(*cnv.get_rep());
 
 		// use median speed to avoid flickering
+		uint32 min_speed = metrics.get_speed(cnv->get_sum_gesamtgewicht());
+		uint32 max_speed = metrics.get_speed(cnv->get_sum_gewicht());
 		mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed()*4);
 		mean_convoi_speed /= 2;
-		sprintf(tmp,translator::translate("%i km/h (max. %ikm/h)"), (mean_convoi_speed+3)/4, speed_to_kmh(cnv->get_min_top_speed()) );
+		//sprintf(tmp,translator::translate("%i km/h (max. %ikm/h)"), (mean_convoi_speed+3)/4, speed_to_kmh(cnv->get_min_top_speed()) );
+		sprintf(tmp,  translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"), 
+			(mean_convoi_speed+3)/4, min_speed, translator::translate("..."), max_speed );
 		display_proportional( pos.x+11, pos.y+16+20, tmp, ALIGN_LEFT, COL_BLACK, true );
 
 		// next important: income stuff

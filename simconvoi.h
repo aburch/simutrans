@@ -7,6 +7,7 @@
 #define simconvoi_h
 
 #include "simtypes.h"
+#include "simconst.h"
 #include "linehandle_t.h"
 
 #include "ifc/sync_steppable.h"
@@ -708,6 +709,8 @@ public:
 	*/
 	void zeige_info();
 
+#if 0
+private:
 	/**
 	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	* Beobachtungsfenster angezeigt wird.
@@ -715,7 +718,8 @@ public:
 	* @see simwin
 	*/
 	void info(cbuffer_t & buf) const;
-
+public:
+#endif
 	/**
 	* @param buf the buffer to fill
 	* @return Freight dscription text (buf)
@@ -966,6 +970,41 @@ public:
 
 	// Added by : Knightly
 	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
+};
+
+/**
+ * Calculate some convoy metrics. 
+ *
+ * Extracted from gui_convoy_assembler_t::zeichnen() and gui_convoy_label_t::zeichnen()
+ * @author: Bernd Gabriel
+ */
+class convoy_metrics_t {
+private:
+	uint32 power;
+	uint32 length; // length in 1/TILE_STEPSth of a tile
+	uint32 vehicle_weight;
+	// several freight of the same category may weigh different: 
+	uint32 min_freight_weight;
+	uint32 max_freight_weight;
+	// max top speed of convoy limited by minimum top speed of the vehicles.
+	uint32 max_top_speed; 
+
+	void add_vehicle(const vehikel_besch_t &besch);
+	void get_possible_freight_weight(uint8 catg_index, uint32 &min_weight, uint32 &max_weight);
+	void reset();
+public:
+	convoy_metrics_t(vector_tpl<const vehikel_besch_t *> &vehicles) { calc(vehicles); };
+	convoy_metrics_t(convoi_t &cnv) { calc(cnv); }
+	void calc(vector_tpl<const vehikel_besch_t *> &vehicles);
+	void calc(convoi_t &cnv);
+	uint32 get_power() { return power; }
+	uint32 get_length() { return length; }
+	uint32 get_vehicle_weight() { return vehicle_weight; }
+	uint32 get_max_freight_weight() { return max_freight_weight; }
+	uint32 get_min_freight_weight() { return min_freight_weight; }
+	uint32 get_speed(uint32 weight);
+	//
+	uint32 get_tile_length() { return (length + TILE_STEPS - 1) / TILE_STEPS; }
 };
 
 #endif

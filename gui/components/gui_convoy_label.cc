@@ -78,48 +78,27 @@ void gui_convoy_label_t::zeichnen(koord offset)
 		}
 	}
 	offset.y+=get_image_size().y;
-	char tmp[128];
-	if (show_number) {
-		sprintf(tmp, "%s %d (%s %i)",
-			translator::translate("Fahrzeuge:"), cnv->get_vehikel_anzahl(),
-			translator::translate("Station tiles:"), (cnv->get_length()+TILE_STEPS-1)/TILE_STEPS );
-		display_proportional( offset.x + 4, offset.y , tmp, ALIGN_LEFT, COL_BLACK, true );
-		offset.y+=LINESPACE;
-	}
-	if (show_max_speed) {
-		uint16 max_speed=0;
-		uint16 min_speed=0;
-		if(cnv->get_vehikel_anzahl() > 0) {
-//			int length=0;
-			uint32 total_power=0;
-			uint32 total_max_weight=0;
-			uint32 total_min_weight=0;
-			for( unsigned i=0;  i<cnv->get_vehikel_anzahl();  i++) {
-				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
-
-//				length += besch->get_length();
-				total_power += besch->get_leistung()*besch->get_gear()/64;
-				total_min_weight += besch->get_gewicht();
-				total_max_weight += besch->get_gewicht();
-
-				uint32 max_weight =0;
-				uint32 min_weight =100000;
-				for(uint32 j=0; j<warenbauer_t::get_waren_anzahl(); j++) {
-					const ware_besch_t *ware = warenbauer_t::get_info(j);
-
-					if(besch->get_ware()->get_catg_index()==ware->get_catg_index()) {
-						max_weight = max(max_weight, ware->get_weight_per_unit());
-						min_weight = min(min_weight, ware->get_weight_per_unit());
-					}
-				}
-				total_max_weight += (max_weight*besch->get_zuladung()+499)/1000;
-				total_min_weight += (min_weight*besch->get_zuladung()+499)/1000;
-			}
-			max_speed = min(speed_to_kmh(cnv->get_min_top_speed()), (uint32) sqrt((((double)total_power/total_min_weight)-1)*2500));
-			min_speed = min(speed_to_kmh(cnv->get_min_top_speed()), (uint32) sqrt((((double)total_power/total_max_weight)-1)*2500));
+	if (show_number || show_max_speed)
+	{
+		convoy_metrics_t metrics(*cnv.get_rep());
+		char tmp[128];
+		if (show_number) {
+			sprintf(tmp, "%s %d (%s %i)",
+				translator::translate("Fahrzeuge:"), cnv->get_vehikel_anzahl(),
+				//translator::translate("Station tiles:"), (cnv->get_length()+TILE_STEPS-1)/TILE_STEPS );
+				translator::translate("Station tiles:"), metrics.get_tile_length() );
+			display_proportional( offset.x + 4, offset.y , tmp, ALIGN_LEFT, COL_BLACK, true );
+			offset.y+=LINESPACE;
 		}
-		sprintf(tmp,  "%s %d(%d)km/h", translator::translate("Max. speed:"), min_speed, max_speed );
-		display_proportional( offset.x + 4, offset.y , tmp, ALIGN_LEFT, COL_BLACK, true );
-		offset.y+=LINESPACE;
+		if (show_max_speed) {
+			uint32 min_speed = metrics.get_speed(metrics.get_vehicle_weight() + metrics.get_max_freight_weight());
+			uint32 max_speed = metrics.get_speed(metrics.get_vehicle_weight() /*+ metrics.get_min_freight_weight()*/);
+			sprintf(tmp,  min_speed == max_speed ? "%s %d km/h" : "%s %d %s %d km/h", 
+				translator::translate("Max. speed:"), min_speed, 
+				translator::translate("..."), max_speed );
+
+			display_proportional( offset.x + 4, offset.y , tmp, ALIGN_LEFT, COL_BLACK, true );
+			offset.y+=LINESPACE;
+		}
 	}
 }

@@ -374,12 +374,15 @@ public:
 	*/
 	void zeige_info();
 
+#if 0
+private:
 	/**
 	* der normale Infotext
 	* @author Hj. Malthaner
 	*/
 	void info(cbuffer_t & buf) const;
-
+public:
+#endif
 	/**
 	* Ermittelt fahrtrichtung
 	* @author Hj. Malthaner

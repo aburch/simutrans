@@ -2192,14 +2192,14 @@ vehikel_t::zeige_info()
 	}
 }
 
-
+#if 0
 void vehikel_t::info(cbuffer_t & buf) const
 {
 	if(cnv) {
 		cnv->info(buf);
 	}
 }
-
+#endif
 
 const char *
 vehikel_t::ist_entfernbar(const spieler_t *)
