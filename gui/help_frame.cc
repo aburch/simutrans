@@ -92,9 +92,11 @@ help_frame_t::help_frame_t(cstring_t filename) :
 				case '<': c = "&lt;"; break;
 				case '>': c = "&gt;"; break;
 				case 27:  c = "ESC"; break;
+				case SIM_KEY_HOME:	c=translator::translate( "[HOME]" ); break;
+				case SIM_KEY_END:	c=translator::translate( "[END]" ); break;
 				default:
 					if((*iter)->command_key<32) {
-						sprintf( str, "^%C", (*iter)->command_key+64 );
+						sprintf( str, "%s + %C", translator::translate( "[CTRL]" ),  (*iter)->command_key+64 );
 					}
 					else if((*iter)->command_key<256) {
 						sprintf( str, "%C", (*iter)->command_key );
