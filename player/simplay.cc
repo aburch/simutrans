@@ -392,6 +392,7 @@ void spieler_t::neuer_monat()
 				}
 			}
 		}
+		calc_finance_history();
 	}
 	else 
 	{
@@ -1049,15 +1050,20 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 
 	if(file->is_loading())
 	{
-		base_credit_limit = get_base_credit_limit();
-		//credit_limit = calc_credit_limit();
+		if(konto_ueberzogen > 3 && konto < 0)
+		{
+			// Calculate credit limit accurately on re-loading in the event
+			// that the player's balance is below zero.
+			const sint64 input_credit_limit = get_base_credit_limit();
+			const sint64 adjusted_credit_limit = input_credit_limit - (input_credit_limit / 5) * (konto_ueberzogen - 3);
+			base_credit_limit = adjusted_credit_limit > 0 ? adjusted_credit_limit : 0;
+		}
 		if(file->get_experimental_version() <= 1)
 		{
 			finance_history_month[0][COST_CREDIT_LIMIT] = calc_credit_limit();
 		}
 	}
 }
-
 
 
 /*
