@@ -850,16 +850,12 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		}
 
 		// no slopes through the roof
-		if (gr1->ist_tunnel() && new_slope<=ALL_UP_SLOPE && (welt->lookup_kartenboden(pos.get_2d())->get_hoehe() <= pos.z+1)) {
-			return "Tile not empty.";
-		}
-		// no slopes into the sea
-		if (gr1->ist_tunnel() && new_slope<=ALL_UP_SLOPE && (welt->lookup_kartenboden(pos.get_2d())->ist_wasser() && min( welt->lookup_hgt(pos.get_2d()), welt->get_grundwasser() )<= pos.z+1)) {
+		if(gr1->ist_tunnel()  &&  new_slope<=ALL_UP_SLOPE  &&  (welt->lookup_kartenboden(pos.get_2d())->get_hoehe() <= pos.z+1)  ) {
 			return "Tile not empty.";
 		}
 
 		// finally: empty enough
-		if(  gr1->get_grund_hang()!=gr1->get_weg_hang()  ||  gr1->find<gebaeude_t>()  ||  gr1->kann_alle_obj_entfernen(sp)  ) {
+		if(  gr1->get_grund_hang()!=gr1->get_weg_hang()  ||  gr1->find<gebaeude_t>()  ||  gr1->get_halt().is_bound()  ||  gr1->kann_alle_obj_entfernen(sp)  ||  gr1->get_depot()  ) {
 			return "Tile not empty.";
 		}
 
@@ -879,15 +875,27 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			 * a slope with the way as hinge.
 			 */
 			if(  new_slope==ALL_UP_SLOPE  ) {
-				new_slope = hang_typ(ribis);
-			}
-			else if(  new_slope==ALL_DOWN_SLOPE  ) {
-				if(  gr1->get_grund_hang()  ) {
+				if(  gr1->get_weg_hang()==hang_t::flach  ) {
+					new_slope = hang_typ(ribis);
+				}
+				else if(  gr1->get_weg_hang()==hang_typ(ribi_t::rueckwaerts(ribis))  ) {
 					new_slope = hang_t::flach;
+					pos.z += Z_TILE_STEP;
 				}
 				else {
+					return "Maximum tile height difference reached.";
+				}
+			}
+			else if(  new_slope==ALL_DOWN_SLOPE  ) {
+				if(  gr1->get_grund_hang()==hang_typ(ribis)  ) {
+					new_slope = hang_t::flach;
+				}
+				else if(  gr1->get_grund_hang()==hang_t::flach  ) {
 					new_slope = hang_typ(ribi_t::rueckwaerts(ribis));
 					pos.z -= Z_TILE_STEP;
+				}
+				else {
+					return "Maximum tile height difference reached.";
 				}
 			}
 		}

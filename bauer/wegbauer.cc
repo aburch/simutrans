@@ -1314,7 +1314,7 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 #else
 			// at least tunnel not in the sea
 			const grund_t *gr = welt->lookup(pos.get_2d())->get_kartenboden();
-			ok = ok && (!gr->ist_wasser() || min( welt->lookup_hgt(pos.get_2d()), welt->get_grundwasser() ) > pos.z);
+			ok = ok && (!gr->ist_wasser()  ||  min( welt->lookup_hgt(pos.get_2d()), welt->get_grundwasser() ) > pos.z);
 #endif
 			grund_t *bd_von = welt->lookup(pos);
 			if(  bd_von  ) {
