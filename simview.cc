@@ -150,7 +150,9 @@ karte_ansicht_t::display(bool force_dirty)
 					const grund_t *gr = plan->get_kartenboden();
 					// minimum height: ground height for overground,
 					// for the definition of underground_level see grund_t::set_underground_mode
-					const sint8 hmin = min(gr->get_hoehe(), grund_t::underground_level);
+					const sint8 hmin = grund_t::underground_mode!=grund_t::ugm_all ?
+						min(gr->get_hoehe(), grund_t::underground_level) :
+						(gr->ist_wasser() ? gr->get_hoehe() : grund_t::underground_level);
 
 					// maximum height: 127 for overground, undergroundlevel for sliced, ground height-1 for complete underground view
 					const sint8 hmax = grund_t::underground_mode==grund_t::ugm_all ? gr->get_hoehe()-(!gr->ist_tunnel()) : grund_t::underground_level;
@@ -158,7 +160,7 @@ karte_ansicht_t::display(bool force_dirty)
 					/* long version
 					switch(grund_t::underground_mode) {
 						case ugm_all:
-							hmin = -128;
+							hmin = gr->ist_wasser() ? gr->get_hoehe() : -128;
 							hmax = gr->get_hoehe()-(!gr->ist_tunnel());
 							underground_level = -128;
 							break;

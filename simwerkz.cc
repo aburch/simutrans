@@ -841,7 +841,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		}
 
 		// at least a pixel away from the border?
-		if(  pos.z<welt->get_grundwasser()  ) {
+		if(  pos.z<welt->get_grundwasser() &&  !gr1->ist_tunnel() ) {
 			return "Maximum tile height difference reached.";
 		}
 
@@ -851,6 +851,10 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 		// no slopes through the roof
 		if (gr1->ist_tunnel() && new_slope<=ALL_UP_SLOPE && (welt->lookup_kartenboden(pos.get_2d())->get_hoehe() <= pos.z+1)) {
+			return "Tile not empty.";
+		}
+		// no slopes into the sea
+		if (gr1->ist_tunnel() && new_slope<=ALL_UP_SLOPE && (welt->lookup_kartenboden(pos.get_2d())->ist_wasser() && min( welt->lookup_hgt(pos.get_2d()), welt->get_grundwasser() )<= pos.z+1)) {
 			return "Tile not empty.";
 		}
 
