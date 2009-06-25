@@ -140,9 +140,8 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 spe
 				bool test_allowed = test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month();
 				if(  !best_allowed  ||  time==0  ||  test_allowed  ) {
 					if(  best==NULL  ||
-						( best->get_topspeed() <      speed_limit       &&      speed_limit      <= test->get_topspeed()) || // test is faster than speed_limit
 						( best->get_topspeed() <  test->get_topspeed()  &&  test->get_topspeed() <=     speed_limit  )    || // closer to desired speed (from the low end)
-						(     speed_limit      <= test->get_topspeed()  &&  test->get_topspeed() <  best->get_topspeed()) || // closer to desired speed (from the top end)
+						(     speed_limit      <  best->get_topspeed()  &&  test->get_topspeed() <   best->get_topspeed()) || // respects speed_limit better
 						( time!=0  &&  !best_allowed  &&  test_allowed)                                                       // current choice is actually not really allowed, timewise
 						) {
 							best = test;
@@ -552,8 +551,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			// no suitable ground below!
 			return false;
 		}
-		//sint16 height = welt->lookup(to->get_pos().get_2d())->get_kartenboden()->get_hoehe()+Z_TILE_STEP;
-		sint16 height = to->get_hoehe()+Z_TILE_STEP;
+		sint8 height = to->get_hoehe()+Z_TILE_STEP;
 		grund_t *to2 = welt->lookup(koord3d(to->get_pos().get_2d(),height));
 		if(to2) {
 			if(to2->get_weg_nr(0)) {
