@@ -892,6 +892,9 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				else if(  gr1->get_grund_hang()==hang_t::flach  ) {
 					new_slope = hang_typ(ribi_t::rueckwaerts(ribis));
 					pos.z -= Z_TILE_STEP;
+					if(  welt->lookup(pos)  ) {
+						return "Tile not empty.";
+					}
 				}
 				else {
 					return "Maximum tile height difference reached.";
@@ -922,13 +925,6 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 					// is more intiutive: if there is a slope, first downgrade it
 					change_to_slope = 0;
 				}
-				else {
-					// check for tunnel slopes
-					const grund_t *tg=welt->lookup(pos + koord3d(0,0,-2));
-					if (tg && tg->get_grund_hang()!=hang_t::flach) {
-						return "Tile not empty.";
-					}
-				}
 			}
 			slope_this = (change_to_slope>=ALL_UP_SLOPE) ? 0 : change_to_slope;
 			new_pos = pos + koord3d(0,0,(change_to_slope==ALL_UP_SLOPE?Z_TILE_STEP:(change_to_slope==ALL_DOWN_SLOPE?-Z_TILE_STEP:0)));
@@ -938,6 +934,43 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				slope_this *= 2;
 			}
 #endif
+		}
+
+		// now check for grounds above
+		if(  pos==gr1->get_pos()  &&  slope_this!=hang_t::flach  ) {
+			grund_t *gr2 = welt->lookup(pos+koord3d(0,0,Z_TILE_STEP));
+			if(  gr2  &&  gr2->get_weg_hang()!=new_slope  ) {
+				return "Tile not empty.";
+			}
+		}
+		// and now for flat slopes
+		if(  pos.z>gr1->get_pos().z  ) {
+			grund_t *gr2 = welt->lookup(pos+koord3d(0,0,Z_TILE_STEP));
+			if(  gr2  &&  gr2->get_weg_hang()!=slope_this  ) {
+				return "Tile not empty.";
+			}
+		}
+		// now for downwards case
+		else if(  pos.z<gr1->get_pos().z  ) {
+			if(  welt->lookup(pos)  ) {
+				// here is already a ground
+				return "Tile not empty.";
+			}
+			// the ground below must be either flat or have the same slope, else bad stuff may happen
+			grund_t *gr2 = welt->lookup(pos-koord3d(0,0,Z_TILE_STEP));
+			if(  gr2  &&  gr2->get_weg_hang()!=slope_this  &&  gr2->get_weg_hang()!=hang_t::flach  ) {
+				// could lead to crossconnected ways => forbidden
+				return "Tile not empty.";
+			}
+		}
+		// just flatten this tile
+		else if(  slope_this==hang_t::flach  ) {
+			// the ground below must be either flat or have the same slope, else bad stuff may happen
+			grund_t *gr2 = welt->lookup(pos-koord3d(0,0,Z_TILE_STEP));
+			if(  gr2  &&  gr2->get_weg_hang()!=slope_this  &&  gr2->get_weg_hang()!=hang_t::flach  ) {
+				// could lead to crossconnected ways => forbidden
+				return "Tile not empty.";
+			}
 		}
 
 		// check, if action is valid ...
