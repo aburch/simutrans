@@ -2664,6 +2664,7 @@ convoi_t::zeige_info()
 }
 
 
+#if 0
 void convoi_t::info(cbuffer_t & buf) const
 {
 	const vehikel_t* v = fahr[0];
@@ -2687,7 +2688,7 @@ void convoi_t::info(cbuffer_t & buf) const
 		buf.append("\n");
 	}
 }
-
+#endif
 
 
 // sort order of convoi
@@ -4322,4 +4323,89 @@ bool convoi_t::calc_obsolescence(uint16 timeline_year_month)
 		}
 	}
 	return false;
+}
+
+/**
+ * Bernd Gabriel, 23.06.2009: convoi_metrics_t: 
+ *
+ * Extracted from gui_convoy_assembler_t::zeichnen() and gui_convoy_label_t::zeichnen()
+ */
+
+#ifndef MAXUINT32
+#define MAXUINT32 ((uint32)~((uint32)0))
+#endif
+
+void convoy_metrics_t::reset()
+{
+	power = 0;
+	length = 0;
+	vehicle_weight = 0;
+	min_freight_weight = 0;
+	max_freight_weight = 0;
+	max_top_speed = MAXUINT32;	
+}
+
+void convoy_metrics_t::get_possible_freight_weight(uint8 catg_index, uint32 &min_weight, uint32 &max_weight)
+{
+	max_weight = 0;
+	min_weight = MAXUINT32;
+	for (uint16 j=0; j<warenbauer_t::get_waren_anzahl(); j++) {
+		const ware_besch_t &ware = *warenbauer_t::get_info(j);
+		if (ware.get_catg_index() == catg_index) {
+			uint32 weight = ware.get_weight_per_unit();
+			if (max_weight < weight) 
+			{
+				max_weight = weight;
+			}
+			if (min_weight > weight) 
+			{
+				min_weight = weight;
+			}
+		}
+	}
+	// No freight of given category found? Then there is no min weight!
+	if (min_weight == MAXUINT32) 
+	{
+		min_weight = 0;
+	}
+}
+
+void convoy_metrics_t::add_vehicle(const vehikel_besch_t &besch)
+{
+	power += besch.get_leistung() * besch.get_gear() / 64;
+	length += besch.get_length();
+	vehicle_weight += besch.get_gewicht();
+	uint32 payload = besch.get_zuladung();
+	if (payload > 0)
+	{
+		uint32 min_weight, max_weight;
+		get_possible_freight_weight(besch.get_ware()->get_catg_index(), min_weight, max_weight);
+		min_freight_weight += (min_weight * payload + 499) / 1000;
+		max_freight_weight += (max_weight * payload + 499) / 1000;
+	}
+	if (max_top_speed > besch.get_geschw())
+	{
+		max_top_speed = besch.get_geschw();
+	}
+}
+
+void convoy_metrics_t::calc(convoi_t &cnv)
+{
+	reset();
+	for(unsigned i = cnv.get_vehikel_anzahl();  i-- > 0; ) {
+		add_vehicle(*cnv.get_vehikel(i)->get_besch());
+	}
+}
+
+void convoy_metrics_t::calc(vector_tpl<const vehikel_besch_t *> &vehicles)
+{
+	reset();
+	for(unsigned i = vehicles.get_count();  i-- > 0; ) {
+		add_vehicle(*vehicles[i]);
+	}
+}
+
+uint32 convoy_metrics_t::get_speed(uint32 weight) 
+{ 
+	return min(max_top_speed, (uint32) sqrt((((double)power/(double)weight)-1)*2500)); 
 }

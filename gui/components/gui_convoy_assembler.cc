@@ -15,6 +15,7 @@
 
 #include "../../simskin.h"
 #include "../../simworld.h"
+#include "../../simconvoi.h"
 
 #include "../../bauer/warenbauer.h"
 #include "../../bauer/vehikelbauer.h"
@@ -450,54 +451,15 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 	*txt_convoi_count = '\0';
 	*txt_convoi_speed = '\0';
 	if (vehicles.get_count()>0) {
-		uint32 total_power=0;
-		uint32 total_max_weight=0;
-		uint32 total_min_weight=0;
-		uint16 max_speed=0;
-		uint16 min_speed=0;
-		sint32 min_top_speed=9999999;
-		for( unsigned i=0;  i<vehicles.get_count();  i++) {
-			const vehikel_besch_t *besch = vehicles[i];
-
-			total_power += besch->get_leistung()*besch->get_gear()/64;
-			total_min_weight += besch->get_gewicht();
-			total_max_weight += besch->get_gewicht();
-
-			uint32 max_weight =0;
-			uint32 min_weight =100000;
-			for(uint32 j=0; j<warenbauer_t::get_waren_anzahl(); j++) {
-				const ware_besch_t *ware = warenbauer_t::get_info(j);
-
-				if(besch->get_ware()->get_catg_index()==ware->get_catg_index()) {
-					max_weight = max(max_weight, ware->get_weight_per_unit());
-					min_weight = min(min_weight, ware->get_weight_per_unit());
-				}
-			}
-			total_max_weight += (max_weight*besch->get_zuladung()+499)/1000;
-			total_min_weight += (min_weight*besch->get_zuladung()+499)/1000;
-
-			min_top_speed=min(min_top_speed, besch->get_geschw()); // In kmh
-		}
-		max_speed = min(min_top_speed, (uint32) sqrt((((double)total_power/total_min_weight)-1)*2500));
-		min_speed = min(min_top_speed, (uint32) sqrt((((double)total_power/total_max_weight)-1)*2500));
-		uint16 tile_length;
-		if(depot_frame != NULL)
-		{
-			tile_length = depot_frame->get_convoy()->get_tile_length();
-		}
-		else
-		{
-			tile_length = 0;
-			ITERATE(vehicles,i)
-			{
-				tile_length += vehicles[i]->get_length();
-			}
-			tile_length = (tile_length + 16 - 1) / 16;
-		}
+		convoy_metrics_t metrics(vehicles);
+		uint32 min_speed = metrics.get_speed(metrics.get_vehicle_weight() + metrics.get_max_freight_weight());
+		uint32 max_speed = metrics.get_speed(metrics.get_vehicle_weight() /*+ metrics.get_min_freight_weight()*/);
 		sprintf(txt_convoi_count, "%s %d (%s %i)",
 			translator::translate("Fahrzeuge:"), vehicles.get_count(),
-			translator::translate("Station tiles:"), tile_length );
-			sprintf(txt_convoi_speed,  "%s %d(%d)km/h", translator::translate("Max. speed:"), min_speed, max_speed );
+			translator::translate("Station tiles:"), metrics.get_tile_length() );
+		sprintf(txt_convoi_speed,  min_speed == max_speed ? "%s %d km/h" : "%s %d %s %d km/h", 
+			translator::translate("Max. speed:"), min_speed, 
+			translator::translate("..."), max_speed );
 	}
 
 	bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed
@@ -1081,7 +1043,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 	sint64 value = -1;
 	const vehikel_besch_t *veh_type = NULL;
 	koord relpos = koord( 0, ((gui_scrollpane_t *)tabs.get_aktives_tab())->get_scroll_y() );
-	int sel_index = lst->index_at(pos + tabs.get_pos() - relpos, x, y - 16 - gui_tab_panel_t::HEADER_VSIZE);
+	int sel_index = lst->index_at(pos + tabs.get_pos() - relpos, x, y - gui_tab_panel_t::HEADER_VSIZE);
 
 	if ((sel_index != -1) && (tabs.getroffen(x-pos.x,y-pos.y))) {
 		const vector_tpl<gui_image_list_t::image_data_t>& vec = (lst == &electrics ? electrics_vec : (lst == &pas ? pas_vec : (lst == &loks ? loks_vec : waggons_vec)));
@@ -1137,12 +1099,13 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			translator::translate(engine_type_names[veh_type->get_engine_type()+1]));
 
 			sint32 n;
+
 			
 			if(upgrade == u_buy)
 			{
 				n = sprintf(buf,
-					/*translator::translate("LOCO_INFO"),*/
-					translator::translate("%s\nCost: %d$\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkm/h\nWeight: %dt\n"),
+					translator::translate("LOCO_INFO_EXT"),
+					//translator::translate("%s\nCost: %d$\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkm/h\nWeight: %dt\n"),
 					name,
 					veh_type->get_preis()/100,
 					veh_type->get_betriebskosten(get_welt())/100.0F,
@@ -1155,8 +1118,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			else
 			{
 				n = sprintf(buf,
-					/*translator::translate("LOCO_INFO"),*/
-					translator::translate("%s\nCost: %d$\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkm/h\nWeight: %dt\n"),
+					translator::translate("LOCO_INFO_EXT"),
+					//translator::translate("%s\nCost: %d$\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkm/h\nWeight: %dt\n"),
 					name,
 					veh_type->get_upgrade_price()/100,
 					veh_type->get_betriebskosten(get_welt())/100.0F,

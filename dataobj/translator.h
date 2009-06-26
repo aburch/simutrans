@@ -14,6 +14,10 @@
 class loadsave_t;
 class cstring_t;
 
+// Bernd Gabriel: like fgets, but removes \n from end of line and for windows style line ends \r, if present.
+// Example: Where fgets() returns "Hello World\n" or "Hello World\r\n", fgets_line() returns "Hello World".
+// Notice: include both \n and \r in your buffer length calculation.
+char *fgets_line(char *buffer, int max_len, FILE *file);
 
 /**
  * Central location for loading and translating language text for the

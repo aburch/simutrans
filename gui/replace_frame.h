@@ -42,7 +42,7 @@ private:
 	bool autostart;		// True if convoy is to be sent to depot and restarted automatically
 	enum {state_replace=0, state_sell, state_skip, n_states};
 	uint8 state;
-	uint8 replaced_so_far;
+	uint16 replaced_so_far;
 	sint64 money;
 
 	/**

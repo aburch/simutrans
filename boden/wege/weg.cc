@@ -283,19 +283,21 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append(translator::translate("\nMax. weight:"));
 	buf.append(" ");
 	buf.append(max_weight);
-	buf.append("t ");
+	buf.append(translator::translate("tonnen"));
 	buf.append("\n");
 	for(sint8 i = -8; i < 8; i ++)
 	{
 		if(permissive_way_constraint_set(i + 8))
 		{
-			buf.append(translator::translate("Way constraint permissive "));
+			buf.append(translator::translate("Way constraint permissive"));
+			buf.append(": ");
 			buf.append(i);
 			buf.append("\n");
 		}
 		if(prohibitive_way_constraint_set(i))
 		{
-			buf.append(translator::translate("Way constraint prohibitive %n\n"));
+			buf.append(translator::translate("Way constraint prohibitive"));
+			buf.append(": ");
 			buf.append(i);
 			buf.append("\n");
 		}
