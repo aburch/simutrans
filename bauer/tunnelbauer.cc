@@ -230,6 +230,12 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
 			}
 			return koord3d::invalid;  // Was im Weg (schräger Hang oder so)
 		}
+		// tunnel slope underneath?
+		gr = welt->lookup(pos +koord3d(0,0,-1));
+		if (gr && gr->get_grund_hang()!=hang_t::flach) {
+			return koord3d::invalid;
+		}
+
 		// Alles frei - weitersuchen
 	}
 }

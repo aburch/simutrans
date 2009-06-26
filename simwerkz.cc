@@ -1,8 +1,7 @@
 /*
- * Werkzeuge für den Simutrans-Spieler
- * von Hj. Malthaner
+ * Tools for the players
  *
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -398,7 +397,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 		return true;
 	}
 
-	// prissi: Leitung prüfen (can cross ground of another player)
+	// prissi: check powerline (can cross ground of another player)
 	leitung_t* lt = gr->get_leitung();
 	if(lt!=NULL  &&  lt->get_besitzer()==sp) {
 		bool is_leitungsbruecke = false;
@@ -446,7 +445,7 @@ DBG_MESSAGE("wkz_remover()",  "removing roadsign at (%s)", pos.get_str());
 		return true;
 	}
 
-	// Haltestelle prüfen
+	// check stations
 	halthandle_t halt = gr->get_halt();
 DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
 	if (gr->is_halt()  &&  halt.is_bound()  &&  fabrik_t::get_fab(welt,pos.get_2d())==NULL) {
@@ -580,9 +579,9 @@ DBG_MESSAGE("wkz_remover()",  "add again powerline");
 DBG_MESSAGE("wkz_remover()", "removing way");
 
 	/*
-	* Eigentlich müssen wir hier noch verhindern, daß ein Bahnhofsgebäude oder eine
+	* Eigentlich muessen wir hier noch verhindern, dass ein Bahnhofsgebaeude oder eine
 	* Bushaltestelle vereinzelt wird!
-	* Sonst lässt sich danach die Richtung der Haltestelle verdrehen und die Bilder
+	* Sonst laesst sich danach die Richtung der Haltestelle verdrehen und die Bilder
 	* gehen kaputt.
 	*/
 	long cost_sum = 0;
@@ -872,7 +871,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		}
 
 		// at least a pixel away from the border?
-		if(  pos.z<welt->get_grundwasser()  ) {
+		if(  pos.z<welt->get_grundwasser() &&  !gr1->ist_tunnel() ) {
 			return "Maximum tile height difference reached.";
 		}
 
@@ -880,8 +879,13 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			return "No suitable ground!";
 		}
 
+		// no slopes through the roof
+		if(gr1->ist_tunnel()  &&  new_slope<=ALL_UP_SLOPE  &&  (welt->lookup_kartenboden(pos.get_2d())->get_hoehe() <= pos.z+1)  ) {
+			return "Tile not empty.";
+		}
+
 		// finally: empty enough
-		if(  gr1->get_grund_hang()!=gr1->get_weg_hang()  ||  gr1->find<gebaeude_t>()  ||  gr1->kann_alle_obj_entfernen(sp)  ) {
+		if(  gr1->get_grund_hang()!=gr1->get_weg_hang()  ||  gr1->find<gebaeude_t>()  ||  gr1->get_halt().is_bound()  ||  gr1->kann_alle_obj_entfernen(sp)  ||  gr1->get_depot()  ||  gr1->get_leitung()  ||  gr1->get_weg(air_wt)  ) {
 			return "Tile not empty.";
 		}
 
@@ -901,15 +905,30 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			 * a slope with the way as hinge.
 			 */
 			if(  new_slope==ALL_UP_SLOPE  ) {
-				new_slope = hang_typ(ribis);
-			}
-			else if(  new_slope==ALL_DOWN_SLOPE  ) {
-				if(  gr1->get_grund_hang()  ) {
+				if(  gr1->get_weg_hang()==hang_t::flach  ) {
+					new_slope = hang_typ(ribis);
+				}
+				else if(  gr1->get_weg_hang()==hang_typ(ribi_t::rueckwaerts(ribis))  ) {
 					new_slope = hang_t::flach;
+					pos.z += Z_TILE_STEP;
 				}
 				else {
+					return "Maximum tile height difference reached.";
+				}
+			}
+			else if(  new_slope==ALL_DOWN_SLOPE  ) {
+				if(  gr1->get_grund_hang()==hang_typ(ribis)  ) {
+					new_slope = hang_t::flach;
+				}
+				else if(  gr1->get_grund_hang()==hang_t::flach  ) {
 					new_slope = hang_typ(ribi_t::rueckwaerts(ribis));
 					pos.z -= Z_TILE_STEP;
+					if(  welt->lookup(pos)  ) {
+						return "Tile not empty.";
+					}
+				}
+				else {
+					return "Maximum tile height difference reached.";
 				}
 			}
 		}
@@ -932,9 +951,11 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		else {
 			// now check offsets before changing the slope ...
 			sint8 change_to_slope=new_slope;
-			if(new_slope==ALL_DOWN_SLOPE  &&  gr1->get_grund_hang()>0  ) {
-				// is more intiutive: if there is a slope, first downgrade it
-				change_to_slope = 0;
+			if(new_slope==ALL_DOWN_SLOPE) {
+				if (gr1->get_grund_hang()>0  ) {
+					// is more intiutive: if there is a slope, first downgrade it
+					change_to_slope = 0;
+				}
 			}
 			slope_this = (change_to_slope>=ALL_UP_SLOPE) ? 0 : change_to_slope;
 			new_pos = pos + koord3d(0,0,(change_to_slope==ALL_UP_SLOPE?Z_TILE_STEP:(change_to_slope==ALL_DOWN_SLOPE?-Z_TILE_STEP:0)));
@@ -944,6 +965,43 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				slope_this *= 2;
 			}
 #endif
+		}
+
+		// now check for grounds above
+		if(  pos==gr1->get_pos()  &&  slope_this!=hang_t::flach  ) {
+			grund_t *gr2 = welt->lookup(pos+koord3d(0,0,Z_TILE_STEP));
+			if(  gr2  &&  gr2->get_weg_hang()!=new_slope  ) {
+				return "Tile not empty.";
+			}
+		}
+		// and now for flat slopes
+		if(  pos.z>gr1->get_pos().z  ) {
+			grund_t *gr2 = welt->lookup(pos+koord3d(0,0,Z_TILE_STEP));
+			if(  gr2  &&  gr2->get_weg_hang()!=slope_this  ) {
+				return "Tile not empty.";
+			}
+		}
+		// now for downwards case
+		else if(  pos.z<gr1->get_pos().z  ) {
+			if(  welt->lookup(pos)  ) {
+				// here is already a ground
+				return "Tile not empty.";
+			}
+			// the ground below must be either flat or have the same slope, else bad stuff may happen
+			grund_t *gr2 = welt->lookup(pos-koord3d(0,0,Z_TILE_STEP));
+			if(  gr2  &&  gr2->get_weg_hang()!=slope_this  &&  gr2->get_weg_hang()!=hang_t::flach  ) {
+				// could lead to crossconnected ways => forbidden
+				return "Tile not empty.";
+			}
+		}
+		// just flatten this tile
+		else if(  slope_this==hang_t::flach  ) {
+			// the ground below must be either flat or have the same slope, else bad stuff may happen
+			grund_t *gr2 = welt->lookup(pos-koord3d(0,0,Z_TILE_STEP));
+			if(  gr2  &&  gr2->get_weg_hang()!=slope_this  &&  gr2->get_weg_hang()!=hang_t::flach  ) {
+				// could lead to crossconnected ways => forbidden
+				return "Tile not empty.";
+			}
 		}
 
 		// check, if action is valid ...

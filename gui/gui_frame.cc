@@ -152,7 +152,7 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 		}
 		else {
 			// empty box
-			display_fillbox_wh(pos.x, pos.y, gr.x, gr.y, MN_GREY1, false);
+			display_fillbox_wh(pos.x+1, pos.y+16, gr.x-2, gr.y-16, MN_GREY1, false);
 		}
 
 		// Hajo: left, right
