@@ -854,7 +854,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		}
 
 		// finally: empty enough
-		if(  gr1->get_grund_hang()!=gr1->get_weg_hang()  ||  gr1->find<gebaeude_t>()  ||  gr1->get_halt().is_bound()  ||  gr1->kann_alle_obj_entfernen(sp)  ||  gr1->get_depot()  ) {
+		if(  gr1->get_grund_hang()!=gr1->get_weg_hang()  ||  gr1->find<gebaeude_t>()  ||  gr1->get_halt().is_bound()  ||  gr1->kann_alle_obj_entfernen(sp)  ||  gr1->get_depot()  ||  gr1->get_leitung()  ||  gr1->get_weg(air_wt)  ) {
 			return "Tile not empty.";
 		}
 
