@@ -1321,7 +1321,7 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 				ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp();
 				// if we have a slope, we must adjust height correspondingly
 				if(  bd_von->get_weg_hang()!=hang_t::flach  ) {
-					if(  ribi_t::doppelt(ribi_typ(bd_von->get_weg_hang()))==ribi_t::doppelt(ribi_typ(diff)) && pos.z==bd_von->get_vmove(-diff)) {
+					if(  ribi_typ(bd_von->get_weg_hang())==ribi_t::rueckwaerts(ribi_typ(diff)) && (pos==start || pos.z==bd_von->get_vmove(-diff)) ) {
 						pos.z = bd_von->get_vmove(diff);
 					}
 					else {
@@ -1364,14 +1364,18 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 					ribi_t::ribi diffribi = ribi_t::doppelt( ribi_typ(diff) );
 					ok = (haltribi==diffribi);
 				}
-				// check for slope down ...
-				bd_von = welt->lookup(pos+diff+koord3d(0,0,-1));
-				if(  bd_von  &&  bd_von->get_weg_hang()!=hang_t::flach) {
-					ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp()  &&  ribi_typ(bd_von->get_weg_hang())==ribi_t::rueckwaerts(ribi_typ(diff));
-				}
 				// at least tunnel not in the sea
 				const grund_t *gr = welt->lookup(pos.get_2d()+diff)->get_kartenboden();
 				ok = ok && (!gr->ist_wasser()  ||  min( welt->lookup_hgt(pos.get_2d()+diff), welt->get_grundwasser() ) > pos.z);
+
+				// check for slope down ...
+				bd_von = welt->lookup(pos+diff+koord3d(0,0,-1));
+				if(ok &&  bd_von  &&  bd_von->get_weg_hang()!=hang_t::flach) {
+					ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp()  &&  ribi_typ(bd_von->get_weg_hang())==ribi_t::rueckwaerts(ribi_typ(diff));
+					if (ok) { // adjust height again
+						pos.z += -1;
+					}
+				}
 			}
 			pos += diff;
 		}
