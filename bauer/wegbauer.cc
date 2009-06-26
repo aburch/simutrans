@@ -1118,7 +1118,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 			long new_cost = 0;
 			bool is_ok = is_allowed_step(gr,to,&new_cost);
 
-			// we check here for 180° turns and the end of bridges ...
+			// we check here for 180 degree turns and the end of bridges ...
 			if(is_ok) {
 				if(tmp->parent) {
 
@@ -1321,7 +1321,7 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 				ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp();
 				// if we have a slope, we must adjust height correspondingly
 				if(  bd_von->get_weg_hang()!=hang_t::flach  ) {
-					if(  ribi_t::doppelt(ribi_typ(bd_von->get_weg_hang()))==ribi_t::doppelt(ribi_typ(diff)) ) {
+					if(  ribi_t::doppelt(ribi_typ(bd_von->get_weg_hang()))==ribi_t::doppelt(ribi_typ(diff)) && pos.z==bd_von->get_vmove(-diff)) {
 						pos.z = bd_von->get_vmove(diff);
 					}
 					else {
@@ -1369,6 +1369,9 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 				if(  bd_von  ) {
 					ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp()  &&  ribi_typ(bd_von->get_weg_hang())==ribi_t::rueckwaerts(ribi_typ(diff));
 				}
+				// at least tunnel not in the sea
+				const grund_t *gr = welt->lookup(pos.get_2d()+diff)->get_kartenboden();
+				ok = ok && (!gr->ist_wasser()  ||  min( welt->lookup_hgt(pos.get_2d()+diff), welt->get_grundwasser() ) > pos.z);
 			}
 			pos += diff;
 		}
@@ -1393,7 +1396,7 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 		route.append(pos);
 DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %i,%i = %i",diff.x,diff.y,ok);
 	}
-	ok = ok && (bautyp&tunnel_flag ? pos.get_2d()==ziel.get_2d() : pos==ziel);
+	ok = ok && (bautyp&tunnel_flag && grund_t::underground_mode!=grund_t::ugm_level ? pos.get_2d()==ziel.get_2d() : pos==ziel);
 
 	// we can built a straight route?
 	if(ok) {
