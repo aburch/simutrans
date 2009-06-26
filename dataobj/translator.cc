@@ -46,26 +46,26 @@
 		git fetch <repository> (or use GitGui).
 */
 
-char *fgets_line(char *buffer, int max_len, FILE *file)
-{
-	char *result = fgets(buffer, max_len, file);
-	int len = strlen(buffer);
-	switch (len)
-	{
-	default:
-		// Bernd Gabriel: accept both standard and windows line feeds.
-		if (buffer[len - 2] == '\r')
-		{
-			buffer[len - 2] = '\0';
-			break;
-		}
-	case 1:
-		buffer[len - 1] = '\0';
-	case 0:
-		break;
-	}
-	return result;
-}
+//char *fgets_line(char *buffer, int max_len, FILE *file)
+//{
+//	char *result = fgets(buffer, max_len, file);
+//	int len = strlen(buffer);
+//	switch (len)
+//	{
+//	default:
+//		// Bernd Gabriel: accept both standard and windows line feeds.
+//		if (buffer[len - 2] == '\r')
+//		{
+//			buffer[len - 2] = '\0';
+//			break;
+//		}
+//	case 1:
+//		buffer[len - 1] = '\0';
+//	case 0:
+//		break;
+//	}
+//	return result;
+//}
 
 
 // allow all kinds of line feeds
