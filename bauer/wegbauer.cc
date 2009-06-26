@@ -1332,7 +1332,7 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 			else {
 				// check for slope down ...
 				bd_von = welt->lookup(pos+koord3d(0,0,-1));
-				if(  bd_von  ) {
+				if(  bd_von  &&  bd_von->get_weg_hang()!=hang_t::flach) {
 					ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp()  &&  ribi_typ(bd_von->get_weg_hang())==ribi_t::rueckwaerts(ribi_typ(diff));
 					if(  ok  ) {
 						route[route.get_count()-1].z -= 1;
@@ -1366,7 +1366,7 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 				}
 				// check for slope down ...
 				bd_von = welt->lookup(pos+diff+koord3d(0,0,-1));
-				if(  bd_von  ) {
+				if(  bd_von  &&  bd_von->get_weg_hang()!=hang_t::flach) {
 					ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp()  &&  ribi_typ(bd_von->get_weg_hang())==ribi_t::rueckwaerts(ribi_typ(diff));
 				}
 				// at least tunnel not in the sea

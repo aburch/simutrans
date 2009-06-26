@@ -1,8 +1,7 @@
 /*
- * Werkzeuge für den Simutrans-Spieler
- * von Hj. Malthaner
+ * Tools for the players
  *
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -392,7 +391,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 		return true;
 	}
 
-	// prissi: Leitung prüfen (can cross ground of another player)
+	// prissi: check powerline (can cross ground of another player)
 	leitung_t* lt = gr->get_leitung();
 	if(lt!=NULL  &&  lt->get_besitzer()==sp) {
 		bool is_leitungsbruecke = false;
@@ -427,7 +426,7 @@ DBG_MESSAGE("wkz_remover()",  "removing roadsign at (%s)", pos.get_str());
 		return true;
 	}
 
-	// Haltestelle prüfen
+	// check stations
 	halthandle_t halt = gr->get_halt();
 DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
 	if (gr->is_halt()  &&  halt.is_bound()  &&  fabrik_t::get_fab(welt,pos.get_2d())==NULL) {
@@ -561,9 +560,9 @@ DBG_MESSAGE("wkz_remover()",  "add again powerline");
 DBG_MESSAGE("wkz_remover()", "removing way");
 
 	/*
-	* Eigentlich müssen wir hier noch verhindern, daß ein Bahnhofsgebäude oder eine
+	* Eigentlich muessen wir hier noch verhindern, dass ein Bahnhofsgebaeude oder eine
 	* Bushaltestelle vereinzelt wird!
-	* Sonst lässt sich danach die Richtung der Haltestelle verdrehen und die Bilder
+	* Sonst laesst sich danach die Richtung der Haltestelle verdrehen und die Bilder
 	* gehen kaputt.
 	*/
 	long cost_sum = 0;
@@ -918,9 +917,18 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		else {
 			// now check offsets before changing the slope ...
 			sint8 change_to_slope=new_slope;
-			if(new_slope==ALL_DOWN_SLOPE  &&  gr1->get_grund_hang()>0  ) {
-				// is more intiutive: if there is a slope, first downgrade it
-				change_to_slope = 0;
+			if(new_slope==ALL_DOWN_SLOPE) {
+				if (gr1->get_grund_hang()>0  ) {
+					// is more intiutive: if there is a slope, first downgrade it
+					change_to_slope = 0;
+				}
+				else {
+					// check for tunnel slopes
+					const grund_t *tg=welt->lookup(pos + koord3d(0,0,-2));
+					if (tg && tg->get_grund_hang()!=hang_t::flach) {
+						return "Tile not empty.";
+					}
+				}
 			}
 			slope_this = (change_to_slope>=ALL_UP_SLOPE) ? 0 : change_to_slope;
 			new_pos = pos + koord3d(0,0,(change_to_slope==ALL_UP_SLOPE?Z_TILE_STEP:(change_to_slope==ALL_DOWN_SLOPE?-Z_TILE_STEP:0)));
