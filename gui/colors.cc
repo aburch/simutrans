@@ -264,10 +264,10 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		umgebung_t::show_names ^= 1;
 	} else if((buttons+19)==komp) {
 		umgebung_t::show_names ^= 2;
-	} else if((buttons+20)==komp) {
+	} else if((buttons+21)==komp) {
 		// see simwerkz.cc::wkz_show_underground_t::init
-		grund_t::set_underground_mode(buttons[20].pressed ? grund_t::ugm_none : grund_t::ugm_level, inp_underground_level.get_value());
-		buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
+		grund_t::set_underground_mode(buttons[21].pressed ? grund_t::ugm_none : grund_t::ugm_level, inp_underground_level.get_value());
+		buttons[21].pressed = grund_t::underground_mode == grund_t::ugm_level;
 		// calc new images
 		welt->update_map();
 		// renew toolbar
@@ -317,7 +317,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	buttons[17].pressed = grund_t::show_grid;
 	buttons[18].pressed = umgebung_t::show_names&1;
 	buttons[19].pressed = (umgebung_t::show_names&2)!=0;
-	buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
+	buttons[21].pressed = grund_t::underground_mode == grund_t::ugm_level;
 
 	gui_frame_t::zeichnen(pos, gr);
 

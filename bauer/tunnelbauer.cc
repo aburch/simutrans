@@ -230,6 +230,12 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
 			}
 			return koord3d::invalid;  // Was im Weg (schräger Hang oder so)
 		}
+		// tunnel slope underneath?
+		gr = welt->lookup(pos +koord3d(0,0,-1));
+		if (gr && gr->get_grund_hang()!=hang_t::flach) {
+			return koord3d::invalid;
+		}
+
 		// Alles frei - weitersuchen
 	}
 }
@@ -317,11 +323,11 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 
 	ribi = ribi_typ(-zv);
 	// don't move on to next tile if only one tile long
-	if(  end  !=  start  ) {
+	if(  end != start  ) {
 		pos = pos + zv;
 	}
 	// calc new back image for the ground
-	if (grund_t::underground_mode) {
+	if(grund_t::underground_mode) {
 		grund_t *gr = welt->lookup(pos.get_2d())->get_kartenboden();
 		gr->calc_bild();
 		gr->set_flag(grund_t::dirty);

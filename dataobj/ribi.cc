@@ -144,6 +144,26 @@ const int hang_t::flags[16] = {
 };
 
 
+const hang_t::typ hang_t::hang_from_ribi[16] = {
+	0,
+	hang_t::nord,
+	hang_t::ost,
+	0,
+	hang_t::sued,
+	0,
+	0,
+	0,
+	hang_t::west,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0
+};
+
+
 #else
 //double height grounds
 static const ribi_t::ribi from_hang[81] = {
@@ -436,4 +456,11 @@ hang_t::typ hang_typ(koord dir)
 		}
 	}
 	return hang_t::flach;	    // ???
+}
+
+
+
+hang_t::typ hang_typ(ribi_t::ribi r)
+{
+	return hang_t::hang_from_ribi[r];
 }

@@ -46,23 +46,37 @@
 		git fetch <repository> (or use GitGui).
 */
 
-char *fgets_line(char *buffer, int max_len, FILE *file)
+//char *fgets_line(char *buffer, int max_len, FILE *file)
+//{
+//	char *result = fgets(buffer, max_len, file);
+//	int len = strlen(buffer);
+//	switch (len)
+//	{
+//	default:
+//		// Bernd Gabriel: accept both standard and windows line feeds.
+//		if (buffer[len - 2] == '\r')
+//		{
+//			buffer[len - 2] = '\0';
+//			break;
+//		}
+//	case 1:
+//		buffer[len - 1] = '\0';
+//	case 0:
+//		break;
+//	}
+//	return result;
+//}
+
+
+// allow all kinds of line feeds
+static char *fgets_line(char *buffer, int max_len, FILE *file)
 {
 	char *result = fgets(buffer, max_len, file);
-	int len = strlen(buffer);
-	switch (len)
-	{
-	default:
-		// Bernd Gabriel: accept both standard and windows line feeds.
-		if (buffer[len - 2] == '\r')
-		{
-			buffer[len - 2] = '\0';
-			break;
-		}
-	case 1:
-		buffer[len - 1] = '\0';
-	case 0:
-		break;
+	size_t len = strlen(buffer);
+	// remove all trailing junk
+	while(  len>1  &&  (buffer[len-1]==13  ||  buffer[len-1]==10)  ) {
+		buffer[len-1] = 0;
+		len--;
 	}
 	return result;
 }
@@ -281,7 +295,7 @@ static void init_city_names(bool is_utf_language)
 	if (namen_liste.empty()) {
 		DBG_MESSAGE("translator::init_city_names", "reading failed, creating random names.");
 		// Hajo: try to read list failed, create random names
-		for(  uint i = 0;  i < 16;  i++  ) {
+		for(  uint i = 0;  i < 64;  i++  ) {
 			char name[32];
 			sprintf( name, "%%%X_CITY_SYLL", i );
 			const char* s1 = translator::translate(name);
@@ -291,7 +305,7 @@ static void init_city_names(bool is_utf_language)
 			}
 			// now add all second name extensions ...
 			const size_t l1 = strlen(s1);
-			for(  uint j = 0;  j < 16;  j++  ) {
+			for(  uint j = 0;  j < 64;  j++  ) {
 
 				sprintf( name, "&%X_CITY_SYLL", j );
 				const char* s2 = translator::translate(name);
