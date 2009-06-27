@@ -2394,7 +2394,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		bd = wkz_intern_koord_to_weg_grund(sp==welt->get_spieler(1)?NULL:sp,welt,k,monorail_wt);
 	}
 
-	if(!bd  ||  bd->get_weg_hang()!=hang_t::flach  ||  bd->is_halt()) {
+	if(!bd  ||  bd->get_weg_hang()!=hang_t::flach) {
 		// only flat tiles, only one stop per map square
 		return p_error;
 	}
@@ -2528,6 +2528,21 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		layout &= (besch->get_all_layouts()-1);
 	}
 
+	const bool has_old_halt = bd->is_halt();
+	uint16 old_level = 0;
+
+	if( has_old_halt ) {
+		gebaeude_t* gb = bd->find<gebaeude_t>();
+		const haus_besch_t *old_besch = gb->get_tile()->get_besch();
+		old_level = old_besch->get_level();
+		if( old_besch->get_level() >= besch->get_level() ) {
+			return "Upgrade must have\na higher level";
+		}
+		else {
+			hausbauer_t::remove( welt, NULL, gb );
+		}
+	}
+
 	// seems everything ok, lets build
 	halthandle_t halt = suche_nahe_haltestelle(sp,welt,bd->get_pos());
 	bool neu = !halt.is_bound();
@@ -2543,7 +2558,10 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		halt->set_name( name );
 		free(name);
 	}
+
+	sint64 old_cost = old_level * cost;
 	cost *= besch->get_level()*besch->get_b()*besch->get_h();
+	cost -= old_cost/2;
 	if(sp!=halt->get_besitzer()) {
 		// public stops are expensive!
 		cost += ((welt->get_einstellungen()->maint_building*besch->get_level()*besch->get_b()*besch->get_h()*60)<<(welt->ticks_bits_per_tag-18));
