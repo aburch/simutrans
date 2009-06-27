@@ -43,6 +43,7 @@
 #include "besch/way_obj_besch.h"
 #include "besch/skin_besch.h"
 #include "besch/tunnel_besch.h"
+#include "besch/groundobj_besch.h"
 
 #include "vehicle/simvehikel.h"
 #include "vehicle/simverkehr.h"
@@ -55,6 +56,7 @@
 #include "dings/zeiger.h"
 #include "dings/bruecke.h"
 #include "dings/tunnel.h"
+#include "dings/groundobj.h"
 #include "dings/signal.h"
 #include "dings/crossing.h"
 #include "dings/roadsign.h"
@@ -848,13 +850,9 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			return "No suitable ground!";
 		}
 
-		// no slopes through the roof
-		if(gr1->ist_tunnel()  &&  new_slope<=ALL_UP_SLOPE  &&  (welt->lookup_kartenboden(pos.get_2d())->get_hoehe() <= pos.z+1)  ) {
-			return "Tile not empty.";
-		}
-
 		// finally: empty enough
-		if(  gr1->get_grund_hang()!=gr1->get_weg_hang()  ||  gr1->find<gebaeude_t>()  ||  gr1->get_halt().is_bound()  ||  gr1->kann_alle_obj_entfernen(sp)  ||  gr1->get_depot()  ||  gr1->get_leitung()  ||  gr1->get_weg(air_wt)  ) {
+		if(  gr1->get_grund_hang()!=gr1->get_weg_hang()  ||  gr1->get_halt().is_bound()  ||  gr1->kann_alle_obj_entfernen(sp)  ||
+			gr1->find<gebaeude_t>()  ||  gr1->get_depot()  ||  gr1->get_leitung()  ||  gr1->get_weg(air_wt)  ||  gr1->find<label_t>()  ) {
 			return "Tile not empty.";
 		}
 
@@ -954,13 +952,13 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		else if(  pos.z<gr1->get_pos().z  ) {
 			if(  welt->lookup(pos)  ) {
 				// here is already a ground
-				return "Tile not empty.";
+				return "Maximum tile height difference reached.";
 			}
 			// the ground below must be either flat or have the same slope, else bad stuff may happen
 			grund_t *gr2 = welt->lookup(pos-koord3d(0,0,Z_TILE_STEP));
 			if(  gr2  &&  gr2->get_weg_hang()!=slope_this  &&  gr2->get_weg_hang()!=hang_t::flach  ) {
 				// could lead to crossconnected ways => forbidden
-				return "Tile not empty.";
+				return "Maximum tile height difference reached.";
 			}
 		}
 		// just flatten this tile
@@ -969,7 +967,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			grund_t *gr2 = welt->lookup(pos-koord3d(0,0,Z_TILE_STEP));
 			if(  gr2  &&  gr2->get_weg_hang()!=slope_this  &&  gr2->get_weg_hang()!=hang_t::flach  ) {
 				// could lead to crossconnected ways => forbidden
-				return "Tile not empty.";
+				return "Maximum tile height difference reached.";
 			}
 		}
 
@@ -1061,6 +1059,14 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			}
 
 			if(  gr1->ist_karten_boden()  ) {
+				// no lakes on slopes ...
+				if(  slope_this!=hang_t::flach  ) {
+					groundobj_t *d = gr1->find<groundobj_t>();
+					if(  d  &&  d->get_besch()->get_phases()==1  ) {
+						d->entferne(sp);
+						delete d;
+					}
+				}
 				// recalc slope walls on neightbours
 				for(int y=-1; y<=1; y++) {
 					for(int x=-1; x<=1; x++) {
