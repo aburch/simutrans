@@ -362,9 +362,8 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 		return false;
 	}
 
-	// check
-	// .. something to remove from here ...
-	if(gr->get_top()==0  || (! spieler_t::check_owner( sp, gr->obj_bei(0)->get_besitzer())) ) {
+	// check if there is something to remove from here ...
+	if(gr->get_top()==0  ) {
 		return false;
 	}
 
@@ -381,7 +380,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 
 	// citycar? (we allow always)
 	stadtauto_t* citycar = gr->find<stadtauto_t>();
-	if (citycar) {
+	if(citycar) {
 		delete citycar;
 		return true;
 	}
@@ -395,7 +394,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 
 	// prissi: check powerline (can cross ground of another player)
 	leitung_t* lt = gr->get_leitung();
-	if(lt!=NULL  &&  lt->get_besitzer()==sp) {
+	if(lt!=NULL  &&  spieler_t::check_owner(lt->get_besitzer(),sp)) {
 		bool is_leitungsbruecke = false;
 		if(gr->ist_bruecke()  &&  gr->ist_karten_boden()) {
 			bruecke_t* br = gr->find<bruecke_t>();
@@ -486,38 +485,39 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 
 	// since buildings can have more than one tile, we must handle them together
 	gebaeude_t* gb = gr->find<gebaeude_t>();
-	if (gb != NULL) {
-		const spieler_t* owner = gb->get_besitzer();
-		if (owner == sp || owner == NULL  ||  sp==welt->get_spieler(1)) {
-			if(!gb->get_tile()->get_besch()->can_rotate()  &&  welt->cannot_save()) {
-				msg = "Not possible in this rotation!";
-				return false;
-			}
-			DBG_MESSAGE("wkz_remover()",  "removing building" );
-			const haus_tile_besch_t *tile  = gb->get_tile();
-			koord size = tile->get_besch()->get_groesse( tile->get_layout() );
+	if(gb != NULL) {
+		msg = gb->ist_entfernbar(sp);
+		if(msg) {
+			return false;
+		}
+		if(!gb->get_tile()->get_besch()->can_rotate()  &&  welt->cannot_save()) {
+			msg = "Not possible in this rotation!";
+			return false;
+		}
+		DBG_MESSAGE("wkz_remover()",  "removing building" );
+		const haus_tile_besch_t *tile  = gb->get_tile();
+		koord size = tile->get_besch()->get_groesse( tile->get_layout() );
 
-			// get startpos
-			koord k=tile->get_offset();
-			if(k != koord(0,0)) {
-				return wkz_remover_intern(sp, welt, pos-k, msg);
+		// get startpos
+		koord k=tile->get_offset();
+		if(k != koord(0,0)) {
+			return wkz_remover_intern(sp, welt, pos-k, msg);
+		}
+		else {
+			// remove town? (when removing townhall)
+			if(gb->ist_rathaus()) {
+				stadt_t *stadt = welt->suche_naechste_stadt(pos.get_2d());
+				if(!welt->rem_stadt( stadt )) {
+					msg = "Das Feld gehoert\neinem anderen Spieler\n";
+					return false;
+				}
 			}
 			else {
-				// remove town? (when removing townhall)
-				if(gb->ist_rathaus()) {
-					stadt_t *stadt = welt->suche_naechste_stadt(pos.get_2d());
-					if(!welt->rem_stadt( stadt )) {
-						msg = "Das Feld gehoert\neinem anderen Spieler\n";
-						return false;
-					}
-				}
-				else {
-					// townhall is also removed during town removal
-					hausbauer_t::remove( welt, sp, gb );
-				}
+				// townhall is also removed during town removal
+				hausbauer_t::remove( welt, sp, gb );
 			}
-			return true;
 		}
+		return true;
 	}
 
 	// there is a powerline above this tile, but we do not own it
