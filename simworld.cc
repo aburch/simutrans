@@ -2517,6 +2517,13 @@ void karte_t::neuer_monat()
 		weg_iter.get_current()->neuer_monat();
 	}
 
+//	DBG_MESSAGE("karte_t::neuer_monat()","depots");
+	// Bernd Gabriel - call new month for depots
+	slist_iterator_tpl <depot_t *> depot_iter(depot_t::get_depot_list());
+	while( depot_iter.next() ) {
+		depot_iter.get_current()->neuer_monat();
+	}
+
 	// recalc old settings (and maybe update the staops with the current values)
 	reliefkarte_t::get_karte()->neuer_monat();
 
