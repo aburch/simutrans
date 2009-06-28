@@ -1062,7 +1062,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				// no lakes on slopes ...
 				if(  slope_this!=hang_t::flach  ) {
 					groundobj_t *d = gr1->find<groundobj_t>();
-					if(  d  &&  d->get_besch()->get_phases()==1  ) {
+					if(  d  &&  d->get_besch()->get_phases()!=16  ) {
 						d->entferne(sp);
 						delete d;
 					}
