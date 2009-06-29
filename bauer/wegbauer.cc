@@ -1321,11 +1321,9 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 				ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp();
 				// if we have a slope, we must adjust height correspondingly
 				if(  bd_von->get_weg_hang()!=hang_t::flach  ) {
-					if(  ribi_typ(bd_von->get_weg_hang())==ribi_t::rueckwaerts(ribi_typ(diff)) && (pos==start || pos.z==bd_von->get_vmove(-diff)) ) {
-						pos.z = bd_von->get_vmove(diff);
-					}
-					else {
-						ok = false;
+					if(  ribi_typ(bd_von->get_weg_hang())==ribi_typ(diff)  ) {
+						// upwards
+						pos.z += Z_TILE_STEP;
 					}
 				}
 			}
