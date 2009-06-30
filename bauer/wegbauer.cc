@@ -421,8 +421,8 @@ bool wegbauer_t::check_slope( const grund_t *from, const grund_t *to )
 // allowed owner?
 bool wegbauer_t::check_owner( const spieler_t *sp1, const spieler_t *sp2 ) const
 {
-	// unowned, mine or public property?
-	return sp1==NULL  ||  sp1==sp2  ||  sp1==welt->get_spieler(1);
+	// unowned, mine or public property or superuser ... ?
+	return sp1==NULL  ||  sp1==sp2  ||  sp1==welt->get_spieler(1)  ||  sp2==welt->get_spieler(1);
 }
 
 
@@ -1351,7 +1351,7 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 			if(  ok  &&  pos.get_2d()+diff==ziel.get_2d()  ) {
 				grund_t *bd_von = welt->lookup(koord3d(ziel.get_2d(),pos.z));
 				if(  bd_von  ) {
-					ok = bd_von->get_typ()==grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype()==besch->get_wtyp();
+					ok = bd_von->get_typ()==grund_t::tunnelboden  &&  bd_von->hat_weg((waytype_t)(bautyp&(~wegbauer_t::tunnel_flag)))  &&  spieler_t::check_owner(bd_von->get_weg((waytype_t)(bautyp&(~wegbauer_t::tunnel_flag)))->get_besitzer(),sp);
 					// slope present?
 					ok = ok && (bd_von->get_vmove(-diff)==pos.z);
 				}
@@ -1365,10 +1365,10 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 				}
 				// at least tunnel not in the sea
 				const grund_t *gr = welt->lookup(pos.get_2d()+diff)->get_kartenboden();
-				ok = ok  &&  (!gr->ist_wasser()  ||  min( welt->lookup_hgt(pos.get_2d()+diff), welt->get_grundwasser() ) > pos.z);
-				ok = bd_von->get_typ()==grund_t::tunnelboden  &&  bd_von->hat_weg((waytype_t)(bautyp&(~wegbauer_t::tunnel_flag)))  &&  spieler_t::check_owner(bd_von->get_weg((waytype_t)(bautyp&(~wegbauer_t::tunnel_flag)))->get_besitzer(),sp);
+				ok &= ok  &&  (!gr->ist_wasser()  ||  min( welt->lookup_hgt(pos.get_2d()+diff), welt->get_grundwasser() ) > pos.z);
 				// check for slope down ...
 				bd_von = welt->lookup(pos+diff+koord3d(0,0,-Z_TILE_STEP));
+				ok &= bd_von==NULL  ||  (bd_von->get_typ()==grund_t::tunnelboden  &&  bd_von->hat_weg((waytype_t)(bautyp&(~wegbauer_t::tunnel_flag)))  &&  spieler_t::check_owner(bd_von->get_weg((waytype_t)(bautyp&(~wegbauer_t::tunnel_flag)))->get_besitzer(),sp));
 				if(ok &&  bd_von  &&  bd_von->get_weg_hang()!=hang_t::flach) {
 					ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp()  &&  ribi_typ(bd_von->get_weg_hang())==ribi_t::rueckwaerts(ribi_typ(diff));
 					if (ok) { // adjust height again

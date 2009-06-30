@@ -1617,7 +1617,7 @@ const char *wkz_tunnelbau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 	if(start==koord3d::invalid) {
 		gr = welt->lookup(pos);
 		if (gr && gr->is_visible() && gr->hat_wege() ) {
-			if(!spieler_t::check_owner( sp, gr->obj_bei(0)->get_besitzer())) {
+			if(!spieler_t::check_owner( gr->obj_bei(0)->get_besitzer(), sp )) {
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
 			if(gr==NULL) {
