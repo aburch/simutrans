@@ -1316,9 +1316,10 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 			const grund_t *gr = welt->lookup(pos.get_2d())->get_kartenboden();
 			ok = ok && (!gr->ist_wasser()  ||  min( welt->lookup_hgt(pos.get_2d()), welt->get_grundwasser() ) > pos.z);
 #endif
+			bool must_be_straight = false;
 			grund_t *bd_von = welt->lookup(pos);
 			if(  bd_von  ) {
-				ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp();
+				ok = bd_von->get_typ()==grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp()  &&  bd->get_weg;
 				// if we have a slope, we must adjust height correspondingly
 				if(  bd_von->get_weg_hang()!=hang_t::flach  ) {
 					if(  ribi_typ(bd_von->get_weg_hang())==ribi_typ(diff)  ) {
@@ -1329,17 +1330,17 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 			}
 			else {
 				// check for slope down ...
-				bd_von = welt->lookup(pos+koord3d(0,0,-1));
+				bd_von = welt->lookup(pos+koord3d(0,0,-Z_TILE_STEP));
 				if(  bd_von  &&  bd_von->get_weg_hang()!=hang_t::flach) {
-					ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp()  &&  ribi_typ(bd_von->get_weg_hang())==ribi_t::rueckwaerts(ribi_typ(diff));
+					ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->hat_weg((waytype_t)(bautyp&(~wegbauer_t::tunnel_flag)))  &&  spieler_t::check_owner(bd_von->hat_weg((waytype_t)(bautyp&(~wegbauer_t::tunnel_flag)))->get_besitzer(),sp)  &&  ribi_typ(bd_von->get_weg_hang())==ribi_t::rueckwaerts(ribi_typ(diff));
 					if(  ok  ) {
 						route[route.get_count()-1].z -= 1;
-						pos.z -= 1;
+						pos.z -= Z_TILE_STEP;
 					}
 				}
 			}
 			// check for halt or crossing ...
-			if(ok  &&  bd_von  &&  (bd_von->is_halt()  ||  bd_von->has_two_ways())) {
+			if(ok  &&  bd_von  &&  (bd_von->is_halt()  ||  bd_von->has_two_ways()  ||  (bd_von->hat_wege()  &&  bd_von->get_grund_hang()!=hang_t::flach)  )  ) {
 				// then only single dir is ok ...
 				ribi_t::ribi haltribi = bd_von->get_weg_ribi_unmasked( (waytype_t)(bautyp&(~wegbauer_t::tunnel_flag)) );
 				haltribi = ribi_t::doppelt(haltribi);
@@ -1350,12 +1351,12 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 			if(  ok  &&  pos.get_2d()+diff==ziel.get_2d()  ) {
 				grund_t *bd_von = welt->lookup(koord3d(ziel.get_2d(),pos.z));
 				if(  bd_von  ) {
-					ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp();
+					ok = bd_von->get_typ()==grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype()==besch->get_wtyp();
 					// slope present?
 					ok = ok && (bd_von->get_vmove(-diff)==pos.z);
 				}
 				// check for halt or crossing ...
-				if(ok  &&  bd_von  &&  (bd_von->is_halt()  ||  bd_von->has_two_ways())) {
+				if(ok  &&  bd_von  &&  (bd_von->is_halt()  ||  bd_von->has_two_ways()  ||  (bd_von->hat_wege()  &&  bd_von->get_grund_hang()!=hang_t::flach)  )  ) {
 					// then only single dir is ok ...
 					ribi_t::ribi haltribi = bd_von->get_weg_ribi_unmasked( (waytype_t)(bautyp&(~wegbauer_t::tunnel_flag)) );
 					haltribi = ribi_t::doppelt(haltribi);
@@ -1364,14 +1365,13 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 				}
 				// at least tunnel not in the sea
 				const grund_t *gr = welt->lookup(pos.get_2d()+diff)->get_kartenboden();
-				ok = ok && (!gr->ist_wasser()  ||  min( welt->lookup_hgt(pos.get_2d()+diff), welt->get_grundwasser() ) > pos.z);
-
+				ok = ok  &&  (!gr->ist_wasser()  ||  min( welt->lookup_hgt(pos.get_2d()+diff), welt->get_grundwasser() ) > pos.z);
 				// check for slope down ...
-				bd_von = welt->lookup(pos+diff+koord3d(0,0,-1));
+				bd_von = welt->lookup(pos+diff+koord3d(0,0,-Z_TILE_STEP));
 				if(ok &&  bd_von  &&  bd_von->get_weg_hang()!=hang_t::flach) {
 					ok = bd_von->get_typ() == grund_t::tunnelboden  &&  bd_von->get_weg_nr(0)->get_waytype() == besch->get_wtyp()  &&  ribi_typ(bd_von->get_weg_hang())==ribi_t::rueckwaerts(ribi_typ(diff));
 					if (ok) { // adjust height again
-						pos.z += -1;
+						pos.z -= Z_TILE_STEP;
 					}
 				}
 			}
