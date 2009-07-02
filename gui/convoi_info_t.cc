@@ -231,8 +231,8 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		destroy_win(dynamic_cast <gui_fenster_t *> (this));
 	}
 	else {
-		// Bernd Gabriel, 16.06.2009: show convoi name in status color
-		input.set_color(cnv->get_status_color());
+		// Bernd Gabriel, 01.07.2009: show some colored texts and indicator
+		input.set_color(cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : COL_BLACK);
 
 		if(cnv->get_besitzer()==cnv->get_welt()->get_active_player()) {
 			if(  line_bound  &&  !cnv->get_line().is_bound()  ) {
@@ -292,63 +292,115 @@ enable_home:
 
 		PUSH_CLIP(pos.x+1,pos.y+16,gr.x-2,gr.y-16);
 
+		//indicator
+		{
+			const int pos_x = pos.x + view.get_pos().x;
+			const int pos_y = pos.y + view.get_pos().y + 64 + 10;
+
+			COLOR_VAL color = COL_BLACK;
+			switch (cnv->get_state())
+			{
+			case convoi_t::INITIAL: 
+				color = COL_WHITE; 
+				break;
+			case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
+			case convoi_t::CAN_START_ONE_MONTH:
+				color = COL_ORANGE; 
+				break;
+				
+			default:
+				if (cnv->hat_keine_route()) 
+					color = COL_ORANGE;
+			}
+			display_ddd_box_clip(pos_x, pos_y, 64, 8, MN_GREY0, MN_GREY4);
+			display_fillbox_wh_clip(pos_x + 1, pos_y + 1, 62, 6, color, true);
+		}
+
+
 		// convoi information
-		char tmp[256];
 		static cbuffer_t info_buf(256);
-		convoy_metrics_t metrics(*cnv.get_rep());
+		const int pos_x = pos.x + 11;
+		const int pos_y0 = pos.y + 16 + 20;
+		const char *caption = translator::translate("%s:");
 
-		// use median speed to avoid flickering
-		uint32 min_speed = metrics.get_speed(cnv->get_sum_gesamtgewicht());
-		uint32 max_speed = metrics.get_speed(cnv->get_sum_gewicht());
-		mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed()*4);
-		mean_convoi_speed /= 2;
-		//sprintf(tmp,translator::translate("%i km/h (max. %ikm/h)"), (mean_convoi_speed+3)/4, speed_to_kmh(cnv->get_min_top_speed()) );
-		sprintf(tmp,  translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"), 
-			(mean_convoi_speed+3)/4, min_speed, translator::translate("..."), max_speed );
-		display_proportional( pos.x+11, pos.y+16+20, tmp, ALIGN_LEFT, COL_BLACK, true );
+		//use median speed to avoid flickering
+		{
+			const int pos_y = pos_y0; // line 1
+			char tmp[256];
+			convoy_metrics_t metrics(*cnv.get_rep());
+			uint32 min_speed = metrics.get_speed(cnv->get_sum_gesamtgewicht());
+			uint32 max_speed = metrics.get_speed(cnv->get_sum_gewicht());
+			mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed()*4);
+			mean_convoi_speed /= 2;
+			//sprintf(tmp,translator::translate("%i km/h (max. %ikm/h)"), (mean_convoi_speed+3)/4, speed_to_kmh(cnv->get_min_top_speed()) );
+			sprintf(tmp, translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"), 
+				(mean_convoi_speed+3)/4, min_speed, translator::translate("..."), max_speed );
+			display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
+		}
 
-		// next important: income stuff
-		int len = display_proportional(pos.x + 11, pos.y + 16 + 20 + 1 * LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true ) + 5;
-		money_to_string( tmp, cnv->get_jahresgewinn()/100.0 );
-		len += display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, cnv->get_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true )+5;
-		// Bernd Gabriel, 17.06.2009: add fixed maintenance info
-		uint32 fixed_monthly = cnv->get_fixed_maintenance();
-		if (fixed_monthly)
-			sprintf(tmp," (%1.2f$/km, %1.2f$/mon)", cnv->get_running_cost()/100.0, fixed_monthly/100.0 );
-		else
-			sprintf(tmp," (%1.2f$/km)", cnv->get_running_cost()/100.0 );
-		display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : COL_BLACK, true );
+		//next important: income stuff
+		{
+			const int pos_y = pos_y0 + LINESPACE; // line 2
+			char tmp[256];
+			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
+			sprintf(tmp, caption, translator::translate("Gewinn"));
+			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
+			money_to_string(tmp, cnv->get_jahresgewinn()/100.0 );
+			len += display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_jahresgewinn() > 0 ? MONEY_PLUS : MONEY_MINUS, true ) + 5;
+			// Bernd Gabriel, 17.06.2009: add fixed maintenance info
+			uint32 fixed_monthly = cnv->get_fixed_maintenance();
+			if (fixed_monthly)
+				sprintf(tmp, translator::translate("(%1.2f$/km, %1.2f$/mon)"), cnv->get_running_cost()/100.0, fixed_monthly/100.0 );
+			else
+				sprintf(tmp, translator::translate("(%1.2f$/km)"), cnv->get_running_cost()/100.0 );
+			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : COL_BLACK, true );
+		}
 
 		// the weight entry
-		info_buf.clear();
-		info_buf.append( translator::translate("Gewicht") );
-		info_buf.append( ": " );
-		info_buf.append( cnv->get_sum_gesamtgewicht() );
-		info_buf.append( " (" );
-		info_buf.append( cnv->get_sum_gesamtgewicht()-cnv->get_sum_gewicht() );
-		info_buf.append( ") t" );
-		display_proportional( pos.x+11, pos.y+16+20+2*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
+		{
+			const int pos_y = pos_y0 + 2 * LINESPACE; // line 3
+			char tmp[256];
+			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
+			sprintf(tmp, caption, translator::translate("Gewicht"));
+			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
+			int freight_weight = cnv->get_sum_gesamtgewicht() - cnv->get_sum_gewicht();
+			sprintf(tmp, translator::translate(freight_weight ? "%d (%d) t" : "%d t"), cnv->get_sum_gesamtgewicht(), freight_weight);
+			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, 
+				cnv->get_overcrowded() > 0 ? COL_DARK_PURPLE : // overcrowded
+				!cnv->get_finance_history(0, CONVOI_TRANSPORTED_GOODS) && !cnv->get_finance_history(1, CONVOI_TRANSPORTED_GOODS) ? COL_YELLOW : // nothing moved in this and past month
+				COL_BLACK, true );
+		}
 
-		// next stop
-		const schedule_t * fpl = cnv->get_schedule();
-		info_buf.clear();
-		info_buf.append(translator::translate("Fahrtziel"));
-		fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->get_welt(), cnv->get_besitzer(), fpl, fpl->get_aktuell(), 34);
-		len = display_proportional_clip( pos.x+11, pos.y+16+20+3*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
+		{
+			const int pos_y = pos_y0 + 3 * LINESPACE; // line 4
+			// next stop
+			char tmp[256];
+			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
+			sprintf(tmp, caption, translator::translate("Fahrtziel"));
+			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
+			info_buf.clear();
+			const schedule_t *fpl = cnv->get_schedule();
+			fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->get_welt(), cnv->get_besitzer(), fpl, fpl->get_aktuell(), 34);
+			len += display_proportional_clip(pos_x + len, pos_y, info_buf, ALIGN_LEFT, COL_BLACK, true ) + 5;
 
-		// convoi load indicator
-		const int offset = max( len, 167)+3;
-		route_bar.set_pos(koord(offset,22+3*LINESPACE));
-		route_bar.set_groesse(koord(view.get_pos().x-offset-5, 4));
+			// convoi load indicator
+			const int bar_x = max(11 + len, BUTTON3_X);
+			route_bar.set_pos(koord(bar_x, 22 + 3 * LINESPACE));
+			route_bar.set_groesse(koord(view.get_pos().x - bar_x - 5, 4));
+		}
 
 		/*
 		 * only show assigned line, if there is one!
 		 * @author hsiegeln
 		 */
 		if(  cnv->get_line().is_bound()  ) {
-			sint16 add_off = line_bound*12;
-			sint16 w = display_proportional( pos.x+11+add_off, pos.y+16+20+4*LINESPACE, translator::translate("Serves Line:"), ALIGN_LEFT, COL_BLACK, true );
-			display_proportional_clip( pos.x+11+w+5+add_off, pos.y+16+20+4*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
+			const int pos_y = pos_y0 + 4 * LINESPACE; // line 5
+			const int line_x = pos_x + line_bound * 12;
+			char tmp[256];
+			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
+			sprintf(tmp, caption, translator::translate("Serves Line"));
+			int len = display_proportional(line_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
+			display_proportional_clip(line_x + len, pos_y, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
 		}
 		POP_CLIP();
 	}
@@ -481,7 +533,7 @@ void convoi_info_t::resize(const koord delta)
 	input.set_groesse(koord(get_fenstergroesse().x-22, 13));
 
 	view.set_pos(koord(get_fenstergroesse().x - 64 - 12 , 21));
-	follow_button.set_pos(koord(view.get_pos().x-1,77));
+	follow_button.set_pos(koord(view.get_pos().x-1, 76+BUTTON_HEIGHT-1));
 
 	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
 
@@ -492,10 +544,10 @@ void convoi_info_t::resize(const koord delta)
 	sort_label.set_pos(koord(BUTTON1_X,yoff-LINESPACE));
 
 	// convoi speed indicator
-	speed_bar.set_pos(koord(170,22+0*LINESPACE));
-	speed_bar.set_groesse(koord(view.get_pos().x - 175, 4));
+	speed_bar.set_pos(koord(BUTTON3_X,22+0*LINESPACE));
+	speed_bar.set_groesse(koord(view.get_pos().x - BUTTON3_X - 5, 4));
 
 	// convoi load indicator
-	filled_bar.set_pos(koord(170,22+2*LINESPACE));
-	filled_bar.set_groesse(koord(view.get_pos().x - 175, 4));
+	filled_bar.set_pos(koord(BUTTON3_X,22+2*LINESPACE));
+	filled_bar.set_groesse(koord(view.get_pos().x - BUTTON3_X - 5, 4));
 }
