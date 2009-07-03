@@ -193,10 +193,14 @@ static void zeige_banner(karte_t *welt)
 	do {
 		win_poll_event(&ev);
 		check_pos_win(&ev);
+		if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
+			umgebung_t::quit_simutrans = true;
+		}
 		INT_CHECK("simmain 189");
 		dr_sleep(10);
 		welt->step();
-	} while(win_is_top(b));
+	} while(win_is_top(b)  &&  !umgebung_t::quit_simutrans  );
+
 
 	if (IS_LEFTCLICK(&ev)) {
 		do {
@@ -850,7 +854,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	intr_set(welt, view);
 
-	do {
+	while (!umgebung_t::quit_simutrans) {
 		// play next tune?
 		check_midi();
 
@@ -876,6 +880,9 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 				win_poll_event(&ev);
 				INT_CHECK("simmain 805");
 				check_pos_win(&ev);
+				if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
+					umgebung_t::quit_simutrans = true;
+				}
 				INT_CHECK("simmain 807");
 				dr_sleep(5);
 			} while(
@@ -884,7 +891,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 				!wg->get_load_heightfield() &&
 				!wg->get_start() &&
 				!wg->get_close() &&
-				!wg->get_quit()
+				!wg->get_quit() &&
+				!umgebung_t::quit_simutrans
 			);
 
 			if (IS_LEFTCLICK(&ev)) {
@@ -935,7 +943,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 			}
 			else {
 				// quit the game
-				if (wg->get_quit()) {
+				if (wg->get_quit()  ||  umgebung_t::quit_simutrans  ) {
 					delete wg;
 					break;
 				}
@@ -958,7 +966,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		welt->get_message()->get_message_flags(&umgebung_t::message_flags[0], &umgebung_t::message_flags[1], &umgebung_t::message_flags[2], &umgebung_t::message_flags[3]);
 		welt->set_fast_forward(false);
 
-	} while (!umgebung_t::quit_simutrans);
+	}
 
 	intr_disable();
 

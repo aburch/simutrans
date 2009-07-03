@@ -43,6 +43,7 @@
 #include "besch/way_obj_besch.h"
 #include "besch/skin_besch.h"
 #include "besch/tunnel_besch.h"
+#include "besch/groundobj_besch.h"
 
 #include "vehicle/simvehikel.h"
 #include "vehicle/simverkehr.h"
@@ -56,6 +57,7 @@
 #include "dings/zeiger.h"
 #include "dings/bruecke.h"
 #include "dings/tunnel.h"
+#include "dings/groundobj.h"
 #include "dings/signal.h"
 #include "dings/crossing.h"
 #include "dings/roadsign.h"
@@ -366,9 +368,8 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 		return false;
 	}
 
-	// check
-	// .. something to remove from here ...
-	if(gr->get_top()==0  || (! spieler_t::check_owner( sp, gr->obj_bei(0)->get_besitzer())) ) {
+	// check if there is something to remove from here ...
+	if(gr->get_top()==0  ) {
 		return false;
 	}
 
@@ -385,7 +386,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 
 	// citycar? (we allow always)
 	stadtauto_t* citycar = gr->find<stadtauto_t>();
-	if (citycar) {
+	if(citycar) {
 		delete citycar;
 		return true;
 	}
@@ -399,7 +400,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 
 	// prissi: check powerline (can cross ground of another player)
 	leitung_t* lt = gr->get_leitung();
-	if(lt!=NULL  &&  lt->get_besitzer()==sp) {
+	if(lt!=NULL  &&  spieler_t::check_owner(lt->get_besitzer(),sp)) {
 		bool is_leitungsbruecke = false;
 		if(gr->ist_bruecke()  &&  gr->ist_karten_boden()) {
 			bruecke_t* br = gr->find<bruecke_t>();
@@ -503,38 +504,39 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 
 	// since buildings can have more than one tile, we must handle them together
 	gebaeude_t* gb = gr->find<gebaeude_t>();
-	if (gb != NULL) {
-		const spieler_t* owner = gb->get_besitzer();
-		if (owner == sp || owner == NULL  ||  sp==welt->get_spieler(1)) {
-			if(!gb->get_tile()->get_besch()->can_rotate()  &&  welt->cannot_save()) {
-				msg = "Not possible in this rotation!";
-				return false;
-			}
-			DBG_MESSAGE("wkz_remover()",  "removing building" );
-			const haus_tile_besch_t *tile  = gb->get_tile();
-			koord size = tile->get_besch()->get_groesse( tile->get_layout() );
+	if(gb != NULL) {
+		msg = gb->ist_entfernbar(sp);
+		if(msg) {
+			return false;
+		}
+		if(!gb->get_tile()->get_besch()->can_rotate()  &&  welt->cannot_save()) {
+			msg = "Not possible in this rotation!";
+			return false;
+		}
+		DBG_MESSAGE("wkz_remover()",  "removing building" );
+		const haus_tile_besch_t *tile  = gb->get_tile();
+		koord size = tile->get_besch()->get_groesse( tile->get_layout() );
 
-			// get startpos
-			koord k=tile->get_offset();
-			if(k != koord(0,0)) {
-				return wkz_remover_intern(sp, welt, pos-k, msg);
+		// get startpos
+		koord k=tile->get_offset();
+		if(k != koord(0,0)) {
+			return wkz_remover_intern(sp, welt, pos-k, msg);
+		}
+		else {
+			// remove town? (when removing townhall)
+			if(gb->ist_rathaus()) {
+				stadt_t *stadt = welt->suche_naechste_stadt(pos.get_2d());
+				if(!welt->rem_stadt( stadt )) {
+					msg = "Das Feld gehoert\neinem anderen Spieler\n";
+					return false;
+				}
 			}
 			else {
-				// remove town? (when removing townhall)
-				if(gb->ist_rathaus()) {
-					stadt_t *stadt = welt->suche_naechste_stadt(pos.get_2d());
-					if(!welt->rem_stadt( stadt )) {
-						msg = "Das Feld gehoert\neinem anderen Spieler\n";
-						return false;
-					}
-				}
-				else {
-					// townhall is also removed during town removal
-					hausbauer_t::remove( welt, sp, gb );
-				}
+				// townhall is also removed during town removal
+				hausbauer_t::remove( welt, sp, gb );
 			}
-			return true;
 		}
+		return true;
 	}
 
 	// there is a powerline above this tile, but we do not own it
@@ -879,13 +881,9 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			return "No suitable ground!";
 		}
 
-		// no slopes through the roof
-		if(gr1->ist_tunnel()  &&  new_slope<=ALL_UP_SLOPE  &&  (welt->lookup_kartenboden(pos.get_2d())->get_hoehe() <= pos.z+1)  ) {
-			return "Tile not empty.";
-		}
-
 		// finally: empty enough
-		if(  gr1->get_grund_hang()!=gr1->get_weg_hang()  ||  gr1->find<gebaeude_t>()  ||  gr1->get_halt().is_bound()  ||  gr1->kann_alle_obj_entfernen(sp)  ||  gr1->get_depot()  ||  gr1->get_leitung()  ||  gr1->get_weg(air_wt)  ) {
+		if(  gr1->get_grund_hang()!=gr1->get_weg_hang()  ||  gr1->get_halt().is_bound()  ||  gr1->kann_alle_obj_entfernen(sp)  ||
+			gr1->find<gebaeude_t>()  ||  gr1->get_depot()  ||  gr1->get_leitung()  ||  gr1->get_weg(air_wt)  ||  gr1->find<label_t>()  ) {
 			return "Tile not empty.";
 		}
 
@@ -985,13 +983,13 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		else if(  pos.z<gr1->get_pos().z  ) {
 			if(  welt->lookup(pos)  ) {
 				// here is already a ground
-				return "Tile not empty.";
+				return "Maximum tile height difference reached.";
 			}
 			// the ground below must be either flat or have the same slope, else bad stuff may happen
 			grund_t *gr2 = welt->lookup(pos-koord3d(0,0,Z_TILE_STEP));
 			if(  gr2  &&  gr2->get_weg_hang()!=slope_this  &&  gr2->get_weg_hang()!=hang_t::flach  ) {
 				// could lead to crossconnected ways => forbidden
-				return "Tile not empty.";
+				return "Maximum tile height difference reached.";
 			}
 		}
 		// just flatten this tile
@@ -1000,7 +998,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			grund_t *gr2 = welt->lookup(pos-koord3d(0,0,Z_TILE_STEP));
 			if(  gr2  &&  gr2->get_weg_hang()!=slope_this  &&  gr2->get_weg_hang()!=hang_t::flach  ) {
 				// could lead to crossconnected ways => forbidden
-				return "Tile not empty.";
+				return "Maximum tile height difference reached.";
 			}
 		}
 
@@ -1092,6 +1090,14 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			}
 
 			if(  gr1->ist_karten_boden()  ) {
+				// no lakes on slopes ...
+				if(  slope_this!=hang_t::flach  ) {
+					groundobj_t *d = gr1->find<groundobj_t>();
+					if(  d  &&  d->get_besch()->get_phases()!=16  ) {
+						d->entferne(sp);
+						delete d;
+					}
+				}
 				// recalc slope walls on neightbours
 				for(int y=-1; y<=1; y++) {
 					for(int x=-1; x<=1; x++) {
@@ -1698,7 +1704,7 @@ const char *wkz_tunnelbau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 	if(start==koord3d::invalid) {
 		gr = welt->lookup(pos);
 		if (gr && gr->is_visible() && gr->hat_wege() ) {
-			if(!spieler_t::check_owner( sp, gr->obj_bei(0)->get_besitzer())) {
+			if(!spieler_t::check_owner( gr->obj_bei(0)->get_besitzer(), sp )) {
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
 			if(gr==NULL) {
@@ -2498,7 +2504,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		bd = wkz_intern_koord_to_weg_grund(sp==welt->get_spieler(1)?NULL:sp,welt,k,monorail_wt);
 	}
 
-	if(!bd  ||  bd->get_weg_hang()!=hang_t::flach  ||  bd->is_halt()) {
+	if(!bd  ||  bd->get_weg_hang()!=hang_t::flach) {
 		// only flat tiles, only one stop per map square
 		return p_error;
 	}
@@ -2637,6 +2643,21 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		layout &= (besch->get_all_layouts()-1);
 	}
 
+	const bool has_old_halt = bd->is_halt();
+	uint16 old_level = 0;
+
+	if( has_old_halt ) {
+		gebaeude_t* gb = bd->find<gebaeude_t>();
+		const haus_besch_t *old_besch = gb->get_tile()->get_besch();
+		old_level = old_besch->get_level();
+		if( old_besch->get_level() >= besch->get_level() ) {
+			return "Upgrade must have\na higher level";
+		}
+		else {
+			hausbauer_t::remove( welt, NULL, gb );
+		}
+	}
+
 	// seems everything ok, lets build
 	halthandle_t halt = suche_nahe_haltestelle(sp,welt,bd->get_pos());
 	bool neu = !halt.is_bound();
@@ -2652,7 +2673,10 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		halt->set_name( name );
 		free(name);
 	}
+
+	sint64 old_cost = old_level * cost;
 	cost *= besch->get_level()*besch->get_b()*besch->get_h();
+	cost -= old_cost/2;
 	if(sp!=halt->get_besitzer()) {
 		// public stops are expensive!
 		cost += welt->calc_adjusted_monthly_figure(welt->get_einstellungen()->maint_building * besch->get_level() * besch->get_b() * besch->get_h() * 60);
