@@ -1127,11 +1127,11 @@ void haltestelle_t::reroute_goods()
 // Purpose		: re-route goods of a single ware category
 void haltestelle_t::reroute_goods(const uint8 catg)
 {
+	// Reset reroute[c] flag immediately
+	reroute[catg] = false;
+
 	if(waren[catg])
 	{
-		// Reset reroute[c] flag immediately
-		reroute[catg] = false;
-
 		vector_tpl<ware_t> * warray = waren[catg];
 		vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(warray->get_count());
 
