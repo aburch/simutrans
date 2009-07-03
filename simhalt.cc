@@ -15,6 +15,7 @@
 
 #include "freight_list_sorter.h"
 
+#include "path_explorer.h"
 #include "simcity.h"
 #include "simcolor.h"
 #include "simconvoi.h"
@@ -281,23 +282,47 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
 	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[max_categories];
-	paths = new quickstone_hashtable_tpl<haltestelle_t, path* >[max_categories];
-	connexions_timestamp = new uint16[max_categories];
+
+	// Modified by : Knightly
+	// Purpose	   : To withhold creation of pathing data structures if they are not needed
+	if (welt->get_einstellungen()->get_default_path_option() == 2)
+	{
+		paths = NULL;
+		open_list = NULL;
+
+		search_complete = NULL;
+		iterations = NULL;
+
+		has_pathing_data_structures = false;
+	}
+	else
+	{
+		paths = new quickstone_hashtable_tpl<haltestelle_t, path* >[max_categories];
+		open_list = new binary_heap_tpl<path_node*>[max_categories];
+
+		search_complete = new bool[max_categories];
+		iterations = new uint32[max_categories];
+		for(uint8 i = 0; i < max_categories; i ++)
+		{
+			search_complete[i] = false;
+			iterations[i] = 0;
+		}
+
+		has_pathing_data_structures = true;
+	}
+
 	paths_timestamp = new uint16[max_categories];
+	connexions_timestamp = new uint16[max_categories];
 	reschedule = new bool[max_categories];
 	reroute = new bool[max_categories];
-	open_list = new binary_heap_tpl<path_node*>[max_categories];
-	search_complete = new bool[max_categories];
-	iterations = new uint32[max_categories];
 	for(uint8 i = 0; i < max_categories; i ++)
 	{
 		paths_timestamp[i] = 0;
 		connexions_timestamp[i] = 0;
 		reschedule[i] = false;
 		reroute[i] = false;
-		search_complete[i] = false;
-		iterations[i] = 0;
 	}
+
 
 	status_color = COL_YELLOW;
 
@@ -343,8 +368,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
 	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[max_categories];
-	paths = new quickstone_hashtable_tpl<haltestelle_t, path* >[max_categories];
-	open_list = new binary_heap_tpl<path_node*>[max_categories];
 
 	pax_happy = 0;
 	pax_unhappy = 0;
@@ -357,21 +380,47 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	if(welt->ist_in_kartengrenzen(k)) {
 		welt->access(k)->set_halt(self);
 	}
-	connexions_timestamp = new uint16[max_categories];
+
+	// Modified by : Knightly
+	// Purpose	   : To withhold creation of pathing data structures if they are not needed
+	if (welt->get_einstellungen()->get_default_path_option() == 2)
+	{
+		paths = NULL;
+		open_list = NULL;
+
+		search_complete = NULL;
+		iterations = NULL;
+
+		has_pathing_data_structures = false;
+	}
+	else
+	{
+		paths = new quickstone_hashtable_tpl<haltestelle_t, path* >[max_categories];
+		open_list = new binary_heap_tpl<path_node*>[max_categories];
+
+		search_complete = new bool[max_categories];
+		iterations = new uint32[max_categories];
+		for(uint8 i = 0; i < max_categories; i ++)
+		{
+			search_complete[i] = false;
+			iterations[i] = 0;
+		}
+
+		has_pathing_data_structures = true;
+	}
+
 	paths_timestamp = new uint16[max_categories];
+	connexions_timestamp = new uint16[max_categories];
 	reschedule = new bool[max_categories];
 	reroute = new bool[max_categories];	
-	search_complete = new bool[max_categories];
-	iterations = new uint32[max_categories];
 	for(uint8 i = 0; i < max_categories; i ++)
 	{
 		paths_timestamp[i] = 0;
 		connexions_timestamp[i] = 0;
 		reschedule[i] = false;
 		reroute[i] = false;
-		search_complete[i] = false;
-		iterations[i] = 0;
 	}
+
 	check_waiting = 0;
 }
 
@@ -443,7 +492,9 @@ haltestelle_t::~haltestelle_t()
 
 	destroy_win((long)this);
 
-	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
+	const uint8 max_categories = warenbauer_t::get_max_catg_index();
+
+	for(uint8 i = 0; i < max_categories; i++) {
 		if(waren[i]) {
 			delete waren[i];
 			waren[i] = NULL;
@@ -451,27 +502,49 @@ haltestelle_t::~haltestelle_t()
 	}
 	free( waren );
 	
-	for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++)
+	for(uint8 i = 0; i < max_categories; i++)
 	{
-		flush_paths(i);
 		reset_connexions(i);
-		open_list[i].delete_all_node_objects();
 	}
 
-	delete[] paths;
 	delete[] connexions;
 	delete[] waiting_times;
+
+	// Modified by : Knightly
+	// Purpose	   : Check if pathing data structures are present first before doing the relevant clean-up
+	if (has_pathing_data_structures)
+	{
+		for(uint8 i = 0; i < max_categories; i++)
+		{
+			flush_paths(i);
+			open_list[i].delete_all_node_objects();
+		}
+
+		delete[] paths;
+		delete[] open_list;
+
+		delete[] search_complete;
+		delete[] iterations;
+	}
+
 	delete[] paths_timestamp;
 	delete[] connexions_timestamp;
 	delete[] reschedule;
 	delete[] reroute;
-	delete[] open_list;
-	delete[] search_complete;
-	delete[] iterations;
+
 
 	// routes may have changed without this station ...
 	verbinde_fabriken();
-	welt->set_schedule_counter();
+
+	// Modified by : Knightly
+	if (welt->get_einstellungen()->get_default_path_option() == 2)
+	{
+		path_explorer_t::refresh_all_categories(true);
+	}
+	else
+	{
+		welt->set_schedule_counter();
+	}
 }
 
 
@@ -826,44 +899,47 @@ void
 haltestelle_t::step()
 {
 //	DBG_MESSAGE("haltestelle_t::step()","%s (cnt %i)",get_name(),reroute_counter);
-	if(rebuilt_destination_counter != welt->get_schedule_counter()) 
-	{		
-		// Must recalculate all here, since this is non-specific.
-		for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i ++)
-		{
-			reschedule[i] = true;
-			reroute[i] = true;		// Added by : Knightly
-		}
-
-		// Relocated from rebuild_connexions() by Knightly
-		// Reason : Now rebuild_connexions() is performed only on demand, 
-		//			so it's safer to reset counter here right away
-		rebuilt_destination_counter = welt->get_schedule_counter();
-
-		// Note: setting reschedule to true here
-		// is inefficient, as it means that all halts
-		// will need to be recalculated. Where possible,
-		// it is best to set reschedule to true
-		// individually depending on which halts are
-		// affected by rescheduling. 
-	}
-	
-	/*
-	else 
+	if (welt->get_einstellungen()->get_default_path_option() != 2)
 	{
-		// all new connection updated => recalc routes
-		if(reroute_counter != welt->get_schedule_counter()) 
-		{
-			reroute_goods();
+		if(rebuilt_destination_counter != welt->get_schedule_counter()) 
+		{		
+			// Must recalculate all here, since this is non-specific.
+			for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i ++)
+			{
+				reschedule[i] = true;
+				reroute[i] = true;		// Added by : Knightly
+			}
 
-	//		DBG_MESSAGE("haltestelle_t::step()","rerouting goods at %s",get_name());
+			// Relocated from rebuild_connexions() by Knightly
+			// Reason : Now rebuild_connexions() is performed only on demand, 
+			//			so it's safer to reset counter here right away
+			rebuilt_destination_counter = welt->get_schedule_counter();
+
+			// Note: setting reschedule to true here
+			// is inefficient, as it means that all halts
+			// will need to be recalculated. Where possible,
+			// it is best to set reschedule to true
+			// individually depending on which halts are
+			// affected by rescheduling. 
 		}
+		
+		/*
+		else 
+		{
+			// all new connection updated => recalc routes
+			if(reroute_counter != welt->get_schedule_counter()) 
+			{
+				reroute_goods();
+
+		//		DBG_MESSAGE("haltestelle_t::step()","rerouting goods at %s",get_name());
+			}
+		}
+		*/
+		
+		// Knightly : Every step needs to invoke reroute_goods()
+		//			  Only goods categories scheduled for re-routing will actually be re-routed
+		reroute_goods();
 	}
-	*/
-	
-	// Knightly : Every step needs to invoke reroute_goods()
-	//			  Only goods categories scheduled for re-routing will actually be re-routed
-	reroute_goods();
 
 	recalc_status();
 	
@@ -960,6 +1036,15 @@ void haltestelle_t::neuer_monat()
 
 void haltestelle_t::reroute_goods()
 {
+	for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++) 
+	{
+		if (reroute[i])
+		{
+			reroute_goods(i);
+		}
+	}
+
+	/*
 	// reroute only on demand
 	
 	// reroute_counter = welt->get_schedule_counter();
@@ -1033,9 +1118,81 @@ void haltestelle_t::reroute_goods()
 
 	// likely the display must be updated after this
 	resort_freight_info = true;
+	*/
 }
 
 
+// Added by		: Knightly
+// Adapted from : reroute_goods()
+// Purpose		: re-route goods of a single ware category
+void haltestelle_t::reroute_goods(const uint8 catg)
+{
+	if(waren[catg])
+	{
+		// Reset reroute[c] flag immediately
+		reroute[catg] = false;
+
+		vector_tpl<ware_t> * warray = waren[catg];
+		vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(warray->get_count());
+
+		// Hajo:
+		// Step 1: re-route goods now and then to adapt to changes in
+		// world layout, remove all goods which destination was removed from the map
+		// prissi;
+		// also the empty entries of the array are cleared
+		for(int j = warray->get_count() - 1; j  >= 0; j--) 
+		{
+			ware_t & ware = (*warray)[j];
+
+			if(ware.menge == 0) 
+			{
+				continue;
+			}
+
+			// since also the factory halt list is added to the ground, we can use just this ...
+			if(welt->lookup(ware.get_zielpos())->is_connected(self)) 
+			{
+				// we are already there!
+				if(ware.is_freight()) 
+				{
+					liefere_an_fabrik(ware);
+				}
+				continue;
+			}
+
+			// check if this good can still reach its destination
+			
+			if(find_route(ware) == 65535)
+			{
+				// remove invalid destinations
+				continue;
+			}
+
+			// add to new array
+			new_warray->append( ware );
+		}	
+
+		INT_CHECK( "simhalt.cc 489" );
+
+		// delete, if nothing connects here
+		if (new_warray->empty()) 
+		{
+			if(connexions[catg].empty())
+			{
+				// no connections from here => delete
+				delete new_warray;
+				new_warray = NULL;
+			}
+		}
+
+		// replace the array
+		delete waren[catg];
+		waren[catg] = new_warray;
+
+		// likely the display must be updated after this
+		resort_freight_info = true;
+	}
+}
 
 
 /*
@@ -1107,6 +1264,7 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 								  const minivec_tpl<halthandle_t> &halt_list, const uint8 self_halt_idx)
 {
 	const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(category);
+	const bool instant_path_refresh = ( welt->get_einstellungen()->get_default_path_option() == 2 );
 
 	if(ware_type != warenbauer_t::nichts) 
 	{
@@ -1145,7 +1303,13 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 
 		halthandle_t current_halt;
 		halthandle_t previous_halt = halt_list[self_halt_idx];
-		uint32 journey_distance = 0;
+		// Modified by	: Knightly
+		// Purpose		: Calculating accumulated journey time instead of accumulated journey distance
+		//				  This is to ensure that, if A, B & C are on the same line, time[A,B] + time[B,C] == time[A,C]
+		//				  Previously, it is possible that time[A,B] + time[B,C] < time[A,C] due to truncation of decimal places
+		//				  This helps to avoid inappropriate transfers
+		// uint32 journey_distance = 0;
+		uint16 accumulated_journey_time = 0;
 		
 		// Start with the next halt from self halt, and iterate for (entry_count - 1) times, skipping the last self halt
 		for (uint8 i = 0,				current_halt_idx = (self_halt_idx + 1) % entry_count ; 
@@ -1172,7 +1336,7 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 			if (current_halt == self)
 			{
 				// reset journey distance
-				journey_distance = 0;
+				accumulated_journey_time = 0;
 				previous_halt = current_halt;
 				continue;
 			}
@@ -1185,28 +1349,50 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 			
 			// Check the average speed.
 			uint16 average_speed = 0;
-			if(line.is_bound())
+			// Check whether instant path refresh is on
+			if ( instant_path_refresh )
 			{
-				average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? line->get_finance_history(1, LINE_AVERAGE_SPEED) : line->get_finance_history(0, LINE_AVERAGE_SPEED);
-
-				if(average_speed == 0)
+				// Adapted by	: Knightly
+				// Purpose		: To make speed constant within the same month. Only the first month is affected.
+				//				  Ensures consistent journey time across different halts of the same line/schedule to avoid inappropriate transfer.
+				if ( line.is_bound() )
 				{
-					// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-					average_speed = speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) / 2;
+					average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? line->get_finance_history(1, LINE_AVERAGE_SPEED) : ( speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) / 2 );
+				}
+				else if( cnv.is_bound() )
+				{
+					average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : ( speed_to_kmh(cnv->get_min_top_speed()) / 2 );
 				}
 			}
-			else if(cnv.is_bound())
+			else
 			{
-				average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED);
-				if(average_speed == 0)
+				if(line.is_bound())
 				{
-					// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-					average_speed = speed_to_kmh(cnv->get_min_top_speed()) / 2;
+					average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? line->get_finance_history(1, LINE_AVERAGE_SPEED) : line->get_finance_history(0, LINE_AVERAGE_SPEED);
+
+					if(average_speed == 0)
+					{
+						// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
+						average_speed = speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) / 2;
+					}
+				}
+				else if(cnv.is_bound())
+				{
+					average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED);
+					
+					if(average_speed == 0)
+					{
+						// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
+						average_speed = speed_to_kmh(cnv->get_min_top_speed()) / 2;
+					}
 				}
 			}
 
-			// Calculate journey distance
-			journey_distance += accurate_distance(current_halt->get_basis_pos(), previous_halt->get_basis_pos());
+			// Calculate accumulated journey time
+			// Modified by : Knightly
+			// journey_distance += accurate_distance(current_halt->get_basis_pos(), previous_halt->get_basis_pos());
+			accumulated_journey_time += (((float)accurate_distance(current_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
+										/ (float)average_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 600);
 			previous_halt = current_halt;
 			
 			/*
@@ -1276,7 +1462,9 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 			*/
 
 			// Journey time in *tenths* of minutes.
-			new_connexion->journey_time = (((float)journey_distance / (float)average_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 600);
+			// Modified by : Knightly
+			// new_connexion->journey_time = (((float)journey_distance / (float)average_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 600);
+			new_connexion->journey_time = accumulated_journey_time;
 			new_connexion->best_convoy = cnv;
 			new_connexion->best_line = line;
 
@@ -1895,77 +2083,71 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 	// Path options: 
 	// 0 = skip		: no paths will be forced stale
 	// 1 = selective: refresh only paths of halts in the schedule
-	// 2 = thorough	: full refresh of all paths in all halts
+	// 2 = thorough	: full refresh of all paths of affected categories
 
 	halthandle_t tmp_halt;
 
 	if(sched && player)
 	{
-		// Iterate over each line item in the schedule for connexions reconstruction
-		const uint8 entry_count = sched->get_count();
 		const uint8 catg_count = categories.get_count();
 
-		if(welt == NULL)
+		if (path_option == 2)
 		{
-			welt = player->get_welt();
-		}
-
-		for (uint8 i = 0; i < entry_count; i++)
-		{
-			tmp_halt = get_halt(welt, sched->eintrag[i].pos, player);
-			
-			if(!tmp_halt.is_bound())
+			for (uint8 i = 0; i < catg_count; i++)
 			{
-				if(player == welt->get_spieler(1))
+				path_explorer_t::refresh_category(categories[i]);
+			}
+		}
+		else
+		{
+			// Iterate over each line item in the schedule for connexions reconstruction
+			const uint8 entry_count = sched->get_count();
+
+			if(welt == NULL)
+			{
+				welt = player->get_welt();
+			}
+
+			for (uint8 i = 0; i < entry_count; i++)
+			{
+				tmp_halt = get_halt(welt, sched->eintrag[i].pos, player);
+				
+				if(!tmp_halt.is_bound())
 				{
-					// Public halts can connect to all other halts, so try each.
-					uint8 x = 0;
-					spieler_t* sp =	welt->get_spieler(x);
-					while(sp != NULL && !tmp_halt.is_bound())
+					if(player == welt->get_spieler(1))
 					{
+						// Public halts can connect to all other halts, so try each.
+						uint8 x = 0;
+						spieler_t* sp =	welt->get_spieler(x);
+						while(sp != NULL && !tmp_halt.is_bound())
+						{
+							tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[i].pos, sp);
+							sp = welt->get_spieler(++x);
+						}	
+					}
+					else
+					{
+						// Try a public player halt (public player is #1; #0 is human player)
+						spieler_t* sp = welt->get_spieler(1);
 						tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[i].pos, sp);
-						sp = welt->get_spieler(++x);
-					}	
+					}
+				}
+
+				if(tmp_halt.is_bound())
+				{
+					for (uint8 j = 0; j < catg_count; j++)
+					{
+						tmp_halt->reschedule[categories[j]] = true;
+						if (path_option == 1)
+						{
+							tmp_halt->paths_timestamp[categories[j]] = 0;
+							tmp_halt->reroute[categories[j]] = true;
+						}
+					}
 				}
 				else
 				{
-					// Try a public player halt (public player is #1; #0 is human player)
-					spieler_t* sp = welt->get_spieler(1);
-					tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[i].pos, sp);
-				}
-			}
-
-			if(tmp_halt.is_bound())
-			{
-				for (uint8 j = 0; j < catg_count; j++)
-				{
-					tmp_halt->reschedule[categories[j]] = true;
-					if (path_option == 1)
-					{
-						tmp_halt->paths_timestamp[categories[j]] = 0;
-						tmp_halt->reroute[categories[j]] = true;
-					}
-				}
-			}
-			else
-			{
-				dbg->error("convoi_t::refresh_routing()", "Halt in schedule does not exist");
-			}
-		}
-
-		// If path_option == 1: do nothing.
-
-		if(path_option == 2)
-		{
-			slist_iterator_tpl<halthandle_t> iter (haltestelle_t::alle_haltestellen);
-			
-			while (iter.next())
-			{
-				tmp_halt = iter.get_current();
-				for (uint8 k = 0; k < catg_count; k++)
-				{
-					tmp_halt->paths_timestamp[categories[k]] = 0;
-					tmp_halt->reroute[categories[k]] = true;
+					dbg->error("convoi_t::refresh_routing()", "Halt in schedule does not exist");
 				}
 			}
 		}
@@ -1976,6 +2158,33 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 	}
 }
 
+void haltestelle_t::prepare_pathing_data_structures()
+{
+	slist_iterator_tpl<halthandle_t> iter(alle_haltestellen);
+	const uint8 max_categories = warenbauer_t::get_max_catg_index();
+	halthandle_t current_halt;
+
+	while (iter.next())
+	{
+		current_halt = iter.get_current();
+
+		if (!current_halt->has_pathing_data_structures)
+		{
+			current_halt->paths = new quickstone_hashtable_tpl<haltestelle_t, path* >[max_categories];
+			current_halt->open_list = new binary_heap_tpl<path_node*>[max_categories];
+
+			current_halt->search_complete = new bool[max_categories];
+			current_halt->iterations = new uint32[max_categories];
+			for(uint8 i = 0; i < max_categories; i++)
+			{
+				current_halt->search_complete[i] = false;
+				current_halt->iterations[i] = 0;
+			}
+
+			current_halt->has_pathing_data_structures = true;
+		}
+	}
+}
 
 minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 {
@@ -2026,32 +2235,68 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 		return 65535;
 	}
 
-	sint16 best_destination = -1;
 
 	// Now, find the best route from here.
-	ITERATE_PTR(ziel_list,i)
+	if ( welt->get_einstellungen()->get_default_path_option() == 2)
 	{
-		path* test_path = get_path_to(ziel_list->get_element(i), ware.get_besch()->get_catg_index());
-		if(test_path != NULL && test_path->journey_time < journey_time && test_path->halt.is_bound())
+		// Added by		: Knightly
+		// Adapted from : James' code
+
+		uint16 test_time;
+		halthandle_t test_transfer;
+
+		halthandle_t best_destination;
+		halthandle_t best_transfer;
+
+		const uint8 ware_catg = ware.get_besch()->get_catg_index();
+
+		for (uint8 i = 0; i < ziel_list->get_count(); i++)
 		{
-			journey_time = test_path->journey_time;
-			best_destination = i;
+			path_explorer_t::get_catg_path_between(ware_catg, self, (*ziel_list)[i], test_time, test_transfer);
+
+			if( test_time < journey_time && test_transfer.is_bound() )
+			{
+				best_destination = (*ziel_list)[i];
+				journey_time = test_time;
+				best_transfer = test_transfer;
+			}
+		}
+		
+		if( journey_time < previous_journey_time )
+		{
+			ware.set_ziel(best_destination);
+			ware.set_zwischenziel(best_transfer);
+			return journey_time;
 		}
 	}
-	
-	if(journey_time < previous_journey_time && best_destination >= 0)
+	else
 	{
-		// If we are comparing this with other routes from different start halts,
-		// only set the details if it is the best route so far.
-		ware.set_ziel(ziel_list->get_element(best_destination));
-		path* final_path = get_path_to(ziel_list->get_element(best_destination), ware.get_besch()->get_catg_index());
-		if(final_path != NULL && final_path->halt.is_bound())
+		sint16 best_destination = -1;
+
+		ITERATE_PTR(ziel_list,i)
 		{
-			ware.set_zwischenziel(final_path->halt);
-			return final_path->journey_time;
+			path* test_path = get_path_to(ziel_list->get_element(i), ware.get_besch()->get_catg_index());
+			if(test_path != NULL && test_path->journey_time < journey_time && test_path->halt.is_bound())
+			{
+				journey_time = test_path->journey_time;
+				best_destination = i;
+			}
 		}
-		// If the next transfer is not bound, something has gone wrong.
-		return 65535;
+		
+		if(journey_time < previous_journey_time && best_destination >= 0)
+		{
+			// If we are comparing this with other routes from different start halts,
+			// only set the details if it is the best route so far.
+			ware.set_ziel(ziel_list->get_element(best_destination));
+			path* final_path = get_path_to(ziel_list->get_element(best_destination), ware.get_besch()->get_catg_index());
+			if(final_path != NULL && final_path->halt.is_bound())
+			{
+				ware.set_zwischenziel(final_path->halt);
+				return final_path->journey_time;
+			}
+			// If the next transfer is not bound, something has gone wrong.
+			return 65535;
+		}
 	}
 	
 	return journey_time;

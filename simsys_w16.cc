@@ -715,7 +715,25 @@ void ex_ord_update_mx_my()
 
 unsigned long dr_time(void)
 {
-	return timeGetTime();
+	// Knightly : the precision of timeGetTime() is rather low, so we use a more precise counter wherever possible
+	// declare and initialize once
+	static LARGE_INTEGER t;		// for storing current time in counts
+	static LARGE_INTEGER f;		// for storing performance counter frequency, which is fixed when system is running
+	static const bool support_performance_counter = ( QueryPerformanceFrequency(&f) != 0 );
+	static const LONGLONG counts_per_ms = (f.QuadPart + 500) / 1000;
+		
+	if (support_performance_counter)
+	{
+		QueryPerformanceCounter(&t);
+		// This formula is not 100% accurate, but the discrepancy should be small,
+		// given that the frequency of performance counter is rather large
+		return (unsigned long) (t.QuadPart / counts_per_ms);
+	}
+	else
+	{
+		// Old behaviour
+		return timeGetTime();
+	}
 }
 
 

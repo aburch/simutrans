@@ -422,6 +422,10 @@ public:
 	*/
 	void reroute_goods();
 
+	// Added by : Knightly
+	// Purpose	: Re-routing goods of a single ware category
+	void reroute_goods(uint8 catg);
+
 	/**
 	 * getter/setter for sortby
 	 * @author hsiegeln
@@ -807,6 +811,14 @@ public:
 	// Return		: -1 if self halt is not found; or position of self halt in halt list if found
 	// Caution		: halt_list will be overwritten
 	sint16 create_reachable_halt_list(const schedule_t *const sched, const spieler_t *const sched_owner, minivec_tpl<halthandle_t> &halt_list);
+
+	// Added by : Knightly
+	// Purpose	: To keep track if pathing data structures are present or not
+	bool has_pathing_data_structures;
+
+	// Added by : Knightly
+	// Purpose	: For all halts, check if pathing data structures are present; if not, create and initialize them
+	static void prepare_pathing_data_structures();
 
 };
 #endif

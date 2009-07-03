@@ -9,6 +9,8 @@
 
 #include "colors.h"
 
+#include "../path_explorer.h"
+#include "../simhalt.h"
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "../simimg.h"
@@ -61,9 +63,14 @@
 
 #define SEPERATE5						(22*13+6+4*4)
 
-#define INSTANT_REFRESH_ROUTES			(22*13+6+4*4)
+#define INSTANT_REFRESH_ROUTES			(22*13+6+5*4)
+#define PHASE_SORT_ELIGIBLE				(23*13+6+5*4)
+#define PHASE_FILL_MATRIX				(24*13+6+5*4)
+#define PHASE_PATH_EXPLORE				(25*13+6+5*4)
+#define PHASE_WARE_REROUTE				(26*13+6+5*4)
+#define PATH_EXPLORE_STATUS				(27*13+6+5*4)
 
-#define BOTTOM							(23*13+6+12+5*4)
+#define BOTTOM							(28*13+6+12+6*4)
 
 
 // x coordinates
@@ -287,11 +294,13 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		{
 			welt->get_einstellungen()->set_default_path_option(2);
 			buttons[20].pressed = true;
+			path_explorer_t::full_instant_refresh();
 		}
 		else
 		{
 			welt->get_einstellungen()->set_default_path_option(1);
 			buttons[20].pressed = false;
+			haltestelle_t::prepare_pathing_data_structures();
 		}
 		
 	}
@@ -367,4 +376,34 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	len = 15+display_proportional_clip(x+10, y+LOOP_DATA, translator::translate("Sim:"), ALIGN_LEFT, COL_BLACK, true);
 	sprintf( buf, "%d%c%d", loops/10, get_fraction_sep(), loops%10 );
 	display_proportional_clip(x+len, y+LOOP_DATA, buf, ALIGN_LEFT, farbe, true);
+
+	// Added by : Knightly
+	PLAYER_COLOR_VAL text_colour, figure_colour;
+	if ( welt->get_einstellungen()->get_default_path_option() == 2 )
+	{
+		text_colour = COL_BLACK;
+		figure_colour = COL_BLUE;
+	}
+	else
+	{
+		text_colour = MN_GREY0;
+		figure_colour = COL_LIGHT_BLUE;
+	}
+
+
+	len = 15+display_proportional_clip(x+10, y+PHASE_SORT_ELIGIBLE, translator::translate("Sort Eligible Halts :"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PHASE_SORT_ELIGIBLE, ntos(path_explorer_t::get_limit_sort_eligible(), "%lu"), ALIGN_LEFT, figure_colour, true);
+
+	len = 15+display_proportional_clip(x+10, y+PHASE_FILL_MATRIX, translator::translate("Fill Path Matrix :"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PHASE_FILL_MATRIX, ntos(path_explorer_t::get_limit_fill_matrix(), "%lu"), ALIGN_LEFT, figure_colour, true);
+
+	len = 15+display_proportional_clip(x+10, y+PHASE_PATH_EXPLORE, translator::translate("Path Exploration :"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PHASE_PATH_EXPLORE, ntos(path_explorer_t::get_limit_path_explore(), "%lu"), ALIGN_LEFT, figure_colour, true);
+
+	len = 15+display_proportional_clip(x+10, y+PHASE_WARE_REROUTE, translator::translate("Ware Re-Route :"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PHASE_WARE_REROUTE, ntos(path_explorer_t::get_limit_ware_reroute(), "%lu"), ALIGN_LEFT, figure_colour, true);
+
+	len = 15+display_proportional_clip(x+10, y+PATH_EXPLORE_STATUS, translator::translate("Status :"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PATH_EXPLORE_STATUS, translator::translate( path_explorer_t::is_processing() ? "Processing ..." : "Stand-By" ), ALIGN_LEFT, figure_colour, true);
+
 }
