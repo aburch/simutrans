@@ -866,6 +866,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\path_explorer.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\besch\reader\pedestrian_reader.cc"
 				>
 			</File>
@@ -2061,6 +2065,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\pakselector.h"
+				>
+			</File>
+			<File
+				RelativePath=".\path_explorer.h"
 				>
 			</File>
 			<File

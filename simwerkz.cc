@@ -12,6 +12,7 @@
 #include <string.h>
 #include <math.h>
 
+#include "path_explorer.h"
 #include "simdebug.h"
 #include "simworld.h"
 #include "player/simplay.h"
@@ -2615,7 +2616,15 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 	if(msg==NULL) {
 		// no error? => recalc all station connections
-		welt->set_schedule_counter();
+		// Modified by : Knightly
+		if (welt->get_einstellungen()->get_default_path_option() == 2)
+		{
+			path_explorer_t::refresh_all_categories(true);
+		}
+		else
+		{
+			welt->set_schedule_counter();
+		}
 	}
 	return msg;
 }
@@ -3882,7 +3891,16 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			}
 		}
 		// since factory connections may have changed
-		welt->set_schedule_counter();
+		// Modified by : Knightly
+		if (welt->get_einstellungen()->get_default_path_option() == 2)
+		{
+			path_explorer_t::refresh_all_categories(true);
+		}
+		else
+		{
+			welt->set_schedule_counter();
+		}
+
 		//ok! they are connected => remove marker
 		init( welt, sp );
 		return NULL;
