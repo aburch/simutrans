@@ -1837,7 +1837,7 @@ haltestelle_t::path* haltestelle_t::get_path_to(halthandle_t goal, uint8 categor
 quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* haltestelle_t::get_connexions(uint8 c)
 { 
 
-	if(reschedule[c] || paths_timestamp[c] <= welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months())
+	if(reschedule[c] || connexions_timestamp[c] <= welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months())
 	{
 		// Rebuild the connexions if they are stale.
 		rebuild_connexions(c);
