@@ -137,6 +137,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	chart.set_dimension(MAX_PLAYER_HISTORY_YEARS, 10000);
 	chart.set_seed(sp->get_welt()->get_last_year());
 	chart.set_background(MN_GREY1);
+	chart.set_ltr(sp->get_welt()->get_einstellungen()->get_finance_ltr_graphs());
 	for (int i = 0; i<MAX_PLAYER_COST; i++) {
 		chart.add_curve(cost_type_color[i], sp->get_finance_history_year(), MAX_PLAYER_COST, i, 12, (i < 10) ||  i==COST_POWERLINES ? MONEY: STANDARD, false, false);
 	}
@@ -148,6 +149,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	mchart.set_dimension(MAX_PLAYER_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
 	mchart.set_background(MN_GREY1);
+	mchart.set_ltr(sp->get_welt()->get_einstellungen()->get_finance_ltr_graphs());
 	for (int i = 0; i<MAX_PLAYER_COST; i++) {
 		mchart.add_curve(cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, i, 12, (i < 10) ||  i==COST_POWERLINES ? MONEY: STANDARD, false, false);
 	}

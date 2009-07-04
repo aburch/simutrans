@@ -155,6 +155,9 @@ private:
 
 	// true, if this pak should be used with extensions (default)
 	bool with_private_paks;
+	
+	bool finance_ltr_graphs;
+	bool ltr_graphs;
 
 public:
 	/* the big cost section */
@@ -362,6 +365,13 @@ public:
 	// true, if this pak should be used with extensions (default)
 	bool get_with_private_paks() const { return with_private_paks; }
 	void set_with_private_paks(bool b) { with_private_paks = b; }
+	
+	void set_finance_ltr_graphs(bool b) { finance_ltr_graphs = b; }
+    bool get_finance_ltr_graphs() { return finance_ltr_graphs; }
+
+    void set_ltr_graphs(bool b) { ltr_graphs = b; }
+    bool get_ltr_graphs() { return ltr_graphs; }
+  
 };
 
 #endif
