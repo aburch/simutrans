@@ -2708,16 +2708,29 @@ void karte_t::recalc_average_speed()
 				while (vehinfo.next()) {
 					const vehikel_besch_t* info = vehinfo.get_current();
 					const uint16 intro_month = info->get_intro_year_month();
-					if(intro_month == current_month) {
-						sprintf(buf,
-							translator::translate("New %s now available:\n%s\n"),
-							vehicle_type,
-							translator::translate(info->get_name()));
-							msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_basis_bild());
+					if(intro_month == current_month) 
+					{
+						if(info->is_available_only_as_upgrade())
+						{
+							sprintf(buf,
+								translator::translate("Upgrade to %s now available:\n%s\n"),
+								vehicle_type,
+								translator::translate(info->get_name()));
+								msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_basis_bild());
+						}
+						else
+						{
+							sprintf(buf,
+								translator::translate("New %s now available:\n%s\n"),
+								vehicle_type,
+								translator::translate(info->get_name()));
+								msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_basis_bild());
+						}
 					}
 
 					const uint16 retire_month = info->get_retire_year_month();
-					if(retire_month == current_month) {
+					if(retire_month == current_month) 
+					{
 						sprintf(buf,
 							translator::translate("Production of %s has been stopped:\n%s\n"),
 							vehicle_type,
