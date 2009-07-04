@@ -182,9 +182,6 @@ einstellungen_t::einstellungen_t() :
 
 	// default: load also private extensions of the pak file
 	with_private_paks = true;
-	
-	finance_ltr_graphs = false;
-	ltr_graphs = false;
 }
 
 
@@ -609,9 +606,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	way_count_tunnel = contents.get_int("way_tunnel", way_count_tunnel);
 	way_max_bridge_len = contents.get_int("way_max_bridge_len", way_max_bridge_len);
 	way_count_leaving_road = contents.get_int("way_leaving_road", way_count_leaving_road);
-	
-	finance_ltr_graphs = contents.get_int("finance_ltr_graphs", finance_ltr_graphs);
-	ltr_graphs = contents.get_int("ltr_graphs", ltr_graphs);
 
 	/*
 	 * Selection of savegame format through inifile

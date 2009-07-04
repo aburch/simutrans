@@ -4,6 +4,7 @@
 #include "../simtypes.h"
 #include "../simcolor.h"
 #include "../utils/cstring_t.h"
+#include <iostream>
 
 
 // Hajo: hier Standardwerte belegen.
@@ -109,6 +110,9 @@ bool umgebung_t::mute_sound = false;
 bool umgebung_t::mute_midi = false;
 bool umgebung_t::shuffle_midi = true;
 
+bool umgebung_t::finance_ltr_graphs = false;
+bool umgebung_t::other_ltr_graphs = false;
+
 // default settings for new games
 einstellungen_t umgebung_t::default_einstellungen;
 
@@ -185,6 +189,10 @@ void umgebung_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()>102001  ) {
 		file->rdwr_byte( show_vehicle_states, "" );
+		std::cout << "Reading.Writing..." << std::endl;
+		file->rdwr_bool(finance_ltr_graphs, "");
+		file->rdwr_bool(other_ltr_graphs, "");
+		std::cout << finance_ltr_graphs << "  " << other_ltr_graphs << std::endl;
 	}
 }
 
