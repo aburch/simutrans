@@ -794,10 +794,6 @@ public:
 	// @author: jamespetts
 	void force_paths_stale(const uint8 category);
 
-	// Added by : Knightly
-	// Purpose  : To mark all paths of all halts stale and re-route existing goods packets
-	// static void force_all_halts_paths_stale(const minivec_tpl<uint8> &categories);
-
 	// Added by		: Knightly
 	// Adapted from : Jamespetts' code
 	// Purpose		: To notify relevant halts to rebuild connexions and to notify all halts to recalculate paths

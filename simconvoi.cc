@@ -238,29 +238,6 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 			
 			// Added by : Knightly
 			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
-			//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
-
-			/*
-			ITERATE_PTR(fpl, j)
-			{
-				halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
-				if(!tmp_halt.is_bound())
-				{
-					// Try a public player halt
-					spieler_t* sp = welt->get_spieler(0);
-					tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, sp);
-				}
-				if(tmp_halt.is_bound())
-				{
-					for(uint8 i = 0; i < anz_vehikel; i ++)
-					{
-						const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
-						tmp_halt->reschedule[catg_index] = true;
-						tmp_halt->force_paths_stale(catg_index);
-					}
-				}
-			}
-			*/
 		}
 		delete fpl;
 	}
@@ -1347,34 +1324,6 @@ void convoi_t::start()
 			
 			// Added by : Knightly
 			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
-			//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
-
-
-			/*
-			ITERATE_PTR(fpl, j)
-			{
-				halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
-				if(!tmp_halt.is_bound())
-				{
-					// Try a public player halt
-					spieler_t* sp = welt->get_spieler(0);
-					tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, sp);
-				}
-				if(tmp_halt.is_bound())
-				{
-					for(uint8 i = 0; i < anz_vehikel; i ++)
-					{
-						const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
-						tmp_halt->reschedule[catg_index] = true;
-						tmp_halt->force_paths_stale(catg_index);
-					}
-				}
-				else
-				{
-					dbg->error("convoi_t::start()", "Halt in schedule does not exist");
-				}
-			}
-			*/
 		}
 
 		DBG_MESSAGE("convoi_t::start()","Convoi %s wechselt von INITIAL nach ROUTING_1", name_and_id);
@@ -1633,17 +1582,6 @@ bool convoi_t::set_schedule(schedule_t * f)
 	if(!line.is_bound() && old_state != INITIAL)
 	{
 		// New method - recalculate as necessary
-		/*
-		halthandle_t tmp_halt;
-
-		minivec_tpl<uint8> supported_categories;
-
-		for(uint8 i = 0; i < anz_vehikel; i ++)
-		{
-			const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
-			supported_categories.append(catg_index);
-		}
-		*/
 
 		// Added by : Knightly
 		if ( fpl == f && old_fpl )	// Case : Schedule window of operating convoy
@@ -1662,54 +1600,6 @@ bool convoi_t::set_schedule(schedule_t * f)
 			}
 			haltestelle_t::refresh_routing(f, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
 		}
-
-		/*
-		ITERATE_PTR(old_schedule, j)
-		{
-			if(fpl == f)
-			{
-				// Do not do this twice if both are the same.
-				break;
-			}
-
-			tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
-			if(!tmp_halt.is_bound())
-			{
-				// Try a public player halt
-				spieler_t* sp = welt->get_spieler(0);
-				tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, sp);
-			}
-			if(tmp_halt.is_bound())
-			{
-				ITERATE(supported_categories,i)
-				{
-					const uint8 catg_index = supported_categories[i];
-					tmp_halt->reschedule[catg_index] = true;
-					tmp_halt->force_paths_stale(catg_index);
-				}
-			}
-		}
-
-		ITERATE_PTR(f, k)
-		{
-			tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[k].pos, besitzer_p);
-			if(!tmp_halt.is_bound())
-			{
-				// Try a public player halt
-				spieler_t* sp = welt->get_spieler(0);
-				tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[k].pos, sp);
-			}
-			if(tmp_halt.is_bound())
-			{
-				for(uint8 i = 0; i < anz_vehikel; i ++)
-				{
-					const uint8 catg_index = supported_categories[i];
-					tmp_halt->reschedule[catg_index] = true;
-					tmp_halt->force_paths_stale(catg_index);
-				}
-			}
-		}
-		*/
 	}
 	
 	// happens to be identical?
@@ -3666,58 +3556,12 @@ void convoi_t::set_line(linehandle_t org_line)
 
 		// Added by : Knightly
 		haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
-		//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
-
-		/*
-		ITERATE_PTR(fpl, j)
-		{
-			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
-			if(!tmp_halt.is_bound())
-			{
-				// Try a public player halt
-				spieler_t* sp = welt->get_spieler(0);
-				tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, sp);
-			}
-			if(tmp_halt.is_bound())
-			{
-				for(uint8 i = 0; i < anz_vehikel; i ++)
-				{
-					const uint8 catg_index = supported_categories[i];
-					tmp_halt->reschedule[catg_index] = true;
-					tmp_halt->force_paths_stale(catg_index);
-				}
-			}
-		}
-		*/
 	}
 	
 	line = org_line;
 	line_id = org_line->get_line_id();
 	schedule_t *new_fpl= org_line->get_schedule()->copy();
 	set_schedule(new_fpl);
-
-	/*  simline_t::add_convoy() will determine if connexions and paths need to be rebuilt
-	ITERATE_PTR(new_fpl, j)
-	{
-		halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
-		if(!tmp_halt.is_bound())
-		{
-			// Try a public player halt
-			spieler_t* sp = welt->get_spieler(0);
-			tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, sp);
-		}
-		if(tmp_halt.is_bound())
-		{
-			// Might be a waypoint, so must check whether bound.
-			for(uint8 i = 0; i < anz_vehikel; i ++)
-			{
-				const uint8 catg_index = supported_categories[i];
-				tmp_halt->reschedule[catg_index] = true;
-				tmp_halt->force_paths_stale(catg_index);
-			}
-		}
-	}
-	*/
 
 	line->add_convoy(self);
 }
