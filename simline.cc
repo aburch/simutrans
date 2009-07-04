@@ -404,6 +404,35 @@ void simline_t::recalc_catg_index()
 		for (uint8 j = 0; j < catg_count; j++)
 			goods_catg_index.append_unique(categories[j], 1);
 	}
+	
+	// Modified by	: Knightly
+	// Purpose		: Determine removed and added categories and refresh only those categories.
+	//				  Avoids refreshing unchanged categories
+	minivec_tpl<uint8> differences(goods_catg_index.get_count() + old_goods_catg_index.get_count());
+
+	// removed categories : present in old category list but not in new category list
+	for (uint8 i = 0; i < old_goods_catg_index.get_count(); i++)
+	{
+		if ( ! goods_catg_index.is_contained( old_goods_catg_index[i] ) )
+		{
+			differences.append( old_goods_catg_index[i] );
+		}
+	}
+
+	// added categories : present in new category list but not in old category list
+	for (uint8 i = 0; i < goods_catg_index.get_count(); i++)
+	{
+		if ( ! old_goods_catg_index.is_contained( goods_catg_index[i] ) )
+		{
+			differences.append( goods_catg_index[i] );
+		}
+	}
+
+	// refresh only those categories which are either removed or added to the category list
+	haltestelle_t::refresh_routing(fpl, differences, sp, welt->get_einstellungen()->get_default_path_option());
+
+
+	/* Knightly : Keep old code in case the new approach doesn't work
 	// if different => schedule need recalculation
 	if(  goods_catg_index.get_count()!=old_goods_catg_index.get_count()  ) {
 		// surely changed
@@ -434,6 +463,7 @@ void simline_t::recalc_catg_index()
 			}
 		}
 	}
+	*/
 }
 
 
