@@ -205,6 +205,13 @@ public:
 	// Helper function
 	inline unsigned get_max_convoi_length() const {return get_max_convoy_length(get_wegtyp());}
 
+	/**
+	* new month
+	* @author Bernd Gabriel
+	* @date 26.06.2009
+	*/
+	void neuer_monat();
+
 private:
 	linehandle_t selected_line;
 };

@@ -297,7 +297,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	// easier headquarter access
 	old_level = sp->get_headquarter_level();
 	old_pos = sp->get_headquarter_pos();
-	if (!hausbauer_t::headquarter.empty()) {
+	if(!hausbauer_t::headquarter.empty()) {
 
 		headquarter.init(button_t::box, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", koord(582-12-120, 0), koord(120, BUTTONSPACE));
 		headquarter.add_listener(this);
@@ -494,7 +494,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	}
 
 	if(old_level!=sp->get_headquarter_level()  ||  old_pos!=sp->get_headquarter_pos()) {
-		headquarter.set_text( sp->get_headquarter_pos()!=koord::invalid ? "upgrade HQ" : "Build HQ" );
+		headquarter.set_text( sp->get_headquarter_pos()!=koord::invalid ? "upgrade HQ" : "build HQ" );
 		remove_komponente(&headquarter_view);
 		old_level = sp->get_headquarter_level();
 		old_pos = sp->get_headquarter_pos();

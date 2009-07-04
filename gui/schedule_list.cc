@@ -297,17 +297,11 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp,value_t /
 		build_line_list(tabs.get_active_tab_index());
 	}
 	else if (komp == &scl) {
-		if(!line.is_bound()) {
-			bt_change_line.disable();
-			bt_delete_line.disable();
-		}
 		// get selected line
 		linehandle_t new_line = linehandle_t();
 		selection = scl.get_selection();
 		if(  (unsigned)selection < lines.get_count()  ) {
 			new_line = lines[selection];
-			bt_change_line.enable();
-			bt_delete_line.enable();
 		}
 		update_lineinfo(new_line);
 		// brute force: just recalculate whole list on each click to keep it current
@@ -480,6 +474,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		else {
 			bt_delete_line.enable();
 		}
+		bt_change_line.enable();
 
 		new_line->recalc_catg_index();	// update withdraw info
 		bt_withdraw_line.pressed = new_line->get_withdraw();

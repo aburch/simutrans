@@ -117,7 +117,7 @@ void grund_t::set_text(const char *text)
 {
 	const uint32 n = get_ground_text_key(pos);
 	if(text) {
-		char* new_text = strdup(text);
+		char *new_text = strdup(text);
 		free(ground_texts.remove(n));
 		ground_texts.put(n, new_text);
 		set_flag(has_text);
@@ -134,9 +134,9 @@ void grund_t::set_text(const char *text)
 
 
 
-const char* grund_t::get_text() const
+const char *grund_t::get_text() const
 {
-	const char * result = 0;
+	const char *result = 0;
 	if(flags&has_text) {
 		result = ground_texts.get( get_ground_text_key(pos) );
 		if(result==NULL) {

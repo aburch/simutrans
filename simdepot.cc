@@ -235,35 +235,75 @@ convoihandle_t depot_t::add_convoi()
 
 convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 {
-	if (old_cnv.is_bound()) {
-		convoihandle_t new_cnv = add_convoi();
-		new_cnv->set_name(old_cnv->get_internal_name());
-			int vehicle_count = old_cnv->get_vehikel_anzahl();
-			for (int i = 0; i<vehicle_count; i++) {
-				const vehikel_besch_t * info = old_cnv->get_vehikel(i)->get_besch();
-				if (info != NULL) {
-					// search in depot for an existing vehicle of correct type
-					vehikel_t* oldest_vehicle = get_oldest_vehicle(info);
-					if (oldest_vehicle != NULL) {
-						// append existing vehicle
-						append_vehicle(convois.back(), oldest_vehicle, false);
+	if (old_cnv.is_bound()) 
+	{
+		convoihandle_t new_cnv;
+		int vehicle_count = old_cnv->get_vehikel_anzahl();
+		bool first_run = true;
+		for (int i = 0; i < vehicle_count; i++) 
+		{
+			const vehikel_besch_t * info = old_cnv->get_vehikel(i)->get_besch();
+			if (info != NULL) 
+			{
+				// search in depot for an existing vehicle of correct type
+				vehikel_t* oldest_vehicle = get_oldest_vehicle(info);
+
+				//Dry run first to test affordability.
+				sint64 total_price = 0;
+					
+				if(oldest_vehicle == NULL)
+				{
+					total_price += info->get_preis();
+				}
+
+				if(!get_besitzer()->can_afford(total_price))
+				{
+					return convoihandle_t();
+				}
+
+				if (oldest_vehicle != NULL) 
+				{
+					// append existing vehicle
+					append_vehicle(convois.back(), oldest_vehicle, false);
+				}
+				else 
+				{
+					// buy new vehicle
+					if(first_run)
+					{
+						new_cnv = add_convoi();
+						new_cnv->set_name(old_cnv->get_name());
+						first_run = false;
 					}
-					else {
-						// buy new vehicle
-						vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info );
-						veh->set_pos(get_pos());
-						new_cnv->add_vehikel(veh, false);
-					}
+					vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info );
+					veh->set_pos(get_pos());
+					new_cnv->add_vehikel(veh, false);
 				}
 			}
-			if (old_cnv->get_line().is_bound()) {
-				new_cnv->set_line(old_cnv->get_line());
+		}
+		if (old_cnv->get_line().is_bound()) 
+		{
+			if(first_run)
+			{
+				new_cnv = add_convoi();
+				new_cnv->set_name(old_cnv->get_name());
+				first_run = false;
 			}
-			else {
-				if (old_cnv->get_schedule() != NULL) {
-					new_cnv->set_schedule(old_cnv->get_schedule()->copy());
+			new_cnv->set_line(old_cnv->get_line());
+		}
+		else 
+		{
+			if (old_cnv->get_schedule() != NULL) 
+			{
+				if(first_run)
+				{
+					new_cnv = add_convoi();
+					new_cnv->set_name(old_cnv->get_name());
+					first_run = false;
 				}
+				new_cnv->set_schedule(old_cnv->get_schedule()->copy());
 			}
+		}	
 		return new_cnv->self;
 	}
 	return convoihandle_t();
@@ -433,7 +473,6 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 	}
 }
 
-
 /**
  * @returns NULL wenn OK, ansonsten eine Fehlermeldung
  * @author Hj. Malthaner
@@ -590,4 +629,27 @@ bool depot_t::is_contained(const vehikel_besch_t *info)
 		}
 	}
 	return false;
+}
+
+/**
+ * The player must pay monthly fixed maintenance costs for the vehicles in the depot.
+ * This method is called by the world (karte_t) once per month.
+ * @author Bernd Gabriel
+ * @date 27.06.2009
+ */
+void depot_t::neuer_monat()
+{
+	uint32 fixed_maintenance_costs = 0;
+	if (vehicle_count() > 0) {
+		karte_t *world = get_welt();
+		slist_iterator_tpl<vehikel_t *> vehicle_iter(vehicles);
+		while (vehicle_iter.next()) {
+			fixed_maintenance_costs += vehicle_iter.get_current()->get_besch()->get_fixed_maintenance(world);
+		}
+	}
+	if (fixed_maintenance_costs)
+	{
+		//spieler->add_maintenance(fixed_maintenance_costs, spieler_t::MAINT_VEHICLE);
+		get_besitzer()->buche(-(sint32)welt->calc_adjusted_monthly_figure(fixed_maintenance_costs), COST_VEHICLE_RUN);
+	}
 }

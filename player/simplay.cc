@@ -331,9 +331,7 @@ void spieler_t::neuer_monat()
 			sint32 monthly_interest = interest_rate * konto;
 			konto += monthly_interest;
 			finance_history_month[0][COST_INTEREST] += monthly_interest;
-			finance_history_month[0][COST_PROFIT] -= monthly_interest;
 			finance_history_year[0][COST_INTEREST] += monthly_interest;
-			finance_history_year[0][COST_PROFIT] -= monthly_interest;
 		}
 
 		// Adjust credit limit

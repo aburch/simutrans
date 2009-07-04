@@ -35,6 +35,8 @@
 
 #include "../boden/wege/weg.h"
 
+#define CREDIT_MESSAGE "That would exceed\nyour credit limit."
+
 char depot_frame_t::no_line_text[128];	// contains the current translation of "<no line>"
 
 
@@ -476,13 +478,22 @@ end:
 		} 
 		else if(komp == &bt_copy_convoi) 
 		{
-			if(  convoihandle_t::is_exhausted()  ) {
+			if(  convoihandle_t::is_exhausted()  ) 
+			{
 				create_win( new news_img("Convoi handles exhausted!"), w_time_delete, magic_none);
 			}
-			else {
-				depot->copy_convoi(cnv);
-				// automatically select newly created convoi
-				icnv = depot->convoi_count()-1;
+			else 
+			{
+				convoihandle_t new_cnv = depot->copy_convoi(cnv);
+				if(new_cnv == convoihandle_t())
+				{
+					create_win( new news_img(CREDIT_MESSAGE), w_time_delete, magic_none);
+				}
+				else
+				{
+					// automatically select newly created convoi
+					icnv = depot->convoi_count()-1;
+				}
 			}
 		} else if(komp == &bt_apply_line) {
 			apply_line();

@@ -10,7 +10,7 @@ BACKEND = gdi
 #BACKEND = x11
 
 #COLOUR_DEPTH = 8
-#COLOUR_DEPTH = 16
+COLOUR_DEPTH = 16
 
 #OSTYPE = beos
 #OSTYPE = cygwin
@@ -45,4 +45,4 @@ PROFILE = 1
 # BIG_ENDIAN: MUST by set for PPC/Motorola byte order! (old mac, amiga)
 # STEPS16: 16 steps per tile - nicer on pak64
 # NEW_PATHING: New pathing system. Not recommended to omit this.
-FLAGS =  -NEW_PATHING
+FLAGS =  -DNEW_PATHING
