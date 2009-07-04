@@ -1173,13 +1173,53 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 								  const minivec_tpl<halthandle_t> &halt_list, const uint8 self_halt_idx)
 {
 	const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(category);
-	const bool instant_path_refresh = ( welt->get_einstellungen()->get_default_path_option() == 2 );
 
 	if(ware_type != warenbauer_t::nichts) 
 	{
 		const uint8 entry_count = halt_list.get_count();
 
 		const bool i_am_public = besitzer_p == welt->get_spieler(1);
+
+		// Check the average speed.
+		uint16 average_speed = 0;
+		// Check whether instant path refresh is on
+		if ( welt->get_einstellungen()->get_default_path_option() == 2 )
+		{
+			// Adapted by	: Knightly
+			// Purpose		: To make speed constant within the same month. Only the first month is affected.
+			//				  Ensures consistent journey time across different halts of the same line/schedule to avoid inappropriate transfer.
+			if ( line.is_bound() )
+			{
+				average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? line->get_finance_history(1, LINE_AVERAGE_SPEED) : ( speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) / 2 );
+			}
+			else if( cnv.is_bound() )
+			{
+				average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : ( speed_to_kmh(cnv->get_min_top_speed()) / 2 );
+			}
+		}
+		else
+		{
+			if(line.is_bound())
+			{
+				average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? line->get_finance_history(1, LINE_AVERAGE_SPEED) : line->get_finance_history(0, LINE_AVERAGE_SPEED);
+
+				if(average_speed == 0)
+				{
+					// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
+					average_speed = speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) / 2;
+				}
+			}
+			else if(cnv.is_bound())
+			{
+				average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED);
+				
+				if(average_speed == 0)
+				{
+					// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
+					average_speed = speed_to_kmh(cnv->get_min_top_speed()) / 2;
+				}
+			}
+		}
 
 
 		halthandle_t current_halt;
@@ -1219,47 +1259,6 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 			connexion* new_connexion = new connexion;
 			new_connexion->waiting_time = get_average_waiting_time(current_halt, category);
 			
-			// Check the average speed.
-			uint16 average_speed = 0;
-			// Check whether instant path refresh is on
-			if ( instant_path_refresh )
-			{
-				// Adapted by	: Knightly
-				// Purpose		: To make speed constant within the same month. Only the first month is affected.
-				//				  Ensures consistent journey time across different halts of the same line/schedule to avoid inappropriate transfer.
-				if ( line.is_bound() )
-				{
-					average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? line->get_finance_history(1, LINE_AVERAGE_SPEED) : ( speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) / 2 );
-				}
-				else if( cnv.is_bound() )
-				{
-					average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : ( speed_to_kmh(cnv->get_min_top_speed()) / 2 );
-				}
-			}
-			else
-			{
-				if(line.is_bound())
-				{
-					average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? line->get_finance_history(1, LINE_AVERAGE_SPEED) : line->get_finance_history(0, LINE_AVERAGE_SPEED);
-
-					if(average_speed == 0)
-					{
-						// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-						average_speed = speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) / 2;
-					}
-				}
-				else if(cnv.is_bound())
-				{
-					average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED);
-					
-					if(average_speed == 0)
-					{
-						// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-						average_speed = speed_to_kmh(cnv->get_min_top_speed()) / 2;
-					}
-				}
-			}
-
 			// Calculate accumulated journey time
 			// Modified by : Knightly
 			// journey_distance += accurate_distance(current_halt->get_basis_pos(), previous_halt->get_basis_pos());
