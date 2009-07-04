@@ -517,20 +517,23 @@ void path_explorer_t::compartment_t::step()
 				if ( catg == representative_category )
 				{
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
-					if ( limit_sort_eligible == maximum_limit )
+					if ( projected_iterations > 0 )
 					{
-						const uint32 percentage = projected_iterations * 100 / backup_sort_eligible;
-						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+						if ( limit_sort_eligible == maximum_limit )
 						{
-							backup_sort_eligible = projected_iterations;
+							const uint32 percentage = projected_iterations * 100 / backup_sort_eligible;
+							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+							{
+								backup_sort_eligible = projected_iterations;
+							}
 						}
-					}
-					else
-					{
-						const uint32 percentage = projected_iterations * 100 / limit_sort_eligible;
-						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+						else
 						{
-							limit_sort_eligible = projected_iterations;
+							const uint32 percentage = projected_iterations * 100 / limit_sort_eligible;
+							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+							{
+								limit_sort_eligible = projected_iterations;
+							}
 						}
 					}
 				}
@@ -690,20 +693,23 @@ void path_explorer_t::compartment_t::step()
 				if ( catg == representative_category )
 				{				
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
-					if ( limit_fill_matrix == maximum_limit )
+					if ( projected_iterations > 0 )
 					{
-						const uint32 percentage = projected_iterations * 100 / backup_fill_matrix;
-						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+						if ( limit_fill_matrix == maximum_limit )
 						{
-							backup_fill_matrix = projected_iterations;
+							const uint32 percentage = projected_iterations * 100 / backup_fill_matrix;
+							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+							{
+								backup_fill_matrix = projected_iterations;
+							}
 						}
-					}
-					else
-					{
-						const uint32 percentage = projected_iterations * 100 / limit_fill_matrix;
-						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+						else
 						{
-							limit_fill_matrix = projected_iterations;
+							const uint32 percentage = projected_iterations * 100 / limit_fill_matrix;
+							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+							{
+								limit_fill_matrix = projected_iterations;
+							}
 						}
 					}
 				}
@@ -823,7 +829,7 @@ void path_explorer_t::compartment_t::step()
 				if ( catg == representative_category )
 				{
 					const uint32 average = statistic_iteration / statistic_duration;
-					if (average > 0)
+					if ( average > 0 )
 					{
 						if ( limit_path_explore == maximum_limit )
 						{
@@ -957,20 +963,23 @@ void path_explorer_t::compartment_t::step()
 				if ( catg == representative_category )
 				{
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
-					if ( limit_ware_reroute == maximum_limit )
+					if ( projected_iterations > 0 )
 					{
-						const uint32 percentage = projected_iterations * 100 / backup_ware_reroute;
-						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+						if ( limit_ware_reroute == maximum_limit )
 						{
-							backup_ware_reroute = projected_iterations;
+							const uint32 percentage = projected_iterations * 100 / backup_ware_reroute;
+							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+							{
+								backup_ware_reroute = projected_iterations;
+							}
 						}
-					}
-					else
-					{
-						const uint32 percentage = projected_iterations * 100 / limit_ware_reroute;
-						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+						else
 						{
-							limit_ware_reroute = projected_iterations;
+							const uint32 percentage = projected_iterations * 100 / limit_ware_reroute;
+							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+							{
+								limit_ware_reroute = projected_iterations;
+							}
 						}
 					}
 				}
