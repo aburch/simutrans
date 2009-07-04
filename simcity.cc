@@ -2434,12 +2434,6 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 					break;
 				}
 
-				// Knightly : 32 iterations all at once may take too long
-				if ( (i % 8) == 0)
-				{
-					INT_CHECK( "simcity 2458" );
-				}
-
 				random += town_step;
 				if(random > weight)
 				{
