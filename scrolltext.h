@@ -55,7 +55,7 @@
 "Michael Woodburn","beta testing",
 "Sanna","beta testing",
 "Nathan Samson","beta testing",
-"Pugget","beta testing",
+"Cyrus Hall","beta testing",
 "","",
 "","",
 "Game Design Assistance:","",

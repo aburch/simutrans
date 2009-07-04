@@ -235,35 +235,75 @@ convoihandle_t depot_t::add_convoi()
 
 convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 {
-	if (old_cnv.is_bound()) {
-		convoihandle_t new_cnv = add_convoi();
-		new_cnv->set_name(old_cnv->get_internal_name());
-			int vehicle_count = old_cnv->get_vehikel_anzahl();
-			for (int i = 0; i<vehicle_count; i++) {
-				const vehikel_besch_t * info = old_cnv->get_vehikel(i)->get_besch();
-				if (info != NULL) {
-					// search in depot for an existing vehicle of correct type
-					vehikel_t* oldest_vehicle = get_oldest_vehicle(info);
-					if (oldest_vehicle != NULL) {
-						// append existing vehicle
-						append_vehicle(convois.back(), oldest_vehicle, false);
+	if (old_cnv.is_bound()) 
+	{
+		convoihandle_t new_cnv;
+		int vehicle_count = old_cnv->get_vehikel_anzahl();
+		bool first_run = true;
+		for (int i = 0; i < vehicle_count; i++) 
+		{
+			const vehikel_besch_t * info = old_cnv->get_vehikel(i)->get_besch();
+			if (info != NULL) 
+			{
+				// search in depot for an existing vehicle of correct type
+				vehikel_t* oldest_vehicle = get_oldest_vehicle(info);
+
+				//Dry run first to test affordability.
+				sint64 total_price = 0;
+					
+				if(oldest_vehicle == NULL)
+				{
+					total_price += info->get_preis();
+				}
+
+				if(!get_besitzer()->can_afford(total_price))
+				{
+					return convoihandle_t();
+				}
+
+				if (oldest_vehicle != NULL) 
+				{
+					// append existing vehicle
+					append_vehicle(convois.back(), oldest_vehicle, false);
+				}
+				else 
+				{
+					// buy new vehicle
+					if(first_run)
+					{
+						new_cnv = add_convoi();
+						new_cnv->set_name(old_cnv->get_name());
+						first_run = false;
 					}
-					else {
-						// buy new vehicle
-						vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info );
-						veh->set_pos(get_pos());
-						new_cnv->add_vehikel(veh, false);
-					}
+					vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info );
+					veh->set_pos(get_pos());
+					new_cnv->add_vehikel(veh, false);
 				}
 			}
-			if (old_cnv->get_line().is_bound()) {
-				new_cnv->set_line(old_cnv->get_line());
+		}
+		if (old_cnv->get_line().is_bound()) 
+		{
+			if(first_run)
+			{
+				new_cnv = add_convoi();
+				new_cnv->set_name(old_cnv->get_name());
+				first_run = false;
 			}
-			else {
-				if (old_cnv->get_schedule() != NULL) {
-					new_cnv->set_schedule(old_cnv->get_schedule()->copy());
+			new_cnv->set_line(old_cnv->get_line());
+		}
+		else 
+		{
+			if (old_cnv->get_schedule() != NULL) 
+			{
+				if(first_run)
+				{
+					new_cnv = add_convoi();
+					new_cnv->set_name(old_cnv->get_name());
+					first_run = false;
 				}
+				new_cnv->set_schedule(old_cnv->get_schedule()->copy());
 			}
+		}	
 		return new_cnv->self;
 	}
 	return convoihandle_t();

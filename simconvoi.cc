@@ -646,14 +646,15 @@ sint32 convoi_t::calc_adjusted_power()
 
 	if(current_speed <= lowpoint_speed)
 	{
-		speed_factor *= 0.4F;
+		// Changed from 0.4 to dampen effect slightly: was too harsh.
+		speed_factor *= 0.45F;
 	}
 	else if(current_speed <= midpoint_speed)
 	{
 		float speed_differential_actual = (float)current_speed - (float)lowpoint_speed;
 		float speed_differential_maximum = (float)midpoint_speed - (float)lowpoint_speed;
 		float factor_modification = speed_differential_actual / speed_differential_maximum;
-		speed_factor *= ((factor_modification * 0.4F) + 0.4F);
+		speed_factor *= ((factor_modification * 0.45F) + 0.45F);
 	}
 	else if(current_speed <= high_speed)
 	{

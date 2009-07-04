@@ -80,9 +80,9 @@ private:
 	uint8 way_constraints_prohibitive;
 
 public:
-	long get_preis() const { return price; }
+	uint32 get_preis() const { return price; }
 
-	long get_wartung() const { return maintenance; }
+	uint32 get_wartung() const { return maintenance; }
 
 	/**
 	 * Determines max speed in km/h allowed on this way

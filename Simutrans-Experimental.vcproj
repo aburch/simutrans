@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="Simutrans-Experimental"
 	ProjectGUID="{0621B295-BEB7-4767-82F1-F27995610323}"
 	RootNamespace="Simutrans"
@@ -18,7 +18,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\simutrans-experimental-binaries\debug"
+			OutputDirectory="..\simutrans-experimental-binaries"
 			IntermediateDirectory="..\simutrans-experimental-binaries\intermediates\debug"
 			ConfigurationType="1"
 			CharacterSet="1"

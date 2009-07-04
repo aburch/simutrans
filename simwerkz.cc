@@ -1970,12 +1970,12 @@ const char *wkz_wayobj_t::get_tooltip(spieler_t *sp)
 	if(  build  ) {
 		const way_obj_besch_t *besch = get_besch(sp->get_welt());
 		if(besch) {
-			const sint32 base_maintenance = besch->get_wartung();
-			const sint32 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
+			const uint32 base_maintenance = besch->get_wartung();
+			const uint32 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
 			sprintf(toolstr, "%s, %ld$ (%ld$), %dkm/h",
 					translator::translate(besch->get_name()),
 					besch->get_preis()/100l,
-					adjusted_maintenance/100.0F,
+					adjusted_maintenance/100l,
 					besch->get_topspeed());
 			return toolstr;
 		}
