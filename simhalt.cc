@@ -1125,7 +1125,7 @@ void haltestelle_t::reroute_goods()
 // Added by		: Knightly
 // Adapted from : reroute_goods()
 // Purpose		: re-route goods of a single ware category
-void haltestelle_t::reroute_goods(const uint8 catg)
+bool haltestelle_t::reroute_goods(const uint8 catg)
 {
 	// Reset reroute[c] flag immediately
 	reroute[catg] = false;
@@ -1191,6 +1191,12 @@ void haltestelle_t::reroute_goods(const uint8 catg)
 
 		// likely the display must be updated after this
 		resort_freight_info = true;
+
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
 
@@ -2158,6 +2164,8 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 	}
 }
 
+// Added by : Knightly
+// Purpose	: For all halts, check if pathing data structures are present; if not, create and initialize them 
 void haltestelle_t::prepare_pathing_data_structures()
 {
 	slist_iterator_tpl<halthandle_t> iter(alle_haltestellen);
@@ -2254,7 +2262,7 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 		{
 			path_explorer_t::get_catg_path_between(ware_catg, self, (*ziel_list)[i], test_time, test_transfer);
 
-			if( test_time < journey_time && test_transfer.is_bound() )
+			if( test_time < journey_time )
 			{
 				best_destination = (*ziel_list)[i];
 				journey_time = test_time;

@@ -185,6 +185,8 @@ uint32 path_explorer_t::compartment_t::backup_fill_matrix = default_fill_matrix;
 uint32 path_explorer_t::compartment_t::backup_path_explore = default_path_explore;
 uint32 path_explorer_t::compartment_t::backup_ware_reroute = default_ware_reroute;
 
+uint16 path_explorer_t::compartment_t::representative_halt_count = 0;
+uint8 path_explorer_t::compartment_t::representative_category = 0;
 
 path_explorer_t::compartment_t::compartment_t()
 {
@@ -220,7 +222,8 @@ path_explorer_t::compartment_t::compartment_t()
 
 	limit_origin_explore = 0;
 
-	iterations_per_ms.resize(32);
+	statistic_duration = 0;
+	statistic_iteration = 0;
 }
 
 
@@ -357,7 +360,8 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 
 	limit_origin_explore = 0;
 
-	iterations_per_ms.clear();
+	statistic_duration = 0;
+	statistic_iteration = 0;
 }
 
 
@@ -487,31 +491,11 @@ void path_explorer_t::compartment_t::step()
 
 			diff = dr_time() - start;	// stop timing
 
-			// iteration limit adjustment
-			if ( diff > time_threshold )
+			// iteration statistics collection
+			if ( catg == representative_category )
 			{
-				const uint32 projected_iterations = iterations * time_midpoint / diff;
-				if ( projected_iterations > 0 )
-				{
-					if ( limit_sort_eligible == maximum_limit )
-					{
-						// Case : full instant refresh
-						uint32 percentage = projected_iterations * 100 / backup_sort_eligible;
-						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
-						{
-							backup_sort_eligible = projected_iterations;
-						}
-					}
-					else
-					{
-						// Case : normal refresh
-						uint32 percentage = projected_iterations * 100 / limit_sort_eligible;
-						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
-						{
-							limit_sort_eligible = projected_iterations;
-						}
-					}
-				}
+				statistic_duration += ( diff ? diff : 1 );
+				statistic_iteration += iterations;
 			}
 
 #ifdef DEBUG_COMPARTMENT_STEP
@@ -522,6 +506,38 @@ void path_explorer_t::compartment_t::step()
 			if (phase_counter == all_halts_count)
 			{
 				working_halt_count = current_heap.get_count();
+
+				if ( working_halt_count > representative_halt_count )
+				{
+					representative_category = catg;
+					representative_halt_count = working_halt_count;
+				}
+
+				// iteration limit adjustment
+				if ( catg == representative_category )
+				{
+					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
+					if ( limit_sort_eligible == maximum_limit )
+					{
+						const uint32 percentage = projected_iterations * 100 / backup_sort_eligible;
+						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+						{
+							backup_sort_eligible = projected_iterations;
+						}
+					}
+					else
+					{
+						const uint32 percentage = projected_iterations * 100 / limit_sort_eligible;
+						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+						{
+							limit_sort_eligible = projected_iterations;
+						}
+					}
+				}
+
+				// reset statistic variables
+				statistic_duration = 0;
+				statistic_iteration = 0;
 
 				current_phase = phase_fill_matrix;	// proceed to the next phase
 				phase_counter = 0;	// reset counter
@@ -657,31 +673,11 @@ void path_explorer_t::compartment_t::step()
 
 			diff = dr_time() - start;	// stop timing
 
-			// iteration limit adjustment
-			if ( diff > time_threshold )
+			// iteration statistics collection
+			if ( catg == representative_category )
 			{
-				const uint32 projected_iterations = iterations * time_midpoint / diff;
-				if ( projected_iterations > 0 )
-				{
-					if ( limit_fill_matrix == maximum_limit )
-					{
-						// Case : full instant refresh
-						uint32 percentage = projected_iterations * 100 / backup_fill_matrix;
-						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
-						{
-							backup_fill_matrix = projected_iterations;
-						}
-					}
-					else
-					{
-						// Case : normal refresh
-						uint32 percentage = projected_iterations * 100 / limit_fill_matrix;
-						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
-						{
-							limit_fill_matrix = projected_iterations;
-						}
-					}
-				}
+				statistic_duration += ( diff ? diff : 1 );
+				statistic_iteration += iterations;
 			}
 
 #ifdef DEBUG_COMPARTMENT_STEP
@@ -690,6 +686,32 @@ void path_explorer_t::compartment_t::step()
 
 			if (phase_counter == working_halt_count)
 			{
+				// iteration limit adjustment
+				if ( catg == representative_category )
+				{				
+					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
+					if ( limit_fill_matrix == maximum_limit )
+					{
+						const uint32 percentage = projected_iterations * 100 / backup_fill_matrix;
+						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+						{
+							backup_fill_matrix = projected_iterations;
+						}
+					}
+					else
+					{
+						const uint32 percentage = projected_iterations * 100 / limit_fill_matrix;
+						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+						{
+							limit_fill_matrix = projected_iterations;
+						}
+					}
+				}
+
+				// reset statistic variables
+				statistic_duration = 0;
+				statistic_iteration = 0;
+
 				current_phase = phase_path_explore;	// proceed to the next phase
 				phase_counter = 0;	// reset counter
 
@@ -783,10 +805,12 @@ void path_explorer_t::compartment_t::step()
 
 			diff = dr_time() - start;	// stop timing
 
-			// add statistic if time threshold is reached
-			if ( diff > time_threshold )
+			// iterations statistics collection
+			if ( catg == representative_category )
 			{
-				iterations_per_ms.append( iterations * working_halt_count / diff );
+				// the variables have different meaning here
+				statistic_duration++;	// step count
+				statistic_iteration += iterations * working_halt_count / ( diff ? diff : 1 );	// sum of iterations per ms
 			}
 
 #ifdef DEBUG_COMPARTMENT_STEP
@@ -796,22 +820,14 @@ void path_explorer_t::compartment_t::step()
 			if (via_index == transfer_count)
 			{
 				// iteration limit adjustment
-				uint32 sum = 0;
-				uint32 data_count = iterations_per_ms.get_count();
-				for (uint32 i = 0; i < data_count; i++)
+				if ( catg == representative_category )
 				{
-					sum += iterations_per_ms[i];
-				}
-
-				if ( sum > 0 && data_count > 0 )
-				{
-					uint32 average = sum / data_count;
-
+					const uint32 average = statistic_iteration / statistic_duration;
 					if (average > 0)
 					{
 						if ( limit_path_explore == maximum_limit )
 						{
-							uint32 percentage = average * 100 / backup_path_explore;
+							const uint32 percentage = average * 100 / backup_path_explore;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
 								backup_path_explore = average;
@@ -819,7 +835,7 @@ void path_explorer_t::compartment_t::step()
 						}
 						else
 						{
-							uint32 percentage = average * 100 / limit_path_explore;
+							const uint32 percentage = average * 100 / limit_path_explore;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
 								limit_path_explore = average;
@@ -828,8 +844,9 @@ void path_explorer_t::compartment_t::step()
 					}
 				}
 
-				// reset
-				iterations_per_ms.clear();
+				// reset statistic variables
+				statistic_duration = 0;
+				statistic_iteration = 0;
 
 
 				// path search completed -> delete old path info
@@ -906,12 +923,15 @@ void path_explorer_t::compartment_t::step()
 
 			while (phase_counter < all_halts_count)
 			{
-				all_halts_list[phase_counter]->reroute_goods(catg);
+				if ( all_halts_list[phase_counter]->reroute_goods(catg) )
+				{
+					// only halts with relevant ware packets are counted
+					iterations++;
+				}
 
 				phase_counter++;
 
 				// iteration control
-				iterations++;
 				if (iterations == limit_ware_reroute)
 				{
 					break;
@@ -920,31 +940,11 @@ void path_explorer_t::compartment_t::step()
 
 			diff = dr_time() - start;	// stop timing
 
-			// iteration limit adjustment
-			if ( diff > time_threshold )
+			// iteration statistics collection
+			if ( catg == representative_category )
 			{
-				const uint32 projected_iterations = iterations * time_midpoint / diff;
-				if ( projected_iterations > 0 )
-				{
-					if ( limit_ware_reroute == maximum_limit )
-					{
-						// Case : full instant refresh
-						uint32 percentage = projected_iterations * 100 / backup_ware_reroute;
-						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
-						{
-							backup_ware_reroute = projected_iterations;
-						}
-					}
-					else
-					{
-						// Case : normal refresh
-						uint32 percentage = projected_iterations * 100 / limit_ware_reroute;
-						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
-						{
-							limit_ware_reroute = projected_iterations;
-						}
-					}
-				}
+				statistic_duration += ( diff ? diff : 1 );
+				statistic_iteration += iterations;
 			}
 
 #ifdef DEBUG_COMPARTMENT_STEP
@@ -953,6 +953,32 @@ void path_explorer_t::compartment_t::step()
 
 			if (phase_counter == all_halts_count)
 			{
+				// iteration limit adjustment
+				if ( catg == representative_category )
+				{
+					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
+					if ( limit_ware_reroute == maximum_limit )
+					{
+						const uint32 percentage = projected_iterations * 100 / backup_ware_reroute;
+						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+						{
+							backup_ware_reroute = projected_iterations;
+						}
+					}
+					else
+					{
+						const uint32 percentage = projected_iterations * 100 / limit_ware_reroute;
+						if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+						{
+							limit_ware_reroute = projected_iterations;
+						}
+					}
+				}
+
+				// reset statistic variables
+				statistic_duration = 0;
+				statistic_iteration = 0;
+
 				current_phase = phase_init_prepare;	// reset to the 1st phase
 				phase_counter = 0;	// reset counter
 

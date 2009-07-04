@@ -424,7 +424,7 @@ public:
 
 	// Added by : Knightly
 	// Purpose	: Re-routing goods of a single ware category
-	void reroute_goods(uint8 catg);
+	bool reroute_goods(uint8 catg);
 
 	/**
 	 * getter/setter for sortby

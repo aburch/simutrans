@@ -252,7 +252,12 @@ private:
 		uint32 limit_origin_explore;
 
 		// statistics for determining limit_path_explore
-		vector_tpl<uint32> iterations_per_ms;
+		uint32 statistic_duration;
+		uint32 statistic_iteration;
+
+		// iteration representative
+		static uint16 representative_halt_count;
+		static uint8 representative_category;
 
 		// iteration limits
 		static uint32 limit_sort_eligible;
@@ -285,7 +290,10 @@ private:
 
 		// absolute time limits
 		static const uint32 time_midpoint = 32;
-		static const uint32 time_threshold = time_midpoint / 4;
+		static const uint32 time_deviation = 2;
+		static const uint32 time_lower_limit = time_midpoint - time_deviation;
+		static const uint32 time_upper_limit = time_midpoint + time_deviation;
+		static const uint32 time_threshold = time_midpoint / 2;
 
 		// percentage time limits
 		static const uint32 percent_deviation = 5;
@@ -316,9 +324,10 @@ private:
 			uint32 origin_index, target_index;
 			
 			// check if paths are available and if origin halt and target halt are in finished halt heap
-			if ( paths_available 
+			if ( paths_available && origin_halt.is_bound() && target_halt.is_bound()
 					&& finished_heap->get_position(origin_halt, origin_index)
-					&& finished_heap->get_position(target_halt, target_index) )
+					&& finished_heap->get_position(target_halt, target_index)
+					&& finished_matrix[origin_index][target_index].next_transfer.is_bound() )
 			{
 				aggregate_time = finished_matrix[origin_index][target_index].aggregate_time;
 				next_transfer = finished_matrix[origin_index][target_index].next_transfer;
