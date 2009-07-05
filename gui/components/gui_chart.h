@@ -88,6 +88,8 @@ public:
 	void set_show_x_axis(bool yesno) { show_x_axis = yesno; }
 
 	void set_show_y_axis(bool yesno) { show_y_axis = yesno; }
+	
+	void set_ltr(bool yesno) { ltr = yesno; }
 
 	int get_curve_count() { return curves.get_count(); }
 
@@ -118,7 +120,7 @@ private:
 
 	koord tooltipkoord;
 
-	bool show_x_axis, show_y_axis;
+	bool show_x_axis, show_y_axis, ltr;
 
 	/**
 	 * Background color, -1 for transparent background

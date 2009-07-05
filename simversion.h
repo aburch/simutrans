@@ -11,7 +11,7 @@
 #define SAVEGAME_PREFIX  "Simutrans "
 #define XML_SAVEGAME_PREFIX  "<?xml version=\"1.0\"?>"
 
-#define SAVEGAME_VER_NR  "0.102.1"
+#define SAVEGAME_VER_NR  "0.102.2"
 #define SAVEGAME_VERSION (SAVEGAME_PREFIX SAVEGAME_VER_NR)
 
 #define EXPERIMENTAL_VERSION L"4.6"

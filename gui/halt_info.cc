@@ -131,6 +131,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);
+	chart.set_ltr(umgebung_t::other_ltr_graphs);
 
 	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
 		chart.add_curve(cost_type_color[cost], halt->get_finance_history(), MAX_HALT_COST, index_of_haltinfo[cost], MAX_MONTHS, 0, false, true);

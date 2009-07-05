@@ -360,3 +360,8 @@ tooltip_background_color = 4
 
 # tooltip text color (240=black, 215=white)
 tooltip_text_color = 240
+
+# Graphs in the finance window
+finance_ltr_graphs = 0
+# All other graphs
+ltr_graphs = 0
