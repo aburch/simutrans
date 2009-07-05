@@ -3413,11 +3413,11 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 	sint64 gewinn = 0;
 	grund_t *gr = welt->lookup(fahr[0]->get_pos());
 
-	int station_lenght = 0;
+	int station_length = 0;
 	if(gr->ist_wasser()) 
 	{
 		// habour has any size
-		station_lenght = 24*16;
+		station_length = 24*16;
 	}
 	else
 	{
@@ -3432,7 +3432,7 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 		}
 		while(  grund  &&  grund->get_halt() == halt  ) 
 		{
-			station_lenght += TILE_STEPS;
+			station_length += TILE_STEPS;
 			pos += zv;
 			grund = welt->lookup(pos);
 			if(  grund==NULL  ) 
@@ -3448,14 +3448,15 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 	}
 
 	// only load vehicles in station
-	// don't load when vehicle is being withdrawn
+	// don't load if vehicle is being withdrawn
+	int convoy_length = 0;
 	bool second_run = anz_vehikel <= 1;
 	for(uint8 i=0; i < anz_vehikel ; i++) 
 	{
 		vehikel_t* v = fahr[i];
 
-		station_lenght -= v->get_besch()->get_length();
-		if(station_lenght<0) 
+		convoy_length += v->get_besch()->get_length();
+		if(convoy_length > station_length) 
 		{
 			break;
 		}
@@ -3463,7 +3464,7 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 		// we need not to call this on the same position		if(  v->last_stop_pos != v->get_pos().get_2d()  ) {		// calc_revenue
 		if(!second_run || anz_vehikel == 1)
 		{
-			convoi_t *tmp = this;	
+			//convoi_t *tmp = this;	
 			v->last_stop_pos = v->get_pos().get_2d();
 			//Unload
 			v->current_revenue = 0;
@@ -3474,7 +3475,6 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 		{
 			// do not load anymore
 			freight_info_resort |= v->beladen(k, halt, second_run);
-
 		}
 
 		// Run this routine twice: first, load all vehicles to their non-overcrowded capacity.
@@ -3483,7 +3483,9 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 		{
 			//Reset counter for one more go
 			second_run = true;
-			i = 0;
+			i = -1; // Bernd Gabriel, 05.07.2009: was 0, but 0 will skip first vehicle due to i++ at end of loop;
+			// Bernd Gabriel, 05.07.2009: must reinitialize convoy_length
+			convoy_length = 0;
 		}
 
 	}
