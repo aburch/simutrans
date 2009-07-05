@@ -241,6 +241,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	besitzer_p = spieler;
 	prodfaktor = 16;
 	prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich());
+	prodbase = prodbase > 0 ? prodbase : 1;
 
 	delta_sum = 0;
 	currently_producing = false;
@@ -440,6 +441,7 @@ fabrik_t::add_random_field(uint16 probability)
 		welt->access(k)->boden_ersetzen(gr, gr2);
 		gr2->obj_add( new field_t( welt, gr2->get_pos(), besitzer_p, fb, this ) );
 		prodbase += fb->get_field_production();
+		prodbase = prodbase > 0 ? prodbase : 1;
 		if(lt) {
 			gr2->obj_add( lt );
 		}
