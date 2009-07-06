@@ -331,6 +331,9 @@ einstellungen_t::einstellungen_t() :
 
 	// The default is a selective refresh.
 	default_path_option = 1;
+
+	// The default is using multimedia timer functions.
+	system_time_option = 0;
 }
 
 
@@ -1104,8 +1107,15 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	speed_bonus_multiplier_percent = contents.get_int("speed_bonus_multiplier_percent", speed_bonus_multiplier_percent);
 	speed_bonus_multiplier = (float)speed_bonus_multiplier_percent / 100.0F;
 
-	bool instant_path_refresh = contents.get_int("instant_path_refresh", default_path_option == 2);
-	default_path_option = instant_path_refresh ? 2 : 1;
+	bool path_searching_approach = contents.get_int("path_searching_approach", default_path_option == 2);
+	default_path_option = path_searching_approach ? 2 : 1;
+
+	// Added by : Knightly
+	system_time_option = contents.get_int("system_time_functions", system_time_option);
+	if (system_time_option > 1)
+	{
+		system_time_option = 1;
+	}
 
 	/*
 	 * Selection of savegame format through inifile

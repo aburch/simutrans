@@ -5,7 +5,7 @@
 #include "components/gui_button.h"
 #include "components/gui_numberinput.h"
 
-#define MAX_BUTTONS (22)
+#define MAX_BUTTONS (23)
 
 /**
  * Menü zur Änderung der Anzeigeeinstellungen.
