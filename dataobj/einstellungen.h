@@ -362,7 +362,6 @@ public:
 	// true, if this pak should be used with extensions (default)
 	bool get_with_private_paks() const { return with_private_paks; }
 	void set_with_private_paks(bool b) { with_private_paks = b; }
-  
 };
 
 #endif
