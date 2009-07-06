@@ -92,8 +92,8 @@ void path_explorer_t::step()
 
 void path_explorer_t::full_instant_refresh()
 {
-	// exclude empty ware (nichts), and exclude re-routing goods which can be done afterwards
-	int total_steps = (max_categories - 1) * 4;
+	// exclude empty ware (nichts)
+	int total_steps = (max_categories - 1) * 5;
 	int curr_step = 0;
 
 	processing = true;
@@ -120,8 +120,8 @@ void path_explorer_t::full_instant_refresh()
 			ware_compartment[c].reset(true);
 
 #ifndef DEBUG_EXPLORER_SPEED
-			// again, the last phase of re-routing goods is skipped
-			for (uint8 p = 0; p < 4; p++)
+			// go through all 5 phases
+			for (uint8 p = 0; p < 5; p++)
 			{
 				// perform step
 				ware_compartment[c].step();
