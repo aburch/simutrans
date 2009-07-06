@@ -1019,7 +1019,11 @@ void haltestelle_t::reroute_goods()
 	{
 		if (reroute[i])
 		{
-			reroute_goods(i);
+			if ( reroute_goods(i) )
+			{
+				// call this only if some ware packets are really re-reouted
+				INT_CHECK( "simhalt.cc 489" );
+			}
 		}
 	}
 }
@@ -1074,8 +1078,6 @@ bool haltestelle_t::reroute_goods(const uint8 catg)
 			// add to new array
 			new_warray->append( ware );
 		}	
-
-		INT_CHECK( "simhalt.cc 489" );
 
 		// delete, if nothing connects here
 		if (new_warray->empty()) 
@@ -1456,6 +1458,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 		{
 			// Interrupt checks here caused crashes on rotation.
 			//INT_CHECK("simhalt.cc 612");
+			// Knightly : if ever INT_CHECK() call is added back, call it only if default path option != 2
 
 			fpl = cnv->get_schedule();
 			if(fpl != NULL) 
@@ -1488,6 +1491,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 		{
 			// Interrupt checks here caused crashes on rotation.
 			//INT_CHECK("simhalt.cc 613");
+			// Knightly : if ever INT_CHECK() call is added back, call it only if default path option != 2
 
 			if(fpl != NULL) 
 			{
