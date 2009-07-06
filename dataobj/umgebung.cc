@@ -190,7 +190,6 @@ void umgebung_t::rdwr(loadsave_t *file)
 		file->rdwr_byte( show_vehicle_states, "" );
 		file->rdwr_bool(finance_ltr_graphs, "");
 		file->rdwr_bool(other_ltr_graphs, "");
-		std::cout << finance_ltr_graphs << "  " << other_ltr_graphs << std::endl;
 	}
 }
 

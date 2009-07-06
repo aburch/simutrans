@@ -30,9 +30,10 @@
 #define BRIGHTNESS		(DAY_NIGHT+13)
 #define SCROLL_INVERS (BRIGHTNESS+13)
 #define SCROLL_SPEED	(SCROLL_INVERS+13)
-#define LTR_GRAPHS (SCROLL_SPEED+13)
+#define FINANCE_LTR_GRAPHS (SCROLL_SPEED+13)
+#define OTHER_LTR_GRAPHS (FINANCE_LTR_GRAPHS+13)
 
-#define SEPERATE1 (LTR_GRAPHS+13)
+#define SEPERATE1 (OTHER_LTR_GRAPHS+13)
 
 #define USE_TRANSPARENCY	(SEPERATE1+4)
 #define HIDE_TREES				(USE_TRANSPARENCY+13)
@@ -163,10 +164,15 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[20].set_typ(button_t::square_state);
 	buttons[20].set_text("sliced underground mode");
 	
-	buttons[21].set_pos( koord(10, LTR_GRAPHS) );
+	buttons[21].set_pos( koord(10, FINANCE_LTR_GRAPHS) );
 	buttons[21].set_typ(button_t::square_state);
-	buttons[21].set_text("Left To Right graphs");
-	buttons[21].pressed = umgebung_t::other_ltr_graphs;
+	buttons[21].set_text("Left To Right finance graphs");
+	buttons[21].pressed = umgebung_t::finance_ltr_graphs;
+	
+	buttons[22].set_pos( koord(10, OTHER_LTR_GRAPHS) );
+	buttons[22].set_typ(button_t::square_state);
+	buttons[22].set_text("Left To Right graphs");
+	buttons[22].pressed = umgebung_t::other_ltr_graphs;
 	
 	inp_underground_level.set_pos(koord(NUMBER_INP, SLICE) );
 	inp_underground_level.set_groesse( koord(50,12));
@@ -261,9 +267,11 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			welt->update_map();
 		}
 	} else if ((buttons+21)==komp) {
-		umgebung_t::other_ltr_graphs ^= 1;
 		umgebung_t::finance_ltr_graphs ^= 1;
-		buttons[21].pressed = umgebung_t::other_ltr_graphs;
+		buttons[21].pressed = umgebung_t::finance_ltr_graphs;
+	} else if ((buttons+22)==komp) {
+		umgebung_t::other_ltr_graphs ^= 1;
+		buttons[22].pressed = umgebung_t::other_ltr_graphs;
 	}
 	welt->set_dirty();
 	return true;
