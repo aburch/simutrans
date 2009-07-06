@@ -332,7 +332,7 @@ public:
 
 	/* does not takes month length into account */
 	sint32 get_base_production() const { return prodbase; }
-	void set_base_production( sint32 p ) {prodbase = p; }
+	void set_base_production( sint32 p ) { p > 0 ? prodbase = p : prodbase = 1; }
 
 	sint32 get_current_production() const { return (prodbase * prodfaktor * 16l)>>(26l-(long)welt->ticks_bits_per_tag); }
 
