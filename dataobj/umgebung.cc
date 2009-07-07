@@ -4,7 +4,6 @@
 #include "../simtypes.h"
 #include "../simcolor.h"
 #include "../utils/cstring_t.h"
-#include <iostream>
 
 
 // Hajo: hier Standardwerte belegen.
@@ -191,10 +190,8 @@ void umgebung_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()>102001  ) {
 		file->rdwr_byte( show_vehicle_states, "" );
-		std::cout << "Reading.Writing..." << std::endl;
 		file->rdwr_bool(finance_ltr_graphs, "");
 		file->rdwr_bool(other_ltr_graphs, "");
-		std::cout << finance_ltr_graphs << "  " << other_ltr_graphs << std::endl;
 	}
 }
 
