@@ -143,8 +143,10 @@ void path_explorer_t::full_instant_refresh()
 	// restore limits back to default
 	compartment_t::restore_limits();
 
-	// reset current category pointer : re-routing goods will start from passengers
+	// reset current category pointer
 	current_compartment = 0;
+
+	processing = false;
 }
 
 
