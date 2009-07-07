@@ -2587,11 +2587,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\simutrans-experimental-binaries\config\electricity.tab"
+				>
+			</File>
+			<File
+				RelativePath="..\simutrans-experimental-binaries\config\privatecar.tab"
+				>
+			</File>
+			<File
 				RelativePath=".\simres.rc"
 				>
 			</File>
 			<File
-				RelativePath="..\simutrans-experimental-binaries\debug\config\simuconf.tab"
+				RelativePath="..\simutrans-experimental-binaries\config\simuconf.tab"
 				>
 			</File>
 		</Filter>

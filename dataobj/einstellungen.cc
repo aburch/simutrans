@@ -793,6 +793,14 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_short(speed_bonus_multiplier_percent, "");
 			speed_bonus_multiplier = (float)speed_bonus_multiplier_percent / 100.0F;
 		}
+		else
+		{
+			// For older saved games, enforcing weight limits strictly is likely to lead
+			// to problems, so, whilst strictly enforced weight limits should be allowed
+			// for new games and games saved with this feature enabled, it should not be
+			// allowed for older saved games.
+			enforce_weight_limits = enforce_weight_limits < 2 ? enforce_weight_limits : 1;
+		}
 		
 		if(file->get_experimental_version() >= 4)
 		{

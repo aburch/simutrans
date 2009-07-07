@@ -185,7 +185,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 
 	buttons[20].set_pos( koord(10,CENTRALIZED_SEARCH) );
 	buttons[20].set_typ(button_t::square_state);
-	buttons[20].set_text("Centralized path searching");
+	buttons[20].set_text("Centralised path searching");
 	buttons[20].pressed = welt->get_einstellungen()->get_default_path_option() == 2;
 	buttons[20].set_tooltip("Use centralized instead of distributed path searching system.");
 
@@ -403,19 +403,19 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	}
 
 
-	len = 15+display_proportional_clip(x+10, y+PHASE_SORT_ELIGIBLE, translator::translate("Sort eligible halts :"), ALIGN_LEFT, text_colour, true);
+	len = 15+display_proportional_clip(x+10, y+PHASE_SORT_ELIGIBLE, translator::translate("Sort eligible halts:"), ALIGN_LEFT, text_colour, true);
 	display_proportional_clip(x+len, y+PHASE_SORT_ELIGIBLE, ntos(path_explorer_t::get_limit_sort_eligible(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
-	len = 15+display_proportional_clip(x+10, y+PHASE_FILL_MATRIX, translator::translate("Fill path matrix :"), ALIGN_LEFT, text_colour, true);
+	len = 15+display_proportional_clip(x+10, y+PHASE_FILL_MATRIX, translator::translate("Fill path matrix:"), ALIGN_LEFT, text_colour, true);
 	display_proportional_clip(x+len, y+PHASE_FILL_MATRIX, ntos(path_explorer_t::get_limit_fill_matrix(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
-	len = 15+display_proportional_clip(x+10, y+PHASE_PATH_EXPLORE, translator::translate("Path exploration :"), ALIGN_LEFT, text_colour, true);
+	len = 15+display_proportional_clip(x+10, y+PHASE_PATH_EXPLORE, translator::translate("Path exploration:"), ALIGN_LEFT, text_colour, true);
 	display_proportional_clip(x+len, y+PHASE_PATH_EXPLORE, ntos(path_explorer_t::get_limit_path_explore(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
-	len = 15+display_proportional_clip(x+10, y+PHASE_WARE_REROUTE, translator::translate("Ware re-route :"), ALIGN_LEFT, text_colour, true);
+	len = 15+display_proportional_clip(x+10, y+PHASE_WARE_REROUTE, translator::translate("Goods re-route:"), ALIGN_LEFT, text_colour, true);
 	display_proportional_clip(x+len, y+PHASE_WARE_REROUTE, ntos(path_explorer_t::get_limit_ware_reroute(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
-	len = 15+display_proportional_clip(x+10, y+PATH_EXPLORE_STATUS, translator::translate("Status :"), ALIGN_LEFT, text_colour, true);
+	len = 15+display_proportional_clip(x+10, y+PATH_EXPLORE_STATUS, translator::translate("Status:"), ALIGN_LEFT, text_colour, true);
 	display_proportional_clip(x+len, y+PATH_EXPLORE_STATUS, translator::translate( path_explorer_t::is_processing() ? "Processing ..." : "Stand-by" ), ALIGN_LEFT, figure_colour, true);
 
 }
