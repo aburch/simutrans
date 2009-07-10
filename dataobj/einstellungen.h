@@ -265,7 +265,7 @@ private:
 
 	// Determine which path searching approach is used
 	// 1 = distributed approach
-	// 2 = centralized approach
+	// 2 = centralised approach
 	uint8 default_path_option;
 
 	// Added by : Knightly

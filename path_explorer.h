@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 : Knightly
  *
- * A centralized, steppable path searching system using Floyd-Warshall Algorithm
+ * A centralised, steppable path searching system using Floyd-Warshall Algorithm
  */
 
 
@@ -87,9 +87,9 @@ private:
 		uint16 origin;
 
 		// origins limit for path searching
-		uint32 limit_origin_explore;
+		uint32 limit_explore_origins;
 
-		// statistics for determining limit_path_explore
+		// statistics for determining limit_explore_paths
 		uint32 statistic_duration;
 		uint32 statistic_iteration;
 
@@ -100,20 +100,20 @@ private:
 		// iteration limits
 		static uint32 limit_find_eligible;
 		static uint32 limit_fill_matrix;
-		static uint32 limit_path_explore;
-		static uint32 limit_ware_reroute;
+		static uint32 limit_explore_paths;
+		static uint32 limit_reroute_goods;
 
 		// back-up iteration limits
 		static uint32 backup_find_eligible;
 		static uint32 backup_fill_matrix;
-		static uint32 backup_path_explore;
-		static uint32 backup_ware_reroute;
+		static uint32 backup_explore_paths;
+		static uint32 backup_reroute_goods;
 
 		// default iteration limits
 		static const uint32 default_find_eligible = 4096;
 		static const uint32 default_fill_matrix = 4096;
-		static const uint32 default_path_explore = 65536;
-		static const uint32 default_ware_reroute = 4096;
+		static const uint32 default_explore_paths = 65536;
+		static const uint32 default_reroute_goods = 4096;
 
 		// maximum limit for full refresh
 		static const uint32 maximum_limit = 4294967295;
@@ -123,8 +123,8 @@ private:
 		static const uint8 phase_init_prepare = 1;
 		static const uint8 phase_find_eligible = 2;
 		static const uint8 phase_fill_matrix = 3;
-		static const uint8 phase_path_explore = 4;
-		static const uint8 phase_ware_reroute = 5;
+		static const uint8 phase_explore_paths = 4;
+		static const uint8 phase_reroute_goods = 5;
 
 		// absolute time limits
 		static const uint32 time_midpoint = 32;
@@ -183,41 +183,41 @@ private:
 		{
 			backup_find_eligible = limit_find_eligible;
 			backup_fill_matrix = limit_fill_matrix;
-			backup_path_explore = limit_path_explore;
-			backup_ware_reroute = limit_ware_reroute;
+			backup_explore_paths = limit_explore_paths;
+			backup_reroute_goods = limit_reroute_goods;
 		}
 		static void restore_limits()
 		{
 			limit_find_eligible = backup_find_eligible;
 			limit_fill_matrix = backup_fill_matrix;
-			limit_path_explore = backup_path_explore;
-			limit_ware_reroute = backup_ware_reroute;
+			limit_explore_paths = backup_explore_paths;
+			limit_reroute_goods = backup_reroute_goods;
 		}
 		static void set_maximum_limits()
 		{
 			limit_find_eligible = maximum_limit;
 			limit_fill_matrix = maximum_limit;
-			limit_path_explore = maximum_limit;
-			limit_ware_reroute = maximum_limit;
+			limit_explore_paths = maximum_limit;
+			limit_reroute_goods = maximum_limit;
 		}
 		static void set_default_limits()
 		{
 			limit_find_eligible = default_find_eligible;
 			limit_fill_matrix = default_fill_matrix;
-			limit_path_explore = default_path_explore;
-			limit_ware_reroute = default_ware_reroute;
+			limit_explore_paths = default_explore_paths;
+			limit_reroute_goods = default_reroute_goods;
 		}
 
 		static uint32 get_limit_find_eligible() { return limit_find_eligible; }
 		static uint32 get_limit_fill_matrix() { return limit_fill_matrix; }
-		static uint32 get_limit_path_explore() { return limit_path_explore; }
-		static uint32 get_limit_ware_reroute() { return limit_ware_reroute; }
+		static uint32 get_limit_explore_paths() { return limit_explore_paths; }
+		static uint32 get_limit_reroute_goods() { return limit_reroute_goods; }
 
 	};
 
 	static uint8 max_categories;
 	static uint8 category_empty;
-	static compartment_t *ware_compartment;
+	static compartment_t *goods_compartment;
 	static uint8 current_compartment;
 	static bool processing;
 
@@ -229,17 +229,17 @@ public:
 
 	static void full_instant_refresh();
 	static void refresh_all_categories(const bool reset_working_set);
-	static void refresh_category(const uint8 category) { ware_compartment[category].set_refresh(); }
+	static void refresh_category(const uint8 category) { goods_compartment[category].set_refresh(); }
 	static bool get_catg_path_between(const uint8 category, const halthandle_t origin_halt, const halthandle_t target_halt,
 									  uint16 &aggregate_time, halthandle_t &next_transfer)
 	{
-		return ware_compartment[category].get_path_between(origin_halt, target_halt, aggregate_time, next_transfer);
+		return goods_compartment[category].get_path_between(origin_halt, target_halt, aggregate_time, next_transfer);
 	}
 
 	static uint32 get_limit_find_eligible() { return compartment_t::get_limit_find_eligible(); }
 	static uint32 get_limit_fill_matrix() { return compartment_t::get_limit_fill_matrix(); }
-	static uint32 get_limit_path_explore() { return compartment_t::get_limit_path_explore(); }
-	static uint32 get_limit_ware_reroute() { return compartment_t::get_limit_ware_reroute(); }
+	static uint32 get_limit_explore_paths() { return compartment_t::get_limit_explore_paths(); }
+	static uint32 get_limit_reroute_goods() { return compartment_t::get_limit_reroute_goods(); }
 	static bool is_processing() { return processing; }
 
 

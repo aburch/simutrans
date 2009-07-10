@@ -63,12 +63,12 @@
 
 #define SEPERATE5						(22*13+6+4*4)
 
-#define CENTRALIZED_SEARCH				(22*13+6+5*4)
+#define CENTRALISED_SEARCH				(22*13+6+5*4)
 #define USE_PERFORMANCE_COUNTER			(23*13+6+5*4)
 #define PHASE_FIND_ELIGIBLE				(24*13+6+5*4)
 #define PHASE_FILL_MATRIX				(25*13+6+5*4)
-#define PHASE_PATH_EXPLORE				(26*13+6+5*4)
-#define PHASE_WARE_REROUTE				(27*13+6+5*4)
+#define PHASE_EXPLORE_PATHS				(26*13+6+5*4)
+#define PHASE_REROUTE_GOODS				(27*13+6+5*4)
 #define PATH_EXPLORE_STATUS				(28*13+6+5*4)
 
 #define BOTTOM							(29*13+6+12+6*4)
@@ -183,11 +183,11 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[19].pressed = umgebung_t::show_names&1;
 	buttons[19].set_tooltip("Shows a bar graph representing the number of passengers/mail/goods waiting at stops.");
 
-	buttons[20].set_pos( koord(10,CENTRALIZED_SEARCH) );
+	buttons[20].set_pos( koord(10,CENTRALISED_SEARCH) );
 	buttons[20].set_typ(button_t::square_state);
-	buttons[20].set_text("Centralized path searching");
+	buttons[20].set_text("Centralised path searching");
 	buttons[20].pressed = welt->get_einstellungen()->get_default_path_option() == 2;
-	buttons[20].set_tooltip("Use centralized instead of distributed path searching system.");
+	buttons[20].set_tooltip("Use centralised instead of distributed path searching system.");
 
 	buttons[21].set_pos( koord(10,SLICE) );
 	buttons[21].set_typ(button_t::square_state);
@@ -409,11 +409,11 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	len = 15+display_proportional_clip(x+10, y+PHASE_FILL_MATRIX, translator::translate("Fill path matrix :"), ALIGN_LEFT, text_colour, true);
 	display_proportional_clip(x+len, y+PHASE_FILL_MATRIX, ntos(path_explorer_t::get_limit_fill_matrix(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
-	len = 15+display_proportional_clip(x+10, y+PHASE_PATH_EXPLORE, translator::translate("Path exploration :"), ALIGN_LEFT, text_colour, true);
-	display_proportional_clip(x+len, y+PHASE_PATH_EXPLORE, ntos(path_explorer_t::get_limit_path_explore(), "%lu"), ALIGN_LEFT, figure_colour, true);
+	len = 15+display_proportional_clip(x+10, y+PHASE_EXPLORE_PATHS, translator::translate("Explore paths :"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PHASE_EXPLORE_PATHS, ntos(path_explorer_t::get_limit_explore_paths(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
-	len = 15+display_proportional_clip(x+10, y+PHASE_WARE_REROUTE, translator::translate("Ware re-route :"), ALIGN_LEFT, text_colour, true);
-	display_proportional_clip(x+len, y+PHASE_WARE_REROUTE, ntos(path_explorer_t::get_limit_ware_reroute(), "%lu"), ALIGN_LEFT, figure_colour, true);
+	len = 15+display_proportional_clip(x+10, y+PHASE_REROUTE_GOODS, translator::translate("Re-route goods :"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PHASE_REROUTE_GOODS, ntos(path_explorer_t::get_limit_reroute_goods(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
 	len = 15+display_proportional_clip(x+10, y+PATH_EXPLORE_STATUS, translator::translate("Status :"), ALIGN_LEFT, text_colour, true);
 	display_proportional_clip(x+len, y+PATH_EXPLORE_STATUS, translator::translate( path_explorer_t::is_processing() ? "Processing ..." : "Stand-by" ), ALIGN_LEFT, figure_colour, true);

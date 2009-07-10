@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 : Knightly
  *
- * A centralized, steppable path searching system using Floyd-Warshall Algorithm
+ * A centralised, steppable path searching system using Floyd-Warshall Algorithm
  */
 
 
@@ -26,7 +26,7 @@
 
 uint8 path_explorer_t::max_categories = 0;
 uint8 path_explorer_t::category_empty = 255;
-path_explorer_t::compartment_t *path_explorer_t::ware_compartment = NULL;
+path_explorer_t::compartment_t *path_explorer_t::goods_compartment = NULL;
 uint8 path_explorer_t::current_compartment = 0;
 bool path_explorer_t::processing = false;
 
@@ -35,11 +35,11 @@ void path_explorer_t::initialize()
 {
 	max_categories = warenbauer_t::get_max_catg_index();
 	category_empty = warenbauer_t::nichts->get_catg_index();
-	ware_compartment = new compartment_t[max_categories];
+	goods_compartment = new compartment_t[max_categories];
 
 	for (uint8 i = 0; i < max_categories; i++)
 	{
-		ware_compartment[i].set_category(i);
+		goods_compartment[i].set_category(i);
 	}
 
 	current_compartment = 0;
@@ -49,8 +49,8 @@ void path_explorer_t::initialize()
 
 void path_explorer_t::destroy()
 {
-	delete[] ware_compartment;
-	ware_compartment = NULL;
+	delete[] goods_compartment;
+	goods_compartment = NULL;
 	current_compartment = 0;
 	category_empty = 255;
 	max_categories = 0;
@@ -60,25 +60,25 @@ void path_explorer_t::destroy()
 
 void path_explorer_t::step()
 {
-	// at most check all ware categories once
+	// at most check all goods categories once
 	for (uint8 i = 0; i < max_categories; i++)
 	{
 		if ( current_compartment != category_empty
-			 && (!ware_compartment[current_compartment].is_refresh_completed() 
-			     || ware_compartment[current_compartment].is_refresh_requested() ) )
+			 && (!goods_compartment[current_compartment].is_refresh_completed() 
+			     || goods_compartment[current_compartment].is_refresh_requested() ) )
 		{
 			processing = true;	// this step performs something
 
 			// perform step
-			ware_compartment[current_compartment].step();
+			goods_compartment[current_compartment].step();
 
 			// if refresh is completed, move on to the next category
-			if ( ware_compartment[current_compartment].is_refresh_completed() )
+			if ( goods_compartment[current_compartment].is_refresh_completed() )
 			{
 				current_compartment = (current_compartment + 1) % max_categories;
 			}
 
-			// each step process at most 1 ware category
+			// each step process at most 1 goods category
 			return;
 		}
 
@@ -92,7 +92,7 @@ void path_explorer_t::step()
 
 void path_explorer_t::full_instant_refresh()
 {
-	// exclude empty ware (nichts)
+	// exclude empty goods (nichts)
 	int total_steps = (max_categories - 1) * 5;
 	int curr_step = 0;
 
@@ -117,20 +117,20 @@ void path_explorer_t::full_instant_refresh()
 		if ( c != category_empty )
 		{
 			// clear any previous leftovers
-			ware_compartment[c].reset(true);
+			goods_compartment[c].reset(true);
 
 #ifndef DEBUG_EXPLORER_SPEED
 			// go through all 5 phases
 			for (uint8 p = 0; p < 5; p++)
 			{
 				// perform step
-				ware_compartment[c].step();
+				goods_compartment[c].step();
 				curr_step++;
 				display_progress(curr_step, total_steps);
 			}
 #else
 			// one step should perform the first 4 compartment phases
-			ware_compartment[c].step();
+			goods_compartment[c].step();
 #endif
 		}
 	}
@@ -157,12 +157,12 @@ void path_explorer_t::refresh_all_categories(const bool reset_working_set)
 		if (reset_working_set)
 		{
 			// do not remove the finished matrix and heap
-			ware_compartment[c].reset(false);
+			goods_compartment[c].reset(false);
 		}
 		else
 		{
 			// only set flag
-			ware_compartment[c].set_refresh();
+			goods_compartment[c].set_refresh();
 		}
 	}
 
@@ -179,13 +179,13 @@ void path_explorer_t::refresh_all_categories(const bool reset_working_set)
 
 uint32 path_explorer_t::compartment_t::limit_find_eligible = default_find_eligible;
 uint32 path_explorer_t::compartment_t::limit_fill_matrix = default_fill_matrix;
-uint32 path_explorer_t::compartment_t::limit_path_explore = default_path_explore;
-uint32 path_explorer_t::compartment_t::limit_ware_reroute = default_ware_reroute;
+uint32 path_explorer_t::compartment_t::limit_explore_paths = default_explore_paths;
+uint32 path_explorer_t::compartment_t::limit_reroute_goods = default_reroute_goods;
 
 uint32 path_explorer_t::compartment_t::backup_find_eligible = default_find_eligible;
 uint32 path_explorer_t::compartment_t::backup_fill_matrix = default_fill_matrix;
-uint32 path_explorer_t::compartment_t::backup_path_explore = default_path_explore;
-uint32 path_explorer_t::compartment_t::backup_ware_reroute = default_ware_reroute;
+uint32 path_explorer_t::compartment_t::backup_explore_paths = default_explore_paths;
+uint32 path_explorer_t::compartment_t::backup_reroute_goods = default_reroute_goods;
 
 uint16 path_explorer_t::compartment_t::representative_halt_count = 0;
 uint8 path_explorer_t::compartment_t::representative_category = 0;
@@ -223,7 +223,7 @@ path_explorer_t::compartment_t::compartment_t()
 	via_index = 0;
 	origin = 0;
 
-	limit_origin_explore = 0;
+	limit_explore_origins = 0;
 
 	statistic_duration = 0;
 	statistic_iteration = 0;
@@ -370,7 +370,7 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 	via_index = 0;
 	origin = 0;
 
-	limit_origin_explore = 0;
+	limit_explore_origins = 0;
 
 	statistic_duration = 0;
 	statistic_iteration = 0;
@@ -471,7 +471,7 @@ void path_explorer_t::compartment_t::step()
 		}
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Phase 2 : Construct eligible halt list which contains halts supporting current ware type. Also, update halt index map
+		// Phase 2 : Construct eligible halt list which contains halts supporting current goods type. Also, update halt index map
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case phase_find_eligible :
 		{
@@ -489,7 +489,7 @@ void path_explorer_t::compartment_t::step()
 
 			start = dr_time();	// start timing
 
-			// add halt to working halt list only if it has connexions that support this compartment's ware category
+			// add halt to working halt list only if it has connexions that support this compartment's goods category
 			while (phase_counter < all_halts_count)
 			{
 				// connexions are always rebuilt to ensure that we are working on the most up-to-date data
@@ -744,7 +744,7 @@ void path_explorer_t::compartment_t::step()
 				statistic_duration = 0;
 				statistic_iteration = 0;
 
-				current_phase = phase_path_explore;	// proceed to the next phase
+				current_phase = phase_explore_paths;	// proceed to the next phase
 				phase_counter = 0;	// reset counter
 
 #ifdef DEBUG_COMPARTMENT_STEP
@@ -762,7 +762,7 @@ void path_explorer_t::compartment_t::step()
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Phase 4 : Path exploration using the matrix.
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case phase_path_explore :
+		case phase_explore_paths :
 		{
 			step_count++;
 
@@ -778,13 +778,13 @@ void path_explorer_t::compartment_t::step()
 			// initialize only when not resuming
 			if (via_index == 0 && origin == 0)
 			{
-				if (limit_path_explore == maximum_limit)
+				if (limit_explore_paths == maximum_limit)
 				{
-					limit_origin_explore = maximum_limit;
+					limit_explore_origins = maximum_limit;
 				}
 				else
 				{
-					limit_origin_explore = limit_path_explore * time_midpoint / ( working_halt_count ? working_halt_count : 1 );
+					limit_explore_origins = limit_explore_paths * time_midpoint / ( working_halt_count ? working_halt_count : 1 );
 				}
 			}
 
@@ -822,7 +822,7 @@ void path_explorer_t::compartment_t::step()
 
 					// iteration control
 					iterations++;
-					if (iterations == limit_origin_explore)
+					if (iterations == limit_explore_origins)
 					{
 						goto loop_termination;
 					}
@@ -846,7 +846,7 @@ void path_explorer_t::compartment_t::step()
 			}
 
 #ifdef DEBUG_COMPARTMENT_STEP
-			printf("\t\t\tPath searching -> %lu iterations takes :  %lu ms \t [ %lu ] \n", iterations, diff, limit_path_explore);
+			printf("\t\t\tPath searching -> %lu iterations takes :  %lu ms \t [ %lu ] \n", iterations, diff, limit_explore_paths);
 #endif
 
 			if (via_index == transfer_count)
@@ -857,20 +857,20 @@ void path_explorer_t::compartment_t::step()
 					const uint32 average = statistic_iteration / statistic_duration;
 					if ( average > 0 )
 					{
-						if ( limit_path_explore == maximum_limit )
+						if ( limit_explore_paths == maximum_limit )
 						{
-							const uint32 percentage = average * 100 / backup_path_explore;
+							const uint32 percentage = average * 100 / backup_explore_paths;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								backup_path_explore = average;
+								backup_explore_paths = average;
 							}
 						}
 						else
 						{
-							const uint32 percentage = average * 100 / limit_path_explore;
+							const uint32 percentage = average * 100 / limit_explore_paths;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								limit_path_explore = average;
+								limit_explore_paths = average;
 							}
 						}
 					}
@@ -926,8 +926,8 @@ void path_explorer_t::compartment_t::step()
 				// Debug paths : to execute, working_halt_list should not be deleted in the previous phase
 				// enumerate_all_paths(finished_matrix, working_halt_list, finished_halt_index_map, finished_halt_count);
 
-				current_phase = phase_ware_reroute;	// proceed to the next phase
-				limit_origin_explore = 0;	// reset step limit
+				current_phase = phase_reroute_goods;	// proceed to the next phase
+				limit_explore_origins = 0;	// reset step limit
 				// reset counters
 				via_index = 0;
 				origin = 0;
@@ -943,7 +943,7 @@ void path_explorer_t::compartment_t::step()
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Phase 5 : Re-route existing goods in the halts
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case phase_ware_reroute :
+		case phase_reroute_goods :
 		{
 			step_count++;
 
@@ -957,14 +957,14 @@ void path_explorer_t::compartment_t::step()
 			{
 				if ( all_halts_list[phase_counter]->reroute_goods(catg) )
 				{
-					// only halts with relevant ware packets are counted
+					// only halts with relevant goods packets are counted
 					iterations++;
 				}
 
 				phase_counter++;
 
 				// iteration control
-				if (iterations == limit_ware_reroute)
+				if (iterations == limit_reroute_goods)
 				{
 					break;
 				}
@@ -991,20 +991,20 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( limit_ware_reroute == maximum_limit )
+						if ( limit_reroute_goods == maximum_limit )
 						{
-							const uint32 percentage = projected_iterations * 100 / backup_ware_reroute;
+							const uint32 percentage = projected_iterations * 100 / backup_reroute_goods;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								backup_ware_reroute = projected_iterations;
+								backup_reroute_goods = projected_iterations;
 							}
 						}
 						else
 						{
-							const uint32 percentage = projected_iterations * 100 / limit_ware_reroute;
+							const uint32 percentage = projected_iterations * 100 / limit_reroute_goods;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								limit_ware_reroute = projected_iterations;
+								limit_reroute_goods = projected_iterations;
 							}
 						}
 					}
