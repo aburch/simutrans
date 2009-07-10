@@ -1616,14 +1616,15 @@ const char *wkz_tunnelbau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 	grund_t *gr;
 	if(start==koord3d::invalid) {
 		gr = welt->lookup(pos);
-		if (gr && gr->is_visible() && gr->hat_wege() ) {
+		if(gr  &&  gr->is_visible() &&  gr->hat_wege()) {
 			// use the check_owner routine of wegbauer_t (not spieler_t!), needs an instance
-			wegbauer_t bauigel(welt, sp);
-			if(!bauigel.check_owner( gr->obj_bei(0)->get_besitzer(), sp )) {
-				return "Das Feld gehoert\neinem anderen Spieler\n";
-			}
-			if(gr==NULL) {
+			weg_t *w = gr->get_weg_nr(0);
+			if(  w==NULL  ||  w->get_besch()->get_wtyp()!=besch->get_waytype()  ) {
 				return "No suitable ground!";
+			}
+			wegbauer_t bauigel(welt, sp);
+			if(!bauigel.check_owner( w->get_besitzer(), sp )) {
+				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
 		}
 		else {
