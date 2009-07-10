@@ -852,7 +852,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 		// finally: empty enough
 		if(  gr1->get_grund_hang()!=gr1->get_weg_hang()  ||  gr1->get_halt().is_bound()  ||  gr1->kann_alle_obj_entfernen(sp)  ||
-			gr1->find<gebaeude_t>()  ||  gr1->get_depot()  ||  gr1->get_leitung()  ||  gr1->get_weg(air_wt)  ||  gr1->find<label_t>()  ) {
+				   gr1->find<gebaeude_t>()  ||  gr1->get_depot()  ||  gr1->get_leitung()  ||  gr1->get_weg(air_wt)  ||  gr1->find<label_t>()  ||  gr1->get_typ()==grund_t::brueckenboden) {
 			return "Tile not empty.";
 		}
 
@@ -1617,7 +1617,9 @@ const char *wkz_tunnelbau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 	if(start==koord3d::invalid) {
 		gr = welt->lookup(pos);
 		if (gr && gr->is_visible() && gr->hat_wege() ) {
-			if(!spieler_t::check_owner( gr->obj_bei(0)->get_besitzer(), sp )) {
+			// use the check_owner routine of wegbauer_t (not spieler_t!), needs an instance
+			wegbauer_t bauigel(welt, sp);
+			if(!bauigel.check_owner( gr->obj_bei(0)->get_besitzer(), sp )) {
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
 			if(gr==NULL) {
