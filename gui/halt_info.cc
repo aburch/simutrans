@@ -43,13 +43,15 @@ const char cost_type[MAX_HALT_COST][64] =
 	"hl_btn_sort_waiting",
 	"Arrived",
 	"Departed",
-	"Convoys"
+	"Convoys",
+	"Too slow"
 };
 
 const uint8 index_of_haltinfo[MAX_HALT_COST] = {
 	HALT_HAPPY,
 	HALT_UNHAPPY,
 	HALT_NOROUTE,
+	HALT_TOO_SLOW,
 	HALT_WAITING,
 	HALT_ARRIVED,
 	HALT_DEPARTED,
@@ -61,6 +63,7 @@ const int cost_type_color[MAX_HALT_COST] =
 	COL_HAPPY,
 	COL_UNHAPPY,
 	COL_NO_ROUTE,
+	COL_DARK_PURPLE,
 	COL_WAITING,
 	COL_ARRIVED,
 	COL_DEPARTED,
@@ -133,7 +136,8 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	chart.set_background(MN_GREY1);
 	chart.set_ltr(umgebung_t::other_ltr_graphs);
 
-	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
+	for (int cost = 0; cost < MAX_HALT_COST; cost++) 
+	{
 		chart.add_curve(cost_type_color[cost], halt->get_finance_history(), MAX_HALT_COST, index_of_haltinfo[cost], MAX_MONTHS, 0, false, true);
 		filterButtons[cost].init(button_t::box_state, cost_type[cost],
 			koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), 198+(BUTTON_HEIGHT+2)*(cost/4) ),

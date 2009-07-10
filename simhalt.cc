@@ -276,6 +276,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	pax_happy = 0;
 	pax_unhappy = 0;
 	pax_no_route = 0;
+	pax_too_slow = 0;
 
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
 
@@ -372,6 +373,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	pax_happy = 0;
 	pax_unhappy = 0;
 	pax_no_route = 0;
+	pax_too_slow = 0;
 	status_color = COL_YELLOW;
 
 	sortierung = freight_list_sorter_t::by_name;
@@ -994,6 +996,7 @@ void haltestelle_t::neuer_monat()
 	pax_happy = 0;
 	pax_no_route = 0;
 	pax_unhappy = 0;
+	pax_too_slow = 0;
 
 	// hsiegeln: roll financial history
 	for (int j = 0; j<MAX_HALT_COST; j++) {
@@ -2010,6 +2013,14 @@ void haltestelle_t::add_pax_no_route(int n)
 	book(n, HALT_NOROUTE);
 }
 
+// Found a route, but too slow.
+// @author: jamespetts
+
+void haltestelle_t::add_pax_too_slow(int n)
+{
+	pax_too_slow += n;
+	book(n, HALT_TOO_SLOW);
+}
 
 
 /**
@@ -2543,12 +2554,13 @@ void haltestelle_t::info(cbuffer_t & buf) const
 	char tmp [512];
 
 	sprintf(tmp,
-		translator::translate("Passengers %d %c, %d %c, %d no route"),
+		translator::translate("Passengers %d %c, %d %c, %d no route, %d too slow"),
 		pax_happy,
 		30,
 		pax_unhappy,
 		31,
-		pax_no_route
+		pax_no_route,
+		pax_too_slow
 		);
 	buf.append(tmp);
 }
@@ -2993,9 +3005,29 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	}
 
-	for (int j = 0; j<MAX_HALT_COST; j++) {
-		for (int k = MAX_MONTHS-1; k>=0; k--) {
-			file->rdwr_longlong(financial_history[k][j], " ");
+	if(file->get_experimental_version() >= 5)
+	{
+		for (int j = 0; j < MAX_HALT_COST; j++) 
+		{
+			for (int k = MAX_MONTHS		- 1; k >= 0; k--) 
+			{
+				file->rdwr_longlong(financial_history[k][j], " ");
+			}
+		}
+	}
+	else
+	{
+		// Earlier versions did not have pax_too_slow
+		for (int j = 0; j < MAX_HALT_COST - 1; j++) 
+		{
+			for (int k = MAX_MONTHS - 1; k >= 0; k--) 
+			{
+				file->rdwr_longlong(financial_history[k][j], " ");
+			}
+		}
+		for (int k = MAX_MONTHS - 1; k >= 0; k--) 
+		{
+			financial_history[k][HALT_TOO_SLOW] = 0;
 		}
 	}
 
@@ -3193,6 +3225,7 @@ void haltestelle_t::init_financial_history()
 	financial_history[0][HALT_HAPPY] = pax_happy;
 	financial_history[0][HALT_UNHAPPY] = pax_unhappy;
 	financial_history[0][HALT_NOROUTE] = pax_no_route;
+	financial_history[0][HALT_TOO_SLOW] = pax_too_slow;
 }
 
 

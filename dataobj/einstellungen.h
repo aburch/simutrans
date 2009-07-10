@@ -275,6 +275,15 @@ private:
 	// 1 = performance counter functions
 	uint8 system_time_option;
 
+	// The ranges for the journey time tolerance for passengers.
+	// @author: jamespetts
+	uint16 min_local_tolerance;
+	uint16 max_local_tolerance;
+	uint16 min_midrange_tolerance;
+	uint16 max_midrange_tolerance;
+	uint16 min_longdistance_tolerance;
+	uint16 max_longdistance_tolerance;
+
 
 public:
 	/* the big cost section */
@@ -565,6 +574,14 @@ public:
 	// Added by : Knightly
 	inline uint8 get_system_time_option() const { return system_time_option; }
 	inline void set_system_time_option(const uint8 value) { system_time_option = value; }
+
+	// @author: jamespetts
+	uint16 get_min_local_tolerance() const { return min_local_tolerance; }
+	uint16 get_max_local_tolerance() const { return max_local_tolerance; }
+	uint16 get_min_midrange_tolerance() const { return min_midrange_tolerance; }
+	uint16 get_max_midrange_tolerance() const { return max_midrange_tolerance; }
+	uint16 get_min_longdistance_tolerance() const { return min_longdistance_tolerance; }
+	uint16 get_max_longdistance_tolerance() const { return max_longdistance_tolerance; }
 };
 
 #endif

@@ -334,6 +334,20 @@ einstellungen_t::einstellungen_t() :
 
 	// The default is using multimedia timer functions.
 	system_time_option = 0;
+
+	// The defaults for journey time tolerance.
+	// Applies to passengers only.
+	// NOTE: The *maximum* numbers need to be 
+	// added to the minimum numbers to produce
+	// the true maximum.
+	// @author: jamespetts
+
+	min_local_tolerance = 45; // 3/4 of an hour.
+	max_local_tolerance = 60 - min_local_tolerance; // One hour
+	min_midrange_tolerance = 60;
+	max_midrange_tolerance = 180 - min_midrange_tolerance; //: Three hours
+	min_longdistance_tolerance = 180;
+	max_longdistance_tolerance = 330 - min_longdistance_tolerance; // Five and a half hours
 }
 
 
@@ -806,6 +820,16 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		{
 			file->rdwr_byte(default_path_option, "");
 		}
+
+		if(file->get_experimental_version() >= 5)
+		{
+			file->rdwr_short(min_local_tolerance, "");
+			file->rdwr_short(max_local_tolerance, "");
+			file->rdwr_short(min_midrange_tolerance, "");
+			file->rdwr_short(max_midrange_tolerance, "");
+			file->rdwr_short(min_longdistance_tolerance, "");
+			file->rdwr_short(max_longdistance_tolerance, "");
+		}
 	}
 }
 
@@ -1124,6 +1148,14 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	{
 		system_time_option = 1;
 	}
+
+	//@author: jamespetts
+	min_local_tolerance = contents.get_int("min_local_tolerance", min_local_tolerance);
+	max_local_tolerance = contents.get_int("max_local_tolerance", max_local_tolerance) - min_local_tolerance;
+	min_midrange_tolerance = contents.get_int("min_midrange_tolerance", min_midrange_tolerance);
+	max_midrange_tolerance = contents.get_int("max_midrange_tolerance", max_midrange_tolerance) - min_midrange_tolerance;
+	min_longdistance_tolerance = contents.get_int("min_longdistance_tolerance", min_longdistance_tolerance);
+	max_longdistance_tolerance = contents.get_int("max_longdistance_tolerance", max_longdistance_tolerance) - min_longdistance_tolerance;
 
 	/*
 	 * Selection of savegame format through inifile

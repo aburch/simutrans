@@ -111,8 +111,8 @@ bool umgebung_t::shuffle_midi = true;
 
 bool umgebung_t::hilly = false;
 
-bool umgebung_t::finance_ltr_graphs = false;
-bool umgebung_t::other_ltr_graphs = false;
+bool umgebung_t::finance_ltr_graphs = true;
+bool umgebung_t::other_ltr_graphs = true;
 
 
 // default settings for new games

@@ -1145,8 +1145,9 @@ const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					return "";
 				}
 			}
+			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
-	return "Das Feld gehoert\neinem anderen Spieler\n";
+	return "Cannot set marker here.\n";
 	}
 }
 

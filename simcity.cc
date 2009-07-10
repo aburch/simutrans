@@ -1868,6 +1868,9 @@ void stadt_t::step_passagiere()
 	//Only continue if there are suitable start halts nearby, or the passengers have their own car.
 	if(start_halts.get_count() > 0 || has_private_car)
 	{
+		// Journey time tolerance. 0 = infinite. Default for mail.
+		uint16 tolerance = 0;
+
 		const uint8 passenger_routing_longdistance_chance = 100 - (passenger_routing_local_chance + passenger_routing_midrange_chance);
 		//Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations
 		
@@ -1909,6 +1912,10 @@ void stadt_t::step_passagiere()
 				if(passenger_routing_choice <= passenger_routing_local_chance)
 				{
 					//Local - a designated proportion will automatically go to destinations within the town.
+					if(wtyp == warenbauer_t::passagiere)
+					{
+						tolerance = simrand(welt->get_einstellungen()->get_max_local_tolerance()) + welt->get_einstellungen()->get_min_local_tolerance();
+					}
 					if((float)passenger_routing_choice <= adjusted_passenger_routing_local_chance)
 					{
 						// Will always be a destination in the current town.
@@ -1924,12 +1931,20 @@ void stadt_t::step_passagiere()
 				else if(passenger_routing_choice <= (passenger_routing_local_chance + passenger_routing_midrange_chance))
 				{
 					//Medium
-					  destinations[destinations_assigned] = finde_passagier_ziel(&will_return, midrange_passengers_min_distance, midrange_passengers_max_distance);
+					if(wtyp == warenbauer_t::passagiere)
+					{
+						tolerance = simrand(welt->get_einstellungen()->get_max_midrange_tolerance()) + welt->get_einstellungen()->get_min_midrange_tolerance();
+					}
+					destinations[destinations_assigned] = finde_passagier_ziel(&will_return, midrange_passengers_min_distance, midrange_passengers_max_distance);
 				}
 				else
 				//else if(passenger_routing_choice >= (100 - passenger_routing_longdistance_chance))
 				{
 					//Long distance
+					if(wtyp == warenbauer_t::passagiere)
+					{
+						tolerance = simrand(welt->get_einstellungen()->get_max_longdistance_tolerance()) + welt->get_einstellungen()->get_min_longdistance_tolerance();
+					}
 					destinations[destinations_assigned] = finde_passagier_ziel(&will_return, longdistance_passengers_min_distance, longdistance_passengers_max_distance);  //"Ziel" = "target" (Google)
 				}
 			}
@@ -2022,14 +2037,20 @@ walk:
 				}
 				
 				delete destination_list;
+
+				// Check first whether the best route is outside
+				// the passengers' tolerance.
+
+				if(route_good && tolerance > 0 && best_journey_time > tolerance)
+				{
+					//TODO: Add recording for excessive journey times.
+				}
 				
 				if(route_good)
 				{
-
 					pax.arrival_time = welt->get_zeit_ms();
 
 					// All passengers will use the quickest route.
-					// TODO: Consider whether to randomise a little.
 					start_halt = start_halts[best_start_halt];
 
 					if(start_halt == pax.get_ziel())
