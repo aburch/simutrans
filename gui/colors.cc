@@ -65,7 +65,7 @@
 
 #define CENTRALIZED_SEARCH				(22*13+6+5*4)
 #define USE_PERFORMANCE_COUNTER			(23*13+6+5*4)
-#define PHASE_SORT_ELIGIBLE				(24*13+6+5*4)
+#define PHASE_FIND_ELIGIBLE				(24*13+6+5*4)
 #define PHASE_FILL_MATRIX				(25*13+6+5*4)
 #define PHASE_PATH_EXPLORE				(26*13+6+5*4)
 #define PHASE_WARE_REROUTE				(27*13+6+5*4)
@@ -403,8 +403,8 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	}
 
 
-	len = 15+display_proportional_clip(x+10, y+PHASE_SORT_ELIGIBLE, translator::translate("Sort eligible halts :"), ALIGN_LEFT, text_colour, true);
-	display_proportional_clip(x+len, y+PHASE_SORT_ELIGIBLE, ntos(path_explorer_t::get_limit_sort_eligible(), "%lu"), ALIGN_LEFT, figure_colour, true);
+	len = 15+display_proportional_clip(x+10, y+PHASE_FIND_ELIGIBLE, translator::translate("Find eligible halts :"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PHASE_FIND_ELIGIBLE, ntos(path_explorer_t::get_limit_find_eligible(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
 	len = 15+display_proportional_clip(x+10, y+PHASE_FILL_MATRIX, translator::translate("Fill path matrix :"), ALIGN_LEFT, text_colour, true);
 	display_proportional_clip(x+len, y+PHASE_FILL_MATRIX, ntos(path_explorer_t::get_limit_fill_matrix(), "%lu"), ALIGN_LEFT, figure_colour, true);
