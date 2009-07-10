@@ -59,6 +59,7 @@ static HINSTANCE hInstance;
 
 static BITMAPINFOHEADER *AllDib = NULL;
 static unsigned short *AllDibData = NULL;
+static LONGLONG HPcps = 0;	// High performance counter ticks
 
 volatile HDC hdc = NULL;
 
@@ -713,7 +714,14 @@ void ex_ord_update_mx_my()
 
 unsigned long dr_time(void)
 {
-	return timeGetTime();
+	if(  HPcps!=0  ) {
+		LARGE_INTEGER lpTime;
+		QueryPerformanceCounter( &lpTime );
+		return (unsigned long)((lpTime.QuadPart*1000)/HPcps);
+	}
+	else {
+		return timeGetTime();
+	}
 }
 
 
@@ -770,6 +778,14 @@ BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	argv[argc] = NULL;
 
 	GetWindowRect(GetDesktopWindow(), &MaxSize);
+
+	// get high resolution timer services, since Win2k and up may have only 5ms resolution!
+	{
+		LARGE_INTEGER lpTime;
+		if(  QueryPerformanceFrequency( &lpTime )  ) {
+			HPcps = lpTime.QuadPart;
+		}
+	}
 
 	simu_main(argc, argv);
 
