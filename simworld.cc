@@ -1593,7 +1593,12 @@ bool karte_t::can_lower_plan_to(sint16 x, sint16 y, sint16 h) const
 	}
 
 	int hmax = plan->get_kartenboden()->get_hoehe();
-	// irgendwo ein Tunnel vergraben?
+	// tunnel slope below?
+	grund_t *gr = plan->get_boden_in_hoehe(h-Z_TILE_STEP);
+	if (gr && gr->get_grund_hang()!=hang_t::flach) {
+		return false;
+	}
+	// tunnel below?
 	while(h < hmax) {
 		if(plan->get_boden_in_hoehe(h)) {
 			return false;
