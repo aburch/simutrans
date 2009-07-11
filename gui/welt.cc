@@ -179,6 +179,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	intTopOfButton += 5;
 	use_intro_dates.set_pos( koord(10,intTopOfButton) );
 	use_intro_dates.set_typ( button_t::square_state );
+	sets->set_use_timeline(1);
 	use_intro_dates.pressed = sets->get_use_timeline()&1;
 	use_intro_dates.add_listener( this );
 	add_komponente( &use_intro_dates );
